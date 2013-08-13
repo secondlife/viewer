@@ -1948,12 +1948,12 @@ void LLDrawPoolAvatar::addRiggedFace(LLFace* facep, U32 type)
 {
 	if (type >= NUM_RIGGED_PASSES)
 	{
-		llerrs << "Invalid rigged face type." << llendl;
+		LL_ERRS() << "Invalid rigged face type." << LL_ENDL;
 	}
 
 	if (facep->getRiggedIndex(type) != -1)
 	{
-		llerrs << "Tried to add a rigged face that's referenced elsewhere." << llendl;
+		LL_ERRS() << "Tried to add a rigged face that's referenced elsewhere." << LL_ENDL;
 	}	
 	
 	facep->setRiggedIndex(type, mRiggedFace[type].size());
@@ -1982,7 +1982,7 @@ void LLDrawPoolAvatar::removeRiggedFace(LLFace* facep)
 			}
 			else
 			{
-				llerrs << "Face reference data corrupt for rigged type " << i << llendl;
+				LL_ERRS() << "Face reference data corrupt for rigged type " << i << LL_ENDL;
 			}
 		}
 	}

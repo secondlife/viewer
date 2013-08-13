@@ -118,7 +118,7 @@ S32 LLXfer_VFile::initializeRequest(U64 xfer_id,
 
 	mName = llformat("VFile %s:%s", id_string.c_str(), LLAssetType::lookup(mType));
 
-	llinfos << "Requesting " << mName << llendl;
+	LL_INFOS() << "Requesting " << mName << LL_ENDL;
 
 	if (mBuffer)
 	{
@@ -236,8 +236,8 @@ S32 LLXfer_VFile::suck(S32 start_position)
 		// grab a buffer from the right place in the file
 		if (! mVFile->seek(start_position, 0))
 		{
-			llwarns << "VFile Xfer Can't seek to position " << start_position << ", file length " << mVFile->getSize() << llendl;
-			llwarns << "While sending file " << mLocalID << llendl;
+			LL_WARNS() << "VFile Xfer Can't seek to position " << start_position << ", file length " << mVFile->getSize() << LL_ENDL;
+			LL_WARNS() << "While sending file " << mLocalID << LL_ENDL;
 			return -1;
 		}
 		
@@ -291,7 +291,7 @@ S32 LLXfer_VFile::processEOF()
 		LLVFile file(mVFS, mTempID, mType, LLVFile::WRITE);
 		if (! file.rename(mLocalID, mType))
 		{
-			llinfos << "copy from temp file failed: unable to rename to " << mLocalID << llendl;
+			LL_INFOS() << "copy from temp file failed: unable to rename to " << mLocalID << LL_ENDL;
 		}
 
 	}

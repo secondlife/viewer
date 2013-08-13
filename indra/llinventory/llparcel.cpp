@@ -581,8 +581,8 @@ BOOL LLParcel::importAccessEntry(std::istream& input_stream, LLAccessEntry* entr
         }
         else
         {
-            llwarns << "Unknown keyword in parcel access entry section: <" 
-            << keyword << ">" << llendl;
+            LL_WARNS() << "Unknown keyword in parcel access entry section: <" 
+            << keyword << ">" << LL_ENDL;
         }
     }
     return input_stream.good();
@@ -1207,9 +1207,9 @@ void LLParcel::clearParcel()
 
 void LLParcel::dump()
 {
-    llinfos << "parcel " << mLocalID << " area " << mArea << llendl;
-    llinfos << "	 name <" << mName << ">" << llendl;
-    llinfos << "	 desc <" << mDesc << ">" << llendl;
+    LL_INFOS() << "parcel " << mLocalID << " area " << mArea << LL_ENDL;
+    LL_INFOS() << "	 name <" << mName << ">" << LL_ENDL;
+    LL_INFOS() << "	 desc <" << mDesc << ">" << LL_ENDL;
 }
 
 const std::string& ownership_status_to_string(LLParcel::EOwnershipStatus status)
@@ -1289,7 +1289,7 @@ LLParcel::ECategory category_string_to_category(const std::string& s)
             return (LLParcel::ECategory)i;
         }
     }
-    llwarns << "Parcel category outside of possibilities " << s << llendl;
+    LL_WARNS() << "Parcel category outside of possibilities " << s << LL_ENDL;
     return LLParcel::C_NONE;
 }
 

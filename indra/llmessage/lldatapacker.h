@@ -200,8 +200,8 @@ inline BOOL LLDataPackerBinaryBuffer::verifyLength(const S32 data_size, const ch
 {
 	if (mWriteEnabled && (mCurBufferp - mBufferp) > mBufferSize - data_size)
 	{
-		llwarns << "Buffer overflow in BinaryBuffer length verify, field name " << name << "!" << llendl;
-		llwarns << "Current pos: " << (int)(mCurBufferp - mBufferp) << " Buffer size: " << mBufferSize << " Data size: " << data_size << llendl;
+		LL_WARNS() << "Buffer overflow in BinaryBuffer length verify, field name " << name << "!" << LL_ENDL;
+		LL_WARNS() << "Current pos: " << (int)(mCurBufferp - mBufferp) << " Buffer size: " << mBufferSize << " Data size: " << data_size << LL_ENDL;
 		return FALSE;
 	}
 
@@ -321,8 +321,8 @@ inline BOOL LLDataPackerAsciiBuffer::verifyLength(const S32 data_size, const cha
 {
 	if (mWriteEnabled && (mCurBufferp - mBufferp) > mBufferSize - data_size)
 	{
-		llwarns << "Buffer overflow in AsciiBuffer length verify, field name " << name << "!" << llendl;
-		llwarns << "Current pos: " << (int)(mCurBufferp - mBufferp) << " Buffer size: " << mBufferSize << " Data size: " << data_size << llendl;
+		LL_WARNS() << "Buffer overflow in AsciiBuffer length verify, field name " << name << "!" << LL_ENDL;
+		LL_WARNS() << "Current pos: " << (int)(mCurBufferp - mBufferp) << " Buffer size: " << mBufferSize << " Data size: " << data_size << LL_ENDL;
 		return FALSE;
 	}
 

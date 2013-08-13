@@ -89,6 +89,9 @@ public:
 	/*virtual*/ LLRect getRequiredRect();	// Return the height of this object, given the set options.
 
 private:
+	void drawLabelAndValue( F32 mean, std::string &unit_label, LLRect &bar_rect );
+	void drawTicks( F32 min, F32 max, F32 value_scale, LLRect &bar_rect );
+
 	F32          mMinBar,
 				 mMaxBar,
 				 mCurMaxBar,
@@ -104,10 +107,12 @@ private:
 				 mAutoScaleMax,
 				 mAutoScaleMin;
 	EOrientation mOrientation;
+	F32			 mLastDisplayValue;
+	LLFrameTimer mLastDisplayValueTimer;
 
-	LLTrace::TraceType<LLTrace::CountAccumulator>*		mCountFloatp;
-	LLTrace::TraceType<LLTrace::EventAccumulator>*		mEventFloatp;
-	LLTrace::TraceType<LLTrace::SampleAccumulator>*		mSampleFloatp;
+	const LLTrace::TraceType<LLTrace::CountAccumulator>*		mCountFloatp;
+	const LLTrace::TraceType<LLTrace::EventAccumulator>*		mEventFloatp;
+	const LLTrace::TraceType<LLTrace::SampleAccumulator>*		mSampleFloatp;
 
 	LLUIString   mLabel;
 	std::string  mUnitLabel;

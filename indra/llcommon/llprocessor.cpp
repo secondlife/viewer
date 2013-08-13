@@ -700,7 +700,7 @@ private:
 		__cpuid(0x1, eax, ebx, ecx, edx);
 		if(feature_infos[0] != (S32)edx)
 		{
-			llerrs << "machdep.cpu.feature_bits doesn't match expected cpuid result!" << llendl;
+			LL_ERRS() << "machdep.cpu.feature_bits doesn't match expected cpuid result!" << LL_ENDL;
 		} 
 #endif // LL_RELEASE_FOR_DOWNLOAD 	
 

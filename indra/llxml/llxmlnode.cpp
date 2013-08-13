@@ -388,7 +388,7 @@ void XMLCALL StartXMLNode(void *userData,
 
 	if (NULL == parent)
 	{
-		llwarns << "parent (userData) is NULL; aborting function" << llendl;
+		LL_WARNS() << "parent (userData) is NULL; aborting function" << LL_ENDL;
 		return;
 	}
 
@@ -576,7 +576,7 @@ bool LLXMLNode::updateNode(
 
 	if (!node || !update_node)
 	{
-		llwarns << "Node invalid" << llendl;
+		LL_WARNS() << "Node invalid" << LL_ENDL;
 		return FALSE;
 	}
 
@@ -700,10 +700,10 @@ bool LLXMLNode::parseBuffer(
 	// Do the parsing
 	if (XML_Parse(my_parser, (const char *)buffer, length, TRUE) != XML_STATUS_OK)
 	{
-		llwarns << "Error parsing xml error code: "
+		LL_WARNS() << "Error parsing xml error code: "
 				<< XML_ErrorString(XML_GetErrorCode(my_parser))
 				<< " on line " << XML_GetCurrentLineNumber(my_parser)
-				<< llendl;
+				<< LL_ENDL;
 	}
 
 	// Deinit
@@ -711,8 +711,8 @@ bool LLXMLNode::parseBuffer(
 
 	if (!file_node->mChildren || file_node->mChildren->map.size() != 1)
 	{
-		llwarns << "Parse failure - wrong number of top-level nodes xml."
-				<< llendl;
+		LL_WARNS() << "Parse failure - wrong number of top-level nodes xml."
+				<< LL_ENDL;
 		node = NULL ;
 		return false;
 	}
@@ -755,10 +755,10 @@ bool LLXMLNode::parseStream(
 		
 		if (XML_Parse(my_parser, (const char *)buffer, count, !str.good()) != XML_STATUS_OK)
 		{
-			llwarns << "Error parsing xml error code: "
+			LL_WARNS() << "Error parsing xml error code: "
 					<< XML_ErrorString(XML_GetErrorCode(my_parser))
 					<< " on lne " << XML_GetCurrentLineNumber(my_parser)
-					<< llendl;
+					<< LL_ENDL;
 			break;
 		}
 	}
@@ -770,8 +770,8 @@ bool LLXMLNode::parseStream(
 
 	if (!file_node->mChildren || file_node->mChildren->map.size() != 1)
 	{
-		llwarns << "Parse failure - wrong number of top-level nodes xml."
-				<< llendl;
+		LL_WARNS() << "Parse failure - wrong number of top-level nodes xml."
+				<< LL_ENDL;
 		node = NULL;
 		return false;
 	}
@@ -839,7 +839,7 @@ bool LLXMLNode::getLayeredXMLNode(LLXMLNodePtr& root,
 	
 	if (!LLXMLNode::parseFile(filename, root, NULL))
 	{
-		llwarns << "Problem reading UI description file: " << filename << llendl;
+		LL_WARNS() << "Problem reading UI description file: " << filename << LL_ENDL;
 		return false;
 	}
 
@@ -859,7 +859,7 @@ bool LLXMLNode::getLayeredXMLNode(LLXMLNodePtr& root,
 
 		if (!LLXMLNode::parseFile(layer_filename, updateRoot, NULL))
 		{
-			llwarns << "Problem reading localized UI description file: " << layer_filename << llendl;
+			LL_WARNS() << "Problem reading localized UI description file: " << layer_filename << LL_ENDL;
 			return false;
 		}
 
@@ -898,7 +898,7 @@ void LLXMLNode::writeToFile(LLFILE *out_file, const std::string& indent, bool us
 	size_t written = fwrite(outstring.c_str(), 1, outstring.length(), out_file);
 	if (written != outstring.length())
 	{
-		llwarns << "Short write" << llendl;
+		LL_WARNS() << "Short write" << LL_ENDL;
 	}
 }
 
@@ -1735,9 +1735,9 @@ U32 LLXMLNode::getBoolValue(U32 expected_length, BOOL *array)
 #if LL_DEBUG
 	if (ret_length != expected_length)
 	{
-		lldebugs << "LLXMLNode::getBoolValue() failed for node named '" 
+		LL_DEBUGS() << "LLXMLNode::getBoolValue() failed for node named '" 
 			<< mName->mString << "' -- expected " << expected_length << " but "
-			<< "only found " << ret_length << llendl;
+			<< "only found " << ret_length << LL_ENDL;
 	}
 #endif
 	return ret_length;
@@ -1756,8 +1756,8 @@ U32 LLXMLNode::getByteValue(U32 expected_length, U8 *array, Encoding encoding)
 
 	if (mLength > 0 && mLength != expected_length)
 	{
-		llwarns << "XMLNode::getByteValue asked for " << expected_length 
-			<< " elements, while node has " << mLength << llendl;
+		LL_WARNS() << "XMLNode::getByteValue asked for " << expected_length 
+			<< " elements, while node has " << mLength << LL_ENDL;
 		return 0;
 	}
 
@@ -1780,7 +1780,7 @@ U32 LLXMLNode::getByteValue(U32 expected_length, U8 *array, Encoding encoding)
 		}
 		if (value > 255 || is_negative)
 		{
-			llwarns << "getByteValue: Value outside of valid range." << llendl;
+			LL_WARNS() << "getByteValue: Value outside of valid range." << LL_ENDL;
 			break;
 		}
 		array[i] = U8(value);
@@ -1788,9 +1788,9 @@ U32 LLXMLNode::getByteValue(U32 expected_length, U8 *array, Encoding encoding)
 #if LL_DEBUG
 	if (i != expected_length)
 	{
-		lldebugs << "LLXMLNode::getByteValue() failed for node named '" 
+		LL_DEBUGS() << "LLXMLNode::getByteValue() failed for node named '" 
 			<< mName->mString << "' -- expected " << expected_length << " but "
-			<< "only found " << i << llendl;
+			<< "only found " << i << LL_ENDL;
 	}
 #endif
 	return i;
@@ -1808,8 +1808,8 @@ U32 LLXMLNode::getIntValue(U32 expected_length, S32 *array, Encoding encoding)
 
 	if (mLength > 0 && mLength != expected_length)
 	{
-		llwarns << "XMLNode::getIntValue asked for " << expected_length 
-			<< " elements, while node has " << mLength << llendl;
+		LL_WARNS() << "XMLNode::getIntValue asked for " << expected_length 
+			<< " elements, while node has " << mLength << LL_ENDL;
 		return 0;
 	}
 
@@ -1832,7 +1832,7 @@ U32 LLXMLNode::getIntValue(U32 expected_length, S32 *array, Encoding encoding)
 		}
 		if (value > 0x7fffffff)
 		{
-			llwarns << "getIntValue: Value outside of valid range." << llendl;
+			LL_WARNS() << "getIntValue: Value outside of valid range." << LL_ENDL;
 			break;
 		}
 		array[i] = S32(value) * (is_negative?-1:1);
@@ -1841,9 +1841,9 @@ U32 LLXMLNode::getIntValue(U32 expected_length, S32 *array, Encoding encoding)
 #if LL_DEBUG
 	if (i != expected_length)
 	{
-		lldebugs << "LLXMLNode::getIntValue() failed for node named '" 
+		LL_DEBUGS() << "LLXMLNode::getIntValue() failed for node named '" 
 			<< mName->mString << "' -- expected " << expected_length << " but "
-			<< "only found " << i << llendl;
+			<< "only found " << i << LL_ENDL;
 	}
 #endif
 	return i;
@@ -1861,8 +1861,8 @@ U32 LLXMLNode::getUnsignedValue(U32 expected_length, U32 *array, Encoding encodi
 
 	if (mLength > 0 && mLength != expected_length)
 	{
-		llwarns << "XMLNode::getUnsignedValue asked for " << expected_length 
-			<< " elements, while node has " << mLength << llendl;
+		LL_WARNS() << "XMLNode::getUnsignedValue asked for " << expected_length 
+			<< " elements, while node has " << mLength << LL_ENDL;
 		return 0;
 	}
 
@@ -1886,7 +1886,7 @@ U32 LLXMLNode::getUnsignedValue(U32 expected_length, U32 *array, Encoding encodi
 		}
 		if (is_negative || value > 0xffffffff)
 		{
-			llwarns << "getUnsignedValue: Value outside of valid range." << llendl;
+			LL_WARNS() << "getUnsignedValue: Value outside of valid range." << LL_ENDL;
 			break;
 		}
 		array[i] = U32(value);
@@ -1895,9 +1895,9 @@ U32 LLXMLNode::getUnsignedValue(U32 expected_length, U32 *array, Encoding encodi
 #if LL_DEBUG
 	if (i != expected_length)
 	{
-		lldebugs << "LLXMLNode::getUnsignedValue() failed for node named '" 
+		LL_DEBUGS() << "LLXMLNode::getUnsignedValue() failed for node named '" 
 			<< mName->mString << "' -- expected " << expected_length << " but "
-			<< "only found " << i << llendl;
+			<< "only found " << i << LL_ENDL;
 	}
 #endif
 
@@ -1916,7 +1916,7 @@ U32 LLXMLNode::getLongValue(U32 expected_length, U64 *array, Encoding encoding)
 
 	if (mLength > 0 && mLength != expected_length)
 	{
-		llwarns << "XMLNode::getLongValue asked for " << expected_length << " elements, while node has " << mLength << llendl;
+		LL_WARNS() << "XMLNode::getLongValue asked for " << expected_length << " elements, while node has " << mLength << LL_ENDL;
 		return 0;
 	}
 
@@ -1940,7 +1940,7 @@ U32 LLXMLNode::getLongValue(U32 expected_length, U64 *array, Encoding encoding)
 		}
 		if (is_negative)
 		{
-			llwarns << "getLongValue: Value outside of valid range." << llendl;
+			LL_WARNS() << "getLongValue: Value outside of valid range." << LL_ENDL;
 			break;
 		}
 		array[i] = value;
@@ -1949,9 +1949,9 @@ U32 LLXMLNode::getLongValue(U32 expected_length, U64 *array, Encoding encoding)
 #if LL_DEBUG
 	if (i != expected_length)
 	{
-		lldebugs << "LLXMLNode::getLongValue() failed for node named '" 
+		LL_DEBUGS() << "LLXMLNode::getLongValue() failed for node named '" 
 			<< mName->mString << "' -- expected " << expected_length << " but "
-			<< "only found " << i << llendl;
+			<< "only found " << i << LL_ENDL;
 	}
 #endif
 
@@ -1970,7 +1970,7 @@ U32 LLXMLNode::getFloatValue(U32 expected_length, F32 *array, Encoding encoding)
 
 	if (mLength > 0 && mLength != expected_length)
 	{
-		llwarns << "XMLNode::getFloatValue asked for " << expected_length << " elements, while node has " << mLength << llendl;
+		LL_WARNS() << "XMLNode::getFloatValue asked for " << expected_length << " elements, while node has " << mLength << LL_ENDL;
 		return 0;
 	}
 
@@ -1995,9 +1995,9 @@ U32 LLXMLNode::getFloatValue(U32 expected_length, F32 *array, Encoding encoding)
 #if LL_DEBUG
 	if (i != expected_length)
 	{
-		lldebugs << "LLXMLNode::getFloatValue() failed for node named '" 
+		LL_DEBUGS() << "LLXMLNode::getFloatValue() failed for node named '" 
 			<< mName->mString << "' -- expected " << expected_length << " but "
-			<< "only found " << i << llendl;
+			<< "only found " << i << LL_ENDL;
 	}
 #endif
 	return i;
@@ -2015,7 +2015,7 @@ U32 LLXMLNode::getDoubleValue(U32 expected_length, F64 *array, Encoding encoding
 
 	if (mLength > 0 && mLength != expected_length)
 	{
-		llwarns << "XMLNode::getDoubleValue asked for " << expected_length << " elements, while node has " << mLength << llendl;
+		LL_WARNS() << "XMLNode::getDoubleValue asked for " << expected_length << " elements, while node has " << mLength << LL_ENDL;
 		return 0;
 	}
 
@@ -2040,9 +2040,9 @@ U32 LLXMLNode::getDoubleValue(U32 expected_length, F64 *array, Encoding encoding
 #if LL_DEBUG
 	if (i != expected_length)
 	{
-		lldebugs << "LLXMLNode::getDoubleValue() failed for node named '" 
+		LL_DEBUGS() << "LLXMLNode::getDoubleValue() failed for node named '" 
 			<< mName->mString << "' -- expected " << expected_length << " but "
-			<< "only found " << i << llendl;
+			<< "only found " << i << LL_ENDL;
 	}
 #endif
 	return i;
@@ -2056,7 +2056,7 @@ U32 LLXMLNode::getStringValue(U32 expected_length, std::string *array)
 
 	if (mLength > 0 && mLength != expected_length)
 	{
-		llwarns << "XMLNode::getStringValue asked for " << expected_length << " elements, while node has " << mLength << llendl;
+		LL_WARNS() << "XMLNode::getStringValue asked for " << expected_length << " elements, while node has " << mLength << LL_ENDL;
 		return 0;
 	}
 
@@ -2088,9 +2088,9 @@ U32 LLXMLNode::getStringValue(U32 expected_length, std::string *array)
 #if LL_DEBUG
 	if (num_returned_strings != expected_length)
 	{
-		lldebugs << "LLXMLNode::getStringValue() failed for node named '" 
+		LL_DEBUGS() << "LLXMLNode::getStringValue() failed for node named '" 
 			<< mName->mString << "' -- expected " << expected_length << " but "
-			<< "only found " << num_returned_strings << llendl;
+			<< "only found " << num_returned_strings << LL_ENDL;
 	}
 #endif
 
@@ -2133,9 +2133,9 @@ U32 LLXMLNode::getUUIDValue(U32 expected_length, LLUUID *array)
 #if LL_DEBUG
 	if (i != expected_length)
 	{
-		lldebugs << "LLXMLNode::getUUIDValue() failed for node named '" 
+		LL_DEBUGS() << "LLXMLNode::getUUIDValue() failed for node named '" 
 			<< mName->mString << "' -- expected " << expected_length << " but "
-			<< "only found " << i << llendl;
+			<< "only found " << i << LL_ENDL;
 	}
 #endif
 	return i;
@@ -2164,11 +2164,11 @@ U32 LLXMLNode::getNodeRefValue(U32 expected_length, LLXMLNode **array)
 		root->findID(string_array[strnum], node_list);
 		if (node_list.empty())
 		{
-			llwarns << "XML: Could not find node ID: " << string_array[strnum] << llendl;
+			LL_WARNS() << "XML: Could not find node ID: " << string_array[strnum] << LL_ENDL;
 		}
 		else if (node_list.size() > 1)
 		{
-			llwarns << "XML: Node ID not unique: " << string_array[strnum] << llendl;
+			LL_WARNS() << "XML: Node ID not unique: " << string_array[strnum] << LL_ENDL;
 		}
 		else
 		{

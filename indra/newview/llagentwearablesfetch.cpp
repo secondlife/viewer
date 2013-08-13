@@ -39,7 +39,7 @@ void order_my_outfits_cb()
 	{
 		if (!LLApp::isRunning())
 		{
-			llwarns << "called during shutdown, skipping" << llendl;
+			LL_WARNS() << "called during shutdown, skipping" << LL_ENDL;
 			return;
 		}
 		
@@ -58,7 +58,7 @@ void order_my_outfits_cb()
 			return;
 		}
 
-		llinfos << "Starting updating My Outfits with wearables ordering information" << llendl;
+		LL_INFOS() << "Starting updating My Outfits with wearables ordering information" << LL_ENDL;
 
 		for (LLInventoryModel::cat_array_t::iterator outfit_iter = cats->begin();
 			outfit_iter != cats->end(); ++outfit_iter)
@@ -72,7 +72,7 @@ void order_my_outfits_cb()
 			LLAppearanceMgr::getInstance()->updateClothingOrderingInfo(cat_id);
 		}
 
-		llinfos << "Finished updating My Outfits with wearables ordering information" << llendl;
+		LL_INFOS() << "Finished updating My Outfits with wearables ordering information" << LL_ENDL;
 	}
 
 LLInitialWearablesFetch::LLInitialWearablesFetch(const LLUUID& cof_id) :
@@ -165,7 +165,7 @@ public:
 			LLViewerInventoryItem *item = gInventory.getItem(*it);
 			if (!item)
 			{
-				llwarns << "fetch failed!" << llendl;
+				LL_WARNS() << "fetch failed!" << LL_ENDL;
 				continue;
 			}
 
@@ -197,8 +197,8 @@ void LLInitialWearablesFetch::processWearablesMessage()
 			}
 			else
 			{
-				llinfos << "Invalid wearable, type " << wearable_data->mType << " itemID "
-				<< wearable_data->mItemID << " assetID " << wearable_data->mAssetID << llendl;
+				LL_INFOS() << "Invalid wearable, type " << wearable_data->mType << " itemID "
+				<< wearable_data->mItemID << " assetID " << wearable_data->mAssetID << LL_ENDL;
 				delete wearable_data;
 			}
 		}
@@ -249,7 +249,7 @@ LLLibraryOutfitsFetch::LLLibraryOutfitsFetch(const LLUUID& my_outfits_id) :
 	mCurrFetchStep(LOFS_FOLDER), 
 	mOutfitsPopulated(false) 
 {
-	llinfos << "created" << llendl;
+	LL_INFOS() << "created" << LL_ENDL;
 
 	mMyOutfitsID = LLUUID::null;
 	mClothingID = LLUUID::null;
@@ -260,12 +260,12 @@ LLLibraryOutfitsFetch::LLLibraryOutfitsFetch(const LLUUID& my_outfits_id) :
 
 LLLibraryOutfitsFetch::~LLLibraryOutfitsFetch()
 {
-	llinfos << "destroyed" << llendl;
+	LL_INFOS() << "destroyed" << LL_ENDL;
 }
 
 void LLLibraryOutfitsFetch::done()
 {
-	llinfos << "start" << llendl;
+	LL_INFOS() << "start" << LL_ENDL;
 
 	// Delay this until idle() routine, since it's a heavy operation and
 	// we also can't have it run within notifyObservers.
@@ -275,7 +275,7 @@ void LLLibraryOutfitsFetch::done()
 
 void LLLibraryOutfitsFetch::doneIdle()
 {
-	llinfos << "start" << llendl;
+	LL_INFOS() << "start" << LL_ENDL;
 
 	gInventory.addObserver(this); // Add this back in since it was taken out during ::done()
 	
@@ -301,7 +301,7 @@ void LLLibraryOutfitsFetch::doneIdle()
 			contentsDone();
 			break;
 		default:
-			llwarns << "Got invalid state for outfit fetch: " << mCurrFetchStep << llendl;
+			LL_WARNS() << "Got invalid state for outfit fetch: " << mCurrFetchStep << LL_ENDL;
 			mOutfitsPopulated = TRUE;
 			break;
 	}
@@ -317,7 +317,7 @@ void LLLibraryOutfitsFetch::doneIdle()
 
 void LLLibraryOutfitsFetch::folderDone()
 {
-	llinfos << "start" << llendl;
+	LL_INFOS() << "start" << LL_ENDL;
 
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t wearable_array;
@@ -364,7 +364,7 @@ void LLLibraryOutfitsFetch::folderDone()
 
 void LLLibraryOutfitsFetch::outfitsDone()
 {
-	llinfos << "start" << llendl;
+	LL_INFOS() << "start" << LL_ENDL;
 
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t wearable_array;
@@ -443,7 +443,7 @@ private:
 // Copy the clothing folders from the library into the imported clothing folder
 void LLLibraryOutfitsFetch::libraryDone()
 {
-	llinfos << "start" << llendl;
+	LL_INFOS() << "start" << LL_ENDL;
 
 	if (mImportedClothingID != LLUUID::null)
 	{
@@ -468,13 +468,13 @@ void LLLibraryOutfitsFetch::libraryDone()
 		const LLViewerInventoryCategory *cat = gInventory.getCategory(src_folder_id);
 		if (!cat)
 		{
-			llwarns << "Library folder import for uuid:" << src_folder_id << " failed to find folder." << llendl;
+			LL_WARNS() << "Library folder import for uuid:" << src_folder_id << " failed to find folder." << LL_ENDL;
 			continue;
 		}
 		
 		if (!LLAppearanceMgr::getInstance()->getCanMakeFolderIntoOutfit(src_folder_id))
 		{
-			llinfos << "Skipping non-outfit folder name:" << cat->getName() << llendl;
+			LL_INFOS() << "Skipping non-outfit folder name:" << cat->getName() << LL_ENDL;
 			continue;
 		}
 		
@@ -500,7 +500,7 @@ void LLLibraryOutfitsFetch::libraryDone()
 
 void LLLibraryOutfitsFetch::importedFolderFetch()
 {
-	llinfos << "start" << llendl;
+	LL_INFOS() << "start" << LL_ENDL;
 
 	// Fetch the contents of the Imported Clothing Folder
 	uuid_vec_t folders;
@@ -517,7 +517,7 @@ void LLLibraryOutfitsFetch::importedFolderFetch()
 
 void LLLibraryOutfitsFetch::importedFolderDone()
 {
-	llinfos << "start" << llendl;
+	LL_INFOS() << "start" << LL_ENDL;
 
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t wearable_array;
@@ -549,7 +549,7 @@ void LLLibraryOutfitsFetch::importedFolderDone()
 
 void LLLibraryOutfitsFetch::contentsDone()
 {		
-	llinfos << "start" << llendl;
+	LL_INFOS() << "start" << LL_ENDL;
 
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t wearable_array;
@@ -564,7 +564,7 @@ void LLLibraryOutfitsFetch::contentsDone()
 		const LLViewerInventoryCategory *cat = gInventory.getCategory(folder_id);
 		if (!cat)
 		{
-			llwarns << "Library folder import for uuid:" << folder_id << " failed to find folder." << llendl;
+			LL_WARNS() << "Library folder import for uuid:" << folder_id << " failed to find folder." << LL_ENDL;
 			continue;
 		}
 

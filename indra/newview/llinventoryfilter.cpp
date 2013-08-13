@@ -123,7 +123,7 @@ bool LLInventoryFilter::checkFolder(const LLFolderViewModelItem* item) const
 	const LLFolderViewModelItemInventory* listener = dynamic_cast<const LLFolderViewModelItemInventory*>(item);
 	if (!listener)
 	{
-		llerrs << "Folder view event listener not found." << llendl;
+		LL_ERRS() << "Folder view event listener not found." << LL_ENDL;
 		return false;
 	}
 
@@ -741,7 +741,7 @@ void LLInventoryFilter::setModified(EFilterModified behavior)
 			mFirstSuccessGeneration = mCurrentGeneration;
 			break;
 		default:
-			llerrs << "Bad filter behavior specified" << llendl;
+			LL_ERRS() << "Bad filter behavior specified" << LL_ENDL;
 	}
 }
 
@@ -1085,7 +1085,7 @@ bool LLInventoryFilter::FilterOps::DateRange::validateBlock( bool   emit_errors 
 		{
 			if (emit_errors)
 			{
-				llwarns << "max_date should be greater or equal to min_date" <<   llendl;
+				LL_WARNS() << "max_date should be greater or equal to min_date" <<   LL_ENDL;
 			}
 			valid = false;
 		}

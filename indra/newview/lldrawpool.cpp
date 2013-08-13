@@ -113,7 +113,7 @@ LLDrawPool *LLDrawPool::createPool(const U32 type, LLViewerTexture *tex0)
 		poolp = new LLDrawPoolWLSky();
 		break;
 	default:
-		llerrs << "Unknown draw pool type!" << llendl;
+		LL_ERRS() << "Unknown draw pool type!" << LL_ENDL;
 		return NULL;
 	}
 
@@ -257,7 +257,7 @@ void LLFacePool::destroy()
 {
 	if (!mReferences.empty())
 	{
-		llinfos << mReferences.size() << " references left on deletion of draw pool!" << llendl;
+		LL_INFOS() << mReferences.size() << " references left on deletion of draw pool!" << LL_ENDL;
 	}
 }
 
@@ -332,7 +332,7 @@ BOOL LLFacePool::verify() const
 		const LLFace* facep = *iter;
 		if (facep->getPool() != this)
 		{
-			llinfos << "Face in wrong pool!" << llendl;
+			LL_INFOS() << "Face in wrong pool!" << LL_ENDL;
 			facep->printDebugInfo();
 			ok = FALSE;
 		}
@@ -347,7 +347,7 @@ BOOL LLFacePool::verify() const
 
 void LLFacePool::printDebugInfo() const
 {
-	llinfos << "Pool " << this << " Type: " << getType() << llendl;
+	LL_INFOS() << "Pool " << this << " Type: " << getType() << LL_ENDL;
 }
 
 BOOL LLFacePool::LLOverrideFaceColor::sOverrideFaceColor = FALSE;
@@ -385,9 +385,9 @@ LLRenderPass::~LLRenderPass()
 LLDrawPool* LLRenderPass::instancePool()
 {
 #if LL_RELEASE_FOR_DOWNLOAD
-	llwarns << "Attempting to instance a render pass.  Invalid operation." << llendl;
+	LL_WARNS() << "Attempting to instance a render pass.  Invalid operation." << LL_ENDL;
 #else
-	llerrs << "Attempting to instance a render pass.  Invalid operation." << llendl;
+	LL_ERRS() << "Attempting to instance a render pass.  Invalid operation." << LL_ENDL;
 #endif
 	return NULL;
 }

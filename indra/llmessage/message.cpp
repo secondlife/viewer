@@ -152,7 +152,7 @@ void LLMessageHandlerBridge::post(LLHTTPNode::ResponsePtr response,
 	std::string name = context["request"]["wildcard"]["message-name"];
 	char* namePtr = LLMessageStringTable::getInstance()->getString(name.c_str());
 	
-	lldebugs << "Setting mLastSender " << input["sender"].asString() << LL_ENDL;
+	LL_DEBUGS() << "Setting mLastSender " << input["sender"].asString() << LL_ENDL;
 	gMessageSystem->mLastSender = LLHost(input["sender"].asString());
 	gMessageSystem->mPacketsIn += 1;
 	gMessageSystem->mLLSDMessageReader->setMessage(namePtr, input["body"]);
@@ -891,7 +891,7 @@ LLSD LLMessageSystem::getBuiltMessageLLSD() const
 	else
 	{
 		// TODO: implement as below?
-		llerrs << "Message not built as LLSD." << LL_ENDL; 
+		LL_ERRS() << "Message not built as LLSD." << LL_ENDL; 
 	}
 	return result;
 }
@@ -1153,7 +1153,7 @@ LLHTTPClient::ResponderPtr LLMessageSystem::createResponder(const std::string& n
 }
 
 // This can be called from signal handlers,
-// so should should not use llinfos.
+// so should should not use LL_INFOS().
 S32 LLMessageSystem::sendMessage(const LLHost &host)
 {
 	if (! mMessageBuilder->isBuilt())

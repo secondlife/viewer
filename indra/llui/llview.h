@@ -709,7 +709,7 @@ template <class T> T* LLView::getChild(const std::string& name, BOOL recurse) co
 		// did we find *something* with that name?
 		if (child)
 		{
-			llwarns << "Found child named \"" << name << "\" but of wrong type " << typeid(*child).name() << ", expecting " << typeid(T*).name() << llendl;
+			LL_WARNS() << "Found child named \"" << name << "\" but of wrong type " << typeid(*child).name() << ", expecting " << typeid(T*).name() << LL_ENDL;
 		}
 		result = getDefaultWidget<T>(name);
 		if (!result)
@@ -721,11 +721,11 @@ template <class T> T* LLView::getChild(const std::string& name, BOOL recurse) co
 				// *NOTE: You cannot call mFoo = getChild<LLFoo>("bar")
 				// in a floater or panel constructor.  The widgets will not
 				// be ready.  Instead, put it in postBuild().
-				llwarns << "Making dummy " << typeid(T).name() << " named \"" << name << "\" in " << getName() << llendl;
+				LL_WARNS() << "Making dummy " << typeid(T).name() << " named \"" << name << "\" in " << getName() << LL_ENDL;
 			}
 			else
 			{
-				llwarns << "Failed to create dummy " << typeid(T).name() << llendl;
+				LL_WARNS() << "Failed to create dummy " << typeid(T).name() << LL_ENDL;
 				return NULL;
 			}
 

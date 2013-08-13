@@ -209,6 +209,8 @@ namespace LLTrace
 
 
 		// SampleStatHandle accessors
+		bool hasValue(const TraceType<SampleAccumulator>& stat);
+
 		F64 getMin(const TraceType<SampleAccumulator>& stat);
 		template <typename T>
 		T getMin(const SampleStatHandle<T>& stat)
@@ -216,18 +218,18 @@ namespace LLTrace
 			return (T)getMin(static_cast<const TraceType<SampleAccumulator>&> (stat));
 		}
 
-		F64 getMean(const TraceType<SampleAccumulator>& stat);
-		template <typename T>
-		typename RelatedTypes<T>::fractional_t getMean(SampleStatHandle<T>& stat)
-		{
-			return (typename RelatedTypes<T>::fractional_t)getMean(static_cast<const TraceType<SampleAccumulator>&> (stat));
-		}
-
 		F64 getMax(const TraceType<SampleAccumulator>& stat);
 		template <typename T>
 		T getMax(const SampleStatHandle<T>& stat)
 		{
 			return (T)getMax(static_cast<const TraceType<SampleAccumulator>&> (stat));
+		}
+
+		F64 getMean(const TraceType<SampleAccumulator>& stat);
+		template <typename T>
+		typename RelatedTypes<T>::fractional_t getMean(SampleStatHandle<T>& stat)
+		{
+			return (typename RelatedTypes<T>::fractional_t)getMean(static_cast<const TraceType<SampleAccumulator>&> (stat));
 		}
 
 		F64 getStandardDeviation(const TraceType<SampleAccumulator>& stat);
@@ -247,6 +249,8 @@ namespace LLTrace
 		U32 getSampleCount(const TraceType<SampleAccumulator>& stat);
 
 		// EventStatHandle accessors
+		bool hasValue(const TraceType<EventAccumulator>& stat);
+
 		F64 getSum(const TraceType<EventAccumulator>& stat);
 		template <typename T>
 		typename RelatedTypes<T>::sum_t getSum(const EventStatHandle<T>& stat)
@@ -342,8 +346,8 @@ namespace LLTrace
             size_t num_samples = 0;
 			for (S32 i = 1; i <= num_periods; i++)
 			{
-				S32 index = (mCurPeriod + total_periods - i) % total_periods;
-				num_samples += mRecordingPeriods[index].getSampleCount(stat);
+				Recording& recording = getPrevRecording(i);
+				num_samples += Recording.getSampleCount(stat);
 			}
 			return num_samples;
         }
@@ -362,8 +366,8 @@ namespace LLTrace
 			typename T::value_t min_val = std::numeric_limits<typename T::value_t>::max();
 			for (S32 i = 1; i <= num_periods; i++)
 			{
-				S32 index = (mCurPeriod + total_periods - i) % total_periods;
-				min_val = llmin(min_val, mRecordingPeriods[index].getSum(stat));
+				Recording& recording = getPrevRecording(i)
+				min_val = llmin(min_val, recording.getSum(stat));
 			}
 			return min_val;
 		}
@@ -394,11 +398,11 @@ namespace LLTrace
 			size_t total_periods = mNumPeriods;
 			num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
-			F64 min_val = std::numeric_limits<F64>::max();
+			RelatedTypes<typename T::value_t>::fractional_t min_val = std::numeric_limits<F64>::max();
 			for (S32 i = 1; i <= num_periods; i++)
 			{
-				S32 index = (mCurPeriod + total_periods - i) % total_periods;
-				min_val = llmin(min_val, mRecordingPeriods[index].getPerSec(stat));
+				Recording& recording = getPrevRecording(i);
+				min_val = llmin(min_val, recording.getPerSec(stat));
 			}
 			return (typename RelatedTypes<typename T::value_t>::fractional_t) min_val;
 		}
@@ -423,8 +427,8 @@ namespace LLTrace
 			typename T::value_t max_val = std::numeric_limits<typename T::value_t>::min();
 			for (S32 i = 1; i <= num_periods; i++)
 			{
-				S32 index = (mCurPeriod + total_periods - i) % total_periods;
-				max_val = llmax(max_val, mRecordingPeriods[index].getSum(stat));
+				Recording& recording = getPrevRecording(i);
+				max_val = llmax(max_val, recording.getSum(stat));
 			}
 			return max_val;
 		}
@@ -458,8 +462,8 @@ namespace LLTrace
 			F64 max_val = std::numeric_limits<F64>::min();
 			for (S32 i = 1; i <= num_periods; i++)
 			{
-				S32 index = (mCurPeriod + total_periods - i) % total_periods;
-				max_val = llmax(max_val, mRecordingPeriods[index].getPerSec(stat));
+				Recording& recording = getPrevRecording(i);
+				max_val = llmax(max_val, recording.getPerSec(stat));
 			}
 			return (typename RelatedTypes<typename T::value_t>::fractional_t)max_val;
 		}
@@ -476,24 +480,24 @@ namespace LLTrace
 
 		// catch all for stats that have a defined sum
 		template <typename T>
-		typename T::mean_t getPeriodMean(const TraceType<T >& stat, size_t num_periods = U32_MAX)
+		typename RelatedTypes<typename T::value_t>::fractional_t getPeriodMean(const TraceType<T >& stat, size_t num_periods = U32_MAX)
 		{
 			size_t total_periods = mNumPeriods;
 			num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
-			typename T::mean_t mean = 0;
-			if (num_periods <= 0) { return mean; }
+			typename RelatedTypes<T::value_t>::fractional_t mean = 0;
 
 			for (S32 i = 1; i <= num_periods; i++)
 			{
-				S32 index = (mCurPeriod + total_periods - i) % total_periods;
-				if (mRecordingPeriods[index].getDuration() > 0.f)
+				Recording& recording = getPrevRecording(i);
+				if (recording.getDuration() > 0.f)
 				{
-					mean += mRecordingPeriods[index].getSum(stat);
+					mean += recording.getSum(stat);
 				}
 			}
-			mean = mean / num_periods;
-			return mean;
+			return RelatedTypes<T::value_t>::fractional_t(num_periods
+														? mean / num_periods
+														: NaN);
 		}
 
 		template<typename T>
@@ -516,30 +520,50 @@ namespace LLTrace
 		}
 
 		template <typename T>
-		typename RelatedTypes<typename T::mean_t>::fractional_t getPeriodMeanPerSec(const TraceType<T>& stat, size_t num_periods = U32_MAX)
+		typename RelatedTypes<typename T::value_t>::fractional_t getPeriodMeanPerSec(const TraceType<T>& stat, size_t num_periods = U32_MAX)
 		{
 			size_t total_periods = mNumPeriods;
 			num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
-			typename T::mean_t mean = 0;
-			if (num_periods <= 0) { return mean; }
+			typename RelatedTypes<T::value_t>::fractional_t mean = 0;
 
 			for (S32 i = 1; i <= num_periods; i++)
 			{
-				S32 index = (mCurPeriod + total_periods - i) % total_periods;
-				if (mRecordingPeriods[index].getDuration() > 0.f)
+				Recording& recording = getPrevRecording(i);
+				if (recording.getDuration() > 0.f)
 				{
-					mean += mRecordingPeriods[index].getPerSec(stat);
+					mean += recording.getPerSec(stat);
 				}
 			}
-			mean = mean / num_periods;
-			return (typename RelatedTypes<typename T::mean_t>::fractional_t)mean;
+
+			return RelatedTypes<T::value_t>::fractional_t(num_periods
+														? mean / num_periods
+														: NaN);
 		}
 
 		template<typename T>
 		typename RelatedTypes<T>::fractional_t getPeriodMeanPerSec(const CountStatHandle<T>& stat, size_t num_periods = U32_MAX)
 		{
 			return typename RelatedTypes<T>::fractional_t(getPeriodMeanPerSec(static_cast<const TraceType<CountAccumulator>&>(stat), num_periods));
+		}
+
+		//
+		// PERIODIC STANDARD DEVIATION
+		//
+
+		F64 getPeriodStandardDeviation(const TraceType<SampleAccumulator>& stat, size_t num_periods = U32_MAX);
+
+		template<typename T> 
+		typename RelatedTypes<T>::fractional_t getPeriodStandardDeviation(const SampleStatHandle<T>& stat, size_t num_periods = U32_MAX)
+		{
+			return typename RelatedTypes<T>::fractional_t(getPeriodStandardDeviation(static_cast<const TraceType<SampleAccumulator>&>(stat), num_periods));
+		}
+
+		F64 getPeriodStandardDeviation(const TraceType<EventAccumulator>& stat, size_t num_periods = U32_MAX);
+		template<typename T>
+		typename RelatedTypes<T>::fractional_t getPeriodStandardDeviation(const EventStatHandle<T>& stat, size_t num_periods = U32_MAX)
+		{
+			return typename RelatedTypes<T>::fractional_t(getPeriodStandardDeviation(static_cast<const TraceType<EventAccumulator>&>(stat), num_periods));
 		}
 
 	private:

@@ -77,7 +77,7 @@ bool LLImageDimensionsInfo::getImageDimensionsBmp()
 	const S32 DATA_LEN = 26; // BMP header (14) + DIB header size (4) + width (4) + height (4)
 	if (!checkFileLength(DATA_LEN))
 	{
-		llwarns << "Premature end of file" << llendl;
+		LL_WARNS() << "Premature end of file" << LL_ENDL;
 		return false;
 	}
 
@@ -89,7 +89,7 @@ bool LLImageDimensionsInfo::getImageDimensionsBmp()
 	// We only support Windows bitmaps (BM), according to LLImageBMP::updateData().
 	if (signature[0] != 'B' || signature[1] != 'M')
 	{
-		llwarns << "Not a BMP" << llendl;
+		LL_WARNS() << "Not a BMP" << LL_ENDL;
 		return false;
 	}
 
@@ -108,7 +108,7 @@ bool LLImageDimensionsInfo::getImageDimensionsTga()
 	// Make sure the file is long enough.
 	if (!checkFileLength(TGA_FILE_HEADER_SIZE + 1 /* width */ + 1 /* height */))
 	{
-		llwarns << "Premature end of file" << llendl;
+		LL_WARNS() << "Premature end of file" << LL_ENDL;
 		return false;
 	}
 
@@ -127,7 +127,7 @@ bool LLImageDimensionsInfo::getImageDimensionsPng()
 	// Make sure the file is long enough.
 	if (!checkFileLength(PNG_MAGIC_SIZE + 8 + sizeof(S32) * 2 /* width, height */))
 	{
-		llwarns << "Premature end of file" << llendl;
+		LL_WARNS() << "Premature end of file" << LL_ENDL;
 		return false;
 	}
 
@@ -139,7 +139,7 @@ bool LLImageDimensionsInfo::getImageDimensionsPng()
 	// Make sure it's a PNG file.
 	if (memcmp(signature, png_magic, PNG_MAGIC_SIZE) != 0)
 	{
-		llwarns << "Not a PNG" << llendl;
+		LL_WARNS() << "Not a PNG" << LL_ENDL;
 		return false;
 	}
 
@@ -156,7 +156,7 @@ void on_jpeg_error(j_common_ptr cinfo)
 {
 	(void) cinfo;
 	sJpegErrorEncountered = true;
-	llwarns << "Libjpeg has encountered an error!" << llendl;
+	LL_WARNS() << "Libjpeg has encountered an error!" << LL_ENDL;
 }
 
 bool LLImageDimensionsInfo::getImageDimensionsJpeg()
@@ -177,12 +177,12 @@ bool LLImageDimensionsInfo::getImageDimensionsJpeg()
 
 	if (fread(signature, sizeof(signature), 1, fp) != 1)
 	{
-		llwarns << "Premature end of file" << llendl;
+		LL_WARNS() << "Premature end of file" << LL_ENDL;
 		return false;
 	}
 	if (memcmp(signature, jpeg_magic, JPEG_MAGIC_SIZE) != 0)
 	{
-		llwarns << "Not a JPEG" << llendl;
+		LL_WARNS() << "Not a JPEG" << LL_ENDL;
 		return false;
 	}
 	fseek(fp, 0, SEEK_SET); // go back to start of the file

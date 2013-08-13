@@ -137,10 +137,10 @@ void LLGLSLShader::finishProfile()
 		(*iter)->dumpStats();
 	}
 
-	llinfos << "-----------------------------------" << llendl;
-	llinfos << "Total rendering time: " << llformat("%.4f ms", sTotalTimeElapsed/1000000.f) << llendl;
-	llinfos << "Total samples drawn: " << llformat("%.4f million", sTotalSamplesDrawn/1000000.f) << llendl;
-	llinfos << "Total triangles drawn: " << llformat("%.3f million", sTotalTrianglesDrawn/1000000.f) << llendl;
+	LL_INFOS() << "-----------------------------------" << LL_ENDL;
+	LL_INFOS() << "Total rendering time: " << llformat("%.4f ms", sTotalTimeElapsed/1000000.f) << LL_ENDL;
+	LL_INFOS() << "Total samples drawn: " << llformat("%.4f million", sTotalSamplesDrawn/1000000.f) << LL_ENDL;
+	LL_INFOS() << "Total triangles drawn: " << llformat("%.3f million", sTotalTrianglesDrawn/1000000.f) << LL_ENDL;
 }
 
 void LLGLSLShader::clearStats()
@@ -158,11 +158,11 @@ void LLGLSLShader::dumpStats()
 {
 	if (mDrawCalls > 0)
 	{
-		llinfos << "=============================================" << llendl;
-		llinfos << mName << llendl;
+		LL_INFOS() << "=============================================" << LL_ENDL;
+		LL_INFOS() << mName << LL_ENDL;
 		for (U32 i = 0; i < mShaderFiles.size(); ++i)
 		{
-			llinfos << mShaderFiles[i].first << llendl;
+			LL_INFOS() << mShaderFiles[i].first << LL_ENDL;
 		}
 		for (U32 i = 0; i < mTexture.size(); ++i)
 		{
@@ -171,10 +171,10 @@ void LLGLSLShader::dumpStats()
 			if (idx >= 0)
 			{
 				GLint uniform_idx = getUniformLocation(i);
-				llinfos << mUniformNameMap[uniform_idx] << " - " << std::hex << mTextureMagFilter[i] << "/" << mTextureMinFilter[i] << std::dec << llendl;
+				LL_INFOS() << mUniformNameMap[uniform_idx] << " - " << std::hex << mTextureMagFilter[i] << "/" << mTextureMinFilter[i] << std::dec << LL_ENDL;
 			}
 		}
-		llinfos << "=============================================" << llendl;
+		LL_INFOS() << "=============================================" << LL_ENDL;
 
 		F32 ms = mTimeElapsed/1000000.f;
 		F32 seconds = ms/1000.f;
@@ -190,10 +190,10 @@ void LLGLSLShader::dumpStats()
 		F32 pct_calls = (F32) mDrawCalls/(F32)sTotalDrawCalls*100.f;
 		U32 avg_batch = mTrianglesDrawn/mDrawCalls;
 
-		llinfos << "Triangles Drawn: " << mTrianglesDrawn <<  " " << llformat("(%.2f pct of total, %.3f million/sec)", pct_tris, tris_sec ) << llendl;
-		llinfos << "Draw Calls: " << mDrawCalls << " " << llformat("(%.2f pct of total, avg %d tris/call)", pct_calls, avg_batch) << llendl;
-		llinfos << "SamplesDrawn: " << mSamplesDrawn << " " << llformat("(%.2f pct of total, %.3f billion/sec)", pct_samples, samples_sec) << llendl;
-		llinfos << "Time Elapsed: " << mTimeElapsed << " " << llformat("(%.2f pct of total, %.5f ms)\n", (F32) ((F64)mTimeElapsed/(F64)sTotalTimeElapsed)*100.f, ms) << llendl;
+		LL_INFOS() << "Triangles Drawn: " << mTrianglesDrawn <<  " " << llformat("(%.2f pct of total, %.3f million/sec)", pct_tris, tris_sec ) << LL_ENDL;
+		LL_INFOS() << "Draw Calls: " << mDrawCalls << " " << llformat("(%.2f pct of total, avg %d tris/call)", pct_calls, avg_batch) << LL_ENDL;
+		LL_INFOS() << "SamplesDrawn: " << mSamplesDrawn << " " << llformat("(%.2f pct of total, %.3f billion/sec)", pct_samples, samples_sec) << LL_ENDL;
+		LL_INFOS() << "Time Elapsed: " << mTimeElapsed << " " << llformat("(%.2f pct of total, %.5f ms)\n", (F32) ((F64)mTimeElapsed/(F64)sTotalTimeElapsed)*100.f, ms) << LL_ENDL;
 	}
 }
 
@@ -703,7 +703,7 @@ BOOL LLGLSLShader::mapUniforms(const vector<string> * uniforms)
 
 	unbind();
 
-	LL_DEBUGS("ShaderLoading") << "Total Uniform Size: " << mTotalUniformSize << llendl;
+	LL_DEBUGS("ShaderLoading") << "Total Uniform Size: " << mTotalUniformSize << LL_ENDL;
 	return res;
 }
 
@@ -849,7 +849,7 @@ S32 LLGLSLShader::disableTexture(S32 uniform, LLTexUnit::eTextureType mode)
 			}
 			else
 			{
-				llerrs << "Texture channel " << index << " texture type corrupted." << llendl;
+				LL_ERRS() << "Texture channel " << index << " texture type corrupted." << LL_ENDL;
 			}
 		}
 		gGL.getTexUnit(index)->disable();
@@ -1149,7 +1149,7 @@ GLint LLGLSLShader::getUniformLocation(const string& uniform)
 				stop_glerror();
 				if (iter->second != glGetUniformLocationARB(mProgramObject, uniform.c_str()))
 				{
-					llerrs << "Uniform does not match." << llendl;
+					LL_ERRS() << "Uniform does not match." << LL_ENDL;
 				}
 				stop_glerror();
 			}

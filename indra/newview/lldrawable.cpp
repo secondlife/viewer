@@ -163,7 +163,7 @@ void LLDrawable::destroy()
 
 	if (LLSpatialGroup::sNoDelete)
 	{
-		llerrs << "Illegal deletion of LLDrawable!" << llendl;
+		LL_ERRS() << "Illegal deletion of LLDrawable!" << LL_ENDL;
 	}
 
 	std::for_each(mFaces.begin(), mFaces.end(), DeletePointer());
@@ -172,7 +172,7 @@ void LLDrawable::destroy()
 	
 	/*if (!(sNumZombieDrawables % 10))
 	{
-		llinfos << "- Zombie drawables: " << sNumZombieDrawables << llendl;
+		LL_INFOS() << "- Zombie drawables: " << sNumZombieDrawables << LL_ENDL;
 	}*/	
 
 }
@@ -181,7 +181,7 @@ void LLDrawable::markDead()
 {
 	if (isDead())
 	{
-		llwarns << "Warning!  Marking dead multiple times!" << llendl;
+		LL_WARNS() << "Warning!  Marking dead multiple times!" << LL_ENDL;
 		return;
 	}
 	setState(DEAD);
@@ -281,7 +281,7 @@ void LLDrawable::cleanupDeadDrawables()
 	{
 		if (sDeadList[i]->getNumRefs() > 1)
 		{
-			llwarns << "Dead drawable has " << sDeadList[i]->getNumRefs() << " remaining refs" << llendl;
+			LL_WARNS() << "Dead drawable has " << sDeadList[i]->getNumRefs() << " remaining refs" << LL_ENDL;
 			gPipeline.findReferences(sDeadList[i]);
 		}
 	}
@@ -294,7 +294,7 @@ S32 LLDrawable::findReferences(LLDrawable *drawablep)
 	S32 count = 0;
 	if (mParent == drawablep)
 	{
-		llinfos << this << ": parent reference" << llendl;
+		LL_INFOS() << this << ": parent reference" << LL_ENDL;
 		count++;
 	}
 	return count;
@@ -311,7 +311,7 @@ LLFace*	LLDrawable::addFace(LLFacePool *poolp, LLViewerTexture *texturep)
 		face = new LLFace(this, mVObjp);
 	}
 
-	if (!face) llerrs << "Allocating new Face: " << mFaces.size() << llendl;
+	if (!face) LL_ERRS() << "Allocating new Face: " << mFaces.size() << LL_ENDL;
 	
 	if (face)
 	{
@@ -468,7 +468,7 @@ void LLDrawable::deleteFaces(S32 offset, S32 count)
 
 void LLDrawable::update()
 {
-	llerrs << "Shouldn't be called!" << llendl;
+	LL_ERRS() << "Shouldn't be called!" << LL_ENDL;
 }
 
 
@@ -490,7 +490,7 @@ void LLDrawable::makeActive()
 			pcode == LLViewerObject::LL_VO_GROUND ||
 			pcode == LLViewerObject::LL_VO_SKY)
 		{
-			llerrs << "Static viewer object has active drawable!" << llendl;
+			LL_ERRS() << "Static viewer object has active drawable!" << LL_ENDL;
 		}
 	}
 #endif
@@ -561,7 +561,7 @@ void LLDrawable::makeStatic(BOOL warning_enabled)
 			{
 				if (child_drawable->getParent() != this)
 				{
-					llwarns << "Child drawable has unknown parent." << llendl;
+					LL_WARNS() << "Child drawable has unknown parent." << LL_ENDL;
 				}
 				child_drawable->makeStatic(warning_enabled);
 			}
@@ -734,7 +734,7 @@ BOOL LLDrawable::updateMove()
 {
 	if (isDead())
 	{
-		llwarns << "Update move on dead drawable!" << llendl;
+		LL_WARNS() << "Update move on dead drawable!" << LL_ENDL;
 		return TRUE;
 	}
 	
@@ -809,7 +809,7 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 {
 	if (LLViewerCamera::sCurCameraID != LLViewerCamera::CAMERA_WORLD)
 	{
-		llwarns << "Attempted to update distance for non-world camera." << llendl;
+		LL_WARNS() << "Attempted to update distance for non-world camera." << LL_ENDL;
 		return;
 	}
 
@@ -874,7 +874,7 @@ void LLDrawable::updateTexture()
 {
 	if (isDead())
 	{
-		llwarns << "Dead drawable updating texture!" << llendl;
+		LL_WARNS() << "Dead drawable updating texture!" << LL_ENDL;
 		return;
 	}
 	
@@ -900,7 +900,7 @@ void LLDrawable::shiftPos(const LLVector4a &shift_vector)
 {
 	if (isDead())
 	{
-		llwarns << "Shifting dead drawable" << llendl;
+		LL_WARNS() << "Shifting dead drawable" << LL_ENDL;
 		return;
 	}
 
@@ -1020,7 +1020,7 @@ F32 LLDrawable::getVisibilityRadius() const
 		{
 			return llmax(getRadius(), vov->getLightRadius());
 		} else {
-			// llwarns ?
+			// LL_WARNS() ?
 		}
 	}
 	return getRadius();
@@ -1317,26 +1317,26 @@ void LLDrawable::setVisible(LLCamera& camera, std::vector<LLDrawable*>* results,
 		{
 			if (isActive() && !mParent->isActive())
 			{
-				llerrs << "Active drawable has static parent!" << llendl;
+				LL_ERRS() << "Active drawable has static parent!" << LL_ENDL;
 			}
 			
 			if (isStatic() && !mParent->isStatic())
 			{
-				llerrs << "Static drawable has active parent!" << llendl;
+				LL_ERRS() << "Static drawable has active parent!" << LL_ENDL;
 			}
 			
 			if (mSpatialBridge)
 			{
-				llerrs << "Child drawable has spatial bridge!" << llendl;
+				LL_ERRS() << "Child drawable has spatial bridge!" << LL_ENDL;
 			}
 		}
 		else if (isActive() && !mSpatialBridge)
 		{
-			llerrs << "Active root drawable has no spatial bridge!" << llendl;
+			LL_ERRS() << "Active root drawable has no spatial bridge!" << LL_ENDL;
 		}
 		else if (isStatic() && mSpatialBridge.notNull())
 		{
-			llerrs << "Static drawable has spatial bridge!" << llendl;
+			LL_ERRS() << "Static drawable has spatial bridge!" << LL_ENDL;
 		}
 	}
 #endif
@@ -1512,7 +1512,7 @@ void LLSpatialBridge::updateDistance(LLCamera& camera_in, bool force_update)
 
 void LLSpatialBridge::makeActive()
 { //it is an error to make a spatial bridge active (it's already active)
-	llerrs << "makeActive called on spatial bridge" << llendl;
+	LL_ERRS() << "makeActive called on spatial bridge" << LL_ENDL;
 }
 
 void LLSpatialBridge::move(LLDrawable *drawablep, LLSpatialGroup *curp, BOOL immediate)

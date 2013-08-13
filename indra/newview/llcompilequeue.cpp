@@ -111,8 +111,8 @@ void LLFloaterScriptQueue::inventoryChanged(LLViewerObject* viewer_object,
 											 S32,
 											 void* q_id)
 {
-	llinfos << "LLFloaterScriptQueue::inventoryChanged() for  object "
-			<< viewer_object->getID() << llendl;
+	LL_INFOS() << "LLFloaterScriptQueue::inventoryChanged() for  object "
+			<< viewer_object->getID() << LL_ENDL;
 
 	//Remove this listener from the object since its
 	//listener callback is now being executed.
@@ -137,8 +137,8 @@ void LLFloaterScriptQueue::inventoryChanged(LLViewerObject* viewer_object,
 		// something went wrong...
 		// note that we're not working on this one, and move onto the
 		// next object in the list.
-		llwarns << "No inventory for " << mCurrentObjectID
-				<< llendl;
+		LL_WARNS() << "No inventory for " << mCurrentObjectID
+				<< LL_ENDL;
 		nextObject();
 	}
 }
@@ -184,16 +184,16 @@ BOOL LLFloaterScriptQueue::nextObject()
 	do
 	{
 		count = mObjectIDs.size();
-		llinfos << "LLFloaterScriptQueue::nextObject() - " << count
-				<< " objects left to process." << llendl;
+		LL_INFOS() << "LLFloaterScriptQueue::nextObject() - " << count
+				<< " objects left to process." << LL_ENDL;
 		mCurrentObjectID.setNull();
 		if(count > 0)
 		{
 			successful_start = popNext();
 		}
-		llinfos << "LLFloaterScriptQueue::nextObject() "
+		LL_INFOS() << "LLFloaterScriptQueue::nextObject() "
 				<< (successful_start ? "successful" : "unsuccessful")
-				<< llendl; 
+				<< LL_ENDL; 
 	} while((mObjectIDs.size() > 0) && !successful_start);
 	if(isDone() && !mDone)
 	{
@@ -215,14 +215,14 @@ BOOL LLFloaterScriptQueue::popNext()
 	if(mCurrentObjectID.isNull() && (count > 0))
 	{
 		mCurrentObjectID = mObjectIDs.at(0);
-		llinfos << "LLFloaterScriptQueue::popNext() - mCurrentID: "
-				<< mCurrentObjectID << llendl;
+		LL_INFOS() << "LLFloaterScriptQueue::popNext() - mCurrentID: "
+				<< mCurrentObjectID << LL_ENDL;
 		mObjectIDs.erase(mObjectIDs.begin());
 		LLViewerObject* obj = gObjectList.findObject(mCurrentObjectID);
 		if(obj)
 		{
-			llinfos << "LLFloaterScriptQueue::popNext() requesting inv for "
-					<< mCurrentObjectID << llendl;
+			LL_INFOS() << "LLFloaterScriptQueue::popNext() requesting inv for "
+					<< mCurrentObjectID << LL_ENDL;
 			LLUUID* id = new LLUUID(getKey().asUUID());
 			registerVOInventoryListener(obj,id);
 			requestVOInventory();
@@ -328,7 +328,7 @@ void LLFloaterCompileQueue::handleInventory(LLViewerObject *viewer_object,
 												 viewer_object->getID(),
 												 itemp->getUUID());
 
-			//llinfos << "ITEM NAME 2: " << names.get(i) << llendl;
+			//LL_INFOS() << "ITEM NAME 2: " << names.get(i) << LL_ENDL;
 			gAssetStorage->getInvItemAsset(viewer_object->getRegion()->getHost(),
 				gAgent.getID(),
 				gAgent.getSessionID(),
@@ -349,7 +349,7 @@ void LLFloaterCompileQueue::scriptArrived(LLVFS *vfs, const LLUUID& asset_id,
 										  LLAssetType::EType type,
 										  void* user_data, S32 status, LLExtStat ext_status)
 {
-	llinfos << "LLFloaterCompileQueue::scriptArrived()" << llendl;
+	LL_INFOS() << "LLFloaterCompileQueue::scriptArrived()" << LL_ENDL;
 	LLScriptQueueData* data = (LLScriptQueueData*)user_data;
 	if(!data)
 	{
@@ -360,7 +360,7 @@ void LLFloaterCompileQueue::scriptArrived(LLVFS *vfs, const LLUUID& asset_id,
 	std::string buffer;
 	if(queue && (0 == status))
 	{
-		//llinfos << "ITEM NAME 3: " << data->mScriptName << llendl;
+		//LL_INFOS() << "ITEM NAME 3: " << data->mScriptName << LL_ENDL;
 
 		// Dump this into a file on the local disk so we can compile it.
 		std::string filename;
@@ -414,7 +414,7 @@ void LLFloaterCompileQueue::scriptArrived(LLVFS *vfs, const LLUUID& asset_id,
 			buffer = LLTrans::getString("CompileQueueUnknownFailure") + (" ") + data->mScriptName;
 		}
 
-		llwarns << "Problem downloading script asset." << llendl;
+		LL_WARNS() << "Problem downloading script asset." << LL_ENDL;
 		if(queue) queue->removeItemByItemID(data->mItemId);
 	}
 	if(queue && (buffer.size() > 0)) 
@@ -546,7 +546,7 @@ LLFloaterNotRunQueue::~LLFloaterNotRunQueue()
 
 void LLFloaterCompileQueue::removeItemByItemID(const LLUUID& asset_id)
 {
-	llinfos << "LLFloaterCompileQueue::removeItemByAssetID()" << llendl;
+	LL_INFOS() << "LLFloaterCompileQueue::removeItemByAssetID()" << LL_ENDL;
 	for(S32 i = 0; i < mCurrentScripts.size(); )
 	{
 		if(asset_id == mCurrentScripts.at(i)->getUUID())

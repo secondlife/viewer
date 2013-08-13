@@ -72,7 +72,7 @@ S32 OSMessageBox(const std::string& text, const std::string& caption, U32 type)
 
 	S32 result = 0;
 #if LL_MESA_HEADLESS // !!! *FIX: (???)
-	llwarns << "OSMessageBox: " << text << llendl;
+	LL_WARNS() << "OSMessageBox: " << text << LL_ENDL;
 	return OSBTN_OK;
 #elif LL_WINDOWS
 	result = OSMessageBoxWin32(text, caption, type);
@@ -422,7 +422,7 @@ LLWindow* LLWindowManager::createWindow(
 	if (FALSE == new_window->isValid())
 	{
 		delete new_window;
-		llwarns << "LLWindowManager::create() : Error creating window." << llendl;
+		LL_WARNS() << "LLWindowManager::create() : Error creating window." << LL_ENDL;
 		return NULL;
 	}
 	sWindowList.insert(new_window);
@@ -433,8 +433,8 @@ BOOL LLWindowManager::destroyWindow(LLWindow* window)
 {
 	if (sWindowList.find(window) == sWindowList.end())
 	{
-		llerrs << "LLWindowManager::destroyWindow() : Window pointer not valid, this window doesn't exist!" 
-			<< llendl;
+		LL_ERRS() << "LLWindowManager::destroyWindow() : Window pointer not valid, this window doesn't exist!" 
+			<< LL_ENDL;
 		return FALSE;
 	}
 

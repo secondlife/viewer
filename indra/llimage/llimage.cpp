@@ -128,12 +128,12 @@ void LLImageBase::destroyPrivatePool()
 // virtual
 void LLImageBase::dump()
 {
-	llinfos << "LLImageBase mComponents " << mComponents
+	LL_INFOS() << "LLImageBase mComponents " << mComponents
 		<< " mData " << mData
 		<< " mDataSize " << mDataSize
 		<< " mWidth " << mWidth
 		<< " mHeight " << mHeight
-		<< llendl;
+		<< LL_ENDL;
 }
 
 // virtual
@@ -145,13 +145,13 @@ void LLImageBase::sanityCheck()
 		|| mComponents > (S8)MAX_IMAGE_COMPONENTS
 		)
 	{
-		llerrs << "Failed LLImageBase::sanityCheck "
+		LL_ERRS() << "Failed LLImageBase::sanityCheck "
 			   << "width " << mWidth
 			   << "height " << mHeight
 			   << "datasize " << mDataSize
 			   << "components " << mComponents
 			   << "data " << mData
-			   << llendl;
+			   << LL_ENDL;
 	}
 }
 
@@ -171,7 +171,7 @@ U8* LLImageBase::allocateData(S32 size)
 		size = mWidth * mHeight * mComponents;
 		if (size <= 0)
 		{
-			llerrs << llformat("LLImageBase::allocateData called with bad dimensions: %dx%dx%d",mWidth,mHeight,(S32)mComponents) << llendl;
+			LL_ERRS() << llformat("LLImageBase::allocateData called with bad dimensions: %dx%dx%d",mWidth,mHeight,(S32)mComponents) << LL_ENDL;
 		}
 	}
 	
@@ -179,14 +179,14 @@ U8* LLImageBase::allocateData(S32 size)
 	static const U32 MAX_BUFFER_SIZE = 4096 * 4096 * 16 ; //256 MB
 	if (size < 1 || size > MAX_BUFFER_SIZE) 
 	{
-		llinfos << "width: " << mWidth << " height: " << mHeight << " components: " << mComponents << llendl ;
+		LL_INFOS() << "width: " << mWidth << " height: " << mHeight << " components: " << mComponents << LL_ENDL ;
 		if(mAllowOverSize)
 		{
-			llinfos << "Oversize: " << size << llendl ;
+			LL_INFOS() << "Oversize: " << size << LL_ENDL ;
 		}
 		else
 		{
-			llerrs << "LLImageBase::allocateData: bad size: " << size << llendl;
+			LL_ERRS() << "LLImageBase::allocateData: bad size: " << size << LL_ENDL;
 		}
 	}
 	if (!mData || size != mDataSize)
@@ -196,7 +196,7 @@ U8* LLImageBase::allocateData(S32 size)
 		mData = (U8*)ALLOCATE_MEM(sPrivatePoolp, size);
 		if (!mData)
 		{
-			llwarns << "Failed to allocate image data size [" << size << "]" << llendl;
+			LL_WARNS() << "Failed to allocate image data size [" << size << "]" << LL_ENDL;
 			size = 0 ;
 			mWidth = mHeight = 0 ;
 			mBadBufferAllocation = true ;
@@ -214,7 +214,7 @@ U8* LLImageBase::reallocateData(S32 size)
 	U8 *new_datap = (U8*)ALLOCATE_MEM(sPrivatePoolp, size);
 	if (!new_datap)
 	{
-		llwarns << "Out of memory in LLImageBase::reallocateData" << llendl;
+		LL_WARNS() << "Out of memory in LLImageBase::reallocateData" << LL_ENDL;
 		return 0;
 	}
 	if (mData)
@@ -232,7 +232,7 @@ const U8* LLImageBase::getData() const
 { 
 	if(mBadBufferAllocation)
 	{
-		llerrs << "Bad memory allocation for the image buffer!" << llendl ;
+		LL_ERRS() << "Bad memory allocation for the image buffer!" << LL_ENDL ;
 	}
 
 	return mData; 
@@ -242,7 +242,7 @@ U8* LLImageBase::getData()
 { 
 	if(mBadBufferAllocation)
 	{
-		llerrs << "Bad memory allocation for the image buffer!" << llendl ;
+		LL_ERRS() << "Bad memory allocation for the image buffer!" << LL_ENDL ;
 	}
 
 	return mData; 
@@ -564,7 +564,7 @@ void LLImageRaw::composite( LLImageRaw* src )
 // Src and dst can be any size.  Src has 4 components.  Dst has 3 components.
 void LLImageRaw::compositeScaled4onto3(LLImageRaw* src)
 {
-	llinfos << "compositeScaled4onto3" << llendl;
+	LL_INFOS() << "compositeScaled4onto3" << LL_ENDL;
 
 	LLImageRaw* dst = this;  // Just for clarity.
 
@@ -698,7 +698,7 @@ void LLImageRaw::copy(LLImageRaw* src)
 {
 	if (!src)
 	{
-		llwarns << "LLImageRaw::copy called with a null src pointer" << llendl;
+		LL_WARNS() << "LLImageRaw::copy called with a null src pointer" << LL_ENDL;
 		return;
 	}
 
@@ -1215,8 +1215,8 @@ bool LLImageRaw::createFromFile(const std::string &filename, bool j2c_lowest_mip
 	llifstream ifs(name, llifstream::binary);
 	if (!ifs.is_open())
 	{
-		// SJB: changed from llinfos to lldebugs to reduce spam
-		lldebugs << "Unable to open image file: " << name << llendl;
+		// SJB: changed from LL_INFOS() to LL_DEBUGS() to reduce spam
+		LL_DEBUGS() << "Unable to open image file: " << name << LL_ENDL;
 		return false;
 	}
 	
@@ -1230,7 +1230,7 @@ bool LLImageRaw::createFromFile(const std::string &filename, bool j2c_lowest_mip
 
 	if (!length)
 	{
-		llinfos << "Zero length file file: " << name << llendl;
+		LL_INFOS() << "Zero length file file: " << name << LL_ENDL;
 		return false;
 	}
 	
@@ -1266,7 +1266,7 @@ bool LLImageRaw::createFromFile(const std::string &filename, bool j2c_lowest_mip
 	if (!success)
 	{
 		deleteData();
-		llwarns << "Unable to decode image" << name << llendl;
+		LL_WARNS() << "Unable to decode image" << name << LL_ENDL;
 		return false;
 	}
 
@@ -1371,11 +1371,11 @@ void LLImageFormatted::dump()
 {
 	LLImageBase::dump();
 
-	llinfos << "LLImageFormatted"
+	LL_INFOS() << "LLImageFormatted"
 			<< " mDecoding " << mDecoding
 			<< " mCodec " << S32(mCodec)
 			<< " mDecoded " << mDecoded
-			<< llendl;
+			<< LL_ENDL;
 }
 
 //----------------------------------------------------------------------------
@@ -1458,11 +1458,11 @@ void LLImageFormatted::sanityCheck()
 
 	if (mCodec >= IMG_CODEC_EOF)
 	{
-		llerrs << "Failed LLImageFormatted::sanityCheck "
+		LL_ERRS() << "Failed LLImageFormatted::sanityCheck "
 			   << "decoding " << S32(mDecoding)
 			   << "decoded " << S32(mDecoded)
 			   << "codec " << S32(mCodec)
-			   << llendl;
+			   << LL_ENDL;
 	}
 }
 
@@ -1638,7 +1638,7 @@ void LLImageBase::generateMip(const U8* indata, U8* mipdata, S32 width, S32 heig
 				*(U8*)data = (U8)(((U32)(indata[0]) + indata[1] + indata[in_width] + indata[in_width+1])>>2);
 				break;
 			  default:
-				llerrs << "generateMmip called with bad num channels" << llendl;
+				LL_ERRS() << "generateMmip called with bad num channels" << LL_ENDL;
 			}
 			indata += nchannels*2;
 			data += nchannels;
@@ -1695,17 +1695,17 @@ F32 LLImageBase::calc_download_priority(F32 virtual_size, F32 visible_pixels, S3
 	bytes_weight *= bytes_weight;
 
 
-	//llinfos << "VS: " << virtual_size << llendl;
+	//LL_INFOS() << "VS: " << virtual_size << LL_ENDL;
 	F32 virtual_size_factor = virtual_size / (10.f*10.f);
 
 	// The goal is for weighted priority to be <= 0 when we've reached a point where
 	// we've sent enough data.
-	//llinfos << "BytesSent: " << bytes_sent << llendl;
-	//llinfos << "BytesWeight: " << bytes_weight << llendl;
-	//llinfos << "PreLog: " << bytes_weight * virtual_size_factor << llendl;
+	//LL_INFOS() << "BytesSent: " << bytes_sent << LL_ENDL;
+	//LL_INFOS() << "BytesWeight: " << bytes_weight << LL_ENDL;
+	//LL_INFOS() << "PreLog: " << bytes_weight * virtual_size_factor << LL_ENDL;
 	w_priority = (F32)log10(bytes_weight * virtual_size_factor);
 
-	//llinfos << "PreScale: " << w_priority << llendl;
+	//LL_INFOS() << "PreScale: " << w_priority << LL_ENDL;
 
 	// We don't want to affect how MANY bytes we send based on the visible pixels, but the order
 	// in which they're sent.  We post-multiply so we don't change the zero point.

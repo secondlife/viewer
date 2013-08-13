@@ -200,7 +200,7 @@ bool LLFontRegistry::parseFontInfo(const std::string& xml_filename)
 
 		if ( root.isNull() || ! root->hasName( "fonts" ) )
 		{
-			llwarns << "Bad font info file: " << *path_it << llendl;
+			LL_WARNS() << "Bad font info file: " << *path_it << LL_ENDL;
 			continue;
 		}
 
@@ -353,10 +353,10 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
 	bool found_size = nameToSize(norm_desc.getSize(),point_size);
 	if (!found_size)
 	{
-		llwarns << "createFont unrecognized size " << norm_desc.getSize() << llendl;
+		LL_WARNS() << "createFont unrecognized size " << norm_desc.getSize() << LL_ENDL;
 		return NULL;
 	}
-	llinfos << "createFont " << norm_desc.getName() << " size " << norm_desc.getSize() << " style " << ((S32) norm_desc.getStyle()) << llendl;
+	LL_INFOS() << "createFont " << norm_desc.getName() << " size " << norm_desc.getSize() << " style " << ((S32) norm_desc.getStyle()) << LL_ENDL;
 	F32 fallback_scale = 1.0;
 
 	// Find corresponding font template (based on same descriptor with no size specified)
@@ -365,8 +365,8 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
 	const LLFontDescriptor *match_desc = getClosestFontTemplate(template_desc);
 	if (!match_desc)
 	{
-		llwarns << "createFont failed, no template found for "
-				<< norm_desc.getName() << " style [" << ((S32)norm_desc.getStyle()) << "]" << llendl;
+		LL_WARNS() << "createFont failed, no template found for "
+				<< norm_desc.getName() << " style [" << ((S32)norm_desc.getStyle()) << "]" << LL_ENDL;
 		return NULL;
 	}
 
@@ -379,7 +379,7 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
 	// This may not be the best solution, but it at least prevents a crash.
 	if (it != mFontMap.end() && it->second != NULL)
 	{
-		llinfos << "-- matching font exists: " << nearest_exact_desc.getName() << " size " << nearest_exact_desc.getSize() << " style " << ((S32) nearest_exact_desc.getStyle()) << llendl;
+		LL_INFOS() << "-- matching font exists: " << nearest_exact_desc.getName() << " size " << nearest_exact_desc.getSize() << " style " << ((S32) nearest_exact_desc.getStyle()) << LL_ENDL;
 		
 		// copying underlying Freetype font, and storing in LLFontGL with requested font descriptor
 		LLFontGL *font = new LLFontGL;
@@ -412,7 +412,7 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
 	// Load fonts based on names.
 	if (file_names.empty())
 	{
-		llwarns << "createFont failed, no file names specified" << llendl;
+		LL_WARNS() << "createFont failed, no file names specified" << LL_ENDL;
 		return NULL;
 	}
 
@@ -480,7 +480,7 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
 	}
 	else
 	{
-		llwarns << "createFont failed in some way" << llendl;
+		LL_WARNS() << "createFont failed in some way" << LL_ENDL;
 	}
 
 	mFontMap[desc] = result;
@@ -533,9 +533,9 @@ LLFontGL *LLFontRegistry::getFont(const LLFontDescriptor& desc)
 		LLFontGL *fontp = createFont(desc);
 		if (!fontp)
 		{
-			llwarns << "getFont failed, name " << desc.getName()
+			LL_WARNS() << "getFont failed, name " << desc.getName()
 					<<" style=[" << ((S32) desc.getStyle()) << "]"
-					<< " size=[" << desc.getSize() << "]" << llendl;
+					<< " size=[" << desc.getSize() << "]" << LL_ENDL;
 		}
 		return fontp;
 	}
@@ -638,28 +638,28 @@ const LLFontDescriptor *LLFontRegistry::getClosestFontTemplate(const LLFontDescr
 
 void LLFontRegistry::dump()
 {
-	llinfos << "LLFontRegistry dump: " << llendl;
+	LL_INFOS() << "LLFontRegistry dump: " << LL_ENDL;
 	for (font_size_map_t::iterator size_it = mFontSizes.begin();
 		 size_it != mFontSizes.end();
 		 ++size_it)
 	{
-		llinfos << "Size: " << size_it->first << " => " << size_it->second << llendl;
+		LL_INFOS() << "Size: " << size_it->first << " => " << size_it->second << LL_ENDL;
 	}
 	for (font_reg_map_t::iterator font_it = mFontMap.begin();
 		 font_it != mFontMap.end();
 		 ++font_it)
 	{
 		const LLFontDescriptor& desc = font_it->first;
-		llinfos << "Font: name=" << desc.getName()
+		LL_INFOS() << "Font: name=" << desc.getName()
 				<< " style=[" << ((S32)desc.getStyle()) << "]"
 				<< " size=[" << desc.getSize() << "]"
 				<< " fileNames="
-				<< llendl;
+				<< LL_ENDL;
 		for (string_vec_t::const_iterator file_it=desc.getFileNames().begin();
 			 file_it != desc.getFileNames().end();
 			 ++file_it)
 		{
-			llinfos << "  file: " << *file_it <<llendl;
+			LL_INFOS() << "  file: " << *file_it <<LL_ENDL;
 		}
 	}
 }

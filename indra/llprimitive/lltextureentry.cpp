@@ -271,8 +271,8 @@ bool LLTextureEntry::fromLLSD(const LLSD& sd)
 	w = TEXTURE_MEDIA_DATA_KEY;
 	if (hasMedia() != sd.has(w))
 	{
-		llwarns << "LLTextureEntry::fromLLSD: media_flags (" << hasMedia() <<
-			") does not match presence of media_data (" << sd.has(w) << ").  Fixing." << llendl;
+		LL_WARNS() << "LLTextureEntry::fromLLSD: media_flags (" << hasMedia() <<
+			") does not match presence of media_data (" << sd.has(w) << ").  Fixing." << LL_ENDL;
 	}
 	updateMediaData(sd[w]);
 

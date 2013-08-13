@@ -145,7 +145,7 @@ LLAssetType::EType LLFolderType::folderTypeToAssetType(LLFolderType::EType folde
 {
 	if (LLAssetType::lookup(LLAssetType::EType(folder_type)) == LLAssetType::badLookup())
 	{
-		llwarns << "Converting to unknown asset type " << folder_type << llendl;
+		LL_WARNS() << "Converting to unknown asset type " << folder_type << LL_ENDL;
 	}
 	return (LLAssetType::EType)folder_type;
 }
@@ -155,7 +155,7 @@ LLFolderType::EType LLFolderType::assetTypeToFolderType(LLAssetType::EType asset
 {
 	if (LLFolderType::lookup(LLFolderType::EType(asset_type)) == LLFolderType::badLookup())
 	{
-		llwarns << "Converting to unknown folder type " << asset_type << llendl;
+		LL_WARNS() << "Converting to unknown folder type " << asset_type << LL_ENDL;
 	}
 	return (LLFolderType::EType)asset_type;
 }

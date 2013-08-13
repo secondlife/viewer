@@ -829,7 +829,7 @@ void LLFloaterPreference::onBtnOK()
 	else
 	{
 		// Show beep, pop up dialog, etc.
-		llinfos << "Can't close preferences!" << llendl;
+		LL_INFOS() << "Can't close preferences!" << LL_ENDL;
 	}
 
 	LLPanelLogin::updateLocationSelectorsVisibility();	

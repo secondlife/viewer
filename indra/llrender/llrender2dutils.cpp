@@ -348,7 +348,7 @@ void gl_draw_image( S32 x, S32 y, LLTexture* image, const LLColor4& color, const
 {
 	if (NULL == image)
 	{
-		llwarns << "image == NULL; aborting function" << llendl;
+		LL_WARNS() << "image == NULL; aborting function" << LL_ENDL;
 		return;
 	}
 	gl_draw_scaled_rotated_image( x, y, image->getWidth(0), image->getHeight(0), 0.f, image, color, uv_rect );
@@ -363,7 +363,7 @@ void gl_draw_scaled_image(S32 x, S32 y, S32 width, S32 height, LLTexture* image,
 {
 	if (NULL == image)
 	{
-		llwarns << "image == NULL; aborting function" << llendl;
+		LL_WARNS() << "image == NULL; aborting function" << LL_ENDL;
 		return;
 	}
 	gl_draw_scaled_rotated_image( x, y, width, height, 0.f, image, color, uv_rect );
@@ -373,7 +373,7 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 border_width, S32 border
 {
 	if (NULL == image)
 	{
-		llwarns << "image == NULL; aborting function" << llendl;
+		LL_WARNS() << "image == NULL; aborting function" << LL_ENDL;
 		return;
 	}
 
@@ -391,7 +391,7 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTex
 
 	if (NULL == image)
 	{
-		llwarns << "image == NULL; aborting function" << llendl;
+		LL_WARNS() << "image == NULL; aborting function" << LL_ENDL;
 		return;
 	}
 
@@ -649,7 +649,7 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
 {
 	if (!image && !target)
 	{
-		llwarns << "image == NULL; aborting function" << llendl;
+		LL_WARNS() << "image == NULL; aborting function" << LL_ENDL;
 		return;
 	}
 

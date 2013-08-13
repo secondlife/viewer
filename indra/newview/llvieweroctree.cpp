@@ -470,7 +470,7 @@ bool LLviewerOctreeGroup::removeFromGroup(LLViewerOctreeEntry* entry)
 	{
 		if (!mOctreeNode->remove(entry)) //this could cause *this* pointer to be destroyed, so no more function calls after this.
 		{
-			OCT_ERRS << "Could not remove LLVOCacheEntry from LLVOCacheOctreeGroup" << llendl;
+			OCT_ERRS << "Could not remove LLVOCacheEntry from LLVOCacheOctreeGroup" << LL_ENDL;
 			return false;
 		}
 	}	
@@ -622,7 +622,7 @@ void LLviewerOctreeGroup::handleChildAddition(const OctreeNode* parent, OctreeNo
 	}
 	else
 	{
-		OCT_ERRS << "LLviewerOctreeGroup redundancy detected." << llendl;
+		OCT_ERRS << "LLviewerOctreeGroup redundancy detected." << LL_ENDL;
 	}
 
 	unbound();
@@ -667,7 +667,7 @@ bool LLviewerOctreeGroup::boundObjects(BOOL empty, LLVector4a& minOut, LLVector4
 	{	//don't do anything if there are no objects
 		if (empty && mOctreeNode->getParent())
 		{	//only root is allowed to be empty
-			OCT_ERRS << "Empty leaf found in octree." << llendl;
+			OCT_ERRS << "Empty leaf found in octree." << LL_ENDL;
 		}
 		return false;
 	}
@@ -868,7 +868,7 @@ void LLOcclusionCullingGroup::handleChildAddition(const OctreeNode* parent, Octr
 	}
 	else
 	{
-		OCT_ERRS << "LLOcclusionCullingGroup redundancy detected." << llendl;
+		OCT_ERRS << "LLOcclusionCullingGroup redundancy detected." << LL_ENDL;
 	}
 
 	unbound();
@@ -1443,10 +1443,10 @@ void LLViewerOctreeCull::visit(const OctreeNode* branch)
 void LLViewerOctreeDebug::visit(const OctreeNode* branch)
 {
 #if 0
-	llinfos << "Node: " << (U32)branch << " # Elements: " << branch->getElementCount() << " # Children: " << branch->getChildCount() << llendl;
+	LL_INFOS() << "Node: " << (U32)branch << " # Elements: " << branch->getElementCount() << " # Children: " << branch->getChildCount() << LL_ENDL;
 	for (U32 i = 0; i < branch->getChildCount(); i++)
 	{
-		llinfos << "Child " << i << " : " << (U32)branch->getChild(i) << llendl;
+		LL_INFOS() << "Child " << i << " : " << (U32)branch->getChild(i) << LL_ENDL;
 	}
 #endif
 	LLviewerOctreeGroup* group = (LLviewerOctreeGroup*) branch->getListener(0);
@@ -1461,22 +1461,22 @@ void LLViewerOctreeDebug::processGroup(LLviewerOctreeGroup* group)
 	LLVector3 vec[2];
 	vec[0].set(vec4[0].getF32ptr());
 	vec[1].set(vec4[1].getF32ptr());
-	llinfos << "Bounds: " << vec[0] << " : " << vec[1] << llendl;
+	LL_INFOS() << "Bounds: " << vec[0] << " : " << vec[1] << LL_ENDL;
 
 	vec4 = group->getExtents();
 	vec[0].set(vec4[0].getF32ptr());
 	vec[1].set(vec4[1].getF32ptr());
-	llinfos << "Extents: " << vec[0] << " : " << vec[1] << llendl;
+	LL_INFOS() << "Extents: " << vec[0] << " : " << vec[1] << LL_ENDL;
 
 	vec4 = group->getObjectBounds();
 	vec[0].set(vec4[0].getF32ptr());
 	vec[1].set(vec4[1].getF32ptr());
-	llinfos << "ObjectBounds: " << vec[0] << " : " << vec[1] << llendl;
+	LL_INFOS() << "ObjectBounds: " << vec[0] << " : " << vec[1] << LL_ENDL;
 
 	vec4 = group->getObjectExtents();
 	vec[0].set(vec4[0].getF32ptr());
 	vec[1].set(vec4[1].getF32ptr());
-	llinfos << "ObjectExtents: " << vec[0] << " : " << vec[1] << llendl;
+	LL_INFOS() << "ObjectExtents: " << vec[0] << " : " << vec[1] << LL_ENDL;
 #endif
 }
 //--------------------------------------------------------------

@@ -56,7 +56,7 @@ BOOL LLMetricPerformanceTesterBasic::addTester(LLMetricPerformanceTesterBasic* t
 	std::string name = tester->getTesterName() ;
 	if (getTester(name))
 	{
-		llerrs << "Tester name is already used by some other tester : " << name << llendl ;
+		LL_ERRS() << "Tester name is already used by some other tester : " << name << LL_ENDL ;
 		return FALSE;
 	}
 
@@ -136,7 +136,7 @@ void LLMetricPerformanceTesterBasic::doAnalysisMetrics(std::string baseline, std
 	std::ifstream target_is(target.c_str());
 	if (!base_is.is_open() || !target_is.is_open())
 	{
-		llwarns << "'-analyzeperformance' error : baseline or current target file inexistent" << llendl;
+		LL_WARNS() << "'-analyzeperformance' error : baseline or current target file inexistent" << LL_ENDL;
 		base_is.close();
 		target_is.close();
 		return;
@@ -176,7 +176,7 @@ LLMetricPerformanceTesterBasic::LLMetricPerformanceTesterBasic(std::string name)
 {
 	if (mName == std::string())
 	{
-		llerrs << "LLMetricPerformanceTesterBasic construction invalid : Empty name passed to constructor" << llendl ;
+		LL_ERRS() << "LLMetricPerformanceTesterBasic construction invalid : Empty name passed to constructor" << LL_ENDL ;
 	}
 
 	mValidInstance = LLMetricPerformanceTesterBasic::addTester(this) ;
@@ -241,7 +241,7 @@ void LLMetricPerformanceTesterBasic::analyzePerformance(std::ofstream* os, LLSD*
 						(F32)((*base)[label][ mMetricStrings[index] ].asReal()), (F32)((*current)[label][ mMetricStrings[index] ].asReal())) ;
 					break;
 				default:
-					llerrs << "unsupported metric " << mMetricStrings[index] << " LLSD type: " << (S32)(*current)[label][ mMetricStrings[index] ].type() << llendl ;
+					LL_ERRS() << "unsupported metric " << mMetricStrings[index] << " LLSD type: " << (S32)(*current)[label][ mMetricStrings[index] ].type() << LL_ENDL ;
 				}
 			}	
 		}
@@ -305,7 +305,7 @@ void LLMetricPerformanceTesterWithSession::analyzePerformance(std::ofstream* os,
 
 	if (!mBaseSessionp || !mCurrentSessionp)
 	{
-		llerrs << "Error loading test sessions." << llendl ;
+		LL_ERRS() << "Error loading test sessions." << LL_ENDL ;
 	}
 
 	// Compare

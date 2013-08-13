@@ -300,8 +300,8 @@ public:
 
 	void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
 	{
-		llwarns << "BaseCapabilitiesCompleteTracker error [status:"
-				<< statusNum << "]: " << content << llendl;
+		LL_WARNS() << "BaseCapabilitiesCompleteTracker error [status:"
+				<< statusNum << "]: " << content << LL_ENDL;
 	}
 
 	void result(const LLSD& content)
@@ -315,17 +315,17 @@ public:
 		for(iter = content.beginMap(); iter != content.endMap(); ++iter)
 		{
 			regionp->setCapabilityDebug(iter->first, iter->second);	
-			//llinfos<<"BaseCapabilitiesCompleteTracker New Caps "<<iter->first<<" "<< iter->second<<llendl;
+			//LL_INFOS()<<"BaseCapabilitiesCompleteTracker New Caps "<<iter->first<<" "<< iter->second<<LL_ENDL;
 		}
 		
 		if ( regionp->getRegionImpl()->mCapabilities.size() != regionp->getRegionImpl()->mSecondCapabilitiesTracker.size() )
 		{
-			llinfos<<"BaseCapabilitiesCompleteTracker "<<"Sim sent duplicate seed caps that differs in size - most likely content."<<llendl;			
+			LL_INFOS()<<"BaseCapabilitiesCompleteTracker "<<"Sim sent duplicate seed caps that differs in size - most likely content."<<LL_ENDL;			
 			//todo#add cap debug versus original check?
 			/*CapabilityMap::const_iterator iter = regionp->getRegionImpl()->mCapabilities.begin();
 			while (iter!=regionp->getRegionImpl()->mCapabilities.end() )
 			{
-				llinfos<<"BaseCapabilitiesCompleteTracker Original "<<iter->first<<" "<< iter->second<<llendl;
+				LL_INFOS()<<"BaseCapabilitiesCompleteTracker Original "<<iter->first<<" "<< iter->second<<LL_ENDL;
 				++iter;
 			}
 			*/
@@ -768,7 +768,7 @@ void LLViewerRegion::processRegionInfo(LLMessageSystem* msg, void**)
 {
 	// send it to 'observers'
 	// *TODO: switch the floaters to using LLRegionInfoModel
-	llinfos << "Processing region info" << llendl;
+	LL_INFOS() << "Processing region info" << LL_ENDL;
 	LLRegionInfoModel::instance().update(msg);
 	LLFloaterGodTools::processRegionInfo(msg);
 	LLFloaterRegionInfo::processRegionInfo(msg);
@@ -1370,7 +1370,7 @@ LLViewerObject* LLViewerRegion::addNewObject(LLVOCacheEntry* entry)
 		addActiveCacheEntry(entry);
 
 		//object is already created, crash here for debug use.
-		llwarns << "Object is already created." << llendl;
+		LL_WARNS() << "Object is already created." << LL_ENDL;
 		llassert(!entry->getEntry()->hasDrawable());
 	}
 	return obj;
@@ -1584,7 +1584,7 @@ U32 LLViewerRegion::getPacketsLost() const
 	LLCircuitData *cdp = gMessageSystem->mCircuitInfo.findCircuit(mImpl->mHost);
 	if (!cdp)
 	{
-		llinfos << "LLViewerRegion::getPacketsLost couldn't find circuit for " << mImpl->mHost << llendl;
+		LL_INFOS() << "LLViewerRegion::getPacketsLost couldn't find circuit for " << mImpl->mHost << LL_ENDL;
 		return 0;
 	}
 	else
@@ -1702,9 +1702,9 @@ public:
 		avatar_locs->clear();
 		avatar_ids->clear();
 
-		//llinfos << "coarse locations agent[0] " << input["body"]["AgentData"][0]["AgentID"].asUUID() << llendl;
-		//llinfos << "my agent id = " << gAgent.getID() << llendl;
-		//llinfos << ll_pretty_print_sd(input) << llendl;
+		//LL_INFOS() << "coarse locations agent[0] " << input["body"]["AgentData"][0]["AgentID"].asUUID() << LL_ENDL;
+		//LL_INFOS() << "my agent id = " << gAgent.getID() << LL_ENDL;
+		//LL_INFOS() << ll_pretty_print_sd(input) << LL_ENDL;
 
 		LLSD 
 			locs   = input["body"]["Location"],
@@ -1741,11 +1741,11 @@ public:
 				pos <<= 8;
 				pos |= z;
 				avatar_locs->push_back(pos);
-				//llinfos << "next pos: " << x << "," << y << "," << z << ": " << pos << llendl;
+				//LL_INFOS() << "next pos: " << x << "," << y << "," << z << ": " << pos << LL_ENDL;
 				if(has_agent_data) // for backwards compatibility with old message format
 				{
 					LLUUID agent_id(agents_it->get("AgentID").asUUID());
-					//llinfos << "next agent: " << agent_id.asString() << llendl;
+					//LL_INFOS() << "next agent: " << agent_id.asString() << LL_ENDL;
 					avatar_ids->push_back(agent_id);
 				}
 			}
@@ -1766,7 +1766,7 @@ LLHTTPRegistration<CoarseLocationUpdate>
 // the deprecated coarse location handler
 void LLViewerRegion::updateCoarseLocations(LLMessageSystem* msg)
 {
-	//llinfos << "CoarseLocationUpdate" << llendl;
+	//LL_INFOS() << "CoarseLocationUpdate" << LL_ENDL;
 	mMapAvatars.clear();
 	mMapAvatarIDs.clear(); // only matters in a rare case but it's good to be safe.
 
@@ -1794,9 +1794,9 @@ void LLViewerRegion::updateCoarseLocations(LLMessageSystem* msg)
 			msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id, i);
 		}
 
-		//llinfos << "  object X: " << (S32)x_pos << " Y: " << (S32)y_pos
+		//LL_INFOS() << "  object X: " << (S32)x_pos << " Y: " << (S32)y_pos
 		//		<< " Z: " << (S32)(z_pos * 4)
-		//		<< llendl;
+		//		<< LL_ENDL;
 
 		// treat the target specially for the map
 		if(i == target_index)
@@ -1847,7 +1847,7 @@ void LLViewerRegion::setSimulatorFeatures(const LLSD& sim_features)
 	std::stringstream str;
 	
 	LLSDSerialize::toPrettyXML(sim_features, str);
-	llinfos << str.str() << llendl;
+	LL_INFOS() << str.str() << LL_ENDL;
 	mSimulatorFeatures = sim_features;
 }
 
@@ -2032,6 +2032,7 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLDataPackerB
 		// Create new entry and add to map
 		result = CACHE_UPDATE_ADDED;
 		entry = new LLVOCacheEntry(local_id, crc, dp);
+		record(LLStatViewer::OBJECT_CACHE_HIT_RATE, LLUnits::Ratio::fromValue(0));
 		
 		mImpl->mCacheMap[local_id] = entry;
 		
@@ -2166,14 +2167,14 @@ bool LLViewerRegion::probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss
 		}
 		else
 		{
-			// llinfos << "CRC miss for " << local_id << llendl;
+			// LL_INFOS() << "CRC miss for " << local_id << LL_ENDL;
 
 			addCacheMiss(local_id, CACHE_MISS_TYPE_CRC);
 		}
 	}
 	else
 	{
-		// llinfos << "Cache miss for " << local_id << llendl;
+		// LL_INFOS() << "Cache miss for " << local_id << LL_ENDL;
 		addCacheMiss(local_id, CACHE_MISS_TYPE_FULL);
 	}
 
@@ -2228,7 +2229,7 @@ void LLViewerRegion::requestCacheMisses()
 	}
 
 	mCacheDirty = TRUE ;
-	// llinfos << "KILLDEBUG Sent cache miss full " << full_count << " crc " << crc_count << llendl;
+	// LL_INFOS() << "KILLDEBUG Sent cache miss full " << full_count << " crc " << crc_count << LL_ENDL;
 	LLViewerStatsRecorder::instance().requestCacheMissesEvent(mCacheMissList.size());
 	LLViewerStatsRecorder::instance().log(0.2f);
 
@@ -2263,14 +2264,14 @@ void LLViewerRegion::dumpCache()
 		change_bin[changes]++;
 	}
 
-	llinfos << "Count " << mImpl->mCacheMap.size() << llendl;
+	LL_INFOS() << "Count " << mImpl->mCacheMap.size() << LL_ENDL;
 	for (i = 0; i < BINS; i++)
 	{
-		llinfos << "Hits " << i << " " << hit_bin[i] << llendl;
+		LL_INFOS() << "Hits " << i << " " << hit_bin[i] << LL_ENDL;
 	}
 	for (i = 0; i < BINS; i++)
 	{
-		llinfos << "Changes " << i << " " << change_bin[i] << llendl;
+		LL_INFOS() << "Changes " << i << " " << change_bin[i] << LL_ENDL;
 	}
 }
 
@@ -2510,7 +2511,7 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 {
 	if (getCapability("Seed") == url)
     {	
-		//llwarns << "Ignoring duplicate seed capability" << llendl;
+		//LL_WARNS() << "Ignoring duplicate seed capability" << LL_ENDL;
 		//Instead of just returning we build up a second set of seed caps and compare them 
 		//to the "original" seed cap received and determine why there is problem!
 		LLSD capabilityNames = LLSD::emptyArray();
@@ -2529,7 +2530,7 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	LLSD capabilityNames = LLSD::emptyArray();
 	mImpl->buildCapabilityNames(capabilityNames);
 
-	llinfos << "posting to seed " << url << llendl;
+	LL_INFOS() << "posting to seed " << url << LL_ENDL;
 
 	S32 id = ++mImpl->mHttpResponderID;
 	LLHTTPClient::post(url, capabilityNames, 
@@ -2564,8 +2565,8 @@ void LLViewerRegion::failedSeedCapability()
 		LLSD capabilityNames = LLSD::emptyArray();
 		mImpl->buildCapabilityNames(capabilityNames);
 
-		llinfos << "posting to seed " << url << " (retry " 
-				<< mImpl->mSeedCapAttempts << ")" << llendl;
+		LL_INFOS() << "posting to seed " << url << " (retry " 
+				<< mImpl->mSeedCapAttempts << ")" << LL_ENDL;
 
 		S32 id = ++mImpl->mHttpResponderID;
 		LLHTTPClient::post(url, capabilityNames, 
@@ -2666,7 +2667,7 @@ std::string LLViewerRegion::getCapability(const std::string& name) const
 {
 	if (!capabilitiesReceived() && (name!=std::string("Seed")) && (name!=std::string("ObjectMedia")))
 	{
-		llwarns << "getCapability called before caps received" << llendl;
+		LL_WARNS() << "getCapability called before caps received" << LL_ENDL;
 	}
 	
 	CapabilityMap::const_iterator iter = mImpl->mCapabilities.find(name);
@@ -2711,10 +2712,10 @@ void LLViewerRegion::logActiveCapabilities() const
 	{
 		if (!iter->second.empty())
 		{
-			llinfos << iter->first << " URL is " << iter->second << llendl;
+			LL_INFOS() << iter->first << " URL is " << iter->second << LL_ENDL;
 		}
 	}
-	llinfos << "Dumped " << count << " entries." << llendl;
+	LL_INFOS() << "Dumped " << count << " entries." << LL_ENDL;
 }
 
 LLSpatialPartition* LLViewerRegion::getSpatialPartition(U32 type)

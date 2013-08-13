@@ -61,5 +61,5 @@ void LLClassifiedStatsResponder::result(const LLSD& content)
 /*virtual*/
 void LLClassifiedStatsResponder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 {
-	llinfos << "LLClassifiedStatsResponder::error [status:" << status << "]: " << content << llendl;
+	LL_INFOS() << "LLClassifiedStatsResponder::error [status:" << status << "]: " << content << LL_ENDL;
 }

@@ -171,7 +171,7 @@ public:
 
 			if (!LLUICtrlFactory::getLayeredXMLNode(filename, root_node))
 				{							
-				llwarns << "Couldn't parse XUI file: " << instance().getCurFileName() << llendl;
+				LL_WARNS() << "Couldn't parse XUI file: " << instance().getCurFileName() << LL_ENDL;
 				goto fail;
 			}
 
@@ -182,7 +182,7 @@ public:
 				// not of right type, so delete it
 				if (!widget) 
 				{
-					llwarns << "Widget in " << filename << " was of type " << typeid(view).name() << " instead of expected type " << typeid(T).name() << llendl;
+					LL_WARNS() << "Widget in " << filename << " was of type " << typeid(view).name() << " instead of expected type " << typeid(T).name() << LL_ENDL;
 					delete view;
 					view = NULL;
 				}
@@ -225,7 +225,7 @@ private:
 
 		if (!params.validateBlock())
 		{
-			llwarns << getInstance()->getCurFileName() << ": Invalid parameter block for " << typeid(T).name() << llendl;
+			LL_WARNS() << getInstance()->getCurFileName() << ": Invalid parameter block for " << typeid(T).name() << LL_ENDL;
 			//return NULL;
 		}
 

@@ -196,8 +196,6 @@ protected:
 	std::vector<OrphanInfo> mOrphanChildren;	// UUID's of orphaned objects
 	S32 mNumOrphans;
 
-	static LLTrace::SampleStatHandle<LLUnit<F32, LLUnits::Percent> > sCacheHitRate;
-
 	typedef std::vector<LLPointer<LLViewerObject> > vobj_list_t;
 
 	vobj_list_t mObjects;
@@ -274,7 +272,7 @@ inline LLViewerObject *LLViewerObjectList::getObject(const S32 index)
 	objectp = mObjects[index];
 	if (objectp->isDead())
 	{
-		//llwarns << "Dead object " << objectp->mID << " in getObject" << llendl;
+		//LL_WARNS() << "Dead object " << objectp->mID << " in getObject" << LL_ENDL;
 		return NULL;
 	}
 	return objectp;

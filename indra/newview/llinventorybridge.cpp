@@ -733,7 +733,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 
 void LLInvFVBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
-	lldebugs << "LLInvFVBridge::buildContextMenu()" << llendl;
+	LL_DEBUGS() << "LLInvFVBridge::buildContextMenu()" << LL_ENDL;
 	menuentry_vec_t items;
 	menuentry_vec_t disabled_items;
 	if(isItemInTrash())
@@ -1032,7 +1032,7 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 		case LLAssetType::AT_TEXTURE:
 			if(!(inv_type == LLInventoryType::IT_TEXTURE || inv_type == LLInventoryType::IT_SNAPSHOT))
 			{
-				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << llendl;
+				LL_WARNS() << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << LL_ENDL;
 			}
 			new_listener = new LLTextureBridge(inventory, root, uuid, inv_type);
 			break;
@@ -1040,7 +1040,7 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 		case LLAssetType::AT_SOUND:
 			if(!(inv_type == LLInventoryType::IT_SOUND))
 			{
-				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << llendl;
+				LL_WARNS() << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << LL_ENDL;
 			}
 			new_listener = new LLSoundBridge(inventory, root, uuid);
 			break;
@@ -1048,7 +1048,7 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 		case LLAssetType::AT_LANDMARK:
 			if(!(inv_type == LLInventoryType::IT_LANDMARK))
 			{
-				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << llendl;
+				LL_WARNS() << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << LL_ENDL;
 			}
 			new_listener = new LLLandmarkBridge(inventory, root, uuid, flags);
 			break;
@@ -1056,7 +1056,7 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 		case LLAssetType::AT_CALLINGCARD:
 			if(!(inv_type == LLInventoryType::IT_CALLINGCARD))
 			{
-				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << llendl;
+				LL_WARNS() << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << LL_ENDL;
 			}
 			new_listener = new LLCallingCardBridge(inventory, root, uuid);
 			break;
@@ -1064,7 +1064,7 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 		case LLAssetType::AT_SCRIPT:
 			if(!(inv_type == LLInventoryType::IT_LSL))
 			{
-				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << llendl;
+				LL_WARNS() << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << LL_ENDL;
 			}
 			new_listener = new LLItemBridge(inventory, root, uuid);
 			break;
@@ -1072,7 +1072,7 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 		case LLAssetType::AT_OBJECT:
 			if(!(inv_type == LLInventoryType::IT_OBJECT || inv_type == LLInventoryType::IT_ATTACHMENT))
 			{
-				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << llendl;
+				LL_WARNS() << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << LL_ENDL;
 			}
 			new_listener = new LLObjectBridge(inventory, root, uuid, inv_type, flags);
 			break;
@@ -1080,7 +1080,7 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 		case LLAssetType::AT_NOTECARD:
 			if(!(inv_type == LLInventoryType::IT_NOTECARD))
 			{
-				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << llendl;
+				LL_WARNS() << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << LL_ENDL;
 			}
 			new_listener = new LLNotecardBridge(inventory, root, uuid);
 			break;
@@ -1088,7 +1088,7 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 		case LLAssetType::AT_ANIMATION:
 			if(!(inv_type == LLInventoryType::IT_ANIMATION))
 			{
-				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << llendl;
+				LL_WARNS() << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << LL_ENDL;
 			}
 			new_listener = new LLAnimationBridge(inventory, root, uuid);
 			break;
@@ -1096,7 +1096,7 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 		case LLAssetType::AT_GESTURE:
 			if(!(inv_type == LLInventoryType::IT_GESTURE))
 			{
-				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << llendl;
+				LL_WARNS() << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << LL_ENDL;
 			}
 			new_listener = new LLGestureBridge(inventory, root, uuid);
 			break;
@@ -1104,7 +1104,7 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 		case LLAssetType::AT_LSL_TEXT:
 			if(!(inv_type == LLInventoryType::IT_LSL))
 			{
-				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << llendl;
+				LL_WARNS() << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << LL_ENDL;
 			}
 			new_listener = new LLLSLTextBridge(inventory, root, uuid);
 			break;
@@ -1113,7 +1113,7 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 		case LLAssetType::AT_BODYPART:
 			if(!(inv_type == LLInventoryType::IT_WEARABLE))
 			{
-				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << llendl;
+				LL_WARNS() << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << LL_ENDL;
 			}
 			new_listener = new LLWearableBridge(inventory, root, uuid, asset_type, inv_type, (LLWearableType::EType)flags);
 			break;
@@ -1134,19 +1134,19 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 	    case LLAssetType::AT_MESH:
 			if(!(inv_type == LLInventoryType::IT_MESH))
 			{
-				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << llendl;
+				LL_WARNS() << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << LL_ENDL;
 			}
 			new_listener = new LLMeshBridge(inventory, root, uuid);
 			break;
 
 		case LLAssetType::AT_IMAGE_TGA:
 		case LLAssetType::AT_IMAGE_JPEG:
-			//llwarns << LLAssetType::lookup(asset_type) << " asset type is unhandled for uuid " << uuid << llendl;
+			//LL_WARNS() << LLAssetType::lookup(asset_type) << " asset type is unhandled for uuid " << uuid << LL_ENDL;
 			break;
 
 		default:
-			llinfos << "Unhandled asset type (llassetstorage.h): "
-					<< (S32)asset_type << " (" << LLAssetType::lookup(asset_type) << ")" << llendl;
+			LL_INFOS() << "Unhandled asset type (llassetstorage.h): "
+					<< (S32)asset_type << " (" << LLAssetType::lookup(asset_type) << ")" << LL_ENDL;
 			break;
 	}
 
@@ -1427,7 +1427,7 @@ void LLItemBridge::performAction(LLInventoryModel* model, std::string action)
 	}
 	else if (isMarketplaceCopyAction(action))
 	{
-		llinfos << "Copy item to marketplace action!" << llendl;
+		LL_INFOS() << "Copy item to marketplace action!" << LL_ENDL;
 
 		LLInventoryItem* itemp = model->getItem(mUUID);
 		if (!itemp) return;
@@ -1594,7 +1594,7 @@ LLFontGL::StyleFlags LLItemBridge::getLabelStyle() const
 
 	if (get_is_item_worn(mUUID))
 	{
-		// llinfos << "BOLD" << llendl;
+		// LL_INFOS() << "BOLD" << LL_ENDL;
 		font |= LLFontGL::BOLD;
 	}
 	else if(item && item->getIsLinkType())
@@ -2195,7 +2195,7 @@ int get_folder_path_length(const LLUUID& ancestor_id, const LLUUID& descendant_i
 		category = gInventory.getCategory(parent_id);
 	}
 
-	llwarns << "get_folder_path_length() couldn't trace a path from the descendant to the ancestor" << llendl;
+	LL_WARNS() << "get_folder_path_length() couldn't trace a path from the descendant to the ancestor" << LL_ENDL;
 	return -1;
 }
 
@@ -2586,7 +2586,7 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 	LLViewerObject* object = gObjectList.findObject(object_id);
 	if(!object)
 	{
-		llinfos << "Object not found for drop." << llendl;
+		LL_INFOS() << "Object not found for drop." << LL_ENDL;
 		return FALSE;
 	}
 
@@ -2597,7 +2597,7 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 
 	if (inventory_objects.empty())
 	{
-		llinfos << "Object contents not found for drop." << llendl;
+		LL_INFOS() << "Object contents not found for drop." << LL_ENDL;
 		return FALSE;
 	}
 
@@ -2613,7 +2613,7 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 		LLInventoryItem* item = dynamic_cast<LLInventoryItem*>(it->get());
 		if (!item)
 		{
-			llwarns << "Invalid inventory item for drop" << llendl;
+			LL_WARNS() << "Invalid inventory item for drop" << LL_ENDL;
 			continue;
 		}
 
@@ -2681,7 +2681,7 @@ void LLRightClickInventoryFetchDescendentsObserver::execute(bool clear_observer)
 	// Bail out immediately if no descendents
 	if( mComplete.empty() )
 	{
-		llwarns << "LLRightClickInventoryFetchDescendentsObserver::done with empty mCompleteFolders" << llendl;
+		LL_WARNS() << "LLRightClickInventoryFetchDescendentsObserver::done with empty mCompleteFolders" << LL_ENDL;
 		if (clear_observer)
 		{
 		gInventory.removeObserver(this);
@@ -2839,8 +2839,8 @@ void LLInventoryCopyAndWearObserver::changed(U32 mask)
 			LLViewerInventoryCategory* category = gInventory.getCategory(mCatID);
 			if (NULL == category)
 			{
-				llwarns << "gInventory.getCategory(" << mCatID
-						<< ") was NULL" << llendl;
+				LL_WARNS() << "gInventory.getCategory(" << mCatID
+						<< ") was NULL" << LL_ENDL;
 			}
 			else
 			{
@@ -2946,7 +2946,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 #endif
 	else if (isMarketplaceCopyAction(action))
 	{
-		llinfos << "Copy folder to marketplace action!" << llendl;
+		LL_INFOS() << "Copy folder to marketplace action!" << LL_ENDL;
 
 		LLInventoryCategory * cat = gInventory.getCategory(mUUID);
 		if (!cat) return;
@@ -2957,7 +2957,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 #if ENABLE_MERCHANT_SEND_TO_MARKETPLACE_CONTEXT_MENU
 	else if (isMarketplaceSendAction(action))
 	{
-		llinfos << "Send to marketplace action!" << llendl;
+		LL_INFOS() << "Send to marketplace action!" << LL_ENDL;
 
 		LLInventoryCategory * cat = gInventory.getCategory(mUUID);
 		if (!cat) return;
@@ -2969,7 +2969,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 
 void LLFolderBridge::openItem()
 {
-	lldebugs << "LLFolderBridge::openItem()" << llendl;
+	LL_DEBUGS() << "LLFolderBridge::openItem()" << LL_ENDL;
 	LLInventoryModel* model = getInventoryModel();
 	if(!model) return;
 	if(mUUID.isNull()) return;
@@ -3604,7 +3604,7 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	menuentry_vec_t items;
 	menuentry_vec_t disabled_items;
 
-	lldebugs << "LLFolderBridge::buildContextMenu()" << llendl;
+	LL_DEBUGS() << "LLFolderBridge::buildContextMenu()" << LL_ENDL;
 
 	LLInventoryModel* model = getInventoryModel();
 	if(!model) return;
@@ -3633,7 +3633,7 @@ BOOL LLFolderBridge::dragOrDrop(MASK mask, BOOL drop,
 {
 	LLInventoryItem* inv_item = (LLInventoryItem*)cargo_data;
 
-	//llinfos << "LLFolderBridge::dragOrDrop()" << llendl;
+	//LL_INFOS() << "LLFolderBridge::dragOrDrop()" << LL_ENDL;
 	BOOL accept = FALSE;
 	switch(cargo_type)
 	{
@@ -3682,7 +3682,7 @@ BOOL LLFolderBridge::dragOrDrop(MASK mask, BOOL drop,
 		case DAD_NONE:
 			break;
 		default:
-			llwarns << "Unhandled cargo type for drag&drop " << cargo_type << llendl;
+			LL_WARNS() << "Unhandled cargo type for drag&drop " << cargo_type << LL_ENDL;
 			break;
 	}
 	return accept;
@@ -4152,7 +4152,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		object = gObjectList.findObject(inv_item->getParentUUID());
 		if (!object)
 		{
-			llinfos << "Object not found for drop." << llendl;
+			LL_INFOS() << "Object not found for drop." << LL_ENDL;
 			return FALSE;
 		}
 
@@ -4318,7 +4318,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 	}
 	else
 	{
-		llwarns << "unhandled drag source" << llendl;
+		LL_WARNS() << "unhandled drag source" << LL_ENDL;
 	}
 	return accept;
 }
@@ -4423,7 +4423,7 @@ bool LLTextureBridge::canSaveTexture(void)
 
 void LLTextureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
-	lldebugs << "LLTextureBridge::buildContextMenu()" << llendl;
+	LL_DEBUGS() << "LLTextureBridge::buildContextMenu()" << LL_ENDL;
 	menuentry_vec_t items;
 	menuentry_vec_t disabled_items;
 	if(isItemInTrash())
@@ -4493,7 +4493,7 @@ void LLSoundBridge::openSoundPreview(void* which)
 
 void LLSoundBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
-	lldebugs << "LLSoundBridge::buildContextMenu()" << llendl;
+	LL_DEBUGS() << "LLSoundBridge::buildContextMenu()" << LL_ENDL;
 	menuentry_vec_t items;
 	menuentry_vec_t disabled_items;
 
@@ -4554,7 +4554,7 @@ void LLLandmarkBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	menuentry_vec_t items;
 	menuentry_vec_t disabled_items;
 
-	lldebugs << "LLLandmarkBridge::buildContextMenu()" << llendl;
+	LL_DEBUGS() << "LLLandmarkBridge::buildContextMenu()" << LL_ENDL;
 	if(isOutboxFolder())
 	{
 		addOutboxContextMenuOptions(flags, items, disabled_items);
@@ -4786,7 +4786,7 @@ void LLCallingCardBridge::openItem()
 
 void LLCallingCardBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
-	lldebugs << "LLCallingCardBridge::buildContextMenu()" << llendl;
+	LL_DEBUGS() << "LLCallingCardBridge::buildContextMenu()" << LL_ENDL;
 	menuentry_vec_t items;
 	menuentry_vec_t disabled_items;
 
@@ -5052,7 +5052,7 @@ BOOL LLGestureBridge::removeItem()
 
 void LLGestureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
-	lldebugs << "LLGestureBridge::buildContextMenu()" << llendl;
+	LL_DEBUGS() << "LLGestureBridge::buildContextMenu()" << LL_ENDL;
 	menuentry_vec_t items;
 	menuentry_vec_t disabled_items;
 	if(isItemInTrash())
@@ -5112,7 +5112,7 @@ void LLAnimationBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	menuentry_vec_t items;
 	menuentry_vec_t disabled_items;
 
-	lldebugs << "LLAnimationBridge::buildContextMenu()" << llendl;
+	LL_DEBUGS() << "LLAnimationBridge::buildContextMenu()" << LL_ENDL;
 	if(isOutboxFolder())
 	{
 		items.push_back(std::string("Delete"));
@@ -5295,7 +5295,7 @@ void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attach
 		(gAgentAvatarp->attachmentWasRequested(item_id) ||
 		 gAgentAvatarp->isWearingAttachment(item_id)))
 	{
-		llwarns << "duplicate attachment request, ignoring" << llendl;
+		LL_WARNS() << "duplicate attachment request, ignoring" << LL_ENDL;
 		return;
 	}
 	gAgentAvatarp->addAttachmentRequest(item_id);
@@ -5607,7 +5607,7 @@ void LLWearableBridge::openItem()
 
 void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
-	lldebugs << "LLWearableBridge::buildContextMenu()" << llendl;
+	LL_DEBUGS() << "LLWearableBridge::buildContextMenu()" << LL_ENDL;
 	menuentry_vec_t items;
 	menuentry_vec_t disabled_items;
 	if(isItemInTrash())
@@ -5771,7 +5771,7 @@ void LLWearableBridge::onWearOnAvatarArrived( LLViewerWearable* wearable, void* 
 			}
 			else
 			{
-				llinfos << "By the time wearable asset arrived, its inv item already pointed to a different asset." << llendl;
+				LL_INFOS() << "By the time wearable asset arrived, its inv item already pointed to a different asset." << LL_ENDL;
 			}
 		}
 	}
@@ -5798,7 +5798,7 @@ void LLWearableBridge::onWearAddOnAvatarArrived( LLViewerWearable* wearable, voi
 			}
 			else
 			{
-				llinfos << "By the time wearable asset arrived, its inv item already pointed to a different asset." << llendl;
+				LL_INFOS() << "By the time wearable asset arrived, its inv item already pointed to a different asset." << LL_ENDL;
 			}
 		}
 	}
@@ -5842,7 +5842,7 @@ BOOL LLWearableBridge::canRemoveFromAvatar(void* user_data)
 
 void LLWearableBridge::removeFromAvatar()
 {
-	llwarns << "safe to remove?" << llendl;
+	LL_WARNS() << "safe to remove?" << LL_ENDL;
 	if (get_is_item_worn(mUUID))
 	{
 		LLAppearanceMgr::instance().removeItemFromAvatar(mUUID);
@@ -5860,7 +5860,7 @@ std::string LLLinkItemBridge::sPrefix("Link: ");
 void LLLinkItemBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
 	// *TODO: Translate
-	lldebugs << "LLLink::buildContextMenu()" << llendl;
+	LL_DEBUGS() << "LLLink::buildContextMenu()" << LL_ENDL;
 	menuentry_vec_t items;
 	menuentry_vec_t disabled_items;
 
@@ -5900,7 +5900,7 @@ void LLMeshBridge::openItem()
 
 void LLMeshBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
-	lldebugs << "LLMeshBridge::buildContextMenu()" << llendl;
+	LL_DEBUGS() << "LLMeshBridge::buildContextMenu()" << LL_ENDL;
 	std::vector<std::string> items;
 	std::vector<std::string> disabled_items;
 
@@ -5957,7 +5957,7 @@ LLUIImagePtr LLLinkFolderBridge::getIcon() const
 void LLLinkFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
 	// *TODO: Translate
-	lldebugs << "LLLink::buildContextMenu()" << llendl;
+	LL_DEBUGS() << "LLLink::buildContextMenu()" << LL_ENDL;
 	menuentry_vec_t items;
 	menuentry_vec_t disabled_items;
 

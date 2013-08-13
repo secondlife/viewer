@@ -34,7 +34,6 @@
 #include "llrefcount.h"
 #include "llviewerassettype.h"
 #include "llviewerassetstorage.h"
-#include "llsimplestat.h"
 #include "llsd.h"
 #include "llvoavatar.h"
 #include "lltrace.h"

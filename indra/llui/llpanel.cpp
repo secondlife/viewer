@@ -391,7 +391,7 @@ LLView* LLPanel::fromXML(LLXMLNodePtr node, LLView* parent, LLXMLNodePtr output_
 			panelp = LLRegisterPanelClass::instance().createPanelClass(class_attr);
 			if (!panelp)
 			{
-				llwarns << "Panel class \"" << class_attr << "\" not registered." << llendl;
+				LL_WARNS() << "Panel class \"" << class_attr << "\" not registered." << LL_ENDL;
 			}
 		}
 
@@ -529,7 +529,7 @@ BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr outpu
 			LLFastTimer timer(FTM_EXTERNAL_PANEL_LOAD);
 			if (!LLUICtrlFactory::getLayeredXMLNode(xml_filename, referenced_xml))
 			{
-				llwarns << "Couldn't parse panel from: " << xml_filename << llendl;
+				LL_WARNS() << "Couldn't parse panel from: " << xml_filename << LL_ENDL;
 
 				return FALSE;
 			}
@@ -599,11 +599,11 @@ std::string LLPanel::getString(const std::string& name, const LLStringUtil::form
 	std::string err_str("Failed to find string " + name + " in panel " + getName()); //*TODO: Translate
 	if(LLUI::sSettingGroups["config"]->getBOOL("QAMode"))
 	{
-		llerrs << err_str << llendl;
+		LL_ERRS() << err_str << LL_ENDL;
 	}
 	else
 	{
-		llwarns << err_str << llendl;
+		LL_WARNS() << err_str << LL_ENDL;
 	}
 	return LLStringUtil::null;
 }
@@ -618,11 +618,11 @@ std::string LLPanel::getString(const std::string& name) const
 	std::string err_str("Failed to find string " + name + " in panel " + getName()); //*TODO: Translate
 	if(LLUI::sSettingGroups["config"]->getBOOL("QAMode"))
 	{
-		llerrs << err_str << llendl;
+		LL_ERRS() << err_str << LL_ENDL;
 	}
 	else
 	{
-		llwarns << err_str << llendl;
+		LL_WARNS() << err_str << LL_ENDL;
 	}
 	return LLStringUtil::null;
 }
@@ -976,18 +976,18 @@ BOOL LLPanel::buildFromFile(const std::string& filename, const LLPanel::Params& 
 
 	if (!LLUICtrlFactory::getLayeredXMLNode(filename, root))
 	{
-		llwarns << "Couldn't parse panel from: " << filename << llendl;
+		LL_WARNS() << "Couldn't parse panel from: " << filename << LL_ENDL;
 		return didPost;
 	}
 
 	// root must be called panel
 	if( !root->hasName("panel" ) )
 	{
-		llwarns << "Root node should be named panel in : " << filename << llendl;
+		LL_WARNS() << "Root node should be named panel in : " << filename << LL_ENDL;
 		return didPost;
 	}
 
-	lldebugs << "Building panel " << filename << llendl;
+	LL_DEBUGS() << "Building panel " << filename << LL_ENDL;
 
 	LLUICtrlFactory::instance().pushFileName(filename);
 	{

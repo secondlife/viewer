@@ -117,7 +117,7 @@ void LLViewerAssetStorage::storeAssetData(
 {
 	LLAssetID asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
 	LL_DEBUGS("AssetStorage") << "LLViewerAssetStorage::storeAssetData (legacy) " << tid << ":" << LLAssetType::lookup(asset_type)
-			<< " ASSET_ID: " << asset_id << llendl;
+			<< " ASSET_ID: " << asset_id << LL_ENDL;
 	
 	if (mUpstreamHost.isOk())
 	{
@@ -137,7 +137,7 @@ void LLViewerAssetStorage::storeAssetData(
 			if (asset_size < 1)
 			{
 				// This can happen if there's a bug in our code or if the VFS has been corrupted.
-				llwarns << "LLViewerAssetStorage::storeAssetData()  Data _should_ already be in the VFS, but it's not! " << asset_id << llendl;
+				LL_WARNS() << "LLViewerAssetStorage::storeAssetData()  Data _should_ already be in the VFS, but it's not! " << asset_id << LL_ENDL;
 				// LLAssetStorage metric: Zero size VFS
 				reportMetric( asset_id, asset_type, LLStringUtil::null, LLUUID::null, 0, MR_ZERO_SIZE, __FILE__, __LINE__, "The file didn't exist or was zero length (VFS - can't tell which)" );
 
@@ -174,11 +174,11 @@ void LLViewerAssetStorage::storeAssetData(
 				if( bytes_read == asset_size )
 				{
 					req->mDataSentInFirstPacket = TRUE;
-					//llinfos << "LLViewerAssetStorage::createAsset sending data in first packet" << llendl;
+					//LL_INFOS() << "LLViewerAssetStorage::createAsset sending data in first packet" << LL_ENDL;
 				}
 				else
 				{
-					llwarns << "Probable corruption in VFS file, aborting store asset data" << llendl;
+					LL_WARNS() << "Probable corruption in VFS file, aborting store asset data" << LL_ENDL;
 
 					// LLAssetStorage metric: VFS corrupt - bogus size
 					reportMetric( asset_id, asset_type, LLStringUtil::null, LLUUID::null, asset_size, MR_VFS_CORRUPTION, __FILE__, __LINE__, "VFS corruption" );
@@ -207,7 +207,7 @@ void LLViewerAssetStorage::storeAssetData(
 		}
 		else
 		{
-			llwarns << "AssetStorage: attempt to upload non-existent vfile " << asset_id << ":" << LLAssetType::lookup(asset_type) << llendl;
+			LL_WARNS() << "AssetStorage: attempt to upload non-existent vfile " << asset_id << ":" << LLAssetType::lookup(asset_type) << LL_ENDL;
 			// LLAssetStorage metric: Zero size VFS
 			reportMetric( asset_id, asset_type, LLStringUtil::null, LLUUID::null, 0, MR_ZERO_SIZE, __FILE__, __LINE__, "The file didn't exist or was zero length (VFS - can't tell which)" );
 			if (callback)
@@ -218,7 +218,7 @@ void LLViewerAssetStorage::storeAssetData(
 	}
 	else
 	{
-		llwarns << "Attempt to move asset store request upstream w/o valid upstream provider" << llendl;
+		LL_WARNS() << "Attempt to move asset store request upstream w/o valid upstream provider" << LL_ENDL;
 		// LLAssetStorage metric: Upstream provider dead
 		reportMetric( asset_id, asset_type, LLStringUtil::null, LLUUID::null, 0, MR_NO_UPSTREAM, __FILE__, __LINE__, "No upstream provider" );
 		if (callback)
@@ -243,14 +243,14 @@ void LLViewerAssetStorage::storeAssetData(
 	{
 		// LLAssetStorage metric: no filename
 		reportMetric( LLUUID::null, asset_type, LLStringUtil::null, LLUUID::null, 0, MR_VFS_CORRUPTION, __FILE__, __LINE__, "Filename missing" );
-		llerrs << "No filename specified" << llendl;
+		LL_ERRS() << "No filename specified" << LL_ENDL;
 		return;
 	}
 	
 	LLAssetID asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
-	LL_DEBUGS("AssetStorage") << "LLViewerAssetStorage::storeAssetData (legacy)" << asset_id << ":" << LLAssetType::lookup(asset_type) << llendl;
+	LL_DEBUGS("AssetStorage") << "LLViewerAssetStorage::storeAssetData (legacy)" << asset_id << ":" << LLAssetType::lookup(asset_type) << LL_ENDL;
 
-	LL_DEBUGS("AssetStorage") << "ASSET_ID: " << asset_id << llendl;
+	LL_DEBUGS("AssetStorage") << "ASSET_ID: " << asset_id << LL_ENDL;
 
 	S32 size = 0;
 	LLFILE* fp = LLFile::fopen(filename, "rb");
@@ -369,7 +369,7 @@ void LLViewerAssetStorage::_queueDataRequest(
 			tpvf.setAsset(uuid, atype);
 			tpvf.setCallback(downloadCompleteCallback, req);
 
-			LL_DEBUGS("AssetStorage") << "Starting transfer for " << uuid << llendl;
+			LL_DEBUGS("AssetStorage") << "Starting transfer for " << uuid << LL_ENDL;
 			LLTransferTargetChannel *ttcp = gTransferManager.getTargetChannel(mUpstreamHost, LLTCT_ASSET);
 			ttcp->requestTransfer(spa, tpvf, 100.f + (is_priority ? 1.f : 0.f));
 
@@ -379,7 +379,7 @@ void LLViewerAssetStorage::_queueDataRequest(
 	else
 	{
 		// uh-oh, we shouldn't have gotten here
-		llwarns << "Attempt to move asset data request upstream w/o valid upstream provider" << llendl;
+		LL_WARNS() << "Attempt to move asset data request upstream w/o valid upstream provider" << LL_ENDL;
 		if (callback)
 		{
 			callback(mVFS, uuid, atype, user_data, LL_ERR_CIRCUIT_GONE, LL_EXSTAT_NO_UPSTREAM);

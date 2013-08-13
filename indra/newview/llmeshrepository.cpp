@@ -219,7 +219,7 @@ public:
 		{
 			if (!mProcessed)
 			{ //something went wrong, retry
-				llwarns << "Timeout or service unavailable, retrying." << llendl;
+				LL_WARNS() << "Timeout or service unavailable, retrying." << LL_ENDL;
 				LLMeshRepository::sHTTPRetryCount++;
 				LLMeshRepoThread::HeaderRequest req(mMeshParams);
 				LLMutexLock lock(gMeshRepo.mThread->mMutex);
@@ -258,7 +258,7 @@ public:
 		{
 			if (!mProcessed)
 			{
-				llwarns << "Killed without being processed, retrying." << llendl;
+				LL_WARNS() << "Killed without being processed, retrying." << LL_ENDL;
 				LLMeshRepository::sHTTPRetryCount++;
 				gMeshRepo.mThread->lockAndLoadMeshLOD(mMeshParams, mLOD);
 			}
@@ -359,16 +359,16 @@ void log_upload_error(S32 status, const LLSD& content, std::string stage, std::s
 	gMeshRepo.uploadError(args);
 
 	// Log details.
-	llwarns << "stage: " << stage << " http status: " << status << llendl;
+	LL_WARNS() << "stage: " << stage << " http status: " << status << LL_ENDL;
 	if (content.has("error"))
 	{
 		const LLSD& err = content["error"];
-		llwarns << "err: " << err << llendl;
-		llwarns << "mesh upload failed, stage '" << stage
+		LL_WARNS() << "err: " << err << LL_ENDL;
+		LL_WARNS() << "mesh upload failed, stage '" << stage
 				<< "' error '" << err["error"].asString()
 				<< "', message '" << err["message"].asString()
 				<< "', id '" << err["identifier"].asString()
-				<< "'" << llendl;
+				<< "'" << LL_ENDL;
 		if (err.has("errors"))
 		{
 			S32 error_num = 0;
@@ -378,13 +378,13 @@ void log_upload_error(S32 status, const LLSD& content, std::string stage, std::s
 				 ++it)
 			{
 				const LLSD& err_entry = *it;
-				llwarns << "error[" << error_num << "]:" << llendl;
+				LL_WARNS() << "error[" << error_num << "]:" << LL_ENDL;
 				for (LLSD::map_const_iterator map_it = err_entry.beginMap();
 					 map_it != err_entry.endMap();
 					 ++map_it)
 				{
-					llwarns << "\t" << map_it->first << ": "
-							<< map_it->second << llendl;
+					LL_WARNS() << "\t" << map_it->first << ": "
+							<< map_it->second << LL_ENDL;
 				}
 				error_num++;
 			}
@@ -392,7 +392,7 @@ void log_upload_error(S32 status, const LLSD& content, std::string stage, std::s
 	}
 	else
 	{
-		llwarns << "bad mesh, no error information available" << llendl;
+		LL_WARNS() << "bad mesh, no error information available" << LL_ENDL;
 	}
 }
 
@@ -448,7 +448,7 @@ public:
 		}
 		else
 		{
-			llwarns << "fee request failed" << llendl;
+			LL_WARNS() << "fee request failed" << LL_ENDL;
 			log_upload_error(status,cc,"fee",mModelData["name"]);
 			mThread->mWholeModelUploadURL = "";
 
@@ -516,7 +516,7 @@ public:
 		}
 		else
 		{
-			llwarns << "upload failed" << llendl;
+			LL_WARNS() << "upload failed" << LL_ENDL;
 			std::string model_name = mModelData["name"].asString();
 			log_upload_error(status,cc,"upload",model_name);
 
@@ -553,7 +553,7 @@ void LLMeshRepoThread::run()
 	LLCDResult res = LLConvexDecomposition::initThread();
 	if (res != LLCD_OK)
 	{
-		llwarns << "convex decomposition unable to be loaded" << llendl;
+		LL_WARNS() << "convex decomposition unable to be loaded" << LL_ENDL;
 	}
 
 	while (!LLApp::isQuitting())
@@ -662,7 +662,7 @@ void LLMeshRepoThread::run()
 	res = LLConvexDecomposition::quitThread();
 	if (res != LLCD_OK)
 	{
-		llwarns << "convex decomposition unable to be quit" << llendl;
+		LL_WARNS() << "convex decomposition unable to be quit" << LL_ENDL;
 	}
 
 	delete mCurlRequest;
@@ -742,7 +742,7 @@ std::string LLMeshRepoThread::constructUrl(LLUUID mesh_id)
 	}
 	else
 	{
-		llwarns << "Current region does not have GetMesh capability!  Cannot load " << mesh_id << ".mesh" << llendl;
+		LL_WARNS() << "Current region does not have GetMesh capability!  Cannot load " << mesh_id << ".mesh" << LL_ENDL;
 	}
 
 	return http_url;
@@ -1180,7 +1180,7 @@ bool LLMeshRepoThread::headerReceived(const LLVolumeParams& mesh_params, U8* dat
 
 		if (!LLSDSerialize::fromBinary(header, stream, data_size))
 		{
-			llwarns << "Mesh header parse error.  Not a valid mesh asset!" << llendl;
+			LL_WARNS() << "Mesh header parse error.  Not a valid mesh asset!" << LL_ENDL;
 			return false;
 		}
 
@@ -1188,8 +1188,8 @@ bool LLMeshRepoThread::headerReceived(const LLVolumeParams& mesh_params, U8* dat
 	}
 	else
 	{
-		llinfos
-			<< "Marking header as non-existent, will not retry." << llendl;
+		LL_INFOS()
+			<< "Marking header as non-existent, will not retry." << LL_ENDL;
 		header["404"] = 1;
 	}
 
@@ -1256,7 +1256,7 @@ bool LLMeshRepoThread::skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 dat
 
 		if (!unzip_llsd(skin, stream, data_size))
 		{
-			llwarns << "Mesh skin info parse error.  Not a valid mesh asset!" << llendl;
+			LL_WARNS() << "Mesh skin info parse error.  Not a valid mesh asset!" << LL_ENDL;
 			return false;
 		}
 	}
@@ -1265,7 +1265,7 @@ bool LLMeshRepoThread::skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 dat
 		LLMeshSkinInfo info(skin);
 		info.mMeshID = mesh_id;
 
-		//llinfos<<"info pelvis offset"<<info.mPelvisOffset<<llendl;
+		//LL_INFOS()<<"info pelvis offset"<<info.mPelvisOffset<<LL_ENDL;
 		mSkinInfoQ.push(info);
 	}
 
@@ -1284,7 +1284,7 @@ bool LLMeshRepoThread::decompositionReceived(const LLUUID& mesh_id, U8* data, S3
 
 		if (!unzip_llsd(decomp, stream, data_size))
 		{
-			llwarns << "Mesh decomposition parse error.  Not a valid mesh asset!" << llendl;
+			LL_WARNS() << "Mesh decomposition parse error.  Not a valid mesh asset!" << LL_ENDL;
 			return false;
 		}
 	}
@@ -1700,7 +1700,7 @@ void LLMeshUploadThread::doWholeModelUpload()
 
 	if (mWholeModelUploadURL.empty())
 	{
-		llinfos << "unable to upload, fee request failed" << llendl;
+		LL_INFOS() << "unable to upload, fee request failed" << LL_ENDL;
 	}
 	else
 	{
@@ -1914,21 +1914,21 @@ void LLMeshLODResponder::completedRaw(U32 status, const std::string& reason,
 
 	if (status < 200 || status > 400)
 	{
-		llwarns << status << ": " << reason << llendl;
+		LL_WARNS() << status << ": " << reason << LL_ENDL;
 	}
 
 	if (data_size < mRequestedBytes)
 	{
 		if (status == 499 || status == 503)
 		{ //timeout or service unavailable, try again
-			llwarns << "Timeout or service unavailable, retrying." << llendl;
+			LL_WARNS() << "Timeout or service unavailable, retrying." << LL_ENDL;
 			LLMeshRepository::sHTTPRetryCount++;
 			gMeshRepo.mThread->loadMeshLOD(mMeshParams, mLOD);
 		}
 		else
 		{
 			llassert(status == 499 || status == 503); //intentionally trigger a breakpoint
-			llwarns << "Unhandled status " << status << llendl;
+			LL_WARNS() << "Unhandled status " << status << LL_ENDL;
 		}
 		return;
 	}
@@ -1978,21 +1978,21 @@ void LLMeshSkinInfoResponder::completedRaw(U32 status, const std::string& reason
 
 	if (status < 200 || status > 400)
 	{
-		llwarns << status << ": " << reason << llendl;
+		LL_WARNS() << status << ": " << reason << LL_ENDL;
 	}
 
 	if (data_size < mRequestedBytes)
 	{
 		if (status == 499 || status == 503)
 		{ //timeout or service unavailable, try again
-			llwarns << "Timeout or service unavailable, retrying." << llendl;
+			LL_WARNS() << "Timeout or service unavailable, retrying." << LL_ENDL;
 			LLMeshRepository::sHTTPRetryCount++;
 			gMeshRepo.mThread->loadMeshSkinInfo(mMeshID);
 		}
 		else
 		{
 			llassert(status == 499 || status == 503); //intentionally trigger a breakpoint
-			llwarns << "Unhandled status " << status << llendl;
+			LL_WARNS() << "Unhandled status " << status << LL_ENDL;
 		}
 		return;
 	}
@@ -2041,21 +2041,21 @@ void LLMeshDecompositionResponder::completedRaw(U32 status, const std::string& r
 
 	if (status < 200 || status > 400)
 	{
-		llwarns << status << ": " << reason << llendl;
+		LL_WARNS() << status << ": " << reason << LL_ENDL;
 	}
 
 	if (data_size < mRequestedBytes)
 	{
 		if (status == 499 || status == 503)
 		{ //timeout or service unavailable, try again
-			llwarns << "Timeout or service unavailable, retrying." << llendl;
+			LL_WARNS() << "Timeout or service unavailable, retrying." << LL_ENDL;
 			LLMeshRepository::sHTTPRetryCount++;
 			gMeshRepo.mThread->loadMeshDecomposition(mMeshID);
 		}
 		else
 		{
 			llassert(status == 499 || status == 503); //intentionally trigger a breakpoint
-			llwarns << "Unhandled status " << status << llendl;
+			LL_WARNS() << "Unhandled status " << status << LL_ENDL;
 		}
 		return;
 	}
@@ -2105,21 +2105,21 @@ void LLMeshPhysicsShapeResponder::completedRaw(U32 status, const std::string& re
 
 	if (status < 200 || status > 400)
 	{
-		llwarns << status << ": " << reason << llendl;
+		LL_WARNS() << status << ": " << reason << LL_ENDL;
 	}
 
 	if (data_size < mRequestedBytes)
 	{
 		if (status == 499 || status == 503)
 		{ //timeout or service unavailable, try again
-			llwarns << "Timeout or service unavailable, retrying." << llendl;
+			LL_WARNS() << "Timeout or service unavailable, retrying." << LL_ENDL;
 			LLMeshRepository::sHTTPRetryCount++;
 			gMeshRepo.mThread->loadMeshPhysicsShape(mMeshID);
 		}
 		else
 		{
 			llassert(status == 499 || status == 503); //intentionally trigger a breakpoint
-			llwarns << "Unhandled status " << status << llendl;
+			LL_WARNS() << "Unhandled status " << status << LL_ENDL;
 		}
 		return;
 	}
@@ -2167,9 +2167,9 @@ void LLMeshHeaderResponder::completedRaw(U32 status, const std::string& reason,
 
 	if (status < 200 || status > 400)
 	{
-		//llwarns
+		//LL_WARNS()
 		//	<< "Header responder failed with status: "
-		//	<< status << ": " << reason << llendl;
+		//	<< status << ": " << reason << LL_ENDL;
 
 		// 503 (service unavailable) or 499 (timeout)
 		// can be due to server load and can be retried
@@ -2182,7 +2182,7 @@ void LLMeshHeaderResponder::completedRaw(U32 status, const std::string& reason,
 
 		if (status == 503 || status == 499)
 		{ //retry
-			llwarns << "Timeout or service unavailable, retrying." << llendl;
+			LL_WARNS() << "Timeout or service unavailable, retrying." << LL_ENDL;
 			LLMeshRepository::sHTTPRetryCount++;
 			LLMeshRepoThread::HeaderRequest req(mMeshParams);
 			LLMutexLock lock(gMeshRepo.mThread->mMutex);
@@ -2192,7 +2192,7 @@ void LLMeshHeaderResponder::completedRaw(U32 status, const std::string& reason,
 		}
 		else
 		{
-			llwarns << "Unhandled status." << llendl;
+			LL_WARNS() << "Unhandled status." << LL_ENDL;
 		}
 	}
 
@@ -2214,9 +2214,9 @@ void LLMeshHeaderResponder::completedRaw(U32 status, const std::string& reason,
 
 	if (!success)
 	{
-		llwarns
+		LL_WARNS()
 			<< "Unable to parse mesh header: "
-			<< status << ": " << reason << llendl;
+			<< status << ": " << reason << LL_ENDL;
 	}
 	else if (data && data_size > 0)
 	{
@@ -2310,11 +2310,11 @@ void LLMeshRepository::init()
 
 void LLMeshRepository::shutdown()
 {
-	llinfos << "Shutting down mesh repository." << llendl;
+	LL_INFOS() << "Shutting down mesh repository." << LL_ENDL;
 
 	for (U32 i = 0; i < mUploads.size(); ++i)
 	{
-		llinfos << "Discard the pending mesh uploads " << llendl;
+		LL_INFOS() << "Discard the pending mesh uploads " << LL_ENDL;
 		mUploads[i]->discard() ; //discard the uploading requests.
 	}
 
@@ -2329,7 +2329,7 @@ void LLMeshRepository::shutdown()
 
 	for (U32 i = 0; i < mUploads.size(); ++i)
 	{
-		llinfos << "Waiting for pending mesh upload " << i << "/" << mUploads.size() << llendl;
+		LL_INFOS() << "Waiting for pending mesh upload " << i << "/" << mUploads.size() << LL_ENDL;
 		while (!mUploads[i]->isStopped())
 		{
 			apr_sleep(10);
@@ -2342,7 +2342,7 @@ void LLMeshRepository::shutdown()
 	delete mMeshMutex;
 	mMeshMutex = NULL;
 
-	llinfos << "Shutting down decomposition system." << llendl;
+	LL_INFOS() << "Shutting down decomposition system." << LL_ENDL;
 
 	if (mDecompThread)
 	{
@@ -2688,7 +2688,7 @@ void LLMeshRepository::notifyMeshLoaded(const LLVolumeParams& mesh_params, LLVol
 		//make sure target volume is still valid
 		if (volume->getNumVolumeFaces() <= 0)
 		{
-			llwarns << "Mesh loading returned empty volume." << llendl;
+			LL_WARNS() << "Mesh loading returned empty volume." << LL_ENDL;
 		}
 		
 		{ //update system volume
@@ -2701,7 +2701,7 @@ void LLMeshRepository::notifyMeshLoaded(const LLVolumeParams& mesh_params, LLVol
 			}
 			else
 			{
-				llwarns << "Couldn't find system volume for given mesh." << llendl;
+				LL_WARNS() << "Couldn't find system volume for given mesh." << LL_ENDL;
 			}
 		}
 
@@ -3185,7 +3185,7 @@ void LLPhysicsDecomp::setMeshData(LLCDMeshData& mesh, bool vertex_based)
 
 		if (ret)
 		{
-			llerrs << "Convex Decomposition thread valid but could not set mesh data" << llendl;
+			LL_ERRS() << "Convex Decomposition thread valid but could not set mesh data" << LL_ENDL;
 		}
 	}
 }
@@ -3261,7 +3261,7 @@ void LLPhysicsDecomp::doDecomposition()
 
 	if (ret)
 	{
-		llwarns << "Convex Decomposition thread valid but could not execute stage " << stage << llendl;
+		LL_WARNS() << "Convex Decomposition thread valid but could not execute stage " << stage << LL_ENDL;
 		LLMutexLock lock(mMutex);
 
 		mCurRequest->mHull.clear();
@@ -3392,7 +3392,7 @@ void LLPhysicsDecomp::doDecompositionSingleHull()
 	LLCDResult ret = decomp->buildSingleHull() ;
 	if(ret)
 	{
-		llwarns << "Could not execute decomposition stage when attempting to create single hull." << llendl;
+		LL_WARNS() << "Could not execute decomposition stage when attempting to create single hull." << LL_ENDL;
 		make_box(mCurRequest);
 	}
 	else

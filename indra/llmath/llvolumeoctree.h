@@ -59,7 +59,7 @@ public:
 
 	const LLVolumeTriangle& operator=(const LLVolumeTriangle& rhs)
 	{
-		llerrs << "Illegal operation!" << llendl;
+		LL_ERRS() << "Illegal operation!" << LL_ENDL;
 		return *this;
 	}
 
@@ -110,7 +110,7 @@ public:
 
 	const LLVolumeOctreeListener& operator=(const LLVolumeOctreeListener& rhs)
 	{
-		llerrs << "Illegal operation!" << llendl;
+		LL_ERRS() << "Illegal operation!" << LL_ENDL;
 		return *this;
 	}
 

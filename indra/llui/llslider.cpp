@@ -188,12 +188,12 @@ BOOL LLSlider::handleHover(S32 x, S32 y, MASK mask)
 			setValueAndCommit(t * (mMaxValue - mMinValue) + mMinValue );
 		}
 		getWindow()->setCursor(UI_CURSOR_ARROW);
-		LL_DEBUGS("UserInput") << "hover handled by " << getName() << " (active)" << llendl;
+		LL_DEBUGS("UserInput") << "hover handled by " << getName() << " (active)" << LL_ENDL;
 	}
 	else
 	{
 		getWindow()->setCursor(UI_CURSOR_ARROW);
-		LL_DEBUGS("UserInput") << "hover handled by " << getName() << " (inactive)" << llendl;		
+		LL_DEBUGS("UserInput") << "hover handled by " << getName() << " (inactive)" << LL_ENDL;		
 	}
 	return TRUE;
 }

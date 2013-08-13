@@ -336,7 +336,7 @@ LLViewerFetchedTexture* LLViewerTextureList::getImageFromFile(const std::string&
 	std::string full_path = gDirUtilp->findSkinnedFilename("textures", filename);
 	if (full_path.empty())
 	{
-		llwarns << "Failed to find local image file: " << filename << LL_ENDL;
+		LL_WARNS() << "Failed to find local image file: " << filename << LL_ENDL;
 		return LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
 	}
 
@@ -377,7 +377,7 @@ LLViewerFetchedTexture* LLViewerTextureList::getImageFromUrl(const std::string& 
 		LLViewerFetchedTexture *texture = imagep.get();
 		if (texture->getUrl().empty())
 		{
-			llwarns << "Requested texture " << new_id << " already exists but does not have a URL" << LL_ENDL;
+			LL_WARNS() << "Requested texture " << new_id << " already exists but does not have a URL" << LL_ENDL;
 		}
 		else if (texture->getUrl() != url)
 		{
@@ -457,18 +457,18 @@ LLViewerFetchedTexture* LLViewerTextureList::getImage(const LLUUID &image_id,
 		if (request_from_host.isOk() &&
 			!texture->getTargetHost().isOk())
 		{
-			llwarns << "Requested texture " << image_id << " already exists but does not have a host" << LL_ENDL;
+			LL_WARNS() << "Requested texture " << image_id << " already exists but does not have a host" << LL_ENDL;
 		}
 		else if (request_from_host.isOk() &&
 				 texture->getTargetHost().isOk() &&
 				 request_from_host != texture->getTargetHost())
 		{
-			llwarns << "Requested texture " << image_id << " already exists with a different target host, requested: " 
+			LL_WARNS() << "Requested texture " << image_id << " already exists with a different target host, requested: " 
 					<< request_from_host << " current: " << texture->getTargetHost() << LL_ENDL;
 		}
 		if (f_type != FTT_DEFAULT && imagep->getFTType() != f_type)
 		{
-			llwarns << "FTType mismatch: requested " << f_type << " image has " << imagep->getFTType() << LL_ENDL;
+			LL_WARNS() << "FTType mismatch: requested " << f_type << " image has " << imagep->getFTType() << LL_ENDL;
 		}
 		
 	}
@@ -896,7 +896,7 @@ void LLViewerTextureList::setDebugFetching(LLViewerFetchedTexture* tex, S32 debu
  if (type_from_host == LLImageBase::TYPE_NORMAL
  && type_from_boost == LLImageBase::TYPE_AVATAR_BAKE)
  {
- llwarns << "TAT: get_image_type() type_from_host doesn't match type_from_boost"
+ LL_WARNS() << "TAT: get_image_type() type_from_host doesn't match type_from_boost"
  << " host " << target_host
  << " boost " << imagep->getBoostLevel()
  << " imageid " << imagep->getID()
@@ -1275,7 +1275,7 @@ S32 LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended)
 			max_texmem = 128;
 		}
 
-		llwarns << "VRAM amount not detected, defaulting to " << max_texmem << " MB" << LL_ENDL;
+		LL_WARNS() << "VRAM amount not detected, defaulting to " << max_texmem << " MB" << LL_ENDL;
 	}
 
 	S32 system_ram = (S32)BYTES_TO_MEGA_BYTES(gSysMemory.getPhysicalMemoryClamped()); // In MB
@@ -1506,7 +1506,7 @@ void LLViewerTextureList::processImageNotInDatabase(LLMessageSystem *msg,void **
 	LLViewerFetchedTexture* image = gTextureList.findImage( image_id );
 	if( image )
 	{
-		llwarns << "not in db" << LL_ENDL;
+		LL_WARNS() << "not in db" << LL_ENDL;
 		image->setIsMissingAsset();
 	}
 }
@@ -1736,7 +1736,7 @@ bool LLUIImageList::initFromFile()
 	std::vector<std::string>::const_iterator pi(textures_paths.begin()), pend(textures_paths.end());
 	if (pi == pend)
 	{
-		llwarns << "No textures.xml found in skins directories" << LL_ENDL;
+		LL_WARNS() << "No textures.xml found in skins directories" << LL_ENDL;
 		return false;
 	}
 
@@ -1744,12 +1744,12 @@ bool LLUIImageList::initFromFile()
 	LLXMLNodePtr root;
 	if (!LLXMLNode::parseFile(*pi, root, NULL))
 	{
-		llwarns << "Unable to parse UI image list file " << *pi << LL_ENDL;
+		LL_WARNS() << "Unable to parse UI image list file " << *pi << LL_ENDL;
 		return false;
 	}
 	if (!root->hasAttribute("version"))
 	{
-		llwarns << "No valid version number in UI image list file " << *pi << LL_ENDL;
+		LL_WARNS() << "No valid version number in UI image list file " << *pi << LL_ENDL;
 		return false;
 	}
 

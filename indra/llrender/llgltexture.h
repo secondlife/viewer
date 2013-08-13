@@ -101,7 +101,7 @@ public:
 	LLGLTexture(const LLImageRaw* raw, BOOL usemipmaps) ;
 	LLGLTexture(const U32 width, const U32 height, const U8 components, BOOL usemipmaps) ;
 
-	virtual void dump();	// debug info to llinfos
+	virtual void dump();	// debug info to LL_INFOS()
 
 	virtual const LLUUID& getID() const = 0;
 

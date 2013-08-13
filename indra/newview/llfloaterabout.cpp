@@ -473,9 +473,9 @@ void LLServerReleaseNotesURLFetcher::startFetch()
 // virtual
 void LLServerReleaseNotesURLFetcher::completedHeader(U32 status, const std::string& reason, const LLSD& content)
 {
-	lldebugs << "Status: " << status << llendl;
-	lldebugs << "Reason: " << reason << llendl;
-	lldebugs << "Headers: " << content << llendl;
+	LL_DEBUGS() << "Status: " << status << LL_ENDL;
+	LL_DEBUGS() << "Reason: " << reason << LL_ENDL;
+	LL_DEBUGS() << "Headers: " << content << LL_ENDL;
 
 	LLFloaterAbout* floater_about = LLFloaterReg::getTypedInstance<LLFloaterAbout>("sl_about");
 	if (floater_about)

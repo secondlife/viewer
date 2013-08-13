@@ -709,7 +709,7 @@ void LLViewerParcelOverlay::addPropertyLine(
 		break;
 
 	default:
-		llerrs << "Invalid edge in addPropertyLine" << llendl;
+		LL_ERRS() << "Invalid edge in addPropertyLine" << LL_ENDL;
 		return;
 	}
 

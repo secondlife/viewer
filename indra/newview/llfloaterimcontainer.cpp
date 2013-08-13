@@ -412,7 +412,7 @@ bool LLFloaterIMContainer::onConversationModelEvent(const LLSD& event)
 	// For debug only
 	//std::ostringstream llsd_value;
 	//llsd_value << LLSDOStreamer<LLSDNotationFormatter>(event) << std::endl;
-	//llinfos << "LLFloaterIMContainer::onConversationModelEvent, event = " << llsd_value.str() << llendl;
+	//LL_INFOS() << "LLFloaterIMContainer::onConversationModelEvent, event = " << llsd_value.str() << LL_ENDL;
 	// end debug
 	
 	// Note: In conversations, the model is not responsible for creating the view, which is a good thing. This means that
@@ -1527,7 +1527,7 @@ LLConversationItem* LLFloaterIMContainer::addConversationListItem(const LLUUID& 
 	}
 	if (!item)
 	{
-		llwarns << "Couldn't create conversation session item : " << display_name << llendl;
+		LL_WARNS() << "Couldn't create conversation session item : " << display_name << LL_ENDL;
 		return NULL;
 	}
 	item->renameItem(display_name);
@@ -1709,7 +1709,7 @@ bool LLFloaterIMContainer::isGroupModerator()
 	LLSpeakerMgr * speaker_manager = getSpeakerMgrForSelectedParticipant();
 	if (NULL == speaker_manager)
 	{
-		llwarns << "Speaker manager is missing" << llendl;
+		LL_WARNS() << "Speaker manager is missing" << LL_ENDL;
 		return false;
 	}
 
@@ -1801,7 +1801,7 @@ LLSpeakerMgr * LLFloaterIMContainer::getSpeakerMgrForSelectedParticipant()
 	LLFolderViewItem *selectedItem = mConversationsRoot->getCurSelectedItem();
 	if (NULL == selectedItem)
 	{
-		llwarns << "Current selected item is null" << llendl;
+		LL_WARNS() << "Current selected item is null" << LL_ENDL;
 		return NULL;
 	}
 
@@ -1819,7 +1819,7 @@ LLSpeakerMgr * LLFloaterIMContainer::getSpeakerMgrForSelectedParticipant()
 	}
 	if (NULL == conversation_uuidp)
 	{
-		llwarns << "Cannot find conversation item widget" << llendl;
+		LL_WARNS() << "Cannot find conversation item widget" << LL_ENDL;
 		return NULL;
 	}
 
@@ -1831,14 +1831,14 @@ LLSpeaker * LLFloaterIMContainer::getSpeakerOfSelectedParticipant(LLSpeakerMgr *
 {
 	if (NULL == speaker_managerp)
 	{
-		llwarns << "Speaker manager is missing" << llendl;
+		LL_WARNS() << "Speaker manager is missing" << LL_ENDL;
 		return NULL;
 	}
 
 	const LLConversationItem * participant_itemp = getCurSelectedViewModelItem();
 	if (NULL == participant_itemp)
 	{
-		llwarns << "Cannot evaluate current selected view model item" << llendl;
+		LL_WARNS() << "Cannot evaluate current selected view model item" << LL_ENDL;
 		return NULL;
 	}
 

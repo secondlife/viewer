@@ -300,7 +300,7 @@ void LLLogChat::saveHistory(const std::string& filename,
 	llofstream file (LLLogChat::makeLogFileName(filename), std::ios_base::app);
 	if (!file.is_open())
 	{
-		llwarns << "Couldn't open chat history log! - " + filename << llendl;
+		LL_WARNS() << "Couldn't open chat history log! - " + filename << LL_ENDL;
 		return;
 	}
 
@@ -337,7 +337,7 @@ void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& m
 {
 	if (file_name.empty())
 	{
-		llwarns << "Session name is Empty!" << llendl;
+		LL_WARNS() << "Session name is Empty!" << LL_ENDL;
 		return ;
 	}
 

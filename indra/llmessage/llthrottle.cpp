@@ -440,8 +440,8 @@ BOOL LLThrottleGroup::dynamicAdjust()
 
 		//if (total)
 		//{
-		//	llinfos << i << ": B" << channel_busy[i] << " I" << channel_idle[i] << " N" << channel_over_nominal[i];
-		//	llcont << " Nom: " << mNominalBPS[i] << " Cur: " << mCurrentBPS[i] << " BS: " << mBitsSentHistory[i] << llendl;
+		//	LL_INFOS() << i << ": B" << channel_busy[i] << " I" << channel_idle[i] << " N" << channel_over_nominal[i];
+		//	LL_CONT << " Nom: " << mNominalBPS[i] << " Cur: " << mCurrentBPS[i] << " BS: " << mBitsSentHistory[i] << LL_ENDL;
 		//}
 	}
 
@@ -482,7 +482,7 @@ BOOL LLThrottleGroup::dynamicAdjust()
 					avail_bps = mCurrentBPS[i] - used_bps;
 				}
 
-				//llinfos << i << " avail " << avail_bps << llendl;
+				//LL_INFOS() << i << " avail " << avail_bps << LL_ENDL;
 
 				// Historically, a channel could have used more than its current share,
 				// even if it's idle right now.
@@ -499,7 +499,7 @@ BOOL LLThrottleGroup::dynamicAdjust()
 			}
 		}
 
-		//llinfos << "Pool BPS: " << pool_bps << llendl;
+		//LL_INFOS() << "Pool BPS: " << pool_bps << LL_ENDL;
 		// Now redistribute the bandwidth to busy channels.
 		F32 unused_bps = 0.f;
 
@@ -508,7 +508,7 @@ BOOL LLThrottleGroup::dynamicAdjust()
 			if (channel_busy[i])
 			{
 				F32 add_amount = pool_bps * (mNominalBPS[i] / busy_nominal_sum);
-				//llinfos << "Busy " << i << " gets " << pool_bps << llendl;
+				//LL_INFOS() << "Busy " << i << " gets " << pool_bps << LL_ENDL;
 				mCurrentBPS[i] += add_amount;
 
 				// CRO: make sure this doesn't get too huge

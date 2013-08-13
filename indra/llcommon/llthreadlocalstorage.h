@@ -157,14 +157,14 @@ private:
 #elif LL_DARWIN
     static void TLSError()
     {
-        llerrs << "Could not create thread local storage" << llendl;
+        LL_ERRS() << "Could not create thread local storage" << LL_ENDL;
     }
     static void createTLSKey()
     {
         static S32 key_created = pthread_key_create(&sInstanceKey, NULL);
         if (key_created != 0)
         {
-            llerrs << "Could not create thread local storage" << llendl;
+            LL_ERRS() << "Could not create thread local storage" << LL_ENDL;
         }
     }
     static pthread_key_t sInstanceKey;

@@ -194,14 +194,26 @@ namespace LLError
 		// Represents a specific place in the code where a message is logged
 		// This is public because it is used by the macros below.  It is not
 		// intended for public use.
-		CallSite(ELevel, const char* file, int line,
-				const std::type_info& class_info, const char* function, bool printOnce, const char* broadTag = NULL, const char* narrowTag = NULL );
+		CallSite(ELevel level, 
+				const char* file, 
+				int line,
+				const std::type_info& class_info, 
+				const char* function, 
+				bool print_once, 
+				const char** tags, 
+				size_t tag_count);
+
+		~CallSite();
 
 #ifdef LL_LIBRARY_INCLUDE
 		bool shouldLog();
 #else // LL_LIBRARY_INCLUDE
 		bool shouldLog()
-			{ return mCached ? mShouldLog : Log::shouldLog(*this); }
+		{ 
+			return mCached 
+					? mShouldLog 
+					: Log::shouldLog(*this); 
+		}
 			// this member function needs to be in-line for efficiency
 #endif // LL_LIBRARY_INCLUDE
 		
@@ -213,20 +225,17 @@ namespace LLError
 		const int				mLine;
 		const std::type_info&   mClassInfo;
 		const char* const		mFunction;
-		const char* const		mBroadTag;
-		const char* const		mNarrowTag;
+		const char**			mTags;
+		size_t					mTagCount;
 		const bool				mPrintOnce;
-		
-		// these implement a cache of the call to shouldLog()
-		bool mCached;
-		bool mShouldLog;
+		const char*				mLevelString;
+		std::string				mLocationString,
+								mFunctionString,
+								mTagString;
+		bool					mCached,
+								mShouldLog;
 		
 		friend class Log;
-
-	private:
-		// 3 or more tags not currently supported
-		CallSite(ELevel, const char* file, int line,
-			const std::type_info& class_info, const char* function, bool printOnce, const char* broadTag, const char* narrowTag, const char*, ...);
 	};
 	
 	
@@ -258,30 +267,21 @@ namespace LLError
        static void clear() ;
 	   static void end(std::ostringstream* _out) ;
    }; 
-
-#if LL_WINDOWS
-	void LLOutputDebugUTF8(const std::string& s);
-#endif
-
 }
-
-#if LL_WINDOWS
-	// Macro accepting a std::string for display in windows debugging console
-	#define LL_WINDOWS_OUTPUT_DEBUG(a) LLError::LLOutputDebugUTF8(a)
-#else
-	#define LL_WINDOWS_OUTPUT_DEBUG(a)
-#endif
 
 //this is cheaper than llcallstacks if no need to output other variables to call stacks. 
 #define LL_PUSH_CALLSTACKS() LLError::LLCallStacks::push(__FUNCTION__, __LINE__)
-#define llcallstacks \
-	{\
+
+#define llcallstacks                                                                      \
+	{                                                                                     \
        std::ostringstream* _out = LLError::LLCallStacks::insert(__FUNCTION__, __LINE__) ; \
        (*_out)
-#define llcallstacksendl \
-		LLError::End(); \
+
+#define llcallstacksendl                   \
+		LLError::End();                    \
 		LLError::LLCallStacks::end(_out) ; \
 	}
+
 #define LL_CLEAR_CALLSTACKS() LLError::LLCallStacks::clear()
 #define LL_PRINT_CALLSTACKS() LLError::LLCallStacks::print() 
 
@@ -302,13 +302,18 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 // See top of file for common usage.	
 /////////////////////////////////
 
-#define lllog(level, once, ...)																	     \
-	do {                                                                                             \
-		static LLError::CallSite _site(                                                              \
-		    level, __FILE__, __LINE__, typeid(_LL_CLASS_TO_LOG), __FUNCTION__, once, ##__VA_ARGS__ );\
-		if (LL_UNLIKELY(_site.shouldLog()))			                                                 \
-		{                                                                                            \
-			std::ostringstream* _out = LLError::Log::out();                                          \
+// this macro uses a one-shot do statement to avoid parsing errors when writing:
+// if (condition) LL_INFOS() << "True" << LLENDL; else LLINFOS() << "False" << LLENDL
+
+#define lllog(level, once, ...)																	          \
+	do {                                                                                                  \
+		const char* tags[] = {"", ##__VA_ARGS__};													      \
+		size_t tag_count = LL_ARRAY_SIZE(tags) - 1;														  \
+		static LLError::CallSite _site(                                                                   \
+		    level, __FILE__, __LINE__, typeid(_LL_CLASS_TO_LOG), __FUNCTION__, once, &tags[1], tag_count);\
+		if (LL_UNLIKELY(_site.shouldLog()))			                                                      \
+		{                                                                                                 \
+			std::ostringstream* _out = LLError::Log::out();                                               \
 			(*_out)
 
 //Use this construct if you need to do computation in the middle of a
@@ -350,11 +355,11 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 
 
 // DEPRECATED: Use the new macros that allow tags and *look* like macros.
-#define lldebugs	LL_DEBUGS()
+//#define lldebugs	LL_DEBUGS()
 #define llinfos		LL_INFOS()
-#define llwarns		LL_WARNS()
-#define llerrs		LL_ERRS()
-#define llcont		LL_CONT
+//#define llwarns		LL_WARNS()
+//#define llerrs		LL_ERRS()
+//#define llcont		LL_CONT
 #define llendl		LL_ENDL 
 
 #endif // LL_LLERROR_H

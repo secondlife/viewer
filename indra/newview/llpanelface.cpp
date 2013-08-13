@@ -659,7 +659,7 @@ void LLPanelFace::updateUI()
 		}
 		else
 		{
-			llwarns << "failed getChild for 'combobox matmedia'" << llendl;
+			LL_WARNS() << "failed getChild for 'combobox matmedia'" << LL_ENDL;
 		}
 		getChildView("combobox matmedia")->setEnabled(editable);
 
@@ -778,7 +778,7 @@ void LLPanelFace::updateUI()
 							}
 			else
 							{
-				llwarns << "failed childGetSelectionInterface for 'combobox bumpiness'" << llendl;
+				LL_WARNS() << "failed childGetSelectionInterface for 'combobox bumpiness'" << LL_ENDL;
 							}
 
 			getChildView("combobox bumpiness")->setEnabled(editable);
@@ -811,7 +811,7 @@ void LLPanelFace::updateUI()
                case GL_RGB: break;
                default:
                {
-                  llwarns << "Unexpected tex format in LLPanelFace...resorting to no alpha" << llendl;
+                  LL_WARNS() << "Unexpected tex format in LLPanelFace...resorting to no alpha" << LL_ENDL;
 					}
                break;
 				}
@@ -847,7 +847,7 @@ void LLPanelFace::updateUI()
 			}
 			else
 			{
-				llwarns << "failed childGetSelectionInterface for 'combobox alphamode'" << llendl;
+				LL_WARNS() << "failed childGetSelectionInterface for 'combobox alphamode'" << LL_ENDL;
 			}
 
 			updateAlphaControls();
@@ -1165,7 +1165,7 @@ void LLPanelFace::updateUI()
 			}
 			else
 				{
-				llwarns << "failed childGetSelectionInterface for 'combobox texgen'" << llendl;
+				LL_WARNS() << "failed childGetSelectionInterface for 'combobox texgen'" << LL_ENDL;
 				}
 
 			getChildView("combobox texgen")->setEnabled(editable);
@@ -1284,7 +1284,7 @@ void LLPanelFace::updateUI()
 			}
 			else
 			{
-					llwarns << "failed childGetSelectionInterface for 'combobox alphamode'" << llendl;
+					LL_WARNS() << "failed childGetSelectionInterface for 'combobox alphamode'" << LL_ENDL;
 			}
 				getChild<LLUICtrl>("maskcutoff")->setValue(material->getAlphaMaskCutoff());
 				updateAlphaControls();
@@ -1804,7 +1804,7 @@ void LLPanelFace::onSelectTexture(const LLSD& data)
 		case GL_RGB: break;
 		default:
 			{
-				llwarns << "Unexpected tex format in LLPanelFace...resorting to no alpha" << llendl;
+				LL_WARNS() << "Unexpected tex format in LLPanelFace...resorting to no alpha" << LL_ENDL;
 			}
 			break;
 		}

@@ -99,7 +99,7 @@ protected:
 	void calcAlphaChannelOffsetAndStride();
 
 public:
-	virtual void dump();	// debugging info to llinfos
+	virtual void dump();	// debugging info to LL_INFOS()
 	
 	void setSize(S32 width, S32 height, S32 ncomponents, S32 discard_level = -1);
 	void setComponents(S32 ncomponents) { mComponents = (S8)ncomponents ;}

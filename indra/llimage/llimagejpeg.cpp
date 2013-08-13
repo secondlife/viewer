@@ -374,7 +374,7 @@ boolean LLImageJPEG::encodeEmptyOutputBuffer( j_compress_ptr cinfo )
   U8* new_buffer = new U8[ new_buffer_size ];
   if (!new_buffer)
   {
-  	llerrs << "Out of memory in LLImageJPEG::encodeEmptyOutputBuffer( j_compress_ptr cinfo )" << llendl;
+  	LL_ERRS() << "Out of memory in LLImageJPEG::encodeEmptyOutputBuffer( j_compress_ptr cinfo )" << LL_ENDL;
   	return FALSE;
   }
   memcpy( new_buffer, self->mOutputBuffer, self->mOutputBufferSize );	/* Flawfinder: ignore */
@@ -465,7 +465,7 @@ void LLImageJPEG::errorOutputMessage( j_common_ptr cinfo )
 	LLImage::setLastError(error);
 
 	BOOL is_decode = (cinfo->is_decompressor != 0);
-	llwarns << "LLImageJPEG " << (is_decode ? "decode " : "encode ") << " failed: " << buffer << llendl;
+	LL_WARNS() << "LLImageJPEG " << (is_decode ? "decode " : "encode ") << " failed: " << buffer << LL_ENDL;
 }
 
 BOOL LLImageJPEG::encode( const LLImageRaw* raw_image, F32 encode_time )

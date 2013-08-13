@@ -390,8 +390,8 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 			BOOL res = LLVolumeMessage::unpackVolumeParams(&volume_params, *dp);
 			if (!res)
 			{
-				llwarns << "Bogus volume parameters in object " << getID() << llendl;
-				llwarns << getRegion()->getOriginGlobal() << llendl;
+				LL_WARNS() << "Bogus volume parameters in object " << getID() << LL_ENDL;
+				LL_WARNS() << getRegion()->getOriginGlobal() << LL_ENDL;
 			}
 
 			volume_params.setSculptID(sculpt_id, sculpt_type);
@@ -405,14 +405,14 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 			{
 				// There's something bogus in the data that we're unpacking.
 				dp->dumpBufferToLog();
-				llwarns << "Flushing cache files" << llendl;
+				LL_WARNS() << "Flushing cache files" << LL_ENDL;
 
 				if(LLVOCache::instanceExists() && getRegion())
 				{
 					LLVOCache::getInstance()->removeEntry(getRegion()->getHandle()) ;
 				}
 				
-				llwarns << "Bogus TE data in " << getID() << llendl;
+				LL_WARNS() << "Bogus TE data in " << getID() << LL_ENDL;
 			}
 			else 
 			{
@@ -1120,9 +1120,9 @@ void LLVOVolume::sculpt()
 			static S32 low_sculpty_discard_warning_count = 100;
 			if (++low_sculpty_discard_warning_count >= 100)
 			{	// Log first time, then every 100 afterwards otherwise this can flood the logs
-				llwarns << "WARNING!!: Current discard for sculpty " << mSculptTexture->getID() 
+				LL_WARNS() << "WARNING!!: Current discard for sculpty " << mSculptTexture->getID() 
 					<< " at " << current_discard 
-					<< " is less than -2." << llendl;
+					<< " is less than -2." << LL_ENDL;
 				low_sculpty_discard_warning_count = 0;
 			}
 			
@@ -1134,9 +1134,9 @@ void LLVOVolume::sculpt()
 			static S32 high_sculpty_discard_warning_count = 100;
 			if (++high_sculpty_discard_warning_count >= 100)
 			{	// Log first time, then every 100 afterwards otherwise this can flood the logs
-				llwarns << "WARNING!!: Current discard for sculpty " << mSculptTexture->getID() 
+				LL_WARNS() << "WARNING!!: Current discard for sculpty " << mSculptTexture->getID() 
 					<< " at " << current_discard 
-					<< " is more than than allowed max of " << MAX_DISCARD_LEVEL << llendl;
+					<< " is more than than allowed max of " << MAX_DISCARD_LEVEL << LL_ENDL;
 				high_sculpty_discard_warning_count = 0;
 			}
 
@@ -2148,7 +2148,7 @@ void LLVOVolume::updateObjectMediaData(const LLSD &media_data_array, const std::
 	if ( (S32)fetched_version > mLastFetchedMediaVersion)
 	{
 		mLastFetchedMediaVersion = fetched_version;
-		//llinfos << "updating:" << this->getID() << " " << ll_pretty_print_sd(media_data_array) << llendl;
+		//LL_INFOS() << "updating:" << this->getID() << " " << ll_pretty_print_sd(media_data_array) << LL_ENDL;
 		
 		LLSD::array_const_iterator iter = media_data_array.beginArray();
 		LLSD::array_const_iterator end = media_data_array.endArray();
@@ -2176,7 +2176,7 @@ void LLVOVolume::syncMediaData(S32 texture_index, const LLSD &media_data, bool m
 
 	LL_DEBUGS("MediaOnAPrim") << "BEFORE: texture_index = " << texture_index
 		<< " hasMedia = " << te->hasMedia() << " : " 
-		<< ((NULL == te->getMediaData()) ? "NULL MEDIA DATA" : ll_pretty_print_sd(te->getMediaData()->asLLSD())) << llendl;
+		<< ((NULL == te->getMediaData()) ? "NULL MEDIA DATA" : ll_pretty_print_sd(te->getMediaData()->asLLSD())) << LL_ENDL;
 
 	std::string previous_url;
 	LLMediaEntry* mep = te->getMediaData();
@@ -2218,7 +2218,7 @@ void LLVOVolume::syncMediaData(S32 texture_index, const LLSD &media_data, bool m
 
 	LL_DEBUGS("MediaOnAPrim") << "AFTER: texture_index = " << texture_index
 		<< " hasMedia = " << te->hasMedia() << " : " 
-		<< ((NULL == te->getMediaData()) ? "NULL MEDIA DATA" : ll_pretty_print_sd(te->getMediaData()->asLLSD())) << llendl;
+		<< ((NULL == te->getMediaData()) ? "NULL MEDIA DATA" : ll_pretty_print_sd(te->getMediaData()->asLLSD())) << LL_ENDL;
 }
 
 void LLVOVolume::mediaNavigateBounceBack(U8 texture_index)
@@ -4080,7 +4080,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 	
 	if (!fullbright && type != LLRenderPass::PASS_GLOW && !facep->getVertexBuffer()->hasDataType(LLVertexBuffer::TYPE_NORMAL))
 	{
-		llwarns << "Non fullbright face has no normals!" << llendl;
+		LL_WARNS() << "Non fullbright face has no normals!" << LL_ENDL;
 		return;
 	}
 
@@ -4496,7 +4496,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 									for ( int i=0; i<jointCnt; ++i )
 									{
 										std::string lookingForJoint = pSkinData->mJointNames[i].c_str();
-										//llinfos<<"joint name "<<lookingForJoint.c_str()<<llendl;
+										//LL_INFOS()<<"joint name "<<lookingForJoint.c_str()<<LL_ENDL;
 										LLJoint* pJoint = pAvatarVO->getJoint( lookingForJoint );
 										if ( pJoint && pJoint->getId() != currentId )
 										{   									
@@ -4996,7 +4996,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 		//if not all buffers are unmapped
 		if(num_mapped_veretx_buffer != LLVertexBuffer::sMappedCount) 
 		{
-			llwarns << "Not all mapped vertex buffers are unmapped!" << llendl ; 
+			LL_WARNS() << "Not all mapped vertex buffers are unmapped!" << LL_ENDL ; 
 			for (LLSpatialGroup::element_iter drawable_iter = group->getDataBegin(); drawable_iter != group->getDataEnd(); ++drawable_iter)
 			{
 				LLDrawable* drawablep = (LLDrawable*)(*drawable_iter)->getDrawable();
@@ -5294,7 +5294,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 			
 			if (batch_textures && facep->getTextureIndex() == 255)
 			{
-				llerrs << "Invalid texture index." << llendl;
+				LL_ERRS() << "Invalid texture index." << LL_ENDL;
 			}
 			
 			{
@@ -5319,7 +5319,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 					if (!facep->getGeometryVolume(*volume, te_idx, 
 						vobj->getRelativeXform(), vobj->getRelativeXformInvTrans(), index_offset,true))
 					{
-						llwarns << "Failed to get geometry for face!" << llendl;
+						LL_WARNS() << "Failed to get geometry for face!" << LL_ENDL;
 					}
 
 					if (drawablep->isState(LLDrawable::ANIMATED_CHILD))

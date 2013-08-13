@@ -222,7 +222,7 @@ void LLFace::initClass()
 
 void LLFace::setWorldMatrix(const LLMatrix4 &mat)
 {
-	llerrs << "Faces on this drawable are not independently modifiable\n" << llendl;
+	LL_ERRS() << "Faces on this drawable are not independently modifiable\n" << LL_ENDL;
 }
 
 void LLFace::setPool(LLFacePool* pool)
@@ -234,7 +234,7 @@ void LLFace::setPool(LLFacePool* new_pool, LLViewerTexture *texturep)
 {
 	if (!new_pool)
 	{
-		llerrs << "Setting pool to null!" << llendl;
+		LL_ERRS() << "Setting pool to null!" << LL_ENDL;
 	}
 
 	if (new_pool != mDrawPoolp)
@@ -338,7 +338,7 @@ void LLFace::switchTexture(U32 ch, LLViewerTexture* new_texture)
 
 	if(!new_texture)
 	{
-		llerrs << "Can not switch to a null texture." << llendl;
+		LL_ERRS() << "Can not switch to a null texture." << LL_ENDL;
 		return;
 	}
 
@@ -420,7 +420,7 @@ void LLFace::setTextureIndex(U8 index)
 		{
 			if (mDrawInfo && !mDrawInfo->mTextureList.empty())
 			{
-				llerrs << "Face with no texture index references indexed texture draw info." << llendl;
+				LL_ERRS() << "Face with no texture index references indexed texture draw info." << LL_ENDL;
 			}
 		}
 	}
@@ -612,29 +612,29 @@ void LLFace::setDrawInfo(LLDrawInfo* draw_info)
 void LLFace::printDebugInfo() const
 {
 	LLFacePool *poolp = getPool();
-	llinfos << "Object: " << getViewerObject()->mID << llendl;
+	LL_INFOS() << "Object: " << getViewerObject()->mID << LL_ENDL;
 	if (getDrawable())
 	{
-		llinfos << "Type: " << LLPrimitive::pCodeToString(getDrawable()->getVObj()->getPCode()) << llendl;
+		LL_INFOS() << "Type: " << LLPrimitive::pCodeToString(getDrawable()->getVObj()->getPCode()) << LL_ENDL;
 	}
 	if (getTexture())
 	{
-		llinfos << "Texture: " << getTexture() << " Comps: " << (U32)getTexture()->getComponents() << llendl;
+		LL_INFOS() << "Texture: " << getTexture() << " Comps: " << (U32)getTexture()->getComponents() << LL_ENDL;
 	}
 	else
 	{
-		llinfos << "No texture: " << llendl;
+		LL_INFOS() << "No texture: " << LL_ENDL;
 	}
 
-	llinfos << "Face: " << this << llendl;
-	llinfos << "State: " << getState() << llendl;
-	llinfos << "Geom Index Data:" << llendl;
-	llinfos << "--------------------" << llendl;
-	llinfos << "GI: " << mGeomIndex << " Count:" << mGeomCount << llendl;
-	llinfos << "Face Index Data:" << llendl;
-	llinfos << "--------------------" << llendl;
-	llinfos << "II: " << mIndicesIndex << " Count:" << mIndicesCount << llendl;
-	llinfos << llendl;
+	LL_INFOS() << "Face: " << this << LL_ENDL;
+	LL_INFOS() << "State: " << getState() << LL_ENDL;
+	LL_INFOS() << "Geom Index Data:" << LL_ENDL;
+	LL_INFOS() << "--------------------" << LL_ENDL;
+	LL_INFOS() << "GI: " << mGeomIndex << " Count:" << mGeomCount << LL_ENDL;
+	LL_INFOS() << "Face Index Data:" << LL_ENDL;
+	LL_INFOS() << "--------------------" << LL_ENDL;
+	LL_INFOS() << "II: " << mIndicesIndex << " Count:" << mIndicesCount << LL_ENDL;
+	LL_INFOS() << LL_ENDL;
 
 	if (poolp)
 	{
@@ -647,20 +647,20 @@ void LLFace::printDebugInfo() const
 			LLFace *facep = *iter;
 			if (facep == this)
 			{
-				llinfos << "Pool reference: " << pool_references << llendl;
+				LL_INFOS() << "Pool reference: " << pool_references << LL_ENDL;
 				pool_references++;
 			}
 		}
 
 		if (pool_references != 1)
 		{
-			llinfos << "Incorrect number of pool references!" << llendl;
+			LL_INFOS() << "Incorrect number of pool references!" << LL_ENDL;
 		}
 	}
 
 #if 0
-	llinfos << "Indices:" << llendl;
-	llinfos << "--------------------" << llendl;
+	LL_INFOS() << "Indices:" << LL_ENDL;
+	LL_INFOS() << "--------------------" << LL_ENDL;
 
 	const U32 *indicesp = getRawIndices();
 	S32 indices_count = getIndicesCount();
@@ -668,17 +668,17 @@ void LLFace::printDebugInfo() const
 
 	for (S32 i = 0; i < indices_count; i++)
 	{
-		llinfos << i << ":" << indicesp[i] << ":" << (S32)(indicesp[i] - geom_start) << llendl;
+		LL_INFOS() << i << ":" << indicesp[i] << ":" << (S32)(indicesp[i] - geom_start) << LL_ENDL;
 	}
-	llinfos << llendl;
+	LL_INFOS() << LL_ENDL;
 
-	llinfos << "Vertices:" << llendl;
-	llinfos << "--------------------" << llendl;
+	LL_INFOS() << "Vertices:" << LL_ENDL;
+	LL_INFOS() << "--------------------" << LL_ENDL;
 	for (S32 i = 0; i < mGeomCount; i++)
 	{
-		llinfos << mGeomIndex + i << ":" << poolp->getVertex(mGeomIndex + i) << llendl;
+		LL_INFOS() << mGeomIndex + i << ":" << poolp->getVertex(mGeomIndex + i) << LL_ENDL;
 	}
-	llinfos << llendl;
+	LL_INFOS() << LL_ENDL;
 #endif
 }
 
@@ -785,7 +785,7 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 	
 		if (f >= volume.getNumVolumeFaces())
 		{
-			llwarns << "Generating bounding box for invalid face index!" << llendl;
+			LL_WARNS() << "Generating bounding box for invalid face index!" << LL_ENDL;
 			f = 0;
 		}
 
@@ -1213,13 +1213,13 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		{
 			if (gDebugGL)
 			{
-				llwarns	<< "Index buffer overflow!" << llendl;
-				llwarns << "Indices Count: " << mIndicesCount
+				LL_WARNS()	<< "Index buffer overflow!" << LL_ENDL;
+				LL_WARNS() << "Indices Count: " << mIndicesCount
 						<< " VF Num Indices: " << num_indices
 						<< " Indices Index: " << mIndicesIndex
-						<< " VB Num Indices: " << mVertexBuffer->getNumIndices() << llendl;
-				llwarns	<< " Face Index: " << f
-						<< " Pool Type: " << mPoolType << llendl;
+						<< " VB Num Indices: " << mVertexBuffer->getNumIndices() << LL_ENDL;
+				LL_WARNS()	<< " Face Index: " << f
+						<< " Pool Type: " << mPoolType << LL_ENDL;
 			}
 			return FALSE;
 		}
@@ -1228,7 +1228,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		{
 			if (gDebugGL)
 			{
-				llwarns << "Vertex buffer overflow!" << llendl;
+				LL_WARNS() << "Vertex buffer overflow!" << LL_ENDL;
 			}
 			return FALSE;
 		}
@@ -2397,7 +2397,7 @@ BOOL LLFace::verify(const U32* indices_array) const
 	if ((mGeomIndex + mGeomCount) > mVertexBuffer->getNumVerts())
 	{
 		ok = FALSE;
-		llinfos << "Face references invalid vertices!" << llendl;
+		LL_INFOS() << "Face references invalid vertices!" << LL_ENDL;
 	}
 
 	S32 indices_count = (S32)getIndicesCount();
@@ -2410,13 +2410,13 @@ BOOL LLFace::verify(const U32* indices_array) const
 	if (indices_count > LL_MAX_INDICES_COUNT)
 	{
 		ok = FALSE;
-		llinfos << "Face has bogus indices count" << llendl;
+		LL_INFOS() << "Face has bogus indices count" << LL_ENDL;
 	}
 	
 	if (mIndicesIndex + mIndicesCount > mVertexBuffer->getNumIndices())
 	{
 		ok = FALSE;
-		llinfos << "Face references invalid indices!" << llendl;
+		LL_INFOS() << "Face references invalid indices!" << LL_ENDL;
 	}
 
 #if 0
@@ -2430,14 +2430,14 @@ BOOL LLFace::verify(const U32* indices_array) const
 		S32 delta = indicesp[i] - geom_start;
 		if (0 > delta)
 		{
-			llwarns << "Face index too low!" << llendl;
-			llinfos << "i:" << i << " Index:" << indicesp[i] << " GStart: " << geom_start << llendl;
+			LL_WARNS() << "Face index too low!" << LL_ENDL;
+			LL_INFOS() << "i:" << i << " Index:" << indicesp[i] << " GStart: " << geom_start << LL_ENDL;
 			ok = FALSE;
 		}
 		else if (delta >= geom_count)
 		{
-			llwarns << "Face index too high!" << llendl;
-			llinfos << "i:" << i << " Index:" << indicesp[i] << " GEnd: " << geom_start + geom_count << llendl;
+			LL_WARNS() << "Face index too high!" << LL_ENDL;
+			LL_INFOS() << "i:" << i << " Index:" << indicesp[i] << " GEnd: " << geom_start + geom_count << LL_ENDL;
 			ok = FALSE;
 		}
 	}

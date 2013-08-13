@@ -347,7 +347,7 @@ void LLFlatListView::sort()
 {
 	if (!mItemComparator)
 	{
-		llwarns << "No comparator specified for sorting FlatListView items." << llendl;
+		LL_WARNS() << "No comparator specified for sorting FlatListView items." << LL_ENDL;
 		return;
 	}
 

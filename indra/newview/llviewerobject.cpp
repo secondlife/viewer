@@ -174,13 +174,13 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
 	case LL_PCODE_LEGACY_GRASS:
 	  res = new LLVOGrass(id, pcode, regionp); break;
 	case LL_PCODE_LEGACY_PART_SYS:
-// 	  llwarns << "Creating old part sys!" << llendl;
+// 	  LL_WARNS() << "Creating old part sys!" << LL_ENDL;
 // 	  res = new LLVOPart(id, pcode, regionp); break;
 	  res = NULL; break;
 	case LL_PCODE_LEGACY_TREE:
 	  res = new LLVOTree(id, pcode, regionp); break;
 	case LL_PCODE_TREE_NEW:
-// 	  llwarns << "Creating new tree!" << llendl;
+// 	  LL_WARNS() << "Creating new tree!" << LL_ENDL;
 // 	  res = new LLVOTree(id, pcode, regionp); break;
 	  res = NULL; break;
 	case LL_VO_SURFACE_PATCH:
@@ -200,7 +200,7 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
 	case LL_VO_WL_SKY:
 	  res = new LLVOWLSky(id, pcode, regionp); break;
 	default:
-	  llwarns << "Unknown object pcode " << (S32)pcode << llendl;
+	  LL_WARNS() << "Unknown object pcode " << (S32)pcode << LL_ENDL;
 	  res = NULL; break;
 	}
 	return res;
@@ -354,7 +354,7 @@ void LLViewerObject::markDead()
 {
 	if (!mDead)
 	{
-		//llinfos << "Marking self " << mLocalID << " as dead." << llendl;
+		//LL_INFOS() << "Marking self " << mLocalID << " as dead." << LL_ENDL;
 		
 		// Root object of this hierarchy unlinks itself.
 		if (getParent())
@@ -376,7 +376,7 @@ void LLViewerObject::markDead()
 			childp = mChildList.back();
 			if (childp->getPCode() != LL_PCODE_LEGACY_AVATAR)
 			{
-				//llinfos << "Marking child " << childp->getLocalID() << " as dead." << llendl;
+				//LL_INFOS() << "Marking child " << childp->getLocalID() << " as dead." << LL_ENDL;
 				childp->setParent(NULL); // LLViewerObject::markDead 1
 				childp->markDead();
 			}
@@ -446,17 +446,17 @@ void LLViewerObject::markDead()
 
 void LLViewerObject::dump() const
 {
-	llinfos << "Type: " << pCodeToString(mPrimitiveCode) << llendl;
-	llinfos << "Drawable: " << (LLDrawable *)mDrawable << llendl;
-	llinfos << "Update Age: " << LLFrameTimer::getElapsedSeconds() - mLastMessageUpdateSecs << llendl;
+	LL_INFOS() << "Type: " << pCodeToString(mPrimitiveCode) << LL_ENDL;
+	LL_INFOS() << "Drawable: " << (LLDrawable *)mDrawable << LL_ENDL;
+	LL_INFOS() << "Update Age: " << LLFrameTimer::getElapsedSeconds() - mLastMessageUpdateSecs << LL_ENDL;
 
-	llinfos << "Parent: " << getParent() << llendl;
-	llinfos << "ID: " << mID << llendl;
-	llinfos << "LocalID: " << mLocalID << llendl;
-	llinfos << "PositionRegion: " << getPositionRegion() << llendl;
-	llinfos << "PositionAgent: " << getPositionAgent() << llendl;
-	llinfos << "PositionGlobal: " << getPositionGlobal() << llendl;
-	llinfos << "Velocity: " << getVelocity() << llendl;
+	LL_INFOS() << "Parent: " << getParent() << LL_ENDL;
+	LL_INFOS() << "ID: " << mID << LL_ENDL;
+	LL_INFOS() << "LocalID: " << mLocalID << LL_ENDL;
+	LL_INFOS() << "PositionRegion: " << getPositionRegion() << LL_ENDL;
+	LL_INFOS() << "PositionAgent: " << getPositionAgent() << LL_ENDL;
+	LL_INFOS() << "PositionGlobal: " << getPositionGlobal() << LL_ENDL;
+	LL_INFOS() << "Velocity: " << getVelocity() << LL_ENDL;
 	if (mDrawable.notNull() && 
 		mDrawable->getNumFaces() && 
 		mDrawable->getFace(0))
@@ -464,31 +464,31 @@ void LLViewerObject::dump() const
 		LLFacePool *poolp = mDrawable->getFace(0)->getPool();
 		if (poolp)
 		{
-			llinfos << "Pool: " << poolp << llendl;
-			llinfos << "Pool reference count: " << poolp->mReferences.size() << llendl;
+			LL_INFOS() << "Pool: " << poolp << LL_ENDL;
+			LL_INFOS() << "Pool reference count: " << poolp->mReferences.size() << LL_ENDL;
 		}
 	}
-	//llinfos << "BoxTree Min: " << mDrawable->getBox()->getMin() << llendl;
-	//llinfos << "BoxTree Max: " << mDrawable->getBox()->getMin() << llendl;
+	//LL_INFOS() << "BoxTree Min: " << mDrawable->getBox()->getMin() << LL_ENDL;
+	//LL_INFOS() << "BoxTree Max: " << mDrawable->getBox()->getMin() << LL_ENDL;
 	/*
-	llinfos << "Velocity: " << getVelocity() << llendl;
-	llinfos << "AnyOwner: " << permAnyOwner() << " YouOwner: " << permYouOwner() << " Edit: " << mPermEdit << llendl;
-	llinfos << "UsePhysics: " << flagUsePhysics() << " CanSelect " << mbCanSelect << " UserSelected " << mUserSelected << llendl;
-	llinfos << "AppAngle: " << mAppAngle << llendl;
-	llinfos << "PixelArea: " << mPixelArea << llendl;
+	LL_INFOS() << "Velocity: " << getVelocity() << LL_ENDL;
+	LL_INFOS() << "AnyOwner: " << permAnyOwner() << " YouOwner: " << permYouOwner() << " Edit: " << mPermEdit << LL_ENDL;
+	LL_INFOS() << "UsePhysics: " << flagUsePhysics() << " CanSelect " << mbCanSelect << " UserSelected " << mUserSelected << LL_ENDL;
+	LL_INFOS() << "AppAngle: " << mAppAngle << LL_ENDL;
+	LL_INFOS() << "PixelArea: " << mPixelArea << LL_ENDL;
 
 	char buffer[1000];
 	char *key;
 	for (key = mNameValuePairs.getFirstKey(); key; key = mNameValuePairs.getNextKey() )
 	{
 		mNameValuePairs[key]->printNameValue(buffer);
-		llinfos << buffer << llendl;
+		LL_INFOS() << buffer << LL_ENDL;
 	}
 	for (child_list_t::iterator iter = mChildList.begin();
 		 iter != mChildList.end(); iter++)
 	{
 		LLViewerObject* child = *iter;
-		llinfos << "  child " << child->getID() << llendl;
+		LL_INFOS() << "  child " << child->getID() << LL_ENDL;
 	}
 	*/
 }
@@ -499,7 +499,7 @@ void LLViewerObject::printNameValuePairs() const
 		 iter != mNameValuePairs.end(); iter++)
 	{
 		LLNameValue* nv = iter->second;
-		llinfos << nv->printNameValue() << llendl;
+		LL_INFOS() << nv->printNameValue() << LL_ENDL;
 	}
 }
 
@@ -508,7 +508,7 @@ void LLViewerObject::initVOClasses()
 	// Initialized shared class stuff first.
 	LLVOAvatar::initClass();
 	LLVOTree::initClass();
-	llinfos << "Viewer Object size: " << sizeof(LLViewerObject) << llendl;
+	LL_INFOS() << "Viewer Object size: " << sizeof(LLViewerObject) << LL_ENDL;
 	LLVOGrass::initClass();
 	LLVOWater::initClass();
 	LLVOVolume::initClass();
@@ -745,7 +745,7 @@ void LLViewerObject::buildReturnablesForChildrenVO( std::vector<PotentialReturna
 {
 	if ( !pChild )
 	{
-		llerrs<<"child viewerobject is NULL "<<llendl;
+		LL_ERRS()<<"child viewerobject is NULL "<<LL_ENDL;
 	}
 	
 	constructAndAddReturnable( returnables, pChild, pTargetRegion );
@@ -1057,7 +1057,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 	// If region is removed from the list it is also deleted.
 	if (!LLWorld::instance().isRegionListed(mRegionp))
 	{
-		llwarns << "Updating object in an invalid region" << llendl;
+		LL_WARNS() << "Updating object in an invalid region" << LL_ENDL;
 		return retval;
 	}
 
@@ -1099,7 +1099,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		U32 x, y;
 		from_region_handle(region_handle, &x, &y);
 
-		llerrs << "Object has invalid region " << x << ":" << y << "!" << llendl;
+		LL_ERRS() << "Object has invalid region " << x << ":" << y << "!" << LL_ENDL;
 		return retval;
 	}
 
@@ -1158,7 +1158,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		case OUT_FULL:
 			{
 #ifdef DEBUG_UPDATE_TYPE
-				llinfos << "Full:" << getID() << llendl;
+				LL_INFOS() << "Full:" << getID() << LL_ENDL;
 #endif
 				//clear cost and linkset cost
 				mCostStale = true;
@@ -1464,7 +1464,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 						S32 param_size;
 						dp.unpackU16(param_type, "param_type");
 						dp.unpackBinaryData(param_block, param_size, "param_data");
-						//llinfos << "Param type: " << param_type << ", Size: " << param_size << llendl;
+						//LL_INFOS() << "Param type: " << param_type << ", Size: " << param_size << LL_ENDL;
 						LLDataPackerBinaryBuffer dp2(param_block, param_size);
 						unpackParameterEntry(param_type, &dp2);
 					}
@@ -1486,7 +1486,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		case OUT_TERSE_IMPROVED:
 			{
 #ifdef DEBUG_UPDATE_TYPE
-				llinfos << "TI:" << getID() << llendl;
+				LL_INFOS() << "TI:" << getID() << LL_ENDL;
 #endif
 				length = mesgsys->getSizeFast(_PREHASH_ObjectData, block_num, _PREHASH_ObjectData);
 				mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_ObjectData, data, length, block_num);
@@ -1663,7 +1663,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 			case OUT_TERSE_IMPROVED:
 			{
 #ifdef DEBUG_UPDATE_TYPE
-				llinfos << "CompTI:" << getID() << llendl;
+				LL_INFOS() << "CompTI:" << getID() << LL_ENDL;
 #endif
 				U8		value;
 				dp->unpackU8(value, "agent");
@@ -1709,7 +1709,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 			case OUT_FULL_CACHED:
 			{
 #ifdef DEBUG_UPDATE_TYPE
-				llinfos << "CompFull:" << getID() << llendl;
+				LL_INFOS() << "CompFull:" << getID() << LL_ENDL;
 #endif
 				mCostStale = true;
 
@@ -1845,7 +1845,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					S32 param_size;
 					dp->unpackU16(param_type, "param_type");
 					dp->unpackBinaryData(param_block, param_size, "param_data");
-					//llinfos << "Param type: " << param_type << ", Size: " << param_size << llendl;
+					//LL_INFOS() << "Param type: " << param_type << ", Size: " << param_size << LL_ENDL;
 					LLDataPackerBinaryBuffer dp2(param_block, param_size);
 					unpackParameterEntry(param_type, &dp2);
 				}
@@ -1940,7 +1940,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				if (sent_parentp && sent_parentp->getParent() == this)
 				{
 					// Try to recover if we attempt to attach a parent to its child
-					llwarns << "Attempt to attach a parent to it's child: " << this->getID() << " to " << sent_parentp->getID() << llendl;
+					LL_WARNS() << "Attempt to attach a parent to it's child: " << this->getID() << " to " << sent_parentp->getID() << LL_ENDL;
 					this->removeChild(sent_parentp);
 					sent_parentp->setDrawableParent(NULL);
 				}
@@ -1959,7 +1959,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					{
 						if (mDrawable->isDead() || !mDrawable->getVObj())
 						{
-							llwarns << "Drawable is dead or no VObj!" << llendl;
+							LL_WARNS() << "Drawable is dead or no VObj!" << LL_ENDL;
 							sent_parentp->addChild(this);
 						}
 						else
@@ -1969,9 +1969,9 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 								// Bad, we got a cycle somehow.
 								// Kill both the parent and the child, and
 								// set cache misses for both of them.
-								llwarns << "Attempting to recover from parenting cycle!" << llendl;
-								llwarns << "Killing " << sent_parentp->getID() << " and " << getID() << llendl;
-								llwarns << "Adding to cache miss list" << llendl;
+								LL_WARNS() << "Attempting to recover from parenting cycle!" << LL_ENDL;
+								LL_WARNS() << "Killing " << sent_parentp->getID() << " and " << getID() << LL_ENDL;
+								LL_WARNS() << "Adding to cache miss list" << LL_ENDL;
 								setParent(NULL);
 								sent_parentp->setParent(NULL);
 								getRegion()->addCacheMissFull(getLocalID());
@@ -2038,7 +2038,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				//LLViewerObjectList::getUUIDFromLocal(parent_uuid, parent_id, mesgsys->getSenderIP(), mesgsys->getSenderPort() );
 				//if (parent_uuid != cur_parentp->getID() )
 				//{
-				//	llerrs << "Local ID match but UUID mismatch of viewer object" << llendl;
+				//	LL_ERRS() << "Local ID match but UUID mismatch of viewer object" << LL_ENDL;
 				//}
 			}
 			else
@@ -2120,9 +2120,9 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 							// Bad, we got a cycle somehow.
 							// Kill both the parent and the child, and
 							// set cache misses for both of them.
-							llwarns << "Attempting to recover from parenting cycle!" << llendl;
-							llwarns << "Killing " << sent_parentp->getID() << " and " << getID() << llendl;
-							llwarns << "Adding to cache miss list" << llendl;
+							LL_WARNS() << "Attempting to recover from parenting cycle!" << LL_ENDL;
+							LL_WARNS() << "Killing " << sent_parentp->getID() << " and " << getID() << LL_ENDL;
+							LL_WARNS() << "Adding to cache miss list" << LL_ENDL;
 							setParent(NULL);
 							sent_parentp->setParent(NULL);
 							getRegion()->addCacheMissFull(getLocalID());
@@ -2154,7 +2154,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 							// This is probably an object flying across a region boundary, the
 							// object probably ISN'T being reparented, but just got an object
 							// update out of order (child update before parent).
-							//llinfos << "Don't reparent object handoffs!" << llendl;
+							//LL_INFOS() << "Don't reparent object handoffs!" << LL_ENDL;
 							remove_parent = false;
 						}
 					}
@@ -2196,7 +2196,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		}
 		else
 		{
-			llwarns << "findCircuit() returned NULL; skipping interpolation" << llendl;
+			LL_WARNS() << "findCircuit() returned NULL; skipping interpolation" << LL_ENDL;
 		}
 	}
 
@@ -2250,7 +2250,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		}
 		else
 		{
-			llwarns << "Can not move the object/avatar to an infinite location!" << llendl ;	
+			LL_WARNS() << "Can not move the object/avatar to an infinite location!" << LL_ENDL ;	
 
 			retval |= INVALID_UPDATE ;
 		}
@@ -2367,7 +2367,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		// Don't clear invisibility flag on update if still orphaned!
 		if (mDrawable->isState(LLDrawable::FORCE_INVISIBLE) && !mOrphaned)
 		{
-// 			lldebugs << "Clearing force invisible: " << mID << ":" << getPCodeString() << ":" << getPositionAgent() << llendl;
+// 			LL_DEBUGS() << "Clearing force invisible: " << mID << ":" << getPCodeString() << ":" << getPositionAgent() << LL_ENDL;
 			mDrawable->clearState(LLDrawable::FORCE_INVISIBLE);
 			gPipeline.markRebuild( mDrawable, LLDrawable::REBUILD_ALL, TRUE );
 		}
@@ -2503,7 +2503,7 @@ void LLViewerObject::interpolateLinearMotion(const F64 & time, const F32 & dt)
 						if (time_since_last_update > sMaxUpdateInterpolationTime)
 						{	// Past the time limit, so stop the object
 							phase_out = 0.0;
-							//llinfos << "Motion phase out to zero" << llendl;
+							//LL_INFOS() << "Motion phase out to zero" << LL_ENDL;
 
 							// Kill angular motion as well.  Note - not adding this due to paranoia
 							// about stopping rotation for llTargetOmega objects and not having it restart
@@ -2513,13 +2513,13 @@ void LLViewerObject::interpolateLinearMotion(const F64 & time, const F32 & dt)
 						{	// Last update was already phased out a bit
 							phase_out = (sMaxUpdateInterpolationTime - time_since_last_update) / 
 										(sMaxUpdateInterpolationTime - time_since_last_interpolation);
-							//llinfos << "Continuing motion phase out of " << (F32) phase_out << llendl;
+							//LL_INFOS() << "Continuing motion phase out of " << (F32) phase_out << LL_ENDL;
 						}
 						else
 						{	// Phase out from full value
 							phase_out = (sMaxUpdateInterpolationTime - time_since_last_update) / 
 										(sMaxUpdateInterpolationTime - sPhaseOutUpdateInterpolationTime);
-							//llinfos << "Starting motion phase out of " << (F32) phase_out << llendl;
+							//LL_INFOS() << "Starting motion phase out of " << (F32) phase_out << LL_ENDL;
 						}
 						phase_out = llclamp(phase_out, 0.0, 1.0);
 
@@ -2564,8 +2564,8 @@ void LLViewerObject::interpolateLinearMotion(const F64 & time, const F32 & dt)
 			if (clip_pos_global != new_pos_global)
 			{	// Was clipped, so this means we hit a edge where there is no region to enter
 				
-				//llinfos << "Hit empty region edge, clipped predicted position to " << mRegionp->getPosRegionFromGlobal(clip_pos_global)
-				//	<< " from " << new_pos << llendl;
+				//LL_INFOS() << "Hit empty region edge, clipped predicted position to " << mRegionp->getPosRegionFromGlobal(clip_pos_global)
+				//	<< " from " << new_pos << LL_ENDL;
 				new_pos = mRegionp->getPosRegionFromGlobal(clip_pos_global);
 				
 				// Stop motion and get server update for bouncing on the edge
@@ -2574,7 +2574,7 @@ void LLViewerObject::interpolateLinearMotion(const F64 & time, const F32 & dt)
 			}
 			else
 			{	// Let predicted movement cross into another region
-				//llinfos << "Predicting region crossing to " << new_pos << llendl;
+				//LL_INFOS() << "Predicting region crossing to " << new_pos << LL_ENDL;
 			}
 		}
 
@@ -2722,7 +2722,7 @@ void LLViewerObject::saveScript(
 	 * XXXPAM Investigate not making this copy.  Seems unecessary, but I'm unsure about the
 	 * interaction with doUpdateInventory() called below.
 	 */
-	lldebugs << "LLViewerObject::saveScript() " << item->getUUID() << " " << item->getAssetUUID() << llendl;
+	LL_DEBUGS() << "LLViewerObject::saveScript() " << item->getUUID() << " " << item->getAssetUUID() << LL_ENDL;
 	LLPointer<LLViewerInventoryItem> task_item =
 		new LLViewerInventoryItem(item->getUUID(), mID, item->getPermissions(),
 								  item->getAssetUUID(), item->getType(),
@@ -2753,7 +2753,7 @@ void LLViewerObject::saveScript(
 void LLViewerObject::moveInventory(const LLUUID& folder_id,
 								   const LLUUID& item_id)
 {
-	lldebugs << "LLViewerObject::moveInventory " << item_id << llendl;
+	LL_DEBUGS() << "LLViewerObject::moveInventory " << item_id << LL_ENDL;
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessageFast(_PREHASH_MoveTaskInventory);
 	msg->nextBlockFast(_PREHASH_AgentData);
@@ -2870,12 +2870,12 @@ struct LLFilenameAndTask
 	LLFilenameAndTask()
 	{
 		++sCount;
-		lldebugs << "Constructing LLFilenameAndTask: " << sCount << llendl;
+		LL_DEBUGS() << "Constructing LLFilenameAndTask: " << sCount << LL_ENDL;
 	}
 	~LLFilenameAndTask()
 	{
 		--sCount;
-		lldebugs << "Destroying LLFilenameAndTask: " << sCount << llendl;
+		LL_DEBUGS() << "Destroying LLFilenameAndTask: " << sCount << LL_ENDL;
 	}
 private:
 	LLFilenameAndTask(const LLFilenameAndTask& rhs);
@@ -2895,8 +2895,8 @@ void LLViewerObject::processTaskInv(LLMessageSystem* msg, void** user_data)
 	LLViewerObject* object = gObjectList.findObject(task_id);
 	if(!object)
 	{
-		llwarns << "LLViewerObject::processTaskInv object "
-			<< task_id << " does not exist." << llendl;
+		LL_WARNS() << "LLViewerObject::processTaskInv object "
+			<< task_id << " does not exist." << LL_ENDL;
 		return;
 	}
 
@@ -2910,7 +2910,7 @@ void LLViewerObject::processTaskInv(LLMessageSystem* msg, void** user_data)
 	
 	if(ft->mFilename.empty())
 	{
-		lldebugs << "Task has no inventory" << llendl;
+		LL_DEBUGS() << "Task has no inventory" << LL_ENDL;
 		// mock up some inventory to make a drop target.
 		if(object->mInventory)
 		{
@@ -2970,15 +2970,15 @@ void LLViewerObject::processTaskInvFile(void** user_data, S32 error_code, LLExtS
 			// MAINT-2597 - crash when trying to edit a no-mod object
 			// Somehow get an contents inventory response, but with an invalid stream (possibly 0 size?)
 			// Stated repro was specific to no-mod objects so failing without user interaction should be safe.
-			llwarns << "Trying to load invalid task inventory file. Ignoring file contents." << llendl;
+			LL_WARNS() << "Trying to load invalid task inventory file. Ignoring file contents." << LL_ENDL;
 		}
 	}
 	else
 	{
 		// This Occurs When to requests were made, and the first one
 		// has already handled it.
-		lldebugs << "Problem loading task inventory. Return code: "
-				 << error_code << llendl;
+		LL_DEBUGS() << "Problem loading task inventory. Return code: "
+				 << error_code << LL_ENDL;
 	}
 	delete ft;
 }
@@ -3019,8 +3019,8 @@ BOOL LLViewerObject::loadTaskInvFile(const std::string& filename)
 			}
 			else
 			{
-				llwarns << "Unknown token in inventory file '"
-						<< keyword << "'" << llendl;
+				LL_WARNS() << "Unknown token in inventory file '"
+						<< keyword << "'" << LL_ENDL;
 			}
 		}
 		ifs.close();
@@ -3028,8 +3028,8 @@ BOOL LLViewerObject::loadTaskInvFile(const std::string& filename)
 	}
 	else
 	{
-		llwarns << "unable to load task inventory: " << filename_and_local_path
-				<< llendl;
+		LL_WARNS() << "unable to load task inventory: " << filename_and_local_path
+				<< LL_ENDL;
 		return FALSE;
 	}
 	doInventoryCallback();
@@ -3053,7 +3053,7 @@ void LLViewerObject::doInventoryCallback()
 		}
 		else
 		{
-			llinfos << "LLViewerObject::doInventoryCallback() deleting bad listener entry." << llendl;
+			LL_INFOS() << "LLViewerObject::doInventoryCallback() deleting bad listener entry." << LL_ENDL;
 			delete info;
 			mInventoryCallbacks.erase(curiter);
 		}
@@ -3201,7 +3201,7 @@ LLInventoryObject* LLViewerObject::getInventoryRoot()
 LLViewerInventoryItem* LLViewerObject::getInventoryItemByAsset(const LLUUID& asset_id)
 {
 	if (mInventoryDirty)
-		llwarns << "Peforming inventory lookup for object " << mID << " that has dirty inventory!" << llendl;
+		LL_WARNS() << "Peforming inventory lookup for object " << mID << " that has dirty inventory!" << LL_ENDL;
 
 	LLViewerInventoryItem* rv = NULL;
 	if(mInventory)
@@ -3606,7 +3606,7 @@ void LLViewerObject::addNVPair(const std::string& data)
 
 //	char splat[MAX_STRING];
 //	temp->printNameValue(splat);
-//	llinfos << "addNVPair " << splat << llendl;
+//	LL_INFOS() << "addNVPair " << splat << LL_ENDL;
 
 	name_value_map_t::iterator iter = mNameValuePairs.find(nv->mName);
 	if (iter != mNameValuePairs.end())
@@ -3620,7 +3620,7 @@ void LLViewerObject::addNVPair(const std::string& data)
 		else
 		{
 			delete nv;
-//			llinfos << "Trying to write to Read Only NVPair " << temp->mName << " in addNVPair()" << llendl;
+//			LL_INFOS() << "Trying to write to Read Only NVPair " << temp->mName << " in addNVPair()" << LL_ENDL;
 			return;
 		}
 	}
@@ -3631,7 +3631,7 @@ BOOL LLViewerObject::removeNVPair(const std::string& name)
 {
 	char* canonical_name = gNVNameTable.addString(name);
 
-	lldebugs << "LLViewerObject::removeNVPair(): " << name << llendl;
+	LL_DEBUGS() << "LLViewerObject::removeNVPair(): " << name << LL_ENDL;
 
 	name_value_map_t::iterator iter = mNameValuePairs.find(canonical_name);
 	if (iter != mNameValuePairs.end())
@@ -3657,7 +3657,7 @@ BOOL LLViewerObject::removeNVPair(const std::string& name)
 		}
 		else
 		{
-			lldebugs << "removeNVPair - No region for object" << llendl;
+			LL_DEBUGS() << "removeNVPair - No region for object" << LL_ENDL;
 		}
 	}
 	return FALSE;
@@ -4437,7 +4437,7 @@ S32 LLViewerObject::setTEColor(const U8 te, const LLColor4& color)
 	const LLTextureEntry *tep = getTE(te);
 	if (!tep)
 	{
-		llwarns << "No texture entry for te " << (S32)te << ", object " << mID << llendl;
+		LL_WARNS() << "No texture entry for te " << (S32)te << ", object " << mID << LL_ENDL;
 	}
 	else if (color != tep->getColor())
 	{
@@ -4457,7 +4457,7 @@ S32 LLViewerObject::setTEBumpmap(const U8 te, const U8 bump)
 	const LLTextureEntry *tep = getTE(te);
 	if (!tep)
 	{
-		llwarns << "No texture entry for te " << (S32)te << ", object " << mID << llendl;
+		LL_WARNS() << "No texture entry for te " << (S32)te << ", object " << mID << LL_ENDL;
 	}
 	else if (bump != tep->getBumpmap())
 	{
@@ -4478,7 +4478,7 @@ S32 LLViewerObject::setTETexGen(const U8 te, const U8 texgen)
 	const LLTextureEntry *tep = getTE(te);
 	if (!tep)
 	{
-		llwarns << "No texture entry for te " << (S32)te << ", object " << mID << llendl;
+		LL_WARNS() << "No texture entry for te " << (S32)te << ", object " << mID << LL_ENDL;
 	}
 	else if (texgen != tep->getTexGen())
 	{
@@ -4494,7 +4494,7 @@ S32 LLViewerObject::setTEMediaTexGen(const U8 te, const U8 media)
 	const LLTextureEntry *tep = getTE(te);
 	if (!tep)
 	{
-		llwarns << "No texture entry for te " << (S32)te << ", object " << mID << llendl;
+		LL_WARNS() << "No texture entry for te " << (S32)te << ", object " << mID << LL_ENDL;
 	}
 	else if (media != tep->getMediaTexGen())
 	{
@@ -4510,7 +4510,7 @@ S32 LLViewerObject::setTEShiny(const U8 te, const U8 shiny)
 	const LLTextureEntry *tep = getTE(te);
 	if (!tep)
 	{
-		llwarns << "No texture entry for te " << (S32)te << ", object " << mID << llendl;
+		LL_WARNS() << "No texture entry for te " << (S32)te << ", object " << mID << LL_ENDL;
 	}
 	else if (shiny != tep->getShiny())
 	{
@@ -4526,7 +4526,7 @@ S32 LLViewerObject::setTEFullbright(const U8 te, const U8 fullbright)
 	const LLTextureEntry *tep = getTE(te);
 	if (!tep)
 	{
-		llwarns << "No texture entry for te " << (S32)te << ", object " << mID << llendl;
+		LL_WARNS() << "No texture entry for te " << (S32)te << ", object " << mID << LL_ENDL;
 	}
 	else if (fullbright != tep->getFullbright())
 	{
@@ -4548,7 +4548,7 @@ S32 LLViewerObject::setTEMediaFlags(const U8 te, const U8 media_flags)
 	const LLTextureEntry *tep = getTE(te);
 	if (!tep)
 	{
-		llwarns << "No texture entry for te " << (S32)te << ", object " << mID << llendl;
+		LL_WARNS() << "No texture entry for te " << (S32)te << ", object " << mID << LL_ENDL;
 	}
 	else if (media_flags != tep->getMediaFlags())
 	{
@@ -4571,7 +4571,7 @@ S32 LLViewerObject::setTEGlow(const U8 te, const F32 glow)
 	const LLTextureEntry *tep = getTE(te);
 	if (!tep)
 	{
-		llwarns << "No texture entry for te " << (S32)te << ", object " << mID << llendl;
+		LL_WARNS() << "No texture entry for te " << (S32)te << ", object " << mID << LL_ENDL;
 	}
 	else if (glow != tep->getGlow())
 	{
@@ -4614,7 +4614,7 @@ S32 LLViewerObject::setTEMaterialParams(const U8 te, const LLMaterialPtr pMateri
 	const LLTextureEntry *tep = getTE(te);
 	if (!tep)
 	{
-		llwarns << "No texture entry for te " << (S32)te << ", object " << mID << llendl;
+		LL_WARNS() << "No texture entry for te " << (S32)te << ", object " << mID << LL_ENDL;
 		return 0;
 	}
 
@@ -4735,7 +4735,7 @@ LLViewerTexture *LLViewerObject::getTEImage(const U8 face) const
 		}
 	}
 
-	llerrs << llformat("Requested Image from invalid face: %d/%d",face,getNumTEs()) << llendl;
+	LL_ERRS() << llformat("Requested Image from invalid face: %d/%d",face,getNumTEs()) << LL_ENDL;
 
 	return NULL;
 }
@@ -4758,7 +4758,7 @@ LLViewerTexture *LLViewerObject::getTENormalMap(const U8 face) const
 		}
 	}
 	
-	llerrs << llformat("Requested Image from invalid face: %d/%d",face,getNumTEs()) << llendl;
+	LL_ERRS() << llformat("Requested Image from invalid face: %d/%d",face,getNumTEs()) << LL_ENDL;
 	
 	return NULL;
 }
@@ -4780,14 +4780,14 @@ LLViewerTexture *LLViewerObject::getTESpecularMap(const U8 face) const
 		}
 	}
 	
-	llerrs << llformat("Requested Image from invalid face: %d/%d",face,getNumTEs()) << llendl;
+	LL_ERRS() << llformat("Requested Image from invalid face: %d/%d",face,getNumTEs()) << LL_ENDL;
 	
 	return NULL;
 }
 
 void LLViewerObject::fitFaceTexture(const U8 face)
 {
-	llinfos << "fitFaceTexture not implemented" << llendl;
+	LL_INFOS() << "fitFaceTexture not implemented" << LL_ENDL;
 }
 
 
@@ -5036,7 +5036,7 @@ void LLViewerObject::unpackParticleSource(const S32 block_num, const LLUUID& own
 		// We need to be able to deal with a particle source that hasn't changed, but still got an update!
 		if (pss)
 		{
-// 			llinfos << "Making particle system with owner " << owner_id << llendl;
+// 			LL_INFOS() << "Making particle system with owner " << owner_id << LL_ENDL;
 			pss->setOwnerUUID(owner_id);
 			mPartSourcep = pss;
 			LLViewerPartSim::getInstance()->addPartSource(pss);
@@ -5083,7 +5083,7 @@ void LLViewerObject::unpackParticleSource(LLDataPacker &dp, const LLUUID& owner_
 		// We need to be able to deal with a particle source that hasn't changed, but still got an update!
 		if (pss)
 		{
-// 			llinfos << "Making particle system with owner " << owner_id << llendl;
+// 			LL_INFOS() << "Making particle system with owner " << owner_id << LL_ENDL;
 			pss->setOwnerUUID(owner_id);
 			mPartSourcep = pss;
 			LLViewerPartSim::getInstance()->addPartSource(pss);
@@ -5167,7 +5167,7 @@ void LLViewerObject::setAttachedSound(const LLUUID &audio_uuid, const LLUUID& ow
 			// At least, this appears to be how the scripts work.
 			// The attached sound ID is set to NULL to avoid it playing back when the
 			// object rezzes in on non-looping sounds.
-			//llinfos << "Clearing attached sound " << mAudioSourcep->getCurrentData()->getID() << llendl;
+			//LL_INFOS() << "Clearing attached sound " << mAudioSourcep->getCurrentData()->getID() << LL_ENDL;
 			gAudiop->cleanupAudioSource(mAudioSourcep);
 			mAudioSourcep = NULL;
 		}
@@ -5182,7 +5182,7 @@ void LLViewerObject::setAttachedSound(const LLUUID &audio_uuid, const LLUUID& ow
 		&& mAudioSourcep && mAudioSourcep->isLoop() && mAudioSourcep->getCurrentData()
 		&& mAudioSourcep->getCurrentData()->getID() == audio_uuid)
 	{
-		//llinfos << "Already playing this sound on a loop, ignoring" << llendl;
+		//LL_INFOS() << "Already playing this sound on a loop, ignoring" << LL_ENDL;
 		return;
 	}
 
@@ -5196,7 +5196,7 @@ void LLViewerObject::setAttachedSound(const LLUUID &audio_uuid, const LLUUID& ow
 	if (mAudioSourcep && mAudioSourcep->isMuted() &&
 	    mAudioSourcep->getCurrentData() && mAudioSourcep->getCurrentData()->getID() == audio_uuid)
 	{
-		//llinfos << "Already having this sound as muted sound, ignoring" << llendl;
+		//LL_INFOS() << "Already having this sound as muted sound, ignoring" << LL_ENDL;
 		return;
 	}
 
@@ -5219,7 +5219,7 @@ void LLViewerObject::setAttachedSound(const LLUUID &audio_uuid, const LLUUID& ow
 		// Play this sound if region maturity permits
 		if( gAgent.canAccessMaturityAtGlobal(this->getPositionGlobal()) )
 		{
-			//llinfos << "Playing attached sound " << audio_uuid << llendl;
+			//LL_INFOS() << "Playing attached sound " << audio_uuid << LL_ENDL;
 			mAudioSourcep->play(audio_uuid);
 		}
 	}
@@ -5302,7 +5302,7 @@ LLViewerObject::ExtraParameter* LLViewerObject::createNewParameterEntry(U16 para
 	  }
 	  default:
 	  {
-		  llinfos << "Unknown param type." << llendl;
+		  LL_INFOS() << "Unknown param type." << LL_ENDL;
 		  break;
 	  }
 	};
@@ -5440,7 +5440,7 @@ void LLViewerObject::parameterChanged(U16 param_type, LLNetworkData* data, BOOL 
 		}
 		else
 		{
-			llwarns << "Failed to send object extra parameters: " << param_type << llendl;
+			LL_WARNS() << "Failed to send object extra parameters: " << param_type << LL_ENDL;
 		}
 	}
 }
@@ -5705,7 +5705,7 @@ void LLViewerObject::setRegion(LLViewerRegion *regionp)
 {
 	if (!regionp)
 	{
-		llwarns << "viewer object set region to NULL" << llendl;
+		LL_WARNS() << "viewer object set region to NULL" << LL_ENDL;
 	}
 	if(regionp != mRegionp)
 	{
@@ -5738,10 +5738,10 @@ void	LLViewerObject::updateRegion(LLViewerRegion *regionp)
 //	if (regionp)
 //	{
 //		F64 now = LLFrameTimer::getElapsedSeconds();
-//		llinfos << "Updating to region " << regionp->getName()
+//		LL_INFOS() << "Updating to region " << regionp->getName()
 //			<< ", ms since last update message: " << (F32)((now - mLastMessageUpdateSecs) * 1000.0)
 //			<< ", ms since last interpolation: " << (F32)((now - mLastInterpUpdateSecs) * 1000.0) 
-//			<< llendl;
+//			<< LL_ENDL;
 //	}
 }
 

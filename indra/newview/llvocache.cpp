@@ -139,7 +139,7 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 			// We've got a bogus size, skip reading it.
 			// We won't bother seeking, because the rest of this file
 			// is likely bogus, and will be tossed anyway.
-			llwarns << "Bogus cache entry, size " << size << ", aborting!" << llendl;
+			LL_WARNS() << "Bogus cache entry, size " << size << ", aborting!" << LL_ENDL;
 			success = FALSE;
 		}
 	}
@@ -291,7 +291,7 @@ LLDataPackerBinaryBuffer *LLVOCacheEntry::getDP(U32 crc)
 	if (  (mCRC != crc)
 		||(mDP.getBufferSize() == 0))
 	{
-		//llinfos << "Not getting cache entry, invalid!" << llendl;
+		//LL_INFOS() << "Not getting cache entry, invalid!" << LL_ENDL;
 		return NULL;
 	}
 	mHitCount++;
@@ -302,7 +302,7 @@ LLDataPackerBinaryBuffer *LLVOCacheEntry::getDP()
 {
 	if (mDP.getBufferSize() == 0)
 	{
-		//llinfos << "Not getting cache entry, invalid!" << llendl;
+		//LL_INFOS() << "Not getting cache entry, invalid!" << LL_ENDL;
 		return NULL;
 	}
 	
@@ -318,12 +318,12 @@ void LLVOCacheEntry::recordHit()
 
 void LLVOCacheEntry::dump() const
 {
-	llinfos << "local " << mLocalID
+	LL_INFOS() << "local " << mLocalID
 		<< " crc " << mCRC
 		<< " hits " << mHitCount
 		<< " dupes " << mDupeCount
 		<< " change " << mCRCChangeCount
-		<< llendl;
+		<< LL_ENDL;
 }
 
 BOOL LLVOCacheEntry::writeToFile(LLAPRFile* apr_file) const
@@ -722,13 +722,13 @@ void LLVOCache::initCache(ELLPath location, U32 size, U32 cache_version)
 {
 	if(!mEnabled)
 	{
-		llwarns << "Not initializing cache: Cache is currently disabled." << llendl;
+		LL_WARNS() << "Not initializing cache: Cache is currently disabled." << LL_ENDL;
 		return ;
 	}
 
 	if(mInitialized)
 	{
-		llwarns << "Cache already initialized." << llendl;
+		LL_WARNS() << "Cache already initialized." << LL_ENDL;
 		return ;
 	}
 	mInitialized = true;
@@ -766,15 +766,15 @@ void LLVOCache::removeCache(ELLPath location, bool started)
 
 	if(mReadOnly)
 	{
-		llwarns << "Not removing cache at " << location << ": Cache is currently in read-only mode." << llendl;
+		LL_WARNS() << "Not removing cache at " << location << ": Cache is currently in read-only mode." << LL_ENDL;
 		return ;
 	}	
 
-	llinfos << "about to remove the object cache due to settings." << llendl ;
+	LL_INFOS() << "about to remove the object cache due to settings." << LL_ENDL ;
 
 	std::string mask = "*";
 	std::string cache_dir = gDirUtilp->getExpandedFilename(location, object_cache_dirname);
-	llinfos << "Removing cache at " << cache_dir << llendl;
+	LL_INFOS() << "Removing cache at " << cache_dir << LL_ENDL;
 	gDirUtilp->deleteFilesInDir(cache_dir, mask); //delete all files
 	LLFile::rmdir(cache_dir);
 
@@ -787,17 +787,17 @@ void LLVOCache::removeCache()
 	if(!mInitialized)
 	{
 		//OK to remove cache even it is not initialized.
-		llwarns << "Object cache is not initialized yet." << llendl;
+		LL_WARNS() << "Object cache is not initialized yet." << LL_ENDL;
 	}
 
 	if(mReadOnly)
 	{
-		llwarns << "Not clearing object cache: Cache is currently in read-only mode." << llendl;
+		LL_WARNS() << "Not clearing object cache: Cache is currently in read-only mode." << LL_ENDL;
 		return ;
 	}
 
 	std::string mask = "*";
-	llinfos << "Removing object cache at " << mObjectCacheDirName << llendl;
+	LL_INFOS() << "Removing object cache at " << mObjectCacheDirName << LL_ENDL;
 	gDirUtilp->deleteFilesInDir(mObjectCacheDirName, mask); 
 
 	clearCacheInMemory() ;
@@ -869,7 +869,7 @@ void LLVOCache::removeFromCache(HeaderEntryInfo* entry)
 {
 	if(mReadOnly)
 	{
-		llwarns << "Not removing cache for handle " << entry->mHandle << ": Cache is currently in read-only mode." << llendl;
+		LL_WARNS() << "Not removing cache for handle " << entry->mHandle << ": Cache is currently in read-only mode." << LL_ENDL;
 		return ;
 	}
 
@@ -884,7 +884,7 @@ void LLVOCache::readCacheHeader()
 {
 	if(!mEnabled)
 	{
-		llwarns << "Not reading cache header: Cache is currently disabled." << llendl;
+		LL_WARNS() << "Not reading cache header: Cache is currently disabled." << LL_ENDL;
 		return;
 	}
 
@@ -914,7 +914,7 @@ void LLVOCache::readCacheHeader()
 								
 				if(!success) //failed
 				{
-					llwarns << "Error reading cache header entry. (entry_index=" << mNumEntries << ")" << llendl;
+					LL_WARNS() << "Error reading cache header entry. (entry_index=" << mNumEntries << ")" << LL_ENDL;
 					delete entry ;
 					entry = NULL ;
 					break ;
@@ -942,7 +942,7 @@ void LLVOCache::readCacheHeader()
 		//for(header_entry_queue_t::iterator iter = mHeaderEntryQueue.begin() ; success && iter != mHeaderEntryQueue.end(); ++iter)
 		//{
 		//	getObjectCacheFilename((*iter)->mHandle, name) ;
-		//	llinfos << name << llendl ;
+		//	LL_INFOS() << name << LL_ENDL ;
 		//}
 		//-----------
 	}
@@ -967,13 +967,13 @@ void LLVOCache::writeCacheHeader()
 {
 	if (!mEnabled)
 	{
-		llwarns << "Not writing cache header: Cache is currently disabled." << llendl;
+		LL_WARNS() << "Not writing cache header: Cache is currently disabled." << LL_ENDL;
 		return;
 	}
 
 	if(mReadOnly)
 	{
-		llwarns << "Not writing cache header: Cache is currently in read-only mode." << llendl;
+		LL_WARNS() << "Not writing cache header: Cache is currently in read-only mode." << LL_ENDL;
 		return;
 	}
 
@@ -1027,7 +1027,7 @@ void LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::voca
 {
 	if(!mEnabled)
 	{
-		llwarns << "Not reading cache for handle " << handle << "): Cache is currently disabled." << llendl;
+		LL_WARNS() << "Not reading cache for handle " << handle << "): Cache is currently disabled." << LL_ENDL;
 		return ;
 	}
 	llassert_always(mInitialized);
@@ -1035,7 +1035,7 @@ void LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::voca
 	handle_entry_map_t::iterator iter = mHandleEntryMap.find(handle) ;
 	if(iter == mHandleEntryMap.end()) //no cache
 	{
-		llwarns << "No handle map entry for " << handle << llendl;
+		LL_WARNS() << "No handle map entry for " << handle << LL_ENDL;
 		return ;
 	}
 
@@ -1052,7 +1052,7 @@ void LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::voca
 		{		
 			if(cache_id != id)
 			{
-				llinfos << "Cache ID doesn't match for this region, discarding"<< llendl;
+				LL_INFOS() << "Cache ID doesn't match for this region, discarding"<< LL_ENDL;
 				success = false ;
 			}
 
@@ -1068,7 +1068,7 @@ void LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::voca
 						LLPointer<LLVOCacheEntry> entry = new LLVOCacheEntry(&apr_file);
 						if (!entry->getLocalID())
 						{
-							llwarns << "Aborting cache file load for " << filename << ", cache file corruption!" << llendl;
+							LL_WARNS() << "Aborting cache file load for " << filename << ", cache file corruption!" << LL_ENDL;
 							success = false ;
 							break ;
 						}
@@ -1108,14 +1108,14 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
 {
 	if(!mEnabled)
 	{
-		llwarns << "Not writing cache for handle " << handle << "): Cache is currently disabled." << llendl;
+		LL_WARNS() << "Not writing cache for handle " << handle << "): Cache is currently disabled." << LL_ENDL;
 		return ;
 	}
 	llassert_always(mInitialized);
 
 	if(mReadOnly)
 	{
-		llwarns << "Not writing cache for handle " << handle << "): Cache is currently in read-only mode." << llendl;
+		LL_WARNS() << "Not writing cache for handle " << handle << "): Cache is currently in read-only mode." << LL_ENDL;
 		return ;
 	}	
 
@@ -1150,13 +1150,13 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
 	//update cache header
 	if(!updateEntry(entry))
 	{
-		llwarns << "Failed to update cache header index " << entry->mIndex << ". handle = " << handle << llendl;
+		LL_WARNS() << "Failed to update cache header index " << entry->mIndex << ". handle = " << handle << LL_ENDL;
 		return ; //update failed.
 	}
 
 	if(!dirty_cache)
 	{
-		llwarns << "Skipping write to cache for handle " << handle << ": cache not dirty" << llendl;
+		LL_WARNS() << "Skipping write to cache for handle " << handle << ": cache not dirty" << LL_ENDL;
 		return ; //nothing changed, no need to update.
 	}
 

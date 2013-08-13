@@ -174,7 +174,7 @@ public:
 	virtual void done()
 	{
 		/* no-op: it's fire n forget right? */
-		lldebugs << "LLCategoryFireAndForget::done()" << llendl;
+		LL_DEBUGS() << "LLCategoryFireAndForget::done()" << LL_ENDL;
 	}
 };
 
@@ -370,7 +370,7 @@ void LLToolDragAndDrop::beginDrag(EDragAndDropType type,
 {
 	if (type == DAD_NONE)
 	{
-		llwarns << "Attempted to start drag without a cargo type" << llendl;
+		LL_WARNS() << "Attempted to start drag without a cargo type" << LL_ENDL;
 		return;
 	}
 	mCargoTypes.clear();
@@ -442,7 +442,7 @@ void LLToolDragAndDrop::beginMultiDrag(
 	{
 		if (DAD_NONE == *types_it)
 		{
-			llwarns << "Attempted to start drag without a cargo type" << llendl;
+			LL_WARNS() << "Attempted to start drag without a cargo type" << LL_ENDL;
 			return;
 		}
 	}
@@ -597,7 +597,7 @@ BOOL LLToolDragAndDrop::handleHover( S32 x, S32 y, MASK mask )
 	ECursorType cursor = acceptanceToCursor(acceptance);
 	gViewerWindow->getWindow()->setCursor( cursor );
 
-	LL_DEBUGS("UserInput") << "hover handled by LLToolDragAndDrop" << llendl;
+	LL_DEBUGS("UserInput") << "hover handled by LLToolDragAndDrop" << LL_ENDL;
 	return TRUE;
 }
 
@@ -1034,7 +1034,7 @@ BOOL LLToolDragAndDrop::handleDropTextureProtections(LLViewerObject* hit_obj,
 			}
 			else
 			{
-				llwarns << "Unable to find source object." << llendl;
+				LL_WARNS() << "Unable to find source object." << LL_ENDL;
 				return FALSE;
 			}
 		}
@@ -1084,7 +1084,7 @@ void LLToolDragAndDrop::dropTextureAllFaces(LLViewerObject* hit_obj,
 {
 	if (!item)
 	{
-		llwarns << "LLToolDragAndDrop::dropTextureAllFaces no texture item." << llendl;
+		LL_WARNS() << "LLToolDragAndDrop::dropTextureAllFaces no texture item." << LL_ENDL;
 		return;
 	}
 	LLUUID asset_id = item->getAssetUUID();
@@ -1114,7 +1114,7 @@ void LLToolDragAndDrop::dropMesh(LLViewerObject* hit_obj,
 {
 	if (!item)
 	{
-		llwarns << "no inventory item." << llendl;
+		LL_WARNS() << "no inventory item." << LL_ENDL;
 		return;
 	}
 	LLUUID asset_id = item->getAssetUUID();
@@ -1151,7 +1151,7 @@ void LLToolDragAndDrop::dropTextureOneFace(LLViewerObject* hit_obj,
 	if (hit_face == -1) return;
 	if (!item)
 	{
-		llwarns << "LLToolDragAndDrop::dropTextureOneFace no texture item." << llendl;
+		LL_WARNS() << "LLToolDragAndDrop::dropTextureOneFace no texture item." << LL_ENDL;
 		return;
 	}
 	LLUUID asset_id = item->getAssetUUID();
@@ -1182,8 +1182,8 @@ void LLToolDragAndDrop::dropScript(LLViewerObject* hit_obj,
 	if ((SOURCE_WORLD == LLToolDragAndDrop::getInstance()->mSource)
 	   || (SOURCE_NOTECARD == LLToolDragAndDrop::getInstance()->mSource))
 	{
-		llwarns << "Call to LLToolDragAndDrop::dropScript() from world"
-			<< " or notecard." << llendl;
+		LL_WARNS() << "Call to LLToolDragAndDrop::dropScript() from world"
+			<< " or notecard." << LL_ENDL;
 		return;
 	}
 	if (hit_obj && item)
@@ -1210,7 +1210,7 @@ void LLToolDragAndDrop::dropScript(LLViewerObject* hit_obj,
 				}
 				else
 				{
-					llwarns << "Unable to find source object." << llendl;
+					LL_WARNS() << "Unable to find source object." << LL_ENDL;
 					return;
 				}
 			}
@@ -1235,11 +1235,11 @@ void LLToolDragAndDrop::dropObject(LLViewerObject* raycast_target,
 	LLViewerRegion* regionp = LLWorld::getInstance()->getRegionFromPosGlobal(mLastHitPos);
 	if (!regionp)
 	{
-		llwarns << "Couldn't find region to rez object" << llendl;
+		LL_WARNS() << "Couldn't find region to rez object" << LL_ENDL;
 		return;
 	}
 
-	//llinfos << "Rezzing object" << llendl;
+	//LL_INFOS() << "Rezzing object" << LL_ENDL;
 	make_ui_sound("UISndObjectRezIn");
 	LLViewerInventoryItem* item;
 	LLViewerInventoryCategory* cat;
@@ -1399,8 +1399,8 @@ void LLToolDragAndDrop::dropInventory(LLViewerObject* hit_obj,
 	if ((SOURCE_WORLD == LLToolDragAndDrop::getInstance()->mSource)
 	   || (SOURCE_NOTECARD == LLToolDragAndDrop::getInstance()->mSource))
 	{
-		llwarns << "Call to LLToolDragAndDrop::dropInventory() from world"
-			<< " or notecard." << llendl;
+		LL_WARNS() << "Call to LLToolDragAndDrop::dropInventory() from world"
+			<< " or notecard." << LL_ENDL;
 		return;
 	}
 
@@ -1430,7 +1430,7 @@ void LLToolDragAndDrop::dropInventory(LLViewerObject* hit_obj,
 			}
 			else
 			{
-				llwarns << "Unable to find source object." << llendl;
+				LL_WARNS() << "Unable to find source object." << LL_ENDL;
 				return;
 			}
 		}
@@ -1697,14 +1697,14 @@ bool LLToolDragAndDrop::handleGiveDragAndDrop(LLUUID dest_agent, LLUUID session_
 EAcceptance LLToolDragAndDrop::dad3dNULL(
 	LLViewerObject*, S32, MASK, BOOL)
 {
-	lldebugs << "LLToolDragAndDrop::dad3dNULL()" << llendl;
+	LL_DEBUGS() << "LLToolDragAndDrop::dad3dNULL()" << LL_ENDL;
 	return ACCEPT_NO;
 }
 
 EAcceptance LLToolDragAndDrop::dad3dRezAttachmentFromInv(
 	LLViewerObject* obj, S32 face, MASK mask, BOOL drop)
 {
-	lldebugs << "LLToolDragAndDrop::dad3dRezAttachmentFromInv()" << llendl;
+	LL_DEBUGS() << "LLToolDragAndDrop::dad3dRezAttachmentFromInv()" << LL_ENDL;
 	// must be in the user's inventory
 	if(mSource != SOURCE_AGENT && mSource != SOURCE_LIBRARY)
 	{
@@ -1767,7 +1767,7 @@ EAcceptance LLToolDragAndDrop::dad3dRezObjectOnLand(
 		return dad3dRezFromObjectOnLand(obj, face, mask, drop);
 	}
 
-	lldebugs << "LLToolDragAndDrop::dad3dRezObjectOnLand()" << llendl;
+	LL_DEBUGS() << "LLToolDragAndDrop::dad3dRezObjectOnLand()" << LL_ENDL;
 	LLViewerInventoryItem* item;
 	LLViewerInventoryCategory* cat;
 	locateInventory(item, cat);
@@ -1830,7 +1830,7 @@ EAcceptance LLToolDragAndDrop::dad3dRezObjectOnObject(
 		return dad3dRezFromObjectOnObject(obj, face, mask, drop);
 	}
 
-	lldebugs << "LLToolDragAndDrop::dad3dRezObjectOnObject()" << llendl;
+	LL_DEBUGS() << "LLToolDragAndDrop::dad3dRezObjectOnObject()" << LL_ENDL;
 	LLViewerInventoryItem* item;
 	LLViewerInventoryCategory* cat;
 	locateInventory(item, cat);
@@ -1902,7 +1902,7 @@ EAcceptance LLToolDragAndDrop::dad3dRezObjectOnObject(
 EAcceptance LLToolDragAndDrop::dad3dRezScript(
 	LLViewerObject* obj, S32 face, MASK mask, BOOL drop)
 {
-	lldebugs << "LLToolDragAndDrop::dad3dRezScript()" << llendl;
+	LL_DEBUGS() << "LLToolDragAndDrop::dad3dRezScript()" << LL_ENDL;
 
 	// *HACK: In order to resolve SL-22177, we need to block drags
 	// from notecards and objects onto other objects.
@@ -1940,7 +1940,7 @@ EAcceptance LLToolDragAndDrop::dad3dRezScript(
 EAcceptance LLToolDragAndDrop::dad3dApplyToObject(
 	LLViewerObject* obj, S32 face, MASK mask, BOOL drop, EDragAndDropType cargo_type)
 {
-	lldebugs << "LLToolDragAndDrop::dad3dApplyToObject()" << llendl;
+	LL_DEBUGS() << "LLToolDragAndDrop::dad3dApplyToObject()" << LL_ENDL;
 
 	// *HACK: In order to resolve SL-22177, we need to block drags
 	// from notecards and objects onto other objects.
@@ -1991,7 +1991,7 @@ EAcceptance LLToolDragAndDrop::dad3dApplyToObject(
 		}
 		else
 		{
-			llwarns << "unsupported asset type" << llendl;
+			LL_WARNS() << "unsupported asset type" << LL_ENDL;
 		}
 		
 		// VEFFECT: SetTexture
@@ -2024,7 +2024,7 @@ EAcceptance LLToolDragAndDrop::dad3dMeshObject(
 EAcceptance LLToolDragAndDrop::dad3dTextureSelf(
 	LLViewerObject* obj, S32 face, MASK mask, BOOL drop)
 {
-	lldebugs << "LLToolDragAndDrop::dad3dTextureAvatar()" << llendl;
+	LL_DEBUGS() << "LLToolDragAndDrop::dad3dTextureAvatar()" << LL_ENDL;
 	if(drop)
 	{
 		if( !(mask & MASK_SHIFT) )
@@ -2039,7 +2039,7 @@ EAcceptance LLToolDragAndDrop::dad3dTextureSelf(
 EAcceptance LLToolDragAndDrop::dad3dWearItem(
 	LLViewerObject* obj, S32 face, MASK mask, BOOL drop)
 {
-	lldebugs << "LLToolDragAndDrop::dad3dWearItem()" << llendl;
+	LL_DEBUGS() << "LLToolDragAndDrop::dad3dWearItem()" << LL_ENDL;
 	LLViewerInventoryItem* item;
 	LLViewerInventoryCategory* cat;
 	locateInventory(item, cat);
@@ -2072,7 +2072,7 @@ EAcceptance LLToolDragAndDrop::dad3dWearItem(
 EAcceptance LLToolDragAndDrop::dad3dActivateGesture(
 	LLViewerObject* obj, S32 face, MASK mask, BOOL drop)
 {
-	lldebugs << "LLToolDragAndDrop::dad3dActivateGesture()" << llendl;
+	LL_DEBUGS() << "LLToolDragAndDrop::dad3dActivateGesture()" << LL_ENDL;
 	LLViewerInventoryItem* item;
 	LLViewerInventoryCategory* cat;
 	locateInventory(item, cat);
@@ -2121,7 +2121,7 @@ EAcceptance LLToolDragAndDrop::dad3dActivateGesture(
 EAcceptance LLToolDragAndDrop::dad3dWearCategory(
 	LLViewerObject* obj, S32 face, MASK mask, BOOL drop)
 {
-	lldebugs << "LLToolDragAndDrop::dad3dWearCategory()" << llendl;
+	LL_DEBUGS() << "LLToolDragAndDrop::dad3dWearCategory()" << LL_ENDL;
 	LLViewerInventoryItem* item;
 	LLViewerInventoryCategory* category;
 	locateInventory(item, category);
@@ -2172,7 +2172,7 @@ EAcceptance LLToolDragAndDrop::dad3dWearCategory(
 EAcceptance LLToolDragAndDrop::dad3dUpdateInventory(
 	LLViewerObject* obj, S32 face, MASK mask, BOOL drop)
 {
-	lldebugs << "LLToolDragAndDrop::dadUpdateInventory()" << llendl;
+	LL_DEBUGS() << "LLToolDragAndDrop::dadUpdateInventory()" << LL_ENDL;
 
 	// *HACK: In order to resolve SL-22177, we need to block drags
 	// from notecards and objects onto other objects.
@@ -2212,10 +2212,10 @@ BOOL LLToolDragAndDrop::dadUpdateInventory(LLViewerObject* obj, BOOL drop)
 EAcceptance LLToolDragAndDrop::dad3dUpdateInventoryCategory(
 	LLViewerObject* obj, S32 face, MASK mask, BOOL drop)
 {
-	lldebugs << "LLToolDragAndDrop::dad3dUpdateInventoryCategory()" << llendl;
+	LL_DEBUGS() << "LLToolDragAndDrop::dad3dUpdateInventoryCategory()" << LL_ENDL;
 	if (obj == NULL)
 	{
-		llwarns << "obj is NULL; aborting func with ACCEPT_NO" << llendl;
+		LL_WARNS() << "obj is NULL; aborting func with ACCEPT_NO" << LL_ENDL;
 		return ACCEPT_NO;
 	}
 
@@ -2248,7 +2248,7 @@ EAcceptance LLToolDragAndDrop::dad3dUpdateInventoryCategory(
 	cats.push_back(cat);
  	if (droppable.countNoCopy() > 0)
  	{
- 		llwarns << "*** Need to confirm this step" << llendl;
+ 		LL_WARNS() << "*** Need to confirm this step" << LL_ENDL;
  	}
 	LLViewerObject* root_object = obj;
 	if (obj->getParent())
@@ -2271,7 +2271,7 @@ EAcceptance LLToolDragAndDrop::dad3dUpdateInventoryCategory(
 		rv = gInventory.isCategoryComplete(cat->getUUID()) ? ACCEPT_YES_MULTI : ACCEPT_NO;
 		if(rv < ACCEPT_YES_SINGLE)
 		{
-			lldebugs << "Category " << cat->getUUID() << "is not complete." << llendl;
+			LL_DEBUGS() << "Category " << cat->getUUID() << "is not complete." << LL_ENDL;
 			break;
 		}
 	}
@@ -2293,7 +2293,7 @@ EAcceptance LLToolDragAndDrop::dad3dUpdateInventoryCategory(
 			rv = willObjectAcceptInventory(root_object, item);
 			if (rv < ACCEPT_YES_COPY_SINGLE)
 			{
-				lldebugs << "Object will not accept " << item->getUUID() << llendl;
+				LL_DEBUGS() << "Object will not accept " << item->getUUID() << LL_ENDL;
 				break;
 			}
 		}
@@ -2334,7 +2334,7 @@ BOOL LLToolDragAndDrop::dadUpdateInventoryCategory(LLViewerObject* obj,
 EAcceptance LLToolDragAndDrop::dad3dGiveInventoryObject(
 	LLViewerObject* obj, S32 face, MASK mask, BOOL drop)
 {
-	lldebugs << "LLToolDragAndDrop::dad3dGiveInventoryObject()" << llendl;
+	LL_DEBUGS() << "LLToolDragAndDrop::dad3dGiveInventoryObject()" << LL_ENDL;
 
 	// item has to be in agent inventory.
 	if(mSource != SOURCE_AGENT) return ACCEPT_NO;
@@ -2372,7 +2372,7 @@ EAcceptance LLToolDragAndDrop::dad3dGiveInventoryObject(
 EAcceptance LLToolDragAndDrop::dad3dGiveInventory(
 	LLViewerObject* obj, S32 face, MASK mask, BOOL drop)
 {
-	lldebugs << "LLToolDragAndDrop::dad3dGiveInventory()" << llendl;
+	LL_DEBUGS() << "LLToolDragAndDrop::dad3dGiveInventory()" << LL_ENDL;
 	// item has to be in agent inventory.
 	if(mSource != SOURCE_AGENT) return ACCEPT_NO;
 	LLViewerInventoryItem* item;
@@ -2395,7 +2395,7 @@ EAcceptance LLToolDragAndDrop::dad3dGiveInventory(
 EAcceptance LLToolDragAndDrop::dad3dGiveInventoryCategory(
 	LLViewerObject* obj, S32 face, MASK mask, BOOL drop)
 {
-	lldebugs << "LLToolDragAndDrop::dad3dGiveInventoryCategory()" << llendl;
+	LL_DEBUGS() << "LLToolDragAndDrop::dad3dGiveInventoryCategory()" << LL_ENDL;
 	if(drop && obj)
 	{
 		LLViewerInventoryItem* item;
@@ -2413,7 +2413,7 @@ EAcceptance LLToolDragAndDrop::dad3dGiveInventoryCategory(
 EAcceptance LLToolDragAndDrop::dad3dRezFromObjectOnLand(
 	LLViewerObject* obj, S32 face, MASK mask, BOOL drop)
 {
-	lldebugs << "LLToolDragAndDrop::dad3dRezFromObjectOnLand()" << llendl;
+	LL_DEBUGS() << "LLToolDragAndDrop::dad3dRezFromObjectOnLand()" << LL_ENDL;
 	LLViewerInventoryItem* item = NULL;
 	LLViewerInventoryCategory* cat = NULL;
 	locateInventory(item, cat);
@@ -2434,7 +2434,7 @@ EAcceptance LLToolDragAndDrop::dad3dRezFromObjectOnLand(
 EAcceptance LLToolDragAndDrop::dad3dRezFromObjectOnObject(
 	LLViewerObject* obj, S32 face, MASK mask, BOOL drop)
 {
-	lldebugs << "LLToolDragAndDrop::dad3dRezFromObjectOnObject()" << llendl;
+	LL_DEBUGS() << "LLToolDragAndDrop::dad3dRezFromObjectOnObject()" << LL_ENDL;
 	LLViewerInventoryItem* item;
 	LLViewerInventoryCategory* cat;
 	locateInventory(item, cat);
@@ -2471,7 +2471,7 @@ EAcceptance LLToolDragAndDrop::dad3dCategoryOnLand(
 {
 	return ACCEPT_NO;
 	/*
-	lldebugs << "LLToolDragAndDrop::dad3dCategoryOnLand()" << llendl;
+	LL_DEBUGS() << "LLToolDragAndDrop::dad3dCategoryOnLand()" << LL_ENDL;
 	LLInventoryItem* item;
 	LLInventoryCategory* cat;
 	locateInventory(item, cat);
@@ -2509,7 +2509,7 @@ EAcceptance LLToolDragAndDrop::dad3dAssetOnLand(
 {
 	return ACCEPT_NO;
 	/*
-	lldebugs << "LLToolDragAndDrop::dad3dAssetOnLand()" << llendl;
+	LL_DEBUGS() << "LLToolDragAndDrop::dad3dAssetOnLand()" << LL_ENDL;
 	LLViewerInventoryCategory::cat_array_t cats;
 	LLViewerInventoryItem::item_array_t items;
 	LLViewerInventoryItem::item_array_t copyable_items;
@@ -2660,7 +2660,7 @@ LLInventoryObject* LLToolDragAndDrop::locateMultipleInventory(LLViewerInventoryC
 
 // void LLToolDragAndDrop::createContainer(LLViewerInventoryItem::item_array_t &items, const char* preferred_name )
 // {
-// 	llwarns << "LLToolDragAndDrop::createContainer()" << llendl;
+// 	LL_WARNS() << "LLToolDragAndDrop::createContainer()" << LL_ENDL;
 // 	return;
 // }
 

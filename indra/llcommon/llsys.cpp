@@ -607,7 +607,7 @@ S32 LLOSInfo::getMaxOpenFiles()
 			}
 			else
 			{
-				llerrs << "LLOSInfo::getMaxOpenFiles: sysconf error for _SC_OPEN_MAX" << llendl;
+				LL_ERRS() << "LLOSInfo::getMaxOpenFiles: sysconf error for _SC_OPEN_MAX" << LL_ENDL;
 			}
 		}
 	}
@@ -666,12 +666,12 @@ U32 LLOSInfo::getProcessVirtualSizeKB()
 	sprintf(proc_ps, "/proc/%d/psinfo", (int)getpid());
 	int proc_fd = -1;
 	if((proc_fd = open(proc_ps, O_RDONLY)) == -1){
-		llwarns << "unable to open " << proc_ps << llendl;
+		LL_WARNS() << "unable to open " << proc_ps << LL_ENDL;
 		return 0;
 	}
 	psinfo_t proc_psinfo;
 	if(read(proc_fd, &proc_psinfo, sizeof(psinfo_t)) != sizeof(psinfo_t)){
-		llwarns << "Unable to read " << proc_ps << llendl;
+		LL_WARNS() << "Unable to read " << proc_ps << LL_ENDL;
 		close(proc_fd);
 		return 0;
 	}
@@ -712,12 +712,12 @@ U32 LLOSInfo::getProcessResidentSizeKB()
 	sprintf(proc_ps, "/proc/%d/psinfo", (int)getpid());
 	int proc_fd = -1;
 	if((proc_fd = open(proc_ps, O_RDONLY)) == -1){
-		llwarns << "unable to open " << proc_ps << llendl;
+		LL_WARNS() << "unable to open " << proc_ps << LL_ENDL;
 		return 0;
 	}
 	psinfo_t proc_psinfo;
 	if(read(proc_fd, &proc_psinfo, sizeof(psinfo_t)) != sizeof(psinfo_t)){
-		llwarns << "Unable to read " << proc_ps << llendl;
+		LL_WARNS() << "Unable to read " << proc_ps << LL_ENDL;
 		close(proc_fd);
 		return 0;
 	}
@@ -1449,7 +1449,7 @@ BOOL gunzip_file(const std::string& srcfile, const std::string& dstfile)
 		size_t nwrit = fwrite(buffer, sizeof(U8), bytes, dst);
 		if (nwrit < (size_t) bytes)
 		{
-			llwarns << "Short write on " << tmpfile << ": Wrote " << nwrit << " of " << bytes << " bytes." << llendl;
+			LL_WARNS() << "Short write on " << tmpfile << ": Wrote " << nwrit << " of " << bytes << " bytes." << LL_ENDL;
 			goto err;
 		}
 	} while(gzeof(src) == 0);
@@ -1482,14 +1482,14 @@ BOOL gzip_file(const std::string& srcfile, const std::string& dstfile)
 	{
 		if (gzwrite(dst, buffer, bytes) <= 0)
 		{
-			llwarns << "gzwrite failed: " << gzerror(dst, NULL) << llendl;
+			LL_WARNS() << "gzwrite failed: " << gzerror(dst, NULL) << LL_ENDL;
 			goto err;
 		}
 	}
 
 	if (ferror(src))
 	{
-		llwarns << "Error reading " << srcfile << llendl;
+		LL_WARNS() << "Error reading " << srcfile << LL_ENDL;
 		goto err;
 	}
 

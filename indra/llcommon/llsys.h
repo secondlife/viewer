@@ -33,7 +33,7 @@
 // use an LLCPUInfo object:
 //
 //  LLCPUInfo info;
-//  llinfos << info << llendl;
+//  LL_INFOS() << info << LL_ENDL;
 //
 
 #include "llsd.h"
@@ -105,7 +105,7 @@ class LL_COMMON_API LLMemoryInfo
 		Here's how you use an LLMemoryInfo:
 		
 		LLMemoryInfo info;
-<br>	llinfos << info << llendl;
+<br>	LL_INFOS() << info << LL_ENDL;
 */
 {
 public:

@@ -48,7 +48,7 @@ void send_texture_stats_to_sim(const LLSD &texture_stats)
 	texture_stats_report["stats_data"] = texture_stats;
 
 	std::string texture_cap_url = gAgent.getRegion()->getCapability("TextureStats");
-	llinfos << "uploading texture stats data to simulator" << llendl;
+	LL_INFOS() << "uploading texture stats data to simulator" << LL_ENDL;
 	LLTextureStatsUploader::uploadStatsToSimulator(texture_cap_url, texture_stats);
 }
 

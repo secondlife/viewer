@@ -206,14 +206,14 @@ void display_update_camera()
 	LLWorld::getInstance()->setLandFarClip(final_far);
 }
 
-// Write some stats to llinfos
+// Write some stats to LL_INFOS()
 void display_stats()
 {
 	F32 fps_log_freq = gSavedSettings.getF32("FPSLogFrequency");
 	if (fps_log_freq > 0.f && gRecentFPSTime.getElapsedTimeF32() >= fps_log_freq)
 	{
 		F32 fps = gRecentFrameCount / fps_log_freq;
-		llinfos << llformat("FPS: %.02f", fps) << llendl;
+		LL_INFOS() << llformat("FPS: %.02f", fps) << LL_ENDL;
 		gRecentFrameCount = 0;
 		gRecentFPSTime.reset();
 	}
@@ -222,7 +222,7 @@ void display_stats()
 	{
 		gMemoryAllocated = LLMemory::getCurrentRSS();
 		U32 memory = (U32)(gMemoryAllocated / (1024*1024));
-		llinfos << llformat("MEMORY: %d MB", memory) << llendl;
+		LL_INFOS() << llformat("MEMORY: %d MB", memory) << LL_ENDL;
 		LLMemory::logMemoryInfo(TRUE) ;
 		gRecentMemoryTime.reset();
 	}
@@ -1574,7 +1574,7 @@ void render_disconnected_background()
 	gGL.color4f(1,1,1,1);
 	if (!gDisconnectedImagep && gDisconnected)
 	{
-		llinfos << "Loading last bitmap..." << llendl;
+		LL_INFOS() << "Loading last bitmap..." << LL_ENDL;
 
 		std::string temp_str;
 		temp_str = gDirUtilp->getLindenUserDir() + gDirUtilp->getDirDelimiter() + SCREEN_LAST_FILENAME;
@@ -1582,14 +1582,14 @@ void render_disconnected_background()
 		LLPointer<LLImageBMP> image_bmp = new LLImageBMP;
 		if( !image_bmp->load(temp_str) )
 		{
-			//llinfos << "Bitmap load failed" << llendl;
+			//LL_INFOS() << "Bitmap load failed" << LL_ENDL;
 			return;
 		}
 		
 		LLPointer<LLImageRaw> raw = new LLImageRaw;
 		if (!image_bmp->decode(raw, 0.0f))
 		{
-			llinfos << "Bitmap decode failed" << llendl;
+			LL_INFOS() << "Bitmap decode failed" << LL_ENDL;
 			gDisconnectedImagep = NULL;
 			return;
 		}

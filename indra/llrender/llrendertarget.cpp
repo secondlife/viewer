@@ -43,7 +43,7 @@ void check_framebuffer_status()
 		case GL_FRAMEBUFFER_COMPLETE:
 			break;
 		default:
-			llwarns << "check_framebuffer_status failed -- " << std::hex << status << llendl;
+			LL_WARNS() << "check_framebuffer_status failed -- " << std::hex << status << LL_ENDL;
 			ll_fail("check_framebuffer_status failed");	
 			break;
 		}
@@ -137,7 +137,7 @@ bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, boo
 		{
 			if (!allocateDepth())
 			{
-				llwarns << "Failed to allocate depth buffer for render target." << llendl;
+				LL_WARNS() << "Failed to allocate depth buffer for render target." << LL_ENDL;
 				return false;
 			}
 		}
@@ -179,13 +179,13 @@ bool LLRenderTarget::addColorAttachment(U32 color_fmt)
 
 	if( offset >= 4 )
 	{
-		llwarns << "Too many color attachments" << llendl;
+		LL_WARNS() << "Too many color attachments" << LL_ENDL;
 		llassert( offset < 4 );
 		return false;
 	}
 	if( offset > 0 && (mFBO == 0 || !gGLManager.mHasDrawBuffers) )
 	{
-		llwarns << "FBO not used or no drawbuffers available; mFBO=" << (U32)mFBO << " gGLManager.mHasDrawBuffers=" << (U32)gGLManager.mHasDrawBuffers << llendl;
+		LL_WARNS() << "FBO not used or no drawbuffers available; mFBO=" << (U32)mFBO << " gGLManager.mHasDrawBuffers=" << (U32)gGLManager.mHasDrawBuffers << LL_ENDL;
 		llassert(  mFBO != 0 );
 		llassert( gGLManager.mHasDrawBuffers );
 		return false;
@@ -203,7 +203,7 @@ bool LLRenderTarget::addColorAttachment(U32 color_fmt)
 		LLImageGL::setManualImage(LLTexUnit::getInternalType(mUsage), 0, color_fmt, mResX, mResY, GL_RGBA, GL_UNSIGNED_BYTE, NULL, false);
 		if (glGetError() != GL_NO_ERROR)
 		{
-			llwarns << "Could not allocate color buffer for render target." << llendl;
+			LL_WARNS() << "Could not allocate color buffer for render target." << LL_ENDL;
 			return false;
 		}
 	}
@@ -289,7 +289,7 @@ bool LLRenderTarget::allocateDepth()
 
 	if (glGetError() != GL_NO_ERROR)
 	{
-		llwarns << "Unable to allocate depth buffer for render target." << llendl;
+		LL_WARNS() << "Unable to allocate depth buffer for render target." << LL_ENDL;
 		return false;
 	}
 
@@ -300,17 +300,17 @@ void LLRenderTarget::shareDepthBuffer(LLRenderTarget& target)
 {
 	if (!mFBO || !target.mFBO)
 	{
-		llerrs << "Cannot share depth buffer between non FBO render targets." << llendl;
+		LL_ERRS() << "Cannot share depth buffer between non FBO render targets." << LL_ENDL;
 	}
 
 	if (target.mDepth)
 	{
-		llerrs << "Attempting to override existing depth buffer.  Detach existing buffer first." << llendl;
+		LL_ERRS() << "Attempting to override existing depth buffer.  Detach existing buffer first." << LL_ENDL;
 	}
 
 	if (target.mUseDepth)
 	{
-		llerrs << "Attempting to override existing shared depth buffer. Detach existing buffer first." << llendl;
+		LL_ERRS() << "Attempting to override existing shared depth buffer. Detach existing buffer first." << LL_ENDL;
 	}
 
 	if (mDepth)
@@ -461,7 +461,7 @@ U32 LLRenderTarget::getTexture(U32 attachment) const
 {
 	if (attachment > mTex.size()-1)
 	{
-		llerrs << "Invalid attachment index." << llendl;
+		LL_ERRS() << "Invalid attachment index." << LL_ENDL;
 	}
 	if (mTex.empty())
 	{
@@ -529,7 +529,7 @@ void LLRenderTarget::copyContents(LLRenderTarget& source, S32 srcX0, S32 srcY0, 
 	gGL.flush();
 	if (!source.mFBO || !mFBO)
 	{
-		llwarns << "Cannot copy framebuffer contents for non FBO render targets." << llendl;
+		LL_WARNS() << "Cannot copy framebuffer contents for non FBO render targets." << LL_ENDL;
 		return;
 	}
 
@@ -572,7 +572,7 @@ void LLRenderTarget::copyContentsToFramebuffer(LLRenderTarget& source, S32 srcX0
 {
 	if (!source.mFBO)
 	{
-		llerrs << "Cannot copy framebuffer contents for non FBO render targets." << llendl;
+		LL_ERRS() << "Cannot copy framebuffer contents for non FBO render targets." << LL_ENDL;
 	}
 	{
 		GLboolean write_depth = mask & GL_DEPTH_BUFFER_BIT ? TRUE : FALSE;

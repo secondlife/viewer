@@ -268,7 +268,7 @@ namespace tut
 	{
 		std::stringstream stream;	
 		mFormatter->format(v, stream);
-		//llinfos << "checkRoundTrip: length " << stream.str().length() << llendl;
+		//LL_INFOS() << "checkRoundTrip: length " << stream.str().length() << LL_ENDL;
 		LLSD w;
 		mParser->reset();	// reset() call is needed since test code re-uses mParser
 		mParser->parse(stream, w, stream.str().size());

@@ -194,16 +194,16 @@ std::string LLMail::buildSMTPTransaction(
 {
 	if(!from_address || !to_address)
 	{
-		llinfos << "send_mail build_smtp_transaction reject: missing to and/or"
-			<< " from address." << llendl;
+		LL_INFOS() << "send_mail build_smtp_transaction reject: missing to and/or"
+			<< " from address." << LL_ENDL;
 		return std::string();
 	}
 	if(!valid_subject_chars(subject))
 	{
-		llinfos << "send_mail build_smtp_transaction reject: bad subject header: "
+		LL_INFOS() << "send_mail build_smtp_transaction reject: bad subject header: "
 			<< "to=<" << to_address
 			<< ">, from=<" << from_address << ">"
-			<< llendl;
+			<< LL_ENDL;
 		return std::string();
 	}
 	std::ostringstream from_fmt;
@@ -260,8 +260,8 @@ bool LLMail::send(
 {
 	if(!from_address || !to_address)
 	{
-		llinfos << "send_mail reject: missing to and/or from address."
-			<< llendl;
+		LL_INFOS() << "send_mail reject: missing to and/or from address."
+			<< LL_ENDL;
 		return false;
 	}
 
@@ -298,26 +298,26 @@ bool LLMail::send(
 
 	if(!gMailEnabled)
 	{
-		llinfos << "send_mail reject: mail system is disabled: to=<"
+		LL_INFOS() << "send_mail reject: mail system is disabled: to=<"
 			<< to_address << ">, from=<" << from_address
-			<< ">" << llendl;
+			<< ">" << LL_ENDL;
 		// Any future interface to SMTP should return this as an
 		// error.  --mark
 		return true;
 	}
 	if(!gSockAddr)
 	{
-		llwarns << "send_mail reject: mail system not initialized: to=<"
+		LL_WARNS() << "send_mail reject: mail system not initialized: to=<"
 			<< to_address << ">, from=<" << from_address
-			<< ">" << llendl;
+			<< ">" << LL_ENDL;
 		return false;
 	}
 
 	if(!connect_smtp())
 	{
-		llwarns << "send_mail reject: SMTP connect failure: to=<"
+		LL_WARNS() << "send_mail reject: SMTP connect failure: to=<"
 			<< to_address << ">, from=<" << from_address
-			<< ">" << llendl;
+			<< ">" << LL_ENDL;
 		return false;
 	}
 
@@ -333,27 +333,27 @@ bool LLMail::send(
 	disconnect_smtp();
 	if(ll_apr_warn_status(status))
 	{
-		llwarns << "send_mail socket failure: unable to write "
+		LL_WARNS() << "send_mail socket failure: unable to write "
 			<< "to=<" << to_address
 			<< ">, from=<" << from_address << ">"
 			<< ", bytes=" << original_size
-			<< ", sent=" << send_size << llendl;
+			<< ", sent=" << send_size << LL_ENDL;
 		return false;
 	}
 	if(send_size >= LL_MAX_KNOWN_GOOD_MAIL_SIZE)
 	{
-		llwarns << "send_mail message has been shown to fail in testing "
+		LL_WARNS() << "send_mail message has been shown to fail in testing "
 			<< "when sending messages larger than " << LL_MAX_KNOWN_GOOD_MAIL_SIZE
-			<< " bytes. The next log about success is potentially a lie." << llendl;
+			<< " bytes. The next log about success is potentially a lie." << LL_ENDL;
 	}
-	lldebugs << "send_mail success: "
+	LL_DEBUGS() << "send_mail success: "
 		<< "to=<" << to_address
 		<< ">, from=<" << from_address << ">"
 		<< ", bytes=" << original_size
-		<< ", sent=" << send_size << llendl;
+		<< ", sent=" << send_size << LL_ENDL;
 
 #if LL_LOG_ENTIRE_MAIL_MESSAGE_ON_SEND
-	llinfos << rfc2822_msg.str() << llendl;
+	LL_INFOS() << rfc2822_msg.str() << LL_ENDL;
 #endif
 	return true;
 }

@@ -563,10 +563,10 @@ BOOL LLAgentCamera::calcCameraMinDistance(F32 &obj_min_distance)
 	if (mFocusObject->mDrawable.isNull())
 	{
 #ifdef LL_RELEASE_FOR_DOWNLOAD
-		llwarns << "Focus object with no drawable!" << llendl;
+		LL_WARNS() << "Focus object with no drawable!" << LL_ENDL;
 #else
 		mFocusObject->dump();
-		llerrs << "Focus object with no drawable!" << llendl;
+		LL_ERRS() << "Focus object with no drawable!" << LL_ENDL;
 #endif
 		obj_min_distance = 0.f;
 		return TRUE;
@@ -1385,7 +1385,7 @@ void LLAgentCamera::updateCamera()
 	
 	mCameraCurrentFOVZoomFactor = lerp(mCameraCurrentFOVZoomFactor, mCameraFOVZoomFactor, LLSmoothInterpolation::getInterpolant(FOV_ZOOM_HALF_LIFE));
 
-//	llinfos << "Current FOV Zoom: " << mCameraCurrentFOVZoomFactor << " Target FOV Zoom: " << mCameraFOVZoomFactor << " Object penetration: " << mFocusObjectDist << llendl;
+//	LL_INFOS() << "Current FOV Zoom: " << mCameraCurrentFOVZoomFactor << " Target FOV Zoom: " << mCameraFOVZoomFactor << " Object penetration: " << mFocusObjectDist << LL_ENDL;
 
 	LLVector3 focus_agent = gAgent.getPosAgentFromGlobal(mFocusGlobal);
 	
@@ -1689,7 +1689,7 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 	{
 		if (!isAgentAvatarValid() || gAgentAvatarp->mDrawable.isNull())
 		{
-			llwarns << "Null avatar drawable!" << llendl;
+			LL_WARNS() << "Null avatar drawable!" << LL_ENDL;
 			return LLVector3d::zero;
 		}
 		head_offset.clearVec();

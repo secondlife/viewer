@@ -242,14 +242,17 @@ F64 Recording::getSum( const TraceType<EventAccumulator>& stat )
 F64 Recording::getPerSec( const TraceType<CountAccumulator>& stat )
 {
 	F64 sum = mBuffers->mCounts[stat.getIndex()].getSum();
-	return  (sum != 0.0) 
-		? (sum / mElapsedSeconds.value())
-		: 0.0;
+	return  sum / mElapsedSeconds.value();
 }
 
 U32 Recording::getSampleCount( const TraceType<CountAccumulator>& stat )
 {
 	return mBuffers->mCounts[stat.getIndex()].getSampleCount();
+}
+
+bool Recording::hasValue(const TraceType<SampleAccumulator>& stat)
+{
+	return mBuffers->mSamples[stat.getIndex()].hasValue();
 }
 
 F64 Recording::getMin( const TraceType<SampleAccumulator>& stat )
@@ -280,6 +283,11 @@ F64 Recording::getLastValue( const TraceType<SampleAccumulator>& stat )
 U32 Recording::getSampleCount( const TraceType<SampleAccumulator>& stat )
 {
 	return mBuffers->mSamples[stat.getIndex()].getSampleCount();
+}
+
+bool Recording::hasValue(const TraceType<EventAccumulator>& stat)
+{
+	return mBuffers->mEvents[stat.getIndex()].hasValue();
 }
 
 F64 Recording::getMin( const TraceType<EventAccumulator>& stat )
@@ -512,47 +520,26 @@ void PeriodicRecording::handleSplitTo(PeriodicRecording& other)
 	getCurRecording().splitTo(other.getCurRecording());
 }
 
-
-F64 PeriodicRecording::getPeriodMean( const TraceType<EventAccumulator>& stat, size_t num_periods /*= U32_MAX*/ )
-{
-	size_t total_periods = mRecordingPeriods.size();
-	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
-
-	F64 mean = 0;
-	if (num_periods <= 0) { return mean; }
-
-	S32 total_sample_count = 0;
-
-	for (S32 i = 1; i <= num_periods; i++)
-	{
-		S32 index = (mCurPeriod + total_periods - i) % total_periods;
-		if (mRecordingPeriods[index].getDuration() > 0.f)
-		{
-			S32 period_sample_count = mRecordingPeriods[index].getSampleCount(stat);
-			mean += mRecordingPeriods[index].getMean(stat) * period_sample_count;
-			total_sample_count += period_sample_count;
-		}
-	}
-
-	if (total_sample_count)
-	{
-		mean = mean / total_sample_count;
-	}
-	return mean;
-}
-
 F64 PeriodicRecording::getPeriodMin( const TraceType<EventAccumulator>& stat, size_t num_periods /*= U32_MAX*/ )
 {
 	size_t total_periods = mRecordingPeriods.size();
 	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
+	bool has_value = false;
 	F64 min_val = std::numeric_limits<F64>::max();
 	for (S32 i = 1; i <= num_periods; i++)
 	{
-		S32 index = (mCurPeriod + total_periods - i) % total_periods;
-		min_val = llmin(min_val, mRecordingPeriods[index].getMin(stat));
+		Recording& recording = getPrevRecording(i);
+		if (recording.hasValue(stat))
+		{
+			min_val = llmin(min_val, recording.getMin(stat));
+			has_value = true;
+		}
 	}
-	return min_val;
+
+	return has_value 
+			? min_val 
+			: NaN;
 }
 
 F64 PeriodicRecording::getPeriodMax( const TraceType<EventAccumulator>& stat, size_t num_periods /*= U32_MAX*/ )
@@ -560,13 +547,71 @@ F64 PeriodicRecording::getPeriodMax( const TraceType<EventAccumulator>& stat, si
 	size_t total_periods = mRecordingPeriods.size();
 	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
+	bool has_value = false;
 	F64 max_val = std::numeric_limits<F64>::min();
 	for (S32 i = 1; i <= num_periods; i++)
 	{
-		S32 index = (mCurPeriod + total_periods - i) % total_periods;
-		max_val = llmax(max_val, mRecordingPeriods[index].getMax(stat));
+		Recording& recording = getPrevRecording(i);
+		if (recording.hasValue(stat))
+		{
+			max_val = llmax(max_val, recording.getMax(stat));
+			has_value = true;
+		}
 	}
-	return max_val;
+
+	return has_value 
+			? max_val 
+			: NaN;
+}
+
+// calculates means using aggregates per period
+F64 PeriodicRecording::getPeriodMean( const TraceType<EventAccumulator>& stat, size_t num_periods /*= U32_MAX*/ )
+{
+	size_t total_periods = mRecordingPeriods.size();
+	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
+
+	F64 mean = 0;
+	S32 valid_period_count = 0;
+
+	for (S32 i = 1; i <= num_periods; i++)
+	{
+		Recording& recording = getPrevRecording(i);
+		if (recording.hasValue(stat))
+		{
+			mean += recording.getMean(stat);
+			valid_period_count++;
+		}
+	}
+
+	return valid_period_count 
+			? mean / (F64)valid_period_count
+			: NaN;
+}
+
+
+F64 PeriodicRecording::getPeriodStandardDeviation( const TraceType<EventAccumulator>& stat, size_t num_periods /*= U32_MAX*/ )
+{
+	size_t total_periods = mRecordingPeriods.size();
+	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
+
+	F64 period_mean = getPeriodMean(stat, num_periods);
+	F64 sum_of_squares = 0;
+	S32 valid_period_count = 0;
+
+	for (S32 i = 1; i <= num_periods; i++)
+	{
+		Recording& recording = getPrevRecording(i);
+		if (recording.hasValue(stat))
+		{
+			F64 delta = recording.getMean(stat) - period_mean;
+			sum_of_squares += delta * delta;
+			valid_period_count++;
+		}
+	}
+
+	return valid_period_count
+			? sqrt((F64)sum_of_squares / (F64)valid_period_count)
+			: NaN;
 }
 
 F64 PeriodicRecording::getPeriodMin( const TraceType<SampleAccumulator>& stat, size_t num_periods /*= U32_MAX*/ )
@@ -574,13 +619,21 @@ F64 PeriodicRecording::getPeriodMin( const TraceType<SampleAccumulator>& stat, s
 	size_t total_periods = mRecordingPeriods.size();
 	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
+	bool has_value = false;
 	F64 min_val = std::numeric_limits<F64>::max();
 	for (S32 i = 1; i <= num_periods; i++)
 	{
-		S32 index = (mCurPeriod + total_periods - i) % total_periods;
-		min_val = llmin(min_val, mRecordingPeriods[index].getMin(stat));
+		Recording& recording = getPrevRecording(i);
+		if (recording.hasValue(stat))
+		{
+			min_val = llmin(min_val, recording.getMin(stat));
+			has_value = true;
+		}
 	}
-	return min_val;
+
+	return has_value 
+			? min_val 
+			: NaN;
 }
 
 F64 PeriodicRecording::getPeriodMax(const TraceType<SampleAccumulator>& stat, size_t num_periods /*= U32_MAX*/)
@@ -588,13 +641,21 @@ F64 PeriodicRecording::getPeriodMax(const TraceType<SampleAccumulator>& stat, si
 	size_t total_periods = mRecordingPeriods.size();
 	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
+	bool has_value = false;
 	F64 max_val = std::numeric_limits<F64>::min();
 	for (S32 i = 1; i <= num_periods; i++)
 	{
-		S32 index = (mCurPeriod + total_periods - i) % total_periods;
-		max_val = llmax(max_val, mRecordingPeriods[index].getMax(stat));
+		Recording& recording = getPrevRecording(i);
+		if (recording.hasValue(stat))
+		{
+			max_val = llmax(max_val, recording.getMax(stat));
+			has_value = true;
+		}
 	}
-	return max_val;
+
+	return has_value 
+			? max_val 
+			: NaN;
 }
 
 
@@ -603,30 +664,48 @@ F64 PeriodicRecording::getPeriodMean( const TraceType<SampleAccumulator>& stat, 
 	size_t total_periods = mRecordingPeriods.size();
 	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
-	LLUnit<F64, LLUnits::Seconds> total_duration(0.f);
-
+	S32 valid_period_count = 0;
 	F64 mean = 0;
-	if (num_periods <= 0) { return mean; }
 
 	for (S32 i = 1; i <= num_periods; i++)
 	{
-		S32 index = (mCurPeriod + total_periods - i) % total_periods;
-		if (mRecordingPeriods[index].getDuration() > 0.f)
+		Recording& recording = getPrevRecording(i);
+		if (recording.hasValue(stat))
 		{
-			LLUnit<F64, LLUnits::Seconds> recording_duration = mRecordingPeriods[index].getDuration();
-			mean += mRecordingPeriods[index].getMean(stat) * recording_duration.value();
-			total_duration += recording_duration;
+			mean += recording.getMean(stat);
+			valid_period_count++;
 		}
 	}
 
-	if (total_duration.value())
-	{
-		mean = mean / total_duration;
-	}
-	return mean;
+	return valid_period_count
+			? mean / F64(valid_period_count)
+			: NaN;
 }
 
+F64 PeriodicRecording::getPeriodStandardDeviation( const TraceType<SampleAccumulator>& stat, size_t num_periods /*= U32_MAX*/ )
+{
+	size_t total_periods = mRecordingPeriods.size();
+	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
+	F64 period_mean = getPeriodMean(stat, num_periods);
+	S32 valid_period_count = 0;
+	F64 sum_of_squares = 0;
+
+	for (S32 i = 1; i <= num_periods; i++)
+	{
+		Recording& recording = getPrevRecording(i);
+		if (recording.hasValue(stat))
+		{
+			F64 delta = recording.getMean(stat) - period_mean;
+			sum_of_squares += delta * delta;
+			valid_period_count++;
+		}
+	}
+
+	return valid_period_count
+			? sqrt(sum_of_squares / (F64)valid_period_count)
+			: NaN;
+}
 
 ///////////////////////////////////////////////////////////////////////
 // ExtendableRecording

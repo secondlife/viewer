@@ -37,7 +37,7 @@ LLScriptLSOParse::LLScriptLSOParse(LLFILE *fp)
 	S32 pos = 0;
 	if (fread(&sizearray, 1, 4, fp) != 4)
 	{
-		llwarns << "Short read" << llendl;
+		LL_WARNS() << "Short read" << LL_ENDL;
 		filesize = 0;
 	} else {
 		filesize = bytestream2integer(sizearray, pos);
@@ -46,7 +46,7 @@ LLScriptLSOParse::LLScriptLSOParse(LLFILE *fp)
 	fseek(fp, 0, SEEK_SET);
 	if (fread(mRawData, 1, filesize, fp) != filesize)
 	{
-		llwarns << "Short read" << llendl;
+		LL_WARNS() << "Short read" << LL_ENDL;
 	}
 
 	initOpCodePrinting();

@@ -201,7 +201,7 @@ bool LLToolBarView::addCommandInternal(const LLCommandId& command, LLToolBar* to
 	}
 	else 
 	{
-		llwarns	<< "Toolbars creation : the command with id " << command.uuid().asString() << " cannot be found in the command manager" << llendl;
+		LL_WARNS()	<< "Toolbars creation : the command with id " << command.uuid().asString() << " cannot be found in the command manager" << LL_ENDL;
 		return false;
 	}
 	return true;
@@ -220,20 +220,20 @@ bool LLToolBarView::loadToolbars(bool force_default)
 	}
 	else if (!gDirUtilp->fileExists(toolbar_file)) 
 	{
-		llwarns << "User toolbars def not found -> use default" << llendl;
+		LL_WARNS() << "User toolbars def not found -> use default" << LL_ENDL;
 		toolbar_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "toolbars.xml");
 	}
 	
 	LLXMLNodePtr root;
 	if(!LLXMLNode::parseFile(toolbar_file, root, NULL))
 	{
-		llwarns << "Unable to load toolbars from file: " << toolbar_file << llendl;
+		LL_WARNS() << "Unable to load toolbars from file: " << toolbar_file << LL_ENDL;
 		err = true;
 	}
 	
 	if (!err && !root->hasName("toolbars"))
 	{
-		llwarns << toolbar_file << " is not a valid toolbars definition file" << llendl;
+		LL_WARNS() << toolbar_file << " is not a valid toolbars definition file" << LL_ENDL;
 		err = true;
 	}
 	
@@ -246,7 +246,7 @@ bool LLToolBarView::loadToolbars(bool force_default)
 
 	if (!err && !toolbar_set.validateBlock())
 	{
-		llwarns << "Unable to validate toolbars from file: " << toolbar_file << llendl;
+		LL_WARNS() << "Unable to validate toolbars from file: " << toolbar_file << LL_ENDL;
 		err = true;
 	}
 	
@@ -254,7 +254,7 @@ bool LLToolBarView::loadToolbars(bool force_default)
 	{
 		if (force_default)
 		{
-			llerrs << "Unable to load toolbars from default file : " << toolbar_file << llendl;
+			LL_ERRS() << "Unable to load toolbars from default file : " << toolbar_file << LL_ENDL;
 		    return false;
 	    }
 
@@ -283,7 +283,7 @@ bool LLToolBarView::loadToolbars(bool force_default)
 		{
 			if (addCommandInternal(LLCommandId(command_params), mToolbars[TOOLBAR_LEFT]))
 			{
-				llwarns << "Error adding command '" << command_params.name() << "' to left toolbar." << llendl;
+				LL_WARNS() << "Error adding command '" << command_params.name() << "' to left toolbar." << LL_ENDL;
 			}
 		}
 	}
@@ -298,7 +298,7 @@ bool LLToolBarView::loadToolbars(bool force_default)
 		{
 			if (addCommandInternal(LLCommandId(command_params), mToolbars[TOOLBAR_RIGHT]))
 			{
-				llwarns << "Error adding command '" << command_params.name() << "' to right toolbar." << llendl;
+				LL_WARNS() << "Error adding command '" << command_params.name() << "' to right toolbar." << LL_ENDL;
 			}
 		}
 	}
@@ -313,7 +313,7 @@ bool LLToolBarView::loadToolbars(bool force_default)
 		{
 			if (addCommandInternal(LLCommandId(command_params), mToolbars[TOOLBAR_BOTTOM]))
 			{
-				llwarns << "Error adding command '" << command_params.name() << "' to bottom toolbar." << llendl;
+				LL_WARNS() << "Error adding command '" << command_params.name() << "' to bottom toolbar." << LL_ENDL;
 			}
 		}
 	}
@@ -651,7 +651,7 @@ BOOL LLToolBarView::handleDropTool( void* cargo_data, S32 x, S32 y, LLToolBar* t
 		}
 		else
 		{
-			llwarns << "Command couldn't be found in command manager" << llendl;
+			LL_WARNS() << "Command couldn't be found in command manager" << LL_ENDL;
 		}
 	}
 

@@ -277,13 +277,13 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
         //-------------------------------------------------------------------------
         if(fileName.empty())
         {
-                llerrs << "Filename is Empty!" << llendl;
+                LL_ERRS() << "Filename is Empty!" << LL_ENDL;
                 return FALSE;
         }
         LLFILE* fp = LLFile::fopen(fileName, "rb");                     /*Flawfinder: ignore*/
         if (!fp)
         {
-                llerrs << "can't open: " << fileName << llendl;
+                LL_ERRS() << "can't open: " << fileName << LL_ENDL;
                 return FALSE;
         }
 
@@ -293,7 +293,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
         char header[128];               /*Flawfinder: ignore*/
         if (fread(header, sizeof(char), 128, fp) != 128)
         {
-                llwarns << "Short read" << llendl;
+                LL_WARNS() << "Short read" << LL_ENDL;
         }
 
         //-------------------------------------------------------------------------
@@ -302,7 +302,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
         BOOL status = FALSE;
         if ( strncmp(header, HEADER_BINARY, strlen(HEADER_BINARY)) == 0 )       /*Flawfinder: ignore*/
         {
-                lldebugs << "Loading " << fileName << llendl;
+                LL_DEBUGS() << "Loading " << fileName << LL_ENDL;
 
                 //----------------------------------------------------------------
                 // File Header (seek past it)
@@ -316,7 +316,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                 size_t numRead = fread(&hasWeights, sizeof(U8), 1, fp);
                 if (numRead != 1)
                 {
-                        llerrs << "can't read HasWeights flag from " << fileName << llendl;
+                        LL_ERRS() << "can't read HasWeights flag from " << fileName << LL_ENDL;
                         return FALSE;
                 }
                 if (!isLOD())
@@ -331,7 +331,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                 numRead = fread(&hasDetailTexCoords, sizeof(U8), 1, fp);
                 if (numRead != 1)
                 {
-                        llerrs << "can't read HasDetailTexCoords flag from " << fileName << llendl;
+                        LL_ERRS() << "can't read HasDetailTexCoords flag from " << fileName << LL_ENDL;
                         return FALSE;
                 }
 
@@ -343,7 +343,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                 llendianswizzle(position.mV, sizeof(float), 3);
                 if (numRead != 3)
                 {
-                        llerrs << "can't read Position from " << fileName << llendl;
+                        LL_ERRS() << "can't read Position from " << fileName << LL_ENDL;
                         return FALSE;
                 }
                 setPosition( position );
@@ -356,7 +356,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                 llendianswizzle(rotationAngles.mV, sizeof(float), 3);
                 if (numRead != 3)
                 {
-                        llerrs << "can't read RotationAngles from " << fileName << llendl;
+                        LL_ERRS() << "can't read RotationAngles from " << fileName << LL_ENDL;
                         return FALSE;
                 }
 
@@ -365,7 +365,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
 
                 if (numRead != 1)
                 {
-                        llerrs << "can't read RotationOrder from " << fileName << llendl;
+                        LL_ERRS() << "can't read RotationOrder from " << fileName << LL_ENDL;
                         return FALSE;
                 }
 
@@ -384,7 +384,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                 llendianswizzle(scale.mV, sizeof(float), 3);
                 if (numRead != 3)
                 {
-                        llerrs << "can't read Scale from " << fileName << llendl;
+                        LL_ERRS() << "can't read Scale from " << fileName << LL_ENDL;
                         return FALSE;
                 }
                 setScale( scale );
@@ -405,7 +405,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                         llendianswizzle(&numVertices, sizeof(U16), 1);
                         if (numRead != 1)
                         {
-                                llerrs << "can't read NumVertices from " << fileName << llendl;
+                                LL_ERRS() << "can't read NumVertices from " << fileName << LL_ENDL;
                                 return FALSE;
                         }
 
@@ -420,7 +420,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
 							llendianswizzle(&mBaseCoords[i], sizeof(float), 3);
 							if (numRead != 3)
 							{
-									llerrs << "can't read Coordinates from " << fileName << llendl;
+									LL_ERRS() << "can't read Coordinates from " << fileName << LL_ENDL;
 									return FALSE;
 							}
 						}
@@ -434,7 +434,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
 							llendianswizzle(&mBaseNormals[i], sizeof(float), 3);
 							if (numRead != 3)
 							{
-									llerrs << " can't read Normals from " << fileName << llendl;
+									LL_ERRS() << " can't read Normals from " << fileName << LL_ENDL;
 									return FALSE;
 							}
 						}
@@ -448,7 +448,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
 							llendianswizzle(&mBaseBinormals[i], sizeof(float), 3);
 							if (numRead != 3)
 							{
-									llerrs << " can't read Binormals from " << fileName << llendl;
+									LL_ERRS() << " can't read Binormals from " << fileName << LL_ENDL;
 									return FALSE;
 							}
 						}
@@ -460,7 +460,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                         llendianswizzle(mTexCoords, sizeof(float), 2*numVertices);
                         if (numRead != numVertices)
                         {
-                                llerrs << "can't read TexCoords from " << fileName << llendl;
+                                LL_ERRS() << "can't read TexCoords from " << fileName << LL_ENDL;
                                 return FALSE;
                         }
 
@@ -473,7 +473,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                                 llendianswizzle(mDetailTexCoords, sizeof(float), 2*numVertices);
                                 if (numRead != numVertices)
                                 {
-                                        llerrs << "can't read DetailTexCoords from " << fileName << llendl;
+                                        LL_ERRS() << "can't read DetailTexCoords from " << fileName << LL_ENDL;
                                         return FALSE;
                                 }
                         }
@@ -487,7 +487,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                                 llendianswizzle(mWeights, sizeof(float), numVertices);
                                 if (numRead != numVertices)
                                 {
-                                        llerrs << "can't read Weights from " << fileName << llendl;
+                                        LL_ERRS() << "can't read Weights from " << fileName << LL_ENDL;
                                         return FALSE;
                                 }
                         }
@@ -501,7 +501,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                 llendianswizzle(&numFaces, sizeof(U16), 1);
                 if (numRead != 1)
                 {
-                        llerrs << "can't read NumFaces from " << fileName << llendl;
+                        LL_ERRS() << "can't read NumFaces from " << fileName << LL_ENDL;
                         return FALSE;
                 }
                 allocateFaceData( numFaces );
@@ -519,7 +519,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                         llendianswizzle(face, sizeof(U16), 3);
                         if (numRead != 3)
                         {
-                                llerrs << "can't read Face[" << i << "] from " << fileName << llendl;
+                                LL_ERRS() << "can't read Face[" << i << "] from " << fileName << LL_ENDL;
                                 return FALSE;
                         }
                         if (mReferenceData)
@@ -559,10 +559,10 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                         numTris++;
                 }
 
-                lldebugs << "verts: " << numVertices 
+                LL_DEBUGS() << "verts: " << numVertices 
                          << ", faces: "   << numFaces
                          << ", tris: "    << numTris
-                         << llendl;
+                         << LL_ENDL;
 
                 //----------------------------------------------------------------
                 // NumSkinJoints
@@ -576,7 +576,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                                 llendianswizzle(&numSkinJoints, sizeof(U16), 1);
                                 if (numRead != 1)
                                 {
-                                        llerrs << "can't read NumSkinJoints from " << fileName << llendl;
+                                        LL_ERRS() << "can't read NumSkinJoints from " << fileName << LL_ENDL;
                                         return FALSE;
                                 }
                                 allocateJointNames( numSkinJoints );
@@ -592,7 +592,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                                 jointName[sizeof(jointName)-1] = '\0'; // ensure nul-termination
                                 if (numRead != 1)
                                 {
-                                        llerrs << "can't read Skin[" << i << "].Name from " << fileName << llendl;
+                                        LL_ERRS() << "can't read Skin[" << i << "].Name from " << fileName << LL_ENDL;
                                         return FALSE;
                                 }
 
@@ -687,12 +687,12 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                                         S32 remapDst;
                                         if (fread(&remapSrc, sizeof(S32), 1, fp) != 1)
                                         {
-                                                llerrs << "can't read source vertex in vertex remap data" << llendl;
+                                                LL_ERRS() << "can't read source vertex in vertex remap data" << LL_ENDL;
                                                 break;
                                         }
                                         if (fread(&remapDst, sizeof(S32), 1, fp) != 1)
                                         {
-                                                llerrs << "can't read destination vertex in vertex remap data" << llendl;
+                                                LL_ERRS() << "can't read destination vertex in vertex remap data" << LL_ENDL;
                                                 break;
                                         }
                                         llendianswizzle(&remapSrc, sizeof(S32), 1);
@@ -707,7 +707,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
         }
         else
         {
-                llerrs << "invalid mesh file header: " << fileName << llendl;
+                LL_ERRS() << "invalid mesh file header: " << fileName << LL_ENDL;
                 status = FALSE;
         }
 
@@ -824,7 +824,7 @@ LLPolyMesh *LLPolyMesh::getMesh(const std::string &name, LLPolyMesh* reference_m
         LLPolyMeshSharedData* meshSharedData = get_if_there(sGlobalSharedMeshList, name, (LLPolyMeshSharedData*)NULL);
         if (meshSharedData)
         {
-//              llinfos << "Polymesh " << name << " found in global mesh table." << llendl;
+//              LL_INFOS() << "Polymesh " << name << " found in global mesh table." << LL_ENDL;
                 LLPolyMesh *poly_mesh = new LLPolyMesh(meshSharedData, reference_mesh);
                 return poly_mesh;
         }
@@ -848,7 +848,7 @@ LLPolyMesh *LLPolyMesh::getMesh(const std::string &name, LLPolyMesh* reference_m
 
         LLPolyMesh *poly_mesh = new LLPolyMesh(mesh_data, reference_mesh);
 
-//      llinfos << "Polymesh " << name << " added to global mesh table." << llendl;
+//      LL_INFOS() << "Polymesh " << name << " added to global mesh table." << LL_ENDL;
         sGlobalSharedMeshList[name] = poly_mesh->mSharedData;
 
         return poly_mesh;
@@ -882,10 +882,10 @@ void LLPolyMesh::dumpDiagInfo()
 
         std::string buf;
 
-        llinfos << "-----------------------------------------------------" << llendl;
-        llinfos << "       Global PolyMesh Table (DEBUG only)" << llendl;
-        llinfos << "   Verts    Faces  Mem(KB) Name" << llendl;
-        llinfos << "-----------------------------------------------------" << llendl;
+        LL_INFOS() << "-----------------------------------------------------" << LL_ENDL;
+        LL_INFOS() << "       Global PolyMesh Table (DEBUG only)" << LL_ENDL;
+        LL_INFOS() << "   Verts    Faces  Mem(KB) Name" << LL_ENDL;
+        LL_INFOS() << "-----------------------------------------------------" << LL_ENDL;
 
         // print each loaded mesh, and it's memory usage
         for(LLPolyMeshSharedDataTable::iterator iter = sGlobalSharedMeshList.begin();
@@ -899,17 +899,17 @@ void LLPolyMesh::dumpDiagInfo()
                 U32 num_kb = mesh->getNumKB();
 
                 buf = llformat("%8d %8d %8d %s", num_verts, num_faces, num_kb, mesh_name.c_str());
-                llinfos << buf << llendl;
+                LL_INFOS() << buf << LL_ENDL;
 
                 total_verts += num_verts;
                 total_faces += num_faces;
                 total_kb += num_kb;
         }
 
-        llinfos << "-----------------------------------------------------" << llendl;
+        LL_INFOS() << "-----------------------------------------------------" << LL_ENDL;
         buf = llformat("%8d %8d %8d TOTAL", total_verts, total_faces, total_kb );
-        llinfos << buf << llendl;
-        llinfos << "-----------------------------------------------------" << llendl;
+        LL_INFOS() << buf << LL_ENDL;
+        LL_INFOS() << "-----------------------------------------------------" << LL_ENDL;
 }
 
 //-----------------------------------------------------------------------------

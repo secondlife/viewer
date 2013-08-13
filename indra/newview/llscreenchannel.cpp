@@ -599,7 +599,7 @@ void LLScreenChannel::showToastsBottom()
 			LLToast* toast = (it-1)->getToast();
 			if (!toast)
 			{
-				llwarns << "Attempt to display a deleted toast." << llendl;
+				LL_WARNS() << "Attempt to display a deleted toast." << LL_ENDL;
 				return;
 			}
 
@@ -610,7 +610,7 @@ void LLScreenChannel::showToastsBottom()
 		LLToast* toast = it->getToast();
 		if(!toast)
 		{
-			llwarns << "Attempt to display a deleted toast." << llendl;
+			LL_WARNS() << "Attempt to display a deleted toast." << LL_ENDL;
 			return;
 		}
 
@@ -698,7 +698,7 @@ void LLScreenChannel::showToastsCentre()
 	LLToast* toast = mToastList[0].getToast();
 	if (!toast)
 	{
-		llwarns << "Attempt to display a deleted toast." << llendl;
+		LL_WARNS() << "Attempt to display a deleted toast." << LL_ENDL;
 		return;
 	}
 
@@ -711,7 +711,7 @@ void LLScreenChannel::showToastsCentre()
 		LLToast* toast = it->getToast();
 		if (!toast)
 		{
-			llwarns << "Attempt to display a deleted toast." << llendl;
+			LL_WARNS() << "Attempt to display a deleted toast." << LL_ENDL;
 			return;
 		}
 
@@ -747,7 +747,7 @@ void LLScreenChannel::showToastsTop()
 			LLToast* toast = (it-1)->getToast();
 			if (!toast)
 			{
-				llwarns << "Attempt to display a deleted toast." << llendl;
+				LL_WARNS() << "Attempt to display a deleted toast." << LL_ENDL;
 				return;
 			}
 
@@ -758,7 +758,7 @@ void LLScreenChannel::showToastsTop()
 		LLToast* toast = it->getToast();
 		if (!toast)
 		{
-			llwarns << "Attempt to display a deleted toast." << llendl;
+			LL_WARNS() << "Attempt to display a deleted toast." << LL_ENDL;
 			return;
 		}
 
@@ -954,7 +954,7 @@ void LLScreenChannel::hideToastsFromScreen()
 		}
 		else
 		{
-			llwarns << "Attempt to hide a deleted toast." << llendl;
+			LL_WARNS() << "Attempt to hide a deleted toast." << LL_ENDL;
 		}
 	}
 }
@@ -972,7 +972,7 @@ void LLScreenChannel::hideToast(const LLUUID& notification_id)
 		}
 		else
 		{
-			llwarns << "Attempt to hide a deleted toast." << llendl;
+			LL_WARNS() << "Attempt to hide a deleted toast." << LL_ENDL;
 		}
 	}
 }

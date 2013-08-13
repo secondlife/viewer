@@ -796,7 +796,7 @@ void LLPanelRegionTools::onSwapTerrain()
 
 void LLPanelRegionTools::onSelectRegion()
 {
-	llinfos << "LLPanelRegionTools::onSelectRegion" << llendl;
+	LL_INFOS() << "LLPanelRegionTools::onSelectRegion" << LL_ENDL;
 
 	LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromPosGlobal(gAgent.getPositionGlobal());
 	if (!regionp)
@@ -1262,8 +1262,8 @@ void LLPanelRequestTools::sendRequest(const std::string& request,
 									  const std::string& parameter, 
 									  const LLHost& host)
 {
-	llinfos << "Sending request '" << request << "', '"
-			<< parameter << "' to " << host << llendl;
+	LL_INFOS() << "Sending request '" << request << "', '"
+			<< parameter << "' to " << host << LL_ENDL;
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessage("GodlikeMessage");
 	msg->nextBlockFast(_PREHASH_AgentData);
@@ -1316,7 +1316,7 @@ void terrain_download_done(void** data, S32 status, LLExtStat ext_status)
 
 void test_callback(const LLTSCode status)
 {
-	llinfos << "Test transfer callback returned!" << llendl;
+	LL_INFOS() << "Test transfer callback returned!" << LL_ENDL;
 }
 
 

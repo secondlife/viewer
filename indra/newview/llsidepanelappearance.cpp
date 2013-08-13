@@ -201,7 +201,7 @@ void LLSidepanelAppearance::updateToVisibility(const LLSD &new_visibility)
 			const LLViewerWearable *wearable_ptr = mEditWearable->getWearable();
 			if (!wearable_ptr)
 			{
-				llwarns << "Visibility change to invalid wearable" << llendl;
+				LL_WARNS() << "Visibility change to invalid wearable" << LL_ENDL;
 				return;
 			}
 			// Disable camera switch is currently just for WT_PHYSICS type since we don't want to freeze the avatar

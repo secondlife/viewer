@@ -782,7 +782,7 @@ void LLTracker::cacheLandmarkPosition()
 		}
 		else
 		{
-			llwarns << "LLTracker couldn't find home pos" << llendl;
+			LL_WARNS() << "LLTracker couldn't find home pos" << LL_ENDL;
 			mTrackedLandmarkAssetID.setNull();
 			mTrackedLandmarkItemID.setNull();
 		}

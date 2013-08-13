@@ -234,21 +234,21 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 		// Can't mute empty string by name
 		if (mute.mName.empty()) 
 		{
-			llwarns << "Trying to mute empty string by-name" << llendl;
+			LL_WARNS() << "Trying to mute empty string by-name" << LL_ENDL;
 			return FALSE;
 		}
 
 		// Null mutes must have uuid null
 		if (mute.mID.notNull())
 		{
-			llwarns << "Trying to add by-name mute with non-null id" << llendl;
+			LL_WARNS() << "Trying to add by-name mute with non-null id" << LL_ENDL;
 			return FALSE;
 		}
 
 		std::pair<string_set_t::iterator, bool> result = mLegacyMutes.insert(mute.mName);
 		if (result.second)
 		{
-			llinfos << "Muting by name " << mute.mName << llendl;
+			LL_INFOS() << "Muting by name " << mute.mName << LL_ENDL;
 			updateAdd(mute);
 			notifyObservers();
 			return TRUE;
@@ -296,7 +296,7 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 			std::pair<mute_set_t::iterator, bool> result = mMutes.insert(localmute);
 			if (result.second)
 			{
-				llinfos << "Muting " << localmute.mName << " id " << localmute.mID << " flags " << localmute.mFlags << llendl;
+				LL_INFOS() << "Muting " << localmute.mName << " id " << localmute.mID << " flags " << localmute.mFlags << LL_ENDL;
 				updateAdd(localmute);
 				notifyObservers();
 				if(!(localmute.mFlags & LLMute::flagParticles))
@@ -385,14 +385,14 @@ BOOL LLMuteList::remove(const LLMute& mute, U32 flags)
 		{
 			// The entry was actually removed.  Notify the server.
 			updateRemove(localmute);
-			llinfos << "Unmuting " << localmute.mName << " id " << localmute.mID << " flags " << localmute.mFlags << llendl;
+			LL_INFOS() << "Unmuting " << localmute.mName << " id " << localmute.mID << " flags " << localmute.mFlags << LL_ENDL;
 		}
 		else
 		{
 			// Flags were updated, the mute entry needs to be retransmitted to the server and re-added to the list.
 			mMutes.insert(localmute);
 			updateAdd(localmute);
-			llinfos << "Updating mute entry " << localmute.mName << " id " << localmute.mID << " flags " << localmute.mFlags << llendl;
+			LL_INFOS() << "Updating mute entry " << localmute.mName << " id " << localmute.mID << " flags " << localmute.mFlags << LL_ENDL;
 		}
 		
 		// Must be after erase.
@@ -527,14 +527,14 @@ BOOL LLMuteList::loadFromFile(const std::string& filename)
 {
 	if(!filename.size())
 	{
-		llwarns << "Mute List Filename is Empty!" << llendl;
+		LL_WARNS() << "Mute List Filename is Empty!" << LL_ENDL;
 		return FALSE;
 	}
 
 	LLFILE* fp = LLFile::fopen(filename, "rb");		/*Flawfinder: ignore*/
 	if (!fp)
 	{
-		llwarns << "Couldn't open mute list " << filename << llendl;
+		LL_WARNS() << "Couldn't open mute list " << filename << LL_ENDL;
 		return FALSE;
 	}
 
@@ -577,14 +577,14 @@ BOOL LLMuteList::saveToFile(const std::string& filename)
 {
 	if(!filename.size())
 	{
-		llwarns << "Mute List Filename is Empty!" << llendl;
+		LL_WARNS() << "Mute List Filename is Empty!" << LL_ENDL;
 		return FALSE;
 	}
 
 	LLFILE* fp = LLFile::fopen(filename, "wb");		/*Flawfinder: ignore*/
 	if (!fp)
 	{
-		llwarns << "Couldn't open mute list " << filename << llendl;
+		LL_WARNS() << "Couldn't open mute list " << filename << LL_ENDL;
 		return FALSE;
 	}
 	// legacy mutes have null uuid
@@ -687,12 +687,12 @@ void LLMuteList::cache(const LLUUID& agent_id)
 
 void LLMuteList::processMuteListUpdate(LLMessageSystem* msg, void**)
 {
-	llinfos << "LLMuteList::processMuteListUpdate()" << llendl;
+	LL_INFOS() << "LLMuteList::processMuteListUpdate()" << LL_ENDL;
 	LLUUID agent_id;
 	msg->getUUIDFast(_PREHASH_MuteData, _PREHASH_AgentID, agent_id);
 	if(agent_id != gAgent.getID())
 	{
-		llwarns << "Got an mute list update for the wrong agent." << llendl;
+		LL_WARNS() << "Got an mute list update for the wrong agent." << LL_ENDL;
 		return;
 	}
 	std::string unclean_filename;
@@ -712,7 +712,7 @@ void LLMuteList::processMuteListUpdate(LLMessageSystem* msg, void**)
 
 void LLMuteList::processUseCachedMuteList(LLMessageSystem* msg, void**)
 {
-	llinfos << "LLMuteList::processUseCachedMuteList()" << llendl;
+	LL_INFOS() << "LLMuteList::processUseCachedMuteList()" << LL_ENDL;
 
 	std::string agent_id_string;
 	gAgent.getID().toString(agent_id_string);
@@ -723,7 +723,7 @@ void LLMuteList::processUseCachedMuteList(LLMessageSystem* msg, void**)
 
 void LLMuteList::onFileMuteList(void** user_data, S32 error_code, LLExtStat ext_status)
 {
-	llinfos << "LLMuteList::processMuteListFile()" << llendl;
+	LL_INFOS() << "LLMuteList::processMuteListFile()" << LL_ENDL;
 
 	std::string* local_filename_and_path = (std::string*)user_data;
 	if(local_filename_and_path && !local_filename_and_path->empty() && (error_code == 0))

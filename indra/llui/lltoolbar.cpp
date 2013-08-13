@@ -157,7 +157,7 @@ void LLToolBar::createContextMenu()
 		}
 		else
 		{
-			llwarns << "Unable to load toolbars context menu." << llendl;
+			LL_WARNS() << "Unable to load toolbars context menu." << LL_ENDL;
 		}
 	}
 	
@@ -1063,7 +1063,7 @@ BOOL LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 			mDragRank = getRankFromPosition(x, y);
 			// Don't DaD if we're dragging a command on itself
 			mDragAndDropTarget = ((orig_rank != RANK_NONE) && ((mDragRank == orig_rank) || ((mDragRank-1) == orig_rank)) ? false : true);
-			//llinfos << "Merov debug : DaD, rank = " << mDragRank << ", dragged uui = " << inv_item->getUUID() << llendl; 
+			//LL_INFOS() << "Merov debug : DaD, rank = " << mDragRank << ", dragged uui = " << inv_item->getUUID() << LL_ENDL; 
 			/* Do the following if you want to animate the button itself
 			LLCommandId dragged_command(inv_item->getUUID());
 			removeCommand(dragged_command);

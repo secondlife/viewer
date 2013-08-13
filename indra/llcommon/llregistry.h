@@ -62,7 +62,7 @@ public:
 		{
 			if (mMap.insert(std::make_pair(key, value)).second == false)
 			{
-				llwarns << "Tried to register " << key << " but it was already registered!" << llendl;
+				LL_WARNS() << "Tried to register " << key << " but it was already registered!" << LL_ENDL;
 				return false;
 			}
 			return true;
@@ -307,7 +307,7 @@ public:
 		{
 			if (singleton_t::instance().exists(key))
 			{
-				llerrs << "Duplicate registry entry under key \"" << key << "\"" << llendl;
+				LL_ERRS() << "Duplicate registry entry under key \"" << key << "\"" << LL_ENDL;
 			}
 			singleton_t::instance().mStaticScope->add(key, value);
 		}

@@ -40,10 +40,10 @@ void LLTextureStatsUploader::uploadStatsToSimulator(const std::string texture_ca
 	}
 	else
 	{
-		llinfos << "Not sending texture stats: " 
+		LL_INFOS() << "Not sending texture stats: " 
 				<< texture_stats 
 				<< " as there is no cap url." 
-				<< llendl;
+				<< LL_ENDL;
 	}
 }
 

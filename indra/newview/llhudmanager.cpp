@@ -79,12 +79,12 @@ void LLHUDManager::sendEffects()
 		LLHUDEffect *hep = mHUDEffects[i];
 		if (hep->isDead())
 		{
-			llwarns << "Trying to send dead effect!" << llendl;
+			LL_WARNS() << "Trying to send dead effect!" << LL_ENDL;
 			continue;
 		}
 		if (hep->mType < LLHUDObject::LL_HUD_EFFECT_BEAM)
 		{
-			llwarns << "Trying to send effect of type " << hep->mType << " which isn't really an effect and shouldn't be in this list!" << llendl;
+			LL_WARNS() << "Trying to send effect of type " << hep->mType << " which isn't really an effect and shouldn't be in this list!" << LL_ENDL;
 			continue;
 		}
 		if (hep->getNeedsSendToSim() && hep->getOriginatedHere())
@@ -164,14 +164,14 @@ void LLHUDManager::processViewerEffect(LLMessageSystem *mesgsys, void **user_dat
 			LLHUDEffect *cur_effectp = LLHUDManager::getInstance()->mHUDEffects[i];
 			if (!cur_effectp)
 			{
-				llwarns << "Null effect in effect manager, skipping" << llendl;
+				LL_WARNS() << "Null effect in effect manager, skipping" << LL_ENDL;
 				LLHUDManager::getInstance()->mHUDEffects.erase(LLHUDManager::getInstance()->mHUDEffects.begin() + i);
 				i--;
 				continue;
 			}
 			if (cur_effectp->isDead())
 			{
-	//			llwarns << "Dead effect in effect manager, removing" << llendl;
+	//			LL_WARNS() << "Dead effect in effect manager, removing" << LL_ENDL;
 				LLHUDManager::getInstance()->mHUDEffects.erase(LLHUDManager::getInstance()->mHUDEffects.begin() + i);
 				i--;
 				continue;
@@ -180,7 +180,7 @@ void LLHUDManager::processViewerEffect(LLMessageSystem *mesgsys, void **user_dat
 			{
 				if (cur_effectp->getType() != effect_type)
 				{
-					llwarns << "Viewer effect update doesn't match old type!" << llendl;
+					LL_WARNS() << "Viewer effect update doesn't match old type!" << LL_ENDL;
 				}
 				effectp = cur_effectp;
 				break;
@@ -201,10 +201,10 @@ void LLHUDManager::processViewerEffect(LLMessageSystem *mesgsys, void **user_dat
 		}
 		else
 		{
-			llwarns << "Received viewer effect of type " << effect_type << " which isn't really an effect!" << llendl;
+			LL_WARNS() << "Received viewer effect of type " << effect_type << " which isn't really an effect!" << LL_ENDL;
 		}
 	}
 
-	//llinfos << "Got viewer effect: " << effect_id << llendl;
+	//LL_INFOS() << "Got viewer effect: " << effect_id << LL_ENDL;
 }
 

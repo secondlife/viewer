@@ -1572,7 +1572,7 @@ BOOL LLTabContainer::selectTabByName(const std::string& name)
 	LLPanel* panel = getPanelByName(name);
 	if (!panel)
 	{
-		llwarns << "LLTabContainer::selectTabByName(" << name << ") failed" << llendl;
+		LL_WARNS() << "LLTabContainer::selectTabByName(" << name << ") failed" << LL_ENDL;
 		return FALSE;
 	}
 

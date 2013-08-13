@@ -183,7 +183,7 @@ LLCircuitData::~LLCircuitData()
 		std::ostream_iterator<TPACKETID> append(str, " ");
 		str << "MSG: -> " << mHost << "\tABORTING RELIABLE:\t";
 		std::copy(doomed.begin(), doomed.end(), append);
-		llinfos << str.str() << llendl;
+		LL_INFOS() << str.str() << LL_ENDL;
 	}
 }
 
@@ -203,7 +203,7 @@ void LLCircuitData::ackReliablePacket(TPACKETID packet_num)
 			std::ostringstream str;
 			str << "MSG: <- " << packetp->mHost << "\tRELIABLE ACKED:\t"
 				<< packetp->mPacketID;
-			llinfos << str.str() << llendl;
+			LL_INFOS() << str.str() << LL_ENDL;
 		}
 		if (packetp->mCallback)
 		{
@@ -231,13 +231,13 @@ void LLCircuitData::ackReliablePacket(TPACKETID packet_num)
 	if (iter != mFinalRetryPackets.end())
 	{
 		packetp = iter->second;
-		// llinfos << "Packet " << packet_num << " removed from the pending list" << llendl;
+		// LL_INFOS() << "Packet " << packet_num << " removed from the pending list" << LL_ENDL;
 		if(gMessageSystem->mVerboseLog)
 		{
 			std::ostringstream str;
 			str << "MSG: <- " << packetp->mHost << "\tRELIABLE ACKED:\t"
 				<< packetp->mPacketID;
-			llinfos << str.str() << llendl;
+			LL_INFOS() << str.str() << LL_ENDL;
 		}
 		if (packetp->mCallback)
 		{
@@ -320,8 +320,8 @@ S32 LLCircuitData::resendUnackedPackets(const F64 now)
 			if (mUnackedPacketBytes > 256000 && !(getPacketsOut() % 1024))
 			{
 				// Warn if we've got a lot of resends waiting.
-				llwarns << mHost << " has " << mUnackedPacketBytes 
-						<< " bytes of reliable messages waiting" << llendl;
+				LL_WARNS() << mHost << " has " << mUnackedPacketBytes 
+						<< " bytes of reliable messages waiting" << LL_ENDL;
 			}
 			// Stop resending.  There are less than 512000 unacked packets.
 			break;
@@ -341,7 +341,7 @@ S32 LLCircuitData::resendUnackedPackets(const F64 now)
 				std::ostringstream str;
 				str << "MSG: -> " << packetp->mHost
 					<< "\tRESENDING RELIABLE:\t" << packetp->mPacketID;
-				llinfos << str.str() << llendl;
+				LL_INFOS() << str.str() << LL_ENDL;
 			}
 
 			packetp->mBuffer[0] |= LL_RESENT_FLAG;  // tag packet id as being a resend	
@@ -390,10 +390,10 @@ S32 LLCircuitData::resendUnackedPackets(const F64 now)
 		if (now > packetp->mExpirationTime)
 		{
 			// fail (too many retries)
-			//llinfos << "Packet " << packetp->mPacketID << " removed from the pending list: exceeded retry limit" << llendl;
+			//LL_INFOS() << "Packet " << packetp->mPacketID << " removed from the pending list: exceeded retry limit" << LL_ENDL;
 			//if (packetp->mMessageName)
 			//{
-			//	llinfos << "Packet name " << packetp->mMessageName << llendl;
+			//	LL_INFOS() << "Packet name " << packetp->mMessageName << LL_ENDL;
 			//}
 			gMessageSystem->mFailedResendPackets++;
 
@@ -402,7 +402,7 @@ S32 LLCircuitData::resendUnackedPackets(const F64 now)
 				std::ostringstream str;
 				str << "MSG: -> " << packetp->mHost << "\tABORTING RELIABLE:\t"
 					<< packetp->mPacketID;
-				llinfos << str.str() << llendl;
+				LL_INFOS() << str.str() << LL_ENDL;
 			}
 
 			if (packetp->mCallback)
@@ -445,7 +445,7 @@ LLCircuit::~LLCircuit()
 LLCircuitData *LLCircuit::addCircuitData(const LLHost &host, TPACKETID in_id)
 {
 	// This should really validate if one already exists
-	llinfos << "LLCircuit::addCircuitData for " << host << llendl;
+	LL_INFOS() << "LLCircuit::addCircuitData for " << host << LL_ENDL;
 	LLCircuitData *tempp = new LLCircuitData(host, in_id, mHeartbeatInterval, mHeartbeatTimeout);
 	mCircuitData.insert(circuit_data_map::value_type(host, tempp));
 	mPingSet.insert(tempp);
@@ -456,7 +456,7 @@ LLCircuitData *LLCircuit::addCircuitData(const LLHost &host, TPACKETID in_id)
 
 void LLCircuit::removeCircuitData(const LLHost &host)
 {
-	llinfos << "LLCircuit::removeCircuitData for " << host << llendl;
+	LL_INFOS() << "LLCircuit::removeCircuitData for " << host << LL_ENDL;
 	mLastCircuit = NULL;
 	circuit_data_map::iterator it = mCircuitData.find(host);
 	if(it != mCircuitData.end())
@@ -471,7 +471,7 @@ void LLCircuit::removeCircuitData(const LLHost &host)
 		}
 		else
 		{
-			llwarns << "Couldn't find entry for next ping in ping set!" << llendl;
+			LL_WARNS() << "Couldn't find entry for next ping in ping set!" << LL_ENDL;
 		}
 
 		// Clean up from optimization maps
@@ -719,9 +719,9 @@ void LLCircuitData::checkPacketInID(TPACKETID id, BOOL receive_resent)
 			{
 				std::ostringstream str;
 				str << "MSG: <- " << mHost << "\tRECOVERING LOST:\t" << id;
-				llinfos << str.str() << llendl;
+				LL_INFOS() << str.str() << LL_ENDL;
 			}
-			//			llinfos << "removing potential lost: " << id << llendl;
+			//			LL_INFOS() << "removing potential lost: " << id << LL_ENDL;
 			mPotentialLostPackets.erase(id);
 		}
 		else if (!receive_resent) // don't freak out over out-of-order reliable resends
@@ -738,10 +738,10 @@ void LLCircuitData::checkPacketInID(TPACKETID id, BOOL receive_resent)
 						std::ostringstream str;
 						str << "MSG: <- " << mHost << "\tPACKET GAP:\t"
 							<< index;
-						llinfos << str.str() << llendl;
+						LL_INFOS() << str.str() << LL_ENDL;
 					}
 
-//						llinfos << "adding potential lost: " << index << llendl;
+//						LL_INFOS() << "adding potential lost: " << index << LL_ENDL;
 					mPotentialLostPackets[index] = time;
 					index++;
 					index = index % LL_MAX_OUT_PACKET_ID;
@@ -750,13 +750,13 @@ void LLCircuitData::checkPacketInID(TPACKETID id, BOOL receive_resent)
 			}
 			else
 			{
-				llinfos << "packet_out_of_order - got packet " << id << " expecting " << index << " from " << mHost << llendl;
+				LL_INFOS() << "packet_out_of_order - got packet " << id << " expecting " << index << " from " << mHost << LL_ENDL;
 				if(gMessageSystem->mVerboseLog)
 				{
 					std::ostringstream str;
 					str << "MSG: <- " << mHost << "\tPACKET GAP:\t"
 						<< id << " expected " << index;
-					llinfos << str.str() << llendl;
+					LL_INFOS() << str.str() << LL_ENDL;
 				}
 			}
 				
@@ -765,11 +765,11 @@ void LLCircuitData::checkPacketInID(TPACKETID id, BOOL receive_resent)
 
 			if (gap_count > 128)
 			{
-				llwarns << "Packet loss gap filler running amok!" << llendl;
+				LL_WARNS() << "Packet loss gap filler running amok!" << LL_ENDL;
 			}
 			else if (gap_count > 16)
 			{
-				llwarns << "Sustaining large amounts of packet loss!" << llendl;
+				LL_WARNS() << "Sustaining large amounts of packet loss!" << LL_ENDL;
 			}
 
 		}
@@ -889,8 +889,8 @@ BOOL LLCircuitData::updateWatchDogTimers(LLMessageSystem *msgsys)
 		wrapped_final = TRUE;
 	}
 
-	//llinfos << mHost << " - unacked count " << mUnackedPackets.size() << llendl;
-	//llinfos << mHost << " - final count " << mFinalRetryPackets.size() << llendl;
+	//LL_INFOS() << mHost << " - unacked count " << mUnackedPackets.size() << LL_ENDL;
+	//LL_INFOS() << mHost << " - final count " << mFinalRetryPackets.size() << LL_ENDL;
 	if (wrapped != wrapped_final)
 	{
 		// One of the "unacked" or "final" lists hasn't wrapped.  Whichever one
@@ -900,12 +900,12 @@ BOOL LLCircuitData::updateWatchDogTimers(LLMessageSystem *msgsys)
 			// Hasn't wrapped, so the one on the
 			// unacked packet list is older
 			packet_id = iter->first;
-			//llinfos << mHost << ": nowrapped unacked" << llendl;
+			//LL_INFOS() << mHost << ": nowrapped unacked" << LL_ENDL;
 		}
 		else
 		{
 			packet_id = iter_final->first;
-			//llinfos << mHost << ": nowrapped final" << llendl;
+			//LL_INFOS() << mHost << ": nowrapped final" << LL_ENDL;
 		}
 	}
 	else
@@ -917,7 +917,7 @@ BOOL LLCircuitData::updateWatchDogTimers(LLMessageSystem *msgsys)
 			// Send the ID of the last packet we sent out.
 			// This will flush all of the destination's
 			// unacked packets, theoretically.
-			//llinfos << mHost << ": No unacked!" << llendl;
+			//LL_INFOS() << mHost << ": No unacked!" << LL_ENDL;
 			packet_id = getPacketOutID();
 		}
 		else
@@ -928,7 +928,7 @@ BOOL LLCircuitData::updateWatchDogTimers(LLMessageSystem *msgsys)
 				// Unacked list has the lowest so far
 				packet_id = iter->first;
 				had_unacked = TRUE;
-				//llinfos << mHost << ": Unacked" << llendl;
+				//LL_INFOS() << mHost << ": Unacked" << LL_ENDL;
 			}
 
 			if (iter_final != mFinalRetryPackets.end())
@@ -938,13 +938,13 @@ BOOL LLCircuitData::updateWatchDogTimers(LLMessageSystem *msgsys)
 				{
 					// Both had a packet, use the lowest.
 					packet_id = llmin(packet_id, iter_final->first);
-					//llinfos << mHost << ": Min of unacked/final" << llendl;
+					//LL_INFOS() << mHost << ": Min of unacked/final" << LL_ENDL;
 				}
 				else
 				{
 					// Only the final had a packet, use it.
 					packet_id = iter_final->first;
-					//llinfos << mHost << ": Final!" << llendl;
+					//LL_INFOS() << mHost << ": Final!" << LL_ENDL;
 				}
 			}
 		}
@@ -979,7 +979,7 @@ BOOL LLCircuitData::updateWatchDogTimers(LLMessageSystem *msgsys)
 				std::ostringstream str;
 				str << "MSG: <- " << mHost << "\tLOST PACKET:\t"
 					<< (*it).first;
-				llinfos << str.str() << llendl;
+				LL_INFOS() << str.str() << LL_ENDL;
 			}
 			mPotentialLostPackets.erase(it++);
 		}
@@ -999,8 +999,8 @@ void LLCircuitData::clearDuplicateList(TPACKETID oldest_id)
 
 	// we want to KEEP all x where oldest_id <= x <= last incoming packet, and delete everything else.
 
-	//llinfos << mHost << ": clearing before oldest " << oldest_id << llendl;
-	//llinfos << "Recent list before: " << mRecentlyReceivedReliablePackets.size() << llendl;
+	//LL_INFOS() << mHost << ": clearing before oldest " << oldest_id << LL_ENDL;
+	//LL_INFOS() << "Recent list before: " << mRecentlyReceivedReliablePackets.size() << LL_ENDL;
 	if (oldest_id < mHighestPacketID)
 	{
 		// Clean up everything with a packet ID less than oldest_id.
@@ -1023,14 +1023,14 @@ void LLCircuitData::clearDuplicateList(TPACKETID oldest_id)
 		// Validate that the packet ID seems far enough away
 		if ((pit->first - mHighestPacketID) < 100)
 		{
-			llwarns << "Probably incorrectly timing out non-wrapped packets!" << llendl;
+			LL_WARNS() << "Probably incorrectly timing out non-wrapped packets!" << LL_ENDL;
 		}
 		U64 delta_t_usec = mt_usec - (*pit).second;
 		F64 delta_t_sec = delta_t_usec * SEC_PER_USEC;
 		if (delta_t_sec > LL_DUPLICATE_SUPPRESSION_TIMEOUT)
 		{
 			// enough time has elapsed we're not likely to get a duplicate on this one
-			llinfos << "Clearing " << pit->first << " from recent list" << llendl;
+			LL_INFOS() << "Clearing " << pit->first << " from recent list" << LL_ENDL;
 			mRecentlyReceivedReliablePackets.erase(pit++);
 		}
 		else
@@ -1038,7 +1038,7 @@ void LLCircuitData::clearDuplicateList(TPACKETID oldest_id)
 			++pit;
 		}
 	}
-	//llinfos << "Recent list after: " << mRecentlyReceivedReliablePackets.size() << llendl;
+	//LL_INFOS() << "Recent list after: " << mRecentlyReceivedReliablePackets.size() << LL_ENDL;
 }
 
 BOOL LLCircuitData::checkCircuitTimeout()
@@ -1048,17 +1048,17 @@ BOOL LLCircuitData::checkCircuitTimeout()
 	// Nota Bene: This needs to be turned off if you are debugging multiple simulators
 	if (time_since_last_ping > mHeartbeatTimeout)
 	{
-		llwarns << "LLCircuitData::checkCircuitTimeout for " << mHost << " last ping " << time_since_last_ping << " seconds ago." <<llendl;
+		LL_WARNS() << "LLCircuitData::checkCircuitTimeout for " << mHost << " last ping " << time_since_last_ping << " seconds ago." <<LL_ENDL;
 		setAlive(FALSE);
 		if (mTimeoutCallback)
 		{
-			llwarns << "LLCircuitData::checkCircuitTimeout for " << mHost << " calling callback." << llendl;
+			LL_WARNS() << "LLCircuitData::checkCircuitTimeout for " << mHost << " calling callback." << LL_ENDL;
 			mTimeoutCallback(mHost, mTimeoutUserData);
 		}
 		if (!isAlive())
 		{
 			// The callback didn't try and resurrect the circuit.  We should kill it.
-			llwarns << "LLCircuitData::checkCircuitTimeout for " << mHost << " still dead, dropping." << llendl;
+			LL_WARNS() << "LLCircuitData::checkCircuitTimeout for " << mHost << " still dead, dropping." << LL_ENDL;
 			return FALSE;
 		}
 	}
@@ -1121,7 +1121,7 @@ void LLCircuit::sendAcks()
 				str << "MSG: -> " << cd->mHost << "\tPACKET ACKS:\t";
 				std::ostream_iterator<TPACKETID> append(str, " ");
 				std::copy(cd->mAcks.begin(), cd->mAcks.end(), append);
-				llinfos << str.str() << llendl;
+				LL_INFOS() << str.str() << LL_ENDL;
 			}
 
 			// empty out the acks list
@@ -1188,7 +1188,7 @@ void LLCircuitData::dumpResendCountAndReset()
 {
 	if (mCurrentResendCount)
 	{
-		llinfos << "Circuit: " << mHost << " resent " << mCurrentResendCount << " packets" << llendl;
+		LL_INFOS() << "Circuit: " << mHost << " resent " << mCurrentResendCount << " packets" << LL_ENDL;
 		mCurrentResendCount = 0;
 	}
 }

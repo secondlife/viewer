@@ -88,7 +88,7 @@ BOOL LLStateDiagram::addTransition(LLFSMState& start_state, LLFSMState& end_stat
 	Transitions::iterator transition_it = state_transitions->find(&transition);
 	if (transition_it != state_transitions->end())
 	{
-		llerrs << "LLStateTable::addDirectedTransition() : transition already exists" << llendl;
+		LL_ERRS() << "LLStateTable::addDirectedTransition() : transition already exists" << LL_ENDL;
 		return FALSE; // transition already exists
 	}
 
@@ -210,7 +210,7 @@ BOOL LLStateDiagram::saveDotFile(const std::string& filename)
 
 	if (!dot_file)
 	{
-		llwarns << "LLStateDiagram::saveDotFile() : Couldn't open " << filename << " to save state diagram." << llendl;
+		LL_WARNS() << "LLStateDiagram::saveDotFile() : Couldn't open " << filename << " to save state diagram." << LL_ENDL;
 		return FALSE;
 	}
 	apr_file_printf(dot_file, "digraph StateMachine {\n\tsize=\"100,100\";\n\tfontsize=40;\n\tlabel=\"Finite State Machine\";\n\torientation=landscape\n\tratio=.77\n");
@@ -364,7 +364,7 @@ void LLStateMachine::processTransition(LLFSMTransition& transition, void* user_d
 	
 	if (NULL == mCurrentState)
 	{
-		llwarns << "mCurrentState == NULL; aborting processTransition()" << llendl;
+		LL_WARNS() << "mCurrentState == NULL; aborting processTransition()" << LL_ENDL;
 		return;
 	}
 
@@ -372,7 +372,7 @@ void LLStateMachine::processTransition(LLFSMTransition& transition, void* user_d
 
 	if (NULL == new_state)
 	{
-		llwarns << "new_state == NULL; aborting processTransition()" << llendl;
+		LL_WARNS() << "new_state == NULL; aborting processTransition()" << LL_ENDL;
 		return;
 	}
 
@@ -385,9 +385,9 @@ void LLStateMachine::processTransition(LLFSMTransition& transition, void* user_d
 		mCurrentState = new_state;
 		mCurrentState->onEntry(user_data);
 #if FSM_PRINT_STATE_TRANSITIONS
-		llinfos << "Entering state " << mCurrentState->getName() <<
+		LL_INFOS() << "Entering state " << mCurrentState->getName() <<
 			" on transition " << transition.getName() << " from state " << 
-			mLastState->getName() << llendl;
+			mLastState->getName() << LL_ENDL;
 #endif
 	}
 }

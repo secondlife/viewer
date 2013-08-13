@@ -538,7 +538,7 @@ void LLHUDNameTag::updateVisibility()
 
 	if (!mSourceObject)
 	{
-		//llwarns << "LLHUDNameTag::updateScreenPos -- mSourceObject is NULL!" << llendl;
+		//LL_WARNS() << "LLHUDNameTag::updateScreenPos -- mSourceObject is NULL!" << LL_ENDL;
 		mVisible = TRUE;
 		sVisibleTextObjects.push_back(LLPointer<LLHUDNameTag> (this));
 		return;

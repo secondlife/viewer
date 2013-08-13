@@ -84,18 +84,18 @@ std::string LLHost::getHostName() const
 	hostent* he;
 	if (INVALID_HOST_IP_ADDRESS == mIP)
 	{
-		llwarns << "LLHost::getHostName() : Invalid IP address" << llendl;
+		LL_WARNS() << "LLHost::getHostName() : Invalid IP address" << LL_ENDL;
 		return std::string();
 	}
 	he = gethostbyaddr((char *)&mIP, sizeof(mIP), AF_INET);
 	if (!he)
 	{
 #if LL_WINDOWS
-		llwarns << "LLHost::getHostName() : Couldn't find host name for address " << mIP << ", Error: " 
-			<< WSAGetLastError() << llendl;
+		LL_WARNS() << "LLHost::getHostName() : Couldn't find host name for address " << mIP << ", Error: " 
+			<< WSAGetLastError() << LL_ENDL;
 #else
-		llwarns << "LLHost::getHostName() : Couldn't find host name for address " << mIP << ", Error: " 
-			<< h_errno << llendl;
+		LL_WARNS() << "LLHost::getHostName() : Couldn't find host name for address " << mIP << ", Error: " 
+			<< h_errno << LL_ENDL;
 #endif
 		return std::string();
 	}
@@ -136,17 +136,17 @@ BOOL LLHost::setHostByName(const std::string& hostname)
 		switch(error_number) 
 		{
 			case TRY_AGAIN:	// XXX how to handle this case? 
-				llwarns << "LLHost::setAddress(): try again" << llendl;
+				LL_WARNS() << "LLHost::setAddress(): try again" << LL_ENDL;
 				break;
 			case HOST_NOT_FOUND:
 			case NO_ADDRESS:	// NO_DATA
-				llwarns << "LLHost::setAddress(): host not found" << llendl;
+				LL_WARNS() << "LLHost::setAddress(): host not found" << LL_ENDL;
 				break;
 			case NO_RECOVERY:
-				llwarns << "LLHost::setAddress(): unrecoverable error" << llendl;
+				LL_WARNS() << "LLHost::setAddress(): unrecoverable error" << LL_ENDL;
 				break;
 			default:
-				llwarns << "LLHost::setAddress(): unknown error - " << error_number << llendl;
+				LL_WARNS() << "LLHost::setAddress(): unknown error - " << error_number << LL_ENDL;
 				break;
 		}
 		return FALSE;

@@ -382,7 +382,7 @@ private:
 		}
 		/*virtual*/ void changed(U32 mask)
 		{
-			lldebugs << "Inventory changed: " << mask << llendl;
+			LL_DEBUGS() << "Inventory changed: " << mask << LL_ENDL;
 
 			static bool synchronize_friends_folders = true;
 			if (synchronize_friends_folders)
@@ -398,9 +398,9 @@ private:
 			// That means LLInventoryObserver::STRUCTURE is present in MASK instead of LLInventoryObserver::REMOVE
 			if ((CALLINGCARD_ADDED & mask) == CALLINGCARD_ADDED)
 			{
-				lldebugs << "Calling card added: count: " << gInventory.getChangedIDs().size() 
+				LL_DEBUGS() << "Calling card added: count: " << gInventory.getChangedIDs().size() 
 					<< ", first Inventory ID: "<< (*gInventory.getChangedIDs().begin())
-					<< llendl;
+					<< LL_ENDL;
 
 				bool friendFound = false;
 				std::set<LLUUID> changedIDs = gInventory.getChangedIDs();
@@ -415,7 +415,7 @@ private:
 
 				if (friendFound)
 				{
-					lldebugs << "friend found, panel should be updated" << llendl;
+					LL_DEBUGS() << "friend found, panel should be updated" << LL_ENDL;
 					mUpdater->changed(LLFriendObserver::ADD);
 				}
 			}
@@ -543,7 +543,7 @@ void LLPanelPeople::onFriendsAccordionExpandedCollapsed(LLUICtrl* ctrl, const LL
 {
 	if(!avatar_list)
 	{
-		llerrs << "Bad parameter" << llendl;
+		LL_ERRS() << "Bad parameter" << LL_ENDL;
 		return;
 	}
 
@@ -650,7 +650,7 @@ BOOL LLPanelPeople::postBuild()
 	}
 	else
 	{
-		llwarns << "People->Groups list menu not found" << llendl;
+		LL_WARNS() << "People->Groups list menu not found" << LL_ENDL;
 	}
 
 	LLAccordionCtrlTab* accordion_tab = getChild<LLAccordionCtrlTab>("tab_all");
@@ -735,12 +735,12 @@ void LLPanelPeople::updateFriendList()
 
 	if (buddies_uuids.size() > 0)
 	{
-		lldebugs << "Friends added to the list: " << buddies_uuids.size() << llendl;
+		LL_DEBUGS() << "Friends added to the list: " << buddies_uuids.size() << LL_ENDL;
 		all_friendsp = buddies_uuids;
 	}
 	else
 	{
-		lldebugs << "No friends found" << llendl;
+		LL_DEBUGS() << "No friends found" << LL_ENDL;
 	}
 
 	LLAvatarTracker::buddy_map_t::const_iterator buddy_it = all_buddies.begin();
@@ -941,7 +941,7 @@ void LLPanelPeople::setSortOrder(LLAvatarList* list, ESortOrder order, bool save
 		list->sort();
 		break;
 	default:
-		llwarns << "Unrecognized people sort order for " << list->getName() << llendl;
+		LL_WARNS() << "Unrecognized people sort order for " << list->getName() << LL_ENDL;
 		return;
 	}
 
@@ -1337,7 +1337,7 @@ bool LLPanelPeople::notifyChildren(const LLSD& info)
 		LLSideTrayPanelContainer* container = dynamic_cast<LLSideTrayPanelContainer*>(getParent());
 		if (!container)
 		{
-			llwarns << "Cannot find People panel container" << llendl;
+			LL_WARNS() << "Cannot find People panel container" << LL_ENDL;
 			return true;
 		}
 
@@ -1359,7 +1359,7 @@ void LLPanelPeople::showAccordion(const std::string name, bool show)
 {
 	if(name.empty())
 	{
-		llwarns << "No name provided" << llendl;
+		LL_WARNS() << "No name provided" << LL_ENDL;
 		return;
 	}
 
@@ -1411,7 +1411,7 @@ void LLPanelPeople::setAccordionCollapsedByUser(LLUICtrl* acc_tab, bool collapse
 {
 	if(!acc_tab)
 	{
-		llwarns << "Invalid parameter" << llendl;
+		LL_WARNS() << "Invalid parameter" << LL_ENDL;
 		return;
 	}
 
@@ -1429,7 +1429,7 @@ bool LLPanelPeople::isAccordionCollapsedByUser(LLUICtrl* acc_tab)
 {
 	if(!acc_tab)
 	{
-		llwarns << "Invalid parameter" << llendl;
+		LL_WARNS() << "Invalid parameter" << LL_ENDL;
 		return false;
 	}
 

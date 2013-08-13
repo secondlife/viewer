@@ -88,7 +88,7 @@ BOOL LLSkinJoint::setupSkinJoint( LLAvatarJoint *joint)
 	mJoint = joint;
 	if ( !mJoint )
 	{
-		llinfos << "Can't find joint" << llendl;
+		LL_INFOS() << "Can't find joint" << LL_ENDL;
 	}
 
 	// compute the inverse root skin matrix
@@ -304,7 +304,7 @@ void LLAvatarJointMesh::setMesh( LLPolyMesh *mesh )
 		U32 jn;
 		for (jn = 0; jn < numJointNames; jn++)
 		{
-			//llinfos << "Setting up joint " << jointNames[jn] << llendl;
+			//LL_INFOS() << "Setting up joint " << jointNames[jn] << LL_ENDL;
 			LLAvatarJoint* joint = (LLAvatarJoint*)(getRoot()->findJoint(jointNames[jn]) );
 			mSkinJoints[jn].setupSkinJoint( joint );
 		}

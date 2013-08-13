@@ -76,7 +76,7 @@ void sg_assert(BOOL expr)
 #if LL_OCTREE_PARANOIA_CHECK
 	if (!expr)
 	{
-		llerrs << "Octree invalid!" << llendl;
+		LL_ERRS() << "Octree invalid!" << LL_ENDL;
 	}
 #endif
 }
@@ -114,7 +114,7 @@ LLSpatialGroup::~LLSpatialGroup()
 {
 	/*if (sNoDelete)
 	{
-		llerrs << "Illegal deletion of LLSpatialGroup!" << llendl;
+		LL_ERRS() << "Illegal deletion of LLSpatialGroup!" << LL_ENDL;
 	}*/
 
 	if (gDebugGL)
@@ -294,7 +294,7 @@ void LLSpatialGroup::validate()
 			LLSpatialPartition* part = drawable->asPartition();
 			if (!part)
 			{
-				llerrs << "Drawable reports it is a spatial bridge but not a partition." << llendl;
+				LL_ERRS() << "Drawable reports it is a spatial bridge but not a partition." << LL_ENDL;
 			}
 			LLSpatialGroup* group = (LLSpatialGroup*) part->mOctree->getListener(0);
 			group->validate();
@@ -679,7 +679,7 @@ void LLSpatialGroup::updateDistance(LLCamera &camera)
 {
 	if (LLViewerCamera::sCurCameraID != LLViewerCamera::CAMERA_WORLD)
 	{
-		llwarns << "Attempted to update distance for camera other than world camera!" << llendl;
+		LL_WARNS() << "Attempted to update distance for camera other than world camera!" << LL_ENDL;
 		return;
 	}
 
@@ -691,7 +691,7 @@ void LLSpatialGroup::updateDistance(LLCamera &camera)
 #if !LL_RELEASE_FOR_DOWNLOAD
 	if (hasState(LLSpatialGroup::OBJECT_DIRTY))
 	{
-		llerrs << "Spatial group dirty on distance update." << llendl;
+		LL_ERRS() << "Spatial group dirty on distance update." << LL_ENDL;
 	}
 #endif
 	if (!isEmpty())
@@ -853,7 +853,7 @@ void LLSpatialGroup::handleDestruction(const TreeNode* node)
 			}
 			else
 	{
-				llerrs << "No Drawable found in the entry." << llendl;
+				LL_ERRS() << "No Drawable found in the entry." << LL_ENDL;
 			}
 		}
 		else
@@ -888,7 +888,7 @@ void LLSpatialGroup::handleChildAddition(const OctreeNode* parent, OctreeNode* c
 	}
 	else
 	{
-		OCT_ERRS << "LLSpatialGroup redundancy detected." << llendl;
+		OCT_ERRS << "LLSpatialGroup redundancy detected." << LL_ENDL;
 	}
 
 	unbound();
@@ -985,7 +985,7 @@ BOOL LLSpatialPartition::remove(LLDrawable *drawablep, LLSpatialGroup *curp)
 {
 	if (!curp->removeObject(drawablep))
 	{
-		OCT_ERRS << "Failed to remove drawable from octree!" << llendl;
+		OCT_ERRS << "Failed to remove drawable from octree!" << LL_ENDL;
 	}
 	else
 	{
@@ -1003,7 +1003,7 @@ void LLSpatialPartition::move(LLDrawable *drawablep, LLSpatialGroup *curp, BOOL 
 	// who was seeing crashing here. (See VWR-424 reported by Bunny Mayne)
 	if (!drawablep)
 	{
-		OCT_ERRS << "LLSpatialPartition::move was passed a bad drawable." << llendl;
+		OCT_ERRS << "LLSpatialPartition::move was passed a bad drawable." << LL_ENDL;
 		return;
 	}
 		
@@ -1020,7 +1020,7 @@ void LLSpatialPartition::move(LLDrawable *drawablep, LLSpatialGroup *curp, BOOL 
 		}
 		else
 		{
-			OCT_ERRS << "Drawable lost between spatial partitions on outbound transition." << llendl;
+			OCT_ERRS << "Drawable lost between spatial partitions on outbound transition." << LL_ENDL;
 		}
 	}
 		
@@ -1035,7 +1035,7 @@ void LLSpatialPartition::move(LLDrawable *drawablep, LLSpatialGroup *curp, BOOL 
 	LLPointer<LLDrawable> ptr = drawablep;
 	if (curp && !remove(drawablep, curp))
 	{
-		OCT_ERRS << "Move couldn't find existing spatial group!" << llendl;
+		OCT_ERRS << "Move couldn't find existing spatial group!" << LL_ENDL;
 	}
 
 	put(drawablep, was_visible);
@@ -1967,7 +1967,7 @@ void renderUpdateType(LLDrawable* drawablep)
 		gGL.diffuseColor4f(0,0,1,0.5f);
 		break;
 	default:
-		llwarns << "Unknown update_type " << vobj->getLastUpdateType() << llendl;
+		LL_WARNS() << "Unknown update_type " << vobj->getLastUpdateType() << LL_ENDL;
 		break;
 	};
 	S32 num_faces = drawablep->getNumFaces();
@@ -2614,7 +2614,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 	}
 	else 
 	{
-		llerrs << "Unhandled type" << llendl;
+		LL_ERRS() << "Unhandled type" << LL_ENDL;
 	}
 
 	gGL.popMatrix();
@@ -3362,11 +3362,11 @@ public:
 							{
 								if (facep->mDrawInfo->mTextureList.size() <= index)
 								{
-									llerrs << "Face texture index out of bounds." << llendl;
+									LL_ERRS() << "Face texture index out of bounds." << LL_ENDL;
 								}
 								else if (facep->mDrawInfo->mTextureList[index] != facep->getTexture())
 								{
-									llerrs << "Face texture index incorrect." << llendl;
+									LL_ERRS() << "Face texture index incorrect." << LL_ENDL;
 								}
 							}
 						}
@@ -3575,7 +3575,7 @@ public:
 		{
 			if (mInheritedMask[i] && !(group->mOcclusionState[i] & mInheritedMask[i]))
 			{
-				llerrs << "Spatial group failed inherited mask test." << llendl;
+				LL_ERRS() << "Spatial group failed inherited mask test." << LL_ENDL;
 			}
 		}
 
@@ -3592,7 +3592,7 @@ public:
 		{
 			if (!parent->hasState(state))
 			{
-				llerrs << "Spatial group failed parent state check." << llendl;
+				LL_ERRS() << "Spatial group failed parent state check." << LL_ENDL;
 			}
 			parent = parent->getParent();
 		}
@@ -3921,7 +3921,7 @@ LLDrawInfo::~LLDrawInfo()
 {
 	/*if (LLSpatialGroup::sNoDelete)
 	{
-		llerrs << "LLDrawInfo deleted illegally!" << llendl;
+		LL_ERRS() << "LLDrawInfo deleted illegally!" << LL_ENDL;
 	}*/
 
 	if (mFace)
@@ -4199,7 +4199,7 @@ void LLCullResult::assertDrawMapsEmpty()
 	{
 		if (mRenderMapSize[i] != 0)
 		{
-			llerrs << "Stale LLDrawInfo's in LLCullResult!" << llendl;
+			LL_ERRS() << "Stale LLDrawInfo's in LLCullResult!" << LL_ENDL;
 		}
 	}
 }

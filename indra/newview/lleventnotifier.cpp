@@ -167,7 +167,7 @@ bool LLEventNotifier::add(U32 eventId, F64 eventEpoch, const std::string& eventD
 {
 	LLEventNotification *new_enp = new LLEventNotification(eventId, eventEpoch, eventDateStr, eventName);
 	
-	llinfos << "Add event " << eventName << " id " << eventId << " date " << eventDateStr << llendl;
+	LL_INFOS() << "Add event " << eventName << " id " << eventId << " date " << eventDateStr << LL_ENDL;
 	if(!new_enp->isValid())
 	{
 		delete new_enp;

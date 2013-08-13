@@ -38,6 +38,14 @@
 
 namespace LLTrace
 {
+	const F64 NaN	= std::numeric_limits<double>::quiet_NaN();
+
+	enum EBufferAppendType
+	{
+		SEQUENTIAL,
+		NON_SEQUENTIAL
+	};
+
 	template<typename ACCUMULATOR>
 	class AccumulatorBuffer : public LLRefCount
 	{
@@ -83,12 +91,12 @@ namespace LLTrace
 			return mStorage[index]; 
 		}
 
-		void addSamples(const AccumulatorBuffer<ACCUMULATOR>& other, bool append = true)
+		void addSamples(const AccumulatorBuffer<ACCUMULATOR>& other, EBufferAppendType append_type)
 		{
 			llassert(mStorageSize >= sNextStorageSlot && other.mStorageSize > sNextStorageSlot);
 			for (size_t i = 0; i < sNextStorageSlot; i++)
 			{
-				mStorage[i].addSamples(other.mStorage[i], append);
+				mStorage[i].addSamples(other.mStorage[i], append_type);
 			}
 		}
 
@@ -211,106 +219,58 @@ namespace LLTrace
 	template<typename ACCUMULATOR> size_t AccumulatorBuffer<ACCUMULATOR>::sNextStorageSlot = 0;
 	template<typename ACCUMULATOR> AccumulatorBuffer<ACCUMULATOR>* AccumulatorBuffer<ACCUMULATOR>::sDefaultBuffer = NULL;
 
-
 	class EventAccumulator
 	{
 	public:
 		typedef F64 value_t;
-		typedef F64 mean_t;
 
 		EventAccumulator()
-		:	mSum(0),
-			mMin((std::numeric_limits<F64>::max)()),
-			mMax((std::numeric_limits<F64>::min)()),
-			mMean(0),
+		:	mSum(NaN),
+			mMin(NaN),
+			mMax(NaN),
+			mMean(NaN),
 			mSumOfSquares(0),
 			mNumSamples(0),
-			mLastValue(0)
+			mLastValue(NaN)
 		{}
 
 		void record(F64 value)
 		{
-			mNumSamples++;
-			mSum += value;
-			// NOTE: both conditions will hold on first pass through
-			if (value < mMin)
+			if (mNumSamples == 0)
 			{
+				mSum = value;
+				mMean = value;
 				mMin = value;
-			}
-			if (value > mMax)
-			{
 				mMax = value;
 			}
-			F64 old_mean = mMean;
-			mMean += (value - old_mean) / (F64)mNumSamples;
-			mSumOfSquares += (value - old_mean) * (value - mMean);
+			else
+			{
+				mSum += value;
+				F64 old_mean = mMean;
+				mMean += (value - old_mean) / (F64)mNumSamples;
+				mSumOfSquares += (value - old_mean) * (value - mMean);
+
+				if (value < mMin) { mMin = value; }
+				else if (value > mMax) { mMax = value; }
+			}
+
+			mNumSamples++;
 			mLastValue = value;
 		}
 
-		void addSamples(const EventAccumulator& other, bool append)
-		{
-			if (other.mNumSamples)
-			{
-				mSum += other.mSum;
-
-				// NOTE: both conditions will hold first time through
-				if (other.mMin < mMin) { mMin = other.mMin; }
-				if (other.mMax > mMax) { mMax = other.mMax; }
-
-				// combine variance (and hence standard deviation) of 2 different sized sample groups using
-				// the following formula: http://www.mrc-bsu.cam.ac.uk/cochrane/handbook/chapter_7/7_7_3_8_combining_groups.htm
-				F64 n_1 = (F64)mNumSamples,
-					n_2 = (F64)other.mNumSamples;
-				F64 m_1 = mMean,
-					m_2 = other.mMean;
-				F64 v_1 = mSumOfSquares / mNumSamples,
-					v_2 = other.mSumOfSquares / other.mNumSamples;
-				if (n_1 == 0)
-				{
-					mSumOfSquares = other.mSumOfSquares;
-				}
-				else if (n_2 == 0)
-				{
-					// don't touch variance
-					// mSumOfSquares = mSumOfSquares;
-				}
-				else
-				{
-					mSumOfSquares = (F64)mNumSamples
-						* ((((n_1 - 1.f) * v_1)
-						+ ((n_2 - 1.f) * v_2)
-						+ (((n_1 * n_2) / (n_1 + n_2))
-						* ((m_1 * m_1) + (m_2 * m_2) - (2.f * m_1 * m_2))))
-						/ (n_1 + n_2 - 1.f));
-				}
-
-				F64 weight = (F64)mNumSamples / (F64)(mNumSamples + other.mNumSamples);
-				mNumSamples += other.mNumSamples;
-				mMean = mMean * weight + other.mMean * (1.f - weight);
-				if (append) mLastValue = other.mLastValue;
-			}
-		}
-
-		void reset(const EventAccumulator* other)
-		{
-			mNumSamples = 0;
-			mSum = 0;
-			mMin = std::numeric_limits<F64>::max();
-			mMax = std::numeric_limits<F64>::min();
-			mMean = 0;
-			mSumOfSquares = 0;
-			mLastValue = other ? other->mLastValue : 0;
-		}
-
+		void addSamples(const EventAccumulator& other, EBufferAppendType append_type);
+		void reset(const EventAccumulator* other);
 		void sync(LLUnitImplicit<F64, LLUnits::Seconds>) {}
 
-		F64	getSum() const { return mSum; }
-		F64	getMin() const { return mMin; }
-		F64	getMax() const { return mMax; }
-		F64	getLastValue() const { return mLastValue; }
-		F64	getMean() const { return mMean; }
+		F64	getSum() const               { return mSum; }
+		F64	getMin() const               { return mMin; }
+		F64	getMax() const               { return mMax; }
+		F64	getLastValue() const         { return mLastValue; }
+		F64	getMean() const              { return mMean; }
 		F64 getStandardDeviation() const { return sqrtf(mSumOfSquares / mNumSamples); }
-		U32 getSampleCount() const { return mNumSamples; }
+		F64 getSumOfSquares() const		 { return mSumOfSquares; }
+		U32 getSampleCount() const       { return mNumSamples; }
+		bool hasValue() const			 { return mNumSamples > 0; }
 
 	private:
 		F64	mSum,
@@ -329,154 +289,96 @@ namespace LLTrace
 	{
 	public:
 		typedef F64 value_t;
-		typedef F64 mean_t;
 
 		SampleAccumulator()
 		:	mSum(0),
-			mMin((std::numeric_limits<F64>::max)()),
-			mMax((std::numeric_limits<F64>::min)()),
-			mMean(0),
+			mMin(NaN),
+			mMax(NaN),
+			mMean(NaN),
 			mSumOfSquares(0),
-			mLastSampleTimeStamp(LLTimer::getTotalSeconds()),
+			mLastSampleTimeStamp(0),
 			mTotalSamplingTime(0),
 			mNumSamples(0),
-			mLastValue(0),
+			mLastValue(NaN),
 			mHasValue(false)
 		{}
 
 		void sample(F64 value)
 		{
 			LLUnitImplicit<F64, LLUnits::Seconds> time_stamp = LLTimer::getTotalSeconds();
-			LLUnitImplicit<F64, LLUnits::Seconds> delta_time = time_stamp - mLastSampleTimeStamp;
-			mLastSampleTimeStamp = time_stamp;
 
-			if (mHasValue)
+			// store effect of last value
+			sync(time_stamp);
+
+			if (!mHasValue)
 			{
-				mTotalSamplingTime += delta_time;
-				mSum += mLastValue * delta_time;
+				mHasValue = true;
 
-				// NOTE: both conditions will hold first time through
+				mMin = value;
+				mMax = value;
+				mMean = value;
+				mLastSampleTimeStamp = time_stamp;
+			}
+			else
+			{
 				if (value < mMin) { mMin = value; }
-				if (value > mMax) { mMax = value; }
-
-				F64 old_mean = mMean;
-				mMean += (delta_time / mTotalSamplingTime) * (mLastValue - old_mean);
-				mSumOfSquares += delta_time * (mLastValue - old_mean) * (mLastValue - mMean);
+				else if (value > mMax) { mMax = value; }
 			}
 
 			mLastValue = value;
 			mNumSamples++;
-			mHasValue = true;
 		}
 
-		void addSamples(const SampleAccumulator& other, bool append)
-		{
-			if (other.mTotalSamplingTime)
-			{
-				mSum += other.mSum;
-
-				// NOTE: both conditions will hold first time through
-				if (other.mMin < mMin) { mMin = other.mMin; }
-				if (other.mMax > mMax) { mMax = other.mMax; }
-
-				// combine variance (and hence standard deviation) of 2 different sized sample groups using
-				// the following formula: http://www.mrc-bsu.cam.ac.uk/cochrane/handbook/chapter_7/7_7_3_8_combining_groups.htm
-				F64 n_1 = mTotalSamplingTime,
-					n_2 = other.mTotalSamplingTime;
-				F64 m_1 = mMean,
-					m_2 = other.mMean;
-				F64 v_1 = mSumOfSquares / mTotalSamplingTime,
-					v_2 = other.mSumOfSquares / other.mTotalSamplingTime;
-				if (n_1 == 0)
-				{
-					mSumOfSquares = other.mSumOfSquares;
-				}
-				else if (n_2 == 0)
-				{
-					// variance is unchanged
-					// mSumOfSquares = mSumOfSquares;
-				}
-				else
-				{
-					mSumOfSquares =	mTotalSamplingTime
-						* ((((n_1 - 1.f) * v_1)
-						+ ((n_2 - 1.f) * v_2)
-						+ (((n_1 * n_2) / (n_1 + n_2))
-						* ((m_1 * m_1) + (m_2 * m_2) - (2.f * m_1 * m_2))))
-						/ (n_1 + n_2 - 1.f));
-				}
-
-				llassert(other.mTotalSamplingTime > 0);
-				F64 weight = mTotalSamplingTime / (mTotalSamplingTime + other.mTotalSamplingTime);
-				mNumSamples += other.mNumSamples;
-				mTotalSamplingTime += other.mTotalSamplingTime;
-				mMean = (mMean * weight) + (other.mMean * (1.0 - weight));
-				if (append)
-				{
-					mLastValue = other.mLastValue;
-					mLastSampleTimeStamp = other.mLastSampleTimeStamp;
-					mHasValue |= other.mHasValue;
-				}
-			}
-		}
-
-		void reset(const SampleAccumulator* other)
-		{
-			mNumSamples = 0;
-			mSum = 0;
-			mMin = std::numeric_limits<F64>::max();
-			mMax = std::numeric_limits<F64>::min();
-			mMean = other ? other->mLastValue : 0;
-			mSumOfSquares = 0;
-			mLastSampleTimeStamp = LLTimer::getTotalSeconds();
-			mTotalSamplingTime = 0;
-			mLastValue = other ? other->mLastValue : 0;
-			mHasValue = other ? other->mHasValue : false;
-		}
+		void addSamples(const SampleAccumulator& other, EBufferAppendType append_type);
+		void reset(const SampleAccumulator* other);
 
 		void sync(LLUnitImplicit<F64, LLUnits::Seconds> time_stamp)
 		{
-			LLUnitImplicit<F64, LLUnits::Seconds> delta_time = time_stamp - mLastSampleTimeStamp;
-
 			if (mHasValue)
 			{
+				LLUnitImplicit<F64, LLUnits::Seconds> delta_time = time_stamp - mLastSampleTimeStamp;
 				mSum += mLastValue * delta_time;
 				mTotalSamplingTime += delta_time;
+				F64 old_mean = mMean;
+				mMean += (delta_time / mTotalSamplingTime) * (mLastValue - old_mean);
+				mSumOfSquares += delta_time * (mLastValue - old_mean) * (mLastValue - mMean);
 			}
 			mLastSampleTimeStamp = time_stamp;
 		}
 
-		F64	getSum() const { return mSum; }
-		F64	getMin() const { return mMin; }
-		F64	getMax() const { return mMax; }
-		F64	getLastValue() const { return mLastValue; }
-		F64	getMean() const { return mMean; }
+		F64	getSum() const               { return mSum; }
+		F64	getMin() const               { return mMin; }
+		F64	getMax() const               { return mMax; }
+		F64	getLastValue() const         { return mLastValue; }
+		F64	getMean() const              { return mMean; }
 		F64 getStandardDeviation() const { return sqrtf(mSumOfSquares / mTotalSamplingTime); }
-		U32 getSampleCount() const { return mNumSamples; }
-		bool hasValue() const { return mHasValue; }
+		F64 getSumOfSquares() const		 { return mSumOfSquares; }
+		LLUnitImplicit<F64, LLUnits::Seconds> getSamplingTime() { return mTotalSamplingTime; }
+		U32 getSampleCount() const       { return mNumSamples; }
+		bool hasValue() const            { return mHasValue; }
 
 	private:
-		F64	mSum,
-			mMin,
-			mMax,
-			mLastValue;
+		F64		mSum,
+				mMin,
+				mMax,
+				mLastValue;
 
-		bool mHasValue;
+		bool	mHasValue;		// distinct from mNumSamples, since we might have inherited an old sample
 
-		F64	mMean,
-			mSumOfSquares;
+		F64		mMean,
+				mSumOfSquares;
 
-		LLUnitImplicit<F64, LLUnits::Seconds>	mLastSampleTimeStamp,
-			mTotalSamplingTime;
+		LLUnitImplicit<F64, LLUnits::Seconds>	
+				mLastSampleTimeStamp,
+				mTotalSamplingTime;
 
-		U32	mNumSamples;
+		U32		mNumSamples;
 	};
 
 	class CountAccumulator
 	{
 	public:
 		typedef F64 value_t;
-		typedef F64 mean_t;
 
 		CountAccumulator()
 		:	mSum(0),
@@ -489,7 +391,7 @@ namespace LLTrace
 			mSum += value;
 		}
 
-		void addSamples(const CountAccumulator& other, bool /*append*/)
+		void addSamples(const CountAccumulator& other, bool /*follows_in_sequence*/)
 		{
 			mSum += other.mSum;
 			mNumSamples += other.mNumSamples;
@@ -517,42 +419,40 @@ namespace LLTrace
 	{
 	public:
 		typedef LLUnit<F64, LLUnits::Seconds> value_t;
-		typedef LLUnit<F64, LLUnits::Seconds> mean_t;
 		typedef TimeBlockAccumulator self_t;
 
 		// fake classes that allows us to view different facets of underlying statistic
 		struct CallCountFacet 
 		{
 			typedef U32 value_t;
-			typedef F32 mean_t;
 		};
 
 		struct SelfTimeFacet
 		{
 			typedef LLUnit<F64, LLUnits::Seconds> value_t;
-			typedef LLUnit<F64, LLUnits::Seconds> mean_t;
 		};
 
 		TimeBlockAccumulator();
-		void addSamples(const self_t& other, bool /*append*/);
+		void addSamples(const self_t& other, EBufferAppendType append_type);
 		void reset(const self_t* other);
 		void sync(LLUnitImplicit<F64, LLUnits::Seconds>) {}
 
 		//
 		// members
 		//
-		U64							mStartTotalTimeCounter,
-			mTotalTimeCounter,
-			mSelfTimeCounter;
-		U32							mCalls;
-		class TimeBlock*			mParent;		// last acknowledged parent of this time block
-		class TimeBlock*			mLastCaller;	// used to bootstrap tree construction
-		U16							mActiveCount;	// number of timers with this ID active on stack
-		bool						mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame
+		U64					mStartTotalTimeCounter,
+							mTotalTimeCounter,
+							mSelfTimeCounter;
+		U32					mCalls;
+		class TimeBlock*	mParent;		// last acknowledged parent of this time block
+		class TimeBlock*	mLastCaller;	// used to bootstrap tree construction
+		U16					mActiveCount;	// number of timers with this ID active on stack
+		bool				mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame
 
 	};
 
 	class TimeBlock;
+
 	class TimeBlockTreeNode
 	{
 	public:
@@ -583,19 +483,16 @@ namespace LLTrace
 		struct AllocationCountFacet 
 		{
 			typedef U32 value_t;
-			typedef F32 mean_t;
 		};
 
 		struct DeallocationCountFacet 
 		{
 			typedef U32 value_t;
-			typedef F32 mean_t;
 		};
 
 		struct ChildMemFacet
 		{
 			typedef LLUnit<F64, LLUnits::Bytes> value_t;
-			typedef LLUnit<F64, LLUnits::Bytes> mean_t;
 		};
 
 		MemStatAccumulator()
@@ -603,10 +500,10 @@ namespace LLTrace
 			mDeallocatedCount(0)
 		{}
 
-		void addSamples(const MemStatAccumulator& other, bool append)
+		void addSamples(const MemStatAccumulator& other, EBufferAppendType append_type)
 		{
-			mSize.addSamples(other.mSize, append);
-			mChildSize.addSamples(other.mChildSize, append);
+			mSize.addSamples(other.mSize, append_type);
+			mChildSize.addSamples(other.mChildSize, append_type);
 			mAllocatedCount += other.mAllocatedCount;
 			mDeallocatedCount += other.mDeallocatedCount;
 		}
@@ -645,11 +542,11 @@ namespace LLTrace
 		void reset(AccumulatorBufferGroup* other = NULL);
 		void sync();
 
-		AccumulatorBuffer<CountAccumulator>	 			mCounts;
-		AccumulatorBuffer<SampleAccumulator>			mSamples;
-		AccumulatorBuffer<EventAccumulator>				mEvents;
-		AccumulatorBuffer<TimeBlockAccumulator> 		mStackTimers;
-		AccumulatorBuffer<MemStatAccumulator> 			mMemStats;
+		AccumulatorBuffer<CountAccumulator>	 	mCounts;
+		AccumulatorBuffer<SampleAccumulator>	mSamples;
+		AccumulatorBuffer<EventAccumulator>		mEvents;
+		AccumulatorBuffer<TimeBlockAccumulator> mStackTimers;
+		AccumulatorBuffer<MemStatAccumulator> 	mMemStats;
 	};
 }
 
