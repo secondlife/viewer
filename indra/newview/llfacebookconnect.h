@@ -88,7 +88,7 @@ private:
 
 	LLFacebookConnect();
 	~LLFacebookConnect() {};
- 	std::string getFacebookConnectURL(const std::string& route = "");
+ 	std::string getFacebookConnectURL(const std::string& route = "", bool include_read_from_master = false);
    
     EConnectionState mConnectionState;
 	BOOL mConnected;
@@ -96,6 +96,7 @@ private:
     LLSD mContent;
 	bool mRefreshInfo;
 	bool mRefreshContent;
+	bool mReadFromMaster;
 	
 	static boost::scoped_ptr<LLEventPump> sStateWatcher;
 	static boost::scoped_ptr<LLEventPump> sInfoWatcher;

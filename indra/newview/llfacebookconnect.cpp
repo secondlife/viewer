@@ -119,7 +119,6 @@ public:
 		{
 			LL_DEBUGS("FacebookConnect") << "Connect successful. content: " << content << LL_ENDL;
 			
-			// Grab some graph data now that we are connected
             LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTED);
 		}
 		else if (status != 302)
@@ -324,7 +323,8 @@ LLFacebookConnect::LLFacebookConnect()
 	mInfo(),
     mContent(),
 	mRefreshInfo(false),
-	mRefreshContent(false)
+	mRefreshContent(false),
+	mReadFromMaster(false)
 {
 }
 
@@ -346,7 +346,7 @@ void LLFacebookConnect::openFacebookWeb(std::string url)
 	//LLUrlAction::openURLExternal(url);
 }
 
-std::string LLFacebookConnect::getFacebookConnectURL(const std::string& route)
+std::string LLFacebookConnect::getFacebookConnectURL(const std::string& route, bool include_read_from_master)
 {
 	static std::string sFacebookConnectUrl = gAgent.getRegion()->getCapability("FacebookConnect");
     
@@ -363,6 +363,10 @@ std::string LLFacebookConnect::getFacebookConnectURL(const std::string& route)
     //End removable part
 
 	std::string url = sFacebookConnectUrl + route;
+	if (include_read_from_master && mReadFromMaster)
+	{
+		url += "?read_from_master=true";
+	}
 	return url;
 }
 
@@ -384,10 +388,10 @@ void LLFacebookConnect::disconnectFromFacebook()
 
 void LLFacebookConnect::checkConnectionToFacebook(bool auto_connect)
 {
-        const bool follow_redirects = false;
-        const F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
-        LLHTTPClient::get(getFacebookConnectURL("/connection"), new LLFacebookConnectedResponder(auto_connect),
-                          LLSD(), timeout, follow_redirects);
+	const bool follow_redirects = false;
+	const F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
+	LLHTTPClient::get(getFacebookConnectURL("/connection", true), new LLFacebookConnectedResponder(auto_connect),
+						LLSD(), timeout, follow_redirects);
 }
 
 void LLFacebookConnect::loadFacebookInfo()
@@ -396,7 +400,7 @@ void LLFacebookConnect::loadFacebookInfo()
 	{
 		const bool follow_redirects = false;
 		const F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
-		LLHTTPClient::get(getFacebookConnectURL("/info"), new LLFacebookInfoResponder(),
+		LLHTTPClient::get(getFacebookConnectURL("/info", true), new LLFacebookInfoResponder(),
 			LLSD(), timeout, follow_redirects);
 	}
 }
@@ -407,7 +411,7 @@ void LLFacebookConnect::loadFacebookFriends()
 	{
 		const bool follow_redirects = false;
 		const F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
-		LLHTTPClient::get(getFacebookConnectURL("/friends"), new LLFacebookFriendsResponder(),
+		LLHTTPClient::get(getFacebookConnectURL("/friends", true), new LLFacebookFriendsResponder(),
 			LLSD(), timeout, follow_redirects);
 	}
 }
@@ -427,7 +431,7 @@ void LLFacebookConnect::postCheckin(const std::string& location, const std::stri
 		body["message"] = message;
 
 	// Note: we can use that route for different publish action. We should be able to use the same responder.
-	LLHTTPClient::post(getFacebookConnectURL("/share/checkin"), body, new LLFacebookShareResponder());
+	LLHTTPClient::post(getFacebookConnectURL("/share/checkin", true), body, new LLFacebookShareResponder());
 }
 
 void LLFacebookConnect::sharePhoto(const std::string& image_url, const std::string& caption)
@@ -437,7 +441,7 @@ void LLFacebookConnect::sharePhoto(const std::string& image_url, const std::stri
 	body["caption"] = caption;
 	
     // Note: we can use that route for different publish action. We should be able to use the same responder.
-	LLHTTPClient::post(getFacebookConnectURL("/share/photo"), body, new LLFacebookShareResponder());
+	LLHTTPClient::post(getFacebookConnectURL("/share/photo", true), body, new LLFacebookShareResponder());
 }
 
 void LLFacebookConnect::sharePhoto(LLPointer<LLImageFormatted> image, const std::string& caption)
@@ -490,7 +494,7 @@ void LLFacebookConnect::sharePhoto(LLPointer<LLImageFormatted> image, const std:
 	memcpy(data, body.str().data(), size);
 	
     // Note: we can use that route for different publish action. We should be able to use the same responder.
-	LLHTTPClient::postRaw(getFacebookConnectURL("/share/photo"), data, size, new LLFacebookShareResponder(), headers);
+	LLHTTPClient::postRaw(getFacebookConnectURL("/share/photo", true), data, size, new LLFacebookShareResponder(), headers);
 }
 
 void LLFacebookConnect::updateStatus(const std::string& message)
@@ -499,7 +503,7 @@ void LLFacebookConnect::updateStatus(const std::string& message)
 	body["message"] = message;
 	
     // Note: we can use that route for different publish action. We should be able to use the same responder.
-	LLHTTPClient::post(getFacebookConnectURL("/share/wall"), body, new LLFacebookShareResponder());
+	LLHTTPClient::post(getFacebookConnectURL("/share/wall", true), body, new LLFacebookShareResponder());
 }
 
 void LLFacebookConnect::storeInfo(const LLSD& info)
@@ -548,12 +552,17 @@ void LLFacebookConnect::setConnectionState(LLFacebookConnect::EConnectionState c
 {
 	if(connection_state == FB_CONNECTED)
 	{
+		mReadFromMaster = true;
 		setConnected(true);
 		setDataDirty();
 	}
 	else if(connection_state == FB_NOT_CONNECTED)
 	{
 		setConnected(false);
+	}
+	else if(connection_state == FB_POSTED)
+	{
+		mReadFromMaster = false;
 	}
 
 	if (mConnectionState != connection_state)
