@@ -63,7 +63,7 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 	style_params.font.size(font_size);
 	
 	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(p.session_id);
-	mIsGroupMsg = (im_session->mSessionType == LLIMModel::LLIMSession::GROUP_SESSION);
+	mIsGroupMsg = (im_session && im_session->mSessionType == LLIMModel::LLIMSession::GROUP_SESSION);
 	if(mIsGroupMsg)
 	{
 		mAvatarName->setValue(im_session->mName);
