@@ -156,7 +156,11 @@ void LLDrawPoolSimple::beginRenderPass(S32 pass)
 {
 	LLFastTimer t(FTM_RENDER_SIMPLE);
 
-	if (LLPipeline::sUnderWaterRender)
+	if (LLPipeline::sImpostorRender)
+	{
+		simple_shader = &gObjectSimpleImpostorProgram;
+	}
+	else if (LLPipeline::sUnderWaterRender)
 	{
 		simple_shader = &gObjectSimpleWaterProgram;
 	}

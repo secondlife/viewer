@@ -83,6 +83,7 @@ LLGLSLShader	gAlphaMaskProgram;
 
 //object shaders
 LLGLSLShader		gObjectSimpleProgram;
+LLGLSLShader		gObjectSimpleImpostorProgram;
 LLGLSLShader		gObjectPreviewProgram;
 LLGLSLShader		gObjectSimpleWaterProgram;
 LLGLSLShader		gObjectSimpleAlphaMaskProgram;
@@ -237,6 +238,7 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gWaterProgram);
 	mShaderList.push_back(&gAvatarEyeballProgram); 
 	mShaderList.push_back(&gObjectSimpleProgram);
+	mShaderList.push_back(&gObjectSimpleImpostorProgram);
 	mShaderList.push_back(&gObjectPreviewProgram);
 	mShaderList.push_back(&gImpostorProgram);
 	mShaderList.push_back(&gObjectFullbrightNoColorProgram);
@@ -729,6 +731,7 @@ void LLViewerShaderMgr::unloadShaders()
 	gObjectFullbrightNoColorProgram.unload();
 	gObjectFullbrightNoColorWaterProgram.unload();
 	gObjectSimpleProgram.unload();
+	gObjectSimpleImpostorProgram.unload();
 	gObjectPreviewProgram.unload();
 	gImpostorProgram.unload();
 	gObjectSimpleAlphaMaskProgram.unload();
@@ -2020,6 +2023,7 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 		gObjectFullbrightNoColorProgram.unload();
 		gObjectFullbrightNoColorWaterProgram.unload();
 		gObjectSimpleProgram.unload();
+		gObjectSimpleImpostorProgram.unload();
 		gObjectPreviewProgram.unload();
 		gImpostorProgram.unload();
 		gObjectSimpleAlphaMaskProgram.unload();
@@ -2438,6 +2442,27 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 		gObjectSimpleProgram.mShaderFiles.push_back(make_pair("objects/simpleF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gObjectSimpleProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
 		success = gObjectSimpleProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
+		gObjectSimpleImpostorProgram.mName = "Simple Impostor Shader";
+		gObjectSimpleImpostorProgram.mFeatures.calculatesLighting = true;
+		gObjectSimpleImpostorProgram.mFeatures.calculatesAtmospherics = true;
+		gObjectSimpleImpostorProgram.mFeatures.hasGamma = true;
+		gObjectSimpleImpostorProgram.mFeatures.hasAtmospherics = true;
+		gObjectSimpleImpostorProgram.mFeatures.hasLighting = true;
+		gObjectSimpleImpostorProgram.mFeatures.mIndexedTextureChannels = 0;
+		// force alpha mask version of lighting so we can weed out
+		// transparent pixels from impostor temp buffer
+		//
+		gObjectSimpleImpostorProgram.mFeatures.hasAlphaMask = true; 
+		gObjectSimpleImpostorProgram.mShaderFiles.clear();
+		gObjectSimpleImpostorProgram.mShaderFiles.push_back(make_pair("objects/simpleV.glsl", GL_VERTEX_SHADER_ARB));
+		gObjectSimpleImpostorProgram.mShaderFiles.push_back(make_pair("objects/simpleF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gObjectSimpleImpostorProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
+		
+		success = gObjectSimpleImpostorProgram.createShader(NULL, NULL);
 	}
 
 	if (success)

@@ -181,7 +181,13 @@ void LLDrawPoolAlpha::beginRenderPass(S32 pass)
 {
 	LLFastTimer t(FTM_RENDER_ALPHA);
 	
-	if (LLPipeline::sUnderWaterRender)
+	if (LLPipeline::sImpostorRender)
+	{
+		simple_shader = &gObjectSimpleImpostorProgram;
+		fullbright_shader = &gObjectFullbrightProgram;
+		emissive_shader = &gObjectEmissiveProgram;
+	}
+	else if (LLPipeline::sUnderWaterRender)
 	{
 		simple_shader = &gObjectSimpleWaterProgram;
 		fullbright_shader = &gObjectFullbrightWaterProgram;
