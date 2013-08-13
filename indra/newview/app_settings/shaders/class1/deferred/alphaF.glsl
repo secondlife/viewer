@@ -531,7 +531,7 @@ void main()
 	vec4 diff = texture2D(diffuseMap,vary_texcoord0.xy);
 #endif
 
-#if FOR_IMPOSTOR
+#ifdef FOR_IMPOSTOR
 	vec4 color;
 	color.rgb = diff.rgb;
 	color.a   = diff.a;
