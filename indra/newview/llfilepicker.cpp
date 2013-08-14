@@ -764,13 +764,16 @@ OSStatus	LLFilePicker::doNavSaveDialog(ESaveFilter filter, const std::string& fi
 			creator = 'TVOD';
 			extension = CFSTR(".wav");
 			break;
-		
 		case FFSAVE_TGA:
 			type = 'TPIC';
 			creator = 'prvw';
 			extension = CFSTR(".tga");
 			break;
-		
+		case FFSAVE_TGAPNG:
+			type = 'PNG';
+			creator = 'prvw';
+			extension = CFSTR(".png");
+			break;
 		case FFSAVE_BMP:
 			type = 'BMPf';
 			creator = 'prvw';
