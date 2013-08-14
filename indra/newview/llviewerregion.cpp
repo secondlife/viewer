@@ -1205,12 +1205,7 @@ BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 
 	max_update_time -= update_timer.getElapsedTimeF32();	
 
-	if(sNewObjectCreationThrottle < 0 && (LLStartUp::getStartupState() < STATE_STARTED || gTeleportDisplay))
-	{
-		//apply octree cullings here to pick up visible objects because rendering pipeline stops view culling at this moment
-		mImpl->mVOCachePartition->cull(*LLViewerCamera::getInstance(), false);
-	}	
-	else if(max_update_time < 0.f)
+	if(max_update_time < 0.f)
 	{
 		return did_update;
 	}
