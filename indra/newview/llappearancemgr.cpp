@@ -1592,8 +1592,7 @@ void LLAppearanceMgr::shallowCopyCategoryContents(const LLUUID& src_id, const LL
 	}
 	if (!link_array.empty())
 	{
-		const bool resolve_links = true;
-		link_inventory_array(dst_id, link_array, cb, resolve_links);
+		link_inventory_array(dst_id, link_array, cb);
 	}
 }
 
@@ -2528,10 +2527,10 @@ void LLAppearanceMgr::addCOFItemLink(const LLInventoryItem *item,
 
 	if (!linked_already)
 	{
-		LLInventoryObject::const_object_list_t obj_array;
-		obj_array.push_back(LLConstPointer<LLInventoryObject>(vitem));
-		const bool resolve_links = true;
-		link_inventory_array(getCOF(), obj_array, cb, resolve_links);
+		LLViewerInventoryItem *copy_item = new LLViewerInventoryItem;
+		copy_item->copyViewerItem(vitem);
+		copy_item->setDescription(description);
+		link_inventory_object(getCOF(), copy_item, cb);
 	}
 }
 
@@ -2735,7 +2734,8 @@ void LLAppearanceMgr::updateIsDirty()
 					if (item1->getActualDescription() != item2->getActualDescription())
 					{
 						LL_DEBUGS("Avatar") << "desc different " << item1->getActualDescription()
-											<< " " << item2->getActualDescription() << llendl;
+											<< " " << item2->getActualDescription() 
+											<< " names " << item1->getName() << " " << item2->getName() << llendl;
 					}
 				}
 				mOutfitIsDirty = true;
