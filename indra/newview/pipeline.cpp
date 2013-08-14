@@ -11262,7 +11262,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 			LLPipeline::RENDER_TYPE_ALPHA_MASK,
 			LLPipeline::RENDER_TYPE_FULLBRIGHT_ALPHA_MASK,
 			LLPipeline::RENDER_TYPE_INVISIBLE,
-			LLPipeline::RENDER_TYPE_ALPHA,
+			LLPipeline::RENDER_TYPE_SIMPLE,
 			END_RENDER_TYPES);
 	}
 
