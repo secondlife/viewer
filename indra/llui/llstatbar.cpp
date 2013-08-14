@@ -41,6 +41,16 @@
 #include "lllocalcliprect.h"
 #include <iostream>
 
+// rate at which to update display of value that is rapidly changing
+const F32 MEAN_VALUE_UPDATE_TIME = 1.f / 4.f; 
+// time between value changes that qualifies as a "rapid change"
+const LLUnit<F32, LLUnits::Seconds>	RAPID_CHANGE_THRESHOLD = 0.2f; 
+// maximum number of rapid changes in RAPID_CHANGE_WINDOW before switching over to displaying the mean 
+// instead of latest value
+const S32 MAX_RAPID_CHANGES_PER_SEC = 10;
+// period of time over which to measure rapid changes
+const LLUnit<F32, LLUnits::Seconds> RAPID_CHANGE_WINDOW = 1.f;
+
 F32 calc_tick_value(F32 min, F32 max)
 {
 	F32 range = max - min;
@@ -139,6 +149,25 @@ void calc_auto_scale_range(F32& min, F32& max, F32& tick)
 	tick = power_of_10 * llmax(cur_tick_min, cur_tick_max);
 	min = out_min;
 	max = out_max;
+}
+
+LLStatBar::Params::Params()
+:	label("label"),
+	unit_label("unit_label"),
+	bar_min("bar_min", 0.f),
+	bar_max("bar_max", 0.f),
+	tick_spacing("tick_spacing", 0.f),
+	decimal_digits("decimal_digits", 3),
+	show_bar("show_bar", false),
+	show_history("show_history", false),
+	scale_range("scale_range", true),
+	num_frames("num_frames", 200),
+	num_frames_short("num_frames_short", 20),
+	max_height("max_height", 100),
+	stat("stat"),
+	orientation("orientation", VERTICAL)
+{
+	changeDefault(follows.flags, FOLLOWS_TOP | FOLLOWS_LEFT);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -253,7 +282,6 @@ S32 calc_num_rapid_changes(LLTrace::PeriodicRecording& periodic_recording, const
 	LLUnit<F32, LLUnits::Seconds>	elapsed_time,
 		time_since_value_changed;
 	S32 num_rapid_changes = 0;
-	const LLUnit<F32, LLUnits::Seconds>	RAPID_CHANGE_THRESHOLD = LLUnits::Seconds::fromValue(0.3f);
 
 	F64 last_value = periodic_recording.getPrevRecording(1).getSum(stat);
 	for (S32 i = 1; i < periodic_recording.getNumRecordedPeriods(); i++)
@@ -293,57 +321,50 @@ void LLStatBar::draw()
 						: mNumShortHistoryFrames;
 	S32 num_rapid_changes = 0;
 
-	const S32 MAX_RAPID_CHANGES = 6;
-	const F32 MIN_VALUE_UPDATE_TIME = 1.f / 4.f;
-	const LLUnit<F32, LLUnits::Seconds> CHANGE_WINDOW = LLUnits::Seconds::fromValue(2.f);
-
 	if (mCountFloatp)
 	{
 		const LLTrace::TraceType<LLTrace::CountAccumulator>& count_stat = *mCountFloatp;
 
-		unit_label = mUnitLabel.empty() ? (std::string(count_stat.getUnitLabel()) + "/s") : mUnitLabel;
-		current = last_frame_recording.getPerSec(count_stat);
-		min     = frame_recording.getPeriodMinPerSec(count_stat, num_frames);
-		max     = frame_recording.getPeriodMaxPerSec(count_stat, num_frames);
-		mean    = frame_recording.getPeriodMeanPerSec(count_stat, num_frames);
-		num_rapid_changes = calc_num_rapid_changes(frame_recording, count_stat, CHANGE_WINDOW);
+		unit_label    = mUnitLabel.empty() ? (std::string(count_stat.getUnitLabel()) + "/s") : mUnitLabel;
+		current       = last_frame_recording.getPerSec(count_stat);
+		min           = frame_recording.getPeriodMinPerSec(count_stat, num_frames);
+		max           = frame_recording.getPeriodMaxPerSec(count_stat, num_frames);
+		mean          = frame_recording.getPeriodMeanPerSec(count_stat, num_frames);
+		display_value = mean;
 	}
 	else if (mEventFloatp)
 	{
 		const LLTrace::TraceType<LLTrace::EventAccumulator>& event_stat = *mEventFloatp;
 
-		unit_label = mUnitLabel.empty() ? event_stat.getUnitLabel() : mUnitLabel;
-
-		current = last_frame_recording.getLastValue(event_stat);
-		min     = frame_recording.getPeriodMin(event_stat, num_frames);
-		max     = frame_recording.getPeriodMax(event_stat, num_frames);
-		mean    = frame_recording.getPeriodMean(event_stat, num_frames);
-		num_rapid_changes = calc_num_rapid_changes(frame_recording, event_stat, CHANGE_WINDOW);
+		unit_label        = mUnitLabel.empty() ? event_stat.getUnitLabel() : mUnitLabel;
+		current           = last_frame_recording.getLastValue(event_stat);
+		min               = frame_recording.getPeriodMin(event_stat, num_frames);
+		max               = frame_recording.getPeriodMax(event_stat, num_frames);
+		mean              = frame_recording.getPeriodMean(event_stat, num_frames);
+		num_rapid_changes = calc_num_rapid_changes(frame_recording, event_stat, RAPID_CHANGE_WINDOW);
+		display_value     = mean;
 	}
 	else if (mSampleFloatp)
 	{
 		const LLTrace::TraceType<LLTrace::SampleAccumulator>& sample_stat = *mSampleFloatp;
 
-		unit_label = mUnitLabel.empty() ? sample_stat.getUnitLabel() : mUnitLabel;
+		unit_label        = mUnitLabel.empty() ? sample_stat.getUnitLabel() : mUnitLabel;
+		current           = last_frame_recording.getLastValue(sample_stat);
+		min               = frame_recording.getPeriodMin(sample_stat, num_frames);
+		max               = frame_recording.getPeriodMax(sample_stat, num_frames);
+		mean              = frame_recording.getPeriodMean(sample_stat, num_frames);
+		num_rapid_changes = calc_num_rapid_changes(frame_recording, sample_stat, RAPID_CHANGE_WINDOW);
 
-		current = last_frame_recording.getLastValue(sample_stat);
-		min     = frame_recording.getPeriodMin(sample_stat, num_frames);
-		max     = frame_recording.getPeriodMax(sample_stat, num_frames);
-		mean    = frame_recording.getPeriodMean(sample_stat, num_frames);
-		num_rapid_changes = calc_num_rapid_changes(frame_recording, sample_stat, CHANGE_WINDOW);
-	}
-
-	if (mLastDisplayValueTimer.getElapsedTimeF32() > MIN_VALUE_UPDATE_TIME)
-	{
-		mLastDisplayValueTimer.reset();
-		display_value	= (num_rapid_changes > MAX_RAPID_CHANGES)
-			? mean
-			: current;
-		mLastDisplayValue = display_value;
-	}
-	else
-	{
-		display_value = mLastDisplayValue;
+		if (num_rapid_changes / RAPID_CHANGE_WINDOW > MAX_RAPID_CHANGES_PER_SEC)
+		{
+			display_value = mean;
+		}
+		else
+		{
+			display_value = current;
+			// always display current value, don't rate limit
+			mLastDisplayValue = current;
+		}
 	}
 
 	LLRect bar_rect;
@@ -365,7 +386,17 @@ void LLStatBar::draw()
 	mCurMaxBar = LLSmoothInterpolation::lerp(mCurMaxBar, mMaxBar, 0.05f);
 	mCurMinBar = LLSmoothInterpolation::lerp(mCurMinBar, mMinBar, 0.05f);
 
-	drawLabelAndValue(display_value, unit_label, bar_rect);
+	// rate limited updates
+	if (mLastDisplayValueTimer.getElapsedTimeF32() > MEAN_VALUE_UPDATE_TIME)
+	{
+		mLastDisplayValueTimer.reset();
+		drawLabelAndValue(display_value, unit_label, bar_rect);
+		mLastDisplayValue = display_value;
+	}
+	else
+	{
+		drawLabelAndValue(mLastDisplayValue, unit_label, bar_rect);
+	}
 
 	if (mDisplayBar
         && (mCountFloatp || mEventFloatp || mSampleFloatp))

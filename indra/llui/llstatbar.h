@@ -56,24 +56,7 @@ public:
 		Optional<std::string>	stat;
 		Optional<EOrientation>	orientation;
 
-		Params()
-		:	label("label"),
-			unit_label("unit_label"),
-			bar_min("bar_min", 0.f),
-			bar_max("bar_max", 0.f),
-			tick_spacing("tick_spacing", 0.f),
-			decimal_digits("decimal_digits", 3),
-			show_bar("show_bar", false),
-			show_history("show_history", false),
-			scale_range("scale_range", true),
-			num_frames("num_frames", 200),
-			num_frames_short("num_frames_short", 20),
-			max_height("max_height", 100),
-			stat("stat"),
-			orientation("orientation", VERTICAL)
-		{
-			changeDefault(follows.flags, FOLLOWS_TOP | FOLLOWS_LEFT);
-		}
+		Params();
 	};
 	LLStatBar(const Params&);
 

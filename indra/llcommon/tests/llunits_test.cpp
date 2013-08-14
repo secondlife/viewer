@@ -53,30 +53,29 @@ namespace tut
 	template<> template<>
 	void units_object_t::test<1>()
 	{
-		LL_INFOS("test") << "Test" << LL_ENDL;
 		LLUnit<F32, Quatloos> float_quatloos;
-		ensure(float_quatloos == 0.f);
+		ensure("default float unit is zero", float_quatloos == 0.f);
 
 		LLUnit<F32, Quatloos> float_initialize_quatloos(1);
-		ensure(float_initialize_quatloos == 1.f);
+		ensure("non-zero initialized unit", float_initialize_quatloos == 1.f);
 
 		LLUnit<S32, Quatloos> int_quatloos;
-		ensure(int_quatloos == 0);
+		ensure("default int unit is zero", int_quatloos == 0);
 
 		int_quatloos = 42;
-		ensure(int_quatloos == 42);
+		ensure("int assignment is preserved", int_quatloos == 42);
 		float_quatloos = int_quatloos;
-		ensure(float_quatloos == 42.f);
+		ensure("float assignment from int preserves value", float_quatloos == 42.f);
 
 		int_quatloos = float_quatloos;
-		ensure(int_quatloos == 42);
+		ensure("int assignment from float preserves value", int_quatloos == 42);
 
 		float_quatloos = 42.1f;
-		ensure(float_quatloos == 42.1f);
 		int_quatloos = float_quatloos;
-		ensure(int_quatloos == 42);
+		ensure("int units truncate float units on assignment", int_quatloos == 42);
+
 		LLUnit<U32, Quatloos> unsigned_int_quatloos(float_quatloos);
-		ensure(unsigned_int_quatloos == 42);
+		ensure("unsigned int can be initialized from signed int", unsigned_int_quatloos == 42);
 	}
 
 	// conversions to/from base unit
@@ -84,36 +83,35 @@ namespace tut
 	void units_object_t::test<2>()
 	{
 		LLUnit<F32, Quatloos> quatloos(1.f);
-		ensure(quatloos == 1.f);
 		LLUnit<F32, Latinum> latinum_bars(quatloos);
-		ensure(latinum_bars == 1.f / 4.f);
+		ensure("conversion between units is automatic via initialization", latinum_bars == 1.f / 4.f);
 
 		latinum_bars = 256;
 		quatloos = latinum_bars;
-		ensure(quatloos == 1024);
+		ensure("conversion between units is automatic via assignment, and bidirectional", quatloos == 1024);
 
-		LLUnit<F32, Solari> solari(quatloos);
-		ensure(solari == 4096);
-
-		// division of integral unit
 		LLUnit<S32, Quatloos> single_quatloo(1);
 		LLUnit<F32, Latinum> quarter_latinum = single_quatloo;
-		ensure(quarter_latinum == 0.25f);
+		ensure("division of integer unit preserves fractional values when converted to float unit", quarter_latinum == 0.25f);
 	}
 
 	// conversions across non-base units
 	template<> template<>
 	void units_object_t::test<3>()
 	{
-		LLUnit<F32, Solari> solari = 4.f;
+		LLUnit<F32, Quatloos> quatloos(1024);
+		LLUnit<F32, Solari> solari(quatloos);
+		ensure("conversions can work between indirectly related units: Quatloos -> Latinum -> Solari", solari == 4096);
+
 		LLUnit<F32, Latinum> latinum_bars = solari;
-		ensure(latinum_bars == 0.25f);
+		ensure("Non base units can be converted between each other", latinum_bars == 256);
 	}
 
 	// math operations
 	template<> template<>
 	void units_object_t::test<4>()
 	{
+		// exercise math operations
 		LLUnit<F32, Quatloos> quatloos = 1.f;
 		quatloos *= 4.f;
 		ensure(quatloos == 4);
@@ -142,44 +140,34 @@ namespace tut
 		quatloos -= 4.f;
 		ensure(quatloos == 16);
 
-		quatloos *= 2.f;
-		ensure(quatloos == 32);
-		quatloos = quatloos * 2.f;
-		ensure(quatloos == 64);
-		quatloos = 0.5f * quatloos;
-		ensure(quatloos == 32);
-
 		quatloos /= 2.f;
-		ensure(quatloos == 16);
+		ensure(quatloos == 8);
 		quatloos = quatloos / 4;
+		ensure(quatloos == 2);
+
+		F32 ratio = quatloos / LLUnit<F32, Quatloos>(2.f);
+		ensure(ratio == 1);
+		ratio = quatloos / LLUnit<F32, Solari>(8.f);
+		ensure(ratio == 1);
+
+		quatloos += LLUnit<F32, Solari>(8.f);
 		ensure(quatloos == 4);
-
-		F32 ratio = quatloos / LLUnit<F32, Quatloos>(4.f);
-		ensure(ratio == 1);
-		ratio = quatloos / LLUnit<F32, Solari>(16.f);
-		ensure(ratio == 1);
-
-		quatloos += LLUnit<F32, Solari>(4.f);
-		ensure(quatloos == 5);
 		quatloos -= LLUnit<F32, Latinum>(1.f);
-		ensure(quatloos == 1);
+		ensure(quatloos == 0);
 	}
 
 	// implicit units
 	template<> template<>
 	void units_object_t::test<5>()
 	{
-		// 0-initialized
 		LLUnit<F32, Quatloos> quatloos;
-		// initialize implicit unit from explicit
 		LLUnitImplicit<F32, Quatloos> quatloos_implicit = quatloos + 1;
-		ensure(quatloos_implicit == 1);
+		ensure("can initialize implicit unit from explicit", quatloos_implicit == 1);
 
-		// assign implicit to explicit, or perform math operations
 		quatloos = quatloos_implicit;
-		ensure(quatloos == 1);
+		ensure("can assign implicit unit to explicit unit", quatloos == 1);
 		quatloos += quatloos_implicit;
-		ensure(quatloos == 2);
+		ensure("can perform math operation using mixture of implicit and explicit units", quatloos == 2);
 
 		// math operations on implicits
 		quatloos_implicit = 1;
@@ -211,15 +199,13 @@ namespace tut
 
 		// implicit conversion to POD
 		F32 float_val = quatloos_implicit;
-		ensure(float_val == 16);
+		ensure("implicit units convert implicitly to regular values", float_val == 16);
 
 		S32 int_val = quatloos_implicit;
-		ensure(int_val == 16);
+		ensure("implicit units convert implicitly to regular values", int_val == 16);
 
 		// conversion of implicits
 		LLUnitImplicit<F32, Latinum> latinum_implicit(2);
-		ensure(latinum_implicit == 2);
-
-		ensure(latinum_implicit * 2 == quatloos_implicit);
+		ensure("implicit units of different types are comparable", latinum_implicit * 2 == quatloos_implicit);
 	}
 }

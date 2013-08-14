@@ -31,7 +31,7 @@
                  setting="OpenDebugStatBasic">
         <stat_bar name="fps"
                   label="FPS"
-                  unit_label="frames"
+                  unit_label="fps"
                   stat="FPS"
                   decimal_digits="1"
                   show_bar="true"
