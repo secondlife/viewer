@@ -150,7 +150,7 @@ extern LLTrace::CountStatHandle<LLUnit<F64, LLUnits::Kibibytes> >	ACTIVE_MESSAGE
 																	MESSAGE_SYSTEM_DATA_IN,
 																	MESSAGE_SYSTEM_DATA_OUT;
 
-extern LLTrace::CountStatHandle<LLUnit<F64, LLUnits::Seconds> >		SIM_20_FPS_TIME,
+extern LLTrace::CountStatHandle<LLUnits::F64Seconds >		SIM_20_FPS_TIME,
 																	SIM_PHYSICS_20_FPS_TIME,
 																	LOSS_5_PERCENT_TIME;
 
@@ -233,7 +233,7 @@ extern LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Milliseconds> >	REGION_CROS
 														REBUILD_STACKTIME,
 														RENDER_STACKTIME;
 
-extern LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Seconds> >	AVATAR_EDIT_TIME,
+extern LLTrace::EventStatHandle<LLUnits::F64Seconds >	AVATAR_EDIT_TIME,
 																TOOLBOX_TIME,
 																MOUSELOOK_TIME,
 																FPS_10_TIME,
@@ -254,7 +254,7 @@ public:
 	LLViewerStats();
 	~LLViewerStats();
 
-	void updateFrameStats(const LLUnit<F64, LLUnits::Seconds> time_diff);
+	void updateFrameStats(const LLUnits::F64Seconds time_diff);
 	
 	void addToMessage(LLSD &body);
 
@@ -370,7 +370,7 @@ public:
 private:
 	LLTrace::Recording				mRecording;
 
-	LLUnit<F64, LLUnits::Seconds> mLastTimeDiff;  // used for time stat updates
+	LLUnits::F64Seconds mLastTimeDiff;  // used for time stat updates
 };
 
 static const F32 SEND_STATS_PERIOD = 300.0f;

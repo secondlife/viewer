@@ -101,8 +101,8 @@ public:
 
 	void setUpdateStats(BOOL b)			{ mUpdateStats = b; }
 
-	S32	getMaxResidentTexMem() const	{ return mMaxResidentTexMemInMegaBytes; }
-	S32 getMaxTotalTextureMem() const   { return mMaxTotalTextureMemInMegaBytes;}
+	LLUnit<S32, LLUnits::Mibibytes>	getMaxResidentTexMem() const	{ return mMaxResidentTexMemInMegaBytes; }
+	LLUnit<S32, LLUnits::Mibibytes> getMaxTotalTextureMem() const   { return mMaxTotalTextureMemInMegaBytes;}
 	S32 getNumImages()					{ return mImageList.size(); }
 
 	void updateMaxResidentTexMem(S32 mem);
@@ -200,8 +200,8 @@ private:
 
 	BOOL mInitialized ;
 	BOOL mUpdateStats;
-	S32	mMaxResidentTexMemInMegaBytes;
-	S32 mMaxTotalTextureMemInMegaBytes;
+	LLUnit<S32, LLUnits::Mibibytes>	mMaxResidentTexMemInMegaBytes;
+	LLUnit<S32, LLUnits::Mibibytes> mMaxTotalTextureMemInMegaBytes;
 	LLFrameTimer mForceDecodeTimer;
 	
 private:

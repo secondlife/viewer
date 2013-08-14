@@ -1888,12 +1888,11 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 	
 	if (log_to_viewer_log || log_to_sim)
 	{
-		U64 timeNow = LLTimer::getTotalTime();
 		mFetcher->mTextureInfo.setRequestStartTime(mID, mMetricsStartTime.value());
 		mFetcher->mTextureInfo.setRequestType(mID, LLTextureInfoDetails::REQUEST_TYPE_HTTP);
 		mFetcher->mTextureInfo.setRequestSize(mID, mRequestedSize);
 		mFetcher->mTextureInfo.setRequestOffset(mID, mRequestedOffset);
-		mFetcher->mTextureInfo.setRequestCompleteTimeAndLog(mID, timeNow);
+		mFetcher->mTextureInfo.setRequestCompleteTimeAndLog(mID, LLTimer::getTotalTime());
 	}
 
 	bool success = true;
@@ -2394,7 +2393,7 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	  mFetcherLocked(FALSE)
 {
 	mMaxBandwidth = gSavedSettings.getF32("ThrottleBandwidthKBPS");
-	mTextureInfo.setUpLogging(gSavedSettings.getBOOL("LogTextureDownloadsToViewerLog"), gSavedSettings.getBOOL("LogTextureDownloadsToSimulator"), LLUnits::Bytes::fromValue(gSavedSettings.getU32("TextureLoggingThreshold")));
+	mTextureInfo.setUpLogging(gSavedSettings.getBOOL("LogTextureDownloadsToViewerLog"), gSavedSettings.getBOOL("LogTextureDownloadsToSimulator"), LLUnits::U32Bytes(gSavedSettings.getU32("TextureLoggingThreshold")));
 
 	LLTextureFetchDebugger::sDebuggerEnabled = gSavedSettings.getBOOL("TextureFetchDebuggerEnabled");
 	if(LLTextureFetchDebugger::isEnabled())
@@ -2762,7 +2761,7 @@ bool LLTextureFetch::getRequestFinished(const LLUUID& id, S32& discard_level,
 			discard_level = worker->mDecodedDiscard;
 			raw = worker->mRawImage;
 			aux = worker->mAuxImage;
-			LLUnit<F32, LLUnits::Seconds> cache_read_time = worker->mCacheReadTime;
+			LLUnits::F32Seconds cache_read_time(worker->mCacheReadTime);
 			if (cache_read_time != 0.f)
 			{
 				record(sCacheReadLatency, cache_read_time);

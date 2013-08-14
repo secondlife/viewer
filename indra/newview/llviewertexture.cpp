@@ -63,8 +63,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 // extern
-const LLUnit<S32, LLUnits::Mibibytes> gMinVideoRam = 32;
-const LLUnit<S32, LLUnits::Mibibytes> gMaxVideoRam = 512;
+const LLUnit<S32, LLUnits::Mibibytes> gMinVideoRam(32);
+const LLUnit<S32, LLUnits::Mibibytes> gMaxVideoRam(512);
 
 
 // statics
@@ -86,11 +86,11 @@ S32 LLViewerTexture::sAuxCount = 0;
 LLFrameTimer LLViewerTexture::sEvaluationTimer;
 F32 LLViewerTexture::sDesiredDiscardBias = 0.f;
 F32 LLViewerTexture::sDesiredDiscardScale = 1.1f;
-LLUnit<S32, LLUnits::Bytes> LLViewerTexture::sBoundTextureMemory = 0;
-LLUnit<S32, LLUnits::Bytes> LLViewerTexture::sTotalTextureMemory = 0;
-LLUnit<S32, LLUnits::Mibibytes> LLViewerTexture::sMaxBoundTextureMem = 0;
-LLUnit<S32, LLUnits::Mibibytes> LLViewerTexture::sMaxTotalTextureMem = 0;
-LLUnit<S32, LLUnits::Bytes> LLViewerTexture::sMaxDesiredTextureMem = 0 ;
+LLUnit<S32, LLUnits::Bytes> LLViewerTexture::sBoundTextureMemory;
+LLUnit<S32, LLUnits::Bytes> LLViewerTexture::sTotalTextureMemory;
+LLUnit<S32, LLUnits::Mibibytes> LLViewerTexture::sMaxBoundTextureMem;
+LLUnit<S32, LLUnits::Mibibytes> LLViewerTexture::sMaxTotalTextureMem;
+LLUnit<S32, LLUnits::Bytes> LLViewerTexture::sMaxDesiredTextureMem;
 S8  LLViewerTexture::sCameraMovingDiscardBias = 0 ;
 F32 LLViewerTexture::sCameraMovingBias = 0.0f ;
 S32 LLViewerTexture::sMaxSculptRez = 128 ; //max sculpt image size
@@ -530,10 +530,10 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 		LLViewerMediaTexture::updateClass() ;
 	}
 
-	sBoundTextureMemory = LLImageGL::sBoundTextureMemory;//in bytes
-	sTotalTextureMemory = LLImageGL::sGlobalTextureMemory;//in bytes
-	sMaxBoundTextureMem = gTextureList.getMaxResidentTexMem();//in MB	
-	sMaxTotalTextureMem = gTextureList.getMaxTotalTextureMem() ;//in MB
+	sBoundTextureMemory = LLImageGL::sBoundTextureMemory;
+	sTotalTextureMemory = LLImageGL::sGlobalTextureMemory;
+	sMaxBoundTextureMem = gTextureList.getMaxResidentTexMem();
+	sMaxTotalTextureMem = gTextureList.getMaxTotalTextureMem();
 	sMaxDesiredTextureMem = sMaxTotalTextureMem ; //in Bytes, by default and when total used texture memory is small.
 
 	if (sBoundTextureMemory >= sMaxBoundTextureMem ||

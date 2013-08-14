@@ -219,11 +219,11 @@ void LLTextureInfo::resetTextureStatistics()
 	mCurrentStatsBundleStartTime = LLTimer::getTotalTime();
 }
 
-LLUnit<U32, LLUnits::Microseconds> LLTextureInfo::getRequestStartTime(const LLUUID& id)
+LLUnits::U32Microseconds LLTextureInfo::getRequestStartTime(const LLUUID& id)
 {
 	if (!has(id))
 	{
-		return 0;
+		return LLUnits::U32Microseconds(0);
 	}
 	else
 	{
@@ -236,7 +236,7 @@ LLUnit<U32, LLUnits::Bytes> LLTextureInfo::getRequestSize(const LLUUID& id)
 {
 	if (!has(id))
 	{
-		return 0;
+		return LLUnits::U32Bytes(0);
 	}
 	else
 	{
@@ -275,7 +275,7 @@ LLUnit<U32, LLUnits::Microseconds> LLTextureInfo::getRequestCompleteTime(const L
 {
 	if (!has(id))
 	{
-		return 0;
+		return LLUnits::U32Microseconds(0);
 	}
 	else
 	{

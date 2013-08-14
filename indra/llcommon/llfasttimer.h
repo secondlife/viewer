@@ -48,7 +48,7 @@ public:
 	BlockTimer(TimeBlock& timer);
 	~BlockTimer();
 
-	LLUnit<F64, LLUnits::Seconds> getElapsedTime();
+	LLUnits::F64Seconds getElapsedTime();
 
 private:
 

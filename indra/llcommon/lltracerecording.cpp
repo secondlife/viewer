@@ -95,7 +95,7 @@ void Recording::handleReset()
 {
 	mBuffers.write()->reset();
 
-	mElapsedSeconds = LLUnits::Seconds::fromValue(0.0);
+	mElapsedSeconds = LLUnits::F64Seconds(0.0);
 	mSamplingTimer.reset();
 }
 
@@ -128,17 +128,17 @@ void Recording::appendRecording( Recording& other )
 	mElapsedSeconds += other.mElapsedSeconds;
 }
 
-LLUnit<F64, LLUnits::Seconds> Recording::getSum(const TraceType<TimeBlockAccumulator>& stat)
+LLUnits::F64Seconds Recording::getSum(const TraceType<TimeBlockAccumulator>& stat)
 {
 	const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
-	return LLUnits::Seconds::fromValue((F64)(accumulator.mTotalTimeCounter - accumulator.mStartTotalTimeCounter) 
+	return LLUnits::F64Seconds((F64)(accumulator.mTotalTimeCounter - accumulator.mStartTotalTimeCounter) 
 				/ (F64)LLTrace::TimeBlock::countsPerSecond());
 }
 
-LLUnit<F64, LLUnits::Seconds> Recording::getSum(const TraceType<TimeBlockAccumulator::SelfTimeFacet>& stat)
+LLUnits::F64Seconds Recording::getSum(const TraceType<TimeBlockAccumulator::SelfTimeFacet>& stat)
 {
 	const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
-	return LLUnits::Seconds::fromValue((F64)(accumulator.mSelfTimeCounter) / (F64)LLTrace::TimeBlock::countsPerSecond());
+	return LLUnits::F64Seconds((F64)(accumulator.mSelfTimeCounter) / (F64)LLTrace::TimeBlock::countsPerSecond());
 }
 
 
@@ -147,19 +147,19 @@ U32 Recording::getSum(const TraceType<TimeBlockAccumulator::CallCountFacet>& sta
 	return mBuffers->mStackTimers[stat.getIndex()].mCalls;
 }
 
-LLUnit<F64, LLUnits::Seconds> Recording::getPerSec(const TraceType<TimeBlockAccumulator>& stat)
+LLUnits::F64Seconds Recording::getPerSec(const TraceType<TimeBlockAccumulator>& stat)
 {
 	const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
 
-	return LLUnits::Seconds::fromValue((F64)(accumulator.mTotalTimeCounter - accumulator.mStartTotalTimeCounter) 
+	return LLUnits::F64Seconds((F64)(accumulator.mTotalTimeCounter - accumulator.mStartTotalTimeCounter) 
 				/ ((F64)LLTrace::TimeBlock::countsPerSecond() * mElapsedSeconds.value()));
 }
 
-LLUnit<F64, LLUnits::Seconds> Recording::getPerSec(const TraceType<TimeBlockAccumulator::SelfTimeFacet>& stat)
+LLUnits::F64Seconds Recording::getPerSec(const TraceType<TimeBlockAccumulator::SelfTimeFacet>& stat)
 {
 	const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
 
-	return LLUnits::Seconds::fromValue((F64)(accumulator.mSelfTimeCounter) 
+	return LLUnits::F64Seconds((F64)(accumulator.mSelfTimeCounter) 
 			/ ((F64)LLTrace::TimeBlock::countsPerSecond() * mElapsedSeconds.value()));
 }
 
@@ -168,54 +168,54 @@ F32 Recording::getPerSec(const TraceType<TimeBlockAccumulator::CallCountFacet>& 
 	return (F32)mBuffers->mStackTimers[stat.getIndex()].mCalls / mElapsedSeconds.value();
 }
 
-LLUnit<F64, LLUnits::Bytes> Recording::getMin(const TraceType<MemStatAccumulator>& stat)
+LLUnits::F64Bytes Recording::getMin(const TraceType<MemStatAccumulator>& stat)
 {
-	return LLUnits::Bytes::fromValue(mBuffers->mMemStats[stat.getIndex()].mSize.getMin());
+	return LLUnits::F64Bytes(mBuffers->mMemStats[stat.getIndex()].mSize.getMin());
 }
 
-LLUnit<F64, LLUnits::Bytes> Recording::getMean(const TraceType<MemStatAccumulator>& stat)
+LLUnits::F64Bytes Recording::getMean(const TraceType<MemStatAccumulator>& stat)
 {
-	return LLUnits::Bytes::fromValue(mBuffers->mMemStats[stat.getIndex()].mSize.getMean());
+	return LLUnits::F64Bytes(mBuffers->mMemStats[stat.getIndex()].mSize.getMean());
 }
 
-LLUnit<F64, LLUnits::Bytes> Recording::getMax(const TraceType<MemStatAccumulator>& stat)
+LLUnits::F64Bytes Recording::getMax(const TraceType<MemStatAccumulator>& stat)
 {
-	return LLUnits::Bytes::fromValue(mBuffers->mMemStats[stat.getIndex()].mSize.getMax());
+	return LLUnits::F64Bytes(mBuffers->mMemStats[stat.getIndex()].mSize.getMax());
 }
 
-LLUnit<F64, LLUnits::Bytes> Recording::getStandardDeviation(const TraceType<MemStatAccumulator>& stat)
+LLUnits::F64Bytes Recording::getStandardDeviation(const TraceType<MemStatAccumulator>& stat)
 {
-	return LLUnits::Bytes::fromValue(mBuffers->mMemStats[stat.getIndex()].mSize.getStandardDeviation());
+	return LLUnits::F64Bytes(mBuffers->mMemStats[stat.getIndex()].mSize.getStandardDeviation());
 }
 
-LLUnit<F64, LLUnits::Bytes> Recording::getLastValue(const TraceType<MemStatAccumulator>& stat)
+LLUnits::F64Bytes Recording::getLastValue(const TraceType<MemStatAccumulator>& stat)
 {
-	return LLUnits::Bytes::fromValue(mBuffers->mMemStats[stat.getIndex()].mSize.getLastValue());
+	return LLUnits::F64Bytes(mBuffers->mMemStats[stat.getIndex()].mSize.getLastValue());
 }
 
-LLUnit<F64, LLUnits::Bytes> Recording::getMin(const TraceType<MemStatAccumulator::ChildMemFacet>& stat)
+LLUnits::F64Bytes Recording::getMin(const TraceType<MemStatAccumulator::ChildMemFacet>& stat)
 {
-	return LLUnits::Bytes::fromValue(mBuffers->mMemStats[stat.getIndex()].mChildSize.getMin());
+	return LLUnits::F64Bytes(mBuffers->mMemStats[stat.getIndex()].mChildSize.getMin());
 }
 
-LLUnit<F64, LLUnits::Bytes> Recording::getMean(const TraceType<MemStatAccumulator::ChildMemFacet>& stat)
+LLUnits::F64Bytes Recording::getMean(const TraceType<MemStatAccumulator::ChildMemFacet>& stat)
 {
-	return LLUnits::Bytes::fromValue(mBuffers->mMemStats[stat.getIndex()].mChildSize.getMean());
+	return LLUnits::F64Bytes(mBuffers->mMemStats[stat.getIndex()].mChildSize.getMean());
 }
 
-LLUnit<F64, LLUnits::Bytes> Recording::getMax(const TraceType<MemStatAccumulator::ChildMemFacet>& stat)
+LLUnits::F64Bytes Recording::getMax(const TraceType<MemStatAccumulator::ChildMemFacet>& stat)
 {
-	return LLUnits::Bytes::fromValue(mBuffers->mMemStats[stat.getIndex()].mChildSize.getMax());
+	return LLUnits::F64Bytes(mBuffers->mMemStats[stat.getIndex()].mChildSize.getMax());
 }
 
-LLUnit<F64, LLUnits::Bytes> Recording::getStandardDeviation(const TraceType<MemStatAccumulator::ChildMemFacet>& stat)
+LLUnits::F64Bytes Recording::getStandardDeviation(const TraceType<MemStatAccumulator::ChildMemFacet>& stat)
 {
-	return LLUnits::Bytes::fromValue(mBuffers->mMemStats[stat.getIndex()].mChildSize.getStandardDeviation());
+	return LLUnits::F64Bytes(mBuffers->mMemStats[stat.getIndex()].mChildSize.getStandardDeviation());
 }
 
-LLUnit<F64, LLUnits::Bytes> Recording::getLastValue(const TraceType<MemStatAccumulator::ChildMemFacet>& stat)
+LLUnits::F64Bytes Recording::getLastValue(const TraceType<MemStatAccumulator::ChildMemFacet>& stat)
 {
-	return LLUnits::Bytes::fromValue(mBuffers->mMemStats[stat.getIndex()].mChildSize.getLastValue());
+	return LLUnits::F64Bytes(mBuffers->mMemStats[stat.getIndex()].mChildSize.getLastValue());
 }
 
 U32 Recording::getSum(const TraceType<MemStatAccumulator::AllocationCountFacet>& stat)
@@ -427,9 +427,9 @@ void PeriodicRecording::appendPeriodicRecording( PeriodicRecording& other )
 	getCurRecording().setPlayState(getPlayState());
 }
 
-LLUnit<F64, LLUnits::Seconds> PeriodicRecording::getDuration() const
+LLUnits::F64Seconds PeriodicRecording::getDuration() const
 {
-	LLUnit<F64, LLUnits::Seconds> duration;
+	LLUnits::F64Seconds duration;
 	size_t num_periods = mRecordingPeriods.size();
 	for (size_t i = 1; i <= num_periods; i++)
 	{

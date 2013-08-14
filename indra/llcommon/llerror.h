@@ -308,7 +308,7 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 #define lllog(level, once, ...)																	          \
 	do {                                                                                                  \
 		const char* tags[] = {"", ##__VA_ARGS__};													      \
-		size_t tag_count = LL_ARRAY_SIZE(tags) - 1;														  \
+		::size_t tag_count = LL_ARRAY_SIZE(tags) - 1;														  \
 		static LLError::CallSite _site(                                                                   \
 		    level, __FILE__, __LINE__, typeid(_LL_CLASS_TO_LOG), __FUNCTION__, once, &tags[1], tag_count);\
 		if (LL_UNLIKELY(_site.shouldLog()))			                                                      \

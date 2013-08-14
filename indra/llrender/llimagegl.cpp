@@ -249,7 +249,7 @@ void LLImageGL::updateStats(F32 current_time)
 	LLFastTimer t(FTM_IMAGE_UPDATE_STATS);
 	sLastFrameTime = current_time;
 	sBoundTextureMemory = sCurBoundTextureMemory;
-	sCurBoundTextureMemory = LLUnits::Bytes::fromValue(0);
+	sCurBoundTextureMemory = LLUnits::S32Bytes(0);
 }
 
 //static

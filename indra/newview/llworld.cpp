@@ -717,7 +717,7 @@ void LLWorld::renderPropertyLines()
 
 void LLWorld::updateNetStats()
 {
-	LLUnit<F64, LLUnits::Bits> bits = 0.f;
+	LLUnits::F64Bits bits;
 	U32 packets = 0;
 
 	for (region_list_t::iterator iter = mActiveRegionList.begin();
@@ -735,8 +735,8 @@ void LLWorld::updateNetStats()
 	S32 packets_out = gMessageSystem->mPacketsOut - mLastPacketsOut;
 	S32 packets_lost = gMessageSystem->mDroppedPackets - mLastPacketsLost;
 
-	LLUnit<F64, LLUnits::Bits> actual_in_bits = gMessageSystem->mPacketRing.getAndResetActualInBits();
-	LLUnit<F64, LLUnits::Bits> actual_out_bits = gMessageSystem->mPacketRing.getAndResetActualOutBits();
+	LLUnit<F64, LLUnits::Bits> actual_in_bits(gMessageSystem->mPacketRing.getAndResetActualInBits());
+	LLUnit<F64, LLUnits::Bits> actual_out_bits(gMessageSystem->mPacketRing.getAndResetActualOutBits());
 
 	add(LLStatViewer::MESSAGE_SYSTEM_DATA_IN, actual_in_bits);
 	add(LLStatViewer::MESSAGE_SYSTEM_DATA_OUT, actual_out_bits);

@@ -39,7 +39,7 @@ struct LLUnit
 	typedef STORAGE_TYPE storage_t;
 
 	// value initialization
-	LLUnit(storage_t value = storage_t())
+	explicit LLUnit(storage_t value = storage_t())
 	:	mValue(value)
 	{}
 
@@ -644,6 +644,54 @@ LL_DECLARE_DERIVED_UNIT(Bytes, * 1024,			Kibibytes, "KiB");
 LL_DECLARE_DERIVED_UNIT(Kibibytes, * 1024,		Mibibytes, "MiB");
 LL_DECLARE_DERIVED_UNIT(Mibibytes, * 1024,		Gibibytes, "GiB");
 
+typedef LLUnit<F32, Bytes>     F32Bytes;
+typedef LLUnit<F32, Kilobytes> F32KiloBytes;
+typedef LLUnit<F32, Megabytes> F32MegaBytes;
+typedef LLUnit<F32, Gigabytes> F32GigaBytes;
+typedef LLUnit<F32, Kibibytes> F32KibiBytes;
+typedef LLUnit<F32, Mibibytes> F32MibiBytes;
+typedef LLUnit<F32, Gibibytes> F32GibiBytes;
+
+typedef LLUnit<F64, Bytes>     F64Bytes;
+typedef LLUnit<F64, Kilobytes> F64KiloBytes;
+typedef LLUnit<F64, Megabytes> F64MegaBytes;
+typedef LLUnit<F64, Gigabytes> F64GigaBytes;
+typedef LLUnit<F64, Kibibytes> F64KibiBytes;
+typedef LLUnit<F64, Mibibytes> F64MibiBytes;
+typedef LLUnit<F64, Gibibytes> F64GibiBytes;
+
+typedef LLUnit<S32, Bytes>     S32Bytes;
+typedef LLUnit<S32, Kilobytes> S32KiloBytes;
+typedef LLUnit<S32, Megabytes> S32MegaBytes;
+typedef LLUnit<S32, Gigabytes> S32GigaBytes;
+typedef LLUnit<S32, Kibibytes> S32KibiBytes;
+typedef LLUnit<S32, Mibibytes> S32MibiBytes;
+typedef LLUnit<S32, Gibibytes> S32GibiBytes;
+
+typedef LLUnit<U32, Bytes>     U32Bytes;
+typedef LLUnit<U32, Kilobytes> U32KiloBytes;
+typedef LLUnit<U32, Megabytes> U32MegaBytes;
+typedef LLUnit<U32, Gigabytes> U32GigaBytes;
+typedef LLUnit<U32, Kibibytes> U32KibiBytes;
+typedef LLUnit<U32, Mibibytes> U32MibiBytes;
+typedef LLUnit<U32, Gibibytes> U32GibiBytes;
+
+typedef LLUnit<S64, Bytes>     S64Bytes;
+typedef LLUnit<S64, Kilobytes> S64KiloBytes;
+typedef LLUnit<S64, Megabytes> S64MegaBytes;
+typedef LLUnit<S64, Gigabytes> S64GigaBytes;
+typedef LLUnit<S64, Kibibytes> S64KibiBytes;
+typedef LLUnit<S64, Mibibytes> S64MibiBytes;
+typedef LLUnit<S64, Gibibytes> S64GibiBytes;
+
+typedef LLUnit<U64, Bytes>     U64Bytes;
+typedef LLUnit<U64, Kilobytes> U64KiloBytes;
+typedef LLUnit<U64, Megabytes> U64MegaBytes;
+typedef LLUnit<U64, Gigabytes> U64GigaBytes;
+typedef LLUnit<U64, Kibibytes> U64KibiBytes;
+typedef LLUnit<U64, Mibibytes> U64MibiBytes;
+typedef LLUnit<U64, Gibibytes> U64GibiBytes;
+
 LL_DECLARE_DERIVED_UNIT(Bytes, / 8,				Bits, "b");
 LL_DECLARE_DERIVED_UNIT(Bits, * 1000,			Kilobits, "Kb");
 LL_DECLARE_DERIVED_UNIT(Kilobits, * 1000,		Megabits, "Mb");
@@ -651,6 +699,54 @@ LL_DECLARE_DERIVED_UNIT(Megabits, * 1000,		Gigabits, "Gb");
 LL_DECLARE_DERIVED_UNIT(Bits, * 1024,			Kibibits, "Kib");
 LL_DECLARE_DERIVED_UNIT(Kibibits, * 1024,		Mibibits, "Mib");  
 LL_DECLARE_DERIVED_UNIT(Mibibits, * 1024,		Gibibits, "Gib");
+
+typedef LLUnit<F32, Bits>     F32Bits;
+typedef LLUnit<F32, Kilobits> F32KiloBits;
+typedef LLUnit<F32, Megabits> F32MegaBits;
+typedef LLUnit<F32, Gigabits> F32GigaBits;
+typedef LLUnit<F32, Kibibits> F32KibiBits;
+typedef LLUnit<F32, Mibibits> F32MibiBits;
+typedef LLUnit<F32, Gibibits> F32GibiBits;
+
+typedef LLUnit<F64, Bits>     F64Bits;
+typedef LLUnit<F64, Kilobits> F64KiloBits;
+typedef LLUnit<F64, Megabits> F64MegaBits;
+typedef LLUnit<F64, Gigabits> F64GigaBits;
+typedef LLUnit<F64, Kibibits> F64KibiBits;
+typedef LLUnit<F64, Mibibits> F64MibiBits;
+typedef LLUnit<F64, Gibibits> F64GibiBits;
+
+typedef LLUnit<S32, Bits>     S32Bits;
+typedef LLUnit<S32, Kilobits> S32KiloBits;
+typedef LLUnit<S32, Megabits> S32MegaBits;
+typedef LLUnit<S32, Gigabits> S32GigaBits;
+typedef LLUnit<S32, Kibibits> S32KibiBits;
+typedef LLUnit<S32, Mibibits> S32MibiBits;
+typedef LLUnit<S32, Gibibits> S32GibiBits;
+
+typedef LLUnit<U32, Bits>     U32Bits;
+typedef LLUnit<U32, Kilobits> U32KiloBits;
+typedef LLUnit<U32, Megabits> U32MegaBits;
+typedef LLUnit<U32, Gigabits> U32GigaBits;
+typedef LLUnit<U32, Kibibits> U32KibiBits;
+typedef LLUnit<U32, Mibibits> U32MibiBits;
+typedef LLUnit<U32, Gibibits> U32GibiBits;
+
+typedef LLUnit<S64, Bits>     S64Bits;
+typedef LLUnit<S64, Kilobits> S64KiloBits;
+typedef LLUnit<S64, Megabits> S64MegaBits;
+typedef LLUnit<S64, Gigabits> S64GigaBits;
+typedef LLUnit<S64, Kibibits> S64KibiBits;
+typedef LLUnit<S64, Mibibits> S64MibiBits;
+typedef LLUnit<S64, Gibibits> S64GibiBits;
+
+typedef LLUnit<U64, Bits>     U64Bits;
+typedef LLUnit<U64, Kilobits> U64KiloBits;
+typedef LLUnit<U64, Megabits> U64MegaBits;
+typedef LLUnit<U64, Gigabits> U64GigaBits;
+typedef LLUnit<U64, Kibibits> U64KibiBits;
+typedef LLUnit<U64, Mibibits> U64MibiBits;
+typedef LLUnit<U64, Gibibits> U64GibiBits;
 
 LL_DECLARE_BASE_UNIT(Seconds, "s");
 LL_DECLARE_DERIVED_UNIT(Seconds, * 60,			Minutes, "min");
@@ -660,11 +756,90 @@ LL_DECLARE_DERIVED_UNIT(Seconds, / 1000,		Milliseconds, "ms");
 LL_DECLARE_DERIVED_UNIT(Milliseconds, / 1000,	Microseconds, "\x09\x3cs");
 LL_DECLARE_DERIVED_UNIT(Microseconds, / 1000,	Nanoseconds, "ns");
 
+typedef LLUnit<F32, Seconds>      F32Seconds;
+typedef LLUnit<F32, Minutes>      F32Minutes;
+typedef LLUnit<F32, Hours>        F32Hours;
+typedef LLUnit<F32, Days>         F32Days;
+typedef LLUnit<F32, Milliseconds> F32Milliseconds;
+typedef LLUnit<F32, Microseconds> F32Microseconds;
+typedef LLUnit<F32, Nanoseconds>  F32Nanoseconds;
+
+typedef LLUnit<F64, Seconds>      F64Seconds;
+typedef LLUnit<F64, Minutes>      F64Minutes;
+typedef LLUnit<F64, Hours>        F64Hours;
+typedef LLUnit<F64, Days>         F64Days;
+typedef LLUnit<F64, Milliseconds> F64Milliseconds;
+typedef LLUnit<F64, Microseconds> F64Microseconds;
+typedef LLUnit<F64, Nanoseconds>  F64Nanoseconds;
+
+typedef LLUnit<S32, Seconds>      S32Seconds;
+typedef LLUnit<S32, Minutes>      S32Minutes;
+typedef LLUnit<S32, Hours>        S32Hours;
+typedef LLUnit<S32, Days>         S32Days;
+typedef LLUnit<S32, Milliseconds> S32Milliseconds;
+typedef LLUnit<S32, Microseconds> S32Microseconds;
+typedef LLUnit<S32, Nanoseconds>  S32Nanoseconds;
+
+typedef LLUnit<U32, Seconds>      U32Seconds;
+typedef LLUnit<U32, Minutes>      U32Minutes;
+typedef LLUnit<U32, Hours>        U32Hours;
+typedef LLUnit<U32, Days>         U32Days;
+typedef LLUnit<U32, Milliseconds> U32Milliseconds;
+typedef LLUnit<U32, Microseconds> U32Microseconds;
+typedef LLUnit<U32, Nanoseconds>  U32Nanoseconds;
+
+typedef LLUnit<S64, Seconds>      S64Seconds;
+typedef LLUnit<S64, Minutes>      S64Minutes;
+typedef LLUnit<S64, Hours>        S64Hours;
+typedef LLUnit<S64, Days>         S64Days;
+typedef LLUnit<S64, Milliseconds> S64Milliseconds;
+typedef LLUnit<S64, Microseconds> S64Microseconds;
+typedef LLUnit<S64, Nanoseconds>  S64Nanoseconds;
+
+typedef LLUnit<U64, Seconds>      U64Seconds;
+typedef LLUnit<U64, Minutes>      U64Minutes;
+typedef LLUnit<U64, Hours>        U64Hours;
+typedef LLUnit<U64, Days>         U64Days;
+typedef LLUnit<U64, Milliseconds> U64Milliseconds;
+typedef LLUnit<U64, Microseconds> U64Microseconds;
+typedef LLUnit<U64, Nanoseconds>  U64Nanoseconds;
+
 LL_DECLARE_BASE_UNIT(Meters, "m");
 LL_DECLARE_DERIVED_UNIT(Meters, * 1000,			Kilometers, "km");
 LL_DECLARE_DERIVED_UNIT(Meters, / 100,			Centimeters, "cm");
 LL_DECLARE_DERIVED_UNIT(Meters, / 1000,			Millimeters, "mm");
 
+typedef LLUnit<F32, Meters>      F32Meters;
+typedef LLUnit<F32, Kilometers>  F32Kilometers;
+typedef LLUnit<F32, Centimeters> F32Centimeters;
+typedef LLUnit<F32, Millimeters> F32Millimeters;
+
+typedef LLUnit<F64, Meters>      F64Meters;
+typedef LLUnit<F64, Kilometers>  F64Kilometers;
+typedef LLUnit<F64, Centimeters> F64Centimeters;
+typedef LLUnit<F64, Millimeters> F64Millimeters;
+
+typedef LLUnit<S32, Meters>      S32Meters;
+typedef LLUnit<S32, Kilometers>  S32Kilometers;
+typedef LLUnit<S32, Centimeters> S32Centimeters;
+typedef LLUnit<S32, Millimeters> S32Millimeters;
+
+typedef LLUnit<U32, Meters>      U32Meters;
+typedef LLUnit<U32, Kilometers>  U32Kilometers;
+typedef LLUnit<U32, Centimeters> U32Centimeters;
+typedef LLUnit<U32, Millimeters> U32Millimeters;
+
+typedef LLUnit<S64, Meters>      S64Meters;
+typedef LLUnit<S64, Kilometers>  S64Kilometers;
+typedef LLUnit<S64, Centimeters> S64Centimeters;
+typedef LLUnit<S64, Millimeters> S64Millimeters;
+
+typedef LLUnit<U64, Meters>      U64Meters;
+typedef LLUnit<U64, Kilometers>  U64Kilometers;
+typedef LLUnit<U64, Centimeters> U64Centimeters;
+typedef LLUnit<U64, Millimeters> U64Millimeters;
+
+// rare units
 LL_DECLARE_BASE_UNIT(Hertz, "Hz");
 LL_DECLARE_DERIVED_UNIT(Hertz, * 1000,			Kilohertz, "KHz");
 LL_DECLARE_DERIVED_UNIT(Kilohertz, * 1000,		Megahertz, "MHz");

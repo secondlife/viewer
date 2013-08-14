@@ -87,7 +87,7 @@ private:
 			mFirstChild(false),
 			mLastChild(false)
 		{}
-		LLUnit<F32, LLUnits::Seconds>	mTotalTime,
+		LLUnits::F32Seconds	mTotalTime,
 										mSelfTime,
 										mChildrenStart,
 										mChildrenEnd,
@@ -113,7 +113,7 @@ private:
 		TimerBar*	mBars;
 	};
 
-	LLUnit<F32, LLUnits::Seconds> updateTimerBarWidths(LLTrace::TimeBlock* time_block, TimerBarRow& row, S32 history_index, U32& bar_index);
+	LLUnits::F32Seconds updateTimerBarWidths(LLTrace::TimeBlock* time_block, TimerBarRow& row, S32 history_index, U32& bar_index);
 	S32 updateTimerBarOffsets(LLTrace::TimeBlock* time_block, TimerBarRow& row, S32 timer_bar_index = 0);
 	S32 drawBar(LLRect bar_rect, TimerBarRow& row, S32 image_width, S32 image_height, bool hovered = false, bool visible = true, S32 bar_index = 0);
 	void setPauseState(bool pause_state);
@@ -128,7 +128,7 @@ private:
 		DISPLAY_HZ
 	}								mDisplayType;
 	bool							mPauseHistory;
-	LLUnit<F64, LLUnits::Seconds>	mAllTimeMax,
+	LLUnits::F64Seconds	mAllTimeMax,
 									mTotalTimeDisplay;
 	S32								mScrollIndex,
 									mHoverBarIndex,

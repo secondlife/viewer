@@ -30,6 +30,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <vector>
+#include <limits>
 #include "lldefs.h"
 //#include "llstl.h" // *TODO: Remove when LLString is gone
 //#include "llstring.h" // *TODO: Remove when LLString is gone
