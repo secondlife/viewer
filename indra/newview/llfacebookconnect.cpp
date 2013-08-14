@@ -81,17 +81,17 @@ public:
 		{
 			if (tokens[0].asString() == "connect")
 			{
-				// connect to facebook
-				if (query_map.has("code"))
-				{
-                    LLFacebookConnect::instance().connectToFacebook(query_map["code"], query_map.get("state"));
-				}
-
 				// this command probably came from the fbc_web browser, so close it
 				LLFloater* fbc_web = LLFloaterReg::getInstance("fbc_web");
 				if (fbc_web)
 				{
 					fbc_web->closeFloater();
+				}
+
+				// connect to facebook
+				if (query_map.has("code"))
+				{
+                    LLFacebookConnect::instance().connectToFacebook(query_map["code"], query_map.get("state"));
 				}
 				return true;
 			}
