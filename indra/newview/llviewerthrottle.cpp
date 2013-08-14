@@ -48,8 +48,8 @@ const F32 MIN_FRACTIONAL = 0.2f;
 const F32 MIN_BANDWIDTH = 50.f;
 const F32 MAX_BANDWIDTH = 3000.f;
 const F32 STEP_FRACTIONAL = 0.1f;
-const LLUnit<F32, LLUnits::Percent> TIGHTEN_THROTTLE_THRESHOLD = 3.0f; // packet loss % per s
-const LLUnit<F32, LLUnits::Percent> EASE_THROTTLE_THRESHOLD = 0.5f; // packet loss % per s
+const LLUnit<F32, LLUnits::Percent> TIGHTEN_THROTTLE_THRESHOLD(3.0f); // packet loss % per s
+const LLUnit<F32, LLUnits::Percent> EASE_THROTTLE_THRESHOLD(0.5f); // packet loss % per s
 const F32 DYNAMIC_UPDATE_DURATION = 5.0f; // seconds
 
 LLViewerThrottle gViewerThrottle;

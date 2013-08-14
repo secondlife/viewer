@@ -383,7 +383,7 @@ BOOL LLFlyAdjustMotion::onUpdate(F32 time, U8* joint_mask)
 	F32 target_roll = llclamp(ang_vel.mV[VZ], -4.f, 4.f) * roll_factor;
 
 	// roll is critically damped interpolation between current roll and angular velocity-derived target roll
-	mRoll = LLSmoothInterpolation::lerp(mRoll, target_roll, LLUnits::Milliseconds::fromValue(100));
+	mRoll = LLSmoothInterpolation::lerp(mRoll, target_roll, LLUnits::U32Milliseconds(100));
 
 	LLQuaternion roll(mRoll, LLVector3(0.f, 0.f, 1.f));
 	mPelvisState->setRotation(roll);

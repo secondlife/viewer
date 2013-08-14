@@ -166,12 +166,12 @@ namespace LLTrace
 		void makeUnique() { mBuffers.makeUnique(); }
 
 		// Timer accessors
-		LLUnit<F64, LLUnits::Seconds> getSum(const TraceType<TimeBlockAccumulator>& stat);
-		LLUnit<F64, LLUnits::Seconds> getSum(const TraceType<TimeBlockAccumulator::SelfTimeFacet>& stat);
+		LLUnits::F64Seconds getSum(const TraceType<TimeBlockAccumulator>& stat);
+		LLUnits::F64Seconds getSum(const TraceType<TimeBlockAccumulator::SelfTimeFacet>& stat);
 		U32 getSum(const TraceType<TimeBlockAccumulator::CallCountFacet>& stat);
 
-		LLUnit<F64, LLUnits::Seconds> getPerSec(const TraceType<TimeBlockAccumulator>& stat);
-		LLUnit<F64, LLUnits::Seconds> getPerSec(const TraceType<TimeBlockAccumulator::SelfTimeFacet>& stat);
+		LLUnits::F64Seconds getPerSec(const TraceType<TimeBlockAccumulator>& stat);
+		LLUnits::F64Seconds getPerSec(const TraceType<TimeBlockAccumulator::SelfTimeFacet>& stat);
 		F32 getPerSec(const TraceType<TimeBlockAccumulator::CallCountFacet>& stat);
 
 		// Memory accessors
@@ -295,7 +295,7 @@ namespace LLTrace
 
 		U32 getSampleCount(const TraceType<EventAccumulator>& stat);
 
-		LLUnit<F64, LLUnits::Seconds> getDuration() const { return mElapsedSeconds; }
+		LLUnits::F64Seconds getDuration() const { return mElapsedSeconds; }
 
 	protected:
 		friend class ThreadRecorder;
@@ -310,7 +310,7 @@ namespace LLTrace
 		class ThreadRecorder* getThreadRecorder(); 
 
 		LLTimer											mSamplingTimer;
-		LLUnit<F64, LLUnits::Seconds>					mElapsedSeconds;
+		LLUnits::F64Seconds					mElapsedSeconds;
 		LLCopyOnWritePointer<AccumulatorBufferGroup>	mBuffers;
 		bool											mInHandOff;
 
@@ -325,7 +325,7 @@ namespace LLTrace
 		void nextPeriod();
 		size_t getNumRecordedPeriods() { return mNumPeriods; }
 
-		LLUnit<F64, LLUnits::Seconds> getDuration() const;
+		LLUnits::F64Seconds getDuration() const;
 
 		void appendPeriodicRecording(PeriodicRecording& other);
 		void appendRecording(Recording& recording);
@@ -485,7 +485,7 @@ namespace LLTrace
 			size_t total_periods = mNumPeriods;
 			num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
-			typename RelatedTypes<T::value_t>::fractional_t mean = 0;
+			typename RelatedTypes<T::value_t>::fractional_t mean(0);
 
 			for (S32 i = 1; i <= num_periods; i++)
 			{
@@ -495,9 +495,9 @@ namespace LLTrace
 					mean += recording.getSum(stat);
 				}
 			}
-			return RelatedTypes<T::value_t>::fractional_t(num_periods
-														? mean / num_periods
-														: NaN);
+			return (num_periods
+				? RelatedTypes<T::value_t>::fractional_t(mean / num_periods)
+				: RelatedTypes<T::value_t>::fractional_t(NaN));
 		}
 
 		template<typename T>
@@ -536,9 +536,9 @@ namespace LLTrace
 				}
 			}
 
-			return RelatedTypes<T::value_t>::fractional_t(num_periods
-														? mean / num_periods
-														: NaN);
+			return (num_periods
+				? RelatedTypes<T::value_t>::fractional_t(mean / num_periods)
+				: RelatedTypes<T::value_t>::fractional_t(NaN));
 		}
 
 		template<typename T>

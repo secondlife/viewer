@@ -132,7 +132,7 @@ const std::string LLConversation::createTimestamp(const LLUnit<U64, LLUnits::Sec
 
 bool LLConversation::isOlderThan(U32 days) const
 {
-	LLUnit<U64, LLUnits::Seconds> now = time_corrected();
+	LLUnit<U64, LLUnits::Seconds> now(time_corrected());
 	LLUnit<U32, LLUnits::Days> age = now - mTime;
 
 	return age > days;
@@ -535,7 +535,7 @@ bool LLConversationLog::loadFromFile(const std::string& filename)
 				history_file_name);
 
 		ConversationParams params;
-		params.time(time)
+		params.time(LLUnits::Seconds::fromValue(time))
 			.conversation_type((SessionType)stype)
 			.has_offline_ims(has_offline_ims)
 			.conversation_name(conv_name_buffer)

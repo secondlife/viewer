@@ -112,7 +112,7 @@ namespace tut
 	void units_object_t::test<4>()
 	{
 		// exercise math operations
-		LLUnit<F32, Quatloos> quatloos = 1.f;
+		LLUnit<F32, Quatloos> quatloos(1.f);
 		quatloos *= 4.f;
 		ensure(quatloos == 4);
 		quatloos = quatloos * 2;
