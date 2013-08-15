@@ -534,11 +534,17 @@ void main()
 #ifdef FOR_IMPOSTOR
 	vec4 color;
 	color.rgb = diff.rgb;
-	color.a   = diff.a;
+
+#ifdef USE_VERTEX_COLOR
+	float final_alpha = diff.a * vertex_color.a;
+	diff.rgb *= vertex_color.rgb;
+#else
+	float final_alpha = diff.a;
+#endif
 
 	// Insure we don't pollute depth with invis pixels in impostor rendering
 	//
-	if (color.a < 0.01)
+	if (final_alpha < 0.01)
 	{
 		discard;
 	}
