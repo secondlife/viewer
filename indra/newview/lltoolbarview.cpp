@@ -51,8 +51,6 @@ LLToolBarView* gToolBarView = NULL;
 
 static LLDefaultChildRegistry::Register<LLToolBarView> r("toolbar_view");
 
-void handleLoginToolbarSetup();
-
 bool isToolDragged()
 {
 	return (LLToolDragAndDrop::getInstance()->getSource() == LLToolDragAndDrop::SOURCE_VIEWER);
@@ -111,8 +109,6 @@ BOOL LLToolBarView::postBuild()
 		mToolbars[i]->setButtonAddCallback(boost::bind(LLToolBarView::onToolBarButtonAdded,_1));
 		mToolbars[i]->setButtonRemoveCallback(boost::bind(LLToolBarView::onToolBarButtonRemoved,_1));
 	}
-
-	LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&handleLoginToolbarSetup));
 	
 	return TRUE;
 }
@@ -695,19 +691,4 @@ bool LLToolBarView::isModified() const
 	return modified;
 }
 
-
-//
-// HACK to bring up destinations guide at startup
-//
-
-void handleLoginToolbarSetup()
-{
-	// Open the destinations guide by default on first login, per Rhett
-	if (gSavedPerAccountSettings.getBOOL("DisplayDestinationsOnInitialRun") || gAgent.isFirstLogin())
-	{
-		LLFloaterReg::showInstance("destinations");
-
-		gSavedPerAccountSettings.setBOOL("DisplayDestinationsOnInitialRun", FALSE);
-	}
-}
 
