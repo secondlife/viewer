@@ -79,10 +79,6 @@
 #include <queue>
 
 
-// [ Disclaimer:  this documentation isn't by one of the original authors
-//   but by someone coming through later and extracting intent and function.
-//   Some of this will be wrong so use judgement. ]
-//
 // Purpose
 //
 //   The purpose of this module is to provide access between the viewer
@@ -101,6 +97,7 @@
 //     * getMeshHeader (For structural details, see:
 //       http://wiki.secondlife.com/wiki/Mesh/Mesh_Asset_Format)
 //     * notifyLoadedMeshes
+//     * getSkinInfo
 //
 // Threads
 //
@@ -108,7 +105,54 @@
 //   repo     Overseeing worker thread associated with the LLMeshRepoThread class
 //   decom    Worker thread for mesh decomposition requests
 //   core     HTTP worker thread:  does the work but doesn't intrude here
-//   uploadN  0-N temporary mesh upload threads
+//   uploadN  0-N temporary mesh upload threads (0-1 in practice)
+//
+// Sequence of Operations
+//
+//   What follows is a description of the retrieval of one LOD for
+//   a new mesh object.  Work is performed by a series of short, quick
+//   actions distributed over a number of threads.  Each is meant
+//   to proceed without stalling and the whole forms a deep request
+//   pipeline to achieve throughput.  Ellipsis indicates a return
+//   or break in processing which is resumed elsewhere.
+//
+//         main thread         repo thread (run() method)
+//
+//         loadMesh() invoked to request LOD
+//           append LODRequest to mPendingRequests
+//         ...
+//         other mesh requests may be made
+//         ...
+//         notifyLoadedMeshes() invoked to stage work
+//           append HeaderRequest to mHeaderReqQ
+//         ...
+//                             scan mHeaderReqQ
+//                             issue 4096-byte GET for header
+//                             ...
+//                             onCompleted() invoked for GET
+//                               data copied
+//                               headerReceived() invoked
+//                                 LLSD parsed
+//                                 mMeshHeader, mMeshHeaderSize updated
+//                                 scan mPendingLOD for LOD request
+//                                 push LODRequest to mLODReqQ
+//                             ...
+//                             scan mLODReqQ
+//                             fetchMeshLOD() invoked
+//                               issue Byte-Range GET for LOD
+//                             ...
+//                             onCompleted() invoked for GET
+//                               data copied
+//                               lodReceived() invoked
+//                                 unpack data into LLVolume
+//                                 append LoadedMesh to mLoadedQ
+//                             ...
+//         notifyLoadedMeshes() invoked again
+//           scan mLoadedQ
+//           notifyMeshLoaded() for LOD
+//             setMeshAssetLoaded() invoked for system volume
+//             notifyMeshLoaded() invoked for each interested object
+//         ...
 //
 // Mutexes
 //
@@ -163,19 +207,19 @@
 //
 //   LLMeshRepository:
 //
-//     sBytesReceived
-//     sMeshRequestCount
-//     sHTTPRequestCount
-//     sHTTPLargeRequestCount
-//     sHTTPRetryCount
-//     sHTTPErrorCount
-//     sLODPending
-//     sLODProcessing
-//     sCacheBytesRead
-//     sCacheBytesWritten
-//     sCacheReads
-//     sCacheWrites
-//     mLoadingMeshes                  none            rw.main.none, rw.main.mMeshMutex [4]
+//     sBytesReceived                  none            rw.repo.none, ro.main.none [1]
+//     sMeshRequestCount               "
+//     sHTTPRequestCount               "
+//     sHTTPLargeRequestCount          "
+//     sHTTPRetryCount                 "
+//     sHTTPErrorCount                 "
+//     sLODPending                     mMeshMutex [4]  rw.main.mMeshMutex
+//     sLODProcessing                  Repo::mMutex    rw.any.Repo::mMutex
+//     sCacheBytesRead                 none            rw.repo.none, ro.main.none [1]
+//     sCacheBytesWritten              "
+//     sCacheReads                     "
+//     sCacheWrites                    "
+//     mLoadingMeshes                  mMeshMutex [4]  rw.main.none, rw.any.mMeshMutex
 //     mSkinMap                        none            rw.main.none
 //     mDecompositionMap               none            rw.main.none
 //     mPendingRequests                mMeshMutex [4]  rw.main.mMeshMutex
@@ -199,24 +243,17 @@
 //     sMaxConcurrentRequests   mMutex        wo.main.none, ro.repo.none, ro.main.mMutex
 //     mMeshHeader              mHeaderMutex  rw.repo.mHeaderMutex, ro.main.mHeaderMutex, ro.main.none [0]
 //     mMeshHeaderSize          mHeaderMutex  rw.repo.mHeaderMutex
-//     mSkinRequests            none          rw.repo.none, rw.main.none [0]
-//     mSkinInfoQ               none          rw.repo.none, rw.main.none [0]
-//     mDecompositionRequests   none          rw.repo.none, rw.main.none [0]
-//     mPhysicsShapeRequests    none          rw.repo.none, rw.main.none [0]
-//     mDecompositionQ          none          rw.repo.none, rw.main.none [0]
-//     mHeaderReqQ              mMutex        ro.repo.none [3], rw.repo.mMutex, rw.any.mMutex
-//     mLODReqQ                 mMutex        ro.repo.none [3], rw.repo.mMutex, rw.any.mMutex
-//     mUnavailableQ            mMutex        rw.repo.none [0], ro.main.none [3], rw.main.mMutex
-//     mLoadedQ                 mMutex        rw.repo.mMutex, ro.main.none [3], rw.main.mMutex
+//     mSkinRequests            mMutex        rw.repo.mMutex, ro.repo.none [5]
+//     mSkinInfoQ               none          rw.repo.none, rw.main.mMutex [0]
+//     mDecompositionRequests   mMutex        rw.repo.mMutex, ro.repo.none [5]
+//     mPhysicsShapeRequests    mMutex        rw.repo.mMutex, ro.repo.none [5]
+//     mDecompositionQ          none          rw.repo.none, rw.main.mMutex [0]
+//     mHeaderReqQ              mMutex        ro.repo.none [5], rw.repo.mMutex, rw.any.mMutex
+//     mLODReqQ                 mMutex        ro.repo.none [5], rw.repo.mMutex, rw.any.mMutex
+//     mUnavailableQ            mMutex        rw.repo.none [0], ro.main.none [5], rw.main.mMutex
+//     mLoadedQ                 mMutex        rw.repo.mMutex, ro.main.none [5], rw.main.mMutex
 //     mPendingLOD              mMutex        rw.repo.mMutex, rw.any.mMutex
 //     mHttp*                   none          rw.repo.none
-//
-//   LLPhysicsDecomp:
-//    
-//     mRequestQ
-//     mCurRequest
-//     mCompletedQ
-//
 //
 // QA/Development Testing
 //
@@ -230,15 +267,27 @@
 //                   locally-generated 500 status.
 //   0x08            As with 0x04 but for the upload operation.
 //
+// *TODO:  Work list for followup actions:
+//   * Review anything marked as unsafe above, verify if there are real issues.
+//   * See if we can put ::run() into a hard sleep.  May not actually perform better
+//     than the current scheme so be prepared for disappointment.  You'll likely
+//     need to introduce a condition variable class that references a mutex in
+//     methods rather than derives from mutex which isn't correct.
+//   * On upload failures, make more information available to the alerting
+//     dialog.  Get the structured information going into the log into a
+//     tree there.
+//   * Header parse failures come without much explanation.  Elaborate.
+//   * Need a final failure state for requests that are retried and just won't
+//     complete.  We can fail a LOD request, others we don't.
 
 LLMeshRepository gMeshRepo;
 
 const S32 MESH_HEADER_SIZE = 4096;                      // Important:  assumption is that headers fit in this space
-const S32 REQUEST_HIGH_WATER_MIN = 32;
-const S32 REQUEST_HIGH_WATER_MAX = 200;
+const S32 REQUEST_HIGH_WATER_MIN = 32;					// Limits for GetMesh regions
+const S32 REQUEST_HIGH_WATER_MAX = 150;					// Should remain under 2X throttle
 const S32 REQUEST_LOW_WATER_MIN = 16;
-const S32 REQUEST_LOW_WATER_MAX = 100;
-const S32 REQUEST2_HIGH_WATER_MIN = 32;
+const S32 REQUEST_LOW_WATER_MAX = 75;
+const S32 REQUEST2_HIGH_WATER_MIN = 32;					// Limits for GetMesh2 regions
 const S32 REQUEST2_HIGH_WATER_MAX = 80;
 const S32 REQUEST2_LOW_WATER_MIN = 16;
 const S32 REQUEST2_LOW_WATER_MAX = 40;
@@ -269,7 +318,7 @@ U32 LLMeshRepository::sCacheReads = 0;
 U32 LLMeshRepository::sCacheWrites = 0;
 U32 LLMeshRepository::sMaxLockHoldoffs = 0;
 
-LLDeadmanTimer LLMeshRepository::sQuiescentTimer(15.0, true);	// true -> gather cpu metrics
+LLDeadmanTimer LLMeshRepository::sQuiescentTimer(15.0, false);	// true -> gather cpu metrics
 
 	
 static S32 dump_num = 0;
@@ -703,7 +752,7 @@ void LLMeshRepoThread::run()
 
 	while (!LLApp::isQuitting())
 	{
-		// *TODO:  Revise sleep/wake strategy and try to move away'
+		// *TODO:  Revise sleep/wake strategy and try to move away
 		// from polling operations in this thread.  We can sleep
 		// this thread hard when:
 		// * All Http requests are serviced
@@ -714,7 +763,8 @@ void LLMeshRepoThread::run()
 		// * Physics shape request queue empty
 		// We wake the thread when any of the above become untrue.
 		// Will likely need a correctly-implemented condition variable to do this.
-
+		// On the other hand, this may actually be an effective and efficient scheme...
+		
 		mSignal->wait();
 
 		if (LLApp::isQuitting())
@@ -810,7 +860,7 @@ void LLMeshRepoThread::run()
 
 			// holding lock, try next list
 			// *TODO:  For UI/debug-oriented lists, we might drop the fine-
-			// grained locking as there's lowered expectations of smoothness
+			// grained locking as there's a lowered expectation of smoothness
 			// in these cases.
 			if (! mDecompositionRequests.empty() && mHttpRequestSet.size() < sRequestHighWater)
 			{
@@ -2303,24 +2353,26 @@ void LLMeshUploadThread::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResp
 
 void LLMeshRepoThread::notifyLoadedMeshes()
 {
+	bool update_metrics(false);
+	
 	if (!mMutex)
 	{
 		return;
 	}
 
-	if (!mLoadedQ.empty() || !mUnavailableQ.empty())
-	{
-		// Ping time-to-load metrics for mesh download operations.
-		LLMeshRepository::metricsProgress(0);
-	}
-	
 	while (!mLoadedQ.empty())
 	{
 		mMutex->lock();
+		if (mLoadedQ.empty())
+		{
+			mMutex->unlock();
+			break;
+		}
 		LoadedMesh mesh = mLoadedQ.front();
 		mLoadedQ.pop();
 		mMutex->unlock();
 		
+		update_metrics = true;
 		if (mesh.mVolume && mesh.mVolume->getNumVolumeFaces() > 0)
 		{
 			gMeshRepo.notifyMeshLoaded(mesh.mMeshParams, mesh.mVolume);
@@ -2335,10 +2387,17 @@ void LLMeshRepoThread::notifyLoadedMeshes()
 	while (!mUnavailableQ.empty())
 	{
 		mMutex->lock();
+		if (mUnavailableQ.empty())
+		{
+			mMutex->unlock();
+			break;
+		}
+		
 		LODRequest req = mUnavailableQ.front();
 		mUnavailableQ.pop();
 		mMutex->unlock();
-		
+
+		update_metrics = true;
 		gMeshRepo.notifyMeshUnavailable(req.mMeshParams, req.mLOD);
 	}
 
@@ -2353,6 +2412,13 @@ void LLMeshRepoThread::notifyLoadedMeshes()
 		gMeshRepo.notifyDecompositionReceived(mDecompositionQ.front());
 		mDecompositionQ.pop();
 	}
+
+	if (update_metrics)
+	{
+		// Ping time-to-load metrics for mesh download operations.
+		LLMeshRepository::metricsProgress(0);
+	}
+	
 }
 
 S32 LLMeshRepoThread::getActualMeshLOD(const LLVolumeParams& mesh_params, S32 lod) 
@@ -2461,6 +2527,12 @@ void LLMeshHandlerBase::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespo
 		// speculative loads aren't done.
 		static const LLCore::HttpStatus par_status(HTTP_PARTIAL_CONTENT);
 
+		if (par_status != status)
+		{
+			LL_WARNS_ONCE(LOG_MESH) << "Non-206 successful status received for fetch:  "
+									<< status.toHex() << LL_ENDL;
+		}
+		
 		LLCore::BufferArray * body(response->getBody());
 		S32 data_size(body ? body->size() : 0);
 		U8 * data(NULL);
@@ -2995,7 +3067,8 @@ void LLMeshRepository::notifyLoadedMeshes()
 	}
 	else
 	{
-		// GetMesh2 operation with keepalives, etc.
+		// GetMesh2 operation with keepalives, etc.  With pipelining,
+		// we'll increase this.
 		LLMeshRepoThread::sMaxConcurrentRequests = gSavedSettings.getU32("Mesh2MaxConcurrentRequests");
 		LLMeshRepoThread::sRequestHighWater = llclamp(5 * S32(LLMeshRepoThread::sMaxConcurrentRequests),
 													  REQUEST2_HIGH_WATER_MIN,
@@ -3083,7 +3156,10 @@ void LLMeshRepository::notifyLoadedMeshes()
 	mDecompThread->notifyCompleted();
 
 	// For major operations, attempt to get the required locks
-	// without blocking and punt if they're not available.
+	// without blocking and punt if they're not available.  The
+	// longest run of holdoffs is kept in sMaxLockHoldoffs just
+	// to collect the data.  In testing, I've never seen a value
+	// greater than 2 (written to log on exit).
 	{
 		LLMutexTrylock lock1(mMeshMutex);
 		LLMutexTrylock lock2(mThread->mMutex);
