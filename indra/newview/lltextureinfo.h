@@ -38,18 +38,18 @@ public:
 	LLTextureInfo();
 	~LLTextureInfo();
 
-	void setUpLogging(bool writeToViewerLog, bool sendToSim, LLUnit<U32, LLUnits::Bytes> textureLogThreshold);
+	void setUpLogging(bool writeToViewerLog, bool sendToSim, U32Bytes textureLogThreshold);
 	bool has(const LLUUID& id);
 	void setRequestStartTime(const LLUUID& id, U64 startTime);
 	void setRequestSize(const LLUUID& id, U32 size);
 	void setRequestOffset(const LLUUID& id, U32 offset);
 	void setRequestType(const LLUUID& id, LLTextureInfoDetails::LLRequestType type);
-	void setRequestCompleteTimeAndLog(const LLUUID& id, LLUnit<U64, LLUnits::Microseconds> completeTime);
-	LLUnit<U32, LLUnits::Microseconds>getRequestStartTime(const LLUUID& id);
-	LLUnit<U32, LLUnits::Bytes> getRequestSize(const LLUUID& id);
+	void setRequestCompleteTimeAndLog(const LLUUID& id, U64Microseconds completeTime);
+	U32Microseconds getRequestStartTime(const LLUUID& id);
+	U32Bytes getRequestSize(const LLUUID& id);
 	U32 getRequestOffset(const LLUUID& id);
 	LLTextureInfoDetails::LLRequestType getRequestType(const LLUUID& id);
-	LLUnit<U32, LLUnits::Microseconds> getRequestCompleteTime(const LLUUID& id);
+	U32Microseconds getRequestCompleteTime(const LLUUID& id);
 	void resetTextureStatistics();
 	U32 getTextureInfoMapSize();
 	LLSD getAverages();
@@ -62,8 +62,8 @@ private:
 	bool										mLogTextureDownloadsToViewerLog,
 												mLogTextureDownloadsToSimulator;
 	std::string									mTextureDownloadProtocol;
-	LLUnit<U32, LLUnits::Bytes>					mTextureLogThreshold; 
-	LLUnit<U64, LLUnits::Microseconds>			mCurrentStatsBundleStartTime;
+	U32Bytes					mTextureLogThreshold; 
+	U64Microseconds			mCurrentStatsBundleStartTime;
 	LLTrace::Recording							mRecording;
 };
 

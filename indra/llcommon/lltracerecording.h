@@ -166,26 +166,26 @@ namespace LLTrace
 		void makeUnique() { mBuffers.makeUnique(); }
 
 		// Timer accessors
-		LLUnits::F64Seconds getSum(const TraceType<TimeBlockAccumulator>& stat);
-		LLUnits::F64Seconds getSum(const TraceType<TimeBlockAccumulator::SelfTimeFacet>& stat);
+		F64Seconds getSum(const TraceType<TimeBlockAccumulator>& stat);
+		F64Seconds getSum(const TraceType<TimeBlockAccumulator::SelfTimeFacet>& stat);
 		U32 getSum(const TraceType<TimeBlockAccumulator::CallCountFacet>& stat);
 
-		LLUnits::F64Seconds getPerSec(const TraceType<TimeBlockAccumulator>& stat);
-		LLUnits::F64Seconds getPerSec(const TraceType<TimeBlockAccumulator::SelfTimeFacet>& stat);
+		F64Seconds getPerSec(const TraceType<TimeBlockAccumulator>& stat);
+		F64Seconds getPerSec(const TraceType<TimeBlockAccumulator::SelfTimeFacet>& stat);
 		F32 getPerSec(const TraceType<TimeBlockAccumulator::CallCountFacet>& stat);
 
 		// Memory accessors
-		LLUnit<F64, LLUnits::Bytes> getMin(const TraceType<MemStatAccumulator>& stat);
-		LLUnit<F64, LLUnits::Bytes> getMean(const TraceType<MemStatAccumulator>& stat);
-		LLUnit<F64, LLUnits::Bytes> getMax(const TraceType<MemStatAccumulator>& stat);
-		LLUnit<F64, LLUnits::Bytes> getStandardDeviation(const TraceType<MemStatAccumulator>& stat);
-		LLUnit<F64, LLUnits::Bytes> getLastValue(const TraceType<MemStatAccumulator>& stat);
+		F64Bytes getMin(const TraceType<MemStatAccumulator>& stat);
+		F64Bytes getMean(const TraceType<MemStatAccumulator>& stat);
+		F64Bytes getMax(const TraceType<MemStatAccumulator>& stat);
+		F64Bytes getStandardDeviation(const TraceType<MemStatAccumulator>& stat);
+		F64Bytes getLastValue(const TraceType<MemStatAccumulator>& stat);
 
-		LLUnit<F64, LLUnits::Bytes> getMin(const TraceType<MemStatAccumulator::ChildMemFacet>& stat);
-		LLUnit<F64, LLUnits::Bytes> getMean(const TraceType<MemStatAccumulator::ChildMemFacet>& stat);
-		LLUnit<F64, LLUnits::Bytes> getMax(const TraceType<MemStatAccumulator::ChildMemFacet>& stat);
-		LLUnit<F64, LLUnits::Bytes> getStandardDeviation(const TraceType<MemStatAccumulator::ChildMemFacet>& stat);
-		LLUnit<F64, LLUnits::Bytes> getLastValue(const TraceType<MemStatAccumulator::ChildMemFacet>& stat);
+		F64Bytes getMin(const TraceType<MemStatAccumulator::ChildMemFacet>& stat);
+		F64Bytes getMean(const TraceType<MemStatAccumulator::ChildMemFacet>& stat);
+		F64Bytes getMax(const TraceType<MemStatAccumulator::ChildMemFacet>& stat);
+		F64Bytes getStandardDeviation(const TraceType<MemStatAccumulator::ChildMemFacet>& stat);
+		F64Bytes getLastValue(const TraceType<MemStatAccumulator::ChildMemFacet>& stat);
 
 		U32 getSum(const TraceType<MemStatAccumulator::AllocationCountFacet>& stat);
 		U32 getSum(const TraceType<MemStatAccumulator::DeallocationCountFacet>& stat);
@@ -295,7 +295,7 @@ namespace LLTrace
 
 		U32 getSampleCount(const TraceType<EventAccumulator>& stat);
 
-		LLUnits::F64Seconds getDuration() const { return mElapsedSeconds; }
+		F64Seconds getDuration() const { return mElapsedSeconds; }
 
 	protected:
 		friend class ThreadRecorder;
@@ -310,7 +310,7 @@ namespace LLTrace
 		class ThreadRecorder* getThreadRecorder(); 
 
 		LLTimer											mSamplingTimer;
-		LLUnits::F64Seconds					mElapsedSeconds;
+		F64Seconds					mElapsedSeconds;
 		LLCopyOnWritePointer<AccumulatorBufferGroup>	mBuffers;
 		bool											mInHandOff;
 
@@ -325,7 +325,7 @@ namespace LLTrace
 		void nextPeriod();
 		size_t getNumRecordedPeriods() { return mNumPeriods; }
 
-		LLUnits::F64Seconds getDuration() const;
+		F64Seconds getDuration() const;
 
 		void appendPeriodicRecording(PeriodicRecording& other);
 		void appendRecording(Recording& recording);

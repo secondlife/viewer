@@ -995,13 +995,13 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 
 	// update global timer
 	F32 last_time = gFrameTimeSeconds;
-	LLUnit<U64, LLUnits::Microseconds> time = totalTime();				 // this will become the new gFrameTime when the update is done
+	U64Microseconds time = totalTime();				 // this will become the new gFrameTime when the update is done
 	// Time _can_ go backwards, for example if the user changes the system clock.
 	// It doesn't cause any fatal problems (just some oddness with stats), so we shouldn't assert here.
 //	llassert(time > gFrameTime);
-	LLUnits::F64Seconds time_diff = time - gFrameTime;
+	F64Seconds time_diff = time - gFrameTime;
 	gFrameTime	= time;
-	LLUnits::F64Seconds time_since_start = gFrameTime - gStartTime;
+	F64Seconds time_since_start = gFrameTime - gStartTime;
 	gFrameTimeSeconds = time_since_start;
 
 	gFrameIntervalSeconds = gFrameTimeSeconds - last_time;

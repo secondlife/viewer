@@ -260,7 +260,7 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 		TimerBarRow& row = mHoverBarIndex == 0 ? mAverageTimerRow : mTimerBarRows[mScrollIndex + mHoverBarIndex - 1];
 
 		TimerBar* hover_bar = NULL;
-		LLUnits::F32Seconds mouse_time_offset = ((F32)(x - mBarRect.mLeft) / (F32)mBarRect.getWidth()) * mTotalTimeDisplay;
+		F32Seconds mouse_time_offset = ((F32)(x - mBarRect.mLeft) / (F32)mBarRect.getWidth()) * mTotalTimeDisplay;
 		for (int bar_index = 0, end_index = LLInstanceTracker<LLTrace::TimeBlock>::instanceCount(); 
 			bar_index < end_index; 
 			++bar_index)
@@ -317,11 +317,11 @@ static std::string get_tooltip(TimeBlock& timer, S32 history_index, PeriodicReco
 	if (history_index == 0)
 	{
 		// by default, show average number of call
-		tooltip = llformat("%s (%d ms, %d calls)", timer.getName().c_str(), (S32)LLUnit<F64, LLUnits::Milliseconds>(frame_recording.getPeriodMean (timer, RUNNING_AVERAGE_WIDTH)).value(), (S32)frame_recording.getPeriodMean(timer.callCount(), RUNNING_AVERAGE_WIDTH));
+		tooltip = llformat("%s (%d ms, %d calls)", timer.getName().c_str(), (S32)F64Milliseconds(frame_recording.getPeriodMean (timer, RUNNING_AVERAGE_WIDTH)).value(), (S32)frame_recording.getPeriodMean(timer.callCount(), RUNNING_AVERAGE_WIDTH));
 	}
 	else
 	{
-		tooltip = llformat("%s (%d ms, %d calls)", timer.getName().c_str(), (S32)LLUnit<F64, LLUnits::Milliseconds>(frame_recording.getPrevRecording(history_index).getSum(timer)).value(), (S32)frame_recording.getPrevRecording(history_index).getSum(timer.callCount()));
+		tooltip = llformat("%s (%d ms, %d calls)", timer.getName().c_str(), (S32)F64Milliseconds(frame_recording.getPrevRecording(history_index).getSum(timer)).value(), (S32)frame_recording.getPrevRecording(history_index).getSum(timer.callCount()));
 	}
 	return tooltip;
 }
@@ -996,7 +996,7 @@ void LLFastTimerView::printLineStats()
 			}
 			first = false;
 
-			LLUnits::F32Seconds ticks;
+			F32Seconds ticks;
 			if (mStatsIndex == 0)
 			{
 				ticks = mRecording.getPeriodMean(*idp, RUNNING_AVERAGE_WIDTH);
@@ -1005,7 +1005,7 @@ void LLFastTimerView::printLineStats()
 			{
 				ticks = mRecording.getPrevRecording(mStatsIndex).getSum(*idp);
 			}
-			LLUnit<F32, LLUnits::Milliseconds> ms = ticks;
+			F32Milliseconds ms = ticks;
 
 			timer_stat += llformat("%.1f",ms.value());
 
@@ -1029,7 +1029,7 @@ void LLFastTimerView::drawLineGraph()
 	LLLocalClipRect clip(mGraphRect);
 
 	//normalize based on last frame's maximum
-	static LLUnits::F32Seconds max_time(0.000001);
+	static F32Seconds max_time(0.000001);
 	static U32 max_calls = 0;
 	static F32 alpha_interp = 0.f;
 
@@ -1060,7 +1060,7 @@ void LLFastTimerView::drawLineGraph()
 		}
 	}
 
-	LLUnits::F32Seconds cur_max(0);
+	F32Seconds cur_max(0);
 	U32 cur_max_calls = 0;
 	for(timer_tree_iterator_t it = begin_timer_tree(FTM_FRAME);
 		it != end_timer_tree();
@@ -1101,7 +1101,7 @@ void LLFastTimerView::drawLineGraph()
 			j--)
 		{
 			LLTrace::Recording& recording = mRecording.getPrevRecording(j);
-			LLUnits::F32Seconds time = llmax(recording.getSum(*idp), LLUnits::F64Seconds(0.000001));
+			F32Seconds time = llmax(recording.getSum(*idp), F64Seconds(0.000001));
 			U32 calls = recording.getSum(idp->callCount());
 
 			if (is_hover_timer)
@@ -1146,7 +1146,7 @@ void LLFastTimerView::drawLineGraph()
 	max_time = lerp(max_time.value(), cur_max.value(), LLSmoothInterpolation::getInterpolant(0.1f));
 	if (llabs((max_time - cur_max).value()) <= 1)
 	{
-		max_time = llmax(LLUnits::F32Microseconds(1.f), LLUnits::F32Microseconds(cur_max));
+		max_time = llmax(F32Microseconds(1.f), F32Microseconds(cur_max));
 	}
 
 	max_calls = llround(lerp((F32)max_calls, (F32) cur_max_calls, LLSmoothInterpolation::getInterpolant(0.1f)));
@@ -1179,7 +1179,7 @@ void LLFastTimerView::drawLineGraph()
 	switch(mDisplayType)
 	{
 	case DISPLAY_TIME:
-		axis_label = llformat("%4.2f ms", LLUnit<F32, LLUnits::Milliseconds>(max_time).value());
+		axis_label = llformat("%4.2f ms", F32Milliseconds(max_time).value());
 		break;
 	case DISPLAY_CALLS:
 		axis_label = llformat("%d calls", (int)max_calls);
@@ -1230,7 +1230,7 @@ void LLFastTimerView::drawLegend()
 			llassert(idp->getIndex() < sTimerColors.size());
 			gl_rect_2d(bar_rect, sTimerColors[idp->getIndex()]);
 
-			LLUnit<F32, LLUnits::Milliseconds> ms(0);
+			F32Milliseconds ms(0);
 			S32 calls = 0;
 			if (mHoverBarIndex > 0 && mHoverID)
 			{
@@ -1240,7 +1240,7 @@ void LLFastTimerView::drawLegend()
 			}
 			else
 			{
-				ms = LLUnits::F64Seconds(mRecording.getPeriodMean(*idp, RUNNING_AVERAGE_WIDTH));
+				ms = F64Seconds(mRecording.getPeriodMean(*idp, RUNNING_AVERAGE_WIDTH));
 				calls = (S32)mRecording.getPeriodMean(idp->callCount(), RUNNING_AVERAGE_WIDTH);
 			}
 
@@ -1346,7 +1346,7 @@ void LLFastTimerView::drawTicks()
 {
 	// Draw MS ticks
 	{
-		LLUnit<U32, LLUnits::Milliseconds> ms = mTotalTimeDisplay;
+		U32Milliseconds ms = mTotalTimeDisplay;
 		std::string tick_label;
 		S32 x;
 		S32 barw = mBarRect.getWidth();
@@ -1423,7 +1423,7 @@ void LLFastTimerView::updateTotalTime()
 		mTotalTimeDisplay = mRecording.getPeriodMax(FTM_FRAME, 20);
 		break;
 	default:
-		mTotalTimeDisplay = LLUnits::F64Milliseconds(100);
+		mTotalTimeDisplay = F64Milliseconds(100);
 		break;
 	}
 
@@ -1511,14 +1511,14 @@ void LLFastTimerView::drawBars()
 
 static LLFastTimer::DeclareTimer FTM_UPDATE_TIMER_BAR_WIDTHS("Update timer bar widths");
 
-LLUnits::F32Seconds LLFastTimerView::updateTimerBarWidths(LLTrace::TimeBlock* time_block, TimerBarRow& row, S32 history_index, U32& bar_index)
+F32Seconds LLFastTimerView::updateTimerBarWidths(LLTrace::TimeBlock* time_block, TimerBarRow& row, S32 history_index, U32& bar_index)
 {
 	LLFastTimer _(FTM_UPDATE_TIMER_BAR_WIDTHS);
-	const LLUnits::F32Seconds self_time = history_index == -1
+	const F32Seconds self_time = history_index == -1
 										? mRecording.getPeriodMean(time_block->selfTime(), RUNNING_AVERAGE_WIDTH) 
 										: mRecording.getPrevRecording(history_index).getSum(time_block->selfTime());
 
-	LLUnits::F32Seconds full_time = self_time;
+	F32Seconds full_time = self_time;
 
 	// reserve a spot for this bar to be rendered before its children
 	// even though we don't know its size yet
@@ -1544,7 +1544,7 @@ S32 LLFastTimerView::updateTimerBarOffsets(LLTrace::TimeBlock* time_block, Timer
 	LLFastTimer _(FTM_UPDATE_TIMER_BAR_FRACTIONS);
 
 	TimerBar& timer_bar = row.mBars[timer_bar_index];
-	const LLUnits::F32Seconds bar_time = timer_bar.mTotalTime - timer_bar.mSelfTime;
+	const F32Seconds bar_time = timer_bar.mTotalTime - timer_bar.mSelfTime;
 	timer_bar.mChildrenStart = timer_bar.mSelfStart + timer_bar.mSelfTime / 2;
 	timer_bar.mChildrenEnd = timer_bar.mChildrenStart + timer_bar.mTotalTime - timer_bar.mSelfTime;
 

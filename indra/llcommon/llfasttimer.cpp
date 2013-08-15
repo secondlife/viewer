@@ -339,7 +339,7 @@ void TimeBlock::logStats()
 		}
 		call_count++;
 
-		LLUnits::F64Seconds total_time(0);
+		F64Seconds total_time(0);
 		LLSD sd;
 
 		{
@@ -382,11 +382,11 @@ void TimeBlock::dumpCurTimes()
 		++it)
 	{
 		TimeBlock* timerp = (*it);
-		LLUnits::F64Seconds total_time = last_frame_recording.getSum(*timerp);
+		F64Seconds total_time = last_frame_recording.getSum(*timerp);
 		U32 num_calls = last_frame_recording.getSum(timerp->callCount());
 
 		// Don't bother with really brief times, keep output concise
-		if (total_time < LLUnits::F32Milliseconds(0.1f)) continue;
+		if (total_time < F32Milliseconds(0.1f)) continue;
 
 		std::ostringstream out_str;
 		TimeBlock* parent_timerp = timerp;
@@ -466,11 +466,11 @@ void TimeBlockAccumulator::reset( const TimeBlockAccumulator* other )
 	}
 }
 
-LLUnits::F64Seconds BlockTimer::getElapsedTime()
+F64Seconds BlockTimer::getElapsedTime()
 {
 	U64 total_time = TimeBlock::getCPUClockCount64() - mStartTime;
 
-	return LLUnits::F64Seconds((F64)total_time / (F64)TimeBlock::countsPerSecond());
+	return F64Seconds((F64)total_time / (F64)TimeBlock::countsPerSecond());
 }
 
 

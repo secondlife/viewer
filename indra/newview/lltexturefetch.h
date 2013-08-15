@@ -107,10 +107,10 @@ public:
 	bool receiveImagePacket(const LLHost& host, const LLUUID& id, U16 packet_num, U16 data_size, U8* data);
 
     // Threads:  T* (but not safe)
-	void setTextureBandwidth(LLUnit<F32, LLUnits::Kibibits> bandwidth) { mTextureBandwidth = bandwidth; }
+	void setTextureBandwidth(F32Kibibits bandwidth) { mTextureBandwidth = bandwidth; }
 	
     // Threads:  T* (but not safe)
-	LLUnit<F32, LLUnits::Kibibits> getTextureBandwidth() { return mTextureBandwidth; }
+	F32Kibibits getTextureBandwidth() { return mTextureBandwidth; }
 	
     // Threads:  T*
 	BOOL isFromLocalCache(const LLUUID& id);
@@ -310,7 +310,7 @@ private:
 	LLMutex mNetworkQueueMutex; //to protect mNetworkQueue, mHTTPTextureQueue and mCancelQueue.
 
 	static LLTrace::EventStatHandle<LLUnit<F32, LLUnits::Percent> > sCacheHitRate;
-	static LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Milliseconds> > sCacheReadLatency;
+	static LLTrace::EventStatHandle<F64Milliseconds > sCacheReadLatency;
 
 	LLTextureCache* mTextureCache;
 	LLImageDecodeThread* mImageDecodeThread;
@@ -325,12 +325,12 @@ private:
 	queue_t mHTTPTextureQueue;											// Mfnq
 	typedef std::map<LLHost,std::set<LLUUID> > cancel_queue_t;
 	cancel_queue_t mCancelQueue;										// Mfnq
-	LLUnit<F32, LLUnits::Kibibits> mTextureBandwidth;					// <none>
-	LLUnit<F32, LLUnits::Kibibits> mMaxBandwidth;						// Mfnq
+	F32Kibibits mTextureBandwidth;					// <none>
+	F32Kibibits mMaxBandwidth;						// Mfnq
 	LLTextureInfo mTextureInfo;
 
 	// XXX possible delete
-	LLUnit<U32, LLUnits::Bits> mHTTPTextureBits;												// Mfnq
+	U32Bits mHTTPTextureBits;												// Mfnq
 
 	// XXX possible delete
 	//debug use

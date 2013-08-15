@@ -418,7 +418,7 @@ namespace LLTrace
 	class TimeBlockAccumulator
 	{
 	public:
-		typedef LLUnits::F64Seconds value_t;
+		typedef F64Seconds value_t;
 		typedef TimeBlockAccumulator self_t;
 
 		// fake classes that allows us to view different facets of underlying statistic
@@ -429,7 +429,7 @@ namespace LLTrace
 
 		struct SelfTimeFacet
 		{
-			typedef LLUnits::F64Seconds value_t;
+			typedef F64Seconds value_t;
 		};
 
 		TimeBlockAccumulator();
@@ -492,7 +492,7 @@ namespace LLTrace
 
 		struct ChildMemFacet
 		{
-			typedef LLUnit<F64, LLUnits::Bytes> value_t;
+			typedef F64Bytes value_t;
 		};
 
 		MemStatAccumulator()

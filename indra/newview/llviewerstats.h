@@ -142,7 +142,7 @@ extern LLTrace::CountStatHandle<>			FPS,
 
 extern LLTrace::CountStatHandle<LLUnit<F64, LLUnits::Kilotriangles> > TRIANGLES_DRAWN;
 
-extern LLTrace::CountStatHandle<LLUnit<F64, LLUnits::Kibibytes> >	ACTIVE_MESSAGE_DATA_RECEIVED,
+extern LLTrace::CountStatHandle<F64Kibibytes >	ACTIVE_MESSAGE_DATA_RECEIVED,
 																	LAYERS_NETWORK_DATA_RECEIVED,
 																	OBJECT_NETWORK_DATA_RECEIVED,
 																	ASSET_UDP_DATA_RECEIVED,
@@ -150,7 +150,7 @@ extern LLTrace::CountStatHandle<LLUnit<F64, LLUnits::Kibibytes> >	ACTIVE_MESSAGE
 																	MESSAGE_SYSTEM_DATA_IN,
 																	MESSAGE_SYSTEM_DATA_OUT;
 
-extern LLTrace::CountStatHandle<LLUnits::F64Seconds >		SIM_20_FPS_TIME,
+extern LLTrace::CountStatHandle<F64Seconds >		SIM_20_FPS_TIME,
 																	SIM_PHYSICS_20_FPS_TIME,
 																	LOSS_5_PERCENT_TIME;
 
@@ -192,13 +192,13 @@ extern LLTrace::SampleStatHandle<>		FPS_SAMPLE,
 
 extern LLTrace::SampleStatHandle<LLUnit<F32, LLUnits::Percent> > PACKETS_LOST_PERCENT;
 
-extern LLTrace::SampleStatHandle<LLUnit<F64, LLUnits::Megabytes> >	GL_TEX_MEM,
+extern LLTrace::SampleStatHandle<F64Megabytes >	GL_TEX_MEM,
 																	GL_BOUND_MEM,
 																	RAW_MEM,
 																	FORMATTED_MEM;
-extern LLTrace::SampleStatHandle<LLUnit<F64, LLUnits::Kibibytes> >	DELTA_BANDWIDTH,
+extern LLTrace::SampleStatHandle<F64Kibibytes >	DELTA_BANDWIDTH,
 																	MAX_BANDWIDTH;
-extern SimMeasurement<LLUnit<F64, LLUnits::Milliseconds> >	SIM_FRAME_TIME,
+extern SimMeasurement<F64Milliseconds >	SIM_FRAME_TIME,
 															SIM_NET_TIME,
 															SIM_OTHER_TIME,
 															SIM_PHYSICS_TIME,
@@ -213,11 +213,11 @@ extern SimMeasurement<LLUnit<F64, LLUnits::Milliseconds> >	SIM_FRAME_TIME,
 															SIM_SLEEP_TIME,
 															SIM_PUMP_IO_TIME;
 
-extern SimMeasurement<LLUnit<F64, LLUnits::Kilobytes> >	SIM_UNACKED_BYTES;
-extern SimMeasurement<LLUnit<F64, LLUnits::Megabytes> >	SIM_PHYSICS_MEM;
+extern SimMeasurement<F64Kilobytes >	SIM_UNACKED_BYTES;
+extern SimMeasurement<F64Megabytes >	SIM_PHYSICS_MEM;
 
 
-extern LLTrace::SampleStatHandle<LLUnit<F64, LLUnits::Milliseconds> >	FRAMETIME_JITTER,
+extern LLTrace::SampleStatHandle<F64Milliseconds >	FRAMETIME_JITTER,
 																		FRAMETIME_SLEW,
 																		SIM_PING;
 
@@ -225,7 +225,7 @@ extern LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Meters> > AGENT_POSITION_SN
 
 extern LLTrace::EventStatHandle<>	LOADING_WEARABLES_LONG_DELAY;
 
-extern LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Milliseconds> >	REGION_CROSSING_TIME,
+extern LLTrace::EventStatHandle<F64Milliseconds >	REGION_CROSSING_TIME,
 														FRAME_STACKTIME,
 														UPDATE_STACKTIME,
 														NETWORK_STACKTIME,
@@ -233,7 +233,7 @@ extern LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Milliseconds> >	REGION_CROS
 														REBUILD_STACKTIME,
 														RENDER_STACKTIME;
 
-extern LLTrace::EventStatHandle<LLUnits::F64Seconds >	AVATAR_EDIT_TIME,
+extern LLTrace::EventStatHandle<F64Seconds >	AVATAR_EDIT_TIME,
 																TOOLBOX_TIME,
 																MOUSELOOK_TIME,
 																FPS_10_TIME,
@@ -254,7 +254,7 @@ public:
 	LLViewerStats();
 	~LLViewerStats();
 
-	void updateFrameStats(const LLUnits::F64Seconds time_diff);
+	void updateFrameStats(const F64Seconds time_diff);
 	
 	void addToMessage(LLSD &body);
 
@@ -370,7 +370,7 @@ public:
 private:
 	LLTrace::Recording				mRecording;
 
-	LLUnits::F64Seconds mLastTimeDiff;  // used for time stat updates
+	F64Seconds mLastTimeDiff;  // used for time stat updates
 };
 
 static const F32 SEND_STATS_PERIOD = 300.0f;
@@ -380,7 +380,7 @@ void update_statistics();
 void send_stats();
 
 extern LLFrameTimer gTextureTimer;
-extern LLUnit<U32, LLUnits::Bytes>	gTotalTextureData;
-extern LLUnit<U32, LLUnits::Bytes>  gTotalObjectData;
-extern LLUnit<U32, LLUnits::Bytes>  gTotalTextureBytesPerBoostLevel[] ;
+extern U32Bytes	gTotalTextureData;
+extern U32Bytes  gTotalObjectData;
+extern U32Bytes  gTotalTextureBytesPerBoostLevel[] ;
 #endif // LL_LLVIEWERSTATS_H

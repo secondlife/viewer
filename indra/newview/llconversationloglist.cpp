@@ -518,8 +518,8 @@ bool LLConversationLogListNameComparator::doCompare(const LLConversationLogListI
 
 bool LLConversationLogListDateComparator::doCompare(const LLConversationLogListItem* conversation1, const LLConversationLogListItem* conversation2) const
 {
-	LLUnit<U64, LLUnits::Seconds> date1 = conversation1->getConversation()->getTime();
-	LLUnit<U64, LLUnits::Seconds> date2 = conversation2->getConversation()->getTime();
+	U64Seconds date1 = conversation1->getConversation()->getTime();
+	U64Seconds date2 = conversation2->getConversation()->getTime();
 	const LLUUID& id1 = conversation1->getConversation()->getParticipantID();
 	const LLUUID& id2 = conversation2->getConversation()->getParticipantID();
 

@@ -95,7 +95,7 @@ LLTrace::CountStatHandle<LLUnit<F64, LLUnits::Kilotriangles> >
 LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Kilotriangles> >
 							TRIANGLES_DRAWN_PER_FRAME("trianglesdrawnperframestat");
 
-LLTrace::CountStatHandle<LLUnit<F64, LLUnits::Kibibytes> >	
+LLTrace::CountStatHandle<F64Kibibytes >	
 							ACTIVE_MESSAGE_DATA_RECEIVED("activemessagedatareceived", "Message system data received on all active regions"),
 							LAYERS_NETWORK_DATA_RECEIVED("layersdatareceived", "Network data received for layer data (terrain)"),
 							OBJECT_NETWORK_DATA_RECEIVED("objectdatareceived", "Network data received for objects"),
@@ -104,7 +104,7 @@ LLTrace::CountStatHandle<LLUnit<F64, LLUnits::Kibibytes> >
 							MESSAGE_SYSTEM_DATA_IN("messagedatain", "Incoming message system network data"),
 							MESSAGE_SYSTEM_DATA_OUT("messagedataout", "Outgoing message system network data");
 
-LLTrace::CountStatHandle<LLUnits::F64Seconds >	
+LLTrace::CountStatHandle<F64Seconds >	
 							SIM_20_FPS_TIME("sim20fpstime", "Seconds with sim FPS below 20"),
 							SIM_PHYSICS_20_FPS_TIME("simphysics20fpstime", "Seconds with physics FPS below 20"),
 							LOSS_5_PERCENT_TIME("loss5percenttime", "Seconds with packet loss > 5%");
@@ -152,15 +152,15 @@ LLTrace::SampleStatHandle<LLUnit<F32, LLUnits::Percent> >
 static LLTrace::SampleStatHandle<bool> 
 							CHAT_BUBBLES("chatbubbles", "Chat Bubbles Enabled");
 
-LLTrace::SampleStatHandle<LLUnit<F64, LLUnits::Megabytes> >	GL_TEX_MEM("gltexmemstat"),
+LLTrace::SampleStatHandle<F64Megabytes >	GL_TEX_MEM("gltexmemstat"),
 															GL_BOUND_MEM("glboundmemstat"),
 															RAW_MEM("rawmemstat"),
 															FORMATTED_MEM("formattedmemstat");
-LLTrace::SampleStatHandle<LLUnit<F64, LLUnits::Kibibytes> >	DELTA_BANDWIDTH("deltabandwidth", "Increase/Decrease in bandwidth based on packet loss"),
+LLTrace::SampleStatHandle<F64Kibibytes >	DELTA_BANDWIDTH("deltabandwidth", "Increase/Decrease in bandwidth based on packet loss"),
 															MAX_BANDWIDTH("maxbandwidth", "Max bandwidth setting");
 
 	
-SimMeasurement<LLUnit<F64, LLUnits::Milliseconds> >	SIM_FRAME_TIME("simframemsec", "", LL_SIM_STAT_FRAMEMS),
+SimMeasurement<F64Milliseconds >	SIM_FRAME_TIME("simframemsec", "", LL_SIM_STAT_FRAMEMS),
 													SIM_NET_TIME("simnetmsec", "", LL_SIM_STAT_NETMS),
 													SIM_OTHER_TIME("simsimothermsec", "", LL_SIM_STAT_SIMOTHERMS),
 													SIM_PHYSICS_TIME("simsimphysicsmsec", "", LL_SIM_STAT_SIMPHYSICSMS),
@@ -175,10 +175,10 @@ SimMeasurement<LLUnit<F64, LLUnits::Milliseconds> >	SIM_FRAME_TIME("simframemsec
 													SIM_SLEEP_TIME("simsleepmsec", "", LL_SIM_STAT_SIMSLEEPTIME),
 													SIM_PUMP_IO_TIME("simpumpiomsec", "", LL_SIM_STAT_IOPUMPTIME);
 	
-SimMeasurement<LLUnit<F64, LLUnits::Kilobytes> >	SIM_UNACKED_BYTES("simtotalunackedbytes", "", LL_SIM_STAT_TOTAL_UNACKED_BYTES);
-SimMeasurement<LLUnit<F64, LLUnits::Megabytes> >	SIM_PHYSICS_MEM("physicsmemoryallocated", "", LL_SIM_STAT_SIMPHYSICSMEMORY);
+SimMeasurement<F64Kilobytes >	SIM_UNACKED_BYTES("simtotalunackedbytes", "", LL_SIM_STAT_TOTAL_UNACKED_BYTES);
+SimMeasurement<F64Megabytes >	SIM_PHYSICS_MEM("physicsmemoryallocated", "", LL_SIM_STAT_SIMPHYSICSMEMORY);
 
-LLTrace::SampleStatHandle<LLUnit<F64, LLUnits::Milliseconds> >	FRAMETIME_JITTER("frametimejitter", "Average delta between successive frame times"),
+LLTrace::SampleStatHandle<F64Milliseconds >	FRAMETIME_JITTER("frametimejitter", "Average delta between successive frame times"),
 																FRAMETIME_SLEW("frametimeslew", "Average delta between frame time and mean"),
 																SIM_PING("simpingstat");
 
@@ -186,7 +186,7 @@ LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Meters> > AGENT_POSITION_SNAP("age
 
 LLTrace::EventStatHandle<>	LOADING_WEARABLES_LONG_DELAY("loadingwearableslongdelay", "Wearables took too long to load");
 	
-LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Milliseconds> >	REGION_CROSSING_TIME("regioncrossingtime", "CROSSING_AVG"),
+LLTrace::EventStatHandle<F64Milliseconds >	REGION_CROSSING_TIME("regioncrossingtime", "CROSSING_AVG"),
 																FRAME_STACKTIME("framestacktime", "FRAME_SECS"),
 																UPDATE_STACKTIME("updatestacktime", "UPDATE_SECS"),
 																NETWORK_STACKTIME("networkstacktime", "NETWORK_SECS"),
@@ -194,7 +194,7 @@ LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Milliseconds> >	REGION_CROSSING_TI
 																REBUILD_STACKTIME("rebuildstacktime", "REBUILD_SECS"),
 																RENDER_STACKTIME("renderstacktime", "RENDER_SECS");
 	
-LLTrace::EventStatHandle<LLUnits::F64Seconds >	AVATAR_EDIT_TIME("avataredittime", "Seconds in Edit Appearance"),
+LLTrace::EventStatHandle<F64Seconds >	AVATAR_EDIT_TIME("avataredittime", "Seconds in Edit Appearance"),
 															TOOLBOX_TIME("toolboxtime", "Seconds using Toolbox"),
 															MOUSELOOK_TIME("mouselooktime", "Seconds in Mouselook"),
 															FPS_10_TIME("fps10time", "Seconds below 10 FPS"),
@@ -219,7 +219,7 @@ void LLViewerStats::resetStats()
 	LLViewerStats::instance().mRecording.reset();
 }
 
-void LLViewerStats::updateFrameStats(const LLUnits::F64Seconds time_diff)
+void LLViewerStats::updateFrameStats(const F64Seconds time_diff)
 {
 	if (getRecording().getLastValue(LLStatViewer::PACKETS_LOST_PERCENT) > 5.0)
 	{
@@ -258,15 +258,15 @@ void LLViewerStats::updateFrameStats(const LLUnits::F64Seconds time_diff)
 		add(LLStatViewer::FRAMETIME_DOUBLED, time_diff >= 2.0 * mLastTimeDiff ? 1 : 0);
 
 		// old stats that were never really used
-		sample(LLStatViewer::FRAMETIME_JITTER, LLUnit<F64, LLUnits::Milliseconds> (mLastTimeDiff - time_diff));
+		sample(LLStatViewer::FRAMETIME_JITTER, F64Milliseconds (mLastTimeDiff - time_diff));
 			
 		F32 average_frametime = gRenderStartTime.getElapsedTimeF32() / (F32)gFrameCount;
-		sample(LLStatViewer::FRAMETIME_SLEW, LLUnit<F64, LLUnits::Milliseconds> (average_frametime - time_diff));
+		sample(LLStatViewer::FRAMETIME_SLEW, F64Milliseconds (average_frametime - time_diff));
 
 		F32 max_bandwidth = gViewerThrottle.getMaxBandwidth();
 		F32 delta_bandwidth = gViewerThrottle.getCurrentBandwidth() - max_bandwidth;
-		sample(LLStatViewer::DELTA_BANDWIDTH, LLUnit<F64, LLUnits::Bits>(delta_bandwidth));
-		sample(LLStatViewer::MAX_BANDWIDTH, LLUnit<F64, LLUnits::Bits>(max_bandwidth));
+		sample(LLStatViewer::DELTA_BANDWIDTH, F64Bits(delta_bandwidth));
+		sample(LLStatViewer::MAX_BANDWIDTH, F64Bits(max_bandwidth));
 	}
 	
 	mLastTimeDiff = time_diff;
@@ -299,13 +299,13 @@ F32		gAveLandCompression = 0.f,
 		gWorstLandCompression = 0.f, 
 		gWorstWaterCompression = 0.f;
 
-LLUnits::U32Bytes				gTotalWorldData, 
+U32Bytes				gTotalWorldData, 
 								gTotalObjectData, 
 								gTotalTextureData;
 U32								gSimPingCount = 0;
-LLUnits::U32Bits				gObjectData;
+U32Bits				gObjectData;
 F32		gAvgSimPing = 0.f;
-LLUnits::U32Bytes		gTotalTextureBytesPerBoostLevel[LLViewerTexture::MAX_GL_IMAGE_CATEGORY] = {LLUnits::U32Bytes(0)};
+U32Bytes		gTotalTextureBytesPerBoostLevel[LLViewerTexture::MAX_GL_IMAGE_CATEGORY] = {U32Bytes(0)};
 
 extern U32  gVisCompared;
 extern U32  gVisTested;
@@ -345,8 +345,8 @@ void update_statistics()
 
 	typedef LLInstanceTracker<LLTrace::TraceType<LLTrace::TimeBlockAccumulator>, std::string> trace_type_t;
 
-	LLUnits::F64Seconds idle_secs = last_frame_recording.getSum(*trace_type_t::getInstance("Idle"));
-	LLUnits::F64Seconds network_secs = last_frame_recording.getSum(*trace_type_t::getInstance("Network"));
+	F64Seconds idle_secs = last_frame_recording.getSum(*trace_type_t::getInstance("Idle"));
+	F64Seconds network_secs = last_frame_recording.getSum(*trace_type_t::getInstance("Network"));
 
 	record(LLStatViewer::FRAME_STACKTIME, last_frame_recording.getSum(*trace_type_t::getInstance("Frame")));
 	record(LLStatViewer::UPDATE_STACKTIME, idle_secs - network_secs);
@@ -358,13 +358,13 @@ void update_statistics()
 	LLCircuitData *cdp = gMessageSystem->mCircuitInfo.findCircuit(gAgent.getRegion()->getHost());
 	if (cdp)
 	{
-		sample(LLStatViewer::SIM_PING, LLUnit<F64, LLUnits::Milliseconds> (cdp->getPingDelay()));
+		sample(LLStatViewer::SIM_PING, F64Milliseconds (cdp->getPingDelay()));
 		gAvgSimPing = ((gAvgSimPing * (F32)gSimPingCount) + (F32)(cdp->getPingDelay())) / ((F32)gSimPingCount + 1);
 		gSimPingCount++;
 	}
 	else
 	{
-		sample(LLStatViewer::SIM_PING, LLUnits::U32Seconds(10));
+		sample(LLStatViewer::SIM_PING, U32Seconds(10));
 	}
 
 	if (LLViewerStats::instance().getRecording().getSum(LLStatViewer::FPS))
@@ -374,10 +374,10 @@ void update_statistics()
 	add(LLStatViewer::FPS, 1);
 
 	F32 layer_bits = (F32)(gVLManager.getLandBits() + gVLManager.getWindBits() + gVLManager.getCloudBits());
-	add(LLStatViewer::LAYERS_NETWORK_DATA_RECEIVED, LLUnit<F64, LLUnits::Bits>(layer_bits));
+	add(LLStatViewer::LAYERS_NETWORK_DATA_RECEIVED, F64Bits(layer_bits));
 	add(LLStatViewer::OBJECT_NETWORK_DATA_RECEIVED, gObjectData);
 	sample(LLStatViewer::PENDING_VFS_OPERATIONS, LLVFile::getVFSThread()->getPending());
-	add(LLStatViewer::ASSET_UDP_DATA_RECEIVED, LLUnit<F64, LLUnits::Bits>(gTransferManager.getTransferBitsIn(LLTCT_ASSET)));
+	add(LLStatViewer::ASSET_UDP_DATA_RECEIVED, F64Bits(gTransferManager.getTransferBitsIn(LLTCT_ASSET)));
 	gTransferManager.resetTransferBitsIn(LLTCT_ASSET);
 
 	if (LLAppViewer::getTextureFetch()->getNumRequests() == 0)
@@ -553,9 +553,9 @@ void send_stats()
 
 	LLSD &download = body["downloads"];
 
-	download["world_kbytes"] = LLUnit<F64, LLUnits::Kibibytes>(gTotalWorldData).value();
-	download["object_kbytes"] = LLUnit<F64, LLUnits::Kibibytes>(gTotalObjectData).value();
-	download["texture_kbytes"] = LLUnit<F64, LLUnits::Kibibytes>(gTotalTextureData).value();
+	download["world_kbytes"] = F64Kibibytes(gTotalWorldData).value();
+	download["object_kbytes"] = F64Kibibytes(gTotalObjectData).value();
+	download["texture_kbytes"] = F64Kibibytes(gTotalTextureData).value();
 	download["mesh_kbytes"] = LLMeshRepository::sBytesReceived/1024.0;
 
 	LLSD &in = body["stats"]["net"]["in"];

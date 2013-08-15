@@ -738,7 +738,7 @@ public:
 			{
 				if(gTotalTextureBytesPerBoostLevel[i] > 0)
 				{
-					addText(xpos, ypos, llformat("Boost_Level %d:  %.3f MB", i, LLUnit<F32, LLUnits::Mibibytes>(gTotalTextureBytesPerBoostLevel[i]).value()));
+					addText(xpos, ypos, llformat("Boost_Level %d:  %.3f MB", i, F32Mibibytes(gTotalTextureBytesPerBoostLevel[i]).value()));
 					ypos += y_inc;
 				}
 			}

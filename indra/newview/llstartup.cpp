@@ -1429,7 +1429,7 @@ bool idle_startup()
 
 		LL_DEBUGS("AppInit") << "Initializing camera..." << LL_ENDL;
 		gFrameTime    = totalTime();
-		LLUnits::F32Seconds last_time = gFrameTimeSeconds;
+		F32Seconds last_time = gFrameTimeSeconds;
 		gFrameTimeSeconds = (gFrameTime - gStartTime);
 
 		gFrameIntervalSeconds = gFrameTimeSeconds - last_time;

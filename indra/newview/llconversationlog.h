@@ -55,7 +55,7 @@ public:
 	const LLUUID&		getSessionID()			const	{ return mSessionID; }
 	const LLUUID&		getParticipantID()		const	{ return mParticipantID; }
 	const std::string&	getTimestamp()			const	{ return mTimestamp; }
-	const LLUnit<U64, LLUnits::Seconds>&
+	const U64Seconds&
 						getTime()				const	{ return mTime; }
 	bool				hasOfflineMessages()	const	{ return mHasOfflineIMs; }
 
@@ -76,7 +76,7 @@ public:
 	/*
 	 * returns string representation(in form of: mm/dd/yyyy hh:mm) of time when conversation was started
 	 */
-	static const std::string createTimestamp(const LLUnit<U64, LLUnits::Seconds>& utc_time);
+	static const std::string createTimestamp(const U64Seconds& utc_time);
 
 private:
 
@@ -88,7 +88,7 @@ private:
 
 	boost::signals2::connection mIMFloaterShowedConnection;
 
-	LLUnit<U64, LLUnits::Seconds> mTime; // last interaction time
+	U64Seconds mTime; // last interaction time
 	SessionType		mConversationType;
 	std::string		mConversationName;
 	std::string		mHistoryFileName;

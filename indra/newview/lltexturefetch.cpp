@@ -66,7 +66,7 @@
 
 bool LLTextureFetchDebugger::sDebuggerEnabled = false;
 LLTrace::EventStatHandle<LLUnit<F32, LLUnits::Percent> > LLTextureFetch::sCacheHitRate("texture_cache_hits");
-LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Milliseconds> > LLTextureFetch::sCacheReadLatency("texture_cache_read_latency");
+LLTrace::EventStatHandle<F64Milliseconds > LLTextureFetch::sCacheReadLatency("texture_cache_read_latency");
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2393,7 +2393,7 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	  mFetcherLocked(FALSE)
 {
 	mMaxBandwidth = gSavedSettings.getF32("ThrottleBandwidthKBPS");
-	mTextureInfo.setUpLogging(gSavedSettings.getBOOL("LogTextureDownloadsToViewerLog"), gSavedSettings.getBOOL("LogTextureDownloadsToSimulator"), LLUnits::U32Bytes(gSavedSettings.getU32("TextureLoggingThreshold")));
+	mTextureInfo.setUpLogging(gSavedSettings.getBOOL("LogTextureDownloadsToViewerLog"), gSavedSettings.getBOOL("LogTextureDownloadsToSimulator"), U32Bytes(gSavedSettings.getU32("TextureLoggingThreshold")));
 
 	LLTextureFetchDebugger::sDebuggerEnabled = gSavedSettings.getBOOL("TextureFetchDebuggerEnabled");
 	if(LLTextureFetchDebugger::isEnabled())
@@ -2761,7 +2761,7 @@ bool LLTextureFetch::getRequestFinished(const LLUUID& id, S32& discard_level,
 			discard_level = worker->mDecodedDiscard;
 			raw = worker->mRawImage;
 			aux = worker->mAuxImage;
-			LLUnits::F32Seconds cache_read_time(worker->mCacheReadTime);
+			F32Seconds cache_read_time(worker->mCacheReadTime);
 			if (cache_read_time != 0.f)
 			{
 				record(sCacheReadLatency, cache_read_time);
@@ -3372,7 +3372,7 @@ bool LLTextureFetch::receiveImagePacket(const LLHost& host, const LLUUID& id, U1
 
 		if (log_to_viewer_log || log_to_sim)
 		{
-			LLUnit<U64, LLUnits::Microseconds> timeNow = LLTimer::getTotalTime();
+			U64Microseconds timeNow = LLTimer::getTotalTime();
 			mTextureInfo.setRequestSize(id, worker->mFileSize);
 			mTextureInfo.setRequestCompleteTimeAndLog(id, timeNow);
 		}

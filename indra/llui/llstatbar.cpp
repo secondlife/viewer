@@ -44,12 +44,12 @@
 // rate at which to update display of value that is rapidly changing
 const F32 MEAN_VALUE_UPDATE_TIME = 1.f / 4.f; 
 // time between value changes that qualifies as a "rapid change"
-const LLUnits::F32Seconds	RAPID_CHANGE_THRESHOLD(0.2f); 
+const F32Seconds	RAPID_CHANGE_THRESHOLD(0.2f); 
 // maximum number of rapid changes in RAPID_CHANGE_WINDOW before switching over to displaying the mean 
 // instead of latest value
 const S32 MAX_RAPID_CHANGES_PER_SEC = 10;
 // period of time over which to measure rapid changes
-const LLUnits::F32Seconds RAPID_CHANGE_WINDOW(1.f);
+const F32Seconds RAPID_CHANGE_WINDOW(1.f);
 
 F32 calc_tick_value(F32 min, F32 max)
 {
@@ -250,12 +250,12 @@ BOOL LLStatBar::handleMouseDown(S32 x, S32 y, MASK mask)
 }
 
 template<typename T>
-S32 calc_num_rapid_changes(LLTrace::PeriodicRecording& periodic_recording, const T& stat, const LLUnits::F32Seconds time_period)
+S32 calc_num_rapid_changes(LLTrace::PeriodicRecording& periodic_recording, const T& stat, const F32Seconds time_period)
 {
-	LLUnits::F32Seconds	elapsed_time,
+	F32Seconds	elapsed_time,
 									time_since_value_changed;
 	S32 num_rapid_changes = 0;
-	const LLUnits::F32Seconds	RAPID_CHANGE_THRESHOLD = LLUnits::F32Seconds(0.3f);
+	const F32Seconds	RAPID_CHANGE_THRESHOLD = F32Seconds(0.3f);
 
 	F64 last_value = periodic_recording.getPrevRecording(1).getLastValue(stat);
 	for (S32 i = 2; i < periodic_recording.getNumRecordedPeriods(); i++)
@@ -277,9 +277,9 @@ S32 calc_num_rapid_changes(LLTrace::PeriodicRecording& periodic_recording, const
 	return num_rapid_changes;
 }
 
-S32 calc_num_rapid_changes(LLTrace::PeriodicRecording& periodic_recording, const LLTrace::TraceType<LLTrace::CountAccumulator>& stat, const LLUnits::F32Seconds time_period)
+S32 calc_num_rapid_changes(LLTrace::PeriodicRecording& periodic_recording, const LLTrace::TraceType<LLTrace::CountAccumulator>& stat, const F32Seconds time_period)
 {
-	LLUnits::F32Seconds	elapsed_time,
+	F32Seconds	elapsed_time,
 		time_since_value_changed;
 	S32 num_rapid_changes = 0;
 

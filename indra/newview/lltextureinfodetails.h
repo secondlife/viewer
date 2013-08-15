@@ -39,10 +39,10 @@ struct LLTextureInfoDetails
 		REQUEST_TYPE_UDP
 	};
 
-	LLUnit<U32, LLUnits::Microseconds>	mStartTime,
+	U32Microseconds	mStartTime,
 										mCompleteTime;
 	U32									mOffset;
-	LLUnit<U32, LLUnits::Bytes>			mSize;
+	U32Bytes			mSize;
 	LLRequestType						mType;
 
 	LLTextureInfoDetails();

@@ -39,7 +39,7 @@ const int CONVERSATION_LIFETIME = 30; // lifetime of LLConversation is 30 days b
 
 struct ConversationParams : public LLInitParam::Block<ConversationParams>
 {
-	Mandatory<LLUnit<U64, LLUnits::Seconds> >	time;
+	Mandatory<U64Seconds >	time;
 	Mandatory<std::string>						timestamp;
 	Mandatory<SessionType>						conversation_type;
 	Mandatory<std::string>						conversation_name,
@@ -113,7 +113,7 @@ void LLConversation::onIMFloaterShown(const LLUUID& session_id)
 }
 
 // static
-const std::string LLConversation::createTimestamp(const LLUnit<U64, LLUnits::Seconds>& utc_time)
+const std::string LLConversation::createTimestamp(const U64Seconds& utc_time)
 {
 	std::string timeStr;
 	LLSD substitution;
@@ -132,7 +132,7 @@ const std::string LLConversation::createTimestamp(const LLUnit<U64, LLUnits::Sec
 
 bool LLConversation::isOlderThan(U32 days) const
 {
-	LLUnit<U64, LLUnits::Seconds> now(time_corrected());
+	U64Seconds now(time_corrected());
 	LLUnit<U32, LLUnits::Days> age = now - mTime;
 
 	return age > days;

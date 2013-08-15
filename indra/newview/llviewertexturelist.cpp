@@ -670,8 +670,8 @@ void LLViewerTextureList::updateImages(F32 max_time)
 		sample(NUM_RAW_IMAGES, LLImageRaw::sRawImageCount);
 		sample(GL_TEX_MEM, LLImageGL::sGlobalTextureMemory);
 		sample(GL_BOUND_MEM, LLImageGL::sBoundTextureMemory);
-		sample(RAW_MEM, LLUnit<F64, LLUnits::Bytes>(LLImageRaw::sGlobalRawMemory));
-		sample(FORMATTED_MEM, LLUnit<F64, LLUnits::Bytes>(LLImageFormatted::sGlobalFormattedMemory));
+		sample(RAW_MEM, F64Bytes(LLImageRaw::sGlobalRawMemory));
+		sample(FORMATTED_MEM, F64Bytes(LLImageFormatted::sGlobalFormattedMemory));
 	}
 
 	{
@@ -1373,7 +1373,7 @@ void LLViewerTextureList::receiveImageHeader(LLMessageSystem *msg, void **user_d
 	{
 		received_size = msg->getReceiveSize() ;		
 	}
-	add(LLStatViewer::TEXTURE_NETWORK_DATA_RECEIVED, LLUnit<F64, LLUnits::Bytes>(received_size));
+	add(LLStatViewer::TEXTURE_NETWORK_DATA_RECEIVED, F64Bytes(received_size));
 	add(LLStatViewer::TEXTURE_PACKETS, 1);
 	
 	U8 codec;
@@ -1447,7 +1447,7 @@ void LLViewerTextureList::receiveImagePacket(LLMessageSystem *msg, void **user_d
 		received_size = msg->getReceiveSize() ;		
 	}
 
-	add(LLStatViewer::TEXTURE_NETWORK_DATA_RECEIVED, LLUnit<F64, LLUnits::Bytes>(received_size));
+	add(LLStatViewer::TEXTURE_NETWORK_DATA_RECEIVED, F64Bytes(received_size));
 	add(LLStatViewer::TEXTURE_PACKETS, 1);
 	
 	//llprintline("Start decode, image header...");

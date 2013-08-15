@@ -262,7 +262,7 @@ LLUnitImplicit<U64, LLUnits::Microseconds> totalTime()
 	}
 
 	// Return the total clock tick count in microseconds.
-	return LLUnits::U64Microseconds(gTotalTimeClockCount*gClocksToMicroseconds);
+	return U64Microseconds(gTotalTimeClockCount*gClocksToMicroseconds);
 }
 
 

@@ -507,17 +507,17 @@ private:
 
 void LLGLTexMemBar::draw()
 {
-	LLUnit<S32, LLUnits::Mibibytes> bound_mem = LLViewerTexture::sBoundTextureMemory;
- 	LLUnit<S32, LLUnits::Mibibytes> max_bound_mem = LLViewerTexture::sMaxBoundTextureMem;
-	LLUnit<S32, LLUnits::Mibibytes> total_mem = LLViewerTexture::sTotalTextureMemory;
-	LLUnit<S32, LLUnits::Mibibytes> max_total_mem = LLViewerTexture::sMaxTotalTextureMem;
+	S32Mibibytes bound_mem = LLViewerTexture::sBoundTextureMemory;
+ 	S32Mibibytes max_bound_mem = LLViewerTexture::sMaxBoundTextureMem;
+	S32Mibibytes total_mem = LLViewerTexture::sTotalTextureMemory;
+	S32Mibibytes max_total_mem = LLViewerTexture::sMaxTotalTextureMem;
 	F32 discard_bias = LLViewerTexture::sDesiredDiscardBias;
-	F32 cache_usage = (F32)LLUnit<F32, LLUnits::Mibibytes>(LLAppViewer::getTextureCache()->getUsage()).value() ;
-	F32 cache_max_usage = (F32)LLUnit<F32, LLUnits::Mibibytes>(LLAppViewer::getTextureCache()->getMaxUsage()).value() ;
+	F32 cache_usage = (F32)F32Mibibytes(LLAppViewer::getTextureCache()->getUsage()).value() ;
+	F32 cache_max_usage = (F32)F32Mibibytes(LLAppViewer::getTextureCache()->getMaxUsage()).value() ;
 	S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
 	S32 v_offset = 0;//(S32)((texture_bar_height + 2.2f) * mTextureView->mNumTextureBars + 2.0f);
-	LLUnit<F32, LLUnits::Bytes> total_texture_downloaded = gTotalTextureData;
-	LLUnit<F32, LLUnits::Bytes> total_object_downloaded = gTotalObjectData;
+	F32Bytes total_texture_downloaded = gTotalTextureData;
+	F32Bytes total_object_downloaded = gTotalObjectData;
 	U32 total_http_requests = LLAppViewer::getTextureFetch()->getTotalNumHTTPRequests();
 	U32 total_active_cached_objects = LLWorld::getInstance()->getNumOfActiveCachedObjects();
 	U32 total_objects = gObjectList.getNumObjects();
@@ -586,8 +586,8 @@ void LLGLTexMemBar::draw()
 
 
 	left = 550;
-	LLUnit<F32, LLUnits::Kibibits> bandwidth = LLAppViewer::getTextureFetch()->getTextureBandwidth();
-	LLUnit<F32, LLUnits::Kibibits> max_bandwidth(gSavedSettings.getF32("ThrottleBandwidthKBPS"));
+	F32Kibibits bandwidth = LLAppViewer::getTextureFetch()->getTextureBandwidth();
+	F32Kibibits max_bandwidth(gSavedSettings.getF32("ThrottleBandwidthKBPS"));
 	color = bandwidth > max_bandwidth ? LLColor4::red : bandwidth > max_bandwidth*.75f ? LLColor4::yellow : text_color;
 	color[VALPHA] = text_color[VALPHA];
 	text = llformat("BW:%.0f/%.0f",bandwidth.value(), max_bandwidth.value());
