@@ -84,10 +84,6 @@ const F32	OO_LN2		= 1.4426950408889634073599246810019f;
 const F32	F_ALMOST_ZERO	= 0.0001f;
 const F32	F_ALMOST_ONE	= 1.0f - F_ALMOST_ZERO;
 
-const F64	NaN				= std::numeric_limits<double>::quiet_NaN();
-const F64	INFINITY		= std::numeric_limits<double>::infinity();
-const F64	MINUS_INFINITY	= std::numeric_limits<double>::infinity() * -1.0;
-
 // BUG: Eliminate in favor of F_APPROXIMATELY_ZERO above?
 const F32 FP_MAG_THRESHOLD = 0.0000001f;
 
