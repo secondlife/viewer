@@ -449,7 +449,7 @@ namespace LLError
 			mTimeFunction(NULL),
 			mFileRecorder(NULL),
 			mFixedBufferRecorder(NULL),
-			mShouldLogCallCounter(NULL)
+			mShouldLogCallCounter(0)
 		{}
 		
 		~Settings()
@@ -548,12 +548,12 @@ namespace LLError
 #else
 #if LL_LINUX
 		// gross, but typeid comparison seems to always fail here with gcc4.1
-		if (0 != strcmp(site.mClassInfo.name(), typeid(NoClassInfo).name()))
+		if (0 != strcmp(mClassInfo.name(), typeid(NoClassInfo).name()))
 #else
-		if (site.mClassInfo != typeid(NoClassInfo))
+		if (mClassInfo != typeid(NoClassInfo))
 #endif // LL_LINUX
 		{
-			mFunctionString = className(site.mClassInfo) + "::";
+			mFunctionString = className(mClassInfo) + "::";
 		}
 #endif
 		mFunctionString += std::string(mFunction) + ":";
@@ -1065,8 +1065,8 @@ namespace LLError
 		
 		s.mShouldLogCallCounter++;
 
-		std::string& class_name = className(site.mClassInfo);
-		std::string& function_name = functionName(site.mFunction);
+		const std::string& class_name = className(site.mClassInfo);
+		std::string function_name = functionName(site.mFunction);
 #if LL_LINUX
 		// gross, but typeid comparison seems to always fail here with gcc4.1
 		if (0 != strcmp(site.mClassInfo.name(), typeid(NoClassInfo).name()))
