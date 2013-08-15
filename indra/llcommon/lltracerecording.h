@@ -347,7 +347,7 @@ namespace LLTrace
 			for (S32 i = 1; i <= num_periods; i++)
 			{
 				Recording& recording = getPrevRecording(i);
-				num_samples += Recording.getSampleCount(stat);
+				num_samples += recording.getSampleCount(stat);
 			}
 			return num_samples;
         }
@@ -366,7 +366,7 @@ namespace LLTrace
 			typename T::value_t min_val = std::numeric_limits<typename T::value_t>::max();
 			for (S32 i = 1; i <= num_periods; i++)
 			{
-				Recording& recording = getPrevRecording(i)
+				Recording& recording = getPrevRecording(i);
 				min_val = llmin(min_val, recording.getSum(stat));
 			}
 			return min_val;
@@ -398,7 +398,7 @@ namespace LLTrace
 			size_t total_periods = mNumPeriods;
 			num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
-			RelatedTypes<typename T::value_t>::fractional_t min_val = std::numeric_limits<F64>::max();
+			typename RelatedTypes<typename T::value_t>::fractional_t min_val = std::numeric_limits<F64>::max();
 			for (S32 i = 1; i <= num_periods; i++)
 			{
 				Recording& recording = getPrevRecording(i);
@@ -485,7 +485,7 @@ namespace LLTrace
 			size_t total_periods = mNumPeriods;
 			num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
-			typename RelatedTypes<T::value_t>::fractional_t mean(0);
+			typename RelatedTypes<typename T::value_t>::fractional_t mean(0);
 
 			for (S32 i = 1; i <= num_periods; i++)
 			{
@@ -496,8 +496,8 @@ namespace LLTrace
 				}
 			}
 			return (num_periods
-				? RelatedTypes<T::value_t>::fractional_t(mean / num_periods)
-				: RelatedTypes<T::value_t>::fractional_t(NaN));
+				? RelatedTypes<typename T::value_t>::fractional_t(mean / num_periods)
+				: RelatedTypes<typename T::value_t>::fractional_t(NaN));
 		}
 
 		template<typename T>
@@ -525,7 +525,7 @@ namespace LLTrace
 			size_t total_periods = mNumPeriods;
 			num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
-			typename RelatedTypes<T::value_t>::fractional_t mean = 0;
+			typename RelatedTypes<typename T::value_t>::fractional_t mean = 0;
 
 			for (S32 i = 1; i <= num_periods; i++)
 			{
@@ -537,8 +537,8 @@ namespace LLTrace
 			}
 
 			return (num_periods
-				? RelatedTypes<T::value_t>::fractional_t(mean / num_periods)
-				: RelatedTypes<T::value_t>::fractional_t(NaN));
+				? RelatedTypes<typename T::value_t>::fractional_t(mean / num_periods)
+				: RelatedTypes<typename T::value_t>::fractional_t(NaN));
 		}
 
 		template<typename T>
