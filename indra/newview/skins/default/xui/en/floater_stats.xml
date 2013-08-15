@@ -52,13 +52,11 @@
      <stat_view name="advanced"
                  label="Advanced"
                  follows="left|top|right"
-                 show_bar="true"
                  show_label="true"
                  setting="OpenDebugStatAdvanced">
         <stat_view name="render"
                    label="Render"
                    follows="left|top|right"
-                   show_bar="true"
                    show_label="true"
                    setting="OpenDebugStatRender">
           <stat_bar name="ktrisframe"
@@ -84,7 +82,6 @@
         <stat_view name="texture"
                    label="Texture"
                    follows="left|top|right"
-                   show_bar="true"
                    show_label="true">
           <stat_bar name="texture_cache_hits"
                     label="Cache Hit Rate"
@@ -122,7 +119,6 @@
         <stat_view name="network"
                    label="Network"
                    follows="left|top|right"
-                   show_bar="true"         
                    show_label="true"
                    setting="OpenDebugStatNet">
           <stat_bar name="packetsinstat"
@@ -168,7 +164,6 @@
       <stat_view name="sim"
                  label="Simulator"
                  follows="left|top|right"
-                 show_bar="true"       
                  show_label="true"
                  setting="OpenDebugStatSim">
         <stat_bar name="simtimedilation"
@@ -189,7 +184,6 @@
         <stat_view name="physicsdetail"
                    label="Physics Details"
                    follows="left|top|right"
-                   show_bar="true"         
                    show_label="true">
           <stat_bar name="physicspinnedtasks"
                     label="Pinned Objects"
@@ -237,7 +231,6 @@
         <stat_view name="simpathfinding"
                    label="Pathfinding"
                    follows="left|top|right"
-                   show_bar="true"        
                    show_label="true">
           <stat_bar name="simsimaistepmsec"
                     label="AI Step Time"
@@ -274,7 +267,6 @@
         <stat_view name="simperf"
                    label="Time"
                    follows="left|top|right"
-                   show_bar="true"
                    show_label="true">
           <stat_bar name="simframemsec"
                     label="Total Frame Time"
@@ -311,7 +303,6 @@
           <stat_view name="timedetails"
                      label="Time Details"
                      follows="left|top|right"
-                     show_bar="true"
                      show_label="true">
             <stat_bar name="simsimphysicsstepmsec"
                       label="Physics Step"
