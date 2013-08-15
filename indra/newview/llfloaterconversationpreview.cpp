@@ -152,6 +152,11 @@ void LLFloaterConversationPreview::showHistory()
 
 	for (int msg_num = 0; (iter != mMessages.end() && msg_num < mPageSize); ++iter, ++msg_num)
 	{
+		if (iter->size() == 0)
+		{
+			continue;
+		}
+
 		LLSD msg = *iter;
 
 		LLUUID from_id 		= LLUUID::null;
