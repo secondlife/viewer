@@ -356,10 +356,10 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 
 // DEPRECATED: Use the new macros that allow tags and *look* like macros.
 //#define lldebugs	LL_DEBUGS()
-#define llinfos		LL_INFOS()
+#define LL_INFOS()		LL_INFOS()
 //#define llwarns		LL_WARNS()
 //#define llerrs		LL_ERRS()
 //#define llcont		LL_CONT
-#define llendl		LL_ENDL 
+#define LL_ENDL		LL_ENDL 
 
 #endif // LL_LLERROR_H

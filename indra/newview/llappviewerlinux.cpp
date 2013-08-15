@@ -87,7 +87,7 @@ int main( int argc, char **argv )
 	bool ok = viewer_app_ptr->init();
 	if(!ok)
 	{
-		llwarns << "Application init failed." << llendl;
+		LL_WARNS() << "Application init failed." << LL_ENDL;
 		return -1;
 	}
 
@@ -207,7 +207,7 @@ void viewerappapi_init(ViewerAppAPI *server)
 			}
 			else 
 			{
-				llwarns << "Unable to register service name: " << error->message << llendl;
+				LL_WARNS() << "Unable to register service name: " << error->message << LL_ENDL;
 			}
 	
 			g_object_unref(serverproxy);
@@ -226,7 +226,7 @@ gboolean viewer_app_api_GoSLURL(ViewerAppAPI *obj, gchar *slurl, gboolean **succ
 {
 	bool success = false;
 
-	llinfos << "Was asked to go to slurl: " << slurl << llendl;
+	LL_INFOS() << "Was asked to go to slurl: " << slurl << LL_ENDL;
 
 	std::string url = slurl;
 	LLMediaCtrl* web = NULL;
@@ -292,14 +292,14 @@ bool LLAppViewerLinux::sendURLToOtherInstance(const std::string& url)
 		}
 		else
 		{
-			llinfos << "Call-out to other instance failed (perhaps not running): " << error->message << llendl;
+			LL_INFOS() << "Call-out to other instance failed (perhaps not running): " << error->message << LL_ENDL;
 		}
 
 		g_object_unref(G_OBJECT(remote_object));
 	}
 	else
 	{
-		llwarns << "Couldn't connect to session bus: " << error->message << llendl;
+		LL_WARNS() << "Couldn't connect to session bus: " << error->message << LL_ENDL;
 	}
 
 	if (error)
@@ -343,7 +343,7 @@ void LLAppViewerLinux::handleCrashReporting(bool reportFreeze)
 		if (pid == 0)
 		{ // child
 			execv(cmd.c_str(), cmdargv);		/* Flawfinder: Ignore */
-			llwarns << "execv failure when trying to start " << cmd << llendl;
+			LL_WARNS() << "execv failure when trying to start " << cmd << LL_ENDL;
 			_exit(1); // avoid atexit()
 		} else {
 			if (pid > 0)
@@ -352,7 +352,7 @@ void LLAppViewerLinux::handleCrashReporting(bool reportFreeze)
 				int childExitStatus;
 				waitpid(pid, &childExitStatus, 0);
 			} else {
-				llwarns << "fork failure." << llendl;
+				LL_WARNS() << "fork failure." << LL_ENDL;
 			}
 		}
 	}
@@ -371,7 +371,7 @@ void LLAppViewerLinux::handleCrashReporting(bool reportFreeze)
 		if (pid == 0)
 		{ // child
 			execv(cmd.c_str(), (char* const*) cmdargv);		/* Flawfinder: ignore */
-			llwarns << "execv failure when trying to start " << cmd << llendl;
+			LL_WARNS() << "execv failure when trying to start " << cmd << LL_ENDL;
 			_exit(1); // avoid atexit()
 		} 
 		else
@@ -386,7 +386,7 @@ void LLAppViewerLinux::handleCrashReporting(bool reportFreeze)
 			} 
 			else
 			{
-				llwarns << "fork failure." << llendl;
+				LL_WARNS() << "fork failure." << LL_ENDL;
 			}
 		}
 		// Sometimes signals don't seem to quit the viewer.  Also, we may

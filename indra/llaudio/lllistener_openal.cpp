@@ -41,13 +41,13 @@ LLListener_OpenAL::~LLListener_OpenAL()
 
 void LLListener_OpenAL::translate(LLVector3 offset)
 {
-	//llinfos << "LLListener_OpenAL::translate() : " << offset << llendl;
+	//LL_INFOS() << "LLListener_OpenAL::translate() : " << offset << LL_ENDL;
 	LLListener::translate(offset);
 }
 
 void LLListener_OpenAL::setPosition(LLVector3 pos)
 {
-	//llinfos << "LLListener_OpenAL::setPosition() : " << pos << llendl;
+	//LL_INFOS() << "LLListener_OpenAL::setPosition() : " << pos << LL_ENDL;
 	LLListener::setPosition(pos);
 }
 
@@ -58,7 +58,7 @@ void LLListener_OpenAL::setVelocity(LLVector3 vel)
 
 void LLListener_OpenAL::orient(LLVector3 up, LLVector3 at)
 {
-	//llinfos << "LLListener_OpenAL::orient() up: " << up << " at: " << at << llendl;
+	//LL_INFOS() << "LLListener_OpenAL::orient() up: " << up << " at: " << at << LL_ENDL;
 	LLListener::orient(up, at);
 }
 
@@ -84,7 +84,7 @@ void LLListener_OpenAL::commitDeferredChanges()
 
 void LLListener_OpenAL::setDopplerFactor(F32 factor)
 {
-	//llinfos << "LLListener_OpenAL::setDopplerFactor() : " << factor << llendl;
+	//LL_INFOS() << "LLListener_OpenAL::setDopplerFactor() : " << factor << LL_ENDL;
 	alDopplerFactor(factor);
 }
 
@@ -92,7 +92,7 @@ F32 LLListener_OpenAL::getDopplerFactor()
 {
 	ALfloat factor;
 	factor = alGetFloat(AL_DOPPLER_FACTOR);
-	//llinfos << "LLListener_OpenAL::getDopplerFactor() : " << factor << llendl;
+	//LL_INFOS() << "LLListener_OpenAL::getDopplerFactor() : " << factor << LL_ENDL;
 	return factor;
 }
 
