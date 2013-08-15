@@ -101,19 +101,13 @@ public:
 	static void		onBtnInsertFunction(LLUICtrl*, void*);
 	static void		onBtnLoadFromFile(void*);
     static void		onBtnSaveToFile(void*);
-    static void     onToggleExperience(LLUICtrl *ui, void* userdata);
 
 	static bool		enableSaveToFileMenu(void* userdata);
 	static bool		enableLoadFromFileMenu(void* userdata);
 
-	virtual bool	hasAccelerators() const { return true; }
-	void			addExperienceInfo( const LLSD& experience, BOOL enabled );
-    void            setExperienceIds(const LLSD& experience_ids);
-    void            buildExperienceList();
+    virtual bool	hasAccelerators() const { return true; }
     LLUUID 			getAssociatedExperience()const;
-
     void            setAssociatedExperience( const LLUUID& experience_id );
-    void            updateExperiencePanel();
 
 private:
 	void		onBtnHelp();
@@ -127,10 +121,6 @@ private:
 	virtual BOOL handleKeyHere(KEY key, MASK mask);
 	
 	void enableSave(BOOL b) {mEnableSave = b;}
-
-	void requestExperiences();
-    void experienceChanged();
-    void addAssociatedExperience(const LLSD& experience);
 
 protected:
 	void deleteBridges();
@@ -146,9 +136,7 @@ private:
 	void			(*mSaveCallback)(void* userdata, BOOL close_after_save);
 	void			(*mSearchReplaceCallback) (void* userdata);
     void*			mUserdata;
-	LLComboBox		*mFunctions;
-	LLComboBox     	*mExperiences;
-    LLCheckBoxCtrl  *mExperienceEnabled;
+    LLComboBox		*mFunctions;
 	BOOL			mForceClose;
 	LLPanel*		mCodePanel;
 	LLScrollListCtrl* mErrorList;
@@ -161,7 +149,6 @@ private:
 	BOOL			mHasScriptData;
 	LLLiveLSLFile*	mLiveFile;
     LLUUID          mAssociatedExperience;
-    LLSD            mExperienceIds;
 
 	LLScriptEdContainer* mContainer; // parent view
 };
@@ -244,8 +231,19 @@ public:
 	/*virtual*/ BOOL postBuild();
 	
     void setIsNew() { mIsNew = TRUE; }
-    void setAssociatedExperience( const LLUUID& experience_id );
+
+    static void setAssociatedExperience( LLHandle<LLLiveLSLEditor> editor, const LLSD& experience );
+    static void onToggleExperience(LLUICtrl *ui, void* userdata);
+
     void fetchAssociatedExperience(const LLUUID& asset_id);
+
+    void addExperienceInfo( const LLSD& experience, BOOL enabled );
+    void setExperienceIds(const LLSD& experience_ids);
+    void buildExperienceList();
+    void updateExperiencePanel();
+    void requestExperiences();
+    void experienceChanged();
+    void addAssociatedExperience(const LLSD& experience);
 	
 private:
 	virtual BOOL canClose();
@@ -299,6 +297,11 @@ private:
 
 	LLCheckBoxCtrl*	mMonoCheckbox;
 	BOOL mIsModifiable;
+
+
+    LLComboBox     	*mExperiences;
+    LLCheckBoxCtrl  *mExperienceEnabled;
+    LLSD            mExperienceIds;
 };
 
 #endif  // LL_LLPREVIEWSCRIPT_H

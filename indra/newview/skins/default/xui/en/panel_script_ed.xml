@@ -32,18 +32,6 @@
     name="external_editor_not_set">
     Select an editor by setting the environment variable LL_SCRIPT_EDITOR or the ExternalEditor setting.
   </panel.string>
-  <panel.string
-    name="experience_enabled">
-    Uncheck to remove the current experience
-  </panel.string>
-  <panel.string
-    name="no_experiences">
-    You are not authorized for any experiences
-  </panel.string>
-  <panel.string
-    name="add_experiences">
-    Select to add an experience
-  </panel.string>
   <menu_bar
     bg_visible="false"
     follows="left|top"
@@ -162,7 +150,7 @@
     length="1"
     follows="left|top|right|bottom"
     font="Monospace"
-    height="346"
+    height="369"
     ignore_tab="false"
     layout="topleft"
     max_length="65536"
@@ -217,32 +205,5 @@
     right="396"
     name="Edit_btn"
     width="81" />
-  <check_box width="130"
-             height="21"
-             enabled="false"
-             left="0"
-             top="490"
-             layout="topleft"
-             follows="bottom|left"
-             label="Use Experience:"
-             name="enable_xp"/>
-  <combo_box
-    label=""
-    top_pad="-23"
-    left="135"
-    right="454"
-    layout="topleft"
-    follows="left|bottom|right"
-    visible="false"
-    name="Experiences..."/>
-  <button label="&gt;"
-          name="view_profile"
-          height="23"
-          width="23"
-          right="482"
-          layout="topleft"
-          top_pad="-23"
-          follows="right"
-          visible="false"/>
 
 </panel>
