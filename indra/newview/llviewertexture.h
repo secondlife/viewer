@@ -141,12 +141,15 @@ public:
 
 	LLFrameTimer* getLastReferencedTimer() {return &mLastReferencedTimer ;}
 	
+	S32 getFullWidth() const { return mFullWidth; }
+	S32 getFullHeight() const { return mFullHeight; }	
 	/*virtual*/ void setKnownDrawSize(S32 width, S32 height);
 
-	virtual void addFace(LLFace* facep) ;
-	virtual void removeFace(LLFace* facep) ; 
-	S32 getNumFaces() const;
-	const ll_face_list_t* getFaceList() const {return &mFaceList;}
+	virtual void addFace(U32 channel, LLFace* facep) ;
+	virtual void removeFace(U32 channel, LLFace* facep) ; 
+	S32 getTotalNumFaces() const;
+	S32 getNumFaces(U32 ch) const;
+	const ll_face_list_t* getFaceList(U32 channel) const {llassert(channel < LLRender::NUM_TEXTURE_CHANNELS); return &mFaceList[channel];}
 
 	virtual void addVolume(LLVOVolume* volumep);
 	virtual void removeVolume(LLVOVolume* volumep);
@@ -183,8 +186,8 @@ protected:
 	mutable F32 mAdditionalDecodePriority;  // priority add to mDecodePriority.
 	LLFrameTimer mLastReferencedTimer;	
 
-	ll_face_list_t    mFaceList ; //reverse pointer pointing to the faces using this image as texture
-	U32               mNumFaces ;
+	ll_face_list_t    mFaceList[LLRender::NUM_TEXTURE_CHANNELS]; //reverse pointer pointing to the faces using this image as texture
+	U32               mNumFaces[LLRender::NUM_TEXTURE_CHANNELS];
 	LLFrameTimer      mLastFaceListUpdateTimer ;
 
 	ll_volume_list_t  mVolumeList;
@@ -453,7 +456,7 @@ protected:
 	LLCore::HttpStatus mLastHttpGetStatus; // Result of the most recently completed http request for this texture.
 
 	FTType mFTType; // What category of image is this - map tile, server bake, etc?
-	mutable BOOL mIsMissingAsset;		// True if we know that there is no image asset with this image id in the database.		
+	mutable S8 mIsMissingAsset;		// True if we know that there is no image asset with this image id in the database.		
 
 	typedef std::list<LLLoadedCallbackEntry*> callback_list_t;
 	S8              mLoadedCallbackDesiredDiscardLevel;
@@ -500,6 +503,7 @@ public:
 	static LLPointer<LLViewerFetchedTexture> sWhiteImagep;	// Texture to show NOTHING (whiteness)
 	static LLPointer<LLViewerFetchedTexture> sDefaultImagep; // "Default" texture for error cases, the only case of fetched texture which is generated in local.
 	static LLPointer<LLViewerFetchedTexture> sSmokeImagep; // Old "Default" translucent texture
+	static LLPointer<LLViewerFetchedTexture> sFlatNormalImagep; // Flat normal map denoting no bumpiness on a surface
 };
 
 //
@@ -557,12 +561,12 @@ public:
 	void addMediaToFace(LLFace* facep) ;
 	void removeMediaFromFace(LLFace* facep) ;
 
-	/*virtual*/ void addFace(LLFace* facep) ;
-	/*virtual*/ void removeFace(LLFace* facep) ; 
+	/*virtual*/ void addFace(U32 ch, LLFace* facep) ;
+	/*virtual*/ void removeFace(U32 ch, LLFace* facep) ; 
 
 	/*virtual*/ F32  getMaxVirtualSize() ;
 private:
-	void switchTexture(LLFace* facep) ;
+	void switchTexture(U32 ch, LLFace* facep) ;
 	BOOL findFaces() ;
 	void stopPlaying() ;
 
