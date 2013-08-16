@@ -1064,7 +1064,7 @@ void LLHTTPAssetStorage::bumpTimedOutUploads()
 {
 	bool user_waiting=FALSE;
 
-	F64 mt_secs = LLMessageSystem::getMessageTimeSeconds();
+	F64Seconds mt_secs = LLMessageSystem::getMessageTimeSeconds();
 
 	if (mPendingUploads.size())
 	{

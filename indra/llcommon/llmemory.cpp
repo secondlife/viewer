@@ -47,11 +47,11 @@
 
 //static
 char* LLMemory::reserveMem = 0;
-U32 LLMemory::sAvailPhysicalMemInKB = U32_MAX ;
-U32 LLMemory::sMaxPhysicalMemInKB = 0;
-U32 LLMemory::sAllocatedMemInKB = 0;
-U32 LLMemory::sAllocatedPageSizeInKB = 0 ;
-U32 LLMemory::sMaxHeapSizeInKB = U32_MAX ;
+U32Kibibytes LLMemory::sAvailPhysicalMemInKB(U32_MAX);
+U32Kibibytes LLMemory::sMaxPhysicalMemInKB(0);
+U32Kibibytes LLMemory::sAllocatedMemInKB(0);
+U32Kibibytes LLMemory::sAllocatedPageSizeInKB(0);
+U32Kibibytes LLMemory::sMaxHeapSizeInKB(U32_MAX);
 BOOL LLMemory::sEnableMemoryFailurePrevention = FALSE;
 
 #if __DEBUG_PRIVATE_MEM__
@@ -116,7 +116,7 @@ void LLMemory::updateMemoryInfo()
 	sAllocatedMemInKB = (U32)(counters.WorkingSetSize / 1024) ;
 	sAllocatedPageSizeInKB = (U32)(counters.PagefileUsage / 1024) ;
 
-	U32 avail_phys, avail_virtual;
+	U32Kibibytes avail_phys, avail_virtual;
 	LLMemoryInfo::getAvailableMemoryKB(avail_phys, avail_virtual) ;
 	sMaxPhysicalMemInKB = llmin(avail_phys + sAllocatedMemInKB, sMaxHeapSizeInKB);
 
@@ -232,19 +232,19 @@ bool LLMemory::isMemoryPoolLow()
 }
 
 //static 
-U32 LLMemory::getAvailableMemKB() 
+U32Kibibytes LLMemory::getAvailableMemKB() 
 {
 	return sAvailPhysicalMemInKB ;
 }
 
 //static 
-U32 LLMemory::getMaxMemKB() 
+U32Kibibytes LLMemory::getMaxMemKB() 
 {
 	return sMaxPhysicalMemInKB ;
 }
 
 //static 
-U32 LLMemory::getAllocatedMemKB() 
+U32Kibibytes LLMemory::getAllocatedMemKB() 
 {
 	return sAllocatedMemInKB ;
 }

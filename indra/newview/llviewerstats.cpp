@@ -304,8 +304,8 @@ U32Bytes				gTotalWorldData,
 								gTotalTextureData;
 U32								gSimPingCount = 0;
 U32Bits				gObjectData;
-F32		gAvgSimPing = 0.f;
-U32Bytes		gTotalTextureBytesPerBoostLevel[LLViewerTexture::MAX_GL_IMAGE_CATEGORY] = {U32Bytes(0)};
+F32Milliseconds		gAvgSimPing(0.f);
+U32Bytes			gTotalTextureBytesPerBoostLevel[LLViewerTexture::MAX_GL_IMAGE_CATEGORY] = {U32Bytes(0)};
 
 extern U32  gVisCompared;
 extern U32  gVisTested;
@@ -359,7 +359,7 @@ void update_statistics()
 	if (cdp)
 	{
 		sample(LLStatViewer::SIM_PING, F64Milliseconds (cdp->getPingDelay()));
-		gAvgSimPing = ((gAvgSimPing * (F32)gSimPingCount) + (F32)(cdp->getPingDelay())) / ((F32)gSimPingCount + 1);
+		gAvgSimPing = ((gAvgSimPing * (F32)gSimPingCount) + (F32)(cdp->getPingDelay().value())) / ((F32)gSimPingCount + 1);
 		gSimPingCount++;
 	}
 	else
@@ -494,14 +494,14 @@ void send_stats()
 	gSimFrames   = (F32) gFrameCount;
 
 	agent["agents_in_view"] = LLVOAvatar::sNumVisibleAvatars;
-	agent["ping"] = gAvgSimPing;
+	agent["ping"] = gAvgSimPing.value();
 	agent["meters_traveled"] = gAgent.getDistanceTraveled();
 	agent["regions_visited"] = gAgent.getRegionsVisited();
 	agent["mem_use"] = LLMemory::getCurrentRSS() / 1024.0;
 
 	LLSD &system = body["system"];
 	
-	system["ram"] = (S32) gSysMemory.getPhysicalMemoryKB();
+	system["ram"] = (S32) gSysMemory.getPhysicalMemoryKB().value();
 	system["os"] = LLAppViewer::instance()->getOSInfo().getOSStringSimple();
 	system["cpu"] = gSysCPU.getCPUString();
 	unsigned char MACAddress[MAC_ADDRESS_BYTES];

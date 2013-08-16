@@ -28,6 +28,7 @@
 #define LL_LLPACKETACK_H
 
 #include "llhost.h"
+#include "llunit.h"
 
 class LLReliablePacketParams
 {
@@ -35,7 +36,7 @@ public:
 	LLHost mHost;
 	S32 mRetries;
 	BOOL mPingBasedRetry;
-	F32 mTimeout;
+	F32Seconds mTimeout;
 	void (*mCallback)(void **,S32);
 	void** mCallbackData;
 	char* mMessageName;
@@ -63,7 +64,7 @@ public:
 		const LLHost& host,
 		S32 retries,
 		BOOL ping_based_retry,
-		F32 timeout, 
+		F32Seconds timeout, 
 		void (*callback)(void**,S32),
 		void** callback_data, char* name)
 	{
@@ -98,7 +99,7 @@ protected:
 	LLHost mHost;
 	S32 mRetries;
 	BOOL mPingBasedRetry;
-	F32 mTimeout;
+	F32Seconds mTimeout;
 	void (*mCallback)(void**,S32);
 	void** mCallbackData;
 	char* mMessageName;
@@ -108,7 +109,7 @@ protected:
 
 	TPACKETID mPacketID;
 
-	F64 mExpirationTime;
+	F64Seconds mExpirationTime;
 };
 
 #endif

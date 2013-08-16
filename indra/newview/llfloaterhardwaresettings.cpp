@@ -89,10 +89,10 @@ void LLFloaterHardwareSettings::refresh()
 
 void LLFloaterHardwareSettings::refreshEnabledState()
 {
-	S32 min_tex_mem = LLViewerTextureList::getMinVideoRamSetting();
-	S32 max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting();
-	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMinValue(min_tex_mem);
-	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMaxValue(max_tex_mem);
+	S32Mibibytes min_tex_mem = LLViewerTextureList::getMinVideoRamSetting();
+	S32Mibibytes max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting();
+	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMinValue(min_tex_mem.value());
+	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMaxValue(max_tex_mem.value());
 
 	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderVBOEnable") ||
 		!gGLManager.mHasVertexBufferObject)

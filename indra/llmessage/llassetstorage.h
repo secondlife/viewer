@@ -119,8 +119,8 @@ public:
 	BOOL	mIsTemp;
 	BOOL	mIsLocal;
 	BOOL	mIsUserWaiting;		// We don't want to try forever if a user is waiting for a result.
-	F64		mTime;				// Message system time
-	F64		mTimeout;			// Amount of time before timing out.
+	F64Seconds		mTime;				// Message system time
+	F64Seconds		mTimeout;			// Amount of time before timing out.
 	BOOL    mIsPriority;
 	BOOL	mDataSentInFirstPacket;
 	BOOL	mDataIsInVFS;
@@ -163,7 +163,7 @@ public:
 	void	*mUserData;
 	LLHost  mHost;
 	BOOL	mIsTemp;
-	F64		mTime;				// Message system time
+	F64Seconds	mTime;				// Message system time
 	BOOL    mIsPriority;
 	BOOL	mDataSentInFirstPacket;
 	BOOL	mDataIsInVFS;
@@ -193,7 +193,7 @@ public:
 	void	*mUserData;
 	LLHost  mHost;
 	BOOL	mIsTemp;
-	F64		mTime;				// Message system time
+	F64Seconds	mTime;				// Message system time
 	BOOL    mIsPriority;
 	BOOL	mDataSentInFirstPacket;
 	BOOL	mDataIsInVFS;
