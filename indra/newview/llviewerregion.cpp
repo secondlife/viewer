@@ -72,6 +72,8 @@
 #include "llsdserialize.h"
 #include "llvieweroctree.h"
 #include "llviewerdisplay.h"
+#include "llviewerwindow.h"
+#include "llprogressview.h"
 
 #ifdef LL_WINDOWS
 	#pragma warning(disable:4355)
@@ -90,7 +92,7 @@ const U32 DEFAULT_MAX_REGION_WIDE_PRIM_COUNT = 15000;
 
 BOOL LLViewerRegion::sVOCacheCullingEnabled = FALSE;
 S32  LLViewerRegion::sLastCameraUpdated = 0;
-S32  LLViewerRegion::sNewObjectCreationThrottle = 0;
+S32  LLViewerRegion::sNewObjectCreationThrottle = -1;
 
 typedef std::map<std::string, std::string> CapabilityMap;
 
@@ -1205,7 +1207,12 @@ BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 
 	max_update_time -= update_timer.getElapsedTimeF32();	
 
-	if(max_update_time < 0.f)
+	if(gViewerWindow->getProgressView()->getVisible())
+	{
+		//in case rendering pipeline is not started yet.
+		mImpl->mVOCachePartition->cull(*(LLViewerCamera::getInstance()), false);
+	}
+	else if(max_update_time < 0.f)
 	{
 		return did_update;
 	}
@@ -1226,22 +1233,27 @@ BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 void LLViewerRegion::calcNewObjectCreationThrottle()
 {
 	static LLCachedControl<S32> new_object_creation_throttle(gSavedSettings,"NewObjectCreationThrottle");
+	static LLFrameTimer timer;
 
-	sNewObjectCreationThrottle = new_object_creation_throttle;
-	if(LLStartUp::getStartupState() < STATE_STARTED || gTeleportDisplay)
+	//
+	//sNewObjectCreationThrottle =
+	//-2: throttle is disabled because either the screen is showing progress view, or immediate after the screen is not black
+	//-1: throttle is disabled by the debug setting
+	//0:  no new object creation is allowed
+	//>0: valid throttling number
+	//
+
+	if(gViewerWindow->getProgressView()->getVisible())
 	{
-		sNewObjectCreationThrottle = -1; //cancel the throttling		
+		sNewObjectCreationThrottle = -2; //cancel the throttling
+		timer.reset();
 	}	
 	else if(sNewObjectCreationThrottle < 0) //just recoved from the login/teleport screen
 	{
-		if(new_object_creation_throttle > 0)
+		if(new_object_creation_throttle > 0 && timer.getElapsedTimeF32() > 2.0f) //wait for two seconds to reset the throttle
 		{
-			sNewObjectCreationThrottle = 4096; //a big number
+			sNewObjectCreationThrottle = new_object_creation_throttle; //reset
 		}
-	}
-	else
-	{
-		sNewObjectCreationThrottle = llmax((S32)new_object_creation_throttle, (S32)(sNewObjectCreationThrottle >> 1));
 	}
 }
 
@@ -1295,7 +1307,7 @@ F32 LLViewerRegion::killInvisibleObjects(F32 max_time)
 		mLastVisitedEntry = *iter;
 	}
 
-	mInvisibilityCheckHistory <<= 2;
+	mInvisibilityCheckHistory <<= 1;
 	if(!delete_list.empty())
 	{
 		mInvisibilityCheckHistory |= 1;

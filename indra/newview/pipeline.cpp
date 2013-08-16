@@ -112,6 +112,7 @@
 #include "llfloaterpathfindingcharacters.h"
 #include "llpathfindingpathtool.h"
 #include "llscenemonitor.h"
+#include "llprogressview.h"
 
 #ifdef _DEBUG
 // Debug indices is disabled for now for debug performance - djs 4/24/02
@@ -2535,7 +2536,8 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 		LLVOCachePartition* vo_part = region->getVOCachePartition();
 		if(vo_part)
 		{
-			vo_part->cull(camera, can_use_occlusion && use_occlusion && !gUseWireframe);
+			bool do_occlusion_cull = can_use_occlusion && use_occlusion && !gUseWireframe && !gViewerWindow->getProgressView()->getVisible();
+			vo_part->cull(camera, do_occlusion_cull);
 		}
 	}
 

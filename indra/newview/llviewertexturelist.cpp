@@ -59,7 +59,8 @@
 #include "llxuiparser.h"
 #include "lltracerecording.h"
 #include "llviewerdisplay.h"
-#include "llstartup.h"
+#include "llviewerwindow.h"
+#include "llprogressview.h"
 ////////////////////////////////////////////////////////////////////////////
 
 void (*LLViewerTextureList::sUUIDCallback)(void **, const LLUUID&) = NULL;
@@ -756,12 +757,9 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 		F32 lazy_flush_timeout = 30.f; // stop decoding
 		F32 max_inactive_time  = 20.f; // actually delete
 		S32 min_refs = 3; // 1 for mImageList, 1 for mUUIDMap, 1 for local reference
-		if(LLStartUp::getStartupState() < STATE_STARTED)
-		{
-			//do not remove pre-fetched images if viewer does not finish logging in.
-			lazy_flush_timeout = 30000.f;
-			max_inactive_time = 20000.f;
-		}
+
+		//reset imagep->getLastReferencedTimer() when screen is showing the progress view to avoid removing pre-fetched textures too soon.
+		bool reset_timer = gViewerWindow->getProgressView()->getVisible();
         
         static const S32 MAX_PRIO_UPDATES = gSavedSettings.getS32("TextureFetchUpdatePriorities");         // default: 32
 		const size_t max_update_count = llmin((S32) (MAX_PRIO_UPDATES*MAX_PRIO_UPDATES*gFrameIntervalSeconds.value()) + 1, MAX_PRIO_UPDATES);
@@ -789,7 +787,11 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 			S32 num_refs = imagep->getNumRefs();
 			if (num_refs == min_refs)
 			{
-				if (imagep->getLastReferencedTimer()->getElapsedTimeF32() > lazy_flush_timeout)
+				if(reset_timer)
+				{
+					imagep->getLastReferencedTimer()->reset();
+				}
+				else if (imagep->getLastReferencedTimer()->getElapsedTimeF32() > lazy_flush_timeout)
 				{
 					// Remove the unused image from the image list
 					deleteImage(imagep);
@@ -818,7 +820,11 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 				}
 				else if(imagep->isInactive())
 				{
-					if (imagep->getLastReferencedTimer()->getElapsedTimeF32() > max_inactive_time)
+					if(reset_timer)
+					{
+						imagep->getLastReferencedTimer()->reset();
+					}
+					else if (imagep->getLastReferencedTimer()->getElapsedTimeF32() > max_inactive_time)
 					{
 						imagep->setDeletionCandidate() ;
 					}
