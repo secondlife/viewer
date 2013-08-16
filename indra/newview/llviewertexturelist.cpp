@@ -89,7 +89,7 @@ void LLViewerTextureList::init()
 	mMaxTotalTextureMemInMegaBytes = 0 ;
 	
 	// Update how much texture RAM we're allowed to use.
-	updateMaxResidentTexMem(0); // 0 = use current
+	updateMaxResidentTexMem(S32Mibibytes(0)); // 0 = use current
 	
 	doPreloadImages();
 }
@@ -1231,28 +1231,28 @@ const S32 MIN_VIDEO_RAM = 32;
 const S32 MAX_VIDEO_RAM = 512; // 512MB max for performance reasons.
 
 // Returns min setting for TextureMemory (in MB)
-S32 LLViewerTextureList::getMinVideoRamSetting()
+S32Mibibytes LLViewerTextureList::getMinVideoRamSetting()
 {
-	S32 system_ram = (S32)BYTES_TO_MEGA_BYTES(gSysMemory.getPhysicalMemoryClamped());
+	S32Mibibytes system_ram = gSysMemory.getPhysicalMemoryClamped();
 	//min texture mem sets to 64M if total physical mem is more than 1.5GB
-	return (system_ram > 1500) ? 64 : gMinVideoRam.value() ;
+	return (system_ram > S32Mibibytes(1500)) ? S32Mibibytes(64) : gMinVideoRam ;
 }
 
 //static
 // Returns max setting for TextureMemory (in MB)
-S32 LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended)
+S32Mibibytes LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended)
 {
-	S32 max_texmem;
+	S32Mibibytes max_texmem;
 	if (gGLManager.mVRAM != 0)
 	{
 		// Treat any card with < 32 MB (shudder) as having 32 MB
 		//  - it's going to be swapping constantly regardless
-		S32 max_vram = gGLManager.mVRAM;
+		S32Mibibytes max_vram(gGLManager.mVRAM);
 
 		if(gGLManager.mIsATI)
 		{
 			//shrink the availabe vram for ATI cards because some of them do not handel texture swapping well.
-			max_vram = (S32)(max_vram * 0.75f);  
+			max_vram = max_vram * 0.75f; 
 		}
 
 		max_vram = llmax(max_vram, getMinVideoRamSetting());
@@ -1278,26 +1278,26 @@ S32 LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended)
 		LL_WARNS() << "VRAM amount not detected, defaulting to " << max_texmem << " MB" << LL_ENDL;
 	}
 
-	S32 system_ram = (S32)BYTES_TO_MEGA_BYTES(gSysMemory.getPhysicalMemoryClamped()); // In MB
+	S32Mibibytes system_ram = gSysMemory.getPhysicalMemoryClamped(); // In MB
 	//LL_INFOS() << "*** DETECTED " << system_ram << " MB of system memory." << LL_ENDL;
 	if (get_recommended)
-		max_texmem = llmin(max_texmem, (S32)(system_ram/2));
+		max_texmem = llmin(max_texmem, system_ram/2);
 	else
-		max_texmem = llmin(max_texmem, (S32)(system_ram));
+		max_texmem = llmin(max_texmem, system_ram);
 		
-	max_texmem = llclamp(max_texmem, getMinVideoRamSetting(), gMaxVideoRam.value()); 
+	max_texmem = llclamp(max_texmem, getMinVideoRamSetting(), gMaxVideoRam); 
 	
 	return max_texmem;
 }
 
-const S32 VIDEO_CARD_FRAMEBUFFER_MEM = 12; // MB
-const S32 MIN_MEM_FOR_NON_TEXTURE = 512 ; //MB
-void LLViewerTextureList::updateMaxResidentTexMem(S32 mem)
+const S32Mibibytes VIDEO_CARD_FRAMEBUFFER_MEM(12);
+const S32Mibibytes MIN_MEM_FOR_NON_TEXTURE(512);
+void LLViewerTextureList::updateMaxResidentTexMem(S32Mibibytes mem)
 {
 	// Initialize the image pipeline VRAM settings
-	S32 cur_mem = gSavedSettings.getS32("TextureMemory");
+	S32Mibibytes cur_mem(gSavedSettings.getS32("TextureMemory"));
 	F32 mem_multiplier = gSavedSettings.getF32("RenderTextureMemoryMultiple");
-	S32 default_mem = getMaxVideoRamSetting(true); // recommended default
+	S32Mibibytes default_mem(getMaxVideoRamSetting(true)); // recommended default
 	if (mem == 0)
 	{
 		mem = cur_mem > 0 ? cur_mem : default_mem;
@@ -1308,20 +1308,20 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32 mem)
 	}
 
 	// limit the texture memory to a multiple of the default if we've found some cards to behave poorly otherwise
-	mem = llmin(mem, (S32) (mem_multiplier * (F32) default_mem));
+	mem = llmin(mem, S32Mibibytes(mem_multiplier * (F32Mibibytes)default_mem));
 
 	mem = llclamp(mem, getMinVideoRamSetting(), getMaxVideoRamSetting());
 	if (mem != cur_mem)
 	{
-		gSavedSettings.setS32("TextureMemory", mem);
+		gSavedSettings.setS32("TextureMemory", mem.value());
 		return; //listener will re-enter this function
 	}
 
 	// TODO: set available resident texture mem based on use by other subsystems
 	// currently max(12MB, VRAM/4) assumed...
 	
-	S32 vb_mem = mem;
-	S32 fb_mem = llmax(VIDEO_CARD_FRAMEBUFFER_MEM, vb_mem/4);
+	S32Mibibytes vb_mem = mem;
+	S32Mibibytes fb_mem = llmax(VIDEO_CARD_FRAMEBUFFER_MEM, vb_mem/4);
 	mMaxResidentTexMemInMegaBytes = (vb_mem - fb_mem) ; //in MB
 	
 	mMaxTotalTextureMemInMegaBytes = mMaxResidentTexMemInMegaBytes * 2;
@@ -1331,12 +1331,12 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32 mem)
 	}
 
 	//system mem
-	S32 system_ram = (S32)BYTES_TO_MEGA_BYTES(gSysMemory.getPhysicalMemoryClamped()); // In MB
+	S32Mibibytes system_ram = gSysMemory.getPhysicalMemoryClamped();
 
 	//minimum memory reserved for non-texture use.
 	//if system_raw >= 1GB, reserve at least 512MB for non-texture use;
 	//otherwise reserve half of the system_ram for non-texture use.
-	S32 min_non_texture_mem = llmin(system_ram / 2, MIN_MEM_FOR_NON_TEXTURE) ; 
+	S32Mibibytes min_non_texture_mem = llmin(system_ram / 2, MIN_MEM_FOR_NON_TEXTURE) ; 
 
 	if (mMaxTotalTextureMemInMegaBytes > system_ram - min_non_texture_mem)
 	{
@@ -1514,18 +1514,19 @@ void LLViewerTextureList::processImageNotInDatabase(LLMessageSystem *msg,void **
 ///////////////////////////////////////////////////////////////////////////////
 
 //static
-const U32 SIXTEEN_MEG = 0x1000000;
-S32 LLViewerTextureList::calcMaxTextureRAM()
+const LLUnitImplicit<F32, LLUnits::Mibibytes> SIXTEEN_MEG(16);
+S32Bytes LLViewerTextureList::calcMaxTextureRAM()
 {
 	// Decide the maximum amount of RAM we should allow the user to allocate to texture cache
 	LLMemoryInfo memory_info;
-	U32 available_memory = memory_info.getPhysicalMemoryClamped();
+	LLUnitImplicit<F32, LLUnits::Mibibytes> available_memory = memory_info.getPhysicalMemoryClamped();
 	
-	clamp_rescale((F32)available_memory,
-				  (F32)(SIXTEEN_MEG * 16),
-				  (F32)U32_MAX,
-				  (F32)(SIXTEEN_MEG * 4),
-				  (F32)(U32_MAX >> 1));
+	// as originally written, this code was a no-op.  Not sure of the side effect of making it actually work
+	/*clamp_rescale(available_memory.value(),
+				  (SIXTEEN_MEG * 16),
+				  (F32Mibibytes)U32_MAX,
+				  (SIXTEEN_MEG * 4),
+				  (F32Mibibytes)(U32_MAX >> 1));*/
 	return available_memory;
 }
 

@@ -259,7 +259,7 @@ LLSD LLFloaterAbout::getInfo()
 
 	// CPU
 	info["CPU"] = gSysCPU.getCPUString();
-	info["MEMORY_MB"] = LLSD::Integer(gSysMemory.getPhysicalMemoryKB() / 1024);
+	info["MEMORY_MB"] = LLSD::Integer(gSysMemory.getPhysicalMemoryKB().valueInUnits<LLUnits::Mibibytes>());
 	// Moved hack adjustment to Windows memory size into llsys.cpp
 	info["OS_VERSION"] = LLAppViewer::instance()->getOSInfo().getOSString();
 	info["GRAPHICS_CARD_VENDOR"] = (const char*)(glGetString(GL_VENDOR));

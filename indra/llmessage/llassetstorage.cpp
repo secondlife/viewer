@@ -194,8 +194,8 @@ LLSD LLAssetRequest::getTerseDetails() const
 	sd["asset_id"] = getUUID();
 	sd["type_long"] = LLAssetType::lookupHumanReadable(getType());
 	sd["type"] = LLAssetType::lookup(getType());
-	sd["time"] = mTime;
-	time_t timestamp = (time_t) mTime;
+	sd["time"] = mTime.value();
+	time_t timestamp = (time_t) mTime.value();
 	std::ostringstream time_string;
 	time_string << ctime(&timestamp);
 	sd["time_string"] = time_string.str();
@@ -341,7 +341,7 @@ void LLAssetStorage::checkForTimeouts()
 
 void LLAssetStorage::_cleanupRequests(BOOL all, S32 error)
 {
-	F64 mt_secs = LLMessageSystem::getMessageTimeSeconds();
+	F64Seconds mt_secs = LLMessageSystem::getMessageTimeSeconds();
 
 	request_list_t timed_out;
 	S32 rt;

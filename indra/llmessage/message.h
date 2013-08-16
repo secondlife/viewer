@@ -142,18 +142,14 @@ enum EPacketHeaderLayout
 
 
 const S32 LL_DEFAULT_RELIABLE_RETRIES = 3;
-const F32 LL_MINIMUM_RELIABLE_TIMEOUT_SECONDS = 1.f;
-const F32 LL_MINIMUM_SEMIRELIABLE_TIMEOUT_SECONDS = 1.f;
-const F32 LL_PING_BASED_TIMEOUT_DUMMY = 0.0f;
+const F32Seconds LL_MINIMUM_RELIABLE_TIMEOUT_SECONDS(1.f);
+const F32Seconds LL_MINIMUM_SEMIRELIABLE_TIMEOUT_SECONDS(1.f);
+const F32Seconds LL_PING_BASED_TIMEOUT_DUMMY(0.0f);
 
-// *NOTE: Maybe these factors shouldn't include the msec to sec conversion
-// implicitly.
-// However, all units should be MKS.
-const F32 LL_SEMIRELIABLE_TIMEOUT_FACTOR	= 5.f / 1000.f;		// factor * averaged ping
-const F32 LL_RELIABLE_TIMEOUT_FACTOR		= 5.f / 1000.f;      // factor * averaged ping
-const F32 LL_FILE_XFER_TIMEOUT_FACTOR		= 5.f / 1000.f;      // factor * averaged ping
-const F32 LL_LOST_TIMEOUT_FACTOR			= 16.f / 1000.f;     // factor * averaged ping for marking packets "Lost"
-const F32 LL_MAX_LOST_TIMEOUT				= 5.f;				// Maximum amount of time before considering something "lost"
+const F32 LL_SEMIRELIABLE_TIMEOUT_FACTOR	= 5.f;		// averaged ping
+const F32 LL_RELIABLE_TIMEOUT_FACTOR		= 5.f;		// averaged ping
+const F32 LL_LOST_TIMEOUT_FACTOR			= 16.f;     // averaged ping for marking packets "Lost"
+const F32Seconds LL_MAX_LOST_TIMEOUT(5.f);				// Maximum amount of time before considering something "lost"
 
 const S32 MAX_MESSAGE_COUNT_NUM = 1024;
 
@@ -270,7 +266,7 @@ public:
 	BOOL                mSendReliable;              // does the outgoing message require a pos ack?
 
 	LLCircuit 	 		mCircuitInfo;
-	F64					mCircuitPrintTime;	    // used to print circuit debug info every couple minutes
+	F64Seconds			mCircuitPrintTime;	    // used to print circuit debug info every couple minutes
 	F32					mCircuitPrintFreq;	    // seconds
 
 	std::map<U64, U32>	mIPPortToCircuitCode;
@@ -469,7 +465,7 @@ public:
 	S32	sendReliable(	const LLHost &host, 
 							S32 retries, 
 							BOOL ping_based_retries,
-							F32 timeout, 
+							F32Seconds timeout, 
 							void (*callback)(void **,S32), 
 							void ** callback_data);
 
@@ -489,7 +485,7 @@ public:
 		const LLHost &host, 
 		S32 retries, 
 		BOOL ping_based_timeout,
-		F32 timeout, 
+		F32Seconds timeout, 
 		void (*callback)(void **,S32), 
 		void ** callback_data);
 
@@ -683,8 +679,8 @@ public:
 	void setMaxMessageTime(const F32 seconds);	// Max time to process messages before warning and dumping (neg to disable)
 	void setMaxMessageCounts(const S32 num);	// Max number of messages before dumping (neg to disable)
 	
-	static U64 getMessageTimeUsecs(const BOOL update = FALSE);	// Get the current message system time in microseconds
-	static F64 getMessageTimeSeconds(const BOOL update = FALSE); // Get the current message system time in seconds
+	static U64Microseconds getMessageTimeUsecs(const BOOL update = FALSE);	// Get the current message system time in microseconds
+	static F64Seconds getMessageTimeSeconds(const BOOL update = FALSE); // Get the current message system time in seconds
 
 	static void setTimeDecodes(BOOL b);
 	static void setTimeDecodesSpamThreshold(F32 seconds); 
@@ -783,16 +779,16 @@ private:
 	BOOL	mbError;
 	S32	mErrorCode;
 
-	F64										mResendDumpTime; // The last time we dumped resends
+	F64Seconds										mResendDumpTime; // The last time we dumped resends
 
 	LLMessageCountInfo mMessageCountList[MAX_MESSAGE_COUNT_NUM];
 	S32 mNumMessageCounts;
-	F32 mReceiveTime;
-	F32 mMaxMessageTime; // Max number of seconds for processing messages
+	F32Seconds mReceiveTime;
+	F32Seconds mMaxMessageTime; // Max number of seconds for processing messages
 	S32 mMaxMessageCounts; // Max number of messages to process before dumping.
-	F64 mMessageCountTime;
+	F64Seconds mMessageCountTime;
 
-	F64 mCurrentMessageTimeSeconds; // The current "message system time" (updated the first call to checkMessages after a resetReceiveCount
+	F64Seconds mCurrentMessageTime; // The current "message system time" (updated the first call to checkMessages after a resetReceiveCount
 
 	// message system exceptions
 	typedef std::pair<msg_exception_callback, void*> exception_t;

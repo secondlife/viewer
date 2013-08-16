@@ -832,7 +832,7 @@ LLMemoryInfo::LLMemoryInfo()
 }
 
 #if LL_WINDOWS
-static U32 LLMemoryAdjustKBResult(U32 inKB)
+static U32Kibibytes LLMemoryAdjustKBResult(U32Kibibytes inKB)
 {
 	// Moved this here from llfloaterabout.cpp
 
@@ -843,16 +843,16 @@ static U32 LLMemoryAdjustKBResult(U32 inKB)
 	// returned from the GetMemoryStatusEx function.  Here we keep the
 	// original adjustment from llfoaterabout.cpp until this can be
 	// fixed somehow.
-	inKB += 1024;
+	inKB += U32Mibibytes(1);
 
 	return inKB;
 }
 #endif
 
-U32 LLMemoryInfo::getPhysicalMemoryKB() const
+U32Kibibytes LLMemoryInfo::getPhysicalMemoryKB() const
 {
 #if LL_WINDOWS
-	return LLMemoryAdjustKBResult(mStatsMap["Total Physical KB"].asInteger());
+	return LLMemoryAdjustKBResult(U32Kibibytes(mStatsMap["Total Physical KB"].asInteger()));
 
 #elif LL_DARWIN
 	// This might work on Linux as well.  Someone check...
@@ -862,17 +862,17 @@ U32 LLMemoryInfo::getPhysicalMemoryKB() const
 	size_t len = sizeof(phys);	
 	sysctl(mib, 2, &phys, &len, NULL, 0);
 	
-	return (U32)(phys >> 10);
+	return U32Bytes(phys);
 
 #elif LL_LINUX
 	U64 phys = 0;
 	phys = (U64)(getpagesize()) * (U64)(get_phys_pages());
-	return (U32)(phys >> 10);
+	return U32Bytes(phys);
 
 #elif LL_SOLARIS
 	U64 phys = 0;
 	phys = (U64)(getpagesize()) * (U64)(sysconf(_SC_PHYS_PAGES));
-	return (U32)(phys >> 10);
+	return U32Bytes(phys);
 
 #else
 	return 0;
@@ -880,24 +880,24 @@ U32 LLMemoryInfo::getPhysicalMemoryKB() const
 #endif
 }
 
-U32 LLMemoryInfo::getPhysicalMemoryClamped() const
+U32Bytes LLMemoryInfo::getPhysicalMemoryClamped() const
 {
 	// Return the total physical memory in bytes, but clamp it
 	// to no more than U32_MAX
 	
-	U32 phys_kb = getPhysicalMemoryKB();
+	U32Bytes phys_kb = getPhysicalMemoryKB();
 	if (phys_kb >= 4194304 /* 4GB in KB */)
 	{
-		return U32_MAX;
+		return U32Bytes(U32_MAX);
 	}
 	else
 	{
-		return phys_kb << 10;
+		return phys_kb;
 	}
 }
 
 //static
-void LLMemoryInfo::getAvailableMemoryKB(U32& avail_physical_mem_kb, U32& avail_virtual_mem_kb)
+void LLMemoryInfo::getAvailableMemoryKB(U32Kibibytes& avail_physical_mem_kb, U32Kibibytes& avail_virtual_mem_kb)
 {
 #if LL_WINDOWS
 	// Sigh, this shouldn't be a static method, then we wouldn't have to

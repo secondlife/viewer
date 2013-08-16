@@ -1507,7 +1507,7 @@ bool idle_startup()
 			gFirstSim,
 			gSavedSettings.getS32("UseCircuitCodeMaxRetries"),
 			FALSE,
-			gSavedSettings.getF32("UseCircuitCodeTimeout"),
+			(F32Seconds)gSavedSettings.getF32("UseCircuitCodeTimeout"),
 			use_circuit_callback,
 			NULL);
 

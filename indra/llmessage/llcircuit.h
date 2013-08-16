@@ -44,10 +44,10 @@
 // Constants
 //
 const F32 LL_AVERAGED_PING_ALPHA = 0.2f;  // relaxation constant on ping running average
-const F32 LL_AVERAGED_PING_MAX = 2000;    // msec
-const F32 LL_AVERAGED_PING_MIN =  100;    // msec  // IW: increased to avoid retransmits when a process is slow
+const F32Milliseconds LL_AVERAGED_PING_MAX(2000);    
+const F32Milliseconds LL_AVERAGED_PING_MIN(100);    // increased to avoid retransmits when a process is slow
 
-const U32 INITIAL_PING_VALUE_MSEC = 1000; // initial value for the ping delay, or for ping delay for an unknown circuit
+const U32Milliseconds INITIAL_PING_VALUE_MSEC(1000); // initial value for the ping delay, or for ping delay for an unknown circuit
 
 const TPACKETID LL_MAX_OUT_PACKET_ID = 0x01000000;
 const int LL_ERR_CIRCUIT_GONE   = -23017;
@@ -77,10 +77,10 @@ class LLCircuitData
 {
 public:
 	LLCircuitData(const LLHost &host, TPACKETID in_id, 
-				  const F32 circuit_heartbeat_interval, const F32 circuit_timeout);
+				  const F32Seconds circuit_heartbeat_interval, const F32Seconds circuit_timeout);
 	~LLCircuitData();
 
-	S32		resendUnackedPackets(const F64 now);
+	S32		resendUnackedPackets(const F64Seconds now);
 	void	clearDuplicateList(TPACKETID oldest_id);
 
 
@@ -106,18 +106,18 @@ public:
 	// mLocalEndPointID should only ever be setup in the LLCircuitData constructor
 	const		LLUUID& getLocalEndPointID() const { return mLocalEndPointID; }
 
-	U32		getPingDelay() const;
+	U32Milliseconds	getPingDelay() const;
 	S32				getPingsInTransit() const			{ return mPingsInTransit; }
 
 	// ACCESSORS
 	BOOL		isAlive() const;
 	BOOL		isBlocked() const;
 	BOOL		getAllowTimeout() const;
-	F32			getPingDelayAveraged();
-	F32			getPingInTransitTime();
+	F32Milliseconds	getPingDelayAveraged();
+	F32Milliseconds	getPingInTransitTime();
 	U32			getPacketsIn() const;
-	S32			getBytesIn() const;
-	S32			getBytesOut() const;
+	S32Bytes	getBytesIn() const;
+	S32Bytes	getBytesOut() const;
 	U32			getPacketsOut() const;
 	U32			getPacketsLost() const;
 	TPACKETID	getPacketOutID() const;
@@ -125,10 +125,10 @@ public:
 	F32			getAgeInSeconds() const;
 	S32			getUnackedPacketCount() const	{ return mUnackedPacketCount; }
 	S32			getUnackedPacketBytes() const	{ return mUnackedPacketBytes; }
-	F64         getNextPingSendTime() const { return mNextPingSendTime; }
+	F64Seconds  getNextPingSendTime() const { return mNextPingSendTime; }
     U32         getLastPacketGap() const { return mLastPacketGap; }
     LLHost      getHost() const { return mHost; }
-	F64			getLastPacketInTime() const		{ return mLastPacketInTime;	}
+	F64Seconds	getLastPacketInTime() const		{ return mLastPacketInTime;	}
 
 	LLThrottleGroup &getThrottleGroup()		{	return mThrottles; }
 
@@ -164,7 +164,7 @@ protected:
 	TPACKETID		nextPacketOutID();
 	void				setPacketInID(TPACKETID id);
 	void					checkPacketInID(TPACKETID id, BOOL receive_resent);
-	void			setPingDelay(U32 ping);
+	void			setPingDelay(U32Milliseconds ping);
 	BOOL			checkCircuitTimeout();	// Return FALSE if the circuit is dead and should be cleaned up
 
 	void			addBytesIn(S32 bytes);
@@ -219,20 +219,20 @@ protected:
 	BOOL	mBlocked;					// Blocked is true if the circuit is hosed, i.e. far behind on pings
 
 	// Not sure what the difference between this and mLastPingSendTime is
-	F64		mPingTime;					// Time at which a ping was sent.
+	F64Seconds	mPingTime;					// Time at which a ping was sent.
 
-	F64		mLastPingSendTime;			// Time we last sent a ping
-	F64		mLastPingReceivedTime;		// Time we last received a ping
-	F64     mNextPingSendTime;          // Time to try and send the next ping
-	S32		mPingsInTransit;			// Number of pings in transit
-	U8		mLastPingID;				// ID of the last ping that we sent out
+	F64Seconds	mLastPingSendTime;			// Time we last sent a ping
+	F64Seconds	mLastPingReceivedTime;		// Time we last received a ping
+	F64Seconds  mNextPingSendTime;          // Time to try and send the next ping
+	S32			mPingsInTransit;			// Number of pings in transit
+	U8			mLastPingID;				// ID of the last ping that we sent out
 
 
 	// Used for determining the resend time for reliable resends.
-	U32		mPingDelay;             // raw ping delay
-	F32		mPingDelayAveraged;     // averaged ping delay (fast attack/slow decay)
+	U32Milliseconds		mPingDelay;             // raw ping delay
+	F32Milliseconds		mPingDelayAveraged;     // averaged ping delay (fast attack/slow decay)
 
-	typedef std::map<TPACKETID, U64> packet_time_map;
+	typedef std::map<TPACKETID, U64Microseconds> packet_time_map;
 
 	packet_time_map							mPotentialLostPackets;
 	packet_time_map							mRecentlyReceivedReliablePackets;
@@ -247,7 +247,7 @@ protected:
 	S32										mUnackedPacketCount;
 	S32										mUnackedPacketBytes;
 
-	F64										mLastPacketInTime;		// Time of last packet arrival
+	F64Seconds								mLastPacketInTime;		// Time of last packet arrival
 
 	LLUUID									mLocalEndPointID;
 
@@ -259,24 +259,24 @@ protected:
 	U32		mPacketsOut;
 	U32		mPacketsIn;
 	S32		mPacketsLost;
-	S32		mBytesIn;
-	S32		mBytesOut;
+	S32Bytes	mBytesIn,
+				mBytesOut;
 
-	F32		mLastPeriodLength;		// seconds
-	S32		mBytesInLastPeriod;
-	S32		mBytesOutLastPeriod;
-	S32		mBytesInThisPeriod;
-	S32		mBytesOutThisPeriod;
+	F32Seconds	mLastPeriodLength;	
+	S32Bytes	mBytesInLastPeriod;
+	S32Bytes	mBytesOutLastPeriod;
+	S32Bytes	mBytesInThisPeriod;
+	S32Bytes	mBytesOutThisPeriod;
 	F32		mPeakBPSIn;				// bits per second, max of all period bps
 	F32		mPeakBPSOut;			// bits per second, max of all period bps
-	F64		mPeriodTime;
+	F64Seconds	mPeriodTime;
 	LLTimer	mExistenceTimer;	    // initialized when circuit created, used to track bandwidth numbers
 
 	S32		mCurrentResendCount;	// Number of resent packets since last spam
     U32     mLastPacketGap;         // Gap in sequence number of last packet.
 
-	const F32 mHeartbeatInterval;
-	const F32 mHeartbeatTimeout;
+	const F32Seconds mHeartbeatInterval;
+	const F32Seconds mHeartbeatTimeout;
 };
 
 
@@ -286,7 +286,7 @@ class LLCircuit
 {
 public:
 	// CREATORS
-	LLCircuit(const F32 circuit_heartbeat_interval, const F32 circuit_timeout);
+	LLCircuit(const F32Seconds circuit_heartbeat_interval, const F32Seconds circuit_timeout);
 	~LLCircuit();
 
 	// ACCESSORS
@@ -341,7 +341,7 @@ protected:
 	mutable LLCircuitData* mLastCircuit;
 
 private:
-	const F32 mHeartbeatInterval;
-	const F32 mHeartbeatTimeout;
+	const F32Seconds mHeartbeatInterval;
+	const F32Seconds mHeartbeatTimeout;
 };
 #endif

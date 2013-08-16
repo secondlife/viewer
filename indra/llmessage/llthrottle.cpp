@@ -53,8 +53,8 @@ F32 LLThrottle::getAvailable()
 {
 	// use a temporary bits_available
 	// since we don't want to change mBitsAvailable every time
-	F32 elapsed_time = (F32)(LLMessageSystem::getMessageTimeSeconds() - mLastSendTime);
-	return mAvailable + (mRate * elapsed_time);
+	F32Seconds elapsed_time = LLMessageSystem::getMessageTimeSeconds() - mLastSendTime;
+	return mAvailable + (mRate * elapsed_time.value());
 }
 
 BOOL LLThrottle::checkOverflow(const F32 amount)
@@ -65,8 +65,8 @@ BOOL LLThrottle::checkOverflow(const F32 amount)
 
 	// use a temporary bits_available
 	// since we don't want to change mBitsAvailable every time
-	F32 elapsed_time =  (F32)(LLMessageSystem::getMessageTimeSeconds() - mLastSendTime);
-	F32 amount_available = mAvailable + (mRate * elapsed_time);
+	F32Seconds elapsed_time =  LLMessageSystem::getMessageTimeSeconds() - mLastSendTime;
+	F32 amount_available = mAvailable + (mRate * elapsed_time.value());
 
 	if ((amount_available >= lookahead_amount) || (amount_available > amount))
 	{
@@ -80,17 +80,17 @@ BOOL LLThrottle::checkOverflow(const F32 amount)
 
 BOOL LLThrottle::throttleOverflow(const F32 amount)
 {
-	F32 elapsed_time;
+	F32Seconds elapsed_time;
 	F32 lookahead_amount;
 	BOOL retval = TRUE;
 
 	lookahead_amount = mRate * mLookaheadSecs;
 
-	F64 mt_sec = LLMessageSystem::getMessageTimeSeconds();
-	elapsed_time = (F32)(mt_sec - mLastSendTime);
+	F64Seconds mt_sec = LLMessageSystem::getMessageTimeSeconds();
+	elapsed_time = mt_sec - mLastSendTime;
 	mLastSendTime = mt_sec;
 
-	mAvailable += mRate * elapsed_time;
+	mAvailable += mRate * elapsed_time.value();
 
 	if (mAvailable >= lookahead_amount)
 	{
@@ -222,7 +222,7 @@ void LLThrottleGroup::unpackThrottle(LLDataPacker &dp)
 // into NOT resetting the system.
 void LLThrottleGroup::resetDynamicAdjust()
 {
-	F64 mt_sec = LLMessageSystem::getMessageTimeSeconds();
+	F64Seconds mt_sec = LLMessageSystem::getMessageTimeSeconds();
 	S32 i;
 	for (i = 0; i < TC_EOF; i++)
 	{
@@ -269,8 +269,8 @@ S32		LLThrottleGroup::getAvailable(S32 throttle_cat)
 
 	// use a temporary bits_available
 	// since we don't want to change mBitsAvailable every time
-	F32 elapsed_time = (F32)(LLMessageSystem::getMessageTimeSeconds() - mLastSendTime[throttle_cat]);
-	F32 bits_available = mBitsAvailable[throttle_cat] + (category_bps * elapsed_time);
+	F32Seconds elapsed_time = LLMessageSystem::getMessageTimeSeconds() - mLastSendTime[throttle_cat];
+	F32 bits_available = mBitsAvailable[throttle_cat] + (category_bps * elapsed_time.value());
 
 	if (bits_available >= lookahead_bits)
 	{
@@ -294,8 +294,8 @@ BOOL LLThrottleGroup::checkOverflow(S32 throttle_cat, F32 bits)
 
 	// use a temporary bits_available
 	// since we don't want to change mBitsAvailable every time
-	F32 elapsed_time = (F32)(LLMessageSystem::getMessageTimeSeconds() - mLastSendTime[throttle_cat]);
-	F32 bits_available = mBitsAvailable[throttle_cat] + (category_bps * elapsed_time);
+	F32Seconds elapsed_time = LLMessageSystem::getMessageTimeSeconds() - mLastSendTime[throttle_cat];
+	F32 bits_available = mBitsAvailable[throttle_cat] + (category_bps * elapsed_time.value());
 
 	if (bits_available >= lookahead_bits)
 	{
@@ -315,7 +315,7 @@ BOOL LLThrottleGroup::checkOverflow(S32 throttle_cat, F32 bits)
 
 BOOL LLThrottleGroup::throttleOverflow(S32 throttle_cat, F32 bits)
 {
-	F32 elapsed_time;
+	F32Seconds elapsed_time;
 	F32 category_bps;
 	F32 lookahead_bits;
 	BOOL retval = TRUE;
@@ -323,10 +323,10 @@ BOOL LLThrottleGroup::throttleOverflow(S32 throttle_cat, F32 bits)
 	category_bps = mCurrentBPS[throttle_cat];
 	lookahead_bits = category_bps * THROTTLE_LOOKAHEAD_TIME;
 
-	F64 mt_sec = LLMessageSystem::getMessageTimeSeconds();
-	elapsed_time = (F32)(mt_sec - mLastSendTime[throttle_cat]);
+	F64Seconds mt_sec = LLMessageSystem::getMessageTimeSeconds();
+	elapsed_time = mt_sec - mLastSendTime[throttle_cat];
 	mLastSendTime[throttle_cat] = mt_sec;
-	mBitsAvailable[throttle_cat] += category_bps * elapsed_time;
+	mBitsAvailable[throttle_cat] += category_bps * elapsed_time.value();
 
 	if (mBitsAvailable[throttle_cat] >= lookahead_bits)
 	{
@@ -365,7 +365,7 @@ BOOL LLThrottleGroup::dynamicAdjust()
 
 	S32 i;
 
-	F64 mt_sec = LLMessageSystem::getMessageTimeSeconds();
+	F64Seconds mt_sec = LLMessageSystem::getMessageTimeSeconds();
 
 	// Only dynamically adjust every few seconds
 	if ((mt_sec - mDynamicAdjustTime) < DYNAMIC_ADJUST_TIME)

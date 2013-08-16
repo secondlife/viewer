@@ -238,7 +238,7 @@ LLMessageSystem::LLMessageSystem(const std::string& filename, U32 port,
 								 S32 version_patch,
 								 bool failure_is_fatal,
 								 const F32 circuit_heartbeat_interval, const F32 circuit_timeout) :
-	mCircuitInfo(circuit_heartbeat_interval, circuit_timeout),
+	mCircuitInfo(F32Seconds(circuit_heartbeat_interval), F32Seconds(circuit_timeout)),
 	mLastMessageFromTrustedMessageService(false)
 {
 	init();
@@ -303,11 +303,11 @@ LLMessageSystem::LLMessageSystem(const std::string& filename, U32 port,
 	mPollInfop->mPollFD.desc.s = aprSocketp;
 	mPollInfop->mPollFD.client_data = NULL;
 
-	F64 mt_sec = getMessageTimeSeconds();
+	F64Seconds mt_sec = getMessageTimeSeconds();
 	mResendDumpTime = mt_sec;
 	mMessageCountTime = mt_sec;
 	mCircuitPrintTime = mt_sec;
-	mCurrentMessageTimeSeconds = mt_sec;
+	mCurrentMessageTime = F64Seconds(mt_sec);
 
 	// Constants for dumping output based on message processing time/count
 	mNumMessageCounts = 0;
@@ -531,7 +531,7 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 	{
 		// This is the first message being handled after a resetReceiveCounts,
 		// we must be starting the message processing loop.  Reset the timers.
-		mCurrentMessageTimeSeconds = totalTime() * SEC_PER_USEC;
+		mCurrentMessageTime = totalTime();
 		mMessageCountTime = getMessageTimeSeconds();
 	}
 
@@ -758,7 +758,7 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 		}
 	} while (!valid_packet && receive_size > 0);
 
-	F64 mt_sec = getMessageTimeSeconds();
+	F64Seconds mt_sec = getMessageTimeSeconds();
 	// Check to see if we need to print debug info
 	if ((mt_sec - mCircuitPrintTime) > mCircuitPrintFreq)
 	{
@@ -789,7 +789,7 @@ S32	LLMessageSystem::getReceiveBytes() const
 
 void LLMessageSystem::processAcks()
 {
-	F64 mt_sec = getMessageTimeSeconds();
+	F64Seconds mt_sec = getMessageTimeSeconds();
 	{
 		gTransferManager.updateTransfers();
 
@@ -836,7 +836,7 @@ void LLMessageSystem::processAcks()
 		if (mMaxMessageTime >= 0.f)
 		{
 			// This is one of the only places where we're required to get REAL message system time.
-			mReceiveTime = (F32)(getMessageTimeSeconds(TRUE) - mMessageCountTime);
+			mReceiveTime = getMessageTimeSeconds(TRUE) - mMessageCountTime;
 			if (mReceiveTime > mMaxMessageTime)
 			{
 				dump = TRUE;
@@ -1010,13 +1010,13 @@ S32 LLMessageSystem::sendReliable(const LLHost &host)
 
 S32 LLMessageSystem::sendSemiReliable(const LLHost &host, void (*callback)(void **,S32), void ** callback_data)
 {
-	F32 timeout;
+	F32Seconds timeout;
 
 	LLCircuitData *cdp = mCircuitInfo.findCircuit(host);
 	if (cdp)
 	{
 		timeout = llmax(LL_MINIMUM_SEMIRELIABLE_TIMEOUT_SECONDS,
-						LL_SEMIRELIABLE_TIMEOUT_FACTOR * cdp->getPingDelayAveraged());
+						F32Seconds(LL_SEMIRELIABLE_TIMEOUT_FACTOR * cdp->getPingDelayAveraged()));
 	}
 	else
 	{
@@ -1032,7 +1032,7 @@ S32 LLMessageSystem::sendSemiReliable(const LLHost &host, void (*callback)(void 
 S32 LLMessageSystem::sendReliable(	const LLHost &host, 
 									S32 retries, 
 									BOOL ping_based_timeout,
-									F32 timeout, 
+									F32Seconds timeout, 
 									void (*callback)(void **,S32), 
 									void ** callback_data)
 {
@@ -1041,11 +1041,11 @@ S32 LLMessageSystem::sendReliable(	const LLHost &host,
 	    LLCircuitData *cdp = mCircuitInfo.findCircuit(host);
 	    if (cdp)
 	    {
-		    timeout = llmax(LL_MINIMUM_RELIABLE_TIMEOUT_SECONDS, LL_RELIABLE_TIMEOUT_FACTOR * cdp->getPingDelayAveraged());
+		    timeout = llmax(LL_MINIMUM_RELIABLE_TIMEOUT_SECONDS, F32Seconds(LL_RELIABLE_TIMEOUT_FACTOR * cdp->getPingDelayAveraged()));
 	    }
 	    else
 	    {
-		    timeout = llmax(LL_MINIMUM_RELIABLE_TIMEOUT_SECONDS, LL_RELIABLE_TIMEOUT_FACTOR * LL_AVERAGED_PING_MAX);
+		    timeout = llmax(LL_MINIMUM_RELIABLE_TIMEOUT_SECONDS, F32Seconds(LL_RELIABLE_TIMEOUT_FACTOR * LL_AVERAGED_PING_MAX));
 	    }
 	}
 
@@ -1077,7 +1077,7 @@ void LLMessageSystem::forwardReliable(const U32 circuit_code)
 S32 LLMessageSystem::forwardReliable(	const LLHost &host, 
 										S32 retries, 
 										BOOL ping_based_timeout,
-										F32 timeout, 
+										F32Seconds timeout, 
 										void (*callback)(void **,S32), 
 										void ** callback_data)
 {
@@ -1087,13 +1087,13 @@ S32 LLMessageSystem::forwardReliable(	const LLHost &host,
 
 S32 LLMessageSystem::flushSemiReliable(const LLHost &host, void (*callback)(void **,S32), void ** callback_data)
 {
-	F32 timeout; 
+	F32Seconds timeout; 
 
 	LLCircuitData *cdp = mCircuitInfo.findCircuit(host);
 	if (cdp)
 	{
 		timeout = llmax(LL_MINIMUM_SEMIRELIABLE_TIMEOUT_SECONDS,
-						LL_SEMIRELIABLE_TIMEOUT_FACTOR * cdp->getPingDelayAveraged());
+						F32Seconds(LL_SEMIRELIABLE_TIMEOUT_FACTOR * cdp->getPingDelayAveraged()));
 	}
 	else
 	{
@@ -3389,15 +3389,15 @@ void LLMessageSystem::dumpPacketToLog()
 
 
 //static
-U64 LLMessageSystem::getMessageTimeUsecs(const BOOL update)
+U64Microseconds LLMessageSystem::getMessageTimeUsecs(const BOOL update)
 {
 	if (gMessageSystem)
 	{
 		if (update)
 		{
-			gMessageSystem->mCurrentMessageTimeSeconds = totalTime()*SEC_PER_USEC;
+			gMessageSystem->mCurrentMessageTime = totalTime();
 		}
-		return (U64)(gMessageSystem->mCurrentMessageTimeSeconds * USEC_PER_SEC);
+		return gMessageSystem->mCurrentMessageTime;
 	}
 	else
 	{
@@ -3406,19 +3406,19 @@ U64 LLMessageSystem::getMessageTimeUsecs(const BOOL update)
 }
 
 //static
-F64 LLMessageSystem::getMessageTimeSeconds(const BOOL update)
+F64Seconds LLMessageSystem::getMessageTimeSeconds(const BOOL update)
 {
 	if (gMessageSystem)
 	{
 		if (update)
 		{
-			gMessageSystem->mCurrentMessageTimeSeconds = totalTime()*SEC_PER_USEC;
+			gMessageSystem->mCurrentMessageTime = totalTime();
 		}
-		return gMessageSystem->mCurrentMessageTimeSeconds;
+		return gMessageSystem->mCurrentMessageTime;
 	}
 	else
 	{
-		return totalTime()*SEC_PER_USEC;
+		return F64Seconds(totalTime());
 	}
 }
 

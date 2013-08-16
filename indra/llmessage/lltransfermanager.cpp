@@ -815,7 +815,7 @@ void LLTransferSourceChannel::updateTransfers()
 		gMessageSystem->addS32("Status", status);
 		gMessageSystem->addBinaryData("Data", datap, data_size);
 		sent_bytes = gMessageSystem->getCurrentSendTotal();
-		gMessageSystem->sendReliable(getHost(), LL_DEFAULT_RELIABLE_RETRIES, TRUE, 0.f,
+		gMessageSystem->sendReliable(getHost(), LL_DEFAULT_RELIABLE_RETRIES, TRUE, F32Seconds(0.f),
 									 LLTransferManager::reliablePacketCallback, (void**)cb_uuid);
 
 		// Do bookkeeping for the throttle

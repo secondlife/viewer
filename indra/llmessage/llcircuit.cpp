@@ -60,12 +60,12 @@
 const S32 PING_START_BLOCK = 3;		// How many pings behind we have to be to consider ourself blocked.
 const S32 PING_RELEASE_BLOCK = 2;	// How many pings behind we have to be to consider ourself unblocked.
 
-const F32 TARGET_PERIOD_LENGTH = 5.f;	// seconds
-const F32 LL_DUPLICATE_SUPPRESSION_TIMEOUT = 60.f; //seconds - this can be long, as time-based cleanup is
+const F32Seconds TARGET_PERIOD_LENGTH(5.f);
+const F32Seconds LL_DUPLICATE_SUPPRESSION_TIMEOUT(60.f); //this can be long, as time-based cleanup is
 													// only done when wrapping packetids, now...
 
 LLCircuitData::LLCircuitData(const LLHost &host, TPACKETID in_id, 
-							 const F32 circuit_heartbeat_interval, const F32 circuit_timeout)
+							 const F32Seconds circuit_heartbeat_interval, const F32Seconds circuit_timeout)
 :	mHost (host),
 	mWrapID(0),
 	mPacketsOutID(0), 
@@ -84,7 +84,7 @@ LLCircuitData::LLCircuitData(const LLHost &host, TPACKETID in_id,
 	mPingsInTransit(0),
 	mLastPingID(0),
 	mPingDelay(INITIAL_PING_VALUE_MSEC), 
-	mPingDelayAveraged((F32)INITIAL_PING_VALUE_MSEC), 
+	mPingDelayAveraged(INITIAL_PING_VALUE_MSEC), 
 	mUnackedPacketCount(0),
 	mUnackedPacketBytes(0),
 	mLastPacketInTime(0.0),
@@ -110,13 +110,13 @@ LLCircuitData::LLCircuitData(const LLHost &host, TPACKETID in_id,
 {
 	// Need to guarantee that this time is up to date, we may be creating a circuit even though we haven't been
 	//  running a message system loop.
-	F64 mt_sec = LLMessageSystem::getMessageTimeSeconds(TRUE);
+	F64Seconds mt_sec = LLMessageSystem::getMessageTimeSeconds(TRUE);
 	F32 distribution_offset = ll_frand();
 	
 	mPingTime = mt_sec;
 	mLastPingSendTime = mt_sec + mHeartbeatInterval * distribution_offset;
 	mLastPingReceivedTime = mt_sec;
-	mNextPingSendTime = mLastPingSendTime + 0.95*mHeartbeatInterval + ll_frand(0.1f*mHeartbeatInterval);
+	mNextPingSendTime = mLastPingSendTime + 0.95*mHeartbeatInterval + F32Seconds(ll_frand(0.1f*mHeartbeatInterval.value()));
 	mPeriodTime = mt_sec;
 
 	mLocalEndPointID.generate();
@@ -268,7 +268,7 @@ void LLCircuitData::ackReliablePacket(TPACKETID packet_num)
 
 
 
-S32 LLCircuitData::resendUnackedPackets(const F64 now)
+S32 LLCircuitData::resendUnackedPackets(const F64Seconds now)
 {
 	S32 resent_packets = 0;
 	LLReliablePacket *packetp;
@@ -355,7 +355,7 @@ S32 LLCircuitData::resendUnackedPackets(const F64 now)
 			// The new method, retry time based on ping
 			if (packetp->mPingBasedRetry)
 			{
-				packetp->mExpirationTime = now + llmax(LL_MINIMUM_RELIABLE_TIMEOUT_SECONDS, (LL_RELIABLE_TIMEOUT_FACTOR * getPingDelayAveraged()));
+				packetp->mExpirationTime = now + llmax(LL_MINIMUM_RELIABLE_TIMEOUT_SECONDS, F32Seconds(LL_RELIABLE_TIMEOUT_FACTOR * getPingDelayAveraged()));
 			}
 			else
 			{
@@ -427,10 +427,11 @@ S32 LLCircuitData::resendUnackedPackets(const F64 now)
 }
 
 
-LLCircuit::LLCircuit(const F32 circuit_heartbeat_interval, const F32 circuit_timeout) : mLastCircuit(NULL),  
-	mHeartbeatInterval(circuit_heartbeat_interval), mHeartbeatTimeout(circuit_timeout)
-{
-}
+LLCircuit::LLCircuit(const F32Seconds circuit_heartbeat_interval, const F32Seconds circuit_timeout) 
+:	mLastCircuit(NULL),  
+	mHeartbeatInterval(circuit_heartbeat_interval), 
+	mHeartbeatTimeout(circuit_timeout)
+{}
 
 LLCircuit::~LLCircuit()
 {
@@ -521,17 +522,17 @@ void LLCircuitData::setAllowTimeout(BOOL allow)
 // Reset per-period counters if necessary.
 void LLCircuitData::checkPeriodTime()
 {
-	F64 mt_sec = LLMessageSystem::getMessageTimeSeconds();
-	F64 period_length = mt_sec - mPeriodTime;
+	F64Seconds mt_sec = LLMessageSystem::getMessageTimeSeconds();
+	F64Seconds period_length = mt_sec - mPeriodTime;
 	if ( period_length > TARGET_PERIOD_LENGTH)
 	{
-		F32 bps_in = (F32)(mBytesInThisPeriod * 8.f / period_length);
+		F32 bps_in = F32Bits(mBytesInThisPeriod).value() / period_length.value();
 		if (bps_in > mPeakBPSIn)
 		{
 			mPeakBPSIn = bps_in;
 		}
 
-		F32 bps_out = (F32)(mBytesOutThisPeriod * 8.f / period_length);
+		F32 bps_out = F32Bits(mBytesOutThisPeriod).value() / period_length.value();
 		if (bps_out > mPeakBPSOut)
 		{
 			mPeakBPSOut = bps_out;
@@ -541,7 +542,7 @@ void LLCircuitData::checkPeriodTime()
 		mBytesOutLastPeriod	= mBytesOutThisPeriod;
 		mBytesInThisPeriod	= 0;
 		mBytesOutThisPeriod	= 0;
-		mLastPeriodLength	= (F32)period_length;
+		mLastPeriodLength	= period_length;
 
 		mPeriodTime = mt_sec;
 	}
@@ -584,7 +585,7 @@ void LLCircuitData::addReliablePacket(S32 mSocket, U8 *buf_ptr, S32 buf_len, LLR
 
 void LLCircuit::resendUnackedPackets(S32& unacked_list_length, S32& unacked_list_size)
 {
-	F64 now = LLMessageSystem::getMessageTimeSeconds();
+	F64Seconds now = LLMessageSystem::getMessageTimeSeconds();
 	unacked_list_length = 0;
 	unacked_list_size = 0;
 
@@ -726,7 +727,7 @@ void LLCircuitData::checkPacketInID(TPACKETID id, BOOL receive_resent)
 		}
 		else if (!receive_resent) // don't freak out over out-of-order reliable resends
 		{
-			U64 time = LLMessageSystem::getMessageTimeUsecs();
+			U64Microseconds time = LLMessageSystem::getMessageTimeUsecs();
 			TPACKETID index = mPacketsInID;
 			S32 gap_count = 0;
 			if ((index < id) && ((id - index) < 16))
@@ -742,7 +743,7 @@ void LLCircuitData::checkPacketInID(TPACKETID id, BOOL receive_resent)
 					}
 
 //						LL_INFOS() << "adding potential lost: " << index << LL_ENDL;
-					mPotentialLostPackets[index] = time;
+					mPotentialLostPackets[index] = time.value();
 					index++;
 					index = index % LL_MAX_OUT_PACKET_ID;
 					gap_count++;
@@ -780,7 +781,7 @@ void LLCircuitData::checkPacketInID(TPACKETID id, BOOL receive_resent)
 
 void LLCircuit::updateWatchDogTimers(LLMessageSystem *msgsys)
 {
-	F64 cur_time = LLMessageSystem::getMessageTimeSeconds();
+	F64Seconds cur_time = LLMessageSystem::getMessageTimeSeconds();
 	S32 count = mPingSet.size();
 	S32 cur = 0;
 
@@ -818,7 +819,7 @@ void LLCircuit::updateWatchDogTimers(LLMessageSystem *msgsys)
 			if (cdp->updateWatchDogTimers(msgsys))
             {
 				// Randomize our pings a bit by doing some up to 5% early or late
-				F64 dt = 0.95f*mHeartbeatInterval + ll_frand(0.1f*mHeartbeatInterval);
+				F64Seconds dt = 0.95f*mHeartbeatInterval + F32Seconds(ll_frand(0.1f*mHeartbeatInterval.value()));
 
 				// Remove it, and reinsert it with the new next ping time.
 				// Always remove before changing the sorting key.
@@ -846,7 +847,7 @@ void LLCircuit::updateWatchDogTimers(LLMessageSystem *msgsys)
 
 BOOL LLCircuitData::updateWatchDogTimers(LLMessageSystem *msgsys)
 {
-	F64 cur_time = LLMessageSystem::getMessageTimeSeconds();
+	F64Seconds cur_time = LLMessageSystem::getMessageTimeSeconds();
 	mLastPingSendTime = cur_time;
 
 	if (!checkCircuitTimeout())
@@ -963,12 +964,12 @@ BOOL LLCircuitData::updateWatchDogTimers(LLMessageSystem *msgsys)
 	// be considered lost
 
 	LLCircuitData::packet_time_map::iterator it;
-	U64 timeout = (U64)(1000000.0*llmin(LL_MAX_LOST_TIMEOUT, getPingDelayAveraged() * LL_LOST_TIMEOUT_FACTOR));
+	U64Microseconds timeout = llmin(LL_MAX_LOST_TIMEOUT, F32Seconds(getPingDelayAveraged()) * LL_LOST_TIMEOUT_FACTOR);
 
-	U64 mt_usec = LLMessageSystem::getMessageTimeUsecs();
+	U64Microseconds mt_usec = LLMessageSystem::getMessageTimeUsecs();
 	for (it = mPotentialLostPackets.begin(); it != mPotentialLostPackets.end(); )
 	{
-		U64 delta_t_usec = mt_usec - (*it).second;
+		U64Microseconds delta_t_usec = mt_usec - (*it).second;
 		if (delta_t_usec > timeout)
 		{
 			// let's call this one a loss!
@@ -1014,7 +1015,7 @@ void LLCircuitData::clearDuplicateList(TPACKETID oldest_id)
 	// Do timeout checks on everything with an ID > mHighestPacketID.
 	// This should be empty except for wrapping IDs.  Thus, this should be
 	// highly rare.
-	U64 mt_usec = LLMessageSystem::getMessageTimeUsecs();
+	U64Microseconds mt_usec = LLMessageSystem::getMessageTimeUsecs();
 
 	packet_time_map::iterator pit;
 	for(pit = mRecentlyReceivedReliablePackets.upper_bound(mHighestPacketID);
@@ -1025,8 +1026,8 @@ void LLCircuitData::clearDuplicateList(TPACKETID oldest_id)
 		{
 			LL_WARNS() << "Probably incorrectly timing out non-wrapped packets!" << LL_ENDL;
 		}
-		U64 delta_t_usec = mt_usec - (*pit).second;
-		F64 delta_t_sec = delta_t_usec * SEC_PER_USEC;
+		U64Microseconds delta_t_usec = mt_usec - (*pit).second;
+		F64Seconds delta_t_sec = delta_t_usec;
 		if (delta_t_sec > LL_DUPLICATE_SUPPRESSION_TIMEOUT)
 		{
 			// enough time has elapsed we're not likely to get a duplicate on this one
@@ -1043,7 +1044,7 @@ void LLCircuitData::clearDuplicateList(TPACKETID oldest_id)
 
 BOOL LLCircuitData::checkCircuitTimeout()
 {
-	F64 time_since_last_ping = LLMessageSystem::getMessageTimeSeconds() - mLastPingReceivedTime;
+	F64Seconds time_since_last_ping = LLMessageSystem::getMessageTimeSeconds() - mLastPingReceivedTime;
 
 	// Nota Bene: This needs to be turned off if you are debugging multiple simulators
 	if (time_since_last_ping > mHeartbeatTimeout)
@@ -1139,40 +1140,40 @@ std::ostream& operator<<(std::ostream& s, LLCircuitData& circuit)
 	F32 age = circuit.mExistenceTimer.getElapsedTimeF32();
 
 	using namespace std;
-	s << "Circuit " << circuit.mHost << " ";
-	s << circuit.mRemoteID << " ";
-	s << (circuit.mbAlive ? "Alive" : "Not Alive") << " ";
-	s << (circuit.mbAllowTimeout ? "Timeout Allowed" : "Timeout Not Allowed");
-	s << endl;
+	s << "Circuit " << circuit.mHost << " "
+		<< circuit.mRemoteID << " "
+		<< (circuit.mbAlive ? "Alive" : "Not Alive") << " "
+		<< (circuit.mbAllowTimeout ? "Timeout Allowed" : "Timeout Not Allowed")
+		<< endl;
 
-	s << " Packets Lost: " << circuit.mPacketsLost;
-	s << " Measured Ping: " << circuit.mPingDelay;
-	s << " Averaged Ping: " << circuit.mPingDelayAveraged;
-	s << endl;
+	s << " Packets Lost: " << circuit.mPacketsLost
+		<< " Measured Ping: " << circuit.mPingDelay
+		<< " Averaged Ping: " << circuit.mPingDelayAveraged
+		<< endl;
 
-	s << "Global In/Out " << S32(age) << " sec";
-	s << " KBytes: " << circuit.mBytesIn / 1024 << "/" << circuit.mBytesOut / 1024;
-	s << " Kbps: ";
-	s << S32(circuit.mBytesIn * 8.f / circuit.mExistenceTimer.getElapsedTimeF32() / 1024.f);
-	s << "/";
-	s << S32(circuit.mBytesOut * 8.f / circuit.mExistenceTimer.getElapsedTimeF32() / 1024.f);
-	s << " Packets: " << circuit.mPacketsIn << "/" << circuit.mPacketsOut;
-	s << endl;
+	s << "Global In/Out " << S32(age) << " sec"
+		<< " KBytes: " << circuit.mBytesIn.valueInUnits<LLUnits::Kibibytes>() << "/" << circuit.mBytesOut.valueInUnits<LLUnits::Kibibytes>()
+		<< " Kbps: "
+		<< S32(circuit.mBytesIn.valueInUnits<LLUnits::Kibibits>() / circuit.mExistenceTimer.getElapsedTimeF32().value())
+		<< "/"
+		<< S32(circuit.mBytesOut.valueInUnits<LLUnits::Kibibits>() / circuit.mExistenceTimer.getElapsedTimeF32().value())
+		<< " Packets: " << circuit.mPacketsIn << "/" << circuit.mPacketsOut
+		<< endl;
 
-	s << "Recent In/Out   " << S32(circuit.mLastPeriodLength) << " sec";
-	s << " KBytes: ";
-	s << circuit.mBytesInLastPeriod / 1024;
-	s << "/";
-	s << circuit.mBytesOutLastPeriod / 1024;
-	s << " Kbps: ";
-	s << S32(circuit.mBytesInLastPeriod * 8.f / circuit.mLastPeriodLength / 1024.f);
-	s << "/";
-	s << S32(circuit.mBytesOutLastPeriod * 8.f / circuit.mLastPeriodLength / 1024.f);
-	s << " Peak kbps: ";
-	s << S32(circuit.mPeakBPSIn / 1024.f);
-	s << "/";
-	s << S32(circuit.mPeakBPSOut / 1024.f);
-	s << endl;
+	s << "Recent In/Out   " << circuit.mLastPeriodLength
+		<< " KBytes: "
+		<< circuit.mBytesInLastPeriod.valueInUnits<LLUnits::Kibibytes>()
+		<< "/"
+		<< circuit.mBytesOutLastPeriod.valueInUnits<LLUnits::Kibibytes>()
+		<< " Kbps: "
+		<< (S32)(circuit.mBytesInLastPeriod.valueInUnits<LLUnits::Kibibits>() / circuit.mLastPeriodLength.value())
+		<< "/"
+		<< (S32)(circuit.mBytesOutLastPeriod.valueInUnits<LLUnits::Kibibits>() / circuit.mLastPeriodLength.value())
+		<< " Peak kbps: "
+		<< S32(circuit.mPeakBPSIn / 1024.f)
+		<< "/"
+		<< S32(circuit.mPeakBPSOut / 1024.f)
+		<< endl;
 
 	return s;
 }
@@ -1256,10 +1257,10 @@ void LLCircuitData::setPacketInID(TPACKETID id)
 
 void LLCircuitData::pingTimerStop(const U8 ping_id)
 {
-	F64 mt_secs = LLMessageSystem::getMessageTimeSeconds();
+	F64Seconds mt_secs = LLMessageSystem::getMessageTimeSeconds();
 
 	// Nota Bene: no averaging of ping times until we get a feel for how this works
-	F64 time = mt_secs - mPingTime;
+	F64Seconds time = mt_secs - mPingTime;
 	if (time == 0.0)
 	{
 		// Ack, we got our ping response on the same frame! Sigh, let's get a real time otherwise
@@ -1276,7 +1277,7 @@ void LLCircuitData::pingTimerStop(const U8 ping_id)
 		delta_ping += 256;
 	}
 
-	U32 msec = (U32) ((delta_ping*mHeartbeatInterval  + time) * 1000.f);
+	U32Milliseconds msec = delta_ping*mHeartbeatInterval + time;
 	setPingDelay(msec);
 
 	mPingsInTransit = delta_ping;
@@ -1305,13 +1306,13 @@ U32 LLCircuitData::getPacketsIn() const
 }
 
 
-S32 LLCircuitData::getBytesIn() const
+S32Bytes LLCircuitData::getBytesIn() const
 {
 	return mBytesIn;
 }
 
 
-S32 LLCircuitData::getBytesOut() const
+S32Bytes LLCircuitData::getBytesOut() const
 {
 	return mBytesOut;
 }
@@ -1353,41 +1354,41 @@ BOOL LLCircuitData::getAllowTimeout() const
 }
 
 
-U32 LLCircuitData::getPingDelay() const
+U32Milliseconds LLCircuitData::getPingDelay() const
 {
 	return mPingDelay;
 }
 
 
-F32 LLCircuitData::getPingInTransitTime()
+F32Milliseconds LLCircuitData::getPingInTransitTime()
 {
 	// This may be inaccurate in the case of a circuit that was "dead" and then revived,
 	// but only until the first round trip ping is sent - djs
-	F32 time_since_ping_was_sent = 0;
+	F32Milliseconds time_since_ping_was_sent(0);
 
 	if (mPingsInTransit)
 	{
-		time_since_ping_was_sent =  (F32)((mPingsInTransit*mHeartbeatInterval - 1) 
-			+ (LLMessageSystem::getMessageTimeSeconds() - mPingTime))*1000.f;
+		time_since_ping_was_sent =  ((mPingsInTransit*mHeartbeatInterval - 1) 
+			+ (LLMessageSystem::getMessageTimeSeconds() - mPingTime));
 	}
 
 	return time_since_ping_was_sent;
 }
 
 
-void LLCircuitData::setPingDelay(U32 ping)
+void LLCircuitData::setPingDelay(U32Milliseconds ping)
 {
 	mPingDelay = ping;
-	mPingDelayAveraged = llmax((F32)ping, getPingDelayAveraged());
+	mPingDelayAveraged = llmax((F32Milliseconds)ping, getPingDelayAveraged());
 	mPingDelayAveraged = ((1.f - LL_AVERAGED_PING_ALPHA) * mPingDelayAveraged) 
-						  + (LL_AVERAGED_PING_ALPHA * (F32) ping);
+						  + (LL_AVERAGED_PING_ALPHA * (F32Milliseconds) ping);
 	mPingDelayAveraged = llclamp(mPingDelayAveraged, 
 								 LL_AVERAGED_PING_MIN,
 								 LL_AVERAGED_PING_MAX);
 }
 
 
-F32 LLCircuitData::getPingDelayAveraged()
+F32Milliseconds LLCircuitData::getPingDelayAveraged()
 {
 	return llmin(llmax(getPingInTransitTime(), mPingDelayAveraged), LL_AVERAGED_PING_MAX);
 }

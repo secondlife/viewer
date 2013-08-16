@@ -119,8 +119,8 @@ BOOL		LLViewerObject::sPulseEnabled(FALSE);
 BOOL		LLViewerObject::sUseSharedDrawables(FALSE); // TRUE
 
 // sMaxUpdateInterpolationTime must be greater than sPhaseOutUpdateInterpolationTime
-F64			LLViewerObject::sMaxUpdateInterpolationTime = 3.0;		// For motion interpolation: after X seconds with no updates, don't predict object motion
-F64			LLViewerObject::sPhaseOutUpdateInterpolationTime = 2.0;	// For motion interpolation: after Y seconds with no updates, taper off motion prediction
+F64Seconds	LLViewerObject::sMaxUpdateInterpolationTime(3.0);		// For motion interpolation: after X seconds with no updates, don't predict object motion
+F64Seconds	LLViewerObject::sPhaseOutUpdateInterpolationTime(2.0);	// For motion interpolation: after Y seconds with no updates, taper off motion prediction
 
 std::map<std::string, U32> LLViewerObject::sObjectDataMap;
 
@@ -2190,7 +2190,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		LLCircuitData *cdp = gMessageSystem->mCircuitInfo.findCircuit(mesgsys->getSender());
 		if (cdp)
 		{
-			F32 ping_delay = 0.5f * mTimeDilation * ( ((F32)cdp->getPingDelay()) * 0.001f + gFrameDTClamped);
+			F32 ping_delay = 0.5f * mTimeDilation * ( ((F32)cdp->getPingDelay().valueInUnits<LLUnits::Seconds>()) + gFrameDTClamped);
 			LLVector3 diff = getVelocity() * ping_delay; 
 			new_pos_parent += diff;
 		}
@@ -2491,7 +2491,7 @@ void LLViewerObject::interpolateLinearMotion(const F64 & time, const F32 & dt)
 				if (cdp)
 				{
 					// Find out how many seconds since last packet arrived on the circuit
-					F64 time_since_last_packet = LLMessageSystem::getMessageTimeSeconds() - cdp->getLastPacketInTime();
+					F64Seconds time_since_last_packet = LLMessageSystem::getMessageTimeSeconds() - cdp->getLastPacketInTime();
 
 					if (!cdp->isAlive() ||		// Circuit is dead or blocked
 						 cdp->isBlocked() ||	// or doesn't seem to be getting any packets

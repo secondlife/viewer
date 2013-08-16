@@ -1443,7 +1443,7 @@ void LLScrollListCtrl::drawItems()
 
 		LLColor4 highlight_color = LLColor4::white;
 		static LLUICachedControl<F32> type_ahead_timeout ("TypeAheadTimeout", 0);
-		highlight_color.mV[VALPHA] = clamp_rescale(mSearchTimer.getElapsedTimeF32(), type_ahead_timeout * 0.7f, type_ahead_timeout, 0.4f, 0.f);
+		highlight_color.mV[VALPHA] = clamp_rescale(mSearchTimer.getElapsedTimeF32(), type_ahead_timeout * 0.7f, type_ahead_timeout(), 0.4f, 0.f);
 
 		S32 first_line = mScrollLines;
 		S32 last_line = llmin((S32)mItemList.size() - 1, mScrollLines + getLinesPerPage());

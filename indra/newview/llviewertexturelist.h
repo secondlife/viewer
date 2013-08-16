@@ -71,7 +71,7 @@ public:
 	static BOOL createUploadFile(const std::string& filename, const std::string& out_filename, const U8 codec);
 	static LLPointer<LLImageJ2C> convertToUploadFile(LLPointer<LLImageRaw> raw_image);
 	static void processImageNotInDatabase( LLMessageSystem *msg, void **user_data );
-	static S32 calcMaxTextureRAM();
+	static S32Bytes calcMaxTextureRAM();
 	static void receiveImageHeader(LLMessageSystem *msg, void **user_data);
 	static void receiveImagePacket(LLMessageSystem *msg, void **user_data);
 
@@ -105,7 +105,7 @@ public:
 	S32Mibibytes getMaxTotalTextureMem() const   { return mMaxTotalTextureMemInMegaBytes;}
 	S32 getNumImages()					{ return mImageList.size(); }
 
-	void updateMaxResidentTexMem(S32 mem);
+	void updateMaxResidentTexMem(S32Mibibytes mem);
 	
 	void doPreloadImages();
 	void doPrefetchImages();
@@ -113,8 +113,8 @@ public:
 	void clearFetchingRequests();
 	void setDebugFetching(LLViewerFetchedTexture* tex, S32 debug_level);
 
-	static S32 getMinVideoRamSetting();
-	static S32 getMaxVideoRamSetting(bool get_recommended = false);
+	static S32Mibibytes getMinVideoRamSetting();
+	static S32Mibibytes getMaxVideoRamSetting(bool get_recommended = false);
 	
 private:
 	void updateImagesDecodePriorities();

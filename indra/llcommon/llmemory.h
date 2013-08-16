@@ -27,6 +27,7 @@
 #define LLMEMORY_H
 
 #include "linden_common.h"
+#include "llunit.h"
 #if !LL_WINDOWS
 #include <stdint.h>
 #endif
@@ -170,17 +171,17 @@ public:
 	static void logMemoryInfo(BOOL update = FALSE);
 	static bool isMemoryPoolLow();
 
-	static U32 getAvailableMemKB() ;
-	static U32 getMaxMemKB() ;
-	static U32 getAllocatedMemKB() ;
+	static U32Kibibytes getAvailableMemKB() ;
+	static U32Kibibytes getMaxMemKB() ;
+	static U32Kibibytes getAllocatedMemKB() ;
 private:
 	static char* reserveMem;
-	static U32 sAvailPhysicalMemInKB ;
-	static U32 sMaxPhysicalMemInKB ;
-	static U32 sAllocatedMemInKB;
-	static U32 sAllocatedPageSizeInKB ;
+	static U32Kibibytes sAvailPhysicalMemInKB ;
+	static U32Kibibytes sMaxPhysicalMemInKB ;
+	static U32Kibibytes sAllocatedMemInKB;
+	static U32Kibibytes sAllocatedPageSizeInKB ;
 
-	static U32 sMaxHeapSizeInKB;
+	static U32Kibibytes sMaxHeapSizeInKB;
 	static BOOL sEnableMemoryFailurePrevention;
 };
 
