@@ -236,7 +236,7 @@
 		<menu label="Renderowanie" name="Rendering">
 			<menu_item_check label="Osie" name="Axes"/>
 			<menu_item_check label="Tryb obrazu szkieletowego" name="Wireframe"/>
-			<menu_item_check label="Oświetlenie i cienie" name="Lighting and Shadows"/>
+			<menu_item_check label="Oświetlenie i cienie" name="Advanced Lighting Model"/>
 			<menu_item_check label="Cienie Słońca/Księżyca/Projektory" name="Shadows from Sun/Moon/Projectors"/>
 			<menu_item_check label="SSAO and wygładzanie cienia" name="SSAO and Shadow Smoothing"/>
 			<menu_item_check label="Globalne oświetlenie (eksperymentalne)" name="Global Illumination"/>

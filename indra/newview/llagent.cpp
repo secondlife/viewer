@@ -4321,7 +4321,7 @@ void LLAgent::sendAgentSetAppearance()
 		return;
 	}
 	
-
+	
 	LL_DEBUGS("Avatar") << gAgentAvatarp->avString() << "TAT: Sent AgentSetAppearance: " << gAgentAvatarp->getBakedStatusForPrintout() << LL_ENDL;
 	//dumpAvatarTEs( "sendAgentSetAppearance()" );
 
@@ -4432,7 +4432,7 @@ void LLAgent::sendAgentSetAppearance()
 		}
 	}
 
-	//llinfos << "Avatar XML num VisualParams transmitted = " << transmitted_params << llendl;
+//	llinfos << "Avatar XML num VisualParams transmitted = " << transmitted_params << llendl;
 	sendReliableMessage();
 }
 

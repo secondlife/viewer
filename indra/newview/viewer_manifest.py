@@ -172,7 +172,7 @@ class ViewerManifest(LLManifest):
     def app_name(self):
         app_suffix='Test'
         channel_type=self.channel_lowerword()
-        if channel_type == 'release' :
+        if channel_type.startswith('release') :
             app_suffix='Viewer'
         elif re.match('^(beta|project).*',channel_type) :
             app_suffix=self.channel_unique()
@@ -182,8 +182,8 @@ class ViewerManifest(LLManifest):
         icon_path="icons/"
         channel_type=self.channel_lowerword()
         print "Icon channel type '%s'" % channel_type
-        if channel_type == 'release' :
-            icon_path += channel_type
+        if channel_type.startswith('release') :
+            icon_path += 'release'
         elif re.match('^beta.*',channel_type) :
             icon_path += 'beta'
         elif re.match('^project.*',channel_type) :
@@ -242,7 +242,7 @@ class WindowsManifest(ViewerManifest):
     def final_exe(self):
         app_suffix="Test"
         channel_type=self.channel_lowerword()
-        if channel_type == 'release' :
+        if channel_type.startswith('release') :
             app_suffix=''
         elif re.match('^(beta|project).*',channel_type) :
             app_suffix=''.join(self.channel_unique().split())
@@ -366,6 +366,7 @@ class WindowsManifest(ViewerManifest):
             self.path("zlib1.dll")
             self.path("vivoxplatform.dll")
             self.path("vivoxoal.dll")
+            self.path("ca-bundle.crt")
             
             # Security
             self.path("ssleay32.dll")
@@ -726,10 +727,11 @@ class DarwinManifest(ViewerManifest):
                                 'libvivoxoal.dylib',
                                 'libvivoxsdk.dylib',
                                 'libvivoxplatform.dylib',
+                                'ca-bundle.crt',
                                 'SLVoice',
                                 ):
                      self.path2basename(libdir, libfile)
-
+                
                 # our apps
                 for app_bld_dir, app in (("mac_crash_logger", "mac-crash-logger.app"),
                                          # plugin launcher
@@ -1038,9 +1040,6 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libboost_signals-mt.so.*")
             self.path("libboost_system-mt.so.*")
             self.path("libboost_thread-mt.so.*")
-            self.path("libbreakpad_client.so.0.0.0")
-            self.path("libbreakpad_client.so.0")
-            self.path("libbreakpad_client.so")
             self.path("libcollada14dom.so")
             self.path("libdb*.so")
             self.path("libcrypto.so.*")

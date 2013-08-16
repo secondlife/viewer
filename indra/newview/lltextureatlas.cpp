@@ -71,7 +71,7 @@ LLTextureAtlas::~LLTextureAtlas()
 //virtual 
 S8 LLTextureAtlas::getType() const
 {
-	return LLViewerTexture::ATLAS_TEXTURE ;
+	return 0; //LLViewerTexture::ATLAS_TEXTURE ;
 }
 
 void LLTextureAtlas::getTexCoordOffset(S16 col, S16 row, F32& xoffset, F32& yoffset)

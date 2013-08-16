@@ -31,8 +31,12 @@ out vec4 frag_color;
 
 uniform sampler2D diffuseMap;
 
+#if !DEPTH_CLAMP
 VARYING float pos_zd2;
+#endif
+
 VARYING float pos_w;
+
 VARYING float target_pos_x;
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
@@ -56,5 +60,7 @@ void main()
 
 	frag_color = vec4(1,1,1,1);
 	
+#if !DEPTH_CLAMP
 	gl_FragDepth = max(pos_zd2/pos_w+0.5, 0.0);
+#endif
 }

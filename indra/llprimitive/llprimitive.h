@@ -42,6 +42,7 @@ class LLMessageSystem;
 class LLVolumeParams;
 class LLColor4;
 class LLColor3;
+class LLMaterialID;
 class LLTextureEntry;
 class LLDataPacker;
 class LLVolumeMgr;
@@ -309,7 +310,8 @@ struct LLTEContents
 	U8	   bump[MAX_TES];
 	U8	   media_flags[MAX_TES];
     U8     glow[MAX_TES];
-	
+	LLMaterialID material_ids[MAX_TES];
+
 	static const U32 MAX_TE_BUFFER = 4096;
 	U8 packed_buffer[MAX_TE_BUFFER];
 
@@ -359,6 +361,7 @@ public:
 	LLTextureEntry* getTE(const U8 te_num) const;
 
 	virtual void setNumTEs(const U8 num_tes);
+	virtual void setAllTESelected(bool sel);
 	virtual void setAllTETextures(const LLUUID &tex_id);
 	virtual void setTE(const U8 index, const LLTextureEntry& te);
 	virtual S32 setTEColor(const U8 te, const LLColor4 &color);
@@ -381,7 +384,10 @@ public:
 	virtual S32 setTEFullbright(const U8 te, const U8 fullbright);
 	virtual S32 setTEMediaFlags(const U8 te, const U8 flags);
 	virtual S32 setTEGlow(const U8 te, const F32 glow);
+	virtual S32 setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID);
+	virtual S32 setTEMaterialParams(const U8 index, const LLMaterialPtr pMaterialParams);
 	virtual BOOL setMaterial(const U8 material); // returns TRUE if material changed
+	virtual void setTESelected(const U8 te, bool sel);
 
 	void copyTEs(const LLPrimitive *primitive);
 	S32 packTEField(U8 *cur_ptr, U8 *data_ptr, U8 data_size, U8 last_face_index, EMsgVariableType type) const;

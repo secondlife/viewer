@@ -4,6 +4,7 @@ project(viewer)
 
 include(00-Common)
 include(Boost)
+include(BuildVersion)
 include(DBusGlib)
 include(DirectX)
 include(OpenSSL)
@@ -174,6 +175,7 @@ set(viewer_SOURCE_FILES
     lldrawpoolavatar.cpp
     lldrawpoolbump.cpp
     lldrawpoolground.cpp
+    lldrawpoolmaterials.cpp
     lldrawpoolsimple.cpp
     lldrawpoolsky.cpp
     lldrawpoolterrain.cpp
@@ -359,6 +361,7 @@ set(viewer_SOURCE_FILES
     llmaniptranslate.cpp
     llmarketplacefunctions.cpp
     llmarketplacenotifications.cpp
+    llmaterialmgr.cpp
     llmediactrl.cpp
     llmediadataclient.cpp
     llmenuoptionpathfindingrebakenavmesh.cpp
@@ -756,6 +759,7 @@ set(viewer_HEADER_FILES
     lldrawpoolalpha.h
     lldrawpoolavatar.h
     lldrawpoolbump.h
+    lldrawpoolmaterials.h
     lldrawpoolground.h
     lldrawpoolsimple.h
     lldrawpoolsky.h
@@ -941,6 +945,7 @@ set(viewer_HEADER_FILES
     llmaniptranslate.h
     llmarketplacefunctions.h
     llmarketplacenotifications.h
+    llmaterialmgr.h
     llmediactrl.h
     llmediadataclient.h
     llmenuoptionpathfindingrebakenavmesh.h
@@ -1567,7 +1572,7 @@ endif (WINDOWS)
 
 if (OPENAL)
   set(LLSTARTUP_COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS} -DLL_OPENAL")
-endif (OPENAL)          
+endif (OPENAL)
 
 if (FMODEX)
   set(LLSTARTUP_COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS} -DLL_FMODEX")
@@ -1669,6 +1674,7 @@ if (WINDOWS)
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/zlib1.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/vivoxplatform.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/vivoxoal.dll
+      ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/ca-bundle.crt
       ${GOOGLE_PERF_TOOLS_SOURCE}
       ${CMAKE_CURRENT_SOURCE_DIR}/licenses-win32.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable.txt
@@ -1987,7 +1993,7 @@ if (DARWIN)
   configure_file(
      "${CMAKE_CURRENT_SOURCE_DIR}/Info-SecondLife.plist"
      "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app/Contents/Info.plist"
-               )
+    )
 
   add_custom_command(
     TARGET ${VIEWER_BINARY_NAME} POST_BUILD
@@ -2149,6 +2155,40 @@ if (LL_TESTS)
     llmediadataclient.cpp
     PROPERTIES
     LL_TEST_ADDITIONAL_LIBRARIES "${CURL_LIBRARIES}"
+  )
+
+  set_source_files_properties(
+    llviewerhelputil.cpp
+    PROPERTIES
+    LL_TEST_ADDITIONAL_LIBRARIES "${BOOST_SYSTEM_LIBRARY}"
+  )
+
+  set_source_files_properties(
+    llremoteparcelrequest.cpp
+    PROPERTIES
+    LL_TEST_ADDITIONAL_LIBRARIES "${BOOST_SYSTEM_LIBRARY}"
+  )
+
+  set_source_files_properties(
+    llworldmap.cpp
+    llworldmipmap.cpp
+    PROPERTIES
+    LL_TEST_ADDITIONAL_SOURCE_FILES 
+    tests/llviewertexture_stub.cpp
+    #llviewertexturelist.cpp
+    LL_TEST_ADDITIONAL_LIBRARIES "${BOOST_SYSTEM_LIBRARY}"
+  )
+
+  set_source_files_properties(
+    llmediadataclient.cpp
+    PROPERTIES
+    LL_TEST_ADDITIONAL_LIBRARIES "${LLPRIMITIVE_LIBRARIES}"
+  )
+
+  set_source_files_properties(
+    llagentaccess.cpp
+    PROPERTIES
+    LL_TEST_ADDITIONAL_LIBRARIES "${BOOST_SYSTEM_LIBRARY}"
   )
 
   set_source_files_properties(

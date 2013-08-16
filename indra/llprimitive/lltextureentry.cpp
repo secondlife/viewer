@@ -29,6 +29,7 @@
 #include "lluuid.h"
 #include "llmediaentry.h"
 #include "lltextureentry.h"
+#include "llmaterialid.h"
 #include "llsdutil_math.h"
 #include "v4color.h"
 
@@ -60,18 +61,24 @@ LLTextureEntry* LLTextureEntry::newTextureEntry()
 //===============================================================
 LLTextureEntry::LLTextureEntry()
   : mMediaEntry(NULL)
+  , mSelected(false)
+  , mMaterialUpdatePending(false)
 {
 	init(LLUUID::null,1.f,1.f,0.f,0.f,0.f,DEFAULT_BUMP_CODE);
 }
 
 LLTextureEntry::LLTextureEntry(const LLUUID& tex_id)
   : mMediaEntry(NULL)
+  , mSelected(false)
+  , mMaterialUpdatePending(false)
 {
 	init(tex_id,1.f,1.f,0.f,0.f,0.f,DEFAULT_BUMP_CODE);
 }
 
 LLTextureEntry::LLTextureEntry(const LLTextureEntry &rhs)
   : mMediaEntry(NULL)
+  , mSelected(false)
+  , mMaterialUpdatePending(false)
 {
 	mID = rhs.mID;
 	mScaleS = rhs.mScaleS;
@@ -83,6 +90,8 @@ LLTextureEntry::LLTextureEntry(const LLTextureEntry &rhs)
 	mBump = rhs.mBump;
 	mMediaFlags = rhs.mMediaFlags;
 	mGlow = rhs.mGlow;
+	mMaterialID = rhs.mMaterialID;
+	mMaterial = rhs.mMaterial;
 	if (rhs.mMediaEntry != NULL) {
 		// Make a copy
 		mMediaEntry = new LLMediaEntry(*rhs.mMediaEntry);
@@ -103,6 +112,8 @@ LLTextureEntry &LLTextureEntry::operator=(const LLTextureEntry &rhs)
 		mBump = rhs.mBump;
 		mMediaFlags = rhs.mMediaFlags;
 		mGlow = rhs.mGlow;
+		mMaterialID = rhs.mMaterialID;
+		mMaterial = rhs.mMaterial;
 		if (mMediaEntry != NULL) {
 			delete mMediaEntry;
 		}
@@ -130,6 +141,7 @@ void LLTextureEntry::init(const LLUUID& tex_id, F32 scale_s, F32 scale_t, F32 of
 	mBump = bump;
 	mMediaFlags = 0x0;
     mGlow = 0;
+	mMaterialID.clear();
 	
 	setColor(LLColor4(1.f, 1.f, 1.f, 1.f));
 	if (mMediaEntry != NULL) {
@@ -159,6 +171,7 @@ bool LLTextureEntry::operator!=(const LLTextureEntry &rhs) const
 	if (mBump != rhs.mBump) return (true);
 	if (mMediaFlags != rhs.mMediaFlags) return (true);
 	if (mGlow != rhs.mGlow) return (true);
+	if (mMaterialID != rhs.mMaterialID) return (true);
 	return(false);
 }
 
@@ -174,6 +187,7 @@ bool LLTextureEntry::operator==(const LLTextureEntry &rhs) const
 	if (mBump != rhs.mBump) return (false);
 	if (mMediaFlags != rhs.mMediaFlags) return false;
 	if (mGlow != rhs.mGlow) return false;
+	if (mMaterialID != rhs.mMaterialID) return (false);
 	return(true);
 }
 
@@ -521,6 +535,34 @@ S32 LLTextureEntry::setGlow(F32 glow)
 		return TEM_CHANGE_TEXTURE;
 	}
 	return TEM_CHANGE_NONE;
+}
+
+S32 LLTextureEntry::setMaterialID(const LLMaterialID& pMaterialID)
+{
+	if ( (mMaterialID != pMaterialID) || (mMaterialUpdatePending && !mSelected) )
+	{
+		if (mSelected)
+		{
+			mMaterialUpdatePending = true;
+			mMaterialID = pMaterialID;
+			return TEM_CHANGE_NONE;
+		}
+
+		mMaterialUpdatePending = false;
+		mMaterialID = pMaterialID;
+		return TEM_CHANGE_TEXTURE;
+	}
+	return TEM_CHANGE_NONE;
+}
+
+S32 LLTextureEntry::setMaterialParams(const LLMaterialPtr pMaterialParams)
+{
+	if (mSelected)
+	{
+		mMaterialUpdatePending = true;
+	}
+	mMaterial = pMaterialParams;
+	return TEM_CHANGE_TEXTURE;
 }
 
 void LLTextureEntry::setMediaData(const LLMediaEntry &media_entry)
