@@ -212,6 +212,14 @@ HttpService::ELoopSpeed HttpPolicy::processReadyQueue()
 	for (int policy_class(0); policy_class < mClasses.size(); ++policy_class)
 	{
 		ClassState & state(*mClasses[policy_class]);
+		HttpRetryQueue & retryq(state.mRetryQueue);
+		HttpReadyQueue & readyq(state.mReadyQueue);
+
+		if (retryq.empty() && readyq.empty())
+		{
+			continue;
+		}
+		
 		const bool throttle_enabled(state.mOptions.mThrottleRate > 0L);
 		const bool throttle_current(throttle_enabled && now < state.mThrottleEnd);
 
@@ -224,9 +232,6 @@ HttpService::ELoopSpeed HttpPolicy::processReadyQueue()
 
 		int active(transport.getActiveCountInClass(policy_class));
 		int needed(state.mOptions.mConnectionLimit - active);		// Expect negatives here
-
-		HttpRetryQueue & retryq(state.mRetryQueue);
-		HttpReadyQueue & readyq(state.mReadyQueue);
 
 		if (needed > 0)
 		{
