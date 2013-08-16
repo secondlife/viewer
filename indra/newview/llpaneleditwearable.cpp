@@ -1098,11 +1098,9 @@ void LLPanelEditWearable::saveChanges(bool force_save_as)
 
 				LLInventoryObject::const_object_list_t obj_array;
 				obj_array.push_back(LLConstPointer<LLInventoryObject>(link_item));
-				const bool resolve_links = true;
 				link_inventory_array(LLAppearanceMgr::instance().getCOF(),
 									 obj_array, 
-									 gAgentAvatarp->mEndCustomizeCallback,
-									 resolve_links);
+									 gAgentAvatarp->mEndCustomizeCallback);
 				// Remove old link
 				remove_inventory_item(link_item->getUUID(), gAgentAvatarp->mEndCustomizeCallback);
 			}

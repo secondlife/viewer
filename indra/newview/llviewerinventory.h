@@ -359,9 +359,8 @@ void link_inventory_object(const LLUUID& category,
 			 const LLUUID& id,
 			 LLPointer<LLInventoryCallback> cb);
 void link_inventory_array(const LLUUID& category,
-			 LLInventoryObject::const_object_list_t& baseobj_array,
-			 LLPointer<LLInventoryCallback> cb,
-			 bool resolve_links = false);
+						  LLInventoryObject::const_object_list_t& baseobj_array,
+						  LLPointer<LLInventoryCallback> cb);
 
 void move_inventory_item(
 	const LLUUID& agent_id,

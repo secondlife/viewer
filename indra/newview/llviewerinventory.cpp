@@ -1101,8 +1101,7 @@ void link_inventory_object(const LLUUID& category,
 // Create links to all listed inventory objects.
 void link_inventory_array(const LLUUID& category,
 			 LLInventoryObject::const_object_list_t& baseobj_array,
-			 LLPointer<LLInventoryCallback> cb,
-			 bool resolve_links /* = false */)
+			 LLPointer<LLInventoryCallback> cb)
 {
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 	const LLViewerInventoryCategory *cat = gInventory.getCategory(category);
@@ -1117,11 +1116,6 @@ void link_inventory_array(const LLUUID& category,
 		if (!baseobj)
 		{
 			llwarns << "attempt to link to unknown object" << llendl;
-			continue;
-		}
-		if (!resolve_links && baseobj->getIsLinkType())
-		{
-			llwarns << "attempt to create a link to a link, linked-to-object's ID " << baseobj->getUUID() << llendl;
 			continue;
 		}
 
@@ -1741,7 +1735,9 @@ void slam_inventory_folder(const LLUUID& folder_id,
 			 ++it)
 		{
 			const LLSD& item_contents = *it;
-			link_inventory_object(folder_id, item_contents["linked_id"].asUUID(), cb);
+			LLViewerInventoryItem *item = new LLViewerInventoryItem;
+			item->fromLLSD(item_contents);
+			link_inventory_object(folder_id, item, cb);
 		}
 		remove_folder_contents(folder_id,false,cb);
 	}

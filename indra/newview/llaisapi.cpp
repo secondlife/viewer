@@ -828,6 +828,7 @@ void AISUpdate::doUpdate()
 		const LLUUID id = ucv_it->first;
 		S32 version = ucv_it->second;
 		LLViewerInventoryCategory *cat = gInventory.getCategory(id);
+		LL_DEBUGS("Inventory") << "cat version update " << cat->getName() << " to version " << cat->getVersion() << llendl;
 		if (cat->getVersion() != version)
 		{
 			llwarns << "Possible version mismatch for category " << cat->getName()
