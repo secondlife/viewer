@@ -496,8 +496,8 @@ namespace LLTrace
 				}
 			}
 			return (num_periods
-				? RelatedTypes<typename T::value_t>::fractional_t(mean / num_periods)
-				: RelatedTypes<typename T::value_t>::fractional_t(NaN));
+				? typename RelatedTypes<typename T::value_t>::fractional_t(mean / num_periods)
+				: typename RelatedTypes<typename T::value_t>::fractional_t(NaN));
 		}
 
 		template<typename T>
@@ -537,8 +537,8 @@ namespace LLTrace
 			}
 
 			return (num_periods
-				? RelatedTypes<typename T::value_t>::fractional_t(mean / num_periods)
-				: RelatedTypes<typename T::value_t>::fractional_t(NaN));
+				? typename RelatedTypes<typename T::value_t>::fractional_t(mean / num_periods)
+				: typename RelatedTypes<typename T::value_t>::fractional_t(NaN));
 		}
 
 		template<typename T>
