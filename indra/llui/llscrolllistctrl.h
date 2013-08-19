@@ -342,7 +342,7 @@ public:
 
 	static void onClickColumn(void *userdata);
 
-	virtual void updateColumns();
+	virtual void updateColumns(bool force_update = false);
 	S32 calcMaxContentWidth();
 	bool updateColumnWidths();
 
