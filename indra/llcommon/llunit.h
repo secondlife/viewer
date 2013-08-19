@@ -44,10 +44,14 @@ struct LLIsSameType<T, T>
 	static const bool value = true;
 };
 
+// workaround for decltype() not existing and typeof() not working inline in gcc 4.2
 template<typename S, typename T>
-struct LLPromotedType
+struct LLResultType
 {
-	typedef LLTYPEOF(S() + T()) type_t;
+	typedef LL_TYPEOF(S() + T()) add_t;
+	typedef LL_TYPEOF(S() - T()) subtract_t;
+	typedef LL_TYPEOF(S() * T()) multiply_t;
+	typedef LL_TYPEOF(S() / T(1)) divide_t;
 };
 
 template<typename STORAGE_TYPE, typename UNIT_TYPE>
@@ -262,9 +266,9 @@ LL_FORCE_INLINE void ll_convert_units(LLUnit<S1, T1> in, LLUnit<S2, T2>& out, ..
 // operator +
 //
 template<typename STORAGE_TYPE1, typename UNIT_TYPE1, typename STORAGE_TYPE2, typename UNIT_TYPE2>
-LLUnit<LLTYPEOF(STORAGE_TYPE1() + STORAGE_TYPE2()), UNIT_TYPE1> operator + (LLUnit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnit<STORAGE_TYPE2, UNIT_TYPE2> second)
+LLUnit<typename LLResultType<STORAGE_TYPE1, STORAGE_TYPE2>::add_t, UNIT_TYPE1> operator + (LLUnit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnit<STORAGE_TYPE2, UNIT_TYPE2> second)
 {
-	LLUnit<LLTYPEOF(STORAGE_TYPE1() + STORAGE_TYPE2()), UNIT_TYPE1> result(first);
+	LLUnit<typename LLResultType<STORAGE_TYPE1, STORAGE_TYPE2>::add_t, UNIT_TYPE1> result(first);
 	result += second;
 	return result;
 }
@@ -284,41 +288,41 @@ LLUnit<STORAGE_TYPE, UNIT_TYPE> operator + (UNITLESS first, LLUnit<STORAGE_TYPE,
 }
 
 template<typename STORAGE_TYPE1, typename UNIT_TYPE1, typename STORAGE_TYPE2, typename UNIT_TYPE2>
-LLUnitImplicit<LLTYPEOF(STORAGE_TYPE1() + STORAGE_TYPE2()), UNIT_TYPE1> operator + (LLUnitImplicit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnitImplicit<STORAGE_TYPE2, UNIT_TYPE2> second)
+LLUnitImplicit<typename LLResultType<STORAGE_TYPE1, STORAGE_TYPE2>::add_t, UNIT_TYPE1> operator + (LLUnitImplicit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnitImplicit<STORAGE_TYPE2, UNIT_TYPE2> second)
 {
-	LLUnitImplicit<LLTYPEOF(STORAGE_TYPE1() + STORAGE_TYPE2()), UNIT_TYPE1> result(first);
+	LLUnitImplicit<typename LLResultType<STORAGE_TYPE1, STORAGE_TYPE2>::add_t, UNIT_TYPE1> result(first);
 	result += second;
 	return result;
 }
 
 template<typename STORAGE_TYPE1, typename UNIT_TYPE1, typename STORAGE_TYPE2, typename UNIT_TYPE2>
-LLUnitImplicit<LLTYPEOF(STORAGE_TYPE1() + STORAGE_TYPE2()), UNIT_TYPE1> operator + (LLUnit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnitImplicit<STORAGE_TYPE2, UNIT_TYPE2> second)
+LLUnitImplicit<typename LLResultType<STORAGE_TYPE1, STORAGE_TYPE2>::add_t, UNIT_TYPE1> operator + (LLUnit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnitImplicit<STORAGE_TYPE2, UNIT_TYPE2> second)
 {
-	LLUnitImplicit<LLTYPEOF(STORAGE_TYPE1() + STORAGE_TYPE2()), UNIT_TYPE1> result(first);
+	LLUnitImplicit<typename LLResultType<STORAGE_TYPE1, STORAGE_TYPE2>::add_t, UNIT_TYPE1> result(first);
 	result += second;
 	return result;
 }
 
 template<typename STORAGE_TYPE1, typename UNIT_TYPE1, typename STORAGE_TYPE2, typename UNIT_TYPE2>
-LLUnitImplicit<LLTYPEOF(STORAGE_TYPE1() + STORAGE_TYPE2()), UNIT_TYPE1> operator + (LLUnitImplicit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnit<STORAGE_TYPE2, UNIT_TYPE2> second)
+LLUnitImplicit<typename LLResultType<STORAGE_TYPE1, STORAGE_TYPE2>::add_t, UNIT_TYPE1> operator + (LLUnitImplicit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnit<STORAGE_TYPE2, UNIT_TYPE2> second)
 {
-	LLUnitImplicit<LLTYPEOF(STORAGE_TYPE1() + STORAGE_TYPE2()), UNIT_TYPE1> result(first);
+	LLUnitImplicit<typename LLResultType<STORAGE_TYPE1, STORAGE_TYPE2>::add_t, UNIT_TYPE1> result(first);
 	result += LLUnitImplicit<STORAGE_TYPE1, UNIT_TYPE1>(second);
 	return result;
 }
 
 template<typename STORAGE_TYPE, typename UNIT_TYPE, typename UNITLESS_TYPE>
-LLUnitImplicit<LLTYPEOF(STORAGE_TYPE() + UNITLESS_TYPE()), UNIT_TYPE> operator + (LLUnitImplicit<STORAGE_TYPE, UNIT_TYPE> first, UNITLESS_TYPE second)
+LLUnitImplicit<typename LLResultType<STORAGE_TYPE, UNITLESS_TYPE>::add_t, UNIT_TYPE> operator + (LLUnitImplicit<STORAGE_TYPE, UNIT_TYPE> first, UNITLESS_TYPE second)
 {
-	LLUnitImplicit<LLTYPEOF(STORAGE_TYPE() + UNITLESS_TYPE()), UNIT_TYPE> result(first);
+	LLUnitImplicit<typename LLResultType<STORAGE_TYPE, UNITLESS_TYPE>::add_t, UNIT_TYPE> result(first);
 	result += second;
 	return result;
 }
 
 template<typename STORAGE_TYPE, typename UNIT_TYPE, typename UNITLESS_TYPE>
-LLUnitImplicit<LLTYPEOF(UNITLESS_TYPE() + STORAGE_TYPE()), UNIT_TYPE> operator + (UNITLESS_TYPE first, LLUnitImplicit<STORAGE_TYPE, UNIT_TYPE> second)
+LLUnitImplicit<typename LLResultType<UNITLESS_TYPE, STORAGE_TYPE>::add_t, UNIT_TYPE> operator + (UNITLESS_TYPE first, LLUnitImplicit<STORAGE_TYPE, UNIT_TYPE> second)
 {
-	LLUnitImplicit<LLTYPEOF(UNITLESS_TYPE() + STORAGE_TYPE()), UNIT_TYPE> result(first);
+	LLUnitImplicit<typename LLResultType<UNITLESS_TYPE, STORAGE_TYPE>::add_t, UNIT_TYPE> result(first);
 	result += second;
 	return result;
 }
@@ -327,9 +331,9 @@ LLUnitImplicit<LLTYPEOF(UNITLESS_TYPE() + STORAGE_TYPE()), UNIT_TYPE> operator +
 // operator -
 //
 template<typename STORAGE_TYPE1, typename UNIT_TYPE1, typename STORAGE_TYPE2, typename UNIT_TYPE2>
-LLUnit<LLTYPEOF(STORAGE_TYPE1() - STORAGE_TYPE2()), UNIT_TYPE1> operator - (LLUnit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnit<STORAGE_TYPE2, UNIT_TYPE2> second)
+LLUnit<typename LLResultType<STORAGE_TYPE1, STORAGE_TYPE2>::subtract_t, UNIT_TYPE1> operator - (LLUnit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnit<STORAGE_TYPE2, UNIT_TYPE2> second)
 {
-	LLUnit<LLTYPEOF(STORAGE_TYPE1() - STORAGE_TYPE2()), UNIT_TYPE1> result(first);
+	LLUnit<typename LLResultType<STORAGE_TYPE1, STORAGE_TYPE2>::subtract_t, UNIT_TYPE1> result(first);
 	result -= second;
 	return result;
 }
@@ -349,41 +353,41 @@ LLUnit<STORAGE_TYPE, UNIT_TYPE> operator - (UNITLESS first, LLUnit<STORAGE_TYPE,
 }
 
 template<typename STORAGE_TYPE1, typename UNIT_TYPE1, typename STORAGE_TYPE2, typename UNIT_TYPE2>
-LLUnitImplicit<LLTYPEOF(STORAGE_TYPE1() - STORAGE_TYPE2()), UNIT_TYPE1> operator - (LLUnitImplicit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnitImplicit<STORAGE_TYPE2, UNIT_TYPE2> second)
+LLUnitImplicit<typename LLResultType<STORAGE_TYPE1, STORAGE_TYPE2>::subtract_t, UNIT_TYPE1> operator - (LLUnitImplicit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnitImplicit<STORAGE_TYPE2, UNIT_TYPE2> second)
 {
-	LLUnitImplicit<LLTYPEOF(STORAGE_TYPE1() - STORAGE_TYPE2()), UNIT_TYPE1> result(first);
+	LLUnitImplicit<typename LLResultType<STORAGE_TYPE1, STORAGE_TYPE2>::subtract_t, UNIT_TYPE1> result(first);
 	result -= second;
 	return result;
 }
 
 template<typename STORAGE_TYPE1, typename UNIT_TYPE1, typename STORAGE_TYPE2, typename UNIT_TYPE2>
-LLUnitImplicit<LLTYPEOF(STORAGE_TYPE1() - STORAGE_TYPE2()), UNIT_TYPE1> operator - (LLUnit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnitImplicit<STORAGE_TYPE2, UNIT_TYPE2> second)
+LLUnitImplicit<typename LLResultType<STORAGE_TYPE1, STORAGE_TYPE2>::subtract_t, UNIT_TYPE1> operator - (LLUnit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnitImplicit<STORAGE_TYPE2, UNIT_TYPE2> second)
 {
-	LLUnitImplicit<LLTYPEOF(STORAGE_TYPE1() - STORAGE_TYPE2()), UNIT_TYPE1> result(first);
+	LLUnitImplicit<typename LLResultType<STORAGE_TYPE1, STORAGE_TYPE2>::subtract_t, UNIT_TYPE1> result(first);
 	result -= second;
 	return result;
 }
 
 template<typename STORAGE_TYPE1, typename UNIT_TYPE1, typename STORAGE_TYPE2, typename UNIT_TYPE2>
-LLUnitImplicit<LLTYPEOF(STORAGE_TYPE1() - STORAGE_TYPE2()), UNIT_TYPE1> operator - (LLUnitImplicit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnit<STORAGE_TYPE2, UNIT_TYPE2> second)
+LLUnitImplicit<typename LLResultType<STORAGE_TYPE1, STORAGE_TYPE2>::subtract_t, UNIT_TYPE1> operator - (LLUnitImplicit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnit<STORAGE_TYPE2, UNIT_TYPE2> second)
 {
-	LLUnitImplicit<LLTYPEOF(STORAGE_TYPE1() - STORAGE_TYPE2()), UNIT_TYPE1> result(first);
+	LLUnitImplicit<typename LLResultType<STORAGE_TYPE1, STORAGE_TYPE2>::subtract_t, UNIT_TYPE1> result(first);
 	result -= LLUnitImplicit<STORAGE_TYPE1, UNIT_TYPE1>(second);
 	return result;
 }
 
 template<typename STORAGE_TYPE, typename UNIT_TYPE, typename UNITLESS_TYPE>
-LLUnitImplicit<LLTYPEOF(STORAGE_TYPE() - UNITLESS_TYPE()), UNIT_TYPE> operator - (LLUnitImplicit<STORAGE_TYPE, UNIT_TYPE> first, UNITLESS_TYPE second)
+LLUnitImplicit<typename LLResultType<STORAGE_TYPE, UNITLESS_TYPE>::subtract_t, UNIT_TYPE> operator - (LLUnitImplicit<STORAGE_TYPE, UNIT_TYPE> first, UNITLESS_TYPE second)
 {
-	LLUnitImplicit<LLTYPEOF(STORAGE_TYPE() - UNITLESS_TYPE()), UNIT_TYPE> result(first);
+	LLUnitImplicit<typename LLResultType<STORAGE_TYPE, UNITLESS_TYPE>::subtract_t, UNIT_TYPE> result(first);
 	result -= second;
 	return result;
 }
 
 template<typename STORAGE_TYPE, typename UNIT_TYPE, typename UNITLESS_TYPE>
-LLUnitImplicit<LLTYPEOF(UNITLESS_TYPE() - STORAGE_TYPE()), UNIT_TYPE> operator - (UNITLESS_TYPE first, LLUnitImplicit<STORAGE_TYPE, UNIT_TYPE> second)
+LLUnitImplicit<typename LLResultType<UNITLESS_TYPE, STORAGE_TYPE>::subtract_t, UNIT_TYPE> operator - (UNITLESS_TYPE first, LLUnitImplicit<STORAGE_TYPE, UNIT_TYPE> second)
 {
-	LLUnitImplicit<LLTYPEOF(UNITLESS_TYPE() - STORAGE_TYPE()), UNIT_TYPE> result(first);
+	LLUnitImplicit<typename LLResultType<UNITLESS_TYPE, STORAGE_TYPE>::subtract_t, UNIT_TYPE> result(first);
 	result -= second;
 	return result;
 }
@@ -400,15 +404,15 @@ LLUnit<STORAGE_TYPE1, UNIT_TYPE1> operator * (LLUnit<STORAGE_TYPE1, UNIT_TYPE1>,
 }
 
 template<typename STORAGE_TYPE, typename UNIT_TYPE, typename UNITLESS_TYPE>
-LLUnit<LLTYPEOF(STORAGE_TYPE() * UNITLESS_TYPE()), UNIT_TYPE> operator * (LLUnit<STORAGE_TYPE, UNIT_TYPE> first, UNITLESS_TYPE second)
+LLUnit<typename LLResultType<STORAGE_TYPE, UNITLESS_TYPE>::multiply_t, UNIT_TYPE> operator * (LLUnit<STORAGE_TYPE, UNIT_TYPE> first, UNITLESS_TYPE second)
 {
-	return LLUnit<LLTYPEOF(STORAGE_TYPE() * UNITLESS_TYPE()), UNIT_TYPE>(first.value() * second);
+	return LLUnit<typename LLResultType<STORAGE_TYPE, UNITLESS_TYPE>::multiply_t, UNIT_TYPE>(first.value() * second);
 }
 
 template<typename STORAGE_TYPE, typename UNIT_TYPE, typename UNITLESS_TYPE>
-LLUnit<LLTYPEOF(UNITLESS_TYPE() * STORAGE_TYPE()), UNIT_TYPE> operator * (UNITLESS_TYPE first, LLUnit<STORAGE_TYPE, UNIT_TYPE> second)
+LLUnit<typename LLResultType<UNITLESS_TYPE, STORAGE_TYPE>::multiply_t, UNIT_TYPE> operator * (UNITLESS_TYPE first, LLUnit<STORAGE_TYPE, UNIT_TYPE> second)
 {
-	return LLUnit<LLTYPEOF(UNITLESS_TYPE() * STORAGE_TYPE()), UNIT_TYPE>(first * second.value());
+	return LLUnit<typename LLResultType<UNITLESS_TYPE, STORAGE_TYPE>::multiply_t, UNIT_TYPE>(first * second.value());
 }
 
 template<typename STORAGE_TYPE1, typename UNIT_TYPE1, typename STORAGE_TYPE2, typename UNIT_TYPE2>
@@ -420,15 +424,15 @@ LLUnitImplicit<STORAGE_TYPE1, UNIT_TYPE1> operator * (LLUnitImplicit<STORAGE_TYP
 }
 
 template<typename STORAGE_TYPE, typename UNIT_TYPE, typename UNITLESS_TYPE>
-LLUnitImplicit<LLTYPEOF(STORAGE_TYPE() * UNITLESS_TYPE()), UNIT_TYPE> operator * (LLUnitImplicit<STORAGE_TYPE, UNIT_TYPE> first, UNITLESS_TYPE second)
+LLUnitImplicit<typename LLResultType<STORAGE_TYPE, UNITLESS_TYPE>::multiply_t, UNIT_TYPE> operator * (LLUnitImplicit<STORAGE_TYPE, UNIT_TYPE> first, UNITLESS_TYPE second)
 {
-	return LLUnitImplicit<LLTYPEOF(STORAGE_TYPE() * UNITLESS_TYPE()), UNIT_TYPE>(first.value() * second);
+	return LLUnitImplicit<typename LLResultType<STORAGE_TYPE, UNITLESS_TYPE>::multiply_t, UNIT_TYPE>(first.value() * second);
 }
 
 template<typename STORAGE_TYPE, typename UNIT_TYPE, typename UNITLESS_TYPE>
-LLUnitImplicit<LLTYPEOF(UNITLESS_TYPE() * STORAGE_TYPE()), UNIT_TYPE> operator * (UNITLESS_TYPE first, LLUnitImplicit<STORAGE_TYPE, UNIT_TYPE> second)
+LLUnitImplicit<typename LLResultType<UNITLESS_TYPE, STORAGE_TYPE>::multiply_t, UNIT_TYPE> operator * (UNITLESS_TYPE first, LLUnitImplicit<STORAGE_TYPE, UNIT_TYPE> second)
 {
-	return LLUnitImplicit<LLTYPEOF(UNITLESS_TYPE() * STORAGE_TYPE()), UNIT_TYPE>(first * second.value());
+	return LLUnitImplicit<typename LLResultType<UNITLESS_TYPE, STORAGE_TYPE>::multiply_t, UNIT_TYPE>(first * second.value());
 }
 
 
@@ -437,39 +441,39 @@ LLUnitImplicit<LLTYPEOF(UNITLESS_TYPE() * STORAGE_TYPE()), UNIT_TYPE> operator *
 //
 
 template<typename STORAGE_TYPE, typename UNIT_TYPE, typename UNITLESS_TYPE>
-LLUnit<LLTYPEOF(STORAGE_TYPE() / UNITLESS_TYPE()), UNIT_TYPE> operator / (LLUnit<STORAGE_TYPE, UNIT_TYPE> first, UNITLESS_TYPE second)
+LLUnit<typename LLResultType<STORAGE_TYPE, UNITLESS_TYPE>::divide_t, UNIT_TYPE> operator / (LLUnit<STORAGE_TYPE, UNIT_TYPE> first, UNITLESS_TYPE second)
 {
-	return LLUnit<LLTYPEOF(STORAGE_TYPE() / UNITLESS_TYPE()), UNIT_TYPE>(first.value() / second);
+	return LLUnit<typename LLResultType<STORAGE_TYPE, UNITLESS_TYPE>::divide_t, UNIT_TYPE>(first.value() / second);
 }
 
 template<typename STORAGE_TYPE1, typename UNIT_TYPE1, typename STORAGE_TYPE2, typename UNIT_TYPE2>
-LLTYPEOF(STORAGE_TYPE1() / STORAGE_TYPE2(1)) operator / (LLUnit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnit<STORAGE_TYPE2, UNIT_TYPE2> second)
+typename LLResultType<STORAGE_TYPE1, STORAGE_TYPE2>::divide_t operator / (LLUnit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnit<STORAGE_TYPE2, UNIT_TYPE2> second)
 {
 	return first.value() / first.convert(second).value();
 }
 
 template<typename STORAGE_TYPE, typename UNIT_TYPE, typename UNITLESS_TYPE>
-LLUnitImplicit<LLTYPEOF(STORAGE_TYPE() / UNITLESS_TYPE()), UNIT_TYPE> operator / (LLUnitImplicit<STORAGE_TYPE, UNIT_TYPE> first, UNITLESS_TYPE second)
+LLUnitImplicit<typename LLResultType<STORAGE_TYPE, UNITLESS_TYPE>::divide_t, UNIT_TYPE> operator / (LLUnitImplicit<STORAGE_TYPE, UNIT_TYPE> first, UNITLESS_TYPE second)
 {
-	return LLUnitImplicit<LLTYPEOF(STORAGE_TYPE() / UNITLESS_TYPE()), UNIT_TYPE>(first.value() / second);
+	return LLUnitImplicit<typename LLResultType<STORAGE_TYPE, UNITLESS_TYPE>::divide_t, UNIT_TYPE>(first.value() / second);
 }
 
 template<typename STORAGE_TYPE1, typename UNIT_TYPE1, typename STORAGE_TYPE2, typename UNIT_TYPE2>
-LLTYPEOF(STORAGE_TYPE1() / STORAGE_TYPE2(1)) operator / (LLUnitImplicit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnitImplicit<STORAGE_TYPE2, UNIT_TYPE2> second)
+typename LLResultType<STORAGE_TYPE1, STORAGE_TYPE2>::divide_t operator / (LLUnitImplicit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnitImplicit<STORAGE_TYPE2, UNIT_TYPE2> second)
 {
-	return (LLTYPEOF(STORAGE_TYPE1() / STORAGE_TYPE2(1)))(first.value() / first.convert(second).value());
+	return (typename LLResultType<STORAGE_TYPE1, STORAGE_TYPE2>::divide_t)(first.value() / first.convert(second).value());
 }
 
 template<typename STORAGE_TYPE1, typename UNIT_TYPE1, typename STORAGE_TYPE2, typename UNIT_TYPE2>
-LLTYPEOF(STORAGE_TYPE1() / STORAGE_TYPE2(1)) operator / (LLUnit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnitImplicit<STORAGE_TYPE2, UNIT_TYPE2> second)
+typename LLResultType<STORAGE_TYPE1, STORAGE_TYPE2>::divide_t operator / (LLUnit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnitImplicit<STORAGE_TYPE2, UNIT_TYPE2> second)
 {
-	return (LLTYPEOF(STORAGE_TYPE1() / STORAGE_TYPE2()))(first.value() / first.convert(second).value());
+	return (typename LLResultType<STORAGE_TYPE1, STORAGE_TYPE2>::divide_t)(first.value() / first.convert(second).value());
 }
 
 template<typename STORAGE_TYPE1, typename UNIT_TYPE1, typename STORAGE_TYPE2, typename UNIT_TYPE2>
-LLTYPEOF(STORAGE_TYPE1() / STORAGE_TYPE2(1)) operator / (LLUnitImplicit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnit<STORAGE_TYPE2, UNIT_TYPE2> second)
+typename LLResultType<STORAGE_TYPE1, STORAGE_TYPE2>::divide_t operator / (LLUnitImplicit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnit<STORAGE_TYPE2, UNIT_TYPE2> second)
 {
-	return (LLTYPEOF(STORAGE_TYPE1() / STORAGE_TYPE2()))(first.value() / first.convert(second).value());
+	return (typename LLResultType<STORAGE_TYPE1, STORAGE_TYPE2>::divide_t)(first.value() / first.convert(second).value());
 }
 
 //
@@ -562,25 +566,25 @@ struct LLUnitLinearOps
 	template<typename T>
 	output_t operator * (T other)
 	{
-		return typename LLPromotedType<INPUT_TYPE, OUTPUT_TYPE>::type_t(mInput) * other;
+		return typename LLResultType<INPUT_TYPE, OUTPUT_TYPE>::multiply_t(mInput) * other;
 	}
 
 	template<typename T>
 	output_t operator / (T other)
 	{
-		return typename LLPromotedType<INPUT_TYPE, OUTPUT_TYPE>::type_t(mInput) / other;
+		return typename LLResultType<INPUT_TYPE, OUTPUT_TYPE>::divide_t(mInput) / other;
 	}
 
 	template<typename T>
 	output_t operator + (T other)
 	{
-		return typename LLPromotedType<INPUT_TYPE, OUTPUT_TYPE>::type_t(mInput) + other;
+		return typename LLResultType<INPUT_TYPE, OUTPUT_TYPE>::add_t(mInput) + other;
 	}
 
 	template<typename T>
 	output_t operator - (T other)
 	{
-		return typename LLPromotedType<INPUT_TYPE, OUTPUT_TYPE>::type_t(mInput) - other;
+		return typename LLResultType<INPUT_TYPE, OUTPUT_TYPE>::subtract_t(mInput) - other;
 	}
 };
 
@@ -599,25 +603,25 @@ struct LLUnitInverseLinearOps
 	template<typename T>
 	output_t operator * (T other)
 	{
-		return typename LLPromotedType<INPUT_TYPE, OUTPUT_TYPE>::type_t(mInput) / other;
+		return typename LLResultType<INPUT_TYPE, OUTPUT_TYPE>::divide_t(mInput) / other;
 	}
 
 	template<typename T>
 	output_t operator / (T other)
 	{
-		return typename LLPromotedType<INPUT_TYPE, OUTPUT_TYPE>::type_t(mInput) * other;
+		return typename LLResultType<INPUT_TYPE, OUTPUT_TYPE>::multiply_t(mInput) * other;
 	}
 
 	template<typename T>
 	output_t operator + (T other)
 	{
-		return typename LLPromotedType<INPUT_TYPE, OUTPUT_TYPE>::type_t(mInput) - other;
+		return typename LLResultType<INPUT_TYPE, OUTPUT_TYPE>::subtract_t(mInput) - other;
 	}
 
 	template<typename T>
 	output_t operator - (T other)
 	{
-		return typename LLPromotedType<INPUT_TYPE, OUTPUT_TYPE>::type_t(mInput) + other;
+		return typename LLResultType<INPUT_TYPE, OUTPUT_TYPE>::add_t(mInput) + other;
 	}
 };
 

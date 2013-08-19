@@ -182,10 +182,10 @@
 #endif // LL_COMMON_LINK_SHARED
 
 #if LL_WINDOWS
-#define LLTYPEOF(exp) decltype(exp)
+#define LL_TYPEOF(exp) decltype(exp)
 #elif LL_LINUX
-#define LLTYPEOF(exp) typeof(exp)
+#define LL_TYPEOF(exp) typeof(exp)
 #elif LL_DARWIN
-#define LLTYPEOF(exp) typeof(exp)
+#define LL_TYPEOF(exp) typeof(exp)
 #endif
 #endif	//	not LL_LINDEN_PREPROCESSOR_H
