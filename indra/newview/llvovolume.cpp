@@ -4863,7 +4863,14 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 			if (is_rigged)
 			{
+				if (!drawablep->isState(LLDrawable::RIGGED))
+				{
 				drawablep->setState(LLDrawable::RIGGED);
+
+					//first time this is drawable is being marked as rigged,
+					// do another LoD update to use avatar bounding box
+					vobj->updateLOD();
+				}
 			}
 			else
 			{

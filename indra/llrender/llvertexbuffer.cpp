@@ -2209,39 +2209,11 @@ void LLVertexBuffer::bindForFeedback(U32 channel, U32 type, U32 index, U32 count
 #endif
 }
 
-void DumpComponents(U32 mask)
-{
-	llinfos <<
-	((mask & LLVertexBuffer::MAP_VERTEX)		? "vertex:"		: " ") <<
-	((mask & LLVertexBuffer::MAP_NORMAL)		? "norms:"		: " ") <<
-	((mask & LLVertexBuffer::MAP_TEXCOORD0)	? "TC0:"		: " ") <<
-	((mask & LLVertexBuffer::MAP_TEXCOORD1)	? "TC1:"		: " ") <<
-	((mask & LLVertexBuffer::MAP_TEXCOORD2)	? "TC2:"		: " ") <<
-	((mask & LLVertexBuffer::MAP_TEXCOORD3)	? "TC3:"		: " ") <<
-	((mask & LLVertexBuffer::MAP_COLOR)		? "color:"		: " ") <<
-	((mask & LLVertexBuffer::MAP_EMISSIVE)	? "emissive:"	: " ") <<
-	((mask & LLVertexBuffer::MAP_TANGENT)	? "tangents"	: " ") << llendl;
-}
-
 // Set for rendering
 void LLVertexBuffer::setBuffer(U32 data_mask)
 {
 	flush();
 
-	if((getTypeMask() & data_mask) != data_mask)
-	{
-		if (gDebugGL)
-		{			
-			// Dump info about what was missing
-			//
-			DumpComponents(data_mask & ~getTypeMask());
-			llwarns << "Missing VB stream components. ^^" << llendl;
-		}
-		// Make sure we don't write checks we can't cash below...
-		//
-		data_mask = (data_mask & getTypeMask());
-	}
-	
 	//set up pointers if the data mask is different ...
 	bool setup = (sLastMask != data_mask);
 

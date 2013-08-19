@@ -136,6 +136,16 @@ void LLDrawPoolAvatar::prerender()
 	{
 		sBufferUsage = GL_STREAM_DRAW_ARB;
 	}
+
+	if (!mDrawFace.empty())
+	{
+		const LLFace *facep = mDrawFace[0];
+		if (facep && facep->getDrawable())
+		{
+			LLVOAvatar* avatarp = (LLVOAvatar *)facep->getDrawable()->getVObj().get();
+			updateRiggedVertexBuffers(avatarp);
+		}
+	}
 }
 
 LLMatrix4& LLDrawPoolAvatar::getModelView()

@@ -399,7 +399,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 				// Fix for bug - NORSPEC-271
 				// If the face is more than 90% transparent, then don't update the Depth buffer for Dof
 				// We don't want the nearly invisible objects to cause of DoF effects
-				if(pass == 1)
+				if(pass == 1 && !LLPipeline::sImpostorRender)
 				{
 					LLFace*	face = params.mFace;
 					if(face)
@@ -577,7 +577,6 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 				
 				// If this alpha mesh has glow, then draw it a second time to add the destination-alpha (=glow).  Interleaving these state-changing calls could be expensive, but glow must be drawn Z-sorted with alpha.
 				if (current_shader && 
-                    !LLPipeline::sImpostorRender &&
 					draw_glow_for_this_partition &&
 					params.mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_EMISSIVE))
 				{
