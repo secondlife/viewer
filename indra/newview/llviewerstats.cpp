@@ -95,7 +95,7 @@ LLTrace::CountStatHandle<LLUnit<F64, LLUnits::Kilotriangles> >
 LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Kilotriangles> >
 							TRIANGLES_DRAWN_PER_FRAME("trianglesdrawnperframestat");
 
-LLTrace::CountStatHandle<F64Kibibytes >	
+LLTrace::CountStatHandle<F64Kilobytes >	
 							ACTIVE_MESSAGE_DATA_RECEIVED("activemessagedatareceived", "Message system data received on all active regions"),
 							LAYERS_NETWORK_DATA_RECEIVED("layersdatareceived", "Network data received for layer data (terrain)"),
 							OBJECT_NETWORK_DATA_RECEIVED("objectdatareceived", "Network data received for objects"),
@@ -156,7 +156,7 @@ LLTrace::SampleStatHandle<F64Megabytes >	GL_TEX_MEM("gltexmemstat"),
 															GL_BOUND_MEM("glboundmemstat"),
 															RAW_MEM("rawmemstat"),
 															FORMATTED_MEM("formattedmemstat");
-LLTrace::SampleStatHandle<F64Kibibytes >	DELTA_BANDWIDTH("deltabandwidth", "Increase/Decrease in bandwidth based on packet loss"),
+LLTrace::SampleStatHandle<F64Kilobytes >	DELTA_BANDWIDTH("deltabandwidth", "Increase/Decrease in bandwidth based on packet loss"),
 															MAX_BANDWIDTH("maxbandwidth", "Max bandwidth setting");
 
 	
@@ -221,7 +221,7 @@ void LLViewerStats::resetStats()
 
 void LLViewerStats::updateFrameStats(const F64Seconds time_diff)
 {
-	if (getRecording().getLastValue(LLStatViewer::PACKETS_LOST_PERCENT) > 5.0)
+	if (getRecording().getLastValue(LLStatViewer::PACKETS_LOST_PERCENT) > F32Percent(5.0))
 	{
 		add(LLStatViewer::LOSS_5_PERCENT_TIME, time_diff);
 	}
@@ -239,20 +239,20 @@ void LLViewerStats::updateFrameStats(const F64Seconds time_diff)
 		add(LLStatViewer::SIM_PHYSICS_20_FPS_TIME, time_diff);
 	}
 		
-	if (time_diff >= 0.5)
+	if (time_diff >= (F64Seconds)0.5)
 	{
 		record(LLStatViewer::FPS_2_TIME, time_diff);
 	}
-	if (time_diff >= 0.125)
+	if (time_diff >= (F64Seconds)0.125)
 	{
 		record(LLStatViewer::FPS_8_TIME, time_diff);
 	}
-	if (time_diff >= 0.1)
+	if (time_diff >= (F64Seconds)0.1)
 	{
 		record(LLStatViewer::FPS_10_TIME, time_diff);
 	}
 
-	if (gFrameCount && mLastTimeDiff > 0.0)
+	if (gFrameCount && mLastTimeDiff > (F64Seconds)0.0)
 	{
 		// new "stutter" meter
 		add(LLStatViewer::FRAMETIME_DOUBLED, time_diff >= 2.0 * mLastTimeDiff ? 1 : 0);
@@ -260,7 +260,7 @@ void LLViewerStats::updateFrameStats(const F64Seconds time_diff)
 		// old stats that were never really used
 		sample(LLStatViewer::FRAMETIME_JITTER, F64Milliseconds (mLastTimeDiff - time_diff));
 			
-		F32 average_frametime = gRenderStartTime.getElapsedTimeF32() / (F32)gFrameCount;
+		F32Seconds average_frametime = gRenderStartTime.getElapsedTimeF32() / (F32)gFrameCount;
 		sample(LLStatViewer::FRAMETIME_SLEW, F64Milliseconds (average_frametime - time_diff));
 
 		F32 max_bandwidth = gViewerThrottle.getMaxBandwidth();
@@ -359,7 +359,7 @@ void update_statistics()
 	if (cdp)
 	{
 		sample(LLStatViewer::SIM_PING, F64Milliseconds (cdp->getPingDelay()));
-		gAvgSimPing = ((gAvgSimPing * (F32)gSimPingCount) + (F32)(cdp->getPingDelay().value())) / ((F32)gSimPingCount + 1);
+		gAvgSimPing = ((gAvgSimPing * gSimPingCount) + cdp->getPingDelay()) / (gSimPingCount + 1);
 		gSimPingCount++;
 	}
 	else
@@ -373,8 +373,8 @@ void update_statistics()
 	}
 	add(LLStatViewer::FPS, 1);
 
-	F32 layer_bits = (F32)(gVLManager.getLandBits() + gVLManager.getWindBits() + gVLManager.getCloudBits());
-	add(LLStatViewer::LAYERS_NETWORK_DATA_RECEIVED, F64Bits(layer_bits));
+	F64Bits layer_bits = gVLManager.getLandBits() + gVLManager.getWindBits() + gVLManager.getCloudBits();
+	add(LLStatViewer::LAYERS_NETWORK_DATA_RECEIVED, layer_bits);
 	add(LLStatViewer::OBJECT_NETWORK_DATA_RECEIVED, gObjectData);
 	sample(LLStatViewer::PENDING_VFS_OPERATIONS, LLVFile::getVFSThread()->getPending());
 	add(LLStatViewer::ASSET_UDP_DATA_RECEIVED, F64Bits(gTransferManager.getTransferBitsIn(LLTCT_ASSET)));
@@ -395,7 +395,7 @@ void update_statistics()
 	
 	// Reset all of these values.
 	gVLManager.resetBitCounts();
-	gObjectData = 0;
+	gObjectData = (U32Bytes)0;
 //	gDecodedBits = 0;
 
 	// Only update texture stats periodically so that they are less noisy
@@ -553,9 +553,9 @@ void send_stats()
 
 	LLSD &download = body["downloads"];
 
-	download["world_kbytes"] = F64Kibibytes(gTotalWorldData).value();
-	download["object_kbytes"] = F64Kibibytes(gTotalObjectData).value();
-	download["texture_kbytes"] = F64Kibibytes(gTotalTextureData).value();
+	download["world_kbytes"] = F64Kilobytes(gTotalWorldData).value();
+	download["object_kbytes"] = F64Kilobytes(gTotalObjectData).value();
+	download["texture_kbytes"] = F64Kilobytes(gTotalTextureData).value();
 	download["mesh_kbytes"] = LLMeshRepository::sBytesReceived/1024.0;
 
 	LLSD &in = body["stats"]["net"]["in"];

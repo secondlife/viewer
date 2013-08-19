@@ -946,7 +946,7 @@ LLTextureFetchWorker::~LLTextureFetchWorker()
 		mHttpBufferArray = NULL;
 	}
 	unlockWorkMutex();													// -Mw
-	mFetcher->removeFromHTTPQueue(mID, 0);
+	mFetcher->removeFromHTTPQueue(mID, (S32Bytes)0);
 	mFetcher->removeHttpWaiter(mID);
 	mFetcher->updateStateStats(mCacheReadCount, mCacheWriteCount, mResourceWaitCount);
 }
@@ -1483,7 +1483,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			mGetReason.clear();
 			LL_DEBUGS("Texture") << "HTTP GET: " << mID << " Offset: " << mRequestedOffset
 								 << " Bytes: " << mRequestedSize
-								 << " Bandwidth(kbps): " << mFetcher->getTextureBandwidth().value() << "/" << mFetcher->mMaxBandwidth
+								 << " Bandwidth(kbps): " << mFetcher->getTextureBandwidth() << "/" << mFetcher->mMaxBandwidth
 								 << LL_ENDL;
 
 			// Will call callbackHttpGet when curl request completes
@@ -1931,7 +1931,7 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 		partial = (par_status == status);
 	}
 	
-	S32 data_size = callbackHttpGet(response, partial, success);
+	S32BytesImplicit data_size = callbackHttpGet(response, partial, success);
 			
 	if (log_texture_traffic && data_size > 0)
 	{
@@ -2352,7 +2352,7 @@ void LLTextureFetchWorker::recordTextureDone(bool is_http)
 													  is_http,
 													  LLImageBase::TYPE_AVATAR_BAKE == mType,
 													  LLViewerAssetStatsFF::get_timestamp() - mMetricsStartTime);
-		mMetricsStartTime = 0;
+		mMetricsStartTime = (U32Seconds)0;
 	}
 	LLViewerAssetStatsFF::record_dequeue(LLViewerAssetType::AT_TEXTURE,
 												 is_http,
@@ -2607,11 +2607,11 @@ void LLTextureFetch::addToHTTPQueue(const LLUUID& id)
 }																		// -Mfnq
 
 // Threads:  T*
-void LLTextureFetch::removeFromHTTPQueue(const LLUUID& id, S32 received_size)
+void LLTextureFetch::removeFromHTTPQueue(const LLUUID& id, S32Bytes received_size)
 {
 	LLMutexLock lock(&mNetworkQueueMutex);								// +Mfnq
 	mHTTPTextureQueue.erase(id);
-	mHTTPTextureBits += received_size * 8; // Approximate - does not include header bits	
+	mHTTPTextureBits += received_size; // Approximate - does not include header bits	
 }																		// -Mfnq
 
 // NB:  If you change deleteRequest() you should probably make
@@ -2762,7 +2762,7 @@ bool LLTextureFetch::getRequestFinished(const LLUUID& id, S32& discard_level,
 			raw = worker->mRawImage;
 			aux = worker->mAuxImage;
 			F32Seconds cache_read_time(worker->mCacheReadTime);
-			if (cache_read_time != 0.f)
+			if (cache_read_time != (F32Seconds)0.f)
 			{
 				record(sCacheReadLatency, cache_read_time);
 			}
@@ -2888,10 +2888,10 @@ S32 LLTextureFetch::update(F32 max_time_ms)
 
 	{
 		mNetworkQueueMutex.lock();										// +Mfnq
-		mMaxBandwidth = band_width;
+		mMaxBandwidth = band_width();
 
 		add(LLStatViewer::TEXTURE_NETWORK_DATA_RECEIVED, mHTTPTextureBits);
-		mHTTPTextureBits = 0;
+		mHTTPTextureBits = (U32Bits)0;
 
 		mNetworkQueueMutex.unlock();									// -Mfnq
 	}

@@ -55,7 +55,7 @@ LLDate::LLDate(const LLDate& date) :
 	mSecondsSinceEpoch(date.mSecondsSinceEpoch)
 {}
 
-LLDate::LLDate(LLUnitImplicit<F64, LLUnits::Seconds> seconds_since_epoch) :
+LLDate::LLDate(F64SecondsImplicit seconds_since_epoch) :
 	mSecondsSinceEpoch(seconds_since_epoch.value())
 {}
 

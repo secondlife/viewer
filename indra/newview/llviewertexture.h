@@ -38,8 +38,8 @@
 #include <map>
 #include <list>
 
-extern const S32Mibibytes gMinVideoRam;
-extern const S32Mibibytes gMaxVideoRam;
+extern const S32Megabytes gMinVideoRam;
+extern const S32Megabytes gMaxVideoRam;
 
 class LLImageGL ;
 class LLImageRaw;
@@ -207,8 +207,8 @@ public:
 	static F32 sDesiredDiscardScale;
 	static S32Bytes sBoundTextureMemory;
 	static S32Bytes sTotalTextureMemory;
-	static S32Mibibytes sMaxBoundTextureMem;
-	static S32Mibibytes sMaxTotalTextureMem;
+	static S32Megabytes sMaxBoundTextureMem;
+	static S32Megabytes sMaxTotalTextureMem;
 	static S32Bytes sMaxDesiredTextureMem ;
 	static S8  sCameraMovingDiscardBias;
 	static F32 sCameraMovingBias;
@@ -690,18 +690,18 @@ private:
 private:
 	BOOL mUsingDefaultTexture;            //if set, some textures are still gray.
 
-	U32 mTotalBytesUsed ;                     //total bytes of textures bound/used for the current frame.
-	U32 mTotalBytesUsedForLargeImage ;        //total bytes of textures bound/used for the current frame for images larger than 256 * 256.
-	U32 mLastTotalBytesUsed ;                 //total bytes of textures bound/used for the previous frame.
-	U32 mLastTotalBytesUsedForLargeImage ;    //total bytes of textures bound/used for the previous frame for images larger than 256 * 256.
+	U32Bytes mTotalBytesUsed ;                     //total bytes of textures bound/used for the current frame.
+	U32Bytes mTotalBytesUsedForLargeImage ;        //total bytes of textures bound/used for the current frame for images larger than 256 * 256.
+	U32Bytes mLastTotalBytesUsed ;                 //total bytes of textures bound/used for the previous frame.
+	U32Bytes mLastTotalBytesUsedForLargeImage ;    //total bytes of textures bound/used for the previous frame for images larger than 256 * 256.
 		
 	//
 	//data size
 	//
-	U32 mTotalBytesLoaded ;               //total bytes fetched by texture pipeline
-	U32 mTotalBytesLoadedFromCache ;      //total bytes fetched by texture pipeline from local cache	
-	U32 mTotalBytesLoadedForLargeImage ;  //total bytes fetched by texture pipeline for images larger than 256 * 256. 
-	U32 mTotalBytesLoadedForSculpties ;   //total bytes fetched by texture pipeline for sculpties
+	U32Bytes mTotalBytesLoaded ;               //total bytes fetched by texture pipeline
+	U32Bytes mTotalBytesLoadedFromCache ;      //total bytes fetched by texture pipeline from local cache	
+	U32Bytes mTotalBytesLoadedForLargeImage ;  //total bytes fetched by texture pipeline for images larger than 256 * 256. 
+	U32Bytes mTotalBytesLoadedForSculpties ;   //total bytes fetched by texture pipeline for sculpties
 
 	//
 	//time

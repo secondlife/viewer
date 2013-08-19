@@ -142,7 +142,7 @@ struct LocalTextureData
 //-----------------------------------------------------------------------------
 // Static Data
 //-----------------------------------------------------------------------------
-S32 LLVOAvatarSelf::sScratchTexBytes = 0;
+S32Bytes LLVOAvatarSelf::sScratchTexBytes(0);
 std::map< LLGLenum, LLGLuint*> LLVOAvatarSelf::sScratchTexNames;
 
 
@@ -3067,13 +3067,13 @@ void LLVOAvatarSelf::deleteScratchTextures()
 		stop_glerror();
 	}
 
-	if( sScratchTexBytes )
+	if( sScratchTexBytes.value() )
 	{
-		LL_DEBUGS() << "Clearing Scratch Textures " << (sScratchTexBytes/1024) << "KB" << LL_ENDL;
+		LL_DEBUGS() << "Clearing Scratch Textures " << (S32Kilobytes)sScratchTexBytes << LL_ENDL;
 
 		delete_and_clear(sScratchTexNames);
 		LLImageGL::sGlobalTextureMemory -= sScratchTexBytes;
-		sScratchTexBytes = 0;
+		sScratchTexBytes = S32Bytes(0);
 	}
 }
 

@@ -54,7 +54,7 @@ public:
 		mHost.invalidate();
 		mRetries = 0;
 		mPingBasedRetry = TRUE;
-		mTimeout = 0.f;
+		mTimeout = F32Seconds(0.f);
 		mCallback = NULL;
 		mCallbackData = NULL;
 		mMessageName = NULL;

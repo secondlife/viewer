@@ -118,7 +118,7 @@ namespace LLTrace
 			}
 		}
 
-		void sync(LLUnitImplicit<F64, LLUnits::Seconds> time_stamp)
+		void sync(F64SecondsImplicit time_stamp)
 		{
 			llassert(mStorageSize >= sNextStorageSlot);
 			for (size_t i = 0; i < sNextStorageSlot; i++)
@@ -260,7 +260,7 @@ namespace LLTrace
 
 		void addSamples(const EventAccumulator& other, EBufferAppendType append_type);
 		void reset(const EventAccumulator* other);
-		void sync(LLUnitImplicit<F64, LLUnits::Seconds>) {}
+		void sync(F64SecondsImplicit) {}
 
 		F64	getSum() const               { return mSum; }
 		F64	getMin() const               { return mMin; }
@@ -305,7 +305,7 @@ namespace LLTrace
 
 		void sample(F64 value)
 		{
-			LLUnitImplicit<F64, LLUnits::Seconds> time_stamp = LLTimer::getTotalSeconds();
+			F64SecondsImplicit time_stamp = LLTimer::getTotalSeconds();
 
 			// store effect of last value
 			sync(time_stamp);
@@ -332,11 +332,11 @@ namespace LLTrace
 		void addSamples(const SampleAccumulator& other, EBufferAppendType append_type);
 		void reset(const SampleAccumulator* other);
 
-		void sync(LLUnitImplicit<F64, LLUnits::Seconds> time_stamp)
+		void sync(F64SecondsImplicit time_stamp)
 		{
 			if (mHasValue)
 			{
-				LLUnitImplicit<F64, LLUnits::Seconds> delta_time = time_stamp - mLastSampleTimeStamp;
+				F64SecondsImplicit delta_time = time_stamp - mLastSampleTimeStamp;
 				mSum += mLastValue * delta_time;
 				mTotalSamplingTime += delta_time;
 				F64 old_mean = mMean;
@@ -353,7 +353,7 @@ namespace LLTrace
 		F64	getMean() const              { return mMean; }
 		F64 getStandardDeviation() const { return sqrtf(mSumOfSquares / mTotalSamplingTime); }
 		F64 getSumOfSquares() const		 { return mSumOfSquares; }
-		LLUnitImplicit<F64, LLUnits::Seconds> getSamplingTime() { return mTotalSamplingTime; }
+		F64SecondsImplicit getSamplingTime() { return mTotalSamplingTime; }
 		U32 getSampleCount() const       { return mNumSamples; }
 		bool hasValue() const            { return mHasValue; }
 
@@ -368,7 +368,7 @@ namespace LLTrace
 		F64		mMean,
 				mSumOfSquares;
 
-		LLUnitImplicit<F64, LLUnits::Seconds>	
+		F64SecondsImplicit	
 				mLastSampleTimeStamp,
 				mTotalSamplingTime;
 
@@ -403,7 +403,7 @@ namespace LLTrace
 			mSum = 0;
 		}
 
-		void sync(LLUnitImplicit<F64, LLUnits::Seconds>) {}
+		void sync(F64SecondsImplicit) {}
 
 		F64	getSum() const { return mSum; }
 
@@ -435,7 +435,7 @@ namespace LLTrace
 		TimeBlockAccumulator();
 		void addSamples(const self_t& other, EBufferAppendType append_type);
 		void reset(const self_t* other);
-		void sync(LLUnitImplicit<F64, LLUnits::Seconds>) {}
+		void sync(F64SecondsImplicit) {}
 
 		//
 		// members
@@ -516,7 +516,7 @@ namespace LLTrace
 			mDeallocatedCount = 0;
 		}
 
-		void sync(LLUnitImplicit<F64, LLUnits::Seconds> time_stamp) 
+		void sync(F64SecondsImplicit time_stamp) 
 		{
 			mSize.sync(time_stamp);
 			mChildSize.sync(time_stamp);

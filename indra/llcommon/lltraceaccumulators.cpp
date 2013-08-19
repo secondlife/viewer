@@ -114,7 +114,7 @@ void AccumulatorBufferGroup::reset(AccumulatorBufferGroup* other)
 
 void AccumulatorBufferGroup::sync()
 {
-	LLUnitImplicit<F64, LLUnits::Seconds> time_stamp = LLTimer::getTotalSeconds();
+	F64SecondsImplicit time_stamp = LLTimer::getTotalSeconds();
 
 	mSamples.sync(time_stamp);
 	mMemStats.sync(time_stamp);

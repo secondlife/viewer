@@ -1143,7 +1143,7 @@ void LLFastTimerView::drawLineGraph()
 	}
 	
 	//interpolate towards new maximum
-	max_time = lerp(max_time.value(), cur_max.value(), LLSmoothInterpolation::getInterpolant(0.1f));
+	max_time = (F32Seconds)lerp(max_time.value(), cur_max.value(), LLSmoothInterpolation::getInterpolant(0.1f));
 	if (llabs((max_time - cur_max).value()) <= 1)
 	{
 		max_time = llmax(F32Microseconds(1.f), F32Microseconds(cur_max));
@@ -1439,7 +1439,7 @@ void LLFastTimerView::drawBars()
 	bar_height -= vpad;
 
 	updateTotalTime();
-	if (mTotalTimeDisplay <= 0.0) return;
+	if (mTotalTimeDisplay <= (F32Seconds)0.0) return;
 
 	drawTicks();
 	const S32 bars_top = mBarRect.mTop - ((S32)LLFontGL::getFontMonospace()->getLineHeight() + 4);
@@ -1550,7 +1550,7 @@ S32 LLFastTimerView::updateTimerBarOffsets(LLTrace::TimeBlock* time_block, Timer
 
 	if (timer_bar_index == 0)
 	{
-		timer_bar.mSelfStart = 0.f;
+		timer_bar.mSelfStart = F32Seconds(0.f);
 		timer_bar.mSelfEnd = bar_time;
 	}
 
@@ -1583,7 +1583,7 @@ S32 LLFastTimerView::updateTimerBarOffsets(LLTrace::TimeBlock* time_block, Timer
 		}
 
 		child_timer_bar.mStartFraction = bar_fraction_start;
-		child_timer_bar.mEndFraction = bar_time > 0
+		child_timer_bar.mEndFraction = bar_time > (S32Seconds)0
 										? bar_fraction_start + child_timer_bar.mTotalTime / bar_time
 										: 1.f;
 		child_timer_bar.mSelfStart = timer_bar.mChildrenStart 

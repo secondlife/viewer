@@ -142,7 +142,7 @@ extern LLTrace::CountStatHandle<>			FPS,
 
 extern LLTrace::CountStatHandle<LLUnit<F64, LLUnits::Kilotriangles> > TRIANGLES_DRAWN;
 
-extern LLTrace::CountStatHandle<F64Kibibytes >	ACTIVE_MESSAGE_DATA_RECEIVED,
+extern LLTrace::CountStatHandle<F64Kilobytes >	ACTIVE_MESSAGE_DATA_RECEIVED,
 																	LAYERS_NETWORK_DATA_RECEIVED,
 																	OBJECT_NETWORK_DATA_RECEIVED,
 																	ASSET_UDP_DATA_RECEIVED,
@@ -196,7 +196,7 @@ extern LLTrace::SampleStatHandle<F64Megabytes >	GL_TEX_MEM,
 																	GL_BOUND_MEM,
 																	RAW_MEM,
 																	FORMATTED_MEM;
-extern LLTrace::SampleStatHandle<F64Kibibytes >	DELTA_BANDWIDTH,
+extern LLTrace::SampleStatHandle<F64Kilobytes >	DELTA_BANDWIDTH,
 																	MAX_BANDWIDTH;
 extern SimMeasurement<F64Milliseconds >	SIM_FRAME_TIME,
 															SIM_NET_TIME,

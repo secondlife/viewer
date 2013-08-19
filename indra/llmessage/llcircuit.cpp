@@ -207,7 +207,7 @@ void LLCircuitData::ackReliablePacket(TPACKETID packet_num)
 		}
 		if (packetp->mCallback)
 		{
-			if (packetp->mTimeout < 0.f)   // negative timeout will always return timeout even for successful ack, for debugging
+			if (packetp->mTimeout < F32Seconds(0.f))   // negative timeout will always return timeout even for successful ack, for debugging
 			{
 				packetp->mCallback(packetp->mCallbackData,LL_ERR_TCP_TIMEOUT);					
 			}
@@ -241,7 +241,7 @@ void LLCircuitData::ackReliablePacket(TPACKETID packet_num)
 		}
 		if (packetp->mCallback)
 		{
-			if (packetp->mTimeout < 0.f)   // negative timeout will always return timeout even for successful ack, for debugging
+			if (packetp->mTimeout < F32Seconds(0.f))   // negative timeout will always return timeout even for successful ack, for debugging
 			{
 				packetp->mCallback(packetp->mCallbackData,LL_ERR_TCP_TIMEOUT);					
 			}
@@ -540,8 +540,8 @@ void LLCircuitData::checkPeriodTime()
 
 		mBytesInLastPeriod	= mBytesInThisPeriod;
 		mBytesOutLastPeriod	= mBytesOutThisPeriod;
-		mBytesInThisPeriod	= 0;
-		mBytesOutThisPeriod	= 0;
+		mBytesInThisPeriod	= S32Bytes(0);
+		mBytesOutThisPeriod	= S32Bytes(0);
 		mLastPeriodLength	= period_length;
 
 		mPeriodTime = mt_sec;
@@ -549,14 +549,14 @@ void LLCircuitData::checkPeriodTime()
 }
 
 
-void LLCircuitData::addBytesIn(S32 bytes)
+void LLCircuitData::addBytesIn(S32Bytes bytes)
 {
 	mBytesIn += bytes;
 	mBytesInThisPeriod += bytes;
 }
 
 
-void LLCircuitData::addBytesOut(S32 bytes)
+void LLCircuitData::addBytesOut(S32Bytes bytes)
 {
 	mBytesOut += bytes;
 	mBytesOutThisPeriod += bytes;
@@ -743,7 +743,7 @@ void LLCircuitData::checkPacketInID(TPACKETID id, BOOL receive_resent)
 					}
 
 //						LL_INFOS() << "adding potential lost: " << index << LL_ENDL;
-					mPotentialLostPackets[index] = time.value();
+					mPotentialLostPackets[index] = time;
 					index++;
 					index = index % LL_MAX_OUT_PACKET_ID;
 					gap_count++;
@@ -1152,23 +1152,23 @@ std::ostream& operator<<(std::ostream& s, LLCircuitData& circuit)
 		<< endl;
 
 	s << "Global In/Out " << S32(age) << " sec"
-		<< " KBytes: " << circuit.mBytesIn.valueInUnits<LLUnits::Kibibytes>() << "/" << circuit.mBytesOut.valueInUnits<LLUnits::Kibibytes>()
+		<< " KBytes: " << circuit.mBytesIn.valueInUnits<LLUnits::Kilobytes>() << "/" << circuit.mBytesOut.valueInUnits<LLUnits::Kilobytes>()
 		<< " Kbps: "
-		<< S32(circuit.mBytesIn.valueInUnits<LLUnits::Kibibits>() / circuit.mExistenceTimer.getElapsedTimeF32().value())
+		<< S32(circuit.mBytesIn.valueInUnits<LLUnits::Kilobits>() / circuit.mExistenceTimer.getElapsedTimeF32().value())
 		<< "/"
-		<< S32(circuit.mBytesOut.valueInUnits<LLUnits::Kibibits>() / circuit.mExistenceTimer.getElapsedTimeF32().value())
+		<< S32(circuit.mBytesOut.valueInUnits<LLUnits::Kilobits>() / circuit.mExistenceTimer.getElapsedTimeF32().value())
 		<< " Packets: " << circuit.mPacketsIn << "/" << circuit.mPacketsOut
 		<< endl;
 
 	s << "Recent In/Out   " << circuit.mLastPeriodLength
 		<< " KBytes: "
-		<< circuit.mBytesInLastPeriod.valueInUnits<LLUnits::Kibibytes>()
+		<< circuit.mBytesInLastPeriod.valueInUnits<LLUnits::Kilobytes>()
 		<< "/"
-		<< circuit.mBytesOutLastPeriod.valueInUnits<LLUnits::Kibibytes>()
+		<< circuit.mBytesOutLastPeriod.valueInUnits<LLUnits::Kilobytes>()
 		<< " Kbps: "
-		<< (S32)(circuit.mBytesInLastPeriod.valueInUnits<LLUnits::Kibibits>() / circuit.mLastPeriodLength.value())
+		<< (S32)(circuit.mBytesInLastPeriod.valueInUnits<LLUnits::Kilobits>() / circuit.mLastPeriodLength.value())
 		<< "/"
-		<< (S32)(circuit.mBytesOutLastPeriod.valueInUnits<LLUnits::Kibibits>() / circuit.mLastPeriodLength.value())
+		<< (S32)(circuit.mBytesOutLastPeriod.valueInUnits<LLUnits::Kilobits>() / circuit.mLastPeriodLength.value())
 		<< " Peak kbps: "
 		<< S32(circuit.mPeakBPSIn / 1024.f)
 		<< "/"
@@ -1261,7 +1261,7 @@ void LLCircuitData::pingTimerStop(const U8 ping_id)
 
 	// Nota Bene: no averaging of ping times until we get a feel for how this works
 	F64Seconds time = mt_secs - mPingTime;
-	if (time == 0.0)
+	if (time == F32Seconds(0.0))
 	{
 		// Ack, we got our ping response on the same frame! Sigh, let's get a real time otherwise
 		// all of our ping calculations will be skewed.
@@ -1368,7 +1368,7 @@ F32Milliseconds LLCircuitData::getPingInTransitTime()
 
 	if (mPingsInTransit)
 	{
-		time_since_ping_was_sent =  ((mPingsInTransit*mHeartbeatInterval - 1) 
+		time_since_ping_was_sent =  ((mPingsInTransit*mHeartbeatInterval - F32Seconds(1)) 
 			+ (LLMessageSystem::getMessageTimeSeconds() - mPingTime));
 	}
 

@@ -356,7 +356,7 @@ BOOL LLThrottleGroup::throttleOverflow(S32 throttle_cat, F32 bits)
 
 BOOL LLThrottleGroup::dynamicAdjust()
 {
-	const F32 DYNAMIC_ADJUST_TIME = 1.0f;		// seconds
+	const F32Seconds DYNAMIC_ADJUST_TIME(1.0f);
 	const F32 CURRENT_PERIOD_WEIGHT = .25f;		// how much weight to give to last period while determining BPS utilization
 	const F32 BUSY_PERCENT = 0.75f;		// if use more than this fraction of BPS, you are busy
 	const F32 IDLE_PERCENT = 0.70f;		// if use less than this fraction, you are "idle"
@@ -405,7 +405,7 @@ BOOL LLThrottleGroup::dynamicAdjust()
 	for (i = 0; i < TC_EOF; i++)
 	{
 		// Is this a busy channel?
-		if (mBitsSentHistory[i] >= BUSY_PERCENT * DYNAMIC_ADJUST_TIME * mCurrentBPS[i])
+		if (mBitsSentHistory[i] >= BUSY_PERCENT * DYNAMIC_ADJUST_TIME.value() * mCurrentBPS[i])
 		{
 			// this channel is busy
 			channels_busy = TRUE;
@@ -418,7 +418,7 @@ BOOL LLThrottleGroup::dynamicAdjust()
 		}
 
 		// Is this an idle channel?
-		if ((mBitsSentHistory[i] < IDLE_PERCENT * DYNAMIC_ADJUST_TIME * mCurrentBPS[i]) &&
+		if ((mBitsSentHistory[i] < IDLE_PERCENT * DYNAMIC_ADJUST_TIME.value() * mCurrentBPS[i]) &&
 			(mBitsAvailable[i] > 0))
 		{
 			channel_idle[i] = TRUE;
@@ -462,7 +462,7 @@ BOOL LLThrottleGroup::dynamicAdjust()
 				// Therefore it's a candidate to give up some bandwidth.
 				// Figure out how much bandwidth it has been using, and how
 				// much is available to steal.
-				used_bps = mBitsSentHistory[i] / DYNAMIC_ADJUST_TIME;
+				used_bps = mBitsSentHistory[i] / DYNAMIC_ADJUST_TIME.value();
 
 				// CRO make sure to keep a minimum amount of throttle available
 				// CRO NB: channels set to < MINIMUM_BPS will never give up bps, 

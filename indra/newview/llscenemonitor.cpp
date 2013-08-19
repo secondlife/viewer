@@ -471,7 +471,8 @@ void LLSceneMonitor::fetchQueryResult()
 	LLFastTimer _(FTM_SCENE_LOAD_IMAGE_DIFF);
 
 	// also throttle timing here, to avoid going below sample time due to phasing with frame capture
-	static LLCachedControl<F32>  scene_load_sample_time(gSavedSettings, "SceneLoadingMonitorSampleTime");
+	static LLCachedControl<F32>  scene_load_sample_time_control(gSavedSettings, "SceneLoadingMonitorSampleTime");
+	F32Seconds scene_load_sample_time = (F32Seconds)scene_load_sample_time_control();
 
 	if(mDiffState == WAIT_ON_RESULT 
 		&& !LLAppViewer::instance()->quitRequested())
@@ -491,7 +492,7 @@ void LLSceneMonitor::fetchQueryResult()
 			record(sFramePixelDiff, mDiffResult);
 
 			static LLCachedControl<F32> diff_threshold(gSavedSettings,"SceneLoadingPixelDiffThreshold");
-			F32 elapsed_time = mRecordingTimer.getElapsedTimeF32();
+			F32Seconds elapsed_time = mRecordingTimer.getElapsedTimeF32();
 
 			if (elapsed_time > scene_load_sample_time)
 			{
@@ -649,7 +650,7 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 
 		for (S32 frame = 1; frame <= frame_count; frame++)
 		{
-			os << ", " << scene_load_recording.getPrevRecording(frame_count - frame).getMax(*it).valueInUnits<LLUnits::Kibibytes>();
+			os << ", " << scene_load_recording.getPrevRecording(frame_count - frame).getMax(*it).valueInUnits<LLUnits::Kilobytes>();
 		}
 
 		os << '\n';

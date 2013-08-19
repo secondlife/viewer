@@ -490,7 +490,7 @@ namespace LLTrace
 			for (S32 i = 1; i <= num_periods; i++)
 			{
 				Recording& recording = getPrevRecording(i);
-				if (recording.getDuration() > 0.f)
+				if (recording.getDuration() > (F32Seconds)0.f)
 				{
 					mean += recording.getSum(stat);
 				}
@@ -530,7 +530,7 @@ namespace LLTrace
 			for (S32 i = 1; i <= num_periods; i++)
 			{
 				Recording& recording = getPrevRecording(i);
-				if (recording.getDuration() > 0.f)
+				if (recording.getDuration() > (F32Seconds)0.f)
 				{
 					mean += recording.getPerSec(stat);
 				}

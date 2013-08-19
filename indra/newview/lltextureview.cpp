@@ -350,7 +350,7 @@ void LLTextureBar::draw()
 		// draw the image size at the end
 		{
 			std::string num_str = llformat("%3dx%3d (%2d) %7d", mImagep->getWidth(), mImagep->getHeight(),
-				mImagep->getDiscardLevel(), mImagep->hasGLTexture() ? mImagep->getTextureMemory() : 0);
+				mImagep->getDiscardLevel(), mImagep->hasGLTexture() ? mImagep->getTextureMemory().value() : 0);
 			LLFontGL::getFontMonospace()->renderUTF8(num_str, 0, title_x4, getRect().getHeight(), color,
 											LLFontGL::LEFT, LLFontGL::TOP);
 		}
@@ -507,13 +507,13 @@ private:
 
 void LLGLTexMemBar::draw()
 {
-	S32Mibibytes bound_mem = LLViewerTexture::sBoundTextureMemory;
- 	S32Mibibytes max_bound_mem = LLViewerTexture::sMaxBoundTextureMem;
-	S32Mibibytes total_mem = LLViewerTexture::sTotalTextureMemory;
-	S32Mibibytes max_total_mem = LLViewerTexture::sMaxTotalTextureMem;
+	S32Megabytes bound_mem = LLViewerTexture::sBoundTextureMemory;
+ 	S32Megabytes max_bound_mem = LLViewerTexture::sMaxBoundTextureMem;
+	S32Megabytes total_mem = LLViewerTexture::sTotalTextureMemory;
+	S32Megabytes max_total_mem = LLViewerTexture::sMaxTotalTextureMem;
 	F32 discard_bias = LLViewerTexture::sDesiredDiscardBias;
-	F32 cache_usage = (F32)F32Mibibytes(LLAppViewer::getTextureCache()->getUsage()).value() ;
-	F32 cache_max_usage = (F32)F32Mibibytes(LLAppViewer::getTextureCache()->getMaxUsage()).value() ;
+	F32 cache_usage = (F32)F32Megabytes(LLAppViewer::getTextureCache()->getUsage()).value() ;
+	F32 cache_max_usage = (F32)F32Megabytes(LLAppViewer::getTextureCache()->getMaxUsage()).value() ;
 	S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
 	S32 v_offset = 0;//(S32)((texture_bar_height + 2.2f) * mTextureView->mNumTextureBars + 2.0f);
 	F32Bytes total_texture_downloaded = gTotalTextureData;
@@ -586,8 +586,8 @@ void LLGLTexMemBar::draw()
 
 
 	left = 550;
-	F32Kibibits bandwidth = LLAppViewer::getTextureFetch()->getTextureBandwidth();
-	F32Kibibits max_bandwidth(gSavedSettings.getF32("ThrottleBandwidthKBPS"));
+	F32Kilobits bandwidth(LLAppViewer::getTextureFetch()->getTextureBandwidth());
+	F32Kilobits max_bandwidth(gSavedSettings.getF32("ThrottleBandwidthKBPS"));
 	color = bandwidth > max_bandwidth ? LLColor4::red : bandwidth > max_bandwidth*.75f ? LLColor4::yellow : text_color;
 	color[VALPHA] = text_color[VALPHA];
 	text = llformat("BW:%.0f/%.0f",bandwidth.value(), max_bandwidth.value());
@@ -793,7 +793,7 @@ void LLTextureView::draw()
 			
 			if (mPrintList)
 			{
-				S32 tex_mem = imagep->hasGLTexture() ? imagep->getTextureMemory() : 0 ;
+				S32 tex_mem = imagep->hasGLTexture() ? imagep->getTextureMemory().value() : 0 ;
 				LL_INFOS() << imagep->getID()
 						<< "\t" << tex_mem
 						<< "\t" << imagep->getBoostLevel()

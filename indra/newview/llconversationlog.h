@@ -61,7 +61,7 @@ public:
 
 	void setConversationName(std::string conv_name) { mConversationName = conv_name; }
 	void setOfflineMessages(bool new_messages) { mHasOfflineIMs = new_messages; }
-	bool isOlderThan(U32 days) const;
+	bool isOlderThan(U32Days days) const;
 
 	/*
 	 * updates last interaction time

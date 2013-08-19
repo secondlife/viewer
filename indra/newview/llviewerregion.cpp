@@ -428,14 +428,14 @@ void LLViewerRegion::initStats()
 {
 	mImpl->mLastNetUpdate.reset();
 	mPacketsIn = 0;
-	mBitsIn = 0;
-	mLastBitsIn = 0;
+	mBitsIn = (U32Bits)0;
+	mLastBitsIn = (U32Bits)0;
 	mLastPacketsIn = 0;
 	mPacketsOut = 0;
 	mLastPacketsOut = 0;
 	mPacketsLost = 0;
 	mLastPacketsLost = 0;
-	mPingDelay = 0;
+	mPingDelay = (U32Seconds)0;
 	mAlive = false;					// can become false if circuit disconnects
 }
 

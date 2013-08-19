@@ -267,7 +267,7 @@ public:
 
 	LLCircuit 	 		mCircuitInfo;
 	F64Seconds			mCircuitPrintTime;	    // used to print circuit debug info every couple minutes
-	F32					mCircuitPrintFreq;	    // seconds
+	F32Seconds			mCircuitPrintFreq;	    
 
 	std::map<U64, U32>	mIPPortToCircuitCode;
 	std::map<U32, U64>	mCircuitCodeToIPPort;

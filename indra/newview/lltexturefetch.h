@@ -107,10 +107,10 @@ public:
 	bool receiveImagePacket(const LLHost& host, const LLUUID& id, U16 packet_num, U16 data_size, U8* data);
 
     // Threads:  T* (but not safe)
-	void setTextureBandwidth(F32Kibibits bandwidth) { mTextureBandwidth = bandwidth; }
+	void setTextureBandwidth(F32 bandwidth) { mTextureBandwidth = bandwidth; }
 	
     // Threads:  T* (but not safe)
-	F32Kibibits getTextureBandwidth() { return mTextureBandwidth; }
+	F32 getTextureBandwidth() { return mTextureBandwidth; }
 	
     // Threads:  T*
 	BOOL isFromLocalCache(const LLUUID& id);
@@ -234,7 +234,7 @@ protected:
 
 	// XXX possible delete
     // Threads:  T*
-	void removeFromHTTPQueue(const LLUUID& id, S32 received_size);
+	void removeFromHTTPQueue(const LLUUID& id, S32Bytes received_size);
 
 	// Identical to @deleteRequest but with different arguments
 	// (caller already has the worker pointer).
@@ -325,8 +325,8 @@ private:
 	queue_t mHTTPTextureQueue;											// Mfnq
 	typedef std::map<LLHost,std::set<LLUUID> > cancel_queue_t;
 	cancel_queue_t mCancelQueue;										// Mfnq
-	F32Kibibits mTextureBandwidth;					// <none>
-	F32Kibibits mMaxBandwidth;						// Mfnq
+	F32 mTextureBandwidth;					// <none>
+	F32 mMaxBandwidth;						// Mfnq
 	LLTextureInfo mTextureInfo;
 
 	// XXX possible delete

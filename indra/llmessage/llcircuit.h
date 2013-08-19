@@ -167,8 +167,8 @@ protected:
 	void			setPingDelay(U32Milliseconds ping);
 	BOOL			checkCircuitTimeout();	// Return FALSE if the circuit is dead and should be cleaned up
 
-	void			addBytesIn(S32 bytes);
-	void			addBytesOut(S32 bytes);
+	void			addBytesIn(S32Bytes bytes);
+	void			addBytesOut(S32Bytes bytes);
 
 	U8				nextPingID()			{ mLastPingID++; return mLastPingID; }
 

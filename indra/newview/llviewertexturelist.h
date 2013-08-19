@@ -71,7 +71,6 @@ public:
 	static BOOL createUploadFile(const std::string& filename, const std::string& out_filename, const U8 codec);
 	static LLPointer<LLImageJ2C> convertToUploadFile(LLPointer<LLImageRaw> raw_image);
 	static void processImageNotInDatabase( LLMessageSystem *msg, void **user_data );
-	static S32Bytes calcMaxTextureRAM();
 	static void receiveImageHeader(LLMessageSystem *msg, void **user_data);
 	static void receiveImagePacket(LLMessageSystem *msg, void **user_data);
 
@@ -101,11 +100,11 @@ public:
 
 	void setUpdateStats(BOOL b)			{ mUpdateStats = b; }
 
-	S32Mibibytes	getMaxResidentTexMem() const	{ return mMaxResidentTexMemInMegaBytes; }
-	S32Mibibytes getMaxTotalTextureMem() const   { return mMaxTotalTextureMemInMegaBytes;}
+	S32Megabytes	getMaxResidentTexMem() const	{ return mMaxResidentTexMemInMegaBytes; }
+	S32Megabytes getMaxTotalTextureMem() const   { return mMaxTotalTextureMemInMegaBytes;}
 	S32 getNumImages()					{ return mImageList.size(); }
 
-	void updateMaxResidentTexMem(S32Mibibytes mem);
+	void updateMaxResidentTexMem(S32Megabytes mem);
 	
 	void doPreloadImages();
 	void doPrefetchImages();
@@ -113,8 +112,8 @@ public:
 	void clearFetchingRequests();
 	void setDebugFetching(LLViewerFetchedTexture* tex, S32 debug_level);
 
-	static S32Mibibytes getMinVideoRamSetting();
-	static S32Mibibytes getMaxVideoRamSetting(bool get_recommended = false);
+	static S32Megabytes getMinVideoRamSetting();
+	static S32Megabytes getMaxVideoRamSetting(bool get_recommended = false);
 	
 private:
 	void updateImagesDecodePriorities();
@@ -200,8 +199,8 @@ private:
 
 	BOOL mInitialized ;
 	BOOL mUpdateStats;
-	S32Mibibytes	mMaxResidentTexMemInMegaBytes;
-	S32Mibibytes mMaxTotalTextureMemInMegaBytes;
+	S32Megabytes	mMaxResidentTexMemInMegaBytes;
+	S32Megabytes mMaxTotalTextureMemInMegaBytes;
 	LLFrameTimer mForceDecodeTimer;
 	
 private:

@@ -49,7 +49,7 @@ class LLSD;
 
 // anything that takes longer than this to download will abort.
 // HTTP Uploads also timeout if they take longer than this.
-const F32 LL_ASSET_STORAGE_TIMEOUT = 5 * 60.0f;  
+const F32Minutes LL_ASSET_STORAGE_TIMEOUT(5);
 
 
 // Specific error codes
@@ -103,7 +103,7 @@ public:
 
 	void setUUID(const LLUUID& id) { mUUID = id; }
 	void setType(LLAssetType::EType type) { mType = type; }
-	void setTimeout (F64 timeout) { mTimeout = timeout; }
+	void setTimeout (F64Seconds timeout) { mTimeout = timeout; }
 
 protected:
 	LLUUID	mUUID;
@@ -279,7 +279,7 @@ public:
 		bool is_priority = false,
 		bool store_local = false,
 		bool user_waiting= false,
-		F64 timeout=LL_ASSET_STORAGE_TIMEOUT);
+		F64Seconds timeout=LL_ASSET_STORAGE_TIMEOUT);
 
 	/*
 	 * AssetID version
@@ -295,7 +295,7 @@ public:
 		bool store_local = false,
 		const LLUUID& requesting_agent_id = LLUUID::null,
 		bool user_waiting= false,
-		F64 timeout=LL_ASSET_STORAGE_TIMEOUT);
+		F64Seconds timeout=LL_ASSET_STORAGE_TIMEOUT);
 
 	virtual void checkForTimeouts();
 
@@ -403,7 +403,7 @@ public:
 		bool temp_file = false,
 		bool is_priority = false,
 		bool user_waiting = false,
-		F64 timeout  = LL_ASSET_STORAGE_TIMEOUT);
+		F64Seconds timeout  = LL_ASSET_STORAGE_TIMEOUT);
 
 	/*
 	 * TransactionID version
@@ -417,7 +417,7 @@ public:
 		bool temp_file = false,
 		bool is_priority = false,
 		bool user_waiting = false,
-		F64 timeout  = LL_ASSET_STORAGE_TIMEOUT);
+		F64Seconds timeout  = LL_ASSET_STORAGE_TIMEOUT);
 
 	static void legacyGetDataCallback(LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType, void *user_data, S32 status, LLExtStat ext_status);
 	static void legacyStoreDataCallback(const LLUUID &uuid, void *user_data, S32 status, LLExtStat ext_status);

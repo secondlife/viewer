@@ -38,6 +38,13 @@ namespace LLUnits
 	LL_DECLARE_DERIVED_UNIT(Latinum, / 16, Solari, "Sol");
 }
 
+typedef LLUnit<F32, LLUnits::Quatloos> F32Quatloos;
+typedef LLUnit<S32, LLUnits::Quatloos> S32Quatloos;
+typedef LLUnit<F32, LLUnits::Latinum> F32Latinum;
+typedef LLUnit<S32, LLUnits::Latinum> S32Latinum;
+typedef LLUnit<F32, LLUnits::Solari> F32Solari;
+typedef LLUnit<S32, LLUnits::Solari> S32Solari;
+
 namespace tut
 {
 	using namespace LLUnits;
@@ -54,28 +61,28 @@ namespace tut
 	void units_object_t::test<1>()
 	{
 		LLUnit<F32, Quatloos> float_quatloos;
-		ensure("default float unit is zero", float_quatloos == 0.f);
+		ensure("default float unit is zero", float_quatloos == F32Quatloos(0.f));
 
 		LLUnit<F32, Quatloos> float_initialize_quatloos(1);
-		ensure("non-zero initialized unit", float_initialize_quatloos == 1.f);
+		ensure("non-zero initialized unit", float_initialize_quatloos == F32Quatloos(1.f));
 
 		LLUnit<S32, Quatloos> int_quatloos;
-		ensure("default int unit is zero", int_quatloos == 0);
+		ensure("default int unit is zero", int_quatloos == S32Quatloos(0));
 
-		int_quatloos = 42;
-		ensure("int assignment is preserved", int_quatloos == 42);
+		int_quatloos = S32Quatloos(42);
+		ensure("int assignment is preserved", int_quatloos == S32Quatloos(42));
 		float_quatloos = int_quatloos;
-		ensure("float assignment from int preserves value", float_quatloos == 42.f);
+		ensure("float assignment from int preserves value", float_quatloos == F32Quatloos(42.f));
 
 		int_quatloos = float_quatloos;
-		ensure("int assignment from float preserves value", int_quatloos == 42);
+		ensure("int assignment from float preserves value", int_quatloos == S32Quatloos(42));
 
-		float_quatloos = 42.1f;
+		float_quatloos = F32Quatloos(42.1f);
 		int_quatloos = float_quatloos;
-		ensure("int units truncate float units on assignment", int_quatloos == 42);
+		ensure("int units truncate float units on assignment", int_quatloos == S32Quatloos(42));
 
 		LLUnit<U32, Quatloos> unsigned_int_quatloos(float_quatloos);
-		ensure("unsigned int can be initialized from signed int", unsigned_int_quatloos == 42);
+		ensure("unsigned int can be initialized from signed int", unsigned_int_quatloos == S32Quatloos(42));
 	}
 
 	// conversions to/from base unit
@@ -84,15 +91,15 @@ namespace tut
 	{
 		LLUnit<F32, Quatloos> quatloos(1.f);
 		LLUnit<F32, Latinum> latinum_bars(quatloos);
-		ensure("conversion between units is automatic via initialization", latinum_bars == 1.f / 4.f);
+		ensure("conversion between units is automatic via initialization", latinum_bars == F32Latinum(1.f / 4.f));
 
-		latinum_bars = 256;
+		latinum_bars = S32Latinum(256);
 		quatloos = latinum_bars;
-		ensure("conversion between units is automatic via assignment, and bidirectional", quatloos == 1024);
+		ensure("conversion between units is automatic via assignment, and bidirectional", quatloos == S32Quatloos(1024));
 
 		LLUnit<S32, Quatloos> single_quatloo(1);
 		LLUnit<F32, Latinum> quarter_latinum = single_quatloo;
-		ensure("division of integer unit preserves fractional values when converted to float unit", quarter_latinum == 0.25f);
+		ensure("division of integer unit preserves fractional values when converted to float unit", quarter_latinum == F32Latinum(0.25f));
 	}
 
 	// conversions across non-base units
@@ -101,10 +108,10 @@ namespace tut
 	{
 		LLUnit<F32, Quatloos> quatloos(1024);
 		LLUnit<F32, Solari> solari(quatloos);
-		ensure("conversions can work between indirectly related units: Quatloos -> Latinum -> Solari", solari == 4096);
+		ensure("conversions can work between indirectly related units: Quatloos -> Latinum -> Solari", solari == S32Solari(4096));
 
 		LLUnit<F32, Latinum> latinum_bars = solari;
-		ensure("Non base units can be converted between each other", latinum_bars == 256);
+		ensure("Non base units can be converted between each other", latinum_bars == S32Latinum(256));
 	}
 
 	// math operations
@@ -114,36 +121,36 @@ namespace tut
 		// exercise math operations
 		LLUnit<F32, Quatloos> quatloos(1.f);
 		quatloos *= 4.f;
-		ensure(quatloos == 4);
+		ensure(quatloos == S32Quatloos(4));
 		quatloos = quatloos * 2;
-		ensure(quatloos == 8);
+		ensure(quatloos == S32Quatloos(8));
 		quatloos = 2.f * quatloos;
-		ensure(quatloos == 16);
+		ensure(quatloos == S32Quatloos(16));
 
-		quatloos += 4.f;
-		ensure(quatloos == 20);
-		quatloos += 4;
-		ensure(quatloos == 24);
-		quatloos = quatloos + 4;
-		ensure(quatloos == 28);
-		quatloos = 4 + quatloos;
-		ensure(quatloos == 32);
+		quatloos += F32Quatloos(4.f);
+		ensure(quatloos == S32Quatloos(20));
+		quatloos += S32Quatloos(4);
+		ensure(quatloos == S32Quatloos(24));
+		quatloos = quatloos + S32Quatloos(4);
+		ensure(quatloos == S32Quatloos(28));
+		quatloos = S32Quatloos(4) + quatloos;
+		ensure(quatloos == S32Quatloos(32));
 		quatloos += quatloos * 3;
-		ensure(quatloos == 128);
+		ensure(quatloos == S32Quatloos(128));
 
 		quatloos -= quatloos / 4 * 3;
-		ensure(quatloos == 32);
-		quatloos = quatloos - 8;
-		ensure(quatloos == 24);
-		quatloos -= 4;
-		ensure(quatloos == 20);
-		quatloos -= 4.f;
-		ensure(quatloos == 16);
+		ensure(quatloos == S32Quatloos(32));
+		quatloos = quatloos - S32Quatloos(8);
+		ensure(quatloos == S32Quatloos(24));
+		quatloos -= S32Quatloos(4);
+		ensure(quatloos == S32Quatloos(20));
+		quatloos -= F32Quatloos(4.f);
+		ensure(quatloos == S32Quatloos(16));
 
 		quatloos /= 2.f;
-		ensure(quatloos == 8);
+		ensure(quatloos == S32Quatloos(8));
 		quatloos = quatloos / 4;
-		ensure(quatloos == 2);
+		ensure(quatloos == S32Quatloos(2));
 
 		F32 ratio = quatloos / LLUnit<F32, Quatloos>(2.f);
 		ensure(ratio == 1);
@@ -151,23 +158,54 @@ namespace tut
 		ensure(ratio == 1);
 
 		quatloos += LLUnit<F32, Solari>(8.f);
-		ensure(quatloos == 4);
+		ensure(quatloos == S32Quatloos(4));
 		quatloos -= LLUnit<F32, Latinum>(1.f);
-		ensure(quatloos == 0);
+		ensure(quatloos == S32Quatloos(0));
+	}
+
+	// comparison operators
+	template<> template<>
+	void units_object_t::test<5>()
+	{
+		LLUnit<S32, Quatloos> quatloos(1);
+		ensure("can perform less than comparison against same type", quatloos < S32Quatloos(2));
+		ensure("can perform less than comparison against different storage type", quatloos < F32Quatloos(2.f));
+		ensure("can perform less than comparison against different units", quatloos < S32Latinum(5));
+		ensure("can perform less than comparison against different storage type and units", quatloos < F32Latinum(5.f));
+
+		ensure("can perform greater than comparison against same type", quatloos > S32Quatloos(0));
+		ensure("can perform greater than comparison against different storage type", quatloos > F32Quatloos(0.f));
+		ensure("can perform greater than comparison against different units", quatloos > S32Latinum(0));
+		ensure("can perform greater than comparison against different storage type and units", quatloos > F32Latinum(0.f));
+
+	}
+
+	bool accept_explicit_quatloos(S32Quatloos q)
+	{
+		return true;
+	}
+
+	// signature compatibility
+	template<> template<>
+	void units_object_t::test<6>()
+	{
+		S32Quatloos quatloos(1);
+		ensure("can pass unit values as argument", accept_explicit_quatloos(S32Quatloos(1)));
+		ensure("can pass unit values as argument", accept_explicit_quatloos(quatloos));
 	}
 
 	// implicit units
 	template<> template<>
-	void units_object_t::test<5>()
+	void units_object_t::test<7>()
 	{
 		LLUnit<F32, Quatloos> quatloos;
-		LLUnitImplicit<F32, Quatloos> quatloos_implicit = quatloos + 1;
+		LLUnitImplicit<F32, Quatloos> quatloos_implicit = quatloos + S32Quatloos(1);
 		ensure("can initialize implicit unit from explicit", quatloos_implicit == 1);
 
 		quatloos = quatloos_implicit;
-		ensure("can assign implicit unit to explicit unit", quatloos == 1);
+		ensure("can assign implicit unit to explicit unit", quatloos == S32Quatloos(1));
 		quatloos += quatloos_implicit;
-		ensure("can perform math operation using mixture of implicit and explicit units", quatloos == 2);
+		ensure("can perform math operation using mixture of implicit and explicit units", quatloos == S32Quatloos(2));
 
 		// math operations on implicits
 		quatloos_implicit = 1;

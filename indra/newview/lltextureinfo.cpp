@@ -40,7 +40,7 @@ LLTextureInfo::LLTextureInfo() :
 	mLogTextureDownloadsToViewerLog(false),
 	mLogTextureDownloadsToSimulator(false),
 	mTextureDownloadProtocol("NONE"),
-	mTextureLogThreshold(LLUnits::Kibibytes::fromValue(100))
+	mTextureLogThreshold(LLUnits::Kilobytes::fromValue(100))
 {
 	mTextures.clear();
 	mRecording.start();
@@ -95,7 +95,7 @@ void LLTextureInfo::setRequestStartTime(const LLUUID& id, U64 startTime)
 	{
 		addRequest(id);
 	}
-	mTextures[id]->mStartTime = startTime;
+	mTextures[id]->mStartTime = (U64Microseconds)startTime;
 	add(sTextureDownloadsStarted, 1);
 }
 
@@ -105,7 +105,7 @@ void LLTextureInfo::setRequestSize(const LLUUID& id, U32 size)
 	{
 		addRequest(id);
 	}
-	mTextures[id]->mSize = size;
+	mTextures[id]->mSize = (U32Bytes)size;
 }
 
 void LLTextureInfo::setRequestOffset(const LLUUID& id, U32 offset)
@@ -194,7 +194,7 @@ LLSD LLTextureInfo::getAverages()
 	LLSD averagedTextureData;
 	S32 averageDownloadRate;
 	U32Milliseconds download_time = mRecording.getSum(sTexureDownloadTime);
-	if(download_time == 0)
+	if(download_time == (U32Milliseconds)0)
 	{
 		averageDownloadRate = 0;
 	}

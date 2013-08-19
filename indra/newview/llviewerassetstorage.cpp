@@ -77,7 +77,7 @@ protected:
 				LLViewerAssetStatsFF::record_response(mType, false, false,
 														   (LLViewerAssetStatsFF::get_timestamp()
 															- mMetricsStartTime));
-				mMetricsStartTime = 0;
+				mMetricsStartTime = (U32Seconds)0;
 			}
 		}
 	
@@ -113,7 +113,7 @@ void LLViewerAssetStorage::storeAssetData(
 	bool is_priority,
 	bool store_local,
 	bool user_waiting,
-	F64 timeout)
+	F64Seconds timeout)
 {
 	LLAssetID asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
 	LL_DEBUGS("AssetStorage") << "LLViewerAssetStorage::storeAssetData (legacy) " << tid << ":" << LLAssetType::lookup(asset_type)
@@ -237,7 +237,7 @@ void LLViewerAssetStorage::storeAssetData(
 	bool temp_file,
 	bool is_priority,
 	bool user_waiting,
-	F64 timeout)
+	F64Seconds timeout)
 {
 	if(filename.empty())
 	{

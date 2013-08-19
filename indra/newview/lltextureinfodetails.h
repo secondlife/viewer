@@ -40,10 +40,10 @@ struct LLTextureInfoDetails
 	};
 
 	U32Microseconds	mStartTime,
-										mCompleteTime;
-	U32									mOffset;
-	U32Bytes			mSize;
-	LLRequestType						mType;
+					mCompleteTime;
+	U32				mOffset;
+	U32Bytes		mSize;
+	LLRequestType	mType;
 
 	LLTextureInfoDetails();
 };

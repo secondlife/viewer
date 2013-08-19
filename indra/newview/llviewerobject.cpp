@@ -2417,14 +2417,14 @@ void LLViewerObject::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 	if (!mStatic && sVelocityInterpolate && !isSelected())
 	{
 		// calculate dt from last update
-		F32 dt_raw = (F32)(time - mLastInterpUpdateSecs);
+		F32 dt_raw = ((F64Seconds)time - mLastInterpUpdateSecs).value();
 		F32 dt = mTimeDilation * dt_raw;
 
 			applyAngularVelocity(dt);
 
 			if (isAttachment())
 				{
-					mLastInterpUpdateSecs = time;
+					mLastInterpUpdateSecs = (F64Seconds)time;
 				return;
 		}
 		else
@@ -2438,8 +2438,8 @@ void LLViewerObject::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 }
 
 
-// Move an object due to idle-time viewer side updates by iterpolating motion
-void LLViewerObject::interpolateLinearMotion(const F64 & time, const F32 & dt)
+// Move an object due to idle-time viewer side updates by interpolating motion
+void LLViewerObject::interpolateLinearMotion(const F64SecondsImplicit& time, const F32SecondsImplicit& dt)
 {
 	// linear motion
 	// PHYSICS_TIMESTEP is used below to correct for the fact that the velocity in object
@@ -2450,8 +2450,8 @@ void LLViewerObject::interpolateLinearMotion(const F64 & time, const F32 & dt)
 	// to see if object is selected, instead of explicitly
 	// zeroing it out	
 
-	F64 time_since_last_update = time - mLastMessageUpdateSecs;
-	if (time_since_last_update <= 0.0 || dt <= 0.f)
+	F64Seconds time_since_last_update = time - mLastMessageUpdateSecs;
+	if (time_since_last_update <= (F64Seconds)0.0 || dt <= (F32Seconds)0.f)
 	{
 		return;
 	}
@@ -2459,11 +2459,11 @@ void LLViewerObject::interpolateLinearMotion(const F64 & time, const F32 & dt)
 	LLVector3 accel = getAcceleration();
 	LLVector3 vel 	= getVelocity();
 	
-	if (sMaxUpdateInterpolationTime <= 0.0)
+	if (sMaxUpdateInterpolationTime <= (F64Seconds)0.0)
 	{	// Old code path ... unbounded, simple interpolation
 		if (!(accel.isExactlyZero() && vel.isExactlyZero()))
 		{
-			LLVector3 pos   = (vel + (0.5f * (dt-PHYSICS_TIMESTEP)) * accel) * dt;  
+			LLVector3 pos   = (vel + (0.5f * (dt-PHYSICS_TIMESTEP)) * accel) * dt.value();  
 		
 			// region local  
 			setPositionRegion(pos + getPositionRegion());
@@ -2477,12 +2477,12 @@ void LLViewerObject::interpolateLinearMotion(const F64 & time, const F32 & dt)
 	{	// Object is moving, and hasn't been too long since we got an update from the server
 		
 		// Calculate predicted position and velocity
-		LLVector3 new_pos = (vel + (0.5f * (dt-PHYSICS_TIMESTEP)) * accel) * dt;	
+		LLVector3 new_pos = (vel + (0.5f * (dt-PHYSICS_TIMESTEP)) * accel) * dt.value();	
 		LLVector3 new_v = accel * dt;
 
 		if (time_since_last_update > sPhaseOutUpdateInterpolationTime &&
-			sPhaseOutUpdateInterpolationTime > 0.0)
-		{	// Haven't seen a viewer update in a while, check to see if the ciruit is still active
+			sPhaseOutUpdateInterpolationTime > (F64Seconds)0.0)
+		{	// Haven't seen a viewer update in a while, check to see if the circuit is still active
 			if (mRegionp)
 			{	// The simulator will NOT send updates if the object continues normally on the path
 				// predicted by the velocity and the acceleration (often gravity) sent to the viewer
@@ -2498,7 +2498,7 @@ void LLViewerObject::interpolateLinearMotion(const F64 & time, const F32 & dt)
 						 (time_since_last_packet > sPhaseOutUpdateInterpolationTime))
 					{
 						// Start to reduce motion interpolation since we haven't seen a server update in a while
-						F64 time_since_last_interpolation = time - mLastInterpUpdateSecs;
+						F64Seconds time_since_last_interpolation = time - mLastInterpUpdateSecs;
 						F64 phase_out = 1.0;
 						if (time_since_last_update > sMaxUpdateInterpolationTime)
 						{	// Past the time limit, so stop the object
