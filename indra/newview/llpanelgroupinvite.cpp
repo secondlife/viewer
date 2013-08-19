@@ -85,6 +85,7 @@ public:
 	std::string		mAlreadyInGroup;
 	std::string		mTooManySelected;
 	bool		mConfirmedOwnerInvite;
+	std::set<LLUUID>	mInviteeIDs;
 
 	void (*mCloseCallback)(void* data);
 
@@ -117,11 +118,22 @@ LLPanelGroupInvite::impl::~impl()
 	}
 }
 
+const S32 MAX_GROUP_INVITES = 100; // Max invites per request. 100 to match server cap.
+
 void LLPanelGroupInvite::impl::addUsers(const std::vector<std::string>& names,
 										const uuid_vec_t& agent_ids)
 {
 	std::string name;
 	LLUUID id;
+
+	if (names.size() + mInviteeIDs.size() > MAX_GROUP_INVITES)
+	{
+		// Fail! Show a warning and don't add any names.
+		LLSD msg;
+		msg["MESSAGE"] = mTooManySelected;
+		LLNotificationsUtil::add("GenericAlert", msg);
+		return;
+	}
 
 	for (S32 i = 0; i < (S32)names.size(); i++)
 	{
@@ -129,19 +141,7 @@ void LLPanelGroupInvite::impl::addUsers(const std::vector<std::string>& names,
 		id = agent_ids[i];
 
 		// Make sure this agent isn't already in the list.
-		bool already_in_list = false;
-		std::vector<LLScrollListItem*> items = mInvitees->getAllData();
-		for (std::vector<LLScrollListItem*>::iterator iter = items.begin();
-			 iter != items.end(); ++iter)
-		{
-			LLScrollListItem* item = *iter;
-			if (item->getUUID() == id)
-			{
-				already_in_list = true;
-				break;
-			}
-		}
-		if (already_in_list)
+		if (mInviteeIDs.find(id) != mInviteeIDs.end())
 		{
 			continue;
 		}
@@ -152,6 +152,7 @@ void LLPanelGroupInvite::impl::addUsers(const std::vector<std::string>& names,
 		row["columns"][0]["value"] = name;
 
 		mInvitees->addElement(row);
+		mInviteeIDs.insert(id);
 	}
 }
 
@@ -193,7 +194,6 @@ void LLPanelGroupInvite::impl::submitInvitations()
 		role_member_pairs[item->getUUID()] = role_id;
 	}
 	
-	const S32 MAX_GROUP_INVITES = 100; // Max invites per request. 100 to match server cap.
 	if (role_member_pairs.size() > MAX_GROUP_INVITES)
 	{
 		// Fail!
@@ -334,6 +334,12 @@ void LLPanelGroupInvite::impl::handleRemove()
 			mInvitees->getAllSelected();
 	if (selection.empty()) return;
 
+	std::vector<LLScrollListItem*>::iterator iter;
+	for(iter = selection.begin(); iter != selection.end(); ++iter)
+	{
+		mInviteeIDs.erase( (*iter)->getUUID() );
+	}
+
 	// Remove all selected invitees.
 	mInvitees->deleteSelectedItems();
 	mRemoveButton->setEnabled(FALSE);
@@ -459,6 +465,7 @@ void LLPanelGroupInvite::clear()
 	mImplementation->mRoleNames->clear();
 	mImplementation->mRoleNames->removeall();
 	mImplementation->mOKButton->setEnabled(FALSE);
+	mImplementation->mInviteeIDs.clear();
 }
 
 void LLPanelGroupInvite::addUsers(uuid_vec_t& agent_ids)

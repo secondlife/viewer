@@ -219,6 +219,9 @@ public:
 
 	// Copy operations
 	
+	//duplicate this raw image if refCount > 1.
+	LLPointer<LLImageRaw> duplicate();
+
 	// Src and dst can be any size.  Src and dst can each have 3 or 4 components.
 	void copy( LLImageRaw* src );
 
