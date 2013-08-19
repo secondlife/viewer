@@ -502,9 +502,13 @@ void LLViewerPartSim::destroyClass()
 //static
 BOOL LLViewerPartSim::shouldAddPart()
 {
+	if (sParticleCount >= MAX_PART_COUNT)
+	{
+		return FALSE;
+	}
+
 	if (sParticleCount > PART_THROTTLE_THRESHOLD*sMaxParticleCount)
 	{
-
 		F32 frac = (F32)sParticleCount/(F32)sMaxParticleCount;
 		frac -= PART_THROTTLE_THRESHOLD;
 		frac *= PART_THROTTLE_RESCALE;
@@ -514,7 +518,10 @@ BOOL LLViewerPartSim::shouldAddPart()
 			return FALSE;
 		}
 	}
-	if (sParticleCount >= MAX_PART_COUNT)
+
+	// Check frame rate, and don't add more if the viewer is really slow
+	const F32 MIN_FRAME_RATE_FOR_NEW_PARTICLES = 4.f;
+	if (gFPSClamped < MIN_FRAME_RATE_FOR_NEW_PARTICLES)
 	{
 		return FALSE;
 	}

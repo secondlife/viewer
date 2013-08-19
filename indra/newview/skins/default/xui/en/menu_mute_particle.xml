@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!-- *NOTE: See also menu_attachment_other.xml -->
+<context_menu
+ layout="topleft"
+ name="Mute Particle Pie">
+  <menu_item_call
+     enabled="false"
+     label="Block Particle Owner"
+     name="Mute Particle">
+    <menu_item_call.on_click
+     function="Particle.Mute" />
+    <menu_item_call.on_enable
+     function="EnableMuteParticle" />
+  </menu_item_call>
+</context_menu>

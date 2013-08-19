@@ -2118,7 +2118,7 @@ void LLPanelLandOptions::refreshSearch()
 
 	bool can_change =
 			LLViewerParcelMgr::isParcelModifiableByAgent(
-				parcel, GP_LAND_CHANGE_IDENTITY)
+				parcel, GP_LAND_FIND_PLACES)
 			&& region
 			&& !(region->getRegionFlag(REGION_FLAGS_BLOCK_PARCEL_SEARCH));
 

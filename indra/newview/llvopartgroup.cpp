@@ -193,8 +193,14 @@ void LLVOPartGroup::updateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 	const LLVector3& pos_agent = getPositionAgent();
 	newMin.load3( (pos_agent - mScale).mV);
 	newMax.load3( (pos_agent + mScale).mV);
+
+	llassert(newMin.isFinite3());
+	llassert(newMax.isFinite3());
+
 	LLVector4a pos;
 	pos.load3(pos_agent.mV);
+
+	llassert(pos.isFinite3());
 	mDrawable->setPositionGroup(pos);
 }
 
@@ -233,6 +239,37 @@ LLDrawable* LLVOPartGroup::createDrawable(LLPipeline *pipeline)
 }
 
  const F32 MAX_PARTICLE_AREA_SCALE = 0.02f; // some tuned constant, limits on how much particle area to draw
+
+ LLUUID LLVOPartGroup::getPartOwner(S32 idx)
+ {
+	 LLUUID ret = LLUUID::null;
+
+	 if (idx < (S32) mViewerPartGroupp->mParticles.size())
+	 {
+		 ret = mViewerPartGroupp->mParticles[idx]->mPartSourcep->getOwnerUUID();
+	 }
+
+	 return ret;
+ }
+
+ LLUUID LLVOPartGroup::getPartSource(S32 idx)
+ {
+	 LLUUID ret = LLUUID::null;
+
+	 if (idx < (S32) mViewerPartGroupp->mParticles.size())
+	 {
+		 LLViewerPart* part = mViewerPartGroupp->mParticles[idx];
+		 if (part && part->mPartSourcep.notNull() &&
+			 part->mPartSourcep->mSourceObjectp.notNull())
+		 {
+			 LLViewerObject* source = part->mPartSourcep->mSourceObjectp;
+			 ret = source->getID();
+		 }
+	 }
+
+	 return ret;
+ }
+
 
 F32 LLVOPartGroup::getPartSize(S32 idx)
 {
@@ -316,6 +353,10 @@ BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 			inv_camera_dist_squared = 1.f / camera_dist_squared;
 		else
 			inv_camera_dist_squared = 1.f;
+
+		llassert(llfinite(inv_camera_dist_squared));
+		llassert(!llisnan(inv_camera_dist_squared));
+
 		F32 area = part->mScale.mV[0] * part->mScale.mV[1] * inv_camera_dist_squared;
 		tot_area = llmax(tot_area, area);
  		
@@ -387,20 +428,63 @@ BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 	return TRUE;
 }
 
-void LLVOPartGroup::getGeometry(S32 idx,
-								LLStrider<LLVector4a>& verticesp,
-								LLStrider<LLVector3>& normalsp, 
-								LLStrider<LLVector2>& texcoordsp,
-								LLStrider<LLColor4U>& colorsp, 
-								LLStrider<U16>& indicesp)
+
+BOOL LLVOPartGroup::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
+										  S32 face,
+										  BOOL pick_transparent,
+										  S32* face_hit,
+										  LLVector4a* intersection,
+										  LLVector2* tex_coord,
+										  LLVector4a* normal,
+										  LLVector4a* bi_normal)
 {
-	if (idx >= (S32) mViewerPartGroupp->mParticles.size())
+	LLVector4a dir;
+	dir.setSub(end, start);
+
+	F32 closest_t = 2.f;
+	BOOL ret = FALSE;
+	
+	for (U32 idx = 0; idx < mViewerPartGroupp->mParticles.size(); ++idx)
 	{
-		return;
+		const LLViewerPart &part = *((LLViewerPart*) (mViewerPartGroupp->mParticles[idx]));
+
+		LLVector4a v[4];
+		LLStrider<LLVector4a> verticesp;
+		verticesp = v;
+		
+		getGeometry(part, verticesp);
+
+		F32 a,b,t;
+		if (LLTriangleRayIntersect(v[0], v[1], v[2], start, dir, a,b,t) ||
+			LLTriangleRayIntersect(v[1], v[3], v[2], start, dir, a,b,t))
+		{
+			if (t >= 0.f &&
+				t <= 1.f &&
+				t < closest_t)
+			{
+				ret = TRUE;
+				closest_t = t;
+				if (face_hit)
+				{
+					*face_hit = idx;
+				}
+
+				if (intersection)
+				{
+					LLVector4a intersect = dir;
+					intersect.mul(closest_t);
+					intersection->setAdd(intersect, start);
+				}
+			}
+		}
 	}
 
-	const LLViewerPart &part = *((LLViewerPart*) (mViewerPartGroupp->mParticles[idx]));
+	return ret;
+}
 
+void LLVOPartGroup::getGeometry(const LLViewerPart& part,
+								LLStrider<LLVector4a>& verticesp)
+{
 	LLVector4a part_pos_agent;
 	part_pos_agent.load3(part.mPosAgent.mV);
 	LLVector4a camera_agent;
@@ -452,8 +536,6 @@ void LLVOPartGroup::getGeometry(S32 idx,
 	up.mul(0.5f*part.mScale.mV[1]);
 
 
-	LLVector3 normal = -LLViewerCamera::getInstance()->getXAxis();
-
 	//HACK -- the verticesp->mV[3] = 0.f here are to set the texture index to 0 (particles don't use texture batching, maybe they should)
 	// this works because there is actually a 4th float stored after the vertex position which is used as a texture index
 	// also, somebody please VECTORIZE THIS
@@ -472,6 +554,25 @@ void LLVOPartGroup::getGeometry(S32 idx,
 	(*verticesp++).getF32ptr()[3] = 0.f;
 	verticesp->setAdd(ppamu, right);
 	(*verticesp++).getF32ptr()[3] = 0.f;
+}
+
+
+								
+void LLVOPartGroup::getGeometry(S32 idx,
+								LLStrider<LLVector4a>& verticesp,
+								LLStrider<LLVector3>& normalsp, 
+								LLStrider<LLVector2>& texcoordsp,
+								LLStrider<LLColor4U>& colorsp, 
+								LLStrider<U16>& indicesp)
+{
+	if (idx >= (S32) mViewerPartGroupp->mParticles.size())
+	{
+		return;
+	}
+	
+	const LLViewerPart &part = *((LLViewerPart*) (mViewerPartGroupp->mParticles[idx]));
+
+	getGeometry(part, verticesp);
 
 	*colorsp++ = part.mColor;
 	*colorsp++ = part.mColor;
@@ -480,6 +581,7 @@ void LLVOPartGroup::getGeometry(S32 idx,
 
 	if (!(part.mFlags & LLPartData::LL_PART_EMISSIVE_MASK))
 	{ //not fullbright, needs normal
+		LLVector3 normal = -LLViewerCamera::getInstance()->getXAxis();
 		*normalsp++   = normal;
 		*normalsp++   = normal;
 		*normalsp++   = normal;
