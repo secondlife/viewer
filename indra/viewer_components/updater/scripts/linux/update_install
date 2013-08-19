@@ -69,8 +69,11 @@ then # zenity on PATH and is executable
          # clear any previous message
          clear_message
          # put up a new zenity box and capture its pid
-         "$zenpath" --info --title "Second Life Viewer Updater" \
-                    --width=320 --height=120 --text="$*" &
+##       "$zenpath" --info --title "Second Life Viewer Updater" \
+##                  --width=320 --height=120 --text="$*" &
+         # MAINT-2333: use bouncing progress bar
+         "$zenpath" --progress --pulsate --no-cancel --title "Second Life Viewer Updater" \
+                    --width=320 --height=120 --text "$*" </dev/null &
          statuspid=$!
      }
 

@@ -26,6 +26,9 @@ codeticket_since = 3.3.0-release
 Linux.gcc_version = /usr/bin/gcc-4.6
 Linux.cxx_version = /usr/bin/g++-4.6
 
+# Setup default sourceid so Windows can pick up the TeamCity override
+sourceid = ""
+
 ################################################################
 ####      Examples of how to set the viewer_channel         ####
 #

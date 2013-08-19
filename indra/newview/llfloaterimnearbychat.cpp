@@ -125,7 +125,7 @@ BOOL LLFloaterIMNearbyChat::postBuild()
 	setTitle(LLTrans::getString("NearbyChatTitle"));
 
 	// obsolete, but may be needed for backward compatibility?
-	gSavedSettings.declareS32("nearbychat_showicons_and_names", 2, "NearByChat header settings", true);
+	gSavedSettings.declareS32("nearbychat_showicons_and_names", 2, "NearByChat header settings", LLControlVariable::PERSIST_NONDFT);
 
 	if (gSavedPerAccountSettings.getBOOL("LogShowHistory"))
 	{
@@ -593,7 +593,7 @@ void LLFloaterIMNearbyChat::sendChat( EChatType type )
 			if (!utf8_revised_text.empty())
 			{
 				// Chat with animation
-				sendChatFromViewer(utf8_revised_text, type, TRUE);
+				sendChatFromViewer(utf8_revised_text, type, gSavedSettings.getBOOL("PlayChatAnim"));
 			}
 		}
 
