@@ -136,6 +136,82 @@ BOOL LLLineSegmentBoxIntersect(const F32* start, const F32* end, const F32* cent
 	return true;
 }
 
+// Finds tangent vec based on three vertices with texture coordinates.
+// Fills in dummy values if the triangle has degenerate texture coordinates.
+void calc_tangent_from_triangle(
+	LLVector4a&			normal,
+	LLVector4a&			tangent_out,
+	const LLVector4a& v1,
+	const LLVector2&  w1,
+	const LLVector4a& v2,
+	const LLVector2&  w2,
+	const LLVector4a& v3,
+	const LLVector2&  w3)
+{
+	const F32* v1ptr = v1.getF32ptr();
+	const F32* v2ptr = v2.getF32ptr();
+	const F32* v3ptr = v3.getF32ptr();
+
+	float x1 = v2ptr[0] - v1ptr[0];
+	float x2 = v3ptr[0] - v1ptr[0];
+	float y1 = v2ptr[1] - v1ptr[1];
+	float y2 = v3ptr[1] - v1ptr[1];
+	float z1 = v2ptr[2] - v1ptr[2];
+	float z2 = v3ptr[2] - v1ptr[2];
+
+	float s1 = w2.mV[0] - w1.mV[0];
+	float s2 = w3.mV[0] - w1.mV[0];
+	float t1 = w2.mV[1] - w1.mV[1];
+	float t2 = w3.mV[1] - w1.mV[1];
+
+	F32 rd = s1*t2-s2*t1;
+
+	float r = ((rd*rd) > FLT_EPSILON) ? 1.0F / rd : 1024.f; //some made up large ratio for division by zero
+
+	llassert(llfinite(r));
+	llassert(!llisnan(r));
+
+	LLVector4a sdir(
+		(t2 * x1 - t1 * x2) * r,
+		(t2 * y1 - t1 * y2) * r,
+		(t2 * z1 - t1 * z2) * r);
+
+	LLVector4a tdir(
+		(s1 * x2 - s2 * x1) * r,
+		(s1 * y2 - s2 * y1) * r,
+		(s1 * z2 - s2 * z1) * r);
+
+	LLVector4a	n = normal;
+	LLVector4a	t = sdir;
+
+	LLVector4a ncrosst;
+	ncrosst.setCross3(n,t);
+
+	// Gram-Schmidt orthogonalize
+	n.mul(n.dot3(t).getF32());
+
+	LLVector4a tsubn;
+	tsubn.setSub(t,n);
+
+	if (tsubn.dot3(tsubn).getF32() > F_APPROXIMATELY_ZERO)
+	{
+		tsubn.normalize3fast_checked();
+
+		// Calculate handedness
+		F32 handedness = ncrosst.dot3(tdir).getF32() < 0.f ? -1.f : 1.f;
+
+		tsubn.getF32ptr()[3] = handedness;
+
+		tangent_out = tsubn;
+	}
+	else
+	{
+		// degenerate, make up a value
+		//
+		tangent_out.set(0,0,1,1);
+	}
+
+}
 
 
 // intersect test between triangle vert0, vert1, vert2 and a ray from orig in direction dir.
@@ -5908,10 +5984,10 @@ void LLVolumeFace::cacheOptimize()
 		wght = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
 	}
 
-	LLVector4a* binorm = NULL;
+	LLVector4a* tangent = NULL;
 	if (mTangents)
 	{
-		binorm = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
+		tangent = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
 	}
 
 	//allocate mapping of old indices to new indices
@@ -7275,83 +7351,6 @@ void calc_binormal_from_triangle(LLVector4a& binormal,
 	{
 		binormal.set( 0, 1 , 0 );
 	}
-}
-
-// Finds binormal based on three vertices with texture coordinates.
-// Fills in dummy values if the triangle has degenerate texture coordinates.
-void calc_tangent_from_triangle(
-	LLVector4a&			normal,
-	LLVector4a&			tangent_out,
-	const LLVector4a& v1,
-	const LLVector2&  w1,
-	const LLVector4a& v2,
-	const LLVector2&  w2,
-	const LLVector4a& v3,
-	const LLVector2&  w3)
-{
-	const F32* v1ptr = v1.getF32ptr();
-	const F32* v2ptr = v2.getF32ptr();
-	const F32* v3ptr = v3.getF32ptr();
-
-	float x1 = v2ptr[0] - v1ptr[0];
-	float x2 = v3ptr[0] - v1ptr[0];
-	float y1 = v2ptr[1] - v1ptr[1];
-	float y2 = v3ptr[1] - v1ptr[1];
-	float z1 = v2ptr[2] - v1ptr[2];
-	float z2 = v3ptr[2] - v1ptr[2];
-
-	float s1 = w2.mV[0] - w1.mV[0];
-	float s2 = w3.mV[0] - w1.mV[0];
-	float t1 = w2.mV[1] - w1.mV[1];
-	float t2 = w3.mV[1] - w1.mV[1];
-
-	F32 rd = s1*t2-s2*t1;
-
-	float r = ((rd*rd) > FLT_EPSILON) ? 1.0F / rd : 1024.f; //some made up large ratio for division by zero
-
-	llassert(llfinite(r));
-	llassert(!llisnan(r));
-
-	LLVector4a sdir(
-		(t2 * x1 - t1 * x2) * r,
-		(t2 * y1 - t1 * y2) * r,
-		(t2 * z1 - t1 * z2) * r);
-
-	LLVector4a tdir(
-		(s1 * x2 - s2 * x1) * r,
-		(s1 * y2 - s2 * y1) * r,
-		(s1 * z2 - s2 * z1) * r);
-
-	LLVector4a	n = normal;
-	LLVector4a	t = sdir;
-
-	LLVector4a ncrosst;
-	ncrosst.setCross3(n,t);
-
-	// Gram-Schmidt orthogonalize
-	n.mul(n.dot3(t).getF32());
-
-	LLVector4a tsubn;
-	tsubn.setSub(t,n);
-
-	if (tsubn.dot3(tsubn).getF32() > F_APPROXIMATELY_ZERO)
-	{
-		tsubn.normalize3fast_checked();
-
-		// Calculate handedness
-		F32 handedness = ncrosst.dot3(tdir).getF32() < 0.f ? -1.f : 1.f;
-
-		tsubn.getF32ptr()[3] = handedness;
-
-		tangent_out = tsubn;
-	}
-	else
-	{
-		// degenerate, make up a value
-		//
-		tangent_out.set(0,0,1,1);
-	}
-
 }
 
 //adapted from Lengyel, Eric. “Computing Tangent Space Basis Vectors for an Arbitrary Mesh”. Terathon Software 3D Graphics Library, 2001. http://www.terathon.com/code/tangent.html
