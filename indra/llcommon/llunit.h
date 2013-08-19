@@ -187,25 +187,25 @@ struct LLUnitImplicit : public LLUnit<STORAGE_TYPE, UNIT_TYPE>
 	using base_t::operator +=;
 	void operator += (storage_t value)
 	{
-		mValue += value;
+        base_t::mValue += value;
 	}
 
 	template<typename OTHER_STORAGE, typename OTHER_UNIT>
 	void operator += (LLUnitImplicit<OTHER_STORAGE, OTHER_UNIT> other)
 	{
-		mValue += convert(other).value();
+        base_t::mValue += convert(other).value();
 	}
 
 	using base_t::operator -=;
 	void operator -= (storage_t value)
 	{
-		mValue -= value;
+        base_t::mValue -= value;
 	}
 
 	template<typename OTHER_STORAGE, typename OTHER_UNIT>
 	void operator -= (LLUnitImplicit<OTHER_STORAGE, OTHER_UNIT> other)
 	{
-		mValue -= convert(other).value();
+        base_t::mValue -= convert(other).value();
 	}
 
 };
@@ -272,14 +272,14 @@ LLUnit<LLTYPEOF(STORAGE_TYPE1() + STORAGE_TYPE2()), UNIT_TYPE1> operator + (LLUn
 template<typename STORAGE_TYPE, typename UNIT_TYPE, typename UNITLESS>
 LLUnit<STORAGE_TYPE, UNIT_TYPE> operator + (LLUnit<STORAGE_TYPE, UNIT_TYPE> first, UNITLESS second)
 {
-	LL_BAD_TEMPLATE_INSTANTIATION(STORAGE_TYPE1, "operator + requires compatible unit types");
+	LL_BAD_TEMPLATE_INSTANTIATION(STORAGE_TYPE, "operator + requires compatible unit types");
 	return LLUnit<STORAGE_TYPE, UNIT_TYPE>(0);
 }
 
 template<typename STORAGE_TYPE, typename UNIT_TYPE, typename UNITLESS>
 LLUnit<STORAGE_TYPE, UNIT_TYPE> operator + (UNITLESS first, LLUnit<STORAGE_TYPE, UNIT_TYPE> second)
 {
-	LL_BAD_TEMPLATE_INSTANTIATION(STORAGE_TYPE1, "operator + requires compatible unit types");
+	LL_BAD_TEMPLATE_INSTANTIATION(STORAGE_TYPE, "operator + requires compatible unit types");
 	return LLUnit<STORAGE_TYPE, UNIT_TYPE>(0);
 }
 
@@ -337,14 +337,14 @@ LLUnit<LLTYPEOF(STORAGE_TYPE1() - STORAGE_TYPE2()), UNIT_TYPE1> operator - (LLUn
 template<typename STORAGE_TYPE, typename UNIT_TYPE, typename UNITLESS>
 LLUnit<STORAGE_TYPE, UNIT_TYPE> operator - (LLUnit<STORAGE_TYPE, UNIT_TYPE> first, UNITLESS second)
 {
-	LL_BAD_TEMPLATE_INSTANTIATION(STORAGE_TYPE1, "operator - requires compatible unit types");
+	LL_BAD_TEMPLATE_INSTANTIATION(STORAGE_TYPE, "operator - requires compatible unit types");
 	return LLUnit<STORAGE_TYPE, UNIT_TYPE>(0);
 }
 
 template<typename STORAGE_TYPE, typename UNIT_TYPE, typename UNITLESS>
 LLUnit<STORAGE_TYPE, UNIT_TYPE> operator - (UNITLESS first, LLUnit<STORAGE_TYPE, UNIT_TYPE> second)
 {
-	LL_BAD_TEMPLATE_INSTANTIATION(STORAGE_TYPE1, "operator - requires compatible unit types");
+	LL_BAD_TEMPLATE_INSTANTIATION(STORAGE_TYPE, "operator - requires compatible unit types");
 	return LLUnit<STORAGE_TYPE, UNIT_TYPE>(0);
 }
 
@@ -443,7 +443,7 @@ LLUnit<LLTYPEOF(STORAGE_TYPE() / UNITLESS_TYPE()), UNIT_TYPE> operator / (LLUnit
 }
 
 template<typename STORAGE_TYPE1, typename UNIT_TYPE1, typename STORAGE_TYPE2, typename UNIT_TYPE2>
-LLTYPEOF(STORAGE_TYPE1() / STORAGE_TYPE2()) operator / (LLUnit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnit<STORAGE_TYPE2, UNIT_TYPE2> second)
+LLTYPEOF(STORAGE_TYPE1() / STORAGE_TYPE2(1)) operator / (LLUnit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnit<STORAGE_TYPE2, UNIT_TYPE2> second)
 {
 	return first.value() / first.convert(second).value();
 }
@@ -455,19 +455,19 @@ LLUnitImplicit<LLTYPEOF(STORAGE_TYPE() / UNITLESS_TYPE()), UNIT_TYPE> operator /
 }
 
 template<typename STORAGE_TYPE1, typename UNIT_TYPE1, typename STORAGE_TYPE2, typename UNIT_TYPE2>
-LLTYPEOF(STORAGE_TYPE1() / STORAGE_TYPE2()) operator / (LLUnitImplicit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnitImplicit<STORAGE_TYPE2, UNIT_TYPE2> second)
+LLTYPEOF(STORAGE_TYPE1() / STORAGE_TYPE2(1)) operator / (LLUnitImplicit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnitImplicit<STORAGE_TYPE2, UNIT_TYPE2> second)
+{
+	return (LLTYPEOF(STORAGE_TYPE1() / STORAGE_TYPE2(1)))(first.value() / first.convert(second).value());
+}
+
+template<typename STORAGE_TYPE1, typename UNIT_TYPE1, typename STORAGE_TYPE2, typename UNIT_TYPE2>
+LLTYPEOF(STORAGE_TYPE1() / STORAGE_TYPE2(1)) operator / (LLUnit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnitImplicit<STORAGE_TYPE2, UNIT_TYPE2> second)
 {
 	return (LLTYPEOF(STORAGE_TYPE1() / STORAGE_TYPE2()))(first.value() / first.convert(second).value());
 }
 
 template<typename STORAGE_TYPE1, typename UNIT_TYPE1, typename STORAGE_TYPE2, typename UNIT_TYPE2>
-LLTYPEOF(STORAGE_TYPE1() / STORAGE_TYPE2()) operator / (LLUnit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnitImplicit<STORAGE_TYPE2, UNIT_TYPE2> second)
-{
-	return (LLTYPEOF(STORAGE_TYPE1() / STORAGE_TYPE2()))(first.value() / first.convert(second).value());
-}
-
-template<typename STORAGE_TYPE1, typename UNIT_TYPE1, typename STORAGE_TYPE2, typename UNIT_TYPE2>
-LLTYPEOF(STORAGE_TYPE1() / STORAGE_TYPE2()) operator / (LLUnitImplicit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnit<STORAGE_TYPE2, UNIT_TYPE2> second)
+LLTYPEOF(STORAGE_TYPE1() / STORAGE_TYPE2(1)) operator / (LLUnitImplicit<STORAGE_TYPE1, UNIT_TYPE1> first, LLUnit<STORAGE_TYPE2, UNIT_TYPE2> second)
 {
 	return (LLTYPEOF(STORAGE_TYPE1() / STORAGE_TYPE2()))(first.value() / first.convert(second).value());
 }
