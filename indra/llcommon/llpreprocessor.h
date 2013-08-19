@@ -181,4 +181,11 @@
 # define LL_COMMON_API
 #endif // LL_COMMON_LINK_SHARED
 
+#if LL_WINDOWS
+#define LLTYPEOF(exp) decltype(exp)
+#elif LL_LINUX
+#define LLTYPEOF(exp) typeof(exp)
+#elif LL_DARWIN
+#define LLTYPEOF(exp) typeof(exp)
+#endif
 #endif	//	not LL_LINDEN_PREPROCESSOR_H
