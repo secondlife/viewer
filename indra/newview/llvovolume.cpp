@@ -1113,7 +1113,13 @@ void LLVOVolume::sculpt()
 		
 		S32 max_discard = mSculptTexture->getMaxDiscardLevel();
 		if (discard_level > max_discard)
+		{
 			discard_level = max_discard;    // clamp to the best we can do
+		}
+		if(discard_level > MAX_DISCARD_LEVEL)
+		{
+			return; //we think data is not ready yet.
+		}
 
 		S32 current_discard = getVolume()->getSculptLevel() ;
 		if(current_discard < -2)
@@ -4880,7 +4886,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 	if (emissive)
 	{ //emissive faces are present, include emissive byte to preserve batching
-		simple_mask = simple_mask | LLVertexBuffer::MAP_EMISSIVE;		
+		simple_mask = simple_mask | LLVertexBuffer::MAP_EMISSIVE;
 		alpha_mask = alpha_mask | LLVertexBuffer::MAP_EMISSIVE;
 		bump_mask = bump_mask | LLVertexBuffer::MAP_EMISSIVE;
 		fullbright_mask = fullbright_mask | LLVertexBuffer::MAP_EMISSIVE;

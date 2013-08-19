@@ -94,16 +94,6 @@ const S32 SCULPT_MIN_AREA_DETAIL = 1;
 
 extern BOOL gDebugGL;
 
-void calc_tangent_from_triangle(
-	LLVector4a&			normal,
-	LLVector4a&			tangent_out,
-	const LLVector4a& v1,
-	const LLVector2&  w1,
-	const LLVector4a& v2,
-	const LLVector2&  w2,
-	const LLVector4a& v3,
-	const LLVector2&  w3);
-
 BOOL check_same_clock_dir( const LLVector3& pt1, const LLVector3& pt2, const LLVector3& pt3, const LLVector3& norm)
 {    
 	LLVector3 test = (pt2-pt1)%(pt3-pt2);
@@ -1604,7 +1594,7 @@ BOOL LLPath::generate(const LLPathParams& params, F32 detail, S32 split,
 			S32 sides = (S32)llfloor(llfloor((MIN_DETAIL_FACES * detail + twist_mag * 3.5f * (detail-0.5f))) * params.getRevolutions());
 
 			if (is_sculpted)
-				sides = llmax(sculpt_size,1);
+				sides = llmax(sculpt_size, 1);
 			
 			genNGon(params, sides);
 		}
@@ -2072,7 +2062,7 @@ LLVolume::LLVolume(const LLVolumeParams &params, const F32 detail, const BOOL ge
 
 	generate();
 	
-	if (mParams.getSculptID().isNull() && ((mParams.getSculptType() == LL_SCULPT_TYPE_NONE) || (mParams.getSculptType() == LL_SCULPT_TYPE_MESH)))
+	if (mParams.getSculptID().isNull() && mParams.getSculptType() == LL_SCULPT_TYPE_NONE || mParams.getSculptType() == LL_SCULPT_TYPE_MESH)
 	{
 		createVolumeFaces();
 	}
@@ -5289,7 +5279,6 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
 		if (src.mTangents)
 		{
 			allocateTangents(src.mNumVertices);
-			llassert(mTangents);
 			LLVector4a::memcpyNonAliased16((F32*) mTangents, (F32*) src.mTangents, vert_size);
 		}
 		else
@@ -5301,7 +5290,6 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
 		if (src.mWeights)
 		{
 			allocateWeights(src.mNumVertices);
-			llassert(mWeights);
 			LLVector4a::memcpyNonAliased16((F32*) mWeights, (F32*) src.mWeights, vert_size);
 		}
 		else
@@ -5317,14 +5305,14 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
 		
 		LLVector4a::memcpyNonAliased16((F32*) mIndices, (F32*) src.mIndices, idx_size);
 	}
-
+	
 	//delete 
 	return *this;
 }
 
 LLVolumeFace::~LLVolumeFace()
 {
-		ll_aligned_free_16(mExtents);
+	ll_aligned_free_16(mExtents);
 	mExtents = NULL;
 
 	freeData();
@@ -5334,7 +5322,7 @@ void LLVolumeFace::freeData()
 {
 	ll_aligned_free_16(mPositions);
 	mPositions = NULL;
-	ll_aligned_free_16(mNormals);
+	ll_aligned_free_16( mNormals);
 	mNormals = NULL;
 	ll_aligned_free_16(mTexCoords);
 	mTexCoords = NULL;
@@ -5920,10 +5908,10 @@ void LLVolumeFace::cacheOptimize()
 		wght = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
 	}
 
-	LLVector4a* tangent = NULL;
+	LLVector4a* binorm = NULL;
 	if (mTangents)
 	{
-		tangent = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
+		binorm = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
 	}
 
 	//allocate mapping of old indices to new indices
@@ -6120,7 +6108,7 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 			lhs.setSub(corners[1].getPosition(), corners[0].getPosition());
 			LLVector4a rhs;
 			rhs.setSub(corners[2].getPosition(), corners[1].getPosition());
-			baseVert.getNormal().setCross3(lhs, rhs);
+			baseVert.getNormal().setCross3(lhs, rhs); 
 			baseVert.getNormal().normalize3fast();
 		}
 
@@ -6366,7 +6354,7 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 
 		num_vertices++;
 	}
-
+		
 	allocateTangents(num_vertices);		
 
 	for (S32 i = 0; i < num_vertices; i++)
@@ -6719,7 +6707,7 @@ void LLVolumeFace::pushVertex(const LLVector4a& pos, const LLVector4a& norm, con
 
 void LLVolumeFace::allocateTangents(S32 num_verts)
 {
-		ll_aligned_free_16(mTangents);
+	ll_aligned_free_16(mTangents);
 	mTangents = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
 }
 
@@ -7372,39 +7360,39 @@ void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVe
 {
 	LLVector4a* tan1 = (LLVector4a*) ll_aligned_malloc_16(vertexCount*2*sizeof(LLVector4a));
 
- LLVector4a* tan2 = tan1 + vertexCount;
+    LLVector4a* tan2 = tan1 + vertexCount;
 
 	memset(tan1, 0, vertexCount*2*sizeof(LLVector4a));
         
-   for (U32 a = 0; a < triangleCount; a++)
-   {
-      U32 i1 = *index_array++;
-      U32 i2 = *index_array++;
-      U32 i3 = *index_array++;
+    for (U32 a = 0; a < triangleCount; a++)
+    {
+        U32 i1 = *index_array++;
+        U32 i2 = *index_array++;
+        U32 i3 = *index_array++;
         
-      const LLVector4a& v1 = vertex[i1];
-      const LLVector4a& v2 = vertex[i2];
-      const LLVector4a& v3 = vertex[i3];
+        const LLVector4a& v1 = vertex[i1];
+        const LLVector4a& v2 = vertex[i2];
+        const LLVector4a& v3 = vertex[i3];
         
-      const LLVector2& w1 = texcoord[i1];
-      const LLVector2& w2 = texcoord[i2];
-      const LLVector2& w3 = texcoord[i3];
+        const LLVector2& w1 = texcoord[i1];
+        const LLVector2& w2 = texcoord[i2];
+        const LLVector2& w3 = texcoord[i3];
         
 		const F32* v1ptr = v1.getF32ptr();
 		const F32* v2ptr = v2.getF32ptr();
 		const F32* v3ptr = v3.getF32ptr();
 		
-      float x1 = v2ptr[0] - v1ptr[0];
-      float x2 = v3ptr[0] - v1ptr[0];
-      float y1 = v2ptr[1] - v1ptr[1];
-      float y2 = v3ptr[1] - v1ptr[1];
-      float z1 = v2ptr[2] - v1ptr[2];
-      float z2 = v3ptr[2] - v1ptr[2];
+        float x1 = v2ptr[0] - v1ptr[0];
+        float x2 = v3ptr[0] - v1ptr[0];
+        float y1 = v2ptr[1] - v1ptr[1];
+        float y2 = v3ptr[1] - v1ptr[1];
+        float z1 = v2ptr[2] - v1ptr[2];
+        float z2 = v3ptr[2] - v1ptr[2];
         
-      float s1 = w2.mV[0] - w1.mV[0];
-      float s2 = w3.mV[0] - w1.mV[0];
-      float t1 = w2.mV[1] - w1.mV[1];
-      float t2 = w3.mV[1] - w1.mV[1];
+        float s1 = w2.mV[0] - w1.mV[0];
+        float s2 = w3.mV[0] - w1.mV[0];
+        float t1 = w2.mV[1] - w1.mV[1];
+        float t2 = w3.mV[1] - w1.mV[1];
         
 		F32 rd = s1*t2-s2*t1;
 

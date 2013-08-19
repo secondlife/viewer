@@ -58,6 +58,7 @@ class LLRenderFunc;
 class LLCubeMap;
 class LLCullResult;
 class LLVOAvatar;
+class LLVOPartGroup;
 class LLGLSLShader;
 class LLCurlRequest;
 class LLDrawPoolAlpha;
@@ -202,6 +203,12 @@ public:
 												LLVector4a* normal = NULL,               // return the surface normal at the intersection point
 												LLVector4a* tangent = NULL             // return the surface tangent at the intersection point  
 		);
+
+	//get the closest particle to start between start and end, returns the LLVOPartGroup and particle index
+	LLVOPartGroup* lineSegmentIntersectParticle(const LLVector4a& start, const LLVector4a& end, LLVector4a* intersection,
+														S32* face_hit);
+
+
 	LLViewerObject* lineSegmentIntersectInHUD(const LLVector4a& start, const LLVector4a& end,
 											  BOOL pick_transparent,
 											  S32* face_hit,                          // return the face hit
@@ -288,8 +295,7 @@ public:
 
 	void unbindDeferredShader(LLGLSLShader& shader);
 	void renderDeferredLighting();
-	void renderDeferredLightingToRT(LLRenderTarget* target);
-
+	
 	void generateWaterReflection(LLCamera& camera);
 	void generateSunShadow(LLCamera& camera);
 	void generateHighlight(LLCamera& camera);
@@ -588,7 +594,6 @@ public:
 	static BOOL				sPickAvatar;
 	static BOOL				sReflectionRender;
 	static BOOL				sImpostorRender;
-	static BOOL				sImpostorRenderAlphaDepthPass;
 	static BOOL				sUnderWaterRender;
 	static BOOL				sRenderGlow;
 	static BOOL				sTextureBindTest;
@@ -912,6 +917,7 @@ public:
 	static F32 RenderGlowWidth;
 	static F32 RenderGlowStrength;
 	static BOOL RenderDepthOfField;
+	static BOOL RenderDepthOfFieldInEditMode;
 	static F32 CameraFocusTransitionTime;
 	static F32 CameraFNumber;
 	static F32 CameraFocalLength;
@@ -956,4 +962,3 @@ extern BOOL gDebugPipeline;
 extern const LLMatrix4* gGLLastMatrix;
 
 #endif
-

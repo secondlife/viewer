@@ -273,9 +273,6 @@ void LLDrawPoolAvatar::beginPostDeferredAlpha()
 
 	gPipeline.bindDeferredShader(*sVertexProgram);
 
-	F32 gamma = gSavedSettings.getF32("RenderDeferredDisplayGamma");
-	sVertexProgram->uniform1f(LLShaderMgr::DISPLAY_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f/2.2f));
-
 	sVertexProgram->setMinimumAlpha(0.2f);
 
 	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
@@ -285,11 +282,6 @@ void LLDrawPoolAvatar::beginDeferredRiggedAlpha()
 {
 	sVertexProgram = &gDeferredSkinnedAlphaProgram;
 	gPipeline.bindDeferredShader(*sVertexProgram);
-
-	sVertexProgram->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
-	F32 gamma = gSavedSettings.getF32("RenderDeferredDisplayGamma");
-	sVertexProgram->uniform1f(LLShaderMgr::DISPLAY_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f/2.2f));
-
 	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 	gPipeline.enableLightsDynamic();
 }
@@ -701,7 +693,7 @@ void LLDrawPoolAvatar::beginDeferredImpostor()
 void LLDrawPoolAvatar::endDeferredImpostor()
 {
 	sShaderLevel = mVertexShaderLevel;
-   sVertexProgram->disableTexture(LLViewerShaderMgr::DEFERRED_NORMAL);
+	sVertexProgram->disableTexture(LLViewerShaderMgr::DEFERRED_NORMAL);
 	sVertexProgram->disableTexture(LLViewerShaderMgr::SPECULAR_MAP);
 	sVertexProgram->disableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 	gPipeline.unbindDeferredShader(*sVertexProgram);
@@ -1460,24 +1452,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 	}
 }
 
-void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* face, const LLMeshSkinInfo* skin, LLVolume* volume, const LLVolumeFace& vol_face)
-{
-	LLVector4a* weight = vol_face.mWeights;
-	if (!weight)
-	{
-		return;
-	}
-
-	LLPointer<LLVertexBuffer> buffer = face->getVertexBuffer();
-	LLDrawable* drawable = face->getDrawable();
-
-	U32 data_mask = face->getRiggedVertexBufferDataMask();
-	
-	if (buffer.isNull() || 
-		buffer->getTypeMask() != data_mask ||
-		buffer->getNumVerts() != vol_face.mNumVertices ||
-		buffer->getNumIndices() != vol_face.mNumIndices ||
-		(drawable && drawable->isState(LLDrawable::REBUILD_ALL)))
+void LLDrawPoolAvatar::getRiggedGeometry(LLFace* face, LLPointer<LLVertexBuffer>& buffer, U32 data_mask, const LLMeshSkinInfo* skin, LLVolume* volume, const LLVolumeFace& vol_face)
 	{
 		face->setGeomIndex(0);
 		face->setIndicesIndex(0);
@@ -1530,9 +1505,52 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* 
 			face->setPoolType(LLDrawPool::POOL_AVATAR);
 		}
 
+	//llinfos << "Rebuilt face " << face->getTEOffset() << " of " << face->getDrawable() << " at " << gFrameTimeSeconds << llendl;
 		face->getGeometryVolume(*volume, face->getTEOffset(), mat_vert, mat_normal, offset, true);
 
 		buffer->flush();
+	}
+
+void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* face, const LLMeshSkinInfo* skin, LLVolume* volume, const LLVolumeFace& vol_face)
+{
+	LLVector4a* weight = vol_face.mWeights;
+	if (!weight)
+	{
+		return;
+	}
+
+	LLPointer<LLVertexBuffer> buffer = face->getVertexBuffer();
+	LLDrawable* drawable = face->getDrawable();
+
+	U32 data_mask = face->getRiggedVertexBufferDataMask();
+	
+	if (buffer.isNull() || 
+		buffer->getTypeMask() != data_mask ||
+		buffer->getNumVerts() != vol_face.mNumVertices ||
+		buffer->getNumIndices() != vol_face.mNumIndices ||
+		(drawable && drawable->isState(LLDrawable::REBUILD_ALL)))
+	{
+		if (drawable && drawable->isState(LLDrawable::REBUILD_ALL))
+		{ //rebuild EVERY face in the drawable, not just this one, to avoid missing drawable wide rebuild issues
+			for (S32 i = 0; i < drawable->getNumFaces(); ++i)
+			{
+				LLFace* facep = drawable->getFace(i);
+				U32 face_data_mask = facep->getRiggedVertexBufferDataMask();
+				if (face_data_mask)
+				{
+					LLPointer<LLVertexBuffer> cur_buffer = facep->getVertexBuffer();
+					const LLVolumeFace& cur_vol_face = volume->getVolumeFace(i);
+					getRiggedGeometry(facep, cur_buffer, face_data_mask, skin, volume, cur_vol_face);
+				}
+			}
+			drawable->clearState(LLDrawable::REBUILD_ALL);
+
+			buffer = face->getVertexBuffer();
+		}
+		else
+		{ //just rebuild this face
+			getRiggedGeometry(face, buffer, data_mask, skin, volume, vol_face);
+		}
 	}
 
 	if (sShaderLevel <= 0 && face->mLastSkinTime < avatar->getLastSkinTime())
@@ -1616,11 +1634,6 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* 
 				norm[j] = dst;
 			}
 		}
-	}
-
-	if (drawable && (face->getTEOffset() == drawable->getNumFaces()-1))
-	{
-		drawable->clearState(LLDrawable::REBUILD_ALL);
 	}
 }
 
@@ -1797,7 +1810,6 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 
 void LLDrawPoolAvatar::renderDeferredRiggedSimple(LLVOAvatar* avatar)
 {
-	updateRiggedVertexBuffers(avatar);
 	renderRigged(avatar, RIGGED_DEFERRED_SIMPLE);
 }
 
@@ -1866,7 +1878,6 @@ void LLDrawPoolAvatar::updateRiggedVertexBuffers(LLVOAvatar* avatar)
 
 void LLDrawPoolAvatar::renderRiggedSimple(LLVOAvatar* avatar)
 {
-	updateRiggedVertexBuffers(avatar);
 	renderRigged(avatar, RIGGED_SIMPLE);
 }
 
