@@ -35,7 +35,7 @@
 #include <boost/foreach.hpp>
 #include "boost/lexical_cast.hpp"
 
-const int CONVERSATION_LIFETIME = 30; // lifetime of LLConversation is 30 days by spec
+const S32Days CONVERSATION_LIFETIME = (S32Days)30; // lifetime of LLConversation is 30 days by spec
 
 struct ConversationParams : public LLInitParam::Block<ConversationParams>
 {
@@ -100,7 +100,7 @@ LLConversation::~LLConversation()
 
 void LLConversation::updateTimestamp()
 {
-	mTime = time_corrected();
+	mTime = (U64Seconds)time_corrected();
 	mTimestamp = createTimestamp(mTime);
 }
 
@@ -130,10 +130,10 @@ const std::string LLConversation::createTimestamp(const U64Seconds& utc_time)
 	return timeStr;
 }
 
-bool LLConversation::isOlderThan(U32 days) const
+bool LLConversation::isOlderThan(U32Days days) const
 {
 	U64Seconds now(time_corrected());
-	LLUnit<U32, LLUnits::Days> age = now - mTime;
+	U32Days age = now - mTime;
 
 	return age > days;
 }

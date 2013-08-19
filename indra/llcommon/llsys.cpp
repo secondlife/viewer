@@ -832,7 +832,7 @@ LLMemoryInfo::LLMemoryInfo()
 }
 
 #if LL_WINDOWS
-static U32Kibibytes LLMemoryAdjustKBResult(U32Kibibytes inKB)
+static U32Kilobytes LLMemoryAdjustKBResult(U32Kilobytes inKB)
 {
 	// Moved this here from llfloaterabout.cpp
 
@@ -843,16 +843,16 @@ static U32Kibibytes LLMemoryAdjustKBResult(U32Kibibytes inKB)
 	// returned from the GetMemoryStatusEx function.  Here we keep the
 	// original adjustment from llfoaterabout.cpp until this can be
 	// fixed somehow.
-	inKB += U32Mibibytes(1);
+	inKB += U32Megabytes(1);
 
 	return inKB;
 }
 #endif
 
-U32Kibibytes LLMemoryInfo::getPhysicalMemoryKB() const
+U32Kilobytes LLMemoryInfo::getPhysicalMemoryKB() const
 {
 #if LL_WINDOWS
-	return LLMemoryAdjustKBResult(U32Kibibytes(mStatsMap["Total Physical KB"].asInteger()));
+	return LLMemoryAdjustKBResult(U32Kilobytes(mStatsMap["Total Physical KB"].asInteger()));
 
 #elif LL_DARWIN
 	// This might work on Linux as well.  Someone check...
@@ -885,8 +885,8 @@ U32Bytes LLMemoryInfo::getPhysicalMemoryClamped() const
 	// Return the total physical memory in bytes, but clamp it
 	// to no more than U32_MAX
 	
-	U32Bytes phys_kb = getPhysicalMemoryKB();
-	if (phys_kb >= 4194304 /* 4GB in KB */)
+	U32Kilobytes phys_kb = getPhysicalMemoryKB();
+	if (phys_kb >= U32Gigabytes(4))
 	{
 		return U32Bytes(U32_MAX);
 	}
@@ -897,15 +897,15 @@ U32Bytes LLMemoryInfo::getPhysicalMemoryClamped() const
 }
 
 //static
-void LLMemoryInfo::getAvailableMemoryKB(U32Kibibytes& avail_physical_mem_kb, U32Kibibytes& avail_virtual_mem_kb)
+void LLMemoryInfo::getAvailableMemoryKB(U32Kilobytes& avail_physical_mem_kb, U32Kilobytes& avail_virtual_mem_kb)
 {
 #if LL_WINDOWS
 	// Sigh, this shouldn't be a static method, then we wouldn't have to
 	// reload this data separately from refresh()
 	LLSD statsMap(loadStatsMap());
 
-	avail_physical_mem_kb = statsMap["Avail Physical KB"].asInteger();
-	avail_virtual_mem_kb  = statsMap["Avail Virtual KB"].asInteger();
+	avail_physical_mem_kb = (U32Kilobytes)statsMap["Avail Physical KB"].asInteger();
+	avail_virtual_mem_kb  = (U32Kilobytes)statsMap["Avail Virtual KB"].asInteger();
 
 #elif LL_DARWIN
 	// mStatsMap is derived from vm_stat, look for (e.g.) "kb free":

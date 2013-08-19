@@ -276,7 +276,7 @@ public:
 public:
 	static void		deleteScratchTextures();
 private:
-	static S32 		sScratchTexBytes;
+	static S32Bytes sScratchTexBytes;
 	static std::map< LLGLenum, LLGLuint*> sScratchTexNames;
 
 /**                    Textures

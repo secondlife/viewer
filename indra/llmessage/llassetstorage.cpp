@@ -1405,7 +1405,7 @@ void LLAssetStorage::storeAssetData(
 	bool is_priority,
 	bool store_local,
 	bool user_waiting,
-	F64 timeout)
+	F64Seconds timeout)
 {
 	LL_WARNS() << "storeAssetData: wrong version called" << LL_ENDL;
 	// LLAssetStorage metric: Virtual base call
@@ -1424,7 +1424,7 @@ void LLAssetStorage::storeAssetData(
 	bool store_local,
 	const LLUUID& requesting_agent_id,
 	bool user_waiting,
-	F64 timeout)
+	F64Seconds timeout)
 {
 	LL_WARNS() << "storeAssetData: wrong version called" << LL_ENDL;
 	// LLAssetStorage metric: Virtual base call
@@ -1442,7 +1442,7 @@ void LLAssetStorage::storeAssetData(
 	bool temp_file,
 	bool is_priority,
 	bool user_waiting,
-	F64 timeout)
+	F64Seconds timeout)
 {
 	LL_WARNS() << "storeAssetData: wrong version called" << LL_ENDL;
 	// LLAssetStorage metric: Virtual base call
@@ -1460,7 +1460,7 @@ void LLAssetStorage::storeAssetData(
 	bool temp_file,
 	bool is_priority,
 	bool user_waiting,
-	F64 timeout)
+	F64Seconds timeout)
 {
 	LL_WARNS() << "storeAssetData: wrong version called" << LL_ENDL;
 	// LLAssetStorage metric: Virtual base call

@@ -43,7 +43,7 @@
 #include "noise.h"
 
 extern bool gShiftFrame;
-extern LLUnitImplicit<U64, LLUnits::Microseconds> gFrameTime;
+extern U64MicrosecondsImplicit gFrameTime;
 extern LLPipeline gPipeline;
 
 LLSurfacePatch::LLSurfacePatch() 

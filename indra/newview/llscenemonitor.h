@@ -62,7 +62,7 @@ public:
 	
 	const LLTrace::ExtendablePeriodicRecording* getRecording() const {return &mSceneLoadRecording;}
 	void dumpToFile(std::string file_name);
-	bool hasResults() const { return mSceneLoadRecording.getResults().getDuration() != 0;}
+	bool hasResults() const { return mSceneLoadRecording.getResults().getDuration() != S32Seconds(0);}
 
 private:
 	void freezeScene();

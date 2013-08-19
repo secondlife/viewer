@@ -253,7 +253,7 @@ template<typename T>
 S32 calc_num_rapid_changes(LLTrace::PeriodicRecording& periodic_recording, const T& stat, const F32Seconds time_period)
 {
 	F32Seconds	elapsed_time,
-									time_since_value_changed;
+				time_since_value_changed;
 	S32 num_rapid_changes = 0;
 	const F32Seconds	RAPID_CHANGE_THRESHOLD = F32Seconds(0.3f);
 
@@ -266,7 +266,7 @@ S32 calc_num_rapid_changes(LLTrace::PeriodicRecording& periodic_recording, const
 		if (last_value != cur_value)
 		{
 			if (time_since_value_changed < RAPID_CHANGE_THRESHOLD) num_rapid_changes++;
-			time_since_value_changed = 0;	
+			time_since_value_changed = (F32Seconds)0;	
 		}
 		last_value = cur_value;
 
@@ -280,7 +280,7 @@ S32 calc_num_rapid_changes(LLTrace::PeriodicRecording& periodic_recording, const
 S32 calc_num_rapid_changes(LLTrace::PeriodicRecording& periodic_recording, const LLTrace::TraceType<LLTrace::CountAccumulator>& stat, const F32Seconds time_period)
 {
 	F32Seconds	elapsed_time,
-		time_since_value_changed;
+				time_since_value_changed;
 	S32 num_rapid_changes = 0;
 
 	F64 last_value = periodic_recording.getPrevRecording(1).getSum(stat);
@@ -292,7 +292,7 @@ S32 calc_num_rapid_changes(LLTrace::PeriodicRecording& periodic_recording, const
 		if (last_value != cur_value)
 		{
 			if (time_since_value_changed < RAPID_CHANGE_THRESHOLD) num_rapid_changes++;
-			time_since_value_changed = 0;	
+			time_since_value_changed = (F32Seconds)0;	
 		}
 		last_value = cur_value;
 
@@ -355,7 +355,7 @@ void LLStatBar::draw()
 		mean              = frame_recording.getPeriodMean(sample_stat, num_frames);
 		num_rapid_changes = calc_num_rapid_changes(frame_recording, sample_stat, RAPID_CHANGE_WINDOW);
 
-		if (num_rapid_changes / RAPID_CHANGE_WINDOW > MAX_RAPID_CHANGES_PER_SEC)
+		if (num_rapid_changes / RAPID_CHANGE_WINDOW.value() > MAX_RAPID_CHANGES_PER_SEC)
 		{
 			display_value = mean;
 		}

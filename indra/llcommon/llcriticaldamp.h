@@ -42,10 +42,10 @@ public:
 	static void updateInterpolants();
 
 	// ACCESSORS
-	static F32 getInterpolant(LLUnitImplicit<F32, LLUnits::Seconds> time_constant, bool use_cache = true);
+	static F32 getInterpolant(F32SecondsImplicit time_constant, bool use_cache = true);
 
 	template<typename T> 
-	static T lerp(T a, T b, LLUnitImplicit<F32, LLUnits::Seconds> time_constant, bool use_cache = true)
+	static T lerp(T a, T b, F32SecondsImplicit time_constant, bool use_cache = true)
 	{
 		F32 interpolant = getInterpolant(time_constant, use_cache);
 		return ((a * (1.f - interpolant)) 

@@ -727,7 +727,7 @@ void LLWorld::updateNetStats()
 		regionp->updateNetStats();
 		bits += regionp->mBitsReceived;
 		packets += llfloor( regionp->mPacketsReceived );
-		regionp->mBitsReceived = 0.f;
+		regionp->mBitsReceived = (F32Bits)0.f;
 		regionp->mPacketsReceived = 0.f;
 	}
 
@@ -977,12 +977,12 @@ LLViewerTexture* LLWorld::getDefaultWaterTexture()
 	return mDefaultWaterTexturep;
 }
 
-void LLWorld::setSpaceTimeUSec(const LLUnitImplicit<U64, LLUnits::Microseconds> space_time_usec)
+void LLWorld::setSpaceTimeUSec(const U64MicrosecondsImplicit space_time_usec)
 {
 	mSpaceTimeUSec = space_time_usec;
 }
 
-LLUnitImplicit<U64, LLUnits::Microseconds> LLWorld::getSpaceTimeUSec() const
+U64MicrosecondsImplicit LLWorld::getSpaceTimeUSec() const
 {
 	return mSpaceTimeUSec;
 }

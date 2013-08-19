@@ -52,19 +52,19 @@ LLVLManager::~LLVLManager()
 	mPacketData.clear();
 }
 
-void LLVLManager::addLayerData(LLVLData *vl_datap, const S32 mesg_size)
+void LLVLManager::addLayerData(LLVLData *vl_datap, const S32Bytes mesg_size)
 {
 	if (LAND_LAYER_CODE == vl_datap->mType)
 	{
-		mLandBits += mesg_size * 8;
+		mLandBits += mesg_size;
 	}
 	else if (WIND_LAYER_CODE == vl_datap->mType)
 	{
-		mWindBits += mesg_size * 8;
+		mWindBits += mesg_size;
 	}
 	else if (CLOUD_LAYER_CODE == vl_datap->mType)
 	{
-		mCloudBits += mesg_size * 8;
+		mCloudBits += mesg_size;
 	}
 	else
 	{
@@ -112,25 +112,25 @@ void LLVLManager::unpackData(const S32 num_packets)
 
 void LLVLManager::resetBitCounts()
 {
-	mLandBits = mWindBits = mCloudBits = 0;
+	mLandBits = mWindBits = mCloudBits = (S32Bits)0;
 }
 
-S32 LLVLManager::getLandBits() const
+U32Bits LLVLManager::getLandBits() const
 {
 	return mLandBits;
 }
 
-S32 LLVLManager::getWindBits() const
+U32Bits LLVLManager::getWindBits() const
 {
 	return mWindBits;
 }
 
-S32 LLVLManager::getCloudBits() const
+U32Bits LLVLManager::getCloudBits() const
 {
 	return mCloudBits;
 }
 
-S32 LLVLManager::getTotalBytes() const
+S32Bytes LLVLManager::getTotalBytes() const
 {
 	return mLandBits + mWindBits + mCloudBits;
 }

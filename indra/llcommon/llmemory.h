@@ -166,22 +166,22 @@ public:
 	static U64 getCurrentRSS();
 	static U32 getWorkingSetSize();
 	static void* tryToAlloc(void* address, U32 size);
-	static void initMaxHeapSizeGB(F32 max_heap_size_gb, BOOL prevent_heap_failure);
+	static void initMaxHeapSizeGB(F32Gigabytes max_heap_size, BOOL prevent_heap_failure);
 	static void updateMemoryInfo() ;
 	static void logMemoryInfo(BOOL update = FALSE);
 	static bool isMemoryPoolLow();
 
-	static U32Kibibytes getAvailableMemKB() ;
-	static U32Kibibytes getMaxMemKB() ;
-	static U32Kibibytes getAllocatedMemKB() ;
+	static U32Kilobytes getAvailableMemKB() ;
+	static U32Kilobytes getMaxMemKB() ;
+	static U32Kilobytes getAllocatedMemKB() ;
 private:
 	static char* reserveMem;
-	static U32Kibibytes sAvailPhysicalMemInKB ;
-	static U32Kibibytes sMaxPhysicalMemInKB ;
-	static U32Kibibytes sAllocatedMemInKB;
-	static U32Kibibytes sAllocatedPageSizeInKB ;
+	static U32Kilobytes sAvailPhysicalMemInKB ;
+	static U32Kilobytes sMaxPhysicalMemInKB ;
+	static U32Kilobytes sAllocatedMemInKB;
+	static U32Kilobytes sAllocatedPageSizeInKB ;
 
-	static U32Kibibytes sMaxHeapSizeInKB;
+	static U32Kilobytes sMaxHeapSizeInKB;
 	static BOOL sEnableMemoryFailurePrevention;
 };
 

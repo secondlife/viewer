@@ -80,7 +80,7 @@
 
 // Constants
 //const char* MESSAGE_LOG_FILENAME = "message.log";
-static const F32 CIRCUIT_DUMP_TIMEOUT = 30.f;
+static const F32Seconds CIRCUIT_DUMP_TIMEOUT(30.f);
 static const S32 TRUST_TIME_WINDOW = 3;
 
 // *NOTE: This needs to be moved into a seperate file so that it never gets
@@ -259,7 +259,7 @@ LLMessageSystem::LLMessageSystem(const std::string& filename, U32 port,
 
 	mSendPacketFailureCount = 0;
 
-	mCircuitPrintFreq = 60.f;		// seconds
+	mCircuitPrintFreq = F32Seconds(60.f);
 
 	loadTemplateFile(filename, failure_is_fatal);
 
@@ -312,11 +312,11 @@ LLMessageSystem::LLMessageSystem(const std::string& filename, U32 port,
 	// Constants for dumping output based on message processing time/count
 	mNumMessageCounts = 0;
 	mMaxMessageCounts = 200; // >= 0 means dump warnings
-	mMaxMessageTime   = 1.f;
+	mMaxMessageTime   = F32Seconds(1.f);
 
 	mTrueReceiveSize = 0;
 
-	mReceiveTime = 0.f;
+	mReceiveTime = F32Seconds(0.f);
 }
 
 
@@ -833,7 +833,7 @@ void LLMessageSystem::processAcks()
 			}
 		}
 
-		if (mMaxMessageTime >= 0.f)
+		if (mMaxMessageTime >= F32Seconds(0.f))
 		{
 			// This is one of the only places where we're required to get REAL message system time.
 			mReceiveTime = getMessageTimeSeconds(TRUE) - mMessageCountTime;
@@ -1337,7 +1337,7 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
 	else
 	{
 		// mCircuitInfo already points to the correct circuit data
-		cdp->addBytesOut( buffer_length );
+		cdp->addBytesOut( (S32Bytes)buffer_length );
 	}
 
 	if(mVerboseLog)
@@ -1464,7 +1464,7 @@ void LLMessageSystem::logValidMsg(LLCircuitData *cdp, const LLHost& host, BOOL r
 	{
 		// update circuit packet ID tracking (missing/out of order packets)
 		cdp->checkPacketInID( mCurrentRecvPacketID, recv_resent );
-		cdp->addBytesIn( mTrueReceiveSize );
+		cdp->addBytesIn( (S32Bytes)mTrueReceiveSize );
 	}
 
 	if(mVerboseLog)
@@ -1731,7 +1731,7 @@ LLHost LLMessageSystem::findHost(const U32 circuit_code)
 
 void LLMessageSystem::setMaxMessageTime(const F32 seconds)
 {
-	mMaxMessageTime = seconds;
+	mMaxMessageTime = F32Seconds(seconds);
 }
 
 void LLMessageSystem::setMaxMessageCounts(const S32 num)
@@ -2752,7 +2752,7 @@ void LLMessageSystem::dumpReceiveCounts()
 			if (mt->mReceiveCount > 0)
 			{
 				LL_INFOS("Messaging") << "Num: " << std::setw(3) << mt->mReceiveCount << " Bytes: " << std::setw(6) << mt->mReceiveBytes
-						<< " Invalid: " << std::setw(3) << mt->mReceiveInvalid << " " << mt->mName << " " << llround(100 * mt->mDecodeTimeThisFrame / mReceiveTime) << "%" << LL_ENDL;
+						<< " Invalid: " << std::setw(3) << mt->mReceiveInvalid << " " << mt->mName << " " << llround(100 * mt->mDecodeTimeThisFrame / mReceiveTime.value()) << "%" << LL_ENDL;
 			}
 		}
 	}

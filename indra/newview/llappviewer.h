@@ -334,10 +334,10 @@ extern U32 gForegroundFrameCount;
 
 extern LLPumpIO* gServicePump;
 
-extern LLUnitImplicit<U64, LLUnits::Microseconds>	gStartTime;
-extern LLUnitImplicit<U64, LLUnits::Microseconds>   gFrameTime;					// The timestamp of the most-recently-processed frame
-extern LLUnitImplicit<F32, LLUnits::Seconds>		gFrameTimeSeconds;			// Loses msec precision after ~4.5 hours...
-extern LLUnitImplicit<F32, LLUnits::Seconds>		gFrameIntervalSeconds;		// Elapsed time between current and previous gFrameTimeSeconds
+extern U64MicrosecondsImplicit	gStartTime;
+extern U64MicrosecondsImplicit   gFrameTime;					// The timestamp of the most-recently-processed frame
+extern F32SecondsImplicit		gFrameTimeSeconds;			// Loses msec precision after ~4.5 hours...
+extern F32SecondsImplicit		gFrameIntervalSeconds;		// Elapsed time between current and previous gFrameTimeSeconds
 extern F32		gFPSClamped;				// Frames per second, smoothed, weighted toward last frame
 extern F32		gFrameDTClamped;
 extern U32 		gFrameStalls;

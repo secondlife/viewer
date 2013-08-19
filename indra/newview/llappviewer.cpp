@@ -293,12 +293,12 @@ U32	gFrameCount = 0;
 U32 gForegroundFrameCount = 0; // number of frames that app window was in foreground
 LLPumpIO* gServicePump = NULL;
 
-LLUnitImplicit<U64, LLUnits::Microseconds> gFrameTime = 0;
-LLUnitImplicit<F32, LLUnits::Seconds> gFrameTimeSeconds = 0.f;
-LLUnitImplicit<F32, LLUnits::Seconds> gFrameIntervalSeconds = 0.f;
+U64MicrosecondsImplicit gFrameTime = 0;
+F32SecondsImplicit gFrameTimeSeconds = 0.f;
+F32SecondsImplicit gFrameIntervalSeconds = 0.f;
 F32 gFPSClamped = 10.f;						// Pretend we start at target rate.
 F32 gFrameDTClamped = 0.f;					// Time between adjacent checks to network for packets
-LLUnitImplicit<U64, LLUnits::Microseconds>	gStartTime = 0; // gStartTime is "private", used only to calculate gFrameTimeSeconds
+U64MicrosecondsImplicit	gStartTime = 0; // gStartTime is "private", used only to calculate gFrameTimeSeconds
 U32 gFrameStalls = 0;
 const F64 FRAME_STALL_THRESHOLD = 1.0;
 
@@ -1046,9 +1046,8 @@ bool LLAppViewer::init()
 
 		// get RAM data from XML
 		std::stringstream minRAMString(LLNotifications::instance().getGlobalString("UnsupportedRAMAmount"));
-		U64 minRAM = 0;
+		U64Bytes minRAM;
 		minRAMString >> minRAM;
-		minRAM = minRAM * 1024 * 1024;
 
 		if(!LLFeatureManager::getInstance()->isGPUSupported() && LLFeatureManager::getInstance()->getGPUClass() != GPU_CLASS_UNKNOWN)
 		{
@@ -1202,7 +1201,7 @@ void LLAppViewer::initMaxHeapSize()
 	//currently SL is built under 32-bit setting, we set its max heap size no more than 1.6 GB.
 
 	//F32 max_heap_size_gb = llmin(1.6f, (F32)gSavedSettings.getF32("MaxHeapSize")) ;
-	F32 max_heap_size_gb = gSavedSettings.getF32("MaxHeapSize") ;
+	F32Gigabytes max_heap_size_gb = (F32Gigabytes)gSavedSettings.getF32("MaxHeapSize") ;
 	BOOL enable_mem_failure_prevention = (BOOL)gSavedSettings.getBOOL("MemoryFailurePreventionEnabled") ;
 
 	LLMemory::initMaxHeapSizeGB(max_heap_size_gb, enable_mem_failure_prevention) ;
@@ -1464,7 +1463,7 @@ bool LLAppViewer::mainLoop()
 					ms_sleep(500);
 				}
 
-				const F64 max_idle_time = llmin(.005*10.0*gFrameTimeSeconds, LLUnitImplicit<F32, LLUnits::Seconds>(0.005f)); // 5 ms a second
+				const F64 max_idle_time = llmin(.005f*10.f*(F32MillisecondsImplicit)gFrameTimeSeconds, F32MillisecondsImplicit(5)); // 5 ms a second
 				idleTimer.reset();
 				S32 total_work_pending = 0;
 				S32 total_io_pending = 0;	
@@ -3138,8 +3137,7 @@ bool LLAppViewer::meetsRequirementsForMaximizedStart()
 {
 	bool maximizedOk = (LLFeatureManager::getInstance()->getGPUClass() >= GPU_CLASS_2);
 
-	const U32 one_gigabyte_kb = 1024 * 1024;
-	maximizedOk &= (gSysMemory.getPhysicalMemoryKB() >= one_gigabyte_kb);
+	maximizedOk &= (gSysMemory.getPhysicalMemoryKB() >= U32Gigabytes(1));
 
 	return maximizedOk;
 }
@@ -3330,7 +3328,7 @@ void LLAppViewer::writeSystemInfo()
 	gDebugInfo["CPUInfo"]["CPUSSE2"] = gSysCPU.hasSSE2();
 	
 	gDebugInfo["RAMInfo"]["Physical"] = (LLSD::Integer)(gSysMemory.getPhysicalMemoryKB().value());
-	gDebugInfo["RAMInfo"]["Allocated"] = (LLSD::Integer)(gMemoryAllocated.valueInUnits<LLUnits::Kibibytes>());
+	gDebugInfo["RAMInfo"]["Allocated"] = (LLSD::Integer)(gMemoryAllocated.valueInUnits<LLUnits::Kilobytes>());
 	gDebugInfo["OSInfo"] = getOSInfo().getOSStringSimple();
 
 	// The user is not logged on yet, but record the current grid choice login url

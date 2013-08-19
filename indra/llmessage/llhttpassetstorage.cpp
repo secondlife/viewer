@@ -456,7 +456,7 @@ void LLHTTPAssetStorage::storeAssetData(
 	bool store_local,
 	const LLUUID& requesting_agent_id,
 	bool user_waiting,
-	F64 timeout)
+	F64Seconds timeout)
 {
 	if (mVFS->getExists(uuid, type)) // VFS treats nonexistant and zero-length identically
 	{
@@ -516,7 +516,7 @@ void LLHTTPAssetStorage::storeAssetData(
 	bool temp_file,
 	bool is_priority,
 	bool user_waiting,
-	F64 timeout)
+	F64Seconds timeout)
 {
 	LL_INFOS() << "LLAssetStorage::storeAssetData (legacy)" << asset_id << ":" << LLAssetType::lookup(asset_type) << LL_ENDL;
 

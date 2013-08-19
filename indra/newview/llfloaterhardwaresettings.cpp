@@ -89,8 +89,8 @@ void LLFloaterHardwareSettings::refresh()
 
 void LLFloaterHardwareSettings::refreshEnabledState()
 {
-	S32Mibibytes min_tex_mem = LLViewerTextureList::getMinVideoRamSetting();
-	S32Mibibytes max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting();
+	S32Megabytes min_tex_mem = LLViewerTextureList::getMinVideoRamSetting();
+	S32Megabytes max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting();
 	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMinValue(min_tex_mem.value());
 	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMaxValue(max_tex_mem.value());
 

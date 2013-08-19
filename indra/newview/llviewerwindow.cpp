@@ -736,9 +736,9 @@ public:
 			U32 old_y = ypos ;
 			for(S32 i = LLViewerTexture::BOOST_NONE; i < LLViewerTexture::MAX_GL_IMAGE_CATEGORY; i++)
 			{
-				if(gTotalTextureBytesPerBoostLevel[i] > 0)
+				if(gTotalTextureBytesPerBoostLevel[i] > (S32Bytes)0)
 				{
-					addText(xpos, ypos, llformat("Boost_Level %d:  %.3f MB", i, F32Mibibytes(gTotalTextureBytesPerBoostLevel[i]).value()));
+					addText(xpos, ypos, llformat("Boost_Level %d:  %.3f MB", i, F32Megabytes(gTotalTextureBytesPerBoostLevel[i]).value()));
 					ypos += y_inc;
 				}
 			}

@@ -401,11 +401,11 @@ void process_layer_data(LLMessageSystem *mesgsys, void **user_data)
 	LLVLData *vl_datap = new LLVLData(regionp, type, datap, size);
 	if (mesgsys->getReceiveCompressedSize())
 	{
-		gVLManager.addLayerData(vl_datap, mesgsys->getReceiveCompressedSize());
+		gVLManager.addLayerData(vl_datap, (S32Bytes)mesgsys->getReceiveCompressedSize());
 	}
 	else
 	{
-		gVLManager.addLayerData(vl_datap, mesgsys->getReceiveSize());
+		gVLManager.addLayerData(vl_datap, (S32Bytes)mesgsys->getReceiveSize());
 	}
 }
 

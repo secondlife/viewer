@@ -225,7 +225,7 @@ void update_clock_frequencies()
 
 // returns a U64 number that represents the number of 
 // microseconds since the unix epoch - Jan 1, 1970
-LLUnitImplicit<U64, LLUnits::Microseconds> totalTime()
+U64MicrosecondsImplicit totalTime()
 {
 	U64 current_clock_count = get_clock_count();
 	if (!gTotalTimeClockCount)
@@ -295,14 +295,14 @@ void LLTimer::cleanupClass()
 }
 
 // static
-LLUnitImplicit<U64, LLUnits::Microseconds> LLTimer::getTotalTime()
+U64MicrosecondsImplicit LLTimer::getTotalTime()
 {
 	// simply call into the implementation function.
 	return totalTime();
 }	
 
 // static
-LLUnitImplicit<F64, LLUnits::Seconds> LLTimer::getTotalSeconds()
+F64SecondsImplicit LLTimer::getTotalSeconds()
 {
 	return U64_to_F64(getTotalTime()) * USEC_TO_SEC_F64;
 }
@@ -351,36 +351,36 @@ U64 getElapsedTimeAndUpdate(U64& lastClockCount)
 }
 
 
-LLUnitImplicit<F64, LLUnits::Seconds> LLTimer::getElapsedTimeF64() const
+F64SecondsImplicit LLTimer::getElapsedTimeF64() const
 {
 	U64 last = mLastClockCount;
 	return (F64)getElapsedTimeAndUpdate(last) * gClockFrequencyInv;
 }
 
-LLUnitImplicit<F32, LLUnits::Seconds> LLTimer::getElapsedTimeF32() const
+F32SecondsImplicit LLTimer::getElapsedTimeF32() const
 {
 	return (F32)getElapsedTimeF64();
 }
 
-LLUnitImplicit<F64, LLUnits::Seconds> LLTimer::getElapsedTimeAndResetF64()
+F64SecondsImplicit LLTimer::getElapsedTimeAndResetF64()
 {
 	return (F64)getElapsedTimeAndUpdate(mLastClockCount) * gClockFrequencyInv;
 }
 
-LLUnitImplicit<F32, LLUnits::Seconds> LLTimer::getElapsedTimeAndResetF32()
+F32SecondsImplicit LLTimer::getElapsedTimeAndResetF32()
 {
 	return (F32)getElapsedTimeAndResetF64();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void  LLTimer::setTimerExpirySec(LLUnitImplicit<F32, LLUnits::Seconds> expiration)
+void  LLTimer::setTimerExpirySec(F32SecondsImplicit expiration)
 {
 	mExpirationTicks = get_clock_count()
 		+ (U64)((F32)(expiration * gClockFrequency));
 }
 
-LLUnitImplicit<F32, LLUnits::Seconds> LLTimer::getRemainingTimeF32() const
+F32SecondsImplicit LLTimer::getRemainingTimeF32() const
 {
 	U64 cur_ticks = get_clock_count();
 	if (cur_ticks > mExpirationTicks)

@@ -112,7 +112,7 @@ public:
 	LLMemoryInfo(); ///< Default constructor
 	void stream(std::ostream& s) const;	///< output text info to s
 
-	U32Kibibytes getPhysicalMemoryKB() const; 
+	U32Kilobytes getPhysicalMemoryKB() const; 
 	
 	/*! Memory size in bytes, if total memory is >= 4GB then U32_MAX will
 	**  be returned.
@@ -120,7 +120,7 @@ public:
 	U32Bytes getPhysicalMemoryClamped() const; ///< Memory size in clamped bytes
 
 	//get the available memory infomation in KiloBytes.
-	static void getAvailableMemoryKB(U32Kibibytes& avail_physical_mem_kb, U32Kibibytes& avail_virtual_mem_kb);
+	static void getAvailableMemoryKB(U32Kilobytes& avail_physical_mem_kb, U32Kilobytes& avail_virtual_mem_kb);
 
 	// Retrieve a map of memory statistics. The keys of the map are platform-
 	// dependent. The values are in kilobytes to try to avoid integer overflow.

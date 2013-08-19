@@ -67,7 +67,7 @@ public:
 
 	// Return a high precision number of seconds since the start of
 	// this application instance.
-	static LLUnitImplicit<F64, LLUnits::Seconds> getElapsedSeconds()
+	static F64SecondsImplicit getElapsedSeconds()
 	{
 		if (sTimer) 
 		{
@@ -80,10 +80,10 @@ public:
 	}
 
 	// Return a high precision usec since epoch
-	static LLUnitImplicit<U64, LLUnits::Microseconds> getTotalTime();
+	static U64MicrosecondsImplicit getTotalTime();
 
 	// Return a high precision seconds since epoch
-	static LLUnitImplicit<F64, LLUnits::Seconds> getTotalSeconds();
+	static F64SecondsImplicit getTotalSeconds();
 
 
 	// MANIPULATORS
@@ -91,19 +91,19 @@ public:
 	void stop() { mStarted = FALSE; }
 	void reset();								// Resets the timer
 	void setLastClockCount(U64 current_count);		// Sets the timer so that the next elapsed call will be relative to this time
-	void setTimerExpirySec(LLUnitImplicit<F32, LLUnits::Seconds> expiration);
+	void setTimerExpirySec(F32SecondsImplicit expiration);
 	BOOL checkExpirationAndReset(F32 expiration);
 	BOOL hasExpired() const;
-	LLUnitImplicit<F32, LLUnits::Seconds> getElapsedTimeAndResetF32();	// Returns elapsed time in seconds with reset
-	LLUnitImplicit<F64, LLUnits::Seconds> getElapsedTimeAndResetF64();
+	F32SecondsImplicit getElapsedTimeAndResetF32();	// Returns elapsed time in seconds with reset
+	F64SecondsImplicit getElapsedTimeAndResetF64();
 
-	LLUnitImplicit<F32, LLUnits::Seconds> getRemainingTimeF32() const;
+	F32SecondsImplicit getRemainingTimeF32() const;
 
 	static BOOL knownBadTimer();
 
 	// ACCESSORS
-	LLUnitImplicit<F32, LLUnits::Seconds> getElapsedTimeF32() const;			// Returns elapsed time in seconds
-	LLUnitImplicit<F64, LLUnits::Seconds> getElapsedTimeF64() const;			// Returns elapsed time in seconds
+	F32SecondsImplicit getElapsedTimeF32() const;			// Returns elapsed time in seconds
+	F64SecondsImplicit getElapsedTimeF64() const;			// Returns elapsed time in seconds
 
 	bool getStarted() const { return mStarted; }
 
@@ -171,6 +171,6 @@ LL_COMMON_API struct tm* utc_to_pacific_time(time_t utc_time, BOOL pacific_dayli
 LL_COMMON_API void microsecondsToTimecodeString(U64 current_time, std::string& tcstring);
 LL_COMMON_API void secondsToTimecodeString(F32 current_time, std::string& tcstring);
 
-LLUnitImplicit<U64, LLUnits::Microseconds> LL_COMMON_API totalTime();					// Returns current system time in microseconds
+U64MicrosecondsImplicit LL_COMMON_API totalTime();					// Returns current system time in microseconds
 
 #endif

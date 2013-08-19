@@ -81,7 +81,7 @@ void LLSmoothInterpolation::updateInterpolants()
 //-----------------------------------------------------------------------------
 // getInterpolant()
 //-----------------------------------------------------------------------------
-F32 LLSmoothInterpolation::getInterpolant(LLUnitImplicit<F32, LLUnits::Seconds> time_constant, bool use_cache)
+F32 LLSmoothInterpolation::getInterpolant(F32SecondsImplicit time_constant, bool use_cache)
 {
 	if (time_constant == 0.f)
 	{

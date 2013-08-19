@@ -39,15 +39,15 @@ class LLVLManager
 public:
 	~LLVLManager();
 
-	void addLayerData(LLVLData *vl_datap, const S32 mesg_size);
+	void addLayerData(LLVLData *vl_datap, const S32Bytes mesg_size);
 
 	void unpackData(const S32 num_packets = 10);
 
-	S32 getTotalBytes() const;
+	S32Bytes getTotalBytes() const;
 
-	S32 getLandBits() const;
-	S32 getWindBits() const;
-	S32 getCloudBits() const;
+	U32Bits getLandBits() const;
+	U32Bits getWindBits() const;
+	U32Bits getCloudBits() const;
 
 	void resetBitCounts();
 
@@ -55,9 +55,9 @@ public:
 protected:
 
 	std::vector<LLVLData *> mPacketData;
-	U32 mLandBits;
-	U32 mWindBits;
-	U32 mCloudBits;
+	U32Bits mLandBits;
+	U32Bits mWindBits;
+	U32Bits mCloudBits;
 };
 
 class LLVLData

@@ -220,8 +220,8 @@ void display_stats()
 	F32 mem_log_freq = gSavedSettings.getF32("MemoryLogFrequency");
 	if (mem_log_freq > 0.f && gRecentMemoryTime.getElapsedTimeF32() >= mem_log_freq)
 	{
-		gMemoryAllocated = LLMemory::getCurrentRSS();
-		U32Mibibytes memory = gMemoryAllocated;
+		gMemoryAllocated = (U64Bytes)LLMemory::getCurrentRSS();
+		U32Megabytes memory = gMemoryAllocated;
 		LL_INFOS() << llformat("MEMORY: %d MB", memory.value()) << LL_ENDL;
 		LLMemory::logMemoryInfo(TRUE) ;
 		gRecentMemoryTime.reset();
