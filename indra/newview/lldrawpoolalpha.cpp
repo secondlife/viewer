@@ -105,7 +105,7 @@ void LLDrawPoolAlpha::beginPostDeferredPass(S32 pass)
 		}
 		else
 		{
-			simple_shader = &gDeferredAlphaProgram;
+		simple_shader = &gDeferredAlphaProgram;
 			fullbright_shader = &gDeferredFullbrightProgram;
 		}
 		
@@ -287,11 +287,11 @@ void LLDrawPoolAlpha::render(S32 pass)
 
 	if (mVertexShaderLevel > 0)
 	{
-		renderAlpha(getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX | LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2);
+		renderAlpha(getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX | LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2, pass);
 	}
 	else
 	{
-		renderAlpha(getVertexDataMask());
+		renderAlpha(getVertexDataMask(), pass);
 	}
 
 	gGL.setColorMask(true, false);
@@ -363,7 +363,7 @@ void LLDrawPoolAlpha::renderAlphaHighlight(U32 mask)
 	}
 }
 
-void LLDrawPoolAlpha::renderAlpha(U32 mask)
+void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 {
 	BOOL initialized_lighting = FALSE;
 	BOOL light_enabled = TRUE;
@@ -394,6 +394,23 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 				{ //FIXME!
 					llwarns << "Missing required components, skipping render batch." << llendl;
 					continue;
+				}
+
+				// Fix for bug - NORSPEC-271
+				// If the face is more than 90% transparent, then don't update the Depth buffer for Dof
+				// We don't want the nearly invisible objects to cause of DoF effects
+				if(pass == 1)
+				{
+					LLFace*	face = params.mFace;
+					if(face)
+					{
+						const LLTextureEntry* tep = face->getTextureEntry();
+						if(tep)
+						{
+							if(tep->getColor().mV[3] < 0.1f)
+								continue;
+						}
+					}
 				}
 
 				LLRenderPass::applyModelMatrix(params);
@@ -559,7 +576,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 				gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
 				
 				// If this alpha mesh has glow, then draw it a second time to add the destination-alpha (=glow).  Interleaving these state-changing calls could be expensive, but glow must be drawn Z-sorted with alpha.
-				if (current_shader &&
+				if (current_shader && 
                     !LLPipeline::sImpostorRender &&
 					draw_glow_for_this_partition &&
 					params.mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_EMISSIVE))

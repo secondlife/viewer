@@ -63,7 +63,7 @@ public:
 	/*virtual*/ void prerender();
 
 	void renderGroupAlpha(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture = TRUE);
-	void renderAlpha(U32 mask);
+	void renderAlpha(U32 mask, S32 pass);
 	void renderAlphaHighlight(U32 mask);
 		
 	static BOOL sShowDebugAlpha;
