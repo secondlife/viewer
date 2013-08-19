@@ -234,9 +234,7 @@ public:
 
     static void setAssociatedExperience( LLHandle<LLLiveLSLEditor> editor, const LLSD& experience );
     static void onToggleExperience(LLUICtrl *ui, void* userdata);
-
-    void fetchAssociatedExperience(const LLUUID& asset_id);
-
+    
     void addExperienceInfo( const LLSD& experience, BOOL enabled );
     void setExperienceIds(const LLSD& experience_ids);
     void buildExperienceList();

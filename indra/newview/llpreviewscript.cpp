@@ -1966,8 +1966,8 @@ void LLLiveLSLEditor::loadAsset()
 				   || gAgent.isGodlike()))
 			{
 				mItem = new LLViewerInventoryItem(item);
-				//llinfos << "asset id " << mItem->getAssetUUID() << llendl;
 			}
+            ExperienceAssociationResponder::fetchAssociatedExperience(item->getParentUUID(), item->getUUID(), boost::bind(&LLLiveLSLEditor::setAssociatedExperience, getDerivedHandle<LLLiveLSLEditor>(), _1));
 
 			if(!gAgent.isGodlike()
 			   && (item
@@ -2069,9 +2069,6 @@ void LLLiveLSLEditor::onLoadComplete(LLVFS *vfs, const LLUUID& asset_id,
 	
 	if(instance )
 	{
-        instance->fetchAssociatedExperience(asset_id);
-
-
 		if( LL_ERR_NOERR == status )
 		{
 			instance->loadScriptText(vfs, asset_id, type);
@@ -2517,29 +2514,6 @@ void LLLiveLSLEditor::onSaveBytecodeComplete(const LLUUID& asset_uuid, void* use
 	LLFile::remove(dst_filename);
 	delete data;
 }
-
-void LLLiveLSLEditor::fetchAssociatedExperience(const LLUUID& asset_id)
-{
-    LLViewerRegion* region = gAgent.getRegion();
-    if (region)
-    {
-        std::string lookup_url=region->getCapability("GetMetadata"); 
-        if(!lookup_url.empty())
-        {
-            LLSD request;
-            request["asset-id"]=asset_id;
-            LLSD fields;
-            fields.append("experience");
-            request["fields"] = fields;
-
-            ExperienceAssociationResponder::callback_t f = boost::bind(&LLLiveLSLEditor::setAssociatedExperience, getDerivedHandle<LLLiveLSLEditor>(), _1);
-            LLHTTPClient::post(lookup_url, request, new ExperienceAssociationResponder(f));
-
-            //test me pls
-        }
-    }
-}
-
 
 BOOL LLLiveLSLEditor::canClose()
 {

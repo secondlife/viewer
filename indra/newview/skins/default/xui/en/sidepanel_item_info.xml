@@ -12,6 +12,10 @@
     (none)
   </panel.string>
   <panel.string
+    name="loading_experience">
+    (loading)
+  </panel.string>
+  <panel.string
     name="unknown">
     (unknown)
   </panel.string>
@@ -434,7 +438,8 @@
         left="5"
         name="LabelItemExperienceTitle"
         top_pad="10"
-        width="78">
+        width="78"
+        visible="false">
         Experience:
       </text>
       <text
@@ -446,10 +451,11 @@
         left_delta="78"
         name="LabelItemExperience"
         top_delta="0"
-         width="210" 
-        >(loading)</text>
+        width="210"
+        visible="false"
+        ></text>
     </panel>
-    
+
   </scroll_container>
   <panel
     height="30"

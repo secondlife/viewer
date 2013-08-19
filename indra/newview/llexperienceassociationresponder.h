@@ -40,10 +40,15 @@ public:
     typedef boost::function<void(const LLSD& experience)> callback_t;
 
     ExperienceAssociationResponder(callback_t callback);
+
     virtual void result(const LLSD& content);
     virtual void error(U32 status, const std::string& reason);
 
-private:
+    static void fetchAssociatedExperience(const LLUUID& object_it, const LLUUID& item_id, callback_t callback);
+
+private:    
+    static void fetchAssociatedExperience(LLSD& request, callback_t callback);
+    
     void sendResult(const LLSD& experience);
 
     callback_t mCallback;

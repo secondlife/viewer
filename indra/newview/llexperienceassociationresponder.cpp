@@ -1,6 +1,8 @@
 /** 
  * @file llexperienceassociationresponder.cpp
- * @brief llexperienceassociationresponder implementation
+ * @brief llexperienceassociationresponder implementation. This class combines 
+ * a lookup for a script association and an experience details request. The first
+ * is always async, but the second may be cached locally.
  *
  * $LicenseInfo:firstyear=2013&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -27,10 +29,36 @@
 #include "llviewerprecompiledheaders.h"
 #include "llexperienceassociationresponder.h"
 #include "llexperiencecache.h"
+#include "llviewerregion.h"
+#include "llagent.h"
 
 ExperienceAssociationResponder::ExperienceAssociationResponder(ExperienceAssociationResponder::callback_t callback):mCallback(callback)
 {
     ref();
+}
+
+void ExperienceAssociationResponder::fetchAssociatedExperience( const LLUUID& object_id, const LLUUID& item_id, callback_t callback )
+{
+    LLSD request;
+    request["object-id"]=object_id;
+    request["item-id"]=item_id;
+    fetchAssociatedExperience(request, callback);
+}
+
+void ExperienceAssociationResponder::fetchAssociatedExperience(LLSD& request, callback_t callback)
+{
+    LLViewerRegion* region = gAgent.getRegion();
+    if (region)
+    {
+        std::string lookup_url=region->getCapability("GetMetadata"); 
+        if(!lookup_url.empty())
+        {
+            LLSD fields;
+            fields.append("experience");
+            request["fields"] = fields;
+            LLHTTPClient::post(lookup_url, request, new ExperienceAssociationResponder(callback));
+        }
+    }
 }
 
 void ExperienceAssociationResponder::error( U32 status, const std::string& reason )
@@ -52,22 +80,11 @@ void ExperienceAssociationResponder::result( const LLSD& content )
         msg["message"]="no experience";
         msg["error"]=-1;
         sendResult(msg);
-        LL_ERRS("ExperienceAssociation")  << "Associated experience missing" << LL_ENDL;
+        return;
     }
 
     LLExperienceCache::get(content["experience"].asUUID(), boost::bind(&ExperienceAssociationResponder::sendResult, this, _1));
 
-    /* LLLiveLSLEditor* scriptCore = LLFloaterReg::findTypedInstance<LLLiveLSLEditor>("preview_scriptedit", mParent);
-
-    if(!scriptCore)
-        return;
-
-    LLUUID id;
-    if(content.has("experience"))
-    {
-        id=content["experience"].asUUID();
-    }
-    scriptCore->setAssociatedExperience(id);*/
 }
 
 void ExperienceAssociationResponder::sendResult( const LLSD& experience )
