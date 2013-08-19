@@ -153,14 +153,16 @@ void HttpPolicy::retryOp(HttpOpRequest * op)
 		};
 	static const int delta_max(int(LL_ARRAY_SIZE(retry_deltas)) - 1);
 	static const HttpStatus error_503(503);
-	
+
 	const HttpTime now(totalTime());
 	const int policy_class(op->mReqPolicy);
 	HttpTime delta(retry_deltas[llclamp(op->mPolicyRetries, 0, delta_max)]);
+	bool external_delta(false);
 
 	if (op->mReplyRetryAfter > 0 && op->mReplyRetryAfter < 30)
 	{
 		delta = op->mReplyRetryAfter * U64L(1000000);
+		external_delta = true;
 	}
 	op->mPolicyRetryAt = now + delta;
 	++op->mPolicyRetries;
@@ -171,7 +173,8 @@ void HttpPolicy::retryOp(HttpOpRequest * op)
 	LL_DEBUGS("CoreHttp") << "HTTP request " << static_cast<HttpHandle>(op)
 						  << " retry " << op->mPolicyRetries
 						  << " scheduled in " << (delta / HttpTime(1000))
-						  << " mS.  Status:  " << op->mStatus.toHex()
+						  << " mS (" << (external_delta ? "external" : "internal")
+						  << ").  Status:  " << op->mStatus.toHex()
 						  << LL_ENDL;
 	if (op->mTracing > HTTP_TRACE_OFF)
 	{
