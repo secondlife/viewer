@@ -128,7 +128,7 @@ private:
 		DISPLAY_HZ
 	}								mDisplayType;
 	bool							mPauseHistory;
-	F64Seconds	mAllTimeMax,
+	F64Seconds						mAllTimeMax,
 									mTotalTimeDisplay;
 	S32								mScrollIndex,
 									mHoverBarIndex,

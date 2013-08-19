@@ -282,14 +282,14 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 		}
 
 		if (hover_bar)
-			{
+		{
 			mHoverID = hover_bar->mTimeBlock;
 			if (mHoverTimer != mHoverID)
-				{
-					// could be that existing tooltip is for a parent and is thus
-					// covering region for this new timer, go ahead and unblock 
-					// so we can create a new tooltip
-					LLToolTipMgr::instance().unblockToolTips();
+			{
+				// could be that existing tooltip is for a parent and is thus
+				// covering region for this new timer, go ahead and unblock 
+				// so we can create a new tooltip
+				LLToolTipMgr::instance().unblockToolTips();
 				mHoverTimer = mHoverID;
 				mToolTipRect.set(mBarRect.mLeft + (hover_bar->mSelfStart / mTotalTimeDisplay) * mBarRect.getWidth(),
 								row.mTop,
