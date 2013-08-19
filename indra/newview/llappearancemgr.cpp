@@ -467,11 +467,16 @@ public:
 	// virtual
 	void fire(const LLUUID& id)
 	{
-		selfStopPhase(mTrackingPhase);
 		if (mCB)
 		{
 			mCB->fire(id);
 		}
+	}
+
+	// virtual
+	~LLTrackPhaseWrapper()
+	{
+		selfStopPhase(mTrackingPhase);
 	}
 
 protected:
