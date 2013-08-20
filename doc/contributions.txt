@@ -176,6 +176,7 @@ Ansariel Hiller
 	STORM-1713
 	STORM-1899
 	STORM-1932
+	MAINT-2368
 Aralara Rajal
 Ardy Lay
 	STORM-859
@@ -483,6 +484,7 @@ Hiro Sommambulist
 Hitomi Tiponi
 	STORM-1741
 	STORM-1862
+	BUG-1067
 Holger Gilruth
 Horatio Freund
 Hoze Menges

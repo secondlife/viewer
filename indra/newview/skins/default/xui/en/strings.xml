@@ -2519,6 +2519,8 @@ Drag folders to this area and click "Send to Marketplace" to list them for sale 
 	<string name="ATTACH_HUD_BOTTOM_LEFT">HUD Bottom Left</string>
 	<string name="ATTACH_HUD_BOTTOM">HUD Bottom</string>
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">HUD Bottom Right</string>
+	<string name="ATTACH_NECK">Neck</string>
+	<string name="ATTACH_AVATAR_CENTER">Avatar Center</string>
 
 	<!-- script editor -->
 	<string name="CursorPos">Line [LINE], Column [COLUMN]</string>

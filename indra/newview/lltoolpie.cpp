@@ -121,7 +121,7 @@ BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 BOOL LLToolPie::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	// don't pick transparent so users can't "pay" transparent objects
-	mPick = gViewerWindow->pickImmediate(x, y, FALSE);
+	mPick = gViewerWindow->pickImmediate(x, y, FALSE, TRUE);
 	mPick.mKeyMask = mask;
 
 	// claim not handled so UI focus stays same
@@ -1685,6 +1685,13 @@ BOOL LLToolPie::handleRightClickPick()
 			gMenuObject->show(x, y);
 
 			showVisualContextMenuEffect();
+		}
+	}
+	else if (mPick.mParticleOwnerID.notNull())
+	{
+		if (gMenuMuteParticle && mPick.mParticleOwnerID != gAgent.getID())
+		{
+			gMenuMuteParticle->show(x,y);
 		}
 	}
 
