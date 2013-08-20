@@ -4,10 +4,10 @@
   follows="all"
   height="570"
   layout="topleft"
-  left="0"
+  left="5"
   min_height="350"
-  top="0"
-  width="333"
+  top="5"
+  width="348"
   name="panel_experience_info">
   <text
     follows="top|left|right"
@@ -18,7 +18,7 @@
     name="title"
     text_color="White"
     top="2"
-    value="Experience Info"
+    value="Experience Profile"
     use_ellipses="true"
     left="3"
     right="-3"/>
@@ -31,127 +31,346 @@
     name="xp_scroll"
     opaque="true"
     top_pad="10"
-    width="310">
+    width="330">
     <panel
       bg_alpha_color="DkGray2"
-      follows="left|top|right"
-      height="630"
+      follows="top|left"
+      height="480"
       layout="topleft"
       left="0"
-      min_height="300"
+      min_height="480"
       name="scrolling_panel"
       top="0"
-      width="310">
-      <texture_picker
-        enabled="false"
-        fallback_image="default_land_picture.j2c"
-        follows="left|top|right"
-        height="197"
+      width="315"
+      min_width="315">
+      <layout_stack
+        follows="all"
+        height="480"
         layout="topleft"
-        left="11"
-        name="logo"
-        top="10"
-        width="290" />
-      <text
-        follows="left|top|right"
-        font="SansSerifLarge"
-        height="14"
-        layout="topleft"
-        left="10"
-        name="region_title"
-        text_color="white"
-        top_pad="10"
-        use_ellipses="true"
-        value=" Experience Name"
-        width="280"/>
-
-      <expandable_text
-        follows="left|top|right"
-        height="50"
-        layout="topleft"
-        left="10"
-        name="description"
-        top_pad="10"
-        value="It's an experience"
-        width="280" />
-
-      <text
-        follows="left|top"
-        height="16"
-        layout="topleft"
-        left="10"
-        top_pad="10"
-        value="Maturity level:"
-        width="130" />
-      <icon
-        follows="top|left"
-        height="16"
-        image_name="unknown"
-        layout="topleft"
-        left_pad="10"
-        name="maturity_icon"
-        top_pad="-18"
-        width="18" />
-      <text
-        follows="top|left"
-        height="16"
-        layout="topleft"
-        left_pad="5"
-        name="maturity_value"
-        top_pad="-14"
-        value="unknown"
-        width="118" />
-      <panel
-        follows="left|top|right"
-        name="location_panel"
-        left="10"
-        width="280" visible="false"
-        top_pad="10" height="42">
-        <text
-          follows="left|top|right"
-          height="16"
-          layout="topleft"
-          left="00"
-          top="0"
-          value="Location:"
-          width="280" />
-
-        <text
-          follows="left|top|right"
-          height="16"
+        left="0"
+        top="0"
+        orientation="vertical"
+        width="315">
+        <layout_panel
+          follows="all"
+          height="197"
           layout="topleft"
           left="0"
-          top_pad="10"
-          value="Location:"
-          width="280" />
-      </panel>
-
-      <panel
-        follows="left|top|right"
-        name="location_panel"
-        left="10"
-        width="280"
-        top_pad="10"
-        height="42">
-        <text
-          follows="left|top|right"
-          height="16"
-          layout="topleft"
-          left="00"
           top="0"
-          value="Location:"
-          width="280" />
-
-        <text
-          follows="left|top|right"
-          height="16"
+          auto_resize="false"
+          visible="true"
+          width="315"
+          name="image_panel">
+          <texture_picker
+            enabled="false"
+            fallback_image="default_land_picture.j2c"
+            follows="left|top"
+            height="197"
+            layout="topleft"
+            left="10"
+            name="logo"
+            top="10"
+            width="290" />
+        </layout_panel>
+        <layout_panel
+          follows="all"
+          height="19"
           layout="topleft"
           left="0"
-          top_pad="10"
-          value="Location:"
-          width="280" />
-      </panel>
+          top="5"
+          width="313"
+          auto_resize="false"
+            >
+          <text
+            follows="left|top|right"
+            font="SansSerifLarge"
+            height="14"
+            layout="topleft"
+            left="10"
+            name="experience_title"
+            text_color="white"
+            top="0"
+            use_ellipses="true"
+            value="Kyle's Superhero RPG"
+            width="288"/>
+        </layout_panel>
+        <layout_panel
+          follows=""
+          height="50"
+          layout="topleft"
+          left="0"
+          top="0"
+          auto_resize="false"
+          width="315"
+          name="description panel">
+          <expandable_text
+            follows="left|top|right"
+            font="SansSerif"
+            height="50"
+            layout="topleft"
+            left="7"
+            name="experience_description"
+            top="0"
+            value="It is mainly just a lot of men in tights on patrol for evil-doers. It is mainly just a lot of men in tights on patrol for evil-doers. It is mainly just a lot of men in tights on patrol for evil-doers. It is mainly just a lot of men in tights on patrol for evil-doers. It is mainly just a lot of men in tights on patrol for evil-doers. "
+            width="293"/>
+        </layout_panel>
+        <layout_panel
+          follows="all"
+          height="69"
+          layout="topleft"
+          left="0"
+          top="5"
+          width="313"
+          visible="true"
+          auto_resize="false"
+          name="location panel"
+            >
+          <text
+            type="string"
+            length="1"
+            follows="left|top"
+            height="16"
+            layout="topleft"
+            left="10"
+            name="Location"
+            width="290">
+            Location:
+          </text>
+          <text
+            type="string"
+            length="1"
+            follows="left|top|right"
+            height="18"
+            layout="topleft"
+            left="10"
+            valign="center"
+            name="LocationTextText"
+            width="288">
+            someplace
+          </text>
+          <button
+            follows="bottom|left"
+            height="23"
+            label="Teleport"
+            layout="topleft"
+            name="teleport_btn"
+            width="151"
+            left="10"/>
+          <button
+            follows="bottom|left"
+            height="23"
+            label="Map"
+            layout="topleft"
+            name="map_btn"
+            top_pad="-23"
+            width="101"
+            left_pad="5"/>
+        </layout_panel>
+        <layout_panel
+          follows="all"
+          height="53"
+          layout="topleft"
+          left="0"
+          top="5"
+          width="313"
+          visible="true"
+          auto_resize="false"
+          name="marketplace panel"
+          
+            >
+          <text
+            type="string"
+            length="1"
+            follows="left|top"
+            height="16"
+            layout="topleft"
+            left="10"
+            name="Location"
+            width="290">
+            Marketplace store:
+          </text>
+          <text
+            type="string"
+            length="1"
+            follows="left|top|right"
+            height="18"
+            layout="topleft"
+            left="10"
+            valign="center"
+            name="LocationTextText"
+            width="288">
+            someplace
+          </text>
+        </layout_panel>
+        <layout_panel
+          follows="left|top|right"
+          height="69"
+          left="0"
+          top="0"
+          auto_resize="false"
+          width="315"
+            >
+          <text
+            type="string"
+            length="1"
+            follows="left|top"
+            height="16"
+            layout="topleft"
+            left="10"
+            name="ContentRating"
+            width="100">
+            Rating:
+          </text>
+          <text
+            type="string"
+            length="1"
+            follows="left|top|right"
+            height="18"
+            layout="topleft"
+            left_pad="2"
+            valign="center"
+            name="ContentRatingText"
+            top_delta="-2"
+            width="188">
+            Adult
+          </text>
+          <text
+            type="string"
+            length="1"
+            follows="left|top"
+            height="16"
+            layout="topleft"
+            left="10"
+            name="Owner"
+            width="100">
+            Owner:
+          </text>
+          <text
+            type="string"
+            length="1"
+            follows="left|top|right"
+            height="18"
+            layout="topleft"
+            left_pad="2"
+            valign="center"
+            name="OwnerText"
+            top_delta="-2"
+            width="188">
+            Kyle
+          </text>
+          <button
+            follows="bottom|left"
+            height="23"
+            label="Edit"
+            layout="topleft"
+            name="edit_btn"
+            top_pad="0"
+            width="151"
+            left="10"/>
+          <!--
+        
 
+          <expandable_text
+            allow_scroll="false"
+            bg_visible="false"
+            follows="left|top|right"
+            h_pad="0"
+            height="35"
+            width="280"
+            layout="topleft"
+            font="SansSerifBig"
+            font.style="BOLD"
+            left="10"
+            top_pad="10"
+            name="pick_name"
+            read_only="false"
+            text_color="white"
+            v_pad="0"
+            use_ellipses="true"
+            value="It's an experience" />
+
+          <text
+            follows="left|top"
+            height="16"
+            layout="topleft"
+            left="10"
+            top_pad="10"
+            value="Maturity level:"
+            width="130" />
+          <icon
+            follows="top|left"
+            height="16"
+            image_name="unknown"
+            layout="topleft"
+            left_pad="10"
+            name="maturity_icon"
+            top_pad="-18"
+            width="18" />
+          <text
+            follows="top|left"
+            height="16"
+            layout="topleft"
+            left_pad="5"
+            name="maturity_value"
+            top_pad="-14"
+            value="unknown"
+            width="118" />
+          <panel
+            follows="left|top|right"
+            name="location_panel"
+            left="10"
+            width="280"
+            visible="false"
+            top_pad="10"
+            height="42">
+            <text
+              follows="left|top|right"
+              height="16"
+              layout="topleft"
+              left="00"
+              top="0"
+              value="Location:"
+              width="280" />
+
+            <text
+              follows="left|top|right"
+              height="16"
+              layout="topleft"
+              left="0"
+              top_pad="10"
+              value="Location:"
+              width="280" />
+          </panel>
+
+          <panel
+            follows="left|top|right"
+            name="location_panel"
+            left="10"
+            width="280"
+            top_pad="10"
+            height="42">
+            <text
+              follows="left|top|right"
+              height="16"
+              layout="topleft"
+              left="00"
+              top="0"
+              value="Location:"
+              width="280" />
+
+            <text
+              follows="left|top|right"
+              height="16"
+              layout="topleft"
+              left="0"
+              top_pad="10"
+              value="Location:"
+              width="280" />
+          </panel>
+
+-->
+        </layout_panel>
+      </layout_stack>
     </panel>
   </scroll_container>
 
