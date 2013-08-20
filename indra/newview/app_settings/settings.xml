@@ -5822,6 +5822,17 @@
       <key>Value</key>
       <real>1.6</real>
     </map>
+    <key>MaxPersistentNotifications</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum amount of persistent notifications</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>250</real>
+    </map>
     <key>MaxSelectDistance</key>
     <map>
       <key>Comment</key>

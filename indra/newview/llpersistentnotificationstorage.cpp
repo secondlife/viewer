@@ -76,6 +76,14 @@ void LLPersistentNotificationStorage::saveNotifications()
 		}
 
 		data.append(notification->asLLSD(true));
+		if (data.size() >= gSavedSettings.getS32("MaxPersistentNotifications"))
+		{
+			llwarns << "Too many persistent notifications."
+					<< " Saved " << gSavedSettings.getS32("MaxPersistentNotifications") << " of " << history_channel->size()
+					<< " persistent notifications." << llendl;
+			break;
+		}
+
 	}
 
 	writeNotifications(output);
@@ -88,9 +96,6 @@ void LLPersistentNotificationStorage::loadNotifications()
 	LLFastTimer _(FTM_LOAD_NOTIFICATIONS);
 
 	LL_INFOS("LLPersistentNotificationStorage") << "start loading notifications" << LL_ENDL;
-
-	LLNotifications::instance().getChannel("Persistent")->
-		connectChanged(boost::bind(&LLPersistentNotificationStorage::onPersistentChannelChanged, this, _1));
 
 	LLSD input;
 	if (!readNotifications(input) ||input.isUndefined())
@@ -109,9 +114,9 @@ void LLPersistentNotificationStorage::loadNotifications()
 		findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
 
 	LLNotifications& instance = LLNotifications::instance();
-
-	for (LLSD::array_const_iterator notification_it = data.beginArray();
-		notification_it != data.endArray();
+	S32 processed_notifications = 0;
+	for (LLSD::reverse_array_iterator notification_it = data.rbeginArray();
+		notification_it != data.rendArray();
 		++notification_it)
 	{
 		LLSD notification_params = *notification_it;
@@ -130,8 +135,16 @@ void LLPersistentNotificationStorage::loadNotifications()
 			// hide saved toasts so they don't confuse the user
 			notification_channel->hideToast(notification->getID());
 		}
+		++processed_notifications;
+		if (processed_notifications >= gSavedSettings.getS32("MaxPersistentNotifications"))
+		{
+			llwarns << "Too many persistent notifications."
+					<< " Processed " << gSavedSettings.getS32("MaxPersistentNotifications") << " of " << data.size() << " persistent notifications." << llendl;
+		    break;
+		}
 	}
-
+	LLNotifications::instance().getChannel("Persistent")->
+			connectChanged(boost::bind(&LLPersistentNotificationStorage::onPersistentChannelChanged, this, _1));
 	LL_INFOS("LLPersistentNotificationStorage") << "finished loading notifications" << LL_ENDL;
 }
 
