@@ -131,8 +131,8 @@ void LLMemory::updateMemoryInfo()
 #else
 	//not valid for other systems for now.
 	sAllocatedMemInKB = (U32)(LLMemory::getCurrentRSS() / 1024) ;
-	sMaxPhysicalMemInKB = U32_MAX ;
-	sAvailPhysicalMemInKB = U32_MAX ;
+	sMaxPhysicalMemInKB = (U32Bytes)U32_MAX ;
+	sAvailPhysicalMemInKB = (U32Bytes)U32_MAX ;
 #endif
 
 	return ;
