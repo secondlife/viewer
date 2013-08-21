@@ -922,8 +922,8 @@ void LLMemoryInfo::getAvailableMemoryKB(U32Kilobytes& avail_physical_mem_kb, U32
 	// Pageins:                     2097212.
 	// Pageouts:                      41759.
 	// Object cache: 841598 hits of 7629869 lookups (11% hit rate)
-	avail_physical_mem_kb = -1 ;
-	avail_virtual_mem_kb = -1 ;
+	avail_physical_mem_kb = (U32Kilobytes)-1 ;
+	avail_virtual_mem_kb = (U32Kilobytes)-1 ;
 
 #elif LL_LINUX
 	// mStatsMap is derived from MEMINFO_FILE:
@@ -974,15 +974,15 @@ void LLMemoryInfo::getAvailableMemoryKB(U32Kilobytes& avail_physical_mem_kb, U32
 	// DirectMap4k:      434168 kB
 	// DirectMap2M:      477184 kB
 	// (could also run 'free', but easier to read a file than run a program)
-	avail_physical_mem_kb = -1 ;
-	avail_virtual_mem_kb = -1 ;
+	avail_physical_mem_kb = (U32Kilobytes)-1 ;
+	avail_virtual_mem_kb = (U32Kilobytes)-1 ;
 
 #else
 	//do not know how to collect available memory info for other systems.
 	//leave it blank here for now.
 
-	avail_physical_mem_kb = -1 ;
-	avail_virtual_mem_kb = -1 ;
+	avail_physical_mem_kb = (U32Kilobytes)-1 ;
+	avail_virtual_mem_kb = (U32Kilobytes)-1 ;
 #endif
 }
 
