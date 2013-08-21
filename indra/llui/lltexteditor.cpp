@@ -1125,7 +1125,8 @@ void LLTextEditor::addChar(llwchar wc)
 	}
 }
 
-void LLTextEditor::addLineBreakChar()
+
+void LLTextEditor::addLineBreakChar(BOOL group_together)
 {
 	if( !getEnabled() )
 	{
@@ -1143,7 +1144,7 @@ void LLTextEditor::addLineBreakChar()
 	LLStyleConstSP sp(new LLStyle(LLStyle::Params()));
 	LLTextSegmentPtr segment = new LLLineBreakTextSegment(sp, mCursorPos);
 
-	S32 pos = execute(new TextCmdAddChar(mCursorPos, FALSE, '\n', segment));
+	S32 pos = execute(new TextCmdAddChar(mCursorPos, group_together, '\n', segment));
 	
 	setCursorPos(mCursorPos + pos);
 }
@@ -1484,21 +1485,28 @@ void LLTextEditor::pasteTextWithLinebreaks(LLWString & clean_string)
 	std::basic_string<llwchar>::size_type start = 0;
 	std::basic_string<llwchar>::size_type pos = clean_string.find('\n',start);
 	
-	while(pos!=-1)
+	while((pos != -1) && (pos != clean_string.length() -1))
 	{
 		if(pos!=start)
 		{
 			std::basic_string<llwchar> str = std::basic_string<llwchar>(clean_string,start,pos-start);
-			setCursorPos(mCursorPos + insert(mCursorPos, str, FALSE, LLTextSegmentPtr()));
+			setCursorPos(mCursorPos + insert(mCursorPos, str, TRUE, LLTextSegmentPtr()));
 		}
-		addLineBreakChar();
-		
+		addLineBreakChar(TRUE);			// Add a line break and group with the next addition.
+
 		start = pos+1;
 		pos = clean_string.find('\n',start);
 	}
 
-	std::basic_string<llwchar> str = std::basic_string<llwchar>(clean_string,start,clean_string.length()-start);
-	setCursorPos(mCursorPos + insert(mCursorPos, str, FALSE, LLTextSegmentPtr()));
+	if (pos != start)
+	{
+		std::basic_string<llwchar> str = std::basic_string<llwchar>(clean_string,start,clean_string.length()-start);
+		setCursorPos(mCursorPos + insert(mCursorPos, str, FALSE, LLTextSegmentPtr()));
+	}
+	else
+	{
+		addLineBreakChar(FALSE);		// Add a line break and end the grouping.
+	}
 }
 
 // copy selection to primary
