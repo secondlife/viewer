@@ -327,6 +327,7 @@ public:
 
 	//virtual
 	BOOL isRecentlyVisible() const;
+	LLViewerOctreePartition* getSpatialPartition()const {return mSpatialPartition;}
 
 	static U32 getNewOcclusionQueryObjectName();
 	static void releaseOcclusionQueryObjectName(U32 name);
