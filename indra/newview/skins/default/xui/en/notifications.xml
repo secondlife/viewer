@@ -2709,7 +2709,7 @@ Please enter a higher price.
    icon="alertmodal.tga"
    name="ConfirmItemDeleteHasLinks"
    type="alertmodal">
-At least one of the items you has link items that point to it.  If you delete this item, its links will permanently stop working.  It is strongly advised to delete the links first.
+At least one of the items has links that point to it.  If you delete this item, its links will permanently stop working.  It is strongly advised to delete the links first.
 
 Are you sure you want to delete these items?
     <tag>confirm</tag>
@@ -2751,7 +2751,7 @@ Are you sure you want to delete these items?
    icon="alertmodal.tga"
    name="ConfirmObjectDeleteNoOwn"
    type="alertmodal">
-You do not own least one of the items you have selected.
+You do not own at least one of the items you have selected.
 
 Are you sure you want to delete these items?
     <tag>confirm</tag>
@@ -2781,7 +2781,7 @@ Are you sure you want to delete these items?
    name="ConfirmObjectDeleteLockNoOwn"
    type="alertmodal">
 At least one object is locked.
-You do not own least one object.
+You do not own at least one object.
 
 Are you sure you want to delete these items?
     <tag>confirm</tag>
@@ -2796,7 +2796,7 @@ Are you sure you want to delete these items?
    name="ConfirmObjectDeleteNoCopyNoOwn"
    type="alertmodal">
 At least one object is not copyable.
-You do not own least one object.
+You do not own at least one object.
 
 Are you sure you want to delete these items?
     <tag>confirm</tag>
@@ -2812,13 +2812,13 @@ Are you sure you want to delete these items?
    type="alertmodal">
 At least one object is locked.
 At least one object is not copyable.
-You do not own least one object.
+You do not own at least one object.
 
 Are you sure you want to delete these items?
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
-     notext="cancel"
+     notext="Cancel"
      yestext="OK"/>
   </notification>
 
