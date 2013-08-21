@@ -261,6 +261,12 @@ void LLVOCacheEntry::addChild(LLVOCacheEntry* entry)
 	if(getEntry() != NULL && isState(INACTIVE))
 	{
 		updateParentBoundingInfo(entry);
+		if(getGroup())
+		{
+			LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)getGroup();
+			group->unbound();
+			((LLVOCachePartition*)group->getSpatialPartition())->setDirty();
+		}
 	}
 }
 	
@@ -479,12 +485,17 @@ LLVOCachePartition::LLVOCachePartition(LLViewerRegion* regionp)
 	new LLOcclusionCullingGroup(mOctree, this);
 }
 
+void LLVOCachePartition::setDirty()
+{
+	mDirty = TRUE;
+}
+
 void LLVOCachePartition::addEntry(LLViewerOctreeEntry* entry)
 {
 	llassert(entry->hasVOCacheEntry());
 
 	mOctree->insert(entry);
-	mDirty = TRUE;
+	setDirty();
 }
 	
 void LLVOCachePartition::removeEntry(LLViewerOctreeEntry* entry)
@@ -615,7 +626,7 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 	}
 
 	((LLviewerOctreeGroup*)mOctree->getListener(0))->rebound();
-	mCullHistory[LLViewerCamera::sCurCameraID] <<= 2;
+	mCullHistory[LLViewerCamera::sCurCameraID] <<= 1;
 
 	//localize the camera
 	LLVector3 region_agent = mRegionp->getOriginAgent();

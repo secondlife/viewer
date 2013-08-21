@@ -162,14 +162,13 @@ public:
 	/*virtual*/ S32 cull(LLCamera &camera, bool do_occlusion);
 	void addOccluders(LLviewerOctreeGroup* gp);
 	void resetOccluders();
-
-	static	LLTrace::MemStatHandle	sMemStat;
-
-public:	
 	void processOccluders(LLCamera* camera);
+	
+	void setDirty();
 
 public:
 	static BOOL sNeedsOcclusionCheck;
+	static	LLTrace::MemStatHandle	sMemStat;
 
 private:
 	BOOL  mDirty;
