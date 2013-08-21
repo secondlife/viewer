@@ -257,11 +257,11 @@ LL_FORCE_INLINE BlockTimer::BlockTimer(TimeBlock& timer)
 #if FAST_TIMER_ON
 	BlockTimerStackRecord* cur_timer_data = LLThreadLocalSingletonPointer<BlockTimerStackRecord>::getInstance();
 	if (!cur_timer_data) return;
-	TimeBlockAccumulator* accumulator = timer.getPrimaryAccumulator();
-	accumulator->mActiveCount++;
-	mBlockStartTotalTimeCounter = accumulator->mTotalTimeCounter;
+	TimeBlockAccumulator& accumulator = timer.getPrimaryAccumulator();
+	accumulator.mActiveCount++;
+	mBlockStartTotalTimeCounter = accumulator.mTotalTimeCounter;
 	// keep current parent as long as it is active when we are
-	accumulator->mMoveUpTree |= (accumulator->mParent->getPrimaryAccumulator()->mActiveCount == 0);
+	accumulator.mMoveUpTree |= (accumulator.mParent->getPrimaryAccumulator().mActiveCount == 0);
 
 	// store top of stack
 	mParentTimerData = *cur_timer_data;
@@ -281,16 +281,16 @@ LL_FORCE_INLINE BlockTimer::~BlockTimer()
 	BlockTimerStackRecord* cur_timer_data = LLThreadLocalSingletonPointer<BlockTimerStackRecord>::getInstance();
 	if (!cur_timer_data) return;
 
-	TimeBlockAccumulator* accumulator = cur_timer_data->mTimeBlock->getPrimaryAccumulator();
+	TimeBlockAccumulator& accumulator = cur_timer_data->mTimeBlock->getPrimaryAccumulator();
 
-	accumulator->mCalls++;
-	accumulator->mTotalTimeCounter += total_time - (accumulator->mTotalTimeCounter - mBlockStartTotalTimeCounter);
-	accumulator->mSelfTimeCounter += total_time - cur_timer_data->mChildTime;
-	accumulator->mActiveCount--;
+	accumulator.mCalls++;
+	accumulator.mTotalTimeCounter += total_time - (accumulator.mTotalTimeCounter - mBlockStartTotalTimeCounter);
+	accumulator.mSelfTimeCounter += total_time - cur_timer_data->mChildTime;
+	accumulator.mActiveCount--;
 
 	// store last caller to bootstrap tree creation
 	// do this in the destructor in case of recursion to get topmost caller
-	accumulator->mLastCaller = mParentTimerData.mTimeBlock;
+	accumulator.mLastCaller = mParentTimerData.mTimeBlock;
 
 	// we are only tracking self time, so subtract our total time delta from parents
 	mParentTimerData.mChildTime += total_time;

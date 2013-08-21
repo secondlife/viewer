@@ -38,12 +38,9 @@ namespace LLUnits
 	LL_DECLARE_DERIVED_UNIT(Latinum, / 16, Solari, "Sol");
 }
 
-typedef LLUnit<F32, LLUnits::Quatloos> F32Quatloos;
-typedef LLUnit<S32, LLUnits::Quatloos> S32Quatloos;
-typedef LLUnit<F32, LLUnits::Latinum> F32Latinum;
-typedef LLUnit<S32, LLUnits::Latinum> S32Latinum;
-typedef LLUnit<F32, LLUnits::Solari> F32Solari;
-typedef LLUnit<S32, LLUnits::Solari> S32Solari;
+LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Quatloos);
+LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Latinum);
+LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Solari);
 
 namespace tut
 {
@@ -83,6 +80,15 @@ namespace tut
 
 		LLUnit<U32, Quatloos> unsigned_int_quatloos(float_quatloos);
 		ensure("unsigned int can be initialized from signed int", unsigned_int_quatloos == S32Quatloos(42));
+
+		S32Solari int_solari(1);
+
+		float_quatloos = int_solari;
+		ensure("fractional units are preserved in conversion from integer to float type", float_quatloos == F32Quatloos(0.25f));
+
+		int_quatloos = S32Quatloos(1);
+		F32Solari float_solari = int_quatloos;
+		ensure("can convert with fractional intermediates from integer to float type", float_solari == F32Solari(4.f));
 	}
 
 	// conversions to/from base unit
@@ -181,6 +187,11 @@ namespace tut
 	}
 
 	bool accept_explicit_quatloos(S32Quatloos q)
+	{
+		return true;
+	}
+
+	bool accept_implicit_quatloos(S32Quatloos q)
 	{
 		return true;
 	}

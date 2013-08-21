@@ -189,15 +189,15 @@ void TimeBlock::bootstrapTimerTree()
 		// when this timer was called
 		if (timer.getParent() == &TimeBlock::getRootTimeBlock())
 		{
-			TimeBlockAccumulator* accumulator = timer.getPrimaryAccumulator();
+			TimeBlockAccumulator& accumulator = timer.getPrimaryAccumulator();
 
-			if (accumulator->mLastCaller)
+			if (accumulator.mLastCaller)
 			{
-				timer.setParent(accumulator->mLastCaller);
-				accumulator->mParent = accumulator->mLastCaller;
+				timer.setParent(accumulator.mLastCaller);
+				accumulator.mParent = accumulator.mLastCaller;
 			}
 			// no need to push up tree on first use, flag can be set spuriously
-			accumulator->mMoveUpTree = false;
+			accumulator.mMoveUpTree = false;
 		}
 	}
 }
@@ -223,17 +223,17 @@ void TimeBlock::incrementalUpdateTimerTree()
 		// skip root timer
 		if (timerp != &TimeBlock::getRootTimeBlock())
 		{
-			TimeBlockAccumulator* accumulator = timerp->getPrimaryAccumulator();
+			TimeBlockAccumulator& accumulator = timerp->getPrimaryAccumulator();
 
-			if (accumulator->mMoveUpTree)
+			if (accumulator.mMoveUpTree)
 			{
 				// since ancestors have already been visited, re-parenting won't affect tree traversal
 				//step up tree, bringing our descendants with us
 				LL_DEBUGS("FastTimers") << "Moving " << timerp->getName() << " from child of " << timerp->getParent()->getName() <<
 					" to child of " << timerp->getParent()->getParent()->getName() << LL_ENDL;
 				timerp->setParent(timerp->getParent()->getParent());
-				accumulator->mParent = timerp->getParent();
-				accumulator->mMoveUpTree = false;
+				accumulator.mParent = timerp->getParent();
+				accumulator.mMoveUpTree = false;
 
 				// don't bubble up any ancestors until descendants are done bubbling up
 				// as ancestors may call this timer only on certain paths, so we want to resolve
@@ -253,7 +253,7 @@ void TimeBlock::updateTimes()
 
 	U64 cur_time = getCPUClockCount64();
 	BlockTimer* cur_timer				= stack_record->mActiveTimer;
-	TimeBlockAccumulator* accumulator	= stack_record->mTimeBlock->getPrimaryAccumulator();
+	TimeBlockAccumulator* accumulator	= &stack_record->mTimeBlock->getPrimaryAccumulator();
 
 	while(cur_timer 
 		&& cur_timer->mParentTimerData.mActiveTimer != cur_timer) // root defined by parent pointing to self
@@ -269,7 +269,7 @@ void TimeBlock::updateTimes()
 		cur_timer->mBlockStartTotalTimeCounter = accumulator->mTotalTimeCounter;
 
 		stack_record = &cur_timer->mParentTimerData;
-		accumulator  = stack_record->mTimeBlock->getPrimaryAccumulator();
+		accumulator  = &stack_record->mTimeBlock->getPrimaryAccumulator();
 		cur_timer    = stack_record->mActiveTimer;
 
 		stack_record->mChildTime += cumulative_time_delta;
@@ -299,10 +299,10 @@ void TimeBlock::processTimes()
 		++it)
 	{
 		TimeBlock& timer = *it;
-		TimeBlockAccumulator* accumulator = timer.getPrimaryAccumulator();
+		TimeBlockAccumulator& accumulator = timer.getPrimaryAccumulator();
 
-		accumulator->mLastCaller = NULL;
-		accumulator->mMoveUpTree = false;
+		accumulator.mLastCaller = NULL;
+		accumulator.mMoveUpTree = false;
 	}
 }
 

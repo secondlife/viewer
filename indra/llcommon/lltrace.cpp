@@ -76,7 +76,7 @@ void TimeBlockTreeNode::setParent( TimeBlock* parent )
 	}
 
 	mParent = parent;
-	mBlock->getPrimaryAccumulator()->mParent = parent;
+	mBlock->getPrimaryAccumulator().mParent = parent;
 	parent_tree_node->mChildren.push_back(mBlock);
 	parent_tree_node->mNeedsSorting = true;
 }

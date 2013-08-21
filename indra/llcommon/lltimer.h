@@ -168,8 +168,8 @@ LL_COMMON_API BOOL is_daylight_savings();
 // struct tm* internal_time = utc_to_pacific_time(utc_time, gDaylight);
 LL_COMMON_API struct tm* utc_to_pacific_time(time_t utc_time, BOOL pacific_daylight_time);
 
-LL_COMMON_API void microsecondsToTimecodeString(U64 current_time, std::string& tcstring);
-LL_COMMON_API void secondsToTimecodeString(F32 current_time, std::string& tcstring);
+LL_COMMON_API void microsecondsToTimecodeString(U64MicrosecondsImplicit current_time, std::string& tcstring);
+LL_COMMON_API void secondsToTimecodeString(F32SecondsImplicit current_time, std::string& tcstring);
 
 U64MicrosecondsImplicit LL_COMMON_API totalTime();					// Returns current system time in microseconds
 

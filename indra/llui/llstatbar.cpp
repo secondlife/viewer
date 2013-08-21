@@ -386,17 +386,24 @@ void LLStatBar::draw()
 	mCurMaxBar = LLSmoothInterpolation::lerp(mCurMaxBar, mMaxBar, 0.05f);
 	mCurMinBar = LLSmoothInterpolation::lerp(mCurMinBar, mMinBar, 0.05f);
 
-	// rate limited updates
-	if (mLastDisplayValueTimer.getElapsedTimeF32() > MEAN_VALUE_UPDATE_TIME)
+	S32 decimal_digits = mDecimalDigits;
+	if (is_approx_equal((F32)(S32)display_value, display_value))
 	{
-		mLastDisplayValueTimer.reset();
-		drawLabelAndValue(display_value, unit_label, bar_rect);
-		mLastDisplayValue = display_value;
+		decimal_digits = 0;
+	}
+
+	// rate limited updates
+	if (mLastDisplayValueTimer.getElapsedTimeF32() < MEAN_VALUE_UPDATE_TIME)
+	{
+		display_value = mLastDisplayValue;
 	}
 	else
 	{
-		drawLabelAndValue(mLastDisplayValue, unit_label, bar_rect);
+		mLastDisplayValueTimer.reset();
 	}
+	drawLabelAndValue(display_value, unit_label, bar_rect, mDecimalDigits);
+	mLastDisplayValue = display_value;
+
 
 	if (mDisplayBar
         && (mCountFloatp || mEventFloatp || mSampleFloatp))
@@ -568,16 +575,11 @@ LLRect LLStatBar::getRequiredRect()
 	return rect;
 }
 
-void LLStatBar::drawLabelAndValue( F32 value, std::string &label, LLRect &bar_rect )
+void LLStatBar::drawLabelAndValue( F32 value, std::string &label, LLRect &bar_rect, S32 decimal_digits )
 {
 	LLFontGL::getFontMonospace()->renderUTF8(mLabel, 0, 0, getRect().getHeight(), LLColor4(1.f, 1.f, 1.f, 1.f),
 		LLFontGL::LEFT, LLFontGL::TOP);
 
-	S32 decimal_digits = mDecimalDigits;
-	if (is_approx_equal((F32)(S32)value, value))
-	{
-		decimal_digits = 0;
-	}
 	std::string value_str	= !llisnan(value)
 							? llformat("%10.*f %s", decimal_digits, value, label.c_str())
 							: "n/a";

@@ -1,3 +1,4 @@
+
 /** 
  * @file lltraceaccumulators.h
  * @brief Storage for accumulating statistics
@@ -317,6 +318,7 @@ namespace LLTrace
 				mMin = value;
 				mMax = value;
 				mMean = value;
+				llassert(mMean < 0 || mMean >= 0);
 				mLastSampleTimeStamp = time_stamp;
 			}
 			else
@@ -341,6 +343,7 @@ namespace LLTrace
 				mTotalSamplingTime += delta_time;
 				F64 old_mean = mMean;
 				mMean += (delta_time / mTotalSamplingTime) * (mLastValue - old_mean);
+				llassert(mMean < 0 || mMean >= 0);
 				mSumOfSquares += delta_time * (mLastValue - old_mean) * (mLastValue - mMean);
 			}
 			mLastSampleTimeStamp = time_stamp;

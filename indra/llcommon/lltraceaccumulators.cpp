@@ -114,10 +114,13 @@ void AccumulatorBufferGroup::reset(AccumulatorBufferGroup* other)
 
 void AccumulatorBufferGroup::sync()
 {
-	F64SecondsImplicit time_stamp = LLTimer::getTotalSeconds();
+	if (isPrimary())
+	{
+		F64SecondsImplicit time_stamp = LLTimer::getTotalSeconds();
 
-	mSamples.sync(time_stamp);
-	mMemStats.sync(time_stamp);
+		mSamples.sync(time_stamp);
+		mMemStats.sync(time_stamp);
+	}
 }
 
 void SampleAccumulator::addSamples( const SampleAccumulator& other, EBufferAppendType append_type )
@@ -144,6 +147,7 @@ void SampleAccumulator::addSamples( const SampleAccumulator& other, EBufferAppen
 
 		if (other.mTotalSamplingTime > epsilon)
 		{
+			llassert(mTotalSamplingTime > 0);
 			// combine variance (and hence standard deviation) of 2 different sized sample groups using
 			// the following formula: http://www.mrc-bsu.cam.ac.uk/cochrane/handbook/chapter_7/7_7_3_8_combining_groups.htm
 			F64 n_1 = mTotalSamplingTime,
@@ -166,17 +170,16 @@ void SampleAccumulator::addSamples( const SampleAccumulator& other, EBufferAppen
 					/ (n_1 + n_2 - epsilon));
 			}
 
-			llassert(other.mTotalSamplingTime > 0);
 			F64 weight = mTotalSamplingTime / (mTotalSamplingTime + other.mTotalSamplingTime);
 			mNumSamples += other.mNumSamples;
 			mTotalSamplingTime += other.mTotalSamplingTime;
 			mMean = (mMean * weight) + (other.mMean * (1.0 - weight));
+			llassert(mMean < 0 || mMean >= 0);
 		}
 		if (append_type == SEQUENTIAL)
 		{
 			mLastValue = other.mLastValue;
 			mLastSampleTimeStamp = other.mLastSampleTimeStamp;
-			mHasValue = true;
 		}
 	}
 }
@@ -190,6 +193,7 @@ void SampleAccumulator::reset( const SampleAccumulator* other )
 	mMin = mLastValue;
 	mMax = mLastValue;
 	mMean = mLastValue;
+	LL_ERRS_IF(mHasValue && !(mMean < 0) && !(mMean >= 0)) << "Invalid mean after capturing value" << LL_ENDL;
 	mSumOfSquares = 0;
 	mLastSampleTimeStamp = LLTimer::getTotalSeconds();
 	mTotalSamplingTime = 0;

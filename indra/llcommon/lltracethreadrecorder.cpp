@@ -69,13 +69,13 @@ void ThreadRecorder::init()
 		tree_node.mBlock = &time_block;
 		tree_node.mParent = &root_time_block;
 
-		it->getPrimaryAccumulator()->mParent = &root_time_block;
+		it->getPrimaryAccumulator().mParent = &root_time_block;
 	}
 
 	mRootTimer = new BlockTimer(root_time_block);
 	timer_stack->mActiveTimer = mRootTimer;
 
-	TimeBlock::getRootTimeBlock().getPrimaryAccumulator()->mActiveCount = 1;
+	TimeBlock::getRootTimeBlock().getPrimaryAccumulator().mActiveCount = 1;
 }
 
 
@@ -247,8 +247,6 @@ void ThreadRecorder::pushToParent()
 		mThreadRecordingBuffers.reset();
 	}
 }
-	
-
 
 
 static LLFastTimer::DeclareTimer FTM_PULL_TRACE_DATA_FROM_CHILDREN("Pull child thread trace data");

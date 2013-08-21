@@ -72,7 +72,7 @@ public:
 	/*virtual*/ LLRect getRequiredRect();	// Return the height of this object, given the set options.
 
 private:
-	void drawLabelAndValue( F32 mean, std::string &unit_label, LLRect &bar_rect );
+	void drawLabelAndValue( F32 mean, std::string &unit_label, LLRect &bar_rect, S32 decimal_digits );
 	void drawTicks( F32 min, F32 max, F32 value_scale, LLRect &bar_rect );
 
 	F32          mMinBar,

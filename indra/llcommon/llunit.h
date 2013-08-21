@@ -156,7 +156,8 @@ struct LLUnit
 	static self_t convert(LLUnit<SOURCE_STORAGE, SOURCE_UNITS> v) 
 	{ 
 		self_t result;
-		ll_convert_units(v, result);
+		STORAGE_TYPE divisor = ll_convert_units(v, result);
+		result.mValue /= divisor;
 		return result;
 	}
 
@@ -193,7 +194,7 @@ struct LLUnitImplicit : public LLUnit<STORAGE_TYPE, UNIT_TYPE>
 
 	template<typename OTHER_STORAGE, typename OTHER_UNIT>
 	LLUnitImplicit(LLUnit<OTHER_STORAGE, OTHER_UNIT> other)
-	:	base_t(convert(other))
+	:	base_t(other)
 	{}
 
 	// unlike LLUnit, LLUnitImplicit is *implicitly* convertable to a POD value (F32, S32, etc)
@@ -209,6 +210,8 @@ struct LLUnitImplicit : public LLUnit<STORAGE_TYPE, UNIT_TYPE>
         base_t::mValue += value;
 	}
 
+	// this overload exists to explicitly catch use of another implicit unit
+	// without ambiguity between conversion to storage_t vs conversion to base_t
 	template<typename OTHER_STORAGE, typename OTHER_UNIT>
 	void operator += (LLUnitImplicit<OTHER_STORAGE, OTHER_UNIT> other)
 	{
@@ -221,6 +224,8 @@ struct LLUnitImplicit : public LLUnit<STORAGE_TYPE, UNIT_TYPE>
         base_t::mValue -= value;
 	}
 
+	// this overload exists to explicitly catch use of another implicit unit
+	// without ambiguity between conversion to storage_t vs conversion to base_t
 	template<typename OTHER_STORAGE, typename OTHER_UNIT>
 	void operator -= (LLUnitImplicit<OTHER_STORAGE, OTHER_UNIT> other)
 	{
@@ -246,35 +251,35 @@ std::istream& operator >>(std::istream& s, LLUnitImplicit<STORAGE_TYPE, UNIT_TYP
 }
 
 template<typename S1, typename T1, typename S2, typename T2>
-LL_FORCE_INLINE void ll_convert_units(LLUnit<S1, T1> in, LLUnit<S2, T2>& out, ...)
+LL_FORCE_INLINE S2 ll_convert_units(LLUnit<S1, T1> in, LLUnit<S2, T2>& out, ...)
 {
+	S2 divisor(1);
+
 	LL_STATIC_ASSERT((LLIsSameType<T1, T2>::value 
-		|| !LLIsSameType<T1, typename T1::base_unit_t>::value 
-		|| !LLIsSameType<T2, typename T2::base_unit_t>::value), "invalid conversion: incompatible units");
+						|| !LLIsSameType<T1, typename T1::base_unit_t>::value 
+						|| !LLIsSameType<T2, typename T2::base_unit_t>::value), 
+						"conversion requires compatible units");
 
-	if (LLIsSameType<T1, typename T1::base_unit_t>::value)
+	if (LLIsSameType<T1, T2>::value)
 	{
-		if (LLIsSameType<T2, typename T2::base_unit_t>::value)
-
-		{
-			// T1 and T2 fully reduced and equal...just copy
-			out = LLUnit<S2, T2>((S2)in.value());
-		}
-		else
-		{
-			// reduce T2
-			LLUnit<S2, typename T2::base_unit_t> new_out;
-			ll_convert_units(in, new_out);
-			ll_convert_units(new_out, out);
-		}
+		// T1 and T2 same type, just assign
+		out.value((S2)in.value());
+	}
+	else if (LLIsSameType<T2, typename T2::base_unit_t>::value)
+	{
+		// reduce T1
+		LLUnit<S2, typename T1::base_unit_t> new_in;
+		divisor *= (S2)ll_convert_units(in, new_in);
+		divisor *= (S2)ll_convert_units(new_in, out);
 	}
 	else
 	{
-		// reduce T1
-		LLUnit<S1, typename T1::base_unit_t> new_in;
-		ll_convert_units(in, new_in);
-		ll_convert_units(new_in, out);
+		// reduce T2
+		LLUnit<S2, typename T2::base_unit_t> new_out;
+		divisor *= (S2)ll_convert_units(in, new_out);
+		divisor *= (S2)ll_convert_units(new_out, out);
 	}
+	return divisor;
 }
 
 template<typename T>
@@ -579,77 +584,86 @@ struct LLGetUnitLabel<LLUnit<STORAGE_T, T> >
 	static const char* getUnitLabel() { return T::getUnitLabel(); }
 };
 
-template<typename INPUT_TYPE, typename OUTPUT_TYPE>
+template<typename T>
 struct LLUnitLinearOps
 {
-	typedef LLUnitLinearOps<OUTPUT_TYPE, OUTPUT_TYPE> output_t;
+	typedef LLUnitLinearOps<T> self_t;
 
-	LLUnitLinearOps(INPUT_TYPE val) 
-	:	mInput (val)
+	LLUnitLinearOps(T val) 
+	:	mValue(val),
+		mDivisor(1)
 	{}
 
-	operator OUTPUT_TYPE() const { return (OUTPUT_TYPE)mInput; }
-	INPUT_TYPE mInput;
+	T mValue;
+	T mDivisor;
 
-	template<typename T>
-	output_t operator * (T other)
+	template<typename OTHER_T>
+	self_t operator * (OTHER_T other)
 	{
-		return typename LLResultTypeMultiply<INPUT_TYPE, OUTPUT_TYPE>::type_t(mInput) * other;
+		return mValue * other;
 	}
 
-	template<typename T>
-	output_t operator / (T other)
+	template<typename OTHER_T>
+	self_t operator / (OTHER_T other)
 	{
-		return typename LLResultTypeDivide<INPUT_TYPE, OUTPUT_TYPE>::type_t(mInput) / other;
+		mDivisor *= other;
+		return *this;
 	}
 
-	template<typename T>
-	output_t operator + (T other)
+	template<typename OTHER_T>
+	self_t operator + (OTHER_T other)
 	{
-		return typename LLResultTypeAdd<INPUT_TYPE, OUTPUT_TYPE>::type_t(mInput) + other;
+		mValue += other;
+		return *this;
 	}
 
-	template<typename T>
-	output_t operator - (T other)
+	template<typename OTHER_T>
+	self_t operator - (OTHER_T other)
 	{
-		return typename LLResultTypeSubtract<INPUT_TYPE, OUTPUT_TYPE>::type_t(mInput) - other;
+		mValue -= other;
+		return *this;
 	}
 };
 
-template<typename INPUT_TYPE, typename OUTPUT_TYPE>
+template<typename T>
 struct LLUnitInverseLinearOps
 {
-	typedef LLUnitInverseLinearOps<OUTPUT_TYPE, OUTPUT_TYPE> output_t;
+	typedef LLUnitInverseLinearOps<T> self_t;
 
-	LLUnitInverseLinearOps(INPUT_TYPE val) 
-	:	mInput(val)
+	LLUnitInverseLinearOps(T val) 
+	:	mValue(val),
+		mDivisor(1)
 	{}
 
-	operator OUTPUT_TYPE() const { return (OUTPUT_TYPE)mInput; }
-	INPUT_TYPE mInput;
+	T mValue;
+	T mDivisor;
 
-	template<typename T>
-	output_t operator * (T other)
+	template<typename OTHER_T>
+	self_t operator * (OTHER_T other)
 	{
-		return typename LLResultTypeDivide<INPUT_TYPE, OUTPUT_TYPE>::type_t(mInput) / other;
+		mDivisor *= other;
+		return *this;
 	}
 
-	template<typename T>
-	output_t operator / (T other)
+	template<typename OTHER_T>
+	self_t operator / (OTHER_T other)
 	{
-		return typename LLResultTypeMultiply<INPUT_TYPE, OUTPUT_TYPE>::type_t(mInput) * other;
+		mValue *= other;
+		return *this;
 	}
 
-	template<typename T>
-	output_t operator + (T other)
+	template<typename OTHER_T>
+	self_t operator + (OTHER_T other)
 	{
-		return typename LLResultTypeAdd<INPUT_TYPE, OUTPUT_TYPE>::type_t(mInput) - other;
+		mValue -= other;
+		return *this;
 	}
 
-	template<typename T>
-	output_t operator - (T other)
+	template<typename OTHER_T>
+	self_t operator - (OTHER_T other)
 	{
-		return typename LLResultTypeSubtract<INPUT_TYPE, OUTPUT_TYPE>::type_t(mInput) + other;
+		mValue += other;
+		return *this;
 	}
 };
 
@@ -666,28 +680,32 @@ struct base_unit_name                                                           
 }
 
 
-#define LL_DECLARE_DERIVED_UNIT(base_unit_name, conversion_operation, unit_name, unit_label)	        \
-struct unit_name                                                                                        \
-{                                                                                                       \
-	typedef base_unit_name base_unit_t;                                                                 \
-	static const char* getUnitLabel() { return unit_label; }									        \
-	template<typename T>                                                                                \
-	static LLUnit<T, unit_name> fromValue(T value) { return LLUnit<T, unit_name>(value); }		        \
-	template<typename STORAGE_T, typename UNIT_T>                                                       \
-	static LLUnit<STORAGE_T, unit_name> fromValue(LLUnit<STORAGE_T, UNIT_T> value)				        \
-	{ return LLUnit<STORAGE_T, unit_name>(value); }												        \
-};                                                                                                      \
-	                                                                                                    \
-template<typename S1, typename S2>                                                                      \
-void ll_convert_units(LLUnit<S1, unit_name> in, LLUnit<S2, base_unit_name>& out)                        \
-{                                                                                                       \
-	out = LLUnit<S2, base_unit_name>((S2)(LLUnitLinearOps<S1, S2>(in.value()) conversion_operation));	\
-}                                                                                                       \
-                                                                                                        \
-template<typename S1, typename S2>                                                                      \
-void ll_convert_units(LLUnit<S1, base_unit_name> in, LLUnit<S2, unit_name>& out)                        \
-{                                                                                                       \
-	out = LLUnit<S2, unit_name>((S2)(LLUnitInverseLinearOps<S1, S2>(in.value()) conversion_operation)); \
+#define LL_DECLARE_DERIVED_UNIT(base_unit_name, conversion_operation, unit_name, unit_label)	 \
+struct unit_name                                                                                 \
+{                                                                                                \
+	typedef base_unit_name base_unit_t;                                                          \
+	static const char* getUnitLabel() { return unit_label; }									 \
+	template<typename T>                                                                         \
+	static LLUnit<T, unit_name> fromValue(T value) { return LLUnit<T, unit_name>(value); }		 \
+	template<typename STORAGE_T, typename UNIT_T>                                                \
+	static LLUnit<STORAGE_T, unit_name> fromValue(LLUnit<STORAGE_T, UNIT_T> value)				 \
+	{ return LLUnit<STORAGE_T, unit_name>(value); }												 \
+};                                                                                               \
+	                                                                                             \
+template<typename S1, typename S2>                                                               \
+S2 ll_convert_units(LLUnit<S1, unit_name> in, LLUnit<S2, base_unit_name>& out)                   \
+{                                                                                                \
+	LLUnitLinearOps<S2> op = LLUnitLinearOps<S2>(in.value()) conversion_operation;               \
+	out = LLUnit<S2, base_unit_name>((S2)op.mValue);	                                         \
+	return op.mDivisor;                                                                          \
+}                                                                                                \
+                                                                                                 \
+template<typename S1, typename S2>                                                               \
+S2 ll_convert_units(LLUnit<S1, base_unit_name> in, LLUnit<S2, unit_name>& out)                   \
+{                                                                                                \
+	LLUnitInverseLinearOps<S2> op = LLUnitInverseLinearOps<S2>(in.value()) conversion_operation; \
+	out = LLUnit<S2, unit_name>((S2)op.mValue);                                                  \
+	return op.mDivisor;                                                                          \
 }                                                                                               
 
 #define LL_DECLARE_UNIT_TYPEDEFS(ns, unit_name)                         \
