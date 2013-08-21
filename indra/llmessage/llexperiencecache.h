@@ -40,13 +40,21 @@ class LLUUID;
 namespace LLExperienceCache
 {
 	const std::string PRIVATE_KEY	= "private_id";
+    const std::string MISSING       = "DoesNotExist";
 
+    const std::string AGENT_ID      = "agent_id";
+    const std::string GROUP_ID      = "group_id";
 	const std::string EXPERIENCE_ID	= "public_id";
 	const std::string OWNER_ID		= "owner_id";
 	const std::string NAME			= "name";
 	const std::string PROPERTIES	= "properties";
 	const std::string EXPIRES		= "expiration";  
-	const std::string DESCRIPTION	= "description";
+    const std::string DESCRIPTION	= "description";
+    const std::string QUOTA         = "quota";
+    const std::string MATURITY      = "maturity";
+    const std::string METADATA      = "extended_metadata";
+    const std::string SLURL         = "slurl";
+
 
 	// should be in sync with experience-api/experiences/models.py
 	const int PROPERTY_INVALID		= 1 << 0;
@@ -54,10 +62,12 @@ namespace LLExperienceCache
 	const int PROPERTY_GRID			= 1 << 4;
 	const int PROPERTY_PRIVATE		= 1 << 5;
 	const int PROPERTY_DISABLED		= 1 << 6;  
-	const int PROPERTY_SUSPENDED	= 1 << 7;
+	const int PROPERTY_SUSPENDED	    = 1 << 7;
 
 
+	// default values
 	const static F64 DEFAULT_EXPIRATION = 600.0;
+	const static S32 DEFAULT_QUOTA = 128; // this is megabytes
 
 	// Callback types for get() below
 	typedef boost::signals2::signal<void (const LLSD& experience)>
@@ -79,7 +89,7 @@ namespace LLExperienceCache
 	
 	void erase(const LLUUID& key);
 	bool fetch(const LLUUID& key, bool refresh=false);
-	void insert(LLSD& experience_data);
+	void insert(const LLSD& experience_data);
 	bool get(const LLUUID& key, LLSD& experience_data);
 
 	// If name information is in cache, callback will be called immediately.
@@ -87,6 +97,7 @@ namespace LLExperienceCache
 
 	const cache_t& getCached();
 
+	// maps an experience private key to the experience id
 	LLUUID getExperienceId(const LLUUID& private_key, bool null_if_not_found=false);
 
 };

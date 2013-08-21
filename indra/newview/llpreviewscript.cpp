@@ -87,6 +87,7 @@
 #include "llviewercontrol.h"
 #include "llappviewer.h"
 #include "llexperiencecache.h"
+#include "llfloaterexperienceprofile.h"
 #include "llexperienceassociationresponder.h"
 
 const std::string HELLO_LSL =
@@ -405,6 +406,22 @@ void LLLiveLSLEditor::experienceChanged()
         mScriptEd->setAssociatedExperience(mExperiences->getSelectedValue().asUUID());
         updateExperiencePanel();
     }
+}
+
+void LLLiveLSLEditor::onViewProfile( LLUICtrl *ui, void* userdata )
+{
+    LLLiveLSLEditor* self = (LLLiveLSLEditor*)userdata;
+
+    LLUUID id;
+    if(self->mExperienceEnabled->get())
+    {
+        id=self->mScriptEd->getAssociatedExperience();
+        if(id.notNull())
+        {
+             LLFloaterReg::showInstance("experience_profile", id, true);
+        }
+    }
+
 }
 
 void LLLiveLSLEditor::onToggleExperience( LLUICtrl *ui, void* userdata )
@@ -1306,7 +1323,7 @@ void LLLiveLSLEditor::addExperienceInfo(const LLSD& experience, BOOL enabled)
 
 void LLLiveLSLEditor::buildExperienceList()
 {
-    mExperiences->clear();
+    mExperiences->clearRows();
     bool foundAssociated=false;
     for(LLSD::array_const_iterator it = mExperienceIds.beginArray(); it != mExperienceIds.endArray(); ++it)
     {
@@ -1916,6 +1933,7 @@ BOOL LLLiveLSLEditor::postBuild()
     mExperienceEnabled = getChild<LLCheckBoxCtrl>("enable_xp");
 
     childSetCommitCallback("enable_xp", onToggleExperience, this);
+    childSetCommitCallback("view_profile", onViewProfile, this);
     
 
 	return LLPreview::postBuild();

@@ -49,6 +49,7 @@ class LLKeywordToken;
 class LLVFS;
 class LLViewerInventoryItem;
 class LLScriptEdContainer;
+class LLFloaterExperienceProfile;
 
 // Inner, implementation class.  LLPreviewScript and LLLiveLSLEditor each own one of these.
 class LLScriptEdCore : public LLPanel
@@ -234,6 +235,7 @@ public:
 
     static void setAssociatedExperience( LLHandle<LLLiveLSLEditor> editor, const LLSD& experience );
     static void onToggleExperience(LLUICtrl *ui, void* userdata);
+    static void onViewProfile(LLUICtrl *ui, void* userdata);
     
     void addExperienceInfo( const LLSD& experience, BOOL enabled );
     void setExperienceIds(const LLSD& experience_ids);
@@ -300,6 +302,8 @@ private:
     LLComboBox     	*mExperiences;
     LLCheckBoxCtrl  *mExperienceEnabled;
     LLSD            mExperienceIds;
+
+    LLHandle<LLFloater> mExperienceProfile;
 };
 
 #endif  // LL_LLPREVIEWSCRIPT_H

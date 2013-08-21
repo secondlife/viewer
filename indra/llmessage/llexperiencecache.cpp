@@ -37,11 +37,10 @@
 namespace LLExperienceCache
 {
 
-	typedef std::map<LLUUID, LLUUID> PrivateKeyMap;
-	PrivateKeyMap experinceKeyMap;
-	
-	void mapPrivateKeys(const LLSD& legacyKeys);
+    typedef std::map<LLUUID, LLUUID> KeyMap;
+    KeyMap privateToPublicKeyMap;
 
+    void mapKeys(const LLSD& legacyKeys);
 
 	std::string sLookupURL;
 
@@ -64,6 +63,7 @@ namespace LLExperienceCache
 	// Avoid copying signals via pointers.
 	typedef std::map<LLUUID, callback_signal_t*> signal_map_t;
 	signal_map_t sSignalMap;
+
 
 
 	bool max_age_from_cache_control(const std::string& cache_control, S32 *max_age);
@@ -89,6 +89,17 @@ namespace LLExperienceCache
 			sPendingQueue.erase(row[OWNER_ID].asUUID());
 		}
 
+        if(!row.has(OWNER_ID))
+        {
+            if(row.has(AGENT_ID) && row[AGENT_ID].asUUID().notNull())
+            {
+                row[OWNER_ID]=row[AGENT_ID];
+            }
+            else
+            {
+                row[OWNER_ID]=row[GROUP_ID];
+            }
+        }
 			
 		//signal
 		signal_map_t::iterator sig_it =	sSignalMap.find(public_key);
@@ -119,7 +130,7 @@ namespace LLExperienceCache
 
 	void bootstrap(const LLSD& legacyKeys, int initialExpiration)
 	{
-		mapPrivateKeys(legacyKeys);
+        mapKeys(legacyKeys);
 		LLSD::array_const_iterator it = legacyKeys.beginArray();
 		for(/**/; it != legacyKeys.endArray(); ++it)
 		{
@@ -302,7 +313,8 @@ namespace LLExperienceCache
 				exp[EXPIRES]=DEFAULT_EXPIRATION;
 				exp[EXPERIENCE_ID] = id;
 				exp[PROPERTIES]=PROPERTY_INVALID;
-				exp["DoesNotExist"]=true;
+				exp[MISSING]=true;
+                exp[QUOTA] = DEFAULT_QUOTA;
 
 				processExperience(id, exp);
 				LL_INFOS("ExperienceCache") << "Error result for " << id << LL_ENDL ;
@@ -324,14 +336,22 @@ namespace LLExperienceCache
  			ask_queue_t::const_iterator it = mKeys.begin();
  			for ( ; it != mKeys.end(); ++it)
 			{
+
 				LLSD exp;
+                //leave the properties alone if we already have a cache entry for this xp
+                if(!get(it->first, exp))
+                {
+                    exp[PROPERTIES]=PROPERTY_INVALID;
+                }
 				exp[EXPIRES]=retry_timestamp;
 				exp[EXPERIENCE_ID] = it->first;
 				exp["key_type"] = it->second;
 				exp["uuid"] = it->first;
 				exp["error"] = (LLSD::Integer)status;
-				exp[PROPERTIES]=PROPERTY_INVALID;
+                exp[QUOTA] = DEFAULT_QUOTA;
+
  				LLExperienceCache::processExperience(it->first, exp);
+                LL_INFOS("ExperienceCache") << "Error result for " << it->first << LL_ENDL ;
  			}
 
 		}
@@ -514,22 +534,25 @@ namespace LLExperienceCache
 			cache_t::iterator cur = it;
 			LLSD& exp = cur->second;
 			++it;
+
 			if(exp.has(EXPIRES) && exp[EXPIRES].asReal() < now)
 			{
-				if(exp.has(EXPERIENCE_ID))
+                if(!exp.has(EXPERIENCE_ID))
 				{
-					LLUUID id = exp[EXPERIENCE_ID].asUUID();
-					S32 properties = PROPERTY_INVALID;
-					if(exp.has(PROPERTIES))
-					{
-						properties = exp[PROPERTIES].asInteger();
+                    LL_INFOS("ExperienceCache") << "Removing experience with no id " << LL_ENDL ;
+                    sCache.erase(cur);
 					}
-					if(id.notNull() && ((properties & PROPERTY_INVALID) == 0))
+                else
+                {
+                    LLUUID id = exp[EXPERIENCE_ID].asUUID();
+                    LLUUID private_key = exp.has(LLExperienceCache::PRIVATE_KEY) ? exp[LLExperienceCache::PRIVATE_KEY].asUUID():LLUUID::null;
+                    if(private_key.notNull() || !exp.has("DoesNotExist"))
 					{
 						fetch(id, true);
 					}
 					else
 					{
+                        LL_INFOS("ExperienceCache") << "Removing invalid experience " << id << LL_ENDL ;
 						sCache.erase(cur);
 					}
 				}
@@ -616,15 +639,14 @@ namespace LLExperienceCache
 }
 
 
-
-void LLExperienceCache::mapPrivateKeys( const LLSD& legacyKeys )
+void LLExperienceCache::mapKeys( const LLSD& legacyKeys )
 {
 	LLSD::array_const_iterator exp = legacyKeys.beginArray();
 	for(/**/ ; exp != legacyKeys.endArray() ; ++exp)
 	{
 		if(exp->has(LLExperienceCache::EXPERIENCE_ID) && exp->has(LLExperienceCache::PRIVATE_KEY))
 		{
-			experinceKeyMap[(*exp)[LLExperienceCache::PRIVATE_KEY].asUUID()]=(*exp)[LLExperienceCache::EXPERIENCE_ID].asUUID();
+            privateToPublicKeyMap[(*exp)[LLExperienceCache::PRIVATE_KEY].asUUID()]=(*exp)[LLExperienceCache::EXPERIENCE_ID].asUUID();
 		}
 	}
 }
@@ -635,9 +657,8 @@ LLUUID LLExperienceCache::getExperienceId(const LLUUID& private_key, bool null_i
 	if (private_key.isNull())
 		return LLUUID::null;
 
-
-	PrivateKeyMap::const_iterator it=experinceKeyMap.find(private_key);
-	if(it == experinceKeyMap.end())
+    KeyMap::const_iterator it=privateToPublicKeyMap.find(private_key);
+    if(it == privateToPublicKeyMap.end())
 	{
 		if(null_if_not_found)
 		{

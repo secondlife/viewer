@@ -227,6 +227,7 @@ set(viewer_SOURCE_FILES
     llfloatereditwater.cpp
     llfloaterenvironmentsettings.cpp
     llfloaterevent.cpp
+    llfloaterexperienceprofile.cpp
     llfloaterexperiences.cpp
     llfloaterfonttest.cpp
     llfloatergesture.cpp
@@ -813,6 +814,7 @@ set(viewer_HEADER_FILES
     llfloatereditwater.h
     llfloaterenvironmentsettings.h
     llfloaterevent.h
+    llfloaterexperienceprofile.h
     llfloaterexperiences.h
     llfloaterfonttest.h
     llfloatergesture.h
