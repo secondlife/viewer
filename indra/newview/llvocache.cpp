@@ -238,12 +238,6 @@ void LLVOCacheEntry::setState(U32 state)
 	}
 }
 
-//virtual 
-U32  LLVOCacheEntry::getMinFrameRange()const
-{
-	return mMinFrameRange;
-}
-
 void LLVOCacheEntry::addChild(LLVOCacheEntry* entry)
 {
 	llassert(entry != NULL);
@@ -261,6 +255,12 @@ void LLVOCacheEntry::addChild(LLVOCacheEntry* entry)
 	if(getEntry() != NULL && isState(INACTIVE))
 	{
 		updateParentBoundingInfo(entry);
+		if(getGroup())
+		{
+			LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)getGroup();
+			group->unbound();
+			((LLVOCachePartition*)group->getSpatialPartition())->setDirty();
+		}
 	}
 }
 	
@@ -365,6 +365,28 @@ BOOL LLVOCacheEntry::writeToFile(LLAPRFile* apr_file) const
 	return success ;
 }
 
+bool LLVOCacheEntry::isRecentlyVisible() const
+{
+	bool vis = LLViewerOctreeEntryData::isRecentlyVisible();
+
+	if(!vis)
+	{
+		vis = (sCurVisible - getVisible() < mMinFrameRange);
+	}
+
+	if(!vis && !mParentID && mSceneContrib > 0.f)
+	{
+		//projection area: mSceneContrib
+
+		//squared distance
+		const F32 SQUARED_CUT_OFF_DIST = 225.0; //15m
+		F32 rad = getBinRadius();
+		vis = (rad * rad / mSceneContrib > SQUARED_CUT_OFF_DIST);
+	}
+
+	return vis;
+}
+
 void LLVOCacheEntry::calcSceneContribution(const LLVector3& camera_origin, bool needs_update, U32 last_update)
 {
 	if(!needs_update && getVisible() >= last_update)
@@ -381,8 +403,11 @@ void LLVOCacheEntry::calcSceneContribution(const LLVector3& camera_origin, bool 
 	lookAt.setSub(center, origin);
 	F32 squared_dist = lookAt.dot3(lookAt).getF32();
 
-	F32 rad = getBinRadius();
-	mSceneContrib = rad * rad / squared_dist;
+	if(squared_dist > 0.f)
+	{
+		F32 rad = getBinRadius();
+		mSceneContrib = rad * rad / squared_dist;
+	}
 
 	setVisible();
 }
@@ -479,12 +504,17 @@ LLVOCachePartition::LLVOCachePartition(LLViewerRegion* regionp)
 	new LLOcclusionCullingGroup(mOctree, this);
 }
 
+void LLVOCachePartition::setDirty()
+{
+	mDirty = TRUE;
+}
+
 void LLVOCachePartition::addEntry(LLViewerOctreeEntry* entry)
 {
 	llassert(entry->hasVOCacheEntry());
 
 	mOctree->insert(entry);
-	mDirty = TRUE;
+	setDirty();
 }
 	
 void LLVOCachePartition::removeEntry(LLViewerOctreeEntry* entry)
@@ -615,7 +645,7 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 	}
 
 	((LLviewerOctreeGroup*)mOctree->getListener(0))->rebound();
-	mCullHistory[LLViewerCamera::sCurCameraID] <<= 2;
+	mCullHistory[LLViewerCamera::sCurCameraID] <<= 1;
 
 	//localize the camera
 	LLVector3 region_agent = mRegionp->getOriginAgent();
