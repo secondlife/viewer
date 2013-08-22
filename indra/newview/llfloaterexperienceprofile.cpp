@@ -37,6 +37,7 @@
 #include "llexpandabletextbox.h"
 #include "lltexturectrl.h"
 #include "lltrans.h"
+#include <sstream>
 
 #define XML_PANEL_EXPERIENCE_PROFILE "floater_experienceprofile.xml"
 #define TF_NAME "experience_title"
