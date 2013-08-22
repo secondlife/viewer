@@ -211,6 +211,7 @@ static bool regex_search_no_exc(const S& string, M& match, const R& regex)
     }
 }
 
+#if LL_WINDOWS
 // GetVersionEx should not works correct with Windows 8.1 and the later version. We need to check this case 
 static bool	check_for_version(WORD wMajorVersion, WORD wMinorVersion, WORD wServicePackMajor)
 {
@@ -228,6 +229,7 @@ static bool	check_for_version(WORD wMajorVersion, WORD wMinorVersion, WORD wServ
 
     return VerifyVersionInfoW(&osvi, VER_MAJORVERSION | VER_MINORVERSION | VER_SERVICEPACKMAJOR, dwlConditionMask) != FALSE;
 }
+#endif
 
 
 LLOSInfo::LLOSInfo() :
