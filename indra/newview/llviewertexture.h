@@ -103,6 +103,7 @@ public:
 		INVALID_TEXTURE_TYPE
 	};
 
+
 	typedef std::vector<LLFace*> ll_face_list_t;
 	typedef std::vector<LLVOVolume*> ll_volume_list_t;
 

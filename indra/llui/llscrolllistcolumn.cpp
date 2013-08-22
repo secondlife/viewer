@@ -236,7 +236,8 @@ void LLScrollColumnHeader::handleReshape(const LLRect& new_rect, bool by_user)
 		// tell scroll list to layout columns again
 		// do immediate update to get proper feedback to resize handle
 		// which needs to know how far the resize actually went
-		mColumn->mParentCtrl->updateColumns();
+		const bool force_update = true;
+		mColumn->mParentCtrl->updateColumns(force_update);
 	}
 }
 
