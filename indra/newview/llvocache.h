@@ -83,12 +83,14 @@ public:
 	bool hasState(U32 state)   {return mState & state;}
 	U32  getState() const      {return mState;}
 	
+	//virtual
+	bool isRecentlyVisible() const;
+
 	U32 getLocalID() const			{ return mLocalID; }
 	U32 getCRC() const				{ return mCRC; }
 	S32 getHitCount() const			{ return mHitCount; }
 	S32 getCRCChangeCount() const	{ return mCRCChangeCount; }
-	U32 getMinFrameRange()const;	
-
+	
 	void calcSceneContribution(const LLVector3& camera_origin, bool needs_update, U32 last_update);
 	void setSceneContribution(F32 scene_contrib) {mSceneContrib = scene_contrib;}
 	F32 getSceneContribution() const             { return mSceneContrib;}

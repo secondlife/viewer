@@ -149,8 +149,6 @@ public:
 	
 	virtual void setOctreeEntry(LLViewerOctreeEntry* entry);
 
-	virtual U32  getMinFrameRange()const = 0;
-
 	F32                  getBinRadius() const   {return mEntry->getBinRadius();}
 	const LLVector4a*    getSpatialExtents() const;
 	LLviewerOctreeGroup* getGroup()const;

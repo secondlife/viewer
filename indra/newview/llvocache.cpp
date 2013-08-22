@@ -238,12 +238,6 @@ void LLVOCacheEntry::setState(U32 state)
 	}
 }
 
-//virtual 
-U32  LLVOCacheEntry::getMinFrameRange()const
-{
-	return mMinFrameRange;
-}
-
 void LLVOCacheEntry::addChild(LLVOCacheEntry* entry)
 {
 	llassert(entry != NULL);
@@ -371,6 +365,28 @@ BOOL LLVOCacheEntry::writeToFile(LLAPRFile* apr_file) const
 	return success ;
 }
 
+bool LLVOCacheEntry::isRecentlyVisible() const
+{
+	bool vis = LLViewerOctreeEntryData::isRecentlyVisible();
+
+	if(!vis)
+	{
+		vis = (sCurVisible - getVisible() < mMinFrameRange);
+	}
+
+	if(!vis && !mParentID && mSceneContrib > 0.f)
+	{
+		//projection area: mSceneContrib
+
+		//squared distance
+		const F32 SQUARED_CUT_OFF_DIST = 225.0; //15m
+		F32 rad = getBinRadius();
+		vis = (rad * rad / mSceneContrib > SQUARED_CUT_OFF_DIST);
+	}
+
+	return vis;
+}
+
 void LLVOCacheEntry::calcSceneContribution(const LLVector3& camera_origin, bool needs_update, U32 last_update)
 {
 	if(!needs_update && getVisible() >= last_update)
@@ -387,8 +403,11 @@ void LLVOCacheEntry::calcSceneContribution(const LLVector3& camera_origin, bool 
 	lookAt.setSub(center, origin);
 	F32 squared_dist = lookAt.dot3(lookAt).getF32();
 
-	F32 rad = getBinRadius();
-	mSceneContrib = rad * rad / squared_dist;
+	if(squared_dist > 0.f)
+	{
+		F32 rad = getBinRadius();
+		mSceneContrib = rad * rad / squared_dist;
+	}
 
 	setVisible();
 }
