@@ -37,7 +37,6 @@
 #include "llexpandabletextbox.h"
 #include "lltexturectrl.h"
 #include "lltrans.h"
-#include <sstream>
 
 #define XML_PANEL_EXPERIENCE_PROFILE "floater_experienceprofile.xml"
 #define TF_NAME "experience_title"
@@ -183,7 +182,7 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
 
     LLSD data;
 
-    std::istringstream is = std::istringstream(value);
+    std::istringstream is(value);
     if(LLSDParser::PARSE_FAILURE != parser->parse(is, data, value.size()))
     {
         if(data.has(TF_MRKT))
