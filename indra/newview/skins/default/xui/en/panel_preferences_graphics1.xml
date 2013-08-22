@@ -47,7 +47,7 @@
         Better
     </text>
     <icon
-     color="0.12 0.12 0.12 1"
+     color="DkGray"
      height="14"
      image_name="Rounded_Square"
      layout="topleft"
@@ -56,16 +56,15 @@
      top_delta="-2"
      width="2" />
   <icon
-     color="0.12 0.12 0.12 1"
+     color="DkGray"
      height="14"
      image_name="Rounded_Square"
      layout="topleft"
      left_pad="41"
-     name="LowMidraphicsDivet"
-     top_delta="-2"
+     name="LowMidGraphicsDivet"
      width="2" />
     <icon
-     color="0.12 0.12 0.12 1"
+     color="DkGray"
      height="14"
      image_name="Rounded_Square"
      layout="topleft"
@@ -74,7 +73,7 @@
      top_delta="0"
      width="2" />
   <icon
-     color="0.12 0.12 0.12 1"
+     color="DkGray"
      height="14"
      image_name="Rounded_Square"
      layout="topleft"
@@ -83,7 +82,7 @@
      top_delta="0"
      width="2" />
     <icon
-     color="0.12 0.12 0.12 1"
+     color="DkGray"
      height="14"
      image_name="Rounded_Square"
      layout="topleft"
@@ -92,7 +91,7 @@
      top_delta="0"
      width="2" />
   <icon
-     color="0.12 0.12 0.12 1"
+     color="DkGray"
      height="14"
      image_name="Rounded_Square"
      layout="topleft"
@@ -101,7 +100,7 @@
      top_delta="0"
      width="2" />
     <icon
-     color="0.12 0.12 0.12 1"
+     color="DkGray"
      height="14"
      image_name="Rounded_Square"
      layout="topleft"

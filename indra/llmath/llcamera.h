@@ -76,26 +76,39 @@ public:
 		PLANE_RIGHT = 1,
 		PLANE_BOTTOM = 2,
 		PLANE_TOP = 3,
-		PLANE_NUM = 4
+		PLANE_NUM = 4,
+		PLANE_MASK_NONE = 0xff		// Disable this plane
 	};
 	enum {
 		PLANE_LEFT_MASK = (1<<PLANE_LEFT),
 		PLANE_RIGHT_MASK = (1<<PLANE_RIGHT),
 		PLANE_BOTTOM_MASK = (1<<PLANE_BOTTOM),
 		PLANE_TOP_MASK = (1<<PLANE_TOP),
-		PLANE_ALL_MASK = 0xf
+		PLANE_ALL_MASK = 0xf,
+	};
+
+	enum
+	{	// Indexes to mAgentPlanes[] and mPlaneMask[]
+		AGENT_PLANE_LEFT = 0,
+		AGENT_PLANE_RIGHT = 1,
+		AGENT_PLANE_NEAR = 2,
+		AGENT_PLANE_BOTTOM = 3,
+		AGENT_PLANE_TOP = 4,
+		AGENT_PLANE_FAR = 5,
+		AGENT_PLANE_USER_CLIP = 6
+	};
+	enum
+	{	// Sizes for mAgentPlanes[].  7th entry is special case for user clip
+		AGENT_PLANE_NO_USER_CLIP_NUM = 6,
+		AGENT_PLANE_USER_CLIP_NUM = 7,
+		PLANE_MASK_NUM = 8			// 7 actually used, 8 is for alignment
 	};
 
 	enum
 	{
-		AGENT_PLANE_LEFT = 0,
-		AGENT_PLANE_RIGHT,
-		AGENT_PLANE_NEAR,
-		AGENT_PLANE_BOTTOM,
-		AGENT_PLANE_TOP,
-		AGENT_PLANE_FAR,
+		AGENT_FRUSTRUM_NUM = 8
 	};
-
+	
 	enum {
 		HORIZ_PLANE_LEFT = 0,
 		HORIZ_PLANE_RIGHT = 1,
@@ -108,15 +121,15 @@ public:
 	};
 
 private:
-	LL_ALIGN_16(LLPlane mAgentPlanes[7]);  //frustum planes in agent space a la gluUnproject (I'm a bastard, I know) - DaveP
-	U8 mPlaneMask[8];         // 8 for alignment	
+	LL_ALIGN_16(LLPlane mAgentPlanes[AGENT_PLANE_USER_CLIP_NUM]);  //frustum planes in agent space a la gluUnproject (I'm a bastard, I know) - DaveP
+	U8 mPlaneMask[PLANE_MASK_NUM];         // 8 for alignment	
 	
 	F32 mView;					// angle between top and bottom frustum planes in radians.
 	F32 mAspect;				// width/height
 	S32 mViewHeightInPixels;	// for ViewHeightInPixels() only
 	F32 mNearPlane;
 	F32 mFarPlane;
-	LL_ALIGN_16(LLPlane mLocalPlanes[4]);
+	LL_ALIGN_16(LLPlane mLocalPlanes[PLANE_NUM]);
 	F32 mFixedDistance;			// Always return this distance, unless < 0
 	LLVector3 mFrustCenter;		// center of frustum and radius squared for ultra-quick exclusion test
 	F32 mFrustRadiusSquared;
@@ -128,7 +141,7 @@ private:
 
 	LLVector3 mWorldPlanePos;		// Position of World Planes (may be offset from camera)
 public:
-	LLVector3 mAgentFrustum[8];  //8 corners of 6-plane frustum
+	LLVector3 mAgentFrustum[AGENT_FRUSTRUM_NUM];  //8 corners of 6-plane frustum
 	F32	mFrustumCornerDist;		//distance to corner of frustum against far clip plane
 	LLPlane& getAgentPlane(U32 idx) { return mAgentPlanes[idx]; }
 
