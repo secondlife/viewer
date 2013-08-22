@@ -147,7 +147,6 @@ void SampleAccumulator::addSamples( const SampleAccumulator& other, EBufferAppen
 
 		if (other.mTotalSamplingTime > epsilon)
 		{
-			llassert(mTotalSamplingTime > 0);
 			// combine variance (and hence standard deviation) of 2 different sized sample groups using
 			// the following formula: http://www.mrc-bsu.cam.ac.uk/cochrane/handbook/chapter_7/7_7_3_8_combining_groups.htm
 			F64 n_1 = mTotalSamplingTime,
@@ -193,7 +192,7 @@ void SampleAccumulator::reset( const SampleAccumulator* other )
 	mMin = mLastValue;
 	mMax = mLastValue;
 	mMean = mLastValue;
-	LL_ERRS_IF(mHasValue && !(mMean < 0) && !(mMean >= 0)) << "Invalid mean after capturing value" << LL_ENDL;
+	llassert(!mHasValue || mMean < 0 || mMean >= 0);
 	mSumOfSquares = 0;
 	mLastSampleTimeStamp = LLTimer::getTotalSeconds();
 	mTotalSamplingTime = 0;

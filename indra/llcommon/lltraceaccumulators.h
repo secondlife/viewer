@@ -342,6 +342,7 @@ namespace LLTrace
 				mSum += mLastValue * delta_time;
 				mTotalSamplingTime += delta_time;
 				F64 old_mean = mMean;
+				llassert(mMean < 0 || mMean >= 0);
 				mMean += (delta_time / mTotalSamplingTime) * (mLastValue - old_mean);
 				llassert(mMean < 0 || mMean >= 0);
 				mSumOfSquares += delta_time * (mLastValue - old_mean) * (mLastValue - mMean);
