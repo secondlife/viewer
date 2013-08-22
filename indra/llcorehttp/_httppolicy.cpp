@@ -153,14 +153,16 @@ void HttpPolicy::retryOp(HttpOpRequest * op)
 		};
 	static const int delta_max(int(LL_ARRAY_SIZE(retry_deltas)) - 1);
 	static const HttpStatus error_503(503);
-	
+
 	const HttpTime now(totalTime());
 	const int policy_class(op->mReqPolicy);
 	HttpTime delta(retry_deltas[llclamp(op->mPolicyRetries, 0, delta_max)]);
+	bool external_delta(false);
 
 	if (op->mReplyRetryAfter > 0 && op->mReplyRetryAfter < 30)
 	{
 		delta = op->mReplyRetryAfter * U64L(1000000);
+		external_delta = true;
 	}
 	op->mPolicyRetryAt = now + delta;
 	++op->mPolicyRetries;
@@ -171,7 +173,8 @@ void HttpPolicy::retryOp(HttpOpRequest * op)
 	LL_DEBUGS("CoreHttp") << "HTTP request " << static_cast<HttpHandle>(op)
 						  << " retry " << op->mPolicyRetries
 						  << " scheduled in " << (delta / HttpTime(1000))
-						  << " mS.  Status:  " << op->mStatus.toHex()
+						  << " mS (" << (external_delta ? "external" : "internal")
+						  << ").  Status:  " << op->mStatus.toHex()
 						  << LL_ENDL;
 	if (op->mTracing > HTTP_TRACE_OFF)
 	{
@@ -212,6 +215,14 @@ HttpService::ELoopSpeed HttpPolicy::processReadyQueue()
 	for (int policy_class(0); policy_class < mClasses.size(); ++policy_class)
 	{
 		ClassState & state(*mClasses[policy_class]);
+		HttpRetryQueue & retryq(state.mRetryQueue);
+		HttpReadyQueue & readyq(state.mReadyQueue);
+
+		if (retryq.empty() && readyq.empty())
+		{
+			continue;
+		}
+		
 		const bool throttle_enabled(state.mOptions.mThrottleRate > 0L);
 		const bool throttle_current(throttle_enabled && now < state.mThrottleEnd);
 
@@ -224,9 +235,6 @@ HttpService::ELoopSpeed HttpPolicy::processReadyQueue()
 
 		int active(transport.getActiveCountInClass(policy_class));
 		int needed(state.mOptions.mConnectionLimit - active);		// Expect negatives here
-
-		HttpRetryQueue & retryq(state.mRetryQueue);
-		HttpReadyQueue & readyq(state.mReadyQueue);
 
 		if (needed > 0)
 		{

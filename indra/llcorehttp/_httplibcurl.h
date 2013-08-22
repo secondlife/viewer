@@ -133,6 +133,7 @@ protected:
 	active_set_t		mActiveOps;
 	int					mPolicyCount;
 	CURLM **			mMultiHandles;			// One handle per policy class
+	int *				mActiveHandles;			// Active count per policy class
 }; // end class HttpLibcurl
 
 }  // end namespace LLCore
