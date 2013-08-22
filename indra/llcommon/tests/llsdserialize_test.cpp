@@ -1723,8 +1723,5 @@ namespace tut
                       "This string\n"
                       "has several\n"
                       "lines.");
-        
-        bool loop = true;
-        while(loop) {}
     }
 }
