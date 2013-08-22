@@ -401,7 +401,7 @@ void LLStatBar::draw()
 	{
 		mLastDisplayValueTimer.reset();
 	}
-	drawLabelAndValue(display_value, unit_label, bar_rect, mDecimalDigits);
+	drawLabelAndValue(display_value, unit_label, bar_rect, decimal_digits);
 	mLastDisplayValue = display_value;
 
 

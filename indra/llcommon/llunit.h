@@ -69,6 +69,12 @@ struct LLResultTypeDivide
 	typedef LL_TYPEOF(S() / T(1)) type_t;
 };
 
+template<typename S, typename T>
+struct LLResultTypePromote
+{
+	typedef LL_TYPEOF((true) ? S() : T()) type_t;
+};
+
 template<typename STORAGE_TYPE, typename UNIT_TYPE>
 struct LLUnit
 {
@@ -155,10 +161,11 @@ struct LLUnit
 	template<typename SOURCE_STORAGE, typename SOURCE_UNITS>
 	static self_t convert(LLUnit<SOURCE_STORAGE, SOURCE_UNITS> v) 
 	{ 
-		self_t result;
-		STORAGE_TYPE divisor = ll_convert_units(v, result);
-		result.mValue /= divisor;
-		return result;
+		typedef typename LLResultTypePromote<STORAGE_TYPE, SOURCE_STORAGE>::type_t result_storage_t;
+		LLUnit<result_storage_t, UNIT_TYPE> result;
+		result_storage_t divisor = ll_convert_units(v, result);
+		result.value(result.value() / divisor);
+		return self_t(result.value());
 	}
 
 protected:
@@ -695,7 +702,9 @@ struct unit_name                                                                
 template<typename S1, typename S2>                                                               \
 S2 ll_convert_units(LLUnit<S1, unit_name> in, LLUnit<S2, base_unit_name>& out)                   \
 {                                                                                                \
-	LLUnitLinearOps<S2> op = LLUnitLinearOps<S2>(in.value()) conversion_operation;               \
+	typedef typename LLResultTypePromote<S1, S2>::type_t result_storage_t;                       \
+	LLUnitLinearOps<result_storage_t> op =                                                       \
+		LLUnitLinearOps<result_storage_t>(in.value()) conversion_operation;                      \
 	out = LLUnit<S2, base_unit_name>((S2)op.mValue);	                                         \
 	return op.mDivisor;                                                                          \
 }                                                                                                \
@@ -703,7 +712,9 @@ S2 ll_convert_units(LLUnit<S1, unit_name> in, LLUnit<S2, base_unit_name>& out)  
 template<typename S1, typename S2>                                                               \
 S2 ll_convert_units(LLUnit<S1, base_unit_name> in, LLUnit<S2, unit_name>& out)                   \
 {                                                                                                \
-	LLUnitInverseLinearOps<S2> op = LLUnitInverseLinearOps<S2>(in.value()) conversion_operation; \
+	typedef typename LLResultTypePromote<S1, S2>::type_t result_storage_t;                       \
+	LLUnitInverseLinearOps<result_storage_t> op =                                                \
+		LLUnitInverseLinearOps<result_storage_t>(in.value()) conversion_operation;               \
 	out = LLUnit<S2, unit_name>((S2)op.mValue);                                                  \
 	return op.mDivisor;                                                                          \
 }                                                                                               
