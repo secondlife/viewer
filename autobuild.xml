@@ -1648,9 +1648,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>facee34b8bd57ad602157e65a5af1a49</string>
+              <string>64544512ed2e9fc48e1fda0b490daa74</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openssl-0.9.8q-darwin-20110211.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openssl/rev/223711/arch/Darwin/installer/openssl-0.9.8q-darwin-20110314.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
