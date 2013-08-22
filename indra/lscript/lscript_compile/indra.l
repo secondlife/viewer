@@ -685,6 +685,23 @@ int yyerror(const char *fmt, ...);
 "PRIM_MEDIA_MAX_WIDTH_PIXELS"        { count(); yylval.ival = LLMediaEntry::MAX_WIDTH_PIXELS; return(INTEGER_CONSTANT); }
 "PRIM_MEDIA_MAX_HEIGHT_PIXELS"       { count(); yylval.ival = LLMediaEntry::MAX_HEIGHT_PIXELS; return(INTEGER_CONSTANT); }
 
+"XP_ERROR_NONE"                      { char* sval= "no error";                                yylval.sval = new char[strlen(sval)]; strcpy(yylval.sval, sval); return(STRING_CONSTANT); }
+"XP_ERROR_THROTTLED"                 { char* sval= "exceeded throttle";                       yylval.sval = new char[strlen(sval)]; strcpy(yylval.sval, sval); return(STRING_CONSTANT); }
+"XP_ERROR_EXPERIENCES_DISABLED"      { char* sval= "experiences are disabled";                yylval.sval = new char[strlen(sval)]; strcpy(yylval.sval, sval); return(STRING_CONSTANT); }
+"XP_ERROR_INVALID_PARAMETERS"        { char* sval= "invalid parameters";                      yylval.sval = new char[strlen(sval)]; strcpy(yylval.sval, sval); return(STRING_CONSTANT); }
+"XP_ERROR_NOT_PERMITTED"             { char* sval= "operation not permitted";                 yylval.sval = new char[strlen(sval)]; strcpy(yylval.sval, sval); return(STRING_CONSTANT); }
+"XP_ERROR_NO_EXPERIENCE"             { char* sval= "script not associated with an experience";yylval.sval = new char[strlen(sval)]; strcpy(yylval.sval, sval); return(STRING_CONSTANT); }
+"XP_ERROR_NOT_FOUND"                 { char* sval= "not found";                               yylval.sval = new char[strlen(sval)]; strcpy(yylval.sval, sval); return(STRING_CONSTANT); }
+"XP_ERROR_INVALID_EXPERIENCE"        { char* sval= "invalid experience";                      yylval.sval = new char[strlen(sval)]; strcpy(yylval.sval, sval); return(STRING_CONSTANT); }
+"XP_ERROR_EXPERIENCE_DISABLED"       { char* sval= "experience is disabled";                  yylval.sval = new char[strlen(sval)]; strcpy(yylval.sval, sval); return(STRING_CONSTANT); }
+"XP_ERROR_EXPERIENCE_SUSPENDED"      { char* sval= "experience is suspended";                 yylval.sval = new char[strlen(sval)]; strcpy(yylval.sval, sval); return(STRING_CONSTANT); }
+"XP_ERROR_UNKNOWN_ERROR"             { char* sval= "unknown error";                           yylval.sval = new char[strlen(sval)]; strcpy(yylval.sval, sval); return(STRING_CONSTANT); }
+"XP_ERROR_QUOTA_EXCEEDED"            { char* sval= "experience data quota exceeded";          yylval.sval = new char[strlen(sval)]; strcpy(yylval.sval, sval); return(STRING_CONSTANT); }
+"XP_ERROR_STORE_DISABLED"            { char* sval= "key-value store is disabled";             yylval.sval = new char[strlen(sval)]; strcpy(yylval.sval, sval); return(STRING_CONSTANT); }
+"XP_ERROR_STORAGE_EXCEPTION"         { char* sval= "key-value store communication failed";    yylval.sval = new char[strlen(sval)]; strcpy(yylval.sval, sval); return(STRING_CONSTANT); }
+"XP_ERROR_KEY_NOT_FOUND"             { char* sval= "key doesn't exist";                       yylval.sval = new char[strlen(sval)]; strcpy(yylval.sval, sval); return(STRING_CONSTANT); }
+"XP_ERROR_RETRY_UPDATE"              { char* sval= "retry update";                            yylval.sval = new char[strlen(sval)]; strcpy(yylval.sval, sval); return(STRING_CONSTANT); }
+
 "STATUS_OK"                          { count(); yylval.ival = LSL_STATUS_OK; return(INTEGER_CONSTANT); }
 "STATUS_MALFORMED_PARAMS"            { count(); yylval.ival = LSL_STATUS_MALFORMED_PARAMS; return(INTEGER_CONSTANT); }
 "STATUS_TYPE_MISMATCH"               { count(); yylval.ival = LSL_STATUS_TYPE_MISMATCH; return(INTEGER_CONSTANT); }
