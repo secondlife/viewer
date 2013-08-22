@@ -928,7 +928,8 @@ namespace
 
 			if (show_location && (r->wantsLocation() || level == LLError::LEVEL_ERROR || s.mPrintLocation))
 			{
-				message_stream << site.mLocationString << " ";
+				message_stream << site.mLocationString;
+                message_stream << " ";
 			}
 
 			if (show_time && r->wantsTime() && s.mTimeFunction != NULL)
