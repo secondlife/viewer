@@ -929,8 +929,7 @@ namespace
             const_cast<LLError::CallSite&>(site).mTagString += " ";
 			if (show_location && (r->wantsLocation() || level == LLError::LEVEL_ERROR || s.mPrintLocation))
 			{
-				//message_stream << site.mLocationString;
-                message_stream << " ";
+				message_stream << site.mLocationString << " ";
 			}
 
 			if (show_time && r->wantsTime() && s.mTimeFunction != NULL)
@@ -950,7 +949,7 @@ namespace
 			
 			if (show_function && r->wantsFunctionName())
 			{
-				//message_stream << site.mFunctionString << " ";
+				message_stream << site.mFunctionString << " ";
 			}
 
 			message_stream << message;
