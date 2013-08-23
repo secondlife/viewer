@@ -721,6 +721,16 @@ void LLFloaterIMContainer::updateResizeLimits()
 	assignResizeLimits();
 }
 
+bool LLFloaterIMContainer::isMessagesPaneCollapsed()
+{
+	return mMessagesPane->isCollapsed();
+}
+
+bool LLFloaterIMContainer::isConversationsPaneCollapsed()
+{
+	return mConversationsPane->isCollapsed();
+}
+
 void LLFloaterIMContainer::collapseMessagesPane(bool collapse)
 {
 	if (mMessagesPane->isCollapsed() == collapse)

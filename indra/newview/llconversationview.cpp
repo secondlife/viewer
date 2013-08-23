@@ -316,9 +316,16 @@ void LLConversationViewSession::selectConversationItem()
 		LLUUID session_id = item? item->getUUID() : LLUUID();
 
 		LLFloaterIMContainer *im_container = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
+		if (im_container->isConversationsPaneCollapsed() && im_container->getSelectedSession() == session_id)
+		{
+			im_container->collapseMessagesPane(!im_container->isMessagesPaneCollapsed());
+		}
+		else
+		{
+			im_container->collapseMessagesPane(false);
+		}
 		im_container->flashConversationItemWidget(session_id,false);
 		im_container->selectConversationPair(session_id, false);
-		im_container->collapseMessagesPane(false);
 	}
 }
 

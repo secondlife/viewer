@@ -90,6 +90,8 @@ public:
 	static void onCurrentChannelChanged(const LLUUID& session_id);
 
 	void collapseMessagesPane(bool collapse);
+	bool isMessagesPaneCollapsed();
+	bool isConversationsPaneCollapsed();
 	
 	// Callbacks
 	static void idle(void* user_data);
