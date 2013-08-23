@@ -374,14 +374,13 @@ bool LLVOCacheEntry::isRecentlyVisible() const
 		vis = (sCurVisible - getVisible() < mMinFrameRange);
 	}
 
-	if(!vis && !mParentID && mSceneContrib > 0.f)
+	//combination of projected area and squared distance
+	if(!vis && !mParentID && mSceneContrib > 0.0311f) //projection angle > 10 (degree)
 	{
-		//projection area: mSceneContrib
-
 		//squared distance
-		const F32 SQUARED_CUT_OFF_DIST = 225.0; //15m
+		const F32 SQUARED_CUT_OFF_DIST = 256.0; //16m
 		F32 rad = getBinRadius();
-		vis = (rad * rad / mSceneContrib > SQUARED_CUT_OFF_DIST);
+		vis = (rad * rad / mSceneContrib < SQUARED_CUT_OFF_DIST);
 	}
 
 	return vis;
