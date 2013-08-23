@@ -1614,6 +1614,8 @@ bool LLAppViewer::cleanup()
 	//ditch LLVOAvatarSelf instance
 	gAgentAvatarp = NULL;
 
+    LLNotifications::instance().clear();
+
 	// workaround for DEV-35406 crash on shutdown
 	LLEventPumps::instance().reset();
 

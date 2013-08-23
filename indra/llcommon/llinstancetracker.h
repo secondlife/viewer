@@ -212,6 +212,7 @@ private:
 	}
 	void remove_()
 	{
+        if (getMap_().find(mInstanceKey) != getMap_().end())
 		getMap_().erase(mInstanceKey);
 	}
 
