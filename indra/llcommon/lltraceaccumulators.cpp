@@ -147,7 +147,6 @@ void SampleAccumulator::addSamples( const SampleAccumulator& other, EBufferAppen
 
 		if (other.mTotalSamplingTime > epsilon)
 		{
-			llassert(mTotalSamplingTime > 0);
 			// combine variance (and hence standard deviation) of 2 different sized sample groups using
 			// the following formula: http://www.mrc-bsu.cam.ac.uk/cochrane/handbook/chapter_7/7_7_3_8_combining_groups.htm
 			F64 n_1 = mTotalSamplingTime,
