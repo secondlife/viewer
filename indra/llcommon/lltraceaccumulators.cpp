@@ -192,7 +192,7 @@ void SampleAccumulator::reset( const SampleAccumulator* other )
 	mMin = mLastValue;
 	mMax = mLastValue;
 	mMean = mLastValue;
-	LL_ERRS_IF(mHasValue && !(mMean < 0) && !(mMean >= 0)) << "Invalid mean after capturing value" << LL_ENDL;
+	llassert(!mHasValue || mMean < 0 || mMean >= 0);
 	mSumOfSquares = 0;
 	mLastSampleTimeStamp = LLTimer::getTotalSeconds();
 	mTotalSamplingTime = 0;
