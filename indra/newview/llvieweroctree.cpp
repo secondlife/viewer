@@ -409,7 +409,7 @@ bool LLViewerOctreeEntryData::isRecentlyVisible() const
 		return true;
 	}
 
-	return (sCurVisible - mEntry->mVisible < getMinFrameRange());
+	return false;
 }
 
 void LLViewerOctreeEntryData::setVisible() const

@@ -1058,12 +1058,8 @@ bool LLDrawable::isRecentlyVisible() const
 
 	if(!vis)
 	{
-		LLviewerOctreeGroup* group = getGroup();
-		if (group && group->isRecentlyVisible())
-		{
-			LLViewerOctreeEntryData::setVisible();
-			vis = TRUE ;
-		}
+		const U32 MIN_VIS_FRAME_RANGE = 2 ; //two frames:the current one and the last one.
+		vis = (sCurVisible - getVisible() < MIN_VIS_FRAME_RANGE);
 	}
 
 	return vis ;
@@ -1138,14 +1134,6 @@ LLSpatialPartition* LLDrawable::getSpatialPartition()
 	}
 	
 	return retval;
-}
-
-//virtual
-U32 LLDrawable::getMinFrameRange() const
-{
-	const U32 MIN_VIS_FRAME_RANGE = 2 ; //two frames:the current one and the last one.
-
-	return MIN_VIS_FRAME_RANGE ;
 }
 
 //=======================================
