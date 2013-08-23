@@ -601,9 +601,6 @@ struct LLUnitLinearOps
 		mDivisor(1)
 	{}
 
-	T mValue;
-	T mDivisor;
-
 	template<typename OTHER_T>
 	self_t operator * (OTHER_T other)
 	{
@@ -620,6 +617,7 @@ struct LLUnitLinearOps
 	template<typename OTHER_T>
 	self_t operator + (OTHER_T other)
 	{
+		mValue /= mDivisor;
 		mValue += other;
 		return *this;
 	}
@@ -627,9 +625,13 @@ struct LLUnitLinearOps
 	template<typename OTHER_T>
 	self_t operator - (OTHER_T other)
 	{
+		mValue /= mDivisor;
 		mValue -= other;
 		return *this;
 	}
+
+	T mValue;
+	T mDivisor;
 };
 
 template<typename T>
@@ -641,9 +643,6 @@ struct LLUnitInverseLinearOps
 	:	mValue(val),
 		mDivisor(1)
 	{}
-
-	T mValue;
-	T mDivisor;
 
 	template<typename OTHER_T>
 	self_t operator * (OTHER_T other)
@@ -662,6 +661,7 @@ struct LLUnitInverseLinearOps
 	template<typename OTHER_T>
 	self_t operator + (OTHER_T other)
 	{
+		mValue /= mDivisor;
 		mValue -= other;
 		return *this;
 	}
@@ -669,9 +669,13 @@ struct LLUnitInverseLinearOps
 	template<typename OTHER_T>
 	self_t operator - (OTHER_T other)
 	{
+		mValue /= mDivisor;
 		mValue += other;
 		return *this;
 	}
+
+	T mValue;
+	T mDivisor;
 };
 
 #define LL_DECLARE_BASE_UNIT(base_unit_name, unit_label)                                             \
