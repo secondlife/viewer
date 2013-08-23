@@ -638,10 +638,10 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 	}
 	mCulledTime[LLViewerCamera::sCurCameraID] = LLViewerOctreeEntryData::getCurrentFrame();
 
-	if(!mDirty && !mCullHistory[LLViewerCamera::sCurCameraID] && LLViewerRegion::isViewerCameraStatic())
-	{
-		return 0; //nothing changed, skip culling
-	}
+	//if(!mDirty && !mCullHistory[LLViewerCamera::sCurCameraID] && LLViewerRegion::isViewerCameraStatic())
+	//{
+	//	return 0; //nothing changed, skip culling
+	//}
 
 	((LLviewerOctreeGroup*)mOctree->getListener(0))->rebound();
 	mCullHistory[LLViewerCamera::sCurCameraID] <<= 1;
