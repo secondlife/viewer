@@ -45,6 +45,7 @@
 #include "llsd.h"
 #include "llsdserialize.h"
 #include "llteleportflags.h"
+#include "lltoastnotifypanel.h"
 #include "lltransactionflags.h"
 #include "llvfile.h"
 #include "llvfs.h"
@@ -3214,7 +3215,20 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			payload["online"] = (offline == IM_ONLINE);
 			payload["sender"] = msg->getSender().getIPandPort();
 
-			if (is_muted)
+			bool add_notification = true;
+			for (LLToastNotifyPanel::instance_iter ti(LLToastNotifyPanel::beginInstances())
+				, tend(LLToastNotifyPanel::endInstances()); ti != tend; ++ti)
+			{
+				LLToastNotifyPanel& panel = *ti;
+				const std::string& notification_name = panel.getNotificationName();
+				if (notification_name == "OfferFriendship" && panel.isControlPanelEnabled())
+				{
+					add_notification = false;
+					break;
+				}
+			}
+
+			if (is_muted && add_notification)
 			{
 				LLNotifications::instance().forceResponse(LLNotification::Params("OfferFriendship").payload(payload), 1);
 			}
@@ -3225,18 +3239,22 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 					send_do_not_disturb_message(msg, from_id);
 				}
 				args["NAME_SLURL"] = LLSLURL("agent", from_id, "about").getSLURLString();
-				if(message.empty())
+
+				if (add_notification)
 				{
-					//support for frienship offers from clients before July 2008
-				        LLNotificationsUtil::add("OfferFriendshipNoMessage", args, payload);
-				}
-				else
-				{
-					args["[MESSAGE]"] = message;
-				    LLNotification::Params params("OfferFriendship");
-				    params.substitutions = args;
-				    params.payload = payload;
-				    LLPostponedNotification::add<LLPostponedOfferNotification>(	params, from_id, false);
+					if(message.empty())
+					{
+						//support for frienship offers from clients before July 2008
+						LLNotificationsUtil::add("OfferFriendshipNoMessage", args, payload);
+					}
+					else
+					{
+						args["[MESSAGE]"] = message;
+						LLNotification::Params params("OfferFriendship");
+						params.substitutions = args;
+						params.payload = payload;
+						LLPostponedNotification::add<LLPostponedOfferNotification>(	params, from_id, false);
+					}
 				}
 			}
 		}
