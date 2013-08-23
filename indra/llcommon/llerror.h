@@ -302,7 +302,8 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 // See top of file for common usage.	
 /////////////////////////////////
 
-// this macro uses a one-shot do statement to avoid parsing errors when writing:
+// this macro uses a one-shot do statement to avoid parsing errors when writing control flow statements
+// without braces:
 // if (condition) LL_INFOS() << "True" << LLENDL; else LLINFOS() << "False" << LLENDL
 
 #define lllog(level, once, ...)																	          \

@@ -926,9 +926,10 @@ namespace
 
 			std::ostringstream message_stream;
 
+            const_cast<LLError::CallSite&>(site).mTagString += " ";
 			if (show_location && (r->wantsLocation() || level == LLError::LEVEL_ERROR || s.mPrintLocation))
 			{
-				message_stream << site.mLocationString;
+				//message_stream << site.mLocationString;
                 message_stream << " ";
 			}
 
@@ -949,12 +950,13 @@ namespace
 			
 			if (show_function && r->wantsFunctionName())
 			{
-				message_stream << site.mFunctionString << " ";
+				//message_stream << site.mFunctionString << " ";
 			}
 
 			message_stream << message;
 
-			r->recordMessage(level, message_stream.str());
+            std::string final_message = message_stream.str();
+			r->recordMessage(level, final_message);
 		}
 	}
 }
@@ -1158,6 +1160,10 @@ namespace LLError
 		Globals& g = Globals::get();
 		Settings& s = Settings::get();
 
+        //const_cast<CallSite&>(site).mTagString += " ";
+        std::string tag_string = site.mTagString;
+        tag_string += " ";
+        
 		std::string message = out->str();
 		if (out == &g.messageStream)
 		{

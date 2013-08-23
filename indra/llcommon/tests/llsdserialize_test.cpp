@@ -56,11 +56,8 @@ namespace lambda = boost::lambda;
 #include "../llformat.h"
 
 #include "../test/lltut.h"
-#include "../test/manageapr.h"
 #include "../test/namedtempfile.h"
 #include "stringize.h"
-
-static ManageAPR manager;
 
 std::vector<U8> string_to_vector(const std::string& str)
 {
@@ -1723,5 +1720,6 @@ namespace tut
                       "This string\n"
                       "has several\n"
                       "lines.");
+        
     }
 }

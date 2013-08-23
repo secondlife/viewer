@@ -29,7 +29,6 @@
 //#include <boost/lambda/bind.hpp>
 // other Linden headers
 #include "../test/lltut.h"
-#include "../test/manageapr.h"
 #include "../test/namedtempfile.h"
 #include "../test/catch_and_store_what_in.h"
 #include "stringize.h"
@@ -47,8 +46,6 @@
 
 //namespace lambda = boost::lambda;
 
-// static instance of this manages APR init/cleanup
-static ManageAPR manager;
 
 /*****************************************************************************
 *   Helpers
