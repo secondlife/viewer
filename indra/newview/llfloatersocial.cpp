@@ -55,6 +55,8 @@ static LLRegisterPanelClassWrapper<LLSocialAccountPanel> t_panel_account("llsoci
 const S32 MAX_POSTCARD_DATASIZE = 1024 * 1024; // one megabyte
 const std::string DEFAULT_CHECKIN_LOCATION_URL = "http://maps.secondlife.com/";
 const std::string DEFAULT_CHECKIN_ICON_URL = "http://map.secondlife.com.s3.amazonaws.com/map_placeholder.png";
+const std::string DEFAULT_CHECKIN_QUERY_PARAMETERS = "?sourceid=slshare_checkin&utm_source=facebook&utm_medium=checkin&utm_campaign=slshare";
+const std::string DEFAULT_PHOTO_QUERY_PARAMETERS = "?sourceid=slshare_photo&utm_source=facebook&utm_medium=photo&utm_campaign=slshare";
 
 std::string get_map_url()
 {
@@ -345,12 +347,19 @@ void LLSocialPhotoPanel::sendPhoto()
 	bool add_location = mLocationCheckbox->getValue().asBoolean();
 	if (add_location)
 	{
+		// Get the SLURL for the location
 		LLSLURL slurl;
 		LLAgentUI::buildSLURL(slurl);
+		std::string slurl_string = slurl.getSLURLString();
+
+		// Add query parameters so Google Analytics can track incoming clicks!
+		slurl_string += DEFAULT_PHOTO_QUERY_PARAMETERS;
+
+		// Add it to the caption (pretty crude, but we don't have a better option with photos)
 		if (caption.empty())
-			caption = slurl.getSLURLString();
+			caption = slurl_string;
 		else
-			caption = caption + " " + slurl.getSLURLString();
+			caption = caption + " " + slurl_string;
 	}
 
 	// Get the image
@@ -592,6 +601,9 @@ void LLSocialCheckinPanel::sendCheckin()
 	{
 		slurl_string = DEFAULT_CHECKIN_LOCATION_URL;
 	}
+
+	// Add query parameters so Google Analytics can track incoming clicks!
+	slurl_string += DEFAULT_CHECKIN_QUERY_PARAMETERS;
     
 	// Get the region name
 	std::string region_name = gAgent.getRegion()->getName();
