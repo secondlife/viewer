@@ -1980,7 +1980,6 @@ namespace LLInitParam
 			static bool validate(const Param* p)
 			{
 				// valid only if provided
-                llassert(p);
 				return static_cast<const self_t*>(p)->isProvided();
 			}
 
