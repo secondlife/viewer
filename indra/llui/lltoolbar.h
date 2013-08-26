@@ -192,7 +192,7 @@ public:
 	bool hasCommand(const LLCommandId& commandId) const;	// is this command bound to a button in this toolbar
 	bool enableCommand(const LLCommandId& commandId, bool enabled);	// enable/disable button bound to the specified command, if it exists in this toolbar
 	bool stopCommandInProgress(const LLCommandId& commandId);	// stop command if it is currently active
-	bool flashCommand(const LLCommandId& commandId, bool flash); // flash button associated with given command, if in this toolbar
+	bool flashCommand(const LLCommandId& commandId, bool flash, bool force_flashing = false); // flash button associated with given command, if in this toolbar
 
 	void setStartDragCallback(tool_startdrag_callback_t cb)   { mStartDragItemCallback  = cb; } // connects drag and drop behavior to external logic
 	void setHandleDragCallback(tool_handledrag_callback_t cb) { mHandleDragItemCallback = cb; }

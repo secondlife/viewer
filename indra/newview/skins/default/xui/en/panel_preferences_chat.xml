@@ -14,6 +14,7 @@
       border="false"
       height="60"
       layout="topleft"
+      name="general_chat_settings" 
       top="10"
       left="13"
       width="517">
@@ -97,17 +98,10 @@
       border="false"
       height="165"
       layout="topleft"
+      name="im_notification_settings" 	
       left="13"
       width="517">
 
-    <text
-        layout="topleft"
-        height="12"
-        name="notifications"
-        left="0"
-        width="120">
-      Notifications
-    </text>
     <text
         layout="topleft"
         height="12"
@@ -138,17 +132,27 @@
           name="FlashToolbarButton"
           value="flash"/>
       <item
-          label="None"
-          name="None"
-          value="none"/>
+          label="No action"
+          name="NoAction"
+          value="noaction"/>
     </combo_box>
+    <check_box
+        control_name="PlaySoundFriendIM"
+        height="23"
+        label="Play sound"
+        layout="topleft"
+        name="play_sound_friend_im"
+        left_pad="7"
+        top_delta="-3"
+        width="28">
+    </check_box>
     <text
         layout="topleft"
         height="12"
         name="non_friend_ims"
         width="145"
         left="0"
-        top_pad="9">
+        top_pad="11">
       Non-friend IMs:
     </text>
     <combo_box
@@ -172,17 +176,27 @@
           name="FlashToolbarButton"
           value="flash"/>
       <item
-          label="None"
-          name="None"
-          value="none"/>
+          label="No action"
+          name="NoAction"
+          value="noaction"/>
     </combo_box>
+    <check_box
+        control_name="PlaySoundNonFriendIM"
+        height="23"
+        label="Play sound"
+        layout="topleft"
+        name="play_sound_non_friend_im"
+        left_pad="7"
+        top_delta="-3"
+        width="28">
+    </check_box>
     <text
         layout="topleft"
         left="0"
         height="13"
         name="conference_ims"
         width="145"
-        top_pad="9">
+        top_pad="11">
       Conference IMs:
     </text>
     <combo_box
@@ -206,17 +220,27 @@
           name="FlashToolbarButton"
           value="flash"/>
       <item
-          label="None"
-          name="None"
-          value="none"/>
+          label="No action"
+          name="NoAction"
+          value="noaction"/>
     </combo_box>
+    <check_box
+        control_name="PlaySoundConferenceIM"
+        height="23"
+        label="Play sound"
+        layout="topleft"
+        name="play_sound_conference_im"
+        left_pad="7"
+        top_delta="-3"
+        width="28">
+    </check_box>
     <text
         layout="topleft"
         left="0"
         height="13"
         name="group_chat"
         width="145"
-        top_pad="9">
+        top_pad="11">
       Group chat:
     </text>
     <combo_box
@@ -240,17 +264,27 @@
           name="FlashToolbarButton"
           value="flash"/>
       <item
-          label="None"
-          name="None"
-          value="none"/>
+          label="No action"
+          name="NoAction"
+          value="noaction"/>
     </combo_box>
+    <check_box
+        control_name="PlaySoundGroupChatIM"
+        height="23"
+        label="Play sound"
+        layout="topleft"
+        name="play_sound_group_chat_im"
+        left_pad="7"
+        top_delta="-3"
+        width="28">
+    </check_box>
     <text
         layout="topleft"
         left="0"
         height="12"
         name="nearby_chat"
         width="145"
-        top_pad="9">
+        top_pad="11">
       Nearby chat:
     </text>
     <combo_box
@@ -274,10 +308,64 @@
           name="FlashToolBarButton"
           value="flash"/>
       <item
-          label="None"
-          name="None"
-          value="none"/>
+          label="No action"
+          name="NoAction"
+          value="noaction"/>
     </combo_box>
+    <check_box
+        control_name="PlaySoundNearbyChatIM"
+        height="23"
+        label="Play sound"
+        layout="topleft"
+        name="play_sound_nearby_chat_im"
+        left_pad="7"
+        top_delta="-3"
+        width="28">
+    </check_box>
+    <text
+        layout="topleft"
+        left="0"
+        height="12"
+        name="object_ims"
+        width="145"
+        top_pad="11">
+      Object IMs:
+    </text>
+    <combo_box
+        control_name="NotificationObjectIMOptions"
+        height="23"
+        layout="topleft"
+        left_pad="5"
+        top_delta="-6"
+        name="ObjectIMOptions"
+        width="223">
+      <item
+          label="Open Conversations window"
+          name="OpenConversationsWindow"
+          value="openconversations"/>
+      <item
+          label="Pop up the message"
+          name="PopUpMessage"
+          value="toast"/>
+      <item
+          label="Flash toolbar button"
+          name="FlashToolBarButton"
+          value="flash"/>
+      <item
+          label="No action"
+          name="NoAction"
+          value="noaction"/>
+    </combo_box>
+    <check_box
+        control_name="PlaySoundObjectIM"
+        height="23"
+        label="Play sound"
+        layout="topleft"
+        name="play_sound_object_im"
+        left_pad="7"
+        top_delta="-3"
+        width="28">
+    </check_box>
     <text
         layout="topleft"
         left="0"
@@ -296,6 +384,7 @@
       border="false"
       height="50"
       layout="topleft"
+      name="play_sound_settings"  	
       left="13"
       top_pad="10"
       width="517">
@@ -358,6 +447,7 @@
   <panel
       height="50"
       layout="topleft"
+      name="log_settings" 	
       left="13"
       top_pad="10"
       width="505">

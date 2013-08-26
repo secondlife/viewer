@@ -252,11 +252,10 @@ public:
 	const std::string& 	getName() const { return mEmpty; }
 	const std::string& 	getFilterText() { return mEmpty; }
 	void 				setModified(EFilterModified behavior = FILTER_RESTART) { }
-		
-	void 				setFilterCount(S32 count) { }
-	S32 				getFilterCount() const { return 0; }
-	void 				decrementFilterCount() { }
-		
+
+  	void 				resetTime(S32 timeout) { }
+    bool                isTimedOut() { return false; }
+   
 	bool 				isDefault() const { return true; }
 	bool 				isNotDefault() const { return false; }
 	void 				markDefault() { }

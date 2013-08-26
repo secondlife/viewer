@@ -73,6 +73,8 @@ private:
 	LLTextBox*			mAvatarName;
 	LLTextBox*			mTime;
 	LLTextBox*			mMessage;
+
+	bool                mIsGroupMsg;
 };
 
 #endif // LLTOASTIMPANEL_H_

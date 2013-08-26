@@ -506,6 +506,33 @@ Add this Ability to &apos;[ROLE_NAME]&apos;?
      notext="No"
      yestext="Yes"/>
   </notification>
+  
+  <notification
+    icon="alertmodal.tga"
+    name="EjectGroupMemberWarning"
+    type="alertmodal">
+     You are about to eject [AVATAR_NAME] from the group.
+     <tag>group</tag>
+     <tag>confirm</tag>
+     <usetemplate
+      ignoretext="Confirm ejecting a participant from group"
+      name="okcancelignore"
+      notext="Cancel"
+      yestext="Eject"/>
+  </notification>
+  <notification
+    icon="alertmodal.tga"
+    name="EjectGroupMembersWarning"
+    type="alertmodal">
+     You are about to eject [COUNT] members from the group.
+     <tag>group</tag>
+     <tag>confirm</tag>
+     <usetemplate
+      ignoretext="Confirm ejecting multiple members from group"
+      name="okcancelignore"
+      notext="Cancel"
+      yestext="Eject"/>
+  </notification>
 
   <notification
    icon="alertmodal.tga"
@@ -2682,7 +2709,7 @@ Please enter a higher price.
    icon="alertmodal.tga"
    name="ConfirmItemDeleteHasLinks"
    type="alertmodal">
-At least one of the items you has link items that point to it.  If you delete this item, its links will permanently stop working.  It is strongly advised to delete the links first.
+At least one of the items has links that point to it.  If you delete this item, its links will permanently stop working.  It is strongly advised to delete the links first.
 
 Are you sure you want to delete these items?
     <tag>confirm</tag>
@@ -2724,7 +2751,7 @@ Are you sure you want to delete these items?
    icon="alertmodal.tga"
    name="ConfirmObjectDeleteNoOwn"
    type="alertmodal">
-You do not own least one of the items you have selected.
+You do not own at least one of the items you have selected.
 
 Are you sure you want to delete these items?
     <tag>confirm</tag>
@@ -2754,7 +2781,7 @@ Are you sure you want to delete these items?
    name="ConfirmObjectDeleteLockNoOwn"
    type="alertmodal">
 At least one object is locked.
-You do not own least one object.
+You do not own at least one object.
 
 Are you sure you want to delete these items?
     <tag>confirm</tag>
@@ -2769,7 +2796,7 @@ Are you sure you want to delete these items?
    name="ConfirmObjectDeleteNoCopyNoOwn"
    type="alertmodal">
 At least one object is not copyable.
-You do not own least one object.
+You do not own at least one object.
 
 Are you sure you want to delete these items?
     <tag>confirm</tag>
@@ -2785,13 +2812,13 @@ Are you sure you want to delete these items?
    type="alertmodal">
 At least one object is locked.
 At least one object is not copyable.
-You do not own least one object.
+You do not own at least one object.
 
 Are you sure you want to delete these items?
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
-     notext="cancel"
+     notext="Cancel"
      yestext="OK"/>
   </notification>
 
@@ -3705,6 +3732,17 @@ Leave Group?
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="OwnerCannotLeaveGroup"
+   type="alertmodal">
+    Unable to leave group. You cannot leave the group because you are the last owner of the group. Please assign another member to the owner role first.
+    <tag>group</tag>
+    <usetemplate
+     name="okbutton"
      yestext="OK"/>
   </notification>
 
@@ -5943,9 +5981,7 @@ Your calling card was declined.
    icon="notifytip.tga"
    name="TeleportToPerson"
    type="notifytip">
-    To contact Residents like &apos;[NAME]&apos;, click on the &quot;People&quot; button , select a Resident from the window that opens, then click &apos;IM&apos; at the
-    bottom of the window.
-    (You can also double-click on their name in the list, or right-click and choose &apos;IM&apos;).
+    To open a private conversation with someone, right-click on their avatar and choose &apos;IM&apos; from the menu.
   </notification>
 
   <notification
@@ -6573,7 +6609,7 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
    icon="notify.tga"
    name="JoinGroup"
    persist="true"
-   type="notify">
+   type="offer">
     <tag>group</tag>
 [MESSAGE]
     <form name="form">
