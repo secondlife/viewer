@@ -177,14 +177,6 @@
       <string>UserLoginInfo</string>
     </map>
 
-    <key>logevents</key>
-    <map>
-      <key>desc</key>
-      <string>Log ui events for later playback</string>
-      <key>map-to</key>
-      <string>LogEvents</string>
-    </map>
-
     <key>logmetrics</key>
     <map>
       <key>desc</key>
