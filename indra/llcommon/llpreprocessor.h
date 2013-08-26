@@ -188,4 +188,17 @@
 #elif LL_DARWIN
 #define LL_TYPEOF(exp) typeof(exp)
 #endif
+
+#define LL_TO_STRING_HELPER(x) #x
+#define LL_TO_STRING(x) LL_TO_STRING_HELPER(x)
+#define LL_FILE_LINENO(msg) __FILE__ "(" LL_TO_STRING(__LINE__) ") : " msg
+#if LL_WINDOWS
+#define LL_COMPILE_TIME_WARNING(msg) __pragma(message(LL_FILE_LINENO(msg)))
+#define LL_COMPILE_TIME_ERROR(msg) static_assert(false, msg)
+#else
+// no way to get gcc 4.2 to print a user-defined diagnostic message only when a macro is used
+#define LL_COMPILE_TIME_WARNING(msg)
+#define LL_COMPILE_TIME_ERROR(msg)
+#endif
+
 #endif	//	not LL_LINDEN_PREPROCESSOR_H
