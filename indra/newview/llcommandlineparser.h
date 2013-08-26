@@ -86,7 +86,7 @@ public:
 	 * 
 	 * Use this to handle the results of parsing. 
 	 */
-	void notify();
+	bool notify();
 	
 	/** @brief Print a description of the configured options.
 	 *

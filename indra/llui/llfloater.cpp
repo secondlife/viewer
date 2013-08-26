@@ -507,22 +507,11 @@ LLFloater::~LLFloater()
 {
 	LLFloaterReg::removeInstance(mInstanceName, mKey);
 	
-//	delete mNotificationContext;
-//	mNotificationContext = NULL;
-
-	//// am I not hosted by another floater?
-	//if (mHostHandle.isDead())
-	//{
-	//	LLFloaterView* parent = (LLFloaterView*) getParent();
-
-	//	if( parent )
-	//	{
-	//		parent->removeChild( this );
-	//	}
-	//}
-
-	// Just in case we might still have focus here, release it.
-	releaseFocus();
+	if( gFocusMgr.childHasKeyboardFocus(this))
+	{
+		// Just in case we might still have focus here, release it.
+		releaseFocus();
+	}
 
 	// This is important so that floaters with persistent rects (i.e., those
 	// created with rect control rather than an LLRect) are restored in their
@@ -1490,6 +1479,7 @@ void LLFloater::moveResizeHandlesToFront()
 	}
 }
 
+/*virtual*/
 BOOL LLFloater::isFrontmost()
 {
 	LLFloaterView* floater_view = getParentByType<LLFloaterView>();
@@ -1508,7 +1498,7 @@ void LLFloater::addDependentFloater(LLFloater* floaterp, BOOL reposition)
 		floaterp->setRect(gFloaterView->findNeighboringPosition(this, floaterp));
 		floaterp->setSnapTarget(getHandle());
 	}
-	gFloaterView->adjustToFitScreen(floaterp, FALSE);
+	gFloaterView->adjustToFitScreen(floaterp, FALSE, TRUE);
 	if (floaterp->isFrontmost())
 	{
 		// make sure to bring self and sibling floaters to front
@@ -2754,7 +2744,7 @@ void LLFloaterView::refresh()
 
 const S32 FLOATER_MIN_VISIBLE_PIXELS = 16;
 
-void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_outside)
+void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_outside, BOOL snap_in_toolbars/* = false*/)
 {
 	if (floater->getParent() != this)
 	{
@@ -2807,7 +2797,7 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 	}
 
 	// move window fully onscreen
-	if (floater->translateIntoRect( getSnapRect(), allow_partial_outside ? FLOATER_MIN_VISIBLE_PIXELS : S32_MAX ))
+	if (floater->translateIntoRect( snap_in_toolbars ? getSnapRect() : gFloaterView->getRect(), allow_partial_outside ? FLOATER_MIN_VISIBLE_PIXELS : S32_MAX ))
 	{
 		floater->clearSnapTarget();
 	}
@@ -3275,6 +3265,11 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::str
 bool LLFloater::isShown() const
 {
     return ! isMinimized() && isInVisibleChain();
+}
+
+bool LLFloater::isDetachedAndNotMinimized()
+{
+	return !getHost() && !isMinimized();
 }
 
 /* static */

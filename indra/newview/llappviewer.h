@@ -32,6 +32,7 @@
 #include "llsys.h"			// for LLOSInfo
 #include "lltimer.h"
 #include "llappcorehttp.h"
+#include <boost/optional.hpp>
 
 class LLCommandLineParser;
 class LLFrameTimer;
@@ -258,7 +259,7 @@ private:
 	bool mSavedFinalSnapshot;
 	bool mSavePerAccountSettings;		// only save per account settings if login succeeded
 
-	bool mForceGraphicsDetail;
+	boost::optional<U32> mForceGraphicsLevel;
 
     bool mQuitRequested;				// User wants to quit, may have modified documents open.
     bool mLogoutRequestSent;			// Disconnect message sent to simulator, no longer safe to send messages to the sim.
