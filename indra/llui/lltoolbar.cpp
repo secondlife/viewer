@@ -381,7 +381,7 @@ bool LLToolBar::stopCommandInProgress(const LLCommandId& commandId)
 	return (command_button != NULL);
 }
 
-bool LLToolBar::flashCommand(const LLCommandId& commandId, bool flash)
+bool LLToolBar::flashCommand(const LLCommandId& commandId, bool flash, bool force_flashing/* = false */)
 {
 	LLButton * command_button = NULL;
 
@@ -391,7 +391,7 @@ bool LLToolBar::flashCommand(const LLCommandId& commandId, bool flash)
 		if (it != mButtonMap.end())
 		{
 			command_button = it->second;
-			command_button->setFlashing(flash ? TRUE : FALSE);
+			command_button->setFlashing((BOOL)(flash),(BOOL)(force_flashing));
 		}
 	}
 

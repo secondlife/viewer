@@ -241,6 +241,7 @@ public:
 	void			center();
 
 	LLMultiFloater* getHost();
+	bool isDetachedAndNotMinimized();
 
 	void			applyTitle();
 	std::string		getCurrentTitle() const;
@@ -264,7 +265,7 @@ public:
 	static bool     isVisible(const LLFloater* floater);
 	static bool     isMinimized(const LLFloater* floater);
 	BOOL			isFirstLook() { return mFirstLook; } // EXT-2653: This function is necessary to prevent overlapping for secondary showed toasts
-	BOOL			isFrontmost();
+	virtual BOOL	isFrontmost();
 	BOOL			isDependent()					{ return !mDependeeHandle.isDead(); }
 	void			setCanMinimize(BOOL can_minimize);
 	void			setCanClose(BOOL can_close);
@@ -531,7 +532,7 @@ public:
 	LLRect			findNeighboringPosition( LLFloater* reference_floater, LLFloater* neighbor );
 
 	// Given a child of gFloaterView, make sure this view can fit entirely onscreen.
-	void			adjustToFitScreen(LLFloater* floater, BOOL allow_partial_outside);
+	void			adjustToFitScreen(LLFloater* floater, BOOL allow_partial_outside, BOOL snap_in_toolbars = false);
 
 	void			setMinimizePositionVerticalOffset(S32 offset) { mMinimizePositionVOffset = offset; }
 	void			getMinimizePosition( S32 *left, S32 *bottom);

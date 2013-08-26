@@ -114,6 +114,14 @@ public:
 private:
 	static bool onJoinGroup(const LLSD& notification, const LLSD& response);
 	static bool onLeaveGroup(const LLSD& notification, const LLSD& response);
+	
+	/**
+	 * This function is called by LLFetchLeaveGroupData upon receiving a response to a group 
+	 * members data request.
+	 */
+	static void processLeaveGroupDataResponse(const LLUUID group_id);
+
+	friend class LLFetchLeaveGroupData;
 };
 
 #endif // LL_LLGROUPACTIONS_H

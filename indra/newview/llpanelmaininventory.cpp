@@ -130,6 +130,8 @@ BOOL LLPanelMainInventory::postBuild()
 	mFilterTabs = getChild<LLTabContainer>("inventory filter tabs");
 	mFilterTabs->setCommitCallback(boost::bind(&LLPanelMainInventory::onFilterSelected, this));
 	
+    mCounterCtrl = getChild<LLUICtrl>("ItemcountText");
+    
 	//panel->getFilter().markDefault();
 
 	// Set up the default inv. panel/filter settings.
@@ -573,7 +575,7 @@ void LLPanelMainInventory::draw()
 void LLPanelMainInventory::updateItemcountText()
 {
 	// *TODO: Calling setlocale() on each frame may be inefficient.
-	LLLocale locale(LLStringUtil::getLocale());
+	//LLLocale locale(LLStringUtil::getLocale());
 	std::string item_count_string;
 	LLResMgr::getInstance()->getIntegerString(item_count_string, gInventory.getItemCount());
 
@@ -596,8 +598,7 @@ void LLPanelMainInventory::updateItemcountText()
 		text = getString("ItemcountUnknown");
 	}
 	
-	// *TODO: Cache the LLUICtrl* for the ItemcountText control
-	getChild<LLUICtrl>("ItemcountText")->setValue(text);
+    mCounterCtrl->setValue(text);
 }
 
 void LLPanelMainInventory::onFocusReceived()

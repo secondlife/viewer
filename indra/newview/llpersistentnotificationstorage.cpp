@@ -38,7 +38,8 @@
 
 LLPersistentNotificationStorage::LLPersistentNotificationStorage()
 	: LLSingleton<LLPersistentNotificationStorage>()
-	, LLNotificationStorage(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "open_notifications.xml"))
+	, LLNotificationStorage("")
+	, mLoaded(false)
 {
 }
 
@@ -97,6 +98,13 @@ void LLPersistentNotificationStorage::loadNotifications()
 
 	LL_INFOS("LLPersistentNotificationStorage") << "start loading notifications" << LL_ENDL;
 
+	if (mLoaded)
+	{
+		LL_INFOS("LLPersistentNotificationStorage") << "notifications already loaded, exiting" << LL_ENDL;
+		return;
+	}
+
+	mLoaded = true;
 	LLSD input;
 	if (!readNotifications(input) ||input.isUndefined())
 	{
@@ -148,8 +156,20 @@ void LLPersistentNotificationStorage::loadNotifications()
 	LL_INFOS("LLPersistentNotificationStorage") << "finished loading notifications" << LL_ENDL;
 }
 
+void LLPersistentNotificationStorage::initialize()
+{
+	setFileName(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "open_notifications.xml"));
+	LLNotifications::instance().getChannel("Persistent")->
+		connectChanged(boost::bind(&LLPersistentNotificationStorage::onPersistentChannelChanged, this, _1));
+}
+
 bool LLPersistentNotificationStorage::onPersistentChannelChanged(const LLSD& payload)
 {
+	// In case we received channel changed signal but haven't yet loaded notifications, do it
+	if (!mLoaded)
+	{
+		loadNotifications();
+	}
 	// we ignore "load" messages, but rewrite the persistence file on any other
 	const std::string sigtype = payload["sigtype"].asString();
 	if ("load" != sigtype)

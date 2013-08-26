@@ -212,7 +212,11 @@ private:
 	}
 	void remove_()
 	{
-		getMap_().erase(mInstanceKey);
+		typename InstanceMap::iterator iter = getMap_().find(mInstanceKey);
+		if (iter != getMap_().end())
+		{
+			getMap_().erase(iter);
+		}
 	}
 
 private:
