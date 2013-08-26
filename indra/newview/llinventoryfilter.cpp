@@ -70,11 +70,8 @@ LLInventoryFilter::LLInventoryFilter(const Params& p)
 	mFilterSubString(p.substring),
 	mCurrentGeneration(0),
 	mFirstRequiredGeneration(0),
-	mFirstSuccessGeneration(0),
-	mFilterCount(0)
+	mFirstSuccessGeneration(0)
 {
-	mNextFilterGeneration = mCurrentGeneration + 1;
-
 	// copy mFilterOps into mDefaultFilterOps
 	markDefault();
 }
@@ -92,9 +89,7 @@ bool LLInventoryFilter::check(const LLFolderViewModelItem* item)
 		return passed_clipboard;
 	}
 
-	std::string::size_type string_offset = mFilterSubString.size() ? listener->getSearchableName().find(mFilterSubString) : std::string::npos;
-
-	BOOL passed = (mFilterSubString.size() == 0 || string_offset != std::string::npos);
+	bool passed = (mFilterSubString.size() ? listener->getSearchableName().find(mFilterSubString) != std::string::npos : true);
 	passed = passed && checkAgainstFilterType(listener);
 	passed = passed && checkAgainstPermissions(listener);
 	passed = passed && checkAgainstFilterLinks(listener);
@@ -105,17 +100,12 @@ bool LLInventoryFilter::check(const LLFolderViewModelItem* item)
 
 bool LLInventoryFilter::check(const LLInventoryItem* item)
 {
-	std::string::size_type string_offset = mFilterSubString.size() ? item->getName().find(mFilterSubString) : std::string::npos;
-
+	const bool passed_string = (mFilterSubString.size() ? item->getName().find(mFilterSubString) != std::string::npos : true);
 	const bool passed_filtertype = checkAgainstFilterType(item);
 	const bool passed_permissions = checkAgainstPermissions(item);
-	const BOOL passed_clipboard = checkAgainstClipboard(item->getUUID());
-	const bool passed = (passed_filtertype 
-		&& passed_permissions
-		&& passed_clipboard 
-		&&	(mFilterSubString.size() == 0 || string_offset != std::string::npos));
+	const bool passed_clipboard = checkAgainstClipboard(item->getUUID());
 
-	return passed;
+	return passed_filtertype && passed_permissions && passed_clipboard && passed_string;
 }
 
 bool LLInventoryFilter::checkFolder(const LLFolderViewModelItem* item) const
@@ -439,7 +429,7 @@ void LLInventoryFilter::updateFilterTypes(U64 types, U64& current_types)
 		current_types = types;
 		if (more_bits_set && fewer_bits_set)
 		{
-			// neither less or more restrive, both simultaneously
+			// neither less or more restrictive, both simultaneously
 			// so we need to filter from scratch
 			setModified(FILTER_RESTART);
 		}
@@ -714,7 +704,7 @@ void LLInventoryFilter::resetDefault()
 void LLInventoryFilter::setModified(EFilterModified behavior)
 {
 	mFilterText.clear();
-	mCurrentGeneration = mNextFilterGeneration++;
+	mCurrentGeneration++;
 
 	if (mFilterModified == FILTER_NONE)
 	{
@@ -1021,21 +1011,19 @@ LLInventoryFilter::EFolderShow LLInventoryFilter::getShowFolderState() const
 	return mFilterOps.mShowFolderState; 
 }
 
-void LLInventoryFilter::setFilterCount(S32 count) 
-{ 
-	mFilterCount = count; 
-}
-S32 LLInventoryFilter::getFilterCount() const
+bool LLInventoryFilter::isTimedOut()
 {
-	return mFilterCount;
+	return mFilterTime.hasExpired();
 }
 
-void LLInventoryFilter::decrementFilterCount() 
-{ 
-	mFilterCount--; 
+void LLInventoryFilter::resetTime(S32 timeout)
+{
+	mFilterTime.reset();
+    F32 time_in_sec = (F32)(timeout)/1000.0;
+	mFilterTime.setTimerExpirySec(time_in_sec);
 }
 
-S32 LLInventoryFilter::getCurrentGeneration() const 
+S32 LLInventoryFilter::getCurrentGeneration() const
 { 
 	return mCurrentGeneration;
 }

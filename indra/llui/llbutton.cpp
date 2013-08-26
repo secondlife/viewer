@@ -644,7 +644,7 @@ void LLButton::draw()
     //  Cancel sticking of color, if the button is pressed,
 	//  or when a flashing of the previously selected button is ended
 	if (mFlashingTimer
-		&& ((selected && !mFlashingTimer->isFlashingInProgress()) || pressed))
+		&& ((selected && !mFlashingTimer->isFlashingInProgress() && !mForceFlashing) || pressed))
 	{
 		mFlashing = false;
 	}
@@ -971,8 +971,9 @@ void LLButton::setToggleState(BOOL b)
 	}
 }
 
-void LLButton::setFlashing(bool b)	
+void LLButton::setFlashing(bool b, bool force_flashing/* = false */)
 { 
+	mForceFlashing = force_flashing;
 	if (mFlashingTimer)
 	{
 		mFlashing = b; 

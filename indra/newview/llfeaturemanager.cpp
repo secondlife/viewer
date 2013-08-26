@@ -30,6 +30,7 @@
 #include <fstream>
 
 #include <boost/regex.hpp>
+#include <boost/assign/list_of.hpp>
 
 #include "llfeaturemanager.h"
 #include "lldir.h"
@@ -52,6 +53,8 @@
 #include "llboost.h"
 #include "llweb.h"
 #include "llviewershadermgr.h"
+#include "llstring.h"
+#include "stringize.h"
 
 #if LL_WINDOWS
 #include "lldxhardware.h"
@@ -185,6 +188,55 @@ void LLFeatureList::dump()
 		LL_DEBUGS("RenderInit") << fi.mName << "\t\t" << fi.mAvailable << ":" << fi.mRecommendedLevel << LL_ENDL;
 	}
 	LL_DEBUGS("RenderInit") << LL_ENDL;
+}
+
+static const std::vector<std::string> sGraphicsLevelNames = boost::assign::list_of
+	("Low")
+	("LowMid")
+	("Mid")
+	("MidHigh")
+	("High")
+	("HighUltra")
+	("Ultra")
+;
+
+U32 LLFeatureManager::getMaxGraphicsLevel() const
+{
+	return sGraphicsLevelNames.size() - 1;
+}
+
+bool LLFeatureManager::isValidGraphicsLevel(U32 level) const
+{
+	return (level <= getMaxGraphicsLevel());
+}
+
+std::string LLFeatureManager::getNameForGraphicsLevel(U32 level) const
+{
+	if (isValidGraphicsLevel(level))
+	{
+		return sGraphicsLevelNames[level];
+	}
+	return STRINGIZE("Invalid graphics level " << level << ", valid are 0 .. "
+					 << getMaxGraphicsLevel());
+}
+
+S32 LLFeatureManager::getGraphicsLevelForName(const std::string& name) const
+{
+	const std::string FixedFunction("FixedFunction");
+	std::string rname(name);
+	if (LLStringUtil::endsWith(rname, FixedFunction))
+	{
+		// chop off any "FixedFunction" suffix
+		rname = rname.substr(0, rname.length() - FixedFunction.length());
+	}
+	for (S32 i(0), iend(getMaxGraphicsLevel()); i <= iend; ++i)
+	{
+		if (sGraphicsLevelNames[i] == rname)
+		{
+			return i;
+		}
+	}
+	return -1;
 }
 
 LLFeatureList *LLFeatureManager::findMask(const std::string& name)
@@ -620,7 +672,7 @@ void LLFeatureManager::applyRecommendedSettings()
 {
 	// apply saved settings
 	// cap the level at 2 (high)
-	S32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_5));
+	U32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_5));
 
 	llinfos << "Applying Recommended Features" << llendl;
 
@@ -696,61 +748,32 @@ void LLFeatureManager::applyFeatures(bool skipFeatures)
 	}
 }
 
-void LLFeatureManager::setGraphicsLevel(S32 level, bool skipFeatures)
+void LLFeatureManager::setGraphicsLevel(U32 level, bool skipFeatures)
 {
 	LLViewerShaderMgr::sSkipReload = true;
 
 	applyBaseMasks();
-	
-	switch (level)
+
+	// if we're passed an invalid level, default to "Low"
+	std::string features(isValidGraphicsLevel(level)? getNameForGraphicsLevel(level) : "Low");
+	if (features == "Low")
 	{
-		case 0:
 #if LL_DARWIN
-			// This Mac-specific change is to insure that we force 'Basic Shaders' for all Mac
-			// systems which support them instead of falling back to fixed-function unnecessarily
-			// MAINT-2157
-			//
-			if (gGLManager.mGLVersion < 2.1f)
-			{
-				maskFeatures("LowFixedFunction");			
-			}
-			else
-			{ //same as low, but with "Basic Shaders" enabled
-				maskFeatures("Low");
-			}
+		// This Mac-specific change is to insure that we force 'Basic Shaders' for all Mac
+		// systems which support them instead of falling back to fixed-function unnecessarily
+		// MAINT-2157
+		if (gGLManager.mGLVersion < 2.1f)
 #else
-			if (gGLManager.mGLVersion < 3.f || gGLManager.mIsIntel)
-			{ //only use fixed function by default if GL version < 3.0 or this is an intel graphics chip
-				maskFeatures("LowFixedFunction");			
-			}
-			else
-			{ //same as low, but with "Basic Shaders" enabled
-				maskFeatures("Low");
-			}
+		// only use fixed function by default if GL version < 3.0 or this is an intel graphics chip
+		if (gGLManager.mGLVersion < 3.f || gGLManager.mIsIntel)
 #endif
-			break;
-		case 1:
-			maskFeatures("LowMid");
-			break;
-		case 2:
-			maskFeatures("Mid");
-			break;
-		case 3:
-			maskFeatures("MidHigh");
-			break;
-		case 4:
-			maskFeatures("High");
-			break;
-		case 5:
-			maskFeatures("HighUltra");
-			break;
-		case 6:
-			maskFeatures("Ultra");
-			break;
-		default:
-			maskFeatures("Low");
-			break;
+		{
+            // same as Low, but with "Basic Shaders" disabled
+			features = "LowFixedFunction";
+		}
 	}
+
+	maskFeatures(features);
 
 	applyFeatures(skipFeatures);
 
