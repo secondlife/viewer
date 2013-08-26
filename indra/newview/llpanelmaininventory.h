@@ -121,6 +121,7 @@ private:
 
 	LLFilterEditor*				mFilterEditor;
 	LLTabContainer*				mFilterTabs;
+    LLUICtrl*                   mCounterCtrl;
 	LLHandle<LLFloater>			mFinderHandle;
 	LLInventoryPanel*			mActivePanel;
 	bool						mResortActivePanel;

@@ -176,7 +176,10 @@ Ansariel Hiller
 	STORM-1713
 	STORM-1899
 	MAINT-2368
+	STORM-1931
 Aralara Rajal
+Arare Chantilly
+	CHUIBUG-191
 Ardy Lay
 	STORM-859
 	VWR-19499

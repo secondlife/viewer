@@ -62,9 +62,9 @@ void LLChatEntry::draw()
 {
 	if(mIsExpandable)
 	{
+		reflow();
 		expandText();
 	}
-
 	LLTextEditor::draw();
 }
 
@@ -158,19 +158,21 @@ void LLChatEntry::onValueChange(S32 start, S32 end)
     resetLabel();
 }
 
-bool LLChatEntry::useLabel()
+bool LLChatEntry::useLabel() const
 {
     return !getLength() && !mLabel.empty();
 }
 
 void LLChatEntry::onFocusReceived()
 {
-
+	LLUICtrl::onFocusReceived();
+	updateAllowingLanguageInput();
 }
 
 void LLChatEntry::onFocusLost()
 {
-
+	LLTextEditor::focusLostHelper();
+	LLUICtrl::onFocusLost();
 }
 
 BOOL LLChatEntry::handleSpecialKey(const KEY key, const MASK mask)

@@ -215,12 +215,11 @@ public:
 	void 				setModified(EFilterModified behavior = FILTER_RESTART);
 
 	// +-------------------------------------------------------------------+
-	// + Count
+	// + Time
 	// +-------------------------------------------------------------------+
-	void 				setFilterCount(S32 count);
-	S32 				getFilterCount() const;
-	void 				decrementFilterCount();
-
+	void 				resetTime(S32 timeout);
+    bool                isTimedOut();
+    
 	// +-------------------------------------------------------------------+
 	// + Default
 	// +-------------------------------------------------------------------+
@@ -262,13 +261,15 @@ private:
 	const std::string		mName;
 
 	S32						mCurrentGeneration;
+    // The following makes checking for pass/no pass possible even if the item is not checked against the current generation
+    // Any item that *did not pass* the "required generation" will *not pass* the current one
+    // Any item that *passes* the "success generation" will *pass* the current one
 	S32						mFirstRequiredGeneration;
 	S32						mFirstSuccessGeneration;
-	S32						mNextFilterGeneration;
 
-	S32						mFilterCount;
 	EFilterModified 		mFilterModified;
-
+	LLTimer                 mFilterTime;
+    
 	std::string 			mFilterText;
 	std::string 			mEmptyLookupMessage;
 };

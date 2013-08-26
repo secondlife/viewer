@@ -259,11 +259,15 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 		    break;
 	    }
 
-	    LLNotificationFormPtr modified_form(new LLNotificationForm(*notification_ptr->getForm()));
-	    modified_form->setElementEnabled("Accept", false);
-	    modified_form->setElementEnabled("Decline", false);
-	    notification_ptr->updateForm(modified_form);
-	    notification_ptr->repost();
+		// TODO: this set of calls has undesirable behavior under Windows OS (CHUI-985):
+		// here appears three additional toasts instead one modified
+		// need investigation and fix
+
+	    // LLNotificationFormPtr modified_form(new LLNotificationForm(*notification_ptr->getForm()));
+	    // modified_form->setElementEnabled("Accept", false);
+	    // modified_form->setElementEnabled("Decline", false);
+	    // notification_ptr->updateForm(modified_form);
+	    // notification_ptr->repost();
     }
 
 	return false;
@@ -2649,7 +2653,8 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			{
 				send_do_not_disturb_message(msg, from_id);
 			}
-			else
+			
+			if (!is_muted)
 			{
 				LL_INFOS("Messaging") << "Received IM_GROUP_INVITATION message." << LL_ENDL;
 				// Read the binary bucket for more information.
@@ -3673,6 +3678,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		LLSD msg_notify = LLSD(LLSD::emptyMap());
 		msg_notify["session_id"] = LLUUID();
         msg_notify["from_id"] = chat.mFromID;
+		msg_notify["source_type"] = chat.mSourceType;
         on_new_message(msg_notify);
 	}
 }
@@ -5930,6 +5936,15 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 				return true;
 			}
 		}
+		// HACK -- handle callbacks for specific alerts.
+		if( notificationID == "HomePositionSet" )
+		{
+			// save the home location image to disk
+			std::string snap_filename = gDirUtilp->getLindenUserDir();
+			snap_filename += gDirUtilp->getDirDelimiter();
+			snap_filename += SCREEN_HOME_FILENAME;
+			gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw(), FALSE, FALSE);
+		}
 		
 		LLNotificationsUtil::add(notificationID, llsdBlock);
 		return true;
@@ -6004,14 +6019,6 @@ void process_alert_core(const std::string& message, BOOL modal)
 	if ( message == "You died and have been teleported to your home location")
 	{
 		LLViewerStats::getInstance()->incStat(LLViewerStats::ST_KILLED_COUNT);
-	}
-	else if( message == "Home position set." )
-	{
-		// save the home location image to disk
-		std::string snap_filename = gDirUtilp->getLindenUserDir();
-		snap_filename += gDirUtilp->getDirDelimiter();
-		snap_filename += SCREEN_HOME_FILENAME;
-		gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw(), FALSE, FALSE);
 	}
 
 	const std::string ALERT_PREFIX("ALERT: ");
