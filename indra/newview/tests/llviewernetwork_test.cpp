@@ -37,10 +37,10 @@
 LLControlGroup::LLControlGroup(const std::string& name)
 : LLInstanceTracker<LLControlGroup, std::string>(name) {}
 LLControlGroup::~LLControlGroup() {}
-BOOL LLControlGroup::declareString(const std::string& name,
+LLControlVariable* LLControlGroup::declareString(const std::string& name,
                                    const std::string& initial_val,
                                    const std::string& comment,
-                                   BOOL persist) {return TRUE;}
+                                   LLControlVariable::ePersist persist) {return NULL;}
 void LLControlGroup::setString(const std::string& name, const std::string& val){}
 
 std::string gCmdLineLoginURI;
@@ -127,6 +127,7 @@ const char *gSampleGridFile =
 	"      <array>"
 	"        <string>myloginuri</string>"
 	"      </array>"
+	"      <key>update_query_url_base</key><string>https://update.secondlife.com/update</string>"
 	"      <key>keyname</key><string>util.foobar.lindenlab.com</string>"
 	"    </map>"
 	"  </map>"
@@ -185,6 +186,9 @@ namespace tut
 		ensure_equals("id for agni",
 					  std::string("Agni"),
 					  LLGridManager::getInstance()->getGridId("util.agni.lindenlab.com"));
+		ensure_equals("update url base for Agni", // relies on agni being the default
+					  std::string("https://update.secondlife.com/update"),
+					  LLGridManager::getInstance()->getUpdateServiceURL());
 		ensure_equals("label for agni",
 					  LLGridManager::getInstance()->getGridLabel("util.agni.lindenlab.com"),
 					  std::string("Second Life Main Grid (Agni)"));
@@ -256,6 +260,9 @@ namespace tut
 		ensure_equals("id for agni",
 					  LLGridManager::getInstance()->getGridId("util.agni.lindenlab.com"),
 					  std::string("Agni"));
+		ensure_equals("update url base for Agni", // relies on agni being the default
+					  std::string("https://update.secondlife.com/update"),
+					  LLGridManager::getInstance()->getUpdateServiceURL());
 		ensure_equals("label for agni",
 					  LLGridManager::getInstance()->getGridLabel("util.agni.lindenlab.com"),
 					  std::string("Second Life Main Grid (Agni)"));
@@ -384,6 +391,9 @@ namespace tut
 		ensure_equals("getLoginPage",
 					  LLGridManager::getInstance()->getLoginPage(),
 					  std::string("http://viewer-login.agni.lindenlab.com/"));
+		ensure_equals("update url base for Agni", // relies on agni being the default
+					  std::string("https://update.secondlife.com/update"),
+					  LLGridManager::getInstance()->getUpdateServiceURL());
 		ensure("Is Agni a production grid", LLGridManager::getInstance()->isInProductionGrid());
 		std::vector<std::string> uris;
 		LLGridManager::getInstance()->getLoginURIs(uris);
