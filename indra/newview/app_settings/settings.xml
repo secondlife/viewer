@@ -126,6 +126,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>AnalyzePerformance</key>
+    <map>
+      <key>Comment</key>
+      <string>Request performance analysis for a particular viewer run</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>AnimateTextures</key>
     <map>
       <key>Comment</key>
@@ -1738,6 +1749,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>CmdLineChannel</key>
+    <map>
+      <key>Comment</key>
+      <string>Command line specified channel name</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string />
+    </map>
     <key>CmdLineDisableVoice</key>
     <map>
       <key>Comment</key>
@@ -1753,6 +1775,17 @@
     <map>
       <key>Comment</key>
       <string>The user's grid choice or ip address.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string />
+    </map>
+    <key>CmdLineUpdateService</key>
+    <map>
+      <key>Comment</key>
+      <string>Override the url base for the update query.</string>
       <key>Persist</key>
       <integer>0</integer>
       <key>Type</key>
@@ -1783,6 +1816,17 @@
       <array>
         <string />
       </array>
+    </map>
+    <key>CmdLineLoginLocation</key>
+    <map>
+      <key>Comment</key>
+      <string>Startup destination requested on command line</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string/>
     </map>
     <key>ConnectAsGod</key>
     <map>
@@ -1915,6 +1959,17 @@
       <string>S32</string>
       <key>Value</key>
       <integer>262144</integer>
+    </map>
+    <key>CrashOnStartup</key>
+    <map>
+      <key>Comment</key>
+      <string>User-requested crash on viewer startup</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>CreateToolCopyCenters</key>
     <map>
@@ -2153,6 +2208,17 @@
       <string>Disable the code which watches for plugins that are crashed or hung</string>
       <key>Persist</key>
       <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>DebugSession</key>
+    <map>
+      <key>Comment</key>
+      <string>Request debugging for a particular viewer session</string>
+      <key>Persist</key>
+      <integer>0</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
@@ -2972,6 +3038,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>DisableCrashLogger</key>
+    <map>
+      <key>Comment</key>
+      <string>Do not send crash report to Linden server</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>DisableMouseWarp</key>
     <map>
       <key>Comment</key>
@@ -3489,16 +3566,27 @@
         <key>Value</key>
             <real>10.0</real>
         </map>
-    <key>FilterItemsPerFrame</key>
+    <key>FilterItemsMaxTimePerFrameVisible</key>
     <map>
-      <key>Comment</key>
-      <string>Maximum number of inventory items to match against search filter every frame (lower to increase framerate while searching, higher to improve search speed)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>500</integer>
+        <key>Comment</key>
+        <string>Max time devoted to items filtering per frame for visible inventory listings (in milliseconds)</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>S32</string>
+        <key>Value</key>
+        <integer>10</integer>
+    </map>
+    <key>FilterItemsMaxTimePerFrameUnvisible</key>
+    <map>
+        <key>Comment</key>
+        <string>Max time devoted to items filtering per frame for non visible inventory listings (in milliseconds)</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>S32</string>
+        <key>Value</key>
+        <integer>1</integer>
     </map>
     <key>FindLandArea</key>
     <map>
@@ -5217,6 +5305,28 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>LogMetrics</key>
+    <map>
+      <key>Comment</key>
+      <string>Log viewer metrics</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string/>
+    </map>
+    <key>LogPerformance</key>
+    <map>
+      <key>Comment</key>
+      <string>Log performance analysis for a particular viewer run</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>LogTextureNetworkTraffic</key>
     <map>
       <key>Comment</key>
@@ -6394,6 +6504,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>NoQuickTime</key>
+    <map>
+      <key>Comment</key>
+      <string>Disable QuickTime for a particular viewer run</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>NoVerifySSLCert</key>
     <map>
       <key>Comment</key>
@@ -6430,7 +6551,10 @@
     <key>NotificationConferenceIMOptions</key>
     <map>
       <key>Comment</key>
-      <string>Specifies how the UI responds to Conference IM Notifications.</string>
+      <string>
+        Specifies how the UI responds to Conference IM Notifications.
+        Allowed values: [openconversations,toast,flash,noaction]
+      </string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -6441,7 +6565,10 @@
     <key>NotificationFriendIMOptions</key>
     <map>
       <key>Comment</key>
-      <string>Specifies how the UI responds to Friend IM Notifications.</string>
+      <string>
+        Specifies how the UI responds to Friend IM Notifications.
+        Allowed values: [openconversations,toast,flash,noaction]
+      </string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -6452,7 +6579,10 @@
     <key>NotificationGroupChatOptions</key>
     <map>
       <key>Comment</key>
-      <string>Specifies how the UI responds to Group Chat Notifications.</string>
+      <string>
+        Specifies how the UI responds to Group Chat Notifications.
+        Allowed values: [openconversations,toast,flash,noaction]
+      </string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -6463,7 +6593,10 @@
     <key>NotificationNearbyChatOptions</key>
     <map>
       <key>Comment</key>
-      <string>Specifies how the UI responds to Nearby Chat Notifications.</string>
+      <string>
+        Specifies how the UI responds to Nearby Chat Notifications.
+        Allowed values: [openconversations,toast,flash,noaction]
+      </string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -6474,7 +6607,24 @@
     <key>NotificationNonFriendIMOptions</key>
     <map>
       <key>Comment</key>
-      <string>Specifies how the UI responds to Non Friend IM Notifications.</string>
+      <string>
+        Specifies how the UI responds to Non Friend IM Notifications.
+        Allowed values: [openconversations,toast,flash,noaction]
+      </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>toast</string>
+    </map>  
+    <key>NotificationObjectIMOptions</key>
+    <map>
+      <key>Comment</key>
+      <string>
+        Specifies how the UI responds to Object IM Notifications.
+        Allowed values: [openconversations,toast,flash,noaction]
+      </string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -6987,6 +7137,17 @@
       <key>Value</key>
       <real>90.0</real>
     </map>
+    <key>PlayChatAnim</key>
+    <map>
+      <key>Comment</key>
+      <string>Your avatar plays the chat animation whenever you say, shout or whisper something in nearby chat</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>PlayTypingAnim</key>
     <map>
       <key>Comment</key>
@@ -7020,6 +7181,72 @@
       <key>Value</key>
       <integer>0</integer>
     </map>  
+    <key>PlaySoundFriendIM</key>
+    <map>
+      <key>Comment</key>
+      <string>Plays a sound when friend's IM received.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>PlaySoundNonFriendIM</key>
+    <map>
+      <key>Comment</key>
+      <string>Plays a sound when non-friend's IM received.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>PlaySoundConferenceIM</key>
+    <map>
+      <key>Comment</key>
+      <string>Plays a sound when conference IM received.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>PlaySoundGroupChatIM</key>
+    <map>
+      <key>Comment</key>
+      <string>Plays a sound when group chat IM received.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>PlaySoundNearbyChatIM</key>
+    <map>
+      <key>Comment</key>
+      <string>Plays a sound when nearby chat IM received.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>PlaySoundObjectIM</key>
+    <map>
+      <key>Comment</key>
+      <string>Plays a sound when IM fom an object received.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>PlaySoundNewConversation</key>
     <map>
       <key>Comment</key>
@@ -8446,6 +8673,18 @@
     <integer>0</integer>
   </map>
 
+  <key>RenderDepthOfFieldInEditMode</key>
+  <map>
+    <key>Comment</key>
+    <string>Whether to use depth of field effect when in edit mode</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+
   <key>CameraDoFResScale</key>
   <map>
     <key>Comment</key>
@@ -9641,6 +9880,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>ReplaySession</key>
+    <map>
+      <key>Comment</key>
+      <string>Request replay of previously-recorded pilot file</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>RotateRight</key>
     <map>
@@ -12868,12 +13118,13 @@
     <key>UserLoginInfo</key>
     <map>
       <key>Comment</key>
-      <string>Users loging data.</string>
+      <string>User login data.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>LLSD</string>
       <key>Value</key>
+      <string/>
     </map>
     <key>VFSOldSize</key>
     <map>

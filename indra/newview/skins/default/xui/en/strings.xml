@@ -209,7 +209,8 @@ Please try logging in again in a minute.</string>
 	<string name="SLappAgentIM">IM</string>
 	<string name="SLappAgentPay">Pay</string>
 	<string name="SLappAgentOfferTeleport">Offer Teleport to </string>
-	<string name="SLappAgentRequestFriend">Friend Request </string>
+	<string name="SLappAgentRequestFriend">Friend Request</string>
+  <string name="SLappAgentRemoveFriend">Friend Removal</string>
 
 	<!-- ButtonToolTips, llfloater.cpp -->
 	<string name="BUTTON_CLOSE_DARWIN">Close (&#8984;W)</string>
@@ -2515,6 +2516,8 @@ Drag folders to this area and click "Send to Marketplace" to list them for sale 
 	<string name="ATTACH_HUD_BOTTOM_LEFT">HUD Bottom Left</string>
 	<string name="ATTACH_HUD_BOTTOM">HUD Bottom</string>
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">HUD Bottom Right</string>
+	<string name="ATTACH_NECK">Neck</string>
+	<string name="ATTACH_AVATAR_CENTER">Avatar Center</string>
 
 	<!-- script editor -->
 	<string name="CursorPos">Line [LINE], Column [COLUMN]</string>
@@ -3926,6 +3929,9 @@ Try enclosing path to the editor with double quotes.
   </string>
   <string name="logging_calls_enabled_log_empty">
     There are no logged conversations. After you contact someone, or someone contacts you, a log entry will be shown here.
+  </string>
+  <string name="loading_chat_logs">
+    Loading...
   </string>
   
   </strings>

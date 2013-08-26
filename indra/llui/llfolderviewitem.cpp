@@ -274,6 +274,7 @@ void LLFolderViewItem::refresh()
 	}
 
 	mLabelWidthDirty = true;
+    // Dirty the filter flag of the model from the view (CHUI-849)
 	vmi.dirtyFilter();
 }
 
@@ -943,11 +944,17 @@ void LLFolderViewFolder::addToFolder(LLFolderViewFolder* folder)
 
 static LLFastTimer::DeclareTimer FTM_ARRANGE("Arrange");
 
-// Finds width and height of this object and its children. Also
-// makes sure that this view and its children are the right size.
+// Make everything right and in the right place ready for drawing (CHUI-849)
+// * Sort everything correctly if necessary
+// * Turn widgets visible/invisible according to their model filtering state
+// * Takes animation state into account for opening/closing of folders (this makes widgets visible/invisible)
+// * Reposition visible widgets so that they line up correctly with no gap
+// * Compute the width and height of the current folder and its children
+// * Makes sure that this view and its children are the right size
 S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 {
-	// sort before laying out contents
+	// Sort before laying out contents
+    // Note that we sort from the root (CHUI-849)
 	getRoot()->getFolderViewModel()->sort(this);
 
 	LLFastTimer t2(FTM_ARRANGE);
@@ -1613,16 +1620,13 @@ void LLFolderViewFolder::addFolder(LLFolderViewFolder* folder)
 }
 
 void LLFolderViewFolder::requestArrange()
-{ 
-	if ( mLastArrangeGeneration != -1)
-	{
-		mLastArrangeGeneration = -1; 
-		// flag all items up to root
-		if (mParentFolder)
-		{
-			mParentFolder->requestArrange();
-		}
-	}
+{
+    mLastArrangeGeneration = -1;
+    // flag all items up to root
+    if (mParentFolder)
+    {
+        mParentFolder->requestArrange();
+    }
 }
 
 void LLFolderViewFolder::toggleOpen()

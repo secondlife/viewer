@@ -128,7 +128,11 @@ namespace tut
 	template<> template<>
 	void control_group_t::test<3>()
 	{
-		int results = mCG->loadFromFile(mTestConfigFile.c_str());
+		// Pass default_values = true. This tells loadFromFile() we're loading
+		// a default settings file that declares variables, rather than a user
+		// settings file. When loadFromFile() encounters an unrecognized user
+		// settings variable, it forcibly preserves it (CHOP-962).
+		int results = mCG->loadFromFile(mTestConfigFile.c_str(), true);
 		LLControlVariable* control = mCG->getControl("TestSetting");
 		LLSD new_value = 13;
 		control->setValue(new_value, FALSE);

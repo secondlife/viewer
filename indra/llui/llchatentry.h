@@ -56,14 +56,14 @@ protected:
 	LLChatEntry(const Params& p);
     /*virtual*/ void    beforeValueChange();
     /*virtual*/ void    onValueChange(S32 start, S32 end);
-    /*virtual*/ bool    useLabel();
+    /*virtual*/ bool    useLabel() const;
 
 public:
 
 	virtual void	draw();
 	virtual	void	onCommit();
-    /*virtual*/ void	onFocusReceived();
-    /*virtual*/ void	onFocusLost();
+	/*virtual*/ void	onFocusReceived();
+	/*virtual*/ void	onFocusLost();
 
 	void enableSingleLineMode(bool single_line_mode);
 	boost::signals2::connection setTextExpandedCallback(const commit_signal_t::slot_type& cb);

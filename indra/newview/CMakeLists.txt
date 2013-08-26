@@ -229,6 +229,7 @@ set(viewer_SOURCE_FILES
     llfloaterfonttest.cpp
     llfloatergesture.cpp
     llfloatergodtools.cpp
+    llfloatergotoline.cpp
     llfloatergroupinvite.cpp
     llfloatergroups.cpp
     llfloaterhandler.cpp
@@ -812,6 +813,7 @@ set(viewer_HEADER_FILES
     llfloaterfonttest.h
     llfloatergesture.h
     llfloatergodtools.h
+    llfloatergotoline.h
     llfloatergroupinvite.h
     llfloatergroups.h
     llfloaterhandler.h
@@ -1670,6 +1672,7 @@ if (WINDOWS)
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/zlib1.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/vivoxplatform.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/vivoxoal.dll
+      ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/ca-bundle.crt
       ${GOOGLE_PERF_TOOLS_SOURCE}
       ${CMAKE_CURRENT_SOURCE_DIR}/licenses-win32.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable.txt

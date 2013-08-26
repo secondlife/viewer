@@ -1808,9 +1808,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>24e735ae005f3ce7a21a09cc02cece17</string>
+              <string>2994f1e028fb200c454c12b5f7ca9108</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-slvoice/rev/231678/arch/Darwin/installer/slvoice-3.2.0002.10426-darwin-20110601.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-slvoice/rev/270464/arch/Darwin/installer/slvoice-4.5.0009.17865-darwin-20130215.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1820,9 +1820,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8a0bc982367d6fdc20a28b391cd40566</string>
+              <string>957773fff7148ffaca42b1ea4a18d192</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-slvoice/rev/231678/arch/Linux/installer/slvoice-3.2.0002.10426-linux-20110601.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-slvoice/rev/270512/arch/Linux/installer/slvoice-4.5.0009.17865-linux-20130216.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1832,9 +1832,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1e821cc7d25eabad013b7f3db260dd6b</string>
+              <string>24710eda136bfd42d6333e5609c2c74f</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-slvoice/rev/231678/arch/CYGWIN/installer/slvoice-3.2.0002.10426-windows-20110601.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-slvoice/rev/270464/arch/CYGWIN/installer/slvoice-4.5.0009.17865-windows-20130214.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>

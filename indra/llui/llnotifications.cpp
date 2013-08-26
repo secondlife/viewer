@@ -214,7 +214,7 @@ LLNotificationForm::LLNotificationForm(const std::string& name, const LLNotifica
 		}
 		else
 		{
-			LLUI::sSettingGroups["ignores"]->declareBOOL(name, show_notification, "Show notification with this name", TRUE);
+			LLUI::sSettingGroups["ignores"]->declareBOOL(name, show_notification, "Show notification with this name", LLControlVariable::PERSIST_NONDFT);
 			mIgnoreSetting = LLUI::sSettingGroups["ignores"]->getControl(name);
 		}
 	}

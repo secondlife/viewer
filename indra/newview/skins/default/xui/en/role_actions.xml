@@ -70,8 +70,8 @@
 		     longdescription="Toggle &apos;Show Place in Search&apos; and setting a parcel&apos;s category in About Land &gt; Options tab."
 		     name="land find places" value="17" />
 		<action
-		     description="Change parcel name, description, and &apos;Show Place in Search&apos; settings"
-		     longdescription="Change parcel name, description, and &apos;Show Place in Search&apos; settings. This is done in About Land &gt; Options tab."
+		     description="Change parcel name, description, and &apos;Moderate Content&apos; settings"
+		     longdescription="Change parcel name, description, and &apos;Moderate Content&apos; settings. This is done in About Land &gt; Options tab."
 		     name="land change identity" value="18" />
 		<action description="Set landing point and set teleport routing"
 		     longdescription="On a group-owned parcel, Members in a Role with this Ability can set a landing point to specify where incoming teleports arrive, and also set teleport routing for further control. This is done in About Land &gt; Options tab."
