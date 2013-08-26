@@ -149,40 +149,11 @@ void LLUpdateChecker::Implementation::completed(U32 status,
 			server_error += content["error_text"].asString();
 		}
 
-		if (status == 404)
-		{
-			if (mProtocol == sProtocolVersion)
-			{
-				mProtocol = sLegacyProtocolVersion;
-				std::string retryUrl = buildUrl(mUrlBase, mChannel, mVersion, mPlatform, mPlatformVersion, mUniqueId, mWillingToTest);
-
-				LL_WARNS("UpdaterService")
-					<< "update response using " << sProtocolVersion
-					<< " was HTTP 404 (" << server_error
-					<< "); retry with legacy protocol " << mProtocol
-					<< "\n at " << retryUrl
-					<< LL_ENDL;
-	
-				mHttpClient.get(retryUrl, this);
-			}
-			else
-			{
-				LL_WARNS("UpdaterService")
-					<< "update response using " << sLegacyProtocolVersion
-					<< " was 404 (" << server_error
-					<< "); request failed"
-					<< LL_ENDL;
-				mClient.error(reason);
-			}
-		}
-		else
-		{
-			LL_WARNS("UpdaterService") << "response error " << status
-									   << " " << reason
-									   << " (" << server_error << ")"
-									   << LL_ENDL;
-			mClient.error(reason);
-		}
+		LL_WARNS("UpdaterService") << "response error " << status
+								   << " " << reason
+								   << " (" << server_error << ")"
+								   << LL_ENDL;
+		mClient.error(reason);
 	}
 	else
 	{
