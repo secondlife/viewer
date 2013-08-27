@@ -995,7 +995,6 @@ BOOL LLView::handleUnicodeChar(llwchar uni_char, BOOL called_from_parent)
 
 BOOL LLView::handleUnicodeCharHere(llwchar uni_char )
 {
-	llwarns << "LLView::handleUnicodeCharHere - about to return false - key is not being handled - a class somewhere should implement this method" << llendl;
 	return FALSE;
 }
 
