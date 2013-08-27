@@ -7219,10 +7219,10 @@ void process_script_teleport_request(LLMessageSystem* msg, void**)
 	LLFloaterWorldMap* instance = LLFloaterWorldMap::getInstance();
 	if(instance)
 	{
-		llinfos << "Object named " << object_name 
+		LL_INFOS() << "Object named " << object_name 
 			<< " is offering TP to region "
 			<< sim_name << " position " << pos
-			<< llendl;
+			<< LL_ENDL;
 
 		instance->trackURL(sim_name, (S32)pos.mV[VX], (S32)pos.mV[VY], (S32)pos.mV[VZ]);
 		LLFloaterReg::showInstance("world_map", "center");

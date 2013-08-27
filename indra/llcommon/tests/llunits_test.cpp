@@ -271,6 +271,5 @@ namespace tut
 
 		mega_bytes = (U32Megabytes)5 + (S32Megabytes)-1;
 		ensure("can mix unsigned and signed in units addition", mega_bytes == (S32Megabytes)4);
-
 	}
 }

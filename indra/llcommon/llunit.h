@@ -82,24 +82,16 @@ struct LLUnit
 	typedef STORAGE_TYPE storage_t;
 
 	// value initialization
-	explicit LLUnit(storage_t value = storage_t())
+	LL_FORCE_INLINE explicit LLUnit(storage_t value = storage_t())
 	:	mValue(value)
 	{}
 
 	// unit initialization and conversion
 	template<typename OTHER_STORAGE, typename OTHER_UNIT>
-	LLUnit(LLUnit<OTHER_STORAGE, OTHER_UNIT> other)
+	LL_FORCE_INLINE LLUnit(LLUnit<OTHER_STORAGE, OTHER_UNIT> other)
 	:	mValue(convert(other).mValue)
 	{}
 	
-	// unit assignment
-	template<typename OTHER_STORAGE, typename OTHER_UNIT>
-	self_t& operator = (LLUnit<OTHER_STORAGE, OTHER_UNIT> other)
-	{
-		mValue = convert(other).mValue;
-		return *this;
-	}
-
 	storage_t value() const
 	{
 		return mValue;
@@ -122,14 +114,12 @@ struct LLUnit
 		*this = LLUnit<storage_t, NEW_UNIT_TYPE>(value);
 	}
 
-	template<typename OTHER_STORAGE, typename OTHER_UNIT>
-	void operator += (LLUnit<OTHER_STORAGE, OTHER_UNIT> other)
+	void operator += (self_t other)
 	{
 		mValue += convert(other).mValue;
 	}
 
-	template<typename OTHER_STORAGE, typename OTHER_UNIT>
-	void operator -= (LLUnit<OTHER_STORAGE, OTHER_UNIT> other)
+	void operator -= (self_t other)
 	{
 		mValue -= convert(other).mValue;
 	}
@@ -139,8 +129,7 @@ struct LLUnit
 		mValue *= multiplicand;
 	}
 
-	template<typename OTHER_UNIT, typename OTHER_STORAGE>
-	void operator *= (LLUnit<OTHER_STORAGE, OTHER_UNIT> multiplicand)
+	void operator *= (self_t multiplicand)
 	{
 		// spurious use of dependent type to stop gcc from triggering the static assertion before instantiating the template
 		LL_BAD_TEMPLATE_INSTANTIATION(OTHER_UNIT, "Multiplication of unit types not supported.");
@@ -151,15 +140,14 @@ struct LLUnit
 		mValue /= divisor;
 	}
 
-	template<typename OTHER_UNIT, typename OTHER_STORAGE>
-	void operator /= (LLUnit<OTHER_STORAGE, OTHER_UNIT> divisor)
+	void operator /= (self_t divisor)
 	{
 		// spurious use of dependent type to stop gcc from triggering the static assertion before instantiating the template
 		LL_BAD_TEMPLATE_INSTANTIATION(OTHER_UNIT, "Illegal in-place division of unit types.");
 	}
 
 	template<typename SOURCE_STORAGE, typename SOURCE_UNITS>
-	static self_t convert(LLUnit<SOURCE_STORAGE, SOURCE_UNITS> v) 
+	LL_FORCE_INLINE static self_t convert(LLUnit<SOURCE_STORAGE, SOURCE_UNITS> v) 
 	{ 
 		typedef typename LLResultTypePromote<STORAGE_TYPE, SOURCE_STORAGE>::type_t result_storage_t;
 		LLUnit<result_storage_t, UNIT_TYPE> result;
@@ -258,7 +246,7 @@ std::istream& operator >>(std::istream& s, LLUnitImplicit<STORAGE_TYPE, UNIT_TYP
 }
 
 template<typename S1, typename T1, typename S2, typename T2>
-LL_FORCE_INLINE S2 ll_convert_units(LLUnit<S1, T1> in, LLUnit<S2, T2>& out, ...)
+LL_FORCE_INLINE S2 ll_convert_units(LLUnit<S1, T1> in, LLUnit<S2, T2>& out)
 {
 	S2 divisor(1);
 
@@ -272,7 +260,7 @@ LL_FORCE_INLINE S2 ll_convert_units(LLUnit<S1, T1> in, LLUnit<S2, T2>& out, ...)
 		// T1 and T2 same type, just assign
 		out.value((S2)in.value());
 	}
-	else if (LLIsSameType<T2, typename T2::base_unit_t>::value)
+	else if (T1::sLevel > T2::sLevel)
 	{
 		// reduce T1
 		LLUnit<S2, typename T1::base_unit_t> new_in;
@@ -300,6 +288,10 @@ struct LLStorageType<LLUnit<STORAGE_TYPE, UNIT_TYPE> >
 {
 	typedef STORAGE_TYPE type_t;
 };
+
+// all of these operators need to perform type promotion on the storage type of the units, so they 
+// cannot be expressed as operations on identical types with implicit unit conversion 
+// e.g. typeof(S32Bytes(x) + F32Megabytes(y)) <==> F32Bytes
 
 //
 // operator +
@@ -681,6 +673,7 @@ struct LLUnitInverseLinearOps
 #define LL_DECLARE_BASE_UNIT(base_unit_name, unit_label)                                             \
 struct base_unit_name                                                                                \
 {                                                                                                    \
+	static const int sLevel = 0;                                                                     \
 	typedef base_unit_name base_unit_t;                                                              \
 	static const char* getUnitLabel() { return unit_label; }                                         \
 	template<typename T>                                                                             \
@@ -694,6 +687,7 @@ struct base_unit_name                                                           
 #define LL_DECLARE_DERIVED_UNIT(base_unit_name, conversion_operation, unit_name, unit_label)	 \
 struct unit_name                                                                                 \
 {                                                                                                \
+	static const int sLevel = base_unit_name::sLevel + 1;                                        \
 	typedef base_unit_name base_unit_t;                                                          \
 	static const char* getUnitLabel() { return unit_label; }									 \
 	template<typename T>                                                                         \
@@ -704,7 +698,7 @@ struct unit_name                                                                
 };                                                                                               \
 	                                                                                             \
 template<typename S1, typename S2>                                                               \
-S2 ll_convert_units(LLUnit<S1, unit_name> in, LLUnit<S2, base_unit_name>& out)                   \
+LL_FORCE_INLINE S2 ll_convert_units(LLUnit<S1, unit_name> in, LLUnit<S2, base_unit_name>& out)   \
 {                                                                                                \
 	typedef typename LLResultTypePromote<S1, S2>::type_t result_storage_t;                       \
 	LLUnitLinearOps<result_storage_t> op =                                                       \
@@ -714,7 +708,7 @@ S2 ll_convert_units(LLUnit<S1, unit_name> in, LLUnit<S2, base_unit_name>& out)  
 }                                                                                                \
                                                                                                  \
 template<typename S1, typename S2>                                                               \
-S2 ll_convert_units(LLUnit<S1, base_unit_name> in, LLUnit<S2, unit_name>& out)                   \
+LL_FORCE_INLINE S2 ll_convert_units(LLUnit<S1, base_unit_name> in, LLUnit<S2, unit_name>& out)   \
 {                                                                                                \
 	typedef typename LLResultTypePromote<S1, S2>::type_t result_storage_t;                       \
 	LLUnitInverseLinearOps<result_storage_t> op =                                                \

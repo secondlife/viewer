@@ -565,8 +565,9 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 
 		for (S32 frame = 1; frame <= frame_count; frame++)
 		{
-			samples += scene_load_recording.getPrevRecording(frame_count - frame).getSampleCount(*it);
-			row << ", " << scene_load_recording.getPrevRecording(frame_count - frame).getSum(*it);
+			Recording& recording = scene_load_recording.getPrevRecording(frame_count - frame);
+			samples += recording.getSampleCount(*it);
+			row << ", " << recording.getSum(*it);
 		}
 
 		row << '\n';
@@ -597,8 +598,17 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 
 		for (S32 frame = 1; frame <= frame_count; frame++)
 		{
-			samples += scene_load_recording.getPrevRecording(frame_count - frame).getSampleCount(*it);
-			row << ", " << scene_load_recording.getPrevRecording(frame_count - frame).getMean(*it);
+			Recording& recording = scene_load_recording.getPrevRecording(frame_count - frame);
+			samples += recording.getSampleCount(*it);
+			F64 mean = recording.getMean(*it);
+			if (llisnan(mean))
+			{
+				row << ", n/a";
+			}
+			else
+			{
+				row << ", " << mean;
+			}
 		}
 
 		row << '\n';
@@ -629,8 +639,17 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 
 		for (S32 frame = 1; frame <= frame_count; frame++)
 		{
-			samples += scene_load_recording.getPrevRecording(frame_count - frame).getSampleCount(*it);
-			row << ", " << scene_load_recording.getPrevRecording(frame_count - frame).getMean(*it);
+			Recording& recording = scene_load_recording.getPrevRecording(frame_count - frame);
+			samples += recording.getSampleCount(*it);
+			F64 mean = recording.getMean(*it);
+			if (llisnan(mean))
+			{
+				row << ", n/a";
+			}
+			else
+			{
+				row << ", " << mean;
+			}
 		}
 
 		row << '\n'; 
