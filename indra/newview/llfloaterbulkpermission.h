@@ -72,6 +72,7 @@ private:
 								bool is_new);
 
 	void onCloseBtn();
+	void onOkBtn();
 	void onApplyBtn();
 	void onCommitCopy();
 	void onCheckAll() { doCheckUncheckAll(TRUE); }
@@ -93,6 +94,21 @@ private:
 	LLDynamicArray<LLUUID> mObjectIDs;
 	LLUUID mCurrentObjectID;
 	BOOL mDone;
+
+	bool mBulkChangeIncludeAnimations;
+	bool mBulkChangeIncludeBodyParts;
+	bool mBulkChangeIncludeClothing;
+	bool mBulkChangeIncludeGestures;
+	bool mBulkChangeIncludeNotecards;
+	bool mBulkChangeIncludeObjects;
+	bool mBulkChangeIncludeScripts;
+	bool mBulkChangeIncludeSounds;
+	bool mBulkChangeIncludeTextures;
+	bool mBulkChangeShareWithGroup;
+	bool mBulkChangeEveryoneCopy;
+	bool mBulkChangeNextOwnerModify;
+	bool mBulkChangeNextOwnerCopy;
+	bool mBulkChangeNextOwnerTransfer;
 
 	LLUUID mID;
 

@@ -9,6 +9,13 @@
         <menu_item_call.on_click
          function="Url.Execute" />
     </menu_item_call>
+    <menu_item_call
+     label="Block..."
+     layout="topleft"
+     name="block_object">
+        <menu_item_call.on_click
+         function="Url.Block" />
+    </menu_item_call>
     <menu_item_separator
      layout="topleft" />
     <menu_item_call
