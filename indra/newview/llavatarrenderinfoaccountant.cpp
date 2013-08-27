@@ -46,8 +46,6 @@
 
 static	const std::string KEY_AGENTS = "agents";			// map
 static 	const std::string KEY_WEIGHT = "weight";			// integer
-static	const std::string KEY_GEOMETRY = "geometry";		// integer
-static	const std::string KEY_SURFACE =	"surface";			// float
 
 static	const std::string KEY_IDENTIFIER = "identifier";
 static	const std::string KEY_MESSAGE = "message";
@@ -124,14 +122,6 @@ public:
 								if (agent_info_map.has(KEY_WEIGHT))
 								{
 									((LLVOAvatar *) avatarp)->setReportedVisualComplexity(agent_info_map[KEY_WEIGHT].asInteger());
-								}
-								if (agent_info_map.has(KEY_GEOMETRY))
-								{
-									((LLVOAvatar *) avatarp)->setReportedAttachmentGeometryBytes(agent_info_map[KEY_GEOMETRY].asInteger());
-								}
-								if (agent_info_map.has(KEY_SURFACE))
-								{
-									((LLVOAvatar *) avatarp)->setReportedAttachmentSurfaceArea((F32) agent_info_map[KEY_SURFACE].asReal());
 								}
 							}
 							report_iter++;
@@ -259,24 +249,13 @@ void LLAvatarRenderInfoAccountant::sendRenderInfoToRegion(LLViewerRegion * regio
 				if (avatar->getVisualComplexity() > 0)
 				{
 					info[KEY_WEIGHT] = avatar->getVisualComplexity();
-				}
-				if (avatar->getAttachmentGeometryBytes() >= 0)
-				{
-					info[KEY_GEOMETRY] = (S32) avatar->getAttachmentGeometryBytes();
-				}
-				if (avatar->getAttachmentSurfaceArea() >= 0.f)
-				{
-					info[KEY_SURFACE] = avatar->getAttachmentSurfaceArea();
-				}
-				if (info.size() > 0)
-				{
 					agents[avatar->getID().asString()] = info;
-				}
 
-				if (logRenderInfo())
-				{
-					llinfos << "Sending avatar render info for " << avatar->getID()
-						<< ": " << info << llendl;
+					if (logRenderInfo())
+					{
+						llinfos << "Sending avatar render info for " << avatar->getID()
+							<< ": " << info << llendl;
+					}
 				}
 			}
 			iter++;
