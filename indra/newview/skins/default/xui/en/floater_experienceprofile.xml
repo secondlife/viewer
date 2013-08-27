@@ -10,18 +10,33 @@
   min_width="300"
   layout="topleft"
   name="floater_experience_profile"
-  save_rect="yes"
   single_instance="false"
   reuse_instance="false"
   title="EXPERIENCE PROFILE"
   width="358">
+  <floater.string
+    name="maturity_icon_general">
+    "Parcel_PG_Light"
+  </floater.string>
+  <floater.string
+    name="maturity_icon_moderate">
+    "Parcel_M_Light"
+  </floater.string>
+  <floater.string
+    name="maturity_icon_adult">
+    "Parcel_R_Light"
+  </floater.string>
+  <floater.string
+    name="forget_experience">
+    "Forget"
+  </floater.string>
   <panel
     background_visible="true"
     follows="all"
     height="570"
     layout="topleft"
     left="5"
-    min_height="350"
+    min_height="250"
     top="5"
     width="348"
     name="panel_experience_info">
@@ -133,7 +148,7 @@
           </layout_panel>
           <layout_panel
             follows="all"
-            height="69"
+            height="46"
             layout="topleft"
             left="0"
             top="5"
@@ -165,23 +180,6 @@
               width="288">
               someplace
             </text>
-            <button
-              follows="bottom|left"
-              height="23"
-              label="Teleport"
-              layout="topleft"
-              name="teleport_btn"
-              width="151"
-              left="10"/>
-            <button
-              follows="bottom|left"
-              height="23"
-              label="Map"
-              layout="topleft"
-              name="map_btn"
-              top_pad="-23"
-              width="101"
-              left_pad="5"/>
           </layout_panel>
           <layout_panel
             follows="all"
@@ -246,7 +244,7 @@
               left_pad="2"
               valign="center"
               name="ContentRatingText"
-              top_delta="-2"
+              top_delta="-3"
               width="188">
               Adult
             </text>
@@ -280,9 +278,30 @@
               label="Edit"
               layout="topleft"
               name="edit_btn"
-              top_pad="0"
-              width="151"
-              left="10"/>
+              top_pad="3"
+              width="80"
+              left="10"
+              visible="false"/>
+            <button
+              follows="bottom|left"
+              height="23"
+              label="Allow"
+              layout="topleft"
+              name="allow_btn"
+              width="80"
+              top_pad="-23"
+              left_pad="3"
+              enabled="false"/>
+            <button
+              follows="bottom|left"
+              height="23"
+              label="Block"
+              layout="topleft"
+              name="block_btn"
+              width="80"
+              top_pad="-23"
+              left_pad="3"
+              enabled="false"/>
 
           </layout_panel>
         </layout_stack>

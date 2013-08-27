@@ -27,17 +27,19 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llfloaterexperienceprofile.h"
+#include "llexpandabletextbox.h"
 #include "llexperiencecache.h"
-#include "llfloaterworldmap.h"
+#include "llfloaterexperienceprofile.h"
 #include "llfloaterreg.h"
 #include "lllayoutstack.h"
-#include "lltextbox.h"
 #include "llsdserialize.h"
-#include "llexpandabletextbox.h"
+#include "llslurl.h"
+#include "lltextbox.h"
 #include "lltexturectrl.h"
 #include "lltrans.h"
-#include <sstream>
+#include "llviewerregion.h"
+#include "llagent.h"
+#include "llhttpclient.h"
 
 #define XML_PANEL_EXPERIENCE_PROFILE "floater_experienceprofile.xml"
 #define TF_NAME "experience_title"
@@ -54,8 +56,6 @@
 #define PNL_LOC "location panel"
 #define PNL_MRKT "marketplace panel"
 
-#define BTN_TP "teleport_btn"
-#define BTN_MAP "show_on_map_btn"
 #define BTN_EDIT "edit_btn"
 
 
@@ -76,6 +76,29 @@ LLFloaterExperienceProfile::~LLFloaterExperienceProfile()
 }
 
 
+class IsAdminResponder : public LLHTTPClient::Responder
+{
+public:
+    IsAdminResponder(const LLHandle<LLFloaterExperienceProfile>& parent):mParent(parent)
+    {
+    }
+
+    LLHandle<LLFloaterExperienceProfile> mParent;
+
+    virtual void result(const LLSD& content)
+    {
+        LLFloaterExperienceProfile* parent = mParent.get();
+        if(!parent)
+            return;
+
+        parent->getChild<LLButton>(BTN_EDIT)->setVisible(content["status"].asBoolean());
+    }
+    virtual void error(U32 status, const std::string& reason)
+    {
+            lldebugs << "IsAdminResponder failed with code: " << status<< ", reason: " << reason << llendl;
+    }
+};
+
 BOOL LLFloaterExperienceProfile::postBuild()
 {
     mImagePanel = getChild<LLLayoutPanel>(PNL_IMAGE);
@@ -87,12 +110,22 @@ BOOL LLFloaterExperienceProfile::postBuild()
     {
         LLExperienceCache::fetch(mExperienceId, true);
         LLExperienceCache::get(mExperienceId, boost::bind(&LLFloaterExperienceProfile::experienceCallback, 
-            getDerivedHandle<LLFloaterExperienceProfile>(), _1));
+            getDerivedHandle<LLFloaterExperienceProfile>(), _1)); 
+        
+        LLViewerRegion* region = gAgent.getRegion();
+        if (region)
+        {
+            std::string lookup_url=region->getCapability("IsExperienceAdmin"); 
+            if(!lookup_url.empty())
+            {
+                LLHTTPClient::get(lookup_url+"/"+mExperienceId.asString(), new IsAdminResponder(getDerivedHandle<LLFloaterExperienceProfile>()));
+            }
+        }
     }
 
+   
 
-    childSetAction(BTN_TP, boost::bind(&LLFloaterExperienceProfile::onClickTeleport, this));
-    childSetAction(BTN_MAP, boost::bind(&LLFloaterExperienceProfile::onClickMap, this));
+
     childSetAction(BTN_EDIT, boost::bind(&LLFloaterExperienceProfile::onClickEdit, this));
 
     return TRUE;
@@ -107,40 +140,42 @@ void LLFloaterExperienceProfile::experienceCallback(LLHandle<LLFloaterExperience
     }
 }
 
-void LLFloaterExperienceProfile::onClickMap()
-{
-//     LLFloaterWorldMap::getInstance()->trackLocation(getPosGlobal());
-//     LLFloaterReg::showInstance("world_map", "center");
-
-}
-
-void LLFloaterExperienceProfile::onClickTeleport()
-{
-//     if (!getPosGlobal().isExactlyZero())
-//     {
-//         gAgent.teleportViaLocation(getPosGlobal());
-//         LLFloaterWorldMap::getInstance()->trackLocation(getPosGlobal());
-//     }
-
-}
-
 void LLFloaterExperienceProfile::onClickEdit()
 {
 
 }
 
-std::string LLFloaterExperienceProfile::getMaturityString(U8 maturity)
+bool LLFloaterExperienceProfile::setMaturityString( U8 maturity, LLTextBox* child )
 {
-    if(maturity <= SIM_ACCESS_MIN)
-        return LLTrans::getString("SIM_ACCESS_MIN");
+    LLStyle::Params style;
+    std::string access;
     if(maturity <= SIM_ACCESS_PG)
-        return LLTrans::getString("SIM_ACCESS_PG");
-    if(maturity <= SIM_ACCESS_MATURE)
-        return LLTrans::getString("SIM_ACCESS_MATURE");
-    if(maturity <= SIM_ACCESS_ADULT)
-        return LLTrans::getString("SIM_ACCESS_ADULT");
+    {
+        style.image(LLUI::getUIImage(getString("maturity_icon_general")));
+        access = LLTrans::getString("SIM_ACCESS_PG");
+    }
+    else if(maturity <= SIM_ACCESS_MATURE)
+    {
+        style.image(LLUI::getUIImage(getString("maturity_icon_moderate")));
+        access = LLTrans::getString("SIM_ACCESS_MATURE");
+    }
+    else if(maturity <= SIM_ACCESS_ADULT)
+    {
+        style.image(LLUI::getUIImage(getString("maturity_icon_adult")));
+        access = LLTrans::getString("SIM_ACCESS_ADULT");
+    }
+    else
+    {
+        return false;
+    }
+
+    child->setText(LLStringUtil::null);
+
+    child->appendImageSegment(style);
+
+    child->appendText(access, false);
     
-    return LLStringUtil::null;
+    return true;
 }
 
 
@@ -170,11 +205,21 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
     mLocationPanel->setVisible(value.length()>0);
     
     child = getChild<LLTextBox>(TF_MATURITY);
-    child->setText(getMaturityString((U8)(experience[LLExperienceCache::MATURITY].asInteger())));
+    setMaturityString((U8)(experience[LLExperienceCache::MATURITY].asInteger()), child);
 
     child = getChild<LLTextBox>(TF_OWNER);
-    child->setText(experience[LLExperienceCache::OWNER_ID].asString()); 
-    
+
+    LLUUID id = experience[LLExperienceCache::OWNER_ID].asUUID();
+    if(experience[LLExperienceCache::GROUP_ID].asUUID() == id)
+    {
+        value = LLSLURL("group", id, "inspect").getSLURLString();
+    }
+    else
+    {
+        value = LLSLURL("agent", id, "inspect").getSLURLString();
+    }
+    child->setText(value);
+        
     value=experience[LLExperienceCache::METADATA].asString();
     if(value.empty())
         return;
@@ -183,7 +228,7 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
 
     LLSD data;
 
-    std::istringstream is = std::istringstream(value);
+    std::istringstream is(value);
     if(LLSDParser::PARSE_FAILURE != parser->parse(is, data, value.size()))
     {
         if(data.has(TF_MRKT))

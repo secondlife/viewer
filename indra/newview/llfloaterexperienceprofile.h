@@ -34,6 +34,7 @@
 #include "llsd.h"
 
 class LLLayoutPanel;
+class LLTextBox;
 
 class LLFloaterExperienceProfile : public LLFloater
 {
@@ -45,16 +46,14 @@ public:
     void setExperienceId( const LLUUID& experience_id );
 
 protected:
-
-    void onClickMap();
-	void onClickTeleport();
 	void onClickEdit();
 
 
     static void experienceCallback(LLHandle<LLFloaterExperienceProfile> handle, const LLSD& experience);
+
     void refreshExperience(const LLSD& experience);
     BOOL postBuild();
-    std::string getMaturityString(U8 maturity);
+    bool setMaturityString(U8 maturity, LLTextBox* child);
     LLUUID mExperienceId;
     LLSD mExperienceDetails;
 
