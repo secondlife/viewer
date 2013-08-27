@@ -62,7 +62,8 @@
 #define aprchk(expr) aprchk_(#expr, (expr))
 static void aprchk_(const char* call, apr_status_t rv, apr_status_t expected=APR_SUCCESS)
 {
-    tut::ensure_equals(STRINGIZE(call << " => " << rv << ": " << apr_strerror_helper(rv)),
+    tut::ensure_equals(STRINGIZE(call << " => " << rv << ": " << apr_strerror_helper
+                                 (rv)),
                        rv, expected);
 }
 

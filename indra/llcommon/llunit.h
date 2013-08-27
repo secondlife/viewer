@@ -132,7 +132,7 @@ struct LLUnit
 	void operator *= (self_t multiplicand)
 	{
 		// spurious use of dependent type to stop gcc from triggering the static assertion before instantiating the template
-		LL_BAD_TEMPLATE_INSTANTIATION(OTHER_UNIT, "Multiplication of unit types not supported.");
+		LL_BAD_TEMPLATE_INSTANTIATION(STORAGE_TYPE, "Multiplication of unit types not supported.");
 	}
 
 	void operator /= (storage_t divisor)
@@ -143,7 +143,7 @@ struct LLUnit
 	void operator /= (self_t divisor)
 	{
 		// spurious use of dependent type to stop gcc from triggering the static assertion before instantiating the template
-		LL_BAD_TEMPLATE_INSTANTIATION(OTHER_UNIT, "Illegal in-place division of unit types.");
+		LL_BAD_TEMPLATE_INSTANTIATION(STORAGE_TYPE, "Illegal in-place division of unit types.");
 	}
 
 	template<typename SOURCE_STORAGE, typename SOURCE_UNITS>
