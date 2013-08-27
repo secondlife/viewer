@@ -147,35 +147,35 @@ struct LLUnit
 	}
 
 	template<typename OTHER_STORAGE_TYPE, typename OTHER_UNITS>
-	LL_FORCE_INLINE bool operator == (LLUnit<OTHER_STORAGE_TYPE, OTHER_UNITS> other)
+	LL_FORCE_INLINE bool operator == (LLUnit<OTHER_STORAGE_TYPE, OTHER_UNITS> other) const
 	{
 		return mValue == convert(other).value();
 	}
 
 	template<typename OTHER_STORAGE_TYPE, typename OTHER_UNITS>
-	LL_FORCE_INLINE bool operator != (LLUnit<OTHER_STORAGE_TYPE, OTHER_UNITS> other)
+	LL_FORCE_INLINE bool operator != (LLUnit<OTHER_STORAGE_TYPE, OTHER_UNITS> other) const
 	{
 		return mValue != convert(other).value();
 	}
 
 	template<typename OTHER_STORAGE_TYPE, typename OTHER_UNITS>
-	LL_FORCE_INLINE bool operator < (LLUnit<OTHER_STORAGE_TYPE, OTHER_UNITS> other)
+	LL_FORCE_INLINE bool operator < (LLUnit<OTHER_STORAGE_TYPE, OTHER_UNITS> other) const
 	{
 		return mValue < convert(other).value();
 	}
 
 	template<typename OTHER_STORAGE_TYPE, typename OTHER_UNITS>
-	LL_FORCE_INLINE bool operator <= (LLUnit<OTHER_STORAGE_TYPE, OTHER_UNITS> other)
+	LL_FORCE_INLINE bool operator <= (LLUnit<OTHER_STORAGE_TYPE, OTHER_UNITS> other) const
 	{
 		return mValue <= convert(other).value();
 	}
 	template<typename OTHER_STORAGE_TYPE, typename OTHER_UNITS>
-	LL_FORCE_INLINE bool operator > (LLUnit<OTHER_STORAGE_TYPE, OTHER_UNITS> other)
+	LL_FORCE_INLINE bool operator > (LLUnit<OTHER_STORAGE_TYPE, OTHER_UNITS> other) const
 	{
 		return mValue > convert(other).value();
 	}
 	template<typename OTHER_STORAGE_TYPE, typename OTHER_UNITS>
-	LL_FORCE_INLINE bool operator >= (LLUnit<OTHER_STORAGE_TYPE, OTHER_UNITS> other)
+	LL_FORCE_INLINE bool operator >= (LLUnit<OTHER_STORAGE_TYPE, OTHER_UNITS> other) const
 	{
 		return mValue >= convert(other).value();
 	}
@@ -190,6 +190,15 @@ struct LLUnit
 	{
 		self_t result;
 		result.mValue = (STORAGE_TYPE)v.value();
+		return result;
+	}
+
+	template<typename FROM_UNITS>
+	LL_FORCE_INLINE static self_t convert(LLUnit<STORAGE_TYPE, FROM_UNITS> v) 
+	{
+		self_t result;
+		STORAGE_TYPE divisor = ll_convert_units(v, result);
+		result.mValue /= divisor;
 		return result;
 	}
 
@@ -276,78 +285,78 @@ struct LLUnitImplicit : public LLUnit<STORAGE_TYPE, UNITS>
 
 	using base_t::operator ==;
 	template<typename OTHER_STORAGE_TYPE, typename OTHER_UNITS>
-	LL_FORCE_INLINE bool operator == (LLUnitImplicit<OTHER_STORAGE_TYPE, OTHER_UNITS> other)
+	LL_FORCE_INLINE bool operator == (LLUnitImplicit<OTHER_STORAGE_TYPE, OTHER_UNITS> other) const
 	{
 		return mValue == convert(other).value();
 	}
 
 	template<typename STORAGE_T>
-	LL_FORCE_INLINE bool operator == (STORAGE_T other)
+	LL_FORCE_INLINE bool operator == (STORAGE_T other) const
 	{
 		return mValue == other;
 	}
 
 	using base_t::operator !=;
 	template<typename OTHER_STORAGE_TYPE, typename OTHER_UNITS>
-	LL_FORCE_INLINE bool operator != (LLUnitImplicit<OTHER_STORAGE_TYPE, OTHER_UNITS> other)
+	LL_FORCE_INLINE bool operator != (LLUnitImplicit<OTHER_STORAGE_TYPE, OTHER_UNITS> other) const
 	{
 		return mValue != convert(other).value();
 	}
 
 	template<typename STORAGE_T>
-	LL_FORCE_INLINE bool operator != (STORAGE_T other)
+	LL_FORCE_INLINE bool operator != (STORAGE_T other) const
 	{
 		return mValue != other;
 	}
 	
 	using base_t::operator <;
 	template<typename OTHER_STORAGE_TYPE, typename OTHER_UNITS>
-	LL_FORCE_INLINE bool operator < (LLUnitImplicit<OTHER_STORAGE_TYPE, OTHER_UNITS> other)
+	LL_FORCE_INLINE bool operator < (LLUnitImplicit<OTHER_STORAGE_TYPE, OTHER_UNITS> other) const
 	{
 		return mValue < convert(other).value();
 	}
 
 	template<typename STORAGE_T>
-	LL_FORCE_INLINE bool operator < (STORAGE_T other)
+	LL_FORCE_INLINE bool operator < (STORAGE_T other) const
 	{
 		return mValue < other;
 	}
 
 	using base_t::operator <=;
 	template<typename OTHER_STORAGE_TYPE, typename OTHER_UNITS>
-	LL_FORCE_INLINE bool operator <= (LLUnitImplicit<OTHER_STORAGE_TYPE, OTHER_UNITS> other)
+	LL_FORCE_INLINE bool operator <= (LLUnitImplicit<OTHER_STORAGE_TYPE, OTHER_UNITS> other) const
 	{
 		return mValue <= convert(other).value();
 	}
 
 	template<typename STORAGE_T>
-	LL_FORCE_INLINE bool operator <= (STORAGE_T other)
+	LL_FORCE_INLINE bool operator <= (STORAGE_T other) const
 	{
 		return mValue <= other;
 	}
 
 	using base_t::operator >;
 	template<typename OTHER_STORAGE_TYPE, typename OTHER_UNITS>
-	LL_FORCE_INLINE bool operator > (LLUnitImplicit<OTHER_STORAGE_TYPE, OTHER_UNITS> other)
+	LL_FORCE_INLINE bool operator > (LLUnitImplicit<OTHER_STORAGE_TYPE, OTHER_UNITS> other) const
 	{
 		return mValue > convert(other).value();
 	}
 
 	template<typename STORAGE_T>
-	LL_FORCE_INLINE bool operator > (STORAGE_T other)
+	LL_FORCE_INLINE bool operator > (STORAGE_T other) const
 	{
 		return mValue > other;
 	}
 
 	using base_t::operator >=;
 	template<typename OTHER_STORAGE_TYPE, typename OTHER_UNITS>
-	LL_FORCE_INLINE bool operator >= (LLUnitImplicit<OTHER_STORAGE_TYPE, OTHER_UNITS> other)
+	LL_FORCE_INLINE bool operator >= (LLUnitImplicit<OTHER_STORAGE_TYPE, OTHER_UNITS> other) const
 	{
 		return mValue >= convert(other).value();
 	}
 
 	template<typename STORAGE_T>
-	LL_FORCE_INLINE bool operator >= (STORAGE_T other)
+	LL_FORCE_INLINE bool operator >= (STORAGE_T other) const
 	{
 		return mValue >= other;
 	}
@@ -670,16 +679,14 @@ struct LLUnitLinearOps
 	template<typename OTHER_T>
 	self_t operator + (OTHER_T other)
 	{
-		mValue /= mDivisor;
-		mValue += other;
+		mValue += other * mDivisor;
 		return *this;
 	}
 
 	template<typename OTHER_T>
 	self_t operator - (OTHER_T other)
 	{
-		mValue /= mDivisor;
-		mValue -= other;
+		mValue -= other * mDivisor;
 		return *this;
 	}
 
@@ -694,7 +701,8 @@ struct LLUnitInverseLinearOps
 
 	LLUnitInverseLinearOps(T val) 
 	:	mValue(val),
-		mDivisor(1)
+		mDivisor(1),
+		mMultiplicand(1)
 	{}
 
 	template<typename OTHER_T>
@@ -708,27 +716,27 @@ struct LLUnitInverseLinearOps
 	self_t operator / (OTHER_T other)
 	{
 		mValue *= other;
+		mMultiplicand *= other;
 		return *this;
 	}
 
 	template<typename OTHER_T>
 	self_t operator + (OTHER_T other)
 	{
-		mValue /= mDivisor;
-		mValue -= other;
+		mValue -= other * mMultiplicand;
 		return *this;
 	}
 
 	template<typename OTHER_T>
 	self_t operator - (OTHER_T other)
 	{
-		mValue /= mDivisor;
-		mValue += other;
+		mValue += other * mMultiplicand;
 		return *this;
 	}
 
 	T mValue;
 	T mDivisor;
+	T mMultiplicand;
 };
 
 #define LL_DECLARE_BASE_UNIT(base_unit_name, unit_label)                                             \
@@ -762,20 +770,20 @@ template<typename S1, typename S2>                                              
 LL_FORCE_INLINE S2 ll_convert_units(LLUnit<S1, unit_name> in, LLUnit<S2, base_unit_name>& out)   \
 {                                                                                                \
 	typedef typename LLResultTypePromote<S1, S2>::type_t result_storage_t;                       \
-	LLUnitInverseLinearOps<result_storage_t> op =                                                \
+	LLUnitInverseLinearOps<result_storage_t> result =                                            \
 		LLUnitInverseLinearOps<result_storage_t>(in.value()) conversion_operation;               \
-	out = LLUnit<S2, base_unit_name>((S2)op.mValue);	                                         \
-	return op.mDivisor;                                                                          \
+	out = LLUnit<S2, base_unit_name>((S2)result.mValue);	                                     \
+	return result.mDivisor;                                                                      \
 }                                                                                                \
                                                                                                  \
 template<typename S1, typename S2>                                                               \
 LL_FORCE_INLINE S2 ll_convert_units(LLUnit<S1, base_unit_name> in, LLUnit<S2, unit_name>& out)   \
 {                                                                                                \
 	typedef typename LLResultTypePromote<S1, S2>::type_t result_storage_t;                       \
-	LLUnitLinearOps<result_storage_t> op =                                                       \
+	LLUnitLinearOps<result_storage_t> result =                                                   \
 		LLUnitLinearOps<result_storage_t>(in.value()) conversion_operation;				         \
-	out = LLUnit<S2, unit_name>((S2)op.mValue);                                                  \
-	return op.mDivisor;                                                                          \
+	out = LLUnit<S2, unit_name>((S2)result.mValue);                                              \
+	return result.mDivisor;                                                                      \
 }                                                                                               
 
 #define LL_DECLARE_UNIT_TYPEDEFS(ns, unit_name)                         \

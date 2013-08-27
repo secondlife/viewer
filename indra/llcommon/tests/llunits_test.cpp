@@ -42,6 +42,18 @@ LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Quatloos);
 LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Latinum);
 LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Solari);
 
+namespace LLUnits
+{
+	LL_DECLARE_BASE_UNIT(Celcius, "c");
+	LL_DECLARE_DERIVED_UNIT(Fahrenheit, "f", Celcius, * 9 / 5 + 32);
+	LL_DECLARE_DERIVED_UNIT(Kelvin, "k", Celcius, + 273.15f);
+}
+
+LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Celcius);
+LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Fahrenheit);
+LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Kelvin);
+
+
 namespace tut
 {
 	using namespace LLUnits;
@@ -328,8 +340,8 @@ namespace tut
 		ensure("GHz -> Hz conversion", Hz.value() == 1000 * 1000 * 1000);
 
 		F32Radians rad(6.2831853071795f);
-		F32Degrees deg(rad);
-		ensure("radians -> degrees conversion", deg.value() > 359 && deg.value() < 361);
+		S32Degrees deg(rad);
+		ensure("radians -> degrees conversion", deg.value() == 360);
 
 		F32Percent percent(50);
 		F32Ratio ratio(percent);
@@ -338,5 +350,29 @@ namespace tut
 		U32Kilotriangles ktris(1);
 		U32Triangles tris(ktris);
 		ensure("kilotriangles -> triangles conversion", tris.value() == 1000);
+	}
+
+	bool value_near(F32 value, F32 target, F32 threshold)
+	{
+		return fabsf(value - target) < threshold;
+	}
+
+	// linear transforms
+	template<> template<>
+	void units_object_t::test<10>()
+	{
+		F32Celcius float_celcius(100);
+		F32Fahrenheit float_fahrenheit(float_celcius);
+		ensure("floating point celcius -> fahrenheit conversion using linear transform", value_near(float_fahrenheit.value(), 212, 0.1f) );
+
+		float_celcius = float_fahrenheit;
+		ensure("floating point fahrenheit -> celcius conversion using linear transform (round trip)", value_near(float_celcius.value(), 100.f, 0.1f) );
+
+		S32Celcius int_celcius(100);
+		S32Fahrenheit int_fahrenheit(int_celcius);
+		ensure("integer celcius -> fahrenheit conversion using linear transform", int_fahrenheit.value() == 212);
+
+		int_celcius = int_fahrenheit;
+		ensure("integer fahrenheit -> celcius conversion using linear transform (round trip)", int_celcius.value() == 100);
 	}
 }
