@@ -208,8 +208,6 @@ const S32 OBJECT_PHYSICS = 21;
 const S32 OBJECT_PHANTOM = 22;
 const S32 OBJECT_TEMP_ON_REZ = 23;
 const S32 OBJECT_RENDER_WEIGHT = 24;
-const S32 OBJECT_ATTACHMENT_GEOMETRY_BYTES = 25;
-const S32 OBJECT_ATTACHMENT_SURFACE_AREA = 26;
 
 // llTextBox() magic token string - yes this is a hack.  sue me.
 char const* const TEXTBOX_MAGIC_TOKEN = "!!llTextBox!!";

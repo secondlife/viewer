@@ -290,8 +290,6 @@ int yyerror(const char *fmt, ...);
 "OBJECT_PHANTOM"				{ count(); yylval.ival = OBJECT_PHANTOM; return(INTEGER_CONSTANT); }
 "OBJECT_TEMP_ON_REZ"			{ count(); yylval.ival = OBJECT_TEMP_ON_REZ; return(INTEGER_CONSTANT); }
 "OBJECT_RENDER_WEIGHT"			{ count(); yylval.ival = OBJECT_RENDER_WEIGHT; return(INTEGER_CONSTANT); }
-"OBJECT_ATTACHMENT_GEOMETRY_BYTES"		{ count(); yylval.ival = OBJECT_ATTACHMENT_GEOMETRY_BYTES; return(INTEGER_CONSTANT); }
-"OBJECT_ATTACHMENT_SURFACE_AREA"		{ count(); yylval.ival = OBJECT_ATTACHMENT_SURFACE_AREA; return(INTEGER_CONSTANT); }
 
 "TYPE_INTEGER"			{ count(); yylval.ival = LST_INTEGER; return(INTEGER_CONSTANT); }	
 "TYPE_FLOAT"			{ count(); yylval.ival = LST_FLOATINGPOINT; return(INTEGER_CONSTANT); }	
