@@ -760,15 +760,15 @@ LLView* LLView::childrenHandleMouseEvent(const METHOD& method, S32 x, S32 y, XDA
 		if ((viewp->*method)( local_x, local_y, extra )
 			|| (allow_mouse_block && viewp->blockMouseEvent( local_x, local_y )))
 		{
-		lldebugs << "LLView::childrenHandleMouseEvent calling updatemouseeventinfo - local_x|global x  "<< local_x << " " << x	<< "local/global y " << local_y << " " << y << llendl;
-		lldebugs << "LLView::childrenHandleMouseEvent  getPathname for viewp result: " << viewp->getPathname() << "for this view: " << getPathname() << llendl;
+			lldebugs << "LLView::childrenHandleMouseEvent calling updatemouseeventinfo - local_x|global x  "<< local_x << " " << x	<< "local/global y " << local_y << " " << y << llendl;
+			lldebugs << "LLView::childrenHandleMouseEvent  getPathname for viewp result: " << viewp->getPathname() << "for this view: " << getPathname() << llendl;
 
-		LLViewerEventRecorder::instance().updateMouseEventInfo(x,y,-55,-55,getPathname()); 
+			LLViewerEventRecorder::instance().updateMouseEventInfo(x,y,-55,-55,getPathname()); 
 
-		// This is NOT event recording related
-		viewp->logMouseEvent();
+			// This is NOT event recording related
+			viewp->logMouseEvent();
 
-		return viewp;
+			return viewp;
 		}
 	}
 	return NULL;
@@ -936,7 +936,8 @@ BOOL LLView::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 			// For event logging we don't care which widget handles it
 			// So we capture the key at the end of this function once we know if it was handled
 			handled = handleKeyHere( key, mask );
-			if (handled) {
+			if (handled)
+			{
 				llwarns << "Key handled by " << getName() << llendl;
 			}
 		}
@@ -985,7 +986,8 @@ BOOL LLView::handleUnicodeChar(llwchar uni_char, BOOL called_from_parent)
 		handled = mParentView->handleUnicodeChar(uni_char, FALSE);
 	}
 
-	if (handled) {
+	if (handled)
+	{
 		LLViewerEventRecorder::instance().logKeyUnicodeEvent(uni_char);
 	}
 	
@@ -1018,21 +1020,16 @@ BOOL LLView::hasMouseCapture()
 
 BOOL LLView::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-
-
 	LLView* r = childrenHandleMouseUp( x, y, mask );
 
 	return (r!=NULL);
-
 }
 
 BOOL LLView::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-
 	LLView* r= childrenHandleMouseDown(x, y, mask );
 
 	return (r!=NULL);
-
 }
 
 BOOL LLView::handleDoubleClick(S32 x, S32 y, MASK mask)
