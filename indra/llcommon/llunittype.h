@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLUNIT_H
-#define LL_LLUNIT_H
+#ifndef LL_UNITTYPE_H
+#define LL_UNITTYPE_H
 
 #include "stdtypes.h"
 #include "llpreprocessor.h"
@@ -684,7 +684,7 @@ struct base_unit_name                                                           
 }
 
 
-#define LL_DECLARE_DERIVED_UNIT(base_unit_name, conversion_operation, unit_name, unit_label)	 \
+#define LL_DECLARE_DERIVED_UNIT(unit_name, unit_label, base_unit_name, conversion_operation)	 \
 struct unit_name                                                                                 \
 {                                                                                                \
 	static const int sLevel = base_unit_name::sLevel + 1;                                        \
@@ -701,8 +701,8 @@ template<typename S1, typename S2>                                              
 LL_FORCE_INLINE S2 ll_convert_units(LLUnit<S1, unit_name> in, LLUnit<S2, base_unit_name>& out)   \
 {                                                                                                \
 	typedef typename LLResultTypePromote<S1, S2>::type_t result_storage_t;                       \
-	LLUnitLinearOps<result_storage_t> op =                                                       \
-		LLUnitLinearOps<result_storage_t>(in.value()) conversion_operation;                      \
+	LLUnitInverseLinearOps<result_storage_t> op =                                                \
+		LLUnitInverseLinearOps<result_storage_t>(in.value()) conversion_operation;               \
 	out = LLUnit<S2, base_unit_name>((S2)op.mValue);	                                         \
 	return op.mDivisor;                                                                          \
 }                                                                                                \
@@ -711,8 +711,8 @@ template<typename S1, typename S2>                                              
 LL_FORCE_INLINE S2 ll_convert_units(LLUnit<S1, base_unit_name> in, LLUnit<S2, unit_name>& out)   \
 {                                                                                                \
 	typedef typename LLResultTypePromote<S1, S2>::type_t result_storage_t;                       \
-	LLUnitInverseLinearOps<result_storage_t> op =                                                \
-		LLUnitInverseLinearOps<result_storage_t>(in.value()) conversion_operation;               \
+	LLUnitLinearOps<result_storage_t> op =                                                       \
+		LLUnitLinearOps<result_storage_t>(in.value()) conversion_operation;				         \
 	out = LLUnit<S2, unit_name>((S2)op.mValue);                                                  \
 	return op.mDivisor;                                                                          \
 }                                                                                               
@@ -731,100 +731,4 @@ LL_FORCE_INLINE S2 ll_convert_units(LLUnit<S1, base_unit_name> in, LLUnit<S2, un
 	typedef LLUnit<U64, ns::unit_name> U64##unit_name;                  \
 	typedef LLUnitImplicit<U64, ns::unit_name> U64##unit_name##Implicit
 
-//
-// Unit declarations
-//
-
-namespace LLUnits
-{
-LL_DECLARE_BASE_UNIT(Bytes, "B");
-// technically, these are kibibytes, mibibytes, etc. but we should stick with commonly accepted terminology
-LL_DECLARE_DERIVED_UNIT(Bytes, * 1024,			Kilobytes, "KB");
-LL_DECLARE_DERIVED_UNIT(Kilobytes, * 1024,		Megabytes, "MB");
-LL_DECLARE_DERIVED_UNIT(Megabytes, * 1024,		Gigabytes, "GB");
-}
-
-LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Bytes);
-LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Kilobytes);
-LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Megabytes);
-LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Gigabytes);
-
-namespace LLUnits
-{
-// technically, these are kibibits, mibibits, etc. but we should stick with commonly accepted terminology
-LL_DECLARE_DERIVED_UNIT(Bytes, / 8,				Bits, "b");
-LL_DECLARE_DERIVED_UNIT(Bits, * 1024,			Kilobits, "Kb");
-LL_DECLARE_DERIVED_UNIT(Kilobits, * 1024,		Megabits, "Mb");  
-LL_DECLARE_DERIVED_UNIT(Megabits, * 1024,		Gigabits, "Gb");
-}
-
-LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Bits);
-LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Kilobits);
-LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Megabits);
-LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Gigabits);
-
-namespace LLUnits
-{
-LL_DECLARE_BASE_UNIT(Seconds, "s");
-LL_DECLARE_DERIVED_UNIT(Seconds, * 60,			Minutes, "min");
-LL_DECLARE_DERIVED_UNIT(Minutes, * 60,			Hours, "h");
-LL_DECLARE_DERIVED_UNIT(Hours, * 24,			Days, "d");
-LL_DECLARE_DERIVED_UNIT(Seconds, / 1000,		Milliseconds, "ms");
-LL_DECLARE_DERIVED_UNIT(Milliseconds, / 1000,	Microseconds, "\x09\x3cs");
-LL_DECLARE_DERIVED_UNIT(Microseconds, / 1000,	Nanoseconds, "ns");
-}
-
-LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Seconds);
-LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Minutes);
-LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Hours);
-LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Days);
-LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Milliseconds);
-LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Microseconds);
-LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Nanoseconds);
-
-namespace LLUnits
-{
-LL_DECLARE_BASE_UNIT(Meters, "m");
-LL_DECLARE_DERIVED_UNIT(Meters, * 1000,			Kilometers, "km");
-LL_DECLARE_DERIVED_UNIT(Meters, / 100,			Centimeters, "cm");
-LL_DECLARE_DERIVED_UNIT(Meters, / 1000,			Millimeters, "mm");
-}
-
-LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Meters);
-LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Kilometers);
-LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Centimeters);
-LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Millimeters);
-
-namespace LLUnits
-{
-// rare units
-LL_DECLARE_BASE_UNIT(Hertz, "Hz");
-LL_DECLARE_DERIVED_UNIT(Hertz, * 1000,			Kilohertz, "KHz");
-LL_DECLARE_DERIVED_UNIT(Kilohertz, * 1000,		Megahertz, "MHz");
-LL_DECLARE_DERIVED_UNIT(Megahertz, * 1000,		Gigahertz, "GHz");
-
-LL_DECLARE_BASE_UNIT(Radians, "rad");
-LL_DECLARE_DERIVED_UNIT(Radians, / 57.29578f,	Degrees, "deg");
-
-LL_DECLARE_BASE_UNIT(Percent, "%");
-LL_DECLARE_DERIVED_UNIT(Percent, * 100,			Ratio, "x");
-
-LL_DECLARE_BASE_UNIT(Triangles, "tris");
-LL_DECLARE_DERIVED_UNIT(Triangles, * 1000,		Kilotriangles, "ktris");
-
-} // namespace LLUnits
-
-// rare units
-LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Hertz);
-LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Kilohertz);
-LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Megahertz);
-LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Gigahertz);
-LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Radians);
-LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Degrees);
-LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Percent);
-LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Ratio);
-LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Triangles);
-LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Kilotriangles);
-
-
-#endif // LL_LLUNIT_H
+#endif //LL_UNITTYPE_H

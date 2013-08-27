@@ -27,15 +27,15 @@
 
 #include "linden_common.h"
 
-#include "llunit.h"
+#include "llunits.h"
 #include "../test/lltut.h"
 
 namespace LLUnits
 {
 	// using powers of 2 to allow strict floating point equality
 	LL_DECLARE_BASE_UNIT(Quatloos, "Quat");
-	LL_DECLARE_DERIVED_UNIT(Quatloos, * 4, Latinum, "Lat");
-	LL_DECLARE_DERIVED_UNIT(Latinum, / 16, Solari, "Sol");
+	LL_DECLARE_DERIVED_UNIT(Latinum, "Lat", Quatloos, / 4);
+	LL_DECLARE_DERIVED_UNIT(Solari, "Sol", Latinum, * 16);
 }
 
 LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Quatloos);
@@ -256,6 +256,12 @@ namespace tut
 		// conversion of implicits
 		LLUnitImplicit<F32, Latinum> latinum_implicit(2);
 		ensure("implicit units of different types are comparable", latinum_implicit * 2 == quatloos_implicit);
+
+		quatloos_implicit += F32Quatloos(10);
+		ensure("can add-assign explicit units", quatloos_implicit == 26);
+
+		quatloos_implicit -= F32Quatloos(10);
+		ensure("can subtract-assign explicit units", quatloos_implicit == 16);
 	}
 
 	// precision tests
@@ -271,5 +277,66 @@ namespace tut
 
 		mega_bytes = (U32Megabytes)5 + (S32Megabytes)-1;
 		ensure("can mix unsigned and signed in units addition", mega_bytes == (S32Megabytes)4);
+	}
+
+	// default units
+	template<> template<>
+	void units_object_t::test<9>()
+	{
+		U32Gigabytes GB(1);
+		U32Megabytes MB(GB);
+		U32Kilobytes KB(GB);
+		U32Bytes B(GB);
+
+		ensure("GB -> MB conversion", MB.value() == 1024);
+		ensure("GB -> KB conversion", KB.value() == 1024 * 1024);
+		ensure("GB -> B conversion", B.value() == 1024 * 1024 * 1024);
+
+		KB = U32Kilobytes(1);
+		U32Kilobits Kb(KB);
+		U32Bits b(KB);
+		ensure("KB -> Kb conversion", Kb.value() == 8);
+		ensure("KB -> b conversion", b.value() == 8 * 1024);
+
+		U32Days days(1);
+		U32Hours hours(days);
+		U32Minutes minutes(days);
+		U32Seconds seconds(days);
+		U32Milliseconds ms(days);
+		
+		ensure("days -> hours conversion", hours.value() == 24);
+		ensure("days -> minutes conversion", minutes.value() == 24 * 60);
+		ensure("days -> seconds conversion", seconds.value() == 24 * 60 * 60);
+		ensure("days -> ms conversion", ms.value() == 24 * 60 * 60 * 1000);
+
+		U32Kilometers km(1);
+		U32Meters m(km);
+		U32Centimeters cm(km);
+		U32Millimeters mm(km);
+
+		ensure("km -> m conversion", m.value() == 1000);
+		ensure("km -> cm conversion", cm.value() == 1000 * 100);
+		ensure("km -> mm conversion", mm.value() == 1000 * 1000);
+		
+		U32Gigahertz GHz(1);
+		U32Megahertz MHz(GHz);
+		U32Kilohertz KHz(GHz);
+		U32Hertz	 Hz(GHz);
+
+		ensure("GHz -> MHz conversion", MHz.value() == 1000);
+		ensure("GHz -> KHz conversion", KHz.value() == 1000 * 1000);
+		ensure("GHz -> Hz conversion", Hz.value() == 1000 * 1000 * 1000);
+
+		F32Radians rad(6.2831853071795f);
+		F32Degrees deg(rad);
+		ensure("radians -> degrees conversion", deg.value() > 359 && deg.value() < 361);
+
+		F32Percent percent(50);
+		F32Ratio ratio(percent);
+		ensure("percent -> ratio conversion", ratio.value() == 0.5f);
+
+		U32Kilotriangles ktris(1);
+		U32Triangles tris(ktris);
+		ensure("kilotriangles -> triangles conversion", tris.value() == 1000);
 	}
 }

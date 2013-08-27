@@ -34,7 +34,7 @@
 #include "llpointer.h"
 #include "llrefcount.h"
 #include "v2math.h"
-#include "llunit.h"
+#include "llunits.h"
 
 #include "llrender.h"
 class LLTextureAtlas ;

@@ -31,7 +31,7 @@
 #include <vector>
 
 #include "llframetimer.h"
-#include "llunit.h"
+#include "llunits.h"
 
 class LL_COMMON_API LLSmoothInterpolation 
 {

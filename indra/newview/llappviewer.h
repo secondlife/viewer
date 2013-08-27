@@ -32,7 +32,7 @@
 #include "llsys.h"			// for LLOSInfo
 #include "lltimer.h"
 #include "llappcorehttp.h"
-#include "llunit.h"
+#include "llunits.h"
 
 class LLCommandLineParser;
 class LLFrameTimer;

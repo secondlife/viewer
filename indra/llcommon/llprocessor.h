@@ -27,7 +27,7 @@
 
 #ifndef LLPROCESSOR_H
 #define LLPROCESSOR_H
-#include "llunit.h"
+#include "llunits.h"
 
 class LLProcessorInfoImpl;
 

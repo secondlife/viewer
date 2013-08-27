@@ -32,7 +32,7 @@
 #include "llsingleton.h"
 #include "lltreeiterators.h"
 #include "llsdserialize.h"
-#include "llunit.h"
+#include "llunits.h"
 #include "llsd.h"
 #include "lltracerecording.h"
 #include "lltracethreadrecorder.h"

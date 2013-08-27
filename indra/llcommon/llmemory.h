@@ -27,7 +27,7 @@
 #define LLMEMORY_H
 
 #include "linden_common.h"
-#include "llunit.h"
+#include "llunits.h"
 #if !LL_WINDOWS
 #include <stdint.h>
 #endif

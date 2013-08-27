@@ -209,7 +209,8 @@ set(llcommon_HEADER_FILES
     lltracerecording.h
     lltracethreadrecorder.h
     lltreeiterators.h
-    llunit.h
+    llunits.h
+    llunittype.h
     lluri.h
     lluuid.h
 	llwin32headers.h

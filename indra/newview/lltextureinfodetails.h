@@ -28,7 +28,7 @@
 #define LL_LLTEXTUREINFODETAILS_H
 
 #include "lluuid.h"
-#include "llunit.h"
+#include "llunits.h"
 
 struct LLTextureInfoDetails
 {

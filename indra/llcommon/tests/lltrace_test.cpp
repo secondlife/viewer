@@ -36,12 +36,12 @@ namespace LLUnits
 {
 	// using powers of 2 to allow strict floating point equality
 	LL_DECLARE_BASE_UNIT(Ounces, "oz");
-	LL_DECLARE_DERIVED_UNIT(Ounces, * 12, TallCup, "");
-	LL_DECLARE_DERIVED_UNIT(Ounces, * 16, GrandeCup, "");
-	LL_DECLARE_DERIVED_UNIT(Ounces, * 20, VentiCup, "");
+	LL_DECLARE_DERIVED_UNIT(TallCup, "", Ounces, / 12);
+	LL_DECLARE_DERIVED_UNIT(GrandeCup, "", Ounces, / 16);
+	LL_DECLARE_DERIVED_UNIT(VentiCup, "", Ounces, / 20);
 
 	LL_DECLARE_BASE_UNIT(Grams, "g");
-	LL_DECLARE_DERIVED_UNIT(Grams, / 1000, Milligrams, "mg");
+	LL_DECLARE_DERIVED_UNIT(Milligrams, "mg", Grams, * 1000);
 }
 
 LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Ounces);
