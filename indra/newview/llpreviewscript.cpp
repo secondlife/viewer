@@ -86,6 +86,7 @@
 #include "lltrans.h"
 #include "llviewercontrol.h"
 #include "llappviewer.h"
+#include "llfloatergotoline.h"
 #include "llexperiencecache.h"
 #include "llfloaterexperienceprofile.h"
 #include "llexperienceassociationresponder.h"
@@ -216,12 +217,17 @@ private:
 	LLScriptEdCore* mEditorCore;
 
 	static LLFloaterScriptSearch*	sInstance;
+
+protected:
+	LLLineEditor*			mSearchBox;
+        void onSearchBoxCommit();
 };
 
 LLFloaterScriptSearch* LLFloaterScriptSearch::sInstance = NULL;
 
 LLFloaterScriptSearch::LLFloaterScriptSearch(LLScriptEdCore* editor_core)
 :	LLFloater(LLSD()),
+	mSearchBox(NULL),
 	mEditorCore(editor_core)
 {
 	buildFromFile("floater_script_search.xml");
@@ -244,6 +250,9 @@ LLFloaterScriptSearch::LLFloaterScriptSearch(LLScriptEdCore* editor_core)
 
 BOOL LLFloaterScriptSearch::postBuild()
 {
+	mSearchBox = getChild<LLLineEditor>("search_text");
+	mSearchBox->setCommitCallback(boost::bind(&LLFloaterScriptSearch::onSearchBoxCommit, this));
+	mSearchBox->setCommitOnFocusLost(FALSE);
 	childSetAction("search_btn", onBtnSearch,this);
 	childSetAction("replace_btn", onBtnReplace,this);
 	childSetAction("replace_all_btn", onBtnReplaceAll,this);
@@ -336,6 +345,15 @@ BOOL LLFloaterScriptSearch::handleKeyHere(KEY key, MASK mask)
 	}
 
 	return FALSE;
+}
+
+void LLFloaterScriptSearch::onSearchBoxCommit()
+{
+	if (mEditorCore && mEditorCore->mEditor)
+	{
+		LLCheckBoxCtrl* caseChk = getChild<LLCheckBoxCtrl>("case_text");
+		mEditorCore->mEditor->selectNext(getChild<LLUICtrl>("search_text")->getValue().asString(), caseChk->get());
+	}
 }
 
 /// ---------------------------------------------------------------------------
@@ -452,8 +470,6 @@ BOOL LLScriptEdCore::postBuild()
 
 	mFunctions = getChild<LLComboBox>( "Insert...");
 
-
-   
 	childSetCommitCallback("Insert...", &LLScriptEdCore::onBtnInsertFunction, this);
 
 	mEditor = getChild<LLViewerTextEditor>("Script Editor");
@@ -464,8 +480,6 @@ BOOL LLScriptEdCore::postBuild()
 
 	initMenu();
 	
-
-
 
 	std::vector<std::string> funcs;
 	std::vector<std::string> tooltips;
@@ -578,6 +592,9 @@ void LLScriptEdCore::initMenu()
 
 	menuItem = getChild<LLMenuItemCallGL>("Search / Replace...");
 	menuItem->setClickCallback(boost::bind(&LLFloaterScriptSearch::show, this));
+
+	menuItem = getChild<LLMenuItemCallGL>("Go to line...");
+	menuItem->setClickCallback(boost::bind(&LLFloaterGotoLine::show, this));
 
 	menuItem = getChild<LLMenuItemCallGL>("Help...");
 	menuItem->setClickCallback(boost::bind(&LLScriptEdCore::onBtnHelp, this));
@@ -2082,7 +2099,6 @@ void LLLiveLSLEditor::onLoadComplete(LLVFS *vfs, const LLUUID& asset_id,
 		 << llendl;
 	LLUUID* xored_id = (LLUUID*)user_data;
 
-   
 	LLLiveLSLEditor* instance = LLFloaterReg::findTypedInstance<LLLiveLSLEditor>("preview_scriptedit", *xored_id);
 	
 	if(instance )

@@ -176,7 +176,10 @@ Ansariel Hiller
 	STORM-1713
 	STORM-1899
 	MAINT-2368
+	STORM-1931
 Aralara Rajal
+Arare Chantilly
+	CHUIBUG-191
 Ardy Lay
 	STORM-859
 	VWR-19499
@@ -302,6 +305,8 @@ Ciaran Laval
 Cinder Roxley
     BUG-2326
     STORM-1703
+	STORM-1948
+    STORM-1952
 Clara Young
 Coaldust Numbers
     VWR-1095
@@ -313,6 +318,7 @@ Cron Stardust
 	VWR-10579
 	VWR-25120
 	STORM-1075
+	STORM-1919
 Cypren Christenson
 	STORM-417
 Dante Tucker
@@ -405,6 +411,7 @@ Ganymedes Costagravas
 Geenz Spad
 	STORM-1823
 	STORM-1900
+	STORM-1905
 	NORSPEC-229
 Gene Frostbite
 GeneJ Composer
@@ -501,6 +508,8 @@ Ima Mechanique
 	STORM-959
 	STORM-1175
 	STORM-1708
+	STORM-1855
+	VWR-20553
 Imnotgoing Sideways
 Inma Rau
 Innula Zenovka
@@ -644,12 +653,16 @@ Jonathan Yap
 	STORM-1793
 	STORM-1810
 	STORM-1877
+	STORM-1892
+	STORM-1894
 	STORM-1860
 	STORM-1852
 	STORM-1870
 	STORM-1872
 	STORM-1858
 	STORM-1862
+	STORM-1918
+	STORM-1953
 	OPEN-161
 Kadah Coba
 	STORM-1060
@@ -688,6 +701,7 @@ Kitty Barnett
 	STORM-800
 	STORM-1001
 	STORM-1175
+	STORM-1905
     VWR-24217
 	STORM-1804
 Kolor Fall
@@ -697,6 +711,7 @@ Kunnis Basiat
 	VWR-82
 	VWR-102
 Lance Corrimal
+	STORM-1910
 	VWR-25269
 Latif Khalifa
 	VWR-5370
@@ -751,9 +766,11 @@ Marianne McCann
 Marine Kelley
     CHUIBUG-134
     STORM-281
+    STORM-1910
 MartinRJ Fayray
     STORM-1844
     STORM-1845
+    STORM-1911
     STORM-1934
 Matthew Anthony
 Matthew Dowd
@@ -905,6 +922,8 @@ Nicky Dasmijn
 	MAINT-873
 	SUN-72
 	BUG-2432
+	BUG-3605
+	CHUIBUG-197
 Nicky Perian
 	OPEN-1
 	STORM-1087
@@ -1047,6 +1066,7 @@ Satanello Miami
 Satomi Ahn
 	STORM-501
 	STORM-229
+	VWR-20553
 	VWR-24502
 Scrim Pinion
 Scrippy Scofield
@@ -1216,6 +1236,8 @@ Tofu Buzzard
 	STORM-1684
 	STORM-1819
 Tony Kembia
+Tonya Souther
+	STORM-1905
 Torben Trautman
 TouchaHoney Perhaps
 TraductoresAnonimos Alter

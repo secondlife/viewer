@@ -26,6 +26,9 @@ codeticket_since = 3.3.0-release
 Linux.gcc_version = /usr/bin/gcc-4.6
 Linux.cxx_version = /usr/bin/g++-4.6
 
+# Setup default sourceid so Windows can pick up the TeamCity override
+sourceid = ""
+
 ################################################################
 ####      Examples of how to set the viewer_channel         ####
 #
@@ -130,17 +133,6 @@ viewer-materials.viewer_channel = "Second Life Beta Materials"
 viewer-materials.build_debug_release_separately = true
 viewer-materials.build_CYGWIN_Debug = false
 viewer-materials.build_viewer_update_version_manager = false
-
-# viewer-chui
-#
-# ========================================
-
-viewer-chui.viewer_channel = "Project Viewer - CHUI"
-viewer-chui.login_channel = "Project Viewer - CHUI"
-viewer-chui.viewer_grid = agni
-viewer-chui.build_debug_release_separately = true
-viewer-chui.build_CYGWIN_Debug = false
-viewer-chui.build_viewer_update_version_manager = false
 
 # =================================================================
 # asset delivery 2010 projects
