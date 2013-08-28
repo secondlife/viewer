@@ -562,11 +562,11 @@ void LLViewerTextureList::addImageToList(LLViewerFetchedTexture *image)
 	llassert(image);
 	if (image->isInImageList())
 	{
-		llerrs << "LLViewerTextureList::addImageToList - Image already in list" << llendl;
+		llinfos << "LLViewerTextureList::addImageToList - Image already in list" << llendl;
 	}
 	if((mImageList.insert(image)).second != true) 
 	{
-		llerrs << "Error happens when insert image to mImageList!" << llendl ;
+		llinfos << "Error happens when insert image to mImageList!" << llendl ;
 	}
 	
 	image->setInImageList(TRUE) ;
@@ -585,32 +585,32 @@ void LLViewerTextureList::removeImageFromList(LLViewerFetchedTexture *image)
 		{
 			llinfos << "Image is not in mUUIDMap!" << llendl ;
 		}
-		llerrs << "LLViewerTextureList::removeImageFromList - Image not in list" << llendl;
+		llinfos << "LLViewerTextureList::removeImageFromList - Image not in list" << llendl;
 	}
 
 	S32 count = mImageList.erase(image) ;
+	llassert(count == 1);
 	if(count != 1) 
 	{
-		llinfos << image->getID() << llendl ;
-		llerrs << "Error happens when remove image from mImageList: " << count << llendl ;
+		llinfos << image->getID() << " removed with non-one count of " << count << llendl;
 	}
       
 	image->setInImageList(FALSE) ;
 }
 
 void LLViewerTextureList::addImage(LLViewerFetchedTexture *new_image)
-{
+{	
 	if (!new_image)
 	{
-		llwarning("No image to add to image list", 0);
 		return;
 	}
+	llassert(new_image);
 	LLUUID image_id = new_image->getID();
 	
 	LLViewerFetchedTexture *image = findImage(image_id);
 	if (image)
 	{
-		llwarns << "Image with ID " << image_id << " already in list" << llendl;
+		llinfos << "Image with ID " << image_id << " already in list" << llendl;
 	}
 	sNumImages++;
 	
