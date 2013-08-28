@@ -274,6 +274,16 @@ namespace tut
 
 		quatloos_implicit -= F32Quatloos(10);
 		ensure("can subtract-assign explicit units", quatloos_implicit == 16);
+
+		// comparisons
+		ensure("can compare greater than implicit unit", quatloos_implicit > F32QuatloosImplicit(0.f));
+		ensure("can compare greater than non-implicit unit", quatloos_implicit > F32Quatloos(0.f));
+		ensure("can compare greater than or equal to implicit unit", quatloos_implicit >= F32QuatloosImplicit(0.f));
+		ensure("can compare greater than or equal to non-implicit unit", quatloos_implicit >= F32Quatloos(0.f));
+		ensure("can compare less than implicit unit", quatloos_implicit < F32QuatloosImplicit(0.f));
+		ensure("can compare less than non-implicit unit", quatloos_implicit < F32Quatloos(0.f));
+		ensure("can compare less than or equal to implicit unit", quatloos_implicit <= F32QuatloosImplicit(0.f));
+		ensure("can compare less than or equal to non-implicit unit", quatloos_implicit <= F32Quatloos(0.f));
 	}
 
 	// precision tests
