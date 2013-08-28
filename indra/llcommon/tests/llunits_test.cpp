@@ -280,10 +280,10 @@ namespace tut
 		ensure("can compare greater than non-implicit unit", quatloos_implicit > F32Quatloos(0.f));
 		ensure("can compare greater than or equal to implicit unit", quatloos_implicit >= F32QuatloosImplicit(0.f));
 		ensure("can compare greater than or equal to non-implicit unit", quatloos_implicit >= F32Quatloos(0.f));
-		ensure("can compare less than implicit unit", quatloos_implicit < F32QuatloosImplicit(0.f));
-		ensure("can compare less than non-implicit unit", quatloos_implicit < F32Quatloos(0.f));
-		ensure("can compare less than or equal to implicit unit", quatloos_implicit <= F32QuatloosImplicit(0.f));
-		ensure("can compare less than or equal to non-implicit unit", quatloos_implicit <= F32Quatloos(0.f));
+		ensure("can compare less than implicit unit", quatloos_implicit < F32QuatloosImplicit(20.f));
+		ensure("can compare less than non-implicit unit", quatloos_implicit < F32Quatloos(20.f));
+		ensure("can compare less than or equal to implicit unit", quatloos_implicit <= F32QuatloosImplicit(20.f));
+		ensure("can compare less than or equal to non-implicit unit", quatloos_implicit <= F32Quatloos(20.f));
 	}
 
 	// precision tests
