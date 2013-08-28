@@ -286,18 +286,6 @@ void LLVOCacheEntry::removeAllChildren()
 	mChildrenList.clear();
 }
 
-LLDataPackerBinaryBuffer *LLVOCacheEntry::getDP(U32 crc)
-{
-	if (  (mCRC != crc)
-		||(mDP.getBufferSize() == 0))
-	{
-		//LL_INFOS() << "Not getting cache entry, invalid!" << LL_ENDL;
-		return NULL;
-	}
-	mHitCount++;
-	return &mDP;
-}
-
 LLDataPackerBinaryBuffer *LLVOCacheEntry::getDP()
 {
 	if (mDP.getBufferSize() == 0)
@@ -638,10 +626,10 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 	}
 	mCulledTime[LLViewerCamera::sCurCameraID] = LLViewerOctreeEntryData::getCurrentFrame();
 
-	//if(!mDirty && !mCullHistory[LLViewerCamera::sCurCameraID] && LLViewerRegion::isViewerCameraStatic())
-	//{
-	//	return 0; //nothing changed, skip culling
-	//}
+	if(!mDirty && !mCullHistory[LLViewerCamera::sCurCameraID] && LLViewerRegion::isViewerCameraStatic())
+	{
+		return 0; //nothing changed, skip culling
+	}
 
 	((LLviewerOctreeGroup*)mOctree->getListener(0))->rebound();
 	mCullHistory[LLViewerCamera::sCurCameraID] <<= 1;
