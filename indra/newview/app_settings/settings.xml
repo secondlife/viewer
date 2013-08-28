@@ -9846,7 +9846,7 @@
       <key>Comment</key>
       <string>Enabled scene loading monitor if set</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
