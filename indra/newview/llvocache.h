@@ -97,7 +97,6 @@ public:
 
 	void dump() const;
 	BOOL writeToFile(LLAPRFile* apr_file) const;
-	LLDataPackerBinaryBuffer *getDP(U32 crc);
 	LLDataPackerBinaryBuffer *getDP();
 	void recordHit();
 	void recordDupe() { mDupeCount++; }

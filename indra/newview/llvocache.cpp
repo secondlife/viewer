@@ -286,18 +286,6 @@ void LLVOCacheEntry::removeAllChildren()
 	mChildrenList.clear();
 }
 
-LLDataPackerBinaryBuffer *LLVOCacheEntry::getDP(U32 crc)
-{
-	if (  (mCRC != crc)
-		||(mDP.getBufferSize() == 0))
-	{
-		//LL_INFOS() << "Not getting cache entry, invalid!" << LL_ENDL;
-		return NULL;
-	}
-	mHitCount++;
-	return &mDP;
-}
-
 LLDataPackerBinaryBuffer *LLVOCacheEntry::getDP()
 {
 	if (mDP.getBufferSize() == 0)
