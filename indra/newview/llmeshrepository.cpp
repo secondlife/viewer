@@ -268,6 +268,9 @@
 //                   locally-generated 500 status.
 //   0x08            As with 0x04 but for the upload operation.
 //
+//   For major changes, see the LL_MESH_FASTTIMER_ENABLE below and
+//   instructions for looking for frame stalls using fast timers.
+//
 // *TODO:  Work list for followup actions:
 //   * Review anything marked as unsafe above, verify if there are real issues.
 //   * See if we can put ::run() into a hard sleep.  May not actually perform better
@@ -346,15 +349,25 @@ static unsigned int metrics_teleport_start_count = 0;
 boost::signals2::connection metrics_teleport_started_signal;
 static void teleport_started();
 static bool is_retryable(LLCore::HttpStatus status);
-static LLFastTimer::DeclareTimer FTM_MESH_FETCH("Mesh Fetch");
 
 // Enable here or in build environment to get fasttimer data on mesh fetches.
-#define LL_FASTTIMER_MESH_ENABLE		1
-#if LL_FASTTIMER_MESH_ENABLE
+//
+// Typically, this is used to perform A/B testing using the
+// fasttimer console (shift-ctrl-9).  This is done by looking
+// for stalls due to lock contention between the main thread
+// and the repository and HTTP code.  In a release viewer,
+// these appear as ping-time or worse spikes in frame time.
+// With this instrumentation enabled, a stall will appear
+// under the 'Mesh Fetch' timer which will be either top-level
+// or under 'Render' time.
+#define LL_MESH_FASTTIMER_ENABLE		1
+#if LL_MESH_FASTTIMER_ENABLE
+static LLFastTimer::DeclareTimer FTM_MESH_FETCH("Mesh Fetch");
+
 #define	MESH_FASTTIMER_DEFBLOCK			LLFastTimer meshtimer(FTM_MESH_FETCH)
 #else
 #define	MESH_FASTTIMER_DEFBLOCK
-#endif // LL_FASTTIMER_MESH_ENABLE
+#endif // LL_MESH_FASTTIMER_ENABLE
  
 //get the number of bytes resident in memory for given volume
 U32 get_volume_memory_size(const LLVolume* volume)
