@@ -145,7 +145,7 @@ void SampleAccumulator::addSamples( const SampleAccumulator& other, EBufferAppen
 
 		F64 epsilon = 0.0000001;
 
-		if (other.mTotalSamplingTime > epsilon)
+		if (other.mTotalSamplingTime > epsilon && mTotalSamplingTime > epsilon)
 		{
 			// combine variance (and hence standard deviation) of 2 different sized sample groups using
 			// the following formula: http://www.mrc-bsu.cam.ac.uk/cochrane/handbook/chapter_7/7_7_3_8_combining_groups.htm
@@ -173,7 +173,6 @@ void SampleAccumulator::addSamples( const SampleAccumulator& other, EBufferAppen
 			mNumSamples += other.mNumSamples;
 			mTotalSamplingTime += other.mTotalSamplingTime;
 			mMean = (mMean * weight) + (other.mMean * (1.0 - weight));
-			llassert(mMean < 0 || mMean >= 0);
 		}
 		if (append_type == SEQUENTIAL)
 		{
