@@ -365,7 +365,16 @@ LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry*
 		
 	processUpdateCore(objectp, NULL, 0, OUT_FULL_CACHED, cached_dpp, justCreated, true);
 	objectp->loadFlags(entry->getUpdateFlags()); //just in case, reload update flags from cache.
-
+	
+	if(entry->getHitCount() > 0)
+	{
+		objectp->setLastUpdateType(OUT_FULL_CACHED);
+	}
+	else
+	{
+		objectp->setLastUpdateType(OUT_FULL_COMPRESSED); //newly cached
+		objectp->setLastUpdateCached(TRUE);
+	}
 	recorder.log(0.2f);
 	LLVOAvatar::cullAvatarsByPixelArea();
 
@@ -467,10 +476,10 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			
 				if(flags & FLAGS_TEMPORARY_ON_REZ)
 				{
-				compressed_dp.unpackUUID(fullid, "ID");
-				compressed_dp.unpackU32(local_id, "LocalID");
-				compressed_dp.unpackU8(pcode, "PCode");
-			}
+					compressed_dp.unpackUUID(fullid, "ID");
+					compressed_dp.unpackU32(local_id, "LocalID");
+					compressed_dp.unpackU8(pcode, "PCode");
+				}
 				else //send to object cache
 				{
 					regionp->cacheFullUpdate(compressed_dp, flags);
@@ -608,7 +617,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			LL_WARNS() << "Dead object " << objectp->mID << " in UUID map 1!" << LL_ENDL;
 		}
 
-		bool bCached = false;
+		//bool bCached = false;
 		if (compressed)
 		{
 			if (update_type != OUT_TERSE_IMPROVED) // OUT_FULL_COMPRESSED only?
@@ -641,8 +650,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			processUpdateCore(objectp, user_data, i, update_type, NULL, justCreated);
 		}
 		recorder.objectUpdateEvent(local_id, update_type, objectp, msg_size);
-		objectp->setLastUpdateType(update_type);
-		objectp->setLastUpdateCached(bCached);
+		objectp->setLastUpdateType(update_type);		
 	}
 
 	recorder.log(0.2f);
