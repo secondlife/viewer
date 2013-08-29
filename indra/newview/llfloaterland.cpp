@@ -2092,7 +2092,6 @@ void LLPanelLandOptions::refresh()
 // virtual
 void LLPanelLandOptions::draw()
 {
-	refreshSearch();	// Is this necessary?  JC
 	LLPanel::draw();
 }
 
