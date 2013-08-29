@@ -497,10 +497,22 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                      function="People.Group.Minus" />
                 </dnd_button>
             </panel>
+            <text
+                type="string"
+                length="1"
+                follows="all"
+                height="14"
+                layout="topleft"
+                right="-10"
+                top_pad="4"
+                left="3"
+                name="groupcount">
+              You belong to [COUNT] groups, and can join [REMAINING] more.
+            </text>
             <group_list
              allow_select="true" 
              follows="all"
-             height="406"
+             height="388"
              layout="topleft"
              left="3"
              name="group_list"

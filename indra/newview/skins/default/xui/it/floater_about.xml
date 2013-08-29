@@ -8,7 +8,7 @@
 		Generato con [COMPILER] versione [COMPILER_VERSION]
 	</floater.string>
 	<floater.string name="AboutPosition">
-		Tu sei  [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] in [REGION] che si trova a &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
+		Tu sei  [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] in [REGION] che si trova a &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
 [SERVER_VERSION]
 [SERVER_RELEASE_NOTES_URL]
 	</floater.string>

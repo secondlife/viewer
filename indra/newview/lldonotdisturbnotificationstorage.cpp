@@ -70,7 +70,7 @@ BOOL LLDoNotDisturbNotificationStorageTimer::tick()
 
 LLDoNotDisturbNotificationStorage::LLDoNotDisturbNotificationStorage()
 	: LLSingleton<LLDoNotDisturbNotificationStorage>()
-	, LLNotificationStorage(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "dnd_notifications.xml"))
+	, LLNotificationStorage("")
     , mDirty(false)
 {
     nameToPayloadParameterMap[toastName] = "SESSION_ID";
@@ -83,6 +83,7 @@ LLDoNotDisturbNotificationStorage::~LLDoNotDisturbNotificationStorage()
 
 void LLDoNotDisturbNotificationStorage::initialize()
 {
+	setFileName(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "dnd_notifications.xml"));
 	getCommunicationChannel()->connectFailedFilter(boost::bind(&LLDoNotDisturbNotificationStorage::onChannelChanged, this, _1));
 }
 

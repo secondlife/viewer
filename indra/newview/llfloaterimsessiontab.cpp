@@ -55,7 +55,6 @@ LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
   ,  mSessionID(session_id.asUUID())
   , mConversationsRoot(NULL)
   , mScroller(NULL)
-  , mSpeakingIndicator(NULL)
   , mChatHistory(NULL)
   , mInputEditor(NULL)
   , mInputEditorPad(0)
@@ -259,8 +258,6 @@ BOOL LLFloaterIMSessionTab::postBuild()
 	scroller_params.rect(scroller_view_rect);
 	mScroller = LLUICtrlFactory::create<LLFolderViewScrollContainer>(scroller_params);
 	mScroller->setFollowsAll();
-	
-    mSpeakingIndicator = getChild<LLOutputMonitorCtrl>("speaking_indicator");
 
 	// Insert that scroller into the panel widgets hierarchy
 	mParticipantListPanel->addChild(mScroller);	
@@ -273,6 +270,7 @@ BOOL LLFloaterIMSessionTab::postBuild()
 	mInputPanels = getChild<LLLayoutStack>("input_panels");
 	
 	mInputEditor->setTextExpandedCallback(boost::bind(&LLFloaterIMSessionTab::reshapeChatLayoutPanel, this));
+	mInputEditor->setMouseUpCallback(boost::bind(&LLFloaterIMSessionTab::onInputEditorClicked, this));
 	mInputEditor->setCommitOnFocusLost( FALSE );
 	mInputEditor->setPassDelete(TRUE);
 	mInputEditor->setFont(LLViewerChat::getChatFont());
@@ -400,6 +398,16 @@ void LLFloaterIMSessionTab::onFocusLost()
 {
 	setBackgroundOpaque(false);
 	LLTransientDockableFloater::onFocusLost();
+}
+
+void LLFloaterIMSessionTab::onInputEditorClicked()
+{
+	LLFloaterIMContainer* im_box = LLFloaterIMContainer::findInstance();
+	if (im_box)
+	{
+		im_box->flashConversationItemWidget(mSessionID,false);
+	}
+	gToolBarView->flashCommand(LLCommandId("chat"), false);
 }
 
 std::string LLFloaterIMSessionTab::appendTime()

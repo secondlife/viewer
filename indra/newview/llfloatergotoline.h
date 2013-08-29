@@ -1,5 +1,7 @@
 /**
- * @file llfloaterconversationpreview.h
+ * @file llfloatergotoline.h
+ * @author MartinRJ
+ * @brief LLFloaterGotoLine class definition
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -23,45 +25,42 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLFLOATERCONVERSATIONPREVIEW_H_
-#define LLFLOATERCONVERSATIONPREVIEW_H_
+#ifndef LL_LLFLOATERGOTOLINE_H
+#define LL_LLFLOATERGOTOLINE_H
 
-#include "llchathistory.h"
 #include "llfloater.h"
+#include "lllineeditor.h"
+#include "llpreviewscript.h"
 
-extern const std::string LL_FCP_COMPLETE_NAME;	//"complete_name"
-extern const std::string LL_FCP_ACCOUNT_NAME;		//"user_name"
+class LLScriptEdCore;
 
-class LLSpinCtrl;
-
-class LLFloaterConversationPreview : public LLFloater
+class LLFloaterGotoLine : public LLFloater
 {
 public:
+        LLFloaterGotoLine(LLScriptEdCore* editor_core);
+        ~LLFloaterGotoLine();
 
-	LLFloaterConversationPreview(const LLSD& session_id);
-	virtual ~LLFloaterConversationPreview(){};
+        /*virtual*/     BOOL    postBuild();
+        static void show(LLScriptEdCore* editor_core);
 
-	virtual BOOL postBuild();
-	void SetPages(std::list<LLSD>& messages,const std::string& file_name);
+        static void onBtnGoto(void* userdata);
+        void handleBtnGoto();
 
-	virtual void draw();
-	virtual void onOpen(const LLSD& key);
+        LLScriptEdCore* getEditorCore() { return mEditorCore; }
+        static LLFloaterGotoLine* getInstance() { return sInstance; }
+
+        virtual bool hasAccelerators() const;
+        virtual BOOL handleKeyHere(KEY key, MASK mask);
 
 private:
-	void onMoreHistoryBtnClick();
-	void showHistory();
 
-	LLSpinCtrl*		mPageSpinner;
-	LLChatHistory*	mChatHistory;
-	LLUUID			mSessionID;
-	int				mCurrentPage;
-	int				mPageSize;
+        LLScriptEdCore* mEditorCore;
 
-	std::list<LLSD> mMessages;
-	std::string		mAccountName;
-	std::string		mCompleteName;
-	std::string     mChatHistoryFileName;
-	bool			mChatHistoryLoaded;
+        static LLFloaterGotoLine*       sInstance;
+
+protected:
+	LLLineEditor*			mGotoBox;
+        void onGotoBoxCommit();
 };
 
-#endif /* LLFLOATERCONVERSATIONPREVIEW_H_ */
+#endif  // LL_LLFLOATERGOTOLINE_H

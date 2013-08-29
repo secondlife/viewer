@@ -4,6 +4,7 @@
  can_minimize="true"
  can_resize="true"
  height="210"
+ min_height="210"
  layout="topleft"
  name="floater_im_box"
  help_topic="floater_im_box"

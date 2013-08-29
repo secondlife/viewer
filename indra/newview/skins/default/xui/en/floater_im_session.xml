@@ -142,19 +142,7 @@
                  left_pad="2"
                  name="voice_call_btn"
                  tool_tip="Open voice connection"
-                 width="31"/>
-                <output_monitor
-                 auto_update="true"
-                 follows="top|left"
-                 draw_border="false"
-                 height="16"
-                 layout="topleft"
-                 top="10"
-                 left_pad="10"
-                 mouse_opaque="true"
-                 name="speaking_indicator"
-                 visible="false"
-                 width="20" />
+                 width="31"/>                
                 <button
                  follows="right|top"
                  height="25"

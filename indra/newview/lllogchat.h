@@ -28,6 +28,24 @@
 #define LL_LLLOGCHAT_H
 
 class LLChat;
+class LLLoadHistoryThread : public LLThread
+{
+private:
+	std::string mFileName;
+	std::list<LLSD> mMessages;
+	LLSD mLoadParams;
+	bool mNewLoad;
+public:
+	LLLoadHistoryThread();
+
+	void setHistoryParams(const std::string& file_name, const LLSD& load_params);
+	virtual void loadHistory(const std::string& file_name, std::list<LLSD>& messages, const LLSD& load_params);
+    virtual void run();
+
+   typedef boost::signals2::signal<void (std::list<LLSD>& messages,const std::string& file_name)> load_end_signal_t;
+   static load_end_signal_t * mLoadEndSignal;
+   static boost::signals2::connection setLoadEndSignal(const load_end_signal_t::slot_type& cb);
+};
 
 class LLLogChat
 {
@@ -39,6 +57,7 @@ public:
 		LOG_LLSD,
 		LOG_END
 	};
+
 	static std::string timestamp(bool withdate = false);
 	static std::string makeLogFileName(std::string(filename));
 	/**
@@ -54,6 +73,7 @@ public:
 	static void getListOfTranscriptBackupFiles(std::vector<std::string>& list_of_transcriptions);
 
 	static void loadChatHistory(const std::string& file_name, std::list<LLSD>& messages, const LLSD& load_params = LLSD());
+	static void startChatHistoryThread(const std::string& file_name, const LLSD& load_params);
 
 	typedef boost::signals2::signal<void ()> save_history_signal_t;
 	static boost::signals2::connection setSaveHistorySignal(const save_history_signal_t::slot_type& cb);
@@ -126,6 +146,7 @@ protected:
 	LLChatLogParser();
 	virtual ~LLChatLogParser() {};
 };
+
 
 // LLSD map lookup constants
 extern const std::string LL_IM_TIME; //("time");

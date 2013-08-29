@@ -140,6 +140,14 @@ class LLGridManager : public LLSingleton<LLGridManager>
 	 */
 
 	//@}
+	/* ================================================================
+	 * @name Update Related Properties
+	 * @{
+	 */
+	/// Get the update service URL base (host and path) for the selected grid
+	std::string getUpdateServiceURL();
+	
+	//@}
 
 	/* ================================================================
 	 * @name URL Construction Properties
@@ -207,6 +215,7 @@ class LLGridManager : public LLSingleton<LLGridManager>
 					   const std::string& login, 
 					   const std::string& helper,
 					   const std::string& login_page,
+					   const std::string& update_url_base,
 					   const std::string& login_id = "");	
 	
 	

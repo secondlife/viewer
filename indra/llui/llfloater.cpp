@@ -509,8 +509,8 @@ LLFloater::~LLFloater()
 	
 	if( gFocusMgr.childHasKeyboardFocus(this))
 	{
-		// Just in case we might still have focus here, release it.
-		releaseFocus();
+	// Just in case we might still have focus here, release it.
+	releaseFocus();
 	}
 
 	// This is important so that floaters with persistent rects (i.e., those
@@ -1475,6 +1475,7 @@ void LLFloater::moveResizeHandlesToFront()
 	}
 }
 
+/*virtual*/
 BOOL LLFloater::isFrontmost()
 {
 	LLFloaterView* floater_view = getParentByType<LLFloaterView>();
@@ -1493,7 +1494,7 @@ void LLFloater::addDependentFloater(LLFloater* floaterp, BOOL reposition)
 		floaterp->setRect(gFloaterView->findNeighboringPosition(this, floaterp));
 		floaterp->setSnapTarget(getHandle());
 	}
-	gFloaterView->adjustToFitScreen(floaterp, FALSE);
+	gFloaterView->adjustToFitScreen(floaterp, FALSE, TRUE);
 	if (floaterp->isFrontmost())
 	{
 		// make sure to bring self and sibling floaters to front
@@ -2724,7 +2725,7 @@ void LLFloaterView::refresh()
 
 const S32 FLOATER_MIN_VISIBLE_PIXELS = 16;
 
-void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_outside)
+void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_outside, BOOL snap_in_toolbars/* = false*/)
 {
 	if (floater->getParent() != this)
 	{
@@ -2777,7 +2778,7 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 	}
 
 	// move window fully onscreen
-	if (floater->translateIntoRect( gFloaterView->getRect(), allow_partial_outside ? FLOATER_MIN_VISIBLE_PIXELS : S32_MAX ))
+	if (floater->translateIntoRect( snap_in_toolbars ? getSnapRect() : gFloaterView->getRect(), allow_partial_outside ? FLOATER_MIN_VISIBLE_PIXELS : S32_MAX ))
 	{
 		floater->clearSnapTarget();
 	}

@@ -180,6 +180,7 @@ LLTextBase::Params::Params()
 LLTextBase::LLTextBase(const LLTextBase::Params &p) 
 :	LLUICtrl(p, LLTextViewModelPtr(new LLTextViewModel)),
 	mURLClickSignal(NULL),
+	mIsFriendSignal(NULL),
 	mMaxTextByteLength( p.max_text_length ),
 	mFont(p.font),
 	mFontShadow(p.font_shadow),
@@ -1854,7 +1855,17 @@ LLTextBase::segment_set_t::iterator LLTextBase::getSegIterContaining(S32 index)
 
 	static LLPointer<LLIndexSegment> index_segment = new LLIndexSegment();
 
-	if (index > getLength()) { return mSegments.end(); }
+	S32 text_len = 0;
+	if (!useLabel())
+	{
+		text_len = getLength();
+	}
+	else
+	{
+		text_len = mLabel.getWString().length();
+	}
+
+	if (index > text_len) { return mSegments.end(); }
 
 	// when there are no segments, we return the end iterator, which must be checked by caller
 	if (mSegments.size() <= 1) { return mSegments.begin(); }
@@ -1870,7 +1881,17 @@ LLTextBase::segment_set_t::const_iterator LLTextBase::getSegIterContaining(S32 i
 {
 	static LLPointer<LLIndexSegment> index_segment = new LLIndexSegment();
 
-	if (index > getLength()) { return mSegments.end(); }
+	S32 text_len = 0;
+	if (!useLabel())
+	{
+		text_len = getLength();
+	}
+	else
+	{
+		text_len = mLabel.getWString().length();
+	}
+
+	if (index > text_len) { return mSegments.end(); }
 
 	// when there are no segments, we return the end iterator, which must be checked by caller
 	if (mSegments.size() <= 1) { return mSegments.begin(); }
@@ -1920,9 +1941,12 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
 	registrar.add("Url.OpenInternal", boost::bind(&LLUrlAction::openURLInternal, url));
 	registrar.add("Url.OpenExternal", boost::bind(&LLUrlAction::openURLExternal, url));
 	registrar.add("Url.Execute", boost::bind(&LLUrlAction::executeSLURL, url));
+	registrar.add("Url.Block", boost::bind(&LLUrlAction::blockObject, url));
 	registrar.add("Url.Teleport", boost::bind(&LLUrlAction::teleportToLocation, url));
 	registrar.add("Url.ShowProfile", boost::bind(&LLUrlAction::showProfile, url));
 	registrar.add("Url.AddFriend", boost::bind(&LLUrlAction::addFriend, url));
+	registrar.add("Url.RemoveFriend", boost::bind(&LLUrlAction::removeFriend, url));
+	registrar.add("Url.SendIM", boost::bind(&LLUrlAction::sendIM, url));
 	registrar.add("Url.ShowOnMap", boost::bind(&LLUrlAction::showLocationOnMap, url));
 	registrar.add("Url.CopyLabel", boost::bind(&LLUrlAction::copyLabelToClipboard, url));
 	registrar.add("Url.CopyUrl", boost::bind(&LLUrlAction::copyURLToClipboard, url));
@@ -1931,6 +1955,19 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
 	delete mPopupMenu;
 	mPopupMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(xui_file, LLMenuGL::sMenuContainer,
 																		 LLMenuHolderGL::child_registry_t::instance());	
+	if (mIsFriendSignal)
+	{
+		bool isFriend = *(*mIsFriendSignal)(LLUUID(LLUrlAction::getUserID(url)));
+		LLView* addFriendButton = mPopupMenu->getChild<LLView>("add_friend");
+		LLView* removeFriendButton = mPopupMenu->getChild<LLView>("remove_friend");
+
+		if (addFriendButton && removeFriendButton)
+		{
+			addFriendButton->setEnabled(!isFriend);
+			removeFriendButton->setEnabled(isFriend);
+		}
+	}
+	
 	if (mPopupMenu)
 	{
 		mPopupMenu->show(x, y);
@@ -2100,7 +2137,7 @@ void LLTextBase::resetLabel()
 	}
 }
 
-bool LLTextBase::useLabel()
+bool LLTextBase::useLabel() const
 {
     return !getLength() && !mLabel.empty() && !hasFocus();
 }
@@ -2911,6 +2948,15 @@ boost::signals2::connection LLTextBase::setURLClickedCallback(const commit_signa
 	return mURLClickSignal->connect(cb);
 }
 
+boost::signals2::connection LLTextBase::setIsFriendCallback(const is_friend_signal_t::slot_type& cb)
+{
+	if (!mIsFriendSignal)
+	{
+		mIsFriendSignal = new is_friend_signal_t();
+	}
+	return mIsFriendSignal->connect(cb);
+}
+
 //
 // LLTextSegment
 //
@@ -3204,7 +3250,7 @@ S32	LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
 		: LLFontGL::ONLY_WORD_BOUNDARIES;
 	
 	
-	LLWString offsetString(text.c_str() + segment_offset + mStart);
+	S32 offsetLength = text.length() - (segment_offset + mStart);
 
 	if(getLength() < segment_offset + mStart)
 	{ 
@@ -3212,13 +3258,13 @@ S32	LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
 						<< segment_offset << "\tmStart:\t" << mStart << "\tsegments\t" << mEditor.mSegments.size() << "\tmax_chars\t" << max_chars << llendl;
 	}
 
-	if(offsetString.length() + 1 < max_chars)
+	if( (offsetLength + 1) < max_chars)
 	{
-		llinfos << "offsetString.length() + 1 < max_chars\t max_chars:\t" << max_chars << "\toffsetString.length():\t" << offsetString.length() << " getLength() : "
+		llinfos << "offsetString.length() + 1 < max_chars\t max_chars:\t" << max_chars << "\toffsetLength:\t" << offsetLength << " getLength() : "
 			<< getLength() << "\tsegment_offset:\t" << segment_offset << "\tmStart:\t" << mStart << "\tsegments\t" << mEditor.mSegments.size() << llendl;
 	}
 	
-	S32 num_chars = mStyle->getFont()->maxDrawableChars(offsetString.c_str(), 
+	S32 num_chars = mStyle->getFont()->maxDrawableChars( text.c_str() + (segment_offset + mStart),
 												(F32)num_pixels,
 												max_chars, 
 												word_wrap_style);

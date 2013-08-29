@@ -109,18 +109,6 @@ void LLFloaterIMSession::refresh()
 void LLFloaterIMSession::onTearOffClicked()
 {
     LLFloaterIMSessionTab::onTearOffClicked();
-
-    if(mIsP2PChat)
-    {
-        if(isTornOff())
-        {
-            mSpeakingIndicator->setSpeakerId(mOtherParticipantUUID, mSessionID);
-        }
-        else
-        {
-            mSpeakingIndicator->setSpeakerId(LLUUID::null);
-        }
-    }
 }
 
 // virtual
