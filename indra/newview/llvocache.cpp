@@ -33,7 +33,10 @@
 #include "lldrawable.h"
 #include "llviewerregion.h"
 #include "pipeline.h"
+#include "llagentcamera.h"
 
+F32 LLVOCacheEntry::sBackDistanceSquared = 0.f;
+F32 LLVOCacheEntry::sBackAngleTanSquared = 0.f;
 BOOL LLVOCachePartition::sNeedsOcclusionCheck = FALSE;
 LLTrace::MemStatHandle	LLVOCachePartition::sMemStat("LLVOCachePartition");
 
@@ -353,6 +356,21 @@ BOOL LLVOCacheEntry::writeToFile(LLAPRFile* apr_file) const
 	return success ;
 }
 
+//static 
+void LLVOCacheEntry::updateBackCullingFactors()
+{
+	//distance to keep objects = back_dist_factor * draw_distance
+	static LLCachedControl<F32> back_dist_factor(gSavedSettings,"BackDistanceFactor");
+
+	//squared tan(projection angle of the bbox), default is 10 (degree)
+	static LLCachedControl<F32> squared_back_angle(gSavedSettings,"BackProjectionAngleSquared");
+
+	sBackDistanceSquared = back_dist_factor * gAgentCamera.mDrawDistance;
+	sBackDistanceSquared *= sBackDistanceSquared;
+
+	sBackAngleTanSquared = squared_back_angle;
+}
+
 bool LLVOCacheEntry::isRecentlyVisible() const
 {
 	bool vis = LLViewerOctreeEntryData::isRecentlyVisible();
@@ -363,12 +381,10 @@ bool LLVOCacheEntry::isRecentlyVisible() const
 	}
 
 	//combination of projected area and squared distance
-	if(!vis && !mParentID && mSceneContrib > 0.0311f) //projection angle > 10 (degree)
+	if(!vis && !mParentID && mSceneContrib > sBackAngleTanSquared) 
 	{
-		//squared distance
-		const F32 SQUARED_CUT_OFF_DIST = 256.0; //16m
 		F32 rad = getBinRadius();
-		vis = (rad * rad / mSceneContrib < SQUARED_CUT_OFF_DIST);
+		vis = (rad * rad / mSceneContrib < sBackDistanceSquared);
 	}
 
 	return vis;

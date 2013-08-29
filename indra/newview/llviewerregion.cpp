@@ -1233,6 +1233,7 @@ BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 void LLViewerRegion::calcNewObjectCreationThrottle()
 {
 	static LLCachedControl<S32> new_object_creation_throttle(gSavedSettings,"NewObjectCreationThrottle");
+	static LLCachedControl<F32> throttle_delay_time(gSavedSettings,"NewObjectCreationThrottleDelayTime");
 	static LLFrameTimer timer;
 
 	//
@@ -1243,16 +1244,20 @@ void LLViewerRegion::calcNewObjectCreationThrottle()
 	//>0: valid throttling number
 	//
 
-	if(gViewerWindow->getProgressView()->getVisible())
+	if(gViewerWindow->getProgressView()->getVisible() && throttle_delay_time > 0.f)
 	{
 		sNewObjectCreationThrottle = -2; //cancel the throttling
 		timer.reset();
 	}	
-	else if(sNewObjectCreationThrottle < 0) //just recoved from the login/teleport screen
+	else if(sNewObjectCreationThrottle < -1) //just recoved from the login/teleport screen
 	{
-		if(new_object_creation_throttle > 0 && timer.getElapsedTimeF32() > 2.0f) //wait for two seconds to reset the throttle
+		if(timer.getElapsedTimeF32() > throttle_delay_time) //wait for throttle_delay_time to reset the throttle
 		{
 			sNewObjectCreationThrottle = new_object_creation_throttle; //reset
+			if(sNewObjectCreationThrottle < -1)
+			{
+				sNewObjectCreationThrottle = -1;
+			}
 		}
 	}
 }
@@ -1285,6 +1290,8 @@ F32 LLViewerRegion::killInvisibleObjects(F32 max_time)
 	S32 update_counter = llmin(max_update, mImpl->mActiveSet.size());
 	LLVOCacheEntry::vocache_entry_set_t::iterator iter = mImpl->mActiveSet.upper_bound(mLastVisitedEntry);	
 	
+	LLVOCacheEntry::updateBackCullingFactors();
+
 	for(; update_counter > 0; --update_counter, ++iter)
 	{	
 		if(iter == mImpl->mActiveSet.end())

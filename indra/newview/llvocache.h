@@ -123,6 +123,8 @@ public:
 	void setUpdateFlags(U32 flags) {mUpdateFlags = flags;}
 	U32  getUpdateFlags() const    {return mUpdateFlags;}
 
+	static void updateBackCullingFactors();
+
 private:
 	static U32  getInvisibleObjectsLiveTime();
 
@@ -151,6 +153,9 @@ protected:
 	std::vector<LLVOCacheEntry*> mChildrenList; //children entries in a linked set.
 
 	BOOL                        mTouched; //if set, this entry is valid, otherwise it is invalid.
+
+	static F32                  sBackDistanceSquared;
+	static F32                  sBackAngleTanSquared;
 };
 
 class LLVOCachePartition : public LLViewerOctreePartition, public LLTrace::MemTrackable<LLVOCachePartition>
