@@ -404,21 +404,6 @@ void LLParticipantList::addAvatarIDExceptAgent(const LLUUID& avatar_id)
 
 static LLFastTimer::DeclareTimer FTM_FOLDERVIEW_TEST("add test avatar agents");
 
-
-void LLParticipantList::addTestAvatarAgents()
-{
-	LLFastTimer _(FTM_FOLDERVIEW_TEST);
-
-	LL_INFOS("LLParticipantList") << "start adding 300 users" << LL_ENDL;
-
-	for(int i = 0; i < 300; ++i)
-	{
-		addAvatarIDExceptAgent(LLUUID().generateNewID());
-	}
-
-	LL_INFOS("LLParticipantList") << "finished adding 300 users" << LL_ENDL;
-}
-
 void LLParticipantList::adjustParticipant(const LLUUID& speaker_id)
 {
 	LLPointer<LLSpeaker> speakerp = mSpeakerMgr->findSpeaker(speaker_id);
