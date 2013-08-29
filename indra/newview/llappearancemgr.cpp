@@ -619,6 +619,7 @@ public:
 	void handleLateArrivals();
 	void resetTime(F32 timeout);
 	static S32 countActive() { return sActiveHoldingPatterns.size(); }
+	S32 index() { return mIndex; }
 	
 private:
 	found_list_t mFoundList;
@@ -632,12 +633,15 @@ private:
 	bool mFired;
 	typedef std::set<LLWearableHoldingPattern*> type_set_hp;
 	static type_set_hp sActiveHoldingPatterns;
+	static S32 sNextIndex;
+	S32 mIndex;
 	bool mIsMostRecent;
 	std::set<LLViewerWearable*> mLateArrivals;
 	bool mIsAllComplete;
 };
 
 LLWearableHoldingPattern::type_set_hp LLWearableHoldingPattern::sActiveHoldingPatterns;
+S32 LLWearableHoldingPattern::sNextIndex = 0;
 
 LLWearableHoldingPattern::LLWearableHoldingPattern():
 	mResolved(0),
@@ -645,10 +649,10 @@ LLWearableHoldingPattern::LLWearableHoldingPattern():
 	mIsMostRecent(true),
 	mIsAllComplete(false)
 {
-	if (sActiveHoldingPatterns.size()>0)
+	if (countActive()>0)
 	{
 		llinfos << "Creating LLWearableHoldingPattern when "
-				<< sActiveHoldingPatterns.size()
+				<< countActive()
 				<< " other attempts are active."
 				<< " Flagging others as invalid."
 				<< llendl;
@@ -660,7 +664,9 @@ LLWearableHoldingPattern::LLWearableHoldingPattern():
 		}
 			 
 	}
+	mIndex = sNextIndex++;
 	sActiveHoldingPatterns.insert(this);
+	LL_DEBUGS("Avatar") << "HP " << index() << " created" << llendl;
 	selfStartPhase("holding_pattern");
 }
 
@@ -671,6 +677,7 @@ LLWearableHoldingPattern::~LLWearableHoldingPattern()
 	{
 		selfStopPhase("holding_pattern");
 	}
+	LL_DEBUGS("Avatar") << "HP " << index() << " deleted" << llendl;
 }
 
 bool LLWearableHoldingPattern::isMostRecent()
@@ -718,7 +725,7 @@ void LLWearableHoldingPattern::checkMissingWearables()
 	if (!isMostRecent())
 	{
 		// runway why don't we actually skip here?
-		llwarns << self_av_string() << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
+		llwarns << self_av_string() << "HP " << index() << " skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
 	}
 
 	std::vector<S32> found_by_type(LLWearableType::WT_COUNT,0);
@@ -736,7 +743,7 @@ void LLWearableHoldingPattern::checkMissingWearables()
 	{
 		if (requested_by_type[type] > found_by_type[type])
 		{
-			llwarns << self_av_string() << "got fewer wearables than requested, type " << type << ": requested " << requested_by_type[type] << ", found " << found_by_type[type] << llendl;
+			llwarns << self_av_string() << "HP " << index() << "got fewer wearables than requested, type " << type << ": requested " << requested_by_type[type] << ", found " << found_by_type[type] << llendl;
 		}
 		if (found_by_type[type] > 0)
 			continue;
@@ -753,13 +760,16 @@ void LLWearableHoldingPattern::checkMissingWearables()
 			mTypesToRecover.insert(type);
 			mTypesToLink.insert(type);
 			recoverMissingWearable((LLWearableType::EType)type);
-			llwarns << self_av_string() << "need to replace " << type << llendl; 
+			llwarns << self_av_string() << "HP " << index() << " need to replace wearable of type " << type << llendl; 
 		}
 	}
 
 	resetTime(60.0F);
 
-	selfStartPhase("get_missing_wearables");
+	if (isMostRecent())
+	{
+		selfStartPhase("get_missing_wearables");
+	}
 	if (!pollMissingWearables())
 	{
 		doOnIdleRepeating(boost::bind(&LLWearableHoldingPattern::pollMissingWearables,this));
@@ -776,13 +786,13 @@ void LLWearableHoldingPattern::onAllComplete()
 	if (!isMostRecent())
 	{
 		// runway need to skip here?
-		llwarns << self_av_string() << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
+		llwarns << self_av_string() << "HP " << index() << " skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
 	}
 
 	// Activate all gestures in this folder
 	if (mGestItems.count() > 0)
 	{
-		LL_DEBUGS("Avatar") << self_av_string() << "Activating " << mGestItems.count() << " gestures" << LL_ENDL;
+		LL_DEBUGS("Avatar") << self_av_string() << "HP " << index() << " activating " << mGestItems.count() << " gestures" << LL_ENDL;
 		
 		LLGestureMgr::instance().activateGestures(mGestItems);
 		
@@ -799,13 +809,13 @@ void LLWearableHoldingPattern::onAllComplete()
 	}
 
 	// Update wearables.
-	LL_INFOS("Avatar") << self_av_string() << "Updating agent wearables with " << mResolved << " wearable items " << LL_ENDL;
-	LLAppearanceMgr::instance().updateAgentWearables(this, false);
+	LL_INFOS("Avatar") << self_av_string() << "HP " << index() << " updating agent wearables with " << mResolved << " wearable items " << LL_ENDL;
+	LLAppearanceMgr::instance().updateAgentWearables(this);
 	
 	// Update attachments to match those requested.
 	if (isAgentAvatarValid())
 	{
-		LL_DEBUGS("Avatar") << self_av_string() << "Updating " << mObjItems.count() << " attachments" << LL_ENDL;
+		LL_DEBUGS("Avatar") << self_av_string() << "HP " << index() << " updating " << mObjItems.count() << " attachments" << LL_ENDL;
 		LLAgentWearables::userUpdateAttachments(mObjItems);
 	}
 
@@ -823,12 +833,15 @@ void LLWearableHoldingPattern::onAllComplete()
 
 void LLWearableHoldingPattern::onFetchCompletion()
 {
-	selfStopPhase("get_wearables");
+	if (isMostRecent())
+	{
+		selfStopPhase("get_wearables");
+	}
 		
 	if (!isMostRecent())
 	{
 		// runway skip here?
-		llwarns << self_av_string() << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
+		llwarns << self_av_string() << "HP " << index() << " skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
 	}
 
 	checkMissingWearables();
@@ -840,7 +853,7 @@ bool LLWearableHoldingPattern::pollFetchCompletion()
 	if (!isMostRecent())
 	{
 		// runway skip here?
-		llwarns << self_av_string() << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
+		llwarns << self_av_string() << "HP " << index() << " skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
 	}
 
 	bool completed = isFetchCompleted();
@@ -849,14 +862,14 @@ bool LLWearableHoldingPattern::pollFetchCompletion()
 
 	if (done)
 	{
-		LL_INFOS("Avatar") << self_av_string() << "polling, done status: " << completed << " timed out " << timed_out
+		LL_INFOS("Avatar") << self_av_string() << "HP " << index() << " polling, done status: " << completed << " timed out " << timed_out
 				<< " elapsed " << mWaitTime.getElapsedTimeF32() << LL_ENDL;
 
 		mFired = true;
 		
 		if (timed_out)
 		{
-			llwarns << self_av_string() << "Exceeded max wait time for wearables, updating appearance based on what has arrived" << llendl;
+			llwarns << self_av_string() << "HP " << index() << " exceeded max wait time for wearables, updating appearance based on what has arrived" << llendl;
 		}
 
 		onFetchCompletion();
@@ -868,11 +881,11 @@ void recovered_item_link_cb(const LLUUID& item_id, LLWearableType::EType type, L
 {
 	if (!holder->isMostRecent())
 	{
-		llwarns << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
+		llwarns << "HP " << holder->index() << " skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
 		// runway skip here?
 	}
 
-	llinfos << "Recovered item link for type " << type << llendl;
+	llinfos << "HP " << holder->index() << " recovered item link for type " << type << llendl;
 	holder->eraseTypeToLink(type);
 	// Add wearable to FoundData for actual wearing
 	LLViewerInventoryItem *item = gInventory.getItem(item_id);
@@ -896,12 +909,12 @@ void recovered_item_link_cb(const LLUUID& item_id, LLWearableType::EType type, L
 		}
 		else
 		{
-			llwarns << self_av_string() << "inventory item not found for recovered wearable" << llendl;
+			llwarns << self_av_string() << "HP " << holder->index() << " inventory item not found for recovered wearable" << llendl;
 		}
 	}
 	else
 	{
-		llwarns << self_av_string() << "inventory link not found for recovered wearable" << llendl;
+		llwarns << self_av_string() << "HP " << holder->index() << " inventory link not found for recovered wearable" << llendl;
 	}
 }
 
@@ -910,10 +923,10 @@ void recovered_item_cb(const LLUUID& item_id, LLWearableType::EType type, LLView
 	if (!holder->isMostRecent())
 	{
 		// runway skip here?
-		llwarns << self_av_string() << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
+		llwarns << self_av_string() << "HP " << holder->index() << " skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
 	}
 
-	LL_DEBUGS("Avatar") << self_av_string() << "Recovered item for type " << type << LL_ENDL;
+	LL_DEBUGS("Avatar") << self_av_string() << "HP " << holder->index() << " recovered item for type " << type << LL_ENDL;
 	LLConstPointer<LLInventoryObject> itemp = gInventory.getItem(item_id);
 	wearable->setItemID(item_id);
 	holder->eraseTypeToRecover(type);
@@ -931,13 +944,13 @@ void LLWearableHoldingPattern::recoverMissingWearable(LLWearableType::EType type
 	if (!isMostRecent())
 	{
 		// runway skip here?
-		llwarns << self_av_string() << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
+		llwarns << self_av_string() << "HP " << index() << " skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
 	}
 	
 		// Try to recover by replacing missing wearable with a new one.
 	LLNotificationsUtil::add("ReplacedMissingWearable");
-	lldebugs << "Wearable " << LLWearableType::getTypeLabel(type)
-			 << " could not be downloaded.  Replaced inventory item with default wearable." << llendl;
+	LL_DEBUGS("Avatar") << "HP " << index() << " wearable " << LLWearableType::getTypeLabel(type)
+						<< " could not be downloaded.  Replaced inventory item with default wearable." << llendl;
 	LLViewerWearable* wearable = LLWearableList::instance().createNewWearable(type, gAgentAvatarp);
 
 	// Add a new one in the lost and found folder.
@@ -970,7 +983,7 @@ void LLWearableHoldingPattern::clearCOFLinksForMissingWearables()
 		if ((data.mWearableType < LLWearableType::WT_COUNT) && (!data.mWearable))
 		{
 			// Wearable link that was never resolved; remove links to it from COF
-			LL_INFOS("Avatar") << self_av_string() << "removing link for unresolved item " << data.mItemID.asString() << LL_ENDL;
+			LL_INFOS("Avatar") << self_av_string() << "HP " << index() << " removing link for unresolved item " << data.mItemID.asString() << LL_ENDL;
 			LLAppearanceMgr::instance().removeCOFItemLinks(data.mItemID);
 		}
 	}
@@ -981,7 +994,7 @@ bool LLWearableHoldingPattern::pollMissingWearables()
 	if (!isMostRecent())
 	{
 		// runway skip here?
-		llwarns << self_av_string() << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
+		llwarns << self_av_string() << "HP " << index() << " skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
 	}
 	
 	bool timed_out = isTimedOut();
@@ -990,7 +1003,7 @@ bool LLWearableHoldingPattern::pollMissingWearables()
 
 	if (!done)
 	{
-		LL_INFOS("Avatar") << self_av_string() << "polling missing wearables, waiting for items " << mTypesToRecover.size()
+		LL_INFOS("Avatar") << self_av_string() << "HP " << index() << " polling missing wearables, waiting for items " << mTypesToRecover.size()
 				<< " links " << mTypesToLink.size()
 				<< " wearables, timed out " << timed_out
 				<< " elapsed " << mWaitTime.getElapsedTimeF32()
@@ -999,7 +1012,10 @@ bool LLWearableHoldingPattern::pollMissingWearables()
 
 	if (done)
 	{
-		selfStopPhase("get_missing_wearables");
+		if (isMostRecent())
+		{
+			selfStopPhase("get_missing_wearables");
+		}
 
 		gAgentAvatarp->debugWearablesLoaded();
 
@@ -1030,14 +1046,14 @@ void LLWearableHoldingPattern::handleLateArrivals()
 	}
 	if (!isMostRecent())
 	{
-		llwarns << self_av_string() << "Late arrivals not handled - outfit change no longer valid" << llendl;
+		llwarns << self_av_string() << "HP " << index() << " late arrivals not handled - outfit change no longer valid" << llendl;
 	}
 	if (!mIsAllComplete)
 	{
-		llwarns << self_av_string() << "Late arrivals not handled - in middle of missing wearables processing" << llendl;
+		llwarns << self_av_string() << "HP " << index() << " late arrivals not handled - in middle of missing wearables processing" << llendl;
 	}
 
-	LL_INFOS("Avatar") << self_av_string() << "Need to handle " << mLateArrivals.size() << " late arriving wearables" << LL_ENDL;
+	LL_INFOS("Avatar") << self_av_string() << "HP " << index() << " need to handle " << mLateArrivals.size() << " late arriving wearables" << LL_ENDL;
 
 	// Update mFoundList using late-arriving wearables.
 	std::set<LLWearableType::EType> replaced_types;
@@ -1100,7 +1116,7 @@ void LLWearableHoldingPattern::handleLateArrivals()
 	mLateArrivals.clear();
 
 	// Update appearance based on mFoundList
-	LLAppearanceMgr::instance().updateAgentWearables(this, false);
+	LLAppearanceMgr::instance().updateAgentWearables(this);
 }
 
 void LLWearableHoldingPattern::resetTime(F32 timeout)
@@ -1113,19 +1129,19 @@ void LLWearableHoldingPattern::onWearableAssetFetch(LLViewerWearable *wearable)
 {
 	if (!isMostRecent())
 	{
-		llwarns << self_av_string() << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
+		llwarns << self_av_string() << "HP " << index() << " skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
 	}
 	
 	mResolved += 1;  // just counting callbacks, not successes.
-	LL_DEBUGS("Avatar") << self_av_string() << "resolved " << mResolved << "/" << getFoundList().size() << LL_ENDL;
+	LL_DEBUGS("Avatar") << self_av_string() << "HP " << index() << " resolved " << mResolved << "/" << getFoundList().size() << LL_ENDL;
 	if (!wearable)
 	{
-		llwarns << self_av_string() << "no wearable found" << llendl;
+		llwarns << self_av_string() << "HP " << index() << " " << "no wearable found" << llendl;
 	}
 
 	if (mFired)
 	{
-		llwarns << self_av_string() << "called after holder fired" << llendl;
+		llwarns << self_av_string() << "HP " << index() << " " << "called after holder fired" << llendl;
 		if (wearable)
 		{
 			mLateArrivals.insert(wearable);
@@ -1151,7 +1167,9 @@ void LLWearableHoldingPattern::onWearableAssetFetch(LLViewerWearable *wearable)
 			// Failing this means inventory or asset server are corrupted in a way we don't handle.
 			if ((data.mWearableType >= LLWearableType::WT_COUNT) || (wearable->getType() != data.mWearableType))
 			{
-				llwarns << self_av_string() << "recovered wearable but type invalid. inventory wearable type: " << data.mWearableType << " asset wearable type: " << wearable->getType() << llendl;
+				llwarns << self_av_string() << "HP " << index() << " "
+						<< "recovered wearable but type invalid. inventory wearable type: "
+						<< data.mWearableType << " asset wearable type: " << wearable->getType() << llendl;
 				break;
 			}
 
@@ -1898,9 +1916,10 @@ void LLAppearanceMgr::createBaseOutfitLink(const LLUUID& category, LLPointer<LLI
 	updatePanelOutfitName(new_outfit_name);
 }
 
-void LLAppearanceMgr::updateAgentWearables(LLWearableHoldingPattern* holder, bool append)
+void LLAppearanceMgr::updateAgentWearables(LLWearableHoldingPattern* holder)
 {
-	lldebugs << "updateAgentWearables()" << llendl;
+	LL_DEBUGS("Avatar") << "starts" << llendl;
+	LLTimer timer;
 	LLInventoryItem::item_array_t items;
 	LLDynamicArray< LLViewerWearable* > wearables;
 
@@ -1926,8 +1945,9 @@ void LLAppearanceMgr::updateAgentWearables(LLWearableHoldingPattern* holder, boo
 
 	if(wearables.count() > 0)
 	{
-		gAgentWearables.setWearableOutfit(items, wearables, !append);
+		gAgentWearables.setWearableOutfit(items, wearables);
 	}
+	LL_DEBUGS("Avatar") << "ends, elapsed " << timer.getElapsedTimeF32() << llendl;
 }
 
 S32 LLAppearanceMgr::countActiveHoldingPatterns()
@@ -2114,6 +2134,8 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool enforce_item_restrictions,
 	sortItemsByActualDescription(wear_items);
 
 
+	LL_DEBUGS("Avatar") << "HP block starts" << llendl;
+	LLTimer hp_block_timer;
 	LLWearableHoldingPattern* holder = new LLWearableHoldingPattern;
 
 	holder->setObjItems(obj_items);
@@ -2188,6 +2210,8 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool enforce_item_restrictions,
 		doOnIdleRepeating(boost::bind(&LLWearableHoldingPattern::pollFetchCompletion,holder));
 	}
 	post_update_func();
+
+	LL_DEBUGS("Avatar") << "HP block ends, elapsed " << hp_block_timer.getElapsedTimeF32() << llendl;
 }
 
 void LLAppearanceMgr::getDescendentsOfAssetType(const LLUUID& category,
