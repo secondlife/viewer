@@ -190,17 +190,28 @@ public:
 		LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_DISCONNECTING);
 	}
 
+	void setUserDisconnected()
+	{
+		// Clear data
+		LLFacebookConnect::instance().clearInfo();
+		LLFacebookConnect::instance().clearContent();
+		//Notify state change
+		LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_NOT_CONNECTED);
+	}
+
 	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
 	{
-		if (isGoodStatus(status))
+		if (isGoodStatus(status)) 
 		{
 			LL_DEBUGS("FacebookConnect") << "Disconnect successful. content: " << content << LL_ENDL;
-			
-			// Clear data
-			LLFacebookConnect::instance().clearInfo();
-			LLFacebookConnect::instance().clearContent();
-			//Notify state change
-            LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_NOT_CONNECTED);
+			setUserDisconnected();
+
+		}
+		//User not found so already disconnected
+		else if(status == 404)
+		{
+			LL_DEBUGS("FacebookConnect") << "Already disconnected. content: " << content << LL_ENDL;
+			setUserDisconnected();
 		}
 		else
 		{
