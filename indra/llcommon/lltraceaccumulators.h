@@ -318,7 +318,6 @@ namespace LLTrace
 				mMin = value;
 				mMax = value;
 				mMean = value;
-				llassert(mMean < 0 || mMean >= 0);
 				mLastSampleTimeStamp = time_stamp;
 			}
 			else
@@ -336,15 +335,13 @@ namespace LLTrace
 
 		void sync(F64SecondsImplicit time_stamp)
 		{
-			if (mHasValue)
+			if (mHasValue && time_stamp != mLastSampleTimeStamp)
 			{
 				F64SecondsImplicit delta_time = time_stamp - mLastSampleTimeStamp;
 				mSum += mLastValue * delta_time;
 				mTotalSamplingTime += delta_time;
 				F64 old_mean = mMean;
-				llassert(mMean < 0 || mMean >= 0);
 				mMean += (delta_time / mTotalSamplingTime) * (mLastValue - old_mean);
-				llassert(mMean < 0 || mMean >= 0);
 				mSumOfSquares += delta_time * (mLastValue - old_mean) * (mLastValue - mMean);
 			}
 			mLastSampleTimeStamp = time_stamp;

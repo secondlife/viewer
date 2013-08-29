@@ -283,6 +283,7 @@ void LLSceneMonitor::capture()
 		else
 		{
 			mEnabled = enabled;
+			reset();
 			freezeScene();
 		}
 	}
