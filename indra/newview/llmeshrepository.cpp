@@ -69,6 +69,7 @@
 #include "lluploadfloaterobservers.h"
 #include "bufferarray.h"
 #include "bufferstream.h"
+#include "llfasttimer.h"
 
 #include "boost/lexical_cast.hpp"
 
@@ -345,7 +346,16 @@ static unsigned int metrics_teleport_start_count = 0;
 boost::signals2::connection metrics_teleport_started_signal;
 static void teleport_started();
 static bool is_retryable(LLCore::HttpStatus status);
+static LLFastTimer::DeclareTimer FTM_MESH_FETCH("Mesh Fetch");
 
+// Enable here or in build environment to get fasttimer data on mesh fetches.
+#define LL_FASTTIMER_MESH_ENABLE		1
+#if LL_FASTTIMER_MESH_ENABLE
+#define	MESH_FASTTIMER_DEFBLOCK			LLFastTimer meshtimer(FTM_MESH_FETCH)
+#else
+#define	MESH_FASTTIMER_DEFBLOCK
+#endif // LL_FASTTIMER_MESH_ENABLE
+ 
 //get the number of bytes resident in memory for given volume
 U32 get_volume_memory_size(const LLVolume* volume)
 {
@@ -2897,7 +2907,6 @@ void LLMeshRepository::init()
 	
 	mThread = new LLMeshRepoThread();
 	mThread->start();
-
 }
 
 void LLMeshRepository::shutdown()
@@ -2973,6 +2982,8 @@ S32 LLMeshRepository::update()
 
 S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_params, S32 detail, S32 last_lod)
 {
+	MESH_FASTTIMER_DEFBLOCK;
+	
 	// Manage time-to-load metrics for mesh download operations.
 	metricsProgress(1);
 
@@ -3054,6 +3065,8 @@ S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_para
 
 void LLMeshRepository::notifyLoadedMeshes()
 { //called from main thread
+	MESH_FASTTIMER_DEFBLOCK;
+
 	if (1 == mGetMeshVersion)
 	{
 		// Legacy GetMesh operation with high connection concurrency
@@ -3402,6 +3415,8 @@ S32 LLMeshRepository::getActualMeshLOD(const LLVolumeParams& mesh_params, S32 lo
 
 const LLMeshSkinInfo* LLMeshRepository::getSkinInfo(const LLUUID& mesh_id, const LLVOVolume* requesting_obj)
 {
+	MESH_FASTTIMER_DEFBLOCK;
+
 	if (mesh_id.notNull())
 	{
 		skin_map::iterator iter = mSkinMap.find(mesh_id);
@@ -3428,6 +3443,8 @@ const LLMeshSkinInfo* LLMeshRepository::getSkinInfo(const LLUUID& mesh_id, const
 
 void LLMeshRepository::fetchPhysicsShape(const LLUUID& mesh_id)
 {
+	MESH_FASTTIMER_DEFBLOCK;
+
 	if (mesh_id.notNull())
 	{
 		LLModel::Decomposition* decomp = NULL;
@@ -3456,6 +3473,8 @@ void LLMeshRepository::fetchPhysicsShape(const LLUUID& mesh_id)
 
 LLModel::Decomposition* LLMeshRepository::getDecomposition(const LLUUID& mesh_id)
 {
+	MESH_FASTTIMER_DEFBLOCK;
+
 	LLModel::Decomposition* ret = NULL;
 
 	if (mesh_id.notNull())
@@ -3518,6 +3537,8 @@ bool LLMeshRepository::hasPhysicsShape(const LLUUID& mesh_id)
 
 LLSD& LLMeshRepository::getMeshHeader(const LLUUID& mesh_id)
 {
+	MESH_FASTTIMER_DEFBLOCK;
+
 	return mThread->getMeshHeader(mesh_id);
 }
 
