@@ -32,6 +32,7 @@
 #include "llavatarnamecache.h"
 #include "llbutton.h"
 #include "llfiltereditor.h"
+#include "llfloatergroupbulkban.h"
 #include "llfloatergroupinvite.h"
 #include "llavataractions.h"
 #include "lliconctrl.h"
@@ -109,8 +110,9 @@ bool agentCanAddToRole(const LLUUID& group_id,
 	return false;
 }
 
-// static
+// LLPanelGroupRoles /////////////////////////////////////////////////////
 
+// static
 LLPanelGroupRoles::LLPanelGroupRoles()
 :	LLPanelGroupTab(),
 	mCurrentTab(NULL),
@@ -412,6 +414,35 @@ BOOL LLPanelGroupRoles::hasModal()
 	return panelp->hasModal();
 }
 
+// BAKER -- Moved this from all the way at the bottom
+void LLPanelGroupRoles::setGroupID(const LLUUID& id)
+{
+	LLPanelGroupTab::setGroupID(id);
+
+	LLPanelGroupMembersSubTab* group_members_tab = findChild<LLPanelGroupMembersSubTab>("members_sub_tab");
+	LLPanelGroupRolesSubTab*  group_roles_tab = findChild<LLPanelGroupRolesSubTab>("roles_sub_tab");
+	LLPanelGroupActionsSubTab* group_actions_tab = findChild<LLPanelGroupActionsSubTab>("actions_sub_tab");
+	LLPanelGroupBanListSubTab* group_ban_tab = findChild<LLPanelGroupBanListSubTab>("banlist_sub_tab");
+
+	if(group_members_tab) group_members_tab->setGroupID(id);
+	if(group_roles_tab) group_roles_tab->setGroupID(id);
+	if(group_actions_tab) group_actions_tab->setGroupID(id);
+	if(group_ban_tab) group_ban_tab->setGroupID(id);
+
+	LLButton* button = getChild<LLButton>("member_invite");
+	if ( button )
+		button->setEnabled(gAgent.hasPowerInGroup(mGroupID, GP_MEMBER_INVITE));
+
+	if(mSubTabContainer)
+		mSubTabContainer->selectTab(0);
+
+	activate();
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+
+// LLPanelGroupSubTab ////////////////////////////////////////////////////
 
 ////////////////////////////
 // LLPanelGroupSubTab
@@ -728,11 +759,14 @@ void LLPanelGroupSubTab::setFooterEnabled(BOOL enable)
 	}
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+
+// LLPanelGroupMembersSubTab /////////////////////////////////////////////
+
 ////////////////////////////
 // LLPanelGroupMembersSubTab
 ////////////////////////////
-
-
 static LLRegisterPanelClassWrapper<LLPanelGroupMembersSubTab> t_panel_group_members_subtab("panel_group_members_subtab");
 
 LLPanelGroupMembersSubTab::LLPanelGroupMembersSubTab()
@@ -810,6 +844,14 @@ BOOL LLPanelGroupMembersSubTab::postBuildSubTab(LLView* root)
 		mEjectBtn->setEnabled(FALSE);
 	}
 
+	mBanBtn = parent->getChild<LLButton>("member_ban", recurse);
+	if(mBanBtn)
+	{
+		mBanBtn->setClickedCallback(onBanMember, this);
+		mBanBtn->setEnabled(FALSE);
+	}
+
+
 	return TRUE;
 }
 
@@ -822,34 +864,6 @@ void LLPanelGroupMembersSubTab::setGroupID(const LLUUID& id)
 
 	LLPanelGroupSubTab::setGroupID(id);
 }
-
-void LLPanelGroupRolesSubTab::setGroupID(const LLUUID& id)
-{
-	if(mRolesList) mRolesList->deleteAllItems();
-	if(mAssignedMembersList) mAssignedMembersList->deleteAllItems();
-	if(mAllowedActionsList) mAllowedActionsList->deleteAllItems();
-
-	if(mRoleName) mRoleName->clear();
-	if(mRoleDescription) mRoleDescription->clear();
-	if(mRoleTitle) mRoleTitle->clear();
-
-	mHasRoleChange = FALSE;
-
-	setFooterEnabled(FALSE);
-
-	LLPanelGroupSubTab::setGroupID(id);
-}
-void LLPanelGroupActionsSubTab::setGroupID(const LLUUID& id)
-{
-	if(mActionList) mActionList->deleteAllItems();
-	if(mActionRoles) mActionRoles->deleteAllItems();
-	if(mActionMembers) mActionMembers->deleteAllItems();
-
-	if(mActionDescription) mActionDescription->clear();
-
-	LLPanelGroupSubTab::setGroupID(id);
-}
-
 
 // static
 void LLPanelGroupMembersSubTab::onMemberSelect(LLUICtrl* ctrl, void* user_data)
@@ -916,6 +930,12 @@ void LLPanelGroupMembersSubTab::handleMemberSelect()
 	LLGroupMgrGroupData::role_list_t::iterator iter = gdatap->mRoles.begin();
 	LLGroupMgrGroupData::role_list_t::iterator end  = gdatap->mRoles.end();
 
+	//////////////////////////////////////////////////////////////////////////
+	// BAKER STUB:
+	// Check if the member has the power to ban (just like the eject below)
+	// Right now, just give it to them (for testing)
+	BOOL can_ban_members = gAgent.hasPowerInGroup(mGroupID,	GP_GROUP_BAN_ACCESS);
+	//////////////////////////////////////////////////////////////////////////
 	BOOL can_eject_members = gAgent.hasPowerInGroup(mGroupID,
 													GP_MEMBER_EJECT);
 	BOOL member_is_owner = FALSE;
@@ -986,6 +1006,7 @@ void LLPanelGroupMembersSubTab::handleMemberSelect()
 			if (role_id.notNull() && (count > 0))
 			{
 				can_eject_members = FALSE;
+				can_ban_members = FALSE;
 				if (role_id == gdatap->mOwnerRole)
 				{
 					member_is_owner = TRUE;
@@ -1047,7 +1068,10 @@ void LLPanelGroupMembersSubTab::handleMemberSelect()
 	mAssignedRolesList->setEnabled(TRUE);
 
 	if (gAgent.isGodlike())
+	{
 		can_eject_members = TRUE;
+		can_ban_members = TRUE;
+	}
 
 	if (!can_eject_members && !member_is_owner)
 	{
@@ -1060,10 +1084,12 @@ void LLPanelGroupMembersSubTab::handleMemberSelect()
 			if ( member_data && member_data->isInRole(gdatap->mOwnerRole) )
 			{
 				can_eject_members = TRUE;
+				can_ban_members = TRUE;
 			}
 		}
 	}
 
+	mBanBtn->setEnabled(can_ban_members);
 	mEjectBtn->setEnabled(can_eject_members);
 }
 
@@ -1230,7 +1256,6 @@ void LLPanelGroupMembersSubTab::handleRoleCheck(const LLUUID& role_id,
 					 FALSE,
 					 FALSE);
 }
-
 
 // static 
 void LLPanelGroupMembersSubTab::onRoleCheck(LLUICtrl* ctrl, void* user_data)
@@ -1653,7 +1678,7 @@ void LLPanelGroupMembersSubTab::updateMembers()
 		return;
 	}
 
-	//cleanup list only for first iretation
+	//cleanup list only for first iteration
 	if(mMemberProgress == gdatap->mMembers.begin())
 	{
 		mMembersList->deleteAllItems();
@@ -1712,12 +1737,55 @@ void LLPanelGroupMembersSubTab::updateMembers()
 	handleMemberSelect();
 }
 
+// BAKER
+void LLPanelGroupMembersSubTab::onBanMember(void* user_data)
+{
+	LLPanelGroupMembersSubTab* self = static_cast<LLPanelGroupMembersSubTab*>(user_data);
+	self->handleBanMember();
+}
 
+void LLPanelGroupMembersSubTab::handleBanMember()
+{
+	LL_INFOS("BAKER") << "[BAKER] LLPanelGroupMembersSubTab::handleBanMember()" << LL_ENDL;
+
+	LLGroupMgrGroupData* gdatap	= LLGroupMgr::getInstance()->getGroupData(mGroupID);
+	if(!gdatap) 
+	{
+		llwarns << "LLPanelGroupMembersSubTab::handleMemberSelect() "
+			<< "-- No group data!" << llendl;
+		return;
+	}
+
+	std::vector<LLScrollListItem*> selection = mMembersList->getAllSelected();
+	if(selection.empty())
+	{
+		LL_WARNS("BAKER") << "[BAKER] Empty selection!" << LL_ENDL;
+		return;
+	}
+
+	std::vector<LLScrollListItem*>::iterator itor;
+	for(itor = selection.begin(); itor != selection.end(); ++itor)
+	{
+		LLUUID ban_id = (*itor)->getUUID();
+		LLGroupBanData ban_data;
+
+		// DEL to People API somewhere in this chain...
+		gdatap->createBanEntry(ban_id, ban_data);
+		mMembersList->removeNameItem(ban_id);
+
+	}	
+
+
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+
+// LLPanelGroupRolesSubTab ///////////////////////////////////////////////
 
 ////////////////////////////
 // LLPanelGroupRolesSubTab
 ////////////////////////////
-
 static LLRegisterPanelClassWrapper<LLPanelGroupRolesSubTab> t_panel_group_roles_subtab("panel_group_roles_subtab");
 
 LLPanelGroupRolesSubTab::LLPanelGroupRolesSubTab()
@@ -1962,7 +2030,7 @@ void LLPanelGroupRolesSubTab::update(LLGroupChange gc)
 		mRolesList->sortByColumn(std::string("name"), TRUE);
 
 		if ( (gdatap->mRoles.size() < (U32)MAX_ROLES)
-			&& gAgent.hasPowerInGroup(mGroupID, GP_ROLE_CREATE) )
+			&& gAgent.hasPowerInGroup(mGroupID, GP_GROUP_BAN_ACCESS) )
 		{
 			mCreateRoleButton->setEnabled(TRUE);
 		}
@@ -2010,6 +2078,9 @@ void LLPanelGroupRolesSubTab::update(LLGroupChange gc)
 void LLPanelGroupRolesSubTab::onRoleSelect(LLUICtrl* ctrl, void* user_data)
 {
 	LLPanelGroupRolesSubTab* self = static_cast<LLPanelGroupRolesSubTab*>(user_data);
+	if (!self) 
+		return;
+
 	self->handleRoleSelect();
 }
 
@@ -2250,7 +2321,6 @@ bool LLPanelGroupRolesSubTab::addActionCB(const LLSD& notification, const LLSD& 
 	return false;
 }
 
-
 // static
 void LLPanelGroupRolesSubTab::onPropertiesKey(LLLineEditor* ctrl, void* user_data)
 {
@@ -2428,12 +2498,33 @@ void LLPanelGroupRolesSubTab::saveRoleChanges(bool select_saved_role)
 		mHasRoleChange = FALSE;
 	}
 }
+
+void LLPanelGroupRolesSubTab::setGroupID(const LLUUID& id)
+{
+	if(mRolesList) mRolesList->deleteAllItems();
+	if(mAssignedMembersList) mAssignedMembersList->deleteAllItems();
+	if(mAllowedActionsList) mAllowedActionsList->deleteAllItems();
+
+	if(mRoleName) mRoleName->clear();
+	if(mRoleDescription) mRoleDescription->clear();
+	if(mRoleTitle) mRoleTitle->clear();
+
+	mHasRoleChange = FALSE;
+
+	setFooterEnabled(FALSE);
+
+	LLPanelGroupSubTab::setGroupID(id);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+
+// LLPanelGroupActionsSubTab /////////////////////////////////////////////
+
 ////////////////////////////
 // LLPanelGroupActionsSubTab
 ////////////////////////////
-
 static LLRegisterPanelClassWrapper<LLPanelGroupActionsSubTab> t_panel_group_actions_subtab("panel_group_actions_subtab");
-
 
 LLPanelGroupActionsSubTab::LLPanelGroupActionsSubTab()
 : LLPanelGroupSubTab()
@@ -2607,26 +2698,343 @@ void LLPanelGroupActionsSubTab::handleActionSelect()
 	}
 }
 
-void LLPanelGroupRoles::setGroupID(const LLUUID& id)
+void LLPanelGroupActionsSubTab::setGroupID(const LLUUID& id)
 {
-	LLPanelGroupTab::setGroupID(id);
-	
-	LLPanelGroupMembersSubTab* group_members_tab = findChild<LLPanelGroupMembersSubTab>("members_sub_tab");
-	LLPanelGroupRolesSubTab*  group_roles_tab = findChild<LLPanelGroupRolesSubTab>("roles_sub_tab");
-	LLPanelGroupActionsSubTab* group_actions_tab = findChild<LLPanelGroupActionsSubTab>("actions_sub_tab");
+	if(mActionList) mActionList->deleteAllItems();
+	if(mActionRoles) mActionRoles->deleteAllItems();
+	if(mActionMembers) mActionMembers->deleteAllItems();
 
-	if(group_members_tab) group_members_tab->setGroupID(id);
-	if(group_roles_tab) group_roles_tab->setGroupID(id);
-	if(group_actions_tab) group_actions_tab->setGroupID(id);
+	if(mActionDescription) mActionDescription->clear();
 
-	LLButton* button = getChild<LLButton>("member_invite");
-	if ( button )
-		button->setEnabled(gAgent.hasPowerInGroup(mGroupID, GP_MEMBER_INVITE));
-
-	if(mSubTabContainer)
-		mSubTabContainer->selectTab(0);
-
-	activate();
+	LLPanelGroupSubTab::setGroupID(id);
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////
+// LLPanelGroupBanListSubTab
+////////////////////////////
+static LLRegisterPanelClassWrapper<LLPanelGroupBanListSubTab> t_panel_group_ban_subtab("panel_group_banlist_subtab");
+
+LLPanelGroupBanListSubTab::LLPanelGroupBanListSubTab()
+	: LLPanelGroupSubTab(),
+	  mBanList(NULL),
+	  mCreateBanButton(NULL),
+	  mDeleteBanButton(NULL),
+	  mUpdateBanList(true)
+{
+	LL_INFOS("BAKER") << "[BAKER] LLPanelGroupBanListSubTab::ctor()" << LL_ENDL;
+}
+
+BOOL LLPanelGroupBanListSubTab::postBuildSubTab(LLView* root)
+{
+	LL_INFOS("BAKER") << "[BAKER] LLPanelGroupBanListSubTab::postBuildSubTab()" << LL_ENDL;
+
+	LLPanelGroupSubTab::postBuildSubTab(root);
+
+	// Upcast parent so we can ask it for sibling controls.
+	LLPanelGroupRoles* parent = (LLPanelGroupRoles*)root;
+
+	// Look recursively from the parent to find all our widgets.
+	bool recurse = true;
+	
+	// BAKER TODO:
+	//	What are these? Looks like something inhereted from LLPanelGroupSubTab
+	mHeader = parent->getChild<LLPanel>("banlist_header", recurse);
+	mFooter = parent->getChild<LLPanel>("banlist_footer", recurse);
+	//////////////////////////////////////////////////////////////////////////
+	
+	mBanList = parent->getChild<LLNameListCtrl>("ban_list", recurse);
+	mCreateBanButton = parent->getChild<LLButton>("ban_create", recurse);
+	mDeleteBanButton = parent->getChild<LLButton>("ban_delete", recurse);
+
+	if(!mBanList || !mCreateBanButton || !mDeleteBanButton)
+		return FALSE;
+
+	mBanList->setCommitOnSelectionChange(TRUE);
+	mBanList->setCommitCallback(onBanEntrySelect, this);
+
+	mCreateBanButton->setClickedCallback(onCreateBanEntry, this);
+	mCreateBanButton->setEnabled(FALSE);
+	
+	mDeleteBanButton->setClickedCallback(onDeleteBanEntry, this);
+	mDeleteBanButton->setEnabled(FALSE);
+	
+	setFooterEnabled(FALSE);
+
+	return TRUE;
+}
+
+void LLPanelGroupBanListSubTab::activate()
+{
+	LL_INFOS("BAKER") << "[BAKER] LLPanelGroupBanListSubTab::activate()" << LL_ENDL;
+	
+	LLPanelGroupSubTab::activate();
+
+	mBanList->deselectAllItems();
+	mDeleteBanButton->setEnabled(FALSE);
+
+	setFooterEnabled(FALSE);
+	update(GC_ALL);
+}
+
+void LLPanelGroupBanListSubTab::deactivate()
+{
+	LL_INFOS("BAKER") << "[BAKER] LLPanelGroupBanListSubTab::deactivate()" << LL_ENDL;
+	
+	LLPanelGroupSubTab::deactivate();
+}
+
+bool LLPanelGroupBanListSubTab::needsApply(std::string& mesg)
+{
+	LL_INFOS("BAKER") << "LLPanelGroupBanListSubTab::needsApply()" << LL_ENDL;
+
+	// STUB
+	return false;
+}
+
+bool LLPanelGroupBanListSubTab::apply(std::string& mesg)
+{
+	LL_INFOS("BAKER") << "[BAKER] LLPanelGroupBanListSubTab::apply()" << LL_ENDL;
+	
+	
+
+
+	// STUB
+	return true;
+}
+
+void LLPanelGroupBanListSubTab::update(LLGroupChange gc)
+{
+	LL_INFOS("BAKER") << "[BAKER] LLPanelGroupBanListSubTab::update()" << LL_ENDL;
+
+	if (gc != GC_ALL || gc != GC_BANLIST)
+		return;
+
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
+	if(!gdatap) 
+	{
+		LL_INFOS("BAKER") << "[BAKER] No group data!" << LL_ENDL;
+		return;
+	}
+
+	switch(gdatap->getGroupBanStatus())
+	{
+	// Must be initial update [	Check if I should request this at panel creation
+	//							with everything else -- might as well]
+	// Request our ban list!
+	case LLGroupMgrGroupData::STATUS_INIT:
+		LLGroupMgr::getInstance()->sendGroupBanRequest(LLGroupMgr::REQUEST_GET, mGroupID);
+		break;
+	
+	// Already have a request out -- don't bother sending another one 
+	// Repeat sending won't make a difference, as it'll be behind a load balancer
+	case LLGroupMgrGroupData::STATUS_REQUESTING:
+		break;
+	
+	//	See if the list needs updating -- if we call update, but nothing changed,
+	//	there's no reason to send another request.
+	//		[NOTHING CHANGED]	- Do Nothing!
+	//		[SOMETHING CHANGED]	- Don't panic! Just repopulate the ban list! 
+	case LLGroupMgrGroupData::STATUS_COMPLETE:
+		populateBanList();
+
+		
+		break;
+	}
+}
+
+
+void LLPanelGroupBanListSubTab::populateBanList()
+{
+	//if(gdatap->getGroupBanStatus() == )
+
+
+
+// 	mBanList->deleteAllItems();
+// 	LLGroupMgr::getInstance()->sendGroupBanRequest(LLGroupMgr::REQUEST_GET, mGroupID);
+// 	
+// 	std::map<LLUUID,LLGroupBanData>::const_iterator entry = gdatap->mBanList.begin();
+// 	for(; entry != gdatap->mBanList.end(); entry++)
+// 	{
+// 		LLNameListCtrl::NameItem ban_entry;
+// 		ban_entry.value = entry->first;
+// 		mBanList->addNameItemRow(ban_entry);
+// 	}
+	
+	mUpdateBanList = false;
+}
+
+
+void LLPanelGroupBanListSubTab::onBanEntrySelect(LLUICtrl* ctrl, void* user_data)
+{
+	LL_INFOS("BAKER") << "[BAKER] LLPanelGroupBanListSubTab::onBanEntrySelect()" << LL_ENDL;
+	
+	LLPanelGroupBanListSubTab* self = static_cast<LLPanelGroupBanListSubTab*>(user_data);
+	if (!self) 
+		return;
+
+	self->handleBanEntrySelect();
+}
+
+void LLPanelGroupBanListSubTab::handleBanEntrySelect()
+{
+	LL_INFOS("BAKER") << "[BAKER] LLPanelGroupBanListSubTab::handleBanEntrySelect()" << LL_ENDL;
+
+	// BAKER TODO: -- MOVE TO SELECT BAN ENTRY
+	// Make sure only authorized people have access to adding / deleting bans
+	//if (gAgent.hasPowerInGroup(mGroupID, GP_GROUP_BAN_ACCESS))
+	mCreateBanButton->setEnabled(TRUE);
+
+	// Check if the agent has the ability to unban this person
+	//if (gAgent.hasPowerInGroup(mGroupID, GP_GROUP_BAN_ACCESS))
+		mDeleteBanButton->setEnabled(TRUE);
+}
+
+
+void LLPanelGroupBanListSubTab::onBanGroupMember(void* user_data)
+{
+	LL_INFOS("BAKER") << "[BAKER] LLPanelGroupBanListSubTab::onBanGroupMember()" << LL_ENDL;
+
+	LLPanelGroupBanListSubTab* self = static_cast<LLPanelGroupBanListSubTab*>(user_data);
+	if (!self) 
+		return;
+
+	self->handleBanGroupMember();
+}
+
+void LLPanelGroupBanListSubTab::handleBanGroupMember()
+{
+	LL_INFOS("BAKER") << "[BAKER] LLPanelGroupBanListSubTab::handleBanGroupMember()" << LL_ENDL;
+
+	//////////////////////////////////////////////////////////////////////////
+	// BAKER TEMP
+	//	Getting viewer functionality working, so I'm gonna cheat a bit here for now
+	//	Assume everything worked on the back end
+	//	
+	//	First, get the entries added to the ban list
+	//////////////////////////////////////////////////////////////////////////
+	
+}
+
+
+void LLPanelGroupBanListSubTab::onCreateBanEntry(void* user_data)
+{
+	LL_INFOS("BAKER") << "[BAKER] LLPanelGroupBanListSubTab::onCreateBanEntry()" << LL_ENDL;
+	
+	LLPanelGroupBanListSubTab* self = static_cast<LLPanelGroupBanListSubTab*>(user_data);
+	if (!self) 
+		return;
+
+	self->handleCreateBanEntry();
+}
+
+void LLPanelGroupBanListSubTab::handleCreateBanEntry()
+{
+	LL_INFOS("BAKER") << "[BAKER] LLPanelGroupBanListSubTab::handleCreateBanEntry()" << LL_ENDL;
+	
+	// STUB
+	// Attempt to add an entry into the database
+	// If there was a problem, don't add the entry to the local list
+	// Otherwise, add it
+	// 
+	// For now, let's just add it to the local list for testing.  We can hook it up
+	// at the end.
+
+
+	LLFloaterGroupBulkBan::showForGroup(mGroupID);
+
+}
+
+
+void LLPanelGroupBanListSubTab::onDeleteBanEntry(void* user_data)
+{
+	LL_INFOS("BAKER") << "[BAKER] LLPanelGroupBanListSubTab::onDeleteBanEntry()" << LL_ENDL;
+	
+	LLPanelGroupBanListSubTab* self = static_cast<LLPanelGroupBanListSubTab*>(user_data);
+	if (!self) 
+		return;
+
+	self->handleDeleteBanEntry();
+}
+
+void LLPanelGroupBanListSubTab::handleDeleteBanEntry()
+{
+	LL_INFOS("BAKER") << "[BAKER] LLPanelGroupBanListSubTab::handleDeleteBanEntry()" << LL_ENDL;
+	
+	LLGroupMgrGroupData* gdatap	= LLGroupMgr::getInstance()->getGroupData(mGroupID);
+	if(!gdatap) 
+	{
+		llwarns << "LLPanelGroupMembersSubTab::handleMemberSelect() "
+			<< "-- No group data!" << llendl;
+		return;
+	}
+
+	std::vector<LLScrollListItem*> selection = mBanList->getAllSelected();
+	if(selection.empty())
+	{
+		LL_WARNS("BAKER") << "[BAKER] Empty selection!" << LL_ENDL;
+		return;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	// BAKER STUB:
+	// Check if the member has the power to ban (just like the eject below)
+	bool can_ban_members = false;
+	if (gAgent.isGodlike() ||
+		gAgent.hasPowerInGroup(mGroupID, GP_GROUP_BAN_ACCESS))
+	{
+		can_ban_members	= true;
+	}
+	//////////////////////////////////////////////////////////////////////////
+	
+	// Owners can ban anyone in the group.
+	LLGroupMgrGroupData::member_list_t::iterator mi = gdatap->mMembers.find(gAgent.getID());
+	if (mi != gdatap->mMembers.end())
+	{
+		LLGroupMemberData* member_data = (*mi).second;
+		if ( member_data && member_data->isInRole(gdatap->mOwnerRole) )
+		{
+			can_ban_members	= true;
+		}
+	}
+
+	std::vector<LLScrollListItem*>::iterator itor;
+	for(itor = selection.begin(); itor != selection.end(); ++itor)
+	{
+		// STUB
+		// Attempt to remove entry from the database
+		// If there was a problem with the delete, don't remove it from the list yet!
+		// Otherwise, remove it from our local list.
+		// 
+
+		LLUUID ban_id = (*itor)->getUUID();
+		if(gdatap->removeBanEntry(ban_id))
+		{
+			mBanList->removeNameItem(ban_id);
+			// Removing an item removes the selection, we shouldn't be able to click
+			// the button anymore until we reselect another entry.
+			mDeleteBanButton->setEnabled(FALSE);
+		}
+	}
+	
+
+}
+
+
+void LLPanelGroupBanListSubTab::setGroupID(const LLUUID& id)
+{
+	LL_INFOS("BAKER") << "[BAKER] LLPanelGroupBanListSubTab::setGroupID()" << LL_ENDL;
+	
+	if(mBanList)
+		mBanList->deleteAllItems();
+
+	setFooterEnabled(FALSE);
+	LLPanelGroupSubTab::setGroupID(id);
+}
+
+
+
 
 

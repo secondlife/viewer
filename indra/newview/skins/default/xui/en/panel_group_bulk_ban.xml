@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ height="330"
+ label="Ban Residents"
+ layout="topleft"
+ left="0"
+ name="bulk_ban_panel"
+ top="330"
+ width="210">
+  <panel.string
+   name="loading">
+    (loading...)
+  </panel.string>
+  <panel.string
+     name="ban_selection_too_large">
+    Group Invitations not sent: too many Residents selected. Group Invitations are limited to 100 per request.
+  </panel.string>
+  <text
+   type="string"
+   length="1"
+   height="54"
+   layout="topleft"
+   left="7"
+   name="help_text"
+   top="28"
+   word_wrap="true"
+   width="200">
+    You can select multiple Residents to ban from your group. Click &apos;Open Resident Chooser&apos; to start.
+  </text>
+  <button
+   height="20"
+   label="Open Resident Chooser"
+   layout="topleft"
+   left_delta="-2"
+   name="add_button"
+   top_delta="44"
+   width="200" />
+  <name_list
+   allow_calling_card_drop="true"
+   column_padding="0"
+   height="174"
+   layout="topleft"
+   left_delta="0"
+   multi_select="true"
+   name="banned_agent_list"
+   tool_tip="Hold the Ctrl key and click Resident names to multi-select"
+   top_pad="4"
+   width="200" />
+  <button
+   height="20"
+   label="Remove Selected from List"
+   layout="topleft"
+   left_delta="0"
+   name="remove_button"
+   tool_tip="Removes the Residents selected above from the ban list"
+   top_pad="4"
+   width="200" />
+  <button
+   height="20"
+   label="BAN THIS SICK FILTH"
+   layout="topleft"
+   left="4"
+   name="ban_button"
+   top_delta="30"
+   width="135" />
+  <button
+   height="20"
+   label="Cancel"
+   layout="topleft"
+   left_pad="2"
+   name="cancel_button"
+   top_delta="0"
+   width="65" />
+  <string
+  name="GroupBulkBan">
+    Group Ban
+  </string>
+</panel>

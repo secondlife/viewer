@@ -127,6 +127,7 @@ enum LLGroupChange
 	GC_ROLE_DATA,
 	GC_ROLE_MEMBER_DATA,
 	GC_TITLES,
+	GC_BANLIST,
 	GC_ALL
 };
 

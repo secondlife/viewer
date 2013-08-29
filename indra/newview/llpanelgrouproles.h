@@ -172,6 +172,10 @@ public:
 	void handleRoleCheck(const LLUUID& role_id,
 						 LLRoleMemberChangeType type);
 
+	static void onBanMember(void* user_data);
+	void handleBanMember();
+
+
 	void applyMemberChanges();
 	bool addOwnerCB(const LLSD& notification, const LLSD& response);
 
@@ -205,6 +209,7 @@ protected:
 	LLScrollListCtrl*	mAssignedRolesList;
 	LLScrollListCtrl*	mAllowedActionsList;
 	LLButton*           mEjectBtn;
+	LLButton*			mBanBtn;
 
 	BOOL mChanged;
 	BOOL mPendingMemberUpdate;
@@ -305,5 +310,57 @@ protected:
 	LLTextEditor*	mActionDescription;
 };
 
+class LLPanelGroupBanListSubTab : public LLPanelGroupSubTab
+{
+public:
+	LLPanelGroupBanListSubTab();
+	virtual ~LLPanelGroupBanListSubTab() {}
+
+	virtual BOOL postBuildSubTab(LLView* root);
+
+	// Triggered when the tab becomes active.
+	virtual void activate();
+	
+	// Triggered when the tab becomes inactive.
+	virtual void deactivate();
+	
+	// Asks if something needs to be applied.
+	// If returning true, this function should modify the message to the user.
+	virtual bool needsApply(std::string& mesg);
+	
+	// Request to apply current data.
+	// If returning fail, this function should modify the message to the user.
+	virtual bool apply(std::string& mesg);
+	
+	// Triggered when group information changes in the group manager.
+	virtual void update(LLGroupChange gc);
+
+
+	static void onBanEntrySelect(LLUICtrl* ctrl, void* user_data);
+	void handleBanEntrySelect();
+
+	static void onBanGroupMember(void* user_data);
+	void handleBanGroupMember();
+	
+	static void onCreateBanEntry(void* user_data);
+	void handleCreateBanEntry();
+	
+	static void onDeleteBanEntry(void* user_data);
+	void handleDeleteBanEntry();
+	
+	virtual void setGroupID(const LLUUID& id);
+
+protected:
+	void populateBanList();
+
+
+protected:
+	LLNameListCtrl* mBanList;
+	LLButton* mCreateBanButton;
+	LLButton* mDeleteBanButton;
+
+	bool mUpdateBanList;
+	
+};
 
 #endif // LL_LLPANELGROUPROLES_H

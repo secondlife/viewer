@@ -114,6 +114,13 @@ clicking on their names.
              left_pad="10"
              name="member_eject"
              width="100" />
+            <button
+             height="23"
+             label="Ban"
+             follows="top|left"
+             left_pad="10"
+             name="member_ban"
+             width="100" />
         </panel>
         <panel
          border="false"
@@ -277,6 +284,72 @@ things in this group. There&apos;s a broad variety of Abilities.
              width="270" />
         </scroll_list>
         </panel>
+        <panel
+         border="false"
+         height="303"
+         label="BANNED AGENTS"
+         layout="topleft"
+         left="0"
+         right="-1"
+         help_topic="roles_banlist_tab"
+         name="banlist_sub_tab"
+         class="panel_group_banlist_subtab"
+         tool_tip="View the banned agents from this group."
+         width="310">
+        <panel.string
+         name="help_text">
+            Any resident on the ban list will be unable to join the group.
+        </panel.string>
+        <filter_editor
+        layout="topleft"
+        top="5"
+        left="5"
+        right="-5"
+        height="22"
+        search_button_visible="false"
+        follows="left|top|right"
+        label="Filter Bans"
+        name="filter_bans" />
+          <name_list
+               column_padding="0"
+               draw_heading="true"
+               height="240"
+               follows="left|top|right"
+               layout="topleft"
+               left="0"
+               right="-1"
+               multi_select="true"
+               name="ban_list"
+               short_names="false"
+               top_pad="5">
+            <name_list.columns
+             label="Resident"
+             name="name"
+             font.name="SANSSERIF_SMALL"
+             font.style="NORMAL"
+           relative_width="0.65" />
+            <name_list.columns
+             label="Date Banned"
+             name="date_banned"
+     relative_width="0.35" />
+          </name_list>
+		  <button
+            follows="top|left"
+             height="23"
+             label="Ban!"
+             layout="topleft"
+             left="3"
+             name="ban_create"
+             width="120" />
+            <button
+             height="23"
+             follows="top|left"
+             label="Unban!"
+             layout="topleft"
+             left_pad="10"
+             name="ban_delete"
+             width="120" />
+      </panel>
     </tab_container>
     <panel
      height="350"

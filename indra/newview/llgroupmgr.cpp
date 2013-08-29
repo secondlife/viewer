@@ -231,11 +231,13 @@ LLGroupMgrGroupData::LLGroupMgrGroupData(const LLUUID& id) :
 	mMemberCount(0),
 	mRoleCount(0),
 	mReceivedRoleMemberPairs(0),
-	mMemberDataComplete(FALSE),
-	mRoleDataComplete(FALSE),
-	mRoleMemberDataComplete(FALSE),
-	mGroupPropertiesDataComplete(FALSE),
-	mPendingRoleMemberRequest(FALSE),
+	mMemberDataComplete(false),
+	mRoleDataComplete(false),
+	mRoleMemberDataComplete(false),
+	mGroupPropertiesDataComplete(false),
+	mGroupBanStatus(STATUS_INIT),
+	mGroupBanDataComplete(false),
+	mPendingRoleMemberRequest(false),
 	mAccessTime(0.0f)
 {
 	mMemberVersion.generate();
@@ -424,7 +426,7 @@ void LLGroupMgrGroupData::removeMemberData()
 		delete mi->second;
 	}
 	mMembers.clear();
-	mMemberDataComplete = FALSE;
+	mMemberDataComplete = false;
 	mMemberVersion.generate();
 }
 
@@ -446,8 +448,8 @@ void LLGroupMgrGroupData::removeRoleData()
 	}
 	mRoles.clear();
 	mReceivedRoleMemberPairs = 0;
-	mRoleDataComplete = FALSE;
-	mRoleMemberDataComplete = FALSE;
+	mRoleDataComplete = false;
+	mRoleMemberDataComplete= false;
 }
 
 void LLGroupMgrGroupData::removeRoleMemberData()
@@ -471,7 +473,7 @@ void LLGroupMgrGroupData::removeRoleMemberData()
 	}
 
 	mReceivedRoleMemberPairs = 0;
-	mRoleMemberDataComplete = FALSE;
+	mRoleMemberDataComplete= false;
 }
 
 LLGroupMgrGroupData::~LLGroupMgrGroupData()
@@ -742,6 +744,22 @@ void LLGroupMgrGroupData::cancelRoleChanges()
 	// Clear out all changes!
 	mRoleChanges.clear();
 }
+
+void LLGroupMgrGroupData::createBanEntry(const LLUUID& ban_id, const LLGroupBanData& ban_data)
+{ 
+	mBanList[ban_id] = ban_data;
+}
+
+bool LLGroupMgrGroupData::removeBanEntry(const LLUUID& ban_id)
+{
+	// Once we get this hooked up to the backend, we want to confirm the create or delete worked.
+	mBanList.erase(ban_id);
+	return true;
+}
+
+
+
+
 //
 // LLGroupMgr
 //
@@ -951,12 +969,12 @@ void LLGroupMgr::processGroupMembersReply(LLMessageSystem* msg, void** data)
 
 	if (group_datap->mMembers.size() ==  (U32)group_datap->mMemberCount)
 	{
-		group_datap->mMemberDataComplete = TRUE;
+		group_datap->mMemberDataComplete = true;
 		group_datap->mMemberRequestID.setNull();
 		// We don't want to make role-member data requests until we have all the members
 		if (group_datap->mPendingRoleMemberRequest)
 		{
-			group_datap->mPendingRoleMemberRequest = FALSE;
+			group_datap->mPendingRoleMemberRequest = false;
 			LLGroupMgr::getInstance()->sendGroupRoleMembersRequest(group_datap->mID);
 		}
 	}
@@ -1026,7 +1044,7 @@ void LLGroupMgr::processGroupPropertiesReply(LLMessageSystem* msg, void** data)
 	group_datap->mMemberCount = num_group_members;
 	group_datap->mRoleCount = num_group_roles + 1; // Add the everyone role.
 	
-	group_datap->mGroupPropertiesDataComplete = TRUE;
+	group_datap->mGroupPropertiesDataComplete = true;
 	group_datap->mChanged = TRUE;
 
 	LLGroupMgr::getInstance()->notifyObservers(GC_PROPERTIES);
@@ -1103,12 +1121,12 @@ void LLGroupMgr::processGroupRoleDataReply(LLMessageSystem* msg, void** data)
 
 	if (group_datap->mRoles.size() == (U32)group_datap->mRoleCount)
 	{
-		group_datap->mRoleDataComplete = TRUE;
+		group_datap->mRoleDataComplete = true;
 		group_datap->mRoleDataRequestID.setNull();
 		// We don't want to make role-member data requests until we have all the role data
 		if (group_datap->mPendingRoleMemberRequest)
 		{
-			group_datap->mPendingRoleMemberRequest = FALSE;
+			group_datap->mPendingRoleMemberRequest = false;
 			LLGroupMgr::getInstance()->sendGroupRoleMembersRequest(group_datap->mID);
 		}
 	}
@@ -1217,7 +1235,7 @@ void LLGroupMgr::processGroupRoleMembersReply(LLMessageSystem* msg, void** data)
 			}
 		}
 		
-        group_datap->mRoleMemberDataComplete = TRUE;
+        group_datap->mRoleMemberDataComplete= true;
 		group_datap->mRoleMembersRequestID.setNull();
 	}
 
@@ -1543,7 +1561,7 @@ void LLGroupMgr::sendGroupRoleMembersRequest(const LLUUID& group_id)
 			llinfos << " Pending: " << (group_datap->mPendingRoleMemberRequest ? "Y" : "N")
 				<< " MemberDataComplete: " << (group_datap->mMemberDataComplete ? "Y" : "N")
 				<< " RoleDataComplete: " << (group_datap->mRoleDataComplete ? "Y" : "N") << llendl;
-			group_datap->mPendingRoleMemberRequest = TRUE;
+			group_datap->mPendingRoleMemberRequest = true;
 			return;
 		}
 
@@ -1841,6 +1859,122 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 
 
 // Responder class for capability group management
+class GroupBanDataResponder : public LLHTTPClient::Responder
+{
+public:
+	GroupBanDataResponder() {}
+	virtual ~GroupBanDataResponder() {}
+	virtual void result(const LLSD& pContent);
+	virtual void errorWithContent(U32 pStatus, const std::string& pReason, const LLSD& pContent);
+};
+
+void GroupBanDataResponder::errorWithContent(U32 pStatus, const std::string& pReason, const LLSD& pContent)
+{
+	LL_WARNS("GrpMgr") << "Error receiving group member data [status:" 
+		<< pStatus << "]: " << pContent << LL_ENDL;
+}
+
+void GroupBanDataResponder::result(const LLSD& content)
+{
+	LL_INFOS("GrpMgr") << "[BAKER] Received ban data!" << LL_ENDL;
+	LLGroupMgr::processGroupBanRequest(content);
+}
+
+void LLGroupMgr::sendGroupBanRequest(EBanRequestType request_type, const LLUUID& group_id, const std::vector<LLUUID> ban_list /* = std::vector<LLUUID>() */)
+{
+	LLViewerRegion* currentRegion = gAgent.getRegion();
+	if(!currentRegion)
+	{
+		LL_WARNS("GrpMgr") << "Agent does not have a current region. Uh-oh!" << LL_ENDL;
+		return;
+	}
+
+	// Check to make sure we have our capabilities
+	if(!currentRegion->capabilitiesReceived())
+	{
+		LL_WARNS("GrpMgr") << " Capabilities not received!" << LL_ENDL;
+		return;
+	}
+
+	// Get our capability
+	std::string cap_url =  currentRegion->getCapability("GroupBan");
+	if(cap_url.empty())
+	{
+		return;
+	}
+
+	LLHTTPClient::ResponderPtr grp_ban_responder = new GroupBanDataResponder();
+	// PUT to our service.  Add a body containing the group_id and list of agents to ban.
+	LLSD ban_ids = LLSD::emptyMap();
+	ban_ids["group_id"] = group_id;
+	// Add our list of potential banned agents to the list
+	ban_ids["ban_ids"]	= LLSD::emptyArray();
+	LLSD ban_entry;
+	std::vector<LLUUID>::const_iterator iter = ban_list.cbegin();
+	for(;iter != ban_list.end(); ++iter)
+	{
+		ban_entry = (*iter);
+		ban_ids["ban_ids"].append(ban_entry);
+	}
+
+	switch(request_type)
+	{
+	case REQUEST_GET:
+		cap_url += "?group_id=" + group_id.asString();
+		LLHTTPClient::get(cap_url, grp_ban_responder);
+		break;
+	case REQUEST_PUT:
+		// BAKER TODO: Figure out which 'body' is correct.
+		LLHTTPClient::put(cap_url, ban_ids, grp_ban_responder, LLSD(), 60);
+		break;
+	case REQUEST_DEL:
+		LLHTTPClient::del(cap_url, grp_ban_responder, ban_ids, 60);
+		break;
+	}
+
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(group_id);
+	if (gdatap)
+		gdatap->setGroupBanStatus(LLGroupMgrGroupData::STATUS_REQUESTING);
+}
+
+
+void LLGroupMgr::processGroupBanRequest(const LLSD& content)
+{
+	// Did we get anything in content?
+	if(!content.size())
+	{
+		LL_DEBUGS("GrpMgr") << "No group member data received." << LL_ENDL;
+		return;
+	}
+
+	LLUUID group_id = content["group_id"].asUUID();
+	
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(group_id);
+	if (!gdatap)
+		return;
+	
+	LLSD banlist = LLSD::emptyMap();
+
+
+	LLSD::map_const_iterator i		= content["ban_list"].beginMap();
+	LLSD::map_const_iterator iEnd	= content["ban_list"].endMap();
+	for(;i != iEnd; ++i)
+	{
+		const LLUUID ban_id(i->first);
+		// We have nothing right now inside our banlist map.
+		// Once ban_date is implemented, set that here!
+		// 
+		gdatap->createBanEntry(ban_id, LLGroupBanData());
+	}
+
+	gdatap->mChanged = TRUE;
+	gdatap->setGroupBanStatus(LLGroupMgrGroupData::STATUS_COMPLETE);
+	LLGroupMgr::getInstance()->notifyObservers(GC_BANLIST);
+}
+
+
+
+// Responder class for capability group management
 class GroupMemberDataResponder : public LLHTTPClient::Responder
 {
 public:
@@ -1925,7 +2059,7 @@ void LLGroupMgr::processCapGroupMembersRequest(const LLSD& content)
 	if(num_members < 1)
 		return;
 	
-	LLUUID	group_id = content["group_id"].asUUID();
+	LLUUID group_id = content["group_id"].asUUID();
 
 	LLGroupMgrGroupData* group_datap = LLGroupMgr::getInstance()->getGroupData(group_id);
 	if(!group_datap)
@@ -2008,12 +2142,12 @@ void LLGroupMgr::processCapGroupMembersRequest(const LLSD& content)
 		LLGroupMgr::getInstance()->sendGroupTitlesRequest(group_id);
 
 
-	group_datap->mMemberDataComplete = TRUE;
+	group_datap->mMemberDataComplete = true;
 	group_datap->mMemberRequestID.setNull();
 	// Make the role-member data request
 	if (group_datap->mPendingRoleMemberRequest)
 	{
-		group_datap->mPendingRoleMemberRequest = FALSE;
+		group_datap->mPendingRoleMemberRequest = false;
 		LLGroupMgr::getInstance()->sendGroupRoleMembersRequest(group_id);
 	}
 
