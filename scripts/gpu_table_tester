@@ -195,30 +195,27 @@ GPU String                                                                      
 ------------------------------------------------------------------------------------------------------   ----------- -----  -----  ------  ------------------------------------
 .
 format STDOUT =
-@<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<...   @<<<<<<<<<<   @>    @>     @<<<<  @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<...
+@<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<   @<<<<<<<<<<   @>    @>     @<<<<  @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<...
 $_, $Supported{$RecognizedBy{$_}},$Class{$RecognizedBy{$_}},$StatsBased{$RecognizedBy{$_}},$ExpectedOpenGL{$RecognizedBy{$_}},$Name{$RecognizedBy{$_}}
 .
 
-my $ReportLineTemplate = "A102xxxA12xxxA2xxxxA2xxxxA5A*"; # MUST match the format STDOUT above
+my $ReportLineTemplate = "A102xxxA12xxxA2xxxxA2xxxxA5A*"; # Used to read a previous report - MUST match the format STDOUT above
+
+my ( $oldSupported, $oldClass, $newSupported, $newClass );
 
 format DIFF_TOP =
                                                                                                          ------------- OLD -------------  ----------- NEW --------------------
 GPU String                                                                                               Supported?  Class Stats OpenGL   Supported?  Class Stats OpenGL  Line
 ------------------------------------------------------------------------------------------------------   ----------- ----- ----- ------   ----------- ----- ----- ------ -----
-.                                                                                                                                             
-
-my ( $oldSupported, $oldClass, $newSupported, $newClass );
-
+.
 format DIFF =                                                                                                                                 
-@<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<...   @<<<<<<<<<<   @>    @>  @<<<<    @<<<<<<<<<<    @>   @>  @<<<<  @>>>>
-$_,                                    $oldSupported, $oldClass, $oldStatsBased, $oldExpectedOpenGL, $newSupported, $newClass, $newStatsBased, $newExpectedOpenGL, $newRecognizedLine
+@<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<   @<<<<<<<<<<   @>    @>  @<<<<    @<<<<<<<<<<    @>   @>  @<<<<  @>>>>
+$_, $oldSupported, $oldClass, $oldStatsBased, $oldExpectedOpenGL, $newSupported, $newClass, $newStatsBased, $newExpectedOpenGL, $newRecognizedLine
 .
 
 if ( ! $Diff )
 {
-    ## Print results. 
-    ## For each input, show supported or unsupported, the class, and the recognizer name
-
+    ## Print results of testing each input line and how it was recognized. 
     foreach ( sort keys %RecognizedBy )
     {
         write if ! $UnMatchedOnly || $Name{$RecognizedBy{$_}} eq $NoMatch;
@@ -227,6 +224,7 @@ if ( ! $Diff )
 }
 else
 {
+    ## Print a comparison of how the recognition this time compared to the results from the $Diff file
     open OLD, "<$Diff"
         || die "Failed to open --diff file '$Diff'\n\t$!\n";
     my $discard = 2;
@@ -248,8 +246,8 @@ else
     }
     close OLD;
 
-    $FORMAT_TOP_NAME = DIFF_TOP;
-    $FORMAT_NAME = DIFF;
+    $FORMAT_TOP_NAME = 'DIFF_TOP';
+    $FORMAT_NAME = 'DIFF';
     foreach ( sort keys %RecognizedBy )
     {
         $newSupported = $Supported{$RecognizedBy{$_}} || $NoMatch;
@@ -265,6 +263,7 @@ else
             $oldStatsBased = '-';
             $oldExpectedOpenGL = '-';
             write;
+            $-++; # suppresses pagination
         }
         else
         {
@@ -280,9 +279,10 @@ else
                 )
             {
                 write;
+                $-++; # suppresses pagination
             }
         }
-        $-++; # suppresses pagination
+
     }
 }
 
