@@ -445,7 +445,14 @@ void LLAvatarActions::teleportRequest(const LLUUID& id)
 {
 	LLSD notification;
 	notification["uuid"] = id;
-	notification["NAME_SLURL"] =  LLSLURL("agent", id, "about").getSLURLString();
+	LLAvatarName av_name;
+	if (!LLAvatarNameCache::get(id, &av_name))
+	{
+		// unlikely ... they just picked this name from somewhere...
+		LLAvatarNameCache::get(id, boost::bind(&LLAvatarActions::teleportRequest, id));
+		return; // reinvoke this when the name resolves
+	}
+	notification["NAME"] = av_name.getCompleteName();
 
 	LLSD payload;
 

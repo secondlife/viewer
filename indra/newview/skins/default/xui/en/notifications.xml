@@ -4073,7 +4073,7 @@ Join me in [REGION]
    icon="alertmodal.tga"
    name="TeleportRequestPrompt"
    type="alertmodal">
-Request a teleport to [NAME_SLURL] with the following message
+Request a teleport to [NAME] with the following message
     <tag>confirm</tag>
     <form name="form">
       <input name="message" type="text">
