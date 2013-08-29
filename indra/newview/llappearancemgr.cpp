@@ -768,7 +768,7 @@ void LLWearableHoldingPattern::checkMissingWearables()
 
 	if (isMostRecent())
 	{
-		selfStartPhase("get_missing_wearables");
+		selfStartPhase("get_missing_wearables_2");
 	}
 	if (!pollMissingWearables())
 	{
@@ -835,7 +835,7 @@ void LLWearableHoldingPattern::onFetchCompletion()
 {
 	if (isMostRecent())
 	{
-		selfStopPhase("get_wearables");
+		selfStopPhase("get_wearables_2");
 	}
 		
 	if (!isMostRecent())
@@ -1014,7 +1014,7 @@ bool LLWearableHoldingPattern::pollMissingWearables()
 	{
 		if (isMostRecent())
 		{
-			selfStopPhase("get_missing_wearables");
+			selfStopPhase("get_missing_wearables_2");
 		}
 
 		gAgentAvatarp->debugWearablesLoaded();
@@ -2185,7 +2185,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool enforce_item_restrictions,
 		}
 	}
 
-	selfStartPhase("get_wearables");
+	selfStartPhase("get_wearables_2");
 
 	for (LLWearableHoldingPattern::found_list_t::iterator it = holder->getFoundList().begin();
 		 it != holder->getFoundList().end(); ++it)

@@ -1237,31 +1237,49 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 	S32 count = wearables.count();
 	llassert(items.count() == count);
 
-	// Check for whether outfit already matches the one requested (!)
-	S32 i;
-
+	// Check for whether outfit already matches the one requested
 	S32 matched = 0, mismatched = 0;
-	std::vector<S32> type_counts(LLWearableType::WT_COUNT,0);
-	for (i = 0; i < count; i++)
+	const S32 arr_size = LLWearableType::WT_COUNT;
+	S32 type_counts[arr_size];
+	std::fill(type_counts,type_counts+arr_size,0);
+	for (S32 i = 0; i < count; i++)
 	{
 		LLViewerWearable* new_wearable = wearables[i];
 		LLPointer<LLInventoryItem> new_item = items[i];
+
 		const LLWearableType::EType type = new_wearable->getType();
-		S32 index = type_counts[type];
-		LLViewerWearable *curr_wearable = dynamic_cast<LLViewerWearable*>(getWearable(type,index));
-		if (new_wearable && curr_wearable &&
-			new_wearable->getAssetID() == curr_wearable->getAssetID())
+		if (type < 0 || type>=LLWearableType::WT_COUNT)
 		{
-			matched++;
+			llwarns << "invalid type " << type << llendl;
+			mismatched++;
+			continue;
 		}
-		else
+		S32 index = type_counts[type];
+		type_counts[type]++;
+
+		LLViewerWearable *curr_wearable = dynamic_cast<LLViewerWearable*>(getWearable(type,index));
+		if (!new_wearable || !curr_wearable ||
+			new_wearable->getAssetID() != curr_wearable->getAssetID())
 		{
 			LL_DEBUGS("Avatar") << "mismatch, type " << type << " index " << index
 								<< " names " << (curr_wearable ? curr_wearable->getName() : "NONE")  << ","
 								<< " names " << (new_wearable ? new_wearable->getName() : "NONE")  << llendl;
 			mismatched++;
+			continue;
 		}
-		type_counts[type]++;
+
+		if (curr_wearable->getName() != new_item->getName() ||
+			curr_wearable->getItemID() != new_item->getUUID())
+		{
+			LL_DEBUGS("Avatar") << "mismatch on name or inventory id, names "
+								<< curr_wearable->getName() << " vs " << new_item->getName()
+								<< " item ids " << curr_wearable->getItemID() << " vs " << new_item->getUUID()
+								<< llendl;
+			mismatched++;
+			continue;
+		}
+		// If we got here, everything matches.
+		matched++;
 	}
 	LL_DEBUGS("Avatar") << "matched " << matched << " mismatched " << mismatched << llendl;
 	for (S32 j=0; j<LLWearableType::WT_COUNT; j++)
@@ -1275,7 +1293,7 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 	}
 	if (mismatched == 0)
 	{
-		LL_DEBUGS("Avatar") << "nothing to do" << llendl;
+		LL_DEBUGS("Avatar") << "no changes, bailing out" << llendl;
 		return;
 	}
 	
@@ -1283,15 +1301,15 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 	// TODO: Removed check for ensuring that teens don't remove undershirt and underwear. Handle later
 	// note: shirt is the first non-body part wearable item. Update if wearable order changes.
 	// This loop should remove all clothing, but not any body parts
-	for (S32 type = 0; type < (S32)LLWearableType::WT_COUNT; type++)
+	for (S32 j = 0; j < (S32)LLWearableType::WT_COUNT; j++)
 	{
-		if (LLWearableType::getAssetType((LLWearableType::EType)type) == LLAssetType::AT_CLOTHING)
+		if (LLWearableType::getAssetType((LLWearableType::EType)j) == LLAssetType::AT_CLOTHING)
 		{
-			removeWearable((LLWearableType::EType)type, true, 0);
+			removeWearable((LLWearableType::EType)j, true, 0);
 		}
 	}
 
-	for (i = 0; i < count; i++)
+	for (S32 i = 0; i < count; i++)
 	{
 		LLViewerWearable* new_wearable = wearables[i];
 		LLPointer<LLInventoryItem> new_item = items[i];
