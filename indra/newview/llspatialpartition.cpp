@@ -68,6 +68,7 @@ BOOL LLSpatialGroup::sNoDelete = FALSE;
 static F32 sLastMaxTexPriority = 1.f;
 static F32 sCurMaxTexPriority = 1.f;
 
+BOOL LLSpatialPartition::sTeleportRequested = FALSE;
 
 //static counter for frame to switch LOD on
 
@@ -900,7 +901,7 @@ void LLSpatialGroup::destroyGL(bool keep_occlusion)
 {
 	setState(LLSpatialGroup::GEOM_DIRTY | LLSpatialGroup::IMAGE_DIRTY);
 
-	if (!keep_occlusion)
+	if (!keep_occlusion && !LLSpatialPartition::sTeleportRequested)
 	{ //going to need a rebuild
 		gPipeline.markRebuild(this, TRUE);
 	}
@@ -1392,6 +1393,8 @@ void drawBoxOutline(const LLVector4a& pos, const LLVector4a& size)
 class LLOctreeDirty : public OctreeTraveler
 {
 public:
+	LLOctreeDirty(bool no_rebuild) : mNoRebuild(no_rebuild){}
+
 	virtual void visit(const OctreeNode* state)
 	{
 		LLSpatialGroup* group = (LLSpatialGroup*) state->getListener(0);
@@ -1404,7 +1407,7 @@ public:
 			{
 				continue;
 			}
-			if (drawable->getVObj().notNull() && !group->getSpatialPartition()->mRenderByGroup)
+			if (!mNoRebuild && drawable->getVObj().notNull() && !group->getSpatialPartition()->mRenderByGroup)
 			{
 				gPipeline.markRebuild(drawable, LLDrawable::REBUILD_ALL, TRUE);
 			}
@@ -1416,6 +1419,9 @@ public:
 			traverse(bridge->mOctree);
 		}
 	}
+
+private:
+	BOOL mNoRebuild;
 };
 
 void LLSpatialPartition::restoreGL()
@@ -1424,7 +1430,7 @@ void LLSpatialPartition::restoreGL()
 
 void LLSpatialPartition::resetVertexBuffers()
 {
-	LLOctreeDirty dirty;
+	LLOctreeDirty dirty(sTeleportRequested);
 	dirty.traverse(mOctree);
 }
 

@@ -7314,6 +7314,7 @@ void LLPipeline::doResetVertexBuffers()
 			}
 		}
 	}
+	LLSpatialPartition::sTeleportRequested = FALSE;
 
 	resetDrawOrders();
 
