@@ -6328,6 +6328,9 @@ void LLVOAvatar::updateMeshTextures()
 				}
 				baked_img->setLoadedCallback(onBakedTextureLoaded, SWITCH_TO_BAKED_DISCARD, FALSE, FALSE, new LLUUID( mID ), 
 					src_callback_list, paused );
+
+                               // this could add paused texture callbacks
+                               mLoadedCallbacksPaused |= paused; 
 			}
 		}
 		else if (layerset && isUsingLocalAppearance())
@@ -6677,6 +6680,9 @@ void LLVOAvatar::onFirstTEMessageReceived()
 				LL_DEBUGS("Avatar") << avString() << "layer_baked, setting onInitialBakedTextureLoaded as callback" << LL_ENDL;
 				image->setLoadedCallback( onInitialBakedTextureLoaded, MAX_DISCARD_LEVEL, FALSE, FALSE, new LLUUID( mID ), 
 					src_callback_list, paused );
+
+                               // this could add paused texture callbacks
+                               mLoadedCallbacksPaused |= paused; 
 			}
 		}
 
