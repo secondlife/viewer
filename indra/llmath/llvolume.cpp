@@ -802,6 +802,7 @@ BOOL LLProfile::generate(const LLProfileParams& params, BOOL path_open,F32 detai
 			{
 				// Scale by 4 to generate proper tex coords.
 				mProfile[i].mul(scale);
+				llassert(mProfile[i].isFinite3());
 			}
 
 			if (hollow)
@@ -839,6 +840,7 @@ BOOL LLProfile::generate(const LLProfileParams& params, BOOL path_open,F32 detai
 			{
 				// Scale by 3 to generate proper tex coords.
 				mProfile[i].mul(scale);
+				llassert(mProfile[i].isFinite3());
 			}
 
 			if (path_open)
@@ -989,6 +991,7 @@ BOOL LLProfile::generate(const LLProfileParams& params, BOOL path_open,F32 detai
 			{
 				mOpen = FALSE;
 				mProfile.push_back(mProfile[0]);
+				llassert(mProfile[0].isFinite3());
 				mTotal++;
 			}
 		}
@@ -2127,7 +2130,7 @@ BOOL LLVolume::generate()
 			{
 				rot_mat.rotate(*profile++, tmp);
 				dst->setAdd(tmp,offset);
-				llassert(less_than_max_mag(*dst));
+				llassert(dst->isFinite3());
 				++dst;
 			}
 		}
@@ -2840,6 +2843,8 @@ void LLVolume::sculptGeneratePlaceholder()
 			p[1] = (F32)(sin(F_PI * v) * sin(2.0 * F_PI * u) * RADIUS);
 			p[2] = (F32)(cos(F_PI * v) * RADIUS);
 
+			llassert(pt.isFinite3());
+
 		}
 		line += sizeT;
 	}
@@ -2927,6 +2932,8 @@ void LLVolume::sculptGenerateMapVertices(U16 sculpt_width, U16 sculpt_height, S8
 				LLVector4a scale(-1.f,1,1,1);
 				pt.mul(scale);
 			}
+
+			llassert(pt.isFinite3());
 		}
 		
 		line += sizeT;
@@ -5552,12 +5559,14 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 			tc->mV[0] = (*p)[0]+0.5f;
 			tc->mV[1] = (*p)[1]+0.5f;
 
-			llassert(less_than_max_mag(*src));
+			llassert(src->isFinite3());
 			update_min_max(min,max,*src);
 			update_min_max(min_uv, max_uv, *tc);
 		
 			*pos = *src;
 		
+			llassert(pos->isFinite3());
+
 			++p;
 			++tc;
 			++src;
@@ -5577,11 +5586,13 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 			tc->mV[0] = (*p)[0]+0.5f;
 			tc->mV[1] = 0.5f - (*p)[1];
 		
-			llassert(less_than_max_mag(*src));
+			llassert(src->isFinite3());
 			update_min_max(min,max,*src);
 			update_min_max(min_uv, max_uv, *tc);
 		
 			*pos = *src;
+
+			llassert(pos->isFinite3());
 		
 			++p;
 			++tc;
@@ -6468,8 +6479,11 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 		// mQ = { 0, a[X]*b[Y] - a[Y]*b[X], a[Z]*b[X] - a[X]*b[Z], a[Y]*b[Z] - a[Z]*b[Y] }
 		vector1 = _mm_sub_ps( vector2, _mm_mul_ps( amQ, bmQ ));
 
+		llassert(v1.isFinite3());
+
 		v1.store4a((F32*) output);
 
+		
 		output++;
 		idx += 3;
 	}
@@ -6498,14 +6512,8 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 		n1.add(c);
 		n2.add(c);
 		
-		llassert(llfinite(c.getF32ptr()[0]));
-		llassert(llfinite(c.getF32ptr()[1]));
-		llassert(llfinite(c.getF32ptr()[2]));
-
-		llassert(!llisnan(c.getF32ptr()[0]));
-		llassert(!llisnan(c.getF32ptr()[1]));
-		llassert(!llisnan(c.getF32ptr()[2]));
-
+		llassert(c.isFinite3());
+		
 		//even out quad contributions
 		switch (i%2+1)
 		{
