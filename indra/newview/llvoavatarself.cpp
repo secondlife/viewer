@@ -63,6 +63,7 @@
 #include "llsdutil.h"
 #include "llstartup.h"
 #include "llsdserialize.h"
+#include "llversioninfo.h"
 
 #if LL_MSVC
 // disable boost::lexical_cast warning
@@ -2373,10 +2374,28 @@ LLSD summarize_by_buckets(std::vector<LLSD> in_records,
 	return result;
 }
 
+// Valid characters for tsdb are alphanumeric, _-./. Others must be cleaned out.
+void sanitize_for_tsdb_tag(std::string& s)
+{
+	for (std::string::iterator it = s.begin(); it != s.end(); ++it)
+	{
+		if (std::isalnum(*it) || *it == '.' || *it == '_' || *it == '-' || *it == '/')
+		{
+			continue;
+		}
+		*it = '_';
+	}
+}
+
 void LLVOAvatarSelf::sendViewerAppearanceChangeMetrics()
 {
 	static volatile bool reporting_started(false);
 	static volatile S32 report_sequence(0);
+
+	std::string viewer_version_channel = LLVersionInfo::getChannel();
+	sanitize_for_tsdb_tag(viewer_version_channel);
+	std::string viewer_version_short = LLVersionInfo::getShortVersion();
+	std::string viewer_version_build = llformat("%d", LLVersionInfo::getBuild());
 
 	LLSD msg; // = metricsData();
 	msg["message"] = "ViewerAppearanceChangeMetrics";
@@ -2386,6 +2405,9 @@ void LLVOAvatarSelf::sendViewerAppearanceChangeMetrics()
 	msg["initial"] = !reporting_started;
 	msg["break"] = false;
 	msg["duration"] = mTimeSinceLastRezMessage.getElapsedTimeF32();
+	msg["viewer_version_channel"] = viewer_version_channel;
+	msg["viewer_version_short"] = viewer_version_short;
+	msg["viewer_version_build"] = viewer_version_build;
 
 	// Status of our own rezzing.
 	msg["rez_status"] = LLVOAvatar::rezStatusToString(getRezzedStatus());

@@ -108,7 +108,7 @@ private:
 	/*virtual*/void	wearableUpdated(LLWearable *wearable, BOOL removed);
 public:
 	void			setWearableItem(LLInventoryItem* new_item, LLViewerWearable* wearable, bool do_append = false);
-	void			setWearableOutfit(const LLInventoryItem::item_array_t& items, const LLDynamicArray< LLViewerWearable* >& wearables, BOOL remove);
+	void			setWearableOutfit(const LLInventoryItem::item_array_t& items, const LLDynamicArray< LLViewerWearable* >& wearables);
 	void			setWearableName(const LLUUID& item_id, const std::string& new_name);
 	// *TODO: Move this into llappearance/LLWearableData ?
 	void			addLocalTextureObject(const LLWearableType::EType wearable_type, const LLAvatarAppearanceDefines::ETextureIndex texture_type, U32 wearable_index);

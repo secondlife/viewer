@@ -126,7 +126,7 @@ public:
 	void purgeBaseOutfitLink(const LLUUID& category, LLPointer<LLInventoryCallback> cb = NULL);
 	void createBaseOutfitLink(const LLUUID& category, LLPointer<LLInventoryCallback> link_waiter);
 
-	void updateAgentWearables(LLWearableHoldingPattern* holder, bool append);
+	void updateAgentWearables(LLWearableHoldingPattern* holder);
 
 	S32 countActiveHoldingPatterns();
 
