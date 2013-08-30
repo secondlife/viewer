@@ -235,8 +235,7 @@ LLGroupMgrGroupData::LLGroupMgrGroupData(const LLUUID& id) :
 	mRoleDataComplete(false),
 	mRoleMemberDataComplete(false),
 	mGroupPropertiesDataComplete(false),
-	mGroupBanStatus(STATUS_INIT),
-	mGroupBanDataComplete(false),
+	mGroupBanStatus(LLGroupMgrGroupData::STATUS_INIT),
 	mPendingRoleMemberRequest(false),
 	mAccessTime(0.0f)
 {
@@ -748,13 +747,14 @@ void LLGroupMgrGroupData::cancelRoleChanges()
 void LLGroupMgrGroupData::createBanEntry(const LLUUID& ban_id, const LLGroupBanData& ban_data)
 { 
 	mBanList[ban_id] = ban_data;
+	// Refresh the list
 }
 
-bool LLGroupMgrGroupData::removeBanEntry(const LLUUID& ban_id)
+void LLGroupMgrGroupData::removeBanEntry(const LLUUID& ban_id)
 {
 	// Once we get this hooked up to the backend, we want to confirm the create or delete worked.
 	mBanList.erase(ban_id);
-	return true;
+	// Refresh the list
 }
 
 
@@ -1880,7 +1880,10 @@ void GroupBanDataResponder::result(const LLSD& content)
 	LLGroupMgr::processGroupBanRequest(content);
 }
 
-void LLGroupMgr::sendGroupBanRequest(EBanRequestType request_type, const LLUUID& group_id, const std::vector<LLUUID> ban_list /* = std::vector<LLUUID>() */)
+void LLGroupMgr::sendGroupBanRequest(	EBanRequestType request_type, 
+										const LLUUID& group_id, 
+										EBanRequestAction ban_action, /* = BAN_NO_ACTION */
+										const std::vector<LLUUID> ban_list) /* = std::vector<LLUUID>() */
 {
 	LLViewerRegion* currentRegion = gAgent.getRegion();
 	if(!currentRegion)
@@ -1902,39 +1905,31 @@ void LLGroupMgr::sendGroupBanRequest(EBanRequestType request_type, const LLUUID&
 	{
 		return;
 	}
+	cap_url += "?group_id=" + group_id.asString();
 
-	LLHTTPClient::ResponderPtr grp_ban_responder = new GroupBanDataResponder();
-	// PUT to our service.  Add a body containing the group_id and list of agents to ban.
-	LLSD ban_ids = LLSD::emptyMap();
-	ban_ids["group_id"] = group_id;
+	LLSD body = LLSD::emptyMap();
+	body["ban_action"] = ban_action;
 	// Add our list of potential banned agents to the list
-	ban_ids["ban_ids"]	= LLSD::emptyArray();
+	body["ban_ids"]	= LLSD::emptyArray();
 	LLSD ban_entry;
-	std::vector<LLUUID>::const_iterator iter = ban_list.cbegin();
+
+	uuid_vec_t::const_iterator iter = ban_list.begin();
 	for(;iter != ban_list.end(); ++iter)
 	{
 		ban_entry = (*iter);
-		ban_ids["ban_ids"].append(ban_entry);
+		body["ban_ids"].append(ban_entry);
 	}
 
+	LLHTTPClient::ResponderPtr grp_ban_responder = new GroupBanDataResponder();
 	switch(request_type)
 	{
 	case REQUEST_GET:
-		cap_url += "?group_id=" + group_id.asString();
 		LLHTTPClient::get(cap_url, grp_ban_responder);
 		break;
-	case REQUEST_PUT:
-		// BAKER TODO: Figure out which 'body' is correct.
-		LLHTTPClient::put(cap_url, ban_ids, grp_ban_responder, LLSD(), 60);
-		break;
-	case REQUEST_DEL:
-		LLHTTPClient::del(cap_url, grp_ban_responder, ban_ids, 60);
+	case REQUEST_POST:
+		LLHTTPClient::post(cap_url, body, grp_ban_responder);
 		break;
 	}
-
-	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(group_id);
-	if (gdatap)
-		gdatap->setGroupBanStatus(LLGroupMgrGroupData::STATUS_REQUESTING);
 }
 
 
@@ -1953,7 +1948,7 @@ void LLGroupMgr::processGroupBanRequest(const LLSD& content)
 	if (!gdatap)
 		return;
 	
-	LLSD banlist = LLSD::emptyMap();
+	//LLSD banlist = LLSD::emptyMap();
 
 
 	LLSD::map_const_iterator i		= content["ban_list"].beginMap();

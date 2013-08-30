@@ -335,6 +335,8 @@ public:
 	// Triggered when group information changes in the group manager.
 	virtual void update(LLGroupChange gc);
 
+	//
+	virtual void draw();
 
 	static void onBanEntrySelect(LLUICtrl* ctrl, void* user_data);
 	void handleBanEntrySelect();
@@ -358,8 +360,6 @@ protected:
 	LLNameListCtrl* mBanList;
 	LLButton* mCreateBanButton;
 	LLButton* mDeleteBanButton;
-
-	bool mUpdateBanList;
 	
 };
 

@@ -215,7 +215,7 @@ friend class LLGroupMgr;
 public:
 	enum EGroupDataStatus
 	{
-		STATUS_NONE,
+		STATUS_INIT,
 		STATUS_REQUESTING,
 		STATUS_COMPLETE
 	};
@@ -250,7 +250,6 @@ public:
 	bool isRoleDataComplete() { return mRoleDataComplete; }
 	bool isRoleMemberDataComplete() { return mRoleMemberDataComplete; }
 	bool isGroupPropertiesDataComplete() { return mGroupPropertiesDataComplete; }
-	bool isGroupBanDataComplete() { return mGroupBanDataComplete; }
 	
 	EGroupDataStatus getGroupBanStatus() { return mGroupBanStatus; }
 	void setGroupBanStatus(EGroupDataStatus status) { mGroupBanStatus = status; }
@@ -269,7 +268,7 @@ public:
 	const LLGroupBanData& getBanEntry(const LLUUID& ban_id) { return mBanList[ban_id]; }
 	
 	void createBanEntry(const LLUUID& ban_id, const LLGroupBanData& ban_data = LLGroupBanData());
-	bool removeBanEntry(const LLUUID& ban_id);
+	void removeBanEntry(const LLUUID& ban_id);
 	
 
 
@@ -322,8 +321,6 @@ private:
 	bool				mGroupPropertiesDataComplete;
 	
 	EGroupDataStatus	mGroupBanStatus;
-	bool				mGroupBanDataComplete;
-	bool				mGroupBanDataPending;
 
 	bool				mPendingRoleMemberRequest;
 	F32					mAccessTime;
@@ -356,8 +353,16 @@ public:
 	enum EBanRequestType
 	{
 		REQUEST_GET = 0,
+		REQUEST_POST,
 		REQUEST_PUT,
 		REQUEST_DEL
+	};
+
+	enum EBanRequestAction
+	{
+		BAN_NO_ACTION	= 0,
+		BAN_CREATE		= 1,
+		BAN_DELETE		= 2
 	};
 
 public:
@@ -394,7 +399,11 @@ public:
 	static void sendGroupMemberEjects(const LLUUID& group_id,
 									  uuid_vec_t& member_ids);
 	// BAKER - Group Ban
-	static void sendGroupBanRequest(EBanRequestType request_type, const LLUUID& group_id, const std::vector<LLUUID> ban_list = std::vector<LLUUID>());
+	static void sendGroupBanRequest(EBanRequestType request_type, 
+									const LLUUID& group_id,	
+									EBanRequestAction ban_action = BAN_NO_ACTION,
+									const uuid_vec_t ban_list = uuid_vec_t());
+
 	static void processGroupBanRequest(const LLSD& content);
 
 	// BAKER

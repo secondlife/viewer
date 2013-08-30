@@ -1763,18 +1763,20 @@ void LLPanelGroupMembersSubTab::handleBanMember()
 		return;
 	}
 
+	uuid_vec_t ban_ids;
 	std::vector<LLScrollListItem*>::iterator itor;
 	for(itor = selection.begin(); itor != selection.end(); ++itor)
 	{
 		LLUUID ban_id = (*itor)->getUUID();
+		ban_ids.push_back(ban_id);
+		
 		LLGroupBanData ban_data;
-
-		// DEL to People API somewhere in this chain...
 		gdatap->createBanEntry(ban_id, ban_data);
-		mMembersList->removeNameItem(ban_id);
-
 	}	
 
+	LLGroupMgr::getInstance()->sendGroupBanRequest(LLGroupMgr::REQUEST_POST, mGroupID, LLGroupMgr::BAN_CREATE, ban_ids);
+	// Will this work?
+	handleEjectMembers();
 
 }
 
@@ -2721,8 +2723,7 @@ LLPanelGroupBanListSubTab::LLPanelGroupBanListSubTab()
 	: LLPanelGroupSubTab(),
 	  mBanList(NULL),
 	  mCreateBanButton(NULL),
-	  mDeleteBanButton(NULL),
-	  mUpdateBanList(true)
+	  mDeleteBanButton(NULL)
 {
 	LL_INFOS("BAKER") << "[BAKER] LLPanelGroupBanListSubTab::ctor()" << LL_ENDL;
 }
@@ -2762,6 +2763,13 @@ BOOL LLPanelGroupBanListSubTab::postBuildSubTab(LLView* root)
 	mDeleteBanButton->setEnabled(FALSE);
 	
 	setFooterEnabled(FALSE);
+
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
+	if(gdatap && (gdatap->getGroupBanStatus() == LLGroupMgrGroupData::STATUS_INIT)) 
+	{
+		LLGroupMgr::getInstance()->sendGroupBanRequest(LLGroupMgr::REQUEST_GET, mGroupID);
+		gdatap->setGroupBanStatus(LLGroupMgrGroupData::STATUS_REQUESTING);
+	}
 
 	return TRUE;
 }
@@ -2809,8 +2817,8 @@ void LLPanelGroupBanListSubTab::update(LLGroupChange gc)
 {
 	LL_INFOS("BAKER") << "[BAKER] LLPanelGroupBanListSubTab::update()" << LL_ENDL;
 
-	if (gc != GC_ALL || gc != GC_BANLIST)
-		return;
+	//if (gc != GC_ALL  && gc != GC_BANLIST)
+	//	return;
 
 	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 	if(!gdatap) 
@@ -2826,6 +2834,7 @@ void LLPanelGroupBanListSubTab::update(LLGroupChange gc)
 	// Request our ban list!
 	case LLGroupMgrGroupData::STATUS_INIT:
 		LLGroupMgr::getInstance()->sendGroupBanRequest(LLGroupMgr::REQUEST_GET, mGroupID);
+		gdatap->setGroupBanStatus(LLGroupMgrGroupData::STATUS_REQUESTING);
 		break;
 	
 	// Already have a request out -- don't bother sending another one 
@@ -2839,31 +2848,38 @@ void LLPanelGroupBanListSubTab::update(LLGroupChange gc)
 	//		[SOMETHING CHANGED]	- Don't panic! Just repopulate the ban list! 
 	case LLGroupMgrGroupData::STATUS_COMPLETE:
 		populateBanList();
-
-		
 		break;
 	}
 }
 
+void LLPanelGroupBanListSubTab::draw()
+{
+	LLPanelGroupSubTab::draw();
+
+	// if(mPendingBanUpdate)
+	//	populateBanList();
+}
 
 void LLPanelGroupBanListSubTab::populateBanList()
 {
-	//if(gdatap->getGroupBanStatus() == )
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
+	if(!gdatap) 
+	{
+		LL_INFOS("BAKER") << "[BAKER] No group data!" << LL_ENDL;
+		return;
+	}
 
+	if(gdatap->getGroupBanStatus() != LLGroupMgrGroupData::STATUS_COMPLETE)
+		return;
 
-
-// 	mBanList->deleteAllItems();
-// 	LLGroupMgr::getInstance()->sendGroupBanRequest(LLGroupMgr::REQUEST_GET, mGroupID);
-// 	
-// 	std::map<LLUUID,LLGroupBanData>::const_iterator entry = gdatap->mBanList.begin();
-// 	for(; entry != gdatap->mBanList.end(); entry++)
-// 	{
-// 		LLNameListCtrl::NameItem ban_entry;
-// 		ban_entry.value = entry->first;
-// 		mBanList->addNameItemRow(ban_entry);
-// 	}
-	
-	mUpdateBanList = false;
+	mBanList->deleteAllItems();
+	std::map<LLUUID,LLGroupBanData>::const_iterator entry = gdatap->mBanList.begin();
+	for(; entry != gdatap->mBanList.end(); entry++)
+	{
+		LLNameListCtrl::NameItem ban_entry;
+		ban_entry.value = entry->first;
+		mBanList->addNameItemRow(ban_entry);
+	}
 }
 
 
@@ -2885,7 +2901,7 @@ void LLPanelGroupBanListSubTab::handleBanEntrySelect()
 	// BAKER TODO: -- MOVE TO SELECT BAN ENTRY
 	// Make sure only authorized people have access to adding / deleting bans
 	//if (gAgent.hasPowerInGroup(mGroupID, GP_GROUP_BAN_ACCESS))
-	mCreateBanButton->setEnabled(TRUE);
+		mCreateBanButton->setEnabled(TRUE);
 
 	// Check if the agent has the ability to unban this person
 	//if (gAgent.hasPowerInGroup(mGroupID, GP_GROUP_BAN_ACCESS))
@@ -3000,26 +3016,22 @@ void LLPanelGroupBanListSubTab::handleDeleteBanEntry()
 		}
 	}
 
+	std::vector<LLUUID> ban_ids;
 	std::vector<LLScrollListItem*>::iterator itor;
 	for(itor = selection.begin(); itor != selection.end(); ++itor)
 	{
-		// STUB
-		// Attempt to remove entry from the database
-		// If there was a problem with the delete, don't remove it from the list yet!
-		// Otherwise, remove it from our local list.
-		// 
-
 		LLUUID ban_id = (*itor)->getUUID();
-		if(gdatap->removeBanEntry(ban_id))
-		{
-			mBanList->removeNameItem(ban_id);
-			// Removing an item removes the selection, we shouldn't be able to click
-			// the button anymore until we reselect another entry.
-			mDeleteBanButton->setEnabled(FALSE);
-		}
+		ban_ids.push_back(ban_id);
+		
+		//gdatap->removeBanEntry(ban_id);
+		//mBanList->removeNameItem(ban_id);
+	
+		// Removing an item removes the selection, we shouldn't be able to click
+		// the button anymore until we reselect another entry.
+		mDeleteBanButton->setEnabled(FALSE);
 	}
 	
-
+	LLGroupMgr::getInstance()->sendGroupBanRequest(LLGroupMgr::REQUEST_POST, mGroupID, LLGroupMgr::BAN_DELETE, ban_ids);
 }
 
 

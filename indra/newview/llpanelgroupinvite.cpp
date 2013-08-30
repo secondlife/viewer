@@ -48,9 +48,6 @@
 #include "llviewerwindow.h"
 
 
-// BAKER TODO:
-// Figure out how to use LLHandle<LLPanel> to make this safer
-//bool invite_owner_callback(LLPanelGroupInvite panel, const LLSD& notification, const LLSD& response)
 bool invite_owner_callback(LLHandle<LLPanel> panel_handle, const LLSD& notification, const LLSD& response)
 {
 	LLPanelGroupInvite* panel = dynamic_cast<LLPanelGroupInvite*>(panel_handle.get());
