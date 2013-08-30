@@ -350,7 +350,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	// Bail out if we're in the startup state and don't want to try to
 	// render the world.
 	//
-	if (LLStartUp::getStartupState() < STATE_WEARABLES_WAIT)
+	if (LLStartUp::getStartupState() < STATE_PRECACHE)
 	{
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Startup");
 		display_startup();
