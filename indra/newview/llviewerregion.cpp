@@ -1601,7 +1601,11 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
     capabilityNames.append("GetAdminExperiences");
 	capabilityNames.append("GetCreatorExperiences");
     capabilityNames.append("ExperiencePreferences");
+/*
+    DMH - Does not work, needs a modified people api to take the experience UUID
     capabilityNames.append("IsExperienceAdmin");
+    capabilityNames.append("IsExperienceContributor");
+*/
     capabilityNames.append("GetMesh");
     capabilityNames.append("GetMetadata");
 	capabilityNames.append("GetObjectCost");

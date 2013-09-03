@@ -26,10 +26,6 @@
     name="maturity_icon_adult">
     "Parcel_R_Light"
   </floater.string>
-  <floater.string
-    name="forget_experience">
-    "Forget"
-  </floater.string>
   <panel
     background_visible="true"
     follows="all"
@@ -218,7 +214,7 @@
           </layout_panel>
           <layout_panel
             follows="left|top|right"
-            height="69"
+            height="92"
             left="0"
             top="0"
             auto_resize="false"
@@ -279,15 +275,25 @@
               layout="topleft"
               name="edit_btn"
               top_pad="3"
-              width="80"
-              left="10"
-              visible="false"/>
+              width="120"
+              left="73"
+              visible="true"/>
             <button
               follows="bottom|left"
               height="23"
               label="Allow"
               layout="topleft"
               name="allow_btn"
+              width="80"
+              top_pad="3"
+              left="10"
+              enabled="false"/>
+            <button
+              follows="bottom|left"
+              height="23"
+              label="Forget"
+              layout="topleft"
+              name="forget_btn"
               width="80"
               top_pad="-23"
               left_pad="3"

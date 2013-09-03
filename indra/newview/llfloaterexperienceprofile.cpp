@@ -57,6 +57,9 @@
 #define PNL_MRKT "marketplace panel"
 
 #define BTN_EDIT "edit_btn"
+#define BTN_ALLOW "allow_btn"
+#define BTN_FORGET "forget_btn"
+#define BTN_BLOCK "block_btn"
 
 
 LLFloaterExperienceProfile::LLFloaterExperienceProfile(const LLSD& data)
@@ -75,6 +78,29 @@ LLFloaterExperienceProfile::~LLFloaterExperienceProfile()
 
 }
 
+class ExperiencePreferencesResponder : public LLHTTPClient::Responder
+{
+public:
+    ExperiencePreferencesResponder(const LLHandle<LLFloaterExperienceProfile>& parent):mParent(parent)
+    {
+    }
+
+    LLHandle<LLFloaterExperienceProfile> mParent;
+
+    virtual void result(const LLSD& content)
+    {
+        LLFloaterExperienceProfile* parent=mParent.get();
+        if(parent)
+        {
+            parent->setPreferences(content);
+        }
+    }
+    virtual void error(U32 status, const std::string& reason)
+    {
+        lldebugs << "ExperiencePreferencesResponder failed with code: " << status<< ", reason: " << reason << llendl;
+    }
+};
+
 
 class IsAdminResponder : public LLHTTPClient::Responder
 {
@@ -90,8 +116,27 @@ public:
         LLFloaterExperienceProfile* parent = mParent.get();
         if(!parent)
             return;
+        
+        LLButton* edit=parent->getChild<LLButton>(BTN_EDIT);
 
-        parent->getChild<LLButton>(BTN_EDIT)->setVisible(content["status"].asBoolean());
+        if(content.has("experience_ids"))
+        {
+            LLUUID id=parent->getKey().asUUID();
+            const LLSD& xp_ids = content["experience_ids"];
+            LLSD::array_const_iterator it = xp_ids.beginArray();
+            while(it != xp_ids.endArray())
+            {
+                if(it->asUUID() == id)
+                {
+                    edit->setVisible(TRUE);
+                    return;
+                }
+                ++it;
+            }
+        }
+        edit->setVisible(FALSE);
+
+        //parent->getChild<LLButton>(BTN_EDIT)->setVisible(content["status"].asBoolean());
     }
     virtual void error(U32 status, const std::string& reason)
     {
@@ -115,10 +160,22 @@ BOOL LLFloaterExperienceProfile::postBuild()
         LLViewerRegion* region = gAgent.getRegion();
         if (region)
         {
-            std::string lookup_url=region->getCapability("IsExperienceAdmin"); 
+            //             std::string lookup_url=region->getCapability("IsExperienceAdmin"); 
+            //             if(!lookup_url.empty())
+            //             {
+            //                 LLHTTPClient::get(lookup_url+"/"+mExperienceId.asString(), new IsAdminResponder(getDerivedHandle<LLFloaterExperienceProfile>()));
+            //             }
+            
+            std::string lookup_url=region->getCapability("GetAdminExperiences"); 
             if(!lookup_url.empty())
             {
-                LLHTTPClient::get(lookup_url+"/"+mExperienceId.asString(), new IsAdminResponder(getDerivedHandle<LLFloaterExperienceProfile>()));
+                LLHTTPClient::get(lookup_url, new IsAdminResponder(getDerivedHandle<LLFloaterExperienceProfile>()));
+            }
+
+            lookup_url=region->getCapability("ExperiencePreferences"); 
+            if(!lookup_url.empty())
+            {
+                LLHTTPClient::get(lookup_url+"?"+mExperienceId.asString(), new ExperiencePreferencesResponder(getDerivedHandle<LLFloaterExperienceProfile>()));
             }
         }
     }
@@ -127,6 +184,9 @@ BOOL LLFloaterExperienceProfile::postBuild()
 
 
     childSetAction(BTN_EDIT, boost::bind(&LLFloaterExperienceProfile::onClickEdit, this));
+    childSetAction(BTN_ALLOW, boost::bind(&LLFloaterExperienceProfile::onClickPermission, this, "Allow"));
+    childSetAction(BTN_FORGET, boost::bind(&LLFloaterExperienceProfile::onClickForget, this));
+    childSetAction(BTN_BLOCK, boost::bind(&LLFloaterExperienceProfile::onClickPermission, this, "Block"));
 
     return TRUE;
 }
@@ -143,6 +203,39 @@ void LLFloaterExperienceProfile::experienceCallback(LLHandle<LLFloaterExperience
 void LLFloaterExperienceProfile::onClickEdit()
 {
 
+}
+
+
+void LLFloaterExperienceProfile::onClickPermission(const char* perm)
+{
+    LLViewerRegion* region = gAgent.getRegion();
+    if (!region)
+        return;
+   
+    std::string lookup_url=region->getCapability("ExperiencePreferences"); 
+    if(lookup_url.empty())
+        return;
+    LLSD permission;
+    LLSD data;
+    permission["permission"]=perm;
+
+    data[mExperienceId.asString()]=permission;
+    LLHTTPClient::put(lookup_url, data, new ExperiencePreferencesResponder(getDerivedHandle<LLFloaterExperienceProfile>()));
+   
+}
+
+
+void LLFloaterExperienceProfile::onClickForget()
+{
+    LLViewerRegion* region = gAgent.getRegion();
+    if (!region)
+        return;
+
+    std::string lookup_url=region->getCapability("ExperiencePreferences"); 
+    if(lookup_url.empty())
+        return;
+
+    LLHTTPClient::del(lookup_url+"?"+mExperienceId.asString(), new ExperiencePreferencesResponder(getDerivedHandle<LLFloaterExperienceProfile>()));
 }
 
 bool LLFloaterExperienceProfile::setMaturityString( U8 maturity, LLTextBox* child )
@@ -258,4 +351,54 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
     
 
     
+}
+
+void LLFloaterExperienceProfile::setPreferences( const LLSD& content )
+{
+    const LLSD& experiences = content["experiences"];
+    const LLSD& blocked = content["blocked"];
+    LLButton* button;
+
+
+    for(LLSD::array_const_iterator it = experiences.beginArray(); it != experiences.endArray() ; ++it)
+    {
+        if(it->asUUID()==mExperienceId)
+        {
+            button=getChild<LLButton>(BTN_ALLOW);
+            button->setEnabled(FALSE);
+
+            button=getChild<LLButton>(BTN_FORGET);
+            button->setEnabled(TRUE);
+
+            button=getChild<LLButton>(BTN_BLOCK);
+            button->setEnabled(TRUE);
+            return;
+        }
+    }
+
+    for(LLSD::array_const_iterator it = blocked.beginArray(); it != blocked.endArray() ; ++it)
+    {
+        if(it->asUUID()==mExperienceId)
+        {
+            button=getChild<LLButton>(BTN_ALLOW);
+            button->setEnabled(TRUE);
+
+            button=getChild<LLButton>(BTN_FORGET);
+            button->setEnabled(TRUE);
+
+            button=getChild<LLButton>(BTN_BLOCK);
+            button->setEnabled(FALSE);
+            return;
+        }
+    }
+
+
+    button=getChild<LLButton>(BTN_ALLOW);
+    button->setEnabled(TRUE);
+
+    button=getChild<LLButton>(BTN_FORGET);
+    button->setEnabled(FALSE);
+
+    button=getChild<LLButton>(BTN_BLOCK);
+    button->setEnabled(TRUE);
 }

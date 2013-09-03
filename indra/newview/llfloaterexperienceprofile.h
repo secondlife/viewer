@@ -44,9 +44,12 @@ public:
     virtual ~LLFloaterExperienceProfile();
 
     void setExperienceId( const LLUUID& experience_id );
+    void setPreferences( const LLSD& content );
 
 protected:
-	void onClickEdit();
+    void onClickEdit();
+    void onClickPermission(const char* permission);
+    void onClickForget();
 
 
     static void experienceCallback(LLHandle<LLFloaterExperienceProfile> handle, const LLSD& experience);
