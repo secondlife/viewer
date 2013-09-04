@@ -484,7 +484,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
             <text
                 type="string"
                 length="1"
-                follows="all"
+                follows="left|top|right"
                 height="14"
                 layout="topleft"
                 right="-10"
