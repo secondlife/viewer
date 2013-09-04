@@ -933,6 +933,7 @@ Nicky Dasmijn
 	BUG-2432
 	BUG-3605
 	CHUIBUG-197
+	OPEN-187
 Nicky Perian
 	OPEN-1
 	STORM-1087
