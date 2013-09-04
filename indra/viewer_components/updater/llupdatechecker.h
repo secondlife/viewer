@@ -43,8 +43,7 @@ public:
 	public:
 		Implementation(Client & client);
 		~Implementation();
-		void checkVersion(std::string const & hostUrl, 
-						  std::string const & servicePath,
+		void checkVersion(std::string const & urlBase, 
 						  std::string const & channel,
 						  std::string const & version,
 						  std::string const & platform,
@@ -67,16 +66,14 @@ public:
 		LLHTTPClient mHttpClient;
 		bool         mInProgress;
 		std::string   mVersion;
-		std::string   mHostUrl;
-		std::string   mServicePath;
+		std::string   mUrlBase;
 		std::string   mChannel;
 		std::string   mPlatform;
 		std::string   mPlatformVersion;
 		unsigned char mUniqueId[MD5HEX_STR_SIZE];
 		bool          mWillingToTest;
 		
-		std::string buildUrl(std::string const & hostUrl, 
-							 std::string const & servicePath,
+		std::string buildUrl(std::string const & urlBase, 
 							 std::string const & channel,
 							 std::string const & version,
 							 std::string const & platform,
@@ -94,8 +91,7 @@ public:
 	LLUpdateChecker(Client & client);
 	
 	// Check status of current app on the given host for the channel and version provided.
-	void checkVersion(std::string const & hostUrl, 
-					  std::string const & servicePath,
+	void checkVersion(std::string const & urlBase, 
 					  std::string const & channel,
 					  std::string const & version,
 					  std::string const & platform,

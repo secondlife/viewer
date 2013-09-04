@@ -71,9 +71,7 @@ public:
 	LLUpdaterService();
 	~LLUpdaterService();
 
-	void initialize(const std::string& 	url, 
-				    const std::string& 	path,
-				    const std::string& 	channel,
+	void initialize(const std::string& 	channel,
 				    const std::string& 	version,
 					const std::string&  platform,
 					const std::string&  platform_version,

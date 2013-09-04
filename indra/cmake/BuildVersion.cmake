@@ -18,7 +18,7 @@ if (NOT DEFINED VIEWER_SHORT_VERSION) # will be true in indra/, false in indra/n
            find_program(MERCURIAL hg)
            if (DEFINED MERCURIAL)
               execute_process(
-                 COMMAND ${MERCURIAL} log -r tip --template "{p1rev}"
+                 COMMAND ${MERCURIAL} log -r tip --template "{rev}"
                  OUTPUT_VARIABLE VIEWER_VERSION_REVISION
                  OUTPUT_STRIP_TRAILING_WHITESPACE
                  )
