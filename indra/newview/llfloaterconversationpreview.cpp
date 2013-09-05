@@ -43,14 +43,15 @@ LLFloaterConversationPreview::LLFloaterConversationPreview(const LLSD& session_i
 	mCurrentPage(0),
 	mPageSize(gSavedSettings.getS32("ConversationHistoryPageSize")),
 	mAccountName(session_id[LL_FCP_ACCOUNT_NAME]),
-	mCompleteName(session_id[LL_FCP_COMPLETE_NAME])
+	mCompleteName(session_id[LL_FCP_COMPLETE_NAME]),
+	mMutex(NULL)
 {
 }
 
 BOOL LLFloaterConversationPreview::postBuild()
 {
 	mChatHistory = getChild<LLChatHistory>("chat_history");
-	LLLoadHistoryThread::setLoadEndSignal(boost::bind(&LLFloaterConversationPreview::SetPages, this, _1, _2));
+	LLLoadHistoryThread::setLoadEndSignal(boost::bind(&LLFloaterConversationPreview::setPages, this, _1, _2));
 
 	const LLConversation* conv = LLConversationLog::instance().getConversation(mSessionID);
 	std::string name;
@@ -95,14 +96,15 @@ BOOL LLFloaterConversationPreview::postBuild()
 	return LLFloater::postBuild();
 }
 
-void LLFloaterConversationPreview::SetPages(std::list<LLSD>& messages, const std::string& file_name)
+void LLFloaterConversationPreview::setPages(std::list<LLSD>& messages,const std::string& file_name)
 {
 	if(file_name == mChatHistoryFileName)
 	{
+		// additional protection to avoid changes of mMessages in setPages()
+		LLMutexLock lock(&mMutex);
 		mMessages = messages;
+		mCurrentPage = (mMessages.size() ? (mMessages.size() - 1) / mPageSize : 0);
 
-
-		mCurrentPage = mMessages.size() / mPageSize;
 		mPageSpinner->setEnabled(true);
 		mPageSpinner->setMaxValue(mCurrentPage+1);
 		mPageSpinner->set(mCurrentPage+1);
@@ -110,10 +112,9 @@ void LLFloaterConversationPreview::SetPages(std::list<LLSD>& messages, const std
 		std::string total_page_num = llformat("/ %d", mCurrentPage+1);
 		getChild<LLTextBox>("page_num_label")->setValue(total_page_num);
 		mChatHistoryLoaded = true;
-
 	}
-
 }
+
 void LLFloaterConversationPreview::draw()
 {
 	if(mChatHistoryLoaded)
@@ -134,32 +135,21 @@ void LLFloaterConversationPreview::onOpen(const LLSD& key)
 
 void LLFloaterConversationPreview::showHistory()
 {
-	if (!mMessages.size())
+	// additional protection to avoid changes of mMessages in setPages()
+	LLMutexLock lock(&mMutex);
+
+	if (!mMessages.size() || mCurrentPage * mPageSize >= mMessages.size())
 	{
 		return;
 	}
 
 	mChatHistory->clear();
-
 	std::ostringstream message;
 	std::list<LLSD>::const_iterator iter = mMessages.begin();
+	std::advance(iter, mCurrentPage * mPageSize);
 
-	int delta = 0;
-	if (mCurrentPage)
+	for (int msg_num = 0; iter != mMessages.end() && msg_num < mPageSize; ++iter, ++msg_num)
 	{
-		int remainder = mMessages.size() % mPageSize;
-		delta = (remainder == 0) ? 0 : (mPageSize - remainder);
-	}
-
-	std::advance(iter, (mCurrentPage * mPageSize) - delta);
-
-	for (int msg_num = 0; (iter != mMessages.end() && msg_num < mPageSize); ++iter, ++msg_num)
-	{
-		if (iter->size() == 0)
-		{
-			continue;
-		}
-
 		LLSD msg = *iter;
 
 		LLUUID from_id 		= LLUUID::null;
@@ -203,7 +193,6 @@ void LLFloaterConversationPreview::showHistory()
 
 		mChatHistory->appendMessage(chat,chat_args);
 	}
-
 }
 
 void LLFloaterConversationPreview::onMoreHistoryBtnClick()
