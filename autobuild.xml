@@ -1965,11 +1965,11 @@
     <key>package_description</key>
     <map>
       <key>description</key>
-      <string>Spell checking dictionaries</string>
+      <string>Second Life Viewer</string>
       <key>license</key>
-      <string>various open</string>
+      <string>LGPL</string>
       <key>name</key>
-      <string>dictionaries</string>
+      <string>Second Life Viewer</string>
       <key>platforms</key>
       <map>
         <key>common</key>
