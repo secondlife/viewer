@@ -2796,13 +2796,13 @@ void append_xui_tooltip(LLView* viewp, LLToolTip::Params& params)
 	}
 }
 
-static LLFastTimer::DeclareTimer ftm("Update UI");
+static LLTrace::TimeBlock ftm("Update UI");
 
 // Update UI based on stored mouse position from mouse-move
 // event processing.
 void LLViewerWindow::updateUI()
 {
-	LLFastTimer t(ftm);
+	LL_RECORD_BLOCK_TIME(ftm);
 
 	static std::string last_handle_msg;
 
@@ -3374,10 +3374,10 @@ void LLViewerWindow::updateKeyboardFocus()
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_UPDATE_WORLD_VIEW("Update World View");
+static LLTrace::TimeBlock FTM_UPDATE_WORLD_VIEW("Update World View");
 void LLViewerWindow::updateWorldViewRect(bool use_full_window)
 {
-	LLFastTimer ft(FTM_UPDATE_WORLD_VIEW);
+	LL_RECORD_BLOCK_TIME(FTM_UPDATE_WORLD_VIEW);
 
 	// start off using whole window to render world
 	LLRect new_world_rect = mWindowRectRaw;
@@ -4871,11 +4871,11 @@ void LLViewerWindow::requestResolutionUpdate()
 	mResDirty = true;
 }
 
-static LLFastTimer::DeclareTimer FTM_WINDOW_CHECK_SETTINGS("Window Settings");
+static LLTrace::TimeBlock FTM_WINDOW_CHECK_SETTINGS("Window Settings");
 
 void LLViewerWindow::checkSettings()
 {
-	LLFastTimer t(FTM_WINDOW_CHECK_SETTINGS);
+	LL_RECORD_BLOCK_TIME(FTM_WINDOW_CHECK_SETTINGS);
 	if (mStatesDirty)
 	{
 		gGL.refreshState();

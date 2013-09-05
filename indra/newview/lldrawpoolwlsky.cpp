@@ -306,7 +306,7 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
 	{
 		return;
 	}
-	LLFastTimer ftm(FTM_RENDER_WL_SKY);
+	LL_RECORD_BLOCK_TIME(FTM_RENDER_WL_SKY);
 
 	const F32 camHeightLocal = LLWLParamManager::getInstance()->getDomeOffset() * LLWLParamManager::getInstance()->getDomeRadius();
 
@@ -353,7 +353,7 @@ void LLDrawPoolWLSky::render(S32 pass)
 	{
 		return;
 	}
-	LLFastTimer ftm(FTM_RENDER_WL_SKY);
+	LL_RECORD_BLOCK_TIME(FTM_RENDER_WL_SKY);
 
 	const F32 camHeightLocal = LLWLParamManager::getInstance()->getDomeOffset() * LLWLParamManager::getInstance()->getDomeRadius();
 

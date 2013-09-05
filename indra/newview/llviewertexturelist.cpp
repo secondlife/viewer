@@ -68,7 +68,7 @@ void (*LLViewerTextureList::sUUIDCallback)(void **, const LLUUID&) = NULL;
 S32 LLViewerTextureList::sNumImages = 0;
 
 LLViewerTextureList gTextureList;
-static LLFastTimer::DeclareTimer FTM_PROCESS_IMAGES("Process Images");
+static LLTrace::TimeBlock FTM_PROCESS_IMAGES("Process Images");
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -638,18 +638,18 @@ void LLViewerTextureList::dirtyImage(LLViewerFetchedTexture *image)
 }
 
 ////////////////////////////////////////////////////////////////////////////
-static LLFastTimer::DeclareTimer FTM_IMAGE_MARK_DIRTY("Dirty Images");
-static LLFastTimer::DeclareTimer FTM_IMAGE_UPDATE_PRIORITIES("Prioritize");
-static LLFastTimer::DeclareTimer FTM_IMAGE_CALLBACKS("Callbacks");
-static LLFastTimer::DeclareTimer FTM_IMAGE_FETCH("Fetch");
-static LLFastTimer::DeclareTimer FTM_FAST_CACHE_IMAGE_FETCH("Fast Cache Fetch");
-static LLFastTimer::DeclareTimer FTM_IMAGE_CREATE("Create");
-static LLFastTimer::DeclareTimer FTM_IMAGE_STATS("Stats");
-static LLFastTimer::DeclareTimer FTM_UPDATE_IMAGES("Update Images");
+static LLTrace::TimeBlock FTM_IMAGE_MARK_DIRTY("Dirty Images");
+static LLTrace::TimeBlock FTM_IMAGE_UPDATE_PRIORITIES("Prioritize");
+static LLTrace::TimeBlock FTM_IMAGE_CALLBACKS("Callbacks");
+static LLTrace::TimeBlock FTM_IMAGE_FETCH("Fetch");
+static LLTrace::TimeBlock FTM_FAST_CACHE_IMAGE_FETCH("Fast Cache Fetch");
+static LLTrace::TimeBlock FTM_IMAGE_CREATE("Create");
+static LLTrace::TimeBlock FTM_IMAGE_STATS("Stats");
+static LLTrace::TimeBlock FTM_UPDATE_IMAGES("Update Images");
 
 void LLViewerTextureList::updateImages(F32 max_time)
 {
-	LLFastTimer _(FTM_UPDATE_IMAGES);
+	LL_RECORD_BLOCK_TIME(FTM_UPDATE_IMAGES);
 	static BOOL cleared = FALSE;
 	if(gTeleportDisplay)
 	{
@@ -677,37 +677,37 @@ void LLViewerTextureList::updateImages(F32 max_time)
 
 	{
 		//loading from fast cache 
-		LLFastTimer t(FTM_FAST_CACHE_IMAGE_FETCH);
+		LL_RECORD_BLOCK_TIME(FTM_FAST_CACHE_IMAGE_FETCH);
 		max_time -= updateImagesLoadingFastCache(max_time);
 	}
 
 	{
-		LLFastTimer t(FTM_IMAGE_UPDATE_PRIORITIES);
+		LL_RECORD_BLOCK_TIME(FTM_IMAGE_UPDATE_PRIORITIES);
 		updateImagesDecodePriorities();
 	}
 
 	F32 total_max_time = max_time;
 
 	{
-		LLFastTimer t(FTM_IMAGE_FETCH);
+		LL_RECORD_BLOCK_TIME(FTM_IMAGE_FETCH);
 		max_time -= updateImagesFetchTextures(max_time);
 	}
 	
 	{
-		LLFastTimer t(FTM_IMAGE_CREATE);
+		LL_RECORD_BLOCK_TIME(FTM_IMAGE_CREATE);
 		max_time = llmax(max_time, total_max_time*.50f); // at least 50% of max_time
 		max_time -= updateImagesCreateTextures(max_time);
 	}
 	
 	if (!mDirtyTextureList.empty())
 	{
-		LLFastTimer t(FTM_IMAGE_MARK_DIRTY);
+		LL_RECORD_BLOCK_TIME(FTM_IMAGE_MARK_DIRTY);
 		gPipeline.dirtyPoolObjectTextures(mDirtyTextureList);
 		mDirtyTextureList.clear();
 	}
 
 	{
-		LLFastTimer t(FTM_IMAGE_CALLBACKS);
+		LL_RECORD_BLOCK_TIME(FTM_IMAGE_CALLBACKS);
 		bool didone = false;
 		for (image_list_t::iterator iter = mCallbackList.begin();
 			iter != mCallbackList.end(); )
@@ -728,7 +728,7 @@ void LLViewerTextureList::updateImages(F32 max_time)
 	}
 
 	{
-		LLFastTimer t(FTM_IMAGE_STATS);
+		LL_RECORD_BLOCK_TIME(FTM_IMAGE_STATS);
 		updateImagesUpdateStats();
 	}
 }
@@ -1360,7 +1360,7 @@ void LLViewerTextureList::receiveImageHeader(LLMessageSystem *msg, void **user_d
 {
 	static LLCachedControl<bool> log_texture_traffic(gSavedSettings,"LogTextureNetworkTraffic") ;
 
-	LLFastTimer t(FTM_PROCESS_IMAGES);
+	LL_RECORD_BLOCK_TIME(FTM_PROCESS_IMAGES);
 	
 	// Receive image header, copy into image object and decompresses 
 	// if this is a one-packet image. 
@@ -1432,7 +1432,7 @@ void LLViewerTextureList::receiveImagePacket(LLMessageSystem *msg, void **user_d
 {
 	static LLCachedControl<bool> log_texture_traffic(gSavedSettings,"LogTextureNetworkTraffic") ;
 
-	LLFastTimer t(FTM_PROCESS_IMAGES);
+	LL_RECORD_BLOCK_TIME(FTM_PROCESS_IMAGES);
 	
 	// Receives image packet, copy into image object,
 	// checks if all packets received, decompresses if so. 
@@ -1505,7 +1505,7 @@ void LLViewerTextureList::receiveImagePacket(LLMessageSystem *msg, void **user_d
 // static
 void LLViewerTextureList::processImageNotInDatabase(LLMessageSystem *msg,void **user_data)
 {
-	LLFastTimer t(FTM_PROCESS_IMAGES);
+	LL_RECORD_BLOCK_TIME(FTM_PROCESS_IMAGES);
 	LLUUID image_id;
 	msg->getUUIDFast(_PREHASH_ImageID, _PREHASH_ID, image_id);
 	

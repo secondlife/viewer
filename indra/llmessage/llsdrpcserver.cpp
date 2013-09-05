@@ -95,7 +95,7 @@ void LLSDRPCServer::clearLock()
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_PROCESS_SDRPC_SERVER("SDRPC Server");
+static LLTrace::TimeBlock FTM_PROCESS_SDRPC_SERVER("SDRPC Server");
 
 // virtual
 LLIOPipe::EStatus LLSDRPCServer::process_impl(
@@ -105,7 +105,7 @@ LLIOPipe::EStatus LLSDRPCServer::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
-	LLFastTimer t(FTM_PROCESS_SDRPC_SERVER);
+	LL_RECORD_BLOCK_TIME(FTM_PROCESS_SDRPC_SERVER);
 	PUMP_DEBUG;
 //	LL_DEBUGS() << "LLSDRPCServer::process_impl" << LL_ENDL;
 	// Once we have all the data, We need to read the sd on

@@ -331,8 +331,8 @@ bool LLSceneMonitor::needsUpdate() const
 	return mDiffState == NEED_DIFF;
 }
 
-static LLFastTimer::DeclareTimer FTM_GENERATE_SCENE_LOAD_DITHER_TEXTURE("Generate Scene Load Dither Texture");
-static LLFastTimer::DeclareTimer FTM_SCENE_LOAD_IMAGE_DIFF("Scene Load Image Diff");
+static LLTrace::TimeBlock FTM_GENERATE_SCENE_LOAD_DITHER_TEXTURE("Generate Scene Load Dither Texture");
+static LLTrace::TimeBlock FTM_SCENE_LOAD_IMAGE_DIFF("Scene Load Image Diff");
 
 void LLSceneMonitor::compare()
 {
@@ -350,14 +350,14 @@ void LLSceneMonitor::compare()
 		return; 
 	}
 
-	LLFastTimer _(FTM_SCENE_LOAD_IMAGE_DIFF);
+	LL_RECORD_BLOCK_TIME(FTM_SCENE_LOAD_IMAGE_DIFF);
 	mDiffState = EXECUTE_DIFF;
 
 	S32 width = gViewerWindow->getWindowWidthRaw();
 	S32 height = gViewerWindow->getWindowHeightRaw();
 	if(!mDiff)
 	{
-		LLFastTimer _(FTM_GENERATE_SCENE_LOAD_DITHER_TEXTURE);
+		LL_RECORD_BLOCK_TIME(FTM_GENERATE_SCENE_LOAD_DITHER_TEXTURE);
 		mDiff = new LLRenderTarget();
 		mDiff->allocate(width, height, GL_RGBA, false, false, LLTexUnit::TT_TEXTURE, true);
 
@@ -365,7 +365,7 @@ void LLSceneMonitor::compare()
 	}
 	else if(mDiff->getWidth() != width || mDiff->getHeight() != height)
 	{
-		LLFastTimer _(FTM_GENERATE_SCENE_LOAD_DITHER_TEXTURE);
+		LL_RECORD_BLOCK_TIME(FTM_GENERATE_SCENE_LOAD_DITHER_TEXTURE);
 		mDiff->resize(width, height, GL_RGBA);
 		generateDitheringTexture(width, height);
 	}
@@ -416,7 +416,7 @@ void LLSceneMonitor::compare()
 //calculate Diff aggregate information in GPU, and enable gl occlusion query to capture it.
 void LLSceneMonitor::calcDiffAggregate()
 {
-	LLFastTimer _(FTM_SCENE_LOAD_IMAGE_DIFF);
+	LL_RECORD_BLOCK_TIME(FTM_SCENE_LOAD_IMAGE_DIFF);
 
 	if(mDiffState != EXECUTE_DIFF && !mDebugViewerVisible)
 	{
@@ -469,7 +469,7 @@ void LLSceneMonitor::calcDiffAggregate()
 static LLTrace::EventStatHandle<> sFramePixelDiff("FramePixelDifference");
 void LLSceneMonitor::fetchQueryResult()
 {
-	LLFastTimer _(FTM_SCENE_LOAD_IMAGE_DIFF);
+	LL_RECORD_BLOCK_TIME(FTM_SCENE_LOAD_IMAGE_DIFF);
 
 	// also throttle timing here, to avoid going below sample time due to phasing with frame capture
 	static LLCachedControl<F32>  scene_load_sample_time_control(gSavedSettings, "SceneLoadingMonitorSampleTime");

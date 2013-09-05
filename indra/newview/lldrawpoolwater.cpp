@@ -142,7 +142,7 @@ void LLDrawPoolWater::endPostDeferredPass(S32 pass)
 //===============================
 void LLDrawPoolWater::renderDeferred(S32 pass)
 {
-	LLFastTimer t(FTM_RENDER_WATER);
+	LL_RECORD_BLOCK_TIME(FTM_RENDER_WATER);
 	deferred_render = TRUE;
 	shade();
 	deferred_render = FALSE;
@@ -152,7 +152,7 @@ void LLDrawPoolWater::renderDeferred(S32 pass)
 
 void LLDrawPoolWater::render(S32 pass)
 {
-	LLFastTimer ftm(FTM_RENDER_WATER);
+	LL_RECORD_BLOCK_TIME(FTM_RENDER_WATER);
 	if (mDrawFace.empty() || LLDrawable::getCurrentFrame() <= 1)
 	{
 		return;

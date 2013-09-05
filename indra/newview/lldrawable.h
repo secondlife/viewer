@@ -61,7 +61,7 @@ const U32 SILHOUETTE_HIGHLIGHT = 0;
 LL_ALIGN_PREFIX(16)
 class LLDrawable 
 :	public LLViewerOctreeEntryData,
-	public LLTrace::MemTrackable<LLDrawable>
+	public LLTrace::MemTrackable<LLDrawable, 16>
 {
 public:
 	LLDrawable(const LLDrawable& rhs) : LLViewerOctreeEntryData(rhs)
@@ -291,7 +291,7 @@ public:
 	F32				mDistanceWRTCamera;
 
 	static F32 sCurPixelAngle; //current pixels per radian
-	static LLTrace::MemStatHandle sMemStat;
+	//static LLTrace::MemStatHandle sMemStat;
 
 private:
 	typedef std::vector<LLFace*> face_list_t;

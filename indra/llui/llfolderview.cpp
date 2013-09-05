@@ -317,11 +317,11 @@ S32 LLFolderView::arrange( S32* unused_width, S32* unused_height )
 	return llround(mTargetHeight);
 }
 
-static LLFastTimer::DeclareTimer FTM_FILTER("Filter Folder View");
+static LLTrace::TimeBlock FTM_FILTER("Filter Folder View");
 
 void LLFolderView::filter( LLFolderViewFilter& filter )
 {
-	LLFastTimer t2(FTM_FILTER);
+	LL_RECORD_BLOCK_TIME(FTM_FILTER);
 	filter.setFilterCount(llclamp(LLUI::sSettingGroups["config"]->getS32("FilterItemsPerFrame"), 1, 5000));
 
 	getViewModelItem()->filter(filter);
@@ -480,10 +480,10 @@ BOOL LLFolderView::changeSelection(LLFolderViewItem* selection, BOOL selected)
 	return rv;
 }
 
-static LLFastTimer::DeclareTimer FTM_SANITIZE_SELECTION("Sanitize Selection");
+static LLTrace::TimeBlock FTM_SANITIZE_SELECTION("Sanitize Selection");
 void LLFolderView::sanitizeSelection()
 {
-	LLFastTimer _(FTM_SANITIZE_SELECTION);
+	LL_RECORD_BLOCK_TIME(FTM_SANITIZE_SELECTION);
 	// store off current item in case it is automatically deselected
 	// and we want to preserve context
 	LLFolderViewItem* original_selected_item = getCurSelectedItem();
@@ -1586,15 +1586,15 @@ void LLFolderView::setShowSingleSelection(BOOL show)
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_AUTO_SELECT("Open and Select");
-static LLFastTimer::DeclareTimer FTM_INVENTORY("Inventory");
+static LLTrace::TimeBlock FTM_AUTO_SELECT("Open and Select");
+static LLTrace::TimeBlock FTM_INVENTORY("Inventory");
 
 // Main idle routine
 void LLFolderView::update()
 {
 	// If this is associated with the user's inventory, don't do anything
 	// until that inventory is loaded up.
-	LLFastTimer t2(FTM_INVENTORY);
+	LL_RECORD_BLOCK_TIME(FTM_INVENTORY);
 
 	if (getFolderViewModel()->getFilter().isModified() && getFolderViewModel()->getFilter().isNotDefault())
 	{
@@ -1612,7 +1612,7 @@ void LLFolderView::update()
 	// automatically show matching items, and select first one if we had a selection
 	if (mNeedsAutoSelect)
 	{
-		LLFastTimer t3(FTM_AUTO_SELECT);
+		LL_RECORD_BLOCK_TIME(FTM_AUTO_SELECT);
 		// select new item only if a filtered item not currently selected
 		LLFolderViewItem* selected_itemp = mSelectedItems.empty() ? NULL : mSelectedItems.back();
 		if (!mAutoSelectOverride && (!selected_itemp || !selected_itemp->getViewModelItem()->potentiallyVisible()))

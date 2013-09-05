@@ -675,7 +675,7 @@ public:
 	static S32 sLastLeftXML;
 	static S32 sLastBottomXML;
 	static BOOL sForceReshape;
-	static LLTrace::MemStatHandle sMemStat;
+	//static LLTrace::MemStatHandle sMemStat;
 };
 
 namespace LLInitParam

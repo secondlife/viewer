@@ -4237,7 +4237,7 @@ const F32 THRESHOLD_HEAD_ROT_QDOT = 0.9997f;	// ~= 2.5 degrees -- if its less th
 const F32 MAX_HEAD_ROT_QDOT = 0.99999f;			// ~= 0.5 degrees -- if its greater than this then no need to update head_rot
 												// between these values we delay the updates (but no more than one second)
 
-static LLFastTimer::DeclareTimer FTM_AGENT_UPDATE_SEND("Send Message");
+static LLTrace::TimeBlock FTM_AGENT_UPDATE_SEND("Send Message");
 
 void send_agent_update(BOOL force_send, BOOL send_reliable)
 {
@@ -4421,7 +4421,7 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 		}
 		*/
 
-		LLFastTimer t(FTM_AGENT_UPDATE_SEND);
+		LL_RECORD_BLOCK_TIME(FTM_AGENT_UPDATE_SEND);
 		// Build the message
 		msg->newMessageFast(_PREHASH_AgentUpdate);
 		msg->nextBlockFast(_PREHASH_AgentData);
@@ -4552,14 +4552,14 @@ void process_terse_object_update_improved(LLMessageSystem *mesgsys, void **user_
 	gObjectList.processCompressedObjectUpdate(mesgsys, user_data, OUT_TERSE_IMPROVED);
 }
 
-static LLFastTimer::DeclareTimer FTM_PROCESS_OBJECTS("Process Kill Objects");
+static LLTrace::TimeBlock FTM_PROCESS_OBJECTS("Process Kill Objects");
 
 const U32 KILLOBJECT_DELETE_OPCODE = 0;
 
 
 void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 {
-	LLFastTimer t(FTM_PROCESS_OBJECTS);
+	LL_RECORD_BLOCK_TIME(FTM_PROCESS_OBJECTS);
 
 	LLUUID		id;
 

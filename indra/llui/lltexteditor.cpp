@@ -2484,13 +2484,13 @@ BOOL LLTextEditor::tryToRevertToPristineState()
 }
 
 
-static LLFastTimer::DeclareTimer FTM_SYNTAX_HIGHLIGHTING("Syntax Highlighting");
+static LLTrace::TimeBlock FTM_SYNTAX_HIGHLIGHTING("Syntax Highlighting");
 void LLTextEditor::loadKeywords(const std::string& filename,
 								const std::vector<std::string>& funcs,
 								const std::vector<std::string>& tooltips,
 								const LLColor3& color)
 {
-	LLFastTimer ft(FTM_SYNTAX_HIGHLIGHTING);
+	LL_RECORD_BLOCK_TIME(FTM_SYNTAX_HIGHLIGHTING);
 	if(mKeywords.loadFromFile(filename))
 	{
 		S32 count = llmin(funcs.size(), tooltips.size());
@@ -2515,7 +2515,7 @@ void LLTextEditor::updateSegments()
 {
 	if (mReflowIndex < S32_MAX && mKeywords.isLoaded() && mParseOnTheFly)
 	{
-		LLFastTimer ft(FTM_SYNTAX_HIGHLIGHTING);
+		LL_RECORD_BLOCK_TIME(FTM_SYNTAX_HIGHLIGHTING);
 		// HACK:  No non-ascii keywords for now
 		segment_vec_t segment_list;
 		mKeywords.findSegments(&segment_list, getWText(), mDefaultColor.get(), *this);

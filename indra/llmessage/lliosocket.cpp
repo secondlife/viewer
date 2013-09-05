@@ -294,7 +294,7 @@ LLIOSocketReader::~LLIOSocketReader()
 	//LL_DEBUGS() << "Destroying LLIOSocketReader" << LL_ENDL;
 }
 
-static LLFastTimer::DeclareTimer FTM_PROCESS_SOCKET_READER("Socket Reader");
+static LLTrace::TimeBlock FTM_PROCESS_SOCKET_READER("Socket Reader");
 
 // virtual
 LLIOPipe::EStatus LLIOSocketReader::process_impl(
@@ -304,7 +304,7 @@ LLIOPipe::EStatus LLIOSocketReader::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
-	LLFastTimer t(FTM_PROCESS_SOCKET_READER);
+	LL_RECORD_BLOCK_TIME(FTM_PROCESS_SOCKET_READER);
 	PUMP_DEBUG;
 	if(!mSource) return STATUS_PRECONDITION_NOT_MET;
 	if(!mInitialized)
@@ -394,7 +394,7 @@ LLIOSocketWriter::~LLIOSocketWriter()
 	//LL_DEBUGS() << "Destroying LLIOSocketWriter" << LL_ENDL;
 }
 
-static LLFastTimer::DeclareTimer FTM_PROCESS_SOCKET_WRITER("Socket Writer");
+static LLTrace::TimeBlock FTM_PROCESS_SOCKET_WRITER("Socket Writer");
 // virtual
 LLIOPipe::EStatus LLIOSocketWriter::process_impl(
 	const LLChannelDescriptors& channels,
@@ -403,7 +403,7 @@ LLIOPipe::EStatus LLIOSocketWriter::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
-	LLFastTimer t(FTM_PROCESS_SOCKET_WRITER);
+	LL_RECORD_BLOCK_TIME(FTM_PROCESS_SOCKET_WRITER);
 	PUMP_DEBUG;
 	if(!mDestination) return STATUS_PRECONDITION_NOT_MET;
 	if(!mInitialized)
@@ -550,7 +550,7 @@ void LLIOServerSocket::setResponseTimeout(F32 timeout_secs)
 	mResponseTimeout = timeout_secs;
 }
 
-static LLFastTimer::DeclareTimer FTM_PROCESS_SERVER_SOCKET("Server Socket");
+static LLTrace::TimeBlock FTM_PROCESS_SERVER_SOCKET("Server Socket");
 // virtual
 LLIOPipe::EStatus LLIOServerSocket::process_impl(
 	const LLChannelDescriptors& channels,
@@ -559,7 +559,7 @@ LLIOPipe::EStatus LLIOServerSocket::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
-	LLFastTimer t(FTM_PROCESS_SERVER_SOCKET);
+	LL_RECORD_BLOCK_TIME(FTM_PROCESS_SERVER_SOCKET);
 	PUMP_DEBUG;
 	if(!pump)
 	{

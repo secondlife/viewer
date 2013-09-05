@@ -1126,14 +1126,14 @@ void LLAgentCamera::updateLookAt(const S32 mouse_x, const S32 mouse_y)
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_UPDATE_CAMERA("Camera");
+static LLTrace::TimeBlock FTM_UPDATE_CAMERA("Camera");
 
 //-----------------------------------------------------------------------------
 // updateCamera()
 //-----------------------------------------------------------------------------
 void LLAgentCamera::updateCamera()
 {
-	LLFastTimer t(FTM_UPDATE_CAMERA);
+	LL_RECORD_BLOCK_TIME(FTM_UPDATE_CAMERA);
 
 	// - changed camera_skyward to the new global "mCameraUpVector"
 	mCameraUpVector = LLVector3::z_axis;

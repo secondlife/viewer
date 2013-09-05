@@ -79,7 +79,7 @@ bool LLSDRPCResponse::extractResponse(const LLSD& sd)
 	return rv;
 }
 
-static LLFastTimer::DeclareTimer FTM_SDRPC_RESPONSE("SDRPC Response");
+static LLTrace::TimeBlock FTM_SDRPC_RESPONSE("SDRPC Response");
 
 // virtual
 LLIOPipe::EStatus LLSDRPCResponse::process_impl(
@@ -89,7 +89,7 @@ LLIOPipe::EStatus LLSDRPCResponse::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
-	LLFastTimer t(FTM_SDRPC_RESPONSE);
+	LL_RECORD_BLOCK_TIME(FTM_SDRPC_RESPONSE);
 	PUMP_DEBUG;
 	if(mIsError)
 	{
@@ -173,7 +173,7 @@ bool LLSDRPCClient::call(
 	return true;
 }
 
-static LLFastTimer::DeclareTimer FTM_PROCESS_SDRPC_CLIENT("SDRPC Client");
+static LLTrace::TimeBlock FTM_PROCESS_SDRPC_CLIENT("SDRPC Client");
 
 // virtual
 LLIOPipe::EStatus LLSDRPCClient::process_impl(
@@ -183,7 +183,7 @@ LLIOPipe::EStatus LLSDRPCClient::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
-	LLFastTimer t(FTM_PROCESS_SDRPC_CLIENT);
+	LL_RECORD_BLOCK_TIME(FTM_PROCESS_SDRPC_CLIENT);
 	PUMP_DEBUG;
 	if((STATE_NONE == mState) || (!pump))
 	{
