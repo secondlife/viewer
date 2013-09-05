@@ -391,7 +391,7 @@ public:
 		accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() + (F64)size : (F64)size);
 		accumulator.mAllocatedCount++;
 
-		if (alignment == LL_DEFAULT_HEAP_ALIGN)
+		if (ALIGNMENT == LL_DEFAULT_HEAP_ALIGN)
 		{
 			return ::operator new[](size);
 		}
@@ -416,7 +416,7 @@ public:
 		accumulator.mAllocatedCount--;
 		accumulator.mDeallocatedCount++;
 
-		if (alignment == LL_DEFAULT_HEAP_ALIGN)
+		if (ALIGNMENT == LL_DEFAULT_HEAP_ALIGN)
 		{
 			::operator delete[](ptr);
 		}
