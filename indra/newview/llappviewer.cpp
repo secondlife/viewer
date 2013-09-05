@@ -1237,24 +1237,24 @@ void LLAppViewer::checkMemory()
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_MESSAGES("System Messages");
-static LLFastTimer::DeclareTimer FTM_SLEEP("Sleep");
-static LLFastTimer::DeclareTimer FTM_YIELD("Yield");
+static LLTrace::TimeBlock FTM_MESSAGES("System Messages");
+static LLTrace::TimeBlock FTM_SLEEP("Sleep");
+static LLTrace::TimeBlock FTM_YIELD("Yield");
 
-static LLFastTimer::DeclareTimer FTM_TEXTURE_CACHE("Texture Cache");
-static LLFastTimer::DeclareTimer FTM_DECODE("Image Decode");
-static LLFastTimer::DeclareTimer FTM_VFS("VFS Thread");
-static LLFastTimer::DeclareTimer FTM_LFS("LFS Thread");
-static LLFastTimer::DeclareTimer FTM_PAUSE_THREADS("Pause Threads");
-static LLFastTimer::DeclareTimer FTM_IDLE("Idle");
-static LLFastTimer::DeclareTimer FTM_PUMP("Pump");
-static LLFastTimer::DeclareTimer FTM_PUMP_ARES("Ares");
-static LLFastTimer::DeclareTimer FTM_PUMP_SERVICE("Service");
-static LLFastTimer::DeclareTimer FTM_SERVICE_CALLBACK("Callback");
-static LLFastTimer::DeclareTimer FTM_AGENT_AUTOPILOT("Autopilot");
-static LLFastTimer::DeclareTimer FTM_AGENT_UPDATE("Update");
+static LLTrace::TimeBlock FTM_TEXTURE_CACHE("Texture Cache");
+static LLTrace::TimeBlock FTM_DECODE("Image Decode");
+static LLTrace::TimeBlock FTM_VFS("VFS Thread");
+static LLTrace::TimeBlock FTM_LFS("LFS Thread");
+static LLTrace::TimeBlock FTM_PAUSE_THREADS("Pause Threads");
+static LLTrace::TimeBlock FTM_IDLE("Idle");
+static LLTrace::TimeBlock FTM_PUMP("Pump");
+static LLTrace::TimeBlock FTM_PUMP_ARES("Ares");
+static LLTrace::TimeBlock FTM_PUMP_SERVICE("Service");
+static LLTrace::TimeBlock FTM_SERVICE_CALLBACK("Callback");
+static LLTrace::TimeBlock FTM_AGENT_AUTOPILOT("Autopilot");
+static LLTrace::TimeBlock FTM_AGENT_UPDATE("Update");
 
-LLFastTimer::DeclareTimer FTM_FRAME("Frame");
+LLTrace::TimeBlock FTM_FRAME("Frame");
 
 bool LLAppViewer::mainLoop()
 {
@@ -1295,7 +1295,7 @@ bool LLAppViewer::mainLoop()
 	// Handle messages
 	while (!LLApp::isExiting())
 	{
-		LLFastTimer _(FTM_FRAME);
+		LL_RECORD_BLOCK_TIME(FTM_FRAME);
 		LLTrace::TimeBlock::processTimes();
 		LLTrace::get_frame_recording().nextPeriod();
 		LLTrace::TimeBlock::logStats();
@@ -1314,7 +1314,7 @@ bool LLAppViewer::mainLoop()
 
 			if (gViewerWindow)
 			{
-				LLFastTimer t2(FTM_MESSAGES);
+				LL_RECORD_BLOCK_TIME(FTM_MESSAGES);
 				gViewerWindow->getWindow()->processMiscNativeEvents();
 			}
 		
@@ -1322,7 +1322,7 @@ bool LLAppViewer::mainLoop()
 			
 			if (gViewerWindow)
 			{
-				LLFastTimer t2(FTM_MESSAGES);
+				LL_RECORD_BLOCK_TIME(FTM_MESSAGES);
 				if (!restoreErrorTrap())
 				{
 					LL_WARNS() << " Someone took over my signal/exception handler (post messagehandling)!" << LL_ENDL;
@@ -1372,24 +1372,24 @@ bool LLAppViewer::mainLoop()
 				{
 					pauseMainloopTimeout(); // *TODO: Remove. Messages shouldn't be stalling for 20+ seconds!
 					
-					LLFastTimer t3(FTM_IDLE);
+					LL_RECORD_BLOCK_TIME(FTM_IDLE);
 					idle();
 
 					if (gAres != NULL && gAres->isInitialized())
 					{
 						pingMainloopTimeout("Main:ServicePump");				
-						LLFastTimer t4(FTM_PUMP);
+						LL_RECORD_BLOCK_TIME(FTM_PUMP);
 						{
-							LLFastTimer t(FTM_PUMP_ARES);
+							LL_RECORD_BLOCK_TIME(FTM_PUMP_ARES);
 							gAres->process();
 						}
 						{
-							LLFastTimer t(FTM_PUMP_SERVICE);
+							LL_RECORD_BLOCK_TIME(FTM_PUMP_SERVICE);
 							// this pump is necessary to make the login screen show up
 							gServicePump->pump();
 
 							{
-								LLFastTimer t(FTM_SERVICE_CALLBACK);
+								LL_RECORD_BLOCK_TIME(FTM_SERVICE_CALLBACK);
 								gServicePump->callback();
 							}
 						}
@@ -1425,12 +1425,12 @@ bool LLAppViewer::mainLoop()
 
 			// Sleep and run background threads
 			{
-				LLFastTimer t2(FTM_SLEEP);
+				LL_RECORD_BLOCK_TIME(FTM_SLEEP);
 				
 				// yield some time to the os based on command line option
 				if(mYieldTime >= 0)
 				{
-					LLFastTimer t(FTM_YIELD);
+					LL_RECORD_BLOCK_TIME(FTM_YIELD);
 					ms_sleep(mYieldTime);
 				}
 
@@ -1476,11 +1476,11 @@ bool LLAppViewer::mainLoop()
 					work_pending += updateTextureThreads(max_time);
 
 					{
-						LLFastTimer ftm(FTM_VFS);
+						LL_RECORD_BLOCK_TIME(FTM_VFS);
 	 					io_pending += LLVFSThread::updateClass(1);
 					}
 					{
-						LLFastTimer ftm(FTM_LFS);
+						LL_RECORD_BLOCK_TIME(FTM_LFS);
 	 					io_pending += LLLFSThread::updateClass(1);
 					}
 
@@ -1595,15 +1595,15 @@ S32 LLAppViewer::updateTextureThreads(F32 max_time)
 {
 	S32 work_pending = 0;
 	{
-		LLFastTimer ftm(FTM_TEXTURE_CACHE);
+		LL_RECORD_BLOCK_TIME(FTM_TEXTURE_CACHE);
  		work_pending += LLAppViewer::getTextureCache()->update(max_time); // unpauses the texture cache thread
 	}
 	{
-		LLFastTimer ftm(FTM_DECODE);
+		LL_RECORD_BLOCK_TIME(FTM_DECODE);
 	 	work_pending += LLAppViewer::getImageDecodeThread()->update(max_time); // unpauses the image thread
 	}
 	{
-		LLFastTimer ftm(FTM_DECODE);
+		LL_RECORD_BLOCK_TIME(FTM_DECODE);
 	 	work_pending += LLAppViewer::getTextureFetch()->update(max_time); // unpauses the texture fetch thread
 	}
 	return work_pending;
@@ -4467,20 +4467,20 @@ public:
 		}
 };
 
-static LLFastTimer::DeclareTimer FTM_AUDIO_UPDATE("Update Audio");
-static LLFastTimer::DeclareTimer FTM_CLEANUP("Cleanup");
-static LLFastTimer::DeclareTimer FTM_CLEANUP_DRAWABLES("Drawables");
-static LLFastTimer::DeclareTimer FTM_CLEANUP_OBJECTS("Objects");
-static LLFastTimer::DeclareTimer FTM_IDLE_CB("Idle Callbacks");
-static LLFastTimer::DeclareTimer FTM_LOD_UPDATE("Update LOD");
-static LLFastTimer::DeclareTimer FTM_OBJECTLIST_UPDATE("Update Objectlist");
-static LLFastTimer::DeclareTimer FTM_REGION_UPDATE("Update Region");
-static LLFastTimer::DeclareTimer FTM_WORLD_UPDATE("Update World");
-static LLFastTimer::DeclareTimer FTM_NETWORK("Network");
-static LLFastTimer::DeclareTimer FTM_AGENT_NETWORK("Agent Network");
-static LLFastTimer::DeclareTimer FTM_VLMANAGER("VL Manager");
-static LLFastTimer::DeclareTimer FTM_AGENT_POSITION("Agent Position");
-static LLFastTimer::DeclareTimer FTM_HUD_EFFECTS("HUD Effects");
+static LLTrace::TimeBlock FTM_AUDIO_UPDATE("Update Audio");
+static LLTrace::TimeBlock FTM_CLEANUP("Cleanup");
+static LLTrace::TimeBlock FTM_CLEANUP_DRAWABLES("Drawables");
+static LLTrace::TimeBlock FTM_CLEANUP_OBJECTS("Objects");
+static LLTrace::TimeBlock FTM_IDLE_CB("Idle Callbacks");
+static LLTrace::TimeBlock FTM_LOD_UPDATE("Update LOD");
+static LLTrace::TimeBlock FTM_OBJECTLIST_UPDATE("Update Objectlist");
+static LLTrace::TimeBlock FTM_REGION_UPDATE("Update Region");
+static LLTrace::TimeBlock FTM_WORLD_UPDATE("Update World");
+static LLTrace::TimeBlock FTM_NETWORK("Network");
+static LLTrace::TimeBlock FTM_AGENT_NETWORK("Agent Network");
+static LLTrace::TimeBlock FTM_VLMANAGER("VL Manager");
+static LLTrace::TimeBlock FTM_AGENT_POSITION("Agent Position");
+static LLTrace::TimeBlock FTM_HUD_EFFECTS("HUD Effects");
 
 ///////////////////////////////////////////////////////
 // idle()
@@ -4554,7 +4554,7 @@ void LLAppViewer::idle()
 
 	if (!gDisconnected)
 	{
-		LLFastTimer t(FTM_NETWORK);
+		LL_RECORD_BLOCK_TIME(FTM_NETWORK);
 		// Update spaceserver timeinfo
 	    LLWorld::getInstance()->setSpaceTimeUSec(LLWorld::getInstance()->getSpaceTimeUSec() + LLUnits::Seconds::fromValue(dt_raw));
     
@@ -4570,7 +4570,7 @@ void LLAppViewer::idle()
 		}
 
 		{
-			LLFastTimer t(FTM_AGENT_AUTOPILOT);
+			LL_RECORD_BLOCK_TIME(FTM_AGENT_AUTOPILOT);
 			// Handle automatic walking towards points
 			gAgentPilot.updateTarget();
 			gAgent.autoPilot(&yaw);
@@ -4585,7 +4585,7 @@ void LLAppViewer::idle()
 		    
 	    if (flags_changed || (agent_update_time > (1.0f / (F32) AGENT_UPDATES_PER_SECOND)))
 	    {
-		    LLFastTimer t(FTM_AGENT_UPDATE);
+		    LL_RECORD_BLOCK_TIME(FTM_AGENT_UPDATE);
 		    // Send avatar and camera info
 		    last_control_flags = gAgent.getControlFlags();
 		    send_agent_update(TRUE);
@@ -4634,7 +4634,7 @@ void LLAppViewer::idle()
 
 	if (!gDisconnected)
 	{
-		LLFastTimer t(FTM_NETWORK);
+		LL_RECORD_BLOCK_TIME(FTM_NETWORK);
 	
 	    ////////////////////////////////////////////////
 	    //
@@ -4662,7 +4662,7 @@ void LLAppViewer::idle()
 	//
 
 	{
-// 		LLFastTimer t(FTM_IDLE_CB);
+// 		LL_RECORD_BLOCK_TIME(FTM_IDLE_CB);
 
 		// Do event notifications if necessary.  Yes, we may want to move this elsewhere.
 		gEventNotifier.update();
@@ -4709,14 +4709,14 @@ void LLAppViewer::idle()
 
 	{
 		// Handle pending gesture processing
-		LLFastTimer t(FTM_AGENT_POSITION);
+		LL_RECORD_BLOCK_TIME(FTM_AGENT_POSITION);
 		LLGestureMgr::instance().update();
 
 		gAgent.updateAgentPosition(gFrameDTClamped, yaw, current_mouse.mX, current_mouse.mY);
 	}
 
 	{
-		LLFastTimer t(FTM_OBJECTLIST_UPDATE); 
+		LL_RECORD_BLOCK_TIME(FTM_OBJECTLIST_UPDATE); 
 		
         if (!(logoutRequestSent() && hasSavedFinalSnapshot()))
 		{
@@ -4731,13 +4731,13 @@ void LLAppViewer::idle()
 	//
 
 	{
-		LLFastTimer t(FTM_CLEANUP);
+		LL_RECORD_BLOCK_TIME(FTM_CLEANUP);
 		{
-			LLFastTimer t(FTM_CLEANUP_OBJECTS);
+			LL_RECORD_BLOCK_TIME(FTM_CLEANUP_OBJECTS);
 			gObjectList.cleanDeadObjects();
 		}
 		{
-			LLFastTimer t(FTM_CLEANUP_DRAWABLES);
+			LL_RECORD_BLOCK_TIME(FTM_CLEANUP_DRAWABLES);
 			LLDrawable::cleanupDeadDrawables();
 		}
 	}
@@ -4756,7 +4756,7 @@ void LLAppViewer::idle()
 	//
 
 	{
-		LLFastTimer t(FTM_HUD_EFFECTS);
+		LL_RECORD_BLOCK_TIME(FTM_HUD_EFFECTS);
 		LLSelectMgr::getInstance()->updateEffects();
 		LLHUDManager::getInstance()->cleanupEffects();
 		LLHUDManager::getInstance()->sendEffects();
@@ -4768,7 +4768,7 @@ void LLAppViewer::idle()
 	//
 
 	{
-		LLFastTimer t(FTM_NETWORK);
+		LL_RECORD_BLOCK_TIME(FTM_NETWORK);
 		gVLManager.unpackData();
 	}
 	
@@ -4780,7 +4780,7 @@ void LLAppViewer::idle()
 	LLWorld::getInstance()->updateVisibilities();
 	{
 		const F32 max_region_update_time = .001f; // 1ms
-		LLFastTimer t(FTM_REGION_UPDATE);
+		LL_RECORD_BLOCK_TIME(FTM_REGION_UPDATE);
 		LLWorld::getInstance()->updateRegions(max_region_update_time);
 	}
 	
@@ -4817,7 +4817,7 @@ void LLAppViewer::idle()
 	// Here, particles are updated and drawables are moved.
 	//
 	
-	LLFastTimer t(FTM_WORLD_UPDATE);
+	LL_RECORD_BLOCK_TIME(FTM_WORLD_UPDATE);
 	gPipeline.updateMove();
 
 	LLWorld::getInstance()->updateParticles();
@@ -4849,12 +4849,12 @@ void LLAppViewer::idle()
 
 	// objects and camera should be in sync, do LOD calculations now
 	{
-		LLFastTimer t(FTM_LOD_UPDATE);
+		LL_RECORD_BLOCK_TIME(FTM_LOD_UPDATE);
 		gObjectList.updateApparentAngles(gAgent);
 	}
 
 	{
-		LLFastTimer t(FTM_AUDIO_UPDATE);
+		LL_RECORD_BLOCK_TIME(FTM_AUDIO_UPDATE);
 		
 		if (gAudiop)
 		{
@@ -5073,12 +5073,12 @@ void LLAppViewer::idleNameCache()
 static F32 CheckMessagesMaxTime = CHECK_MESSAGES_DEFAULT_MAX_TIME;
 #endif
 
-static LLFastTimer::DeclareTimer FTM_IDLE_NETWORK("Idle Network");
-static LLFastTimer::DeclareTimer FTM_MESSAGE_ACKS("Message Acks");
-static LLFastTimer::DeclareTimer FTM_RETRANSMIT("Retransmit");
-static LLFastTimer::DeclareTimer FTM_TIMEOUT_CHECK("Timeout Check");
-static LLFastTimer::DeclareTimer FTM_DYNAMIC_THROTTLE("Dynamic Throttle");
-static LLFastTimer::DeclareTimer FTM_CHECK_REGION_CIRCUIT("Check Region Circuit");
+static LLTrace::TimeBlock FTM_IDLE_NETWORK("Idle Network");
+static LLTrace::TimeBlock FTM_MESSAGE_ACKS("Message Acks");
+static LLTrace::TimeBlock FTM_RETRANSMIT("Retransmit");
+static LLTrace::TimeBlock FTM_TIMEOUT_CHECK("Timeout Check");
+static LLTrace::TimeBlock FTM_DYNAMIC_THROTTLE("Dynamic Throttle");
+static LLTrace::TimeBlock FTM_CHECK_REGION_CIRCUIT("Check Region Circuit");
 
 void LLAppViewer::idleNetwork()
 {
@@ -5089,7 +5089,7 @@ void LLAppViewer::idleNetwork()
 
 	if (!gSavedSettings.getBOOL("SpeedTest"))
 	{
-		LLFastTimer t(FTM_IDLE_NETWORK); // decode
+		LL_RECORD_BLOCK_TIME(FTM_IDLE_NETWORK); // decode
 		
 		LLTimer check_message_timer;
 		//  Read all available packets from network 

@@ -737,11 +737,11 @@ public:
 	}
 };
 
-LLFastTimer::DeclareTimer FTM_FOCUS_FIRST_ITEM("Focus First Item");
+LLTrace::TimeBlock FTM_FOCUS_FIRST_ITEM("Focus First Item");
 
 BOOL LLUICtrl::focusFirstItem(BOOL prefer_text_fields, BOOL focus_flash)
 {
-	LLFastTimer _(FTM_FOCUS_FIRST_ITEM);
+	LL_RECORD_BLOCK_TIME(FTM_FOCUS_FIRST_ITEM);
 	// try to select default tab group child
 	LLCtrlQuery query = getTabOrderQuery();
 	// sort things such that the default tab group is at the front

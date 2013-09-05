@@ -525,7 +525,7 @@ void LLTemplateMessageReader::logRanOffEndOfPacket( const LLHost& host, const S3
 	gMessageSystem->callExceptionFunc(MX_RAN_OFF_END_OF_PACKET);
 }
 
-static LLFastTimer::DeclareTimer FTM_PROCESS_MESSAGES("Process Messages");
+static LLTrace::TimeBlock FTM_PROCESS_MESSAGES("Process Messages");
 
 // decode a given message
 BOOL LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender )
@@ -705,7 +705,7 @@ BOOL LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
 		}
 
 		{
-			LLFastTimer t(FTM_PROCESS_MESSAGES);
+			LL_RECORD_BLOCK_TIME(FTM_PROCESS_MESSAGES);
 			if( !mCurrentRMessageTemplate->callHandlerFunc(gMessageSystem) )
 			{
 				LL_WARNS() << "Message from " << sender << " with no handler function received: " << mCurrentRMessageTemplate->mName << LL_ENDL;

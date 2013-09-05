@@ -38,8 +38,6 @@
 
 #include <list>
 
-#define LL_RECORD_BLOCK_TIME(block_timer) LLTrace::TimeBlock::Recorder LL_GLUE_TOKENS(block_time_recorder, __COUNTER__)(block_timer);
-
 namespace LLTrace
 {
 class Recording;
@@ -89,7 +87,7 @@ public:
 	size_t getIndex() const { return mAccumulatorIndex; }
 	static size_t getNumIndices() { return AccumulatorBuffer<ACCUMULATOR>::getNumIndices(); }
 
-private:
+protected:
 	const size_t		mAccumulatorIndex;
 };
 
@@ -329,7 +327,7 @@ class MemTrackable
 	struct TrackMemImpl;
 
 	typedef MemTrackable<DERIVED, ALIGNMENT> mem_trackable_t;
-
+	static	MemStatHandle	sMemStat;
 public:
 	typedef void mem_trackable_tag_t;
 
@@ -340,38 +338,100 @@ public:
 
 	void* operator new(size_t size) 
 	{
-		MemStatAccumulator& accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
+		MemStatAccumulator& accumulator = sMemStat.getPrimaryAccumulator();
 		accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() + (F64)size : (F64)size);
 		accumulator.mAllocatedCount++;
 
-		return ::operator new(size);
+		if (ALIGNMENT == LL_DEFAULT_HEAP_ALIGN)
+		{
+			return ::operator new(size);
+		}
+		else if (ALIGNMENT == 16)
+		{
+			return ll_aligned_malloc_16(size);
+		}
+		else if (ALIGNMENT == 32)
+		{
+			return ll_aligned_malloc_32(size);
+		}
+		else
+		{
+			return ll_aligned_malloc(size, ALIGNMENT);
+		}
 	}
 
 	void operator delete(void* ptr, size_t size)
 	{
-		MemStatAccumulator& accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
+		MemStatAccumulator& accumulator = sMemStat.getPrimaryAccumulator();
 		accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)size : -(F64)size);
 		accumulator.mAllocatedCount--;
 		accumulator.mDeallocatedCount++;
-		::operator delete(ptr);
+
+		if (ALIGNMENT == LL_DEFAULT_HEAP_ALIGN)
+		{
+			::operator delete(ptr);
+		}
+		else if (ALIGNMENT == 16)
+		{
+			ll_aligned_free_16(ptr);
+		}
+		else if (ALIGNMENT == 32)
+		{
+			return ll_aligned_free_32(ptr);
+		}
+		else
+		{
+			return ll_aligned_free(ptr);
+		}
 	}
 
 	void *operator new [](size_t size)
 	{
-		MemStatAccumulator& accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
+		MemStatAccumulator& accumulator = sMemStat.getPrimaryAccumulator();
 		accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() + (F64)size : (F64)size);
 		accumulator.mAllocatedCount++;
 
-		return ::operator new[](size);
+		if (alignment == LL_DEFAULT_HEAP_ALIGN)
+		{
+			return ::operator new[](size);
+		}
+		else if (ALIGNMENT == 16)
+		{
+			return ll_aligned_malloc_16(size);
+		}
+		else if (ALIGNMENT == 32)
+		{
+			return ll_aligned_malloc_32(size);
+		}
+		else
+		{
+			return ll_aligned_malloc(size, ALIGNMENT);
+		}
 	}
 
 	void operator delete[](void* ptr, size_t size)
 	{
-		MemStatAccumulator& accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
+		MemStatAccumulator& accumulator = sMemStat.getPrimaryAccumulator();
 		accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)size : -(F64)size);
 		accumulator.mAllocatedCount--;
 		accumulator.mDeallocatedCount++;
-		::operator delete[](ptr);
+
+		if (alignment == LL_DEFAULT_HEAP_ALIGN)
+		{
+			::operator delete[](ptr);
+		}
+		else if (ALIGNMENT == 16)
+		{
+			ll_aligned_free_16(ptr);
+		}
+		else if (ALIGNMENT == 32)
+		{
+			return ll_aligned_free_32(ptr);
+		}
+		else
+		{
+			return ll_aligned_free(ptr);
+		}
 	}
 
 	// claim memory associated with other objects/data as our own, adding to our calculated footprint
@@ -393,7 +453,7 @@ public:
 	template<typename AMOUNT_T>
 	AMOUNT_T& memClaimAmount(AMOUNT_T& size)
 	{
-		MemStatAccumulator& accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
+		MemStatAccumulator& accumulator = sMemStat.getPrimaryAccumulator();
 		mMemFootprint += (size_t)size;
 		accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() + (F64)size : (F64)size);
 		return size;
@@ -417,7 +477,7 @@ public:
 	template<typename AMOUNT_T>
 	AMOUNT_T& memDisclaimAmount(AMOUNT_T& size)
 	{
-		MemStatAccumulator& accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
+		MemStatAccumulator& accumulator = sMemStat.getPrimaryAccumulator();
 		accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)size : -(F64)size);
 		return size;
 	}
@@ -430,7 +490,7 @@ private:
 	{
 		static void claim(mem_trackable_t& tracker, const TRACKED& tracked)
 		{
-			MemStatAccumulator& accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
+			MemStatAccumulator& accumulator = sMemStat.getPrimaryAccumulator();
 			size_t footprint = MemFootprint<TRACKED>::measure(tracked);
 			accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() + (F64)footprint : (F64)footprint);
 			tracker.mMemFootprint += footprint;
@@ -438,7 +498,7 @@ private:
 
 		static void disclaim(mem_trackable_t& tracker, const TRACKED& tracked)
 		{
-			MemStatAccumulator& accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
+			MemStatAccumulator& accumulator = sMemStat.getPrimaryAccumulator();
 			size_t footprint = MemFootprint<TRACKED>::measure(tracked);
 			accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)footprint : -(F64)footprint);
 			tracker.mMemFootprint -= footprint;
@@ -450,17 +510,21 @@ private:
 	{
 		static void claim(mem_trackable_t& tracker, TRACKED& tracked)
 		{
-			MemStatAccumulator& accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
+			MemStatAccumulator& accumulator = sMemStat.getPrimaryAccumulator();
 			accumulator.mChildSize.sample(accumulator.mChildSize.hasValue() ? accumulator.mChildSize.getLastValue() + (F64)MemFootprint<TRACKED>::measure(tracked) : (F64)MemFootprint<TRACKED>::measure(tracked));
 		}
 
 		static void disclaim(mem_trackable_t& tracker, TRACKED& tracked)
 		{
-			MemStatAccumulator& accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
+			MemStatAccumulator& accumulator = sMemStat.getPrimaryAccumulator();
 			accumulator.mChildSize.sample(accumulator.mChildSize.hasValue() ? accumulator.mChildSize.getLastValue() - (F64)MemFootprint<TRACKED>::measure(tracked) : -(F64)MemFootprint<TRACKED>::measure(tracked));
 		}
 	};
 };
+
+// pretty sure typeid of containing class in static object constructor doesn't work in gcc
+template<typename DERIVED, size_t ALIGNMENT>
+MemStatHandle MemTrackable<DERIVED, ALIGNMENT>::sMemStat(typeid(DERIVED).name());
 
 }
 #endif // LL_LLTRACE_H

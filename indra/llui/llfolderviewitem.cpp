@@ -941,7 +941,7 @@ void LLFolderViewFolder::addToFolder(LLFolderViewFolder* folder)
 	folder->addFolder(this);
 }
 
-static LLFastTimer::DeclareTimer FTM_ARRANGE("Arrange");
+static LLTrace::TimeBlock FTM_ARRANGE("Arrange");
 
 // Finds width and height of this object and its children. Also
 // makes sure that this view and its children are the right size.
@@ -950,7 +950,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 	// sort before laying out contents
 	getRoot()->getFolderViewModel()->sort(this);
 
-	LLFastTimer t2(FTM_ARRANGE);
+	LL_RECORD_BLOCK_TIME(FTM_ARRANGE);
 
 	// evaluate mHasVisibleChildren
 	mHasVisibleChildren = false;

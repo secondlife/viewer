@@ -381,7 +381,7 @@ static std::vector<LLColor4> sTimerColors;
 
 void LLFastTimerView::draw()
 {
-	LLFastTimer t(FTM_RENDER_TIMER);
+	LL_RECORD_BLOCK_TIME(FTM_RENDER_TIMER);
 	
 	if (!mPauseHistory)
 	{
@@ -1019,11 +1019,11 @@ void LLFastTimerView::printLineStats()
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_DRAW_LINE_GRAPH("Draw line graph");
+static LLTrace::TimeBlock FTM_DRAW_LINE_GRAPH("Draw line graph");
 
 void LLFastTimerView::drawLineGraph()
 {
-	LLFastTimer _(FTM_DRAW_LINE_GRAPH);
+	LL_RECORD_BLOCK_TIME(FTM_DRAW_LINE_GRAPH);
 	//draw line graph history
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	LLLocalClipRect clip(mGraphRect);
@@ -1509,11 +1509,11 @@ void LLFastTimerView::drawBars()
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 }
 
-static LLFastTimer::DeclareTimer FTM_UPDATE_TIMER_BAR_WIDTHS("Update timer bar widths");
+static LLTrace::TimeBlock FTM_UPDATE_TIMER_BAR_WIDTHS("Update timer bar widths");
 
 F32Seconds LLFastTimerView::updateTimerBarWidths(LLTrace::TimeBlock* time_block, TimerBarRow& row, S32 history_index, U32& bar_index)
 {
-	LLFastTimer _(FTM_UPDATE_TIMER_BAR_WIDTHS);
+	LL_RECORD_BLOCK_TIME(FTM_UPDATE_TIMER_BAR_WIDTHS);
 	const F32Seconds self_time = history_index == -1
 										? mRecording.getPeriodMean(time_block->selfTime(), RUNNING_AVERAGE_WIDTH) 
 										: mRecording.getPrevRecording(history_index).getSum(time_block->selfTime());
@@ -1537,11 +1537,11 @@ F32Seconds LLFastTimerView::updateTimerBarWidths(LLTrace::TimeBlock* time_block,
 	return full_time;
 }
 
-static LLFastTimer::DeclareTimer FTM_UPDATE_TIMER_BAR_FRACTIONS("Update timer bar fractions");
+static LLTrace::TimeBlock FTM_UPDATE_TIMER_BAR_FRACTIONS("Update timer bar fractions");
 
 S32 LLFastTimerView::updateTimerBarOffsets(LLTrace::TimeBlock* time_block, TimerBarRow& row, S32 timer_bar_index)
 {
-	LLFastTimer _(FTM_UPDATE_TIMER_BAR_FRACTIONS);
+	LL_RECORD_BLOCK_TIME(FTM_UPDATE_TIMER_BAR_FRACTIONS);
 
 	TimerBar& timer_bar = row.mBars[timer_bar_index];
 	const F32Seconds bar_time = timer_bar.mTotalTime - timer_bar.mSelfTime;

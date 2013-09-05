@@ -661,7 +661,7 @@ public:
 	LLPointer<class LLHUDIcon> mIcon;
 
 	static			BOOL		sUseSharedDrawables;
-	static	LLTrace::MemStatHandle	sMemStat;
+	//static	LLTrace::MemStatHandle	sMemStat;
 
 protected:
 	// delete an item in the inventory, but don't tell the

@@ -526,11 +526,11 @@ void LLMaterialMgr::onPutResponse(bool success, const LLSD& content)
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_MATERIALS_IDLE("Materials");
+static LLTrace::TimeBlock FTM_MATERIALS_IDLE("Materials");
 
 void LLMaterialMgr::onIdle(void*)
 {
-	LLFastTimer t(FTM_MATERIALS_IDLE);
+	LL_RECORD_BLOCK_TIME(FTM_MATERIALS_IDLE);
 
 	LLMaterialMgr* instancep = LLMaterialMgr::getInstance();
 

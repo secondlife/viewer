@@ -276,13 +276,13 @@ void TimeBlock::updateTimes()
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_PROCESS_TIMES("Process FastTimer Times");
+static LLTrace::TimeBlock FTM_PROCESS_TIMES("Process FastTimer Times");
 
 // not thread safe, so only call on main thread
 //static
 void TimeBlock::processTimes()
 {
-	LLFastTimer _(FTM_PROCESS_TIMES);
+	LL_RECORD_BLOCK_TIME(FTM_PROCESS_TIMES);
 	get_clock_count(); // good place to calculate clock frequency
 
 	// set up initial tree
@@ -413,7 +413,7 @@ void TimeBlock::writeLog(std::ostream& os)
 		LLSDSerialize::toXML(sd, os);
 		LLMutexLock lock(sLogLock);
 		sLogQueue.pop();
-			}
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////

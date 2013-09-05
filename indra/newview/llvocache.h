@@ -37,7 +37,9 @@
 // Cache entries
 class LLCamera;
 
-class LLVOCacheEntry : public LLViewerOctreeEntryData
+class LLVOCacheEntry 
+:	public LLViewerOctreeEntryData,
+	public LLTrace::MemTrackable<LLVOCacheEntry, 16>
 {
 public:
 	enum //low 16-bit state
@@ -174,7 +176,7 @@ public:
 
 public:
 	static BOOL sNeedsOcclusionCheck;
-	static	LLTrace::MemStatHandle	sMemStat;
+	//static	LLTrace::MemStatHandle	sMemStat;
 
 private:
 	BOOL  mDirty;

@@ -191,9 +191,12 @@
 
 #define LL_TO_STRING_HELPER(x) #x
 #define LL_TO_STRING(x) LL_TO_STRING_HELPER(x)
-#define LL_FILE_LINENO(msg) __FILE__ "(" LL_TO_STRING(__LINE__) ") : " msg
+#define LL_FILE_LINENO_MSG(msg) __FILE__ "(" LL_TO_STRING(__LINE__) ") : " msg
+#define LL_GLUE_IMPL(x, y) x##y
+#define LL_GLUE_TOKENS(x, y) LL_GLUE_IMPL(x, y)
+
 #if LL_WINDOWS
-#define LL_COMPILE_TIME_MESSAGE(msg) __pragma(message(LL_FILE_LINENO(msg)))
+#define LL_COMPILE_TIME_MESSAGE(msg) __pragma(message(LL_FILE_LINENO_MSG(msg)))
 #else
 // no way to get gcc 4.2 to print a user-defined diagnostic message only when a macro is used
 #define LL_COMPILE_TIME_MESSAGE(msg)

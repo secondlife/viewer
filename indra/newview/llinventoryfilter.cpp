@@ -42,7 +42,7 @@
 #include "llclipboard.h"
 #include "lltrans.h"
 
-LLFastTimer::DeclareTimer FT_FILTER_CLIPBOARD("Filter Clipboard");
+LLTrace::TimeBlock FT_FILTER_CLIPBOARD("Filter Clipboard");
 
 LLInventoryFilter::FilterOps::FilterOps(const Params& p)
 :	mFilterObjectTypes(p.object_types),
@@ -313,7 +313,7 @@ bool LLInventoryFilter::checkAgainstClipboard(const LLUUID& object_id) const
 {
 	if (LLClipboard::instance().isCutMode())
 	{
-		LLFastTimer ft(FT_FILTER_CLIPBOARD);
+		LL_RECORD_BLOCK_TIME(FT_FILTER_CLIPBOARD);
 		LLUUID current_id = object_id;
 		LLInventoryObject *current_object = gInventory.getObject(object_id);
 		while (current_id.notNull() && current_object)

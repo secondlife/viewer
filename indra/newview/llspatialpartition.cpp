@@ -53,8 +53,8 @@
 #include "lltextureatlas.h"
 #include "llviewershadermgr.h"
 
-static LLFastTimer::DeclareTimer FTM_FRUSTUM_CULL("Frustum Culling");
-static LLFastTimer::DeclareTimer FTM_CULL_REBOUND("Cull Rebound Partition");
+static LLTrace::TimeBlock FTM_FRUSTUM_CULL("Frustum Culling");
+static LLTrace::TimeBlock FTM_CULL_REBOUND("Cull Rebound Partition");
 
 extern bool gShiftFrame;
 
@@ -408,10 +408,10 @@ void LLSpatialGroup::rebuildMesh()
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_REBUILD_VBO("VBO Rebuilt");
-static LLFastTimer::DeclareTimer FTM_ADD_GEOMETRY_COUNT("Add Geometry");
-static LLFastTimer::DeclareTimer FTM_CREATE_VB("Create VB");
-static LLFastTimer::DeclareTimer FTM_GET_GEOMETRY("Get Geometry");
+static LLTrace::TimeBlock FTM_REBUILD_VBO("VBO Rebuilt");
+static LLTrace::TimeBlock FTM_ADD_GEOMETRY_COUNT("Add Geometry");
+static LLTrace::TimeBlock FTM_CREATE_VB("Create VB");
+static LLTrace::TimeBlock FTM_GET_GEOMETRY("Get Geometry");
 
 void LLSpatialPartition::rebuildGeom(LLSpatialGroup* group)
 {
@@ -426,7 +426,7 @@ void LLSpatialPartition::rebuildGeom(LLSpatialGroup* group)
 		group->mLastUpdateViewAngle = group->mViewAngle;
 	}
 	
-	LLFastTimer ftm(FTM_REBUILD_VBO);	
+	LL_RECORD_BLOCK_TIME(FTM_REBUILD_VBO);	
 
 	group->clearDrawMap();
 	
@@ -435,14 +435,14 @@ void LLSpatialPartition::rebuildGeom(LLSpatialGroup* group)
 	U32 vertex_count = 0;
 
 	{
-		LLFastTimer t(FTM_ADD_GEOMETRY_COUNT);
+		LL_RECORD_BLOCK_TIME(FTM_ADD_GEOMETRY_COUNT);
 		addGeometryCount(group, vertex_count, index_count);
 	}
 
 	if (vertex_count > 0 && index_count > 0)
 	{ //create vertex buffer containing volume geometry for this node
 		{
-			LLFastTimer t(FTM_CREATE_VB);
+			LL_RECORD_BLOCK_TIME(FTM_CREATE_VB);
 			group->mBuilt = 1.f;
 			if (group->mVertexBuffer.isNull() ||
 				!group->mVertexBuffer->isWriteable() ||
@@ -460,7 +460,7 @@ void LLSpatialPartition::rebuildGeom(LLSpatialGroup* group)
 		}
 
 		{
-			LLFastTimer t(FTM_GET_GEOMETRY);
+			LL_RECORD_BLOCK_TIME(FTM_GET_GEOMETRY);
 			getGeometry(group);
 		}
 	}
@@ -1435,7 +1435,7 @@ BOOL LLSpatialPartition::getVisibleExtents(LLCamera& camera, LLVector3& visMin, 
 	visMaxa.load3(visMax.mV);
 
 	{
-		LLFastTimer ftm(FTM_CULL_REBOUND);		
+		LL_RECORD_BLOCK_TIME(FTM_CULL_REBOUND);		
 		LLSpatialGroup* group = (LLSpatialGroup*) mOctree->getListener(0);
 		group->rebound();
 	}
@@ -1461,7 +1461,7 @@ S32 LLSpatialPartition::cull(LLCamera &camera, std::vector<LLDrawable *>* result
 	((LLSpatialGroup*)mOctree->getListener(0))->checkStates();
 #endif
 	{
-		LLFastTimer ftm(FTM_CULL_REBOUND);		
+		LL_RECORD_BLOCK_TIME(FTM_CULL_REBOUND);		
 		LLSpatialGroup* group = (LLSpatialGroup*) mOctree->getListener(0);
 		group->rebound();
 	}
@@ -1482,7 +1482,7 @@ S32 LLSpatialPartition::cull(LLCamera &camera, bool do_occlusion)
 	((LLSpatialGroup*)mOctree->getListener(0))->checkStates();
 #endif
 	{
-		LLFastTimer ftm(FTM_CULL_REBOUND);		
+		LL_RECORD_BLOCK_TIME(FTM_CULL_REBOUND);		
 		LLSpatialGroup* group = (LLSpatialGroup*) mOctree->getListener(0);
 		group->rebound();
 	}
@@ -1493,19 +1493,19 @@ S32 LLSpatialPartition::cull(LLCamera &camera, bool do_occlusion)
 
 	if (LLPipeline::sShadowRender)
 	{
-		LLFastTimer ftm(FTM_FRUSTUM_CULL);
+		LL_RECORD_BLOCK_TIME(FTM_FRUSTUM_CULL);
 		LLOctreeCullShadow culler(&camera);
 		culler.traverse(mOctree);
 	}
 	else if (mInfiniteFarClip || !LLPipeline::sUseFarClip)
 	{
-		LLFastTimer ftm(FTM_FRUSTUM_CULL);		
+		LL_RECORD_BLOCK_TIME(FTM_FRUSTUM_CULL);		
 		LLOctreeCullNoFarClip culler(&camera);
 		culler.traverse(mOctree);
 	}
 	else
 	{
-		LLFastTimer ftm(FTM_FRUSTUM_CULL);		
+		LL_RECORD_BLOCK_TIME(FTM_FRUSTUM_CULL);		
 		LLOctreeCull culler(&camera);
 		culler.traverse(mOctree);
 	}

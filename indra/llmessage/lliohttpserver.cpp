@@ -139,11 +139,11 @@ private:
 	LLSD mHeaders;
 };
 
-static LLFastTimer::DeclareTimer FTM_PROCESS_HTTP_PIPE("HTTP Pipe");
-static LLFastTimer::DeclareTimer FTM_PROCESS_HTTP_GET("HTTP Get");
-static LLFastTimer::DeclareTimer FTM_PROCESS_HTTP_PUT("HTTP Put");
-static LLFastTimer::DeclareTimer FTM_PROCESS_HTTP_POST("HTTP Post");
-static LLFastTimer::DeclareTimer FTM_PROCESS_HTTP_DELETE("HTTP Delete");
+static LLTrace::TimeBlock FTM_PROCESS_HTTP_PIPE("HTTP Pipe");
+static LLTrace::TimeBlock FTM_PROCESS_HTTP_GET("HTTP Get");
+static LLTrace::TimeBlock FTM_PROCESS_HTTP_PUT("HTTP Put");
+static LLTrace::TimeBlock FTM_PROCESS_HTTP_POST("HTTP Post");
+static LLTrace::TimeBlock FTM_PROCESS_HTTP_DELETE("HTTP Delete");
 
 LLIOPipe::EStatus LLHTTPPipe::process_impl(
 	const LLChannelDescriptors& channels,
@@ -152,7 +152,7 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
     LLSD& context,
     LLPumpIO* pump)
 {
-	LLFastTimer t(FTM_PROCESS_HTTP_PIPE);
+	LL_RECORD_BLOCK_TIME(FTM_PROCESS_HTTP_PIPE);
 	PUMP_DEBUG;
     LL_DEBUGS() << "LLSDHTTPServer::process_impl" << LL_ENDL;
 
@@ -181,12 +181,12 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
 		std::string verb = context[CONTEXT_REQUEST][CONTEXT_VERB];
 		if(verb == HTTP_VERB_GET)
 		{
-			LLFastTimer _(FTM_PROCESS_HTTP_GET);
+			LL_RECORD_BLOCK_TIME(FTM_PROCESS_HTTP_GET);
 			mNode.get(LLHTTPNode::ResponsePtr(mResponse), context);
 		}
 		else if(verb == HTTP_VERB_PUT)
 		{
-			LLFastTimer _(FTM_PROCESS_HTTP_PUT);
+			LL_RECORD_BLOCK_TIME(FTM_PROCESS_HTTP_PUT);
 			LLSD input;
 			if (mNode.getContentType() == LLHTTPNode::CONTENT_TYPE_LLSD)
 			{
@@ -202,7 +202,7 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
 		}
 		else if(verb == HTTP_VERB_POST)
 		{
-			LLFastTimer _(FTM_PROCESS_HTTP_POST);
+			LL_RECORD_BLOCK_TIME(FTM_PROCESS_HTTP_POST);
 			LLSD input;
 			if (mNode.getContentType() == LLHTTPNode::CONTENT_TYPE_LLSD)
 			{
@@ -218,7 +218,7 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
 		}
 		else if(verb == HTTP_VERB_DELETE)
 		{
-			LLFastTimer _(FTM_PROCESS_HTTP_DELETE);
+			LL_RECORD_BLOCK_TIME(FTM_PROCESS_HTTP_DELETE);
 			mNode.del(LLHTTPNode::ResponsePtr(mResponse), context);
 		}		
 		else if(verb == HTTP_VERB_OPTIONS)
@@ -435,7 +435,7 @@ protected:
  * LLHTTPResponseHeader
  */
 
-static LLFastTimer::DeclareTimer FTM_PROCESS_HTTP_HEADER("HTTP Header");
+static LLTrace::TimeBlock FTM_PROCESS_HTTP_HEADER("HTTP Header");
 
 // virtual
 LLIOPipe::EStatus LLHTTPResponseHeader::process_impl(
@@ -445,7 +445,7 @@ LLIOPipe::EStatus LLHTTPResponseHeader::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
-	LLFastTimer t(FTM_PROCESS_HTTP_HEADER);
+	LL_RECORD_BLOCK_TIME(FTM_PROCESS_HTTP_HEADER);
 	PUMP_DEBUG;
 	if(eos)
 	{
@@ -635,7 +635,7 @@ void LLHTTPResponder::markBad(
 		<< "</body>\n</html>\n";
 }
 
-static LLFastTimer::DeclareTimer FTM_PROCESS_HTTP_RESPONDER("HTTP Responder");
+static LLTrace::TimeBlock FTM_PROCESS_HTTP_RESPONDER("HTTP Responder");
 
 // virtual
 LLIOPipe::EStatus LLHTTPResponder::process_impl(
@@ -645,7 +645,7 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
-	LLFastTimer t(FTM_PROCESS_HTTP_RESPONDER);
+	LL_RECORD_BLOCK_TIME(FTM_PROCESS_HTTP_RESPONDER);
 	PUMP_DEBUG;
 	LLIOPipe::EStatus status = STATUS_OK;
 

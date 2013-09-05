@@ -631,7 +631,7 @@ void LLViewerPartSim::shift(const LLVector3 &offset)
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_SIMULATE_PARTICLES("Simulate Particles");
+static LLTrace::TimeBlock FTM_SIMULATE_PARTICLES("Simulate Particles");
 
 void LLViewerPartSim::updateSimulation()
 {
@@ -644,7 +644,7 @@ void LLViewerPartSim::updateSimulation()
 		return;
 	}
 
-	LLFastTimer ftm(FTM_SIMULATE_PARTICLES);
+	LL_RECORD_BLOCK_TIME(FTM_SIMULATE_PARTICLES);
 
 	// Start at a random particle system so the same
 	// particle system doesn't always get first pick at the

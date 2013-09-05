@@ -396,11 +396,11 @@ LLInventoryFilter::EFolderShow LLInventoryPanel::getShowFolderState()
 	return getFilter().getShowFolderState();
 }
 
-static LLFastTimer::DeclareTimer FTM_REFRESH("Inventory Refresh");
+static LLTrace::TimeBlock FTM_REFRESH("Inventory Refresh");
 
 void LLInventoryPanel::modelChanged(U32 mask)
 {
-	LLFastTimer t2(FTM_REFRESH);
+	LL_RECORD_BLOCK_TIME(FTM_REFRESH);
 
 	if (!mViewsInitialized) return;
 	
@@ -1295,10 +1295,10 @@ void LLInventoryPanel::removeItemID(const LLUUID& id)
 	}
 }
 
-LLFastTimer::DeclareTimer FTM_GET_ITEM_BY_ID("Get FolderViewItem by ID");
+LLTrace::TimeBlock FTM_GET_ITEM_BY_ID("Get FolderViewItem by ID");
 LLFolderViewItem* LLInventoryPanel::getItemByID(const LLUUID& id)
 {
-	LLFastTimer _(FTM_GET_ITEM_BY_ID);
+	LL_RECORD_BLOCK_TIME(FTM_GET_ITEM_BY_ID);
 
 	std::map<LLUUID, LLFolderViewItem*>::iterator map_it;
 	map_it = mItemMap.find(id);

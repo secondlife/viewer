@@ -677,12 +677,12 @@ LLXUIParser::LLXUIParser()
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_PARSE_XUI("XUI Parsing");
+static LLTrace::TimeBlock FTM_PARSE_XUI("XUI Parsing");
 const LLXMLNodePtr DUMMY_NODE = new LLXMLNode();
 
 void LLXUIParser::readXUI(LLXMLNodePtr node, LLInitParam::BaseBlock& block, const std::string& filename, bool silent)
 {
-	LLFastTimer timer(FTM_PARSE_XUI);
+	LL_RECORD_BLOCK_TIME(FTM_PARSE_XUI);
 	mNameStack.clear();
 	mRootNodeName = node->getName()->mString;
 	mCurFileName = filename;
@@ -1394,7 +1394,7 @@ LLSimpleXUIParser::~LLSimpleXUIParser()
 
 bool LLSimpleXUIParser::readXUI(const std::string& filename, LLInitParam::BaseBlock& block, bool silent)
 {
-	LLFastTimer timer(FTM_PARSE_XUI);
+	LL_RECORD_BLOCK_TIME(FTM_PARSE_XUI);
 
 	mParser = XML_ParserCreate(NULL);
 	XML_SetUserData(mParser, this);

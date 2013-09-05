@@ -252,12 +252,12 @@ LLHUDEffect *LLHUDObject::addHUDEffect(const U8 type)
 	return hud_objectp;
 }
 
-static LLFastTimer::DeclareTimer FTM_HUD_UPDATE("Update Hud");
+static LLTrace::TimeBlock FTM_HUD_UPDATE("Update Hud");
 
 // static
 void LLHUDObject::updateAll()
 {
-	LLFastTimer ftm(FTM_HUD_UPDATE);
+	LL_RECORD_BLOCK_TIME(FTM_HUD_UPDATE);
 	LLHUDText::updateAll();
 	LLHUDIcon::updateAll();
 	LLHUDNameTag::updateAll();

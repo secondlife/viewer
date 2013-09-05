@@ -86,11 +86,11 @@ std::string LLDate::asRFC1123() const
 	return toHTTPDateString (std::string ("%A, %d %b %Y %H:%M:%S GMT"));
 }
 
-LLFastTimer::DeclareTimer FT_DATE_FORMAT("Date Format");
+LLTrace::TimeBlock FT_DATE_FORMAT("Date Format");
 
 std::string LLDate::toHTTPDateString (std::string fmt) const
 {
-	LLFastTimer ft1(FT_DATE_FORMAT);
+	LL_RECORD_BLOCK_TIME(FT_DATE_FORMAT);
 	
 	time_t locSeconds = (time_t) mSecondsSinceEpoch;
 	struct tm * gmt = gmtime (&locSeconds);
@@ -99,7 +99,7 @@ std::string LLDate::toHTTPDateString (std::string fmt) const
 
 std::string LLDate::toHTTPDateString (tm * gmt, std::string fmt)
 {
-	LLFastTimer ft1(FT_DATE_FORMAT);
+	LL_RECORD_BLOCK_TIME(FT_DATE_FORMAT);
 
 	// avoid calling setlocale() unnecessarily - it's expensive.
 	static std::string prev_locale = "";
