@@ -1502,10 +1502,10 @@ Mesa project: www.mesa3d.org Mesa GLX Indirect                                  
 NVIDIA 205                                                                                               supported      3     1     3.3    NVIDIA 205
 NVIDIA 210                                                                                               supported      3     1     3.3    NVIDIA 210
 NVIDIA 310                                                                                               supported      3     1     3.3    NVIDIA 310
-NVIDIA 310M                                                                                              supported      2     0     3.3    NVIDIA G 310M
+NVIDIA 310M                                                                                              supported      2     0     3.3    NVIDIA 310M
 NVIDIA 315                                                                                               supported      3     1     3.3    NVIDIA 315
-NVIDIA 315M                                                                                              supported      2     0     3.3    NVIDIA G 310M
-NVIDIA 320M                                                                                              supported      3     0     3.3    NVIDIA GT 320M
+NVIDIA 315M                                                                                              supported      2     0     3.3    NVIDIA 310M
+NVIDIA 320M                                                                                              supported      2     0     3.3    NVIDIA 320M
 NVIDIA 405                                                                                               supported      3     0     3.3    NVIDIA 405
 NVIDIA 410                                                                                               supported      3     0     3.3    NVIDIA 410
 NVIDIA 510                                                                                               supported      3     0     0      NVIDIA 510
@@ -1536,16 +1536,16 @@ NVIDIA Corporation GeForce 310/PCI/SSE2                                         
 NVIDIA Corporation GeForce 310/PCI/SSE2/3DNOW!                                                           supported      3     1     3.3    NVIDIA 310
 NVIDIA Corporation GeForce 310/PCIe/SSE2                                                                 supported      3     1     3.3    NVIDIA 310
 NVIDIA Corporation GeForce 310/PCIe/SSE2/3DNOW!                                                          supported      3     1     3.3    NVIDIA 310
-NVIDIA Corporation GeForce 310M/PCI/SSE2                                                                 supported      2     0     3.3    NVIDIA G 310M
-NVIDIA Corporation GeForce 310M/PCIe/SSE2                                                                supported      2     0     3.3    NVIDIA G 310M
+NVIDIA Corporation GeForce 310M/PCI/SSE2                                                                 supported      2     0     3.3    NVIDIA 310M
+NVIDIA Corporation GeForce 310M/PCIe/SSE2                                                                supported      2     0     3.3    NVIDIA 310M
 NVIDIA Corporation GeForce 315/PCI/SSE2                                                                  supported      3     1     3.3    NVIDIA 315
 NVIDIA Corporation GeForce 315/PCI/SSE2/3DNOW!                                                           supported      3     1     3.3    NVIDIA 315
 NVIDIA Corporation GeForce 315/PCIe/SSE2                                                                 supported      3     1     3.3    NVIDIA 315
 NVIDIA Corporation GeForce 315/PCIe/SSE2/3DNOW!                                                          supported      3     1     3.3    NVIDIA 315
-NVIDIA Corporation GeForce 315M/PCI/SSE2                                                                 supported      2     0     3.3    NVIDIA G 310M
-NVIDIA Corporation GeForce 315M/PCIe/SSE2                                                                supported      2     0     3.3    NVIDIA G 310M
-NVIDIA Corporation GeForce 320M/PCI/SSE2                                                                 supported      3     0     3.3    NVIDIA GT 320M
-NVIDIA Corporation GeForce 320M/integrated/SSE2                                                          supported      3     0     3.3    NVIDIA GT 320M
+NVIDIA Corporation GeForce 315M/PCI/SSE2                                                                 supported      2     0     3.3    NVIDIA 310M
+NVIDIA Corporation GeForce 315M/PCIe/SSE2                                                                supported      2     0     3.3    NVIDIA 310M
+NVIDIA Corporation GeForce 320M/PCI/SSE2                                                                 supported      2     0     3.3    NVIDIA 320M
+NVIDIA Corporation GeForce 320M/integrated/SSE2                                                          supported      2     0     3.3    NVIDIA 320M
 NVIDIA Corporation GeForce 405/PCI/SSE2                                                                  supported      3     0     3.3    NVIDIA 405
 NVIDIA Corporation GeForce 405/PCI/SSE2/3DNOW!                                                           supported      3     0     3.3    NVIDIA 405
 NVIDIA Corporation GeForce 405/PCIe/SSE2                                                                 supported      3     0     3.3    NVIDIA 405
@@ -2401,8 +2401,8 @@ NVIDIA Corporation NB9M-GE1/PCI/SSE2                                            
 NVIDIA Corporation NB9M-GS/PCI/SSE2                                                                      supported      1     0     0      NVIDIA NB9M
 NVIDIA Corporation NV17/AGP/SSE2                                                                         supported      0     0     0      NVIDIA NV17
 NVIDIA Corporation NVIDIA GeForce 210 OpenGL Engine                                                      supported      3     1     3.3    NVIDIA GeForce 210
-NVIDIA Corporation NVIDIA GeForce 310M OpenGL Engine                                                     supported      2     0     3.3    NVIDIA G 310M
-NVIDIA Corporation NVIDIA GeForce 320M OpenGL Engine                                                     supported      3     0     3.3    NVIDIA GT 320M
+NVIDIA Corporation NVIDIA GeForce 310M OpenGL Engine                                                     supported      2     0     3.3    NVIDIA 310M
+NVIDIA Corporation NVIDIA GeForce 320M OpenGL Engine                                                     supported      2     0     3.3    NVIDIA 320M
 NVIDIA Corporation NVIDIA GeForce 6600 GT OpenGL Engine                                                  supported      2     1     2.1    NVIDIA GeForce 6600
 NVIDIA Corporation NVIDIA GeForce 7300 GT OpenGL Engine                                                  supported      1     1     2.1    NVIDIA GeForce 7300
 NVIDIA Corporation NVIDIA GeForce 7600 GT OpenGL Engine                                                  supported      2     1     2.1    NVIDIA GeForce 7600
@@ -2481,15 +2481,15 @@ NVIDIA Corporation NVS 2100M/PCIe/SSE2                                          
 NVIDIA Corporation NVS 300/PCI/SSE2                                                                      supported      0     0     4.2    NVIDIA Quadro NVS
 NVIDIA Corporation NVS 300/PCI/SSE2/3DNOW!                                                               supported      0     0     4.2    NVIDIA Quadro NVS
 NVIDIA Corporation NVS 300/PCIe/SSE2                                                                     supported      0     0     4.2    NVIDIA Quadro NVS
-NVIDIA Corporation NVS 310/PCIe/SSE2                                                                     supported      3     1     3.3    NVIDIA 310
-NVIDIA Corporation NVS 3100M/PCI/SSE2                                                                    supported      3     1     3.3    NVIDIA 310
-NVIDIA Corporation NVS 3100M/PCIe/SSE2                                                                   supported      3     1     3.3    NVIDIA 310
-NVIDIA Corporation NVS 315/PCIe/SSE2                                                                     supported      3     1     3.3    NVIDIA 315
+NVIDIA Corporation NVS 310/PCIe/SSE2                                                                     supported      0     0     4.2    NVIDIA Quadro NVS
+NVIDIA Corporation NVS 3100M/PCI/SSE2                                                                    supported      2     0     3.3    NVIDIA Quadro NVS 3100M
+NVIDIA Corporation NVS 3100M/PCIe/SSE2                                                                   supported      2     0     3.3    NVIDIA Quadro NVS 3100M
+NVIDIA Corporation NVS 315/PCIe/SSE2                                                                     supported      0     0     4.2    NVIDIA Quadro NVS
 NVIDIA Corporation NVS 4200M/PCI/SSE2                                                                    supported      2     0     4.2    NVIDIA Quadro NVS 4200M
 NVIDIA Corporation NVS 4200M/PCIe/SSE2                                                                   supported      2     0     4.2    NVIDIA Quadro NVS 4200M
-NVIDIA Corporation NVS 510/PCIe/SSE2                                                                     supported      3     0     0      NVIDIA 510
-NVIDIA Corporation NVS 5100M/PCI/SSE2                                                                    supported      3     0     0      NVIDIA 510
-NVIDIA Corporation NVS 5100M/PCIe/SSE2                                                                   supported      3     0     0      NVIDIA 510
+NVIDIA Corporation NVS 510/PCIe/SSE2                                                                     supported      0     0     4.2    NVIDIA Quadro NVS
+NVIDIA Corporation NVS 5100M/PCI/SSE2                                                                    supported      2     0     0      NVIDIA Quadro NVS 5100M
+NVIDIA Corporation NVS 5100M/PCIe/SSE2                                                                   supported      2     0     0      NVIDIA Quadro NVS 5100M
 NVIDIA Corporation NVS 5200M/PCI/SSE2                                                                    supported      2     0     0      NVIDIA Quadro NVS 5200M
 NVIDIA Corporation NVS 5200M/PCIe/SSE2                                                                   supported      2     0     0      NVIDIA Quadro NVS 5200M
 NVIDIA Corporation NVS 5400M/PCIe/SSE2                                                                   supported      2     0     0      NVIDIA Quadro NVS 5400M
@@ -2636,10 +2636,10 @@ NVIDIA Corporation Quadro NVS 150M/PCI/SSE2                                     
 NVIDIA Corporation Quadro NVS 150M/PCIe/SSE2                                                             supported      0     1     3.3    NVIDIA Quadro NVS 1xxM
 NVIDIA Corporation Quadro NVS 160M/PCI/SSE2                                                              supported      0     1     3.3    NVIDIA Quadro NVS 1xxM
 NVIDIA Corporation Quadro NVS 160M/PCIe/SSE2                                                             supported      0     1     3.3    NVIDIA Quadro NVS 1xxM
-NVIDIA Corporation Quadro NVS 210S / GeForce 6150LE/PCI/SSE2                                             supported      3     1     4.2    NVIDIA GeForce 6100
-NVIDIA Corporation Quadro NVS 210S / GeForce 6150LE/PCI/SSE2/3DNOW!                                      supported      3     1     4.2    NVIDIA GeForce 6100
-NVIDIA Corporation Quadro NVS 210S / GeForce 6150LE/integrated/SSE2/3DNOW!                               supported      3     1     4.2    NVIDIA GeForce 6100
-NVIDIA Corporation Quadro NVS 210S / NVIDIA GeForce 6150LE/PCI/SSE2/3DNOW!                               supported      3     1     4.2    NVIDIA GeForce 6100
+NVIDIA Corporation Quadro NVS 210S / GeForce 6150LE/PCI/SSE2                                             supported      0     0     4.2    NVIDIA Quadro NVS
+NVIDIA Corporation Quadro NVS 210S / GeForce 6150LE/PCI/SSE2/3DNOW!                                      supported      0     0     4.2    NVIDIA Quadro NVS
+NVIDIA Corporation Quadro NVS 210S / GeForce 6150LE/integrated/SSE2/3DNOW!                               supported      0     0     4.2    NVIDIA Quadro NVS
+NVIDIA Corporation Quadro NVS 210S / NVIDIA GeForce 6150LE/PCI/SSE2/3DNOW!                               supported      0     0     4.2    NVIDIA Quadro NVS
 NVIDIA Corporation Quadro NVS 210S/PCI/SSE2/3DNOW!                                                       supported      0     0     4.2    NVIDIA Quadro NVS
 NVIDIA Corporation Quadro NVS 280 PCI-E/PCI/SSE2                                                         supported      0     0     4.2    NVIDIA Quadro NVS
 NVIDIA Corporation Quadro NVS 280 SD/AGP/SSE2                                                            supported      0     0     4.2    NVIDIA Quadro NVS
@@ -2651,13 +2651,13 @@ NVIDIA Corporation Quadro NVS 290/PCIe/SSE2/3DNOW!                              
 NVIDIA Corporation Quadro NVS 295/PCI/SSE2                                                               supported      0     0     4.2    NVIDIA Quadro NVS
 NVIDIA Corporation Quadro NVS 295/PCIe/SSE2                                                              supported      0     0     4.2    NVIDIA Quadro NVS
 NVIDIA Corporation Quadro NVS 300M/PCI/SSE2                                                              supported      2     0     0      NVIDIA Quadro NVS 300M
-NVIDIA Corporation Quadro NVS 320M/PCI/SSE2                                                              supported      3     0     3.3    NVIDIA GT 320M
-NVIDIA Corporation Quadro NVS 320M/PCIe/SSE2                                                             supported      3     0     3.3    NVIDIA GT 320M
+NVIDIA Corporation Quadro NVS 320M/PCI/SSE2                                                              supported      2     0     0      NVIDIA Quadro NVS 320M
+NVIDIA Corporation Quadro NVS 320M/PCIe/SSE2                                                             supported      2     0     0      NVIDIA Quadro NVS 320M
 NVIDIA Corporation Quadro NVS 420/PCI/SSE2                                                               supported      0     0     4.2    NVIDIA Quadro NVS
 NVIDIA Corporation Quadro NVS 420/PCIe/SSE2                                                              supported      0     0     4.2    NVIDIA Quadro NVS
 NVIDIA Corporation Quadro NVS 420/PCIe/SSE2/3DNOW!                                                       supported      0     0     4.2    NVIDIA Quadro NVS
 NVIDIA Corporation Quadro NVS 450/PCIe/SSE2                                                              supported      0     0     4.2    NVIDIA Quadro NVS
-NVIDIA Corporation Quadro NVS 510M/PCI/SSE2                                                              supported      3     0     0      NVIDIA 510
+NVIDIA Corporation Quadro NVS 510M/PCI/SSE2                                                              supported      0     0     4.2    NVIDIA Quadro NVS
 NVIDIA Corporation Quadro NVS 55/280 PCI/PCI/SSE2                                                        supported      0     0     4.2    NVIDIA Quadro NVS
 NVIDIA Corporation Quadro NVS with AGP8X/AGP/SSE2                                                        supported      0     0     4.2    NVIDIA Quadro NVS
 NVIDIA Corporation Quadro NVS/AGP/SSE2                                                                   supported      0     0     4.2    NVIDIA Quadro NVS
@@ -2915,7 +2915,7 @@ Parallels and ATI Technologies Inc. Parallels using ATI Radeon X1600 OpenGL Engi
 Parallels and Intel Inc. Parallels using Intel GMA X3100 OpenGL Engine                                   supported      1     1     2.1    Intel X3100
 Parallels and Intel Inc. Parallels using Intel HD Graphics 3000 OpenGL Engine                            supported      3     1     3.1    Intel HD Graphics 3000
 Parallels and Intel Inc. Parallels using Intel HD Graphics 4000 OpenGL Engine                            supported      3     1     4      Intel HD Graphics 4000
-Parallels and NVIDIA Corporation Parallels using NVIDIA GeForce 320M OpenGL Engine                       supported      3     0     3.3    NVIDIA GT 320M
+Parallels and NVIDIA Corporation Parallels using NVIDIA GeForce 320M OpenGL Engine                       supported      2     0     3.3    NVIDIA 320M
 Parallels and NVIDIA Corporation Parallels using NVIDIA GeForce 8800 GS OpenGL Engine                    supported      3     1     3.3    NVIDIA GeForce 8800
 Parallels and NVIDIA Corporation Parallels using NVIDIA GeForce 9400 OpenGL Engine                       supported      3     1     3.3    NVIDIA GeForce 9400
 Parallels and NVIDIA Corporation Parallels using NVIDIA GeForce 9400M OpenGL Engine                      supported      2     1     3.3    NVIDIA GeForce 9400M
