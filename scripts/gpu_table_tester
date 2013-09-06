@@ -73,6 +73,10 @@ die "Must specify a --gpu-table <gpu_table.txt> value"
 open(GPUS, "<$GpuTable")
     || die "Failed to open gpu table '$GpuTable':\n\t$!\n";
 
+my $FirstLine = <GPUS>;
+die "First line of gpu table does not begin with '//GPU_TABLE'"
+    unless $FirstLine =~ m|^//GPU_TABLE|;
+
 # Parse the GPU table into these tables, indexed by the name
 my %NameLine;       # name -> line number on which a given name was found (catches duplicate names)
 my %RecognizerLine; # name -> line number on which a given name was found (catches duplicate names)
@@ -207,7 +211,7 @@ format DIFF_TOP =
                                                                                                          ------------- OLD -------------  ----------- NEW --------------------
 GPU String                                                                                               Supported?  Class Stats OpenGL   Supported?  Class Stats OpenGL  Line
 ------------------------------------------------------------------------------------------------------   ----------- ----- ----- ------   ----------- ----- ----- ------ -----
-.
+.                                                                                                                                             
 format DIFF =                                                                                                                                 
 @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<   @<<<<<<<<<<   @>    @>  @<<<<    @<<<<<<<<<<    @>   @>  @<<<<  @>>>>
 $_, $oldSupported, $oldClass, $oldStatsBased, $oldExpectedOpenGL, $newSupported, $newClass, $newStatsBased, $newExpectedOpenGL, $newRecognizedLine
