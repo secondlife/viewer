@@ -790,8 +790,8 @@ void LLFloaterIMContainer::collapseConversationsPane(bool collapse, bool save_is
 		mConversationsPane->setTargetDim(gSavedPerAccountSettings.getS32("ConversationsListPaneWidth"));
 	}
 
-	S32 delta_width =
-			gSavedPerAccountSettings.getS32("ConversationsListPaneWidth") - mConversationsPane->getMinDim();
+	S32 delta_width = gSavedPerAccountSettings.getS32("ConversationsListPaneWidth") 
+		- mConversationsPane->getMinDim() - mConversationsStack->getPanelSpacing() + 1;
 
 	reshapeFloaterAndSetResizeLimits(collapse, delta_width);
 
