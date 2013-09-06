@@ -44,6 +44,7 @@
 #include "lleconomy.h"
 #include "llimagej2c.h"
 #include "llhost.h"
+#include "llmath.h"
 #include "llnotificationsutil.h"
 #include "llsd.h"
 #include "llsdutil_math.h"
@@ -284,6 +285,52 @@
 //   * Need a final failure state for requests that are retried and just won't
 //     complete.  We can fail a LOD request, others we don't.
 
+
+// --------------------------------------------------------------------------
+//                    Development/Debug/QA Tools
+//
+// Enable here or in build environment to get fasttimer data on mesh fetches.
+//
+// Typically, this is used to perform A/B testing using the
+// fasttimer console (shift-ctrl-9).  This is done by looking
+// for stalls due to lock contention between the main thread
+// and the repository and HTTP code.  In a release viewer,
+// these appear as ping-time or worse spikes in frame time.
+// With this instrumentation enabled, a stall will appear
+// under the 'Mesh Fetch' timer which will be either top-level
+// or under 'Render' time.
+#define LL_MESH_FASTTIMER_ENABLE		1
+#if LL_MESH_FASTTIMER_ENABLE
+static LLFastTimer::DeclareTimer FTM_MESH_FETCH("Mesh Fetch");
+
+#define	MESH_FASTTIMER_DEFBLOCK			LLFastTimer meshtimer(FTM_MESH_FETCH)
+#else
+#define	MESH_FASTTIMER_DEFBLOCK
+#endif // LL_MESH_FASTTIMER_ENABLE
+
+
+// Random failure testing for development/QA.
+//
+// Set the MESH_*_FAILED macros to either 'false' or to
+// an invocation of MESH_RANDOM_NTH_TRUE() with some
+// suitable number.  In production, all must be false.
+//
+// Example:
+// #define	MESH_HTTP_RESPONSE_FAILED				MESH_RANDOM_NTH_TRUE(9)
+
+// 1-in-N calls will test true
+#define	MESH_RANDOM_NTH_TRUE(_N)				( ll_rand(S32(_N)) == 0 )
+
+#define	MESH_HTTP_RESPONSE_FAILED				false
+#define	MESH_HEADER_PROCESS_FAILED				false
+#define	MESH_LOD_PROCESS_FAILED					false
+#define	MESH_SKIN_INFO_PROCESS_FAILED			false
+#define	MESH_DECOMP_PROCESS_FAILED				false
+#define MESH_PHYS_SHAPE_PROCESS_FAILED			false
+
+// --------------------------------------------------------------------------
+
+
 LLMeshRepository gMeshRepo;
 
 const S32 MESH_HEADER_SIZE = 4096;                      // Important:  assumption is that headers fit in this space
@@ -348,27 +395,7 @@ const char * const LOG_MESH = "Mesh";
 static unsigned int metrics_teleport_start_count = 0;
 boost::signals2::connection metrics_teleport_started_signal;
 static void teleport_started();
-static bool is_retryable(LLCore::HttpStatus status);
 
-// Enable here or in build environment to get fasttimer data on mesh fetches.
-//
-// Typically, this is used to perform A/B testing using the
-// fasttimer console (shift-ctrl-9).  This is done by looking
-// for stalls due to lock contention between the main thread
-// and the repository and HTTP code.  In a release viewer,
-// these appear as ping-time or worse spikes in frame time.
-// With this instrumentation enabled, a stall will appear
-// under the 'Mesh Fetch' timer which will be either top-level
-// or under 'Render' time.
-#define LL_MESH_FASTTIMER_ENABLE		1
-#if LL_MESH_FASTTIMER_ENABLE
-static LLFastTimer::DeclareTimer FTM_MESH_FETCH("Mesh Fetch");
-
-#define	MESH_FASTTIMER_DEFBLOCK			LLFastTimer meshtimer(FTM_MESH_FETCH)
-#else
-#define	MESH_FASTTIMER_DEFBLOCK
-#endif // LL_MESH_FASTTIMER_ENABLE
- 
 //get the number of bytes resident in memory for given volume
 U32 get_volume_memory_size(const LLVolume* volume)
 {
@@ -815,7 +842,7 @@ void LLMeshRepoThread::run()
 			mLODReqQ.pop();
 			LLMeshRepository::sLODProcessing--;
 			mMutex->unlock();
-			if (!fetchMeshLOD(req.mMeshParams, req.mLOD))//failed, resubmit
+			if (!fetchMeshLOD(req.mMeshParams, req.mLOD))		// failed, resubmit
 			{
 				mMutex->lock();
 				mLODReqQ.push(req) ; 
@@ -1548,6 +1575,7 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
 				{
 					handler->mHttpHandle = handle;
 					mHttpRequestSet.insert(handler);
+					// *NOTE:  Allowing a re-request, not marking as unavailable.  Is that correct?
 				}
 			}
 			else
@@ -2529,7 +2557,7 @@ void LLMeshHandlerBase::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespo
 	LLMeshRepository::sHTTPRetryCount += retries;
 
 	LLCore::HttpStatus status(response->getStatus());
-	if (! status)
+	if (! status || MESH_HTTP_RESPONSE_FAILED)
 	{
 		processFailure(status);
 		++LLMeshRepository::sHTTPErrorCount;
@@ -2600,39 +2628,37 @@ LLMeshHeaderHandler::~LLMeshHeaderHandler()
 
 void LLMeshHeaderHandler::processFailure(LLCore::HttpStatus status)
 {
-	if (is_retryable(status))
+	LL_WARNS(LOG_MESH) << "Error during mesh header handling.  ID:  " << mMeshParams.getSculptID()
+					   << ", Reason:  " << status.toString()
+					   << " (" << status.toHex() << ").  Not retrying."
+					   << LL_ENDL;
+
+	// Can't get the header so none of the LODs will be available
+	LLMutexLock lock(gMeshRepo.mThread->mMutex);
+	for (int i(0); i < 4; ++i)
 	{
-		// *TODO:  This and the other processFailure() methods should
-		// probably just fail hard (as llcorehttp has done the retries).
-		// Or we could implement a slow/forever retry class.
-		
-		LL_WARNS(LOG_MESH) << "Error during mesh header handling.  Reason:  " << status.toString()
-						   << " (" << status.toHex() << ").  Retrying."
-						   << LL_ENDL;
-		LLMeshRepoThread::HeaderRequest req(mMeshParams);
-		LLMutexLock lock(gMeshRepo.mThread->mMutex);
-		gMeshRepo.mThread->mHeaderReqQ.push(req);
-	}
-	else
-	{
-		// *TODO:  Mark mesh unavailable
-		LL_WARNS(LOG_MESH) << "Error during mesh header handling.  Reason:  " << status.toString()
-						   << " (" << status.toHex() << ").  Not retrying."
-						   << LL_ENDL;
+		gMeshRepo.mThread->mUnavailableQ.push(LLMeshRepoThread::LODRequest(mMeshParams, i));
 	}
 }
 
 void LLMeshHeaderHandler::processData(LLCore::BufferArray * body, U8 * data, S32 data_size)
 {
 	LLUUID mesh_id = mMeshParams.getSculptID();
-	bool success = gMeshRepo.mThread->headerReceived(mMeshParams, data, data_size);
+	bool success = (! MESH_HEADER_PROCESS_FAILED) && gMeshRepo.mThread->headerReceived(mMeshParams, data, data_size);
 	llassert(success);
 	if (! success)
 	{
-		// *TODO:  Mark mesh unavailable
-		// *TODO:  Get real reason for parse failure here
+		// *TODO:  Get real reason for parse failure here.  Might we want to retry?
 		LL_WARNS(LOG_MESH) << "Unable to parse mesh header.  ID:  " << mesh_id
+						   << ", Unknown reason.  Not retrying."
 						   << LL_ENDL;
+
+		// Can't get the header so none of the LODs will be available
+		LLMutexLock lock(gMeshRepo.mThread->mMutex);
+		for (int i(0); i < 4; ++i)
+		{
+			gMeshRepo.mThread->mUnavailableQ.push(LLMeshRepoThread::LODRequest(mMeshParams, i));
+		}
 	}
 	else if (data && data_size > 0)
 	{
@@ -2708,29 +2734,18 @@ LLMeshLODHandler::~LLMeshLODHandler()
 
 void LLMeshLODHandler::processFailure(LLCore::HttpStatus status)
 {
-	if (is_retryable(status))
-	{
-		LL_WARNS(LOG_MESH) << "Error during mesh header handling.  Reason:  " << status.toString()
-						   << " (" << status.toHex() << ").  Retrying."
-						   << LL_ENDL;
-		{
-			LLMutexLock lock(gMeshRepo.mThread->mMutex);
+	LL_WARNS(LOG_MESH) << "Error during mesh LOD handling.  ID:  " << mMeshParams.getSculptID()
+					   << ", Reason:  " << status.toString()
+					   << " (" << status.toHex() << ").  Not retrying."
+					   << LL_ENDL;
 
-			gMeshRepo.mThread->loadMeshLOD(mMeshParams, mLOD);
-		}
-	}
-	else
-	{
-		// *TODO:  Mark mesh unavailable
-		LL_WARNS(LOG_MESH) << "Error during mesh LOD handling.  Reason:  " << status.toString()
-						   << " (" << status.toHex() << ").  Not retrying."
-						   << LL_ENDL;
-	}
+	LLMutexLock lock(gMeshRepo.mThread->mMutex);
+	gMeshRepo.mThread->mUnavailableQ.push(LLMeshRepoThread::LODRequest(mMeshParams, mLOD));
 }
 
 void LLMeshLODHandler::processData(LLCore::BufferArray * body, U8 * data, S32 data_size)
 {
-	if (gMeshRepo.mThread->lodReceived(mMeshParams, mLOD, data, data_size))
+	if ((! MESH_LOD_PROCESS_FAILED) && gMeshRepo.mThread->lodReceived(mMeshParams, mLOD, data, data_size))
 	{
 		// good fetch from sim, write to VFS for caching
 		LLVFile file(gVFS, mMeshParams.getSculptID(), LLAssetType::AT_MESH, LLVFile::WRITE);
@@ -2746,7 +2761,14 @@ void LLMeshLODHandler::processData(LLCore::BufferArray * body, U8 * data, S32 da
 			++LLMeshRepository::sCacheWrites;
 		}
 	}
-	// *TODO:  Mark mesh unavailable on error
+	else
+	{
+		LL_WARNS(LOG_MESH) << "Error during mesh LOD processing.  ID:  " << mMeshParams.getSculptID()
+						   << ", Unknown reason.  Not retrying."
+						   << LL_ENDL;
+		LLMutexLock lock(gMeshRepo.mThread->mMutex);
+		gMeshRepo.mThread->mUnavailableQ.push(LLMeshRepoThread::LODRequest(mMeshParams, mLOD));
+	}
 }
 
 LLMeshSkinInfoHandler::~LLMeshSkinInfoHandler()
@@ -2756,29 +2778,18 @@ LLMeshSkinInfoHandler::~LLMeshSkinInfoHandler()
 
 void LLMeshSkinInfoHandler::processFailure(LLCore::HttpStatus status)
 {
-	if (is_retryable(status))
-	{
-		LL_WARNS(LOG_MESH) << "Error during mesh skin info handling.  Reason:  " << status.toString()
-						   << " (" << status.toHex() << ").  Retrying."
-						   << LL_ENDL;
-		{
-			LLMutexLock lock(gMeshRepo.mThread->mMutex);
+	LL_WARNS(LOG_MESH) << "Error during mesh skin info handling.  ID:  " << mMeshID
+					   << ", Reason:  " << status.toString()
+					   << " (" << status.toHex() << ").  Not retrying."
+					   << LL_ENDL;
 
-			gMeshRepo.mThread->loadMeshSkinInfo(mMeshID);
-		}
-	}
-	else
-	{
-		// *TODO:  Mark mesh unavailable on error
-		LL_WARNS(LOG_MESH) << "Error during mesh skin info handling.  Reason:  " << status.toString()
-						   << " (" << status.toHex() << ").  Not retrying."
-						   << LL_ENDL;
-	}
+	// *TODO:  Mark mesh unavailable on error.  For now, simply leave
+	// request unfulfilled rather than retry forever.
 }
 
 void LLMeshSkinInfoHandler::processData(LLCore::BufferArray * body, U8 * data, S32 data_size)
 {
-	if (gMeshRepo.mThread->skinInfoReceived(mMeshID, data, data_size))
+	if ((! MESH_SKIN_INFO_PROCESS_FAILED) && gMeshRepo.mThread->skinInfoReceived(mMeshID, data, data_size))
 	{
 		// good fetch from sim, write to VFS for caching
 		LLVFile file(gVFS, mMeshID, LLAssetType::AT_MESH, LLVFile::WRITE);
@@ -2794,7 +2805,13 @@ void LLMeshSkinInfoHandler::processData(LLCore::BufferArray * body, U8 * data, S
 			file.write(data, size);
 		}
 	}
-	// *TODO:  Mark mesh unavailable on error
+	else
+	{
+		LL_WARNS(LOG_MESH) << "Error during mesh skin info processing.  ID:  " << mMeshID
+						   << ", Unknown reason.  Not retrying."
+						   << LL_ENDL;
+		// *TODO:  Mark mesh unavailable on error
+	}
 }
 
 LLMeshDecompositionHandler::~LLMeshDecompositionHandler()
@@ -2804,29 +2821,17 @@ LLMeshDecompositionHandler::~LLMeshDecompositionHandler()
 
 void LLMeshDecompositionHandler::processFailure(LLCore::HttpStatus status)
 {
-	if (is_retryable(status))
-	{
-		LL_WARNS(LOG_MESH) << "Error during mesh decomposition handling.  Reason:  " << status.toString()
-						   << " (" << status.toHex() << ").  Retrying."
-						   << LL_ENDL;
-		{
-			LLMutexLock lock(gMeshRepo.mThread->mMutex);
-
-			gMeshRepo.mThread->loadMeshDecomposition(mMeshID);
-		}
-	}
-	else
-	{
-		// *TODO:  Mark mesh unavailable on error
-		LL_WARNS(LOG_MESH) << "Error during mesh decomposition handling.  Reason:  " << status.toString()
-						   << " (" << status.toHex() << ").  Not retrying."
-						   << LL_ENDL;
-	}
+	LL_WARNS(LOG_MESH) << "Error during mesh decomposition handling.  ID:  " << mMeshID
+					   << ", Reason:  " << status.toString()
+					   << " (" << status.toHex() << ").  Not retrying."
+					   << LL_ENDL;
+	// *TODO:  Mark mesh unavailable on error.  For now, simply leave
+	// request unfulfilled rather than retry forever.
 }
 
 void LLMeshDecompositionHandler::processData(LLCore::BufferArray * body, U8 * data, S32 data_size)
 {
-	if (gMeshRepo.mThread->decompositionReceived(mMeshID, data, data_size))
+	if ((! MESH_DECOMP_PROCESS_FAILED) && gMeshRepo.mThread->decompositionReceived(mMeshID, data, data_size))
 	{
 		// good fetch from sim, write to VFS for caching
 		LLVFile file(gVFS, mMeshID, LLAssetType::AT_MESH, LLVFile::WRITE);
@@ -2842,7 +2847,13 @@ void LLMeshDecompositionHandler::processData(LLCore::BufferArray * body, U8 * da
 			file.write(data, size);
 		}
 	}
-	// *TODO:  Mark mesh unavailable on error
+	else
+	{
+		LL_WARNS(LOG_MESH) << "Error during mesh decomposition processing.  ID:  " << mMeshID
+						   << ", Unknown reason.  Not retrying."
+						   << LL_ENDL;
+		// *TODO:  Mark mesh unavailable on error
+	}
 }
 
 LLMeshPhysicsShapeHandler::~LLMeshPhysicsShapeHandler()
@@ -2852,29 +2863,16 @@ LLMeshPhysicsShapeHandler::~LLMeshPhysicsShapeHandler()
 
 void LLMeshPhysicsShapeHandler::processFailure(LLCore::HttpStatus status)
 {
-	if (is_retryable(status))
-	{
-		LL_WARNS(LOG_MESH) << "Error during mesh physics shape handling.  Reason:  " << status.toString()
-						   << " (" << status.toHex() << ").  Retrying."
-						   << LL_ENDL;
-		{
-			LLMutexLock lock(gMeshRepo.mThread->mMutex);
-
-			gMeshRepo.mThread->loadMeshPhysicsShape(mMeshID);
-		}
-	}
-	else
-	{
-		// *TODO:  Mark mesh unavailable on error
-		LL_WARNS(LOG_MESH) << "Error during mesh physics shape handling.  Reason:  " << status.toString()
-						   << " (" << status.toHex() << ").  Not retrying."
-						   << LL_ENDL;
-	}
+	LL_WARNS(LOG_MESH) << "Error during mesh physics shape handling.  ID:  " << mMeshID
+					   << ", Reason:  " << status.toString()
+					   << " (" << status.toHex() << ").  Not retrying."
+					   << LL_ENDL;
+	// *TODO:  Mark mesh unavailable on error
 }
 
 void LLMeshPhysicsShapeHandler::processData(LLCore::BufferArray * body, U8 * data, S32 data_size)
 {
-	if (gMeshRepo.mThread->physicsShapeReceived(mMeshID, data, data_size))
+	if ((! MESH_PHYS_SHAPE_PROCESS_FAILED) && gMeshRepo.mThread->physicsShapeReceived(mMeshID, data, data_size))
 	{
 		// good fetch from sim, write to VFS for caching
 		LLVFile file(gVFS, mMeshID, LLAssetType::AT_MESH, LLVFile::WRITE);
@@ -2890,7 +2888,13 @@ void LLMeshPhysicsShapeHandler::processData(LLCore::BufferArray * body, U8 * dat
 			file.write(data, size);
 		}
 	}
-	// *TODO:  Mark mesh unavailable on error
+	else
+	{
+		LL_WARNS(LOG_MESH) << "Error during mesh physics shape processing.  ID:  " << mMeshID
+						   << ", Unknown reason.  Not retrying."
+						   << LL_ENDL;
+		// *TODO:  Mark mesh unavailable on error
+	}
 }
 
 LLMeshRepository::LLMeshRepository()
@@ -3000,7 +3004,7 @@ S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_para
 	// Manage time-to-load metrics for mesh download operations.
 	metricsProgress(1);
 
-	if (detail < 0 || detail > 4)
+	if (detail < 0 || detail >= 4)
 	{
 		return detail;
 	}
@@ -4437,34 +4441,5 @@ void LLMeshRepository::metricsUpdate()
 void teleport_started()
 {
 	LLMeshRepository::metricsStart();
-}
-
-// *TODO:  This comes from an edit in viewer-cat.  Unify this once that's
-// available everywhere.
-bool is_retryable(LLCore::HttpStatus status)
-{
-	static const LLCore::HttpStatus cant_connect(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_CONNECT);
-	static const LLCore::HttpStatus cant_res_proxy(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_RESOLVE_PROXY);
-	static const LLCore::HttpStatus cant_res_host(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_RESOLVE_HOST);
-	static const LLCore::HttpStatus send_error(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_SEND_ERROR);
-	static const LLCore::HttpStatus recv_error(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_RECV_ERROR);
-	static const LLCore::HttpStatus upload_failed(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_UPLOAD_FAILED);
-	static const LLCore::HttpStatus op_timedout(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_OPERATION_TIMEDOUT);
-	static const LLCore::HttpStatus post_error(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_HTTP_POST_ERROR);
-	static const LLCore::HttpStatus partial_file(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_PARTIAL_FILE);
-	static const LLCore::HttpStatus inv_cont_range(LLCore::HttpStatus::LLCORE, LLCore::HE_INV_CONTENT_RANGE_HDR);
-	
-	return ((! status) &&
-			((status.isHttpStatus() && status.mType >= 499 && status.mType <= 599) ||		// Include special 499 in retryables
-			 status == cant_connect ||			// Connection reset/endpoint problems
-			 status == cant_res_proxy ||		// DNS problems
-			 status == cant_res_host ||			// DNS problems
-			 status == send_error ||			// General socket problems
-			 status == recv_error ||			// General socket problems
-			 status == upload_failed ||			// Transport problem
-			 status == op_timedout ||			// Timer expired
-			 status == post_error ||			// Transport problem
-			 status == partial_file ||			// Data inconsistency in response
-			 status == inv_cont_range));		// Short data read disagrees with content-range
 }
 
