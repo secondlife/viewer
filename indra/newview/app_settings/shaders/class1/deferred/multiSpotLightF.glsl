@@ -310,14 +310,11 @@ void main()
 			vec3 pfinal = pos + ref * dot(pdelta, proj_n)/ds;
 			
 			vec4 stc = (proj_mat * vec4(pfinal.xyz, 1.0));
-
+			stc /= stc.w;
 			if (stc.z > 0.0)
 			{
-				stc.xy /= stc.w;
-
-				float fatten = clamp(envIntensity*envIntensity+envIntensity*0.5, 0.25, 1.0);
+				float fatten = clamp(envIntensity*envIntensity+envIntensity*0.25, 0.25, 1.0);
 				
-				//stc.xy = (stc.xy - vec2(0.5)) * fatten + vec2(0.5);
 				stc.xy = (stc.xy - vec2(0.5)) * fatten + vec2(0.5);
 								
 				if (stc.x < 1.0 &&
@@ -325,7 +322,7 @@ void main()
 					stc.x > 0.0 &&
 					stc.y > 0.0)
 				{
-					col += color.rgb*texture2DLodSpecular(projectionMap, stc.xy, proj_lod-envIntensity*proj_lod).rgb*spec.rgb;										
+					col += color.rgb*texture2DLodSpecular(projectionMap, stc.xy, proj_lod).rgb*spec.rgb;										
 				}
 			}
 		}
