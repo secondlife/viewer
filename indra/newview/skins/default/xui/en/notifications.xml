@@ -9513,6 +9513,14 @@ Not enough script resources available to attach object!
 
   <notification
    icon="alertmodal.tga"
+   name="CantAttachObjectBeingRemoved"
+   type="notify">
+    <tag>fail</tag>
+    Cannot attach object because it is already being removed.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="CantDropItemTrialUser"
    type="notify">
    <tag>fail</tag>
