@@ -35,28 +35,47 @@
 
 class LLLayoutPanel;
 class LLTextBox;
+class LLComboBox;
 
 class LLFloaterExperienceProfile : public LLFloater
 {
     LOG_CLASS(LLFloaterExperienceProfile);
 public:
+    enum
+    {
+        NOTHING,
+        CLOSE,
+        VIEW,
+    };
+
+
     LLFloaterExperienceProfile(const LLSD& data);
     virtual ~LLFloaterExperienceProfile();
 
-    void setExperienceId( const LLUUID& experience_id );
+    LLUUID getExperienceId() const { return mExperienceId; }
     void setPreferences( const LLSD& content );
+    void refreshExperience(const LLSD& experience);
+    void onSaveComplete( const LLSD& content );
+    virtual BOOL canClose();
 
 protected:
     void onClickEdit();
     void onClickPermission(const char* permission);
     void onClickForget();
+    void onClickCancel();
 
+    void changeToView();
+
+    void onClickSave();
+
+    void onFieldChanged();
 
     static void experienceCallback(LLHandle<LLFloaterExperienceProfile> handle, const LLSD& experience);
 
-    void refreshExperience(const LLSD& experience);
     BOOL postBuild();
-    bool setMaturityString(U8 maturity, LLTextBox* child);
+    bool setMaturityString(U8 maturity, LLTextBox* child, LLComboBox* combo);
+    bool handleSaveChangesDialog(const LLSD& notification, const LLSD& response, int action);
+    void doSave( int success_action );
     LLUUID mExperienceId;
     LLSD mExperienceDetails;
 
@@ -64,9 +83,9 @@ protected:
     LLLayoutPanel* mDescriptionPanel;
     LLLayoutPanel* mLocationPanel;
     LLLayoutPanel* mMarketplacePanel;
-    
-private:
-
+    int mSaveCompleteAction;
+    bool mDirty;
+    bool mForceClose;
 };
 
 #endif // LL_LLFLOATEREXPERIENCEPROFILE_H
