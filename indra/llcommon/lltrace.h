@@ -62,8 +62,8 @@ public:
 	const std::string& getDescription() const { return mDescription; }
 
 protected:
-	const std::string	mName;
-	const std::string	mDescription;
+	std::string	mName;
+	std::string	mDescription;
 };
 
 template<typename ACCUMULATOR>
@@ -240,6 +240,11 @@ public:
 	:	trace_t(name)
 	{}
 
+	void setName(const char* name)
+	{
+		mName = name;
+	}
+
 	/*virtual*/ const char* getUnitLabel() const { return "B"; }
 
 	TraceType<MemStatAccumulator::AllocationCountFacet>& allocationCount() 
@@ -346,6 +351,16 @@ class MemTrackable
 public:
 	typedef void mem_trackable_tag_t;
 
+	MemTrackable()
+	{
+		static bool name_initialized = false;
+		if (!name_initialized)
+		{
+			name_initialized = true;
+			sMemStat.setName(typeid(DERIVED).name());
+		}
+	}
+
 	virtual ~MemTrackable()
 	{
 		memDisclaim(mMemFootprint);
@@ -353,7 +368,7 @@ public:
 
 	void* operator new(size_t size) 
 	{
-		MemStatAccumulator& accumulator = DERIVED::sMemStat.getCurrentAccumulator();
+		MemStatAccumulator& accumulator = sMemStat.getCurrentAccumulator();
 		accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() + (F64)size : (F64)size);
 		accumulator.mAllocatedCount++;
 
@@ -377,7 +392,7 @@ public:
 
 	void operator delete(void* ptr, size_t size)
 	{
-		MemStatAccumulator& accumulator = DERIVED::sMemStat.getCurrentAccumulator();
+		MemStatAccumulator& accumulator = sMemStat.getCurrentAccumulator();
 		accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)size : -(F64)size);
 		accumulator.mAllocatedCount--;
 		accumulator.mDeallocatedCount++;
@@ -402,7 +417,7 @@ public:
 
 	void *operator new [](size_t size)
 	{
-		MemStatAccumulator& accumulator = DERIVED::sMemStat.getCurrentAccumulator();
+		MemStatAccumulator& accumulator = sMemStat.getCurrentAccumulator();
 		accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() + (F64)size : (F64)size);
 		accumulator.mAllocatedCount++;
 
@@ -426,7 +441,7 @@ public:
 
 	void operator delete[](void* ptr, size_t size)
 	{
-		MemStatAccumulator& accumulator = DERIVED::sMemStat.getCurrentAccumulator();
+		MemStatAccumulator& accumulator = sMemStat.getCurrentAccumulator();
 		accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)size : -(F64)size);
 		accumulator.mAllocatedCount--;
 		accumulator.mDeallocatedCount++;
@@ -468,7 +483,7 @@ public:
 	template<typename AMOUNT_T>
 	AMOUNT_T& memClaimAmount(AMOUNT_T& size)
 	{
-		MemStatAccumulator& accumulator = DERIVED::sMemStat.getCurrentAccumulator();
+		MemStatAccumulator& accumulator = sMemStat.getCurrentAccumulator();
 		mMemFootprint += (size_t)size;
 		accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() + (F64)size : (F64)size);
 		return size;
@@ -492,7 +507,7 @@ public:
 	template<typename AMOUNT_T>
 	AMOUNT_T& memDisclaimAmount(AMOUNT_T& size)
 	{
-		MemStatAccumulator& accumulator = DERIVED::sMemStat.getCurrentAccumulator();
+		MemStatAccumulator& accumulator = sMemStat.getCurrentAccumulator();
 		accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)size : -(F64)size);
 		return size;
 	}
@@ -505,7 +520,7 @@ private:
 	{
 		static void claim(mem_trackable_t& tracker, const TRACKED& tracked)
 		{
-			MemStatAccumulator& accumulator = DERIVED::sMemStat.getCurrentAccumulator();
+			MemStatAccumulator& accumulator = sMemStat.getCurrentAccumulator();
 			size_t footprint = MemFootprint<TRACKED>::measure(tracked);
 			accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() + (F64)footprint : (F64)footprint);
 			tracker.mMemFootprint += footprint;
@@ -513,7 +528,7 @@ private:
 
 		static void disclaim(mem_trackable_t& tracker, const TRACKED& tracked)
 		{
-			MemStatAccumulator& accumulator = DERIVED::sMemStat.getCurrentAccumulator();
+			MemStatAccumulator& accumulator = sMemStat.getCurrentAccumulator();
 			size_t footprint = MemFootprint<TRACKED>::measure(tracked);
 			accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)footprint : -(F64)footprint);
 			tracker.mMemFootprint -= footprint;
@@ -525,21 +540,20 @@ private:
 	{
 		static void claim(mem_trackable_t& tracker, TRACKED& tracked)
 		{
-			MemStatAccumulator& accumulator = DERIVED::sMemStat.getCurrentAccumulator();
+			MemStatAccumulator& accumulator = sMemStat.getCurrentAccumulator();
 			accumulator.mChildSize.sample(accumulator.mChildSize.hasValue() ? accumulator.mChildSize.getLastValue() + (F64)MemFootprint<TRACKED>::measure(tracked) : (F64)MemFootprint<TRACKED>::measure(tracked));
 		}
 
 		static void disclaim(mem_trackable_t& tracker, TRACKED& tracked)
 		{
-			MemStatAccumulator& accumulator = DERIVED::sMemStat.getCurrentAccumulator();
+			MemStatAccumulator& accumulator = sMemStat.getCurrentAccumulator();
 			accumulator.mChildSize.sample(accumulator.mChildSize.hasValue() ? accumulator.mChildSize.getLastValue() - (F64)MemFootprint<TRACKED>::measure(tracked) : -(F64)MemFootprint<TRACKED>::measure(tracked));
 		}
 	};
 };
 
-// pretty sure typeid of containing class in static object constructor doesn't work in gcc
 template<typename DERIVED, size_t ALIGNMENT>
-MemStatHandle MemTrackable<DERIVED, ALIGNMENT>::sMemStat(typeid(DERIVED).name());
+MemStatHandle MemTrackable<DERIVED, ALIGNMENT>::sMemStat("");
 
 }
 #endif // LL_LLTRACE_H
