@@ -243,6 +243,7 @@ public:
 	void setName(const char* name)
 	{
 		mName = name;
+		setKey(name);
 	}
 
 	/*virtual*/ const char* getUnitLabel() const { return "B"; }
