@@ -776,19 +776,19 @@ static bool proximity_comparitor(const LLViewerMediaImpl* i1, const LLViewerMedi
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_MEDIA_UPDATE("Update Media");
-static LLFastTimer::DeclareTimer FTM_MEDIA_SPARE_IDLE("Spare Idle");
-static LLFastTimer::DeclareTimer FTM_MEDIA_UPDATE_INTEREST("Update/Interest");
-static LLFastTimer::DeclareTimer FTM_MEDIA_SORT("Sort");
-static LLFastTimer::DeclareTimer FTM_MEDIA_SORT2("Sort 2");
-static LLFastTimer::DeclareTimer FTM_MEDIA_MISC("Misc");
+static LLTrace::TimeBlock FTM_MEDIA_UPDATE("Update Media");
+static LLTrace::TimeBlock FTM_MEDIA_SPARE_IDLE("Spare Idle");
+static LLTrace::TimeBlock FTM_MEDIA_UPDATE_INTEREST("Update/Interest");
+static LLTrace::TimeBlock FTM_MEDIA_SORT("Sort");
+static LLTrace::TimeBlock FTM_MEDIA_SORT2("Sort 2");
+static LLTrace::TimeBlock FTM_MEDIA_MISC("Misc");
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // static
 void LLViewerMedia::updateMedia(void *dummy_arg)
 {
-	LLFastTimer t1(FTM_MEDIA_UPDATE);
+	LL_RECORD_BLOCK_TIME(FTM_MEDIA_UPDATE);
 	
 	// Enable/disable the plugin read thread
 	LLPluginProcessParent::setUseReadThread(gSavedSettings.getBOOL("PluginUseReadThread"));
@@ -808,7 +808,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 	impl_list::iterator end = sViewerMediaImplList.end();
 
 	{
-		LLFastTimer t(FTM_MEDIA_UPDATE_INTEREST);
+		LL_RECORD_BLOCK_TIME(FTM_MEDIA_UPDATE_INTEREST);
 		for(; iter != end;)
 		{
 			LLViewerMediaImpl* pimpl = *iter++;
@@ -820,12 +820,12 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 	// Let the spare media source actually launch
 	if(sSpareBrowserMediaSource)
 	{
-		LLFastTimer t(FTM_MEDIA_SPARE_IDLE);
+		LL_RECORD_BLOCK_TIME(FTM_MEDIA_SPARE_IDLE);
 		sSpareBrowserMediaSource->idle();
 	}
 		
 	{
-		LLFastTimer t(FTM_MEDIA_SORT);
+		LL_RECORD_BLOCK_TIME(FTM_MEDIA_SORT);
 		// Sort the static instance list using our interest criteria
 		sViewerMediaImplList.sort(priorityComparitor);
 	}
@@ -857,7 +857,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 	// If max_normal + max_low is less than max_instances, things will tend to get unloaded instead of being set to slideshow.
 	
 	{
-		LLFastTimer t(FTM_MEDIA_MISC);
+		LL_RECORD_BLOCK_TIME(FTM_MEDIA_MISC);
 		for(; iter != end; iter++)
 		{
 			LLViewerMediaImpl* pimpl = *iter;
@@ -1025,7 +1025,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 	}
 	else
 	{
-		LLFastTimer t(FTM_MEDIA_SORT2);
+		LL_RECORD_BLOCK_TIME(FTM_MEDIA_SORT2);
 		// Use a distance-based sort for proximity values.  
 		std::stable_sort(proximity_order.begin(), proximity_order.end(), proximity_comparitor);
 	}
@@ -2746,14 +2746,14 @@ bool LLViewerMediaImpl::canNavigateBack()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-static LLFastTimer::DeclareTimer FTM_MEDIA_DO_UPDATE("Do Update");
-static LLFastTimer::DeclareTimer FTM_MEDIA_GET_DATA("Get Data");
-static LLFastTimer::DeclareTimer FTM_MEDIA_SET_SUBIMAGE("Set Subimage");
+static LLTrace::TimeBlock FTM_MEDIA_DO_UPDATE("Do Update");
+static LLTrace::TimeBlock FTM_MEDIA_GET_DATA("Get Data");
+static LLTrace::TimeBlock FTM_MEDIA_SET_SUBIMAGE("Set Subimage");
 
 
 void LLViewerMediaImpl::update()
 {
-	LLFastTimer t(FTM_MEDIA_DO_UPDATE);
+	LL_RECORD_BLOCK_TIME(FTM_MEDIA_DO_UPDATE);
 	if(mMediaSource == NULL)
 	{
 		if(mPriority == LLPluginClassMedia::PRIORITY_UNLOADED)
@@ -2855,7 +2855,7 @@ void LLViewerMediaImpl::update()
 
 				U8* data = NULL;
 				{
-					LLFastTimer t(FTM_MEDIA_GET_DATA);
+					LL_RECORD_BLOCK_TIME(FTM_MEDIA_GET_DATA);
 					data = mMediaSource->getBitsData();
 				}
 
@@ -2864,7 +2864,7 @@ void LLViewerMediaImpl::update()
 				data += ( y_pos * mMediaSource->getTextureDepth() );
 				
 				{
-					LLFastTimer t(FTM_MEDIA_SET_SUBIMAGE);
+					LL_RECORD_BLOCK_TIME(FTM_MEDIA_SET_SUBIMAGE);
 					placeholder_image->setSubImage(
 							data, 
 							mMediaSource->getBitsWidth(), 
@@ -3435,11 +3435,11 @@ BOOL LLViewerMediaImpl::isUpdated()
 	return mIsUpdated ;
 }
 
-static LLFastTimer::DeclareTimer FTM_MEDIA_CALCULATE_INTEREST("Calculate Interest");
+static LLTrace::TimeBlock FTM_MEDIA_CALCULATE_INTEREST("Calculate Interest");
 
 void LLViewerMediaImpl::calculateInterest()
 {
-	LLFastTimer t(FTM_MEDIA_CALCULATE_INTEREST);
+	LL_RECORD_BLOCK_TIME(FTM_MEDIA_CALCULATE_INTEREST);
 	LLViewerMediaTexture* texture = LLViewerTextureManager::findMediaTexture( mTextureId );
 	
 	if(texture != NULL)

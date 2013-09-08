@@ -525,7 +525,7 @@ F32	LLPolyMorphTarget::getMaxDistortion()
 //-----------------------------------------------------------------------------
 // apply()
 //-----------------------------------------------------------------------------
-static LLFastTimer::DeclareTimer FTM_APPLY_MORPH_TARGET("Apply Morph");
+static LLTrace::TimeBlock FTM_APPLY_MORPH_TARGET("Apply Morph");
 
 void LLPolyMorphTarget::apply( ESex avatar_sex )
 {
@@ -534,7 +534,7 @@ void LLPolyMorphTarget::apply( ESex avatar_sex )
 		return;
 	}
 
-	LLFastTimer t(FTM_APPLY_MORPH_TARGET);
+	LL_RECORD_BLOCK_TIME(FTM_APPLY_MORPH_TARGET);
 
 	mLastSex = avatar_sex;
 

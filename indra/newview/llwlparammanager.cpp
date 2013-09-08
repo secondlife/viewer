@@ -364,11 +364,11 @@ void LLWLParamManager::updateShaderUniforms(LLGLSLShader * shader)
 	
 }
 
-static LLFastTimer::DeclareTimer FTM_UPDATE_WLPARAM("Update Windlight Params");
+static LLTrace::TimeBlock FTM_UPDATE_WLPARAM("Update Windlight Params");
 
 void LLWLParamManager::propagateParameters(void)
 {
-	LLFastTimer ftm(FTM_UPDATE_WLPARAM);
+	LL_RECORD_BLOCK_TIME(FTM_UPDATE_WLPARAM);
 	
 	LLVector4 sunDir;
 	LLVector4 moonDir;
@@ -439,7 +439,7 @@ void LLWLParamManager::propagateParameters(void)
 
 void LLWLParamManager::update(LLViewerCamera * cam)
 {
-	LLFastTimer ftm(FTM_UPDATE_WLPARAM);
+	LL_RECORD_BLOCK_TIME(FTM_UPDATE_WLPARAM);
 	
 	// update clouds, sun, and general
 	mCurParams.updateCloudScrolling();

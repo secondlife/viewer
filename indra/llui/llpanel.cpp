@@ -372,7 +372,7 @@ void LLPanel::setBorderVisible(BOOL b)
 	}
 }
 
-LLFastTimer::DeclareTimer FTM_PANEL_CONSTRUCTION("Panel Construction");
+LLTrace::TimeBlock FTM_PANEL_CONSTRUCTION("Panel Construction");
 
 LLView* LLPanel::fromXML(LLXMLNodePtr node, LLView* parent, LLXMLNodePtr output_node)
 {
@@ -384,7 +384,7 @@ LLView* LLPanel::fromXML(LLXMLNodePtr node, LLView* parent, LLXMLNodePtr output_
 
 	LLPanel* panelp = NULL;
 	
-	{	LLFastTimer _(FTM_PANEL_CONSTRUCTION);
+	{	LL_RECORD_BLOCK_TIME(FTM_PANEL_CONSTRUCTION);
 		
 		if(!class_attr.empty())
 		{
@@ -488,15 +488,15 @@ void LLPanel::initFromParams(const LLPanel::Params& p)
 	setAcceptsBadge(p.accepts_badge);
 }
 
-static LLFastTimer::DeclareTimer FTM_PANEL_SETUP("Panel Setup");
-static LLFastTimer::DeclareTimer FTM_EXTERNAL_PANEL_LOAD("Load Extern Panel Reference");
-static LLFastTimer::DeclareTimer FTM_PANEL_POSTBUILD("Panel PostBuild");
+static LLTrace::TimeBlock FTM_PANEL_SETUP("Panel Setup");
+static LLTrace::TimeBlock FTM_EXTERNAL_PANEL_LOAD("Load Extern Panel Reference");
+static LLTrace::TimeBlock FTM_PANEL_POSTBUILD("Panel PostBuild");
 
 BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node, const LLPanel::Params& default_params)
 {
 	Params params(default_params);
 	{
-		LLFastTimer timer(FTM_PANEL_SETUP);
+		LL_RECORD_BLOCK_TIME(FTM_PANEL_SETUP);
 
 		LLXMLNodePtr referenced_xml;
 		std::string xml_filename = mXMLFilename;
@@ -526,7 +526,7 @@ BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr outpu
 		
 			LLUICtrlFactory::instance().pushFileName(xml_filename);
 
-			LLFastTimer timer(FTM_EXTERNAL_PANEL_LOAD);
+			LL_RECORD_BLOCK_TIME(FTM_EXTERNAL_PANEL_LOAD);
 			if (!LLUICtrlFactory::getLayeredXMLNode(xml_filename, referenced_xml))
 			{
 				LL_WARNS() << "Couldn't parse panel from: " << xml_filename << LL_ENDL;
@@ -557,7 +557,7 @@ BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr outpu
 		params.from_xui = true;
 		applyXUILayout(params, parent);
 		{
-			LLFastTimer timer(FTM_PANEL_CONSTRUCTION);
+			LL_RECORD_BLOCK_TIME(FTM_PANEL_CONSTRUCTION);
 			initFromParams(params);
 		}
 
@@ -574,7 +574,7 @@ BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr outpu
 		}
 
 		{
-			LLFastTimer timer(FTM_PANEL_POSTBUILD);
+			LL_RECORD_BLOCK_TIME(FTM_PANEL_POSTBUILD);
 			postBuild();
 		}
 	}
@@ -963,14 +963,14 @@ boost::signals2::connection LLPanel::setVisibleCallback( const commit_signal_t::
 	return mVisibleSignal->connect(cb);
 }
 
-static LLFastTimer::DeclareTimer FTM_BUILD_PANELS("Build Panels");
+static LLTrace::TimeBlock FTM_BUILD_PANELS("Build Panels");
 
 //-----------------------------------------------------------------------------
 // buildPanel()
 //-----------------------------------------------------------------------------
 BOOL LLPanel::buildFromFile(const std::string& filename, const LLPanel::Params& default_params)
 {
-	LLFastTimer timer(FTM_BUILD_PANELS);
+	LL_RECORD_BLOCK_TIME(FTM_BUILD_PANELS);
 	BOOL didPost = FALSE;
 	LLXMLNodePtr root;
 

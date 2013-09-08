@@ -3124,8 +3124,8 @@ boost::signals2::connection LLFloater::setCloseCallback( const commit_signal_t::
 	return mCloseSignal.connect(cb);
 }
 
-LLFastTimer::DeclareTimer POST_BUILD("Floater Post Build");
-static LLFastTimer::DeclareTimer FTM_EXTERNAL_FLOATER_LOAD("Load Extern Floater Reference");
+LLTrace::TimeBlock POST_BUILD("Floater Post Build");
+static LLTrace::TimeBlock FTM_EXTERNAL_FLOATER_LOAD("Load Extern Floater Reference");
 
 bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::string& filename, LLXMLNodePtr output_node)
 {
@@ -3155,7 +3155,7 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::str
 
 		LLUICtrlFactory::instance().pushFileName(xml_filename);
 
-		LLFastTimer _(FTM_EXTERNAL_FLOATER_LOAD);
+		LL_RECORD_BLOCK_TIME(FTM_EXTERNAL_FLOATER_LOAD);
 		if (!LLUICtrlFactory::getLayeredXMLNode(xml_filename, referenced_xml))
 		{
 			LL_WARNS() << "Couldn't parse panel from: " << xml_filename << LL_ENDL;
@@ -3232,7 +3232,7 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::str
 
 	BOOL result;
 	{
-		LLFastTimer ft(POST_BUILD);
+		LL_RECORD_BLOCK_TIME(POST_BUILD);
 
 		result = postBuild();
 	}
@@ -3275,11 +3275,11 @@ bool LLFloater::isVisible(const LLFloater* floater)
     return floater && floater->getVisible();
 }
 
-static LLFastTimer::DeclareTimer FTM_BUILD_FLOATERS("Build Floaters");
+static LLTrace::TimeBlock FTM_BUILD_FLOATERS("Build Floaters");
 
 bool LLFloater::buildFromFile(const std::string& filename)
 {
-	LLFastTimer timer(FTM_BUILD_FLOATERS);
+	LL_RECORD_BLOCK_TIME(FTM_BUILD_FLOATERS);
 	LLXMLNodePtr root;
 
 	if (!LLUICtrlFactory::getLayeredXMLNode(filename, root))

@@ -289,7 +289,7 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_PROCESS_OBJECTS("Process Objects");
+static LLTrace::TimeBlock FTM_PROCESS_OBJECTS("Process Objects");
 
 LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry* entry, LLViewerRegion* regionp)
 {
@@ -386,7 +386,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 											 const EObjectUpdateType update_type,
 											 bool compressed)
 {
-	LLFastTimer t(FTM_PROCESS_OBJECTS);	
+	LL_RECORD_BLOCK_TIME(FTM_PROCESS_OBJECTS);	
 	
 	LLViewerObject *objectp;
 	S32			num_objects;
@@ -978,7 +978,7 @@ private:
 	LLSD mObjectIDs;
 };
 
-static LLFastTimer::DeclareTimer FTM_IDLE_COPY("Idle Copy");
+static LLTrace::TimeBlock FTM_IDLE_COPY("Idle Copy");
 
 void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 {
@@ -1031,7 +1031,7 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 	U32 idle_count = 0;
 	
 	{
-		LLFastTimer t(FTM_IDLE_COPY);
+		LL_RECORD_BLOCK_TIME(FTM_IDLE_COPY);
 
  		for (std::vector<LLPointer<LLViewerObject> >::iterator active_iter = mActiveObjects.begin();
 			active_iter != mActiveObjects.end(); active_iter++)
@@ -1328,11 +1328,11 @@ void LLViewerObjectList::cleanupReferences(LLViewerObject *objectp)
 	mNumDeadObjects++;
 }
 
-static LLFastTimer::DeclareTimer FTM_REMOVE_DRAWABLE("Remove Drawable");
+static LLTrace::TimeBlock FTM_REMOVE_DRAWABLE("Remove Drawable");
 
 void LLViewerObjectList::removeDrawable(LLDrawable* drawablep)
 {
-	LLFastTimer t(FTM_REMOVE_DRAWABLE);
+	LL_RECORD_BLOCK_TIME(FTM_REMOVE_DRAWABLE);
 
 	if (!drawablep)
 	{
@@ -1617,9 +1617,9 @@ void LLViewerObjectList::onPhysicsFlagsFetchFailure(const LLUUID& object_id)
 	mPendingPhysicsFlags.erase(object_id);
 }
 
-static LLFastTimer::DeclareTimer FTM_SHIFT_OBJECTS("Shift Objects");
-static LLFastTimer::DeclareTimer FTM_PIPELINE_SHIFT("Pipeline Shift");
-static LLFastTimer::DeclareTimer FTM_REGION_SHIFT("Region Shift");
+static LLTrace::TimeBlock FTM_SHIFT_OBJECTS("Shift Objects");
+static LLTrace::TimeBlock FTM_PIPELINE_SHIFT("Pipeline Shift");
+static LLTrace::TimeBlock FTM_REGION_SHIFT("Region Shift");
 
 void LLViewerObjectList::shiftObjects(const LLVector3 &offset)
 {
@@ -1632,7 +1632,7 @@ void LLViewerObjectList::shiftObjects(const LLVector3 &offset)
 		return;
 	}
 
-	LLFastTimer t(FTM_SHIFT_OBJECTS);
+	LL_RECORD_BLOCK_TIME(FTM_SHIFT_OBJECTS);
 
 	LLViewerObject *objectp;
 	for (vobj_list_t::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter)
@@ -1651,12 +1651,12 @@ void LLViewerObjectList::shiftObjects(const LLVector3 &offset)
 	}
 
 	{
-		LLFastTimer t(FTM_PIPELINE_SHIFT);
+		LL_RECORD_BLOCK_TIME(FTM_PIPELINE_SHIFT);
 	gPipeline.shiftObjects(offset);
 	}
 
 	{
-		LLFastTimer t(FTM_REGION_SHIFT);
+		LL_RECORD_BLOCK_TIME(FTM_REGION_SHIFT);
 	LLWorld::getInstance()->shiftRegions(offset);
 }
 }

@@ -282,11 +282,11 @@ LLIOPipe::EStatus LLURLRequest::handleError(
 	return status;
 }
 
-static LLFastTimer::DeclareTimer FTM_PROCESS_URL_REQUEST("URL Request");
-static LLFastTimer::DeclareTimer FTM_PROCESS_URL_REQUEST_GET_RESULT("Get Result");
-static LLFastTimer::DeclareTimer FTM_URL_PERFORM("Perform");
-static LLFastTimer::DeclareTimer FTM_PROCESS_URL_PUMP_RESPOND("Pump Respond");
-static LLFastTimer::DeclareTimer FTM_URL_ADJUST_TIMEOUT("Adjust Timeout");
+static LLTrace::TimeBlock FTM_PROCESS_URL_REQUEST("URL Request");
+static LLTrace::TimeBlock FTM_PROCESS_URL_REQUEST_GET_RESULT("Get Result");
+static LLTrace::TimeBlock FTM_URL_PERFORM("Perform");
+static LLTrace::TimeBlock FTM_PROCESS_URL_PUMP_RESPOND("Pump Respond");
+static LLTrace::TimeBlock FTM_URL_ADJUST_TIMEOUT("Adjust Timeout");
 
 // virtual
 LLIOPipe::EStatus LLURLRequest::process_impl(
@@ -296,7 +296,7 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
-	LLFastTimer t(FTM_PROCESS_URL_REQUEST);
+	LL_RECORD_BLOCK_TIME(FTM_PROCESS_URL_REQUEST);
 	PUMP_DEBUG;
 	//LL_INFOS() << "LLURLRequest::process_impl()" << LL_ENDL;
 	if (!buffer) return STATUS_ERROR;
@@ -306,7 +306,7 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 	const S32 MIN_ACCUMULATION = 100000;
 	if(pump && (mDetail->mByteAccumulator > MIN_ACCUMULATION))
 	{
-		LLFastTimer t(FTM_URL_ADJUST_TIMEOUT);
+		LL_RECORD_BLOCK_TIME(FTM_URL_ADJUST_TIMEOUT);
 		 // This is a pretty sloppy calculation, but this
 		 // tries to make the gross assumption that if data
 		 // is coming in at 56kb/s, then this transfer will
@@ -355,7 +355,7 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 		PUMP_DEBUG;
 		LLIOPipe::EStatus status = STATUS_BREAK;
 		{
-			LLFastTimer t(FTM_URL_PERFORM);
+			LL_RECORD_BLOCK_TIME(FTM_URL_PERFORM);
 			if(!mDetail->mCurlRequest->wait())
 			{
 				return status ;
@@ -369,7 +369,7 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 
 			bool newmsg = false;
 			{
-				LLFastTimer t(FTM_PROCESS_URL_REQUEST_GET_RESULT);
+				LL_RECORD_BLOCK_TIME(FTM_PROCESS_URL_REQUEST_GET_RESULT);
 				newmsg = mDetail->mCurlRequest->getResult(&result);
 			}
 		
@@ -405,7 +405,7 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 							channels);
 						chain.push_back(link);
 						{
-							LLFastTimer t(FTM_PROCESS_URL_PUMP_RESPOND);
+							LL_RECORD_BLOCK_TIME(FTM_PROCESS_URL_PUMP_RESPOND);
 							pump->respond(chain, buffer, context);
 						}
 						mCompletionCallback = NULL;
@@ -466,10 +466,10 @@ void LLURLRequest::initialize()
 	mResponseTransferedBytes = 0;
 }
 
-static LLFastTimer::DeclareTimer FTM_URL_REQUEST_CONFIGURE("URL Configure");
+static LLTrace::TimeBlock FTM_URL_REQUEST_CONFIGURE("URL Configure");
 bool LLURLRequest::configure()
 {
-	LLFastTimer t(FTM_URL_REQUEST_CONFIGURE);
+	LL_RECORD_BLOCK_TIME(FTM_URL_REQUEST_CONFIGURE);
 	
 	bool rv = false;
 	S32 bytes = mDetail->mResponseBuffer->countAfter(
@@ -668,7 +668,7 @@ static size_t headerCallback(void* data, size_t size, size_t nmemb, void* user)
 	return header_len;
 }
 
-static LLFastTimer::DeclareTimer FTM_PROCESS_URL_EXTRACTOR("URL Extractor");
+static LLTrace::TimeBlock FTM_PROCESS_URL_EXTRACTOR("URL Extractor");
 /**
  * LLContextURLExtractor
  */
@@ -680,7 +680,7 @@ LLIOPipe::EStatus LLContextURLExtractor::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
-	LLFastTimer t(FTM_PROCESS_URL_EXTRACTOR);
+	LL_RECORD_BLOCK_TIME(FTM_PROCESS_URL_EXTRACTOR);
 	PUMP_DEBUG;
 	// The destination host is in the context.
 	if(context.isUndefined() || !mRequest)
@@ -755,7 +755,7 @@ void LLURLRequestComplete::responseStatus(LLIOPipe::EStatus status)
 	mRequestStatus = status;
 }
 
-static LLFastTimer::DeclareTimer FTM_PROCESS_URL_COMPLETE("URL Complete");
+static LLTrace::TimeBlock FTM_PROCESS_URL_COMPLETE("URL Complete");
 // virtual
 LLIOPipe::EStatus LLURLRequestComplete::process_impl(
 	const LLChannelDescriptors& channels,
@@ -764,7 +764,7 @@ LLIOPipe::EStatus LLURLRequestComplete::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
-	LLFastTimer t(FTM_PROCESS_URL_COMPLETE);
+	LL_RECORD_BLOCK_TIME(FTM_PROCESS_URL_COMPLETE);
 	PUMP_DEBUG;
 	complete(channels, buffer);
 	return STATUS_OK;

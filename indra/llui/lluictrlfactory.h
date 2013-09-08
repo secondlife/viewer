@@ -74,9 +74,9 @@ class LLWidgetNameRegistry
 //:	public LLRegistrySingleton<const std::type_info*, empty_param_block_func_t, LLDefaultParamBlockRegistry>
 //{};
 
-extern LLFastTimer::DeclareTimer FTM_WIDGET_SETUP;
-extern LLFastTimer::DeclareTimer FTM_WIDGET_CONSTRUCTION;
-extern LLFastTimer::DeclareTimer FTM_INIT_FROM_PARAMS;
+extern LLTrace::TimeBlock FTM_WIDGET_SETUP;
+extern LLTrace::TimeBlock FTM_WIDGET_CONSTRUCTION;
+extern LLTrace::TimeBlock FTM_INIT_FROM_PARAMS;
 
 // Build time optimization, generate this once in .cpp file
 #ifndef LLUICTRLFACTORY_CPP
@@ -229,10 +229,10 @@ private:
 			//return NULL;
 		}
 
-		{ LLFastTimer _(FTM_WIDGET_CONSTRUCTION);
+		{ LL_RECORD_BLOCK_TIME(FTM_WIDGET_CONSTRUCTION);
 			widget = new T(params);	
 		}
-		{ LLFastTimer _(FTM_INIT_FROM_PARAMS);
+		{ LL_RECORD_BLOCK_TIME(FTM_INIT_FROM_PARAMS);
 			widget->initFromParams(params);
 		}
 
@@ -247,7 +247,7 @@ private:
 	template<typename T>
 	static T* defaultBuilder(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node)
 	{
-		LLFastTimer timer(FTM_WIDGET_SETUP);
+		LL_RECORD_BLOCK_TIME(FTM_WIDGET_SETUP);
 
 		typename T::Params params(getDefaultParams<T>());
 

@@ -112,7 +112,7 @@ BOOL		LLViewerObject::sMapDebug = TRUE;
 LLColor4	LLViewerObject::sEditSelectColor(	1.0f, 1.f, 0.f, 0.3f);	// Edit OK
 LLColor4	LLViewerObject::sNoEditSelectColor(	1.0f, 0.f, 0.f, 0.3f);	// Can't edit
 S32			LLViewerObject::sAxisArrowLength(50);
-LLTrace::MemStatHandle	LLViewerObject::sMemStat("LLViewerObject");
+//LLTrace::MemStatHandle	LLViewerObject::sMemStat("LLViewerObject");
 
 
 BOOL		LLViewerObject::sPulseEnabled(FALSE);
@@ -133,13 +133,13 @@ std::map<std::string, U32> LLViewerObject::sObjectDataMap;
 
 const F32 PHYSICS_TIMESTEP = 1.f / 45.f;
 
-static LLFastTimer::DeclareTimer FTM_CREATE_OBJECT("Create Object");
+static LLTrace::TimeBlock FTM_CREATE_OBJECT("Create Object");
 
 // static
 LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 {
 	LLViewerObject *res = NULL;
-	LLFastTimer t1(FTM_CREATE_OBJECT);
+	LL_RECORD_BLOCK_TIME(FTM_CREATE_OBJECT);
 	
 	switch (pcode)
 	{
@@ -2407,8 +2407,8 @@ void LLViewerObject::loadFlags(U32 flags)
 
 void LLViewerObject::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
-	//static LLFastTimer::DeclareTimer ftm("Viewer Object");
-	//LLFastTimer t(ftm);
+	//static LLTrace::TimeBlock ftm("Viewer Object");
+	//LL_RECORD_BLOCK_TIME(ftm);
 
 	if (!mDead)
 	{

@@ -135,14 +135,14 @@ bool LLTrans::parseLanguageStrings(LLXMLNodePtr &root)
 
 
 
-static LLFastTimer::DeclareTimer FTM_GET_TRANS("Translate string");
+static LLTrace::TimeBlock FTM_GET_TRANS("Translate string");
 
 //static 
 std::string LLTrans::getString(const std::string &xml_desc, const LLStringUtil::format_map_t& msg_args)
 {
 	// Don't care about time as much as call count.  Make sure we're not
 	// calling LLTrans::getString() in an inner loop. JC
-	LLFastTimer timer(FTM_GET_TRANS);
+	LL_RECORD_BLOCK_TIME(FTM_GET_TRANS);
 	
 	template_map_t::iterator iter = sStringTemplates.find(xml_desc);
 	if (iter != sStringTemplates.end())
@@ -166,7 +166,7 @@ std::string LLTrans::getString(const std::string &xml_desc, const LLSD& msg_args
 {
 	// Don't care about time as much as call count.  Make sure we're not
 	// calling LLTrans::getString() in an inner loop. JC
-	LLFastTimer timer(FTM_GET_TRANS);
+	LL_RECORD_BLOCK_TIME(FTM_GET_TRANS);
 
 	template_map_t::iterator iter = sStringTemplates.find(xml_desc);
 	if (iter != sStringTemplates.end())
@@ -185,7 +185,7 @@ std::string LLTrans::getString(const std::string &xml_desc, const LLSD& msg_args
 //static 
 bool LLTrans::findString(std::string &result, const std::string &xml_desc, const LLStringUtil::format_map_t& msg_args)
 {
-	LLFastTimer timer(FTM_GET_TRANS);
+	LL_RECORD_BLOCK_TIME(FTM_GET_TRANS);
 	
 	template_map_t::iterator iter = sStringTemplates.find(xml_desc);
 	if (iter != sStringTemplates.end())
@@ -207,7 +207,7 @@ bool LLTrans::findString(std::string &result, const std::string &xml_desc, const
 //static
 bool LLTrans::findString(std::string &result, const std::string &xml_desc, const LLSD& msg_args)
 {
-	LLFastTimer timer(FTM_GET_TRANS);
+	LL_RECORD_BLOCK_TIME(FTM_GET_TRANS);
 
 	template_map_t::iterator iter = sStringTemplates.find(xml_desc);
 	if (iter != sStringTemplates.end())

@@ -35,27 +35,55 @@
 
 class LLMutex;
 
+#define LL_RECORD_BLOCK_TIME(timer_stat) const LLTrace::BlockTimer& LL_GLUE_TOKENS(block_time_recorder, __LINE__)(LLTrace::timeThisBlock(timer_stat)); (void)LL_GLUE_TOKENS(block_time_recorder, __LINE__);
+
 namespace LLTrace
 {
+
+class BlockTimer timeThisBlock(class TimeBlock& timer);
 
 class BlockTimer
 {
 public:
-	friend class TimeBlock;
 	typedef BlockTimer self_t;
 	typedef class TimeBlock DeclareTimer;
 
-	BlockTimer(TimeBlock& timer);
 	~BlockTimer();
 
 	F64Seconds getElapsedTime();
 
 private:
+	friend class TimeBlock;
+	// FIXME: this friendship exists so that each thread can instantiate a root timer, 
+	// which could be a derived class with a public constructor instead, possibly
+	friend class ThreadRecorder; 
+	friend BlockTimer timeThisBlock(TimeBlock&); 
 
+	BlockTimer(TimeBlock& timer);
+#if !defined(MSC_VER) || MSC_VER < 1700
+	// Visual Studio 2010 has a bug where capturing an object returned by value
+	// into a local reference requires access to the copy constructor at the call site.
+	// This appears to be fixed in 2012.
+public:
+#endif
+	// no-copy
+	BlockTimer(const BlockTimer& other) {};
+
+private:
 	U64						mStartTime;
 	U64						mBlockStartTotalTimeCounter;
 	BlockTimerStackRecord	mParentTimerData;
 };
+
+// this dummy function assists in allocating a block timer with stack-based lifetime.
+// this is done by capturing the return value in a stack-allocated const reference variable.  
+// (This is most easily done using the macro LL_RECORD_BLOCK_TIME)
+// Otherwise, it would be possible to store a BlockTimer on the heap, resulting in non-nested lifetimes, 
+// which would break the invariants of the timing hierarchy logic
+LL_FORCE_INLINE class BlockTimer timeThisBlock(class TimeBlock& timer)
+{
+	return BlockTimer(timer);
+}
 
 // stores a "named" timer instance to be reused via multiple BlockTimer stack instances
 class TimeBlock 

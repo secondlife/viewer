@@ -316,11 +316,11 @@ void LLLayoutStack::collapsePanel(LLPanel* panel, BOOL collapsed)
 	mNeedsLayout = true;
 }
 
-static LLFastTimer::DeclareTimer FTM_UPDATE_LAYOUT("Update LayoutStacks");
+static LLTrace::TimeBlock FTM_UPDATE_LAYOUT("Update LayoutStacks");
 
 void LLLayoutStack::updateLayout()
 {	
-	LLFastTimer ft(FTM_UPDATE_LAYOUT);
+	LL_RECORD_BLOCK_TIME(FTM_UPDATE_LAYOUT);
 
 	if (!mNeedsLayout) return;
 

@@ -133,11 +133,11 @@ void LLInventoryItemsList::idle(void* user_data)
 	}
 }
 
-LLFastTimer::DeclareTimer FTM_INVENTORY_ITEMS_REFRESH("Inventory List Refresh");
+LLTrace::TimeBlock FTM_INVENTORY_ITEMS_REFRESH("Inventory List Refresh");
 
 void LLInventoryItemsList::refresh()
 {
-	LLFastTimer _(FTM_INVENTORY_ITEMS_REFRESH);
+	LL_RECORD_BLOCK_TIME(FTM_INVENTORY_ITEMS_REFRESH);
 	static const unsigned ADD_LIMIT = 20;
 
 	uuid_vec_t added_items;

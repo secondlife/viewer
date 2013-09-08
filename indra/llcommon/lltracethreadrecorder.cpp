@@ -249,11 +249,11 @@ void ThreadRecorder::pushToParent()
 }
 
 
-static LLFastTimer::DeclareTimer FTM_PULL_TRACE_DATA_FROM_CHILDREN("Pull child thread trace data");
+static LLTrace::TimeBlock FTM_PULL_TRACE_DATA_FROM_CHILDREN("Pull child thread trace data");
 
 void ThreadRecorder::pullFromChildren()
 {
-	LLFastTimer _(FTM_PULL_TRACE_DATA_FROM_CHILDREN);
+	LL_RECORD_BLOCK_TIME(FTM_PULL_TRACE_DATA_FROM_CHILDREN);
 	if (mActiveRecordings.empty()) return;
 
 	{ LLMutexLock lock(&mChildListMutex);

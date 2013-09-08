@@ -56,10 +56,10 @@ const F32 MAX_INTERPOLATE_DISTANCE_SQUARED = 10.f * 10.f;
 const F32 OBJECT_DAMPING_TIME_CONSTANT = 0.06f;
 const F32 MIN_SHADOW_CASTER_RADIUS = 2.0f;
 
-static LLFastTimer::DeclareTimer FTM_CULL_REBOUND("Cull Rebound");
+static LLTrace::TimeBlock FTM_CULL_REBOUND("Cull Rebound");
 
 extern bool gShiftFrame;
-LLTrace::MemStatHandle	LLDrawable::sMemStat("LLDrawable");
+//LLTrace::MemStatHandle	LLDrawable::sMemStat("LLDrawable");
 
 
 ////////////////////////
@@ -230,16 +230,16 @@ BOOL LLDrawable::isLight() const
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_CLEANUP_DRAWABLE("Cleanup Drawable");
-static LLFastTimer::DeclareTimer FTM_DEREF_DRAWABLE("Deref");
-static LLFastTimer::DeclareTimer FTM_DELETE_FACES("Faces");
+static LLTrace::TimeBlock FTM_CLEANUP_DRAWABLE("Cleanup Drawable");
+static LLTrace::TimeBlock FTM_DEREF_DRAWABLE("Deref");
+static LLTrace::TimeBlock FTM_DELETE_FACES("Faces");
 
 void LLDrawable::cleanupReferences()
 {
-	LLFastTimer t(FTM_CLEANUP_DRAWABLE);
+	LL_RECORD_BLOCK_TIME(FTM_CLEANUP_DRAWABLE);
 	
 	{
-		LLFastTimer t(FTM_DELETE_FACES);
+		LL_RECORD_BLOCK_TIME(FTM_DELETE_FACES);
 		std::for_each(mFaces.begin(), mFaces.end(), DeletePointer());
 		mFaces.clear();
 	}
@@ -251,7 +251,7 @@ void LLDrawable::cleanupReferences()
 	removeFromOctree();
 
 	{
-		LLFastTimer t(FTM_DEREF_DRAWABLE);
+		LL_RECORD_BLOCK_TIME(FTM_DEREF_DRAWABLE);
 		// Cleanup references to other objects
 		mVObjp = NULL;
 		mParent = NULL;
@@ -300,14 +300,14 @@ S32 LLDrawable::findReferences(LLDrawable *drawablep)
 	return count;
 }
 
-static LLFastTimer::DeclareTimer FTM_ALLOCATE_FACE("Allocate Face");
+static LLTrace::TimeBlock FTM_ALLOCATE_FACE("Allocate Face");
 
 LLFace*	LLDrawable::addFace(LLFacePool *poolp, LLViewerTexture *texturep)
 {
 	
 	LLFace *face;
 	{
-		LLFastTimer t(FTM_ALLOCATE_FACE);
+		LL_RECORD_BLOCK_TIME(FTM_ALLOCATE_FACE);
 		face = new LLFace(this, mVObjp);
 	}
 
@@ -335,7 +335,7 @@ LLFace*	LLDrawable::addFace(const LLTextureEntry *te, LLViewerTexture *texturep)
 	LLFace *face;
 
 	{
-		LLFastTimer t(FTM_ALLOCATE_FACE);
+		LL_RECORD_BLOCK_TIME(FTM_ALLOCATE_FACE);
 		face = new LLFace(this, mVObjp);
 	}
 
@@ -1192,7 +1192,7 @@ void LLSpatialBridge::updateSpatialExtents()
 	LLSpatialGroup* root = (LLSpatialGroup*) mOctree->getListener(0);
 	
 	{
-		LLFastTimer ftm(FTM_CULL_REBOUND);
+		LL_RECORD_BLOCK_TIME(FTM_CULL_REBOUND);
 		root->rebound();
 	}
 	

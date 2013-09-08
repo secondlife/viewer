@@ -38,7 +38,7 @@
 F32 LLVOCacheEntry::sBackDistanceSquared = 0.f;
 F32 LLVOCacheEntry::sBackAngleTanSquared = 0.f;
 BOOL LLVOCachePartition::sNeedsOcclusionCheck = FALSE;
-LLTrace::MemStatHandle	LLVOCachePartition::sMemStat("LLVOCachePartition");
+//LLTrace::MemStatHandle	LLVOCachePartition::sMemStat("LLVOCachePartition");
 
 BOOL check_read(LLAPRFile* apr_file, void* src, S32 n_bytes) 
 {

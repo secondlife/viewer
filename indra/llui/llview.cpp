@@ -69,7 +69,7 @@ LLView* LLView::sPreviewClickedElement = NULL;
 BOOL	LLView::sDrawPreviewHighlights = FALSE;
 S32		LLView::sLastLeftXML = S32_MIN;
 S32		LLView::sLastBottomXML = S32_MIN;
-LLTrace::MemStatHandle	LLView::sMemStat("LLView");
+//LLTrace::MemStatHandle	LLView::sMemStat("LLView");
 std::vector<LLViewDrawContext*> LLViewDrawContext::sDrawContextStack;
 
 LLView::DrilldownFunc LLView::sDrilldown =
@@ -1504,11 +1504,11 @@ LLView* LLView::getChildView(const std::string& name, BOOL recurse) const
 	return getChild<LLView>(name, recurse);
 }
 
-static LLFastTimer::DeclareTimer FTM_FIND_VIEWS("Find Widgets");
+static LLTrace::TimeBlock FTM_FIND_VIEWS("Find Widgets");
 
 LLView* LLView::findChildView(const std::string& name, BOOL recurse) const
 {
-	LLFastTimer ft(FTM_FIND_VIEWS);
+	LL_RECORD_BLOCK_TIME(FTM_FIND_VIEWS);
 	//richard: should we allow empty names?
 	//if(name.empty())
 	//	return NULL;

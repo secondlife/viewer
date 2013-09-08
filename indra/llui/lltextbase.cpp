@@ -48,7 +48,7 @@ const F32	CURSOR_FLASH_DELAY = 1.0f;  // in seconds
 const S32	CURSOR_THICKNESS = 2;
 const F32	TRIPLE_CLICK_INTERVAL = 0.3f;	// delay between double and triple click.
 
-LLTrace::MemStatHandle	LLTextSegment::sMemStat("LLTextSegment");
+//LLTrace::MemStatHandle	LLTextSegment::sMemStat("LLTextSegment");
 
 LLTextBase::line_info::line_info(S32 index_start, S32 index_end, LLRect rect, S32 line_num) 
 :	mDocIndexStart(index_start), 
@@ -1442,10 +1442,10 @@ S32 LLTextBase::getLeftOffset(S32 width)
 }
 
 
-static LLFastTimer::DeclareTimer FTM_TEXT_REFLOW ("Text Reflow");
+static LLTrace::TimeBlock FTM_TEXT_REFLOW ("Text Reflow");
 void LLTextBase::reflow()
 {
-	LLFastTimer ft(FTM_TEXT_REFLOW);
+	LL_RECORD_BLOCK_TIME(FTM_TEXT_REFLOW);
 
 	updateSegments();
 
@@ -1784,10 +1784,10 @@ void LLTextBase::removeDocumentChild(LLView* view)
 }
 
 
-static LLFastTimer::DeclareTimer FTM_UPDATE_TEXT_SEGMENTS("Update Text Segments");
+static LLTrace::TimeBlock FTM_UPDATE_TEXT_SEGMENTS("Update Text Segments");
 void LLTextBase::updateSegments()
 {
-	LLFastTimer ft(FTM_UPDATE_TEXT_SEGMENTS);
+	LL_RECORD_BLOCK_TIME(FTM_UPDATE_TEXT_SEGMENTS);
 	createDefaultSegment();
 }
 
@@ -1990,7 +1990,7 @@ static LLUIImagePtr image_from_icon_name(const std::string& icon_name)
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_PARSE_HTML("Parse HTML");
+static LLTrace::TimeBlock FTM_PARSE_HTML("Parse HTML");
 
 void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Params& input_params)
 {
@@ -2000,7 +2000,7 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 	S32 part = (S32)LLTextParser::WHOLE;
 	if (mParseHTML && !style_params.is_link) // Don't search for URLs inside a link segment (STORM-358).
 	{
-		LLFastTimer _(FTM_PARSE_HTML);
+		LL_RECORD_BLOCK_TIME(FTM_PARSE_HTML);
 		S32 start=0,end=0;
 		LLUrlMatch match;
 		std::string text = new_text;
@@ -2067,11 +2067,11 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_APPEND_TEXT("Append Text");
+static LLTrace::TimeBlock FTM_APPEND_TEXT("Append Text");
 
 void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, const LLStyle::Params& input_params)
 {
-	LLFastTimer _(FTM_APPEND_TEXT);
+	LL_RECORD_BLOCK_TIME(FTM_APPEND_TEXT);
 	if (new_text.empty()) 
 		return;
 
