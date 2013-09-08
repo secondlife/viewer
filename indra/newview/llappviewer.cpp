@@ -1224,8 +1224,8 @@ void LLAppViewer::checkMemory()
 	}
 	mMemCheckTimer.reset() ;
 
-		//update the availability of memory
-		LLMemory::updateMemoryInfo() ;
+	//update the availability of memory
+	LLMemory::updateMemoryInfo() ;
 
 	bool is_low = LLMemory::isMemoryPoolLow() ;
 

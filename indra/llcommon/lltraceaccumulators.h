@@ -75,7 +75,7 @@ namespace LLTrace
 
 		~AccumulatorBuffer()
 		{
-			if (isPrimary())
+			if (isCurrent())
 			{
 				LLThreadLocalSingletonPointer<ACCUMULATOR>::setInstance(NULL);
 			}
@@ -128,22 +128,22 @@ namespace LLTrace
 			}
 		}
 
-		void makePrimary()
+		void makeCurrent()
 		{
 			LLThreadLocalSingletonPointer<ACCUMULATOR>::setInstance(mStorage);
 		}
 
-		bool isPrimary() const
+		bool isCurrent() const
 		{
 			return LLThreadLocalSingletonPointer<ACCUMULATOR>::getInstance() == mStorage;
 		}
 
-		static void clearPrimary()
+		static void resetCurrent()
 		{
 			LLThreadLocalSingletonPointer<ACCUMULATOR>::setInstance(NULL);
 		}
 
-		LL_FORCE_INLINE static ACCUMULATOR* getPrimaryStorage() 
+		LL_FORCE_INLINE static ACCUMULATOR* getCurrentStorage() 
 		{ 
 			ACCUMULATOR* accumulator = LLThreadLocalSingletonPointer<ACCUMULATOR>::getInstance();
 			return accumulator ? accumulator : getDefaultBuffer()->mStorage;
@@ -534,9 +534,9 @@ namespace LLTrace
 		AccumulatorBufferGroup();
 
 		void handOffTo(AccumulatorBufferGroup& other);
-		void makePrimary();
-		bool isPrimary() const;
-		static void clearPrimary();
+		void makeCurrent();
+		bool isCurrent() const;
+		static void resetCurrent();
 
 		void append(const AccumulatorBufferGroup& other);
 		void merge(const AccumulatorBufferGroup& other);

@@ -189,7 +189,7 @@ void TimeBlock::bootstrapTimerTree()
 		// when this timer was called
 		if (timer.getParent() == &TimeBlock::getRootTimeBlock())
 		{
-			TimeBlockAccumulator& accumulator = timer.getPrimaryAccumulator();
+			TimeBlockAccumulator& accumulator = timer.getCurrentAccumulator();
 
 			if (accumulator.mLastCaller)
 			{
@@ -223,7 +223,7 @@ void TimeBlock::incrementalUpdateTimerTree()
 		// skip root timer
 		if (timerp != &TimeBlock::getRootTimeBlock())
 		{
-			TimeBlockAccumulator& accumulator = timerp->getPrimaryAccumulator();
+			TimeBlockAccumulator& accumulator = timerp->getCurrentAccumulator();
 
 			if (accumulator.mMoveUpTree)
 			{
@@ -253,7 +253,7 @@ void TimeBlock::updateTimes()
 
 	U64 cur_time = getCPUClockCount64();
 	BlockTimer* cur_timer				= stack_record->mActiveTimer;
-	TimeBlockAccumulator* accumulator	= &stack_record->mTimeBlock->getPrimaryAccumulator();
+	TimeBlockAccumulator* accumulator	= &stack_record->mTimeBlock->getCurrentAccumulator();
 
 	while(cur_timer 
 		&& cur_timer->mParentTimerData.mActiveTimer != cur_timer) // root defined by parent pointing to self
@@ -269,7 +269,7 @@ void TimeBlock::updateTimes()
 		cur_timer->mBlockStartTotalTimeCounter = accumulator->mTotalTimeCounter;
 
 		stack_record = &cur_timer->mParentTimerData;
-		accumulator  = &stack_record->mTimeBlock->getPrimaryAccumulator();
+		accumulator  = &stack_record->mTimeBlock->getCurrentAccumulator();
 		cur_timer    = stack_record->mActiveTimer;
 
 		stack_record->mChildTime += cumulative_time_delta;
@@ -299,7 +299,7 @@ void TimeBlock::processTimes()
 		++it)
 	{
 		TimeBlock& timer = *it;
-		TimeBlockAccumulator& accumulator = timer.getPrimaryAccumulator();
+		TimeBlockAccumulator& accumulator = timer.getCurrentAccumulator();
 
 		accumulator.mLastCaller = NULL;
 		accumulator.mMoveUpTree = false;

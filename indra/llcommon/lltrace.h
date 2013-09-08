@@ -80,9 +80,9 @@ public:
 		mAccumulatorIndex(AccumulatorBuffer<ACCUMULATOR>::getDefaultBuffer()->reserveSlot())
 	{}
 
-	LL_FORCE_INLINE ACCUMULATOR& getPrimaryAccumulator() const
+	LL_FORCE_INLINE ACCUMULATOR& getCurrentAccumulator() const
 	{
-		ACCUMULATOR* accumulator_storage = AccumulatorBuffer<ACCUMULATOR>::getPrimaryStorage();
+		ACCUMULATOR* accumulator_storage = AccumulatorBuffer<ACCUMULATOR>::getCurrentStorage();
 		return accumulator_storage[mAccumulatorIndex];
 	}
 
@@ -137,7 +137,7 @@ template<typename T, typename VALUE_T>
 void record(EventStatHandle<T>& measurement, VALUE_T value)
 {
 	T converted_value(value);
-	measurement.getPrimaryAccumulator().record(storage_value(converted_value));
+	measurement.getCurrentAccumulator().record(storage_value(converted_value));
 }
 
 template <typename T = F64>
@@ -160,7 +160,22 @@ template<typename T, typename VALUE_T>
 void sample(SampleStatHandle<T>& measurement, VALUE_T value)
 {
 	T converted_value(value);
-	measurement.getPrimaryAccumulator().sample(storage_value(converted_value));
+	measurement.getCurrentAccumulator().sample(storage_value(converted_value));
+}
+
+template<typename T, typename VALUE_T>
+void add(SampleStatHandle<T>& measurement, VALUE_T value)
+{
+	T converted_value(value);
+	SampleAccumulator& acc = measurement.getCurrentAccumulator();
+	if (acc.hasValue())
+	{
+		acc.sample(acc.getLastValue() + converted_value);
+	}
+	else
+	{
+		acc.sample(converted_value);
+	}
 }
 
 template <typename T = F64>
@@ -183,7 +198,7 @@ template<typename T, typename VALUE_T>
 void add(CountStatHandle<T>& count, VALUE_T value)
 {
 	T converted_value(value);
-	count.getPrimaryAccumulator().add(storage_value(converted_value));
+	count.getCurrentAccumulator().add(storage_value(converted_value));
 }
 
 template<>
@@ -340,7 +355,7 @@ public:
 
 	void* operator new(size_t size) 
 	{
-		MemStatAccumulator& accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
+		MemStatAccumulator& accumulator = DERIVED::sMemStat.getCurrentAccumulator();
 		accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() + (F64)size : (F64)size);
 		accumulator.mAllocatedCount++;
 
@@ -349,7 +364,7 @@ public:
 
 	void operator delete(void* ptr, size_t size)
 	{
-		MemStatAccumulator& accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
+		MemStatAccumulator& accumulator = DERIVED::sMemStat.getCurrentAccumulator();
 		accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)size : -(F64)size);
 		accumulator.mAllocatedCount--;
 		accumulator.mDeallocatedCount++;
@@ -358,7 +373,7 @@ public:
 
 	void *operator new [](size_t size)
 	{
-		MemStatAccumulator& accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
+		MemStatAccumulator& accumulator = DERIVED::sMemStat.getCurrentAccumulator();
 		accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() + (F64)size : (F64)size);
 		accumulator.mAllocatedCount++;
 
@@ -367,7 +382,7 @@ public:
 
 	void operator delete[](void* ptr, size_t size)
 	{
-		MemStatAccumulator& accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
+		MemStatAccumulator& accumulator = DERIVED::sMemStat.getCurrentAccumulator();
 		accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)size : -(F64)size);
 		accumulator.mAllocatedCount--;
 		accumulator.mDeallocatedCount++;
@@ -393,7 +408,7 @@ public:
 	template<typename AMOUNT_T>
 	AMOUNT_T& memClaimAmount(AMOUNT_T& size)
 	{
-		MemStatAccumulator& accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
+		MemStatAccumulator& accumulator = DERIVED::sMemStat.getCurrentAccumulator();
 		mMemFootprint += (size_t)size;
 		accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() + (F64)size : (F64)size);
 		return size;
@@ -417,7 +432,7 @@ public:
 	template<typename AMOUNT_T>
 	AMOUNT_T& memDisclaimAmount(AMOUNT_T& size)
 	{
-		MemStatAccumulator& accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
+		MemStatAccumulator& accumulator = DERIVED::sMemStat.getCurrentAccumulator();
 		accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)size : -(F64)size);
 		return size;
 	}
@@ -430,7 +445,7 @@ private:
 	{
 		static void claim(mem_trackable_t& tracker, const TRACKED& tracked)
 		{
-			MemStatAccumulator& accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
+			MemStatAccumulator& accumulator = DERIVED::sMemStat.getCurrentAccumulator();
 			size_t footprint = MemFootprint<TRACKED>::measure(tracked);
 			accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() + (F64)footprint : (F64)footprint);
 			tracker.mMemFootprint += footprint;
@@ -438,7 +453,7 @@ private:
 
 		static void disclaim(mem_trackable_t& tracker, const TRACKED& tracked)
 		{
-			MemStatAccumulator& accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
+			MemStatAccumulator& accumulator = DERIVED::sMemStat.getCurrentAccumulator();
 			size_t footprint = MemFootprint<TRACKED>::measure(tracked);
 			accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)footprint : -(F64)footprint);
 			tracker.mMemFootprint -= footprint;
@@ -450,13 +465,13 @@ private:
 	{
 		static void claim(mem_trackable_t& tracker, TRACKED& tracked)
 		{
-			MemStatAccumulator& accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
+			MemStatAccumulator& accumulator = DERIVED::sMemStat.getCurrentAccumulator();
 			accumulator.mChildSize.sample(accumulator.mChildSize.hasValue() ? accumulator.mChildSize.getLastValue() + (F64)MemFootprint<TRACKED>::measure(tracked) : (F64)MemFootprint<TRACKED>::measure(tracked));
 		}
 
 		static void disclaim(mem_trackable_t& tracker, TRACKED& tracked)
 		{
-			MemStatAccumulator& accumulator = DERIVED::sMemStat.getPrimaryAccumulator();
+			MemStatAccumulator& accumulator = DERIVED::sMemStat.getCurrentAccumulator();
 			accumulator.mChildSize.sample(accumulator.mChildSize.hasValue() ? accumulator.mChildSize.getLastValue() - (F64)MemFootprint<TRACKED>::measure(tracked) : -(F64)MemFootprint<TRACKED>::measure(tracked));
 		}
 	};

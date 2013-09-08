@@ -257,11 +257,11 @@ LL_FORCE_INLINE BlockTimer::BlockTimer(TimeBlock& timer)
 #if FAST_TIMER_ON
 	BlockTimerStackRecord* cur_timer_data = LLThreadLocalSingletonPointer<BlockTimerStackRecord>::getInstance();
 	if (!cur_timer_data) return;
-	TimeBlockAccumulator& accumulator = timer.getPrimaryAccumulator();
+	TimeBlockAccumulator& accumulator = timer.getCurrentAccumulator();
 	accumulator.mActiveCount++;
 	mBlockStartTotalTimeCounter = accumulator.mTotalTimeCounter;
 	// keep current parent as long as it is active when we are
-	accumulator.mMoveUpTree |= (accumulator.mParent->getPrimaryAccumulator().mActiveCount == 0);
+	accumulator.mMoveUpTree |= (accumulator.mParent->getCurrentAccumulator().mActiveCount == 0);
 
 	// store top of stack
 	mParentTimerData = *cur_timer_data;
@@ -281,7 +281,7 @@ LL_FORCE_INLINE BlockTimer::~BlockTimer()
 	BlockTimerStackRecord* cur_timer_data = LLThreadLocalSingletonPointer<BlockTimerStackRecord>::getInstance();
 	if (!cur_timer_data) return;
 
-	TimeBlockAccumulator& accumulator = cur_timer_data->mTimeBlock->getPrimaryAccumulator();
+	TimeBlockAccumulator& accumulator = cur_timer_data->mTimeBlock->getCurrentAccumulator();
 
 	accumulator.mCalls++;
 	accumulator.mTotalTimeCounter += total_time - (accumulator.mTotalTimeCounter - mBlockStartTotalTimeCounter);

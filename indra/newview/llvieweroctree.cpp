@@ -39,6 +39,11 @@
 U32 LLViewerOctreeEntryData::sCurVisible = 0;
 BOOL LLViewerOctreeDebug::sInDebug = FALSE;
 
+static LLTrace::CountStatHandle<S32> sOcclusionQueries("occlusion_queries", "Number of occlusion queries executed"),
+									 sNumObjectsOccluded("occluded_objects", "Count of objects being occluded by a query"),
+									 sNumObjectsUnoccluded("unoccluded_objects", "Count of objects being unoccluded by a query");
+static LLTrace::SampleStatHandle<S32> sOcclusionQueriesInFlight("occlusion_queries_in_flight", "Number of occlusion queries waiting for results");
+
 //-----------------------------------------------------------------------------------
 //some global functions definitions
 //-----------------------------------------------------------------------------------
@@ -921,6 +926,10 @@ void LLOcclusionCullingGroup::setOcclusionState(U32 state, S32 mode)
 	}
 	else
 	{
+		if (state & OCCLUDED)
+		{
+			add(sNumObjectsOccluded, 1);
+		}
 		mOcclusionState[LLViewerCamera::sCurCameraID] |= state;
 		if ((state & DISCARD_QUERY) && mOcclusionQuery[LLViewerCamera::sCurCameraID])
 		{
@@ -979,6 +988,10 @@ void LLOcclusionCullingGroup::clearOcclusionState(U32 state, S32 mode)
 	}
 	else
 	{
+		if (state & OCCLUDED)
+		{
+			add(sNumObjectsUnoccluded, 1);
+		}
 		mOcclusionState[LLViewerCamera::sCurCameraID] &= ~state;
 	}
 }
@@ -1082,6 +1095,7 @@ void LLOcclusionCullingGroup::checkOcclusion()
 #if LL_TRACK_PENDING_OCCLUSION_QUERIES
 					sPendingQueries.erase(mOcclusionQuery[LLViewerCamera::sCurCameraID]);
 #endif
+					add(sOcclusionQueriesInFlight, -1);
 				}
 				else if (mOcclusionQuery[LLViewerCamera::sCurCameraID])
 				{ //delete the query to avoid holding onto hundreds of pending queries
@@ -1187,6 +1201,8 @@ void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector3* reg
 #if LL_TRACK_PENDING_OCCLUSION_QUERIES
 					sPendingQueries.insert(mOcclusionQuery[LLViewerCamera::sCurCameraID]);
 #endif
+					add(sOcclusionQueries, 1);
+					add(sOcclusionQueriesInFlight, 1);
 
 					{
 						LLFastTimer t(FTM_PUSH_OCCLUSION_VERTS);

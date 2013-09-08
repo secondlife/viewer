@@ -43,12 +43,15 @@
 
 #include "llsys.h"
 #include "llframetimer.h"
+#include "lltrace.h"
 //----------------------------------------------------------------------------
 
 //static
 char* LLMemory::reserveMem = 0;
 U32Kilobytes LLMemory::sAvailPhysicalMemInKB(U32_MAX);
 U32Kilobytes LLMemory::sMaxPhysicalMemInKB(0);
+static LLTrace::SampleStatHandle<F64Megabytes> sAllocatedMem("allocated_mem", "active memory in use by application");
+static LLTrace::SampleStatHandle<F64Megabytes> sVirtualMem("virtual_mem", "virtual memory assigned to application");
 U32Kilobytes LLMemory::sAllocatedMemInKB(0);
 U32Kilobytes LLMemory::sAllocatedPageSizeInKB(0);
 U32Kilobytes LLMemory::sMaxHeapSizeInKB(U32_MAX);
@@ -114,7 +117,9 @@ void LLMemory::updateMemoryInfo()
 	}
 
 	sAllocatedMemInKB = (U32Bytes)(counters.WorkingSetSize) ;
+	sample(sAllocatedMem, sAllocatedMemInKB);
 	sAllocatedPageSizeInKB = (U32Bytes)(counters.PagefileUsage) ;
+	sample(sVirtualMem, sAllocatedPageSizeInKB);
 
 	U32Kilobytes avail_phys, avail_virtual;
 	LLMemoryInfo::getAvailableMemoryKB(avail_phys, avail_virtual) ;

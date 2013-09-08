@@ -34,6 +34,7 @@
 #include "llcoordframe.h"			// for mFrameAgent
 #include "llavatarappearancedefines.h"
 #include "llpermissionsflags.h"
+#include "v3dmath.h"
 
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>

@@ -48,13 +48,13 @@ void AccumulatorBufferGroup::handOffTo(AccumulatorBufferGroup& other)
 	other.mMemStats.reset(&mMemStats);
 }
 
-void AccumulatorBufferGroup::makePrimary()
+void AccumulatorBufferGroup::makeCurrent()
 {
-	mCounts.makePrimary();
-	mSamples.makePrimary();
-	mEvents.makePrimary();
-	mStackTimers.makePrimary();
-	mMemStats.makePrimary();
+	mCounts.makeCurrent();
+	mSamples.makeCurrent();
+	mEvents.makeCurrent();
+	mStackTimers.makeCurrent();
+	mMemStats.makeCurrent();
 
 	ThreadRecorder* thread_recorder = get_thread_recorder().get();
 	AccumulatorBuffer<TimeBlockAccumulator>& timer_accumulator_buffer = mStackTimers;
@@ -70,18 +70,18 @@ void AccumulatorBufferGroup::makePrimary()
 }
 
 //static
-void AccumulatorBufferGroup::clearPrimary()
+void AccumulatorBufferGroup::resetCurrent()
 {
-	AccumulatorBuffer<CountAccumulator>::clearPrimary();	
-	AccumulatorBuffer<SampleAccumulator>::clearPrimary();
-	AccumulatorBuffer<EventAccumulator>::clearPrimary();
-	AccumulatorBuffer<TimeBlockAccumulator>::clearPrimary();
-	AccumulatorBuffer<MemStatAccumulator>::clearPrimary();
+	AccumulatorBuffer<CountAccumulator>::resetCurrent();	
+	AccumulatorBuffer<SampleAccumulator>::resetCurrent();
+	AccumulatorBuffer<EventAccumulator>::resetCurrent();
+	AccumulatorBuffer<TimeBlockAccumulator>::resetCurrent();
+	AccumulatorBuffer<MemStatAccumulator>::resetCurrent();
 }
 
-bool AccumulatorBufferGroup::isPrimary() const
+bool AccumulatorBufferGroup::isCurrent() const
 {
-	return mCounts.isPrimary();
+	return mCounts.isCurrent();
 }
 
 void AccumulatorBufferGroup::append( const AccumulatorBufferGroup& other )
@@ -114,7 +114,7 @@ void AccumulatorBufferGroup::reset(AccumulatorBufferGroup* other)
 
 void AccumulatorBufferGroup::sync()
 {
-	if (isPrimary())
+	if (isCurrent())
 	{
 		F64SecondsImplicit time_stamp = LLTimer::getTotalSeconds();
 

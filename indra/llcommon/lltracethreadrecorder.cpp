@@ -69,13 +69,13 @@ void ThreadRecorder::init()
 		tree_node.mBlock = &time_block;
 		tree_node.mParent = &root_time_block;
 
-		it->getPrimaryAccumulator().mParent = &root_time_block;
+		it->getCurrentAccumulator().mParent = &root_time_block;
 	}
 
 	mRootTimer = new BlockTimer(root_time_block);
 	timer_stack->mActiveTimer = mRootTimer;
 
-	TimeBlock::getRootTimeBlock().getPrimaryAccumulator().mActiveCount = 1;
+	TimeBlock::getRootTimeBlock().getCurrentAccumulator().mActiveCount = 1;
 }
 
 
@@ -135,7 +135,7 @@ void ThreadRecorder::activate( AccumulatorBufferGroup* recording, bool from_hand
 	}
 	mActiveRecordings.push_back(active_recording);
 
-	mActiveRecordings.back()->mPartialRecording.makePrimary();
+	mActiveRecordings.back()->mPartialRecording.makeCurrent();
 }
 
 ThreadRecorder::active_recording_list_t::reverse_iterator ThreadRecorder::bringUpToDate( AccumulatorBufferGroup* recording )
@@ -186,19 +186,19 @@ void ThreadRecorder::deactivate( AccumulatorBufferGroup* recording )
 	if (it != mActiveRecordings.rend())
 	{
 		active_recording_list_t::iterator recording_to_remove = (++it).base();
-		bool was_primary = (*recording_to_remove)->mPartialRecording.isPrimary();
+		bool was_current = (*recording_to_remove)->mPartialRecording.isCurrent();
 		llassert((*recording_to_remove)->mTargetRecording == recording);
 		delete *recording_to_remove;
 		mActiveRecordings.erase(recording_to_remove);
-		if (was_primary)
+		if (was_current)
 		{
 			if (mActiveRecordings.empty())
 			{
-				AccumulatorBufferGroup::clearPrimary();
+				AccumulatorBufferGroup::resetCurrent();
 			}
 			else
 			{
-				mActiveRecordings.back()->mPartialRecording.makePrimary();
+				mActiveRecordings.back()->mPartialRecording.makeCurrent();
 			}
 		}
 	}
