@@ -109,7 +109,7 @@ public:
 class ExperienceUpdateResponder : public HandleResponder<LLFloaterExperienceProfile>
 {
 public:
-    ExperienceUpdateResponder(const LLHandle<LLFloaterExperienceProfile>& parent):HandleResponder(parent)
+    ExperienceUpdateResponder(const LLHandle<LLFloaterExperienceProfile>& parent):HandleResponder<LLFloaterExperienceProfile>(parent)
     {
     }
 
@@ -128,7 +128,7 @@ public:
 class ExperiencePreferencesResponder : public HandleResponder<LLFloaterExperienceProfile>
 {
 public:
-    ExperiencePreferencesResponder(const LLHandle<LLFloaterExperienceProfile>& parent):HandleResponder(parent)
+    ExperiencePreferencesResponder(const LLHandle<LLFloaterExperienceProfile>& parent):HandleResponder<LLFloaterExperienceProfile>(parent)
     {
     }
 
@@ -147,7 +147,7 @@ public:
 class IsAdminResponder : public HandleResponder<LLFloaterExperienceProfile>
 {
 public:
-    IsAdminResponder(const LLHandle<LLFloaterExperienceProfile>& parent):HandleResponder(parent)
+    IsAdminResponder(const LLHandle<LLFloaterExperienceProfile>& parent):HandleResponder<LLFloaterExperienceProfile>(parent)
     {
     }
     
