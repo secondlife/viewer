@@ -1,8 +1,8 @@
 /** 
- * @file llkeyboardheadless.h
- * @brief Handler for assignable key bindings
+ * @file llversionviewer.h
+ * @brief
  *
- * $LicenseInfo:firstyear=2004&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -24,25 +24,18 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLKEYBOARDHEADLESS_H
-#define LL_LLKEYBOARDHEADLESS_H
+#ifndef LL_LLVERSIONVIEWER_H
+#define LL_LLVERSIONVIEWER_H
 
-#include "llkeyboard.h"
+const S32 LL_VERSION_MAJOR = 3;
+const S32 LL_VERSION_MINOR = 4;
+const S32 LL_VERSION_PATCH = 6;
+const S32 LL_VERSION_BUILD = 0;
 
-class LLKeyboardHeadless : public LLKeyboard
-{
-public:
-	LLKeyboardHeadless();
-	/*virtual*/ ~LLKeyboardHeadless() {};
+const char * const LL_CHANNEL = "Second Life Developer";
 
-	/*virtual*/ BOOL	handleKeyUp(const U16 key, MASK mask);
-	/*virtual*/ BOOL	handleKeyDown(const U16 key, MASK mask);
-	/*virtual*/ void	resetMaskKeys();
-	/*virtual*/ MASK	currentMask(BOOL for_mouse_event);
-	/*virtual*/ void	scanKeyboard();
-#ifdef LL_DARWIN
-	/*virtual*/ void	handleModifier(MASK mask);
+#if LL_DARWIN
+const char * const LL_VERSION_BUNDLE_ID = "com.secondlife.indra.viewer";
 #endif
-};
 
 #endif
