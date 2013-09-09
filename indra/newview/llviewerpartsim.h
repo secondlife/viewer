@@ -105,6 +105,9 @@ public:
 
 	void shift(const LLVector3 &offset);
 
+	F32 getBoxRadius() { return mBoxRadius; }
+	F32 getBoxSide() { return mBoxSide; }
+
 	typedef std::vector<LLViewerPart*>  part_list_t;
 	part_list_t mParticles;
 
@@ -125,6 +128,7 @@ public:
 protected:
 	LLVector3 mCenterAgent;
 	F32 mBoxRadius;
+	F32 mBoxSide;
 	LLVector3 mMinObjPos;
 	LLVector3 mMaxObjPos;
 

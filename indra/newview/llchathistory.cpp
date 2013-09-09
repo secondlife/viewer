@@ -995,20 +995,10 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				LLStyle::Params link_params(body_message_params);
 				link_params.overwriteFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
 
-				if (from_me)
-				{	std::string localized_name;
-					bool is_localized = LLTrans::findString(localized_name, "AgentNameSubst");
-					mEditor->appendText((is_localized? localized_name:"(You)") + delimiter,
-							prependNewLineState, link_params);
-					prependNewLineState = false;
-				}
-				else
-				{
 				// Add link to avatar's inspector and delimiter to message.
-					mEditor->appendText(std::string(link_params.link_href) + delimiter,
-							prependNewLineState, link_params);
-					prependNewLineState = false;
-				}
+				mEditor->appendText(std::string(link_params.link_href) + delimiter,
+					prependNewLineState, link_params);
+				prependNewLineState = false;
 			}
 			else
 			{
