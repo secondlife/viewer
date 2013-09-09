@@ -105,7 +105,7 @@ private:
 class UpdateCategoryCommand: public AISCommand
 {
 public:
-	UpdateCategoryCommand(const LLUUID& item_id,
+	UpdateCategoryCommand(const LLUUID& cat_id,
 						  const LLSD& updates,
 						  LLPointer<LLInventoryCallback> callback);
 private:

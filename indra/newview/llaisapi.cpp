@@ -243,7 +243,7 @@ UpdateItemCommand::UpdateItemCommand(const LLUUID& item_id,
 	setCommandFunc(cmd);
 }
 
-UpdateCategoryCommand::UpdateCategoryCommand(const LLUUID& item_id,
+UpdateCategoryCommand::UpdateCategoryCommand(const LLUUID& cat_id,
 											 const LLSD& updates,
 											 LLPointer<LLInventoryCallback> callback):
 	mUpdates(updates),
@@ -255,7 +255,7 @@ UpdateCategoryCommand::UpdateCategoryCommand(const LLUUID& item_id,
 		llwarns << "No cap found" << llendl;
 		return;
 	}
-	std::string url = cap + std::string("/category/") + item_id.asString();
+	std::string url = cap + std::string("/category/") + cat_id.asString();
 	LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
 	LLCurl::ResponderPtr responder = this;
 	LLSD headers;
