@@ -1,3 +1,4 @@
+//GPU_TABLE - that token on line 1 tags this as a gpu table file
 //
 // Categorizes graphics chips into various classes by name
 //
