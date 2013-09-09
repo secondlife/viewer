@@ -796,14 +796,22 @@ void LLPipeline::resizeScreenTexture()
 		GLuint resX = gViewerWindow->getWorldViewWidthRaw();
 		GLuint resY = gViewerWindow->getWorldViewHeightRaw();
 	
-		if (!allocateScreenBuffer(resX,resY))
-		{ //FAILSAFE: screen buffer allocation failed, disable deferred rendering if it's enabled
-			//NOTE: if the session closes successfully after this call, deferred rendering will be 
-			// disabled on future sessions
-			if (LLPipeline::sRenderDeferred)
+		if ((resX != mScreen.getWidth()) || (resY != mScreen.getHeight()))
+		{
+			releaseScreenBuffers();
+			if (!allocateScreenBuffer(resX,resY))
 			{
-				gSavedSettings.setBOOL("RenderDeferred", FALSE);
-				LLPipeline::refreshCachedSettings();
+#if PROBABLE_FALSE_DISABLES_OF_ALM_HERE
+				//FAILSAFE: screen buffer allocation failed, disable deferred rendering if it's enabled
+				//NOTE: if the session closes successfully after this call, deferred rendering will be 
+				// disabled on future sessions
+				if (LLPipeline::sRenderDeferred)
+				{
+					gSavedSettings.setBOOL("RenderDeferred", FALSE);
+					LLPipeline::refreshCachedSettings();
+
+				}
+#endif
 			}
 		}
 	}
@@ -1193,7 +1201,8 @@ void LLPipeline::releaseGLBuffers()
 
 	mWaterRef.release();
 	mWaterDis.release();
-	
+	mHighlight.release();
+
 	for (U32 i = 0; i < 3; i++)
 	{
 		mGlow[i].release();
@@ -1223,12 +1232,12 @@ void LLPipeline::releaseScreenBuffers()
 	mDeferredScreen.release();
 	mDeferredDepth.release();
 	mDeferredLight.release();
-	
-	mHighlight.release();
+	mOcclusionDepth.release();
 		
 	for (U32 i = 0; i < 6; i++)
 	{
 		mShadow[i].release();
+		mShadowOcclusion[i].release();
 	}
 }
 
