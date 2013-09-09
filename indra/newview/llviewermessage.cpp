@@ -2361,7 +2361,9 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	BOOL is_owned_by_me = FALSE;
 	BOOL is_friend = (LLAvatarTracker::instance().getBuddyInfo(from_id) == NULL) ? false : true;
 	BOOL accept_im_from_only_friend = gSavedSettings.getBOOL("VoiceCallsFriendsOnly");
-	
+	BOOL is_linden = chat.mSourceType != CHAT_SOURCE_OBJECT &&
+			LLMuteList::getInstance()->isLinden(name);
+
 	chat.mMuted = is_muted;
 	chat.mFromID = from_id;
 	chat.mFromName = name;
@@ -2461,7 +2463,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			LL_INFOS("Messaging") << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
 
 			bool mute_im = is_muted;
-			if(accept_im_from_only_friend&&!is_friend)
+			if(accept_im_from_only_friend && !is_friend && !is_linden)
 			{
 				if (!gIMMgr->isNonFriendSessionNotified(session_id))
 				{
