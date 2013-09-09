@@ -24,6 +24,7 @@
  */
  
 #extension GL_ARB_texture_rectangle : enable
+#extension GL_ARB_shader_texture_lod : enable
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
@@ -453,7 +454,7 @@ void main()
 		if (norm.w < 0.5)
 		{
 			col = mix(atmosLighting(col), fullbrightAtmosTransport(col), diffuse.a);
-			col = mix(scaleSoftClip(col), fullbrightScaleSoftClip(col), diffuse.a);			
+			col = mix(scaleSoftClip(col), fullbrightScaleSoftClip(col), diffuse.a);
 		}
 
 		#ifdef WATER_FOG

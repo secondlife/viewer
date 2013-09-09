@@ -60,7 +60,8 @@ add_executable(llui_libtest ${llui_libtest_SOURCE_FILES})
 # Link with OS-specific libraries for LLWindow dependency
 if (DARWIN)
   find_library(COCOA_LIBRARY Cocoa)
-  set(OS_LIBRARIES ${COCOA_LIBRARY})
+  find_library(IOKIT_LIBRARY IOKit)
+  set(OS_LIBRARIES ${COCOA_LIBRARY} ${IOKIT_LIBRARY})
 elseif (WINDOWS)
   #ll_stack_trace needs this now...
   list(APPEND WINDOWS_LIBRARIES dbghelp)

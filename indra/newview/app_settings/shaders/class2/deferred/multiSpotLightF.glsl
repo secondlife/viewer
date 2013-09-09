@@ -24,6 +24,7 @@
  */
  
 #extension GL_ARB_texture_rectangle : enable
+#extension GL_ARB_shader_texture_lod : enable
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
@@ -338,7 +339,7 @@ void main()
 			if (stc.z > 0.0)
 			{
 				float fatten = clamp(envIntensity*envIntensity+envIntensity*0.25, 0.25, 1.0);
-				
+
 				stc.xy = (stc.xy - vec2(0.5)) * fatten + vec2(0.5);
 								
 				if (stc.x < 1.0 &&
