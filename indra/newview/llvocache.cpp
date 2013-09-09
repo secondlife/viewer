@@ -636,6 +636,11 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 		return 0;
 	}
 
+	if(LLViewerCamera::sCurCameraID >= LLViewerCamera::CAMERA_WATER0)
+	{
+		return 0; //no need for those cameras.
+	}
+
 	if(mCulledTime[LLViewerCamera::sCurCameraID] == LLViewerOctreeEntryData::getCurrentFrame())
 	{
 		return 0; //already culled
