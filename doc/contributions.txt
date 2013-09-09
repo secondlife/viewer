@@ -689,6 +689,8 @@ Kaimen Takahe
 Katharine Berry
 	STORM-1900
     OPEN-149
+	STORM-1940
+	STORM-1941
 Keklily Longfall
 Ken Lavender
 Ken March
