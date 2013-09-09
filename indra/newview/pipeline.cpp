@@ -2895,6 +2895,52 @@ void LLPipeline::clearRebuildGroups()
 	mGroupQ2Locked = false;
 }
 
+void LLPipeline::clearRebuildDrawables()
+{
+	// Clear all drawables on the priority build queue,
+	for (LLDrawable::drawable_list_t::iterator iter = mBuildQ1.begin();
+		 iter != mBuildQ1.end(); ++iter)
+	{
+		LLDrawable* drawablep = *iter;
+		if (drawablep && !drawablep->isDead())
+		{
+			drawablep->clearState(LLDrawable::IN_REBUILD_Q2);
+			drawablep->clearState(LLDrawable::IN_REBUILD_Q1);
+		}
+	}
+	mBuildQ1.clear();
+
+	// clear drawables on the non-priority build queue
+	for (LLDrawable::drawable_list_t::iterator iter = mBuildQ2.begin();
+		 iter != mBuildQ2.end(); ++iter)
+	{
+		LLDrawable* drawablep = *iter;
+		if (!drawablep->isDead())
+		{
+			drawablep->clearState(LLDrawable::IN_REBUILD_Q2);
+		}
+	}	
+	mBuildQ2.clear();
+	
+	//clear all moving bridges
+	for (LLDrawable::drawable_vector_t::iterator iter = mMovedBridge.begin();
+		 iter != mMovedBridge.end(); ++iter)
+	{
+		LLDrawable *drawablep = *iter;
+		drawablep->clearState(LLDrawable::EARLY_MOVE | LLDrawable::MOVE_UNDAMPED | LLDrawable::ON_MOVE_LIST | LLDrawable::ANIMATED_CHILD);
+	}
+	mMovedBridge.clear();
+
+	//clear all moving drawables
+	for (LLDrawable::drawable_vector_t::iterator iter = mMovedList.begin();
+		 iter != mMovedList.end(); ++iter)
+	{
+		LLDrawable *drawablep = *iter;
+		drawablep->clearState(LLDrawable::EARLY_MOVE | LLDrawable::MOVE_UNDAMPED | LLDrawable::ON_MOVE_LIST | LLDrawable::ANIMATED_CHILD);
+	}
+	mMovedList.clear();
+}
+
 void LLPipeline::rebuildPriorityGroups()
 {
 	LLFastTimer t(FTM_REBUILD_PRIORITY_GROUPS);
@@ -7314,7 +7360,13 @@ void LLPipeline::doResetVertexBuffers()
 			}
 		}
 	}
-	LLSpatialPartition::sTeleportRequested = FALSE;
+	if(LLSpatialPartition::sTeleportRequested)
+	{
+		LLSpatialPartition::sTeleportRequested = FALSE;
+
+		clearRebuildGroups();
+		clearRebuildDrawables();
+	}
 
 	resetDrawOrders();
 
