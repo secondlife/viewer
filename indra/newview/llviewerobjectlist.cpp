@@ -1324,44 +1324,26 @@ void LLViewerObjectList::cleanDeadObjects(BOOL use_timer)
 		return;
 	}
 
+	LLViewerObject *objectp = NULL;
 	S32 num_removed = 0;
-	LLViewerObject *objectp;
-	
-	vobj_list_t::reverse_iterator target = mObjects.rbegin();
 
-	vobj_list_t::iterator iter = mObjects.begin();
-	for ( ; iter != mObjects.end(); )
+	vobj_list_t::iterator iter;
+	for (iter = mObjects.begin(); iter != mObjects.end();)
 	{
 		// Scan for all of the dead objects and put them all on the end of the list with no ref count ops
 		objectp = *iter;
-		if (objectp == NULL)
-		{ //we caught up to the dead tail
-			break;
-		}
 
-		if (objectp->isDead())
+		if (objectp && objectp->isDead())
 		{
-			LLPointer<LLViewerObject>::swap(*iter, *target);
-			*target = NULL;
-			++target;
+			iter = mObjects.erase(iter);
 			num_removed++;
-
-			if (num_removed == mNumDeadObjects || iter->isNull())
-			{
-				// We've cleaned up all of the dead objects or caught up to the dead tail
-				break;
-			}
 		}
 		else
 		{
 			++iter;
 		}
 	}
-
 	llassert(num_removed == mNumDeadObjects);
-
-	//erase as a block
-	mObjects.erase(mObjects.begin()+(mObjects.size()-mNumDeadObjects), mObjects.end());
 
 	// We've cleaned the global object list, now let's do some paranoia testing on objects
 	// before blowing away the dead list.
