@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-
 <floater
   positioning="cascading"
   can_close="true"
@@ -18,9 +17,6 @@
    width="304"
    visible="true"
    name="background"
-   background_visible="true"
-   bg_opaque_color="DkGray"
-   bg_alpha_color="DkGray_66"
    follows="all"
    top="0"
    left="0">
@@ -30,9 +26,6 @@
      tab_min_width="70"
      tab_height="30"
      tab_position="top"
-     background_visible="true"
-     bg_opaque_color="DkGray"
-     bg_alpha_color="DkGray_66"
      top="7"
      height="437"
      halign="center">
@@ -68,9 +61,6 @@
     <panel
      name="connection_status_panel"
      follows="left|bottom|right"
-     background_visible="true"
-     bg_opaque_color="DkGray"
-     bg_alpha_color="DkGray_66"
      height="24">
      <text
       name="connection_error_text"
