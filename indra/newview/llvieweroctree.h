@@ -70,7 +70,7 @@ S32 AABBSphereIntersect(const LLVector3& min, const LLVector3& max, const LLVect
 S32 AABBSphereIntersectR2(const LLVector3& min, const LLVector3& max, const LLVector3 &origin, const F32 &radius_squared);
 
 //defines data needed for octree of an entry
-LL_ALIGN_PREFIX(16)
+//LL_ALIGN_PREFIX(16)
 class LLViewerOctreeEntry : public LLRefCount
 {
 	friend class LLViewerOctreeEntryData;
@@ -128,10 +128,10 @@ private:
 	mutable S32		            mBinIndex;
 	mutable U32		            mVisible;	
 
-} LL_ALIGN_POSTFIX(16);
+} ;//LL_ALIGN_POSTFIX(16);
 
 //defines an abstract class for entry data
-LL_ALIGN_PREFIX(16)
+//LL_ALIGN_PREFIX(16)
 class LLViewerOctreeEntryData : public LLRefCount
 {
 protected:
@@ -178,11 +178,11 @@ protected:
 	LLPointer<LLViewerOctreeEntry>        mEntry;
 	LLViewerOctreeEntry::eEntryDataType_t mDataType;
 	static  U32                           sCurVisible; // Counter for what value of mVisible means currently visible
-}LL_ALIGN_POSTFIX(16);
+};//LL_ALIGN_POSTFIX(16);
 
 
 //defines an octree group for an octree node, which contains multiple entries.
-LL_ALIGN_PREFIX(16)
+//LL_ALIGN_PREFIX(16)
 class LLviewerOctreeGroup : public LLOctreeListener<LLViewerOctreeEntry>
 {
 	friend class LLViewerOctreeCull;
@@ -279,7 +279,7 @@ protected:
 public:
 	S32         mVisible[LLViewerCamera::NUM_CAMERAS];	
 
-}LL_ALIGN_POSTFIX(16);
+};//LL_ALIGN_POSTFIX(16);
 
 //octree group which has capability to support occlusion culling
 //LL_ALIGN_PREFIX(16)

@@ -1207,12 +1207,7 @@ BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 
 	max_update_time -= update_timer.getElapsedTimeF32();	
 
-	if(gViewerWindow->getProgressView()->getVisible())
-	{
-		//in case rendering pipeline is not started yet.
-		mImpl->mVOCachePartition->cull(*(LLViewerCamera::getInstance()), false);
-	}
-	else if(max_update_time < 0.f)
+	if(max_update_time < 0.f && !gViewerWindow->getProgressView()->getVisible())
 	{
 		return did_update;
 	}
@@ -1279,7 +1274,8 @@ F32 LLViewerRegion::killInvisibleObjects(F32 max_time)
 		return max_time;
 	}
 
-	size_t max_update = sNewObjectCreationThrottle < 0 ? mImpl->mActiveSet.size() : 64; 
+	bool unstable = sNewObjectCreationThrottle < 0;
+	size_t max_update = unstable ? mImpl->mActiveSet.size() : 64; 
 	if(!mInvisibilityCheckHistory && isViewerCameraStatic())
 	{
 		//history is clean, reduce number of checking
@@ -1299,7 +1295,7 @@ F32 LLViewerRegion::killInvisibleObjects(F32 max_time)
 			iter = mImpl->mActiveSet.begin();
 		}
 
-		if(!(*iter)->isRecentlyVisible() && (*iter)->mLastCameraUpdated < sLastCameraUpdated)
+		if(!(*iter)->isRecentlyVisible() && (unstable || (*iter)->mLastCameraUpdated < sLastCameraUpdated))
 		{
 			killObject((*iter), delete_list);
 		}

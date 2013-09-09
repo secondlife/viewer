@@ -4015,6 +4015,7 @@ void LLAgent::teleportCancel()
 	}
 	clearTeleportRequest();
 	gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
+	gPipeline.resetVertexBuffers();
 }
 
 
