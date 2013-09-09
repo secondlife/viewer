@@ -62,8 +62,8 @@ public:
 	const std::string& getDescription() const { return mDescription; }
 
 protected:
-	const std::string	mName;
-	const std::string	mDescription;
+	std::string	mName;
+	std::string	mDescription;
 };
 
 template<typename ACCUMULATOR>
@@ -225,6 +225,12 @@ public:
 	:	trace_t(name)
 	{}
 
+    void setName(const char* name)
+    {
+        mName = name;
+        setKey(name);
+    }
+    
 	/*virtual*/ const char* getUnitLabel() const { return "B"; }
 
 	TraceType<MemStatAccumulator::AllocationCountFacet>& allocationCount() 
@@ -331,6 +337,17 @@ class MemTrackable
 public:
 	typedef void mem_trackable_tag_t;
 
+    MemTrackable()
+    {
+        static bool name_initialized = false;
+        if (!name_initialized)
+        {
+            name_initialized = true;
+            sMemStat.setName(typeid(DERIVED).name());
+        }
+    }
+    
+    
 	virtual ~MemTrackable()
 	{
 		memDisclaim(mMemFootprint);
@@ -524,7 +541,7 @@ private:
 
 // pretty sure typeid of containing class in static object constructor doesn't work in gcc
 template<typename DERIVED, size_t ALIGNMENT>
-MemStatHandle MemTrackable<DERIVED, ALIGNMENT>::sMemStat(typeid(DERIVED).name());
+MemStatHandle MemTrackable<DERIVED, ALIGNMENT>::sMemStat("");
 
 }
 #endif // LL_LLTRACE_H
