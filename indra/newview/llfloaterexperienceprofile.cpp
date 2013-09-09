@@ -496,7 +496,7 @@ BOOL LLFloaterExperienceProfile::canClose()
     }
 }
 
-bool LLFloaterExperienceProfile::handleSaveChangesDialog( const LLSD& notification, const LLSD& response, int action )
+bool LLFloaterExperienceProfile::handleSaveChangesDialog( const LLSD& notification, const LLSD& response, PostSaveAction action )
 {
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
     switch( option )
@@ -615,6 +615,7 @@ void LLFloaterExperienceProfile::onSaveComplete( const LLSD& content )
     }
  
     refreshExperience(*it);
+    LLExperienceCache::insert(*it);
     LLExperienceCache::fetch(id, true);
 
     if(mSaveCompleteAction==VIEW)

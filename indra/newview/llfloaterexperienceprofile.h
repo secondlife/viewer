@@ -41,7 +41,7 @@ class LLFloaterExperienceProfile : public LLFloater
 {
     LOG_CLASS(LLFloaterExperienceProfile);
 public:
-    enum
+    enum PostSaveAction
     {
         NOTHING,
         CLOSE,
@@ -74,7 +74,7 @@ protected:
 
     BOOL postBuild();
     bool setMaturityString(U8 maturity, LLTextBox* child, LLComboBox* combo);
-    bool handleSaveChangesDialog(const LLSD& notification, const LLSD& response, int action);
+    bool handleSaveChangesDialog(const LLSD& notification, const LLSD& response, PostSaveAction action);
     void doSave( int success_action );
     LLUUID mExperienceId;
     LLSD mExperienceDetails;

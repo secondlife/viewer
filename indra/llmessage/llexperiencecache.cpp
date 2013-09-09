@@ -577,7 +577,7 @@ namespace LLExperienceCache
 	{
 		if(experience_data.has(EXPERIENCE_ID))
 		{
-			sCache[experience_data[EXPERIENCE_ID].asUUID()]=experience_data;
+            processExperience(experience_data[EXPERIENCE_ID].asUUID(), experience_data);
 		}
 		else
 		{
