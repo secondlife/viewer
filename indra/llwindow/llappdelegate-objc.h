@@ -1,48 +1,48 @@
-/** 
- * @file llkeyboardheadless.h
- * @brief Handler for assignable key bindings
+/**
+ * @file llappdelegate-objc.h
+ * @brief Class interface for the Mac version's application delegate.
  *
- * $LicenseInfo:firstyear=2004&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2000&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLKEYBOARDHEADLESS_H
-#define LL_LLKEYBOARDHEADLESS_H
+#import <Cocoa/Cocoa.h>
+#import "llopenglview-objc.h"
 
-#include "llkeyboard.h"
+@interface LLAppDelegate : NSObject <NSApplicationDelegate> {
+	LLNSWindow *window;
+	NSWindow *inputWindow;
+	LLNonInlineTextView *inputView;
+	NSTimer *frameTimer;
+	NSString *currentInputLanguage;
+}
 
-class LLKeyboardHeadless : public LLKeyboard
-{
-public:
-	LLKeyboardHeadless();
-	/*virtual*/ ~LLKeyboardHeadless() {};
+@property (assign) IBOutlet LLNSWindow *window;
+@property (assign) IBOutlet NSWindow *inputWindow;
+@property (assign) IBOutlet LLNonInlineTextView *inputView;
 
-	/*virtual*/ BOOL	handleKeyUp(const U16 key, MASK mask);
-	/*virtual*/ BOOL	handleKeyDown(const U16 key, MASK mask);
-	/*virtual*/ void	resetMaskKeys();
-	/*virtual*/ MASK	currentMask(BOOL for_mouse_event);
-	/*virtual*/ void	scanKeyboard();
-#ifdef LL_DARWIN
-	/*virtual*/ void	handleModifier(MASK mask);
-#endif
-};
+@property (retain) NSString *currentInputLanguage;
 
-#endif
+- (void) mainLoop;
+- (void) showInputWindow:(bool)show withEvent:(NSEvent*)textEvent;
+- (void) languageUpdated;
+- (bool) romanScript;
+@end
