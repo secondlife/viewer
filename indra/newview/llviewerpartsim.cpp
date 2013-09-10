@@ -160,7 +160,11 @@ LLViewerPartGroup::LLViewerPartGroup(const LLVector3 &center_agent, const F32 bo
 	}
 	mVOPartGroupp->setViewerPartGroup(this);
 	mVOPartGroupp->setPositionAgent(getCenterAgent());
+	
+	mBoxSide = box_side;
+
 	F32 scale = box_side * 0.5f;
+
 	mVOPartGroupp->setScale(LLVector3(scale,scale,scale));
 	
 	//gPipeline.addObject(mVOPartGroupp);

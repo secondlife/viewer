@@ -99,7 +99,7 @@ void LLFloaterConversationPreview::setPages(std::list<LLSD>& messages, const std
 {
 	if(file_name == mChatHistoryFileName)
 	{
-		// additional protection to avoid changes of mMessages in setPages
+		// additional protection to avoid changes of mMessages in setPages()
 		LLMutexLock lock(&mMutex);
 		mMessages = messages;
 		mCurrentPage = (mMessages.size() ? (mMessages.size() - 1) / mPageSize : 0);
@@ -111,10 +111,9 @@ void LLFloaterConversationPreview::setPages(std::list<LLSD>& messages, const std
 		std::string total_page_num = llformat("/ %d", mCurrentPage+1);
 		getChild<LLTextBox>("page_num_label")->setValue(total_page_num);
 		mChatHistoryLoaded = true;
-
 	}
-
 }
+
 void LLFloaterConversationPreview::draw()
 {
 	if(mChatHistoryLoaded)
@@ -148,7 +147,6 @@ void LLFloaterConversationPreview::showHistory()
 	}
 
 	mChatHistory->clear();
-
 	std::ostringstream message;
 	std::list<LLSD>::const_iterator iter = mMessages.begin();
 	std::advance(iter, mCurrentPage * mPageSize);
@@ -198,7 +196,6 @@ void LLFloaterConversationPreview::showHistory()
 
 		mChatHistory->appendMessage(chat,chat_args);
 	}
-
 }
 
 void LLFloaterConversationPreview::onMoreHistoryBtnClick()
