@@ -35,7 +35,6 @@
  */
 
 #include "lltimer.h"
-#include "timing.h"
 
 class LL_COMMON_API LLFrameTimer 
 {
@@ -44,7 +43,7 @@ public:
 
 	// Return the number of seconds since the start of this
 	// application instance.
-	static F64 getElapsedSeconds()
+	static F64SecondsImplicit getElapsedSeconds()
 	{
 		// Loses msec precision after ~4.5 hours...
 		return sFrameTime;
@@ -53,7 +52,7 @@ public:
 	// Return a low precision usec since epoch
 	static U64 getTotalTime()
 	{
-		return sTotalTime ? sTotalTime : totalTime();
+		return sTotalTime ? U64MicrosecondsImplicit(sTotalTime) : totalTime();
 	}
 
 	// Return a low precision seconds since epoch

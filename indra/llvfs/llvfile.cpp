@@ -30,16 +30,17 @@
 
 #include "llerror.h"
 #include "llthread.h"
-#include "llstat.h"
-#include "llvfs.h"
+#include "lltimer.h"
+#include "llfasttimer.h"
 #include "llmemory.h"
+#include "llvfs.h"
 
 const S32 LLVFile::READ			= 0x00000001;
 const S32 LLVFile::WRITE		= 0x00000002;
 const S32 LLVFile::READ_WRITE	= 0x00000003;  // LLVFile::READ & LLVFile::WRITE
 const S32 LLVFile::APPEND		= 0x00000006;  // 0x00000004 & LLVFile::WRITE
 
-static LLFastTimer::DeclareTimer FTM_VFILE_WAIT("VFile Wait");
+static LLTrace::TimeBlock FTM_VFILE_WAIT("VFile Wait");
 
 //----------------------------------------------------------------------------
 LLVFSThread* LLVFile::sVFSThread = NULL;
@@ -72,7 +73,7 @@ LLVFile::~LLVFile()
 		{
 			if (!(mMode & LLVFile::WRITE))
 			{
-				//llwarns << "Destroying LLVFile with pending async read/write, aborting..." << llendl;
+				//LL_WARNS() << "Destroying LLVFile with pending async read/write, aborting..." << LL_ENDL;
 				sVFSThread->setFlags(mHandle, LLVFSThread::FLAG_AUTO_COMPLETE | LLVFSThread::FLAG_ABORT);
 			}
 			else // WRITE
@@ -88,13 +89,13 @@ BOOL LLVFile::read(U8 *buffer, S32 bytes, BOOL async, F32 priority)
 {
 	if (! (mMode & READ))
 	{
-		llwarns << "Attempt to read from file " << mFileID << " opened with mode " << std::hex << mMode << std::dec << llendl;
+		LL_WARNS() << "Attempt to read from file " << mFileID << " opened with mode " << std::hex << mMode << std::dec << LL_ENDL;
 		return FALSE;
 	}
 
 	if (mHandle != LLVFSThread::nullHandle())
 	{
-		llwarns << "Attempt to read from vfile object " << mFileID << " with pending async operation" << llendl;
+		LL_WARNS() << "Attempt to read from vfile object " << mFileID << " with pending async operation" << LL_ENDL;
 		return FALSE;
 	}
 	mPriority = priority;
@@ -135,7 +136,7 @@ U8* LLVFile::readFile(LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType type, S
 		data = NULL;
 	}
 	else
-	{
+	{		
 		data = (U8*) ll_aligned_malloc_16(file_size);
 		file.read(data, file_size);	/* Flawfinder: ignore */ 
 		
@@ -198,11 +199,11 @@ BOOL LLVFile::write(const U8 *buffer, S32 bytes)
 {
 	if (! (mMode & WRITE))
 	{
-		llwarns << "Attempt to write to file " << mFileID << " opened with mode " << std::hex << mMode << std::dec << llendl;
+		LL_WARNS() << "Attempt to write to file " << mFileID << " opened with mode " << std::hex << mMode << std::dec << LL_ENDL;
 	}
 	if (mHandle != LLVFSThread::nullHandle())
 	{
-		llerrs << "Attempt to write to vfile object " << mFileID << " with pending async operation" << llendl;
+		LL_ERRS() << "Attempt to write to vfile object " << mFileID << " with pending async operation" << LL_ENDL;
 		return FALSE;
 	}
 	BOOL success = TRUE;
@@ -232,7 +233,7 @@ BOOL LLVFile::write(const U8 *buffer, S32 bytes)
 		
 		if (wrote < bytes)
 		{	
-			llwarns << "Tried to write " << bytes << " bytes, actually wrote " << wrote << llendl;
+			LL_WARNS() << "Tried to write " << bytes << " bytes, actually wrote " << wrote << LL_ENDL;
 
 			success = FALSE;
 		}
@@ -252,7 +253,7 @@ BOOL LLVFile::seek(S32 offset, S32 origin)
 {
 	if (mMode == APPEND)
 	{
-		llwarns << "Attempt to seek on append-only file" << llendl;
+		LL_WARNS() << "Attempt to seek on append-only file" << LL_ENDL;
 		return FALSE;
 	}
 
@@ -267,14 +268,14 @@ BOOL LLVFile::seek(S32 offset, S32 origin)
 
 	if (new_pos > size)
 	{
-		llwarns << "Attempt to seek past end of file" << llendl;
+		LL_WARNS() << "Attempt to seek past end of file" << LL_ENDL;
 
 		mPosition = size;
 		return FALSE;
 	}
 	else if (new_pos < 0)
 	{
-		llwarns << "Attempt to seek past beginning of file" << llendl;
+		LL_WARNS() << "Attempt to seek past beginning of file" << LL_ENDL;
 
 		mPosition = 0;
 		return FALSE;
@@ -308,20 +309,20 @@ BOOL LLVFile::setMaxSize(S32 size)
 {
 	if (! (mMode & WRITE))
 	{
-		llwarns << "Attempt to change size of file " << mFileID << " opened with mode " << std::hex << mMode << std::dec << llendl;
+		LL_WARNS() << "Attempt to change size of file " << mFileID << " opened with mode " << std::hex << mMode << std::dec << LL_ENDL;
 
 		return FALSE;
 	}
 
 	if (!mVFS->checkAvailable(size))
 	{
-		//LLFastTimer t(FTM_VFILE_WAIT);
+		//LL_RECORD_BLOCK_TIME(FTM_VFILE_WAIT);
 		S32 count = 0;
 		while (sVFSThread->getPending() > 1000)
 		{
 			if (count % 100 == 0)
 			{
-				llinfos << "VFS catching up... Pending: " << sVFSThread->getPending() << llendl;
+				LL_INFOS() << "VFS catching up... Pending: " << sVFSThread->getPending() << LL_ENDL;
 			}
 			if (sVFSThread->isPaused())
 			{
@@ -337,14 +338,14 @@ BOOL LLVFile::rename(const LLUUID &new_id, const LLAssetType::EType new_type)
 {
 	if (! (mMode & WRITE))
 	{
-		llwarns << "Attempt to rename file " << mFileID << " opened with mode " << std::hex << mMode << std::dec << llendl;
+		LL_WARNS() << "Attempt to rename file " << mFileID << " opened with mode " << std::hex << mMode << std::dec << LL_ENDL;
 
 		return FALSE;
 	}
 
 	if (mHandle != LLVFSThread::nullHandle())
 	{
-		llwarns << "Renaming file with pending async read" << llendl;
+		LL_WARNS() << "Renaming file with pending async read" << LL_ENDL;
 	}
 
 	waitForLock(VFSLOCK_READ);
@@ -364,18 +365,18 @@ BOOL LLVFile::rename(const LLUUID &new_id, const LLAssetType::EType new_type)
 
 BOOL LLVFile::remove()
 {
-// 	llinfos << "Removing file " << mFileID << llendl;
+// 	LL_INFOS() << "Removing file " << mFileID << LL_ENDL;
 	
 	if (! (mMode & WRITE))
 	{
 		// Leaving paranoia warning just because this should be a very infrequent
 		// operation.
-		llwarns << "Remove file " << mFileID << " opened with mode " << std::hex << mMode << std::dec << llendl;
+		LL_WARNS() << "Remove file " << mFileID << " opened with mode " << std::hex << mMode << std::dec << LL_ENDL;
 	}
 
 	if (mHandle != LLVFSThread::nullHandle())
 	{
-		llwarns << "Removing file with pending async read" << llendl;
+		LL_WARNS() << "Removing file with pending async read" << LL_ENDL;
 	}
 	
 	// why not seek back to the beginning of the file too?
@@ -423,7 +424,7 @@ bool LLVFile::isLocked(EVFSLock lock)
 
 void LLVFile::waitForLock(EVFSLock lock)
 {
-	//LLFastTimer t(FTM_VFILE_WAIT);
+	//LL_RECORD_BLOCK_TIME(FTM_VFILE_WAIT);
 	// spin until the lock clears
 	while (isLocked(lock))
 	{

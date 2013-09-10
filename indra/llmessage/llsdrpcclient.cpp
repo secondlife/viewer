@@ -30,6 +30,7 @@
 #include "llsdrpcclient.h"
 
 #include "llbufferstream.h"
+#include "llfasttimer.h"
 #include "llfiltersd2xmlrpc.h"
 #include "llpumpio.h"
 #include "llsd.h"
@@ -78,7 +79,7 @@ bool LLSDRPCResponse::extractResponse(const LLSD& sd)
 	return rv;
 }
 
-static LLFastTimer::DeclareTimer FTM_SDRPC_RESPONSE("SDRPC Response");
+static LLTrace::TimeBlock FTM_SDRPC_RESPONSE("SDRPC Response");
 
 // virtual
 LLIOPipe::EStatus LLSDRPCResponse::process_impl(
@@ -88,7 +89,7 @@ LLIOPipe::EStatus LLSDRPCResponse::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
-	LLFastTimer t(FTM_SDRPC_RESPONSE);
+	LL_RECORD_BLOCK_TIME(FTM_SDRPC_RESPONSE);
 	PUMP_DEBUG;
 	if(mIsError)
 	{
@@ -128,8 +129,8 @@ bool LLSDRPCClient::call(
 	LLSDRPCResponse* response,
 	EPassBackQueue queue)
 {
-	//llinfos << "RPC: " << uri << "." << method << "(" << *parameter << ")"
-	//		<< llendl;
+	//LL_INFOS() << "RPC: " << uri << "." << method << "(" << *parameter << ")"
+	//		<< LL_ENDL;
 	if(method.empty() || !response)
 	{
 		return false;
@@ -154,8 +155,8 @@ bool LLSDRPCClient::call(
 	LLSDRPCResponse* response,
 	EPassBackQueue queue)
 {
-	//llinfos << "RPC: " << uri << "." << method << "(" << parameter << ")"
-	//		<< llendl;
+	//LL_INFOS() << "RPC: " << uri << "." << method << "(" << parameter << ")"
+	//		<< LL_ENDL;
 	if(method.empty() || parameter.empty() || !response)
 	{
 		return false;
@@ -172,7 +173,7 @@ bool LLSDRPCClient::call(
 	return true;
 }
 
-static LLFastTimer::DeclareTimer FTM_PROCESS_SDRPC_CLIENT("SDRPC Client");
+static LLTrace::TimeBlock FTM_PROCESS_SDRPC_CLIENT("SDRPC Client");
 
 // virtual
 LLIOPipe::EStatus LLSDRPCClient::process_impl(
@@ -182,7 +183,7 @@ LLIOPipe::EStatus LLSDRPCClient::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
-	LLFastTimer t(FTM_PROCESS_SDRPC_CLIENT);
+	LL_RECORD_BLOCK_TIME(FTM_PROCESS_SDRPC_CLIENT);
 	PUMP_DEBUG;
 	if((STATE_NONE == mState) || (!pump))
 	{
@@ -195,7 +196,7 @@ LLIOPipe::EStatus LLSDRPCClient::process_impl(
 	case STATE_READY:
 	{
 		PUMP_DEBUG;
-//		lldebugs << "LLSDRPCClient::process_impl STATE_READY" << llendl;
+//		LL_DEBUGS() << "LLSDRPCClient::process_impl STATE_READY" << LL_ENDL;
 		buffer->append(
 			channels.out(),
 			(U8*)mRequest.c_str(),
@@ -208,8 +209,8 @@ LLIOPipe::EStatus LLSDRPCClient::process_impl(
 	{
 		PUMP_DEBUG;
 		// The input channel has the sd response in it.
-		//lldebugs << "LLSDRPCClient::process_impl STATE_WAITING_FOR_RESPONSE"
-		//		 << llendl;
+		//LL_DEBUGS() << "LLSDRPCClient::process_impl STATE_WAITING_FOR_RESPONSE"
+		//		 << LL_ENDL;
 		LLBufferStream resp(channels, buffer.get());
 		LLSD sd;
 		LLSDSerialize::fromNotation(sd, resp, buffer->count(channels.in()));
@@ -236,7 +237,7 @@ LLIOPipe::EStatus LLSDRPCClient::process_impl(
 	case STATE_DONE:
 	default:
 		PUMP_DEBUG;
-		llinfos << "invalid state to process" << llendl;
+		LL_INFOS() << "invalid state to process" << LL_ENDL;
 		rv = STATUS_ERROR;
 		break;
 	}

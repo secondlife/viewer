@@ -159,7 +159,7 @@ void LLMultiFloater::addFloater(LLFloater* floaterp, BOOL select_added_floater, 
 
 	if (!mTabContainer)
 	{
-		llerrs << "Tab Container used without having been initialized." << llendl;
+		LL_ERRS() << "Tab Container used without having been initialized." << LL_ENDL;
 		return;
 	}
 

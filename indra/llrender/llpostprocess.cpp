@@ -58,7 +58,7 @@ LLPostProcess::LLPostProcess(void) :
 					
 	/*  Do nothing.  Needs to be updated to use our current shader system, and to work with the move into llrender.
 	std::string pathName(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight", XML_FILENAME));
-	LL_DEBUGS2("AppInit", "Shaders") << "Loading PostProcess Effects settings from " << pathName << LL_ENDL;
+	LL_DEBUGS("AppInit", "Shaders") << "Loading PostProcess Effects settings from " << pathName << LL_ENDL;
 
 	llifstream effectsXML(pathName);
 
@@ -145,7 +145,7 @@ void LLPostProcess::saveEffect(std::string const & effectName)
 	mAllEffects[effectName] = tweaks;
 
 	std::string pathName(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight", XML_FILENAME));
-	//llinfos << "Saving PostProcess Effects settings to " << pathName << llendl;
+	//LL_INFOS() << "Saving PostProcess Effects settings to " << pathName << LL_ENDL;
 
 	llofstream effectsXML(pathName);
 

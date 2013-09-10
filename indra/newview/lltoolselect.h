@@ -34,7 +34,7 @@
 
 class LLObjectSelection;
 
-class LLToolSelect : public LLTool, public LLSingleton<LLToolSelect>
+class LLToolSelect : public LLTool
 {
 public:
 	LLToolSelect( LLToolComposite* composite );

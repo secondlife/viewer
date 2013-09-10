@@ -130,7 +130,7 @@ void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification, bool to_fi
 		if (from_id.isNull())
 		{
 			// Normal behavior for system generated messages, don't spam.
-			// llwarns << " from_id for notification " << notification->getName() << " is null " << llendl;
+			// LL_WARNS() << " from_id for notification " << notification->getName() << " is null " << LL_ENDL;
 			return;
 		}
 
@@ -153,9 +153,9 @@ void LLHandlerUtil::logGroupNoticeToIMGroup(
 	LLGroupData groupData;
 	if (!gAgent.getGroupData(payload["group_id"].asUUID(), groupData))
 	{
-		llwarns
+		LL_WARNS()
 						<< "Group notice for unknown group: "
-								<< payload["group_id"].asUUID() << llendl;
+								<< payload["group_id"].asUUID() << LL_ENDL;
 		return;
 	}
 

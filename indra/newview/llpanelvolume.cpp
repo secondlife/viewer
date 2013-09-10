@@ -620,7 +620,7 @@ void LLPanelVolume::sendIsLight()
 	
 	BOOL value = getChild<LLUICtrl>("Light Checkbox Ctrl")->getValue();
 	volobjp->setIsLight(value);
-	llinfos << "update light sent" << llendl;
+	LL_INFOS() << "update light sent" << LL_ENDL;
 }
 
 void LLPanelVolume::sendIsFlexible()
@@ -652,7 +652,7 @@ void LLPanelVolume::sendIsFlexible()
 		LLSelectMgr::getInstance()->selectionUpdatePhantom(volobjp->flagPhantom());
 	}
 
-	llinfos << "update flexible sent" << llendl;
+	LL_INFOS() << "update flexible sent" << LL_ENDL;
 }
 
 void LLPanelVolume::sendPhysicsShapeType(LLUICtrl* ctrl, void* userdata)

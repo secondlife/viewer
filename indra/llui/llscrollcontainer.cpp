@@ -144,7 +144,7 @@ LLScrollContainer::~LLScrollContainer( void )
 {
 	// mScrolledView and mScrollbar are child views, so the LLView
 	// destructor takes care of memory deallocation.
-	for( S32 i = 0; i < SCROLLBAR_COUNT; i++ )
+	for( S32 i = 0; i < ORIENTATION_COUNT; i++ )
 	{
 		mScrollbar[i] = NULL;
 	}
@@ -155,7 +155,6 @@ LLScrollContainer::~LLScrollContainer( void )
 // virtual
 void LLScrollContainer::scrollHorizontal( S32 new_pos )
 {
-	//llinfos << "LLScrollContainer::scrollHorizontal()" << llendl;
 	if( mScrolledView )
 	{
 		LLRect doc_rect = mScrolledView->getRect();
@@ -167,7 +166,6 @@ void LLScrollContainer::scrollHorizontal( S32 new_pos )
 // virtual
 void LLScrollContainer::scrollVertical( S32 new_pos )
 {
-	// llinfos << "LLScrollContainer::scrollVertical() " << new_pos << llendl;
 	if( mScrolledView )
 	{
 		LLRect doc_rect = mScrolledView->getRect();
@@ -215,7 +213,7 @@ BOOL LLScrollContainer::handleKeyHere(KEY key, MASK mask)
 	{
 		return TRUE;
 	}
-	for( S32 i = 0; i < SCROLLBAR_COUNT; i++ )
+	for( S32 i = 0; i < ORIENTATION_COUNT; i++ )
 	{
 		if( mScrollbar[i]->handleKeyHere(key, mask) )
 		{
@@ -645,7 +643,7 @@ void LLScrollContainer::scrollToShowRect(const LLRect& rect, const LLRect& const
 {
 	if (!mScrolledView)
 	{
-		llwarns << "LLScrollContainer::scrollToShowRect with no view!" << llendl;
+		LL_WARNS() << "LLScrollContainer::scrollToShowRect with no view!" << LL_ENDL;
 		return;
 	}
 

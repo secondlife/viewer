@@ -44,7 +44,7 @@ LLTransferTargetFile::~LLTransferTargetFile()
 {
 	if (mFP)
 	{
-		llerrs << "LLTransferTargetFile::~LLTransferTargetFile - Should have been cleaned up in completion callback" << llendl;
+		LL_ERRS() << "LLTransferTargetFile::~LLTransferTargetFile - Should have been cleaned up in completion callback" << LL_ENDL;
 		fclose(mFP);
 		mFP = NULL;
 	}
@@ -61,7 +61,7 @@ void LLTransferTargetFile::applyParams(const LLTransferTargetParams &params)
 {
 	if (params.getType() != mType)
 	{
-		llwarns << "Target parameter type doesn't match!" << llendl;
+		LL_WARNS() << "Target parameter type doesn't match!" << LL_ENDL;
 		return;
 	}
 	
@@ -70,8 +70,8 @@ void LLTransferTargetFile::applyParams(const LLTransferTargetParams &params)
 
 LLTSCode LLTransferTargetFile::dataCallback(const S32 packet_id, U8 *in_datap, const S32 in_size)
 {
-	//llinfos << "LLTransferTargetFile::dataCallback" << llendl;
-	//llinfos << "Packet: " << packet_id << llendl;
+	//LL_INFOS() << "LLTransferTargetFile::dataCallback" << LL_ENDL;
+	//LL_INFOS() << "Packet: " << packet_id << LL_ENDL;
 
 	if (!mFP)
 	{
@@ -79,7 +79,7 @@ LLTSCode LLTransferTargetFile::dataCallback(const S32 packet_id, U8 *in_datap, c
 
 		if (!mFP)
 		{
-			llwarns << "Failure opening " << mParams.mFilename << " for write by LLTransferTargetFile" << llendl;
+			LL_WARNS() << "Failure opening " << mParams.mFilename << " for write by LLTransferTargetFile" << LL_ENDL;
 			return LLTS_ERROR;
 		}
 	}
@@ -91,7 +91,7 @@ LLTSCode LLTransferTargetFile::dataCallback(const S32 packet_id, U8 *in_datap, c
 	S32 count = (S32)fwrite(in_datap, 1, in_size, mFP);
 	if (count != in_size)
 	{
-		llwarns << "Failure in LLTransferTargetFile::dataCallback!" << llendl;
+		LL_WARNS() << "Failure in LLTransferTargetFile::dataCallback!" << LL_ENDL;
 		return LLTS_ERROR;
 	}
 	return LLTS_OK;
@@ -99,7 +99,7 @@ LLTSCode LLTransferTargetFile::dataCallback(const S32 packet_id, U8 *in_datap, c
 
 void LLTransferTargetFile::completionCallback(const LLTSCode status)
 {
-	llinfos << "LLTransferTargetFile::completionCallback" << llendl;
+	LL_INFOS() << "LLTransferTargetFile::completionCallback" << LL_ENDL;
 	if (mFP)
 	{
 		fclose(mFP);
@@ -113,7 +113,7 @@ void LLTransferTargetFile::completionCallback(const LLTSCode status)
 	case LLTS_ABORT:
 	case LLTS_ERROR:
 		// We're aborting this transfer, we don't want to keep this file.
-		llwarns << "Aborting file transfer for " << mParams.mFilename << llendl;
+		LL_WARNS() << "Aborting file transfer for " << mParams.mFilename << LL_ENDL;
 		if (mFP)
 		{
 			// Only need to remove file if we successfully opened it.

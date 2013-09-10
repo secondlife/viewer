@@ -133,7 +133,7 @@ bool LLFloater::KeyCompare::compare(const LLSD& a, const LLSD& b)
 {
 	if (a.type() != b.type())
 	{
-		//llerrs << "Mismatched LLSD types: (" << a << ") mismatches (" << b << ")" << llendl;
+		//LL_ERRS() << "Mismatched LLSD types: (" << a << ") mismatches (" << b << ")" << LL_ENDL;
 		return false;
 	}
 	else if (a.isUndefined())
@@ -587,7 +587,7 @@ LLControlGroup*	LLFloater::getControlGroup()
 
 void LLFloater::setVisible( BOOL visible )
 {
-	LLPanel::setVisible(visible); // calls handleVisibilityChange()
+	LLPanel::setVisible(visible); // calls onVisibilityChange()
 	if( visible && mFirstLook )
 	{
 		mFirstLook = FALSE;
@@ -630,21 +630,21 @@ void LLFloater::setIsSingleInstance(BOOL is_single_instance)
 
 
 // virtual
-void LLFloater::handleVisibilityChange ( BOOL new_visibility )
+void LLFloater::onVisibilityChange ( BOOL new_visibility )
 {
 	if (new_visibility)
 	{
 		if (getHost())
 			getHost()->setFloaterFlashing(this, FALSE);
 	}
-	LLPanel::handleVisibilityChange ( new_visibility );
+	LLPanel::onVisibilityChange ( new_visibility );
 }
 
 void LLFloater::openFloater(const LLSD& key)
 {
-	llinfos << "Opening floater " << getName() << llendl;
+	LL_INFOS() << "Opening floater " << getName() << LL_ENDL;
 	mKey = key; // in case we need to open ourselves again
-
+	
 	if (getSoundFlags() != SILENT 
 	// don't play open sound for hosted (tabbed) windows
 		&& !getHost() 
@@ -695,7 +695,7 @@ void LLFloater::openFloater(const LLSD& key)
 
 void LLFloater::closeFloater(bool app_quitting)
 {
-	llinfos << "Closing floater " << getName() << llendl;
+	LL_INFOS() << "Closing floater " << getName() << LL_ENDL;
 	if (app_quitting)
 	{
 		LLFloater::sQuitting = true;
@@ -792,7 +792,7 @@ void LLFloater::closeFloater(bool app_quitting)
 		}
 		else
 		{
-			setVisible(FALSE); // hide before destroying (so handleVisibilityChange() gets called)
+			setVisible(FALSE); // hide before destroying (so onVisibilityChange() gets called)
 			if (!mReuseInstance)
 			{
 				destroy();
@@ -1091,7 +1091,7 @@ BOOL LLFloater::canSnapTo(const LLView* other_view)
 {
 	if (NULL == other_view)
 	{
-		llwarns << "other_view is NULL" << llendl;
+		LL_WARNS() << "other_view is NULL" << LL_ENDL;
 		return FALSE;
 	}
 
@@ -1146,11 +1146,11 @@ void LLFloater::handleReshape(const LLRect& new_rect, bool by_user)
 			{
 				setDocked( false, false);
 			}
-			storeRectControl();
-			mPositioning = LLFloaterEnums::POSITIONING_RELATIVE;
-			LLRect screen_rect = calcScreenRect();
-			mPosition = LLCoordGL(screen_rect.getCenterX(), screen_rect.getCenterY()).convert();
-		}
+		storeRectControl();
+		mPositioning = LLFloaterEnums::POSITIONING_RELATIVE;
+		LLRect screen_rect = calcScreenRect();
+		mPosition = LLCoordGL(screen_rect.getCenterX(), screen_rect.getCenterY()).convert();
+	}
 
 		// gather all snapped dependents
 		for(handle_set_iter_t dependent_it = mDependents.begin();
@@ -3114,8 +3114,8 @@ boost::signals2::connection LLFloater::setCloseCallback( const commit_signal_t::
 	return mCloseSignal.connect(cb);
 }
 
-LLFastTimer::DeclareTimer POST_BUILD("Floater Post Build");
-static LLFastTimer::DeclareTimer FTM_EXTERNAL_FLOATER_LOAD("Load Extern Floater Reference");
+LLTrace::TimeBlock POST_BUILD("Floater Post Build");
+static LLTrace::TimeBlock FTM_EXTERNAL_FLOATER_LOAD("Load Extern Floater Reference");
 
 bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::string& filename, LLXMLNodePtr output_node)
 {
@@ -3139,16 +3139,16 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::str
 			parser.readXUI(node, output_params, LLUICtrlFactory::getInstance()->getCurFileName());
 			setupParamsForExport(output_params, parent);
 			output_node->setName(node->getName()->mString);
-			parser.writeXUI(output_node, output_params, &default_params);
+			parser.writeXUI(output_node, output_params, LLInitParam::default_parse_rules(), &default_params);
 			return TRUE;
 		}
 
 		LLUICtrlFactory::instance().pushFileName(xml_filename);
 
-		LLFastTimer _(FTM_EXTERNAL_FLOATER_LOAD);
+		LL_RECORD_BLOCK_TIME(FTM_EXTERNAL_FLOATER_LOAD);
 		if (!LLUICtrlFactory::getLayeredXMLNode(xml_filename, referenced_xml))
 		{
-			llwarns << "Couldn't parse panel from: " << xml_filename << llendl;
+			LL_WARNS() << "Couldn't parse panel from: " << xml_filename << LL_ENDL;
 
 			return FALSE;
 		}
@@ -3169,9 +3169,8 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::str
 	{
 		Params output_params(params);
 		setupParamsForExport(output_params, parent);
-        Params default_params(LLUICtrlFactory::getDefaultParams<LLFloater>());
 		output_node->setName(node->getName()->mString);
-		parser.writeXUI(output_node, output_params, &default_params);
+		parser.writeXUI(output_node, output_params, LLInitParam::default_parse_rules(), &default_params);
 	}
 
 	// Default floater position to top-left corner of screen
@@ -3223,14 +3222,14 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::str
 
 	BOOL result;
 	{
-		LLFastTimer ft(POST_BUILD);
+		LL_RECORD_BLOCK_TIME(POST_BUILD);
 
 		result = postBuild();
 	}
 
 	if (!result)
 	{
-		llerrs << "Failed to construct floater " << getName() << llendl;
+		LL_ERRS() << "Failed to construct floater " << getName() << LL_ENDL;
 	}
 
 	applyRectControl(); // If we have a saved rect control, apply it
@@ -3271,29 +3270,29 @@ bool LLFloater::isVisible(const LLFloater* floater)
     return floater && floater->getVisible();
 }
 
-static LLFastTimer::DeclareTimer FTM_BUILD_FLOATERS("Build Floaters");
+static LLTrace::TimeBlock FTM_BUILD_FLOATERS("Build Floaters");
 
 bool LLFloater::buildFromFile(const std::string& filename)
 {
-	LLFastTimer timer(FTM_BUILD_FLOATERS);
+	LL_RECORD_BLOCK_TIME(FTM_BUILD_FLOATERS);
 	LLXMLNodePtr root;
 
 	if (!LLUICtrlFactory::getLayeredXMLNode(filename, root))
 	{
-		llwarns << "Couldn't find (or parse) floater from: " << filename << llendl;
+		LL_WARNS() << "Couldn't find (or parse) floater from: " << filename << LL_ENDL;
 		return false;
 	}
 	
 	// root must be called floater
 	if( !(root->hasName("floater") || root->hasName("multi_floater")) )
 	{
-		llwarns << "Root node should be named floater in: " << filename << llendl;
+		LL_WARNS() << "Root node should be named floater in: " << filename << LL_ENDL;
 		return false;
 	}
 	
 	bool res = true;
 	
-	lldebugs << "Building floater " << filename << llendl;
+	LL_DEBUGS() << "Building floater " << filename << LL_ENDL;
 	LLUICtrlFactory::instance().pushFileName(filename);
 	{
 		if (!getFactoryMap().empty())

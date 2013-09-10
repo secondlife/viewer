@@ -89,7 +89,7 @@ S32 LLDrawPoolAlpha::getNumPostDeferredPasses()
 
 void LLDrawPoolAlpha::beginPostDeferredPass(S32 pass) 
 { 
-	LLFastTimer t(FTM_RENDER_ALPHA);
+	LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA);
 
 	if (pass == 0)
 	{
@@ -142,7 +142,7 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
 
 void LLDrawPoolAlpha::beginRenderPass(S32 pass)
 {
-	LLFastTimer t(FTM_RENDER_ALPHA);
+	LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA);
 	
 	if (LLPipeline::sUnderWaterRender)
 	{
@@ -168,7 +168,7 @@ void LLDrawPoolAlpha::beginRenderPass(S32 pass)
 
 void LLDrawPoolAlpha::endRenderPass( S32 pass )
 {
-	LLFastTimer t(FTM_RENDER_ALPHA);
+	LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA);
 	LLRenderPass::endRenderPass(pass);
 
 	if(gPipeline.canUseWindLightShaders()) 
@@ -179,7 +179,7 @@ void LLDrawPoolAlpha::endRenderPass( S32 pass )
 
 void LLDrawPoolAlpha::render(S32 pass)
 {
-	LLFastTimer t(FTM_RENDER_ALPHA);
+	LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA);
 
 	LLGLSPipelineAlpha gls_pipeline_alpha;
 
@@ -191,7 +191,7 @@ void LLDrawPoolAlpha::render(S32 pass)
 	{
 		gGL.setColorMask(true, true);
 	}
-	
+
 	LLGLDepthTest depth(GL_TRUE, LLDrawPoolWater::sSkipScreenCopy || 
 				(deferred_render && pass == 1) ? GL_TRUE : GL_FALSE);
 
@@ -288,7 +288,7 @@ void LLDrawPoolAlpha::renderAlphaHighlight(U32 mask)
 	for (LLCullResult::sg_iterator i = gPipeline.beginAlphaGroups(); i != gPipeline.endAlphaGroups(); ++i)
 	{
 		LLSpatialGroup* group = *i;
-		if (group->mSpatialPartition->mRenderByGroup &&
+		if (group->getSpatialPartition()->mRenderByGroup &&
 			!group->isDead())
 		{
 			LLSpatialGroup::drawmap_elem_t& draw_info = group->mDrawMap[LLRenderPass::PASS_ALPHA];	
@@ -326,15 +326,15 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 	{
 		LLSpatialGroup* group = *i;
 		llassert(group);
-		llassert(group->mSpatialPartition);
+		llassert(group->getSpatialPartition());
 
-		if (group->mSpatialPartition->mRenderByGroup &&
+		if (group->getSpatialPartition()->mRenderByGroup &&
 		    !group->isDead())
 		{
 			bool draw_glow_for_this_partition = mVertexShaderLevel > 0 && // no shaders = no glow.
 				// All particle systems seem to come off the wire with texture entries which claim that they glow.  This is probably a bug in the data.  Suppress.
-				group->mSpatialPartition->mPartitionType != LLViewerRegion::PARTITION_PARTICLE &&
-				group->mSpatialPartition->mPartitionType != LLViewerRegion::PARTITION_HUD_PARTICLE;
+				group->getSpatialPartition()->mPartitionType != LLViewerRegion::PARTITION_PARTICLE &&
+				group->getSpatialPartition()->mPartitionType != LLViewerRegion::PARTITION_HUD_PARTICLE;
 
 			LLSpatialGroup::drawmap_elem_t& draw_info = group->mDrawMap[LLRenderPass::PASS_ALPHA];
 
@@ -344,19 +344,19 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 
 				if ((params.mVertexBuffer->getTypeMask() & mask) != mask)
 				{ //FIXME!
-					llwarns << "Missing required components, skipping render batch." << llendl;
+					LL_WARNS() << "Missing required components, skipping render batch." << LL_ENDL;
 					continue;
 				}
 
 				LLRenderPass::applyModelMatrix(params);
-				
+
 				LLMaterial* mat = NULL;
 
 				if (deferred_render && !LLPipeline::sUnderWaterRender)
 				{
 					mat = params.mMaterial;
 				}
-
+				
 				if (params.mFullbright)
 				{
 					// Turn off lighting if it hasn't already been so.
@@ -421,7 +421,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 					LLGLSLShader::bindNoShader();
 					current_shader = NULL;
 				}
-				
+
 				if (use_shaders && mat)
 				{
 					// We have a material.  Supply the appropriate data here.
@@ -471,7 +471,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 						}
 					}
 				}
-				else  
+				else
 				{ //not batching textures or batch has only 1 texture -- might need a texture matrix
 					if (params.mTexture.notNull())
 					{
@@ -482,7 +482,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 						}
 						else
 						{
-							gGL.getTexUnit(0)->bind(params.mTexture, TRUE);
+						gGL.getTexUnit(0)->bind(params.mTexture, TRUE) ;
 						}
 						
 						if (params.mTextureMatrix)

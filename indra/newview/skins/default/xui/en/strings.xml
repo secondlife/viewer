@@ -419,7 +419,7 @@ Please try logging in again in a minute.</string>
 	<string name="OverrideYourAnimations">Replace your default animations</string>
 	<string name="ScriptReturnObjects">Return objects on your behalf</string>
 	<string name="UnknownScriptPermission">(unknown)!</string>
-
+	
 	<!-- Sim Access labels -->
 	<string name="SIM_ACCESS_PG">General</string>
 	<string name="SIM_ACCESS_MATURE">Moderate</string>
@@ -2403,6 +2403,7 @@ Drag folders to this area and click "Send to Marketplace" to list them for sale 
 
 	<!-- compile queue-->
 	<string name="CompileQueueDownloadedCompiling">Downloaded, now compiling</string>
+	<string name="CompileQueueServiceUnavailable">Script compilation service not available</string>
 	<string name="CompileQueueScriptNotFound">Script not found on server.</string>
 	<string name="CompileQueueProblemDownloading">Problem downloading</string>
 	<string name="CompileQueueInsufficientPermDownload">Insufficient permissions to download a script.</string>

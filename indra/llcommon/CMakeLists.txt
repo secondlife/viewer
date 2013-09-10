@@ -26,22 +26,20 @@ include_directories(
 #     ${LLCOMMON_LIBRARIES})
 
 set(llcommon_SOURCE_FILES
-    imageids.cpp
     indra_constants.cpp
     llallocator.cpp
     llallocator_heap_profile.cpp
     llapp.cpp
     llapr.cpp
     llassettype.cpp
-    llavatarname.cpp
     llbase32.cpp
     llbase64.cpp
+	llbitpack.cpp
     llcommon.cpp
     llcommonutils.cpp
     llcoros.cpp
     llcrc.cpp
     llcriticaldamp.cpp
-    llcursortypes.cpp
     lldate.cpp
     lldependencies.cpp
     lldictionary.cpp
@@ -58,7 +56,6 @@ set(llcommon_SOURCE_FILES
     llfile.cpp
     llfindlocale.cpp
     llfixedbuffer.cpp
-    llfoldertype.cpp
     llformat.cpp
     llframetimer.cpp
     llheartbeat.cpp
@@ -68,15 +65,15 @@ set(llcommon_SOURCE_FILES
     llleaplistener.cpp
     llliveappconfig.cpp
     lllivefile.cpp
-    lllog.cpp
     llmd5.cpp
     llmemory.cpp
     llmemorystream.cpp
     llmetrics.cpp
     llmetricperformancetester.cpp
     llmortician.cpp
-    lloptioninterface.cpp
+    llmutex.cpp
     llptrto.cpp 
+    llpredicate.cpp
     llprocess.cpp
     llprocessor.cpp
     llqueuedthread.cpp
@@ -88,9 +85,7 @@ set(llcommon_SOURCE_FILES
     llsdserialize.cpp
     llsdserialize_xml.cpp
     llsdutil.cpp
-    llsecondlifeurls.cpp
     llsingleton.cpp
-    llstat.cpp
     llstacktrace.cpp
     llstreamqueue.cpp
     llstreamtools.cpp
@@ -98,14 +93,16 @@ set(llcommon_SOURCE_FILES
     llstringtable.cpp
     llsys.cpp
     llthread.cpp
+    llthreadlocalstorage.cpp
     llthreadsafequeue.cpp
     lltimer.cpp
+    lltrace.cpp
+    lltraceaccumulators.cpp
+    lltracerecording.cpp
+    lltracethreadrecorder.cpp
     lluri.cpp
     lluuid.cpp
     llworkerthread.cpp
-    metaclass.cpp
-    metaproperty.cpp
-    reflective.cpp
     timing.cpp
     u64.cpp
     )
@@ -113,51 +110,33 @@ set(llcommon_SOURCE_FILES
 set(llcommon_HEADER_FILES
     CMakeLists.txt
 
-    bitpack.h
     ctype_workaround.h
-    doublelinkedlist.h
     fix_macros.h
-    imageids.h
     indra_constants.h
     linden_common.h
-    linked_lists.h
-    llaccountingcost.h
     llallocator.h
     llallocator_heap_profile.h
-    llagentconstants.h
-    llavatarname.h
     llapp.h
     llapr.h
     llassettype.h
-    llassoclist.h
-    llavatarconstants.h
     llbase32.h
     llbase64.h
+    llbitpack.h
     llboost.h
-    llchat.h
-    llclickaction.h
     llcommon.h
     llcommonutils.h
     llcoros.h
     llcrc.h
     llcriticaldamp.h
-    llcursortypes.h
-    lldarray.h
-    lldarrayptr.h
     lldate.h
     lldefs.h
     lldependencies.h
-    lldeleteutils.h
     lldepthstack.h
     lldictionary.h
-    lldlinked.h
     lldoubledispatch.h
-    lldqueueptr.h
     llendianswizzle.h
-    llenum.h
     llerror.h
     llerrorcontrol.h
-    llerrorlegacy.h
     llerrorthread.h
     llevent.h
     lleventapi.h
@@ -166,48 +145,38 @@ set(llcommon_HEADER_FILES
     lleventfilter.h
     llevents.h
     lleventemitter.h
-    llextendedstatus.h
     llfasttimer.h
     llfile.h
     llfindlocale.h
     llfixedbuffer.h
-    llfoldertype.h
     llformat.h
     llframetimer.h
     llhandle.h
     llhash.h
     llheartbeat.h
     llhttpstatuscodes.h
-    llindexedqueue.h
+    llindexedvector.h
     llinitparam.h
     llinstancetracker.h
     llkeythrottle.h
-    lllazy.h
     llleap.h
     llleaplistener.h
     lllistenerwrapper.h
-    lllinkedqueue.h
     llliveappconfig.h
     lllivefile.h
-    lllocalidhashmap.h
-    lllog.h
-    lllslconstants.h
-    llmap.h
     llmd5.h
     llmemory.h
     llmemorystream.h
     llmetrics.h
     llmetricperformancetester.h
     llmortician.h
-    llnametable.h
-    lloptioninterface.h
+    llmutex.h
     llpointer.h
+    llpredicate.h
     llpreprocessor.h
     llpriqueuemap.h
     llprocess.h
     llprocessor.h
-    llptrskiplist.h
-    llptrskipmap.h
     llptrto.h
     llqueuedthread.h
     llrand.h
@@ -221,16 +190,9 @@ set(llcommon_HEADER_FILES
     llsdserialize.h
     llsdserialize_xml.h
     llsdutil.h
-    llsecondlifeurls.h
     llsimplehash.h
     llsingleton.h
-    llskiplist.h
-    llskipmap.h
-    llsortedvector.h
-    llstack.h
     llstacktrace.h
-    llstat.h
-    llstatenums.h
     llstl.h
     llstreamqueue.h
     llstreamtools.h
@@ -239,29 +201,24 @@ set(llcommon_HEADER_FILES
     llstringtable.h
     llsys.h
     llthread.h
+    llthreadlocalstorage.h
     llthreadsafequeue.h
     lltimer.h
+    lltrace.h
+	lltraceaccumulators.h
+    lltracerecording.h
+    lltracethreadrecorder.h
     lltreeiterators.h
-    lltypeinfolookup.h
+    llunits.h
+    llunittype.h
     lluri.h
     lluuid.h
-    lluuidhashmap.h
-    llversionserver.h
+	llwin32headers.h
+    llwin32headerslean.h
     llworkerthread.h
-    ll_template_cast.h
-    metaclass.h
-    metaclasst.h
-    metaproperty.h
-    metapropertyt.h
-    reflective.h
-    reflectivet.h
-    roles_constants.h
-    stdenums.h
     stdtypes.h
-    string_table.h
     stringize.h
     timer.h
-    timing.h
     u64.h
     )
 
@@ -326,15 +283,15 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(llerror "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llframetimer "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llinstancetracker "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(lllazy "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llprocessor "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llrand "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llsdserialize "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llsingleton "" "${test_libs}")                          
   LL_ADD_INTEGRATION_TEST(llstring "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(lltrace "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lltreeiterators "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lluri "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(reflection "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llunits "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(stringize "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lleventdispatcher "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lleventcoro "" "${test_libs};${BOOST_CONTEXT_LIBRARY}")

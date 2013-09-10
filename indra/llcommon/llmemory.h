@@ -27,6 +27,10 @@
 #define LLMEMORY_H
 
 #include "linden_common.h"
+#include "llunits.h"
+#if !LL_WINDOWS
+#include <stdint.h>
+#endif
 
 class LLMutex ;
 
@@ -34,6 +38,20 @@ class LLMutex ;
 #define LL_CHECK_MEMORY llassert(_CrtCheckMemory());
 #else
 #define LL_CHECK_MEMORY
+#endif
+
+#if LL_WINDOWS
+#define LL_ALIGN_OF __alignof
+#else
+#define LL_ALIGN_OF __align_of__
+#endif
+
+#if LL_WINDOWS
+#define LL_DEFAULT_HEAP_ALIGN 8
+#elif LL_DARWIN
+#define LL_DEFAULT_HEAP_ALIGN 16
+#elif LL_LINUX
+#define LL_DEFAULT_HEAP_ALIGN 8
 #endif
 
 inline void* ll_aligned_malloc( size_t size, int align )
@@ -148,69 +166,24 @@ public:
 	static U64 getCurrentRSS();
 	static U32 getWorkingSetSize();
 	static void* tryToAlloc(void* address, U32 size);
-	static void initMaxHeapSizeGB(F32 max_heap_size_gb, BOOL prevent_heap_failure);
+	static void initMaxHeapSizeGB(F32Gigabytes max_heap_size, BOOL prevent_heap_failure);
 	static void updateMemoryInfo() ;
 	static void logMemoryInfo(BOOL update = FALSE);
 	static bool isMemoryPoolLow();
 
-	static U32 getAvailableMemKB() ;
-	static U32 getMaxMemKB() ;
-	static U32 getAllocatedMemKB() ;
+	static U32Kilobytes getAvailableMemKB() ;
+	static U32Kilobytes getMaxMemKB() ;
+	static U32Kilobytes getAllocatedMemKB() ;
 private:
 	static char* reserveMem;
-	static U32 sAvailPhysicalMemInKB ;
-	static U32 sMaxPhysicalMemInKB ;
-	static U32 sAllocatedMemInKB;
-	static U32 sAllocatedPageSizeInKB ;
+	static U32Kilobytes sAvailPhysicalMemInKB ;
+	static U32Kilobytes sMaxPhysicalMemInKB ;
+	static U32Kilobytes sAllocatedMemInKB;
+	static U32Kilobytes sAllocatedPageSizeInKB ;
 
-	static U32 sMaxHeapSizeInKB;
+	static U32Kilobytes sMaxHeapSizeInKB;
 	static BOOL sEnableMemoryFailurePrevention;
 };
-
-//----------------------------------------------------------------------------
-#if MEM_TRACK_MEM
-class LLMutex ;
-class LL_COMMON_API LLMemTracker
-{
-private:
-	LLMemTracker() ;
-	~LLMemTracker() ;
-
-public:
-	static void release() ;
-	static LLMemTracker* getInstance() ;
-
-	void track(const char* function, const int line) ;
-	void preDraw(BOOL pause) ;
-	void postDraw() ;
-	const char* getNextLine() ;
-
-private:
-	static LLMemTracker* sInstance ;
-	
-	char**     mStringBuffer ;
-	S32        mCapacity ;
-	U32        mLastAllocatedMem ;
-	S32        mCurIndex ;
-	S32        mCounter;
-	S32        mDrawnIndex;
-	S32        mNumOfDrawn;
-	BOOL       mPaused;
-	LLMutex*   mMutexp ;
-};
-
-#define MEM_TRACK_RELEASE LLMemTracker::release() ;
-#define MEM_TRACK         LLMemTracker::getInstance()->track(__FUNCTION__, __LINE__) ;
-
-#else // MEM_TRACK_MEM
-
-#define MEM_TRACK_RELEASE
-#define MEM_TRACK
-
-#endif // MEM_TRACK_MEM
-
-//----------------------------------------------------------------------------
-
 
 //
 //class LLPrivateMemoryPool defines a private memory pool for an application to use, so the application does not

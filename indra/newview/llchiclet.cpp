@@ -192,7 +192,7 @@ void LLNotificationChiclet::createMenu()
 {
 	if(mContextMenu)
 	{
-		llwarns << "Menu already exists" << llendl;
+		LL_WARNS() << "Menu already exists" << LL_ENDL;
 		return;
 	}
 
@@ -372,7 +372,7 @@ bool LLIMChiclet::canCreateMenu()
 {
 	if(mPopupMenu)
 	{
-		llwarns << "Menu already exists" << llendl;
+		LL_WARNS() << "Menu already exists" << LL_ENDL;
 		return false;
 	}
 	if(getSessionId().isNull())
@@ -718,7 +718,7 @@ void LLChicletPanel::setChicletToggleState(const LLUUID& session_id, bool toggle
 {
 	if(session_id.isNull())
 	{
-		llwarns << "Null Session ID" << llendl;
+		LL_WARNS() << "Null Session ID" << LL_ENDL;
 	}
 
 	// toggle off all chiclets, except specified

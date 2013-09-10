@@ -27,9 +27,9 @@
 #ifndef LL_LLMESSAGETEMPLATE_H
 #define LL_LLMESSAGETEMPLATE_H
 
-#include "lldarray.h"
 #include "message.h" // TODO: babbage: Remove...
 #include "llstl.h"
+#include "llindexedvector.h"
 
 class LLMsgVarData
 {
@@ -102,7 +102,7 @@ public:
 	}
 
 	S32									mBlockNumber;
-	typedef LLDynamicArrayIndexed<LLMsgVarData, const char *, 8> msg_var_data_map_t;
+	typedef LLIndexedVector<LLMsgVarData, const char *, 8> msg_var_data_map_t;
 	msg_var_data_map_t					mMemberVarData;
 	char								*mName;
 	S32									mTotalSize;
@@ -193,7 +193,7 @@ public:
 		LLMessageVariable** varp = &mMemberVariables[name];
 		if (*varp != NULL)
 		{
-			llerrs << name << " has already been used as a variable name!" << llendl;
+			LL_ERRS() << name << " has already been used as a variable name!" << LL_ENDL;
 		}
 		*varp = new LLMessageVariable(name, type, size);
 		if (((*varp)->getType() != MVT_VARIABLE)
@@ -225,7 +225,7 @@ public:
 
 	friend std::ostream&	 operator<<(std::ostream& s, LLMessageBlock &msg);
 
-	typedef LLDynamicArrayIndexed<LLMessageVariable*, const char *, 8> message_variable_map_t;
+	typedef LLIndexedVector<LLMessageVariable*, const char *, 8> message_variable_map_t;
 	message_variable_map_t 					mMemberVariables;
 	char									*mName;
 	EMsgBlockType							mType;
@@ -301,8 +301,8 @@ public:
 		LLMessageBlock** member_blockp = &mMemberBlocks[blockp->mName];
 		if (*member_blockp != NULL)
 		{
-			llerrs << "Block " << blockp->mName
-				<< "has already been used as a block name!" << llendl;
+			LL_ERRS() << "Block " << blockp->mName
+				<< "has already been used as a block name!" << LL_ENDL;
 		}
 		*member_blockp = blockp;
 		if (  (mTotalSize != -1)
@@ -391,7 +391,7 @@ public:
 	}
 
 public:
-	typedef LLDynamicArrayIndexed<LLMessageBlock*, char*, 8> message_block_map_t;
+	typedef LLIndexedVector<LLMessageBlock*, char*, 8> message_block_map_t;
 	message_block_map_t						mMemberBlocks;
 	char									*mName;
 	EMsgFrequency							mFrequency;

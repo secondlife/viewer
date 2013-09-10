@@ -34,6 +34,7 @@
 #include "apr_poll.h"
 
 #include "llapr.h"
+#include "llfasttimer.h"
 #include "llstl.h"
 
 // These should not be enabled in production, but they can be
@@ -81,7 +82,7 @@ void ll_debug_poll_fd(const char* msg, const apr_pollfd_t* poll)
 #if LL_DEBUG_POLL_FILE_DESCRIPTORS
 	if(!poll)
 	{
-		lldebugs << "Poll -- " << (msg?msg:"") << ": no pollfd." << llendl;
+		LL_DEBUGS() << "Poll -- " << (msg?msg:"") << ": no pollfd." << LL_ENDL;
 		return;
 	}
 	if(poll->desc.s)
@@ -89,13 +90,13 @@ void ll_debug_poll_fd(const char* msg, const apr_pollfd_t* poll)
 		apr_os_sock_t os_sock;
 		if(APR_SUCCESS == apr_os_sock_get(&os_sock, poll->desc.s))
 		{
-			lldebugs << "Poll -- " << (msg?msg:"") << " on fd " << os_sock
-				 << " at " << poll->desc.s << llendl;
+			LL_DEBUGS() << "Poll -- " << (msg?msg:"") << " on fd " << os_sock
+				 << " at " << poll->desc.s << LL_ENDL;
 		}
 		else
 		{
-			lldebugs << "Poll -- " << (msg?msg:"") << " no fd "
-				 << " at " << poll->desc.s << llendl;
+			LL_DEBUGS() << "Poll -- " << (msg?msg:"") << " no fd "
+				 << " at " << poll->desc.s << LL_ENDL;
 		}
 	}
 	else if(poll->desc.f)
@@ -103,18 +104,18 @@ void ll_debug_poll_fd(const char* msg, const apr_pollfd_t* poll)
 		apr_os_file_t os_file;
 		if(APR_SUCCESS == apr_os_file_get(&os_file, poll->desc.f))
 		{
-			lldebugs << "Poll -- " << (msg?msg:"") << " on fd " << os_file
-				 << " at " << poll->desc.f << llendl;
+			LL_DEBUGS() << "Poll -- " << (msg?msg:"") << " on fd " << os_file
+				 << " at " << poll->desc.f << LL_ENDL;
 		}
 		else
 		{
-			lldebugs << "Poll -- " << (msg?msg:"") << " no fd "
-				 << " at " << poll->desc.f << llendl;
+			LL_DEBUGS() << "Poll -- " << (msg?msg:"") << " no fd "
+				 << " at " << poll->desc.f << LL_ENDL;
 		}
 	}
 	else
 	{
-		lldebugs << "Poll -- " << (msg?msg:"") << ": no descriptor." << llendl;
+		LL_DEBUGS() << "Poll -- " << (msg?msg:"") << ": no descriptor." << LL_ENDL;
 	}
 #endif	
 }
@@ -203,10 +204,10 @@ bool LLPumpIO::addChain(const chain_t& chain, F32 timeout, bool has_curl_request
 	info.mData->setThreaded(has_curl_request);
 	LLLinkInfo link;
 #if LL_DEBUG_PIPE_TYPE_IN_PUMP
-	lldebugs << "LLPumpIO::addChain() " << chain[0] << " '"
-		<< typeid(*(chain[0])).name() << "'" << llendl;
+	LL_DEBUGS() << "LLPumpIO::addChain() " << chain[0] << " '"
+		<< typeid(*(chain[0])).name() << "'" << LL_ENDL;
 #else
-	lldebugs << "LLPumpIO::addChain() " << chain[0] <<llendl;
+	LL_DEBUGS() << "LLPumpIO::addChain() " << chain[0] <<LL_ENDL;
 #endif
 	chain_t::const_iterator it = chain.begin();
 	chain_t::const_iterator end = chain.end();
@@ -237,10 +238,10 @@ bool LLPumpIO::addChain(
 	LLScopedLock lock(mChainsMutex);
 #endif
 #if LL_DEBUG_PIPE_TYPE_IN_PUMP
-	lldebugs << "LLPumpIO::addChain() " << links[0].mPipe << " '"
-		<< typeid(*(links[0].mPipe)).name() << "'" << llendl;
+	LL_DEBUGS() << "LLPumpIO::addChain() " << links[0].mPipe << " '"
+		<< typeid(*(links[0].mPipe)).name() << "'" << LL_ENDL;
 #else
-	lldebugs << "LLPumpIO::addChain() " << links[0].mPipe << llendl;
+	LL_DEBUGS() << "LLPumpIO::addChain() " << links[0].mPipe << LL_ENDL;
 #endif
 	LLChainInfo info;
 	info.setTimeoutSeconds(timeout);
@@ -306,12 +307,12 @@ bool LLPumpIO::setConditional(LLIOPipe* pipe, const apr_pollfd_t* poll)
 	if(!pipe) return false;
 	ll_debug_poll_fd("Set conditional", poll);
 
-	lldebugs << "Setting conditionals (" << (poll ? events_2_string(poll->reqevents) :"null")
+	LL_DEBUGS() << "Setting conditionals (" << (poll ? events_2_string(poll->reqevents) :"null")
 		 << ") "
 #if LL_DEBUG_PIPE_TYPE_IN_PUMP
 		 << "on pipe " << typeid(*pipe).name() 
 #endif
-		 << " at " << pipe << llendl;
+		 << " at " << pipe << LL_ENDL;
 
 	// remove any matching poll file descriptors for this pipe.
 	LLIOPipe::ptr_t pipe_ptr(pipe);
@@ -430,8 +431,8 @@ void LLPumpIO::pump()
 	pump(DEFAULT_POLL_TIMEOUT);
 }
 
-static LLFastTimer::DeclareTimer FTM_PUMP_IO("Pump IO");
-static LLFastTimer::DeclareTimer FTM_PUMP_POLL("Pump Poll");
+static LLTrace::TimeBlock FTM_PUMP_IO("Pump IO");
+static LLTrace::TimeBlock FTM_PUMP_POLL("Pump Poll");
 
 LLPumpIO::current_chain_t LLPumpIO::removeRunningChain(LLPumpIO::current_chain_t& run_chain) 
 {
@@ -445,8 +446,8 @@ LLPumpIO::current_chain_t LLPumpIO::removeRunningChain(LLPumpIO::current_chain_t
 //timeout is in microseconds
 void LLPumpIO::pump(const S32& poll_timeout)
 {
-	LLFastTimer t1(FTM_PUMP_IO);
-	//llinfos << "LLPumpIO::pump()" << llendl;
+	LL_RECORD_BLOCK_TIME(FTM_PUMP_IO);
+	//LL_INFOS() << "LLPumpIO::pump()" << LL_ENDL;
 
 	// Run any pending runners.
 	mRunner.run();
@@ -474,7 +475,7 @@ void LLPumpIO::pump(const S32& poll_timeout)
 		if(!mPendingChains.empty())
 		{
 			PUMP_DEBUG;
-			//lldebugs << "Pushing " << mPendingChains.size() << "." << llendl;
+			//LL_DEBUGS() << "Pushing " << mPendingChains.size() << "." << LL_ENDL;
 			std::copy(
 				mPendingChains.begin(),
 				mPendingChains.end(),
@@ -522,11 +523,11 @@ void LLPumpIO::pump(const S32& poll_timeout)
 	if(mPollset)
 	{
 		PUMP_DEBUG;
-		//llinfos << "polling" << llendl;
+		//LL_INFOS() << "polling" << LL_ENDL;
 		S32 count = 0;
 		S32 client_id = 0;
         {
-			LLFastTimer _(FTM_PUMP_POLL);
+			LL_RECORD_BLOCK_TIME(FTM_PUMP_POLL);
             apr_pollset_poll(mPollset, poll_timeout, &count, &poll_fd);
         }
 		PUMP_DEBUG;
@@ -544,7 +545,7 @@ void LLPumpIO::pump(const S32& poll_timeout)
 	signal_client_t::iterator not_signalled = signalled_client.end();
 
 	// Process everything as appropriate
-	//lldebugs << "Running chain count: " << mRunningChains.size() << llendl;
+	//LL_DEBUGS() << "Running chain count: " << mRunningChains.size() << LL_ENDL;
 	running_chains_t::iterator run_chain = mRunningChains.begin();
 	bool process_this_chain = false;
 	while( run_chain != mRunningChains.end() )
@@ -564,9 +565,9 @@ void LLPumpIO::pump(const S32& poll_timeout)
 				   && (*run_chain).mTimer.hasExpired())
 				{
 					PUMP_DEBUG;
-					llinfos << "Error handler forgot to reset timeout. "
+					LL_INFOS() << "Error handler forgot to reset timeout. "
 							<< "Resetting to " << DEFAULT_CHAIN_EXPIRY_SECS
-							<< " seconds." << llendl;
+							<< " seconds." << LL_ENDL;
 					(*run_chain).setTimeoutSeconds(DEFAULT_CHAIN_EXPIRY_SECS);
 				}
 			}
@@ -576,15 +577,15 @@ void LLPumpIO::pump(const S32& poll_timeout)
 				// it timed out and no one handled it, so we need to
 				// retire the chain
 #if LL_DEBUG_PIPE_TYPE_IN_PUMP
-				lldebugs << "Removing chain "
+				LL_DEBUGS() << "Removing chain "
 						<< (*run_chain).mChainLinks[0].mPipe
 						<< " '"
 						<< typeid(*((*run_chain).mChainLinks[0].mPipe)).name()
-						<< "' because it timed out." << llendl;
+						<< "' because it timed out." << LL_ENDL;
 #else
-//				lldebugs << "Removing chain "
+//				LL_DEBUGS() << "Removing chain "
 //						<< (*run_chain).mChainLinks[0].mPipe
-//						<< " because we reached the end." << llendl;
+//						<< " because we reached the end." << LL_ENDL;
 #endif
 				run_chain = removeRunningChain(run_chain);
 				continue;
@@ -609,12 +610,12 @@ void LLPumpIO::pump(const S32& poll_timeout)
 		{
 			// if there are no conditionals, just process this chain.
 			process_this_chain = true;
-			//lldebugs << "no conditionals - processing" << llendl;
+			//LL_DEBUGS() << "no conditionals - processing" << LL_ENDL;
 		}
 		else
 		{
 			PUMP_DEBUG;
-			//lldebugs << "checking conditionals" << llendl;
+			//LL_DEBUGS() << "checking conditionals" << LL_ENDL;
 			// Check if this run chain was signalled. If any file
 			// descriptor is ready for something, then go ahead and
 			// process this chian.
@@ -654,7 +655,7 @@ void LLPumpIO::pump(const S32& poll_timeout)
 							error_status = LLIOPipe::STATUS_ERROR;
 						if(handleChainError(*run_chain, error_status)) break;
 						ll_debug_poll_fd("Removing pipe", poll);
-						llwarns << "Removing pipe "
+						LL_WARNS() << "Removing pipe "
 							<< (*run_chain).mChainLinks[0].mPipe
 							<< " '"
 #if LL_DEBUG_PIPE_TYPE_IN_PUMP
@@ -663,7 +664,7 @@ void LLPumpIO::pump(const S32& poll_timeout)
 #endif
 							<< "' because: "
 							<< events_2_string(poll->rtnevents)
-							<< llendl;
+							<< LL_ENDL;
 						(*run_chain).mHead = (*run_chain).mChainLinks.end();
 						break;
 					}
@@ -691,13 +692,13 @@ void LLPumpIO::pump(const S32& poll_timeout)
 		if((*run_chain).mHead == (*run_chain).mChainLinks.end())
 		{
 #if LL_DEBUG_PIPE_TYPE_IN_PUMP
-			lldebugs << "Removing chain " << (*run_chain).mChainLinks[0].mPipe
+			LL_DEBUGS() << "Removing chain " << (*run_chain).mChainLinks[0].mPipe
 					<< " '"
 					<< typeid(*((*run_chain).mChainLinks[0].mPipe)).name()
-					<< "' because we reached the end." << llendl;
+					<< "' because we reached the end." << LL_ENDL;
 #else
-//			lldebugs << "Removing chain " << (*run_chain).mChainLinks[0].mPipe
-//					<< " because we reached the end." << llendl;
+//			LL_DEBUGS() << "Removing chain " << (*run_chain).mChainLinks[0].mPipe
+//					<< " because we reached the end." << LL_ENDL;
 #endif
 
 			PUMP_DEBUG;
@@ -773,11 +774,11 @@ bool LLPumpIO::respond(
 	return true;
 }
 
-static LLFastTimer::DeclareTimer FTM_PUMP_CALLBACK_CHAIN("Chain");
+static LLTrace::TimeBlock FTM_PUMP_CALLBACK_CHAIN("Chain");
 
 void LLPumpIO::callback()
 {
-	//llinfos << "LLPumpIO::callback()" << llendl;
+	//LL_INFOS() << "LLPumpIO::callback()" << LL_ENDL;
 	if(true)
 	{
 #if LL_THREADS_APR
@@ -795,7 +796,7 @@ void LLPumpIO::callback()
 		callbacks_t::iterator end = mCallbacks.end();
 		for(; it != end; ++it)
 		{
-			LLFastTimer t(FTM_PUMP_CALLBACK_CHAIN);
+			LL_RECORD_BLOCK_TIME(FTM_PUMP_CALLBACK_CHAIN);
 			// it's always the first and last time for respone chains
 			(*it).mHead = (*it).mChainLinks.begin();
 			(*it).mInit = true;
@@ -846,7 +847,7 @@ void LLPumpIO::cleanup()
 	mCallbackMutex = NULL;
 	if(mPollset)
 	{
-//		lldebugs << "cleaning up pollset" << llendl;
+//		LL_DEBUGS() << "cleaning up pollset" << LL_ENDL;
 		apr_pollset_destroy(mPollset);
 		mPollset = NULL;
 	}
@@ -860,10 +861,10 @@ void LLPumpIO::cleanup()
 
 void LLPumpIO::rebuildPollset()
 {
-//	lldebugs << "LLPumpIO::rebuildPollset()" << llendl;
+//	LL_DEBUGS() << "LLPumpIO::rebuildPollset()" << LL_ENDL;
 	if(mPollset)
 	{
-		//lldebugs << "destroying pollset" << llendl;
+		//LL_DEBUGS() << "destroying pollset" << LL_ENDL;
 		apr_pollset_destroy(mPollset);
 		mPollset = NULL;
 	}
@@ -874,7 +875,7 @@ void LLPumpIO::rebuildPollset()
 	{
 		size += (*run_it).mDescriptors.size();
 	}
-	//lldebugs << "found " << size << " descriptors." << llendl;
+	//LL_DEBUGS() << "found " << size << " descriptors." << LL_ENDL;
 	if(size)
 	{
 		// Recycle the memory pool
@@ -921,10 +922,10 @@ void LLPumpIO::processChain(LLChainInfo& chain)
 	{
 #if LL_DEBUG_PROCESS_LINK
 #if LL_DEBUG_PIPE_TYPE_IN_PUMP
-		llinfos << "Processing " << typeid(*((*it).mPipe)).name() << "."
-				<< llendl;
+		LL_INFOS() << "Processing " << typeid(*((*it).mPipe)).name() << "."
+				<< LL_ENDL;
 #else
-		llinfos << "Processing link " << (*it).mPipe << "." << llendl;
+		LL_INFOS() << "Processing link " << (*it).mPipe << "." << LL_ENDL;
 #endif
 #endif
 #if LL_DEBUG_SPEW_BUFFER_CHANNEL_IN
@@ -941,15 +942,15 @@ void LLPumpIO::processChain(LLChainInfo& chain)
 					(U8*)buf,
 					bytes);
 				buf[bytes] = '\0';
-				llinfos << "CHANNEL IN(" << (*it).mChannels.in() << "): "
-						<< buf << llendl;
+				LL_INFOS() << "CHANNEL IN(" << (*it).mChannels.in() << "): "
+						<< buf << LL_ENDL;
 				delete[] buf;
 				buf = NULL;
 			}
 			else
 			{
-				llinfos << "CHANNEL IN(" << (*it).mChannels.in()<< "): (null)"
-						<< llendl;
+				LL_INFOS() << "CHANNEL IN(" << (*it).mChannels.in()<< "): (null)"
+						<< LL_ENDL;
 			}
 		}
 #endif
@@ -974,15 +975,15 @@ void LLPumpIO::processChain(LLChainInfo& chain)
 					(U8*)buf,
 					bytes);
 				buf[bytes] = '\0';
-				llinfos << "CHANNEL OUT(" << (*it).mChannels.out()<< "): "
-						<< buf << llendl;
+				LL_INFOS() << "CHANNEL OUT(" << (*it).mChannels.out()<< "): "
+						<< buf << LL_ENDL;
 				delete[] buf;
 				buf = NULL;
 			}
 			else
 			{
-				llinfos << "CHANNEL OUT(" << (*it).mChannels.out()<< "): (null)"
-						<< llendl;
+				LL_INFOS() << "CHANNEL OUT(" << (*it).mChannels.out()<< "): (null)"
+						<< LL_ENDL;
 			}
 		}
 #endif
@@ -992,11 +993,11 @@ void LLPumpIO::processChain(LLChainInfo& chain)
 		// below.
 		if(LLIOPipe::isSuccess(status))
 		{
-			llinfos << "Pipe returned: '"
+			LL_INFOS() << "Pipe returned: '"
 #if LL_DEBUG_PIPE_TYPE_IN_PUMP
 					<< typeid(*((*it).mPipe)).name() << "':'"
 #endif
-					<< LLIOPipe::lookupStatusString(status) << "'" << llendl;
+					<< LLIOPipe::lookupStatusString(status) << "'" << LL_ENDL;
 		}
 #endif
 
@@ -1036,12 +1037,12 @@ void LLPumpIO::processChain(LLChainInfo& chain)
 			PUMP_DEBUG;
 			if(LLIOPipe::isError(status))
 			{
-				llinfos << "Pump generated pipe err: '"
+				LL_INFOS() << "Pump generated pipe err: '"
 #if LL_DEBUG_PIPE_TYPE_IN_PUMP
 						<< typeid(*((*it).mPipe)).name() << "':'"
 #endif
 						<< LLIOPipe::lookupStatusString(status)
-						<< "'" << llendl;
+						<< "'" << LL_ENDL;
 #if LL_DEBUG_SPEW_BUFFER_CHANNEL_IN_ON_ERROR
 				if(chain.mData)
 				{
@@ -1058,18 +1059,18 @@ void LLPumpIO::processChain(LLChainInfo& chain)
 							(U8*)buf,
 							bytes);
 						buf[bytes] = '\0';
-						llinfos << "Input After Error: " << buf << llendl;
+						LL_INFOS() << "Input After Error: " << buf << LL_ENDL;
 						delete[] buf;
 						buf = NULL;
 					}
 					else
 					{
-						llinfos << "Input After Error: (null)" << llendl;
+						LL_INFOS() << "Input After Error: (null)" << LL_ENDL;
 					}
 				}
 				else
 				{
-					llinfos << "Input After Error: (null)" << llendl;
+					LL_INFOS() << "Input After Error: (null)" << LL_ENDL;
 				}
 #endif
 				keep_going = false;
@@ -1081,8 +1082,8 @@ void LLPumpIO::processChain(LLChainInfo& chain)
 			}
 			else
 			{
-				llinfos << "Unhandled status code: " << status << ":"
-						<< LLIOPipe::lookupStatusString(status) << llendl;
+				LL_INFOS() << "Unhandled status code: " << status << ":"
+						<< LLIOPipe::lookupStatusString(status) << LL_ENDL;
 			}
 			break;
 		}
@@ -1129,8 +1130,8 @@ bool LLPumpIO::handleChainError(
 	do
 	{
 #if LL_DEBUG_PIPE_TYPE_IN_PUMP
-		lldebugs << "Passing error to " << typeid(*((*rit).mPipe)).name()
-				 << "." << llendl;
+		LL_DEBUGS() << "Passing error to " << typeid(*((*rit).mPipe)).name()
+				 << "." << LL_ENDL;
 #endif
 		error = (*rit).mPipe->handleError(error, this);
 		switch(error)
@@ -1144,8 +1145,8 @@ bool LLPumpIO::handleChainError(
 		case LLIOPipe::STATUS_BREAK:
 		case LLIOPipe::STATUS_NEED_PROCESS:
 #if LL_DEBUG_PIPE_TYPE_IN_PUMP
-			lldebugs << "Pipe " << typeid(*((*rit).mPipe)).name()
-					 << " returned code to stop error handler." << llendl;
+			LL_DEBUGS() << "Pipe " << typeid(*((*rit).mPipe)).name()
+					 << " returned code to stop error handler." << LL_ENDL;
 #endif
 			keep_going = false;
 			break;
@@ -1155,8 +1156,8 @@ bool LLPumpIO::handleChainError(
 		default:
 			if(LLIOPipe::isSuccess(error))
 			{
-				llinfos << "Unhandled status code: " << error << ":"
-						<< LLIOPipe::lookupStatusString(error) << llendl;
+				LL_INFOS() << "Unhandled status code: " << error << ":"
+						<< LLIOPipe::lookupStatusString(error) << LL_ENDL;
 				error = LLIOPipe::STATUS_ERROR;
 				keep_going = false;
 			}

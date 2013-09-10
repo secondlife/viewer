@@ -35,6 +35,7 @@
 #include "lltexturemanagerbridge.h"
 #include "../llui/llui.h"
 #include "llwearable.h"
+#include "llfasttimer.h"
 
 //-----------------------------------------------------------------------------
 // LLTexLayerParam
@@ -49,7 +50,7 @@ LLTexLayerParam::LLTexLayerParam(LLTexLayerInterface *layer) :
 	}
 	else
 	{
-		llerrs << "LLTexLayerParam constructor passed with NULL reference for layer!" << llendl;
+		LL_ERRS() << "LLTexLayerParam constructor passed with NULL reference for layer!" << LL_ENDL;
 	}
 }
 
@@ -86,7 +87,7 @@ void LLTexLayerParamAlpha::dumpCacheByteCount()
 {
 	S32 gl_bytes = 0;
 	getCacheByteCount( &gl_bytes);
-	llinfos << "Processed Alpha Texture Cache GL:" << (gl_bytes/1024) << "KB" << llendl;
+	LL_INFOS() << "Processed Alpha Texture Cache GL:" << (gl_bytes/1024) << "KB" << LL_ENDL;
 }
 
 // static 
@@ -238,10 +239,10 @@ BOOL LLTexLayerParamAlpha::getSkip() const
 }
 
 
-static LLFastTimer::DeclareTimer FTM_TEX_LAYER_PARAM_ALPHA("alpha render");
+static LLTrace::TimeBlock FTM_TEX_LAYER_PARAM_ALPHA("alpha render");
 BOOL LLTexLayerParamAlpha::render(S32 x, S32 y, S32 width, S32 height)
 {
-	LLFastTimer t(FTM_TEX_LAYER_PARAM_ALPHA);
+	LL_RECORD_BLOCK_TIME(FTM_TEX_LAYER_PARAM_ALPHA);
 	BOOL success = TRUE;
 
 	if (!mTexLayer)
@@ -278,7 +279,7 @@ BOOL LLTexLayerParamAlpha::render(S32 x, S32 y, S32 width, S32 height)
 
 			if (mStaticImageTGA.isNull())
 			{
-				llwarns << "Unable to load static file: " << info->mStaticImageFileName << llendl;
+				LL_WARNS() << "Unable to load static file: " << info->mStaticImageFileName << LL_ENDL;
 				mStaticImageInvalid = TRUE; // don't try again.
 				return FALSE;
 			}
@@ -309,7 +310,7 @@ BOOL LLTexLayerParamAlpha::render(S32 x, S32 y, S32 width, S32 height)
 			mStaticImageRaw = new LLImageRaw;
 			mStaticImageTGA->decodeAndProcess(mStaticImageRaw, info->mDomain, effective_weight);
 			mNeedsCreateTexture = TRUE;			
-			lldebugs << "Built Cached Alpha: " << info->mStaticImageFileName << ": (" << mStaticImageRaw->getWidth() << ", " << mStaticImageRaw->getHeight() << ") " << "Domain: " << info->mDomain << " Weight: " << effective_weight << llendl;
+			LL_DEBUGS() << "Built Cached Alpha: " << info->mStaticImageFileName << ": (" << mStaticImageRaw->getWidth() << ", " << mStaticImageRaw->getHeight() << ") " << "Domain: " << info->mDomain << " Weight: " << effective_weight << LL_ENDL;
 		}
 
 		if (mCachedProcessedTexture)
@@ -380,7 +381,7 @@ BOOL LLTexLayerParamAlphaInfo::parseXml(LLXmlTreeNode* node)
 	}
 //	else
 //	{
-//		llwarns << "<param_alpha> element is missing tga_file attribute." << llendl;
+//		LL_WARNS() << "<param_alpha> element is missing tga_file attribute." << LL_ENDL;
 //	}
 	
 	static LLStdStringHandle multiply_blend_string = LLXmlTree::addAttributeString("multiply_blend");
@@ -481,7 +482,7 @@ void LLTexLayerParamColor::setWeight(F32 weight, BOOL upload_bake)
 			}
 		}
 
-//		llinfos << "param " << mName << " = " << new_weight << llendl;
+//		LL_INFOS() << "param " << mName << " = " << new_weight << LL_ENDL;
 	}
 }
 
@@ -556,13 +557,13 @@ BOOL LLTexLayerParamColorInfo::parseXml(LLXmlTreeNode *node)
 	}
 	if (!mNumColors)
 	{
-		llwarns << "<param_color> is missing <value> sub-elements" << llendl;
+		LL_WARNS() << "<param_color> is missing <value> sub-elements" << LL_ENDL;
 		return FALSE;
 	}
 
 	if ((mOperation == LLTexLayerParamColor::OP_BLEND) && (mNumColors != 1))
 	{
-		llwarns << "<param_color> with operation\"blend\" must have exactly one <value>" << llendl;
+		LL_WARNS() << "<param_color> with operation\"blend\" must have exactly one <value>" << LL_ENDL;
 		return FALSE;
 	}
 	

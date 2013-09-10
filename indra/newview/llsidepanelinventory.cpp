@@ -310,7 +310,7 @@ void LLSidepanelInventory::observeInboxModifications(const LLUUID& inboxID)
 
 	if (inboxID.isNull())
 	{
-		llwarns << "Attempting to track modifications to non-existent inbox" << llendl;
+		LL_WARNS() << "Attempting to track modifications to non-existent inbox" << LL_ENDL;
 		return;
 	}
 

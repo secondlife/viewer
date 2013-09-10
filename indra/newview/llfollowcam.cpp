@@ -327,11 +327,11 @@ void LLFollowCam::update()
 				F32 force = focusOffsetDistance - focusThresholdNormalizedByDistance;
 			*/
 
-			F32 focusLagLerp = LLCriticalDamp::getInterpolant( mFocusLag );
+			F32 focusLagLerp = LLSmoothInterpolation::getInterpolant( mFocusLag );
 			focus_pt_agent = lerp( focus_pt_agent, whereFocusWantsToBe, focusLagLerp );
 			mSimulatedFocusGlobal = gAgent.getPosGlobalFromAgent(focus_pt_agent);
 		}
-		mRelativeFocus = lerp(mRelativeFocus, (focus_pt_agent - mSubjectPosition) * ~mSubjectRotation, LLCriticalDamp::getInterpolant(0.05f));
+		mRelativeFocus = lerp(mRelativeFocus, (focus_pt_agent - mSubjectPosition) * ~mSubjectRotation, LLSmoothInterpolation::getInterpolant(0.05f));
 	}// if focus is not locked ---------------------------------------------
 
 
@@ -414,7 +414,7 @@ void LLFollowCam::update()
 		//-------------------------------------------------------------------------------------------------
 		if ( distanceFromPositionToIdealPosition > mPositionThreshold )
 		{
-			F32 positionPullLerp = LLCriticalDamp::getInterpolant( mPositionLag );
+			F32 positionPullLerp = LLSmoothInterpolation::getInterpolant( mPositionLag );
 			simulated_pos_agent = lerp( simulated_pos_agent, whereCameraPositionWantsToBe, positionPullLerp );
 		}
 
@@ -434,7 +434,7 @@ void LLFollowCam::update()
 		updateBehindnessConstraint(gAgent.getPosAgentFromGlobal(mSimulatedFocusGlobal), simulated_pos_agent);
 		mSimulatedPositionGlobal = gAgent.getPosGlobalFromAgent(simulated_pos_agent);
 
-		mRelativePos = lerp(mRelativePos, (simulated_pos_agent - mSubjectPosition) * ~mSubjectRotation, LLCriticalDamp::getInterpolant(0.05f));
+		mRelativePos = lerp(mRelativePos, (simulated_pos_agent - mSubjectPosition) * ~mSubjectRotation, LLSmoothInterpolation::getInterpolant(0.05f));
 	} // if position is not locked -----------------------------------------------------------
 
 
@@ -489,7 +489,7 @@ BOOL LLFollowCam::updateBehindnessConstraint(LLVector3 focus, LLVector3& cam_pos
 
 		if ( cameraOffsetAngle > mBehindnessMaxAngle )
 		{
-			F32 fraction = ((cameraOffsetAngle - mBehindnessMaxAngle) / cameraOffsetAngle) * LLCriticalDamp::getInterpolant(mBehindnessLag);
+			F32 fraction = ((cameraOffsetAngle - mBehindnessMaxAngle) / cameraOffsetAngle) * LLSmoothInterpolation::getInterpolant(mBehindnessLag);
 			cam_position = focus + horizontalSubjectBack * (slerp(fraction, camera_offset_rotation, LLQuaternion::DEFAULT));
 			cam_position.mV[VZ] = cameraZ; // clamp z value back to what it was before we started messing with it
 			constraint_active = TRUE;
@@ -876,12 +876,12 @@ bool LLFollowCamMgr::isScriptedCameraSource(const LLUUID& source)
 void LLFollowCamMgr::dump()
 {
 	S32 param_count = 0;
-	llinfos << "Scripted camera active stack" << llendl;
+	LL_INFOS() << "Scripted camera active stack" << LL_ENDL;
 	for (param_stack_t::iterator param_it = sParamStack.begin();
 		param_it != sParamStack.end();
 		++param_it)
 	{
-		llinfos << param_count++ << 
+		LL_INFOS() << param_count++ << 
 			" rot_limit: " << (*param_it)->getBehindnessAngle() << 
 			" rot_lag: " << (*param_it)->getBehindnessLag() << 
 			" distance: " << (*param_it)->getDistance() << 
@@ -894,7 +894,7 @@ void LLFollowCamMgr::dump()
 			" pos: " << (*param_it)->getPosition() << 
 			" pos_lag: " << (*param_it)->getPositionLag() << 
 			" pos_lock: " << ((*param_it)->getPositionLocked() ? "Y" : "N") << 
-			" pos_thresh: " << (*param_it)->getPositionThreshold() << llendl;
+			" pos_thresh: " << (*param_it)->getPositionThreshold() << LL_ENDL;
 	}
 }
 

@@ -24,11 +24,13 @@
  */
 #include "linden_common.h"
 
+#include "llapr.h"
 #include "lldir.h"
 #include "llimagej2c.h"
 #include "lltimer.h"
 #include "llmath.h"
 #include "llmemory.h"
+#include "llsd.h"
 
 typedef LLImageJ2CImpl* (*CreateLLImageJ2CFunction)();
 typedef void (*DestroyLLImageJ2CFunction)(LLImageJ2CImpl*);

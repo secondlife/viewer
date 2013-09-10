@@ -141,10 +141,11 @@ public:
 	void waterHeightRegionInfo(std::string const& sim_name, F32 water_height);
 	void shiftRegions(const LLVector3& offset);
 
-	void setSpaceTimeUSec(const U64 space_time_usec);
-	U64 getSpaceTimeUSec() const;
+	void setSpaceTimeUSec(const U64MicrosecondsImplicit space_time_usec);
+	U64MicrosecondsImplicit getSpaceTimeUSec() const;
 
 	void getInfo(LLSD& info);
+	U32  getNumOfActiveCachedObjects() const {return mNumOfActiveCachedObjects;}
 
 public:
 	typedef std::list<LLViewerRegion*> region_list_t;
@@ -187,8 +188,8 @@ private:
 	S32 mLastPacketsIn;
 	S32 mLastPacketsOut;
 	S32 mLastPacketsLost;
-
-	U64 mSpaceTimeUSec;
+	U32 mNumOfActiveCachedObjects;
+	U64MicrosecondsImplicit mSpaceTimeUSec;
 
 	BOOL mClassicCloudsEnabled;
 

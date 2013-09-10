@@ -33,7 +33,6 @@
 
 #include "llavatarnamecache.h"	// IDEVO
 #include "llsd.h"
-#include "lldarray.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "roles_constants.h"    // for GP_MEMBER_INVITE
@@ -73,6 +72,12 @@
 #include "llcallingcard.h"
 #include "llslurl.h"			// IDEVO
 #include "llsidepanelinventory.h"
+
+// Flags for kick message
+const U32 KICK_FLAGS_DEFAULT	= 0x0;
+const U32 KICK_FLAGS_FREEZE		= 1 << 0;
+const U32 KICK_FLAGS_UNFREEZE	= 1 << 1;
+
 
 // static
 void LLAvatarActions::requestFriendshipDialog(const LLUUID& id, const std::string& name)
@@ -164,7 +169,7 @@ void LLAvatarActions::offerTeleport(const LLUUID& invitee)
 	if (invitee.isNull())
 		return;
 
-	LLDynamicArray<LLUUID> ids;
+	std::vector<LLUUID> ids;
 	ids.push_back(invitee);
 	offerTeleport(ids);
 }
@@ -242,8 +247,9 @@ void LLAvatarActions::startAdhocCall(const uuid_vec_t& ids, const LLUUID& floate
 		return;
 	}
 
-	// convert vector into LLDynamicArray for addSession
-	LLDynamicArray<LLUUID> id_array;
+	// convert vector into std::vector for addSession
+	std::vector<LLUUID> id_array;
+	id_array.reserve(ids.size());
 	for (uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
 	{
 		id_array.push_back(*it);
@@ -288,7 +294,9 @@ bool LLAvatarActions::canCall()
 void LLAvatarActions::startConference(const uuid_vec_t& ids, const LLUUID& floater_id)
 {
 	// *HACK: Copy into dynamic array
-	LLDynamicArray<LLUUID> id_array;
+	std::vector<LLUUID> id_array;
+
+	id_array.reserve(ids.size());
 	for (uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
 	{
 		id_array.push_back(*it);
@@ -971,7 +979,7 @@ bool LLAvatarActions::handleRemove(const LLSD& notification, const LLSD& respons
 
 			case 1: // NO
 			default:
-				llinfos << "No removal performed." << llendl;
+				LL_INFOS() << "No removal performed." << LL_ENDL;
 				break;
 			}
 		}

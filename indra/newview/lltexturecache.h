@@ -104,7 +104,7 @@ public:
 
 	/*virtual*/ S32 update(F32 max_time_ms);	
 	
-	void purgeCache(ELLPath location);
+	void purgeCache(ELLPath location, bool remove_dir = true);
 	void setReadOnly(BOOL read_only) ;
 	S64 initCache(ELLPath location, S64 maxsize, BOOL texture_cache_mismatch);
 

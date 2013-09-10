@@ -75,7 +75,7 @@ LLFontManager::LLFontManager()
 	if (error)
 	{
 		// Clean up freetype libs.
-		llerrs << "Freetype initialization failure!" << llendl;
+		LL_ERRS() << "Freetype initialization failure!" << LL_ENDL;
 		FT_Done_FreeType(gFTLibrary);
 	}
 }
@@ -189,7 +189,7 @@ BOOL LLFontFreetype::loadFace(const std::string& filename, F32 point_size, F32 v
 
 	if (!mFTFace->charmap)
 	{
-		//llinfos << " no unicode encoding, set whatever encoding there is..." << llendl;
+		//LL_INFOS() << " no unicode encoding, set whatever encoding there is..." << LL_ENDL;
 		FT_Set_Charmap(mFTFace, mFTFace->charmaps[0]);
 	}
 
@@ -321,7 +321,7 @@ LLFontGlyphInfo* LLFontFreetype::addGlyph(llwchar wch) const
 		return FALSE;
 
 	llassert(!mIsFallback);
-	//lldebugs << "Adding new glyph for " << wch << " to font" << llendl;
+	//LL_DEBUGS() << "Adding new glyph for " << wch << " to font" << LL_ENDL;
 
 	FT_UInt glyph_index;
 
@@ -329,7 +329,7 @@ LLFontGlyphInfo* LLFontFreetype::addGlyph(llwchar wch) const
 	glyph_index = FT_Get_Char_Index(mFTFace, wch);
 	if (glyph_index == 0)
 	{
-		//llinfos << "Trying to add glyph from fallback font!" << llendl;
+		//LL_INFOS() << "Trying to add glyph from fallback font!" << LL_ENDL;
 		font_vector_t::const_iterator iter;
 		for(iter = mFallbackFonts.begin(); iter != mFallbackFonts.end(); iter++)
 		{
@@ -501,7 +501,7 @@ void LLFontFreetype::reset(F32 vert_dpi, F32 horz_dpi)
 		// This is the head of the list - need to rebuild ourself and all fallbacks.
 		if (mFallbackFonts.empty())
 		{
-			llwarns << "LLFontGL::reset(), no fallback fonts present" << llendl;
+			LL_WARNS() << "LLFontGL::reset(), no fallback fonts present" << LL_ENDL;
 		}
 		else
 		{

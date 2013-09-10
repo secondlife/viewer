@@ -558,7 +558,7 @@ LLWearableItemTypeNameComparator::ETypeListOrder LLWearableItemTypeNameComparato
 
 	if(const_it == mWearableOrder.end())
 	{
-		llwarns<<"Absent information about order rang of items of "<<LLAssetType::getDesc(item_type)<<" type"<<llendl;
+		LL_WARNS()<<"Absent information about order rang of items of "<<LLAssetType::getDesc(item_type)<<" type"<<LL_ENDL;
 		return ORDER_RANK_UNKNOWN;
 	}
 
@@ -572,7 +572,7 @@ bool LLWearableItemTypeNameComparator::sortAssetTypeByName(LLAssetType::EType it
 
 	if(const_it == mWearableOrder.end())
 	{
-		llwarns<<"Absent information about sorting items of "<<LLAssetType::getDesc(item_type)<<" type"<<llendl;
+		LL_WARNS()<<"Absent information about sorting items of "<<LLAssetType::getDesc(item_type)<<" type"<<LL_ENDL;
 		return true;
 	}
 
@@ -588,7 +588,7 @@ bool LLWearableItemTypeNameComparator::sortWearableTypeByName(LLAssetType::EType
 
 	if(const_it == mWearableOrder.end())
 	{
-		llwarns<<"Absent information about sorting items of "<<LLAssetType::getDesc(item_type)<<" type"<<llendl;
+		LL_WARNS()<<"Absent information about sorting items of "<<LLAssetType::getDesc(item_type)<<" type"<<LL_ENDL;
 		return true;
 }
 
@@ -648,7 +648,7 @@ void LLWearableItemsList::addNewItem(LLViewerInventoryItem* item, bool rearrange
 {
 	if (!item)
 	{
-		llwarns << "No inventory item. Couldn't create flat list item." << llendl;
+		LL_WARNS() << "No inventory item. Couldn't create flat list item." << LL_ENDL;
 		llassert(item != NULL);
 	}
 
@@ -659,7 +659,7 @@ void LLWearableItemsList::addNewItem(LLViewerInventoryItem* item, bool rearrange
 	bool is_item_added = addItem(list_item, item->getUUID(), ADD_BOTTOM, rearrange);
 	if (!is_item_added)
 	{
-		llwarns << "Couldn't add flat list item." << llendl;
+		LL_WARNS() << "Couldn't add flat list item." << LL_ENDL;
 		llassert(is_item_added);
 	}
 }
@@ -825,7 +825,7 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 {
 	if (!menu)
 	{
-		llwarns << "Invalid menu" << llendl;
+		LL_WARNS() << "Invalid menu" << LL_ENDL;
 		return;
 	}
 
@@ -846,7 +846,7 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 
 		if (!item)
 		{
-			llwarns << "Invalid item" << llendl;
+			LL_WARNS() << "Invalid item" << LL_ENDL;
 			// *NOTE: the logic below may not work in this case
 			continue;
 		}
@@ -919,7 +919,7 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 
 	if (mask & MASK_UNKNOWN)
 	{
-		llwarns << "Non-wearable items passed." << llendl;
+		LL_WARNS() << "Non-wearable items passed." << LL_ENDL;
 	}
 
 	U32 num_visible_items = 0;
@@ -1026,7 +1026,7 @@ bool LLWearableItemsList::ContextMenu::canAddWearables(const uuid_vec_t& item_id
 		}
 		else
 		{
-			llwarns << "Unexpected wearable type" << llendl;
+			LL_WARNS() << "Unexpected wearable type" << LL_ENDL;
 			return false;
 		}
 	}

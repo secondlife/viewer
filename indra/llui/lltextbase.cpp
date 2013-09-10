@@ -48,6 +48,8 @@ const F32	CURSOR_FLASH_DELAY = 1.0f;  // in seconds
 const S32	CURSOR_THICKNESS = 2;
 const F32	TRIPLE_CLICK_INTERVAL = 0.3f;	// delay between double and triple click.
 
+//LLTrace::MemStatHandle	LLTextSegment::sMemStat("LLTextSegment");
+
 LLTextBase::line_info::line_info(S32 index_start, S32 index_end, LLRect rect, S32 line_num) 
 :	mDocIndexStart(index_start), 
 	mDocIndexEnd(index_end),
@@ -576,7 +578,7 @@ void LLTextBase::drawText()
 		if ( (mSpellCheckStart != start) || (mSpellCheckEnd != end) )
 		{
 			const LLWString& wstrText = getWText(); 
-			mMisspellRanges.clear();
+			memDisclaim(mMisspellRanges).clear();
 
 			segment_set_t::const_iterator seg_it = getSegIterContaining(start);
 			while (mSegments.end() != seg_it)
@@ -652,6 +654,7 @@ void LLTextBase::drawText()
 
 			mSpellCheckStart = start;
 			mSpellCheckEnd = end;
+			memClaim(mMisspellRanges);
 		}
 	}
 	else
@@ -689,7 +692,7 @@ void LLTextBase::drawText()
 				seg_iter++;
 				if (seg_iter == mSegments.end())
 				{
-					llwarns << "Ran off the segmentation end!" << llendl;
+					LL_WARNS() << "Ran off the segmentation end!" << LL_ENDL;
 
 					return;
 				}
@@ -921,9 +924,11 @@ void LLTextBase::createDefaultSegment()
 	if (mSegments.empty())
 	{
 		LLStyleConstSP sp(new LLStyle(getStyleParams()));
+		memDisclaim(mSegments);
 		LLTextSegmentPtr default_segment = new LLNormalTextSegment( sp, 0, getLength() + 1, *this);
 		mSegments.insert(default_segment);
 		default_segment->linkToDocument(this);
+		memClaim(mSegments);
 	}
 }
 
@@ -933,6 +938,8 @@ void LLTextBase::insertSegment(LLTextSegmentPtr segment_to_insert)
 	{
 		return;
 	}
+
+	memDisclaim(mSegments);
 
 	segment_set_t::iterator cur_seg_iter = getSegIterContaining(segment_to_insert->getStart());
 	S32 reflow_start_index = 0;
@@ -1006,6 +1013,7 @@ void LLTextBase::insertSegment(LLTextSegmentPtr segment_to_insert)
 
 	// layout potentially changed
 	needsReflow(reflow_start_index);
+	memClaim(mSegments);
 }
 
 BOOL LLTextBase::handleMouseDown(S32 x, S32 y, MASK mask)
@@ -1259,13 +1267,13 @@ void LLTextBase::setReadOnlyColor(const LLColor4 &c)
 }
 
 //virtual
-void LLTextBase::handleVisibilityChange( BOOL new_visibility )
+void LLTextBase::onVisibilityChange( BOOL new_visibility )
 {
 	if(!new_visibility && mPopupMenu)
 	{
 		mPopupMenu->hide();
 	}
-	LLUICtrl::handleVisibilityChange(new_visibility);
+	LLUICtrl::onVisibilityChange(new_visibility);
 }
 
 //virtual
@@ -1316,8 +1324,11 @@ void LLTextBase::replaceWithSuggestion(U32 index)
 			removeStringNoUndo(it->first, it->second - it->first);
 
 			// Insert the suggestion in its place
+			memDisclaim(mSuggestionList);
 			LLWString suggestion = utf8str_to_wstring(mSuggestionList[index]);
 			insertStringNoUndo(it->first, utf8str_to_wstring(mSuggestionList[index]));
+			memClaim(mSuggestionList);
+
 			setCursorPos(it->first + (S32)suggestion.length());
 
 			break;
@@ -1379,7 +1390,7 @@ bool LLTextBase::isMisspelledWord(U32 pos) const
 void LLTextBase::onSpellCheckSettingsChange()
 {
 	// Recheck the spelling on every change
-	mMisspellRanges.clear();
+	memDisclaim(mMisspellRanges).clear();
 	mSpellCheckStart = mSpellCheckEnd = -1;
 }
 
@@ -1436,10 +1447,10 @@ S32 LLTextBase::getLeftOffset(S32 width)
 }
 
 
-static LLFastTimer::DeclareTimer FTM_TEXT_REFLOW ("Text Reflow");
+static LLTrace::TimeBlock FTM_TEXT_REFLOW ("Text Reflow");
 void LLTextBase::reflow()
 {
-	LLFastTimer ft(FTM_TEXT_REFLOW);
+	LL_RECORD_BLOCK_TIME(FTM_TEXT_REFLOW);
 
 	updateSegments();
 
@@ -1481,7 +1492,7 @@ void LLTextBase::reflow()
 		// use an even number of iterations to avoid user visible oscillation of the layout
 		if(++reflow_count > 2)
 		{
-			lldebugs << "Breaking out of reflow due to possible infinite loop in " << getName() << llendl;
+			LL_DEBUGS() << "Breaking out of reflow due to possible infinite loop in " << getName() << LL_ENDL;
 			break;
 		}
 	
@@ -1657,7 +1668,7 @@ LLRect LLTextBase::getTextBoundingRect()
 
 void LLTextBase::clearSegments()
 {
-	mSegments.clear();
+	memDisclaim(mSegments).clear();
 	createDefaultSegment();
 }
 
@@ -1778,10 +1789,10 @@ void LLTextBase::removeDocumentChild(LLView* view)
 }
 
 
-static LLFastTimer::DeclareTimer FTM_UPDATE_TEXT_SEGMENTS("Update Text Segments");
+static LLTrace::TimeBlock FTM_UPDATE_TEXT_SEGMENTS("Update Text Segments");
 void LLTextBase::updateSegments()
 {
-	LLFastTimer ft(FTM_UPDATE_TEXT_SEGMENTS);
+	LL_RECORD_BLOCK_TIME(FTM_UPDATE_TEXT_SEGMENTS);
 	createDefaultSegment();
 }
 
@@ -2020,7 +2031,7 @@ static LLUIImagePtr image_from_icon_name(const std::string& icon_name)
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_PARSE_HTML("Parse HTML");
+static LLTrace::TimeBlock FTM_PARSE_HTML("Parse HTML");
 
 void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Params& input_params)
 {
@@ -2030,7 +2041,7 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 	S32 part = (S32)LLTextParser::WHOLE;
 	if (mParseHTML && !style_params.is_link) // Don't search for URLs inside a link segment (STORM-358).
 	{
-		LLFastTimer _(FTM_PARSE_HTML);
+		LL_RECORD_BLOCK_TIME(FTM_PARSE_HTML);
 		S32 start=0,end=0;
 		LLUrlMatch match;
 		std::string text = new_text;
@@ -2097,11 +2108,11 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_APPEND_TEXT("Append Text");
+static LLTrace::TimeBlock FTM_APPEND_TEXT("Append Text");
 
 void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, const LLStyle::Params& input_params)
 {
-	LLFastTimer _(FTM_APPEND_TEXT);
+	LL_RECORD_BLOCK_TIME(FTM_APPEND_TEXT);
 	if (new_text.empty()) 
 		return;
 
@@ -2150,7 +2161,7 @@ void LLTextBase::setFont(const LLFontGL* font)
 
 void LLTextBase::needsReflow(S32 index)
 {
-	lldebugs << "reflow on object " << (void*)this << " index = " << mReflowIndex << ", new index = " << index << llendl;
+	LL_DEBUGS() << "reflow on object " << (void*)this << " index = " << mReflowIndex << ", new index = " << index << LL_ENDL;
 	mReflowIndex = llmin(mReflowIndex, index);
 }
 
@@ -3198,10 +3209,12 @@ void LLNormalTextSegment::setToolTip(const std::string& tooltip)
 	// we cannot replace a keyword tooltip that's loaded from a file
 	if (mToken)
 	{
-		llwarns << "LLTextSegment::setToolTip: cannot replace keyword tooltip." << llendl;
+		LL_WARNS() << "LLTextSegment::setToolTip: cannot replace keyword tooltip." << LL_ENDL;
 		return;
 	}
+	memDisclaim(mTooltip);
 	mTooltip = tooltip;
+	memClaim(mTooltip);
 }
 
 bool LLNormalTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const
@@ -3254,14 +3267,14 @@ S32	LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
 
 	if(getLength() < segment_offset + mStart)
 	{ 
-		llinfos << "getLength() < segment_offset + mStart\t getLength()\t" << getLength() << "\tsegment_offset:\t" 
-						<< segment_offset << "\tmStart:\t" << mStart << "\tsegments\t" << mEditor.mSegments.size() << "\tmax_chars\t" << max_chars << llendl;
+		LL_INFOS() << "getLength() < segment_offset + mStart\t getLength()\t" << getLength() << "\tsegment_offset:\t" 
+						<< segment_offset << "\tmStart:\t" << mStart << "\tsegments\t" << mEditor.mSegments.size() << "\tmax_chars\t" << max_chars << LL_ENDL;
 	}
 
 	if( (offsetLength + 1) < max_chars)
 	{
-		llinfos << "offsetString.length() + 1 < max_chars\t max_chars:\t" << max_chars << "\toffsetLength:\t" << offsetLength << " getLength() : "
-			<< getLength() << "\tsegment_offset:\t" << segment_offset << "\tmStart:\t" << mStart << "\tsegments\t" << mEditor.mSegments.size() << llendl;
+		LL_INFOS() << "offsetString.length() + 1 < max_chars\t max_chars:\t" << max_chars << "\toffsetString.length():\t" << offsetLength << " getLength() : "
+			<< getLength() << "\tsegment_offset:\t" << segment_offset << "\tmStart:\t" << mStart << "\tsegments\t" << mEditor.mSegments.size() << LL_ENDL;
 	}
 	
 	S32 num_chars = mStyle->getFont()->maxDrawableChars( text.c_str() + (segment_offset + mStart),
@@ -3291,13 +3304,13 @@ S32	LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
 
 void LLNormalTextSegment::dump() const
 {
-	llinfos << "Segment [" << 
+	LL_INFOS() << "Segment [" << 
 //			mColor.mV[VX] << ", " <<
 //			mColor.mV[VY] << ", " <<
 //			mColor.mV[VZ] << "]\t[" <<
 		mStart << ", " <<
 		getEnd() << "]" <<
-		llendl;
+		LL_ENDL;
 }
 
 /*virtual*/

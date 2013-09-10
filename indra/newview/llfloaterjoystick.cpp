@@ -33,7 +33,7 @@
 #include "llerror.h"
 #include "llrect.h"
 #include "llstring.h"
-#include "llstat.h"
+#include "lltrace.h"
 
 // project includes
 #include "lluictrlfactory.h"
@@ -41,6 +41,22 @@
 #include "llappviewer.h"
 #include "llviewerjoystick.h"
 #include "llcheckboxctrl.h"
+
+static LLTrace::SampleStatHandle<>	sJoystickAxis1("Joystick axis 1"),
+									sJoystickAxis2("Joystick axis 2"),
+									sJoystickAxis3("Joystick axis 3"),
+									sJoystickAxis4("Joystick axis 4"),
+									sJoystickAxis5("Joystick axis 5"),
+									sJoystickAxis6("Joystick axis 6");
+static LLTrace::SampleStatHandle<>* sJoystickAxes[6] = 
+{
+	&sJoystickAxis1,
+	&sJoystickAxis2,
+	&sJoystickAxis3,
+	&sJoystickAxis4,
+	&sJoystickAxis5,
+	&sJoystickAxis6
+};
 
 LLFloaterJoystick::LLFloaterJoystick(const LLSD& data)
 	: LLFloater(data)
@@ -61,7 +77,7 @@ void LLFloaterJoystick::draw()
 	for (U32 i = 0; i < 6; i++)
 	{
 		F32 value = joystick->getJoystickAxis(i);
-		mAxisStats[i]->addValue(value * gFrameIntervalSeconds);
+		sample(*sJoystickAxes[i], value * gFrameIntervalSeconds.value());
 		if (mAxisStatsBar[i])
 		{
 			F32 minbar, maxbar;
@@ -69,7 +85,7 @@ void LLFloaterJoystick::draw()
 			if (llabs(value) > maxbar)
 			{
 				F32 range = llabs(value);
-				mAxisStatsBar[i]->setRange(-range, range, range * 0.25f, range * 0.5f);
+				mAxisStatsBar[i]->setRange(-range, range);
 			}
 		}
 	}
@@ -85,13 +101,12 @@ BOOL LLFloaterJoystick::postBuild()
 	for (U32 i = 0; i < 6; i++)
 	{
 		std::string stat_name(llformat("Joystick axis %d", i));
-		mAxisStats[i] = new LLStat(stat_name, 4);
 		std::string axisname = llformat("axis%d", i);
 		mAxisStatsBar[i] = getChild<LLStatBar>(axisname);
 		if (mAxisStatsBar[i])
 		{
-			mAxisStatsBar[i]->setStat(mAxisStats[i]);
-			mAxisStatsBar[i]->setRange(-range, range, range * 0.25f, range * 0.5f);
+			mAxisStatsBar[i]->setStat(stat_name);
+			mAxisStatsBar[i]->setRange(-range, range);
 		}
 	}
 	

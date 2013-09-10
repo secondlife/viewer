@@ -41,12 +41,6 @@ static const F32 MAX_FRACTIONAL_SIZE = 1.f;
 static LLDefaultChildRegistry::Register<LLLayoutStack> register_layout_stack("layout_stack");
 static LLLayoutStack::LayoutStackRegistry::Register<LLLayoutPanel> register_layout_panel("layout_panel");
 
-void LLLayoutStack::OrientationNames::declareValues()
-{
-	declare("horizontal", HORIZONTAL);
-	declare("vertical", VERTICAL);
-}
-
 //
 // LLLayoutPanel
 //
@@ -140,7 +134,7 @@ S32 LLLayoutPanel::getVisibleDim() const
 						+ (((F32)mTargetDim - min_dim) * (1.f - mCollapseAmt))));
 }
  
-void LLLayoutPanel::setOrientation( LLLayoutStack::ELayoutOrientation orientation )
+void LLLayoutPanel::setOrientation( LLView::EOrientation orientation )
 {
 	mOrientation = orientation;
 	S32 layout_dim = llround((F32)((mOrientation == LLLayoutStack::HORIZONTAL)
@@ -355,11 +349,11 @@ void LLLayoutStack::collapsePanel(LLPanel* panel, BOOL collapsed)
 	mNeedsLayout = true;
 }
 
-static LLFastTimer::DeclareTimer FTM_UPDATE_LAYOUT("Update LayoutStacks");
+static LLTrace::TimeBlock FTM_UPDATE_LAYOUT("Update LayoutStacks");
 
 void LLLayoutStack::updateLayout()
 {	
-	LLFastTimer ft(FTM_UPDATE_LAYOUT);
+	LL_RECORD_BLOCK_TIME(FTM_UPDATE_LAYOUT);
 
 	if (!mNeedsLayout) return;
 
@@ -655,7 +649,7 @@ bool LLLayoutStack::animatePanels()
 			{
 				if (!mAnimatedThisFrame)
 				{
-					panelp->mVisibleAmt = lerp(panelp->mVisibleAmt, 1.f, LLCriticalDamp::getInterpolant(mOpenTimeConstant));
+					panelp->mVisibleAmt = lerp(panelp->mVisibleAmt, 1.f, LLSmoothInterpolation::getInterpolant(mOpenTimeConstant));
 					if (panelp->mVisibleAmt > 0.99f)
 					{
 						panelp->mVisibleAmt = 1.f;
@@ -680,7 +674,7 @@ bool LLLayoutStack::animatePanels()
 			{
 				if (!mAnimatedThisFrame)
 				{
-					panelp->mVisibleAmt = lerp(panelp->mVisibleAmt, 0.f, LLCriticalDamp::getInterpolant(mCloseTimeConstant));
+					panelp->mVisibleAmt = lerp(panelp->mVisibleAmt, 0.f, LLSmoothInterpolation::getInterpolant(mCloseTimeConstant));
 					if (panelp->mVisibleAmt < 0.001f)
 					{
 						panelp->mVisibleAmt = 0.f;
@@ -707,7 +701,7 @@ bool LLLayoutStack::animatePanels()
 			{
 				if (!mAnimatedThisFrame)
 				{
-					panelp->mCollapseAmt = lerp(panelp->mCollapseAmt, collapse_state, LLCriticalDamp::getInterpolant(mCloseTimeConstant));
+					panelp->mCollapseAmt = lerp(panelp->mCollapseAmt, collapse_state, LLSmoothInterpolation::getInterpolant(mCloseTimeConstant));
 				}
 			
 				if (llabs(panelp->mCollapseAmt - collapse_state) < 0.001f)

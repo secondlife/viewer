@@ -29,7 +29,6 @@
 
 #include "llfontgl.h"
 #include "lltoastpanel.h"
-#include "lldarray.h"
 #include "lltimer.h"
 #include "llviewermessage.h"
 #include "llnotificationptr.h"

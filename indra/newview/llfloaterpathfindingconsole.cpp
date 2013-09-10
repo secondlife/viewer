@@ -207,7 +207,7 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 	if ( LLPathingLib::getInstance() == NULL )
 	{ 
 		setConsoleState(kConsoleStateLibraryNotImplemented);
-		llwarns <<"Errror: cannot find pathing library implementation."<<llendl;
+		LL_WARNS() <<"Errror: cannot find pathing library implementation."<<LL_ENDL;
 	}
 	else
 	{	

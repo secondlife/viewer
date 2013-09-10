@@ -183,8 +183,30 @@ static	const LLVector4a sFrustumScaler[] =
 	LLVector4a( 1, 1, 1)		// 8 entries
 };
 
-S32 LLCamera::AABBInFrustum(const LLVector4a &center, const LLVector4a& radius) 
+bool LLCamera::isChanged()
 {
+	bool changed = false;
+	for (U32 i = 0; i < mPlaneCount; i++)
+	{
+		U8 mask = mPlaneMask[i];
+		if (mask != 0xff && !changed)
+		{
+			changed = !mAgentPlanes[i].equal(mLastAgentPlanes[i]);
+		}
+		mLastAgentPlanes[i].set(mAgentPlanes[i]);
+	}
+
+	return changed;
+}
+
+S32 LLCamera::AABBInFrustum(const LLVector4a &center, const LLVector4a& radius, const LLPlane* planes) 
+{
+	if(!planes)
+	{
+		//use agent space
+		planes = mAgentPlanes;
+	}
+
 	U8 mask = 0;
 	bool result = false;
 	LLVector4a rscale, maxp, minp;
@@ -195,7 +217,7 @@ S32 LLCamera::AABBInFrustum(const LLVector4a &center, const LLVector4a& radius)
 		mask = mPlaneMask[i];
 		if (mask < PLANE_MASK_NUM)
 		{
-			const LLPlane& p(mAgentPlanes[i]);
+			const LLPlane& p(planes[i]);
 			p.getAt<3>(d);
 			rscale.setMul(radius, sFrustumScaler[mask]);
 			minp.setSub(center, rscale);
@@ -216,9 +238,21 @@ S32 LLCamera::AABBInFrustum(const LLVector4a &center, const LLVector4a& radius)
 	return result?1:2;
 }
 
-
-S32 LLCamera::AABBInFrustumNoFarClip(const LLVector4a& center, const LLVector4a& radius) 
+//exactly same as the function AABBInFrustum(...)
+//except uses mRegionPlanes instead of mAgentPlanes.
+S32 LLCamera::AABBInRegionFrustum(const LLVector4a& center, const LLVector4a& radius) 
 {
+	return AABBInFrustum(center, radius, mRegionPlanes);
+}
+
+S32 LLCamera::AABBInFrustumNoFarClip(const LLVector4a& center, const LLVector4a& radius, const LLPlane* planes) 
+{
+	if(!planes)
+	{
+		//use agent space
+		planes = mAgentPlanes;
+	}
+
 	U8 mask = 0;
 	bool result = false;
 	LLVector4a rscale, maxp, minp;
@@ -229,7 +263,7 @@ S32 LLCamera::AABBInFrustumNoFarClip(const LLVector4a& center, const LLVector4a&
 		mask = mPlaneMask[i];
 		if ((i != 5) && (mask < PLANE_MASK_NUM))
 		{
-			const LLPlane& p(mAgentPlanes[i]);
+			const LLPlane& p(planes[i]);
 			p.getAt<3>(d);
 			rscale.setMul(radius, sFrustumScaler[mask]);
 			minp.setSub(center, rscale);
@@ -248,6 +282,13 @@ S32 LLCamera::AABBInFrustumNoFarClip(const LLVector4a& center, const LLVector4a&
 	}
 
 	return result?1:2;
+}
+
+//exactly same as the function AABBInFrustumNoFarClip(...)
+//except uses mRegionPlanes instead of mAgentPlanes.
+S32 LLCamera::AABBInRegionFrustumNoFarClip(const LLVector4a& center, const LLVector4a& radius) 
+{
+	return AABBInFrustumNoFarClip(center, radius, mRegionPlanes);
 }
 
 int LLCamera::sphereInFrustumQuick(const LLVector3 &sphere_center, const F32 radius) 
@@ -583,6 +624,23 @@ void LLCamera::calcAgentFrustumPlanes(LLVector3* frust)
 	for (U32 i = 0; i < mPlaneCount; i++)
 	{
 		mPlaneMask[i] = mAgentPlanes[i].calcPlaneMask();
+	}
+}
+
+//calculate regional planes from mAgentPlanes.
+//vector "shift" is the vector of the region origin in the agent space.
+void LLCamera::calcRegionFrustumPlanes(const LLVector3& shift) 
+{
+	F32 d;
+	LLVector3 n;
+	for(S32 i = 0 ; i < 7; i++)
+	{
+		if (mPlaneMask[i] != 0xff)
+		{
+			n.setVec(mAgentPlanes[i][0], mAgentPlanes[i][1], mAgentPlanes[i][2]);
+			d = mAgentPlanes[i][3] + n * shift;
+			mRegionPlanes[i].setVec(n, d);
+		}
 	}
 }
 

@@ -274,28 +274,28 @@ S32 LLPrimLinkInfo< DATA_TYPE >::merge(LLPrimLinkInfo& other_info)
 //	other_info.computeBoundingSphere();
 //	if ( other_radius != other_info.mBoundingSphere.getRadius() )
 //	{
-//		llinfos << "Other bounding sphere changed!!" << llendl;
+//		LL_INFOS() << "Other bounding sphere changed!!" << LL_ENDL;
 //	}
 
 //	F32 this_radius = mBoundingSphere.getRadius();
 //	computeBoundingSphere();
 //	if ( this_radius != mBoundingSphere.getRadius() )
 //	{
-//		llinfos << "This bounding sphere changed!!" << llendl;
+//		LL_INFOS() << "This bounding sphere changed!!" << LL_ENDL;
 //	}
 
 
 	F32 max_span = get_max_linkable_span(mBoundingSphere, other_info.mBoundingSphere);
 
 	//  F32 center_dist = (mBoundingSphere.getCenter() - other_info.mBoundingSphere.getCenter()).length();
-	//	llinfos << "objects are " << center_dist << "m apart" << llendl;
+	//	LL_INFOS() << "objects are " << center_dist << "m apart" << LL_ENDL;
 	F32 span = get_span(mBoundingSphere, other_info.mBoundingSphere);
 
 	F32 span_limit = max_span + (2.f * other_info.mBoundingSphere.getRadius());
 	if (span > span_limit)
 	{
 		// there is no way any piece of other_info could link with this one
-		// llinfos << "span too large:  " << span << " vs. " << span_limit << llendl;
+		// LL_INFOS() << "span too large:  " << span << " vs. " << span_limit << LL_ENDL;
 		return 0;
 	}
 

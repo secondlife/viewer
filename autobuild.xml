@@ -498,9 +498,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>10352aab979c333a52dbad21b6e6fba9</string>
+	      <string>10352aab979c333a52dbad21b6e6fba9</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/274403/arch/Darwin/installer/fmodex-4.44-darwin-20130419.tar.bz2</string>
+	      <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/274403/arch/Darwin/installer/fmodex-4.44-darwin-20130419.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -510,7 +510,7 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>79e45527aa9fb90b813599dff5ce01a7</string>
+          <string>79e45527aa9fb90b813599dff5ce01a7</string>
               <key>url</key>
               <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/274378/arch/Linux/installer/fmodex-4.44-linux-20130419.tar.bz2</string>
             </map>
@@ -764,7 +764,7 @@
               <key>hash</key>
               <string>aff5566e04003de0383941981198e04e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-breakpad/rev/273073/arch/Darwin/installer/google_breakpad-0.0.0-rev1099-darwin-20130329.tar.bz2</string>
+          <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-breakpad/rev/273073/arch/Darwin/installer/google_breakpad-0.0.0-rev1099-darwin-20130329.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -776,7 +776,7 @@
               <key>hash</key>
               <string>52257e5eb166a0b69c9c0c38f6e1920e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-breakpad/rev/273079/arch/Linux/installer/google_breakpad-0.0.0-rev1099-linux-20130329.tar.bz2</string>
+	         <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-breakpad/rev/273079/arch/Linux/installer/google_breakpad-0.0.0-rev1099-linux-20130329.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -788,7 +788,7 @@
               <key>hash</key>
               <string>d812a6dfcabe6528198a3191068dac09</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-breakpad/rev/273073/arch/CYGWIN/installer/google_breakpad-0.0.0-rev1099-windows-20130329.tar.bz2</string>
+             <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-breakpad/rev/273073/arch/CYGWIN/installer/google_breakpad-0.0.0-rev1099-windows-20130329.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1290,9 +1290,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5bc44db15eb3cca021382e40e04a9a38</string>
+              <string>b853b8a3ab31eed95661a707a2979b5b</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llappearanceutility-source/rev/271972/arch/Linux/installer/llappearanceutility_source-0.1-linux-20130315.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llappearanceutility-interesting-source/rev/280817/arch/Linux/installer/llappearanceutility_source-0.1-linux-20130909.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>

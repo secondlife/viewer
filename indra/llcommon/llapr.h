@@ -32,28 +32,34 @@
 #if LL_LINUX || LL_SOLARIS
 #include <sys/param.h>  // Need PATH_MAX in APR headers...
 #endif
-#if LL_WINDOWS
-	// Limit Windows API to small and manageable set.
-	// If you get undefined symbols, find the appropriate
-	// Windows header file and include that in your .cpp file.
-	#define WIN32_LEAN_AND_MEAN
-	#include <winsock2.h>
-	#include <windows.h>
-#endif
 
 #include <boost/noncopyable.hpp>
-
+#include "llwin32headerslean.h"
 #include "apr_thread_proc.h"
 #include "apr_thread_mutex.h"
 #include "apr_getopt.h"
 #include "apr_signal.h"
 #include "apr_atomic.h"
+
 #include "llstring.h"
 
 extern LL_COMMON_API apr_thread_mutex_t* gLogMutexp;
 extern apr_thread_mutex_t* gCallStacksLogMutexp;
 
 struct apr_dso_handle_t;
+/**
+ * @brief Function which appropriately logs error or remains quiet on
+ * APR_SUCCESS.
+ * @return Returns <code>true</code> if status is an error condition.
+ */
+bool LL_COMMON_API ll_apr_warn_status(apr_status_t status);
+/// There's a whole other APR error-message function if you pass a DSO handle.
+bool LL_COMMON_API ll_apr_warn_status(apr_status_t status, apr_dso_handle_t* handle);
+
+void LL_COMMON_API ll_apr_assert_status(apr_status_t status);
+void LL_COMMON_API ll_apr_assert_status(apr_status_t status, apr_dso_handle_t* handle);
+
+extern "C" LL_COMMON_API apr_pool_t* gAPRPoolp; // Global APR memory pool
 
 /** 
  * @brief initialize the common apr constructs -- apr itself, the
@@ -65,6 +71,9 @@ void LL_COMMON_API ll_init_apr();
  * @brief Cleanup those common apr constructs.
  */
 void LL_COMMON_API ll_cleanup_apr();
+
+bool LL_COMMON_API ll_apr_is_initialized();
+
 
 //
 //LL apr_pool
@@ -163,14 +172,17 @@ public:
 	LLAtomic32<Type>(Type x) {apr_atomic_set32(&mData, apr_uint32_t(x)); };
 	~LLAtomic32<Type>() {};
 
-	operator const Type() { apr_uint32_t data = apr_atomic_read32(&mData); return Type(data); }
+	operator const Type() { return get(); }
 	Type operator =(const Type& x) { apr_atomic_set32(&mData, apr_uint32_t(x)); return Type(mData); }
 	void operator -=(Type x) { apr_atomic_sub32(&mData, apr_uint32_t(x)); }
 	void operator +=(Type x) { apr_atomic_add32(&mData, apr_uint32_t(x)); }
 	Type operator ++(int) { return apr_atomic_inc32(&mData); } // Type++
-	Type operator --(int) { return apr_atomic_dec32(&mData); } // approximately --Type (0 if final is 0, non-zero otherwise)
+	Type operator ++()	  { apr_atomic_inc32(&mData); return get();  } // ++Type
+	Type operator --(int) { const Type result(get()); apr_atomic_dec32(&mData); return result; } // Type-- 
+	Type operator --()	  { return apr_atomic_dec32(&mData); } // approximately --Type (0 if final is 0, non-zero otherwise)
 	
 private:
+	const Type get() { apr_uint32_t data = apr_atomic_read32(&mData); return Type(data); }
 	apr_uint32_t mData;
 };
 
@@ -257,18 +269,5 @@ public:
 //*******************************************************************************************************************************
 };
 
-/**
- * @brief Function which appropriately logs error or remains quiet on
- * APR_SUCCESS.
- * @return Returns <code>true</code> if status is an error condition.
- */
-bool LL_COMMON_API ll_apr_warn_status(apr_status_t status);
-/// There's a whole other APR error-message function if you pass a DSO handle.
-bool LL_COMMON_API ll_apr_warn_status(apr_status_t status, apr_dso_handle_t* handle);
-
-void LL_COMMON_API ll_apr_assert_status(apr_status_t status);
-void LL_COMMON_API ll_apr_assert_status(apr_status_t status, apr_dso_handle_t* handle);
-
-extern "C" LL_COMMON_API apr_pool_t* gAPRPoolp; // Global APR memory pool
 
 #endif // LL_LLAPR_H

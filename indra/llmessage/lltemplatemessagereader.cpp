@@ -68,13 +68,13 @@ void LLTemplateMessageReader::getData(const char *blockname, const char *varname
 	// is there a message ready to go?
 	if (mReceiveSize == -1)
 	{
-		llerrs << "No message waiting for decode 2!" << llendl;
+		LL_ERRS() << "No message waiting for decode 2!" << LL_ENDL;
 		return;
 	}
 
 	if (!mCurrentRMessageData)
 	{
-		llerrs << "Invalid mCurrentMessageData in getData!" << llendl;
+		LL_ERRS() << "Invalid mCurrentMessageData in getData!" << LL_ENDL;
 		return;
 	}
 
@@ -85,8 +85,8 @@ void LLTemplateMessageReader::getData(const char *blockname, const char *varname
 
 	if (iter == mCurrentRMessageData->mMemberBlocks.end())
 	{
-		llerrs << "Block " << blockname << " #" << blocknum
-			<< " not in message " << mCurrentRMessageData->mName << llendl;
+		LL_ERRS() << "Block " << blockname << " #" << blocknum
+			<< " not in message " << mCurrentRMessageData->mName << LL_ENDL;
 		return;
 	}
 
@@ -95,18 +95,18 @@ void LLTemplateMessageReader::getData(const char *blockname, const char *varname
 
 	if (!vardata.getName())
 	{
-		llerrs << "Variable "<< vnamep << " not in message "
-			<< mCurrentRMessageData->mName<< " block " << bnamep << llendl;
+		LL_ERRS() << "Variable "<< vnamep << " not in message "
+			<< mCurrentRMessageData->mName<< " block " << bnamep << LL_ENDL;
 		return;
 	}
 
 	if (size && size != vardata.getSize())
 	{
-		llerrs << "Msg " << mCurrentRMessageData->mName 
+		LL_ERRS() << "Msg " << mCurrentRMessageData->mName 
 			<< " variable " << vnamep
 			<< " is size " << vardata.getSize()
 			<< " but copying into buffer of size " << size
-			<< llendl;
+			<< LL_ENDL;
 		return;
 	}
 
@@ -136,11 +136,11 @@ void LLTemplateMessageReader::getData(const char *blockname, const char *varname
 	}
 	else
 	{
-		llwarns << "Msg " << mCurrentRMessageData->mName 
+		LL_WARNS() << "Msg " << mCurrentRMessageData->mName 
 			<< " variable " << vnamep
 			<< " is size " << vardata.getSize()
 			<< " but truncated to max size of " << max_size
-			<< llendl;
+			<< LL_ENDL;
 
 		memcpy(datap, vardata.getData(), max_size);
 	}
@@ -151,13 +151,13 @@ S32 LLTemplateMessageReader::getNumberOfBlocks(const char *blockname)
 	// is there a message ready to go?
 	if (mReceiveSize == -1)
 	{
-		llerrs << "No message waiting for decode 3!" << llendl;
+		LL_ERRS() << "No message waiting for decode 3!" << LL_ENDL;
 		return -1;
 	}
 
 	if (!mCurrentRMessageData)
 	{
-		llerrs << "Invalid mCurrentRMessageData in getData!" << llendl;
+		LL_ERRS() << "Invalid mCurrentRMessageData in getData!" << LL_ENDL;
 		return -1;
 	}
 
@@ -178,13 +178,13 @@ S32 LLTemplateMessageReader::getSize(const char *blockname, const char *varname)
 	// is there a message ready to go?
 	if (mReceiveSize == -1)
 	{	// This is a serious error - crash 
-		llerrs << "No message waiting for decode 4!" << llendl;
+		LL_ERRS() << "No message waiting for decode 4!" << LL_ENDL;
 		return LL_MESSAGE_ERROR;
 	}
 
 	if (!mCurrentRMessageData)
 	{	// This is a serious error - crash
-		llerrs << "Invalid mCurrentRMessageData in getData!" << llendl;
+		LL_ERRS() << "Invalid mCurrentRMessageData in getData!" << LL_ENDL;
 		return LL_MESSAGE_ERROR;
 	}
 
@@ -194,8 +194,8 @@ S32 LLTemplateMessageReader::getSize(const char *blockname, const char *varname)
 	
 	if (iter == mCurrentRMessageData->mMemberBlocks.end())
 	{	// don't crash
-		llinfos << "Block " << bnamep << " not in message "
-			<< mCurrentRMessageData->mName << llendl;
+		LL_INFOS() << "Block " << bnamep << " not in message "
+			<< mCurrentRMessageData->mName << LL_ENDL;
 		return LL_BLOCK_NOT_IN_MESSAGE;
 	}
 
@@ -206,15 +206,15 @@ S32 LLTemplateMessageReader::getSize(const char *blockname, const char *varname)
 	
 	if (!vardata.getName())
 	{	// don't crash
-		llinfos << "Variable " << varname << " not in message "
-			<< mCurrentRMessageData->mName << " block " << bnamep << llendl;
+		LL_INFOS() << "Variable " << varname << " not in message "
+			<< mCurrentRMessageData->mName << " block " << bnamep << LL_ENDL;
 		return LL_VARIABLE_NOT_IN_BLOCK;
 	}
 
 	if (mCurrentRMessageTemplate->mMemberBlocks[bnamep]->mType != MBT_SINGLE)
 	{	// This is a serious error - crash
-		llerrs << "Block " << bnamep << " isn't type MBT_SINGLE,"
-			" use getSize with blocknum argument!" << llendl;
+		LL_ERRS() << "Block " << bnamep << " isn't type MBT_SINGLE,"
+			" use getSize with blocknum argument!" << LL_ENDL;
 		return LL_MESSAGE_ERROR;
 	}
 
@@ -226,13 +226,13 @@ S32 LLTemplateMessageReader::getSize(const char *blockname, S32 blocknum, const 
 	// is there a message ready to go?
 	if (mReceiveSize == -1)
 	{	// This is a serious error - crash
-		llerrs << "No message waiting for decode 5!" << llendl;
+		LL_ERRS() << "No message waiting for decode 5!" << LL_ENDL;
 		return LL_MESSAGE_ERROR;
 	}
 
 	if (!mCurrentRMessageData)
 	{	// This is a serious error - crash
-		llerrs << "Invalid mCurrentRMessageData in getData!" << llendl;
+		LL_ERRS() << "Invalid mCurrentRMessageData in getData!" << LL_ENDL;
 		return LL_MESSAGE_ERROR;
 	}
 
@@ -243,8 +243,8 @@ S32 LLTemplateMessageReader::getSize(const char *blockname, S32 blocknum, const 
 	
 	if (iter == mCurrentRMessageData->mMemberBlocks.end())
 	{	// don't crash
-		llinfos << "Block " << bnamep << " not in message " 
-			<< mCurrentRMessageData->mName << llendl;
+		LL_INFOS() << "Block " << bnamep << " not in message " 
+			<< mCurrentRMessageData->mName << LL_ENDL;
 		return LL_BLOCK_NOT_IN_MESSAGE;
 	}
 
@@ -253,8 +253,8 @@ S32 LLTemplateMessageReader::getSize(const char *blockname, S32 blocknum, const 
 	
 	if (!vardata.getName())
 	{	// don't crash
-		llinfos << "Variable " << vnamep << " not in message "
-			<<  mCurrentRMessageData->mName << " block " << bnamep << llendl;
+		LL_INFOS() << "Variable " << vnamep << " not in message "
+			<<  mCurrentRMessageData->mName << " block " << bnamep << LL_ENDL;
 		return LL_VARIABLE_NOT_IN_BLOCK;
 	}
 
@@ -326,8 +326,8 @@ void LLTemplateMessageReader::getF32(const char *block, const char *var,
 
 	if( !llfinite( d ) )
 	{
-		llwarns << "non-finite in getF32Fast " << block << " " << var 
-				<< llendl;
+		LL_WARNS() << "non-finite in getF32Fast " << block << " " << var 
+				<< LL_ENDL;
 		d = 0;
 	}
 }
@@ -339,8 +339,8 @@ void LLTemplateMessageReader::getF64(const char *block, const char *var,
 
 	if( !llfinite( d ) )
 	{
-		llwarns << "non-finite in getF64Fast " << block << " " << var 
-				<< llendl;
+		LL_WARNS() << "non-finite in getF64Fast " << block << " " << var 
+				<< LL_ENDL;
 		d = 0;
 	}
 }
@@ -352,8 +352,8 @@ void LLTemplateMessageReader::getVector3(const char *block, const char *var,
 
 	if( !v.isFinite() )
 	{
-		llwarns << "non-finite in getVector3Fast " << block << " " 
-				<< var << llendl;
+		LL_WARNS() << "non-finite in getVector3Fast " << block << " " 
+				<< var << LL_ENDL;
 		v.zeroVec();
 	}
 }
@@ -365,8 +365,8 @@ void LLTemplateMessageReader::getVector4(const char *block, const char *var,
 
 	if( !v.isFinite() )
 	{
-		llwarns << "non-finite in getVector4Fast " << block << " " 
-				<< var << llendl;
+		LL_WARNS() << "non-finite in getVector4Fast " << block << " " 
+				<< var << LL_ENDL;
 		v.zeroVec();
 	}
 }
@@ -378,8 +378,8 @@ void LLTemplateMessageReader::getVector3d(const char *block, const char *var,
 
 	if( !v.isFinite() )
 	{
-		llwarns << "non-finite in getVector3dFast " << block << " " 
-				<< var << llendl;
+		LL_WARNS() << "non-finite in getVector3dFast " << block << " " 
+				<< var << LL_ENDL;
 		v.zeroVec();
 	}
 
@@ -396,8 +396,8 @@ void LLTemplateMessageReader::getQuat(const char *block, const char *var,
 	}
 	else
 	{
-		llwarns << "non-finite in getQuatFast " << block << " " << var 
-				<< llendl;
+		LL_WARNS() << "non-finite in getQuatFast " << block << " " << var 
+				<< LL_ENDL;
 		q.loadIdentity();
 	}
 }
@@ -450,7 +450,7 @@ BOOL LLTemplateMessageReader::decodeTemplate(
 	// is there a message ready to go?
 	if (buffer_size <= 0)
 	{
-		llwarns << "No message waiting for decode!" << llendl;
+		LL_WARNS() << "No message waiting for decode!" << LL_ENDL;
 		return(FALSE);
 	}
 
@@ -485,8 +485,8 @@ BOOL LLTemplateMessageReader::decodeTemplate(
 	}
 	else // bogus packet received (too short)
 	{
-		llwarns << "Packet with unusable length received (too short): "
-				<< buffer_size << llendl;
+		LL_WARNS() << "Packet with unusable length received (too short): "
+				<< buffer_size << LL_ENDL;
 		return(FALSE);
 	}
 
@@ -497,8 +497,8 @@ BOOL LLTemplateMessageReader::decodeTemplate(
 	}
 	else
 	{
-		llwarns << "Message #" << std::hex << num << std::dec
-			<< " received but not registered!" << llendl;
+		LL_WARNS() << "Message #" << std::hex << num << std::dec
+			<< " received but not registered!" << LL_ENDL;
 		gMessageSystem->callExceptionFunc(MX_UNREGISTERED_MESSAGE);
 		return(FALSE);
 	}
@@ -509,23 +509,23 @@ BOOL LLTemplateMessageReader::decodeTemplate(
 void LLTemplateMessageReader::logRanOffEndOfPacket( const LLHost& host, const S32 where, const S32 wanted )
 {
 	// we've run off the end of the packet!
-	llwarns << "Ran off end of packet " << mCurrentRMessageTemplate->mName
+	LL_WARNS() << "Ran off end of packet " << mCurrentRMessageTemplate->mName
 //			<< " with id " << mCurrentRecvPacketID 
 			<< " from " << host
 			<< " trying to read " << wanted
 			<< " bytes at position " << where
 			<< " going past packet end at " << mReceiveSize
-			<< llendl;
+			<< LL_ENDL;
 	if(gMessageSystem->mVerboseLog)
 	{
-		llinfos << "MSG: -> " << host << "\tREAD PAST END:\t"
+		LL_INFOS() << "MSG: -> " << host << "\tREAD PAST END:\t"
 //				<< mCurrentRecvPacketID << " "
-				<< getMessageName() << llendl;
+				<< getMessageName() << LL_ENDL;
 	}
 	gMessageSystem->callExceptionFunc(MX_RAN_OFF_END_OF_PACKET);
 }
 
-static LLFastTimer::DeclareTimer FTM_PROCESS_MESSAGES("Process Messages");
+static LLTrace::TimeBlock FTM_PROCESS_MESSAGES("Process Messages");
 
 // decode a given message
 BOOL LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender )
@@ -586,7 +586,7 @@ BOOL LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
 		}
 		else
 		{
-			llerrs << "Unknown block type" << llendl;
+			LL_ERRS() << "Unknown block type" << LL_ENDL;
 			return FALSE;
 		}
 
@@ -653,7 +653,7 @@ BOOL LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
 							htonmemcpy(&tsize, &buffer[decode_pos], MVT_U32, 4);
 							break;
 						default:
-							llerrs << "Attempting to read variable field with unknown size of " << data_size << llendl;
+							LL_ERRS() << "Attempting to read variable field with unknown size of " << data_size << LL_ENDL;
 							break;
 						}
 					}
@@ -692,7 +692,7 @@ BOOL LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
 	if (mCurrentRMessageData->mMemberBlocks.empty()
 		&& !mCurrentRMessageTemplate->mMemberBlocks.empty())
 	{
-		lldebugs << "Empty message '" << mCurrentRMessageTemplate->mName << "' (no blocks)" << llendl;
+		LL_DEBUGS() << "Empty message '" << mCurrentRMessageTemplate->mName << "' (no blocks)" << LL_ENDL;
 		return FALSE;
 	}
 
@@ -705,10 +705,10 @@ BOOL LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
 		}
 
 		{
-			LLFastTimer t(FTM_PROCESS_MESSAGES);
+			LL_RECORD_BLOCK_TIME(FTM_PROCESS_MESSAGES);
 			if( !mCurrentRMessageTemplate->callHandlerFunc(gMessageSystem) )
 			{
-				llwarns << "Message from " << sender << " with no handler function received: " << mCurrentRMessageTemplate->mName << llendl;
+				LL_WARNS() << "Message from " << sender << " with no handler function received: " << mCurrentRMessageTemplate->mName << LL_ENDL;
 			}
 		}
 
@@ -738,9 +738,9 @@ BOOL LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
 
 				if(decode_time > LLMessageReader::getTimeDecodesSpamThreshold())
 				{
-					lldebugs << "--------- Message " << mCurrentRMessageTemplate->mName << " decode took " << decode_time << " seconds. (" <<
+					LL_DEBUGS() << "--------- Message " << mCurrentRMessageTemplate->mName << " decode took " << decode_time << " seconds. (" <<
 						mCurrentRMessageTemplate->mMaxDecodeTimePerMsg << " max, " <<
-						(mCurrentRMessageTemplate->mTotalDecodeTime / mCurrentRMessageTemplate->mTotalDecoded) << " avg)" << llendl;
+						(mCurrentRMessageTemplate->mTotalDecodeTime / mCurrentRMessageTemplate->mTotalDecoded) << " avg)" << LL_ENDL;
 				}
 			}
 		}
@@ -758,9 +758,9 @@ BOOL LLTemplateMessageReader::validateMessage(const U8* buffer,
 	if(valid)
 	{
 		mCurrentRMessageTemplate->mReceiveCount++;
-		//lldebugs << "MessageRecvd:"
+		//LL_DEBUGS() << "MessageRecvd:"
 		//						 << mCurrentRMessageTemplate->mName 
-		//						 << " from " << sender << llendl;
+		//						 << " from " << sender << LL_ENDL;
 	}
 
 	if (valid && isBanned(trusted))
@@ -770,15 +770,15 @@ BOOL LLTemplateMessageReader::validateMessage(const U8* buffer,
 			<< getMessageName()
 			<< " from "
 			<< ((trusted) ? "trusted " : "untrusted ")
-			<< sender << llendl;
+			<< sender << LL_ENDL;
 		valid = FALSE;
 	}
 
 	if(valid && isUdpBanned())
 	{
-		llwarns << "Received UDP black listed message "
+		LL_WARNS() << "Received UDP black listed message "
 				<<  getMessageName()
-				<< " from " << sender << llendl;
+				<< " from " << sender << LL_ENDL;
 		valid = FALSE;
 	}
 	return valid;

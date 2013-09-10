@@ -29,6 +29,16 @@
 #include "llerror.h"
 #include "llregionhandle.h"
 #include "llviewercontrol.h"
+#include "llviewerobjectlist.h"
+#include "lldrawable.h"
+#include "llviewerregion.h"
+#include "pipeline.h"
+#include "llagentcamera.h"
+
+F32 LLVOCacheEntry::sBackDistanceSquared = 0.f;
+F32 LLVOCacheEntry::sBackAngleTanSquared = 0.f;
+BOOL LLVOCachePartition::sNeedsOcclusionCheck = FALSE;
+//LLTrace::MemStatHandle	LLVOCachePartition::sMemStat("LLVOCachePartition");
 
 BOOL check_read(LLAPRFile* apr_file, void* src, S32 n_bytes) 
 {
@@ -44,39 +54,67 @@ BOOL check_write(LLAPRFile* apr_file, void* src, S32 n_bytes)
 //---------------------------------------------------------------------------
 // LLVOCacheEntry
 //---------------------------------------------------------------------------
+//return number of frames invisible objects should stay in memory
+//static 
+U32 LLVOCacheEntry::getInvisibleObjectsLiveTime()
+{
+	static LLCachedControl<U32> inv_obj_time(gSavedSettings,"InvisibleObjectsInMemoryTime");
+
+	return inv_obj_time - 1; //make 0 to be the maximum 
+}
 
 LLVOCacheEntry::LLVOCacheEntry(U32 local_id, U32 crc, LLDataPackerBinaryBuffer &dp)
-	:
+	: LLViewerOctreeEntryData(LLViewerOctreeEntry::LLVOCACHEENTRY),
 	mLocalID(local_id),
 	mCRC(crc),
+	mUpdateFlags(-1),
 	mHitCount(0),
 	mDupeCount(0),
-	mCRCChangeCount(0)
+	mCRCChangeCount(0),
+	mState(INACTIVE),
+	mSceneContrib(0.f),
+	mTouched(TRUE),
+	mParentID(0)
 {
 	mBuffer = new U8[dp.getBufferSize()];
 	mDP.assignBuffer(mBuffer, dp.getBufferSize());
 	mDP = dp;
+	mMinFrameRange = getInvisibleObjectsLiveTime();
 }
 
 LLVOCacheEntry::LLVOCacheEntry()
-	:
+	: LLViewerOctreeEntryData(LLViewerOctreeEntry::LLVOCACHEENTRY),
 	mLocalID(0),
 	mCRC(0),
+	mUpdateFlags(-1),
 	mHitCount(0),
 	mDupeCount(0),
 	mCRCChangeCount(0),
-	mBuffer(NULL)
+	mBuffer(NULL),
+	mState(INACTIVE),
+	mSceneContrib(0.f),
+	mTouched(TRUE),
+	mParentID(0)
 {
 	mDP.assignBuffer(mBuffer, 0);
+	mMinFrameRange = getInvisibleObjectsLiveTime();
 }
 
 LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
-	: mBuffer(NULL)
+	: LLViewerOctreeEntryData(LLViewerOctreeEntry::LLVOCACHEENTRY), 
+	mBuffer(NULL),
+	mUpdateFlags(-1),
+	mState(INACTIVE),
+	mSceneContrib(0.f),
+	mTouched(FALSE),
+	mParentID(0)
 {
 	S32 size = -1;
 	BOOL success;
 
+	mMinFrameRange = getInvisibleObjectsLiveTime();
 	mDP.assignBuffer(mBuffer, 0);
+	
 	success = check_read(apr_file, &mLocalID, sizeof(U32));
 	if(success)
 	{
@@ -104,7 +142,7 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 			// We've got a bogus size, skip reading it.
 			// We won't bother seeking, because the rest of this file
 			// is likely bogus, and will be tossed anyway.
-			llwarns << "Bogus cache entry, size " << size << ", aborting!" << llendl;
+			LL_WARNS() << "Bogus cache entry, size " << size << ", aborting!" << LL_ENDL;
 			success = FALSE;
 		}
 	}
@@ -132,63 +170,160 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 		mDupeCount = 0;
 		mCRCChangeCount = 0;
 		mBuffer = NULL;
+		mEntry = NULL;
+		mState = 0;
 	}
 }
 
 LLVOCacheEntry::~LLVOCacheEntry()
 {
 	mDP.freeBuffer();
+	//llassert(mState == INACTIVE);
 }
 
-
-// New CRC means the object has changed.
-void LLVOCacheEntry::assignCRC(U32 crc, LLDataPackerBinaryBuffer &dp)
+//virtual 
+void LLVOCacheEntry::setOctreeEntry(LLViewerOctreeEntry* entry)
 {
-	if (  (mCRC != crc)
-		||(mDP.getBufferSize() == 0))
+	if(!entry && mDP.getBufferSize() > 0)
 	{
-		mCRC = crc;
-		mHitCount = 0;
-		mCRCChangeCount++;
+		LLUUID fullid;
+		LLViewerObject::unpackUUID(&mDP, fullid, "ID");
+		
+		LLViewerObject* obj = gObjectList.findObject(fullid);
+		if(obj && obj->mDrawable)
+		{
+			entry = obj->mDrawable->getEntry();
+		}
+	}
 
-		mDP.freeBuffer();
-		mBuffer = new U8[dp.getBufferSize()];
-		mDP.assignBuffer(mBuffer, dp.getBufferSize());
-		mDP = dp;
+	LLViewerOctreeEntryData::setOctreeEntry(entry);
+}
+
+void LLVOCacheEntry::moveTo(LLVOCacheEntry* new_entry)
+{
+	//copy LLViewerOctreeEntry
+	if(mEntry.notNull())
+	{
+		new_entry->setOctreeEntry(mEntry);
+		mEntry = NULL;
+	}
+
+	//copy children
+	S32 num_children = getNumOfChildren();
+	for(S32 i = 0; i < num_children; i++)
+	{
+		new_entry->addChild(getChild(i));
+	}
+	mChildrenList.clear();
+}
+
+void LLVOCacheEntry::setState(U32 state)
+{
+	mState = state;
+
+	if(getState() == ACTIVE)
+	{
+		const S32 MIN_INTERVAL = 64 + mMinFrameRange;
+		U32 last_visible = getVisible();
+		
+		setVisible();
+
+		U32 cur_visible = getVisible();
+		if(cur_visible - last_visible > MIN_INTERVAL ||
+			cur_visible < MIN_INTERVAL)
+		{
+			mLastCameraUpdated = 0; //reset
+		}
+		else
+		{
+			mLastCameraUpdated = LLViewerRegion::sLastCameraUpdated;
+		}
 	}
 }
 
-LLDataPackerBinaryBuffer *LLVOCacheEntry::getDP(U32 crc)
+void LLVOCacheEntry::addChild(LLVOCacheEntry* entry)
 {
-	if (  (mCRC != crc)
-		||(mDP.getBufferSize() == 0))
+	llassert(entry != NULL);
+	llassert(entry->getParentID() == mLocalID);
+	llassert(entry->getEntry() != NULL);
+
+	if(!entry || !entry->getEntry() || entry->getParentID() != mLocalID)
 	{
-		//llinfos << "Not getting cache entry, invalid!" << llendl;
+		return;
+	}
+
+	mChildrenList.push_back(entry);
+
+	//update parent bbox
+	if(getEntry() != NULL && isState(INACTIVE))
+	{
+		updateParentBoundingInfo(entry);
+		if(getGroup())
+		{
+			LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)getGroup();
+			group->unbound();
+			((LLVOCachePartition*)group->getSpatialPartition())->setDirty();
+		}
+	}
+}
+	
+void LLVOCacheEntry::removeChild(LLVOCacheEntry* entry)
+{
+	for(S32 i = 0; i < mChildrenList.size(); i++)
+	{
+		if(mChildrenList[i] == entry)
+		{
+			entry->setParentID(0);
+			mChildrenList[i] = mChildrenList[mChildrenList.size() - 1];
+			mChildrenList.pop_back();
+		}
+	}
+}
+
+void LLVOCacheEntry::removeAllChildren()
+{
+	for(S32 i = 0; i < mChildrenList.size(); i++)
+	{
+		mChildrenList[i]->setParentID(0);
+	}
+	mChildrenList.clear();
+}
+
+LLDataPackerBinaryBuffer *LLVOCacheEntry::getDP()
+{
+	if (mDP.getBufferSize() == 0)
+	{
+		//LL_INFOS() << "Not getting cache entry, invalid!" << LL_ENDL;
 		return NULL;
 	}
-	mHitCount++;
+	
 	return &mDP;
 }
 
-
 void LLVOCacheEntry::recordHit()
 {
+	setTouched();
 	mHitCount++;
 }
 
 
 void LLVOCacheEntry::dump() const
 {
-	llinfos << "local " << mLocalID
+	LL_INFOS() << "local " << mLocalID
 		<< " crc " << mCRC
 		<< " hits " << mHitCount
 		<< " dupes " << mDupeCount
 		<< " change " << mCRCChangeCount
-		<< llendl;
+		<< LL_ENDL;
 }
 
 BOOL LLVOCacheEntry::writeToFile(LLAPRFile* apr_file) const
 {
+	if(!mEntry)
+	{
+		return FALSE;
+	}
+
 	BOOL success;
 	success = check_write(apr_file, (void*)&mLocalID, sizeof(U32));
 	if(success)
@@ -221,6 +356,367 @@ BOOL LLVOCacheEntry::writeToFile(LLAPRFile* apr_file) const
 	return success ;
 }
 
+//static 
+void LLVOCacheEntry::updateBackCullingFactors()
+{
+	//distance to keep objects = back_dist_factor * draw_distance
+	static LLCachedControl<F32> back_dist_factor(gSavedSettings,"BackDistanceFactor");
+
+	//squared tan(projection angle of the bbox), default is 10 (degree)
+	static LLCachedControl<F32> squared_back_angle(gSavedSettings,"BackProjectionAngleSquared");
+
+	sBackDistanceSquared = back_dist_factor * gAgentCamera.mDrawDistance;
+	sBackDistanceSquared *= sBackDistanceSquared;
+
+	sBackAngleTanSquared = squared_back_angle;
+}
+
+bool LLVOCacheEntry::isRecentlyVisible() const
+{
+	bool vis = LLViewerOctreeEntryData::isRecentlyVisible();
+
+	if(!vis)
+	{
+		vis = (sCurVisible - getVisible() < mMinFrameRange);
+	}
+
+	//combination of projected area and squared distance
+	if(!vis && !mParentID && mSceneContrib > sBackAngleTanSquared) 
+	{
+		F32 rad = getBinRadius();
+		vis = (rad * rad / mSceneContrib < sBackDistanceSquared);
+	}
+
+	return vis;
+}
+
+void LLVOCacheEntry::calcSceneContribution(const LLVector3& camera_origin, bool needs_update, U32 last_update)
+{
+	if(!needs_update && getVisible() >= last_update)
+	{
+		return; //no need to update
+	}
+
+	const LLVector4a& center = getPositionGroup();
+	
+	LLVector4a origin;
+	origin.load3(camera_origin.mV);
+
+	LLVector4a lookAt;
+	lookAt.setSub(center, origin);
+	F32 squared_dist = lookAt.dot3(lookAt).getF32();
+
+	if(squared_dist > 0.f)
+	{
+		F32 rad = getBinRadius();
+		mSceneContrib = rad * rad / squared_dist;
+	}
+
+	setVisible();
+}
+
+void LLVOCacheEntry::setBoundingInfo(const LLVector3& pos, const LLVector3& scale)
+{
+	LLVector4a center, newMin, newMax;
+	center.load3(pos.mV);
+	LLVector4a size;
+	size.load3(scale.mV);
+	newMin.setSub(center, size);
+	newMax.setAdd(center, size);
+	
+	setPositionGroup(center);
+	setSpatialExtents(newMin, newMax);
+
+	if(getNumOfChildren() > 0) //has children
+	{
+		updateParentBoundingInfo();
+	}
+	else
+	{
+		setBinRadius(llmin(size.getLength3().getF32() * 4.f, 256.f));
+	}
+}
+
+//make the parent bounding box to include all children
+void LLVOCacheEntry::updateParentBoundingInfo()
+{
+	if(mChildrenList.empty())
+	{
+		return;
+	}
+
+	for(S32 i = 0; i < mChildrenList.size(); i++)
+	{
+		updateParentBoundingInfo(mChildrenList[i]);
+	}
+}
+
+//make the parent bounding box to include this child
+void LLVOCacheEntry::updateParentBoundingInfo(const LLVOCacheEntry* child)
+{
+	const LLVector4a* child_exts = child->getSpatialExtents();
+	LLVector4a newMin, newMax;
+	newMin = child_exts[0];
+	newMax = child_exts[1];
+	
+	//move to regional space.
+	{
+		const LLVector4a& parent_pos = getPositionGroup();
+		newMin.add(parent_pos);
+		newMax.add(parent_pos);
+	}
+
+	//update parent's bbox(min, max)
+	const LLVector4a* parent_exts = getSpatialExtents();
+	update_min_max(newMin, newMax, parent_exts[0]);
+	update_min_max(newMin, newMax, parent_exts[1]);
+	for(S32 i = 0; i < 4; i++)
+	{
+		llclamp(newMin[i], 0.f, 256.f);
+		llclamp(newMax[i], 0.f, 256.f);
+	}
+	setSpatialExtents(newMin, newMax);
+
+	//update parent's bbox center
+	LLVector4a center;
+	center.setAdd(newMin, newMax);
+	center.mul(0.5f);
+	setPositionGroup(center);	
+
+	//update parent's bbox size vector
+	LLVector4a size;
+	size.setSub(newMax, newMin);
+	size.mul(0.5f);
+	setBinRadius(llmin(size.getLength3().getF32() * 4.f, 256.f));
+}
+//-------------------------------------------------------------------
+//LLVOCachePartition
+//-------------------------------------------------------------------
+LLVOCachePartition::LLVOCachePartition(LLViewerRegion* regionp)
+{
+	mLODPeriod = 16;
+	mRegionp = regionp;
+	mPartitionType = LLViewerRegion::PARTITION_VO_CACHE;	
+	mDirty = FALSE;
+
+	for(S32 i = 0; i < LLViewerCamera::NUM_CAMERAS; i++)
+	{
+		mCulledTime[i] = 0;
+		mCullHistory[i] = -1;
+	}
+	new LLOcclusionCullingGroup(mOctree, this);
+}
+
+void LLVOCachePartition::setDirty()
+{
+	mDirty = TRUE;
+}
+
+void LLVOCachePartition::addEntry(LLViewerOctreeEntry* entry)
+{
+	llassert(entry->hasVOCacheEntry());
+
+	mOctree->insert(entry);
+	setDirty();
+}
+	
+void LLVOCachePartition::removeEntry(LLViewerOctreeEntry* entry)
+{
+	entry->getVOCacheEntry()->setGroup(NULL);
+
+	llassert(!entry->getGroup());
+}
+	
+class LLVOCacheOctreeCull : public LLViewerOctreeCull
+{
+public:
+	LLVOCacheOctreeCull(LLCamera* camera, LLViewerRegion* regionp, const LLVector3& shift, bool use_object_cache_occlusion, LLVOCachePartition* part) 
+		: LLViewerOctreeCull(camera), 
+		  mRegionp(regionp),
+		  mPartition(part)
+	{
+		mLocalShift = shift;
+		mUseObjectCacheOcclusion = use_object_cache_occlusion;
+	}
+
+	virtual bool earlyFail(LLviewerOctreeGroup* base_group)
+	{
+		if( mUseObjectCacheOcclusion &&
+			base_group->getOctreeNode()->getParent()) //never occlusion cull the root node
+		{
+			LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)base_group;
+			if(group->needsUpdate())//needs to issue new occlusion culling check.
+			{
+				mPartition->addOccluders(group);
+				return true;
+			}
+
+			group->checkOcclusion();
+
+			if (group->isOcclusionState(LLOcclusionCullingGroup::OCCLUDED))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	virtual S32 frustumCheck(const LLviewerOctreeGroup* group)
+	{
+#if 1
+		S32 res = AABBInRegionFrustumGroupBounds(group);
+#else	
+		S32 res = AABBInRegionFrustumNoFarClipGroupBounds(group);
+#endif
+		if (res != 0)
+		{
+			res = llmin(res, AABBRegionSphereIntersectGroupExtents(group, mLocalShift));
+		}
+		return res;
+	}
+
+	virtual S32 frustumCheckObjects(const LLviewerOctreeGroup* group)
+	{
+#if 1
+		S32 res = AABBInRegionFrustumObjectBounds(group);
+#else
+		S32 res = AABBInRegionFrustumNoFarClipObjectBounds(group);
+#endif
+		if (res != 0)
+		{
+			res = llmin(res, AABBRegionSphereIntersectObjectExtents(group, mLocalShift));
+		}
+		return res;
+	}
+
+	virtual void processGroup(LLviewerOctreeGroup* base_group)
+	{
+		if( !mUseObjectCacheOcclusion ||
+			!base_group->getOctreeNode()->getParent())
+		{ 
+			//no occlusion check
+			mRegionp->addVisibleGroup(base_group);
+			return;
+		}
+
+		LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)base_group;
+		if(!group->isRecentlyVisible())//needs to issue new occlusion culling check.
+		{
+			mPartition->addOccluders(group);
+			group->setVisible();
+			return ; //wait for occlusion culling result
+		}
+
+		if(group->isOcclusionState(LLOcclusionCullingGroup::QUERY_PENDING) || 
+			group->isOcclusionState(LLOcclusionCullingGroup::ACTIVE_OCCLUSION))
+		{
+			//keep waiting
+			group->setVisible();
+		}
+		else
+		{
+			mRegionp->addVisibleGroup(base_group);
+		}
+	}
+
+private:
+	LLVOCachePartition* mPartition;
+	LLViewerRegion*     mRegionp;
+	LLVector3           mLocalShift; //shift vector from agent space to local region space.
+	bool                mUseObjectCacheOcclusion;
+};
+
+S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
+{
+	static LLCachedControl<bool> use_object_cache_occlusion(gSavedSettings,"UseObjectCacheOcclusion");
+	
+	if(!LLViewerRegion::sVOCacheCullingEnabled)
+	{
+		return 0;
+	}
+
+	if(LLViewerCamera::sCurCameraID >= LLViewerCamera::CAMERA_WATER0)
+	{
+		return 0; //no need for those cameras.
+	}
+
+	if(mCulledTime[LLViewerCamera::sCurCameraID] == LLViewerOctreeEntryData::getCurrentFrame())
+	{
+		return 0; //already culled
+	}
+	mCulledTime[LLViewerCamera::sCurCameraID] = LLViewerOctreeEntryData::getCurrentFrame();
+
+	if(!mDirty && !mCullHistory[LLViewerCamera::sCurCameraID] && LLViewerRegion::isViewerCameraStatic())
+	{
+		return 0; //nothing changed, skip culling
+	}
+
+	((LLviewerOctreeGroup*)mOctree->getListener(0))->rebound();
+	mCullHistory[LLViewerCamera::sCurCameraID] <<= 1;
+
+	//localize the camera
+	LLVector3 region_agent = mRegionp->getOriginAgent();
+	camera.calcRegionFrustumPlanes(region_agent);
+
+	LLVOCacheOctreeCull culler(&camera, mRegionp, region_agent, do_occlusion && use_object_cache_occlusion, this);
+	culler.traverse(mOctree);
+
+	if(mRegionp->getNumOfVisibleGroups() > 0)
+	{
+		mCullHistory[LLViewerCamera::sCurCameraID] |= 1;
+	}
+
+	if(!sNeedsOcclusionCheck)
+	{
+		sNeedsOcclusionCheck = !mOccludedGroups.empty();
+	}
+	return 1;
+}
+
+void LLVOCachePartition::addOccluders(LLviewerOctreeGroup* gp)
+{
+	LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)gp;
+
+	if(!group->isOcclusionState(LLOcclusionCullingGroup::ACTIVE_OCCLUSION))
+	{
+		group->setOcclusionState(LLOcclusionCullingGroup::ACTIVE_OCCLUSION);
+		mOccludedGroups.insert(group);
+	}
+}
+
+void LLVOCachePartition::processOccluders(LLCamera* camera)
+{
+	if(mOccludedGroups.empty())
+	{
+		return;
+	}
+
+	LLVector3 region_agent = mRegionp->getOriginAgent();
+	for(std::set<LLOcclusionCullingGroup*>::iterator iter = mOccludedGroups.begin(); iter != mOccludedGroups.end(); ++iter)
+	{
+		LLOcclusionCullingGroup* group = *iter;
+		group->doOcclusion(camera, &region_agent);
+	}	
+}
+
+void LLVOCachePartition::resetOccluders()
+{
+	if(mOccludedGroups.empty())
+	{
+		return;
+	}
+
+	for(std::set<LLOcclusionCullingGroup*>::iterator iter = mOccludedGroups.begin(); iter != mOccludedGroups.end(); ++iter)
+	{
+		LLOcclusionCullingGroup* group = *iter;
+		group->clearOcclusionState(LLOcclusionCullingGroup::ACTIVE_OCCLUSION);
+	}	
+	mOccludedGroups.clear();
+	mDirty = FALSE;
+	sNeedsOcclusionCheck = FALSE;
+}
+
 //-------------------------------------------------------------------
 //LLVOCache
 //-------------------------------------------------------------------
@@ -233,37 +729,10 @@ const U32 INVALID_TIME = 0 ;
 const char* object_cache_dirname = "objectcache";
 const char* header_filename = "object.cache";
 
-LLVOCache* LLVOCache::sInstance = NULL;
-
-//static 
-LLVOCache* LLVOCache::getInstance() 
-{	
-	if(!sInstance)
-	{
-		sInstance = new LLVOCache() ;
-	}
-	return sInstance ;
-}
-
-//static 
-BOOL LLVOCache::hasInstance() 
-{
-	return sInstance != NULL ;
-}
-
-//static 
-void LLVOCache::destroyClass() 
-{
-	if(sInstance)
-	{
-		delete sInstance ;
-		sInstance = NULL ;
-	}
-}
 
 LLVOCache::LLVOCache():
-	mInitialized(FALSE),
-	mReadOnly(TRUE),
+	mInitialized(false),
+	mReadOnly(true),
 	mNumEntries(0),
 	mCacheSize(1)
 {
@@ -291,16 +760,16 @@ void LLVOCache::initCache(ELLPath location, U32 size, U32 cache_version)
 {
 	if(!mEnabled)
 	{
-		llwarns << "Not initializing cache: Cache is currently disabled." << llendl;
+		LL_WARNS() << "Not initializing cache: Cache is currently disabled." << LL_ENDL;
 		return ;
 	}
 
 	if(mInitialized)
 	{
-		llwarns << "Cache already initialized." << llendl;
+		LL_WARNS() << "Cache already initialized." << LL_ENDL;
 		return ;
 	}
-	mInitialized = TRUE ;
+	mInitialized = true;
 
 	setDirNames(location);
 	if (!mReadOnly)
@@ -325,39 +794,48 @@ void LLVOCache::initCache(ELLPath location, U32 size, U32 cache_version)
 	}	
 }
 	
-void LLVOCache::removeCache(ELLPath location) 
+void LLVOCache::removeCache(ELLPath location, bool started) 
 {
-	if(mReadOnly)
+	if(started)
 	{
-		llwarns << "Not removing cache at " << location << ": Cache is currently in read-only mode." << llendl;
-		return ;
+		removeCache();
+		return;
 	}
 
-	llinfos << "about to remove the object cache due to settings." << llendl ;
+	if(mReadOnly)
+	{
+		LL_WARNS() << "Not removing cache at " << location << ": Cache is currently in read-only mode." << LL_ENDL;
+		return ;
+	}	
+
+	LL_INFOS() << "about to remove the object cache due to settings." << LL_ENDL ;
 
 	std::string mask = "*";
 	std::string cache_dir = gDirUtilp->getExpandedFilename(location, object_cache_dirname);
-	llinfos << "Removing cache at " << cache_dir << llendl;
+	LL_INFOS() << "Removing cache at " << cache_dir << LL_ENDL;
 	gDirUtilp->deleteFilesInDir(cache_dir, mask); //delete all files
 	LLFile::rmdir(cache_dir);
 
 	clearCacheInMemory();
-	mInitialized = FALSE ;
+	mInitialized = false;
 }
 
 void LLVOCache::removeCache() 
 {
-	llassert_always(mInitialized) ;
+	if(!mInitialized)
+	{
+		//OK to remove cache even it is not initialized.
+		LL_WARNS() << "Object cache is not initialized yet." << LL_ENDL;
+	}
+
 	if(mReadOnly)
 	{
-		llwarns << "Not clearing object cache: Cache is currently in read-only mode." << llendl;
+		LL_WARNS() << "Not clearing object cache: Cache is currently in read-only mode." << LL_ENDL;
 		return ;
 	}
 
-	llinfos << "about to remove the object cache due to some error." << llendl ;
-
 	std::string mask = "*";
-	llinfos << "Removing cache at " << mObjectCacheDirName << llendl;
+	LL_INFOS() << "Removing object cache at " << mObjectCacheDirName << LL_ENDL;
 	gDirUtilp->deleteFilesInDir(mObjectCacheDirName, mask); 
 
 	clearCacheInMemory() ;
@@ -366,23 +844,23 @@ void LLVOCache::removeCache()
 
 void LLVOCache::removeEntry(HeaderEntryInfo* entry) 
 {
-	llassert_always(mInitialized) ;
+	llassert_always(mInitialized);
 	if(mReadOnly)
 	{
-		return ;
+		return;
 	}
 	if(!entry)
 	{
-		return ;
+		return;
 	}
 
-	header_entry_queue_t::iterator iter = mHeaderEntryQueue.find(entry) ;
+	header_entry_queue_t::iterator iter = mHeaderEntryQueue.find(entry);
 	if(iter != mHeaderEntryQueue.end())
 	{		
-		mHandleEntryMap.erase(entry->mHandle) ;		
-		mHeaderEntryQueue.erase(iter) ;
-		removeFromCache(entry) ;
-		delete entry ;
+		mHandleEntryMap.erase(entry->mHandle);		
+		mHeaderEntryQueue.erase(iter);
+		removeFromCache(entry);
+		delete entry;
 
 		mNumEntries = mHandleEntryMap.size() ;
 	}
@@ -429,7 +907,7 @@ void LLVOCache::removeFromCache(HeaderEntryInfo* entry)
 {
 	if(mReadOnly)
 	{
-		llwarns << "Not removing cache for handle " << entry->mHandle << ": Cache is currently in read-only mode." << llendl;
+		LL_WARNS() << "Not removing cache for handle " << entry->mHandle << ": Cache is currently in read-only mode." << LL_ENDL;
 		return ;
 	}
 
@@ -444,7 +922,7 @@ void LLVOCache::readCacheHeader()
 {
 	if(!mEnabled)
 	{
-		llwarns << "Not reading cache header: Cache is currently disabled." << llendl;
+		LL_WARNS() << "Not reading cache header: Cache is currently disabled." << LL_ENDL;
 		return;
 	}
 
@@ -474,7 +952,7 @@ void LLVOCache::readCacheHeader()
 								
 				if(!success) //failed
 				{
-					llwarns << "Error reading cache header entry. (entry_index=" << mNumEntries << ")" << llendl;
+					LL_WARNS() << "Error reading cache header entry. (entry_index=" << mNumEntries << ")" << LL_ENDL;
 					delete entry ;
 					entry = NULL ;
 					break ;
@@ -502,7 +980,7 @@ void LLVOCache::readCacheHeader()
 		//for(header_entry_queue_t::iterator iter = mHeaderEntryQueue.begin() ; success && iter != mHeaderEntryQueue.end(); ++iter)
 		//{
 		//	getObjectCacheFilename((*iter)->mHandle, name) ;
-		//	llinfos << name << llendl ;
+		//	LL_INFOS() << name << LL_ENDL ;
 		//}
 		//-----------
 	}
@@ -527,13 +1005,13 @@ void LLVOCache::writeCacheHeader()
 {
 	if (!mEnabled)
 	{
-		llwarns << "Not writing cache header: Cache is currently disabled." << llendl;
+		LL_WARNS() << "Not writing cache header: Cache is currently disabled." << LL_ENDL;
 		return;
 	}
 
 	if(mReadOnly)
 	{
-		llwarns << "Not writing cache header: Cache is currently in read-only mode." << llendl;
+		LL_WARNS() << "Not writing cache header: Cache is currently in read-only mode." << LL_ENDL;
 		return;
 	}
 
@@ -587,7 +1065,7 @@ void LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::voca
 {
 	if(!mEnabled)
 	{
-		llwarns << "Not reading cache for handle " << handle << "): Cache is currently disabled." << llendl;
+		LL_WARNS() << "Not reading cache for handle " << handle << "): Cache is currently disabled." << LL_ENDL;
 		return ;
 	}
 	llassert_always(mInitialized);
@@ -595,7 +1073,7 @@ void LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::voca
 	handle_entry_map_t::iterator iter = mHandleEntryMap.find(handle) ;
 	if(iter == mHandleEntryMap.end()) //no cache
 	{
-		llwarns << "No handle map entry for " << handle << llendl;
+		LL_WARNS() << "No handle map entry for " << handle << LL_ENDL;
 		return ;
 	}
 
@@ -612,7 +1090,7 @@ void LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::voca
 		{		
 			if(cache_id != id)
 			{
-				llinfos << "Cache ID doesn't match for this region, discarding"<< llendl;
+				LL_INFOS() << "Cache ID doesn't match for this region, discarding"<< LL_ENDL;
 				success = false ;
 			}
 
@@ -625,11 +1103,10 @@ void LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::voca
 				{
 					for (S32 i = 0; i < num_entries; i++)
 					{
-						LLVOCacheEntry* entry = new LLVOCacheEntry(&apr_file);
+						LLPointer<LLVOCacheEntry> entry = new LLVOCacheEntry(&apr_file);
 						if (!entry->getLocalID())
 						{
-							llwarns << "Aborting cache file load for " << filename << ", cache file corruption!" << llendl;
-							delete entry ;
+							LL_WARNS() << "Aborting cache file load for " << filename << ", cache file corruption!" << LL_ENDL;
 							success = false ;
 							break ;
 						}
@@ -665,18 +1142,18 @@ void LLVOCache::purgeEntries(U32 size)
 	mNumEntries = mHandleEntryMap.size() ;
 }
 
-void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_entry_map_t& cache_entry_map, BOOL dirty_cache) 
+void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_entry_map_t& cache_entry_map, BOOL dirty_cache, bool removal_enabled) 
 {
 	if(!mEnabled)
 	{
-		llwarns << "Not writing cache for handle " << handle << "): Cache is currently disabled." << llendl;
+		LL_WARNS() << "Not writing cache for handle " << handle << "): Cache is currently disabled." << LL_ENDL;
 		return ;
 	}
 	llassert_always(mInitialized);
 
 	if(mReadOnly)
 	{
-		llwarns << "Not writing cache for handle " << handle << "): Cache is currently in read-only mode." << llendl;
+		LL_WARNS() << "Not writing cache for handle " << handle << "): Cache is currently in read-only mode." << LL_ENDL;
 		return ;
 	}	
 
@@ -711,13 +1188,13 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
 	//update cache header
 	if(!updateEntry(entry))
 	{
-		llwarns << "Failed to update cache header index " << entry->mIndex << ". handle = " << handle << llendl;
+		LL_WARNS() << "Failed to update cache header index " << entry->mIndex << ". handle = " << handle << LL_ENDL;
 		return ; //update failed.
 	}
 
 	if(!dirty_cache)
 	{
-		llwarns << "Skipping write to cache for handle " << handle << ": cache not dirty" << llendl;
+		LL_WARNS() << "Skipping write to cache for handle " << handle << ": cache not dirty" << LL_ENDL;
 		return ; //nothing changed, no need to update.
 	}
 
@@ -738,7 +1215,10 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
 	
 			for (LLVOCacheEntry::vocache_entry_map_t::const_iterator iter = cache_entry_map.begin(); success && iter != cache_entry_map.end(); ++iter)
 			{
-				success = iter->second->writeToFile(&apr_file) ;
+				if(!removal_enabled || iter->second->isTouched())
+				{
+					success = iter->second->writeToFile(&apr_file) ;
+				}
 			}
 		}
 	}

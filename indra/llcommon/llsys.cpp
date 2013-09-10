@@ -42,6 +42,7 @@
 #include "llprocessor.h"
 #include "llerrorcontrol.h"
 #include "llevents.h"
+#include "llformat.h"
 #include "lltimer.h"
 #include "llsdserialize.h"
 #include "llsdutil.h"
@@ -58,9 +59,7 @@
 using namespace llsd;
 
 #if LL_WINDOWS
-#	define WIN32_LEAN_AND_MEAN
-#	include <winsock2.h>
-#	include <windows.h>
+#	include "llwin32headerslean.h"
 #   include <psapi.h>               // GetPerformanceInfo() et al.
 #elif LL_DARWIN
 #	include <errno.h>
@@ -614,7 +613,7 @@ S32 LLOSInfo::getMaxOpenFiles()
 			}
 			else
 			{
-				llerrs << "LLOSInfo::getMaxOpenFiles: sysconf error for _SC_OPEN_MAX" << llendl;
+				LL_ERRS() << "LLOSInfo::getMaxOpenFiles: sysconf error for _SC_OPEN_MAX" << LL_ENDL;
 			}
 		}
 	}
@@ -673,12 +672,12 @@ U32 LLOSInfo::getProcessVirtualSizeKB()
 	sprintf(proc_ps, "/proc/%d/psinfo", (int)getpid());
 	int proc_fd = -1;
 	if((proc_fd = open(proc_ps, O_RDONLY)) == -1){
-		llwarns << "unable to open " << proc_ps << llendl;
+		LL_WARNS() << "unable to open " << proc_ps << LL_ENDL;
 		return 0;
 	}
 	psinfo_t proc_psinfo;
 	if(read(proc_fd, &proc_psinfo, sizeof(psinfo_t)) != sizeof(psinfo_t)){
-		llwarns << "Unable to read " << proc_ps << llendl;
+		LL_WARNS() << "Unable to read " << proc_ps << LL_ENDL;
 		close(proc_fd);
 		return 0;
 	}
@@ -719,12 +718,12 @@ U32 LLOSInfo::getProcessResidentSizeKB()
 	sprintf(proc_ps, "/proc/%d/psinfo", (int)getpid());
 	int proc_fd = -1;
 	if((proc_fd = open(proc_ps, O_RDONLY)) == -1){
-		llwarns << "unable to open " << proc_ps << llendl;
+		LL_WARNS() << "unable to open " << proc_ps << LL_ENDL;
 		return 0;
 	}
 	psinfo_t proc_psinfo;
 	if(read(proc_fd, &proc_psinfo, sizeof(psinfo_t)) != sizeof(psinfo_t)){
-		llwarns << "Unable to read " << proc_ps << llendl;
+		LL_WARNS() << "Unable to read " << proc_ps << LL_ENDL;
 		close(proc_fd);
 		return 0;
 	}
@@ -839,7 +838,7 @@ LLMemoryInfo::LLMemoryInfo()
 }
 
 #if LL_WINDOWS
-static U32 LLMemoryAdjustKBResult(U32 inKB)
+static U32Kilobytes LLMemoryAdjustKBResult(U32Kilobytes inKB)
 {
 	// Moved this here from llfloaterabout.cpp
 
@@ -850,16 +849,16 @@ static U32 LLMemoryAdjustKBResult(U32 inKB)
 	// returned from the GetMemoryStatusEx function.  Here we keep the
 	// original adjustment from llfoaterabout.cpp until this can be
 	// fixed somehow.
-	inKB += 1024;
+	inKB += U32Megabytes(1);
 
 	return inKB;
 }
 #endif
 
-U32 LLMemoryInfo::getPhysicalMemoryKB() const
+U32Kilobytes LLMemoryInfo::getPhysicalMemoryKB() const
 {
 #if LL_WINDOWS
-	return LLMemoryAdjustKBResult(mStatsMap["Total Physical KB"].asInteger());
+	return LLMemoryAdjustKBResult(U32Kilobytes(mStatsMap["Total Physical KB"].asInteger()));
 
 #elif LL_DARWIN
 	// This might work on Linux as well.  Someone check...
@@ -869,17 +868,17 @@ U32 LLMemoryInfo::getPhysicalMemoryKB() const
 	size_t len = sizeof(phys);	
 	sysctl(mib, 2, &phys, &len, NULL, 0);
 	
-	return (U32)(phys >> 10);
+	return U32Bytes(phys);
 
 #elif LL_LINUX
 	U64 phys = 0;
 	phys = (U64)(getpagesize()) * (U64)(get_phys_pages());
-	return (U32)(phys >> 10);
+	return U32Bytes(phys);
 
 #elif LL_SOLARIS
 	U64 phys = 0;
 	phys = (U64)(getpagesize()) * (U64)(sysconf(_SC_PHYS_PAGES));
-	return (U32)(phys >> 10);
+	return U32Bytes(phys);
 
 #else
 	return 0;
@@ -887,32 +886,32 @@ U32 LLMemoryInfo::getPhysicalMemoryKB() const
 #endif
 }
 
-U32 LLMemoryInfo::getPhysicalMemoryClamped() const
+U32Bytes LLMemoryInfo::getPhysicalMemoryClamped() const
 {
 	// Return the total physical memory in bytes, but clamp it
 	// to no more than U32_MAX
 	
-	U32 phys_kb = getPhysicalMemoryKB();
-	if (phys_kb >= 4194304 /* 4GB in KB */)
+	U32Kilobytes phys_kb = getPhysicalMemoryKB();
+	if (phys_kb >= U32Gigabytes(4))
 	{
-		return U32_MAX;
+		return U32Bytes(U32_MAX);
 	}
 	else
 	{
-		return phys_kb << 10;
+		return phys_kb;
 	}
 }
 
 //static
-void LLMemoryInfo::getAvailableMemoryKB(U32& avail_physical_mem_kb, U32& avail_virtual_mem_kb)
+void LLMemoryInfo::getAvailableMemoryKB(U32Kilobytes& avail_physical_mem_kb, U32Kilobytes& avail_virtual_mem_kb)
 {
 #if LL_WINDOWS
 	// Sigh, this shouldn't be a static method, then we wouldn't have to
 	// reload this data separately from refresh()
 	LLSD statsMap(loadStatsMap());
 
-	avail_physical_mem_kb = statsMap["Avail Physical KB"].asInteger();
-	avail_virtual_mem_kb  = statsMap["Avail Virtual KB"].asInteger();
+	avail_physical_mem_kb = (U32Kilobytes)statsMap["Avail Physical KB"].asInteger();
+	avail_virtual_mem_kb  = (U32Kilobytes)statsMap["Avail Virtual KB"].asInteger();
 
 #elif LL_DARWIN
 	// mStatsMap is derived from vm_stat, look for (e.g.) "kb free":
@@ -929,8 +928,8 @@ void LLMemoryInfo::getAvailableMemoryKB(U32& avail_physical_mem_kb, U32& avail_v
 	// Pageins:                     2097212.
 	// Pageouts:                      41759.
 	// Object cache: 841598 hits of 7629869 lookups (11% hit rate)
-	avail_physical_mem_kb = -1 ;
-	avail_virtual_mem_kb = -1 ;
+	avail_physical_mem_kb = (U32Kilobytes)-1 ;
+	avail_virtual_mem_kb = (U32Kilobytes)-1 ;
 
 #elif LL_LINUX
 	// mStatsMap is derived from MEMINFO_FILE:
@@ -981,15 +980,15 @@ void LLMemoryInfo::getAvailableMemoryKB(U32& avail_physical_mem_kb, U32& avail_v
 	// DirectMap4k:      434168 kB
 	// DirectMap2M:      477184 kB
 	// (could also run 'free', but easier to read a file than run a program)
-	avail_physical_mem_kb = -1 ;
-	avail_virtual_mem_kb = -1 ;
+	avail_physical_mem_kb = (U32Kilobytes)-1 ;
+	avail_virtual_mem_kb = (U32Kilobytes)-1 ;
 
 #else
 	//do not know how to collect available memory info for other systems.
 	//leave it blank here for now.
 
-	avail_physical_mem_kb = -1 ;
-	avail_virtual_mem_kb = -1 ;
+	avail_physical_mem_kb = (U32Kilobytes)-1 ;
+	avail_virtual_mem_kb = (U32Kilobytes)-1 ;
 #endif
 }
 
@@ -1402,9 +1401,14 @@ public:
             LL_CONT << "slowest framerate for last " << int(prevSize * MEM_INFO_THROTTLE)
                     << " seconds ";
         }
-        LL_CONT << std::fixed << std::setprecision(1) << framerate << '\n'
-                << LLMemoryInfo() << LL_ENDL;
 
+	S32 precision = LL_CONT.precision();
+
+        LL_CONT << std::fixed << std::setprecision(1) << framerate << '\n'
+                << LLMemoryInfo();
+
+	LL_CONT.precision(precision);
+	LL_CONT << LL_ENDL;
         return false;
     }
 
@@ -1451,7 +1455,7 @@ BOOL gunzip_file(const std::string& srcfile, const std::string& dstfile)
 		size_t nwrit = fwrite(buffer, sizeof(U8), bytes, dst);
 		if (nwrit < (size_t) bytes)
 		{
-			llwarns << "Short write on " << tmpfile << ": Wrote " << nwrit << " of " << bytes << " bytes." << llendl;
+			LL_WARNS() << "Short write on " << tmpfile << ": Wrote " << nwrit << " of " << bytes << " bytes." << LL_ENDL;
 			goto err;
 		}
 	} while(gzeof(src) == 0);
@@ -1484,14 +1488,14 @@ BOOL gzip_file(const std::string& srcfile, const std::string& dstfile)
 	{
 		if (gzwrite(dst, buffer, bytes) <= 0)
 		{
-			llwarns << "gzwrite failed: " << gzerror(dst, NULL) << llendl;
+			LL_WARNS() << "gzwrite failed: " << gzerror(dst, NULL) << LL_ENDL;
 			goto err;
 		}
 	}
 
 	if (ferror(src))
 	{
-		llwarns << "Error reading " << srcfile << llendl;
+		LL_WARNS() << "Error reading " << srcfile << LL_ENDL;
 		goto err;
 	}
 

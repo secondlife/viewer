@@ -107,8 +107,8 @@ void LLSysWellWindow::removeItemByID(const LLUUID& id)
 	}
 	else
 	{
-		llwarns << "Unable to remove notification from the list, ID: " << id
-			<< llendl;
+		LL_WARNS() << "Unable to remove notification from the list, ID: " << id
+			<< LL_ENDL;
 	}
 
 	// hide chiclet window if there are no items left
@@ -127,7 +127,7 @@ void LLSysWellWindow::initChannel()
 	mChannel = dynamic_cast<LLNotificationsUI::LLScreenChannel*>(channel);
 	if(NULL == mChannel)
 	{
-		llwarns << "LLSysWellWindow::initChannel() - could not get a requested screen channel" << llendl;
+		LL_WARNS() << "LLSysWellWindow::initChannel() - could not get a requested screen channel" << LL_ENDL;
 	}
 }
 
@@ -355,9 +355,9 @@ void LLNotificationWellWindow::addItem(LLSysWellItem::Params p)
 	}
 	else
 	{
-		llwarns << "Unable to add Notification into the list, notification ID: " << p.notification_id
+		LL_WARNS() << "Unable to add Notification into the list, notification ID: " << p.notification_id
 			<< ", title: " << p.title
-			<< llendl;
+			<< LL_ENDL;
 
 		new_item->die();
 	}
@@ -504,7 +504,7 @@ void LLIMWellWindow::addObjectRow(const LLUUID& notification_id, bool new_messag
 		ObjectRowPanel* item = new ObjectRowPanel(notification_id, new_message);
 		if (!mMessageList->addItem(item, notification_id))
 		{
-			llwarns << "Unable to add Object Row into the list, notificationID: " << notification_id << llendl;
+			LL_WARNS() << "Unable to add Object Row into the list, notificationID: " << notification_id << LL_ENDL;
 			item->die();
 		}
 		reshapeWindow();
@@ -515,7 +515,7 @@ void LLIMWellWindow::removeObjectRow(const LLUUID& notification_id)
 {
 	if (!mMessageList->removeItemByValue(notification_id))
 	{
-		llwarns << "Unable to remove Object Row from the list, notificationID: " << notification_id << llendl;
+		LL_WARNS() << "Unable to remove Object Row from the list, notificationID: " << notification_id << LL_ENDL;
 	}
 
 	reshapeWindow();

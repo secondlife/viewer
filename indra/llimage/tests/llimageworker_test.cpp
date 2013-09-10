@@ -31,6 +31,8 @@
 #include "../llimageworker.h"
 // For timer class
 #include "../llcommon/lltimer.h"
+// for lltrace class
+#include "../llcommon/lltrace.h"
 // Tut header
 #include "../test/lltut.h"
 
@@ -41,6 +43,9 @@
 // * Add as little as possible (let the link errors guide you)
 // * Do not make any assumption as to how those classes or methods work (i.e. don't copy/paste code)
 // * A simulator for a class can be implemented here. Please comment and document thoroughly.
+
+//LLTrace::MemStatHandle	LLImageBase::sMemStat("LLImage");
+
 
 LLImageBase::LLImageBase() 
 : mData(NULL),
@@ -110,7 +115,6 @@ namespace tut
 	{
 		// Instance to be tested
 		LLImageDecodeThread* mThread;
-
 		// Constructor and destructor of the test wrapper
 		imagedecodethread_test()
 		{
@@ -136,6 +140,7 @@ namespace tut
 		imagerequest_test()
 		{
 			done = false;
+
 			mRequest = new LLImageDecodeThread::ImageRequest(0, 0,
 											 LLQueuedThread::PRIORITY_NORMAL, 0, FALSE,
 											 new responder_test(&done));

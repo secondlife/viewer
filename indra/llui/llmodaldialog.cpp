@@ -65,7 +65,7 @@ LLModalDialog::~LLModalDialog()
 	std::list<LLModalDialog*>::iterator iter = std::find(sModalStack.begin(), sModalStack.end(), this);
 	if (iter != sModalStack.end())
 	{
-		llerrs << "Attempt to delete dialog while still in sModalStack!" << llendl;
+		LL_ERRS() << "Attempt to delete dialog while still in sModalStack!" << LL_ENDL;
 	}
 }
 
@@ -126,7 +126,7 @@ void LLModalDialog::stopModal()
 		}
 		else
 		{
-			llwarns << "LLModalDialog::stopModal not in list!" << llendl;
+			LL_WARNS() << "LLModalDialog::stopModal not in list!" << LL_ENDL;
 		}
 	}
 	if (!sModalStack.empty())
@@ -181,7 +181,7 @@ BOOL LLModalDialog::handleHover(S32 x, S32 y, MASK mask)
 	if( childrenHandleHover(x, y, mask) == NULL )
 	{
 		getWindow()->setCursor(UI_CURSOR_ARROW);
-		lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << llendl;		
+		LL_DEBUGS("UserInput") << "hover handled by " << getName() << LL_ENDL;		
 	}
 	return TRUE;
 }
@@ -300,7 +300,7 @@ void LLModalDialog::shutdownModals()
 	// app, we shouldn't have to care WHAT's open. Put differently, if a modal
 	// dialog is so crucial that we can't let the user terminate until s/he
 	// addresses it, we should reject a termination request. The current state
-	// of affairs is that we accept it, but then produce an llerrs popup that
+	// of affairs is that we accept it, but then produce an LL_ERRS() popup that
 	// simply makes our software look unreliable.
 	sModalStack.clear();
 }

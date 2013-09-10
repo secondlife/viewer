@@ -118,6 +118,7 @@ LLUICtrl::LLUICtrl(const LLUICtrl::Params& p, const LLViewModelPtr& viewmodel)
 	mDoubleClickSignal(NULL),
 	mTransparencyType(TT_DEFAULT)
 {
+	memClaim(viewmodel.get());
 }
 
 void LLUICtrl::initFromParams(const Params& p)
@@ -211,7 +212,7 @@ LLUICtrl::~LLUICtrl()
 
 	if( gFocusMgr.getTopCtrl() == this )
 	{
-		llwarns << "UI Control holding top ctrl deleted: " << getName() << ".  Top view removed." << llendl;
+		LL_WARNS() << "UI Control holding top ctrl deleted: " << getName() << ".  Top view removed." << LL_ENDL;
 		gFocusMgr.removeTopCtrlWithoutCallback( this );
 	}
 
@@ -257,7 +258,7 @@ LLUICtrl::commit_signal_t::slot_type LLUICtrl::initCommitCallback(const CommitCa
 		}
 		else if (!function_name.empty())
 		{
-			llwarns << "No callback found for: '" << function_name << "' in control: " << getName() << llendl;
+			LL_WARNS() << "No callback found for: '" << function_name << "' in control: " << getName() << LL_ENDL;
 		}			
 	}
 	return default_commit_handler;
@@ -451,7 +452,7 @@ void LLUICtrl::setControlVariable(LLControlVariable* control)
 	if (mControlVariable)
 	{
 		//RN: this will happen in practice, should we try to avoid it?
-		//llwarns << "setControlName called twice on same control!" << llendl;
+		//LL_WARNS() << "setControlName called twice on same control!" << LL_ENDL;
 		mControlConnection.disconnect(); // disconnect current signal
 		mControlVariable = NULL;
 	}
@@ -736,11 +737,11 @@ public:
 	}
 };
 
-LLFastTimer::DeclareTimer FTM_FOCUS_FIRST_ITEM("Focus First Item");
+LLTrace::TimeBlock FTM_FOCUS_FIRST_ITEM("Focus First Item");
 
 BOOL LLUICtrl::focusFirstItem(BOOL prefer_text_fields, BOOL focus_flash)
 {
-	LLFastTimer _(FTM_FOCUS_FIRST_ITEM);
+	LL_RECORD_BLOCK_TIME(FTM_FOCUS_FIRST_ITEM);
 	// try to select default tab group child
 	LLCtrlQuery query = getTabOrderQuery();
 	// sort things such that the default tab group is at the front
@@ -940,7 +941,7 @@ boost::signals2::connection LLUICtrl::setCommitCallback( boost::function<void (L
 }
 boost::signals2::connection LLUICtrl::setValidateBeforeCommit( boost::function<bool (const LLSD& data)> cb )
 {
-	if (!mValidateSignal) mValidateSignal = new enable_signal_t();
+	if (!mValidateSignal) mValidateSignal = memClaim(new enable_signal_t());
 	return mValidateSignal->connect(boost::bind(cb, _2));
 }
 
@@ -1003,55 +1004,55 @@ boost::signals2::connection LLUICtrl::setValidateCallback(const EnableCallbackPa
 
 boost::signals2::connection LLUICtrl::setCommitCallback( const commit_signal_t::slot_type& cb ) 
 { 
-	if (!mCommitSignal) mCommitSignal = new commit_signal_t();
+	if (!mCommitSignal) mCommitSignal = memClaim(new commit_signal_t());
 	return mCommitSignal->connect(cb); 
 }
 
 boost::signals2::connection LLUICtrl::setValidateCallback( const enable_signal_t::slot_type& cb ) 
 { 
-	if (!mValidateSignal) mValidateSignal = new enable_signal_t();
+	if (!mValidateSignal) mValidateSignal = memClaim(new enable_signal_t());
 	return mValidateSignal->connect(cb); 
 }
 
 boost::signals2::connection LLUICtrl::setMouseEnterCallback( const commit_signal_t::slot_type& cb ) 
 { 
-	if (!mMouseEnterSignal) mMouseEnterSignal = new commit_signal_t();
+	if (!mMouseEnterSignal) mMouseEnterSignal = memClaim(new commit_signal_t());
 	return mMouseEnterSignal->connect(cb); 
 }
 
 boost::signals2::connection LLUICtrl::setMouseLeaveCallback( const commit_signal_t::slot_type& cb ) 
 { 
-	if (!mMouseLeaveSignal) mMouseLeaveSignal = new commit_signal_t();
+	if (!mMouseLeaveSignal) mMouseLeaveSignal = memClaim(new commit_signal_t());
 	return mMouseLeaveSignal->connect(cb); 
 }
 
 boost::signals2::connection LLUICtrl::setMouseDownCallback( const mouse_signal_t::slot_type& cb ) 
 { 
-	if (!mMouseDownSignal) mMouseDownSignal = new mouse_signal_t();
+	if (!mMouseDownSignal) mMouseDownSignal = memClaim(new mouse_signal_t());
 	return mMouseDownSignal->connect(cb); 
 }
 
 boost::signals2::connection LLUICtrl::setMouseUpCallback( const mouse_signal_t::slot_type& cb ) 
 { 
-	if (!mMouseUpSignal) mMouseUpSignal = new mouse_signal_t();
+	if (!mMouseUpSignal) mMouseUpSignal = memClaim(new mouse_signal_t());
 	return mMouseUpSignal->connect(cb); 
 }
 
 boost::signals2::connection LLUICtrl::setRightMouseDownCallback( const mouse_signal_t::slot_type& cb ) 
 { 
-	if (!mRightMouseDownSignal) mRightMouseDownSignal = new mouse_signal_t();
+	if (!mRightMouseDownSignal) mRightMouseDownSignal = memClaim(new mouse_signal_t());
 	return mRightMouseDownSignal->connect(cb); 
 }
 
 boost::signals2::connection LLUICtrl::setRightMouseUpCallback( const mouse_signal_t::slot_type& cb ) 
 { 
-	if (!mRightMouseUpSignal) mRightMouseUpSignal = new mouse_signal_t();
+	if (!mRightMouseUpSignal) mRightMouseUpSignal = memClaim(new mouse_signal_t());
 	return mRightMouseUpSignal->connect(cb); 
 }
 
 boost::signals2::connection LLUICtrl::setDoubleClickCallback( const mouse_signal_t::slot_type& cb ) 
 { 
-	if (!mDoubleClickSignal) mDoubleClickSignal = new mouse_signal_t();
+	if (!mDoubleClickSignal) mDoubleClickSignal = memClaim(new mouse_signal_t());
 	return mDoubleClickSignal->connect(cb); 
 }
 

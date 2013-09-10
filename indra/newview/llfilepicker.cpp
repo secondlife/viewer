@@ -891,13 +891,13 @@ void LLFilePicker::add_to_selectedfiles(gpointer data, gpointer user_data)
 		{
 			display_name += (char)((*str >= 0x20 && *str <= 0x7E) ? *str : '?');
 		}
-		llwarns << "g_filename_to_utf8 failed on \"" << display_name << "\": " << error->message << llendl;
+		LL_WARNS() << "g_filename_to_utf8 failed on \"" << display_name << "\": " << error->message << LL_ENDL;
 	}
 
 	if (filename_utf8)
 	{
 		picker->mFiles.push_back(std::string(filename_utf8));
-		lldebugs << "ADDED FILE " << filename_utf8 << llendl;
+		LL_DEBUGS() << "ADDED FILE " << filename_utf8 << LL_ENDL;
 		g_free(filename_utf8);
 	}
 
@@ -909,7 +909,7 @@ void LLFilePicker::chooser_responder(GtkWidget *widget, gint response, gpointer 
 {
 	LLFilePicker* picker = (LLFilePicker*)user_data;
 
-	lldebugs << "GTK DIALOG RESPONSE " << response << llendl;
+	LL_DEBUGS() << "GTK DIALOG RESPONSE " << response << LL_ENDL;
 
 	if (response == GTK_RESPONSE_ACCEPT)
 	{
@@ -984,7 +984,7 @@ GtkWindow* LLFilePicker::buildFilePicker(bool is_save, bool is_folder, std::stri
 		}
 		else
 		{
-			llwarns << "Hmm, couldn't get xwid to use for transient." << llendl;
+			LL_WARNS() << "Hmm, couldn't get xwid to use for transient." << LL_ENDL;
 		}
 #  endif //LL_X11
 
@@ -1297,8 +1297,8 @@ BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename 
 
 	reset();
 	
-	llinfos << "getSaveFile suggested filename is [" << filename
-		<< "]" << llendl;
+	LL_INFOS() << "getSaveFile suggested filename is [" << filename
+		<< "]" << LL_ENDL;
 	if (!filename.empty())
 	{
 		mFiles.push_back(gDirUtilp->getLindenUserDir() + gDirUtilp->getDirDelimiter() + filename);
@@ -1328,7 +1328,7 @@ BOOL LLFilePicker::getOpenFile( ELoadFilter filter, bool blocking )
 	default: break;
 	}
 	mFiles.push_back(filename);
-	llinfos << "getOpenFile: Will try to open file: " << filename << llendl;
+	LL_INFOS() << "getOpenFile: Will try to open file: " << filename << LL_ENDL;
 	return TRUE;
 }
 

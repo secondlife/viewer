@@ -28,6 +28,7 @@
 #define LL_LLWINDEBUG_H
 
 #include "stdtypes.h"
+#include "llwin32headerslean.h"
 #include <dbghelp.h>
 
 class LLWinDebug:

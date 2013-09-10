@@ -82,20 +82,20 @@ void APIENTRY gl_debug_callback(GLenum source,
 {
 	if (severity == GL_DEBUG_SEVERITY_HIGH_ARB)
 	{
-		llwarns << "----- GL ERROR --------" << llendl;
+		LL_WARNS() << "----- GL ERROR --------" << LL_ENDL;
 	}
 	else
 	{
-		llwarns << "----- GL WARNING -------" << llendl;
+		LL_WARNS() << "----- GL WARNING -------" << LL_ENDL;
 	}
-	llwarns << "Type: " << std::hex << type << llendl;
-	llwarns << "ID: " << std::hex << id << llendl;
-	llwarns << "Severity: " << std::hex << severity << llendl;
-	llwarns << "Message: " << message << llendl;
-	llwarns << "-----------------------" << llendl;
+	LL_WARNS() << "Type: " << std::hex << type << LL_ENDL;
+	LL_WARNS() << "ID: " << std::hex << id << LL_ENDL;
+	LL_WARNS() << "Severity: " << std::hex << severity << LL_ENDL;
+	LL_WARNS() << "Message: " << message << LL_ENDL;
+	LL_WARNS() << "-----------------------" << LL_ENDL;
 	if (severity == GL_DEBUG_SEVERITY_HIGH_ARB)
 	{
-		llerrs << "Halting on GL Error" << llendl;
+		LL_ERRS() << "Halting on GL Error" << LL_ENDL;
 	}
 }
 #endif
@@ -541,7 +541,7 @@ bool LLGLManager::initGL()
 		{
 			std::string ext((const char*) glGetStringi(GL_EXTENSIONS, i));
 			str << ext << " ";
-			LL_DEBUGS("GLExtensions") << ext << llendl;
+			LL_DEBUGS("GLExtensions") << ext << LL_ENDL;
 		}
 		
 		{
@@ -1009,7 +1009,7 @@ void LLGLManager::initExtensions()
 #endif
 
 #if LL_LINUX || LL_SOLARIS
-	llinfos << "initExtensions() checking shell variables to adjust features..." << llendl;
+	LL_INFOS() << "initExtensions() checking shell variables to adjust features..." << LL_ENDL;
 	// Our extension support for the Linux Client is very young with some
 	// potential driver gotchas, so offer a semi-secret way to turn it off.
 	if (getenv("LL_GL_NOEXT"))
@@ -1203,7 +1203,7 @@ void LLGLManager::initExtensions()
 	}
 	if (mHasFramebufferObject)
 	{
-		llinfos << "initExtensions() FramebufferObject-related procs..." << llendl;
+		LL_INFOS() << "initExtensions() FramebufferObject-related procs..." << LL_ENDL;
 		glIsRenderbuffer = (PFNGLISRENDERBUFFERPROC) GLH_EXT_GET_PROC_ADDRESS("glIsRenderbuffer");
 		glBindRenderbuffer = (PFNGLBINDRENDERBUFFERPROC) GLH_EXT_GET_PROC_ADDRESS("glBindRenderbuffer");
 		glDeleteRenderbuffers = (PFNGLDELETERENDERBUFFERSPROC) GLH_EXT_GET_PROC_ADDRESS("glDeleteRenderbuffers");
@@ -1271,7 +1271,7 @@ void LLGLManager::initExtensions()
 
 	if (mHasOcclusionQuery)
 	{
-		llinfos << "initExtensions() OcclusionQuery-related procs..." << llendl;
+		LL_INFOS() << "initExtensions() OcclusionQuery-related procs..." << LL_ENDL;
 		glGenQueriesARB = (PFNGLGENQUERIESARBPROC)GLH_EXT_GET_PROC_ADDRESS("glGenQueriesARB");
 		glDeleteQueriesARB = (PFNGLDELETEQUERIESARBPROC)GLH_EXT_GET_PROC_ADDRESS("glDeleteQueriesARB");
 		glIsQueryARB = (PFNGLISQUERYARBPROC)GLH_EXT_GET_PROC_ADDRESS("glIsQueryARB");
@@ -1283,14 +1283,14 @@ void LLGLManager::initExtensions()
 	}
 	if (mHasTimerQuery)
 	{
-		llinfos << "initExtensions() TimerQuery-related procs..." << llendl;
+		LL_INFOS() << "initExtensions() TimerQuery-related procs..." << LL_ENDL;
 		glQueryCounter = (PFNGLQUERYCOUNTERPROC) GLH_EXT_GET_PROC_ADDRESS("glQueryCounter");
 		glGetQueryObjecti64v = (PFNGLGETQUERYOBJECTI64VPROC) GLH_EXT_GET_PROC_ADDRESS("glGetQueryObjecti64v");
 		glGetQueryObjectui64v = (PFNGLGETQUERYOBJECTUI64VPROC) GLH_EXT_GET_PROC_ADDRESS("glGetQueryObjectui64v");
 	}
 	if (mHasPointParameters)
 	{
-		llinfos << "initExtensions() PointParameters-related procs..." << llendl;
+		LL_INFOS() << "initExtensions() PointParameters-related procs..." << LL_ENDL;
 		glPointParameterfARB = (PFNGLPOINTPARAMETERFARBPROC)GLH_EXT_GET_PROC_ADDRESS("glPointParameterfARB");
 		glPointParameterfvARB = (PFNGLPOINTPARAMETERFVARBPROC)GLH_EXT_GET_PROC_ADDRESS("glPointParameterfvARB");
 	}
@@ -1338,7 +1338,7 @@ void LLGLManager::initExtensions()
 	}
 	if (mHasVertexShader)
 	{
-		llinfos << "initExtensions() VertexShader-related procs..." << llendl;
+		LL_INFOS() << "initExtensions() VertexShader-related procs..." << LL_ENDL;
 		glGetAttribLocationARB = (PFNGLGETATTRIBLOCATIONARBPROC) GLH_EXT_GET_PROC_ADDRESS("glGetAttribLocationARB");
 		glBindAttribLocationARB = (PFNGLBINDATTRIBLOCATIONARBPROC) GLH_EXT_GET_PROC_ADDRESS("glBindAttribLocationARB");
 		glGetActiveAttribARB = (PFNGLGETACTIVEATTRIBARBPROC) GLH_EXT_GET_PROC_ADDRESS("glGetActiveAttribARB");
@@ -1439,13 +1439,13 @@ void log_glerror()
 		GLubyte const * gl_error_msg = gluErrorString(error);
 		if (NULL != gl_error_msg)
 		{
-			llwarns << "GL Error: " << error << " GL Error String: " << gl_error_msg << llendl ;			
+			LL_WARNS() << "GL Error: " << error << " GL Error String: " << gl_error_msg << LL_ENDL ;			
 		}
 		else
 		{
 			// gluErrorString returns NULL for some extensions' error codes.
 			// you'll probably have to grep for the number in glext.h.
-			llwarns << "GL Error: UNKNOWN 0x" << std::hex << error << std::dec << llendl;
+			LL_WARNS() << "GL Error: UNKNOWN 0x" << std::hex << error << std::dec << LL_ENDL;
 		}
 		error = glGetError();
 	}
@@ -1493,7 +1493,7 @@ void do_assert_glerror()
 		}
 		else
 		{
-			llerrs << "One or more unhandled GL errors." << llendl;
+			LL_ERRS() << "One or more unhandled GL errors." << LL_ENDL;
 		}
 	}
 }
@@ -1502,7 +1502,7 @@ void assert_glerror()
 {
 	if (!gGLActive)
 	{
-		//llwarns << "GL used while not active!" << llendl;
+		//LL_WARNS() << "GL used while not active!" << LL_ENDL;
 
 		if (gDebugSession)
 		{
@@ -1786,7 +1786,7 @@ void LLGLState::checkTextureChannels(const std::string& msg)
 			if (tex != 0)
 			{
 				error = TRUE;
-				LL_WARNS("RenderState") << "Texture channel " << i << " still has texture " << tex << " bound." << llendl;
+				LL_WARNS("RenderState") << "Texture channel " << i << " still has texture " << tex << " bound." << LL_ENDL;
 
 				if (gDebugSession)
 				{
@@ -1830,7 +1830,7 @@ void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
 
 	if (active_texture != GL_TEXTURE0_ARB)
 	{
-		llwarns << "Client active texture corrupted: " << active_texture << llendl;
+		LL_WARNS() << "Client active texture corrupted: " << active_texture << LL_ENDL;
 		if (gDebugSession)
 		{
 			gFailLog << "Client active texture corrupted: " << active_texture << std::endl;
@@ -1841,7 +1841,7 @@ void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
 	/*glGetIntegerv(GL_ACTIVE_TEXTURE_ARB, &active_texture);
 	if (active_texture != GL_TEXTURE0_ARB)
 	{
-		llwarns << "Active texture corrupted: " << active_texture << llendl;
+		LL_WARNS() << "Active texture corrupted: " << active_texture << LL_ENDL;
 		if (gDebugSession)
 		{
 			gFailLog << "Active texture corrupted: " << active_texture << std::endl;
@@ -2338,11 +2338,11 @@ void LLGLNamePool::release(GLuint name)
 			}
 			else
 			{
-				llerrs << "Attempted to release a pooled name that is not in use!" << llendl;
+				LL_ERRS() << "Attempted to release a pooled name that is not in use!" << LL_ENDL;
 			}
 		}
 	}
-	llerrs << "Attempted to release a non pooled name!" << llendl;
+	LL_ERRS() << "Attempted to release a non pooled name!" << LL_ENDL;
 #else
 	releaseName(name);
 #endif

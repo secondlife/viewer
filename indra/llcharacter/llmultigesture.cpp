@@ -146,9 +146,9 @@ BOOL LLMultiGesture::deserialize(LLDataPacker& dp)
 	dp.unpackS32(version, "version");
 	if (version != GESTURE_VERSION)
 	{
-		llwarns << "Bad LLMultiGesture version " << version
+		LL_WARNS() << "Bad LLMultiGesture version " << version
 			<< " should be " << GESTURE_VERSION
-			<< llendl;
+			<< LL_ENDL;
 		return FALSE;
 	}
 
@@ -164,7 +164,7 @@ BOOL LLMultiGesture::deserialize(LLDataPacker& dp)
 	dp.unpackS32(count, "step_count");
 	if (count < 0)
 	{
-		llwarns << "Bad LLMultiGesture step count " << count << llendl;
+		LL_WARNS() << "Bad LLMultiGesture step count " << count << LL_ENDL;
 		return FALSE;
 	}
 
@@ -211,7 +211,7 @@ BOOL LLMultiGesture::deserialize(LLDataPacker& dp)
 			}
 		default:
 			{
-				llwarns << "Bad LLMultiGesture step type " << type << llendl;
+				LL_WARNS() << "Bad LLMultiGesture step type " << type << LL_ENDL;
 				return FALSE;
 			}
 		}
@@ -221,10 +221,10 @@ BOOL LLMultiGesture::deserialize(LLDataPacker& dp)
 
 void LLMultiGesture::dump()
 {
-	llinfos << "key " << S32(mKey) << " mask " << U32(mMask) 
+	LL_INFOS() << "key " << S32(mKey) << " mask " << U32(mMask) 
 		<< " trigger " << mTrigger
 		<< " replace " << mReplaceText
-		<< llendl;
+		<< LL_ENDL;
 	U32 i;
 	for (i = 0; i < mSteps.size(); ++i)
 	{
@@ -312,10 +312,10 @@ std::vector<std::string> LLGestureStepAnimation::getLabel() const
 
 void LLGestureStepAnimation::dump()
 {
-	llinfos << "step animation " << mAnimName
+	LL_INFOS() << "step animation " << mAnimName
 		<< " id " << mAnimAssetID
 		<< " flags " << mFlags
-		<< llendl;
+		<< LL_ENDL;
 }
 
 //---------------------------------------------------------------------------
@@ -374,10 +374,10 @@ std::vector<std::string> LLGestureStepSound::getLabel() const
 
 void LLGestureStepSound::dump()
 {
-	llinfos << "step sound " << mSoundName
+	LL_INFOS() << "step sound " << mSoundName
 		<< " id " << mSoundAssetID
 		<< " flags " << mFlags
-		<< llendl;
+		<< LL_ENDL;
 }
 
 
@@ -430,9 +430,9 @@ std::vector<std::string> LLGestureStepChat::getLabel() const
 
 void LLGestureStepChat::dump()
 {
-	llinfos << "step chat " << mChatText
+	LL_INFOS() << "step chat " << mChatText
 		<< " flags " << mFlags
-		<< llendl;
+		<< LL_ENDL;
 }
 
 
@@ -503,7 +503,7 @@ std::vector<std::string> LLGestureStepWait::getLabel() const
 
 void LLGestureStepWait::dump()
 {
-	llinfos << "step wait " << mWaitSeconds
+	LL_INFOS() << "step wait " << mWaitSeconds
 		<< " flags " << mFlags
-		<< llendl;
+		<< LL_ENDL;
 }

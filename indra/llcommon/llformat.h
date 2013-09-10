@@ -29,7 +29,7 @@
 #define LL_LLFORMAT_H
 
 // Use as follows:
-// llinfos << llformat("Test:%d (%.2f %.2f)", idx, x, y) << llendl;
+// LL_INFOS() << llformat("Test:%d (%.2f %.2f)", idx, x, y) << LL_ENDL;
 //
 // *NOTE: buffer limited to 1024, (but vsnprintf prevents overrun)
 // should perhaps be replaced with boost::format.

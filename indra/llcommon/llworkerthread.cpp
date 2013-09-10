@@ -50,8 +50,8 @@ LLWorkerThread::~LLWorkerThread()
 	// Delete any workers in the delete queue (should be safe - had better be!)
 	if (!mDeleteList.empty())
 	{
-		llwarns << "Worker Thread: " << mName << " destroyed with " << mDeleteList.size()
-				<< " entries in delete list." << llendl;
+		LL_WARNS() << "Worker Thread: " << mName << " destroyed with " << mDeleteList.size()
+				<< " entries in delete list." << LL_ENDL;
 	}
 
 	delete mDeleteMutex;
@@ -65,8 +65,8 @@ void LLWorkerThread::clearDeleteList()
 	// Delete any workers in the delete queue (should be safe - had better be!)
 	if (!mDeleteList.empty())
 	{
-		llwarns << "Worker Thread: " << mName << " destroyed with " << mDeleteList.size()
-				<< " entries in delete list." << llendl;
+		LL_WARNS() << "Worker Thread: " << mName << " destroyed with " << mDeleteList.size()
+				<< " entries in delete list." << LL_ENDL;
 
 		mDeleteMutex->lock();
 		for (delete_list_t::iterator iter = mDeleteList.begin(); iter != mDeleteList.end(); ++iter)
@@ -142,7 +142,7 @@ LLWorkerThread::handle_t LLWorkerThread::addWorkRequest(LLWorkerClass* workercla
 	bool res = addRequest(req);
 	if (!res)
 	{
-		llerrs << "add called after LLWorkerThread::cleanupClass()" << llendl;
+		LL_ERRS() << "add called after LLWorkerThread::cleanupClass()" << LL_ENDL;
 		req->deleteRequest();
 		handle = nullHandle();
 	}
@@ -209,7 +209,7 @@ LLWorkerClass::LLWorkerClass(LLWorkerThread* workerthread, const std::string& na
 {
 	if (!mWorkerThread)
 	{
-		llerrs << "LLWorkerClass() called with NULL workerthread: " << name << llendl;
+		LL_ERRS() << "LLWorkerClass() called with NULL workerthread: " << name << LL_ENDL;
 	}
 }
 
@@ -223,12 +223,12 @@ LLWorkerClass::~LLWorkerClass()
 		LLWorkerThread::WorkRequest* workreq = (LLWorkerThread::WorkRequest*)mWorkerThread->getRequest(mRequestHandle);
 		if (!workreq)
 		{
-			llerrs << "LLWorkerClass destroyed with stale work handle" << llendl;
+			LL_ERRS() << "LLWorkerClass destroyed with stale work handle" << LL_ENDL;
 		}
 		if (workreq->getStatus() != LLWorkerThread::STATUS_ABORTED &&
 			workreq->getStatus() != LLWorkerThread::STATUS_COMPLETE)
 		{
-			llerrs << "LLWorkerClass destroyed with active worker! Worker Status: " << workreq->getStatus() << llendl;
+			LL_ERRS() << "LLWorkerClass destroyed with active worker! Worker Status: " << workreq->getStatus() << LL_ENDL;
 		}
 	}
 }
@@ -238,7 +238,7 @@ void LLWorkerClass::setWorkerThread(LLWorkerThread* workerthread)
 	mMutex.lock();
 	if (mRequestHandle != LLWorkerThread::nullHandle())
 	{
-		llerrs << "LLWorkerClass attempt to change WorkerThread with active worker!" << llendl;
+		LL_ERRS() << "LLWorkerClass attempt to change WorkerThread with active worker!" << LL_ENDL;
 	}
 	mWorkerThread = workerthread;
 	mMutex.unlock();
@@ -298,10 +298,10 @@ void LLWorkerClass::addWork(S32 param, U32 priority)
 	llassert_always(!(mWorkFlags & (WCF_WORKING|WCF_HAVE_WORK)));
 	if (mRequestHandle != LLWorkerThread::nullHandle())
 	{
-		llerrs << "LLWorkerClass attempt to add work with active worker!" << llendl;
+		LL_ERRS() << "LLWorkerClass attempt to add work with active worker!" << LL_ENDL;
 	}
 #if _DEBUG
-// 	llinfos << "addWork: " << mWorkerClassName << " Param: " << param << llendl;
+// 	LL_INFOS() << "addWork: " << mWorkerClassName << " Param: " << param << LL_ENDL;
 #endif
 	startWork(param);
 	clearFlags(WCF_WORK_FINISHED|WCF_WORK_ABORTED);
@@ -316,7 +316,7 @@ void LLWorkerClass::abortWork(bool autocomplete)
 #if _DEBUG
 // 	LLWorkerThread::WorkRequest* workreq = mWorkerThread->getRequest(mRequestHandle);
 // 	if (workreq)
-// 		llinfos << "abortWork: " << mWorkerClassName << " Param: " << workreq->getParam() << llendl;
+// 		LL_INFOS() << "abortWork: " << mWorkerClassName << " Param: " << workreq->getParam() << LL_ENDL;
 #endif
 	if (mRequestHandle != LLWorkerThread::nullHandle())
 	{
