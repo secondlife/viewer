@@ -83,7 +83,9 @@
 BOOL 				gHackGodmode = FALSE;
 #endif
 
-
+// Should you contemplate changing the name "Global", please first grep for
+// that string literal. There are at least a couple other places in the C++
+// code that assume the LLControlGroup named "Global" is gSavedSettings.
 LLControlGroup gSavedSettings("Global");	// saved at end of session
 LLControlGroup gSavedPerAccountSettings("PerAccount"); // saved at end of session
 LLControlGroup gCrashSettings("CrashSettings");	// saved at end of session

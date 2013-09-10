@@ -29,6 +29,15 @@
 
 #include "llkeyboard.h"
 
+// These more or less mirror their equivalents in NSEvent.h.
+enum EMacEventKeys {
+	MAC_SHIFT_KEY = 1 << 17,
+	MAC_CTRL_KEY = 1 << 18,
+	MAC_ALT_KEY = 1 << 19,
+	MAC_CMD_KEY = 1 << 20,
+	MAC_FN_KEY = 1 << 23
+};
+
 class LLKeyboardMacOSX : public LLKeyboard
 {
 public:
@@ -40,6 +49,7 @@ public:
 	/*virtual*/ void	resetMaskKeys();
 	/*virtual*/ MASK	currentMask(BOOL for_mouse_event);
 	/*virtual*/ void	scanKeyboard();
+	/*virtual*/ void	handleModifier(MASK mask);
 	
 protected:
 	MASK	updateModifiers(const U32 mask);

@@ -118,9 +118,19 @@ void LLConversationViewSession::setFlashState(bool flash_state)
 	mFlashTimer->stopFlashing();
 }
 
+void LLConversationViewSession::setHighlightState(bool hihglight_state)
+{
+	mFlashStateOn = hihglight_state;
+	mFlashStarted = true;
+	mFlashTimer->stopFlashing();
+}
+
 void LLConversationViewSession::startFlashing()
 {
-	if (isInVisibleChain() && mFlashStateOn && !mFlashStarted)
+	LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
+
+	// Need to start flashing only when "Conversations" is opened or brought on top
+	if (isInVisibleChain() && !im_box->isMinimized() && mFlashStateOn && !mFlashStarted)
 	{
 		mFlashStarted = true;
 		mFlashTimer->startFlashing();
@@ -263,6 +273,29 @@ BOOL LLConversationViewSession::handleMouseDown( S32 x, S32 y, MASK mask )
 	return result;
 }
 
+BOOL LLConversationViewSession::handleMouseUp( S32 x, S32 y, MASK mask )
+{
+	BOOL result = LLFolderViewFolder::handleMouseUp(x, y, mask);
+
+	LLFloater* volume_floater = LLFloaterReg::findInstance("floater_voice_volume");
+	LLFloater* chat_volume_floater = LLFloaterReg::findInstance("chat_voice");
+	if (result 
+		&& getRoot()
+		&& !(volume_floater && volume_floater->isShown() && volume_floater->hasFocus())
+		&& !(chat_volume_floater && chat_volume_floater->isShown() && chat_volume_floater->hasFocus()))
+	{
+		LLConversationItem* item = dynamic_cast<LLConversationItem *>(getViewModelItem());
+		LLUUID session_id = item? item->getUUID() : LLUUID();
+		LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(session_id);
+		if(!session_floater->hasFocus())
+		{
+			session_floater->setFocus(true);
+		}
+    }
+
+	return result;
+}
+
 BOOL LLConversationViewSession::handleRightMouseDown( S32 x, S32 y, MASK mask )
 {
     BOOL result = LLFolderViewFolder::handleRightMouseDown(x, y, mask);
@@ -340,14 +373,18 @@ void LLConversationViewSession::setVisibleIfDetached(BOOL visible)
 {
 	// Do this only if the conversation floater has been torn off (i.e. no multi floater host) and is not minimized
 	// Note: minimized dockable floaters are brought to front hence unminimized when made visible and we don't want that here
-	LLFolderViewModelItem* item = mViewModelItem;
-	LLUUID session_uuid = dynamic_cast<LLConversationItem*>(item)->getUUID();
-	LLFloater* session_floater = LLFloaterIMSessionTab::getConversation(session_uuid);
-	
-	if (session_floater && !session_floater->getHost() && !session_floater->isMinimized())
+	LLFloater* session_floater = getSessionFloater();
+	if (session_floater && session_floater->isDetachedAndNotMinimized())
 	{
 		session_floater->setVisible(visible);
 	}
+}
+
+LLFloater* LLConversationViewSession::getSessionFloater()
+{
+	LLFolderViewModelItem* item = mViewModelItem;
+	LLUUID session_uuid = dynamic_cast<LLConversationItem*>(item)->getUUID();
+	return LLFloaterIMSessionTab::getConversation(session_uuid);
 }
 
 LLConversationViewParticipant* LLConversationViewSession::findParticipant(const LLUUID& participant_id)

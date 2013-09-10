@@ -69,6 +69,7 @@ public:
 	/*virtual*/ void draw();
 	/*virtual*/ BOOL handleMouseDown( S32 x, S32 y, MASK mask );
 	/*virtual*/ BOOL handleRightMouseDown( S32 x, S32 y, MASK mask );
+	/*virtual*/ BOOL handleMouseUp( S32 x, S32 y, MASK mask );
 
 	/*virtual*/ S32 arrange(S32* width, S32* height);
 
@@ -86,6 +87,9 @@ public:
 	virtual void refresh();
 
 	/*virtual*/ void setFlashState(bool flash_state);
+	void setHighlightState(bool hihglight_state);
+
+	LLFloater* getSessionFloater();
 
 private:
 

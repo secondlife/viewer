@@ -363,7 +363,10 @@ void LLConversationItemSession::buildContextMenu(LLMenuGL& menu, U32 flags)
     LL_DEBUGS() << "LLConversationItemParticipant::buildContextMenu()" << LL_ENDL;
     menuentry_vec_t items;
     menuentry_vec_t disabled_items;
-
+    if((flags & ITEM_IN_MULTI_SELECTION) && (this->getType() != CONV_SESSION_NEARBY))
+    {
+    	items.push_back(std::string("close_selected_conversations"));
+    }
     if(this->getType() == CONV_SESSION_1_ON_1)
     {
         items.push_back(std::string("close_conversation"));
@@ -384,6 +387,10 @@ void LLConversationItemSession::buildContextMenu(LLMenuGL& menu, U32 flags)
     {
         items.push_back(std::string("close_conversation"));
         addVoiceOptions(items);
+        items.push_back(std::string("chat_history"));
+    }
+    else if(this->getType() == CONV_SESSION_NEARBY)
+    {
         items.push_back(std::string("chat_history"));
     }
 

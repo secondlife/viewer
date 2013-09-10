@@ -455,6 +455,7 @@ BOOL LLFloaterPreference::postBuild()
 	getChild<LLComboBox>("ConferenceIMOptions")->setCommitCallback(boost::bind(&LLFloaterPreference::onNotificationsChange, this,"ConferenceIMOptions"));
 	getChild<LLComboBox>("GroupChatOptions")->setCommitCallback(boost::bind(&LLFloaterPreference::onNotificationsChange, this,"GroupChatOptions"));
 	getChild<LLComboBox>("NearbyChatOptions")->setCommitCallback(boost::bind(&LLFloaterPreference::onNotificationsChange, this,"NearbyChatOptions"));
+	getChild<LLComboBox>("ObjectIMOptions")->setCommitCallback(boost::bind(&LLFloaterPreference::onNotificationsChange, this,"ObjectIMOptions"));
 
 	// if floater is opened before login set default localized do not disturb message
 	if (LLStartUp::getStartupState() < STATE_STARTED)
@@ -724,6 +725,7 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	onNotificationsChange("ConferenceIMOptions");
 	onNotificationsChange("GroupChatOptions");
 	onNotificationsChange("NearbyChatOptions");
+	onNotificationsChange("ObjectIMOptions");
 
 	LLPanelLogin::setAlwaysRefresh(true);
 	refresh();
@@ -931,7 +933,7 @@ void LLFloaterPreference::onNotificationsChange(const std::string& OptionName)
 	bool show_notifications_alert = true;
 	for (notifications_map::iterator it_notification = mNotificationOptions.begin(); it_notification != mNotificationOptions.end(); it_notification++)
 	{
-		if(it_notification->second != "None")
+		if(it_notification->second != "No action")
 		{
 			show_notifications_alert = false;
 			break;

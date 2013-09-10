@@ -263,6 +263,8 @@ public:
 	friend class LLNormalTextSegment;
 	friend class LLUICtrlFactory;
 
+	typedef boost::signals2::signal<bool (const LLUUID& user_id)> is_friend_signal_t;
+
 	struct LineSpacingParams : public LLInitParam::ChoiceBlock<LineSpacingParams>
 	{
 		Alternative<F32>	multiple;
@@ -439,6 +441,7 @@ public:
 	virtual void			appendImageSegment(const LLStyle::Params& style_params);
 	virtual void			appendWidget(const LLInlineViewSegment::Params& params, const std::string& text, bool allow_undo);
 	boost::signals2::connection setURLClickedCallback(const commit_signal_t::slot_type& cb);
+	boost::signals2::connection setIsFriendCallback(const is_friend_signal_t::slot_type& cb);
 
 	void					setWordWrap(bool wrap);
 	LLScrollContainer*		getScrollContainer() const { return mScroller; }
@@ -512,7 +515,7 @@ protected:
 	void							initFromParams(const Params& p);
     virtual void					beforeValueChange();
 	virtual void					onValueChange(S32 start, S32 end);
-    virtual bool                    useLabel();
+    virtual bool                    useLabel() const;
 
 	// draw methods
 	void							drawSelectionBackground(); // draws the black box behind the selected text
@@ -652,6 +655,9 @@ protected:
 
 	// Fired when a URL link is clicked
 	commit_signal_t*			mURLClickSignal;
+
+	// Used to check if user with given ID is avatar's friend
+	is_friend_signal_t*         mIsFriendSignal;
 
 	LLUIString					mLabel;	// text label that is visible when no user text provided
 };

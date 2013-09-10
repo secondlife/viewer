@@ -30,7 +30,10 @@
 	#error "Use only with Mac OS X"
 #endif
 
+#define LL_CARBON_CRASH_HANDLER 1
+
 #include "llappviewermacosx.h"
+#include "llwindowmacosx-objc.h"
 #include "llcommandlineparser.h"
 
 #include "llviewernetwork.h"
@@ -38,7 +41,10 @@
 #include "llmd5.h"
 #include "llfloaterworldmap.h"
 #include "llurldispatcher.h"
+#include <ApplicationServices/ApplicationServices.h>
+#ifdef LL_CARBON_CRASH_HANDLER
 #include <Carbon/Carbon.h>
+#endif
 #include "lldir.h"
 #include <signal.h>
 #include <CoreAudio/CoreAudio.h>	// for systemwide mute
@@ -50,9 +56,9 @@ namespace
 	// They are not used immediately by the app.
 	int gArgC;
 	char** gArgV;
-	
 	bool sCrashReporterIsRunning = false;
-	
+	LLAppViewerMacOSX* gViewerAppPtr;
+#ifdef LL_CARBON_CRASH_HANDLER
 	OSErr AEQuitHandler(const AppleEvent *messagein, AppleEvent *reply, long refIn)
 	{
 		OSErr result = noErr;
@@ -61,9 +67,10 @@ namespace
 		
 		return(result);
 	}
+#endif
 }
 
-int main( int argc, char **argv ) 
+bool initViewer()
 {
 #if LL_SOLARIS && defined(__sparc)
 	asm ("ta\t6");		 // NOTE:  Make sure memory alignment is enforced on SPARC
@@ -76,40 +83,57 @@ int main( int argc, char **argv )
 				<< gDirUtilp->getAppRODataDir() << ": " << strerror(errno)
 				<< LL_ENDL;
 	}
-
-	LLAppViewerMacOSX* viewer_app_ptr = new LLAppViewerMacOSX();
-
-	viewer_app_ptr->setErrorHandler(LLAppViewer::handleViewerCrash);
-
-	// Store off the command line args for use later.
-	gArgC = argc;
-	gArgV = argv;
 	
-	bool ok = viewer_app_ptr->init();
+	gViewerAppPtr = new LLAppViewerMacOSX();
+	
+	gViewerAppPtr->setErrorHandler(LLAppViewer::handleViewerCrash);
+	
+	
+	
+	bool ok = gViewerAppPtr->init();
 	if(!ok)
 	{
 		LL_WARNS() << "Application init failed." << LL_ENDL;
-		return -1;
 	}
+	
+	return ok;
+}
 
-		// Run the application main loop
-	if(!LLApp::isQuitting()) 
-	{
-		viewer_app_ptr->mainLoop();
-	}
+void handleQuit()
+{
+	LLAppViewer::instance()->userQuit();
+}
 
-	if (!LLApp::isError())
+bool runMainLoop()
+{
+	bool ret = LLApp::isQuitting();
+	if (!ret && gViewerAppPtr != NULL)
 	{
-		//
-		// We don't want to do cleanup here if the error handler got called -
-		// the assumption is that the error handler is responsible for doing
-		// app cleanup if there was a problem.
-		//
-		viewer_app_ptr->cleanup();
+		ret = gViewerAppPtr->mainLoop();
+	} else {
+		ret = true;
 	}
-	delete viewer_app_ptr;
-	viewer_app_ptr = NULL;
-	return 0;
+	
+	return ret;
+}
+
+void cleanupViewer()
+{
+	if(!LLApp::isError())
+	{
+		gViewerAppPtr->cleanup();
+	}
+	
+	delete gViewerAppPtr;
+	gViewerAppPtr = NULL;
+}
+
+int main( int argc, char **argv ) 
+{
+	// Store off the command line args for use later.
+	gArgC = argc;
+	gArgV = argv;
+	return createNSApp(argc, (const char**)argv);
 }
 
 LLAppViewerMacOSX::LLAppViewerMacOSX()
@@ -148,28 +172,13 @@ bool LLAppViewerMacOSX::initParseCommandLine(LLCommandLineParser& clp)
 	// The next two lines add the support for parsing the mac -psn_XXX arg.
 	clp.addOptionDesc("psn", NULL, 1, "MacOSX process serial number");
 	clp.setCustomParser(parse_psn);
-	
-    // First read in the args from arguments txt.
-    const char* filename = "arguments.txt";
-	llifstream ifs(filename, llifstream::binary);
-	if (!ifs.is_open())
-	{
-		LL_WARNS() << "Unable to open file" << filename << LL_ENDL;
-		return false;
-	}
-	
-	if(clp.parseCommandLineFile(ifs) == false)
-	{
-		return false;
-	}
 
-	// Then parse the user's command line, so that any --url arg can appear last
-	// Succesive calls to clp.parse... will NOT override earlier options. 
+	// parse the user's command line
 	if(clp.parseCommandLine(gArgC, gArgV) == false)
 	{
 		return false;
 	}
-    	
+
 	// Get the user's preferred language string based on the Mac OS localization mechanism.
 	// To add a new localization:
 		// go to the "Resources" section of the project
@@ -254,23 +263,24 @@ bool LLAppViewerMacOSX::restoreErrorTrap()
 	return reset_count == 0;
 }
 
-static OSStatus CarbonEventHandler(EventHandlerCallRef inHandlerCallRef, 
-								   EventRef inEvent, 
+#ifdef LL_CARBON_CRASH_HANDLER
+static OSStatus CarbonEventHandler(EventHandlerCallRef inHandlerCallRef,
+								   EventRef inEvent,
 								   void* inUserData)
 {
     ProcessSerialNumber psn;
 	
-    GetEventParameter(inEvent, 
-					  kEventParamProcessID, 
-					  typeProcessSerialNumber, 
-					  NULL, 
-					  sizeof(psn), 
-					  NULL, 
+    GetEventParameter(inEvent,
+					  kEventParamProcessID,
+					  typeProcessSerialNumber,
+					  NULL,
+					  sizeof(psn),
+					  NULL,
 					  &psn);
 	
-    if( GetEventKind(inEvent) == kEventAppTerminated ) 
+    if( GetEventKind(inEvent) == kEventAppTerminated )
 	{
-		Boolean matching_psn = FALSE;	
+		Boolean matching_psn = FALSE;
 		OSErr os_result = SameProcess(&psn, (ProcessSerialNumber*)inUserData, &matching_psn);
 		if(os_result >= 0 && matching_psn)
 		{
@@ -280,48 +290,58 @@ static OSStatus CarbonEventHandler(EventHandlerCallRef inHandlerCallRef,
     }
     return noErr;
 }
+#endif
 
 void LLAppViewerMacOSX::handleCrashReporting(bool reportFreeze)
 {
-	// This used to use fork&exec, but is switched to LSOpenApplication to 
+#ifdef LL_CARBON_CRASH_HANDLER
+	// This used to use fork&exec, but is switched to LSOpenApplication to
 	// Make sure the crash reporter launches in front of the SL window.
 	
 	std::string command_str;
 	//command_str = "open Second Life.app/Contents/Resources/mac-crash-logger.app";
 	command_str = "mac-crash-logger.app/Contents/MacOS/mac-crash-logger";
 	
+	CFURLRef urlRef = CFURLCreateFromFileSystemRepresentation(NULL, (UInt8*)command_str.c_str(), strlen(command_str.c_str()), FALSE);
+	
+	// FSRef apparently isn't deprecated.
+	// There's other funcitonality that depends on it existing as well that isn't deprecated.
+	// There doesn't seem to be much to directly verify what the status of FSRef is, outside of some documentation pointing at FSRef being valid, and other documentation pointing to everything in Files.h being deprecated.
+	// We'll assume it isn't for now, since all non-deprecated functions that use it seem to assume similar.
+	
 	FSRef appRef;
-	Boolean isDir = 0;
-	OSStatus os_result = FSPathMakeRef((UInt8*)command_str.c_str(),
-									   &appRef,
-									   &isDir);
-	if(os_result >= 0)
+	Boolean pathstatus = CFURLGetFSRef(urlRef, &appRef);
+	
+	OSStatus os_result = noErr;
+	
+	if(pathstatus == true)
 	{
 		LSApplicationParameters appParams;
 		memset(&appParams, 0, sizeof(appParams));
 	 	appParams.version = 0;
 		appParams.flags = kLSLaunchNoParams | kLSLaunchStartClassic;
+		
 		appParams.application = &appRef;
 		
 		if(reportFreeze)
 		{
-			// Make sure freeze reporting launches the crash logger synchronously, lest 
+			// Make sure freeze reporting launches the crash logger synchronously, lest
 			// Log files get changed by SL while the logger is running.
-		
+			
 			// *NOTE:Mani A better way - make a copy of the data that the crash reporter will send
 			// and let SL go about its business. This way makes the mac work like windows and linux
-			// and is the smallest patch for the issue. 
+			// and is the smallest patch for the issue.
 			sCrashReporterIsRunning = false;
 			ProcessSerialNumber o_psn;
-
+			
 			static EventHandlerRef sCarbonEventsRef = NULL;
-			static const EventTypeSpec kEvents[] = 
+			static const EventTypeSpec kEvents[] =
 			{
 				{ kEventClassApplication, kEventAppTerminated }
 			};
 			
 			// Install the handler to detect crash logger termination
-			InstallEventHandler(GetApplicationEventTarget(), 
+			InstallEventHandler(GetApplicationEventTarget(),
 								(EventHandlerUPP) CarbonEventHandler,
 								GetEventTypeCount(kEvents),
 								kEvents,
@@ -329,31 +349,31 @@ void LLAppViewerMacOSX::handleCrashReporting(bool reportFreeze)
 								&sCarbonEventsRef
 								);
 			
-			// Remove, temporarily the quit handler - which has *crash* behavior before 
+			// Remove, temporarily the quit handler - which has *crash* behavior before
 			// the mainloop gets running!
-			AERemoveEventHandler(kCoreEventClass, 
-								 kAEQuitApplication, 
+			AERemoveEventHandler(kCoreEventClass,
+								 kAEQuitApplication,
 								 NewAEEventHandlerUPP(AEQuitHandler),
 								 false);
-
+			
 			// Launch the crash reporter.
 			os_result = LSOpenApplication(&appParams, &o_psn);
 			
 			if(os_result >= 0)
-			{	
+			{
 				sCrashReporterIsRunning = true;
 			}
-
+			
 			while(sCrashReporterIsRunning)
 			{
 				RunApplicationEventLoop();
 			}
-
+			
 			// Re-install the apps quit handler.
-			AEInstallEventHandler(kCoreEventClass, 
-								  kAEQuitApplication, 
+			AEInstallEventHandler(kCoreEventClass,
+								  kAEQuitApplication,
 								  NewAEEventHandlerUPP(AEQuitHandler),
-								  0, 
+								  0,
 								  false);
 			
 			// Remove the crash reporter quit handler.
@@ -363,12 +383,12 @@ void LLAppViewerMacOSX::handleCrashReporting(bool reportFreeze)
 		{
 			appParams.flags |= kLSLaunchAsync;
 			clear_signals();
-
+			
 			ProcessSerialNumber o_psn;
 			os_result = LSOpenApplication(&appParams, &o_psn);
 		}
-		
 	}
+#endif
 }
 
 std::string LLAppViewerMacOSX::generateSerialNumber()
@@ -500,74 +520,4 @@ OSErr AEGURLHandler(const AppleEvent *messagein, AppleEvent *reply, long refIn)
 	}
 	
 	return(result);
-}
-
-OSStatus simpleDialogHandler(EventHandlerCallRef handler, EventRef event, void *userdata)
-{
-	OSStatus result = eventNotHandledErr;
-	OSStatus err;
-	UInt32 evtClass = GetEventClass(event);
-	UInt32 evtKind = GetEventKind(event);
-	WindowRef window = (WindowRef)userdata;
-	
-	if((evtClass == kEventClassCommand) && (evtKind == kEventCommandProcess))
-	{
-		HICommand cmd;
-		err = GetEventParameter(event, kEventParamDirectObject, typeHICommand, NULL, sizeof(cmd), NULL, &cmd);
-		
-		if(err == noErr)
-		{
-			switch(cmd.commandID)
-			{
-				case kHICommandOK:
-					QuitAppModalLoopForWindow(window);
-					result = noErr;
-				break;
-				
-				case kHICommandCancel:
-					QuitAppModalLoopForWindow(window);
-					result = userCanceledErr;
-				break;
-			}
-		}
-	}
-	
-	return(result);
-}
-
-void init_apple_menu(const char* product)
-{
-	// Load up a proper menu bar.
-	{
-		OSStatus err;
-		IBNibRef nib = NULL;
-		// NOTE: DO NOT translate or brand this string.  It's an internal name in the .nib file, and MUST match exactly.
-		err = CreateNibReference(CFSTR("SecondLife"), &nib);
-		
-		if(err == noErr)
-		{
-			// NOTE: DO NOT translate or brand this string.  It's an internal name in the .nib file, and MUST match exactly.
-			SetMenuBarFromNib(nib, CFSTR("MenuBar"));
-		}
-
-		if(nib != NULL)
-		{
-			DisposeNibReference(nib);
-		}
-	}
-	
-	// Install a handler for 'gurl' AppleEvents.  This is how secondlife:// URLs get passed to the viewer.
-	
-	if(AEInstallEventHandler('GURL', 'GURL', NewAEEventHandlerUPP(AEGURLHandler),0, false) != noErr)
-	{
-		// Couldn't install AppleEvent handler.  This error shouldn't be fatal.
-		LL_INFOS() << "Couldn't install 'GURL' AppleEvent handler.  Continuing..." << LL_ENDL;
-	}
-
-	// Install a handler for 'quit' AppleEvents.  This makes quitting the application from the dock work.
-	if(AEInstallEventHandler(kCoreEventClass, kAEQuitApplication, NewAEEventHandlerUPP(AEQuitHandler),0, false) != noErr)
-	{
-		// Couldn't install AppleEvent handler.  This error shouldn't be fatal.
-		LL_INFOS() << "Couldn't install Quit AppleEvent handler.  Continuing..." << LL_ENDL;
-	}
 }

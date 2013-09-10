@@ -139,8 +139,6 @@ void LLChannelManager::onLoginCompleted()
 	}
 
 	LLPersistentNotificationStorage::getInstance()->loadNotifications();
-
-	LLDoNotDisturbNotificationStorage::getInstance()->initialize();
 	LLDoNotDisturbNotificationStorage::getInstance()->loadNotifications();
 }
 

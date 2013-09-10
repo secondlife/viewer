@@ -513,6 +513,7 @@ void LLFloaterAvatarPicker::find()
 			url += "/";
 		}
 		url += "?page_size=100&names=";
+		std::replace(text.begin(), text.end(), '.', ' ');
 		url += LLURI::escape(text);
 		LL_INFOS() << "avatar picker " << url << LL_ENDL;
 		LLHTTPClient::get(url, new LLAvatarPickerResponder(mQueryID, getKey().asString()));
@@ -748,7 +749,12 @@ void LLFloaterAvatarPicker::processResponse(const LLUUID& query_id, const LLSD& 
 		{
 			getChildView("ok_btn")->setEnabled(true);
 			search_results->setEnabled(true);
-			search_results->selectFirstItem();
+			search_results->sortByColumnIndex(1, TRUE);
+			std::string text = getChild<LLUICtrl>("Edit")->getValue().asString();
+			if (!search_results->selectItemByLabel(text, TRUE, 1))
+			{
+				search_results->selectFirstItem();
+			}			
 			onList();
 			search_results->setFocus(TRUE);
 		}

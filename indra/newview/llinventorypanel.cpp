@@ -192,7 +192,7 @@ LLFolderView * LLInventoryPanel::createFolderRoot(LLUUID root_id )
     p.show_item_link_overlays = mShowItemLinkOverlays;
     p.root = NULL;
     p.options_menu = "menu_inventory.xml";
-	
+
     return LLUICtrlFactory::create<LLFolderView>(p);
 }
 
@@ -396,8 +396,8 @@ LLInventoryFilter::EFolderShow LLInventoryPanel::getShowFolderState()
 	return getFilter().getShowFolderState();
 }
 
+// Called when something changed in the global model (new item, item coming through the wire, rename, move, etc...) (CHUI-849)
 static LLTrace::TimeBlock FTM_REFRESH("Inventory Refresh");
-
 void LLInventoryPanel::modelChanged(U32 mask)
 {
 	LL_RECORD_BLOCK_TIME(FTM_REFRESH);

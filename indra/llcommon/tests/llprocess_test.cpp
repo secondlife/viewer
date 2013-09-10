@@ -611,9 +611,6 @@ namespace tut
     void object::test<5>()
     {
         set_test_name("exit(2)");
-#if LL_WINDOWS
-		skip("MAINT-2302: This frequently (though not always) fails on Windows.");
-#endif
         PythonProcessLauncher py(get_test_name(),
                                  "import sys\n"
                                  "sys.exit(2)\n");
@@ -625,10 +622,7 @@ namespace tut
     template<> template<>
     void object::test<6>()
     {
-        set_test_name("syntax_error:");
-#if LL_WINDOWS
-		skip("MAINT-2302: This frequently (though not always) fails on Windows.");
-#endif
+        set_test_name("syntax_error");
         PythonProcessLauncher py(get_test_name(),
                                  "syntax_error:\n");
         py.mParams.files.add(LLProcess::FileParam()); // inherit stdin
@@ -650,9 +644,6 @@ namespace tut
     void object::test<7>()
     {
         set_test_name("explicit kill()");
-#if LL_WINDOWS
-		skip("MAINT-2302: This frequently (though not always) fails on Windows.");
-#endif
         PythonProcessLauncher py(get_test_name(),
                                  "from __future__ import with_statement\n"
                                  "import sys, time\n"
@@ -697,9 +688,6 @@ namespace tut
     void object::test<8>()
     {
         set_test_name("implicit kill()");
-#if LL_WINDOWS
-		skip("MAINT-2302: This frequently (though not always) fails on Windows.");
-#endif
         NamedTempFile out("out", "not started");
         LLProcess::handle phandle(0);
         {

@@ -47,6 +47,7 @@
 #include "llfloaterpreference.h"
 #include "llimview.h"
 #include "llnotificationsutil.h"
+#include "lltoolbarview.h"
 #include "lltransientfloatermgr.h"
 #include "llviewercontrol.h"
 #include "llconversationview.h"
@@ -54,6 +55,7 @@
 #include "llworld.h"
 #include "llsdserialize.h"
 #include "llviewerobjectlist.h"
+#include "boost/foreach.hpp"
 
 //
 // LLFloaterIMContainer
@@ -63,7 +65,8 @@ LLFloaterIMContainer::LLFloaterIMContainer(const LLSD& seed, const Params& param
 	mExpandCollapseBtn(NULL),
 	mConversationsRoot(NULL),
 	mConversationsEventStream("ConversationsEvents"),
-	mInitialized(false)
+	mInitialized(false),
+	mIsFirstLaunch(true)
 {
     mEnableCallbackRegistrar.add("IMFloaterContainer.Check", boost::bind(&LLFloaterIMContainer::isActionChecked, this, _2));
 	mCommitCallbackRegistrar.add("IMFloaterContainer.Action", boost::bind(&LLFloaterIMContainer::onCustomAction,  this, _2));
@@ -113,6 +116,10 @@ void LLFloaterIMContainer::sessionAdded(const LLUUID& session_id, const std::str
 
 void LLFloaterIMContainer::sessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
 {
+	if(!isInVisibleChain())
+	{
+		setVisibleAndFrontmost(false);
+	}
 	selectConversationPair(session_id, true);
 	collapseMessagesPane(false);
 }
@@ -204,6 +211,7 @@ BOOL LLFloaterIMContainer::postBuild()
 	// a scroller for folder view
 	LLRect scroller_view_rect = mConversationsListPanel->getRect();
 	scroller_view_rect.translate(-scroller_view_rect.mLeft, -scroller_view_rect.mBottom);
+	scroller_view_rect.mBottom += getChild<LLLayoutStack>("conversations_pane_buttons_stack")->getRect().getHeight();
 	LLScrollContainer::Params scroller_params(LLUICtrlFactory::getDefaultParams<LLFolderViewScrollContainer>());
 	scroller_params.rect(scroller_view_rect);
 
@@ -221,7 +229,8 @@ BOOL LLFloaterIMContainer::postBuild()
 	mExpandCollapseBtn->setClickedCallback(boost::bind(&LLFloaterIMContainer::onExpandCollapseButtonClicked, this));
 	mStubCollapseBtn = getChild<LLButton>("stub_collapse_btn");
 	mStubCollapseBtn->setClickedCallback(boost::bind(&LLFloaterIMContainer::onStubCollapseButtonClicked, this));
-	getChild<LLButton>("speak_btn")->setClickedCallback(boost::bind(&LLFloaterIMContainer::onSpeakButtonClicked, this));
+    mSpeakBtn = getChild<LLButton>("speak_btn");
+	mSpeakBtn->setClickedCallback(boost::bind(&LLFloaterIMContainer::onSpeakButtonClicked, this));
 
 	childSetAction("add_btn", boost::bind(&LLFloaterIMContainer::onAddButtonClicked, this));
 
@@ -258,7 +267,6 @@ BOOL LLFloaterIMContainer::postBuild()
 void LLFloaterIMContainer::onOpen(const LLSD& key)
 {
 	LLMultiFloater::onOpen(key);
-	openNearbyChat();
 	reSelectConversation();
 	assignResizeLimits();
 }
@@ -593,6 +601,7 @@ void LLFloaterIMContainer::setMinimized(BOOL b)
 	//Switching from minimized to un-minimized
 	if(was_minimized && !b)
 	{
+		gToolBarView->flashCommand(LLCommandId("chat"), false);
 		LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(mSelectedSession);
 
 		if(session_floater && !session_floater->isTornOff())
@@ -621,7 +630,6 @@ void LLFloaterIMContainer::setVisible(BOOL visible)
 			LLFloaterReg::toggleInstanceOrBringToFront(name);
             selectConversationPair(LLUUID(NULL), false, false);
 		}
-		openNearbyChat();
 		flashConversationItemWidget(mSelectedSession,false);
 
 		LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(mSelectedSession);
@@ -651,7 +659,11 @@ void LLFloaterIMContainer::setVisible(BOOL visible)
 		LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(widget_it->second);
 		if (widget)
 		{
-		    widget->setVisibleIfDetached(visible);
+			LLFloater* session_floater = widget->getSessionFloater();
+			if (session_floater != nearby_chat)
+			{
+				widget->setVisibleIfDetached(visible);
+			}
 		}
 	}
 	
@@ -659,10 +671,37 @@ void LLFloaterIMContainer::setVisible(BOOL visible)
 	LLMultiFloater::setVisible(visible);
 }
 
+void LLFloaterIMContainer::getDetachedConversationFloaters(floater_list_t& floaters)
+{
+	typedef conversations_widgets_map::value_type conv_pair;
+	BOOST_FOREACH(conv_pair item, mConversationsWidgets)
+	{
+		LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(item.second);
+		if (widget)
+		{
+			LLFloater* session_floater = widget->getSessionFloater();
+			if (session_floater && session_floater->isDetachedAndNotMinimized())
+			{
+				floaters.push_back(session_floater);
+			}
+		}
+	}
+}
+
 void LLFloaterIMContainer::setVisibleAndFrontmost(BOOL take_focus, const LLSD& key)
 {
 	LLMultiFloater::setVisibleAndFrontmost(take_focus, key);
-    selectConversationPair(getSelectedSession(), false, take_focus);
+	// Do not select "Nearby Chat" conversation, since it will bring its window to front
+	// Only select other sessions
+	if (!getSelectedSession().isNull())
+	{
+		selectConversationPair(getSelectedSession(), false, take_focus);
+	}
+	if (mInitialized && mIsFirstLaunch)
+	{
+		collapseMessagesPane(gSavedPerAccountSettings.getBOOL("ConversationsMessagePaneCollapsed"));
+		mIsFirstLaunch = false;
+	}
 }
 
 void LLFloaterIMContainer::updateResizeLimits()
@@ -779,13 +818,6 @@ void LLFloaterIMContainer::reshapeFloaterAndSetResizeLimits(bool collapse, S32 d
 	setCanMinimize(at_least_one_panel_is_expanded);
 
     assignResizeLimits();
-
-    // force set correct size for the title after show/hide minimize button
-	LLRect cur_rect = getRect();
-	LLRect force_rect = cur_rect;
-	force_rect.mRight = cur_rect.mRight + 1;
-    setRect(force_rect);
-    setRect(cur_rect);
 }
 
 void LLFloaterIMContainer::assignResizeLimits()
@@ -793,15 +825,12 @@ void LLFloaterIMContainer::assignResizeLimits()
 	bool is_conv_pane_expanded = !mConversationsPane->isCollapsed();
 	bool is_msg_pane_expanded = !mMessagesPane->isCollapsed();
 
-	// With two panels visible number of borders is three, because the borders
-	// between the panels are merged into one
-    S32 number_of_visible_borders = llmin((is_conv_pane_expanded? 2 : 0) + (is_msg_pane_expanded? 2 : 0), 3);
-    S32 summary_width_of_visible_borders = number_of_visible_borders * LLPANEL_BORDER_WIDTH;
-	S32 conv_pane_target_width = is_conv_pane_expanded?
-			(is_msg_pane_expanded?
-					mConversationsPane->getRect().getWidth()
-					: mConversationsPane->getExpandedMinDim())
-			: mConversationsPane->getMinDim();
+    S32 summary_width_of_visible_borders = (is_msg_pane_expanded ? mConversationsStack->getPanelSpacing() : 0) + 1;
+
+	S32 conv_pane_target_width = is_conv_pane_expanded
+		? ( is_msg_pane_expanded?mConversationsPane->getRect().getWidth():mConversationsPane->getExpandedMinDim() )
+		: mConversationsPane->getMinDim();
+
 	S32 msg_pane_min_width  = is_msg_pane_expanded ? mMessagesPane->getExpandedMinDim() : 0;
 	S32 new_min_width = conv_pane_target_width + msg_pane_min_width + summary_width_of_visible_borders;
 
@@ -961,11 +990,11 @@ void LLFloaterIMContainer::setSortOrder(const LLConversationSort& order)
 			conversation_floater->setSortOrder(order);
 		}
 	}
-	
+
 	gSavedSettings.setU32("ConversationSortOrder", (U32)order);
 }
 
-void LLFloaterIMContainer::getSelectedUUIDs(uuid_vec_t& selected_uuids)
+void LLFloaterIMContainer::getSelectedUUIDs(uuid_vec_t& selected_uuids, bool participant_uuids/* = true*/)
 {
     const std::set<LLFolderViewItem*> selectedItems = mConversationsRoot->getSelectionList();
 
@@ -978,7 +1007,7 @@ void LLFloaterIMContainer::getSelectedUUIDs(uuid_vec_t& selected_uuids)
         conversationItem = static_cast<LLConversationItem *>((*it)->getViewModelItem());
       
 		//When a one-on-one conversation exists, retrieve the participant id from the conversation floater
-		if(conversationItem->getType() == LLConversationItem::CONV_SESSION_1_ON_1)
+		if(conversationItem->getType() == LLConversationItem::CONV_SESSION_1_ON_1 && participant_uuids)
 		{
 			LLFloaterIMSession * conversation_floaterp = LLFloaterIMSession::findInstance(conversationItem->getUUID());
 			LLUUID participant_id = conversation_floaterp->getOtherParticipantUUID();
@@ -1133,6 +1162,11 @@ void LLFloaterIMContainer::doToSelectedConversation(const std::string& command, 
         {
             LLFloater::onClickClose(conversationFloater);
         }
+        else if("close_selected_conversations" == command)
+        {
+        	getSelectedUUIDs(selectedIDS,false);
+        	closeSelectedConversations(selectedIDS);
+        }
         else if("open_voice_conversation" == command)
         {
             gIMMgr->startCall(conversationItem->getUUID());
@@ -1143,7 +1177,7 @@ void LLFloaterIMContainer::doToSelectedConversation(const std::string& command, 
         }
         else if("chat_history" == command)
         {
-			if (selectedIDS.size() > 0)
+        	if (selectedIDS.size() > 0)
 			{
 				LLAvatarActions::viewChatHistory(selectedIDS.front());
 			}
@@ -1155,6 +1189,17 @@ void LLFloaterIMContainer::doToSelectedConversation(const std::string& command, 
         		doToParticipants(command, selectedIDS);
         	}
         }
+    }
+    //if there is no LLFloaterIMSession* instance for selected conversation it might be Nearby chat
+    else
+    {
+    	if(conversationItem->getType() == LLConversationItem::CONV_SESSION_NEARBY)
+    	{
+    		if("chat_history" == command)
+    	    {
+    	      	LLFloaterReg::showInstance("preview_conversation", LLSD(LLUUID::null), true);
+    	    }
+    	}
     }
 }
 
@@ -1185,7 +1230,7 @@ void LLFloaterIMContainer::doToSelectedGroup(const LLSD& userdata)
 
     if (action == "group_profile")
     {
-        LLGroupActions::show(mSelectedSession);
+    	LLGroupActions::show(mSelectedSession);
     }
     else if (action == "activate_group")
     {
@@ -1211,7 +1256,19 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
 	//Enable Chat history item for ad-hoc and group conversations
 	if ("can_chat_history" == item && uuids.size() > 0)
 	{
-		return LLLogChat::isTranscriptExist(uuids.front());
+		//Disable menu item if selected participant is user agent
+		if(uuids.front() != gAgentID)
+		{
+			if (getCurSelectedViewModelItem()->getType() == LLConversationItem::CONV_SESSION_NEARBY)
+			{
+				return LLLogChat::isNearbyTranscriptExist();
+			}
+			else
+			{
+				bool is_group = (getCurSelectedViewModelItem()->getType() == LLConversationItem::CONV_SESSION_GROUP);
+				return LLLogChat::isTranscriptExist(uuids.front(),is_group);
+			}
+		}
 	}
 
 	// If nothing is selected(and selected item is not group chat), everything needs to be disabled
@@ -1886,13 +1943,6 @@ void LLFloaterIMContainer::openNearbyChat()
 	}
 }
 
-void LLFloaterIMContainer::onNearbyChatClosed()
-{
-	// If nearby chat is the only remaining conversation and it is closed, close whole conversation floater as well
-	if (mConversationsItems.size() == 1)
-		closeFloater();
-}
-
 void LLFloaterIMContainer::reSelectConversation()
 {
 	LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(mSelectedSession);
@@ -1904,7 +1954,6 @@ void LLFloaterIMContainer::reSelectConversation()
 
 void LLFloaterIMContainer::updateSpeakBtnState()
 {
-	LLButton* mSpeakBtn = getChild<LLButton>("speak_btn");
 	mSpeakBtn->setToggleState(LLVoiceClient::getInstance()->getUserPTTState());
 	mSpeakBtn->setEnabled(LLAgent::isActionAllowed("speak"));
 }
@@ -1925,6 +1974,17 @@ void LLFloaterIMContainer::flashConversationItemWidget(const LLUUID& session_id,
 	}
 }
 
+void LLFloaterIMContainer::highlightConversationItemWidget(const LLUUID& session_id, bool is_highlighted)
+{
+	//Finds the conversation line item to highlight using the session_id
+	LLConversationViewSession * widget = dynamic_cast<LLConversationViewSession *>(get_ptr_in_map(mConversationsWidgets,session_id));
+
+	if (widget)
+	{
+		widget->setHighlightState(is_highlighted);
+	}
+}
+
 bool LLFloaterIMContainer::isScrolledOutOfSight(LLConversationViewSession* conversation_item_widget)
 {
 	llassert(conversation_item_widget != NULL);
@@ -1940,23 +2000,28 @@ bool LLFloaterIMContainer::isScrolledOutOfSight(LLConversationViewSession* conve
 
 BOOL LLFloaterIMContainer::handleKeyHere(KEY key, MASK mask )
 {
+	BOOL handled = FALSE;
+
 	if(mask == MASK_ALT)
 	{
 		if (KEY_RETURN == key )
 		{
 			expandConversation();
+			handled = TRUE;
 		}
 
 		if ((KEY_DOWN == key ) || (KEY_RIGHT == key))
 		{
 			selectNextorPreviousConversation(true);
+			handled = TRUE;
 		}
 		if ((KEY_UP == key) || (KEY_LEFT == key))
 		{
 			selectNextorPreviousConversation(false);
+			handled = TRUE;
 		}
 	}
-	return TRUE;
+	return handled;
 }
 
 bool LLFloaterIMContainer::selectAdjacentConversation(bool focus_selected)
@@ -2013,7 +2078,22 @@ void LLFloaterIMContainer::expandConversation()
 	}
 }
 
-void LLFloaterIMContainer::closeFloater(bool app_quitting/* = false*/)
+// By default, if torn off session is currently frontmost, LLFloater::isFrontmost() will return FALSE, which can lead to some bugs
+// So LLFloater::isFrontmost() is overriden here to check both selected session and the IM floater itself
+// Exclude "Nearby Chat" session from the check, as "Nearby Chat" window and "Conversations" floater can be brought
+// to front independently
+/*virtual*/
+BOOL LLFloaterIMContainer::isFrontmost()
+{
+	LLFloaterIMSessionTab* selected_session = LLFloaterIMSessionTab::getConversation(mSelectedSession);
+	LLFloaterIMNearbyChat* nearby_chat = LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
+	return (selected_session && selected_session->isFrontmost() && (selected_session != nearby_chat))
+		|| LLFloater::isFrontmost();
+}
+
+// For conversations, closeFloater() (linked to Ctrl-W) does not actually close the floater but the active conversation.
+// This is intentional so it doesn't confuse the user. onClickCloseBtn() closes the whole floater.
+void LLFloaterIMContainer::onClickCloseBtn()
 {
 	// Always unminimize before trying to close.
 	// Most of the time the user will never see this state.
@@ -2022,7 +2102,80 @@ void LLFloaterIMContainer::closeFloater(bool app_quitting/* = false*/)
 		LLMultiFloater::setMinimized(FALSE);
 	}
 
-	LLFloater::closeFloater(app_quitting);
+	LLFloater::closeFloater();
+}
+
+void LLFloaterIMContainer::closeHostedFloater()
+{
+	onClickCloseBtn();
+}
+
+void LLFloaterIMContainer::closeAllConversations()
+{
+	std::vector<LLUUID> ids;
+	for (conversations_items_map::iterator it_session = mConversationsItems.begin(); it_session != mConversationsItems.end(); it_session++)
+	{
+		LLUUID session_id = it_session->first;
+		if (session_id != LLUUID())
+		{
+			ids.push_back(session_id);
+		}
+	}
+
+	for (std::vector<LLUUID>::const_iterator it = ids.begin(); it != ids.end(); 	++it)
+	{
+		LLFloaterIMSession *conversationFloater = LLFloaterIMSession::findInstance(*it);
+		LLFloater::onClickClose(conversationFloater);
+	}
+}
+
+void LLFloaterIMContainer::closeSelectedConversations(const uuid_vec_t& ids)
+{
+	for (uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
+	{
+		//We don't need to close Nearby chat, so skip it
+		if (*it != LLUUID())
+		{
+			LLFloaterIMSession *conversationFloater = LLFloaterIMSession::findInstance(*it);
+			if(conversationFloater)
+			{
+				LLFloater::onClickClose(conversationFloater);
+			}
+		}
+	}
+}
+void LLFloaterIMContainer::closeFloater(bool app_quitting/* = false*/)
+{
+	if(app_quitting)
+	{
+		closeAllConversations();
+		onClickCloseBtn();
+	}
+	else
+	{
+		// Check for currently active session
+		LLUUID session_id = getSelectedSession();
+		// If current session is Nearby Chat or there is only one session remaining, close the floater
+		if (mConversationsItems.size() == 1 || session_id == LLUUID() || app_quitting)
+		{
+			onClickCloseBtn();
+		}
+		else
+		{
+			// Otherwise, close current conversation
+			LLFloaterIMSessionTab* active_conversation = LLFloaterIMSessionTab::getConversation(session_id);
+			if (active_conversation)
+			{
+				active_conversation->closeFloater();
+			}
+		}
+	}
+}
+
+void LLFloaterIMContainer::handleReshape(const LLRect& rect, bool by_user)
+{
+	LLMultiFloater::handleReshape(rect, by_user);
+	storeRectControl();
 }
 
 // EOF

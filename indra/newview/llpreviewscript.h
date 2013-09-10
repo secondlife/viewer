@@ -33,6 +33,7 @@
 #include "llcombobox.h"
 #include "lliconctrl.h"
 #include "llframetimer.h"
+#include "llfloatergotoline.h"
 
 class LLLiveLSLFile;
 class LLMessageSystem;
@@ -48,6 +49,7 @@ class LLKeywordToken;
 class LLVFS;
 class LLViewerInventoryItem;
 class LLScriptEdContainer;
+class LLFloaterGotoLine;
 
 // Inner, implementation class.  LLPreviewScript and LLLiveLSLEditor each own one of these.
 class LLScriptEdCore : public LLPanel
@@ -57,6 +59,7 @@ class LLScriptEdCore : public LLPanel
 	friend class LLLiveLSLEditor;
 	friend class LLFloaterScriptSearch;
 	friend class LLScriptEdContainer;
+	friend class LLFloaterGotoLine;
 
 protected:
 	// Supposed to be invoked only by the container.

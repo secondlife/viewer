@@ -674,7 +674,6 @@ LLAppViewer::LLAppViewer()
 	mSecondInstance(false),
 	mSavedFinalSnapshot(false),
 	mSavePerAccountSettings(false),		// don't save settings on logout unless login succeeded.
-	mForceGraphicsDetail(false),
 	mQuitRequested(false),
 	mLogoutRequestSent(false),
 	mYieldTime(-1),
@@ -729,6 +728,9 @@ bool LLAppViewer::init()
 	// into the log files during normal startup until AFTER
 	// we run the "program crashed last time" error handler below.
 	//
+#ifdef LL_DARWIN
+	mMainLoopInitialized = false;
+#endif
 
 	// initialize LLWearableType translation bridge.
 	// Memory will be cleaned up in ::cleanupClass()
@@ -1258,42 +1260,58 @@ LLTrace::TimeBlock FTM_FRAME("Frame");
 
 bool LLAppViewer::mainLoop()
 {
-	LL_INFOS() << "***********************Entering main_loop***********************" << LL_ENDL;
-
-	mMainloopTimeout = new LLWatchdogTimeout();
+	LL_INFOS() << "Entering main_loop" << LL_ENDL;
+#ifdef LL_DARWIN
+	if (!mMainLoopInitialized)
+#endif
+	{
+		mMainloopTimeout = new LLWatchdogTimeout();
+		
+		//-------------------------------------------
+		// Run main loop until time to quit
+		//-------------------------------------------
+		
+		// Create IO Pump to use for HTTP Requests.
+		gServicePump = new LLPumpIO(gAPRPoolp);
+		LLHTTPClient::setPump(*gServicePump);
+		LLCurl::setCAFile(gDirUtilp->getCAFile());
+		
+		// Note: this is where gLocalSpeakerMgr and gActiveSpeakerMgr used to be instantiated.
+		
+		LLVoiceChannel::initClass();
+		LLVoiceClient::getInstance()->init(gServicePump);
+		LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLFloaterIMContainer::onCurrentChannelChanged, _1), true);
+		
+		joystick = LLViewerJoystick::getInstance();
+		joystick->setNeedsReset(true);
+		
+#ifdef LL_DARWIN
+		// Ensure that this section of code never gets called again on OS X.
+		mMainLoopInitialized = true;
+#endif
+	}
+	// As we do not (yet) send data on the mainloop LLEventPump that varies
+	// with each frame, no need to instantiate a new LLSD event object each
+	// time. Obviously, if that changes, just instantiate the LLSD at the
+	// point of posting.
 	
-	//-------------------------------------------
-	// Run main loop until time to quit
-	//-------------------------------------------
-
-	// Create IO Pump to use for HTTP Requests.
-	gServicePump = new LLPumpIO(gAPRPoolp);
-	LLHTTPClient::setPump(*gServicePump);
-	LLCurl::setCAFile(gDirUtilp->getCAFile());
-
-	// Note: this is where gLocalSpeakerMgr and gActiveSpeakerMgr used to be instantiated.
-
-	LLVoiceChannel::initClass();
-	LLVoiceClient::getInstance()->init(gServicePump);
-	LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLFloaterIMContainer::onCurrentChannelChanged, _1), true);
+	LLEventPump& mainloop(LLEventPumps::instance().obtain("mainloop"));
+	
+    LLSD newFrame;
+	
 	LLTimer frameTimer,idleTimer;
 	LLTimer debugTime;
-	LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
-	joystick->setNeedsReset(true);
-
-    LLEventPump& mainloop(LLEventPumps::instance().obtain("mainloop"));
-    // As we do not (yet) send data on the mainloop LLEventPump that varies
-    // with each frame, no need to instantiate a new LLSD event object each
-    // time. Obviously, if that changes, just instantiate the LLSD at the
-    // point of posting.
-    LLSD newFrame;
-
+	
 	//LLPrivateMemoryPoolTester::getInstance()->run(false) ;
 	//LLPrivateMemoryPoolTester::getInstance()->run(true) ;
 	//LLPrivateMemoryPoolTester::destroy() ;
 
 	// Handle messages
+#ifdef LL_DARWIN
+	if (!LLApp::isExiting())
+#else
 	while (!LLApp::isExiting())
+#endif
 	{
 		LL_RECORD_BLOCK_TIME(FTM_FRAME);
 		LLTrace::TimeBlock::processTimes();
@@ -1561,34 +1579,37 @@ bool LLAppViewer::mainLoop()
 		}
 	}
 
-	// Save snapshot for next time, if we made it through initialization
-	if (STATE_STARTED == LLStartUp::getStartupState())
+	if (LLApp::isExiting())
 	{
-		try
+		// Save snapshot for next time, if we made it through initialization
+		if (STATE_STARTED == LLStartUp::getStartupState())
 		{
-			saveFinalSnapshot();
-		}
-		catch(std::bad_alloc)
-		{
-			LL_WARNS() << "Bad memory allocation when saveFinalSnapshot() is called!" << LL_ENDL ;
-
-			//stop memory leaking simulation
-			LLFloaterMemLeak* mem_leak_instance =
-				LLFloaterReg::findTypedInstance<LLFloaterMemLeak>("mem_leaking");
-			if(mem_leak_instance)
+			try
 			{
-				mem_leak_instance->stop() ;				
-			}	
+				saveFinalSnapshot();
+			}
+			catch(std::bad_alloc)
+			{
+				LL_WARNS() << "Bad memory allocation when saveFinalSnapshot() is called!" << LL_ENDL ;
+				
+				//stop memory leaking simulation
+				LLFloaterMemLeak* mem_leak_instance =
+				LLFloaterReg::findTypedInstance<LLFloaterMemLeak>("mem_leaking");
+				if(mem_leak_instance)
+				{
+					mem_leak_instance->stop() ;
+				}
+			}
 		}
+		
+		delete gServicePump;
+		
+		destroyMainloopTimeout();
+		
+		LL_INFOS() << "Exiting main_loop" << LL_ENDL;
 	}
-	
-	delete gServicePump;
 
-	destroyMainloopTimeout();
-
-	LL_INFOS() << "***********************Exiting main_loop***********************" << LL_ENDL;
-
-	return true;
+	return LLApp::isExiting();
 }
 
 S32 LLAppViewer::updateTextureThreads(F32 max_time)
@@ -2321,17 +2342,24 @@ void LLAppViewer::loadColorSettings()
 	LLUIColorTable::instance().loadFromSettings();
 }
 
+namespace
+{
+    void handleCommandLineError(LLControlGroupCLP& clp)
+    {
+		LL_WARNS() << "Error parsing command line options. Command Line options ignored."  << LL_ENDL;
+
+		LL_INFOS() << "Command line usage:\n" << clp << LL_ENDL;
+
+		OSMessageBox(STRINGIZE(LLTrans::getString("MBCmdLineError") << clp.getErrorMessage()),
+					 LLStringUtil::null,
+					 OSMB_OK);
+    }
+} // anonymous namespace
+
 bool LLAppViewer::initConfiguration()
 {	
 	//Load settings files list
 	std::string settings_file_list = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "settings_files.xml");
-	//LLControlGroup settings_control("SettingsFiles");
-	//LL_INFOS() << "Loading settings file list " << settings_file_list << LL_ENDL;
-	//if (0 == settings_control.loadFromFile(settings_file_list))
-	//{
- //       LL_ERRS() << "Cannot load default configuration file " << settings_file_list << LL_ENDL;
-	//}
-
 	LLXMLNodePtr root;
 	BOOL success  = LLXMLNode::parseFile(settings_file_list, root, NULL);
 	if (!success)
@@ -2390,9 +2418,7 @@ bool LLAppViewer::initConfiguration()
 	{
 		c->setValue(true, false);
 	}
-#endif
 
-#ifndef	LL_RELEASE_FOR_DOWNLOAD
 	gSavedSettings.setBOOL("QAMode", TRUE );
 	gSavedSettings.setS32("WatchdogEnabled", 0);
 #endif
@@ -2428,13 +2454,7 @@ bool LLAppViewer::initConfiguration()
 
 	if(!initParseCommandLine(clp))
 	{
-		LL_WARNS()	<< "Error parsing command line options.	Command	Line options ignored."  << LL_ENDL;
-		
-		LL_INFOS()	<< "Command	line usage:\n" << clp << LL_ENDL;
-
-		std::ostringstream msg;
-		msg << LLTrans::getString("MBCmdLineError") << clp.getErrorMessage();
-		OSMessageBox(msg.str(),LLStringUtil::null,OSMB_OK);
+		handleCommandLineError(clp);
 		return false;
 	}
 	
@@ -2481,12 +2501,16 @@ bool LLAppViewer::initConfiguration()
 	loadSettingsFromDirectory("UserSession");
 
 	// - apply command line settings 
-	clp.notify(); 
+	if (! clp.notify())
+	{
+		handleCommandLineError(clp);
+		return false;
+	}
 
 	// Register the core crash option as soon as we can
 	// if we want gdb post-mortem on cores we need to be up and running
 	// ASAP or we might miss init issue etc.
-	if(clp.hasOption("disablecrashlogger"))
+	if(gSavedSettings.getBOOL("DisableCrashLogger"))
 	{
 		LL_WARNS() << "Crashes will be handled by system, stack trace logs and crash logger are both disabled" << LL_ENDL;
 		LLAppViewer::instance()->disableCrashlogger();
@@ -2559,91 +2583,52 @@ bool LLAppViewer::initConfiguration()
         }
     }
 
-    if(clp.hasOption("channel"))
-    {
-		LLVersionInfo::resetChannel(clp.getOption("channel")[0]);
+	std::string CmdLineChannel(gSavedSettings.getString("CmdLineChannel"));
+	if(! CmdLineChannel.empty())
+	{
+		LLVersionInfo::resetChannel(CmdLineChannel);
 	}
 
 	// If we have specified crash on startup, set the global so we'll trigger the crash at the right time
-	if(clp.hasOption("crashonstartup"))
-	{
-		gCrashOnStartup = TRUE;
-	}
+	gCrashOnStartup = gSavedSettings.getBOOL("CrashOnStartup");
 
-	if (clp.hasOption("logperformance"))
+	if (gSavedSettings.getBOOL("LogPerformance"))
 	{
 		LLTrace::TimeBlock::sLog = true;
 		LLTrace::TimeBlock::sLogName = std::string("performance");		
 	}
-	
-	if (clp.hasOption("logmetrics"))
- 	{
- 		LLTrace::TimeBlock::sMetricLog = true ;
-		// '--logmetrics' can be specified with a named test metric argument so the data gathering is done only on that test
-		// In the absence of argument, every metric is gathered (makes for a rather slow run and hard to decipher report...)
-		std::string test_name = clp.getOption("logmetrics")[0];
+
+	std::string test_name(gSavedSettings.getString("LogMetrics"));
+	if (! test_name.empty())
+	{
+		LLTrace::TimeBlock::sMetricLog = TRUE ;
+		// '--logmetrics' is specified with a named test metric argument so the data gathering is done only on that test
+		// In the absence of argument, every metric would be gathered (makes for a rather slow run and hard to decipher report...)
 		LL_INFOS() << "'--logmetrics' argument : " << test_name << LL_ENDL;
-		if (test_name == "")
-		{
-			LL_WARNS() << "No '--logmetrics' argument given, will output all metrics to " << DEFAULT_METRIC_NAME << LL_ENDL;
-			LLTrace::TimeBlock::sLogName = DEFAULT_METRIC_NAME;
-		}
-		else
-		{
-			LLTrace::TimeBlock::sLogName = test_name;
-		}
+		LLTrace::TimeBlock::sLogName = test_name;
  	}
 
 	if (clp.hasOption("graphicslevel"))
 	{
-		const LLCommandLineParser::token_vector_t& value = clp.getOption("graphicslevel");
-        if(value.size() != 1)
-        {
-			LL_WARNS() << "Usage: -graphicslevel <0-3>" << LL_ENDL;
-        }
-        else
-        {
-			std::string detail = value.front();
-			mForceGraphicsDetail = TRUE;
-			
-			switch (detail.c_str()[0])
-			{
-				case '0': 
-					gSavedSettings.setU32("RenderQualityPerformance", 0);		
-					break;
-				case '1': 
-					gSavedSettings.setU32("RenderQualityPerformance", 1);		
-					break;
-				case '2': 
-					gSavedSettings.setU32("RenderQualityPerformance", 2);		
-					break;
-				case '3': 
-					gSavedSettings.setU32("RenderQualityPerformance", 3);		
-					break;
-				default:
-					mForceGraphicsDetail = FALSE;
-					LL_WARNS() << "Usage: -graphicslevel <0-3>" << LL_ENDL;
-					break;
-			}
-        }
+		// User explicitly requested --graphicslevel on the command line. We
+		// expect this switch has already set RenderQualityPerformance. Check
+		// that value for validity.
+		U32 graphicslevel = gSavedSettings.getU32("RenderQualityPerformance");
+		if (LLFeatureManager::instance().isValidGraphicsLevel(graphicslevel))
+		{
+			// graphicslevel is valid: save it and engage it later. Capture
+			// the requested value separately from the settings variable
+			// because, if this is the first run, LLViewerWindow's constructor
+			// will call LLFeatureManager::applyRecommendedSettings(), which
+			// overwrites this settings variable!
+			mForceGraphicsLevel = graphicslevel;
+		}
 	}
 
-	if (clp.hasOption("analyzeperformance"))
-	{
-		LLFastTimerView::sAnalyzePerformance = TRUE;
-	}
+	LLFastTimerView::sAnalyzePerformance = gSavedSettings.getBOOL("AnalyzePerformance");
+	gAgentPilot.setReplaySession(gSavedSettings.getBOOL("ReplaySession"));
 
-	if (clp.hasOption("replaysession"))
-	{
-		gAgentPilot.setReplaySession(TRUE);
-	}
-
-	if (clp.hasOption("nonotifications"))
-	{
-		gSavedSettings.getControl("IgnoreAllNotifications")->setValue(true, false);
-	}
-	
-	if (clp.hasOption("debugsession"))
+	if (gSavedSettings.getBOOL("DebugSession"))
 	{
 		gDebugSession = TRUE;
 		gDebugGL = TRUE;
@@ -2668,20 +2653,16 @@ bool LLAppViewer::initConfiguration()
     // What can happen is that someone can use IE (or potentially 
     // other browsers) and do the rough equivalent of command 
     // injection and steal passwords. Phoenix. SL-55321
-    if(clp.hasOption("url"))
-    {
-		LLStartUp::setStartSLURL(LLSLURL(clp.getOption("url")[0]));
-		if(LLStartUp::getStartSLURL().getType() == LLSLURL::LOCATION) 
-		{  
-			LLGridManager::getInstance()->setGridChoice(LLStartUp::getStartSLURL().getGrid());
-			
-		}  
-    }
-    else if(clp.hasOption("slurl"))
-    {
-		LLSLURL start_slurl(clp.getOption("slurl")[0]);
+	std::string CmdLineLoginLocation(gSavedSettings.getString("CmdLineLoginLocation"));
+	if(! CmdLineLoginLocation.empty())
+	{
+		LLSLURL start_slurl(CmdLineLoginLocation);
 		LLStartUp::setStartSLURL(start_slurl);
-    }
+		if(start_slurl.getType() == LLSLURL::LOCATION) 
+		{  
+			LLGridManager::getInstance()->setGridChoice(start_slurl.getGrid());
+		}
+	}
 
 	const LLControlVariable* skinfolder = gSavedSettings.getControl("SkinCurrent");
 	if(skinfolder && LLStringUtil::null != skinfolder->getValue().asString())
@@ -2722,8 +2703,6 @@ bool LLAppViewer::initConfiguration()
 	//}
 
 #if LL_DARWIN
-	// Initialize apple menubar and various callbacks
-	init_apple_menu(LLTrans::getString("APP_NAME").c_str());
 
 #if __ppc__
 	// If the CPU doesn't have Altivec (i.e. it's not at least a G4), don't go any further.
@@ -2824,9 +2803,8 @@ bool LLAppViewer::initConfiguration()
 		LL_DEBUGS("AppInit")<<"set start from NextLoginLocation: "<<nextLoginLocation<<LL_ENDL;
 		LLStartUp::setStartSLURL(LLSLURL(nextLoginLocation));
 	}
-	else if (   (   clp.hasOption("login") || clp.hasOption("autologin"))
-			 && !clp.hasOption("url")
-			 && !clp.hasOption("slurl"))
+	else if ((clp.hasOption("login") || clp.hasOption("autologin"))
+			 && gSavedSettings.getString("CmdLineLoginLocation").empty())
 	{
 		// If automatic login from command line with --login switch
 		// init StartSLURL location.
@@ -3062,13 +3040,19 @@ namespace {
 void LLAppViewer::initUpdater()
 {
 	// Initialize the updater service.
-	// Generate URL to the udpater service
 	// Get Channel
 	// Get Version
-	std::string url = gSavedSettings.getString("UpdaterServiceURL");
+
+	/*****************************************************************
+	 * Previously, the url was derived from the settings 
+	 *    UpdaterServiceURL
+	 *    UpdaterServicePath
+	 * it is now obtained from the grid manager.  The settings above
+	 * are no longer used.
+	 *****************************************************************/
 	std::string channel = LLVersionInfo::getChannel();
 	std::string version = LLVersionInfo::getVersion();
-	std::string service_path = gSavedSettings.getString("UpdaterServicePath");
+
 	U32 check_period = gSavedSettings.getU32("UpdaterServiceCheckPeriod");
 	bool willing_to_test;
 	LL_DEBUGS("UpdaterService") << "channel " << channel << LL_ENDL;
@@ -3093,9 +3077,7 @@ void LLAppViewer::initUpdater()
 	}
 
 	mUpdater->setAppExitCallback(boost::bind(&LLAppViewer::forceQuit, this));
-	mUpdater->initialize(url, 
-						 service_path, 
-						 channel, 
+	mUpdater->initialize(channel, 
 						 version,
 						 gPlatform,
 						 getOSInfo().getOSVersionString(),
@@ -3199,11 +3181,12 @@ bool LLAppViewer::initWindow()
 	// Initialize GL stuff
 	//
 
-	if (mForceGraphicsDetail)
+	if (mForceGraphicsLevel)
 	{
-		LLFeatureManager::getInstance()->setGraphicsLevel(gSavedSettings.getU32("RenderQualityPerformance"), false);
+		LLFeatureManager::getInstance()->setGraphicsLevel(*mForceGraphicsLevel, false);
+		gSavedSettings.setU32("RenderQualityPerformance", *mForceGraphicsLevel);
 	}
-			
+
 	// Set this flag in case we crash while initializing GL
 	gSavedSettings.setBOOL("RenderInitError", TRUE);
 	gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
