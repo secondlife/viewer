@@ -1253,10 +1253,15 @@ void update_inventory_item(
 	if (AISCommand::isAPIAvailable())
 	{
 		LLSD updates = update_item->asLLSD();
-		// Replace asset_id with transaction_id (hash_id)
+		// Replace asset_id and/or shadow_id with transaction_id (hash_id)
 		if (updates.has("asset_id"))
 		{
 			updates.erase("asset_id");
+			updates["hash_id"] = update_item->getTransactionID();
+		}
+		if (updates.has("shadow_id"))
+		{
+			updates.erase("shadow_id");
 			updates["hash_id"] = update_item->getTransactionID();
 		}
 		LLPointer<AISCommand> cmd_ptr = new UpdateItemCommand(item_id, updates, cb);
