@@ -392,7 +392,7 @@ bool LLFeatureManager::parseFeatureTable(std::string filename)
 		}
 		else
 		{
-			if (!flp)
+			if (flp)
 			{
 				S32 available;
 				F32 recommended;
