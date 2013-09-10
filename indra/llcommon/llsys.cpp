@@ -862,17 +862,17 @@ U32Kilobytes LLMemoryInfo::getPhysicalMemoryKB() const
 	size_t len = sizeof(phys);	
 	sysctl(mib, 2, &phys, &len, NULL, 0);
 	
-	return U32Bytes(phys);
+	return U32Bytes(llmax(phys, (U64)U32_MAX));
 
 #elif LL_LINUX
 	U64 phys = 0;
 	phys = (U64)(getpagesize()) * (U64)(get_phys_pages());
-	return U32Bytes(phys);
+	return U32Bytes(llmax(phys, (U64)U32_MAX));
 
 #elif LL_SOLARIS
 	U64 phys = 0;
 	phys = (U64)(getpagesize()) * (U64)(sysconf(_SC_PHYS_PAGES));
-	return U32Bytes(phys);
+	return U32Bytes(llmax(phys, (U64)U32_MAX));
 
 #else
 	return 0;
