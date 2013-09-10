@@ -7193,6 +7193,17 @@ class LLAdvancedClickRenderProfile: public view_listener_t
 	}
 };
 
+void gpu_benchmark();
+
+class LLAdvancedClickRenderBenchmark: public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		gpu_benchmark();
+		return true;
+	}
+};
+
 void menu_toggle_attached_lights(void* user_data)
 {
 	LLPipeline::sRenderAttachedLights = gSavedSettings.getBOOL("RenderAttachedLights");
@@ -8633,6 +8644,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedCheckRenderShadowOption(), "Advanced.CheckRenderShadowOption");
 	view_listener_t::addMenu(new LLAdvancedClickRenderShadowOption(), "Advanced.ClickRenderShadowOption");
 	view_listener_t::addMenu(new LLAdvancedClickRenderProfile(), "Advanced.ClickRenderProfile");
+	view_listener_t::addMenu(new LLAdvancedClickRenderBenchmark(), "Advanced.ClickRenderBenchmark");
 
 	#ifdef TOGGLE_HACKED_GODLIKE_VIEWER
 	view_listener_t::addMenu(new LLAdvancedHandleToggleHackedGodmode(), "Advanced.HandleToggleHackedGodmode");
