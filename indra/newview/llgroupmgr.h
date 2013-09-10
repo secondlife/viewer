@@ -212,14 +212,6 @@ struct LLGroupTitle
 class LLGroupMgrGroupData
 {
 friend class LLGroupMgr;
-public:
-	enum EGroupDataStatus
-	{
-		STATUS_INIT,
-		STATUS_REQUESTING,
-		STATUS_COMPLETE
-	};
-
 
 public:
 	LLGroupMgrGroupData(const LLUUID& id);
@@ -250,9 +242,6 @@ public:
 	bool isRoleDataComplete() { return mRoleDataComplete; }
 	bool isRoleMemberDataComplete() { return mRoleMemberDataComplete; }
 	bool isGroupPropertiesDataComplete() { return mGroupPropertiesDataComplete; }
-	
-	EGroupDataStatus getGroupBanStatus() { return mGroupBanStatus; }
-	void setGroupBanStatus(EGroupDataStatus status) { mGroupBanStatus = status; }
 
 	F32 getAccessTime() const { return mAccessTime; }
 	void setAccessed();
@@ -270,8 +259,6 @@ public:
 	void createBanEntry(const LLUUID& ban_id, const LLGroupBanData& ban_data = LLGroupBanData());
 	void removeBanEntry(const LLUUID& ban_id);
 	
-
-
 
 public:
 	typedef	std::map<LLUUID,LLGroupMemberData*> member_list_t;
@@ -319,8 +306,6 @@ private:
 	bool				mRoleDataComplete;
 	bool				mRoleMemberDataComplete;
 	bool				mGroupPropertiesDataComplete;
-	
-	EGroupDataStatus	mGroupBanStatus;
 
 	bool				mPendingRoleMemberRequest;
 	F32					mAccessTime;

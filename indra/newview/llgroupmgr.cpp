@@ -235,7 +235,6 @@ LLGroupMgrGroupData::LLGroupMgrGroupData(const LLUUID& id) :
 	mRoleDataComplete(false),
 	mRoleMemberDataComplete(false),
 	mGroupPropertiesDataComplete(false),
-	mGroupBanStatus(LLGroupMgrGroupData::STATUS_INIT),
 	mPendingRoleMemberRequest(false),
 	mAccessTime(0.0f)
 {
@@ -747,14 +746,11 @@ void LLGroupMgrGroupData::cancelRoleChanges()
 void LLGroupMgrGroupData::createBanEntry(const LLUUID& ban_id, const LLGroupBanData& ban_data)
 { 
 	mBanList[ban_id] = ban_data;
-	// Refresh the list
 }
 
 void LLGroupMgrGroupData::removeBanEntry(const LLUUID& ban_id)
 {
-	// Once we get this hooked up to the backend, we want to confirm the create or delete worked.
 	mBanList.erase(ban_id);
-	// Refresh the list
 }
 
 
@@ -1948,9 +1944,6 @@ void LLGroupMgr::processGroupBanRequest(const LLSD& content)
 	if (!gdatap)
 		return;
 	
-	//LLSD banlist = LLSD::emptyMap();
-
-
 	LLSD::map_const_iterator i		= content["ban_list"].beginMap();
 	LLSD::map_const_iterator iEnd	= content["ban_list"].endMap();
 	for(;i != iEnd; ++i)
@@ -1963,7 +1956,7 @@ void LLGroupMgr::processGroupBanRequest(const LLSD& content)
 	}
 
 	gdatap->mChanged = TRUE;
-	gdatap->setGroupBanStatus(LLGroupMgrGroupData::STATUS_COMPLETE);
+//	gdatap->setGroupBanStatus(LLGroupMgrGroupData::STATUS_COMPLETE);
 	LLGroupMgr::getInstance()->notifyObservers(GC_BANLIST);
 }
 

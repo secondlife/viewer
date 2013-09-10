@@ -1304,6 +1304,8 @@ void LLPanelGroupMembersSubTab::deactivate()
 
 bool LLPanelGroupMembersSubTab::needsApply(std::string& mesg)
 {
+	LL_INFOS("BAKER") << "[BAKER] needsApply()" << LL_ENDL;
+	
 	return mChanged;
 }
 
@@ -2711,8 +2713,6 @@ void LLPanelGroupActionsSubTab::setGroupID(const LLUUID& id)
 	LLPanelGroupSubTab::setGroupID(id);
 }
 
-//////////////////////////////////////////////////////////////////////////
-
 
 ////////////////////////////
 // LLPanelGroupBanListSubTab
@@ -2724,14 +2724,10 @@ LLPanelGroupBanListSubTab::LLPanelGroupBanListSubTab()
 	  mBanList(NULL),
 	  mCreateBanButton(NULL),
 	  mDeleteBanButton(NULL)
-{
-	LL_INFOS("BAKER") << "[BAKER] LLPanelGroupBanListSubTab::ctor()" << LL_ENDL;
-}
+{}
 
 BOOL LLPanelGroupBanListSubTab::postBuildSubTab(LLView* root)
 {
-	LL_INFOS("BAKER") << "[BAKER] LLPanelGroupBanListSubTab::postBuildSubTab()" << LL_ENDL;
-
 	LLPanelGroupSubTab::postBuildSubTab(root);
 
 	// Upcast parent so we can ask it for sibling controls.
@@ -2740,48 +2736,49 @@ BOOL LLPanelGroupBanListSubTab::postBuildSubTab(LLView* root)
 	// Look recursively from the parent to find all our widgets.
 	bool recurse = true;
 	
-	// BAKER TODO:
-	//	What are these? Looks like something inhereted from LLPanelGroupSubTab
-	mHeader = parent->getChild<LLPanel>("banlist_header", recurse);
-	mFooter = parent->getChild<LLPanel>("banlist_footer", recurse);
-	//////////////////////////////////////////////////////////////////////////
+	mHeader	= parent->getChild<LLPanel>("banlist_header", recurse);
+	mFooter	= parent->getChild<LLPanel>("banlist_footer", recurse);
 	
 	mBanList = parent->getChild<LLNameListCtrl>("ban_list", recurse);
-	mCreateBanButton = parent->getChild<LLButton>("ban_create", recurse);
-	mDeleteBanButton = parent->getChild<LLButton>("ban_delete", recurse);
+	
+	mCreateBanButton		= parent->getChild<LLButton>("ban_create", recurse);
+	mDeleteBanButton		= parent->getChild<LLButton>("ban_delete", recurse);
+	mRefreshBanListButton	= parent->getChild<LLButton>("ban_refresh", recurse);
 
-	if(!mBanList || !mCreateBanButton || !mDeleteBanButton)
+	if(!mBanList || !mCreateBanButton || !mDeleteBanButton || !mRefreshBanListButton)
 		return FALSE;
 
 	mBanList->setCommitOnSelectionChange(TRUE);
 	mBanList->setCommitCallback(onBanEntrySelect, this);
 
 	mCreateBanButton->setClickedCallback(onCreateBanEntry, this);
-	mCreateBanButton->setEnabled(FALSE);
-	
+	mCreateBanButton->setEnabled(TRUE);
+
 	mDeleteBanButton->setClickedCallback(onDeleteBanEntry, this);
 	mDeleteBanButton->setEnabled(FALSE);
 	
+	mRefreshBanListButton->setClickedCallback(onRefreshBanList, this);
+	mRefreshBanListButton->setEnabled(FALSE);
+
+	mBanList->setOnNameListCompleteCallback(boost::bind(&LLPanelGroupBanListSubTab::onBanListCompleted, this, _1));
+	
 	setFooterEnabled(FALSE);
-
-	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
-	if(gdatap && (gdatap->getGroupBanStatus() == LLGroupMgrGroupData::STATUS_INIT)) 
-	{
-		LLGroupMgr::getInstance()->sendGroupBanRequest(LLGroupMgr::REQUEST_GET, mGroupID);
-		gdatap->setGroupBanStatus(LLGroupMgrGroupData::STATUS_REQUESTING);
-	}
-
 	return TRUE;
 }
 
 void LLPanelGroupBanListSubTab::activate()
 {
-	LL_INFOS("BAKER") << "[BAKER] LLPanelGroupBanListSubTab::activate()" << LL_ENDL;
-	
 	LLPanelGroupSubTab::activate();
 
 	mBanList->deselectAllItems();
 	mDeleteBanButton->setEnabled(FALSE);
+
+	// BAKER: Should I really request everytime activate() is called?
+	//		  Perhaps I should only do it on a force refresh, or if an action on the list happens...
+	//		  Because it's not going to live-update the list anyway... You'd have to refresh if you 
+	//		  wanted to see someone else's additions anyway...
+	//		  
+	LLGroupMgr::getInstance()->sendGroupBanRequest(LLGroupMgr::REQUEST_GET, mGroupID);
 
 	setFooterEnabled(FALSE);
 	update(GC_ALL);
@@ -2820,66 +2817,51 @@ void LLPanelGroupBanListSubTab::update(LLGroupChange gc)
 	//if (gc != GC_ALL  && gc != GC_BANLIST)
 	//	return;
 
-	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
-	if(!gdatap) 
-	{
-		LL_INFOS("BAKER") << "[BAKER] No group data!" << LL_ENDL;
-		return;
-	}
+// 	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
+// 	if(!gdatap) 
+// 	{
+// 		LL_INFOS("BAKER") << "[BAKER] No group data!" << LL_ENDL;
+// 		return;
+// 	}
 
-	switch(gdatap->getGroupBanStatus())
-	{
-	// Must be initial update [	Check if I should request this at panel creation
-	//							with everything else -- might as well]
-	// Request our ban list!
-	case LLGroupMgrGroupData::STATUS_INIT:
-		LLGroupMgr::getInstance()->sendGroupBanRequest(LLGroupMgr::REQUEST_GET, mGroupID);
-		gdatap->setGroupBanStatus(LLGroupMgrGroupData::STATUS_REQUESTING);
-		break;
+	populateBanList();
+// 	// Do I even need this anymore?  
+// 	switch(gdatap->getGroupBanStatus())
+// 	{
+// 	// Must be initial update [	Check if I should request this at panel creation
+// 	//							with everything else -- might as well]
+// 	// Request our ban list!
+// 	case LLGroupMgrGroupData::STATUS_INIT:
+// 		LLGroupMgr::getInstance()->sendGroupBanRequest(LLGroupMgr::REQUEST_GET, mGroupID);
+// 		gdatap->setGroupBanStatus(LLGroupMgrGroupData::STATUS_REQUESTING);
+// 		break;
+// 	
+// 	// Already have a request out -- don't bother sending another one 
+// 	// Repeat sending won't make a difference, as it'll be behind a load balancer
+// 	case LLGroupMgrGroupData::STATUS_REQUESTING:
+// 		// Maybe here we call populate ban list as well, and see about how many
+// 		// more names we need to complete the ban list
+// 		break;
+// 	
+// 	//	See if the list needs updating -- if we call update, but nothing changed,
+// 	//	there's no reason to send another request.
+// 	//		[NOTHING CHANGED]	- Do Nothing!
+// 	//		[SOMETHING CHANGED]	- Don't panic! Just repopulate the ban list! 
+// 	case LLGroupMgrGroupData::STATUS_COMPLETE:
+// 		populateBanList();
+// 		break;
+// 	}
+// 	
 	
-	// Already have a request out -- don't bother sending another one 
-	// Repeat sending won't make a difference, as it'll be behind a load balancer
-	case LLGroupMgrGroupData::STATUS_REQUESTING:
-		break;
-	
-	//	See if the list needs updating -- if we call update, but nothing changed,
-	//	there's no reason to send another request.
-	//		[NOTHING CHANGED]	- Do Nothing!
-	//		[SOMETHING CHANGED]	- Don't panic! Just repopulate the ban list! 
-	case LLGroupMgrGroupData::STATUS_COMPLETE:
-		populateBanList();
-		break;
-	}
+
 }
 
 void LLPanelGroupBanListSubTab::draw()
 {
 	LLPanelGroupSubTab::draw();
 
-	// if(mPendingBanUpdate)
+	//if(mPendingBanUpdate)
 	//	populateBanList();
-}
-
-void LLPanelGroupBanListSubTab::populateBanList()
-{
-	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
-	if(!gdatap) 
-	{
-		LL_INFOS("BAKER") << "[BAKER] No group data!" << LL_ENDL;
-		return;
-	}
-
-	if(gdatap->getGroupBanStatus() != LLGroupMgrGroupData::STATUS_COMPLETE)
-		return;
-
-	mBanList->deleteAllItems();
-	std::map<LLUUID,LLGroupBanData>::const_iterator entry = gdatap->mBanList.begin();
-	for(; entry != gdatap->mBanList.end(); entry++)
-	{
-		LLNameListCtrl::NameItem ban_entry;
-		ban_entry.value = entry->first;
-		mBanList->addNameItemRow(ban_entry);
-	}
 }
 
 
@@ -3035,16 +3017,67 @@ void LLPanelGroupBanListSubTab::handleDeleteBanEntry()
 }
 
 
+void LLPanelGroupBanListSubTab::onRefreshBanList(void* user_data)
+{
+	LL_INFOS("BAKER") << "[BAKER] LLPanelGroupBanListSubTab::onRefreshBanList()" << LL_ENDL;
+
+	LLPanelGroupBanListSubTab* self = static_cast<LLPanelGroupBanListSubTab*>(user_data);
+	if (!self) 
+		return;
+
+	self->handleRefreshBanList();
+}
+
+void LLPanelGroupBanListSubTab::handleRefreshBanList()
+{
+	LL_INFOS("BAKER") << "[BAKER] LLPanelGroupBanListSubTab::handleRefreshBanList()" << LL_ENDL;
+	
+	mRefreshBanListButton->setEnabled(FALSE);
+	LLGroupMgr::getInstance()->sendGroupBanRequest(LLGroupMgr::REQUEST_GET, mGroupID);
+}
+
+
+void LLPanelGroupBanListSubTab::onBanListCompleted(bool isComplete)
+{
+	if(isComplete)
+	{
+		mRefreshBanListButton->setEnabled(TRUE);
+		populateBanList();
+	}
+}
+
+void LLPanelGroupBanListSubTab::populateBanList()
+{
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
+	if(!gdatap) 
+	{
+		LL_INFOS("BAKER") << "[BAKER] No group data!" << LL_ENDL;
+		return;
+	}
+
+	mBanList->deleteAllItems();
+	std::map<LLUUID,LLGroupBanData>::const_iterator entry = gdatap->mBanList.begin();
+	for(; entry != gdatap->mBanList.end(); entry++)
+	{
+		LLNameListCtrl::NameItem ban_entry;
+		ban_entry.value = entry->first;
+		mBanList->addNameItemRow(ban_entry);
+	}
+
+	mRefreshBanListButton->setEnabled(TRUE);
+}
+
+
 void LLPanelGroupBanListSubTab::setGroupID(const LLUUID& id)
 {
-	LL_INFOS("BAKER") << "[BAKER] LLPanelGroupBanListSubTab::setGroupID()" << LL_ENDL;
-	
 	if(mBanList)
 		mBanList->deleteAllItems();
 
 	setFooterEnabled(FALSE);
 	LLPanelGroupSubTab::setGroupID(id);
 }
+
+
 
 
 

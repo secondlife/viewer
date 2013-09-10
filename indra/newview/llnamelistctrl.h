@@ -67,6 +67,8 @@ class LLNameListCtrl
 :	public LLScrollListCtrl, public LLInstanceTracker<LLNameListCtrl>
 {
 public:
+	typedef boost::signals2::signal<void(bool)> namelist_complete_signal_t;
+
 	typedef enum e_name_type
 	{
 		INDIVIDUAL,
@@ -151,7 +153,7 @@ public:
 
 	/*virtual*/ void updateColumns();
 
-	/*virtual*/ void	mouseOverHighlightNthItem( S32 index );
+	/*virtual*/ void mouseOverHighlightNthItem( S32 index );
 private:
 	void showInspector(const LLUUID& avatar_id, bool is_group);
 	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name, LLHandle<LLNameListItem> item);
@@ -162,6 +164,19 @@ private:
 	BOOL			mAllowCallingCardDrop;
 	bool			mShortNames;  // display name only, no SLID
 	boost::signals2::connection mAvatarNameCacheConnection;
+
+	//////////////////////////////////////////////////////////////////////////
+	// BAKER: Fixing name list control not being updated properly.
+	S32 mPendingLookupsRemaining;
+	namelist_complete_signal_t mNameListCompleteSignal;
+	
+public:
+	boost::signals2::connection setOnNameListCompleteCallback(boost::function<void(bool)> onNameListCompleteCallback) 
+	{ 
+		return mNameListCompleteSignal.connect(onNameListCompleteCallback); 
+	}
+	//////////////////////////////////////////////////////////////////////////
+
 };
 
 
