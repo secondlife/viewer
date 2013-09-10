@@ -209,7 +209,7 @@ std::string LLUpdateChecker::Implementation::buildUrl(std::string const & urlBas
 													  std::string const & platform_version,
 													  unsigned char       uniqueid[MD5HEX_STR_SIZE],
 													  bool                willing_to_test)
-{	
+{
 	LLSD path;
 	path.append(mProtocol);
 	path.append(channel);
