@@ -44,7 +44,8 @@ LLFloaterConversationPreview::LLFloaterConversationPreview(const LLSD& session_i
 	mPageSize(gSavedSettings.getS32("ConversationHistoryPageSize")),
 	mAccountName(session_id[LL_FCP_ACCOUNT_NAME]),
 	mCompleteName(session_id[LL_FCP_COMPLETE_NAME]),
-	mMutex(NULL)
+	mMutex(NULL),
+	mShowHistory(false)
 {
 }
 
@@ -110,35 +111,27 @@ void LLFloaterConversationPreview::setPages(std::list<LLSD>& messages, const std
 
 		std::string total_page_num = llformat("/ %d", mCurrentPage+1);
 		getChild<LLTextBox>("page_num_label")->setValue(total_page_num);
-		mChatHistoryLoaded = true;
+		mShowHistory = true;
 	}
 }
 
 void LLFloaterConversationPreview::draw()
 {
-	if(mChatHistoryLoaded)
+	if(mShowHistory)
 	{
 		showHistory();
+		mShowHistory = false;
 	}
 	LLFloater::draw();
 }
 
 void LLFloaterConversationPreview::onOpen(const LLSD& key)
 {
-	if(mChatHistoryLoaded)
-	{
-		showHistory();
-	}
+	mShowHistory = true;
 }
 
 void LLFloaterConversationPreview::showHistory()
 {
-	if (!mChatHistoryLoaded)
-	{
-		return;
-	}
-	mChatHistoryLoaded = false;
-
 	// additional protection to avoid changes of mMessages in setPages
 	LLMutexLock lock(&mMutex);
 	if(!mMessages.size() || mCurrentPage * mPageSize >= mMessages.size())
@@ -201,10 +194,11 @@ void LLFloaterConversationPreview::showHistory()
 void LLFloaterConversationPreview::onMoreHistoryBtnClick()
 {
 	mCurrentPage = (int)(mPageSpinner->getValueF32());
-	if (--mCurrentPage < 0)
+	if (!mCurrentPage)
 	{
 		return;
 	}
 
-	showHistory();
+	mCurrentPage--;
+	mShowHistory = true;
 }
