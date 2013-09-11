@@ -180,7 +180,7 @@
          name="Preferences"
          shortcut="control|P">
             <menu_item_call.on_click
-             function="Floater.Show"
+             function="Floater.Toggle"
              parameter="preferences" />
         </menu_item_call>
          <menu_item_call
