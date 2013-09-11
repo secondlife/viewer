@@ -103,7 +103,7 @@ public:
 			return mRetries;
 		}
 
-	// Default:  false
+	// Default:  true
 	void				setUseRetryAfter(bool use_retry);
 	bool				getUseRetryAfter() const
 		{

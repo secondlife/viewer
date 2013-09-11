@@ -743,8 +743,10 @@ LLMeshRepoThread::LLMeshRepoThread()
 	mHttpRequest = new LLCore::HttpRequest;
 	mHttpOptions = new LLCore::HttpOptions;
 	mHttpOptions->setTransferTimeout(SMALL_MESH_XFER_TIMEOUT);
+	mHttpOptions->setUseRetryAfter(gSavedSettings.getBOOL("MeshUseHttpRetryAfter"));
 	mHttpLargeOptions = new LLCore::HttpOptions;
 	mHttpLargeOptions->setTransferTimeout(LARGE_MESH_XFER_TIMEOUT);
+	mHttpLargeOptions->setUseRetryAfter(gSavedSettings.getBOOL("MeshUseHttpRetryAfter"));
 	mHttpHeaders = new LLCore::HttpHeaders;
 	mHttpHeaders->append("Accept", "application/vnd.ll.mesh");
 	mHttpPolicyClass = LLAppViewer::instance()->getAppCoreHttp().getPolicy(LLAppCoreHttp::AP_MESH2);
@@ -1828,6 +1830,7 @@ LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, 
 	mHttpRequest = new LLCore::HttpRequest;
 	mHttpOptions = new LLCore::HttpOptions;
 	mHttpOptions->setTransferTimeout(mMeshUploadTimeOut);
+	mHttpOptions->setUseRetryAfter(gSavedSettings.getBOOL("MeshUseHttpRetryAfter"));
 	mHttpHeaders = new LLCore::HttpHeaders;
 	mHttpHeaders->append("Content-Type", "application/llsd+xml");
 	mHttpPolicyClass = LLAppViewer::instance()->getAppCoreHttp().getPolicy(LLAppCoreHttp::AP_UPLOADS);
@@ -3211,13 +3214,16 @@ void LLMeshRepository::notifyLoadedMeshes()
 			
 			if (gAgent.getRegion()->getName() != region_name && gAgent.getRegion()->capabilitiesReceived())
 			{
+				const bool use_v1(gSavedSettings.getBOOL("MeshUseGetMesh1"));
+
 				region_name = gAgent.getRegion()->getName();
 				mGetMeshCapability = gAgent.getRegion()->getCapability("GetMesh");
 				mGetMesh2Capability = gAgent.getRegion()->getCapability("GetMesh2");
-				mGetMeshVersion = mGetMesh2Capability.empty() ? 1 : 2;
+				mGetMeshVersion = (mGetMesh2Capability.empty() || use_v1) ? 1 : 2;
 				LL_DEBUGS(LOG_MESH) << "Retrieving caps for region '" << region_name
 									<< "', GetMesh2:  " << mGetMesh2Capability
 									<< ", GetMesh:  " << mGetMeshCapability
+									<< ", using version:  " << mGetMeshVersion
 									<< LL_ENDL;
 			}
 		}
