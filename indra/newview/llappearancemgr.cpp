@@ -2590,6 +2590,12 @@ LLInventoryModel::item_array_t LLAppearanceMgr::findCOFItemLinks(const LLUUID& i
 	return result;
 }
 
+bool LLAppearanceMgr::isLinkedInCOF(const LLUUID& item_id)
+{
+	LLInventoryModel::item_array_t links = LLAppearanceMgr::instance().findCOFItemLinks(item_id);
+	return links.size() > 0;
+}
+
 void LLAppearanceMgr::removeAllClothesFromAvatar()
 {
 	// Fetch worn clothes (i.e. the ones in COF).
@@ -3799,8 +3805,11 @@ void LLAppearanceMgr::registerAttachment(const LLUUID& item_id)
 		   // we have to pass do_update = true to call LLAppearanceMgr::updateAppearanceFromCOF.
 		   // it will trigger gAgentWariables.notifyLoadingFinished()
 		   // But it is not acceptable solution. See EXT-7777
-		   LLPointer<LLInventoryCallback> cb = new LLUpdateAppearanceOnDestroy();
-		   LLAppearanceMgr::addCOFItemLink(item_id, cb);  // Add COF link for item.
+		   if (!isLinkedInCOF(item_id))
+		   {
+			   LLPointer<LLInventoryCallback> cb = new LLUpdateAppearanceOnDestroy();
+			   LLAppearanceMgr::addCOFItemLink(item_id, cb);  // Add COF link for item.
+		   }
 	   }
 	   else
 	   {

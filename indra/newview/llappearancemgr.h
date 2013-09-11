@@ -145,6 +145,7 @@ public:
 
 	// Find COF entries referencing the given item.
 	LLInventoryModel::item_array_t findCOFItemLinks(const LLUUID& item_id);
+	bool isLinkedInCOF(const LLUUID& item_id);
 
 	// Remove COF entries
 	void removeCOFItemLinks(const LLUUID& item_id, LLPointer<LLInventoryCallback> cb = NULL);
