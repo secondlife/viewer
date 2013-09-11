@@ -30,7 +30,7 @@
 		<check_box initial_value="verdadero" label="Luces locales" name="LocalLights"/>
 		<check_box initial_value="true" label="Shaders básicos" name="BasicShaders" tool_tip="Desactivando esta opción puede prevenir fallos en algunos controladores de la tarjeta gráfica."/>
 		<check_box initial_value="true" label="Shaders de la atmósfera" name="WindLightUseAtmosShaders"/>
-		<check_box initial_value="verdadero" label="Luces y sombras" name="UseLightShaders"/>
+		<check_box initial_value="verdadero" label="Modelo de iluminación avanzado" name="UseLightShaders"/>
 		<check_box initial_value="verdadero" label="Oclusión del ambiente" name="UseSSAO"/>
 		<check_box initial_value="verdadero" label="Profundidad del campo" name="UseDoF"/>
 		<text name="shadows_label">

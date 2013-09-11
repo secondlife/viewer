@@ -150,7 +150,7 @@
 		<usetemplate canceltext="取り消し" name="yesnocancelbuttons" notext="保存しない" yestext="すべて保存"/>
 	</notification>
 	<notification name="FriendsAndGroupsOnly">
-		フレンド以外からのコールやインスタントメッセージを無視する設定にしたことを、相手に知られることはありません。
+		フレンド以外の人からのコールや、インスタントメッセージを無視する設定にしたことを、相手に知られることはありません。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="FavoritesOnLogin">
@@ -220,6 +220,14 @@
 
 この能力を [ROLE_NAME] に割り当てますか？
 		<usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい"/>
+	</notification>
+	<notification name="EjectGroupMemberWarning">
+		[AVATAR_NAME] をグループから追放しようとしています。
+		<usetemplate ignoretext="グループからの参加者の追放を確認します" name="okcancelignore" notext="取り消し" yestext="追放"/>
+	</notification>
+	<notification name="EjectGroupMembersWarning">
+		[COUNT] 名のメンバーをグループから追放しようとしています。
+		<usetemplate ignoretext="グループからの複数のメンバーの追放を確認します" name="okcancelignore" notext="取り消し" yestext="追放"/>
 	</notification>
 	<notification name="AttachmentDrop">
 		アタッチメントを下に置こうとしています。
@@ -1139,7 +1147,7 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries を参照してく
 金額を増やしてください。
 	</notification>
 	<notification name="ConfirmItemDeleteHasLinks">
-		ここにリンクされたアイテムが少なくとも1つあります。  このアイテムを削除するとここにリンクされたものが機能しなくなります。  リンクを先に削除することを強くお勧めします。
+		1 つ以上のアイテムにポイントするリンクがあります。このアイテムを削除する場合、そのリンクは永久に機能しなくなります。まず最初にリンクを削除することを強くお勧めします。
 
 これらのアイテムを削除しますか？
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
@@ -1157,9 +1165,9 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries を参照してく
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmObjectDeleteNoOwn">
-		選択したアイテムのうち、少なくとも 1 つがあなたの所有物ではありません。
+		選択したアイテムの 1 つ以上を所有していません。
 
-本当に削除しますか？
+これらのアイテムを削除しますか？
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmObjectDeleteLockNoCopy">
@@ -1170,26 +1178,26 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries を参照してく
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmObjectDeleteLockNoOwn">
-		少なくとも 1 つのオブジェクトがロックされています。
-少なくとも 1 つのオブジェクトが、あなたの所有物ではありません。
+		1 つ以上のオブジェクトがロックされました。
+1 つ以上のオブジェクトを所有していません。
 
-本当に削除しますか？
+これらのアイテムを削除しますか？
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmObjectDeleteNoCopyNoOwn">
-		少なくとも 1 つのオブジェクトがコピーできません。
-少なくとも 1 つのオブジェクトが、あなたの所有物ではありません。
+		1 つ以上のオブジェクトがコピーできません。
+1 つ以上のオブジェクトを所有していません。
 
-本当に削除しますか？
+これらのアイテムを削除しますか？
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmObjectDeleteLockNoCopyNoOwn">
-		少なくとも 1 つのオブジェクトがロックされています。
-少なくとも 1 つのオブジェクトがコピーできません。
-少なくとも 1 つのオブジェクトが、あなたの所有物ではありません。
+		1 つ以上のオブジェクトがロックされています。
+1 つ以上のオブジェクトがコピーできません。
+1 つ以上のオブジェクトを所有していません。
 
-本当に削除しますか？
-		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
+これらのアイテムを削除しますか？
+		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmObjectTakeLock">
 		少なくとも 1 つのオブジェクトがロックされています。
@@ -1513,13 +1521,43 @@ http://secondlife.com/download から最新バージョンをダウンロード�
 	</notification>
 	<notification name="RequiredUpdateDownloadedVerboseDialog">
 		必要なソフトウェアのアップデートをダウンロードしました。
-バージョン [VERSION]
+バージョン [VERSION] [[INFO_URL] このアップデートに関する情報]
 
 アップデートをインストールするには [APP_NAME] を再起動する必要があります。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="RequiredUpdateDownloadedDialog">
 		アップデートをインストールするには [APP_NAME] を再起動する必要があります。
+[[INFO_URL] このアップデートに関する情報]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OtherChannelDownloadBackgroundTip">
+		お使いの [APP_NAME] に必要なアップデートをダウンロードしました。
+バージョン [VERSION] 
+この試験的なビューアが [NEW_CHANNEL] ビューアに置き換えられています;
+このアップデートの詳細については、[[INFO_URL] を参照してください]
+		<usetemplate name="okcancelbuttons" notext="後で実行" yestext="今すぐインストールして [APP_NAME] を再起動"/>
+	</notification>
+	<notification name="OtherChannelDownloadBackgroundDialog">
+		お使いの [APP_NAME] に必要なアップデートをダウンロードしました。
+バージョン [VERSION]
+この試験的なビューアが [NEW_CHANNEL] ビューアに置き換えられています;
+[[INFO_URL] このアップデートに関する情報] を参照
+		<usetemplate name="okcancelbuttons" notext="後で実行" yestext="今すぐインストールして [APP_NAME] を再起動"/>
+	</notification>
+	<notification name="OtherChannelRequiredUpdateDownloadedVerboseDialog">
+		必要なソフトウェアのアップデートをダウンロードしました。
+バージョン [VERSION]
+この試験的なビューアが [NEW_CHANNEL] ビューアに置き換えられています;
+[[INFO_URL] このアップデートに関する情報] を参照
+
+アップデートをインストールするには [APP_NAME] を再起動する必要があります。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OtherChannelRequiredUpdateDownloadedDialog">
+		アップデートをインストールするには [APP_NAME] を再起動する必要があります。
+この試験的なビューアが [NEW_CHANNEL] ビューアに置き換えられています;
+[[INFO_URL] このアップデートに関する情報] を参照
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DeedObjectToGroup">
@@ -1571,6 +1609,10 @@ http://secondlife.com/download から最新バージョンをダウンロード�
 		現在、あなたは &lt;nolink&gt;[GROUP]&lt;/nolink&gt; グループのメンバーです。
 グループから脱退しますか？
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
+	</notification>
+	<notification name="OwnerCannotLeaveGroup">
+		グループを抜けることができません。グループの最後のオーナーであるため、グループを抜けることができません。最初に、別のメンバーをオーナーの役割に割り当ててください。
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmKick">
 		本当に住人全員をグリッドから追い出しますか？
@@ -2443,9 +2485,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 「テレポート」を選択して実行することもできます。）
 	</notification>
 	<notification name="TeleportToPerson">
-		[NAME] のような住人に連絡をとるには、「人」ボタンをクリックし、表示されるウィンドウで「住人」を選択してから、
-ウィンドウ下部にある「IM」をクリックします。
-（リストの名前をダブルクリック、または右クリックして「IM」を選んでも同じです。）
+		誰かとのプライベートな会話を開くには、相手のアバターをクリックして、メニューから「IM」を選択します。
 	</notification>
 	<notification name="CantSelectLandFromMultipleRegions">
 		サーバーの境界を越えて土地を選択することできません。
@@ -2818,6 +2858,15 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		<form name="form">
 			<button name="Grant" text="トータルアクセスを許可"/>
 			<button name="Deny" text="拒否"/>
+		</form>
+	</notification>
+	<notification name="UnknownScriptQuestion">
+		&apos;[NAME]&apos; が所有する &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; によってリクエストされたランタイムスクリプト権限がビューアによって認識されないため、許可できません。
+
+この権限を許可するには、ビューアを [DOWNLOADURL] からの最新バージョンにアップデートしてください。
+		<form name="form">
+			<button name="Deny" text="Ok"/>
+			<button name="Mute" text="ブロック"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialog">
