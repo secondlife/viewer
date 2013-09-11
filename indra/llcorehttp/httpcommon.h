@@ -380,6 +380,14 @@ struct HttpStatus
 	/// LLCore itself).
 	std::string toString() const;
 
+	/// Convert status to a compact string representation
+	/// of the form:  "<type>_<value>".  The <type> will be
+	/// one of:  Core, Http, Easy, Multi, Unknown.  And
+	/// <value> will be an unsigned integer.  More easily
+	/// interpreted than the hex representation, it's still
+	/// compact and easily searched.
+	std::string toTerseString() const;
+
 	/// Returns true if the status value represents an
 	/// HTTP response status (100 - 999).
 	bool isHttpStatus() const

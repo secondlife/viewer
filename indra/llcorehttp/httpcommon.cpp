@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -174,6 +174,46 @@ std::string HttpStatus::toString() const
 	}
 	return std::string("Unknown error");
 }
+
+
+std::string HttpStatus::toTerseString() const
+{
+	std::ostringstream result;
+
+	unsigned int error_value((unsigned short) mStatus);
+	
+	switch (mType)
+	{
+	case EXT_CURL_EASY:
+		result << "Easy_";
+		break;
+		
+	case EXT_CURL_MULTI:
+		result << "Multi_";
+		break;
+		
+	case LLCORE:
+		result << "Core_";
+		break;
+
+	default:
+		if (isHttpStatus())
+		{
+			result << "Http_";
+			error_value = mType;
+		}
+		else
+		{
+			result << "Unknown_";
+		}
+		break;
+	}
+	
+	result << error_value;
+	return result.str();
+}
+
+
 		
 } // end namespace LLCore
 

@@ -249,7 +249,7 @@ void HttpLibcurl::cancelRequest(HttpOpRequest * op)
 	{
 		LL_INFOS("CoreHttp") << "TRACE, RequestCanceled, Handle:  "
 							 << static_cast<HttpHandle>(op)
-							 << ", Status:  " << op->mStatus.toHex()
+							 << ", Status:  " << op->mStatus.toTerseString()
 							 << LL_ENDL;
 	}
 
@@ -326,7 +326,7 @@ bool HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode 
 	{
 		LL_INFOS("CoreHttp") << "TRACE, RequestComplete, Handle:  "
 							 << static_cast<HttpHandle>(op)
-							 << ", Status:  " << op->mStatus.toHex()
+							 << ", Status:  " << op->mStatus.toTerseString()
 							 << LL_ENDL;
 	}
 

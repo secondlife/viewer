@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -275,6 +275,65 @@ void HttpStatusTestObjectType::test<7>()
 	status.mStatus = HE_REPLY_ERROR;
 	msg = status.toString();
 	ensure(msg == "Unknown error");
+}
+
+
+template <> template <>
+void HttpStatusTestObjectType::test<8>()
+{
+	set_test_name("HttpStatus toHex() nominal function");
+	
+	HttpStatus status(404);
+	std::string msg = status.toHex();
+	// std::cout << "Result:  " << msg << std::endl;
+	ensure(msg == "01940001");
+}
+
+
+template <> template <>
+void HttpStatusTestObjectType::test<9>()
+{
+	set_test_name("HttpStatus toTerseString() nominal function");
+	
+	HttpStatus status(404);
+	std::string msg = status.toTerseString();
+	// std::cout << "Result:  " << msg << std::endl;
+	ensure("Normal HTTP 404", msg == "Http_404");
+
+	status = HttpStatus(200);
+	msg = status.toTerseString();
+	// std::cout << "Result:  " << msg << std::endl;
+	ensure("Normal HTTP 200", msg == "Http_200");
+
+	status = HttpStatus(200, HE_REPLY_ERROR);
+	msg = status.toTerseString();
+	// std::cout << "Result:  " << msg << std::endl;
+	ensure("Unsuccessful HTTP 200", msg == "Http_200");			// No distinction for error
+
+	status = HttpStatus(HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_CONNECT);
+	msg = status.toTerseString();
+	// std::cout << "Result:  " << msg << std::endl;
+	ensure("Easy couldn't connect error", msg == "Easy_7");
+
+	status = HttpStatus(HttpStatus::EXT_CURL_MULTI, CURLM_OUT_OF_MEMORY);
+	msg = status.toTerseString();
+	// std::cout << "Result:  " << msg << std::endl;
+	ensure("Multi out-of-memory error", msg == "Multi_3");
+
+	status = HttpStatus(HttpStatus::LLCORE, HE_OPT_NOT_SET);
+	msg = status.toTerseString();
+	// std::cout << "Result:  " << msg << std::endl;
+	ensure("Core option not set error", msg == "Core_7");
+
+	status = HttpStatus(22000, 1);
+	msg = status.toTerseString();
+	// std::cout << "Result:  " << msg << std::endl;
+	ensure("Undecodable error", msg == "Unknown_1");
+
+	status = HttpStatus(22000, -1);
+	msg = status.toTerseString();
+	// std::cout << "Result:  " << msg << std::endl;
+	ensure("Undecodable error 65535", msg == "Unknown_65535");
 }
 
 } // end namespace tut

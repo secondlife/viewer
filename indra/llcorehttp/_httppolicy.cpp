@@ -174,7 +174,7 @@ void HttpPolicy::retryOp(HttpOpRequest * op)
 						  << " retry " << op->mPolicyRetries
 						  << " scheduled in " << (delta / HttpTime(1000))
 						  << " mS (" << (external_delta ? "external" : "internal")
-						  << ").  Status:  " << op->mStatus.toHex()
+						  << ").  Status:  " << op->mStatus.toTerseString()
 						  << LL_ENDL;
 	if (op->mTracing > HTTP_TRACE_OFF)
 	{
@@ -426,7 +426,7 @@ bool HttpPolicy::stageAfterCompletion(HttpOpRequest * op)
 		LL_WARNS("CoreHttp") << "HTTP request " << static_cast<HttpHandle>(op)
 							 << " failed after " << op->mPolicyRetries
 							 << " retries.  Reason:  " << op->mStatus.toString()
-							 << " (" << op->mStatus.toHex() << ")"
+							 << " (" << op->mStatus.toTerseString() << ")"
 							 << LL_ENDL;
 	}
 	else if (op->mPolicyRetries)

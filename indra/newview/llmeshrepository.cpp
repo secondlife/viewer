@@ -688,7 +688,7 @@ void log_upload_error(LLCore::HttpStatus status, const LLSD& content,
 	// Log details.
 	LL_WARNS(LOG_MESH) << "Error in stage:  " << stage
 					   << ", Reason:  " << status.toString()
-					   << " (" << status.toHex() << ")" << LL_ENDL;
+					   << " (" << status.toTerseString() << ")" << LL_ENDL;
 	if (content.has("error"))
 	{
 		const LLSD& err = content["error"];
@@ -1205,7 +1205,7 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id)
 				{
 					LL_WARNS(LOG_MESH) << "HTTP GET request failed for skin info on mesh " << mID
 									   << ".  Reason:  " << mHttpStatus.toString()
-									   << " (" << mHttpStatus.toHex() << ")"
+									   << " (" << mHttpStatus.toTerseString() << ")"
 									   << LL_ENDL;
 					delete handler;
 					ret = false;
@@ -1298,7 +1298,7 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
 				{
 					LL_WARNS(LOG_MESH) << "HTTP GET request failed for decomposition mesh " << mID
 									   << ".  Reason:  " << mHttpStatus.toString()
-									   << " (" << mHttpStatus.toHex() << ")"
+									   << " (" << mHttpStatus.toTerseString() << ")"
 									   << LL_ENDL;
 					delete handler;
 					ret = false;
@@ -1389,7 +1389,7 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
 				{
 					LL_WARNS(LOG_MESH) << "HTTP GET request failed for physics shape on mesh " << mID
 									   << ".  Reason:  " << mHttpStatus.toString()
-									   << " (" << mHttpStatus.toHex() << ")"
+									   << " (" << mHttpStatus.toTerseString() << ")"
 									   << LL_ENDL;
 					delete handler;
 					ret = false;
@@ -1486,7 +1486,7 @@ bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params)
 		{
 			LL_WARNS(LOG_MESH) << "HTTP GET request failed for mesh header " << mID
 							   << ".  Reason:  " << mHttpStatus.toString()
-							   << " (" << mHttpStatus.toHex() << ")"
+							   << " (" << mHttpStatus.toTerseString() << ")"
 							   << LL_ENDL;
 			delete handler;
 			retval = false;
@@ -1568,7 +1568,7 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
 				{
 					LL_WARNS(LOG_MESH) << "HTTP GET request failed for LOD on mesh " << mID
 									   << ".  Reason:  " << mHttpStatus.toString()
-									   << " (" << mHttpStatus.toHex() << ")"
+									   << " (" << mHttpStatus.toTerseString() << ")"
 									   << LL_ENDL;
 					delete handler;
 					retval = false;
@@ -2196,7 +2196,7 @@ void LLMeshUploadThread::doWholeModelUpload()
 			mHttpStatus = mHttpRequest->getStatus();
 		
 			LL_WARNS(LOG_MESH) << "Couldn't issue request for full model upload.  Reason:  " << mHttpStatus.toString()
-							   << " (" << mHttpStatus.toHex() << ")"
+							   << " (" << mHttpStatus.toTerseString() << ")"
 							   << LL_ENDL;
 		}
 		else
@@ -2244,7 +2244,7 @@ void LLMeshUploadThread::requestWholeModelFee()
 		mHttpStatus = mHttpRequest->getStatus();
 		
 		LL_WARNS(LOG_MESH) << "Couldn't issue request for model fee.  Reason:  " << mHttpStatus.toString()
-						   << " (" << mHttpStatus.toHex() << ")"
+						   << " (" << mHttpStatus.toTerseString() << ")"
 						   << LL_ENDL;
 	}
 	else
@@ -2285,7 +2285,7 @@ void LLMeshUploadThread::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResp
 		if (! status)
 		{
 			LL_WARNS(LOG_MESH) << "Upload failed.  Reason:  " << reason
-							   << " (" << status.toHex() << ")"
+							   << " (" << status.toTerseString() << ")"
 							   << LL_ENDL;
 
 			// Build a fake body for the alert generator
@@ -2349,7 +2349,7 @@ void LLMeshUploadThread::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResp
 		if (! status)
 		{
 			LL_WARNS(LOG_MESH) << "Fee request failed.  Reason:  " << reason
-							   << " (" << status.toHex() << ")"
+							   << " (" << status.toTerseString() << ")"
 							   << LL_ENDL;
 
 			// Build a fake body for the alert generator
@@ -2584,7 +2584,7 @@ void LLMeshHandlerBase::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespo
 		if (par_status != status)
 		{
 			LL_WARNS_ONCE(LOG_MESH) << "Non-206 successful status received for fetch:  "
-									<< status.toHex() << LL_ENDL;
+									<< status.toTerseString() << LL_ENDL;
 		}
 		
 		LLCore::BufferArray * body(response->getBody());
@@ -2633,7 +2633,7 @@ void LLMeshHeaderHandler::processFailure(LLCore::HttpStatus status)
 {
 	LL_WARNS(LOG_MESH) << "Error during mesh header handling.  ID:  " << mMeshParams.getSculptID()
 					   << ", Reason:  " << status.toString()
-					   << " (" << status.toHex() << ").  Not retrying."
+					   << " (" << status.toTerseString() << ").  Not retrying."
 					   << LL_ENDL;
 
 	// Can't get the header so none of the LODs will be available
@@ -2739,7 +2739,7 @@ void LLMeshLODHandler::processFailure(LLCore::HttpStatus status)
 {
 	LL_WARNS(LOG_MESH) << "Error during mesh LOD handling.  ID:  " << mMeshParams.getSculptID()
 					   << ", Reason:  " << status.toString()
-					   << " (" << status.toHex() << ").  Not retrying."
+					   << " (" << status.toTerseString() << ").  Not retrying."
 					   << LL_ENDL;
 
 	LLMutexLock lock(gMeshRepo.mThread->mMutex);
@@ -2783,7 +2783,7 @@ void LLMeshSkinInfoHandler::processFailure(LLCore::HttpStatus status)
 {
 	LL_WARNS(LOG_MESH) << "Error during mesh skin info handling.  ID:  " << mMeshID
 					   << ", Reason:  " << status.toString()
-					   << " (" << status.toHex() << ").  Not retrying."
+					   << " (" << status.toTerseString() << ").  Not retrying."
 					   << LL_ENDL;
 
 	// *TODO:  Mark mesh unavailable on error.  For now, simply leave
@@ -2826,7 +2826,7 @@ void LLMeshDecompositionHandler::processFailure(LLCore::HttpStatus status)
 {
 	LL_WARNS(LOG_MESH) << "Error during mesh decomposition handling.  ID:  " << mMeshID
 					   << ", Reason:  " << status.toString()
-					   << " (" << status.toHex() << ").  Not retrying."
+					   << " (" << status.toTerseString() << ").  Not retrying."
 					   << LL_ENDL;
 	// *TODO:  Mark mesh unavailable on error.  For now, simply leave
 	// request unfulfilled rather than retry forever.
@@ -2868,7 +2868,7 @@ void LLMeshPhysicsShapeHandler::processFailure(LLCore::HttpStatus status)
 {
 	LL_WARNS(LOG_MESH) << "Error during mesh physics shape handling.  ID:  " << mMeshID
 					   << ", Reason:  " << status.toString()
-					   << " (" << status.toHex() << ").  Not retrying."
+					   << " (" << status.toTerseString() << ").  Not retrying."
 					   << LL_ENDL;
 	// *TODO:  Mark mesh unavailable on error
 }
