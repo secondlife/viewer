@@ -555,7 +555,7 @@ BOOL LLToast::handleMouseDown(S32 x, S32 y, MASK mask)
 		mHideBtnPressed = mHideBtn->getRect().pointInRect(x, y);
 	}
 
-	return LLFloater::handleMouseDown(x, y, mask);
+	return LLModalDialog::handleMouseDown(x, y, mask);
 }
 
 //--------------------------------------------------------------------------
