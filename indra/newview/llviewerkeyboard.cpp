@@ -534,6 +534,11 @@ void stop_moving( EKeystate s )
 
 void start_chat( EKeystate s )
 {
+    if (LLAppViewer::instance()->quitRequested())
+    {
+        return; // can't talk, gotta go, kthxbye!
+    }
+    
 	// start chat
 	LLFloaterIMNearbyChat::startChat(NULL);
 }
