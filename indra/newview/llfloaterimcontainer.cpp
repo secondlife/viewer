@@ -2098,7 +2098,7 @@ BOOL LLFloaterIMContainer::isFrontmost()
 
 // For conversations, closeFloater() (linked to Ctrl-W) does not actually close the floater but the active conversation.
 // This is intentional so it doesn't confuse the user. onClickCloseBtn() closes the whole floater.
-void LLFloaterIMContainer::onClickCloseBtn()
+void LLFloaterIMContainer::onClickCloseBtn(bool app_quitting/* = false*/)
 {
 	// Always unminimize before trying to close.
 	// Most of the time the user will never see this state.
@@ -2107,7 +2107,7 @@ void LLFloaterIMContainer::onClickCloseBtn()
 		LLMultiFloater::setMinimized(FALSE);
 	}
 
-	LLFloater::closeFloater();
+	LLFloater::closeFloater(app_quitting);
 }
 
 void LLFloaterIMContainer::closeHostedFloater()
@@ -2154,7 +2154,7 @@ void LLFloaterIMContainer::closeFloater(bool app_quitting/* = false*/)
 	if(app_quitting)
 	{
 		closeAllConversations();
-		onClickCloseBtn();
+		onClickCloseBtn(app_quitting);
 	}
 	else
 	{
