@@ -314,7 +314,7 @@ public:
 	void setOcclusionState(U32 state, S32 mode = STATE_MODE_SINGLE);
 	void clearOcclusionState(U32 state, S32 mode = STATE_MODE_SINGLE);
 	void checkOcclusion(); //read back last occlusion query (if any)
-	void doOcclusion(LLCamera* camera, const LLVector3* region_agent = NULL); //issue occlusion query
+	void doOcclusion(LLCamera* camera, const LLVector4a* shift = NULL); //issue occlusion query
 	BOOL isOcclusionState(U32 state) const	{ return mOcclusionState[LLViewerCamera::sCurCameraID] & state ? TRUE : FALSE; }
 
 	BOOL needsUpdate();

@@ -545,10 +545,10 @@ public:
 			base_group->getOctreeNode()->getParent()) //never occlusion cull the root node
 		{
 			LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)base_group;
-			if(group->needsUpdate())//needs to issue new occlusion culling check.
+			if(group->needsUpdate())
 			{
-				mPartition->addOccluders(group);
-				return true;
+				//needs to issue new occlusion culling check, perform view culling check first.
+				return false;
 			}
 
 			group->checkOcclusion();
@@ -601,7 +601,7 @@ public:
 		}
 
 		LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)base_group;
-		if(!group->isRecentlyVisible())//needs to issue new occlusion culling check.
+		if(group->needsUpdate() || !group->isRecentlyVisible())//needs to issue new occlusion culling check.
 		{
 			mPartition->addOccluders(group);
 			group->setVisible();
@@ -693,10 +693,11 @@ void LLVOCachePartition::processOccluders(LLCamera* camera)
 	}
 
 	LLVector3 region_agent = mRegionp->getOriginAgent();
+	LLVector4a shift(region_agent[0], region_agent[1], region_agent[2]);
 	for(std::set<LLOcclusionCullingGroup*>::iterator iter = mOccludedGroups.begin(); iter != mOccludedGroups.end(); ++iter)
 	{
 		LLOcclusionCullingGroup* group = *iter;
-		group->doOcclusion(camera, &region_agent);
+		group->doOcclusion(camera, &shift);
 	}	
 }
 
