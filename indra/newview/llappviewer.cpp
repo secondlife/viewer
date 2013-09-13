@@ -1260,11 +1260,11 @@ LLTrace::TimeBlock FTM_FRAME("Frame");
 
 bool LLAppViewer::mainLoop()
 {
-	LL_INFOS() << "Entering main_loop" << LL_ENDL;
 #ifdef LL_DARWIN
 	if (!mMainLoopInitialized)
 #endif
 	{
+        LL_INFOS() << "Entering main_loop" << LL_ENDL;
 		mMainloopTimeout = new LLWatchdogTimeout();
 		
 		//-------------------------------------------
