@@ -717,7 +717,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	const BOOL needsSendToSim = false; // currently, this HUD effect doesn't need to pack and unpack data to do its job
 	mVoiceVisualizer = ( LLVoiceVisualizer *)LLHUDManager::getInstance()->createViewerEffect( LLHUDObject::LL_HUD_EFFECT_VOICE_VISUALIZER, needsSendToSim );
 
-	lldebugs << "LLVOAvatar Constructor (0x" << this << ") id:" << mID << llendl;
+	LL_DEBUGS("Avatar") << "LLVOAvatar Constructor (0x" << this << ") id:" << mID << llendl;
 
 	mPelvisp = NULL;
 
@@ -813,7 +813,7 @@ LLVOAvatar::~LLVOAvatar()
 
 	logPendingPhases();
 	
-	lldebugs << "LLVOAvatar Destructor (0x" << this << ") id:" << mID << llendl;
+	LL_DEBUGS("Avatar") << "LLVOAvatar Destructor (0x" << this << ") id:" << mID << llendl;
 
 	std::for_each(mAttachmentPoints.begin(), mAttachmentPoints.end(), DeletePairedPointer());
 	mAttachmentPoints.clear();
@@ -825,7 +825,7 @@ LLVOAvatar::~LLVOAvatar()
 
 	getPhases().clearPhases();
 	
-	lldebugs << "LLVOAvatar Destructor end" << llendl;
+	LL_DEBUGS("Avatar") << "LLVOAvatar Destructor end" << llendl;
 }
 
 void LLVOAvatar::markDead()

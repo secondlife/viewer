@@ -1930,8 +1930,8 @@ void LLMeshLODResponder::completedRaw(const LLChannelDescriptors& channels,
 		}
 		else
 		{
-			llassert(status == HTTP_INTERNAL_ERROR || status == HTTP_SERVICE_UNAVAILABLE); //intentionally trigger a breakpoint
 			llwarns << "Unhandled status " << dumpResponse() << llendl;
+			llassert(status == HTTP_INTERNAL_ERROR || status == HTTP_SERVICE_UNAVAILABLE); //intentionally trigger a breakpoint
 		}
 		return;
 	}
