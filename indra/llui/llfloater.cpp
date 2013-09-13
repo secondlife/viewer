@@ -1802,7 +1802,7 @@ void LLFloater::onClickClose( LLFloater* self )
 	self->onClickCloseBtn();
 }
 
-void	LLFloater::onClickCloseBtn()
+void LLFloater::onClickCloseBtn(bool app_quitting)
 {
 	closeFloater(false);
 }

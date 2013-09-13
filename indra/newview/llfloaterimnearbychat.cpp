@@ -308,7 +308,8 @@ void LLFloaterIMNearbyChat::onClose(bool app_quitting)
 }
 
 // virtual
-void LLFloaterIMNearbyChat::onClickCloseBtn()
+void LLFloaterIMNearbyChat::onClickCloseBtn(bool)
+
 {
 	if (!isTornOff())
 	{
