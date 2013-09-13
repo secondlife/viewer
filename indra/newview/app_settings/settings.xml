@@ -9983,7 +9983,7 @@
   <key>MeshUseHttpRetryAfter</key>
   <map>
     <key>Comment</key>
-    <string>If TRUE, use Retry-After response headers when rescheduling a mesh request that fails with an HTTP 503 status.</string>
+    <string>If TRUE, use Retry-After response headers when rescheduling a mesh request that fails with an HTTP 503 status.  Static.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -9994,7 +9994,7 @@
   <key>MeshUseGetMesh1</key>
   <map>
     <key>Comment</key>
-    <string>If TRUE, use the legacy GetMesh capability for mesh download requests.</string>
+    <string>If TRUE, use the legacy GetMesh capability for mesh download requests.  Semi-dynamic (read at region crossings).</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>

@@ -282,10 +282,15 @@
 //     dialog.  Get the structured information going into the log into a
 //     tree there.
 //   * Header parse failures come without much explanation.  Elaborate.
-//   * Need a final failure state for requests that are retried and just won't
-//     complete.  We can fail a LOD request, others we don't.
-
-
+//   * Work queue for uploads?  Any need for this or is the current scheme good
+//     enough?
+//   * Various temp buffers used in VFS I/O might be allocated once or even
+//     statically.  Look for some wins here.
+//   * Move data structures holding mesh data used by main thread into main-
+//     thread-only access so that no locking is needed.  May require duplication
+//     of some data so that worker thread has a minimal data set to guide
+//     operations.
+//
 // --------------------------------------------------------------------------
 //                    Development/Debug/QA Tools
 //
@@ -1052,7 +1057,7 @@ std::string LLMeshRepoThread::constructUrl(LLUUID mesh_id)
 	
 	if (gAgent.getRegion())
 	{
-		if (! gMeshRepo.mGetMesh2Capability.empty())
+		if (! gMeshRepo.mGetMesh2Capability.empty() && gMeshRepo.mGetMeshVersion > 1)
 		{
 			http_url = gMeshRepo.mGetMesh2Capability;
 		}
@@ -2181,7 +2186,7 @@ void LLMeshUploadThread::doWholeModelUpload()
 		LLCore::BufferArray * ba = new LLCore::BufferArray;
 		LLCore::BufferArrayStream bas(ba);
 		LLSDSerialize::toXML(body, bas);
-		// LLSDSerialize::toXML(mModelData, bas);		// <- This will generate a convenient upload error
+		// LLSDSerialize::toXML(mModelData, bas);		// <- Enabling this will generate a convenient upload error
 		LLCore::HttpHandle handle = mHttpRequest->requestPost(mHttpPolicyClass,
 															  mHttpPriority,
 															  mWholeModelUploadURL,
