@@ -4560,9 +4560,6 @@ void process_terse_object_update_improved(LLMessageSystem *mesgsys, void **user_
 
 static LLTrace::TimeBlock FTM_PROCESS_OBJECTS("Process Kill Objects");
 
-const U32 KILLOBJECT_DELETE_OPCODE = 0;
-
-
 void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 {
 	LL_RECORD_BLOCK_TIME(FTM_PROCESS_OBJECTS);
@@ -4577,20 +4574,12 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 		regionp = LLWorld::getInstance()->getRegion(host);
 	}
 
-	bool delete_object = false;
+	bool delete_object = LLViewerRegion::sVOCacheCullingEnabled;
 	S32	num_objects = mesgsys->getNumberOfBlocksFast(_PREHASH_ObjectData);
 	for (S32 i = 0; i < num_objects; ++i)
 	{
 		U32	local_id;
 		mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_ID, local_id, i);
-		if (local_id == KILLOBJECT_DELETE_OPCODE)
-		{
-			// This local_id is invalid, but was sent by the server to flag
-			// all subsequent local_id's as objects that were actually deleted
-			// rather than unsubscribed from interestlist.
-			delete_object = true;
-			continue;
-		}
 
 		LLViewerObjectList::getUUIDFromLocal(id, local_id, ip, port); 
 		if (id == LLUUID::null)
@@ -4623,10 +4612,10 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 				gObjectList.killObject(objectp);
 			}
 
-		if(delete_object)
+			if(delete_object)
 			{
-			regionp->killCacheEntry(local_id);
-		}
+				regionp->killCacheEntry(local_id);
+			}
 
 		// We should remove the object from selection after it is marked dead by gObjectList to make LLToolGrab,
         // which is using the object, release the mouse capture correctly when the object dies.
