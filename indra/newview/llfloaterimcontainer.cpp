@@ -101,6 +101,7 @@ LLFloaterIMContainer::~LLFloaterIMContainer()
 
 	gSavedPerAccountSettings.setBOOL("ConversationsListPaneCollapsed", mConversationsPane->isCollapsed());
 	gSavedPerAccountSettings.setBOOL("ConversationsMessagePaneCollapsed", mMessagesPane->isCollapsed());
+	gSavedPerAccountSettings.setBOOL("ConversationsParticipantListCollapsed", !isParticipantListExpanded());
 
 	if (!LLSingleton<LLIMMgr>::destroyed())
 	{
@@ -250,6 +251,11 @@ BOOL LLFloaterIMContainer::postBuild()
 	// Init the sort order now that the root had been created
 	setSortOrder(LLConversationSort(gSavedSettings.getU32("ConversationSortOrder")));
 	
+	//We should expand nearby chat participants list for the new user
+	if(gAgent.isFirstLogin() || !gSavedPerAccountSettings.getBOOL("ConversationsParticipantListCollapsed"))
+	{
+		expandConversation();
+	}
 	// Keep the xml set title around for when we have to overwrite it
 	mGeneralTitle = getTitle();
 	
@@ -2081,6 +2087,19 @@ void LLFloaterIMContainer::expandConversation()
 			widget->setOpen(!widget->isOpen());
 		}
 	}
+}
+bool LLFloaterIMContainer::isParticipantListExpanded()
+{
+	bool is_expanded = false;
+	if(!mConversationsPane->isCollapsed())
+	{
+		LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(get_ptr_in_map(mConversationsWidgets,getSelectedSession()));
+		if (widget)
+		{
+			is_expanded = widget->isOpen();
+		}
+	}
+	return is_expanded;
 }
 
 // By default, if torn off session is currently frontmost, LLFloater::isFrontmost() will return FALSE, which can lead to some bugs
