@@ -73,18 +73,10 @@ LLNameListCtrl::LLNameListCtrl(const LLNameListCtrl::Params& p)
 LLScrollListItem* LLNameListCtrl::addNameItem(const LLUUID& agent_id, EAddPosition pos,
 								 BOOL enabled, const std::string& suffix)
 {
-	//llinfos << "LLNameListCtrl::addNameItem " << agent_id << llendl;
-
 	NameItem item;
 	item.value = agent_id;
 	item.enabled = enabled;
 	item.target = INDIVIDUAL;
-
-	//////////////////////////////////////////////////////////////////////////
-	// BAKER - FIX NameListCtrl
-	//mPendingLookupsRemaining--;
-	//////////////////////////////////////////////////////////////////////////
-
 
 	return addNameItemRow(item, pos, suffix);
 }
@@ -282,12 +274,6 @@ void LLNameListCtrl::addGroupNameItem(LLNameListCtrl::NameItem& item, EAddPositi
 LLScrollListItem* LLNameListCtrl::addNameItem(LLNameListCtrl::NameItem& item, EAddPosition pos)
 {
 	item.target = INDIVIDUAL;
-
-	//////////////////////////////////////////////////////////////////////////
-	// BAKER - FIX NameListCtrl
-	//mPendingLookupsRemaining--;
-	//////////////////////////////////////////////////////////////////////////
-
 	return addNameItemRow(item, pos);
 }
 
@@ -297,12 +283,6 @@ LLScrollListItem* LLNameListCtrl::addElement(const LLSD& element, EAddPosition p
 	LLParamSDParser parser;
 	parser.readSD(element, item_params);
 	item_params.userdata = userdata;
-
-	//////////////////////////////////////////////////////////////////////////
-	// BAKER - FIX NameListCtrl
-	//mPendingLookupsRemaining--;
-	//////////////////////////////////////////////////////////////////////////
-
 	return addNameItemRow(item_params, pos);
 }
 
@@ -355,10 +335,9 @@ LLScrollListItem* LLNameListCtrl::addNameItemRow(
 				}
 				mAvatarNameCacheConnection = LLAvatarNameCache::get(id,boost::bind(&LLNameListCtrl::onAvatarNameCache,this, _1, _2, item->getHandle()));
 
-				//////////////////////////////////////////////////////////////////////////
-				// BAKER - FIX NameListCtrl
 				if(mPendingLookupsRemaining <= 0)
 				{
+					// BAKER TODO:
 					// We might get into a state where mPendingLookupsRemaining might
 					//	go negative.  So just reset it right now and figure out if it's
 					//	possible later :)
@@ -366,8 +345,6 @@ LLScrollListItem* LLNameListCtrl::addNameItemRow(
 					mNameListCompleteSignal(false);
 				}
 				mPendingLookupsRemaining++;
-				//////////////////////////////////////////////////////////////////////////
-				
 			}
 			break;
 		}
@@ -420,11 +397,7 @@ void LLNameListCtrl::removeNameItem(const LLUUID& agent_id)
 		selectNthItem(idx); // not sure whether this is needed, taken from previous implementation
 		deleteSingleItem(idx);
 
-		//////////////////////////////////////////////////////////////////////////
-		// BAKER - FIX NameListCtrl
 		mPendingLookupsRemaining--;
-		//////////////////////////////////////////////////////////////////////////
-
 	}
 }
 

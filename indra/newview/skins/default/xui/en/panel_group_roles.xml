@@ -327,14 +327,11 @@
          name="name"
          font.name="SANSSERIF_SMALL"
          font.style="NORMAL"
-       relative_width="0.4" />
+         relative_width="0.7" />
         <name_list.columns
          label="Date Banned"
          name="ban_date"
          relative_width="0.3" />
-        <name_list.columns
-          label="Reason"
-          name="ban_reason" />
       </name_list>
       <button
         follows="top|left"

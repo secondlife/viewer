@@ -39,10 +39,8 @@ class LLScrollListCtrl;
 class LLScrollListItem;
 class LLTextEditor;
 
-// Forward declare for friend usage.
-//virtual BOOL LLPanelGroupSubTab::postBuildSubTab(LLView*);
-
 typedef std::map<std::string,std::string> icon_map_t;
+
 
 class LLPanelGroupRoles : public LLPanelGroupTab
 {
@@ -91,6 +89,7 @@ protected:
 	std::string				mDefaultNeedsApplyMesg;
 	std::string				mWantApplyMesg;
 };
+
 
 class LLPanelGroupSubTab : public LLPanelGroupTab
 {
@@ -146,6 +145,7 @@ protected:
 
 	void setOthersVisible(BOOL b);
 };
+
 
 class LLPanelGroupMembersSubTab : public LLPanelGroupSubTab
 {
@@ -222,6 +222,7 @@ protected:
 	boost::signals2::connection mAvatarNameCacheConnection;
 };
 
+
 class LLPanelGroupRolesSubTab : public LLPanelGroupSubTab
 {
 public:
@@ -284,6 +285,7 @@ protected:
 	std::string mRemoveEveryoneTxt;
 };
 
+
 class LLPanelGroupActionsSubTab : public LLPanelGroupSubTab
 {
 public:
@@ -310,6 +312,7 @@ protected:
 	LLTextEditor*	mActionDescription;
 };
 
+
 class LLPanelGroupBanListSubTab : public LLPanelGroupSubTab
 {
 public:
@@ -318,30 +321,12 @@ public:
 
 	virtual BOOL postBuildSubTab(LLView* root);
 
-	// Triggered when the tab becomes active.
 	virtual void activate();
-	
-	// Triggered when the tab becomes inactive.
-	virtual void deactivate();
-	
-	// Asks if something needs to be applied.
-	// If returning true, this function should modify the message to the user.
-	virtual bool needsApply(std::string& mesg);
-	
-	// Request to apply current data.
-	// If returning fail, this function should modify the message to the user.
-	virtual bool apply(std::string& mesg);
-	
-	// Triggered when group information changes in the group manager.
 	virtual void update(LLGroupChange gc);
-
 	virtual void draw();
 
 	static void onBanEntrySelect(LLUICtrl* ctrl, void* user_data);
 	void handleBanEntrySelect();
-
-	static void onBanGroupMember(void* user_data);
-	void handleBanGroupMember();
 	
 	static void onCreateBanEntry(void* user_data);
 	void handleCreateBanEntry();

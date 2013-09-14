@@ -1872,7 +1872,6 @@ void GroupBanDataResponder::errorWithContent(U32 pStatus, const std::string& pRe
 
 void GroupBanDataResponder::result(const LLSD& content)
 {
-	LL_INFOS("GrpMgr") << "[BAKER] Received ban data!" << LL_ENDL;
 	LLGroupMgr::processGroupBanRequest(content);
 }
 
@@ -1934,7 +1933,7 @@ void LLGroupMgr::processGroupBanRequest(const LLSD& content)
 	// Did we get anything in content?
 	if(!content.size())
 	{
-		LL_DEBUGS("GrpMgr") << "No group member data received." << LL_ENDL;
+		LL_WARNS("GrpMgr") << "No group member data received." << LL_ENDL;
 		return;
 	}
 
@@ -1949,14 +1948,18 @@ void LLGroupMgr::processGroupBanRequest(const LLSD& content)
 	for(;i != iEnd; ++i)
 	{
 		const LLUUID ban_id(i->first);
-		// We have nothing right now inside our banlist map.
-		// Once ban_date is implemented, set that here!
-		// 
-		gdatap->createBanEntry(ban_id, LLGroupBanData());
+		LLSD ban_entry(i->second);
+		
+		LLGroupBanData ban_data;
+		if(ban_entry.has("ban_date"))
+		{
+			ban_data.mBanDate = ban_entry["ban_date"].asDate();
+		}
+
+		gdatap->createBanEntry(ban_id, ban_data);
 	}
 
 	gdatap->mChanged = TRUE;
-//	gdatap->setGroupBanStatus(LLGroupMgrGroupData::STATUS_COMPLETE);
 	LLGroupMgr::getInstance()->notifyObservers(GC_BANLIST);
 }
 

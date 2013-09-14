@@ -165,8 +165,6 @@ private:
 	bool			mShortNames;  // display name only, no SLID
 	boost::signals2::connection mAvatarNameCacheConnection;
 
-	//////////////////////////////////////////////////////////////////////////
-	// BAKER: Fixing name list control not being updated properly.
 	S32 mPendingLookupsRemaining;
 	namelist_complete_signal_t mNameListCompleteSignal;
 	
@@ -175,7 +173,6 @@ public:
 	{ 
 		return mNameListCompleteSignal.connect(onNameListCompleteCallback); 
 	}
-	//////////////////////////////////////////////////////////////////////////
 
 };
 

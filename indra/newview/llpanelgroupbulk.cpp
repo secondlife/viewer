@@ -294,7 +294,10 @@ void LLPanelGroupBulk::updateGroupData()
 {
 	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mImplementation->mGroupID);
 	if(!gdatap)
+	{
+		LL_WARNS("Groups") << "Unable to get group data for group " << mImplementation->mGroupID << LL_ENDL;
 		return;
+	}
 
 	if(gdatap->isGroupPropertiesDataComplete())
 		mPendingGroupPropertiesUpdate = false;

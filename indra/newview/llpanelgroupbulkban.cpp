@@ -143,14 +143,7 @@ void LLPanelGroupBulkBan::submit()
 
 	LLGroupMgr::getInstance()->sendGroupBanRequest(LLGroupMgr::REQUEST_POST, mImplementation->mGroupID, LLGroupMgr::BAN_CREATE, banned_agent_list);
 
-	// BAKER TEMP:
-	//	For now, don't close, but clear the list.
-	mImplementation->mBulkAgentList->deleteAllItems();
-
 	//then close
-	//(*(mImplementation->mCloseCallback))(mImplementation->mCloseCallbackUserData);
+	(*(mImplementation->mCloseCallback))(mImplementation->mCloseCallbackUserData);
 }
-
-
-
 

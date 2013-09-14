@@ -195,10 +195,10 @@ struct lluuid_pair_less
 
 struct LLGroupBanData
 {
-	LLGroupBanData()	{ mBanDate = "00/00/0000"; }
+	LLGroupBanData(): mBanDate()	{}
 	~LLGroupBanData()	{}
 	
-	std::string mBanDate; // Just store something here to ensure it works.
+	LLDate mBanDate; // Just store something here to ensure it works.
 };
 
 
@@ -248,11 +248,7 @@ public:
 
 	const LLUUID& getMemberVersion() const { return mMemberVersion; }
 
-	//////////////////////////////////////////////////////////////////////////
-	// BAN LIST
-	//////////////////////////////////////////////////////////////////////////
 	void clearBanList() { mBanList.clear(); }
-
 	void getBanList(const LLUUID& group_id, LLGroupBanData& ban_data);
 	const LLGroupBanData& getBanEntry(const LLUUID& ban_id) { return mBanList[ban_id]; }
 	
@@ -383,7 +379,7 @@ public:
 	static void sendGroupMemberInvites(const LLUUID& group_id, std::map<LLUUID,LLUUID>& role_member_pairs);
 	static void sendGroupMemberEjects(const LLUUID& group_id,
 									  uuid_vec_t& member_ids);
-	// BAKER - Group Ban
+	
 	static void sendGroupBanRequest(EBanRequestType request_type, 
 									const LLUUID& group_id,	
 									EBanRequestAction ban_action = BAN_NO_ACTION,
@@ -391,7 +387,6 @@ public:
 
 	static void processGroupBanRequest(const LLSD& content);
 
-	// BAKER
 	void sendCapGroupMembersRequest(const LLUUID& group_id);
 	static void processCapGroupMembersRequest(const LLSD& content);
 
