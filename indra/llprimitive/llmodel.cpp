@@ -218,8 +218,9 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 		{
 			// guard against model data specifiying out of range indices or tcs
 			//
+			
 			if (((i + tc_offset) > index_count)
-			 || ((idx[i+pos_offset]*2+1) > tc_count))
+			 || ((idx[i+tc_offset]*2+1) > tc_count))
 			{
 				return LLModel::BAD_ELEMENT;
 			}
@@ -238,11 +239,6 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 		{
 			// guard against model data specifiying out of range indices or norms
 			//
-			if (((i + pos_offset) > index_count)
-				|| ((idx[i+pos_offset]*3+2) > vertex_count))
-			{
-				return LLModel::BAD_ELEMENT;
-			}
 			if (((i + norm_offset) > index_count)
 				|| ((idx[i+norm_offset]*3+2) > norm_count))
 			{
@@ -456,7 +452,7 @@ LLModel::EModelStatus load_face_from_dom_polylist(std::vector<LLVolumeFace>& fac
 			{
 				// guard against model data specifiying out of range indices or tcs
 				//
-				if (((i + pos_offset) > index_count)
+				if (((cur_idx + tc_offset) > index_count)
 				 || ((idx[cur_idx+tc_offset]*2+1) > tc_count))
 				{
 					return LLModel::BAD_ELEMENT;
@@ -476,7 +472,7 @@ LLModel::EModelStatus load_face_from_dom_polylist(std::vector<LLVolumeFace>& fac
 			{
 				// guard against model data specifiying out of range indices or norms
 				//
-				if (((i + pos_offset) > index_count)
+				if (((cur_idx + norm_offset) > index_count)
 				 || ((idx[cur_idx+norm_offset]*3+2) > norm_count))
 				{
 					return LLModel::BAD_ELEMENT;
