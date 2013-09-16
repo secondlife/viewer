@@ -34,6 +34,7 @@
 			<menu_item_call label="全選" name="Select All"/>
 			<menu_item_call label="取消選擇" name="Deselect"/>
 			<menu_item_call label="搜尋 / 取代..." name="Search / Replace..."/>
+			<menu_item_call label="前往某行數…" name="Go to line..."/>
 		</menu>
 		<menu label="幫助" name="Help">
 			<menu_item_call label="幫助..." name="Help..."/>

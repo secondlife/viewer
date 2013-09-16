@@ -34,13 +34,11 @@
 			<layout_panel name="body_panel">
 				<layout_stack name="im_panels">
 					<layout_panel name="right_part_holder">
-						<panel name="trnsAndChat_panel">
-							<layout_stack name="translate_and_chat_stack">
-								<layout_panel name="translate_chat_checkbox_lp">
-									<check_box label="チャットを翻訳" name="translate_chat_checkbox"/>
-								</layout_panel>
-							</layout_stack>
-						</panel>
+						<layout_stack name="translate_and_chat_stack">
+							<layout_panel name="translate_chat_checkbox_lp">
+								<check_box label="チャットを翻訳" name="translate_chat_checkbox"/>
+							</layout_panel>
+						</layout_stack>
 					</layout_panel>
 				</layout_stack>
 			</layout_panel>
