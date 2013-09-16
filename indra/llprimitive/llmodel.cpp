@@ -238,6 +238,11 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 		{
 			// guard against model data specifiying out of range indices or norms
 			//
+			if (((i + pos_offset) > index_count)
+				|| ((idx[i+pos_offset]*3+2) > vertex_count))
+			{
+				return LLModel::BAD_ELEMENT;
+			}
 			if (((i + norm_offset) > index_count)
 				|| ((idx[i+norm_offset]*3+2) > norm_count))
 			{
