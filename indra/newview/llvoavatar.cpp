@@ -5512,7 +5512,10 @@ void LLVOAvatar::addChild(LLViewerObject *childp)
 	LLViewerObject::addChild(childp);
 	if (childp->mDrawable)
 	{
-		attachObject(childp);
+		if (!attachObject(childp))
+		{
+			mPendingAttachment.push_back(childp);
+		}
 	}
 	else
 	{
@@ -5546,7 +5549,21 @@ LLViewerJointAttachment* LLVOAvatar::getTargetAttachmentPoint(LLViewerObject* vi
 	if (!attachment)
 	{
 		llwarns << "Object attachment point invalid: " << attachmentID << llendl;
-		attachment = get_if_there(mAttachmentPoints, 1, (LLViewerJointAttachment*)NULL); // Arbitrary using 1 (chest)
+
+		for (int i = 0; i < 15 && !attachment; i++)
+		{
+			attachment = get_if_there(mAttachmentPoints, i, (LLViewerJointAttachment*)NULL); // Arbitrary using 1 (chest)
+
+			if (attachment)
+			{
+				llwarns << "Object attachment point falling back to : " << i << llendl;
+			}
+		}
+		
+		if (!attachment)
+		{
+			llerrs << "Could not find any object attachment point for: " << attachmentID << llendl;
+		}
 	}
 
 	return attachment;
@@ -5619,7 +5636,10 @@ void LLVOAvatar::lazyAttach()
 	{
 		if (mPendingAttachment[i]->mDrawable)
 		{
-			attachObject(mPendingAttachment[i]);
+			if (!attachObject(mPendingAttachment[i]))
+			{
+				still_pending.push_back(mPendingAttachment[i]);
+			}
 		}
 		else
 		{
