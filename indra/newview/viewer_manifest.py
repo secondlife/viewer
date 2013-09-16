@@ -106,24 +106,18 @@ class ViewerManifest(LLManifest):
 
                 # CHOP-955: If we have "sourceid" in the build process
                 # environment, generate it into settings_install.xml.
-                try:
-                    sourceid = os.environ["sourceid"]
-                except KeyError:
-                    # no sourceid, no settings_install.xml file
-                    pass
-                else:
-                    if sourceid:
-                        # Single-entry subset of the LLSD content of settings.xml
-                        content = dict(sourceid=dict(Comment='Identify referring agency to Linden web servers',
-                                                     Persist=1,
-                                                     Type='String',
-                                                     Value=sourceid))
-                        # put_in_file(src=) need not be an actual pathname; it
-                        # only needs to be non-empty
-                        settings_install = self.put_in_file(llsd.format_pretty_xml(content),
-                                                            "settings_install.xml",
-                                                            src="environment")
-                        print "Put sourceid '%s' in %s" % (sourceid, settings_install)
+                if self.args['sourceid']:
+                    # Single-entry subset of the LLSD content of settings.xml
+                    content = dict(sourceid=dict(Comment='Identify referring agency to Linden web servers',
+                                                 Persist=1,
+                                                 Type='String',
+                                                 Value=self.args['sourceid']))
+                    # put_in_file(src=) need not be an actual pathname; it
+                    # only needs to be non-empty
+                    settings_install = self.put_in_file(llsd.format_pretty_xml(content),
+                                                        "settings_install.xml",
+                                                        src="environment")
+                    print "Put sourceid '%s' in %s" % (self.args['sourceid'], settings_install)
 
                 self.end_prefix("app_settings")
 
@@ -611,6 +605,9 @@ class WindowsManifest(ViewerManifest):
             installer_file = self.args['installer_name']
         else:
             installer_file = installer_file % substitution_strings
+        if len(self.args['package_id']) > 0:
+            installer_file = installer_file.replace(self.args['package_id'], "")
+            installer_file = installer_file.replace(".exe", self.args['package_id'] + ".exe")
         substitution_strings['installer_file'] = installer_file
 
         tempfile = "secondlife_setup_tmp.nsi"
@@ -838,7 +835,9 @@ class DarwinManifest(ViewerManifest):
 
         volname="Second Life Installer"  # DO NOT CHANGE without understanding comment above
 
-        if self.default_channel():
+        if len(self.args['package_id']) > 0:
+            imagename = imagename + self.args['package_id']
+        elif self.default_channel():
             if not self.default_grid():
                 # beta case
                 imagename = imagename + '_' + self.args['grid'].upper()
@@ -851,7 +850,7 @@ class DarwinManifest(ViewerManifest):
         # make sure we don't have stale files laying about
         self.remove(sparsename, finalname)
 
-        self.run_command('hdiutil create %(sparse)r -volname %(vol)r -fs HFS+ -type SPARSE -megabytes 700 -layout SPUD' % {
+        self.run_command('hdiutil create %(sparse)r -volname %(vol)r -fs HFS+ -type SPARSE -megabytes 1000 -layout SPUD' % {
                 'sparse':sparsename,
                 'vol':volname})
 
@@ -926,6 +925,7 @@ class DarwinManifest(ViewerManifest):
 
         print "Converting temp disk image to final disk image"
         self.run_command('hdiutil convert %(sparse)r -format UDZO -imagekey zlib-level=9 -o %(final)r' % {'sparse':sparsename, 'final':finalname})
+        self.run_command('hdiutil internet-enable -yes %(final)r' % {'final':finalname})
         # get rid of the temp file
         self.package_file = finalname
         self.remove(sparsename)
@@ -998,6 +998,7 @@ class LinuxManifest(ViewerManifest):
                     installer_name += '_' + self.args['grid'].upper()
             else:
                 installer_name += '_' + self.channel_oneword().upper()
+        installer_name = installer_name + self.args['package_id']
 
         self.strip_binaries()
 
