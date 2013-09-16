@@ -3822,19 +3822,6 @@ public:
 				LLInventoryModel::EXCLUDE_TRASH,
 				is_card);
 		}
-		LLSD args;
-		if ( land_items.count() > 0 )
-		{	// Show notification that they can now teleport to landmarks.  Use a random landmark from the inventory
-			S32 random_land = ll_rand( land_items.count() - 1 );
-			args["NAME"] = land_items[random_land]->getName();
-			LLNotificationsUtil::add("TeleportToLandmark",args);
-		}
-		if ( card_items.count() > 0 )
-		{	// Show notification that they can now contact people.  Use a random calling card from the inventory
-			S32 random_card = ll_rand( card_items.count() - 1 );
-			args["NAME"] = card_items[random_card]->getName();
-			LLNotificationsUtil::add("TeleportToPerson",args);
-		}
 
 		gInventory.removeObserver(this);
 		delete this;
@@ -4111,18 +4098,6 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 
 		if (isAgentAvatarValid())
 		{
-			// Chat the "back" SLURL. (DEV-4907)
-
-			LLSLURL slurl;
-			gAgent.getTeleportSourceSLURL(slurl);
-			LLSD substitution = LLSD().with("[T_SLURL]", slurl.getSLURLString());
-			std::string completed_from = LLAgent::sTeleportProgressMessages["completed_from"];
-			LLStringUtil::format(completed_from, substitution);
-
-			LLSD args;
-			args["MESSAGE"] = completed_from;
-			LLNotificationsUtil::add("SystemMessageTip", args);
-
 			// Set the new position
 			gAgentAvatarp->setPositionAgent(agent_pos);
 			gAgentAvatarp->clearChat();
