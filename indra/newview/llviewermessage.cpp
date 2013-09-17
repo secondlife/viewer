@@ -264,11 +264,15 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 		    break;
 	    }
 
-	    LLNotificationFormPtr modified_form(new LLNotificationForm(*notification_ptr->getForm()));
-	    modified_form->setElementEnabled("Accept", false);
-	    modified_form->setElementEnabled("Decline", false);
-	    notification_ptr->updateForm(modified_form);
-	    notification_ptr->repost();
+		// TODO: this set of calls has undesirable behavior under Windows OS (CHUI-985):
+		// here appears three additional toasts instead one modified
+		// need investigation and fix
+
+	    // LLNotificationFormPtr modified_form(new LLNotificationForm(*notification_ptr->getForm()));
+	    // modified_form->setElementEnabled("Accept", false);
+	    // modified_form->setElementEnabled("Decline", false);
+	    // notification_ptr->updateForm(modified_form);
+	    // notification_ptr->repost();
     }
 
 	return false;
@@ -2656,7 +2660,8 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			{
 				send_do_not_disturb_message(msg, from_id);
 			}
-			else
+			
+			if (!is_muted)
 			{
 				LL_INFOS("Messaging") << "Received IM_GROUP_INVITATION message." << LL_ENDL;
 				// Read the binary bucket for more information.
@@ -3680,6 +3685,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		LLSD msg_notify = LLSD(LLSD::emptyMap());
 		msg_notify["session_id"] = LLUUID();
         msg_notify["from_id"] = chat.mFromID;
+		msg_notify["source_type"] = chat.mSourceType;
         on_new_message(msg_notify);
 	}
 }
@@ -4554,9 +4560,6 @@ void process_terse_object_update_improved(LLMessageSystem *mesgsys, void **user_
 
 static LLTrace::TimeBlock FTM_PROCESS_OBJECTS("Process Kill Objects");
 
-const U32 KILLOBJECT_DELETE_OPCODE = 0;
-
-
 void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 {
 	LL_RECORD_BLOCK_TIME(FTM_PROCESS_OBJECTS);
@@ -4571,20 +4574,12 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 		regionp = LLWorld::getInstance()->getRegion(host);
 	}
 
-	bool delete_object = false;
+	bool delete_object = LLViewerRegion::sVOCacheCullingEnabled;
 	S32	num_objects = mesgsys->getNumberOfBlocksFast(_PREHASH_ObjectData);
 	for (S32 i = 0; i < num_objects; ++i)
 	{
 		U32	local_id;
 		mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_ID, local_id, i);
-		if (local_id == KILLOBJECT_DELETE_OPCODE)
-		{
-			// This local_id is invalid, but was sent by the server to flag
-			// all subsequent local_id's as objects that were actually deleted
-			// rather than unsubscribed from interestlist.
-			delete_object = true;
-			continue;
-		}
 
 		LLViewerObjectList::getUUIDFromLocal(id, local_id, ip, port); 
 		if (id == LLUUID::null)
@@ -4617,10 +4612,10 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 				gObjectList.killObject(objectp);
 			}
 
-		if(delete_object)
+			if(delete_object)
 			{
-			regionp->killCacheEntry(local_id);
-		}
+				regionp->killCacheEntry(local_id);
+			}
 
 		// We should remove the object from selection after it is marked dead by gObjectList to make LLToolGrab,
         // which is using the object, release the mouse capture correctly when the object dies.
@@ -5830,6 +5825,15 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 				return true;
 			}
 		}
+		// HACK -- handle callbacks for specific alerts.
+		if( notificationID == "HomePositionSet" )
+		{
+			// save the home location image to disk
+			std::string snap_filename = gDirUtilp->getLindenUserDir();
+			snap_filename += gDirUtilp->getDirDelimiter();
+			snap_filename += SCREEN_HOME_FILENAME;
+			gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw(), FALSE, FALSE);
+		}
 		
 		LLNotificationsUtil::add(notificationID, llsdBlock);
 		return true;
@@ -5904,14 +5908,6 @@ void process_alert_core(const std::string& message, BOOL modal)
 	if ( message == "You died and have been teleported to your home location")
 	{
 		add(LLStatViewer::KILLED, 1);
-	}
-	else if( message == "Home position set." )
-	{
-		// save the home location image to disk
-		std::string snap_filename = gDirUtilp->getLindenUserDir();
-		snap_filename += gDirUtilp->getDirDelimiter();
-		snap_filename += SCREEN_HOME_FILENAME;
-		gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw(), FALSE, FALSE);
 	}
 
 	const std::string ALERT_PREFIX("ALERT: ");

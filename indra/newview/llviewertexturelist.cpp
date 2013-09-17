@@ -1246,7 +1246,7 @@ S32Megabytes LLViewerTextureList::getMinVideoRamSetting()
 
 //static
 // Returns max setting for TextureMemory (in MB)
-S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended)
+S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended, float mem_multiplier)
 {
 	S32Megabytes max_texmem;
 	if (gGLManager.mVRAM != 0)
@@ -1290,7 +1290,10 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended)
 		max_texmem = llmin(max_texmem, system_ram/2);
 	else
 		max_texmem = llmin(max_texmem, system_ram);
-		
+    
+    // limit the texture memory to a multiple of the default if we've found some cards to behave poorly otherwise
+	max_texmem = llmin(max_texmem, (S32Megabytes) (mem_multiplier * max_texmem));
+
 	max_texmem = llclamp(max_texmem, getMinVideoRamSetting(), gMaxVideoRam); 
 	
 	return max_texmem;
@@ -1303,7 +1306,7 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32Megabytes mem)
 	// Initialize the image pipeline VRAM settings
 	S32Megabytes cur_mem(gSavedSettings.getS32("TextureMemory"));
 	F32 mem_multiplier = gSavedSettings.getF32("RenderTextureMemoryMultiple");
-	S32Megabytes default_mem(getMaxVideoRamSetting(true)); // recommended default
+	S32Megabytes default_mem = getMaxVideoRamSetting(true, mem_multiplier); // recommended default
 	if (mem == (S32Bytes)0)
 	{
 		mem = cur_mem > (S32Bytes)0 ? cur_mem : default_mem;
@@ -1313,10 +1316,7 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32Megabytes mem)
 		mem = default_mem;
 	}
 
-	// limit the texture memory to a multiple of the default if we've found some cards to behave poorly otherwise
-	mem = llmin(mem, S32Megabytes(mem_multiplier * (F32Megabytes)default_mem));
-
-	mem = llclamp(mem, getMinVideoRamSetting(), getMaxVideoRamSetting());
+	mem = llclamp(mem, getMinVideoRamSetting(), getMaxVideoRamSetting(false, mem_multiplier));
 	if (mem != cur_mem)
 	{
 		gSavedSettings.setS32("TextureMemory", mem.value());

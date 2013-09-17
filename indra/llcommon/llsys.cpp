@@ -66,12 +66,18 @@ using namespace llsd;
 #	include <sys/sysctl.h>
 #	include <sys/utsname.h>
 #	include <stdint.h>
-#	include <Carbon/Carbon.h>
+#	include <CoreServices/CoreServices.h>
 #   include <stdexcept>
 #	include <mach/host_info.h>
 #	include <mach/mach_host.h>
 #	include <mach/task.h>
 #	include <mach/task_info.h>
+
+// disable warnings about Gestalt calls being deprecated
+// until Apple get's on the ball and provides an alternative
+//
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 #elif LL_LINUX
 #	include <errno.h>
 #	include <sys/utsname.h>
@@ -862,17 +868,17 @@ U32Kilobytes LLMemoryInfo::getPhysicalMemoryKB() const
 	size_t len = sizeof(phys);	
 	sysctl(mib, 2, &phys, &len, NULL, 0);
 	
-	return U32Bytes(phys);
+	return U32Bytes(llmin(phys, (U64)U32_MAX));
 
 #elif LL_LINUX
 	U64 phys = 0;
 	phys = (U64)(getpagesize()) * (U64)(get_phys_pages());
-	return U32Bytes(phys);
+	return U32Bytes(llmin(phys, (U64)U32_MAX));
 
 #elif LL_SOLARIS
 	U64 phys = 0;
 	phys = (U64)(getpagesize()) * (U64)(sysconf(_SC_PHYS_PAGES));
-	return U32Bytes(phys);
+	return U32Bytes(llmin(phys, (U64)U32_MAX));
 
 #else
 	return 0;
@@ -1506,3 +1512,10 @@ BOOL gzip_file(const std::string& srcfile, const std::string& dstfile)
 	if (dst != NULL) gzclose(dst);
 	return retval;
 }
+
+#if LL_DARWIN
+// disable warnings about Gestalt calls being deprecated
+// until Apple get's on the ball and provides an alternative
+//
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif

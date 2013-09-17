@@ -36,6 +36,8 @@
 #include "lltabcontainer.h"
 #include "llviewercontrol.h"
 #include "llviewernetwork.h"
+#include "llmutelist.h"
+#include "llpanelblockedlist.h"
 #include "llweb.h"
 
 static const std::string PANEL_PICKS = "panel_picks";
@@ -138,6 +140,12 @@ public:
 			return true;
 		}
 
+		if (verb == "removefriend")
+		{
+			LLAvatarActions::removeFriendDialog(avatar_id);
+			return true;
+		}
+
 		if (verb == "mute")
 		{
 			if (! LLAvatarActions::isBlocked(avatar_id))
@@ -152,6 +160,18 @@ public:
 			if (LLAvatarActions::isBlocked(avatar_id))
 			{
 				LLAvatarActions::toggleBlock(avatar_id);
+			}
+			return true;
+		}
+
+		if (verb == "block")
+		{
+			if (params.size() > 2)
+			{
+				const std::string object_name = params[2].asString();
+				LLMute mute(avatar_id, object_name, LLMute::OBJECT);
+				LLMuteList::getInstance()->add(mute);
+				LLPanelBlockedList::showPanelAndSelect(mute.mID);
 			}
 			return true;
 		}

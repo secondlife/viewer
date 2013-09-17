@@ -43,6 +43,8 @@ const std::string  GRID_LABEL_VALUE = "label";
 const std::string  GRID_ID_VALUE = "grid_login_id";
 /// the url for the login cgi script
 const std::string  GRID_LOGIN_URI_VALUE = "login_uri";
+/// url base for update queries
+const std::string  GRID_UPDATE_SERVICE_URL = "update_query_url_base";
 ///
 const std::string  GRID_HELPER_URI_VALUE = "helper_uri";
 /// the splash page url
@@ -62,6 +64,8 @@ const std::string GRID_APP_SLURL_BASE = "app_slurl_base";
 const std::string DEFAULT_LOGIN_PAGE = "http://viewer-login.agni.lindenlab.com/";
 
 const std::string MAIN_GRID_LOGIN_URI = "https://login.agni.lindenlab.com/cgi-bin/login.cgi";
+
+const std::string SL_UPDATE_QUERY_URL = "https://update.secondlife.com/update";
 
 const std::string MAIN_GRID_SLURL_BASE = "http://maps.secondlife.com/secondlife/";
 const std::string SYSTEM_GRID_APP_SLURL_BASE = "secondlife:///app";
@@ -120,12 +124,14 @@ void LLGridManager::initialize(const std::string& grid_file)
 				  MAIN_GRID_LOGIN_URI,
 				  "https://secondlife.com/helpers/",
 				  DEFAULT_LOGIN_PAGE,
+				  SL_UPDATE_QUERY_URL,
 				  "Agni");
 	addSystemGrid("Second Life Beta Test Grid (Aditi)",
 				  "util.aditi.lindenlab.com",
 				  "https://login.aditi.lindenlab.com/cgi-bin/login.cgi",
 				  "http://aditi-secondlife.webdev.lindenlab.com/helpers/",
 				  DEFAULT_LOGIN_PAGE,
+				  SL_UPDATE_QUERY_URL,
 				  "Aditi");
 
 	LLSD other_grids;
@@ -332,6 +338,7 @@ void LLGridManager::addSystemGrid(const std::string& label,
 								  const std::string& login_uri,
 								  const std::string& helper,
 								  const std::string& login_page,
+								  const std::string& update_url_base,
 								  const std::string& login_id)
 {
 	LLSD grid = LLSD::emptyMap();
@@ -341,6 +348,7 @@ void LLGridManager::addSystemGrid(const std::string& label,
 	grid[GRID_LOGIN_URI_VALUE] = LLSD::emptyArray();
 	grid[GRID_LOGIN_URI_VALUE].append(login_uri);
 	grid[GRID_LOGIN_PAGE_VALUE] = login_page;
+	grid[GRID_UPDATE_SERVICE_URL] = update_url_base;
 	grid[GRID_IS_SYSTEM_GRID_VALUE] = true;
 	grid[GRID_LOGIN_IDENTIFIER_TYPES] = LLSD::emptyArray();
 	grid[GRID_LOGIN_IDENTIFIER_TYPES].append(CRED_IDENTIFIER_TYPE_AGENT);
@@ -535,6 +543,30 @@ void LLGridManager::getLoginIdentifierTypes(LLSD& idTypes)
 std::string LLGridManager::getGridLoginID()
 {
 	return mGridList[mGrid][GRID_ID_VALUE];
+}
+
+std::string LLGridManager::getUpdateServiceURL()
+{
+	std::string update_url_base = gSavedSettings.getString("CmdLineUpdateService");;
+	if ( !update_url_base.empty() )
+	{
+		LL_INFOS("UpdaterService","GridManager")
+			<< "Update URL base overridden from command line: " << update_url_base
+			<< LL_ENDL;
+	}
+	else if ( mGridList[mGrid].has(GRID_UPDATE_SERVICE_URL) )
+	{
+		update_url_base = mGridList[mGrid][GRID_UPDATE_SERVICE_URL].asString();
+	}
+	else
+	{
+		LL_WARNS("UpdaterService","GridManager")
+			<< "The grid property '" << GRID_UPDATE_SERVICE_URL
+			<< "' is not defined for the grid '" << mGrid << "'"
+			<< LL_ENDL;
+	}
+			
+	return update_url_base;
 }
 
 void LLGridManager::updateIsInProductionGrid()

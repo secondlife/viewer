@@ -51,6 +51,7 @@
 #include "lllandmark.h"
 #include "llcachename.h"
 #include "lldir.h"
+#include "lldonotdisturbnotificationstorage.h"
 #include "llerrorcontrol.h"
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
@@ -68,6 +69,7 @@
 #include "llfloaterimnearbychat.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
+#include "llpersistentnotificationstorage.h"
 #include "llteleporthistory.h"
 #include "llregionhandle.h"
 #include "llsd.h"
@@ -897,6 +899,10 @@ bool idle_startup()
 		// *FIX: these mkdir's should error check
 		gDirUtilp->setLindenUserDir(userid);
 		LLFile::mkdir(gDirUtilp->getLindenUserDir());
+
+		// As soon as directories are ready initialize notification storages
+		LLPersistentNotificationStorage::getInstance()->initialize();
+		LLDoNotDisturbNotificationStorage::getInstance()->initialize();
 
 		// Set PerAccountSettingsFile to the default value.
 		gSavedSettings.setString("PerAccountSettingsFile",

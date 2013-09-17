@@ -32,7 +32,6 @@
 #include "llsys.h"			// for LLOSInfo
 #include "lltimer.h"
 #include "llappcorehttp.h"
-#include "llunits.h"
 
 class LLCommandLineParser;
 class LLFrameTimer;
@@ -42,6 +41,7 @@ class LLImageDecodeThread;
 class LLTextureFetch;
 class LLWatchdogTimeout;
 class LLUpdaterService;
+class LLViewerJoystick;
 
 extern LLTrace::TimeBlock FTM_FRAME;
 
@@ -257,11 +257,13 @@ private:
 	std::string mSerialNumber;
 	bool mPurgeCache;
     bool mPurgeOnExit;
+	bool mMainLoopInitialized;
+	LLViewerJoystick* joystick;
 
 	bool mSavedFinalSnapshot;
 	bool mSavePerAccountSettings;		// only save per account settings if login succeeded
 
-	bool mForceGraphicsDetail;
+	boost::optional<U32> mForceGraphicsLevel;
 
     bool mQuitRequested;				// User wants to quit, may have modified documents open.
     bool mLogoutRequestSent;			// Disconnect message sent to simulator, no longer safe to send messages to the sim.

@@ -1101,27 +1101,61 @@ void LLPanelGroupMembersSubTab::onEjectMembers(void *userdata)
 }
 
 void LLPanelGroupMembersSubTab::handleEjectMembers()
-{
-	//send down an eject message
-	uuid_vec_t selected_members;
-
+{	
 	std::vector<LLScrollListItem*> selection = mMembersList->getAllSelected();
 	if (selection.empty()) return;
-
-	std::vector<LLScrollListItem*>::iterator itor;
-	for (itor = selection.begin() ; 
-		 itor != selection.end(); ++itor)
+	
+	S32 selection_count = selection.size();
+	if (selection_count == 1)
 	{
-		LLUUID member_id = (*itor)->getUUID();
-		selected_members.push_back( member_id );
+		LLSD args;
+		LLUUID selected_avatar = mMembersList->getValue().asUUID();
+		std::string fullname = LLSLURL("agent", selected_avatar, "inspect").getSLURLString();
+		args["AVATAR_NAME"] = fullname;
+		LLSD payload;
+		LLNotificationsUtil::add("EjectGroupMemberWarning",
+								 args,
+								 payload,
+								 boost::bind(&LLPanelGroupMembersSubTab::handleEjectCallback, this, _1, _2));
 	}
+	else
+	{
+		LLSD args;
+		args["COUNT"] = llformat("%d", selection_count);
+		LLSD payload;
+		LLNotificationsUtil::add("EjectGroupMembersWarning",
+								 args,
+								 payload,
+								 boost::bind(&LLPanelGroupMembersSubTab::handleEjectCallback, this, _1, _2));
+	}
+}
 
-	mMembersList->deleteSelectedItems();
-
-	sendEjectNotifications(mGroupID, selected_members);
-
-	LLGroupMgr::getInstance()->sendGroupMemberEjects(mGroupID,
-									 selected_members);
+bool LLPanelGroupMembersSubTab::handleEjectCallback(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (0 == option) // Eject button
+	{
+		//send down an eject message
+		uuid_vec_t selected_members;
+		
+		std::vector<LLScrollListItem*> selection = mMembersList->getAllSelected();
+		if (selection.empty()) return false;
+		
+		std::vector<LLScrollListItem*>::iterator itor;
+		for (itor = selection.begin() ;
+			 itor != selection.end(); ++itor)
+		{
+			LLUUID member_id = (*itor)->getUUID();
+			selected_members.push_back( member_id );
+		}
+		
+		mMembersList->deleteSelectedItems();
+		
+		sendEjectNotifications(mGroupID, selected_members);
+		
+		LLGroupMgr::getInstance()->sendGroupMemberEjects(mGroupID, selected_members);
+	}
+	return false;
 }
 
 void LLPanelGroupMembersSubTab::sendEjectNotifications(const LLUUID& group_id, const uuid_vec_t& selected_members)

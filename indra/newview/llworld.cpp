@@ -663,9 +663,6 @@ void LLWorld::updateVisibilities()
 
 void LLWorld::updateRegions(F32 max_update_time)
 {
-	LLTimer update_timer;
-	BOOL did_one = FALSE;
-	
 	if(LLViewerCamera::getInstance()->isChanged())
 	{
 		LLViewerRegion::sLastCameraUpdated = LLViewerOctreeEntryData::getCurrentFrame() + 1;
@@ -676,15 +673,7 @@ void LLWorld::updateRegions(F32 max_update_time)
 	for (region_list_t::iterator iter = mRegionList.begin();
 		 iter != mRegionList.end(); ++iter)
 	{
-		LLViewerRegion* regionp = *iter;
-		F32 max_time = max_update_time - update_timer.getElapsedTimeF32();
-		if (did_one && max_time <= 0.f)
-			break;
-		max_time = llmin(max_time, max_update_time*.1f);
-		if (regionp->idleUpdate(max_update_time))
-		{
-			did_one = TRUE;
-		}
+		(*iter)->idleUpdate(max_update_time);
 	}
 
 	mNumOfActiveCachedObjects = 0;

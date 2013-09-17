@@ -1146,7 +1146,7 @@ static LLTrace::TimeBlock FTM_OCCLUSION_SET_BUFFER("Set Buffer");
 static LLTrace::TimeBlock FTM_OCCLUSION_DRAW_WATER("Draw Water");
 static LLTrace::TimeBlock FTM_OCCLUSION_DRAW("Draw");
 
-void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector3* region_agent)
+void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector4a* shift)
 {
 	if (mSpatialPartition->isOcclusionEnabled() && LLPipeline::sUseOcclusion > 1)
 	{
@@ -1154,11 +1154,9 @@ void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector3* reg
 		LLVector4a bounds[2];
 		bounds[0] = mBounds[0];
 		bounds[1] = mBounds[1];
-		if(region_agent != NULL)
+		if(shift != NULL)
 		{
-			LLVector4a shift((*region_agent)[0], (*region_agent)[1], (*region_agent)[2]);
-			bounds[0].sub(shift);
-			bounds[1].sub(shift);
+			bounds[0].add(*shift);
 		}
 
 		// Don't cull hole/edge water, unless we have the GL_ARB_depth_clamp extension

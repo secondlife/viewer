@@ -76,6 +76,8 @@ static const std::string BLOCKED_TAB_NAME	= "blocked_panel"; // blocked avatars
 
 static const std::string COLLAPSED_BY_USER  = "collapsed_by_user";
 
+extern S32 gMaxAgentGroups;
+
 /** Comparator for comparing avatar items by last interaction date */
 class LLAvatarItemRecentComparator : public LLAvatarItemComparator
 {
@@ -808,6 +810,8 @@ void LLPanelPeople::updateButtons()
 
 		LLPanel* groups_panel = mTabContainer->getCurrentPanel();
 		groups_panel->getChildView("minus_btn")->setEnabled(item_selected && selected_id.notNull()); // a real group selected
+		groups_panel->getChild<LLUICtrl>("groupcount")->setTextArg("[COUNT]", llformat("%d",gAgent.mGroups.size()));
+		groups_panel->getChild<LLUICtrl>("groupcount")->setTextArg("[REMAINING]", llformat("%d",(gMaxAgentGroups-gAgent.mGroups.size())));
 	}
 	else
 	{

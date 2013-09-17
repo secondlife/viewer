@@ -201,7 +201,7 @@ public:
 	void			setToggleState(BOOL b);
 
 	void			setHighlight(bool b);
-	void			setFlashing( bool b );
+	void			setFlashing( bool b, bool force_flashing = false );
 	BOOL			getFlashing() const		{ return mFlashing; }
     LLFlashTimer*   getFlashTimer() {return mFlashingTimer;}
 
@@ -378,7 +378,7 @@ protected:
 
 	LLFrameTimer				mFrameTimer;
 	LLFlashTimer *				mFlashingTimer;
-
+	bool                        mForceFlashing; // Stick flashing color even if button is pressed
 	bool						mHandleRightMouse;
 };
 

@@ -322,8 +322,9 @@ static LLTrace::TimeBlock FTM_FILTER("Filter Folder View");
 void LLFolderView::filter( LLFolderViewFilter& filter )
 {
 	LL_RECORD_BLOCK_TIME(FTM_FILTER);
-	filter.setFilterCount(llclamp(LLUI::sSettingGroups["config"]->getS32("FilterItemsPerFrame"), 1, 5000));
+    filter.resetTime(llclamp(LLUI::sSettingGroups["config"]->getS32(mParentPanel->getVisible() ? "FilterItemsMaxTimePerFrameVisible" : "FilterItemsMaxTimePerFrameUnvisible"), 1, 100));
 
+    // Note: we filter the model, not the view
 	getViewModelItem()->filter(filter);
 }
 
@@ -659,7 +660,7 @@ void LLFolderView::draw()
 
 		// get preferable text height...
 		S32 pixel_height = mStatusTextBox->getTextPixelHeight();
-		bool height_changed = local_rect.getHeight() != pixel_height;
+		bool height_changed = (local_rect.getHeight() < pixel_height);
 		if (height_changed)
 		{
 			// ... if it does not match current height, lets rearrange current view.
@@ -1600,15 +1601,17 @@ void LLFolderView::update()
 	{
 		mNeedsAutoSelect = TRUE;
 	}
-	// filter to determine visibility before arranging
+    
+	// Filter to determine visibility before arranging
 	filter(getFolderViewModel()->getFilter());
-	// Clear the modified setting on the filter only if the filter count is non-zero after running the filter process
-	// Note: if the filter count is zero, then the filter most likely halted before completing the entire set of items
-	if (getFolderViewModel()->getFilter().isModified() && (getFolderViewModel()->getFilter().getFilterCount() > 0))
+    
+	// Clear the modified setting on the filter only if the filter finished after running the filter process
+	// Note: if the filter count has timed out, that means the filter halted before completing the entire set of items
+    if (getFolderViewModel()->getFilter().isModified() && (!getFolderViewModel()->getFilter().isTimedOut()))
 	{
 		getFolderViewModel()->getFilter().clearModified();
 	}
-
+    
 	// automatically show matching items, and select first one if we had a selection
 	if (mNeedsAutoSelect)
 	{
@@ -1648,11 +1651,13 @@ void LLFolderView::update()
 
   BOOL is_visible = isInVisibleChain();
 
-  //Puts folders/items in proper positions
-  if ( is_visible )
+  // Puts folders/items in proper positions
+  // arrange() takes the model filter flag into account and call sort() if necessary (CHUI-849)
+  // It also handles the open/close folder animation
+  if (is_visible)
   {
     sanitizeSelection();
-    if( needsArrange() )
+    if (needsArrange())
     {
       S32 height = 0;
       S32 width = 0;

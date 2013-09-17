@@ -70,7 +70,7 @@ S32 AABBSphereIntersect(const LLVector3& min, const LLVector3& max, const LLVect
 S32 AABBSphereIntersectR2(const LLVector3& min, const LLVector3& max, const LLVector3 &origin, const F32 &radius_squared);
 
 //defines data needed for octree of an entry
-LL_ALIGN_PREFIX(16)
+//LL_ALIGN_PREFIX(16)
 class LLViewerOctreeEntry : public LLRefCount
 {
 	friend class LLViewerOctreeEntryData;
@@ -128,10 +128,10 @@ private:
 	mutable S32		            mBinIndex;
 	mutable U32		            mVisible;	
 
-} LL_ALIGN_POSTFIX(16);
+} ;//LL_ALIGN_POSTFIX(16);
 
 //defines an abstract class for entry data
-LL_ALIGN_PREFIX(16)
+//LL_ALIGN_PREFIX(16)
 class LLViewerOctreeEntryData : public LLRefCount
 {
 protected:
@@ -178,11 +178,11 @@ protected:
 	LLPointer<LLViewerOctreeEntry>        mEntry;
 	LLViewerOctreeEntry::eEntryDataType_t mDataType;
 	static  U32                           sCurVisible; // Counter for what value of mVisible means currently visible
-}LL_ALIGN_POSTFIX(16);
+};//LL_ALIGN_POSTFIX(16);
 
 
 //defines an octree group for an octree node, which contains multiple entries.
-LL_ALIGN_PREFIX(16)
+//LL_ALIGN_PREFIX(16)
 class LLviewerOctreeGroup : public LLOctreeListener<LLViewerOctreeEntry>
 {
 	friend class LLViewerOctreeCull;
@@ -210,15 +210,15 @@ public:
 		*this = rhs;
 	}
 
-	//void* operator new(size_t size)
-	//{
-	//	return ll_aligned_malloc_16(size);
-	//}
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
 
-	//void operator delete(void* ptr)
-	//{
-	//	ll_aligned_free_16(ptr);
-	//}
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free_16(ptr);
+	}
 
 	bool removeFromGroup(LLViewerOctreeEntryData* data);
 	bool removeFromGroup(LLViewerOctreeEntry* entry);
@@ -279,7 +279,7 @@ protected:
 public:
 	S32         mVisible[LLViewerCamera::NUM_CAMERAS];	
 
-}LL_ALIGN_POSTFIX(16);
+};//LL_ALIGN_POSTFIX(16);
 
 //octree group which has capability to support occlusion culling
 //LL_ALIGN_PREFIX(16)
@@ -314,7 +314,7 @@ public:
 	void setOcclusionState(U32 state, S32 mode = STATE_MODE_SINGLE);
 	void clearOcclusionState(U32 state, S32 mode = STATE_MODE_SINGLE);
 	void checkOcclusion(); //read back last occlusion query (if any)
-	void doOcclusion(LLCamera* camera, const LLVector3* region_agent = NULL); //issue occlusion query
+	void doOcclusion(LLCamera* camera, const LLVector4a* shift = NULL); //issue occlusion query
 	BOOL isOcclusionState(U32 state) const	{ return mOcclusionState[LLViewerCamera::sCurCameraID] & state ? TRUE : FALSE; }
 
 	BOOL needsUpdate();

@@ -400,6 +400,8 @@ LLFavoritesBarCtrl::LLFavoritesBarCtrl(const LLFavoritesBarCtrl::Params& p)
 	mMoreTextBox->setClickedCallback(boost::bind(&LLFavoritesBarCtrl::showDropDownMenu, this));
 	addChild(mMoreTextBox);
 
+	mDropDownItemsCount = 0;
+
 	LLTextBox::Params label_param(p.label);
 	mBarLabel = LLUICtrlFactory::create<LLTextBox> (label_param);
 	addChild(mBarLabel);
@@ -820,11 +822,13 @@ void LLFavoritesBarCtrl::updateButtons()
 		}
 		// Update overflow menu
 		LLToggleableMenu* overflow_menu = static_cast <LLToggleableMenu*> (mOverflowMenuHandle.get());
-		if (overflow_menu && overflow_menu->getVisible())
+		if (overflow_menu && overflow_menu->getVisible() && (overflow_menu->getItemCount() != mDropDownItemsCount))
 		{
 			overflow_menu->setVisible(FALSE);
 			if (mUpdateDropDownItems)
+			{
 				showDropDownMenu();
+			}
 		}
 	}
 	else
@@ -940,6 +944,7 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 		menu->updateParent(LLMenuGL::sMenuContainer);
 		menu->setButtonRect(mMoreTextBox->getRect(), this);
 		positionAndShowMenu(menu);
+		mDropDownItemsCount = menu->getItemCount();
 	}
 }
 

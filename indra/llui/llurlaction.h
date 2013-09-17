@@ -77,8 +77,12 @@ public:
 	/// if the Url specifies an SL command in the form like 'app/{cmd}/{id}/*', show its profile
 	static void showProfile(std::string url);
 	static std::string getUserID(std::string url);
+	static std::string getObjectName(std::string url);
+	static std::string getObjectId(std::string url);
 	static void sendIM(std::string url);
 	static void addFriend(std::string url);
+	static void removeFriend(std::string url);
+	static void blockObject(std::string url);
 
 	/// specify the callbacks to enable this class's functionality
 	typedef boost::function<void (const std::string&)> url_callback_t;

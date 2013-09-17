@@ -34,11 +34,10 @@
 #include "stdtypes.h"
 
 #if LL_DARWIN
-#include <Carbon/Carbon.h>
 
 // AssertMacros.h does bad things.
-#include "fix_macros.h"
 #undef verify
+#undef check
 #undef require
 
 #include <vector>
@@ -72,15 +71,7 @@ private:
 	void buildDirname( void );
 	bool check_local_file_access_enabled();
 
-#if LL_DARWIN
-	NavDialogCreationOptions mNavOptions;
-	static pascal void doNavCallbackEvent(NavEventCallbackMessage callBackSelector,
-										 NavCBRecPtr callBackParms, void* callBackUD);
-	OSStatus	doNavChooseDialog();
-	
-#endif
-
-#if LL_LINUX || LL_SOLARIS
+#if LL_LINUX || LL_SOLARIS || LL_DARWIN
 	// On Linux we just implement LLDirPicker on top of LLFilePicker
 	LLFilePicker *mFilePicker;
 #endif

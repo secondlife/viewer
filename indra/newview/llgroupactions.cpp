@@ -116,6 +116,80 @@ public:
 };
 LLGroupHandler gGroupHandler;
 
+// This object represents a pending request for specified group member information
+// which is needed to check whether avatar can leave group
+class LLFetchGroupMemberData : public LLGroupMgrObserver
+{
+public:
+	LLFetchGroupMemberData(const LLUUID& group_id) : 
+		mGroupId(group_id),
+		mRequestProcessed(false),
+		LLGroupMgrObserver(group_id) 
+	{
+		LL_INFOS() << "Sending new group member request for group_id: "<< group_id << LL_ENDL;
+		LLGroupMgr* mgr = LLGroupMgr::getInstance();
+		// register ourselves as an observer
+		mgr->addObserver(this);
+		// send a request
+		mgr->sendGroupPropertiesRequest(group_id);
+		mgr->sendCapGroupMembersRequest(group_id);
+	}
+
+	~LLFetchGroupMemberData()
+	{
+		if (!mRequestProcessed)
+		{
+			// Request is pending
+			LL_WARNS() << "Destroying pending group member request for group_id: "
+				<< mGroupId << LL_ENDL;
+		}
+		// Remove ourselves as an observer
+		LLGroupMgr::getInstance()->removeObserver(this);
+	}
+
+	void changed(LLGroupChange gc)
+	{
+		if (gc == GC_MEMBER_DATA && !mRequestProcessed)
+		{
+			LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupId);
+			if (!gdatap)
+			{
+				LL_WARNS() << "LLGroupMgr::getInstance()->getGroupData() was NULL" << LL_ENDL;
+			} 
+			else if (!gdatap->isMemberDataComplete())
+			{
+				LL_WARNS() << "LLGroupMgr::getInstance()->getGroupData()->isMemberDataComplete() was FALSE" << LL_ENDL;
+			}
+			else
+			{
+				processGroupData();
+				mRequestProcessed = true;
+			}
+		}
+	}
+
+	LLUUID getGroupId() { return mGroupId; }
+	virtual void processGroupData() = 0;
+protected:
+	LLUUID mGroupId;
+private:
+	bool mRequestProcessed;
+};
+
+class LLFetchLeaveGroupData: public LLFetchGroupMemberData
+{
+public:
+	 LLFetchLeaveGroupData(const LLUUID& group_id)
+		 : LLFetchGroupMemberData(group_id)
+	 {}
+	 void processGroupData()
+	 {
+		 LLGroupActions::processLeaveGroupDataResponse(mGroupId);
+	 }
+};
+
+LLFetchLeaveGroupData* gFetchLeaveGroupData = NULL;
+
 // static
 void LLGroupActions::search()
 {
@@ -208,23 +282,52 @@ bool LLGroupActions::onJoinGroup(const LLSD& notification, const LLSD& response)
 void LLGroupActions::leave(const LLUUID& group_id)
 {
 	if (group_id.isNull())
+	{
 		return;
+	}
 
-	S32 count = gAgent.mGroups.size();
-	S32 i;
-	for (i = 0; i < count; ++i)
+	LLGroupData group_data;
+	if (gAgent.getGroupData(group_id, group_data))
 	{
-		if(gAgent.mGroups.at(i).mID == group_id)
-			break;
+		LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(group_id);
+		if (!gdatap || !gdatap->isMemberDataComplete())
+		{
+			if (gFetchLeaveGroupData != NULL)
+			{
+				delete gFetchLeaveGroupData;
+				gFetchLeaveGroupData = NULL;
+			}
+			gFetchLeaveGroupData = new LLFetchLeaveGroupData(group_id);
+		}
+		else
+		{
+			processLeaveGroupDataResponse(group_id);
+		}
 	}
-	if (i < count)
+}
+
+//static
+void LLGroupActions::processLeaveGroupDataResponse(const LLUUID group_id)
+{
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(group_id);
+	LLUUID agent_id = gAgent.getID();
+	LLGroupMgrGroupData::member_list_t::iterator mit = gdatap->mMembers.find(agent_id);
+	//get the member data for the group
+	if ( mit != gdatap->mMembers.end() )
 	{
-		LLSD args;
-		args["GROUP"] = gAgent.mGroups.at(i).mName;
-		LLSD payload;
-		payload["group_id"] = group_id;
-		LLNotificationsUtil::add("GroupLeaveConfirmMember", args, payload, onLeaveGroup);
+		LLGroupMemberData* member_data = (*mit).second;
+
+		if ( member_data && member_data->isOwner() && gdatap->mMemberCount == 1)
+		{
+			LLNotificationsUtil::add("OwnerCannotLeaveGroup");
+			return;
+		}
 	}
+	LLSD args;
+	args["GROUP"] = gdatap->mName;
+	LLSD payload;
+	payload["group_id"] = group_id;
+	LLNotificationsUtil::add("GroupLeaveConfirmMember", args, payload, onLeaveGroup);
 }
 
 // static
