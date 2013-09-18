@@ -70,13 +70,13 @@ void AccumulatorBufferGroup::makeCurrent()
 }
 
 //static
-void AccumulatorBufferGroup::resetCurrent()
+void AccumulatorBufferGroup::clearCurrent()
 {
-	AccumulatorBuffer<CountAccumulator>::resetCurrent();	
-	AccumulatorBuffer<SampleAccumulator>::resetCurrent();
-	AccumulatorBuffer<EventAccumulator>::resetCurrent();
-	AccumulatorBuffer<TimeBlockAccumulator>::resetCurrent();
-	AccumulatorBuffer<MemStatAccumulator>::resetCurrent();
+	AccumulatorBuffer<CountAccumulator>::clearCurrent();	
+	AccumulatorBuffer<SampleAccumulator>::clearCurrent();
+	AccumulatorBuffer<EventAccumulator>::clearCurrent();
+	AccumulatorBuffer<TimeBlockAccumulator>::clearCurrent();
+	AccumulatorBuffer<MemStatAccumulator>::clearCurrent();
 }
 
 bool AccumulatorBufferGroup::isCurrent() const

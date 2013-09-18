@@ -181,11 +181,11 @@ namespace LLTrace
 		F64Bytes getStandardDeviation(const TraceType<MemStatAccumulator>& stat);
 		F64Bytes getLastValue(const TraceType<MemStatAccumulator>& stat);
 
-		F64Bytes getMin(const TraceType<MemStatAccumulator::ChildMemFacet>& stat);
-		F64Bytes getMean(const TraceType<MemStatAccumulator::ChildMemFacet>& stat);
-		F64Bytes getMax(const TraceType<MemStatAccumulator::ChildMemFacet>& stat);
-		F64Bytes getStandardDeviation(const TraceType<MemStatAccumulator::ChildMemFacet>& stat);
-		F64Bytes getLastValue(const TraceType<MemStatAccumulator::ChildMemFacet>& stat);
+		F64Bytes getMin(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat);
+		F64Bytes getMean(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat);
+		F64Bytes getMax(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat);
+		F64Bytes getStandardDeviation(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat);
+		F64Bytes getLastValue(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat);
 
 		U32 getSum(const TraceType<MemStatAccumulator::AllocationCountFacet>& stat);
 		U32 getSum(const TraceType<MemStatAccumulator::DeallocationCountFacet>& stat);

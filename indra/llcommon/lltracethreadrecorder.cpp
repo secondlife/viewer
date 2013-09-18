@@ -194,7 +194,7 @@ void ThreadRecorder::deactivate( AccumulatorBufferGroup* recording )
 		{
 			if (mActiveRecordings.empty())
 			{
-				AccumulatorBufferGroup::resetCurrent();
+				AccumulatorBufferGroup::clearCurrent();
 			}
 			else
 			{

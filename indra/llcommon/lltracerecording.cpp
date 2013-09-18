@@ -193,29 +193,29 @@ F64Bytes Recording::getLastValue(const TraceType<MemStatAccumulator>& stat)
 	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mSize.getLastValue());
 }
 
-F64Bytes Recording::getMin(const TraceType<MemStatAccumulator::ChildMemFacet>& stat)
+F64Bytes Recording::getMin(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat)
 {
-	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mChildSize.getMin());
+	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mShadowSize.getMin());
 }
 
-F64Bytes Recording::getMean(const TraceType<MemStatAccumulator::ChildMemFacet>& stat)
+F64Bytes Recording::getMean(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat)
 {
-	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mChildSize.getMean());
+	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mShadowSize.getMean());
 }
 
-F64Bytes Recording::getMax(const TraceType<MemStatAccumulator::ChildMemFacet>& stat)
+F64Bytes Recording::getMax(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat)
 {
-	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mChildSize.getMax());
+	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mShadowSize.getMax());
 }
 
-F64Bytes Recording::getStandardDeviation(const TraceType<MemStatAccumulator::ChildMemFacet>& stat)
+F64Bytes Recording::getStandardDeviation(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat)
 {
-	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mChildSize.getStandardDeviation());
+	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mShadowSize.getStandardDeviation());
 }
 
-F64Bytes Recording::getLastValue(const TraceType<MemStatAccumulator::ChildMemFacet>& stat)
+F64Bytes Recording::getLastValue(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat)
 {
-	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mChildSize.getLastValue());
+	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mShadowSize.getLastValue());
 }
 
 U32 Recording::getSum(const TraceType<MemStatAccumulator::AllocationCountFacet>& stat)

@@ -138,15 +138,9 @@ namespace LLTrace
 			return LLThreadLocalSingletonPointer<ACCUMULATOR>::getInstance() == mStorage;
 		}
 
-		static void resetCurrent()
+		static void clearCurrent()
 		{
 			LLThreadLocalSingletonPointer<ACCUMULATOR>::setInstance(NULL);
-		}
-
-		LL_FORCE_INLINE static ACCUMULATOR* getCurrentStorage() 
-		{ 
-			ACCUMULATOR* accumulator = LLThreadLocalSingletonPointer<ACCUMULATOR>::getInstance();
-			return accumulator ? accumulator : getDefaultBuffer()->mStorage;
 		}
 
 		// NOTE: this is not thread-safe.  We assume that slots are reserved in the main thread before any child threads are spawned
@@ -491,7 +485,7 @@ namespace LLTrace
 			typedef U32 value_t;
 		};
 
-		struct ChildMemFacet
+		struct ShadowMemFacet
 		{
 			typedef F64Bytes value_t;
 		};
@@ -504,7 +498,7 @@ namespace LLTrace
 		void addSamples(const MemStatAccumulator& other, EBufferAppendType append_type)
 		{
 			mSize.addSamples(other.mSize, append_type);
-			mChildSize.addSamples(other.mChildSize, append_type);
+			mShadowSize.addSamples(other.mShadowSize, append_type);
 			mAllocatedCount += other.mAllocatedCount;
 			mDeallocatedCount += other.mDeallocatedCount;
 		}
@@ -512,7 +506,7 @@ namespace LLTrace
 		void reset(const MemStatAccumulator* other)
 		{
 			mSize.reset(other ? &other->mSize : NULL);
-			mChildSize.reset(other ? &other->mChildSize : NULL);
+			mShadowSize.reset(other ? &other->mShadowSize : NULL);
 			mAllocatedCount = 0;
 			mDeallocatedCount = 0;
 		}
@@ -520,11 +514,11 @@ namespace LLTrace
 		void sync(F64SecondsImplicit time_stamp) 
 		{
 			mSize.sync(time_stamp);
-			mChildSize.sync(time_stamp);
+			mShadowSize.sync(time_stamp);
 		}
 
 		SampleAccumulator	mSize,
-							mChildSize;
+							mShadowSize;
 		int					mAllocatedCount,
 							mDeallocatedCount;
 	};
@@ -536,7 +530,7 @@ namespace LLTrace
 		void handOffTo(AccumulatorBufferGroup& other);
 		void makeCurrent();
 		bool isCurrent() const;
-		static void resetCurrent();
+		static void clearCurrent();
 
 		void append(const AccumulatorBufferGroup& other);
 		void merge(const AccumulatorBufferGroup& other);

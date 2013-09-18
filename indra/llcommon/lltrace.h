@@ -80,8 +80,8 @@ public:
 
 	LL_FORCE_INLINE ACCUMULATOR& getCurrentAccumulator() const
 	{
-		ACCUMULATOR* accumulator_storage = AccumulatorBuffer<ACCUMULATOR>::getCurrentStorage();
-		return accumulator_storage[mAccumulatorIndex];
+		ACCUMULATOR* accumulator_storage = LLThreadLocalSingletonPointer<ACCUMULATOR>::getInstance();
+		return accumulator_storage ? accumulator_storage[mAccumulatorIndex] : (*AccumulatorBuffer<ACCUMULATOR>::getDefaultBuffer())[mAccumulatorIndex];
 	}
 
 	size_t getIndex() const { return mAccumulatorIndex; }
@@ -222,7 +222,7 @@ public:
 };
 
 template<>
-class TraceType<MemStatAccumulator::ChildMemFacet>
+class TraceType<MemStatAccumulator::ShadowMemFacet>
 	:	public TraceType<MemStatAccumulator>
 {
 public:
@@ -258,11 +258,50 @@ public:
 		return static_cast<TraceType<MemStatAccumulator::DeallocationCountFacet>&>(*(TraceType<MemStatAccumulator>*)this);
 	}
 
-	TraceType<MemStatAccumulator::ChildMemFacet>& childMem() 
+	TraceType<MemStatAccumulator::ShadowMemFacet>& childMem() 
 	{ 
-		return static_cast<TraceType<MemStatAccumulator::ChildMemFacet>&>(*(TraceType<MemStatAccumulator>*)this);
+		return static_cast<TraceType<MemStatAccumulator::ShadowMemFacet>&>(*(TraceType<MemStatAccumulator>*)this);
 	}
 };
+
+inline void track_alloc(MemStatHandle& measurement, size_t size)
+{
+	MemStatAccumulator& accumulator = measurement.getCurrentAccumulator();
+	accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() + (F64)size : (F64)size);
+	accumulator.mAllocatedCount++;
+}
+
+inline void track_dealloc(MemStatHandle& measurement, size_t size)
+{
+	MemStatAccumulator& accumulator = measurement.getCurrentAccumulator();
+	accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)size : -(F64)size);
+	accumulator.mAllocatedCount--;
+	accumulator.mDeallocatedCount++;
+}
+
+inline void claim_mem(MemStatHandle& measurement, size_t size)
+{
+	MemStatAccumulator& accumulator = measurement.getCurrentAccumulator();
+	accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() + (F64)size : (F64)size);
+}
+
+inline void disclaim_mem(MemStatHandle& measurement, size_t size)
+{
+	MemStatAccumulator& accumulator = measurement.getCurrentAccumulator();
+	accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)size : -(F64)size);
+}
+
+inline void claim_shadow_mem(MemStatHandle& measurement, size_t size)
+{
+	MemStatAccumulator& accumulator = measurement.getCurrentAccumulator();
+	accumulator.mShadowSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() + (F64)size : (F64)size);
+}
+
+inline void disclaim_shadow_mem(MemStatHandle& measurement, size_t size)
+{
+	MemStatAccumulator& accumulator = measurement.getCurrentAccumulator();
+	accumulator.mShadowSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)size : -(F64)size);
+}
 
 // measures effective memory footprint of specified type
 // specialize to cover different types
@@ -369,9 +408,7 @@ public:
 
 	void* operator new(size_t size) 
 	{
-		MemStatAccumulator& accumulator = sMemStat.getCurrentAccumulator();
-		accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() + (F64)size : (F64)size);
-		accumulator.mAllocatedCount++;
+		track_alloc(sMemStat, size);
 
 		if (ALIGNMENT == LL_DEFAULT_HEAP_ALIGN)
 		{
@@ -393,10 +430,7 @@ public:
 
 	void operator delete(void* ptr, size_t size)
 	{
-		MemStatAccumulator& accumulator = sMemStat.getCurrentAccumulator();
-		accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)size : -(F64)size);
-		accumulator.mAllocatedCount--;
-		accumulator.mDeallocatedCount++;
+		track_dealloc(sMemStat, size);
 
 		if (ALIGNMENT == LL_DEFAULT_HEAP_ALIGN)
 		{
@@ -418,9 +452,7 @@ public:
 
 	void *operator new [](size_t size)
 	{
-		MemStatAccumulator& accumulator = sMemStat.getCurrentAccumulator();
-		accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() + (F64)size : (F64)size);
-		accumulator.mAllocatedCount++;
+		track_alloc(sMemStat, size);
 
 		if (ALIGNMENT == LL_DEFAULT_HEAP_ALIGN)
 		{
@@ -442,7 +474,7 @@ public:
 
 	void operator delete[](void* ptr, size_t size)
 	{
-		MemStatAccumulator& accumulator = sMemStat.getCurrentAccumulator();
+		MemStatAccumulator& accumulator = sMemStat.getPrimaryAccumulator();
 		accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)size : -(F64)size);
 		accumulator.mAllocatedCount--;
 		accumulator.mDeallocatedCount++;
@@ -484,9 +516,8 @@ public:
 	template<typename AMOUNT_T>
 	AMOUNT_T& memClaimAmount(AMOUNT_T& size)
 	{
-		MemStatAccumulator& accumulator = sMemStat.getCurrentAccumulator();
+		MemStatAccumulator& accumulator = sMemStat.getPrimaryAccumulator();
 		mMemFootprint += (size_t)size;
-		accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() + (F64)size : (F64)size);
 		return size;
 	}
 
@@ -508,7 +539,7 @@ public:
 	template<typename AMOUNT_T>
 	AMOUNT_T& memDisclaimAmount(AMOUNT_T& size)
 	{
-		MemStatAccumulator& accumulator = sMemStat.getCurrentAccumulator();
+		MemStatAccumulator& accumulator = sMemStat.getPrimaryAccumulator();
 		accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)size : -(F64)size);
 		return size;
 	}
@@ -521,17 +552,17 @@ private:
 	{
 		static void claim(mem_trackable_t& tracker, const TRACKED& tracked)
 		{
-			MemStatAccumulator& accumulator = sMemStat.getCurrentAccumulator();
+			MemStatAccumulator& accumulator = sMemStat.getPrimaryAccumulator();
 			size_t footprint = MemFootprint<TRACKED>::measure(tracked);
-			accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() + (F64)footprint : (F64)footprint);
+			claim_mem(sMemStat, footprint);
 			tracker.mMemFootprint += footprint;
 		}
 
 		static void disclaim(mem_trackable_t& tracker, const TRACKED& tracked)
 		{
-			MemStatAccumulator& accumulator = sMemStat.getCurrentAccumulator();
+			MemStatAccumulator& accumulator = sMemStat.getPrimaryAccumulator();
 			size_t footprint = MemFootprint<TRACKED>::measure(tracked);
-			accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)footprint : -(F64)footprint);
+			disclaim_mem(sMemStat, footprint);
 			tracker.mMemFootprint -= footprint;
 		}
 	};
@@ -541,13 +572,13 @@ private:
 	{
 		static void claim(mem_trackable_t& tracker, TRACKED& tracked)
 		{
-			MemStatAccumulator& accumulator = sMemStat.getCurrentAccumulator();
+			MemStatAccumulator& accumulator = sMemStat.getPrimaryAccumulator();
 			accumulator.mChildSize.sample(accumulator.mChildSize.hasValue() ? accumulator.mChildSize.getLastValue() + (F64)MemFootprint<TRACKED>::measure(tracked) : (F64)MemFootprint<TRACKED>::measure(tracked));
 		}
 
 		static void disclaim(mem_trackable_t& tracker, TRACKED& tracked)
 		{
-			MemStatAccumulator& accumulator = sMemStat.getCurrentAccumulator();
+			MemStatAccumulator& accumulator = sMemStat.getPrimaryAccumulator();
 			accumulator.mChildSize.sample(accumulator.mChildSize.hasValue() ? accumulator.mChildSize.getLastValue() - (F64)MemFootprint<TRACKED>::measure(tracked) : -(F64)MemFootprint<TRACKED>::measure(tracked));
 		}
 	};
