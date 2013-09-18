@@ -304,6 +304,7 @@ void LLAgentWearables::addWearabletoAgentInventoryDone(const LLWearableType::ETy
 	gInventory.notifyObservers();
 }
 
+// SUNSHINE CLEANUP dead?
 void LLAgentWearables::sendAgentWearablesUpdate()
 {
 	// First make sure that we have inventory items for each wearable
@@ -1908,6 +1909,7 @@ void LLAgentWearables::editWearableIfRequested(const LLUUID& item_id)
 	}
 }
 
+// SUNSHINE CLEANUP - both of these funcs seem to be dead code, so this one should go too.
 void LLAgentWearables::updateServer()
 {
 	sendAgentWearablesUpdate();

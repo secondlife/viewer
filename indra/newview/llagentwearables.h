@@ -163,6 +163,7 @@ public:
 
 protected:
 	/*virtual*/ void	invalidateBakedTextureHash(LLMD5& hash) const;
+	// SUNSHINE CLEANUP dead
 	void			sendAgentWearablesUpdate();
 	void			sendAgentWearablesRequest();
 	void			queryWearableCache();
@@ -244,6 +245,7 @@ private:
 	protected:
 		~createStandardWearablesAllDoneCallback();
 	};
+	// SUNSHINE CLEANUP - should be dead if sendAgentWearablesUpdate is no longer needed.
 	class sendAgentWearablesUpdateCallback : public LLRefCount
 	{
 	protected:
