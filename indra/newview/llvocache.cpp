@@ -258,12 +258,6 @@ void LLVOCacheEntry::addChild(LLVOCacheEntry* entry)
 	if(getEntry() != NULL && isState(INACTIVE))
 	{
 		updateParentBoundingInfo(entry);
-		if(getGroup())
-		{
-			LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)getGroup();
-			group->unbound();
-			((LLVOCachePartition*)group->getSpatialPartition())->setDirty();
-		}
 	}
 }
 	
@@ -636,6 +630,8 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 		return 0;
 	}
 
+	((LLviewerOctreeGroup*)mOctree->getListener(0))->rebound();
+
 	if(LLViewerCamera::sCurCameraID >= LLViewerCamera::CAMERA_WATER0)
 	{
 		return 0; //no need for those cameras.
@@ -651,8 +647,7 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 	{
 		return 0; //nothing changed, skip culling
 	}
-
-	((LLviewerOctreeGroup*)mOctree->getListener(0))->rebound();
+	
 	mCullHistory[LLViewerCamera::sCurCameraID] <<= 1;
 
 	//localize the camera
