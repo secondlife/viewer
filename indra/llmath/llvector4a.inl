@@ -409,6 +409,26 @@ inline void LLVector4a::normalize3fast()
 	mQ = _mm_mul_ps( mQ, approxRsqrt );
 }
 
+inline void LLVector4a::normalize3fast_checked(LLVector4a* d)
+{
+	if (!isFinite3())
+	{
+		*this = d ? *d : LLVector4a(0,1,0,1);
+		return;
+	}
+
+	LLVector4a lenSqrd; lenSqrd.setAllDot3( *this, *this );
+
+	if (lenSqrd.getF32ptr()[0] <= FLT_EPSILON)
+	{
+		*this = d ? *d : LLVector4a(0,1,0,1);
+		return;
+	}
+
+	const LLQuad approxRsqrt = _mm_rsqrt_ps(lenSqrd.mQ);
+	mQ = _mm_mul_ps( mQ, approxRsqrt );
+}
+
 // Return true if this vector is normalized with respect to x,y,z up to tolerance
 inline LLBool32 LLVector4a::isNormalized3( F32 tolerance ) const
 {

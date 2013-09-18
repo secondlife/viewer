@@ -1,5 +1,5 @@
-/** 
- * @file fullbrightF.glsl
+/**
+ * @file underWaterF.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -23,22 +23,38 @@
  * $/LicenseInfo$
  */
  
-#extension GL_ARB_texture_rectangle : enable
-
 #ifdef DEFINE_GL_FRAGCOLOR
-out vec4 frag_color;
+out vec4 frag_data[3];
 #else
-#define frag_color gl_FragColor
+#define frag_data gl_FragData
 #endif
 
-#if !HAS_DIFFUSE_LOOKUP
 uniform sampler2D diffuseMap;
-#endif
+uniform sampler2D bumpMap;   
+uniform sampler2D screenTex;
+uniform sampler2D refTex;
+uniform sampler2D screenDepth;
 
-VARYING vec3 vary_position;
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
+uniform vec4 fogCol;
+uniform vec3 lightDir;
+uniform vec3 specular;
+uniform float lightExp;
+uniform vec2 fbScale;
+uniform float refScale;
+uniform float znear;
+uniform float zfar;
+uniform float kd;
+uniform vec4 waterPlane;
+uniform vec3 eyeVec;
+uniform vec4 waterFogColor;
+uniform float waterFogDensity;
+uniform float waterFogKS;
+uniform vec2 screenRes;
 
+//bigWave is (refCoord.w, view.w);
+VARYING vec4 refCoord;
+VARYING vec4 littleWave;
+VARYING vec4 view;
 
 vec3 srgb_to_linear(vec3 cs)
 {
@@ -77,42 +93,25 @@ vec3 linear_to_srgb(vec3 cl)
 
 }
 
-vec3 fullbrightAtmosTransportDeferred(vec3 light)
+vec2 encode_normal(vec3 n)
 {
-	return light;
+	float f = sqrt(8 * n.z + 8);
+	return n.xy / f + 0.5;
 }
 
-vec3 fullbrightScaleSoftClipDeferred(vec3 light)
-{
-	//soft clip effect:
-	return light;
-}
-
-#ifdef HAS_ALPHA_MASK
-uniform float minimum_alpha;
-#endif
-
-#ifdef WATER_FOG
-uniform vec4 waterPlane;
-uniform vec4 waterFogColor;
-uniform float waterFogDensity;
-uniform float waterFogKS;
-
-vec4 applyWaterFogDeferred(vec3 pos, vec4 color)
+vec4 applyWaterFog(vec4 color, vec3 viewVec)
 {
 	//normalize view vector
-	vec3 view = normalize(pos);
-	float es = -(dot(view, waterPlane.xyz));
+	vec3 view = normalize(viewVec);
+	float es = -view.z;
 
 	//find intersection point with water plane and eye vector
 	
 	//get eye depth
 	float e0 = max(-waterPlane.w, 0.0);
 	
-	vec3 int_v = waterPlane.w > 0.0 ? view * waterPlane.w/es : vec3(0.0, 0.0, 0.0);
-	
 	//get object depth
-	float depth = length(pos - int_v);
+	float depth = length(viewVec);
 		
 	//get "thickness" of water
 	float l = max(depth, 0.1);
@@ -130,48 +129,29 @@ vec4 applyWaterFogDeferred(vec3 pos, vec4 color)
 	float L = min(t1/t2*t3, 1.0);
 	
 	float D = pow(0.98, l*kd);
-	
-	color.rgb = color.rgb * D + kc.rgb * L;
-	color.a = kc.a + color.a;
-	
-	return color;
+	//return vec4(1.0, 0.0, 1.0, 1.0);
+	return color * D + kc * L;
+	//depth /= 10.0;
+	//return vec4(depth,depth,depth,0.0);
 }
-#endif
 
 void main() 
 {
-#if HAS_DIFFUSE_LOOKUP
-	vec4 color = diffuseLookup(vary_texcoord0.xy);
-#else
-	vec4 color = texture2D(diffuseMap, vary_texcoord0.xy);
-#endif
-
-	float final_alpha = color.a * vertex_color.a;
-
-#ifdef HAS_ALPHA_MASK
-	if (color.a < minimum_alpha)
-	{
-		discard;
-	}
-#endif
-
-	color.rgb *= vertex_color.rgb;
-	color.rgb = srgb_to_linear(color.rgb);
-	color.rgb = fullbrightAtmosTransportDeferred(color.rgb);
-	color.rgb = fullbrightScaleSoftClipDeferred(color.rgb);
+	vec4 color;
+	    
+	//get detail normals
+	vec3 wave1 = texture2D(bumpMap, vec2(refCoord.w, view.w)).xyz*2.0-1.0;
+	vec3 wave2 = texture2D(bumpMap, littleWave.xy).xyz*2.0-1.0;
+	vec3 wave3 = texture2D(bumpMap, littleWave.zw).xyz*2.0-1.0;    
+	vec3 wavef = normalize(wave1+wave2+wave3);
 	
-	color.rgb = linear_to_srgb(color.rgb);
+	//figure out distortion vector (ripply)   
+	vec2 distort = (refCoord.xy/refCoord.z) * 0.5 + 0.5;
+	distort = distort+wavef.xy*refScale;
+		
+	vec4 fb = texture2D(screenTex, distort);
 
-#ifdef WATER_FOG
-	vec3 pos = vary_position;
-	vec4 fogged = applyWaterFogDeferred(pos, vec4(color.rgb, final_alpha));
-	color.rgb = fogged.rgb;
-	color.a   = fogged.a;
-#else
-	color.a   = final_alpha;
-#endif
-
-	frag_color.rgb = color.rgb;
-	frag_color.a   = color.a;
+	frag_data[0] = vec4(linear_to_srgb(fb.rgb), 1.0); // diffuse
+	frag_data[1] = vec4(0.5,0.5,0.5, 0.95); // speccolor*spec, spec
+	frag_data[2] = vec4(encode_normal(wavef), 0.0, 0.0); // normalxyz, displace
 }
-

@@ -3579,13 +3579,13 @@
     </map>
     <key>FilterItemsMaxTimePerFrameUnvisible</key>
     <map>
-        <key>Comment</key>
+      <key>Comment</key>
         <string>Max time devoted to items filtering per frame for non visible inventory listings (in milliseconds)</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-        <string>S32</string>
-        <key>Value</key>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
         <integer>1</integer>
     </map>
     <key>FindLandArea</key>
@@ -8841,6 +8841,18 @@
     </array>
   </map>
 
+  <key>RenderSpecularPrecision</key>
+  <map>
+    <key>Comment</key>
+    <string>Force 32-bit floating point LUT</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <real>0</real>
+  </map>
+  
   <key>RenderSpecularResX</key>
   <map>
     <key>Comment</key>
@@ -9131,6 +9143,17 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
+  <key>RenderDeferredDisplayGamma</key>
+  <map>
+    <key>Comment</key>
+    <string>Gamma ramp exponent for final correction before display gamma.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>2.2</real>
+  </map>
     <key>RenderGLCoreProfile</key>
     <map>
       <key>Comment</key>
@@ -9857,6 +9880,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>RenderWaterMaterials</key>
+    <map>
+      <key>Comment</key>
+      <string>Water planar reflections include materials rendering.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>RenderWaterMipNormal</key>
     <map>

@@ -753,10 +753,10 @@ void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indi
 	U16* idx = ((U16*) getIndicesPointer())+indices_offset;
 
 	stop_glerror();
-	LLGLSLShader::startProfile();
-	glDrawRangeElements(sGLMode[mode], start, end, count, GL_UNSIGNED_SHORT, 
+		LLGLSLShader::startProfile();
+		glDrawRangeElements(sGLMode[mode], start, end, count, GL_UNSIGNED_SHORT, 
 		idx);
-	LLGLSLShader::stopProfile(count, mode);
+		LLGLSLShader::stopProfile(count, mode);
 	stop_glerror();
 
 	
@@ -2236,10 +2236,41 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 					required_mask |= required;
 				}
 			}
-
+        
 			if ((data_mask & required_mask) != required_mask)
 			{
-				llwarns << "Shader consumption mismatches data provision." << llendl;
+				
+				U32 unsatisfied_mask = (required_mask & ~data_mask);
+				U32 i = 0;
+
+				while (i < TYPE_MAX)
+				{
+                    U32 unsatisfied_flag = unsatisfied_mask & (1 << i);
+					switch (unsatisfied_flag)
+					{
+						case MAP_VERTEX: llinfos << "Missing vert pos" << llendl; break;
+						case MAP_NORMAL: llinfos << "Missing normals" << llendl; break;
+						case MAP_TEXCOORD0: llinfos << "Missing TC 0" << llendl; break;
+						case MAP_TEXCOORD1: llinfos << "Missing TC 1" << llendl; break;
+						case MAP_TEXCOORD2: llinfos << "Missing TC 2" << llendl; break;
+						case MAP_TEXCOORD3: llinfos << "Missing TC 3" << llendl; break;
+						case MAP_COLOR: llinfos << "Missing vert color" << llendl; break;
+						case MAP_EMISSIVE: llinfos << "Missing emissive" << llendl; break;
+						case MAP_TANGENT: llinfos << "Missing tangent" << llendl; break;
+						case MAP_WEIGHT: llinfos << "Missing weight" << llendl; break;
+						case MAP_WEIGHT4: llinfos << "Missing weightx4" << llendl; break;
+						case MAP_CLOTHWEIGHT: llinfos << "Missing clothweight" << llendl; break;
+						case MAP_TEXTURE_INDEX: llinfos << "Missing tex index" << llendl; break;
+						default: llinfos << "Missing who effin knows: " << unsatisfied_flag << llendl;
+					}					
+				}
+
+            if (unsatisfied_mask & (1 << TYPE_INDEX))
+            {
+               llinfos << "Missing indices" << llendl;
+            }
+
+				llerrs << "Shader consumption mismatches data provision." << llendl;
 			}
 		}
 	}

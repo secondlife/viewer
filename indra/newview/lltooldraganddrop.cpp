@@ -58,6 +58,7 @@
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
 #include "llworld.h"
+#include "llpanelface.h"
 
 // syntactic sugar
 #define callMemberFunction(object,ptrToMember)  ((object).*(ptrToMember))
@@ -1163,7 +1164,51 @@ void LLToolDragAndDrop::dropTextureOneFace(LLViewerObject* hit_obj,
 	// update viewer side image in anticipation of update from simulator
 	LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture(asset_id);
 	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_EDIT_TEXTURE_COUNT );
-	hit_obj->setTEImage(hit_face, image);
+
+	LLTextureEntry* tep = hit_obj ? (hit_obj->getTE(hit_face)) : NULL;
+
+	LLPanelFace* panel_face = gFloaterTools->getPanelFace();
+
+	if (gFloaterTools->getVisible() && panel_face)
+	{
+		switch (LLSelectMgr::getInstance()->getTextureChannel())
+		{
+
+		case 0:
+		default:
+			{
+				hit_obj->setTEImage(hit_face, image);
+			}
+			break;
+
+		case 1:
+			{
+				LLMaterialPtr old_mat = tep->getMaterialParams();
+				LLMaterialPtr new_mat = panel_face->createDefaultMaterial(old_mat);
+				new_mat->setNormalID(asset_id);
+				tep->setMaterialParams(new_mat);
+				hit_obj->setTENormalMap(hit_face, asset_id);
+				LLMaterialMgr::getInstance()->put(hit_obj->getID(), hit_face, *new_mat);
+			}
+			break;
+
+		case 2:
+			{
+				LLMaterialPtr old_mat = tep->getMaterialParams();
+				LLMaterialPtr new_mat = panel_face->createDefaultMaterial(old_mat);
+				new_mat->setSpecularID(asset_id);
+				tep->setMaterialParams(new_mat);
+				hit_obj->setTESpecularMap(hit_face, asset_id);
+				LLMaterialMgr::getInstance()->put(hit_obj->getID(), hit_face, *new_mat);
+			}
+			break;
+		}
+	}
+	else
+	{
+		hit_obj->setTEImage(hit_face, image);
+	}
+	
 	dialog_refresh_all();
 
 	// send the update to the simulator
