@@ -6896,6 +6896,7 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
 	}
 }
 
+// SUNSHINE CLEANUP - OK to remove the version = 0 case, assume we're at least 1?
 bool resolve_appearance_version(const LLAppearanceMessageContents& contents, S32& appearance_version)
 {
 	appearance_version = -1;
@@ -6926,6 +6927,7 @@ bool resolve_appearance_version(const LLAppearanceMessageContents& contents, S32
 	return true;
 }
 
+// SUNSHINE CLEANUP - if we can assume server baking, we can simplify some code here.
 //-----------------------------------------------------------------------------
 // processAvatarAppearance()
 //-----------------------------------------------------------------------------

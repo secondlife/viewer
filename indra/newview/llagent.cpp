@@ -811,6 +811,7 @@ void LLAgent::standUp()
 }
 
 
+// SUNSHINE CLEANUP - are there any cases we still want to handle here?
 void LLAgent::handleServerBakeRegionTransition(const LLUUID& region_id)
 {
 	llinfos << "called" << llendl;

@@ -196,6 +196,7 @@ public:
 	// Loading status
 	//--------------------------------------------------------------------
 public:
+	// SUNSHINE CLEANUP
 	/*virtual*/ bool	hasPendingBakedUploads() const;
 	S32					getLocalDiscardLevel(LLAvatarAppearanceDefines::ETextureIndex type, U32 index) const;
 	bool				areTexturesCurrent() const;

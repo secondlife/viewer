@@ -649,6 +649,7 @@ public:
 
 	// True if this avatar should fetch its baked textures via the new
 	// appearance mechanism.
+	// SUNSHINE CLEANUP - always true, remove?
 	BOOL				isUsingServerBakes() const;
 	void 				setIsUsingServerBakes(BOOL newval);
 
