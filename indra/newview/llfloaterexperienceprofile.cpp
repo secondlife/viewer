@@ -379,7 +379,7 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
     
     LLCheckBoxCtrl* enable = getChild<LLCheckBoxCtrl>(EDIT BTN_ENABLE);
     S32 properties = mExperienceDetails[LLExperienceCache::PROPERTIES].asInteger();
-    enable->set(properties & LLExperienceCache::PROPERTY_DISABLED); 
+    enable->set(!(properties & LLExperienceCache::PROPERTY_DISABLED)); 
 
     enable = getChild<LLCheckBoxCtrl>(EDIT BTN_PRIVATE);
     enable->set(properties & LLExperienceCache::PROPERTY_PRIVATE);  
@@ -408,7 +408,14 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
 
             child = getChild<LLTextBox>(TF_MRKT);
             child->setText(value);
-            marketplacePanel->setVisible(TRUE);
+            if(value.size())
+            {
+                marketplacePanel->setVisible(TRUE);
+            }
+            else
+            {
+                marketplacePanel->setVisible(FALSE);
+            }
         }
         else
         {
@@ -421,11 +428,15 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
         if(data.has(IMG_LOGO))
         {
             LLTextureCtrl* logo = getChild<LLTextureCtrl>(IMG_LOGO);
-            logo->setImageAssetID(data[IMG_LOGO].asUUID());
+
+            LLUUID id = data[IMG_LOGO].asUUID();
+            logo->setImageAssetID(id);
             imagePanel->setVisible(TRUE);
 
             logo = getChild<LLTextureCtrl>(EDIT IMG_LOGO);
             logo->setImageAssetID(data[IMG_LOGO].asUUID());
+
+            imagePanel->setVisible(id.notNull());
         }
     }
     else

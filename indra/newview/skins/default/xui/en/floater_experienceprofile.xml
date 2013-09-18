@@ -6,7 +6,9 @@
   enabled="true"
   can_resize="true"
   title="EXPERIENCE PROFILE"
-  width="358">
+  min_width="325"
+  width="358"
+  height="580">
   <floater.string
     name="maturity_icon_general">
     "Parcel_PG_Light"
@@ -44,7 +46,7 @@
     <panel
       background_visible="true"
       follows="all"
-      height="570"
+      height="550"
       layout="topleft"
       left="0"
       min_height="250"
@@ -532,13 +534,13 @@
                      top_pad="-21"
                      right="-10"
                      layout="topleft"
-                     follows="top|left"
+                     follows="top|left|right"
                      label="Hide In Search"
                      name="edit_private_btn"/>
           <button
             follows="top|left"
             height="23"
-            label="Cancel"
+            label="Back"
             layout="topleft"
             name="cancel_btn"
             width="120"
