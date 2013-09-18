@@ -1897,6 +1897,8 @@ LLViewerFetchedTexture *LLVOAvatar::getBakedTextureImage(const U8 te, const LLUU
 		}
 		else
 		{
+			// SUNSHINE CLEANUP
+			llassert(false);
 			LL_DEBUGS("Avatar") << avString() << "get old-bake image from host " << uuid << llendl;
 			LLHost host = getObjectHost();
 			result = LLViewerTextureManager::getFetchedTexture(
@@ -5345,6 +5347,7 @@ BOOL LLVOAvatar::updateGeometry(LLDrawable *drawable)
 //-----------------------------------------------------------------------------
 // updateSexDependentLayerSets()
 //-----------------------------------------------------------------------------
+// SUNSHINE CLEANUP no upload_bake
 void LLVOAvatar::updateSexDependentLayerSets( BOOL upload_bake )
 {
 	invalidateComposite( mBakedTextureDatas[BAKED_HEAD].mTexLayerSet, upload_bake );
@@ -5829,6 +5832,7 @@ BOOL LLVOAvatar::isWearingWearableType(LLWearableType::EType type) const
 
 
 // virtual
+// SUNSHINE CLEANUP no upload_result
 void LLVOAvatar::invalidateComposite( LLTexLayerSet* layerset, BOOL upload_result )
 {
 }
@@ -5838,6 +5842,7 @@ void LLVOAvatar::invalidateAll()
 }
 
 // virtual
+// SUNSHINE CLEANUP no upload_bake
 void LLVOAvatar::onGlobalColorChanged(const LLTexGlobalColor* global_color, BOOL upload_bake )
 {
 	if (global_color == mTexSkinColor)
@@ -7611,6 +7616,7 @@ void LLVOAvatar::startAppearanceAnimation()
 }
 
 //virtual
+// SUNSHINE CLEANUP dead code
 void LLVOAvatar::bodySizeChanged()
 {
 	if (isSelf() && !LLAppearanceMgr::instance().isInUpdateAppearanceFromCOF())

@@ -402,6 +402,7 @@ public:
 	// Global colors
 	//--------------------------------------------------------------------
 public:
+		// SUNSHINE CLEANUP no upload
 	/*virtual*/void onGlobalColorChanged(const LLTexGlobalColor* global_color, BOOL upload_bake);
 
 	//--------------------------------------------------------------------
@@ -562,6 +563,7 @@ protected:
 	// Composites
 	//--------------------------------------------------------------------
 public:
+		// SUNSHINE CLEANUP no upload
 	virtual void	invalidateComposite(LLTexLayerSet* layerset, BOOL upload_result);
 	virtual void	invalidateAll();
 	virtual void	setCompositeUpdatesEnabled(bool b) {}

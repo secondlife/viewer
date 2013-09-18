@@ -248,6 +248,7 @@ protected:
 	// Layers
 	//--------------------------------------------------------------------
 public:
+	// SUNSHINE CLEANUP
 	void 				requestLayerSetUploads();
 	void				requestLayerSetUpload(LLAvatarAppearanceDefines::EBakedTextureIndex i);
 	void				requestLayerSetUpdate(LLAvatarAppearanceDefines::ETextureIndex i);
@@ -259,6 +260,7 @@ public:
 	// Composites
 	//--------------------------------------------------------------------
 public:
+		// SUNSHINE CLEANUP no upload
 	/* virtual */ void	invalidateComposite(LLTexLayerSet* layerset, BOOL upload_result);
 	/* virtual */ void	invalidateAll();
 	/* virtual */ void	setCompositeUpdatesEnabled(bool b); // only works for self

@@ -3612,6 +3612,7 @@ void LLAgent::processControlRelease(LLMessageSystem *msg, void **)
 }
 */
 
+// SUNSHINE CLEANUP dead code?
 //static
 void LLAgent::processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void **user_data)
 {
@@ -4300,6 +4301,7 @@ void LLAgent::dumpSentAppearance(const std::string& dump_prefix)
 //-----------------------------------------------------------------------------
 // sendAgentSetAppearance()
 //-----------------------------------------------------------------------------
+// SUNSHINE CLEANUP dead
 void LLAgent::sendAgentSetAppearance()
 {
 	if (gAgentQueryManager.mNumPendingQueries > 0) 

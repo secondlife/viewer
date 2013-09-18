@@ -116,6 +116,7 @@ private:
 	Impl* mImpl;
 };
 
+// SUNSHINE CLEANUP no upload bakes, remove class.
 struct LLBakedUploadData;
 class LLSendTexLayerResponder : public LLAssetUploadResponder
 {

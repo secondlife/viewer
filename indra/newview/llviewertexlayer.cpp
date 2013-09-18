@@ -272,6 +272,7 @@ BOOL LLViewerTexLayerSetBuffer::uploadPending() const
 	return mUploadPending;
 }
 
+// SUNSHINE CLEANUP no upload
 BOOL LLViewerTexLayerSetBuffer::uploadNeeded() const
 {
 	return mNeedsUpload;

@@ -158,6 +158,7 @@ protected:
 	//--------------------------------------------------------------------
 public:
 	// Processes the initial wearables update message (if necessary, since the outfit folder makes it redundant)
+	// SUNSHINE CLEANUP - should be able to remove dependency on this.
 	static void		processAgentInitialWearablesUpdate(LLMessageSystem* mesgsys, void** user_data);
 
 protected:

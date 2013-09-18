@@ -160,6 +160,7 @@ BOOL LLTexLayerParamAlpha::getMultiplyBlend() const
 	return ((LLTexLayerParamAlphaInfo *)getInfo())->mMultiplyBlend; 	
 }
 
+// SUNSHINE CLEANUP no upload_bake
 void LLTexLayerParamAlpha::setWeight(F32 weight, BOOL upload_bake)
 {
 	if (mIsAnimating || mTexLayer == NULL)
@@ -184,6 +185,7 @@ void LLTexLayerParamAlpha::setWeight(F32 weight, BOOL upload_bake)
 	}
 }
 
+// SUNSHINE CLEANUP no upload_bake
 void LLTexLayerParamAlpha::setAnimationTarget(F32 target_value, BOOL upload_bake)
 { 
 	// do not animate dummy parameters
@@ -202,6 +204,7 @@ void LLTexLayerParamAlpha::setAnimationTarget(F32 target_value, BOOL upload_bake
 	}
 }
 
+// SUNSHINE CLEANUP no upload_bake
 void LLTexLayerParamAlpha::animate(F32 delta, BOOL upload_bake)
 {
 	if (mNext)
@@ -449,6 +452,8 @@ LLColor4 LLTexLayerParamColor::getNetColor() const
 	}
 }
 
+
+// SUNSHINE CLEANUP no upload_bake
 void LLTexLayerParamColor::setWeight(F32 weight, BOOL upload_bake)
 {
 	if (mIsAnimating)

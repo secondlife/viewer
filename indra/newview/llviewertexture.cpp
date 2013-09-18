@@ -964,6 +964,8 @@ LLViewerFetchedTexture::LLViewerFetchedTexture(const LLUUID& id, FTType f_type, 
 	mFTType = f_type;
 	if (mFTType == FTT_HOST_BAKE)
 	{
+		// SUNSHINE CLEANUP
+		llassert(false);
 		mCanUseHTTP = false;
 	}
 	generateGLTexture() ;

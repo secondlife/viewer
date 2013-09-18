@@ -673,6 +673,7 @@ LLJoint *LLVOAvatarSelf::getJoint(const std::string &name)
 	return LLVOAvatar::getJoint(name);
 }
 // virtual
+// SUNSHINE CLEANUP no upload_bake
 BOOL LLVOAvatarSelf::setVisualParamWeight(const LLVisualParam *which_param, F32 weight, BOOL upload_bake )
 {
 	if (!which_param)
@@ -684,6 +685,7 @@ BOOL LLVOAvatarSelf::setVisualParamWeight(const LLVisualParam *which_param, F32 
 }
 
 // virtual
+// SUNSHINE CLEANUP no upload_bake
 BOOL LLVOAvatarSelf::setVisualParamWeight(const char* param_name, F32 weight, BOOL upload_bake )
 {
 	if (!param_name)
@@ -695,12 +697,14 @@ BOOL LLVOAvatarSelf::setVisualParamWeight(const char* param_name, F32 weight, BO
 }
 
 // virtual
+// SUNSHINE CLEANUP no upload_bake
 BOOL LLVOAvatarSelf::setVisualParamWeight(S32 index, F32 weight, BOOL upload_bake )
 {
 	LLViewerVisualParam *param = (LLViewerVisualParam*) LLCharacter::getVisualParam(index);
 	return setParamWeight(param,weight,upload_bake);
 }
 
+// SUNSHINE CLEANUP no upload_bake
 BOOL LLVOAvatarSelf::setParamWeight(const LLViewerVisualParam *param, F32 weight, BOOL upload_bake )
 {
 	if (!param)
@@ -793,6 +797,8 @@ U32  LLVOAvatarSelf::processUpdateMessage(LLMessageSystem *mesgsys,
 													 LLDataPacker *dp)
 {
 	U32 retval = LLVOAvatar::processUpdateMessage(mesgsys,user_data,block_num,update_type,dp);
+
+	// SUNSHINE CLEANUP - does this become relevant again if we don't have to wait for appearance message to tell us where bakes are coming from?
 
 #if 0
 	// DRANO - it's not clear this does anything useful. If we wait
@@ -1065,6 +1071,7 @@ void LLVOAvatarSelf::updateAttachmentVisibility(U32 camera_mode)
 // forces an update to any baked textures relevant to type.
 // will force an upload of the resulting bake if the second parameter is TRUE
 //-----------------------------------------------------------------------------
+// SUNSHINE CLEANUP no upload_result
 void LLVOAvatarSelf::wearableUpdated( LLWearableType::EType type, BOOL upload_result )
 {
 	for (LLAvatarAppearanceDictionary::BakedTextures::const_iterator baked_iter = LLAvatarAppearanceDictionary::getInstance()->getBakedTextures().begin();
@@ -1620,6 +1627,7 @@ bool LLVOAvatarSelf::hasPendingBakedUploads() const
 	return false;
 }
 
+// SUNSHINE CLEANUP no upload_bake
 void LLVOAvatarSelf::invalidateComposite( LLTexLayerSet* layerset, BOOL upload_result )
 {
 	LLViewerTexLayerSet *layer_set = dynamic_cast<LLViewerTexLayerSet*>(layerset);
@@ -2690,6 +2698,8 @@ void LLVOAvatarSelf::setNewBakedTexture(LLAvatarAppearanceDefines::EBakedTexture
 //-----------------------------------------------------------------------------
 void LLVOAvatarSelf::setNewBakedTexture( ETextureIndex te, const LLUUID& uuid )
 {
+	// SUNSHINE CLEANUP
+	llassert(false);
 	// Baked textures live on other sims.
 	LLHost target_host = getObjectHost();	
 	setTEImage( te, LLViewerTextureManager::getFetchedTextureFromHost( uuid, FTT_HOST_BAKE, target_host ) );

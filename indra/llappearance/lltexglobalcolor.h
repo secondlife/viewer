@@ -75,6 +75,7 @@ public:
 	LLTexParamGlobalColor(LLTexGlobalColor *tex_color);
 	/*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable) const;
 protected:
+		// SUNSHINE CLEANUP no upload
 	/*virtual*/ void onGlobalColorChanged(bool upload_bake);
 private:
 	LLTexGlobalColor*		mTexGlobalColor;

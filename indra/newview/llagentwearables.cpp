@@ -1488,6 +1488,7 @@ void LLAgentWearables::setWearableFinal(LLInventoryItem* new_item, LLViewerWeara
 	updateServer();
 }
 
+// SUNSHINE CLEANUP dead?
 void LLAgentWearables::queryWearableCache()
 {
 	if (!areWearablesLoaded() || (gAgent.getRegion() && gAgent.getRegion()->getCentralBakeVersion()))
