@@ -9735,10 +9735,11 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+  
   <key>RenderAutoMuteByteLimit</key>
   <map>
     <key>Comment</key>
-    <string>Maximum bytes of attachments before an avatar is rendered as a simple imposter (0 for no limit).</string>
+    <string>Maximum bytes of attachments before an avatar is rendered as a simple impostor (0 for no limit).</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -9746,10 +9747,10 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-  <key>RenderAutoMuteRenderCostLimit</key>
+  <key>RenderAutoMuteRenderWeightLimit</key>
   <map>
     <key>Comment</key>
-    <string>Maximum render weight before an avatar is rendered as a simple imposter (0 to not use this limit).</string>
+    <string>Maximum render weight before an avatar is rendered as a simple impostor (0 to not use this limit).</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -9760,7 +9761,7 @@
   <key>RenderAutoMuteSurfaceAreaLimit</key>
   <map>
     <key>Comment</key>
-    <string>Maximum surface area of attachments before an avatar is rendered as a simple imposter (0 to not use this limit).</string>
+    <string>Maximum surface area of attachments before an avatar is rendered as a simple impostor (0 to not use this limit).</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -9768,16 +9769,16 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-  <key>RenderAutoMuteThreshold</key>
+  <key>RenderAutoMuteFunctions</key>
   <map>
     <key>Comment</key>
-    <string>Threshold on the Avatar Detail slider where simple imposter mode is enabled.  (less than 0 is always on, greather than 1 always off)</string>
+    <string>Developing feature to render some avatars using simple impostors or colored silhouettes.  (Set to 7 for all functionality)</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
-    <string>F32</string>
+    <string>U32</string>
     <key>Value</key>
-    <real>0.25</real>
+    <real>0</real>
   </map>
   <key>RenderAutoMuteLogging</key>
   <map>

@@ -110,37 +110,37 @@
     
       <menu_item_check
         name="Normal"
-        label="Normal">
+        label="Normal Rendering">
         <menu_item_check.on_check
-          function="Avatar.CheckImposterMode"
+          function="Avatar.CheckImpostorMode"
           parameter="0" />
 	    <menu_item_check.on_click
-	      function="Avatar.SetImposterMode"
+	      function="Avatar.SetImpostorMode"
 	      parameter="0" />
       </menu_item_check>
       <menu_item_check
-        name="Always use imposter"
-        label="Always use imposter">
+        name="Always use impostor"
+        label="Always use impostor">
         <menu_item_check.on_check
-          function="Avatar.CheckImposterMode"
+          function="Avatar.CheckImpostorMode"
           parameter="1" />
 	    <menu_item_check.on_click
-	      function="Avatar.SetImposterMode"
+	      function="Avatar.SetImpostorMode"
 	      parameter="1" />
       </menu_item_check>
       <menu_item_check
-        name="Never use imposter"
-        label="Never use imposter">
+        name="Never use impostor"
+        label="Never use impostor">
         <menu_item_check.on_check
-          function="Avatar.CheckImposterMode"
+          function="Avatar.CheckImpostorMode"
           parameter="2" />
 	    <menu_item_check.on_click
-	      function="Avatar.SetImposterMode"
+	      function="Avatar.SetImpostorMode"
 	      parameter="2" />
       </menu_item_check>
 
-  <menu_item_separator
-       layout="topleft" />
+  <menu_item_separator 
+    layout="topleft"  name="Impostor seperator"/>
 
   <menu_item_call
      enabled="false"
