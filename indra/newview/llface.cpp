@@ -821,21 +821,21 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 		{
 			v[i].setSelectWithMask(mask[i], min, max);
 		}
-
+		
 		LLVector4a tv[8];
-
+		
 		//transform bounding box into drawable space
 		for (U32 i = 0; i < 8; ++i)
 		{
 			mat_vert.affineTransform(v[i], tv[i]);
 		}
-	
+
 		//find bounding box
 		LLVector4a& newMin = mExtents[0];
 		LLVector4a& newMax = mExtents[1];
-
+		
 		newMin = newMax = tv[0];
-
+		
 		for (U32 i = 1; i < 8; ++i)
 		{
 			newMin.setMin(newMin, tv[i]);
@@ -851,11 +851,11 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 		}
 
 		LLVector4a t;
-		t.setAdd(newMin,newMax);
+		t.setAdd(newMin, newMax);
 		t.mul(0.5f);
 
 		mCenterLocal.set(t.getF32ptr());
-
+		
 		t.setSub(newMax,newMin);
 		mBoundingSphereRadius = t.getLength3().getF32()*0.5f;
 

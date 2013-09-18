@@ -1,5 +1,5 @@
 /** 
- * @file postDeferredGammaCorrect.glsl
+ * @file srgb.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -22,46 +22,25 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
-#extension GL_ARB_texture_rectangle : enable
 
-#ifdef DEFINE_GL_FRAGCOLOR
-out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
+vec3 srgb_to_linear(vec3 cs)
+{
+	vec3 low_range = cs / vec3(12.92);
+	vec3 high_range = pow((cs+vec3(0.055))/vec3(1.055), vec3(2.4));
 
-uniform sampler2DRect diffuseRect;
+	bvec3 lte = lessThanEqual(cs,vec3(0.04045));
+	return mix(high_range, low_range, lte);
 
-uniform vec2 screen_res;
-VARYING vec2 vary_fragcoord;
-
-uniform float display_gamma;
+}
 
 vec3 linear_to_srgb(vec3 cl)
 {
 	cl = clamp(cl, vec3(0), vec3(1));
 	vec3 low_range  = cl * 12.92;
 	vec3 high_range = 1.055 * pow(cl, vec3(0.41666)) - 0.055;
+
 	bvec3 lt = lessThan(cl,vec3(0.0031308));
-
-#ifdef OLD_SELECT
-	vec3 result;
-	result.r = lt.r ? low_range.r : high_range.r;
-	result.g = lt.g ? low_range.g : high_range.g;
-	result.b = lt.b ? low_range.b : high_range.b;
-    return result;
-#else
 	return mix(high_range, low_range, lt);
-#endif
 
-}
-
-
-void main() 
-{
-	vec4 diff = texture2DRect(diffuseRect, vary_fragcoord);
-	diff.rgb = linear_to_srgb(diff.rgb);
-	frag_color = diff;
 }
 
