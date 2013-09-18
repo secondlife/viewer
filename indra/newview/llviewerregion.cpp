@@ -1056,9 +1056,6 @@ F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 	bool needs_update = ((cur_frame - mImpl->mLastCameraUpdate) > 5) && ((camera_origin - mImpl->mLastCameraOrigin).lengthSquared() > 10.f);	
 
 	//process visible entries
-	max_time *= 0.5f; //only use up to half available time to update entries.
-
-#if 1
 	for(LLVOCacheEntry::vocache_entry_set_t::iterator iter = mImpl->mVisibleEntries.begin(); iter != mImpl->mVisibleEntries.end();)
 	{
 		LLVOCacheEntry* vo_entry = *iter;
@@ -1109,7 +1106,6 @@ F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 			++iter;
 		}
 	}
-#endif
 
 	//process visible groups
 	std::set< LLPointer<LLviewerOctreeGroup> >::iterator group_iter = mImpl->mVisibleGroups.begin();
@@ -1146,7 +1142,7 @@ F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 		mImpl->mLastCameraUpdate = cur_frame;
 	}
 
-	return 2.0f * max_time - update_timer.getElapsedTimeF32();
+	return max_time - update_timer.getElapsedTimeF32();
 }
 
 F32 LLViewerRegion::createVisibleObjects(F32 max_time)
@@ -1206,11 +1202,6 @@ BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 	mImpl->mVOCachePartition->resetOccluders();
 
 	max_update_time -= update_timer.getElapsedTimeF32();	
-
-	if(max_update_time < 0.f && !gViewerWindow->getProgressView()->getVisible())
-	{
-		return did_update;
-	}
 
 	//kill invisible objects
 	max_update_time = killInvisibleObjects(max_update_time);	
@@ -1954,6 +1945,12 @@ void LLViewerRegion::decodeBoundingInfo(LLVOCacheEntry* entry)
 			{
 				entry->setBoundingInfo(pos, scale);
 				parent->addChild(entry);
+
+				if(parent->getGroup()) //re-insert parent to vo-cache tree because its bounding info changed.
+				{
+					removeFromVOCacheTree(parent);
+					addToVOCacheTree(parent);
+				}
 			}
 		}
 
@@ -1963,11 +1960,7 @@ void LLViewerRegion::decodeBoundingInfo(LLVOCacheEntry* entry)
 	//
 	//no parent
 	//
-	entry->setBoundingInfo(pos, scale);
-	if(!entry->getGroup() && entry->isState(LLVOCacheEntry::INACTIVE))
-	{
-		addToVOCacheTree(entry);
-	}
+	entry->setBoundingInfo(pos, scale);	
 
 	if(!parent_id) //a potential parent
 	{
@@ -1990,6 +1983,10 @@ void LLViewerRegion::decodeBoundingInfo(LLVOCacheEntry* entry)
 		}
 	}
 	
+	if(!entry->getGroup() && entry->isState(LLVOCacheEntry::INACTIVE))
+	{
+		addToVOCacheTree(entry);
+	}
 	return ;
 }
 
