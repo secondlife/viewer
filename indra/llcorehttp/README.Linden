@@ -1,13 +1,13 @@
 
 
 
-1.  HTTP fetching in 15 Minutes
+1.  HTTP Fetching in 15 Minutes
 
     Let's start with a trivial working example.  You'll need a throwaway
     build of the viewer.  And we'll use indra/newview/llappviewer.cpp as
-    our host.
+    the host module for these hacks.
 
-    Add some needed headers:
+    First, add some headers:
 
 
         #include "httpcommon.h"
@@ -182,7 +182,7 @@
                 {
                     // There's some data.  A BufferArray is a linked list
                     // of buckets.  We'll create a linear buffer and copy
-                    // it into it.
+                    // the data into it.
                     size_t data_len = data->size();
                     char * data_blob = new char [data_len + 1];
                     data->read(0, data_blob, data_len);
@@ -419,7 +419,7 @@ HttpOperation::addAsReply: TRACE, ToReplyQueue, Handle:  086D3148
 
     BufferArray.  The core data representation for request and response
     bodies.  In HTTP responses, it's fetched with the getBody() method
-    and may be NULL or non-NULL but zero length.  All successful data
+    and may be NULL or non-NULL with zero length.  All successful data
     handling should check both conditions before attempting to fetch
     data from the object.  Data access model uses simple read/write
     semantics:
@@ -429,8 +429,8 @@ HttpOperation::addAsReply: TRACE, ToReplyQueue, Handle:  086D3148
         * read()
         * write()
 
-    There is a more sophisticated stream adapter that extends these
-    methods and will be covered below.  So, one way to retrieve data
+    (There is a more sophisticated stream adapter that extends these
+    methods and will be covered below.)  So, one way to retrieve data
     from a request is as follows:
 
 
@@ -449,6 +449,7 @@ HttpOperation::addAsReply: TRACE, ToReplyQueue, Handle:  086D3148
     by just writing new values to the shared object.  And in tests
     everything will appear to work.  Then you ship and people in the
     real world start hitting read/write races in strings and then crash.
+    Don't be lazy.
 
     HttpHandle.  Uniquely identifies a request and can be used to
     identify it in an onCompleted() method or cancel it if it's still
@@ -459,9 +460,197 @@ HttpOperation::addAsReply: TRACE, ToReplyQueue, Handle:  086D3148
 
 5.  And Still More Refinements
 
+    (Note: The following refinements are just code fragments.  They
+    don't directly fit into the working example above.  But they
+    demonstrate several idioms you'll want to copy.)
+
+    LLSD, std::streambuf, std::iostream.  The read(), write() and
+    append() methods may be adequate for your purposes.  But we use a
+    lot of LLSD.  Its interfaces aren't particularly compatible with
+    BufferArray.  And so two adapters are available to give
+    stream-like behaviors:  BufferArrayStreamBuf and BufferArrayStream,
+    which implement the std::streambuf and std::iostream interfaces,
+    respectively.
+
+    A std::streambuf interface isn't something you'll want to use
+    directly.  Instead, you'll use the much friendlier std::iostream
+    interface found in BufferArrayStream.  This adapter gives you all
+    the '>>' and '<<' operators you'll want as well as working
+    directly with the LLSD conversion operators.
+
+    Some new headers:
+
+
+        #include "bufferstream.h"
+        #include "llsdserialize.h"
+
+
+    And an updated fragment based on onCompleted() above:
+
+
+                // Successful request.  Try to fetch the data
+                LLCore::BufferArray * data = response->getBody();
+                LLSD resp_llsd;
+
+                if (data && data->size())
+                {
+                    // There's some data and we expect this to be
+                    // LLSD.  Checking of content type and validation
+                    // during parsing would be admirable additions.
+                    // But we'll forgo that now.
+                    LLCore::BufferArrayStream data_stream(data);
+                    LLSDSerialize::fromXML(resp_llsd, data_stream);
+                }
+                LL_INFOS("Hack") << "LLSD Received:  " << resp_llsd << LL_ENDL;
+            }
+            else
+            {
+
+
+    Converting an LLSD object into an XML stream stored in a
+    BufferArray is just the reverse of the above:
+
+
+        BufferArray * data = new BufferArray();
+        LLCore::BufferArrayStream data_stream(data);
+
+        LLSD src_llsd;
+        src_llsd["foo"] = "bar";
+
+        LLSDSerialize::toXML(src_llsd, data_stream);
+
+        // 'data' now contains an XML payload and can be sent
+        // to a web service using the requestPut() or requestPost()
+        //  methods.
+        ...  requestPost(...);
+
+        // And don't forget to release the BufferArray.
+        data->release();
+        data = NULL;
+
+
+    LLSD will often go hand-in-hand with BufferArray and data
+    transport.  But you can also do all the streaming I/O you'd expect
+    of a std::iostream object:
+
+
+        BufferArray * data = new BufferArray();
+        LLCore::BufferArrayStream data_stream(data);
+
+        data_stream << "Hello, World!" << 29.4 << '\n';
+        std::string str;
+        data_stream >> str;
+        std::cout << str << std::endl;
+
+        data->release();
+        // Actual delete will occur when 'data_stream'
+        // falls out of scope and is destructed.
+
+
+    Scoping objects and cleaning up.  The examples haven't bothered
+    with cleanup of objects that are no longer needed.  Instead, most
+    objects have been allocated as if they were global and eternal.
+    You'll put the objects in more appropriate feature objects and
+    clean them up as a group.  Here's a checklist for actions you may
+    need to take on cleanup:
+
+    * Call delete on:
+      o HttpHandlers created on the heap
+      o HttpRequest objects
+    * Call release() on:
+      o BufferArray objects
+      o HttpHeaders objects
+      o HttpOptions objects
+      o HttpResponse objects
+
+    On program exit, as threads wind down, the library continues to
+    operate safely.  Threads don't interact via the library and even
+    dangling references to HttpHandler objects are safe.  If you don't
+    call HttpRequest::update(), handler references are never
+    dereferenced.
+
+    You can take a more thorough approach to wind-down.  Keep a list
+    of HttpHandles (not HttpHandlers) of outstanding requests.  For
+    each of these, call HttpRequest::requestCancel() to cancel the
+    operation.  (Don't add the cancel requests' handled to the list.)
+    This will cancel the outstanding requests that haven't completed.
+    Canceled or completed, all requests will queue notifications.  You
+    can now cycle calling update() discarding responses.  Continue
+    until all requests notify or a few seconds have passed.
+
+    Global startup and shutdown is handled in the viewer.  But you can
+    learn about it in the code or in the documentation in the headers.
+
 
 6.  Choosing a Policy Class
 
+    Now it's time to get rid of the default policy class.  Take a look
+    at the policy class definitions in newview/llappcorehttp.h.
+    Ideally, you'll find one that's compatible with what you're doing.
+    Some of the compatibility guidelines are:
 
+    * Destination: Pair of host and port.  Mixing requests with
+      different destinations may cause more connection setup and tear
+      down.
+
+    * Method: http or https.  Usually moot given destination.  But
+      mixing these may also cause connection churn.
+
+    * Transfer size: If you're moving 100MB at a time and you make your
+      requests to the same policy class as a lot of small, fast event
+      information that fast traffic is going to get stuck behind you
+      and someone's experience is going to be miserable.
+
+    * Long poll requests: These are long-lived, must- do operations.
+      They have a special home called AP_LONG_POLL.
+
+    * Concurrency: High concurrency (5 or more) and large transfer
+      sizes are incompatible.  Another head-of-the-line problem.  High
+      concurrency is tolerated when it's desired to get maximal
+      throughput.  Mesh and texture downloads, for example.
+
+    * Pipelined: If your requests are not idempotent, stay away from
+      anything marked 'soon' or 'yes'.  Hidden retries may be a
+      problem for you.  For now, would also recommend keeping PUT and
+      POST requests out of classes that may be pipelined.  Support for
+      that is still a bit new.
+
+    If you haven't found a compatible match, you can either create a
+    new class (llappcorehttp.*) or just use AP_DEFAULT, the catchall
+    class when all else fails.  Inventory query operations might be a
+    candidate for a new class that supported pipelining on https:.
+    Same with display name lookups and other bursty-at-login
+    operations.  For other things, AP_DEFAULT will do what it can and
+    will, in some way or another, tolerate any usage.  Whether the
+    users' experiences are good are for you to determine.
+
+    
 7.  FAQ
 
+    Q1.  What do these policy classes achieve?
+
+    A1.  Previously, HTTP-using code in the viewer was written as if
+    it were some isolated, local operation that didn't have to
+    consider resources, contention or impact on services and the
+    larger environment.  The result was an application with on the
+    order of 100 HTTP launch points in its codebase that could create
+    dozens or even 100's of TCP connections zeroing in on grid
+    services and disrupting networking equipment, web services and
+    innocent users.  The use of policy classes (modeled on
+    http://en.wikipedia.org/wiki/Class-based_queueing) is a means to
+    restrict connection concurrency, good and necessary in itself.  In
+    turn, that reduces demands on an expensive resource (connection
+    setup and concurrency) which relieves strain on network points.
+    That enables connection keepalive and opportunites for true
+    improvements in throughput and user experience.
+
+    Another aspect of the classes is that they give some control over
+    how competing demands for the network will be apportioned.  If
+    mesh fetches, texture fetches and inventory queries are all being
+    made at once, the relative weights of their classes' concurrency
+    limits established that apportioning.  We now have an opportunity
+    to balance the entire viewer system.
+
+    Q2.  How's that data sharing with refcounts working for you?
+
+    A2.  Meh.

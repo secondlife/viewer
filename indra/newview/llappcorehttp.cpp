@@ -52,6 +52,11 @@ static const struct
 } init_data[] =					//  Default and dynamic values for classes
 {
 	{
+		LLAppCoreHttp::AP_DEFAULT,			8,		8,		8,		0,
+		"",
+		"other"
+	},
+	{
 		LLAppCoreHttp::AP_TEXTURE,			8,		1,		12,		0,
 		"TextureFetchConcurrency",
 		"texture fetch"
@@ -75,6 +80,11 @@ static const struct
 		LLAppCoreHttp::AP_UPLOADS,			2,		1,		8,		0,
 		"",
 		"asset upload"
+	},
+	{
+		LLAppCoreHttp::AP_LONG_POLL,		32,		32,		32,		0,
+		"",
+		"long poll"
 	}
 };
 
@@ -154,25 +164,21 @@ void LLAppCoreHttp::init()
 	{
 		const EAppPolicy policy(init_data[i].mPolicy);
 
-		// Create a policy class but use default for texture for now.
-		// This also has the side-effect of initializing the default
-		// class to desired values.
-		if (AP_TEXTURE == policy)
+		if (AP_DEFAULT == policy)
 		{
-			mPolicies[policy] = mPolicies[AP_DEFAULT];
+			// Pre-created
+			continue;
 		}
-		else
+
+		mPolicies[policy] = LLCore::HttpRequest::createPolicyClass();
+		if (! mPolicies[policy])
 		{
-			mPolicies[policy] = LLCore::HttpRequest::createPolicyClass();
-			if (! mPolicies[policy])
-			{
-				// Use default policy (but don't accidentally modify default)
-				LL_WARNS("Init") << "Failed to create HTTP policy class for " << init_data[i].mUsage
-								 << ".  Using default policy."
-								 << LL_ENDL;
-				mPolicies[policy] = mPolicies[AP_DEFAULT];
-				continue;
-			}
+			// Use default policy (but don't accidentally modify default)
+			LL_WARNS("Init") << "Failed to create HTTP policy class for " << init_data[i].mUsage
+							 << ".  Using default policy."
+							 << LL_ENDL;
+			mPolicies[policy] = mPolicies[AP_DEFAULT];
+			continue;
 		}
 	}
 
