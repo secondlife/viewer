@@ -26,11 +26,10 @@
     layout="topleft"
     left_pad="4"
     name="edit_title"
-    text_color="White"
     top="2"
     value="Experience Profile"
     use_ellipses="true"
-    left="3"
+    left="6"
     right="-3"/>
   <tab_container
     hide_tabs="true"
@@ -64,7 +63,7 @@
         width="330">
         <panel
           bg_alpha_color="DkGray2"
-          follows="top|left"
+          follows="top|left|right"
           height="480"
           layout="topleft"
           left="0"
@@ -81,6 +80,41 @@
             top="0"
             orientation="vertical"
             width="315">
+            <layout_panel
+              follows="all"
+              height="29"
+              layout="topleft"
+              left="0"
+              top="0"
+              auto_resize="false"
+              visible="false"
+              width="315"
+              name="top panel">
+              <text
+                type="string"
+                length="1"
+                follows="left|top|right"
+                font="SansSerif"
+                height="19"
+                top="10"
+                layout="topleft"
+                left="10"
+                right="-123"
+                visible="false"
+                name="grid_wide">
+                Grid-wide
+              </text>
+              <button
+                follows="top|right"
+                height="23"
+                label="Edit"
+                layout="topleft"
+                name="edit_btn"
+                width="100"
+                visible="false"
+                top_pad="-23"
+                right="-14"/>
+            </layout_panel>
             <layout_panel
               follows="all"
               height="197"
@@ -109,8 +143,7 @@
               left="0"
               top="5"
               width="313"
-              auto_resize="false"
-            >
+              auto_resize="false">
               <text
                 follows="left|top|right"
                 font="SansSerifLarge"
@@ -118,10 +151,9 @@
                 layout="topleft"
                 left="10"
                 name="experience_title"
-                text_color="white"
                 top="0"
                 use_ellipses="true"
-                value="Kyle's Superhero RPG"
+                value=""
                 width="288"/>
             </layout_panel>
             <layout_panel
@@ -142,87 +174,19 @@
                 left="7"
                 name="experience_description"
                 top="0"
-                value="It is mainly just a lot of men in tights on patrol for evil-doers. It is mainly just a lot of men in tights on patrol for evil-doers. It is mainly just a lot of men in tights on patrol for evil-doers. It is mainly just a lot of men in tights on patrol for evil-doers. It is mainly just a lot of men in tights on patrol for evil-doers. "
+                value=""
                 width="293"/>
             </layout_panel>
             <layout_panel
-              follows="all"
-              height="46"
+              follows=""
+              height="18"
               layout="topleft"
-              left="0"
-              top="5"
-              width="313"
-              visible="false"
-              auto_resize="false"
-              name="location panel"
-            >
-              <text
-                type="string"
-                length="1"
-                follows="left|top"
-                height="16"
-                layout="topleft"
-                left="10"
-                name="Location"
-                width="290">
-                Location:
-              </text>
-              <text
-                type="string"
-                length="1"
-                follows="left|top|right"
-                height="18"
-                layout="topleft"
-                left="10"
-                valign="center"
-                name="LocationTextText"
-                width="288">
-                someplace
-              </text>
-            </layout_panel>
-            <layout_panel
-              follows="all"
-              height="53"
-              layout="topleft"
-              left="0"
-              top="5"
-              width="313"
-              visible="false"
-              auto_resize="false"
-              name="marketplace panel"
-
-            >
-              <text
-                type="string"
-                length="1"
-                follows="left|top"
-                height="16"
-                layout="topleft"
-                left="10"
-                width="290">
-                Marketplace store:
-              </text>
-              <text
-                type="string"
-                length="1"
-                follows="left|top|right"
-                height="18"
-                layout="topleft"
-                left="10"
-                valign="center"
-                name="marketplace"
-                width="288">
-                someplace
-              </text>
-            </layout_panel>
-            <layout_panel
-              follows="left|top|right"
-              height="92"
               left="0"
               top="0"
               auto_resize="false"
               width="315"
-            >
+              visible="true"
+              name="maturity panel">
               <text
                 type="string"
                 length="1"
@@ -245,8 +209,80 @@
                 name="ContentRatingText"
                 top_delta="-3"
                 width="188">
-                Adult
               </text>
+            </layout_panel>
+            <layout_panel
+              follows="all"
+              height="46"
+              layout="topleft"
+              left="0"
+              top="5"
+              width="313"
+              visible="false"
+              auto_resize="false"
+              name="location panel">
+              <text
+                type="string"
+                length="1"
+                follows="left|top"
+                height="16"
+                layout="topleft"
+                left="10"
+                name="Location"
+                width="290">
+                Location:
+              </text>
+              <text
+                type="string"
+                length="1"
+                follows="left|top|right"
+                height="18"
+                layout="topleft"
+                left="10"
+                valign="center"
+                name="LocationTextText"
+                width="288">
+              </text>
+            </layout_panel>
+            <layout_panel
+              follows="all"
+              height="53"
+              layout="topleft"
+              left="0"
+              top="5"
+              width="313"
+              visible="false"
+              auto_resize="false"
+              name="marketplace panel">
+              <text
+                type="string"
+                length="1"
+                follows="left|top"
+                height="16"
+                layout="topleft"
+                left="10"
+                width="290">
+                Marketplace store:
+              </text>
+              <text
+                type="string"
+                length="1"
+                follows="left|top|right"
+                height="18"
+                layout="topleft"
+                left="10"
+                valign="center"
+                name="marketplace"
+                width="288">
+              </text>
+            </layout_panel>
+            <layout_panel
+              follows="left|top|right"
+              height="75"
+              left="0"
+              top="0"
+              auto_resize="false"
+              width="315">
               <text
                 type="string"
                 length="1"
@@ -269,18 +305,7 @@
                 name="OwnerText"
                 top_delta="-2"
                 width="188">
-                Kyle
               </text>
-              <button
-                follows="bottom|left"
-                height="23"
-                label="Edit"
-                layout="topleft"
-                name="edit_btn"
-                top_pad="3"
-                width="120"
-                left="73"
-                visible="false"/>
               <button
                 follows="bottom|left"
                 height="23"
@@ -394,51 +419,6 @@
             right="-11"
             word_wrap="true"/>
           <text
-            type="string"
-            length="1"
-            follows="left|top|right"
-            height="14"
-            layout="topleft"
-            left="10"
-            top_pad="10"
-            name="edit_Location"
-            right="-10">
-            Location:
-          </text>
-          <line_editor
-            type="string"
-            length="1"
-            follows="left|top|right"
-            height="19"
-            layout="topleft"
-            left="10"
-            max_length_bytes="255"
-            valign="center"
-            name="edit_LocationTextText"
-            right="-10"/>
-          <text
-            type="string"
-            length="1"
-            follows="left|top|right"
-            height="14"
-            top_pad="10"
-            layout="topleft"
-            left="10"
-            right="-10">
-            Marketplace store:
-          </text>
-          <line_editor
-            type="string"
-            length="1"
-            follows="left|top|right"
-            height="19"
-            layout="topleft"
-            left="10"
-            max_length_bytes="255"
-            valign="center"
-            name="edit_marketplace"
-            right="-10"/>
-          <text
             top_pad="10"
             type="string"
             length="1"
@@ -495,6 +475,51 @@
                 width="20"/>
             </icons_combo_box.item>
           </icons_combo_box>
+          <text
+            type="string"
+            length="1"
+            follows="left|top|right"
+            height="14"
+            layout="topleft"
+            left="10"
+            top_pad="10"
+            name="edit_Location"
+            right="-10">
+            Location:
+          </text>
+          <line_editor
+            type="string"
+            length="1"
+            follows="left|top|right"
+            height="19"
+            layout="topleft"
+            left="10"
+            max_length_bytes="255"
+            valign="center"
+            name="edit_LocationTextText"
+            right="-10"/>
+          <text
+            type="string"
+            length="1"
+            follows="left|top|right"
+            height="14"
+            top_pad="10"
+            layout="topleft"
+            left="10"
+            right="-10">
+            Marketplace store:
+          </text>
+          <line_editor
+            type="string"
+            length="1"
+            follows="left|top|right"
+            height="19"
+            layout="topleft"
+            left="10"
+            max_length_bytes="255"
+            valign="center"
+            name="edit_marketplace"
+            right="-10"/>
           <check_box width="140"
                      height="21"
                      left="10"

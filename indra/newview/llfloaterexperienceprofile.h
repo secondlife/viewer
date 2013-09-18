@@ -78,11 +78,6 @@ protected:
     void doSave( int success_action );
     LLUUID mExperienceId;
     LLSD mExperienceDetails;
-
-    LLLayoutPanel* mImagePanel;
-    LLLayoutPanel* mDescriptionPanel;
-    LLLayoutPanel* mLocationPanel;
-    LLLayoutPanel* mMarketplacePanel;
     int mSaveCompleteAction;
     bool mDirty;
     bool mForceClose;

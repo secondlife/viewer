@@ -251,7 +251,7 @@ namespace LLExperienceCache
 			sCache[public_key]=it->second;
 		}
 
-		LL_INFOS("ExperienceCache") << "loaded " << sCache.size() << LL_ENDL;
+		LL_DEBUGS("ExperienceCache") << "importFile() loaded " << sCache.size() << LL_ENDL;
 	}
 
 	void exportFile(std::ostream& ostr)
@@ -298,7 +298,7 @@ namespace LLExperienceCache
 				LLUUID public_key = row[EXPERIENCE_ID].asUUID();
 
 
-				LL_INFOS("ExperienceCache") << "Received result for " << public_key 
+				LL_DEBUGS("ExperienceCache") << "Received result for " << public_key 
 					<< " display '" << row[LLExperienceCache::NAME].asString() << "'" << LL_ENDL ;
 
 				processExperience(public_key, row);
@@ -317,10 +317,10 @@ namespace LLExperienceCache
                 exp[QUOTA] = DEFAULT_QUOTA;
 
 				processExperience(id, exp);
-				LL_INFOS("ExperienceCache") << "Error result for " << id << LL_ENDL ;
+				LL_WARNS("ExperienceCache") << "LLExperienceResponder::result() error result for " << id << LL_ENDL ;
 			}
 
-			LL_INFOS("ExperienceCache") << sCache.size() << " cached experiences" << LL_ENDL;
+			LL_DEBUGS("ExperienceCache") << sCache.size() << " cached experiences" << LL_ENDL;
 		}
 
 		virtual void error(U32 status, const std::string& reason)
@@ -351,7 +351,6 @@ namespace LLExperienceCache
                 exp[QUOTA] = DEFAULT_QUOTA;
 
  				LLExperienceCache::processExperience(it->first, exp);
-                LL_INFOS("ExperienceCache") << "Error result for " << it->first << LL_ENDL ;
  			}
 
 		}
@@ -443,7 +442,7 @@ namespace LLExperienceCache
 
 			if(ostr.tellp() > EXP_URL_SEND_THRESHOLD)
 			{
-				LL_INFOS("ExperienceCache") <<  " query: " << ostr.str() << LL_ENDL;
+				LL_DEBUGS("ExperienceCache") <<  "requestExperiences() query: " << ostr.str() << LL_ENDL;
 				LLHTTPClient::get(ostr.str(), new LLExperienceResponder(keys));
 				ostr.clear();
 				ostr.str(sLookupURL);
@@ -454,7 +453,7 @@ namespace LLExperienceCache
 
 		if(ostr.tellp() > sLookupURL.size())
 		{
-			LL_INFOS("ExperienceCache") <<  " query: " << ostr.str() << LL_ENDL;
+			LL_DEBUGS("ExperienceCache") <<  "requestExperiences() query 2: " << ostr.str() << LL_ENDL;
 			LLHTTPClient::get(ostr.str(), new LLExperienceResponder(keys));
 		}
 
@@ -539,7 +538,7 @@ namespace LLExperienceCache
 			{
                 if(!exp.has(EXPERIENCE_ID))
 				{
-                    LL_INFOS("ExperienceCache") << "Removing experience with no id " << LL_ENDL ;
+                    LL_WARNS("ExperienceCache") << "Removing experience with no id " << LL_ENDL ;
                     sCache.erase(cur);
 					}
                 else
@@ -552,7 +551,7 @@ namespace LLExperienceCache
 					}
 					else
 					{
-                        LL_INFOS("ExperienceCache") << "Removing invalid experience " << id << LL_ENDL ;
+                        LL_WARNS("ExperienceCache") << "Removing invalid experience " << id << LL_ENDL ;
 						sCache.erase(cur);
 					}
 				}
@@ -565,7 +564,7 @@ namespace LLExperienceCache
 	{
 		if(!key.isNull() && !isRequestPending(key) && (refresh || sCache.find(key)==sCache.end()))
 		{
-			LL_INFOS("ExperienceCache") << " queue request for " << EXPERIENCE_ID << " " << key << LL_ENDL ;
+			LL_DEBUGS("ExperienceCache") << " queue request for " << EXPERIENCE_ID << " " << key << LL_ENDL ;
 			sAskQueue[key]=EXPERIENCE_ID;
 
 			return true;

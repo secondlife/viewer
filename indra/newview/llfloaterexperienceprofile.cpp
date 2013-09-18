@@ -54,10 +54,12 @@
 #define TF_MRKT "marketplace"
 #define TF_MATURITY "ContentRatingText"
 #define TF_OWNER "OwnerText"
+#define TF_GRID_WIDE "grid_wide"
 #define EDIT "edit_"
 
 #define IMG_LOGO "logo"
 
+#define PNL_TOP "top panel"
 #define PNL_IMAGE "image_panel"
 #define PNL_DESC "description panel"
 #define PNL_LOC "location panel"
@@ -76,10 +78,6 @@
 LLFloaterExperienceProfile::LLFloaterExperienceProfile(const LLSD& data)
     : LLFloater(data)
     , mExperienceId(data.asUUID())
-    , mImagePanel(NULL)
-    , mDescriptionPanel(NULL)
-    , mLocationPanel(NULL)
-    , mMarketplacePanel(NULL)
     , mSaveCompleteAction(NOTHING)
     , mDirty(false)
     , mForceClose(false)
@@ -169,17 +167,16 @@ public:
             if(url.empty())
                 enabled = false;
         }
-        
-        parent->getChild<LLButton>(BTN_EDIT)->setVisible(enabled && content["status"].asBoolean());
+        if(enabled && content["status"].asBoolean())
+        {
+            parent->getChild<LLLayoutPanel>(PNL_TOP)->setVisible(TRUE);
+            parent->getChild<LLButton>(BTN_EDIT)->setVisible(TRUE);
+        }
     }
 };
 
 BOOL LLFloaterExperienceProfile::postBuild()
 {
-    mImagePanel = getChild<LLLayoutPanel>(PNL_IMAGE);
-    mDescriptionPanel = getChild<LLLayoutPanel>(PNL_DESC);
-    mLocationPanel = getChild<LLLayoutPanel>(PNL_LOC);
-    mMarketplacePanel = getChild<LLLayoutPanel>(PNL_MRKT);  
 
     if (mExperienceId.notNull())
     {
@@ -327,13 +324,20 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
 {
     mExperienceDetails = experience;
 
-    if(experience.has(LLExperienceCache::MISSING))
-    {
-        mImagePanel->setVisible(FALSE);
-        mDescriptionPanel->setVisible(FALSE);
-        mLocationPanel->setVisible(FALSE);
-        mMarketplacePanel->setVisible(FALSE);
-    }
+
+    LLLayoutPanel* imagePanel = getChild<LLLayoutPanel>(PNL_IMAGE);
+    LLLayoutPanel* descriptionPanel = getChild<LLLayoutPanel>(PNL_DESC);
+    LLLayoutPanel* locationPanel = getChild<LLLayoutPanel>(PNL_LOC);
+    LLLayoutPanel* marketplacePanel = getChild<LLLayoutPanel>(PNL_MRKT);  
+    LLLayoutPanel* topPanel = getChild<LLLayoutPanel>(PNL_TOP);  
+
+
+    imagePanel->setVisible(FALSE);
+    descriptionPanel->setVisible(FALSE);
+    locationPanel->setVisible(FALSE);
+    marketplacePanel->setVisible(FALSE);
+    topPanel->setVisible(FALSE);
+
 
     LLTextBox* child = getChild<LLTextBox>(TF_NAME);
     child->setText(experience[LLExperienceCache::NAME].asString());
@@ -344,7 +348,7 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
     std::string value = experience[LLExperienceCache::DESCRIPTION].asString();
     LLExpandableTextBox* exchild = getChild<LLExpandableTextBox>(TF_DESC);
     exchild->setText(value);
-    mDescriptionPanel->setVisible(value.length()>0);
+    descriptionPanel->setVisible(value.length()>0);
 
     LLTextEditor* edit_child = getChild<LLTextEditor>(EDIT TF_DESC);
     edit_child->setText(value);
@@ -352,7 +356,7 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
     value = experience[LLExperienceCache::SLURL].asString();
     child = getChild<LLTextBox>(TF_SLURL);
     child->setText(value);
-    mLocationPanel->setVisible(value.length()>0);
+    locationPanel->setVisible(value.length()>0);
 
     linechild = getChild<LLLineEditor>(EDIT TF_SLURL);
     linechild->setText(value);
@@ -372,7 +376,20 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
         value = LLSLURL("agent", id, "inspect").getSLURLString();
     }
     child->setText(value);
-        
+    
+    LLCheckBoxCtrl* enable = getChild<LLCheckBoxCtrl>(EDIT BTN_ENABLE);
+    S32 properties = mExperienceDetails[LLExperienceCache::PROPERTIES].asInteger();
+    enable->set(properties & LLExperienceCache::PROPERTY_DISABLED); 
+
+    enable = getChild<LLCheckBoxCtrl>(EDIT BTN_PRIVATE);
+    enable->set(properties & LLExperienceCache::PROPERTY_PRIVATE);  
+
+    if(properties & LLExperienceCache::PROPERTY_GRID)
+    {
+        topPanel->setVisible(TRUE);
+        getChild<LLTextBox>(TF_GRID_WIDE)->setVisible(TRUE);
+    }
+            
     value=experience[LLExperienceCache::METADATA].asString();
     if(value.empty())
         return;
@@ -391,11 +408,11 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
 
             child = getChild<LLTextBox>(TF_MRKT);
             child->setText(value);
-            mMarketplacePanel->setVisible(TRUE);
+            marketplacePanel->setVisible(TRUE);
         }
         else
         {
-            mMarketplacePanel->setVisible(FALSE);
+            marketplacePanel->setVisible(FALSE);
         }
         
         linechild = getChild<LLLineEditor>(EDIT TF_MRKT);
@@ -405,18 +422,17 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
         {
             LLTextureCtrl* logo = getChild<LLTextureCtrl>(IMG_LOGO);
             logo->setImageAssetID(data[IMG_LOGO].asUUID());
-            mImagePanel->setVisible(TRUE);
+            imagePanel->setVisible(TRUE);
 
             logo = getChild<LLTextureCtrl>(EDIT IMG_LOGO);
             logo->setImageAssetID(data[IMG_LOGO].asUUID());
         }
     }
-
-    LLCheckBoxCtrl* enable = getChild<LLCheckBoxCtrl>(EDIT BTN_ENABLE);
-    enable->set( 0 == (mExperienceDetails[LLExperienceCache::PROPERTIES].asInteger() & LLExperienceCache::PROPERTY_DISABLED)); 
-    
-    enable = getChild<LLCheckBoxCtrl>(EDIT BTN_PRIVATE);
-    enable->set( 0 != (mExperienceDetails[LLExperienceCache::PROPERTIES].asInteger() & LLExperienceCache::PROPERTY_PRIVATE));  
+    else
+    {
+        marketplacePanel->setVisible(FALSE);
+        imagePanel->setVisible(FALSE);
+    }
 
     mDirty=false;
     setCanClose(!mDirty);
