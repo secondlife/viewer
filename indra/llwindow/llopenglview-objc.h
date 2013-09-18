@@ -65,6 +65,7 @@
 - (unsigned long) getVramSize;
 
 - (void) allowMarkedTextInput:(bool)allowed;
+- (void) viewDidEndLiveResize;
 
 @end
 
