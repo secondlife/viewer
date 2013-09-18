@@ -539,8 +539,7 @@ public:
 	template<typename AMOUNT_T>
 	AMOUNT_T& memDisclaimAmount(AMOUNT_T& size)
 	{
-		MemStatAccumulator& accumulator = sMemStat.getPrimaryAccumulator();
-		accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)size : -(F64)size);
+		disclaim_mem(size);
 		return size;
 	}
 
@@ -552,7 +551,6 @@ private:
 	{
 		static void claim(mem_trackable_t& tracker, const TRACKED& tracked)
 		{
-			MemStatAccumulator& accumulator = sMemStat.getPrimaryAccumulator();
 			size_t footprint = MemFootprint<TRACKED>::measure(tracked);
 			claim_mem(sMemStat, footprint);
 			tracker.mMemFootprint += footprint;
@@ -560,7 +558,6 @@ private:
 
 		static void disclaim(mem_trackable_t& tracker, const TRACKED& tracked)
 		{
-			MemStatAccumulator& accumulator = sMemStat.getPrimaryAccumulator();
 			size_t footprint = MemFootprint<TRACKED>::measure(tracked);
 			disclaim_mem(sMemStat, footprint);
 			tracker.mMemFootprint -= footprint;
@@ -572,13 +569,11 @@ private:
 	{
 		static void claim(mem_trackable_t& tracker, TRACKED& tracked)
 		{
-			MemStatAccumulator& accumulator = sMemStat.getPrimaryAccumulator();
 			accumulator.mChildSize.sample(accumulator.mChildSize.hasValue() ? accumulator.mChildSize.getLastValue() + (F64)MemFootprint<TRACKED>::measure(tracked) : (F64)MemFootprint<TRACKED>::measure(tracked));
 		}
 
 		static void disclaim(mem_trackable_t& tracker, TRACKED& tracked)
 		{
-			MemStatAccumulator& accumulator = sMemStat.getPrimaryAccumulator();
 			accumulator.mChildSize.sample(accumulator.mChildSize.hasValue() ? accumulator.mChildSize.getLastValue() - (F64)MemFootprint<TRACKED>::measure(tracked) : -(F64)MemFootprint<TRACKED>::measure(tracked));
 		}
 	};
