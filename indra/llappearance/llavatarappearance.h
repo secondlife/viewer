@@ -226,7 +226,7 @@ public:
 	//--------------------------------------------------------------------
 public:
 	// SUNSHINE CLEANUP no upload
-	virtual void	invalidateComposite(LLTexLayerSet* layerset, BOOL upload_result) = 0;
+	virtual void	invalidateComposite(LLTexLayerSet* layerset) = 0;
 
 /********************************************************************************
  **                                                                            **
@@ -258,7 +258,7 @@ protected:
 	//--------------------------------------------------------------------
 public:
 	// SUNSHINE CLEANUP no upload
-	void			setClothesColor(LLAvatarAppearanceDefines::ETextureIndex te, const LLColor4& new_color, BOOL upload_bake);
+	void			setClothesColor(LLAvatarAppearanceDefines::ETextureIndex te, const LLColor4& new_color);
 	LLColor4		getClothesColor(LLAvatarAppearanceDefines::ETextureIndex te);
 	static BOOL		teToColorParams(LLAvatarAppearanceDefines::ETextureIndex te, U32 *param_name);
 
@@ -268,7 +268,7 @@ public:
 public:
 	LLColor4		getGlobalColor(const std::string& color_name ) const;
 	// SUNSHINE CLEANUP no upload
-	virtual void	onGlobalColorChanged(const LLTexGlobalColor* global_color, BOOL upload_bake) = 0;
+	virtual void	onGlobalColorChanged(const LLTexGlobalColor* global_color) = 0;
 protected:
 	LLTexGlobalColor* mTexSkinColor;
 	LLTexGlobalColor* mTexHairColor;

@@ -1361,14 +1361,14 @@ BOOL LLAvatarAppearance::teToColorParams( ETextureIndex te, U32 *param_name )
 	return TRUE;
 }
 
-void LLAvatarAppearance::setClothesColor( ETextureIndex te, const LLColor4& new_color, BOOL upload_bake )
+void LLAvatarAppearance::setClothesColor( ETextureIndex te, const LLColor4& new_color)
 {
 	U32 param_name[3];
 	if( teToColorParams( te, param_name ) )
 	{
-		setVisualParamWeight( param_name[0], new_color.mV[VX], upload_bake );
-		setVisualParamWeight( param_name[1], new_color.mV[VY], upload_bake );
-		setVisualParamWeight( param_name[2], new_color.mV[VZ], upload_bake );
+		setVisualParamWeight( param_name[0], new_color.mV[VX]);
+		setVisualParamWeight( param_name[1], new_color.mV[VY]);
+		setVisualParamWeight( param_name[2], new_color.mV[VZ]);
 	}
 }
 

@@ -674,38 +674,38 @@ LLJoint *LLVOAvatarSelf::getJoint(const std::string &name)
 }
 // virtual
 // SUNSHINE CLEANUP no upload_bake
-BOOL LLVOAvatarSelf::setVisualParamWeight(const LLVisualParam *which_param, F32 weight, BOOL upload_bake )
+BOOL LLVOAvatarSelf::setVisualParamWeight(const LLVisualParam *which_param, F32 weight)
 {
 	if (!which_param)
 	{
 		return FALSE;
 	}
 	LLViewerVisualParam *param = (LLViewerVisualParam*) LLCharacter::getVisualParam(which_param->getID());
-	return setParamWeight(param,weight,upload_bake);
+	return setParamWeight(param,weight);
 }
 
 // virtual
 // SUNSHINE CLEANUP no upload_bake
-BOOL LLVOAvatarSelf::setVisualParamWeight(const char* param_name, F32 weight, BOOL upload_bake )
+BOOL LLVOAvatarSelf::setVisualParamWeight(const char* param_name, F32 weight)
 {
 	if (!param_name)
 	{
 		return FALSE;
 	}
 	LLViewerVisualParam *param = (LLViewerVisualParam*) LLCharacter::getVisualParam(param_name);
-	return setParamWeight(param,weight,upload_bake);
+	return setParamWeight(param,weight);
 }
 
 // virtual
 // SUNSHINE CLEANUP no upload_bake
-BOOL LLVOAvatarSelf::setVisualParamWeight(S32 index, F32 weight, BOOL upload_bake )
+BOOL LLVOAvatarSelf::setVisualParamWeight(S32 index, F32 weight)
 {
 	LLViewerVisualParam *param = (LLViewerVisualParam*) LLCharacter::getVisualParam(index);
-	return setParamWeight(param,weight,upload_bake);
+	return setParamWeight(param,weight);
 }
 
 // SUNSHINE CLEANUP no upload_bake
-BOOL LLVOAvatarSelf::setParamWeight(const LLViewerVisualParam *param, F32 weight, BOOL upload_bake )
+BOOL LLVOAvatarSelf::setParamWeight(const LLViewerVisualParam *param, F32 weight)
 {
 	if (!param)
 	{
@@ -729,12 +729,12 @@ BOOL LLVOAvatarSelf::setParamWeight(const LLViewerVisualParam *param, F32 weight
 			LLViewerWearable *wearable = gAgentWearables.getViewerWearable(type,count);
 			if (wearable)
 			{
-				wearable->setVisualParamWeight(param->getID(), weight, upload_bake);
+				wearable->setVisualParamWeight(param->getID(), weight);
 			}
 		}
 	}
 
-	return LLCharacter::setVisualParamWeight(param,weight,upload_bake);
+	return LLCharacter::setVisualParamWeight(param,weight);
 }
 
 /*virtual*/ 
@@ -747,7 +747,7 @@ void LLVOAvatarSelf::updateVisualParams()
 void LLVOAvatarSelf::idleUpdateAppearanceAnimation()
 {
 	// Animate all top-level wearable visual parameters
-	gAgentWearables.animateAllWearableParams(calcMorphAmount(), FALSE);
+	gAgentWearables.animateAllWearableParams(calcMorphAmount());
 
 	// apply wearable visual params to avatar
 	for (U32 type = 0; type < LLWearableType::WT_COUNT; type++)
@@ -890,7 +890,7 @@ void LLVOAvatarSelf::removeMissingBakedTextures()
 		{
 			LLViewerTexLayerSet *layerset = getTexLayerSet(i);
 			layerset->setUpdatesEnabled(TRUE);
-			invalidateComposite(layerset, FALSE);
+			invalidateComposite(layerset);
 		}
 		updateMeshTextures();
 		if (getRegion() && !getRegion()->getCentralBakeVersion())
@@ -1094,7 +1094,7 @@ void LLVOAvatarSelf::wearableUpdated( LLWearableType::EType type, BOOL upload_re
 					if (layerset)
 					{
 						layerset->setUpdatesEnabled(true);
-						invalidateComposite(layerset, upload_result);
+						invalidateComposite(layerset);
 					}
 					break;
 				}
@@ -1628,7 +1628,7 @@ bool LLVOAvatarSelf::hasPendingBakedUploads() const
 }
 
 // SUNSHINE CLEANUP no upload_bake
-void LLVOAvatarSelf::invalidateComposite( LLTexLayerSet* layerset, BOOL upload_result )
+void LLVOAvatarSelf::invalidateComposite( LLTexLayerSet* layerset)
 {
 	LLViewerTexLayerSet *layer_set = dynamic_cast<LLViewerTexLayerSet*>(layerset);
 	if( !layer_set || !layer_set->getUpdatesEnabled() )
@@ -1640,6 +1640,7 @@ void LLVOAvatarSelf::invalidateComposite( LLTexLayerSet* layerset, BOOL upload_r
 	layer_set->requestUpdate();
 	layer_set->invalidateMorphMasks();
 
+#if 0 // SUNSHINE CLEANUP
 	if( upload_result  && (getRegion() && !getRegion()->getCentralBakeVersion()))
 	{
 		llassert(isSelf());
@@ -1649,6 +1650,7 @@ void LLVOAvatarSelf::invalidateComposite( LLTexLayerSet* layerset, BOOL upload_r
 		layer_set->requestUpload();
 		updateMeshTextures();
 	}
+#endif
 }
 
 void LLVOAvatarSelf::invalidateAll()
@@ -1656,7 +1658,7 @@ void LLVOAvatarSelf::invalidateAll()
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 	{
 		LLViewerTexLayerSet *layerset = getTexLayerSet(i);
-		invalidateComposite(layerset, TRUE);
+		invalidateComposite(layerset);
 	}
 	//mDebugSelfLoadTimer.reset();
 }
@@ -2899,7 +2901,7 @@ void LLVOAvatarSelf::processRebakeAvatarTextures(LLMessageSystem* msg, void**)
 				if (layer_set)
 				{
 					llinfos << "TAT: rebake - matched entry " << (S32)index << llendl;
-					gAgentAvatarp->invalidateComposite(layer_set, TRUE);
+					gAgentAvatarp->invalidateComposite(layer_set);
 					found = TRUE;
 					LLViewerStats::getInstance()->incStat(LLViewerStats::ST_TEX_REBAKES);
 				}
@@ -2936,7 +2938,7 @@ void LLVOAvatarSelf::forceBakeAllTextures(bool slam_for_debug)
 				layer_set->cancelUpload();
 			}
 
-			invalidateComposite(layer_set, TRUE);
+			invalidateComposite(layer_set);
 			LLViewerStats::getInstance()->incStat(LLViewerStats::ST_TEX_REBAKES);
 		}
 		else

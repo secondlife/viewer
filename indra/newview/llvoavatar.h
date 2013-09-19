@@ -403,7 +403,7 @@ public:
 	//--------------------------------------------------------------------
 public:
 		// SUNSHINE CLEANUP no upload
-	/*virtual*/void onGlobalColorChanged(const LLTexGlobalColor* global_color, BOOL upload_bake);
+	/*virtual*/void onGlobalColorChanged(const LLTexGlobalColor* global_color);
 
 	//--------------------------------------------------------------------
 	// Visibility
@@ -564,7 +564,7 @@ protected:
 	//--------------------------------------------------------------------
 public:
 		// SUNSHINE CLEANUP no upload
-	virtual void	invalidateComposite(LLTexLayerSet* layerset, BOOL upload_result);
+	virtual void	invalidateComposite(LLTexLayerSet* layerset);
 	virtual void	invalidateAll();
 	virtual void	setCompositeUpdatesEnabled(bool b) {}
 	virtual void 	setCompositeUpdatesEnabled(U32 index, bool b) {}
@@ -601,7 +601,7 @@ private:
 public:
 	void			debugColorizeSubMeshes(U32 i, const LLColor4& color);
 	virtual void 	updateMeshTextures();
-	void 			updateSexDependentLayerSets(BOOL upload_bake);
+	void 			updateSexDependentLayerSets();
 	virtual void	dirtyMesh(); // Dirty the avatar mesh
 	void 			updateMeshData();
 protected:

@@ -76,7 +76,7 @@ public:
 	/*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable) const;
 protected:
 		// SUNSHINE CLEANUP no upload
-	/*virtual*/ void onGlobalColorChanged(bool upload_bake);
+	/*virtual*/ void onGlobalColorChanged();
 private:
 	LLTexGlobalColor*		mTexGlobalColor;
 };

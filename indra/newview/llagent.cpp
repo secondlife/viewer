@@ -3671,7 +3671,7 @@ void LLAgent::processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void *
 					else
 					{
 						// no cache of this bake. request upload.
-						gAgentAvatarp->invalidateComposite(gAgentAvatarp->getLayerSet(baked_index),TRUE);
+						gAgentAvatarp->invalidateComposite(gAgentAvatarp->getLayerSet(baked_index));
 					}
 				}
 			}

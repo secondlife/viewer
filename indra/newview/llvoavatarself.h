@@ -97,9 +97,9 @@ public:
 	
 				void		resetJointPositions( void );
 	
-	/*virtual*/ BOOL setVisualParamWeight(const LLVisualParam *which_param, F32 weight, BOOL upload_bake = FALSE );
-	/*virtual*/ BOOL setVisualParamWeight(const char* param_name, F32 weight, BOOL upload_bake = FALSE );
-	/*virtual*/ BOOL setVisualParamWeight(S32 index, F32 weight, BOOL upload_bake = FALSE );
+	/*virtual*/ BOOL setVisualParamWeight(const LLVisualParam *which_param, F32 weight);
+	/*virtual*/ BOOL setVisualParamWeight(const char* param_name, F32 weight);
+	/*virtual*/ BOOL setVisualParamWeight(S32 index, F32 weight);
 	/*virtual*/ void updateVisualParams();
 	/*virtual*/ void idleUpdateAppearanceAnimation();
 
@@ -111,7 +111,7 @@ public:
 
 private:
 	// helper function. Passed in param is assumed to be in avatar's parameter list.
-	BOOL setParamWeight(const LLViewerVisualParam *param, F32 weight, BOOL upload_bake = FALSE );
+	BOOL setParamWeight(const LLViewerVisualParam *param, F32 weight);
 
 
 
@@ -262,7 +262,7 @@ public:
 	//--------------------------------------------------------------------
 public:
 		// SUNSHINE CLEANUP no upload
-	/* virtual */ void	invalidateComposite(LLTexLayerSet* layerset, BOOL upload_result);
+	/* virtual */ void	invalidateComposite(LLTexLayerSet* layerset);
 	/* virtual */ void	invalidateAll();
 	/* virtual */ void	setCompositeUpdatesEnabled(bool b); // only works for self
 	/* virtual */ void  setCompositeUpdatesEnabled(U32 index, bool b);

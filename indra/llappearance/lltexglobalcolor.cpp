@@ -104,9 +104,9 @@ LLTexParamGlobalColor::LLTexParamGlobalColor(LLTexGlobalColor* tex_global_color)
 }
 
 	// SUNSHINE CLEANUP no upload
-void LLTexParamGlobalColor::onGlobalColorChanged(bool upload_bake)
+void LLTexParamGlobalColor::onGlobalColorChanged()
 {
-	mAvatarAppearance->onGlobalColorChanged(mTexGlobalColor, upload_bake);
+	mAvatarAppearance->onGlobalColorChanged(mTexGlobalColor);
 }
 
 //-----------------------------------------------------------------------------
