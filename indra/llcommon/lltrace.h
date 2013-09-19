@@ -474,7 +474,7 @@ public:
 
 	void operator delete[](void* ptr, size_t size)
 	{
-		MemStatAccumulator& accumulator = sMemStat.getPrimaryAccumulator();
+		MemStatAccumulator& accumulator = sMemStat.getCurrentAccumulator();
 		accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)size : -(F64)size);
 		accumulator.mAllocatedCount--;
 		accumulator.mDeallocatedCount++;
@@ -516,7 +516,7 @@ public:
 	template<typename AMOUNT_T>
 	AMOUNT_T& memClaimAmount(AMOUNT_T& size)
 	{
-		MemStatAccumulator& accumulator = sMemStat.getPrimaryAccumulator();
+		MemStatAccumulator& accumulator = sMemStat.getCurrentAccumulator();
 		mMemFootprint += (size_t)size;
 		return size;
 	}
@@ -569,12 +569,12 @@ private:
 	{
 		static void claim(mem_trackable_t& tracker, TRACKED& tracked)
 		{
-			accumulator.mChildSize.sample(accumulator.mChildSize.hasValue() ? accumulator.mChildSize.getLastValue() + (F64)MemFootprint<TRACKED>::measure(tracked) : (F64)MemFootprint<TRACKED>::measure(tracked));
+			claim_shadow_mem( (F64)MemFootprint<TRACKED>::measure(tracked));
 		}
 
 		static void disclaim(mem_trackable_t& tracker, TRACKED& tracked)
 		{
-			accumulator.mChildSize.sample(accumulator.mChildSize.hasValue() ? accumulator.mChildSize.getLastValue() - (F64)MemFootprint<TRACKED>::measure(tracked) : -(F64)MemFootprint<TRACKED>::measure(tracked));
+			disclaim_shadow_mem((F64)MemFootprint<TRACKED>::measure(tracked));
 		}
 	};
 };
