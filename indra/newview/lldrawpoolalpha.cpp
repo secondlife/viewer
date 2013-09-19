@@ -93,15 +93,35 @@ void LLDrawPoolAlpha::beginPostDeferredPass(S32 pass)
 
 	if (pass == 0)
 	{
+		if (LLPipeline::sImpostorRender)
+		{
+			simple_shader = &gDeferredAlphaImpostorProgram;
+			fullbright_shader = &gDeferredFullbrightProgram;
+		}
+		else if (LLPipeline::sUnderWaterRender)
+		{
+			simple_shader = &gDeferredAlphaWaterProgram;
+			fullbright_shader = &gDeferredFullbrightWaterProgram;
+		}
+		else
+		{
 		simple_shader = &gDeferredAlphaProgram;
-		fullbright_shader = &gObjectFullbrightProgram;
+			fullbright_shader = &gDeferredFullbrightProgram;
+		}
+		
+		F32 gamma = gSavedSettings.getF32("RenderDeferredDisplayGamma");
+
 		fullbright_shader->bind();
 		fullbright_shader->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f); 
+		fullbright_shader->uniform1f(LLShaderMgr::DISPLAY_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f/2.2f));
 		fullbright_shader->unbind();
+
 		//prime simple shader (loads shadow relevant uniforms)
 		gPipeline.bindDeferredShader(*simple_shader);
+
+		simple_shader->uniform1f(LLShaderMgr::DISPLAY_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f/2.2f));
 	}
-	else
+	else if (!LLPipeline::sImpostorRender)
 	{
 		//update depth buffer sampler
 		gPipeline.mScreen.flush();
@@ -112,6 +132,23 @@ void LLDrawPoolAlpha::beginPostDeferredPass(S32 pass)
 		gObjectFullbrightAlphaMaskProgram.bind();
 		gObjectFullbrightAlphaMaskProgram.setMinimumAlpha(0.33f);
 	}
+
+
+    if (LLPipeline::sRenderDeferred)
+    {
+		emissive_shader = &gDeferredEmissiveProgram;
+    }
+    else
+    {
+		if (LLPipeline::sUnderWaterRender)
+		{
+			emissive_shader = &gObjectEmissiveWaterProgram;
+		}
+		else
+		{
+			emissive_shader = &gObjectEmissiveProgram;
+		}
+    }
 
 	deferred_render = TRUE;
 	if (mVertexShaderLevel > 0)
@@ -124,7 +161,7 @@ void LLDrawPoolAlpha::beginPostDeferredPass(S32 pass)
 
 void LLDrawPoolAlpha::endPostDeferredPass(S32 pass) 
 { 
-	if (pass == 1)
+	if (pass == 1 && !LLPipeline::sImpostorRender)
 	{
 		gPipeline.mDeferredDepth.flush();
 		gPipeline.mScreen.bindTarget();
@@ -144,7 +181,13 @@ void LLDrawPoolAlpha::beginRenderPass(S32 pass)
 {
 	LLFastTimer t(FTM_RENDER_ALPHA);
 	
-	if (LLPipeline::sUnderWaterRender)
+	if (LLPipeline::sImpostorRender)
+	{
+		simple_shader = &gObjectSimpleImpostorProgram;
+		fullbright_shader = &gObjectFullbrightProgram;
+		emissive_shader = &gObjectEmissiveProgram;
+	}
+	else if (LLPipeline::sUnderWaterRender)
 	{
 		simple_shader = &gObjectSimpleWaterProgram;
 		fullbright_shader = &gObjectFullbrightWaterProgram;
@@ -192,8 +235,13 @@ void LLDrawPoolAlpha::render(S32 pass)
 		gGL.setColorMask(true, true);
 	}
 	
-	LLGLDepthTest depth(GL_TRUE, LLDrawPoolWater::sSkipScreenCopy || 
-				(deferred_render && pass == 1) ? GL_TRUE : GL_FALSE);
+	bool write_depth = LLDrawPoolWater::sSkipScreenCopy
+						 || (deferred_render && pass == 1)
+						 // we want depth written so that rendered alpha will
+						 // contribute to the alpha mask used for impostors
+						 || LLPipeline::sImpostorRenderAlphaDepthPass;
+
+	LLGLDepthTest depth(GL_TRUE, write_depth ? GL_TRUE : GL_FALSE);
 
 	if (deferred_render && pass == 1)
 	{
@@ -239,11 +287,11 @@ void LLDrawPoolAlpha::render(S32 pass)
 
 	if (mVertexShaderLevel > 0)
 	{
-		renderAlpha(getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX | LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2);
+		renderAlpha(getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX | LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2, pass);
 	}
 	else
 	{
-		renderAlpha(getVertexDataMask());
+		renderAlpha(getVertexDataMask(), pass);
 	}
 
 	gGL.setColorMask(true, false);
@@ -315,7 +363,7 @@ void LLDrawPoolAlpha::renderAlphaHighlight(U32 mask)
 	}
 }
 
-void LLDrawPoolAlpha::renderAlpha(U32 mask)
+void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 {
 	BOOL initialized_lighting = FALSE;
 	BOOL light_enabled = TRUE;
@@ -348,11 +396,28 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 					continue;
 				}
 
+				// Fix for bug - NORSPEC-271
+				// If the face is more than 90% transparent, then don't update the Depth buffer for Dof
+				// We don't want the nearly invisible objects to cause of DoF effects
+				if(pass == 1 && !LLPipeline::sImpostorRender)
+				{
+					LLFace*	face = params.mFace;
+					if(face)
+					{
+						const LLTextureEntry* tep = face->getTextureEntry();
+						if(tep)
+						{
+							if(tep->getColor().mV[3] < 0.1f)
+								continue;
+						}
+					}
+				}
+
 				LLRenderPass::applyModelMatrix(params);
 				
 				LLMaterial* mat = NULL;
 
-				if (deferred_render && !LLPipeline::sUnderWaterRender)
+				if (deferred_render)
 				{
 					mat = params.mMaterial;
 				}
@@ -395,6 +460,11 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 
 					llassert(mask < LLMaterial::SHADER_COUNT);
 					target_shader = &(gDeferredMaterialProgram[mask]);
+
+					if (LLPipeline::sUnderWaterRender)
+					{
+						target_shader = &(gDeferredMaterialWaterProgram[mask]);
+					}
 
 					if (current_shader != target_shader)
 					{
@@ -500,7 +570,8 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 					}
 				}
 
-				params.mVertexBuffer->setBuffer(mask);
+				params.mVertexBuffer->setBuffer(mask & ~(params.mFullbright ? (LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2) : 0));
+                
 				params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
 				gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
 				
@@ -515,7 +586,6 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 
 					emissive_shader->bind();
 					
-					// glow doesn't use vertex colors from the mesh data
 					params.mVertexBuffer->setBuffer((mask & ~LLVertexBuffer::MAP_COLOR) | LLVertexBuffer::MAP_EMISSIVE);
 					
 					// do the actual drawing, again
@@ -545,3 +615,4 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 		gPipeline.enableLightsDynamic();
 	}
 }
+

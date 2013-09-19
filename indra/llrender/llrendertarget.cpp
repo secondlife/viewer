@@ -79,7 +79,7 @@ LLRenderTarget::~LLRenderTarget()
 	release();
 }
 
-void LLRenderTarget::resize(U32 resx, U32 resy, U32 color_fmt)
+void LLRenderTarget::resize(U32 resx, U32 resy)
 { 
 	//for accounting, get the number of pixels added/subtracted
 	S32 pix_diff = (resx*resy)-(mResX*mResY);
@@ -87,10 +87,12 @@ void LLRenderTarget::resize(U32 resx, U32 resy, U32 color_fmt)
 	mResX = resx;
 	mResY = resy;
 
+	llassert(mInternalFormat.size() == mTex.size());
+
 	for (U32 i = 0; i < mTex.size(); ++i)
 	{ //resize color attachments
 		gGL.getTexUnit(0)->bindManual(mUsage, mTex[i]);
-		LLImageGL::setManualImage(LLTexUnit::getInternalType(mUsage), 0, color_fmt, mResX, mResY, GL_RGBA, GL_UNSIGNED_BYTE, NULL, false);
+		LLImageGL::setManualImage(LLTexUnit::getInternalType(mUsage), 0, mInternalFormat[i], mResX, mResY, GL_RGBA, GL_UNSIGNED_BYTE, NULL, false);
 		sBytesAllocated += pix_diff*4;
 	}
 
@@ -252,11 +254,14 @@ bool LLRenderTarget::addColorAttachment(U32 color_fmt)
 	mTex.push_back(tex);
 	mInternalFormat.push_back(color_fmt);
 
+#if !LL_DARWIN
 	if (gDebugGL)
 	{ //bind and unbind to validate target
 		bindTarget();
 		flush();
 	}
+#endif
+    
 
 	return true;
 }
@@ -359,36 +364,56 @@ void LLRenderTarget::release()
 
 		sBytesAllocated -= mResX*mResY*4;
 	}
-	else if (mUseDepth && mFBO)
-	{ //detach shared depth buffer
+	else if (mFBO)
+	{
 		glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
-		if (mStencil)
-		{ //attached as a renderbuffer
-			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, 0);
-			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
-			mStencil = false;
+
+		if (mUseDepth)
+		{ //detach shared depth buffer
+			if (mStencil)
+			{ //attached as a renderbuffer
+				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, 0);
+				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
+				mStencil = false;
+			}
+			else
+			{ //attached as a texture
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, LLTexUnit::getInternalType(mUsage), 0, 0);
+			}
+			mUseDepth = false;
 		}
-		else
-		{ //attached as a texture
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, LLTexUnit::getInternalType(mUsage), 0, 0);
+	}
+
+	// Detach any extra color buffers (e.g. SRGB spec buffers)
+	//
+	if (mFBO && (mTex.size() > 1))
+	{		
+		S32 z;
+		for (z = mTex.size() - 1; z >= 1; z--)
+		{
+			sBytesAllocated -= mResX*mResY*4;
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+z, LLTexUnit::getInternalType(mUsage), 0, 0);
+			stop_glerror();
+			LLImageGL::deleteTextures(mUsage, mInternalFormat[z], 0, 1, &mTex[z], true);
 		}
-		mUseDepth = false;
 	}
 
 	if (mFBO)
 	{
 		glDeleteFramebuffers(1, (GLuint *) &mFBO);
+		stop_glerror();
 		mFBO = 0;
 	}
 
 	if (mTex.size() > 0)
 	{
-		sBytesAllocated -= mResX*mResY*4*mTex.size();
-		LLImageGL::deleteTextures(mUsage, mInternalFormat[0], 0, mTex.size(), &mTex[0], true);
-		mTex.clear();
-		mInternalFormat.clear();
+		sBytesAllocated -= mResX*mResY*4;
+		LLImageGL::deleteTextures(mUsage, mInternalFormat[0], 0, 1, &mTex[0], true);
 	}
-	
+
+	mTex.clear();
+	mInternalFormat.clear();
+
 	mResX = mResY = 0;
 
 	sBoundTarget = NULL;
@@ -572,8 +597,10 @@ void LLRenderTarget::copyContentsToFramebuffer(LLRenderTarget& source, S32 srcX0
 {
 	if (!source.mFBO)
 	{
-		llerrs << "Cannot copy framebuffer contents for non FBO render targets." << llendl;
+		llwarns << "Cannot copy framebuffer contents for non FBO render targets." << llendl;
+		return;
 	}
+
 	{
 		GLboolean write_depth = mask & GL_DEPTH_BUFFER_BIT ? TRUE : FALSE;
 

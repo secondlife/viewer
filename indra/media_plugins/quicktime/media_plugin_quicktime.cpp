@@ -232,12 +232,8 @@ private:
 			mMovieHandle = NULL;
 		};
 
-		if ( mGWorldHandle )
-		{
-			DisposeGWorld( mGWorldHandle );
-			mGWorldHandle = NULL;
-		};
-
+        mGWorldHandle = NULL;
+        
 		setStatus(STATUS_NONE);
 
 		return true;
@@ -273,6 +269,7 @@ private:
 				//std::cerr << "<--- Sending size change request to application with name: " << mTextureSegmentName << " - size is " << width << " x " << height << std::endl;
 			}
 		}
+        
 
 		// sanitize destination size
 		Rect dest_rect = rectFromSize(mWidth, mHeight);
@@ -281,12 +278,10 @@ private:
 		int depth_bits = mDepth * 8;
 		long rowbytes = mDepth * mTextureWidth;
 
-		GWorldPtr old_gworld_handle = mGWorldHandle;
-
 		if(mPixels != NULL)
 		{
 			// We have pixels.  Set up a GWorld pointing at the texture.
-			OSErr result = NewGWorldFromPtr( &mGWorldHandle, depth_bits, &dest_rect, NULL, NULL, 0, (Ptr)mPixels, rowbytes);
+			OSErr result = QTNewGWorldFromPtr( &mGWorldHandle, depth_bits, &dest_rect, NULL, NULL, 0, (Ptr)mPixels, rowbytes);
 			if ( noErr != result )
 			{
 				// TODO: unrecoverable??  throw exception?  return something?
@@ -297,7 +292,7 @@ private:
 		{
 			// We don't have pixels. Create a fake GWorld we can point the movie at when it's not safe to render normally.
 			Rect tempRect = rectFromSize(1, 1);
-			OSErr result = NewGWorld( &mGWorldHandle, depth_bits, &tempRect, NULL, NULL, 0);
+			OSErr result = QTNewGWorld( &mGWorldHandle, depth_bits, &tempRect, NULL, NULL, 0);
 			if ( noErr != result )
 			{
 				// TODO: unrecoverable??  throw exception?  return something?
@@ -305,14 +300,8 @@ private:
 			}
 		}
 
-		SetMovieGWorld( mMovieHandle, mGWorldHandle, GetGWorldDevice( mGWorldHandle ) );
-
-		// If the GWorld was already set up, delete it.
-		if(old_gworld_handle != NULL)
-		{
-			DisposeGWorld( old_gworld_handle );
-		}
-
+		SetMovieGWorld( mMovieHandle, mGWorldHandle, NULL );
+        
 		// Set up the movie display matrix
 		{
 			// scale movie to fit rect and invert vertically to match opengl image format
@@ -579,28 +568,7 @@ private:
 		}
 
 	};
-
-	int getDataWidth() const
-	{
-		if ( mGWorldHandle )
-		{
-			int depth = mDepth;
-
-			if (depth < 1)
-				depth = 1;
-
-			// ALWAYS use the row bytes from the PixMap if we have a GWorld because
-			// sometimes it's not the same as mMediaDepth * mMediaWidth !
-			PixMapHandle pix_map_handle = GetGWorldPixMap( mGWorldHandle );
-			return QTGetPixMapHandleRowBytes( pix_map_handle ) / depth;
-		}
-		else
-		{
-			// TODO :   return LLMediaImplCommon::getaDataWidth();
-			return 0;
-		}
-	};
-
+    
 	void seek( F64 time )
 	{
 		if ( mMovieController )

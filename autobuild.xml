@@ -2638,7 +2638,6 @@
                 <array>
                   <string>/build</string>
                   <string>"/cfg=Release|Win32"</string>
-                  <string>"/CL_ADD=/m:1"</string>
                 </array>
               </map>
               <key>configure</key>
