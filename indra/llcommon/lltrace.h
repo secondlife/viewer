@@ -581,12 +581,12 @@ private:
 	{
 		static void claim(mem_trackable_t& tracker, TRACKED& tracked)
 		{
-			claim_shadow_mem( (F64)MemFootprint<TRACKED>::measure(tracked));
+			claim_shadow_mem( sMemStat, MemFootprint<TRACKED>::measure(tracked));
 		}
 
 		static void disclaim(mem_trackable_t& tracker, TRACKED& tracked)
 		{
-			disclaim_shadow_mem((F64)MemFootprint<TRACKED>::measure(tracked));
+			disclaim_shadow_mem(sMemStat, MemFootprint<TRACKED>::measure(tracked));
 		}
 	};
 };
