@@ -168,6 +168,16 @@ F32 Recording::getPerSec(const TraceType<TimeBlockAccumulator::CallCountFacet>& 
 	return (F32)mBuffers->mStackTimers[stat.getIndex()].mCalls / mElapsedSeconds.value();
 }
 
+bool Recording::hasValue(const TraceType<MemStatAccumulator>& stat)
+{
+	return mBuffers->mMemStats[stat.getIndex()].mSize.hasValue();
+}
+
+bool Recording::hasValue(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat)
+{
+	return mBuffers->mMemStats[stat.getIndex()].mShadowSize.hasValue();
+}
+
 F64Bytes Recording::getMin(const TraceType<MemStatAccumulator>& stat)
 {
 	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mSize.getMin());
@@ -705,6 +715,98 @@ F64 PeriodicRecording::getPeriodStandardDeviation( const TraceType<SampleAccumul
 	return valid_period_count
 			? sqrt(sum_of_squares / (F64)valid_period_count)
 			: NaN;
+}
+
+
+F64Bytes PeriodicRecording::getPeriodMin( const TraceType<MemStatAccumulator>& stat, size_t num_periods /*= U32_MAX*/ )
+{
+	size_t total_periods = mRecordingPeriods.size();
+	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
+
+	F64Bytes min_val(std::numeric_limits<F64>::max());
+	for (S32 i = 1; i <= num_periods; i++)
+	{
+		Recording& recording = getPrevRecording(i);
+		min_val = llmin(min_val, recording.getMin(stat));
+	}
+
+	return min_val;
+}
+
+F64Bytes PeriodicRecording::getPeriodMin(const MemStatHandle& stat, size_t num_periods)
+{
+	return getPeriodMin(static_cast<const TraceType<MemStatAccumulator>&>(stat), num_periods);
+}
+
+F64Bytes PeriodicRecording::getPeriodMax(const TraceType<MemStatAccumulator>& stat, size_t num_periods /*= U32_MAX*/)
+{
+	size_t total_periods = mRecordingPeriods.size();
+	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
+
+	F64Bytes max_val(0.0);
+	for (S32 i = 1; i <= num_periods; i++)
+	{
+		Recording& recording = getPrevRecording(i);
+		max_val = llmax(max_val, recording.getMax(stat));
+	}
+
+	return max_val;
+}
+
+F64Bytes PeriodicRecording::getPeriodMax(const MemStatHandle& stat, size_t num_periods)
+{
+	return getPeriodMax(static_cast<const TraceType<MemStatAccumulator>&>(stat), num_periods);
+}
+
+F64Bytes PeriodicRecording::getPeriodMean( const TraceType<MemStatAccumulator>& stat, size_t num_periods /*= U32_MAX*/ )
+{
+	size_t total_periods = mRecordingPeriods.size();
+	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
+
+	F64Bytes mean(0);
+
+	for (S32 i = 1; i <= num_periods; i++)
+	{
+		Recording& recording = getPrevRecording(i);
+		mean += recording.getMean(stat);
+	}
+
+	return mean / F64(num_periods);
+}
+
+F64Bytes PeriodicRecording::getPeriodMean(const MemStatHandle& stat, size_t num_periods)
+{
+	return getPeriodMean(static_cast<const TraceType<MemStatAccumulator>&>(stat), num_periods);
+}
+
+F64Bytes PeriodicRecording::getPeriodStandardDeviation( const TraceType<MemStatAccumulator>& stat, size_t num_periods /*= U32_MAX*/ )
+{
+	size_t total_periods = mRecordingPeriods.size();
+	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
+
+	F64Bytes period_mean = getPeriodMean(stat, num_periods);
+	S32 valid_period_count = 0;
+	F64 sum_of_squares = 0;
+
+	for (S32 i = 1; i <= num_periods; i++)
+	{
+		Recording& recording = getPrevRecording(i);
+		if (recording.hasValue(stat))
+		{
+			F64Bytes delta = recording.getMean(stat) - period_mean;
+			sum_of_squares += delta.value() * delta.value();
+			valid_period_count++;
+		}
+	}
+
+	return F64Bytes(valid_period_count
+			? sqrt(sum_of_squares / (F64)valid_period_count)
+			: NaN);
+}
+
+F64Bytes PeriodicRecording::getPeriodStandardDeviation(const MemStatHandle& stat, size_t num_periods)
+{
+	return getPeriodStandardDeviation(static_cast<const TraceType<MemStatAccumulator>&>(stat), num_periods);
 }
 
 ///////////////////////////////////////////////////////////////////////

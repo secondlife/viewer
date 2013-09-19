@@ -175,6 +175,9 @@ namespace LLTrace
 		F32 getPerSec(const TraceType<TimeBlockAccumulator::CallCountFacet>& stat);
 
 		// Memory accessors
+		bool hasValue(const TraceType<MemStatAccumulator>& stat);
+		bool hasValue(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat);
+
 		F64Bytes getMin(const TraceType<MemStatAccumulator>& stat);
 		F64Bytes getMean(const TraceType<MemStatAccumulator>& stat);
 		F64Bytes getMax(const TraceType<MemStatAccumulator>& stat);
@@ -392,6 +395,9 @@ namespace LLTrace
 			return T(getPeriodMin(static_cast<const TraceType<EventAccumulator>&>(stat), num_periods));
 		}
 
+		F64Bytes getPeriodMin(const TraceType<MemStatAccumulator>& stat, size_t num_periods = U32_MAX);
+		F64Bytes getPeriodMin(const MemStatHandle& stat, size_t num_periods = U32_MAX);
+
 		template <typename T>
 		typename RelatedTypes<typename T::value_t>::fractional_t getPeriodMinPerSec(const TraceType<T>& stat, size_t num_periods = U32_MAX)
 		{
@@ -452,6 +458,9 @@ namespace LLTrace
 		{
 			return T(getPeriodMax(static_cast<const TraceType<EventAccumulator>&>(stat), num_periods));
 		}
+
+		F64Bytes getPeriodMax(const TraceType<MemStatAccumulator>& stat, size_t num_periods = U32_MAX);
+		F64Bytes getPeriodMax(const MemStatHandle& stat, size_t num_periods = U32_MAX);
 
 		template <typename T>
 		typename RelatedTypes<typename T::value_t>::fractional_t getPeriodMaxPerSec(const TraceType<T>& stat, size_t num_periods = U32_MAX)
@@ -519,6 +528,9 @@ namespace LLTrace
 			return typename RelatedTypes<T>::fractional_t(getPeriodMean(static_cast<const TraceType<EventAccumulator>&>(stat), num_periods));
 		}
 
+		F64Bytes getPeriodMean(const TraceType<MemStatAccumulator>& stat, size_t num_periods = U32_MAX);
+		F64Bytes getPeriodMean(const MemStatHandle& stat, size_t num_periods = U32_MAX);
+		
 		template <typename T>
 		typename RelatedTypes<typename T::value_t>::fractional_t getPeriodMeanPerSec(const TraceType<T>& stat, size_t num_periods = U32_MAX)
 		{
@@ -565,6 +577,9 @@ namespace LLTrace
 		{
 			return typename RelatedTypes<T>::fractional_t(getPeriodStandardDeviation(static_cast<const TraceType<EventAccumulator>&>(stat), num_periods));
 		}
+
+		F64Bytes getPeriodStandardDeviation(const TraceType<MemStatAccumulator>& stat, size_t num_periods = U32_MAX);
+		F64Bytes getPeriodStandardDeviation(const MemStatHandle& stat, size_t num_periods = U32_MAX);
 
 	private:
 		// implementation for LLStopWatchControlsMixin
