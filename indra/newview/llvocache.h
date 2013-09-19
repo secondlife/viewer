@@ -172,14 +172,11 @@ public:
 	void resetOccluders();
 	void processOccluders(LLCamera* camera);
 	
-	void setDirty();
-
 public:
 	static BOOL sNeedsOcclusionCheck;
 	//static	LLTrace::MemStatHandle	sMemStat;
 
 private:
-	BOOL  mDirty;
 	U32   mCullHistory[LLViewerCamera::NUM_CAMERAS];
 	U32   mCulledTime[LLViewerCamera::NUM_CAMERAS];
 	std::set<LLOcclusionCullingGroup*> mOccludedGroups;
