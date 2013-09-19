@@ -166,7 +166,6 @@ protected:
 	// SUNSHINE CLEANUP dead
 	void			sendAgentWearablesUpdate();
 	void			sendAgentWearablesRequest();
-	void			queryWearableCache();
 	void 			updateServer();
 	static void		onInitialWearableAssetArrived(LLViewerWearable* wearable, void* userdata);
 

@@ -4325,24 +4325,6 @@ void LLAgent::renderAutoPilotTarget()
 
 /********************************************************************************/
 
-LLAgentQueryManager gAgentQueryManager;
-
-LLAgentQueryManager::LLAgentQueryManager() :
-	mWearablesCacheQueryID(0),
-	mNumPendingQueries(0),
-	mUpdateSerialNum(0)
-{
-	for (U32 i = 0; i < BAKED_NUM_INDICES; i++)
-	{
-		// SUNSHINE CLEANUP
-		mActiveCacheQueries[i] = 0;
-	}
-}
-
-LLAgentQueryManager::~LLAgentQueryManager()
-{
-}
-
 //-----------------------------------------------------------------------------
 // LLTeleportRequest
 //-----------------------------------------------------------------------------

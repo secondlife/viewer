@@ -807,7 +807,8 @@ void LLAgentWearables::processAgentInitialWearablesUpdate(LLMessageSystem* mesgs
 
 	if (isAgentAvatarValid() && (agent_id == gAgentAvatarp->getID()))
 	{
-		gMessageSystem->getU32Fast(_PREHASH_AgentData, _PREHASH_SerialNum, gAgentQueryManager.mUpdateSerialNum);
+		U32 unused_update_serial_num;
+		gMessageSystem->getU32Fast(_PREHASH_AgentData, _PREHASH_SerialNum, unused_update_serial_num);
 		
 		const S32 NUM_BODY_PARTS = 4;
 		S32 num_wearables = gMessageSystem->getNumberOfBlocksFast(_PREHASH_WearableData);
@@ -1199,7 +1200,6 @@ void LLAgentWearables::removeWearableFinal(const LLWearableType::EType type, boo
 		for (S32 i=max_entry; i>=0; i--)
 		{
 			LLViewerWearable* old_wearable = getViewerWearable(type,i);
-			//queryWearableCache(); // moved below
 			if (old_wearable)
 			{
 				popWearable(old_wearable);
@@ -1211,7 +1211,6 @@ void LLAgentWearables::removeWearableFinal(const LLWearableType::EType type, boo
 	else
 	{
 		LLViewerWearable* old_wearable = getViewerWearable(type, index);
-		//queryWearableCache(); // moved below
 
 		if (old_wearable)
 		{
@@ -1219,8 +1218,6 @@ void LLAgentWearables::removeWearableFinal(const LLWearableType::EType type, boo
 			old_wearable->removeFromAvatar();
 		}
 	}
-
-	queryWearableCache();
 
 	// Update the server
 	updateServer();
@@ -1357,7 +1354,6 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 	mWearablesLoaded = TRUE; 
 	checkWearablesLoaded();
 	notifyLoadingFinished();
-	queryWearableCache();
 	updateServer();
 
 	gAgentAvatarp->dumpAvatarTEs("setWearableOutfit");
@@ -1481,69 +1477,9 @@ void LLAgentWearables::setWearableFinal(LLInventoryItem* new_item, LLViewerWeara
 	}
 
 	//llinfos << "LLVOAvatar::setWearableItem()" << llendl;
-	queryWearableCache();
 	//new_wearable->writeToAvatar(TRUE);
 
 	updateServer();
-}
-
-// SUNSHINE CLEANUP dead?
-void LLAgentWearables::queryWearableCache()
-{
-	if (!areWearablesLoaded() || (gAgent.getRegion() && gAgent.getRegion()->getCentralBakeVersion()))
-	{
-		return;
-	}
-	gAgentAvatarp->setIsUsingServerBakes(false);
-
-	// Look up affected baked textures.
-	// If they exist:
-	//		disallow updates for affected layersets (until dataserver responds with cache request.)
-	//		If cache miss, turn updates back on and invalidate composite.
-	//		If cache hit, modify baked texture entries.
-	//
-	// Cache requests contain list of hashes for each baked texture entry.
-	// Response is list of valid baked texture assets. (same message)
-
-	gMessageSystem->newMessageFast(_PREHASH_AgentCachedTexture);
-	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-	gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-	gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-	gMessageSystem->addS32Fast(_PREHASH_SerialNum, gAgentQueryManager.mWearablesCacheQueryID);
-
-	S32 num_queries = 0;
-	for (U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++)
-	{
-		LLUUID hash_id = computeBakedTextureHash((EBakedTextureIndex) baked_index);
-		if (hash_id.notNull())
-		{
-			num_queries++;
-			// *NOTE: make sure at least one request gets packed
-
-			ETextureIndex te_index = LLAvatarAppearanceDictionary::bakedToLocalTextureIndex((EBakedTextureIndex)baked_index);
-
-			//llinfos << "Requesting texture for hash " << hash << " in baked texture slot " << baked_index << llendl;
-			gMessageSystem->nextBlockFast(_PREHASH_WearableData);
-			gMessageSystem->addUUIDFast(_PREHASH_ID, hash_id);
-			gMessageSystem->addU8Fast(_PREHASH_TextureIndex, (U8)te_index);
-		}
-
-		gAgentQueryManager.mActiveCacheQueries[baked_index] = gAgentQueryManager.mWearablesCacheQueryID;
-	}
-	//VWR-22113: gAgent.getRegion() can return null if invalid, seen here on logout
-	if(gAgent.getRegion())
-	{
-		if (isAgentAvatarValid())
-		{
-			selfStartPhase("fetch_texture_cache_entries");
-			gAgentAvatarp->outputRezTiming("Fetching textures from cache");
-		}
-
-		LL_DEBUGS("Avatar") << gAgentAvatarp->avString() << "Requesting texture cache entry for " << num_queries << " baked textures" << LL_ENDL;
-		gMessageSystem->sendReliable(gAgent.getRegion()->getHost());
-		gAgentQueryManager.mNumPendingQueries++;
-		gAgentQueryManager.mWearablesCacheQueryID++;
-	}
 }
 
 // virtual

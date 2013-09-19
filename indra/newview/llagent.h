@@ -885,24 +885,4 @@ inline bool operator==(const LLGroupData &a, const LLGroupData &b)
 	return (a.mID == b.mID);
 }
 
-class LLAgentQueryManager
-{
-	friend class LLAgent;
-	friend class LLAgentWearables;
-	
-public:
-	LLAgentQueryManager();
-	virtual ~LLAgentQueryManager();
-	
-	BOOL 			hasNoPendingQueries() const 	{ return getNumPendingQueries() == 0; }
-	S32 			getNumPendingQueries() const 	{ return mNumPendingQueries; }
-private:
-	S32				mNumPendingQueries;
-	S32				mWearablesCacheQueryID;
-	U32				mUpdateSerialNum;
-	S32		    	mActiveCacheQueries[LLAvatarAppearanceDefines::BAKED_NUM_INDICES];
-};
-
-extern LLAgentQueryManager gAgentQueryManager;
-
 #endif

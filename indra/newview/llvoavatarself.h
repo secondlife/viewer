@@ -197,12 +197,10 @@ public:
 	//--------------------------------------------------------------------
 public:
 	// SUNSHINE CLEANUP
-	/*virtual*/ bool	hasPendingBakedUploads() const;
 	S32					getLocalDiscardLevel(LLAvatarAppearanceDefines::ETextureIndex type, U32 index) const;
 	bool				areTexturesCurrent() const;
 	BOOL				isLocalTextureDataAvailable(const LLViewerTexLayerSet* layerset) const;
 	BOOL				isLocalTextureDataFinal(const LLViewerTexLayerSet* layerset) const;
-	BOOL				isBakedTextureFinal(const LLAvatarAppearanceDefines::EBakedTextureIndex index) const;
 	// If you want to check all textures of a given type, pass gAgentWearables.getWearableCount() for index
 	/*virtual*/ BOOL    isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex type, U32 index) const;
 	/*virtual*/ BOOL	isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex type, U32 index = 0) const;
@@ -237,9 +235,9 @@ private:
 	//--------------------------------------------------------------------
 public:
 	LLAvatarAppearanceDefines::ETextureIndex getBakedTE(const LLViewerTexLayerSet* layerset ) const;
+	// SUNSHINE CLEANUP - dead?
 	void				setNewBakedTexture(LLAvatarAppearanceDefines::EBakedTextureIndex i, const LLUUID &uuid);
 	void				setNewBakedTexture(LLAvatarAppearanceDefines::ETextureIndex i, const LLUUID& uuid);
-	void				setCachedBakedTexture(LLAvatarAppearanceDefines::ETextureIndex i, const LLUUID& uuid);
 	void				forceBakeAllTextures(bool slam_for_debug = false);
 	static void			processRebakeAvatarTextures(LLMessageSystem* msg, void**);
 protected:
@@ -249,9 +247,6 @@ protected:
 	// Layers
 	//--------------------------------------------------------------------
 public:
-	// SUNSHINE CLEANUP
-	void 				requestLayerSetUploads();
-	void				requestLayerSetUpload(LLAvatarAppearanceDefines::EBakedTextureIndex i);
 	void				requestLayerSetUpdate(LLAvatarAppearanceDefines::ETextureIndex i);
 	LLViewerTexLayerSet* getLayerSet(LLAvatarAppearanceDefines::EBakedTextureIndex baked_index) const;
 	LLViewerTexLayerSet* getLayerSet(LLAvatarAppearanceDefines::ETextureIndex index) const;
