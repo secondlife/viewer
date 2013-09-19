@@ -491,8 +491,7 @@ LLVOCachePartition::LLVOCachePartition(LLViewerRegion* regionp)
 	mLODPeriod = 16;
 	mRegionp = regionp;
 	mPartitionType = LLViewerRegion::PARTITION_VO_CACHE;	
-	mDirty = FALSE;
-
+	
 	for(S32 i = 0; i < LLViewerCamera::NUM_CAMERAS; i++)
 	{
 		mCulledTime[i] = 0;
@@ -501,17 +500,11 @@ LLVOCachePartition::LLVOCachePartition(LLViewerRegion* regionp)
 	new LLOcclusionCullingGroup(mOctree, this);
 }
 
-void LLVOCachePartition::setDirty()
-{
-	mDirty = TRUE;
-}
-
 void LLVOCachePartition::addEntry(LLViewerOctreeEntry* entry)
 {
 	llassert(entry->hasVOCacheEntry());
 
 	mOctree->insert(entry);
-	setDirty();
 }
 	
 void LLVOCachePartition::removeEntry(LLViewerOctreeEntry* entry)
@@ -643,12 +636,28 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 	}
 	mCulledTime[LLViewerCamera::sCurCameraID] = LLViewerOctreeEntryData::getCurrentFrame();
 
-	if(!mDirty && !mCullHistory[LLViewerCamera::sCurCameraID] && LLViewerRegion::isViewerCameraStatic())
+	if(!mCullHistory[LLViewerCamera::sCurCameraID] && LLViewerRegion::isViewerCameraStatic())
 	{
-		return 0; //nothing changed, skip culling
+		static U32 hash = 0;
+
+		U32 seed = llmax(mLODPeriod >> 1, (U32)4);
+		if(LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD)
+		{
+			if(!(LLViewerOctreeEntryData::getCurrentFrame() % seed))
+			{
+				hash = (hash + 1) % seed;
+			}
+		}
+		if(LLViewerOctreeEntryData::getCurrentFrame() % seed != hash)
+		{
+			return 0; //nothing changed, reduce frequency of culling
+		}
 	}
 	
-	mCullHistory[LLViewerCamera::sCurCameraID] <<= 1;
+	if(LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD)
+	{
+		mCullHistory[LLViewerCamera::sCurCameraID] <<= 1;
+	}
 
 	//localize the camera
 	LLVector3 region_agent = mRegionp->getOriginAgent();
@@ -709,7 +718,6 @@ void LLVOCachePartition::resetOccluders()
 		group->clearOcclusionState(LLOcclusionCullingGroup::ACTIVE_OCCLUSION);
 	}	
 	mOccludedGroups.clear();
-	mDirty = FALSE;
 	sNeedsOcclusionCheck = FALSE;
 }
 
