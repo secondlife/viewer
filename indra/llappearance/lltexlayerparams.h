@@ -83,11 +83,8 @@ public:
 	// LLVisualParam Virtual functions
 	///*virtual*/ BOOL		parseData(LLXmlTreeNode* node);
 	/*virtual*/ void		apply( ESex avatar_sex ) {}
-	// SUNSHINE CLEANUP no upload_bake
 	/*virtual*/ void		setWeight(F32 weight);
-	// SUNSHINE CLEANUP no upload_bake
 	/*virtual*/ void		setAnimationTarget(F32 target_value); 
-	// SUNSHINE CLEANUP no upload_bake
 	/*virtual*/ void		animate(F32 delta);
 
 	// LLViewerVisualParam Virtual functions
@@ -193,7 +190,6 @@ public:
 	// New functions
 	LLColor4				getNetColor() const;
 protected:
-		// SUNSHINE CLEANUP no upload
 	virtual void onGlobalColorChanged() {}
 private:
 	LL_ALIGN_16(LLVector4a				mAvgDistortionVec);

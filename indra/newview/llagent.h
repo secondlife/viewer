@@ -844,9 +844,6 @@ private:
 public:
 	void			sendMessage(); // Send message to this agent's region
 	void			sendReliableMessage();
-	// SUNSHINE CLEANUP dead code
-	void 			dumpSentAppearance(const std::string& dump_prefix);
-	void			sendAgentSetAppearance();
 	void 			sendAgentDataUpdateRequest();
 	void 			sendAgentUserInfoRequest();
 	// IM to Email and Online visibility
@@ -860,8 +857,6 @@ public:
 	static void		processAgentGroupDataUpdate(LLMessageSystem *msg, void **);
 	static void		processAgentDropGroup(LLMessageSystem *msg, void **);
 	static void		processScriptControlChange(LLMessageSystem *msg, void **);
-	// SUNSHINE CLEANUP dead code?
-	static void		processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void **user_data);
 	
 /**                    Messaging
  **                                                                            **

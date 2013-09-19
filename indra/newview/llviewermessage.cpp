@@ -4087,10 +4087,6 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 
 		gAgent.setTeleportState( LLAgent::TELEPORT_START_ARRIVAL );
 
-		// set the appearance on teleport since the new sim does not
-		// know what you look like.
-		gAgent.sendAgentSetAppearance();
-
 		if (isAgentAvatarValid())
 		{
 			// Chat the "back" SLURL. (DEV-4907)

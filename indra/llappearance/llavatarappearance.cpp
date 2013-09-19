@@ -491,7 +491,6 @@ void LLAvatarAppearance::computeBodySize()
 	if (new_body_size != mBodySize || old_offset != mAvatarOffset.mV[VZ])
 	{
 		mBodySize = new_body_size;
-		bodySizeChanged();
 	}
 }
 

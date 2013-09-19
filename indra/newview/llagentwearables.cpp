@@ -522,8 +522,6 @@ void LLAgentWearables::revertWearable(const LLWearableType::EType type, const U3
 	{
 		wearable->revertValues();
 	}
-
-	gAgent.sendAgentSetAppearance();
 }
 
 void LLAgentWearables::saveAllWearables()
@@ -921,7 +919,7 @@ void LLAgentWearables::recoverMissingWearableDone()
 	if (areWearablesLoaded())
 	{
 		// Make sure that the server's idea of the avatar's wearables actually match the wearables.
-		gAgent.sendAgentSetAppearance();
+		//gAgent.sendAgentSetAppearance();
 	}
 	else
 	{
@@ -1913,7 +1911,6 @@ void LLAgentWearables::editWearableIfRequested(const LLUUID& item_id)
 void LLAgentWearables::updateServer()
 {
 	sendAgentWearablesUpdate();
-	gAgent.sendAgentSetAppearance();
 }
 
 boost::signals2::connection LLAgentWearables::addLoadingStartedCallback(loading_started_callback_t cb)

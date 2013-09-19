@@ -363,11 +363,6 @@ void LLViewerWearable::writeToAvatar(LLAvatarAppearance *avatarp)
 	{
 		viewer_avatar->updateSexDependentLayerSets();
 	}	
-	
-//	if( upload_bake )
-//	{
-//		gAgent.sendAgentSetAppearance();
-//	}
 }
 
 
@@ -403,11 +398,6 @@ void LLViewerWearable::removeFromAvatar( LLWearableType::EType type)
 
 	gAgentAvatarp->updateVisualParams();
 	gAgentAvatarp->wearableUpdated(type, FALSE);
-
-//	if( upload_bake )
-//	{
-//		gAgent.sendAgentSetAppearance();
-//	}
 }
 
 // Does not copy mAssetID.

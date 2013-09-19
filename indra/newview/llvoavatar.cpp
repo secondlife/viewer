@@ -2300,10 +2300,6 @@ void LLVOAvatar::idleUpdateAppearanceAnimation()
 				}
 			}
 			updateVisualParams();
-			if (isSelf())
-			{
-				gAgent.sendAgentSetAppearance();
-			}
 		}
 		else
 		{
@@ -4123,6 +4119,7 @@ bool LLVOAvatar::allBakedTexturesCompletelyDownloaded() const
 	return allTexturesCompletelyDownloaded(baked_ids);
 }
 
+// SUNSHINE CLEANUP
 void LLVOAvatar::bakedTextureOriginCounts(S32 &sb_count, // server-bake, has origin URL.
 										  S32 &host_count, // host-based bake, has host.
 										  S32 &both_count, // error - both host and URL set.
@@ -7614,17 +7611,6 @@ void LLVOAvatar::startAppearanceAnimation()
 		mAppearanceAnimating = TRUE;
 		mAppearanceMorphTimer.reset();
 		mLastAppearanceBlendTime = 0.f;
-	}
-}
-
-//virtual
-// SUNSHINE CLEANUP dead code
-void LLVOAvatar::bodySizeChanged()
-{
-	if (isSelf() && !LLAppearanceMgr::instance().isInUpdateAppearanceFromCOF())
-	{	// notify simulator of change in size
-		// but not if we are in the middle of updating appearance
-		gAgent.sendAgentSetAppearance();
 	}
 }
 

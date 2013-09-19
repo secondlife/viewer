@@ -634,7 +634,6 @@ public:
 	void 			processAvatarAppearance(LLMessageSystem* mesgsys);
 	void 			hideSkirt();
 	void			startAppearanceAnimation();
-	/*virtual*/ void bodySizeChanged();
 	
 	//--------------------------------------------------------------------
 	// Appearance morphing
@@ -651,6 +650,7 @@ public:
 	// appearance mechanism.
 	// SUNSHINE CLEANUP - always true, remove?
 	BOOL				isUsingServerBakes() const;
+	// SUNSHINE CLEANUP - always true, remove?
 	void 				setIsUsingServerBakes(BOOL newval);
 
 
