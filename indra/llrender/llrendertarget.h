@@ -79,7 +79,7 @@ public:
 	// CAUTION: if the GL runs out of memory attempting to resize, this render target will be undefined
 	// DO NOT use for screen space buffers or for scratch space for an image that might be uploaded
 	// DO use for render targets that resize often and aren't likely to ruin someone's day if they break
-	void resize(U32 resx, U32 resy, U32 color_fmt);
+	void resize(U32 resx, U32 resy);
 
 	//add color buffer attachment
 	//limit of 4 color attachments per render target
