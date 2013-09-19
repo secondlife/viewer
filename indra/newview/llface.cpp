@@ -1940,7 +1940,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			
 			LLMatrix4a mat_vert;
 			mat_vert.loadu(mat_vert_in);
-								
+
 			F32* dst = (F32*) vert.get();
 			F32* end_f32 = dst+mGeomCount*4;
 
@@ -1951,7 +1951,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 
 			LLVector4a res0; //,res1,res2,res3;
-			
+
 			LLVector4a texIdx;
 
 			S32 index = mTextureIndex < 255 ? mTextureIndex : 0;
@@ -2002,14 +2002,14 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 				}*/
 
 				while (src < end)
-				{
+				{	
 					mat_vert.affineTransform(*src++, res0);
 					tmp.setSelectWithMask(mask, texIdx, res0);
 					tmp.store4a((F32*) dst);
 					dst += 4;
 				}
 			}
-			
+
 			{
 				//LLFastTimer t(FTM_FACE_POSITION_PAD);
 				while (dst < end_f32)
@@ -2035,7 +2035,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			LLVector4a* end = src+num_vertices;
 			
 			while (src < end)
-			{
+			{	
 				LLVector4a normal;
 				mat_normal.rotate(*src++, normal);
 				normal.store4a(normals);

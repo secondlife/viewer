@@ -1035,7 +1035,7 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 				}
 			}
 		}
-		
+
 		static LLCachedControl<bool> use_transform_feedback(gSavedSettings, "RenderUseTransformFeedback");
 
 		bool cache_in_vram = use_transform_feedback && gTransformPositionProgram.mProgramObject &&
@@ -4426,7 +4426,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	U32 spec_count = 0;
 	U32 normspec_count = 0;
 
-	
+
 	U32 useage = group->mSpatialPartition->mBufferUsage;
 
 	U32 max_vertices = (gSavedSettings.getS32("RenderMaxVBOSize")*1024)/LLVertexBuffer::calcVertexSize(group->mSpatialPartition->mVertexDataMask);
@@ -5004,7 +5004,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 		}
 		else
 		{
-			pAvatarVO->mAttachmentGeometryBytes += group->mGeometryBytes;
+		pAvatarVO->mAttachmentGeometryBytes += group->mGeometryBytes;
 		}
 		if (pAvatarVO->mAttachmentSurfaceArea < 0.f)
 		{	// First time through value is -1
@@ -5012,9 +5012,9 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 		}
 		else
 		{
-			pAvatarVO->mAttachmentSurfaceArea += group->mSurfaceArea;
-		}
+		pAvatarVO->mAttachmentSurfaceArea += group->mSurfaceArea;
 	}
+}
 }
 
 static LLFastTimer::DeclareTimer FTM_REBUILD_MESH_FLUSH("Flush Mesh");
@@ -5033,7 +5033,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 
 		const U32 MAX_BUFFER_COUNT = 4096;
 		LLVertexBuffer* locked_buffer[MAX_BUFFER_COUNT];
-
+		
 		U32 buffer_count = 0;
 
 		for (LLSpatialGroup::element_iter drawable_iter = group->getDataBegin(); drawable_iter != group->getDataEnd(); ++drawable_iter)
@@ -5044,7 +5044,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 			{
 				LLVOVolume* vobj = drawablep->getVOVolume();
 				vobj->preRebuild();
-				
+
 				if (drawablep->isState(LLDrawable::ANIMATED_CHILD))
 				{
 					vobj->updateRelativeXform(true);
@@ -5090,17 +5090,17 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 		{
 			LLFastTimer t(FTM_REBUILD_MESH_FLUSH);
 			for (LLVertexBuffer** iter = locked_buffer, ** end_iter = locked_buffer+buffer_count; iter != end_iter; ++iter)
-			{
-				(*iter)->flush();
-			}
-		
-			// don't forget alpha
-			if(group != NULL && 
-			   !group->mVertexBuffer.isNull() && 
-			   group->mVertexBuffer->isLocked())
-			{
-				group->mVertexBuffer->flush();
-			}
+		{
+			(*iter)->flush();
+		}
+
+		// don't forget alpha
+		if(group != NULL && 
+		   !group->mVertexBuffer.isNull() && 
+		   group->mVertexBuffer->isLocked())
+		{
+			group->mVertexBuffer->flush();
+		}
 		}
 
 		//if not all buffers are unmapped
@@ -5297,7 +5297,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFac
 				{
 					texture_list[texture_count++] = tex;
 				}
-				
+
 				if (can_batch_texture(facep))
 				{ //populate texture_list with any textures that can be batched
 				  //move i to the next unbatchable face
@@ -5503,18 +5503,23 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFac
 			}
 
 			bool use_legacy_bump = te->getBumpmap() && (te->getBumpmap() < 18) && (!mat || mat->getNormalID().isNull());
+			bool opaque = te->getColor().mV[3] >= 0.999f;
 
 			if (mat && LLPipeline::sRenderDeferred && !hud_group)
 			{
 				bool material_pass = false;
 
-				if (fullbright)
+				// do NOT use 'fullbright' for this logic or you risk sending
+				// things without normals down the materials pipeline and will
+				// render poorly if not crash NORSPEC-240,314
+				//
+				if (te->getFullbright())
 				{
 					if (mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
 					{
-						if (te->getColor().mV[3] >= 0.999f)
+						if (opaque)
 						{
-							material_pass = true;
+							registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK);
 						}
 						else
 						{

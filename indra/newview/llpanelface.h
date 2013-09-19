@@ -255,7 +255,26 @@ private:
 					// Determine correct alpha mode for current diffuse texture
 					// (i.e. does it have an alpha channel that makes alpha mode useful)
 					//
-					U8 default_alpha_mode = (_panel->isAlpha() ? LLMaterial::DIFFUSE_ALPHA_MODE_BLEND : LLMaterial::DIFFUSE_ALPHA_MODE_NONE);
+					// _panel->isAlpha() "lies" when one face has alpha and the rest do not (NORSPEC-329)
+					// need to get per-face answer to this question for sane alpha mode retention on updates.
+					//					
+					bool is_alpha_face = object->isImageAlphaBlended(face);
+
+					// need to keep this original answer for valid comparisons in logic below
+					//
+					U8 original_default_alpha_mode = is_alpha_face ? LLMaterial::DIFFUSE_ALPHA_MODE_BLEND : LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
+					
+					U8 default_alpha_mode = original_default_alpha_mode;
+
+					if (!current_material.isNull())
+					{
+						default_alpha_mode = current_material->getDiffuseAlphaMode();
+					}
+
+					// Insure we don't inherit the default of blend by accident...
+					// this will be stomped by a legit request to change the alpha mode by the apply() below
+					//
+					new_material->setDiffuseAlphaMode(default_alpha_mode);
 
 					// Do "It"!
 					//
@@ -265,7 +284,13 @@ private:
 					LLUUID	new_normal_map_id		= new_material->getNormalID();
 					LLUUID	new_spec_map_id		= new_material->getSpecularID();
 
-					bool is_default_blend_mode		= (new_alpha_mode == default_alpha_mode);
+					if ((new_alpha_mode == LLMaterial::DIFFUSE_ALPHA_MODE_BLEND) && !is_alpha_face)
+					{
+						new_alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
+						new_material->setDiffuseAlphaMode(LLMaterial::DIFFUSE_ALPHA_MODE_NONE);
+					}
+
+					bool is_default_blend_mode		= (new_alpha_mode == original_default_alpha_mode);
 					bool is_need_material			= !is_default_blend_mode || !new_normal_map_id.isNull() || !new_spec_map_id.isNull();
 
 					if (!is_need_material)

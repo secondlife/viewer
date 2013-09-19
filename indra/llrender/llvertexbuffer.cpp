@@ -954,15 +954,15 @@ S32 LLVertexBuffer::determineUsage(S32 usage)
 	{ //only stream_draw and dynamic_draw are supported when using VBOs, dynamic draw is the default
 		if (ret_usage != GL_DYNAMIC_COPY_ARB)
 		{
-			if (sDisableVBOMapping)
-			{ //always use stream draw if VBO mapping is disabled
-				ret_usage = GL_STREAM_DRAW_ARB;
-			}
-			else
-			{
-				ret_usage = GL_DYNAMIC_DRAW_ARB;
-			}
+		if (sDisableVBOMapping)
+		{ //always use stream draw if VBO mapping is disabled
+			ret_usage = GL_STREAM_DRAW_ARB;
 		}
+		else
+		{
+			ret_usage = GL_DYNAMIC_DRAW_ARB;
+		}
+	}
 	}
 	
 	return ret_usage;
@@ -1119,7 +1119,7 @@ void LLVertexBuffer::genBuffer(U32 size)
 	{
 		mMappedData = sDynamicCopyVBOPool.allocate(mGLBuffer, mSize);
 	}
-
+	
 	
 	sGLCount++;
 }
@@ -1333,7 +1333,7 @@ void LLVertexBuffer::allocateBuffer(S32 nverts, S32 nindices, bool create)
 		//actually allocate space for the vertex buffer if using VBO mapping
 		flush();
 
-		if (gGLManager.mHasVertexArrayObject && useVBOs() && (sUseVAO))
+		if (gGLManager.mHasVertexArrayObject && useVBOs() && (LLRender::sGLCoreProfile || sUseVAO))
 		{
 #if GL_ARB_vertex_array_object
 			mGLArray = getVAOName();
@@ -1489,18 +1489,21 @@ bool LLVertexBuffer::useVBOs() const
 
 //----------------------------------------------------------------------------
 
-bool expand_region(LLVertexBuffer::MappedRegion& region, S32 start, S32 end)
+bool expand_region(LLVertexBuffer::MappedRegion& region, S32 index, S32 count)
 {
+	S32 end = index+count;
+	S32 region_end = region.mIndex+region.mCount;
+	
 	if (end < region.mIndex ||
-		start > region.mEnd)
+		index > region_end)
 	{ //gap exists, do not merge
 		return false;
 	}
 
-	region.mEnd = llmax(end, region.mEnd);
-	region.mIndex = llmin(start, region.mIndex);
-	region.mCount = region.mEnd-region.mIndex;
-
+	S32 new_end = llmax(end, region_end);
+	S32 new_index = llmin(index, region.mIndex);
+	region.mIndex = new_index;
+	region.mCount = new_end-new_index;
 	return true;
 }
 
@@ -1510,6 +1513,7 @@ static LLFastTimer::DeclareTimer FTM_VBO_MAP_BUFFER("VBO Map");
 // Map for data access
 volatile U8* LLVertexBuffer::mapVertexBuffer(S32 type, S32 index, S32 count, bool map_range)
 {
+	bindGLBuffer(true);
 	if (mFinal)
 	{
 		llerrs << "LLVertexBuffer::mapVeretxBuffer() called on a finalized buffer." << llendl;
@@ -1530,23 +1534,23 @@ volatile U8* LLVertexBuffer::mapVertexBuffer(S32 type, S32 index, S32 count, boo
 
 			bool mapped = false;
 			//see if range is already mapped
-			S32 start_index = mOffsets[type]+index*sTypeSize[type];
-			S32 end_index = start_index+count*sTypeSize[type];
-
-			for (std::vector<MappedRegion>::iterator iter = mMappedVertexRegions.begin(), end = mMappedVertexRegions.end(); iter != end; ++iter)
+			for (U32 i = 0; i < mMappedVertexRegions.size(); ++i)
 			{
-				MappedRegion& region = *iter;
-				if (expand_region(region, index, end_index))
+				MappedRegion& region = mMappedVertexRegions[i];
+				if (region.mType == type)
 				{
-					mapped = true;
-					break;
+					if (expand_region(region, index, count))
+					{
+						mapped = true;
+						break;
+					}
 				}
 			}
 
 			if (!mapped)
 			{
 				//not already mapped, map new region
-				MappedRegion region(mMappable && map_range ? -1 : start_index, end_index-start_index);
+				MappedRegion region(type, mMappable && map_range ? -1 : index, count);
 				mMappedVertexRegions.push_back(region);
 			}
 		}
@@ -1570,7 +1574,6 @@ volatile U8* LLVertexBuffer::mapVertexBuffer(S32 type, S32 index, S32 count, boo
 			{
 				volatile U8* src = NULL;
 				waitFence();
-				bindGLBuffer();
 				if (gGLManager.mHasMapBufferRange)
 				{
 					if (map_range)
@@ -1691,6 +1694,7 @@ static LLFastTimer::DeclareTimer FTM_VBO_MAP_INDEX("IBO Map");
 
 volatile U8* LLVertexBuffer::mapIndexBuffer(S32 index, S32 count, bool map_range)
 {
+	bindGLIndices(true);
 	if (mFinal)
 	{
 		llerrs << "LLVertexBuffer::mapIndexBuffer() called on a finalized buffer." << llendl;
@@ -1709,14 +1713,12 @@ volatile U8* LLVertexBuffer::mapIndexBuffer(S32 index, S32 count, bool map_range
 				count = mNumIndices-index;
 			}
 
-			S32 end = index+count;
-
 			bool mapped = false;
 			//see if range is already mapped
 			for (U32 i = 0; i < mMappedIndexRegions.size(); ++i)
 			{
 				MappedRegion& region = mMappedIndexRegions[i];
-				if (expand_region(region, index, end))
+				if (expand_region(region, index, count))
 				{
 					mapped = true;
 					break;
@@ -1726,7 +1728,7 @@ volatile U8* LLVertexBuffer::mapIndexBuffer(S32 index, S32 count, bool map_range
 			if (!mapped)
 			{
 				//not already mapped, map new region
-				MappedRegion region(mMappable && map_range ? -1 : index, count);
+				MappedRegion region(TYPE_INDEX, mMappable && map_range ? -1 : index, count);
 				mMappedIndexRegions.push_back(region);
 			}
 		}
@@ -1742,23 +1744,23 @@ volatile U8* LLVertexBuffer::mapIndexBuffer(S32 index, S32 count, bool map_range
 			sMappedCount++;
 			stop_glerror();	
 
+			if (gDebugGL && useVBOs())
+			{
+				GLint elem = 0;
+				glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING_ARB, &elem);
+
+				if (elem != mGLIndices)
+				{
+					llerrs << "Wrong index buffer bound!" << llendl;
+				}
+			}
+
 			if(!mMappable)
 			{
 				map_range = false;
 			}
 			else
 			{
-				bindGLIndices();
-				if (gDebugGL && useVBOs())
-				{
-					GLint elem = 0;
-					glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING_ARB, &elem);
-
-					if (elem != mGLIndices)
-					{
-						llerrs << "Wrong index buffer bound!" << llendl;
-					}
-				}
 				volatile U8* src = NULL;
 				waitFence();
 				if (gGLManager.mHasMapBufferRange)
@@ -1871,10 +1873,8 @@ void LLVertexBuffer::unmapBuffer()
 
 	if (mMappedData && mVertexLocked)
 	{
-		llassert(mUsage != GL_DYNAMIC_COPY_ARB);
-		
 		LLFastTimer t(FTM_VBO_UNMAP);
-		bindGLBuffer();
+		bindGLBuffer(true);
 		updated_all = mIndexLocked; //both vertex and index buffers done updating
 
 		if(!mMappable)
@@ -1885,8 +1885,8 @@ void LLVertexBuffer::unmapBuffer()
 				for (U32 i = 0; i < mMappedVertexRegions.size(); ++i)
 				{
 					const MappedRegion& region = mMappedVertexRegions[i];
-					S32 offset = region.mIndex;
-					S32 length = region.mCount;
+					S32 offset = region.mIndex >= 0 ? mOffsets[region.mType]+sTypeSize[region.mType]*region.mIndex : 0;
+					S32 length = sTypeSize[region.mType]*region.mCount;
 					glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, offset, length, (U8*) mMappedData+offset);
 					stop_glerror();
 				}
@@ -1910,8 +1910,8 @@ void LLVertexBuffer::unmapBuffer()
 					for (U32 i = 0; i < mMappedVertexRegions.size(); ++i)
 					{
 						const MappedRegion& region = mMappedVertexRegions[i];
-						S32 offset = region.mIndex;
-						S32 length = region.mCount;
+						S32 offset = region.mIndex >= 0 ? mOffsets[region.mType]+sTypeSize[region.mType]*region.mIndex : 0;
+						S32 length = sTypeSize[region.mType]*region.mCount;
 						if (gGLManager.mHasMapBufferRange)
 						{
 							LLFastTimer t(FTM_VBO_FLUSH_RANGE);
@@ -2131,6 +2131,7 @@ bool LLVertexBuffer::bindGLArray()
 	if (mGLArray && sGLRenderArray != mGLArray)
 	{
 		{
+			LLFastTimer t(FTM_BIND_GL_ARRAY);
 #if GL_ARB_vertex_array_object
 			glBindVertexArray(mGLArray);
 #endif
@@ -2165,7 +2166,7 @@ bool LLVertexBuffer::bindGLBuffer(bool force_bind)
 		sVBOActive = true;
 
 		llassert(!mGLArray || sGLRenderArray == mGLArray);
-		
+
 		ret = true;
 	}
 
@@ -2245,7 +2246,38 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 
 			if ((data_mask & required_mask) != required_mask)
 			{
-				llwarns << "Shader consumption mismatches data provision." << llendl;
+				
+				U32 unsatisfied_mask = (required_mask & ~data_mask);
+				U32 i = 0;
+
+				while (i < TYPE_MAX)
+				{
+                    U32 unsatisfied_flag = unsatisfied_mask & (1 << i);
+					switch (unsatisfied_flag)
+					{
+						case MAP_VERTEX: llinfos << "Missing vert pos" << llendl; break;
+						case MAP_NORMAL: llinfos << "Missing normals" << llendl; break;
+						case MAP_TEXCOORD0: llinfos << "Missing TC 0" << llendl; break;
+						case MAP_TEXCOORD1: llinfos << "Missing TC 1" << llendl; break;
+						case MAP_TEXCOORD2: llinfos << "Missing TC 2" << llendl; break;
+						case MAP_TEXCOORD3: llinfos << "Missing TC 3" << llendl; break;
+						case MAP_COLOR: llinfos << "Missing vert color" << llendl; break;
+						case MAP_EMISSIVE: llinfos << "Missing emissive" << llendl; break;
+						case MAP_TANGENT: llinfos << "Missing tangent" << llendl; break;
+						case MAP_WEIGHT: llinfos << "Missing weight" << llendl; break;
+						case MAP_WEIGHT4: llinfos << "Missing weightx4" << llendl; break;
+						case MAP_CLOTHWEIGHT: llinfos << "Missing clothweight" << llendl; break;
+						case MAP_TEXTURE_INDEX: llinfos << "Missing tex index" << llendl; break;
+						default: llinfos << "Missing who effin knows: " << unsatisfied_flag << llendl;
+					}					
+				}
+
+            if (unsatisfied_mask & (1 << TYPE_INDEX))
+            {
+               llinfos << "Missing indices" << llendl;
+            }
+
+				llerrs << "Shader consumption mismatches data provision." << llendl;
 			}
 		}
 	}
@@ -2512,8 +2544,8 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask)
 	llglassertok();
 }
 
-LLVertexBuffer::MappedRegion::MappedRegion(S32 index, S32 count)
-: mIndex(index), mCount(count)
+LLVertexBuffer::MappedRegion::MappedRegion(S32 type, S32 index, S32 count)
+: mType(type), mIndex(index), mCount(count)
 { 
 	mEnd = mIndex+mCount;	
 }	

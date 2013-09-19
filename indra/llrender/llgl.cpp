@@ -73,7 +73,6 @@ std::ofstream gFailLog;
 #define APIENTRY
 #endif
 
-
 void APIENTRY gl_debug_callback(GLenum source,
                                 GLenum type,
                                 GLuint id,
@@ -84,24 +83,24 @@ void APIENTRY gl_debug_callback(GLenum source,
 {
 	if (gGLDebugLoggingEnabled)
 	{
-		if (severity == GL_DEBUG_SEVERITY_HIGH_ARB)
-		{
-			llwarns << "----- GL ERROR --------" << llendl;
-		}
-		else
-		{
-			llwarns << "----- GL WARNING -------" << llendl;
-		}
-		llwarns << "Type: " << std::hex << type << llendl;
-		llwarns << "ID: " << std::hex << id << llendl;
-		llwarns << "Severity: " << std::hex << severity << llendl;
-		llwarns << "Message: " << message << llendl;
-		llwarns << "-----------------------" << llendl;
-		if (severity == GL_DEBUG_SEVERITY_HIGH_ARB)
-		{
-			llerrs << "Halting on GL Error" << llendl;
-		}
+	if (severity == GL_DEBUG_SEVERITY_HIGH_ARB)
+	{
+		llwarns << "----- GL ERROR --------" << llendl;
 	}
+	else
+	{
+		llwarns << "----- GL WARNING -------" << llendl;
+	}
+	llwarns << "Type: " << std::hex << type << llendl;
+	llwarns << "ID: " << std::hex << id << llendl;
+	llwarns << "Severity: " << std::hex << severity << llendl;
+	llwarns << "Message: " << message << llendl;
+	llwarns << "-----------------------" << llendl;
+	if (severity == GL_DEBUG_SEVERITY_HIGH_ARB)
+	{
+		llerrs << "Halting on GL Error" << llendl;
+	}
+}
 }
 #endif
 
@@ -653,7 +652,8 @@ bool LLGLManager::initGL()
 		}
 #if LL_DARWIN
 		else if ((mGLRenderer.find("9400M") != std::string::npos)
-			  || (mGLRenderer.find("9600M") != std::string::npos))
+			  || (mGLRenderer.find("9600M") != std::string::npos)
+			  || (mGLRenderer.find("9800M") != std::string::npos))
 		{
 			mIsMobileGF = TRUE;
 		}
@@ -751,7 +751,7 @@ bool LLGLManager::initGL()
 #if LL_WINDOWS
 	if (mHasDebugOutput && gDebugGL)
 	{ //setup debug output callback
-		glDebugMessageControlARB(GL_DONT_CARE, GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB, GL_DEBUG_SEVERITY_LOW_ARB, 0, NULL, GL_TRUE);
+		//glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW_ARB, 0, NULL, GL_TRUE);
 		glDebugMessageCallbackARB((GLDEBUGPROCARB) gl_debug_callback, NULL);
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
 	}
