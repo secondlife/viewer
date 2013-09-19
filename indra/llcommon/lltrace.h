@@ -512,12 +512,17 @@ public:
 		return value;
 	}
 
-
-	template<typename AMOUNT_T>
-	AMOUNT_T& memClaimAmount(AMOUNT_T& size)
+	const size_t& memClaim(const size_t& size)
 	{
-		MemStatAccumulator& accumulator = sMemStat.getCurrentAccumulator();
-		mMemFootprint += (size_t)size;
+		claim_mem(sMemStat, size);
+		mMemFootprint += size;
+		return size;
+	}
+
+	size_t& memClaim(size_t& size)
+	{
+		claim_mem(sMemStat, size);
+		mMemFootprint += size;
 		return size;
 	}
 
@@ -536,10 +541,17 @@ public:
 		return value;
 	}
 
-	template<typename AMOUNT_T>
-	AMOUNT_T& memDisclaimAmount(AMOUNT_T& size)
+	const size_t& memDisclaim(const size_t& size)
 	{
-		disclaim_mem(size);
+		disclaim_mem(sMemStat, size);
+		mMemFootprint -= size;
+		return size;
+	}
+
+	size_t& memDisclaim(size_t& size)
+	{
+		disclaim_mem(sMemStat, size);
+		mMemFootprint -= size;
 		return size;
 	}
 

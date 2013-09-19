@@ -93,9 +93,23 @@ private:
 	F32			 mLastDisplayValue;
 	LLFrameTimer mLastDisplayValueTimer;
 
-	const LLTrace::TraceType<LLTrace::CountAccumulator>*		mCountFloatp;
-	const LLTrace::TraceType<LLTrace::EventAccumulator>*		mEventFloatp;
-	const LLTrace::TraceType<LLTrace::SampleAccumulator>*		mSampleFloatp;
+	enum
+	{
+		STAT_NONE,
+		STAT_COUNT,
+		STAT_EVENT,
+		STAT_SAMPLE,
+		STAT_MEM
+	} mStatType;
+
+	union
+	{
+		void*														valid;
+		const LLTrace::TraceType<LLTrace::CountAccumulator>*		countStatp;
+		const LLTrace::TraceType<LLTrace::EventAccumulator>*		eventStatp;
+		const LLTrace::TraceType<LLTrace::SampleAccumulator>*		sampleStatp;
+		const LLTrace::TraceType<LLTrace::MemStatAccumulator>*		memStatp;
+	} mStat;
 
 	LLUIString   mLabel;
 	std::string  mUnitLabel;

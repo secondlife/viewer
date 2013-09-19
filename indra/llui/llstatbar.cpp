@@ -190,8 +190,10 @@ LLStatBar::LLStatBar(const Params& p)
 	mAutoScaleMax(!p.bar_max.isProvided()),
 	mAutoScaleMin(!p.bar_min.isProvided()),
 	mTickValue(p.tick_spacing),
-	mLastDisplayValue(0.f)
+	mLastDisplayValue(0.f),
+	mStatType(STAT_NONE)
 {
+	mStat.valid = NULL;
 	// tick value will be automatically calculated later
 	if (!p.tick_spacing.isProvided() && p.bar_min.isProvided() && p.bar_max.isProvided())
 	{
@@ -203,17 +205,22 @@ LLStatBar::LLStatBar(const Params& p)
 
 BOOL LLStatBar::handleHover(S32 x, S32 y, MASK mask)
 {
-	if (mCountFloatp)
+	switch(mStatType)
 	{
-		LLToolTipMgr::instance().show(LLToolTip::Params().message(mCountFloatp->getDescription()).sticky_rect(calcScreenRect()));
-	}
-	else if ( mEventFloatp)
-	{
-		LLToolTipMgr::instance().show(LLToolTip::Params().message(mEventFloatp->getDescription()).sticky_rect(calcScreenRect()));
-	}
-	else if (mSampleFloatp)
-	{
-		LLToolTipMgr::instance().show(LLToolTip::Params().message(mSampleFloatp->getDescription()).sticky_rect(calcScreenRect()));
+	case STAT_COUNT:
+		LLToolTipMgr::instance().show(LLToolTip::Params().message(mStat.countStatp->getDescription()).sticky_rect(calcScreenRect()));
+		break;
+	case STAT_EVENT:
+		LLToolTipMgr::instance().show(LLToolTip::Params().message(mStat.eventStatp->getDescription()).sticky_rect(calcScreenRect()));
+		break;
+	case STAT_SAMPLE:
+		LLToolTipMgr::instance().show(LLToolTip::Params().message(mStat.sampleStatp->getDescription()).sticky_rect(calcScreenRect()));
+		break;
+	case STAT_MEM:
+		LLToolTipMgr::instance().show(LLToolTip::Params().message(mStat.memStatp->getDescription()).sticky_rect(calcScreenRect()));
+		break;
+	default:
+		break;
 	}
 	return TRUE;
 }
@@ -321,50 +328,69 @@ void LLStatBar::draw()
 						: mNumShortHistoryFrames;
 	S32 num_rapid_changes = 0;
 
-	if (mCountFloatp)
+	switch(mStatType)
 	{
-		const LLTrace::TraceType<LLTrace::CountAccumulator>& count_stat = *mCountFloatp;
-
-		unit_label    = std::string(count_stat.getUnitLabel()) + "/s";
-		current       = last_frame_recording.getPerSec(count_stat);
-		min           = frame_recording.getPeriodMinPerSec(count_stat, num_frames);
-		max           = frame_recording.getPeriodMaxPerSec(count_stat, num_frames);
-		mean          = frame_recording.getPeriodMeanPerSec(count_stat, num_frames);
-		display_value = mean;
-	}
-	else if (mEventFloatp)
-	{
-		const LLTrace::TraceType<LLTrace::EventAccumulator>& event_stat = *mEventFloatp;
-
-		unit_label        = mUnitLabel.empty() ? event_stat.getUnitLabel() : mUnitLabel;
-		current           = last_frame_recording.getLastValue(event_stat);
-		min               = frame_recording.getPeriodMin(event_stat, num_frames);
-		max               = frame_recording.getPeriodMax(event_stat, num_frames);
-		mean              = frame_recording.getPeriodMean(event_stat, num_frames);
-		num_rapid_changes = calc_num_rapid_changes(frame_recording, event_stat, RAPID_CHANGE_WINDOW);
-		display_value     = mean;
-	}
-	else if (mSampleFloatp)
-	{
-		const LLTrace::TraceType<LLTrace::SampleAccumulator>& sample_stat = *mSampleFloatp;
-
-		unit_label        = mUnitLabel.empty() ? sample_stat.getUnitLabel() : mUnitLabel;
-		current           = last_frame_recording.getLastValue(sample_stat);
-		min               = frame_recording.getPeriodMin(sample_stat, num_frames);
-		max               = frame_recording.getPeriodMax(sample_stat, num_frames);
-		mean              = frame_recording.getPeriodMean(sample_stat, num_frames);
-		num_rapid_changes = calc_num_rapid_changes(frame_recording, sample_stat, RAPID_CHANGE_WINDOW);
-
-		if (num_rapid_changes / RAPID_CHANGE_WINDOW.value() > MAX_RAPID_CHANGES_PER_SEC)
+	case STAT_COUNT:
 		{
+			const LLTrace::TraceType<LLTrace::CountAccumulator>& count_stat = *mStat.countStatp;
+
+			unit_label    = std::string(count_stat.getUnitLabel()) + "/s";
+			current       = last_frame_recording.getPerSec(count_stat);
+			min           = frame_recording.getPeriodMinPerSec(count_stat, num_frames);
+			max           = frame_recording.getPeriodMaxPerSec(count_stat, num_frames);
+			mean          = frame_recording.getPeriodMeanPerSec(count_stat, num_frames);
 			display_value = mean;
 		}
-		else
+		break;
+	case STAT_EVENT:
 		{
-			display_value = current;
-			// always display current value, don't rate limit
-			mLastDisplayValue = current;
+			const LLTrace::TraceType<LLTrace::EventAccumulator>& event_stat = *mStat.eventStatp;
+
+			unit_label        = mUnitLabel.empty() ? event_stat.getUnitLabel() : mUnitLabel;
+			current           = last_frame_recording.getLastValue(event_stat);
+			min               = frame_recording.getPeriodMin(event_stat, num_frames);
+			max               = frame_recording.getPeriodMax(event_stat, num_frames);
+			mean              = frame_recording.getPeriodMean(event_stat, num_frames);
+			display_value     = mean;
 		}
+		break;
+	case STAT_SAMPLE:
+		{
+			const LLTrace::TraceType<LLTrace::SampleAccumulator>& sample_stat = *mStat.sampleStatp;
+
+			unit_label        = mUnitLabel.empty() ? sample_stat.getUnitLabel() : mUnitLabel;
+			current           = last_frame_recording.getLastValue(sample_stat);
+			min               = frame_recording.getPeriodMin(sample_stat, num_frames);
+			max               = frame_recording.getPeriodMax(sample_stat, num_frames);
+			mean              = frame_recording.getPeriodMean(sample_stat, num_frames);
+			num_rapid_changes = calc_num_rapid_changes(frame_recording, sample_stat, RAPID_CHANGE_WINDOW);
+
+			if (num_rapid_changes / RAPID_CHANGE_WINDOW.value() > MAX_RAPID_CHANGES_PER_SEC)
+			{
+				display_value = mean;
+			}
+			else
+			{
+				display_value = current;
+				// always display current value, don't rate limit
+				mLastDisplayValue = current;
+			}
+		}
+		break;
+	case STAT_MEM:
+		{
+			const LLTrace::TraceType<LLTrace::MemStatAccumulator>& mem_stat = *mStat.memStatp;
+
+			unit_label        = mUnitLabel.empty() ? mem_stat.getUnitLabel() : mUnitLabel;
+			current           = last_frame_recording.getLastValue(mem_stat).value();
+			min               = frame_recording.getPeriodMin(mem_stat, num_frames).value();
+			max               = frame_recording.getPeriodMax(mem_stat, num_frames).value();
+			mean              = frame_recording.getPeriodMean(mem_stat, num_frames).value();
+			display_value	  = current;
+		}
+		break;
+	default:
+		break;
 	}
 
 	LLRect bar_rect;
@@ -405,8 +431,7 @@ void LLStatBar::draw()
 	mLastDisplayValue = display_value;
 
 
-	if (mDisplayBar
-        && (mCountFloatp || mEventFloatp || mSampleFloatp))
+	if (mDisplayBar && mStat.valid)
 	{
 		// Draw the tick marks.
 		LLGLSUIDefault gls_ui;
@@ -454,7 +479,7 @@ void LLStatBar::draw()
 					? (bar_rect.getWidth())
 					: (bar_rect.getHeight());
 
-			if (mDisplayHistory && (mCountFloatp || mEventFloatp || mSampleFloatp))
+			if (mDisplayHistory && mStat.valid)
 			{
 				const S32 num_values = frame_recording.getNumRecordedPeriods() - 1;
 				F32 value = 0;
@@ -468,22 +493,28 @@ void LLStatBar::draw()
 					F32 offset = ((F32)i / (F32)num_frames) * span;
 					LLTrace::Recording& recording = frame_recording.getPrevRecording(i);
 
-					if (mCountFloatp)
+					switch(mStatType)
 					{
-						value       = recording.getPerSec(*mCountFloatp);
-						num_samples = recording.getSampleCount(*mCountFloatp);
+						case STAT_COUNT:
+							value       = recording.getPerSec(*mStat.countStatp);
+							num_samples = recording.getSampleCount(*mStat.countStatp);
+							break;
+						case STAT_EVENT:
+							value       = recording.getMean(*mStat.eventStatp);
+							num_samples = recording.getSampleCount(*mStat.eventStatp);
+							break;
+						case STAT_SAMPLE:
+							value       = recording.getMean(*mStat.sampleStatp);
+							num_samples = recording.getSampleCount(*mStat.sampleStatp);
+							break;
+						case STAT_MEM:
+							value		= recording.getMean(*mStat.memStatp).value();
+							num_samples = 1;
+							break;
+						default:
+							break;
 					}
-					else if (mEventFloatp)
-					{
-						value       = recording.getMean(*mEventFloatp);
-						num_samples = recording.getSampleCount(*mEventFloatp);
-					}
-					else if (mSampleFloatp)
-					{
-						value       = recording.getMean(*mSampleFloatp);
-						num_samples = recording.getSampleCount(*mSampleFloatp);
-					}
-                    
+
 					if (!num_samples) continue;
 
 					F32 begin = (value  - mCurMinBar) * value_scale;
@@ -540,9 +571,32 @@ void LLStatBar::draw()
 
 void LLStatBar::setStat(const std::string& stat_name)
 {
-	mCountFloatp	= LLTrace::TraceType<LLTrace::CountAccumulator>::getInstance(stat_name);
-	mEventFloatp	= LLTrace::TraceType<LLTrace::EventAccumulator>::getInstance(stat_name);
-	mSampleFloatp	= LLTrace::TraceType<LLTrace::SampleAccumulator>::getInstance(stat_name);
+	using namespace LLTrace;
+	const TraceType<CountAccumulator>*		count_stat;
+	const TraceType<EventAccumulator>*		event_stat;
+	const TraceType<SampleAccumulator>*		sample_stat;
+	const TraceType<MemStatAccumulator>*	mem_stat;
+
+	if ((count_stat = TraceType<CountAccumulator>::getInstance(stat_name)))
+	{
+		mStat.countStatp = count_stat;
+		mStatType = STAT_COUNT;
+	}
+	else if ((event_stat = TraceType<EventAccumulator>::getInstance(stat_name)))
+	{
+		mStat.eventStatp = event_stat;
+		mStatType = STAT_EVENT;
+	}
+	else if ((sample_stat = TraceType<SampleAccumulator>::getInstance(stat_name)))
+	{
+		mStat.sampleStatp = sample_stat;
+		mStatType = STAT_SAMPLE;
+	}
+	else if ((mem_stat = TraceType<MemStatAccumulator>::getInstance(stat_name)))
+	{
+		mStat.memStatp = mem_stat;
+		mStatType = STAT_MEM;
+	}
 }
 
 
@@ -688,6 +742,3 @@ void LLStatBar::drawTicks( F32 min, F32 max, F32 value_scale, LLRect &bar_rect )
 		}
 	}
 }
-
-
-
