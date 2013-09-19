@@ -246,10 +246,10 @@
 //     mMeshHeader              mHeaderMutex  rw.repo.mHeaderMutex, ro.main.mHeaderMutex, ro.main.none [0]
 //     mMeshHeaderSize          mHeaderMutex  rw.repo.mHeaderMutex
 //     mSkinRequests            mMutex        rw.repo.mMutex, ro.repo.none [5]
-//     mSkinInfoQ               none          rw.repo.none, rw.main.mMutex [0]
+//     mSkinInfoQ               mMutex        rw.repo.mMutex, rw.main.mMutex [5] (was:  [0])
 //     mDecompositionRequests   mMutex        rw.repo.mMutex, ro.repo.none [5]
 //     mPhysicsShapeRequests    mMutex        rw.repo.mMutex, ro.repo.none [5]
-//     mDecompositionQ          none          rw.repo.none, rw.main.mMutex [0]
+//     mDecompositionQ          mMutex        rw.repo.mMutex, rw.main.mMutex [5] (was:  [0])
 //     mHeaderReqQ              mMutex        ro.repo.none [5], rw.repo.mMutex, rw.any.mMutex
 //     mLODReqQ                 mMutex        ro.repo.none [5], rw.repo.mMutex, rw.any.mMutex
 //     mUnavailableQ            mMutex        rw.repo.none [0], ro.main.none [5], rw.main.mMutex
@@ -1713,7 +1713,10 @@ bool LLMeshRepoThread::skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 dat
 		info.mMeshID = mesh_id;
 
 		// LL_DEBUGS(LOG_MESH) << "info pelvis offset" << info.mPelvisOffset << LL_ENDL;
-		mSkinInfoQ.push(info);
+		{
+			LLMutexLock lock(mMutex);
+			mSkinInfoQ.push(info);
+		}
 	}
 
 	return true;
@@ -1740,7 +1743,10 @@ bool LLMeshRepoThread::decompositionReceived(const LLUUID& mesh_id, U8* data, S3
 	{
 		LLModel::Decomposition* d = new LLModel::Decomposition(decomp);
 		d->mMeshID = mesh_id;
-		mDecompositionQ.push(d);
+		{
+			LLMutexLock lock(mMutex);
+			mDecompositionQ.push(d);
+		}
 	}
 
 	return true;
@@ -1799,7 +1805,10 @@ bool LLMeshRepoThread::physicsShapeReceived(const LLUUID& mesh_id, U8* data, S32
 		}
 	}
 
-	mDecompositionQ.push(d);
+	{
+		LLMutexLock lock(mMutex);
+		mDecompositionQ.push(d);
+	}
 	return true;
 }
 
@@ -2460,16 +2469,30 @@ void LLMeshRepoThread::notifyLoadedMeshes()
 		gMeshRepo.notifyMeshUnavailable(req.mMeshParams, req.mLOD);
 	}
 
-	while (!mSkinInfoQ.empty())
+	if (! mSkinInfoQ.empty() || ! mDecompositionQ.empty())
 	{
-		gMeshRepo.notifySkinInfoReceived(mSkinInfoQ.front());
-		mSkinInfoQ.pop();
-	}
+		std::queue<LLMeshSkinInfo> skin_info_q;
+		std::queue<LLModel::Decomposition*> decomp_q;
 
-	while (!mDecompositionQ.empty())
-	{
-		gMeshRepo.notifyDecompositionReceived(mDecompositionQ.front());
-		mDecompositionQ.pop();
+		if (mMutex->trylock())
+		{
+			// Make thread-shared data private with swap under lock.
+			skin_info_q.swap(mSkinInfoQ);
+			decomp_q.swap(mDecompositionQ);
+			mMutex->unlock();
+
+			while (! skin_info_q.empty())
+			{
+				gMeshRepo.notifySkinInfoReceived(skin_info_q.front());
+				skin_info_q.pop();
+			}
+
+			while (! decomp_q.empty())
+			{
+				gMeshRepo.notifyDecompositionReceived(decomp_q.front());
+				decomp_q.pop();
+			}
+		}
 	}
 
 	if (update_metrics)
