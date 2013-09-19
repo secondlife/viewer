@@ -402,7 +402,6 @@ public:
 	// Global colors
 	//--------------------------------------------------------------------
 public:
-		// SUNSHINE CLEANUP no upload
 	/*virtual*/void onGlobalColorChanged(const LLTexGlobalColor* global_color);
 
 	//--------------------------------------------------------------------
@@ -563,7 +562,6 @@ protected:
 	// Composites
 	//--------------------------------------------------------------------
 public:
-		// SUNSHINE CLEANUP no upload
 	virtual void	invalidateComposite(LLTexLayerSet* layerset);
 	virtual void	invalidateAll();
 	virtual void	setCompositeUpdatesEnabled(bool b) {}
@@ -666,6 +664,7 @@ private:
 	F32				mLastAppearanceBlendTime;
 	BOOL			mIsEditingAppearance; // flag for if we're actively in appearance editing mode
 	BOOL			mUseLocalAppearance; // flag for if we're using a local composite
+	// SUNSHINE CLEANUP - always true, remove?
 	BOOL			mUseServerBakes; // flag for if baked textures should be fetched from baking service (false if they're temporary uploads)
 
 	//--------------------------------------------------------------------

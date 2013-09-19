@@ -196,7 +196,6 @@ public:
 	// Loading status
 	//--------------------------------------------------------------------
 public:
-	// SUNSHINE CLEANUP
 	S32					getLocalDiscardLevel(LLAvatarAppearanceDefines::ETextureIndex type, U32 index) const;
 	bool				areTexturesCurrent() const;
 	BOOL				isLocalTextureDataAvailable(const LLViewerTexLayerSet* layerset) const;
@@ -256,7 +255,6 @@ public:
 	// Composites
 	//--------------------------------------------------------------------
 public:
-		// SUNSHINE CLEANUP no upload
 	/* virtual */ void	invalidateComposite(LLTexLayerSet* layerset);
 	/* virtual */ void	invalidateAll();
 	/* virtual */ void	setCompositeUpdatesEnabled(bool b); // only works for self
@@ -300,7 +298,7 @@ protected:
  **/
 
 public:
-	void				wearableUpdated(LLWearableType::EType type, BOOL upload_result);
+	void				wearableUpdated(LLWearableType::EType type);
 protected:
 	U32 getNumWearables(LLAvatarAppearanceDefines::ETextureIndex i) const;
 

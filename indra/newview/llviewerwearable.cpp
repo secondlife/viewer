@@ -397,7 +397,7 @@ void LLViewerWearable::removeFromAvatar( LLWearableType::EType type)
 	}
 
 	gAgentAvatarp->updateVisualParams();
-	gAgentAvatarp->wearableUpdated(type, FALSE);
+	gAgentAvatarp->wearableUpdated(type);
 }
 
 // Does not copy mAssetID.

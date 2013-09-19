@@ -3692,7 +3692,7 @@ bool LLAppearanceMgr::moveWearable(LLViewerInventoryItem* item, bool closer_to_b
 	bool result = false;
 	if (result = gAgentWearables.moveWearable(item, closer_to_body))
 	{
-		gAgentAvatarp->wearableUpdated(item->getWearableType(), FALSE);
+		gAgentAvatarp->wearableUpdated(item->getWearableType());
 	}
 
 	setOutfitDirty(true);

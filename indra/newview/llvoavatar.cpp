@@ -5344,7 +5344,6 @@ BOOL LLVOAvatar::updateGeometry(LLDrawable *drawable)
 //-----------------------------------------------------------------------------
 // updateSexDependentLayerSets()
 //-----------------------------------------------------------------------------
-// SUNSHINE CLEANUP no upload_bake
 void LLVOAvatar::updateSexDependentLayerSets()
 {
 	invalidateComposite( mBakedTextureDatas[BAKED_HEAD].mTexLayerSet);
@@ -5829,7 +5828,6 @@ BOOL LLVOAvatar::isWearingWearableType(LLWearableType::EType type) const
 
 
 // virtual
-// SUNSHINE CLEANUP no upload_result, no-op
 void LLVOAvatar::invalidateComposite( LLTexLayerSet* layerset)
 {
 }
@@ -5839,7 +5837,6 @@ void LLVOAvatar::invalidateAll()
 }
 
 // virtual
-// SUNSHINE CLEANUP no upload_bake
 void LLVOAvatar::onGlobalColorChanged(const LLTexGlobalColor* global_color)
 {
 	if (global_color == mTexSkinColor)

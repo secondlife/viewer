@@ -1063,8 +1063,7 @@ void LLVOAvatarSelf::updateAttachmentVisibility(U32 camera_mode)
 // forces an update to any baked textures relevant to type.
 // will force an upload of the resulting bake if the second parameter is TRUE
 //-----------------------------------------------------------------------------
-// SUNSHINE CLEANUP no upload_result
-void LLVOAvatarSelf::wearableUpdated( LLWearableType::EType type, BOOL upload_result )
+void LLVOAvatarSelf::wearableUpdated(LLWearableType::EType type)
 {
 	for (LLAvatarAppearanceDictionary::BakedTextures::const_iterator baked_iter = LLAvatarAppearanceDictionary::getInstance()->getBakedTextures().begin();
 		 baked_iter != LLAvatarAppearanceDictionary::getInstance()->getBakedTextures().end();
@@ -1577,18 +1576,6 @@ void LLVOAvatarSelf::invalidateComposite( LLTexLayerSet* layerset)
 
 	layer_set->requestUpdate();
 	layer_set->invalidateMorphMasks();
-
-#if 0 // SUNSHINE CLEANUP
-	if( upload_result  && (getRegion() && !getRegion()->getCentralBakeVersion()))
-	{
-		llassert(isSelf());
-
-		ETextureIndex baked_te = getBakedTE( layer_set );
-		setTEImage( baked_te, LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT_AVATAR) );
-		layer_set->requestUpload();
-		updateMeshTextures();
-	}
-#endif
 }
 
 void LLVOAvatarSelf::invalidateAll()
