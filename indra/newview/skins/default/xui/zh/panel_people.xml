@@ -49,6 +49,9 @@
 				<menu_button name="plus_btn" tool_tip="加入群組/創立新群組"/>
 				<dnd_button name="minus_btn" tool_tip="離開所選群組"/>
 			</panel>
+			<text name="groupcount">
+				你目前屬於 [COUNT] 個群組，可再加入 [REMAINING] 個。
+			</text>
 		</panel>
 		<panel label="最近" name="recent_panel">
 			<panel label="bottom_panel" name="recent_buttons_panel">

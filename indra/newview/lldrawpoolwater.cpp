@@ -522,13 +522,20 @@ void LLDrawPoolWater::shade()
 
 	F32 eyedepth = LLViewerCamera::getInstance()->getOrigin().mV[2] - gAgent.getRegion()->getWaterHeight();
 	
+	if (eyedepth < 0.f && LLPipeline::sWaterReflections)
+	{
 	if (deferred_render)
 	{
-		shader = &gDeferredWaterProgram;
+			shader = &gDeferredUnderWaterProgram;
 	}
-	else if (eyedepth < 0.f && LLPipeline::sWaterReflections)
+		else
 	{
 		shader = &gUnderWaterProgram;
+	}
+	}
+	else if (deferred_render)
+	{
+		shader = &gDeferredWaterProgram;
 	}
 	else
 	{
@@ -597,9 +604,15 @@ void LLDrawPoolWater::shade()
 		shader->uniform4fv(LLShaderMgr::WATER_FOGCOLOR, 1, sWaterFogColor.mV);
 	}
 
+	F32 screenRes[] = 
+	{
+		1.f/gGLViewport[2],
+		1.f/gGLViewport[3]
+	};
+	shader->uniform2fv(LLShaderMgr::DEFERRED_SCREEN_RES, 1, screenRes);
 	stop_glerror();
 	
-	S32 diffTex = shader->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
+	S32 diffTex = shader->enableTexture(LLShaderMgr::DIFFUSE_MAP);
 	stop_glerror();
 	
 	light_dir.normVec();

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Text-Chat" name="chat">
-	<panel>
+	<panel name="general_chat_settings">
 		<check_box initial_value="true" label="Beim Chatten Tippanimation abspielen" name="play_typing_animation"/>
-		<check_box label="IMs per Email zuschicken, wenn ich offline bin" name="send_im_to_email"/>
+		<check_box label="IMs per E-Mail zustellen, wenn ich offline bin" name="send_im_to_email"/>
 		<check_box label="Nur IMs und Anrufe von Freunden oder Gruppen durchstellen" name="voice_call_friends_only_check"/>
 		<text name="font_size">
 			Schriftgröße:
@@ -14,10 +14,7 @@
 		</combo_box>
 		<check_box label="Blasen-Chat" name="bubble_text_chat"/>
 	</panel>
-	<panel>
-		<text name="notifications">
-			Benachrichtigungen
-		</text>
+	<panel name="im_notification_settings">
 		<text name="friend_ims">
 			IMs von Freunden:
 		</text>
@@ -25,8 +22,9 @@
 			<item label="Unterhaltungsfenster öffnen" name="OpenConversationsWindow" value="openconversations"/>
 			<item label="Nachricht in Popup anzeigen" name="PopUpMessage" value="toast"/>
 			<item label="Flash-Symbolleistenschaltfläche" name="FlashToolbarButton" value="flash"/>
-			<item label="None" name="None" value="none"/>
+			<item label="Keine Aktion" name="NoAction" value="noaction"/>
 		</combo_box>
+		<check_box label="Sound abspielen" name="play_sound_friend_im"/>
 		<text name="non_friend_ims">
 			IMs von anderen:
 		</text>
@@ -34,8 +32,9 @@
 			<item label="Unterhaltungsfenster öffnen" name="OpenConversationsWindow" value="openconversations"/>
 			<item label="Nachricht in Popup anzeigen" name="PopUpMessage" value="toast"/>
 			<item label="Flash-Symbolleistenschaltfläche" name="FlashToolbarButton" value="flash"/>
-			<item label="None" name="None" value="none"/>
+			<item label="Keine Aktion" name="NoAction" value="noaction"/>
 		</combo_box>
+		<check_box label="Sound abspielen" name="play_sound_non_friend_im"/>
 		<text name="conference_ims">
 			Konferenz-IMs:
 		</text>
@@ -43,8 +42,9 @@
 			<item label="Unterhaltungsfenster öffnen" name="OpenConversationsWindow" value="openconversations"/>
 			<item label="Nachricht in Popup anzeigen" name="PopUpMessage" value="toast"/>
 			<item label="Flash-Symbolleistenschaltfläche" name="FlashToolbarButton" value="flash"/>
-			<item label="None" name="None" value="none"/>
+			<item label="Keine Aktion" name="NoAction" value="noaction"/>
 		</combo_box>
+		<check_box label="Sound abspielen" name="play_sound_conference_im"/>
 		<text name="group_chat">
 			Gruppen-Chat:
 		</text>
@@ -52,8 +52,9 @@
 			<item label="Unterhaltungsfenster öffnen" name="OpenConversationsWindow" value="openconversations"/>
 			<item label="Nachricht in Popup anzeigen" name="PopUpMessage" value="toast"/>
 			<item label="Flash-Symbolleistenschaltfläche" name="FlashToolbarButton" value="flash"/>
-			<item label="None" name="None" value="none"/>
+			<item label="Keine Aktion" name="NoAction" value="noaction"/>
 		</combo_box>
+		<check_box label="Sound abspielen" name="play_sound_group_chat_im"/>
 		<text name="nearby_chat">
 			Chat in der Nähe:
 		</text>
@@ -61,25 +62,36 @@
 			<item label="Unterhaltungsfenster öffnen" name="OpenConversationsWindow" value="openconversations"/>
 			<item label="Nachricht in Popup anzeigen" name="PopUpMessage" value="toast"/>
 			<item label="Flash-Symbolleistenschaltfläche" name="FlashToolBarButton" value="flash"/>
-			<item label="None" name="None" value="none"/>
+			<item label="Keine Aktion" name="NoAction" value="noaction"/>
 		</combo_box>
+		<check_box label="Sound abspielen" name="play_sound_nearby_chat_im"/>
+		<text name="object_ims">
+			IMs von Objekten:
+		</text>
+		<combo_box name="ObjectIMOptions">
+			<item label="Unterhaltungsfenster öffnen" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="Nachricht in Popup anzeigen" name="PopUpMessage" value="toast"/>
+			<item label="Flash-Symbolleistenschaltfläche" name="FlashToolBarButton" value="flash"/>
+			<item label="Keine Aktion" name="NoAction" value="noaction"/>
+		</combo_box>
+		<check_box label="Sound abspielen" name="play_sound_object_im"/>
 		<text name="notifications_alert">
 			Um vorübergehend alle Benachrichtigungen zu stoppen, wählen Sie „Unterhalten“ &gt; „Nicht stören“.
 		</text>
 	</panel>
-	<panel>
+	<panel name="play_sound_settings">
 		<text name="play_sound">
 			Sound abspielen:
 		</text>
 		<check_box label="Neue Unterhaltung" name="new_conversation"/>
-		<check_box label="Eingehender Anruf..." name="incoming_voice_call"/>
+		<check_box label="Eingehender Anruf" name="incoming_voice_call"/>
 		<check_box label="Teleport-Angebot" name="teleport_offer"/>
 		<check_box label="Inventarangebot" name="inventory_offer"/>
 	</panel>
-	<panel>
+	<panel name="log_settings">
 		<button label="Protokoll löschen..." name="clear_log"/>
-		<button label="Protokolle löschen..." name="delete_transcripts"/>
-		<button label="Durchsuchen..." label_selected="Durchsuchen" name="log_path_button"/>
+		<button label="Transkripte löschen..." name="delete_transcripts"/>
+		<button label="Durchsuchen..." label_selected="Durchblättern" name="log_path_button"/>
 	</panel>
 	<button label="Übersetzen..." name="ok_btn"/>
 	<button label="Automatisch ersetzen..." name="autoreplace_showgui"/>

@@ -43,6 +43,7 @@
 #include "llcapabilityprovider.h"
 #include "m4math.h"					// LLMatrix4
 #include "llhttpclient.h"
+#include "llframetimer.h"
 
 // Surface id's
 #define LAND  1
@@ -343,6 +344,11 @@ public:
 	const LLViewerRegionImpl * getRegionImpl() const { return mImpl; }
 	LLViewerRegionImpl * getRegionImplNC() { return mImpl; }
 	
+	// implements the materials capability throttle
+	bool materialsCapThrottled() const { return !mMaterialsCapThrottleTimer.hasExpired(); }
+	void resetMaterialsCapThrottle();
+	
+	U32 getMaxMaterialsPerTransaction() const;
 public:
 	struct CompareDistance
 	{
@@ -437,7 +443,9 @@ private:
 	
 	LLSD mSimulatorFeatures;
 
-	LLFrameTimer	mRenderInfoRequestTimer;
+	// the materials capability throttle
+	LLFrameTimer mMaterialsCapThrottleTimer;
+LLFrameTimer	mRenderInfoRequestTimer;
 };
 
 inline BOOL LLViewerRegion::getRegionProtocol(U64 protocol) const

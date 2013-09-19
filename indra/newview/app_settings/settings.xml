@@ -8853,6 +8853,18 @@
     </array>
   </map>
 
+  <key>RenderSpecularPrecision</key>
+  <map>
+    <key>Comment</key>
+    <string>Force 32-bit floating point LUT</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <real>0</real>
+  </map>
+  
   <key>RenderSpecularResX</key>
   <map>
     <key>Comment</key>
@@ -9143,6 +9155,17 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
+  <key>RenderDeferredDisplayGamma</key>
+  <map>
+    <key>Comment</key>
+    <string>Gamma ramp exponent for final correction before display gamma.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>2.2</real>
+  </map>
     <key>RenderGLCoreProfile</key>
     <map>
       <key>Comment</key>
@@ -9746,10 +9769,11 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+  
   <key>RenderAutoMuteByteLimit</key>
   <map>
     <key>Comment</key>
-    <string>Maximum bytes of attachments before an avatar is rendered as a simple imposter (0 for no limit).</string>
+    <string>Maximum bytes of attachments before an avatar is rendered as a simple impostor (0 for no limit).</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -9757,10 +9781,10 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-  <key>RenderAutoMuteRenderCostLimit</key>
+  <key>RenderAutoMuteRenderWeightLimit</key>
   <map>
     <key>Comment</key>
-    <string>Maximum render weight before an avatar is rendered as a simple imposter (0 to not use this limit).</string>
+    <string>Maximum render weight before an avatar is rendered as a simple impostor (0 to not use this limit).</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -9771,7 +9795,7 @@
   <key>RenderAutoMuteSurfaceAreaLimit</key>
   <map>
     <key>Comment</key>
-    <string>Maximum surface area of attachments before an avatar is rendered as a simple imposter (0 to not use this limit).</string>
+    <string>Maximum surface area of attachments before an avatar is rendered as a simple impostor (0 to not use this limit).</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -9779,16 +9803,16 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-  <key>RenderAutoMuteThreshold</key>
+  <key>RenderAutoMuteFunctions</key>
   <map>
     <key>Comment</key>
-    <string>Threshold on the Avatar Detail slider where simple imposter mode is enabled.  (less than 0 is always on, greather than 1 always off)</string>
+    <string>Developing feature to render some avatars using simple impostors or colored silhouettes.  (Set to 7 for all functionality)</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
-    <string>F32</string>
+    <string>U32</string>
     <key>Value</key>
-    <real>0.25</real>
+    <real>0</real>
   </map>
   <key>RenderAutoMuteLogging</key>
   <map>
@@ -9901,6 +9925,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>RenderWaterMaterials</key>
+    <map>
+      <key>Comment</key>
+      <string>Water planar reflections include materials rendering.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>RenderWaterMipNormal</key>
     <map>

@@ -375,6 +375,11 @@ BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString> * attributes,
 	// Create program
 	mProgramObject = glCreateProgramObjectARB();
 	
+#if LL_DARWIN
+    // work-around missing mix(vec3,vec3,bvec3)
+    mDefines["OLD_SELECT"] = "1";
+#endif
+	
 	//compile new source
 	vector< pair<string,GLenum> >::iterator fileIter = mShaderFiles.begin();
 	for ( ; fileIter != mShaderFiles.end(); fileIter++ )
@@ -1190,7 +1195,7 @@ GLint LLGLSLShader::getAttribLocation(U32 attrib)
 void LLGLSLShader::uniform1i(const LLStaticHashedString& uniform, GLint v)
 {
 	GLint location = getUniformLocation(uniform);
-
+				
 	if (location >= 0)
 	{
 		std::map<GLint, LLVector4>::iterator iter = mValue.find(location);
@@ -1223,7 +1228,7 @@ void LLGLSLShader::uniform2i(const LLStaticHashedString& uniform, GLint i, GLint
 void LLGLSLShader::uniform1f(const LLStaticHashedString& uniform, GLfloat v)
 {
 	GLint location = getUniformLocation(uniform);
-
+				
 	if (location >= 0)
 	{
 		std::map<GLint, LLVector4>::iterator iter = mValue.find(location);
@@ -1239,7 +1244,7 @@ void LLGLSLShader::uniform1f(const LLStaticHashedString& uniform, GLfloat v)
 void LLGLSLShader::uniform2f(const LLStaticHashedString& uniform, GLfloat x, GLfloat y)
 {
 	GLint location = getUniformLocation(uniform);
-
+				
 	if (location >= 0)
 	{
 		std::map<GLint, LLVector4>::iterator iter = mValue.find(location);
@@ -1256,7 +1261,7 @@ void LLGLSLShader::uniform2f(const LLStaticHashedString& uniform, GLfloat x, GLf
 void LLGLSLShader::uniform3f(const LLStaticHashedString& uniform, GLfloat x, GLfloat y, GLfloat z)
 {
 	GLint location = getUniformLocation(uniform);
-
+				
 	if (location >= 0)
 	{
 		std::map<GLint, LLVector4>::iterator iter = mValue.find(location);
@@ -1288,7 +1293,7 @@ void LLGLSLShader::uniform1fv(const LLStaticHashedString& uniform, U32 count, co
 void LLGLSLShader::uniform2fv(const LLStaticHashedString& uniform, U32 count, const GLfloat* v)
 {
 	GLint location = getUniformLocation(uniform);
-
+				
 	if (location >= 0)
 	{
 		std::map<GLint, LLVector4>::iterator iter = mValue.find(location);
@@ -1304,7 +1309,7 @@ void LLGLSLShader::uniform2fv(const LLStaticHashedString& uniform, U32 count, co
 void LLGLSLShader::uniform3fv(const LLStaticHashedString& uniform, U32 count, const GLfloat* v)
 {
 	GLint location = getUniformLocation(uniform);
-
+				
 	if (location >= 0)
 	{
 		std::map<GLint, LLVector4>::iterator iter = mValue.find(location);

@@ -49,6 +49,9 @@ Em busca de alguém para conversar? Procure no [secondlife:///app/worldmap Mapa-
 				<menu_button name="plus_btn" tool_tip="Entrar em um grupo/Criar novo grupo"/>
 				<dnd_button name="minus_btn" tool_tip="Sair do grupo selecionado"/>
 			</panel>
+			<text name="groupcount">
+				Você pertence a [COUNT] grupos e pode entrar em mais [REMAINING].
+			</text>
 		</panel>
 		<panel label="RECENTE" name="recent_panel">
 			<panel label="bottom_panel" name="recent_buttons_panel">

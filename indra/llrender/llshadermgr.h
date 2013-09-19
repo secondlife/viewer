@@ -167,7 +167,8 @@ public:
 		DEFERRED_LIGHT,
 		DEFERRED_BLOOM,
 		DEFERRED_PROJECTION,
-		
+		DEFERRED_NORM_MATRIX,
+
 		GLOBAL_GAMMA,
 		TEXTURE_GAMMA,
 		
@@ -213,9 +214,8 @@ public:
 		TERRAIN_ALPHARAMP,
 		
 		SHINY_ORIGIN,
-
+DISPLAY_GAMMA,
 		END_RESERVED_UNIFORMS
-
 	} eGLSLReservedUniforms;
 
 	// singleton pattern implementation

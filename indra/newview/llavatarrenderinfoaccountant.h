@@ -42,7 +42,7 @@ public:
 	static void sendRenderInfoToRegion(LLViewerRegion * regionp);
 	static void getRenderInfoFromRegion(LLViewerRegion * regionp);
 
-	static void expireRenderInfoReportTimer();
+	static void expireRenderInfoReportTimer(const LLUUID& region_id);
 
     static void idle();
 

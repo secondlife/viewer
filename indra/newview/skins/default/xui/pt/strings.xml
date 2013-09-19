@@ -130,6 +130,9 @@
 	<string name="create_account_url">
 		http://join.secondlife.com/?sourceid=[sourceid]
 	</string>
+	<string name="ViewerDownloadURL">
+		http://secondlife.com/download
+	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		O visualizador utilizado já não é compatível com o Second Life.  Visite a página abaixo para baixar uma versão atual: http://secondlife.com/download
 
@@ -399,6 +402,9 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	</string>
 	<string name="SLappAgentRequestFriend">
 		Pedido de amizade
+	</string>
+	<string name="SLappAgentRemoveFriend">
+		Remoção de amigo
 	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
 		Fechar (⌘W)
@@ -787,6 +793,9 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	<string name="multiple_textures">
 		Múltiplo
 	</string>
+	<string name="use_texture">
+		Usar textura
+	</string>
 	<string name="texture_loading">
 		Carregando...
 	</string>
@@ -882,6 +891,21 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	</string>
 	<string name="TeleportYourAgent">
 		Teletransportá-lo
+	</string>
+	<string name="JoinAnExperience">
+		Participar de uma experiência
+	</string>
+	<string name="SilentlyManageEstateAccess">
+		Suprimir alertas ao gerenciar listas de acesso ao terreno
+	</string>
+	<string name="OverrideYourAnimations">
+		Substituir suas animações padrão
+	</string>
+	<string name="ScriptReturnObjects">
+		Retornar objetos em seu nome
+	</string>
+	<string name="UnknownScriptPermission">
+		(desconhecido)!
 	</string>
 	<string name="SIM_ACCESS_PG">
 		Público geral
@@ -1908,6 +1932,12 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		HUD direito inferior
 	</string>
+	<string name="ATTACH_NECK">
+		Pescoço
+	</string>
+	<string name="ATTACH_AVATAR_CENTER">
+		Centro do avatar
+	</string>
 	<string name="CursorPos">
 		Linha [LINE], Coluna [COLUMN]
 	</string>
@@ -2893,6 +2923,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
 	<string name="Hip Width">
 		Largura do quadril
+	</string>
+	<string name="Hover">
+		Pairar
 	</string>
 	<string name="In">
 		Dentro
@@ -4950,5 +4983,8 @@ Tente colocar o caminho do editor entre aspas.
 	</string>
 	<string name="logging_calls_enabled_log_empty">
 		Não há conversas registradas. Depois que você entrar em contato com alguém, ou alguém entrar em contato com você, um registro será exibido aqui.
+	</string>
+	<string name="loading_chat_logs">
+		Carregando...
 	</string>
 </strings>
