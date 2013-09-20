@@ -3,7 +3,7 @@
   positioning="cascading"
   can_close="true"
   can_resize="false"
-  help_topic="social floater"
+  help_topic="floater_social"
   layout="topleft"
   name="floater_social"
   save_rect="true"
@@ -34,28 +34,24 @@
        class="llsocialstatuspanel"
        follows="all"
        label="STATUS"
-       help_topic="panel_social_status"
        name="panel_social_status"/>
      <panel
        filename="panel_social_photo.xml"
        class="llsocialphotopanel"
        follows="all"
        label="PHOTO"
-       help_topic="panel_social_photo"
        name="panel_social_photo"/>
      <panel
        filename="panel_social_place.xml"
        class="llsocialcheckinpanel"
        follows="all"
        label="CHECK IN"
-       help_topic="panel_social_place"
        name="panel_social_place"/>
      <panel
        filename="panel_social_account.xml"
        class="llsocialaccountpanel"
        follows="all"
        label="ACCOUNT"
-       help_topic="panel_social_account"
        name="panel_social_account"/>     
     </tab_container>
     <panel
