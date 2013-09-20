@@ -75,7 +75,16 @@
                     label="Object Cache Hit Rate"
                     stat="object_cache_hits"
                     show_history="true"/>
-        </stat_view>
+					<stat_bar name="occlusion_queries"
+										label="Occlusion Queries Performed"
+										stat="occlusion_queries"/>
+					<stat_bar name="occluded"
+										label="Objects Occluded"
+										stat="occluded_objects"/>
+					<stat_bar name="unoccluded"
+										label="Object Unoccluded"
+										stat="unoccluded_objects"/>
+				</stat_view>
         <stat_view name="texture"
                    label="Texture"
                    follows="left|top|right"

@@ -42,7 +42,6 @@ BOOL LLViewerOctreeDebug::sInDebug = FALSE;
 static LLTrace::CountStatHandle<S32> sOcclusionQueries("occlusion_queries", "Number of occlusion queries executed"),
 									 sNumObjectsOccluded("occluded_objects", "Count of objects being occluded by a query"),
 									 sNumObjectsUnoccluded("unoccluded_objects", "Count of objects being unoccluded by a query");
-static LLTrace::SampleStatHandle<S32> sOcclusionQueriesInFlight("occlusion_queries_in_flight", "Number of occlusion queries waiting for results");
 
 //-----------------------------------------------------------------------------------
 //some global functions definitions
@@ -784,6 +783,7 @@ protected:
 	{
 #if LL_TRACK_PENDING_OCCLUSION_QUERIES
 		LLSpatialGroup::sPendingQueries.erase(name);
+
 #endif
 		llassert(std::find(mAvailableName.begin(), mAvailableName.end(), name) == mAvailableName.end());
 		mAvailableName.push_back(name);
@@ -1095,7 +1095,6 @@ void LLOcclusionCullingGroup::checkOcclusion()
 #if LL_TRACK_PENDING_OCCLUSION_QUERIES
 					sPendingQueries.erase(mOcclusionQuery[LLViewerCamera::sCurCameraID]);
 #endif
-					add(sOcclusionQueriesInFlight, -1);
 				}
 				else if (mOcclusionQuery[LLViewerCamera::sCurCameraID])
 				{ //delete the query to avoid holding onto hundreds of pending queries
@@ -1200,7 +1199,6 @@ void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector4a* sh
 					sPendingQueries.insert(mOcclusionQuery[LLViewerCamera::sCurCameraID]);
 #endif
 					add(sOcclusionQueries, 1);
-					add(sOcclusionQueriesInFlight, 1);
 
 					{
 						LL_RECORD_BLOCK_TIME(FTM_PUSH_OCCLUSION_VERTS);

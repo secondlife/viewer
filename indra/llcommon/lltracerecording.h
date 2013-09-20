@@ -124,6 +124,8 @@ namespace LLTrace
 	template<typename T>
 	class EventStatHandle;
 
+	class MemStatHandle;
+
 	template<typename T>
 	struct RelatedTypes
 	{

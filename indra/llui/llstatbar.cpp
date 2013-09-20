@@ -482,13 +482,14 @@ void LLStatBar::draw()
 			if (mDisplayHistory && mStat.valid)
 			{
 				const S32 num_values = frame_recording.getNumRecordedPeriods() - 1;
-				F32 value = 0;
-				S32 i;
-				gGL.color4f( 1.f, 0.f, 0.f, 1.f );
+				F32 min_value = 0.f,
+					max_value = 0.f;
+
+				gGL.color4f(1.f, 0.f, 0.f, 1.f);
 				gGL.begin( LLRender::QUADS );
 				const S32 max_frame = llmin(num_frames, num_values);
 				U32 num_samples = 0;
-				for (i = 1; i <= max_frame; i++)
+				for (S32 i = 1; i <= max_frame; i++)
 				{
 					F32 offset = ((F32)i / (F32)num_frames) * span;
 					LLTrace::Recording& recording = frame_recording.getPrevRecording(i);
@@ -496,19 +497,23 @@ void LLStatBar::draw()
 					switch(mStatType)
 					{
 						case STAT_COUNT:
-							value       = recording.getPerSec(*mStat.countStatp);
-							num_samples = recording.getSampleCount(*mStat.countStatp);
+							min_value       = recording.getPerSec(*mStat.countStatp);
+							max_value		= min_value;
+							num_samples		= recording.getSampleCount(*mStat.countStatp);
 							break;
 						case STAT_EVENT:
-							value       = recording.getMean(*mStat.eventStatp);
-							num_samples = recording.getSampleCount(*mStat.eventStatp);
+							min_value       = recording.getMin(*mStat.eventStatp);
+							max_value		= recording.getMax(*mStat.eventStatp);
+							num_samples		= recording.getSampleCount(*mStat.eventStatp);
 							break;
 						case STAT_SAMPLE:
-							value       = recording.getMean(*mStat.sampleStatp);
-							num_samples = recording.getSampleCount(*mStat.sampleStatp);
+							min_value       = recording.getMin(*mStat.sampleStatp);
+							max_value		= recording.getMax(*mStat.sampleStatp);
+							num_samples		= recording.getSampleCount(*mStat.sampleStatp);
 							break;
 						case STAT_MEM:
-							value		= recording.getMean(*mStat.memStatp).value();
+							min_value       = recording.getMin(*mStat.memStatp).value();
+							max_value		= recording.getMax(*mStat.memStatp).value();
 							num_samples = 1;
 							break;
 						default:
@@ -517,20 +522,21 @@ void LLStatBar::draw()
 
 					if (!num_samples) continue;
 
-					F32 begin = (value  - mCurMinBar) * value_scale;
+					F32 min = (min_value  - mCurMinBar) * value_scale;
+					F32 max = llmax(min + 1, (max_value - mCurMinBar) * value_scale);
 					if (mOrientation == HORIZONTAL)
 					{
-						gGL.vertex2f((F32)bar_rect.mRight - offset, begin + 1);
-						gGL.vertex2f((F32)bar_rect.mRight - offset, begin);
-						gGL.vertex2f((F32)bar_rect.mRight - offset - 1, begin);
-						gGL.vertex2f((F32)bar_rect.mRight - offset - 1, begin + 1);
+						gGL.vertex2f((F32)bar_rect.mRight - offset, max);
+						gGL.vertex2f((F32)bar_rect.mRight - offset, min);
+						gGL.vertex2f((F32)bar_rect.mRight - offset - 1, min);
+						gGL.vertex2f((F32)bar_rect.mRight - offset - 1, max);
 					}
 					else
 					{
-						gGL.vertex2f(begin, (F32)bar_rect.mBottom + offset + 1);
-						gGL.vertex2f(begin, (F32)bar_rect.mBottom + offset);
-						gGL.vertex2f(begin + 1, (F32)bar_rect.mBottom + offset);
-						gGL.vertex2f(begin + 1, (F32)bar_rect.mBottom + offset + 1 );
+						gGL.vertex2f(min, (F32)bar_rect.mBottom + offset + 1);
+						gGL.vertex2f(min, (F32)bar_rect.mBottom + offset);
+						gGL.vertex2f(max, (F32)bar_rect.mBottom + offset);
+						gGL.vertex2f(max, (F32)bar_rect.mBottom + offset + 1 );
 					}
 				}
 				gGL.end();

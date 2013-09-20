@@ -512,14 +512,14 @@ public:
 		return value;
 	}
 
-	const size_t& memClaim(const size_t& size)
+	size_t& memClaim(size_t& size)
 	{
 		claim_mem(sMemStat, size);
 		mMemFootprint += size;
 		return size;
 	}
 
-	size_t& memClaim(size_t& size)
+	int& memClaim(int& size)
 	{
 		claim_mem(sMemStat, size);
 		mMemFootprint += size;
@@ -541,14 +541,14 @@ public:
 		return value;
 	}
 
-	const size_t& memDisclaim(const size_t& size)
+	size_t& memDisclaim(size_t& size)
 	{
 		disclaim_mem(sMemStat, size);
 		mMemFootprint -= size;
 		return size;
 	}
 
-	size_t& memDisclaim(size_t& size)
+	int& memDisclaim(int& size)
 	{
 		disclaim_mem(sMemStat, size);
 		mMemFootprint -= size;
