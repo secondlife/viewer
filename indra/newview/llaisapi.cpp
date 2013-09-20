@@ -602,29 +602,37 @@ void AISUpdate::parseCategory(const LLSD& category_map)
 void AISUpdate::parseDescendentCount(const LLUUID& category_id, const LLSD& embedded)
 {
 	// We can only determine true descendent count if this contains all descendent types.
-	if (embedded.has("category") &&
-		embedded.has("link") &&
-		embedded.has("item"))
+	if (embedded.has("categories") &&
+		embedded.has("links") &&
+		embedded.has("items"))
 	{
-		mCatDescendentsKnown[category_id]  = embedded["category"].size();
-		mCatDescendentsKnown[category_id] += embedded["link"].size();
-		mCatDescendentsKnown[category_id] += embedded["item"].size();
+		mCatDescendentsKnown[category_id]  = embedded["categories"].size();
+		mCatDescendentsKnown[category_id] += embedded["links"].size();
+		mCatDescendentsKnown[category_id] += embedded["items"].size();
 	}
 }
 
 void AISUpdate::parseEmbedded(const LLSD& embedded)
 {
-	if (embedded.has("link"))
+	if (embedded.has("links")) // _embedded in a category
 	{
-		parseEmbeddedLinks(embedded["link"]);
+		parseEmbeddedLinks(embedded["links"]);
 	}
-	if (embedded.has("item"))
+	if (embedded.has("items")) // _embedded in a category
 	{
-		parseEmbeddedItems(embedded["item"]);
+		parseEmbeddedItems(embedded["items"]);
 	}
-	if (embedded.has("category"))
+	if (embedded.has("item")) // _embedded in a link
 	{
-		parseEmbeddedCategories(embedded["category"]);
+		parseEmbeddedItem(embedded["item"]);
+	}
+	if (embedded.has("categories")) // _embedded in a category
+	{
+		parseEmbeddedCategories(embedded["categories"]);
+	}
+	if (embedded.has("category")) // _embedded in a link
+	{
+		parseEmbeddedCategory(embedded["category"]);
 	}
 }
 
@@ -660,18 +668,21 @@ void AISUpdate::parseEmbeddedLinks(const LLSD& links)
 	}
 }
 
+void AISUpdate::parseEmbeddedItem(const LLSD& item)
+{
+	// a single item (_embedded in a link)
+	if (item.has("item_id"))
+	{
+		if (mItemIds.end() != mItemIds.find(item["item_id"].asUUID()))
+		{
+			parseItem(item);
+		}
+	}
+}
+
 void AISUpdate::parseEmbeddedItems(const LLSD& items)
 {
-	// Special case: this may be a single item (_embedded in a link)
-	if (items.has("item_id"))
-	{
-		if (mItemIds.end() != mItemIds.find(items["item_id"].asUUID()))
-		{
-			parseContent(items);
-		}
-		return;
-	}
-
+	// a map of items (_embedded in a category)
 	for(LLSD::map_const_iterator itemit = items.beginMap(),
 			itemend = items.endMap();
 		itemit != itemend; ++itemit)
@@ -689,8 +700,21 @@ void AISUpdate::parseEmbeddedItems(const LLSD& items)
 	}
 }
 
+void AISUpdate::parseEmbeddedCategory(const LLSD& category)
+{
+	// a single category (_embedded in a link)
+	if (category.has("category_id"))
+	{
+		if (mCategoryIds.end() != mCategoryIds.find(category["category_id"].asUUID()))
+		{
+			parseCategory(category);
+		}
+	}
+}
+
 void AISUpdate::parseEmbeddedCategories(const LLSD& categories)
 {
+	// a map of categories (_embedded in a category)
 	for(LLSD::map_const_iterator categoryit = categories.beginMap(),
 			categoryend = categories.endMap();
 		categoryit != categoryend; ++categoryit)

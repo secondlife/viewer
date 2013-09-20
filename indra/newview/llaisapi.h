@@ -153,8 +153,10 @@ public:
 	void parseDescendentCount(const LLUUID& category_id, const LLSD& embedded);
 	void parseEmbedded(const LLSD& embedded);
 	void parseEmbeddedLinks(const LLSD& links);
-	void parseEmbeddedItems(const LLSD& links);
-	void parseEmbeddedCategories(const LLSD& links);
+	void parseEmbeddedItems(const LLSD& items);
+	void parseEmbeddedCategories(const LLSD& categories);
+	void parseEmbeddedItem(const LLSD& item);
+	void parseEmbeddedCategory(const LLSD& category);
 	void doUpdate();
 private:
 	void clearParseResults();
