@@ -967,12 +967,10 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 			screenFormat = GL_RGBA12;
 		}
 
-#if !LL_DARWIN
 		if (gGLManager.mGLVersion < 4.f && gGLManager.mIsNVIDIA)
 		{
 			screenFormat = GL_RGBA16F_ARB;
 		}
-#endif
         
 		if (!mScreen.allocate(resX, resY, screenFormat, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		if (samples > 0)
@@ -9949,10 +9947,12 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 			LLViewerCamera::updateFrustumPlanes(camera);
 
 			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+			
 			LLColor4& col = LLDrawPoolWater::sWaterFogColor;
 			glClearColor(col.mV[0], col.mV[1], col.mV[2], 0.f);
 			mWaterDis.bindTarget();
 			LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WATER1;
+			
 			mWaterDis.getViewport(gGLViewport);
 			
 			if (!LLPipeline::sUnderWaterRender || LLDrawPoolWater::sNeedsReflectionUpdate)
@@ -9968,6 +9968,8 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
 				gGL.setColorMask(true, true);
 				mWaterDis.clear();
+				
+
 				gGL.setColorMask(true, false);
 
 				
@@ -11349,7 +11351,9 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	
 	S32 occlusion = sUseOcclusion;
 	sUseOcclusion = 0;
+
 	sReflectionRender = sRenderDeferred ? FALSE : TRUE;
+
 	sShadowRender = TRUE;
 	sImpostorRender = TRUE;
 
@@ -11920,7 +11924,4 @@ void LLPipeline::restoreHiddenObject( const LLUUID& id )
 		}
 	}
 }
-
-
-
 
