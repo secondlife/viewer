@@ -1036,6 +1036,7 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 			}
 		}
 
+
 		static LLCachedControl<bool> use_transform_feedback(gSavedSettings, "RenderUseTransformFeedback");
 
 		bool cache_in_vram = use_transform_feedback && gTransformPositionProgram.mProgramObject &&
@@ -1052,9 +1053,7 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 					break;
 				}
 				volume->genTangents(i);
-				//gGLDebugLoggingEnabled = TRUE;
 				LLFace::cacheFaceInVRAM(face);
-				//gGLDebugLoggingEnabled = FALSE;
 			}
 		}
 		
@@ -4460,8 +4459,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	U32 cur_total = 0;
 
 	bool emissive = false;
-
-	
 
 	{
 		LLFastTimer t(FTM_REBUILD_VOLUME_FACE_LIST);

@@ -35,7 +35,7 @@ uniform sampler2DRect diffuseRect;
 uniform sampler2DRect specularRect;
 uniform sampler2DRect normalMap;
 uniform samplerCube environmentMap;
-//uniform sampler2D noiseMap;
+uniform sampler2D noiseMap;
 uniform sampler2D lightFunc;
 uniform sampler2DRect depthMap;
 
@@ -112,7 +112,7 @@ void main()
 	lv = normalize(lv);
 	da = dot(norm, lv);
 	
-		//float noise = texture2D(noiseMap, frag.xy/128.0).b;
+	float noise = texture2D(noiseMap, frag.xy/128.0).b;
 	
 	vec3 col = texture2DRect(diffuseRect, frag.xy).rgb;
 	float fa = falloff+1.0;
@@ -120,7 +120,7 @@ void main()
 	dist_atten *= dist_atten;
 	dist_atten *= 2.0;
 	
-		float lit = da * dist_atten;
+	float lit = da * dist_atten * noise;
 
 	col = color.rgb*lit*col;
 

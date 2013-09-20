@@ -351,7 +351,7 @@ void LLWLParamManager::updateShaderUniforms(LLGLSLShader * shader)
 
 	if (shader->mShaderGroup == LLGLSLShader::SG_DEFAULT)
 	{
-		shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, mRotatedLightDir.mV);
+		shader->uniform4fv(LLShaderMgr::LIGHTNORM, 1, mRotatedLightDir.mV);
 		shader->uniform3fv(LLShaderMgr::WL_CAMPOSLOCAL, 1, LLViewerCamera::getInstance()->getOrigin().mV);
 	} 
 

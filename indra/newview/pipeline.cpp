@@ -6401,8 +6401,6 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 		light->setDiffuse(LLColor4::black);
 		light->setAmbient(LLColor4::black);
 		light->setSpecular(LLColor4::black);
-		light->setQuadraticAttenuation(1.f);
-		light->setLinearAttenuation(1.f);
 	}
 	if (gAgentAvatarp &&
 		gAgentAvatarp->mSpecialRenderMode == 3)

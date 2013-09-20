@@ -570,28 +570,23 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 					}
 				}
 
-				static LLFastTimer::DeclareTimer FTM_RENDER_ALPHA_PUSH("Alpha Push Verts");
-				{
-					LLFastTimer t(FTM_RENDER_ALPHA_PUSH);
-					gGL.blendFunc((LLRender::eBlendFactor) params.mBlendFuncSrc, (LLRender::eBlendFactor) params.mBlendFuncDst, mAlphaSFactor, mAlphaDFactor);
-					params.mVertexBuffer->setBuffer(mask);
+				params.mVertexBuffer->setBuffer(mask & ~(params.mFullbright ? (LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2) : 0));
+                
 				params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
 				gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
-				}
 				
 				// If this alpha mesh has glow, then draw it a second time to add the destination-alpha (=glow).  Interleaving these state-changing calls could be expensive, but glow must be drawn Z-sorted with alpha.
 				if (current_shader && 
 					draw_glow_for_this_partition &&
-					params.mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_EMISSIVE) &&
-					(!params.mParticle || params.mHasGlow))
+					params.mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_EMISSIVE))
 				{
-					static LLFastTimer::DeclareTimer FTM_RENDER_ALPHA_GLOW("Alpha Glow");
-					LLFastTimer t(FTM_RENDER_ALPHA_GLOW);
 					// install glow-accumulating blend mode
 					gGL.blendFunc(LLRender::BF_ZERO, LLRender::BF_ONE, // don't touch color
 						      LLRender::BF_ONE, LLRender::BF_ONE); // add to alpha (glow)
 
-					params.mVertexBuffer->setBuffer(mask | LLVertexBuffer::MAP_EMISSIVE);
+					emissive_shader->bind();
+					
+					params.mVertexBuffer->setBuffer((mask & ~LLVertexBuffer::MAP_COLOR) | LLVertexBuffer::MAP_EMISSIVE);
 					
 					// do the actual drawing, again
 					params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
@@ -613,8 +608,6 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 		}
 	}
 
-	gGL.setSceneBlendType(LLRender::BT_ALPHA);
-
 	LLVertexBuffer::unbind();	
 		
 	if (!light_enabled)
@@ -622,3 +615,4 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 		gPipeline.enableLightsDynamic();
 	}
 }
+
