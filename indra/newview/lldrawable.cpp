@@ -132,10 +132,16 @@ void LLDrawable::destroy()
 		sNumZombieDrawables--;
 	}
 
+	// Attempt to catch violations of this in debug,
+	// knowing that some false alarms may result
+	//
+	llassert(!LLSpatialGroup::sNoDelete);
+
+	/* cannot be guaranteed and causes crashes on false alarms
 	if (LLSpatialGroup::sNoDelete)
 	{
 		llerrs << "Illegal deletion of LLDrawable!" << llendl;
-	}
+	}*/
 
 	std::for_each(mFaces.begin(), mFaces.end(), DeletePointer());
 	mFaces.clear();
@@ -527,6 +533,8 @@ void LLDrawable::makeStatic(BOOL warning_enabled)
 		}
 		updatePartition();
 	}
+
+	llassert(isAvatar() || isRoot() || mParent->isStatic());
 }
 
 // Returns "distance" between target destination and resulting xfrom

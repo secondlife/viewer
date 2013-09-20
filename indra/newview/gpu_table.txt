@@ -316,13 +316,13 @@ Intel Brookdale							.*Intel.*Brookdale.*								0	0	1	1.3
 Intel Cantiga							.*Intel.*Cantiga.*									0	0	1	2
 Intel Eaglelake							.*Intel.*Eaglelake.*								1	1	1	2
 Intel Graphics Media HD					.*Intel.*Graphics Media.*HD.*						1	1	1	2.1
-Intel HD Graphics 2500					.*Intel.*HD Graphics 25.*							2	1	0	4
-Intel HD Graphics 2000					.*Intel.*HD Graphics 2.*							2	1	0	3.1
-Intel HD Graphics 3000					.*Intel.*HD Graphics 3.*							3	1	1	3.1
-Intel HD Graphics 4200					.*Intel.*HD Graphics 42.*							3	1	0	4
-Intel HD Graphics 4400					.*Intel.*HD Graphics 44.*							3	1	0	4
-Intel HD Graphics 4600					.*Intel.*HD Graphics 46.*							3	1	0	4
-Intel HD Graphics 4000					.*Intel.*HD Graphics 4.*							3	1	1	4
+Intel HD Graphics 2500					.*Intel.*HD Graphics 25.*							2	1	0	4.2
+Intel HD Graphics 2000					.*Intel.*HD Graphics 2.*							2	1	0	4.2
+Intel HD Graphics 3000					.*Intel.*HD Graphics 3.*							3	1	1	4.2
+Intel HD Graphics 4200					.*Intel.*HD Graphics 42.*							3	1	0	4.2
+Intel HD Graphics 4400					.*Intel.*HD Graphics 44.*							3	1	0	4.2
+Intel HD Graphics 4600					.*Intel.*HD Graphics 46.*							3	1	0	4.2
+Intel HD Graphics 4000					.*Intel.*HD Graphics 4.*							3	1	1	4.2
 Intel Intel Iris Pro Graphics 5200		.*Intel.*Iris Pro Graphics 52.*						4	1	0	4
 Intel Intel Iris Graphics 5100			.*Intel.*Iris Graphics 51.*							4	1	0	4
 Intel HD Graphics 5000					.*Intel.*HD Graphics 5.*							4	1	0	4
@@ -655,4 +655,5 @@ Oracle									VirtualBox.*										0	1	1	2.1
 Humper									Humper.*											0	1	1	2.1
 PowerVR SGX545							.*PowerVR SGX.*										1	1	1	3
 ATI GeForce Lulz						.*ATI.*GeForce.*									0	0	0	0
+
 
