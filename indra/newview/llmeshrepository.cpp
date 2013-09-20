@@ -1715,7 +1715,7 @@ bool LLMeshRepoThread::skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 dat
 		// LL_DEBUGS(LOG_MESH) << "info pelvis offset" << info.mPelvisOffset << LL_ENDL;
 		{
 			LLMutexLock lock(mMutex);
-			mSkinInfoQ.push(info);
+			mSkinInfoQ.push_back(info);
 		}
 	}
 
@@ -1745,7 +1745,7 @@ bool LLMeshRepoThread::decompositionReceived(const LLUUID& mesh_id, U8* data, S3
 		d->mMeshID = mesh_id;
 		{
 			LLMutexLock lock(mMutex);
-			mDecompositionQ.push(d);
+			mDecompositionQ.push_back(d);
 		}
 	}
 
@@ -1807,7 +1807,7 @@ bool LLMeshRepoThread::physicsShapeReceived(const LLUUID& mesh_id, U8* data, S32
 
 	{
 		LLMutexLock lock(mMutex);
-		mDecompositionQ.push(d);
+		mDecompositionQ.push_back(d);
 	}
 	return true;
 }
@@ -2473,33 +2473,31 @@ void LLMeshRepoThread::notifyLoadedMeshes()
 	{
 		if (mMutex->trylock())
 		{
-			std::queue<LLMeshSkinInfo> skin_info_q;
-			std::queue<LLModel::Decomposition*> decomp_q;
+			std::list<LLMeshSkinInfo> skin_info_q;
+			std::list<LLModel::Decomposition*> decomp_q;
 
-			// swap() comes to std::queue in c++11 so copy manually for now
-			while (! mSkinInfoQ.empty())
+			if (! mSkinInfoQ.empty())
 			{
-				skin_info_q.push(mSkinInfoQ.front());
-				mSkinInfoQ.pop();
+				skin_info_q.swap(mSkinInfoQ);
 			}
-			while (! mDecompositionQ.empty())
+			if (! mDecompositionQ.empty())
 			{
-				decomp_q.push(mDecompositionQ.front());
-				mDecompositionQ.pop();
+				decomp_q.swap(mDecompositionQ);
 			}
+
 			mMutex->unlock();
 
 			// Process the elements free of the lock
 			while (! skin_info_q.empty())
 			{
 				gMeshRepo.notifySkinInfoReceived(skin_info_q.front());
-				skin_info_q.pop();
+				skin_info_q.pop_front();
 			}
 
 			while (! decomp_q.empty())
 			{
 				gMeshRepo.notifyDecompositionReceived(decomp_q.front());
-				decomp_q.pop();
+				decomp_q.pop_front();
 			}
 		}
 	}

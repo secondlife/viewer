@@ -291,8 +291,8 @@ public:
 	//set of requested skin info
 	std::set<LLUUID> mSkinRequests;
 	
-	//queue of completed skin info requests
-	std::queue<LLMeshSkinInfo> mSkinInfoQ;
+	// list of completed skin info requests
+	std::list<LLMeshSkinInfo> mSkinInfoQ;
 
 	//set of requested decompositions
 	std::set<LLUUID> mDecompositionRequests;
@@ -300,8 +300,8 @@ public:
 	//set of requested physics shapes
 	std::set<LLUUID> mPhysicsShapeRequests;
 
-	//queue of completed Decomposition info requests
-	std::queue<LLModel::Decomposition*> mDecompositionQ;
+	// list of completed Decomposition info requests
+	std::list<LLModel::Decomposition*> mDecompositionQ;
 
 	//queue of requested headers
 	std::queue<HeaderRequest> mHeaderReqQ;
