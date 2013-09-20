@@ -229,7 +229,7 @@ public:
 	F32	getWidth() const						{ return mWidth; }
 
 	BOOL idleUpdate(F32 max_update_time);
-	void addVisibleGroup(LLviewerOctreeGroup* group);
+	bool addVisibleGroup(LLviewerOctreeGroup* group);
 	void addVisibleCacheEntry(LLVOCacheEntry* entry);
 	void addActiveCacheEntry(LLVOCacheEntry* entry);
 	void removeActiveCacheEntry(LLVOCacheEntry* entry, LLDrawable* drawablep);	

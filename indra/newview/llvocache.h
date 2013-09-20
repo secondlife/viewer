@@ -126,10 +126,9 @@ public:
 	U32  getUpdateFlags() const    {return mUpdateFlags;}
 
 	static void updateBackCullingFactors();
-
-private:
 	static U32  getInvisibleObjectsLiveTime();
 
+private:
 	void updateParentBoundingInfo(const LLVOCacheEntry* child);	
 
 public:
@@ -172,6 +171,9 @@ public:
 	void resetOccluders();
 	void processOccluders(LLCamera* camera);
 	
+private:
+	void selectBackObjects(LLCamera &camera); //select objects behind camera.
+
 public:
 	static BOOL sNeedsOcclusionCheck;
 	//static	LLTrace::MemStatHandle	sMemStat;
@@ -180,6 +182,9 @@ private:
 	U32   mCullHistory[LLViewerCamera::NUM_CAMERAS];
 	U32   mCulledTime[LLViewerCamera::NUM_CAMERAS];
 	std::set<LLOcclusionCullingGroup*> mOccludedGroups;
+
+	S32   mBackSlectionEnabled; //enable to select back objects if > 0.
+	U32   mIdleHash;
 };
 
 //

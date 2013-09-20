@@ -963,14 +963,16 @@ void LLViewerRegion::removeActiveCacheEntry(LLVOCacheEntry* entry, LLDrawable* d
 	entry->setState(LLVOCacheEntry::INACTIVE);
 }
 
-void LLViewerRegion::addVisibleGroup(LLviewerOctreeGroup* group)
+bool LLViewerRegion::addVisibleGroup(LLviewerOctreeGroup* group)
 {
 	if(mDead || group->isEmpty())
 	{
-		return;
+		return false;
 	}
-	group->setVisible();
+	
 	mImpl->mVisibleGroups.insert(group);
+
+	return true;
 }
 
 U32 LLViewerRegion::getNumOfVisibleGroups() const
