@@ -1394,12 +1394,12 @@ Intel G41                                                                       
 Intel G45                                                                                                supported      1     1     2.1    Intel G45
 Intel Graphics Media HD                                                                                  supported      1     1     2.1    Intel Graphics Media HD
 Intel HD Graphics                                                                                        supported      2     1     4      Intel HD Graphics
-Intel HD Graphics 2000                                                                                   supported      2     0     4.2    Intel HD Graphics 2000
-Intel HD Graphics 3000                                                                                   supported      3     1     4.2    Intel HD Graphics 3000
+Intel HD Graphics 2000                                                                                   supported      2     0     3.1    Intel HD Graphics 2000
+Intel HD Graphics 3000                                                                                   supported      3     1     3.1    Intel HD Graphics 3000
 Intel HD Graphics 4000                                                                                   supported      3     1     4.2    Intel HD Graphics 4000
 Intel Inc. Intel GMA 950 OpenGL Engine                                                                   supported      0     1     1.4    Intel 950
 Intel Inc. Intel GMA X3100 OpenGL Engine                                                                 supported      1     1     2.1    Intel X3100
-Intel Inc. Intel HD Graphics 3000 OpenGL Engine                                                          supported      3     1     4.2    Intel HD Graphics 3000
+Intel Inc. Intel HD Graphics 3000 OpenGL Engine                                                          supported      3     1     3.1    Intel HD Graphics 3000
 Intel Inc. Intel HD Graphics 4000 OpenGL Engine                                                          supported      3     1     4.2    Intel HD Graphics 4000
 Intel Inc. Intel HD Graphics 5000 OpenGL Engine                                                          supported      4     0     4      Intel HD Graphics 5000
 Intel Inc. Intel HD Graphics OpenGL Engine                                                               supported      2     1     4      Intel HD Graphics
@@ -1432,9 +1432,9 @@ Intel Intel(R) G45/G43/G41 Express Chipset                                      
 Intel Intel(R) Graphics Media Accelerator HD                                                             supported      1     1     2.1    Intel Graphics Media HD
 Intel Intel(R) HD Graphics                                                                               supported      2     1     4      Intel HD Graphics
 Intel Intel(R) HD Graphics 100                                                                           supported      2     1     4      Intel HD Graphics
-Intel Intel(R) HD Graphics 2000                                                                          supported      2     0     4.2    Intel HD Graphics 2000
-Intel Intel(R) HD Graphics 2500                                                                          supported      2     0     4.2    Intel HD Graphics 2500
-Intel Intel(R) HD Graphics 3000                                                                          supported      3     1     4.2    Intel HD Graphics 3000
+Intel Intel(R) HD Graphics 2000                                                                          supported      2     0     3.1    Intel HD Graphics 2000
+Intel Intel(R) HD Graphics 2500                                                                          supported      2     0     3.1    Intel HD Graphics 2500
+Intel Intel(R) HD Graphics 3000                                                                          supported      3     1     3.1    Intel HD Graphics 3000
 Intel Intel(R) HD Graphics 4000                                                                          supported      3     1     4.2    Intel HD Graphics 4000
 Intel Intel(R) HD Graphics 4400                                                                          supported      3     0     4.2    Intel HD Graphics 4400
 Intel Intel(R) HD Graphics 4600                                                                          supported      3     0     4.2    Intel HD Graphics 4600
@@ -1509,7 +1509,7 @@ NVIDIA 320M                                                                     
 NVIDIA 405                                                                                               supported      3     0     3.3    NVIDIA 405
 NVIDIA 410                                                                                               supported      3     0     3.3    NVIDIA 410
 NVIDIA 510                                                                                               supported      3     0     0      NVIDIA 510
-NVIDIA 610M                                                                                              supported      3     1     4.2    NVIDIA 610M
+NVIDIA 610M                                                                                              supported      3     1     4.3    NVIDIA 610M
 NVIDIA Corporation /PCI/SSE2                                                                                                               NO MATCH
 NVIDIA Corporation 3D-Analyze v2.3 - http://www.tommti-systems.com                                       unsupported    0     0     0      ATI 3D-Analyze
 NVIDIA Corporation C51/PCI/SSE2/3DNOW!                                                                   supported      0     1     2      NVIDIA C51
@@ -1555,9 +1555,9 @@ NVIDIA Corporation GeForce 410M/PCIe/SSE2                                       
 NVIDIA Corporation GeForce 505/PCIe/SSE2                                                                 supported      3     0     0      NVIDIA 505
 NVIDIA Corporation GeForce 510/PCI/SSE2                                                                  supported      3     0     0      NVIDIA 510
 NVIDIA Corporation GeForce 510/PCIe/SSE2                                                                 supported      3     0     0      NVIDIA 510
-NVIDIA Corporation GeForce 605/PCI/SSE2                                                                  supported      3     1     4.2    NVIDIA 605
-NVIDIA Corporation GeForce 605/PCIe/SSE2                                                                 supported      3     1     4.2    NVIDIA 605
-NVIDIA Corporation GeForce 605/PCIe/SSE2/3DNOW!                                                          supported      3     1     4.2    NVIDIA 605
+NVIDIA Corporation GeForce 605/PCI/SSE2                                                                  supported      3     1     4.3    NVIDIA 605
+NVIDIA Corporation GeForce 605/PCIe/SSE2                                                                 supported      3     1     4.3    NVIDIA 605
+NVIDIA Corporation GeForce 605/PCIe/SSE2/3DNOW!                                                          supported      3     1     4.3    NVIDIA 605
 NVIDIA Corporation GeForce 610/PCIe/SSE2                                                                 supported      3     1     4.2    NVIDIA GeForce 6100
 NVIDIA Corporation GeForce 6100 nForce 400/PCI/SSE2/3DNOW!                                               supported      3     1     4.2    NVIDIA GeForce 6100
 NVIDIA Corporation GeForce 6100 nForce 400/integrated/SSE2                                               supported      3     1     4.2    NVIDIA GeForce 6100
@@ -1572,8 +1572,8 @@ NVIDIA Corporation GeForce 6100/PCI/SSE2                                        
 NVIDIA Corporation GeForce 6100/PCI/SSE2/3DNOW!                                                          supported      3     1     4.2    NVIDIA GeForce 6100
 NVIDIA Corporation GeForce 6100/integrated/SSE2                                                          supported      3     1     4.2    NVIDIA GeForce 6100
 NVIDIA Corporation GeForce 6100/integrated/SSE2/3DNOW!                                                   supported      3     1     4.2    NVIDIA GeForce 6100
-NVIDIA Corporation GeForce 610M/PCI/SSE2                                                                 supported      3     1     4.2    NVIDIA 610M
-NVIDIA Corporation GeForce 610M/PCIe/SSE2                                                                supported      3     1     4.2    NVIDIA 610M
+NVIDIA Corporation GeForce 610M/PCI/SSE2                                                                 supported      3     1     4.3    NVIDIA 610M
+NVIDIA Corporation GeForce 610M/PCIe/SSE2                                                                supported      3     1     4.3    NVIDIA 610M
 NVIDIA Corporation GeForce 615/PCIe/SSE2                                                                 supported      3     1     4.2    NVIDIA GeForce 6100
 NVIDIA Corporation GeForce 6150 LE/PCI/SSE2                                                              supported      3     1     4.2    NVIDIA GeForce 6100
 NVIDIA Corporation GeForce 6150 LE/PCI/SSE2/3DNOW!                                                       supported      3     1     4.2    NVIDIA GeForce 6100
@@ -1662,8 +1662,8 @@ NVIDIA Corporation GeForce 6800/AGP/SSE2/3DNOW!                                 
 NVIDIA Corporation GeForce 6800/PCI/SSE2                                                                 supported      1     1     2.1    NVIDIA GeForce 6800
 NVIDIA Corporation GeForce 6800/PCIe/SSE2                                                                supported      1     1     2.1    NVIDIA GeForce 6800
 NVIDIA Corporation GeForce 6800/PCIe/SSE2/3DNOW!                                                         supported      1     1     2.1    NVIDIA GeForce 6800
-NVIDIA Corporation GeForce 7000M / nForce 610M/PCI/SSE2                                                  supported      3     1     4.2    NVIDIA 610M
-NVIDIA Corporation GeForce 7000M / nForce 610M/PCI/SSE2/3DNOW!                                           supported      3     1     4.2    NVIDIA 610M
+NVIDIA Corporation GeForce 7000M / nForce 610M/PCI/SSE2                                                  supported      3     1     4.3    NVIDIA 610M
+NVIDIA Corporation GeForce 7000M / nForce 610M/PCI/SSE2/3DNOW!                                           supported      3     1     4.3    NVIDIA 610M
 NVIDIA Corporation GeForce 7025 / NVIDIA nForce 630a/PCI/SSE2                                            supported      1     1     2.1    NVIDIA GeForce 7000
 NVIDIA Corporation GeForce 7025 / NVIDIA nForce 630a/PCI/SSE2/3DNOW!                                     supported      1     1     2.1    NVIDIA GeForce 7000
 NVIDIA Corporation GeForce 7025 / nForce 630a/PCI/SSE2                                                   supported      1     1     2.1    NVIDIA GeForce 7000
@@ -1693,7 +1693,7 @@ NVIDIA Corporation GeForce 7100 GS/PCI/SSE2/3DNOW!                              
 NVIDIA Corporation GeForce 7100 GS/PCIe/SSE2                                                             supported      1     1     2.1    NVIDIA GeForce 7100
 NVIDIA Corporation GeForce 7100 GS/PCIe/SSE2/3DNOW!                                                      supported      1     1     2.1    NVIDIA GeForce 7100
 NVIDIA Corporation GeForce 710A/PCIe/SSE2                                                                supported      1     1     2.1    NVIDIA GeForce 7100
-NVIDIA Corporation GeForce 710M/PCIe/SSE2                                                                supported      3     0     4.2    NVIDIA 710M
+NVIDIA Corporation GeForce 710M/PCIe/SSE2                                                                supported      3     0     4.3    NVIDIA 710M
 NVIDIA Corporation GeForce 7150 / nForce 630i/PCI/SSE2                                                   supported      1     1     2.1    NVIDIA GeForce 7100
 NVIDIA Corporation GeForce 7150M / nForce 630M/PCI/SSE2                                                  supported      1     1     2.1    NVIDIA GeForce 7100
 NVIDIA Corporation GeForce 7150M / nForce 630M/PCI/SSE2/3DNOW!                                           supported      1     1     2.1    NVIDIA GeForce 7100
@@ -2120,58 +2120,58 @@ NVIDIA Corporation GeForce GT 440/PCIe/SSE2                                     
 NVIDIA Corporation GeForce GT 440/PCIe/SSE2/3DNOW!                                                       supported      4     1     4.2    NVIDIA GT 440
 NVIDIA Corporation GeForce GT 445M/PCI/SSE2                                                              supported      3     1     4.2    NVIDIA GT 440M
 NVIDIA Corporation GeForce GT 445M/PCIe/SSE2                                                             supported      3     1     4.2    NVIDIA GT 440M
-NVIDIA Corporation GeForce GT 520/PCI/SSE2                                                               supported      3     1     4.2    NVIDIA GT 520
-NVIDIA Corporation GeForce GT 520/PCI/SSE2/3DNOW!                                                        supported      3     1     4.2    NVIDIA GT 520
-NVIDIA Corporation GeForce GT 520/PCIe/SSE2                                                              supported      3     1     4.2    NVIDIA GT 520
-NVIDIA Corporation GeForce GT 520/PCIe/SSE2/3DNOW!                                                       supported      3     1     4.2    NVIDIA GT 520
-NVIDIA Corporation GeForce GT 520M/PCI/SSE2                                                              supported      3     1     4.2    NVIDIA GT 520M
-NVIDIA Corporation GeForce GT 520M/PCIe/SSE2                                                             supported      3     1     4.2    NVIDIA GT 520M
-NVIDIA Corporation GeForce GT 520MX/PCI/SSE2                                                             supported      3     1     4.2    NVIDIA GT 520M
-NVIDIA Corporation GeForce GT 520MX/PCIe/SSE2                                                            supported      3     1     4.2    NVIDIA GT 520M
-NVIDIA Corporation GeForce GT 525M/PCI/SSE2                                                              supported      3     1     4.2    NVIDIA GT 520M
-NVIDIA Corporation GeForce GT 525M/PCIe/SSE2                                                             supported      3     1     4.2    NVIDIA GT 520M
-NVIDIA Corporation GeForce GT 530/PCI/SSE2                                                               supported      3     1     4.2    NVIDIA GT 530
-NVIDIA Corporation GeForce GT 530/PCIe/SSE2                                                              supported      3     1     4.2    NVIDIA GT 530
-NVIDIA Corporation GeForce GT 530/PCIe/SSE2/3DNOW!                                                       supported      3     1     4.2    NVIDIA GT 530
-NVIDIA Corporation GeForce GT 540M/PCI/SSE2                                                              supported      3     1     4.2    NVIDIA GT 540M
-NVIDIA Corporation GeForce GT 540M/PCIe/SSE2                                                             supported      3     1     4.2    NVIDIA GT 540M
-NVIDIA Corporation GeForce GT 545/PCI/SSE2                                                               supported      3     1     4.2    NVIDIA GT 540
-NVIDIA Corporation GeForce GT 545/PCIe/SSE2                                                              supported      3     1     4.2    NVIDIA GT 540
-NVIDIA Corporation GeForce GT 545/PCIe/SSE2/3DNOW!                                                       supported      3     1     4.2    NVIDIA GT 540
-NVIDIA Corporation GeForce GT 550M/PCI/SSE2                                                              supported      3     1     4.2    NVIDIA GT 550M
-NVIDIA Corporation GeForce GT 550M/PCIe/SSE2                                                             supported      3     1     4.2    NVIDIA GT 550M
-NVIDIA Corporation GeForce GT 555M/PCI/SSE2                                                              supported      3     1     4.2    NVIDIA GT 550M
-NVIDIA Corporation GeForce GT 555M/PCIe/SSE2                                                             supported      3     1     4.2    NVIDIA GT 550M
-NVIDIA Corporation GeForce GT 610/PCIe/SSE2                                                              supported      3     1     4.2    NVIDIA GT 61x
-NVIDIA Corporation GeForce GT 610/PCIe/SSE2/3DNOW!                                                       supported      3     1     4.2    NVIDIA GT 61x
-NVIDIA Corporation GeForce GT 620/PCI/SSE2                                                               supported      3     0     4.2    NVIDIA GT 62x
-NVIDIA Corporation GeForce GT 620/PCIe/SSE2                                                              supported      3     0     4.2    NVIDIA GT 62x
-NVIDIA Corporation GeForce GT 620/PCIe/SSE2/3DNOW!                                                       supported      3     0     4.2    NVIDIA GT 62x
-NVIDIA Corporation GeForce GT 620M/PCI/SSE2                                                              supported      3     0     4.2    NVIDIA GT 620M
-NVIDIA Corporation GeForce GT 620M/PCIe/SSE2                                                             supported      3     0     4.2    NVIDIA GT 620M
-NVIDIA Corporation GeForce GT 625/PCIe/SSE2                                                              supported      3     0     4.2    NVIDIA GT 62x
-NVIDIA Corporation GeForce GT 625M/PCIe/SSE2                                                             supported      3     0     4.2    NVIDIA GT 620M
-NVIDIA Corporation GeForce GT 630/PCIe/SSE2                                                              supported      3     0     4.2    NVIDIA GT 63x
-NVIDIA Corporation GeForce GT 630/PCIe/SSE2/3DNOW!                                                       supported      3     0     4.2    NVIDIA GT 63x
-NVIDIA Corporation GeForce GT 630M/PCI/SSE2                                                              supported      3     0     4.2    NVIDIA GT 630M
-NVIDIA Corporation GeForce GT 630M/PCIe/SSE2                                                             supported      3     0     4.2    NVIDIA GT 630M
-NVIDIA Corporation GeForce GT 635M/PCI/SSE2                                                              supported      3     0     4.2    NVIDIA GT 630M
-NVIDIA Corporation GeForce GT 635M/PCIe/SSE2                                                             supported      3     0     4.2    NVIDIA GT 630M
-NVIDIA Corporation GeForce GT 640/PCIe/SSE2                                                              supported      3     0     4.2    NVIDIA GT 64x
-NVIDIA Corporation GeForce GT 640/PCIe/SSE2/3DNOW!                                                       supported      3     0     4.2    NVIDIA GT 64x
-NVIDIA Corporation GeForce GT 640M LE/PCI/SSE2                                                           supported      3     0     4.2    NVIDIA GT 640M
-NVIDIA Corporation GeForce GT 640M LE/PCIe/SSE2                                                          supported      3     0     4.2    NVIDIA GT 640M
-NVIDIA Corporation GeForce GT 640M/PCIe/SSE2                                                             supported      3     0     4.2    NVIDIA GT 640M
-NVIDIA Corporation GeForce GT 645/PCIe/SSE2                                                              supported      3     0     4.2    NVIDIA GT 64x
-NVIDIA Corporation GeForce GT 645M/PCIe/SSE2                                                             supported      3     0     4.2    NVIDIA GT 640M
-NVIDIA Corporation GeForce GT 650M/PCIe/SSE2                                                             supported      3     0     4.2    NVIDIA GT 650M
-NVIDIA Corporation GeForce GT 720M/PCIe/SSE2                                                             supported      3     0     4.2    NVIDIA GT 720M
-NVIDIA Corporation GeForce GT 730M/PCIe/SSE2                                                             supported      3     0     4.2    NVIDIA GT 730M
-NVIDIA Corporation GeForce GT 735M/PCIe/SSE2                                                             supported      3     0     4.2    NVIDIA GT 730M
-NVIDIA Corporation GeForce GT 740M/PCIe/SSE2                                                             supported      3     0     4.2    NVIDIA GT 740M
-NVIDIA Corporation GeForce GT 750M/PCIe/SSE2                                                             supported      3     0     4.2    NVIDIA GT 750M
-NVIDIA Corporation GeForce GT620M/PCIe/SSE2                                                              supported      3     0     4.2    NVIDIA GT 620M
-NVIDIA Corporation GeForce GT625M/PCIe/SSE2                                                              supported      3     0     4.2    NVIDIA GT 620M
+NVIDIA Corporation GeForce GT 520/PCI/SSE2                                                               supported      3     1     4.3    NVIDIA GT 520
+NVIDIA Corporation GeForce GT 520/PCI/SSE2/3DNOW!                                                        supported      3     1     4.3    NVIDIA GT 520
+NVIDIA Corporation GeForce GT 520/PCIe/SSE2                                                              supported      3     1     4.3    NVIDIA GT 520
+NVIDIA Corporation GeForce GT 520/PCIe/SSE2/3DNOW!                                                       supported      3     1     4.3    NVIDIA GT 520
+NVIDIA Corporation GeForce GT 520M/PCI/SSE2                                                              supported      3     1     4.3    NVIDIA GT 520M
+NVIDIA Corporation GeForce GT 520M/PCIe/SSE2                                                             supported      3     1     4.3    NVIDIA GT 520M
+NVIDIA Corporation GeForce GT 520MX/PCI/SSE2                                                             supported      3     1     4.3    NVIDIA GT 520M
+NVIDIA Corporation GeForce GT 520MX/PCIe/SSE2                                                            supported      3     1     4.3    NVIDIA GT 520M
+NVIDIA Corporation GeForce GT 525M/PCI/SSE2                                                              supported      3     1     4.3    NVIDIA GT 520M
+NVIDIA Corporation GeForce GT 525M/PCIe/SSE2                                                             supported      3     1     4.3    NVIDIA GT 520M
+NVIDIA Corporation GeForce GT 530/PCI/SSE2                                                               supported      3     1     4.3    NVIDIA GT 530
+NVIDIA Corporation GeForce GT 530/PCIe/SSE2                                                              supported      3     1     4.3    NVIDIA GT 530
+NVIDIA Corporation GeForce GT 530/PCIe/SSE2/3DNOW!                                                       supported      3     1     4.3    NVIDIA GT 530
+NVIDIA Corporation GeForce GT 540M/PCI/SSE2                                                              supported      3     1     4.3    NVIDIA GT 540M
+NVIDIA Corporation GeForce GT 540M/PCIe/SSE2                                                             supported      3     1     4.3    NVIDIA GT 540M
+NVIDIA Corporation GeForce GT 545/PCI/SSE2                                                               supported      3     1     4.3    NVIDIA GT 540
+NVIDIA Corporation GeForce GT 545/PCIe/SSE2                                                              supported      3     1     4.3    NVIDIA GT 540
+NVIDIA Corporation GeForce GT 545/PCIe/SSE2/3DNOW!                                                       supported      3     1     4.3    NVIDIA GT 540
+NVIDIA Corporation GeForce GT 550M/PCI/SSE2                                                              supported      3     1     4.3    NVIDIA GT 550M
+NVIDIA Corporation GeForce GT 550M/PCIe/SSE2                                                             supported      3     1     4.3    NVIDIA GT 550M
+NVIDIA Corporation GeForce GT 555M/PCI/SSE2                                                              supported      3     1     4.3    NVIDIA GT 550M
+NVIDIA Corporation GeForce GT 555M/PCIe/SSE2                                                             supported      3     1     4.3    NVIDIA GT 550M
+NVIDIA Corporation GeForce GT 610/PCIe/SSE2                                                              supported      3     1     4.3    NVIDIA GT 61x
+NVIDIA Corporation GeForce GT 610/PCIe/SSE2/3DNOW!                                                       supported      3     1     4.3    NVIDIA GT 61x
+NVIDIA Corporation GeForce GT 620/PCI/SSE2                                                               supported      3     0     4.3    NVIDIA GT 62x
+NVIDIA Corporation GeForce GT 620/PCIe/SSE2                                                              supported      3     0     4.3    NVIDIA GT 62x
+NVIDIA Corporation GeForce GT 620/PCIe/SSE2/3DNOW!                                                       supported      3     0     4.3    NVIDIA GT 62x
+NVIDIA Corporation GeForce GT 620M/PCI/SSE2                                                              supported      3     0     4.3    NVIDIA GT 620M
+NVIDIA Corporation GeForce GT 620M/PCIe/SSE2                                                             supported      3     0     4.3    NVIDIA GT 620M
+NVIDIA Corporation GeForce GT 625/PCIe/SSE2                                                              supported      3     0     4.3    NVIDIA GT 62x
+NVIDIA Corporation GeForce GT 625M/PCIe/SSE2                                                             supported      3     0     4.3    NVIDIA GT 620M
+NVIDIA Corporation GeForce GT 630/PCIe/SSE2                                                              supported      3     0     4.3    NVIDIA GT 63x
+NVIDIA Corporation GeForce GT 630/PCIe/SSE2/3DNOW!                                                       supported      3     0     4.3    NVIDIA GT 63x
+NVIDIA Corporation GeForce GT 630M/PCI/SSE2                                                              supported      3     0     4.3    NVIDIA GT 630M
+NVIDIA Corporation GeForce GT 630M/PCIe/SSE2                                                             supported      3     0     4.3    NVIDIA GT 630M
+NVIDIA Corporation GeForce GT 635M/PCI/SSE2                                                              supported      3     0     4.3    NVIDIA GT 630M
+NVIDIA Corporation GeForce GT 635M/PCIe/SSE2                                                             supported      3     0     4.3    NVIDIA GT 630M
+NVIDIA Corporation GeForce GT 640/PCIe/SSE2                                                              supported      3     0     4.3    NVIDIA GT 64x
+NVIDIA Corporation GeForce GT 640/PCIe/SSE2/3DNOW!                                                       supported      3     0     4.3    NVIDIA GT 64x
+NVIDIA Corporation GeForce GT 640M LE/PCI/SSE2                                                           supported      3     0     4.3    NVIDIA GT 640M
+NVIDIA Corporation GeForce GT 640M LE/PCIe/SSE2                                                          supported      3     0     4.3    NVIDIA GT 640M
+NVIDIA Corporation GeForce GT 640M/PCIe/SSE2                                                             supported      3     0     4.3    NVIDIA GT 640M
+NVIDIA Corporation GeForce GT 645/PCIe/SSE2                                                              supported      3     0     4.3    NVIDIA GT 64x
+NVIDIA Corporation GeForce GT 645M/PCIe/SSE2                                                             supported      3     0     4.3    NVIDIA GT 640M
+NVIDIA Corporation GeForce GT 650M/PCIe/SSE2                                                             supported      3     0     4.3    NVIDIA GT 650M
+NVIDIA Corporation GeForce GT 720M/PCIe/SSE2                                                             supported      3     0     4.3    NVIDIA GT 720M
+NVIDIA Corporation GeForce GT 730M/PCIe/SSE2                                                             supported      3     0     4.3    NVIDIA GT 730M
+NVIDIA Corporation GeForce GT 735M/PCIe/SSE2                                                             supported      3     0     4.3    NVIDIA GT 730M
+NVIDIA Corporation GeForce GT 740M/PCIe/SSE2                                                             supported      3     0     4.3    NVIDIA GT 740M
+NVIDIA Corporation GeForce GT 750M/PCIe/SSE2                                                             supported      3     0     4.3    NVIDIA GT 750M
+NVIDIA Corporation GeForce GT620M/PCIe/SSE2                                                              supported      3     0     4.3    NVIDIA GT 620M
+NVIDIA Corporation GeForce GT625M/PCIe/SSE2                                                              supported      3     0     4.3    NVIDIA GT 620M
 NVIDIA Corporation GeForce GTS 150/PCI/SSE2                                                              supported      2     0     0      NVIDIA GTS 150
 NVIDIA Corporation GeForce GTS 160M/PCI/SSE2                                                             supported      2     0     0      NVIDIA GTS 160M
 NVIDIA Corporation GeForce GTS 160M/PCIe/SSE2                                                            supported      2     0     0      NVIDIA GTS 160M
@@ -2246,66 +2246,66 @@ NVIDIA Corporation GeForce GTX 550 Ti/PCI/SSE2                                  
 NVIDIA Corporation GeForce GTX 550 Ti/PCI/SSE2/3DNOW!                                                    supported      5     1     4.3    NVIDIA GTX 550
 NVIDIA Corporation GeForce GTX 550 Ti/PCIe/SSE2                                                          supported      5     1     4.3    NVIDIA GTX 550
 NVIDIA Corporation GeForce GTX 550 Ti/PCIe/SSE2/3DNOW!                                                   supported      5     1     4.3    NVIDIA GTX 550
-NVIDIA Corporation GeForce GTX 560 SE/PCIe/SSE2                                                          supported      5     1     4.2    NVIDIA GTX 560
-NVIDIA Corporation GeForce GTX 560 Ti/PCI/SSE2                                                           supported      5     1     4.2    NVIDIA GTX 560
-NVIDIA Corporation GeForce GTX 560 Ti/PCI/SSE2/3DNOW!                                                    supported      5     1     4.2    NVIDIA GTX 560
-NVIDIA Corporation GeForce GTX 560 Ti/PCIe/SSE2                                                          supported      5     1     4.2    NVIDIA GTX 560
-NVIDIA Corporation GeForce GTX 560 Ti/PCIe/SSE2/3DNOW!                                                   supported      5     1     4.2    NVIDIA GTX 560
-NVIDIA Corporation GeForce GTX 560/PCI/SSE2                                                              supported      5     1     4.2    NVIDIA GTX 560
-NVIDIA Corporation GeForce GTX 560/PCI/SSE2/3DNOW!                                                       supported      5     1     4.2    NVIDIA GTX 560
-NVIDIA Corporation GeForce GTX 560/PCIe/SSE2                                                             supported      5     1     4.2    NVIDIA GTX 560
-NVIDIA Corporation GeForce GTX 560/PCIe/SSE2/3DNOW!                                                      supported      5     1     4.2    NVIDIA GTX 560
-NVIDIA Corporation GeForce GTX 560M/PCI/SSE2                                                             supported      3     0     4.2    NVIDIA GTX 560M
-NVIDIA Corporation GeForce GTX 560M/PCIe/SSE2                                                            supported      3     0     4.2    NVIDIA GTX 560M
-NVIDIA Corporation GeForce GTX 570/PCI/SSE2                                                              supported      5     1     4.2    NVIDIA GTX 570
-NVIDIA Corporation GeForce GTX 570/PCI/SSE2/3DNOW!                                                       supported      5     1     4.2    NVIDIA GTX 570
-NVIDIA Corporation GeForce GTX 570/PCIe/SSE2                                                             supported      5     1     4.2    NVIDIA GTX 570
-NVIDIA Corporation GeForce GTX 570/PCIe/SSE2/3DNOW!                                                      supported      5     1     4.2    NVIDIA GTX 570
-NVIDIA Corporation GeForce GTX 570M/PCI/SSE2                                                             supported      5     0     4.2    NVIDIA GTX 570M
-NVIDIA Corporation GeForce GTX 570M/PCIe/SSE2                                                            supported      5     0     4.2    NVIDIA GTX 570M
+NVIDIA Corporation GeForce GTX 560 SE/PCIe/SSE2                                                          supported      5     1     4.3    NVIDIA GTX 560
+NVIDIA Corporation GeForce GTX 560 Ti/PCI/SSE2                                                           supported      5     1     4.3    NVIDIA GTX 560
+NVIDIA Corporation GeForce GTX 560 Ti/PCI/SSE2/3DNOW!                                                    supported      5     1     4.3    NVIDIA GTX 560
+NVIDIA Corporation GeForce GTX 560 Ti/PCIe/SSE2                                                          supported      5     1     4.3    NVIDIA GTX 560
+NVIDIA Corporation GeForce GTX 560 Ti/PCIe/SSE2/3DNOW!                                                   supported      5     1     4.3    NVIDIA GTX 560
+NVIDIA Corporation GeForce GTX 560/PCI/SSE2                                                              supported      5     1     4.3    NVIDIA GTX 560
+NVIDIA Corporation GeForce GTX 560/PCI/SSE2/3DNOW!                                                       supported      5     1     4.3    NVIDIA GTX 560
+NVIDIA Corporation GeForce GTX 560/PCIe/SSE2                                                             supported      5     1     4.3    NVIDIA GTX 560
+NVIDIA Corporation GeForce GTX 560/PCIe/SSE2/3DNOW!                                                      supported      5     1     4.3    NVIDIA GTX 560
+NVIDIA Corporation GeForce GTX 560M/PCI/SSE2                                                             supported      3     0     4.3    NVIDIA GTX 560M
+NVIDIA Corporation GeForce GTX 560M/PCIe/SSE2                                                            supported      3     0     4.3    NVIDIA GTX 560M
+NVIDIA Corporation GeForce GTX 570/PCI/SSE2                                                              supported      5     1     4.3    NVIDIA GTX 570
+NVIDIA Corporation GeForce GTX 570/PCI/SSE2/3DNOW!                                                       supported      5     1     4.3    NVIDIA GTX 570
+NVIDIA Corporation GeForce GTX 570/PCIe/SSE2                                                             supported      5     1     4.3    NVIDIA GTX 570
+NVIDIA Corporation GeForce GTX 570/PCIe/SSE2/3DNOW!                                                      supported      5     1     4.3    NVIDIA GTX 570
+NVIDIA Corporation GeForce GTX 570M/PCI/SSE2                                                             supported      5     0     4.3    NVIDIA GTX 570M
+NVIDIA Corporation GeForce GTX 570M/PCIe/SSE2                                                            supported      5     0     4.3    NVIDIA GTX 570M
 NVIDIA Corporation GeForce GTX 580/PCI/SSE2                                                              supported      5     1     4.3    NVIDIA GTX 580
 NVIDIA Corporation GeForce GTX 580/PCI/SSE2/3DNOW!                                                       supported      5     1     4.3    NVIDIA GTX 580
 NVIDIA Corporation GeForce GTX 580/PCIe/SSE2                                                             supported      5     1     4.3    NVIDIA GTX 580
 NVIDIA Corporation GeForce GTX 580/PCIe/SSE2/3DNOW!                                                      supported      5     1     4.3    NVIDIA GTX 580
-NVIDIA Corporation GeForce GTX 580M/PCI/SSE2                                                             supported      5     1     4.2    NVIDIA GTX 580M
-NVIDIA Corporation GeForce GTX 580M/PCIe/SSE2                                                            supported      5     1     4.2    NVIDIA GTX 580M
-NVIDIA Corporation GeForce GTX 590/PCI/SSE2                                                              supported      5     1     4.2    NVIDIA GTX 590
-NVIDIA Corporation GeForce GTX 590/PCIe/SSE2                                                             supported      5     1     4.2    NVIDIA GTX 590
-NVIDIA Corporation GeForce GTX 590/PCIe/SSE2/3DNOW!                                                      supported      5     1     4.2    NVIDIA GTX 590
-NVIDIA Corporation GeForce GTX 645/PCIe/SSE2                                                             supported      3     1     4.2    NVIDIA GTX 64x
-NVIDIA Corporation GeForce GTX 650 Ti BOOST/PCIe/SSE2                                                    supported      3     1     4.2    NVIDIA GTX 65x
-NVIDIA Corporation GeForce GTX 650 Ti BOOST/PCIe/SSE2/3DNOW!                                             supported      3     1     4.2    NVIDIA GTX 65x
-NVIDIA Corporation GeForce GTX 650 Ti Boost/PCIe/SSE2                                                    supported      3     1     4.2    NVIDIA GTX 65x
-NVIDIA Corporation GeForce GTX 650 Ti Boost/PCIe/SSE2/3DNOW!                                             supported      3     1     4.2    NVIDIA GTX 65x
-NVIDIA Corporation GeForce GTX 650 Ti/PCIe/SSE2                                                          supported      3     1     4.2    NVIDIA GTX 65x
-NVIDIA Corporation GeForce GTX 650 Ti/PCIe/SSE2/3DNOW!                                                   supported      3     1     4.2    NVIDIA GTX 65x
-NVIDIA Corporation GeForce GTX 650/PCIe/SSE2                                                             supported      3     1     4.2    NVIDIA GTX 65x
-NVIDIA Corporation GeForce GTX 650/PCIe/SSE2/3DNOW!                                                      supported      3     1     4.2    NVIDIA GTX 65x
-NVIDIA Corporation GeForce GTX 660 Ti/PCIe/SSE2                                                          supported      5     0     4.2    NVIDIA GTX 66x
-NVIDIA Corporation GeForce GTX 660 Ti/PCIe/SSE2/3DNOW!                                                   supported      5     0     4.2    NVIDIA GTX 66x
-NVIDIA Corporation GeForce GTX 660/PCIe/SSE2                                                             supported      5     0     4.2    NVIDIA GTX 66x
-NVIDIA Corporation GeForce GTX 660/PCIe/SSE2/3DNOW!                                                      supported      5     0     4.2    NVIDIA GTX 66x
-NVIDIA Corporation GeForce GTX 660M/PCIe/SSE2                                                            supported      5     0     4.2    NVIDIA GTX 660M
-NVIDIA Corporation GeForce GTX 670/PCIe/SSE2                                                             supported      5     1     4.2    NVIDIA GTX 67x
-NVIDIA Corporation GeForce GTX 670/PCIe/SSE2/3DNOW!                                                      supported      5     1     4.2    NVIDIA GTX 67x
-NVIDIA Corporation GeForce GTX 670M/PCI/SSE2                                                             supported      5     1     4.2    NVIDIA GTX 670M
-NVIDIA Corporation GeForce GTX 670M/PCIe/SSE2                                                            supported      5     1     4.2    NVIDIA GTX 670M
-NVIDIA Corporation GeForce GTX 670MX/PCIe/SSE2                                                           supported      5     1     4.2    NVIDIA GTX 670M
-NVIDIA Corporation GeForce GTX 675M/PCIe/SSE2                                                            supported      5     1     4.2    NVIDIA GTX 670M
-NVIDIA Corporation GeForce GTX 675MX/PCIe/SSE2                                                           supported      5     1     4.2    NVIDIA GTX 670M
+NVIDIA Corporation GeForce GTX 580M/PCI/SSE2                                                             supported      5     1     4.3    NVIDIA GTX 580M
+NVIDIA Corporation GeForce GTX 580M/PCIe/SSE2                                                            supported      5     1     4.3    NVIDIA GTX 580M
+NVIDIA Corporation GeForce GTX 590/PCI/SSE2                                                              supported      5     1     4.3    NVIDIA GTX 590
+NVIDIA Corporation GeForce GTX 590/PCIe/SSE2                                                             supported      5     1     4.3    NVIDIA GTX 590
+NVIDIA Corporation GeForce GTX 590/PCIe/SSE2/3DNOW!                                                      supported      5     1     4.3    NVIDIA GTX 590
+NVIDIA Corporation GeForce GTX 645/PCIe/SSE2                                                             supported      3     1     4.3    NVIDIA GTX 64x
+NVIDIA Corporation GeForce GTX 650 Ti BOOST/PCIe/SSE2                                                    supported      3     1     4.3    NVIDIA GTX 65x
+NVIDIA Corporation GeForce GTX 650 Ti BOOST/PCIe/SSE2/3DNOW!                                             supported      3     1     4.3    NVIDIA GTX 65x
+NVIDIA Corporation GeForce GTX 650 Ti Boost/PCIe/SSE2                                                    supported      3     1     4.3    NVIDIA GTX 65x
+NVIDIA Corporation GeForce GTX 650 Ti Boost/PCIe/SSE2/3DNOW!                                             supported      3     1     4.3    NVIDIA GTX 65x
+NVIDIA Corporation GeForce GTX 650 Ti/PCIe/SSE2                                                          supported      3     1     4.3    NVIDIA GTX 65x
+NVIDIA Corporation GeForce GTX 650 Ti/PCIe/SSE2/3DNOW!                                                   supported      3     1     4.3    NVIDIA GTX 65x
+NVIDIA Corporation GeForce GTX 650/PCIe/SSE2                                                             supported      3     1     4.3    NVIDIA GTX 65x
+NVIDIA Corporation GeForce GTX 650/PCIe/SSE2/3DNOW!                                                      supported      3     1     4.3    NVIDIA GTX 65x
+NVIDIA Corporation GeForce GTX 660 Ti/PCIe/SSE2                                                          supported      5     0     4.3    NVIDIA GTX 66x
+NVIDIA Corporation GeForce GTX 660 Ti/PCIe/SSE2/3DNOW!                                                   supported      5     0     4.3    NVIDIA GTX 66x
+NVIDIA Corporation GeForce GTX 660/PCIe/SSE2                                                             supported      5     0     4.3    NVIDIA GTX 66x
+NVIDIA Corporation GeForce GTX 660/PCIe/SSE2/3DNOW!                                                      supported      5     0     4.3    NVIDIA GTX 66x
+NVIDIA Corporation GeForce GTX 660M/PCIe/SSE2                                                            supported      5     0     4.3    NVIDIA GTX 660M
+NVIDIA Corporation GeForce GTX 670/PCIe/SSE2                                                             supported      5     1     4.3    NVIDIA GTX 67x
+NVIDIA Corporation GeForce GTX 670/PCIe/SSE2/3DNOW!                                                      supported      5     1     4.3    NVIDIA GTX 67x
+NVIDIA Corporation GeForce GTX 670M/PCI/SSE2                                                             supported      5     1     4.3    NVIDIA GTX 670M
+NVIDIA Corporation GeForce GTX 670M/PCIe/SSE2                                                            supported      5     1     4.3    NVIDIA GTX 670M
+NVIDIA Corporation GeForce GTX 670MX/PCIe/SSE2                                                           supported      5     1     4.3    NVIDIA GTX 670M
+NVIDIA Corporation GeForce GTX 675M/PCIe/SSE2                                                            supported      5     1     4.3    NVIDIA GTX 670M
+NVIDIA Corporation GeForce GTX 675MX/PCIe/SSE2                                                           supported      5     1     4.3    NVIDIA GTX 670M
 NVIDIA Corporation GeForce GTX 680/PCIe/SSE2                                                             supported      5     1     4.3    NVIDIA GTX 68x
 NVIDIA Corporation GeForce GTX 680/PCIe/SSE2/3DNOW!                                                      supported      5     1     4.3    NVIDIA GTX 68x
-NVIDIA Corporation GeForce GTX 680M/PCIe/SSE2                                                            supported      5     0     4.2    NVIDIA GTX 680M
-NVIDIA Corporation GeForce GTX 680MX/PCIe/SSE2                                                           supported      5     0     4.2    NVIDIA GTX 680M
+NVIDIA Corporation GeForce GTX 680M/PCIe/SSE2                                                            supported      5     0     4.3    NVIDIA GTX 680M
+NVIDIA Corporation GeForce GTX 680MX/PCIe/SSE2                                                           supported      5     0     4.3    NVIDIA GTX 680M
 NVIDIA Corporation GeForce GTX 690/PCIe/SSE2                                                             supported      5     1     4.3    NVIDIA GTX 69x
 NVIDIA Corporation GeForce GTX 760/PCIe/SSE2                                                             supported      5     0     4.3    NVIDIA GTX 76x
-NVIDIA Corporation GeForce GTX 760M/PCIe/SSE2                                                            supported      5     0     4.2    NVIDIA GTX 760M
-NVIDIA Corporation GeForce GTX 765M/PCIe/SSE2                                                            supported      5     0     4.2    NVIDIA GTX 760M
+NVIDIA Corporation GeForce GTX 760M/PCIe/SSE2                                                            supported      5     0     4.3    NVIDIA GTX 760M
+NVIDIA Corporation GeForce GTX 765M/PCIe/SSE2                                                            supported      5     0     4.3    NVIDIA GTX 760M
 NVIDIA Corporation GeForce GTX 770/PCIe/SSE2                                                             supported      5     0     4.3    NVIDIA GTX 77x
 NVIDIA Corporation GeForce GTX 770/PCIe/SSE2/3DNOW!                                                      supported      5     0     4.3    NVIDIA GTX 77x
-NVIDIA Corporation GeForce GTX 770M/PCIe/SSE2                                                            supported      5     0     4.2    NVIDIA GTX 770M
+NVIDIA Corporation GeForce GTX 770M/PCIe/SSE2                                                            supported      5     0     4.3    NVIDIA GTX 770M
 NVIDIA Corporation GeForce GTX 780/PCIe/SSE2                                                             supported      5     0     4.3    NVIDIA GTX 78x
-NVIDIA Corporation GeForce GTX 780M/PCIe/SSE2                                                            supported      5     0     4.2    NVIDIA GTX 780M
+NVIDIA Corporation GeForce GTX 780M/PCIe/SSE2                                                            supported      5     0     4.3    NVIDIA GTX 780M
 NVIDIA Corporation GeForce GTX TITAN/PCIe/SSE2                                                           supported      5     0     4.3    NVIDIA GTX TITAN
 NVIDIA Corporation GeForce GTX TITAN/PCIe/SSE2/3DNOW!                                                    supported      5     0     4.3    NVIDIA GTX TITAN
 NVIDIA Corporation GeForce GTX Titan/PCIe/SSE2                                                           supported      5     0     4.3    NVIDIA GTX TITAN
@@ -2435,11 +2435,11 @@ NVIDIA Corporation NVIDIA GeForce GT 320M OpenGL Engine                         
 NVIDIA Corporation NVIDIA GeForce GT 330M OpenGL Engine                                                  supported      3     1     3.3    NVIDIA GT 330M
 NVIDIA Corporation NVIDIA GeForce GT 430 OpenGL Engine                                                   supported      3     1     4.2    NVIDIA GT 430
 NVIDIA Corporation NVIDIA GeForce GT 440 OpenGL Engine                                                   supported      4     1     4.2    NVIDIA GT 440
-NVIDIA Corporation NVIDIA GeForce GT 520 OpenGL Engine                                                   supported      3     1     4.2    NVIDIA GT 520
-NVIDIA Corporation NVIDIA GeForce GT 630 OpenGL Engine                                                   supported      3     0     4.2    NVIDIA GT 63x
-NVIDIA Corporation NVIDIA GeForce GT 640 OpenGL Engine                                                   supported      3     0     4.2    NVIDIA GT 64x
-NVIDIA Corporation NVIDIA GeForce GT 640M OpenGL Engine                                                  supported      3     0     4.2    NVIDIA GT 640M
-NVIDIA Corporation NVIDIA GeForce GT 650M OpenGL Engine                                                  supported      3     0     4.2    NVIDIA GT 650M
+NVIDIA Corporation NVIDIA GeForce GT 520 OpenGL Engine                                                   supported      3     1     4.3    NVIDIA GT 520
+NVIDIA Corporation NVIDIA GeForce GT 630 OpenGL Engine                                                   supported      3     0     4.3    NVIDIA GT 63x
+NVIDIA Corporation NVIDIA GeForce GT 640 OpenGL Engine                                                   supported      3     0     4.3    NVIDIA GT 64x
+NVIDIA Corporation NVIDIA GeForce GT 640M OpenGL Engine                                                  supported      3     0     4.3    NVIDIA GT 640M
+NVIDIA Corporation NVIDIA GeForce GT 650M OpenGL Engine                                                  supported      3     0     4.3    NVIDIA GT 650M
 NVIDIA Corporation NVIDIA GeForce GTS 250 OpenGL Engine                                                  supported      4     1     3.3    NVIDIA GTS 250
 NVIDIA Corporation NVIDIA GeForce GTS 450 OpenGL Engine                                                  supported      4     1     4.2    NVIDIA GTS 450
 NVIDIA Corporation NVIDIA GeForce GTX 260 OpenGL Engine                                                  supported      4     1     3.3    NVIDIA GTX 260
@@ -2449,21 +2449,21 @@ NVIDIA Corporation NVIDIA GeForce GTX 460 OpenGL Engine                         
 NVIDIA Corporation NVIDIA GeForce GTX 470 OpenGL Engine                                                  supported      5     1     4.2    NVIDIA GTX 470
 NVIDIA Corporation NVIDIA GeForce GTX 480 OpenGL Engine                                                  supported      5     1     4.2    NVIDIA GTX 480
 NVIDIA Corporation NVIDIA GeForce GTX 550 Ti OpenGL Engine                                               supported      5     1     4.3    NVIDIA GTX 550
-NVIDIA Corporation NVIDIA GeForce GTX 560 OpenGL Engine                                                  supported      5     1     4.2    NVIDIA GTX 560
-NVIDIA Corporation NVIDIA GeForce GTX 560 Ti OpenGL Engine                                               supported      5     1     4.2    NVIDIA GTX 560
-NVIDIA Corporation NVIDIA GeForce GTX 570 OpenGL Engine                                                  supported      5     1     4.2    NVIDIA GTX 570
+NVIDIA Corporation NVIDIA GeForce GTX 560 OpenGL Engine                                                  supported      5     1     4.3    NVIDIA GTX 560
+NVIDIA Corporation NVIDIA GeForce GTX 560 Ti OpenGL Engine                                               supported      5     1     4.3    NVIDIA GTX 560
+NVIDIA Corporation NVIDIA GeForce GTX 570 OpenGL Engine                                                  supported      5     1     4.3    NVIDIA GTX 570
 NVIDIA Corporation NVIDIA GeForce GTX 580 OpenGL Engine                                                  supported      5     1     4.3    NVIDIA GTX 580
-NVIDIA Corporation NVIDIA GeForce GTX 650 OpenGL Engine                                                  supported      3     1     4.2    NVIDIA GTX 65x
-NVIDIA Corporation NVIDIA GeForce GTX 650 Ti OpenGL Engine                                               supported      3     1     4.2    NVIDIA GTX 65x
-NVIDIA Corporation NVIDIA GeForce GTX 660 OpenGL Engine                                                  supported      5     0     4.2    NVIDIA GTX 66x
-NVIDIA Corporation NVIDIA GeForce GTX 660 Ti OpenGL Engine                                               supported      5     0     4.2    NVIDIA GTX 66x
-NVIDIA Corporation NVIDIA GeForce GTX 660M OpenGL Engine                                                 supported      5     0     4.2    NVIDIA GTX 660M
-NVIDIA Corporation NVIDIA GeForce GTX 670 OpenGL Engine                                                  supported      5     1     4.2    NVIDIA GTX 67x
-NVIDIA Corporation NVIDIA GeForce GTX 675MX OpenGL Engine                                                supported      5     1     4.2    NVIDIA GTX 670M
+NVIDIA Corporation NVIDIA GeForce GTX 650 OpenGL Engine                                                  supported      3     1     4.3    NVIDIA GTX 65x
+NVIDIA Corporation NVIDIA GeForce GTX 650 Ti OpenGL Engine                                               supported      3     1     4.3    NVIDIA GTX 65x
+NVIDIA Corporation NVIDIA GeForce GTX 660 OpenGL Engine                                                  supported      5     0     4.3    NVIDIA GTX 66x
+NVIDIA Corporation NVIDIA GeForce GTX 660 Ti OpenGL Engine                                               supported      5     0     4.3    NVIDIA GTX 66x
+NVIDIA Corporation NVIDIA GeForce GTX 660M OpenGL Engine                                                 supported      5     0     4.3    NVIDIA GTX 660M
+NVIDIA Corporation NVIDIA GeForce GTX 670 OpenGL Engine                                                  supported      5     1     4.3    NVIDIA GTX 67x
+NVIDIA Corporation NVIDIA GeForce GTX 675MX OpenGL Engine                                                supported      5     1     4.3    NVIDIA GTX 670M
 NVIDIA Corporation NVIDIA GeForce GTX 680 OpenGL Engine                                                  supported      5     1     4.3    NVIDIA GTX 68x
-NVIDIA Corporation NVIDIA GeForce GTX 680MX OpenGL Engine                                                supported      5     0     4.2    NVIDIA GTX 680M
-NVIDIA Corporation NVIDIA GeForce GTX 775M OpenGL Engine                                                 supported      5     0     4.2    NVIDIA GTX 770M
-NVIDIA Corporation NVIDIA GeForce GTX 780M OpenGL Engine                                                 supported      5     0     4.2    NVIDIA GTX 780M
+NVIDIA Corporation NVIDIA GeForce GTX 680MX OpenGL Engine                                                supported      5     0     4.3    NVIDIA GTX 680M
+NVIDIA Corporation NVIDIA GeForce GTX 775M OpenGL Engine                                                 supported      5     0     4.3    NVIDIA GTX 770M
+NVIDIA Corporation NVIDIA GeForce GTX 780M OpenGL Engine                                                 supported      5     0     4.3    NVIDIA GTX 780M
 NVIDIA Corporation NVIDIA GeForce Go 7600 OpenGL Engine                                                  supported      1     1     2.1    NVIDIA GeForce Go 7600
 NVIDIA Corporation NVIDIA GeForce Pre-Release D14P2-30 OpenGL Engine                                     supported      2     1     3.3    NVIDIA GeForce Pre-Release
 NVIDIA Corporation NVIDIA GeForce Pre-Release GK104 OpenGL Engine                                        supported      2     1     3.3    NVIDIA GeForce Pre-Release
@@ -2690,7 +2690,7 @@ NVIDIA G 310M                                                                   
 NVIDIA G 320M                                                                                            supported      3     0     3.3    NVIDIA GT 320M
 NVIDIA G 405                                                                                             supported      3     0     3.3    NVIDIA 405
 NVIDIA G 410M                                                                                            supported      3     1     4.2    NVIDIA G 410M
-NVIDIA G 610M                                                                                            supported      3     1     4.2    NVIDIA 610M
+NVIDIA G 610M                                                                                            supported      3     1     4.3    NVIDIA 610M
 NVIDIA G100                                                                                              supported      3     1     4.2    NVIDIA G100
 NVIDIA G100M                                                                                             supported      1     1     3.3    NVIDIA G 100M
 NVIDIA G102M                                                                                             supported      1     1     3.3    NVIDIA G 100M
@@ -2736,25 +2736,25 @@ NVIDIA GT 440                                                                   
 NVIDIA GT 440M                                                                                           supported      3     1     4.2    NVIDIA GT 440M
 NVIDIA GT 445M                                                                                           supported      3     1     4.2    NVIDIA GT 440M
 NVIDIA GT 450                                                                                            supported      4     1     4.2    NVIDIA GT 450
-NVIDIA GT 520                                                                                            supported      3     1     4.2    NVIDIA GT 520
-NVIDIA GT 520M                                                                                           supported      3     1     4.2    NVIDIA GT 520M
-NVIDIA GT 525M                                                                                           supported      3     1     4.2    NVIDIA GT 520M
-NVIDIA GT 530M                                                                                           supported      3     1     4.2    NVIDIA GT 530M
-NVIDIA GT 540                                                                                            supported      3     1     4.2    NVIDIA GT 540
-NVIDIA GT 540M                                                                                           supported      3     1     4.2    NVIDIA GT 540M
-NVIDIA GT 550                                                                                            supported      3     1     4.2    NVIDIA GT 550
-NVIDIA GT 550M                                                                                           supported      3     1     4.2    NVIDIA GT 550M
-NVIDIA GT 555M                                                                                           supported      3     1     4.2    NVIDIA GT 550M
-NVIDIA GT 610                                                                                            supported      3     1     4.2    NVIDIA GT 61x
-NVIDIA GT 620                                                                                            supported      3     0     4.2    NVIDIA GT 62x
-NVIDIA GT 620M                                                                                           supported      3     0     4.2    NVIDIA GT 620M
-NVIDIA GT 630                                                                                            supported      3     0     4.2    NVIDIA GT 63x
-NVIDIA GT 630M                                                                                           supported      3     0     4.2    NVIDIA GT 630M
-NVIDIA GT 635M                                                                                           supported      3     0     4.2    NVIDIA GT 630M
-NVIDIA GT 640                                                                                            supported      3     0     4.2    NVIDIA GT 64x
-NVIDIA GT 640M                                                                                           supported      3     0     4.2    NVIDIA GT 640M
-NVIDIA GT 650                                                                                            supported      3     1     4.2    NVIDIA GT 65x
-NVIDIA GT 650M                                                                                           supported      3     0     4.2    NVIDIA GT 650M
+NVIDIA GT 520                                                                                            supported      3     1     4.3    NVIDIA GT 520
+NVIDIA GT 520M                                                                                           supported      3     1     4.3    NVIDIA GT 520M
+NVIDIA GT 525M                                                                                           supported      3     1     4.3    NVIDIA GT 520M
+NVIDIA GT 530M                                                                                           supported      3     1     4.3    NVIDIA GT 530M
+NVIDIA GT 540                                                                                            supported      3     1     4.3    NVIDIA GT 540
+NVIDIA GT 540M                                                                                           supported      3     1     4.3    NVIDIA GT 540M
+NVIDIA GT 550                                                                                            supported      3     1     4.3    NVIDIA GT 550
+NVIDIA GT 550M                                                                                           supported      3     1     4.3    NVIDIA GT 550M
+NVIDIA GT 555M                                                                                           supported      3     1     4.3    NVIDIA GT 550M
+NVIDIA GT 610                                                                                            supported      3     1     4.3    NVIDIA GT 61x
+NVIDIA GT 620                                                                                            supported      3     0     4.3    NVIDIA GT 62x
+NVIDIA GT 620M                                                                                           supported      3     0     4.3    NVIDIA GT 620M
+NVIDIA GT 630                                                                                            supported      3     0     4.3    NVIDIA GT 63x
+NVIDIA GT 630M                                                                                           supported      3     0     4.3    NVIDIA GT 630M
+NVIDIA GT 635M                                                                                           supported      3     0     4.3    NVIDIA GT 630M
+NVIDIA GT 640                                                                                            supported      3     0     4.3    NVIDIA GT 64x
+NVIDIA GT 640M                                                                                           supported      3     0     4.3    NVIDIA GT 640M
+NVIDIA GT 650                                                                                            supported      3     1     4.3    NVIDIA GT 65x
+NVIDIA GT 650M                                                                                           supported      3     0     4.3    NVIDIA GT 650M
 NVIDIA GTS 160M                                                                                          supported      2     0     0      NVIDIA GTS 160M
 NVIDIA GTS 240                                                                                           supported      4     1     3.3    NVIDIA GTS 240
 NVIDIA GTS 250                                                                                           supported      4     1     3.3    NVIDIA GTS 250
@@ -2778,19 +2778,19 @@ NVIDIA GTX 480                                                                  
 NVIDIA GTX 480M                                                                                          supported      3     1     4.2    NVIDIA GTX 480M
 NVIDIA GTX 485M                                                                                          supported      3     1     4.2    NVIDIA GTX 480M
 NVIDIA GTX 550                                                                                           supported      5     1     4.3    NVIDIA GTX 550
-NVIDIA GTX 560                                                                                           supported      5     1     4.2    NVIDIA GTX 560
-NVIDIA GTX 560 Ti                                                                                        supported      5     1     4.2    NVIDIA GTX 560
-NVIDIA GTX 570                                                                                           supported      5     1     4.2    NVIDIA GTX 570
+NVIDIA GTX 560                                                                                           supported      5     1     4.3    NVIDIA GTX 560
+NVIDIA GTX 560 Ti                                                                                        supported      5     1     4.3    NVIDIA GTX 560
+NVIDIA GTX 570                                                                                           supported      5     1     4.3    NVIDIA GTX 570
 NVIDIA GTX 580                                                                                           supported      5     1     4.3    NVIDIA GTX 580
-NVIDIA GTX 580M                                                                                          supported      5     1     4.2    NVIDIA GTX 580M
-NVIDIA GTX 590                                                                                           supported      5     1     4.2    NVIDIA GTX 590
-NVIDIA GTX 650                                                                                           supported      3     1     4.2    NVIDIA GTX 65x
-NVIDIA GTX 660                                                                                           supported      5     0     4.2    NVIDIA GTX 66x
-NVIDIA GTX 670                                                                                           supported      5     1     4.2    NVIDIA GTX 67x
-NVIDIA GTX 670M                                                                                          supported      5     1     4.2    NVIDIA GTX 670M
-NVIDIA GTX 675M                                                                                          supported      5     1     4.2    NVIDIA GTX 670M
+NVIDIA GTX 580M                                                                                          supported      5     1     4.3    NVIDIA GTX 580M
+NVIDIA GTX 590                                                                                           supported      5     1     4.3    NVIDIA GTX 590
+NVIDIA GTX 650                                                                                           supported      3     1     4.3    NVIDIA GTX 65x
+NVIDIA GTX 660                                                                                           supported      5     0     4.3    NVIDIA GTX 66x
+NVIDIA GTX 670                                                                                           supported      5     1     4.3    NVIDIA GTX 67x
+NVIDIA GTX 670M                                                                                          supported      5     1     4.3    NVIDIA GTX 670M
+NVIDIA GTX 675M                                                                                          supported      5     1     4.3    NVIDIA GTX 670M
 NVIDIA GTX 680                                                                                           supported      5     1     4.3    NVIDIA GTX 68x
-NVIDIA GTX 680M                                                                                          supported      5     0     4.2    NVIDIA GTX 680M
+NVIDIA GTX 680M                                                                                          supported      5     0     4.3    NVIDIA GTX 680M
 NVIDIA GTX 690                                                                                           supported      5     1     4.3    NVIDIA GTX 69x
 NVIDIA GTX 770                                                                                           supported      5     0     4.3    NVIDIA GTX 77x
 NVIDIA GTX TITAN                                                                                         supported      5     0     4.3    NVIDIA GTX TITAN
@@ -2913,7 +2913,7 @@ Parallels and ATI Technologies Inc. Parallels using ATI Radeon HD 6770M OpenGL E
 Parallels and ATI Technologies Inc. Parallels using ATI Radeon HD 6970M OpenGL Engine                    supported      5     1     4.2    ATI Radeon HD 6900
 Parallels and ATI Technologies Inc. Parallels using ATI Radeon X1600 OpenGL Engine                       supported      2     1     2.1    ATI Radeon X1600
 Parallels and Intel Inc. Parallels using Intel GMA X3100 OpenGL Engine                                   supported      1     1     2.1    Intel X3100
-Parallels and Intel Inc. Parallels using Intel HD Graphics 3000 OpenGL Engine                            supported      3     1     4.2    Intel HD Graphics 3000
+Parallels and Intel Inc. Parallels using Intel HD Graphics 3000 OpenGL Engine                            supported      3     1     3.1    Intel HD Graphics 3000
 Parallels and Intel Inc. Parallels using Intel HD Graphics 4000 OpenGL Engine                            supported      3     1     4.2    Intel HD Graphics 4000
 Parallels and NVIDIA Corporation Parallels using NVIDIA GeForce 320M OpenGL Engine                       supported      2     0     3.3    NVIDIA 320M
 Parallels and NVIDIA Corporation Parallels using NVIDIA GeForce 8800 GS OpenGL Engine                    supported      3     1     3.3    NVIDIA GeForce 8800
@@ -2922,14 +2922,14 @@ Parallels and NVIDIA Corporation Parallels using NVIDIA GeForce 9400M OpenGL Eng
 Parallels and NVIDIA Corporation Parallels using NVIDIA GeForce 9600M GT OpenGL Engine                   supported      2     1     3.3    NVIDIA GeForce 9600M
 Parallels and NVIDIA Corporation Parallels using NVIDIA GeForce GT 130 OpenGL Engine                     supported      2     0     3.3    NVIDIA GT 130
 Parallels and NVIDIA Corporation Parallels using NVIDIA GeForce GT 330M OpenGL Engine                    supported      3     1     3.3    NVIDIA GT 330M
-Parallels and NVIDIA Corporation Parallels using NVIDIA GeForce GT 640 OpenGL Engine                     supported      3     0     4.2    NVIDIA GT 64x
-Parallels and NVIDIA Corporation Parallels using NVIDIA GeForce GT 640M OpenGL Engine                    supported      3     0     4.2    NVIDIA GT 640M
-Parallels and NVIDIA Corporation Parallels using NVIDIA GeForce GT 650M OpenGL Engine                    supported      3     0     4.2    NVIDIA GT 650M
-Parallels and NVIDIA Corporation Parallels using NVIDIA GeForce GTX 570 OpenGL Engine                    supported      5     1     4.2    NVIDIA GTX 570
-Parallels and NVIDIA Corporation Parallels using NVIDIA GeForce GTX 660 OpenGL Engine                    supported      5     0     4.2    NVIDIA GTX 66x
-Parallels and NVIDIA Corporation Parallels using NVIDIA GeForce GTX 660 Ti OpenGL Engine                 supported      5     0     4.2    NVIDIA GTX 66x
-Parallels and NVIDIA Corporation Parallels using NVIDIA GeForce GTX 670 OpenGL Engine                    supported      5     1     4.2    NVIDIA GTX 67x
-Parallels and NVIDIA Corporation Parallels using NVIDIA GeForce GTX 680MX OpenGL Engine                  supported      5     0     4.2    NVIDIA GTX 680M
+Parallels and NVIDIA Corporation Parallels using NVIDIA GeForce GT 640 OpenGL Engine                     supported      3     0     4.3    NVIDIA GT 64x
+Parallels and NVIDIA Corporation Parallels using NVIDIA GeForce GT 640M OpenGL Engine                    supported      3     0     4.3    NVIDIA GT 640M
+Parallels and NVIDIA Corporation Parallels using NVIDIA GeForce GT 650M OpenGL Engine                    supported      3     0     4.3    NVIDIA GT 650M
+Parallels and NVIDIA Corporation Parallels using NVIDIA GeForce GTX 570 OpenGL Engine                    supported      5     1     4.3    NVIDIA GTX 570
+Parallels and NVIDIA Corporation Parallels using NVIDIA GeForce GTX 660 OpenGL Engine                    supported      5     0     4.3    NVIDIA GTX 66x
+Parallels and NVIDIA Corporation Parallels using NVIDIA GeForce GTX 660 Ti OpenGL Engine                 supported      5     0     4.3    NVIDIA GTX 66x
+Parallels and NVIDIA Corporation Parallels using NVIDIA GeForce GTX 670 OpenGL Engine                    supported      5     1     4.3    NVIDIA GTX 67x
+Parallels and NVIDIA Corporation Parallels using NVIDIA GeForce GTX 680MX OpenGL Engine                  supported      5     0     4.3    NVIDIA GTX 680M
 PowerVR SGX545                                                                                           supported      1     1     3      PowerVR SGX545
 S3                                                                                                       unsupported    0     1     1.4    S3
 S3 Graphics K8M800/MMX/K3D                                                                               unsupported    0     1     1.4    S3
