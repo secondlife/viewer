@@ -1550,10 +1550,13 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 		}
 
 		U32 cache_index = alpha_mask_crc.getCRC();
-		U8* alpha_data = get_if_there(mAlphaCache,cache_index,(U8*)NULL);
-		if (!alpha_data)
+		U8* alpha_data = NULL; 
+                // We believe we need to generate morph masks, do not assume that the cached version is accurate.
+                // We can get bad morph masks during login, on minimize, and occasional gl errors.
+                // We should only be doing this when we believe something has changed with respect to the user's appearance.
 		{
-			// clear out a slot if we have filled our cache
+                       LL_DEBUGS("Avatar") << "gl alpha cache of morph mask not found, doing readback: " << getName() << llendl;
+                        // clear out a slot if we have filled our cache
 			S32 max_cache_entries = getTexLayerSet()->getAvatarAppearance()->isSelf() ? 4 : 1;
 			while ((S32)mAlphaCache.size() >= max_cache_entries)
 			{
