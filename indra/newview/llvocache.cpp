@@ -490,7 +490,8 @@ LLVOCachePartition::LLVOCachePartition(LLViewerRegion* regionp)
 {
 	mLODPeriod = 16;
 	mRegionp = regionp;
-	mPartitionType = LLViewerRegion::PARTITION_VO_CACHE;	
+	mPartitionType = LLViewerRegion::PARTITION_VO_CACHE;
+	mBackSlectionEnabled = -1;
 	
 	for(S32 i = 0; i < LLViewerCamera::NUM_CAMERAS; i++)
 	{
@@ -517,7 +518,8 @@ void LLVOCachePartition::removeEntry(LLViewerOctreeEntry* entry)
 class LLVOCacheOctreeCull : public LLViewerOctreeCull
 {
 public:
-	LLVOCacheOctreeCull(LLCamera* camera, LLViewerRegion* regionp, const LLVector3& shift, bool use_object_cache_occlusion, LLVOCachePartition* part) 
+	LLVOCacheOctreeCull(LLCamera* camera, LLViewerRegion* regionp, 
+		const LLVector3& shift, bool use_object_cache_occlusion, LLVOCachePartition* part) 
 		: LLViewerOctreeCull(camera), 
 		  mRegionp(regionp),
 		  mPartition(part)
@@ -583,7 +585,10 @@ public:
 			!base_group->getOctreeNode()->getParent())
 		{ 
 			//no occlusion check
-			mRegionp->addVisibleGroup(base_group);
+			if(mRegionp->addVisibleGroup(base_group))
+			{
+				base_group->setVisible();
+			}
 			return;
 		}
 
@@ -603,7 +608,10 @@ public:
 		}
 		else
 		{
-			mRegionp->addVisibleGroup(base_group);
+			if(mRegionp->addVisibleGroup(base_group))
+			{
+				base_group->setVisible();
+			}
 		}
 	}
 
@@ -613,6 +621,81 @@ private:
 	LLVector3           mLocalShift; //shift vector from agent space to local region space.
 	bool                mUseObjectCacheOcclusion;
 };
+
+//select objects behind camera
+class LLVOCacheOctreeBackCull : public LLViewerOctreeCull
+{
+public:
+	LLVOCacheOctreeBackCull(LLCamera* camera, const LLVector3& shift, LLViewerRegion* regionp) 
+		: LLViewerOctreeCull(camera), mRegionp(regionp)
+	{
+		mLocalShift = shift;
+		mSphereRadius = 20.f; //20m
+	}
+
+	virtual S32 frustumCheck(const LLviewerOctreeGroup* group)
+	{			
+		const LLVector4a* exts = group->getExtents();
+		return backSphereCheck(exts[0], exts[1]);
+	}
+
+	virtual S32 frustumCheckObjects(const LLviewerOctreeGroup* group)
+	{
+		const LLVector4a* exts = group->getObjectExtents();
+		return backSphereCheck(exts[0], exts[1]);
+	}
+
+	virtual void processGroup(LLviewerOctreeGroup* base_group)
+	{
+		mRegionp->addVisibleGroup(base_group);
+		return;
+	}
+
+private:
+	//a sphere around the camera origin, including objects behind camera.
+	S32 backSphereCheck(const LLVector4a& min, const LLVector4a& max)
+	{
+		return AABBSphereIntersect(min, max, mCamera->getOrigin() - mLocalShift, mSphereRadius);
+	}
+
+private:
+	F32              mSphereRadius;
+	LLViewerRegion*  mRegionp;
+	LLVector3        mLocalShift; //shift vector from agent space to local region space.
+};
+
+void LLVOCachePartition::selectBackObjects(LLCamera &camera)
+{
+	if(LLViewerCamera::sCurCameraID != LLViewerCamera::CAMERA_WORLD)
+	{
+		return;
+	}
+
+	if(mBackSlectionEnabled < 0)
+	{
+		mBackSlectionEnabled = LLVOCacheEntry::getInvisibleObjectsLiveTime() - 1;
+		mBackSlectionEnabled = llmax(mBackSlectionEnabled, (S32)1);
+	}
+
+	if(!mBackSlectionEnabled)
+	{
+		return;
+	}
+
+	//localize the camera
+	LLVector3 region_agent = mRegionp->getOriginAgent();
+	
+	LLVOCacheOctreeBackCull culler(&camera, region_agent, mRegionp);
+	culler.traverse(mOctree);
+
+	mBackSlectionEnabled--;
+	if(!mRegionp->getNumOfVisibleGroups())
+	{
+		mBackSlectionEnabled = 0;
+	}
+
+	return;
+}
 
 S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 {
@@ -650,10 +733,15 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 		}
 		if(LLViewerOctreeEntryData::getCurrentFrame() % seed != hash)
 		{
+			selectBackObjects(camera);//process back objects selection
 			return 0; //nothing changed, reduce frequency of culling
 		}
 	}
-	
+	else
+	{
+		mBackSlectionEnabled = -1; //reset it.
+	}
+
 	if(LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD)
 	{
 		mCullHistory[LLViewerCamera::sCurCameraID] <<= 1;
