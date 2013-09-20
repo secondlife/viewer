@@ -184,6 +184,7 @@ private:
 	std::set<LLOcclusionCullingGroup*> mOccludedGroups;
 
 	S32   mBackSlectionEnabled; //enable to select back objects if > 0.
+	U32   mIdleHash;
 };
 
 //

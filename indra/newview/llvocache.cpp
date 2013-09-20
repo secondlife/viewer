@@ -492,6 +492,7 @@ LLVOCachePartition::LLVOCachePartition(LLViewerRegion* regionp)
 	mRegionp = regionp;
 	mPartitionType = LLViewerRegion::PARTITION_VO_CACHE;
 	mBackSlectionEnabled = -1;
+	mIdleHash = 0;
 	
 	for(S32 i = 0; i < LLViewerCamera::NUM_CAMERAS; i++)
 	{
@@ -721,17 +722,15 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 
 	if(!mCullHistory[LLViewerCamera::sCurCameraID] && LLViewerRegion::isViewerCameraStatic())
 	{
-		static U32 hash = 0;
-
 		U32 seed = llmax(mLODPeriod >> 1, (U32)4);
 		if(LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD)
 		{
 			if(!(LLViewerOctreeEntryData::getCurrentFrame() % seed))
 			{
-				hash = (hash + 1) % seed;
+				mIdleHash = (mIdleHash + 1) % seed;
 			}
 		}
-		if(LLViewerOctreeEntryData::getCurrentFrame() % seed != hash)
+		if(LLViewerOctreeEntryData::getCurrentFrame() % seed != mIdleHash)
 		{
 			selectBackObjects(camera);//process back objects selection
 			return 0; //nothing changed, reduce frequency of culling
