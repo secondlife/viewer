@@ -2471,16 +2471,25 @@ void LLMeshRepoThread::notifyLoadedMeshes()
 
 	if (! mSkinInfoQ.empty() || ! mDecompositionQ.empty())
 	{
-		std::queue<LLMeshSkinInfo> skin_info_q;
-		std::queue<LLModel::Decomposition*> decomp_q;
-
 		if (mMutex->trylock())
 		{
-			// Make thread-shared data private with swap under lock.
-			skin_info_q.swap(mSkinInfoQ);
-			decomp_q.swap(mDecompositionQ);
+			std::queue<LLMeshSkinInfo> skin_info_q;
+			std::queue<LLModel::Decomposition*> decomp_q;
+
+			// swap() comes to std::queue in c++11 so copy manually for now
+			while (! mSkinInfoQ.empty())
+			{
+				skin_info_q.push(mSkinInfoQ.front());
+				mSkinInfoQ.pop();
+			}
+			while (! mDecompositionQ.empty())
+			{
+				decomp_q.push(mDecompositionQ.front());
+				mDecompositionQ.pop();
+			}
 			mMutex->unlock();
 
+			// Process the elements free of the lock
 			while (! skin_info_q.empty())
 			{
 				gMeshRepo.notifySkinInfoReceived(skin_info_q.front());
