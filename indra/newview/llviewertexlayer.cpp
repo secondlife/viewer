@@ -341,22 +341,20 @@ const LLViewerTexLayerSetBuffer* LLViewerTexLayerSet::getViewerComposite() const
 }
 
 
-// SUNSHINE CLEANUP - this used to have a bunch of upload related stuff, doesn't really serve a purpose now.
+// SUNSHINE CLEANUP - this used to have a bunch of upload related stuff, doesn't really serve much purpose now.
 const std::string LLViewerTexLayerSetBuffer::dumpTextureInfo() const
 {
 	if (!isAgentAvatarValid()) return "";
 
 	const BOOL is_high_res = TRUE; 
 	const U32 num_low_res = 0;
-	const U32 upload_time = 0;
 	const std::string local_texture_info = gAgentAvatarp->debugDumpLocalTextureDataInfo(getViewerTexLayerSet());
 
 	std::string status = "DONE     ";
 
-	std::string text = llformat("[%s] [HiRes:%d LoRes:%d] [Elapsed:%d] %s",
+	std::string text = llformat("[%s] [HiRes:%d LoRes:%d] %s",
 								status.c_str(),
 								is_high_res, num_low_res,
-								upload_time, 
 								local_texture_info.c_str());
 	return text;
 }

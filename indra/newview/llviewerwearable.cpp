@@ -322,16 +322,6 @@ void LLViewerWearable::writeToAvatar(LLAvatarAppearance *avatarp)
 
 	if (!viewer_avatar->isValid()) return;
 
-#if 0
-	// FIXME DRANO - kludgy way to avoid overwriting avatar state from wearables.
-	// Ideally would avoid calling this func in the first place.
-	if (viewer_avatar->isUsingServerBakes() &&
-		!viewer_avatar->isUsingLocalAppearance())
-	{
-		return;
-	}
-#endif
-
 	ESex old_sex = avatarp->getSex();
 
 	LLWearable::writeToAvatar(avatarp);
@@ -470,13 +460,6 @@ void LLViewerWearable::setItemID(const LLUUID& item_id)
 
 void LLViewerWearable::revertValues()
 {
-#if 0
-	// DRANO avoid overwrite when not in local appearance
-	if (isAgentAvatarValid() && gAgentAvatarp->isUsingServerBakes() && !gAgentAvatarp->isUsingLocalAppearance())
-	{
-		return;
-	}
-#endif
 	LLWearable::revertValues();
 
 

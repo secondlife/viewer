@@ -644,14 +644,6 @@ public:
 	// editing or when waiting for a subsequent server rebake.
 	/*virtual*/ BOOL	isUsingLocalAppearance() const { return mUseLocalAppearance; }
 
-	// True if this avatar should fetch its baked textures via the new
-	// appearance mechanism.
-	// SUNSHINE CLEANUP - always true, remove?
-	BOOL				isUsingServerBakes() const;
-	// SUNSHINE CLEANUP - always true, remove?
-	void 				setIsUsingServerBakes(BOOL newval);
-
-
 	// True if we are currently in appearance editing mode. Often but
 	// not always the same as isUsingLocalAppearance().
 	/*virtual*/ BOOL	isEditingAppearance() const { return mIsEditingAppearance; }
@@ -664,8 +656,6 @@ private:
 	F32				mLastAppearanceBlendTime;
 	BOOL			mIsEditingAppearance; // flag for if we're actively in appearance editing mode
 	BOOL			mUseLocalAppearance; // flag for if we're using a local composite
-	// SUNSHINE CLEANUP - always true, remove?
-	BOOL			mUseServerBakes; // flag for if baked textures should be fetched from baking service (false if they're temporary uploads)
 
 	//--------------------------------------------------------------------
 	// Visibility

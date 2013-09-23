@@ -771,13 +771,12 @@ BOOL LLAgentWearables::isWearingItem(const LLUUID& item_id) const
 	return getWearableFromItemID(item_id) != NULL;
 }
 
-// SUNSHINE CLEANUP ?
-
 // MULTI-WEARABLE: DEPRECATED (see backwards compatibility)
-// static
 // ! BACKWARDS COMPATIBILITY ! When we stop supporting viewer1.23, we can assume
 // that viewers have a Current Outfit Folder and won't need this message, and thus
 // we can remove/ignore this whole function. EXCEPT gAgentWearables.notifyLoadingStarted
+
+// static
 void LLAgentWearables::processAgentInitialWearablesUpdate(LLMessageSystem* mesgsys, void** user_data)
 {
 	// We should only receive this message a single time.  Ignore subsequent AgentWearablesUpdates

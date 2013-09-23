@@ -401,7 +401,6 @@ public:
 	const std::string		debugDumpLocalTextureDataInfo(const LLViewerTexLayerSet* layerset) const; // Lists out state of this particular baked texture layer
 	const std::string		debugDumpAllLocalTextureDataInfo() const; // Lists out which baked textures are at highest LOD
 	void					sendViewerAppearanceChangeMetrics(); // send data associated with completing a change.
-	void 					checkForUnsupportedServerBakeAppearance();
 private:
 	LLFrameTimer    		mDebugSelfLoadTimer;
 	F32						mDebugTimeWearablesLoaded;

@@ -189,15 +189,6 @@ bool update_avatar_rez_metrics()
 	return false;
 }
 
-bool check_for_unsupported_baked_appearance()
-{
-	if (!isAgentAvatarValid())
-		return true;
-
-	gAgentAvatarp->checkForUnsupportedServerBakeAppearance();
-	return false;
-}
-
 void LLVOAvatarSelf::initInstance()
 {
 	BOOL status = TRUE;
@@ -234,7 +225,6 @@ void LLVOAvatarSelf::initInstance()
 
 	//doPeriodically(output_self_av_texture_diagnostics, 30.0);
 	doPeriodically(update_avatar_rez_metrics, 5.0);
-	doPeriodically(check_for_unsupported_baked_appearance, 120.0);
 	doPeriodically(boost::bind(&LLVOAvatarSelf::checkStuckAppearance, this), 30.0);
 }
 
@@ -708,14 +698,6 @@ BOOL LLVOAvatarSelf::setParamWeight(const LLViewerVisualParam *param, F32 weight
 		return FALSE;
 	}
 
-#if 0
-	// FIXME DRANO - kludgy way to avoid overwriting avatar state from wearables.
-	if (isUsingServerBakes() && !isUsingLocalAppearance())
-	{
-		return FALSE;
-	}
-#endif
-
 	if (param->getCrossWearable())
 	{
 		LLWearableType::EType type = (LLWearableType::EType)param->getWearableType();
@@ -794,7 +776,9 @@ U32  LLVOAvatarSelf::processUpdateMessage(LLMessageSystem *mesgsys,
 {
 	U32 retval = LLVOAvatar::processUpdateMessage(mesgsys,user_data,block_num,update_type,dp);
 
-	// SUNSHINE CLEANUP - does this become relevant again if we don't have to wait for appearance message to tell us where bakes are coming from?
+	// SUNSHINE CLEANUP - does this become relevant again if we don't
+	// have to wait for appearance message to tell us where bakes are
+	// coming from?
 
 #if 0
 	// DRANO - it's not clear this does anything useful. If we wait
@@ -2374,66 +2358,6 @@ void LLVOAvatarSelf::sendViewerAppearanceChangeMetrics()
 																	  reporting_started));
 		mTimeSinceLastRezMessage.reset();
 	}
-}
-
-class CheckAgentAppearanceServiceResponder: public LLHTTPClient::Responder
-{
-	LOG_CLASS(CheckAgentAppearanceServiceResponder);
-public:
-	CheckAgentAppearanceServiceResponder()
-	{
-	}
-	
-	virtual ~CheckAgentAppearanceServiceResponder()
-	{
-	}
-
-private:
-	/* virtual */ void httpSuccess()
-	{
-		LL_DEBUGS("Avatar") << "OK" << llendl;
-	}
-
-	// Error
-	/*virtual*/ void httpFailure()
-	{
-		if (isAgentAvatarValid())
-		{
-			LL_DEBUGS("Avatar") << "failed, will rebake "
-					<< dumpResponse() << LL_ENDL;
-			forceAppearanceUpdate();
-		}
-	}
-
-public:
-	static void forceAppearanceUpdate()
-	{
-		// Trying to rebake immediately after crossing region boundary
-		// seems to be failure prone; adding a delay factor. Yes, this
-		// fix is ad-hoc and not guaranteed to work in all cases.
-		doAfterInterval(boost::bind(&LLVOAvatarSelf::forceBakeAllTextures,
-									gAgentAvatarp.get(), true), 5.0);
-	}
-};
-
-void LLVOAvatarSelf::checkForUnsupportedServerBakeAppearance()
-{
-	// Need to check only if we have a server baked appearance and are
-	// in a non-baking region.
-	if (!gAgentAvatarp->isUsingServerBakes())
-		return;
-	if (!gAgent.getRegion() || gAgent.getRegion()->getCentralBakeVersion()!=0)
-		return;
-
-	// if baked image service is unknown, need to refresh.
-	if (LLAppearanceMgr::instance().getAppearanceServiceURL().empty())
-	{
-		CheckAgentAppearanceServiceResponder::forceAppearanceUpdate();
-	}
-	// query baked image service to check status.
-	std::string image_url = gAgentAvatarp->getImageURL(TEX_HEAD_BAKED,
-													   getTE(TEX_HEAD_BAKED)->getID());
-	LLHTTPClient::head(image_url, new CheckAgentAppearanceServiceResponder);
 }
 
 const LLUUID& LLVOAvatarSelf::grabBakedTexture(EBakedTextureIndex baked_index) const
