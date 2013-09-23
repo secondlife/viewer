@@ -26,8 +26,6 @@
                     width="245" >
      <stat_view name="basic"
                  label="Basic"
-                 follows="left|top|right"
-                 show_label="true"
                  setting="OpenDebugStatBasic">
         <stat_bar name="fps"
                   label="FPS"
@@ -50,13 +48,9 @@
 
      <stat_view name="advanced"
                  label="Advanced"
-                 follows="left|top|right"
-                 show_label="true"
                  setting="OpenDebugStatAdvanced">
         <stat_view name="render"
                    label="Render"
-                   follows="left|top|right"
-                   show_label="true"
                    setting="OpenDebugStatRender">
           <stat_bar name="ktrisframe"
                     label="KTris per Frame"
@@ -86,9 +80,7 @@
 										stat="unoccluded_objects"/>
 				</stat_view>
         <stat_view name="texture"
-                   label="Texture"
-                   follows="left|top|right"
-                   show_label="true">
+                   label="Texture">
           <stat_bar name="texture_cache_hits"
                     label="Cache Hit Rate"
                     stat="texture_cache_hits"
@@ -116,11 +108,15 @@
                     label="Bound Mem"
                     stat="glboundmemstat"/>
         </stat_view>
-        
+			 <stat_view name="memory"
+									label="Memory Usage">
+				 <stat_bar name="LLView"
+                    label="LLView Memory"
+                    stat="class LLView"
+                    show_history="true"/>
+			 </stat_view>
         <stat_view name="network"
                    label="Network"
-                   follows="left|top|right"
-                   show_label="true"
                    setting="OpenDebugStatNet">
           <stat_bar name="packetsinstat"
                     label="Packets In"
@@ -164,8 +160,6 @@
 
       <stat_view name="sim"
                  label="Simulator"
-                 follows="left|top|right"
-                 show_label="true"
                  setting="OpenDebugStatSim">
         <stat_bar name="simtimedilation"
                   label="Time Dilation"
@@ -181,9 +175,7 @@
                   decimal_digits="1"
                   bar_max="45" />
         <stat_view name="physicsdetail"
-                   label="Physics Details"
-                   follows="left|top|right"
-                   show_label="true">
+                   label="Physics Details">
           <stat_bar name="physicspinnedtasks"
                     label="Pinned Objects"
                     stat="physicspinnedtasks"/>
@@ -222,9 +214,7 @@
                   stat="simscripteps"
                   unit_label="eps"/>
         <stat_view name="simpathfinding"
-                   label="Pathfinding"
-                   follows="left|top|right"
-                   show_label="true">
+                   label="Pathfinding">
           <stat_bar name="simsimaistepmsec"
                     label="AI Step Time"
                     stat="simsimaistepmsec"/>
@@ -255,9 +245,7 @@
                   stat="simtotalunackedbytes"
                   decimal_digits="1"/>
         <stat_view name="simperf"
-                   label="Time"
-                   follows="left|top|right"
-                   show_label="true">
+                   label="Time">
           <stat_bar name="simframemsec"
                     label="Total Frame Time"
                     stat="simframemsec"/>
@@ -283,9 +271,7 @@
                     label="Spare Time"
                     stat="simsparemsec"/>
           <stat_view name="timedetails"
-                     label="Time Details"
-                     follows="left|top|right"
-                     show_label="true">
+                     label="Time Details">
             <stat_bar name="simsimphysicsstepmsec"
                       label="Physics Step"
                       stat="simsimphysicsstepmsec"/>
