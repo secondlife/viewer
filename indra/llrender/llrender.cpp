@@ -832,8 +832,8 @@ LLLightState::LLLightState(S32 index)
 : mIndex(index),
   mEnabled(false),
   mConstantAtten(1.f),
-  mLinearAtten(1.f),
-  mQuadraticAtten(1.f),
+  mLinearAtten(0.f),
+  mQuadraticAtten(0.f),
   mSpotExponent(0.f),
   mSpotCutoff(180.f)
 {
@@ -1150,7 +1150,7 @@ void LLRender::syncLightState()
 
 			position[i] = light->mPosition;
 			direction[i] = light->mSpotDirection;
-			attenuation[i].set(1.f/light->mLinearAtten, light->mQuadraticAtten, light->mSpecular.mV[3]);
+			attenuation[i].set(light->mLinearAtten, light->mQuadraticAtten, light->mSpecular.mV[3]);
 			diffuse[i].set(light->mDiffuse.mV);
 		}
 

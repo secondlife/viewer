@@ -122,6 +122,10 @@
 //#define DEBUG_INDICES
 #endif
 
+// Expensive and currently broken
+//
+#define MATERIALS_IN_REFLECTIONS 0
+
 bool gShiftFrame = false;
 
 //cached settings
@@ -8477,6 +8481,7 @@ void LLPipeline::renderDeferredLighting()
 				}
 
 				gDeferredSunProgram.uniform3fv(sOffset, slice, offset);
+				gDeferredSunProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, mDeferredLight.getWidth(), mDeferredLight.getHeight());
 				
 				{
 					LLGLDisable blend(GL_BLEND);
