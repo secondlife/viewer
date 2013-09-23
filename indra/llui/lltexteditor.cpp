@@ -721,7 +721,6 @@ BOOL LLTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 				setCursorAtLocalPos( x, y, true );
 				startSelection();
 			}
-			gFocusMgr.setMouseCapture( this );
 		}
 
 		handled = TRUE;
@@ -730,6 +729,10 @@ BOOL LLTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 	// Delay cursor flashing
 	resetCursorBlink();
 
+	if (handled)
+	{
+		gFocusMgr.setMouseCapture( this );
+	}
 	return handled;
 }
 
