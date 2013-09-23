@@ -475,14 +475,24 @@ namespace LLTrace
 		typedef MemStatAccumulator self_t;
 
 		// fake classes that allows us to view different facets of underlying statistic
-		struct AllocationCountFacet 
+		struct AllocationFacet 
 		{
-			typedef U32 value_t;
+			typedef F64Bytes value_t;
 		};
 
-		struct DeallocationCountFacet 
+		struct DeallocationFacet 
 		{
-			typedef U32 value_t;
+			typedef F64Bytes value_t;
+		};
+
+		struct ShadowAllocationFacet 
+		{
+			typedef F64Bytes value_t;
+		};
+
+		struct ShadowDeallocationFacet 
+		{
+			typedef F64Bytes value_t;
 		};
 
 		struct ShadowMemFacet
@@ -490,25 +500,37 @@ namespace LLTrace
 			typedef F64Bytes value_t;
 		};
 
-		MemStatAccumulator()
-		:	mAllocatedCount(0),
-			mDeallocatedCount(0)
-		{}
-
 		void addSamples(const MemStatAccumulator& other, EBufferAppendType append_type)
 		{
-			mSize.addSamples(other.mSize, append_type);
-			mShadowSize.addSamples(other.mShadowSize, append_type);
-			mAllocatedCount += other.mAllocatedCount;
-			mDeallocatedCount += other.mDeallocatedCount;
+			mAllocated.addSamples(other.mAllocated, append_type);
+			mDeallocated.addSamples(other.mDeallocated, append_type);
+			if (append_type == SEQUENTIAL)
+			{
+				mSize.addSamples(other.mSize, SEQUENTIAL);
+				mShadowSize.addSamples(other.mShadowSize, SEQUENTIAL);
+			}
+			else
+			{
+				F64 allocation_delta(other.mAllocated.getSum() - other.mDeallocated.getSum());
+				mSize.sample(mSize.hasValue() 
+					? mSize.getLastValue() + allocation_delta 
+					: allocation_delta);
+
+				F64 shadow_allocation_delta(other.mShadowAllocated.getSum() - other.mShadowDeallocated.getSum());
+				mShadowSize.sample(mShadowSize.hasValue() 
+					? mShadowSize.getLastValue() + shadow_allocation_delta 
+					: shadow_allocation_delta);
+			}
 		}
 
 		void reset(const MemStatAccumulator* other)
 		{
 			mSize.reset(other ? &other->mSize : NULL);
 			mShadowSize.reset(other ? &other->mShadowSize : NULL);
-			mAllocatedCount = 0;
-			mDeallocatedCount = 0;
+			mAllocated.reset(other ? &other->mAllocated : NULL);
+			mDeallocated.reset(other ? &other->mDeallocated : NULL);
+			mShadowAllocated.reset(other ? &other->mShadowAllocated : NULL);
+			mShadowDeallocated.reset(other ? &other->mShadowDeallocated : NULL);
 		}
 
 		void sync(F64SecondsImplicit time_stamp) 
@@ -519,8 +541,10 @@ namespace LLTrace
 
 		SampleAccumulator	mSize,
 							mShadowSize;
-		int					mAllocatedCount,
-							mDeallocatedCount;
+		CountAccumulator	mAllocated,
+							mDeallocated,
+							mShadowAllocated,
+							mShadowDeallocated;
 	};
 
 	struct AccumulatorBufferGroup : public LLRefCount

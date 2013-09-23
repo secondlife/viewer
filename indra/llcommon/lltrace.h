@@ -200,7 +200,7 @@ void add(CountStatHandle<T>& count, VALUE_T value)
 }
 
 template<>
-class TraceType<MemStatAccumulator::AllocationCountFacet>
+class TraceType<MemStatAccumulator::AllocationFacet>
 :	public TraceType<MemStatAccumulator>
 {
 public:
@@ -211,13 +211,35 @@ public:
 };
 
 template<>
-class TraceType<MemStatAccumulator::DeallocationCountFacet>
+class TraceType<MemStatAccumulator::DeallocationFacet>
 :	public TraceType<MemStatAccumulator>
 {
 public:
 
 	TraceType(const char* name, const char* description = "")
 	:	TraceType<MemStatAccumulator>(name, description)
+	{}
+};
+
+template<>
+class TraceType<MemStatAccumulator::ShadowAllocationFacet>
+	:	public TraceType<MemStatAccumulator>
+{
+public:
+
+	TraceType(const char* name, const char* description = "")
+		:	TraceType<MemStatAccumulator>(name, description)
+	{}
+};
+
+template<>
+class TraceType<MemStatAccumulator::ShadowDeallocationFacet>
+	:	public TraceType<MemStatAccumulator>
+{
+public:
+
+	TraceType(const char* name, const char* description = "")
+		:	TraceType<MemStatAccumulator>(name, description)
 	{}
 };
 
@@ -248,59 +270,58 @@ public:
 
 	/*virtual*/ const char* getUnitLabel() const { return "B"; }
 
-	TraceType<MemStatAccumulator::AllocationCountFacet>& allocationCount() 
+	TraceType<MemStatAccumulator::AllocationFacet>& allocations() 
 	{ 
-		return static_cast<TraceType<MemStatAccumulator::AllocationCountFacet>&>(*(TraceType<MemStatAccumulator>*)this);
+		return static_cast<TraceType<MemStatAccumulator::AllocationFacet>&>(*(TraceType<MemStatAccumulator>*)this);
 	}
 
-	TraceType<MemStatAccumulator::DeallocationCountFacet>& deallocationCount() 
+	TraceType<MemStatAccumulator::DeallocationFacet>& deallocations() 
 	{ 
-		return static_cast<TraceType<MemStatAccumulator::DeallocationCountFacet>&>(*(TraceType<MemStatAccumulator>*)this);
+		return static_cast<TraceType<MemStatAccumulator::DeallocationFacet>&>(*(TraceType<MemStatAccumulator>*)this);
 	}
 
-	TraceType<MemStatAccumulator::ShadowMemFacet>& childMem() 
+	TraceType<MemStatAccumulator::ShadowAllocationFacet>& shadowAllocations() 
+	{ 
+		return static_cast<TraceType<MemStatAccumulator::ShadowAllocationFacet>&>(*(TraceType<MemStatAccumulator>*)this);
+	}
+
+	TraceType<MemStatAccumulator::ShadowDeallocationFacet>& shadowDeallocations() 
+	{ 
+		return static_cast<TraceType<MemStatAccumulator::ShadowDeallocationFacet>&>(*(TraceType<MemStatAccumulator>*)this);
+	}
+
+	TraceType<MemStatAccumulator::ShadowMemFacet>& shadowMem() 
 	{ 
 		return static_cast<TraceType<MemStatAccumulator::ShadowMemFacet>&>(*(TraceType<MemStatAccumulator>*)this);
 	}
 };
 
-inline void track_alloc(MemStatHandle& measurement, size_t size)
-{
-	MemStatAccumulator& accumulator = measurement.getCurrentAccumulator();
-	accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() + (F64)size : (F64)size);
-	accumulator.mAllocatedCount++;
-}
-
-inline void track_dealloc(MemStatHandle& measurement, size_t size)
-{
-	MemStatAccumulator& accumulator = measurement.getCurrentAccumulator();
-	accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)size : -(F64)size);
-	accumulator.mAllocatedCount--;
-	accumulator.mDeallocatedCount++;
-}
-
 inline void claim_mem(MemStatHandle& measurement, size_t size)
 {
 	MemStatAccumulator& accumulator = measurement.getCurrentAccumulator();
 	accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() + (F64)size : (F64)size);
+	accumulator.mAllocated.add(1);
 }
 
 inline void disclaim_mem(MemStatHandle& measurement, size_t size)
 {
 	MemStatAccumulator& accumulator = measurement.getCurrentAccumulator();
 	accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)size : -(F64)size);
+	accumulator.mDeallocated.add(1);
 }
 
 inline void claim_shadow_mem(MemStatHandle& measurement, size_t size)
 {
 	MemStatAccumulator& accumulator = measurement.getCurrentAccumulator();
 	accumulator.mShadowSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() + (F64)size : (F64)size);
+	accumulator.mShadowAllocated.add(1);
 }
 
 inline void disclaim_shadow_mem(MemStatHandle& measurement, size_t size)
 {
 	MemStatAccumulator& accumulator = measurement.getCurrentAccumulator();
 	accumulator.mShadowSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)size : -(F64)size);
+	accumulator.mShadowDeallocated.add(1);
 }
 
 // measures effective memory footprint of specified type
@@ -408,7 +429,7 @@ public:
 
 	void* operator new(size_t size) 
 	{
-		track_alloc(sMemStat, size);
+		claim_mem(sMemStat, size);
 
 		if (ALIGNMENT == LL_DEFAULT_HEAP_ALIGN)
 		{
@@ -430,7 +451,7 @@ public:
 
 	void operator delete(void* ptr, size_t size)
 	{
-		track_dealloc(sMemStat, size);
+		disclaim_mem(sMemStat, size);
 
 		if (ALIGNMENT == LL_DEFAULT_HEAP_ALIGN)
 		{
@@ -452,7 +473,7 @@ public:
 
 	void *operator new [](size_t size)
 	{
-		track_alloc(sMemStat, size);
+		claim_mem(sMemStat, size);
 
 		if (ALIGNMENT == LL_DEFAULT_HEAP_ALIGN)
 		{
@@ -474,10 +495,7 @@ public:
 
 	void operator delete[](void* ptr, size_t size)
 	{
-		MemStatAccumulator& accumulator = sMemStat.getCurrentAccumulator();
-		accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)size : -(F64)size);
-		accumulator.mAllocatedCount--;
-		accumulator.mDeallocatedCount++;
+		disclaim_mem(sMemStat, size);
 
 		if (ALIGNMENT == LL_DEFAULT_HEAP_ALIGN)
 		{
