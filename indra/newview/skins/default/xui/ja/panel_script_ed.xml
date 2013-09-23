@@ -34,6 +34,7 @@
 			<menu_item_call label="すべて選択" name="Select All"/>
 			<menu_item_call label="選択解除" name="Deselect"/>
 			<menu_item_call label="検索 / 再配置..." name="Search / Replace..."/>
+			<menu_item_call label="行に移動..." name="Go to line..."/>
 		</menu>
 		<menu label="ヘルプ" name="Help">
 			<menu_item_call label="ヘルプ..." name="Help..."/>

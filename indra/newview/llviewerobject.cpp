@@ -1724,7 +1724,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				// keep local flags and overwrite remote-controlled flags
 				mFlags = (mFlags & FLAGS_LOCAL) | flags;
 
-				// ...new objects that should come in selected need to be added to the selected list
+					// ...new objects that should come in selected need to be added to the selected list
 				mCreateSelected = ((flags & FLAGS_CREATE_SELECTED) != 0);
 			}
 			break;
@@ -4412,12 +4412,10 @@ S32 LLViewerObject::setTEMaterialParams(const U8 te, const LLMaterialPtr pMateri
 
 void LLViewerObject::refreshMaterials()
 {
-	setChanged(ALL_CHANGED);
+	setChanged(TEXTURE);
 	if (mDrawable.notNull())
 	{
 		gPipeline.markTextured(mDrawable);
-		gPipeline.markRebuild(mDrawable,LLDrawable::REBUILD_ALL);
-		dirtySpatialGroup(TRUE);
 	}
 }
 
@@ -4520,6 +4518,30 @@ LLViewerTexture *LLViewerObject::getTEImage(const U8 face) const
 	return NULL;
 }
 
+
+bool LLViewerObject::isImageAlphaBlended(const U8 te) const
+{
+	LLViewerTexture* image = getTEImage(te);
+	LLGLenum format = image ? image->getPrimaryFormat() : GL_RGB;
+	switch (format)
+	{
+		case GL_RGBA:
+		case GL_ALPHA:
+		{
+			return true;
+		}
+		break;
+
+		case GL_RGB: break;
+		default:
+		{
+			llwarns << "Unexpected tex format in LLViewerObject::isImageAlphaBlended...returning no alpha." << llendl;
+		}
+		break;
+	}
+
+	return false;
+}
 
 LLViewerTexture *LLViewerObject::getTENormalMap(const U8 face) const
 {

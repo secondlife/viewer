@@ -86,9 +86,46 @@ vec3 decode_normal (vec2 enc)
     return n;
 }
 
+vec3 srgb_to_linear(vec3 cs)
+{
+	vec3 low_range = cs / vec3(12.92);
+	vec3 high_range = pow((cs+vec3(0.055))/vec3(1.055), vec3(2.4));
+	bvec3 lte = lessThanEqual(cs,vec3(0.04045));
+
+#ifdef OLD_SELECT
+	vec3 result;
+	result.r = lte.r ? low_range.r : high_range.r;
+	result.g = lte.g ? low_range.g : high_range.g;
+	result.b = lte.b ? low_range.b : high_range.b;
+    return result;
+#else
+	return mix(high_range, low_range, lte);
+#endif
+
+}
+
+vec3 linear_to_srgb(vec3 cl)
+{
+	cl = clamp(cl, vec3(0), vec3(1));
+	vec3 low_range  = cl * 12.92;
+	vec3 high_range = 1.055 * pow(cl, vec3(0.41666)) - 0.055;
+	bvec3 lt = lessThan(cl,vec3(0.0031308));
+
+#ifdef OLD_SELECT
+	vec3 result;
+	result.r = lt.r ? low_range.r : high_range.r;
+	result.g = lt.g ? low_range.g : high_range.g;
+	result.b = lt.b ? low_range.b : high_range.b;
+    return result;
+#else
+	return mix(high_range, low_range, lt);
+#endif
+
+}
+
 vec4 correctWithGamma(vec4 col)
 {
-	return vec4(pow(col.rgb, vec3(2.2)), col.a);
+	return vec4(srgb_to_linear(col.rgb), col.a);
 }
 
 vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
@@ -316,7 +353,7 @@ void main()
 			}
 		}
 	}
-
+	
 	//not sure why, but this line prevents MATBUG-194
 	col = max(col, vec3(0.0));
 

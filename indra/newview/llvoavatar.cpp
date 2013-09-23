@@ -2987,80 +2987,89 @@ bool LLVOAvatar::isVisuallyMuted()
 {
 	bool muted = false;
 
-	// Priority order (highest priority first)
-	// * own avatar is never visually muted
-	// * if on the "always draw normally" list, draw them normally
-	// * if on the "always visually mute" list, mute them
-	// * draw them normally if they meet the following criteria:
-	//       - within the closest N avatars OR on friends list OR in an IM chat
-	//       - AND aren't over the thresholds
-	// * otherwise visually mute all other avatars
-
 	if (!isSelf())
 	{
-		static LLCachedControl<F32> render_mute_threshold(gSavedSettings, "RenderAutoMuteThreshold");
-		static LLCachedControl<U32> max_attachment_bytes(gSavedSettings, "RenderAutoMuteByteLimit");
-		static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit");
-		static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAutoMuteRenderCostLimit");
-
-		if (mVisuallyMuteSetting == ALWAYS_VISUAL_MUTE)
-		{	// Always want to see this AV as an imposter
-			muted = true;
-		}
-		else if (mVisuallyMuteSetting == NEVER_VISUAL_MUTE)
-		{	// Never show as imposter
-			muted = false;
-		}
-		else if (LLVOAvatar::sLODFactor <= render_mute_threshold)
+		static LLCachedControl<U32> render_auto_mute_functions(gSavedSettings, "RenderAutoMuteFunctions");
+		if (render_auto_mute_functions)		// Hacky debug switch for developing feature
 		{
-			F64 now = LLFrameTimer::getTotalSeconds();
+			// Priority order (highest priority first)
+			// * own avatar is never visually muted
+			// * if on the "always draw normally" list, draw them normally
+			// * if on the "always visually mute" list, mute them
+			// * draw them normally if they meet the following criteria:
+			//       - within the closest N avatars OR on friends list OR in an IM chat
+			//       - AND aren't over the thresholds
+			// * otherwise visually mute all other avatars
 
-			if (now < mCachedVisualMuteUpdateTime)
-			{	// Use cached mute value
-				muted = mCachedVisualMute;
+			static LLCachedControl<U32> max_attachment_bytes(gSavedSettings, "RenderAutoMuteByteLimit");
+			static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit");
+			static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAutoMuteRenderWeightLimit");
+
+			if (mVisuallyMuteSetting == ALWAYS_VISUAL_MUTE)
+			{	// Always want to see this AV as an impostor
+				muted = true;
 			}
-			else
-			{	// Determine if visually muted or not
+			else if (mVisuallyMuteSetting == NEVER_VISUAL_MUTE)
+			{	// Never show as impostor
+				muted = false;
+			}
+			else 
+			{
+				F64 now = LLFrameTimer::getTotalSeconds();
 
-				U32 max_cost = (U32) (max_render_cost*(LLVOAvatar::sLODFactor+0.5));
+				if (now < mCachedVisualMuteUpdateTime)
+				{	// Use cached mute value
+					muted = mCachedVisualMute;
+				}
+				else
+				{	// Determine if visually muted or not
 
-				muted = LLMuteList::getInstance()->isMuted(getID()) ||
-					(mAttachmentGeometryBytes > max_attachment_bytes && max_attachment_bytes > 0) ||
-					(mAttachmentSurfaceArea > max_attachment_area && max_attachment_area > 0.f) ||
-					(mVisualComplexity > max_cost && max_render_cost > 0);
+					U32 max_cost = (U32) (max_render_cost*(LLVOAvatar::sLODFactor+0.5));
 
-				// Could be part of the grand || collection above, but yanked out to make the logic visible
-				if (!muted)
-				{
-					if (sMaxVisible > 0)
-					{	// They are above the visibilty rank - mute them
-						muted = (mVisibilityRank > sMaxVisible);
-					}
-			
-					/* Not used - always draw friends or those in IMs.  Works nicely, needs UI?
-					if (muted ||					// Don't mute friends or IMs
-						sMaxVisible == 0)
+					muted = LLMuteList::getInstance()->isMuted(getID()) ||
+						(mAttachmentGeometryBytes > max_attachment_bytes && max_attachment_bytes > 0) ||
+						(mAttachmentSurfaceArea > max_attachment_area && max_attachment_area > 0.f) ||
+						(mVisualComplexity > max_cost && max_render_cost > 0);
+
+					// Could be part of the grand || collection above, but yanked out to make the logic visible
+					if (!muted)
 					{
-						muted = !(LLAvatarTracker::instance().isBuddy(getID()));
-						if (muted)
-						{	// Not a friend, so they are muted ... are they in an IM?
-							LLUUID session_id = gIMMgr->computeSessionID(IM_NOTHING_SPECIAL,getID());
-							muted = !gIMMgr->hasSession(session_id);
+						if (sMaxVisible > 0)
+						{	// They are above the visibilty rank - mute them
+							muted = (mVisibilityRank > sMaxVisible);
+						}
+			
+						// Always draw friends or those in IMs.  Needs UI?
+						if ((render_auto_mute_functions & 0x02) &&
+							(muted || sMaxVisible == 0))		// Don't mute friends or IMs							
+						{
+							muted = !(LLAvatarTracker::instance().isBuddy(getID()));
+							if (muted)
+							{	// Not a friend, so they are muted ... are they in an IM?
+								LLUUID session_id = gIMMgr->computeSessionID(IM_NOTHING_SPECIAL,getID());
+								muted = !gIMMgr->hasSession(session_id);
+							}
 						}
 					}
-					*/
-				}
 
-				// Save visual mute state and set interval for updating
-				const F64 SECONDS_BETWEEN_RENDER_AUTO_MUTE_UPDATES = 1.5;
-				mCachedVisualMuteUpdateTime = now + SECONDS_BETWEEN_RENDER_AUTO_MUTE_UPDATES;		
-				mCachedVisualMute = muted;
-			} 
+					// Save visual mute state and set interval for updating
+					const F64 SECONDS_BETWEEN_RENDER_AUTO_MUTE_UPDATES = 1.5;
+					mCachedVisualMuteUpdateTime = now + SECONDS_BETWEEN_RENDER_AUTO_MUTE_UPDATES;		
+					mCachedVisualMute = muted;
+				} 
+			}
 		}
 	}
 
 	return muted;
 }
+
+void	LLVOAvatar::forceUpdateVisualMuteSettings()
+{	
+	// Set the cache time so it's updated ASAP
+	mCachedVisualMuteUpdateTime = LLFrameTimer::getTotalSeconds() - 1.0;
+}
+
 
 //------------------------------------------------------------------------
 // updateCharacter()
@@ -3806,11 +3815,11 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 	{	//LOD changed or new mesh created, allocate new vertex buffer if needed
 		if (needs_rebuild || mDirtyMesh >= 2 || mVisibilityRank <= 4)
 		{
-		updateMeshData();
+			updateMeshData();
 			mDirtyMesh = 0;
-		mNeedsSkin = TRUE;
-		mDrawable->clearState(LLDrawable::REBUILD_GEOMETRY);
-	}
+			mNeedsSkin = TRUE;
+			mDrawable->clearState(LLDrawable::REBUILD_GEOMETRY);
+		}
 	}
 
 	if (LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) <= 0)
@@ -7888,8 +7897,7 @@ void LLVOAvatar::getImpostorValues(LLVector4a* extents, LLVector3& angle, F32& d
 
 void LLVOAvatar::idleUpdateRenderCost()
 {
-	static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAutoMuteRenderCostLimit");
-
+	static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAutoMuteRenderWeightLimit");
 	static const U32 ARC_LIMIT = 20000;
 
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_ATTACHMENT_BYTES))
@@ -8053,7 +8061,7 @@ LLColor4 LLVOAvatar::calcMutedAVColor(F32 value, S32 range_low, S32 range_high)
  
 	LLColor4 new_color = lerp(*spectrum_color[spectrum_index_1], *spectrum_color[spectrum_index_2], fractBetween);
 	new_color.normalize();
-	new_color *= 0.9f;
+	new_color *= 0.7f;		// Tone it down a bit
 
 	//llinfos << "From value " << std::setprecision(3) << value << " returning color " << new_color 
 	//	<< " using indexes " << spectrum_index_1 << ", " << spectrum_index_2

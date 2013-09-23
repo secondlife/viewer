@@ -72,6 +72,12 @@ void LLDrawPoolMaterials::beginDeferredPass(S32 pass)
 	};
 	
 	mShader = &(gDeferredMaterialProgram[shader_idx[pass]]);
+
+	if (LLPipeline::sUnderWaterRender)
+	{
+		mShader = &(gDeferredMaterialWaterProgram[shader_idx[pass]]);
+	}
+
 	mShader->bind();
 
 	diffuse_channel = mShader->enableTexture(LLShaderMgr::DIFFUSE_MAP);
@@ -215,3 +221,4 @@ void LLDrawPoolMaterials::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, 
 		gGL.matrixMode(LLRender::MM_MODELVIEW);
 	}
 }
+

@@ -244,7 +244,7 @@
      invisiblity_control="ShowAdvancedGraphicsSettings"
 		 height="16"
 		 initial_value="true"
-		 label="Lighting and Shadows"
+		 label="Advanced Lighting Model"
 		 layout="topleft"
 		 left="30"
 		 name="UseLightShaders2"

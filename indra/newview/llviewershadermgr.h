@@ -77,8 +77,6 @@ public:
 		SHADER_COUNT
 	};
 
-	
-
 	// simple model of forward iterator
 	// http://www.sgi.com/tech/stl/ForwardIterator.html
 	class shader_iter
@@ -130,6 +128,23 @@ public:
 	/* virtual */ void updateShaderUniforms(LLGLSLShader * shader);
 
 private:
+	
+	std::vector<std::string> mShinyUniforms;
+
+	//water parameters
+	std::vector<std::string> mWaterUniforms;
+
+	std::vector<std::string> mWLUniforms;
+
+	//terrain parameters
+	std::vector<std::string> mTerrainUniforms;
+
+	//glow parameters
+	std::vector<std::string> mGlowUniforms;
+
+	std::vector<std::string> mGlowExtractUniforms;
+
+	std::vector<std::string> mAvatarUniforms;
 
 	// the list of shaders we need to propagate parameters to.
 	std::vector<LLGLSLShader *> mShaderList;
@@ -176,6 +191,7 @@ extern LLGLSLShader			gOneTextureNoColorProgram;
 
 //object shaders
 extern LLGLSLShader			gObjectSimpleProgram;
+extern LLGLSLShader			gObjectSimpleImpostorProgram;
 extern LLGLSLShader			gObjectPreviewProgram;
 extern LLGLSLShader			gObjectSimpleAlphaMaskProgram;
 extern LLGLSLShader			gObjectSimpleWaterProgram;
@@ -264,6 +280,7 @@ extern LLGLSLShader			gPostNightVisionProgram;
 // Deferred rendering shaders
 extern LLGLSLShader			gDeferredImpostorProgram;
 extern LLGLSLShader			gDeferredWaterProgram;
+extern LLGLSLShader			gDeferredUnderWaterProgram;
 extern LLGLSLShader			gDeferredDiffuseProgram;
 extern LLGLSLShader			gDeferredDiffuseAlphaMaskProgram;
 extern LLGLSLShader			gDeferredNonIndexedDiffuseAlphaMaskProgram;
@@ -284,6 +301,7 @@ extern LLGLSLShader			gDeferredSunProgram;
 extern LLGLSLShader			gDeferredBlurLightProgram;
 extern LLGLSLShader			gDeferredAvatarProgram;
 extern LLGLSLShader			gDeferredSoftenProgram;
+extern LLGLSLShader			gDeferredSoftenWaterProgram;
 extern LLGLSLShader			gDeferredShadowProgram;
 extern LLGLSLShader			gDeferredShadowCubeProgram;
 extern LLGLSLShader			gDeferredShadowAlphaMaskProgram;
@@ -296,7 +314,12 @@ extern LLGLSLShader			gDeferredPostGammaCorrectProgram;
 extern LLGLSLShader			gDeferredAvatarShadowProgram;
 extern LLGLSLShader			gDeferredAttachmentShadowProgram;
 extern LLGLSLShader			gDeferredAlphaProgram;
+extern LLGLSLShader			gDeferredAlphaImpostorProgram;
 extern LLGLSLShader			gDeferredFullbrightProgram;
+extern LLGLSLShader			gDeferredFullbrightAlphaMaskProgram;
+extern LLGLSLShader			gDeferredAlphaWaterProgram;
+extern LLGLSLShader			gDeferredFullbrightWaterProgram;
+extern LLGLSLShader			gDeferredFullbrightAlphaMaskWaterProgram;
 extern LLGLSLShader			gDeferredEmissiveProgram;
 extern LLGLSLShader			gDeferredAvatarEyesProgram;
 extern LLGLSLShader			gDeferredAvatarAlphaProgram;
@@ -310,5 +333,5 @@ extern LLGLSLShader			gNormalMapGenProgram;
 
 // Deferred materials shaders
 extern LLGLSLShader			gDeferredMaterialProgram[LLMaterial::SHADER_COUNT*2];
-
+extern LLGLSLShader			gDeferredMaterialWaterProgram[LLMaterial::SHADER_COUNT*2];
 #endif

@@ -49,6 +49,7 @@
 #include "llappviewer.h"
 #include "llrendersphere.h"
 #include "llviewerpartsim.h"
+#include "llviewercontrol.h" // for gSavedSettings
 
 static U32 sDataMask = LLDrawPoolAvatar::VERTEX_DATA_MASK;
 static U32 sBufferUsage = GL_STREAM_DRAW_ARB;
@@ -688,12 +689,10 @@ void LLDrawPoolAvatar::beginDeferredImpostor()
 	}
 
 	sVertexProgram = &gDeferredImpostorProgram;
-
 	specular_channel = sVertexProgram->enableTexture(LLViewerShaderMgr::SPECULAR_MAP);
 	normal_channel = sVertexProgram->enableTexture(LLViewerShaderMgr::DEFERRED_NORMAL);
 	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
-
-	sVertexProgram->bind();
+	gPipeline.bindDeferredShader(*sVertexProgram);
 	sVertexProgram->setMinimumAlpha(0.01f);
 }
 
@@ -703,8 +702,9 @@ void LLDrawPoolAvatar::endDeferredImpostor()
 	sVertexProgram->disableTexture(LLViewerShaderMgr::DEFERRED_NORMAL);
 	sVertexProgram->disableTexture(LLViewerShaderMgr::SPECULAR_MAP);
 	sVertexProgram->disableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
-	sVertexProgram->unbind();
-	gGL.getTexUnit(0)->activate();
+	gPipeline.unbindDeferredShader(*sVertexProgram);
+   sVertexProgram = NULL;
+   sDiffuseChannel = 0;
 }
 
 void LLDrawPoolAvatar::beginDeferredRigid()
