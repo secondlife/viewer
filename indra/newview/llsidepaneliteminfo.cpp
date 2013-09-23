@@ -43,8 +43,9 @@
 #include "llviewercontrol.h"
 #include "llviewerinventory.h"
 #include "llviewerobjectlist.h"
-#include "llexperiencecache.h"
 #include "llexperienceassociationresponder.h"
+#include "llexperiencecache.h"
+#include "lltrans.h"
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -684,18 +685,17 @@ void LLSidepanelItemInfo::setAssociatedExperience( LLHandle<LLSidepanelItemInfo>
     if(info)
     {
         LLUUID id;
-        if(experience.has(LLExperienceCache::EXPERIENCE_ID) && experience.has(LLExperienceCache::NAME))
+        if(experience.has(LLExperienceCache::EXPERIENCE_ID))
         {
             id=experience[LLExperienceCache::EXPERIENCE_ID].asUUID();
         }
-        LLTextBox* xpName = info->getChild<LLTextBox>("LabelItemExperience");
-        if(id.isNull())
+        if(id.notNull())
         {
-            xpName->setText(info->getString("no_experience"));
+            info->getChild<LLTextBox>("LabelItemExperience")->setText(LLSLURL("experience", id, "profile").getSLURLString());    
         }
         else
         {
-            xpName->setText(experience[LLExperienceCache::NAME].asString());
+            info->getChild<LLTextBox>("LabelItemExperience")->setText(LLTrans::getString("ExperienceNameNull"));
         }
     }
 }

@@ -8,11 +8,7 @@
   title="Item Profile"
   width="333">
   <panel.string
-    name="no_experience">
-    (none)
-  </panel.string>
-  <panel.string
-    name="loading_experience">
+	name="loading_experience">
     (loading)
   </panel.string>
   <panel.string
@@ -267,6 +263,31 @@
         top_delta="0"
         width="210">
       </text>
+      <text
+        type="string"
+        length="1"
+        follows="left|top"
+        height="10"
+        layout="topleft"
+        left="5"
+        name="LabelItemExperienceTitle"
+        top_pad="0"
+        width="78"
+        visible="true">
+        Experience:
+      </text>
+      <text
+        type="string"
+        length="1"
+        follows="left|top|right"
+        height="10"
+        layout="topleft"
+        left_delta="78"
+        name="LabelItemExperience"
+        top_delta="0"
+        width="210"
+        visible="true"
+        />
       <panel
         border="false"
         follows="left|top|right"
@@ -428,32 +449,6 @@
         height="23"
         max_val="999999999"
         top_pad="10"/>
-
-      <text
-        type="string"
-        length="1"
-        follows="left|top"
-        height="10"
-        layout="topleft"
-        left="5"
-        name="LabelItemExperienceTitle"
-        top_pad="10"
-        width="78"
-        visible="false">
-        Experience:
-      </text>
-      <text
-        type="string"
-        length="1"
-        follows="left|top|right"
-        height="10"
-        layout="topleft"
-        left_delta="78"
-        name="LabelItemExperience"
-        top_delta="0"
-        width="210"
-        visible="false"
-        ></text>
     </panel>
 
   </scroll_container>

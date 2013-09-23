@@ -26,14 +26,20 @@
 
 
 #include "llviewerprecompiledheaders.h"
+#include "llfloaterexperienceprofile.h"
 
 #include "llagent.h"
+#include "llappviewer.h"
+#include "llcheckboxctrl.h"
+#include "llcombobox.h"
+#include "llcommandhandler.h"
 #include "llexpandabletextbox.h"
 #include "llexperiencecache.h"
-#include "llfloaterexperienceprofile.h"
 #include "llfloaterreg.h"
 #include "llhttpclient.h"
 #include "lllayoutstack.h"
+#include "lllineeditor.h"
+#include "llnotificationsutil.h"
 #include "llsdserialize.h"
 #include "llslurl.h"
 #include "lltabcontainer.h"
@@ -41,11 +47,6 @@
 #include "lltexturectrl.h"
 #include "lltrans.h"
 #include "llviewerregion.h"
-#include "lllineeditor.h"
-#include "llcombobox.h"
-#include "llcheckboxctrl.h"
-#include "llnotificationsutil.h"
-#include "llappviewer.h"
 
 #define XML_PANEL_EXPERIENCE_PROFILE "floater_experienceprofile.xml"
 #define TF_NAME "experience_title"
@@ -73,6 +74,34 @@
 #define BTN_SAVE "save_btn"
 #define BTN_ENABLE "enable_btn"
 #define BTN_PRIVATE "private_btn"
+
+
+
+class LLExperienceHandler : public LLCommandHandler
+{
+public:
+    LLExperienceHandler() : LLCommandHandler("experience", UNTRUSTED_THROTTLE) { }
+
+    bool handle(const LLSD& params, const LLSD& query_map,
+        LLMediaCtrl* web)
+    {
+        if(params.size() != 2 || params[1].asString() != "profile")
+            return false;
+
+        LLExperienceCache::get(params[0].asUUID(), boost::bind(&LLExperienceHandler::experienceCallback, this, _1));
+        return true;
+    }
+
+    void experienceCallback(const LLSD& experienceDetails)
+    {
+        if(!experienceDetails.has(LLExperienceCache::MISSING))
+        {
+            LLFloaterReg::showInstance("experience_profile", experienceDetails[LLExperienceCache::EXPERIENCE_ID].asUUID(), true);
+        }
+    }
+};
+
+LLExperienceHandler gExperienceHandler;
 
 
 LLFloaterExperienceProfile::LLFloaterExperienceProfile(const LLSD& data)
@@ -355,6 +384,7 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
    
     value = experience[LLExperienceCache::SLURL].asString();
     child = getChild<LLTextBox>(TF_SLURL);
+    value = LLSLURL(value).getSLURLString();
     child->setText(value);
     locationPanel->setVisible(value.length()>0);
 

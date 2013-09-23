@@ -3922,7 +3922,7 @@ Try enclosing path to the editor with double quotes.
   
   <!-- Experience Tools strings -->
   <string name="experience_tools_experience">Experience</string>
-
+  <string name="ExperienceNameNull">(no experience)</string>
 
   <!-- Conversation log messages -->
   <string name="logging_calls_disabled_log_empty">

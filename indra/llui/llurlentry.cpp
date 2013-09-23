@@ -37,6 +37,7 @@
 #include "lltrans.h"
 #include "lluicolortable.h"
 #include "message.h"
+#include "llexperiencecache.h"
 
 #define APP_HEADER_REGEX "((x-grid-location-info://[-\\w\\.]+/app)|(secondlife:///app))"
 
@@ -1200,3 +1201,50 @@ std::string LLUrlEntryIcon::getIcon(const std::string &url)
 	LLStringUtil::trim(mIcon);
 	return mIcon;
 }
+
+LLUrlEntryExperienceProfile::LLUrlEntryExperienceProfile()
+{
+    mPattern = boost::regex(APP_HEADER_REGEX "/experience/[\\da-f-]+/\\w+\\S*",
+        boost::regex::perl|boost::regex::icase);
+    mIcon = "Generic_Experience";
+}
+
+std::string LLUrlEntryExperienceProfile::getLabel( const std::string &url, const LLUrlLabelCallback &cb )
+{
+    if (!gCacheName)
+    {
+        // probably at the login screen, use short string for layout
+        return LLTrans::getString("LoadingData");
+    }
+
+    std::string experience_id_string = getIDStringFromUrl(url);
+    if (experience_id_string.empty())
+    {
+        // something went wrong, just give raw url
+        return unescapeUrl(url);
+    }
+
+    LLUUID experience_id(experience_id_string);
+    if (experience_id.isNull())
+    {
+        return LLTrans::getString("ExperienceNameNull");
+    }
+
+    LLSD experience_details;
+    if(LLExperienceCache::get(experience_id, experience_details))
+    {
+        return experience_details[LLExperienceCache::NAME].asString();
+    }
+
+    addObserver(experience_id_string, url, cb);
+    LLExperienceCache::get(experience_id, boost::bind(&LLUrlEntryExperienceProfile::onExperienceDetails, this, _1));
+    return LLTrans::getString("LoadingData");
+
+}
+
+void LLUrlEntryExperienceProfile::onExperienceDetails( const LLSD& experience_details )
+{
+    callObservers(experience_details[LLExperienceCache::EXPERIENCE_ID].asString(), experience_details[LLExperienceCache::NAME].asString(), LLStringUtil::null);
+}
+
+
