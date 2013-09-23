@@ -162,7 +162,6 @@ public:
 	static void		processAgentInitialWearablesUpdate(LLMessageSystem* mesgsys, void** user_data);
 
 protected:
-	/*virtual*/ void	invalidateBakedTextureHash(LLMD5& hash) const;
 	// SUNSHINE CLEANUP dead
 	void			sendAgentWearablesUpdate();
 	// SUNSHINE CLEANUP remove?

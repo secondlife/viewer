@@ -1477,16 +1477,6 @@ void LLAgentWearables::setWearableFinal(LLInventoryItem* new_item, LLViewerWeara
 	updateServer();
 }
 
-// virtual
-void LLAgentWearables::invalidateBakedTextureHash(LLMD5& hash) const
-{
-	// Add some garbage into the hash so that it becomes invalid.
-	if (isAgentAvatarValid())
-	{
-		hash.update((const unsigned char*)gAgentAvatarp->getID().mData, UUID_BYTES);
-	}
-}
-
 // User has picked "remove from avatar" from a menu.
 // static
 void LLAgentWearables::userRemoveWearable(const LLWearableType::EType &type, const U32 &index)

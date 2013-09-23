@@ -497,13 +497,6 @@ void LLViewerWearable::refreshName()
 	}
 }
 
-// virtual
-void LLViewerWearable::addToBakedTextureHash(LLMD5& hash) const
-{
-	LLUUID asset_id = getAssetID();
-	hash.update((const unsigned char*)asset_id.mData, UUID_BYTES);
-}
-
 struct LLWearableSaveData
 {
 	LLWearableType::EType mType;
