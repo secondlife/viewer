@@ -104,20 +104,37 @@ class ViewerManifest(LLManifest):
                     self.path("dictionaries")
                     self.end_prefix(pkgdir)
 
-                # CHOP-955: If we have "sourceid" in the build process
-                # environment, generate it into settings_install.xml.
-                if self.args['sourceid']:
-                    # Single-entry subset of the LLSD content of settings.xml
-                    content = dict(sourceid=dict(Comment='Identify referring agency to Linden web servers',
-                                                 Persist=1,
-                                                 Type='String',
-                                                 Value=self.args['sourceid']))
+                # CHOP-955: If we have "sourceid" or "viewer_channel" in the
+                # build process environment, generate it into
+                # settings_install.xml.
+                settings_template = dict(
+                    sourceid=dict(Comment='Identify referring agency to Linden web servers',
+                                  Persist=1,
+                                  Type='String',
+                                  Value=''),
+                    CmdLineChannel=dict(Comment='Command line specified channel name',
+                                        Persist=0,
+                                        Type='String',
+                                        Value=''))
+                settings_install = {}
+                for key, setting in (("sourceid", "sourceid"),
+                                     ("channel", "CmdLineChannel")):
+                    if key in self.args:
+                        # only set if value is non-empty
+                        if self.args[key]:
+                            # copy corresponding setting from settings_template
+                            settings_install[setting] = settings_template[setting].copy()
+                            # then fill in Value
+                            settings_install[setting]["Value"] = self.args[key]
+                            print "Put %s '%s' in settings_install.xml" % (setting, self.args[key])
+
+                # did we actually copy anything into settings_install dict?
+                if settings_install:
                     # put_in_file(src=) need not be an actual pathname; it
                     # only needs to be non-empty
-                    settings_install = self.put_in_file(llsd.format_pretty_xml(content),
-                                                        "settings_install.xml",
-                                                        src="environment")
-                    print "Put sourceid '%s' in %s" % (self.args['sourceid'], settings_install)
+                    self.put_in_file(llsd.format_pretty_xml(settings_install),
+                                     "settings_install.xml",
+                                     src="environment")
 
                 self.end_prefix("app_settings")
 
