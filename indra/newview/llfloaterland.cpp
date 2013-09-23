@@ -2544,7 +2544,11 @@ void LLPanelLandAccess::refresh_ui()
 	getChildView("HoursSpin")->setEnabled(FALSE);
 	getChildView("AccessList")->setEnabled(FALSE);
 	getChildView("BannedList")->setEnabled(FALSE);
-	
+	getChildView("add_allowed")->setEnabled(FALSE);
+	getChildView("remove_allowed")->setEnabled(FALSE);
+	getChildView("add_banned")->setEnabled(FALSE);
+	getChildView("remove_banned")->setEnabled(FALSE);
+
 	LLParcel *parcel = mParcel->getParcel();
 	if (parcel)
 	{
