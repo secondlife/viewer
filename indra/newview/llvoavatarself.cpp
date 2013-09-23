@@ -2178,25 +2178,6 @@ const std::string LLVOAvatarSelf::debugDumpAllLocalTextureDataInfo() const
 	return text;
 }
 
-
-#if 0
-// Dump avatar metrics data.
-LLSD LLVOAvatarSelf::metricsData()
-{
-	// runway - add region info
-	LLSD result;
-	result["rez_status"] = LLVOAvatar::rezStatusToString(getRezzedStatus());
-	result["timers"]["debug_existence"] = mDebugExistenceTimer.getElapsedTimeF32();
-	result["timers"]["ruth_debug"] = mRuthDebugTimer.getElapsedTimeF32();
-	result["timers"]["ruth"] = mRuthTimer.getElapsedTimeF32();
-	result["timers"]["invisible"] = mInvisibleTimer.getElapsedTimeF32();
-	result["timers"]["fully_loaded"] = mFullyLoadedTimer.getElapsedTimeF32();
-	result["startup"] = LLStartUp::getPhases().dumpPhases();
-	
-	return result;
-}
-#endif
-
 class ViewerAppearanceChangeMetricsResponder: public LLCurl::Responder
 {
 	LOG_CLASS(ViewerAppearanceChangeMetricsResponder);
@@ -2332,7 +2313,7 @@ void LLVOAvatarSelf::sendViewerAppearanceChangeMetrics()
 	std::string viewer_version_short = LLVersionInfo::getShortVersion();
 	std::string viewer_version_build = llformat("%d", LLVersionInfo::getBuild());
 
-	LLSD msg; // = metricsData();
+	LLSD msg;
 	msg["message"] = "ViewerAppearanceChangeMetrics";
 	msg["session_id"] = gAgentSessionID;
 	msg["agent_id"] = gAgentID;

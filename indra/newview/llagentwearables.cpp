@@ -194,11 +194,6 @@ LLAgentWearables::createStandardWearablesAllDoneCallback::~createStandardWearabl
 	gAgentWearables.createStandardWearablesAllDone();
 }
 
-LLAgentWearables::sendAgentWearablesUpdateCallback::~sendAgentWearablesUpdateCallback()
-{
-	gAgentWearables.sendAgentWearablesUpdate();
-}
-
 /**
  * @brief Construct a callback for dealing with the wearables.
  *
@@ -775,6 +770,8 @@ BOOL LLAgentWearables::isWearingItem(const LLUUID& item_id) const
 {
 	return getWearableFromItemID(item_id) != NULL;
 }
+
+// SUNSHINE CLEANUP ?
 
 // MULTI-WEARABLE: DEPRECATED (see backwards compatibility)
 // static

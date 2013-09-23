@@ -165,7 +165,9 @@ protected:
 	/*virtual*/ void	invalidateBakedTextureHash(LLMD5& hash) const;
 	// SUNSHINE CLEANUP dead
 	void			sendAgentWearablesUpdate();
+	// SUNSHINE CLEANUP remove?
 	void			sendAgentWearablesRequest();
+	// SUNSHINE CLEANUP dead
 	void 			updateServer();
 	static void		onInitialWearableAssetArrived(LLViewerWearable* wearable, void* userdata);
 
@@ -243,12 +245,6 @@ private:
 	{
 	protected:
 		~createStandardWearablesAllDoneCallback();
-	};
-	// SUNSHINE CLEANUP - should be dead if sendAgentWearablesUpdate is no longer needed.
-	class sendAgentWearablesUpdateCallback : public LLRefCount
-	{
-	protected:
-		~sendAgentWearablesUpdateCallback();
 	};
 
 	class AddWearableToAgentInventoryCallback : public LLInventoryCallback
