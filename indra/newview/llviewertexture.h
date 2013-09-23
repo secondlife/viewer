@@ -388,6 +388,7 @@ public:
 	BOOL        isCachedRawImageReady() const {return mCachedRawImageReady ;}
 	BOOL        isRawImageValid()const { return mIsRawImageValid ; }	
 	void        forceToSaveRawImage(S32 desired_discard = 0, F32 kept_time = 0.f) ;
+	void        forceToRefetchTexture(S32 desired_discard = 0);
 	/*virtual*/ void setCachedRawImage(S32 discard_level, LLImageRaw* imageraw) ;
 	void        destroySavedRawImage() ;
 	LLImageRaw* getSavedRawImage() ;
@@ -449,6 +450,7 @@ protected:
 	S8  mMinDesiredDiscardLevel;	// The minimum discard level we'd like to have
 
 	S8  mNeedsAux;					// We need to decode the auxiliary channels
+	S8  mHasAux;                    // We have aux channels
 	S8  mDecodingAux;				// Are we decoding high components
 	S8  mIsRawImageValid;
 	S8  mHasFetcher;				// We've made a fecth request
