@@ -1884,24 +1884,17 @@ LLViewerFetchedTexture *LLVOAvatar::getBakedTextureImage(const U8 te, const LLUU
 	if (!result)
 	{
 		const std::string url = getImageURL(te,uuid);
-		if (!url.empty())
+		if (url.empty())
 		{
-			LL_DEBUGS("Avatar") << avString() << "get server-bake image from URL " << url << llendl;
-			result = LLViewerTextureManager::getFetchedTextureFromUrl(
-				url, FTT_SERVER_BAKE, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, uuid);
-			if (result->isMissingAsset())
-			{
-				result->setIsMissingAsset(false);
-			}
+			llwarns << "unable to determine URL for te " << te << " uuid " << uuid << llendl;
+			return NULL;
 		}
-		else
+		LL_DEBUGS("Avatar") << avString() << "get server-bake image from URL " << url << llendl;
+		result = LLViewerTextureManager::getFetchedTextureFromUrl(
+			url, FTT_SERVER_BAKE, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, uuid);
+		if (result->isMissingAsset())
 		{
-			// SUNSHINE CLEANUP
-			llassert(false);
-			LL_DEBUGS("Avatar") << avString() << "get old-bake image from host " << uuid << llendl;
-			LLHost host = getObjectHost();
-			result = LLViewerTextureManager::getFetchedTexture(
-				uuid, FTT_HOST_BAKE, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, host);
+			result->setIsMissingAsset(false);
 		}
 	}
 	return result;
@@ -4116,35 +4109,6 @@ bool LLVOAvatar::allBakedTexturesCompletelyDownloaded() const
 	std::set<LLUUID> baked_ids;
 	collectBakedTextureUUIDs(baked_ids);
 	return allTexturesCompletelyDownloaded(baked_ids);
-}
-
-// SUNSHINE CLEANUP
-void LLVOAvatar::bakedTextureOriginCounts(S32 &sb_count, // server-bake, has origin URL.
-										  S32 &host_count, // host-based bake, has host.
-										  S32 &both_count, // error - both host and URL set.
-										  S32 &neither_count) // error - neither set.
-{
-	sb_count = host_count = both_count = neither_count = 0;
-	
-	std::set<LLUUID> baked_ids;
-	collectBakedTextureUUIDs(baked_ids);
-	for (std::set<LLUUID>::const_iterator it = baked_ids.begin(); it != baked_ids.end(); ++it)
-	{
-		LLViewerFetchedTexture *imagep = gTextureList.findImage(*it);
-		bool has_url = false, has_host = false;
-		if (!imagep->getUrl().empty())
-		{
-			has_url = true;
-		}
-		if (imagep->getTargetHost().isOk())
-		{
-			has_host = true;
-		}
-		if (has_url && !has_host) sb_count++;
-		else if (has_host && !has_url) host_count++;
-		else if (has_host && has_url) both_count++;
-		else if (!has_host && !has_url) neither_count++;
-	}
 }
 
 std::string LLVOAvatar::bakedTextureOriginInfo()
