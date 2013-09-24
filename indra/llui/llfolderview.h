@@ -208,9 +208,9 @@ public:
 	LLRect getVisibleRect();
 
 	BOOL search(LLFolderViewItem* first_item, const std::string &search_string, BOOL backward);
-	void setShowSelectionContext(BOOL show) { mShowSelectionContext = show; }
+	void setShowSelectionContext(bool show) { mShowSelectionContext = show; }
 	BOOL getShowSelectionContext();
-	void setShowSingleSelection(BOOL show);
+	void setShowSingleSelection(bool show);
 	BOOL getShowSingleSelection() { return mShowSingleSelection; }
 	F32  getSelectionFadeElapsedTime() { return mMultiSelectionFadeTimer.getElapsedTimeF32(); }
 	bool getUseEllipses() { return mUseEllipses; }
@@ -260,31 +260,32 @@ protected:
 	LLHandle<LLView>					mPopupMenuHandle;
 	
 	selected_items_t				mSelectedItems;
-	BOOL							mKeyboardSelection;
-	BOOL							mAllowMultiSelect;
-	BOOL							mShowEmptyMessage;
-	BOOL							mShowFolderHierarchy;
+	bool							mKeyboardSelection,
+									mAllowMultiSelect,
+									mShowEmptyMessage,
+									mShowFolderHierarchy,
+									mNeedsScroll,
+									mPinningSelectedItem,
+									mNeedsAutoSelect,
+									mAutoSelectOverride,
+									mNeedsAutoRename,
+									mUseLabelSuffix,
+									mDragAndDropThisFrame,
+									mShowItemLinkOverlays,
+									mShowSelectionContext,
+									mShowSingleSelection;
 
 	// Renaming variables and methods
 	LLFolderViewItem*				mRenameItem;  // The item currently being renamed
 	LLLineEditor*					mRenamer;
 
-	BOOL							mNeedsScroll;
-	BOOL							mPinningSelectedItem;
 	LLRect							mScrollConstraintRect;
-	BOOL							mNeedsAutoSelect;
-	BOOL							mAutoSelectOverride;
-	BOOL							mNeedsAutoRename;
-	bool							mUseLabelSuffix;
-	bool							mShowItemLinkOverlays;
 	
 	LLDepthStack<LLFolderViewFolder>	mAutoOpenItems;
 	LLFolderViewFolder*				mAutoOpenCandidate;
 	LLFrameTimer					mAutoOpenTimer;
 	LLFrameTimer					mSearchTimer;
 	std::string						mSearchString;
-	BOOL							mShowSelectionContext;
-	BOOL							mShowSingleSelection;
 	LLFrameTimer					mMultiSelectionFadeTimer;
 	S32								mArrangeGeneration;
 
@@ -292,7 +293,6 @@ protected:
 	signal_t						mReshapeSignal;
 	S32								mSignalSelectCallback;
 	S32								mMinWidth;
-	BOOL							mDragAndDropThisFrame;
 	
 	LLPanel*						mParentPanel;
 	

@@ -178,62 +178,62 @@ bool Recording::hasValue(const TraceType<MemStatAccumulator::ShadowMemFacet>& st
 	return mBuffers->mMemStats[stat.getIndex()].mShadowSize.hasValue();
 }
 
-F64Bytes Recording::getMin(const TraceType<MemStatAccumulator>& stat)
+F64Kilobytes Recording::getMin(const TraceType<MemStatAccumulator>& stat)
 {
 	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mSize.getMin());
 }
 
-F64Bytes Recording::getMean(const TraceType<MemStatAccumulator>& stat)
+F64Kilobytes Recording::getMean(const TraceType<MemStatAccumulator>& stat)
 {
 	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mSize.getMean());
 }
 
-F64Bytes Recording::getMax(const TraceType<MemStatAccumulator>& stat)
+F64Kilobytes Recording::getMax(const TraceType<MemStatAccumulator>& stat)
 {
 	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mSize.getMax());
 }
 
-F64Bytes Recording::getStandardDeviation(const TraceType<MemStatAccumulator>& stat)
+F64Kilobytes Recording::getStandardDeviation(const TraceType<MemStatAccumulator>& stat)
 {
 	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mSize.getStandardDeviation());
 }
 
-F64Bytes Recording::getLastValue(const TraceType<MemStatAccumulator>& stat)
+F64Kilobytes Recording::getLastValue(const TraceType<MemStatAccumulator>& stat)
 {
 	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mSize.getLastValue());
 }
 
-F64Bytes Recording::getMin(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat)
+F64Kilobytes Recording::getMin(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat)
 {
 	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mShadowSize.getMin());
 }
 
-F64Bytes Recording::getMean(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat)
+F64Kilobytes Recording::getMean(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat)
 {
 	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mShadowSize.getMean());
 }
 
-F64Bytes Recording::getMax(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat)
+F64Kilobytes Recording::getMax(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat)
 {
 	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mShadowSize.getMax());
 }
 
-F64Bytes Recording::getStandardDeviation(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat)
+F64Kilobytes Recording::getStandardDeviation(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat)
 {
 	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mShadowSize.getStandardDeviation());
 }
 
-F64Bytes Recording::getLastValue(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat)
+F64Kilobytes Recording::getLastValue(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat)
 {
 	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mShadowSize.getLastValue());
 }
 
-F64Bytes Recording::getSum(const TraceType<MemStatAccumulator::AllocationFacet>& stat)
+F64Kilobytes Recording::getSum(const TraceType<MemStatAccumulator::AllocationFacet>& stat)
 {
 	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mAllocated.getSum());
 }
 
-F64Bytes Recording::getPerSec(const TraceType<MemStatAccumulator::AllocationFacet>& stat)
+F64Kilobytes Recording::getPerSec(const TraceType<MemStatAccumulator::AllocationFacet>& stat)
 {
 	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mAllocated.getSum() / mElapsedSeconds.value());
 }
@@ -243,12 +243,12 @@ U32 Recording::getSampleCount(const TraceType<MemStatAccumulator::AllocationFace
 	return mBuffers->mMemStats[stat.getIndex()].mAllocated.getSampleCount();
 }
 
-F64Bytes Recording::getSum(const TraceType<MemStatAccumulator::DeallocationFacet>& stat)
+F64Kilobytes Recording::getSum(const TraceType<MemStatAccumulator::DeallocationFacet>& stat)
 {
 	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mDeallocated.getSum());
 }
 
-F64Bytes Recording::getPerSec(const TraceType<MemStatAccumulator::DeallocationFacet>& stat)
+F64Kilobytes Recording::getPerSec(const TraceType<MemStatAccumulator::DeallocationFacet>& stat)
 {
 	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mDeallocated.getSum() / mElapsedSeconds.value());
 }
@@ -258,12 +258,12 @@ U32 Recording::getSampleCount(const TraceType<MemStatAccumulator::DeallocationFa
 	return mBuffers->mMemStats[stat.getIndex()].mDeallocated.getSampleCount();
 }
 
-F64Bytes Recording::getSum(const TraceType<MemStatAccumulator::ShadowAllocationFacet>& stat)
+F64Kilobytes Recording::getSum(const TraceType<MemStatAccumulator::ShadowAllocationFacet>& stat)
 {
 	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mShadowAllocated.getSum());
 }
 
-F64Bytes Recording::getPerSec(const TraceType<MemStatAccumulator::ShadowAllocationFacet>& stat)
+F64Kilobytes Recording::getPerSec(const TraceType<MemStatAccumulator::ShadowAllocationFacet>& stat)
 {
 	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mShadowAllocated.getSum() / mElapsedSeconds.value());
 }
@@ -273,12 +273,12 @@ U32 Recording::getSampleCount(const TraceType<MemStatAccumulator::ShadowAllocati
 	return mBuffers->mMemStats[stat.getIndex()].mShadowAllocated.getSampleCount();
 }
 
-F64Bytes Recording::getSum(const TraceType<MemStatAccumulator::ShadowDeallocationFacet>& stat)
+F64Kilobytes Recording::getSum(const TraceType<MemStatAccumulator::ShadowDeallocationFacet>& stat)
 {
 	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mShadowDeallocated.getSum());
 }
 
-F64Bytes Recording::getPerSec(const TraceType<MemStatAccumulator::ShadowDeallocationFacet>& stat)
+F64Kilobytes Recording::getPerSec(const TraceType<MemStatAccumulator::ShadowDeallocationFacet>& stat)
 {
 	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mShadowDeallocated.getSum() / mElapsedSeconds.value());
 }
@@ -767,12 +767,12 @@ F64 PeriodicRecording::getPeriodStandardDeviation( const TraceType<SampleAccumul
 }
 
 
-F64Bytes PeriodicRecording::getPeriodMin( const TraceType<MemStatAccumulator>& stat, size_t num_periods /*= U32_MAX*/ )
+F64Kilobytes PeriodicRecording::getPeriodMin( const TraceType<MemStatAccumulator>& stat, size_t num_periods /*= U32_MAX*/ )
 {
 	size_t total_periods = mRecordingPeriods.size();
 	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
-	F64Bytes min_val(std::numeric_limits<F64>::max());
+	F64Kilobytes min_val(std::numeric_limits<F64>::max());
 	for (S32 i = 1; i <= num_periods; i++)
 	{
 		Recording& recording = getPrevRecording(i);
@@ -782,17 +782,17 @@ F64Bytes PeriodicRecording::getPeriodMin( const TraceType<MemStatAccumulator>& s
 	return min_val;
 }
 
-F64Bytes PeriodicRecording::getPeriodMin(const MemStatHandle& stat, size_t num_periods)
+F64Kilobytes PeriodicRecording::getPeriodMin(const MemStatHandle& stat, size_t num_periods)
 {
 	return getPeriodMin(static_cast<const TraceType<MemStatAccumulator>&>(stat), num_periods);
 }
 
-F64Bytes PeriodicRecording::getPeriodMax(const TraceType<MemStatAccumulator>& stat, size_t num_periods /*= U32_MAX*/)
+F64Kilobytes PeriodicRecording::getPeriodMax(const TraceType<MemStatAccumulator>& stat, size_t num_periods /*= U32_MAX*/)
 {
 	size_t total_periods = mRecordingPeriods.size();
 	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
-	F64Bytes max_val(0.0);
+	F64Kilobytes max_val(0.0);
 	for (S32 i = 1; i <= num_periods; i++)
 	{
 		Recording& recording = getPrevRecording(i);
@@ -802,17 +802,17 @@ F64Bytes PeriodicRecording::getPeriodMax(const TraceType<MemStatAccumulator>& st
 	return max_val;
 }
 
-F64Bytes PeriodicRecording::getPeriodMax(const MemStatHandle& stat, size_t num_periods)
+F64Kilobytes PeriodicRecording::getPeriodMax(const MemStatHandle& stat, size_t num_periods)
 {
 	return getPeriodMax(static_cast<const TraceType<MemStatAccumulator>&>(stat), num_periods);
 }
 
-F64Bytes PeriodicRecording::getPeriodMean( const TraceType<MemStatAccumulator>& stat, size_t num_periods /*= U32_MAX*/ )
+F64Kilobytes PeriodicRecording::getPeriodMean( const TraceType<MemStatAccumulator>& stat, size_t num_periods /*= U32_MAX*/ )
 {
 	size_t total_periods = mRecordingPeriods.size();
 	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
-	F64Bytes mean(0);
+	F64Kilobytes mean(0);
 
 	for (S32 i = 1; i <= num_periods; i++)
 	{
@@ -823,17 +823,17 @@ F64Bytes PeriodicRecording::getPeriodMean( const TraceType<MemStatAccumulator>& 
 	return mean / F64(num_periods);
 }
 
-F64Bytes PeriodicRecording::getPeriodMean(const MemStatHandle& stat, size_t num_periods)
+F64Kilobytes PeriodicRecording::getPeriodMean(const MemStatHandle& stat, size_t num_periods)
 {
 	return getPeriodMean(static_cast<const TraceType<MemStatAccumulator>&>(stat), num_periods);
 }
 
-F64Bytes PeriodicRecording::getPeriodStandardDeviation( const TraceType<MemStatAccumulator>& stat, size_t num_periods /*= U32_MAX*/ )
+F64Kilobytes PeriodicRecording::getPeriodStandardDeviation( const TraceType<MemStatAccumulator>& stat, size_t num_periods /*= U32_MAX*/ )
 {
 	size_t total_periods = mRecordingPeriods.size();
 	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
-	F64Bytes period_mean = getPeriodMean(stat, num_periods);
+	F64Kilobytes period_mean = getPeriodMean(stat, num_periods);
 	S32 valid_period_count = 0;
 	F64 sum_of_squares = 0;
 
@@ -842,18 +842,18 @@ F64Bytes PeriodicRecording::getPeriodStandardDeviation( const TraceType<MemStatA
 		Recording& recording = getPrevRecording(i);
 		if (recording.hasValue(stat))
 		{
-			F64Bytes delta = recording.getMean(stat) - period_mean;
+			F64Kilobytes delta = recording.getMean(stat) - period_mean;
 			sum_of_squares += delta.value() * delta.value();
 			valid_period_count++;
 		}
 	}
 
-	return F64Bytes(valid_period_count
+	return F64Kilobytes(valid_period_count
 			? sqrt(sum_of_squares / (F64)valid_period_count)
 			: NaN);
 }
 
-F64Bytes PeriodicRecording::getPeriodStandardDeviation(const MemStatHandle& stat, size_t num_periods)
+F64Kilobytes PeriodicRecording::getPeriodStandardDeviation(const MemStatHandle& stat, size_t num_periods)
 {
 	return getPeriodStandardDeviation(static_cast<const TraceType<MemStatAccumulator>&>(stat), num_periods);
 }

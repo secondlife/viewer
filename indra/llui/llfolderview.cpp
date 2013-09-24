@@ -174,6 +174,7 @@ LLFolderView::LLFolderView(const Params& p)
 	mShowItemLinkOverlays(p.show_item_link_overlays),
 	mViewModel(p.view_model)
 {
+	memClaim(mViewModel);
 	mViewModel->setFolderView(this);
 	mRoot = this;
 
@@ -1578,7 +1579,7 @@ BOOL LLFolderView::getShowSelectionContext()
 	return FALSE;
 }
 
-void LLFolderView::setShowSingleSelection(BOOL show)
+void LLFolderView::setShowSingleSelection(bool show)
 {
 	if (show != mShowSingleSelection)
 	{

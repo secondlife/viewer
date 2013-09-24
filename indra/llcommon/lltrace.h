@@ -268,7 +268,7 @@ public:
 		setKey(name);
 	}
 
-	/*virtual*/ const char* getUnitLabel() const { return "B"; }
+	/*virtual*/ const char* getUnitLabel() const { return "KB"; }
 
 	TraceType<MemStatAccumulator::AllocationFacet>& allocations() 
 	{ 
@@ -409,10 +409,12 @@ class MemTrackable
 
 	typedef MemTrackable<DERIVED, ALIGNMENT> mem_trackable_t;
 	static	MemStatHandle	sMemStat;
+
 public:
 	typedef void mem_trackable_tag_t;
 
 	MemTrackable()
+	:	mMemFootprint(0)
 	{
 		static bool name_initialized = false;
 		if (!name_initialized)
@@ -425,6 +427,11 @@ public:
 	virtual ~MemTrackable()
 	{
 		memDisclaim(mMemFootprint);
+	}
+
+	static MemStatHandle& getMemStatHandle()
+	{
+		return sMemStat;
 	}
 
 	void* operator new(size_t size) 

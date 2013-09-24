@@ -108,7 +108,7 @@ public:
 	virtual S32 				getFirstRequiredGeneration() const = 0;
 };
 
-class LLFolderViewModelInterface
+class LLFolderViewModelInterface : public LLTrace::MemTrackable<LLFolderViewModelInterface>
 {
 public:
 	virtual ~LLFolderViewModelInterface() {}
@@ -128,7 +128,7 @@ public:
 
 // This is an abstract base class that users of the folderview classes
 // would use to bridge the folder view with the underlying data
-class LLFolderViewModelItem : public LLRefCount
+class LLFolderViewModelItem : public LLRefCount, public LLTrace::MemTrackable<LLFolderViewModelItem>
 {
 public:
 	LLFolderViewModelItem() { }
@@ -336,18 +336,18 @@ protected:
 	virtual void setParent(LLFolderViewModelItem* parent) { mParent = parent; }
 	virtual bool hasParent() { return mParent != NULL; }
 
-	S32						mSortVersion;
-	bool					mPassedFilter;
-	bool					mPassedFolderFilter;
-	std::string::size_type	mStringMatchOffsetFilter;
-	std::string::size_type	mStringFilterSize;
+	S32							mSortVersion;
+	bool						mPassedFilter;
+	bool						mPassedFolderFilter;
+	std::string::size_type		mStringMatchOffsetFilter;
+	std::string::size_type		mStringFilterSize;
 
-	S32						mLastFilterGeneration;
-	S32						mLastFolderFilterGeneration;
-	S32						mMostFilteredDescendantGeneration;
+	S32							mLastFilterGeneration,
+								mLastFolderFilterGeneration,
+								mMostFilteredDescendantGeneration;
 
-	child_list_t			mChildren;
-	LLFolderViewModelItem*	mParent;
+	child_list_t				mChildren;
+	LLFolderViewModelItem*		mParent;
 	LLFolderViewModelInterface& mRootViewModel;
 
 	void setFolderViewItem(LLFolderViewItem* folder_view_item) { mFolderViewItem = folder_view_item;}

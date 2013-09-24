@@ -82,9 +82,12 @@ LLTextViewModel::LLTextViewModel(const LLSD& value)
 void LLTextViewModel::setValue(const LLSD& value)
 {
 	LLViewModel::setValue(value);
+	// approximate LLSD storage usage
+	memDisclaim(mDisplay.size());
 	memDisclaim(mDisplay);
     mDisplay = utf8str_to_wstring(value.asString());
 	memClaim(mDisplay);
+	memClaim(mDisplay.size());
 
     // mDisplay and mValue agree
     mUpdateFromDisplay = false;
@@ -96,9 +99,11 @@ void LLTextViewModel::setDisplay(const LLWString& value)
     // and do the utf8str_to_wstring() to get the corresponding mDisplay
     // value. But a text editor might want to edit the display string
     // directly, then convert back to UTF8 on commit.
+	memDisclaim(mDisplay.size());
 	memDisclaim(mDisplay);
     mDisplay = value;
 	memClaim(mDisplay);
+	memClaim(mDisplay.size());
     mDirty = true;
     // Don't immediately convert to UTF8 -- do it lazily -- we expect many
     // more setDisplay() calls than getValue() calls. Just flag that it needs

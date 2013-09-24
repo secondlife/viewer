@@ -653,16 +653,16 @@ void LLInventoryPanel::idle(void* user_data)
 		EAcceptance last_accept = LLToolDragAndDrop::getInstance()->getLastAccept();
 		if (last_accept == ACCEPT_YES_SINGLE || last_accept == ACCEPT_YES_COPY_SINGLE)
 		{
-			panel->mFolderRoot->setShowSingleSelection(TRUE);
+			panel->mFolderRoot->setShowSingleSelection(true);
 		}
 		else
 		{
-			panel->mFolderRoot->setShowSingleSelection(FALSE);
+			panel->mFolderRoot->setShowSingleSelection(false);
 		}
 }
 	else
 	{
-		panel->mFolderRoot->setShowSingleSelection(FALSE);
+		panel->mFolderRoot->setShowSingleSelection(false);
 	}
 }
 
