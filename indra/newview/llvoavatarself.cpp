@@ -2278,11 +2278,6 @@ void LLVOAvatarSelf::sendViewerAppearanceChangeMetrics()
 	static volatile bool reporting_started(false);
 	static volatile S32 report_sequence(0);
 
-	std::string viewer_version_channel = LLVersionInfo::getChannel();
-	sanitize_for_tsdb_tag(viewer_version_channel);
-	std::string viewer_version_short = LLVersionInfo::getShortVersion();
-	std::string viewer_version_build = llformat("%d", LLVersionInfo::getBuild());
-
 	LLSD msg;
 	msg["message"] = "ViewerAppearanceChangeMetrics";
 	msg["session_id"] = gAgentSessionID;
