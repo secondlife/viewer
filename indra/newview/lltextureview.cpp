@@ -431,15 +431,7 @@ void LLAvatarTexBar::draw()
 		if (!layerset_buffer) continue;
 
 		LLColor4 text_color = LLColor4::white;
-		
-		if (layerset_buffer->uploadNeeded())
-		{
-			text_color = LLColor4::red;
-		}
- 		if (layerset_buffer->uploadInProgress())
-		{
-			text_color = LLColor4::magenta;
-		}
+
 		std::string text = layerset_buffer->dumpTextureInfo();
 		LLFontGL::getFontMonospace()->renderUTF8(text, 0, l_offset, v_offset + line_height*line_num,
 												 text_color, LLFontGL::LEFT, LLFontGL::TOP); //, LLFontGL::BOLD, LLFontGL::DROP_SHADOW_SOFT);

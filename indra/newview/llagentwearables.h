@@ -85,7 +85,7 @@ public:
 	// Note: False for shape, skin, eyes, and hair, unless you have MORE than 1.
 	bool			canWearableBeRemoved(const LLViewerWearable* wearable) const;
 
-	void			animateAllWearableParams(F32 delta, BOOL upload_bake);
+	void			animateAllWearableParams(F32 delta);
 
 	//--------------------------------------------------------------------
 	// Accessors
@@ -158,13 +158,15 @@ protected:
 	//--------------------------------------------------------------------
 public:
 	// Processes the initial wearables update message (if necessary, since the outfit folder makes it redundant)
+	// SUNSHINE CLEANUP - should be able to remove dependency on this.
 	static void		processAgentInitialWearablesUpdate(LLMessageSystem* mesgsys, void** user_data);
 
 protected:
-	/*virtual*/ void	invalidateBakedTextureHash(LLMD5& hash) const;
+	// SUNSHINE CLEANUP dead
 	void			sendAgentWearablesUpdate();
+	// SUNSHINE CLEANUP remove?
 	void			sendAgentWearablesRequest();
-	void			queryWearableCache();
+	// SUNSHINE CLEANUP dead
 	void 			updateServer();
 	static void		onInitialWearableAssetArrived(LLViewerWearable* wearable, void* userdata);
 
@@ -242,11 +244,6 @@ private:
 	{
 	protected:
 		~createStandardWearablesAllDoneCallback();
-	};
-	class sendAgentWearablesUpdateCallback : public LLRefCount
-	{
-	protected:
-		~sendAgentWearablesUpdateCallback();
 	};
 
 	class AddWearableToAgentInventoryCallback : public LLInventoryCallback

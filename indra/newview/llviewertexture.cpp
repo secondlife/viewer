@@ -964,7 +964,7 @@ LLViewerFetchedTexture::LLViewerFetchedTexture(const LLUUID& id, FTType f_type, 
 	mFTType = f_type;
 	if (mFTType == FTT_HOST_BAKE)
 	{
-		mCanUseHTTP = false;
+		llwarns << "Unsupported fetch type " << mFTType << llendl;
 	}
 	generateGLTexture() ;
 }

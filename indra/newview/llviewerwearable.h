@@ -61,8 +61,8 @@ public:
 	BOOL				isOldVersion() const;
 
 	/*virtual*/ void	writeToAvatar(LLAvatarAppearance *avatarp);
-	void				removeFromAvatar( BOOL upload_bake )	{ LLViewerWearable::removeFromAvatar( mType, upload_bake ); }
-	static void			removeFromAvatar( LLWearableType::EType type, BOOL upload_bake ); 
+	void				removeFromAvatar()	{ LLViewerWearable::removeFromAvatar( mType); }
+	static void			removeFromAvatar( LLWearableType::EType type); 
 
 	/*virtual*/ EImportResult	importStream( std::istream& input_stream, LLAvatarAppearance* avatarp );
 	
@@ -90,9 +90,7 @@ public:
 	// the wearable was worn. make sure the name of the wearable object matches the LLViewerInventoryItem,
 	// not the wearable asset itself.
 	void				refreshName();
-
-	// Update the baked texture hash.
-	/*virtual*/void		addToBakedTextureHash(LLMD5& hash) const;
+	/*virtual*/void		addToBakedTextureHash(LLMD5& hash) const {}
 
 protected:
 	LLAssetID			mAssetID;

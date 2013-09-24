@@ -70,6 +70,7 @@ void LLInitialWearablesFetch::add(InitialWearableData &data)
 	mAgentInitialWearables.push_back(data);
 }
 
+// SUNSHINE CLEANUP - should not have to wait for this message to start resolving appearance. Where to hook in instead?
 void LLInitialWearablesFetch::processContents()
 {
 	if(!gAgentAvatarp) //no need to process wearables if the agent avatar is deleted.
@@ -94,6 +95,7 @@ void LLInitialWearablesFetch::processContents()
 	}
 	else
 	{
+		// SUNSHINE CLEANUP - remove?
 		// if we're constructing the COF from the wearables message, we don't have a proper outfit link
 		LLAppearanceMgr::instance().setOutfitDirty(true);
 		processWearablesMessage();
@@ -135,6 +137,7 @@ public:
 	}
 };
 
+// SUNSHINE CLEANUP - remove dependency on this?
 void LLInitialWearablesFetch::processWearablesMessage()
 {
 	if (!mAgentInitialWearables.empty()) // We have an empty current outfit folder, use the message data instead.
