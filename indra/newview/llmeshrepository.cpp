@@ -78,8 +78,6 @@
 #include "netdb.h"
 #endif
 
-#include <queue>
-
 
 // Purpose
 //
@@ -235,8 +233,7 @@
 //     mUploadWaitList                 none            rw.main.none (upload thread accessing objects)
 //     mInventoryQ                     mMeshMutex [4]  rw.main.mMeshMutex, ro.main.none [5]
 //     mUploadErrorQ                   mMeshMutex      rw.main.mMeshMutex, rw.any.mMeshMutex
-//     mGetMeshCapability              none            rw.main.none [0], ro.any.none
-//     mGetMesh2Capability             none            rw.main.none [0], ro.any.none
+//     mGetMeshVersion                 none            rw.main.none
 //
 //   LLMeshRepoThread:
 //
@@ -255,6 +252,9 @@
 //     mUnavailableQ            mMutex        rw.repo.none [0], ro.main.none [5], rw.main.mMutex
 //     mLoadedQ                 mMutex        rw.repo.mMutex, ro.main.none [5], rw.main.mMutex
 //     mPendingLOD              mMutex        rw.repo.mMutex, rw.any.mMutex
+//     mGetMeshCapability       mMutex        rw.main.mMutex, ro.repo.mMutex (was:  [0])
+//     mGetMesh2Capability      mMutex        rw.main.mMutex, ro.repo.mMutex (was:  [0])
+//     mGetMeshVersion          mMutex        rw.main.mMutex, ro.repo.mMutex
 //     mHttp*                   none          rw.repo.none
 //
 // QA/Development Testing
@@ -304,7 +304,10 @@
 // With this instrumentation enabled, a stall will appear
 // under the 'Mesh Fetch' timer which will be either top-level
 // or under 'Render' time.
+
+#ifndef	LL_MESH_FASTTIMER_ENABLE
 #define LL_MESH_FASTTIMER_ENABLE		1
+#endif
 #if LL_MESH_FASTTIMER_ENABLE
 static LLFastTimer::DeclareTimer FTM_MESH_FETCH("Mesh Fetch");
 
@@ -381,7 +384,6 @@ static S32 dump_num = 0;
 std::string make_dump_name(std::string prefix, S32 num)
 {
 	return prefix + boost::lexical_cast<std::string>(num) + std::string(".xml");
-	
 }
 void dump_llsd_to_file(const LLSD& content, std::string filename);
 LLSD llsd_from_file(std::string filename);
@@ -740,7 +742,8 @@ LLMeshRepoThread::LLMeshRepoThread()
   mHttpPolicyClass(LLCore::HttpRequest::DEFAULT_POLICY_ID),
   mHttpLegacyPolicyClass(LLCore::HttpRequest::DEFAULT_POLICY_ID),
   mHttpLargePolicyClass(LLCore::HttpRequest::DEFAULT_POLICY_ID),
-  mHttpPriority(0)
+  mHttpPriority(0),
+  mGetMeshVersion(2)
 { 
 	mMutex = new LLMutex(NULL);
 	mHeaderMutex = new LLMutex(NULL);
@@ -1047,30 +1050,50 @@ void LLMeshRepoThread::loadMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
 	}
 }
 
+// Mutex:  must be holding mMutex when called
+void LLMeshRepoThread::setGetMeshCaps(const std::string & get_mesh1,
+									  const std::string & get_mesh2,
+									  int pref_version)
+{
+	mGetMeshCapability = get_mesh1;
+	mGetMesh2Capability = get_mesh2;
+	mGetMeshVersion = pref_version;
+}
+
+
 // Constructs a Cap URL for the mesh.  Prefers a GetMesh2 cap
 // over a GetMesh cap.
 //
-//static 
-std::string LLMeshRepoThread::constructUrl(LLUUID mesh_id)
+// Mutex:  acquires mMutex
+void LLMeshRepoThread::constructUrl(LLUUID mesh_id, std::string * url, int * version)
 {
-	std::string http_url;
+	std::string res_url;
+	int res_version(2);
 	
 	if (gAgent.getRegion())
 	{
-		if (! gMeshRepo.mGetMesh2Capability.empty() && gMeshRepo.mGetMeshVersion > 1)
+		LLMutexLock lock(mMutex);
+
+		// Get a consistent pair of (cap string, version).  The
+		// locking could be eliminated here without loss of safety
+		// by using a set of staging values in setGetMeshCaps().
+		
+		if (! mGetMesh2Capability.empty() && mGetMeshVersion > 1)
 		{
-			http_url = gMeshRepo.mGetMesh2Capability;
+			res_url = mGetMesh2Capability;
+			res_version = 2;
 		}
 		else
 		{
-			http_url = gMeshRepo.mGetMeshCapability;
+			res_url = mGetMeshCapability;
+			res_version = 1;
 		}
 	}
 
-	if (!http_url.empty())
+	if (! res_url.empty())
 	{
-		http_url += "/?mesh_id=";
-		http_url += mesh_id.asString().c_str();
+		res_url += "/?mesh_id=";
+		res_url += mesh_id.asString().c_str();
 	}
 	else
 	{
@@ -1078,7 +1101,8 @@ std::string LLMeshRepoThread::constructUrl(LLUUID mesh_id)
 								<< mesh_id << ".mesh" << LL_ENDL;
 	}
 
-	return http_url;
+	*url = res_url;
+	*version = res_version;
 }
 
 // Issue an HTTP GET request with byte range using the right
@@ -1200,8 +1224,10 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id)
 			}
 
 			//reading from VFS failed for whatever reason, fetch from sim
-			int cap_version(gMeshRepo.mGetMeshVersion);
-			std::string http_url = constructUrl(mesh_id);
+			int cap_version(2);
+			std::string http_url;
+			constructUrl(mesh_id, &http_url, &cap_version);
+
 			if (!http_url.empty())
 			{
 				LLMeshSkinInfoHandler * handler = new LLMeshSkinInfoHandler(mesh_id, offset, size);
@@ -1293,8 +1319,10 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
 			}
 
 			//reading from VFS failed for whatever reason, fetch from sim
-			int cap_version(gMeshRepo.mGetMeshVersion);
-			std::string http_url = constructUrl(mesh_id);
+			int cap_version(2);
+			std::string http_url;
+			constructUrl(mesh_id, &http_url, &cap_version);
+			
 			if (!http_url.empty())
 			{
 				LLMeshDecompositionHandler * handler = new LLMeshDecompositionHandler(mesh_id, offset, size);
@@ -1384,8 +1412,10 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
 			}
 
 			//reading from VFS failed for whatever reason, fetch from sim
-			int cap_version(gMeshRepo.mGetMeshVersion);
-			std::string http_url = constructUrl(mesh_id);
+			int cap_version(2);
+			std::string http_url;
+			constructUrl(mesh_id, &http_url, &cap_version);
+			
 			if (!http_url.empty())
 			{
 				LLMeshPhysicsShapeHandler * handler = new LLMeshPhysicsShapeHandler(mesh_id, offset, size);
@@ -1477,8 +1507,10 @@ bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params)
 
 	//either cache entry doesn't exist or is corrupt, request header from simulator	
 	bool retval = true;
-	int cap_version(gMeshRepo.mGetMeshVersion);
-	std::string http_url = constructUrl(mesh_params.getSculptID());
+	int cap_version(2);
+	std::string http_url;
+	constructUrl(mesh_params.getSculptID(), &http_url, &cap_version);
+	
 	if (!http_url.empty())
 	{
 		//grab first 4KB if we're going to bother with a fetch.  Cache will prevent future fetches if a full mesh fits
@@ -1563,8 +1595,10 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
 			}
 
 			//reading from VFS failed for whatever reason, fetch from sim
-			int cap_version(gMeshRepo.mGetMeshVersion);
-			std::string http_url = constructUrl(mesh_id);
+			int cap_version(2);
+			std::string http_url;
+			constructUrl(mesh_id, &http_url, &cap_version);
+			
 			if (!http_url.empty())
 			{
 				LLMeshLODHandler * handler = new LLMeshLODHandler(mesh_params, lod, offset, size);
@@ -1811,7 +1845,6 @@ bool LLMeshRepoThread::physicsShapeReceived(const LLUUID& mesh_id, U8* data, S32
 	}
 	return true;
 }
-
 
 LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, LLVector3& scale, bool upload_textures,
 									   bool upload_skin, bool upload_joints, const std::string & upload_url, bool do_upload,
@@ -3249,15 +3282,15 @@ void LLMeshRepository::notifyLoadedMeshes()
 			
 			if (gAgent.getRegion()->getName() != region_name && gAgent.getRegion()->capabilitiesReceived())
 			{
-				const bool use_v1(gSavedSettings.getBOOL("MeshUseGetMesh1"));
-
 				region_name = gAgent.getRegion()->getName();
-				mGetMeshCapability = gAgent.getRegion()->getCapability("GetMesh");
-				mGetMesh2Capability = gAgent.getRegion()->getCapability("GetMesh2");
-				mGetMeshVersion = (mGetMesh2Capability.empty() || use_v1) ? 1 : 2;
+				const bool use_v1(gSavedSettings.getBOOL("MeshUseGetMesh1"));
+				const std::string mesh1(gAgent.getRegion()->getCapability("GetMesh"));
+				const std::string mesh2(gAgent.getRegion()->getCapability("GetMesh2"));
+				mGetMeshVersion = (mesh2.empty() || use_v1) ? 1 : 2;
+				mThread->setGetMeshCaps(mesh1, mesh2, mGetMeshVersion);
 				LL_DEBUGS(LOG_MESH) << "Retrieving caps for region '" << region_name
-									<< "', GetMesh2:  " << mGetMesh2Capability
-									<< ", GetMesh:  " << mGetMeshCapability
+									<< "', GetMesh2:  " << mesh2
+									<< ", GetMesh:  " << mesh1
 									<< ", using version:  " << mGetMeshVersion
 									<< LL_ENDL;
 			}

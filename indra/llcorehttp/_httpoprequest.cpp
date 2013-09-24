@@ -90,6 +90,10 @@ char * os_strtrim(char * str);
 char * os_strltrim(char * str);
 void os_strlower(char * str);
 
+// Error testing and reporting for libcurl status codes
+void check_curl_easy_code(CURLcode code);
+void check_curl_easy_code(CURLcode code, int curl_setopt_option);
+
 } // end anonymous namespace
 
 
@@ -373,6 +377,8 @@ void HttpOpRequest::setupCommon(HttpRequest::policy_t policy_id,
 //
 HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 {
+	CURLcode code;
+	
 	// Scrub transport and result data for retried op case
 	mCurlActive = false;
 	mCurlHandle = NULL;
@@ -406,12 +412,25 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	HttpPolicyGlobal & policy(service->getPolicy().getGlobalOptions());
 	
 	mCurlHandle = curl_easy_init();
-	curl_easy_setopt(mCurlHandle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-	curl_easy_setopt(mCurlHandle, CURLOPT_NOSIGNAL, 1);
-	curl_easy_setopt(mCurlHandle, CURLOPT_NOPROGRESS, 1);
-	curl_easy_setopt(mCurlHandle, CURLOPT_URL, mReqURL.c_str());
-	curl_easy_setopt(mCurlHandle, CURLOPT_PRIVATE, this);
-	curl_easy_setopt(mCurlHandle, CURLOPT_ENCODING, "");
+	if (! mCurlHandle)
+	{
+		// We're in trouble.  We'll continue but it won't go well.
+		LL_WARNS("CoreHttp") << "Failed to allocate libcurl easy handle.  Continuing."
+							 << LL_ENDL;
+		return HttpStatus(HttpStatus::LLCORE, HE_BAD_ALLOC);
+	}
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+	check_curl_easy_code(code, CURLOPT_IPRESOLVE);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_NOSIGNAL, 1);
+	check_curl_easy_code(code, CURLOPT_NOSIGNAL);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_NOPROGRESS, 1);
+	check_curl_easy_code(code, CURLOPT_NOPROGRESS);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_URL, mReqURL.c_str());
+	check_curl_easy_code(code, CURLOPT_URL);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_PRIVATE, this);
+	check_curl_easy_code(code, CURLOPT_PRIVATE);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_ENCODING, "");
+	check_curl_easy_code(code, CURLOPT_ENCODING);
 
 	if (HTTP_ENABLE_LINKSYS_WRT54G_V5_DNS_FIX)
 	{
@@ -421,7 +440,8 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 		// about 700 or so requests and starts issuing TCP RSTs to
 		// new connections.  Reuse the DNS lookups for even a few
 		// seconds and no RSTs.
-		curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, 15);
+		code = curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, 15);
+		check_curl_easy_code(code, CURLOPT_DNS_CACHE_TIMEOUT);
 	}
 	else
 	{
@@ -429,17 +449,27 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 		// I don't think this is valid anymore, the Multi shared DNS
 		// cache is working well.  For the case of naked easy handles,
 		// consider using a shared DNS object.
-		curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, 0);
+		code = curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, 0);
+		check_curl_easy_code(code, CURLOPT_DNS_CACHE_TIMEOUT);
 	}
-	curl_easy_setopt(mCurlHandle, CURLOPT_AUTOREFERER, 1);
-	curl_easy_setopt(mCurlHandle, CURLOPT_FOLLOWLOCATION, 1);
-	curl_easy_setopt(mCurlHandle, CURLOPT_MAXREDIRS, HTTP_REDIRECTS_DEFAULT);
-	curl_easy_setopt(mCurlHandle, CURLOPT_WRITEFUNCTION, writeCallback);
-	curl_easy_setopt(mCurlHandle, CURLOPT_WRITEDATA, this);
-	curl_easy_setopt(mCurlHandle, CURLOPT_READFUNCTION, readCallback);
-	curl_easy_setopt(mCurlHandle, CURLOPT_READDATA, this);
-	curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYPEER, 1);
-	curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYHOST, 0);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_AUTOREFERER, 1);
+	check_curl_easy_code(code, CURLOPT_AUTOREFERER);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_FOLLOWLOCATION, 1);
+	check_curl_easy_code(code, CURLOPT_FOLLOWLOCATION);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_MAXREDIRS, HTTP_REDIRECTS_DEFAULT);
+	check_curl_easy_code(code, CURLOPT_MAXREDIRS);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_WRITEFUNCTION, writeCallback);
+	check_curl_easy_code(code, CURLOPT_WRITEFUNCTION);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_WRITEDATA, this);
+	check_curl_easy_code(code, CURLOPT_WRITEDATA);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_READFUNCTION, readCallback);
+	check_curl_easy_code(code, CURLOPT_READFUNCTION);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_READDATA, this);
+	check_curl_easy_code(code, CURLOPT_READDATA);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYPEER, 1);
+	check_curl_easy_code(code, CURLOPT_SSL_VERIFYPEER);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYHOST, 0);
+	check_curl_easy_code(code, CURLOPT_SSL_VERIFYHOST);
 
 	if (policy.mUseLLProxy)
 	{
@@ -452,37 +482,46 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	{
 		// *TODO:  This is fine for now but get fuller socks5/
 		// authentication thing going later....
-		curl_easy_setopt(mCurlHandle, CURLOPT_PROXY, policy.mHttpProxy.c_str());
-		curl_easy_setopt(mCurlHandle, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
+		code = curl_easy_setopt(mCurlHandle, CURLOPT_PROXY, policy.mHttpProxy.c_str());
+		check_curl_easy_code(code, CURLOPT_PROXY);
+		code = curl_easy_setopt(mCurlHandle, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
+		check_curl_easy_code(code, CURLOPT_PROXYTYPE);
 	}
 	if (policy.mCAPath.size())
 	{
-		curl_easy_setopt(mCurlHandle, CURLOPT_CAPATH, policy.mCAPath.c_str());
+		code = curl_easy_setopt(mCurlHandle, CURLOPT_CAPATH, policy.mCAPath.c_str());
+		check_curl_easy_code(code, CURLOPT_CAPATH);
 	}
 	if (policy.mCAFile.size())
 	{
-		curl_easy_setopt(mCurlHandle, CURLOPT_CAINFO, policy.mCAFile.c_str());
+		code = curl_easy_setopt(mCurlHandle, CURLOPT_CAINFO, policy.mCAFile.c_str());
+		check_curl_easy_code(code, CURLOPT_CAINFO);
 	}
 	
 	switch (mReqMethod)
 	{
 	case HOR_GET:
-		curl_easy_setopt(mCurlHandle, CURLOPT_HTTPGET, 1);
+		code = curl_easy_setopt(mCurlHandle, CURLOPT_HTTPGET, 1);
+		check_curl_easy_code(code, CURLOPT_HTTPGET);
 		mCurlHeaders = curl_slist_append(mCurlHeaders, "Connection: keep-alive");
 		mCurlHeaders = curl_slist_append(mCurlHeaders, "Keep-alive: 300");
 		break;
 		
 	case HOR_POST:
 		{
-			curl_easy_setopt(mCurlHandle, CURLOPT_POST, 1);
-			curl_easy_setopt(mCurlHandle, CURLOPT_ENCODING, "");
+			code = curl_easy_setopt(mCurlHandle, CURLOPT_POST, 1);
+			check_curl_easy_code(code, CURLOPT_POST);
+			code = curl_easy_setopt(mCurlHandle, CURLOPT_ENCODING, "");
+			check_curl_easy_code(code, CURLOPT_ENCODING);
 			long data_size(0);
 			if (mReqBody)
 			{
 				data_size = mReqBody->size();
 			}
-			curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDS, static_cast<void *>(NULL));
-			curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDSIZE, data_size);
+			code = curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDS, static_cast<void *>(NULL));
+			check_curl_easy_code(code, CURLOPT_POSTFIELDS);
+			code = curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDSIZE, data_size);
+			check_curl_easy_code(code, CURLOPT_POSTFIELDSIZE);
 			mCurlHeaders = curl_slist_append(mCurlHeaders, "Expect:");
 			mCurlHeaders = curl_slist_append(mCurlHeaders, "Connection: keep-alive");
 			mCurlHeaders = curl_slist_append(mCurlHeaders, "Keep-alive: 300");
@@ -491,14 +530,17 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 		
 	case HOR_PUT:
 		{
-			curl_easy_setopt(mCurlHandle, CURLOPT_UPLOAD, 1);
+			code = curl_easy_setopt(mCurlHandle, CURLOPT_UPLOAD, 1);
+			check_curl_easy_code(code, CURLOPT_UPLOAD);
 			long data_size(0);
 			if (mReqBody)
 			{
 				data_size = mReqBody->size();
 			}
-			curl_easy_setopt(mCurlHandle, CURLOPT_INFILESIZE, data_size);
-			curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDS, (void *) NULL);
+			code = curl_easy_setopt(mCurlHandle, CURLOPT_INFILESIZE, data_size);
+			check_curl_easy_code(code, CURLOPT_INFILESIZE);
+			code = curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDS, (void *) NULL);
+			check_curl_easy_code(code, CURLOPT_POSTFIELDS);
 			mCurlHeaders = curl_slist_append(mCurlHeaders, "Expect:");
 			mCurlHeaders = curl_slist_append(mCurlHeaders, "Connection: keep-alive");
 			mCurlHeaders = curl_slist_append(mCurlHeaders, "Keep-alive: 300");
@@ -515,9 +557,12 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	// Tracing
 	if (mTracing >= HTTP_TRACE_CURL_HEADERS)
 	{
-		curl_easy_setopt(mCurlHandle, CURLOPT_VERBOSE, 1);
-		curl_easy_setopt(mCurlHandle, CURLOPT_DEBUGDATA, this);
-		curl_easy_setopt(mCurlHandle, CURLOPT_DEBUGFUNCTION, debugCallback);
+		code = curl_easy_setopt(mCurlHandle, CURLOPT_VERBOSE, 1);
+		check_curl_easy_code(code, CURLOPT_VERBOSE);
+		code = curl_easy_setopt(mCurlHandle, CURLOPT_DEBUGDATA, this);
+		check_curl_easy_code(code, CURLOPT_DEBUGDATA);
+		code = curl_easy_setopt(mCurlHandle, CURLOPT_DEBUGFUNCTION, debugCallback);
+		check_curl_easy_code(code, CURLOPT_DEBUGFUNCTION);
 	}
 	
 	// There's a CURLOPT for this now...
@@ -557,8 +602,10 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	{
 		xfer_timeout = timeout;
 	}
-	curl_easy_setopt(mCurlHandle, CURLOPT_TIMEOUT, xfer_timeout);
-	curl_easy_setopt(mCurlHandle, CURLOPT_CONNECTTIMEOUT, timeout);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_TIMEOUT, xfer_timeout);
+	check_curl_easy_code(code, CURLOPT_TIMEOUT);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_CONNECTTIMEOUT, timeout);
+	check_curl_easy_code(code, CURLOPT_CONNECTTIMEOUT);
 
 	// Request headers
 	if (mReqHeaders)
@@ -566,12 +613,15 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 		// Caller's headers last to override
 		mCurlHeaders = append_headers_to_slist(mReqHeaders, mCurlHeaders);
 	}
-	curl_easy_setopt(mCurlHandle, CURLOPT_HTTPHEADER, mCurlHeaders);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_HTTPHEADER, mCurlHeaders);
+	check_curl_easy_code(code, CURLOPT_HTTPHEADER);
 
 	if (mProcFlags & (PF_SCAN_RANGE_HEADER | PF_SAVE_HEADERS | PF_USE_RETRY_AFTER))
 	{
-		curl_easy_setopt(mCurlHandle, CURLOPT_HEADERFUNCTION, headerCallback);
-		curl_easy_setopt(mCurlHandle, CURLOPT_HEADERDATA, this);
+		code = curl_easy_setopt(mCurlHandle, CURLOPT_HEADERFUNCTION, headerCallback);
+		check_curl_easy_code(code, CURLOPT_HEADERFUNCTION);
+		code = curl_easy_setopt(mCurlHandle, CURLOPT_HEADERDATA, this);
+		check_curl_easy_code(code, CURLOPT_HEADERDATA);
 	}
 	
 	if (status)
@@ -612,7 +662,7 @@ size_t HttpOpRequest::readCallback(void * data, size_t size, size_t nmemb, void 
 		{
 			// Warn but continue if the read position moves beyond end-of-body
 			// for some reason.
-			LL_WARNS("HttpCore") << "Request body position beyond body size.  Truncating request body."
+			LL_WARNS("CoreHttp") << "Request body position beyond body size.  Truncating request body."
 								 << LL_ENDL;
 		}
 		return 0;
@@ -1046,6 +1096,32 @@ char * os_strltrim(char * lstr)
 }
 
 
-}  // end anonymous namespace
+void check_curl_easy_code(CURLcode code, int curl_setopt_option)
+{
+	if (CURLE_OK != code)
+	{
+		// Comment from old llcurl code which may no longer apply:
+		//
+		// linux appears to throw a curl error once per session for a bad initialization
+		// at a pretty random time (when enabling cookies).
+		LL_WARNS("CoreHttp") << "libcurl error detected:  " << curl_easy_strerror(code)
+							 << ", curl_easy_setopt option:  " << curl_setopt_option
+							 << LL_ENDL;
+	}
+}
 
-		
+
+void check_curl_easy_code(CURLcode code)
+{
+	if (CURLE_OK != code)
+	{
+		// Comment from old llcurl code which may no longer apply:
+		//
+		// linux appears to throw a curl error once per session for a bad initialization
+		// at a pretty random time (when enabling cookies).
+		LL_WARNS("CoreHttp") << "libcurl error detected:  " << curl_easy_strerror(code)
+							 << LL_ENDL;
+	}
+}
+
+}  // end anonymous namespace

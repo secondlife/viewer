@@ -333,7 +333,9 @@ public:
 	typedef std::set<LLCore::HttpHandler *> http_request_set;
 	http_request_set					mHttpRequestSet;			// Outstanding HTTP requests
 
-	static std::string constructUrl(LLUUID mesh_id);
+	std::string mGetMeshCapability;
+	std::string mGetMesh2Capability;
+	int mGetMeshVersion;
 
 	LLMeshRepoThread();
 	~LLMeshRepoThread();
@@ -375,6 +377,17 @@ public:
 	static void decActiveLODRequests();
 	static void incActiveHeaderRequests();
 	static void decActiveHeaderRequests();
+
+	// Set the caps strings and preferred version for constructing
+	// mesh fetch URLs.
+	//
+	// Mutex:  must be holding mMutex when called
+	void setGetMeshCaps(const std::string & get_mesh1,
+						const std::string & get_mesh2,
+						int pref_version);
+
+	// Mutex:  acquires mMutex
+	void constructUrl(LLUUID mesh_id, std::string * url, int * version);
 
 private:
 	// Issue a GET request to a URL with 'Range' header using
@@ -613,9 +626,7 @@ public:
 	void uploadError(LLSD& args);
 	void updateInventory(inventory_data data);
 
-	std::string mGetMeshCapability;
-	std::string mGetMesh2Capability;
-	int mGetMeshVersion;
+	int mGetMeshVersion;		// Shadows value in LLMeshRepoThread
 };
 
 extern LLMeshRepository gMeshRepo;

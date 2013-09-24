@@ -246,7 +246,10 @@ enum HttpError
 	HE_OPT_NOT_DYNAMIC = 8,
 	
 	// Invalid HTTP status code returned by server
-	HE_INVALID_HTTP_STATUS = 9
+	HE_INVALID_HTTP_STATUS = 9,
+	
+	// Couldn't allocate resource, typically libcurl handle
+	HE_BAD_ALLOC = 10
 	
 }; // end enum HttpError
 

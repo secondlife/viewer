@@ -6,7 +6,7 @@
  *
  * $LicenseInfo:firstyear=2006&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2010-2013, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -293,9 +293,12 @@ LLCurl::Easy* LLCurl::Easy::getEasy()
 		return NULL;
 	}
 	
-	// set no DNS caching as default for all easy handles. This prevents them adopting a
-	// multi handles cache if they are added to one.
-	CURLcode result = curl_easy_setopt(easy->mCurlEasyHandle, CURLOPT_DNS_CACHE_TIMEOUT, 0);
+	// Enable a brief cache period for now.  This was zero for the longest time
+	// which caused some routers grief and generated unneeded traffic.  For the
+	// threded resolver, we're using system resolution libraries and non-zero values
+	// are preferred.  The c-ares resolver is another matter and it might not
+	// track server changes as well.
+	CURLcode result = curl_easy_setopt(easy->mCurlEasyHandle, CURLOPT_DNS_CACHE_TIMEOUT, 15);
 	check_curl_code(result);
 	result = curl_easy_setopt(easy->mCurlEasyHandle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
 	check_curl_code(result);

@@ -94,7 +94,7 @@ void HttpOperation::stageFromRequest(HttpService *)
 	// Default implementation should never be called.  This
 	// indicates an operation making a transition that isn't
 	// defined.
-	LL_ERRS("HttpCore") << "Default stageFromRequest method may not be called."
+	LL_ERRS("CoreHttp") << "Default stageFromRequest method may not be called."
 						<< LL_ENDL;
 }
 
@@ -104,7 +104,7 @@ void HttpOperation::stageFromReady(HttpService *)
 	// Default implementation should never be called.  This
 	// indicates an operation making a transition that isn't
 	// defined.
-	LL_ERRS("HttpCore") << "Default stageFromReady method may not be called."
+	LL_ERRS("CoreHttp") << "Default stageFromReady method may not be called."
 						<< LL_ENDL;
 }
 
@@ -114,7 +114,7 @@ void HttpOperation::stageFromActive(HttpService *)
 	// Default implementation should never be called.  This
 	// indicates an operation making a transition that isn't
 	// defined.
-	LL_ERRS("HttpCore") << "Default stageFromActive method may not be called."
+	LL_ERRS("CoreHttp") << "Default stageFromActive method may not be called."
 						<< LL_ENDL;
 }
 
