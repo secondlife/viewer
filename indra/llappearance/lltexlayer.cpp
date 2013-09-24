@@ -1776,13 +1776,11 @@ LLTexLayer* LLTexLayerTemplate::getLayer(U32 i) const
 /*virtual*/ void LLTexLayerTemplate::gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height)
 {
 	U32 num_wearables = updateWearableCache();
-	for (U32 i = 0; i < num_wearables; i++)
+	U32 i = num_wearables - 1; // For rendering morph masks, we only want to use the top wearable
+	LLTexLayer *layer = getLayer(i);
+	if (layer)
 	{
-		LLTexLayer *layer = getLayer(i);
-		if (layer)
-		{
-			layer->addAlphaMask(data, originX, originY, width, height);
-		}
+		layer->addAlphaMask(data, originX, originY, width, height);
 	}
 }
 
