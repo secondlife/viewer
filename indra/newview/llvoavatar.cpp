@@ -6837,7 +6837,6 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
 	}
 }
 
-// SUNSHINE CLEANUP - OK to remove the version = 0 case, assume we're at least 1?
 bool resolve_appearance_version(const LLAppearanceMessageContents& contents, S32& appearance_version)
 {
 	appearance_version = -1;
@@ -6848,19 +6847,18 @@ bool resolve_appearance_version(const LLAppearanceMessageContents& contents, S32
 	{
 		llwarns << "inconsistent appearance_version settings - field: " <<
 			contents.mAppearanceVersion << ", param: " <<  contents.mParamAppearanceVersion << llendl;
-		return false;
 	}
-	if (contents.mParamAppearanceVersion >= 0) // use visual param if available.
+	if (contents.mParamAppearanceVersion > 0) // use visual param if available.
 	{
 		appearance_version = contents.mParamAppearanceVersion;
 	}
-	if (contents.mAppearanceVersion >= 0)
+	else if (contents.mAppearanceVersion > 0)
 	{
 		appearance_version = contents.mAppearanceVersion;
 	}
-	if (appearance_version < 0) // still not set, go with 0.
+	else // still not set, go with 0.
 	{
-		appearance_version = 0;
+		appearance_version = 1;
 	}
 	LL_DEBUGS("Avatar") << "appearance version info - field " << contents.mAppearanceVersion
 						<< " param: " << contents.mParamAppearanceVersion
@@ -6899,6 +6897,8 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		llwarns << "bad appearance version info, discarding" << llendl;
 		return;
 	}
+	llassert(appearance_version > 0);
+
 	S32 this_update_cof_version = contents.mCOFVersion;
 	S32 last_update_request_cof_version = mLastUpdateRequestCOFVersion;
 
@@ -6908,15 +6908,6 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		LL_DEBUGS("Avatar") << "this_update_cof_version " << this_update_cof_version
 				<< " last_update_request_cof_version " << last_update_request_cof_version
 				<<  " my_cof_version " << LLAppearanceMgr::instance().getCOFVersion() << llendl;
-
-		if (getRegion() && (getRegion()->getCentralBakeVersion()==0))
-		{
-			llwarns << avString() << "Received AvatarAppearance message for self in non-server-bake region" << llendl;
-		}
-		if( mFirstTEMessageReceived && (appearance_version == 0))
-		{
-			return;
-		}
 	}
 	else
 	{
@@ -6925,7 +6916,6 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 
 	// Check for stale update.
 	if (isSelf()
-		&& (appearance_version>0)
 		&& (this_update_cof_version < last_update_request_cof_version))
 	{
 		llwarns << "Stale appearance update, wanted version " << last_update_request_cof_version
@@ -6939,6 +6929,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		return;
 	}
 
+	// SUNSHINE CLEANUP - is this case OK now?
 	S32 num_params = contents.mParamWeights.size();
 	if (num_params <= 1)
 	{
@@ -6950,15 +6941,13 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		return;
 	}
 
-	// No backsies zone - if we get here, the message should be valid and usable.
-	if (appearance_version > 0)
-	{
-		// Note:
-		// RequestAgentUpdateAppearanceResponder::onRequestRequested()
-		// assumes that cof version is only updated with server-bake
-		// appearance messages.
-		mLastUpdateReceivedCOFVersion = this_update_cof_version;
-	}
+	// No backsies zone - if we get here, the message should be valid and usable, will process.
+
+	// Note:
+	// RequestAgentUpdateAppearanceResponder::onRequestRequested()
+	// assumes that cof version is only updated with server-bake
+	// appearance messages.
+	mLastUpdateReceivedCOFVersion = this_update_cof_version;
 		
 	applyParsedTEMessage(contents.mTEContents);
 

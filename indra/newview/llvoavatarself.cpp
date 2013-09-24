@@ -2808,6 +2808,7 @@ void LLVOAvatarSelf::onCustomizeEnd(bool disable_camera_switch)
 	if (isAgentAvatarValid())
 	{
 		gAgentAvatarp->mIsEditingAppearance = false;
+		// SUNSHINE CLEANUP - should no longer happen
 		if (gAgentAvatarp->getRegion() && !gAgentAvatarp->getRegion()->getCentralBakeVersion())
 		{
 			// FIXME DRANO - move to sendAgentSetAppearance, make conditional on upload complete.
