@@ -336,7 +336,7 @@ public:
 	//remove from object cache if the object receives a full-update or terse update
 	LLViewerObject* forceToRemoveFromCache(U32 local_id, LLViewerObject* objectp);
 	void findOrphans(U32 parent_id);
-
+	void clearCachedVisibleObjects();
 	void dumpCache();
 
 	void unpackRegionHandshake();

@@ -7371,6 +7371,7 @@ void LLPipeline::doResetVertexBuffers()
 	{
 		LLSpatialPartition::sTeleportRequested = FALSE;
 
+		LLWorld::getInstance()->clearAllVisibleObjects();
 		clearRebuildGroups();
 		clearRebuildDrawables();
 	}

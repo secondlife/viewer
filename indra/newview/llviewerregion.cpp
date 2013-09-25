@@ -1178,6 +1178,61 @@ F32 LLViewerRegion::createVisibleObjects(F32 max_time)
 	return max_time - update_timer.getElapsedTimeF32();
 }
 
+void LLViewerRegion::clearCachedVisibleObjects()
+{
+	mImpl->mWaitingList.clear();
+	mImpl->mVisibleGroups.clear();
+
+	//clean visible entries
+	for(LLVOCacheEntry::vocache_entry_set_t::iterator iter = mImpl->mVisibleEntries.begin(); iter != mImpl->mVisibleEntries.end();)
+	{
+		LLVOCacheEntry* entry = *iter;
+		LLVOCacheEntry* parent = getCacheEntry(entry->getParentID());
+
+		if(!entry->getParentID() || parent) //no child or parent is cache-able
+		{
+			if(parent) //has a cache-able parent
+			{
+				parent->addChild(entry);
+			}
+
+			LLVOCacheEntry::vocache_entry_set_t::iterator next_iter = iter;
+			++next_iter;
+			mImpl->mVisibleEntries.erase(iter);
+			iter = next_iter;
+		}
+		else //parent is not cache-able, leave it.
+		{
+			++iter;
+		}
+	}
+
+	//remove all visible entries.
+	mLastVisitedEntry = NULL;
+	std::vector<LLDrawable*> delete_list;
+	for(LLVOCacheEntry::vocache_entry_set_t::iterator iter = mImpl->mActiveSet.begin();
+		iter != mImpl->mActiveSet.end(); ++iter)
+	{
+		LLDrawable* drawablep = (LLDrawable*)(*iter)->getEntry()->getDrawable();
+	
+		if(drawablep && !drawablep->getParent())
+		{
+			delete_list.push_back(drawablep);
+		}
+	}
+
+	if(!delete_list.empty())
+	{
+		for(S32 i = 0; i < delete_list.size(); i++)
+		{
+			gObjectList.killObject(delete_list[i]->getVObj());
+		}
+		delete_list.clear();
+	}
+
+	return;
+}
+
 BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 {	
 	LLTimer update_timer;
