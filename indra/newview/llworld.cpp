@@ -684,6 +684,16 @@ void LLWorld::updateRegions(F32 max_update_time)
 	}
 }
 
+void LLWorld::clearAllVisibleObjects()
+{
+	for (region_list_t::iterator iter = mRegionList.begin();
+		 iter != mRegionList.end(); ++iter)
+	{
+		//clear all cached visible objects.
+		(*iter)->clearCachedVisibleObjects();
+	}
+}
+
 void LLWorld::updateParticles()
 {
 	LLViewerPartSim::getInstance()->updateSimulation();

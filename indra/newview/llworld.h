@@ -147,6 +147,7 @@ public:
 	void getInfo(LLSD& info);
 	U32  getNumOfActiveCachedObjects() const {return mNumOfActiveCachedObjects;}
 
+	void clearAllVisibleObjects();
 public:
 	typedef std::list<LLViewerRegion*> region_list_t;
 	const region_list_t& getRegionList() const { return mActiveRegionList; }
