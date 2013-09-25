@@ -182,9 +182,11 @@ void LLAgentWearables::initClass()
 void LLAgentWearables::setAvatarObject(LLVOAvatarSelf *avatar)
 {
 	llassert(avatar);
-	avatar->outputRezTiming("Sending wearables request");
-	sendAgentWearablesRequest();
 	setAvatarAppearance(avatar);
+	gAgentWearables.notifyLoadingStarted();
+	callAfterCategoryFetch(LLAppearanceMgr::instance().getCOF(),
+						   boost::bind(&LLAppearanceMgr::updateAppearanceFromCOF,
+									   LLAppearanceMgr::getInstance(), true, true, no_op));
 }
 
 // wearables
@@ -302,6 +304,8 @@ void LLAgentWearables::addWearabletoAgentInventoryDone(const LLWearableType::ETy
 // SUNSHINE CLEANUP dead?
 void LLAgentWearables::sendAgentWearablesUpdate()
 {
+	return; // try as NO_OP // SUNSHINE CLEANUP
+#if 0
 	// First make sure that we have inventory items for each wearable
 	for (S32 type=0; type < LLWearableType::WT_COUNT; ++type)
 	{
@@ -372,6 +376,7 @@ void LLAgentWearables::sendAgentWearablesUpdate()
 		lldebugs << "       " << LLWearableType::getTypeLabel((LLWearableType::EType)type) << ": " << (wearable ? wearable->getAssetID() : LLUUID::null) << llendl;
 	}
 	gAgent.sendReliableMessage();
+#endif
 }
 
 void LLAgentWearables::saveWearable(const LLWearableType::EType type, const U32 index, BOOL send_update,
