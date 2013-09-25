@@ -696,10 +696,10 @@ void LLDrawPoolWater::shade()
 		}
 	}
 	
-	shader->disableTexture(LLViewerShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP);
+	shader->disableTexture(LLShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP);
 	shader->disableTexture(LLShaderMgr::WATER_SCREENTEX);	
-	shader->disableTexture(LLViewerShaderMgr::BUMP_MAP);
-	shader->disableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
+	shader->disableTexture(LLShaderMgr::BUMP_MAP);
+	shader->disableTexture(LLShaderMgr::DIFFUSE_MAP);
 	shader->disableTexture(LLShaderMgr::WATER_REFTEX);
 	shader->disableTexture(LLShaderMgr::WATER_SCREENDEPTH);
 

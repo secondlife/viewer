@@ -256,6 +256,9 @@ void LLAvatarRenderInfoAccountant::sendRenderInfoToRegion(LLViewerRegion * regio
 					{
 						llinfos << "LRI: Sending avatar render info for " << avatar->getID()
 							<< ": " << info << llendl;
+						llinfos << "LRI: geometry " << avatar->getAttachmentGeometryBytes()
+							<< ", area " << avatar->getAttachmentSurfaceArea()
+							<< llendl;
 					}
 				}
 			}

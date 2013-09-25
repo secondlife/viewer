@@ -58,6 +58,7 @@ uniform vec3 normScale;
 uniform float fresnelScale;
 uniform float fresnelOffset;
 uniform float blurMultiplier;
+uniform vec2 screen_res;
 uniform mat4 norm_mat; //region space to screen space
 
 //bigWave is (refCoord.w, view.w);

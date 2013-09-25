@@ -44,6 +44,7 @@
 
 #include "llagent.h"
 #include "llagentcamera.h"
+#include "llavatarrenderinfoaccountant.h"
 #include "llcallingcard.h"
 #include "llcaphttpsender.h"
 #include "llcapabilitylistener.h"

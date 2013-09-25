@@ -285,10 +285,6 @@ void LLVOPartGroup::getBlendFunc(S32 idx, U32& src, U32& dst)
 		src = part->mBlendFuncSource;
 		dst = part->mBlendFuncDest;
 	}
-	else
-	{
-		llerrs << "WTF?" << llendl;
-	}
 }
 
 LLVector3 LLVOPartGroup::getCameraPosition() const

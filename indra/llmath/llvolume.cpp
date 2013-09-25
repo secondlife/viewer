@@ -4827,13 +4827,15 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
 
 	if (angle_cutoff > 1.f && !mNormals)
 	{
-		ll_aligned_free_16(new_face.mNormals);
+		// Now alloc'd with positions
+		//ll_aligned_free_16(new_face.mNormals);
 		new_face.mNormals = NULL;
 	}
 
 	if (!mTexCoords)
 	{
-		ll_aligned_free_16(new_face.mTexCoords);
+		// Now alloc'd with positions
+		//ll_aligned_free_16(new_face.mTexCoords);
 		new_face.mTexCoords = NULL;
 	}
 

@@ -188,6 +188,7 @@ void LLWaterParamManager::updateShaderUniforms(LLGLSLShader * shader)
 	if (shader->mShaderGroup == LLGLSLShader::SG_WATER)
 	{
 		shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, LLWLParamManager::getInstance()->getRotatedLightDir().mV);
+shader->uniform3fv(LLShaderMgr::WL_CAMPOSLOCAL, 1, LLViewerCamera::getInstance()->getOrigin().mV);
 		shader->uniform4fv(LLShaderMgr::WATER_FOGCOLOR, 1, LLDrawPoolWater::sWaterFogColor.mV);
 		shader->uniform4fv(LLShaderMgr::WATER_WATERPLANE, 1, mWaterPlane.mV);
 		shader->uniform1f(LLShaderMgr::WATER_FOGDENSITY, getFogDensity());

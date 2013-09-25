@@ -385,6 +385,7 @@ namespace tut
 		std::string expected_result;
 		std::string actual_result;
 		std::istringstream is;
+
 		is.clear();
 		is.str(str = "  First Second \t \r  \n Third  Fourth-ShouldThisBePartOfFourth  Fifth\n");
 		actual_result = "";

@@ -334,9 +334,15 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 				if (!mTextureAnimp)
 				{
 					mTextureAnimp = new LLViewerTextureAnim(this);
-					mTexAnimMode = 0;
 				}
-				
+				else
+				{
+					if (!(mTextureAnimp->mMode & LLTextureAnim::SMOOTH))
+					{
+						mTextureAnimp->reset();
+					}
+				}
+				mTexAnimMode = 0;
 				mTextureAnimp->unpackTAMessage(mesgsys, block_num);
 			}
 			else
@@ -1046,9 +1052,7 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 					break;
 				}
 				volume->genTangents(i);
-				//gGLDebugLoggingEnabled = TRUE;
 				LLFace::cacheFaceInVRAM(face);
-				//gGLDebugLoggingEnabled = FALSE;
 			}
 		}
 		
@@ -1475,7 +1479,7 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
 			continue;
 		}
 		res &= face->genVolumeBBoxes(*volume, i,
-										mRelativeXform, mRelativeXformInvTrans, 
+										mRelativeXform, 
 										(mVolumeImpl && mVolumeImpl->isVolumeGlobal()) || force_global);
 		
 		if (rebuild)
