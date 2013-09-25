@@ -6930,6 +6930,40 @@ Is this OK?
        text="Block"/>
     </form>
   </notification>
+  <notification
+   icon="notify.tga"
+   name="ScriptQuestionExperience"
+   persist="true"
+   type="notify">
+&apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, an object owned by &apos;[NAME]&apos;, requests your participation in the [GRID_WIDE]experience:
+
+[EXPERIENCE]
+
+Once permission is granted you will not see this message again for this experience unless it is revoked from the experience profile.
+
+Scripts associated with this experience will be able to do the following on regions where the experience is active: 
+
+[QUESTIONS]Is this OK?
+  <tag>confirm</tag>
+    <form name="form">
+      <button
+       index="0"
+       name="Yes"
+       text="Yes"/>
+      <button
+       index="1"
+       name="No"
+       text="No"/>
+      <button
+        index="2"
+        name="Mute"
+        text="Block Object"/>
+      <button
+       index="3"
+       name="BlockExperience"
+       text="Block Experience"/>
+    </form>
+  </notification>
 
   <notification
    icon="notify.tga"

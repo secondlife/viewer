@@ -417,7 +417,9 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
     if(properties & LLExperienceCache::PROPERTY_GRID)
     {
         topPanel->setVisible(TRUE);
-        getChild<LLTextBox>(TF_GRID_WIDE)->setVisible(TRUE);
+        child=getChild<LLTextBox>(TF_GRID_WIDE);
+        child->setVisible(TRUE);
+        child->setText(LLTrans::getString("GRID_WIDE"));
     }
             
     value=experience[LLExperienceCache::METADATA].asString();

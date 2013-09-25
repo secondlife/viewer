@@ -414,7 +414,8 @@ Please try logging in again in a minute.</string>
 	<string name="NotConnected">Not Connected</string>
 	<string name="AgentNameSubst">(You)</string> <!-- Substitution for agent name -->
   <string name="TeleportYourAgent">Teleport you</string>
-	<string name="JoinAnExperience">Join an experience</string> <!-- not used -->
+	<string name="JoinAnExperience"></string> <!-- intentionally left blank -->
+  
 	<string name="SilentlyManageEstateAccess">Suppress alerts when managing estate access lists</string>
 	<string name="OverrideYourAnimations">Replace your default animations</string>
 	<string name="ScriptReturnObjects">Return objects on your behalf</string>
@@ -3923,6 +3924,7 @@ Try enclosing path to the editor with double quotes.
   <!-- Experience Tools strings -->
   <string name="experience_tools_experience">Experience</string>
   <string name="ExperienceNameNull">(no experience)</string>
+  <string name="GRID_WIDE">Grid-wide</string>
 
   <!-- Conversation log messages -->
   <string name="logging_calls_disabled_log_empty">

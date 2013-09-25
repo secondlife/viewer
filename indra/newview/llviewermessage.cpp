@@ -115,6 +115,7 @@
 #include <boost/regex.hpp>
 
 #include "llnotificationmanager.h" //
+#include "llexperiencecache.h"
 
 #if LL_MSVC
 // disable boost::lexical_cast warning
@@ -6354,6 +6355,26 @@ bool script_question_cb(const LLSD& notification, const LLSD& response)
 	if ( response["Mute"] ) // mute
 	{
 		script_question_mute(task_id,notification["payload"]["object_name"].asString());
+    }
+
+    if ( response["BlockExperience"] )
+    {
+        if(notification["payload"].has("experience"))
+        {
+            LLViewerRegion* region = gAgent.getRegion();
+            if (!region)
+                return false;
+
+            std::string lookup_url=region->getCapability("ExperiencePreferences"); 
+            if(lookup_url.empty())
+                return false;
+            LLSD permission;
+            LLSD data;
+            permission["permission"]="Block";
+
+            data[notification["payload"]["experience"].asString()]=permission;
+            LLHTTPClient::put(lookup_url, data, NULL);
+        }
 	}
 
 	return false;
@@ -6388,7 +6409,25 @@ void script_question_mute(const LLUUID& task_id, const std::string& object_name)
 
 static LLNotificationFunctorRegistration script_question_cb_reg_1("ScriptQuestion", script_question_cb);
 static LLNotificationFunctorRegistration script_question_cb_reg_2("ScriptQuestionCaution", script_question_cb);
+static LLNotificationFunctorRegistration script_question_cb_reg_3("ScriptQuestionExperience", script_question_cb);
 static LLNotificationFunctorRegistration unknown_script_question_cb_reg("UnknownScriptQuestion", unknown_script_question_cb);
+
+
+void process_script_experience_details(const LLSD& experience_details, LLSD args, LLSD payload)
+{
+    if(experience_details[LLExperienceCache::PROPERTIES].asInteger() & LLExperienceCache::PROPERTY_GRID)
+    {
+        args["GRID_WIDE"] = LLTrans::getString("GRID_WIDE")+ " ";
+    }
+    else
+    {
+        args["GRID_WIDE"] = "";
+    }
+    args["EXPERIENCE"] = LLSLURL("experience", experience_details[LLExperienceCache::EXPERIENCE_ID].asUUID(), "profile").getSLURLString();
+
+    LLNotificationsUtil::add("ScriptQuestionExperience", args, payload);
+}
+
 
 void process_script_question(LLMessageSystem *msg, void **user_data)
 {
@@ -6401,6 +6440,9 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 	S32		questions;
 	std::string object_name;
 	std::string owner_name;
+    LLUUID experienceid;
+
+
 
 	// taskid -> object key of object requesting permissions
 	msg->getUUIDFast(_PREHASH_Data, _PREHASH_TaskID, taskid );
@@ -6409,6 +6451,11 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 	msg->getStringFast(_PREHASH_Data, _PREHASH_ObjectName, object_name);
 	msg->getStringFast(_PREHASH_Data, _PREHASH_ObjectOwner, owner_name);
 	msg->getS32Fast(_PREHASH_Data, _PREHASH_Questions, questions );
+
+    if(msg->has(_PREHASH_Experience))
+    {
+        msg->getUUIDFast(_PREHASH_Experience, _PREHASH_ExperienceID, experienceid);
+    }
 
 	// Special case. If the objects are owned by this agent, throttle per-object instead
 	// of per-owner. It's common for residents to reset a ton of scripts that re-request
@@ -6495,24 +6542,26 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 			payload["object_name"] = object_name;
 			payload["owner_name"] = owner_name;
 
-			// check whether cautions are even enabled or not
-			if (gSavedSettings.getBOOL("PermissionsCautionEnabled"))
-			{
-				if (caution)
-				{
-					args["FOOTERTEXT"] = (count > 1) ? LLTrans::getString("AdditionalPermissionsRequestHeader") + "\n\n" + script_question : "";
-				}
-				// display the caution permissions prompt
-				LLNotificationsUtil::add(caution ? "ScriptQuestionCaution" : "ScriptQuestion", args, payload);
-			}
-			else
-			{
-				// fall back to default behavior if cautions are entirely disabled
-				LLNotificationsUtil::add("ScriptQuestion", args, payload);
-			}
+
+            const char* notification = "ScriptQuestion";
+
+            if(caution && gSavedSettings.getBOOL("PermissionsCautionEnabled"))
+            {
+                args["FOOTERTEXT"] = (count > 1) ? LLTrans::getString("AdditionalPermissionsRequestHeader") + "\n\n" + script_question : "";
+                notification = "ScriptQuestionCaution";
+            }
+            else if(experienceid.notNull())
+            {
+                payload["experience"]=experienceid;
+                LLExperienceCache::get(experienceid, boost::bind(process_script_experience_details, _1, args, payload));
+                return;
+            }
+
+            LLNotificationsUtil::add(notification, args, payload);
 		}
 	}
 }
+
 
 
 void process_derez_container(LLMessageSystem *msg, void**)

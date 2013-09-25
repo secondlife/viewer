@@ -103,9 +103,7 @@
                 left="10"
                 right="-123"
                 visible="false"
-                name="grid_wide">
-                Grid-wide
-              </text>
+                name="grid_wide"/>
               <button
                 follows="top|right"
                 height="23"
