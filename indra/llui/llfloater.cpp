@@ -2742,8 +2742,6 @@ void LLFloaterView::refresh()
 	}
 }
 
-const S32 FLOATER_MIN_VISIBLE_PIXELS = 16;
-
 void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_outside, BOOL snap_in_toolbars/* = false*/)
 {
 	if (floater->getParent() != this)
@@ -2796,10 +2794,31 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 		}
 	}
 
+	const LLRect& left_toolbar_rect = mToolbarRects[LLToolBarEnums::TOOLBAR_LEFT];
+	const LLRect& bottom_toolbar_rect = mToolbarRects[LLToolBarEnums::TOOLBAR_BOTTOM];
+	const LLRect& right_toolbar_rect = mToolbarRects[LLToolBarEnums::TOOLBAR_RIGHT];
+	const LLRect& floater_rect = floater->getRect();
+
+	S32 delta_left = left_toolbar_rect.notEmpty() ? left_toolbar_rect.mRight - floater_rect.mRight : 0;
+	S32 delta_bottom = bottom_toolbar_rect.notEmpty() ? bottom_toolbar_rect.mTop - floater_rect.mTop : 0;
+	S32 delta_right = right_toolbar_rect.notEmpty() ? right_toolbar_rect.mLeft - floater_rect.mLeft : 0;
+
 	// move window fully onscreen
 	if (floater->translateIntoRect( snap_in_toolbars ? getSnapRect() : gFloaterView->getRect(), allow_partial_outside ? FLOATER_MIN_VISIBLE_PIXELS : S32_MAX ))
 	{
 		floater->clearSnapTarget();
+	}
+	else if (delta_left > 0 && floater_rect.mTop < left_toolbar_rect.mTop && floater_rect.mBottom > left_toolbar_rect.mBottom)
+	{
+		floater->translate(delta_left, 0);
+	}
+	else if (delta_bottom > 0 && floater_rect.mLeft > bottom_toolbar_rect.mLeft && floater_rect.mRight < bottom_toolbar_rect.mRight)
+	{
+		floater->translate(0, delta_bottom);
+	}
+	else if (delta_right < 0 && floater_rect.mTop < right_toolbar_rect.mTop	&& floater_rect.mBottom > right_toolbar_rect.mBottom)
+	{
+		floater->translate(delta_right, 0);
 	}
 }
 
@@ -2998,6 +3017,14 @@ void LLFloaterView::popVisibleAll(const skip_list_t& skip_list)
 	}
 
 	LLFloaterReg::blockShowFloaters(false);
+}
+
+void LLFloaterView::setToolbarRect(LLToolBarEnums::EToolBarLocation tb, const LLRect& toolbar_rect)
+{
+	if (tb < LLToolBarEnums::TOOLBAR_COUNT)
+	{
+		mToolbarRects[tb] = toolbar_rect;
+	}
 }
 
 void LLFloater::setInstanceName(const std::string& name)
