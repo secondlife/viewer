@@ -578,10 +578,15 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 					}
 				}
 
+				static LLFastTimer::DeclareTimer FTM_RENDER_ALPHA_PUSH("Alpha Push Verts");
+				{
+					LLFastTimer t(FTM_RENDER_ALPHA_PUSH);
+    gGL.blendFunc((LLRender::eBlendFactor) params.mBlendFuncSrc, (LLRender::eBlendFactor) params.mBlendFuncDst, mAlphaSFactor, mAlphaDFactor);					
 				params.mVertexBuffer->setBuffer(mask & ~(params.mFullbright ? (LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2) : 0));
                 
 				params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
 				gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
+				}
 				
 				// If this alpha mesh has glow, then draw it a second time to add the destination-alpha (=glow).  Interleaving these state-changing calls could be expensive, but glow must be drawn Z-sorted with alpha.
 				if (current_shader && 
@@ -615,6 +620,8 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 			}
 		}
 	}
+
+	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
 	LLVertexBuffer::unbind();	
 		
