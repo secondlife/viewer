@@ -957,7 +957,7 @@ public:
 	{
 		LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*) n->getListener(0);
 		
-		if (group->isOcclusionState(mState))
+		if (group && group->isOcclusionState(mState))
 		{
 			OctreeTraveler::traverse(n);
 		}
