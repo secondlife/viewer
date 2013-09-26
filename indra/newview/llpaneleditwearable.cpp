@@ -1104,7 +1104,7 @@ void LLPanelEditWearable::saveChanges(bool force_save_as)
 				// Remove old link
 				remove_inventory_item(link_item->getUUID(), gAgentAvatarp->mEndCustomizeCallback);
 			}
-			gAgentWearables.saveWearable(mWearablePtr->getType(), index, TRUE, new_name);
+			gAgentWearables.saveWearable(mWearablePtr->getType(), index, new_name);
         }
 
 	

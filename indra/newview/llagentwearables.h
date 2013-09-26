@@ -62,9 +62,6 @@ public:
 
 	// LLInitClass interface
 	static void initClass();
-protected:
-	void			createStandardWearablesDone(S32 type, U32 index/* = 0*/);
-	void			createStandardWearablesAllDone();
 	
 	//--------------------------------------------------------------------
 	// Queries
@@ -156,18 +153,13 @@ protected:
 	//--------------------------------------------------------------------
 	// Server Communication
 	//--------------------------------------------------------------------
-public:
-	// Processes the initial wearables update message (if necessary, since the outfit folder makes it redundant)
-	// SUNSHINE CLEANUP - should be able to remove dependency on this.
-	static void		processAgentInitialWearablesUpdate(LLMessageSystem* mesgsys, void** user_data);
-
 protected:
 	// SUNSHINE CLEANUP dead
 	void			sendAgentWearablesUpdate();
 	// SUNSHINE CLEANUP remove?
 	void			sendAgentWearablesRequest();
-	// SUNSHINE CLEANUP dead
-	void 			updateServer();
+	// SUNSHINE CLEANUP dead?
+	//void 			updateServer();
 	static void		onInitialWearableAssetArrived(LLViewerWearable* wearable, void* userdata);
 
 	//--------------------------------------------------------------------
@@ -181,7 +173,7 @@ private:
 	//--------------------------------------------------------------------
 public:	
 	void			saveWearableAs(const LLWearableType::EType type, const U32 index, const std::string& new_name, const std::string& description, BOOL save_in_lost_and_found);
-	void			saveWearable(const LLWearableType::EType type, const U32 index, BOOL send_update = TRUE,
+	void			saveWearable(const LLWearableType::EType type, const U32 index,
 								 const std::string new_name = "");
 	void			saveAllWearables();
 	void			revertWearable(const LLWearableType::EType type, const U32 index);
@@ -198,9 +190,6 @@ public:
 	static void 	userUpdateAttachments(LLInventoryModel::item_array_t& obj_item_array);
 	static void		userRemoveMultipleAttachments(llvo_vec_t& llvo_array);
 	static void		userAttachMultipleAttachments(LLInventoryModel::item_array_t& obj_item_array);
-
-	BOOL			itemUpdatePending(const LLUUID& item_id) const;
-	U32				itemUpdatePendingCount() const;
 
 	//--------------------------------------------------------------------
 	// Signals
@@ -228,7 +217,6 @@ private:
 private:
 	static BOOL		mInitialWearablesUpdateReceived;
 	BOOL			mWearablesLoaded;
-	std::set<LLUUID>	mItemsAwaitingWearableUpdate;
 
 	/**
 	 * True if agent's outfit is being changed now.
