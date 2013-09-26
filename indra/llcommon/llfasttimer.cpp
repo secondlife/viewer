@@ -259,14 +259,11 @@ void TimeBlock::updateTimes()
 		&& cur_timer->mParentTimerData.mActiveTimer != cur_timer) // root defined by parent pointing to self
 	{
 		U64 cumulative_time_delta = cur_time - cur_timer->mStartTime;
-		accumulator->mTotalTimeCounter += cumulative_time_delta 
-			- (accumulator->mTotalTimeCounter 
-			- cur_timer->mBlockStartTotalTimeCounter);
+		cur_timer->mStartTime = cur_time;
+
+		accumulator->mTotalTimeCounter += cumulative_time_delta;
 		accumulator->mSelfTimeCounter += cumulative_time_delta - stack_record->mChildTime;
 		stack_record->mChildTime = 0;
-
-		cur_timer->mStartTime = cur_time;
-		cur_timer->mBlockStartTotalTimeCounter = accumulator->mTotalTimeCounter;
 
 		stack_record = &cur_timer->mParentTimerData;
 		accumulator  = &stack_record->mTimeBlock->getCurrentAccumulator();
@@ -423,7 +420,6 @@ void TimeBlock::writeLog(std::ostream& os)
 TimeBlockAccumulator::TimeBlockAccumulator() 
 :	mTotalTimeCounter(0),
 	mSelfTimeCounter(0),
-	mStartTotalTimeCounter(0),
 	mCalls(0),
 	mLastCaller(NULL),
 	mActiveCount(0),
@@ -436,7 +432,7 @@ void TimeBlockAccumulator::addSamples( const TimeBlockAccumulator& other, EBuffe
 	// we can't merge two unrelated time block samples, as that will screw with the nested timings
 	// due to the call hierarchy of each thread
 	llassert(append_type == SEQUENTIAL);
-	mTotalTimeCounter += other.mTotalTimeCounter - other.mStartTotalTimeCounter;
+	mTotalTimeCounter += other.mTotalTimeCounter;
 	mSelfTimeCounter += other.mSelfTimeCounter;
 	mCalls += other.mCalls;
 	mLastCaller = other.mLastCaller;
@@ -449,20 +445,14 @@ void TimeBlockAccumulator::reset( const TimeBlockAccumulator* other )
 {
 	mCalls = 0;
 	mSelfTimeCounter = 0;
+	mTotalTimeCounter = 0;
 
 	if (other)
 	{
-		mStartTotalTimeCounter = other->mTotalTimeCounter;
-		mTotalTimeCounter = mStartTotalTimeCounter;
-
 		mLastCaller = other->mLastCaller;
 		mActiveCount = other->mActiveCount;
 		mMoveUpTree = other->mMoveUpTree;
 		mParent = other->mParent;
-	}
-	else
-	{
-		mStartTotalTimeCounter = mTotalTimeCounter;
 	}
 }
 

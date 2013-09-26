@@ -176,7 +176,6 @@ private:
 
 public:
 	static BOOL sNeedsOcclusionCheck;
-	//static	LLTrace::MemStatHandle	sMemStat;
 
 private:
 	U32   mCullHistory[LLViewerCamera::NUM_CAMERAS];

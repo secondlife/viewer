@@ -512,8 +512,8 @@ void LLGLTexMemBar::draw()
 	S32Megabytes total_mem = LLViewerTexture::sTotalTextureMemory;
 	S32Megabytes max_total_mem = LLViewerTexture::sMaxTotalTextureMem;
 	F32 discard_bias = LLViewerTexture::sDesiredDiscardBias;
-	F32 cache_usage = (F32)F32Megabytes(LLAppViewer::getTextureCache()->getUsage()).value() ;
-	F32 cache_max_usage = (F32)F32Megabytes(LLAppViewer::getTextureCache()->getMaxUsage()).value() ;
+	F32 cache_usage = F32Megabytes(LLAppViewer::getTextureCache()->getUsage()).value();
+	F32 cache_max_usage = F32Megabytes(LLAppViewer::getTextureCache()->getMaxUsage()).value();
 	S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
 	S32 v_offset = 0;//(S32)((texture_bar_height + 2.2f) * mTextureView->mNumTextureBars + 2.0f);
 	F32Bytes total_texture_downloaded = gTotalTextureData;
@@ -555,8 +555,8 @@ void LLGLTexMemBar::draw()
 	LLAppViewer::getTextureFetch()->getStateStats(&cache_read, &cache_write, &res_wait);
 	
 	text = llformat("Net Tot Tex: %.1f MB Tot Obj: %.1f MB #Objs/#Cached: %d/%d Tot Htp: %d Cread: %u Cwrite: %u Rwait: %u",
-					total_texture_downloaded.value(),
-					total_object_downloaded.value(),
+					total_texture_downloaded.valueInUnits<LLUnits::Megabytes>(),
+					total_object_downloaded.valueInUnits<LLUnits::Megabytes>(),
 					total_objects, 
 					total_active_cached_objects,
 					total_http_requests,

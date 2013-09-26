@@ -131,7 +131,7 @@ void Recording::appendRecording( Recording& other )
 F64Seconds Recording::getSum(const TraceType<TimeBlockAccumulator>& stat)
 {
 	const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
-	return F64Seconds((F64)(accumulator.mTotalTimeCounter - accumulator.mStartTotalTimeCounter) 
+	return F64Seconds((F64)(accumulator.mTotalTimeCounter) 
 				/ (F64)LLTrace::TimeBlock::countsPerSecond());
 }
 
@@ -151,7 +151,7 @@ F64Seconds Recording::getPerSec(const TraceType<TimeBlockAccumulator>& stat)
 {
 	const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
 
-	return F64Seconds((F64)(accumulator.mTotalTimeCounter - accumulator.mStartTotalTimeCounter) 
+	return F64Seconds((F64)(accumulator.mTotalTimeCounter) 
 				/ ((F64)LLTrace::TimeBlock::countsPerSecond() * mElapsedSeconds.value()));
 }
 
@@ -935,7 +935,7 @@ void ExtendablePeriodicRecording::handleSplitTo(ExtendablePeriodicRecording& oth
 
 PeriodicRecording& get_frame_recording()
 {
-	static LLThreadLocalPointer<PeriodicRecording> sRecording(new PeriodicRecording(1000, PeriodicRecording::STARTED));
+	static LLThreadLocalPointer<PeriodicRecording> sRecording(new PeriodicRecording(200, PeriodicRecording::STARTED));
 	return *sRecording;
 }
 
