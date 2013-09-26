@@ -314,7 +314,6 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gDeferredMaterialWaterProgram[9+LLMaterial::SHADER_COUNT]);
 	mShaderList.push_back(&gDeferredMaterialWaterProgram[13+LLMaterial::SHADER_COUNT]);	
 	mShaderList.push_back(&gDeferredAlphaProgram);
-	mShaderList.push_back(&gDeferredAlphaProgram);
 	mShaderList.push_back(&gDeferredAlphaImpostorProgram);
 	mShaderList.push_back(&gDeferredAlphaWaterProgram);
 	mShaderList.push_back(&gDeferredSkinnedAlphaProgram);
