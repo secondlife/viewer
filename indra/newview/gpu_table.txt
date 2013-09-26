@@ -316,7 +316,7 @@ Intel Brookdale							.*Intel.*Brookdale.*								0	0	1	1.3
 Intel Cantiga							.*Intel.*Cantiga.*									0	0	1	2
 Intel Eaglelake							.*Intel.*Eaglelake.*								1	1	1	2
 Intel Graphics Media HD					.*Intel.*Graphics Media.*HD.*						1	1	1	2.1
-Intel HD Graphics 2500					.*Intel.*HD Graphics 25.*							2	1	0	3.1
+Intel HD Graphics 2500					.*Intel.*HD Graphics 25.*							2	1	0	4.2
 Intel HD Graphics 2000					.*Intel.*HD Graphics 2.*							2	1	0	3.1
 Intel HD Graphics 3000					.*Intel.*HD Graphics 3.*							3	1	1	3.1
 Intel HD Graphics 4200					.*Intel.*HD Graphics 42.*							3	1	0	4.2
@@ -414,13 +414,13 @@ NVIDIA 310M								.*NVIDIA .*31[0-9]M.*								2	1	0	3.3
 NVIDIA 320M								.*NVIDIA .*320M.*									2	1	0	3.3
 NVIDIA 400M								.*NVIDIA .*[ ]+40[0-9]M.*								2	1	0	0
 NVIDIA 410M								.*NVIDIA .*[ ]+41[0-9]M.*								3	1	0	0
-NVIDIA GT 420M							.*NVIDIA .*GT *42[0-9]M.*							3	1	1	4.2
-NVIDIA GT 430M							.*NVIDIA .*GT *43[0-9]M.*							3	1	1	4.2
-NVIDIA GT 440M							.*NVIDIA .*GT *44[0-9]M.*							3	1	1	4.2
+NVIDIA GT 420M							.*NVIDIA .*GT *42[0-9]M.*							3	1	1	4.3
+NVIDIA GT 430M							.*NVIDIA .*GT *43[0-9]M.*							3	1	1	4.3
+NVIDIA GT 440M							.*NVIDIA .*GT *44[0-9]M.*							3	1	1	4.3
 NVIDIA GT 450M							.*NVIDIA .*GT *45[0-9]M.*							3	1	0	0
-NVIDIA GTX 460M							.*NVIDIA .*GTX *46[0-9]M.*							4	1	1	4.2
-NVIDIA GTX 470M							.*NVIDIA .*GTX *47[0-9]M.*							3	1	0	4.2
-NVIDIA GTX 480M							.*NVIDIA .*GTX *48[0-9]M.*							3	1	1	4.2
+NVIDIA GTX 460M							.*NVIDIA .*GTX *46[0-9]M.*							4	1	1	4.3
+NVIDIA GTX 470M							.*NVIDIA .*GTX *47[0-9]M.*							3	1	0	4.3
+NVIDIA GTX 480M							.*NVIDIA .*GTX *48[0-9]M.*							3	1	1	4.3
 NVIDIA GT 520M							.*NVIDIA .*GT *52[0-9]M.*							3	1	1	4.3
 NVIDIA GT 530M							.*NVIDIA .*GT *53[0-9]M.*							3	1	1	4.3
 NVIDIA GT 540M							.*NVIDIA .*GT *54[0-9]M.*							3	1	1	4.3
@@ -475,15 +475,15 @@ NVIDIA 315								.*NVIDIA .*315[^0M]*.*							3	1	1	3.3
 NVIDIA 320								.*NVIDIA .*320[^0M]*.*							3	1	1	3.3
 NVIDIA 405								.*NVIDIA .*405[^0]*.*									3	1	0	3.3
 NVIDIA 410								.*NVIDIA .*410[^0]*.*									3	1	0	3.3
-NVIDIA GT 415							.*NVIDIA .*GT *415.*									3	1	1	4.2
-NVIDIA GT 420							.*NVIDIA .*GT *42.*									3	1	1	4.2
-NVIDIA GT 430							.*NVIDIA .*GT *43.*									3	1	1	4.2
-NVIDIA GT 440							.*NVIDIA .*GT *44.*									4	1	1	4.2
-NVIDIA GT 450							.*NVIDIA .*GT *45.*									4	1	1	4.2
-NVIDIA GTS 450							.*NVIDIA .*GTS *45.*									4	1	1	4.2
+NVIDIA GT 415							.*NVIDIA .*GT *415.*									3	1	1	4.3
+NVIDIA GT 420							.*NVIDIA .*GT *42.*									3	1	1	4.3
+NVIDIA GT 430							.*NVIDIA .*GT *43.*									3	1	1	4.3
+NVIDIA GT 440							.*NVIDIA .*GT *44.*									4	1	1	4.3
+NVIDIA GT 450							.*NVIDIA .*GT *45.*									4	1	1	4.3
+NVIDIA GTS 450							.*NVIDIA .*GTS *45.*									4	1	1	4.3
 NVIDIA GTX 460							.*NVIDIA .*GTX *46.*					5	1	1	4.3
-NVIDIA GTX 470							.*NVIDIA .*GTX *47.*									5	1	1	4.2
-NVIDIA GTX 480							.*NVIDIA .*GTX *48.*									5	1	1	4.2
+NVIDIA GTX 470							.*NVIDIA .*GTX *47.*									5	1	1	4.3
+NVIDIA GTX 480							.*NVIDIA .*GTX *48.*									5	1	1	4.3
 NVIDIA 505								.*NVIDIA .*505[^0]*.*						3	1	0	0
 NVIDIA 510								.*NVIDIA .*510[^0]*.*						3	1	0	0
 NVIDIA GT 520							.*NVIDIA .*GT *52.*									3	1	1	4.3
