@@ -42,7 +42,6 @@
 class LLInventoryItem;
 class LLVOAvatarSelf;
 class LLViewerWearable;
-class LLInitialWearablesFetch;
 class LLViewerObject;
 
 class LLAgentWearables : public LLInitClass<LLAgentWearables>, public LLWearableData
@@ -51,7 +50,6 @@ class LLAgentWearables : public LLInitClass<LLAgentWearables>, public LLWearable
 	// Constructors / destructors / Initializers
 	//--------------------------------------------------------------------
 public:
-	friend class LLInitialWearablesFetch;
 
 	LLAgentWearables();
 	virtual ~LLAgentWearables();
@@ -149,18 +147,6 @@ private:
 	void			removeWearableFinal(const LLWearableType::EType type, bool do_remove_all /*= false*/, U32 index /*= 0*/);
 protected:
 	static bool		onRemoveWearableDialog(const LLSD& notification, const LLSD& response);
-	
-	//--------------------------------------------------------------------
-	// Server Communication
-	//--------------------------------------------------------------------
-protected:
-	// SUNSHINE CLEANUP dead
-	void			sendAgentWearablesUpdate();
-	// SUNSHINE CLEANUP remove?
-	void			sendAgentWearablesRequest();
-	// SUNSHINE CLEANUP dead?
-	//void 			updateServer();
-	static void		onInitialWearableAssetArrived(LLViewerWearable* wearable, void* userdata);
 
 	//--------------------------------------------------------------------
 	// Outfits

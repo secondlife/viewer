@@ -30,7 +30,6 @@
 #include "llaccordionctrltab.h"
 #include "llagent.h"
 #include "llagentcamera.h"
-#include "llagentwearablesfetch.h"
 #include "llappearancemgr.h"
 #include "llcallbacklist.h"
 #include "llfloatersidepanelcontainer.h"
@@ -207,13 +206,6 @@ LLAgentWearables::AddWearableToAgentInventoryCallback::AddWearableToAgentInvento
 
 void LLAgentWearables::AddWearableToAgentInventoryCallback::fire(const LLUUID& inv_item)
 {
-	if (mTodo & CALL_CREATESTANDARDDONE)
-	{
-		// SUNSHINE CLEANUP
-		llassert(false); // does not appear to ever be used.
-		llinfos << "callback fired, inv_item " << inv_item.asString() << llendl;
-	}
-
 	if (inv_item.isNull())
 		return;
 
@@ -227,13 +219,6 @@ void LLAgentWearables::AddWearableToAgentInventoryCallback::fire(const LLUUID& i
 	/*
 	 * Do this for every one in the loop
 	 */
-	if (mTodo & CALL_CREATESTANDARDDONE)
-	{
-		// SUNSHINE CLEANUP
-		llassert(false); // does not appear to ever be used.
-		//LLAppearanceMgr::instance().addCOFItemLink(inv_item);
-		//gAgentWearables.createStandardWearablesDone(mType, mIndex);
-	}
 	if (mTodo & CALL_MAKENEWOUTFITDONE)
 	{
 		gAgentWearables.makeNewOutfitDone(mType, mIndex);
@@ -286,84 +271,6 @@ void LLAgentWearables::addWearabletoAgentInventoryDone(const LLWearableType::ETy
 		item->updateServer(FALSE);
 	}
 	gInventory.notifyObservers();
-}
-
-// SUNSHINE CLEANUP dead?
-void LLAgentWearables::sendAgentWearablesUpdate()
-{
-	return; // try as NO_OP // SUNSHINE CLEANUP
-#if 0
-	// First make sure that we have inventory items for each wearable
-	for (S32 type=0; type < LLWearableType::WT_COUNT; ++type)
-	{
-		for (U32 index=0; index < getWearableCount((LLWearableType::EType)type); ++index)
-		{
-			LLViewerWearable* wearable = getViewerWearable((LLWearableType::EType)type,index);
-			if (wearable)
-			{
-				if (wearable->getItemID().isNull())
-				{
-					LLPointer<LLInventoryCallback> cb =
-						new AddWearableToAgentInventoryCallback(
-							LLPointer<LLRefCount>(NULL),
-							(LLWearableType::EType)type,
-							index,
-							wearable,
-							AddWearableToAgentInventoryCallback::CALL_NONE);
-					addWearableToAgentInventory(cb, wearable);
-				}
-				else
-				{
-					gInventory.addChangedMask(LLInventoryObserver::LABEL,
-											  wearable->getItemID());
-				}
-			}
-		}
-	}
-
-	// Then make sure the inventory is in sync with the avatar.
-	gInventory.notifyObservers();
-
-	// Send the AgentIsNowWearing 
-	gMessageSystem->newMessageFast(_PREHASH_AgentIsNowWearing);
-
-	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-	gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-	gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-
-	lldebugs << "sendAgentWearablesUpdate()" << llendl;
-	// MULTI-WEARABLE: DEPRECATED: HACK: index to 0- server database tables don't support concept of multiwearables.
-	for (S32 type=0; type < LLWearableType::WT_COUNT; ++type)
-	{
-		gMessageSystem->nextBlockFast(_PREHASH_WearableData);
-
-		U8 type_u8 = (U8)type;
-		gMessageSystem->addU8Fast(_PREHASH_WearableType, type_u8);
-
-		LLViewerWearable* wearable = getViewerWearable((LLWearableType::EType)type, 0);
-		if (wearable)
-		{
-			//llinfos << "Sending wearable " << wearable->getName() << llendl;
-			LLUUID item_id = wearable->getItemID();
-			const LLViewerInventoryItem *item = gInventory.getItem(item_id);
-			if (item && item->getIsLinkType())
-			{
-				// Get the itemID that this item points to.  i.e. make sure
-				// we are storing baseitems, not their links, in the database.
-				item_id = item->getLinkedUUID();
-			}
-			gMessageSystem->addUUIDFast(_PREHASH_ItemID, item_id);			
-		}
-		else
-		{
-			//llinfos << "Not wearing wearable type " << LLWearableType::getTypeName((LLWearableType::EType)i) << llendl;
-			gMessageSystem->addUUIDFast(_PREHASH_ItemID, LLUUID::null);
-		}
-
-		lldebugs << "       " << LLWearableType::getTypeLabel((LLWearableType::EType)type) << ": " << (wearable ? wearable->getAssetID() : LLUUID::null) << llendl;
-	}
-	gAgent.sendReliableMessage();
-#endif
 }
 
 void LLAgentWearables::saveWearable(const LLWearableType::EType type, const U32 index,
@@ -514,8 +421,6 @@ void LLAgentWearables::saveAllWearables()
 		for (U32 j=0; j < getWearableCount((LLWearableType::EType)i); j++)
 			saveWearable((LLWearableType::EType)i, j);
 	}
-	// SUNSHINE CLEANUP - check ok
-	//sendAgentWearablesUpdate();
 }
 
 // Called when the user changes the name of a wearable inventory item that is currently being worn.
@@ -544,8 +449,6 @@ void LLAgentWearables::setWearableName(const LLUUID& item_id, const std::string&
 				old_wearable->setName(old_name);
 
 				setWearable((LLWearableType::EType)i,j,new_wearable);
-				// SUNSHINE CLEANUP - verify ok
-				//sendAgentWearablesUpdate();
 				break;
 			}
 		}
@@ -666,15 +569,6 @@ LLViewerWearable*	LLAgentWearables::getWearableFromAssetID(const LLUUID& asset_i
 	return NULL;
 }
 
-void LLAgentWearables::sendAgentWearablesRequest()
-{
-	gMessageSystem->newMessageFast(_PREHASH_AgentWearablesRequest);
-	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-	gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-	gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-	gAgent.sendReliableMessage();
-}
-
 LLViewerWearable* LLAgentWearables::getViewerWearable(const LLWearableType::EType type, U32 index /*= 0*/)
 {
 	return dynamic_cast<LLViewerWearable*> (getWearable(type, index));
@@ -775,18 +669,8 @@ void LLAgentWearables::recoverMissingWearable(const LLWearableType::EType type, 
 
 void LLAgentWearables::recoverMissingWearableDone()
 {
-	// Have all the wearables that the avatar was wearing at log-in arrived or been fabricated?
-	updateWearablesLoaded();
-	if (areWearablesLoaded())
-	{
-		// Make sure that the server's idea of the avatar's wearables actually match the wearables.
-		//gAgent.sendAgentSetAppearance();
-	}
-	else
-	{
-		gInventory.addChangedMask(LLInventoryObserver::LABEL, LLUUID::null);
-		gInventory.notifyObservers();
-	}
+	gInventory.addChangedMask(LLInventoryObserver::LABEL, LLUUID::null);
+	gInventory.notifyObservers();
 }
 
 void LLAgentWearables::addLocalTextureObject(const LLWearableType::EType wearable_type, const LLAvatarAppearanceDefines::ETextureIndex texture_type, U32 wearable_index)
@@ -923,17 +807,6 @@ void LLAgentWearables::createStandardWearables()
 	}
 }
 
-// SUNSHINE CLEANUP apparently unused.
-#if 0
-void LLAgentWearables::createStandardWearablesDone(S32 type, U32 index)
-{
-	llinfos << "type " << type << " index " << index << llendl;
-
-	if (!isAgentAvatarValid()) return;
-	gAgentAvatarp->updateVisualParams();
-}
-#endif
-
 void LLAgentWearables::makeNewOutfitDone(S32 type, U32 index)
 {
 	LLUUID first_item_id = getWearableItemID((LLWearableType::EType)type, index);
@@ -1066,9 +939,6 @@ void LLAgentWearables::removeWearableFinal(const LLWearableType::EType type, boo
 		}
 	}
 
-	// Update the server
-	// SUNSHINE CLEANUP
-	// updateServer();
 	gInventory.notifyObservers();
 }
 
@@ -1200,10 +1070,10 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 
 	// Start rendering & update the server
 	mWearablesLoaded = TRUE; 
-	checkWearablesLoaded();
+
+	// SUNSHINE CLEANUP - these checks for done never worked. Should they be modified?
+	//checkWearablesLoaded();
 	notifyLoadingFinished();
-	// SUNSHINE CLEANUP
-	//updateServer();
 
 	gAgentAvatarp->dumpAvatarTEs("setWearableOutfit");
 
@@ -1324,12 +1194,6 @@ void LLAgentWearables::setWearableFinal(LLInventoryItem* new_item, LLViewerWeara
 		llinfos << "Replaced current element 0 for type " << type
 				<< " size is now " << getWearableCount(type) << llendl;
 	}
-
-	//llinfos << "LLVOAvatar::setWearableItem()" << llendl;
-	//new_wearable->writeToAvatar(TRUE);
-
-	// SUNSHINE CLEANUP
-	//updateServer();
 }
 
 // User has picked "remove from avatar" from a menu.
@@ -1500,18 +1364,6 @@ void LLAgentWearables::userAttachMultipleAttachments(LLInventoryModel::item_arra
 	}
 }
 
-// SUNSHINE CLEANUP - itemUpdatePendingCount() was always 0, so this should be removed as useless.
-void LLAgentWearables::checkWearablesLoaded() const
-{
-#ifdef SHOW_ASSERT
-	U32 item_pend_count = 0; //itemUpdatePendingCount();
-	if (mWearablesLoaded)
-	{
-		llassert(item_pend_count==0);
-	}
-#endif
-}
-
 // Returns false if the given wearable is already topmost/bottommost
 // (depending on closer_to_body parameter).
 bool LLAgentWearables::canMoveWearable(const LLUUID& item_id, bool closer_to_body) const
@@ -1529,17 +1381,6 @@ bool LLAgentWearables::canMoveWearable(const LLUUID& item_id, bool closer_to_bod
 BOOL LLAgentWearables::areWearablesLoaded() const
 {
 	return mWearablesLoaded;
-}
-
-// MULTI-WEARABLE: DEPRECATED: item pending count relies on old messages that don't support multi-wearables. do not trust to be accurate
-// SUNSHINE CLEANUP - itemUpdatePendingCount was always 0 due to longstanding bug, might as well remove (or fix) this.
-void LLAgentWearables::updateWearablesLoaded()
-{
-	mWearablesLoaded = true; //(itemUpdatePendingCount()==0);
-	if (mWearablesLoaded)
-	{
-		notifyLoadingFinished();
-	}
 }
 
 bool LLAgentWearables::canWearableBeRemoved(const LLViewerWearable* wearable) const
@@ -1683,14 +1524,6 @@ void LLAgentWearables::editWearableIfRequested(const LLUUID& item_id)
 		mItemToEdit.setNull();
 	}
 }
-
-// SUNSHINE CLEANUP - both of these funcs seem to be dead code, so this one should go too.
-#if 0
-void LLAgentWearables::updateServer()
-{
-	sendAgentWearablesUpdate();
-}
-#endif
 
 boost::signals2::connection LLAgentWearables::addLoadingStartedCallback(loading_started_callback_t cb)
 {
