@@ -127,10 +127,7 @@ void ThreadRecorder::activate( AccumulatorBufferGroup* recording, bool from_hand
 	{
 		AccumulatorBufferGroup& prev_active_recording = mActiveRecordings.back()->mPartialRecording;
 		prev_active_recording.sync();
-		if (!from_handoff)
-		{
-			TimeBlock::updateTimes();
-		}
+		TimeBlock::updateTimes();
 		prev_active_recording.handOffTo(active_recording->mPartialRecording);
 	}
 	mActiveRecordings.push_back(active_recording);

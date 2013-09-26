@@ -131,8 +131,8 @@ public:
 	// debug
 	S32 getNumReads() { return mReaders.size(); }
 	S32 getNumWrites() { return mWriters.size(); }
-	S64 getUsage() { return mTexturesSizeTotal; }
-	S64 getMaxUsage() { return sCacheMaxTexturesSize; }
+	S64Bytes getUsage() { return S64Bytes(mTexturesSizeTotal); }
+	S64Bytes getMaxUsage() { return S64Bytes(sCacheMaxTexturesSize); }
 	U32 getEntries() { return mHeaderEntriesInfo.mEntries; }
 	U32 getMaxEntries() { return sCacheMaxEntries; };
 	BOOL isInCache(const LLUUID& id) ;

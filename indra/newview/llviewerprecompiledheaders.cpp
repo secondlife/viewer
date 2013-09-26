@@ -26,7 +26,7 @@
 
 // source file that includes just the standard includes
 // newview.pch will be the pre-compiled header
-// llviewerprecompiledheaders.obj will contain the pre-compiled type information
+// llviewerprecompiledheaders.obj will contain the pre-compllviewiled type information
 
 #include "llviewerprecompiledheaders.h"
 

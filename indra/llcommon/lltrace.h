@@ -161,21 +161,6 @@ void sample(SampleStatHandle<T>& measurement, VALUE_T value)
 	measurement.getCurrentAccumulator().sample(storage_value(converted_value));
 }
 
-template<typename T, typename VALUE_T>
-void add(SampleStatHandle<T>& measurement, VALUE_T value)
-{
-	T converted_value(value);
-	SampleAccumulator& acc = measurement.getCurrentAccumulator();
-	if (acc.hasValue())
-	{
-		acc.sample(acc.getLastValue() + converted_value);
-	}
-	else
-	{
-		acc.sample(converted_value);
-	}
-}
-
 template <typename T = F64>
 class CountStatHandle
 :	public TraceType<CountAccumulator>
@@ -296,28 +281,28 @@ public:
 	}
 };
 
-inline void claim_mem(MemStatHandle& measurement, size_t size)
+inline void claim_footprint(MemStatHandle& measurement, S32 size)
 {
 	MemStatAccumulator& accumulator = measurement.getCurrentAccumulator();
 	accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() + (F64)size : (F64)size);
 	accumulator.mAllocated.add(1);
 }
 
-inline void disclaim_mem(MemStatHandle& measurement, size_t size)
+inline void disclaim_footprint(MemStatHandle& measurement, S32 size)
 {
 	MemStatAccumulator& accumulator = measurement.getCurrentAccumulator();
 	accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)size : -(F64)size);
 	accumulator.mDeallocated.add(1);
 }
 
-inline void claim_shadow_mem(MemStatHandle& measurement, size_t size)
+inline void claim_shadow(MemStatHandle& measurement, S32 size)
 {
 	MemStatAccumulator& accumulator = measurement.getCurrentAccumulator();
 	accumulator.mShadowSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() + (F64)size : (F64)size);
 	accumulator.mShadowAllocated.add(1);
 }
 
-inline void disclaim_shadow_mem(MemStatHandle& measurement, size_t size)
+inline void disclaim_shadow(MemStatHandle& measurement, S32 size)
 {
 	MemStatAccumulator& accumulator = measurement.getCurrentAccumulator();
 	accumulator.mShadowSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)size : -(F64)size);
@@ -327,94 +312,122 @@ inline void disclaim_shadow_mem(MemStatHandle& measurement, size_t size)
 // measures effective memory footprint of specified type
 // specialize to cover different types
 
-template<typename T>
-struct MemFootprint
+template<typename T, typename IS_MEM_TRACKABLE = void>
+struct MeasureMem
 {
-	static size_t measure(const T& value)
+	static size_t measureFootprint(const T& value)
 	{
 		return sizeof(T);
 	}
 
-	static size_t measure()
+	static size_t measureFootprint()
 	{
 		return sizeof(T);
+	}
+
+	static size_t measureShadow(const T& value)
+	{
+		return 0;
+	}
+
+	static size_t measureShadow()
+	{
+		return 0;
 	}
 };
 
 template<typename T>
-struct MemFootprint<T*>
+struct MeasureMem<T, typename T::mem_trackable_tag_t>
 {
-	static size_t measure(const T* value)
+	static size_t measureFootprint(const T& value)
+	{
+		return sizeof(T) + value.getMemFootprint();
+	}
+
+	static size_t measureFootprint()
+	{
+		return sizeof(T);
+	}
+
+	static size_t measureShadow(const T& value)
+	{
+		return value.getMemShadow();
+	}
+
+	static size_t measureShadow()
+	{
+		return MeasureMem<T>::measureShadow();
+	}
+};
+
+
+template<typename T, typename IS_MEM_TRACKABLE>
+struct MeasureMem<T*, IS_MEM_TRACKABLE>
+{
+	static size_t measureFootprint(const T* value)
 	{
 		if (!value)
 		{
 			return 0;
 		}
-		return MemFootprint<T>::measure(*value);
+		return MeasureMem<T>::measureFootprint(*value);
 	}
 
-	static size_t measure()
+	static size_t measureFootprint()
 	{
-		return MemFootprint<T>::measure();
+		return MeasureMem<T>::measureFootprint();
+	}
+
+	static size_t measureShadow(const T* value)
+	{
+		return MeasureMem<T>::measureShadow(*value);
+	}
+
+	static size_t measureShadow()
+	{
+		return MeasureMem<T>::measureShadow();
 	}
 };
 
-template<typename T>
-struct MemFootprint<std::basic_string<T> >
+template<typename T, typename IS_MEM_TRACKABLE>
+struct MeasureMem<std::basic_string<T>, IS_MEM_TRACKABLE>
 {
-	static size_t measure(const std::basic_string<T>& value)
+	static size_t measureFootprint(const std::basic_string<T>& value)
 	{
 		return value.capacity() * sizeof(T);
 	}
 
-	static size_t measure()
+	static size_t measureFootprint()
 	{
 		return sizeof(std::basic_string<T>);
 	}
-};
 
-template<typename T>
-struct MemFootprint<std::vector<T> >
-{
-	static size_t measure(const std::vector<T>& value)
+	static size_t measureShadow(const std::basic_string<T>& value)
 	{
-		return value.capacity() * MemFootprint<T>::measure();
+		return 0;
 	}
 
-	static size_t measure()
+	static size_t measureShadow()
 	{
-		return sizeof(std::vector<T>);
-	}
-};
-
-template<typename T>
-struct MemFootprint<std::list<T> >
-{
-	static size_t measure(const std::list<T>& value)
-	{
-		return value.size() * (MemFootprint<T>::measure() + sizeof(void*) * 2);
-	}
-
-	static size_t measure()
-	{
-		return sizeof(std::list<T>);
+		return 0;
 	}
 };
 
 template<typename DERIVED, size_t ALIGNMENT = LL_DEFAULT_HEAP_ALIGN>
 class MemTrackable
 {
-	template<typename TRACKED, typename TRACKED_IS_TRACKER>
-	struct TrackMemImpl;
-
-	typedef MemTrackable<DERIVED, ALIGNMENT> mem_trackable_t;
-	static	MemStatHandle	sMemStat;
-
 public:
 	typedef void mem_trackable_tag_t;
 
+	enum EMemType
+	{
+		MEM_FOOTPRINT, 
+		MEM_SHADOW
+	};
+
 	MemTrackable()
-	:	mMemFootprint(0)
+	:	mMemFootprint(0),
+		mMemShadow(0)
 	{
 		static bool name_initialized = false;
 		if (!name_initialized)
@@ -426,7 +439,8 @@ public:
 
 	virtual ~MemTrackable()
 	{
-		memDisclaim(mMemFootprint);
+		disclaimMem(mMemFootprint, MEM_FOOTPRINT);
+		disclaimMem(mMemShadow, MEM_SHADOW);
 	}
 
 	static MemStatHandle& getMemStatHandle()
@@ -434,186 +448,129 @@ public:
 		return sMemStat;
 	}
 
+	S32 getMemFootprint() const	{ return mMemFootprint; }
+	S32 getMemShadow() const	{ return mMemShadow; }
+
 	void* operator new(size_t size) 
 	{
-		claim_mem(sMemStat, size);
-
-		if (ALIGNMENT == LL_DEFAULT_HEAP_ALIGN)
-		{
-			return ::operator new(size);
-		}
-		else if (ALIGNMENT == 16)
-		{
-			return ll_aligned_malloc_16(size);
-		}
-		else if (ALIGNMENT == 32)
-		{
-			return ll_aligned_malloc_32(size);
-		}
-		else
-		{
-			return ll_aligned_malloc(size, ALIGNMENT);
-		}
+		claim_footprint(sMemStat, size);
+		return ll_aligned_malloc(ALIGNMENT, size);
 	}
 
 	void operator delete(void* ptr, size_t size)
 	{
-		disclaim_mem(sMemStat, size);
-
-		if (ALIGNMENT == LL_DEFAULT_HEAP_ALIGN)
-		{
-			::operator delete(ptr);
-		}
-		else if (ALIGNMENT == 16)
-		{
-			ll_aligned_free_16(ptr);
-		}
-		else if (ALIGNMENT == 32)
-		{
-			return ll_aligned_free_32(ptr);
-		}
-		else
-		{
-			return ll_aligned_free(ptr);
-		}
+		disclaim_footprint(sMemStat, size);
+		ll_aligned_free(ALIGNMENT, ptr);
 	}
 
 	void *operator new [](size_t size)
 	{
-		claim_mem(sMemStat, size);
-
-		if (ALIGNMENT == LL_DEFAULT_HEAP_ALIGN)
-		{
-			return ::operator new[](size);
-		}
-		else if (ALIGNMENT == 16)
-		{
-			return ll_aligned_malloc_16(size);
-		}
-		else if (ALIGNMENT == 32)
-		{
-			return ll_aligned_malloc_32(size);
-		}
-		else
-		{
-			return ll_aligned_malloc(size, ALIGNMENT);
-		}
+		claim_footprint(sMemStat, size);
+		return ll_aligned_malloc(ALIGNMENT, size);
 	}
 
 	void operator delete[](void* ptr, size_t size)
 	{
-		disclaim_mem(sMemStat, size);
-
-		if (ALIGNMENT == LL_DEFAULT_HEAP_ALIGN)
-		{
-			::operator delete[](ptr);
-		}
-		else if (ALIGNMENT == 16)
-		{
-			ll_aligned_free_16(ptr);
-		}
-		else if (ALIGNMENT == 32)
-		{
-			return ll_aligned_free_32(ptr);
-		}
-		else
-		{
-			return ll_aligned_free(ptr);
-		}
+		disclaim_footprint(sMemStat, size);
+		ll_aligned_free(ALIGNMENT, ptr);
 	}
 
 	// claim memory associated with other objects/data as our own, adding to our calculated footprint
 	template<typename CLAIM_T>
-	CLAIM_T& memClaim(CLAIM_T& value)
+	CLAIM_T& claimMem(CLAIM_T& value, EMemType mem_type = MEM_FOOTPRINT)
 	{
-		TrackMemImpl<CLAIM_T>::claim(*this, value);
+		trackAlloc(MeasureMem<CLAIM_T>::measureFootprint(value), mem_type);
+		trackAlloc(MeasureMem<CLAIM_T>::measureShadow(value), MEM_SHADOW);
 		return value;
 	}
 
 	template<typename CLAIM_T>
-	const CLAIM_T& memClaim(const CLAIM_T& value)
+	const CLAIM_T& claimMem(const CLAIM_T& value, EMemType mem_type = MEM_FOOTPRINT)
 	{
-		TrackMemImpl<CLAIM_T>::claim(*this, value);
+		trackAlloc(MeasureMem<CLAIM_T>::measureFootprint(value), mem_type);
+		trackAlloc(MeasureMem<CLAIM_T>::measureShadow(value), MEM_SHADOW);
 		return value;
 	}
 
-	size_t& memClaim(size_t& size)
+	size_t& claimMem(size_t& size, EMemType mem_type = MEM_FOOTPRINT)
 	{
-		claim_mem(sMemStat, size);
-		mMemFootprint += size;
+		trackAlloc(size, mem_type);
 		return size;
 	}
 
-	int& memClaim(int& size)
+	S32& claimMem(S32& size, EMemType mem_type = MEM_FOOTPRINT)
 	{
-		claim_mem(sMemStat, size);
-		mMemFootprint += size;
+		trackAlloc(size, mem_type);
 		return size;
 	}
 
 	// remove memory we had claimed from our calculated footprint
 	template<typename CLAIM_T>
-	CLAIM_T& memDisclaim(CLAIM_T& value)
+	CLAIM_T& disclaimMem(CLAIM_T& value, EMemType mem_type = MEM_FOOTPRINT)
 	{
-		TrackMemImpl<CLAIM_T>::disclaim(*this, value);
+		trackDealloc(MeasureMem<CLAIM_T>::measureFootprint(value), mem_type);
+		trackDealloc(MeasureMem<CLAIM_T>::measureShadow(value), MEM_SHADOW);
 		return value;
 	}
 
 	template<typename CLAIM_T>
-	const CLAIM_T& memDisclaim(const CLAIM_T& value)
+	const CLAIM_T& disclaimMem(const CLAIM_T& value, EMemType mem_type = MEM_FOOTPRINT)
 	{
-		TrackMemImpl<CLAIM_T>::disclaim(*this, value);
+		trackDealloc(MeasureMem<CLAIM_T>::measureFootprint(value), mem_type);
+		trackDealloc(MeasureMem<CLAIM_T>::measureShadow(value), MEM_SHADOW);
 		return value;
 	}
 
-	size_t& memDisclaim(size_t& size)
+	size_t& disclaimMem(size_t& size, EMemType mem_type = MEM_FOOTPRINT)
 	{
-		disclaim_mem(sMemStat, size);
-		mMemFootprint -= size;
+		trackDealloc(size, mem_type);
 		return size;
 	}
 
-	int& memDisclaim(int& size)
+	S32& disclaimMem(S32& size, EMemType mem_type = MEM_FOOTPRINT)
 	{
-		disclaim_mem(sMemStat, size);
-		mMemFootprint -= size;
+		trackDealloc(size, mem_type);
 		return size;
 	}
 
 private:
-	size_t mMemFootprint;
 
-	template<typename TRACKED, typename TRACKED_IS_TRACKER = void>
-	struct TrackMemImpl
+	void trackAlloc(S32 size, EMemType mem_type)
 	{
-		static void claim(mem_trackable_t& tracker, const TRACKED& tracked)
+		if (mem_type == MEM_FOOTPRINT)
 		{
-			size_t footprint = MemFootprint<TRACKED>::measure(tracked);
-			claim_mem(sMemStat, footprint);
-			tracker.mMemFootprint += footprint;
+			claim_footprint(sMemStat, size);
+			mMemFootprint += size;
 		}
-
-		static void disclaim(mem_trackable_t& tracker, const TRACKED& tracked)
+		else
 		{
-			size_t footprint = MemFootprint<TRACKED>::measure(tracked);
-			disclaim_mem(sMemStat, footprint);
-			tracker.mMemFootprint -= footprint;
+			claim_shadow(sMemStat, size);
+			mMemShadow += size;
 		}
-	};
+	}
 
-	template<typename TRACKED>
-	struct TrackMemImpl<TRACKED, typename TRACKED::mem_trackable_tag_t>
+	void trackDealloc(S32 size, EMemType mem_type)
 	{
-		static void claim(mem_trackable_t& tracker, TRACKED& tracked)
+		if (mem_type == MEM_FOOTPRINT)
 		{
-			claim_shadow_mem( sMemStat, MemFootprint<TRACKED>::measure(tracked));
+			disclaim_footprint(sMemStat, size);
+			mMemFootprint -= size;
 		}
+		else
+		{
+			disclaim_shadow(sMemStat, size);
+			mMemShadow -= size;
+		}
+	}
 
-		static void disclaim(mem_trackable_t& tracker, TRACKED& tracked)
-		{
-			disclaim_shadow_mem(sMemStat, MemFootprint<TRACKED>::measure(tracked));
-		}
-	};
+private:
+	// use signed values so that we can temporarily go negative
+	// and reconcile in destructor
+	// NB: this assumes that no single class is responsible for > 2GB of allocations
+	S32 mMemFootprint,
+		mMemShadow;
+	
+	static	MemStatHandle	sMemStat;
 };
 
 template<typename DERIVED, size_t ALIGNMENT>

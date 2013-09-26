@@ -35,6 +35,7 @@
 #include "lltimer.h"
 #include "llrefcount.h"
 #include "llthreadlocalstorage.h"
+#include "llmemory.h"
 #include <limits>
 
 namespace LLTrace
@@ -51,7 +52,7 @@ namespace LLTrace
 	class AccumulatorBuffer : public LLRefCount
 	{
 		typedef AccumulatorBuffer<ACCUMULATOR> self_t;
-		static const U32 DEFAULT_ACCUMULATOR_BUFFER_SIZE = 64;
+		static const U32 ACCUMULATOR_BUFFER_SIZE_INCREMENT = 16;
 	private:
 		struct StaticAllocationMarker { };
 
@@ -149,7 +150,9 @@ namespace LLTrace
 			size_t next_slot = sNextStorageSlot++;
 			if (next_slot >= mStorageSize)
 			{
-				resize(mStorageSize + (mStorageSize >> 2));
+				// don't perform doubling, as this should only happen during startup
+				// want to keep a tight bounds as we will have a lot of these buffers
+				resize(mStorageSize + ACCUMULATOR_BUFFER_SIZE_INCREMENT);
 			}
 			llassert(mStorage && next_slot < mStorageSize);
 			return next_slot;
@@ -199,7 +202,7 @@ namespace LLTrace
 				// so as not to trigger an access violation
 				sDefaultBuffer = new AccumulatorBuffer(StaticAllocationMarker());
 				sInitialized = true;
-				sDefaultBuffer->resize(DEFAULT_ACCUMULATOR_BUFFER_SIZE);
+				sDefaultBuffer->resize(ACCUMULATOR_BUFFER_SIZE_INCREMENT);
 			}
 			return sDefaultBuffer;
 		}
@@ -427,6 +430,17 @@ namespace LLTrace
 			typedef F64Seconds value_t;
 		};
 
+		// arrays are allocated with 32 byte alignment
+		void *operator new [](size_t size)
+		{
+			return ll_aligned_malloc(32, size);
+		}
+
+		void operator delete[](void* ptr, size_t size)
+		{
+			ll_aligned_free(32, ptr);
+		}
+
 		TimeBlockAccumulator();
 		void addSamples(const self_t& other, EBufferAppendType append_type);
 		void reset(const self_t* other);
@@ -435,8 +449,7 @@ namespace LLTrace
 		//
 		// members
 		//
-		U64					mStartTotalTimeCounter,
-							mTotalTimeCounter,
+		U64					mTotalTimeCounter,
 							mSelfTimeCounter;
 		U32					mCalls;
 		class TimeBlock*	mParent;		// last acknowledged parent of this time block

@@ -174,7 +174,7 @@ LLFolderView::LLFolderView(const Params& p)
 	mShowItemLinkOverlays(p.show_item_link_overlays),
 	mViewModel(p.view_model)
 {
-	memClaim(mViewModel);
+	claimMem(mViewModel);
 	mViewModel->setFolderView(this);
 	mRoot = this;
 

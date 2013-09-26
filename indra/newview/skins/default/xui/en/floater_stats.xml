@@ -114,6 +114,22 @@
                     label="LLView Memory"
                     stat="class LLView"
                     show_history="true"/>
+				 <stat_bar name="LLViewerObject"
+                    label="LLViewerObject Memory"
+                    stat="class LLViewerObject"
+                    show_history="true"/>
+					<stat_bar name="LLVOCacheEntry"
+                    label="LLVOCacheEntry Memory"
+                    stat="class LLVOCacheEntry"
+                    show_history="true"/>
+				 <stat_bar name="LLDrawable"
+                    label="LLDrawable Memory"
+                    stat="class LLDrawable"
+                    show_history="true"/>
+				 <stat_bar name="LLImage"
+                    label="LLImage Memory"
+                    stat="class LLImageBase"
+                    show_history="true"/>
 			 </stat_view>
         <stat_view name="network"
                    label="Network"

@@ -54,7 +54,7 @@ class LLMutex ;
 #define LL_DEFAULT_HEAP_ALIGN 8
 #endif
 
-inline void* ll_aligned_malloc( size_t size, int align )
+inline void* ll_aligned_malloc_fallback( size_t size, int align )
 {
 	void* mem = malloc( size + (align - 1) + sizeof(void*) );
 	char* aligned = ((char*)mem) + sizeof(void*);
@@ -64,7 +64,7 @@ inline void* ll_aligned_malloc( size_t size, int align )
 	return aligned;
 }
 
-inline void ll_aligned_free( void* ptr )
+inline void ll_aligned_free_fallback( void* ptr )
 {
 	free( ((void**)ptr)[-1] );
 }
@@ -130,7 +130,7 @@ inline void* ll_aligned_malloc_32(size_t size) // returned hunk MUST be freed wi
 #if defined(LL_WINDOWS)
 	return _aligned_malloc(size, 32);
 #elif defined(LL_DARWIN)
-	return ll_aligned_malloc( size, 32 );
+	return ll_aligned_malloc_fallback( size, 32 );
 #else
 	void *rtn;
 	if (LL_LIKELY(0 == posix_memalign(&rtn, 32, size)))
@@ -150,6 +150,49 @@ inline void ll_aligned_free_32(void *p)
 	free(p); // posix_memalign() is compatible with heap deallocator
 #endif
 }
+
+// general purpose dispatch functions that are forced inline so they can compile down to a single call
+LL_FORCE_INLINE void* ll_aligned_malloc(size_t alignment, size_t size)
+{
+	if (LL_DEFAULT_HEAP_ALIGN % alignment == 0)
+	{
+		return malloc(size);
+	}
+	else if (alignment == 16)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+	else if (alignment == 32)
+	{
+		return ll_aligned_malloc_32(size);
+	}
+	else
+	{
+		return ll_aligned_malloc_fallback(size, alignment);
+	}
+}
+
+LL_FORCE_INLINE void ll_aligned_free(size_t alignment, void* ptr)
+{
+	if (alignment == LL_DEFAULT_HEAP_ALIGN)
+	{
+		free(ptr);
+	}
+	else if (alignment == 16)
+	{
+		ll_aligned_free_16(ptr);
+	}
+	else if (alignment == 32)
+	{
+		return ll_aligned_free_32(ptr);
+	}
+	else
+	{
+		return ll_aligned_free_fallback(ptr);
+	}
+}
+
+
 
 #ifndef __DEBUG_PRIVATE_MEM__
 #define __DEBUG_PRIVATE_MEM__  0

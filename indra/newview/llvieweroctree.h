@@ -135,7 +135,7 @@ private:
 class LLViewerOctreeEntryData : public LLRefCount
 {
 protected:
-	~LLViewerOctreeEntryData();
+	virtual ~LLViewerOctreeEntryData();
 
 public:
 	LLViewerOctreeEntryData(const LLViewerOctreeEntryData& rhs)

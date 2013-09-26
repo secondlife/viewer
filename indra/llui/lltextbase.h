@@ -100,8 +100,6 @@ public:
 	S32						getEnd() const						{ return mEnd; }
 	void					setEnd( S32 end )					{ mEnd = end; }
 
-	//static LLTrace::MemStatHandle sMemStat;
-
 protected:
 	S32				mStart;
 	S32				mEnd;

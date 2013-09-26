@@ -48,8 +48,6 @@ const F32	CURSOR_FLASH_DELAY = 1.0f;  // in seconds
 const S32	CURSOR_THICKNESS = 2;
 const F32	TRIPLE_CLICK_INTERVAL = 0.3f;	// delay between double and triple click.
 
-//LLTrace::MemStatHandle	LLTextSegment::sMemStat("LLTextSegment");
-
 LLTextBase::line_info::line_info(S32 index_start, S32 index_end, LLRect rect, S32 line_num) 
 :	mDocIndexStart(index_start), 
 	mDocIndexEnd(index_end),
@@ -578,7 +576,7 @@ void LLTextBase::drawText()
 		if ( (mSpellCheckStart != start) || (mSpellCheckEnd != end) )
 		{
 			const LLWString& wstrText = getWText(); 
-			memDisclaim(mMisspellRanges).clear();
+			disclaimMem(mMisspellRanges).clear();
 
 			segment_set_t::const_iterator seg_it = getSegIterContaining(start);
 			while (mSegments.end() != seg_it)
@@ -654,7 +652,7 @@ void LLTextBase::drawText()
 
 			mSpellCheckStart = start;
 			mSpellCheckEnd = end;
-			memClaim(mMisspellRanges);
+			claimMem(mMisspellRanges);
 		}
 	}
 	else
@@ -924,11 +922,11 @@ void LLTextBase::createDefaultSegment()
 	if (mSegments.empty())
 	{
 		LLStyleConstSP sp(new LLStyle(getStyleParams()));
-		memDisclaim(mSegments);
+		disclaimMem(mSegments);
 		LLTextSegmentPtr default_segment = new LLNormalTextSegment( sp, 0, getLength() + 1, *this);
 		mSegments.insert(default_segment);
 		default_segment->linkToDocument(this);
-		memClaim(mSegments);
+		claimMem(mSegments);
 	}
 }
 
@@ -939,7 +937,7 @@ void LLTextBase::insertSegment(LLTextSegmentPtr segment_to_insert)
 		return;
 	}
 
-	memDisclaim(mSegments);
+	disclaimMem(mSegments);
 
 	segment_set_t::iterator cur_seg_iter = getSegIterContaining(segment_to_insert->getStart());
 	S32 reflow_start_index = 0;
@@ -1013,7 +1011,7 @@ void LLTextBase::insertSegment(LLTextSegmentPtr segment_to_insert)
 
 	// layout potentially changed
 	needsReflow(reflow_start_index);
-	memClaim(mSegments);
+	claimMem(mSegments);
 }
 
 BOOL LLTextBase::handleMouseDown(S32 x, S32 y, MASK mask)
@@ -1324,10 +1322,10 @@ void LLTextBase::replaceWithSuggestion(U32 index)
 			removeStringNoUndo(it->first, it->second - it->first);
 
 			// Insert the suggestion in its place
-			memDisclaim(mSuggestionList);
+			disclaimMem(mSuggestionList);
 			LLWString suggestion = utf8str_to_wstring(mSuggestionList[index]);
 			insertStringNoUndo(it->first, utf8str_to_wstring(mSuggestionList[index]));
-			memClaim(mSuggestionList);
+			claimMem(mSuggestionList);
 
 			setCursorPos(it->first + (S32)suggestion.length());
 
@@ -1390,7 +1388,7 @@ bool LLTextBase::isMisspelledWord(U32 pos) const
 void LLTextBase::onSpellCheckSettingsChange()
 {
 	// Recheck the spelling on every change
-	memDisclaim(mMisspellRanges).clear();
+	disclaimMem(mMisspellRanges).clear();
 	mSpellCheckStart = mSpellCheckEnd = -1;
 }
 
@@ -1668,7 +1666,7 @@ LLRect LLTextBase::getTextBoundingRect()
 
 void LLTextBase::clearSegments()
 {
-	memDisclaim(mSegments).clear();
+	disclaimMem(mSegments).clear();
 	createDefaultSegment();
 }
 
@@ -3212,9 +3210,9 @@ void LLNormalTextSegment::setToolTip(const std::string& tooltip)
 		LL_WARNS() << "LLTextSegment::setToolTip: cannot replace keyword tooltip." << LL_ENDL;
 		return;
 	}
-	memDisclaim(mTooltip);
+	disclaimMem(mTooltip);
 	mTooltip = tooltip;
-	memClaim(mTooltip);
+	claimMem(mTooltip);
 }
 
 bool LLNormalTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const
