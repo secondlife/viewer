@@ -139,6 +139,9 @@
 	<string name="create_account_url">
 		http://join.secondlife.com/?sourceid=[sourceid]
 	</string>
+	<string name="ViewerDownloadURL">
+		http://secondlife.com/download
+	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		Le client que vous utilisez ne permet plus d&apos;accéder à Second Life. Téléchargez un nouveau client à la page suivante :
 http://secondlife.com/download
@@ -447,6 +450,9 @@ Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="SLappAgentRequestFriend">
 		Demande d&apos;amitié
+	</string>
+	<string name="SLappAgentRemoveFriend">
+		Suppression d&apos;un ami
 	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
 		Fermer (⌘W)
@@ -838,6 +844,9 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="multiple_textures">
 		Multiples
 	</string>
+	<string name="use_texture">
+		Utiliser la texture
+	</string>
 	<string name="texture_loading">
 		Chargement...
 	</string>
@@ -936,6 +945,21 @@ Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="TeleportYourAgent">
 		Vous téléporter
+	</string>
+	<string name="JoinAnExperience">
+		Rejoindre une expérience
+	</string>
+	<string name="SilentlyManageEstateAccess">
+		Supprimer les alertes lors de la gestion des listes d&apos;accès aux domaines
+	</string>
+	<string name="OverrideYourAnimations">
+		Remplacer vos animations par défaut
+	</string>
+	<string name="ScriptReturnObjects">
+		Renvoyer les objets de votre part
+	</string>
+	<string name="UnknownScriptPermission">
+		(inconnu)
 	</string>
 	<string name="SIM_ACCESS_PG">
 		Général
@@ -1968,6 +1992,12 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		HUD en bas à droite
 	</string>
+	<string name="ATTACH_NECK">
+		Cou
+	</string>
+	<string name="ATTACH_AVATAR_CENTER">
+		Centre de l&apos;avatar
+	</string>
 	<string name="CursorPos">
 		Ligne [LINE], colonne [COLUMN]
 	</string>
@@ -2996,6 +3026,9 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	</string>
 	<string name="Hip Width">
 		Largeur hanche
+	</string>
+	<string name="Hover">
+		Survol
 	</string>
 	<string name="In">
 		Rentré
@@ -5080,5 +5113,8 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	</string>
 	<string name="logging_calls_enabled_log_empty">
 		Il n&apos;y a aucune conversation enregistrée. Quand quelqu&apos;un vous contacte ou quand vous contactez quelqu&apos;un, une entrée de journal s&apos;affiche ici.
+	</string>
+	<string name="loading_chat_logs">
+		Chargement...
 	</string>
 </strings>

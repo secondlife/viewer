@@ -16,7 +16,10 @@
 			<menu_item_call label="私のアニメーションを停止する" name="Stop Animating My Avatar"/>
 			<menu_item_call label="歩行／走行／飛行..." name="Walk / run / fly"/>
 		</menu>
-		<menu label="ログイン" name="Status"/>
+		<menu label="ログイン" name="Status">
+			<menu_item_check label="一時退席中" name="Away"/>
+			<menu_item_check label="着信拒否" name="Do Not Disturb"/>
+		</menu>
 		<menu_item_call label="L$ の購入..." name="Buy and Sell L$"/>
 		<menu_item_call label="マーチャントアウトボックス..." name="MerchantOutbox"/>
 		<menu_item_call label="マイアカウント..." name="Manage My Account">
@@ -32,6 +35,7 @@
 		<menu_item_check label="会話..." name="Conversations"/>
 		<menu_item_check label="近くのチャット..." name="Nearby Chat"/>
 		<menu_item_check label="話す" name="Speak"/>
+		<menu_item_check label="会話ログ..." name="Conversation Log..."/>
 		<menu label="ボイスモーフィング" name="VoiceMorphing">
 			<menu_item_check label="ボイスモーフィングなし" name="NoVoiceMorphing"/>
 			<menu_item_check label="プレビュー..." name="Preview"/>
@@ -42,6 +46,7 @@
 		<menu_item_check label="グループ" name="My Groups"/>
 		<menu_item_check label="近くにいる人" name="Active Speakers"/>
 		<menu_item_call label="リストをブロック" name="Block List"/>
+		<menu_item_check label="着信拒否" name="Do Not Disturb"/>
 	</menu>
 	<menu label="世界" name="World">
 		<menu_item_call label="現在地をランドマーク" name="Create Landmark Here"/>
@@ -110,6 +115,7 @@
 			<menu_item_call label="次の部分を含める" name="Include Next Part"/>
 			<menu_item_call label="前回の部分を含める" name="Include Previous Part"/>
 		</menu>
+		<menu_item_call label="リンクセット..." name="pathfinding_linkset_menu_item"/>
 		<menu_item_call label="選択したものに焦点を合わせる" name="Focus on Selection"/>
 		<menu_item_call label="選択したものをズームする" name="Zoom to Selection"/>
 		<menu label="オブジェクト" name="Object">
@@ -279,6 +285,7 @@
 			<menu_item_check label="フレームレートをランダム化" name="Randomize Framerate"/>
 			<menu_item_check label="定期的に遅いフレームを挿入する" name="Periodic Slow Frame"/>
 			<menu_item_check label="フレームテスト" name="Frame Test"/>
+			<menu_item_call label="フレームプロフィール" name="Frame Profile"/>
 		</menu>
 		<menu label="メタデータのレンダー" name="Render Metadata">
 			<menu_item_check label="バウンディングボックス" name="Bounding Boxes"/>
@@ -313,9 +320,10 @@
 			<menu_item_check label="軸" name="Axes"/>
 			<menu_item_check label="接線基底" name="Tangent Basis"/>
 			<menu_item_call label="選択したテクスチャ情報基底" name="Selected Texture Info Basis"/>
+			<menu_item_call label="選択したマテリアル情報" name="Selected Material Info"/>
 			<menu_item_check label="ワイヤーフレーム" name="Wireframe"/>
 			<menu_item_check label="オブジェクト間オクルージョン" name="Object-Object Occlusion"/>
-			<menu_item_check label="光と影" name="Advanced Lighting Model"/>
+			<menu_item_check label="高度なライティングモデル" name="Advanced Lighting Model"/>
 			<menu_item_check label="太陽・月・プロジェクタからの影" name="Shadows from Sun/Moon/Projectors"/>
 			<menu_item_check label="SSAO と影の平滑化" name="SSAO and Shadow Smoothing"/>
 			<menu_item_check label="GL デバッグ" name="Debug GL"/>
@@ -325,7 +333,6 @@
 			<menu_item_check label="アニメーションテクスチャ" name="Animation Textures"/>
 			<menu_item_check label="テクスチャを無効にする" name="Disable Textures"/>
 			<menu_item_check label="フル解像度テクスチャ" name="Rull Res Textures"/>
-			<menu_item_check label="テクスチャアトラス（試験段階）" name="Texture Atlas"/>
 			<menu_item_check label="装着された光源を描画する" name="Render Attached Lights"/>
 			<menu_item_check label="取り付けられたパーティクルを描画する" name="Render Attached Particles"/>
 			<menu_item_check label="マウスオーバーで強調表示する" name="Hover Glow Objects"/>
@@ -361,7 +368,6 @@
 			<menu_item_call label="フォーカスホールダーをダンプ" name="Dump Focus Holder"/>
 			<menu_item_call label="選択したオブジェクト情報をプリント" name="Print Selected Object Info"/>
 			<menu_item_call label="エージェント情報をプリント" name="Print Agent Info"/>
-			<menu_item_call label="メモリ使用状況" name="Memory Stats"/>
 			<menu_item_check label="地域デバッグコンソール" name="Region Debug Console"/>
 			<menu_item_check label="SelectMgr のデバッグ" name="Debug SelectMgr"/>
 			<menu_item_check label="ダブルクリック" name="Debug Clicks"/>

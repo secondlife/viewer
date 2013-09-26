@@ -177,10 +177,86 @@
      width="80">
         Ultra
     </text>
+  <slider
+   control_name="RenderAvatarLODFactor"
+   invisiblity_control="ShowAdvancedGraphicsSettings"
+   follows="left|top"
+   height="16"
+   increment="0.125"
+   initial_value="160"
+   label="Avatar detail:"
+   label_width="90"
+   layout="topleft"
+   left="30"
+   name="AvatarMeshDetail2"
+   show_text="false"
+   top="72"
+   width="300">
+    <slider.commit_callback
+     function="Pref.UpdateSliderText"
+     parameter="AvatarMeshDetailText2" />
+  </slider>
+  <text
+   type="string"
+   invisiblity_control="ShowAdvancedGraphicsSettings"
+   length="1"
+   follows="left|top"
+   height="12"
+   layout="topleft"
+   name="AvatarMeshDetailText2"
+   top_delta="0"
+   left_delta="304"
+   width="128">
+    Low
+  </text>
+  <slider
+   control_name="RenderFarClip"
+   invisiblity_control="ShowAdvancedGraphicsSettings"
+   decimal_digits="0"
+   follows="left|top"
+   height="16"
+   increment="8"
+   initial_value="160"
+   label="Draw distance:"
+   label_width="90"
+   layout="topleft"
+   left="30"
+   max_val="512"
+   min_val="64"
+   name="DrawDistance"
+   top="110"
+   width="330" />
+  <text
+   type="string"
+   invisiblity_control="ShowAdvancedGraphicsSettings"
+   length="1"
+   follows="left|top"
+   height="12"
+   layout="topleft"
+   left_delta="330"
+   name="DrawDistanceMeterText2"
+   top_delta="0"
+   width="128">
+    m
+  </text>
+  <check_box
+		 control_name="RenderDeferred"
+     invisiblity_control="ShowAdvancedGraphicsSettings"
+		 height="16"
+		 initial_value="true"
+		 label="Advanced Lighting Model"
+		 layout="topleft"
+		 left="30"
+		 name="UseLightShaders2"
+		 top="148"
+		 width="256">
+    <check_box.commit_callback
+      function="Pref.VertexShaderEnable" />
+  </check_box>
     <panel
-	 visiblity_control="ShowAdvancedGraphicsSettings"
+	   visiblity_control="ShowAdvancedGraphicsSettings"
      border="false"
-	 follows="top|left"
+	   follows="top|left"
      height="300"
      label="CustomGraphics"
      layout="topleft"
@@ -224,13 +300,13 @@
         function="Pref.VertexShaderEnable" />
       </check_box>
     <check_box
-		control_name="RenderLocalLights"
-		height="16"
-		initial_value="true"
-		label="Local Lights"
-		layout="topleft"
-		left_delta="0"
-		name="LocalLights"
+		 control_name="RenderLocalLights"
+		 height="16"
+		 initial_value="true"
+		 label="Local Lights"
+		 layout="topleft"
+		 left_delta="0"
+		 name="LocalLights"
 		 top_pad="1"
 		 width="256" />
 		  <check_box

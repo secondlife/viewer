@@ -57,7 +57,7 @@ class LLDragDropWin32
 #include <windows.h>
 #include <ole2.h>
 
-// imposter class that does nothing 
+// impostor class that does nothing 
 class LLDragDropWin32
 {
 	public:

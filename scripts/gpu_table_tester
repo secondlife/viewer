@@ -46,8 +46,8 @@ my $mini_HELP = "
   $MyName {--gpu-table|-g} <gpu_table.txt> {--diff|-d} <old_results> [ <gpu-strings-file> ...]
 
     With the --diff option, the report compares the current results to <old-results>,
-    which should be the output from a previous run without --diff.  The report shows 
-    each input value with the old result and the new result if they are different. 
+    which should be the output from a previous run without --diff.  The report shows each
+    input value with the old result and the new result if it is different.
 ";
 
 &GetOptions("help"               => \$Help

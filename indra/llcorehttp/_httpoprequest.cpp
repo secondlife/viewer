@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -186,9 +186,11 @@ void HttpOpRequest::stageFromActive(HttpService * service)
 	if (mReplyLength)
 	{
 		// If non-zero, we received and processed a Content-Range
-		// header with the response.  Verify that what it says
-		// is consistent with the received data.
-		if (mReplyLength != mReplyBody->size())
+		// header with the response.  If there is received data
+		// (and there may not be due to protocol violations,
+		// HEAD requests, etc., see BUG-2295) Verify that what it
+		// says is consistent with the received data.
+		if (mReplyBody && mReplyBody->size() && mReplyLength != mReplyBody->size())
 		{
 			// Not as expected, fail the request
 			mStatus = HttpStatus(HttpStatus::LLCORE, HE_INV_CONTENT_RANGE_HDR);
@@ -339,7 +341,6 @@ void HttpOpRequest::setupCommon(HttpRequest::policy_t policy_id,
 	}
 }
 
-
 // Sets all libcurl options and data for a request.
 //
 // Used both for initial requests and to 'reload' for
@@ -381,41 +382,15 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	// Get policy options
 	HttpPolicyGlobal & policy(service->getPolicy().getGlobalOptions());
 	
-	mCurlHandle = curl_easy_init();
-	curl_easy_setopt(mCurlHandle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-	curl_easy_setopt(mCurlHandle, CURLOPT_NOSIGNAL, 1);
-	curl_easy_setopt(mCurlHandle, CURLOPT_NOPROGRESS, 1);
+	mCurlHandle = LLCurl::createStandardCurlHandle();
+
+	curl_easy_setopt(mCurlHandle, CURLOPT_WRITEFUNCTION, writeCallback);
+	curl_easy_setopt(mCurlHandle, CURLOPT_READFUNCTION,  readCallback);	
+	curl_easy_setopt(mCurlHandle, CURLOPT_READDATA, this);
+	curl_easy_setopt(mCurlHandle, CURLOPT_WRITEDATA, this);
 	curl_easy_setopt(mCurlHandle, CURLOPT_URL, mReqURL.c_str());
 	curl_easy_setopt(mCurlHandle, CURLOPT_PRIVATE, this);
-	curl_easy_setopt(mCurlHandle, CURLOPT_ENCODING, "");
-
-	if (HTTP_ENABLE_LINKSYS_WRT54G_V5_DNS_FIX)
-	{
-		// The Linksys WRT54G V5 router has an issue with frequent
-		// DNS lookups from LAN machines.  If they happen too often,
-		// like for every HTTP request, the router gets annoyed after
-		// about 700 or so requests and starts issuing TCP RSTs to
-		// new connections.  Reuse the DNS lookups for even a few
-		// seconds and no RSTs.
-		curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, 15);
-	}
-	else
-	{
-		// *TODO:  Revisit this old DNS timeout setting - may no longer be valid
-		// I don't think this is valid anymore, the Multi shared DNS
-		// cache is working well.  For the case of naked easy handles,
-		// consider using a shared DNS object.
-		curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, 0);
-	}
-	curl_easy_setopt(mCurlHandle, CURLOPT_AUTOREFERER, 1);
-	curl_easy_setopt(mCurlHandle, CURLOPT_FOLLOWLOCATION, 1);
-	curl_easy_setopt(mCurlHandle, CURLOPT_MAXREDIRS, HTTP_REDIRECTS_DEFAULT);
-	curl_easy_setopt(mCurlHandle, CURLOPT_WRITEFUNCTION, writeCallback);
-	curl_easy_setopt(mCurlHandle, CURLOPT_WRITEDATA, this);
-	curl_easy_setopt(mCurlHandle, CURLOPT_READFUNCTION, readCallback);
-	curl_easy_setopt(mCurlHandle, CURLOPT_READDATA, this);
-	curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYPEER, 1);
-	curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYHOST, 0);
+	curl_easy_setopt(mCurlHandle, CURLOPT_MAXREDIRS, HTTP_REDIRECTS_DEFAULT);	
 
 	const std::string * opt_value(NULL);
 	long opt_long(0L);
@@ -694,7 +669,7 @@ int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffe
 	std::string safe_line;
 	std::string tag;
 	bool logit(false);
-	len = (std::min)(len, size_t(256));					// Keep things reasonable in all cases
+	const size_t log_len((std::min)(len, size_t(256)));		// Keep things reasonable in all cases
 	
 	switch (info)
 	{
@@ -702,7 +677,7 @@ int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffe
 		if (op->mTracing >= HTTP_TRACE_CURL_HEADERS)
 		{
 			tag = "TEXT";
-			escape_libcurl_debug_data(buffer, len, true, safe_line);
+			escape_libcurl_debug_data(buffer, log_len, true, safe_line);
 			logit = true;
 		}
 		break;
@@ -711,7 +686,7 @@ int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffe
 		if (op->mTracing >= HTTP_TRACE_CURL_HEADERS)
 		{
 			tag = "HEADERIN";
-			escape_libcurl_debug_data(buffer, len, true, safe_line);
+			escape_libcurl_debug_data(buffer, log_len, true, safe_line);
 			logit = true;
 		}
 		break;
@@ -720,7 +695,7 @@ int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffe
 		if (op->mTracing >= HTTP_TRACE_CURL_HEADERS)
 		{
 			tag = "HEADEROUT";
-			escape_libcurl_debug_data(buffer, 2 * len, true, safe_line);		// Goes out as one line
+			escape_libcurl_debug_data(buffer, log_len, true, safe_line);	// Goes out as one line unlike header_in
 			logit = true;
 		}
 		break;
@@ -732,7 +707,7 @@ int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffe
 			logit = true;
 			if (op->mTracing >= HTTP_TRACE_CURL_BODIES)
 			{
-				escape_libcurl_debug_data(buffer, len, false, safe_line);
+				escape_libcurl_debug_data(buffer, log_len, false, safe_line);
 			}
 			else
 			{
@@ -750,7 +725,7 @@ int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffe
 			logit = true;
 			if (op->mTracing >= HTTP_TRACE_CURL_BODIES)
 			{
-				escape_libcurl_debug_data(buffer, len, false, safe_line);
+				escape_libcurl_debug_data(buffer, log_len, false, safe_line);
 			}
 			else
 			{

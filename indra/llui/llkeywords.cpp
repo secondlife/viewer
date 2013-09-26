@@ -367,7 +367,6 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
 
 	const llwchar* base = wtext.c_str();
 	const llwchar* cur = base;
-
 	while( *cur )
 	{
 		if( *cur == '\n' || cur == base )

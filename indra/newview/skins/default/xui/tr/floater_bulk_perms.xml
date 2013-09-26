@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floaterbulkperms" title="İÇERİK İZİNLERİNİ DÜZENLE">
+<floater name="floaterbulkperms" title="İÇERİK İZİNLERİNİ AYARLA">
 	<floater.string name="nothing_to_modify_text">
 		Seçim içerisinde düzenlenebilir içerik yok.
 	</floater.string>
@@ -24,7 +24,7 @@
 	<button label="√ Tümü" name="check_all"/>
 	<button label="Temizle" label_selected="Hiçbiri" name="check_none"/>
 	<text name="newperms">
-		Yeni İçerik İzinleri
+		Şunun İçin İçerik İzinlerini Ayarla:
 	</text>
 	<text name="GroupLabel">
 		Grup:
@@ -40,6 +40,7 @@
 	<check_box label="Değiştir" name="next_owner_modify"/>
 	<check_box label="Kopyala" name="next_owner_copy"/>
 	<check_box initial_value="true" label="Aktar" name="next_owner_transfer" tool_tip="Sonraki sahibi bu nesneyi verebilir veya tekrar satabilir"/>
-	<button label="Tamam" name="apply"/>
+	<button label="Tamam" name="ok"/>
+	<button label="Uygula" name="apply"/>
 	<button label="İptal" name="close"/>
 </floater>

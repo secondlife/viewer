@@ -40,7 +40,7 @@
 static U32 test_preferred_maturity = SIM_ACCESS_PG;
 
 LLControlGroup::LLControlGroup(const std::string& name)
-	: LLInstanceTracker<LLControlGroup, std::string>(name)
+:	LLInstanceTracker<LLControlGroup, std::string>(name)
 {
 }
 

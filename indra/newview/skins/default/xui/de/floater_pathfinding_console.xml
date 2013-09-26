@@ -71,7 +71,7 @@
 			<text name="show_label">
 				Anzeigen:
 			</text>
-			<check_box label="Test" name="show_world"/>
+			<check_box label="Welt" name="show_world"/>
 			<check_box label="Nur bewegliche Objekte" name="show_world_movables_only"/>
 			<check_box label="Navmesh" name="show_navmesh"/>
 			<text name="show_walkability_label">
