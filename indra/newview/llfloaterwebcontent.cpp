@@ -253,11 +253,6 @@ void LLFloaterWebContent::open_media(const Params& p)
 	getChildView("address")->setEnabled(address_entry_enabled);
 	getChildView("popexternal")->setEnabled(address_entry_enabled);
 
-	if (!address_entry_enabled)
-	{
-		mWebBrowser->setFocus(TRUE);
-	}
-
 	if (!p.show_chrome)
 	{
 		setResizeLimits(100, 100);
@@ -434,9 +429,6 @@ void LLFloaterWebContent::set_current_url(const std::string& url)
         mAddressCombo->remove(mCurrentURL);
         mAddressCombo->add(mDisplayURL);
         mAddressCombo->selectByValue(mDisplayURL);
-
-        // Set the focus back to the web page. When setting the url, there's no point to leave the focus anywhere else.
-		mWebBrowser->setFocus(TRUE);
     }
 }
 
