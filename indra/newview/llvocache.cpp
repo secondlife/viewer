@@ -312,11 +312,6 @@ void LLVOCacheEntry::dump() const
 
 BOOL LLVOCacheEntry::writeToFile(LLAPRFile* apr_file) const
 {
-	if(!mEntry)
-	{
-		return FALSE;
-	}
-
 	BOOL success;
 	success = check_write(apr_file, (void*)&mLocalID, sizeof(U32));
 	if(success)
@@ -1191,7 +1186,7 @@ void LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::voca
 	
 				if(success)
 				{
-					for (S32 i = 0; i < num_entries; i++)
+					for (S32 i = 0; i < num_entries && apr_file.eof() != APR_EOF; i++)
 					{
 						LLPointer<LLVOCacheEntry> entry = new LLVOCacheEntry(&apr_file);
 						if (!entry->getLocalID())
@@ -1308,6 +1303,10 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
 				if(!removal_enabled || iter->second->isTouched())
 				{
 					success = iter->second->writeToFile(&apr_file) ;
+					if(!success)
+					{
+						break;
+					}
 				}
 			}
 		}
@@ -1316,7 +1315,6 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
 	if(!success)
 	{
 		removeEntry(entry) ;
-
 	}
 
 	return ;
