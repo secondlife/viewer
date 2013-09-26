@@ -208,6 +208,7 @@
         <stat_bar
          bar_max="2"
          bar_min="-2"
+				 show_bar="true"
          height="0"
          label="Axis 0"
          label_spacing="1"
@@ -220,6 +221,7 @@
         <stat_bar
          bar_max="2"
          bar_min="-2"
+				 show_bar="true"
          label="Axis 1"
          label_spacing="1"
          layout="topleft"
@@ -228,6 +230,7 @@
         <stat_bar
          bar_max="2"
          bar_min="-2"
+				 show_bar="true"
          label="Axis 2"
          label_spacing="1"
          layout="topleft"
@@ -236,6 +239,7 @@
         <stat_bar
          bar_max="2"
          bar_min="-2"
+				 show_bar="true"
          label="Axis 3"
          label_spacing="1"
          layout="topleft"
@@ -244,6 +248,7 @@
         <stat_bar
          bar_max="2"
          bar_min="-2"
+				 show_bar="true"
          label="Axis 4"
          label_spacing="1"
          layout="topleft"

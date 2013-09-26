@@ -42,20 +42,20 @@
 #include "llviewerjoystick.h"
 #include "llcheckboxctrl.h"
 
-static LLTrace::SampleStatHandle<>	sJoystickAxis1("Joystick axis 1"),
+static LLTrace::SampleStatHandle<>	sJoystickAxis0("Joystick axis 0"),
+									sJoystickAxis1("Joystick axis 1"),
 									sJoystickAxis2("Joystick axis 2"),
 									sJoystickAxis3("Joystick axis 3"),
 									sJoystickAxis4("Joystick axis 4"),
-									sJoystickAxis5("Joystick axis 5"),
-									sJoystickAxis6("Joystick axis 6");
+									sJoystickAxis5("Joystick axis 5");
 static LLTrace::SampleStatHandle<>* sJoystickAxes[6] = 
 {
+	&sJoystickAxis0,
 	&sJoystickAxis1,
 	&sJoystickAxis2,
 	&sJoystickAxis3,
 	&sJoystickAxis4,
-	&sJoystickAxis5,
-	&sJoystickAxis6
+	&sJoystickAxis5
 };
 
 LLFloaterJoystick::LLFloaterJoystick(const LLSD& data)

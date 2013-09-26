@@ -62,7 +62,7 @@ F32 calc_tick_value(F32 min, F32 max)
 	{
 		S32 divisor = DIVISORS[divisor_idx];
 		F32 possible_tick_value = range / divisor;
-		S32 num_whole_digits = llceil(logf(min + possible_tick_value) * OO_LN10);
+		S32 num_whole_digits = llceil(logf(llabs(min + possible_tick_value)) * OO_LN10);
 		for (S32 digit_count = -(num_whole_digits - 1); digit_count < 6; digit_count++)
 		{
 			F32 test_tick_value = min + (possible_tick_value * pow(10.0, digit_count));
@@ -681,8 +681,8 @@ void LLStatBar::drawTicks( F32 min, F32 max, F32 value_scale, LLRect &bar_rect )
 
 	// start counting from actual min, not current, animating min, so that ticks don't float between numbers
 	// ensure ticks always hit 0
-	S32 last_tick = 0;
-	S32 last_label = 0;
+	S32 last_tick = S32_MIN;
+	S32 last_label = S32_MIN;
 	if (mTickValue > 0.f && value_scale > 0.f)
 	{
 		const S32 MIN_TICK_SPACING  = mOrientation == HORIZONTAL ? 20 : 30;
@@ -697,7 +697,7 @@ void LLStatBar::drawTicks( F32 min, F32 max, F32 value_scale, LLRect &bar_rect )
 		{
 			const S32 begin = llfloor((tick_value - mCurMinBar)*value_scale);
 			const S32 end = begin + TICK_WIDTH;
-			if (begin - last_tick < MIN_TICK_SPACING)
+			if (begin < last_tick + MIN_TICK_SPACING)
 			{
 				continue;
 			}
@@ -712,7 +712,7 @@ void LLStatBar::drawTicks( F32 min, F32 max, F32 value_scale, LLRect &bar_rect )
 
 			if (mOrientation == HORIZONTAL)
 			{
-				if (begin - last_label > MIN_LABEL_SPACING)
+				if (begin > last_label + MIN_LABEL_SPACING)
 				{
 					gl_rect_2d(bar_rect.mLeft, end, bar_rect.mRight - TICK_LENGTH, begin, LLColor4(1.f, 1.f, 1.f, 0.25f));
 					LLFontGL::getFontMonospace()->renderUTF8(tick_string, 0, bar_rect.mRight, begin,
@@ -727,7 +727,7 @@ void LLStatBar::drawTicks( F32 min, F32 max, F32 value_scale, LLRect &bar_rect )
 			}
 			else
 			{
-				if (begin - last_label > MIN_LABEL_SPACING)
+				if (begin > last_label + MIN_LABEL_SPACING)
 				{
 					gl_rect_2d(begin, bar_rect.mTop, end, bar_rect.mBottom - TICK_LENGTH, LLColor4(1.f, 1.f, 1.f, 0.25f));
 					LLFontGL::getFontMonospace()->renderUTF8(tick_string, 0, begin - 1, bar_rect.mBottom - TICK_LENGTH,
