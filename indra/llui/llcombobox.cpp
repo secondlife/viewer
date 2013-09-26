@@ -534,6 +534,13 @@ void LLComboBox::createLineEditor(const LLComboBox::Params& p)
 	}
 }
 
+void LLComboBox::setLeftTextPadding(S32 pad)
+{
+	S32 left_pad, right_pad;
+	mTextEntry->getTextPadding(&left_pad, &right_pad);
+	mTextEntry->setTextPadding(pad, right_pad);
+}
+
 void* LLComboBox::getCurrentUserdata()
 {
 	LLScrollListItem* item = mList->getFirstSelected();

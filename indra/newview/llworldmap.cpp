@@ -518,10 +518,17 @@ bool LLWorldMap::insertItem(U32 x_world, U32 y_world, std::string& name, LLUUID&
 		case MAP_ITEM_LAND_FOR_SALE:		// land for sale
 		case MAP_ITEM_LAND_FOR_SALE_ADULT:	// adult land for sale 
 		{
+			F32 cost_per_sqm = 0.0f;
+			if ((F32)extra > 0)
+			{
+				cost_per_sqm = (F32)extra2 / (F32)extra;
+			}
+
 			static LLUIString tooltip_fmt = LLTrans::getString("worldmap_item_tooltip_format");
 
 			tooltip_fmt.setArg("[AREA]",  llformat("%d", extra));
 			tooltip_fmt.setArg("[PRICE]", llformat("%d", extra2));
+			tooltip_fmt.setArg("[PRICE_PER_SQM]", llformat("%.1f", cost_per_sqm));
 			new_item.setTooltip(tooltip_fmt.getString());
 
 			if (type == MAP_ITEM_LAND_FOR_SALE)

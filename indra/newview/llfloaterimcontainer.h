@@ -134,7 +134,7 @@ private:
 	void onStubCollapseButtonClicked();
 	void processParticipantsStyleUpdate();
 	void onSpeakButtonClicked();
-	/*virtual*/ void onClickCloseBtn();
+	/*virtual*/ void onClickCloseBtn(bool app_quitting = false);
 	/*virtual*/ void closeHostedFloater();
 
 	void collapseConversationsPane(bool collapse, bool save_is_allowed=true);
@@ -172,6 +172,7 @@ private:
 	void toggleAllowTextChat(const LLUUID& participant_uuid);
 	void toggleMute(const LLUUID& participant_id, U32 flags);
 	void openNearbyChat();
+	bool isParticipantListExpanded();
 
 	LLButton* mExpandCollapseBtn;
 	LLButton* mStubCollapseBtn;
