@@ -54,6 +54,19 @@
 	}
 	
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(languageUpdated) name:@"NSTextInputContextKeyboardSelectionDidChangeNotification" object:nil];
+
+    [[NSAppleEventManager sharedAppleEventManager] setEventHandler:self andSelector:@selector(handleGetURLEvent:withReplyEvent:) forEventClass:kInternetEventClass andEventID:kAEGetURL];
+}
+
+- (void) handleGetURLEvent:(NSAppleEventDescriptor *)event withReplyEvent:(NSAppleEventDescriptor *)replyEvent {
+    NSString    *url= nil;
+    url = [[[[NSAppleEventManager sharedAppleEventManager]// 1
+                      currentAppleEvent]// 2
+                     paramDescriptorForKeyword:keyDirectObject]// 3
+                    stringValue];// 4
+
+    const char* url_utf8 = [url UTF8String];
+   handleUrl(url_utf8);
 }
 
 - (void) applicationDidBecomeActive:(NSNotification *)notification
