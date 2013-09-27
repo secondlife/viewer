@@ -351,7 +351,7 @@ const S32 REQUEST2_HIGH_WATER_MAX = 80;
 const S32 REQUEST2_LOW_WATER_MIN = 16;
 const S32 REQUEST2_LOW_WATER_MAX = 40;
 const U32 LARGE_MESH_FETCH_THRESHOLD = 1U << 21;		// Size at which requests goes to narrow/slow queue
-const long SMALL_MESH_XFER_TIMEOUT = 60L;				// Seconds to complete xfer, small mesh downloads
+const long SMALL_MESH_XFER_TIMEOUT = 120L;				// Seconds to complete xfer, small mesh downloads
 const long LARGE_MESH_XFER_TIMEOUT = 600L;				// Seconds to complete xfer, large downloads
 
 // Maximum mesh version to support.  Three least significant digits are reserved for the minor version, 

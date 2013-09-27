@@ -66,6 +66,12 @@
 //   This won't help in the face of the router problems we've looked
 //   at, however.  Detect starvation due to UDP activity and provide
 //   feedback to it.
+// - Change the transfer timeout scheme.  We're less interested in
+//   absolute time, in most cases, than in continuous progress.
+// - Many of the policy class settings are currently applied to the
+//   entire class.  Some, like connection limits, would be better
+//   applied to each destination target making multiple targets
+//   independent.
 //
 // Integration to-do list
 // - LLTextureFetch still needs a major refactor.  The use of
@@ -75,7 +81,6 @@
 //   the main source file.
 // - Expand areas of usage eventually leading to the removal of LLCurl.
 //   Rough order of expansion:
-//   .  Mesh fetch [Underway]
 //   .  Avatar names
 //   .  Group membership lists
 //   .  Caps access in general

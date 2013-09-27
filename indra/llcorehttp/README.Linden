@@ -653,4 +653,19 @@ HttpOperation::addAsReply: TRACE, ToReplyQueue, Handle:  086D3148
 
     Q2.  How's that data sharing with refcounts working for you?
 
-    A2.  Meh.
+    A2.  Meh.  It does reduce memory churn and the frequency at which
+    free blocks must be moved between threads.  But it's also a design
+    for static configuration and dynamic reconfiguration (not
+    requiring a restart) is favored.  Creating new options for every
+    request isn't too bad, it a sequence of "new, fill, request,
+    release" for each requested operation.  That in contrast to doing
+    the "new, fill, release" at startup.  The bad comes in getting at
+    the source data.  One rule in this work was "no new thread
+    problems."  And one source for those is pulling setting values out
+    of gSettings in threads.  None of that is thread safe though we
+    tend to get away with it.
+
+    Q3.  What needs to be done?
+
+    A3.  There's a To-Do list in _httpinternal.h.  It has both large
+    and small projects here if someone would like to try changes.
