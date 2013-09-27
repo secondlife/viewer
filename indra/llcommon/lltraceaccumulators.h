@@ -95,7 +95,7 @@ namespace LLTrace
 
 		void addSamples(const AccumulatorBuffer<ACCUMULATOR>& other, EBufferAppendType append_type)
 		{
-			llassert(mStorageSize >= sNextStorageSlot && other.mStorageSize > sNextStorageSlot);
+			llassert(mStorageSize >= sNextStorageSlot && other.mStorageSize >= sNextStorageSlot);
 			for (size_t i = 0; i < sNextStorageSlot; i++)
 			{
 				mStorage[i].addSamples(other.mStorage[i], append_type);
@@ -104,7 +104,7 @@ namespace LLTrace
 
 		void copyFrom(const AccumulatorBuffer<ACCUMULATOR>& other)
 		{
-			llassert(mStorageSize >= sNextStorageSlot && other.mStorageSize > sNextStorageSlot);
+			llassert(mStorageSize >= sNextStorageSlot && other.mStorageSize >= sNextStorageSlot);
 			for (size_t i = 0; i < sNextStorageSlot; i++)
 			{
 				mStorage[i] = other.mStorage[i];
