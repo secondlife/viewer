@@ -1303,6 +1303,9 @@ void LLViewerRegion::calcNewObjectCreationThrottle()
 			}
 		}
 	}
+
+	//update some LLVOCacheEntry debug setting factors.
+	LLVOCacheEntry::updateDebugSettings();
 }
 
 BOOL LLViewerRegion::isViewerCameraStatic()
@@ -1332,9 +1335,7 @@ F32 LLViewerRegion::killInvisibleObjects(F32 max_time)
 	
 	std::vector<LLDrawable*> delete_list;
 	S32 update_counter = llmin(max_update, mImpl->mActiveSet.size());
-	LLVOCacheEntry::vocache_entry_set_t::iterator iter = mImpl->mActiveSet.upper_bound(mLastVisitedEntry);	
-	
-	LLVOCacheEntry::updateBackCullingFactors();
+	LLVOCacheEntry::vocache_entry_set_t::iterator iter = mImpl->mActiveSet.upper_bound(mLastVisitedEntry);		
 
 	for(; update_counter > 0; --update_counter, ++iter)
 	{	

@@ -125,8 +125,7 @@ public:
 	void setUpdateFlags(U32 flags) {mUpdateFlags = flags;}
 	U32  getUpdateFlags() const    {return mUpdateFlags;}
 
-	static void updateBackCullingFactors();
-	static U32  getInvisibleObjectsLiveTime();
+	static void updateDebugSettings();
 
 private:
 	void updateParentBoundingInfo(const LLVOCacheEntry* child);	
@@ -149,7 +148,6 @@ protected:
 	U8							*mBuffer;
 
 	F32                         mSceneContrib; //projected scene contributuion of this object.
-	U32                         mMinFrameRange;
 	U32                         mState; //high 16 bits reserved for special use.
 	std::vector<LLVOCacheEntry*> mChildrenList; //children entries in a linked set.
 
@@ -157,6 +155,9 @@ protected:
 
 	static F32                  sBackDistanceSquared;
 	static F32                  sBackAngleTanSquared;
+
+public:
+	static U32                  sMinFrameRange;
 };
 
 class LLVOCachePartition : public LLViewerOctreePartition, public LLTrace::MemTrackable<LLVOCachePartition>

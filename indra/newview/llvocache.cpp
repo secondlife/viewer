@@ -37,6 +37,7 @@
 
 F32 LLVOCacheEntry::sBackDistanceSquared = 0.f;
 F32 LLVOCacheEntry::sBackAngleTanSquared = 0.f;
+U32 LLVOCacheEntry::sMinFrameRange = 0;
 BOOL LLVOCachePartition::sNeedsOcclusionCheck = FALSE;
 
 BOOL check_read(LLAPRFile* apr_file, void* src, S32 n_bytes) 
@@ -53,14 +54,6 @@ BOOL check_write(LLAPRFile* apr_file, void* src, S32 n_bytes)
 //---------------------------------------------------------------------------
 // LLVOCacheEntry
 //---------------------------------------------------------------------------
-//return number of frames invisible objects should stay in memory
-//static 
-U32 LLVOCacheEntry::getInvisibleObjectsLiveTime()
-{
-	static LLCachedControl<U32> inv_obj_time(gSavedSettings,"InvisibleObjectsInMemoryTime");
-
-	return inv_obj_time - 1; //make 0 to be the maximum 
-}
 
 LLVOCacheEntry::LLVOCacheEntry(U32 local_id, U32 crc, LLDataPackerBinaryBuffer &dp)
 	: LLViewerOctreeEntryData(LLViewerOctreeEntry::LLVOCACHEENTRY),
@@ -78,7 +71,6 @@ LLVOCacheEntry::LLVOCacheEntry(U32 local_id, U32 crc, LLDataPackerBinaryBuffer &
 	mBuffer = new U8[dp.getBufferSize()];
 	mDP.assignBuffer(mBuffer, dp.getBufferSize());
 	mDP = dp;
-	mMinFrameRange = getInvisibleObjectsLiveTime();
 }
 
 LLVOCacheEntry::LLVOCacheEntry()
@@ -96,7 +88,6 @@ LLVOCacheEntry::LLVOCacheEntry()
 	mParentID(0)
 {
 	mDP.assignBuffer(mBuffer, 0);
-	mMinFrameRange = getInvisibleObjectsLiveTime();
 }
 
 LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
@@ -111,7 +102,6 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 	S32 size = -1;
 	BOOL success;
 
-	mMinFrameRange = getInvisibleObjectsLiveTime();
 	mDP.assignBuffer(mBuffer, 0);
 	
 	success = check_read(apr_file, &mLocalID, sizeof(U32));
@@ -222,7 +212,7 @@ void LLVOCacheEntry::setState(U32 state)
 
 	if(getState() == ACTIVE)
 	{
-		const S32 MIN_INTERVAL = 64 + mMinFrameRange;
+		const S32 MIN_INTERVAL = 64 + sMinFrameRange;
 		U32 last_visible = getVisible();
 		
 		setVisible();
@@ -345,13 +335,18 @@ BOOL LLVOCacheEntry::writeToFile(LLAPRFile* apr_file) const
 }
 
 //static 
-void LLVOCacheEntry::updateBackCullingFactors()
+void LLVOCacheEntry::updateDebugSettings()
 {
 	//distance to keep objects = back_dist_factor * draw_distance
 	static LLCachedControl<F32> back_dist_factor(gSavedSettings,"BackDistanceFactor");
 
 	//squared tan(projection angle of the bbox), default is 10 (degree)
 	static LLCachedControl<F32> squared_back_angle(gSavedSettings,"BackProjectionAngleSquared");
+
+	//the number of frames invisible objects stay in memory
+	static LLCachedControl<U32> inv_obj_time(gSavedSettings,"InvisibleObjectsInMemoryTime");
+
+	sMinFrameRange = inv_obj_time - 1; //make 0 to be the maximum 
 
 	sBackDistanceSquared = back_dist_factor * gAgentCamera.mDrawDistance;
 	sBackDistanceSquared *= sBackDistanceSquared;
@@ -362,11 +357,6 @@ void LLVOCacheEntry::updateBackCullingFactors()
 bool LLVOCacheEntry::isRecentlyVisible() const
 {
 	bool vis = LLViewerOctreeEntryData::isRecentlyVisible();
-
-	if(!vis)
-	{
-		vis = (sCurVisible - getVisible() < mMinFrameRange);
-	}
 
 	//combination of projected area and squared distance
 	if(!vis && !mParentID && mSceneContrib > sBackAngleTanSquared) 
@@ -668,7 +658,7 @@ void LLVOCachePartition::selectBackObjects(LLCamera &camera)
 
 	if(mBackSlectionEnabled < 0)
 	{
-		mBackSlectionEnabled = LLVOCacheEntry::getInvisibleObjectsLiveTime() - 1;
+		mBackSlectionEnabled = LLVOCacheEntry::sMinFrameRange - 1;
 		mBackSlectionEnabled = llmax(mBackSlectionEnabled, (S32)1);
 	}
 
