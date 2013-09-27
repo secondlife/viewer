@@ -52,7 +52,7 @@ namespace LLTrace
 	class AccumulatorBuffer : public LLRefCount
 	{
 		typedef AccumulatorBuffer<ACCUMULATOR> self_t;
-		static const U32 ACCUMULATOR_BUFFER_SIZE_INCREMENT = 16;
+		static const S32 ACCUMULATOR_BUFFER_SIZE_INCREMENT = 16;
 	private:
 		struct StaticAllocationMarker { };
 
@@ -267,7 +267,7 @@ namespace LLTrace
 		F64	getMean() const              { return mMean; }
 		F64 getStandardDeviation() const { return sqrtf(mSumOfSquares / mNumSamples); }
 		F64 getSumOfSquares() const		 { return mSumOfSquares; }
-		U32 getSampleCount() const       { return mNumSamples; }
+		S32 getSampleCount() const       { return mNumSamples; }
 		bool hasValue() const			 { return mNumSamples > 0; }
 
 	private:
@@ -279,7 +279,7 @@ namespace LLTrace
 		F64	mMean,
 			mSumOfSquares;
 
-		U32	mNumSamples;
+		S32	mNumSamples;
 	};
 
 
@@ -352,7 +352,7 @@ namespace LLTrace
 		F64 getStandardDeviation() const { return sqrtf(mSumOfSquares / mTotalSamplingTime); }
 		F64 getSumOfSquares() const		 { return mSumOfSquares; }
 		F64SecondsImplicit getSamplingTime() { return mTotalSamplingTime; }
-		U32 getSampleCount() const       { return mNumSamples; }
+		S32 getSampleCount() const       { return mNumSamples; }
 		bool hasValue() const            { return mHasValue; }
 
 	private:
@@ -370,7 +370,7 @@ namespace LLTrace
 				mLastSampleTimeStamp,
 				mTotalSamplingTime;
 
-		U32		mNumSamples;
+		S32		mNumSamples;
 	};
 
 	class CountAccumulator
@@ -405,12 +405,12 @@ namespace LLTrace
 
 		F64	getSum() const { return mSum; }
 
-		U32 getSampleCount() const { return mNumSamples; }
+		S32 getSampleCount() const { return mNumSamples; }
 
 	private:
 		F64	mSum;
 
-		U32	mNumSamples;
+		S32	mNumSamples;
 	};
 
 	class TimeBlockAccumulator
@@ -422,7 +422,7 @@ namespace LLTrace
 		// fake classes that allows us to view different facets of underlying statistic
 		struct CallCountFacet 
 		{
-			typedef U32 value_t;
+			typedef S32 value_t;
 		};
 
 		struct SelfTimeFacet
@@ -451,7 +451,7 @@ namespace LLTrace
 		//
 		U64					mTotalTimeCounter,
 							mSelfTimeCounter;
-		U32					mCalls;
+		S32					mCalls;
 		class TimeBlock*	mParent;		// last acknowledged parent of this time block
 		class TimeBlock*	mLastCaller;	// used to bootstrap tree construction
 		U16					mActiveCount;	// number of timers with this ID active on stack

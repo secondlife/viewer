@@ -708,14 +708,14 @@ void LLStatBar::drawTicks( F32 min, F32 max, F32 value_scale, LLRect &bar_rect )
 			{
 				decimal_digits = 0;
 			}
-			std::string tick_string = llformat("%10.*f", decimal_digits, tick_value);
-
+			std::string tick_label = llformat("%.*f", decimal_digits, tick_value);
+			S32 tick_label_width = LLFontGL::getFontMonospace()->getWidth(tick_label);
 			if (mOrientation == HORIZONTAL)
 			{
 				if (begin > last_label + MIN_LABEL_SPACING)
 				{
 					gl_rect_2d(bar_rect.mLeft, end, bar_rect.mRight - TICK_LENGTH, begin, LLColor4(1.f, 1.f, 1.f, 0.25f));
-					LLFontGL::getFontMonospace()->renderUTF8(tick_string, 0, bar_rect.mRight, begin,
+					LLFontGL::getFontMonospace()->renderUTF8(tick_label, 0, bar_rect.mRight, begin,
 						LLColor4(1.f, 1.f, 1.f, 0.5f),
 						LLFontGL::LEFT, LLFontGL::VCENTER);
 					last_label = begin;
@@ -730,10 +730,11 @@ void LLStatBar::drawTicks( F32 min, F32 max, F32 value_scale, LLRect &bar_rect )
 				if (begin > last_label + MIN_LABEL_SPACING)
 				{
 					gl_rect_2d(begin, bar_rect.mTop, end, bar_rect.mBottom - TICK_LENGTH, LLColor4(1.f, 1.f, 1.f, 0.25f));
-					LLFontGL::getFontMonospace()->renderUTF8(tick_string, 0, begin - 1, bar_rect.mBottom - TICK_LENGTH,
+					S32 label_pos = begin - llround((F32)tick_label_width * ((F32)begin / (F32)bar_rect.getWidth()));
+					LLFontGL::getFontMonospace()->renderUTF8(tick_label, 0, label_pos, bar_rect.mBottom - TICK_LENGTH,
 						LLColor4(1.f, 1.f, 1.f, 0.5f),
-						LLFontGL::RIGHT, LLFontGL::TOP);
-					last_label = begin;
+						LLFontGL::LEFT, LLFontGL::TOP);
+					last_label = label_pos;
 				}
 				else
 				{

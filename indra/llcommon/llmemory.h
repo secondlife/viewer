@@ -145,7 +145,7 @@ inline void ll_aligned_free_32(void *p)
 #if defined(LL_WINDOWS)
 	_aligned_free(p);
 #elif defined(LL_DARWIN)
-	ll_aligned_free( p );
+	ll_aligned_free_fallback( p );
 #else
 	free(p); // posix_memalign() is compatible with heap deallocator
 #endif
