@@ -223,7 +223,7 @@ namespace LLTrace
 		typedef F64 value_t;
 
 		EventAccumulator()
-		:	mSum(NaN),
+		:	mSum(0),
 			mMin(NaN),
 			mMax(NaN),
 			mMean(NaN),
@@ -389,7 +389,7 @@ namespace LLTrace
 			mSum += value;
 		}
 
-		void addSamples(const CountAccumulator& other, bool /*follows_in_sequence*/)
+		void addSamples(const CountAccumulator& other, EBufferAppendType /*type*/)
 		{
 			mSum += other.mSum;
 			mNumSamples += other.mNumSamples;
@@ -515,8 +515,11 @@ namespace LLTrace
 
 		void addSamples(const MemStatAccumulator& other, EBufferAppendType append_type)
 		{
-			mAllocated.addSamples(other.mAllocated, append_type);
-			mDeallocated.addSamples(other.mDeallocated, append_type);
+			mFootprintAllocations.addSamples(other.mFootprintAllocations, append_type);
+			mFootprintDeallocations.addSamples(other.mFootprintDeallocations, append_type);
+			mShadowAllocations.addSamples(other.mShadowAllocations, append_type);
+			mShadowDeallocations.addSamples(other.mShadowDeallocations, append_type);
+
 			if (append_type == SEQUENTIAL)
 			{
 				mSize.addSamples(other.mSize, SEQUENTIAL);
@@ -524,12 +527,12 @@ namespace LLTrace
 			}
 			else
 			{
-				F64 allocation_delta(other.mAllocated.getSum() - other.mDeallocated.getSum());
+				F64 allocation_delta(other.mFootprintAllocations.getSum() - other.mFootprintDeallocations.getSum());
 				mSize.sample(mSize.hasValue() 
 					? mSize.getLastValue() + allocation_delta 
 					: allocation_delta);
 
-				F64 shadow_allocation_delta(other.mShadowAllocated.getSum() - other.mShadowDeallocated.getSum());
+				F64 shadow_allocation_delta(other.mShadowAllocations.getSum() - other.mShadowDeallocations.getSum());
 				mShadowSize.sample(mShadowSize.hasValue() 
 					? mShadowSize.getLastValue() + shadow_allocation_delta 
 					: shadow_allocation_delta);
@@ -540,10 +543,10 @@ namespace LLTrace
 		{
 			mSize.reset(other ? &other->mSize : NULL);
 			mShadowSize.reset(other ? &other->mShadowSize : NULL);
-			mAllocated.reset(other ? &other->mAllocated : NULL);
-			mDeallocated.reset(other ? &other->mDeallocated : NULL);
-			mShadowAllocated.reset(other ? &other->mShadowAllocated : NULL);
-			mShadowDeallocated.reset(other ? &other->mShadowDeallocated : NULL);
+			mFootprintAllocations.reset(other ? &other->mFootprintAllocations : NULL);
+			mFootprintDeallocations.reset(other ? &other->mFootprintDeallocations : NULL);
+			mShadowAllocations.reset(other ? &other->mShadowAllocations : NULL);
+			mShadowDeallocations.reset(other ? &other->mShadowDeallocations : NULL);
 		}
 
 		void sync(F64SecondsImplicit time_stamp) 
@@ -554,10 +557,10 @@ namespace LLTrace
 
 		SampleAccumulator	mSize,
 							mShadowSize;
-		CountAccumulator	mAllocated,
-							mDeallocated,
-							mShadowAllocated,
-							mShadowDeallocated;
+		EventAccumulator	mFootprintAllocations,
+							mShadowAllocations;
+		CountAccumulator	mFootprintDeallocations,
+							mShadowDeallocations;
 	};
 
 	struct AccumulatorBufferGroup : public LLRefCount

@@ -239,7 +239,7 @@ void EventAccumulator::addSamples( const EventAccumulator& other, EBufferAppendT
 void EventAccumulator::reset( const EventAccumulator* other )
 {
 	mNumSamples = 0;
-	mSum = NaN;
+	mSum = 0;
 	mMin = NaN;
 	mMax = NaN;
 	mMean = NaN;

@@ -283,30 +283,34 @@ public:
 
 inline void claim_footprint(MemStatHandle& measurement, S32 size)
 {
+	if(size == 0) return;
 	MemStatAccumulator& accumulator = measurement.getCurrentAccumulator();
 	accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() + (F64)size : (F64)size);
-	accumulator.mAllocated.add(1);
+	accumulator.mFootprintAllocations.record(size);
 }
 
 inline void disclaim_footprint(MemStatHandle& measurement, S32 size)
 {
+	if(size == 0) return;
 	MemStatAccumulator& accumulator = measurement.getCurrentAccumulator();
 	accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)size : -(F64)size);
-	accumulator.mDeallocated.add(1);
+	accumulator.mFootprintDeallocations.add(size);
 }
 
 inline void claim_shadow(MemStatHandle& measurement, S32 size)
 {
+	if(size == 0) return;
 	MemStatAccumulator& accumulator = measurement.getCurrentAccumulator();
 	accumulator.mShadowSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() + (F64)size : (F64)size);
-	accumulator.mShadowAllocated.add(1);
+	accumulator.mShadowAllocations.record(size);
 }
 
 inline void disclaim_shadow(MemStatHandle& measurement, S32 size)
 {
+	if(size == 0) return;
 	MemStatAccumulator& accumulator = measurement.getCurrentAccumulator();
 	accumulator.mShadowSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)size : -(F64)size);
-	accumulator.mShadowDeallocated.add(1);
+	accumulator.mShadowDeallocations.add(size);
 }
 
 // measures effective memory footprint of specified type
@@ -465,13 +469,13 @@ public:
 
 	void *operator new [](size_t size)
 	{
-		claim_footprint(sMemStat, size);
+		claim_footprint(sMemStat, size, true);
 		return ll_aligned_malloc(ALIGNMENT, size);
 	}
 
 	void operator delete[](void* ptr, size_t size)
 	{
-		disclaim_footprint(sMemStat, size);
+		disclaim_footprint(sMemStat, size, true);
 		ll_aligned_free(ALIGNMENT, ptr);
 	}
 
