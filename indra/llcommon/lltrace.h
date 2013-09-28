@@ -469,13 +469,13 @@ public:
 
 	void *operator new [](size_t size)
 	{
-		claim_footprint(sMemStat, size, true);
+		claim_footprint(sMemStat, size);
 		return ll_aligned_malloc(ALIGNMENT, size);
 	}
 
 	void operator delete[](void* ptr, size_t size)
 	{
-		disclaim_footprint(sMemStat, size, true);
+		disclaim_footprint(sMemStat, size);
 		ll_aligned_free(ALIGNMENT, ptr);
 	}
 
