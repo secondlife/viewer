@@ -133,7 +133,8 @@ public:
 	PermissionMask 	getFilterPermMask();
 	void updateFilterPermMask();
 	void commitIfImmediateSet();
-	
+	void commitCancel();
+
 	void onFilterEdit(const std::string& search_string );
 	
 	void setCanApply(bool can_preview, bool can_apply);
@@ -706,6 +707,14 @@ void LLFloaterTexturePicker::commitIfImmediateSet()
 	}
 }
 
+void LLFloaterTexturePicker::commitCancel()
+{
+	if (!mNoCopyTextureSelected && mOwner && mCanApply)
+	{
+		mOwner->onFloaterCommit(LLTextureCtrl::TEXTURE_CANCEL);
+	}
+}
+
 // static
 void LLFloaterTexturePicker::onBtnSetToDefault(void* userdata)
 {
@@ -733,7 +742,7 @@ void LLFloaterTexturePicker::onBtnNone(void* userdata)
 {
 	LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
 	self->setImageID( LLUUID::null );
-	self->commitIfImmediateSet();
+	self->commitCancel();
 }
 
 /*

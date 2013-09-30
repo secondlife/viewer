@@ -374,6 +374,11 @@ BOOL LLGLSLShader::createShader(vector<string> * attributes,
 
 	// Create program
 	mProgramObject = glCreateProgramObjectARB();
+
+#if LL_DARWIN
+    // work-around missing mix(vec3,vec3,bvec3)
+    mDefines["OLD_SELECT"] = "1";
+#endif
 	
 	//compile new source
 	vector< pair<string,GLenum> >::iterator fileIter = mShaderFiles.begin();

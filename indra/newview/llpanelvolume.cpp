@@ -710,9 +710,19 @@ void LLPanelVolume::onLightCancelColor(const LLSD& data)
 void LLPanelVolume::onLightCancelTexture(const LLSD& data)
 {
 	LLTextureCtrl* LightTextureCtrl = getChild<LLTextureCtrl>("light texture control");
+
 	if (LightTextureCtrl)
 	{
-		LightTextureCtrl->setImageAssetID(mLightSavedTexture);
+		LightTextureCtrl->setImageAssetID(LLUUID::null);
+	}
+
+	LLVOVolume *volobjp = (LLVOVolume *) mObject.get();
+	if(volobjp)
+	{
+		// Cancel the light texture as requested
+		// NORSPEC-292
+		//
+		volobjp->setLightTextureID(LLUUID::null);
 	}
 }
 
