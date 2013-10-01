@@ -148,7 +148,7 @@ void LLBuyCurrencyHTML::showDialog( bool specific_sum_requested, const std::stri
 	}
 	else
 	{
-		llwarns << "Buy Currency (HTML) Floater not found" << llendl;
+		LL_WARNS() << "Buy Currency (HTML) Floater not found" << LL_ENDL;
 	};
 }
 

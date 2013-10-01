@@ -44,7 +44,6 @@
 #include "m3math.h"
 #include "llmatrix3a.h"
 #include "lloctree.h"
-#include "lldarray.h"
 #include "llvolume.h"
 #include "llvolumeoctree.h"
 #include "llstl.h"
@@ -426,7 +425,7 @@ public:
 		}
 		else
 		{
-			llerrs << "Empty leaf" << llendl;
+			LL_ERRS() << "Empty leaf" << LL_ENDL;
 		}
 
 		for (S32 i = 0; i < branch->getChildCount(); ++i)
@@ -916,7 +915,7 @@ BOOL LLProfile::generate(const LLProfileParams& params, BOOL path_open,F32 detai
 
 	if (detail < MIN_LOD)
 	{
-		llinfos << "Generating profile with LOD < MIN_LOD.  CLAMPING" << llendl;
+		LL_INFOS() << "Generating profile with LOD < MIN_LOD.  CLAMPING" << LL_ENDL;
 		detail = MIN_LOD;
 	}
 
@@ -932,7 +931,7 @@ BOOL LLProfile::generate(const LLProfileParams& params, BOOL path_open,F32 detai
 	// Quick validation to eliminate some server crashes.
 	if (begin > end - 0.01f)
 	{
-		llwarns << "LLProfile::generate() assertion failed (begin >= end)" << llendl;
+		LL_WARNS() << "LLProfile::generate() assertion failed (begin >= end)" << LL_ENDL;
 		return FALSE;
 	}
 
@@ -1148,7 +1147,7 @@ BOOL LLProfile::generate(const LLProfileParams& params, BOOL path_open,F32 detai
 		}
 		break;
 	default:
-	    llerrs << "Unknown profile: getCurveType()=" << params.getCurveType() << llendl;
+	    LL_ERRS() << "Unknown profile: getCurveType()=" << params.getCurveType() << LL_ENDL;
 		break;
 	};
 
@@ -1232,7 +1231,7 @@ BOOL LLProfileParams::importFile(LLFILE *fp)
 		}
 		else
 		{
-			llwarns << "unknown keyword " << keyword << " in profile import" << llendl;
+			LL_WARNS() << "unknown keyword " << keyword << " in profile import" << LL_ENDL;
 		}
 	}
 
@@ -1304,7 +1303,7 @@ BOOL LLProfileParams::importLegacyStream(std::istream& input_stream)
 		}
 		else
 		{
- 		llwarns << "unknown keyword " << keyword << " in profile import" << llendl;
+ 		LL_WARNS() << "unknown keyword " << keyword << " in profile import" << LL_ENDL;
 		}
 	}
 
@@ -1468,7 +1467,7 @@ void LLPath::genNGon(const LLPathParams& params, S32 sides, F32 startOff, F32 en
 	pt->mScale.mV[VX] = hole_x * lerp(taper_x_begin, taper_x_end, t);
 	pt->mScale.mV[VY] = hole_y * lerp(taper_y_begin, taper_y_end, t);
 	pt->mTexT  = t;
-
+	
 	// Twist rotates the path along the x,y plane (I think) - DJS 04/05/02
 	twist.setQuat  (lerp(twist_begin,twist_end,t) * 2.f * F_PI - F_PI,0,0,1);
 	// Rotate the point around the circle's center.
@@ -1522,7 +1521,7 @@ void LLPath::genNGon(const LLPathParams& params, S32 sides, F32 startOff, F32 en
 	pt->mScale.mV[VX] = hole_x * lerp(taper_x_begin, taper_x_end, t);
 	pt->mScale.mV[VY] = hole_y * lerp(taper_y_begin, taper_y_end, t);
 	pt->mTexT  = t;
-
+	
 	// Twist rotates the path along the x,y plane (I think) - DJS 04/05/02
 	twist.setQuat  (lerp(twist_begin,twist_end,t) * 2.f * F_PI - F_PI,0,0,1);
 	// Rotate the point around the circle's center.
@@ -1618,7 +1617,7 @@ BOOL LLPath::generate(const LLPathParams& params, F32 detail, S32 split,
 
 	if (detail < MIN_LOD)
 	{
-		llinfos << "Generating path with LOD < MIN!  Clamping to 1" << llendl;
+		LL_INFOS() << "Generating path with LOD < MIN!  Clamping to 1" << LL_ENDL;
 		detail = MIN_LOD;
 	}
 
@@ -1870,7 +1869,7 @@ BOOL LLPathParams::importFile(LLFILE *fp)
 		}
 		else
 		{
-			llwarns << "unknown keyword " << " in path import" << llendl;
+			LL_WARNS() << "unknown keyword " << " in path import" << LL_ENDL;
 		}
 	}
 	return TRUE;
@@ -2010,7 +2009,7 @@ BOOL LLPathParams::importLegacyStream(std::istream& input_stream)
 		}
 		else
 		{
-			llwarns << "unknown keyword " << " in path import" << llendl;
+			LL_WARNS() << "unknown keyword " << " in path import" << LL_ENDL;
 		}
 	}
 	return TRUE;
@@ -2101,7 +2100,7 @@ LLProfile::~LLProfile()
 {
 	if(profile_delete_lock)
 	{
-		llerrs << "LLProfile should not be deleted here!" << llendl ;
+		LL_ERRS() << "LLProfile should not be deleted here!" << LL_ENDL ;
 	}
 }
 
@@ -2222,13 +2221,13 @@ BOOL LLVolume::generate()
 	//debug info, to be removed
 	if((U32)(mPathp->mPath.size() * mProfilep->mProfile.size()) > (1u << 20))
 	{
-		llinfos << "sizeS: " << mPathp->mPath.size() << " sizeT: " << mProfilep->mProfile.size() << llendl ;
-		llinfos << "path_detail : " << path_detail << " split: " << split << " profile_detail: " << profile_detail << llendl ;
-		llinfos << mParams << llendl ;
-		llinfos << "more info to check if mProfilep is deleted or not." << llendl ;
-		llinfos << mProfilep->mNormals.size() << " : " << mProfilep->mFaces.size() << " : " << mProfilep->mEdgeNormals.size() << " : " << mProfilep->mEdgeCenters.size() << llendl ;
+		LL_INFOS() << "sizeS: " << mPathp->mPath.size() << " sizeT: " << mProfilep->mProfile.size() << LL_ENDL ;
+		LL_INFOS() << "path_detail : " << path_detail << " split: " << split << " profile_detail: " << profile_detail << LL_ENDL ;
+		LL_INFOS() << mParams << LL_ENDL ;
+		LL_INFOS() << "more info to check if mProfilep is deleted or not." << LL_ENDL ;
+		LL_INFOS() << mProfilep->mNormals.size() << " : " << mProfilep->mFaces.size() << " : " << mProfilep->mEdgeNormals.size() << " : " << mProfilep->mEdgeCenters.size() << LL_ENDL ;
 
-		llerrs << "LLVolume corrupted!" << llendl ;
+		LL_ERRS() << "LLVolume corrupted!" << LL_ENDL ;
 	}
 	//********************************************************************
 
@@ -2244,14 +2243,14 @@ BOOL LLVolume::generate()
 		//debug info, to be removed
 		if((U32)(sizeS * sizeT) > (1u << 20))
 		{
-			llinfos << "regenPath: " << (S32)regenPath << " regenProf: " << (S32)regenProf << llendl ;
-			llinfos << "sizeS: " << sizeS << " sizeT: " << sizeT << llendl ;
-			llinfos << "path_detail : " << path_detail << " split: " << split << " profile_detail: " << profile_detail << llendl ;
-			llinfos << mParams << llendl ;
-			llinfos << "more info to check if mProfilep is deleted or not." << llendl ;
-			llinfos << mProfilep->mNormals.size() << " : " << mProfilep->mFaces.size() << " : " << mProfilep->mEdgeNormals.size() << " : " << mProfilep->mEdgeCenters.size() << llendl ;
+			LL_INFOS() << "regenPath: " << (S32)regenPath << " regenProf: " << (S32)regenProf << LL_ENDL ;
+			LL_INFOS() << "sizeS: " << sizeS << " sizeT: " << sizeT << LL_ENDL ;
+			LL_INFOS() << "path_detail : " << path_detail << " split: " << split << " profile_detail: " << profile_detail << LL_ENDL ;
+			LL_INFOS() << mParams << LL_ENDL ;
+			LL_INFOS() << "more info to check if mProfilep is deleted or not." << LL_ENDL ;
+			LL_INFOS() << mProfilep->mNormals.size() << " : " << mProfilep->mFaces.size() << " : " << mProfilep->mEdgeNormals.size() << " : " << mProfilep->mEdgeCenters.size() << LL_ENDL ;
 
-			llerrs << "LLVolume corrupted!" << llendl ;
+			LL_ERRS() << "LLVolume corrupted!" << LL_ENDL ;
 		}
 		//********************************************************************
 
@@ -2445,7 +2444,7 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 	LLSD mdl;
 	if (!unzip_llsd(mdl, is, size))
 	{
-		LL_DEBUGS("MeshStreaming") << "Failed to unzip LLSD blob for LoD, will probably fetch from sim again." << llendl;
+		LL_DEBUGS("MeshStreaming") << "Failed to unzip LLSD blob for LoD, will probably fetch from sim again." << LL_ENDL;
 		return false;
 	}
 	
@@ -2454,7 +2453,7 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 
 		if (face_count == 0)
 		{ //no faces unpacked, treat as failed decode
-			llwarns << "found no faces!" << llendl;
+			LL_WARNS() << "found no faces!" << LL_ENDL;
 			return false;
 		}
 
@@ -2487,7 +2486,7 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 			
 			if (idx.empty() || face.mNumIndices < 3)
 			{ //why is there an empty index list?
-				llwarns <<"Empty face present!" << llendl;
+				LL_WARNS() <<"Empty face present!" << LL_ENDL;
 				continue;
 			}
 
@@ -2634,7 +2633,7 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 
 				if (cur_vertex != num_verts || idx != weights.size())
 				{
-					llwarns << "Vertex weight count does not match vertex count!" << llendl;
+					LL_WARNS() << "Vertex weight count does not match vertex count!" << LL_ENDL;
 				}
 					
 			}
@@ -2800,7 +2799,7 @@ void LLVolume::createVolumeFaces()
 			vf.mNumS = face.mCount;
 			if (vf.mNumS < 0)
 			{
-				llerrs << "Volume face corruption detected." << llendl;
+				LL_ERRS() << "Volume face corruption detected." << LL_ENDL;
 			}
 
 			vf.mBeginT = 0;
@@ -2848,7 +2847,7 @@ void LLVolume::createVolumeFaces()
 						vf.mNumS = vf.mNumS*2;
 						if (vf.mNumS < 0)
 						{
-							llerrs << "Volume face corruption detected." << llendl;
+							LL_ERRS() << "Volume face corruption detected." << LL_ENDL;
 						}
 					}
 				}
@@ -3157,7 +3156,7 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 	// weird crash bug - DEV-11158 - trying to collect more data:
 	if ((sizeS == 0) || (sizeT == 0))
 	{
-		llwarns << "sculpt bad mesh size " << sizeS << " " << sizeT << llendl;
+		LL_WARNS() << "sculpt bad mesh size " << sizeS << " " << sizeT << LL_ENDL;
 	}
 	
 	sNumMeshPoints -= mMesh.size();
@@ -3552,16 +3551,16 @@ bool LLVolumeParams::setType(U8 profile, U8 path)
 		// Bad profile.  Make it square.
 		profile = LL_PCODE_PROFILE_SQUARE;
 		result = false;
-		llwarns << "LLVolumeParams::setType changing bad profile type (" << profile_type
-			 	<< ") to be LL_PCODE_PROFILE_SQUARE" << llendl;
+		LL_WARNS() << "LLVolumeParams::setType changing bad profile type (" << profile_type
+			 	<< ") to be LL_PCODE_PROFILE_SQUARE" << LL_ENDL;
 	}
 	else if (hole_type > LL_PCODE_HOLE_MAX)
 	{
 		// Bad hole.  Make it the same.
 		profile = profile_type;
 		result = false;
-		llwarns << "LLVolumeParams::setType changing bad hole type (" << hole_type
-			 	<< ") to be LL_PCODE_HOLE_SAME" << llendl;
+		LL_WARNS() << "LLVolumeParams::setType changing bad hole type (" << hole_type
+			 	<< ") to be LL_PCODE_HOLE_SAME" << LL_ENDL;
 	}
 
 	if (path_type < LL_PCODE_PATH_MIN ||
@@ -3569,8 +3568,8 @@ bool LLVolumeParams::setType(U8 profile, U8 path)
 	{
 		// Bad path.  Make it linear.
 		result = false;
-		llwarns << "LLVolumeParams::setType changing bad path (" << path
-			 	<< ") to be LL_PCODE_PATH_LINE" << llendl;
+		LL_WARNS() << "LLVolumeParams::setType changing bad path (" << path
+			 	<< ") to be LL_PCODE_PATH_LINE" << LL_ENDL;
 		path = LL_PCODE_PATH_LINE;
 	}
 
@@ -3644,7 +3643,7 @@ S32 *LLVolume::getTriangleIndices(U32 &num_indices) const
 	if (expected_num_triangle_indices > MAX_VOLUME_TRIANGLE_INDICES)
 	{
 		// we don't allow LLVolumes with this many vertices
-		llwarns << "Couldn't allocate triangle indices" << llendl;
+		LL_WARNS() << "Couldn't allocate triangle indices" << LL_ENDL;
 		num_indices = 0;
 		return NULL;
 	}
@@ -4237,9 +4236,9 @@ S32 *LLVolume::getTriangleIndices(U32 &num_indices) const
 	// assert that we computed the correct number of indices
 	if (count != expected_num_triangle_indices )
 	{
-		llerrs << "bad index count prediciton:"
+		LL_ERRS() << "bad index count prediciton:"
 			<< "  expected=" << expected_num_triangle_indices 
-			<< " actual=" << count << llendl;
+			<< " actual=" << count << LL_ENDL;
 	}
 #endif
 
@@ -4248,7 +4247,7 @@ S32 *LLVolume::getTriangleIndices(U32 &num_indices) const
 	S32 num_vertices = mMesh.size();
 	for (i = 0; i < count; i+=3)
 	{
-		llinfos << index[i] << ":" << index[i+1] << ":" << index[i+2] << llendl;
+		LL_INFOS() << index[i] << ":" << index[i+1] << ":" << index[i+2] << LL_ENDL;
 		llassert(index[i] < num_vertices);
 		llassert(index[i+1] < num_vertices);
 		llassert(index[i+2] < num_vertices);
@@ -4691,7 +4690,7 @@ S32 LLVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& en
 
 								n1.add(n2);
 								n1.add(n3);
-								
+
 								*normal		= n1; 
 							}
 
@@ -4840,7 +4839,7 @@ BOOL equalTriangle(const S32 *a, const S32 *b)
 
 BOOL LLVolumeParams::importFile(LLFILE *fp)
 {
-	//llinfos << "importing volume" << llendl;
+	//LL_INFOS() << "importing volume" << LL_ENDL;
 	const S32 BUFSIZE = 16384;
 	char buffer[BUFSIZE];	/* Flawfinder: ignore */
 	// *NOTE: changing the size or type of this buffer will require
@@ -4874,7 +4873,7 @@ BOOL LLVolumeParams::importFile(LLFILE *fp)
 		}
 		else
 		{
-			llwarns << "unknown keyword " << keyword << " in volume import" << llendl;
+			LL_WARNS() << "unknown keyword " << keyword << " in volume import" << LL_ENDL;
 		}
 	}
 
@@ -4894,7 +4893,7 @@ BOOL LLVolumeParams::exportFile(LLFILE *fp) const
 
 BOOL LLVolumeParams::importLegacyStream(std::istream& input_stream)
 {
-	//llinfos << "importing volume" << llendl;
+	//LL_INFOS() << "importing volume" << LL_ENDL;
 	const S32 BUFSIZE = 16384;
 	// *NOTE: changing the size or type of this buffer will require
 	// changing the sscanf below.
@@ -4924,7 +4923,7 @@ BOOL LLVolumeParams::importLegacyStream(std::istream& input_stream)
 		}
 		else
 		{
-			llwarns << "unknown keyword " << keyword << " in volume import" << llendl;
+			LL_WARNS() << "unknown keyword " << keyword << " in volume import" << LL_ENDL;
 		}
 	}
 
@@ -5136,7 +5135,7 @@ LLFaceID LLVolume::generateFaceMask()
 		}
 		break;
 	default:
-		llerrs << "Unknown profile!" << llendl;
+		LL_ERRS() << "Unknown profile!" << LL_ENDL;
 		break;
 	}
 
@@ -5430,7 +5429,7 @@ BOOL LLVolumeFace::create(LLVolume* volume, BOOL partial_build)
 	}
 	else
 	{
-		llerrs << "Unknown/uninitialized face type!" << llendl;
+		LL_ERRS() << "Unknown/uninitialized face type!" << LL_ENDL;
 	}
 
 	//update the range of the texture coordinates
@@ -6037,7 +6036,7 @@ void LLVolumeFace::cacheOptimize()
 	mTangents = tangent;
 
 	//std::string result = llformat("ACMR pre/post: %.3f/%.3f  --  %d triangles %d breaks", pre_acmr, post_acmr, mNumIndices/3, breaks);
-	//llinfos << result << llendl;
+	//LL_INFOS() << result << LL_ENDL;
 
 }
 
@@ -6206,7 +6205,7 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 
 		S32 size = (grid_size+1)*(grid_size+1);
 		resizeVertices(size);
-		
+
 		LLVector4a* pos = (LLVector4a*) mPositions;
 		LLVector4a* norm = (LLVector4a*) mNormals;
 		LLVector2* tc = (LLVector2*) mTexCoords;
@@ -6227,7 +6226,7 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 				*pos++ = newVert.getPosition();
 				*norm++ = baseVert.getNormal();
 				*tc++ = newVert.mTexCoord;
-				
+
 				if (gx == 0 && gy == 0)
 				{
 					min = newVert.getPosition();
@@ -6303,7 +6302,7 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 	if (!(mTypeMask & HOLLOW_MASK) && !(mTypeMask & OPEN_MASK))
 	{
 		resizeVertices(num_vertices+1);
-		
+
 		if (!partial_build)
 		{
 			resizeIndices(num_indices+3);
@@ -6312,7 +6311,7 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 	else
 	{
 		resizeVertices(num_vertices);
-		
+
 		if (!partial_build)
 		{
 			resizeIndices(num_indices);
@@ -6346,7 +6345,7 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 	LLVector2* tc = (LLVector2*) mTexCoords;
 	LLVector4a* pos = (LLVector4a*) mPositions;
 	LLVector4a* norm = (LLVector4a*) mNormals;
-	
+
 	// Copy the vertices into the array
 	for (S32 i = 0; i < num_vertices; i++)
 	{
@@ -6683,7 +6682,7 @@ void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVe
 void LLVolumeFace::createTangents()
 {
 	if (!mTangents)
-	{
+			{
 		allocateTangents(mNumVertices);
 
 		//generate tangents
@@ -6693,7 +6692,7 @@ void LLVolumeFace::createTangents()
 
 		LLVector4a* end = mTangents+mNumVertices;
 		while (binorm < end)
-		{
+			{
 			(*binorm++).clear();
 		}
 
@@ -6853,12 +6852,12 @@ void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat_in, LLMat
 
 	if (new_count > 65536)
 	{
-		llerrs << "Cannot append face -- 16-bit overflow will occur." << llendl;
+		LL_ERRS() << "Cannot append face -- 16-bit overflow will occur." << LL_ENDL;
 	}
 	
 	if (face.mNumVertices == 0)
 	{
-		llerrs << "Cannot append empty face." << llendl;
+		LL_ERRS() << "Cannot append empty face." << LL_ENDL;
 	}
 
 	//allocate new buffer space
@@ -7364,7 +7363,7 @@ void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVe
 	memset(tan1, 0, vertexCount*2*sizeof(LLVector4a));
         
     for (U32 a = 0; a < triangleCount; a++)
-    {
+{
         U32 i1 = *index_array++;
         U32 i2 = *index_array++;
         U32 i3 = *index_array++;
@@ -7408,7 +7407,7 @@ void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVe
 		tan1[i1].add(sdir);
 		tan1[i2].add(sdir);
 		tan1[i3].add(sdir);
-        
+	
 		tan2[i1].add(tdir);
 		tan2[i2].add(tdir);
 		tan2[i3].add(tdir);
@@ -7422,7 +7421,7 @@ void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVe
 
 		LLVector4a ncrosst;
 		ncrosst.setCross3(n,t);
-
+		
         // Gram-Schmidt orthogonalize
         n.mul(n.dot3(t).getF32());
 
@@ -7430,7 +7429,7 @@ void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVe
 		tsubn.setSub(t,n);
 
 		if (tsubn.dot3(tsubn).getF32() > F_APPROXIMATELY_ZERO)
-		{
+	{
 			tsubn.normalize3fast();
 		
 			// Calculate handedness
@@ -7444,7 +7443,7 @@ void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVe
 		{ //degenerate, make up a value
 			tangent[a].set(0,0,1,1);
 		}
-    }
+	}
     
 	ll_aligned_free_16(tan1);
 }

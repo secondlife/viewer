@@ -33,6 +33,7 @@
 #include "llapr.h"
 #include "llbuffer.h"
 #include "llbufferstream.h"
+#include "llfasttimer.h"
 #include "llhttpnode.h"
 #include "lliopipe.h"
 #include "lliosocket.h"
@@ -138,11 +139,11 @@ private:
 	LLSD mHeaders;
 };
 
-static LLFastTimer::DeclareTimer FTM_PROCESS_HTTP_PIPE("HTTP Pipe");
-static LLFastTimer::DeclareTimer FTM_PROCESS_HTTP_GET("HTTP Get");
-static LLFastTimer::DeclareTimer FTM_PROCESS_HTTP_PUT("HTTP Put");
-static LLFastTimer::DeclareTimer FTM_PROCESS_HTTP_POST("HTTP Post");
-static LLFastTimer::DeclareTimer FTM_PROCESS_HTTP_DELETE("HTTP Delete");
+static LLTrace::TimeBlock FTM_PROCESS_HTTP_PIPE("HTTP Pipe");
+static LLTrace::TimeBlock FTM_PROCESS_HTTP_GET("HTTP Get");
+static LLTrace::TimeBlock FTM_PROCESS_HTTP_PUT("HTTP Put");
+static LLTrace::TimeBlock FTM_PROCESS_HTTP_POST("HTTP Post");
+static LLTrace::TimeBlock FTM_PROCESS_HTTP_DELETE("HTTP Delete");
 
 LLIOPipe::EStatus LLHTTPPipe::process_impl(
 	const LLChannelDescriptors& channels,
@@ -151,9 +152,9 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
     LLSD& context,
     LLPumpIO* pump)
 {
-	LLFastTimer t(FTM_PROCESS_HTTP_PIPE);
+	LL_RECORD_BLOCK_TIME(FTM_PROCESS_HTTP_PIPE);
 	PUMP_DEBUG;
-    lldebugs << "LLSDHTTPServer::process_impl" << llendl;
+    LL_DEBUGS() << "LLSDHTTPServer::process_impl" << LL_ENDL;
 
     // Once we have all the data, We need to read the sd on
     // the the in channel, and respond on  the out channel
@@ -180,12 +181,12 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
 		std::string verb = context[CONTEXT_REQUEST][CONTEXT_VERB];
 		if(verb == HTTP_VERB_GET)
 		{
-			LLFastTimer _(FTM_PROCESS_HTTP_GET);
+			LL_RECORD_BLOCK_TIME(FTM_PROCESS_HTTP_GET);
 			mNode.get(LLHTTPNode::ResponsePtr(mResponse), context);
 		}
 		else if(verb == HTTP_VERB_PUT)
 		{
-			LLFastTimer _(FTM_PROCESS_HTTP_PUT);
+			LL_RECORD_BLOCK_TIME(FTM_PROCESS_HTTP_PUT);
 			LLSD input;
 			if (mNode.getContentType() == LLHTTPNode::CONTENT_TYPE_LLSD)
 			{
@@ -201,7 +202,7 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
 		}
 		else if(verb == HTTP_VERB_POST)
 		{
-			LLFastTimer _(FTM_PROCESS_HTTP_POST);
+			LL_RECORD_BLOCK_TIME(FTM_PROCESS_HTTP_POST);
 			LLSD input;
 			if (mNode.getContentType() == LLHTTPNode::CONTENT_TYPE_LLSD)
 			{
@@ -217,7 +218,7 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
 		}
 		else if(verb == HTTP_VERB_DELETE)
 		{
-			LLFastTimer _(FTM_PROCESS_HTTP_DELETE);
+			LL_RECORD_BLOCK_TIME(FTM_PROCESS_HTTP_DELETE);
 			mNode.del(LLHTTPNode::ResponsePtr(mResponse), context);
 		}		
 		else if(verb == HTTP_VERB_OPTIONS)
@@ -244,15 +245,15 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
 		// Log all HTTP transactions.
 		// TODO: Add a way to log these to their own file instead of indra.log
 		// It is just too spammy to be in indra.log.
-		lldebugs << verb << " " << context[CONTEXT_REQUEST]["path"].asString()
+		LL_DEBUGS() << verb << " " << context[CONTEXT_REQUEST]["path"].asString()
 			<< " " << mStatusCode << " " <<  mStatusMessage << " " << delta
-			<< "s" << llendl;
+			<< "s" << LL_ENDL;
 
 		// Log Internal Server Errors
 		//if(mStatusCode == 500)
 		//{
-		//	llwarns << "LLHTTPPipe::process_impl:500:Internal Server Error" 
-		//			<< llendl;
+		//	LL_WARNS() << "LLHTTPPipe::process_impl:500:Internal Server Error" 
+		//			<< LL_ENDL;
 		//}
 	}
 
@@ -301,8 +302,8 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
 			return STATUS_DONE;
 		}
 		default:
-			llwarns << "LLHTTPPipe::process_impl: unexpected state "
-				<< mState << llendl;
+			LL_WARNS() << "LLHTTPPipe::process_impl: unexpected state "
+				<< mState << LL_ENDL;
 
 			return STATUS_BREAK;
 	}
@@ -331,7 +332,7 @@ void LLHTTPPipe::Response::result(const LLSD& r)
 {
 	if(! mPipe)
 	{
-		llwarns << "LLHTTPPipe::Response::result: NULL pipe" << llendl;
+		LL_WARNS() << "LLHTTPPipe::Response::result: NULL pipe" << LL_ENDL;
 		return;
 	}
 
@@ -347,7 +348,7 @@ void LLHTTPPipe::Response::extendedResult(S32 code, const std::string& body, con
 {
 	if(! mPipe)
 	{
-		llwarns << "LLHTTPPipe::Response::status: NULL pipe" << llendl;
+		LL_WARNS() << "LLHTTPPipe::Response::status: NULL pipe" << LL_ENDL;
 		return;
 	}
 
@@ -363,7 +364,7 @@ void LLHTTPPipe::Response::status(S32 code, const std::string& message)
 {
 	if(! mPipe)
 	{
-		llwarns << "LLHTTPPipe::Response::status: NULL pipe" << llendl;
+		LL_WARNS() << "LLHTTPPipe::Response::status: NULL pipe" << LL_ENDL;
 		return;
 	}
 
@@ -434,7 +435,7 @@ protected:
  * LLHTTPResponseHeader
  */
 
-static LLFastTimer::DeclareTimer FTM_PROCESS_HTTP_HEADER("HTTP Header");
+static LLTrace::TimeBlock FTM_PROCESS_HTTP_HEADER("HTTP Header");
 
 // virtual
 LLIOPipe::EStatus LLHTTPResponseHeader::process_impl(
@@ -444,7 +445,7 @@ LLIOPipe::EStatus LLHTTPResponseHeader::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
-	LLFastTimer t(FTM_PROCESS_HTTP_HEADER);
+	LL_RECORD_BLOCK_TIME(FTM_PROCESS_HTTP_HEADER);
 	PUMP_DEBUG;
 	if(eos)
 	{
@@ -594,7 +595,7 @@ LLHTTPResponder::LLHTTPResponder(const LLHTTPNode& tree, const LLSD& ctx) :
 // virtual
 LLHTTPResponder::~LLHTTPResponder()
 {
-	//lldebugs << "destroying LLHTTPResponder" << llendl;
+	//LL_DEBUGS() << "destroying LLHTTPResponder" << LL_ENDL;
 }
 
 bool LLHTTPResponder::readHeaderLine(
@@ -611,7 +612,7 @@ bool LLHTTPResponder::readHeaderLine(
 	{
 		if(len)
 		{
-			lldebugs << "readLine failed - too long maybe?" << llendl;
+			LL_DEBUGS() << "readLine failed - too long maybe?" << LL_ENDL;
 			markBad(channels, buffer);
 		}
 		return false;
@@ -634,7 +635,7 @@ void LLHTTPResponder::markBad(
 		<< "</body>\n</html>\n";
 }
 
-static LLFastTimer::DeclareTimer FTM_PROCESS_HTTP_RESPONDER("HTTP Responder");
+static LLTrace::TimeBlock FTM_PROCESS_HTTP_RESPONDER("HTTP Responder");
 
 // virtual
 LLIOPipe::EStatus LLHTTPResponder::process_impl(
@@ -644,7 +645,7 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
-	LLFastTimer t(FTM_PROCESS_HTTP_RESPONDER);
+	LL_RECORD_BLOCK_TIME(FTM_PROCESS_HTTP_RESPONDER);
 	PUMP_DEBUG;
 	LLIOPipe::EStatus status = STATUS_OK;
 
@@ -667,8 +668,8 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 		{
 			memcpy(buf, (*seg_iter).data(), (*seg_iter).size());	  /*Flawfinder: ignore*/
 			buf[(*seg_iter).size()] = '\0';
-			llinfos << (*seg_iter).getChannel() << ": " << buf
-					<< llendl;
+			LL_INFOS() << (*seg_iter).getChannel() << ": " << buf
+					<< LL_ENDL;
 			++seg_iter;
 		}
 		}
@@ -694,10 +695,10 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 					header >> mAbsPathAndQuery;
 					header >> mVersion;
 
-					lldebugs << "http request: "
+					LL_DEBUGS() << "http request: "
 							 << mVerb
 							 << " " << mAbsPathAndQuery
-							 << " " << mVersion << llendl;
+							 << " " << mVersion << LL_ENDL;
 
 					std::string::size_type delimiter
 						= mAbsPathAndQuery.find('?');
@@ -727,7 +728,7 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 				{
 					read_next_line = false;
 					parse_all = false;
-					lldebugs << "unknown http verb: " << mVerb << llendl;
+					LL_DEBUGS() << "unknown http verb: " << mVerb << LL_ENDL;
 					markBad(channels, buffer);
 				}
 			}
@@ -762,7 +763,7 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 					if(NULL == pos_colon)
 					{
 						keep_parsing = false;
-						lldebugs << "bad header: " << buf << llendl;
+						LL_DEBUGS() << "bad header: " << buf << LL_ENDL;
 						markBad(channels, buffer);
 						break;
 					}
@@ -773,7 +774,7 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 					LLStringUtil::toLower(name);
 					if("content-length" == name)
 					{
-						lldebugs << "Content-Length: " << value << llendl;
+						LL_DEBUGS() << "Content-Length: " << value << LL_ENDL;
 						mContentLength = atoi(value.c_str());
 					}
 					else
@@ -810,8 +811,8 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 		const LLHTTPNode* node = mRootNode.traverse(mPath, context);
 		if(node)
 		{
- 			//llinfos << "LLHTTPResponder::process_impl found node for "
-			//	<< mAbsPathAndQuery << llendl;
+ 			//LL_INFOS() << "LLHTTPResponder::process_impl found node for "
+			//	<< mAbsPathAndQuery << LL_ENDL;
 
   			// Copy everything after mLast read to the out.
 			LLBufferArray::segment_iterator_t seg_iter;
@@ -831,8 +832,8 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 				{
 					memcpy(buf, (*seg_iter).data(), (*seg_iter).size());	  /*Flawfinder: ignore*/
 					buf[(*seg_iter).size()] = '\0';
-					llinfos << (*seg_iter).getChannel() << ": " << buf
-							<< llendl;
+					LL_INFOS() << (*seg_iter).getChannel() << ": " << buf
+							<< LL_ENDL;
 					++seg_iter;
 				}
 #endif
@@ -858,7 +859,7 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 				= node->getProtocolHandler();
 			if (protocolHandler)
 			{
-				lldebugs << "HTTP context: " << context << llendl;
+				LL_DEBUGS() << "HTTP context: " << context << LL_ENDL;
 				protocolHandler->build(chain, context);
 			}
 			else
@@ -917,8 +918,8 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 		}
 		else
 		{
-			llwarns << "LLHTTPResponder::process_impl didn't find a node for "
-				<< mAbsPathAndQuery << llendl;
+			LL_WARNS() << "LLHTTPResponder::process_impl didn't find a node for "
+				<< mAbsPathAndQuery << LL_ENDL;
 			LLBufferStream str(channels, buffer.get());
 			mState = STATE_SHORT_CIRCUIT;
 			str << HTTP_VERSION_STR << " 404 Not Found\r\n\r\n<html>\n"
@@ -971,7 +972,7 @@ LLHTTPNode& LLIOHTTPServer::create(
         port);
     if(!socket)
     {
-        llerrs << "Unable to initialize socket" << llendl;
+        LL_ERRS() << "Unable to initialize socket" << LL_ENDL;
     }
 
     LLHTTPResponseFactory* factory = new LLHTTPResponseFactory;

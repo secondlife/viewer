@@ -77,7 +77,7 @@ inline S32	LLFace::getColors     (LLStrider<LLColor4U> &colors)
 		if (!mBackupMem)
 		{
 			printDebugInfo();
-			llerrs << "No backup memory for face" << llendl;
+			LL_ERRS() << "No backup memory for face" << LL_ENDL;
 		}
 		colorp = (LLColor4U*)(mBackupMem + (4 * mIndicesCount) + (mGeomCount * mDrawPoolp->getStride()));
 		colors = colorp;
@@ -89,7 +89,7 @@ inline S32	LLFace::getColors     (LLStrider<LLColor4U> &colors)
 		if (!mDrawPoolp->getColorStrider(colors, mGeomIndex))
 		{
 			printDebugInfo();
-			llerrs << "No color pointer for a color strider!" << llendl;
+			LL_ERRS() << "No color pointer for a color strider!" << LL_ENDL;
 		}
 		mDrawPoolp->setDirtyColors();
 		return mGeomIndex;
@@ -107,7 +107,7 @@ inline S32	LLFace::getTexCoords  (LLStrider<LLVector2> &texCoords, S32 pass )
 		if (!mBackupMem)
 		{
 			printDebugInfo();
-			llerrs << "No backup memory for face" << llendl;
+			LL_ERRS() << "No backup memory for face" << LL_ENDL;
 		}
 		texCoords = (LLVector2*)(mBackupMem + (4 * mIndicesCount) + mDrawPoolp->mDataOffsets[LLDrawPool::DATA_TEX_COORDS0 + pass]);
 		texCoords.setStride( mDrawPoolp->getStride());

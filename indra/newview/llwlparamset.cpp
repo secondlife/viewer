@@ -44,11 +44,11 @@ LLWLParamSet::LLWLParamSet(void) :
 	mCloudScrollXOffset(0.f), mCloudScrollYOffset(0.f)	
 {}
 
-static LLFastTimer::DeclareTimer FTM_WL_PARAM_UPDATE("WL Param Update");
+static LLTrace::TimeBlock FTM_WL_PARAM_UPDATE("WL Param Update");
 
 void LLWLParamSet::update(LLGLSLShader * shader) const 
 {	
-	LLFastTimer t(FTM_WL_PARAM_UPDATE);
+	LL_RECORD_BLOCK_TIME(FTM_WL_PARAM_UPDATE);
 
 	for(LLSD::map_const_iterator i = mParamValues.beginMap();
 		i != mParamValues.endMap();

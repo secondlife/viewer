@@ -32,7 +32,6 @@
 
 // viewer includes
 #include "llagent.h"
-#include "llavatarconstants.h"
 #include "llcallingcard.h" // for LLAvatarTracker
 #include "llavataractions.h"
 #include "llmenugl.h"
@@ -61,7 +60,7 @@ bool LLAvatarIconIDCache::LLAvatarIconIDCacheItem::expired()
 
 void LLAvatarIconIDCache::load	()
 {
-	llinfos << "Loading avatar icon id cache." << llendl;
+	LL_INFOS() << "Loading avatar icon id cache." << LL_ENDL;
 	
 	// build filename for each user
 	std::string resolved_filename = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, mFilename);
@@ -106,7 +105,7 @@ void LLAvatarIconIDCache::save	()
 	llofstream file (resolved_filename);
 	if (!file.is_open())
 	{
-		llwarns << "can't open avatar icons cache file\"" << mFilename << "\" for writing" << llendl;
+		LL_WARNS() << "can't open avatar icons cache file\"" << mFilename << "\" for writing" << LL_ENDL;
 		return;
 	}
 

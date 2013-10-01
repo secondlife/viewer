@@ -105,7 +105,7 @@ LLBadge::LLBadge(const LLBadge::Params& p)
 {
 	if (mImage.isNull())
 	{
-		llwarns << "Badge: " << getName() << " with no image!" << llendl;
+		LL_WARNS() << "Badge: " << getName() << " with no image!" << LL_ENDL;
 	}
 
 	if (p.location_offset_hcenter.isProvided())
@@ -335,7 +335,7 @@ void LLBadge::draw()
 			}
 			else
 			{
-				lldebugs << "No image for badge " << getName() << " on owner " << owner_view->getName() << llendl;
+				LL_DEBUGS() << "No image for badge " << getName() << " on owner " << owner_view->getName() << LL_ENDL;
 				
 				renderBadgeBackground(badge_center_x, badge_center_y,
 									  badge_width, badge_height,

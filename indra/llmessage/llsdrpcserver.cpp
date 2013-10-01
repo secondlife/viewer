@@ -31,6 +31,7 @@
 
 #include "llbuffer.h"
 #include "llbufferstream.h"
+#include "llfasttimer.h"
 #include "llpumpio.h"
 #include "llsdserialize.h"
 #include "llstl.h"
@@ -94,7 +95,7 @@ void LLSDRPCServer::clearLock()
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_PROCESS_SDRPC_SERVER("SDRPC Server");
+static LLTrace::TimeBlock FTM_PROCESS_SDRPC_SERVER("SDRPC Server");
 
 // virtual
 LLIOPipe::EStatus LLSDRPCServer::process_impl(
@@ -104,9 +105,9 @@ LLIOPipe::EStatus LLSDRPCServer::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
-	LLFastTimer t(FTM_PROCESS_SDRPC_SERVER);
+	LL_RECORD_BLOCK_TIME(FTM_PROCESS_SDRPC_SERVER);
 	PUMP_DEBUG;
-//	lldebugs << "LLSDRPCServer::process_impl" << llendl;
+//	LL_DEBUGS() << "LLSDRPCServer::process_impl" << LL_ENDL;
 	// Once we have all the data, We need to read the sd on
 	// the the in channel, and respond on  the out channel
 	if(!eos) return STATUS_BREAK;
@@ -131,10 +132,10 @@ LLIOPipe::EStatus LLSDRPCServer::process_impl(
 		return STATUS_DONE;
 
 	case STATE_DONE:
-//		lldebugs << "STATE_DONE" << llendl;
+//		LL_DEBUGS() << "STATE_DONE" << LL_ENDL;
 		break;
 	case STATE_CALLBACK:
-//		lldebugs << "STATE_CALLBACK" << llendl;
+//		LL_DEBUGS() << "STATE_CALLBACK" << LL_ENDL;
 		PUMP_DEBUG;
 		method_name = mRequest[LLSDRPC_METHOD_SD_NAME].asString();
 		if(!method_name.empty() && mRequest.has(LLSDRPC_PARAMETER_SD_NAME))
@@ -168,7 +169,7 @@ LLIOPipe::EStatus LLSDRPCServer::process_impl(
 		mState = STATE_DONE;
 		break;
 	case STATE_NONE:
-//		lldebugs << "STATE_NONE" << llendl;
+//		LL_DEBUGS() << "STATE_NONE" << LL_ENDL;
 	default:
 	{
 		// First time we got here - process the SD request, and call
@@ -316,7 +317,7 @@ void LLSDRPCServer::buildFault(
 {
 	LLBufferStream ostr(channels, data);
 	ostr << FAULT_PART_1 << code << FAULT_PART_2 << msg << FAULT_PART_3;
-	llinfos << "LLSDRPCServer::buildFault: " << code << ", " << msg << llendl;
+	LL_INFOS() << "LLSDRPCServer::buildFault: " << code << ", " << msg << LL_ENDL;
 }
 
 // static
@@ -333,6 +334,6 @@ void LLSDRPCServer::buildResponse(
 	std::ostringstream debug_ostr;
 	debug_ostr << "LLSDRPCServer::buildResponse: ";
 	LLSDSerialize::toNotation(response, debug_ostr);
-	llinfos << debug_ostr.str() << llendl;
+	LL_INFOS() << debug_ostr.str() << LL_ENDL;
 #endif
 }

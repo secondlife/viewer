@@ -30,7 +30,6 @@
 
 #include "llassettype.h"
 #include "llinventorytype.h"
-#include "lluiimage.h"
 
 class LLInventoryIcon
 {
@@ -41,11 +40,11 @@ public:
 										  BOOL item_is_multi = FALSE);
 	static const std::string& getIconName(LLInventoryType::EIconName idx);
 
-	static LLUIImagePtr getIcon(LLAssetType::EType asset_type,
+	static LLPointer<class LLUIImage> getIcon(LLAssetType::EType asset_type,
 								LLInventoryType::EType inventory_type = LLInventoryType::IT_NONE,
 								U32 misc_flag = 0, // different meanings depending on item type
 								BOOL item_is_multi = FALSE);
-	static LLUIImagePtr getIcon(LLInventoryType::EIconName idx);
+	static LLPointer<class LLUIImage> getIcon(LLInventoryType::EIconName idx);
 
 protected:
 	static LLInventoryType::EIconName assignWearableIcon(U32 misc_flag);

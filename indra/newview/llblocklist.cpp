@@ -246,7 +246,7 @@ bool LLBlockListItemComparator::compare(const LLPanel* item1, const LLPanel* ite
 
 	if (!blocked_item1 || !blocked_item2)
 	{
-		llerror("blocked_item1 and blocked_item2 cannot be null", 0);
+		LL_ERRS() << "blocked_item1 and blocked_item2 cannot be null" << LL_ENDL;
 		return true;
 	}
 

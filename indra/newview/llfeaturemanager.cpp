@@ -37,7 +37,6 @@
 
 #include "llsys.h"
 #include "llgl.h"
-#include "llsecondlifeurls.h"
 
 #include "llappviewer.h"
 #include "llhttpclient.h"
@@ -131,7 +130,7 @@ F32 LLFeatureList::getRecommendedValue(const std::string& name)
 
 BOOL LLFeatureList::maskList(LLFeatureList &mask)
 {
-	//llinfos << "Masking with " << mask.mName << llendl;
+	//LL_INFOS() << "Masking with " << mask.mName << LL_ENDL;
 	//
 	// Lookup the specified feature mask, and overlay it on top of the
 	// current feature mask.
@@ -318,7 +317,7 @@ BOOL LLFeatureManager::loadFeatureTables()
 
 BOOL LLFeatureManager::parseFeatureTable(std::string filename)
 {
-	llinfos << "Looking for feature table in " << filename << llendl;
+	LL_INFOS() << "Looking for feature table in " << filename << LL_ENDL;
 
 	llifstream file;
 	std::string name;
@@ -577,7 +576,7 @@ public:
 		{
 			// write to file
 
-			llinfos << "writing feature table to " << mFilename << llendl;
+			LL_INFOS() << "writing feature table to " << mFilename << LL_ENDL;
 			
 			S32 file_size = buffer->countAfter(channels.in(), NULL);
 			if (file_size > 0)
@@ -622,7 +621,7 @@ void fetch_feature_table(std::string table)
 
 	const std::string path       = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, filename);
 
-	llinfos << "LLFeatureManager fetching " << url << " into " << path << llendl;
+	LL_INFOS() << "LLFeatureManager fetching " << url << " into " << path << LL_ENDL;
 	
 	LLHTTPClient::get(url, new LLHTTPFeatureTableResponder(path));
 }
@@ -637,7 +636,7 @@ void fetch_gpu_table(std::string table)
 
 	const std::string path       = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, filename);
 
-	llinfos << "LLFeatureManager fetching " << url << " into " << path << llendl;
+	LL_INFOS() << "LLFeatureManager fetching " << url << " into " << path << LL_ENDL;
 	
 	LLHTTPClient::get(url, new LLHTTPFeatureTableResponder(path));
 }
@@ -674,7 +673,7 @@ void LLFeatureManager::applyRecommendedSettings()
 	// cap the level at 2 (high)
 	U32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_5));
 
-	llinfos << "Applying Recommended Features" << llendl;
+	LL_INFOS() << "Applying Recommended Features" << LL_ENDL;
 
 	setGraphicsLevel(level, false);
 	gSavedSettings.setU32("RenderQualityPerformance", level);
@@ -720,7 +719,7 @@ void LLFeatureManager::applyFeatures(bool skipFeatures)
 		LLControlVariable* ctrl = gSavedSettings.getControl(mIt->first);
 		if(ctrl == NULL)
 		{
-			llwarns << "AHHH! Control setting " << mIt->first << " does not exist!" << llendl;
+			LL_WARNS() << "AHHH! Control setting " << mIt->first << " does not exist!" << LL_ENDL;
 			continue;
 		}
 
@@ -743,7 +742,7 @@ void LLFeatureManager::applyFeatures(bool skipFeatures)
 		}
 		else
 		{
-			llwarns << "AHHH! Control variable is not a numeric type!" << llendl;
+			LL_WARNS() << "AHHH! Control variable is not a numeric type!" << LL_ENDL;
 		}
 	}
 }
@@ -887,11 +886,11 @@ void LLFeatureManager::applyBaseMasks()
 		}
 	}
 
-	//llinfos << "Masking features from gpu table match: " << gpustr << llendl;
+	//LL_INFOS() << "Masking features from gpu table match: " << gpustr << LL_ENDL;
 	maskFeatures(gpustr);
 
 	// now mask cpu type ones
-	if (gSysMemory.getPhysicalMemoryClamped() <= 256*1024*1024)
+	if (gSysMemory.getPhysicalMemoryClamped() <= U32Megabytes(256))
 	{
 		maskFeatures("RAM256MB");
 	}

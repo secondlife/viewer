@@ -48,7 +48,7 @@ static void postcard_upload_callback(const LLUUID& asset_id, void *user_data, S3
 	if (result)
 	{
 		// TODO: display the error messages in UI
-		llwarns << "Failed to send postcard: " << LLAssetStorage::getErrorString(result) << llendl;
+		LL_WARNS() << "Failed to send postcard: " << LLAssetStorage::getErrorString(result) << LL_ENDL;
 		LLPostCard::reportPostResult(false);
 	}
 	else
@@ -97,14 +97,14 @@ public:
 
 	/*virtual*/ void uploadComplete(const LLSD& content)
 	{
-		llinfos << "Postcard sent" << llendl;
-		LL_DEBUGS("Snapshots") << "content: " << content << llendl;
+		LL_INFOS() << "Postcard sent" << LL_ENDL;
+		LL_DEBUGS("Snapshots") << "content: " << content << LL_ENDL;
 		LLPostCard::reportPostResult(true);
 	}
 
 	/*virtual*/ void uploadFailure(const LLSD& content)
 	{
-		llwarns << "Sending postcard failed: " << content << llendl;
+		LL_WARNS() << "Sending postcard failed: " << content << LL_ENDL;
 		LLPostCard::reportPostResult(false);
 	}
 };
@@ -128,17 +128,17 @@ void LLPostCard::send(LLPointer<LLImageFormatted> image, const LLSD& postcard_da
 	std::string url = gAgent.getRegion()->getCapability("SendPostcard");
 	if (!url.empty())
 	{
-		llinfos << "Sending postcard via capability" << llendl;
+		LL_INFOS() << "Sending postcard via capability" << LL_ENDL;
 		// the capability already encodes: agent ID, region ID
-		LL_DEBUGS("Snapshots") << "url: " << url << llendl;
-		LL_DEBUGS("Snapshots") << "body: " << postcard_data << llendl;
-		LL_DEBUGS("Snapshots") << "data size: " << image->getDataSize() << llendl;
+		LL_DEBUGS("Snapshots") << "url: " << url << LL_ENDL;
+		LL_DEBUGS("Snapshots") << "body: " << postcard_data << LL_ENDL;
+		LL_DEBUGS("Snapshots") << "data size: " << image->getDataSize() << LL_ENDL;
 		LLHTTPClient::post(url, postcard_data,
 			new LLPostcardSendResponder(postcard_data, asset_id, LLAssetType::AT_IMAGE_JPEG));
 	}
 	else
 	{
-		llinfos << "Sending postcard" << llendl;
+		LL_INFOS() << "Sending postcard" << LL_ENDL;
 		LLSD* data = new LLSD(postcard_data);
 		(*data)["asset-id"] = asset_id;
 		gAssetStorage->storeAssetData(transaction_id, LLAssetType::AT_IMAGE_JPEG,

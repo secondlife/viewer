@@ -28,8 +28,8 @@
 #define LLCTRLSELECTIONINTERFACE_H
 
 #include "stdtypes.h"
-#include "stdenums.h"
 #include "llstring.h"
+#include "llui.h"
 
 class LLSD;
 class LLUUID;

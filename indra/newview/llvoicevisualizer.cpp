@@ -310,7 +310,7 @@ void LLVoiceVisualizer::lipSyncOohAah( F32& ooh, F32& aah )
 		aah = transfer_aah * sAah[elapsed_aahs];
 
 		/*
-		llinfos << " elapsed frames " << elapsed_frames
+		LL_INFOS() << " elapsed frames " << elapsed_frames
 				<< " ooh "            << ooh
 				<< " aah "            << aah
 				<< " transfer ooh"    << transfer_ooh
@@ -320,7 +320,7 @@ void LLVoiceVisualizer::lipSyncOohAah( F32& ooh, F32& aah )
 				<< " elapsed time "   << elapsed_time
 				<< " elapsed oohs "   << elapsed_oohs
 				<< " elapsed aahs "   << elapsed_aahs
-				<< llendl;
+				<< LL_ENDL;
 		*/
 	}
 	else
@@ -590,7 +590,7 @@ void LLVoiceVisualizer::unpackData(LLMessageSystem *mesgsys, S32 blocknum)
 	S32 size = mesgsys->getSizeFast(_PREHASH_Effect, blocknum, _PREHASH_TypeData);
 	if (size != 1)
 	{
-		llwarns << "Voice effect with bad size " << size << llendl;
+		LL_WARNS() << "Voice effect with bad size " << size << LL_ENDL;
 		return;
 	}
 	mesgsys->getBinaryDataFast(_PREHASH_Effect, _PREHASH_TypeData, packed_data, 1, blocknum);

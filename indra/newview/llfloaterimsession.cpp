@@ -41,6 +41,7 @@
 #include "llchicletbar.h"
 #include "lldonotdisturbnotificationstorage.h"
 #include "llfloaterreg.h"
+#include "llhttpclient.h"
 #include "llfloateravatarpicker.h"
 #include "llfloaterimcontainer.h" // to replace separate IM Floaters with multifloater container
 #include "llinventoryfunctions.h"
@@ -52,6 +53,7 @@
 #include "lltrans.h"
 #include "llchathistory.h"
 #include "llnotifications.h"
+#include "llviewerregion.h"
 #include "llviewerwindow.h"
 #include "lltransientfloatermgr.h"
 #include "llinventorymodel.h"
@@ -134,7 +136,7 @@ void LLFloaterIMSession::onClickCloseBtn()
 	}
 	else
 	{
-		llwarns << "Empty session with id: " << (mSessionID.asString()) << llendl;
+		LL_WARNS() << "Empty session with id: " << (mSessionID.asString()) << LL_ENDL;
 		return;
 	}
 
@@ -158,7 +160,7 @@ void LLFloaterIMSession::newIMCallback(const LLSD& data)
 	}
 }
 
-void LLFloaterIMSession::onVisibilityChange(const LLSD& new_visibility)
+void LLFloaterIMSession::onVisibilityChanged(const LLSD& new_visibility)
 {
 	bool visible = new_visibility.asBoolean();
 
@@ -236,7 +238,7 @@ void LLFloaterIMSession::sendMsgFromInputEditor()
 	}
 	else
 	{
-		llinfos << "Cannot send IM to everyone unless you're a god." << llendl;
+		LL_INFOS() << "Cannot send IM to everyone unless you're a god." << LL_ENDL;
 	}
 }
 
@@ -1153,8 +1155,8 @@ public:
 
 	void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
 	{
-		llwarns << "Error inviting all agents to session [status:" 
-				<< statusNum << "]: " << content << llendl;
+		LL_WARNS() << "Error inviting all agents to session [status:" 
+				<< statusNum << "]: " << content << LL_ENDL;
 		//throw something back to the viewer here?
 	}
 
@@ -1173,7 +1175,7 @@ BOOL LLFloaterIMSession::inviteToSession(const uuid_vec_t& ids)
 
 		if( isInviteAllowed() && (count > 0) )
 		{
-			llinfos << "LLFloaterIMSession::inviteToSession() - inviting participants" << llendl;
+			LL_INFOS() << "LLFloaterIMSession::inviteToSession() - inviting participants" << LL_ENDL;
 
 			std::string url = region->getCapability("ChatSessionRequest");
 
@@ -1189,9 +1191,9 @@ BOOL LLFloaterIMSession::inviteToSession(const uuid_vec_t& ids)
 		}
 		else
 		{
-			llinfos << "LLFloaterIMSession::inviteToSession -"
+			LL_INFOS() << "LLFloaterIMSession::inviteToSession -"
 					<< " no need to invite agents for "
-					<< mDialog << llendl;
+					<< mDialog << LL_ENDL;
 			// successful add, because everyone that needed to get added
 			// was added.
 		}

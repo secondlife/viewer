@@ -29,8 +29,6 @@
 
 #include <string>
 
-#include "stdenums.h" 	// for EDragAndDropType
-
 class LL_COMMON_API LLAssetType
 {
 public:

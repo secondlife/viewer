@@ -45,14 +45,14 @@
 
 #include "llerror.h"
 #include "net.h"
-#include "string_table.h"
+#include "llstringtable.h"
 #include "llcircuit.h"
 #include "lltimer.h"
 #include "llpacketring.h"
 #include "llhost.h"
-#include "llhttpclient.h"
+#include "llcurl.h"
 #include "llhttpnode.h"
-#include "llpacketack.h"
+//#include "llpacketack.h"
 #include "llsingleton.h"
 #include "message_prehash.h"
 #include "llstl.h"
@@ -142,23 +142,18 @@ enum EPacketHeaderLayout
 
 
 const S32 LL_DEFAULT_RELIABLE_RETRIES = 3;
-const F32 LL_MINIMUM_RELIABLE_TIMEOUT_SECONDS = 1.f;
-const F32 LL_MINIMUM_SEMIRELIABLE_TIMEOUT_SECONDS = 1.f;
-const F32 LL_PING_BASED_TIMEOUT_DUMMY = 0.0f;
+const F32Seconds LL_MINIMUM_RELIABLE_TIMEOUT_SECONDS(1.f);
+const F32Seconds LL_MINIMUM_SEMIRELIABLE_TIMEOUT_SECONDS(1.f);
+const F32Seconds LL_PING_BASED_TIMEOUT_DUMMY(0.0f);
 
-// *NOTE: Maybe these factors shouldn't include the msec to sec conversion
-// implicitly.
-// However, all units should be MKS.
-const F32 LL_SEMIRELIABLE_TIMEOUT_FACTOR	= 5.f / 1000.f;		// factor * averaged ping
-const F32 LL_RELIABLE_TIMEOUT_FACTOR		= 5.f / 1000.f;      // factor * averaged ping
-const F32 LL_FILE_XFER_TIMEOUT_FACTOR		= 5.f / 1000.f;      // factor * averaged ping
-const F32 LL_LOST_TIMEOUT_FACTOR			= 16.f / 1000.f;     // factor * averaged ping for marking packets "Lost"
-const F32 LL_MAX_LOST_TIMEOUT				= 5.f;				// Maximum amount of time before considering something "lost"
+const F32 LL_SEMIRELIABLE_TIMEOUT_FACTOR	= 5.f;		// averaged ping
+const F32 LL_RELIABLE_TIMEOUT_FACTOR		= 5.f;		// averaged ping
+const F32 LL_LOST_TIMEOUT_FACTOR			= 16.f;     // averaged ping for marking packets "Lost"
+const F32Seconds LL_MAX_LOST_TIMEOUT(5.f);				// Maximum amount of time before considering something "lost"
 
 const S32 MAX_MESSAGE_COUNT_NUM = 1024;
 
 // Forward declarations
-class LLCircuit;
 class LLVector3;
 class LLVector4;
 class LLVector3d;
@@ -214,19 +209,19 @@ class LLMessageSystem : public LLMessageSenderInterface
 
  public:
 	LLPacketRing				mPacketRing;
-	LLReliablePacketParams			mReliablePacketParams;
+	LLReliablePacketParams		mReliablePacketParams;
 
 	// Set this flag to TRUE when you want *very* verbose logs.
-	BOOL mVerboseLog;
+	BOOL						mVerboseLog;
 
-	F32                                     mMessageFileVersionNumber;
+	F32                         mMessageFileVersionNumber;
 
 	typedef std::map<const char *, LLMessageTemplate*> message_template_name_map_t;
 	typedef std::map<U32, LLMessageTemplate*> message_template_number_map_t;
 
 private:
 	message_template_name_map_t		mMessageTemplates;
-	message_template_number_map_t		mMessageNumbers;
+	message_template_number_map_t	mMessageNumbers;
 
 public:
 	S32					mSystemVersionMajor;
@@ -235,7 +230,7 @@ public:
 	S32					mSystemVersionServer;
 	U32					mVersionFlags;
 
-	BOOL					mbProtected;
+	BOOL				mbProtected;
 
 	U32					mNumberHighFreqMessages;
 	U32					mNumberMediumFreqMessages;
@@ -255,11 +250,11 @@ public:
 	U32					mReliablePacketsIn;	    // total reliable packets in
 	U32					mReliablePacketsOut;	    // total reliable packets out
 
-	U32                                     mDroppedPackets;            // total dropped packets in
-	U32                                     mResentPackets;             // total resent packets out
-	U32                                     mFailedResendPackets;       // total resend failure packets out
-	U32                                     mOffCircuitPackets;         // total # of off-circuit packets rejected
-	U32                                     mInvalidOnCircuitPackets;   // total # of on-circuit but invalid packets rejected
+	U32                 mDroppedPackets;            // total dropped packets in
+	U32                 mResentPackets;             // total resent packets out
+	U32                 mFailedResendPackets;       // total resend failure packets out
+	U32                 mOffCircuitPackets;         // total # of off-circuit packets rejected
+	U32                 mInvalidOnCircuitPackets;   // total # of on-circuit but invalid packets rejected
 
 	S64					mUncompressedBytesIn;	    // total uncompressed size of compressed packets in
 	S64					mUncompressedBytesOut;	    // total uncompressed size of compressed packets out
@@ -268,14 +263,14 @@ public:
 	S64					mTotalBytesIn;		    // total size of all uncompressed packets in
 	S64					mTotalBytesOut;		    // total size of all uncompressed packets out
 
-	BOOL                                    mSendReliable;              // does the outgoing message require a pos ack?
+	BOOL                mSendReliable;              // does the outgoing message require a pos ack?
 
-	LLCircuit 	 			mCircuitInfo;
-	F64					mCircuitPrintTime;	    // used to print circuit debug info every couple minutes
-	F32					mCircuitPrintFreq;	    // seconds
+	LLCircuit 	 		mCircuitInfo;
+	F64Seconds			mCircuitPrintTime;	    // used to print circuit debug info every couple minutes
+	F32Seconds			mCircuitPrintFreq;	    
 
-	std::map<U64, U32>			mIPPortToCircuitCode;
-	std::map<U32, U64>			mCircuitCodeToIPPort;
+	std::map<U64, U32>	mIPPortToCircuitCode;
+	std::map<U32, U64>	mCircuitCodeToIPPort;
 	U32					mOurCircuitCode;
 	S32					mSendPacketFailureCount;
 	S32					mUnackedListDepth;
@@ -470,7 +465,7 @@ public:
 	S32	sendReliable(	const LLHost &host, 
 							S32 retries, 
 							BOOL ping_based_retries,
-							F32 timeout, 
+							F32Seconds timeout, 
 							void (*callback)(void **,S32), 
 							void ** callback_data);
 
@@ -490,11 +485,11 @@ public:
 		const LLHost &host, 
 		S32 retries, 
 		BOOL ping_based_timeout,
-		F32 timeout, 
+		F32Seconds timeout, 
 		void (*callback)(void **,S32), 
 		void ** callback_data);
 
-	LLHTTPClient::ResponderPtr createResponder(const std::string& name);
+	LLCurl::ResponderPtr createResponder(const std::string& name);
 	S32		sendMessage(const LLHost &host);
 	S32		sendMessage(const U32 circuit);
 private:
@@ -657,8 +652,8 @@ public:
 	S32		getSize(const char *blockname, S32 blocknum, const char *varname) const;
 
 	void	resetReceiveCounts();				// resets receive counts for all message types to 0
-	void	dumpReceiveCounts();				// dumps receive count for each message type to llinfos
-	void	dumpCircuitInfo();					// Circuit information to llinfos
+	void	dumpReceiveCounts();				// dumps receive count for each message type to LL_INFOS()
+	void	dumpCircuitInfo();					// Circuit information to LL_INFOS()
 
 	BOOL	isClear() const;					// returns mbSClear;
 	S32 	flush(const LLHost &host);
@@ -684,8 +679,8 @@ public:
 	void setMaxMessageTime(const F32 seconds);	// Max time to process messages before warning and dumping (neg to disable)
 	void setMaxMessageCounts(const S32 num);	// Max number of messages before dumping (neg to disable)
 	
-	static U64 getMessageTimeUsecs(const BOOL update = FALSE);	// Get the current message system time in microseconds
-	static F64 getMessageTimeSeconds(const BOOL update = FALSE); // Get the current message system time in seconds
+	static U64Microseconds getMessageTimeUsecs(const BOOL update = FALSE);	// Get the current message system time in microseconds
+	static F64Seconds getMessageTimeSeconds(const BOOL update = FALSE); // Get the current message system time in seconds
 
 	static void setTimeDecodes(BOOL b);
 	static void setTimeDecodesSpamThreshold(F32 seconds); 
@@ -784,16 +779,16 @@ private:
 	BOOL	mbError;
 	S32	mErrorCode;
 
-	F64										mResendDumpTime; // The last time we dumped resends
+	F64Seconds										mResendDumpTime; // The last time we dumped resends
 
 	LLMessageCountInfo mMessageCountList[MAX_MESSAGE_COUNT_NUM];
 	S32 mNumMessageCounts;
-	F32 mReceiveTime;
-	F32 mMaxMessageTime; // Max number of seconds for processing messages
+	F32Seconds mReceiveTime;
+	F32Seconds mMaxMessageTime; // Max number of seconds for processing messages
 	S32 mMaxMessageCounts; // Max number of messages to process before dumping.
-	F64 mMessageCountTime;
+	F64Seconds mMessageCountTime;
 
-	F64 mCurrentMessageTimeSeconds; // The current "message system time" (updated the first call to checkMessages after a resetReceiveCount
+	F64Seconds mCurrentMessageTime; // The current "message system time" (updated the first call to checkMessages after a resetReceiveCount
 
 	// message system exceptions
 	typedef std::pair<msg_exception_callback, void*> exception_t;
@@ -888,7 +883,7 @@ static inline void *htonmemcpy(void *vs, const void *vct, EMsgVariableType type,
 	case MVT_S16:
 		if (n != 2)
 		{
-			llerrs << "Size argument passed to htonmemcpy doesn't match swizzle type size" << llendl;
+			LL_ERRS() << "Size argument passed to htonmemcpy doesn't match swizzle type size" << LL_ENDL;
 		}
 #ifdef LL_BIG_ENDIAN
 		*(s + 1) = *(ct);
@@ -903,7 +898,7 @@ static inline void *htonmemcpy(void *vs, const void *vct, EMsgVariableType type,
 	case MVT_F32:
 		if (n != 4)
 		{
-			llerrs << "Size argument passed to htonmemcpy doesn't match swizzle type size" << llendl;
+			LL_ERRS() << "Size argument passed to htonmemcpy doesn't match swizzle type size" << LL_ENDL;
 		}
 #ifdef LL_BIG_ENDIAN
 		*(s + 3) = *(ct);
@@ -920,7 +915,7 @@ static inline void *htonmemcpy(void *vs, const void *vct, EMsgVariableType type,
 	case MVT_F64:
 		if (n != 8)
 		{
-			llerrs << "Size argument passed to htonmemcpy doesn't match swizzle type size" << llendl;
+			LL_ERRS() << "Size argument passed to htonmemcpy doesn't match swizzle type size" << LL_ENDL;
 		}
 #ifdef LL_BIG_ENDIAN
 		*(s + 7) = *(ct);
@@ -940,7 +935,7 @@ static inline void *htonmemcpy(void *vs, const void *vct, EMsgVariableType type,
 	case MVT_LLQuaternion:  // We only send x, y, z and infer w (we set x, y, z to ensure that w >= 0)
 		if (n != 12)
 		{
-			llerrs << "Size argument passed to htonmemcpy doesn't match swizzle type size" << llendl;
+			LL_ERRS() << "Size argument passed to htonmemcpy doesn't match swizzle type size" << LL_ENDL;
 		}
 #ifdef LL_BIG_ENDIAN
 		htonmemcpy(s + 8, ct + 8, MVT_F32, 4);
@@ -953,7 +948,7 @@ static inline void *htonmemcpy(void *vs, const void *vct, EMsgVariableType type,
 	case MVT_LLVector3d:
 		if (n != 24)
 		{
-			llerrs << "Size argument passed to htonmemcpy doesn't match swizzle type size" << llendl;
+			LL_ERRS() << "Size argument passed to htonmemcpy doesn't match swizzle type size" << LL_ENDL;
 		}
 #ifdef LL_BIG_ENDIAN
 		htonmemcpy(s + 16, ct + 16, MVT_F64, 8);
@@ -966,7 +961,7 @@ static inline void *htonmemcpy(void *vs, const void *vct, EMsgVariableType type,
 	case MVT_LLVector4:
 		if (n != 16)
 		{
-			llerrs << "Size argument passed to htonmemcpy doesn't match swizzle type size" << llendl;
+			LL_ERRS() << "Size argument passed to htonmemcpy doesn't match swizzle type size" << LL_ENDL;
 		}
 #ifdef LL_BIG_ENDIAN
 		htonmemcpy(s + 12, ct + 12, MVT_F32, 4);
@@ -980,7 +975,7 @@ static inline void *htonmemcpy(void *vs, const void *vct, EMsgVariableType type,
 	case MVT_U16Vec3:
 		if (n != 6)
 		{
-			llerrs << "Size argument passed to htonmemcpy doesn't match swizzle type size" << llendl;
+			LL_ERRS() << "Size argument passed to htonmemcpy doesn't match swizzle type size" << LL_ENDL;
 		}
 #ifdef LL_BIG_ENDIAN
 		htonmemcpy(s + 4, ct + 4, MVT_U16, 2);
@@ -993,7 +988,7 @@ static inline void *htonmemcpy(void *vs, const void *vct, EMsgVariableType type,
 	case MVT_U16Quat:
 		if (n != 8)
 		{
-			llerrs << "Size argument passed to htonmemcpy doesn't match swizzle type size" << llendl;
+			LL_ERRS() << "Size argument passed to htonmemcpy doesn't match swizzle type size" << LL_ENDL;
 		}
 #ifdef LL_BIG_ENDIAN
 		htonmemcpy(s + 6, ct + 6, MVT_U16, 2);
@@ -1007,7 +1002,7 @@ static inline void *htonmemcpy(void *vs, const void *vct, EMsgVariableType type,
 	case MVT_S16Array:
 		if (n % 2)
 		{
-			llerrs << "Size argument passed to htonmemcpy doesn't match swizzle type size" << llendl;
+			LL_ERRS() << "Size argument passed to htonmemcpy doesn't match swizzle type size" << LL_ENDL;
 		}
 #ifdef LL_BIG_ENDIAN
 		length = n % 2;

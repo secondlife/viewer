@@ -72,19 +72,19 @@ BOOL LLFloaterLandHoldings::postBuild()
 	grant_list->sortByColumnIndex(0, TRUE);
 	grant_list->setDoubleClickCallback(onGrantList, this);
 
-	S32 count = gAgent.mGroups.count();
+	S32 count = gAgent.mGroups.size();
 	for(S32 i = 0; i < count; ++i)
 	{
-		LLUUID id(gAgent.mGroups.get(i).mID);
+		LLUUID id(gAgent.mGroups.at(i).mID);
 
 		LLSD element;
 		element["id"] = id;
 		element["columns"][0]["column"] = "group";
-		element["columns"][0]["value"] = gAgent.mGroups.get(i).mName;
+		element["columns"][0]["value"] = gAgent.mGroups.at(i).mName;
 		element["columns"][0]["font"] = "SANSSERIF";
 
 		LLUIString areastr = getString("area_string");
-		areastr.setArg("[AREA]", llformat("%d", gAgent.mGroups.get(i).mContribution));
+		areastr.setArg("[AREA]", llformat("%d", gAgent.mGroups.at(i).mContribution));
 		element["columns"][1]["column"] = "area";
 		element["columns"][1]["value"] = areastr;
 		element["columns"][1]["font"] = "SANSSERIF";
@@ -194,7 +194,7 @@ void LLFloaterLandHoldings::processPlacesReply(LLMessageSystem* msg, void**)
 		if ( msg->getSizeFast(_PREHASH_QueryData, i, _PREHASH_ProductSKU) > 0 )
 		{
 			msg->getStringFast(	_PREHASH_QueryData, _PREHASH_ProductSKU, land_sku, i);
-			llinfos << "Land sku: " << land_sku << llendl;
+			LL_INFOS() << "Land sku: " << land_sku << LL_ENDL;
 			land_type = LLProductInfoRequestManager::instance().getDescriptionForSku(land_sku);
 		}
 		else

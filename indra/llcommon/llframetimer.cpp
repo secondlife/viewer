@@ -115,10 +115,10 @@ F64 LLFrameTimer::expiresAt() const
 
 BOOL LLFrameTimer::checkExpirationAndReset(F32 expiration)
 {
-	//llinfos << "LLFrameTimer::checkExpirationAndReset()" << llendl;
-	//llinfos << "  mStartTime:" << mStartTime << llendl;
-	//llinfos << "  sFrameTime:" << sFrameTime << llendl;
-	//llinfos << "  mExpiry:   " <<  mExpiry << llendl;
+	//LL_INFOS() << "LLFrameTimer::checkExpirationAndReset()" << LL_ENDL;
+	//LL_INFOS() << "  mStartTime:" << mStartTime << LL_ENDL;
+	//LL_INFOS() << "  sFrameTime:" << sFrameTime << LL_ENDL;
+	//LL_INFOS() << "  mExpiry:   " <<  mExpiry << LL_ENDL;
 
 	if(hasExpired())
 	{

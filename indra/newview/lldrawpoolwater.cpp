@@ -98,7 +98,7 @@ void LLDrawPoolWater::restoreGL()
 
 LLDrawPool *LLDrawPoolWater::instancePool()
 {
-	llerrs << "Should never be calling instancePool on a water pool!" << llendl;
+	LL_ERRS() << "Should never be calling instancePool on a water pool!" << LL_ENDL;
 	return NULL;
 }
 
@@ -142,7 +142,7 @@ void LLDrawPoolWater::endPostDeferredPass(S32 pass)
 //===============================
 void LLDrawPoolWater::renderDeferred(S32 pass)
 {
-	LLFastTimer t(FTM_RENDER_WATER);
+	LL_RECORD_BLOCK_TIME(FTM_RENDER_WATER);
 	deferred_render = TRUE;
 	shade();
 	deferred_render = FALSE;
@@ -152,7 +152,7 @@ void LLDrawPoolWater::renderDeferred(S32 pass)
 
 void LLDrawPoolWater::render(S32 pass)
 {
-	LLFastTimer ftm(FTM_RENDER_WATER);
+	LL_RECORD_BLOCK_TIME(FTM_RENDER_WATER);
 	if (mDrawFace.empty() || LLDrawable::getCurrentFrame() <= 1)
 	{
 		return;
@@ -463,7 +463,7 @@ void LLDrawPoolWater::renderReflection(LLFace* face)
 
 	gGL.getTexUnit(0)->bind(mHBTex[dr]);
 
-	LLOverrideFaceColor override(this, face->getFaceColor().mV);
+	LLOverrideFaceColor override(this, LLColor4(face->getFaceColor().mV));
 	face->renderIndexed();
 }
 

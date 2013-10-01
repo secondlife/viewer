@@ -36,7 +36,6 @@
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
-#include "lscript_rt_interface.h"
 #include "llviewercontrol.h"
 #include "llviewerinventory.h"
 #include "llviewerobject.h"
@@ -91,17 +90,17 @@ void LLFloaterBulkPermission::doApply()
 	class ModifiableGatherer : public LLSelectedNodeFunctor
 	{
 	public:
-		ModifiableGatherer(LLDynamicArray<LLUUID>& q) : mQueue(q) {}
+		ModifiableGatherer(std::vector<LLUUID>& q) : mQueue(q) { mQueue.reserve(32); }
 		virtual bool apply(LLSelectNode* node)
 		{
 			if( node->allowOperationOnNode(PERM_MODIFY, GP_OBJECT_MANIPULATE) )
 			{
-				mQueue.put(node->getObject()->getID());
+				mQueue.push_back(node->getObject()->getID());
 			}
 			return true;
 		}
 	private:
-		LLDynamicArray<LLUUID>& mQueue;
+		std::vector<LLUUID>& mQueue;
 	};
 	LLScrollListCtrl* list = getChild<LLScrollListCtrl>("queue output");
 	list->deleteAllItems();
@@ -116,7 +115,7 @@ void LLFloaterBulkPermission::doApply()
 		mDone = FALSE;
 		if (!start())
 		{
-			llwarns << "Unexpected bulk permission change failure." << llendl;
+			LL_WARNS() << "Unexpected bulk permission change failure." << LL_ENDL;
 		}
 	}
 }
@@ -130,7 +129,7 @@ void LLFloaterBulkPermission::inventoryChanged(LLViewerObject* viewer_object,
 											 S32,
 											 void* q_id)
 {
-	//llinfos << "changed object: " << viewer_object->getID() << llendl;
+	//LL_INFOS() << "changed object: " << viewer_object->getID() << LL_ENDL;
 
 	//Remove this listener from the object since its
 	//listener callback is now being executed.
@@ -155,7 +154,7 @@ void LLFloaterBulkPermission::inventoryChanged(LLViewerObject* viewer_object,
 		// something went wrong...
 		// note that we're not working on this one, and move onto the
 		// next object in the list.
-		llwarns << "No inventory for " << mCurrentObjectID << llendl;
+		LL_WARNS() << "No inventory for " << mCurrentObjectID << LL_ENDL;
 		nextObject();
 	}
 }
@@ -205,7 +204,7 @@ void LLFloaterBulkPermission::onCommitCopy()
 
 BOOL LLFloaterBulkPermission::start()
 {
-	// note: number of top-level objects to modify is mObjectIDs.count().
+	// note: number of top-level objects to modify is mObjectIDs.size().
 	getChild<LLScrollListCtrl>("queue output")->setCommentText(getString("start_text"));
 	return nextObject();
 }
@@ -217,15 +216,15 @@ BOOL LLFloaterBulkPermission::nextObject()
 	BOOL successful_start = FALSE;
 	do
 	{
-		count = mObjectIDs.count();
-		//llinfos << "Objects left to process = " << count << llendl;
+		count = mObjectIDs.size();
+		//LL_INFOS() << "Objects left to process = " << count << LL_ENDL;
 		mCurrentObjectID.setNull();
 		if(count > 0)
 		{
 			successful_start = popNext();
-			//llinfos << (successful_start ? "successful" : "unsuccessful") << llendl; 
+			//LL_INFOS() << (successful_start ? "successful" : "unsuccessful") << LL_ENDL; 
 		}
-	} while((mObjectIDs.count() > 0) && !successful_start);
+	} while((mObjectIDs.size() > 0) && !successful_start);
 
 	if(isDone() && !mDone)
 	{
@@ -241,16 +240,16 @@ BOOL LLFloaterBulkPermission::popNext()
 {
 	// get the head element from the container, and attempt to get its inventory.
 	BOOL rv = FALSE;
-	S32 count = mObjectIDs.count();
+	S32 count = mObjectIDs.size();
 	if(mCurrentObjectID.isNull() && (count > 0))
 	{
-		mCurrentObjectID = mObjectIDs.get(0);
-		//llinfos << "mCurrentID: " << mCurrentObjectID << llendl;
-		mObjectIDs.remove(0);
+		mCurrentObjectID = mObjectIDs.at(0);
+		//LL_INFOS() << "mCurrentID: " << mCurrentObjectID << LL_ENDL;
+		mObjectIDs.erase(mObjectIDs.begin());
 		LLViewerObject* obj = gObjectList.findObject(mCurrentObjectID);
 		if(obj)
 		{
-			//llinfos << "requesting inv for " << mCurrentObjectID << llendl;
+			//LL_INFOS() << "requesting inv for " << mCurrentObjectID << LL_ENDL;
 			LLUUID* id = new LLUUID(mID);
 			registerVOInventoryListener(obj,id);
 			requestVOInventory();
@@ -258,7 +257,7 @@ BOOL LLFloaterBulkPermission::popNext()
 		}
 		else
 		{
-			llinfos<<"NULL LLViewerObject" <<llendl;
+			LL_INFOS()<<"NULL LLViewerObject" <<LL_ENDL;
 		}
 	}
 

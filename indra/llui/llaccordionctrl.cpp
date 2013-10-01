@@ -69,7 +69,7 @@ LLAccordionCtrl::LLAccordionCtrl(const Params& params):LLPanel(params)
 	mSingleExpansion = params.single_expansion;
 	if(mFitParent && !mSingleExpansion)
 	{
-		llinfos << "fit_parent works best when combined with single_expansion" << llendl;
+		LL_INFOS() << "fit_parent works best when combined with single_expansion" << LL_ENDL;
 	}
 }
 
@@ -845,7 +845,7 @@ void LLAccordionCtrl::sort()
 {
 	if (!mTabComparator)
 	{
-		llwarns << "No comparator specified for sorting accordion tabs." << llendl;
+		LL_WARNS() << "No comparator specified for sorting accordion tabs." << LL_ENDL;
 		return;
 	}
 

@@ -42,7 +42,6 @@
 #include "llui.h"
 #include "lluistring.h"
 #include "llviewquery.h"
-#include "stdenums.h"
 #include "lluistring.h"
 #include "llcursortypes.h"
 #include "lluictrlfactory.h"
@@ -66,6 +65,7 @@ const BOOL	MOUSE_OPAQUE = TRUE;
 const BOOL	NOT_MOUSE_OPAQUE = FALSE;
 
 const U32 GL_NAME_UI_RESERVED = 2;
+
 
 // maintains render state during traversal of UI tree
 class LLViewDrawContext
@@ -100,9 +100,13 @@ class LLView
 :	public LLMouseHandler,			// handles mouse events
 	public LLFocusableElement,		// handles keyboard events
 	public LLMortician,				// lazy deletion
-	public LLHandleProvider<LLView>	// passes out weak references to self
+	public LLHandleProvider<LLView>,     // passes out weak references to self
+	public LLTrace::MemTrackable<LLView> // track memory usage
 {
 public:
+
+	enum EOrientation { HORIZONTAL, VERTICAL, ORIENTATION_COUNT };
+
 	struct Follows : public LLInitParam::ChoiceBlock<Follows>
 	{
 		Alternative<std::string>	string;
@@ -163,7 +167,7 @@ protected:
 
 private:
 	// widgets in general are not copyable
-	LLView(const LLView& other) {};
+	LLView(const LLView& other);
 public:
 //#if LL_DEBUG
 	static BOOL sIsDrawing;
@@ -303,7 +307,7 @@ public:
 
 	virtual BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text );
 
-	virtual void	handleVisibilityChange ( BOOL new_visibility );
+	virtual void	onVisibilityChange ( BOOL new_visibility );
 
 	void			pushVisible(BOOL visible)	{ mLastVisible = mVisible; setVisible(visible); }
 	void			popVisible()				{ setVisible(mLastVisible); }
@@ -673,6 +677,16 @@ public:
 	static BOOL sForceReshape;
 };
 
+namespace LLInitParam
+{
+template<>
+struct TypeValues<LLView::EOrientation> : public LLInitParam::TypeValuesHelper<LLView::EOrientation>
+{
+	static void declareValues();
+};
+}
+
+
 class LLCompareByTabOrder
 {
 public:
@@ -694,7 +708,7 @@ template <class T> T* LLView::getChild(const std::string& name, BOOL recurse) co
 		// did we find *something* with that name?
 		if (child)
 		{
-			llwarns << "Found child named \"" << name << "\" but of wrong type " << typeid(*child).name() << ", expecting " << typeid(T*).name() << llendl;
+			LL_WARNS() << "Found child named \"" << name << "\" but of wrong type " << typeid(*child).name() << ", expecting " << typeid(T*).name() << LL_ENDL;
 		}
 		result = getDefaultWidget<T>(name);
 		if (!result)
@@ -706,11 +720,11 @@ template <class T> T* LLView::getChild(const std::string& name, BOOL recurse) co
 				// *NOTE: You cannot call mFoo = getChild<LLFoo>("bar")
 				// in a floater or panel constructor.  The widgets will not
 				// be ready.  Instead, put it in postBuild().
-				llwarns << "Making dummy " << typeid(T).name() << " named \"" << name << "\" in " << getName() << llendl;
+				LL_WARNS() << "Making dummy " << typeid(T).name() << " named \"" << name << "\" in " << getName() << LL_ENDL;
 			}
 			else
 			{
-				llwarns << "Failed to create dummy " << typeid(T).name() << llendl;
+				LL_WARNS() << "Failed to create dummy " << typeid(T).name() << LL_ENDL;
 				return NULL;
 			}
 

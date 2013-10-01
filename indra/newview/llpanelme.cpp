@@ -30,7 +30,6 @@
 
 // Viewer includes
 #include "llpanelprofile.h"
-#include "llavatarconstants.h"
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llagentwearables.h"

@@ -245,7 +245,7 @@ void LLColor4::setValue(const LLSD& sd)
 
 	if (out_of_range)
 	{
-		llwarns << "LLSD color value out of range!" << llendl;
+		LL_WARNS() << "LLSD color value out of range!" << LL_ENDL;
 	}
 #else
 	mV[0] = (F32) sd[0].asReal();
@@ -417,7 +417,7 @@ BOOL LLColor4::parseColor(const std::string& buf, LLColor4* color)
 		if (token_iter == tokens.end())
 		{
 			// This is a malformed vector.
-			llwarns << "LLColor4::parseColor() malformed color " << buf << llendl;
+			LL_WARNS() << "LLColor4::parseColor() malformed color " << buf << LL_ENDL;
 		}
 		else
 		{
@@ -704,7 +704,7 @@ BOOL LLColor4::parseColor(const std::string& buf, LLColor4* color)
 		}
 		else
 		{
-			llwarns << "invalid color " << color_name << llendl;
+			LL_WARNS() << "invalid color " << color_name << LL_ENDL;
 		}
 	}
 

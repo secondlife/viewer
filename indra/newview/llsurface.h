@@ -45,7 +45,6 @@
 class LLTimer;
 class LLUUID;
 class LLAgent;
-class LLStat;
 
 static const U8 NO_EDGE    = 0x00;
 static const U8 EAST_EDGE  = 0x01;

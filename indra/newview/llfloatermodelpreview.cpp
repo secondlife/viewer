@@ -113,8 +113,6 @@
 #include "llviewernetwork.h"
 #include "llviewershadermgr.h"
 #include "glod/glod.h"
-#include <boost/algorithm/string.hpp>
-
 
 const S32 SLM_SUPPORTED_VERSION = 3;
 
@@ -294,14 +292,14 @@ bool validate_face(const LLVolumeFace& face)
 	{
 		if (face.mIndices[i] >= face.mNumVertices)
 		{
-			llwarns << "Face has invalid index." << llendl;
+			LL_WARNS() << "Face has invalid index." << LL_ENDL;
 			return false;
 		}
 	}
 
 	if (face.mNumIndices % 3 != 0 || face.mNumIndices == 0)
 	{
-		llwarns << "Face has invalid number of indices." << llendl;
+		LL_WARNS() << "Face has invalid number of indices." << LL_ENDL;
 		return false;
 	}
 
@@ -319,7 +317,7 @@ bool validate_face(const LLVolumeFace& face)
 
 		if (ll_is_degenerate(v1,v2,v3))
 		{
-			llwarns << "Degenerate face found!" << llendl;
+			LL_WARNS() << "Degenerate face found!" << LL_ENDL;
 			return false;
 		}
 	}*/
@@ -331,7 +329,7 @@ bool validate_model(const LLModel* mdl)
 {
 	if (mdl->getNumVolumeFaces() == 0)
 	{
-		llwarns << "Model has no faces!" << llendl;
+		LL_WARNS() << "Model has no faces!" << LL_ENDL;
 		return false;
 	}
 
@@ -339,13 +337,13 @@ bool validate_model(const LLModel* mdl)
 	{
 		if (mdl->getVolumeFace(i).mNumVertices == 0)
 		{
-			llwarns << "Face has no vertices." << llendl;
+			LL_WARNS() << "Face has no vertices." << LL_ENDL;
 			return false;
 		}
 
 		if (mdl->getVolumeFace(i).mNumIndices == 0)
 		{
-			llwarns << "Face has no indices." << llendl;
+			LL_WARNS() << "Face has no indices." << LL_ENDL;
 			return false;
 		}
 
@@ -364,7 +362,7 @@ BOOL stop_gloderror()
 
 	if (error != GLOD_NO_ERROR)
 	{
-		llwarns << "GLOD error detected, cannot generate LOD: " << std::hex << error << llendl;
+		LL_WARNS() << "GLOD error detected, cannot generate LOD: " << std::hex << error << LL_ENDL;
 		return TRUE;
 	}
 
@@ -932,7 +930,7 @@ void LLFloaterModelPreview::onPhysicsParamCommit(LLUICtrl* ctrl, void* data)
 {
 	if (LLConvexDecomposition::getInstance() == NULL)
 	{
-		llinfos << "convex decomposition tool is a stub on this platform. cannot get decomp." << llendl;
+		LL_INFOS() << "convex decomposition tool is a stub on this platform. cannot get decomp." << LL_ENDL;
 		return;
 	}
 
@@ -980,7 +978,7 @@ void LLFloaterModelPreview::onPhysicsStageExecute(LLUICtrl* ctrl, void* data)
 	{
 		if (!sInstance->mCurRequest.empty())
 		{
-			llinfos << "Decomposition request still pending." << llendl;
+			LL_INFOS() << "Decomposition request still pending." << LL_ENDL;
 			return;
 		}
 
@@ -1031,13 +1029,13 @@ void LLFloaterModelPreview::onPhysicsUseLOD(LLUICtrl* ctrl, void* userdata)
 	}
 	else
 	{
-		llwarns << "no iface" << llendl;
+		LL_WARNS() << "no iface" << LL_ENDL;
 		return;
 	}
 
 	if (which_mode <= 0)
 	{
-		llwarns << "which_mode out of range, " << which_mode << llendl;
+		LL_WARNS() << "which_mode out of range, " << which_mode << LL_ENDL;
 	}
 
 	S32 file_mode = iface->getItemCount() - 1;
@@ -1122,8 +1120,8 @@ void LLFloaterModelPreview::initDecompControls()
 		// protected against stub by stage_count being 0 for stub above
 		LLConvexDecomposition::getInstance()->registerCallback(j, LLPhysicsDecomp::llcdCallback);
 
-		//llinfos << "Physics decomp stage " << stage[j].mName << " (" << j << ") parameters:" << llendl;
-		//llinfos << "------------------------------------" << llendl;
+		//LL_INFOS() << "Physics decomp stage " << stage[j].mName << " (" << j << ") parameters:" << LL_ENDL;
+		//LL_INFOS() << "------------------------------------" << LL_ENDL;
 
 		for (S32 i = 0; i < param_count; ++i)
 		{
@@ -1137,12 +1135,12 @@ void LLFloaterModelPreview::initDecompControls()
 
 			std::string type = "unknown";
 
-			llinfos << name << " - " << description << llendl;
+			LL_INFOS() << name << " - " << description << LL_ENDL;
 
 			if (param[i].mType == LLCDParam::LLCD_FLOAT)
 			{
 				mDecompParams[param[i].mName] = LLSD(param[i].mDefault.mFloat);
-				//llinfos << "Type: float, Default: " << param[i].mDefault.mFloat << llendl;
+				//LL_INFOS() << "Type: float, Default: " << param[i].mDefault.mFloat << LL_ENDL;
 
 
 				LLUICtrl* ctrl = getChild<LLUICtrl>(name);
@@ -1192,7 +1190,7 @@ void LLFloaterModelPreview::initDecompControls()
 			else if (param[i].mType == LLCDParam::LLCD_INTEGER)
 			{
 				mDecompParams[param[i].mName] = LLSD(param[i].mDefault.mIntOrEnumValue);
-				//llinfos << "Type: integer, Default: " << param[i].mDefault.mIntOrEnumValue << llendl;
+				//LL_INFOS() << "Type: integer, Default: " << param[i].mDefault.mIntOrEnumValue << LL_ENDL;
 
 
 				LLUICtrl* ctrl = getChild<LLUICtrl>(name);
@@ -1218,7 +1216,7 @@ void LLFloaterModelPreview::initDecompControls()
 			else if (param[i].mType == LLCDParam::LLCD_BOOLEAN)
 			{
 				mDecompParams[param[i].mName] = LLSD(param[i].mDefault.mBool);
-				//llinfos << "Type: boolean, Default: " << (param[i].mDefault.mBool ? "True" : "False") << llendl;
+				//LL_INFOS() << "Type: boolean, Default: " << (param[i].mDefault.mBool ? "True" : "False") << LL_ENDL;
 
 				LLCheckBoxCtrl* check_box = getChild<LLCheckBoxCtrl>(name);
 				if (check_box)
@@ -1230,16 +1228,16 @@ void LLFloaterModelPreview::initDecompControls()
 			else if (param[i].mType == LLCDParam::LLCD_ENUM)
 			{
 				mDecompParams[param[i].mName] = LLSD(param[i].mDefault.mIntOrEnumValue);
-				//llinfos << "Type: enum, Default: " << param[i].mDefault.mIntOrEnumValue << llendl;
+				//LL_INFOS() << "Type: enum, Default: " << param[i].mDefault.mIntOrEnumValue << LL_ENDL;
 
 				{ //plug into combo box
 
-					//llinfos << "Accepted values: " << llendl;
+					//LL_INFOS() << "Accepted values: " << LL_ENDL;
 					LLComboBox* combo_box = getChild<LLComboBox>(name);
 					for (S32 k = 0; k < param[i].mDetails.mEnumValues.mNumEnums; ++k)
 					{
-						//llinfos << param[i].mDetails.mEnumValues.mEnumsArray[k].mValue
-						//	<< " - " << param[i].mDetails.mEnumValues.mEnumsArray[k].mName << llendl;
+						//LL_INFOS() << param[i].mDetails.mEnumValues.mEnumsArray[k].mValue
+						//	<< " - " << param[i].mDetails.mEnumValues.mEnumsArray[k].mName << LL_ENDL;
 
 						std::string name(param[i].mDetails.mEnumValues.mEnumsArray[k].mName);
 						std::string localized_name;
@@ -1252,9 +1250,9 @@ void LLFloaterModelPreview::initDecompControls()
 					combo_box->setCommitCallback(onPhysicsParamCommit, (void*) &param[i]);
 				}
 
-				//llinfos << "----" << llendl;
+				//LL_INFOS() << "----" << LL_ENDL;
 			}
-			//llinfos << "-----------------------------" << llendl;
+			//LL_INFOS() << "-----------------------------" << LL_ENDL;
 		}
 	}
 
@@ -1501,14 +1499,14 @@ bool LLModelLoader::doLoadModel()
 	
 	if (!dom)
 	{
-		llinfos<<" Error with dae - traditionally indicates a corrupt file."<<llendl;
+		LL_INFOS()<<" Error with dae - traditionally indicates a corrupt file."<<LL_ENDL;
 		setLoadState( ERROR_PARSING );
 		return false;
 	}
 	//Dom version
 	daeString domVersion = dae.getDomVersion();
 	std::string sldom(domVersion);
-	llinfos<<"Collada Importer Version: "<<sldom<<llendl;
+	LL_INFOS()<<"Collada Importer Version: "<<sldom<<LL_ENDL;
 	//Dae version
 	domVersionType docVersion = dom->getVersion();
 	//0=1.4
@@ -1518,7 +1516,7 @@ bool LLModelLoader::doLoadModel()
 	{ 
 		docVersion = VERSIONTYPE_COUNT;
 	}
-	llinfos<<"Dae version "<<colladaVersion[docVersion]<<llendl;
+	LL_INFOS()<<"Dae version "<<colladaVersion[docVersion]<<LL_ENDL;
 	
 	
 	daeDatabase* db = dae.getDatabase();
@@ -1528,14 +1526,14 @@ bool LLModelLoader::doLoadModel()
 	daeDocument* doc = dae.getDoc(mFilename);
 	if (!doc)
 	{
-		llwarns << "can't find internal doc" << llendl;
+		LL_WARNS() << "can't find internal doc" << LL_ENDL;
 		return false;
 	}
 	
 	daeElement* root = doc->getDomRoot();
 	if (!root)
 	{
-		llwarns << "document has no root" << llendl;
+		LL_WARNS() << "document has no root" << LL_ENDL;
 		return false;
 	}
 	
@@ -1700,7 +1698,7 @@ bool LLModelLoader::doLoadModel()
 							daeElement* pScene = root->getDescendant("visual_scene");
 							if ( !pScene )
 							{
-								llwarns<<"No visual scene - unable to parse bone offsets "<<llendl;
+								LL_WARNS()<<"No visual scene - unable to parse bone offsets "<<LL_ENDL;
 								missingSkeletonOrScene = true;
 							}
 							else
@@ -1738,7 +1736,7 @@ bool LLModelLoader::doLoadModel()
 									//Build a joint for the resolver to work with
 									char str[64]={0};
 									sprintf(str,"./%s",(*jointIt).first.c_str() );
-									//llwarns<<"Joint "<< str <<llendl;
+									//LL_WARNS()<<"Joint "<< str <<LL_ENDL;
 									
 									//Setup the resolver
                                     daeSIDResolver resolver( pSkeletonRootNode, str );
@@ -1771,7 +1769,7 @@ bool LLModelLoader::doLoadModel()
 											daeElement* pTranslateElement = getChildFromElement( pJoint, "translate" );
 											if ( pTranslateElement && pTranslateElement->typeID() != domTranslate::ID() )
 											{
-												llwarns<< "The found element is not a translate node" <<llendl;
+												LL_WARNS()<< "The found element is not a translate node" <<LL_ENDL;
 												missingSkeletonOrScene = true;
 											}
 											else
@@ -1795,7 +1793,7 @@ bool LLModelLoader::doLoadModel()
 								//mention it
 								if ( missingSkeletonOrScene  )
 								{
-									llwarns<< "Partial jointmap found in asset - did you mean to just have a partial map?" << llendl;
+									LL_WARNS()<< "Partial jointmap found in asset - did you mean to just have a partial map?" << LL_ENDL;
 								}
 							}//got skeleton?
 						}
@@ -1908,7 +1906,7 @@ bool LLModelLoader::doLoadModel()
 									
 									if ( mJointList.find( lookingForJoint ) != mJointList.end() )
 									{
-										//llinfos<<"joint "<<lookingForJoint.c_str()<<llendl;
+										//LL_INFOS()<<"joint "<<lookingForJoint.c_str()<<LL_ENDL;
 										LLMatrix4 jointTransform = mJointList[lookingForJoint];
 										LLJoint* pJoint = mPreview->getPreviewAvatar()->getJoint( lookingForJoint );
 										if ( pJoint )
@@ -1918,7 +1916,7 @@ bool LLModelLoader::doLoadModel()
 										else
 										{
 											//Most likely an error in the asset.
-											llwarns<<"Tried to apply joint position from .dae, but it did not exist in the avatar rig." << llendl;
+											LL_WARNS()<<"Tried to apply joint position from .dae, but it did not exist in the avatar rig." << LL_ENDL;
 										}
 									}
 								}
@@ -1946,7 +1944,7 @@ bool LLModelLoader::doLoadModel()
 							}
 							else
 							{
-								llwarns<<"Possibly misnamed/missing joint [" <<lookingForJoint.c_str()<<" ] "<<llendl;
+								LL_WARNS()<<"Possibly misnamed/missing joint [" <<lookingForJoint.c_str()<<" ] "<<LL_ENDL;
 							}
 						}
 						
@@ -1972,7 +1970,7 @@ bool LLModelLoader::doLoadModel()
 											{
 												if (pos.getCount() <= j+2)
 												{
-													llerrs << "Invalid position array size." << llendl;
+													LL_ERRS() << "Invalid position array size." << LL_ENDL;
 												}
 												
 												LLVector3 v(pos[j], pos[j+1], pos[j+2]);
@@ -2098,7 +2096,7 @@ bool LLModelLoader::doLoadModel()
 	
 	if (!scene)
 	{
-		llwarns << "document has no visual_scene" << llendl;
+		LL_WARNS() << "document has no visual_scene" << LL_ENDL;
 		setLoadState( ERROR_PARSING );
 		return true;
 	}
@@ -2313,7 +2311,7 @@ void LLModelLoader::processJointToNodeMapping( domNode* pNode )
 		}
 		else 
 		{
-			llinfos<<"Node is NULL"<<llendl;
+			LL_INFOS()<<"Node is NULL"<<LL_ENDL;
 		}
 
 	}
@@ -2384,7 +2382,7 @@ void LLModelPreview::critiqueJointToNodeMappingFromScene( void  )
 			}
 			else
 			{
-				llinfos<<"critiqueJointToNodeMappingFromScene is missing a: "<<name<<llendl;
+				LL_INFOS()<<"critiqueJointToNodeMappingFromScene is missing a: "<<name<<LL_ENDL;
 				result = false;				
 			}
 		}
@@ -2436,7 +2434,7 @@ bool LLModelPreview::isRigLegacy( const std::vector<std::string> &jointListFromA
 		}		
 		if ( !result )
 		{
-			llinfos<<" Asset did not contain the joint (if you're u/l a fully rigged asset w/joint positions - it is required)." << *masterJointIt<< llendl;
+			LL_INFOS()<<" Asset did not contain the joint (if you're u/l a fully rigged asset w/joint positions - it is required)." << *masterJointIt<< LL_ENDL;
 			break;
 		}
 	}	
@@ -2470,7 +2468,7 @@ bool LLModelPreview::isRigSuitableForJointPositionUpload( const std::vector<std:
 		}		
 		if ( !result )
 		{
-			llinfos<<" Asset did not contain the joint (if you're u/l a fully rigged asset w/joint positions - it is required)." << *masterJointIt<< llendl;
+			LL_INFOS()<<" Asset did not contain the joint (if you're u/l a fully rigged asset w/joint positions - it is required)." << *masterJointIt<< LL_ENDL;
 			break;
 		}
 	}	
@@ -2518,17 +2516,17 @@ bool LLModelLoader::isNodeAJoint( domNode* pNode )
 {
 	if ( !pNode )
 	{
-		llinfos<<"Created node is NULL"<<llendl;
+		LL_INFOS()<<"Created node is NULL"<<LL_ENDL;
 		return false;
 	}
 	
 	if ( pNode->getName() == NULL )
 	{
-		llinfos<<"Parsed node has no name "<<llendl;
+		LL_INFOS()<<"Parsed node has no name "<<LL_ENDL;
 		//Attempt to write the node id, if possible (aids in debugging the visual scene)
 		if ( pNode->getId() )
 		{
-			llinfos<<"Parsed node ID: "<<pNode->getId()<<llendl;
+			LL_INFOS()<<"Parsed node ID: "<<pNode->getId()<<LL_ENDL;
 		}
 		return false;
 	}
@@ -2547,7 +2545,7 @@ bool LLModelPreview::verifyCount( int expected, int result )
 {
 	if ( expected != result )
 	{
-		llinfos<< "Error: (expected/got)"<<expected<<"/"<<result<<"verts"<<llendl;
+		LL_INFOS()<< "Error: (expected/got)"<<expected<<"/"<<result<<"verts"<<LL_ENDL;
 		return false;
 	}
 	return true;
@@ -2569,7 +2567,7 @@ bool LLModelPreview::verifyController( domController* pController )
 
 		if ( !pElement )
 		{
-			llinfos<<"Can't resolve skin source"<<llendl;
+			LL_INFOS()<<"Can't resolve skin source"<<LL_ENDL;
 			return false;
 		}
 
@@ -2588,7 +2586,7 @@ bool LLModelPreview::verifyController( domController* pController )
 				domVertices* pVertices = pMesh->getVertices();
 				if ( !pVertices )
 				{ 
-					llinfos<<"No vertices!"<<llendl;
+					LL_INFOS()<<"No vertices!"<<LL_ENDL;
 					return false;
 				}
 
@@ -2674,7 +2672,7 @@ void LLModelLoader::extractTranslationViaSID( daeElement* pElement, LLMatrix4& t
 	}
 	else
 	{
-		llwarns<<"Element is nonexistent - empty/unsupported node."<<llendl;
+		LL_WARNS()<<"Element is nonexistent - empty/unsupported node."<<LL_ENDL;
 	}
 }
 //-----------------------------------------------------------------------------
@@ -2684,11 +2682,11 @@ void LLModelLoader::processJointNode( domNode* pNode, JointTransformMap& jointTr
 {
 	if (pNode->getName() == NULL)
 	{
-		llwarns << "nameless node, can't process" << llendl;
+		LL_WARNS() << "nameless node, can't process" << LL_ENDL;
 		return;
 	}
 
-	//llwarns<<"ProcessJointNode# Node:" <<pNode->getName()<<llendl;
+	//LL_WARNS()<<"ProcessJointNode# Node:" <<pNode->getName()<<LL_ENDL;
 
 	//1. handle the incoming node - extract out translation via SID or element
 
@@ -2716,12 +2714,12 @@ void LLModelLoader::processJointNode( domNode* pNode, JointTransformMap& jointTr
 		daeElement* pTranslateElement = getChildFromElement( pNode, "translate" );
 		if ( !pTranslateElement || pTranslateElement->typeID() != domTranslate::ID() )
 		{
-			//llwarns<< "The found element is not a translate node" <<llendl;
+			//LL_WARNS()<< "The found element is not a translate node" <<LL_ENDL;
 			daeSIDResolver jointResolver( pNode, "./matrix" );
 			domMatrix* pMatrix = daeSafeCast<domMatrix>( jointResolver.getElement() );
 			if ( pMatrix )
 			{
-				//llinfos<<"A matrix SID was however found!"<<llendl;
+				//LL_INFOS()<<"A matrix SID was however found!"<<LL_ENDL;
 				domFloat4x4 domArray = pMatrix->getValue();									
 				for ( int i = 0; i < 4; i++ )
 				{
@@ -2733,7 +2731,7 @@ void LLModelLoader::processJointNode( domNode* pNode, JointTransformMap& jointTr
 			}
 			else
 			{
-				llwarns<< "The found element is not translate or matrix node - most likely a corrupt export!" <<llendl;
+				LL_WARNS()<< "The found element is not translate or matrix node - most likely a corrupt export!" <<LL_ENDL;
 			}
 		}
 		else
@@ -2770,7 +2768,7 @@ daeElement* LLModelLoader::getChildFromElement( daeElement* pElement, std::strin
 	{
 		return pChildOfElement;
 	}
-	llwarns<< "Could not find a child [" << name << "] for the element: \"" << pElement->getAttribute("id") << "\"" << llendl;
+	LL_WARNS()<< "Could not find a child [" << name << "] for the element: \"" << pElement->getAttribute("id") << "\"" << LL_ENDL;
     return NULL;
 }
 
@@ -2852,7 +2850,7 @@ void LLModelLoader::processElement( daeElement* element, bool& badElement )
 
 					if (mTransform.determinant() < 0)
 					{ //negative scales are not supported
-						llinfos << "Negative scale detected, unsupported transform.  domInstance_geometry: " << LLModel::getElementLabel(instance_geo) << llendl;
+						LL_INFOS() << "Negative scale detected, unsupported transform.  domInstance_geometry: " << LLModel::getElementLabel(instance_geo) << LL_ENDL;
 						badElement = true;
 					}
 					
@@ -2882,7 +2880,7 @@ void LLModelLoader::processElement( daeElement* element, bool& badElement )
 		}
 		else 
 		{
-			llinfos<<"Unable to resolve geometry URL."<<llendl;
+			LL_INFOS()<<"Unable to resolve geometry URL."<<LL_ENDL;
 			badElement = true;			
 		}
 
@@ -3517,7 +3515,7 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
 
 	if (lod < LLModel::LOD_IMPOSTOR || lod > LLModel::NUM_LODS - 1)
 	{
-		llwarns << "Invalid level of detail: " << lod << llendl;
+		LL_WARNS() << "Invalid level of detail: " << lod << LL_ENDL;
 		assert(lod >= LLModel::LOD_IMPOSTOR && lod < LLModel::NUM_LODS);
 		return;
 	}
@@ -3540,7 +3538,7 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
 
 	if (mModelLoader)
 	{
-		llwarns << "Incompleted model load operation pending." << llendl;
+		LL_WARNS() << "Incompleted model load operation pending." << LL_ENDL;
 		return;
 	}
 	
@@ -3850,7 +3848,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 	// Allow LoD from -1 to LLModel::LOD_PHYSICS
 	if (which_lod < -1 || which_lod > LLModel::NUM_LODS - 1)
 	{
-		llwarns << "Invalid level of detail: " << which_lod << llendl;
+		LL_WARNS() << "Invalid level of detail: " << which_lod << LL_ENDL;
 		assert(which_lod >= -1 && which_lod < LLModel::NUM_LODS);
 		return;
 	}
@@ -4138,7 +4136,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 
 				if (!validate_face(target_model->getVolumeFace(names[i])))
 				{
-					llerrs << "Invalid face generated during LOD generation." << llendl;
+					LL_ERRS() << "Invalid face generated during LOD generation." << LL_ENDL;
 				}
 			}
 
@@ -4153,7 +4151,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 
 			if (!validate_model(target_model))
 			{
-				llerrs << "Invalid model generated when creating LODs" << llendl;
+				LL_ERRS() << "Invalid model generated when creating LODs" << LL_ENDL;
 			}
 
 			delete [] sizes;
@@ -4598,7 +4596,7 @@ void LLModelPreview::updateLodControls(S32 lod)
 {
 	if (lod < LLModel::LOD_IMPOSTOR || lod > LLModel::LOD_HIGH)
 	{
-		llwarns << "Invalid level of detail: " << lod << llendl;
+		LL_WARNS() << "Invalid level of detail: " << lod << LL_ENDL;
 		assert(lod >= LLModel::LOD_IMPOSTOR && lod <= LLModel::LOD_HIGH);
 		return;
 	}
@@ -4911,7 +4909,7 @@ void LLModelPreview::createPreviewAvatar( void )
 	}
 	else
 	{
-		llinfos<<"Failed to create preview avatar for upload model window"<<llendl;
+		LL_INFOS()<<"Failed to create preview avatar for upload model window"<<LL_ENDL;
 	}
 }
 
@@ -5841,7 +5839,7 @@ void LLFloaterModelPreview::handleModelPhysicsFeeReceived()
 
 void LLFloaterModelPreview::setModelPhysicsFeeErrorStatus(U32 status, const std::string& reason)
 {
-	llwarns << "LLFloaterModelPreview::setModelPhysicsFeeErrorStatus(" << status << " : " << reason << ")" << llendl;
+	LL_WARNS() << "LLFloaterModelPreview::setModelPhysicsFeeErrorStatus(" << status << " : " << reason << ")" << LL_ENDL;
 	doOnIdleOneTime(boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this, true));
 }
 
@@ -5917,7 +5915,7 @@ void LLFloaterModelPreview::onPermissionsReceived(const LLSD& result)
 
 void LLFloaterModelPreview::setPermissonsErrorStatus(U32 status, const std::string& reason)
 {
-	llwarns << "LLFloaterModelPreview::setPermissonsErrorStatus(" << status << " : " << reason << ")" << llendl;
+	LL_WARNS() << "LLFloaterModelPreview::setPermissonsErrorStatus(" << status << " : " << reason << ")" << LL_ENDL;
 
 	LLNotificationsUtil::add("MeshUploadPermError");
 }

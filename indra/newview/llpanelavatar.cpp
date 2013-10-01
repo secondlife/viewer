@@ -29,7 +29,6 @@
 
 #include "llagent.h"
 #include "llavataractions.h"
-#include "llavatarconstants.h"	// AVATAR_ONLINE
 #include "llcallingcard.h"
 #include "llcombobox.h"
 #include "lldateutil.h"			// ageFromDate()
@@ -98,7 +97,7 @@ LLDropTarget::~LLDropTarget()
 
 void LLDropTarget::doDrop(EDragAndDropType cargo_type, void* cargo_data)
 {
-	llinfos << "LLDropTarget::doDrop()" << llendl;
+	LL_INFOS() << "LLDropTarget::doDrop()" << LL_ENDL;
 }
 
 BOOL LLDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,

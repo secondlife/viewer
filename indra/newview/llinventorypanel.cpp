@@ -397,10 +397,10 @@ LLInventoryFilter::EFolderShow LLInventoryPanel::getShowFolderState()
 }
 
 // Called when something changed in the global model (new item, item coming through the wire, rename, move, etc...) (CHUI-849)
+static LLTrace::TimeBlock FTM_REFRESH("Inventory Refresh");
 void LLInventoryPanel::modelChanged(U32 mask)
 {
-	static LLFastTimer::DeclareTimer FTM_REFRESH("Inventory Refresh");
-	LLFastTimer t2(FTM_REFRESH);
+	LL_RECORD_BLOCK_TIME(FTM_REFRESH);
 
 	if (!mViewsInitialized) return;
 	
@@ -590,7 +590,7 @@ LLUUID LLInventoryPanel::getRootFolderID()
 				root_id = gInventory.findCategoryUUIDForType(preferred_type, false);
 				if (root_id.isNull())
 				{
-					llwarns << "Could not find folder of type " << preferred_type << llendl;
+					LL_WARNS() << "Could not find folder of type " << preferred_type << LL_ENDL;
 					root_id.generateNewID();
 				}
 			}
@@ -653,16 +653,16 @@ void LLInventoryPanel::idle(void* user_data)
 		EAcceptance last_accept = LLToolDragAndDrop::getInstance()->getLastAccept();
 		if (last_accept == ACCEPT_YES_SINGLE || last_accept == ACCEPT_YES_COPY_SINGLE)
 		{
-			panel->mFolderRoot->setShowSingleSelection(TRUE);
+			panel->mFolderRoot->setShowSingleSelection(true);
 		}
 		else
 		{
-			panel->mFolderRoot->setShowSingleSelection(FALSE);
+			panel->mFolderRoot->setShowSingleSelection(false);
 		}
 }
 	else
 	{
-		panel->mFolderRoot->setShowSingleSelection(FALSE);
+		panel->mFolderRoot->setShowSingleSelection(false);
 	}
 }
 
@@ -757,9 +757,9 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
   			if (objectp->getType() <= LLAssetType::AT_NONE ||
   				objectp->getType() >= LLAssetType::AT_COUNT)
   			{
-  				llwarns << "LLInventoryPanel::buildNewViews called with invalid objectp->mType : "
+  				LL_WARNS() << "LLInventoryPanel::buildNewViews called with invalid objectp->mType : "
   						<< ((S32) objectp->getType()) << " name " << objectp->getName() << " UUID " << objectp->getUUID()
-  						<< llendl;
+  						<< LL_ENDL;
   				return NULL;
   			}
   		
@@ -1024,7 +1024,7 @@ bool LLInventoryPanel::beginIMSession()
 
 	std::string name;
 
-	LLDynamicArray<LLUUID> members;
+	std::vector<LLUUID> members;
 	EInstantMessage type = IM_SESSION_CONFERENCE_START;
 
 	std::set<LLFolderViewItem*>::const_iterator iter;
@@ -1052,7 +1052,7 @@ bool LLInventoryPanel::beginIMSession()
 												item_array,
 												LLInventoryModel::EXCLUDE_TRASH,
 												is_buddy);
-				S32 count = item_array.count();
+				S32 count = item_array.size();
 				if(count > 0)
 				{
 					//*TODO by what to replace that?
@@ -1063,10 +1063,10 @@ bool LLInventoryPanel::beginIMSession()
 					LLUUID id;
 					for(S32 i = 0; i < count; ++i)
 					{
-						id = item_array.get(i)->getCreatorUUID();
+						id = item_array.at(i)->getCreatorUUID();
 						if(at.isBuddyOnline(id))
 						{
-							members.put(id);
+							members.push_back(id);
 						}
 					}
 				}
@@ -1086,7 +1086,7 @@ bool LLInventoryPanel::beginIMSession()
 
 						if(at.isBuddyOnline(id))
 						{
-							members.put(id);
+							members.push_back(id);
 						}
 					}
 				} //if IT_CALLINGCARD
@@ -1161,7 +1161,7 @@ LLInventoryPanel* LLInventoryPanel::getActiveInventoryPanel(BOOL auto_open)
 	LLFloater* floater_inventory = LLFloaterReg::getInstance("inventory");
 	if (!floater_inventory)
 	{
-		llwarns << "Could not find My Inventory floater" << llendl;
+		LL_WARNS() << "Could not find My Inventory floater" << LL_ENDL;
 		return FALSE;
 	}
 
@@ -1295,10 +1295,10 @@ void LLInventoryPanel::removeItemID(const LLUUID& id)
 	}
 }
 
-LLFastTimer::DeclareTimer FTM_GET_ITEM_BY_ID("Get FolderViewItem by ID");
+LLTrace::TimeBlock FTM_GET_ITEM_BY_ID("Get FolderViewItem by ID");
 LLFolderViewItem* LLInventoryPanel::getItemByID(const LLUUID& id)
 {
-	LLFastTimer _(FTM_GET_ITEM_BY_ID);
+	LL_RECORD_BLOCK_TIME(FTM_GET_ITEM_BY_ID);
 
 	std::map<LLUUID, LLFolderViewItem*>::iterator map_it;
 	map_it = mItemMap.find(id);

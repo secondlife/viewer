@@ -36,7 +36,6 @@
 #include "llstartup.h"
 
 // Linden library includes
-#include "llavatarconstants.h"	// AVATAR_TRANSACTED, etc.
 #include "lldate.h"
 #include "lltrans.h"
 #include "llui.h"				// LLUI::getLanguage()
@@ -171,11 +170,11 @@ void LLAvatarPropertiesProcessor::sendAvatarPropertiesUpdate(const LLAvatarData*
 {
 	if (!gAgent.isInitialized() || (gAgent.getID() == LLUUID::null))
 	{
-		llwarns << "Sending avatarinfo update DENIED - invalid agent" << llendl;
+		LL_WARNS() << "Sending avatarinfo update DENIED - invalid agent" << LL_ENDL;
 		return;
 	}
 
-	llinfos << "Sending avatarinfo update" << llendl;
+	LL_INFOS() << "Sending avatarinfo update" << LL_ENDL;
 
 	// This value is required by sendAvatarPropertiesUpdate method.
 	//A profile should never be mature. (From the original code)

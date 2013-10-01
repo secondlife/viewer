@@ -57,7 +57,14 @@ public:
 	virtual bool remove(T* data);
 	virtual void notifyRemoval(T* data);
 	virtual U32 getListenerCount()					{ return mListeners.size(); }
-	virtual LLTreeListener<T>* getListener(U32 index) const { return mListeners[index]; }
+	virtual LLTreeListener<T>* getListener(U32 index) const 
+	{
+		if(index < mListeners.size())
+		{
+			return mListeners[index]; 
+		}
+		return NULL;
+	}
 	virtual void addListener(LLTreeListener<T>* listener) { mListeners.push_back(listener); }
 
 protected:

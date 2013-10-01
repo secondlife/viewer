@@ -311,7 +311,7 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD login_para
 	sendProgressEvent("offline", "fail.login", error_response);
 	}
 	catch (...) {
-		llerrs << "login exception caught" << llendl; 
+		LL_ERRS() << "login exception caught" << LL_ENDL; 
 	}
 }
 
