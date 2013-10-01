@@ -655,7 +655,7 @@ void LLAgentWearables::recoverMissingWearable(const LLWearableType::EType type, 
 
 	// Add a new one in the lost and found folder.
 	// (We used to overwrite the "not found" one, but that could potentially
-	// destory content.) JC
+	// destroy content.) JC
 	const LLUUID lost_and_found_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
 	LLPointer<LLInventoryCallback> cb =
 		new AddWearableToAgentInventoryCallback(
