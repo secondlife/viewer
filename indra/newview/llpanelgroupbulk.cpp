@@ -172,6 +172,12 @@ void LLPanelGroupBulkImpl::handleRemove()
 	if (selection.empty()) 
 		return;
 
+	std::vector<LLScrollListItem*>::iterator iter;
+	for(iter = selection.begin(); iter != selection.end(); ++iter)
+	{
+		mInviteeIDs.erase((*iter)->getUUID());
+	}
+
 	mBulkAgentList->deleteSelectedItems();
 	mRemoveButton->setEnabled(FALSE);
 
@@ -195,26 +201,23 @@ void LLPanelGroupBulkImpl::addUsers(const std::vector<std::string>& names, const
 {
 	std::string name;
 	LLUUID id;
+	
 
+	if(names.size() + mInviteeIDs.size() > MAX_GROUP_INVITES)
+	{
+		// Fail! Show a warning and don't add any names.
+		LLSD msg;
+		msg["MESSAGE"] = mTooManySelected;
+		LLNotificationsUtil::add("GenericAlert", msg);
+		return;
+	}
+	
 	for (S32 i = 0; i < (S32)names.size(); ++i)
 	{
 		name = names[i];
 		id = agent_ids[i];
 
-		// Make sure this agent isn't already in the list.
-		bool already_in_list = false;
-		std::vector<LLScrollListItem*> items = mBulkAgentList->getAllData();
-		std::vector<LLScrollListItem*>::iterator iter = items.begin();
-		for (; iter != items.end(); ++iter)
-		{
-			LLScrollListItem* item = *iter;
-			if (item->getUUID() == id)
-			{
-				already_in_list = true;
-				break;
-			}
-		}
-		if (already_in_list)
+		if(mInviteeIDs.find(id) != mInviteeIDs.end())
 		{
 			continue;
 		}
@@ -225,7 +228,8 @@ void LLPanelGroupBulkImpl::addUsers(const std::vector<std::string>& names, const
 		row["columns"][0]["value"] = name;
 
 		mBulkAgentList->addElement(row);
-		
+		mInviteeIDs.insert(id);
+
 		// We've successfully added someone to the list.
 		if(mOKButton && !mOKButton->getEnabled())
 			mOKButton->setEnabled(TRUE);
@@ -254,6 +258,8 @@ LLPanelGroupBulk::~LLPanelGroupBulk()
 
 void LLPanelGroupBulk::clear()
 {
+	mImplementation->mInviteeIDs.clear();
+
 	if(mImplementation->mBulkAgentList)
 		mImplementation->mBulkAgentList->deleteAllItems();
 	

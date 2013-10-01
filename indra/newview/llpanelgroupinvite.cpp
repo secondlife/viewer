@@ -80,7 +80,7 @@ LLPanelGroupInvite::LLPanelGroupInvite(const LLUUID& group_id) : LLPanelGroupBul
 void LLPanelGroupInvite::clear()
 {
 	LLPanelGroupBulk::clear();
-
+	
 	if(mImplementation->mRoleNames)
 	{
 		mImplementation->mRoleNames->clear();
@@ -225,8 +225,7 @@ void LLPanelGroupInvite::submit()
 		role_member_pairs[item->getUUID()] = role_id;
 	}
 
-	const S32 MAX_GROUP_INVITES = 100; // Max invites per request. 100 to match server cap.
-	if (role_member_pairs.size() > MAX_GROUP_INVITES)
+	if (role_member_pairs.size() > LLPanelGroupBulkImpl::MAX_GROUP_INVITES)
 	{
 		// Fail!
 		LLSD msg;

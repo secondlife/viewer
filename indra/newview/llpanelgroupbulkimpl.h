@@ -1,6 +1,6 @@
 /** 
 * @file   llpanelgroupbulkimpl.h
-* @brief  Header file for llpanelgroupbulkimpl
+* @brief  Class definition for implementation class of LLPanelGroupBulk
 * @author Baker@lindenlab.com
 *
 * $LicenseInfo:firstyear=2013&license=viewerlgpl$
@@ -35,6 +35,9 @@ class LLNameListCtrl;
 class LLTextBox;
 class LLComboBox;
 
+//////////////////////////////////////////////////////////////////////////
+//	Implementation found in llpanelgroupbulk.cpp
+//////////////////////////////////////////////////////////////////////////
 class LLPanelGroupBulkImpl
 {
 public:
@@ -59,15 +62,19 @@ public:
 
 
 public:
-	LLUUID			mGroupID;
+	static const S32 MAX_GROUP_INVITES = 100;	// Max invites per request. 100 to match server cap.
 
-	LLNameListCtrl*	mBulkAgentList;
-	LLButton*		mOKButton;
-	LLButton*		mRemoveButton;
-	LLTextBox*		mGroupName;
+	LLUUID				mGroupID;
 
-	std::string		mLoadingText;
-	std::string		mTooManySelected;
+	LLNameListCtrl*		mBulkAgentList;
+	LLButton*			mOKButton;
+	LLButton*			mRemoveButton;
+	LLTextBox*			mGroupName;
+
+	std::string			mLoadingText; 
+	std::string			mTooManySelected;
+
+	std::set<LLUUID>	mInviteeIDs;
 
 	void (*mCloseCallback)(void* data);
 	void* mCloseCallbackUserData;
