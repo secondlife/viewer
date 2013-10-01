@@ -29,11 +29,12 @@
 
 #include "llwindow.h"
 #include "llwindowcallbacks.h"
+#include "llwindowmacosx-objc.h"
 
 #include "lltimer.h"
 
-#include <Carbon/Carbon.h>
-#include <AGL/agl.h>
+#include <ApplicationServices/ApplicationServices.h>
+#include <OpenGL/OpenGL.h>
 
 // AssertMacros.h does bad things.
 #include "fix_macros.h"
@@ -106,7 +107,6 @@ public:
 	/*virtual*/ BOOL dialogColorPicker(F32 *r, F32 *g, F32 *b);
 
 	/*virtual*/ void *getPlatformWindow();
-	/*virtual*/ void *getMediaWindow();
 	/*virtual*/ void bringToFront() {};
 	
 	/*virtual*/ void allowLanguageTextInput(LLPreeditor *preeditor, BOOL b);
@@ -117,7 +117,17 @@ public:
 
 	// Provide native key event data
 	/*virtual*/ LLSD getNativeKeyData();
-
+	
+	void* getWindow() { return mWindow; }
+	LLWindowCallbacks* getCallbacks() { return mCallbacks; }
+	LLPreeditor* getPreeditor() { return mPreeditor; }
+	
+	void updateMouseDeltas(float* deltas);
+	void getMouseDeltas(float* delta);
+	
+	void handleDragNDrop(std::string url, LLWindowCallbacks::DragNDropAction action);
+    
+    bool allowsLanguageInput() { return mLanguageTextInputAllowed; }
 
 protected:
 	LLWindowMacOSX(LLWindowCallbacks* callbacks,
@@ -153,40 +163,33 @@ protected:
 	BOOL createContext(int x, int y, int width, int height, int bits, BOOL fullscreen, BOOL disable_vsync);
 	void destroyContext();
 	void setupFailure(const std::string& text, const std::string& caption, U32 type);
-	static pascal OSStatus staticEventHandler (EventHandlerCallRef myHandler, EventRef event, void* userData);
-	static pascal Boolean staticMoveEventComparator( EventRef event, void* data);
-	OSStatus eventHandler (EventHandlerCallRef myHandler, EventRef event);
 	void adjustCursorDecouple(bool warpingMouse = false);
-	void stopDockTileBounce();
-	static MASK modifiersToMask(SInt16 modifiers);
+	static MASK modifiersToMask(S16 modifiers);
 	
 #if LL_OS_DRAGDROP_ENABLED
-	static OSErr dragTrackingHandler(DragTrackingMessage message, WindowRef theWindow,
-									 void * handlerRefCon, DragRef theDrag);
-	static OSErr dragReceiveHandler(WindowRef theWindow, void * handlerRefCon,	DragRef theDrag);
-	OSErr handleDragNDrop(DragRef theDrag, LLWindowCallbacks::DragNDropAction action);
+	
+	//static OSErr dragTrackingHandler(DragTrackingMessage message, WindowRef theWindow, void * handlerRefCon, DragRef theDrag);
+	//static OSErr dragReceiveHandler(WindowRef theWindow, void * handlerRefCon,	DragRef theDrag);
+	
+	
 #endif // LL_OS_DRAGDROP_ENABLED
 	
 	//
 	// Platform specific variables
 	//
-	WindowRef		mWindow;
-	AGLContext		mContext;
-	AGLPixelFormat	mPixelFormat;
-	CGDirectDisplayID	mDisplay;
-	CFDictionaryRef		mOldDisplayMode;
-	EventLoopTimerRef	mTimer;
-	EventHandlerUPP 	mEventHandlerUPP;
-	EventHandlerRef		mGlobalHandlerRef;
-	EventHandlerRef		mWindowHandlerRef;
-	EventComparatorUPP  mMoveEventCampartorUPP;
 	
-	Rect		mOldMouseClip;  // Screen rect to which the mouse cursor was globally constrained before we changed it in clipMouse()
-	Rect		mPreviousWindowRect;  // Save previous window for un-maximize event
-	Str255 		mWindowTitle;
+	// Use generic pointers here.  This lets us do some funky Obj-C interop using Obj-C objects without having to worry about any compilation problems that may arise.
+	NSWindowRef			mWindow;
+	GLViewRef			mGLView;
+	CGLContextObj		mContext;
+	CGLPixelFormatObj	mPixelFormat;
+	CGDirectDisplayID	mDisplay;
+	
+	LLRect		mOldMouseClip;  // Screen rect to which the mouse cursor was globally constrained before we changed it in clipMouse()
+	std::string mWindowTitle;
 	double		mOriginalAspectRatio;
 	BOOL		mSimulatedRightClick;
-	UInt32		mLastModifiers;
+	U32			mLastModifiers;
 	BOOL		mHandsOffEvents;	// When true, temporarially disable CarbonEvent processing.
 	// Used to allow event processing when putting up dialogs in fullscreen mode.
 	BOOL		mCursorDecoupled;
@@ -201,25 +204,16 @@ protected:
 	U32			mFSAASamples;
 	BOOL		mForceRebuild;
 	
-	S32			mDragOverrideCursor;
-	
-	F32			mBounceTime;
-	NMRec		mBounceRec;
-	LLTimer		mBounceTimer;
+	S32	mDragOverrideCursor;
 
 	// Input method management through Text Service Manager.
-	TSMDocumentID	mTSMDocument;
 	BOOL		mLanguageTextInputAllowed;
-	ScriptCode	mTSMScriptCode;
-	LangCode	mTSMLangCode;
 	LLPreeditor*	mPreeditor;
 	
 	static BOOL	sUseMultGL;
 
 	friend class LLWindowManager;
-	static WindowRef sMediaWindow;
-	EventRef 	mRawKeyEvent;
-
+	
 };
 
 

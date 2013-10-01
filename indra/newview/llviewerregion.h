@@ -43,6 +43,7 @@
 #include "llcapabilityprovider.h"
 #include "m4math.h"					// LLMatrix4
 #include "llhttpclient.h"
+#include "llframetimer.h"
 
 // Surface id's
 #define LAND  1
@@ -293,7 +294,7 @@ public:
 	bool meshRezEnabled() const;
 	bool meshUploadEnabled() const;
 
-	void getSimulatorFeatures(LLSD& info);	
+	void getSimulatorFeatures(LLSD& info) const;	
 	void setSimulatorFeatures(const LLSD& info);
 
 	
@@ -342,7 +343,12 @@ public:
 	void getNeighboringRegionsStatus( std::vector<S32>& regions );
 	const LLViewerRegionImpl * getRegionImpl() const { return mImpl; }
 	LLViewerRegionImpl * getRegionImplNC() { return mImpl; }
+
+	// implements the materials capability throttle
+	bool materialsCapThrottled() const { return !mMaterialsCapThrottleTimer.hasExpired(); }
+	void resetMaterialsCapThrottle();
 	
+	U32 getMaxMaterialsPerTransaction() const;
 public:
 	struct CompareDistance
 	{
@@ -434,6 +440,9 @@ private:
 	BOOL mReleaseNotesRequested;
 	
 	LLSD mSimulatorFeatures;
+
+	// the materials capability throttle
+	LLFrameTimer mMaterialsCapThrottleTimer;
 };
 
 inline BOOL LLViewerRegion::getRegionProtocol(U64 protocol) const

@@ -159,9 +159,8 @@ LLWinImm LLWinImm::sTheInstance;
 LLWinImm::LLWinImm() : mHImmDll(NULL)
 {
 	// Check system metrics 
-	if ( !GetSystemMetrics( SM_DBCSENABLED ) )
+	if ( !GetSystemMetrics( SM_IMMENABLED ) )
 		return;
-	
 
 	mHImmDll = LoadLibraryA("Imm32");
 	if (mHImmDll != NULL)
@@ -3500,19 +3499,11 @@ void LLWindowWin32::updateLanguageTextInputArea()
 
 void LLWindowWin32::interruptLanguageTextInput()
 {
-	if (mPreeditor)
+	if (mPreeditor && LLWinImm::isAvailable())
 	{
-		if (LLWinImm::isAvailable())
-		{
-			HIMC himc = LLWinImm::getContext(mWindowHandle);
-			LLWinImm::notifyIME(himc, NI_COMPOSITIONSTR, CPS_COMPLETE, 0);
-			LLWinImm::releaseContext(mWindowHandle, himc);
-		}
-
-		// Win32 document says there will be no composition string
-		// after NI_COMPOSITIONSTR returns.  The following call to
-		// resetPreedit should be a NOP unless IME goes mad...
-		mPreeditor->resetPreedit();
+		HIMC himc = LLWinImm::getContext(mWindowHandle);
+		LLWinImm::notifyIME(himc, NI_COMPOSITIONSTR, CPS_COMPLETE, 0);
+		LLWinImm::releaseContext(mWindowHandle, himc);
 	}
 }
 

@@ -316,7 +316,6 @@ protected:
 	F32			mAutoOpenCountdown;
 	S32			mLastArrangeGeneration;
 	S32			mLastCalculatedWidth;
-	S32			mMostFilteredDescendantGeneration;
 	bool		mNeedsSort;
 
 public:

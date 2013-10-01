@@ -50,7 +50,7 @@ void main()
 	{
 		discard;
 	}
-
+	
 	frag_data[0] = vec4(col.rgb, 0.0);
 	frag_data[1] = vec4(0,0,0,0);
 	vec3 nvn = normalize(vary_normal);

@@ -1113,7 +1113,13 @@ void LLVOVolume::sculpt()
 		
 		S32 max_discard = mSculptTexture->getMaxDiscardLevel();
 		if (discard_level > max_discard)
+		{
 			discard_level = max_discard;    // clamp to the best we can do
+		}
+		if(discard_level > MAX_DISCARD_LEVEL)
+		{
+			return; //we think data is not ready yet.
+		}
 
 		S32 current_discard = getVolume()->getSculptLevel() ;
 		if(current_discard < -2)
@@ -1452,7 +1458,7 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
 			continue;
 		}
 		res &= face->genVolumeBBoxes(*volume, i,
-										mRelativeXform, mRelativeXformInvTrans,
+										mRelativeXform, /*mRelativeXformInvTrans,*/
 										(mVolumeImpl && mVolumeImpl->isVolumeGlobal()) || force_global);
 		
 		if (rebuild)
@@ -2590,6 +2596,7 @@ void LLVOVolume::setLightTextureID(LLUUID id)
 		if (hasLightTexture())
 		{
 			setParameterEntryInUse(LLNetworkData::PARAMS_LIGHT_IMAGE, FALSE, true);
+			parameterChanged(LLNetworkData::PARAMS_LIGHT_IMAGE, true);
 			mLightTexture = NULL;
 		}
 	}		
@@ -2607,7 +2614,8 @@ void LLVOVolume::setSpotLightParams(LLVector3 params)
 		
 void LLVOVolume::setIsLight(BOOL is_light)
 {
-	if (is_light != getIsLight())
+	BOOL was_light = getIsLight();
+	if (is_light != was_light)
 	{
 		if (is_light)
 		{
@@ -2792,7 +2800,7 @@ void LLVOVolume::updateSpotLightPriority()
 bool LLVOVolume::isLightSpotlight() const
 {
 	LLLightImageParams* params = (LLLightImageParams*) getParameterEntry(LLNetworkData::PARAMS_LIGHT_IMAGE);
-	if (params)
+	if (params && getParameterEntryInUse(LLNetworkData::PARAMS_LIGHT_IMAGE))
 	{
 		return params->isLightSpotlight();
 	}
@@ -3722,8 +3730,30 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 			{
 				LLFace* face = mDrawable->getFace(face_hit);				
 
+				bool ignore_alpha = false;
+
+				const LLTextureEntry* te = face->getTextureEntry();
+				if (te)
+				{
+					LLMaterial* mat = te->getMaterialParams();
+					if (mat)
+					{
+						U8 mode = mat->getDiffuseAlphaMode();
+
+						if (mode == LLMaterial::DIFFUSE_ALPHA_MODE_EMISSIVE ||
+							mode == LLMaterial::DIFFUSE_ALPHA_MODE_NONE)
+						{
+							ignore_alpha = true;
+						}
+					}
+				}
+
 				if (face &&
-					(pick_transparent || !face->getTexture() || !face->getTexture()->hasGLTexture() || face->getTexture()->getMask(face->surfaceToTexture(tc, p, n))))
+					(ignore_alpha ||
+					pick_transparent || 
+					!face->getTexture() || 
+					!face->getTexture()->hasGLTexture() || 
+					face->getTexture()->getMask(face->surfaceToTexture(tc, p, n))))
 				{
 					local_end = p;
 					if (face_hitp != NULL)
@@ -4833,7 +4863,14 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 			if (is_rigged)
 			{
+				if (!drawablep->isState(LLDrawable::RIGGED))
+				{
 				drawablep->setState(LLDrawable::RIGGED);
+
+					//first time this is drawable is being marked as rigged,
+					// do another LoD update to use avatar bounding box
+					vobj->updateLOD();
+				}
 			}
 			else
 			{
@@ -5354,19 +5391,24 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 								mode == LLMaterial::DIFFUSE_ALPHA_MODE_EMISSIVE;
 			}
 
-			bool use_legacy_bump = te->getBumpmap() && (!mat || mat->getNormalID().isNull());
+			bool use_legacy_bump = te->getBumpmap() && (te->getBumpmap() < 18) && (!mat || mat->getNormalID().isNull());
+			bool opaque = te->getColor().mV[3] >= 0.999f;
 
 			if (mat && LLPipeline::sRenderDeferred && !hud_group)
 			{
 				bool material_pass = false;
 
-				if (fullbright)
+				// do NOT use 'fullbright' for this logic or you risk sending
+				// things without normals down the materials pipeline and will
+				// render poorly if not crash NORSPEC-240,314
+				//
+				if (te->getFullbright())
 				{
 					if (mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
 					{
-						if (te->getColor().mV[3] >= 0.999f)
+						if (opaque)
 						{
-							material_pass = true;
+							registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK);
 						}
 						else
 						{
