@@ -1183,6 +1183,9 @@ void LLViewerRegion::clearCachedVisibleObjects()
 	mImpl->mWaitingList.clear();
 	mImpl->mVisibleGroups.clear();
 
+	//reset all occluders
+	mImpl->mVOCachePartition->resetOccluders();
+
 	//clean visible entries
 	for(LLVOCacheEntry::vocache_entry_set_t::iterator iter = mImpl->mVisibleEntries.begin(); iter != mImpl->mVisibleEntries.end();)
 	{

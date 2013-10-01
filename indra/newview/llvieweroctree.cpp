@@ -809,7 +809,14 @@ class LLSpatialSetOcclusionState : public OctreeTraveler
 public:
 	U32 mState;
 	LLSpatialSetOcclusionState(U32 state) : mState(state) { }
-	virtual void visit(const OctreeNode* branch) { ((LLOcclusionCullingGroup*) branch->getListener(0))->setOcclusionState(mState); }	
+	virtual void visit(const OctreeNode* branch) 
+	{ 
+		LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)branch->getListener(0);
+		if(group)
+		{
+			group->setOcclusionState(mState); 
+		}
+	}
 };
 
 class LLSpatialSetOcclusionStateDiff : public LLSpatialSetOcclusionState
@@ -821,7 +828,7 @@ public:
 	{
 		LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*) n->getListener(0);
 		
-		if (!group->isOcclusionState(mState))
+		if (group && !group->isOcclusionState(mState))
 		{
 			OctreeTraveler::traverse(n);
 		}
@@ -945,7 +952,14 @@ public:
 	U32 mState;
 	
 	LLSpatialClearOcclusionState(U32 state) : mState(state) { }
-	virtual void visit(const OctreeNode* branch) { ((LLOcclusionCullingGroup*) branch->getListener(0))->clearOcclusionState(mState); }
+	virtual void visit(const OctreeNode* branch) 
+	{ 
+		LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)branch->getListener(0);
+		if(group)
+		{
+			group->clearOcclusionState(mState); 
+		}
+	}
 };
 
 class LLSpatialClearOcclusionStateDiff : public LLSpatialClearOcclusionState
