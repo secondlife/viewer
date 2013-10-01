@@ -41,6 +41,7 @@
 #include "llnotificationsutil.h"
 #include "llviewermessage.h"
 #include "llfloaterimsession.h"
+#include "llavataractions.h"
 
 const S32 BOTTOM_PAD = VPAD * 3;
 const S32 IGNORE_BTN_TOP_DELTA = 3*VPAD;//additional ignore_btn padding
@@ -313,6 +314,7 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
     mTextBox->setVisible(TRUE);
     mTextBox->setPlainText(!show_images);
     mTextBox->setValue(mNotification->getMessage());
+	mTextBox->setIsFriendCallback(LLAvatarActions::isFriend);
 
     // add buttons for a script notification
     if (mIsTip)
