@@ -786,6 +786,7 @@ bool idle_startup()
 			display_startup();
 			LLPanelLogin::giveFocus();
 
+			/* MAINT-3231 Don't show first run dialog
 			if (gSavedSettings.getBOOL("FirstLoginThisInstall"))
 			{
 				LL_INFOS("AppInit") << "FirstLoginThisInstall, calling show_first_run_dialog()" << LL_ENDL;
@@ -794,7 +795,7 @@ bool idle_startup()
 			else
 			{
 				LL_DEBUGS("AppInit") << "FirstLoginThisInstall off" << LL_ENDL;
-			}
+			}*/
 
 			LLStartUp::setStartupState( STATE_LOGIN_WAIT );		// Wait for user input
 		}
