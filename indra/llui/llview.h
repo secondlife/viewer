@@ -167,7 +167,7 @@ protected:
 
 private:
 	// widgets in general are not copyable
-	LLView(const LLView& other) {};
+	LLView(const LLView& other);
 public:
 //#if LL_DEBUG
 	static BOOL sIsDrawing;

@@ -101,7 +101,8 @@ LLFontGlyphInfo::LLFontGlyphInfo(U32 index)
 }
 
 LLFontFreetype::LLFontFreetype()
-:	mFontBitmapCachep(new LLFontBitmapCache),
+:	LLTrace::MemTrackable<LLFontFreetype>("LLFontFreetype"),
+	mFontBitmapCachep(new LLFontBitmapCache),
 	mValid(FALSE),
 	mAscender(0.f),
 	mDescender(0.f),
@@ -126,7 +127,7 @@ LLFontFreetype::~LLFontFreetype()
 	// Delete glyph info
 	std::for_each(mCharGlyphInfoMap.begin(), mCharGlyphInfoMap.end(), DeletePairedPointer());
 
-	// mFontBitmapCachep will be cleaned up by LLPointer destructor.
+	delete mFontBitmapCachep;
 	// mFallbackFonts cleaned up by LLPointer destructor
 }
 
@@ -186,6 +187,8 @@ BOOL LLFontFreetype::loadFace(const std::string& filename, F32 point_size, F32 v
 	S32 max_char_height = llround(0.5f + (y_max - y_min));
 
 	mFontBitmapCachep->init(components, max_char_width, max_char_height);
+	claimMem(mFontBitmapCachep);
+
 
 	if (!mFTFace->charmap)
 	{
@@ -200,6 +203,7 @@ BOOL LLFontFreetype::loadFace(const std::string& filename, F32 point_size, F32 v
 	}
 
 	mName = filename;
+	claimMem(mName);
 	mPointSize = point_size;
 
 	mStyle = LLFontGL::NORMAL;
@@ -476,6 +480,7 @@ void LLFontFreetype::insertGlyphInfo(llwchar wch, LLFontGlyphInfo* gi) const
 	}
 	else
 	{
+		claimMem(gi);
 		mCharGlyphInfoMap[wch] = gi;
 	}
 }
@@ -517,8 +522,15 @@ void LLFontFreetype::reset(F32 vert_dpi, F32 horz_dpi)
 
 void LLFontFreetype::resetBitmapCache()
 {
-	for_each(mCharGlyphInfoMap.begin(), mCharGlyphInfoMap.end(), DeletePairedPointer());
+	for (char_glyph_info_map_t::iterator it = mCharGlyphInfoMap.begin(), end_it = mCharGlyphInfoMap.end();
+		it != end_it;
+		++it)
+	{
+		disclaimMem(it->second);
+		delete it->second;
+	}
 	mCharGlyphInfoMap.clear();
+	disclaimMem(mFontBitmapCachep);
 	mFontBitmapCachep->reset();
 
 	// Adding default glyph is skipped for fallback fonts here as well as in loadFace(). 
@@ -540,7 +552,7 @@ const std::string &LLFontFreetype::getName() const
 	return mName;
 }
 
-const LLPointer<LLFontBitmapCache> LLFontFreetype::getFontBitmapCache() const
+const LLFontBitmapCache* LLFontFreetype::getFontBitmapCache() const
 {
 	return mFontBitmapCachep;
 }

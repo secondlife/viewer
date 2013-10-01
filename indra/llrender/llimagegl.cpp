@@ -279,8 +279,10 @@ void LLImageGL::destroyGL(BOOL save_state)
 			if (save_state && glimage->isGLTextureCreated() && glimage->mComponents)
 			{
 				glimage->mSaveData = new LLImageRaw;
+				glimage->claimMem(glimage->mSaveData);
 				if(!glimage->readBackRaw(glimage->mCurrentDiscardLevel, glimage->mSaveData, false)) //necessary, keep it.
 				{
+					glimage->disclaimMem(glimage->mSaveData);
 					glimage->mSaveData = NULL ;
 				}
 			}
@@ -354,7 +356,8 @@ BOOL LLImageGL::create(LLPointer<LLImageGL>& dest, const LLImageRaw* imageraw, B
 //----------------------------------------------------------------------------
 
 LLImageGL::LLImageGL(BOOL usemipmaps)
-	: mSaveData(0)
+:	LLTrace::MemTrackable<LLImageGL>("LLImageGL"),
+	mSaveData(0)
 {
 	init(usemipmaps);
 	setSize(0, 0, 0);
@@ -363,7 +366,8 @@ LLImageGL::LLImageGL(BOOL usemipmaps)
 }
 
 LLImageGL::LLImageGL(U32 width, U32 height, U8 components, BOOL usemipmaps)
-	: mSaveData(0)
+:	LLTrace::MemTrackable<LLImageGL>("LLImageGL"),
+	mSaveData(0)
 {
 	llassert( components <= 4 );
 	init(usemipmaps);
@@ -373,7 +377,8 @@ LLImageGL::LLImageGL(U32 width, U32 height, U8 components, BOOL usemipmaps)
 }
 
 LLImageGL::LLImageGL(const LLImageRaw* imageraw, BOOL usemipmaps)
-	: mSaveData(0)
+:	LLTrace::MemTrackable<LLImageGL>("LLImageGL"),
+	mSaveData(0)
 {
 	init(usemipmaps);
 	setSize(0, 0, 0);
@@ -387,6 +392,7 @@ LLImageGL::~LLImageGL()
 {
 	LLImageGL::cleanup();
 	sImageList.erase(this);
+	disclaimMem((mPickMaskWidth * mPickMaskHeight + 7) / 8);
 	delete [] mPickMask;
 	mPickMask = NULL;
 	sCount--;
@@ -500,6 +506,7 @@ void LLImageGL::setSize(S32 width, S32 height, S32 ncomponents, S32 discard_leve
 		}
 
 		// pickmask validity depends on old image size, delete it
+		disclaimMem((mPickMaskWidth * mPickMaskHeight + 7) / 8);
 		delete [] mPickMask;
 		mPickMask = NULL;
 		mPickMaskWidth = mPickMaskHeight = 0;
@@ -1460,7 +1467,9 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
 		stop_glerror();
 	}
 
+	disclaimMem(mTextureMemory);
 	mTextureMemory = (S32Bytes)getMipBytes(discard_level);
+	claimMem(mTextureMemory);
 	sGlobalTextureMemory += mTextureMemory;
 	mTexelsInGLTexture = getWidth() * getHeight() ;
 
@@ -1621,6 +1630,7 @@ void LLImageGL::destroyGLTexture()
 		if(mTextureMemory != S32Bytes(0))
 		{
 			sGlobalTextureMemory -= mTextureMemory;
+			disclaimMem(mTextureMemory);
 			mTextureMemory = (S32Bytes)0;
 		}
 		
@@ -1970,6 +1980,7 @@ void LLImageGL::updatePickMask(S32 width, S32 height, const U8* data_in)
 		return ;
 	}
 
+	disclaimMem((mPickMaskWidth * mPickMaskHeight + 7) / 8);
 	delete [] mPickMask;
 	mPickMask = NULL;
 	mPickMaskWidth = mPickMaskHeight = 0;
@@ -1987,6 +1998,7 @@ void LLImageGL::updatePickMask(S32 width, S32 height, const U8* data_in)
 	U32 size = pick_width * pick_height;
 	size = (size + 7) / 8; // pixelcount-to-bits
 	mPickMask = new U8[size];
+	claimMem(size);
 	mPickMaskWidth = pick_width - 1;
 	mPickMaskHeight = pick_height - 1;
 

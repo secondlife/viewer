@@ -53,11 +53,13 @@ class LLUrlMatch;
 ///
 class LLTextSegment 
 :	public LLRefCount, 
-	public LLMouseHandler,
-	public LLTrace::MemTrackable<LLTextSegment>
+	public LLMouseHandler
 {
 public:
-	LLTextSegment(S32 start, S32 end) : mStart(start), mEnd(end){};
+	LLTextSegment(S32 start, S32 end) 
+	:	mStart(start), 
+		mEnd(end)
+	{}
 	virtual ~LLTextSegment();
 
 	virtual bool				getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const;

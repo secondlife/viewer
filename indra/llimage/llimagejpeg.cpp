@@ -32,8 +32,7 @@
 
 jmp_buf	LLImageJPEG::sSetjmpBuffer ;
 LLImageJPEG::LLImageJPEG(S32 quality) 
-	:
-	LLImageFormatted(IMG_CODEC_JPEG),
+:	LLImageFormatted(IMG_CODEC_JPEG),
 	mOutputBuffer( NULL ),
 	mOutputBufferSize( 0 ),
 	mEncodeQuality( quality ) // on a scale from 1 to 100
@@ -383,7 +382,9 @@ boolean LLImageJPEG::encodeEmptyOutputBuffer( j_compress_ptr cinfo )
 
   cinfo->dest->next_output_byte = self->mOutputBuffer + self->mOutputBufferSize;
   cinfo->dest->free_in_buffer = self->mOutputBufferSize;
+  self->disclaimMem(self->mOutputBufferSize);
   self->mOutputBufferSize = new_buffer_size;
+  self->claimMem(new_buffer_size);
 
   return TRUE;
 }
@@ -489,7 +490,9 @@ BOOL LLImageJPEG::encode( const LLImageRaw* raw_image, F32 encode_time )
 	// Allocate a temporary buffer big enough to hold the entire compressed image (and then some)
 	// (Note: we make it bigger in emptyOutputBuffer() if we need to)
 	delete[] mOutputBuffer;
+	disclaimMem(mOutputBufferSize);
 	mOutputBufferSize = getWidth() * getHeight() * getComponents() + 1024;
+	claimMem(mOutputBufferSize);
 	mOutputBuffer = new U8[ mOutputBufferSize ];
 
 	const U8* raw_image_data = NULL;
@@ -526,6 +529,7 @@ BOOL LLImageJPEG::encode( const LLImageRaw* raw_image, F32 encode_time )
 		jpeg_destroy_compress(&cinfo);
 		delete[] mOutputBuffer;
 		mOutputBuffer = NULL;
+		disclaimMem(mOutputBufferSize);
 		mOutputBufferSize = 0;
 		return FALSE;
 	}
@@ -628,6 +632,7 @@ BOOL LLImageJPEG::encode( const LLImageRaw* raw_image, F32 encode_time )
 		// After finish_compress, we can release the temp output buffer. 
 		delete[] mOutputBuffer;
 		mOutputBuffer = NULL;
+		disclaimMem(mOutputBufferSize);
 		mOutputBufferSize = 0;
 
 		////////////////////////////////////////
@@ -640,6 +645,7 @@ BOOL LLImageJPEG::encode( const LLImageRaw* raw_image, F32 encode_time )
 		jpeg_destroy_compress(&cinfo);
 		delete[] mOutputBuffer;
 		mOutputBuffer = NULL;
+		disclaimMem(mOutputBufferSize);
 		mOutputBufferSize = 0;
 		return FALSE;
 	}

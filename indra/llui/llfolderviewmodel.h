@@ -111,6 +111,10 @@ public:
 class LLFolderViewModelInterface : public LLTrace::MemTrackable<LLFolderViewModelInterface>
 {
 public:
+	LLFolderViewModelInterface() 
+	:	LLTrace::MemTrackable<LLFolderViewModelInterface>("LLFolderViewModelInterface") 
+	{}
+
 	virtual ~LLFolderViewModelInterface() {}
 	virtual void requestSortAll() = 0;
 
@@ -131,7 +135,10 @@ public:
 class LLFolderViewModelItem : public LLRefCount, public LLTrace::MemTrackable<LLFolderViewModelItem>
 {
 public:
-	LLFolderViewModelItem() { }
+	LLFolderViewModelItem() 
+	:	LLTrace::MemTrackable<LLFolderViewModelItem>("LLFolderViewModelItem") 
+	{}
+
 	virtual ~LLFolderViewModelItem() { }
 
 	virtual void update() {}	//called when drawing

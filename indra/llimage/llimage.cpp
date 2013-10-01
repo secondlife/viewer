@@ -89,15 +89,15 @@ void LLImage::setLastError(const std::string& message)
 //---------------------------------------------------------------------------
 
 LLImageBase::LLImageBase()
-	: mData(NULL),
-	  mDataSize(0),
-	  mWidth(0),
-	  mHeight(0),
-	  mComponents(0),
-	  mBadBufferAllocation(false),
-	  mAllowOverSize(false)
-{
-}
+:	LLTrace::MemTrackable<LLImageBase>("LLImage"),
+	mData(NULL),
+	mDataSize(0),
+	mWidth(0),
+	mHeight(0),
+	mComponents(0),
+	mBadBufferAllocation(false),
+	mAllowOverSize(false)
+{}
 
 // virtual
 LLImageBase::~LLImageBase()
@@ -158,7 +158,8 @@ void LLImageBase::sanityCheck()
 void LLImageBase::deleteData()
 {
 	FREE_MEM(sPrivatePoolp, mData) ;
-	disclaimMem(mDataSize) = 0;
+	disclaimMem(mDataSize);
+	mDataSize = 0;
 	mData = NULL;
 }
 
@@ -223,7 +224,9 @@ U8* LLImageBase::reallocateData(S32 size)
 		FREE_MEM(sPrivatePoolp, mData) ;
 	}
 	mData = new_datap;
-	claimMem(disclaimMem(mDataSize) = size);
+	disclaimMem(mDataSize);
+	mDataSize = size;
+	claimMem(mDataSize);
 	return mData;
 }
 
@@ -1618,7 +1621,9 @@ void LLImageBase::setDataAndSize(U8 *data, S32 size)
 { 
 	ll_assert_aligned(data, 16);
 	mData = data; 
-	claimMem(disclaimMem(mDataSize) = size); 
+	disclaimMem(mDataSize); 
+	mDataSize = size; 
+	claimMem(mDataSize);
 }	
 
 //static

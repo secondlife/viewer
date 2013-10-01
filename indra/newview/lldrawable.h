@@ -64,7 +64,9 @@ class LLDrawable
 	public LLTrace::MemTrackable<LLDrawable, 16>
 {
 public:
-	LLDrawable(const LLDrawable& rhs) : LLViewerOctreeEntryData(rhs)
+	LLDrawable(const LLDrawable& rhs) 
+	:	LLTrace::MemTrackable<LLDrawable, 16>("LLDrawable"),
+		LLViewerOctreeEntryData(rhs)
 	{
 		*this = rhs;
 	}
