@@ -1496,16 +1496,12 @@ void LLFolderViewFolder::extractItem( LLFolderViewItem* item )
 		ft = std::find(mFolders.begin(), mFolders.end(), f);
 		if (ft != mFolders.end())
 		{
-			disclaimMem(mFolders);
 			mFolders.erase(ft);
-			claimMem(mFolders);
 		}
 	}
 	else
 	{
-		disclaimMem(mItems);
 		mItems.erase(it);
-		claimMem(mItems);
 	}
 	//item has been removed, need to update filter
 	getViewModelItem()->removeChild(item->getViewModelItem());
@@ -1582,9 +1578,7 @@ void LLFolderViewFolder::addItem(LLFolderViewItem* item)
 	}
 	item->setParentFolder(this);
 
-	disclaimMem(mItems);
 	mItems.push_back(item);
-	claimMem(mItems);
 	
 	item->setRect(LLRect(0, 0, getRect().getWidth(), 0));
 	item->setVisible(FALSE);
@@ -1607,9 +1601,7 @@ void LLFolderViewFolder::addFolder(LLFolderViewFolder* folder)
 		folder->mParentFolder->extractItem(folder);
 	}
 	folder->mParentFolder = this;
-	disclaimMem(mFolders);
 	mFolders.push_back(folder);
-	claimMem(mFolders);
 	folder->setOrigin(0, 0);
 	folder->reshape(getRect().getWidth(), 0);
 	folder->setVisible(FALSE);

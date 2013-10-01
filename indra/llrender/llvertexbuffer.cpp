@@ -959,7 +959,8 @@ S32 LLVertexBuffer::determineUsage(S32 usage)
 	return ret_usage;
 }
 
-LLVertexBuffer::LLVertexBuffer(U32 typemask, S32 usage) :
+LLVertexBuffer::LLVertexBuffer(U32 typemask, S32 usage) 
+:	LLTrace::MemTrackable<LLVertexBuffer>("LLVertexBuffer"),
 	LLRefCount(),
 
 	mNumVerts(0),
@@ -1096,7 +1097,9 @@ void LLVertexBuffer::waitFence() const
 
 void LLVertexBuffer::genBuffer(U32 size)
 {
+	disclaimMem(mSize);
 	mSize = vbo_block_size(size);
+	claimMem(mSize);
 
 	if (mUsage == GL_STREAM_DRAW_ARB)
 	{
@@ -1185,7 +1188,9 @@ void LLVertexBuffer::createGLBuffer(U32 size)
 		static int gl_buffer_idx = 0;
 		mGLBuffer = ++gl_buffer_idx;
 		mMappedData = (U8*)ALLOCATE_MEM(sPrivatePoolp, size);
+		disclaimMem(mSize);
 		mSize = size;
+		disclaimMem(mSize);
 	}
 }
 

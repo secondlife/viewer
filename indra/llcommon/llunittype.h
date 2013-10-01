@@ -80,6 +80,7 @@ struct LLUnit
 {
 	typedef LLUnit<STORAGE_TYPE, UNITS> self_t;
 	typedef STORAGE_TYPE storage_t;
+	typedef void is_unit_t;
 
 	// value initialization
 	LL_FORCE_INLINE explicit LLUnit(storage_t value = storage_t())

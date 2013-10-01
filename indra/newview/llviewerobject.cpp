@@ -206,7 +206,8 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
 }
 
 LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp, BOOL is_global)
-:	LLPrimitive(),
+:	LLTrace::MemTrackable<LLViewerObject>("LLViewerObject"),
+	LLPrimitive(),
 	mChildList(),
 	mID(id),
 	mLocalID(0),

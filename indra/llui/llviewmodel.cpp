@@ -37,13 +37,15 @@
 
 ///
 LLViewModel::LLViewModel()
- : mDirty(false)
+:	LLTrace::MemTrackable<LLViewModel>("LLViewModel"),
+	mDirty(false)
 {
 }
 
 /// Instantiate an LLViewModel with an existing data value
 LLViewModel::LLViewModel(const LLSD& value)
-  : mDirty(false)
+:	LLTrace::MemTrackable<LLViewModel>("LLViewModel"),
+	mDirty(false)
 {
     setValue(value);
 }
@@ -79,12 +81,14 @@ LLTextViewModel::LLTextViewModel(const LLSD& value)
 /// Update the stored value
 void LLTextViewModel::setValue(const LLSD& value)
 {
-	LLViewModel::setValue(value);
 	// approximate LLSD storage usage
 	disclaimMem(mDisplay.size());
+	LLViewModel::setValue(value);
 	disclaimMem(mDisplay);
     mDisplay = utf8str_to_wstring(value.asString());
+
 	claimMem(mDisplay);
+	// approximate LLSD storage usage
 	claimMem(mDisplay.size());
 
     // mDisplay and mValue agree

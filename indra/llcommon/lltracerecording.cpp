@@ -173,11 +173,6 @@ bool Recording::hasValue(const TraceType<MemStatAccumulator>& stat)
 	return mBuffers->mMemStats[stat.getIndex()].mSize.hasValue();
 }
 
-bool Recording::hasValue(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat)
-{
-	return mBuffers->mMemStats[stat.getIndex()].mShadowSize.hasValue();
-}
-
 F64Kilobytes Recording::getMin(const TraceType<MemStatAccumulator>& stat)
 {
 	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mSize.getMin());
@@ -201,31 +196,6 @@ F64Kilobytes Recording::getStandardDeviation(const TraceType<MemStatAccumulator>
 F64Kilobytes Recording::getLastValue(const TraceType<MemStatAccumulator>& stat)
 {
 	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mSize.getLastValue());
-}
-
-F64Kilobytes Recording::getMin(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat)
-{
-	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mShadowSize.getMin());
-}
-
-F64Kilobytes Recording::getMean(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat)
-{
-	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mShadowSize.getMean());
-}
-
-F64Kilobytes Recording::getMax(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat)
-{
-	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mShadowSize.getMax());
-}
-
-F64Kilobytes Recording::getStandardDeviation(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat)
-{
-	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mShadowSize.getStandardDeviation());
-}
-
-F64Kilobytes Recording::getLastValue(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat)
-{
-	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mShadowSize.getLastValue());
 }
 
 F64Kilobytes Recording::getSum(const TraceType<MemStatAccumulator::AllocationFacet>& stat)
@@ -256,36 +226,6 @@ F64Kilobytes Recording::getPerSec(const TraceType<MemStatAccumulator::Deallocati
 S32 Recording::getSampleCount(const TraceType<MemStatAccumulator::DeallocationFacet>& stat)
 {
 	return mBuffers->mMemStats[stat.getIndex()].mFootprintDeallocations.getSampleCount();
-}
-
-F64Kilobytes Recording::getSum(const TraceType<MemStatAccumulator::ShadowAllocationFacet>& stat)
-{
-	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mShadowAllocations.getSum());
-}
-
-F64Kilobytes Recording::getPerSec(const TraceType<MemStatAccumulator::ShadowAllocationFacet>& stat)
-{
-	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mShadowAllocations.getSum() / mElapsedSeconds.value());
-}
-
-S32 Recording::getSampleCount(const TraceType<MemStatAccumulator::ShadowAllocationFacet>& stat)
-{
-	return mBuffers->mMemStats[stat.getIndex()].mShadowAllocations.getSampleCount();
-}
-
-F64Kilobytes Recording::getSum(const TraceType<MemStatAccumulator::ShadowDeallocationFacet>& stat)
-{
-	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mShadowDeallocations.getSum());
-}
-
-F64Kilobytes Recording::getPerSec(const TraceType<MemStatAccumulator::ShadowDeallocationFacet>& stat)
-{
-	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mShadowDeallocations.getSum() / mElapsedSeconds.value());
-}
-
-S32 Recording::getSampleCount(const TraceType<MemStatAccumulator::ShadowDeallocationFacet>& stat)
-{
-	return mBuffers->mMemStats[stat.getIndex()].mShadowDeallocations.getSampleCount();
 }
 
 F64 Recording::getSum( const TraceType<CountAccumulator>& stat )

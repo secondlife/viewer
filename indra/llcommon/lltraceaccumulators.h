@@ -498,32 +498,14 @@ namespace LLTrace
 			typedef F64Bytes value_t;
 		};
 
-		struct ShadowAllocationFacet 
-		{
-			typedef F64Bytes value_t;
-		};
-
-		struct ShadowDeallocationFacet 
-		{
-			typedef F64Bytes value_t;
-		};
-
-		struct ShadowMemFacet
-		{
-			typedef F64Bytes value_t;
-		};
-
 		void addSamples(const MemStatAccumulator& other, EBufferAppendType append_type)
 		{
 			mFootprintAllocations.addSamples(other.mFootprintAllocations, append_type);
 			mFootprintDeallocations.addSamples(other.mFootprintDeallocations, append_type);
-			mShadowAllocations.addSamples(other.mShadowAllocations, append_type);
-			mShadowDeallocations.addSamples(other.mShadowDeallocations, append_type);
 
 			if (append_type == SEQUENTIAL)
 			{
 				mSize.addSamples(other.mSize, SEQUENTIAL);
-				mShadowSize.addSamples(other.mShadowSize, SEQUENTIAL);
 			}
 			else
 			{
@@ -531,36 +513,24 @@ namespace LLTrace
 				mSize.sample(mSize.hasValue() 
 					? mSize.getLastValue() + allocation_delta 
 					: allocation_delta);
-
-				F64 shadow_allocation_delta(other.mShadowAllocations.getSum() - other.mShadowDeallocations.getSum());
-				mShadowSize.sample(mShadowSize.hasValue() 
-					? mShadowSize.getLastValue() + shadow_allocation_delta 
-					: shadow_allocation_delta);
 			}
 		}
 
 		void reset(const MemStatAccumulator* other)
 		{
 			mSize.reset(other ? &other->mSize : NULL);
-			mShadowSize.reset(other ? &other->mShadowSize : NULL);
 			mFootprintAllocations.reset(other ? &other->mFootprintAllocations : NULL);
 			mFootprintDeallocations.reset(other ? &other->mFootprintDeallocations : NULL);
-			mShadowAllocations.reset(other ? &other->mShadowAllocations : NULL);
-			mShadowDeallocations.reset(other ? &other->mShadowDeallocations : NULL);
 		}
 
 		void sync(F64SecondsImplicit time_stamp) 
 		{
 			mSize.sync(time_stamp);
-			mShadowSize.sync(time_stamp);
 		}
 
-		SampleAccumulator	mSize,
-							mShadowSize;
-		EventAccumulator	mFootprintAllocations,
-							mShadowAllocations;
-		CountAccumulator	mFootprintDeallocations,
-							mShadowDeallocations;
+		SampleAccumulator	mSize;
+		EventAccumulator	mFootprintAllocations;
+		CountAccumulator	mFootprintDeallocations;
 	};
 
 	struct AccumulatorBufferGroup : public LLRefCount

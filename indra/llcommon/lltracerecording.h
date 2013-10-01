@@ -30,7 +30,6 @@
 #include "stdtypes.h"
 #include "llpreprocessor.h"
 
-#include "llpointer.h"
 #include "lltimer.h"
 #include "lltraceaccumulators.h"
 
@@ -178,19 +177,12 @@ namespace LLTrace
 
 		// Memory accessors
 		bool hasValue(const TraceType<MemStatAccumulator>& stat);
-		bool hasValue(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat);
 
 		F64Kilobytes getMin(const TraceType<MemStatAccumulator>& stat);
 		F64Kilobytes getMean(const TraceType<MemStatAccumulator>& stat);
 		F64Kilobytes getMax(const TraceType<MemStatAccumulator>& stat);
 		F64Kilobytes getStandardDeviation(const TraceType<MemStatAccumulator>& stat);
 		F64Kilobytes getLastValue(const TraceType<MemStatAccumulator>& stat);
-
-		F64Kilobytes getMin(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat);
-		F64Kilobytes getMean(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat);
-		F64Kilobytes getMax(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat);
-		F64Kilobytes getStandardDeviation(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat);
-		F64Kilobytes getLastValue(const TraceType<MemStatAccumulator::ShadowMemFacet>& stat);
 
 		F64Kilobytes getSum(const TraceType<MemStatAccumulator::AllocationFacet>& stat);
 		F64Kilobytes getPerSec(const TraceType<MemStatAccumulator::AllocationFacet>& stat);
@@ -199,14 +191,6 @@ namespace LLTrace
 		F64Kilobytes getSum(const TraceType<MemStatAccumulator::DeallocationFacet>& stat);
 		F64Kilobytes getPerSec(const TraceType<MemStatAccumulator::DeallocationFacet>& stat);
 		S32 getSampleCount(const TraceType<MemStatAccumulator::DeallocationFacet>& stat);
-
-		F64Kilobytes getSum(const TraceType<MemStatAccumulator::ShadowAllocationFacet>& stat);
-		F64Kilobytes getPerSec(const TraceType<MemStatAccumulator::ShadowAllocationFacet>& stat);
-		S32 getSampleCount(const TraceType<MemStatAccumulator::ShadowAllocationFacet>& stat);
-
-		F64Kilobytes getSum(const TraceType<MemStatAccumulator::ShadowDeallocationFacet>& stat);
-		F64Kilobytes getPerSec(const TraceType<MemStatAccumulator::ShadowDeallocationFacet>& stat);
-		S32 getSampleCount(const TraceType<MemStatAccumulator::ShadowDeallocationFacet>& stat);
 
 		// CountStatHandle accessors
 		F64 getSum(const TraceType<CountAccumulator>& stat);

@@ -62,6 +62,7 @@ LLImageJ2C::LLImageJ2C() : 	LLImageFormatted(IMG_CODEC_J2C),
 							mAreaUsedForDataSizeCalcs(0)
 {
 	mImpl = fallbackCreateLLImageJ2CImpl();
+	claimMem(mImpl);
 
 	// Clear data size table
 	for( S32 i = 0; i <= MAX_DISCARD_LEVEL; i++)

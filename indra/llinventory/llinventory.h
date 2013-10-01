@@ -34,6 +34,7 @@
 #include "llsaleinfo.h"
 #include "llsd.h"
 #include "lluuid.h"
+#include "lltrace.h"
 
 class LLMessageSystem;
 
@@ -43,7 +44,7 @@ class LLMessageSystem;
 //   Base class for anything in the user's inventory.   Handles the common code 
 //   between items and categories. 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-class LLInventoryObject : public LLRefCount
+class LLInventoryObject : public LLRefCount, public LLTrace::MemTrackable<LLInventoryObject>
 {
 public:
 	typedef std::list<LLPointer<LLInventoryObject> > object_list_t;

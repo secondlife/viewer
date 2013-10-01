@@ -125,6 +125,11 @@ void AccumulatorBufferGroup::sync()
 
 void SampleAccumulator::addSamples( const SampleAccumulator& other, EBufferAppendType append_type )
 {
+	if (append_type == NON_SEQUENTIAL)
+	{
+		return;
+	}
+
 	if (!mHasValue)
 	{
 		*this = other;

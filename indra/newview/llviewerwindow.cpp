@@ -287,6 +287,8 @@ public:
 // LLDebugText
 //
 
+static LLTrace::TimeBlock FTM_DISPLAY_DEBUG_TEXT("Display Debug Text");
+
 class LLDebugText
 {
 private:
@@ -799,6 +801,7 @@ public:
 
 	void draw()
 	{
+		LL_RECORD_BLOCK_TIME(FTM_DISPLAY_DEBUG_TEXT);
 		for (line_list_t::iterator iter = mLineList.begin();
 			 iter != mLineList.end(); ++iter)
 		{
