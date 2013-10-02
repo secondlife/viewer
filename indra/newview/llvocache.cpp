@@ -473,6 +473,31 @@ void LLVOCacheEntry::updateParentBoundingInfo(const LLVOCacheEntry* child)
 //-------------------------------------------------------------------
 //LLVOCachePartition
 //-------------------------------------------------------------------
+LLVOCacheGroup::~LLVOCacheGroup()
+{
+	if(mOcclusionState[0] & ACTIVE_OCCLUSION)
+	{
+		((LLVOCachePartition*)mSpatialPartition)->removeOccluder(this);
+	}
+}
+
+//virtual
+void LLVOCacheGroup::handleChildAddition(const OctreeNode* parent, OctreeNode* child)
+{
+	if (child->getListenerCount() == 0)
+	{
+		new LLVOCacheGroup(child, mSpatialPartition);
+	}
+	else
+	{
+		OCT_ERRS << "LLVOCacheGroup redundancy detected." << LL_ENDL;
+	}
+
+	unbound();
+	
+	((LLviewerOctreeGroup*)child->getListener(0))->unbound();
+}
+
 LLVOCachePartition::LLVOCachePartition(LLViewerRegion* regionp)
 :	LLTrace::MemTrackable<LLVOCachePartition>("LLVOCachePartition")
 {
@@ -487,7 +512,7 @@ LLVOCachePartition::LLVOCachePartition(LLViewerRegion* regionp)
 		mCulledTime[i] = 0;
 		mCullHistory[i] = -1;
 	}
-	new LLOcclusionCullingGroup(mOctree, this);
+	new LLVOCacheGroup(mOctree, this);
 }
 
 void LLVOCachePartition::addEntry(LLViewerOctreeEntry* entry)
@@ -755,11 +780,11 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 
 void LLVOCachePartition::addOccluders(LLviewerOctreeGroup* gp)
 {
-	LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)gp;
+	LLVOCacheGroup* group = (LLVOCacheGroup*)gp;
 
 	if(!group->isOcclusionState(LLOcclusionCullingGroup::ACTIVE_OCCLUSION))
 	{
-		group->setOcclusionState(LLOcclusionCullingGroup::ACTIVE_OCCLUSION);
+		group->setOcclusionState(LLOcclusionCullingGroup::ACTIVE_OCCLUSION, LLOcclusionCullingGroup::STATE_MODE_ALL_CAMERAS);
 		mOccludedGroups.insert(group);
 	}
 }
@@ -773,9 +798,9 @@ void LLVOCachePartition::processOccluders(LLCamera* camera)
 
 	LLVector3 region_agent = mRegionp->getOriginAgent();
 	LLVector4a shift(region_agent[0], region_agent[1], region_agent[2]);
-	for(std::set<LLOcclusionCullingGroup*>::iterator iter = mOccludedGroups.begin(); iter != mOccludedGroups.end(); ++iter)
+	for(std::set<LLVOCacheGroup*>::iterator iter = mOccludedGroups.begin(); iter != mOccludedGroups.end(); ++iter)
 	{
-		LLOcclusionCullingGroup* group = *iter;
+		LLVOCacheGroup* group = *iter;
 		group->doOcclusion(camera, &shift);
 	}	
 }
@@ -787,15 +812,23 @@ void LLVOCachePartition::resetOccluders()
 		return;
 	}
 
-	for(std::set<LLOcclusionCullingGroup*>::iterator iter = mOccludedGroups.begin(); iter != mOccludedGroups.end(); ++iter)
+	for(std::set<LLVOCacheGroup*>::iterator iter = mOccludedGroups.begin(); iter != mOccludedGroups.end(); ++iter)
 	{
-		LLOcclusionCullingGroup* group = *iter;
-		group->clearOcclusionState(LLOcclusionCullingGroup::ACTIVE_OCCLUSION);
+		LLVOCacheGroup* group = *iter;
+		group->clearOcclusionState(LLOcclusionCullingGroup::ACTIVE_OCCLUSION, LLOcclusionCullingGroup::STATE_MODE_ALL_CAMERAS);
 	}	
 	mOccludedGroups.clear();
 	sNeedsOcclusionCheck = FALSE;
 }
 
+void LLVOCachePartition::removeOccluder(LLVOCacheGroup* group)
+{
+	if(mOccludedGroups.empty())
+	{
+		return;
+	}
+	mOccludedGroups.erase(group);
+}
 //-------------------------------------------------------------------
 //LLVOCache
 //-------------------------------------------------------------------

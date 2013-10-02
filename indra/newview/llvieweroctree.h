@@ -83,7 +83,9 @@ public:
 		NUM_DATA_TYPE
 	}eEntryDataType_t;
 
-	~LLViewerOctreeEntry();
+protected:
+	virtual ~LLViewerOctreeEntry();
+
 public:
 	LLViewerOctreeEntry();
 	
@@ -187,7 +189,7 @@ class LLviewerOctreeGroup : public LLOctreeListener<LLViewerOctreeEntry>
 {
 	friend class LLViewerOctreeCull;
 protected:
-	~LLviewerOctreeGroup();
+	virtual ~LLviewerOctreeGroup();
 
 public:	
 	enum
@@ -303,13 +305,15 @@ public:
 		STATE_MODE_ALL_CAMERAS,		//used for occlusion state, set state for all cameras
 	} eSetStateMode;
 
+protected:
+	virtual ~LLOcclusionCullingGroup();
+
 public:
 	LLOcclusionCullingGroup(OctreeNode* node, LLViewerOctreePartition* part);
 	LLOcclusionCullingGroup(const LLOcclusionCullingGroup& rhs) : LLviewerOctreeGroup(rhs)
 	{
 		*this = rhs;
-	}
-	~LLOcclusionCullingGroup();
+	}	
 
 	void setOcclusionState(U32 state, S32 mode = STATE_MODE_SINGLE);
 	void clearOcclusionState(U32 state, S32 mode = STATE_MODE_SINGLE);
