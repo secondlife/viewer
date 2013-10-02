@@ -2815,6 +2815,9 @@ void LLPanelGroupBanListSubTab::handleDeleteBanEntry()
 			can_ban_members	= true;
 		}
 	}
+		
+	if(!can_ban_members)
+		return;
 
 	std::vector<LLUUID> ban_ids;
 	std::vector<LLScrollListItem*>::iterator itor;
