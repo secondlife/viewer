@@ -32,6 +32,7 @@
 
 #include "lltimer.h"
 #include "lltraceaccumulators.h"
+#include "llpointer.h"
 
 class LLStopWatchControlsMixinCommon
 {
