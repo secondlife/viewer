@@ -160,6 +160,18 @@ public:
 	static U32                  sMinFrameRange;
 };
 
+class LLVOCacheGroup : public LLOcclusionCullingGroup
+{
+public:
+	LLVOCacheGroup(OctreeNode* node, LLViewerOctreePartition* part) : LLOcclusionCullingGroup(node, part){}	
+
+	//virtual
+	void handleChildAddition(const OctreeNode* parent, OctreeNode* child);
+
+protected:
+	virtual ~LLVOCacheGroup();
+};
+
 class LLVOCachePartition : public LLViewerOctreePartition, public LLTrace::MemTrackable<LLVOCachePartition>
 {
 public:
@@ -171,7 +183,8 @@ public:
 	void addOccluders(LLviewerOctreeGroup* gp);
 	void resetOccluders();
 	void processOccluders(LLCamera* camera);
-	
+	void removeOccluder(LLVOCacheGroup* group);
+
 private:
 	void selectBackObjects(LLCamera &camera); //select objects behind camera.
 
@@ -181,7 +194,7 @@ public:
 private:
 	U32   mCullHistory[LLViewerCamera::NUM_CAMERAS];
 	U32   mCulledTime[LLViewerCamera::NUM_CAMERAS];
-	std::set<LLOcclusionCullingGroup*> mOccludedGroups;
+	std::set<LLVOCacheGroup*> mOccludedGroups;
 
 	S32   mBackSlectionEnabled; //enable to select back objects if > 0.
 	U32   mIdleHash;
