@@ -1925,7 +1925,7 @@ void LLGroupMgr::sendGroupBanRequest(	EBanRequestType request_type,
 		LLHTTPClient::post(cap_url, body, grp_ban_responder);
 		break;
 	case REQUEST_PUT:
-	case REQUEST_DELETE:
+	case REQUEST_DEL:
 		break;
 	}
 }
