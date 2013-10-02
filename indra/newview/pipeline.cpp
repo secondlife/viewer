@@ -9046,7 +9046,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 	}
 
 	{
-		LLFastTimer ftm(FTM_RENDER_DEFERRED);
+		LL_RECORD_BLOCK_TIME(FTM_RENDER_DEFERRED);
 
 		LLViewerCamera* camera = LLViewerCamera::getInstance();
 
@@ -9103,7 +9103,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 		{
 			mDeferredLight.bindTarget();
 			{ //paint shadow/SSAO light map (direct lighting lightmap)
-				LLFastTimer ftm(FTM_SUN_SHADOW);
+				LL_RECORD_BLOCK_TIME(FTM_SUN_SHADOW);
 				bindDeferredShader(gDeferredSunProgram);
 				mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
 				glClearColor(1,1,1,1);
@@ -9161,7 +9161,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 		
 		if (RenderDeferredAtmospheric)
 		{ //apply sunlight contribution 
-			LLFastTimer ftm(FTM_ATMOSPHERICS);
+			LL_RECORD_BLOCK_TIME(FTM_ATMOSPHERICS);
 			bindDeferredShader(gDeferredSoftenProgram);	
 			{
 				LLGLDepthTest depth(GL_FALSE);
@@ -9298,7 +9298,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 							col.mV[1] = powf(col.mV[1], 2.2f);
 							col.mV[2] = powf(col.mV[2], 2.2f);*/
 							
-							LLFastTimer ftm(FTM_LOCAL_LIGHTS);
+							LL_RECORD_BLOCK_TIME(FTM_LOCAL_LIGHTS);
 							gDeferredLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, c);
 							gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
 							gDeferredLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
@@ -9339,7 +9339,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 
 				for (LLDrawable::drawable_list_t::iterator iter = spot_lights.begin(); iter != spot_lights.end(); ++iter)
 				{
-					LLFastTimer ftm(FTM_PROJECTORS);
+					LL_RECORD_BLOCK_TIME(FTM_PROJECTORS);
 					LLDrawable* drawablep = *iter;
 
 					LLVOVolume* volume = drawablep->getVOVolume();
@@ -9396,7 +9396,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 
 				while (!fullscreen_lights.empty())
 				{
-					LLFastTimer ftm(FTM_FULLSCREEN_LIGHTS);
+					LL_RECORD_BLOCK_TIME(FTM_FULLSCREEN_LIGHTS);
 					light[count] = fullscreen_lights.front();
 					fullscreen_lights.pop_front();
 					col[count] = light_colors.front();
@@ -9434,7 +9434,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 
 				for (LLDrawable::drawable_list_t::iterator iter = fullscreen_spot_lights.begin(); iter != fullscreen_spot_lights.end(); ++iter)
 				{
-					LLFastTimer ftm(FTM_PROJECTORS);
+					LL_RECORD_BLOCK_TIME(FTM_PROJECTORS);
 					LLDrawable* drawablep = *iter;
 					
 					LLVOVolume* volume = drawablep->getVOVolume();

@@ -202,7 +202,7 @@ LLRenderTarget& LLSceneMonitor::getCaptureTarget()
 	
 	if(cur_target->getWidth() != width || cur_target->getHeight() != height) //size changed
 	{
-		cur_target->resize(width, height, GL_RGB);
+		cur_target->resize(width, height);
 	}
 
 	// we're promising the target exists
@@ -366,7 +366,7 @@ void LLSceneMonitor::compare()
 	else if(mDiff->getWidth() != width || mDiff->getHeight() != height)
 	{
 		LL_RECORD_BLOCK_TIME(FTM_GENERATE_SCENE_LOAD_DITHER_TEXTURE);
-		mDiff->resize(width, height, GL_RGBA);
+		mDiff->resize(width, height);
 		generateDitheringTexture(width, height);
 	}
 
