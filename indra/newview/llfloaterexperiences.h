@@ -35,8 +35,13 @@ class LLFloaterExperiences :
 public:
 	LLFloaterExperiences(const LLSD& data);
 
+    void clearFromRecent(const LLSD& ids);
 protected:
 	/*virtual*/ BOOL	postBuild();
+
+    void setupRecentTabs();
+    void addTab(const std::string& name, bool select);
+
 
 private:
 

@@ -1,11 +1,10 @@
 ﻿<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 
 <floater
-  positioning="cascading"
   can_close="true"
   can_resize="true"
   height="400"
-  help_topic="sidebar_experiences"
+  width="300"
   min_height="300"
   min_width="300"
   layout="topleft"
@@ -13,17 +12,16 @@
   save_rect="false"
   single_instance="true"
   reuse_instance="false"
-  title="EXPERIENCES"
-  width="400">
-  <panel
+  bg_opaque_color="0 0.5 0 0.3"
+  title="EXPERIENCES">
+  <tab_container
     top="3"
     left="3"
     layout="topleft"
-    right="-3"
+    width="294"
     follows="all"
-    height="300"
-    class="experiences_panel"
-    filename="panel_experiences.xml"
-    >
-  </panel>
+    height="394"
+    name="xp_tabs">
+  </tab_container>
+
 </floater>
