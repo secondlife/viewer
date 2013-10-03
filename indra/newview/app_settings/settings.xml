@@ -765,6 +765,17 @@
       <key>Value</key>
       <real>0.0311</real>
     </map>
+    <key>BackShpereCullingRadius</key>
+    <map>
+      <key>Comment</key>
+      <string>Radius of back sphere in meters, objects behind camera but within this radius are loaded for rendering</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>20.0</real>
+    </map>
     <key>BottomPanelNew</key>
     <map>
       <key>Comment</key>

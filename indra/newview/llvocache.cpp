@@ -640,11 +640,11 @@ private:
 class LLVOCacheOctreeBackCull : public LLViewerOctreeCull
 {
 public:
-	LLVOCacheOctreeBackCull(LLCamera* camera, const LLVector3& shift, LLViewerRegion* regionp) 
+	LLVOCacheOctreeBackCull(LLCamera* camera, const LLVector3& shift, LLViewerRegion* regionp, F32 back_sphere_radius) 
 		: LLViewerOctreeCull(camera), mRegionp(regionp)
 	{
 		mLocalShift = shift;
-		mSphereRadius = 20.f; //20m
+		mSphereRadius = back_sphere_radius;
 	}
 
 	virtual S32 frustumCheck(const LLviewerOctreeGroup* group)
@@ -678,7 +678,7 @@ private:
 	LLVector3        mLocalShift; //shift vector from agent space to local region space.
 };
 
-void LLVOCachePartition::selectBackObjects(LLCamera &camera)
+void LLVOCachePartition::selectBackObjects(LLCamera &camera, F32 back_sphere_radius)
 {
 	if(LLViewerCamera::sCurCameraID != LLViewerCamera::CAMERA_WORLD)
 	{
@@ -699,7 +699,7 @@ void LLVOCachePartition::selectBackObjects(LLCamera &camera)
 	//localize the camera
 	LLVector3 region_agent = mRegionp->getOriginAgent();
 	
-	LLVOCacheOctreeBackCull culler(&camera, region_agent, mRegionp);
+	LLVOCacheOctreeBackCull culler(&camera, region_agent, mRegionp, back_sphere_radius);
 	culler.traverse(mOctree);
 
 	mBackSlectionEnabled--;
@@ -714,6 +714,7 @@ void LLVOCachePartition::selectBackObjects(LLCamera &camera)
 S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 {
 	static LLCachedControl<bool> use_object_cache_occlusion(gSavedSettings,"UseObjectCacheOcclusion");
+	static LLCachedControl<F32> back_sphere_radius(gSavedSettings,"BackShpereCullingRadius");
 	
 	if(!LLViewerRegion::sVOCacheCullingEnabled)
 	{
@@ -745,7 +746,7 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 		}
 		if(LLViewerOctreeEntryData::getCurrentFrame() % seed != mIdleHash)
 		{
-			selectBackObjects(camera);//process back objects selection
+			selectBackObjects(camera, back_sphere_radius);//process back objects selection
 			return 0; //nothing changed, reduce frequency of culling
 		}
 	}
