@@ -110,7 +110,7 @@ LLWorld::LLWorld() :
 	gGL.getTexUnit(0)->bind(mDefaultWaterTexturep);
 	mDefaultWaterTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
 
-	LLViewerRegion::sVOCacheCullingEnabled = gSavedSettings.getBOOL("ObjectCacheViewCullingEnabled") && gSavedSettings.getBOOL("ObjectCacheEnabled");
+	LLViewerRegion::sVOCacheCullingEnabled = gSavedSettings.getBOOL("RequestFullRegionCache") && gSavedSettings.getBOOL("ObjectCacheEnabled");
 }
 
 

@@ -6868,10 +6868,10 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>ObjectCacheViewCullingEnabled</key>
+    <key>RequestFullRegionCache</key>
     <map>
       <key>Comment</key>
-      <string>Enable the object cache view culling. Needs to restart viewer.</string>
+      <string>If set, ask sim to send full region object cache. Needs to restart viewer.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
