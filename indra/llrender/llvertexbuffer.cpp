@@ -1190,7 +1190,7 @@ void LLVertexBuffer::createGLBuffer(U32 size)
 		mMappedData = (U8*)ALLOCATE_MEM(sPrivatePoolp, size);
 		disclaimMem(mSize);
 		mSize = size;
-		disclaimMem(mSize);
+		claimMem(mSize);
 	}
 }
 
@@ -2272,10 +2272,10 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 
             if (unsatisfied_mask & (1 << TYPE_INDEX))
             {
-               llinfos << "Missing indices" << llendl;
+               LL_INFOS() << "Missing indices" << LL_ENDL;
             }
 
-				llerrs << "Shader consumption mismatches data provision." << llendl;
+				LL_ERRS() << "Shader consumption mismatches data provision." << LL_ENDL;
 			}
 		}
 	}

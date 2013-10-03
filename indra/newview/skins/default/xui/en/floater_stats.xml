@@ -110,6 +110,9 @@
         </stat_view>
 			 <stat_view name="memory"
 									label="Memory Usage">
+				 <stat_bar name="LLTrace"
+                    label="LLTrace"
+                    stat="LLTrace"/>
 				 <stat_bar name="LLView"
                     label="UI"
                     stat="LLView"/>

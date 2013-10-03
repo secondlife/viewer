@@ -25,15 +25,18 @@
 
 #include "linden_common.h"
 
+#include "lltracerecording.h"
+
 #include "lltrace.h"
 #include "llfasttimer.h"
-#include "lltracerecording.h"
 #include "lltracethreadrecorder.h"
 #include "llthread.h"
 
 namespace LLTrace
 {
-	
+
+extern MemStatHandle gTraceMemStat;
+
 ///////////////////////////////////////////////////////////////////////
 // Recording
 ///////////////////////////////////////////////////////////////////////
@@ -42,12 +45,15 @@ Recording::Recording(EPlayState state)
 :	mElapsedSeconds(0),
 	mInHandOff(false)
 {
+	claim_alloc(gTraceMemStat, sizeof(*this));
 	mBuffers = new AccumulatorBufferGroup();
+	claim_alloc(gTraceMemStat, mBuffers);
 	setPlayState(state);
 }
 
 Recording::Recording( const Recording& other )
 {
+	claim_alloc(gTraceMemStat, sizeof(*this));
 	*this = other;
 }
 
@@ -73,6 +79,9 @@ Recording& Recording::operator = (const Recording& other)
 
 Recording::~Recording()
 {
+	disclaim_alloc(gTraceMemStat, sizeof(*this));
+	disclaim_alloc(gTraceMemStat, mBuffers);
+
 	if (isStarted() && LLTrace::get_thread_recorder().notNull())
 	{
 		LLTrace::get_thread_recorder()->deactivate(mBuffers.write());
@@ -330,6 +339,12 @@ PeriodicRecording::PeriodicRecording( S32 num_periods, EPlayState state)
 	mRecordingPeriods(num_periods ? num_periods : 1)
 {
 	setPlayState(state);
+	claim_alloc(gTraceMemStat, sizeof(*this));
+}
+
+PeriodicRecording::~PeriodicRecording()
+{
+	disclaim_alloc(gTraceMemStat, sizeof(*this));
 }
 
 void PeriodicRecording::nextPeriod()

@@ -313,7 +313,7 @@ namespace LLTrace
 		class ThreadRecorder* getThreadRecorder(); 
 
 		LLTimer											mSamplingTimer;
-		F64Seconds					mElapsedSeconds;
+		F64Seconds										mElapsedSeconds;
 		LLCopyOnWritePointer<AccumulatorBufferGroup>	mBuffers;
 		bool											mInHandOff;
 
@@ -324,6 +324,7 @@ namespace LLTrace
 	{
 	public:
 		PeriodicRecording(S32 num_periods, EPlayState state = STOPPED);
+		~PeriodicRecording();
 
 		void nextPeriod();
 		S32 getNumRecordedPeriods() { return mNumPeriods; }

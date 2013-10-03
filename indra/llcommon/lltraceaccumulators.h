@@ -188,6 +188,11 @@ namespace LLTrace
 			return getNumIndices();
 		}
 
+		size_t capacity() const
+		{
+			return mStorageSize;
+		}
+
 		static size_t getNumIndices() 
 		{
 			return sNextStorageSlot;
@@ -536,6 +541,7 @@ namespace LLTrace
 	struct AccumulatorBufferGroup : public LLRefCount
 	{
 		AccumulatorBufferGroup();
+		~AccumulatorBufferGroup();
 
 		void handOffTo(AccumulatorBufferGroup& other);
 		void makeCurrent();

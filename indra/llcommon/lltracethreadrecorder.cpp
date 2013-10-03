@@ -27,9 +27,11 @@
 
 #include "lltracethreadrecorder.h"
 #include "llfasttimer.h"
+#include "lltrace.h"
 
 namespace LLTrace
 {
+extern MemStatHandle gTraceMemStat;
 
 static ThreadRecorder* sMasterThreadRecorder = NULL;
 
@@ -55,6 +57,7 @@ void ThreadRecorder::init()
 	timer_stack->mActiveTimer = NULL;
 
 	mNumTimeBlockTreeNodes = AccumulatorBuffer<TimeBlockAccumulator>::getDefaultBuffer()->size();
+
 	mTimeBlockTreeNodes = new TimeBlockTreeNode[mNumTimeBlockTreeNodes];
 
 	activate(&mThreadRecordingBuffers);
@@ -76,10 +79,14 @@ void ThreadRecorder::init()
 	timer_stack->mActiveTimer = mRootTimer;
 
 	TimeBlock::getRootTimeBlock().getCurrentAccumulator().mActiveCount = 1;
+
+	claim_alloc(gTraceMemStat, sizeof(*this));
+	claim_alloc(gTraceMemStat, sizeof(BlockTimer));
+	claim_alloc(gTraceMemStat, sizeof(TimeBlockTreeNode) * mNumTimeBlockTreeNodes);
 }
 
 
-ThreadRecorder::ThreadRecorder(ThreadRecorder& master)
+ThreadRecorder::ThreadRecorder( ThreadRecorder& master )
 :	mMasterRecorder(&master)
 {
 	init();
@@ -90,6 +97,10 @@ ThreadRecorder::ThreadRecorder(ThreadRecorder& master)
 ThreadRecorder::~ThreadRecorder()
 {
 	LLThreadLocalSingletonPointer<BlockTimerStackRecord>::setInstance(NULL);
+
+	disclaim_alloc(gTraceMemStat, sizeof(*this));
+	disclaim_alloc(gTraceMemStat, sizeof(BlockTimer));
+	disclaim_alloc(gTraceMemStat, sizeof(TimeBlockTreeNode) * mNumTimeBlockTreeNodes);
 
 	deactivate(&mThreadRecordingBuffers);
 
@@ -135,9 +146,9 @@ void ThreadRecorder::activate( AccumulatorBufferGroup* recording, bool from_hand
 	mActiveRecordings.back()->mPartialRecording.makeCurrent();
 }
 
-ThreadRecorder::active_recording_list_t::reverse_iterator ThreadRecorder::bringUpToDate( AccumulatorBufferGroup* recording )
+ThreadRecorder::active_recording_list_t::iterator ThreadRecorder::bringUpToDate( AccumulatorBufferGroup* recording )
 {
-	if (mActiveRecordings.empty()) return mActiveRecordings.rend();
+	if (mActiveRecordings.empty()) return mActiveRecordings.end();
 
 	mActiveRecordings.back()->mPartialRecording.sync();
 	TimeBlock::updateTimes();
@@ -174,15 +185,14 @@ ThreadRecorder::active_recording_list_t::reverse_iterator ThreadRecorder::bringU
 		LL_WARNS() << "Recording not active on this thread" << LL_ENDL;
 	}
 
-	return it;
+	return (++it).base();
 }
 
 void ThreadRecorder::deactivate( AccumulatorBufferGroup* recording )
 {
-	active_recording_list_t::reverse_iterator it = bringUpToDate(recording);
-	if (it != mActiveRecordings.rend())
+	active_recording_list_t::iterator recording_to_remove = bringUpToDate(recording);
+	if (recording_to_remove != mActiveRecordings.end())
 	{
-		active_recording_list_t::iterator recording_to_remove = (++it).base();
 		bool was_current = (*recording_to_remove)->mPartialRecording.isCurrent();
 		llassert((*recording_to_remove)->mTargetRecording == recording);
 		delete *recording_to_remove;
@@ -216,24 +226,32 @@ void ThreadRecorder::ActiveRecording::movePartialToTarget()
 
 // called by child thread
 void ThreadRecorder::addChildRecorder( class ThreadRecorder* child )
-{ LLMutexLock lock(&mChildListMutex);
-	mChildThreadRecorders.push_back(child);
+{
+	{ LLMutexLock lock(&mChildListMutex);
+		mChildThreadRecorders.push_back(child);
+	}
 }
 
 // called by child thread
 void ThreadRecorder::removeChildRecorder( class ThreadRecorder* child )
-{ LLMutexLock lock(&mChildListMutex);
-
-for (child_thread_recorder_list_t::iterator it = mChildThreadRecorders.begin(), end_it = mChildThreadRecorders.end();
-	it != end_it;
-	++it)
-{
-	if ((*it) == child)
-	{
-		mChildThreadRecorders.erase(it);
-		break;
+{	
+	{ LLMutexLock lock(&mChildListMutex);
+		for (child_thread_recorder_list_t::iterator it = mChildThreadRecorders.begin(), end_it = mChildThreadRecorders.end();
+			it != end_it;
+			++it)
+		{
+			if ((*it) == child)
+			{
+				// FIXME: this won't do any good, as the child stores the "pushed" values internally
+				// and it is in the process of being deleted.
+				// We need a way to finalize the stats from the outgoing thread, but the storage
+				// for those stats needs to be outside the child's thread recorder
+				//(*it)->pushToParent();
+				mChildThreadRecorders.erase(it);
+				break;
+			}
+		}
 	}
-}
 }
 
 void ThreadRecorder::pushToParent()
@@ -269,7 +287,7 @@ void ThreadRecorder::pullFromChildren()
 }
 
 
-void set_master_thread_recorder(ThreadRecorder* recorder)
+void set_master_thread_recorder( ThreadRecorder* recorder )
 {
 	sMasterThreadRecorder = recorder;
 }
@@ -291,7 +309,7 @@ const LLThreadLocalPointer<ThreadRecorder>& get_thread_recorder()
 	return get_thread_recorder_ptr();
 }
 
-void set_thread_recorder(ThreadRecorder* recorder)
+void set_thread_recorder( ThreadRecorder* recorder )
 {
 	get_thread_recorder_ptr() = recorder;
 }
