@@ -34,7 +34,7 @@ set(llcommon_SOURCE_FILES
     llassettype.cpp
     llbase32.cpp
     llbase64.cpp
-	llbitpack.cpp
+    llbitpack.cpp
     llcommon.cpp
     llcommonutils.cpp
     llcoros.cpp
@@ -205,7 +205,7 @@ set(llcommon_HEADER_FILES
     llthreadsafequeue.h
     lltimer.h
     lltrace.h
-	lltraceaccumulators.h
+    lltraceaccumulators.h
     lltracerecording.h
     lltracethreadrecorder.h
     lltreeiterators.h
@@ -213,7 +213,7 @@ set(llcommon_HEADER_FILES
     llunittype.h
     lluri.h
     lluuid.h
-	llwin32headers.h
+    llwin32headers.h
     llwin32headerslean.h
     llworkerthread.h
     stdtypes.h
