@@ -87,3 +87,4 @@ F32 LLCriticalDamp::getInterpolant(const F32 time_constant, BOOL use_cache)
 
 	return interpolant;
 }
+

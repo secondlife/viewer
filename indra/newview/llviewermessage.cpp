@@ -2361,7 +2361,9 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	BOOL is_owned_by_me = FALSE;
 	BOOL is_friend = (LLAvatarTracker::instance().getBuddyInfo(from_id) == NULL) ? false : true;
 	BOOL accept_im_from_only_friend = gSavedSettings.getBOOL("VoiceCallsFriendsOnly");
-	
+	BOOL is_linden = chat.mSourceType != CHAT_SOURCE_OBJECT &&
+			LLMuteList::getInstance()->isLinden(name);
+
 	chat.mMuted = is_muted;
 	chat.mFromID = from_id;
 	chat.mFromName = name;
@@ -2461,7 +2463,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			LL_INFOS("Messaging") << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
 
 			bool mute_im = is_muted;
-			if(accept_im_from_only_friend&&!is_friend)
+			if(accept_im_from_only_friend && !is_friend && !is_linden)
 			{
 				if (!gIMMgr->isNonFriendSessionNotified(session_id))
 				{
@@ -4147,7 +4149,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 		{
 			LLTracker::stopTracking(NULL);
 		}
-		else if ( is_teleport && !gAgent.getTeleportKeepsLookAt() )
+		else if ( is_teleport && !gAgent.getTeleportKeepsLookAt() && look_at.isExactlyZero())
 		{
 			//look at the beacon
 			LLVector3 global_agent_pos = agent_pos;
@@ -5965,19 +5967,42 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 }
 
 
+static void process_special_alert_messages(const std::string & message)
+{
+	// Do special handling for alert messages.   This is a legacy hack, and any actual displayed
+	// text should be altered in the notifications.xml files.
+	if ( message == "You died and have been teleported to your home location")
+	{
+		LLViewerStats::getInstance()->incStat(LLViewerStats::ST_KILLED_COUNT);
+	}
+	else if( message == "Home position set." )
+	{
+		// save the home location image to disk
+		std::string snap_filename = gDirUtilp->getLindenUserDir();
+		snap_filename += gDirUtilp->getDirDelimiter();
+		snap_filename += SCREEN_HOME_FILENAME;
+		gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw(), FALSE, FALSE);
+	}
+}
+
+
+
 void process_agent_alert_message(LLMessageSystem* msgsystem, void** user_data)
 {
 	// make sure the cursor is back to the usual default since the
 	// alert is probably due to some kind of error.
 	gViewerWindow->getWindow()->resetBusyCount();
 	
+	std::string message;
+	msgsystem->getStringFast(_PREHASH_AlertData, _PREHASH_Message, message);
+
+	process_special_alert_messages(message);
+
 	if (!attempt_standard_notification(msgsystem))
 	{
 		BOOL modal = FALSE;
 		msgsystem->getBOOL("AlertData", "Modal", modal);
-		std::string buffer;
-		msgsystem->getStringFast(_PREHASH_AlertData, _PREHASH_Message, buffer);
-		process_alert_core(buffer, modal);
+		process_alert_core(message, modal);
 	}
 }
 
@@ -5992,12 +6017,15 @@ void process_alert_message(LLMessageSystem *msgsystem, void **user_data)
 	// alert is probably due to some kind of error.
 	gViewerWindow->getWindow()->resetBusyCount();
 		
+	std::string message;
+	msgsystem->getStringFast(_PREHASH_AlertData, _PREHASH_Message, message);
+
+	process_special_alert_messages(message);
+
 	if (!attempt_standard_notification(msgsystem))
 	{
 		BOOL modal = FALSE;
-		std::string buffer;
-		msgsystem->getStringFast(_PREHASH_AlertData, _PREHASH_Message, buffer);
-		process_alert_core(buffer, modal);
+		process_alert_core(message, modal);
 	}
 }
 
@@ -6027,12 +6055,6 @@ bool handle_special_alerts(const std::string &pAlertName)
 
 void process_alert_core(const std::string& message, BOOL modal)
 {
-	// HACK -- handle callbacks for specific alerts. It also is localized in notifications.xml
-	if ( message == "You died and have been teleported to your home location")
-	{
-		LLViewerStats::getInstance()->incStat(LLViewerStats::ST_KILLED_COUNT);
-	}
-
 	const std::string ALERT_PREFIX("ALERT: ");
 	const std::string NOTIFY_PREFIX("NOTIFY: ");
 	if (message.find(ALERT_PREFIX) == 0)

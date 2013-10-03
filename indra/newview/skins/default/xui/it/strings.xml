@@ -136,6 +136,9 @@
 	<string name="create_account_url">
 		http://join.secondlife.com/?sourceid=[sourceid]
 	</string>
+	<string name="ViewerDownloadURL">
+		http://secondlife.com/download.
+	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		Il viewer utilizzato non è più in grado di accedere a Second Life. Visita la parina seguente per scaricare un nuovo viewer:
 http://secondlife.com/download.
@@ -444,6 +447,9 @@ Prova ad accedere nuovamente tra un minuto.
 	</string>
 	<string name="SLappAgentRequestFriend">
 		Richiesta di amicizia
+	</string>
+	<string name="SLappAgentRemoveFriend">
+		Rimozione amico
 	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
 		Chiudi (⌘W)
@@ -832,6 +838,9 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="multiple_textures">
 		Multiple
 	</string>
+	<string name="use_texture">
+		Usa texture
+	</string>
 	<string name="texture_loading">
 		Caricamento in corso...
 	</string>
@@ -927,6 +936,21 @@ Prova ad accedere nuovamente tra un minuto.
 	</string>
 	<string name="TeleportYourAgent">
 		Teleportarti
+	</string>
+	<string name="JoinAnExperience">
+		Partecipa a un&apos;esperienza
+	</string>
+	<string name="SilentlyManageEstateAccess">
+		Omette gli avvisi durante la gestione degli elenchi di accesso alle proprietà immobiliari
+	</string>
+	<string name="OverrideYourAnimations">
+		Sostituisce le animazioni predefinite
+	</string>
+	<string name="ScriptReturnObjects">
+		Restituisce oggetti per conto tuo
+	</string>
+	<string name="UnknownScriptPermission">
+		(sconosciuto)!
 	</string>
 	<string name="SIM_ACCESS_PG">
 		Generale
@@ -1953,6 +1977,12 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		HUD basso a destra
 	</string>
+	<string name="ATTACH_NECK">
+		Collo
+	</string>
+	<string name="ATTACH_AVATAR_CENTER">
+		Centro avatar
+	</string>
 	<string name="CursorPos">
 		Riga [LINE], Colonna [COLUMN]
 	</string>
@@ -2939,6 +2969,9 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	</string>
 	<string name="Hip Width">
 		Larghezza bacino
+	</string>
+	<string name="Hover">
+		Muovi sopra
 	</string>
 	<string name="In">
 		Dentro
@@ -4993,5 +5026,8 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	</string>
 	<string name="logging_calls_enabled_log_empty">
 		Nessuna conversazione in registro. Dopo che hai contattato qualcuno o se qualcuno ti contatta, una voce del registro verrà mostrata qui.
+	</string>
+	<string name="loading_chat_logs">
+		Caricamento in corso...
 	</string>
 </strings>

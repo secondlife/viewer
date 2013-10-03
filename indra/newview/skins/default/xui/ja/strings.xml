@@ -139,6 +139,9 @@
 	<string name="create_account_url">
 		http://join.secondlife.com/?sourceid=[sourceid]
 	</string>
+	<string name="ViewerDownloadURL">
+		http://secondlife.com/download
+	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		お使いの古いビューワでは Second Life にアクセスできません。以下のページから新しいビューワをダウンロードしてください：
 http://secondlife.com/download
@@ -447,6 +450,9 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="SLappAgentRequestFriend">
 		フレンド登録リクエスト
+	</string>
+	<string name="SLappAgentRemoveFriend">
+		フレンドの削除
 	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
 		閉じる （⌘W）
@@ -838,6 +844,9 @@ support@secondlife.com にお問い合わせください。
 	<string name="multiple_textures">
 		複数
 	</string>
+	<string name="use_texture">
+		テクスチャを使用
+	</string>
 	<string name="texture_loading">
 		ローディング...
 	</string>
@@ -936,6 +945,21 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="TeleportYourAgent">
 		あなたをテレポート
+	</string>
+	<string name="JoinAnExperience">
+		体験に参加する
+	</string>
+	<string name="SilentlyManageEstateAccess">
+		土地のアクセスリストを管理するときにアラートを表示しない
+	</string>
+	<string name="OverrideYourAnimations">
+		デフォルトのアニメーションを置き換え
+	</string>
+	<string name="ScriptReturnObjects">
+		あなたの代わりにオブジェクトを返却
+	</string>
+	<string name="UnknownScriptPermission">
+		(不明)!
 	</string>
 	<string name="SIM_ACCESS_PG">
 		General
@@ -1968,6 +1992,12 @@ support@secondlife.com にお問い合わせください。
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		HUD（右下）
 	</string>
+	<string name="ATTACH_NECK">
+		首
+	</string>
+	<string name="ATTACH_AVATAR_CENTER">
+		アバターの中央
+	</string>
 	<string name="CursorPos">
 		[LINE] 行目、[COLUMN] 列目
 	</string>
@@ -2996,6 +3026,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="Hip Width">
 		腰の幅
+	</string>
+	<string name="Hover">
+		ホバー
 	</string>
 	<string name="In">
 		内向き
@@ -5080,5 +5113,8 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="logging_calls_enabled_log_empty">
 		ログイン時の会話はありません。誰かにご連絡した後、または誰かがあなたに連絡した後、ログエントリがここに表示されます。
+	</string>
+	<string name="loading_chat_logs">
+		ロード中...
 	</string>
 </strings>

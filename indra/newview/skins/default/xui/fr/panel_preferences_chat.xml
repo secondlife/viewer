@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Chat écrit" name="chat">
-	<panel>
+	<panel name="general_chat_settings">
 		<check_box initial_value="true" label="Exécuter l&apos;animation clavier quand vous écrivez" name="play_typing_animation"/>
 		<check_box label="M&apos;envoyer les IM par e-mail une fois déconnecté" name="send_im_to_email"/>
 		<check_box label="Seuls mes amis et groupes peuvent m&apos;appeler ou m&apos;envoyer un IM" name="voice_call_friends_only_check"/>
@@ -14,60 +14,72 @@
 		</combo_box>
 		<check_box label="Bulles de chat" name="bubble_text_chat"/>
 	</panel>
-	<panel>
-		<text name="notifications">
-			Notifications
-		</text>
+	<panel name="im_notification_settings">
 		<text name="friend_ims">
 			IM amis :
 		</text>
 		<combo_box name="FriendIMOptions">
 			<item label="Ouvrir la fenêtre Conversation" name="OpenConversationsWindow" value="openconversations"/>
 			<item label="Afficher le message dans une fenêtre popup" name="PopUpMessage" value="toast"/>
-			<item label="Bouton de la barre d&apos;outils Flash" name="FlashToolbarButton" value="clignote"/>
-			<item label="Aucun(e)" name="None" value="aucun(e)"/>
+			<item label="Bouton de la barre d&apos;outils Flash" name="FlashToolbarButton" value="flash"/>
+			<item label="Aucune action" name="NoAction" value="noaction"/>
 		</combo_box>
+		<check_box label="Écouter le son" name="play_sound_friend_im"/>
 		<text name="non_friend_ims">
 			IM non amis :
 		</text>
 		<combo_box name="NonFriendIMOptions">
 			<item label="Ouvrir la fenêtre Conversation" name="OpenConversationsWindow" value="openconversations"/>
 			<item label="Afficher le message dans une fenêtre popup" name="PopUpMessage" value="toast"/>
-			<item label="Bouton de la barre d&apos;outils Flash" name="FlashToolbarButton" value="clignote"/>
-			<item label="Aucun(e)" name="None" value="aucun(e)"/>
+			<item label="Bouton de la barre d&apos;outils Flash" name="FlashToolbarButton" value="flash"/>
+			<item label="Aucune action" name="NoAction" value="noaction"/>
 		</combo_box>
+		<check_box label="Écouter le son" name="play_sound_non_friend_im"/>
 		<text name="conference_ims">
 			IM conférence :
 		</text>
 		<combo_box name="ConferenceIMOptions">
 			<item label="Ouvrir la fenêtre Conversation" name="OpenConversationsWindow" value="openconversations"/>
 			<item label="Afficher le message dans une fenêtre popup" name="PopUpMessage" value="toast"/>
-			<item label="Bouton de la barre d&apos;outils Flash" name="FlashToolbarButton" value="clignote"/>
-			<item label="Aucun(e)" name="None" value="aucun(e)"/>
+			<item label="Bouton de la barre d&apos;outils Flash" name="FlashToolbarButton" value="flash"/>
+			<item label="Aucune action" name="NoAction" value="noaction"/>
 		</combo_box>
+		<check_box label="Écouter le son" name="play_sound_conference_im"/>
 		<text name="group_chat">
 			Chat de groupe :
 		</text>
 		<combo_box name="GroupChatOptions">
 			<item label="Ouvrir la fenêtre Conversation" name="OpenConversationsWindow" value="openconversations"/>
 			<item label="Afficher le message dans une fenêtre popup" name="PopUpMessage" value="toast"/>
-			<item label="Bouton de la barre d&apos;outils Flash" name="FlashToolbarButton" value="clignote"/>
-			<item label="Aucun(e)" name="None" value="aucun(e)"/>
+			<item label="Bouton de la barre d&apos;outils Flash" name="FlashToolbarButton" value="flash"/>
+			<item label="Aucune action" name="NoAction" value="noaction"/>
 		</combo_box>
+		<check_box label="Écouter le son" name="play_sound_group_chat_im"/>
 		<text name="nearby_chat">
 			Chat près de moi :
 		</text>
 		<combo_box name="NearbyChatOptions">
 			<item label="Ouvrir la fenêtre Conversation" name="OpenConversationsWindow" value="openconversations"/>
 			<item label="Afficher le message dans une fenêtre popup" name="PopUpMessage" value="toast"/>
-			<item label="Bouton de la barre d&apos;outils Flash" name="FlashToolBarButton" value="clignote"/>
-			<item label="Aucun(e)" name="None" value="aucun(e)"/>
+			<item label="Bouton de la barre d&apos;outils Flash" name="FlashToolBarButton" value="flash"/>
+			<item label="Aucune action" name="NoAction" value="noaction"/>
 		</combo_box>
+		<check_box label="Écouter le son" name="play_sound_nearby_chat_im"/>
+		<text name="object_ims">
+			IM objet :
+		</text>
+		<combo_box name="ObjectIMOptions">
+			<item label="Ouvrir la fenêtre Conversation" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="Afficher le message dans une fenêtre popup" name="PopUpMessage" value="toast"/>
+			<item label="Bouton de la barre d&apos;outils Flash" name="FlashToolBarButton" value="flash"/>
+			<item label="Aucune action" name="NoAction" value="noaction"/>
+		</combo_box>
+		<check_box label="Écouter le son" name="play_sound_object_im"/>
 		<text name="notifications_alert">
 			Pour suspendre temporairement toutes les notifications, utilisez Communication &gt; Ne pas déranger.
 		</text>
 	</panel>
-	<panel>
+	<panel name="play_sound_settings">
 		<text name="play_sound">
 			Écouter le son :
 		</text>
@@ -76,7 +88,7 @@
 		<check_box label="Offre de téléportation" name="teleport_offer"/>
 		<check_box label="Offre d&apos;inventaire" name="inventory_offer"/>
 	</panel>
-	<panel>
+	<panel name="log_settings">
 		<button label="Effacer le journal..." name="clear_log"/>
 		<button label="Supprimer les transcriptions..." name="delete_transcripts"/>
 		<button label="Parcourir..." label_selected="Parcourir" name="log_path_button"/>

@@ -139,6 +139,9 @@
 	<string name="create_account_url">
 		http://join.secondlife.com/?sourceid=[sourceid]
 	</string>
+	<string name="ViewerDownloadURL">
+		http://secondlife.com/download
+	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		Mit dem von Ihnen verwendeten Viewer ist der Zugriff auf Second Life nicht mehr möglich. Laden Sie von den folgenden Seite einen neuen Viewer herunter:
 http://secondlife.com/download
@@ -447,6 +450,9 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	</string>
 	<string name="SLappAgentRequestFriend">
 		Freundschaftsangebot
+	</string>
+	<string name="SLappAgentRemoveFriend">
+		Entfernen von Freunden
 	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
 		Schließen (⌘W)
@@ -838,6 +844,9 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="multiple_textures">
 		Mehrfach
 	</string>
+	<string name="use_texture">
+		Textur verwenden
+	</string>
 	<string name="texture_loading">
 		Wird geladen...
 	</string>
@@ -936,6 +945,21 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	</string>
 	<string name="TeleportYourAgent">
 		Sie teleportieren
+	</string>
+	<string name="JoinAnExperience">
+		Bei einem Erlebnis mitmachen
+	</string>
+	<string name="SilentlyManageEstateAccess">
+		Beim Verwalten von Grundbesitzzugangslisten Warnhinweise unterdrücken
+	</string>
+	<string name="OverrideYourAnimations">
+		Ihre Standardanimationen ersetzen
+	</string>
+	<string name="ScriptReturnObjects">
+		Objekte in Ihrem Namen zurückgeben
+	</string>
+	<string name="UnknownScriptPermission">
+		(unbekannt)
 	</string>
 	<string name="SIM_ACCESS_PG">
 		Generell
@@ -1968,6 +1992,12 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		HUD unten rechts
 	</string>
+	<string name="ATTACH_NECK">
+		Hals
+	</string>
+	<string name="ATTACH_AVATAR_CENTER">
+		Avatar-Mitte
+	</string>
 	<string name="CursorPos">
 		Zeile [LINE], Spalte [COLUMN]
 	</string>
@@ -2996,6 +3026,9 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	</string>
 	<string name="Hip Width">
 		Breite der Hüfte
+	</string>
+	<string name="Hover">
+		Schweben
 	</string>
 	<string name="In">
 		In
@@ -5080,5 +5113,8 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	</string>
 	<string name="logging_calls_enabled_log_empty">
 		Keine protokollierten Unterhaltungen verfügbar. Hier erscheint ein Protokolleintrag, wenn Sie eine Person kontaktieren oder von einer Person kontaktiert werden.
+	</string>
+	<string name="loading_chat_logs">
+		Laden...
 	</string>
 </strings>

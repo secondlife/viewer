@@ -25,7 +25,7 @@
 	</action_set>
 	<action_set description="這些能力包括可更改地段名稱和發佈設定、設定是否公開到搜尋結果、設定登陸地點和瞬間傳送繞路選項。" name="Parcel Identity">
 		<action description="切換「將地點顯示在搜尋結果」設定，並選定類別" longdescription="切換「將地點顯示在搜尋結果」設定，並在「土地資料」&gt; 選項頁籤設定地段類別。" name="land find places" value="17"/>
-		<action description="更改地段名稱、描述，和「將地點顯示在搜尋結果」設定。" longdescription="更改地段名稱、描述，和「將地點顯示在搜尋結果」設定。 這可在「土地資料」&gt; 選項頁籤完成。" name="land change identity" value="18"/>
+		<action description="更改地段名稱、描述、「適度成人內容」設定" longdescription="更改地段名稱、描述、「適度成人內容」設定。 這可在「土地資料」&gt; 選項頁籤完成。" name="land change identity" value="18"/>
 		<action description="設定登陸地點和瞬間傳送繞路設定。" longdescription="在群組所有的地段上，身負具此能力的成員，可以設定人們瞬間傳送進來時的登陸地點，和瞬間傳送的繞路選項。 這可在「土地資料」&gt; 選項頁籤完成。" name="land set landing point" value="19"/>
 	</action_set>
 	<action_set description="這些能力包括有權更改地段選項，例如「新建物件」、「編輯地形」，和音樂、媒體設定等。" name="Parcel Settings">

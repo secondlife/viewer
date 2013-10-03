@@ -16,7 +16,10 @@
 			<menu_item_call label="Beni Anime Etmeyi Durdur" name="Stop Animating My Avatar"/>
 			<menu_item_call label="Yürü / koş / uç..." name="Walk / run / fly"/>
 		</menu>
-		<menu label="Durum" name="Status"/>
+		<menu label="Durum" name="Status">
+			<menu_item_check label="Uzakta" name="Away"/>
+			<menu_item_check label="Rahatsız Etme" name="Do Not Disturb"/>
+		</menu>
 		<menu_item_call label="L$ Satın Al..." name="Buy and Sell L$"/>
 		<menu_item_call label="Satıcı Giden Kutusu..." name="MerchantOutbox"/>
 		<menu_item_call label="Hesap kontrol paneli..." name="Manage My Account"/>
@@ -30,6 +33,7 @@
 		<menu_item_check label="Sohbetler..." name="Conversations"/>
 		<menu_item_check label="Yakındaki Sohbet..." name="Nearby Chat"/>
 		<menu_item_check label="Konuş" name="Speak"/>
+		<menu_item_check label="Sohbet Günlüğü..." name="Conversation Log..."/>
 		<menu label="Ses şekillendirme" name="VoiceMorphing">
 			<menu_item_check label="Ses şekillendirme yok" name="NoVoiceMorphing"/>
 			<menu_item_check label="Önizleme..." name="Preview"/>
@@ -40,6 +44,7 @@
 		<menu_item_check label="Gruplar" name="My Groups"/>
 		<menu_item_check label="Yakındaki kişiler" name="Active Speakers"/>
 		<menu_item_call label="Engelleme Listesi" name="Block List"/>
+		<menu_item_check label="Rahatsız Etme" name="Do Not Disturb"/>
 	</menu>
 	<menu label="Dünya" name="World">
 		<menu_item_call label="Bu Yeri Yer İmlerine Ekle" name="Create Landmark Here"/>
@@ -108,6 +113,7 @@
 			<menu_item_call label="Sonraki Parçayı Dahil Et" name="Include Next Part"/>
 			<menu_item_call label="Önceki Parçayı Dahil Et" name="Include Previous Part"/>
 		</menu>
+		<menu_item_call label="Bağlantı kümeleri..." name="pathfinding_linkset_menu_item"/>
 		<menu_item_call label="Seçime Odaklan" name="Focus on Selection"/>
 		<menu_item_call label="Seçimi Yakınlaştır" name="Zoom to Selection"/>
 		<menu label="Nesne" name="Object">
@@ -277,6 +283,7 @@
 			<menu_item_check label="Çerçeve Hızını Rastgele Seç" name="Randomize Framerate"/>
 			<menu_item_check label="Düzenli Yavaş Çerçeve" name="Periodic Slow Frame"/>
 			<menu_item_check label="Çerçeve Testi" name="Frame Test"/>
+			<menu_item_call label="Çerçeve Profili..." name="Frame Profile"/>
 		</menu>
 		<menu label="Meta Verileri İşle" name="Render Metadata">
 			<menu_item_check label="Sınırlama Kutuları" name="Bounding Boxes"/>
@@ -311,9 +318,10 @@
 			<menu_item_check label="Eksenler" name="Axes"/>
 			<menu_item_check label="Tanjant Temeli" name="Tangent Basis"/>
 			<menu_item_call label="Seçilen Doku Bilgi Temeli" name="Selected Texture Info Basis"/>
+			<menu_item_call label="Seçilen Malzeme Bilgisi" name="Selected Material Info"/>
 			<menu_item_check label="Telkafes" name="Wireframe"/>
 			<menu_item_check label="Görünen Nesneler İçin Gölgeleme" name="Object-Object Occlusion"/>
-			<menu_item_check label="Işıklandırma ve Gölgeler" name="Advanced Lighting Model"/>
+			<menu_item_check label="Gelişmiş Aydınlatma Modeli" name="Advanced Lighting Model"/>
 			<menu_item_check label="Güneş/Ay/Projektörlerden Gelen Gölgeler" name="Shadows from Sun/Moon/Projectors"/>
 			<menu_item_check label="SSAO ve Gölge Yumuşatma" name="SSAO and Shadow Smoothing"/>
 			<menu_item_check label="GL Hata Ayıklama" name="Debug GL"/>
@@ -323,7 +331,6 @@
 			<menu_item_check label="Animasyon Dokuları" name="Animation Textures"/>
 			<menu_item_check label="Dokuları Devre Dışı Bırak" name="Disable Textures"/>
 			<menu_item_check label="Tam Çöz. Dokular" name="Rull Res Textures"/>
-			<menu_item_check label="Doku Atlas (deneysel)" name="Texture Atlas"/>
 			<menu_item_check label="Eklenmiş Işıkları İşle" name="Render Attached Lights"/>
 			<menu_item_check label="Eklenmiş Parçacıkları İşle" name="Render Attached Particles"/>
 			<menu_item_check label="Parıldayan Nesneler Üzerine Gel" name="Hover Glow Objects"/>
@@ -359,7 +366,6 @@
 			<menu_item_call label="Odaklayıcı Tutucunun Dökümünü Al" name="Dump Focus Holder"/>
 			<menu_item_call label="Seçilen Nesne Bilgisini Yazdır" name="Print Selected Object Info"/>
 			<menu_item_call label="Aracı Bilgisini Yazdır" name="Print Agent Info"/>
-			<menu_item_call label="Bellek İstatistikleri" name="Memory Stats"/>
 			<menu_item_check label="Bölge Hata Ayıklama Konsolu" name="Region Debug Console"/>
 			<menu_item_check label="SelectMgr İçin Hata Ayıklama" name="Debug SelectMgr"/>
 			<menu_item_check label="Tıklamalar İçin Hata Ayıklama" name="Debug Clicks"/>

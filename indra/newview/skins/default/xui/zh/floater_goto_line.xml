@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="script goto" title="前往某行數">
+	<button label="確定" label_selected="確定" name="goto_btn"/>
+	<text name="txt">
+		前往某行數
+	</text>
+</floater>

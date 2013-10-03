@@ -112,6 +112,8 @@ struct LLCoordFloater : LLCoord<LL_COORD_FLOATER>
 	bool operator!=(const LLCoordFloater& other) const { return !(*this == other); }
 
 	void setFloater(LLFloater& floater);
+
+	
 };
 
 class LLFloater : public LLPanel, public LLInstanceTracker<LLFloater>
@@ -121,6 +123,7 @@ class LLFloater : public LLPanel, public LLInstanceTracker<LLFloater>
 	friend class LLMultiFloater;
 
 public:
+
 	struct KeyCompare
 	{
 //		static bool compare(const LLSD& a, const LLSD& b);

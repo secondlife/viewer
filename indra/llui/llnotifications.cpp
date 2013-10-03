@@ -1125,7 +1125,7 @@ LLNotificationChannel::LLNotificationChannel(const Params& p)
 	mName(p.name.isProvided() ? p.name : LLUUID::generateNewID().asString())
 {
 	BOOST_FOREACH(const std::string& source, p.sources)
-{
+    {
 		connectToChannel(source);
 	}
 }
@@ -1210,6 +1210,10 @@ LLNotifications::LLNotifications()
 	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Notification.Show", boost::bind(&LLNotifications::addFromCallback, this, _2));
 }
 
+void LLNotifications::clear()
+{
+   mDefaultChannels.clear();
+}
 
 // The expiration channel gets all notifications that are cancelled
 bool LLNotifications::expirationFilter(LLNotificationPtr pNotification)
