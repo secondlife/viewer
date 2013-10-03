@@ -41,20 +41,29 @@ extern MemStatHandle gTraceMemStat;
 
 AccumulatorBufferGroup::AccumulatorBufferGroup() 
 {
-	/*claim_alloc(gTraceMemStat, mCounts.capacity() * sizeof(CountAccumulator));
+	claim_alloc(gTraceMemStat, mCounts.capacity() * sizeof(CountAccumulator));
 	claim_alloc(gTraceMemStat, mSamples.capacity() * sizeof(SampleAccumulator));
 	claim_alloc(gTraceMemStat, mEvents.capacity() * sizeof(EventAccumulator));
 	claim_alloc(gTraceMemStat, mStackTimers.capacity() * sizeof(TimeBlockAccumulator));
-	claim_alloc(gTraceMemStat, mMemStats.capacity() * sizeof(MemStatAccumulator));*/
+	claim_alloc(gTraceMemStat, mMemStats.capacity() * sizeof(MemStatAccumulator));
+}
+
+AccumulatorBufferGroup::AccumulatorBufferGroup(const AccumulatorBufferGroup&)
+{
+	claim_alloc(gTraceMemStat, mCounts.capacity() * sizeof(CountAccumulator));
+	claim_alloc(gTraceMemStat, mSamples.capacity() * sizeof(SampleAccumulator));
+	claim_alloc(gTraceMemStat, mEvents.capacity() * sizeof(EventAccumulator));
+	claim_alloc(gTraceMemStat, mStackTimers.capacity() * sizeof(TimeBlockAccumulator));
+	claim_alloc(gTraceMemStat, mMemStats.capacity() * sizeof(MemStatAccumulator));
 }
 
 AccumulatorBufferGroup::~AccumulatorBufferGroup()
 {
-	/*disclaim_alloc(gTraceMemStat, mCounts.capacity() * sizeof(CountAccumulator));
+	disclaim_alloc(gTraceMemStat, mCounts.capacity() * sizeof(CountAccumulator));
 	disclaim_alloc(gTraceMemStat, mSamples.capacity() * sizeof(SampleAccumulator));
 	disclaim_alloc(gTraceMemStat, mEvents.capacity() * sizeof(EventAccumulator));
 	disclaim_alloc(gTraceMemStat, mStackTimers.capacity() * sizeof(TimeBlockAccumulator));
-	disclaim_alloc(gTraceMemStat, mMemStats.capacity() * sizeof(MemStatAccumulator));*/
+	disclaim_alloc(gTraceMemStat, mMemStats.capacity() * sizeof(MemStatAccumulator));
 }
 
 void AccumulatorBufferGroup::handOffTo(AccumulatorBufferGroup& other)

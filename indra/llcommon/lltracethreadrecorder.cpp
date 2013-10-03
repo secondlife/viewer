@@ -80,7 +80,7 @@ void ThreadRecorder::init()
 
 	TimeBlock::getRootTimeBlock().getCurrentAccumulator().mActiveCount = 1;
 
-	claim_alloc(gTraceMemStat, sizeof(*this));
+	claim_alloc(gTraceMemStat, this);
 	claim_alloc(gTraceMemStat, sizeof(BlockTimer));
 	claim_alloc(gTraceMemStat, sizeof(TimeBlockTreeNode) * mNumTimeBlockTreeNodes);
 }
@@ -98,7 +98,7 @@ ThreadRecorder::~ThreadRecorder()
 {
 	LLThreadLocalSingletonPointer<BlockTimerStackRecord>::setInstance(NULL);
 
-	disclaim_alloc(gTraceMemStat, sizeof(*this));
+	disclaim_alloc(gTraceMemStat, this);
 	disclaim_alloc(gTraceMemStat, sizeof(BlockTimer));
 	disclaim_alloc(gTraceMemStat, sizeof(TimeBlockTreeNode) * mNumTimeBlockTreeNodes);
 
@@ -190,13 +190,13 @@ ThreadRecorder::active_recording_list_t::iterator ThreadRecorder::bringUpToDate(
 
 void ThreadRecorder::deactivate( AccumulatorBufferGroup* recording )
 {
-	active_recording_list_t::iterator recording_to_remove = bringUpToDate(recording);
-	if (recording_to_remove != mActiveRecordings.end())
+	active_recording_list_t::iterator recording_it = bringUpToDate(recording);
+	if (recording_it != mActiveRecordings.end())
 	{
-		bool was_current = (*recording_to_remove)->mPartialRecording.isCurrent();
-		llassert((*recording_to_remove)->mTargetRecording == recording);
-		delete *recording_to_remove;
-		mActiveRecordings.erase(recording_to_remove);
+		ActiveRecording* recording_to_remove = *recording_it;
+		bool was_current = recording_to_remove->mPartialRecording.isCurrent();
+		llassert(recording_to_remove->mTargetRecording == recording);
+		mActiveRecordings.erase(recording_it);
 		if (was_current)
 		{
 			if (mActiveRecordings.empty())
@@ -208,6 +208,7 @@ void ThreadRecorder::deactivate( AccumulatorBufferGroup* recording )
 				mActiveRecordings.back()->mPartialRecording.makeCurrent();
 			}
 		}
+		delete recording_to_remove;
 	}
 }
 
