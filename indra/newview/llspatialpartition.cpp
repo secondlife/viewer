@@ -1580,7 +1580,7 @@ void LLSpatialGroup::checkOcclusion()
 			{
 				glGetQueryObjectuivARB(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
 
-				static LLCachedControl<bool> wait_for_query(gSavedSettings, "RenderSynchronousOcclusion");
+				static LLCachedControl<bool> wait_for_query(gSavedSettings, "RenderSynchronousOcclusion", true);
 
 				if (wait_for_query && mOcclusionIssued[LLViewerCamera::sCurCameraID] < gFrameCount)
 				{ //query was issued last frame, wait until it's available
