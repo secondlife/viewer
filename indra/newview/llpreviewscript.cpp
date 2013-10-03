@@ -1996,59 +1996,58 @@ void LLLiveLSLEditor::loadAsset()
 		if(object)
 		{
 			LLViewerInventoryItem* item = dynamic_cast<LLViewerInventoryItem*>(object->getInventoryObject(mItemUUID));
-			if(item 
-				&& (gAgent.allowOperation(PERM_COPY, item->getPermissions(), GP_OBJECT_MANIPULATE)
-				   || gAgent.isGodlike()))
-			{
-				mItem = new LLViewerInventoryItem(item);
-			}
-            ExperienceAssociationResponder::fetchAssociatedExperience(item->getParentUUID(), item->getUUID(), boost::bind(&LLLiveLSLEditor::setAssociatedExperience, getDerivedHandle<LLLiveLSLEditor>(), _1));
 
-			if(!gAgent.isGodlike()
-			   && (item
-				   && (!gAgent.allowOperation(PERM_COPY, item->getPermissions(), GP_OBJECT_MANIPULATE)
-					   || !gAgent.allowOperation(PERM_MODIFY, item->getPermissions(), GP_OBJECT_MANIPULATE))))
-			{
-				mItem = new LLViewerInventoryItem(item);
-				mScriptEd->setScriptText(getString("not_allowed"), FALSE);
-				mScriptEd->mEditor->makePristine();
-				mScriptEd->enableSave(FALSE);
-				mAssetStatus = PREVIEW_ASSET_LOADED;
-			}
-			else if(item && mItem.notNull())
-			{
-				// request the text from the object
-				LLUUID* user_data = new LLUUID(mItemUUID); //  ^ mObjectUUID
-				gAssetStorage->getInvItemAsset(object->getRegion()->getHost(),
-											   gAgent.getID(),
-											   gAgent.getSessionID(),
-											   item->getPermissions().getOwner(),
-											   object->getID(),
-											   item->getUUID(),
-											   item->getAssetUUID(),
-											   item->getType(),
-											   &LLLiveLSLEditor::onLoadComplete,
-											   (void*)user_data,
-											   TRUE);
-				LLMessageSystem* msg = gMessageSystem;
-				msg->newMessageFast(_PREHASH_GetScriptRunning);
-				msg->nextBlockFast(_PREHASH_Script);
-				msg->addUUIDFast(_PREHASH_ObjectID, mObjectUUID);
-				msg->addUUIDFast(_PREHASH_ItemID, mItemUUID);
-				msg->sendReliable(object->getRegion()->getHost());
-				mAskedForRunningInfo = TRUE;
-				mAssetStatus = PREVIEW_ASSET_LOADING;
-			}
-			else
-			{
+            if(item)
+            {
+                ExperienceAssociationResponder::fetchAssociatedExperience(item->getParentUUID(), item->getUUID(), boost::bind(&LLLiveLSLEditor::setAssociatedExperience, getDerivedHandle<LLLiveLSLEditor>(), _1));
+
+                bool isGodlike = gAgent.isGodlike();
+                bool copyManipulate = gAgent.allowOperation(PERM_COPY, item->getPermissions(), GP_OBJECT_MANIPULATE);
+                mIsModifiable = gAgent.allowOperation(PERM_MODIFY, item->getPermissions(), GP_OBJECT_MANIPULATE);
+               
+                if(!isGodlike && (!copyManipulate || !mIsModifiable))
+                {
+                    mItem = new LLViewerInventoryItem(item);
+                    mScriptEd->setScriptText(getString("not_allowed"), FALSE);
+                    mScriptEd->mEditor->makePristine();
+                    mScriptEd->enableSave(FALSE);
+                    mAssetStatus = PREVIEW_ASSET_LOADED;
+                }
+                else if(copyManipulate || isGodlike)
+                {
+                    mItem = new LLViewerInventoryItem(item);
+                    // request the text from the object
+                    LLUUID* user_data = new LLUUID(mItemUUID); //  ^ mObjectUUID
+                    gAssetStorage->getInvItemAsset(object->getRegion()->getHost(),
+                        gAgent.getID(),
+                        gAgent.getSessionID(),
+                        item->getPermissions().getOwner(),
+                        object->getID(),
+                        item->getUUID(),
+                        item->getAssetUUID(),
+                        item->getType(),
+                        &LLLiveLSLEditor::onLoadComplete,
+                        (void*)user_data,
+                        TRUE);
+                    LLMessageSystem* msg = gMessageSystem;
+                    msg->newMessageFast(_PREHASH_GetScriptRunning);
+                    msg->nextBlockFast(_PREHASH_Script);
+                    msg->addUUIDFast(_PREHASH_ObjectID, mObjectUUID);
+                    msg->addUUIDFast(_PREHASH_ItemID, mItemUUID);
+                    msg->sendReliable(object->getRegion()->getHost());
+                    mAskedForRunningInfo = TRUE;
+                    mAssetStatus = PREVIEW_ASSET_LOADING;
+                }
+            }
+
+            if(mItem.isNull())
+            {
 				mScriptEd->setScriptText(LLStringUtil::null, FALSE);
 				mScriptEd->mEditor->makePristine();
 				mAssetStatus = PREVIEW_ASSET_LOADED;
-			}
+                mIsModifiable = FALSE;
+            }
 
-			mIsModifiable = item && gAgent.allowOperation(PERM_MODIFY, 
-										item->getPermissions(),
-				   						GP_OBJECT_MANIPULATE);
 			
 			// This is commented out, because we don't completely
 			// handle script exports yet.
