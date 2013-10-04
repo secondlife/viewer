@@ -939,17 +939,19 @@ void LLFilePicker::chooser_responder(GtkWidget *widget, gint response, gpointer 
 
 	// let's save the extension of the last added file(considering current filter)
 	GtkFileFilter *gfilter = gtk_file_chooser_get_filter(GTK_FILE_CHOOSER(widget));
-	std::string filter = gtk_file_filter_get_name(gfilter);
-
-	if(filter == LLTrans::getString("png_image_files"))
+	if(gfilter)
 	{
-		picker->mCurrentExtension = ".png";
-	}
-	else if(filter == LLTrans::getString("targa_image_files"))
-	{
-		picker->mCurrentExtension = ".tga";
-	}
+		std::string filter = gtk_file_filter_get_name(gfilter);
 
+		if(filter == LLTrans::getString("png_image_files"))
+		{
+			picker->mCurrentExtension = ".png";
+		}
+		else if(filter == LLTrans::getString("targa_image_files"))
+		{
+			picker->mCurrentExtension = ".tga";
+		}
+	}
 
 	// set the default path for this usage context.
 	const char* cur_folder = gtk_file_chooser_get_current_folder(GTK_FILE_CHOOSER(widget));
