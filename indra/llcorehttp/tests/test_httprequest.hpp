@@ -3241,11 +3241,11 @@ void HttpRequestTestObjectType::test<23>()
 
 		// Run the notification pump.
 		int count(0);
-		int limit(300);				// One retry but several seconds needed
+		int limit(LOOP_COUNT_LONG);
 		while (count++ < limit && mHandlerCalls < url_limit)
 		{
 			req->update(0);
-			usleep(100000);
+			usleep(LOOP_SLEEP_INTERVAL);
 		}
 		ensure("Request executed in reasonable time", count < limit);
 		ensure("One handler invocation for request", mHandlerCalls == url_limit);
@@ -3258,21 +3258,21 @@ void HttpRequestTestObjectType::test<23>()
 	
 		// Run the notification pump again
 		count = 0;
-		limit = 100;
+		limit = LOOP_COUNT_LONG;
 		while (count++ < limit && mHandlerCalls < 1)
 		{
 			req->update(1000000);
-			usleep(100000);
+			usleep(LOOP_SLEEP_INTERVAL);
 		}
 		ensure("Second request executed in reasonable time", count < limit);
 		ensure("Second handler invocation", mHandlerCalls == 1);
 
 		// See that we actually shutdown the thread
 		count = 0;
-		limit = 10;
+		limit = LOOP_COUNT_SHORT;
 		while (count++ < limit && ! HttpService::isStopped())
 		{
-			usleep(100000);
+			usleep(LOOP_SLEEP_INTERVAL);
 		}
 		ensure("Thread actually stopped running", HttpService::isStopped());
 
