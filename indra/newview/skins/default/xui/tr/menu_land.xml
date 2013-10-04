@@ -6,4 +6,5 @@
 	<menu_item_call label="Geçiş Hakkı Satın Al" name="Land Buy Pass"/>
 	<menu_item_call label="İnşa Et" name="Create"/>
 	<menu_item_call label="Yüzeyi Düzenle" name="Edit Terrain"/>
+	<menu_item_call label="Parçacık Sahibini Engelle" name="Mute Particle"/>
 </context_menu>

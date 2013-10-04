@@ -146,7 +146,7 @@ Wählen Sie ein einzelnes Objekt aus und versuchen Sie es erneut.
 		<usetemplate canceltext="Abbrechen" name="yesnocancelbuttons" notext="Nicht speichern" yestext="Alles speichern"/>
 	</notification>
 	<notification name="FriendsAndGroupsOnly">
-		Leute, die nicht auf Ihrer Freundesliste stehen, werden nicht wissen, dass Sie deren Anrufe oder Sofortnachrichten ignoriert haben.
+		Personen, die nicht auf Ihrer Freundesliste stehen, werden nicht informiert, dass Sie ihre Anrufe und Instant Messages ignorieren.
 		<usetemplate name="okbutton" yestext="Ja"/>
 	</notification>
 	<notification name="FavoritesOnLogin">
@@ -215,6 +215,14 @@ Der Rolle „[ROLE_NAME]“ diese Fähigkeit zuweisen?
 
 Der Rolle „[ROLE_NAME]“ diese Fähigkeit zuweisen?
 		<usetemplate name="okcancelbuttons" notext="Nein" yestext="Ja"/>
+	</notification>
+	<notification name="EjectGroupMemberWarning">
+		Sie sind dabei, [AVATAR_NAME] aus der Gruppe hinauszuwerfen.
+		<usetemplate ignoretext="Hinauswerfen eines einzelnen Gruppenmitglieds bestätigen" name="okcancelignore" notext="Abbrechen" yestext="Hinauswerfen"/>
+	</notification>
+	<notification name="EjectGroupMembersWarning">
+		Sie sind dabei, [COUNT] Mitglieder aus der Gruppe hinauszuwerfen.
+		<usetemplate ignoretext="Hinauswerfen mehrerer Gruppenmitglieder bestätigen" name="okcancelignore" notext="Abbrechen" yestext="Hinauswerfen"/>
 	</notification>
 	<notification name="AttachmentDrop">
 		Sie möchten Ihren Anhang wirklich fallen lassen?
@@ -1124,7 +1132,7 @@ auf ALLEN LÄNDERN in diesem Sim LÖSCHEN?
 Geben sie einen höheren Betrag ein.
 	</notification>
 	<notification name="ConfirmItemDeleteHasLinks">
-		Mindestens eines Ihrer ausgewählten Objekte verfügt über verknüpfte Objekte.  Wenn Sie dieses Objekt löschen, funktionieren die Verknüpfungen nicht mehr.  Wir empfehlen Ihnen daher, diese Verknüpfungen zuerst zu löschen.
+		Auf mindestens eines der Objekte wird über Verknüpfungen Bezug genommen. Wenn Sie dieses Objekt löschen, funktionieren die Verknüpfungen nicht mehr.  Wir empfehlen daher, diese Verknüpfungen zuerst zu löschen.
 
 Möchten Sie diese Objekte wirklich löschen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
@@ -1142,9 +1150,9 @@ Möchten Sie diese Objekte löschen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmObjectDeleteNoOwn">
-		Mindestens eines der ausgewählten Objekt gehört nicht Ihnen.
+		Mindestens eines der ausgewählten Objekte gehört nicht Ihnen.
 
-Möchten Sie diese Objekte löschen?
+Möchten Sie diese Objekte wirklich löschen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmObjectDeleteLockNoCopy">
@@ -1158,14 +1166,14 @@ Möchten Sie diese Objekte löschen?
 		Mindestens ein Objekt ist gesperrt.
 Mindestens ein Objekt gehört nicht Ihnen.
 
-Möchten Sie diese Objekte löschen?
+Möchten Sie diese Objekte wirklich löschen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmObjectDeleteNoCopyNoOwn">
 		Mindestens ein Objekt kann nicht kopiert werden.
 Mindestens ein Objekt gehört nicht Ihnen.
 
-Möchten Sie diese Objekte löschen?
+Möchten Sie diese Objekte wirklich löschen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmObjectDeleteLockNoCopyNoOwn">
@@ -1173,7 +1181,7 @@ Möchten Sie diese Objekte löschen?
 Mindestens ein Objekt kann nicht kopiert werden.
 Mindestens ein Objekt gehört nicht Ihnen.
 
-Möchten Sie diese Objekte löschen?
+Möchten Sie diese Objekte wirklich löschen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmObjectTakeLock">
@@ -1492,13 +1500,43 @@ Version [VERSION] [[RELEASE_NOTES_FULL_URL] Informationen zu diesem Update]
 	</notification>
 	<notification name="RequiredUpdateDownloadedVerboseDialog">
 		Ein erforderliches Softwareupdate wurde heruntergeladen.
-Version [VERSION]
+Version [VERSION] [[INFO_URL] Infos zu diesem Update]
 
 Zur Installation des Updates muss [APP_NAME] neu gestartet werden.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="RequiredUpdateDownloadedDialog">
 		Zur Installation des Updates muss [APP_NAME] neu gestartet werden.
+[[INFO_URL] Infos zu diesem Update]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OtherChannelDownloadBackgroundTip">
+		Für Ihre [APP_NAME]-Installation wurde ein Update heruntergeladen.
+Version [VERSION] 
+Dieser experimentelle Viewer wurde durch einen [NEW_CHANNEL] Viewer ersetzt;
+weitere Details zu diesem Update finden Sie [[INFO_URL] hier].
+		<usetemplate name="okcancelbuttons" notext="Später..." yestext="Jetzt installieren und [APP_NAME] neu starten"/>
+	</notification>
+	<notification name="OtherChannelDownloadBackgroundDialog">
+		Für Ihre [APP_NAME]-Installation wurde ein Update heruntergeladen.
+Version [VERSION]
+Dieser experimentelle Viewer wurde durch einen [NEW_CHANNEL] Viewer ersetzt;
+weitere Infos zu diesem Update finden Sie [[INFO_URL] hier].
+		<usetemplate name="okcancelbuttons" notext="Später..." yestext="Jetzt installieren und [APP_NAME] neu starten"/>
+	</notification>
+	<notification name="OtherChannelRequiredUpdateDownloadedVerboseDialog">
+		Ein erforderliches Softwareupdate wurde heruntergeladen.
+Version [VERSION]
+Dieser experimentelle Viewer wurde durch einen [NEW_CHANNEL] Viewer ersetzt;
+weitere Infos zu diesem Update finden Sie [[INFO_URL] hier].
+
+Zur Installation des Updates muss [APP_NAME] neu gestartet werden.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OtherChannelRequiredUpdateDownloadedDialog">
+		Zur Installation des Updates muss [APP_NAME] neu gestartet werden.
+Dieser experimentelle Viewer wurde durch einen [NEW_CHANNEL] Viewer ersetzt;
+weitere Infos zu diesem Update finden Sie [[INFO_URL] hier].
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DeedObjectToGroup">
@@ -1548,6 +1586,10 @@ Zur Installation des Updates muss [APP_NAME] neu gestartet werden.
 		Sie sind gegenwärtig Mitglied der Gruppe &lt;nolink&gt;[GROUP]&lt;/nolink&gt;.
 Diese Gruppe verlassen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
+	</notification>
+	<notification name="OwnerCannotLeaveGroup">
+		Sie können die Gruppe nicht verlassen, da Sie der letzte Besitzer der Gruppe sind. Weisen Sie die Besitzerrolle zuerst einem anderen Mitglied zu.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmKick">
 		Möchten Sie WIRKLICH alle Benutzer aus dem Grid werfen?
@@ -2410,9 +2452,7 @@ Wählen Sie ein einzelnes Objekt aus.
     „Teleportieren“ wählen.)
 	</notification>
 	<notification name="TeleportToPerson">
-		Um Einwohner wie „[NAME]“ zu kontaktieren, klicken Sie auf die Schaltfläche „Leute“, wählen Sie eingeblendeten Fenster einen Einwohner aus
-    und klicken Sie unten im Fenster auf „IM“.
-    (Sie können auch auf den Namen doppelklicken bzw. ihn mit der rechten Maustaste anklicken und dann „IM“ wählen.)
+		Um eine private Unterhaltung zu beginnen, klicken Sie mit der rechten Maustaste auf den gewünschten Avatar und wählen Sie im Menü „IM“ aus.
 	</notification>
 	<notification name="CantSelectLandFromMultipleRegions">
 		Land kann nicht über Servergrenzen hinweg ausgewählt werden.
@@ -2784,6 +2824,15 @@ Gewähren Sie dem Objekt nur dann Zugriff, wenn Sie genau verstehen, wieso ein s
 		<form name="form">
 			<button name="Grant" text="Uneingeschränkten Zugriff gewähren"/>
 			<button name="Deny" text="Verweigern"/>
+		</form>
+	</notification>
+	<notification name="UnknownScriptQuestion">
+		Die Runtime-Skript-Berechtigung, die von „&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;“ (Besitzer: „[NAME]“) angefordert wurde, wird vom Viewer nicht erkannt und kann nicht gewährt werden.
+
+Um diese Berechtigung zu gewähren, laden Sie die neueste Version des Viewers von [DOWNLOADURL] herunter.
+		<form name="form">
+			<button name="Deny" text="OK"/>
+			<button name="Mute" text="Blockieren"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialog">

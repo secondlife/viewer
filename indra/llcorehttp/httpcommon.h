@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -303,6 +303,12 @@ struct HttpStatus
 	{
 		return 	mType >= type_enum_t(100) && mType <= type_enum_t(999);
 	}
+
+	/// Returns true if the status is one that will be retried
+	/// internally.  Provided for external consumption for cases
+	/// where that logic needs to be replicated.  Only applies
+	/// to failed statuses, successful statuses will return false.
+	bool isRetryable() const;
 	
 }; // end struct HttpStatus
 

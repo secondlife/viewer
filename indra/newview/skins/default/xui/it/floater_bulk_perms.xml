@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floaterbulkperms" title="MODIFICA PERMESSI DEL CONTENUTO">
+<floater name="floaterbulkperms" title="CAMBIA I PERMESSI DEL CONTENUTO">
 	<floater.string name="nothing_to_modify_text">
 		La selezione non contiene nessun contenuto modificabile.
 	</floater.string>
@@ -33,7 +33,7 @@
 	<button label="√ Tutti" label_selected="Tutti" name="check_all"/>
 	<button label="Cancella" label_selected="Nessuno" name="check_none"/>
 	<text name="newperms">
-		Nuovi permessi del contenuto
+		Cambia i permessi del contenuto a
 	</text>
 	<text name="GroupLabel">
 		Gruppo:
@@ -49,6 +49,7 @@
 	<check_box label="Modificare" name="next_owner_modify"/>
 	<check_box label="Copiare" name="next_owner_copy"/>
 	<check_box initial_value="true" label="Trasferisci" name="next_owner_transfer" tool_tip="Il prossimo proprietario può regalare o rivendere questo oggetto"/>
-	<button label="OK" name="apply"/>
+	<button label="OK" name="ok"/>
+	<button label="Applica" name="apply"/>
 	<button label="Annulla" name="close"/>
 </floater>

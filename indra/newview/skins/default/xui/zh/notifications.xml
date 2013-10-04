@@ -210,6 +210,14 @@
 你仍要新增這項能力給「[ROLE_NAME]」？
 		<usetemplate name="okcancelbuttons" notext="否" yestext="是"/>
 	</notification>
+	<notification name="EjectGroupMemberWarning">
+		你即將把 [AVATAR_NAME] 踢出群組。
+		<usetemplate ignoretext="確定將某人踢出群組" name="okcancelignore" notext="取消" yestext="踢出"/>
+	</notification>
+	<notification name="EjectGroupMembersWarning">
+		你即將把 [COUNT] 個人踢出群組。
+		<usetemplate ignoretext="確定將多人踢出群組" name="okcancelignore" notext="取消" yestext="踢出"/>
+	</notification>
 	<notification name="AttachmentDrop">
 		你即將卸除你的附件。
     你確定你要繼續？
@@ -1470,13 +1478,43 @@ SHA1 指紋：[MD5_DIGEST]
 	</notification>
 	<notification name="RequiredUpdateDownloadedVerboseDialog">
 		我們已下載了一個必要的軟體更新。
-版本：[VERSION]
+[VERSION] 版本 [[INFO_URL] 關於此更新的資訊]
 
 我門必須重新啟動 [APP_NAME] 以安裝更新。
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 	<notification name="RequiredUpdateDownloadedDialog">
 		我門必須重新啟動 [APP_NAME] 以安裝更新。
+[[INFO_URL] 關於此更新的資訊]
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="OtherChannelDownloadBackgroundTip">
+		我們已為你的 [APP_NAME] 軟體下載了更新。
+版本：[VERSION] 
+原本試驗性質的瀏覽器已被 [NEW_CHANNEL] 瀏覽器取代，
+參見[[INFO_URL] 此更新版的詳情]
+		<usetemplate name="okcancelbuttons" notext="稍候..." yestext="立即安裝並重新啟動 [APP_NAME]"/>
+	</notification>
+	<notification name="OtherChannelDownloadBackgroundDialog">
+		我們已為你的 [APP_NAME] 軟體下載了更新。
+版本：[VERSION]
+原本試驗性質的瀏覽器已被 [NEW_CHANNEL] 瀏覽器取代，
+參見[[INFO_URL] 介紹此更新版的資訊]
+		<usetemplate name="okcancelbuttons" notext="稍候…" yestext="立即安裝並重新啟動 [APP_NAME]"/>
+	</notification>
+	<notification name="OtherChannelRequiredUpdateDownloadedVerboseDialog">
+		我們已下載了一個必要的軟體更新。
+版本：[VERSION]
+原本試驗性質的瀏覽器已被 [NEW_CHANNEL] 瀏覽器取代，
+參見[[INFO_URL] 介紹此更新版的資訊]
+
+我們必須重新啟動 [APP_NAME] 以便安裝更新。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="OtherChannelRequiredUpdateDownloadedDialog">
+		我們必須重新啟動 [APP_NAME] 以便安裝更新。
+原本試驗性質的瀏覽器已被 [NEW_CHANNEL] 瀏覽器取代，
+參見[[INFO_URL] 介紹此更新版的資訊]
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 	<notification name="DeedObjectToGroup">
@@ -1526,6 +1564,10 @@ SHA1 指紋：[MD5_DIGEST]
 		你目前是 &lt;nolink&gt;[GROUP]&lt;/nolink&gt; 群組的成員。
 是否要離開群組？
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
+	</notification>
+	<notification name="OwnerCannotLeaveGroup">
+		無法離開群組。 你是此群組僅存的所有人，不得離開群組。 請先把所有人職銜指派給另一人。
+		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 	<notification name="ConfirmKick">
 		你確定要踢出這網格內的全部居民？
@@ -2386,9 +2428,7 @@ SHA1 指紋：[MD5_DIGEST]
     （你還可以直接按兩下那個地標，或按滑鼠右鍵，選擇「瞬間傳送」。）
 	</notification>
 	<notification name="TeleportToPerson">
-		要聯絡如「[NAME]」的任何一位居民，請點按「人群」按鈕，從打開的視窗中選擇一位居民，再點按視窗底下的「IM」。
-
-    （你還可以從清單直接按兩下名字，或按滑鼠右鍵，選擇「IM」。）
+		要和某人私下交談，請右鍵點按化身，再點按選單的「IM」。
 	</notification>
 	<notification name="CantSelectLandFromMultipleRegions">
 		無法選擇超出伺服器邊界的土地。
@@ -2760,6 +2800,15 @@ SHA1 指紋：[MD5_DIGEST]
 		<form name="form">
 			<button name="Grant" text="允許全權存取"/>
 			<button name="Deny" text="拒絕"/>
+		</form>
+	</notification>
+	<notification name="UnknownScriptQuestion">
+		由 &apos;[NAME]&apos; 所擁有的物件 &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; 正請求某項執行時期腳本權限，但本瀏覽器無法辨識該權限，故不允准。
+
+欲准許此權限，請從 [DOWNLOADURL] 下載並更新為最新版瀏覽器。
+		<form name="form">
+			<button name="Deny" text="確定"/>
+			<button name="Mute" text="封鎖"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialog">

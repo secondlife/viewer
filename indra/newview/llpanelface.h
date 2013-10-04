@@ -259,7 +259,7 @@ private:
 					// need to get per-face answer to this question for sane alpha mode retention on updates.
 					//					
 					bool is_alpha_face = object->isImageAlphaBlended(face);
-					
+
 					// need to keep this original answer for valid comparisons in logic below
 					//
 					U8 original_default_alpha_mode = is_alpha_face ? LLMaterial::DIFFUSE_ALPHA_MODE_BLEND : LLMaterial::DIFFUSE_ALPHA_MODE_NONE;

@@ -670,7 +670,7 @@ void main()
 	vec4 diffuse = final_color;
 	float envIntensity = final_normal.z;
 
-	vec3 col = vec3(0.0f,0.0f,0.0f);
+    vec3 col = vec3(0.0f,0.0f,0.0f);
 
 	float bloom = 0.0;
 	calcAtmospherics(pos.xyz, 1.0);
@@ -698,7 +698,7 @@ void main()
 	col.rgb = col.rgb + atmosAffectDirectionalLight(final_da);
 
 	col.rgb *= gamma_diff.rgb;
-
+	
 
 	float glare = 0.0;
 
@@ -747,9 +747,9 @@ void main()
 
 	//convert to linear space before adding local lights
 	col = srgb_to_linear(col);
-			
-	vec3 npos = normalize(-pos.xyz);
 
+	vec3 npos = normalize(-pos.xyz);
+			
 	vec3 light = vec3(0,0,0);
 
  #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse.rgb, final_specular, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, glare);

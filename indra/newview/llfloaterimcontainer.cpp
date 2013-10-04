@@ -674,13 +674,18 @@ void LLFloaterIMContainer::setVisible(BOOL visible)
 void LLFloaterIMContainer::getDetachedConversationFloaters(floater_list_t& floaters)
 {
 	typedef conversations_widgets_map::value_type conv_pair;
+	LLFloaterIMNearbyChat *nearby_chat = LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
+
 	BOOST_FOREACH(conv_pair item, mConversationsWidgets)
 	{
 		LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(item.second);
 		if (widget)
 		{
 			LLFloater* session_floater = widget->getSessionFloater();
-			if (session_floater && session_floater->isDetachedAndNotMinimized())
+
+			// Exclude nearby chat from output, as it should be handled separately 
+			if (session_floater && session_floater->isDetachedAndNotMinimized() 
+				&& session_floater != nearby_chat)
 			{
 				floaters.push_back(session_floater);
 			}
@@ -1604,7 +1609,7 @@ LLConversationItem* LLFloaterIMContainer::addConversationListItem(const LLUUID& 
 
 	// Create the participants widgets now
 	// Note: usually, we do not get an updated avatar list at that point
-	if (uuid.isNull() || im_sessionp && !im_sessionp->isP2PSessionType())
+	if (uuid.isNull() || (im_sessionp && !im_sessionp->isP2PSessionType()))
 	{
 		LLFolderViewModelItemCommon::child_list_t::const_iterator current_participant_model = item->getChildrenBegin();
 		LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = item->getChildrenEnd();
