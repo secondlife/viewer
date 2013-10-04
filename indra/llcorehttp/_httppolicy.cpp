@@ -388,33 +388,13 @@ bool HttpPolicy::cancel(HttpHandle handle)
 
 bool HttpPolicy::stageAfterCompletion(HttpOpRequest * op)
 {
-	static const HttpStatus cant_connect(HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_CONNECT);
-	static const HttpStatus cant_res_proxy(HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_RESOLVE_PROXY);
-	static const HttpStatus cant_res_host(HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_RESOLVE_HOST);
-	static const HttpStatus send_error(HttpStatus::EXT_CURL_EASY, CURLE_SEND_ERROR);
-	static const HttpStatus recv_error(HttpStatus::EXT_CURL_EASY, CURLE_RECV_ERROR);
-	static const HttpStatus upload_failed(HttpStatus::EXT_CURL_EASY, CURLE_UPLOAD_FAILED);
-	static const HttpStatus op_timedout(HttpStatus::EXT_CURL_EASY, CURLE_OPERATION_TIMEDOUT);
-	static const HttpStatus post_error(HttpStatus::EXT_CURL_EASY, CURLE_HTTP_POST_ERROR);
-
 	// Retry or finalize
 	if (! op->mStatus)
 	{
-		// If this failed, we might want to retry.  Have to inspect
-		// the status a little more deeply for those reasons worth retrying...
-		if (op->mPolicyRetries < op->mPolicyRetryLimit &&
-			((op->mStatus.isHttpStatus() && op->mStatus.mType >= 499 && op->mStatus.mType <= 599) ||
-			 cant_connect == op->mStatus ||
-			 cant_res_proxy == op->mStatus ||
-			 cant_res_host == op->mStatus ||
-			 send_error == op->mStatus ||
-			 recv_error == op->mStatus ||
-			 upload_failed == op->mStatus ||
-			 op_timedout == op->mStatus ||
-			 post_error == op->mStatus))
+		// If this failed, we might want to retry.
+		if (op->mPolicyRetries < op->mPolicyRetryLimit && op->mStatus.isRetryable())
 		{
-			// Okay, worth a retry.  We include 499 in this test as
-			// it's the old 'who knows?' error from many grid services...
+			// Okay, worth a retry.
 			retryOp(op);
 			return true;				// still active/ready
 		}

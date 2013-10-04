@@ -124,6 +124,7 @@ set(viewer_SOURCE_FILES
     llavatariconctrl.cpp
     llavatarlist.cpp
     llavatarlistitem.cpp
+    llavatarrenderinfoaccountant.cpp
     llavatarpropertiesprocessor.cpp
     llblockedlistitem.cpp
     llblocklist.cpp
@@ -709,6 +710,7 @@ set(viewer_HEADER_FILES
     llavatarlist.h
     llavatarlistitem.h
     llavatarpropertiesprocessor.h
+    llavatarrenderinfoaccountant.h
     llblockedlistitem.h
     llblocklist.h
     llbox.h

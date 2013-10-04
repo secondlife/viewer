@@ -480,16 +480,13 @@ inline void LLVector4a::setMax(const LLVector4a& lhs, const LLVector4a& rhs)
 	mQ = _mm_max_ps(lhs.mQ, rhs.mQ);
 }
 
-// Set this to  (c * lhs) + rhs * ( 1 - c)
+// Set this to  lhs + (rhs-lhs)*c
 inline void LLVector4a::setLerp(const LLVector4a& lhs, const LLVector4a& rhs, F32 c)
 {
-	LLVector4a a = lhs;
-	a.mul(c);
-	
-	LLVector4a b = rhs;
-	b.mul(1.f-c);
-	
-	setAdd(a, b);
+	LLVector4a t;
+	t.setSub(rhs,lhs);
+	t.mul(c);
+	setAdd(lhs, t);
 }
 
 inline LLBool32 LLVector4a::isFinite3() const

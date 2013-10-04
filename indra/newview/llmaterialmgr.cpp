@@ -50,10 +50,14 @@
 #define MATERIALS_CAP_MATERIAL_FIELD              "Material"
 #define MATERIALS_CAP_OBJECT_ID_FIELD             "ID"
 #define MATERIALS_CAP_MATERIAL_ID_FIELD           "MaterialID"
+#define SIM_FEATURE_MAX_MATERIALS_PER_TRANSACTION "MaxMaterialsPerTransaction"
 
+#define MATERIALS_GET_MAX_ENTRIES                 50
 #define MATERIALS_GET_TIMEOUT                     (60.f * 20)
+#define MATERIALS_POST_MAX_ENTRIES                50
 #define MATERIALS_POST_TIMEOUT                    (60.f * 5)
 #define MATERIALS_PUT_THROTTLE_SECS               1.f
+#define MATERIALS_PUT_MAX_ENTRIES                 50
 
 /**
  * LLMaterialsResponder helper class
@@ -591,7 +595,7 @@ void LLMaterialMgr::processGetQueue()
 
 		material_queue_t& materials = itRegionQueue->second;
 		U32 max_entries = regionp->getMaxMaterialsPerTransaction();
-		material_queue_t::iterator loopMaterial = materials.begin();		
+		material_queue_t::iterator loopMaterial = materials.begin();
 		while ( (materials.end() != loopMaterial) && (materialsData.size() < max_entries) )
 		{
 			material_queue_t::iterator itMaterial = loopMaterial++;
@@ -687,34 +691,34 @@ void LLMaterialMgr::processPutQueue()
 		{
 			LLViewerRegion* regionp = objectp->getRegion();
 			if ( !regionp )
-			{
+		{
 				LL_WARNS("Materials") << "Object region is NULL" << LL_ENDL;
 				mPutQueue.erase(itQueue);
-			}
+		}
 			else if ( regionp->capabilitiesReceived() && !regionp->materialsCapThrottled())
 			{
-				LLSD& facesData = requests[regionp];
+		LLSD& facesData = requests[regionp];
 
-				facematerial_map_t& face_map = itQueue->second;
+		facematerial_map_t& face_map = itQueue->second;
 				U32 max_entries = regionp->getMaxMaterialsPerTransaction();
-				facematerial_map_t::iterator itFace = face_map.begin();
+		facematerial_map_t::iterator itFace = face_map.begin();
 				while ( (face_map.end() != itFace) && (facesData.size() < max_entries) )
-				{
-					LLSD faceData = LLSD::emptyMap();
-					faceData[MATERIALS_CAP_FACE_FIELD] = static_cast<LLSD::Integer>(itFace->first);
-					faceData[MATERIALS_CAP_OBJECT_ID_FIELD] = static_cast<LLSD::Integer>(objectp->getLocalID());
-					if (!itFace->second.isNull())
-					{
-						faceData[MATERIALS_CAP_MATERIAL_FIELD] = itFace->second.asLLSD();
-					}
-					facesData.append(faceData);
-					face_map.erase(itFace++);
-				}
-				if (face_map.empty())
-				{
-					mPutQueue.erase(itQueue);
-				}
+		{
+			LLSD faceData = LLSD::emptyMap();
+			faceData[MATERIALS_CAP_FACE_FIELD] = static_cast<LLSD::Integer>(itFace->first);
+			faceData[MATERIALS_CAP_OBJECT_ID_FIELD] = static_cast<LLSD::Integer>(objectp->getLocalID());
+			if (!itFace->second.isNull())
+			{
+				faceData[MATERIALS_CAP_MATERIAL_FIELD] = itFace->second.asLLSD();
 			}
+			facesData.append(faceData);
+			face_map.erase(itFace++);
+		}
+		if (face_map.empty())
+		{
+			mPutQueue.erase(itQueue);
+		}
+	}
 		}
 	}
 

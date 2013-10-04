@@ -48,8 +48,9 @@ class HttpHeaders;
 /// individual pieces of the response.
 ///
 /// Typical usage will have the caller interrogate the object
-/// and return from the handler callback.  Instances are refcounted
-/// and callers can bump the count and retain the object as needed.
+/// during the handler callback and then simply returning.
+/// But instances are refcounted and and callers can add a
+/// reference and hold onto the object after the callback.
 ///
 /// Threading:  Not intrinsically thread-safe.
 ///
@@ -119,6 +120,10 @@ public:
 	/// caller is going to have to make assumptions on receipt of
 	/// a 206 status.  The @full value may also be zero in cases of
 	/// parsing problems or a wild-carded length response.
+	///
+	/// These values will not necessarily agree with the data in
+	/// the body itself (if present).  The BufferArray object
+	/// is authoritative for actual data length.
 	void getRange(unsigned int * offset, unsigned int * length, unsigned int * full) const
 		{
 			*offset = mReplyOffset;

@@ -397,6 +397,12 @@ struct HttpStatus
 	{
 		return 	mType >= type_enum_t(100) && mType <= type_enum_t(999);
 	}
+
+	/// Returns true if the status is one that will be retried
+	/// internally.  Provided for external consumption for cases
+	/// where that logic needs to be replicated.  Only applies
+	/// to failed statuses, successful statuses will return false.
+	bool isRetryable() const;
 	
 }; // end struct HttpStatus
 

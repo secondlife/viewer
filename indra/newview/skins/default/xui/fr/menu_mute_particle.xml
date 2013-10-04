@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- *NOTE: See also menu_attachment_other.xml -->
+<context_menu name="Mute Particle Pie">
+	<menu_item_call label="Ignorer le propriétaire des particules" name="Mute Particle"/>
+</context_menu>

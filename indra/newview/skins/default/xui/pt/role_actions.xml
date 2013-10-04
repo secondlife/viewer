@@ -25,7 +25,7 @@
 	</action_set>
 	<action_set description="Estas habilidades incluem poderes para mudar o nome da parcelas e configurações de publicação, visibilidade da busca de diretório e ponto de aterrissagem &amp; opções de rota de TP." name="Parcel Identity">
 		<action description="Alternar &apos;Exibir nos resultados de busca&apos; e selecionar a categoria" longdescription="Alterne entre &apos;Exibir nos resultados de busca&apos; ou não, e selecione a categoria do terreno em &apos;Sobre o terreno&apos;." name="land find places" value="17"/>
-		<action description="Mude o nome, a descrição e a exibição do terreno nos resultados de busca." longdescription="Mude o nome, a descrição e a exibição do terreno nos resultados de busca.  Veja essas opções em Sobre o terreno &gt; guia Opções." name="land change identity" value="18"/>
+		<action description="Alterar nome da parcela, descrição e configurações de &quot;Conteúdo moderado&quot;" longdescription="Altere o nome da parcela, descrição e configurações de &quot;Conteúdo moderado&quot;. Isso é feito em Sobre o terreno &gt; guia Opções." name="land change identity" value="18"/>
 		<action description="Definir ponto de aterrissagem e rota de teletransporte" longdescription="Em uma parcela pertencente ao grupo, membros em uma função com esta habilidade podem definir um ponto de aterrissagem para especificar onde os teletransportes chegam e também definir a rota do teletransporte para um maior controle. É feito em Sobre o terreno &gt; aba Opções." name="land set landing point" value="19"/>
 	</action_set>
 	<action_set description="Estas habilidade incluem poderes que afetam opções de parcela, como &apos;Criar objetos&apos;, &apos;Editar terreno&apos; e música &amp; configurações de mídia." name="Parcel Settings">

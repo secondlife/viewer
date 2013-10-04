@@ -67,7 +67,8 @@ LL_COMMON_API void assert_main_thread()
 	static U32 s_thread_id = LLThread::currentID();
 	if (LLThread::currentID() != s_thread_id)
 	{
-		llerrs << "Illegal execution outside main thread." << llendl;
+		llwarns << "Illegal execution from thread id " << (S32) LLThread::currentID()
+			<< " outside main thread " << (S32) s_thread_id << llendl;
 	}
 }
 
@@ -525,15 +526,7 @@ LLThreadSafeRefCount::LLThreadSafeRefCount() :
 
 LLThreadSafeRefCount::LLThreadSafeRefCount(const LLThreadSafeRefCount& src)
 {
-	if (sMutex)
-	{
-		sMutex->lock();
-	}
 	mRef = 0;
-	if (sMutex)
-	{
-		sMutex->unlock();
-	}
 }
 
 LLThreadSafeRefCount::~LLThreadSafeRefCount()

@@ -204,9 +204,11 @@ void HttpOpRequest::stageFromActive(HttpService * service)
 	if (mReplyLength)
 	{
 		// If non-zero, we received and processed a Content-Range
-		// header with the response.  Verify that what it says
-		// is consistent with the received data.
-		if (mReplyLength != mReplyBody->size())
+		// header with the response.  If there is received data
+		// (and there may not be due to protocol violations,
+		// HEAD requests, etc., see BUG-2295) Verify that what it
+		// says is consistent with the received data.
+		if (mReplyBody && mReplyBody->size() && mReplyLength != mReplyBody->size())
 		{
 			// Not as expected, fail the request
 			mStatus = HttpStatus(HttpStatus::LLCORE, HE_INV_CONTENT_RANGE_HDR);
@@ -367,7 +369,6 @@ void HttpOpRequest::setupCommon(HttpRequest::policy_t policy_id,
 	}
 }
 
-
 // Sets all libcurl options and data for a request.
 //
 // Used both for initial requests and to 'reload' for
@@ -411,7 +412,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	// Get global policy options
 	HttpPolicyGlobal & policy(service->getPolicy().getGlobalOptions());
 	
-	mCurlHandle = curl_easy_init();
+	mCurlHandle = LLCurl::createStandardCurlHandle();
 	if (! mCurlHandle)
 	{
 		// We're in trouble.  We'll continue but it won't go well.
@@ -432,26 +433,14 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_ENCODING, "");
 	check_curl_easy_code(code, CURLOPT_ENCODING);
 
-	if (HTTP_ENABLE_LINKSYS_WRT54G_V5_DNS_FIX)
-	{
-		// The Linksys WRT54G V5 router has an issue with frequent
-		// DNS lookups from LAN machines.  If they happen too often,
-		// like for every HTTP request, the router gets annoyed after
-		// about 700 or so requests and starts issuing TCP RSTs to
-		// new connections.  Reuse the DNS lookups for even a few
-		// seconds and no RSTs.
-		code = curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, 15);
-		check_curl_easy_code(code, CURLOPT_DNS_CACHE_TIMEOUT);
-	}
-	else
-	{
-		// *TODO:  Revisit this old DNS timeout setting - may no longer be valid
-		// I don't think this is valid anymore, the Multi shared DNS
-		// cache is working well.  For the case of naked easy handles,
-		// consider using a shared DNS object.
-		code = curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, 0);
-		check_curl_easy_code(code, CURLOPT_DNS_CACHE_TIMEOUT);
-	}
+	// The Linksys WRT54G V5 router has an issue with frequent
+	// DNS lookups from LAN machines.  If they happen too often,
+	// like for every HTTP request, the router gets annoyed after
+	// about 700 or so requests and starts issuing TCP RSTs to
+	// new connections.  Reuse the DNS lookups for even a few
+	// seconds and no RSTs.
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, 15);
+	check_curl_easy_code(code, CURLOPT_DNS_CACHE_TIMEOUT);
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_AUTOREFERER, 1);
 	check_curl_easy_code(code, CURLOPT_AUTOREFERER);
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_FOLLOWLOCATION, 1);
@@ -831,7 +820,7 @@ int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffe
 	std::string safe_line;
 	std::string tag;
 	bool logit(false);
-	len = (std::min)(len, size_t(256));					// Keep things reasonable in all cases
+	const size_t log_len((std::min)(len, size_t(256)));		// Keep things reasonable in all cases
 	
 	switch (info)
 	{
@@ -839,7 +828,7 @@ int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffe
 		if (op->mTracing >= HTTP_TRACE_CURL_HEADERS)
 		{
 			tag = "TEXT";
-			escape_libcurl_debug_data(buffer, len, true, safe_line);
+			escape_libcurl_debug_data(buffer, log_len, true, safe_line);
 			logit = true;
 		}
 		break;
@@ -848,7 +837,7 @@ int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffe
 		if (op->mTracing >= HTTP_TRACE_CURL_HEADERS)
 		{
 			tag = "HEADERIN";
-			escape_libcurl_debug_data(buffer, len, true, safe_line);
+			escape_libcurl_debug_data(buffer, log_len, true, safe_line);
 			logit = true;
 		}
 		break;
@@ -857,7 +846,7 @@ int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffe
 		if (op->mTracing >= HTTP_TRACE_CURL_HEADERS)
 		{
 			tag = "HEADEROUT";
-			escape_libcurl_debug_data(buffer, 2 * len, true, safe_line);		// Goes out as one line
+			escape_libcurl_debug_data(buffer, log_len, true, safe_line);	// Goes out as one line unlike header_in
 			logit = true;
 		}
 		break;
@@ -869,7 +858,7 @@ int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffe
 			logit = true;
 			if (op->mTracing >= HTTP_TRACE_CURL_BODIES)
 			{
-				escape_libcurl_debug_data(buffer, len, false, safe_line);
+				escape_libcurl_debug_data(buffer, log_len, false, safe_line);
 			}
 			else
 			{
@@ -887,7 +876,7 @@ int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffe
 			logit = true;
 			if (op->mTracing >= HTTP_TRACE_CURL_BODIES)
 			{
-				escape_libcurl_debug_data(buffer, len, false, safe_line);
+				escape_libcurl_debug_data(buffer, log_len, false, safe_line);
 			}
 			else
 			{

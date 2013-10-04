@@ -49,6 +49,9 @@ Sie suchen nach Leuten? Verwenden Sie die [secondlife:///app/worldmap Karte].
 				<menu_button name="plus_btn" tool_tip="Gruppe beitreten/Neue Gruppe erstellen"/>
 				<dnd_button name="minus_btn" tool_tip="Ausgewählte Gruppe verlassen"/>
 			</panel>
+			<text name="groupcount">
+				Sie gehören [COUNT] Gruppen an und können [REMAINING] weiteren beitreten.
+			</text>
 		</panel>
 		<panel label="AKTUELL" name="recent_panel">
 			<panel label="bottom_panel" name="recent_buttons_panel">
