@@ -4756,7 +4756,7 @@ bool LLViewerObject::isImageAlphaBlended(const U8 te) const
 		case GL_RGB: break;
 		default:
 		{
-			llwarns << "Unexpected tex format in LLViewerObject::isImageAlphaBlended...returning no alpha." << llendl;
+			LL_WARNS() << "Unexpected tex format in LLViewerObject::isImageAlphaBlended...returning no alpha." << LL_ENDL;
 		}
 		break;
 	}
