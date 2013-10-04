@@ -91,6 +91,13 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 @implementation LLOpenGLView
 
+// Force a high quality update after live resizing
+- (void) viewDidEndLiveResize
+{
+    NSSize size = [self frame].size;
+    callResize(size.width, size.height);
+}
+
 - (unsigned long)getVramSize
 {
     CGLRendererInfoObj info = 0;
@@ -119,9 +126,8 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void)windowResized:(NSNotification *)notification;
 {
-	NSSize size = [self frame].size;
-	
-	callResize(size.width, size.height);
+	//NSSize size = [self frame].size;
+	//callResize(size.width, size.height);
 }
 
 - (void)dealloc

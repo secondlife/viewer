@@ -1952,7 +1952,7 @@ namespace LLInitParam
 		class Mandatory : public TypedParam<T, NAME_VALUE_LOOKUP, false>
 		{
 			typedef TypedParam<T, NAME_VALUE_LOOKUP, false>		super_t;
-			typedef Mandatory<T, NAME_VALUE_LOOKUP>										self_t;
+			typedef Mandatory<T, NAME_VALUE_LOOKUP>				self_t;
 			typedef typename super_t::value_t					value_t;
 			typedef typename super_t::default_value_t			default_value_t;
 

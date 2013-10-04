@@ -28,5 +28,4 @@
 
 #include "llsingleton.h"
 
-std::map<std::string, void *> * LLSingletonRegistry::sSingletonMap = NULL;
 

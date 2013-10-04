@@ -6,4 +6,5 @@
 	<menu_item_call label="Купить пропуск" name="Land Buy Pass"/>
 	<menu_item_call label="Строительство" name="Create"/>
 	<menu_item_call label="Изменить ландшафт" name="Edit Terrain"/>
+	<menu_item_call label="Блокировать владельца участка" name="Mute Particle"/>
 </context_menu>

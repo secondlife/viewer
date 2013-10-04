@@ -379,10 +379,18 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 		if (group->mSpatialPartition->mRenderByGroup &&
 		    !group->isDead())
 		{
+			bool is_particle_or_hud_particle = group->mSpatialPartition->mPartitionType == LLViewerRegion::PARTITION_PARTICLE
+													  || group->mSpatialPartition->mPartitionType == LLViewerRegion::PARTITION_HUD_PARTICLE;
+
 			bool draw_glow_for_this_partition = mVertexShaderLevel > 0 && // no shaders = no glow.
 				// All particle systems seem to come off the wire with texture entries which claim that they glow.  This is probably a bug in the data.  Suppress.
-				group->mSpatialPartition->mPartitionType != LLViewerRegion::PARTITION_PARTICLE &&
-				group->mSpatialPartition->mPartitionType != LLViewerRegion::PARTITION_HUD_PARTICLE;
+				!is_particle_or_hud_particle;
+
+			static LLFastTimer::DeclareTimer FTM_RENDER_ALPHA_GROUP_LOOP("Alpha Group");
+			LLFastTimer t(FTM_RENDER_ALPHA_GROUP_LOOP);
+
+			bool disable_cull = is_particle_or_hud_particle;
+			LLGLDisable cull(disable_cull ? GL_CULL_FACE : 0);
 
 			LLSpatialGroup::drawmap_elem_t& draw_info = group->mDrawMap[LLRenderPass::PASS_ALPHA];
 
@@ -570,10 +578,15 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 					}
 				}
 
+				static LLFastTimer::DeclareTimer FTM_RENDER_ALPHA_PUSH("Alpha Push Verts");
+				{
+					LLFastTimer t(FTM_RENDER_ALPHA_PUSH);
+    gGL.blendFunc((LLRender::eBlendFactor) params.mBlendFuncSrc, (LLRender::eBlendFactor) params.mBlendFuncDst, mAlphaSFactor, mAlphaDFactor);					
 				params.mVertexBuffer->setBuffer(mask & ~(params.mFullbright ? (LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2) : 0));
                 
 				params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
 				gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
+				}
 				
 				// If this alpha mesh has glow, then draw it a second time to add the destination-alpha (=glow).  Interleaving these state-changing calls could be expensive, but glow must be drawn Z-sorted with alpha.
 				if (current_shader && 
@@ -608,6 +621,8 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 		}
 	}
 
+	gGL.setSceneBlendType(LLRender::BT_ALPHA);
+
 	LLVertexBuffer::unbind();	
 		
 	if (!light_enabled)
@@ -615,4 +630,3 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 		gPipeline.enableLightsDynamic();
 	}
 }
-

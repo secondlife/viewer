@@ -122,7 +122,7 @@ void main()
 #ifdef USE_VERTEX_COLOR
 	vertex_color = diffuse_color;
 #endif
-
+	
 #ifdef HAS_SKIN
 	vary_fragcoord.xyz = frag_pos.xyz + vec3(0,0,near_clip);
 #else
@@ -137,3 +137,4 @@ void main()
 #endif
 
 }
+

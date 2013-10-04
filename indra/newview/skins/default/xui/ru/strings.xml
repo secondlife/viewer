@@ -139,6 +139,9 @@
 	<string name="create_account_url">
 		http://join.secondlife.com/?sourceid=[sourceid]
 	</string>
+	<string name="ViewerDownloadURL">
+		http://secondlife.com/download
+	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		У клиента, которым вы пользуетесь, больше нет доступа к игре Second Life. Загрузить новую версию клиента можно по адресу
 http://secondlife.com/download
@@ -447,6 +450,9 @@ support@secondlife.com.
 	</string>
 	<string name="SLappAgentRequestFriend">
 		Предложить дружбу
+	</string>
+	<string name="SLappAgentRemoveFriend">
+		Удаление друга
 	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
 		Закрыть (⌘W)
@@ -835,6 +841,9 @@ support@secondlife.com.
 	<string name="multiple_textures">
 		Несколько
 	</string>
+	<string name="use_texture">
+		Использовать текстуру
+	</string>
 	<string name="texture_loading">
 		Загрузка...
 	</string>
@@ -933,6 +942,21 @@ support@secondlife.com.
 	</string>
 	<string name="TeleportYourAgent">
 		Телепортировать вас
+	</string>
+	<string name="JoinAnExperience">
+		Присоединитесь
+	</string>
+	<string name="SilentlyManageEstateAccess">
+		Отключить извещения при управлении списками доступа к землевладениям
+	</string>
+	<string name="OverrideYourAnimations">
+		Заменить ваши стандартные анимации
+	</string>
+	<string name="ScriptReturnObjects">
+		Вернуть объекты от вашего имени
+	</string>
+	<string name="UnknownScriptPermission">
+		(неизвестно)!
 	</string>
 	<string name="SIM_ACCESS_PG">
 		Общий
@@ -1965,6 +1989,12 @@ support@secondlife.com.
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		Данные в игре внизу справа
 	</string>
+	<string name="ATTACH_NECK">
+		Шея
+	</string>
+	<string name="ATTACH_AVATAR_CENTER">
+		Центр аватара
+	</string>
 	<string name="CursorPos">
 		Строка [LINE], столбец [COLUMN]
 	</string>
@@ -2990,6 +3020,9 @@ support@secondlife.com.
 	</string>
 	<string name="Hip Width">
 		Ширина бедер
+	</string>
+	<string name="Hover">
+		Наведите
 	</string>
 	<string name="In">
 		Внутрь
@@ -5086,5 +5119,8 @@ support@secondlife.com.
 	</string>
 	<string name="logging_calls_enabled_log_empty">
 		Нет зарегистрированных разговоров. Если вы обратитесь к кому-то или наоборот, в журнале появится новая запись.
+	</string>
+	<string name="loading_chat_logs">
+		Загрузка...
 	</string>
 </strings>
