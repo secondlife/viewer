@@ -764,58 +764,6 @@ void LLVOAvatarSelf::stopMotionFromSource(const LLUUID& source_id)
 	}
 }
 
-//virtual
-U32  LLVOAvatarSelf::processUpdateMessage(LLMessageSystem *mesgsys,
-													 void **user_data,
-													 U32 block_num,
-													 const EObjectUpdateType update_type,
-													 LLDataPacker *dp)
-{
-	U32 retval = LLVOAvatar::processUpdateMessage(mesgsys,user_data,block_num,update_type,dp);
-
-	// SUNSHINE CLEANUP - does this become relevant again if we don't
-	// have to wait for appearance message to tell us where bakes are
-	// coming from?
-
-#if 0
-	// DRANO - it's not clear this does anything useful. If we wait
-	// until an appearance message has been received, we already have
-	// the texture ids. If we don't wait, we don't yet know where to
-	// look for baked textures, because we haven't received the
-	// appearance version data from the appearance message. This looks
-	// like an old optimization that's incompatible with server-side
-	// texture baking.
-	
-	// FIXME DRANO - skipping in the case of !mFirstAppearanceMessageReceived prevents us from trying to
-	// load textures before we know where they come from (ie, from baking service or not);
-	// unknown impact on performance.
-	if (mInitialBakesLoaded == false && retval == 0x0 && mFirstAppearanceMessageReceived)
-	{
-		// call update textures to force the images to be created
-		updateMeshTextures();
-
-		// unpack the texture UUIDs to the texture slots
-		retval = unpackTEMessage(mesgsys, _PREHASH_ObjectData, (S32) block_num);
-
-		// need to trigger a few operations to get the avatar to use the new bakes
-		for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
-		{
-			const LLAvatarAppearanceDefines::ETextureIndex te = mBakedTextureDatas[i].mTextureIndex;
-			LLUUID texture_id = getTEImage(te)->getID();
-			setNewBakedTexture(te, texture_id);
-			mInitialBakeIDs[i] = texture_id;
-		}
-
-		onFirstTEMessageReceived();
-
-		mInitialBakesLoaded = true;
-	}
-#endif
-
-	return retval;
-}
-
-
 void LLVOAvatarSelf::setLocalTextureTE(U8 te, LLViewerTexture* image, U32 index)
 {
 	if (te >= TEX_NUM_INDICES)
@@ -2492,81 +2440,6 @@ ETextureIndex LLVOAvatarSelf::getBakedTE( const LLViewerTexLayerSet* layerset ) 
 	return TEX_HEAD_BAKED;
 }
 
-
-void LLVOAvatarSelf::setNewBakedTexture(LLAvatarAppearanceDefines::EBakedTextureIndex i, const LLUUID &uuid)
-{
-	ETextureIndex index = LLAvatarAppearanceDictionary::bakedToLocalTextureIndex(i);
-	setNewBakedTexture(index, uuid);
-}
-
-
-//-----------------------------------------------------------------------------
-// setNewBakedTexture()
-// A new baked texture has been successfully uploaded and we can start using it now.
-//-----------------------------------------------------------------------------
-void LLVOAvatarSelf::setNewBakedTexture( ETextureIndex te, const LLUUID& uuid )
-{
-	// SUNSHINE CLEANUP
-	// If we reinstate processUpdateMessage(), this needs to be updated for server-bake textures.
-	llassert(false);
-
-	// Baked textures live on other sims.
-	LLHost target_host = getObjectHost();	
-	setTEImage( te, LLViewerTextureManager::getFetchedTextureFromHost( uuid, FTT_HOST_BAKE, target_host ) );
-	updateMeshTextures();
-	dirtyMesh();
-
-	LLVOAvatar::cullAvatarsByPixelArea();
-
-	/* switch(te)
-		case TEX_HEAD_BAKED:
-			llinfos << "New baked texture: HEAD" << llendl; */
-	const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = LLAvatarAppearanceDictionary::getInstance()->getTexture(te);
-	if (texture_dict->mIsBakedTexture)
-	{
-		debugBakedTextureUpload(texture_dict->mBakedTextureIndex, TRUE); // FALSE for start of upload, TRUE for finish.
-		llinfos << "New baked texture: " << texture_dict->mName << " UUID: " << uuid <<llendl;
-	}
-	else
-	{
-		llwarns << "New baked texture: unknown te " << te << llendl;
-	}
-	
-	//	dumpAvatarTEs( "setNewBakedTexture() send" );
-	// RN: throttle uploads
-	if (gSavedSettings.getBOOL("DebugAvatarRezTime"))
-	{
-		LLSD args;
-		args["EXISTENCE"] = llformat("%d",(U32)mDebugExistenceTimer.getElapsedTimeF32());
-		args["TIME"] = llformat("%d",(U32)mDebugSelfLoadTimer.getElapsedTimeF32());
-		if (isAllLocalTextureDataFinal())
-		{
-			LLNotificationsUtil::add("AvatarRezSelfBakedDoneNotification",args);
-			LL_DEBUGS("Avatar") << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32()
-								<< "sec ]"
-								<< avString() 
-								<< "RuthTimer " << (U32)mRuthDebugTimer.getElapsedTimeF32()
-								<< " SelfLoadTimer " << (U32)mDebugSelfLoadTimer.getElapsedTimeF32()
-								<< " Notification " << "AvatarRezSelfBakedDoneNotification"
-								<< llendl;
-		}
-		else
-		{
-			args["STATUS"] = debugDumpAllLocalTextureDataInfo();
-			LLNotificationsUtil::add("AvatarRezSelfBakedUpdateNotification",args);
-			LL_DEBUGS("Avatar") << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32()
-								<< "sec ]"
-								<< avString() 
-								<< "RuthTimer " << (U32)mRuthDebugTimer.getElapsedTimeF32()
-								<< " SelfLoadTimer " << (U32)mDebugSelfLoadTimer.getElapsedTimeF32()
-								<< " Notification " << "AvatarRezSelfBakedUpdateNotification"
-								<< llendl;
-		}
-	}
-
-	outputRezDiagnostics();
-}
-
 // FIXME: This is not called consistently. Something may be broken.
 void LLVOAvatarSelf::outputRezDiagnostics() const
 {
@@ -2642,55 +2515,7 @@ void LLVOAvatarSelf::reportAvatarRezTime() const
 	// TODO: report mDebugSelfLoadTimer.getElapsedTimeF32() somehow.
 }
 
-// static
-void LLVOAvatarSelf::processRebakeAvatarTextures(LLMessageSystem* msg, void**)
-{
-	LLUUID texture_id;
-	msg->getUUID("TextureData", "TextureID", texture_id);
-	if (!isAgentAvatarValid()) return;
-
-	// If this is a texture corresponding to one of our baked entries, 
-	// just rebake that layer set.
-	BOOL found = FALSE;
-
-	/* ETextureIndex baked_texture_indices[BAKED_NUM_INDICES] =
-			TEX_HEAD_BAKED,
-			TEX_UPPER_BAKED, */
-	for (LLAvatarAppearanceDictionary::Textures::const_iterator iter = LLAvatarAppearanceDictionary::getInstance()->getTextures().begin();
-		 iter != LLAvatarAppearanceDictionary::getInstance()->getTextures().end();
-		 ++iter)
-	{
-		const ETextureIndex index = iter->first;
-		const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = iter->second;
-		if (texture_dict->mIsBakedTexture)
-		{
-			if (texture_id == gAgentAvatarp->getTEImage(index)->getID())
-			{
-				LLViewerTexLayerSet* layer_set = gAgentAvatarp->getLayerSet(index);
-				if (layer_set)
-				{
-					llinfos << "TAT: rebake - matched entry " << (S32)index << llendl;
-					gAgentAvatarp->invalidateComposite(layer_set);
-					found = TRUE;
-					LLViewerStats::getInstance()->incStat(LLViewerStats::ST_TEX_REBAKES);
-				}
-			}
-		}
-	}
-
-	// If texture not found, rebake all entries.
-	if (!found)
-	{
-		gAgentAvatarp->forceBakeAllTextures();
-	}
-	else
-	{
-		// Not sure if this is necessary, but forceBakeAllTextures() does it.
-		gAgentAvatarp->updateMeshTextures();
-	}
-}
-
-
+// SUNSHINE CLEANUP - not clear we need any of this, may be sufficient to request server appearance in llviewermenu.cpp:handle_rebake_textures()
 void LLVOAvatarSelf::forceBakeAllTextures(bool slam_for_debug)
 {
 	llinfos << "TAT: forced full rebake. " << llendl;
@@ -2806,13 +2631,6 @@ void LLVOAvatarSelf::onCustomizeEnd(bool disable_camera_switch)
 	if (isAgentAvatarValid())
 	{
 		gAgentAvatarp->mIsEditingAppearance = false;
-		// SUNSHINE CLEANUP - should no longer happen
-		if (gAgentAvatarp->getRegion() && !gAgentAvatarp->getRegion()->getCentralBakeVersion())
-		{
-			// FIXME DRANO - move to sendAgentSetAppearance, make conditional on upload complete.
-			gAgentAvatarp->mUseLocalAppearance = false;
-		}
-
 		gAgentAvatarp->invalidateAll();
 
 		if (gSavedSettings.getBOOL("AppearanceCameraMovement") && !disable_camera_switch)

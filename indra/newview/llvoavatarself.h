@@ -103,12 +103,6 @@ public:
 	/*virtual*/ void updateVisualParams();
 	/*virtual*/ void idleUpdateAppearanceAnimation();
 
-	/*virtual*/ U32  processUpdateMessage(LLMessageSystem *mesgsys,
-													 void **user_data,
-													 U32 block_num,
-													 const EObjectUpdateType update_type,
-													 LLDataPacker *dp);
-
 private:
 	// helper function. Passed in param is assumed to be in avatar's parameter list.
 	BOOL setParamWeight(const LLViewerVisualParam *param, F32 weight);
@@ -234,11 +228,8 @@ private:
 	//--------------------------------------------------------------------
 public:
 	LLAvatarAppearanceDefines::ETextureIndex getBakedTE(const LLViewerTexLayerSet* layerset ) const;
-	// SUNSHINE CLEANUP - dead?
-	void				setNewBakedTexture(LLAvatarAppearanceDefines::EBakedTextureIndex i, const LLUUID &uuid);
-	void				setNewBakedTexture(LLAvatarAppearanceDefines::ETextureIndex i, const LLUUID& uuid);
+	// SUNSHINE CLEANUP - dead? or update to just call request appearance update?
 	void				forceBakeAllTextures(bool slam_for_debug = false);
-	static void			processRebakeAvatarTextures(LLMessageSystem* msg, void**);
 protected:
 	/*virtual*/ void	removeMissingBakedTextures();
 

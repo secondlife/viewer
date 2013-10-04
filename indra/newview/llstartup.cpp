@@ -2062,6 +2062,7 @@ bool idle_startup()
 		const F32 wearables_time = wearables_timer.getElapsedTimeF32();
 		const F32 MAX_WEARABLES_TIME = 10.f;
 
+#if 0
 		if (!gAgent.isGenderChosen() && isAgentAvatarValid())
 		{
 			// No point in waiting for clothing, we don't even
@@ -2077,6 +2078,7 @@ bool idle_startup()
 			LLStartUp::setStartupState( STATE_CLEANUP );
 			return TRUE;
 		}
+#endif
 		
 		display_startup();
 
@@ -2370,7 +2372,6 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 	msg->setHandlerFuncFast(_PREHASH_RemoveNameValuePair,	process_remove_name_value);
 	msg->setHandlerFuncFast(_PREHASH_AvatarAnimation,		process_avatar_animation);
 	msg->setHandlerFuncFast(_PREHASH_AvatarAppearance,		process_avatar_appearance);
-	msg->setHandlerFunc("RebakeAvatarTextures", LLVOAvatarSelf::processRebakeAvatarTextures);
 	msg->setHandlerFuncFast(_PREHASH_CameraConstraint,		process_camera_constraint);
 	msg->setHandlerFuncFast(_PREHASH_AvatarSitResponse,		process_avatar_sit_response);
 	msg->setHandlerFunc("SetFollowCamProperties",			process_set_follow_cam_properties);
@@ -2443,9 +2444,6 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 	// ratings deprecated
 	// msg->setHandlerFuncFast(_PREHASH_ReputationIndividualReply,
 	//					LLFloaterRate::processReputationIndividualReply);
-
-	//msg->setHandlerFuncFast(_PREHASH_AgentWearablesUpdate,
-	//					LLAgentWearables::processAgentInitialWearablesUpdate );
 
 	msg->setHandlerFunc("ScriptControlChange",
 						LLAgent::processScriptControlChange );

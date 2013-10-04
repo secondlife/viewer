@@ -211,11 +211,6 @@ void LLAgentWearables::AddWearableToAgentInventoryCallback::fire(const LLUUID& i
 
 	gAgentWearables.addWearabletoAgentInventoryDone(mType, mIndex, inv_item, mWearable);
 
-	if (mTodo & CALL_RECOVERDONE)
-	{
-		LLAppearanceMgr::instance().addCOFItemLink(inv_item);
-		gAgentWearables.recoverMissingWearableDone();
-	}
 	/*
 	 * Do this for every one in the loop
 	 */
@@ -640,39 +635,6 @@ BOOL LLAgentWearables::isWearingItem(const LLUUID& item_id) const
 	return getWearableFromItemID(item_id) != NULL;
 }
 
-// Normally, all wearables referred to "AgentWearablesUpdate" will correspond to actual assets in the
-// database.  If for some reason, we can't load one of those assets, we can try to reconstruct it so that
-// the user isn't left without a shape, for example.  (We can do that only after the inventory has loaded.)
-void LLAgentWearables::recoverMissingWearable(const LLWearableType::EType type, U32 index)
-{
-	// Try to recover by replacing missing wearable with a new one.
-	LLNotificationsUtil::add("ReplacedMissingWearable");
-	lldebugs << "Wearable " << LLWearableType::getTypeLabel(type) << " could not be downloaded.  Replaced inventory item with default wearable." << llendl;
-	LLViewerWearable* new_wearable = LLWearableList::instance().createNewWearable(type, gAgentAvatarp);
-
-	setWearable(type,index,new_wearable);
-	//new_wearable->writeToAvatar(TRUE);
-
-	// Add a new one in the lost and found folder.
-	// (We used to overwrite the "not found" one, but that could potentially
-	// destroy content.) JC
-	const LLUUID lost_and_found_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
-	LLPointer<LLInventoryCallback> cb =
-		new AddWearableToAgentInventoryCallback(
-			LLPointer<LLRefCount>(NULL),
-			type,
-			index,
-			new_wearable,
-			AddWearableToAgentInventoryCallback::CALL_RECOVERDONE);
-	addWearableToAgentInventory(cb, new_wearable, lost_and_found_id, TRUE);
-}
-
-void LLAgentWearables::recoverMissingWearableDone()
-{
-	gInventory.addChangedMask(LLInventoryObserver::LABEL, LLUUID::null);
-	gInventory.notifyObservers();
-}
-
 void LLAgentWearables::addLocalTextureObject(const LLWearableType::EType wearable_type, const LLAvatarAppearanceDefines::ETextureIndex texture_type, U32 wearable_index)
 {
 	LLViewerWearable* wearable = getViewerWearable((LLWearableType::EType)wearable_type, wearable_index);
@@ -1071,8 +1033,6 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 	// Start rendering & update the server
 	mWearablesLoaded = TRUE; 
 
-	// SUNSHINE CLEANUP - these checks for done never worked. Should they be modified?
-	//checkWearablesLoaded();
 	notifyLoadingFinished();
 
 	gAgentAvatarp->dumpAvatarTEs("setWearableOutfit");

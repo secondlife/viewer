@@ -6856,7 +6856,7 @@ bool resolve_appearance_version(const LLAppearanceMessageContents& contents, S32
 	{
 		appearance_version = contents.mAppearanceVersion;
 	}
-	else // still not set, go with 0.
+	else // still not set, go with 1.
 	{
 		appearance_version = 1;
 	}
@@ -6866,7 +6866,6 @@ bool resolve_appearance_version(const LLAppearanceMessageContents& contents, S32
 	return true;
 }
 
-// SUNSHINE CLEANUP - if we can assume server baking, we can simplify some code here.
 //-----------------------------------------------------------------------------
 // processAvatarAppearance()
 //-----------------------------------------------------------------------------
@@ -6898,11 +6897,15 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		return;
 	}
 	llassert(appearance_version > 0);
+	if (appearance_version > 1)
+	{
+		llwarns << "unsupported appearance version " << appearance_version << ", discarding appearance message" << llendl;
+		return;
+	}
 
 	S32 this_update_cof_version = contents.mCOFVersion;
 	S32 last_update_request_cof_version = mLastUpdateRequestCOFVersion;
 
-	// Only now that we have result of appearance_version can we decide whether to bail out.
 	if( isSelf() )
 	{
 		LL_DEBUGS("Avatar") << "this_update_cof_version " << this_update_cof_version
@@ -6941,7 +6944,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		return;
 	}
 
-	// No backsies zone - if we get here, the message should be valid and usable, will process.
+	// No backsies zone - if we get here, the message should be valid and usable, will be processed.
 
 	// Note:
 	// RequestAgentUpdateAppearanceResponder::onRequestRequested()
