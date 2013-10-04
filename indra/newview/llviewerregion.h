@@ -373,6 +373,8 @@ public:
 	void removeFromCreatedList(U32 local_id);
 	void addToCreatedList(U32 local_id);	
 
+	BOOL isPaused() const {return mPaused;}
+
 private:
 	void addToVOCacheTree(LLVOCacheEntry* entry);
 	LLViewerObject* addNewObject(LLVOCacheEntry* entry);
@@ -482,6 +484,7 @@ private:
 	BOOL	mCapabilitiesReceived;
 	BOOL    mReleaseNotesRequested;
 	BOOL    mDead;  //if true, this region is in the process of deleting.
+	BOOL    mPaused; //pause processing the objects in the region
 
 	typedef std::map<U32, std::vector<U32> > orphan_list_t;
 	orphan_list_t mOrphanMap;

@@ -377,7 +377,8 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
 	mPacketsReceived(0.f),
 	mDead(FALSE),
 	mLastVisitedEntry(NULL),
-	mInvisibilityCheckHistory(-1)
+	mInvisibilityCheckHistory(-1),
+	mPaused(FALSE)
 {
 	mWidth = region_width_meters;
 	mImpl->mOriginGlobal = from_region_handle(handle); 
@@ -1185,6 +1186,7 @@ void LLViewerRegion::clearCachedVisibleObjects()
 
 	//reset all occluders
 	mImpl->mVOCachePartition->resetOccluders();
+	mPaused = TRUE;
 
 	//clean visible entries
 	for(LLVOCacheEntry::vocache_entry_set_t::iterator iter = mImpl->mVisibleEntries.begin(); iter != mImpl->mVisibleEntries.end();)
@@ -1257,9 +1259,13 @@ BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 	{
 		return did_update;
 	}	
-	
+	if(mPaused)
+	{
+		mPaused = FALSE; //unpause.
+	}
+
 	//reset all occluders
-	mImpl->mVOCachePartition->resetOccluders();
+	mImpl->mVOCachePartition->resetOccluders();	
 
 	max_update_time -= update_timer.getElapsedTimeF32();	
 
