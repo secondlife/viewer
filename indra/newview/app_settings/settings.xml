@@ -2994,6 +2994,17 @@
 	  <key>Value</key>
 	  <string>Female Shape &amp; Outfit</string>
 	</map>
+	<key>DefaultLoginLocation</key>
+	<map>
+		<key>Comment</key>
+		<string>Startup destination default (if not specified on command line)</string>
+		<key>Persist</key>
+		<integer>1</integer>
+		<key>Type</key>
+		<string>String</string>
+		<key>Value</key>
+		<string/>
+	</map>
 	<key>DefaultMaleAvatar</key>
 	<map>
 	  <key>Comment</key>

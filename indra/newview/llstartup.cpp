@@ -2176,10 +2176,6 @@ bool idle_startup()
 		// reset keyboard focus to sane state of pointing at world
 		gFocusMgr.setKeyboardFocus(NULL);
 
-#if 0 // sjb: enable for auto-enabling timer display 
-		gDebugView->mFastTimerView->setVisible(TRUE);
-#endif
-
 		LLAppViewer::instance()->handleLoginComplete();
 
 		LLAgentPicksInfo::getInstance()->requestNumberOfPicks();

@@ -188,6 +188,11 @@ namespace LLTrace
 			return getNumIndices();
 		}
 
+		size_t capacity() const
+		{
+			return mStorageSize;
+		}
+
 		static size_t getNumIndices() 
 		{
 			return sNextStorageSlot;
@@ -261,8 +266,8 @@ namespace LLTrace
 		void sync(F64SecondsImplicit) {}
 
 		F64	getSum() const               { return mSum; }
-		F64	getMin() const               { return mMin; }
-		F64	getMax() const               { return mMax; }
+		F32	getMin() const               { return mMin; }
+		F32	getMax() const               { return mMax; }
 		F64	getLastValue() const         { return mLastValue; }
 		F64	getMean() const              { return mMean; }
 		F64 getStandardDeviation() const { return sqrtf(mSumOfSquares / mNumSamples); }
@@ -272,12 +277,13 @@ namespace LLTrace
 
 	private:
 		F64	mSum,
-			mMin,
-			mMax,
 			mLastValue;
 
 		F64	mMean,
 			mSumOfSquares;
+
+		F32 mMin,
+			mMax;
 
 		S32	mNumSamples;
 	};
@@ -345,8 +351,8 @@ namespace LLTrace
 		}
 
 		F64	getSum() const               { return mSum; }
-		F64	getMin() const               { return mMin; }
-		F64	getMax() const               { return mMax; }
+		F32	getMin() const               { return mMin; }
+		F32	getMax() const               { return mMax; }
 		F64	getLastValue() const         { return mLastValue; }
 		F64	getMean() const              { return mMean; }
 		F64 getStandardDeviation() const { return sqrtf(mSumOfSquares / mTotalSamplingTime); }
@@ -357,11 +363,7 @@ namespace LLTrace
 
 	private:
 		F64		mSum,
-				mMin,
-				mMax,
 				mLastValue;
-
-		bool	mHasValue;		// distinct from mNumSamples, since we might have inherited an old sample
 
 		F64		mMean,
 				mSumOfSquares;
@@ -370,7 +372,13 @@ namespace LLTrace
 				mLastSampleTimeStamp,
 				mTotalSamplingTime;
 
+		F32		mMin,
+				mMax;
+
 		S32		mNumSamples;
+		// distinct from mNumSamples, since we might have inherited a last value from
+		// a previous sampling period
+		bool	mHasValue;		
 	};
 
 	class CountAccumulator
@@ -500,8 +508,8 @@ namespace LLTrace
 
 		void addSamples(const MemStatAccumulator& other, EBufferAppendType append_type)
 		{
-			mFootprintAllocations.addSamples(other.mFootprintAllocations, append_type);
-			mFootprintDeallocations.addSamples(other.mFootprintDeallocations, append_type);
+			mAllocations.addSamples(other.mAllocations, append_type);
+			mDeallocations.addSamples(other.mDeallocations, append_type);
 
 			if (append_type == SEQUENTIAL)
 			{
@@ -509,7 +517,7 @@ namespace LLTrace
 			}
 			else
 			{
-				F64 allocation_delta(other.mFootprintAllocations.getSum() - other.mFootprintDeallocations.getSum());
+				F64 allocation_delta(other.mAllocations.getSum() - other.mDeallocations.getSum());
 				mSize.sample(mSize.hasValue() 
 					? mSize.getLastValue() + allocation_delta 
 					: allocation_delta);
@@ -519,8 +527,8 @@ namespace LLTrace
 		void reset(const MemStatAccumulator* other)
 		{
 			mSize.reset(other ? &other->mSize : NULL);
-			mFootprintAllocations.reset(other ? &other->mFootprintAllocations : NULL);
-			mFootprintDeallocations.reset(other ? &other->mFootprintDeallocations : NULL);
+			mAllocations.reset(other ? &other->mAllocations : NULL);
+			mDeallocations.reset(other ? &other->mDeallocations : NULL);
 		}
 
 		void sync(F64SecondsImplicit time_stamp) 
@@ -529,13 +537,15 @@ namespace LLTrace
 		}
 
 		SampleAccumulator	mSize;
-		EventAccumulator	mFootprintAllocations;
-		CountAccumulator	mFootprintDeallocations;
+		EventAccumulator	mAllocations;
+		CountAccumulator	mDeallocations;
 	};
 
 	struct AccumulatorBufferGroup : public LLRefCount
 	{
 		AccumulatorBufferGroup();
+		AccumulatorBufferGroup(const AccumulatorBufferGroup&);
+		~AccumulatorBufferGroup();
 
 		void handOffTo(AccumulatorBufferGroup& other);
 		void makeCurrent();

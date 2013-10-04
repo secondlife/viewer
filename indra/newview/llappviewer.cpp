@@ -2653,10 +2653,26 @@ bool LLAppViewer::initConfiguration()
     // What can happen is that someone can use IE (or potentially 
     // other browsers) and do the rough equivalent of command 
     // injection and steal passwords. Phoenix. SL-55321
-	std::string CmdLineLoginLocation(gSavedSettings.getString("CmdLineLoginLocation"));
-	if(! CmdLineLoginLocation.empty())
+
+	std::string starting_location;
+
+	std::string cmd_line_login_location(gSavedSettings.getString("CmdLineLoginLocation"));
+	if(! cmd_line_login_location.empty())
 	{
-		LLSLURL start_slurl(CmdLineLoginLocation);
+		starting_location = cmd_line_login_location;
+	}
+	else
+	{
+		std::string default_login_location(gSavedSettings.getString("DefaultLoginLocation"));
+		if (! default_login_location.empty())
+		{
+			starting_location = default_login_location;
+		}
+	}
+
+	if (! starting_location.empty())
+	{
+		LLSLURL start_slurl(starting_location);
 		LLStartUp::setStartSLURL(start_slurl);
 		if(start_slurl.getType() == LLSLURL::LOCATION) 
 		{  

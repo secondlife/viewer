@@ -320,23 +320,23 @@ struct MeasureMem<std::basic_string<T>, IS_MEM_TRACKABLE, IS_BYTES>
 
 
 template<typename T>
-inline void claim_footprint(MemStatHandle& measurement, const T& value)
+inline void claim_alloc(MemStatHandle& measurement, const T& value)
 {
 	S32 size = MeasureMem<T>::measureFootprint(value);
 	if(size == 0) return;
 	MemStatAccumulator& accumulator = measurement.getCurrentAccumulator();
 	accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() + (F64)size : (F64)size);
-	accumulator.mFootprintAllocations.record(size);
+	accumulator.mAllocations.record(size);
 }
 
 template<typename T>
-inline void disclaim_footprint(MemStatHandle& measurement, const T& value)
+inline void disclaim_alloc(MemStatHandle& measurement, const T& value)
 {
 	S32 size = MeasureMem<T>::measureFootprint(value);
 	if(size == 0) return;
 	MemStatAccumulator& accumulator = measurement.getCurrentAccumulator();
 	accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)size : -(F64)size);
-	accumulator.mFootprintDeallocations.add(size);
+	accumulator.mDeallocations.add(size);
 }
 
 template<typename DERIVED, size_t ALIGNMENT = LL_DEFAULT_HEAP_ALIGN>
@@ -370,25 +370,25 @@ public:
 
 	void* operator new(size_t size) 
 	{
-		claim_footprint(sMemStat, size);
+		claim_alloc(sMemStat, size);
 		return ll_aligned_malloc(ALIGNMENT, size);
 	}
 
 	void operator delete(void* ptr, size_t size)
 	{
-		disclaim_footprint(sMemStat, size);
+		disclaim_alloc(sMemStat, size);
 		ll_aligned_free(ALIGNMENT, ptr);
 	}
 
 	void* operator new [](size_t size)
 	{
-		claim_footprint(sMemStat, size);
+		claim_alloc(sMemStat, size);
 		return ll_aligned_malloc(ALIGNMENT, size);
 	}
 
 	void operator delete[](void* ptr, size_t size)
 	{
-		disclaim_footprint(sMemStat, size);
+		disclaim_alloc(sMemStat, size);
 		ll_aligned_free(ALIGNMENT, ptr);
 	}
 
@@ -397,7 +397,7 @@ public:
 	void claimMem(const CLAIM_T& value) const
 	{
 		S32 size = MeasureMem<CLAIM_T>::measureFootprint(value);
-		claim_footprint(sMemStat, size);
+		claim_alloc(sMemStat, size);
 		mMemFootprint += size;
 	}
 
@@ -406,7 +406,7 @@ public:
 	void disclaimMem(const CLAIM_T& value) const
 	{
 		S32 size = MeasureMem<CLAIM_T>::measureFootprint(value);
-		disclaim_footprint(sMemStat, size);
+		disclaim_alloc(sMemStat, size);
 		mMemFootprint -= size;
 	}
 
