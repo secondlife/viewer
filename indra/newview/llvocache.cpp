@@ -361,6 +361,12 @@ bool LLVOCacheEntry::isRecentlyVisible() const
 {
 	bool vis = LLViewerOctreeEntryData::isRecentlyVisible();
 
+	if(!vis && getGroup())
+	{
+		//recently visible to any camera?
+		vis = ((LLOcclusionCullingGroup*)getGroup())->isAnyRecentlyVisible();
+	}
+
 	//combination of projected area and squared distance
 	if(!vis && !mParentID && mSceneContrib > sBackAngleTanSquared) 
 	{

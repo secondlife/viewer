@@ -435,6 +435,7 @@ LLviewerOctreeGroup::~LLviewerOctreeGroup()
 
 LLviewerOctreeGroup::LLviewerOctreeGroup(OctreeNode* node) :
 	mOctreeNode(node),
+	mAnyVisible(0),
 	mState(CLEAN)
 {
 	LLVector4a tmp;
@@ -735,6 +736,7 @@ BOOL LLviewerOctreeGroup::isRecentlyVisible() const
 void LLviewerOctreeGroup::setVisible()
 {
 	mVisible[LLViewerCamera::sCurCameraID] = LLViewerOctreeEntryData::getCurrentFrame();
+	mAnyVisible = LLViewerOctreeEntryData::getCurrentFrame();
 }
 
 void LLviewerOctreeGroup::checkStates()
@@ -869,6 +871,12 @@ BOOL LLOcclusionCullingGroup::isRecentlyVisible() const
 {
 	const S32 MIN_VIS_FRAME_RANGE = 2;
 	return (LLDrawable::getCurrentFrame() - mVisible[LLViewerCamera::sCurCameraID]) < MIN_VIS_FRAME_RANGE ;
+}
+
+BOOL LLOcclusionCullingGroup::isAnyRecentlyVisible() const
+{
+	const S32 MIN_VIS_FRAME_RANGE = 2;
+	return (LLDrawable::getCurrentFrame() - mAnyVisible) < MIN_VIS_FRAME_RANGE ;
 }
 
 //virtual 

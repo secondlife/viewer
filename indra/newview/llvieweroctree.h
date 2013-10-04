@@ -233,6 +233,7 @@ public:
 	void setVisible();
 	BOOL isVisible() const;
 	virtual BOOL isRecentlyVisible() const;
+	S32  getVisible(LLViewerCamera::eCameraID id) const {return mVisible[id];}
 	bool isEmpty() const { return mOctreeNode->isEmpty(); }
 
 	U32  getState()				   {return mState; }
@@ -278,7 +279,7 @@ protected:
 	LL_ALIGN_16(LLVector4a mExtents[2]);       // extents (min, max) of this node and all its children
 	LL_ALIGN_16(LLVector4a mObjectExtents[2]); // extents (min, max) of objects in this node	
 
-public:
+	S32         mAnyVisible; //latest visible to any camera
 	S32         mVisible[LLViewerCamera::NUM_CAMERAS];	
 
 };//LL_ALIGN_POSTFIX(16);
@@ -330,6 +331,7 @@ public:
 	//virtual
 	BOOL isRecentlyVisible() const;
 	LLViewerOctreePartition* getSpatialPartition()const {return mSpatialPartition;}
+	BOOL isAnyRecentlyVisible() const;
 
 	static U32 getNewOcclusionQueryObjectName();
 	static void releaseOcclusionQueryObjectName(U32 name);
