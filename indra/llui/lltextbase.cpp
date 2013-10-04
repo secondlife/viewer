@@ -2379,7 +2379,6 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round,
 {
 	// Figure out which line we're nearest to.
 	LLRect doc_rect = mDocumentView->getRect();
-
 	S32 doc_y = local_y - doc_rect.mBottom;
 	
 	// binary search for line that starts before local_y

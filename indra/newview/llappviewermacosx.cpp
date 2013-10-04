@@ -483,41 +483,24 @@ bool LLAppViewerMacOSX::getMasterSystemAudioMute()
 	return (mute != 0);
 }
 
-OSErr AEGURLHandler(const AppleEvent *messagein, AppleEvent *reply, long refIn)
+void handleUrl(const char* url_utf8)
 {
-	OSErr result = noErr;
-	DescType actualType;
-	char buffer[1024];		// Flawfinder: ignore
-	Size size;
-	
-	result = AEGetParamPtr (
-		messagein,
-		keyDirectObject,
-		typeCString,
-		&actualType,
-		(Ptr)buffer,
-		sizeof(buffer),
-		&size);	
-	
-	if(result == noErr)
-	{
-		std::string url = buffer;
+    if (url_utf8)
+    {
+        std::string url = url_utf8;
+	    // Safari 3.2 silently mangles secondlife:///app/ URLs into
+	    // secondlife:/app/ (only one leading slash).
+	    // Fix them up to meet the URL specification. JC
+	    const std::string prefix = "secondlife:/app/";
+	    std::string test_prefix = url.substr(0, prefix.length());
+	    LLStringUtil::toLower(test_prefix);
+	    if (test_prefix == prefix)
+	    {
+		    url.replace(0, prefix.length(), "secondlife:///app/");
+	    }
 		
-		// Safari 3.2 silently mangles secondlife:///app/ URLs into
-		// secondlife:/app/ (only one leading slash).
-		// Fix them up to meet the URL specification. JC
-		const std::string prefix = "secondlife:/app/";
-		std::string test_prefix = url.substr(0, prefix.length());
-		LLStringUtil::toLower(test_prefix);
-		if (test_prefix == prefix)
-		{
-			url.replace(0, prefix.length(), "secondlife:///app/");
-		}
-		
-		LLMediaCtrl* web = NULL;
-		const bool trusted_browser = false;
-		LLURLDispatcher::dispatch(url, "", web, trusted_browser);
-	}
-	
-	return(result);
+	    LLMediaCtrl* web = NULL;
+    	const bool trusted_browser = false;
+	    LLURLDispatcher::dispatch(url, "", web, trusted_browser);
+    }
 }

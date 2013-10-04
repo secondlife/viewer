@@ -33,6 +33,7 @@
 #include "v4math.h"
 #include "v4color.h"
 #include "llviewershadermgr.h"
+#include "llstringtable.h"
 
 class LLWaterParamSet;
 
@@ -47,6 +48,9 @@ public:
 private:
 
 	LLSD mParamValues;
+	std::vector<LLStaticHashedString> mParamHashedNames;
+
+	void updateHashedNames();
 
 public:
 
@@ -139,6 +143,17 @@ inline void LLWaterParamSet::setAll(const LLSD& val)
 		{
 			mParamValues[mIt->first] = mIt->second;
 		}
+	}
+	updateHashedNames();
+}
+
+inline void LLWaterParamSet::updateHashedNames()
+{
+	mParamHashedNames.clear();
+	// Iterate through values
+	for(LLSD::map_iterator iter = mParamValues.beginMap(); iter != mParamValues.endMap(); ++iter)
+	{
+		mParamHashedNames.push_back(LLStaticHashedString(iter->first));
 	}
 }
 

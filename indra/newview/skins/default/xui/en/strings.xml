@@ -410,12 +410,14 @@ Please try logging in again in a minute.</string>
 	<string name="AddAndRemoveJoints">Add and remove joints with other objects</string>
 	<string name="ChangePermissions">Change its permissions</string>
 	<string name="TrackYourCamera">Track your camera</string>
-  <string name="ControlYourCamera">Control your camera</string>
+	<string name="ControlYourCamera">Control your camera</string>
+	<string name="TeleportYourAgent">Teleport you</string>
+	<string name="ManageEstateSilently">Manage your estates silently</string>
+	<string name="ChangeYourDefaultAnimations">Change your default animations</string>
+	
 	<string name="NotConnected">Not Connected</string>
 	<string name="AgentNameSubst">(You)</string> <!-- Substitution for agent name -->
-  <string name="TeleportYourAgent">Teleport you</string>
 	<string name="JoinAnExperience"></string> <!-- intentionally left blank -->
-  
 	<string name="SilentlyManageEstateAccess">Suppress alerts when managing estate access lists</string>
 	<string name="OverrideYourAnimations">Replace your default animations</string>
 	<string name="ScriptReturnObjects">Return objects on your behalf</string>
@@ -645,11 +647,11 @@ Returns the wind velocity at the object position + offset
 	</string>
 	<string name="LSLTipText_llSetStatus" translate="false">
 llSetStatus(integer status, integer value)
-Sets status (STATUS_PHYSICS, STATUS_PHANTOM, STATUS_BLOCK_GRAB, STATUS_ROTATE_X, STATUS_ROTATE_Y, and/or STATUS_ROTATE_Z) to value
+Sets status (STATUS_PHYSICS, STATUS_PHANTOM, STATUS_BLOCK_GRAB, STATUS_BLOCK_GRAB_OBJECT, STATUS_ROTATE_X, STATUS_ROTATE_Y, and/or STATUS_ROTATE_Z) to value
 	</string>
 	<string name="LSLTipText_llGetStatus" translate="false">
 integer llGetStatus(integer status)
-Returns value of status (STATUS_PHYSICS, STATUS_PHANTOM, STATUS_BLOCK_GRAB, STATUS_ROTATE_X, STATUS_ROTATE_Y, and/or STATUS_ROTATE_Z)
+Returns the boolean value of status (STATUS_PHYSICS, STATUS_PHANTOM, STATUS_BLOCK_GRAB, STATUS_BLOCK_GRAB_OBJECT, STATUS_ROTATE_X, STATUS_ROTATE_Y, or STATUS_ROTATE_Z)
 	</string>
 	<string name="LSLTipText_llSetScale" translate="false">
 llSetScale(vector scale)

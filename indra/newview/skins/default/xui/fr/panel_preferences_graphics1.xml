@@ -30,7 +30,7 @@
 		<check_box initial_value="true" label="Lumières locales" name="LocalLights"/>
 		<check_box initial_value="true" label="Effets de base" name="BasicShaders" tool_tip="La désactivation de cette option peut éviter le plantage de certains pilotes de cartes graphiques"/>
 		<check_box initial_value="true" label="Effets atmosphériques" name="WindLightUseAtmosShaders"/>
-		<check_box initial_value="true" label="Éclairage et ombres" name="UseLightShaders"/>
+		<check_box initial_value="true" label="Modèle d&apos;éclairage avancé" name="UseLightShaders"/>
 		<check_box initial_value="true" label="Occlusion ambiante" name="UseSSAO"/>
 		<check_box initial_value="true" label="Profondeur de champ" name="UseDoF"/>
 		<text name="shadows_label">

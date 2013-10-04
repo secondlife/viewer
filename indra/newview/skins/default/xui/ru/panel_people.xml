@@ -49,6 +49,9 @@
 				<menu_button name="plus_btn" tool_tip="Присоединиться к группе/создать новую группу"/>
 				<dnd_button name="minus_btn" tool_tip="Покинуть выбранную группу"/>
 			</panel>
+			<text name="groupcount">
+				Вы входите в [COUNT] групп и можете присоединиться еще к [REMAINING].
+			</text>
 		</panel>
 		<panel label="НЕДАВНИЕ" name="recent_panel">
 			<panel label="bottom_panel" name="recent_buttons_panel">

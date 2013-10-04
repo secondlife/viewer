@@ -96,6 +96,7 @@
 #include "llupdaterservice.h"
 #include "llfloatertexturefetchdebugger.h"
 #include "llspellcheck.h"
+#include "llavatarrenderinfoaccountant.h"
 
 // Linden library includes
 #include "llavatarnamecache.h"
@@ -571,7 +572,7 @@ static void settings_to_globals()
 	LLSurface::setTextureSize(gSavedSettings.getU32("RegionTextureSize"));
 	
 	LLRender::sGLCoreProfile = gSavedSettings.getBOOL("RenderGLCoreProfile");
-
+	LLVertexBuffer::sUseVAO = gSavedSettings.getBOOL("RenderUseVAO");
 	LLImageGL::sGlobalUseAnisotropic	= gSavedSettings.getBOOL("RenderAnisotropic");
 	LLImageGL::sCompressTextures		= gSavedSettings.getBOOL("RenderCompressTextures");
 	LLVOVolume::sLODFactor				= gSavedSettings.getF32("RenderVolumeLODFactor");
@@ -1637,6 +1638,8 @@ bool LLAppViewer::cleanup()
 {
 	//ditch LLVOAvatarSelf instance
 	gAgentAvatarp = NULL;
+
+    LLNotifications::instance().clear();
 
 	// workaround for DEV-35406 crash on shutdown
 	LLEventPumps::instance().reset();
@@ -4847,6 +4850,9 @@ void LLAppViewer::idle()
 		LLFastTimer t(FTM_LOD_UPDATE);
 		gObjectList.updateApparentAngles(gAgent);
 	}
+
+	// Update AV render info
+	LLAvatarRenderInfoAccountant::idle();
 
 	{
 		LLFastTimer t(FTM_AUDIO_UPDATE);

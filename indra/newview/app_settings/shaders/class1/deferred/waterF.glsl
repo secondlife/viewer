@@ -187,9 +187,9 @@ void main()
 	color.rgb = mix(fb.rgb, refcol.rgb, df1 * 0.99999);
 	
 	vec4 pos = vary_position;
-		
+	
 	color.rgb += spec * specular;
-
+	
 	color.rgb = atmosTransport(color.rgb);
 	color.rgb = scaleSoftClip(color.rgb);
 	color.a   = spec * sunAngle2;

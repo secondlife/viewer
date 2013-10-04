@@ -134,7 +134,7 @@ public:
 	void updateFilterPermMask();
 	void commitIfImmediateSet();
 	void commitCancel();
-
+	
 	void onFilterEdit(const std::string& search_string );
 	
 	void setCanApply(bool can_preview, bool can_apply);

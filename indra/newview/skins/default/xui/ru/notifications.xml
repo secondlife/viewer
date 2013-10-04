@@ -210,6 +210,14 @@
 Добавить эту способность к роли «[ROLE_NAME]»?
 		<usetemplate name="okcancelbuttons" notext="Нет" yestext="Да"/>
 	</notification>
+	<notification name="EjectGroupMemberWarning">
+		Вы собираетесь исключить [AVATAR_NAME] из группы.
+		<usetemplate ignoretext="Подтвердите исключение участника из группы" name="okcancelignore" notext="Отмена" yestext="Выкинуть"/>
+	</notification>
+	<notification name="EjectGroupMembersWarning">
+		Вы собираетесь исключить [COUNT] участников из группы.
+		<usetemplate ignoretext="Подтвердите исключение участников из группы" name="okcancelignore" notext="Отмена" yestext="Выкинуть"/>
+	</notification>
 	<notification name="AttachmentDrop">
 		Вы собираетесь сбросить свое присоединение.
     Продолжить?
@@ -1111,7 +1119,7 @@
 Введите более высокую цену.
 	</notification>
 	<notification name="ConfirmItemDeleteHasLinks">
-		Имеется ссылка, указывающая как минимум на один из выбранных вами предметов.  Если удалить этот предмет, его ссылки перестанут работать.  Настоятельно рекомендуется сначала удалить ссылки.
+		По крайней мере у одного предмета есть ссылки, указывающие на него.  Если удалить этот предмет, его ссылки перестанут работать.  Настоятельно рекомендуется сначала удалить ссылки.
 
 Действительно удалить эти предметы?
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
@@ -1161,7 +1169,7 @@
 Вы не владеете по крайней мере одним объектом.
 
 Действительно удалить эти предметы?
-		<usetemplate name="okcancelbuttons" notext="отмена" yestext="OK"/>
+		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmObjectTakeLock">
 		Как минимум один объект фиксирован.
@@ -1480,13 +1488,43 @@ http://secondlife.com/download.
 	</notification>
 	<notification name="RequiredUpdateDownloadedVerboseDialog">
 		Загружено обязательное обновление.
-Версия [VERSION]
+Версия [VERSION]. [[INFO_URL] Сведения об этом обновлении]
 
 Необходимо перезапустить [APP_NAME] для установки обновления.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="RequiredUpdateDownloadedDialog">
 		Необходимо перезапустить [APP_NAME] для установки обновления.
+[[INFO_URL] Сведения об этом обновлении]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OtherChannelDownloadBackgroundTip">
+		Загружено обновление для вашей версии [APP_NAME].
+Версия [VERSION] 
+На замену этой экспериментальной версии клиента предлагается клиент [NEW_CHANNEL];
+см. [[INFO_URL] об этом обновлении]
+		<usetemplate name="okcancelbuttons" notext="Позже..." yestext="Установите обновление и перезапустите [APP_NAME]"/>
+	</notification>
+	<notification name="OtherChannelDownloadBackgroundDialog">
+		Загружено обновление для вашей версии [APP_NAME].
+Версия [VERSION]
+На замену этой экспериментальной версии клиента предлагается клиент [NEW_CHANNEL];
+см. [[INFO_URL] Сведения об этом обновлении]
+		<usetemplate name="okcancelbuttons" notext="Позже..." yestext="Установите обновление и перезапустите [APP_NAME]"/>
+	</notification>
+	<notification name="OtherChannelRequiredUpdateDownloadedVerboseDialog">
+		Загружено обязательное обновление.
+Версия [VERSION]
+На замену этой экспериментальной версии клиента предлагается клиент [NEW_CHANNEL];
+см. [[INFO_URL] Сведения об этом обновлении]
+
+Необходимо перезапустить [APP_NAME] для установки обновления.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OtherChannelRequiredUpdateDownloadedDialog">
+		Необходимо перезапустить [APP_NAME] для установки обновления.
+На замену этой экспериментальной версии клиента предлагается клиент [NEW_CHANNEL];
+см. [[INFO_URL] Сведения об этом обновлении]
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DeedObjectToGroup">
@@ -1536,6 +1574,10 @@ http://secondlife.com/download.
 		Вы сейчас входите в группу &lt;nolink&gt;[GROUP]&lt;/nolink&gt;.
 Хотите покинуть группу?
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
+	</notification>
+	<notification name="OwnerCannotLeaveGroup">
+		Невозможно покинуть группу. Вы не можете покинуть группу, так как вы ее последний владелец. Сначала назначьте владельцем другого участника.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmKick">
 		Вы ДЕЙСТВИТЕЛЬНО хотите выбросить всех жителей с сетки?
@@ -2396,9 +2438,7 @@ http://secondlife.com/download.
     выбрать команду «Телепортация».)
 	</notification>
 	<notification name="TeleportToPerson">
-		Чтобы обратиться к жителю, например «[NAME]», нажмите кнопку «Люди», выберите жителя в появившемся окне и нажмите кнопку
-    «IM» внизу окна.
-    (Также можно дважды щелкнуть имя жителя в списке или щелкнуть его правой кнопкой мыши и выбрать команду «IM».)
+		Чтобы начать личный разговор, щелкните аватар собеседника правой кнопкой мыши и выберите в меню «IM».
 	</notification>
 	<notification name="CantSelectLandFromMultipleRegions">
 		Нельзя выбрать землю с обеих сторон границы между серверами.
@@ -2770,6 +2810,15 @@ http://secondlife.com/download.
 		<form name="form">
 			<button name="Grant" text="Разрешить полный доступ"/>
 			<button name="Deny" text="Отклонить"/>
+		</form>
+	</notification>
+	<notification name="UnknownScriptQuestion">
+		Объект &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;» владельца «[NAME]» требует разрешения на выполнение скрипта; разрешение не распознается клиентом и не будет предоставлено
+
+Для получения этого разрешения установите последнюю версию клиента из [DOWNLOADURL].
+		<form name="form">
+			<button name="Deny" text="OK"/>
+			<button name="Mute" text="Заблокировать"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialog">

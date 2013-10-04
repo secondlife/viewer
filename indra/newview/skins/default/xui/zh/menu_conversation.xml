@@ -3,6 +3,7 @@
 	<menu_item_call label="關閉交談" name="close_conversation"/>
 	<menu_item_call label="開啟語音交談" name="open_voice_conversation"/>
 	<menu_item_call label="切斷語音交談" name="disconnect_from_voice"/>
+	<menu_item_call label="關閉所選" name="close_selected_conversations"/>
 	<menu_item_call label="察看檔案" name="view_profile"/>
 	<menu_item_call label="IM" name="im"/>
 	<menu_item_call label="發出瞬間傳送邀請" name="offer_teleport"/>

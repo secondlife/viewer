@@ -75,7 +75,7 @@ public:
 	void setFeatureAvailable(const std::string& name, const BOOL available);
 	void setRecommendedLevel(const std::string& name, const F32 level);
 
-	BOOL loadFeatureList(LLFILE *fp);
+	bool loadFeatureList(LLFILE *fp);
 
 	BOOL maskList(LLFeatureList &mask);
 
@@ -114,7 +114,7 @@ public:
 
 	void maskCurrentList(const std::string& name); // Mask the current feature list with the named list
 
-	BOOL loadFeatureTables();
+	bool loadFeatureTables();
 
 	EGPUClass getGPUClass() 			{ return mGPUClass; }
 	std::string& getGPUString() 		{ return mGPUString; }
@@ -157,9 +157,14 @@ public:
 	void fetchHTTPTables();
 	
 protected:
-	void loadGPUClass();
-	BOOL parseFeatureTable(std::string filename);
-	void parseGPUTable(std::string filename);
+	bool loadGPUClass();
+
+	bool parseFeatureTable(std::string filename);
+	///< @returns TRUE is file parsed correctly, FALSE if not
+
+	bool parseGPUTable(std::string filename);
+	///< @returns true if file parsed correctly, false if not - does not reflect whether or not the gpu was recognized
+
 	void initBaseMask();
 
 

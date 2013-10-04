@@ -9,6 +9,8 @@
 	</floater.string>
 	<floater.string name="AboutPosition">
 		你的方位是 [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1]，地區名：[REGION]，主機：&lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
+第二人生 URL：&lt;nolink&gt;[SLURL]&lt;/nolink&gt;
+（全域坐標：[POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1]）
 [SERVER_VERSION]
 [SERVER_RELEASE_NOTES_URL]
 	</floater.string>
