@@ -3,6 +3,7 @@
 	<menu_item_call label="Sohbeti kapat" name="close_conversation"/>
 	<menu_item_call label="Ses sohbetini aç" name="open_voice_conversation"/>
 	<menu_item_call label="Ses bağlantısını kes" name="disconnect_from_voice"/>
+	<menu_item_call label="Seçileni Kapat" name="close_selected_conversations"/>
 	<menu_item_call label="Profili Göster" name="view_profile"/>
 	<menu_item_call label="Aİ" name="im"/>
 	<menu_item_call label="Işınlama teklif et" name="offer_teleport"/>

@@ -152,7 +152,8 @@ void LLDrawPoolWLSky::renderDome(F32 camHeightLocal, LLGLSLShader * shader) cons
 	gGL.translatef(0.f,-camHeightLocal, 0.f);
 	
 	// Draw WL Sky	
-	shader->uniform3f("camPosLocal", 0.f, camHeightLocal, 0.f);
+	static LLStaticHashedString sCamPosLocal("camPosLocal");
+	shader->uniform3f(sCamPosLocal, 0.f, camHeightLocal, 0.f);
 
 	gSky.mVOWLSkyp->drawDome();
 
@@ -207,7 +208,8 @@ void LLDrawPoolWLSky::renderStars(void) const
 	if (LLGLSLShader::sNoFixedFunction)
 	{
 		gCustomAlphaProgram.bind();
-		gCustomAlphaProgram.uniform1f("custom_alpha", star_alpha.mV[3]);
+		static LLStaticHashedString sCustomAlpha("custom_alpha");
+		gCustomAlphaProgram.uniform1f(sCustomAlpha, star_alpha.mV[3]);
 	}
 	else
 	{
@@ -420,3 +422,4 @@ void LLDrawPoolWLSky::restoreGL()
 		sCloudNoiseTexture = LLViewerTextureManager::getLocalTexture(sCloudNoiseRawImage.get(), TRUE);
 	}
 }
+

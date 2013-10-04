@@ -259,11 +259,15 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 		    break;
 	    }
 
-	    LLNotificationFormPtr modified_form(new LLNotificationForm(*notification_ptr->getForm()));
-	    modified_form->setElementEnabled("Accept", false);
-	    modified_form->setElementEnabled("Decline", false);
-	    notification_ptr->updateForm(modified_form);
-	    notification_ptr->repost();
+		// TODO: this set of calls has undesirable behavior under Windows OS (CHUI-985):
+		// here appears three additional toasts instead one modified
+		// need investigation and fix
+
+	    // LLNotificationFormPtr modified_form(new LLNotificationForm(*notification_ptr->getForm()));
+	    // modified_form->setElementEnabled("Accept", false);
+	    // modified_form->setElementEnabled("Decline", false);
+	    // notification_ptr->updateForm(modified_form);
+	    // notification_ptr->repost();
     }
 
 	return false;
@@ -2357,7 +2361,9 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	BOOL is_owned_by_me = FALSE;
 	BOOL is_friend = (LLAvatarTracker::instance().getBuddyInfo(from_id) == NULL) ? false : true;
 	BOOL accept_im_from_only_friend = gSavedSettings.getBOOL("VoiceCallsFriendsOnly");
-	
+	BOOL is_linden = chat.mSourceType != CHAT_SOURCE_OBJECT &&
+			LLMuteList::getInstance()->isLinden(name);
+
 	chat.mMuted = is_muted;
 	chat.mFromID = from_id;
 	chat.mFromName = name;
@@ -2457,7 +2463,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			LL_INFOS("Messaging") << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
 
 			bool mute_im = is_muted;
-			if(accept_im_from_only_friend&&!is_friend)
+			if(accept_im_from_only_friend && !is_friend && !is_linden)
 			{
 				if (!gIMMgr->isNonFriendSessionNotified(session_id))
 				{
@@ -2649,7 +2655,8 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			{
 				send_do_not_disturb_message(msg, from_id);
 			}
-			else
+			
+			if (!is_muted)
 			{
 				LL_INFOS("Messaging") << "Received IM_GROUP_INVITATION message." << LL_ENDL;
 				// Read the binary bucket for more information.
@@ -3673,6 +3680,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		LLSD msg_notify = LLSD(LLSD::emptyMap());
 		msg_notify["session_id"] = LLUUID();
         msg_notify["from_id"] = chat.mFromID;
+		msg_notify["source_type"] = chat.mSourceType;
         on_new_message(msg_notify);
 	}
 }
@@ -4129,7 +4137,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 		{
 			LLTracker::stopTracking(NULL);
 		}
-		else if ( is_teleport && !gAgent.getTeleportKeepsLookAt() )
+		else if ( is_teleport && !gAgent.getTeleportKeepsLookAt() && look_at.isExactlyZero())
 		{
 			//look at the beacon
 			LLVector3 global_agent_pos = agent_pos;
@@ -4570,7 +4578,6 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 		if (id == LLUUID::null)
 		{
 			LL_DEBUGS("Messaging") << "Unknown kill for local " << local_id << LL_ENDL;
-			gObjectList.mNumUnknownKills++;
 			continue;
 		}
 		else
@@ -4594,18 +4601,12 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 				// Do the kill
 				gObjectList.killObject(objectp);
 			}
-			else
-			{
-				LL_WARNS("Messaging") << "Object in UUID lookup, but not on object list in kill!" << LL_ENDL;
-				gObjectList.mNumUnknownKills++;
-			}
 		}
 
 		// We should remove the object from selection after it is marked dead by gObjectList to make LLToolGrab,
         // which is using the object, release the mouse capture correctly when the object dies.
         // See LLToolGrab::handleHoverActive() and LLToolGrab::handleHoverNonPhysical().
 		LLSelectMgr::getInstance()->removeObjectFromSelections(id);
-
 	}
 }
 
@@ -5937,6 +5938,15 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 				return true;
 			}
 		}
+		// HACK -- handle callbacks for specific alerts.
+		if( notificationID == "HomePositionSet" )
+		{
+			// save the home location image to disk
+			std::string snap_filename = gDirUtilp->getLindenUserDir();
+			snap_filename += gDirUtilp->getDirDelimiter();
+			snap_filename += SCREEN_HOME_FILENAME;
+			gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw(), FALSE, FALSE);
+		}
 		
 		LLNotificationsUtil::add(notificationID, llsdBlock);
 		return true;
@@ -5945,19 +5955,42 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 }
 
 
+static void process_special_alert_messages(const std::string & message)
+{
+	// Do special handling for alert messages.   This is a legacy hack, and any actual displayed
+	// text should be altered in the notifications.xml files.
+	if ( message == "You died and have been teleported to your home location")
+	{
+		LLViewerStats::getInstance()->incStat(LLViewerStats::ST_KILLED_COUNT);
+	}
+	else if( message == "Home position set." )
+	{
+		// save the home location image to disk
+		std::string snap_filename = gDirUtilp->getLindenUserDir();
+		snap_filename += gDirUtilp->getDirDelimiter();
+		snap_filename += SCREEN_HOME_FILENAME;
+		gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw(), FALSE, FALSE);
+	}
+}
+
+
+
 void process_agent_alert_message(LLMessageSystem* msgsystem, void** user_data)
 {
 	// make sure the cursor is back to the usual default since the
 	// alert is probably due to some kind of error.
 	gViewerWindow->getWindow()->resetBusyCount();
 	
+	std::string message;
+	msgsystem->getStringFast(_PREHASH_AlertData, _PREHASH_Message, message);
+
+	process_special_alert_messages(message);
+
 	if (!attempt_standard_notification(msgsystem))
 	{
 		BOOL modal = FALSE;
 		msgsystem->getBOOL("AlertData", "Modal", modal);
-		std::string buffer;
-		msgsystem->getStringFast(_PREHASH_AlertData, _PREHASH_Message, buffer);
-		process_alert_core(buffer, modal);
+		process_alert_core(message, modal);
 	}
 }
 
@@ -5972,12 +6005,15 @@ void process_alert_message(LLMessageSystem *msgsystem, void **user_data)
 	// alert is probably due to some kind of error.
 	gViewerWindow->getWindow()->resetBusyCount();
 		
+	std::string message;
+	msgsystem->getStringFast(_PREHASH_AlertData, _PREHASH_Message, message);
+
+	process_special_alert_messages(message);
+
 	if (!attempt_standard_notification(msgsystem))
 	{
 		BOOL modal = FALSE;
-		std::string buffer;
-		msgsystem->getStringFast(_PREHASH_AlertData, _PREHASH_Message, buffer);
-		process_alert_core(buffer, modal);
+		process_alert_core(message, modal);
 	}
 }
 
@@ -6007,20 +6043,6 @@ bool handle_special_alerts(const std::string &pAlertName)
 
 void process_alert_core(const std::string& message, BOOL modal)
 {
-	// HACK -- handle callbacks for specific alerts. It also is localized in notifications.xml
-	if ( message == "You died and have been teleported to your home location")
-	{
-		LLViewerStats::getInstance()->incStat(LLViewerStats::ST_KILLED_COUNT);
-	}
-	else if( message == "Home position set." )
-	{
-		// save the home location image to disk
-		std::string snap_filename = gDirUtilp->getLindenUserDir();
-		snap_filename += gDirUtilp->getDirDelimiter();
-		snap_filename += SCREEN_HOME_FILENAME;
-		gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw(), FALSE, FALSE);
-	}
-
 	const std::string ALERT_PREFIX("ALERT: ");
 	const std::string NOTIFY_PREFIX("NOTIFY: ");
 	if (message.find(ALERT_PREFIX) == 0)
@@ -7326,8 +7348,12 @@ void process_script_teleport_request(LLMessageSystem* msg, void**)
 	LLFloaterWorldMap* instance = LLFloaterWorldMap::getInstance();
 	if(instance)
 	{
-		instance->trackURL(
-						   sim_name, (S32)pos.mV[VX], (S32)pos.mV[VY], (S32)pos.mV[VZ]);
+		llinfos << "Object named " << object_name 
+			<< " is offering TP to region "
+			<< sim_name << " position " << pos
+			<< llendl;
+
+		instance->trackURL(sim_name, (S32)pos.mV[VX], (S32)pos.mV[VY], (S32)pos.mV[VZ]);
 		LLFloaterReg::showInstance("world_map", "center");
 	}
 	

@@ -58,6 +58,7 @@ class LLRenderFunc;
 class LLCubeMap;
 class LLCullResult;
 class LLVOAvatar;
+class LLVOPartGroup;
 class LLGLSLShader;
 class LLCurlRequest;
 class LLDrawPoolAlpha;
@@ -176,6 +177,12 @@ public:
 	// Object related methods
 	void        markVisible(LLDrawable *drawablep, LLCamera& camera);
 	void		markOccluder(LLSpatialGroup* group);
+
+	//downsample source to dest, taking the maximum depth value per pixel in source and writing to dest
+	// if source's depth buffer cannot be bound for reading, a scratch space depth buffer must be provided
+	void		downsampleDepthBuffer(LLRenderTarget& source, LLRenderTarget& dest, LLRenderTarget* scratch_space = NULL);
+
+	void		doOcclusion(LLCamera& camera, LLRenderTarget& source, LLRenderTarget& dest, LLRenderTarget* scratch_space = NULL);
 	void		doOcclusion(LLCamera& camera);
 	void		markNotCulled(LLSpatialGroup* group, LLCamera &camera);
 	void        markMoved(LLDrawable *drawablep, BOOL damped_motion = FALSE);
@@ -196,6 +203,12 @@ public:
 												LLVector4a* normal = NULL,               // return the surface normal at the intersection point
 												LLVector4a* tangent = NULL             // return the surface tangent at the intersection point  
 		);
+
+	//get the closest particle to start between start and end, returns the LLVOPartGroup and particle index
+	LLVOPartGroup* lineSegmentIntersectParticle(const LLVector4a& start, const LLVector4a& end, LLVector4a* intersection,
+														S32* face_hit);
+
+
 	LLViewerObject* lineSegmentIntersectInHUD(const LLVector4a& start, const LLVector4a& end,
 											  BOOL pick_transparent,
 											  S32* face_hit,                          // return the face hit
@@ -275,13 +288,14 @@ public:
 
 	void renderGeom(LLCamera& camera, BOOL forceVBOUpdate = FALSE);
 	void renderGeomDeferred(LLCamera& camera);
-	void renderGeomPostDeferred(LLCamera& camera);
+	void renderGeomPostDeferred(LLCamera& camera, bool do_occlusion=true);
 	void renderGeomShadow(LLCamera& camera);
 	void bindDeferredShader(LLGLSLShader& shader, U32 light_index = 0, U32 noise_map = 0xFFFFFFFF);
 	void setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep);
 
 	void unbindDeferredShader(LLGLSLShader& shader);
 	void renderDeferredLighting();
+	void renderDeferredLightingToRT(LLRenderTarget* target);
 	
 	void generateWaterReflection(LLCamera& camera);
 	void generateSunShadow(LLCamera& camera);
@@ -581,6 +595,7 @@ public:
 	static BOOL				sPickAvatar;
 	static BOOL				sReflectionRender;
 	static BOOL				sImpostorRender;
+	static BOOL				sImpostorRenderAlphaDepthPass;
 	static BOOL				sUnderWaterRender;
 	static BOOL				sRenderGlow;
 	static BOOL				sTextureBindTest;
@@ -603,6 +618,7 @@ public:
 	LLRenderTarget			mFXAABuffer;
 	LLRenderTarget			mEdgeMap;
 	LLRenderTarget			mDeferredDepth;
+	LLRenderTarget			mOcclusionDepth;
 	LLRenderTarget			mDeferredLight;
 	LLRenderTarget			mHighlight;
 	LLRenderTarget			mPhysicsDisplay;
@@ -615,6 +631,7 @@ public:
 
 	//sun shadow map
 	LLRenderTarget			mShadow[6];
+	LLRenderTarget			mShadowOcclusion[6];
 	std::vector<LLVector3>	mShadowFrustPoints[4];
 	LLVector4				mShadowError;
 	LLVector4				mShadowFOV;
@@ -902,6 +919,7 @@ public:
 	static F32 RenderGlowWidth;
 	static F32 RenderGlowStrength;
 	static BOOL RenderDepthOfField;
+	static BOOL RenderDepthOfFieldInEditMode;
 	static F32 CameraFocusTransitionTime;
 	static F32 CameraFNumber;
 	static F32 CameraFocalLength;

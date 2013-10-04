@@ -84,6 +84,7 @@
 #include "lltrans.h"
 #include "llviewercontrol.h"
 #include "llappviewer.h"
+#include "llfloatergotoline.h"
 
 const std::string HELLO_LSL =
 	"default\n"
@@ -191,12 +192,17 @@ private:
 	LLScriptEdCore* mEditorCore;
 
 	static LLFloaterScriptSearch*	sInstance;
+
+protected:
+	LLLineEditor*			mSearchBox;
+        void onSearchBoxCommit();
 };
 
 LLFloaterScriptSearch* LLFloaterScriptSearch::sInstance = NULL;
 
 LLFloaterScriptSearch::LLFloaterScriptSearch(LLScriptEdCore* editor_core)
 :	LLFloater(LLSD()),
+	mSearchBox(NULL),
 	mEditorCore(editor_core)
 {
 	buildFromFile("floater_script_search.xml");
@@ -219,6 +225,9 @@ LLFloaterScriptSearch::LLFloaterScriptSearch(LLScriptEdCore* editor_core)
 
 BOOL LLFloaterScriptSearch::postBuild()
 {
+	mSearchBox = getChild<LLLineEditor>("search_text");
+	mSearchBox->setCommitCallback(boost::bind(&LLFloaterScriptSearch::onSearchBoxCommit, this));
+	mSearchBox->setCommitOnFocusLost(FALSE);
 	childSetAction("search_btn", onBtnSearch,this);
 	childSetAction("replace_btn", onBtnReplace,this);
 	childSetAction("replace_all_btn", onBtnReplaceAll,this);
@@ -311,6 +320,15 @@ BOOL LLFloaterScriptSearch::handleKeyHere(KEY key, MASK mask)
 	}
 
 	return FALSE;
+}
+
+void LLFloaterScriptSearch::onSearchBoxCommit()
+{
+	if (mEditorCore && mEditorCore->mEditor)
+	{
+		LLCheckBoxCtrl* caseChk = getChild<LLCheckBoxCtrl>("case_text");
+		mEditorCore->mEditor->selectNext(getChild<LLUICtrl>("search_text")->getValue().asString(), caseChk->get());
+	}
 }
 
 /// ---------------------------------------------------------------------------
@@ -473,6 +491,9 @@ void LLScriptEdCore::initMenu()
 
 	menuItem = getChild<LLMenuItemCallGL>("Search / Replace...");
 	menuItem->setClickCallback(boost::bind(&LLFloaterScriptSearch::show, this));
+
+	menuItem = getChild<LLMenuItemCallGL>("Go to line...");
+	menuItem->setClickCallback(boost::bind(&LLFloaterGotoLine::show, this));
 
 	menuItem = getChild<LLMenuItemCallGL>("Help...");
 	menuItem->setClickCallback(boost::bind(&LLScriptEdCore::onBtnHelp, this));

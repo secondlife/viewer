@@ -46,6 +46,7 @@
 #include "llenvmanager.h"
 #include "llfirstuse.h"
 #include "llfloatercamera.h"
+#include "llfloaterimcontainer.h"
 #include "llfloaterreg.h"
 #include "llfloatertools.h"
 #include "llgroupactions.h"
@@ -90,7 +91,9 @@
 #include "llwindow.h"
 #include "llworld.h"
 #include "llworldmap.h"
+#include "lscript_byteformat.h"
 #include "stringize.h"
+#include "boost/foreach.hpp"
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -433,7 +436,7 @@ void LLAgent::init()
 {
 	mMoveTimer.start();
 
-	gSavedSettings.declareBOOL("SlowMotionAnimation", FALSE, "Declared in code", FALSE);
+	gSavedSettings.declareBOOL("SlowMotionAnimation", FALSE, "Declared in code", LLControlVariable::PERSIST_NO);
 	gSavedSettings.getControl("SlowMotionAnimation")->getSignal()->connect(boost::bind(&handleSlowMotionAnimation, _2));
 	
 	// *Note: this is where LLViewerCamera::getInstance() used to be constructed.
@@ -2037,7 +2040,16 @@ void LLAgent::endAnimationUpdateUI()
 			{
 				skip_list.insert(LLFloaterReg::findInstance("mini_map"));
 			}
-		
+
+			LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
+			LLFloaterIMContainer::floater_list_t conversations;
+			im_box->getDetachedConversationFloaters(conversations);
+			BOOST_FOREACH(LLFloater* conversation, conversations)
+			{
+				llinfos << "skip_list.insert(session_floater): " << conversation->getTitle() << llendl;
+				skip_list.insert(conversation);
+			}
+
 			gFloaterView->popVisibleAll(skip_list);
 #endif
 			mViewsPushed = FALSE;
@@ -3046,6 +3058,55 @@ void LLAgent::sendAnimationRequest(const LLUUID &anim_id, EAnimRequest request)
 	msg->nextBlockFast(_PREHASH_PhysicalAvatarEventList);
 	msg->addBinaryDataFast(_PREHASH_TypeData, NULL, 0);
 	sendReliableMessage();
+}
+
+// Send a message to the region to stop the NULL animation state
+// This will reset animation state overrides for the agent.
+void LLAgent::sendAnimationStateReset()
+{
+	if (gAgentID.isNull() || !mRegionp)
+	{
+		return;
+	}
+
+	LLMessageSystem* msg = gMessageSystem;
+	msg->newMessageFast(_PREHASH_AgentAnimation);
+	msg->nextBlockFast(_PREHASH_AgentData);
+	msg->addUUIDFast(_PREHASH_AgentID, getID());
+	msg->addUUIDFast(_PREHASH_SessionID, getSessionID());
+
+	msg->nextBlockFast(_PREHASH_AnimationList);
+	msg->addUUIDFast(_PREHASH_AnimID, LLUUID::null );
+	msg->addBOOLFast(_PREHASH_StartAnim, FALSE);
+
+	msg->nextBlockFast(_PREHASH_PhysicalAvatarEventList);
+	msg->addBinaryDataFast(_PREHASH_TypeData, NULL, 0);
+	sendReliableMessage();
+}
+
+
+// Send a message to the region to revoke sepecified permissions on ALL scripts in the region
+// If the target is an object in the region, permissions in scripts on that object are cleared.
+// If it is the region ID, all scripts clear the permissions for this agent
+void LLAgent::sendRevokePermissions(const LLUUID & target, U32 permissions)
+{
+	// Currently only the bits for SCRIPT_PERMISSION_TRIGGER_ANIMATION and SCRIPT_PERMISSION_OVERRIDE_ANIMATIONS
+	// are supported by the server.  Sending any other bits will cause the message to be dropped without changing permissions
+
+	if (gAgentID.notNull() && gMessageSystem)
+	{
+		LLMessageSystem* msg = gMessageSystem;
+		msg->newMessageFast(_PREHASH_RevokePermissions);
+		msg->nextBlockFast(_PREHASH_AgentData);
+		msg->addUUIDFast(_PREHASH_AgentID, getID());		// Must be our ID
+		msg->addUUIDFast(_PREHASH_SessionID, getSessionID());
+
+		msg->nextBlockFast(_PREHASH_Data);
+		msg->addUUIDFast(_PREHASH_ObjectID, target);		// Must be in the region
+		msg->addS32Fast(_PREHASH_ObjectPermissions, (S32) permissions);
+
+		sendReliableMessage();
+	}
 }
 
 void LLAgent::sendWalkRun(bool running)
@@ -4126,6 +4187,8 @@ void LLAgent::stopCurrentAnimations()
 	// avatar, propagating this change back to the server.
 	if (isAgentAvatarValid())
 	{
+		LLDynamicArray<LLUUID> anim_ids;
+
 		for ( LLVOAvatar::AnimIterator anim_it =
 			      gAgentAvatarp->mPlayingAnimations.begin();
 		      anim_it != gAgentAvatarp->mPlayingAnimations.end();
@@ -4143,7 +4206,24 @@ void LLAgent::stopCurrentAnimations()
 				// stop this animation locally
 				gAgentAvatarp->stopMotion(anim_it->first, TRUE);
 				// ...and tell the server to tell everyone.
-				sendAnimationRequest(anim_it->first, ANIM_REQUEST_STOP);
+				anim_ids.push_back(anim_it->first);
+			}
+		}
+
+		sendAnimationRequests(anim_ids, ANIM_REQUEST_STOP);
+
+		// Tell the region to clear any animation state overrides
+		sendAnimationStateReset();
+
+		// Revoke all animation permissions
+		if (mRegionp &&
+			gSavedSettings.getBOOL("RevokePermsOnStopAnimation"))
+		{
+			U32 permissions = LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_TRIGGER_ANIMATION] | LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_OVERRIDE_ANIMATIONS];
+			sendRevokePermissions(mRegionp->getRegionID(), permissions);
+			if (gAgentAvatarp->isSitting())
+			{	// Also stand up, since auto-granted sit animation permission has been revoked
+				gAgent.standUp();
 			}
 		}
 

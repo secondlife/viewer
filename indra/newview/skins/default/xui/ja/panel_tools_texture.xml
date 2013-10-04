@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="テクスチャ" name="Texture">
+	<panel.string name="string repeats per meter">
+		メーターごとに繰り返す
+	</panel.string>
+	<panel.string name="string repeats per face">
+		面ごとに繰り返す
+	</panel.string>
+	<text name="color label">
+		色
+	</text>
+	<color_swatch label="" name="colorswatch" tool_tip="クリックしてカラーピッカーを開きます"/>
+	<text name="color trans">
+		透過度 %
+	</text>
+	<text name="glow label">
+		グロー
+	</text>
+	<check_box label="明るさ全開" name="checkbox fullbright"/>
+	<combo_box name="combobox matmedia">
+		<combo_box.item label="材質" name="Materials"/>
+		<combo_box.item label="メディア" name="Media"/>
+	</combo_box>
+	<combo_box name="combobox mattype">
+		<combo_box.item label="テクスチャ (拡散)" name="Texture (diffuse)"/>
+		<combo_box.item label="凹凸 (標準)" name="Bumpiness (normal)"/>
+		<combo_box.item label="輝き (反射)" name="Shininess (specular)"/>
+	</combo_box>
+	<texture_picker label="テクスチャ" name="texture control" tool_tip="クリックして写真を選択します"/>
+	<text name="label alphamode">
+		アルファモード
+	</text>
+	<combo_box name="combobox alphamode">
+		<combo_box.item label="なし" name="None"/>
+		<combo_box.item label="アルファブレンディング" name="Alpha blending"/>
+		<combo_box.item label="アルファマスキング" name="Alpha masking"/>
+		<combo_box.item label="放射状マスク" name="Emissive mask"/>
+	</combo_box>
+	<text name="label maskcutoff">
+		マスクカットオフ
+	</text>
+	<texture_picker label="テクスチャ" name="bumpytexture control" tool_tip="クリックして写真を選択します"/>
+	<text name="label bumpiness">
+		凹凸
+	</text>
+	<combo_box name="combobox bumpiness">
+		<combo_box.item label="なし" name="None"/>
+		<combo_box.item label="明るさ" name="Brightness"/>
+		<combo_box.item label="暗さ" name="Darkness"/>
+		<combo_box.item label="木目調" name="woodgrain"/>
+		<combo_box.item label="バーク" name="bark"/>
+		<combo_box.item label="レンガ" name="bricks"/>
+		<combo_box.item label="市松模様" name="checker"/>
+		<combo_box.item label="コンクリート" name="concrete"/>
+		<combo_box.item label="堅いタイル" name="crustytile"/>
+		<combo_box.item label="カットストーン" name="cutstone"/>
+		<combo_box.item label="円板" name="discs"/>
+		<combo_box.item label="小石" name="gravel"/>
+		<combo_box.item label="ペトリ皿" name="petridish"/>
+		<combo_box.item label="サイディング" name="siding"/>
+		<combo_box.item label="ストーンタイル" name="stonetile"/>
+		<combo_box.item label="化粧しっくい" name="stucco"/>
+		<combo_box.item label="サクション" name="suction"/>
+		<combo_box.item label="ウィーブ" name="weave"/>
+	</combo_box>
+	<texture_picker label="テクスチャ" name="shinytexture control" tool_tip="クリックして写真を選択します"/>
+	<text name="label shininess">
+		輝き
+	</text>
+	<combo_box name="combobox shininess">
+		<combo_box.item label="なし" name="None"/>
+		<combo_box.item label="低" name="Low"/>
+		<combo_box.item label="中" name="Medium"/>
+		<combo_box.item label="高" name="High"/>
+	</combo_box>
+	<text name="label glossiness">
+		光沢度
+	</text>
+	<text name="label environment">
+		環境
+	</text>
+	<text name="label shinycolor">
+		色
+	</text>
+	<color_swatch label="" name="shinycolorswatch" tool_tip="クリックしてカラーピッカーを開きます"/>
+	<text name="media_info">
+		選択したメディアの URL がもしあれば、ここに入ります
+	</text>
+	<button label="選択..." name="add_media" tool_tip="メディアを追加します"/>
+	<button label="削除" name="delete_media" tool_tip="このメディアテクスチャを削除します"/>
+	<button label="揃える" label_selected="メディアを一列に揃えます" name="button align" tool_tip="メディアテクスチャを一列に揃える（最初に読み込む必要があります）"/>
+	<text name="tex gen">
+		マッピング
+	</text>
+	<combo_box name="combobox texgen">
+		<combo_box.item label="デフォルト" name="Default"/>
+		<combo_box.item label="平面" name="Planar"/>
+	</combo_box>
+	<spinner label="水平スケール" name="TexScaleU"/>
+	<spinner label="垂直スケール" name="TexScaleV"/>
+	<spinner label="メーターごとに繰り返す" name="rptctrl"/>
+	<spinner label="回転度" name="TexRot"/>
+	<spinner label="水平オフセット" name="TexOffsetU"/>
+	<spinner label="垂直オフセット" name="TexOffsetV"/>
+	<spinner label="水平スケール" name="bumpyScaleU"/>
+	<spinner label="垂直スケール" name="bumpyScaleV"/>
+	<spinner label="回転度" name="bumpyRot"/>
+	<spinner label="水平オフセット" name="bumpyOffsetU"/>
+	<spinner label="垂直オフセット" name="bumpyOffsetV"/>
+	<spinner label="水平スケール" name="shinyScaleU"/>
+	<spinner label="垂直スケール" name="shinyScaleV"/>
+	<spinner label="回転度" name="shinyRot"/>
+	<spinner label="水平オフセット" name="shinyOffsetU"/>
+	<spinner label="垂直オフセット" name="shinyOffsetV"/>
+	<check_box initial_value="false" label="平面を揃える" name="checkbox planar align" tool_tip="選択面全てのテクスチャを、最後に選択された面に揃えます。平面テクスチャのマッピングが必要です。"/>
+</panel>

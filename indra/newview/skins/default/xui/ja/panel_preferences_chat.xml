@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="チャット" name="chat">
-	<panel>
+	<panel name="general_chat_settings">
 		<check_box initial_value="true" label="チャット中にタイピング動作のアニメーションを再生" name="play_typing_animation"/>
 		<check_box label="オフライン時に受け取った IM をメールで受信" name="send_im_to_email"/>
 		<check_box label="フレンドとグループ以外からはコールと IM を受信しない" name="voice_call_friends_only_check"/>
@@ -14,71 +14,83 @@
 		</combo_box>
 		<check_box label="吹き出しチャット" name="bubble_text_chat"/>
 	</panel>
-	<panel>
-		<text name="notifications">
-			通知
-		</text>
+	<panel name="im_notification_settings">
 		<text name="friend_ims">
 			フレンド IM:
 		</text>
 		<combo_box name="FriendIMOptions">
-			<item label="会話ウィンドウを開く" name="OpenConversationsWindow" value="openconversations"/>
-			<item label="メッセージのポップアップ" name="PopUpMessage" value="toast"/>
-			<item label="Flash ツールバーボタン" name="FlashToolbarButton" value="flash"/>
-			<item label="フィルターなし" name="None" value="none"/>
+			<item label="開いている会話ウィンドウ" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="メッセージをポップアップ表示" name="PopUpMessage" value="トースト"/>
+			<item label="フラッシュ ツールバー ボタン" name="FlashToolbarButton" value="フラッシュ"/>
+			<item label="動作なし" name="NoAction" value="noaction"/>
 		</combo_box>
+		<check_box label="サウンドを再生" name="play_sound_friend_im"/>
 		<text name="non_friend_ims">
-			非フレンド IM:
+			フレンドのいない IM:
 		</text>
 		<combo_box name="NonFriendIMOptions">
-			<item label="会話ウィンドウを開く" name="OpenConversationsWindow" value="openconversations"/>
-			<item label="メッセージのポップアップ" name="PopUpMessage" value="toast"/>
-			<item label="Flash ツールバーボタン" name="FlashToolbarButton" value="flash"/>
-			<item label="フィルターなし" name="None" value="none"/>
+			<item label="開いている会話ウィンドウ" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="メッセージをポップアップ表示" name="PopUpMessage" value="トースト"/>
+			<item label="フラッシュ ツールバー ボタン" name="FlashToolbarButton" value="フラッシュ"/>
+			<item label="動作なし" name="NoAction" value="noaction"/>
 		</combo_box>
+		<check_box label="サウンドを再生" name="play_sound_non_friend_im"/>
 		<text name="conference_ims">
-			コンファレンス IM:
+			会議 IM:
 		</text>
 		<combo_box name="ConferenceIMOptions">
-			<item label="会話ウィンドウを開く" name="OpenConversationsWindow" value="openconversations"/>
-			<item label="メッセージのポップアップ" name="PopUpMessage" value="toast"/>
-			<item label="Flashツールバーボタン" name="FlashToolbarButton" value="flash"/>
-			<item label="フィルターなし" name="None" value="none"/>
+			<item label="開いている会話ウィンドウ" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="メッセージをポップアップ表示" name="PopUpMessage" value="トースト"/>
+			<item label="フラッシュ ツールバー ボタン" name="FlashToolbarButton" value="フラッシュ"/>
+			<item label="動作なし" name="NoAction" value="noaction"/>
 		</combo_box>
+		<check_box label="サウンドを再生" name="play_sound_conference_im"/>
 		<text name="group_chat">
 			グループチャット:
 		</text>
 		<combo_box name="GroupChatOptions">
-			<item label="会話ウィンドウを開く" name="OpenConversationsWindow" value="openconversations"/>
-			<item label="メッセージのポップアップ" name="PopUpMessage" value="toast"/>
-			<item label="Flash ツールバーボタン" name="FlashToolbarButton" value="flash"/>
-			<item label="なし" name="None" value="none"/>
+			<item label="開いている会話ウィンドウ" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="メッセージをポップアップ表示" name="PopUpMessage" value="トースト"/>
+			<item label="フラッシュ ツールバー ボタン" name="FlashToolbarButton" value="フラッシュ"/>
+			<item label="動作なし" name="NoAction" value="noaction"/>
 		</combo_box>
+		<check_box label="サウンドを再生" name="play_sound_group_chat_im"/>
 		<text name="nearby_chat">
 			近くのチャット:
 		</text>
 		<combo_box name="NearbyChatOptions">
-			<item label="会話ウィンドウを開く" name="OpenConversationsWindow" value="openconversations"/>
-			<item label="メッセージのポップアップ" name="PopUpMessage" value="toast"/>
-			<item label="Flash ツールバーボタン" name="FlashToolBarButton" value="flash"/>
-			<item label="フィルターなし" name="None" value="none"/>
+			<item label="開いている会話ウィンドウ" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="メッセージをポップアップ表示" name="PopUpMessage" value="トースト"/>
+			<item label="フラッシュ ツールバー ボタン" name="FlashToolBarButton" value="フラッシュ"/>
+			<item label="動作なし" name="NoAction" value="noaction"/>
 		</combo_box>
+		<check_box label="サウンドを再生" name="play_sound_nearby_chat_im"/>
+		<text name="object_ims">
+			オブジェクト IM：
+		</text>
+		<combo_box name="ObjectIMOptions">
+			<item label="開いている会話ウィンドウ" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="メッセージをポップアップ表示" name="PopUpMessage" value="トースト"/>
+			<item label="フラッシュ ツールバー ボタン" name="FlashToolBarButton" value="フラッシュ"/>
+			<item label="動作なし" name="NoAction" value="noaction"/>
+		</combo_box>
+		<check_box label="サウンドを再生" name="play_sound_object_im"/>
 		<text name="notifications_alert">
-			すべての通知を一時的に受け付けないようにするには、「コミュニケート」&gt;「通知を受けない」を使用します。
+			一時的にすべての通知を停止するには、「コミュニケーション」 &gt; 「着信拒否]を使用します。
 		</text>
 	</panel>
-	<panel>
+	<panel name="play_sound_settings">
 		<text name="play_sound">
-			音の再生:
+			サウンドを再生:
 		</text>
 		<check_box label="新しい会話" name="new_conversation"/>
-		<check_box label="ボイスコールの着信" name="incoming_voice_call"/>
-		<check_box label="テレポートを渡す" name="teleport_offer"/>
-		<check_box label="アイテムのオファー" name="inventory_offer"/>
+		<check_box label="受信音声コール" name="incoming_voice_call"/>
+		<check_box label="テレポートを送る" name="teleport_offer"/>
+		<check_box label="インベントリを送る" name="inventory_offer"/>
 	</panel>
-	<panel>
-		<button label="ログのクリア..." name="clear_log"/>
-		<button label="テキストの削除..." name="delete_transcripts"/>
+	<panel name="log_settings">
+		<button label="ログを消去..." name="clear_log"/>
+		<button label="テキストチャットを削除..." name="delete_transcripts"/>
 		<button label="参照..." label_selected="参照" name="log_path_button"/>
 	</panel>
 	<button label="他の言語..." name="ok_btn"/>

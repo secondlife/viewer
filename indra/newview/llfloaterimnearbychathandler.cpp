@@ -187,14 +187,11 @@ void LLFloaterIMNearbyChatScreenChannel::deactivateToast(LLToast* toast)
 {
 	toast_vec_t::iterator pos = std::find(m_active_toasts.begin(), m_active_toasts.end(), toast->getHandle());
 
-	if (pos == m_active_toasts.end())
+	if (pos != m_active_toasts.end())
 	{
-		llassert(pos == m_active_toasts.end());
-		return;
+		LL_DEBUGS("NearbyChat") << "Deactivating toast" << llendl;
+		m_active_toasts.erase(pos);
 	}
-
-	LL_DEBUGS("NearbyChat") << "Deactivating toast" << llendl;
-	m_active_toasts.erase(pos);
 }
 
 void	LLFloaterIMNearbyChatScreenChannel::createOverflowToast(S32 bottom, F32 timer)
@@ -210,8 +207,8 @@ void LLFloaterIMNearbyChatScreenChannel::onToastDestroyed(LLToast* toast, bool a
 	{
 		// Viewer is quitting.
 		// Immediately stop processing chat messages (EXT-1419).
-	mStopProcessing = true;
-}
+		mStopProcessing = true;
+	}
 	else
 	{
 		// The toast is being closed by user (STORM-192).
@@ -606,6 +603,7 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
 
 		//Don't show nearby toast, if conversation is visible and selected
 		if ((nearby_chat->hasFocus()) ||
+			(LLFloater::isVisible(nearby_chat) && nearby_chat->isTornOff() && !nearby_chat->isMinimized()) ||
 		    ((im_box->getSelectedSession().isNull() &&
 				((LLFloater::isVisible(im_box) && !im_box->isMinimized() && im_box->isFrontmost())
 						|| (LLFloater::isVisible(nearby_chat) && !nearby_chat->isMinimized() && nearby_chat->isFrontmost())))))

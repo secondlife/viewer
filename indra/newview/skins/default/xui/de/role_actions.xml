@@ -25,7 +25,7 @@
 	</action_set>
 	<action_set description="Diese Fähigkeiten ermöglichen es, den Parzellennamen und die Veröffentlichungseinstellungen sowie die Anzeige des Suchverzeichnisses, den Landepunkt und die TP-Routenoptionen festzulegen." name="Parcel Identity">
 		<action description="„Ort in Suche anzeigen&quot; ein-/ausschalten und Kategorie festlegen." longdescription="Auf der Registerkarte „Optionen“ unter „Land-Info“ können Sie „Ort in Suche anzeigen“ ein- und ausschalten und die Parzellenkategorie festlegen." name="land find places" value="17"/>
-		<action description="Parzellenname, Beschreibung und Einstellung für „Ort in Suche anzeigen&quot; ändern" longdescription="Parzellenname, Beschreibung und Einstellung für „Ort in Suche anzeigen&quot; ändern Diese Einstellungen finden Sie unter „Land-Info“ &gt; Registerkarte „Optionen“." name="land change identity" value="18"/>
+		<action description="Parzellenname, Beschreibung und Einstelllungen für „Moderater Inhalt“ ändern" longdescription="Parzellenname, Beschreibung und Einstelllungen für „Moderater Inhalt“ ändern. Diese Einstellungen finden Sie unter „Land-Info“ &gt; Registerkarte „Optionen“." name="land change identity" value="18"/>
 		<action description="Landepunkt und Teleport-Route festlegen" longdescription="Mitglieder in einer Rolle mit dieser Fähigkeit können auf einer gruppeneigenen Parzelle einen Landepunkt für ankommende Teleports und Teleport-Routen festlegen. Diese Einstellungen finden Sie unter „Land-Info“ &gt; „Optionen“." name="land set landing point" value="19"/>
 	</action_set>
 	<action_set description="Diese Fähigkeiten ermöglichen es, Parzellenoptionen wie „Objekte erstellen“, „Terrain bearbeiten“ sowie Musik- und Medieneinstellungen zu ändern." name="Parcel Settings">

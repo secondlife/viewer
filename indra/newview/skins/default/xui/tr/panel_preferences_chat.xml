@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Metin Sohbeti" name="chat">
-	<panel>
+	<panel name="general_chat_settings">
 		<check_box initial_value="true" label="Sohbet sırasında yazma animasyonunu oynat" name="play_typing_animation"/>
 		<check_box label="Çevrimdışı olduğunda Aİ&apos;ler e-posta ile bana gönderilsin" name="send_im_to_email"/>
 		<check_box label="Sadece arkadaşlar ve gruplar beni arasın veya Aİ göndersin" name="voice_call_friends_only_check"/>
@@ -14,19 +14,17 @@
 		</combo_box>
 		<check_box label="Balon Sohbeti" name="bubble_text_chat"/>
 	</panel>
-	<panel>
-		<text name="notifications">
-			Bildirimler
-		</text>
+	<panel name="im_notification_settings">
 		<text name="friend_ims">
 			Arkadaş Aİ&apos;leri:
 		</text>
 		<combo_box name="FriendIMOptions">
 			<item label="Sohbetler penceresini aç" name="OpenConversationsWindow" value="openconversations"/>
-			<item label="Mesajı aç" name="PopUpMessage" value="toast"/>
+			<item label="Mesajı açılır pencerede göster" name="PopUpMessage" value="toast"/>
 			<item label="Araç çubuğu düğmesi yanıp sönsün" name="FlashToolbarButton" value="flash"/>
-			<item label="Hiçbiri" name="None" value="none"/>
+			<item label="Eylem yok" name="NoAction" value="noaction"/>
 		</combo_box>
+		<check_box label="Sesi çal" name="play_sound_friend_im"/>
 		<text name="non_friend_ims">
 			Arkadaş harici Aİ&apos;ler:
 		</text>
@@ -34,40 +32,54 @@
 			<item label="Sohbetler penceresini aç" name="OpenConversationsWindow" value="openconversations"/>
 			<item label="Mesajı açılır pencerede göster" name="PopUpMessage" value="toast"/>
 			<item label="Araç çubuğu düğmesi yanıp sönsün" name="FlashToolbarButton" value="flash"/>
-			<item label="Hiçbiri" name="None" value="none"/>
+			<item label="Eylem yok" name="NoAction" value="noaction"/>
 		</combo_box>
+		<check_box label="Sesi çal" name="play_sound_non_friend_im"/>
 		<text name="conference_ims">
 			Konferans Aİ&apos;leri:
 		</text>
 		<combo_box name="ConferenceIMOptions">
 			<item label="Sohbetler penceresini aç" name="OpenConversationsWindow" value="openconversations"/>
-			<item label="Mesajı aç" name="PopUpMessage" value="toast"/>
+			<item label="Mesajı açılır pencerede göster" name="PopUpMessage" value="toast"/>
 			<item label="Araç çubuğu düğmesi yanıp sönsün" name="FlashToolbarButton" value="flash"/>
-			<item label="Hiçbiri" name="None" value="none"/>
+			<item label="Eylem yok" name="NoAction" value="noaction"/>
 		</combo_box>
+		<check_box label="Sesi çal" name="play_sound_conference_im"/>
 		<text name="group_chat">
 			Grup sohbeti:
 		</text>
 		<combo_box name="GroupChatOptions">
 			<item label="Sohbetler penceresini aç" name="OpenConversationsWindow" value="openconversations"/>
-			<item label="Mesajı aç" name="PopUpMessage" value="toast"/>
+			<item label="Mesajı açılır pencerede göster" name="PopUpMessage" value="toast"/>
 			<item label="Araç çubuğu düğmesi yanıp sönsün" name="FlashToolbarButton" value="flash"/>
-			<item label="Hiçbiri" name="None" value="none"/>
+			<item label="Eylem yok" name="NoAction" value="noaction"/>
 		</combo_box>
+		<check_box label="Sesi çal" name="play_sound_group_chat_im"/>
 		<text name="nearby_chat">
 			Yakındaki sohbet:
 		</text>
 		<combo_box name="NearbyChatOptions">
 			<item label="Sohbetler penceresini aç" name="OpenConversationsWindow" value="openconversations"/>
-			<item label="Mesajı aç" name="PopUpMessage" value="toast"/>
+			<item label="Mesajı açılır pencerede göster" name="PopUpMessage" value="toast"/>
 			<item label="Araç çubuğu düğmesi yanıp sönsün" name="FlashToolBarButton" value="flash"/>
-			<item label="Hiçbiri" name="None" value="none"/>
+			<item label="Eylem yok" name="NoAction" value="noaction"/>
 		</combo_box>
+		<check_box label="Sesi çal" name="play_sound_nearby_chat_im"/>
+		<text name="object_ims">
+			Nesne Aİ&apos;leri:
+		</text>
+		<combo_box name="ObjectIMOptions">
+			<item label="Sohbetler penceresini aç" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="Mesajı açılır pencerede göster" name="PopUpMessage" value="toast"/>
+			<item label="Araç çubuğu düğmesi yanıp sönsün" name="FlashToolBarButton" value="flash"/>
+			<item label="Eylem yok" name="NoAction" value="noaction"/>
+		</combo_box>
+		<check_box label="Sesi çal" name="play_sound_object_im"/>
 		<text name="notifications_alert">
 			Tüm bildirimleri geçici olarak durdurmak için İletişim Kur &gt; Rahatsız Etme seçeneğini kullanın.
 		</text>
 	</panel>
-	<panel>
+	<panel name="play_sound_settings">
 		<text name="play_sound">
 			Sesi çal:
 		</text>
@@ -76,7 +88,7 @@
 		<check_box label="Işınlama teklifi" name="teleport_offer"/>
 		<check_box label="Envanter teklifi" name="inventory_offer"/>
 	</panel>
-	<panel>
+	<panel name="log_settings">
 		<button label="Günlüğü temizle..." name="clear_log"/>
 		<button label="Dökümleri sil..." name="delete_transcripts"/>
 		<button label="Gözat..." label_selected="Gözat" name="log_path_button"/>

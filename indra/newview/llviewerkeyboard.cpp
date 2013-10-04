@@ -534,6 +534,11 @@ void stop_moving( EKeystate s )
 
 void start_chat( EKeystate s )
 {
+    if (LLAppViewer::instance()->quitRequested())
+    {
+        return; // can't talk, gotta go, kthxbye!
+    }
+    
 	// start chat
 	LLFloaterIMNearbyChat::startChat(NULL);
 }
@@ -676,6 +681,7 @@ BOOL LLViewerKeyboard::handleKey(KEY translated_key,  MASK translated_mask, BOOL
 	if(mKeysSkippedByUI.find(translated_key) != mKeysSkippedByUI.end()) 
 	{
 		mKeyHandledByUI[translated_key] = FALSE;
+		LL_INFOS("Keyboard Handling") << "Key wasn't handled by UI!" << LL_ENDL;
 	}
 	else
 	{

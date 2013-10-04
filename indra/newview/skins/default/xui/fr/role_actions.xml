@@ -25,7 +25,7 @@
 	</action_set>
 	<action_set description="Ces pouvoirs permettent de modifier le nom de la parcelle, son référencement dans la recherche et le lieu de téléportation." name="Parcel Identity">
 		<action description="Activer Afficher le lieu dans la recherche et définir la catégorie" longdescription="Activez Afficher le lieu dans la recherche et définissez la catégorie d&apos;une parcelle dans l&apos;onglet À propos du terrain &gt; Options." name="land find places" value="17"/>
-		<action description="Modifier le nom et la description de la parcelle, ainsi que les paramètres d&apos;affichage du lieu dans la recherche" longdescription="Modifiez le nom et la description de la parcelle, ainsi que les paramètres d&apos;affichage du lieu dans la recherche. Pour ce faire, utilisez l&apos;onglet À propos du terrain &gt; Options." name="land change identity" value="18"/>
+		<action description="Changer le nom de la parcelle, la description et les paramètres de contenu modéré" longdescription="Changez le nom de la parcelle, la description et les paramètres de contenu modéré. Pour ce faire, utilisez l&apos;onglet À propos du terrain &gt; Options." name="land change identity" value="18"/>
 		<action description="Définir le lieu d&apos;arrivée et le routage des téléportations" longdescription="Définissez le lieu d&apos;arrivée des téléportations et le routage à partir du menu À propos du terrain &gt; Options." name="land set landing point" value="19"/>
 	</action_set>
 	<action_set description="Ces pouvoirs permettent de définir les options de la parcelle concernant la musique, les médias, la création d&apos;objets et le relief." name="Parcel Settings">

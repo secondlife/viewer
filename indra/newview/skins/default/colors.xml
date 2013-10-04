@@ -885,6 +885,20 @@
     name="blue"
     value="0 0 1 1"/>
 
+  <!--Resize bar colors -->
+
+  <color
+    name="ResizebarBorderLight"
+    value="0.231 0.231 0.231 1"/>
+
+  <color
+    name="ResizebarBorderDark"
+    value="0.133 0.133 0.133 1"/>
+
+  <color
+    name="ResizebarBody"
+    value="0.208 0.208 0.208 1"/>
+
   <!-- syntax highlighting (LSL Scripts) -->
   <color
     name="SyntaxLslComment1Sided"
@@ -899,6 +913,9 @@
     name="SyntaxLslConstantInteger"
     value=".1 .1 .5 1.0" />
   <color
+    name="ResizebarBody"
+    value="0.208 0.208 0.208 1"/>
+    
     name="SyntaxLslConstantKey"
     value=".1 .3 .5 1.0" />
   <color

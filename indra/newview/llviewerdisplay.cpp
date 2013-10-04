@@ -673,6 +673,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 		static LLCullResult result;
 		LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
+		LLPipeline::sUnderWaterRender = LLViewerCamera::getInstance()->cameraUnderWater() ? TRUE : FALSE;
 		gPipeline.updateCull(*LLViewerCamera::getInstance(), result, water_clip);
 		stop_glerror();
 
@@ -879,7 +880,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		//}
 
 		LLPipeline::sUnderWaterRender = LLViewerCamera::getInstance()->cameraUnderWater() ? TRUE : FALSE;
-		
+
 		LLGLState::checkStates();
 		LLGLState::checkClientArrays();
 
@@ -889,7 +890,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		{
 			gGL.setColorMask(true, true);
 					
-			if (LLPipeline::sRenderDeferred && !LLPipeline::sUnderWaterRender)
+			if (LLPipeline::sRenderDeferred)
 			{
 				gPipeline.mDeferredScreen.bindTarget();
 				glClearColor(1,0,1,1);
@@ -938,7 +939,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 
 			gGL.setColorMask(true, false);
-			if (LLPipeline::sRenderDeferred && !LLPipeline::sUnderWaterRender)
+			if (LLPipeline::sRenderDeferred)
 			{
 				gPipeline.renderGeomDeferred(*LLViewerCamera::getInstance());
 			}
@@ -975,7 +976,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		
 		if (to_texture)
 		{
-			if (LLPipeline::sRenderDeferred && !LLPipeline::sUnderWaterRender)
+			if (LLPipeline::sRenderDeferred)
 			{
 				gPipeline.mDeferredScreen.flush();
 				if(LLRenderTarget::sUseFBO)
@@ -1001,7 +1002,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			}
 		}
 
-		if (LLPipeline::sRenderDeferred && !LLPipeline::sUnderWaterRender)
+		if (LLPipeline::sRenderDeferred)
 		{
 			gPipeline.renderDeferredLighting();
 		}
@@ -1622,3 +1623,4 @@ void display_cleanup()
 {
 	gDisconnectedImagep = NULL;
 }
+

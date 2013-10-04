@@ -49,6 +49,9 @@ Stai cercando persone da frequentare? Prova la [secondlife:///app/worldmap Mappa
 				<menu_button name="plus_btn" tool_tip="Aderisci al gruppo/Crea nuovo gruppo"/>
 				<dnd_button name="minus_btn" tool_tip="Lascia il gruppo selezionato"/>
 			</panel>
+			<text name="groupcount">
+				Fai parte di [COUNT] gruppi e puoi iscriverti a [REMAINING] altri.
+			</text>
 		</panel>
 		<panel label="RECENTE" name="recent_panel">
 			<panel label="bottom_panel" name="recent_buttons_panel">

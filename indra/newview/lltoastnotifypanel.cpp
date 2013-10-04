@@ -60,7 +60,7 @@ LLToastNotifyPanel::LLToastNotifyPanel(const LLNotificationPtr& notification, co
 	LLInstanceTracker<LLToastNotifyPanel, LLUUID>(notification->getID())
 {
 	init(rect, show_images);
-	}
+}
 void LLToastNotifyPanel::addDefaultButton()
 {
 	LLSD form_element;

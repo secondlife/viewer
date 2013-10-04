@@ -79,8 +79,8 @@ void parse_string();
 #define yyfree indra_free
 
 
-int yylex( void );
 int yyparse( void );
+int yylex( void );
 int yyerror(const char *fmt, ...);
 
 %}
@@ -161,6 +161,7 @@ int yyerror(const char *fmt, ...);
 "STATUS_DIE_AT_EDGE"	{ count(); yylval.ival = 0x80; return(INTEGER_CONSTANT); }
 "STATUS_RETURN_AT_EDGE"	{ count(); yylval.ival = 0x100; return(INTEGER_CONSTANT); }
 "STATUS_CAST_SHADOWS"	{ count(); yylval.ival = 0x200; return(INTEGER_CONSTANT); }
+"STATUS_BLOCK_GRAB_OBJECT"	{ count(); yylval.ival = 0x400; return(INTEGER_CONSTANT); }
 
 "AGENT_FLYING"			{ count(); yylval.ival = AGENT_FLYING; return(INTEGER_CONSTANT); }
 "AGENT_ATTACHMENTS"		{ count(); yylval.ival = AGENT_ATTACHMENTS; return(INTEGER_CONSTANT); }
@@ -235,6 +236,8 @@ int yyerror(const char *fmt, ...);
 "PERMISSION_TRACK_CAMERA"		{ count(); yylval.ival = LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_TRACK_CAMERA]; return(INTEGER_CONSTANT); }
 "PERMISSION_CONTROL_CAMERA"		{ count(); yylval.ival = LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_CONTROL_CAMERA]; return(INTEGER_CONSTANT); }
 "PERMISSION_TELEPORT"			{ count(); yylval.ival = LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_TELEPORT]; return(INTEGER_CONSTANT); }
+"PERMISSION_SILENT_ESTATE_MANAGEMENT"   { count(); yylval.ival = LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_SILENT_ESTATE_MANAGEMENT]; return(INTEGER_CONSTANT); }
+"PERMISSION_OVERRIDE_ANIMATIONS"    { count(); yylval.ival = LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_OVERRIDE_ANIMATIONS]; return(INTEGER_CONSTANT); }
 
 "INVENTORY_TEXTURE"					{ count(); yylval.ival = LLAssetType::AT_TEXTURE; return(INTEGER_CONSTANT); }
 "INVENTORY_SOUND"					{ count(); yylval.ival = LLAssetType::AT_SOUND; return(INTEGER_CONSTANT); }
@@ -271,6 +274,22 @@ int yyerror(const char *fmt, ...);
 "OBJECT_OWNER"			{ count(); yylval.ival = OBJECT_OWNER; return(INTEGER_CONSTANT); }
 "OBJECT_GROUP"			{ count(); yylval.ival = OBJECT_GROUP; return(INTEGER_CONSTANT); }
 "OBJECT_CREATOR"		{ count(); yylval.ival = OBJECT_CREATOR; return(INTEGER_CONSTANT); }
+"OBJECT_RUNNING_SCRIPT_COUNT"	{ count(); yylval.ival = OBJECT_RUNNING_SCRIPT_COUNT; return(INTEGER_CONSTANT); }
+"OBJECT_TOTAL_SCRIPT_COUNT"		{ count(); yylval.ival = OBJECT_TOTAL_SCRIPT_COUNT; return(INTEGER_CONSTANT); }
+"OBJECT_SCRIPT_MEMORY"			{ count(); yylval.ival = OBJECT_SCRIPT_MEMORY; return(INTEGER_CONSTANT); }
+"OBJECT_SCRIPT_TIME"			{ count(); yylval.ival = OBJECT_SCRIPT_TIME; return(INTEGER_CONSTANT); }
+"OBJECT_PRIM_EQUIVALENCE"		{ count(); yylval.ival = OBJECT_PRIM_EQUIVALENCE; return(INTEGER_CONSTANT); }
+"OBJECT_SERVER_COST"			{ count(); yylval.ival = OBJECT_SERVER_COST; return(INTEGER_CONSTANT); }
+"OBJECT_STREAMING_COST"			{ count(); yylval.ival = OBJECT_STREAMING_COST; return(INTEGER_CONSTANT); }
+"OBJECT_PHYSICS_COST"			{ count(); yylval.ival = OBJECT_PHYSICS_COST; return(INTEGER_CONSTANT); }
+"OBJECT_CHARACTER_TIME"			{ count(); yylval.ival = OBJECT_CHARACTER_TIME; return(INTEGER_CONSTANT); }
+"OBJECT_ROOT"					{ count(); yylval.ival = OBJECT_ROOT; return(INTEGER_CONSTANT); }
+"OBJECT_ATTACHED_POINT"			{ count(); yylval.ival = OBJECT_ATTACHED_POINT; return(INTEGER_CONSTANT); }
+"OBJECT_PATHFINDING_TYPE"		{ count(); yylval.ival = OBJECT_PATHFINDING_TYPE; return(INTEGER_CONSTANT); }
+"OBJECT_PHYSICS"				{ count(); yylval.ival = OBJECT_PHYSICS; return(INTEGER_CONSTANT); }
+"OBJECT_PHANTOM"				{ count(); yylval.ival = OBJECT_PHANTOM; return(INTEGER_CONSTANT); }
+"OBJECT_TEMP_ON_REZ"			{ count(); yylval.ival = OBJECT_TEMP_ON_REZ; return(INTEGER_CONSTANT); }
+"OBJECT_RENDER_WEIGHT"			{ count(); yylval.ival = OBJECT_RENDER_WEIGHT; return(INTEGER_CONSTANT); }
 
 "TYPE_INTEGER"			{ count(); yylval.ival = LST_INTEGER; return(INTEGER_CONSTANT); }	
 "TYPE_FLOAT"			{ count(); yylval.ival = LST_FLOATINGPOINT; return(INTEGER_CONSTANT); }	
@@ -336,6 +355,8 @@ int yyerror(const char *fmt, ...);
 "ATTACH_HUD_BOTTOM_LEFT" { count(); yylval.ival = 36; return(INTEGER_CONSTANT); }
 "ATTACH_HUD_BOTTOM"		{ count(); yylval.ival = 37; return(INTEGER_CONSTANT); }
 "ATTACH_HUD_BOTTOM_RIGHT"	{ count(); yylval.ival = 38; return(INTEGER_CONSTANT); }
+"ATTACH_NECK"   { count(); yylval.ival = 39; return(INTEGER_CONSTANT); }
+"ATTACH_AVATAR_CENTER"   { count(); yylval.ival = 40; return(INTEGER_CONSTANT); }
 
 "LAND_LEVEL"		{ count(); yylval.ival = E_LANDBRUSH_LEVEL; return(INTEGER_CONSTANT); }
 "LAND_RAISE"		{ count(); yylval.ival = E_LANDBRUSH_RAISE; return(INTEGER_CONSTANT); }
@@ -374,6 +395,10 @@ int yyerror(const char *fmt, ...);
 "PSYS_PART_END_SCALE"	{ count(); yylval.ival = LLPS_PART_END_SCALE; return (INTEGER_CONSTANT); }
 "PSYS_PART_MAX_AGE"		{ count(); yylval.ival = LLPS_PART_MAX_AGE; return (INTEGER_CONSTANT); }
 
+"PSYS_PART_BLEND_FUNC_SOURCE"	{ count(); yylval.ival = LLPS_PART_BLEND_FUNC_SOURCE; return (INTEGER_CONSTANT); }
+"PSYS_PART_BLEND_FUNC_DEST"		{ count(); yylval.ival = LLPS_PART_BLEND_FUNC_DEST; return (INTEGER_CONSTANT); }
+"PSYS_PART_START_GLOW"	{ count(); yylval.ival = LLPS_PART_START_GLOW; return (INTEGER_CONSTANT); }
+"PSYS_PART_END_GLOW"	{ count(); yylval.ival = LLPS_PART_END_GLOW; return (INTEGER_CONSTANT); }
 
 "PSYS_PART_WIND_MASK"				{ count(); yylval.ival = LLPartData::LL_PART_WIND_MASK; return(INTEGER_CONSTANT); }
 "PSYS_PART_INTERP_COLOR_MASK"		{ count(); yylval.ival = LLPartData::LL_PART_INTERP_COLOR_MASK; return(INTEGER_CONSTANT); }
@@ -384,6 +409,16 @@ int yyerror(const char *fmt, ...);
 "PSYS_PART_TARGET_POS_MASK"			{ count(); yylval.ival = LLPartData::LL_PART_TARGET_POS_MASK; return(INTEGER_CONSTANT); }
 "PSYS_PART_EMISSIVE_MASK"			{ count(); yylval.ival = LLPartData::LL_PART_EMISSIVE_MASK; return(INTEGER_CONSTANT); }
 "PSYS_PART_TARGET_LINEAR_MASK"		{ count(); yylval.ival = LLPartData::LL_PART_TARGET_LINEAR_MASK; return(INTEGER_CONSTANT); }
+"PSYS_PART_RIBBON_MASK"				{ count(); yylval.ival = LLPartData::LL_PART_RIBBON_MASK; return(INTEGER_CONSTANT); }
+
+"PSYS_PART_BF_ONE"						{ count(); yylval.ival = LLPartData::LL_PART_BF_ONE; return(INTEGER_CONSTANT); }
+"PSYS_PART_BF_ZERO"						{ count(); yylval.ival = LLPartData::LL_PART_BF_ZERO; return(INTEGER_CONSTANT); }
+"PSYS_PART_BF_DEST_COLOR"				{ count(); yylval.ival = LLPartData::LL_PART_BF_DEST_COLOR; return(INTEGER_CONSTANT); }
+"PSYS_PART_BF_SOURCE_COLOR"				{ count(); yylval.ival = LLPartData::LL_PART_BF_SOURCE_COLOR; return(INTEGER_CONSTANT); }
+"PSYS_PART_BF_ONE_MINUS_DEST_COLOR"		{ count(); yylval.ival = LLPartData::LL_PART_BF_ONE_MINUS_DEST_COLOR; return(INTEGER_CONSTANT); }
+"PSYS_PART_BF_ONE_MINUS_SOURCE_COLOR"	{ count(); yylval.ival = LLPartData::LL_PART_BF_ONE_MINUS_SOURCE_COLOR; return(INTEGER_CONSTANT); }
+"PSYS_PART_BF_SOURCE_ALPHA"				{ count(); yylval.ival = LLPartData::LL_PART_BF_SOURCE_ALPHA; return(INTEGER_CONSTANT); }
+"PSYS_PART_BF_ONE_MINUS_SOURCE_ALPHA"	{ count(); yylval.ival = LLPartData::LL_PART_BF_ONE_MINUS_SOURCE_ALPHA; return(INTEGER_CONSTANT); }
 
 
 "PSYS_SRC_MAX_AGE"					{ count(); yylval.ival = LLPS_SRC_MAX_AGE; return(INTEGER_CONSTANT); }
@@ -479,7 +514,17 @@ int yyerror(const char *fmt, ...);
 "PRIM_BUMP_SHINY"		{ count(); yylval.ival = LSL_PRIM_BUMP_SHINY; return(INTEGER_CONSTANT); }
 "PRIM_FULLBRIGHT"		{ count(); yylval.ival = LSL_PRIM_FULLBRIGHT; return(INTEGER_CONSTANT); }
 "PRIM_TEXGEN"			{ count(); yylval.ival = LSL_PRIM_TEXGEN; return(INTEGER_CONSTANT); }
-"PRIM_GLOW"	     		{ count(); yylval.ival = LSL_PRIM_GLOW; return(INTEGER_CONSTANT); }
+"PRIM_GLOW"				{ count(); yylval.ival = LSL_PRIM_GLOW; return(INTEGER_CONSTANT); }
+"PRIM_TEXT"				{ count(); yylval.ival = LSL_PRIM_TEXT; return(INTEGER_CONSTANT); }
+"PRIM_NAME"				{ count(); yylval.ival = LSL_PRIM_NAME; return(INTEGER_CONSTANT); }
+"PRIM_DESC"				{ count(); yylval.ival = LSL_PRIM_DESC; return(INTEGER_CONSTANT); }
+"PRIM_OMEGA"			{ count(); yylval.ival = LSL_PRIM_OMEGA; return(INTEGER_CONSTANT); }
+"PRIM_LINK_TARGET"		{ count(); yylval.ival = LSL_PRIM_LINK_TARGET; return(INTEGER_CONSTANT); }
+"PRIM_SLICE"			{ count(); yylval.ival = LSL_PRIM_SLICE; return(INTEGER_CONSTANT); }
+
+"PRIM_PHYSICS_SHAPE_PRIM"	{ count(); yylval.ival = LSL_PRIM_PHYSICS_SHAPE_PRIM; return(INTEGER_CONSTANT); }
+"PRIM_PHYSICS_SHAPE_NONE"	{ count(); yylval.ival = LSL_PRIM_PHYSICS_SHAPE_NONE; return(INTEGER_CONSTANT); }
+"PRIM_PHYSICS_SHAPE_CONVEX"	{ count(); yylval.ival = LSL_PRIM_PHYSICS_SHAPE_CONVEX; return(INTEGER_CONSTANT); }
 
 "PRIM_TYPE_BOX"			{ count(); yylval.ival = LSL_PRIM_TYPE_BOX; return(INTEGER_CONSTANT); }
 "PRIM_TYPE_CYLINDER"	{ count(); yylval.ival = LSL_PRIM_TYPE_CYLINDER; return(INTEGER_CONSTANT); }

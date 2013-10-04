@@ -214,7 +214,7 @@ LLNotificationForm::LLNotificationForm(const std::string& name, const LLNotifica
 		}
 		else
 		{
-			LLUI::sSettingGroups["ignores"]->declareBOOL(name, show_notification, "Show notification with this name", TRUE);
+			LLUI::sSettingGroups["ignores"]->declareBOOL(name, show_notification, "Show notification with this name", LLControlVariable::PERSIST_NONDFT);
 			mIgnoreSetting = LLUI::sSettingGroups["ignores"]->getControl(name);
 		}
 	}
@@ -1125,7 +1125,7 @@ LLNotificationChannel::LLNotificationChannel(const Params& p)
 	mName(p.name.isProvided() ? p.name : LLUUID::generateNewID().asString())
 {
 	BOOST_FOREACH(const std::string& source, p.sources)
-{
+    {
 		connectToChannel(source);
 	}
 }
@@ -1209,6 +1209,10 @@ LLNotifications::LLNotifications()
 	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Notification.Show", boost::bind(&LLNotifications::addFromCallback, this, _2));
 }
 
+void LLNotifications::clear()
+{
+   mDefaultChannels.clear();
+}
 
 // The expiration channel gets all notifications that are cancelled
 bool LLNotifications::expirationFilter(LLNotificationPtr pNotification)

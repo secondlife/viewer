@@ -78,22 +78,43 @@ vec3 vary_AtmosAttenuation;
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 
-#ifdef SINGLE_FP_ONLY
-vec2 encode_normal(vec3 n)
+vec3 srgb_to_linear(vec3 cs)
 {
-	vec2 sn;
-	sn.xy = (n.xy * vec2(0.5f,0.5f)) + vec2(0.5f,0.5f);
-	return sn;
+	vec3 low_range = cs / vec3(12.92);
+	vec3 high_range = pow((cs+vec3(0.055))/vec3(1.055), vec3(2.4));
+	bvec3 lte = lessThanEqual(cs,vec3(0.04045));
+
+#ifdef OLD_SELECT
+	vec3 result;
+	result.r = lte.r ? low_range.r : high_range.r;
+	result.g = lte.g ? low_range.g : high_range.g;
+	result.b = lte.b ? low_range.b : high_range.b;
+    return result;
+#else
+	return mix(high_range, low_range, lte);
+#endif
+
 }
 
-vec3 decode_normal (vec2 enc)
+vec3 linear_to_srgb(vec3 cl)
 {
-	vec3 n;
-	n.xy = (enc.xy * vec2(2.0f,2.0f)) - vec2(1.0f,1.0f);
-	n.z = sqrt(1.0f - dot(n.xy,n.xy));
-	return n;
-}
+	cl = clamp(cl, vec3(0), vec3(1));
+	vec3 low_range  = cl * 12.92;
+	vec3 high_range = 1.055 * pow(cl, vec3(0.41666)) - 0.055;
+	bvec3 lt = lessThan(cl,vec3(0.0031308));
+
+#ifdef OLD_SELECT
+	vec3 result;
+	result.r = lt.r ? low_range.r : high_range.r;
+	result.g = lt.g ? low_range.g : high_range.g;
+	result.b = lt.b ? low_range.b : high_range.b;
+    return result;
 #else
+	return mix(high_range, low_range, lt);
+#endif
+
+}
+
 vec2 encode_normal(vec3 n)
 {
 	float f = sqrt(8 * n.z + 8);
@@ -110,7 +131,6 @@ vec3 decode_normal (vec2 enc)
     n.z = 1-f/2;
     return n;
 }
-#endif
 
 vec4 getPosition_d(vec2 pos_screen, float depth)
 {
@@ -254,10 +274,60 @@ void calcAtmospherics(vec3 inPositionEye, float ambFactor) {
 		  + tmpAmbient)));
 
 	//brightness of surface both sunlight and ambient
-	setSunlitColor(pow(vec3(sunlight * .5), vec3(global_gamma)) * global_gamma);
+	/*setSunlitColor(pow(vec3(sunlight * .5), vec3(global_gamma)) * global_gamma);
 	setAmblitColor(pow(vec3(tmpAmbient * .25), vec3(global_gamma)) * global_gamma);
-	setAdditiveColor(pow(getAdditiveColor() * vec3(1.0 - temp1), vec3(global_gamma)) * global_gamma);
+	setAdditiveColor(pow(getAdditiveColor() * vec3(1.0 - temp1), vec3(global_gamma)) * global_gamma);*/
+
+	setSunlitColor(vec3(sunlight * .5));
+	setAmblitColor(vec3(tmpAmbient * .25));
+	setAdditiveColor(getAdditiveColor() * vec3(1.0 - temp1));
 }
+
+#ifdef WATER_FOG
+uniform vec4 waterPlane;
+uniform vec4 waterFogColor;
+uniform float waterFogDensity;
+uniform float waterFogKS;
+
+vec4 applyWaterFogDeferred(vec3 pos, vec4 color)
+{
+	//normalize view vector
+	vec3 view = normalize(pos);
+	float es = -(dot(view, waterPlane.xyz));
+
+	//find intersection point with water plane and eye vector
+	
+	//get eye depth
+	float e0 = max(-waterPlane.w, 0.0);
+	
+	vec3 int_v = waterPlane.w > 0.0 ? view * waterPlane.w/es : vec3(0.0, 0.0, 0.0);
+	
+	//get object depth
+	float depth = length(pos - int_v);
+		
+	//get "thickness" of water
+	float l = max(depth, 0.1);
+
+	float kd = waterFogDensity;
+	float ks = waterFogKS;
+	vec4 kc = waterFogColor;
+	
+	float F = 0.98;
+	
+	float t1 = -kd * pow(F, ks * e0);
+	float t2 = kd + ks * es;
+	float t3 = pow(F, t2*l) - 1.0;
+	
+	float L = min(t1/t2*t3, 1.0);
+	
+	float D = pow(0.98, l*kd);
+	
+	color.rgb = color.rgb * D + kc.rgb * L;
+	color.a = kc.a + color.a;
+	
+	return color;
+}
+#endif
 
 vec3 atmosLighting(vec3 light)
 {
@@ -332,7 +402,14 @@ void main()
 		
 	float da = max(dot(norm.xyz, sun_dir.xyz), 0.0);
 
+	float light_gamma = 1.0/1.3;
+	da = pow(da, light_gamma);
+
+
 	vec4 diffuse = texture2DRect(diffuseRect, tc);
+
+	//convert to gamma space
+	diffuse.rgb = linear_to_srgb(diffuse.rgb);
 	
 	vec3 col;
 	float bloom = 0.0;
@@ -340,7 +417,12 @@ void main()
 		vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
 		
 		vec2 scol_ambocc = texture2DRect(lightMap, vary_fragcoord.xy).rg;
+		scol_ambocc = pow(scol_ambocc, vec2(light_gamma));
+
 		float scol = max(scol_ambocc.r, diffuse.a); 
+
+		
+
 		float ambocc = scol_ambocc.g;
 	
 		calcAtmospherics(pos.xyz, ambocc);
@@ -353,7 +435,7 @@ void main()
 
 		col.rgb *= ambient;
 
-		col += atmosAffectDirectionalLight(max(min(da, scol) * 2.6, 0.0));
+		col += atmosAffectDirectionalLight(max(min(da, scol), 0.0));
 	
 		col *= diffuse.rgb;
 	
@@ -374,29 +456,32 @@ void main()
 		}
 	
 		
-		col = mix(col.rgb, pow(diffuse.rgb, vec3(1.0/2.2)), diffuse.a);
-		
-		
+		col = mix(col, diffuse.rgb, diffuse.a);
+
 		if (envIntensity > 0.0)
 		{ //add environmentmap
 			vec3 env_vec = env_mat * refnormpersp;
 			
-			float exponent = mix(2.2, 1.0, diffuse.a);
-			vec3 refcol = pow(textureCube(environmentMap, env_vec).rgb, vec3(exponent))*exponent;
+			vec3 refcol = textureCube(environmentMap, env_vec).rgb;
 
 			col = mix(col.rgb, refcol, 
 				envIntensity);  
 
 		}
-
-		float exponent = mix(1.0, 2.2, diffuse.a);
-		col = pow(col, vec3(exponent));
-				
+						
 		if (norm.w < 0.5)
 		{
 			col = mix(atmosLighting(col), fullbrightAtmosTransport(col), diffuse.a);
 			col = mix(scaleSoftClip(col), fullbrightScaleSoftClip(col), diffuse.a);
 		}
+
+		#ifdef WATER_FOG
+			vec4 fogged = applyWaterFogDeferred(pos,vec4(col, bloom));
+			col = fogged.rgb;
+			bloom = fogged.a;
+		#endif
+
+		col = srgb_to_linear(col);
 
 		//col = vec3(1,0,1);
 		//col.g = envIntensity;

@@ -400,6 +400,8 @@ LLFavoritesBarCtrl::LLFavoritesBarCtrl(const LLFavoritesBarCtrl::Params& p)
 	mMoreTextBox->setClickedCallback(boost::bind(&LLFavoritesBarCtrl::showDropDownMenu, this));
 	addChild(mMoreTextBox);
 
+	mDropDownItemsCount = 0;
+
 	LLTextBox::Params label_param(p.label);
 	mBarLabel = LLUICtrlFactory::create<LLTextBox> (label_param);
 	addChild(mBarLabel);
@@ -550,6 +552,10 @@ void LLFavoritesBarCtrl::handleNewFavoriteDragAndDrop(LLInventoryItem *item, con
 	bool insert_before = true;
 	if (!mItems.empty())
 	{
+		// [MAINT-2386] When multiple landmarks are selected and dragged onto an empty favorites bar,
+		//		the viewer would crash when casting mLastTab below, as mLastTab is still null when the
+		//		second landmark is being added.
+		//		To ensure mLastTab is valid, we need to call updateButtons() at the end of this function
 		dest = dynamic_cast<LLFavoriteLandmarkButton*>(mLandingTab);
 		if (!dest)
 		{
@@ -621,6 +627,11 @@ void LLFavoritesBarCtrl::handleNewFavoriteDragAndDrop(LLInventoryItem *item, con
 				cb);
 	}
 
+	// [MAINT-2386] Ensure the favorite button has been created and is valid.
+	//		This also ensures that mLastTab will be valid when dropping multiple
+	//		landmarks to an empty favorites bar.
+	updateButtons();
+	
 	llinfos << "Copied inventory item #" << item->getUUID() << " to favorites." << llendl;
 }
 
@@ -820,11 +831,13 @@ void LLFavoritesBarCtrl::updateButtons()
 		}
 		// Update overflow menu
 		LLToggleableMenu* overflow_menu = static_cast <LLToggleableMenu*> (mOverflowMenuHandle.get());
-		if (overflow_menu && overflow_menu->getVisible())
+		if (overflow_menu && overflow_menu->getVisible() && (overflow_menu->getItemCount() != mDropDownItemsCount))
 		{
 			overflow_menu->setVisible(FALSE);
 			if (mUpdateDropDownItems)
+			{
 				showDropDownMenu();
+			}
 		}
 	}
 	else
@@ -940,6 +953,7 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 		menu->updateParent(LLMenuGL::sMenuContainer);
 		menu->setButtonRect(mMoreTextBox->getRect(), this);
 		positionAndShowMenu(menu);
+		mDropDownItemsCount = menu->getItemCount();
 	}
 }
 

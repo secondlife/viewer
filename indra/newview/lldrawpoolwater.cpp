@@ -407,8 +407,8 @@ void LLDrawPoolWater::renderOpaqueLegacyWater()
 	}
 	else
 	{
-		shader->uniform4fv("object_plane_s", 1, tp0);
-		shader->uniform4fv("object_plane_t", 1, tp1);
+		shader->uniform4fv(LLShaderMgr::OBJECT_PLANE_S, 1, tp0);
+		shader->uniform4fv(LLShaderMgr::OBJECT_PLANE_T, 1, tp1);
 	}
 
 	gGL.diffuseColor3f(1.f, 1.f, 1.f);
@@ -522,13 +522,20 @@ void LLDrawPoolWater::shade()
 
 	F32 eyedepth = LLViewerCamera::getInstance()->getOrigin().mV[2] - gAgent.getRegion()->getWaterHeight();
 	
+	if (eyedepth < 0.f && LLPipeline::sWaterReflections)
+	{
 	if (deferred_render)
 	{
-		shader = &gDeferredWaterProgram;
+			shader = &gDeferredUnderWaterProgram;
 	}
-	else if (eyedepth < 0.f && LLPipeline::sWaterReflections)
+		else
 	{
 		shader = &gUnderWaterProgram;
+	}
+	}
+	else if (deferred_render)
+	{
+		shader = &gDeferredWaterProgram;
 	}
 	else
 	{
@@ -546,7 +553,7 @@ void LLDrawPoolWater::shade()
 
 	sTime = (F32)LLFrameTimer::getElapsedSeconds()*0.5f;
 	
-	S32 reftex = shader->enableTexture(LLViewerShaderMgr::WATER_REFTEX);
+	S32 reftex = shader->enableTexture(LLShaderMgr::WATER_REFTEX);
 		
 	if (reftex > -1)
 	{
@@ -577,12 +584,12 @@ void LLDrawPoolWater::shade()
 		mWaterNormp->setFilteringOption(LLTexUnit::TFO_POINT);
 	}
 	
-	S32 screentex = shader->enableTexture(LLViewerShaderMgr::WATER_SCREENTEX);	
+	S32 screentex = shader->enableTexture(LLShaderMgr::WATER_SCREENTEX);	
 		
 	if (screentex > -1)
 	{
-		shader->uniform4fv(LLViewerShaderMgr::WATER_FOGCOLOR, 1, sWaterFogColor.mV);
-		shader->uniform1f(LLViewerShaderMgr::WATER_FOGDENSITY, 
+		shader->uniform4fv(LLShaderMgr::WATER_FOGCOLOR, 1, sWaterFogColor.mV);
+		shader->uniform1f(LLShaderMgr::WATER_FOGDENSITY, 
 			param_mgr->getFogDensity());
 		gPipeline.mWaterDis.bindTexture(0, screentex);
 	}
@@ -594,7 +601,7 @@ void LLDrawPoolWater::shade()
 	if (mVertexShaderLevel == 1)
 	{
 		sWaterFogColor.mV[3] = param_mgr->mDensitySliderValue;
-		shader->uniform4fv(LLViewerShaderMgr::WATER_FOGCOLOR, 1, sWaterFogColor.mV);
+		shader->uniform4fv(LLShaderMgr::WATER_FOGCOLOR, 1, sWaterFogColor.mV);
 	}
 
 	F32 screenRes[] = 
@@ -602,10 +609,10 @@ void LLDrawPoolWater::shade()
 		1.f/gGLViewport[2],
 		1.f/gGLViewport[3]
 	};
-	shader->uniform2fv("screenRes", 1, screenRes);
+	shader->uniform2fv(LLShaderMgr::DEFERRED_SCREEN_RES, 1, screenRes);
 	stop_glerror();
 	
-	S32 diffTex = shader->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
+	S32 diffTex = shader->enableTexture(LLShaderMgr::DIFFUSE_MAP);
 	stop_glerror();
 	
 	light_dir.normVec();
@@ -614,26 +621,26 @@ void LLDrawPoolWater::shade()
 	light_diffuse *= 6.f;
 
 	//shader->uniformMatrix4fv("inverse_ref", 1, GL_FALSE, (GLfloat*) gGLObliqueProjectionInverse.mMatrix);
-	shader->uniform1f(LLViewerShaderMgr::WATER_WATERHEIGHT, eyedepth);
-	shader->uniform1f(LLViewerShaderMgr::WATER_TIME, sTime);
-	shader->uniform3fv(LLViewerShaderMgr::WATER_EYEVEC, 1, LLViewerCamera::getInstance()->getOrigin().mV);
-	shader->uniform3fv(LLViewerShaderMgr::WATER_SPECULAR, 1, light_diffuse.mV);
-	shader->uniform1f(LLViewerShaderMgr::WATER_SPECULAR_EXP, light_exp);
-	shader->uniform2fv(LLViewerShaderMgr::WATER_WAVE_DIR1, 1, param_mgr->getWave1Dir().mV);
-	shader->uniform2fv(LLViewerShaderMgr::WATER_WAVE_DIR2, 1, param_mgr->getWave2Dir().mV);
-	shader->uniform3fv(LLViewerShaderMgr::WATER_LIGHT_DIR, 1, light_dir.mV);
+	shader->uniform1f(LLShaderMgr::WATER_WATERHEIGHT, eyedepth);
+	shader->uniform1f(LLShaderMgr::WATER_TIME, sTime);
+	shader->uniform3fv(LLShaderMgr::WATER_EYEVEC, 1, LLViewerCamera::getInstance()->getOrigin().mV);
+	shader->uniform3fv(LLShaderMgr::WATER_SPECULAR, 1, light_diffuse.mV);
+	shader->uniform1f(LLShaderMgr::WATER_SPECULAR_EXP, light_exp);
+	shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR1, 1, param_mgr->getWave1Dir().mV);
+	shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR2, 1, param_mgr->getWave2Dir().mV);
+	shader->uniform3fv(LLShaderMgr::WATER_LIGHT_DIR, 1, light_dir.mV);
 
-	shader->uniform3fv("normScale", 1, param_mgr->getNormalScale().mV);
-	shader->uniform1f("fresnelScale", param_mgr->getFresnelScale());
-	shader->uniform1f("fresnelOffset", param_mgr->getFresnelOffset());
-	shader->uniform1f("blurMultiplier", param_mgr->getBlurMultiplier());
+	shader->uniform3fv(LLShaderMgr::WATER_NORM_SCALE, 1, param_mgr->getNormalScale().mV);
+	shader->uniform1f(LLShaderMgr::WATER_FRESNEL_SCALE, param_mgr->getFresnelScale());
+	shader->uniform1f(LLShaderMgr::WATER_FRESNEL_OFFSET, param_mgr->getFresnelOffset());
+	shader->uniform1f(LLShaderMgr::WATER_BLUR_MULTIPLIER, param_mgr->getBlurMultiplier());
 
 	F32 sunAngle = llmax(0.f, light_dir.mV[2]);
 	F32 scaledAngle = 1.f - sunAngle;
 
-	shader->uniform1f("sunAngle", sunAngle);
-	shader->uniform1f("scaledAngle", scaledAngle);
-	shader->uniform1f("sunAngle2", 0.1f + 0.2f*sunAngle);
+	shader->uniform1f(LLShaderMgr::WATER_SUN_ANGLE, sunAngle);
+	shader->uniform1f(LLShaderMgr::WATER_SCALED_ANGLE, scaledAngle);
+	shader->uniform1f(LLShaderMgr::WATER_SUN_ANGLE2, 0.1f + 0.2f*sunAngle);
 
 	LLColor4 water_color;
 	LLVector3 camera_up = LLViewerCamera::getInstance()->getUpAxis();
@@ -641,12 +648,12 @@ void LLDrawPoolWater::shade()
 	if (LLViewerCamera::getInstance()->cameraUnderWater())
 	{
 		water_color.setVec(1.f, 1.f, 1.f, 0.4f);
-		shader->uniform1f(LLViewerShaderMgr::WATER_REFSCALE, param_mgr->getScaleBelow());
+		shader->uniform1f(LLShaderMgr::WATER_REFSCALE, param_mgr->getScaleBelow());
 	}
 	else
 	{
 		water_color.setVec(1.f, 1.f, 1.f, 0.5f*(1.f + up_dot));
-		shader->uniform1f(LLViewerShaderMgr::WATER_REFSCALE, param_mgr->getScaleAbove());
+		shader->uniform1f(LLShaderMgr::WATER_REFSCALE, param_mgr->getScaleAbove());
 	}
 
 	if (water_color.mV[3] > 0.9f)
@@ -689,12 +696,12 @@ void LLDrawPoolWater::shade()
 		}
 	}
 	
-	shader->disableTexture(LLViewerShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP);
-	shader->disableTexture(LLViewerShaderMgr::WATER_SCREENTEX);	
-	shader->disableTexture(LLViewerShaderMgr::BUMP_MAP);
-	shader->disableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
-	shader->disableTexture(LLViewerShaderMgr::WATER_REFTEX);
-	shader->disableTexture(LLViewerShaderMgr::WATER_SCREENDEPTH);
+	shader->disableTexture(LLShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP);
+	shader->disableTexture(LLShaderMgr::WATER_SCREENTEX);	
+	shader->disableTexture(LLShaderMgr::BUMP_MAP);
+	shader->disableTexture(LLShaderMgr::DIFFUSE_MAP);
+	shader->disableTexture(LLShaderMgr::WATER_REFTEX);
+	shader->disableTexture(LLShaderMgr::WATER_SCREENDEPTH);
 
 	if (deferred_render)
 	{

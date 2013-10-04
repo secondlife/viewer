@@ -54,22 +54,6 @@ uniform vec2 screen_res;
 uniform mat4 inv_proj;
 uniform vec4 viewport;
 
-#ifdef SINGLE_FP_ONLY
-vec2 encode_normal(vec3 n)
-{
-	vec2 sn;
-	sn.xy = (n.xy * vec2(0.5f,0.5f)) + vec2(0.5f,0.5f);
-	return sn;
-}
-
-vec3 decode_normal (vec2 enc)
-{
-	vec3 n;
-	n.xy = (enc.xy * vec2(2.0f,2.0f)) - vec2(1.0f,1.0f);
-	n.z = sqrt(1.0f - dot(n.xy,n.xy));
-	return n;
-}
-#else
 vec2 encode_normal(vec3 n)
 {
 	float f = sqrt(8 * n.z + 8);
@@ -86,7 +70,6 @@ vec3 decode_normal (vec2 enc)
     n.z = 1-f/2;
     return n;
 }
-#endif
 
 vec4 getPosition(vec2 pos_screen)
 {
@@ -110,9 +93,9 @@ void main()
 	
 	vec3 pos = getPosition(frag.xy).xyz;
 	vec3 lv = trans_center.xyz-pos;
-	float dist2 = dot(lv,lv);
-	dist2 /= size;
-	if (dist2 > 1.0)
+	float dist = length(lv);
+	dist /= size;
+	if (dist > 1.0)
 	{
 		discard;
 	}
@@ -133,8 +116,10 @@ void main()
 	
 	vec3 col = texture2DRect(diffuseRect, frag.xy).rgb;
 	float fa = falloff+1.0;
-	float dist_atten = clamp(1.0-(dist2-1.0*(1.0-fa))/fa, 0.0, 1.0);
-	dist_atten = pow(dist_atten, 2.2) * 2.2;
+	float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
+	dist_atten *= dist_atten;
+	dist_atten *= 2.0;
+	
 	float lit = da * dist_atten * noise;
 
 	col = color.rgb*lit*col;

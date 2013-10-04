@@ -52,8 +52,19 @@
 #include "llviewerwindow.h"
 #include "llviewershadermgr.h"
 #include "llviewertexture.h"
+#include "llvoavatar.h"
 
+#if LL_LINUX
+// Work-around spurious used before init warning on Vector4a
+//
+#pragma GCC diagnostic ignored "-Wuninitialized"
+#endif
+
+extern BOOL gGLDebugLoggingEnabled;
 #define LL_MAX_INDICES_COUNT 1000000
+
+static LLStaticHashedString sTextureIndexIn("texture_index_in");
+static LLStaticHashedString sColorIn("color_in");
 
 BOOL LLFace::sSafeRenderSelect = TRUE; // FALSE
 
@@ -318,6 +329,12 @@ void LLFace::dirtyTexture()
 				if (vobj)
 				{
 					vobj->mLODChanged = TRUE;
+
+			LLVOAvatar* avatar = vobj->getAvatar();
+			if (avatar)
+			{ //avatar render cost may have changed
+				avatar->updateVisualComplexity();
+			}
 				}
 				gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_VOLUME, FALSE);
 			}
@@ -768,7 +785,7 @@ bool less_than_max_mag(const LLVector4a& vec)
 }
 
 BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
-								const LLMatrix4& mat_vert_in, const LLMatrix3& mat_normal_in, BOOL global_volume)
+								const LLMatrix4& mat_vert_in, BOOL global_volume)
 {
 	//get bounding box
 	if (mDrawablep->isState(LLDrawable::REBUILD_VOLUME | LLDrawable::REBUILD_POSITION | LLDrawable::REBUILD_RIGGED))
@@ -777,10 +794,6 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 		LLMatrix4a mat_vert;
 		mat_vert.loadu(mat_vert_in);
 
-		LLMatrix4a mat_normal;
-		mat_normal.loadu(mat_normal_in);
-
-		//VECTORIZE THIS
 		LLVector4a min,max;
 	
 		if (f >= volume.getNumVolumeFaces())
@@ -797,100 +810,68 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 		llassert(less_than_max_mag(max));
 
 		//min, max are in volume space, convert to drawable render space
-		LLVector4a center;
-		LLVector4a t;
-		t.setAdd(min, max);
-		t.mul(0.5f);
-		mat_vert.affineTransform(t, center);
-		LLVector4a size;
-		size.setSub(max, min);
-		size.mul(0.5f);
 
-		llassert(less_than_max_mag(min));
-		llassert(less_than_max_mag(max));
+		//get 8 corners of bounding box
+		LLVector4Logical mask[6];
 
-		if (!global_volume)
+		for (U32 i = 0; i < 6; ++i)
 		{
-			//VECTORIZE THIS
-			LLVector4a scale;
-			scale.load3(mDrawablep->getVObj()->getScale().mV);
-			size.mul(scale);
+			mask[i].clear();
 		}
 
-		// Catch potential badness from normalization before it happens
-		//
-		llassert(mat_normal.mMatrix[0].isFinite3() && (mat_normal.mMatrix[0].dot3(mat_normal.mMatrix[0]).getF32() > F_APPROXIMATELY_ZERO));
-		llassert(mat_normal.mMatrix[1].isFinite3() && (mat_normal.mMatrix[1].dot3(mat_normal.mMatrix[1]).getF32() > F_APPROXIMATELY_ZERO));
-		llassert(mat_normal.mMatrix[2].isFinite3() && (mat_normal.mMatrix[2].dot3(mat_normal.mMatrix[2]).getF32() > F_APPROXIMATELY_ZERO));
-
-		mat_normal.mMatrix[0].normalize3fast();
-		mat_normal.mMatrix[1].normalize3fast();
-		mat_normal.mMatrix[2].normalize3fast();
+		mask[0].setElement<2>(); //001
+		mask[1].setElement<1>(); //010
+		mask[2].setElement<1>(); //011
+		mask[2].setElement<2>();
+		mask[3].setElement<0>(); //100
+		mask[4].setElement<0>(); //101
+		mask[4].setElement<2>();
+		mask[5].setElement<0>(); //110
+		mask[5].setElement<1>();
 		
-		LLVector4a v[4];
+		LLVector4a v[8];
 
-		//get 4 corners of bounding box
-		mat_normal.rotate(size,v[0]);
+		v[6] = min;
+		v[7] = max;
 
-		//VECTORIZE THIS
-		LLVector4a scale;
-		
-		scale.set(-1.f, -1.f, 1.f);
-		scale.mul(size);
-		mat_normal.rotate(scale, v[1]);
-		
-		scale.set(1.f, -1.f, -1.f);
-		scale.mul(size);
-		mat_normal.rotate(scale, v[2]);
-		
-		scale.set(-1.f, 1.f, -1.f);
-		scale.mul(size);
-		mat_normal.rotate(scale, v[3]);
+		for (U32 i = 0; i < 6; ++i)
+		{
+			v[i].setSelectWithMask(mask[i], min, max);
+		}
 
+		LLVector4a tv[8];
+
+		//transform bounding box into drawable space
+		for (U32 i = 0; i < 8; ++i)
+		{
+			mat_vert.affineTransform(v[i], tv[i]);
+		}
+	
+		//find bounding box
 		LLVector4a& newMin = mExtents[0];
 		LLVector4a& newMax = mExtents[1];
-		
-		newMin = newMax = center;
-		
-		llassert(less_than_max_mag(center));
-		
-		for (U32 i = 0; i < 4; i++)
+
+		newMin = newMax = tv[0];
+
+		for (U32 i = 1; i < 8; ++i)
 		{
-			LLVector4a delta;
-			delta.setAbs(v[i]);
-			LLVector4a min;
-			min.setSub(center, delta);
-			LLVector4a max;
-			max.setAdd(center, delta);
-
-			newMin.setMin(newMin,min);
-			newMax.setMax(newMax,max);
-
-			llassert(less_than_max_mag(newMin));
-			llassert(less_than_max_mag(newMax));
+			newMin.setMin(newMin, tv[i]);
+			newMax.setMax(newMax, tv[i]);
 		}
 
 		if (!mDrawablep->isActive())
-		{
+		{	// Shift position for region
 			LLVector4a offset;
 			offset.load3(mDrawablep->getRegion()->getOriginAgent().mV);
 			newMin.add(offset);
 			newMax.add(offset);
-			
-			llassert(less_than_max_mag(newMin));
-			llassert(less_than_max_mag(newMax));
 		}
 
-		t.setAdd(newMin, newMax);
+		LLVector4a t;
+		t.setAdd(newMin,newMax);
 		t.mul(0.5f);
 
-		llassert(less_than_max_mag(t));
-		
-		//VECTORIZE THIS
 		mCenterLocal.set(t.getF32ptr());
-		
-		llassert(less_than_max_mag(newMin));
-		llassert(less_than_max_mag(newMax));
 
 		t.setSub(newMax,newMin);
 		mBoundingSphereRadius = t.getLength3().getF32()*0.5f;
@@ -1175,6 +1156,15 @@ static LLFastTimer::DeclareTimer FTM_FACE_GEOM_COLOR("Color");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_EMISSIVE("Emissive");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_WEIGHTS("Weights");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_TANGENT("Binormal");
+
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_FEEDBACK("Face Feedback");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_FEEDBACK_POSITION("Feedback Position");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_FEEDBACK_NORMAL("Feedback  Normal");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_FEEDBACK_TEXTURE("Feedback  Texture");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_FEEDBACK_COLOR("Feedback  Color");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_FEEDBACK_EMISSIVE("Feedback  Emissive");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_FEEDBACK_BINORMAL("Feedback Binormal");
+
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_INDEX("Index");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_INDEX_TAIL("Tail");
 static LLFastTimer::DeclareTimer FTM_FACE_POSITION_STORE("Pos");
@@ -1400,12 +1390,15 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 #ifdef GL_TRANSFORM_FEEDBACK_BUFFER
 	if (use_transform_feedback &&
+		mVertexBuffer->getUsage() == GL_DYNAMIC_COPY_ARB &&
 		gTransformPositionProgram.mProgramObject && //transform shaders are loaded
 		mVertexBuffer->useVBOs() && //target buffer is in VRAM
 		!rebuild_weights && //TODO: add support for weights
 		!volume.isUnique()) //source volume is NOT flexi
 	{ //use transform feedback to pack vertex buffer
-
+		//gGLDebugLoggingEnabled = TRUE;
+		LLFastTimer t(FTM_FACE_GEOM_FEEDBACK);
+		LLGLEnable discard(GL_RASTERIZER_DISCARD);
 		LLVertexBuffer* buff = (LLVertexBuffer*) vf.mVertexBuffer.get();
 
 		if (vf.mVertexBuffer.isNull() || buff->getNumVerts() != vf.mNumVertices)
@@ -1422,7 +1415,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (rebuild_pos)
 		{
-			LLFastTimer t(FTM_FACE_GEOM_POSITION);
+			LLFastTimer t(FTM_FACE_GEOM_FEEDBACK_POSITION);
 			gTransformPositionProgram.bind();
 
 			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_VERTEX, mGeomIndex, mGeomCount);
@@ -1436,7 +1429,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			vp[2] = 0;
 			vp[3] = 0;
 			
-			gTransformPositionProgram.uniform1i("texture_index_in", val);
+			gTransformPositionProgram.uniform1i(sTextureIndexIn, val);
 			glBeginTransformFeedback(GL_POINTS);
 			buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
 
@@ -1447,14 +1440,14 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (rebuild_color)
 		{
-			LLFastTimer t(FTM_FACE_GEOM_COLOR);
+			LLFastTimer t(FTM_FACE_GEOM_FEEDBACK_COLOR);
 			gTransformColorProgram.bind();
 			
 			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_COLOR, mGeomIndex, mGeomCount);
 
 			S32 val = *((S32*) color.mV);
 
-			gTransformColorProgram.uniform1i("color_in", val);
+			gTransformColorProgram.uniform1i(sColorIn, val);
 			glBeginTransformFeedback(GL_POINTS);
 			buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
 			push_for_transform(buff, vf.mNumVertices, mGeomCount);
@@ -1463,7 +1456,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (rebuild_emissive)
 		{
-			LLFastTimer t(FTM_FACE_GEOM_EMISSIVE);
+			LLFastTimer t(FTM_FACE_GEOM_FEEDBACK_EMISSIVE);
 			gTransformColorProgram.bind();
 			
 			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_EMISSIVE, mGeomIndex, mGeomCount);
@@ -1475,7 +1468,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 						 (glow << 16) |
 						 (glow << 24);
 
-			gTransformColorProgram.uniform1i("color_in", glow32);
+			gTransformColorProgram.uniform1i(sColorIn, glow32);
 			glBeginTransformFeedback(GL_POINTS);
 			buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
 			push_for_transform(buff, vf.mNumVertices, mGeomCount);
@@ -1484,7 +1477,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (rebuild_normal)
 		{
-			LLFastTimer t(FTM_FACE_GEOM_NORMAL);
+			LLFastTimer t(FTM_FACE_GEOM_FEEDBACK_NORMAL);
 			gTransformNormalProgram.bind();
 			
 			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_NORMAL, mGeomIndex, mGeomCount);
@@ -1510,7 +1503,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (rebuild_tcoord)
 		{
-			LLFastTimer t(FTM_FACE_GEOM_TEXTURE);
+			LLFastTimer t(FTM_FACE_GEOM_FEEDBACK_TEXTURE);
 			gTransformTexCoordProgram.bind();
 			
 			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_TEXCOORD0, mGeomIndex, mGeomCount);
@@ -1933,20 +1926,31 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (rebuild_pos)
 		{
-			LLFastTimer t(FTM_FACE_GEOM_POSITION);
+			LLVector4a* src = vf.mPositions;
+			
+			//_mm_prefetch((char*)src, _MM_HINT_T0);
+
+			LLVector4a* end = src+num_vertices;
+			//LLVector4a* end_64 = end-4;
+
+			//LLFastTimer t(FTM_FACE_GEOM_POSITION);
 			llassert(num_vertices > 0);
 		
 			mVertexBuffer->getVertexStrider(vert, mGeomIndex, mGeomCount, map_range);
 			
-
 			LLMatrix4a mat_vert;
 			mat_vert.loadu(mat_vert_in);
 
-			LLVector4a* src = vf.mPositions;
-			volatile F32* dst = (volatile F32*) vert.get();
+			F32* dst = (F32*) vert.get();
+			F32* end_f32 = dst+mGeomCount*4;
 
-			volatile F32* end = dst+num_vertices*4;
-			LLVector4a res;
+			//_mm_prefetch((char*)dst, _MM_HINT_NTA);
+			//_mm_prefetch((char*)src, _MM_HINT_NTA);
+				
+			//_mm_prefetch((char*)dst, _MM_HINT_NTA);
+
+
+			LLVector4a res0; //,res1,res2,res3;
 
 			LLVector4a texIdx;
 
@@ -1964,29 +1968,53 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		
 			texIdx.set(0,0,0,val);
 
-			{
-				LLFastTimer t(FTM_FACE_POSITION_STORE);
-				LLVector4a tmp;
+			LLVector4a tmp;
 
-				do
+			{
+				//LLFastTimer t2(FTM_FACE_POSITION_STORE);
+
+				/*if (num_vertices > 4)
+				{ //more than 64 bytes
+					while (src < end_64)
+					{	
+						_mm_prefetch((char*)src + 64, _MM_HINT_T0);
+						_mm_prefetch((char*)dst + 64, _MM_HINT_T0);
+
+						mat_vert.affineTransform(*src, res0);
+						tmp.setSelectWithMask(mask, texIdx, res0);
+						tmp.store4a((F32*) dst);
+
+						mat_vert.affineTransform(*(src+1), res1);
+						tmp.setSelectWithMask(mask, texIdx, res1);
+						tmp.store4a((F32*) dst+4);
+
+						mat_vert.affineTransform(*(src+2), res2);
+						tmp.setSelectWithMask(mask, texIdx, res2);
+						tmp.store4a((F32*) dst+8);
+
+						mat_vert.affineTransform(*(src+3), res3);
+						tmp.setSelectWithMask(mask, texIdx, res3);
+						tmp.store4a((F32*) dst+12);
+
+						dst += 16;
+						src += 4;
+					}
+				}*/
+
+				while (src < end)
 				{	
-					mat_vert.affineTransform(*src++, res);
-					tmp.setSelectWithMask(mask, texIdx, res);
+					mat_vert.affineTransform(*src++, res0);
+					tmp.setSelectWithMask(mask, texIdx, res0);
 					tmp.store4a((F32*) dst);
 					dst += 4;
 				}
-				while(dst < end);
 			}
 
 			{
-				LLFastTimer t(FTM_FACE_POSITION_PAD);
-				S32 aligned_pad_vertices = mGeomCount - num_vertices;
-				res.set(res[0], res[1], res[2], 0.f);
-
-				while (aligned_pad_vertices > 0)
+				//LLFastTimer t(FTM_FACE_POSITION_PAD);
+				while (dst < end_f32)
 				{
-					--aligned_pad_vertices;
-					res.store4a((F32*) dst);
+					res0.store4a((F32*) dst);
 					dst += 4;
 				}
 			}
@@ -2000,14 +2028,16 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		
 		if (rebuild_normal)
 		{
-			LLFastTimer t(FTM_FACE_GEOM_NORMAL);
+			//LLFastTimer t(FTM_FACE_GEOM_NORMAL);
 			mVertexBuffer->getNormalStrider(norm, mGeomIndex, mGeomCount, map_range);
 			F32* normals = (F32*) norm.get();
-			for (S32 i = 0; i < num_vertices; i++)
+			LLVector4a* src = vf.mNormals;
+			LLVector4a* end = src+num_vertices;
+			
+			while (src < end)
 			{	
 				LLVector4a normal;
-				mat_normal.rotate(vf.mNormals[i], normal);
-				normal.normalize3fast();
+				mat_normal.rotate(*src++, normal);
 				normal.store4a(normals);
 				normals += 4;
 			}
@@ -2030,14 +2060,18 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			mask.clear();
 			mask.setElement<3>();
 
-			for (S32 i = 0; i < num_vertices; i++)
+			LLVector4a* src = vf.mTangents;
+			LLVector4a* end = vf.mTangents+num_vertices;
+
+			while (src < end)
 			{
 				LLVector4a tangent_out;
-				mat_normal.rotate(vf.mTangents[i], tangent_out);
+				mat_normal.rotate(*src, tangent_out);
 				tangent_out.normalize3fast();
-				tangent_out.setSelectWithMask(mask, vf.mTangents[i], tangent_out);
+				tangent_out.setSelectWithMask(mask, *src, tangent_out);
 				tangent_out.store4a(tangents);
 				
+				src++;
 				tangents += 4;
 			}
 

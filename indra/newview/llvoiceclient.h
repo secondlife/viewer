@@ -199,7 +199,6 @@ public:
 	//@{
 	virtual BOOL getVoiceEnabled(const LLUUID& id)=0;		// true if we've received data for this avatar
 	virtual std::string getDisplayName(const LLUUID& id)=0;
-	virtual BOOL isOnlineSIP(const LLUUID &id)=0;	
 	virtual BOOL isParticipantAvatar(const LLUUID &id)=0;
 	virtual BOOL getIsSpeaking(const LLUUID& id)=0;
 	virtual BOOL getIsModeratorMuted(const LLUUID& id)=0;

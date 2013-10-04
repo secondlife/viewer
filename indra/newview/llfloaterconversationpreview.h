@@ -42,6 +42,7 @@ public:
 	virtual ~LLFloaterConversationPreview(){};
 
 	virtual BOOL postBuild();
+	void setPages(std::list<LLSD>& messages,const std::string& file_name);
 
 	virtual void draw();
 	virtual void onOpen(const LLSD& key);
@@ -50,6 +51,7 @@ private:
 	void onMoreHistoryBtnClick();
 	void showHistory();
 
+	LLMutex			mMutex;
 	LLSpinCtrl*		mPageSpinner;
 	LLChatHistory*	mChatHistory;
 	LLUUID			mSessionID;
@@ -59,6 +61,8 @@ private:
 	std::list<LLSD> mMessages;
 	std::string		mAccountName;
 	std::string		mCompleteName;
+	std::string     mChatHistoryFileName;
+	bool			mChatHistoryLoaded;
 };
 
 #endif /* LLFLOATERCONVERSATIONPREVIEW_H_ */

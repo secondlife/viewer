@@ -45,9 +45,8 @@ uniform float sun_wash;
 
 uniform int light_count;
 
-#define MAX_LIGHT_COUNT		16
-uniform vec4 light[MAX_LIGHT_COUNT];
-uniform vec4 light_col[MAX_LIGHT_COUNT];
+uniform vec4 light[LIGHT_COUNT];
+uniform vec4 light_col[LIGHT_COUNT];
 
 VARYING vec4 vary_fragcoord;
 uniform vec2 screen_res;
@@ -56,22 +55,6 @@ uniform float far_z;
 
 uniform mat4 inv_proj;
 
-#ifdef SINGLE_FP_ONLY
-vec2 encode_normal(vec3 n)
-{
-	vec2 sn;
-	sn.xy = (n.xy * vec2(0.5f,0.5f)) + vec2(0.5f,0.5f);
-	return sn;
-}
-
-vec3 decode_normal (vec2 enc)
-{
-	vec3 n;
-	n.xy = (enc.xy * vec2(2.0f,2.0f)) - vec2(1.0f,1.0f);
-	n.z = sqrt(1.0f - dot(n.xy,n.xy));
-	return n;
-}
-#else
 vec2 encode_normal(vec3 n)
 {
 	float f = sqrt(8 * n.z + 8);
@@ -88,7 +71,6 @@ vec3 decode_normal (vec2 enc)
     n.z = 1-f/2;
     return n;
 }
-#endif
 
 vec4 getPosition(vec2 pos_screen)
 {
@@ -117,39 +99,30 @@ void main()
 	norm = normalize(norm);
 	vec4 spec = texture2DRect(specularRect, frag.xy);
 	vec3 diff = texture2DRect(diffuseRect, frag.xy).rgb;
+	
 	float noise = texture2D(noiseMap, frag.xy/128.0).b;
 	vec3 out_col = vec3(0,0,0);
 	vec3 npos = normalize(-pos);
 
 	// As of OSX 10.6.7 ATI Apple's crash when using a variable size loop
-	for (int i = 0; i < MAX_LIGHT_COUNT; ++i)
+	for (int i = 0; i < LIGHT_COUNT; ++i)
 	{
-		bool light_contrib = (i < light_count);
-		
 		vec3 lv = light[i].xyz-pos;
-		float dist2 = dot(lv,lv);
-		dist2 /= light[i].w;
-		if (dist2 > 1.0)
+		float dist = length(lv);
+		dist /= light[i].w;
+		if (dist <= 1.0)
 		{
-			light_contrib = false;
-		}
-		
 		float da = dot(norm, lv);
-		if (da < 0.0)
-		{
-			light_contrib = false;
-		}
-		
-		if (light_contrib)
+			if (da > 0.0)
 		{
 			lv = normalize(lv);
 			da = dot(norm, lv);
 			
 			float fa = light_col[i].a+1.0;
-			float dist_atten = clamp(1.0-(dist2-1.0*(1.0-fa))/fa, 0.0, 1.0);
+			float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
+			dist_atten *= dist_atten;
+			dist_atten *= 2.0;
 			
-			dist_atten = pow(dist_atten, 2.2) * 2.2;
-
 			dist_atten *= noise;
 
 			float lit = da * dist_atten;
@@ -183,11 +156,8 @@ void main()
 			out_col += col;
 		}
 	}
-	
-	if (dot(out_col, out_col) <= 0.0)
-	{
-		discard;
 	}
+	
 	
 	frag_color.rgb = out_col;
 	frag_color.a = 0.0;
