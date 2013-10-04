@@ -45,7 +45,7 @@ Recording::Recording(EPlayState state)
 :	mElapsedSeconds(0),
 	mInHandOff(false)
 {
-	claim_alloc(gTraceMemStat, sizeof(*this));
+	claim_alloc(gTraceMemStat, this);
 	mBuffers = new AccumulatorBufferGroup();
 	claim_alloc(gTraceMemStat, mBuffers);
 	setPlayState(state);
@@ -53,7 +53,7 @@ Recording::Recording(EPlayState state)
 
 Recording::Recording( const Recording& other )
 {
-	claim_alloc(gTraceMemStat, sizeof(*this));
+	claim_alloc(gTraceMemStat, this);
 	*this = other;
 }
 
@@ -79,7 +79,7 @@ Recording& Recording::operator = (const Recording& other)
 
 Recording::~Recording()
 {
-	disclaim_alloc(gTraceMemStat, sizeof(*this));
+	disclaim_alloc(gTraceMemStat, this);
 	disclaim_alloc(gTraceMemStat, mBuffers);
 
 	if (isStarted() && LLTrace::get_thread_recorder().notNull())
@@ -209,32 +209,32 @@ F64Kilobytes Recording::getLastValue(const TraceType<MemStatAccumulator>& stat)
 
 F64Kilobytes Recording::getSum(const TraceType<MemStatAccumulator::AllocationFacet>& stat)
 {
-	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mFootprintAllocations.getSum());
+	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mAllocations.getSum());
 }
 
 F64Kilobytes Recording::getPerSec(const TraceType<MemStatAccumulator::AllocationFacet>& stat)
 {
-	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mFootprintAllocations.getSum() / mElapsedSeconds.value());
+	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mAllocations.getSum() / mElapsedSeconds.value());
 }
 
 S32 Recording::getSampleCount(const TraceType<MemStatAccumulator::AllocationFacet>& stat)
 {
-	return mBuffers->mMemStats[stat.getIndex()].mFootprintAllocations.getSampleCount();
+	return mBuffers->mMemStats[stat.getIndex()].mAllocations.getSampleCount();
 }
 
 F64Kilobytes Recording::getSum(const TraceType<MemStatAccumulator::DeallocationFacet>& stat)
 {
-	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mFootprintDeallocations.getSum());
+	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mDeallocations.getSum());
 }
 
 F64Kilobytes Recording::getPerSec(const TraceType<MemStatAccumulator::DeallocationFacet>& stat)
 {
-	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mFootprintDeallocations.getSum() / mElapsedSeconds.value());
+	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mDeallocations.getSum() / mElapsedSeconds.value());
 }
 
 S32 Recording::getSampleCount(const TraceType<MemStatAccumulator::DeallocationFacet>& stat)
 {
-	return mBuffers->mMemStats[stat.getIndex()].mFootprintDeallocations.getSampleCount();
+	return mBuffers->mMemStats[stat.getIndex()].mDeallocations.getSampleCount();
 }
 
 F64 Recording::getSum( const TraceType<CountAccumulator>& stat )
@@ -339,12 +339,12 @@ PeriodicRecording::PeriodicRecording( S32 num_periods, EPlayState state)
 	mRecordingPeriods(num_periods ? num_periods : 1)
 {
 	setPlayState(state);
-	claim_alloc(gTraceMemStat, sizeof(*this));
+	claim_alloc(gTraceMemStat, this);
 }
 
 PeriodicRecording::~PeriodicRecording()
 {
-	disclaim_alloc(gTraceMemStat, sizeof(*this));
+	disclaim_alloc(gTraceMemStat, this);
 }
 
 void PeriodicRecording::nextPeriod()

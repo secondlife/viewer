@@ -62,7 +62,7 @@ static const S32 MAX_VISIBLE_HISTORY = 12;
 static const S32 LINE_GRAPH_HEIGHT = 240;
 static const S32 MIN_BAR_HEIGHT = 3;
 static const S32 RUNNING_AVERAGE_WIDTH = 100;
-static const S32 NUM_FRAMES_HISTORY = 256;
+static const S32 NUM_FRAMES_HISTORY = 200;
 
 std::vector<TimeBlock*> ft_display_idx; // line of table entry for display purposes (for collapse)
 

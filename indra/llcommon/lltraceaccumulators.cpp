@@ -48,7 +48,12 @@ AccumulatorBufferGroup::AccumulatorBufferGroup()
 	claim_alloc(gTraceMemStat, mMemStats.capacity() * sizeof(MemStatAccumulator));
 }
 
-AccumulatorBufferGroup::AccumulatorBufferGroup(const AccumulatorBufferGroup&)
+AccumulatorBufferGroup::AccumulatorBufferGroup(const AccumulatorBufferGroup& other)
+:	mCounts(other.mCounts),
+	mSamples(other.mSamples),
+	mEvents(other.mEvents),
+	mStackTimers(other.mStackTimers),
+	mMemStats(other.mMemStats)
 {
 	claim_alloc(gTraceMemStat, mCounts.capacity() * sizeof(CountAccumulator));
 	claim_alloc(gTraceMemStat, mSamples.capacity() * sizeof(SampleAccumulator));

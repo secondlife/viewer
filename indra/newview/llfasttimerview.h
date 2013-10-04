@@ -87,12 +87,12 @@ private:
 			mFirstChild(false),
 			mLastChild(false)
 		{}
-		F32Seconds	mTotalTime,
-										mSelfTime,
-										mChildrenStart,
-										mChildrenEnd,
-										mSelfStart,
-										mSelfEnd;
+		F32Seconds			mTotalTime,
+							mSelfTime,
+							mChildrenStart,
+							mChildrenEnd,
+							mSelfStart,
+							mSelfEnd;
 		LLTrace::TimeBlock* mTimeBlock;
 		bool				mVisible,
 							mFirstChild,

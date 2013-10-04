@@ -326,7 +326,7 @@ inline void claim_alloc(MemStatHandle& measurement, const T& value)
 	if(size == 0) return;
 	MemStatAccumulator& accumulator = measurement.getCurrentAccumulator();
 	accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() + (F64)size : (F64)size);
-	accumulator.mFootprintAllocations.record(size);
+	accumulator.mAllocations.record(size);
 }
 
 template<typename T>
@@ -336,7 +336,7 @@ inline void disclaim_alloc(MemStatHandle& measurement, const T& value)
 	if(size == 0) return;
 	MemStatAccumulator& accumulator = measurement.getCurrentAccumulator();
 	accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)size : -(F64)size);
-	accumulator.mFootprintDeallocations.add(size);
+	accumulator.mDeallocations.add(size);
 }
 
 template<typename DERIVED, size_t ALIGNMENT = LL_DEFAULT_HEAP_ALIGN>
