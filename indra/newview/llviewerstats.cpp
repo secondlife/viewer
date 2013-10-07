@@ -343,17 +343,17 @@ void update_statistics()
 	sample(LLStatViewer::DRAW_DISTANCE,   (F64)gSavedSettings.getF32("RenderFarClip"));
 	sample(LLStatViewer::CHAT_BUBBLES,    gSavedSettings.getBOOL("UseChatBubbles"));
 
-	typedef LLInstanceTracker<LLTrace::TraceType<LLTrace::TimeBlockAccumulator>, std::string> trace_type_t;
+	typedef LLInstanceTracker<LLTrace::StatType<LLTrace::TimeBlockAccumulator>, std::string> stat_type_t;
 
-	F64Seconds idle_secs = last_frame_recording.getSum(*trace_type_t::getInstance("Idle"));
-	F64Seconds network_secs = last_frame_recording.getSum(*trace_type_t::getInstance("Network"));
+	F64Seconds idle_secs = last_frame_recording.getSum(*stat_type_t::getInstance("Idle"));
+	F64Seconds network_secs = last_frame_recording.getSum(*stat_type_t::getInstance("Network"));
 
-	record(LLStatViewer::FRAME_STACKTIME, last_frame_recording.getSum(*trace_type_t::getInstance("Frame")));
+	record(LLStatViewer::FRAME_STACKTIME, last_frame_recording.getSum(*stat_type_t::getInstance("Frame")));
 	record(LLStatViewer::UPDATE_STACKTIME, idle_secs - network_secs);
 	record(LLStatViewer::NETWORK_STACKTIME, network_secs);
-	record(LLStatViewer::IMAGE_STACKTIME, last_frame_recording.getSum(*trace_type_t::getInstance("Update Images")));
-	record(LLStatViewer::REBUILD_STACKTIME, last_frame_recording.getSum(*trace_type_t::getInstance("Sort Draw State")));
-	record(LLStatViewer::RENDER_STACKTIME, last_frame_recording.getSum(*trace_type_t::getInstance("Render Geometry")));
+	record(LLStatViewer::IMAGE_STACKTIME, last_frame_recording.getSum(*stat_type_t::getInstance("Update Images")));
+	record(LLStatViewer::REBUILD_STACKTIME, last_frame_recording.getSum(*stat_type_t::getInstance("Sort Draw State")));
+	record(LLStatViewer::RENDER_STACKTIME, last_frame_recording.getSum(*stat_type_t::getInstance("Render Geometry")));
 		
 	LLCircuitData *cdp = gMessageSystem->mCircuitInfo.findCircuit(gAgent.getRegion()->getHost());
 	if (cdp)

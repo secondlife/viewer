@@ -1047,7 +1047,7 @@ bool LLDrawable::isVisible() const
 }
 
 {
-		LLviewerOctreeGroup* group = mEntry->getGroup();
+		LLViewerOctreeGroup* group = mEntry->getGroup();
 		if (group && group->isVisible())
 		{
 			LLViewerOctreeEntryData::setVisible();
@@ -1073,7 +1073,7 @@ bool LLDrawable::isRecentlyVisible() const
 	return vis ;
 }
 
-void LLDrawable::setGroup(LLviewerOctreeGroup *groupp)
+void LLDrawable::setGroup(LLViewerOctreeGroup *groupp)
 	{
 	LLSpatialGroup* cur_groupp = (LLSpatialGroup*)getGroup();
     

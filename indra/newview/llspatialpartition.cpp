@@ -483,7 +483,7 @@ void LLSpatialPartition::rebuildMesh(LLSpatialGroup* group)
 
 LLSpatialGroup* LLSpatialGroup::getParent()
 {
-	return (LLSpatialGroup*)LLviewerOctreeGroup::getParent();
+	return (LLSpatialGroup*)LLViewerOctreeGroup::getParent();
 	}
 
 BOOL LLSpatialGroup::removeObject(LLDrawable *drawablep, BOOL from_octree)
@@ -831,7 +831,7 @@ void LLSpatialGroup::handleInsertion(const TreeNode* node, LLViewerOctreeEntry* 
 void LLSpatialGroup::handleRemoval(const TreeNode* node, LLViewerOctreeEntry* entry)
 {
 	removeObject((LLDrawable*)entry->getDrawable(), TRUE);
-	LLviewerOctreeGroup::handleRemoval(node, entry);
+	LLViewerOctreeGroup::handleRemoval(node, entry);
 }
 
 void LLSpatialGroup::handleDestruction(const TreeNode* node)
@@ -1065,7 +1065,7 @@ class LLOctreeCull : public LLViewerOctreeCull
 public:
 	LLOctreeCull(LLCamera* camera) : LLViewerOctreeCull(camera) {}
 
-	virtual bool earlyFail(LLviewerOctreeGroup* base_group)
+	virtual bool earlyFail(LLViewerOctreeGroup* base_group)
 	{
 		LLSpatialGroup* group = (LLSpatialGroup*)base_group;
 		group->checkOcclusion();
@@ -1081,7 +1081,7 @@ public:
 		return false;
 	}
 	
-	virtual S32 frustumCheck(const LLviewerOctreeGroup* group)
+	virtual S32 frustumCheck(const LLViewerOctreeGroup* group)
 	{
 		S32 res = AABBInFrustumNoFarClipGroupBounds(group);
 		if (res != 0)
@@ -1091,7 +1091,7 @@ public:
 		return res;
 	}
 
-	virtual S32 frustumCheckObjects(const LLviewerOctreeGroup* group)
+	virtual S32 frustumCheckObjects(const LLViewerOctreeGroup* group)
 	{
 		S32 res = AABBInFrustumNoFarClipObjectBounds(group);
 		if (res != 0)
@@ -1101,7 +1101,7 @@ public:
 		return res;
 	}
 
-	virtual void processGroup(LLviewerOctreeGroup* base_group)
+	virtual void processGroup(LLViewerOctreeGroup* base_group)
 	{
 		LLSpatialGroup* group = (LLSpatialGroup*)base_group;
 		if (group->needsUpdate() ||
@@ -1119,12 +1119,12 @@ public:
 	LLOctreeCullNoFarClip(LLCamera* camera) 
 		: LLOctreeCull(camera) { }
 
-	virtual S32 frustumCheck(const LLviewerOctreeGroup* group)
+	virtual S32 frustumCheck(const LLViewerOctreeGroup* group)
 	{
 		return AABBInFrustumNoFarClipGroupBounds(group);
 	}
 
-	virtual S32 frustumCheckObjects(const LLviewerOctreeGroup* group)
+	virtual S32 frustumCheckObjects(const LLViewerOctreeGroup* group)
 	{
 		S32 res = AABBInFrustumNoFarClipObjectBounds(group);
 		return res;
@@ -1137,12 +1137,12 @@ public:
 	LLOctreeCullShadow(LLCamera* camera)
 		: LLOctreeCull(camera) { }
 
-	virtual S32 frustumCheck(const LLviewerOctreeGroup* group)
+	virtual S32 frustumCheck(const LLViewerOctreeGroup* group)
 	{
 		return AABBInFrustumGroupBounds(group);
 	}
 
-	virtual S32 frustumCheckObjects(const LLviewerOctreeGroup* group)
+	virtual S32 frustumCheckObjects(const LLViewerOctreeGroup* group)
 	{
 		return AABBInFrustumObjectBounds(group);
 	}
@@ -1154,7 +1154,7 @@ public:
 	LLOctreeCullVisExtents(LLCamera* camera, LLVector4a& min, LLVector4a& max)
 		: LLOctreeCullShadow(camera), mMin(min), mMax(max), mEmpty(TRUE) { }
 
-	virtual bool earlyFail(LLviewerOctreeGroup* base_group)
+	virtual bool earlyFail(LLViewerOctreeGroup* base_group)
 	{
 		LLSpatialGroup* group = (LLSpatialGroup*)base_group;
 
@@ -1195,7 +1195,7 @@ public:
 		}
 	}
 
-	virtual void processGroup(LLviewerOctreeGroup* base_group)
+	virtual void processGroup(LLViewerOctreeGroup* base_group)
 	{
 		LLSpatialGroup* group = (LLSpatialGroup*)base_group;
 		
@@ -1231,7 +1231,7 @@ public:
 	LLOctreeCullDetectVisible(LLCamera* camera)
 		: LLOctreeCullShadow(camera), mResult(FALSE) { }
 
-	virtual bool earlyFail(LLviewerOctreeGroup* base_group)
+	virtual bool earlyFail(LLViewerOctreeGroup* base_group)
 	{
 		LLSpatialGroup* group = (LLSpatialGroup*)base_group;
 
@@ -1246,7 +1246,7 @@ public:
 		return false;
 	}
 
-	virtual void processGroup(LLviewerOctreeGroup* base_group)
+	virtual void processGroup(LLViewerOctreeGroup* base_group)
 	{
 		if (base_group->isVisible())
 		{
@@ -1263,10 +1263,10 @@ public:
 	LLOctreeSelect(LLCamera* camera, std::vector<LLDrawable*>* results)
 		: LLOctreeCull(camera), mResults(results) { }
 
-	virtual bool earlyFail(LLviewerOctreeGroup* group) { return false; }
-	virtual void preprocess(LLviewerOctreeGroup* group) { }
+	virtual bool earlyFail(LLViewerOctreeGroup* group) { return false; }
+	virtual void preprocess(LLViewerOctreeGroup* group) { }
 
-	virtual void processGroup(LLviewerOctreeGroup* base_group)
+	virtual void processGroup(LLViewerOctreeGroup* base_group)
 	{
 		LLSpatialGroup* group = (LLSpatialGroup*)base_group;
 		OctreeNode* branch = group->getOctreeNode();
@@ -3909,7 +3909,7 @@ LLDrawable* LLSpatialPartition::lineSegmentIntersect(const LLVector4a& start, co
 LLDrawInfo::LLDrawInfo(U16 start, U16 end, U32 count, U32 offset, 
 					   LLViewerTexture* texture, LLVertexBuffer* buffer,
 					   BOOL fullbright, U8 bump, BOOL particle, F32 part_size)
-:
+:	LLTrace::MemTrackableNonVirtual<LLDrawInfo, 16>("LLDrawInfo"),
 	mVertexBuffer(buffer),
 	mTexture(texture),
 	mTextureMatrix(NULL),

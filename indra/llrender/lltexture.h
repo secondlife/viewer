@@ -33,6 +33,8 @@
 #define LL_TEXTURE_H
 
 #include "llrefcount.h"
+#include "lltrace.h"
+
 class LLImageGL ;
 class LLTexUnit ;
 class LLFontGL ;
@@ -40,7 +42,7 @@ class LLFontGL ;
 //
 //this is an abstract class as the parent for the class LLGLTexture
 //
-class LLTexture : public virtual LLRefCount
+class LLTexture : public virtual LLRefCount, public LLTrace::MemTrackable<LLTexture>
 {
 	friend class LLTexUnit ;
 	friend class LLFontGL ;
@@ -49,7 +51,9 @@ protected:
 	virtual ~LLTexture();
 
 public:
-	LLTexture(){}
+	LLTexture()
+	:	LLTrace::MemTrackable<LLTexture>("LLTexture")
+	{}
 
 	//
 	//interfaces to access LLGLTexture

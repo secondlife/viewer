@@ -105,10 +105,10 @@ private:
 	union
 	{
 		void*														valid;
-		const LLTrace::TraceType<LLTrace::CountAccumulator>*		countStatp;
-		const LLTrace::TraceType<LLTrace::EventAccumulator>*		eventStatp;
-		const LLTrace::TraceType<LLTrace::SampleAccumulator>*		sampleStatp;
-		const LLTrace::TraceType<LLTrace::MemStatAccumulator>*		memStatp;
+		const LLTrace::StatType<LLTrace::CountAccumulator>*		countStatp;
+		const LLTrace::StatType<LLTrace::EventAccumulator>*		eventStatp;
+		const LLTrace::StatType<LLTrace::SampleAccumulator>*		sampleStatp;
+		const LLTrace::StatType<LLTrace::MemAccumulator>*		memStatp;
 	} mStat;
 
 	LLUIString   mLabel;

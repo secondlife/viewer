@@ -176,7 +176,7 @@ public:
 
 	virtual void cleanupReferences();
 
-	void setGroup(LLviewerOctreeGroup* group);
+	void setGroup(LLViewerOctreeGroup* group);
 	void setRadius(const F32 radius);
 	F32 getRadius() const						{ return mRadius; }
 	F32 getVisibilityRadius() const;

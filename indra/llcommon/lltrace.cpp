@@ -35,7 +35,7 @@ namespace LLTrace
 
 MemStatHandle gTraceMemStat("LLTrace");
 
-TraceBase::TraceBase( const char* name, const char* description ) 
+StatBase::StatBase( const char* name, const char* description ) 
 :	mName(name),
 	mDescription(description ? description : "")
 {
@@ -47,7 +47,7 @@ TraceBase::TraceBase( const char* name, const char* description )
 #endif
 }
 
-const char* TraceBase::getUnitLabel() const
+const char* StatBase::getUnitLabel() const
 {
 	return "";
 }

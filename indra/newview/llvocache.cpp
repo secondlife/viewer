@@ -505,7 +505,7 @@ void LLVOCacheGroup::handleChildAddition(const OctreeNode* parent, OctreeNode* c
 
 	unbound();
 	
-	((LLviewerOctreeGroup*)child->getListener(0))->unbound();
+	((LLViewerOctreeGroup*)child->getListener(0))->unbound();
 }
 
 LLVOCachePartition::LLVOCachePartition(LLViewerRegion* regionp)
@@ -552,7 +552,7 @@ public:
 		mUseObjectCacheOcclusion = use_object_cache_occlusion;
 	}
 
-	virtual bool earlyFail(LLviewerOctreeGroup* base_group)
+	virtual bool earlyFail(LLViewerOctreeGroup* base_group)
 	{
 		if( mUseObjectCacheOcclusion &&
 			base_group->getOctreeNode()->getParent()) //never occlusion cull the root node
@@ -575,7 +575,7 @@ public:
 		return false;
 	}
 
-	virtual S32 frustumCheck(const LLviewerOctreeGroup* group)
+	virtual S32 frustumCheck(const LLViewerOctreeGroup* group)
 	{
 #if 1
 		S32 res = AABBInRegionFrustumGroupBounds(group);
@@ -589,7 +589,7 @@ public:
 		return res;
 	}
 
-	virtual S32 frustumCheckObjects(const LLviewerOctreeGroup* group)
+	virtual S32 frustumCheckObjects(const LLViewerOctreeGroup* group)
 	{
 #if 1
 		S32 res = AABBInRegionFrustumObjectBounds(group);
@@ -603,7 +603,7 @@ public:
 		return res;
 	}
 
-	virtual void processGroup(LLviewerOctreeGroup* base_group)
+	virtual void processGroup(LLViewerOctreeGroup* base_group)
 	{
 		if( !mUseObjectCacheOcclusion ||
 			!base_group->getOctreeNode()->getParent())
@@ -657,19 +657,19 @@ public:
 		mSphereRadius = back_sphere_radius;
 	}
 
-	virtual S32 frustumCheck(const LLviewerOctreeGroup* group)
+	virtual S32 frustumCheck(const LLViewerOctreeGroup* group)
 	{			
 		const LLVector4a* exts = group->getExtents();
 		return backSphereCheck(exts[0], exts[1]);
 	}
 
-	virtual S32 frustumCheckObjects(const LLviewerOctreeGroup* group)
+	virtual S32 frustumCheckObjects(const LLViewerOctreeGroup* group)
 	{
 		const LLVector4a* exts = group->getObjectExtents();
 		return backSphereCheck(exts[0], exts[1]);
 	}
 
-	virtual void processGroup(LLviewerOctreeGroup* base_group)
+	virtual void processGroup(LLViewerOctreeGroup* base_group)
 	{
 		mRegionp->addVisibleGroup(base_group);
 		return;
@@ -735,7 +735,7 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 		return 0;
 	}
 
-	((LLviewerOctreeGroup*)mOctree->getListener(0))->rebound();
+	((LLViewerOctreeGroup*)mOctree->getListener(0))->rebound();
 
 	if(LLViewerCamera::sCurCameraID >= LLViewerCamera::CAMERA_WATER0)
 	{
@@ -793,7 +793,7 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 	return 1;
 }
 
-void LLVOCachePartition::addOccluders(LLviewerOctreeGroup* gp)
+void LLVOCachePartition::addOccluders(LLViewerOctreeGroup* gp)
 {
 	LLVOCacheGroup* group = (LLVOCacheGroup*)gp;
 

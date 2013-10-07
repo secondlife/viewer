@@ -148,7 +148,7 @@ public:
 	LLVOCacheEntry::vocache_entry_map_t	  mCacheMap; //all cached entries
 	LLVOCacheEntry::vocache_entry_set_t   mActiveSet; //all active entries;
 	LLVOCacheEntry::vocache_entry_set_t   mWaitingSet; //entries waiting for LLDrawable to be generated.	
-	std::set< LLPointer<LLviewerOctreeGroup> >      mVisibleGroups; //visible groupa
+	std::set< LLPointer<LLViewerOctreeGroup> >      mVisibleGroups; //visible groupa
 	LLVOCachePartition*                   mVOCachePartition;
 	LLVOCacheEntry::vocache_entry_set_t   mVisibleEntries; //must-be-created visible entries wait for objects creation.	
 	LLVOCacheEntry::vocache_entry_priority_list_t mWaitingList; //transient list storing sorted visible entries waiting for object creation.
@@ -964,7 +964,7 @@ void LLViewerRegion::removeActiveCacheEntry(LLVOCacheEntry* entry, LLDrawable* d
 	entry->setState(LLVOCacheEntry::INACTIVE);
 }
 
-bool LLViewerRegion::addVisibleGroup(LLviewerOctreeGroup* group)
+bool LLViewerRegion::addVisibleGroup(LLViewerOctreeGroup* group)
 {
 	if(mDead || group->isEmpty())
 	{
@@ -1111,17 +1111,17 @@ F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 	}
 
 	//process visible groups
-	std::set< LLPointer<LLviewerOctreeGroup> >::iterator group_iter = mImpl->mVisibleGroups.begin();
+	std::set< LLPointer<LLViewerOctreeGroup> >::iterator group_iter = mImpl->mVisibleGroups.begin();
 	for(; group_iter != mImpl->mVisibleGroups.end(); ++group_iter)
 	{
-		LLPointer<LLviewerOctreeGroup> group = *group_iter;
+		LLPointer<LLViewerOctreeGroup> group = *group_iter;
 		if(group->getNumRefs() < 3 || //group to be deleted
 			!group->getOctreeNode() || group->isEmpty()) //group empty
 		{
 			continue;
 		}
 
-		for (LLviewerOctreeGroup::element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
+		for (LLViewerOctreeGroup::element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
 		{
 			if((*i)->hasVOCacheEntry())
 			{

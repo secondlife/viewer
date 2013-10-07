@@ -86,7 +86,7 @@ LL_FORCE_INLINE class BlockTimer timeThisBlock(class TimeBlock& timer)
 
 // stores a "named" timer instance to be reused via multiple BlockTimer stack instances
 class TimeBlock 
-:	public TraceType<TimeBlockAccumulator>,
+:	public StatType<TimeBlockAccumulator>,
 	public LLInstanceTracker<TimeBlock>
 {
 public:
@@ -102,14 +102,14 @@ public:
 	child_iter endChildren();
 	std::vector<TimeBlock*>& getChildren();
 
-	TraceType<TimeBlockAccumulator::CallCountFacet>& callCount() 
+	StatType<TimeBlockAccumulator::CallCountFacet>& callCount() 
 	{
-		return static_cast<TraceType<TimeBlockAccumulator::CallCountFacet>&>(*(TraceType<TimeBlockAccumulator>*)this);
+		return static_cast<StatType<TimeBlockAccumulator::CallCountFacet>&>(*(StatType<TimeBlockAccumulator>*)this);
 	}
 
-	TraceType<TimeBlockAccumulator::SelfTimeFacet>& selfTime() 
+	StatType<TimeBlockAccumulator::SelfTimeFacet>& selfTime() 
 	{
-		return static_cast<TraceType<TimeBlockAccumulator::SelfTimeFacet>&>(*(TraceType<TimeBlockAccumulator>*)this);
+		return static_cast<StatType<TimeBlockAccumulator::SelfTimeFacet>&>(*(StatType<TimeBlockAccumulator>*)this);
 	}
 
 	static TimeBlock& getRootTimeBlock();

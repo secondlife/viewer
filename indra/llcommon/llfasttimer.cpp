@@ -165,7 +165,7 @@ U64 TimeBlock::countsPerSecond()
 #endif
 
 TimeBlock::TimeBlock(const char* name, TimeBlock* parent)
-:	TraceType<TimeBlockAccumulator>(name)
+:	StatType<TimeBlockAccumulator>(name)
 {}
 
 TimeBlockTreeNode& TimeBlock::getTreeNode() const

@@ -41,7 +41,7 @@
 
 class LLViewerRegion;
 class LLViewerOctreeEntryData;
-class LLviewerOctreeGroup;
+class LLViewerOctreeGroup;
 class LLViewerOctreeEntry;
 class LLViewerOctreePartition;
 
@@ -53,7 +53,7 @@ typedef LLOctreeTraveler<LLViewerOctreeEntry>	OctreeTraveler;
 
 #if LL_OCTREE_PARANOIA_CHECK
 #define assert_octree_valid(x) x->validate()
-#define assert_states_valid(x) ((LLviewerOctreeGroup*) x->mSpatialPartition->mOctree->getListener(0))->checkStates()
+#define assert_states_valid(x) ((LLViewerOctreeGroup*) x->mSpatialPartition->mOctree->getListener(0))->checkStates()
 #else
 #define assert_octree_valid(x)
 #define assert_states_valid(x)
@@ -71,7 +71,7 @@ S32 AABBSphereIntersectR2(const LLVector3& min, const LLVector3& max, const LLVe
 
 //defines data needed for octree of an entry
 //LL_ALIGN_PREFIX(16)
-class LLViewerOctreeEntry : public LLRefCount
+class LLViewerOctreeEntry : public LLRefCount, public LLTrace::MemTrackable<LLViewerOctreeEntry, 16>
 {
 	friend class LLViewerOctreeEntryData;
 
@@ -90,7 +90,7 @@ public:
 	LLViewerOctreeEntry();
 	
 	void nullGroup(); //called by group handleDestruction() only
-	void setGroup(LLviewerOctreeGroup* group);
+	void setGroup(LLViewerOctreeGroup* group);
 	void removeData(LLViewerOctreeEntryData* data);
 
 	LLViewerOctreeEntryData* getDrawable() const {return mData[LLDRAWABLE];}
@@ -100,28 +100,18 @@ public:
 
 	const LLVector4a* getSpatialExtents() const {return mExtents;} 
 	const LLVector4a& getPositionGroup() const  {return mPositionGroup;}	
-	LLviewerOctreeGroup* getGroup()const        {return mGroup;}
+	LLViewerOctreeGroup* getGroup()const        {return mGroup;}
 	
 	F32  getBinRadius() const                   {return mBinRadius;}
 	S32	 getBinIndex() const			        {return mBinIndex; }
 	void setBinIndex(S32 index) const	        {mBinIndex = index; }
-
-	void* operator new(size_t size)
-	{
-		return ll_aligned_malloc_16(size);
-	}
-
-	void operator delete(void* ptr)
-	{
-		ll_aligned_free_16(ptr);
-	}
 
 private:
 	void addData(LLViewerOctreeEntryData* data);			
 
 private:
 	LLViewerOctreeEntryData*    mData[NUM_DATA_TYPE]; //do not use LLPointer here.
-	LLviewerOctreeGroup*        mGroup;
+	LLViewerOctreeGroup*        mGroup;
 
 	//aligned members
 	LL_ALIGN_16(LLVector4a		mExtents[2]);
@@ -153,7 +143,7 @@ public:
 
 	F32                  getBinRadius() const   {return mEntry->getBinRadius();}
 	const LLVector4a*    getSpatialExtents() const;
-	LLviewerOctreeGroup* getGroup()const;
+	LLViewerOctreeGroup* getGroup()const;
 	const LLVector4a&    getPositionGroup() const;
 	
 	void setBinRadius(F32 rad)  {mEntry->mBinRadius = rad;}
@@ -161,7 +151,7 @@ public:
 	void setSpatialExtents(const LLVector4a& min, const LLVector4a& max);
 	void setPositionGroup(const LLVector4a& pos);
 	
-	virtual void setGroup(LLviewerOctreeGroup* group);
+	virtual void setGroup(LLViewerOctreeGroup* group);
 	void         shift(const LLVector4a &shift_vector);
 
 	U32          getVisible() const {return mEntry ? mEntry->mVisible : 0;}
@@ -185,11 +175,12 @@ protected:
 
 //defines an octree group for an octree node, which contains multiple entries.
 //LL_ALIGN_PREFIX(16)
-class LLviewerOctreeGroup : public LLOctreeListener<LLViewerOctreeEntry>
+class LLViewerOctreeGroup
+:	public LLOctreeListener<LLViewerOctreeEntry>, public LLTrace::MemTrackable<LLViewerOctreeGroup, 16>
 {
 	friend class LLViewerOctreeCull;
 protected:
-	virtual ~LLviewerOctreeGroup();
+	virtual ~LLViewerOctreeGroup();
 
 public:	
 	enum
@@ -206,20 +197,11 @@ public:
 	typedef LLOctreeNode<LLViewerOctreeEntry>::element_iter element_iter;
 	typedef LLOctreeNode<LLViewerOctreeEntry>::element_list element_list;
 
-	LLviewerOctreeGroup(OctreeNode* node);
-	LLviewerOctreeGroup(const LLviewerOctreeGroup& rhs)
+	LLViewerOctreeGroup(OctreeNode* node);
+	LLViewerOctreeGroup(const LLViewerOctreeGroup& rhs)
+	: LLTrace::MemTrackable<LLViewerOctreeGroup, 16>("LLViewerOctreeGroup")
 	{
 		*this = rhs;
-	}
-
-	void* operator new(size_t size)
-	{
-		return ll_aligned_malloc_16(size);
-	}
-
-	void operator delete(void* ptr)
-	{
-		ll_aligned_free_16(ptr);
 	}
 
 	bool removeFromGroup(LLViewerOctreeEntryData* data);
@@ -251,7 +233,7 @@ public:
 	virtual void handleChildRemoval(const OctreeNode* parent, const OctreeNode* child);
 
 	OctreeNode*          getOctreeNode() {return mOctreeNode;}
-	LLviewerOctreeGroup* getParent();
+	LLViewerOctreeGroup* getParent();
 
 	const LLVector4a* getBounds() const        {return mBounds;}
 	const LLVector4a* getExtents() const       {return mExtents;}
@@ -286,7 +268,7 @@ protected:
 
 //octree group which has capability to support occlusion culling
 //LL_ALIGN_PREFIX(16)
-class LLOcclusionCullingGroup : public LLviewerOctreeGroup
+class LLOcclusionCullingGroup : public LLViewerOctreeGroup
 {
 public:
 	typedef enum
@@ -311,7 +293,7 @@ protected:
 
 public:
 	LLOcclusionCullingGroup(OctreeNode* node, LLViewerOctreePartition* part);
-	LLOcclusionCullingGroup(const LLOcclusionCullingGroup& rhs) : LLviewerOctreeGroup(rhs)
+	LLOcclusionCullingGroup(const LLOcclusionCullingGroup& rhs) : LLViewerOctreeGroup(rhs)
 	{
 		*this = rhs;
 	}	
@@ -381,35 +363,35 @@ public:
 	LLViewerOctreeCull(LLCamera* camera)
 		: mCamera(camera), mRes(0) { }
 
-	virtual bool earlyFail(LLviewerOctreeGroup* group);
+	virtual bool earlyFail(LLViewerOctreeGroup* group);
 	virtual void traverse(const OctreeNode* n);
 	
 	//agent space group cull
-	S32 AABBInFrustumNoFarClipGroupBounds(const LLviewerOctreeGroup* group);	
-	S32 AABBSphereIntersectGroupExtents(const LLviewerOctreeGroup* group);
-	S32 AABBInFrustumGroupBounds(const LLviewerOctreeGroup* group);
+	S32 AABBInFrustumNoFarClipGroupBounds(const LLViewerOctreeGroup* group);	
+	S32 AABBSphereIntersectGroupExtents(const LLViewerOctreeGroup* group);
+	S32 AABBInFrustumGroupBounds(const LLViewerOctreeGroup* group);
 
 	//agent space object set cull
-	S32 AABBInFrustumNoFarClipObjectBounds(const LLviewerOctreeGroup* group);
-	S32 AABBSphereIntersectObjectExtents(const LLviewerOctreeGroup* group);	
-	S32 AABBInFrustumObjectBounds(const LLviewerOctreeGroup* group);
+	S32 AABBInFrustumNoFarClipObjectBounds(const LLViewerOctreeGroup* group);
+	S32 AABBSphereIntersectObjectExtents(const LLViewerOctreeGroup* group);	
+	S32 AABBInFrustumObjectBounds(const LLViewerOctreeGroup* group);
 	
 	//local region space group cull
-	S32 AABBInRegionFrustumNoFarClipGroupBounds(const LLviewerOctreeGroup* group);
-	S32 AABBInRegionFrustumGroupBounds(const LLviewerOctreeGroup* group);
-	S32 AABBRegionSphereIntersectGroupExtents(const LLviewerOctreeGroup* group, const LLVector3& shift);
+	S32 AABBInRegionFrustumNoFarClipGroupBounds(const LLViewerOctreeGroup* group);
+	S32 AABBInRegionFrustumGroupBounds(const LLViewerOctreeGroup* group);
+	S32 AABBRegionSphereIntersectGroupExtents(const LLViewerOctreeGroup* group, const LLVector3& shift);
 
 	//local region space object set cull
-	S32 AABBInRegionFrustumNoFarClipObjectBounds(const LLviewerOctreeGroup* group);
-	S32 AABBInRegionFrustumObjectBounds(const LLviewerOctreeGroup* group);
-	S32 AABBRegionSphereIntersectObjectExtents(const LLviewerOctreeGroup* group, const LLVector3& shift);	
+	S32 AABBInRegionFrustumNoFarClipObjectBounds(const LLViewerOctreeGroup* group);
+	S32 AABBInRegionFrustumObjectBounds(const LLViewerOctreeGroup* group);
+	S32 AABBRegionSphereIntersectObjectExtents(const LLViewerOctreeGroup* group, const LLVector3& shift);	
 	
-	virtual S32 frustumCheck(const LLviewerOctreeGroup* group) = 0;
-	virtual S32 frustumCheckObjects(const LLviewerOctreeGroup* group) = 0;
+	virtual S32 frustumCheck(const LLViewerOctreeGroup* group) = 0;
+	virtual S32 frustumCheckObjects(const LLViewerOctreeGroup* group) = 0;
 
-	virtual bool checkObjects(const OctreeNode* branch, const LLviewerOctreeGroup* group);
-	virtual void preprocess(LLviewerOctreeGroup* group);
-	virtual void processGroup(LLviewerOctreeGroup* group);
+	virtual bool checkObjects(const OctreeNode* branch, const LLViewerOctreeGroup* group);
+	virtual void preprocess(LLViewerOctreeGroup* group);
+	virtual void processGroup(LLViewerOctreeGroup* group);
 	virtual void visit(const OctreeNode* branch);
 	
 protected:
@@ -421,7 +403,7 @@ protected:
 class LLViewerOctreeDebug : public OctreeTraveler
 {
 public:
-	virtual void processGroup(LLviewerOctreeGroup* group);
+	virtual void processGroup(LLViewerOctreeGroup* group);
 	virtual void visit(const OctreeNode* branch);
 
 public:

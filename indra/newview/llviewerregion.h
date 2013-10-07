@@ -68,7 +68,7 @@ class LLBBox;
 class LLSpatialGroup;
 class LLDrawable;
 class LLViewerRegionImpl;
-class LLviewerOctreeGroup;
+class LLViewerOctreeGroup;
 class LLVOCachePartition;
 
 class LLViewerRegion: public LLCapabilityProvider // implements this interface
@@ -230,7 +230,7 @@ public:
 	F32	getWidth() const						{ return mWidth; }
 
 	BOOL idleUpdate(F32 max_update_time);
-	bool addVisibleGroup(LLviewerOctreeGroup* group);
+	bool addVisibleGroup(LLViewerOctreeGroup* group);
 	void addVisibleCacheEntry(LLVOCacheEntry* entry);
 	void addActiveCacheEntry(LLVOCacheEntry* entry);
 	void removeActiveCacheEntry(LLVOCacheEntry* entry, LLDrawable* drawablep);	

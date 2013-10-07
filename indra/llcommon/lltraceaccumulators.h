@@ -52,7 +52,7 @@ namespace LLTrace
 	class AccumulatorBuffer : public LLRefCount
 	{
 		typedef AccumulatorBuffer<ACCUMULATOR> self_t;
-		static const S32 ACCUMULATOR_BUFFER_SIZE_INCREMENT = 16;
+		static const S32 DEFAULT_ACCUMULATOR_BUFFER_SIZE = 32;
 	private:
 		struct StaticAllocationMarker { };
 
@@ -67,7 +67,7 @@ namespace LLTrace
 		:	mStorageSize(0),
 			mStorage(NULL)
 		{
-			resize(other.mStorageSize);
+			resize(sNextStorageSlot);
 			for (S32 i = 0; i < sNextStorageSlot; i++)
 			{
 				mStorage[i] = other.mStorage[i];
@@ -152,7 +152,7 @@ namespace LLTrace
 			{
 				// don't perform doubling, as this should only happen during startup
 				// want to keep a tight bounds as we will have a lot of these buffers
-				resize(mStorageSize + ACCUMULATOR_BUFFER_SIZE_INCREMENT);
+				resize(mStorageSize + mStorageSize / 2);
 			}
 			llassert(mStorage && next_slot < mStorageSize);
 			return next_slot;
@@ -207,7 +207,7 @@ namespace LLTrace
 				// so as not to trigger an access violation
 				sDefaultBuffer = new AccumulatorBuffer(StaticAllocationMarker());
 				sInitialized = true;
-				sDefaultBuffer->resize(ACCUMULATOR_BUFFER_SIZE_INCREMENT);
+				sDefaultBuffer->resize(DEFAULT_ACCUMULATOR_BUFFER_SIZE);
 			}
 			return sDefaultBuffer;
 		}
@@ -491,9 +491,9 @@ namespace LLTrace
 		U64					mChildTime;
 	};
 
-	struct MemStatAccumulator
+	struct MemAccumulator
 	{
-		typedef MemStatAccumulator self_t;
+		typedef MemAccumulator self_t;
 
 		// fake classes that allows us to view different facets of underlying statistic
 		struct AllocationFacet 
@@ -506,7 +506,7 @@ namespace LLTrace
 			typedef F64Bytes value_t;
 		};
 
-		void addSamples(const MemStatAccumulator& other, EBufferAppendType append_type)
+		void addSamples(const MemAccumulator& other, EBufferAppendType append_type)
 		{
 			mAllocations.addSamples(other.mAllocations, append_type);
 			mDeallocations.addSamples(other.mDeallocations, append_type);
@@ -524,7 +524,7 @@ namespace LLTrace
 			}
 		}
 
-		void reset(const MemStatAccumulator* other)
+		void reset(const MemAccumulator* other)
 		{
 			mSize.reset(other ? &other->mSize : NULL);
 			mAllocations.reset(other ? &other->mAllocations : NULL);
@@ -561,7 +561,7 @@ namespace LLTrace
 		AccumulatorBuffer<SampleAccumulator>	mSamples;
 		AccumulatorBuffer<EventAccumulator>		mEvents;
 		AccumulatorBuffer<TimeBlockAccumulator> mStackTimers;
-		AccumulatorBuffer<MemStatAccumulator> 	mMemStats;
+		AccumulatorBuffer<MemAccumulator> 	mMemStats;
 	};
 }
 
