@@ -38,8 +38,6 @@
 #include "llpointer.h"
 #include "llunits.h"
 
-#include <list>
-
 namespace LLTrace
 {
 class Recording;
@@ -53,11 +51,11 @@ STORAGE_TYPE storage_value(LLUnit<STORAGE_TYPE, UNIT_TYPE> val) { return val.val
 template<typename UNIT_TYPE, typename STORAGE_TYPE> 
 STORAGE_TYPE storage_value(LLUnitImplicit<STORAGE_TYPE, UNIT_TYPE> val) { return val.value(); }
 
-class TraceBase
+class StatBase
 {
 public:
-	TraceBase(const char* name, const char* description);
-	virtual ~TraceBase() {};
+	StatBase(const char* name, const char* description);
+	virtual ~StatBase() {};
 	virtual const char* getUnitLabel() const;
 
 	const std::string& getName() const { return mName; }
@@ -69,14 +67,14 @@ protected:
 };
 
 template<typename ACCUMULATOR>
-class TraceType 
-:	public TraceBase,
-	public LLInstanceTracker<TraceType<ACCUMULATOR>, std::string>
+class StatType 
+:	public StatBase,
+	public LLInstanceTracker<StatType<ACCUMULATOR>, std::string>
 {
 public:
-	TraceType(const char* name, const char* description = NULL)
-	:	LLInstanceTracker<TraceType<ACCUMULATOR>, std::string>(name),
-		TraceBase(name, description),
+	StatType(const char* name, const char* description = NULL)
+	:	LLInstanceTracker<StatType<ACCUMULATOR>, std::string>(name),
+		StatBase(name, description),
 		mAccumulatorIndex(AccumulatorBuffer<ACCUMULATOR>::getDefaultBuffer()->reserveSlot())
 	{}
 
@@ -95,38 +93,38 @@ protected:
 
 
 template<>
-class TraceType<TimeBlockAccumulator::CallCountFacet>
-:	public TraceType<TimeBlockAccumulator>
+class StatType<TimeBlockAccumulator::CallCountFacet>
+:	public StatType<TimeBlockAccumulator>
 {
 public:
 
-	TraceType(const char* name, const char* description = "")
-	:	TraceType<TimeBlockAccumulator>(name, description)
+	StatType(const char* name, const char* description = "")
+	:	StatType<TimeBlockAccumulator>(name, description)
 	{}
 };
 
 template<>
-class TraceType<TimeBlockAccumulator::SelfTimeFacet>
-	:	public TraceType<TimeBlockAccumulator>
+class StatType<TimeBlockAccumulator::SelfTimeFacet>
+	:	public StatType<TimeBlockAccumulator>
 {
 public:
 
-	TraceType(const char* name, const char* description = "")
-		:	TraceType<TimeBlockAccumulator>(name, description)
+	StatType(const char* name, const char* description = "")
+		:	StatType<TimeBlockAccumulator>(name, description)
 	{}
 };
 
 template <typename T = F64>
 class EventStatHandle
-:	public TraceType<EventAccumulator>
+:	public StatType<EventAccumulator>
 {
 public:
 	typedef F64 storage_t;
-	typedef TraceType<EventAccumulator> trace_t;
+	typedef StatType<EventAccumulator> stat_t;
 	typedef EventStatHandle<T> self_t;
 
 	EventStatHandle(const char* name, const char* description = NULL)
-	:	trace_t(name, description)
+	:	stat_t(name, description)
 	{}
 
 	/*virtual*/ const char* getUnitLabel() const { return LLGetUnitLabel<T>::getUnitLabel(); }
@@ -142,15 +140,15 @@ void record(EventStatHandle<T>& measurement, VALUE_T value)
 
 template <typename T = F64>
 class SampleStatHandle
-:	public TraceType<SampleAccumulator>
+:	public StatType<SampleAccumulator>
 {
 public:
 	typedef F64 storage_t;
-	typedef TraceType<SampleAccumulator> trace_t;
+	typedef StatType<SampleAccumulator> stat_t;
 	typedef SampleStatHandle<T> self_t;
 
 	SampleStatHandle(const char* name, const char* description = NULL)
-	:	trace_t(name, description)
+	:	stat_t(name, description)
 	{}
 
 	/*virtual*/ const char* getUnitLabel() const { return LLGetUnitLabel<T>::getUnitLabel(); }
@@ -165,15 +163,15 @@ void sample(SampleStatHandle<T>& measurement, VALUE_T value)
 
 template <typename T = F64>
 class CountStatHandle
-:	public TraceType<CountAccumulator>
+:	public StatType<CountAccumulator>
 {
 public:
 	typedef F64 storage_t;
-	typedef TraceType<CountAccumulator> trace_t;
+	typedef StatType<CountAccumulator> stat_t;
 	typedef CountStatHandle<T> self_t;
 
 	CountStatHandle(const char* name, const char* description = NULL) 
-	:	trace_t(name, description)
+	:	stat_t(name, description)
 	{}
 
 	/*virtual*/ const char* getUnitLabel() const { return LLGetUnitLabel<T>::getUnitLabel(); }
@@ -187,34 +185,36 @@ void add(CountStatHandle<T>& count, VALUE_T value)
 }
 
 template<>
-class TraceType<MemStatAccumulator::AllocationFacet>
-:	public TraceType<MemStatAccumulator>
+class StatType<MemAccumulator::AllocationFacet>
+:	public StatType<MemAccumulator>
 {
 public:
 
-	TraceType(const char* name, const char* description = "")
-	:	TraceType<MemStatAccumulator>(name, description)
+	StatType(const char* name, const char* description = "")
+	:	StatType<MemAccumulator>(name, description)
 	{}
 };
 
 template<>
-class TraceType<MemStatAccumulator::DeallocationFacet>
-:	public TraceType<MemStatAccumulator>
+class StatType<MemAccumulator::DeallocationFacet>
+:	public StatType<MemAccumulator>
 {
 public:
 
-	TraceType(const char* name, const char* description = "")
-	:	TraceType<MemStatAccumulator>(name, description)
+	StatType(const char* name, const char* description = "")
+	:	StatType<MemAccumulator>(name, description)
 	{}
 };
 
-class MemStatHandle : public TraceType<MemStatAccumulator>
+class MemStatHandle : public StatType<MemAccumulator>
 {
 public:
-	typedef TraceType<MemStatAccumulator> trace_t;
+	typedef StatType<MemAccumulator> stat_t;
 	MemStatHandle(const char* name)
-	:	trace_t(name)
-	{}
+	:	stat_t(name)
+	{
+		mName = name;
+	}
 
 	void setName(const char* name)
 	{
@@ -224,14 +224,14 @@ public:
 
 	/*virtual*/ const char* getUnitLabel() const { return "KB"; }
 
-	TraceType<MemStatAccumulator::AllocationFacet>& allocations() 
+	StatType<MemAccumulator::AllocationFacet>& allocations() 
 	{ 
-		return static_cast<TraceType<MemStatAccumulator::AllocationFacet>&>(*(TraceType<MemStatAccumulator>*)this);
+		return static_cast<StatType<MemAccumulator::AllocationFacet>&>(*(StatType<MemAccumulator>*)this);
 	}
 
-	TraceType<MemStatAccumulator::DeallocationFacet>& deallocations() 
+	StatType<MemAccumulator::DeallocationFacet>& deallocations() 
 	{ 
-		return static_cast<TraceType<MemStatAccumulator::DeallocationFacet>&>(*(TraceType<MemStatAccumulator>*)this);
+		return static_cast<StatType<MemAccumulator::DeallocationFacet>&>(*(StatType<MemAccumulator>*)this);
 	}
 };
 
@@ -324,7 +324,7 @@ inline void claim_alloc(MemStatHandle& measurement, const T& value)
 {
 	S32 size = MeasureMem<T>::measureFootprint(value);
 	if(size == 0) return;
-	MemStatAccumulator& accumulator = measurement.getCurrentAccumulator();
+	MemAccumulator& accumulator = measurement.getCurrentAccumulator();
 	accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() + (F64)size : (F64)size);
 	accumulator.mAllocations.record(size);
 }
@@ -334,18 +334,18 @@ inline void disclaim_alloc(MemStatHandle& measurement, const T& value)
 {
 	S32 size = MeasureMem<T>::measureFootprint(value);
 	if(size == 0) return;
-	MemStatAccumulator& accumulator = measurement.getCurrentAccumulator();
+	MemAccumulator& accumulator = measurement.getCurrentAccumulator();
 	accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)size : -(F64)size);
 	accumulator.mDeallocations.add(size);
 }
 
 template<typename DERIVED, size_t ALIGNMENT = LL_DEFAULT_HEAP_ALIGN>
-class MemTrackable
+class MemTrackableNonVirtual
 {
 public:
 	typedef void mem_trackable_tag_t;
 
-	MemTrackable(const char* name)
+	MemTrackableNonVirtual(const char* name)
 	:	mMemFootprint(0)
 	{
 		static bool name_initialized = false;
@@ -356,7 +356,7 @@ public:
 		}
 	}
 
-	virtual ~MemTrackable()
+	~MemTrackableNonVirtual()
 	{
 		disclaimMem(mMemFootprint);
 	}
@@ -374,11 +374,26 @@ public:
 		return ll_aligned_malloc(ALIGNMENT, size);
 	}
 
+	template<int CUSTOM_ALIGNMENT>
+	static void* aligned_new(size_t size)
+	{
+		claim_alloc(sMemStat, size);
+		return ll_aligned_malloc(CUSTOM_ALIGNMENT, size);
+	}
+
 	void operator delete(void* ptr, size_t size)
 	{
 		disclaim_alloc(sMemStat, size);
 		ll_aligned_free(ALIGNMENT, ptr);
 	}
+
+	template<int CUSTOM_ALIGNMENT>
+	static void aligned_delete(void* ptr, size_t size)
+	{
+		disclaim_alloc(sMemStat, size);
+		ll_aligned_free(CUSTOM_ALIGNMENT, ptr);
+	}
+
 
 	void* operator new [](size_t size)
 	{
@@ -420,7 +435,19 @@ private:
 };
 
 template<typename DERIVED, size_t ALIGNMENT>
-MemStatHandle MemTrackable<DERIVED, ALIGNMENT>::sMemStat("");
+MemStatHandle MemTrackableNonVirtual<DERIVED, ALIGNMENT>::sMemStat(typeid(MemTrackableNonVirtual<DERIVED, ALIGNMENT>).name());
 
+template<typename DERIVED, size_t ALIGNMENT = LL_DEFAULT_HEAP_ALIGN>
+class MemTrackable : public MemTrackableNonVirtual<DERIVED, ALIGNMENT>
+{
+public:
+	MemTrackable(const char* name)
+	:	MemTrackableNonVirtual<DERIVED, ALIGNMENT>(name)
+	{}
+
+	virtual ~MemTrackable()
+	{}
+};
 }
+
 #endif // LL_LLTRACE_H

@@ -284,7 +284,7 @@ S32 calc_num_rapid_changes(LLTrace::PeriodicRecording& periodic_recording, const
 	return num_rapid_changes;
 }
 
-S32 calc_num_rapid_changes(LLTrace::PeriodicRecording& periodic_recording, const LLTrace::TraceType<LLTrace::CountAccumulator>& stat, const F32Seconds time_period)
+S32 calc_num_rapid_changes(LLTrace::PeriodicRecording& periodic_recording, const LLTrace::StatType<LLTrace::CountAccumulator>& stat, const F32Seconds time_period)
 {
 	F32Seconds	elapsed_time,
 				time_since_value_changed;
@@ -332,7 +332,7 @@ void LLStatBar::draw()
 	{
 	case STAT_COUNT:
 		{
-			const LLTrace::TraceType<LLTrace::CountAccumulator>& count_stat = *mStat.countStatp;
+			const LLTrace::StatType<LLTrace::CountAccumulator>& count_stat = *mStat.countStatp;
 
 			unit_label    = std::string(count_stat.getUnitLabel()) + "/s";
 			current       = last_frame_recording.getPerSec(count_stat);
@@ -344,7 +344,7 @@ void LLStatBar::draw()
 		break;
 	case STAT_EVENT:
 		{
-			const LLTrace::TraceType<LLTrace::EventAccumulator>& event_stat = *mStat.eventStatp;
+			const LLTrace::StatType<LLTrace::EventAccumulator>& event_stat = *mStat.eventStatp;
 
 			unit_label        = mUnitLabel.empty() ? event_stat.getUnitLabel() : mUnitLabel;
 			current           = last_frame_recording.getLastValue(event_stat);
@@ -356,7 +356,7 @@ void LLStatBar::draw()
 		break;
 	case STAT_SAMPLE:
 		{
-			const LLTrace::TraceType<LLTrace::SampleAccumulator>& sample_stat = *mStat.sampleStatp;
+			const LLTrace::StatType<LLTrace::SampleAccumulator>& sample_stat = *mStat.sampleStatp;
 
 			unit_label        = mUnitLabel.empty() ? sample_stat.getUnitLabel() : mUnitLabel;
 			current           = last_frame_recording.getLastValue(sample_stat);
@@ -379,7 +379,7 @@ void LLStatBar::draw()
 		break;
 	case STAT_MEM:
 		{
-			const LLTrace::TraceType<LLTrace::MemStatAccumulator>& mem_stat = *mStat.memStatp;
+			const LLTrace::StatType<LLTrace::MemAccumulator>& mem_stat = *mStat.memStatp;
 
 			unit_label        = mUnitLabel.empty() ? mem_stat.getUnitLabel() : mUnitLabel;
 			current           = last_frame_recording.getLastValue(mem_stat).value();
@@ -578,27 +578,27 @@ void LLStatBar::draw()
 void LLStatBar::setStat(const std::string& stat_name)
 {
 	using namespace LLTrace;
-	const TraceType<CountAccumulator>*		count_stat;
-	const TraceType<EventAccumulator>*		event_stat;
-	const TraceType<SampleAccumulator>*		sample_stat;
-	const TraceType<MemStatAccumulator>*	mem_stat;
+	const StatType<CountAccumulator>*		count_stat;
+	const StatType<EventAccumulator>*		event_stat;
+	const StatType<SampleAccumulator>*		sample_stat;
+	const StatType<MemAccumulator>*	mem_stat;
 
-	if ((count_stat = TraceType<CountAccumulator>::getInstance(stat_name)))
+	if ((count_stat = StatType<CountAccumulator>::getInstance(stat_name)))
 	{
 		mStat.countStatp = count_stat;
 		mStatType = STAT_COUNT;
 	}
-	else if ((event_stat = TraceType<EventAccumulator>::getInstance(stat_name)))
+	else if ((event_stat = StatType<EventAccumulator>::getInstance(stat_name)))
 	{
 		mStat.eventStatp = event_stat;
 		mStatType = STAT_EVENT;
 	}
-	else if ((sample_stat = TraceType<SampleAccumulator>::getInstance(stat_name)))
+	else if ((sample_stat = StatType<SampleAccumulator>::getInstance(stat_name)))
 	{
 		mStat.sampleStatp = sample_stat;
 		mStatType = STAT_SAMPLE;
 	}
-	else if ((mem_stat = TraceType<MemStatAccumulator>::getInstance(stat_name)))
+	else if ((mem_stat = StatType<MemAccumulator>::getInstance(stat_name)))
 	{
 		mStat.memStatp = mem_stat;
 		mStatType = STAT_MEM;

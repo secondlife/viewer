@@ -546,7 +546,7 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 	os << '\n';
 
 
-	typedef TraceType<CountAccumulator> trace_count;
+	typedef StatType<CountAccumulator> trace_count;
 	for (trace_count::instance_iter it = trace_count::beginInstances(), end_it = trace_count::endInstances();
 		it != end_it;
 		++it)
@@ -579,7 +579,7 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 		}
 	}
 
-	typedef TraceType<EventAccumulator> trace_event;
+	typedef StatType<EventAccumulator> trace_event;
 
 	for (trace_event::instance_iter it = trace_event::beginInstances(), end_it = trace_event::endInstances();
 		it != end_it;
@@ -620,7 +620,7 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 		}
 	}
 
-	typedef TraceType<SampleAccumulator> trace_sample;
+	typedef StatType<SampleAccumulator> trace_sample;
 
 	for (trace_sample::instance_iter it = trace_sample::beginInstances(), end_it = trace_sample::endInstances();
 		it != end_it;
@@ -661,7 +661,7 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 		}
 	}
 
-	typedef TraceType<MemStatAccumulator> trace_mem;
+	typedef StatType<MemAccumulator> trace_mem;
 	for (trace_mem::instance_iter it = trace_mem::beginInstances(), end_it = trace_mem::endInstances();
 		it != end_it;
 		++it)

@@ -231,9 +231,10 @@ S32 AABBSphereIntersectR2(const LLVector4a& min, const LLVector4a& max, const LL
 //class LLViewerOctreeEntry definitions
 //-----------------------------------------------------------------------------------
 LLViewerOctreeEntry::LLViewerOctreeEntry() 
-	: mGroup(NULL),
-	  mBinRadius(0.f),
-	  mBinIndex(-1)
+:	LLTrace::MemTrackable<LLViewerOctreeEntry, 16>("LLViewerOctreeEntry"),
+	mGroup(NULL),
+	mBinRadius(0.f),
+	mBinIndex(-1)
 {
 	mPositionGroup.clear();
 	mExtents[0].clear();
@@ -271,7 +272,7 @@ void LLViewerOctreeEntry::removeData(LLViewerOctreeEntryData* data)
 	
 	if(mGroup != NULL && !mData[LLDRAWABLE])
 	{
-		LLviewerOctreeGroup* group = mGroup;
+		LLViewerOctreeGroup* group = mGroup;
 		mGroup = NULL;
 		group->removeFromGroup(data);
 
@@ -285,7 +286,7 @@ void LLViewerOctreeEntry::nullGroup()
 	mGroup = NULL;
 }
 
-void LLViewerOctreeEntry::setGroup(LLviewerOctreeGroup* group)
+void LLViewerOctreeEntry::setGroup(LLViewerOctreeGroup* group)
 {
 	if(mGroup == group)
 	{
@@ -294,7 +295,7 @@ void LLViewerOctreeEntry::setGroup(LLviewerOctreeGroup* group)
 
 	if(mGroup)
 	{
-		LLviewerOctreeGroup* group = mGroup;
+		LLViewerOctreeGroup* group = mGroup;
 		mGroup = NULL;
 		group->removeFromGroup(this);
 
@@ -363,7 +364,7 @@ const LLVector4a* LLViewerOctreeEntryData::getSpatialExtents() const
 }
 
 //virtual
-void LLViewerOctreeEntryData::setGroup(LLviewerOctreeGroup* group)
+void LLViewerOctreeEntryData::setGroup(LLViewerOctreeGroup* group)
 {
 	mEntry->setGroup(group);
 }
@@ -375,7 +376,7 @@ void LLViewerOctreeEntryData::shift(const LLVector4a &shift_vector)
 	mEntry->mPositionGroup.add(shift_vector);
 }
 
-LLviewerOctreeGroup* LLViewerOctreeEntryData::getGroup()const        
+LLViewerOctreeGroup* LLViewerOctreeEntryData::getGroup()const        
 {
 	return mEntry.notNull() ? mEntry->mGroup : NULL;
 }
@@ -425,15 +426,16 @@ void LLViewerOctreeEntryData::setVisible() const
 }
 
 //-----------------------------------------------------------------------------------
-//class LLviewerOctreeGroup definitions
+//class LLViewerOctreeGroup definitions
 //-----------------------------------------------------------------------------------
 
-LLviewerOctreeGroup::~LLviewerOctreeGroup()
+LLViewerOctreeGroup::~LLViewerOctreeGroup()
 {
 	//empty here
 }
 
-LLviewerOctreeGroup::LLviewerOctreeGroup(OctreeNode* node) :
+LLViewerOctreeGroup::LLViewerOctreeGroup(OctreeNode* node)
+:	LLTrace::MemTrackable<LLViewerOctreeGroup, 16>("LLViewerOctreeGroup"),
 	mOctreeNode(node),
 	mState(CLEAN)
 {
@@ -448,7 +450,7 @@ LLviewerOctreeGroup::LLviewerOctreeGroup(OctreeNode* node) :
 	mOctreeNode->addListener(this);
 }
 
-bool LLviewerOctreeGroup::hasElement(LLViewerOctreeEntryData* data) 
+bool LLViewerOctreeGroup::hasElement(LLViewerOctreeEntryData* data) 
 { 
 	if(!data->getEntry())
 	{
@@ -457,12 +459,12 @@ bool LLviewerOctreeGroup::hasElement(LLViewerOctreeEntryData* data)
 	return std::find(getDataBegin(), getDataEnd(), data->getEntry()) != getDataEnd(); 
 }
 
-bool LLviewerOctreeGroup::removeFromGroup(LLViewerOctreeEntryData* data)
+bool LLViewerOctreeGroup::removeFromGroup(LLViewerOctreeEntryData* data)
 {
 	return removeFromGroup(data->getEntry());
 }
 
-bool LLviewerOctreeGroup::removeFromGroup(LLViewerOctreeEntry* entry)
+bool LLViewerOctreeGroup::removeFromGroup(LLViewerOctreeEntry* entry)
 {
 	llassert(entry != NULL);
 	llassert(!entry->getGroup());
@@ -483,7 +485,7 @@ bool LLviewerOctreeGroup::removeFromGroup(LLViewerOctreeEntry* entry)
 }
 
 //virtual 
-void LLviewerOctreeGroup::unbound()
+void LLViewerOctreeGroup::unbound()
 {
 	if (isDirty())
 	{
@@ -498,7 +500,7 @@ void LLviewerOctreeGroup::unbound()
 		OctreeNode* parent = (OctreeNode*) mOctreeNode->getParent();
 		while (parent != NULL)
 		{
-			LLviewerOctreeGroup* group = (LLviewerOctreeGroup*) parent->getListener(0);
+			LLViewerOctreeGroup* group = (LLViewerOctreeGroup*) parent->getListener(0);
 			if (!group || group->isDirty())
 			{
 				return;
@@ -511,7 +513,7 @@ void LLviewerOctreeGroup::unbound()
 }
 	
 //virtual 
-void LLviewerOctreeGroup::rebound()
+void LLViewerOctreeGroup::rebound()
 {
 	if (!isDirty())
 	{	
@@ -520,7 +522,7 @@ void LLviewerOctreeGroup::rebound()
 	
 	if (mOctreeNode->getChildCount() == 1 && mOctreeNode->getElementCount() == 0)
 	{
-		LLviewerOctreeGroup* group = (LLviewerOctreeGroup*) mOctreeNode->getChild(0)->getListener(0);
+		LLViewerOctreeGroup* group = (LLViewerOctreeGroup*) mOctreeNode->getChild(0)->getListener(0);
 		group->rebound();
 		
 		//copy single child's bounding box
@@ -541,7 +543,7 @@ void LLviewerOctreeGroup::rebound()
 	{
 		LLVector4a& newMin = mExtents[0];
 		LLVector4a& newMax = mExtents[1];
-		LLviewerOctreeGroup* group = (LLviewerOctreeGroup*) mOctreeNode->getChild(0)->getListener(0);
+		LLViewerOctreeGroup* group = (LLViewerOctreeGroup*) mOctreeNode->getChild(0)->getListener(0);
 		group->clearState(SKIP_FRUSTUM_CHECK);
 		group->rebound();
 		//initialize to first child
@@ -551,7 +553,7 @@ void LLviewerOctreeGroup::rebound()
 		//first, rebound children
 		for (U32 i = 1; i < mOctreeNode->getChildCount(); i++)
 		{
-			group = (LLviewerOctreeGroup*) mOctreeNode->getChild(i)->getListener(0);
+			group = (LLViewerOctreeGroup*) mOctreeNode->getChild(i)->getListener(0);
 			group->clearState(SKIP_FRUSTUM_CHECK);
 			group->rebound();
 			const LLVector4a& max = group->mExtents[1];
@@ -575,7 +577,7 @@ void LLviewerOctreeGroup::rebound()
 }
 
 //virtual 
-void LLviewerOctreeGroup::handleInsertion(const TreeNode* node, LLViewerOctreeEntry* obj)
+void LLViewerOctreeGroup::handleInsertion(const TreeNode* node, LLViewerOctreeEntry* obj)
 {
 	obj->setGroup(this);	
 	unbound();
@@ -583,7 +585,7 @@ void LLviewerOctreeGroup::handleInsertion(const TreeNode* node, LLViewerOctreeEn
 }
 	
 //virtual 
-void LLviewerOctreeGroup::handleRemoval(const TreeNode* node, LLViewerOctreeEntry* obj)
+void LLViewerOctreeGroup::handleRemoval(const TreeNode* node, LLViewerOctreeEntry* obj)
 {
 	unbound();
 	setState(OBJECT_DIRTY);
@@ -592,7 +594,7 @@ void LLviewerOctreeGroup::handleRemoval(const TreeNode* node, LLViewerOctreeEntr
 }
 	
 //virtual 
-void LLviewerOctreeGroup::handleDestruction(const TreeNode* node)
+void LLViewerOctreeGroup::handleDestruction(const TreeNode* node)
 {
 	for (OctreeNode::element_iter i = mOctreeNode->getDataBegin(); i != mOctreeNode->getDataEnd(); ++i)
 	{
@@ -607,7 +609,7 @@ void LLviewerOctreeGroup::handleDestruction(const TreeNode* node)
 }
 	
 //virtual 
-void LLviewerOctreeGroup::handleStateChange(const TreeNode* node)
+void LLViewerOctreeGroup::handleStateChange(const TreeNode* node)
 {
 	//drop bounding box upon state change
 	if (mOctreeNode != node)
@@ -618,29 +620,29 @@ void LLviewerOctreeGroup::handleStateChange(const TreeNode* node)
 }
 	
 //virtual 
-void LLviewerOctreeGroup::handleChildAddition(const OctreeNode* parent, OctreeNode* child)
+void LLViewerOctreeGroup::handleChildAddition(const OctreeNode* parent, OctreeNode* child)
 {
 	if (child->getListenerCount() == 0)
 	{
-		new LLviewerOctreeGroup(child);
+		new LLViewerOctreeGroup(child);
 	}
 	else
 	{
-		OCT_ERRS << "LLviewerOctreeGroup redundancy detected." << LL_ENDL;
+		OCT_ERRS << "LLViewerOctreeGroup redundancy detected." << LL_ENDL;
 	}
 
 	unbound();
 	
-	((LLviewerOctreeGroup*)child->getListener(0))->unbound();
+	((LLViewerOctreeGroup*)child->getListener(0))->unbound();
 }
 	
 //virtual 
-void LLviewerOctreeGroup::handleChildRemoval(const OctreeNode* parent, const OctreeNode* child)
+void LLViewerOctreeGroup::handleChildRemoval(const OctreeNode* parent, const OctreeNode* child)
 {
 	unbound();
 }
 
-LLviewerOctreeGroup* LLviewerOctreeGroup::getParent()
+LLViewerOctreeGroup* LLViewerOctreeGroup::getParent()
 {
 	if (isDead())
 	{
@@ -656,14 +658,14 @@ LLviewerOctreeGroup* LLviewerOctreeGroup::getParent()
 
 	if (parent)
 	{
-		return (LLviewerOctreeGroup*) parent->getListener(0);
+		return (LLViewerOctreeGroup*) parent->getListener(0);
 	}
 
 	return NULL;
 }
 
 //virtual 
-bool LLviewerOctreeGroup::boundObjects(BOOL empty, LLVector4a& minOut, LLVector4a& maxOut)
+bool LLViewerOctreeGroup::boundObjects(BOOL empty, LLVector4a& minOut, LLVector4a& maxOut)
 {
 	const OctreeNode* node = mOctreeNode;
 
@@ -721,23 +723,23 @@ bool LLviewerOctreeGroup::boundObjects(BOOL empty, LLVector4a& minOut, LLVector4
 }
 
 //virtual 
-BOOL LLviewerOctreeGroup::isVisible() const
+BOOL LLViewerOctreeGroup::isVisible() const
 {
 	return mVisible[LLViewerCamera::sCurCameraID] >= LLViewerOctreeEntryData::getCurrentFrame() ? TRUE : FALSE;
 }
 
 //virtual 
-BOOL LLviewerOctreeGroup::isRecentlyVisible() const 
+BOOL LLViewerOctreeGroup::isRecentlyVisible() const 
 {
 	return FALSE;
 }
 
-void LLviewerOctreeGroup::setVisible()
+void LLViewerOctreeGroup::setVisible()
 {
 	mVisible[LLViewerCamera::sCurCameraID] = LLViewerOctreeEntryData::getCurrentFrame();
 }
 
-void LLviewerOctreeGroup::checkStates()
+void LLViewerOctreeGroup::checkStates()
 {
 #if LL_OCTREE_PARANOIA_CHECK
 	//LLOctreeStateCheck checker;
@@ -837,7 +839,7 @@ public:
 
 
 LLOcclusionCullingGroup::LLOcclusionCullingGroup(OctreeNode* node, LLViewerOctreePartition* part) : 
-	LLviewerOctreeGroup(node),
+	LLViewerOctreeGroup(node),
 	mSpatialPartition(part)
 {
 	part->mLODSeed = (part->mLODSeed+1)%part->mLODPeriod;
@@ -885,7 +887,7 @@ void LLOcclusionCullingGroup::handleChildAddition(const OctreeNode* parent, Octr
 
 	unbound();
 	
-	((LLviewerOctreeGroup*)child->getListener(0))->unbound();
+	((LLViewerOctreeGroup*)child->getListener(0))->unbound();
 }
 
 void LLOcclusionCullingGroup::releaseOcclusionQueryObjectNames()
@@ -1316,7 +1318,7 @@ BOOL LLViewerOctreePartition::isOcclusionEnabled()
 //-----------------------------------------------------------------------------------
 
 //virtual 
-bool LLViewerOctreeCull::earlyFail(LLviewerOctreeGroup* group)
+bool LLViewerOctreeCull::earlyFail(LLViewerOctreeGroup* group)
 {	
 	return false;
 }
@@ -1324,7 +1326,7 @@ bool LLViewerOctreeCull::earlyFail(LLviewerOctreeGroup* group)
 //virtual 
 void LLViewerOctreeCull::traverse(const OctreeNode* n)
 {
-	LLviewerOctreeGroup* group = (LLviewerOctreeGroup*) n->getListener(0);
+	LLViewerOctreeGroup* group = (LLViewerOctreeGroup*) n->getListener(0);
 
 	if (earlyFail(group))
 	{
@@ -1332,7 +1334,7 @@ void LLViewerOctreeCull::traverse(const OctreeNode* n)
 	}
 		
 	if (mRes == 2 || 
-		(mRes && group->hasState(LLviewerOctreeGroup::SKIP_FRUSTUM_CHECK)))
+		(mRes && group->hasState(LLViewerOctreeGroup::SKIP_FRUSTUM_CHECK)))
 	{	//fully in, just add everything
 		OctreeTraveler::traverse(n);
 	}
@@ -1351,17 +1353,17 @@ void LLViewerOctreeCull::traverse(const OctreeNode* n)
 	
 //------------------------------------------
 //agent space group culling
-S32 LLViewerOctreeCull::AABBInFrustumNoFarClipGroupBounds(const LLviewerOctreeGroup* group)
+S32 LLViewerOctreeCull::AABBInFrustumNoFarClipGroupBounds(const LLViewerOctreeGroup* group)
 {
 	return mCamera->AABBInFrustumNoFarClip(group->mBounds[0], group->mBounds[1]);
 }
 
-S32 LLViewerOctreeCull::AABBSphereIntersectGroupExtents(const LLviewerOctreeGroup* group)
+S32 LLViewerOctreeCull::AABBSphereIntersectGroupExtents(const LLViewerOctreeGroup* group)
 {
 	return AABBSphereIntersect(group->mExtents[0], group->mExtents[1], mCamera->getOrigin(), mCamera->mFrustumCornerDist);
 }
 
-S32 LLViewerOctreeCull::AABBInFrustumGroupBounds(const LLviewerOctreeGroup* group)
+S32 LLViewerOctreeCull::AABBInFrustumGroupBounds(const LLViewerOctreeGroup* group)
 {
 	return mCamera->AABBInFrustum(group->mBounds[0], group->mBounds[1]);
 }
@@ -1369,17 +1371,17 @@ S32 LLViewerOctreeCull::AABBInFrustumGroupBounds(const LLviewerOctreeGroup* grou
 
 //------------------------------------------
 //agent space object set culling
-S32 LLViewerOctreeCull::AABBInFrustumNoFarClipObjectBounds(const LLviewerOctreeGroup* group)
+S32 LLViewerOctreeCull::AABBInFrustumNoFarClipObjectBounds(const LLViewerOctreeGroup* group)
 {
 	return mCamera->AABBInFrustumNoFarClip(group->mObjectBounds[0], group->mObjectBounds[1]);
 }
 
-S32 LLViewerOctreeCull::AABBSphereIntersectObjectExtents(const LLviewerOctreeGroup* group)
+S32 LLViewerOctreeCull::AABBSphereIntersectObjectExtents(const LLViewerOctreeGroup* group)
 {
 	return AABBSphereIntersect(group->mObjectExtents[0], group->mObjectExtents[1], mCamera->getOrigin(), mCamera->mFrustumCornerDist);
 }
 
-S32 LLViewerOctreeCull::AABBInFrustumObjectBounds(const LLviewerOctreeGroup* group)
+S32 LLViewerOctreeCull::AABBInFrustumObjectBounds(const LLViewerOctreeGroup* group)
 {
 	return mCamera->AABBInFrustum(group->mObjectBounds[0], group->mObjectBounds[1]);
 }
@@ -1387,17 +1389,17 @@ S32 LLViewerOctreeCull::AABBInFrustumObjectBounds(const LLviewerOctreeGroup* gro
 
 //------------------------------------------
 //local regional space group culling
-S32 LLViewerOctreeCull::AABBInRegionFrustumNoFarClipGroupBounds(const LLviewerOctreeGroup* group)
+S32 LLViewerOctreeCull::AABBInRegionFrustumNoFarClipGroupBounds(const LLViewerOctreeGroup* group)
 {
 	return mCamera->AABBInRegionFrustumNoFarClip(group->mBounds[0], group->mBounds[1]);
 }
 
-S32 LLViewerOctreeCull::AABBInRegionFrustumGroupBounds(const LLviewerOctreeGroup* group)
+S32 LLViewerOctreeCull::AABBInRegionFrustumGroupBounds(const LLViewerOctreeGroup* group)
 {
 	return mCamera->AABBInRegionFrustum(group->mBounds[0], group->mBounds[1]);
 }
 
-S32 LLViewerOctreeCull::AABBRegionSphereIntersectGroupExtents(const LLviewerOctreeGroup* group, const LLVector3& shift)
+S32 LLViewerOctreeCull::AABBRegionSphereIntersectGroupExtents(const LLViewerOctreeGroup* group, const LLVector3& shift)
 {
 	return AABBSphereIntersect(group->mExtents[0], group->mExtents[1], mCamera->getOrigin() - shift, mCamera->mFrustumCornerDist);
 }
@@ -1405,24 +1407,24 @@ S32 LLViewerOctreeCull::AABBRegionSphereIntersectGroupExtents(const LLviewerOctr
 
 //------------------------------------------
 //local regional space object culling
-S32 LLViewerOctreeCull::AABBInRegionFrustumObjectBounds(const LLviewerOctreeGroup* group)
+S32 LLViewerOctreeCull::AABBInRegionFrustumObjectBounds(const LLViewerOctreeGroup* group)
 {
 	return mCamera->AABBInRegionFrustum(group->mObjectBounds[0], group->mObjectBounds[1]);
 }
 
-S32 LLViewerOctreeCull::AABBInRegionFrustumNoFarClipObjectBounds(const LLviewerOctreeGroup* group)
+S32 LLViewerOctreeCull::AABBInRegionFrustumNoFarClipObjectBounds(const LLViewerOctreeGroup* group)
 {
 	return mCamera->AABBInRegionFrustumNoFarClip(group->mObjectBounds[0], group->mObjectBounds[1]);
 }
 
-S32 LLViewerOctreeCull::AABBRegionSphereIntersectObjectExtents(const LLviewerOctreeGroup* group, const LLVector3& shift)
+S32 LLViewerOctreeCull::AABBRegionSphereIntersectObjectExtents(const LLViewerOctreeGroup* group, const LLVector3& shift)
 {
 	return AABBSphereIntersect(group->mObjectExtents[0], group->mObjectExtents[1], mCamera->getOrigin() - shift, mCamera->mFrustumCornerDist);
 }
 //------------------------------------------
 
 //virtual 
-bool LLViewerOctreeCull::checkObjects(const OctreeNode* branch, const LLviewerOctreeGroup* group)
+bool LLViewerOctreeCull::checkObjects(const OctreeNode* branch, const LLViewerOctreeGroup* group)
 {
 	if (branch->getElementCount() == 0) //no elements
 	{
@@ -1441,19 +1443,19 @@ bool LLViewerOctreeCull::checkObjects(const OctreeNode* branch, const LLviewerOc
 }
 
 //virtual 
-void LLViewerOctreeCull::preprocess(LLviewerOctreeGroup* group)
+void LLViewerOctreeCull::preprocess(LLViewerOctreeGroup* group)
 {		
 }
 	
 //virtual 
-void LLViewerOctreeCull::processGroup(LLviewerOctreeGroup* group)
+void LLViewerOctreeCull::processGroup(LLViewerOctreeGroup* group)
 {
 }
 	
 //virtual 
 void LLViewerOctreeCull::visit(const OctreeNode* branch) 
 {	
-	LLviewerOctreeGroup* group = (LLviewerOctreeGroup*) branch->getListener(0);
+	LLViewerOctreeGroup* group = (LLViewerOctreeGroup*) branch->getListener(0);
 
 	preprocess(group);
 		
@@ -1475,12 +1477,12 @@ void LLViewerOctreeDebug::visit(const OctreeNode* branch)
 		LL_INFOS() << "Child " << i << " : " << (U32)branch->getChild(i) << LL_ENDL;
 	}
 #endif
-	LLviewerOctreeGroup* group = (LLviewerOctreeGroup*) branch->getListener(0);
+	LLViewerOctreeGroup* group = (LLViewerOctreeGroup*) branch->getListener(0);
 	processGroup(group);	
 }
 
 //virtual 
-void LLViewerOctreeDebug::processGroup(LLviewerOctreeGroup* group)
+void LLViewerOctreeDebug::processGroup(LLViewerOctreeGroup* group)
 {
 #if 0
 	const LLVector4a* vec4 = group->getBounds();

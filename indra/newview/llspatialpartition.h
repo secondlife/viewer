@@ -55,24 +55,14 @@ class LLViewerRegion;
 
 void pushVerts(LLFace* face, U32 mask);
 
-class LLDrawInfo : public LLRefCount 
+class LLDrawInfo : public LLRefCount, public LLTrace::MemTrackableNonVirtual<LLDrawInfo, 16>
 {
 protected:
 	~LLDrawInfo();	
 	
 public:
-	void* operator new(size_t size)
-	{
-		return ll_aligned_malloc_16(size);
-	}
-
-	void operator delete(void* ptr)
-	{
-		ll_aligned_free_16(ptr);
-	}
-
-
 	LLDrawInfo(const LLDrawInfo& rhs)
+	:	LLTrace::MemTrackableNonVirtual<LLDrawInfo, 16>("LLDrawInfo")
 	{
 		*this = rhs;
 	}
@@ -209,16 +199,6 @@ public:
 		*this = rhs;
 	}
 
-	void* operator new(size_t size)
-	{
-		return ll_aligned_malloc_16(size);
-	}
-
-	void operator delete(void* ptr)
-	{
-		ll_aligned_free_16(ptr);
-	}
-
 	const LLSpatialGroup& operator=(const LLSpatialGroup& rhs)
 	{
 		LL_ERRS() << "Illegal operation!" << LL_ENDL;
@@ -262,7 +242,7 @@ public:
 
 	typedef enum
 	{
-		GEOM_DIRTY				= LLviewerOctreeGroup::INVALID_STATE,
+		GEOM_DIRTY				= LLViewerOctreeGroup::INVALID_STATE,
 		ALPHA_DIRTY				= (GEOM_DIRTY << 1),
 		IN_IMAGE_QUEUE			= (ALPHA_DIRTY << 1),
 		IMAGE_DIRTY				= (IN_IMAGE_QUEUE << 1),

@@ -45,7 +45,7 @@ AccumulatorBufferGroup::AccumulatorBufferGroup()
 	claim_alloc(gTraceMemStat, mSamples.capacity() * sizeof(SampleAccumulator));
 	claim_alloc(gTraceMemStat, mEvents.capacity() * sizeof(EventAccumulator));
 	claim_alloc(gTraceMemStat, mStackTimers.capacity() * sizeof(TimeBlockAccumulator));
-	claim_alloc(gTraceMemStat, mMemStats.capacity() * sizeof(MemStatAccumulator));
+	claim_alloc(gTraceMemStat, mMemStats.capacity() * sizeof(MemAccumulator));
 }
 
 AccumulatorBufferGroup::AccumulatorBufferGroup(const AccumulatorBufferGroup& other)
@@ -59,7 +59,7 @@ AccumulatorBufferGroup::AccumulatorBufferGroup(const AccumulatorBufferGroup& oth
 	claim_alloc(gTraceMemStat, mSamples.capacity() * sizeof(SampleAccumulator));
 	claim_alloc(gTraceMemStat, mEvents.capacity() * sizeof(EventAccumulator));
 	claim_alloc(gTraceMemStat, mStackTimers.capacity() * sizeof(TimeBlockAccumulator));
-	claim_alloc(gTraceMemStat, mMemStats.capacity() * sizeof(MemStatAccumulator));
+	claim_alloc(gTraceMemStat, mMemStats.capacity() * sizeof(MemAccumulator));
 }
 
 AccumulatorBufferGroup::~AccumulatorBufferGroup()
@@ -68,7 +68,7 @@ AccumulatorBufferGroup::~AccumulatorBufferGroup()
 	disclaim_alloc(gTraceMemStat, mSamples.capacity() * sizeof(SampleAccumulator));
 	disclaim_alloc(gTraceMemStat, mEvents.capacity() * sizeof(EventAccumulator));
 	disclaim_alloc(gTraceMemStat, mStackTimers.capacity() * sizeof(TimeBlockAccumulator));
-	disclaim_alloc(gTraceMemStat, mMemStats.capacity() * sizeof(MemStatAccumulator));
+	disclaim_alloc(gTraceMemStat, mMemStats.capacity() * sizeof(MemAccumulator));
 }
 
 void AccumulatorBufferGroup::handOffTo(AccumulatorBufferGroup& other)
@@ -108,7 +108,7 @@ void AccumulatorBufferGroup::clearCurrent()
 	AccumulatorBuffer<SampleAccumulator>::clearCurrent();
 	AccumulatorBuffer<EventAccumulator>::clearCurrent();
 	AccumulatorBuffer<TimeBlockAccumulator>::clearCurrent();
-	AccumulatorBuffer<MemStatAccumulator>::clearCurrent();
+	AccumulatorBuffer<MemAccumulator>::clearCurrent();
 }
 
 bool AccumulatorBufferGroup::isCurrent() const
