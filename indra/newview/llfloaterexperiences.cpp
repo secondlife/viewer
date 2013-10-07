@@ -93,7 +93,7 @@ BOOL LLFloaterExperiences::postBuild()
             LLHTTPClient::get(lookup_url, new LLExperienceListResponder(getDerivedHandle<LLFloaterExperiences>(), nameMap));
         }
 
-        lookup_url = region->getCapability("GetAdminExperiences"); 
+        lookup_url = region->getCapability("GetCreatorExperiences"); 
         if(!lookup_url.empty())
         {
             nameMap["experience_ids"]="Contrib_Experiences_Tab";
