@@ -388,7 +388,7 @@ public:
 	BOOL        isCachedRawImageReady() const {return mCachedRawImageReady ;}
 	BOOL        isRawImageValid()const { return mIsRawImageValid ; }	
 	void        forceToSaveRawImage(S32 desired_discard = 0, F32 kept_time = 0.f) ;
-	void        forceToRefetchTexture(S32 desired_discard = 0);
+	void        forceToRefetchTexture(S32 desired_discard = 0, F32 kept_time = 60.f);
 	/*virtual*/ void setCachedRawImage(S32 discard_level, LLImageRaw* imageraw) ;
 	void        destroySavedRawImage() ;
 	LLImageRaw* getSavedRawImage() ;
@@ -423,6 +423,7 @@ private:
 	BOOL  mFullyLoaded;
 	BOOL  mInDebug;
 	BOOL  mInFastCacheList;
+	BOOL  mForceCallbackFetch;
 
 protected:		
 	std::string mLocalFileName;
