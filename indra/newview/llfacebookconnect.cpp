@@ -366,6 +366,30 @@ std::string LLFacebookConnect::getFacebookConnectURL(const std::string& route, b
 	return url;
 }
 
+std::string LLFacebookConnect::getFlickrConnectURL(const std::string& route, bool include_read_from_master)
+{
+	std::string url = gAgent.getRegion()->getCapability("FlickrConnect");
+	url += route;
+    
+	if (include_read_from_master && mReadFromMaster)
+	{
+		url += "?read_from_master=true";
+	}
+	return url;
+}
+
+std::string LLFacebookConnect::getTwitterConnectURL(const std::string& route, bool include_read_from_master)
+{
+	std::string url = gAgent.getRegion()->getCapability("TwitterConnect");
+	url += route;
+    
+	if (include_read_from_master && mReadFromMaster)
+	{
+		url += "?read_from_master=true";
+	}
+	return url;
+}
+
 void LLFacebookConnect::connectToFacebook(const std::string& auth_code, const std::string& auth_state)
 {
 	LLSD body;
@@ -388,6 +412,11 @@ void LLFacebookConnect::checkConnectionToFacebook(bool auto_connect)
 	const F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
 	LLHTTPClient::get(getFacebookConnectURL("/connection", true), new LLFacebookConnectedResponder(auto_connect),
 						LLSD(), timeout, follow_redirects);
+	
+	// TEMPORARY FOR TESTING - CHO
+	llinfos << "FlickrConnect URL: " << getFlickrConnectURL() << LL_ENDL;
+	llinfos << "TwitterConnect URL: " << getTwitterConnectURL() << LL_ENDL;
+
 }
 
 void LLFacebookConnect::loadFacebookInfo()

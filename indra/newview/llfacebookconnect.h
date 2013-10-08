@@ -89,6 +89,10 @@ private:
 	LLFacebookConnect();
 	~LLFacebookConnect() {};
  	std::string getFacebookConnectURL(const std::string& route = "", bool include_read_from_master = false);
+
+	// TEMPORARY FOR TESTING - CHO
+ 	std::string getFlickrConnectURL(const std::string& route = "", bool include_read_from_master = false);
+ 	std::string getTwitterConnectURL(const std::string& route = "", bool include_read_from_master = false);
    
     EConnectionState mConnectionState;
 	BOOL mConnected;
