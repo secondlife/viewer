@@ -71,7 +71,7 @@ inline BOOL LLKeywordToken::isTail(const llwchar* s) const
 
 LLKeywords::LLKeywords() : mLoaded(FALSE)
 {
-	setFilenameSyntax( gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"keywords_lsl_tokens.xml") );
+	setFilenameSyntax( gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"keywords_lsl_default.xml") );
 }
 
 LLKeywords::~LLKeywords()
