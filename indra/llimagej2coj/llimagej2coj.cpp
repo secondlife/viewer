@@ -73,21 +73,21 @@ sample error callback expecting a LLFILE* client object
 */
 void error_callback(const char* msg, void*)
 {
-	lldebugs << "LLImageJ2COJ: " << chomp(msg) << llendl;
+	LL_DEBUGS() << "LLImageJ2COJ: " << chomp(msg) << LL_ENDL;
 }
 /**
 sample warning callback expecting a LLFILE* client object
 */
 void warning_callback(const char* msg, void*)
 {
-	lldebugs << "LLImageJ2COJ: " << chomp(msg) << llendl;
+	LL_DEBUGS() << "LLImageJ2COJ: " << chomp(msg) << LL_ENDL;
 }
 /**
 sample debug callback expecting no client object
 */
 void info_callback(const char* msg, void*)
 {
-	lldebugs << "LLImageJ2COJ: " << chomp(msg) << llendl;
+	LL_DEBUGS() << "LLImageJ2COJ: " << chomp(msg) << LL_ENDL;
 }
 
 // Divide a by 2 to the power of b and round upwards
@@ -203,7 +203,7 @@ BOOL LLImageJ2COJ::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decod
 	
 	if(image->numcomps <= first_channel)
 	{
-		llwarns << "trying to decode more channels than are present in image: numcomps: " << image->numcomps << " first_channel: " << first_channel << llendl;
+		LL_WARNS() << "trying to decode more channels than are present in image: numcomps: " << image->numcomps << " first_channel: " << first_channel << LL_ENDL;
 		if (image)
 		{
 			opj_image_destroy(image);
@@ -472,7 +472,7 @@ BOOL LLImageJ2COJ::getMetadata(LLImageJ2C &base)
 
 	if(!image)
 	{
-		llwarns << "ERROR -> getMetadata: failed to decode image!" << llendl;
+		LL_WARNS() << "ERROR -> getMetadata: failed to decode image!" << LL_ENDL;
 		return FALSE;
 	}
 

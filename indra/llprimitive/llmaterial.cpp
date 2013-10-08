@@ -69,7 +69,7 @@ template<typename T> T getMaterialField(const LLSD& data, const std::string& fie
 	{
 		return (T)data[field];
 	}
-	llerrs << "Missing or mistyped field '" << field << "' in material definition" << llendl;
+	LL_ERRS() << "Missing or mistyped field '" << field << "' in material definition" << LL_ENDL;
 	return (T)LLSD();
 }
 
@@ -80,7 +80,7 @@ template<> LLUUID getMaterialField(const LLSD& data, const std::string& field, c
 	{
 		return data[field].asUUID();
 	}
-	llerrs << "Missing or mistyped field '" << field << "' in material definition" << llendl;
+	LL_ERRS() << "Missing or mistyped field '" << field << "' in material definition" << LL_ENDL;
 	return LLUUID::null;
 }
 

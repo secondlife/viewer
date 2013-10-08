@@ -115,7 +115,7 @@ public:
 	/*virtual*/ BOOL 	isPanel() const;
 	/*virtual*/ void	draw();	
 	/*virtual*/ BOOL	handleKeyHere( KEY key, MASK mask );
-	/*virtual*/ void 	handleVisibilityChange ( BOOL new_visibility );
+	/*virtual*/ void 	onVisibilityChange ( BOOL new_visibility );
 
 	// From LLFocusableElement
 	/*virtual*/ void	setFocus( BOOL b );

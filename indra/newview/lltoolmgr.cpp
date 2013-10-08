@@ -357,7 +357,7 @@ void LLToolMgr::clearTransientTool()
 		mTransientTool = NULL;
 		if (!mBaseTool)
 		{
-			llwarns << "mBaseTool is NULL" << llendl;
+			LL_WARNS() << "mBaseTool is NULL" << LL_ENDL;
 		}
 	}
 	updateToolStatus();

@@ -33,7 +33,6 @@
 #include "llfloaterreg.h"
 #include "llfontgl.h"
 #include "llmd5.h"
-#include "llsecondlifeurls.h"
 #include "v4color.h"
 
 #include "llappviewer.h"
@@ -277,12 +276,12 @@ void LLPanelLogin::addFavoritesToStartLocation()
 		S32 res = LLStringUtil::compareInsensitive(user_defined_name, iter->first);
 		if (res != 0)
 		{
-			lldebugs << "Skipping favorites for " << iter->first << llendl;
+			LL_DEBUGS() << "Skipping favorites for " << iter->first << LL_ENDL;
 			continue;
 		}
 
 		combo->addSeparator();
-		lldebugs << "Loading favorites for " << iter->first << llendl;
+		LL_DEBUGS() << "Loading favorites for " << iter->first << LL_ENDL;
 		LLSD user_llsd = iter->second;
 		for (LLSD::array_const_iterator iter1 = user_llsd.beginArray();
 			iter1 != user_llsd.endArray(); ++iter1)
@@ -461,7 +460,7 @@ void LLPanelLogin::setFields(LLPointer<LLCredential> credential,
 {
 	if (!sInstance)
 	{
-		llwarns << "Attempted fillFields with no login view shown" << llendl;
+		LL_WARNS() << "Attempted fillFields with no login view shown" << LL_ENDL;
 		return;
 	}
 	LL_INFOS("Credentials") << "Setting login fields to " << *credential << LL_ENDL;
@@ -519,7 +518,7 @@ void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
 {
 	if (!sInstance)
 	{
-		llwarns << "Attempted getFields with no login view shown" << llendl;
+		LL_WARNS() << "Attempted getFields with no login view shown" << LL_ENDL;
 		return;
 	}
 	
@@ -540,13 +539,13 @@ void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
 	LLStringUtil::trim(username);
 	std::string password = sInstance->getChild<LLUICtrl>("password_edit")->getValue().asString();
 
-	LL_INFOS2("Credentials", "Authentication") << "retrieving username:" << username << LL_ENDL;
+	LL_INFOS("Credentials", "Authentication") << "retrieving username:" << username << LL_ENDL;
 	// determine if the username is a first/last form or not.
 	size_t separator_index = username.find_first_of(' ');
 	if (separator_index == username.npos
 		&& !LLGridManager::getInstance()->isSystemGrid())
 	{
-		LL_INFOS2("Credentials", "Authentication") << "account: " << username << LL_ENDL;
+		LL_INFOS("Credentials", "Authentication") << "account: " << username << LL_ENDL;
 		// single username, so this is a 'clear' identifier
 		identifier["type"] = CRED_IDENTIFIER_TYPE_ACCOUNT;
 		identifier["account_name"] = username;
@@ -581,7 +580,7 @@ void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
 		
 		if (last.find_first_of(' ') == last.npos)
 		{
-			LL_INFOS2("Credentials", "Authentication") << "agent: " << username << LL_ENDL;
+			LL_INFOS("Credentials", "Authentication") << "agent: " << username << LL_ENDL;
 			// traditional firstname / lastname
 			identifier["type"] = CRED_IDENTIFIER_TYPE_AGENT;
 			identifier["first_name"] = first;
@@ -609,7 +608,7 @@ BOOL LLPanelLogin::areCredentialFieldsDirty()
 {
 	if (!sInstance)
 	{
-		llwarns << "Attempted getServer with no login view shown" << llendl;
+		LL_WARNS() << "Attempted getServer with no login view shown" << LL_ENDL;
 	}
 	else
 	{

@@ -31,7 +31,6 @@
 #ifndef LL_V4COLOR_H
 #include "v4color.h"
 #endif
-#include "stdenums.h"
 #include "llcoord.h"
 #include "llscrollbar.h"
 
@@ -56,7 +55,6 @@ class LLScrollContainer : public LLUICtrl
 public:
 	// Note: vertical comes before horizontal because vertical
 	// scrollbars have priority for mouse and keyboard events.
-	enum SCROLL_ORIENTATION { VERTICAL, HORIZONTAL, SCROLLBAR_COUNT };
 
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
@@ -130,7 +128,7 @@ private:
 	void updateScroll();
 	void calcVisibleSize( S32 *visible_width, S32 *visible_height, BOOL* show_h_scrollbar, BOOL* show_v_scrollbar ) const;
 
-	LLScrollbar* mScrollbar[SCROLLBAR_COUNT];
+	LLScrollbar* mScrollbar[ORIENTATION_COUNT];
 	S32			mSize;
 	BOOL		mIsOpaque;
 	LLUIColor	mBackgroundColor;

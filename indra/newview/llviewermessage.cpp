@@ -149,6 +149,11 @@ LLFrameTimer gThrottleTimer;
 const U32 OFFER_THROTTLE_MAX_COUNT=5; //number of items per time period
 const F32 OFFER_THROTTLE_TIME=10.f; //time period in seconds
 
+// Agent Update Flags (U8)
+const U8 AU_FLAGS_NONE      		= 0x00;
+const U8 AU_FLAGS_HIDETITLE      	= 0x01;
+const U8 AU_FLAGS_CLIENT_AUTOPILOT	= 0x02;
+
 //script permissions
 const std::string SCRIPT_QUESTIONS[SCRIPT_PERMISSION_EOF] = 
 	{ 
@@ -362,7 +367,7 @@ void process_logout_reply(LLMessageSystem* msg, void**)
 		{
 			LL_INFOS("Messaging") << "process_logout_reply item not found: " << item_id << LL_ENDL;
 		}
-	}
+	}	
     LLAppViewer::instance()->forceQuit();
 }
 
@@ -370,9 +375,11 @@ void process_layer_data(LLMessageSystem *mesgsys, void **user_data)
 {
 	LLViewerRegion *regionp = LLWorld::getInstance()->getRegion(mesgsys->getSender());
 
+	LL_DEBUGS_ONCE("SceneLoadTiming") << "Received layer data" << LL_ENDL;
+
 	if(!regionp)
 	{
-		llwarns << "Invalid region for layer data." << llendl;
+		LL_WARNS() << "Invalid region for layer data." << LL_ENDL;
 		return;
 	}
 	S32 size;
@@ -398,11 +405,11 @@ void process_layer_data(LLMessageSystem *mesgsys, void **user_data)
 	LLVLData *vl_datap = new LLVLData(regionp, type, datap, size);
 	if (mesgsys->getReceiveCompressedSize())
 	{
-		gVLManager.addLayerData(vl_datap, mesgsys->getReceiveCompressedSize());
+		gVLManager.addLayerData(vl_datap, (S32Bytes)mesgsys->getReceiveCompressedSize());
 	}
 	else
 	{
-		gVLManager.addLayerData(vl_datap, mesgsys->getReceiveSize());
+		gVLManager.addLayerData(vl_datap, (S32Bytes)mesgsys->getReceiveSize());
 	}
 }
 
@@ -667,7 +674,7 @@ bool join_group_response(const LLSD& notification, const LLSD& response)
 		S32 max_groups = gMaxAgentGroups;
 		if(gAgent.isInGroup(group_id)) ++max_groups;
 
-		if(gAgent.mGroups.count() < max_groups)
+		if(gAgent.mGroups.size() < max_groups)
 		{
 			accept_invite = true;
 		}
@@ -1212,7 +1219,7 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 		const LLInventoryObject *obj = gInventory.getObject(obj_id);
 		if (!obj)
 		{
-			llwarns << "Cannot find object [ itemID:" << obj_id << " ] to open." << llendl;
+			LL_WARNS() << "Cannot find object [ itemID:" << obj_id << " ] to open." << LL_ENDL;
 			continue;
 		}
 
@@ -1488,7 +1495,7 @@ void LLOfferInfo::handleRespond(const LLSD& notification, const LLSD& response)
 	const std::string name = notification["name"].asString();
 	if(mRespondFunctions.find(name) == mRespondFunctions.end())
 	{
-		llwarns << "Unexpected notification name : " << name << llendl;
+		LL_WARNS() << "Unexpected notification name : " << name << LL_ENDL;
 		llassert(!"Unexpected notification name");
 		return;
 	}
@@ -2634,7 +2641,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				LLSD args;
 				args["SUBJECT"] = subj;
 				args["MESSAGE"] = mes;
-				LLNotifications::instance().add(LLNotification::Params("GroupNotice").substitutions(args).payload(payload).time_stamp(timestamp));
+				LLNotifications::instance().add(LLNotification::Params("GroupNotice").substitutions(args).payload(payload).time_stamp(LLDate(timestamp)));
 			}
 
 			// Also send down the old path for now.
@@ -3431,7 +3438,7 @@ protected:
 
 	void handleFailure(int status, const std::string& err_msg)
 	{
-		llwarns << "Translation failed for mesg " << m_origMesg << " toLang " << mToLang << " fromLang " << mFromLang << llendl;
+		LL_WARNS() << "Translation failed for mesg " << m_origMesg << " toLang " << mToLang << " fromLang " << mFromLang << LL_ENDL;
 
 		std::string msg = LLTrans::getString("TranslationFailed", LLSD().with("[REASON]", err_msg));
 		LLStringUtil::replaceString(msg, "\n", " "); // we want one-line error messages
@@ -3805,15 +3812,15 @@ public:
 				is_card);
 		}
 		LLSD args;
-		if ( land_items.count() > 0 )
+		if ( land_items.size() > 0 )
 		{	// Show notification that they can now teleport to landmarks.  Use a random landmark from the inventory
-			S32 random_land = ll_rand( land_items.count() - 1 );
+			S32 random_land = ll_rand( land_items.size() - 1 );
 			args["NAME"] = land_items[random_land]->getName();
 			LLNotificationsUtil::add("TeleportToLandmark",args);
 		}
-		if ( card_items.count() > 0 )
+		if ( card_items.size() > 0 )
 		{	// Show notification that they can now contact people.  Use a random calling card from the inventory
-			S32 random_card = ll_rand( card_items.count() - 1 );
+			S32 random_card = ll_rand( card_items.size() - 1 );
 			args["NAME"] = card_items[random_card]->getName();
 			LLNotificationsUtil::add("TeleportToPerson",args);
 		}
@@ -4238,7 +4245,7 @@ const F32 THRESHOLD_HEAD_ROT_QDOT = 0.9997f;	// ~= 2.5 degrees -- if its less th
 const F32 MAX_HEAD_ROT_QDOT = 0.99999f;			// ~= 0.5 degrees -- if its greater than this then no need to update head_rot
 												// between these values we delay the updates (but no more than one second)
 
-static LLFastTimer::DeclareTimer FTM_AGENT_UPDATE_SEND("Send Message");
+static LLTrace::TimeBlock FTM_AGENT_UPDATE_SEND("Send Message");
 
 void send_agent_update(BOOL force_send, BOOL send_reliable)
 {
@@ -4415,14 +4422,14 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 				update_sec = cur_sec;
 				//msg_number = 0;
 				max_update_count = llmax(max_update_count, update_count);
-				llinfos << "Sent " << update_count << " AgentUpdate messages per second, max is " << max_update_count << llendl;
+				LL_INFOS() << "Sent " << update_count << " AgentUpdate messages per second, max is " << max_update_count << LL_ENDL;
 			}
 			update_sec = cur_sec;
 			update_count = 0;
 		}
 		*/
 
-		LLFastTimer t(FTM_AGENT_UPDATE_SEND);
+		LL_RECORD_BLOCK_TIME(FTM_AGENT_UPDATE_SEND);
 		// Build the message
 		msg->newMessageFast(_PREHASH_AgentUpdate);
 		msg->nextBlockFast(_PREHASH_AgentData);
@@ -4488,18 +4495,18 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 
 // *TODO: Remove this dependency, or figure out a better way to handle
 // this hack.
-extern U32 gObjectBits;
+extern U32Bits gObjectData;
 
 void process_object_update(LLMessageSystem *mesgsys, void **user_data)
 {	
 	// Update the data counters
 	if (mesgsys->getReceiveCompressedSize())
 	{
-		gObjectBits += mesgsys->getReceiveCompressedSize() * 8;
+		gObjectData += (U32Bytes)mesgsys->getReceiveCompressedSize();
 	}
 	else
 	{
-		gObjectBits += mesgsys->getReceiveSize() * 8;
+		gObjectData += (U32Bytes)mesgsys->getReceiveSize();
 	}
 
 	// Update the object...
@@ -4511,11 +4518,11 @@ void process_compressed_object_update(LLMessageSystem *mesgsys, void **user_data
 	// Update the data counters
 	if (mesgsys->getReceiveCompressedSize())
 	{
-		gObjectBits += mesgsys->getReceiveCompressedSize() * 8;
+		gObjectData += (U32Bytes)mesgsys->getReceiveCompressedSize();
 	}
 	else
 	{
-		gObjectBits += mesgsys->getReceiveSize() * 8;
+		gObjectData += (U32Bytes)mesgsys->getReceiveSize();
 	}
 
 	// Update the object...
@@ -4527,11 +4534,11 @@ void process_cached_object_update(LLMessageSystem *mesgsys, void **user_data)
 	// Update the data counters
 	if (mesgsys->getReceiveCompressedSize())
 	{
-		gObjectBits += mesgsys->getReceiveCompressedSize() * 8;
+		gObjectData += (U32Bytes)mesgsys->getReceiveCompressedSize();
 	}
 	else
 	{
-		gObjectBits += mesgsys->getReceiveSize() * 8;
+		gObjectData += (U32Bytes)mesgsys->getReceiveSize();
 	}
 
 	// Update the object...
@@ -4543,38 +4550,40 @@ void process_terse_object_update_improved(LLMessageSystem *mesgsys, void **user_
 {
 	if (mesgsys->getReceiveCompressedSize())
 	{
-		gObjectBits += mesgsys->getReceiveCompressedSize() * 8;
+		gObjectData += (U32Bytes)mesgsys->getReceiveCompressedSize();
 	}
 	else
 	{
-		gObjectBits += mesgsys->getReceiveSize() * 8;
+		gObjectData += (U32Bytes)mesgsys->getReceiveSize();
 	}
 
 	gObjectList.processCompressedObjectUpdate(mesgsys, user_data, OUT_TERSE_IMPROVED);
 }
 
-static LLFastTimer::DeclareTimer FTM_PROCESS_OBJECTS("Process Kill Objects");
-
+static LLTrace::TimeBlock FTM_PROCESS_OBJECTS("Process Kill Objects");
 
 void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 {
-	LLFastTimer t(FTM_PROCESS_OBJECTS);
+	LL_RECORD_BLOCK_TIME(FTM_PROCESS_OBJECTS);
 
 	LLUUID		id;
-	U32			local_id;
-	S32			i;
-	S32			num_objects;
 
-	num_objects = mesgsys->getNumberOfBlocksFast(_PREHASH_ObjectData);
-
-	for (i = 0; i < num_objects; i++)
+	U32 ip = mesgsys->getSenderIP();
+	U32 port = mesgsys->getSenderPort();
+	LLViewerRegion* regionp = NULL;
 	{
+		LLHost host(ip, port);
+		regionp = LLWorld::getInstance()->getRegion(host);
+	}
+
+	bool delete_object = LLViewerRegion::sVOCacheCullingEnabled;
+	S32	num_objects = mesgsys->getNumberOfBlocksFast(_PREHASH_ObjectData);
+	for (S32 i = 0; i < num_objects; ++i)
+	{
+		U32	local_id;
 		mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_ID, local_id, i);
 
-		LLViewerObjectList::getUUIDFromLocal(id,
-											local_id,
-											gMessageSystem->getSenderIP(),
-											gMessageSystem->getSenderPort());
+		LLViewerObjectList::getUUIDFromLocal(id, local_id, ip, port); 
 		if (id == LLUUID::null)
 		{
 			LL_DEBUGS("Messaging") << "Unknown kill for local " << local_id << LL_ENDL;
@@ -4585,9 +4594,12 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 			LL_DEBUGS("Messaging") << "Kill message for local " << local_id << LL_ENDL;
 		}
 
-		// ...don't kill the avatar
-		if (!(id == gAgentID))
+		if (id == gAgentID)
 		{
+			// never kill our avatar
+			continue;
+		}
+
 			LLViewerObject *objectp = gObjectList.findObject(id);
 			if (objectp)
 			{
@@ -4601,7 +4613,11 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 				// Do the kill
 				gObjectList.killObject(objectp);
 			}
-		}
+
+			if(delete_object)
+			{
+				regionp->killCacheEntry(local_id);
+			}
 
 		// We should remove the object from selection after it is marked dead by gObjectList to make LLToolGrab,
         // which is using the object, release the mouse capture correctly when the object dies.
@@ -4818,144 +4834,17 @@ void process_sim_stats(LLMessageSystem *msg, void **user_data)
 		F32 stat_value;
 		msg->getU32("Stat", "StatID", stat_id, i);
 		msg->getF32("Stat", "StatValue", stat_value, i);
-		switch (stat_id)
+		LLStatViewer::SimMeasurementSampler* measurementp = LLStatViewer::SimMeasurementSampler::getInstance((ESimStatID)stat_id);
+		
+		if (measurementp )
 		{
-		case LL_SIM_STAT_TIME_DILATION:
-			LLViewerStats::getInstance()->mSimTimeDilation.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_FPS:
-			LLViewerStats::getInstance()->mSimFPS.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_PHYSFPS:
-			LLViewerStats::getInstance()->mSimPhysicsFPS.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_AGENTUPS:
-			LLViewerStats::getInstance()->mSimAgentUPS.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_FRAMEMS:
-			LLViewerStats::getInstance()->mSimFrameMsec.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_NETMS:
-			LLViewerStats::getInstance()->mSimNetMsec.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_SIMOTHERMS:
-			LLViewerStats::getInstance()->mSimSimOtherMsec.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_SIMPHYSICSMS:
-			LLViewerStats::getInstance()->mSimSimPhysicsMsec.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_AGENTMS:
-			LLViewerStats::getInstance()->mSimAgentMsec.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_IMAGESMS:
-			LLViewerStats::getInstance()->mSimImagesMsec.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_SCRIPTMS:
-			LLViewerStats::getInstance()->mSimScriptMsec.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_NUMTASKS:
-			LLViewerStats::getInstance()->mSimObjects.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_NUMTASKSACTIVE:
-			LLViewerStats::getInstance()->mSimActiveObjects.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_NUMAGENTMAIN:
-			LLViewerStats::getInstance()->mSimMainAgents.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_NUMAGENTCHILD:
-			LLViewerStats::getInstance()->mSimChildAgents.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_NUMSCRIPTSACTIVE:
-			LLViewerStats::getInstance()->mSimActiveScripts.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_SCRIPT_EPS:
-			LLViewerStats::getInstance()->mSimScriptEPS.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_INPPS:
-			LLViewerStats::getInstance()->mSimInPPS.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_OUTPPS:
-			LLViewerStats::getInstance()->mSimOutPPS.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_PENDING_DOWNLOADS:
-			LLViewerStats::getInstance()->mSimPendingDownloads.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_PENDING_UPLOADS:
-			LLViewerStats::getInstance()->mSimPendingUploads.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_PENDING_LOCAL_UPLOADS:
-			LLViewerStats::getInstance()->mSimPendingLocalUploads.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_TOTAL_UNACKED_BYTES:
-			LLViewerStats::getInstance()->mSimTotalUnackedBytes.addValue(stat_value / 1024.f);
-			break;
-		case LL_SIM_STAT_PHYSICS_PINNED_TASKS:
-			LLViewerStats::getInstance()->mPhysicsPinnedTasks.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_PHYSICS_LOD_TASKS:
-			LLViewerStats::getInstance()->mPhysicsLODTasks.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_SIMPHYSICSSTEPMS:
-			LLViewerStats::getInstance()->mSimSimPhysicsStepMsec.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_SIMPHYSICSSHAPEMS:
-			LLViewerStats::getInstance()->mSimSimPhysicsShapeUpdateMsec.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_SIMPHYSICSOTHERMS:
-			LLViewerStats::getInstance()->mSimSimPhysicsOtherMsec.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_SIMPHYSICSMEMORY:
-			LLViewerStats::getInstance()->mPhysicsMemoryAllocated.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_SIMSPARETIME:
-			LLViewerStats::getInstance()->mSimSpareMsec.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_SIMSLEEPTIME:
-			LLViewerStats::getInstance()->mSimSleepMsec.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_IOPUMPTIME:
-			LLViewerStats::getInstance()->mSimPumpIOMsec.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_PCTSCRIPTSRUN:
-			LLViewerStats::getInstance()->mSimPctScriptsRun.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_SIMAISTEPTIMEMS:
-			LLViewerStats::getInstance()->mSimSimAIStepMsec.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_SKIPPEDAISILSTEPS_PS:
-			LLViewerStats::getInstance()->mSimSimSkippedSilhouetteSteps.addValue(stat_value);
-			break;
-		case LL_SIM_STAT_PCTSTEPPEDCHARACTERS:
-			LLViewerStats::getInstance()->mSimSimPctSteppedCharacters.addValue(stat_value);
-			break;
-		default:
-			// Used to be a commented out warning.
- 			LL_DEBUGS("Messaging") << "Unknown stat id" << stat_id << LL_ENDL;
-		  break;
+			measurementp->sample(stat_value);
+		}
+		else
+		{
+			LL_WARNS() << "Unknown sim stat identifier: " << stat_id << LL_ENDL;
 		}
 	}
-
-	/*
-	msg->getF32Fast(_PREHASH_Statistics, _PREHASH_PhysicsTimeDilation, time_dilation);
-	LLViewerStats::getInstance()->mSimTDStat.addValue(time_dilation);
-
-	// Process information
-	//	{	CpuUsage			F32				}
-	//	{	SimMemTotal			F32				}
-	//	{	SimMemRSS			F32				}
-	//	{	ProcessUptime		F32				}
-	F32 cpu_usage;
-	F32 sim_mem_total;
-	F32 sim_mem_rss;
-	F32 process_uptime;
-	msg->getF32Fast(_PREHASH_Statistics, _PREHASH_CpuUsage, cpu_usage);
-	msg->getF32Fast(_PREHASH_Statistics, _PREHASH_SimMemTotal, sim_mem_total);
-	msg->getF32Fast(_PREHASH_Statistics, _PREHASH_SimMemRSS, sim_mem_rss);
-	msg->getF32Fast(_PREHASH_Statistics, _PREHASH_ProcessUptime, process_uptime);
-	LLViewerStats::getInstance()->mSimCPUUsageStat.addValue(cpu_usage);
-	LLViewerStats::getInstance()->mSimMemTotalStat.addValue(sim_mem_total);
-	LLViewerStats::getInstance()->mSimMemRSSStat.addValue(sim_mem_rss);
-	*/
 
 	//
 	// Various hacks that aren't statistics, but are being handled here.
@@ -5520,8 +5409,8 @@ static std::string reason_from_transaction_type(S32 transaction_type,
 			return std::string();
 
 		default:
-			llwarns << "Unknown transaction type " 
-				<< transaction_type << llendl;
+			LL_WARNS() << "Unknown transaction type " 
+				<< transaction_type << LL_ENDL;
 			return std::string();
 	}
 }
@@ -5898,7 +5787,7 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 			std::istringstream llsdData(llsdRaw);
 			if (!LLSDSerialize::deserialize(llsdBlock, llsdData, llsdRaw.length()))
 			{
-				llwarns << "attempt_standard_notification: Attempted to read notification parameter data into LLSD but failed:" << llsdRaw << llendl;
+				LL_WARNS() << "attempt_standard_notification: Attempted to read notification parameter data into LLSD but failed:" << llsdRaw << LL_ENDL;
 			}
 		}
 		
@@ -5961,7 +5850,7 @@ static void process_special_alert_messages(const std::string & message)
 	// text should be altered in the notifications.xml files.
 	if ( message == "You died and have been teleported to your home location")
 	{
-		LLViewerStats::getInstance()->incStat(LLViewerStats::ST_KILLED_COUNT);
+		add(LLStatViewer::KILLED, 1);
 	}
 	else if( message == "Home position set." )
 	{
@@ -6701,7 +6590,7 @@ void process_teleport_failed(LLMessageSystem *msg, void**)
 			std::istringstream llsd_data(llsd_raw);
 			if (!LLSDSerialize::deserialize(llsd_block, llsd_data, llsd_raw.length()))
 			{
-				llwarns << "process_teleport_failed: Attempted to read alert parameter data into LLSD but failed:" << llsd_raw << llendl;
+				LL_WARNS() << "process_teleport_failed: Attempted to read alert parameter data into LLSD but failed:" << llsd_raw << LL_ENDL;
 			}
 			else
 			{
@@ -6937,7 +6826,7 @@ bool handle_lure_callback(const LLSD& notification, const LLSD& response)
 
 void handle_lure(const LLUUID& invitee)
 {
-	LLDynamicArray<LLUUID> ids;
+	std::vector<LLUUID> ids;
 	ids.push_back(invitee);
 	handle_lure(ids);
 }
@@ -6953,7 +6842,7 @@ void handle_lure(const uuid_vec_t& ids)
 	edit_args["REGION"] = gAgent.getRegion()->getName();
 
 	LLSD payload;
-	for (LLDynamicArray<LLUUID>::const_iterator it = ids.begin();
+	for (std::vector<LLUUID>::const_iterator it = ids.begin();
 		it != ids.end();
 		++it)
 	{
@@ -7158,7 +7047,7 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 	S32 button_count = msg->getNumberOfBlocks("Buttons");
 	if (button_count > SCRIPT_DIALOG_MAX_BUTTONS)
 	{
-		llwarns << "Too many script dialog buttons - omitting some" << llendl;
+		LL_WARNS() << "Too many script dialog buttons - omitting some" << LL_ENDL;
 		button_count = SCRIPT_DIALOG_MAX_BUTTONS;
 	}
 
@@ -7318,7 +7207,7 @@ void process_initiate_download(LLMessageSystem* msg, void**)
 
 	if (!gXferManager->validateFileForRequest(viewer_filename))
 	{
-		llwarns << "SECURITY: Unauthorized download to local file " << viewer_filename << llendl;
+		LL_WARNS() << "SECURITY: Unauthorized download to local file " << viewer_filename << LL_ENDL;
 		return;
 	}
 	gXferManager->requestFile(viewer_filename,
@@ -7348,10 +7237,10 @@ void process_script_teleport_request(LLMessageSystem* msg, void**)
 	LLFloaterWorldMap* instance = LLFloaterWorldMap::getInstance();
 	if(instance)
 	{
-		llinfos << "Object named " << object_name 
+		LL_INFOS() << "Object named " << object_name 
 			<< " is offering TP to region "
 			<< sim_name << " position " << pos
-			<< llendl;
+			<< LL_ENDL;
 
 		instance->trackURL(sim_name, (S32)pos.mV[VX], (S32)pos.mV[VY], (S32)pos.mV[VZ]);
 		LLFloaterReg::showInstance("world_map", "center");
@@ -7497,8 +7386,6 @@ void onCovenantLoadComplete(LLVFS *vfs,
 	}
 	else
 	{
-		LLViewerStats::getInstance()->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
-		
 		if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status ||
 		    LL_ERR_FILE_EMPTY == status)
 		{

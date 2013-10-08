@@ -31,7 +31,6 @@
 #include "llsd.h"
 #include "lluuid.h"
 #include "llxmlnode.h"
-#include "reflective.h"
 #include "llinventorytype.h"
 
 // prototypes
@@ -83,7 +82,7 @@ template<class T> class LLMetaClassT;
 // logical consistency.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class LLPermissions : public LLReflective
+class LLPermissions
 {
 private:
 	LLUUID			mCreator;				// null if object created by system
@@ -324,9 +323,6 @@ public:
 
 	friend std::ostream& operator<<(std::ostream &s, const LLPermissions &perm);
 
-	// Reflection.
-	friend class LLMetaClassT<LLPermissions>;
-	virtual const LLMetaClass& getMetaClass() const;
 };
 
 // Inlines

@@ -732,6 +732,17 @@
       <integer>0</integer>
     </map>
 
+    <key>BackDistanceFactor</key>
+    <map>
+      <key>Comment</key>
+      <string>Keep invisible objects in memory which are in the distance range (the factor * draw_distance) to the camera</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.125</real>
+    </map>
     <key>BackgroundYieldTime</key>
     <map>
       <key>Comment</key>
@@ -742,6 +753,28 @@
       <string>S32</string>
       <key>Value</key>
       <integer>40</integer>
+    </map>
+    <key>BackProjectionAngleSquared</key>
+    <map>
+      <key>Comment</key>
+      <string>squared tan(object bbox projection angle). that of invisible objects greater than this threshold are kept in memory</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.0311</real>
+    </map>
+    <key>BackShpereCullingRadius</key>
+    <map>
+      <key>Comment</key>
+      <string>Radius of back sphere in meters, objects behind camera but within this radius are loaded for rendering</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>20.0</real>
     </map>
     <key>BottomPanelNew</key>
     <map>
@@ -2972,6 +3005,17 @@
 	  <key>Value</key>
 	  <string>Female Shape &amp; Outfit</string>
 	</map>
+	<key>DefaultLoginLocation</key>
+	<map>
+		<key>Comment</key>
+		<string>Startup destination default (if not specified on command line)</string>
+		<key>Persist</key>
+		<integer>0</integer>
+		<key>Type</key>
+		<string>String</string>
+		<key>Value</key>
+		<string/>
+	</map>
 	<key>DefaultMaleAvatar</key>
 	<map>
 	  <key>Comment</key>
@@ -3005,7 +3049,7 @@
     <key>Value</key>
     <string>87e0e8f7-8729-1ea8-cfc9-8915773009db</string>
   </map>
-  <key>DefaultObjectTexture</key>
+    <key>DefaultObjectTexture</key>
     <map>
       <key>Comment</key>
       <string>Texture used as 'Default' in texture picker. (UUID texture reference)</string>
@@ -4710,6 +4754,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>InvisibleObjectsInMemoryTime</key>
+    <map>
+      <key>Comment</key>
+      <string>Number of frames invisible objects stay in memory before being removed. 0 means never to remove.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>64</integer>
+    </map>
     <key>JoystickAvatarEnabled</key>
     <map>
       <key>Comment</key>
@@ -6405,6 +6460,28 @@
       <key>Value</key>
       <integer>130</integer>
     </map>
+    <key>NewObjectCreationThrottle</key>
+    <map>
+      <key>Comment</key>
+      <string>maximum number of new objects created per frame, -1 to disable this throttle</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>64</integer>
+    </map>
+    <key>NewObjectCreationThrottleDelayTime</key>
+    <map>
+      <key>Comment</key>
+      <string>time in seconds NewObjectCreationThrottle to take effect after the progress screen is lifted</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>2.0</real>
+    </map>
     <key>NextOwnerCopy</key>
     <map>
       <key>Comment</key>
@@ -6817,6 +6894,17 @@
     <map>
       <key>Comment</key>
       <string>Enable the object cache.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>RequestFullRegionCache</key>
+    <map>
+      <key>Comment</key>
+      <string>If set, ask sim to send full region object cache. Needs to restart viewer.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -7393,6 +7481,17 @@
       <key>Value</key>
       <real>6.0</real>
     </map>
+    <key>ClothingLoadingDelay</key>
+    <map>
+      <key>Comment</key>
+      <string>Time to wait for avatar appearance to resolve before showing world (seconds)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>10.0</real>
+    </map>
 	<key>PreferredMaturity</key>
     <map>
       <key>Comment</key>
@@ -7948,7 +8047,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-
   <key>OctreeMaxNodeCapacity</key>
   <map>
     <key>Comment</key>
@@ -10124,6 +10222,39 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>SceneLoadingMonitorEnabled</key>
+    <map>
+      <key>Comment</key>
+      <string>Enabled scene loading monitor if set</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>SceneLoadingMonitorSampleTime</key>
+    <map>
+      <key>Comment</key>
+      <string>Time between screen samples when monitor scene load (seconds)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.25</real>
+    </map>
+    <key>SceneLoadingPixelDiffThreshold</key>
+    <map>
+      <key>Comment</key>
+      <string>Amount of pixels changed required to consider the scene as still loading (square root of fraction of pixels on screen)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.02</real>
     </map>
     <key>ScriptHelpFollowsCursor</key>
     <map>
@@ -13062,6 +13193,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+  <key>UseObjectCacheOcclusion</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable object cache level object culling based on occlusion (coverage) by other objects</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
   <key>RenderSynchronousOcclusion</key>
   <map>
     <key>Comment</key>
@@ -14827,6 +14969,28 @@
     <string>Boolean</string>
     <key>Value</key>
     <integer>0</integer>
+  </map>
+  <key>TeleportArrivalDelay</key>
+  <map>
+    <key>Comment</key>
+    <string>Time to wait before displaying world during teleport (seconds)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>2</real>
+  </map>
+  <key>TeleportLocalDelay</key>
+  <map>
+    <key>Comment</key>
+    <string>Delay to prevent teleports after starting an in-sim teleport. (seconds)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>1</real>
   </map>
   <key>DisablePrecacheDelayAfterTeleporting</key>
   <map>

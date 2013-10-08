@@ -111,7 +111,7 @@ void LLScrollingPanelList::removePanel( U32 panel_index )
 {
 	if ( mPanelList.empty() || panel_index >= mPanelList.size() )
 	{
-		llwarns << "Panel index " << panel_index << " is out of range!" << llendl;
+		LL_WARNS() << "Panel index " << panel_index << " is out of range!" << LL_ENDL;
 		return;
 	}
 	else

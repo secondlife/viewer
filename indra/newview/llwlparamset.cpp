@@ -60,11 +60,11 @@ LLWLParamSet::LLWLParamSet(void) :
 	mCloudScrollXOffset(0.f), mCloudScrollYOffset(0.f)	
 {}
 
-static LLFastTimer::DeclareTimer FTM_WL_PARAM_UPDATE("WL Param Update");
+static LLTrace::TimeBlock FTM_WL_PARAM_UPDATE("WL Param Update");
 
 void LLWLParamSet::update(LLGLSLShader * shader) const 
 {	
-	LLFastTimer t(FTM_WL_PARAM_UPDATE);
+	LL_RECORD_BLOCK_TIME(FTM_WL_PARAM_UPDATE);
 	LLSD::map_const_iterator i = mParamValues.beginMap();
 	std::vector<LLStaticHashedString>::const_iterator n = mParamHashedNames.begin();
 	for(;(i != mParamValues.endMap()) && (n != mParamHashedNames.end());++i, n++)

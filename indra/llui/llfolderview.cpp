@@ -174,6 +174,7 @@ LLFolderView::LLFolderView(const Params& p)
 	mShowItemLinkOverlays(p.show_item_link_overlays),
 	mViewModel(p.view_model)
 {
+	claimMem(mViewModel);
 	mViewModel->setFolderView(this);
 	mRoot = this;
 
@@ -255,8 +256,6 @@ LLFolderView::~LLFolderView( void )
 	mRenamer = NULL;
 	mStatusTextBox = NULL;
 
-	mAutoOpenItems.removeAllNodes();
-
 	if (mPopupMenuHandle.get()) mPopupMenuHandle.get()->die();
 
 	mAutoOpenItems.removeAllNodes();
@@ -319,12 +318,11 @@ S32 LLFolderView::arrange( S32* unused_width, S32* unused_height )
 	return llround(mTargetHeight);
 }
 
-static LLFastTimer::DeclareTimer FTM_FILTER("Filter Folder View");
+static LLTrace::TimeBlock FTM_FILTER("Filter Folder View");
 
 void LLFolderView::filter( LLFolderViewFilter& filter )
 {
-    // Entry point of inventory filtering (CHUI-849)
-	LLFastTimer t2(FTM_FILTER);
+	LL_RECORD_BLOCK_TIME(FTM_FILTER);
     filter.resetTime(llclamp(LLUI::sSettingGroups["config"]->getS32(mParentPanel->getVisible() ? "FilterItemsMaxTimePerFrameVisible" : "FilterItemsMaxTimePerFrameUnvisible"), 1, 100));
 
     // Note: we filter the model, not the view
@@ -484,10 +482,10 @@ BOOL LLFolderView::changeSelection(LLFolderViewItem* selection, BOOL selected)
 	return rv;
 }
 
-static LLFastTimer::DeclareTimer FTM_SANITIZE_SELECTION("Sanitize Selection");
+static LLTrace::TimeBlock FTM_SANITIZE_SELECTION("Sanitize Selection");
 void LLFolderView::sanitizeSelection()
 {
-	LLFastTimer _(FTM_SANITIZE_SELECTION);
+	LL_RECORD_BLOCK_TIME(FTM_SANITIZE_SELECTION);
 	// store off current item in case it is automatically deselected
 	// and we want to preserve context
 	LLFolderViewItem* original_selected_item = getCurSelectedItem();
@@ -738,7 +736,7 @@ void LLFolderView::removeSelectedItems()
 			}
 			else
 			{
-				llinfos << "Cannot delete " << item->getName() << llendl;
+				LL_INFOS() << "Cannot delete " << item->getName() << LL_ENDL;
 				return;
 			}
 		}
@@ -764,20 +762,21 @@ void LLFolderView::removeSelectedItems()
 		}
 		else if (count > 1)
 		{
-			LLDynamicArray<LLFolderViewModelItem*> listeners;
+			std::vector<LLFolderViewModelItem*> listeners;
 			LLFolderViewModelItem* listener;
 
 			setSelection(item_to_select, item_to_select ? item_to_select->isOpen() : false, mParentPanel->hasFocus());
 
+			listeners.reserve(count);
 			for(S32 i = 0; i < count; ++i)
 			{
 				listener = items[i]->getViewModelItem();
-				if(listener && (listeners.find(listener) == LLDynamicArray<LLFolderViewModelItem*>::FAIL))
+				if(listener && (std::find(listeners.begin(), listeners.end(), listener) == listeners.end()))
 				{
-					listeners.put(listener);
+					listeners.push_back(listener);
 				}
 			}
-			listener = static_cast<LLFolderViewModelItem*>(listeners.get(0));
+			listener = static_cast<LLFolderViewModelItem*>(listeners.at(0));
 			if(listener)
 			{
 				listener->removeBatch(listeners);
@@ -1284,7 +1283,7 @@ BOOL LLFolderView::handleUnicodeCharHere(llwchar uni_char)
 
 	if (uni_char > 0x7f)
 	{
-		llwarns << "LLFolderView::handleUnicodeCharHere - Don't handle non-ascii yet, aborting" << llendl;
+		LL_WARNS() << "LLFolderView::handleUnicodeCharHere - Don't handle non-ascii yet, aborting" << LL_ENDL;
 		return FALSE;
 	}
 
@@ -1580,7 +1579,7 @@ BOOL LLFolderView::getShowSelectionContext()
 	return FALSE;
 }
 
-void LLFolderView::setShowSingleSelection(BOOL show)
+void LLFolderView::setShowSingleSelection(bool show)
 {
 	if (show != mShowSingleSelection)
 	{
@@ -1589,15 +1588,15 @@ void LLFolderView::setShowSingleSelection(BOOL show)
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_AUTO_SELECT("Open and Select");
-static LLFastTimer::DeclareTimer FTM_INVENTORY("Inventory");
+static LLTrace::TimeBlock FTM_AUTO_SELECT("Open and Select");
+static LLTrace::TimeBlock FTM_INVENTORY("Inventory");
 
 // Main idle routine
 void LLFolderView::update()
 {
 	// If this is associated with the user's inventory, don't do anything
 	// until that inventory is loaded up.
-	LLFastTimer t2(FTM_INVENTORY);
+	LL_RECORD_BLOCK_TIME(FTM_INVENTORY);
 
 	if (getFolderViewModel()->getFilter().isModified() && getFolderViewModel()->getFilter().isNotDefault())
 	{
@@ -1617,7 +1616,7 @@ void LLFolderView::update()
 	// automatically show matching items, and select first one if we had a selection
 	if (mNeedsAutoSelect)
 	{
-		LLFastTimer t3(FTM_AUTO_SELECT);
+		LL_RECORD_BLOCK_TIME(FTM_AUTO_SELECT);
 		// select new item only if a filtered item not currently selected
 		LLFolderViewItem* selected_itemp = mSelectedItems.empty() ? NULL : mSelectedItems.back();
 		if (!mAutoSelectOverride && (!selected_itemp || !selected_itemp->getViewModelItem()->potentiallyVisible()))
@@ -1750,14 +1749,14 @@ void LLFolderView::update()
 
 void LLFolderView::dumpSelectionInformation()
 {
-	llinfos << "LLFolderView::dumpSelectionInformation()" << llendl;
-	llinfos << "****************************************" << llendl;
+	LL_INFOS() << "LLFolderView::dumpSelectionInformation()" << LL_NEWLINE
+				<< "****************************************" << LL_ENDL;
 	selected_items_t::iterator item_it;
 	for (item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
 	{
-		llinfos << "  " << (*item_it)->getName() << llendl;
+		LL_INFOS() << "  " << (*item_it)->getName() << LL_ENDL;
 	}
-	llinfos << "****************************************" << llendl;
+	LL_INFOS() << "****************************************" << LL_ENDL;
 }
 
 void LLFolderView::updateRenamerPosition()

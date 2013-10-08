@@ -125,7 +125,7 @@ void LLTextureAnim::unpackTAMessage(LLMessageSystem *mesgsys, const S32 block_nu
 	{
 		if (size)
 		{
-			llwarns << "Bad size " << size << " for TA block, ignoring." << llendl;
+			LL_WARNS() << "Bad size " << size << " for TA block, ignoring." << LL_ENDL;
 		}
 		mMode = 0;
 		return;
@@ -160,7 +160,7 @@ void LLTextureAnim::unpackTAMessage(LLDataPacker &dp)
 	{
 		if (size)
 		{
-			llwarns << "Bad size " << size << " for TA block, ignoring." << llendl;
+			LL_WARNS() << "Bad size " << size << " for TA block, ignoring." << LL_ENDL;
 		}
 		mMode = 0;
 		return;

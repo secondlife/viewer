@@ -53,8 +53,8 @@ F32 LLThrottle::getAvailable()
 {
 	// use a temporary bits_available
 	// since we don't want to change mBitsAvailable every time
-	F32 elapsed_time = (F32)(LLMessageSystem::getMessageTimeSeconds() - mLastSendTime);
-	return mAvailable + (mRate * elapsed_time);
+	F32Seconds elapsed_time = LLMessageSystem::getMessageTimeSeconds() - mLastSendTime;
+	return mAvailable + (mRate * elapsed_time.value());
 }
 
 BOOL LLThrottle::checkOverflow(const F32 amount)
@@ -65,8 +65,8 @@ BOOL LLThrottle::checkOverflow(const F32 amount)
 
 	// use a temporary bits_available
 	// since we don't want to change mBitsAvailable every time
-	F32 elapsed_time =  (F32)(LLMessageSystem::getMessageTimeSeconds() - mLastSendTime);
-	F32 amount_available = mAvailable + (mRate * elapsed_time);
+	F32Seconds elapsed_time =  LLMessageSystem::getMessageTimeSeconds() - mLastSendTime;
+	F32 amount_available = mAvailable + (mRate * elapsed_time.value());
 
 	if ((amount_available >= lookahead_amount) || (amount_available > amount))
 	{
@@ -80,17 +80,17 @@ BOOL LLThrottle::checkOverflow(const F32 amount)
 
 BOOL LLThrottle::throttleOverflow(const F32 amount)
 {
-	F32 elapsed_time;
+	F32Seconds elapsed_time;
 	F32 lookahead_amount;
 	BOOL retval = TRUE;
 
 	lookahead_amount = mRate * mLookaheadSecs;
 
-	F64 mt_sec = LLMessageSystem::getMessageTimeSeconds();
-	elapsed_time = (F32)(mt_sec - mLastSendTime);
+	F64Seconds mt_sec = LLMessageSystem::getMessageTimeSeconds();
+	elapsed_time = mt_sec - mLastSendTime;
 	mLastSendTime = mt_sec;
 
-	mAvailable += mRate * elapsed_time;
+	mAvailable += mRate * elapsed_time.value();
 
 	if (mAvailable >= lookahead_amount)
 	{
@@ -222,7 +222,7 @@ void LLThrottleGroup::unpackThrottle(LLDataPacker &dp)
 // into NOT resetting the system.
 void LLThrottleGroup::resetDynamicAdjust()
 {
-	F64 mt_sec = LLMessageSystem::getMessageTimeSeconds();
+	F64Seconds mt_sec = LLMessageSystem::getMessageTimeSeconds();
 	S32 i;
 	for (i = 0; i < TC_EOF; i++)
 	{
@@ -269,8 +269,8 @@ S32		LLThrottleGroup::getAvailable(S32 throttle_cat)
 
 	// use a temporary bits_available
 	// since we don't want to change mBitsAvailable every time
-	F32 elapsed_time = (F32)(LLMessageSystem::getMessageTimeSeconds() - mLastSendTime[throttle_cat]);
-	F32 bits_available = mBitsAvailable[throttle_cat] + (category_bps * elapsed_time);
+	F32Seconds elapsed_time = LLMessageSystem::getMessageTimeSeconds() - mLastSendTime[throttle_cat];
+	F32 bits_available = mBitsAvailable[throttle_cat] + (category_bps * elapsed_time.value());
 
 	if (bits_available >= lookahead_bits)
 	{
@@ -294,8 +294,8 @@ BOOL LLThrottleGroup::checkOverflow(S32 throttle_cat, F32 bits)
 
 	// use a temporary bits_available
 	// since we don't want to change mBitsAvailable every time
-	F32 elapsed_time = (F32)(LLMessageSystem::getMessageTimeSeconds() - mLastSendTime[throttle_cat]);
-	F32 bits_available = mBitsAvailable[throttle_cat] + (category_bps * elapsed_time);
+	F32Seconds elapsed_time = LLMessageSystem::getMessageTimeSeconds() - mLastSendTime[throttle_cat];
+	F32 bits_available = mBitsAvailable[throttle_cat] + (category_bps * elapsed_time.value());
 
 	if (bits_available >= lookahead_bits)
 	{
@@ -315,7 +315,7 @@ BOOL LLThrottleGroup::checkOverflow(S32 throttle_cat, F32 bits)
 
 BOOL LLThrottleGroup::throttleOverflow(S32 throttle_cat, F32 bits)
 {
-	F32 elapsed_time;
+	F32Seconds elapsed_time;
 	F32 category_bps;
 	F32 lookahead_bits;
 	BOOL retval = TRUE;
@@ -323,10 +323,10 @@ BOOL LLThrottleGroup::throttleOverflow(S32 throttle_cat, F32 bits)
 	category_bps = mCurrentBPS[throttle_cat];
 	lookahead_bits = category_bps * THROTTLE_LOOKAHEAD_TIME;
 
-	F64 mt_sec = LLMessageSystem::getMessageTimeSeconds();
-	elapsed_time = (F32)(mt_sec - mLastSendTime[throttle_cat]);
+	F64Seconds mt_sec = LLMessageSystem::getMessageTimeSeconds();
+	elapsed_time = mt_sec - mLastSendTime[throttle_cat];
 	mLastSendTime[throttle_cat] = mt_sec;
-	mBitsAvailable[throttle_cat] += category_bps * elapsed_time;
+	mBitsAvailable[throttle_cat] += category_bps * elapsed_time.value();
 
 	if (mBitsAvailable[throttle_cat] >= lookahead_bits)
 	{
@@ -356,7 +356,7 @@ BOOL LLThrottleGroup::throttleOverflow(S32 throttle_cat, F32 bits)
 
 BOOL LLThrottleGroup::dynamicAdjust()
 {
-	const F32 DYNAMIC_ADJUST_TIME = 1.0f;		// seconds
+	const F32Seconds DYNAMIC_ADJUST_TIME(1.0f);
 	const F32 CURRENT_PERIOD_WEIGHT = .25f;		// how much weight to give to last period while determining BPS utilization
 	const F32 BUSY_PERCENT = 0.75f;		// if use more than this fraction of BPS, you are busy
 	const F32 IDLE_PERCENT = 0.70f;		// if use less than this fraction, you are "idle"
@@ -365,7 +365,7 @@ BOOL LLThrottleGroup::dynamicAdjust()
 
 	S32 i;
 
-	F64 mt_sec = LLMessageSystem::getMessageTimeSeconds();
+	F64Seconds mt_sec = LLMessageSystem::getMessageTimeSeconds();
 
 	// Only dynamically adjust every few seconds
 	if ((mt_sec - mDynamicAdjustTime) < DYNAMIC_ADJUST_TIME)
@@ -405,7 +405,7 @@ BOOL LLThrottleGroup::dynamicAdjust()
 	for (i = 0; i < TC_EOF; i++)
 	{
 		// Is this a busy channel?
-		if (mBitsSentHistory[i] >= BUSY_PERCENT * DYNAMIC_ADJUST_TIME * mCurrentBPS[i])
+		if (mBitsSentHistory[i] >= BUSY_PERCENT * DYNAMIC_ADJUST_TIME.value() * mCurrentBPS[i])
 		{
 			// this channel is busy
 			channels_busy = TRUE;
@@ -418,7 +418,7 @@ BOOL LLThrottleGroup::dynamicAdjust()
 		}
 
 		// Is this an idle channel?
-		if ((mBitsSentHistory[i] < IDLE_PERCENT * DYNAMIC_ADJUST_TIME * mCurrentBPS[i]) &&
+		if ((mBitsSentHistory[i] < IDLE_PERCENT * DYNAMIC_ADJUST_TIME.value() * mCurrentBPS[i]) &&
 			(mBitsAvailable[i] > 0))
 		{
 			channel_idle[i] = TRUE;
@@ -440,8 +440,8 @@ BOOL LLThrottleGroup::dynamicAdjust()
 
 		//if (total)
 		//{
-		//	llinfos << i << ": B" << channel_busy[i] << " I" << channel_idle[i] << " N" << channel_over_nominal[i];
-		//	llcont << " Nom: " << mNominalBPS[i] << " Cur: " << mCurrentBPS[i] << " BS: " << mBitsSentHistory[i] << llendl;
+		//	LL_INFOS() << i << ": B" << channel_busy[i] << " I" << channel_idle[i] << " N" << channel_over_nominal[i];
+		//	LL_CONT << " Nom: " << mNominalBPS[i] << " Cur: " << mCurrentBPS[i] << " BS: " << mBitsSentHistory[i] << LL_ENDL;
 		//}
 	}
 
@@ -462,7 +462,7 @@ BOOL LLThrottleGroup::dynamicAdjust()
 				// Therefore it's a candidate to give up some bandwidth.
 				// Figure out how much bandwidth it has been using, and how
 				// much is available to steal.
-				used_bps = mBitsSentHistory[i] / DYNAMIC_ADJUST_TIME;
+				used_bps = mBitsSentHistory[i] / DYNAMIC_ADJUST_TIME.value();
 
 				// CRO make sure to keep a minimum amount of throttle available
 				// CRO NB: channels set to < MINIMUM_BPS will never give up bps, 
@@ -482,7 +482,7 @@ BOOL LLThrottleGroup::dynamicAdjust()
 					avail_bps = mCurrentBPS[i] - used_bps;
 				}
 
-				//llinfos << i << " avail " << avail_bps << llendl;
+				//LL_INFOS() << i << " avail " << avail_bps << LL_ENDL;
 
 				// Historically, a channel could have used more than its current share,
 				// even if it's idle right now.
@@ -499,7 +499,7 @@ BOOL LLThrottleGroup::dynamicAdjust()
 			}
 		}
 
-		//llinfos << "Pool BPS: " << pool_bps << llendl;
+		//LL_INFOS() << "Pool BPS: " << pool_bps << LL_ENDL;
 		// Now redistribute the bandwidth to busy channels.
 		F32 unused_bps = 0.f;
 
@@ -508,7 +508,7 @@ BOOL LLThrottleGroup::dynamicAdjust()
 			if (channel_busy[i])
 			{
 				F32 add_amount = pool_bps * (mNominalBPS[i] / busy_nominal_sum);
-				//llinfos << "Busy " << i << " gets " << pool_bps << llendl;
+				//LL_INFOS() << "Busy " << i << " gets " << pool_bps << LL_ENDL;
 				mCurrentBPS[i] += add_amount;
 
 				// CRO: make sure this doesn't get too huge

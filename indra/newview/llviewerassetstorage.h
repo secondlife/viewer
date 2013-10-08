@@ -51,7 +51,7 @@ public:
 		bool is_priority = false,
 		bool store_local = false,
 		bool user_waiting=FALSE,
-		F64 timeout=LL_ASSET_STORAGE_TIMEOUT);
+		F64Seconds timeout=LL_ASSET_STORAGE_TIMEOUT);
 	
 	virtual void storeAssetData(
 		const std::string& filename,
@@ -62,7 +62,7 @@ public:
 		bool temp_file = false,
 		bool is_priority = false,
 		bool user_waiting=FALSE,
-		F64 timeout=LL_ASSET_STORAGE_TIMEOUT);
+		F64Seconds timeout=LL_ASSET_STORAGE_TIMEOUT);
 
 protected:
 	using LLAssetStorage::_queueDataRequest;

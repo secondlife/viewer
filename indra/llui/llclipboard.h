@@ -31,7 +31,6 @@
 
 #include "llstring.h"
 #include "lluuid.h"
-#include "stdenums.h"
 #include "llsingleton.h"
 #include "llassettype.h"
 #include "llinventory.h"

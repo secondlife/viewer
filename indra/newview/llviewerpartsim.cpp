@@ -144,7 +144,7 @@ LLViewerPartGroup::LLViewerPartGroup(const LLVector3 &center_agent, const F32 bo
 	
 	if (!mRegionp)
 	{
-		//llwarns << "No region at position, using agent region!" << llendl;
+		//LL_WARNS() << "No region at position, using agent region!" << LL_ENDL;
 		mRegionp = gAgent.getRegion();
 	}
 	mCenterAgent = center_agent;
@@ -174,8 +174,8 @@ LLViewerPartGroup::LLViewerPartGroup(const LLVector3 &center_agent, const F32 bo
 
 	if (group != NULL)
 	{
-		LLVector3 center(group->mOctreeNode->getCenter().getF32ptr());
-		LLVector3 size(group->mOctreeNode->getSize().getF32ptr());
+		LLVector3 center(group->getOctreeNode()->getCenter().getF32ptr());
+		LLVector3 size(group->getOctreeNode()->getSize().getF32ptr());
 		size += LLVector3(0.01f, 0.01f, 0.01f);
 		mMinObjPos = center - size;
 		mMaxObjPos = center + size;
@@ -477,12 +477,12 @@ void LLViewerPartSim::checkParticleCount(U32 size)
 {
 	if(LLViewerPartSim::sParticleCount2 != LLViewerPartSim::sParticleCount)
 	{
-		llerrs << "sParticleCount: " << LLViewerPartSim::sParticleCount << " ; sParticleCount2: " << LLViewerPartSim::sParticleCount2 << llendl ;
+		LL_ERRS() << "sParticleCount: " << LLViewerPartSim::sParticleCount << " ; sParticleCount2: " << LLViewerPartSim::sParticleCount2 << LL_ENDL ;
 	}
 
 	if(size > (U32)LLViewerPartSim::sParticleCount2)
 	{
-		llerrs << "curren particle size: " << LLViewerPartSim::sParticleCount2 << " array size: " << size << llendl ;
+		LL_ERRS() << "curren particle size: " << LLViewerPartSim::sParticleCount2 << " array size: " << size << LL_ENDL ;
 	}
 }
 
@@ -493,6 +493,20 @@ LLViewerPartSim::LLViewerPartSim()
 	mID = ++id_seed;
 }
 
+//enable/disable particle system
+void LLViewerPartSim::enable(bool enabled)
+{
+	if(!enabled && sMaxParticleCount > 0)
+	{
+		sMaxParticleCount = 0; //disable
+	}
+	else if(enabled && sMaxParticleCount < 1)
+	{
+		sMaxParticleCount = llmin(gSavedSettings.getS32("RenderMaxPartCount"), LL_MAX_PARTICLE_COUNT);
+	}
+
+	return;
+}
 
 void LLViewerPartSim::destroyClass()
 {
@@ -563,8 +577,8 @@ LLViewerPartGroup *LLViewerPartSim::put(LLViewerPart* part)
 	if (part->mPosAgent.magVecSquared() > MAX_MAG || !part->mPosAgent.isFinite())
 	{
 #if 0 && !LL_RELEASE_FOR_DOWNLOAD
-		llwarns << "LLViewerPartSim::put Part out of range!" << llendl;
-		llwarns << part->mPosAgent << llendl;
+		LL_WARNS() << "LLViewerPartSim::put Part out of range!" << LL_ENDL;
+		LL_WARNS() << part->mPosAgent << LL_ENDL;
 #endif
 	}
 	else
@@ -593,9 +607,9 @@ LLViewerPartGroup *LLViewerPartSim::put(LLViewerPart* part)
 									!(part->mFlags & LLPartData::LL_PART_FOLLOW_VELOCITY_MASK));
 			if (!groupp->addPart(part))
 			{
-				llwarns << "LLViewerPartSim::put - Particle didn't go into its box!" << llendl;
-				llinfos << groupp->getCenterAgent() << llendl;
-				llinfos << part->mPosAgent << llendl;
+				LL_WARNS() << "LLViewerPartSim::put - Particle didn't go into its box!" << LL_ENDL;
+				LL_INFOS() << groupp->getCenterAgent() << LL_ENDL;
+				LL_INFOS() << part->mPosAgent << LL_ENDL;
 				mViewerPartGroups.pop_back() ;
 				delete groupp;
 				groupp = NULL ;
@@ -643,7 +657,7 @@ void LLViewerPartSim::shift(const LLVector3 &offset)
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_SIMULATE_PARTICLES("Simulate Particles");
+static LLTrace::TimeBlock FTM_SIMULATE_PARTICLES("Simulate Particles");
 
 void LLViewerPartSim::updateSimulation()
 {
@@ -659,7 +673,7 @@ void LLViewerPartSim::updateSimulation()
 		return;
 	}
 
-	LLFastTimer ftm(FTM_SIMULATE_PARTICLES);
+	LL_RECORD_BLOCK_TIME(FTM_SIMULATE_PARTICLES);
 
 	// Start at a random particle system so the same
 	// particle system doesn't always get first pick at the
@@ -780,7 +794,7 @@ void LLViewerPartSim::updateSimulation()
 
 	updatePartBurstRate() ;
 
-	//llinfos << "Particles: " << sParticleCount << " Adaptive Rate: " << sParticleAdaptiveRate << llendl;
+	//LL_INFOS() << "Particles: " << sParticleCount << " Adaptive Rate: " << sParticleAdaptiveRate << LL_ENDL;
 }
 
 void LLViewerPartSim::updatePartBurstRate()
@@ -818,7 +832,7 @@ void LLViewerPartSim::addPartSource(LLPointer<LLViewerPartSource> sourcep)
 {
 	if (!sourcep)
 	{
-		llwarns << "Null part source!" << llendl;
+		LL_WARNS() << "Null part source!" << LL_ENDL;
 		return;
 	}
 	sourcep->setStart() ;

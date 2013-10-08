@@ -61,7 +61,6 @@ set(llui_SOURCE_FILES
     llfolderview.cpp
     llfolderviewitem.cpp
     llfolderviewmodel.cpp
-    llfunctorregistry.cpp
     lliconctrl.cpp
     llkeywords.cpp
     lllayoutstack.cpp
@@ -143,6 +142,7 @@ set(llui_HEADER_FILES
     llbutton.h
     llcallbackmap.h
     llchatentry.h
+    llchat.h
     llcheckboxctrl.h
     llclipboard.h
     llcombobox.h
@@ -282,7 +282,9 @@ if(LL_TESTS)
   include(LLAddBuildTest)
   SET(llui_TEST_SOURCE_FILES
       llurlmatch.cpp
-      llurlentry.cpp
       )
   LL_ADD_PROJECT_UNIT_TESTS(llui "${llui_TEST_SOURCE_FILES}")
+  # INTEGRATION TESTS
+  set(test_libs llui llmessage llcommon ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES})
+  LL_ADD_INTEGRATION_TEST(llurlentry llurlentry.cpp "${test_libs}")
 endif(LL_TESTS)
