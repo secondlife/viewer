@@ -8696,7 +8696,7 @@
   <key>RenderDepthOfField</key>
   <map>
     <key>Comment</key>
-    <string>Whether to use depth of field effect when lighting and shadows are enabled</string>
+    <string>Whether to use depth of field effect when Advanced Lighting Model is enabled</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
