@@ -717,7 +717,14 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
 
 BOOL LLGLSLShader::link(BOOL suppress_errors)
 {
-	return LLShaderMgr::instance()->linkProgramObject(mProgramObject, suppress_errors);
+	BOOL success = LLShaderMgr::instance()->linkProgramObject(mProgramObject, suppress_errors);
+
+	if (!suppress_errors)
+	{
+        LLShaderMgr::instance()->dumpObjectLog(mProgramObject, !success, mName);
+	}
+
+	return success;
 }
 
 void LLGLSLShader::bind()
