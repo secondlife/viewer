@@ -3,6 +3,7 @@
 	<menu_item_call label="Vedi profilo" name="show_agent"/>
 	<menu_item_call label="Manda IM..." name="send_im"/>
 	<menu_item_call label="Aggiungi come amico..." name="add_friend"/>
+	<menu_item_call label="Togli amicizia..." name="remove_friend"/>
 	<menu_item_call label="Copia nome negli Appunti" name="url_copy_label"/>
 	<menu_item_call label="Copia SLurl negli Appunti" name="url_copy"/>
 </context_menu>

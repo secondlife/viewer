@@ -57,7 +57,7 @@ void setupCocoa()
 		[[NSUserDefaults standardUserDefaults] setObject:@"NO" forKey:@"NSTreatUnknownArgumentsAsOpen"];
 		
 		[pool release];
-		
+
 		inited = true;
 	}
 }

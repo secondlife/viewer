@@ -49,6 +49,9 @@
 				<menu_button name="plus_btn" tool_tip="グループに参加 / 新規グループを作成します"/>
 				<dnd_button name="minus_btn" tool_tip="選択したグループから脱退"/>
 			</panel>
+			<text name="groupcount">
+				あなたは[COUNT]グループに属しているので、まだ[REMAINING]参加できます。
+			</text>
 		</panel>
 		<panel label="最新" name="recent_panel">
 			<panel label="bottom_panel" name="recent_buttons_panel">

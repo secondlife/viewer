@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Chat" name="chat">
-	<panel>
-		<check_box initial_value="true" label="Executar animação digitada quando estiver conversando" name="play_typing_animation"/>
-		<check_box label="Enviar MIs por email se estiver desconectado" name="send_im_to_email"/>
+	<panel name="general_chat_settings">
+		<check_box initial_value="true" label="Executar animação de digitação durante o bate-papo" name="play_typing_animation"/>
+		<check_box label="Envie MIs por email quando eu estiver desconectado" name="send_im_to_email"/>
 		<check_box label="Apenas amigos e grupos podem me ligar ou enviar MIs" name="voice_call_friends_only_check"/>
 		<text name="font_size">
 			Tamanho da fonte:
@@ -12,62 +12,74 @@
 			<item label="Médio" name="Medium" value="1"/>
 			<item label="Grande" name="Large" value="2"/>
 		</combo_box>
-		<check_box label="Balão de bate-papo" name="bubble_text_chat"/>
+		<check_box label="Balão de conversa" name="bubble_text_chat"/>
 	</panel>
-	<panel>
-		<text name="notifications">
-			Notificações
-		</text>
+	<panel name="im_notification_settings">
 		<text name="friend_ims">
 			MIs de amigos:
 		</text>
 		<combo_box name="FriendIMOptions">
 			<item label="Abrir janela Conversas" name="OpenConversationsWindow" value="openconversations"/>
-			<item label="Abrir pop up com mensagem" name="PopUpMessage" value="toast"/>
-			<item label="Piscar botão da barra de ferramentas" name="FlashToolbarButton" value="flash"/>
-			<item label="Nenhum" name="None" value="none"/>
+			<item label="Abrir pop up com mensagem" name="PopUpMessage" value="avisos"/>
+			<item label="Piscar botão da barra de ferramentas" name="FlashToolbarButton" value="piscar"/>
+			<item label="Nenhuma ação" name="NoAction" value="noaction"/>
 		</combo_box>
+		<check_box label="Executar som" name="play_sound_friend_im"/>
 		<text name="non_friend_ims">
 			MIs de não amigos:
 		</text>
 		<combo_box name="NonFriendIMOptions">
 			<item label="Abrir janela Conversas" name="OpenConversationsWindow" value="openconversations"/>
-			<item label="Abrir pop up com mensagem" name="PopUpMessage" value="toast"/>
-			<item label="Piscar botão da barra de ferramentas" name="FlashToolbarButton" value="flash"/>
-			<item label="Nenhum" name="None" value="none"/>
+			<item label="Abrir pop up com mensagem" name="PopUpMessage" value="avisos"/>
+			<item label="Piscar botão da barra de ferramentas" name="FlashToolbarButton" value="piscar"/>
+			<item label="Nenhuma ação" name="NoAction" value="noaction"/>
 		</combo_box>
+		<check_box label="Executar som" name="play_sound_non_friend_im"/>
 		<text name="conference_ims">
 			MIs de conferências:
 		</text>
 		<combo_box name="ConferenceIMOptions">
 			<item label="Abrir janela Conversas" name="OpenConversationsWindow" value="openconversations"/>
-			<item label="Abrir pop up com mensagem" name="PopUpMessage" value="toast"/>
-			<item label="Piscar botão da barra de ferramentas" name="FlashToolbarButton" value="flash"/>
-			<item label="Nenhum" name="None" value="none"/>
+			<item label="Abrir pop up com mensagem" name="PopUpMessage" value="avisos"/>
+			<item label="Piscar botão da barra de ferramentas" name="FlashToolbarButton" value="piscar"/>
+			<item label="Nenhuma ação" name="NoAction" value="noaction"/>
 		</combo_box>
+		<check_box label="Executar som" name="play_sound_conference_im"/>
 		<text name="group_chat">
-			Bate-papo de grupo:
+			Conversa em grupo:
 		</text>
 		<combo_box name="GroupChatOptions">
 			<item label="Abrir janela Conversas" name="OpenConversationsWindow" value="openconversations"/>
-			<item label="Abrir pop up com mensagem" name="PopUpMessage" value="toast"/>
-			<item label="Piscar botão da barra de ferramentas" name="FlashToolbarButton" value="flash"/>
-			<item label="Nenhum" name="None" value="none"/>
+			<item label="Abrir pop up com mensagem" name="PopUpMessage" value="avisos"/>
+			<item label="Piscar botão da barra de ferramentas" name="FlashToolbarButton" value="piscar"/>
+			<item label="Nenhuma ação" name="NoAction" value="noaction"/>
 		</combo_box>
+		<check_box label="Executar som" name="play_sound_group_chat_im"/>
 		<text name="nearby_chat">
-			Bate-papo local:
+			Conversa local:
 		</text>
 		<combo_box name="NearbyChatOptions">
 			<item label="Abrir janela Conversas" name="OpenConversationsWindow" value="openconversations"/>
-			<item label="Abrir pop up com mensagem" name="PopUpMessage" value="toast"/>
-			<item label="Piscar botão da barra de ferramentas" name="FlashToolBarButton" value="flash"/>
-			<item label="Nenhum" name="None" value="none"/>
+			<item label="Abrir pop up com mensagem" name="PopUpMessage" value="avisos"/>
+			<item label="Piscar botão da barra de ferramentas" name="FlashToolBarButton" value="piscar"/>
+			<item label="Nenhuma ação" name="NoAction" value="noaction"/>
 		</combo_box>
+		<check_box label="Executar som" name="play_sound_nearby_chat_im"/>
+		<text name="object_ims">
+			MIs de objetos:
+		</text>
+		<combo_box name="ObjectIMOptions">
+			<item label="Abrir janela Conversas" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="Abrir pop up com mensagem" name="PopUpMessage" value="avisos"/>
+			<item label="Piscar botão da barra de ferramentas" name="FlashToolBarButton" value="piscar"/>
+			<item label="Nenhuma ação" name="NoAction" value="noaction"/>
+		</combo_box>
+		<check_box label="Executar som" name="play_sound_object_im"/>
 		<text name="notifications_alert">
 			Para interromper temporariamente todas as notificações, use Comunicar &gt; Não perturbe.
 		</text>
 	</panel>
-	<panel>
+	<panel name="play_sound_settings">
 		<text name="play_sound">
 			Executar som:
 		</text>
@@ -76,7 +88,7 @@
 		<check_box label="Oferta de teletransporte" name="teleport_offer"/>
 		<check_box label="Oferta de inventário" name="inventory_offer"/>
 	</panel>
-	<panel>
+	<panel name="log_settings">
 		<button label="Limpar registro..." name="clear_log"/>
 		<button label="Excluir transcrições..." name="delete_transcripts"/>
 		<button label="Procurar..." label_selected="Procurar" name="log_path_button"/>

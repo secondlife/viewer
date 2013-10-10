@@ -18,7 +18,13 @@
 		<menu_item_call label="Показать лицензионное соглашение" name="TOS"/>
 		<menu_item_call label="Показать сообщение об ошибке" name="Critical"/>
 		<menu_item_call label="Тест отладки плавающего окна с веб-контентом" name="Web Content Floater Debug Test"/>
-		<menu label="Уровень журнала" name="Set Logging Level"/>
+		<menu label="Уровень журнала" name="Set Logging Level">
+			<menu_item_check label="Отладка" name="Debug"/>
+			<menu_item_check label="Информация" name="Info"/>
+			<menu_item_check label="Внимание!" name="Warning"/>
+			<menu_item_check label="Ошибка" name="Error"/>
+			<menu_item_check label="Нет" name="None"/>
+		</menu>
 		<menu_item_check label="Выбор сетки" name="Show Grid Picker"/>
 		<menu_item_call label="Консоль уведомлений" name="Show Notifications Console"/>
 	</menu>

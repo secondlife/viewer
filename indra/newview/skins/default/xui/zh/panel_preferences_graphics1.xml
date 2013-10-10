@@ -30,7 +30,7 @@
 		<check_box initial_value="true" label="本地光線" name="LocalLights"/>
 		<check_box initial_value="true" label="基本著色" name="BasicShaders" tool_tip="關閉此一選項可能避免部分顯示卡驅動程式損毀當機"/>
 		<check_box initial_value="true" label="大氣著色" name="WindLightUseAtmosShaders"/>
-		<check_box initial_value="true" label="光線和陰影" name="UseLightShaders"/>
+		<check_box initial_value="true" label="進階照明模型" name="UseLightShaders"/>
 		<check_box initial_value="true" label="環境光遮蔽" name="UseSSAO"/>
 		<check_box initial_value="true" label="景深" name="UseDoF"/>
 		<text name="shadows_label">
