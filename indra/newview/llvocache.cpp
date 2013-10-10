@@ -347,7 +347,7 @@ void LLVOCacheEntry::updateDebugSettings()
 	static LLCachedControl<F32> squared_back_angle(gSavedSettings,"BackProjectionAngleSquared");
 
 	//the number of frames invisible objects stay in memory
-	static LLCachedControl<U32> inv_obj_time(gSavedSettings,"InvisibleObjectsInMemoryTime");
+	static LLCachedControl<U32> inv_obj_time(gSavedSettings,"NonvisibleObjectsInMemoryTime");
 
 	sMinFrameRange = inv_obj_time - 1; //make 0 to be the maximum 
 
@@ -372,6 +372,11 @@ bool LLVOCacheEntry::isRecentlyVisible() const
 	{
 		F32 rad = getBinRadius();
 		vis = (rad * rad / mSceneContrib < sBackDistanceSquared);
+	}
+
+	if(!vis)
+	{
+		vis = (getVisible() + sMinFrameRange > LLViewerOctreeEntryData::getCurrentFrame());
 	}
 
 	return vis;

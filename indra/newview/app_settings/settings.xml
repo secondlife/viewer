@@ -4753,18 +4753,7 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>InvisibleObjectsInMemoryTime</key>
-    <map>
-      <key>Comment</key>
-      <string>Number of frames invisible objects stay in memory before being removed. 0 means never to remove.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>64</integer>
-    </map>
+    </map>    
     <key>JoystickAvatarEnabled</key>
     <map>
       <key>Comment</key>
@@ -6580,6 +6569,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>NonvisibleObjectsInMemoryTime</key>
+    <map>
+      <key>Comment</key>
+      <string>Number of frames non-visible objects stay in memory before being removed. 0 means never to remove.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>64</integer>
     </map>
     <key>NoPreload</key>
     <map>
