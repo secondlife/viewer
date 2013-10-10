@@ -100,16 +100,10 @@ BOOL LLPanelGroupBulkBan::postBuild()
 	mImplementation->mTooManySelected = getString("ban_selection_too_large");
 
 	update();
-
-	// 	return (mImplementation->mRoleNames &&
-	// 		mImplementation->mBannedAgents &&
-	// 		mImplementation->mRemoveButton);
-
-	return (mImplementation->mBulkAgentList &&
-		mImplementation->mRemoveButton);
+	return TRUE;
 }
 
-
+// TODO: Refactor the shitty callback functions with void* -- just use boost::bind to call submit() instead.
 void LLPanelGroupBulkBan::callbackClickSubmit(void* userdata)
 {
 	LLPanelGroupBulkBan* selfp = (LLPanelGroupBulkBan*)userdata;

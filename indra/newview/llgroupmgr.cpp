@@ -1957,6 +1957,7 @@ void LLGroupMgr::processGroupBanRequest(const LLSD& content)
 		if(ban_entry.has("ban_date"))
 		{
 			ban_data.mBanDate = ban_entry["ban_date"].asDate();
+			// TODO: Ban Reason
 		}
 
 		gdatap->createBanEntry(ban_id, ban_data);

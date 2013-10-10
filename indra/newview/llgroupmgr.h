@@ -198,7 +198,8 @@ struct LLGroupBanData
 	LLGroupBanData(): mBanDate()	{}
 	~LLGroupBanData()	{}
 	
-	LLDate mBanDate; // Just store something here to ensure it works.
+	LLDate mBanDate;
+	// TODO: std:string ban_reason;
 };
 
 
