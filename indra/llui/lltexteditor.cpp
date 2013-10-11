@@ -1620,7 +1620,7 @@ BOOL LLTextEditor::handleControlKey(const KEY key, const MASK mask)
 		}
 	}
 
-	if (handled)
+	if (handled && !gFocusMgr.getMouseCapture())
 	{
 		updatePrimary();
 	}
