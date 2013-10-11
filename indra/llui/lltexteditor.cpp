@@ -729,7 +729,7 @@ BOOL LLTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 	// Delay cursor flashing
 	resetCursorBlink();
 
-	if (handled)
+	if (handled && !gFocusMgr.getMouseCapture())
 	{
 		gFocusMgr.setMouseCapture( this );
 	}
