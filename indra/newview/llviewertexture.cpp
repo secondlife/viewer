@@ -2169,6 +2169,7 @@ void LLViewerFetchedTexture::setLoadedCallback( loaded_callback_func loaded_call
 		}
 	}
 	mLastCallBackActiveTime = sCurrentTime ;
+        mLastReferencedSavedRawImageTime = sCurrentTime;
 }
 
 void LLViewerFetchedTexture::clearCallbackEntryList()

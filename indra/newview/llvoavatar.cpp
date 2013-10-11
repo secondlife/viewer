@@ -6316,6 +6316,8 @@ void LLVOAvatar::updateMeshTextures()
 				// we'll consider it loaded and use it (rather than
 				// doing compositing).
 				useBakedTexture( baked_img->getID() );
+                                mLoadedCallbacksPaused |= !isVisible();
+                                checkTextureLoading();
 			}
 			else
 			{
@@ -6331,6 +6333,7 @@ void LLVOAvatar::updateMeshTextures()
 
                                // this could add paused texture callbacks
                                mLoadedCallbacksPaused |= paused; 
+                               checkTextureLoading();
 			}
 		}
 		else if (layerset && isUsingLocalAppearance())
