@@ -9,7 +9,7 @@ if (STANDALONE)
 elseif (LINUX)
   use_prebuilt_binary(gstreamer)
   # possible libxml should have its own .cmake file instead
-  use_prebuilt_binary(libxml)
+  use_prebuilt_binary(libxml2)
   set(GSTREAMER010_FOUND ON FORCE BOOL)
   set(GSTREAMER010_PLUGINS_BASE_FOUND ON FORCE BOOL)
   set(GSTREAMER010_INCLUDE_DIRS

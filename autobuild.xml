@@ -1251,24 +1251,24 @@
           </map>
         </map>
       </map>
-      <key>libxml</key>
+      <key>libxml2</key>
       <map>
         <key>license</key>
         <string>mit</string>
         <key>license_file</key>
-        <string>LICENSES/libxml.txt</string>
+        <string>LICENSES/libxml2.txt</string>
         <key>name</key>
-        <string>libxml</string>
+        <string>libxml2</string>
         <key>platforms</key>
         <map>
           <key>linux</key>
           <map>
             <key>archive</key>
             <map>
-              <key>hash</key>
-              <string>6414642528f42dac1cd9a012c99cd748</string>
-              <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libxml-2.6.24-linux-20101013.tar.bz2</string>
+            <key>hash</key>
+            <string>fd34e3e818ad7dd26add1f05e6069c11</string>
+            <key>url</key>
+            <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-libxml/rev/282218/arch/Linux/installer/libxml2-2.7.8-linux-20131009.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -2321,7 +2321,7 @@
                 <string>make</string>
                 <key>options</key>
                 <array>
-                  <string>-j 2</string>
+                  <string>-j 7</string>
                 </array>
               </map>
               <key>configure</key>
@@ -2371,7 +2371,7 @@
                 <string>make</string>
                 <key>options</key>
                 <array>
-                  <string>-j 2</string>
+                  <string>-j 7</string>
                 </array>
               </map>
               <key>configure</key>
@@ -2419,7 +2419,7 @@
                 <string>make</string>
                 <key>options</key>
                 <array>
-                  <string>-j 2</string>
+                  <string>-j 7</string>
                 </array>
               </map>
               <key>configure</key>
