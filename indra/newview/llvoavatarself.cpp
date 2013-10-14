@@ -847,7 +847,7 @@ void LLVOAvatarSelf::removeMissingBakedTextures()
 		if (!tex || tex->isMissingAsset())
 		{
 			LLViewerTexture *imagep = LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT_AVATAR);
-			if (imagep)
+			if (imagep && imagep != tex)
 			{
 				setTEImage(te, imagep);
 				removed = TRUE;
@@ -863,12 +863,12 @@ void LLVOAvatarSelf::removeMissingBakedTextures()
 			layerset->setUpdatesEnabled(TRUE);
 			invalidateComposite(layerset, FALSE);
 		}
-		updateMeshTextures();
+		updateMeshTextures();	// may call back into this function
 		if (getRegion() && !getRegion()->getCentralBakeVersion())
 		{
-		requestLayerSetUploads();
+			requestLayerSetUploads();
+		}
 	}
-}
 }
 
 //virtual
