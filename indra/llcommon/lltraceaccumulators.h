@@ -441,12 +441,12 @@ namespace LLTrace
 		// arrays are allocated with 32 byte alignment
 		void *operator new [](size_t size)
 		{
-			return ll_aligned_malloc(32, size);
+			return ll_aligned_malloc<32>(size);
 		}
 
 		void operator delete[](void* ptr, size_t size)
 		{
-			ll_aligned_free(32, ptr);
+			ll_aligned_free<32>(ptr);
 		}
 
 		TimeBlockAccumulator();

@@ -371,40 +371,40 @@ public:
 	void* operator new(size_t size) 
 	{
 		claim_alloc(sMemStat, size);
-		return ll_aligned_malloc(ALIGNMENT, size);
+		return ll_aligned_malloc<ALIGNMENT>(size);
 	}
 
 	template<int CUSTOM_ALIGNMENT>
 	static void* aligned_new(size_t size)
 	{
 		claim_alloc(sMemStat, size);
-		return ll_aligned_malloc(CUSTOM_ALIGNMENT, size);
+		return ll_aligned_malloc<CUSTOM_ALIGNMENT>(size);
 	}
 
 	void operator delete(void* ptr, size_t size)
 	{
 		disclaim_alloc(sMemStat, size);
-		ll_aligned_free(ALIGNMENT, ptr);
+		ll_aligned_free<ALIGNMENT>(ptr);
 	}
 
 	template<int CUSTOM_ALIGNMENT>
 	static void aligned_delete(void* ptr, size_t size)
 	{
 		disclaim_alloc(sMemStat, size);
-		ll_aligned_free(CUSTOM_ALIGNMENT, ptr);
+		ll_aligned_free<CUSTOM_ALIGNMENT>(ptr);
 	}
 
 
 	void* operator new [](size_t size)
 	{
 		claim_alloc(sMemStat, size);
-		return ll_aligned_malloc(ALIGNMENT, size);
+		return ll_aligned_malloc<ALIGNMENT>(size);
 	}
 
 	void operator delete[](void* ptr, size_t size)
 	{
 		disclaim_alloc(sMemStat, size);
-		ll_aligned_free(ALIGNMENT, ptr);
+		ll_aligned_free<ALIGNMENT>(ptr);
 	}
 
 	// claim memory associated with other objects/data as our own, adding to our calculated footprint

@@ -204,37 +204,39 @@ inline void ll_aligned_free_32(void *p)
 }
 
 // general purpose dispatch functions that are forced inline so they can compile down to a single call
-LL_FORCE_INLINE void* ll_aligned_malloc(size_t alignment, size_t size)
+template<size_t ALIGNMENT>
+LL_FORCE_INLINE void* ll_aligned_malloc(size_t size)
 {
-	if (LL_DEFAULT_HEAP_ALIGN % alignment == 0)
+	if (LL_DEFAULT_HEAP_ALIGN % ALIGNMENT == 0)
 	{
 		return malloc(size);
 	}
-	else if (alignment == 16)
+	else if (ALIGNMENT == 16)
 	{
 		return ll_aligned_malloc_16(size);
 	}
-	else if (alignment == 32)
+	else if (ALIGNMENT == 32)
 	{
 		return ll_aligned_malloc_32(size);
 	}
 	else
 	{
-		return ll_aligned_malloc_fallback(size, alignment);
+		return ll_aligned_malloc_fallback(size, ALIGNMENT);
 	}
 }
 
-LL_FORCE_INLINE void ll_aligned_free(size_t alignment, void* ptr)
+template<size_t ALIGNMENT>
+LL_FORCE_INLINE void ll_aligned_free(void* ptr)
 {
-	if (alignment == LL_DEFAULT_HEAP_ALIGN)
+	if (ALIGNMENT == LL_DEFAULT_HEAP_ALIGN)
 	{
 		free(ptr);
 	}
-	else if (alignment == 16)
+	else if (ALIGNMENT == 16)
 	{
 		ll_aligned_free_16(ptr);
 	}
-	else if (alignment == 32)
+	else if (ALIGNMENT == 32)
 	{
 		return ll_aligned_free_32(ptr);
 	}

@@ -4433,13 +4433,13 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 	const U32 MAX_FACE_COUNT = 4096;
 	
-	static LLFace** fullbright_faces = (LLFace**) ll_aligned_malloc(64, MAX_FACE_COUNT*sizeof(LLFace*));
-	static LLFace** bump_faces = (LLFace**) ll_aligned_malloc(64, MAX_FACE_COUNT*sizeof(LLFace*));
-	static LLFace** simple_faces = (LLFace**) ll_aligned_malloc(64, MAX_FACE_COUNT*sizeof(LLFace*));
-	static LLFace** norm_faces = (LLFace**) ll_aligned_malloc(64, MAX_FACE_COUNT*sizeof(LLFace*));
-	static LLFace** spec_faces = (LLFace**) ll_aligned_malloc(64, MAX_FACE_COUNT*sizeof(LLFace*));
-	static LLFace** normspec_faces = (LLFace**) ll_aligned_malloc(64, MAX_FACE_COUNT*sizeof(LLFace*));
-	static LLFace** alpha_faces = (LLFace**) ll_aligned_malloc(64, MAX_FACE_COUNT*sizeof(LLFace*));
+	static LLFace** fullbright_faces = (LLFace**) ll_aligned_malloc<64>(MAX_FACE_COUNT*sizeof(LLFace*));
+	static LLFace** bump_faces = (LLFace**) ll_aligned_malloc<64>(MAX_FACE_COUNT*sizeof(LLFace*));
+	static LLFace** simple_faces = (LLFace**) ll_aligned_malloc<64>(MAX_FACE_COUNT*sizeof(LLFace*));
+	static LLFace** norm_faces = (LLFace**) ll_aligned_malloc<64>(MAX_FACE_COUNT*sizeof(LLFace*));
+	static LLFace** spec_faces = (LLFace**) ll_aligned_malloc<64>(MAX_FACE_COUNT*sizeof(LLFace*));
+	static LLFace** normspec_faces = (LLFace**) ll_aligned_malloc<64>(MAX_FACE_COUNT*sizeof(LLFace*));
+	static LLFace** alpha_faces = (LLFace**) ll_aligned_malloc<64>(MAX_FACE_COUNT*sizeof(LLFace*));
 	
 	U32 fullbright_count = 0;
 	U32 bump_count = 0;

@@ -202,7 +202,7 @@ volatile U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
 			glBufferDataARB(mType, size, 0, mUsage);
 			if (mUsage != GL_DYNAMIC_COPY_ARB)
 			{ //data will be provided by application
-				ret = (U8*) ll_aligned_malloc(64, size);
+				ret = (U8*) ll_aligned_malloc<64>(size);
 			}
 		}
 		else
@@ -310,7 +310,7 @@ void LLVBOPool::cleanup()
 			
 			if (r.mClientData)
 			{
-				ll_aligned_free(64, (void*) r.mClientData);
+				ll_aligned_free<64>((void*) r.mClientData);
 			}
 
 			l.pop_front();
