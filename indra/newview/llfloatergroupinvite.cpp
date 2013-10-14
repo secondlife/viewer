@@ -30,6 +30,7 @@
 #include "llpanelgroupinvite.h"
 #include "lltrans.h"
 #include "lldraghandle.h"
+#include "llagent.h"
 #include "llgroupmgr.h"
 
 class LLFloaterGroupInvite::impl
@@ -126,6 +127,7 @@ void LLFloaterGroupInvite::showForGroup(const LLUUID& group_id, uuid_vec_t *agen
 											 (LLFloaterGroupInvite*)NULL);
 
 	// refresh group information
+	gAgent.sendAgentDataUpdateRequest();
 	LLGroupMgr::getInstance()->clearGroupData(group_id);
 
 
