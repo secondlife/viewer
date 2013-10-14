@@ -74,6 +74,16 @@ public:
 	 */
 	void unregisterSpeakingIndicator(const LLUUID& speaker_id, const LLSpeakingIndicator* const speaking_indicator);
 
+	/**
+	 * Callback of changing voice participant list (from LLVoiceClientParticipantObserver).
+	 *
+	 * Switches off indicators had been switched on and switches on indicators of current participants list.
+	 * There is only a few indicators in lists should be switched off/on.
+	 * So, method does not calculate difference between these list it only switches off already 
+	 * switched on indicators and switches on indicators of voice channel participants
+	 */
+	void onParticipantsChanged();
+	
 private:
 	typedef std::set<LLUUID> speaker_ids_t;
 	typedef std::multimap<LLUUID, LLSpeakingIndicator*> speaking_indicators_mmap_t;
@@ -92,16 +102,6 @@ private:
 	 * To reduce overheads only switched on indicators are processed.
 	 */
 	void sOnCurrentChannelChanged(const LLUUID& session_id);
-
-	/**
-	 * Callback of changing voice participant list (from LLVoiceClientParticipantObserver).
-	 *
-	 * Switches off indicators had been switched on and switches on indicators of current participants list.
-	 * There is only a few indicators in lists should be switched off/on.
-	 * So, method does not calculate difference between these list it only switches off already 
-	 * switched on indicators and switches on indicators of voice channel participants
-	 */
-	void onParticipantsChanged();
 
 	/**
 	 * Changes state of indicators specified by LLUUIDs
@@ -237,28 +237,18 @@ void SpeakingIndicatorManager::switchSpeakerIndicators(const speaker_ids_t& spea
 		{
 			was_found = true;
 			LLSpeakingIndicator* indicator = (*it_indicator).second;
+			was_switched_on = was_switched_on || switch_on;
 
-			BOOL switch_current_on = switch_on;
-
-			// we should show indicator for specified voice session only if this is current channel. EXT-5562.
-			if (switch_current_on && indicator->getTargetSessionID().notNull())
-			{
-				switch_current_on = indicator->getTargetSessionID() == session_id;
-				LL_DEBUGS("SpeakingIndicator") << "Session: " << session_id << ", target: " << indicator->getTargetSessionID() << ", the same? = " << switch_current_on << LL_ENDL;
-			}
-			was_switched_on = was_switched_on || switch_current_on;
-
-			indicator->switchIndicator(switch_current_on);
-
+			indicator->switchIndicator(switch_on);
 		}
 
 		if (was_found)
 		{
-			LL_DEBUGS("SpeakingIndicator") << mSpeakingIndicators.count(*it_uuid) << " indicators where found" << LL_ENDL;
+			LL_DEBUGS("SpeakingIndicator") << mSpeakingIndicators.count(*it_uuid) << " indicators were found" << LL_ENDL;
 
 			if (switch_on && !was_switched_on)
 			{
-				LL_DEBUGS("SpeakingIndicator") << "but non of them where switched on" << LL_ENDL;
+				LL_DEBUGS("SpeakingIndicator") << "but none of them were switched on" << LL_ENDL;
 			}
 
 			if (was_switched_on)
@@ -311,6 +301,14 @@ void LLSpeakingIndicatorManager::unregisterSpeakingIndicator(const LLUUID& speak
 	if(SpeakingIndicatorManager::instanceExists())
 	{
 		SpeakingIndicatorManager::instance().unregisterSpeakingIndicator(speaker_id, speaking_indicator);
+	}
+}
+
+void LLSpeakingIndicatorManager::updateSpeakingIndicators()
+{
+	if(SpeakingIndicatorManager::instanceExists())
+	{
+		SpeakingIndicatorManager::instance().onParticipantsChanged();
 	}
 }
 

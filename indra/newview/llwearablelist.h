@@ -28,7 +28,7 @@
 #define LL_LLWEARABLELIST_H
 
 #include "llmemory.h"
-#include "llwearable.h"
+#include "llviewerwearable.h"
 #include "lluuid.h"
 #include "llassetstorage.h"
 
@@ -50,20 +50,21 @@ public:
 
 	void				getAsset(const LLAssetID& assetID,
 								 const std::string& wearable_name,
+								 LLAvatarAppearance *avatarp,
 								 LLAssetType::EType asset_type,
-								 void(*asset_arrived_callback)(LLWearable*, void* userdata),
+								 void(*asset_arrived_callback)(LLViewerWearable*, void* userdata),
 								 void* userdata);
 
-	LLWearable*			createCopy(const LLWearable* old_wearable, const std::string& new_name = std::string());
-	LLWearable*			createNewWearable(LLWearableType::EType type);
+	LLViewerWearable*			createCopy(const LLViewerWearable* old_wearable, const std::string& new_name = std::string());
+	LLViewerWearable*			createNewWearable(LLWearableType::EType type, LLAvatarAppearance *avatarp);
 	
 	// Callback
 	static void	 	    processGetAssetReply(const char* filename, const LLAssetID& assetID, void* user_data, S32 status, LLExtStat ext_status);
 
 protected:
-	LLWearable* generateNewWearable(); // used for the create... functions
+	LLViewerWearable* generateNewWearable(); // used for the create... functions
 private:
-	std::map<LLUUID, LLWearable*> mList;
+	std::map<LLUUID, LLViewerWearable*> mList;
 };
 
 #endif  // LL_LLWEARABLELIST_H

@@ -29,8 +29,6 @@
 //-----------------------------------------------------------------------------
 #include "linden_common.h"
 
-#include "llmemtype.h"
-
 #include "llmotioncontroller.h"
 #include "llkeyframemotion.h"
 #include "llmath.h"
@@ -44,6 +42,7 @@ const U32 MAX_MOTION_INSTANCES = 32;
 //-----------------------------------------------------------------------------
 // Constants and statics
 //-----------------------------------------------------------------------------
+F32 LLMotionController::sCurrentTimeFactor = 1.f;
 LLMotionRegistry LLMotionController::sRegistry;
 
 //-----------------------------------------------------------------------------
@@ -127,7 +126,7 @@ LLMotion *LLMotionRegistry::createMotion( const LLUUID &id )
 // Class Constructor
 //-----------------------------------------------------------------------------
 LLMotionController::LLMotionController()
-	: mTimeFactor(1.f),
+	: mTimeFactor(sCurrentTimeFactor),
 	  mCharacter(NULL),
 	  mAnimTime(0.f),
 	  mPrevTimerElapsed(0.f),
@@ -335,7 +334,6 @@ void LLMotionController::removeMotionInstance(LLMotion* motionp)
 //-----------------------------------------------------------------------------
 LLMotion* LLMotionController::createMotion( const LLUUID &id )
 {
-	LLMemType mt(LLMemType::MTYPE_ANIMATION);
 	// do we have an instance of this motion for this character?
 	LLMotion *motion = findMotion(id);
 

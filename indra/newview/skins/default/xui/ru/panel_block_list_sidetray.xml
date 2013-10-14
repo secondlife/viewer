@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="block_list_panel">
-	<text name="title_text">
-		Черный список
-	</text>
-	<scroll_list name="blocked" tool_tip="Список заблокированных жителей"/>
-	<button label="Заблокировать жителя" name="Block resident..." tool_tip="Выберите жителя для блокировки"/>
-	<button label="Блокировать объект по имени" name="Block object by name..." tool_tip="Выберите объект для блокировки по имени"/>
-	<button label="Разблокировать" name="Unblock" tool_tip="Удалить объект или жителя из списка заблокированных"/>
+	<panel label="bottom_panel" name="blocked_buttons_panel">
+		<filter_editor label="Фильтр" name="blocked_filter_input"/>
+		<menu_button name="blocked_gear_btn" tool_tip="Действия с выбранным жителем или объектом"/>
+		<menu_button name="view_btn" tool_tip="Параметры сортировки"/>
+		<menu_button name="plus_btn" tool_tip="Выберите жителя или объект для блокировки"/>
+		<button name="unblock_btn" tool_tip="Удалить объект или жителя из списка заблокированных"/>
+	</panel>
+	<block_list name="blocked" tool_tip="Список заблокированных жителей"/>
 </panel>

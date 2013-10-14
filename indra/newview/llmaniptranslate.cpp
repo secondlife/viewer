@@ -485,7 +485,6 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 	}
 
 	// Throttle updates to 10 per second.
-	BOOL send_update = FALSE;
 
 	LLVector3		axis_f;
 	LLVector3d		axis_d;
@@ -702,11 +701,6 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 				LLVector3 old_position_local = object->getPosition();
 				LLVector3 new_position_local = selectNode->mSavedPositionLocal + (clamped_relative_move_f * objWorldRotation);
 
-				// move and clamp root object first, before adjusting children
-				if (new_position_local != old_position_local)
-				{
-					send_update = TRUE;
-				}
 				//RN: I forget, but we need to do this because of snapping which doesn't often result
 				// in position changes even when the mouse moves
 				object->setPosition(new_position_local);
@@ -716,8 +710,6 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 
 				if (selectNode->mIndividualSelection)
 				{
-					send_update = FALSE;
-		
 					// counter-translate child objects if we are moving the root as an individual
 					object->resetChildrenPosition(old_position_local - new_position_local, TRUE) ;					
 				}
@@ -753,7 +745,6 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 				}
 
 				// PR: Only update if changed
-				LLVector3d old_position_global = object->getPositionGlobal();
 				LLVector3 old_position_agent = object->getPositionAgent();
 				LLVector3 new_position_agent = gAgent.getPosAgentFromGlobal(new_position_global);
 				if (object->isRootEdit())
@@ -775,11 +766,6 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 				{
 					// counter-translate child objects if we are moving the root as an individual
 					object->resetChildrenPosition(old_position_agent - new_position_agent, TRUE) ;					
-					send_update = FALSE;
-				}
-				else if (old_position_global != new_position_global)
-				{
-					send_update = TRUE;
 				}
 			}
 			selectNode->mLastPositionLocal  = object->getPosition();
@@ -1310,7 +1296,6 @@ void LLManipTranslate::renderSnapGuides()
 					// add in off-axis offset
 					tick_start += (mSnapOffsetAxis * mSnapOffsetMeters);
 
-					BOOL is_sub_tick = FALSE;
 					F32 tick_scale = 1.f;
 					for (F32 division_level = max_subdivisions; division_level >= sGridMinSubdivisionLevel; division_level /= 2.f)
 					{
@@ -1319,7 +1304,6 @@ void LLManipTranslate::renderSnapGuides()
 							break;
 						}
 						tick_scale *= 0.7f;
-						is_sub_tick = TRUE;
 					}
 
 // 					S32 num_ticks_to_fade = is_sub_tick ? num_ticks_per_side / 2 : num_ticks_per_side;
@@ -1542,7 +1526,6 @@ void LLManipTranslate::renderSnapGuides()
 		
 		float a = line_alpha;
 
-		LLColor4 col = LLUIColorTable::instance().getColor("SilhouetteChildColor");
 		{
 			//draw grid behind objects
 			LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
@@ -1698,7 +1681,8 @@ void LLManipTranslate::highlightIntersection(LLVector3 normal,
 
 		gGL.getModelviewMatrix().inverse().mult_vec_matrix(plane);
 
-		gClipProgram.uniform4fv("clip_plane", 1, plane.v);
+		static LLStaticHashedString sClipPlane("clip_plane");
+		gClipProgram.uniform4fv(sClipPlane, 1, plane.v);
 		
 		BOOL particles = gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_PARTICLES);
 		BOOL clouds = gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS);

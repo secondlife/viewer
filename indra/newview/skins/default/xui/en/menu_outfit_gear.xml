@@ -195,6 +195,20 @@
 
     <menu_item_separator name="sepatator2" />
     <menu_item_call
+     label="Expand all folders"
+     layout="topleft"
+     name="expand">
+        <on_click
+         function="Gear.Expand" />
+    </menu_item_call>
+    <menu_item_call
+     label="Collapse all folders"
+     layout="topleft"
+     name="collapse">
+        <on_click
+         function="Gear.Collapse" />
+    </menu_item_call>
+    <menu_item_call
      label="Rename Outfit"
      layout="topleft"
      name="rename">

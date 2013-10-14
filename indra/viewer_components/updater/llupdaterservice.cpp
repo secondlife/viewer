@@ -32,18 +32,24 @@
 #include "lltimer.h"
 #include "llupdatechecker.h"
 #include "llupdateinstaller.h"
-#include "llversionviewer.h"
 
 #include <boost/scoped_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 #include "lldir.h"
 #include "llsdserialize.h"
 #include "llfile.h"
+#include "llviewernetwork.h"
 
 #if LL_WINDOWS
 #pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
 #endif
 
+#if ! defined(LL_VIEWER_VERSION_MAJOR)			\
+ || ! defined(LL_VIEWER_VERSION_MINOR)			\
+ || ! defined(LL_VIEWER_VERSION_PATCH)			\
+ || ! defined(LL_VIEWER_VERSION_BUILD)
+#error "Version information is undefined"
+#endif
 
 namespace 
 {
@@ -60,6 +66,8 @@ namespace
 	{
 #ifdef LL_WINDOWS
 		std::string scriptFile = "update_install.bat";
+#elif LL_DARWIN
+		std::string scriptFile = "update_install.py";
 #else
 		std::string scriptFile = "update_install";
 #endif
@@ -71,6 +79,8 @@ namespace
 #ifdef LL_WINDOWS
 		return LL_COPY_INSTALL_SCRIPT_TO_TEMP;
 #else
+		// This is important on Mac because update_install.py looks at its own
+		// script pathname to discover the viewer app bundle to update.
 		return LL_RUN_INSTALL_SCRIPT_IN_PLACE;
 #endif
 	};
@@ -83,11 +93,13 @@ class LLUpdaterServiceImpl :
 {
 	static const std::string sListenerName;
 	
-	std::string mProtocolVersion;
-	std::string mUrl;
-	std::string mPath;
-	std::string mChannel;
-	std::string mVersion;
+	std::string   mProtocolVersion;
+	std::string   mChannel;
+	std::string   mVersion;
+	std::string   mPlatform;
+	std::string   mPlatformVersion;
+	unsigned char mUniqueId[MD5HEX_STR_SIZE];
+	bool          mWillingToTest;
 	
 	unsigned int mCheckPeriod;
 	bool mIsChecking;
@@ -107,11 +119,13 @@ public:
 	LLUpdaterServiceImpl();
 	virtual ~LLUpdaterServiceImpl();
 
-	void initialize(const std::string& protocol_version,
-				   const std::string& url, 
-				   const std::string& path,
-				   const std::string& channel,
-				   const std::string& version);
+	void initialize(const std::string& 	channel,
+					const std::string& 	version,
+					const std::string&  platform,
+					const std::string&  platform_version,
+					const unsigned char uniqueid[MD5HEX_STR_SIZE],
+					const bool&         willing_to_test					
+					);
 	
 	void setCheckPeriod(unsigned int seconds);
 	void setBandwidthLimit(U64 bytesPerSecond);
@@ -129,13 +143,9 @@ public:
 
 	// LLUpdateChecker::Client:
 	virtual void error(std::string const & message);
-	virtual void optionalUpdate(std::string const & newVersion,
-								LLURI const & uri,
-								std::string const & hash);
-	virtual void requiredUpdate(std::string const & newVersion,
-								LLURI const & uri,
-								std::string const & hash);
-	virtual void upToDate(void);
+	
+	// A successful response was received from the viewer version manager
+	virtual void response(LLSD const & content);
 	
 	// LLUpdateDownloader::Client
 	void downloadComplete(LLSD const & data);
@@ -144,6 +154,7 @@ public:
 	bool onMainLoop(LLSD const & event);
 
 private:
+	std::string mNewChannel;
 	std::string mNewVersion;
 	
 	void restartTimer(unsigned int seconds);
@@ -169,11 +180,12 @@ LLUpdaterServiceImpl::~LLUpdaterServiceImpl()
 	LLEventPumps::instance().obtain("mainloop").stopListening(sListenerName);
 }
 
-void LLUpdaterServiceImpl::initialize(const std::string& protocol_version,
-									  const std::string& url, 
-									  const std::string& path,
-									  const std::string& channel,
-									  const std::string& version)
+void LLUpdaterServiceImpl::initialize(const std::string&  channel,
+									  const std::string&  version,
+									  const std::string&  platform,
+									  const std::string&  platform_version,
+									  const unsigned char uniqueid[MD5HEX_STR_SIZE],
+									  const bool&         willing_to_test)
 {
 	if(mIsChecking || mIsDownloading)
 	{
@@ -181,11 +193,18 @@ void LLUpdaterServiceImpl::initialize(const std::string& protocol_version,
 										   "while updater is running.");
 	}
 		
-	mProtocolVersion = protocol_version;
-	mUrl = url;
-	mPath = path;
 	mChannel = channel;
 	mVersion = version;
+	mPlatform = platform;
+	mPlatformVersion = platform_version;
+	memcpy(mUniqueId, uniqueid, MD5HEX_STR_SIZE);
+	mWillingToTest = willing_to_test;
+	LL_DEBUGS("UpdaterService")
+		<< "\n  channel: " << mChannel
+		<< "\n  version: " << mVersion
+		<< "\n  uniqueid: " << mUniqueId
+		<< "\n  willing: " << ( mWillingToTest ? "testok" : "testno" )
+		<< LL_ENDL;
 }
 
 void LLUpdaterServiceImpl::setCheckPeriod(unsigned int seconds)
@@ -200,7 +219,7 @@ void LLUpdaterServiceImpl::setBandwidthLimit(U64 bytesPerSecond)
 
 void LLUpdaterServiceImpl::startChecking(bool install_if_ready)
 {
-	if(mUrl.empty() || mChannel.empty() || mVersion.empty())
+	if(mChannel.empty() || mVersion.empty())
 	{
 		throw LLUpdaterService::UsageError("Set params before call to "
 			"LLUpdaterService::startCheck().");
@@ -284,7 +303,7 @@ bool LLUpdaterServiceImpl::checkForInstall(bool launchInstaller)
 			// the update.  Do not install this update.
 			if(!path.asString().empty())
 			{
-				llinfos << "ignoring update dowloaded by different client version" << llendl;
+				LL_INFOS("UpdaterService") << "ignoring update dowloaded by different client version" << LL_ENDL;;
 				LLFile::remove(path.asString());
 				LLFile::remove(update_marker_path());
 			}
@@ -311,9 +330,13 @@ bool LLUpdaterServiceImpl::checkForInstall(bool launchInstaller)
 				if((result == 0) && mAppExitCallback)
 				{
 					mAppExitCallback();
-				} else if(result != 0) {
-					llwarns << "failed to run update install script" << LL_ENDL;
-				} else {
+				}
+				else if(result != 0)
+				{
+					LL_WARNS("UpdaterService") << "failed to run update install script" << LL_ENDL;
+				}
+				else
+				{
 					; // No op.
 				}
 			}
@@ -341,15 +364,19 @@ bool LLUpdaterServiceImpl::checkForResume()
 			{
 				mIsDownloading = true;
 				mNewVersion = download_info["update_version"].asString();
+				mNewChannel = download_info["update_channel"].asString();
 				mUpdateDownloader.resume();
 				result = true;
 			}
 			else 
 			{
 				// The viewer that started this download is not the same as this viewer; ignore.
-				llinfos << "ignoring partial download from different viewer version" << llendl;
+				LL_INFOS("UpdaterService") << "ignoring partial download from different viewer version" << LL_ENDL;;
 				std::string path = download_info["path"].asString();
-				if(!path.empty()) LLFile::remove(path);
+				if(!path.empty())
+				{
+					LLFile::remove(path);
+				}
 				LLFile::remove(download_marker_path);
 			}
 		} 
@@ -366,36 +393,49 @@ void LLUpdaterServiceImpl::error(std::string const & message)
 	}
 }
 
-void LLUpdaterServiceImpl::optionalUpdate(std::string const & newVersion,
-										  LLURI const & uri,
-										  std::string const & hash)
+// A successful response was received from the viewer version manager
+void LLUpdaterServiceImpl::response(LLSD const & content)
 {
-	stopTimer();
-	mNewVersion = newVersion;
-	mIsDownloading = true;
-	setState(LLUpdaterService::DOWNLOADING);
-	mUpdateDownloader.download(uri, hash, newVersion, false);
-}
-
-void LLUpdaterServiceImpl::requiredUpdate(std::string const & newVersion,
-										  LLURI const & uri,
-										  std::string const & hash)
-{
-	stopTimer();
-	mNewVersion = newVersion;
-	mIsDownloading = true;
-	setState(LLUpdaterService::DOWNLOADING);
-	mUpdateDownloader.download(uri, hash, newVersion, true);
-}
-
-void LLUpdaterServiceImpl::upToDate(void)
-{
-	if(mIsChecking)
+	if(!content.asBoolean()) // an empty response means "no update"
 	{
+		LL_INFOS("UpdaterService") << "up to date" << LL_ENDL;
+		if(mIsChecking)
+		{
+			restartTimer(mCheckPeriod);
+		}
+	
+		setState(LLUpdaterService::UP_TO_DATE);
+	}
+	else if ( content.isMap() && content.has("url") )
+	{
+		// there is an update available...
+		stopTimer();
+		mNewChannel = content["channel"].asString();
+		if (mNewChannel.empty())
+		{
+			LL_INFOS("UpdaterService") << "no channel supplied, assuming current channel" << LL_ENDL;
+			mNewChannel = mChannel;
+		}
+		mNewVersion = content["version"].asString();
+		mIsDownloading = true;
+		setState(LLUpdaterService::DOWNLOADING);
+		BOOL required = content["required"].asBoolean();
+		LLURI url(content["url"].asString());
+		std::string more_info = content["more_info"].asString();
+		LL_DEBUGS("UpdaterService")
+			<< "Starting download of "
+			<< ( required ? "required" : "optional" ) << " update"
+			<< " to channel '" << mNewChannel << "' version " << mNewVersion
+			<< " more info '" << more_info << "'"
+			<< LL_ENDL;
+		mUpdateDownloader.download(url, content["hash"].asString(), mNewChannel, mNewVersion, more_info, required);
+	}
+	else
+	{
+		LL_WARNS("UpdaterService") << "Invalid update query response ignored; retry in "
+								   << mCheckPeriod << " seconds" << LL_ENDL;
 		restartTimer(mCheckPeriod);
 	}
-	
-	setState(LLUpdaterService::UP_TO_DATE);
 }
 
 void LLUpdaterServiceImpl::downloadComplete(LLSD const & data) 
@@ -413,9 +453,19 @@ void LLUpdaterServiceImpl::downloadComplete(LLSD const & data)
 	payload["type"] = LLSD(LLUpdaterService::DOWNLOAD_COMPLETE);
 	payload["required"] = data["required"];
 	payload["version"] = mNewVersion;
+	payload["channel"] = mNewChannel;
+	payload["info_url"] = data["info_url"];
 	event["payload"] = payload;
+	LL_DEBUGS("UpdaterService")
+		<< "Download complete "
+		<< ( data["required"].asBoolean() ? "required" : "optional" )
+		<< " channel " << mNewChannel
+		<< " version " << mNewVersion
+		<< " info " << data["info_url"].asString()
+		<< LL_ENDL;
+
 	LLEventPumps::instance().obtain("mainlooprepeater").post(event);
-	
+
 	setState(LLUpdaterService::TERMINAL);
 }
 
@@ -489,15 +539,18 @@ bool LLUpdaterServiceImpl::onMainLoop(LLSD const & event)
 		// Check for failed install.
 		if(LLFile::isfile(ll_install_failed_marker_path()))
 		{
+			LL_DEBUGS("UpdaterService") << "found marker " << ll_install_failed_marker_path() << LL_ENDL;;
 			int requiredValue = 0; 
 			{
 				llifstream stream(ll_install_failed_marker_path());
 				stream >> requiredValue;
-				if(stream.fail()) requiredValue = 0;
+				if(stream.fail())
+				{
+					requiredValue = 0;
+				}
 			}
 			// TODO: notify the user.
-			llinfos << "found marker " << ll_install_failed_marker_path() << llendl;
-			llinfos << "last install attempt failed" << llendl;
+			LL_WARNS("UpdaterService") << "last install attempt failed" << LL_ENDL;;
 			LLFile::remove(ll_install_failed_marker_path());
 			
 			LLSD event;
@@ -509,8 +562,26 @@ bool LLUpdaterServiceImpl::onMainLoop(LLSD const & event)
 		}
 		else
 		{
-			mUpdateChecker.checkVersion(mProtocolVersion, mUrl, mPath, mChannel, mVersion);
-			setState(LLUpdaterService::CHECKING_FOR_UPDATE);
+			std::string query_url = LLGridManager::getInstance()->getUpdateServiceURL();
+			if ( !query_url.empty() )
+			{
+				mUpdateChecker.checkVersion(query_url, mChannel, mVersion,
+											mPlatform, mPlatformVersion, mUniqueId,
+											mWillingToTest);
+				setState(LLUpdaterService::CHECKING_FOR_UPDATE);
+			}
+			else
+			{
+				LL_WARNS("UpdaterService")
+					<< "No updater service defined for grid '" << LLGridManager::getInstance()->getGrid()
+					<< "' will check again in " << mCheckPeriod << " seconds"
+					<< LL_ENDL;
+				// Because the grid can be changed after the viewer is started (when the first check takes place)
+				// but before the user logs in, the next check may be on a different grid, so set the retry timer
+				// even though this check did not happen.  The default time is once an hour, and if we're not
+				// doing the check anyway the performance impact is completely insignificant.
+				restartTimer(mCheckPeriod);
+			}
 		}
 	} 
 	else 
@@ -554,13 +625,15 @@ LLUpdaterService::~LLUpdaterService()
 {
 }
 
-void LLUpdaterService::initialize(const std::string& protocol_version,
-								 const std::string& url, 
-								 const std::string& path,
-								 const std::string& channel,
-								 const std::string& version)
+void LLUpdaterService::initialize(const std::string& channel,
+								  const std::string& version,
+								  const std::string& platform,
+								  const std::string& platform_version,
+								  const unsigned char uniqueid[MD5HEX_STR_SIZE],
+								  const bool&         willing_to_test
+)
 {
-	mImpl->initialize(protocol_version, url, path, channel, version);
+	mImpl->initialize(channel, version, platform, platform_version, uniqueid, willing_to_test);
 }
 
 void LLUpdaterService::setCheckPeriod(unsigned int seconds)
@@ -609,10 +682,10 @@ std::string const & ll_get_version(void) {
 	
 	if (version.empty()) {
 		std::ostringstream stream;
-		stream << LL_VERSION_MAJOR << "."
-		<< LL_VERSION_MINOR << "."
-		<< LL_VERSION_PATCH << "."
-		<< LL_VERSION_BUILD;
+		stream << LL_VIEWER_VERSION_MAJOR << "."
+			   << LL_VIEWER_VERSION_MINOR << "."
+			   << LL_VIEWER_VERSION_PATCH << "."
+			   << LL_VIEWER_VERSION_BUILD;
 		version = stream.str();
 	}
 	

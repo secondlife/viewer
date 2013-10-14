@@ -40,7 +40,9 @@ namespace LLInitParam
 	{
 		const U8* my_addr = reinterpret_cast<const U8*>(this);
 		const U8* block_addr = reinterpret_cast<const U8*>(enclosing_block);
-		mEnclosingBlockOffset = 0x7FFFffff & (U32)(my_addr - block_addr);
+		U32 enclosing_block_offset = 0x7FFFffff & (U32)(my_addr - block_addr);
+		mEnclosingBlockOffsetLow = enclosing_block_offset & 0x0000ffff;
+		mEnclosingBlockOffsetHigh = (enclosing_block_offset & 0x007f0000) >> 16;
 	}
 
 	//
@@ -112,6 +114,35 @@ namespace LLInitParam
 		std::copy(src_block_data.mAllParams.begin(), src_block_data.mAllParams.end(), std::back_inserter(mAllParams));
 	}
 
+	void BlockDescriptor::addParam(const ParamDescriptorPtr in_param, const char* char_name)
+	{
+		// create a copy of the param descriptor in mAllParams
+		// so other data structures can store a pointer to it
+		mAllParams.push_back(in_param);
+		ParamDescriptorPtr param(mAllParams.back());
+
+		std::string name(char_name);
+		if ((size_t)param->mParamHandle > mMaxParamOffset)
+		{
+			llerrs << "Attempted to register param with block defined for parent class, make sure to derive from LLInitParam::Block<YOUR_CLASS, PARAM_BLOCK_BASE_CLASS>" << llendl;
+		}
+
+		if (name.empty())
+		{
+			mUnnamedParams.push_back(param);
+		}
+		else
+		{
+			// don't use insert, since we want to overwrite existing entries
+			mNamedParams[name] = param;
+		}
+
+		if (param->mValidationFunc)
+		{
+			mValidationList.push_back(std::make_pair(param->mParamHandle, param->mValidationFunc));
+		}
+	}
+
 	BlockDescriptor::BlockDescriptor()
 	:	mMaxParamOffset(0),
 		mInitializationState(UNINITIALIZED),
@@ -150,7 +181,8 @@ namespace LLInitParam
 
 	bool BaseBlock::submitValue(Parser::name_stack_t& name_stack, Parser& p, bool silent)
 	{
-		if (!deserializeBlock(p, std::make_pair(name_stack.begin(), name_stack.end()), true))
+		Parser::name_stack_range_t range = std::make_pair(name_stack.begin(), name_stack.end());
+		if (!deserializeBlock(p, range, true))
 		{
 			if (!silent)
 			{
@@ -196,12 +228,7 @@ namespace LLInitParam
 			if (serialize_func)
 			{
 				const Param* diff_param = diff_block ? diff_block->getParamFromHandle(param_handle) : NULL;
-				// each param descriptor remembers its serial number
-				// so we can inspect the same param under different names
-				// and see that it has the same number
-				name_stack.push_back(std::make_pair("", true));
 				serialize_func(*param, parser, name_stack, diff_param);
-				name_stack.pop_back();
 			}
 		}
 
@@ -295,7 +322,7 @@ namespace LLInitParam
 		return true;
 	}
 
-	bool BaseBlock::deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack_range, bool ignored)
+	bool BaseBlock::deserializeBlock(Parser& p, Parser::name_stack_range_t& name_stack_range, bool ignored)
 	{
 		BlockDescriptor& block_data = mostDerivedBlockDescriptor();
 		bool names_left = name_stack_range.first != name_stack_range.second;
@@ -308,15 +335,12 @@ namespace LLInitParam
 		{
 			const std::string& top_name = name_stack_range.first->first;
 
-			ParamDescriptor::deserialize_func_t deserialize_func = NULL;
-			Param* paramp = NULL;
-
 			BlockDescriptor::param_map_t::iterator found_it = block_data.mNamedParams.find(top_name);
 			if (found_it != block_data.mNamedParams.end())
 			{
 				// find pointer to member parameter from offset table
-				paramp = getParamFromHandle(found_it->second->mParamHandle);
-				deserialize_func = found_it->second->mDeserializeFunc;
+				Param* paramp = getParamFromHandle(found_it->second->mParamHandle);
+				ParamDescriptor::deserialize_func_t deserialize_func = found_it->second->mDeserializeFunc;
 					
 				Parser::name_stack_range_t new_name_stack(name_stack_range.first, name_stack_range.second);
 				++new_name_stack.first;
@@ -356,36 +380,6 @@ namespace LLInitParam
 		}
 
 		return false;
-	}
-
-	//static 
-	void BaseBlock::addParam(BlockDescriptor& block_data, const ParamDescriptorPtr in_param, const char* char_name)
-	{
-		// create a copy of the param descriptor in mAllParams
-		// so other data structures can store a pointer to it
-		block_data.mAllParams.push_back(in_param);
-		ParamDescriptorPtr param(block_data.mAllParams.back());
-
-		std::string name(char_name);
-		if ((size_t)param->mParamHandle > block_data.mMaxParamOffset)
-		{
-			llerrs << "Attempted to register param with block defined for parent class, make sure to derive from LLInitParam::Block<YOUR_CLASS, PARAM_BLOCK_BASE_CLASS>" << llendl;
-		}
-
-		if (name.empty())
-		{
-			block_data.mUnnamedParams.push_back(param);
-		}
-		else
-		{
-			// don't use insert, since we want to overwrite existing entries
-			block_data.mNamedParams[name] = param;
-		}
-
-		if (param->mValidationFunc)
-		{
-			block_data.mValidationList.push_back(std::make_pair(param->mParamHandle, param->mValidationFunc));
-		}
 	}
 
 	void BaseBlock::addSynonym(Param& param, const std::string& synonym)
@@ -460,7 +454,7 @@ namespace LLInitParam
 			if (merge_func)
 			{
 				Param* paramp = getParamFromHandle((*it)->mParamHandle);
-				llassert(paramp->mEnclosingBlockOffset == (*it)->mParamHandle);
+				llassert(paramp->getEnclosingBlockOffset() == (*it)->mParamHandle);
 				some_param_changed |= merge_func(*paramp, *other_paramp, overwrite);
 			}
 		}

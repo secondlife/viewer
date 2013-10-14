@@ -52,6 +52,8 @@ LLViewerPartSource::LLViewerPartSource(const U32 type) :
 	static U32 id_seed = 0;
 	mID = ++id_seed;
 
+	mLastPart = NULL;
+
 	mDelay = 0 ;
 }
 
@@ -90,7 +92,6 @@ void LLViewerPartSource::setStart()
 LLViewerPartSourceScript::LLViewerPartSourceScript(LLViewerObject *source_objp) :
 	LLViewerPartSource(LL_PART_SOURCE_SCRIPT)
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	llassert(source_objp);
 	mSourceObjectp = source_objp;
 	mPosAgent = mSourceObjectp->getPositionAgent();
@@ -102,7 +103,6 @@ LLViewerPartSourceScript::LLViewerPartSourceScript(LLViewerObject *source_objp) 
 
 void LLViewerPartSourceScript::setDead()
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	mIsDead = TRUE;
 	mSourceObjectp = NULL;
 	mTargetObjectp = NULL;
@@ -113,7 +113,6 @@ void LLViewerPartSourceScript::update(const F32 dt)
 	if( mIsSuspended )
 		return;
 
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	F32 old_update_time = mLastUpdateTime;
 	mLastUpdateTime += dt;
 
@@ -282,6 +281,22 @@ void LLViewerPartSourceScript::update(const F32 dt)
 			{
 				part->mFlags |= LLPartData::LL_PART_HUD;
 			}
+
+			if (part->mFlags & LLPartData::LL_PART_RIBBON_MASK && mLastPart)
+			{ //set previous particle's parent to this particle to chain ribbon together
+				mLastPart->mParent = part;
+				part->mChild = mLastPart;
+				part->mAxis = LLVector3(0,0,1);
+
+				if (mSourceObjectp.notNull())
+				{
+					LLQuaternion rot = mSourceObjectp->getRenderRotation();
+					part->mAxis *= rot;
+				}
+			}
+
+			mLastPart = part;
+
 			part->mMaxAge = mPartSysData.mPartData.mMaxAge;
 			part->mStartColor = mPartSysData.mPartData.mStartColor;
 			part->mEndColor = mPartSysData.mPartData.mEndColor;
@@ -293,6 +308,13 @@ void LLViewerPartSourceScript::update(const F32 dt)
 
 			part->mAccel = mPartSysData.mPartAccel;
 
+			part->mBlendFuncDest = mPartSysData.mPartData.mBlendFuncDest;
+			part->mBlendFuncSource = mPartSysData.mPartData.mBlendFuncSource;
+
+			part->mStartGlow = mPartSysData.mPartData.mStartGlow;
+			part->mEndGlow = mPartSysData.mPartData.mEndGlow;
+			part->mGlow = LLColor4U(0, 0, 0, (U8) llround(part->mStartGlow*255.f));
+			
 			if (mPartSysData.mPattern & LLPartSysData::LL_PART_SRC_PATTERN_DROP)
 			{
 				part->mPosAgent = mPosAgent;
@@ -394,7 +416,6 @@ void LLViewerPartSourceScript::update(const F32 dt)
 // static
 LLPointer<LLViewerPartSourceScript> LLViewerPartSourceScript::unpackPSS(LLViewerObject *source_objp, LLPointer<LLViewerPartSourceScript> pssp, const S32 block_num)
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	if (!pssp)
 	{
 		if (LLPartSysData::isNullPS(block_num))
@@ -434,29 +455,51 @@ LLPointer<LLViewerPartSourceScript> LLViewerPartSourceScript::unpackPSS(LLViewer
 }
 
 
-LLPointer<LLViewerPartSourceScript> LLViewerPartSourceScript::unpackPSS(LLViewerObject *source_objp, LLPointer<LLViewerPartSourceScript> pssp, LLDataPacker &dp)
+LLPointer<LLViewerPartSourceScript> LLViewerPartSourceScript::unpackPSS(LLViewerObject *source_objp, LLPointer<LLViewerPartSourceScript> pssp, LLDataPacker &dp, bool legacy)
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	if (!pssp)
 	{
 		LLPointer<LLViewerPartSourceScript> new_pssp = new LLViewerPartSourceScript(source_objp);
-		if (!new_pssp->mPartSysData.unpack(dp))
+		if (legacy)
 		{
-			return NULL;
+			if (!new_pssp->mPartSysData.unpackLegacy(dp))
+			{
+				return NULL;
+			}
 		}
+		else
+		{
+			if (!new_pssp->mPartSysData.unpack(dp))
+			{
+				return NULL;
+			}
+		}
+		
 		if (new_pssp->mPartSysData.mTargetUUID.notNull())
 		{
 			LLViewerObject *target_objp = gObjectList.findObject(new_pssp->mPartSysData.mTargetUUID);
 			new_pssp->setTargetObject(target_objp);
 		}
+		
 		return new_pssp;
 	}
 	else
 	{
-		if (!pssp->mPartSysData.unpack(dp))
+		if (legacy)
 		{
-			return NULL;
+			if (!pssp->mPartSysData.unpackLegacy(dp))
+			{
+				return NULL;
+			}
 		}
+		else
+		{
+			if (!pssp->mPartSysData.unpack(dp))
+			{
+				return NULL;
+			}
+		}
+
 		if (pssp->mPartSysData.mTargetUUID.notNull())
 		{
 			LLViewerObject *target_objp = gObjectList.findObject(pssp->mPartSysData.mTargetUUID);
@@ -470,8 +513,6 @@ LLPointer<LLViewerPartSourceScript> LLViewerPartSourceScript::unpackPSS(LLViewer
 /* static */
 LLPointer<LLViewerPartSourceScript> LLViewerPartSourceScript::createPSS(LLViewerObject *source_objp, const LLPartSysData& particle_parameters)
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
-
 	LLPointer<LLViewerPartSourceScript> new_pssp = new LLViewerPartSourceScript(source_objp);
 
 	new_pssp->mPartSysData = particle_parameters;
@@ -487,13 +528,11 @@ LLPointer<LLViewerPartSourceScript> LLViewerPartSourceScript::createPSS(LLViewer
 
 void LLViewerPartSourceScript::setImage(LLViewerTexture *imagep)
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	mImagep = imagep;
 }
 
 void LLViewerPartSourceScript::setTargetObject(LLViewerObject *objp)
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	mTargetObjectp = objp;
 }
 
@@ -509,7 +548,6 @@ LLViewerPartSourceSpiral::LLViewerPartSourceSpiral(const LLVector3 &pos) :
 
 void LLViewerPartSourceSpiral::setDead()
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	mIsDead = TRUE;
 	mSourceObjectp = NULL;
 }
@@ -517,7 +555,6 @@ void LLViewerPartSourceSpiral::setDead()
 
 void LLViewerPartSourceSpiral::updatePart(LLViewerPart &part, const F32 dt)
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	F32 frac = part.mLastUpdateTime/part.mMaxAge;
 
 	LLVector3 center_pos;
@@ -542,7 +579,6 @@ void LLViewerPartSourceSpiral::updatePart(LLViewerPart &part, const F32 dt)
 
 void LLViewerPartSourceSpiral::update(const F32 dt)
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	if (!mImagep)
 	{
 		mImagep = LLViewerTextureManager::getFetchedTextureFromFile("pixiesmall.j2c");
@@ -581,6 +617,11 @@ void LLViewerPartSourceSpiral::update(const F32 dt)
 		part->mScale.mV[0] = 0.25f;
 		part->mScale.mV[1] = 0.25f;
 		part->mParameter = ll_frand(F_TWO_PI);
+		part->mBlendFuncDest = LLRender::BF_ONE_MINUS_SOURCE_ALPHA;
+		part->mBlendFuncSource = LLRender::BF_SOURCE_ALPHA;
+		part->mStartGlow = 0.f;
+		part->mEndGlow = 0.f;
+		part->mGlow = LLColor4U(0, 0, 0, 0);
 
 		LLViewerPartSim::getInstance()->addPart(part);
 	}
@@ -588,7 +629,6 @@ void LLViewerPartSourceSpiral::update(const F32 dt)
 
 void LLViewerPartSourceSpiral::setSourceObject(LLViewerObject *objp)
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	mSourceObjectp = objp;
 }
 
@@ -612,7 +652,6 @@ LLViewerPartSourceBeam::~LLViewerPartSourceBeam()
 
 void LLViewerPartSourceBeam::setDead()
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	mIsDead = TRUE;
 	mSourceObjectp = NULL;
 	mTargetObjectp = NULL;
@@ -626,7 +665,6 @@ void LLViewerPartSourceBeam::setColor(const LLColor4 &color)
 
 void LLViewerPartSourceBeam::updatePart(LLViewerPart &part, const F32 dt)
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	F32 frac = part.mLastUpdateTime/part.mMaxAge;
 
 	LLViewerPartSource *ps = (LLViewerPartSource*)part.mPartSourcep;
@@ -671,7 +709,6 @@ void LLViewerPartSourceBeam::updatePart(LLViewerPart &part, const F32 dt)
 
 void LLViewerPartSourceBeam::update(const F32 dt)
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	const F32 RATE = 0.025f;
 
 	mLastUpdateTime += dt;
@@ -737,19 +774,23 @@ void LLViewerPartSourceBeam::update(const F32 dt)
 		part->mPosAgent = mPosAgent;
 		part->mVelocity = mTargetPosAgent - mPosAgent;
 
+		part->mBlendFuncDest = LLRender::BF_ONE_MINUS_SOURCE_ALPHA;
+		part->mBlendFuncSource = LLRender::BF_SOURCE_ALPHA;
+		part->mStartGlow = 0.f;
+		part->mEndGlow = 0.f;
+		part->mGlow = LLColor4U(0, 0, 0, 0);
+
 		LLViewerPartSim::getInstance()->addPart(part);
 	}
 }
 
 void LLViewerPartSourceBeam::setSourceObject(LLViewerObject* objp)
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	mSourceObjectp = objp;
 }
 
 void LLViewerPartSourceBeam::setTargetObject(LLViewerObject* objp)
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	mTargetObjectp = objp;
 }
 
@@ -764,7 +805,6 @@ LLViewerPartSourceChat::LLViewerPartSourceChat(const LLVector3 &pos) :
 
 void LLViewerPartSourceChat::setDead()
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	mIsDead = TRUE;
 	mSourceObjectp = NULL;
 }
@@ -772,7 +812,6 @@ void LLViewerPartSourceChat::setDead()
 
 void LLViewerPartSourceChat::updatePart(LLViewerPart &part, const F32 dt)
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	F32 frac = part.mLastUpdateTime/part.mMaxAge;
 
 	LLVector3 center_pos;
@@ -797,7 +836,6 @@ void LLViewerPartSourceChat::updatePart(LLViewerPart &part, const F32 dt)
 
 void LLViewerPartSourceChat::update(const F32 dt)
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	if (!mImagep)
 	{
 		mImagep = LLViewerTextureManager::getFetchedTextureFromFile("pixiesmall.j2c");
@@ -846,6 +884,12 @@ void LLViewerPartSourceChat::update(const F32 dt)
 		part->mScale.mV[0] = 0.25f;
 		part->mScale.mV[1] = 0.25f;
 		part->mParameter = ll_frand(F_TWO_PI);
+		part->mBlendFuncDest = LLRender::BF_ONE_MINUS_SOURCE_ALPHA;
+		part->mBlendFuncSource = LLRender::BF_SOURCE_ALPHA;
+		part->mStartGlow = 0.f;
+		part->mEndGlow = 0.f;
+		part->mGlow = LLColor4U(0, 0, 0, 0);
+
 
 		LLViewerPartSim::getInstance()->addPart(part);
 	}
@@ -853,7 +897,6 @@ void LLViewerPartSourceChat::update(const F32 dt)
 
 void LLViewerPartSourceChat::setSourceObject(LLViewerObject *objp)
 {
-	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	mSourceObjectp = objp;
 }
 

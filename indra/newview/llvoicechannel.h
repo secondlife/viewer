@@ -52,7 +52,7 @@ public:
 		OUTGOING_CALL
 	} EDirection;
 
-	typedef boost::signals2::signal<void(const EState& old_state, const EState& new_state, const EDirection& direction, bool ended_by_agent)> state_changed_signal_t;
+	typedef boost::signals2::signal<void(const EState& old_state, const EState& new_state, const EDirection& direction, bool ended_by_agent, const LLUUID& session_id)> state_changed_signal_t;
 
 	// on current channel changed signal
 	typedef boost::function<void(const LLUUID& session_id)> channel_changed_callback_t;

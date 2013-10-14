@@ -1,0 +1,118 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Sample debian/rules that uses debhelper.
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+BASEDIR=opt/linden
+
+VIEWER_PKG=secondlife-viewer
+VIEWER_PACKAGEDIR=build-linux-i686/newview/packaged
+VIEWER_DESTDIR=$(CURDIR)/debian/$(VIEWER_PKG)
+VIEWER_VERSION:=$(shell dpkg-parsechangelog | grep ^Version | sed 's/^Version: //')
+VIEWER_INSTALLDIR:=$(BASEDIR)/viewer/SecondLife-i686-$(VIEWER_VERSION)
+
+configure: configure-stamp
+configure-stamp:
+	dh_testdir
+	# Add here commands to configure the package.
+
+	touch configure-stamp
+
+build: build-stamp
+
+build-stamp: configure-stamp 
+	dh_testdir
+
+	# Add here commands to compile the package.
+	#$(MAKE)
+	#docbook-to-man debian/secondlife-viewer.sgml > secondlife-viewer.1
+
+	touch $@
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp
+
+	# Add here commands to clean up after the build process.
+	#-$(MAKE) clean
+
+	dh_clean 
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k 
+	dh_installdirs
+
+	# Add here commands to install the package into debian/secondlife-viewer.
+	for file in $$(find $(VIEWER_PACKAGEDIR) -type f -o -type l | sed 's~$(VIEWER_PACKAGEDIR)/~~'); do \
+		# create containing directory \
+		install -v -m 755 -o root -g root -d "$$(dirname "$(VIEWER_DESTDIR)/$(VIEWER_INSTALLDIR)/$$file")"; \
+		PERM=644; \
+		if [ -x "$(VIEWER_PACKAGEDIR)/$$file" ]; then \
+			PERM=755; \
+		fi; \
+		if [ -L "$(VIEWER_PACKAGEDIR)/$$file" ]; then \
+			REAL="$$( readlink -f $(VIEWER_PACKAGEDIR)/$$file )"; \
+			RELATIVE="$$( echo $$REAL | sed 's~$(CURDIR)/$(VIEWER_PACKAGEDIR)/~~' )"; \
+			echo dh_link -p $(VIEWER_PKG) "$(VIEWER_INSTALLDIR)/$$RELATIVE" "$(VIEWER_INSTALLDIR)/$$file" ; \
+			dh_link -p $(VIEWER_PKG) "$(VIEWER_INSTALLDIR)/$$RELATIVE" "$(VIEWER_INSTALLDIR)/$$file" ; \
+		else \
+			install -v -m $$PERM -o root -g root "$(VIEWER_PACKAGEDIR)/$$file" "$(VIEWER_DESTDIR)/$(VIEWER_INSTALLDIR)/$$file"; \
+		fi; \
+	done
+	dh_link -p $(VIEWER_PKG) /$(VIEWER_INSTALLDIR)/secondlife /usr/bin/secondlife
+	dh_link -p $(VIEWER_PKG) $(BASEDIR)/viewer/SecondLife-i686-$(VIEWER_VERSION) $(BASEDIR)/viewer/SecondLife
+
+
+# Build architecture-independent files here.
+binary-indep: build install
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs 
+	dh_installdocs
+	dh_installexamples
+#	dh_install
+#	dh_installmenu
+#	dh_installdebconf	
+#	dh_installlogrotate
+#	dh_installemacsen
+#	dh_installpam
+#	dh_installmime
+#	dh_python
+
+# To add an init script, uncomment this line and edit debian/init.d and 
+# customize debian/secondlife-viewer.default to suit your needs.
+#	dh_installinit
+
+# To add cron jobs, uncomment this line and make a crontab file named 
+# debian/cron.d, and it will be installed in /etc/cron.d/
+#	dh_installcron
+
+#	dh_installinfo
+	dh_installman
+	dh_link
+#	dh_strip
+	dh_compress
+#	dh_fixperms
+#	dh_perl
+#	dh_makeshlibs
+	dh_installdeb
+#	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install configure

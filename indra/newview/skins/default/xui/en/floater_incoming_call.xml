@@ -8,8 +8,8 @@
  layout="topleft"
  name="incoming call"
  help_topic="incoming_call"
- title="Incoming call"
- width="410">
+ sound_flags="0"
+ width="550">
     <floater.string
      name="lifetime">
         5
@@ -24,7 +24,7 @@
     </floater.string>
     <floater.string
      name="VoiceInviteP2P">
-        is calling.
+        is calling you.
     </floater.string>
     <floater.string
      name="VoiceInviteAdHoc">
@@ -49,14 +49,14 @@
      image_name="icon_avatar_online.tga"
      layout="topleft"
      left_delta="19"
-     top="35"
+     top="20"
      width="36" />
     <group_icon
      enabled="false"
      follows="left|top"
      height="36"
      layout="topleft"
-     top="35"
+     top="20"
      width="36" />
     <text
      clip_partial="true"
@@ -67,8 +67,32 @@
      name="caller name"
      top="20"
      use_ellipses="true"
-     width="315"
+     width="475"
      word_wrap="true" />
+     <button
+     height="24"
+     label="Answer"
+     label_selected="Answer"
+     layout="topleft"
+     left="70"
+     name="Accept"
+     top_pad="5"
+     width="120" />
+    <button
+     height="24"
+     label="Ignore"
+     label_selected="Ignore"
+     layout="topleft"
+     name="Reject"
+     left_pad="10"
+     width="120" />
+    <button
+     height="24"
+     label="Open IM instead"
+     layout="topleft"
+     name="Start IM"
+     left_pad="10"
+     width="120" />
     <text
      clip_partial="true"
      font="SansSerif"
@@ -78,32 +102,8 @@
      name="question"
      top_pad="5"
      use_ellipses="true"
-     width="315"
+     width="475"
      word_wrap="true">
-     Do you want to leave [CURRENT_CHAT] and join this voice chat?
+     If you answer, you will be disconnected from your current voice conversation.
     </text>
-    <button
-     height="24"
-     label="Accept"
-     label_selected="Accept"
-     layout="topleft"
-     left="70"
-     name="Accept"
-     top="92"
-     width="100" />
-    <button
-     height="24"
-     label="Reject"
-     label_selected="Reject"
-     layout="topleft"
-     name="Reject"
-     left_pad="10"
-     width="100" />
-    <button
-     height="24"
-     label="Start IM"
-     layout="topleft"
-     name="Start IM"
-     left_pad="10"
-     width="100" />
 </floater>

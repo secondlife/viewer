@@ -51,8 +51,6 @@ LLToolBarView* gToolBarView = NULL;
 
 static LLDefaultChildRegistry::Register<LLToolBarView> r("toolbar_view");
 
-void handleLoginToolbarSetup();
-
 bool isToolDragged()
 {
 	return (LLToolDragAndDrop::getInstance()->getSource() == LLToolDragAndDrop::SOURCE_VIEWER);
@@ -76,7 +74,8 @@ LLToolBarView::LLToolBarView(const LLToolBarView::Params& p)
 	mShowToolbars(true),
 	mDragToolbarButton(NULL),
 	mDragItem(NULL),
-	mToolbarsLoaded(false)
+	mToolbarsLoaded(false),
+	mBottomToolbarPanel(NULL)
 {
 	for (S32 i = 0; i < TOOLBAR_COUNT; i++)
 	{
@@ -100,6 +99,7 @@ BOOL LLToolBarView::postBuild()
 	mToolbars[TOOLBAR_LEFT]   = getChild<LLToolBar>("toolbar_left");
 	mToolbars[TOOLBAR_RIGHT]  = getChild<LLToolBar>("toolbar_right");
 	mToolbars[TOOLBAR_BOTTOM] = getChild<LLToolBar>("toolbar_bottom");
+	mBottomToolbarPanel = getChild<LLView>("bottom_toolbar_panel");
 
 	for (int i = TOOLBAR_FIRST; i <= TOOLBAR_LAST; i++)
 	{
@@ -109,8 +109,6 @@ BOOL LLToolBarView::postBuild()
 		mToolbars[i]->setButtonAddCallback(boost::bind(LLToolBarView::onToolBarButtonAdded,_1));
 		mToolbars[i]->setButtonRemoveCallback(boost::bind(LLToolBarView::onToolBarButtonRemoved,_1));
 	}
-
-	LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&handleLoginToolbarSetup));
 	
 	return TRUE;
 }
@@ -178,13 +176,13 @@ S32 LLToolBarView::stopCommandInProgress(const LLCommandId& commandId)
 	return command_location;
 }
 
-S32 LLToolBarView::flashCommand(const LLCommandId& commandId, bool flash)
+S32 LLToolBarView::flashCommand(const LLCommandId& commandId, bool flash, bool force_flashing/* = false */)
 {
 	S32 command_location = hasCommand(commandId);
 
 	if (command_location != TOOLBAR_NONE)
 	{
-		mToolbars[command_location]->flashCommand(commandId, flash);
+		mToolbars[command_location]->flashCommand(commandId, flash, force_flashing);
 	}
 
 	return command_location;
@@ -239,8 +237,9 @@ bool LLToolBarView::loadToolbars(bool force_default)
 	LLXUIParser parser;
 	if (!err)
 	{
-	parser.readXUI(root, toolbar_set, toolbar_file);
+	    parser.readXUI(root, toolbar_set, toolbar_file);
 	}
+
 	if (!err && !toolbar_set.validateBlock())
 	{
 		llwarns << "Unable to validate toolbars from file: " << toolbar_file << llendl;
@@ -252,8 +251,9 @@ bool LLToolBarView::loadToolbars(bool force_default)
 		if (force_default)
 		{
 			llerrs << "Unable to load toolbars from default file : " << toolbar_file << llendl;
-		return false;
-	}
+		    return false;
+	    }
+
 		// Try to load the default toolbars
 		return loadToolbars(true);
 	}
@@ -603,7 +603,7 @@ BOOL LLToolBarView::handleDragTool( S32 x, S32 y, const LLUUID& uuid, LLAssetTyp
 BOOL LLToolBarView::handleDropTool( void* cargo_data, S32 x, S32 y, LLToolBar* toolbar)
 {
 	BOOL handled = FALSE;
-	LLInventoryItem* inv_item = (LLInventoryItem*)cargo_data;
+	LLInventoryObject* inv_item = static_cast<LLInventoryObject*>(cargo_data);
 	
 	LLAssetType::EType type = inv_item->getType();
 	if (type == LLAssetType::AT_WIDGET)
@@ -691,19 +691,4 @@ bool LLToolBarView::isModified() const
 	return modified;
 }
 
-
-//
-// HACK to bring up destinations guide at startup
-//
-
-void handleLoginToolbarSetup()
-{
-	// Open the destinations guide by default on first login, per Rhett
-	if (gSavedPerAccountSettings.getBOOL("DisplayDestinationsOnInitialRun") || gAgent.isFirstLogin())
-	{
-		LLFloaterReg::showInstance("destinations");
-
-		gSavedPerAccountSettings.setBOOL("DisplayDestinationsOnInitialRun", FALSE);
-	}
-}
 

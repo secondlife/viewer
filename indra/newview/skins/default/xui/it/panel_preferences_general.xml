@@ -69,6 +69,9 @@
 		<combo_box.item label="mai" name="item4"/>
 	</combo_box>
 	<text name="text_box3">
-		Risposta in modalità occupato:
+		Risposta Non disturbare:
 	</text>
+	<text_editor name="do_not_disturb_response">
+		log_in_to_change
+	</text_editor>
 </panel>

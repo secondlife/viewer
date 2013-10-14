@@ -10,7 +10,7 @@
 		anonimo
 	</floater.string>
 	<floater.string name="VoiceInviteP2P">
-		sta chiamando.
+		ti sta chiamando.
 	</floater.string>
 	<floater.string name="VoiceInviteAdHoc">
 		ha aderito ad una chiamata in chat vocale in conferenza.
@@ -25,9 +25,9 @@
 		Vuoi abbandonare [CURRENT_CHAT] e aderire a questa voice chat?
 	</floater.string>
 	<text name="question">
-		Vuoi abbandonare [CURRENT_CHAT] e aderire a questa voice chat?
+		Se rispondi, verrà interrotto il collegamento dalla conversazione a voce corrente.
 	</text>
-	<button label="Accetta" label_selected="Accetta" name="Accept"/>
-	<button label="Rifiuta" label_selected="Rifiuta" name="Reject"/>
-	<button label="Inizia IM" name="Start IM"/>
+	<button label="Risposta" label_selected="Risposta" name="Accept"/>
+	<button label="Ignora" label_selected="Ignora" name="Reject"/>
+	<button label="Apri invece IM" name="Start IM"/>
 </floater>

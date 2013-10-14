@@ -205,7 +205,7 @@ void LLParcel::init(const LLUUID &owner_id,
 	mAABBMin.setVec(SOME_BIG_NUMBER, SOME_BIG_NUMBER, SOME_BIG_NUMBER);
 	mAABBMax.setVec(SOME_BIG_NEG_NUMBER, SOME_BIG_NEG_NUMBER, SOME_BIG_NEG_NUMBER);
 
-	mLocalID = 0;
+	mLocalID = INVALID_PARCEL_ID;
 
 	//mSimWidePrimCorrection = 0;
 	setMaxPrimCapacity((S32)(sim_object_limit * area / (F32)(REGION_WIDTH_METERS * REGION_WIDTH_METERS)));

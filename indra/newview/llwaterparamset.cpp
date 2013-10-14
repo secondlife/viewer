@@ -185,8 +185,6 @@ LLVector3 LLWaterParamSet::getVector3(const std::string& paramName, bool& error)
 LLVector2 LLWaterParamSet::getVector2(const std::string& paramName, bool& error) 
 {
 	// test to see if right type
-	int ttest;
-	ttest = mParamValues.size();
 	LLSD cur_val = mParamValues.get(paramName);
 	if (!cur_val.isArray() || cur_val.size() != 2) 
 	{

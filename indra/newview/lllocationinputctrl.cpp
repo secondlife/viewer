@@ -1217,11 +1217,11 @@ void LLLocationInputCtrl::onParcelIconClick(EParcelIcon icon)
 	case SCRIPTS_ICON:
 	{
 		LLViewerRegion* region = gAgent.getRegion();
-		if(region && region->getRegionFlags() & REGION_FLAGS_ESTATE_SKIP_SCRIPTS)
+		if(region && region->getRegionFlag(REGION_FLAGS_ESTATE_SKIP_SCRIPTS))
 		{
 			LLNotificationsUtil::add("ScriptsStopped");
 		}
-		else if(region && region->getRegionFlags() & REGION_FLAGS_SKIP_SCRIPTS)
+		else if(region && region->getRegionFlag(REGION_FLAGS_SKIP_SCRIPTS))
 		{
 			LLNotificationsUtil::add("ScriptsNotRunning");
 		}

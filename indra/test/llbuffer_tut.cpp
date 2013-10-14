@@ -31,7 +31,6 @@
 #include "lltut.h"
 #include "llbuffer.h"
 #include "llerror.h"
-#include "llmemtype.h"
 
 
 namespace tut

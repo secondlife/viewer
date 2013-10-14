@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu
+ layout="topleft"
+ name="Conversation Gear Menu">
+    <menu_item_call
+     label="View Profile"
+     layout="topleft"
+     name="View Profile">
+        <on_click function="Avatar.GearDoToSelected" parameter="view_profile" />
+        <on_enable function="Avatar.EnableGearItem" parameter="can_view_profile" />
+    </menu_item_call>
+    <menu_item_call
+     label="Add Friend"
+     layout="topleft"
+     name="Add Friend">
+        <on_click function="Avatar.GearDoToSelected" parameter="add_friend" />
+        <on_enable function="Avatar.EnableGearItem" parameter="can_add" />
+    </menu_item_call>
+    <menu_item_call
+     label="Remove friend"
+     layout="topleft"
+     name="remove_friend">
+        <on_click function="Avatar.GearDoToSelected" parameter="remove_friend" />
+        <on_enable function="Avatar.EnableGearItem" parameter="can_delete" />
+    </menu_item_call>
+    <menu_item_call
+     label="Offer teleport"
+     layout="topleft"
+     name="offer_teleport">
+        <on_click function="Avatar.GearDoToSelected" parameter="offer_teleport"/>
+        <on_enable function="Avatar.EnableGearItem" parameter="can_offer_teleport"/>
+    </menu_item_call>
+    <menu_item_call
+     label="Invite to group..."
+     layout="topleft"
+     name="invite_to_group">
+        <on_click function="Avatar.GearDoToSelected" parameter="invite_to_group" />
+        <on_enable function="Avatar.EnableGearItem" parameter="can_invite" />
+    </menu_item_call>
+    <menu_item_separator
+     layout="topleft"
+     name="View Icons Separator" />
+    <menu_item_call
+     label="Chat history..."
+     layout="topleft"
+     name="chat_history">
+        <on_click function="Avatar.GearDoToSelected" parameter="chat_history"/>
+        <on_enable function="Avatar.EnableGearItem" parameter="can_chat_history"/>
+    </menu_item_call>
+    <menu_item_separator
+     layout="topleft"/>
+    <menu_item_call
+       label="Zoom In"
+       layout="topleft"
+       name="zoom_in">
+      <on_click function="Avatar.DoToSelected" parameter="zoom_in" />
+      <on_enable function="Avatar.EnableItem" parameter="can_zoom_in" />
+    </menu_item_call>
+    <menu_item_call
+     label="Map"
+     layout="topleft"
+     name="map">
+        <on_click function="Avatar.GearDoToSelected" parameter="map" />
+        <on_enable function="Avatar.EnableGearItem" parameter="can_show_on_map" />
+    </menu_item_call>
+    <menu_item_call
+     label="Share"
+     layout="topleft"
+     name="Share">
+        <on_click function="Avatar.GearDoToSelected" parameter="share" />
+        <on_enable function="Avatar.EnableGearItem" parameter="can_share" />
+    </menu_item_call>
+    <menu_item_call
+     label="Pay"
+     layout="topleft"
+     name="Pay">
+        <on_click function="Avatar.GearDoToSelected" parameter="pay" />
+        <on_enable function="Avatar.EnableGearItem" parameter="can_pay" />
+    </menu_item_call>
+    <menu_item_separator
+     layout="topleft"/>
+    <menu_item_check
+     label="Block Voice"
+     layout="topleft"
+     name="Block/Unblock">
+        <on_check function="Avatar.CheckGearItem" parameter="is_blocked" />
+        <on_click function="Avatar.GearDoToSelected" parameter="block_unblock" />
+        <on_enable function="Avatar.EnableGearItem" parameter="can_block" />
+    </menu_item_check>
+    <menu_item_check
+     label="Block Text"
+     layout="topleft"
+     name="MuteText">
+        <on_check function="Avatar.CheckGearItem" parameter="is_muted" />
+        <on_click function="Avatar.GearDoToSelected" parameter="mute_unmute" />
+        <on_enable function="Avatar.EnableGearItem" parameter="can_block" />
+    </menu_item_check>
+    <menu_item_separator
+     layout="topleft"/>
+</toggleable_menu>
+

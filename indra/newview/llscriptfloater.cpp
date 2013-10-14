@@ -41,7 +41,7 @@
 #include "lltoastscripttextbox.h"
 #include "lltrans.h"
 #include "llviewerwindow.h"
-#include "llimfloater.h"
+#include "llfloaterimsession.h"
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -95,7 +95,12 @@ bool LLScriptFloater::toggle(const LLUUID& notification_id)
 		show(notification_id);
 	}
 
-	LLChicletBar::getInstance()->getChicletPanel()->setChicletToggleState(notification_id, true);
+	LLChicletPanel * chiclet_panelp = LLChicletBar::getInstance()->getChicletPanel();
+	if (NULL != chiclet_panelp)
+	{
+		chiclet_panelp->setChicletToggleState(notification_id, true);
+	}
+
 	return true;
 }
 
@@ -206,10 +211,14 @@ void LLScriptFloater::setVisible(BOOL visible)
 
 	if(!visible)
 	{
-		LLIMChiclet* chiclet = LLChicletBar::getInstance()->getChicletPanel()->findChiclet<LLIMChiclet>(getNotificationId());
-		if(chiclet)
+		LLChicletPanel * chiclet_panelp = LLChicletBar::getInstance()->getChicletPanel();
+		if (NULL != chiclet_panelp)
 		{
-			chiclet->setToggleState(false);
+			LLIMChiclet * chicletp = chiclet_panelp->findChiclet<LLIMChiclet>(getNotificationId());
+			if(NULL != chicletp)
+			{
+				chicletp->setToggleState(false);
+			}
 		}
 	}
 }
@@ -218,15 +227,19 @@ void LLScriptFloater::onMouseDown()
 {
 	if(getNotificationId().notNull())
 	{
-		// Remove new message icon
-		LLIMChiclet* chiclet = LLChicletBar::getInstance()->getChicletPanel()->findChiclet<LLIMChiclet>(getNotificationId());
-		if (chiclet == NULL)
+		LLChicletPanel * chiclet_panelp = LLChicletBar::getInstance()->getChicletPanel();
+		if (NULL != chiclet_panelp)
 		{
-			llerror("Dock chiclet for LLScriptFloater doesn't exist", 0);
-		}
-		else
-		{
-			chiclet->setShowNewMessagesIcon(false);
+			LLIMChiclet * chicletp = chiclet_panelp->findChiclet<LLIMChiclet>(getNotificationId());
+			// Remove new message icon
+			if (NULL == chicletp)
+			{
+				llerror("Dock chiclet for LLScriptFloater doesn't exist", 0);
+			}
+			else
+			{
+				chicletp->setShowNewMessagesIcon(false);
+			}
 		}
 	}
 }
@@ -262,7 +275,11 @@ void LLScriptFloater::onFocusLost()
 {
 	if(getNotificationId().notNull())
 	{
-		LLChicletBar::getInstance()->getChicletPanel()->setChicletToggleState(getNotificationId(), false);
+		LLChicletPanel * chiclet_panelp = LLChicletBar::getInstance()->getChicletPanel();
+		if (NULL != chiclet_panelp)
+		{
+			chiclet_panelp->setChicletToggleState(getNotificationId(), false);
+		}
 	}
 }
 
@@ -271,7 +288,11 @@ void LLScriptFloater::onFocusReceived()
 	// first focus will be received before setObjectId() call - don't toggle chiclet
 	if(getNotificationId().notNull())
 	{
-		LLChicletBar::getInstance()->getChicletPanel()->setChicletToggleState(getNotificationId(), true);
+		LLChicletPanel * chiclet_panelp = LLChicletBar::getInstance()->getChicletPanel();
+		if (NULL != chiclet_panelp)
+		{
+			chiclet_panelp->setChicletToggleState(getNotificationId(), true);
+		}
 	}
 }
 
@@ -279,28 +300,30 @@ void LLScriptFloater::dockToChiclet(bool dock)
 {
 	if (getDockControl() == NULL)
 	{
-		LLChiclet* chiclet = LLChicletBar::getInstance()->getChicletPanel()->findChiclet<LLChiclet>(getNotificationId());
-		if (chiclet == NULL)
+		LLChicletPanel * chiclet_panelp = LLChicletBar::getInstance()->getChicletPanel();
+		if (NULL != chiclet_panelp)
 		{
-			llwarns << "Dock chiclet for LLScriptFloater doesn't exist" << llendl;
-			return;
+			LLChiclet * chicletp = chiclet_panelp->findChiclet<LLChiclet>(getNotificationId());
+			if (NULL == chicletp)
+			{
+				llwarns << "Dock chiclet for LLScriptFloater doesn't exist" << llendl;
+				return;
+			}
+
+			chiclet_panelp->scrollToChiclet(chicletp);
+
+			// Stop saving position while we dock floater
+			bool save = getSavePosition();
+			setSavePosition(false);
+
+			setDockControl(new LLDockControl(chicletp, this, getDockTongue(),
+				LLDockControl::BOTTOM));
+
+			setDocked(dock);
+
+			// Restore saving
+			setSavePosition(save);
 		}
-		else
-		{
-			LLChicletBar::getInstance()->getChicletPanel()->scrollToChiclet(chiclet);
-		}
-
-		// Stop saving position while we dock floater
-		bool save = getSavePosition();
-		setSavePosition(false);
-
-		setDockControl(new LLDockControl(chiclet, this, getDockTongue(),
-			LLDockControl::BOTTOM));
-
-		setDocked(dock);
-
-		// Restore saving
-		setSavePosition(save);
 	}
 }
 
@@ -347,11 +370,15 @@ void LLScriptFloaterManager::onAddNotification(const LLUUID& notification_id)
 		script_notification_map_t::const_iterator it = findUsingObjectId(object_id);
 		if(it != mNotifications.end())
 		{
-			LLIMChiclet* chiclet = LLChicletBar::getInstance()->getChicletPanel()->findChiclet<LLIMChiclet>(it->first);
-			if(chiclet)
+			LLChicletPanel * chiclet_panelp = LLChicletBar::getInstance()->getChicletPanel();
+			if (NULL != chiclet_panelp)
 			{
-				// Pass the new_message icon state further.
-				set_new_message = chiclet->getShowNewMessagesIcon();
+				LLIMChiclet * chicletp = chiclet_panelp->findChiclet<LLIMChiclet>(it->first);
+				if(NULL != chicletp)
+				{
+					// Pass the new_message icon state further.
+					set_new_message = chicletp->getShowNewMessagesIcon();
+				}
 			}
 
 			LLScriptFloater* floater = LLFloaterReg::findTypedInstance<LLScriptFloater>("script_floater", it->first);
@@ -367,14 +394,18 @@ void LLScriptFloaterManager::onAddNotification(const LLUUID& notification_id)
 
 	mNotifications.insert(std::make_pair(notification_id, object_id));
 
-	// Create inventory offer chiclet for offer type notifications
-	if( OBJ_GIVE_INVENTORY == obj_type )
+	LLChicletPanel * chiclet_panelp = LLChicletBar::getInstance()->getChicletPanel();
+	if (NULL != chiclet_panelp)
 	{
-		LLChicletBar::instance().getChicletPanel()->createChiclet<LLInvOfferChiclet>(notification_id);
-	}
-	else
-	{
-		LLChicletBar::getInstance()->getChicletPanel()->createChiclet<LLScriptChiclet>(notification_id);
+		// Create inventory offer chiclet for offer type notifications
+		if( OBJ_GIVE_INVENTORY == obj_type )
+		{
+			chiclet_panelp->createChiclet<LLInvOfferChiclet>(notification_id);
+		}
+		else
+		{
+			chiclet_panelp->createChiclet<LLScriptChiclet>(notification_id);
+		}
 	}
 
 	LLIMWellWindow::getInstance()->addObjectRow(notification_id, set_new_message);
@@ -410,7 +441,11 @@ void LLScriptFloaterManager::onRemoveNotification(const LLUUID& notification_id)
 	// remove related chiclet
 	if (LLChicletBar::instanceExists())
 	{
-		LLChicletBar::getInstance()->getChicletPanel()->removeChiclet(notification_id);
+		LLChicletPanel * chiclet_panelp = LLChicletBar::getInstance()->getChicletPanel();
+		if (NULL != chiclet_panelp)
+		{
+			chiclet_panelp->removeChiclet(notification_id);
+		}
 	}
 
 	LLIMWellWindow* im_well_window = LLIMWellWindow::findInstance();

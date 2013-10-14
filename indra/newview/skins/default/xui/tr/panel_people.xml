@@ -14,81 +14,56 @@ Birlikte takılacak kişiler mi arıyorsunuz? [secondlife:///app/worldmap Dünya
 	<string name="no_filtered_friends_msg">
 		Aradığınızı bulamadınız mı? [secondlife:///app/search/people/[SEARCH_TERM] Ara] deneyin.
 	</string>
-	<string name="people_filter_label" value="Kişileri Filtrele"/>
-	<string name="groups_filter_label" value="Grupları Filtrele"/>
 	<string name="no_filtered_groups_msg" value="Aradığınızı bulamadınız mı? [secondlife:///app/search/groups/[SEARCH_TERM] Ara] deneyin."/>
 	<string name="no_groups_msg" value="Katılacak Gruplar mı arıyorsunuz? [secondlife:///app/search/groups Ara] deneyin."/>
 	<string name="MiniMapToolTipMsg" value="[REGION](Haritayı açmak için çift tıkla, yatay hareket için shift çek)"/>
 	<string name="AltMiniMapToolTipMsg" value="[REGION](Işınlamak için çift tıkla, yatay hareket için shift çek)"/>
-	<filter_editor label="Filtrele" name="filter_input"/>
 	<tab_container name="tabs">
 		<panel label="YAKIN" name="nearby_panel">
-			<panel label="bottom_panel" name="bottom_panel">
-				<menu_button name="nearby_view_sort_btn" tool_tip="Seçenklr."/>
-				<button name="add_friend_btn" tool_tip="Seçilen Sakini arkadaş listene ekle"/>
+			<panel label="bottom_panel" name="nearby_buttons_panel">
+				<filter_editor label="Kişileri Filtrele" name="nearby_filter_input"/>
+				<button name="gear_btn" tool_tip="Seçilen kişi üzerindeki eylemler"/>
+				<menu_button name="nearby_view_btn" tool_tip="Gösterme/sıralama seçenekleri"/>
+				<button name="add_friend_btn" tool_tip="Bir sakine arkadaşlık öner"/>
+				<dnd_button name="nearby_del_btn" tool_tip="Seçilen kişiyi arkadaş olarak kaldır"/>
 			</panel>
 		</panel>
-		<panel label="ARKADAŞLARIM" name="friends_panel">
+		<panel label="ARKADAŞLAR" name="friends_panel">
+			<panel label="bottom_panel" name="friends_buttons_panel">
+				<filter_editor label="Kişileri Filtrele" name="friends_filter_input"/>
+				<button name="gear_btn" tool_tip="Seçilen kişi üzerindeki eylemler"/>
+				<menu_button name="friends_view_btn" tool_tip="Seçenekleri göster/sırala"/>
+				<button name="friends_add_btn" tool_tip="Bir sakine arkadaşlık öner"/>
+				<dnd_button name="friends_del_btn" tool_tip="Seçilen kişiyi arkadaş olarak kaldır"/>
+			</panel>
 			<accordion name="friends_accordion">
 				<accordion_tab name="tab_online" title="Çevrimiçi"/>
 				<accordion_tab name="tab_all" title="Tümü"/>
 			</accordion>
-			<panel label="bottom_panel" name="bottom_panel">
-				<layout_stack name="bottom_panel">
-					<layout_panel name="options_gear_btn_panel">
-						<menu_button name="friends_viewsort_btn" tool_tip="İlave seçenekleri göster"/>
-					</layout_panel>
-					<layout_panel name="add_btn_panel">
-						<button name="add_btn" tool_tip="Bir Sakine arkadaşlık öner"/>
-					</layout_panel>
-					<layout_panel name="trash_btn_panel">
-						<dnd_button name="del_btn" tool_tip="Seçilen kişiyi arkadaş Listenden çıkar"/>
-					</layout_panel>
-				</layout_stack>
-			</panel>
 		</panel>
-		<panel label="GRUPLARIM" name="groups_panel">
-			<panel label="bottom_panel" name="bottom_panel">
-				<menu_button name="groups_viewsort_btn" tool_tip="Seçenklr."/>
-				<button name="plus_btn" tool_tip="Gruba katıl/yeni grup oluştur"/>
-				<button name="activate_btn" tool_tip="Seçilen grubu etkinleştir"/>
+		<panel label="GRUPLAR" name="groups_panel">
+			<panel label="bottom_panel" name="groups_buttons_panel">
+				<filter_editor label="Grupları Filtrele" name="groups_filter_input"/>
+				<menu_button name="groups_gear_btn" tool_tip="Seçilen grup üzerindeki eylemler"/>
+				<menu_button name="groups_view_btn" tool_tip="Seçenekleri göster/sırala"/>
+				<menu_button name="plus_btn" tool_tip="Gruba katıl/yeni grup oluştur"/>
+				<dnd_button name="minus_btn" tool_tip="Seçilen gruptan ayrıl"/>
 			</panel>
+			<text name="groupcount">
+				[COUNT] gruba üyesiniz, daha [REMAINING] gruba üye olabilirsiniz.
+			</text>
 		</panel>
 		<panel label="SON" name="recent_panel">
-			<panel label="bottom_panel" name="bottom_panel">
-				<menu_button name="recent_viewsort_btn" tool_tip="Seçenklr."/>
-				<button name="add_friend_btn" tool_tip="Seçilen Sakini arkadaş listene ekle"/>
+			<panel label="bottom_panel" name="recent_buttons_panel">
+				<filter_editor label="Kişileri Filtrele" name="recent_filter_input"/>
+				<button name="gear_btn" tool_tip="Seçilen kişi üzerindeki eylemler"/>
+				<menu_button name="recent_view_btn" tool_tip="Seçenekleri göster/sırala"/>
+				<button name="add_friend_btn" tool_tip="Bir sakine arkadaşlık öner"/>
+				<dnd_button name="recent_del_btn" tool_tip="Seçilen kişiyi arkadaş olarak kaldır"/>
 			</panel>
 		</panel>
+		<panel label="ENGELLENMİŞ" name="blocked_panel">
+			<panel label="Engellenmiş Sakinler ve Nesneler" name="panel_block_list_sidetray"/>
+		</panel>
 	</tab_container>
-	<panel name="button_bar">
-		<layout_stack name="bottom_bar_ls">
-			<layout_panel name="view_profile_btn_lp">
-				<button label="Profil" name="view_profile_btn" tool_tip="Resim, grup ve diğer Sakin bilgilerini göster"/>
-			</layout_panel>
-			<layout_panel name="im_btn_lp">
-				<button label="Aİ" name="im_btn" tool_tip="Anlık ileti oturumu aç"/>
-			</layout_panel>
-			<layout_panel name="call_btn_lp">
-				<button label="Ara" name="call_btn" tool_tip="Bu Sakini ara"/>
-			</layout_panel>
-			<layout_panel name="share_btn_lp">
-				<button label="Paylaş" name="share_btn" tool_tip="Bir envanter öğesini paylaş"/>
-			</layout_panel>
-			<layout_panel name="teleport_btn_lp">
-				<button label="Işınla" name="teleport_btn" tool_tip="Işınlama teklif et"/>
-			</layout_panel>
-		</layout_stack>
-		<layout_stack name="bottom_bar_ls1">
-			<layout_panel name="group_info_btn_lp">
-				<button label="Grup Profili" name="group_info_btn" tool_tip="Grup bilgilerini göster"/>
-			</layout_panel>
-			<layout_panel name="chat_btn_lp">
-				<button label="Grup Sohbeti" name="chat_btn" tool_tip="Sohbet oturumu aç"/>
-			</layout_panel>
-			<layout_panel name="group_call_btn_lp">
-				<button label="Grup Araması" name="group_call_btn" tool_tip="Bu grubu ara"/>
-			</layout_panel>
-		</layout_stack>
-	</panel>
 </panel>

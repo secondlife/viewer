@@ -568,8 +568,11 @@ bool LLTextureCacheRemoteWorker::doWrite()
 			idx = mCache->setHeaderCacheEntry(mID, entry, mImageSize, mDataSize); // create the new entry.
 			if(idx >= 0)
 			{
-				//write to the fast cache.
-				llassert_always(mCache->writeToFastCache(idx, mRawImage, mRawDiscardLevel));
+				// (almost always) write to the fast cache.
+				if (mRawImage->getDataSize())
+				{
+					llassert_always(mCache->writeToFastCache(idx, mRawImage, mRawDiscardLevel));
+				}
 			}
 		}
 		else
@@ -1895,10 +1898,17 @@ LLPointer<LLImageRaw> LLTextureCache::readFromFastCache(const LLUUID& id, S32& d
 bool LLTextureCache::writeToFastCache(S32 id, LLPointer<LLImageRaw> raw, S32 discardlevel)
 {
 	//rescale image if needed
+	if (raw.isNull() || !raw->getData())
+	{
+		llerrs << "Attempted to write NULL raw image to fastcache" << llendl;
+		return false;
+	}
+
 	S32 w, h, c;
 	w = raw->getWidth();
 	h = raw->getHeight();
 	c = raw->getComponents();
+
 	S32 i = 0 ;
 	
 	while(((w >> i) * (h >> i) * c) > TEXTURE_FAST_CACHE_ENTRY_SIZE - TEXTURE_FAST_CACHE_ENTRY_OVERHEAD)
@@ -1912,10 +1922,10 @@ bool LLTextureCache::writeToFastCache(S32 id, LLPointer<LLImageRaw> raw, S32 dis
 		h >>= i;
 		if(w * h *c > 0) //valid
 		{
-			LLPointer<LLImageRaw> newraw = new LLImageRaw(raw->getData(), raw->getWidth(), raw->getHeight(), raw->getComponents());
-			newraw->scale(w, h) ;
-			raw = newraw;
-
+			//make a duplicate to keep the original raw image untouched.
+			raw = raw->duplicate();
+			raw->scale(w, h) ;
+			
 			discardlevel += i ;
 		}
 	}
@@ -1925,9 +1935,12 @@ bool LLTextureCache::writeToFastCache(S32 id, LLPointer<LLImageRaw> raw, S32 dis
 	memcpy(mFastCachePadBuffer + sizeof(S32), &h, sizeof(S32));
 	memcpy(mFastCachePadBuffer + sizeof(S32) * 2, &c, sizeof(S32));
 	memcpy(mFastCachePadBuffer + sizeof(S32) * 3, &discardlevel, sizeof(S32));
-	if(w * h * c > 0) //valid
+
+	S32 copy_size = w * h * c;
+	if(copy_size > 0) //valid
 	{
-		memcpy(mFastCachePadBuffer + TEXTURE_FAST_CACHE_ENTRY_OVERHEAD, raw->getData(), w * h * c);
+		copy_size = llmin(copy_size, TEXTURE_FAST_CACHE_ENTRY_SIZE - TEXTURE_FAST_CACHE_ENTRY_OVERHEAD);
+		memcpy(mFastCachePadBuffer + TEXTURE_FAST_CACHE_ENTRY_OVERHEAD, raw->getData(), copy_size);
 	}
 	S32 offset = id * TEXTURE_FAST_CACHE_ENTRY_SIZE;
 

@@ -79,7 +79,7 @@ template<> template<>
 void alignment_test_object_t::test<1>()
 {
 #   ifdef LL_DEBUG
-	skip("This test fails on Windows when compiled in debug mode.");
+//	skip("This test fails on Windows when compiled in debug mode.");
 #   endif
 	
 	const int num_tests = 7;
@@ -116,7 +116,7 @@ template<> template<>
 void alignment_test_object_t::test<3>()
 {
 #   ifdef LL_DEBUG
-	skip("This test fails on Windows when compiled in debug mode.");
+//	skip("This test fails on Windows when compiled in debug mode.");
 #   endif
 	
 	const int ARR_SIZE = 7;
@@ -128,12 +128,14 @@ void alignment_test_object_t::test<3>()
 	}
 
 	MyVector4a *veca = new MyVector4a[ARR_SIZE];
+	//std::cout << "veca base is " << (S32) veca << std::endl;
 	ensure("LLAligment veca base", is_aligned(veca,16));
 	for(int i=0; i<ARR_SIZE; i++)
 	{
 		std::cout << "veca[" << i << "]" << std::endl;
 		ensure("LLAlignment veca member unaligned", is_aligned(&veca[i],16));
 	}
+	delete [] veca; 
 }
 
 }

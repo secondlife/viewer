@@ -17,8 +17,8 @@
 			<menu_item_call label="Ходьба / бег / полет..." name="Walk / run / fly"/>
 		</menu>
 		<menu label="Статус" name="Status">
-			<menu_item_call label="Нет на месте" name="Set Away"/>
-			<menu_item_call label="Не беспокоить" name="Set Busy"/>
+			<menu_item_check label="Нет на месте" name="Away"/>
+			<menu_item_check label="Не беспокоить" name="Do Not Disturb"/>
 		</menu>
 		<menu_item_call label="Купить L$..." name="Buy and Sell L$"/>
 		<menu_item_call label="Торговые исходящие..." name="MerchantOutbox"/>
@@ -30,15 +30,21 @@
 		<menu_item_call label="Выход из [APP_NAME]" name="Quit"/>
 	</menu>
 	<menu label="Общение" name="Communicate">
-		<menu_item_check label="Чат..." name="Nearby Chat"/>
+		<menu_item_check label="Разговоры..." name="Conversations"/>
+		<menu_item_check label="Локальный чат..." name="Nearby Chat"/>
 		<menu_item_check label="Говорить" name="Speak"/>
-		<menu_item_check label="Настройки голоса..." name="Nearby Voice"/>
-		<menu_item_check label="Изменение голоса..." name="ShowVoice"/>
+		<menu_item_check label="Журнал разговора..." name="Conversation Log..."/>
+		<menu label="Изменение голоса" name="VoiceMorphing">
+			<menu_item_check label="Без изменения голоса" name="NoVoiceMorphing"/>
+			<menu_item_check label="Просмотр..." name="Preview"/>
+			<menu_item_call label="Подписаться..." name="Subscribe"/>
+		</menu>
 		<menu_item_check label="Жесты..." name="Gestures"/>
-		<menu_item_call label="Друзья" name="My Friends"/>
-		<menu_item_call label="Группы" name="My Groups"/>
-		<menu_item_call label="Люди неподалеку" name="Active Speakers"/>
+		<menu_item_check label="Друзья" name="My Friends"/>
+		<menu_item_check label="Группы" name="My Groups"/>
+		<menu_item_check label="Люди неподалеку" name="Active Speakers"/>
 		<menu_item_call label="Черный список" name="Block List"/>
+		<menu_item_check label="Не беспокоить" name="Do Not Disturb"/>
 	</menu>
 	<menu label="Мир" name="World">
 		<menu_item_call label="Добавить закладку на это место" name="Create Landmark Here"/>
@@ -107,13 +113,13 @@
 			<menu_item_call label="Включить следующую" name="Include Next Part"/>
 			<menu_item_call label="Включить предыдущую" name="Include Previous Part"/>
 		</menu>
+		<menu_item_call label="Наборы связей..." name="pathfinding_linkset_menu_item"/>
 		<menu_item_call label="Фокус на выбранном" name="Focus on Selection"/>
 		<menu_item_call label="Приблизить к выбранному" name="Zoom to Selection"/>
 		<menu label="Объект" name="Object">
 			<menu_item_call label="Купить" name="Menu Object Buy"/>
 			<menu_item_call label="Взять" name="Menu Object Take"/>
 			<menu_item_call label="Взять копию" name="Take Copy"/>
-			<menu_item_call label="Сохранить в моем инвентаре" name="Save Object Back to My Inventory"/>
 			<menu_item_call label="Сохранить в контенте объектов" name="Save Object Back to Object Contents"/>
 			<menu_item_call label="Вернуть объект" name="Return Object back to Owner"/>
 		</menu>
@@ -269,6 +275,7 @@
 			<menu_item_check label="Случайная частота кадров" name="Randomize Framerate"/>
 			<menu_item_check label="Периодическое замедление кадров" name="Periodic Slow Frame"/>
 			<menu_item_check label="Тест кадров" name="Frame Test"/>
+			<menu_item_call label="Профиль кадра" name="Frame Profile"/>
 		</menu>
 		<menu label="Визуализировать метаданные" name="Render Metadata">
 			<menu_item_check label="Рамки" name="Bounding Boxes"/>
@@ -303,9 +310,10 @@
 			<menu_item_check label="Оси" name="Axes"/>
 			<menu_item_check label="Касательный базис" name="Tangent Basis"/>
 			<menu_item_call label="Выбранная текстура в основе" name="Selected Texture Info Basis"/>
+			<menu_item_call label="Сведения о выбранном материале" name="Selected Material Info"/>
 			<menu_item_check label="Каркас" name="Wireframe"/>
 			<menu_item_check label="Смыкание объектов" name="Object-Object Occlusion"/>
-			<menu_item_check label="Освещение и тени" name="Lighting and Shadows"/>
+			<menu_item_check label="Расширенная модель освещения" name="Advanced Lighting Model"/>
 			<menu_item_check label="Тени от солнца, луны и прожекторов" name="Shadows from Sun/Moon/Projectors"/>
 			<menu_item_check label="SSAO и сглаживание теней" name="SSAO and Shadow Smoothing"/>
 			<menu_item_check label="Отладка GL" name="Debug GL"/>
@@ -315,7 +323,6 @@
 			<menu_item_check label="Текстуры анимаций" name="Animation Textures"/>
 			<menu_item_check label="Отключить текстуры" name="Disable Textures"/>
 			<menu_item_check label="Текстуры в полном разрешении" name="Rull Res Textures"/>
-			<menu_item_check label="Атлас текстур (экспериментальная функция)" name="Texture Atlas"/>
 			<menu_item_check label="Визуализация присоединенных источников света" name="Render Attached Lights"/>
 			<menu_item_check label="Визуализация присоединенных частиц" name="Render Attached Particles"/>
 			<menu_item_check label="Парящие светящиеся объекты" name="Hover Glow Objects"/>
@@ -351,7 +358,6 @@
 			<menu_item_call label="Вывод средства фокусировки" name="Dump Focus Holder"/>
 			<menu_item_call label="Печать информации о выбранных объектах" name="Print Selected Object Info"/>
 			<menu_item_call label="Печать информации об агенте" name="Print Agent Info"/>
-			<menu_item_call label="Статистическая информация о памяти" name="Memory Stats"/>
 			<menu_item_check label="Консоль отладки региона" name="Region Debug Console"/>
 			<menu_item_check label="Отладка SelectMgr" name="Debug SelectMgr"/>
 			<menu_item_check label="Отладка щелчков мышью" name="Debug Clicks"/>
@@ -385,7 +391,6 @@
 			</menu>
 			<menu_item_call label="Скинуть параметры" name="Force Params to Default"/>
 			<menu_item_check label="Данные об анимации" name="Animation Info"/>
-			<menu_item_check label="Анимация медленных движений" name="Slow Motion Animations"/>
 			<menu_item_check label="Показать взгляд" name="Show Look At"/>
 			<menu_item_check label="Показать указание" name="Show Point At"/>
 			<menu_item_check label="Отладка обновленных движений суставов" name="Debug Joint Updates"/>

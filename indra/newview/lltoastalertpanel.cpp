@@ -357,6 +357,7 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 	if (mLineEditor)
 	{
 		mLineEditor->selectAll();
+		mLineEditor->setFocus(TRUE);
 	}
 	if(mDefaultOption >= 0)
 	{

@@ -105,6 +105,8 @@ public:
 	LLToolTip(const Params& p);
 	void initFromParams(const LLToolTip::Params& params);
 
+	void getToolTipMessage(std::string & message);
+
 private:
 	class LLTextBox*	mTextBox;
 	class LLButton*     mInfoButton;
@@ -141,6 +143,8 @@ public:
 	LLRect getToolTipRect();
 	LLRect getMouseNearRect();
 	void updateToolTipVisibility();
+
+	void getToolTipMessage(std::string & message);
 
 private:
 	void createToolTip(const LLToolTip::Params& params);

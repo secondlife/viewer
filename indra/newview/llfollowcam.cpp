@@ -38,7 +38,6 @@ std::vector<LLFollowCamParams*> LLFollowCamMgr::sParamStack;
 //-------------------------------------------------------
 // constants
 //-------------------------------------------------------
-const F32 ONE_HALF							= 0.5; 
 const F32 FOLLOW_CAM_ZOOM_FACTOR			= 0.1f;
 const F32 FOLLOW_CAM_MIN_ZOOM_AMOUNT		= 0.1f;
 const F32 DISTANCE_EPSILON					= 0.0001f;

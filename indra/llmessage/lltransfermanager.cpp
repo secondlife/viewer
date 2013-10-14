@@ -606,15 +606,20 @@ void LLTransferManager::processTransferAbort(LLMessageSystem *msgp, void **)
 void LLTransferManager::reliablePacketCallback(void **user_data, S32 result)
 {
 	LLUUID *transfer_idp = (LLUUID *)user_data;
-	if (result)
+	if (result &&
+		transfer_idp != NULL)
 	{
-		llwarns << "Aborting reliable transfer " << *transfer_idp << " due to failed reliable resends!" << llendl;
 		LLTransferSource *tsp = gTransferManager.findTransferSource(*transfer_idp);
 		if (tsp)
 		{
+			llwarns << "Aborting reliable transfer " << *transfer_idp << " due to failed reliable resends!" << llendl;
 			LLTransferSourceChannel *tscp = tsp->mChannelp;
 			tsp->abortTransfer();
 			tscp->deleteTransfer(tsp);
+		}
+		else
+		{
+			llwarns << "Aborting reliable transfer " << *transfer_idp << " but can't find the LLTransferSource object" << llendl;
 		}
 	}
 	delete transfer_idp;
@@ -892,22 +897,26 @@ LLTransferSource *LLTransferSourceChannel::findTransferSource(const LLUUID &tran
 }
 
 
-BOOL LLTransferSourceChannel::deleteTransfer(LLTransferSource *tsp)
+void LLTransferSourceChannel::deleteTransfer(LLTransferSource *tsp)
 {
-
-	LLPriQueueMap<LLTransferSource *>::pqm_iter iter;
-	for (iter = mTransferSources.mMap.begin(); iter != mTransferSources.mMap.end(); iter++)
+	if (tsp)
 	{
-		if (iter->second == tsp)
+		LLPriQueueMap<LLTransferSource *>::pqm_iter iter;
+		for (iter = mTransferSources.mMap.begin(); iter != mTransferSources.mMap.end(); iter++)
 		{
-			delete tsp;
-			mTransferSources.mMap.erase(iter);
-			return TRUE;
+			if (iter->second == tsp)
+			{
+				delete tsp;
+				mTransferSources.mMap.erase(iter);
+				return;
+			}
 		}
-	}
 
-	llerrs << "Unable to find transfer source to delete!" << llendl;
-	return FALSE;
+		llwarns << "Unable to find transfer source id " 
+			<< tsp->getID()
+			<< " to delete!" 
+			<< llendl;
+	}
 }
 
 
@@ -1008,21 +1017,26 @@ LLTransferTarget *LLTransferTargetChannel::findTransferTarget(const LLUUID &tran
 }
 
 
-BOOL LLTransferTargetChannel::deleteTransfer(LLTransferTarget *ttp)
+void LLTransferTargetChannel::deleteTransfer(LLTransferTarget *ttp)
 {
-	tt_iter iter;
-	for (iter = mTransferTargets.begin(); iter != mTransferTargets.end(); iter++)
+	if (ttp)
 	{
-		if (*iter == ttp)
+		tt_iter iter;
+		for (iter = mTransferTargets.begin(); iter != mTransferTargets.end(); iter++)
 		{
-			delete ttp;
-			mTransferTargets.erase(iter);
-			return TRUE;
+			if (*iter == ttp)
+			{
+				delete ttp;
+				mTransferTargets.erase(iter);
+				return;
+			}
 		}
-	}
 
-	llerrs << "Unable to find transfer target to delete!" << llendl;
-	return FALSE;
+		llwarns << "Unable to find transfer target id " 
+			<< ttp->getID()
+			<< " to delete!" 
+			<< llendl;
+	}
 }
 
 

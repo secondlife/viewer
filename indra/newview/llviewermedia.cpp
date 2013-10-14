@@ -316,9 +316,13 @@ public:
 	/* virtual */ void completedHeader(U32 status, const std::string& reason, const LLSD& content)
 	{
 		LL_WARNS("MediaAuth") << "status = " << status << ", reason = " << reason << LL_ENDL;
-		LL_WARNS("MediaAuth") << content << LL_ENDL;
+
+		LLSD stripped_content = content;
+		stripped_content.erase("set-cookie");
+		LL_WARNS("MediaAuth") << stripped_content << LL_ENDL;
 
 		std::string cookie = content["set-cookie"].asString();
+		LL_DEBUGS("MediaAuth") << "cookie = " << cookie << LL_ENDL;
 
 		LLViewerMedia::getCookieStore()->setCookiesFromHost(cookie, mHost);
 

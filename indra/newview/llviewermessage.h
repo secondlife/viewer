@@ -67,7 +67,6 @@ enum InventoryOfferResponse
 BOOL can_afford_transaction(S32 cost);
 void give_money(const LLUUID& uuid, LLViewerRegion* region, S32 amount, BOOL is_group = FALSE,
 				S32 trx_type = TRANS_GIFT, const std::string& desc = LLStringUtil::null);
-void busy_message (LLMessageSystem* msg, LLUUID from_id);
 
 void process_logout_reply(LLMessageSystem* msg, void**);
 void process_layer_data(LLMessageSystem *mesgsys, void **user_data);
@@ -153,6 +152,8 @@ void send_group_notice(const LLUUID& group_id,
 					   const std::string& message,
 					   const LLInventoryItem* item);
 
+void send_do_not_disturb_message (LLMessageSystem* msg, const LLUUID& from_id, const LLUUID& session_id = LLUUID::null);
+
 void handle_lure(const LLUUID& invitee);
 void handle_lure(const uuid_vec_t& ids);
 
@@ -228,6 +229,7 @@ public:
 
 	void forceResponse(InventoryOfferResponse response);
 
+    static std::string mResponderType;
 	EInstantMessage mIM;
 	LLUUID mFromID;
 	BOOL mFromGroup;

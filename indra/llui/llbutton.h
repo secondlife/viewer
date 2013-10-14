@@ -30,6 +30,7 @@
 #include "lluuid.h"
 #include "llbadgeowner.h"
 #include "llcontrol.h"
+#include "llflashtimer.h"
 #include "lluictrl.h"
 #include "v4color.h"
 #include "llframetimer.h"
@@ -133,6 +134,7 @@ public:
 
 		Optional<bool>				handle_right_mouse;
 
+		Optional<bool>				button_flash_enable;
 		Optional<S32>				button_flash_count;
 		Optional<F32>				button_flash_rate;
 
@@ -199,8 +201,9 @@ public:
 	void			setToggleState(BOOL b);
 
 	void			setHighlight(bool b);
-	void			setFlashing( BOOL b );
+	void			setFlashing( bool b, bool force_flashing = false );
 	BOOL			getFlashing() const		{ return mFlashing; }
+    LLFlashTimer*   getFlashTimer() {return mFlashingTimer;}
 
 	void			setHAlign( LLFontGL::HAlign align )		{ mHAlign = align; }
 	LLFontGL::HAlign getHAlign() const						{ return mHAlign; }
@@ -373,8 +376,9 @@ protected:
 	bool						mForcePressedState;
 	bool						mDisplayPressedState;
 
-	LLFrameTimer				mFlashingTimer;
-
+	LLFrameTimer				mFrameTimer;
+	LLFlashTimer *				mFlashingTimer;
+	bool                        mForceFlashing; // Stick flashing color even if button is pressed
 	bool						mHandleRightMouse;
 };
 

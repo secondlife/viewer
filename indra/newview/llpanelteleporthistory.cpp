@@ -972,6 +972,11 @@ void LLTeleportHistoryPanel::onCollapseAllFolders()
 		mItemContainers.get(n)->setDisplayChildren(false);
 	}
 	mHistoryAccordion->arrange();
+
+	if (mLastSelectedFlatlList)
+	{
+		mLastSelectedFlatlList->resetSelection();
+	}
 }
 
 void LLTeleportHistoryPanel::onClearTeleportHistory()

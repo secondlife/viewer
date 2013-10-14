@@ -45,3 +45,4 @@ mat4 getObjectSkinnedTransform()
 		
 	return mat;
 }
+

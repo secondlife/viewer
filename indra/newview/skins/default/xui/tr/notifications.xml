@@ -210,6 +210,14 @@ Bu Yetenek &apos;[ROLE_NAME]&apos; rolüne eklensin mi?
 Bu Yetenek &apos;[ROLE_NAME]&apos; rolüne eklensin mi?
 		<usetemplate name="okcancelbuttons" notext="Hayır" yestext="Evet"/>
 	</notification>
+	<notification name="EjectGroupMemberWarning">
+		Gruptan [AVATAR_NAME] adlı üyeyi çıkarmak üzeresiniz.
+		<usetemplate ignoretext="Gruptan bir katılımcının çıkarılmasını doğrulayın" name="okcancelignore" notext="İptal" yestext="Çıkar"/>
+	</notification>
+	<notification name="EjectGroupMembersWarning">
+		Gruptan [COUNT] üyeyi çıkarmak üzeresiniz.
+		<usetemplate ignoretext="Gruptan birden çok üyenin çıkarılmasını doğrulayın" name="okcancelignore" notext="İptal" yestext="Çıkar"/>
+	</notification>
 	<notification name="AttachmentDrop">
 		Aksesuarınızı çıkarmak üzeresiniz.
     Devam etmek istediğinize emin misiniz?
@@ -513,6 +521,24 @@ Daha fazla bilgi için [_URL] adresini ziyaret etmek ister misiniz?
     Sürücü güncellemeleri için [_URL] adresini ziyaret etmek ister misiniz?
 		<url name="url">
 			http://www.intel.com/p/en_US/support/detect/graphics
+		</url>
+		<usetemplate ignoretext="Grafik sürücüm güncel değil" name="okcancelignore" notext="Hayır" yestext="Evet"/>
+	</notification>
+	<notification name="AMDOldDriver">
+		Grafik yonganız için muhtemelen daha yeni bir sürücü mevcut.  Grafik sürücüleri güncellemek performansınızı kayda değer şekilde artırabilir.
+
+    Sürücü güncellemeleri için [_URL] adresini ziyaret etmek ister misiniz?
+		<url name="url">
+			http://support.amd.com/us/Pages/AMDSupportHub.aspx
+		</url>
+		<usetemplate ignoretext="Grafik sürücüm güncel değil" name="okcancelignore" notext="Hayır" yestext="Evet"/>
+	</notification>
+	<notification name="NVIDIAOldDriver">
+		Grafik yonganız için muhtemelen daha yeni bir sürücü mevcut.  Grafik sürücüleri güncellemek performansınızı kayda değer şekilde artırabilir.
+
+    Sürücü güncellemeleri için [_URL] adresini ziyaret etmek ister misiniz?
+		<url name="url">
+			http://www.nvidia.com/Download/index.aspx?lang=en-us
 		</url>
 		<usetemplate ignoretext="Grafik sürücüm güncel değil" name="okcancelignore" notext="Hayır" yestext="Evet"/>
 	</notification>
@@ -1093,7 +1119,7 @@ bu simdeki TÜM ARAZİLERDEN SİLMEK istediğinize emin misiniz?
 Lütfen daha yüksek bir tutar girin.
 	</notification>
 	<notification name="ConfirmItemDeleteHasLinks">
-		Seçtiğiniz öğelerden en az birinin kendisine işaret eden bağlantılı öğeler var.  Bu öğeyi silerseniz, bağlantıları kalıcı olarak çalışmaz hale gelecek.  Önce bağlantıları silmeniz önemle tavsiye edilir.
+		Öğelerden en az birinde kendisine işaret eden bağlantılar var.  Bu öğeyi silerseniz, bağlantıları kalıcı olarak çalışmaz hale gelecek.  Önce bağlantıları silmeniz önemle tavsiye edilir.
 
 Bu öğeleri silmek istediğinize emin misiniz?
 		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
@@ -1461,14 +1487,44 @@ Sürüm [VERSION] [[RELEASE_NOTES_FULL_URL] Bu güncelleme hakkında ayrıntıl�
 		<usetemplate name="okcancelbuttons" notext="Sonra..." yestext="Şimdi kur ve [APP_NAME] uygulamasını yeniden başlat"/>
 	</notification>
 	<notification name="RequiredUpdateDownloadedVerboseDialog">
-		Gerekli bir yazılım güncellemesini karşıdan yükledik.
-Sürüm [VERSION]
+		Gerekli bir yazılım güncellemesi indirdik.
+Sürüm [VERSION] [[INFO_URL] Bu güncelleme hakkında ayrıntılı bilgi]
 
-Güncellemeyi kurmak için [APP_NAME] uygulamasını yeniden başlatmalısınız.
+Güncellemeyi yüklemek için [APP_NAME] uygulamasını yeniden başlatmalısınız.
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
 	<notification name="RequiredUpdateDownloadedDialog">
-		Güncellemeyi kurmak için [APP_NAME] uygulamasını yeniden başlatmalısınız.
+		Güncellemeyi yüklemek için [APP_NAME] uygulamasını yeniden başlatmalısınız.
+[[INFO_URL] Bu güncelleme hakkında bilgi]
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="OtherChannelDownloadBackgroundTip">
+		[APP_NAME] kurulumunuz için bir güncelleme indirdik.
+Sürüm [VERSION] 
+Bu deneysel görüntüleyicinin yerini bir [NEW_CHANNEL] görüntüleyici aldı;
+bkz. [bu güncelleme hakkında bilgi için [INFO_URL]]
+		<usetemplate name="okcancelbuttons" notext="Sonra..." yestext="Şimdi yükle ve [APP_NAME] uygulamasını yeniden başlat"/>
+	</notification>
+	<notification name="OtherChannelDownloadBackgroundDialog">
+		[APP_NAME] kurulumunuz için bir güncelleme indirdik.
+Sürüm [VERSION]
+Bu deneysel görüntüleyicinin yerini bir [NEW_CHANNEL] görüntüleyici aldı;
+bkz. [[INFO_URL] Bu güncelleme hakkında bilgi]
+		<usetemplate name="okcancelbuttons" notext="Sonra..." yestext="Şimdi yükle ve [APP_NAME] uygulamasını yeniden başlat"/>
+	</notification>
+	<notification name="OtherChannelRequiredUpdateDownloadedVerboseDialog">
+		Gerekli bir yazılım güncellemesi indirdik.
+Sürüm [VERSION]
+Bu deneysel görüntüleyicinin yerini bir [NEW_CHANNEL] görüntüleyici aldı;
+bkz. [[INFO_URL] Bu güncelleme hakkında bilgi]
+
+Güncellemeyi yüklemek için [APP_NAME] uygulamasını yeniden başlatmalısınız.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="OtherChannelRequiredUpdateDownloadedDialog">
+		Güncellemeyi yüklemek için [APP_NAME] uygulamasını yeniden başlatmalısınız.
+Bu deneysel görüntüleyicinin yerini bir [NEW_CHANNEL] görüntüleyici aldı;
+bkz. [[INFO_URL] Bu güncelleme hakkında bilgi]
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
 	<notification name="DeedObjectToGroup">
@@ -1519,6 +1575,10 @@ Güncellemeyi kurmak için [APP_NAME] uygulamasını yeniden başlatmalısınız
 Gruptan ayrılmak istiyor musunuz?
 		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
 	</notification>
+	<notification name="OwnerCannotLeaveGroup">
+		Gruptan ayrılınamıyor. Gruptan ayrılamazsınız çünkü grubun son sahibisiniz. Lütfen önce sahip rolüne başka bir üye atayın.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
 	<notification name="ConfirmKick">
 		Tüm Sakinleri GERÇEKTEN ağ dışına çıkarmak istiyor musunuz?
 		<usetemplate name="okcancelbuttons" notext="İptal Et" yestext="Tüm Sakinleri Çıkar"/>
@@ -1546,10 +1606,13 @@ Gruptan ayrılmak istiyor musunuz?
 		Şu anda arkadaşlık teklif edilemiyor. Lütfen biraz sonra tekrar deneyin.
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
-	<notification name="BusyModeSet">
-		Durumunuz Meşgul olarak ayarlandı.
-Sohbet ve anlık iletiler gizlenecek. Anlık iletilere Meşgul durumu için belirlediğiniz yanıt gönderilecek. Tüm ışınlanma teklifleri reddedilecek. Tüm envanter teklifleri Çöp Kutunuza gidecek.
-		<usetemplate ignoretext="Durumumu Meşgul olarak değiştiriyorum" name="okignore" yestext="Tamam"/>
+	<notification name="DoNotDisturbModeSet">
+		Rahatsız Etme açık.  Gelen iletişimlerle ilgili size bilgi verilmeyecek.
+
+- Diğer sakinlere sizin Rahatsız Etmeyin yanıtı iletilecektir (Tercihler &gt; Genel içerisinde ayarlanır).
+- Işınlanma teklifleri reddedilecektir.
+- Sesli aramalar reddedilecektir.
+		<usetemplate ignoretext="Durumumu Rahatsız Etme moduna değiştiriyorum" name="okignore" yestext="Tamam"/>
 	</notification>
 	<notification name="JoinedTooManyGroupsMember">
 		Maksimum grup sayısına eriştiniz. Lütfen bu gruba katılmadan önce başka bir gruptan ayrılın ya da bu teklifi reddedin.
@@ -2033,6 +2096,10 @@ Envanter öğesi/öğeleri taşınsın mı?
 		Hesap geçmişinizi görüntülemek için [http://secondlife.com/account/ Kontrol Paneli] adresine gitmek istiyor musunuz?
 		<usetemplate ignoretext="Hesap geçmişimi görüntülemek için tarayıcımı başlat" name="okcancelignore" notext="İptal" yestext="Sayfaya git"/>
 	</notification>
+	<notification name="ConfirmAddingChatParticipants">
+		Mevcut bir sohbete bir kişi eklediğinizde yeni bir sohbet oluşturulur.  Tüm katılımcılara yeni sohbet bildirimi gönderilir.
+		<usetemplate ignoretext="Sohbet katılımcılarının eklenmesini doğrula" name="okcancelignore" notext="İptal" yestext="Tamam"/>
+	</notification>
 	<notification name="ConfirmQuit">
 		Çıkmak istediğinize emin misiniz?
 		<usetemplate ignoretext="Çıkmadan önce doğrulama iste" name="okcancelignore" notext="Çıkma" yestext="Çık"/>
@@ -2107,14 +2174,14 @@ Bu nesneyi seçilen nesne ile değiştirmek istiyor musunuz?
 			<button ignore="Hiçbir Zaman Değiştirme" name="No" text="İptal"/>
 		</form>
 	</notification>
-	<notification label="Meşgul Durumu Uyarısı" name="BusyModePay">
-		Durumunuz Meşgul olarak ayarlanmış; bu da, bu ödemenin karşılığında teklif edilen hiçbir öğeyi almayacağınız anlamına gelir.
+	<notification label="Rahatsız Etme Modu Uyarısı" name="DoNotDisturbModePay">
+		Rahatsız Etme seçeneğini devreye aldınız. Bu ödemenin karşılığında sunulan hiçbir öğeyi almayacaksınız.
 
-Bu işlemi tamamlamadan önce Meşgul durumundan çıkmak ister misiniz?
+Bu işlemi tamamlamadan önce Rahatsız Etme&apos;yi kapatmak ister misiniz?
 		<form name="form">
-			<ignore name="ignore" text="Meşgul durumundayken bir kişiye veya bir nesneye ödeme yapmak üzereyim."/>
-			<button ignore="Her zaman Meşgul durumundan çık" name="Yes" text="Tamam"/>
-			<button ignore="Hiçbir zaman Meşgul durumundan çıkma" name="No" text="İptal"/>
+			<ignore name="ignore" text="Rahatsız Etmeyin modundayken bir kişiye veya bir nesneye ödeme yapmak üzereyim"/>
+			<button ignore="Rahatsız Etme Modundan daima çıkılsın" name="Yes" text="Tamam"/>
+			<button ignore="Rahatsız Etme Modundan asla çıkılmasın" name="No" text="İptal"/>
 		</form>
 	</notification>
 	<notification name="ConfirmDeleteProtectedCategory">
@@ -2249,11 +2316,8 @@ Diğer kişilerin bu konuma kolayca erişmesini sağlamak için bu adrese bir we
 	<notification name="GroupNotice">
 		Konu: [SUBJECT], İleti: [MESSAGE]
 	</notification>
-	<notification name="FriendOnline">
-		&lt;nolink&gt;[NAME]&lt;/nolink&gt; çevrimiçi
-	</notification>
-	<notification name="FriendOffline">
-		&lt;nolink&gt;[NAME]&lt;/nolink&gt; çevrimdışı
+	<notification name="FriendOnlineOffline">
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; durumu: [STATUS]
 	</notification>
 	<notification name="AddSelfFriend">
 		Çok iyi biri olduğunuza eminiz fakat kendinizi arkadaş olarak ekleyemezsiniz.
@@ -2374,9 +2438,7 @@ Lütfen tek bir nesne seçin.
     &apos;Işınla&apos; seçimini yapabilirsiniz.)
 	</notification>
 	<notification name="TeleportToPerson">
-		&apos;[NAME]&apos; gibi sakinlerle bağlantıya geçmek için &quot;Kişiler&quot; düğmesine tıklayın, açılan pencereden bir Sakin seçin ve sonra
-    pencerenin altında &apos;Anlık İleti&quot; üzerine tıklayın.
-    (Listede adlarına çift tıklayarak veya sağ tıklayıp &quot;Anlık İleti&quot;yi seçerek de bunu yapabilirsiniz.)
+		Biriyle özel bir sohbet başlatmak için, avatarlarına sağ tıklayın ve menüden &quot;Aİ&quot; seçimini yapın.
 	</notification>
 	<notification name="CantSelectLandFromMultipleRegions">
 		Sunucunun sınırları dışındaki arazi seçilemez.
@@ -2481,13 +2543,6 @@ Burada uçamazsınız.
 	</notification>
 	<notification name="DynamicPathfindingDisabled">
 		Bu bölgede dinamik yol bulma etkin değil.  Yol bulma LSL çağrılarını kullanan komut dosyalı nesneler, bu bölgede beklendiiği gibi çalışmayabilir.
-	</notification>
-	<notification name="PathfindingRebakeNavmesh">
-		Bu bölgede belirli diğer nesneleri değiştirmek, hareket eden başka nesnelerin yanlış davranmasına neden olabilir.  Hareket eden başka nesnelerin doğru davranmasını sağlamak için “Bölgeyi yeniden kaydet” düğmesine tıklayın.  Daha fazla bilgi edinmek için “Yardım” seçimini yapın.
-		<url name="url">
-			http://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer
-		</url>
-		<usetemplate helptext="Yardım" ignoretext="Bu bölgede belirli diğer nesneleri değiştirmek, hareket eden başka nesnelerin yanlış davranmasına neden olabilir." name="okhelpignore" yestext="Tamam"/>
 	</notification>
 	<notification name="PathfindingCannotRebakeNavmesh">
 		Bir hata meydana geldi.  Bir ağ veya sunucu sorunu olabilir ya da oluşturma haklarına sahip olmayabilirsiniz.  Bazen oturumu kapatıp, tekrar açmak bu sorunu çözer.
@@ -2751,10 +2806,19 @@ Kabul ediyor musunuz?
 	<notification name="ScriptQuestionCaution">
 		Uyarı: &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; nesnesi, Linden Dolar hesabınıza tam erişim istiyor. Eğer erişime izin verirseniz, süregelen bir şekilde, ilave uyarı olmaksızın, hesabınızdan herhangi bir zamanda fon çekebilir veya hesabınızı tamamen boşaltabilir.
   
-Bu türden bir talebin yerinde olması nadir bir durumdur. Eğer hesabınıza neden erişmek istediğini tam olarak anlamıyorsanız, erişime izin vermeyin.
+Eğer hesabınıza neden erişmek istediğini tam olarak anlamıyorsanız, erişime izin vermeyin.
 		<form name="form">
 			<button name="Grant" text="Tam erişime izin ver"/>
 			<button name="Deny" text="Reddet"/>
+		</form>
+	</notification>
+	<notification name="UnknownScriptQuestion">
+		&apos;[NAME]&apos; tarafından sahip olunan bir nesne olan &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; tarafından istenen çalışma zamanı komut dosyası izni görüntüleyici tarafından tanınmadı ve verilemez.
+
+Bu izni vermek için lütfen [DOWNLOADURL] adresinden görüntüleyicinizi en son sürüme güncelleyin.
+		<form name="form">
+			<button name="Deny" text="Tamam"/>
+			<button name="Mute" text="Engelle"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialog">
@@ -3332,5 +3396,627 @@ Girişim iptal edildi.
 	<notification name="PathfindingDeleteMultipleItems">
 		[NUM_ITEMS] öğeyi siliyorsunuz.  Devam etmek istediğinize emin misiniz?
 		<usetemplate ignoretext="Birden çok öğeyi silmek istediğinize emin misiniz?" name="okcancelignore" notext="Hayır" yestext="Evet"/>
+	</notification>
+	<notification name="AvatarFrozen">
+		[AV_FREEZER] sizi dondurdu. Hareket edemez veya dünyayla etkileşim kuramazsınız.
+	</notification>
+	<notification name="AvatarFrozenDuration">
+		[AV_FREEZER] sizi [AV_FREEZE_TIME] saniye boyunca dondurdu. Hareket edemez veya dünyayla etkileşim kuramazsınız.
+	</notification>
+	<notification name="YouFrozeAvatar">
+		Avatar donduruldu.
+	</notification>
+	<notification name="AvatarHasUnFrozenYou">
+		[AV_FREEZER] sizin dondurulmanızı kaldırdı.
+	</notification>
+	<notification name="AvatarUnFrozen">
+		Avatar artık dondurulmuş değil.
+	</notification>
+	<notification name="AvatarFreezeFailure">
+		Dondurma başarılamadı çünkü bu parsel için yönetici iznine sahip değilsiniz.
+	</notification>
+	<notification name="AvatarFreezeThaw">
+		Dondurmanızın süresi sona erdi, istediğinizi yapabilirsiniz.
+	</notification>
+	<notification name="AvatarCantFreeze">
+		Üzgünüz, bu kullanıcı dondurulamaz.
+	</notification>
+	<notification name="NowOwnObject">
+		Artık [OBJECT_NAME] nesnesinin sahibisiniz
+	</notification>
+	<notification name="CantRezOnLand">
+		[OBJECT_POS] konumunda nesneyi oluşturamazsınız çünkü bu arazinin sahibi buna izin vermiyor.  Arazinin sahibini görmek için arazi aracını kullanın.
+	</notification>
+	<notification name="RezFailTooManyRequests">
+		Çok fazla talep olduğu için nesne oluşturulamadı.
+	</notification>
+	<notification name="SitFailCantMove">
+		Oturamazsınız çünkü şu anda hareket edemezsiniz.
+	</notification>
+	<notification name="SitFailNotAllowedOnLand">
+		Oturamazsınız çünkü bu araziye girme izniniz yok.
+	</notification>
+	<notification name="SitFailNotSameRegion">
+		Daha yakına gelmeyi deneyin.  Nesne sizinle aynı bölgede olmadığı için nesnenin üzerine oturulamaz.
+	</notification>
+	<notification name="NoNewObjectRegionFull">
+		Yeni nesne oluşturulamıyor. Bölge dolu.
+	</notification>
+	<notification name="FailedToPlaceObject">
+		Belirtilen konuma nesne yerleştirilemedi.  Lütfen tekrar deneyin.
+	</notification>
+	<notification name="NoOwnNoGardening">
+		Sahibi olmadığınız arazide ağaçlar ve çimen oluşturamazsınız.
+	</notification>
+	<notification name="NoCopyPermsNoObject">
+		&apos;[OBJ_NAME]&apos; nesnesini kopyalama izniniz olmadığı için kopyalama başarılamadı.
+	</notification>
+	<notification name="NoTransPermsNoObject">
+		&apos;[OBJ_NAME]&apos; nesnesi size aktarılamadığı için kopyalama başarılamadı.
+	</notification>
+	<notification name="AddToNavMeshNoCopy">
+		&apos;[OBJ_NAME]&apos; nesnesi navmesh&apos;e katkıda bulunduğu için kopyalama başarılamadı.
+	</notification>
+	<notification name="DupeWithNoRootsSelected">
+		Kök nesne seçili olmayan kopya.
+	</notification>
+	<notification name="CantDupeCuzRegionIsFull">
+		Nesneler çoğaltılamıyor çünkü bölge dolu.
+	</notification>
+	<notification name="CantDupeCuzParcelNotFound">
+		Nesneler çoğaltılamadı - Üzerinde oldukları parsel bulunamadı.
+	</notification>
+	<notification name="CantCreateCuzParcelFull">
+		Nesne oluşturulamıyor çünkü
+parsel dolu.
+	</notification>
+	<notification name="RezAttemptFailed">
+		Bir nesneyi oluşturma girişimi başarısız oldu.
+	</notification>
+	<notification name="ToxicInvRezAttemptFailed">
+		Bu bölgede hatalara yol açmış olan öğe oluşturulamıyor.
+	</notification>
+	<notification name="InvItemIsBlacklisted">
+		Bu envanter öğesi kara listeye alınmış.
+	</notification>
+	<notification name="NoCanRezObjects">
+		Şu anda nesne oluşturmanıza izin verilmiyor.
+	</notification>
+	<notification name="LandSearchBlocked">
+		Arazi Arama Engellendi.
+Çok fazla sayıda arazi aramasını çok hızlı gerçekleştirdiniz.
+Lütfen bir dakika sonra tekrar deneyin.
+	</notification>
+	<notification name="NotEnoughResourcesToAttach">
+		Nesneyi iliştirmek için yeterli komut dosyası kaynağı mevcut değil!
+	</notification>
+	<notification name="YouDiedAndGotTPHome">
+		Hayatınızı kaybettiniz ve ana konumunuza ışınlandınız
+	</notification>
+	<notification name="EjectComingSoon">
+		Daha fazla burada olma izniniz yok ve ayrılmak için [EJECT_TIME] saniyeniz var.
+	</notification>
+	<notification name="NoEnterServerFull">
+		Bu bölgeye giremezsiniz çünkü 
+sunucu dolu.
+	</notification>
+	<notification name="SaveBackToInvDisabled">
+		Envantere Geri Kaydet devre dışı bırakıldı.
+	</notification>
+	<notification name="NoExistNoSaveToContents">
+		&apos;[OBJ_NAME]&apos; nesne içeriğine kaydedilemedi, çünkü oluşturulurken temel alınan nesne artık mevcut değil.
+	</notification>
+	<notification name="NoModNoSaveToContents">
+		&apos;[DEST_NAME]&apos; nesnesini değiştirme izniniz olmadığı için &apos;[OBJ_NAME]&apos; nesne içeriğine kaydedilemedi.
+	</notification>
+	<notification name="NoSaveBackToInvDisabled">
+		&apos;[OBJ_NAME]&apos; envantere geri kaydedilemez -- bu işlem devre dışı bırakıldı.
+	</notification>
+	<notification name="NoCopyNoSelCopy">
+		&apos;[OBJ_NAME]&apos; nesnesini kopyalama izniniz olmadığı için seçiminizi kopyalamayazsınız.
+	</notification>
+	<notification name="NoTransNoSelCopy">
+		&apos;[OBJ_NAME]&apos; nesnesi aktarılamaz olduğu için seçiminizi kopyalayamazsınız.
+	</notification>
+	<notification name="NoTransNoCopy">
+		&apos;[OBJ_NAME]&apos; nesnesi aktarılamaz olduğu için seçiminizi kopyalayamazsınız.
+	</notification>
+	<notification name="NoPermsNoRemoval">
+		Benzeticiden &apos;[OBJ_NAME]&apos; nesnesinin kaldırılmasına izinler sistemi izin vermiyor.
+	</notification>
+	<notification name="NoModNoSaveSelection">
+		&apos;[OBJ_NAME]&apos; nesnesini değiştirme izniniz olmadığı için seçiminizi kaydedemezsiniz.
+	</notification>
+	<notification name="NoCopyNoSaveSelection">
+		&apos;[OBJ_NAME]&apos; nesnesi kopyalanamaz olduğu için seçiminizi kaydedemezsiniz.
+	</notification>
+	<notification name="NoModNoTaking">
+		&apos;[OBJ_NAME]&apos; nesnesini değiştirme izniniz olmadığı için seçiminizi alamazsınız.
+	</notification>
+	<notification name="RezDestInternalError">
+		Dahili Hata: Bilinmeyen hedef türü.
+	</notification>
+	<notification name="DeleteFailObjNotFound">
+		Nesne bulunamadığı için silme başarılamadı
+	</notification>
+	<notification name="SorryCantEjectUser">
+		Üzgünüz, bu kullanıcı çıkartılamaz.
+	</notification>
+	<notification name="RegionSezNotAHome">
+		Bu bölge, ana konumunuzu buraya kurmanıza izin vermiyor.
+	</notification>
+	<notification name="HomeLocationLimits">
+		&apos;Ana Konum&apos;unuzu sadece arazinizde veya anakarada bir Bilgi İstasyonu&apos;nda ayarlayabilirsiniz.
+	</notification>
+	<notification name="HomePositionSet">
+		Ana konum ayarlandı.
+	</notification>
+	<notification name="AvatarEjected">
+		Avatar çıkartıldı.
+	</notification>
+	<notification name="AvatarEjectFailed">
+		Çıkarma başarılamadı çünkü bu parsel için yönetici iznine sahip değilsiniz.
+	</notification>
+	<notification name="CantMoveObjectParcelFull">
+		[REGION_NAME] bölgesinde &apos;[OBJECT_NAME]&apos; nesnesi [OBJ_POSITION] konumuna hareket ettirilemiyor çünkü parsel dolu.
+	</notification>
+	<notification name="CantMoveObjectParcelPerms">
+		[REGION_NAME] bölgesinde &apos;[OBJECT_NAME]&apos; nesnesi [OBJ_POSITION] konumuna hareket ettirilemiyor çünkü bu parselde nesnelerinize izin verilmiyor.
+	</notification>
+	<notification name="CantMoveObjectParcelResources">
+		[REGION_NAME] bölgesinde &apos;[OBJECT_NAME]&apos; nesnesi [OBJ_POSITION] konumuna hareket ettirilemiyor, çünkü bu parselde bu nesne için yeterli kaynak yok.
+	</notification>
+	<notification name="CantMoveObjectRegionVersion">
+		[REGION_NAME] bölgesinde &apos;[OBJECT_NAME]&apos; nesnesi [OBJ_POSITION] konumuna hareket ettirilemiyor çünkü bölgede çalıştırılan eski versiyon, bölge değiştirme üzerinden bu nesnenin alınmasını desteklemiyor.
+	</notification>
+	<notification name="CantMoveObjectNavMesh">
+		[REGION_NAME] bölgesinde &apos;[OBJECT_NAME]&apos; nesnesi [OBJ_POSITION] konumuna hareket ettirilemiyor çünkü navmesh&apos;i bölge sınırları ötesinde değiştiremezsiniz.
+	</notification>
+	<notification name="CantMoveObjectWTF">
+		Bilinmeyen bir nedenden ötürü [REGION_NAME] bölgesinde &apos;[OBJECT_NAME]&apos; nesnesi [OBJ_POSITION] konumuna hareket ettirilemiyor. ([FAILURE_TYPE])
+	</notification>
+	<notification name="NoPermModifyObject">
+		Bu nesneyi değiştirme izniniz yok
+	</notification>
+	<notification name="CantEnablePhysObjContributesToNav">
+		Navmesh&apos;e katkıda bulunan bir nesne için fizik etkinleştirilemez.
+	</notification>
+	<notification name="CantEnablePhysKeyframedObj">
+		Anahtar karelenmiş nesneler için fizik etkinleştirilemez.
+	</notification>
+	<notification name="CantEnablePhysNotEnoughLandResources">
+		Nesne için fizik etkinleştirilemedi -- arazi kaynakları yetersiz.
+	</notification>
+	<notification name="CantEnablePhysCostTooGreat">
+		Fizik kaynağı maliyeti [MAX_OBJECTS]&apos;dan büyük nesne için fizik etkinleştirilemedi
+	</notification>
+	<notification name="PhantomWithConcavePiece">
+		Bu nesne fantom olduğu ve navmesh&apos;e katkıda bulunduğu için konkav bir parçaya sahip olamaz.
+	</notification>
+	<notification name="UnableAddItem">
+		Öğe eklenemedi!
+	</notification>
+	<notification name="UnableEditItem">
+		Bu düzenlenemiyor!
+	</notification>
+	<notification name="NoPermToEdit">
+		Bunu düzenleme izni yok.
+	</notification>
+	<notification name="NoPermToCopyInventory">
+		Bu envanteri kopyalama izni yok.
+	</notification>
+	<notification name="CantSaveItemDoesntExist">
+		Nesne içeriklerine kaydedilemedi: Öğe artık mevcut değil.
+	</notification>
+	<notification name="CantSaveItemAlreadyExists">
+		Nesne içeriklerine kaydedilemedi: Bu ada sahip öğe envanterde zaten mevcut
+	</notification>
+	<notification name="CantSaveModifyAttachment">
+		Nesne içeriklerine kaydedilemedi: Bu, aksesuar izinlerini değiştirmeyi gerektirirdi.
+	</notification>
+	<notification name="TooManyScripts">
+		Çok fazla komut dosyası.
+	</notification>
+	<notification name="UnableAddScript">
+		Komut dosyası eklenemedi!
+	</notification>
+	<notification name="AssetServerTimeoutObjReturn">
+		Varlık sunucusu zamanında yanıt vermedi.  Nesne sime iade edildi.
+	</notification>
+	<notification name="RegionDisablePhysicsShapes">
+		Bu bölgede fiziksel şekiller etkin değil.
+	</notification>
+	<notification name="NoModNavmeshAcrossRegions">
+		Navmesh&apos;i bölge sınırlarının ötesinde değiştiremezsiniz.
+	</notification>
+	<notification name="NoSetPhysicsPropertiesOnObjectType">
+		Bu nesne türü üzerinde fizik özellikleri ayarlanamaz.
+	</notification>
+	<notification name="NoSetRootPrimWithNoShape">
+		Kök prim şekilsiz olacak şekilde ayarlanamaz.
+	</notification>
+	<notification name="NoRegionSupportPhysMats">
+		Bu bölgede fiziksel malzemeler etkin değil.
+	</notification>
+	<notification name="OnlyRootPrimPhysMats">
+		Sadece kök primlerin fizik malzemeleri ayarlanabilir.
+	</notification>
+	<notification name="NoSupportCharacterPhysMats">
+		Karakterler üzerinde fizik malzemelerin ayarlanması henüz desteklenmiyor.
+	</notification>
+	<notification name="InvalidPhysMatProperty">
+		Belirtilen fizik malzemesi özelliklerinden biri veya daha fazlası geçersiz.
+	</notification>
+	<notification name="NoPermsAlterStitchingMeshObj">
+		Bir örgü nesnesinin dikiş türünü değiştiremezsiniz.
+	</notification>
+	<notification name="NoPermsAlterShapeMeshObj">
+		Bir örgü nesnesinin şeklini değiştiremezsiniz
+	</notification>
+	<notification name="FullRegionCantEnter">
+		Bu bölgeye giremezsiniz çünkü \nbölge dolu.
+	</notification>
+	<notification name="LinkFailedOwnersDiffer">
+		Bağlantı başarısız oldu -- sahipler farklı
+	</notification>
+	<notification name="LinkFailedNoModNavmeshAcrossRegions">
+		Bağlntı başarılamadı -- navmesh&apos;i bölge sınırlarının ötesinde değiştiremezsiniz.
+	</notification>
+	<notification name="LinkFailedNoPermToEdit">
+		Düzenleme iznine sahip olmadığınız için bağlantı başarılamadı.
+	</notification>
+	<notification name="LinkFailedTooManyPrims">
+		Bağlantı başarısız oldu -- çok fazla ilkel öğe var
+	</notification>
+	<notification name="LinkFailedCantLinkNoCopyNoTrans">
+		Bağlantı başarısız oldu -- aktarılamayanla kopyalanamayan arasında bağlantı kurulamaz
+	</notification>
+	<notification name="LinkFailedNothingLinkable">
+		Bağlantı başarısız oldu -- bağlantı verilebilecek bir şey yok.
+	</notification>
+	<notification name="LinkFailedTooManyPathfindingChars">
+		Bağlantı başarısız oldu -- çok fazla yol bulma karakteri var
+	</notification>
+	<notification name="LinkFailedInsufficientLand">
+		Bağlantı başarısız oldu -- arazi kaynakları yetersiz
+	</notification>
+	<notification name="LinkFailedTooMuchPhysics">
+		Nesne çok fazla fizik kaynağı kullanıyor -- dinamikleri devre dışı bırakıldı.
+	</notification>
+	<notification name="TeleportedHomeByObjectOnParcel">
+		&apos;[PARCEL_NAME]&apos; parseli üzerindeki &apos;[OBJECT_NAME]&apos; nesnesi tarafından ana konuma ışınlandınız
+	</notification>
+	<notification name="TeleportedHomeByObject">
+		&apos;[OBJECT_NAME]&apos; nesnesi tarafından ana konuma ışınlandınız
+	</notification>
+	<notification name="TeleportedByAttachment">
+		You have been teleported by an attachment on [ITEM_ID]
+	</notification>
+	<notification name="TeleportedByObjectOnParcel">
+		&apos;[PARCEL_NAME]&apos; parseli üzerindeki &apos;[OBJECT_NAME]&apos; nesnesi tarafından ışınlandınız
+	</notification>
+	<notification name="TeleportedByObjectOwnedBy">
+		Sahibi [OWNER_ID] olan &apos;[OBJECT_NAME]&apos; nesnesi tarafından ışınlandınız
+	</notification>
+	<notification name="TeleportedByObjectUnknownUser">
+		Bilinmeyen bir sahibi olan &apos;[OBJECT_NAME]&apos; nesnesi tarafından ışınlandınız.
+	</notification>
+	<notification name="CantCreateObjectRegionFull">
+		Talep edilen nesne oluşturulamıyor. Bölge dolu.
+	</notification>
+	<notification name="CantAttackMultipleObjOneSpot">
+		Tek bir noktaya birden fazla nesne iliştiremezsiniz.
+	</notification>
+	<notification name="CantCreateMultipleObjAtLoc">
+		Burada birden fazla nesne oluşturamazsınız.
+	</notification>
+	<notification name="UnableToCreateObjTimeOut">
+		Talep edilen nesne oluşturulamıyor. Nesne veri tabanında yok.
+	</notification>
+	<notification name="UnableToCreateObjUnknown">
+		Talep edilen nesne oluşturulamıyor. Talep zaman aşımına uğradı. Lütfen tekrar deneyin.
+	</notification>
+	<notification name="UnableToCreateObjMissingFromDB">
+		Talep edilen nesne oluşturulamıyor. Lütfen tekrar deneyin.
+	</notification>
+	<notification name="RezFailureTookTooLong">
+		Oluşturma başarısız oldu, talep edilen nesnenin yüklenmesi çok zaman aldı.
+	</notification>
+	<notification name="FailedToPlaceObjAtLoc">
+		Belirtilen konuma nesne yerleştirilemedi.  Lütfen tekrar deneyin.
+	</notification>
+	<notification name="CantCreatePlantsOnLand">
+		Bu arazide bitkiler oluşturamazsınız.
+	</notification>
+	<notification name="CantRestoreObjectNoWorldPos">
+		Nesne geri yüklenemiyor. Dünya konumu bulunamadı.
+	</notification>
+	<notification name="CantRezObjectInvalidMeshData">
+		Örgü verileri geçersiz olduğu için nesne oluşturulamadı.
+	</notification>
+	<notification name="CantRezObjectTooManyScripts">
+		Bölgede zaten fazlasıyla komut dosyası olduğu için nesne oluşturulamadı.
+	</notification>
+	<notification name="CantCreateObjectNoAccess">
+		Erişim ayrıcalıklarınız orada nesne oluşturmanıza izin vermiyor.
+	</notification>
+	<notification name="CantCreateObject">
+		Şu anda nesne oluşturmanıza izin verilmiyor.
+	</notification>
+	<notification name="InvalidObjectParams">
+		Geçersiz nesne parametreleri
+	</notification>
+	<notification name="CantDuplicateObjectNoAcess">
+		Erişim ayrıcalıklarınız burada nesne çoğaltmanıza izin vermiyor.
+	</notification>
+	<notification name="CantChangeShape">
+		Bu şekli değiştirmenize izin verilmiyor.
+	</notification>
+	<notification name="NoAccessToClaimObjects">
+		Erişim ayrıcalıklarınız burada nesneler üzerinde hak talebinde bulunmanıza izin vermiyor.
+	</notification>
+	<notification name="DeedFailedNoPermToDeedForGroup">
+		Grubunuz adına nesne devretmek için gerekli izne sahip olmadığınız için devretme başarılamadı.
+	</notification>
+	<notification name="NoPrivsToBuyObject">
+		Erişim ayrıcalıklarınız burada nesneler satın almanıza izin vermiyor.
+	</notification>
+	<notification name="CantAttachObjectAvatarSittingOnIt">
+		Üzerinde bir avatar oturduğu için nesne iliştirilemiyor.
+	</notification>
+	<notification name="WhyAreYouTryingToWearShrubbery">
+		Ağaçlar ve çimen aksesuar olarak giyilemez.
+	</notification>
+	<notification name="CantAttachGroupOwnedObjs">
+		Sahibi grup olan nesneler iliştirilemiyor.
+	</notification>
+	<notification name="CantAttachObjectsNotOwned">
+		Sahip olmadığınız nesneleri iliştiremezsiniz.
+	</notification>
+	<notification name="CantAttachNavmeshObjects">
+		Navmesh&apos;e katkıda bulunan nesneler iliştirilemez.
+	</notification>
+	<notification name="CantAttachObjectNoMovePermissions">
+		Nesneyi hareket ettirme izniniz olmadığı için nesneyi iliştiremiyorsanız.
+	</notification>
+	<notification name="CantAttachNotEnoughScriptResources">
+		Nesneyi iliştirmek için yeterli komut dosyası kaynağı mevcut değil!
+	</notification>
+	<notification name="CantDropItemTrialUser">
+		Buraya nesne düşüremezsiniz; Ücretsiz Deneme alanını deneyin.
+	</notification>
+	<notification name="CantDropMeshAttachment">
+		Örgü aksesuarlarını düşüremezsiniz. Envantere ayırın, sonra dünyada oluşturun.
+	</notification>
+	<notification name="CantDropAttachmentNoPermission">
+		Aksesuar düşürülemedi: Burada düşürme izniniz yok.
+	</notification>
+	<notification name="CantDropAttachmentInsufficientLandResources">
+		Aksesuar düşürülemedi: Mevcut arazi kaynakları yetersiz.
+	</notification>
+	<notification name="CantDropAttachmentInsufficientResources">
+		Aksesuarlar düşürülemedi: Mevcut kaynaklar yetersiz.
+	</notification>
+	<notification name="CantDropObjectFullParcel">
+		Nesne buraya düşürülemez.  Parsel dolu.
+	</notification>
+	<notification name="CantTouchObjectBannedFromParcel">
+		Bu arazi parselinde yasaklandığınız için bu nesneye dokunamıyor/tutamıyorsunuz.
+	</notification>
+	<notification name="PlzNarrowDeleteParams">
+		Lütfen silme parametrelerinizi daraltın.
+	</notification>
+	<notification name="UnableToUploadAsset">
+		Varlık karşıya yüklenemiyor.
+	</notification>
+	<notification name="CantTeleportCouldNotFindUser">
+		Ana konuma ışınlanacak kullanıcı bulunamadı
+	</notification>
+	<notification name="GodlikeRequestFailed">
+		tanrısal talep başarısız oldu
+	</notification>
+	<notification name="GenericRequestFailed">
+		genel talep başarısız oldu
+	</notification>
+	<notification name="CantUploadPostcard">
+		Posta kartı karşıya yüklenemiyor.  Daha sonra tekrar deneyin.
+	</notification>
+	<notification name="CantFetchInventoryForGroupNotice">
+		Grup bildirimi için envanter ayrıntıları alınamadı.
+	</notification>
+	<notification name="CantSendGroupNoticeNotPermitted">
+		Grup bildirimi gönderilemedi -- izin verilmiyor.
+	</notification>
+	<notification name="CantSendGroupNoticeCantConstructInventory">
+		Grup bildirimi gönderilemedi -- envanter oluşturulamadı.
+	</notification>
+	<notification name="CantParceInventoryInNotice">
+		Bildirimde envanter ayrıştırılamadı.
+	</notification>
+	<notification name="TerrainUploadFailed">
+		Yüzeyin karşıya yüklemesi başarılamadı.
+	</notification>
+	<notification name="TerrainFileWritten">
+		Yüzey dosyası yazıldı.
+	</notification>
+	<notification name="TerrainFileWrittenStartingDownload">
+		Yüzey dosyası yazıldı, karşıdan yükleme başlatılıyor...
+	</notification>
+	<notification name="TerrainBaked">
+		Yüzey kaydedildi.
+	</notification>
+	<notification name="TenObjectsDisabledPlzRefresh">
+		Sadece seçilen ilk 10 nesne devre dışı bırakıldı. Gerekiyorsa yenileyin ve ilave seçimler yapın.
+	</notification>
+	<notification name="UpdateViewerBuyParcel">
+		Bu parseli satın almak için görüntüleyicinizi güncelleştirmelisiniz.
+	</notification>
+	<notification name="CantBuyParcelNotForSale">
+		Satın alınamıyor, bu parsel satılık değil.
+	</notification>
+	<notification name="CantBuySalePriceOrLandAreaChanged">
+		Satın alınamıyor, satış fiyatı veya arazi bölgesi değişmiş.
+	</notification>
+	<notification name="CantBuyParcelNotAuthorized">
+		Bu parsel için yetkili alıcı değilsiniz.
+	</notification>
+	<notification name="CantBuyParcelAwaitingPurchaseAuth">
+		Bu parseli satın alamazsınız çünkü zaten satın alım yetkilendirmesi bekliyor
+	</notification>
+	<notification name="CantBuildOverflowParcel">
+		Burada nesneler inşa edemezsiniz, aksi halde parselin kaynak sınırları aşılır.
+	</notification>
+	<notification name="SelectedMultipleOwnedLand">
+		Farklı sahiplere ait araziler seçtiniz. Lütfen daha küçük bir alan seçin ve tekrar deneyin.
+	</notification>
+	<notification name="CantJoinTooFewLeasedParcels">
+		Seçimde birleştirilecek yeterli sayıda lease edilmiş parsel yok.
+	</notification>
+	<notification name="CantDivideLandMultipleParcelsSelected">
+		Arazi bölünemedi.\nBirden fazla parsel seçili durumda.\nDaha küçük bir arazi parçası seçmeyi deneyin.
+	</notification>
+	<notification name="CantDivideLandCantFindParcel">
+		Arazi bölünemiyor.\nParsel bulunamıyor.\nLütfen Yardım -&gt; Hata Bildir ile bildirin...
+	</notification>
+	<notification name="CantDivideLandWholeParcelSelected">
+		Arazi bölünemiyor. Tüm parsel seçilidir.\nDaha küçük bir arazi parçası seçmeyi deneyin.
+	</notification>
+	<notification name="LandHasBeenDivided">
+		Arazi bölündü.
+	</notification>
+	<notification name="PassPurchased">
+		Bir geçiş hakkı satın aldınız.
+	</notification>
+	<notification name="RegionDisallowsClassifieds">
+		Bölgede seri ilanlara izin verilmiyor.
+	</notification>
+	<notification name="LandPassExpireSoon">
+		Bu arazi için geçiş hakkınız sona ermek üzere.
+	</notification>
+	<notification name="CantSitNoSuitableSurface">
+		Üzerinde oturulabilecek uygun bir yüzey yok, başka bir noktayı deneyin.
+	</notification>
+	<notification name="CantSitNoRoom">
+		Burada oturacak yer yok, başka bir yer deneyin.
+	</notification>
+	<notification name="ClaimObjectFailedNoPermission">
+		İzniniz olmadığı için nesne üzerinde hak talep etme başarılamadı
+	</notification>
+	<notification name="ClaimObjectFailedNoMoney">
+		Sahip olduğunuz L$ yeterli olmadığı için nesne üzerinde hak talep etme başarılamadı.
+	</notification>
+	<notification name="CantDeedGroupLand">
+		Grubun sahip olduğu araziyi devredemezsiniz.
+	</notification>
+	<notification name="BuyObjectFailedNoMoney">
+		Sahip olduğunuz L$ yeterli olmadığı için nesne satın alma başarılamadı.
+	</notification>
+	<notification name="BuyInventoryFailedNoMoney">
+		Sahip olduğunuz L$ yeterli olmadığı için envanter satın alma başarılamadı.
+	</notification>
+	<notification name="BuyPassFailedNoMoney">
+		Sahibi olduğunuz L$ bu araziye geçiş hakkı almanıza yeterli değil.
+	</notification>
+	<notification name="CantBuyPassTryAgain">
+		Şu anda geçiş hakkı satın alınamıyor.  Daha sonra tekrar deneyin.
+	</notification>
+	<notification name="CantCreateObjectParcelFull">
+		Nesne oluşturulamıyor çünkü \nparsel dolu.
+	</notification>
+	<notification name="FailedPlacingObject">
+		Belirtilen konuma nesne yerleştirilemedi.  Lütfen tekrar deneyin.
+	</notification>
+	<notification name="CantCreateLandmarkForEvent">
+		Etkinlik için yer imi oluşturulamıyor.
+	</notification>
+	<notification name="GodBeatsFreeze">
+		Tanrısal güçleriniz dondurmayı devre dışı bıraktı!
+	</notification>
+	<notification name="SpecialPowersRequestFailedLogged">
+		Özel yetkiler talebi başarısız oldu. Bu talep günlüğe kaydedildi.
+	</notification>
+	<notification name="ExpireExplanation">
+		Sistem şu anda talebinizi işleyemiyor. Talep zaman aşımına uğradı.
+	</notification>
+	<notification name="DieExplanation">
+		Sistem talebinizi işleyemiyor.
+	</notification>
+	<notification name="AddPrimitiveFailure">
+		İlkel öğeyi oluşturmak için yeterli fon yok.
+	</notification>
+	<notification name="RezObjectFailure">
+		Nesneyi oluşturmak için yeterli fon yok.
+	</notification>
+	<notification name="ResetHomePositionNotLegal">
+		Ana konum sıfırlandı çünkü Ana konum yasal değildi.
+	</notification>
+	<notification name="CantInviteRegionFull">
+		Şu anda konumunuza kimseyi davet edemezsiniz çünkü bölge dolu. Daha sonra tekrar deneyin.
+	</notification>
+	<notification name="CantSetHomeAtRegion">
+		Bu bölge, ana konumunuzu buraya kurmanıza izin vermiyor.
+	</notification>
+	<notification name="ListValidHomeLocations">
+		&apos;Ana Konum&apos;unuzu sadece arazinizde veya anakarada bir Bilgi İstasyonu&apos;nda ayarlayabilirsiniz.
+	</notification>
+	<notification name="SetHomePosition">
+		Ana konum ayarlandı.
+	</notification>
+	<notification name="CantDerezInventoryError">
+		Envanter hatasından ötürü nesne oluşturulması geri alınamıyor.
+	</notification>
+	<notification name="CantCreateRequestedInv">
+		Talep edilen envanter oluşturulamadı.
+	</notification>
+	<notification name="CantCreateRequestedInvFolder">
+		Talep edilen envanter klasörü oluşturulamadı.
+	</notification>
+	<notification name="CantCreateInventory">
+		Bu envanter oluşturulamadı.
+	</notification>
+	<notification name="CantCreateLandmark">
+		Yer imi oluşturulamıyor.
+	</notification>
+	<notification name="CantCreateOutfit">
+		Dış görünüm şu anda oluşturulamıyor. Bir dakika sonra tekrar deneyin.
+	</notification>
+	<notification name="InventoryNotForSale">
+		Envanter satılık değil.
+	</notification>
+	<notification name="CantFindInvItem">
+		Envanter öğesi bulunamıyor.
+	</notification>
+	<notification name="CantFindObject">
+		Nesne bulunamıyor.
+	</notification>
+	<notification name="CantTransfterMoneyRegionDisabled">
+		Nesnelere para transferleri bölgede şu anda devre dışı bırakılmış durumda.
+	</notification>
+	<notification name="CantPayNoAgent">
+		Kime ödeme yapılacağı belirlenemedi.
+	</notification>
+	<notification name="CantDonateToPublicObjects">
+		Kamusal nesnelere L$ veremezsiniz.
+	</notification>
+	<notification name="InventoryCreationInWorldObjectFailed">
+		Dünya içerisindeki nesnede envater oluşturma başarısız oldu.
+	</notification>
+	<notification name="UserBalanceOrLandUsageError">
+		Dahili bir hata nedeniyle görüntüleyicinizi gerektiği gibi güncelleyemedik.  Görüntüleyicinizde gösterilen L$ bakiyesi veya parsel tutarı sunucular üzerinde gerçekteki bakiyenizi yansıtmayabilir.
+	</notification>
+	<notification name="LargePrimAgentIntersect">
+		Başka oyuncularla kesişen büyük primler oluşturulamaz.  Öbür oyuncular hareket ettiğinde lütfen tekrar deneyin.
+	</notification>
+	<notification name="PreferenceChatClearLog">
+		Bu, geçmiş sohbetlerin günlüklerini ve bu dosyanın tüm yedeklerini silecektir.
+		<usetemplate ignoretext="Ben geçmiş sohbetlerin günlüğünü silmeden önce doğrula." name="okcancelignore" notext="İptal" yestext="Tamam"/>
+	</notification>
+	<notification name="PreferenceChatDeleteTranscripts">
+		Bu, tüm geçmiş sohbetlerin dökümlerini silecektir. Geçmiş sohbetlerin listesi bundan etkilenmez. [FOLDER] klasöründe .txt ve txt.backup uzantısına sahip tüm dosyalar silinecektir.
+		<usetemplate ignoretext="Ben dökümleri silmeden önce doğrulama iste." name="okcancelignore" notext="İptal" yestext="Tamam"/>
+	</notification>
+	<notification name="PreferenceChatPathChanged">
+		Dosyalar taşınamıyor. Önceki yol geri yüklendi.
+		<usetemplate ignoretext="Dosyalar taşınamıyor. Önceki yol geri yüklendi." name="okignore" yestext="Tamam"/>
 	</notification>
 </notifications>

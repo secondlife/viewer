@@ -615,7 +615,6 @@ S32 LLScrollListCtrl::calcMaxContentWidth()
 
 		if (mColumnWidthsDirty)
 		{
-			mColumnWidthsDirty = false;
 			// update max content width for this column, by looking at all items
 			column->mMaxContentWidth = column->mHeader ? LLFontGL::getFontSansSerifSmall()->getWidth(column->mLabel) + mColumnPadding + HEADING_TEXT_PADDING : 0;
 			item_list::iterator iter;
@@ -629,6 +628,7 @@ S32 LLScrollListCtrl::calcMaxContentWidth()
 		}
 		max_item_width += column->mMaxContentWidth;
 	}
+	mColumnWidthsDirty = false;
 
 	return max_item_width;
 }
@@ -643,7 +643,7 @@ bool LLScrollListCtrl::updateColumnWidths()
 		if (!column) continue;
 
 		// update column width
-		S32 new_width = column->getWidth();
+		S32 new_width = 0;
 		if (column->mRelWidth >= 0)
 		{
 			new_width = (S32)llround(column->mRelWidth*mItemListRect.getWidth());
@@ -651,6 +651,10 @@ bool LLScrollListCtrl::updateColumnWidths()
 		else if (column->mDynamicWidth)
 		{
 			new_width = (mItemListRect.getWidth() - mTotalStaticColumnWidth - mTotalColumnPadding) / mNumDynamicWidthColumns;
+		}
+		else
+		{
+			new_width = column->getWidth();
 		}
 
 		if (column->getWidth() != new_width)
@@ -693,9 +697,9 @@ void LLScrollListCtrl::updateLineHeightInsert(LLScrollListItem* itemp)
 }
 
 
-void LLScrollListCtrl::updateColumns()
+void LLScrollListCtrl::updateColumns(bool force_update)
 {
-	if (!mColumnsDirty)
+	if (!mColumnsDirty && !force_update)
 		return;
 
 	mColumnsDirty = false;
@@ -749,7 +753,7 @@ void LLScrollListCtrl::updateColumns()
 	}
 
 	// propagate column widths to individual cells
-	if (columns_changed_width)
+	if (columns_changed_width || force_update)
 	{
 		item_list::iterator iter;
 		for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
@@ -1179,10 +1183,10 @@ LLScrollListItem* LLScrollListCtrl::addSeparator(EAddPosition pos)
 // Selects first enabled item of the given name.
 // Returns false if item not found.
 // Calls getItemByLabel in order to combine functionality
-BOOL LLScrollListCtrl::selectItemByLabel(const std::string& label, BOOL case_sensitive)
+BOOL LLScrollListCtrl::selectItemByLabel(const std::string& label, BOOL case_sensitive, S32 column/* = 0*/)
 {
 	deselectAllItems(TRUE); 	// ensure that no stale items are selected, even if we don't find a match
-	LLScrollListItem* item = getItemByLabel(label, case_sensitive);
+	LLScrollListItem* item = getItemByLabel(label, case_sensitive, column);
 
 	bool found = NULL != item;
 	if(found)
@@ -1801,6 +1805,9 @@ BOOL LLScrollListCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
 			// (N.B. callbacks don't take const refs as id is local scope)
 			bool is_group = (mContextMenuType == MENU_GROUP);
 			LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+			registrar.add("Url.ShowProfile", boost::bind(&LLScrollListCtrl::showProfile, id, is_group));
+			registrar.add("Url.SendIM", boost::bind(&LLScrollListCtrl::sendIM, id));
+			registrar.add("Url.AddFriend", boost::bind(&LLScrollListCtrl::addFriend, id));
 			registrar.add("Url.Execute", boost::bind(&LLScrollListCtrl::showNameDetails, id, is_group));
 			registrar.add("Url.CopyLabel", boost::bind(&LLScrollListCtrl::copyNameToClipboard, id, is_group));
 			registrar.add("Url.CopyUrl", boost::bind(&LLScrollListCtrl::copySLURLToClipboard, id, is_group));
@@ -1821,9 +1828,31 @@ BOOL LLScrollListCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	return FALSE;
 }
 
-void LLScrollListCtrl::showNameDetails(std::string id, bool is_group)
+void LLScrollListCtrl::showProfile(std::string id, bool is_group)
 {
 	// show the resident's profile or the group profile
+	std::string sltype = is_group ? "group" : "agent";
+	std::string slurl = "secondlife:///app/" + sltype + "/" + id + "/about";
+	LLUrlAction::showProfile(slurl);
+}
+
+void LLScrollListCtrl::sendIM(std::string id)
+{
+	// send im to the resident
+	std::string slurl = "secondlife:///app/agent/" + id + "/about";
+	LLUrlAction::sendIM(slurl);
+}
+
+void LLScrollListCtrl::addFriend(std::string id)
+{
+	// add resident to friends list
+	std::string slurl = "secondlife:///app/agent/" + id + "/about";
+	LLUrlAction::addFriend(slurl);
+}
+
+void LLScrollListCtrl::showNameDetails(std::string id, bool is_group)
+{
+	// open the resident's details or the group details
 	std::string sltype = is_group ? "group" : "agent";
 	std::string slurl = "secondlife:///app/" + sltype + "/" + id + "/about";
 	LLUrlAction::clickAction(slurl);
@@ -1841,7 +1870,7 @@ void LLScrollListCtrl::copyNameToClipboard(std::string id, bool is_group)
 	{
 		LLAvatarName av_name;
 		LLAvatarNameCache::get(LLUUID(id), &av_name);
-		name = av_name.getLegacyName();
+		name = av_name.getAccountName();
 	}
 	LLUrlAction::copyURLToClipboard(name);
 }

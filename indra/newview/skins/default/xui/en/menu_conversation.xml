@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu
+ bottom="806"
+ layout="topleft"
+ left="0"
+ mouse_opaque="false"
+ name="menu_conversation_participant"
+ visible="false">
+     <menu_item_call
+     label="Close conversation"
+     layout="topleft"
+     name="close_conversation">
+        <on_click function="Avatar.DoToSelected" parameter="close_conversation"/>
+	 </menu_item_call>	 
+     <menu_item_call
+     label="Open voice conversation"
+     layout="topleft"
+     name="open_voice_conversation">
+        <on_click function="Avatar.DoToSelected" parameter="open_voice_conversation"/>
+     </menu_item_call>	
+     <menu_item_call
+     label="Disconnect from voice"
+     layout="topleft"
+     name="disconnect_from_voice">
+        <on_click function="Avatar.DoToSelected" parameter="disconnect_from_voice"/>
+    </menu_item_call>	
+	<menu_item_separator layout="topleft" name="separator_disconnect_from_voice"/>	
+	<menu_item_call
+     label="Close Selected"
+     layout="topleft"
+     name="close_selected_conversations">
+        <on_click function="Avatar.DoToSelected" parameter="close_selected_conversations"/>
+	 </menu_item_call>
+    <menu_item_call
+     label="View Profile"
+     layout="topleft"
+     name="view_profile">
+        <on_click function="Avatar.DoToSelected" parameter="view_profile"/>
+        <on_enable function="Avatar.EnableItem" parameter="can_view_profile"/>
+    </menu_item_call>
+    <menu_item_call
+     label="IM"
+     layout="topleft"
+     name="im">
+        <on_click function="Avatar.DoToSelected" parameter="im"/>
+        <on_enable function="Avatar.EnableItem" parameter="can_im"/>
+    </menu_item_call>
+    <menu_item_call
+     label="Offer teleport"
+     layout="topleft"
+     name="offer_teleport">
+        <on_click function="Avatar.DoToSelected" parameter="offer_teleport"/>
+        <on_enable function="Avatar.EnableItem" parameter="can_offer_teleport"/>
+    </menu_item_call>
+    <menu_item_call
+     label="Voice call"
+     layout="topleft"
+     name="voice_call">
+        <on_click function="Avatar.DoToSelected" parameter="voice_call"/>
+        <on_enable function="Avatar.EnableItem" parameter="can_call" />
+    </menu_item_call>
+    <menu_item_call
+     label="Chat history..."
+     layout="topleft"
+     name="chat_history">
+        <on_click function="Avatar.DoToSelected" parameter="chat_history"/>
+        <on_enable function="Avatar.EnableItem" parameter="can_chat_history"/>
+    </menu_item_call>	
+    <menu_item_separator layout="topleft" name="separator_chat_history"/>	
+    <menu_item_call
+     label="Add friend"
+     layout="topleft"
+     name="add_friend">
+        <on_click function="Avatar.DoToSelected" parameter="add_friend"/>
+        <on_enable function="Avatar.EnableItem" parameter="can_add" />
+    </menu_item_call>
+    <menu_item_call
+     label="Remove friend"
+     layout="topleft"
+     name="remove_friend">
+        <on_click function="Avatar.DoToSelected" parameter="remove_friend" />
+        <on_enable function="Avatar.EnableItem" parameter="can_delete" />
+    </menu_item_call>	
+    <menu_item_call
+     label="Remove friends"
+     layout="topleft"
+     name="remove_friends">
+        <on_click function="Avatar.DoToSelected" parameter="remove_friend" />
+        <on_enable function="Avatar.EnableItem" parameter="can_delete" />
+    </menu_item_call>	
+    <menu_item_call
+     label="Invite to group..."
+     layout="topleft"
+     name="invite_to_group">
+        <on_click function="Avatar.DoToSelected" parameter="invite_to_group" />
+        <on_enable function="Avatar.EnableItem" parameter="can_invite" />
+    </menu_item_call>
+    <menu_item_separator layout="topleft" name="separator_invite_to_group"/>
+    <menu_item_call
+     label="Zoom In"
+     layout="topleft"
+     name="zoom_in">
+      <on_click function="Avatar.DoToSelected" parameter="zoom_in" />
+      <on_enable function="Avatar.EnableItem" parameter="can_zoom_in" />
+    </menu_item_call>
+    <menu_item_call
+     label="Map"
+     layout="topleft"
+     name="map">
+        <on_click function="Avatar.DoToSelected" parameter="map" />
+        <on_enable function="Avatar.EnableItem" parameter="can_show_on_map" />
+    </menu_item_call>
+    <menu_item_call
+     label="Share"
+     layout="topleft"
+     name="share">
+        <on_click function="Avatar.DoToSelected" parameter="share" />
+        <on_enable function="Avatar.EnableItem" parameter="can_share" />
+    </menu_item_call>
+    <menu_item_call
+     label="Pay"
+     layout="topleft"
+     name="pay">
+        <on_click function="Avatar.DoToSelected" parameter="pay" />
+        <on_enable function="Avatar.EnableItem" parameter="can_pay" />
+    </menu_item_call>
+    <menu_item_check
+     label="Block Voice"
+     layout="topleft"
+     name="block_unblock">
+        <on_click function="Avatar.DoToSelected" parameter="block_unblock" />
+		<on_check function="Avatar.CheckItem" parameter="is_blocked" />
+		<on_enable  function="Avatar.EnableItem" parameter="can_block" />
+    </menu_item_check>
+    <menu_item_check
+     label="Block Text"
+     layout="topleft"
+     name="MuteText">
+     <on_click function="Avatar.DoToSelected" parameter="mute_unmute" />
+     <on_check function="Avatar.CheckItem" parameter="is_muted" />
+     <on_enable  function="Avatar.EnableItem" parameter="can_block" />
+    </menu_item_check>
+    <menu_item_call
+     label="Group Profile"
+     layout="topleft"
+     name="group_profile">
+        <on_click function="Group.DoToSelected" parameter="group_profile"/>
+        <on_enable function="Avatar.EnableItem" parameter="can_group_profile" />
+    </menu_item_call>	
+    <menu_item_call
+     label="Activate Group"
+     layout="topleft"
+     name="activate_group">
+        <on_click function="Group.DoToSelected" parameter="activate_group"/>
+        <on_enable function="Avatar.EnableItem" parameter="can_activate_group" />
+    </menu_item_call>		
+    <menu_item_call
+     label="Leave Group"
+     layout="topleft"
+     name="leave_group">
+        <on_click function="Group.DoToSelected" parameter="leave_group"/>
+        <on_enable function="Avatar.EnableItem" parameter="can_leave_group" />
+    </menu_item_call>
+	<menu_item_separator layout="topleft" name="Moderator Options Separator"/>
+	<context_menu
+	 label="Moderator Options"
+	 layout="topleft"
+	 name="Moderator Options">
+		<menu_item_check
+		 label="Allow text chat"
+		 layout="topleft"
+		 name="AllowTextChat">
+			<on_check function="Avatar.CheckItem" parameter="is_allowed_text_chat" />
+			<on_click function="Avatar.DoToSelected" parameter="toggle_allow_text_chat" />
+			<on_enable function="Avatar.EnableItem" parameter="can_allow_text_chat" />
+		</menu_item_check>
+		<menu_item_separator layout="topleft" name="moderate_voice_separator" />
+		<menu_item_call
+		 label="Mute this participant"
+		 layout="topleft"
+		 name="ModerateVoiceMuteSelected">
+			<on_click function="Avatar.DoToSelected" parameter="selected" />
+      <on_enable function="Avatar.EnableItem" parameter="can_mute" />
+      <on_visible function="Avatar.VisibleItem" parameter="show_mute" />
+    </menu_item_call>
+    <menu_item_call
+		 label="Unmute this participant"
+		 layout="topleft"
+		 name="ModerateVoiceUnMuteSelected">
+      <on_click function="Avatar.DoToSelected" parameter="selected" />
+      <on_enable function="Avatar.EnableItem" parameter="can_unmute" />
+      <on_visible function="Avatar.VisibleItem" parameter="show_unmute" />
+		</menu_item_call>
+		<menu_item_call
+		 label="Mute everyone"
+		 layout="topleft"
+		 name="ModerateVoiceMute">
+			<on_click function="Avatar.DoToSelected" parameter="mute_all" />
+			<on_enable function="Avatar.EnableItem" parameter="can_moderate_voice" />
+		</menu_item_call>
+		<menu_item_call
+		 label="Unmute everyone"
+		 layout="topleft"
+		 name="ModerateVoiceUnmute">
+			<on_click function="Avatar.DoToSelected" parameter="unmute_all" />
+			<on_enable function="Avatar.EnableItem" parameter="can_moderate_voice" />
+		</menu_item_call>
+	</context_menu>
+</toggleable_menu>

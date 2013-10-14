@@ -27,8 +27,8 @@
 #include "linden_common.h"
 
 #include "llprimtexturelist.h"
+#include "llmaterialid.h"
 #include "lltextureentry.h"
-#include "llmemtype.h"
 
 // static 
 //int (TMyClass::*pt2Member)(float, char, char) = NULL;                // C++
@@ -359,6 +359,24 @@ S32 LLPrimTextureList::setGlow(const U8 index, const F32 glow)
 	return TEM_CHANGE_NONE;
 }
 
+S32 LLPrimTextureList::setMaterialID(const U8 index, const LLMaterialID& pMaterialID)
+{
+	if (index < mEntryList.size())
+	{
+		return mEntryList[index]->setMaterialID(pMaterialID);
+	}
+	return TEM_CHANGE_NONE;
+}
+
+S32 LLPrimTextureList::setMaterialParams(const U8 index, const LLMaterialPtr pMaterialParams)
+{
+	if (index < mEntryList.size())
+	{
+		return mEntryList[index]->setMaterialParams(pMaterialParams);
+	}
+	return TEM_CHANGE_NONE;
+}
+
 S32 LLPrimTextureList::size() const
 {
 	return mEntryList.size();
@@ -367,7 +385,6 @@ S32 LLPrimTextureList::size() const
 // sets the size of the mEntryList container
 void LLPrimTextureList::setSize(S32 new_size)
 {
-	LLMemType m1(LLMemType::MTYPE_PRIMITIVE);
 	if (new_size < 0)
 	{
 		new_size = 0;

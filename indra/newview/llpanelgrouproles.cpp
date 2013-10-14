@@ -743,12 +743,17 @@ LLPanelGroupMembersSubTab::LLPanelGroupMembersSubTab()
 	mChanged(FALSE),
 	mPendingMemberUpdate(FALSE),
 	mHasMatch(FALSE),
-	mNumOwnerAdditions(0)
+	mNumOwnerAdditions(0),
+	mAvatarNameCacheConnection()
 {
 }
 
 LLPanelGroupMembersSubTab::~LLPanelGroupMembersSubTab()
 {
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
 	if (mMembersList)
 	{
 		gSavedSettings.setString("GroupMembersSortOrder", mMembersList->getSortColumnName());
@@ -1096,27 +1101,61 @@ void LLPanelGroupMembersSubTab::onEjectMembers(void *userdata)
 }
 
 void LLPanelGroupMembersSubTab::handleEjectMembers()
-{
-	//send down an eject message
-	uuid_vec_t selected_members;
-
+{	
 	std::vector<LLScrollListItem*> selection = mMembersList->getAllSelected();
 	if (selection.empty()) return;
-
-	std::vector<LLScrollListItem*>::iterator itor;
-	for (itor = selection.begin() ; 
-		 itor != selection.end(); ++itor)
+	
+	S32 selection_count = selection.size();
+	if (selection_count == 1)
 	{
-		LLUUID member_id = (*itor)->getUUID();
-		selected_members.push_back( member_id );
+		LLSD args;
+		LLUUID selected_avatar = mMembersList->getValue().asUUID();
+		std::string fullname = LLSLURL("agent", selected_avatar, "inspect").getSLURLString();
+		args["AVATAR_NAME"] = fullname;
+		LLSD payload;
+		LLNotificationsUtil::add("EjectGroupMemberWarning",
+								 args,
+								 payload,
+								 boost::bind(&LLPanelGroupMembersSubTab::handleEjectCallback, this, _1, _2));
 	}
+	else
+	{
+		LLSD args;
+		args["COUNT"] = llformat("%d", selection_count);
+		LLSD payload;
+		LLNotificationsUtil::add("EjectGroupMembersWarning",
+								 args,
+								 payload,
+								 boost::bind(&LLPanelGroupMembersSubTab::handleEjectCallback, this, _1, _2));
+	}
+}
 
-	mMembersList->deleteSelectedItems();
-
-	sendEjectNotifications(mGroupID, selected_members);
-
-	LLGroupMgr::getInstance()->sendGroupMemberEjects(mGroupID,
-									 selected_members);
+bool LLPanelGroupMembersSubTab::handleEjectCallback(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (0 == option) // Eject button
+	{
+		//send down an eject message
+		uuid_vec_t selected_members;
+		
+		std::vector<LLScrollListItem*> selection = mMembersList->getAllSelected();
+		if (selection.empty()) return false;
+		
+		std::vector<LLScrollListItem*>::iterator itor;
+		for (itor = selection.begin() ;
+			 itor != selection.end(); ++itor)
+		{
+			LLUUID member_id = (*itor)->getUUID();
+			selected_members.push_back( member_id );
+		}
+		
+		mMembersList->deleteSelectedItems();
+		
+		sendEjectNotifications(mGroupID, selected_members);
+		
+		LLGroupMgr::getInstance()->sendGroupMemberEjects(mGroupID, selected_members);
+	}
+	return false;
 }
 
 void LLPanelGroupMembersSubTab::sendEjectNotifications(const LLUUID& group_id, const uuid_vec_t& selected_members)
@@ -1604,6 +1643,8 @@ void LLPanelGroupMembersSubTab::addMemberToList(LLGroupMemberData* data)
 
 void LLPanelGroupMembersSubTab::onNameCache(const LLUUID& update_id, LLGroupMemberData* member, const LLAvatarName& av_name)
 {
+	mAvatarNameCacheConnection.disconnect();
+
 	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 	if (!gdatap
 		|| gdatap->getMemberVersion() != update_id
@@ -1613,7 +1654,7 @@ void LLPanelGroupMembersSubTab::onNameCache(const LLUUID& update_id, LLGroupMemb
 	}
 	
 	// trying to avoid unnecessary hash lookups
-	if (matchesSearchFilter(av_name.getLegacyName()))
+	if (matchesSearchFilter(av_name.getAccountName()))
 	{
 		addMemberToList(member);
 		if(!mMembersList->getEnabled())
@@ -1667,7 +1708,7 @@ void LLPanelGroupMembersSubTab::updateMembers()
 		LLAvatarName av_name;
 		if (LLAvatarNameCache::get(mMemberProgress->first, &av_name))
 		{
-			if (matchesSearchFilter(av_name.getLegacyName()))
+			if (matchesSearchFilter(av_name.getAccountName()))
 			{
 				addMemberToList(mMemberProgress->second);
 			}
@@ -1675,8 +1716,12 @@ void LLPanelGroupMembersSubTab::updateMembers()
 		else
 		{
 			// If name is not cached, onNameCache() should be called when it is cached and add this member to list.
-			LLAvatarNameCache::get(mMemberProgress->first, boost::bind(&LLPanelGroupMembersSubTab::onNameCache,
-									this, gdatap->getMemberVersion(), mMemberProgress->second, _2));
+			// *TODO : Add one callback per fetched avatar name
+			if (mAvatarNameCacheConnection.connected())
+			{
+				mAvatarNameCacheConnection.disconnect();
+			}
+			mAvatarNameCacheConnection = LLAvatarNameCache::get(mMemberProgress->first, boost::bind(&LLPanelGroupMembersSubTab::onNameCache, this, gdatap->getMemberVersion(), mMemberProgress->second, _2));
 		}
 	}
 

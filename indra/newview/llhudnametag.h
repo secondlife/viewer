@@ -118,14 +118,13 @@ public:
 	/*virtual*/ void markDead();
 	friend class LLHUDObject;
 	/*virtual*/ F32 getDistance() const { return mLastDistance; }
-	//void setUseBubble(BOOL use_bubble) { mUseBubble = use_bubble; }
 	S32  getLOD() { return mLOD; }
 	BOOL getVisible() { return mVisible; }
 	BOOL getHidden() const { return mHidden; }
 	void setHidden( BOOL hide ) { mHidden = hide; }
 	void shift(const LLVector3& offset);
 
-	BOOL lineSegmentIntersect(const LLVector3& start, const LLVector3& end, LLVector3& intersection, BOOL debug_render = FALSE);
+	BOOL lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, LLVector4a& intersection, BOOL debug_render = FALSE);
 
 	static void shiftAll(const LLVector3& offset);
 	static void addPickable(std::set<LLViewerObject*> &pick_list);
@@ -136,7 +135,6 @@ protected:
 	LLHUDNameTag(const U8 type);
 
 	/*virtual*/ void render();
-	/*virtual*/ void renderForSelect();
 	void renderText(BOOL for_select);
 	static void updateAll();
 	void setLOD(S32 lod);

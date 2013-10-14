@@ -103,8 +103,6 @@ public:
 	
 	virtual void		setControlName(const std::string& control_name, LLView* context);
 
-	void				onButtonPress(const LLSD& data);
-
 	virtual BOOL		isDirty()	const;		// Returns TRUE if the user has modified this control.
 	virtual void		resetDirty();			// Clear dirty state
 

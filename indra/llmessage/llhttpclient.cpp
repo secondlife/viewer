@@ -222,7 +222,11 @@ static void request(
 {
 	if (!LLHTTPClient::hasPump())
 	{
+		if (responder)
+		{
 		responder->completed(U32_MAX, "No pump", LLSD());
+		}
+		delete body_injector;
 		return;
 	}
 	LLPumpIO::chain_t chain;
@@ -230,7 +234,12 @@ static void request(
 	LLURLRequest* req = new LLURLRequest(method, url);
 	if(!req->isValid())//failed
 	{
+		if (responder)
+		{
+			responder->completed(498, "Internal Error - curl failure", LLSD());
+		}
 		delete req ;
+		delete body_injector;
 		return ;
 	}
 

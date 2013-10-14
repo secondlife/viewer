@@ -8,7 +8,9 @@
 		Использован компилятор [COMPILER], версия [COMPILER_VERSION]
 	</floater.string>
 	<floater.string name="AboutPosition">
-		Вы в точке [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] в регионе «[REGION]», расположенном на &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
+		Вы в точке [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] в регионе «[REGION]», расположенном на &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
+SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
+(глобальные координаты [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1])
 [SERVER_VERSION]
 [SERVER_RELEASE_NOTES_URL]
 	</floater.string>

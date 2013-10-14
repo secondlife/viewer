@@ -51,9 +51,20 @@
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
 #include "llviewershadermgr.h"
+#include "llviewertexture.h"
+#include "llvoavatar.h"
 
+#if LL_LINUX
+// Work-around spurious used before init warning on Vector4a
+//
+#pragma GCC diagnostic ignored "-Wuninitialized"
+#endif
 
+extern BOOL gGLDebugLoggingEnabled;
 #define LL_MAX_INDICES_COUNT 1000000
+
+static LLStaticHashedString sTextureIndexIn("texture_index_in");
+static LLStaticHashedString sColorIn("color_in");
 
 BOOL LLFace::sSafeRenderSelect = TRUE; // FALSE
 
@@ -106,41 +117,6 @@ void planarProjection(LLVector2 &tc, const LLVector4a& normal,
 	tc.mV[0] = 1.0f+((binormal.dot3(vec).getF32())*2 - 0.5f);
 }
 
-void sphericalProjection(LLVector2 &tc, const LLVector4a& normal,
-						 const LLVector4a &mCenter, const LLVector4a& vec)
-{	//BROKEN
-	/*tc.mV[0] = acosf(vd.mNormal * LLVector3(1,0,0))/3.14159f;
-	
-	tc.mV[1] = acosf(vd.mNormal * LLVector3(0,0,1))/6.284f;
-	if (vd.mNormal.mV[1] > 0)
-	{
-		tc.mV[1] = 1.0f-tc.mV[1];
-	}*/
-}
-
-void cylindricalProjection(LLVector2 &tc, const LLVector4a& normal, const LLVector4a &mCenter, const LLVector4a& vec)
-{	//BROKEN
-	/*LLVector3 binormal;
-	float d = vd.mNormal * LLVector3(1,0,0);
-	if (d >= 0.5f || d <= -0.5f)
-	{
-		binormal = LLVector3(0,1,0);
-	}
-	else{
-		binormal = LLVector3(1,0,0);
-	}
-	LLVector3 tangent = binormal % vd.mNormal;
-
-	tc.mV[1] = -((tangent*vec)*2 - 0.5f);
-
-	tc.mV[0] = acosf(vd.mNormal * LLVector3(1,0,0))/6.284f;
-
-	if (vd.mNormal.mV[1] < 0)
-	{
-		tc.mV[0] = 1.0f-tc.mV[0];
-	}*/
-}
-
 ////////////////////
 //
 // LLFace implementation
@@ -167,8 +143,12 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 	//special value to indicate uninitialized position
 	mIndicesIndex	= 0xFFFFFFFF;
 	
-	mIndexInTex = 0;
-	mTexture		= NULL;
+	for (U32 i = 0; i < LLRender::NUM_TEXTURE_CHANNELS; ++i)
+	{
+		mIndexInTex[i] = 0;
+		mTexture[i] = NULL;
+	}
+
 	mTEOffset		= -1;
 	mTextureIndex = 255;
 
@@ -185,8 +165,6 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 	mImportanceToCamera = 0.f ;
 	mBoundingSphereRadius = 0.0f ;
 
-	mAtlasInfop = NULL ;
-	mUsingAtlas  = FALSE ;
 	mHasMedia = FALSE ;
 }
 
@@ -197,9 +175,12 @@ void LLFace::destroy()
 		gPipeline.checkReferences(this);
 	}
 
-	if(mTexture.notNull())
+	for (U32 i = 0; i < LLRender::NUM_TEXTURE_CHANNELS; ++i)
 	{
-		mTexture->removeFace(this) ;
+		if(mTexture[i].notNull())
+		{
+			mTexture[i]->removeFace(i, this) ;
+		}
 	}
 	
 	if (isState(LLFace::PARTICLE))
@@ -239,8 +220,7 @@ void LLFace::destroy()
 	}
 	
 	setDrawInfo(NULL);
-	removeAtlas();
-		
+			
 	mDrawablep = NULL;
 	mVObjp = NULL;
 }
@@ -263,8 +243,6 @@ void LLFace::setPool(LLFacePool* pool)
 
 void LLFace::setPool(LLFacePool* new_pool, LLViewerTexture *texturep)
 {
-	LLMemType mt1(LLMemType::MTYPE_DRAWABLE);
-	
 	if (!new_pool)
 	{
 		llerrs << "Setting pool to null!" << llendl;
@@ -295,48 +273,82 @@ void LLFace::setPool(LLFacePool* new_pool, LLViewerTexture *texturep)
 	setTexture(texturep) ;
 }
 
-void LLFace::setTexture(LLViewerTexture* tex) 
+void LLFace::setTexture(U32 ch, LLViewerTexture* tex) 
 {
-	if(mTexture == tex)
+	llassert(ch < LLRender::NUM_TEXTURE_CHANNELS);
+
+	if(mTexture[ch] == tex)
 	{
 		return ;
 	}
 
-	if(mTexture.notNull())
+	if(mTexture[ch].notNull())
 	{
-		mTexture->removeFace(this) ;
-		removeAtlas() ;
+		mTexture[ch]->removeFace(ch, this) ;
 	}	
 	
 	if(tex)
 	{
-		tex->addFace(this) ;
+		tex->addFace(ch, this) ;
 	}
 
-	mTexture = tex ;
+	mTexture[ch] = tex ;
+}
+
+void LLFace::setTexture(LLViewerTexture* tex) 
+{
+	setDiffuseMap(tex);
+}
+
+void LLFace::setDiffuseMap(LLViewerTexture* tex)
+{
+	setTexture(LLRender::DIFFUSE_MAP, tex);
+}
+
+void LLFace::setNormalMap(LLViewerTexture* tex)
+{
+	setTexture(LLRender::NORMAL_MAP, tex);
+}
+
+void LLFace::setSpecularMap(LLViewerTexture* tex)
+{
+	setTexture(LLRender::SPECULAR_MAP, tex);
 }
 
 void LLFace::dirtyTexture()
 {
 	LLDrawable* drawablep = getDrawable();
 
-	if (mVObjp.notNull() && mVObjp->getVolume() && 
-		mTexture.notNull() && mTexture->getComponents() == 4)
-	{ //dirty texture on an alpha object should be treated as an LoD update
-		LLVOVolume* vobj = drawablep->getVOVolume();
-		if (vobj)
+	if (mVObjp.notNull() && mVObjp->getVolume())
+	{
+		for (U32 ch = 0; ch < LLRender::NUM_TEXTURE_CHANNELS; ++ch)
 		{
-			vobj->mLODChanged = TRUE;
+			if (mTexture[ch].notNull() && mTexture[ch]->getComponents() == 4)
+			{ //dirty texture on an alpha object should be treated as an LoD update
+				LLVOVolume* vobj = drawablep->getVOVolume();
+				if (vobj)
+				{
+					vobj->mLODChanged = TRUE;
+
+			LLVOAvatar* avatar = vobj->getAvatar();
+			if (avatar)
+			{ //avatar render cost may have changed
+				avatar->updateVisualComplexity();
+			}
+				}
+				gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_VOLUME, FALSE);
+			}
 		}
-		gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_VOLUME, FALSE);
-	}		
+	}
 			
 	gPipeline.markTextured(drawablep);
 }
 
-void LLFace::switchTexture(LLViewerTexture* new_texture)
+void LLFace::switchTexture(U32 ch, LLViewerTexture* new_texture)
 {
-	if(mTexture == new_texture)
+	llassert(ch < LLRender::NUM_TEXTURE_CHANNELS);
+	
+	if(mTexture[ch] == new_texture)
 	{
 		return ;
 	}
@@ -346,10 +358,17 @@ void LLFace::switchTexture(LLViewerTexture* new_texture)
 		llerrs << "Can not switch to a null texture." << llendl;
 		return;
 	}
-	new_texture->addTextureStats(mTexture->getMaxVirtualSize()) ;
 
-	getViewerObject()->changeTEImage(mTEOffset, new_texture) ;
-	setTexture(new_texture) ;	
+	llassert(mTexture[ch].notNull());
+
+	new_texture->addTextureStats(mTexture[ch]->getMaxVirtualSize()) ;
+
+	if (ch == LLRender::DIFFUSE_MAP)
+	{
+		getViewerObject()->changeTEImage(mTEOffset, new_texture) ;
+	}
+
+	setTexture(ch, new_texture) ;	
 	dirtyTexture();
 }
 
@@ -442,8 +461,6 @@ U16 LLFace::getGeometryAvatar(
 						LLStrider<F32>		 &vertex_weights,
 						LLStrider<LLVector4> &clothing_weights)
 {
-	LLMemType mt1(LLMemType::MTYPE_DRAWABLE);
-
 	if (mVertexBuffer.notNull())
 	{
 		mVertexBuffer->getVertexStrider      (vertices, mGeomIndex, mGeomCount);
@@ -459,8 +476,6 @@ U16 LLFace::getGeometryAvatar(
 U16 LLFace::getGeometry(LLStrider<LLVector3> &vertices, LLStrider<LLVector3> &normals,
 					    LLStrider<LLVector2> &tex_coords, LLStrider<U16> &indicesp)
 {
-	LLMemType mt1(LLMemType::MTYPE_DRAWABLE);
-	
 	if (mVertexBuffer.notNull())
 	{
 		mVertexBuffer->getVertexStrider(vertices,   mGeomIndex, mGeomCount);
@@ -549,7 +564,9 @@ void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
 		}
 		else
 		{
-			mVertexBuffer->setBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0);
+			// cheaters sometimes prosper...
+			//
+			mVertexBuffer->setBuffer(mVertexBuffer->getTypeMask());
 			mVertexBuffer->draw(LLRender::TRIANGLES, mIndicesCount, mIndicesIndex);
 		}
 
@@ -561,8 +578,8 @@ void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
 /* removed in lieu of raycast uv detection
 void LLFace::renderSelectedUV()
 {
-	LLViewerTexture* red_blue_imagep = LLViewerTextureManager::getFetchedTextureFromFile("uv_test1.j2c", TRUE, LLViewerTexture::BOOST_UI);
-	LLViewerTexture* green_imagep = LLViewerTextureManager::getFetchedTextureFromFile("uv_test2.tga", TRUE, LLViewerTexture::BOOST_UI);
+	LLViewerTexture* red_blue_imagep = LLViewerTextureManager::getFetchedTextureFromFile("uv_test1.j2c", TRUE, LLGLTexture::BOOST_UI);
+	LLViewerTexture* green_imagep = LLViewerTextureManager::getFetchedTextureFromFile("uv_test2.tga", TRUE, LLGLTexture::BOOST_UI);
 
 	LLGLSUVSelect object_select;
 
@@ -768,10 +785,8 @@ bool less_than_max_mag(const LLVector4a& vec)
 }
 
 BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
-								const LLMatrix4& mat_vert_in, const LLMatrix3& mat_normal_in, BOOL global_volume)
+								const LLMatrix4& mat_vert_in, BOOL global_volume)
 {
-	LLMemType mt1(LLMemType::MTYPE_DRAWABLE);
-
 	//get bounding box
 	if (mDrawablep->isState(LLDrawable::REBUILD_VOLUME | LLDrawable::REBUILD_POSITION | LLDrawable::REBUILD_RIGGED))
 	{
@@ -779,10 +794,6 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 		LLMatrix4a mat_vert;
 		mat_vert.loadu(mat_vert_in);
 
-		LLMatrix4a mat_normal;
-		mat_normal.loadu(mat_normal_in);
-
-		//VECTORIZE THIS
 		LLVector4a min,max;
 	
 		if (f >= volume.getNumVolumeFaces())
@@ -799,94 +810,68 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 		llassert(less_than_max_mag(max));
 
 		//min, max are in volume space, convert to drawable render space
-		LLVector4a center;
-		LLVector4a t;
-		t.setAdd(min, max);
-		t.mul(0.5f);
-		mat_vert.affineTransform(t, center);
-		LLVector4a size;
-		size.setSub(max, min);
-		size.mul(0.5f);
 
-		llassert(less_than_max_mag(min));
-		llassert(less_than_max_mag(max));
+		//get 8 corners of bounding box
+		LLVector4Logical mask[6];
 
-		if (!global_volume)
+		for (U32 i = 0; i < 6; ++i)
 		{
-			//VECTORIZE THIS
-			LLVector4a scale;
-			scale.load3(mDrawablep->getVObj()->getScale().mV);
-			size.mul(scale);
+			mask[i].clear();
 		}
 
-		mat_normal.mMatrix[0].normalize3fast();
-		mat_normal.mMatrix[1].normalize3fast();
-		mat_normal.mMatrix[2].normalize3fast();
+		mask[0].setElement<2>(); //001
+		mask[1].setElement<1>(); //010
+		mask[2].setElement<1>(); //011
+		mask[2].setElement<2>();
+		mask[3].setElement<0>(); //100
+		mask[4].setElement<0>(); //101
+		mask[4].setElement<2>();
+		mask[5].setElement<0>(); //110
+		mask[5].setElement<1>();
 		
-		LLVector4a v[4];
+		LLVector4a v[8];
 
-		//get 4 corners of bounding box
-		mat_normal.rotate(size,v[0]);
+		v[6] = min;
+		v[7] = max;
 
-		//VECTORIZE THIS
-		LLVector4a scale;
-		
-		scale.set(-1.f, -1.f, 1.f);
-		scale.mul(size);
-		mat_normal.rotate(scale, v[1]);
-		
-		scale.set(1.f, -1.f, -1.f);
-		scale.mul(size);
-		mat_normal.rotate(scale, v[2]);
-		
-		scale.set(-1.f, 1.f, -1.f);
-		scale.mul(size);
-		mat_normal.rotate(scale, v[3]);
+		for (U32 i = 0; i < 6; ++i)
+		{
+			v[i].setSelectWithMask(mask[i], min, max);
+		}
 
+		LLVector4a tv[8];
+
+		//transform bounding box into drawable space
+		for (U32 i = 0; i < 8; ++i)
+		{
+			mat_vert.affineTransform(v[i], tv[i]);
+		}
+	
+		//find bounding box
 		LLVector4a& newMin = mExtents[0];
 		LLVector4a& newMax = mExtents[1];
-		
-		newMin = newMax = center;
-		
-		llassert(less_than_max_mag(center));
-		
-		for (U32 i = 0; i < 4; i++)
+
+		newMin = newMax = tv[0];
+
+		for (U32 i = 1; i < 8; ++i)
 		{
-			LLVector4a delta;
-			delta.setAbs(v[i]);
-			LLVector4a min;
-			min.setSub(center, delta);
-			LLVector4a max;
-			max.setAdd(center, delta);
-
-			newMin.setMin(newMin,min);
-			newMax.setMax(newMax,max);
-
-			llassert(less_than_max_mag(newMin));
-			llassert(less_than_max_mag(newMax));
+			newMin.setMin(newMin, tv[i]);
+			newMax.setMax(newMax, tv[i]);
 		}
 
 		if (!mDrawablep->isActive())
-		{
+		{	// Shift position for region
 			LLVector4a offset;
 			offset.load3(mDrawablep->getRegion()->getOriginAgent().mV);
 			newMin.add(offset);
 			newMax.add(offset);
-			
-			llassert(less_than_max_mag(newMin));
-			llassert(less_than_max_mag(newMax));
 		}
 
-		t.setAdd(newMin, newMax);
+		LLVector4a t;
+		t.setAdd(newMin,newMax);
 		t.mul(0.5f);
 
-		llassert(less_than_max_mag(t));
-		
-		//VECTORIZE THIS
 		mCenterLocal.set(t.getF32ptr());
-		
-		llassert(less_than_max_mag(newMin));
-		llassert(less_than_max_mag(newMax));
 
 		t.setSub(newMax,newMin);
 		mBoundingSphereRadius = t.getLength3().getF32()*0.5f;
@@ -904,7 +889,7 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 // integrated with getGeometryVolume() for its texture coordinate
 // generation - but i'll leave that to someone more familiar
 // with the implications.
-LLVector2 LLFace::surfaceToTexture(LLVector2 surface_coord, LLVector3 position, LLVector3 normal)
+LLVector2 LLFace::surfaceToTexture(LLVector2 surface_coord, const LLVector4a& position, const LLVector4a& normal)
 {
 	LLVector2 tc = surface_coord;
 	
@@ -924,7 +909,9 @@ LLVector2 LLFace::surfaceToTexture(LLVector2 surface_coord, LLVector3 position, 
 		LLVector4a& center = *(mDrawablep->getVOVolume()->getVolume()->getVolumeFace(mTEOffset).mCenter);
 		
 		LLVector4a volume_position;
-		volume_position.load3(mDrawablep->getVOVolume()->agentPositionToVolume(position).mV);
+		LLVector3 v_position(position.getF32ptr());
+
+		volume_position.load3(mDrawablep->getVOVolume()->agentPositionToVolume(v_position).mV);
 		
 		if (!mDrawablep->getVOVolume()->isVolumeGlobal())
 		{
@@ -934,23 +921,14 @@ LLVector2 LLFace::surfaceToTexture(LLVector2 surface_coord, LLVector3 position, 
 		}
 		
 		LLVector4a volume_normal;
-		volume_normal.load3(mDrawablep->getVOVolume()->agentDirectionToVolume(normal).mV);
+		LLVector3 v_normal(normal.getF32ptr());
+		volume_normal.load3(mDrawablep->getVOVolume()->agentDirectionToVolume(v_normal).mV);
 		volume_normal.normalize3fast();
 		
-		switch (texgen)
+		if (texgen == LLTextureEntry::TEX_GEN_PLANAR)
 		{
-		case LLTextureEntry::TEX_GEN_PLANAR:
 			planarProjection(tc, volume_normal, center, volume_position);
-			break;
-		case LLTextureEntry::TEX_GEN_SPHERICAL:
-			sphericalProjection(tc, volume_normal, center, volume_position);
-			break;
-		case LLTextureEntry::TEX_GEN_CYLINDRICAL:
-			cylindricalProjection(tc, volume_normal, center, volume_position);
-			break;
-		default:
-			break;
-		}		
+		}
 	}
 
 	if (mTextureMatrix)	// if we have a texture matrix, use it
@@ -977,7 +955,12 @@ void LLFace::getPlanarProjectedParams(LLQuaternion* face_rot, LLVector3* face_po
 	const LLMatrix4& vol_mat = getWorldMatrix();
 	const LLVolumeFace& vf = getViewerObject()->getVolume()->getVolumeFace(mTEOffset);
 	const LLVector4a& normal4a = vf.mNormals[0];
-	const LLVector4a& binormal4a = vf.mBinormals[0];
+	const LLVector4a& tangent = vf.mTangents[0];
+
+	LLVector4a binormal4a;
+	binormal4a.setCross3(normal4a, tangent);
+	binormal4a.mul(tangent.getF32ptr()[3]);
+
 	LLVector2 projected_binormal;
 	planarProjection(projected_binormal, normal4a, *vf.mCenter, binormal4a);
 	projected_binormal -= LLVector2(0.5f, 0.5f); // this normally happens in xform()
@@ -1067,6 +1050,12 @@ bool LLFace::canRenderAsMask()
 		return false;
 	}
 	
+	LLMaterial* mat = te->getMaterialParams();
+	if (mat && mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_BLEND)
+	{
+		return false;
+	}
+	
 	if ((te->getColor().mV[3] == 1.0f) && // can't treat as mask if we have face alpha
 		(te->getGlow() == 0.f) && // glowing masks are hard to implement - don't mask
 		getTexture()->getIsAlphaMask()) // texture actually qualifies for masking (lazily recalculated but expensive)
@@ -1099,7 +1088,7 @@ void LLFace::cacheFaceInVRAM(const LLVolumeFace& vf)
 {
 	LLFastTimer t(FTM_FACE_GEOM_VOLUME);
 	U32 mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 |
-				LLVertexBuffer::MAP_BINORMAL | LLVertexBuffer::MAP_NORMAL;
+				LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_NORMAL;
 	
 	if (vf.mWeights)
 	{
@@ -1112,11 +1101,11 @@ void LLFace::cacheFaceInVRAM(const LLVolumeFace& vf)
 	buff->allocateBuffer(vf.mNumVertices, 0, true);
 
 	LLStrider<LLVector4a> f_vert;
-	LLStrider<LLVector3> f_binorm;
+	LLStrider<LLVector4a> f_tangent;
 	LLStrider<LLVector3> f_norm;
 	LLStrider<LLVector2> f_tc;
 
-	buff->getBinormalStrider(f_binorm);
+	buff->getTangentStrider(f_tangent);
 	buff->getVertexStrider(f_vert);
 	buff->getNormalStrider(f_norm);
 	buff->getTexCoord0Strider(f_tc);
@@ -1124,7 +1113,7 @@ void LLFace::cacheFaceInVRAM(const LLVolumeFace& vf)
 	for (U32 i = 0; i < vf.mNumVertices; ++i)
 	{
 		*f_vert++ = vf.mPositions[i];
-		(*f_binorm++).set(vf.mBinormals[i].getF32ptr());
+		*f_tangent++ = vf.mTangents[i];
 		*f_tc++ = vf.mTexCoords[i];
 		(*f_norm++).set(vf.mNormals[i].getF32ptr());
 	}
@@ -1166,7 +1155,16 @@ static LLFastTimer::DeclareTimer FTM_FACE_GEOM_TEXTURE("Texture");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_COLOR("Color");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_EMISSIVE("Emissive");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_WEIGHTS("Weights");
-static LLFastTimer::DeclareTimer FTM_FACE_GEOM_BINORMAL("Binormal");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_TANGENT("Binormal");
+
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_FEEDBACK("Face Feedback");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_FEEDBACK_POSITION("Feedback Position");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_FEEDBACK_NORMAL("Feedback  Normal");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_FEEDBACK_TEXTURE("Feedback  Texture");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_FEEDBACK_COLOR("Feedback  Color");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_FEEDBACK_EMISSIVE("Feedback  Emissive");
+static LLFastTimer::DeclareTimer FTM_FACE_GEOM_FEEDBACK_BINORMAL("Feedback Binormal");
+
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_INDEX("Index");
 static LLFastTimer::DeclareTimer FTM_FACE_GEOM_INDEX_TAIL("Tail");
 static LLFastTimer::DeclareTimer FTM_FACE_POSITION_STORE("Pos");
@@ -1227,11 +1225,12 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	}
 
 	LLStrider<LLVector3> vert;
-	LLStrider<LLVector2> tex_coords;
+	LLStrider<LLVector2> tex_coords0;
+	LLStrider<LLVector2> tex_coords1;
 	LLStrider<LLVector2> tex_coords2;
 	LLStrider<LLVector3> norm;
 	LLStrider<LLColor4U> colors;
-	LLStrider<LLVector3> binorm;
+	LLStrider<LLVector3> tangent;
 	LLStrider<U16> indicesp;
 	LLStrider<LLVector4> wght;
 
@@ -1253,33 +1252,12 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	bool rebuild_emissive = rebuild_color && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_EMISSIVE);
 	bool rebuild_tcoord = full_rebuild || mDrawablep->isState(LLDrawable::REBUILD_TCOORD);
 	bool rebuild_normal = rebuild_pos && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_NORMAL);
-	bool rebuild_binormal = rebuild_pos && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_BINORMAL);
+	bool rebuild_tangent = rebuild_pos && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TANGENT);
 	bool rebuild_weights = rebuild_pos && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_WEIGHT4);
 
 	const LLTextureEntry *tep = mVObjp->getTE(f);
 	const U8 bump_code = tep ? tep->getBumpmap() : 0;
 
-	F32 tcoord_xoffset = 0.f ;
-	F32 tcoord_yoffset = 0.f ;
-	F32 tcoord_xscale = 1.f ;
-	F32 tcoord_yscale = 1.f ;
-	BOOL in_atlas = FALSE ;
-
-	if (rebuild_tcoord)
-	{
-		in_atlas = isAtlasInUse() ;
-		if(in_atlas)
-		{
-			const LLVector2* tmp = getTexCoordOffset() ;
-			tcoord_xoffset = tmp->mV[0] ; 
-			tcoord_yoffset = tmp->mV[1] ;
-
-			tmp = getTexCoordScale() ;
-			tcoord_xscale = tmp->mV[0] ; 
-			tcoord_yscale = tmp->mV[1] ;	
-		}
-	}
-	
 	BOOL is_static = mDrawablep->isStatic();
 	BOOL is_global = is_static;
 
@@ -1297,19 +1275,41 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	LLColor4U color = tep->getColor();
 
 	if (rebuild_color)
-	{
-		if (tep)
+	{ //decide if shiny goes in alpha channel of color
+		if (tep && 
+			getPoolType() != LLDrawPool::POOL_ALPHA)  // <--- alpha channel MUST contain transparency, not shiny
 		{
-			GLfloat alpha[4] =
-			{
-				0.00f,
-				0.25f,
-				0.5f,
-				0.75f
-			};
+			LLMaterial* mat = tep->getMaterialParams().get();
+						
+			bool shiny_in_alpha = false;
 			
-			if (getPoolType() != LLDrawPool::POOL_ALPHA && (LLPipeline::sRenderDeferred || (LLPipeline::sRenderBump && tep->getShiny())))
+			if (LLPipeline::sRenderDeferred)
+			{ //store shiny in alpha if we don't have a specular map
+				if  (!mat || mat->getSpecularID().isNull())
+				{
+					shiny_in_alpha = true;
+				}
+			}
+			else
 			{
+				if (!mat || mat->getDiffuseAlphaMode() != LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
+				{
+					shiny_in_alpha = true;
+				}
+			}
+
+			if (shiny_in_alpha)
+			{
+
+				GLfloat alpha[4] =
+				{
+					0.00f,
+					0.25f,
+					0.5f,
+					0.75f
+				};
+			
+				llassert(tep->getShiny() <= 3);
 				color.mV[3] = U8 (alpha[tep->getShiny()] * 255);
 			}
 		}
@@ -1390,17 +1390,20 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 #ifdef GL_TRANSFORM_FEEDBACK_BUFFER
 	if (use_transform_feedback &&
+		mVertexBuffer->getUsage() == GL_DYNAMIC_COPY_ARB &&
 		gTransformPositionProgram.mProgramObject && //transform shaders are loaded
 		mVertexBuffer->useVBOs() && //target buffer is in VRAM
 		!rebuild_weights && //TODO: add support for weights
 		!volume.isUnique()) //source volume is NOT flexi
 	{ //use transform feedback to pack vertex buffer
-
+		//gGLDebugLoggingEnabled = TRUE;
+		LLFastTimer t(FTM_FACE_GEOM_FEEDBACK);
+		LLGLEnable discard(GL_RASTERIZER_DISCARD);
 		LLVertexBuffer* buff = (LLVertexBuffer*) vf.mVertexBuffer.get();
 
 		if (vf.mVertexBuffer.isNull() || buff->getNumVerts() != vf.mNumVertices)
 		{
-			mVObjp->getVolume()->genBinormals(f);
+			mVObjp->getVolume()->genTangents(f);
 			LLFace::cacheFaceInVRAM(vf);
 			buff = (LLVertexBuffer*) vf.mVertexBuffer.get();
 		}		
@@ -1412,7 +1415,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (rebuild_pos)
 		{
-			LLFastTimer t(FTM_FACE_GEOM_POSITION);
+			LLFastTimer t(FTM_FACE_GEOM_FEEDBACK_POSITION);
 			gTransformPositionProgram.bind();
 
 			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_VERTEX, mGeomIndex, mGeomCount);
@@ -1426,7 +1429,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			vp[2] = 0;
 			vp[3] = 0;
 			
-			gTransformPositionProgram.uniform1i("texture_index_in", val);
+			gTransformPositionProgram.uniform1i(sTextureIndexIn, val);
 			glBeginTransformFeedback(GL_POINTS);
 			buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
 
@@ -1437,14 +1440,14 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (rebuild_color)
 		{
-			LLFastTimer t(FTM_FACE_GEOM_COLOR);
+			LLFastTimer t(FTM_FACE_GEOM_FEEDBACK_COLOR);
 			gTransformColorProgram.bind();
 			
 			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_COLOR, mGeomIndex, mGeomCount);
 
 			S32 val = *((S32*) color.mV);
 
-			gTransformColorProgram.uniform1i("color_in", val);
+			gTransformColorProgram.uniform1i(sColorIn, val);
 			glBeginTransformFeedback(GL_POINTS);
 			buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
 			push_for_transform(buff, vf.mNumVertices, mGeomCount);
@@ -1453,7 +1456,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (rebuild_emissive)
 		{
-			LLFastTimer t(FTM_FACE_GEOM_EMISSIVE);
+			LLFastTimer t(FTM_FACE_GEOM_FEEDBACK_EMISSIVE);
 			gTransformColorProgram.bind();
 			
 			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_EMISSIVE, mGeomIndex, mGeomCount);
@@ -1465,7 +1468,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 						 (glow << 16) |
 						 (glow << 24);
 
-			gTransformColorProgram.uniform1i("color_in", glow32);
+			gTransformColorProgram.uniform1i(sColorIn, glow32);
 			glBeginTransformFeedback(GL_POINTS);
 			buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
 			push_for_transform(buff, vf.mNumVertices, mGeomCount);
@@ -1474,7 +1477,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (rebuild_normal)
 		{
-			LLFastTimer t(FTM_FACE_GEOM_NORMAL);
+			LLFastTimer t(FTM_FACE_GEOM_FEEDBACK_NORMAL);
 			gTransformNormalProgram.bind();
 			
 			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_NORMAL, mGeomIndex, mGeomCount);
@@ -1485,22 +1488,22 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			glEndTransformFeedback();
 		}
 
-		if (rebuild_binormal)
+		if (rebuild_tangent)
 		{
-			LLFastTimer t(FTM_FACE_GEOM_BINORMAL);
-			gTransformBinormalProgram.bind();
+			LLFastTimer t(FTM_FACE_GEOM_TANGENT);
+			gTransformTangentProgram.bind();
 			
-			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_BINORMAL, mGeomIndex, mGeomCount);
+			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_TANGENT, mGeomIndex, mGeomCount);
 						
 			glBeginTransformFeedback(GL_POINTS);
-			buff->setBuffer(LLVertexBuffer::MAP_BINORMAL);
+			buff->setBuffer(LLVertexBuffer::MAP_TANGENT);
 			push_for_transform(buff, vf.mNumVertices, mGeomCount);
 			glEndTransformFeedback();
 		}
 
 		if (rebuild_tcoord)
 		{
-			LLFastTimer t(FTM_FACE_GEOM_TEXTURE);
+			LLFastTimer t(FTM_FACE_GEOM_FEEDBACK_TEXTURE);
 			gTransformTexCoordProgram.bind();
 			
 			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_TEXCOORD0, mGeomIndex, mGeomCount);
@@ -1555,7 +1558,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		
 			if (bump_code)
 			{
-				mVObjp->getVolume()->genBinormals(f);
+				mVObjp->getVolume()->genTangents(f);
 				F32 offset_multiple; 
 				switch( bump_code )
 				{
@@ -1564,11 +1567,11 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 					break;
 					case BE_BRIGHTNESS:
 					case BE_DARKNESS:
-					if( mTexture.notNull() && mTexture->hasGLTexture())
+					if( mTexture[LLRender::DIFFUSE_MAP].notNull() && mTexture[LLRender::DIFFUSE_MAP]->hasGLTexture())
 					{
 						// Offset by approximately one texel
-						S32 cur_discard = mTexture->getDiscardLevel();
-						S32 max_size = llmax( mTexture->getWidth(), mTexture->getHeight() );
+						S32 cur_discard = mTexture[LLRender::DIFFUSE_MAP]->getDiscardLevel();
+						S32 max_size = llmax( mTexture[LLRender::DIFFUSE_MAP]->getWidth(), mTexture[LLRender::DIFFUSE_MAP]->getHeight() );
 						max_size <<= cur_discard;
 						const F32 ARTIFICIAL_OFFSET = 2.f;
 						offset_multiple = ARTIFICIAL_OFFSET / (F32)max_size;
@@ -1604,16 +1607,23 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			U8 texgen = getTextureEntry()->getTexGen();
 			if (rebuild_tcoord && texgen != LLTextureEntry::TEX_GEN_DEFAULT)
 			{ //planar texgen needs binormals
-				mVObjp->getVolume()->genBinormals(f);
+				mVObjp->getVolume()->genTangents(f);
 			}
 
 			U8 tex_mode = 0;
 	
+			bool tex_anim = false;
+
+			LLVOVolume* vobj = (LLVOVolume*) (LLViewerObject*) mVObjp;	
+			tex_mode = vobj->mTexAnimMode;
+
+			if (vobj->mTextureAnimp)
+			{ //texture animation is in play, override specular and normal map tex coords with diffuse texcoords
+				tex_anim = true;
+			}
+
 			if (isState(TEXTURE_ANIM))
 			{
-				LLVOVolume* vobj = (LLVOVolume*) (LLViewerObject*) mVObjp;	
-				tex_mode = vobj->mTexAnimMode;
-
 				if (!tex_mode)
 				{
 					clearState(TEXTURE_ANIM);
@@ -1628,7 +1638,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 					do_xform = false;
 				}
-
+				
 				if (getVirtualSize() >= MIN_TEX_ANIM_SIZE)
 				{ //don't override texture transform during tc bake
 					tex_mode = 0;
@@ -1638,12 +1648,21 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			LLVector4a scalea;
 			scalea.load3(scale.mV);
 
-			bool do_bump = bump_code && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD1);
-			bool do_tex_mat = tex_mode && mTextureMatrix;
+			LLMaterial* mat = tep->getMaterialParams().get();
 
-			if (!in_atlas && !do_bump)
-			{ //not in atlas or not bump mapped, might be able to do a cheap update
-				mVertexBuffer->getTexCoord0Strider(tex_coords, mGeomIndex, mGeomCount);
+			bool do_bump = bump_code && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD1);
+
+			if (mat && !do_bump)
+			{
+				do_bump  = mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD1)
+					     || mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD2);
+			}
+			
+			bool do_tex_mat = tex_mode && mTextureMatrix;
+						
+			if (!do_bump)
+			{ //not bump mapped, might be able to do a cheap update
+				mVertexBuffer->getTexCoord0Strider(tex_coords0, mGeomIndex, mGeomCount);
 
 				if (texgen != LLTextureEntry::TEX_GEN_PLANAR)
 				{
@@ -1654,12 +1673,12 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 						{
 							LLFastTimer t(FTM_FACE_TEX_QUICK_NO_XFORM);
 							S32 tc_size = (num_vertices*2*sizeof(F32)+0xF) & ~0xF;
-							LLVector4a::memcpyNonAliased16((F32*) tex_coords.get(), (F32*) vf.mTexCoords, tc_size);
+							LLVector4a::memcpyNonAliased16((F32*) tex_coords0.get(), (F32*) vf.mTexCoords, tc_size);
 						}
 						else
 						{
 							LLFastTimer t(FTM_FACE_TEX_QUICK_XFORM);
-							F32* dst = (F32*) tex_coords.get();
+							F32* dst = (F32*) tex_coords0.get();
 							LLVector4a* src = (LLVector4a*) vf.mTexCoords;
 
 							LLVector4a trans;
@@ -1694,7 +1713,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 						}
 					}
 					else
-					{ //do tex mat, no texgen, no atlas, no bump
+					{ //do tex mat, no texgen, no bump
 						for (S32 i = 0; i < num_vertices; i++)
 						{	
 							LLVector2 tc(vf.mTexCoords[i]);
@@ -1705,12 +1724,12 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 							tmp = tmp * *mTextureMatrix;
 							tc.mV[0] = tmp.mV[0];
 							tc.mV[1] = tmp.mV[1];
-							*tex_coords++ = tc;	
+							*tex_coords0++ = tc;	
 						}
 					}
 				}
 				else
-				{ //no bump, no atlas, tex gen planar
+				{ //no bump, tex gen planar
 					LLFastTimer t(FTM_FACE_TEX_QUICK_PLANAR);
 					if (do_tex_mat)
 					{
@@ -1728,7 +1747,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 							tc.mV[0] = tmp.mV[0];
 							tc.mV[1] = tmp.mV[1];
 				
-							*tex_coords++ = tc;	
+							*tex_coords0++ = tc;	
 						}
 					}
 					else
@@ -1744,7 +1763,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 						
 							xform(tc, cos_ang, sin_ang, os, ot, ms, mt);
 
-							*tex_coords++ = tc;	
+							*tex_coords0++ = tc;	
 						}
 					}
 				}
@@ -1755,145 +1774,104 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 				}
 			}
 			else
-			{ //either bump mapped or in atlas, just do the whole expensive loop
+			{ //bump mapped or has material, just do the whole expensive loop
 				LLFastTimer t(FTM_FACE_TEX_DEFAULT);
-				mVertexBuffer->getTexCoord0Strider(tex_coords, mGeomIndex, mGeomCount, map_range);
-
+				
 				std::vector<LLVector2> bump_tc;
-		
-				for (S32 i = 0; i < num_vertices; i++)
-				{	
-					LLVector2 tc(vf.mTexCoords[i]);
+
+				if (mat && !mat->getNormalID().isNull())
+				{ //writing out normal and specular texture coordinates, not bump offsets
+					do_bump = false;
+				}
+
+				LLStrider<LLVector2> dst;
+
+				for (U32 ch = 0; ch < 3; ++ch)
+				{
+					switch (ch)
+					{
+						case 0: 
+							mVertexBuffer->getTexCoord0Strider(dst, mGeomIndex, mGeomCount, map_range); 
+							break;
+						case 1:
+							if (mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD1))
+							{
+								mVertexBuffer->getTexCoord1Strider(dst, mGeomIndex, mGeomCount, map_range);
+								if (mat && !tex_anim)
+								{
+									r  = mat->getNormalRotation();
+									mat->getNormalOffset(os, ot);
+									mat->getNormalRepeat(ms, mt);
+
+									cos_ang = cos(r);
+									sin_ang = sin(r);
+
+								}
+							}
+							else
+							{
+								continue;
+							}
+							break;
+						case 2:
+							if (mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD2))
+							{
+								mVertexBuffer->getTexCoord2Strider(dst, mGeomIndex, mGeomCount, map_range);
+								if (mat && !tex_anim)
+								{
+									r  = mat->getSpecularRotation();
+									mat->getSpecularOffset(os, ot);
+									mat->getSpecularRepeat(ms, mt);
+
+									cos_ang = cos(r);
+									sin_ang = sin(r);
+								}
+							}
+							else
+							{
+								continue;
+							}
+							break;
+					}
+					
+
+					for (S32 i = 0; i < num_vertices; i++)
+					{	
+						LLVector2 tc(vf.mTexCoords[i]);
 			
-					LLVector4a& norm = vf.mNormals[i];
+						LLVector4a& norm = vf.mNormals[i];
 				
-					LLVector4a& center = *(vf.mCenter);
+						LLVector4a& center = *(vf.mCenter);
 		   
-					if (texgen != LLTextureEntry::TEX_GEN_DEFAULT)
-					{
-						LLVector4a vec = vf.mPositions[i];
-				
-						vec.mul(scalea);
-
-						switch (texgen)
+						if (texgen != LLTextureEntry::TEX_GEN_DEFAULT)
 						{
-							case LLTextureEntry::TEX_GEN_PLANAR:
+							LLVector4a vec = vf.mPositions[i];
+				
+							vec.mul(scalea);
+
+							if (texgen == LLTextureEntry::TEX_GEN_PLANAR)
+							{
 								planarProjection(tc, norm, center, vec);
-								break;
-							case LLTextureEntry::TEX_GEN_SPHERICAL:
-								sphericalProjection(tc, norm, center, vec);
-								break;
-							case LLTextureEntry::TEX_GEN_CYLINDRICAL:
-								cylindricalProjection(tc, norm, center, vec);
-								break;
-							default:
-								break;
-						}		
-					}
-
-					if (tex_mode && mTextureMatrix)
-					{
-						LLVector3 tmp(tc.mV[0], tc.mV[1], 0.f);
-						tmp = tmp * *mTextureMatrix;
-						tc.mV[0] = tmp.mV[0];
-						tc.mV[1] = tmp.mV[1];
-					}
-					else
-					{
-						xform(tc, cos_ang, sin_ang, os, ot, ms, mt);
-					}
-
-					if(in_atlas)
-					{
-						//
-						//manually calculate tex-coord per vertex for varying address modes.
-						//should be removed if shader can handle this.
-						//
-
-						S32 int_part = 0 ;
-						switch(mTexture->getAddressMode())
-						{
-						case LLTexUnit::TAM_CLAMP:
-							if(tc.mV[0] < 0.f)
-							{
-								tc.mV[0] = 0.f ;
 							}
-							else if(tc.mV[0] > 1.f)
-							{
-								tc.mV[0] = 1.f;
-							}
-
-							if(tc.mV[1] < 0.f)
-							{
-								tc.mV[1] = 0.f ;
-							}
-							else if(tc.mV[1] > 1.f)
-							{
-								tc.mV[1] = 1.f;
-							}
-							break;
-						case LLTexUnit::TAM_MIRROR:
-							if(tc.mV[0] < 0.f)
-							{
-								tc.mV[0] = -tc.mV[0] ;
-							}
-							int_part = (S32)tc.mV[0] ;
-							if(int_part & 1) //odd number
-							{
-								tc.mV[0] = int_part + 1 - tc.mV[0] ;
-							}
-							else //even number
-							{
-								tc.mV[0] -= int_part ;
-							}
-
-							if(tc.mV[1] < 0.f)
-							{
-								tc.mV[1] = -tc.mV[1] ;
-							}
-							int_part = (S32)tc.mV[1] ;
-							if(int_part & 1) //odd number
-							{
-								tc.mV[1] = int_part + 1 - tc.mV[1] ;
-							}
-							else //even number
-							{
-								tc.mV[1] -= int_part ;
-							}
-							break;
-						case LLTexUnit::TAM_WRAP:
-							if(tc.mV[0] > 1.f)
-								tc.mV[0] -= (S32)(tc.mV[0] - 0.00001f) ;
-							else if(tc.mV[0] < -1.f)
-								tc.mV[0] -= (S32)(tc.mV[0] + 0.00001f) ;
-
-							if(tc.mV[1] > 1.f)
-								tc.mV[1] -= (S32)(tc.mV[1] - 0.00001f) ;
-							else if(tc.mV[1] < -1.f)
-								tc.mV[1] -= (S32)(tc.mV[1] + 0.00001f) ;
-
-							if(tc.mV[0] < 0.f)
-							{
-								tc.mV[0] = 1.0f + tc.mV[0] ;
-							}
-							if(tc.mV[1] < 0.f)
-							{
-								tc.mV[1] = 1.0f + tc.mV[1] ;
-							}
-							break;
-						default:
-							break;
 						}
-				
-						tc.mV[0] = tcoord_xoffset + tcoord_xscale * tc.mV[0] ;
-						tc.mV[1] = tcoord_yoffset + tcoord_yscale * tc.mV[1] ;
-					}
-				
 
-					*tex_coords++ = tc;
-					if (do_bump)
-					{
-						bump_tc.push_back(tc);
+						if (tex_mode && mTextureMatrix)
+						{
+							LLVector3 tmp(tc.mV[0], tc.mV[1], 0.f);
+							tmp = tmp * *mTextureMatrix;
+							tc.mV[0] = tmp.mV[0];
+							tc.mV[1] = tmp.mV[1];
+						}
+						else
+						{
+							xform(tc, cos_ang, sin_ang, os, ot, ms, mt);
+						}
+
+						*dst++ = tc;
+						if (do_bump)
+						{
+							bump_tc.push_back(tc);
+						}
 					}
 				}
 
@@ -1902,17 +1880,20 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 					mVertexBuffer->flush();
 				}
 
-				if (do_bump)
+				if (!mat && do_bump)
 				{
-					mVertexBuffer->getTexCoord1Strider(tex_coords2, mGeomIndex, mGeomCount, map_range);
+					mVertexBuffer->getTexCoord1Strider(tex_coords1, mGeomIndex, mGeomCount, map_range);
 		
 					for (S32 i = 0; i < num_vertices; i++)
 					{
-						LLVector4a tangent;
-						tangent.setCross3(vf.mBinormals[i], vf.mNormals[i]);
+						LLVector4a tangent = vf.mTangents[i];
 
+						LLVector4a binorm;
+						binorm.setCross3(vf.mNormals[i], tangent);
+						binorm.mul(tangent.getF32ptr()[3]);
+						
 						LLMatrix4a tangent_to_object;
-						tangent_to_object.setRows(tangent, vf.mBinormals[i], vf.mNormals[i]);
+						tangent_to_object.setRows(tangent, binorm, vf.mNormals[i]);
 						LLVector4a t;
 						tangent_to_object.rotate(binormal_dir, t);
 						LLVector4a binormal;
@@ -1928,10 +1909,11 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 						}
 
 						binormal.normalize3fast();
+
 						LLVector2 tc = bump_tc[i];
 						tc += LLVector2( bump_s_primary_light_ray.dot3(tangent).getF32(), bump_t_primary_light_ray.dot3(binormal).getF32() );
 					
-						*tex_coords2++ = tc;
+						*tex_coords1++ = tc;
 					}
 
 					if (map_range)
@@ -1944,20 +1926,31 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (rebuild_pos)
 		{
-			LLFastTimer t(FTM_FACE_GEOM_POSITION);
+			LLVector4a* src = vf.mPositions;
+			
+			//_mm_prefetch((char*)src, _MM_HINT_T0);
+
+			LLVector4a* end = src+num_vertices;
+			//LLVector4a* end_64 = end-4;
+
+			//LLFastTimer t(FTM_FACE_GEOM_POSITION);
 			llassert(num_vertices > 0);
 		
 			mVertexBuffer->getVertexStrider(vert, mGeomIndex, mGeomCount, map_range);
 			
-
 			LLMatrix4a mat_vert;
 			mat_vert.loadu(mat_vert_in);
 
-			LLVector4a* src = vf.mPositions;
-			volatile F32* dst = (volatile F32*) vert.get();
+			F32* dst = (F32*) vert.get();
+			F32* end_f32 = dst+mGeomCount*4;
 
-			volatile F32* end = dst+num_vertices*4;
-			LLVector4a res;
+			//_mm_prefetch((char*)dst, _MM_HINT_NTA);
+			//_mm_prefetch((char*)src, _MM_HINT_NTA);
+				
+			//_mm_prefetch((char*)dst, _MM_HINT_NTA);
+
+
+			LLVector4a res0; //,res1,res2,res3;
 
 			LLVector4a texIdx;
 
@@ -1975,29 +1968,53 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		
 			texIdx.set(0,0,0,val);
 
-			{
-				LLFastTimer t(FTM_FACE_POSITION_STORE);
-				LLVector4a tmp;
+			LLVector4a tmp;
 
-				do
+			{
+				//LLFastTimer t2(FTM_FACE_POSITION_STORE);
+
+				/*if (num_vertices > 4)
+				{ //more than 64 bytes
+					while (src < end_64)
+					{	
+						_mm_prefetch((char*)src + 64, _MM_HINT_T0);
+						_mm_prefetch((char*)dst + 64, _MM_HINT_T0);
+
+						mat_vert.affineTransform(*src, res0);
+						tmp.setSelectWithMask(mask, texIdx, res0);
+						tmp.store4a((F32*) dst);
+
+						mat_vert.affineTransform(*(src+1), res1);
+						tmp.setSelectWithMask(mask, texIdx, res1);
+						tmp.store4a((F32*) dst+4);
+
+						mat_vert.affineTransform(*(src+2), res2);
+						tmp.setSelectWithMask(mask, texIdx, res2);
+						tmp.store4a((F32*) dst+8);
+
+						mat_vert.affineTransform(*(src+3), res3);
+						tmp.setSelectWithMask(mask, texIdx, res3);
+						tmp.store4a((F32*) dst+12);
+
+						dst += 16;
+						src += 4;
+					}
+				}*/
+
+				while (src < end)
 				{	
-					mat_vert.affineTransform(*src++, res);
-					tmp.setSelectWithMask(mask, texIdx, res);
+					mat_vert.affineTransform(*src++, res0);
+					tmp.setSelectWithMask(mask, texIdx, res0);
 					tmp.store4a((F32*) dst);
 					dst += 4;
 				}
-				while(dst < end);
 			}
 
 			{
-				LLFastTimer t(FTM_FACE_POSITION_PAD);
-				S32 aligned_pad_vertices = mGeomCount - num_vertices;
-				res.set(res[0], res[1], res[2], 0.f);
-
-				while (aligned_pad_vertices > 0)
+				//LLFastTimer t(FTM_FACE_POSITION_PAD);
+				while (dst < end_f32)
 				{
-					--aligned_pad_vertices;
-					res.store4a((F32*) dst);
+					res0.store4a((F32*) dst);
 					dst += 4;
 				}
 			}
@@ -2011,15 +2028,16 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		
 		if (rebuild_normal)
 		{
-			LLFastTimer t(FTM_FACE_GEOM_NORMAL);
+			//LLFastTimer t(FTM_FACE_GEOM_NORMAL);
 			mVertexBuffer->getNormalStrider(norm, mGeomIndex, mGeomCount, map_range);
 			F32* normals = (F32*) norm.get();
-	
-			for (S32 i = 0; i < num_vertices; i++)
+			LLVector4a* src = vf.mNormals;
+			LLVector4a* end = src+num_vertices;
+			
+			while (src < end)
 			{	
 				LLVector4a normal;
-				mat_normal.rotate(vf.mNormals[i], normal);
-				normal.normalize3fast();
+				mat_normal.rotate(*src++, normal);
 				normal.store4a(normals);
 				normals += 4;
 			}
@@ -2030,19 +2048,31 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			}
 		}
 		
-		if (rebuild_binormal)
+		if (rebuild_tangent)
 		{
-			LLFastTimer t(FTM_FACE_GEOM_BINORMAL);
-			mVertexBuffer->getBinormalStrider(binorm, mGeomIndex, mGeomCount, map_range);
-			F32* binormals = (F32*) binorm.get();
-		
-			for (S32 i = 0; i < num_vertices; i++)
-			{	
-				LLVector4a binormal;
-				mat_normal.rotate(vf.mBinormals[i], binormal);
-				binormal.normalize3fast();
-				binormal.store4a(binormals);
-				binormals += 4;
+			LLFastTimer t(FTM_FACE_GEOM_TANGENT);
+			mVertexBuffer->getTangentStrider(tangent, mGeomIndex, mGeomCount, map_range);
+			F32* tangents = (F32*) tangent.get();
+			
+			mVObjp->getVolume()->genTangents(f);
+			
+			LLVector4Logical mask;
+			mask.clear();
+			mask.setElement<3>();
+
+			LLVector4a* src = vf.mTangents;
+			LLVector4a* end = vf.mTangents+num_vertices;
+
+			while (src < end)
+			{
+				LLVector4a tangent_out;
+				mat_normal.rotate(*src, tangent_out);
+				tangent_out.normalize3fast();
+				tangent_out.setSelectWithMask(mask, *src, tangent_out);
+				tangent_out.store4a(tangents);
+				
+				src++;
+				tangents += 4;
 			}
 
 			if (map_range)
@@ -2105,11 +2135,10 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			LLVector4a src;
 
 		
-			U32 glow32 = glow |
-						 (glow << 8) |
-						 (glow << 16) |
-						 (glow << 24);
+			LLColor4U glow4u = LLColor4U(0,0,0,glow);
 
+			U32 glow32 = glow4u.mAll;
+			
 			U32 vec[4];
 			vec[0] = vec[1] = vec[2] = vec[3] = glow32;
 		
@@ -2161,9 +2190,9 @@ BOOL LLFace::hasMedia() const
 	{
 		return TRUE ;
 	}
-	if(mTexture.notNull()) 
+	if(mTexture[LLRender::DIFFUSE_MAP].notNull()) 
 	{
-		return mTexture->hasParcelMedia() ;  //if has a parcel media
+		return mTexture[LLRender::DIFFUSE_MAP]->hasParcelMedia() ;  //if has a parcel media
 	}
 
 	return FALSE ; //no media.
@@ -2215,7 +2244,7 @@ F32 LLFace::getTextureVirtualSize()
 	face_area = LLFace::adjustPixelArea(mImportanceToCamera, face_area) ;
 	if(face_area > LLViewerTexture::sMinLargeImageSize) //if is large image, shrink face_area by considering the partial overlapping.
 	{
-		if(mImportanceToCamera > LEAST_IMPORTANCE_FOR_LARGE_IMAGE && mTexture.notNull() && mTexture->isLargeImage())
+		if(mImportanceToCamera > LEAST_IMPORTANCE_FOR_LARGE_IMAGE && mTexture[LLRender::DIFFUSE_MAP].notNull() && mTexture[LLRender::DIFFUSE_MAP]->isLargeImage())
 		{		
 			face_area *= adjustPartialOverlapPixelArea(cos_angle_to_view_dir, radius );
 		}	
@@ -2254,7 +2283,7 @@ BOOL LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
 		dist *= 16.f;
 	}
 
-	lookAt.normalize3fast() ;	
+	lookAt.normalize3fast();	
 
 	//get area of circle around node
 	F32 app_angle = atanf((F32) sqrt(size_squared) / dist);
@@ -2582,158 +2611,12 @@ LLVector3 LLFace::getPositionAgent() const
 	}
 }
 
-//
-//atlas
-//
-void LLFace::removeAtlas()
+LLViewerTexture* LLFace::getTexture(U32 ch) const
 {
-	setAtlasInUse(FALSE) ;
-	mAtlasInfop = NULL ;	
+	llassert(ch < LLRender::NUM_TEXTURE_CHANNELS);
+
+	return mTexture[ch] ;
 }
-
-const LLTextureAtlas* LLFace::getAtlas()const 
-{
-	if(mAtlasInfop)
-	{
-		return mAtlasInfop->getAtlas() ;
-	}
-	return NULL ;
-}
-
-const LLVector2* LLFace::getTexCoordOffset()const 
-{
-	if(isAtlasInUse())
-	{
-		return mAtlasInfop->getTexCoordOffset() ;
-	}
-	return NULL ;
-}
-const LLVector2* LLFace::getTexCoordScale() const 
-{
-	if(isAtlasInUse())
-	{
-		return mAtlasInfop->getTexCoordScale() ;
-	}
-	return NULL ;
-}
-
-BOOL LLFace::isAtlasInUse()const
-{
-	return mUsingAtlas ;
-}
-
-BOOL LLFace::canUseAtlas()const
-{
-	//no drawable or no spatial group, do not use atlas
-	if(!mDrawablep || !mDrawablep->getSpatialGroup())
-	{
-		return FALSE ;
-	}
-
-	//if bump face, do not use atlas
-	if(getTextureEntry() && getTextureEntry()->getBumpmap())
-	{
-		return FALSE ;
-	}
-
-	//if animated texture, do not use atlas
-	if(isState(TEXTURE_ANIM))
-	{
-		return FALSE ;
-	}
-
-	return TRUE ;
-}
-
-void LLFace::setAtlasInUse(BOOL flag)
-{
-	//no valid atlas to use.
-	if(flag && (!mAtlasInfop || !mAtlasInfop->isValid()))
-	{
-		flag = FALSE ;
-	}
-
-	if(!flag && !mUsingAtlas)
-	{
-		return ;
-	}
-
-	//
-	//at this stage (flag || mUsingAtlas) is always true.
-	//
-
-	//rebuild the tex coords
-	if(mDrawablep)
-	{
-		gPipeline.markRebuild(mDrawablep, LLDrawable::REBUILD_TCOORD);
-		mUsingAtlas = flag ;
-	}
-	else
-	{
-		mUsingAtlas = FALSE ;
-	}
-}
-
-LLTextureAtlasSlot* LLFace::getAtlasInfo()
-{
-	return mAtlasInfop ;
-}
-
-void LLFace::setAtlasInfo(LLTextureAtlasSlot* atlasp)
-{	
-	if(mAtlasInfop != atlasp)
-	{
-		if(mAtlasInfop)
-		{
-			//llerrs << "Atlas slot changed!" << llendl ;
-		}
-		mAtlasInfop = atlasp ;
-	}
-}
-
-LLViewerTexture* LLFace::getTexture() const
-{
-	if(isAtlasInUse())
-	{
-		return (LLViewerTexture*)mAtlasInfop->getAtlas() ;
-	}
-
-	return mTexture ;
-}
-
-//switch to atlas or switch back to gl texture 
-//return TRUE if using atlas.
-BOOL LLFace::switchTexture()
-{
-	//no valid atlas or texture
-	if(!mAtlasInfop || !mAtlasInfop->isValid() || !mTexture)
-	{
-		return FALSE ;
-	}
-	
-	if(mTexture->getTexelsInAtlas() >= (U32)mVSize || 
-		mTexture->getTexelsInAtlas() >= mTexture->getTexelsInGLTexture())
-	{
-		//switch to use atlas
-		//atlas resolution is qualified, use it.		
-		if(!mUsingAtlas)
-		{
-			setAtlasInUse(TRUE) ;
-		}
-	}
-	else //if atlas not qualified.
-	{
-		//switch back to GL texture
-		if(mUsingAtlas && mTexture->isGLTextureCreated() && 
-			mTexture->getDiscardLevel() < mTexture->getDiscardLevelInAtlas())
-		{
-			setAtlasInUse(FALSE) ;
-		}
-	}
-
-	return mUsingAtlas ;
-}
-
 
 void LLFace::setVertexBuffer(LLVertexBuffer* buffer)
 {
@@ -2750,6 +2633,22 @@ void LLFace::clearVertexBuffer()
 U32 LLFace::getRiggedDataMask(U32 type)
 {
 	static const U32 rigged_data_mask[] = {
+		LLDrawPoolAvatar::RIGGED_MATERIAL_MASK,
+		LLDrawPoolAvatar::RIGGED_MATERIAL_ALPHA_VMASK,
+		LLDrawPoolAvatar::RIGGED_MATERIAL_ALPHA_MASK_MASK,
+		LLDrawPoolAvatar::RIGGED_MATERIAL_ALPHA_EMISSIVE_MASK,
+		LLDrawPoolAvatar::RIGGED_SPECMAP_VMASK,
+		LLDrawPoolAvatar::RIGGED_SPECMAP_BLEND_MASK,
+		LLDrawPoolAvatar::RIGGED_SPECMAP_MASK_MASK,
+		LLDrawPoolAvatar::RIGGED_SPECMAP_EMISSIVE_MASK,
+		LLDrawPoolAvatar::RIGGED_NORMMAP_VMASK,
+		LLDrawPoolAvatar::RIGGED_NORMMAP_BLEND_MASK,
+		LLDrawPoolAvatar::RIGGED_NORMMAP_MASK_MASK,
+		LLDrawPoolAvatar::RIGGED_NORMMAP_EMISSIVE_MASK,
+		LLDrawPoolAvatar::RIGGED_NORMSPEC_VMASK,
+		LLDrawPoolAvatar::RIGGED_NORMSPEC_BLEND_MASK,
+		LLDrawPoolAvatar::RIGGED_NORMSPEC_MASK_MASK,
+		LLDrawPoolAvatar::RIGGED_NORMSPEC_EMISSIVE_MASK,
 		LLDrawPoolAvatar::RIGGED_SIMPLE_MASK,
 		LLDrawPoolAvatar::RIGGED_FULLBRIGHT_MASK,
 		LLDrawPoolAvatar::RIGGED_SHINY_MASK,

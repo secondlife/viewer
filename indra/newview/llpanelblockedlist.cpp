@@ -30,15 +30,23 @@
 
 // library include
 #include "llavatarname.h"
+#include "llfiltereditor.h"
 #include "llfloater.h"
 #include "llfloaterreg.h"
 #include "llnotificationsutil.h"
 #include "llscrolllistctrl.h"
+#include "llmenubutton.h"
 
 // project include
+#include "llavatarlistitem.h"
+#include "llblocklist.h"
+#include "llblockedlistitem.h"
 #include "llfloateravatarpicker.h"
 #include "llfloatersidepanelcontainer.h"
+#include "llinventorylistitem.h"
+#include "llinventorymodel.h"
 #include "llsidetraypanelcontainer.h"
+#include "llviewercontrol.h"
 
 static LLRegisterPanelClassWrapper<LLPanelBlockedList> t_panel_blocked_list("panel_block_list_sidetray");
 
@@ -54,26 +62,47 @@ const std::string BLOCKED_PARAM_NAME = "blocked_to_select";
 LLPanelBlockedList::LLPanelBlockedList()
 :	LLPanel()
 {
-	mCommitCallbackRegistrar.add("Block.ClickPick",			boost::bind(&LLPanelBlockedList::onPickBtnClick, this));
-	mCommitCallbackRegistrar.add("Block.ClickBlockByName",	boost::bind(&LLPanelBlockedList::onBlockByNameClick, this));
-	mCommitCallbackRegistrar.add("Block.ClickRemove",		boost::bind(&LLPanelBlockedList::onRemoveBtnClick, this));
+	mCommitCallbackRegistrar.add("Block.Action",	boost::bind(&LLPanelBlockedList::onCustomAction,  this, _2));
+	mEnableCallbackRegistrar.add("Block.Check",		boost::bind(&LLPanelBlockedList::isActionChecked, this, _2));
 }
 
-LLPanelBlockedList::~LLPanelBlockedList()
+void LLPanelBlockedList::removePicker()
 {
-	LLMuteList::getInstance()->removeObserver(this);
+    if(mPicker.get())
+    {
+        mPicker.get()->closeFloater();
+    }
 }
 
 BOOL LLPanelBlockedList::postBuild()
 {
-	mBlockedList = getChild<LLScrollListCtrl>("blocked");
+	mBlockedList = getChild<LLBlockList>("blocked");
 	mBlockedList->setCommitOnSelectionChange(TRUE);
+    this->setVisibleCallback(boost::bind(&LLPanelBlockedList::removePicker, this));
 
-	childSetCommitCallback("back", boost::bind(&LLPanelBlockedList::onBackBtnClick, this), NULL);
+	switch (gSavedSettings.getU32("BlockPeopleSortOrder"))
+	{
+	case E_SORT_BY_NAME:
+		mBlockedList->sortByName();
+		break;
 
-	LLMuteList::getInstance()->addObserver(this);
-	
-	refreshBlockedList();
+	case E_SORT_BY_TYPE:
+		mBlockedList->sortByType();
+		break;
+	default:
+		llwarns << "Unrecognized sort order for blocked list" << llendl;
+		break;
+	}
+
+	// Use the context menu of the Block list for the Block tab gear menu.
+	LLToggleableMenu* blocked_gear_menu = mBlockedList->getContextMenu();
+	if (blocked_gear_menu)
+	{
+		getChild<LLMenuButton>("blocked_gear_btn")->setMenu(blocked_gear_menu, LLMenuButton::MP_BOTTOM_LEFT);
+	}
+
+	getChild<LLButton>("unblock_btn")->setCommitCallback(boost::bind(&LLPanelBlockedList::unblockItem, this));
+	getChild<LLFilterEditor>("blocked_filter_input")->setCommitCallback(boost::bind(&LLPanelBlockedList::onFilterEdit, this, _2));
 
 	return LLPanel::postBuild();
 }
@@ -94,97 +123,112 @@ void LLPanelBlockedList::onOpen(const LLSD& key)
 
 void LLPanelBlockedList::selectBlocked(const LLUUID& mute_id)
 {
-	mBlockedList->selectByID(mute_id);
+	mBlockedList->selectItemByUUID(mute_id);
 }
 
 void LLPanelBlockedList::showPanelAndSelect(const LLUUID& idToSelect)
 {
-	LLFloaterSidePanelContainer::showPanel("people", "panel_block_list_sidetray", LLSD().with(BLOCKED_PARAM_NAME, idToSelect));
+	LLFloaterSidePanelContainer::showPanel("people", "panel_people",
+		LLSD().with("people_panel_tab_name", "blocked_panel").with(BLOCKED_PARAM_NAME, idToSelect));
 }
 
 
 //////////////////////////////////////////////////////////////////////////
 // Private Section
 //////////////////////////////////////////////////////////////////////////
-void LLPanelBlockedList::refreshBlockedList()
-{
-	mBlockedList->deleteAllItems();
-
-	std::vector<LLMute> mutes = LLMuteList::getInstance()->getMutes();
-	std::vector<LLMute>::iterator it;
-	for (it = mutes.begin(); it != mutes.end(); ++it)
-	{
-		LLScrollListItem::Params item_p;
-		item_p.enabled(TRUE);
-		item_p.value(it->mID); // link UUID of blocked item with ScrollListItem
-		item_p.columns.add().column("item_name").value(it->mName);//.type("text");
-		item_p.columns.add().column("item_type").value(it->getDisplayType());//.type("text").width(111);
-
-		mBlockedList->addRow(item_p, ADD_BOTTOM);
-	}
-}
-
 void LLPanelBlockedList::updateButtons()
 {
-	bool hasSelected = NULL != mBlockedList->getFirstSelected();
-	getChildView("Unblock")->setEnabled(hasSelected);
+	bool hasSelected = NULL != mBlockedList->getSelectedItem();
+	getChildView("unblock_btn")->setEnabled(hasSelected);
+	getChildView("blocked_gear_btn")->setEnabled(hasSelected);
 }
 
-
-
-void LLPanelBlockedList::onBackBtnClick()
+void LLPanelBlockedList::unblockItem()
 {
-	LLSideTrayPanelContainer* parent = dynamic_cast<LLSideTrayPanelContainer*>(getParent());
-	if(parent)
+	LLBlockedListItem* item = mBlockedList->getBlockedItem();
+	if (item)
 	{
-		parent->openPreviousPanel();
+		LLMute mute(item->getUUID(), item->getName());
+		LLMuteList::instance().remove(mute);
 	}
 }
 
-void LLPanelBlockedList::onRemoveBtnClick()
+void LLPanelBlockedList::onCustomAction(const LLSD& userdata)
 {
-	std::string name = mBlockedList->getSelectedItemLabel();
-	LLUUID id = mBlockedList->getStringUUIDSelectedItem();
-	LLMute mute(id, name);
-	
-	S32 last_selected = mBlockedList->getFirstSelectedIndex();
-	if (LLMuteList::getInstance()->remove(mute))
+	const std::string command_name = userdata.asString();
+
+	if ("block_obj_by_name" == command_name)
 	{
-		// Above removals may rebuild this dialog.
-		
-		if (last_selected == mBlockedList->getItemCount())
-		{
-			// we were on the last item, so select the last item again
-			mBlockedList->selectNthItem(last_selected - 1);
-		}
-		else
-		{
-			// else select the item after the last item previously selected
-			mBlockedList->selectNthItem(last_selected);
-		}
+		blockObjectByName();
+	}
+	else if ("block_res_by_name" == command_name)
+	{
+		blockResidentByName();
+	}
+	else if ("sort_by_name" == command_name)
+	{
+		mBlockedList->sortByName();
+		gSavedSettings.setU32("BlockPeopleSortOrder", E_SORT_BY_NAME);
+	}
+	else if ("sort_by_type" == command_name)
+	{
+		mBlockedList->sortByType();
+		gSavedSettings.setU32("BlockPeopleSortOrder", E_SORT_BY_TYPE);
 	}
 }
 
-void LLPanelBlockedList::onPickBtnClick()
+BOOL LLPanelBlockedList::isActionChecked(const LLSD& userdata)
+{
+	std::string item = userdata.asString();
+	U32 sort_order = gSavedSettings.getU32("BlockPeopleSortOrder");
+
+	if ("sort_by_name" == item)
+	{
+		return E_SORT_BY_NAME == sort_order;
+	}
+	else if ("sort_by_type" == item)
+	{
+		return E_SORT_BY_TYPE == sort_order;
+	}
+
+	return false;
+}
+
+void LLPanelBlockedList::blockResidentByName()
 {
 	const BOOL allow_multiple = FALSE;
 	const BOOL close_on_select = TRUE;
-	/*LLFloaterAvatarPicker* picker = */LLFloaterAvatarPicker::show(boost::bind(&LLPanelBlockedList::callbackBlockPicked, this, _1, _2), allow_multiple, close_on_select);
+    
+    LLView * button = findChild<LLButton>("plus_btn", TRUE);
+    LLFloater* root_floater = gFloaterView->getParentFloater(this);
+	LLFloaterAvatarPicker * picker = LLFloaterAvatarPicker::show(boost::bind(&LLPanelBlockedList::callbackBlockPicked, this, _1, _2), 
+                                                                                    allow_multiple, close_on_select, FALSE, root_floater->getName(), button);
+    
+    if (root_floater)
+    {
+        root_floater->addDependentFloater(picker);
+    }
 
-	// *TODO: mantipov: should LLFloaterAvatarPicker be closed when panel is closed?
-	// old Floater dependency is not enable in panel
-	// addDependentFloater(picker);
+    mPicker = picker->getHandle();
 }
 
-void LLPanelBlockedList::onBlockByNameClick()
+void LLPanelBlockedList::blockObjectByName()
 {
 	LLFloaterGetBlockedObjectName::show(&LLPanelBlockedList::callbackBlockByName);
+}
+
+void LLPanelBlockedList::onFilterEdit(const std::string& search_string)
+{
+	std::string filter = search_string;
+	LLStringUtil::trimHead(filter);
+
+	mBlockedList->setNameFilter(filter);
 }
 
 void LLPanelBlockedList::callbackBlockPicked(const uuid_vec_t& ids, const std::vector<LLAvatarName> names)
 {
 	if (names.empty() || ids.empty()) return;
-	LLMute mute(ids[0], names[0].getLegacyName(), LLMute::AGENT);
+	LLMute mute(ids[0], names[0].getAccountName(), LLMute::AGENT);
 	LLMuteList::getInstance()->add(mute);
 	showPanelAndSelect(mute.mID);
 }

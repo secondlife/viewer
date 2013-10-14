@@ -119,7 +119,7 @@ void LLRegionInfoModel::sendRegionTerrain(const LLUUID& invoice) const
 
 bool LLRegionInfoModel::getUseFixedSun() const
 {
-	return mRegionFlags & REGION_FLAGS_SUN_FIXED;
+	return ((mRegionFlags & REGION_FLAGS_SUN_FIXED) != 0);
 }
 
 void LLRegionInfoModel::setUseFixedSun(bool fixed)
@@ -141,7 +141,6 @@ void LLRegionInfoModel::update(LLMessageSystem* msg)
 	msg->getStringFast(_PREHASH_RegionInfo, _PREHASH_SimName, mSimName);
 	msg->getU32Fast(_PREHASH_RegionInfo, _PREHASH_EstateID, mEstateID);
 	msg->getU32Fast(_PREHASH_RegionInfo, _PREHASH_ParentEstateID, mParentEstateID);
-	msg->getU32Fast(_PREHASH_RegionInfo, _PREHASH_RegionFlags, mRegionFlags);
 	msg->getU8Fast(_PREHASH_RegionInfo, _PREHASH_SimAccess, mSimAccess);
 	msg->getU8Fast(_PREHASH_RegionInfo, _PREHASH_MaxAgents, mAgentLimit);
 	msg->getF32Fast(_PREHASH_RegionInfo, _PREHASH_ObjectBonusFactor, mObjectBonusFactor);
@@ -158,6 +157,17 @@ void LLRegionInfoModel::update(LLMessageSystem* msg)
 	// actually the "last set" sun hour, not the current sun hour. JC
 	msg->getF32(_PREHASH_RegionInfo, _PREHASH_SunHour, mSunHour);
 	LL_DEBUGS("Windlight Sync") << "Got region sun hour: " << mSunHour << LL_ENDL;
+
+	if (msg->has(_PREHASH_RegionInfo3))
+	{
+		msg->getU64Fast(_PREHASH_RegionInfo3, _PREHASH_RegionFlagsExtended, mRegionFlags);
+	}
+	else
+	{
+		U32 flags = 0;
+		msg->getU32Fast(_PREHASH_RegionInfo, _PREHASH_RegionFlags, flags);
+		mRegionFlags = flags;
+	}
 
 	// the only reasonable way to decide if we actually have any data is to
 	// check to see if any of these fields have nonzero sizes

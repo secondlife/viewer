@@ -40,18 +40,18 @@ typedef enum e_show_item_header
 	CHATITEMHEADER_SHOW_BOTH
 } EShowItemHeader;
 
-class LLNearbyChatToastPanel: public LLToastPanelBase
+class LLFloaterIMNearbyChatToastPanel : public LLPanel
 {
 protected:
-        LLNearbyChatToastPanel()
+        LLFloaterIMNearbyChatToastPanel()
 		: 
 	mIsDirty(false),
 	mSourceType(CHAT_SOURCE_OBJECT)
 	{};
 public:
-	~LLNearbyChatToastPanel(){}
+	~LLFloaterIMNearbyChatToastPanel(){}
 	
-	static LLNearbyChatToastPanel* createInstance();
+	static LLFloaterIMNearbyChatToastPanel* createInstance();
 
 	const LLUUID& getFromID() const { return mFromID;}
 	const std::string& getFromName() const { return mFromName; }

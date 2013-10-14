@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="menu_conversation_participant">
+	<menu_item_call label="Fermer la conversation" name="close_conversation"/>
+	<menu_item_call label="Ouvrir une conversation vocale" name="open_voice_conversation"/>
+	<menu_item_call label="Se déconnecter de la conversation et du canal vocal" name="disconnect_from_voice"/>
+	<menu_item_call label="Fermer la sélection" name="close_selected_conversations"/>
+	<menu_item_call label="Voir le profil" name="view_profile"/>
+	<menu_item_call label="IM" name="im"/>
+	<menu_item_call label="Proposer une téléportation." name="offer_teleport"/>
+	<menu_item_call label="Appel" name="voice_call"/>
+	<menu_item_call label="Historique du chat..." name="chat_history"/>
+	<menu_item_call label="Devenir amis" name="add_friend"/>
+	<menu_item_call label="Supprimer cet ami" name="remove_friend"/>
+	<menu_item_call label="Supprimer ces amis" name="remove_friends"/>
+	<menu_item_call label="Inviter dans le groupe..." name="invite_to_group"/>
+	<menu_item_call label="Zoomer en avant" name="zoom_in"/>
+	<menu_item_call label="Carte" name="map"/>
+	<menu_item_call label="Partager" name="share"/>
+	<menu_item_call label="Payer" name="pay"/>
+	<menu_item_check label="Bloquer le chat vocal" name="block_unblock"/>
+	<menu_item_check label="Ignorer le texte" name="MuteText"/>
+	<menu_item_call label="Profil du groupe" name="group_profile"/>
+	<menu_item_call label="Activer le groupe" name="activate_group"/>
+	<menu_item_call label="Quitter le groupe" name="leave_group"/>
+	<context_menu label="Options du modérateur" name="Moderator Options">
+		<menu_item_check label="Autoriser les chats écrits" name="AllowTextChat"/>
+		<menu_item_call label="Ignorer ce participant" name="ModerateVoiceMuteSelected"/>
+		<menu_item_call label="Ne plus ignorer ce participant" name="ModerateVoiceUnMuteSelected"/>
+		<menu_item_call label="Ignorer les autres" name="ModerateVoiceMute"/>
+		<menu_item_call label="Ne plus ignorer les autres" name="ModerateVoiceUnmute"/>
+	</context_menu>
+</toggleable_menu>

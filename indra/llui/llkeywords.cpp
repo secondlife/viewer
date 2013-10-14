@@ -367,8 +367,6 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
 
 	const llwchar* base = wtext.c_str();
 	const llwchar* cur = base;
-	const llwchar* line = NULL;
-
 	while( *cur )
 	{
 		if( *cur == '\n' || cur == base )
@@ -384,9 +382,6 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
 					continue;
 				}
 			}
-
-			// Start of a new line
-			line = cur;
 
 			// Skip white space
 			while( *cur && isspace(*cur) && (*cur != '\n')  )

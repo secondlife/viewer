@@ -34,8 +34,10 @@
 #include <string>
 #include <vector>
 
+class LLAvatarName;
 class LLInventoryPanel;
 class LLFloater;
+class LLView;
 
 /**
  * Friend-related actions (add, remove, offer teleport, etc)
@@ -81,14 +83,14 @@ public:
 	static void startCall(const LLUUID& id);
 
 	/**
-	 * Start an ad-hoc conference voice call with multiple users
+	 * Start an ad-hoc conference voice call with multiple users in a specific IM floater.
 	 */
-	static void startAdhocCall(const uuid_vec_t& ids);
+	static void startAdhocCall(const uuid_vec_t& ids, const LLUUID& floater_id = LLUUID::null);
 
 	/**
-	 * Start conference chat with the given avatars.
+	 * Start conference chat with the given avatars in a specific IM floater.
 	 */
-	static void startConference(const uuid_vec_t& ids);
+	static void startConference(const uuid_vec_t& ids, const LLUUID& floater_id = LLUUID::null);
 
 	/**
 	 * Show avatar profile.
@@ -116,12 +118,17 @@ public:
 	/**
 	 * Share items with the picked avatars.
 	 */
-	static void shareWithAvatars();
+	static void shareWithAvatars(LLView * panel);
 
 	/**
 	 * Block/unblock the avatar.
 	 */
 	static void toggleBlock(const LLUUID& id);
+
+	/**
+	 * Block/unblock the avatar voice.
+	 */
+	static void toggleMuteVoice(const LLUUID& id);
 
 	/**
 	 * Return true if avatar with "id" is a friend
@@ -132,6 +139,11 @@ public:
 	 * @return true if the avatar is blocked
 	 */
 	static bool isBlocked(const LLUUID& id);
+
+	/**
+	 * @return true if the avatar voice is blocked
+	 */
+	static bool isVoiceMuted(const LLUUID& id);
 
 	/**
 	 * @return true if you can block the avatar
@@ -197,6 +209,27 @@ public:
 	 * @return false if the selected items cannot be shared or the active inventory panel cannot be obtained
 	 */
 	static bool canShareSelectedItems(LLInventoryPanel* inv_panel = NULL);
+
+	/**
+	 * Builds a string of residents' display names separated by "words_separator" string.
+	 *
+	 * @param avatar_names - a vector of given avatar names from which resulting string is built
+	 * @param residents_string - the resulting string
+	 */
+	static void buildResidentsString(std::vector<LLAvatarName> avatar_names, std::string& residents_string);
+
+	/**
+	 * Builds a string of residents' display names separated by "words_separator" string.
+	 *
+	 * @param avatar_uuids - a vector of given avatar uuids from which resulting string is built
+	 * @param residents_string - the resulting string
+	 */
+	static void buildResidentsString(const uuid_vec_t& avatar_uuids, std::string& residents_string);
+
+	/**
+	 * Opens the chat history for avatar
+	 */
+	static void viewChatHistory(const LLUUID& id);
 
 	static std::set<LLUUID> getInventorySelectedUUIDs();
 

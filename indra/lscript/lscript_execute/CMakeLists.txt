@@ -10,6 +10,9 @@ include_directories(
     ${LLMATH_INCLUDE_DIRS}
     ${LSCRIPT_INCLUDE_DIRS}
     )
+include_directories(SYSTEM
+    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
+    )
 
 set(lscript_execute_SOURCE_FILES
     llscriptresource.cpp

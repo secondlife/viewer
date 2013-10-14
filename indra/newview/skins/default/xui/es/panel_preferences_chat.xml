@@ -1,34 +1,98 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Chat de texto" name="chat">
-	<text name="font_size">
-		Tamaño de la fuente:
-	</text>
-	<radio_group name="chat_font_size">
-		<radio_item label="Disminuir" name="radio" value="0"/>
-		<radio_item label="Medio" name="radio2" value="1"/>
-		<radio_item label="Aumentar" name="radio3" value="2"/>
-	</radio_group>
-	<check_box initial_value="true" label="Ejecutar la animación de escribir al hacerlo en el chat" name="play_typing_animation"/>
-	<check_box label="Cuando estoy desconectado, enviarme los MI al correo-e" name="send_im_to_email"/>
-	<check_box label="Permitir el historial de MI y chat en texto sin formato" name="plain_text_chat_history"/>
-	<check_box label="Bocadillos del chat" name="bubble_text_chat"/>
-	<text name="show_ims_in_label">
-		Mostrar los MI en:
-	</text>
-	<text name="requires_restart_label">
-		(requiere reiniciar)
-	</text>
-	<radio_group name="chat_window" tool_tip="Muestra tus mensajes instantáneos en varias ventanas flotantes o en una sola con varias pestañas (requiere que reinicies)">
-		<radio_item label="Ventanas distintas" name="radio" value="0"/>
-		<radio_item label="Pestañas" name="radio2" value="1"/>
-	</radio_group>
-	<text name="disable_toast_label">
-		Permitir ventanas de chat emergentes:
-	</text>
-	<check_box label="Chats de grupo" name="EnableGroupChatPopups" tool_tip="Activa esta casilla para ver una ventana emergente cada vez que recibas un mensaje de un grupo de chat"/>
-	<check_box label="Chats de MI" name="EnableIMChatPopups" tool_tip="Activa esta casilla para ver una ventana emergente cada vez que recibas un mensaje instantáneo"/>
-	<spinner label="Duración de los interlocutores favoritos:" name="nearby_toasts_lifetime"/>
-	<spinner label="Tiempo de los otros interlocutores:" name="nearby_toasts_fadingtime"/>
+	<panel name="general_chat_settings">
+		<check_box initial_value="true" label="Ejecutar la animación de escribir al hacerlo en el chat" name="play_typing_animation"/>
+		<check_box label="Cuando estoy desconectado, enviarme los MI al correo-e" name="send_im_to_email"/>
+		<check_box label="Sólo pueden llamarme o mandarme un MI mis amigos y grupos" name="voice_call_friends_only_check"/>
+		<text name="font_size">
+			Tamaño de la fuente:
+		</text>
+		<combo_box name="chat_font_size">
+			<item label="Pequeño" name="Small" value="0"/>
+			<item label="Medio" name="Medium" value="1"/>
+			<item label="Grande" name="Large" value="2"/>
+		</combo_box>
+		<check_box label="Bocadillos del chat" name="bubble_text_chat"/>
+	</panel>
+	<panel name="im_notification_settings">
+		<text name="friend_ims">
+			MI de amigos:
+		</text>
+		<combo_box name="FriendIMOptions">
+			<item label="Abrir ventana de conversaciones" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="Abrir el mensaje en una ventana emergente" name="PopUpMessage" value="toast"/>
+			<item label="Botón de la barra de herramientas de Flash" name="FlashToolbarButton" value="flash"/>
+			<item label="Ninguna acción" name="NoAction" value="noaction"/>
+		</combo_box>
+		<check_box label="Reproducir sonido" name="play_sound_friend_im"/>
+		<text name="non_friend_ims">
+			MI de no amigos:
+		</text>
+		<combo_box name="NonFriendIMOptions">
+			<item label="Abrir ventana de conversaciones" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="Abrir el mensaje en una ventana emergente" name="PopUpMessage" value="toast"/>
+			<item label="Botón de la barra de herramientas de Flash" name="FlashToolbarButton" value="flash"/>
+			<item label="Ninguna acción" name="NoAction" value="noaction"/>
+		</combo_box>
+		<check_box label="Reproducir sonido" name="play_sound_non_friend_im"/>
+		<text name="conference_ims">
+			MI de conferencias:
+		</text>
+		<combo_box name="ConferenceIMOptions">
+			<item label="Abrir ventana de conversaciones" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="Abrir el mensaje en una ventana emergente" name="PopUpMessage" value="toast"/>
+			<item label="Botón de la barra de herramientas de Flash" name="FlashToolbarButton" value="flash"/>
+			<item label="Ninguna acción" name="NoAction" value="noaction"/>
+		</combo_box>
+		<check_box label="Reproducir sonido" name="play_sound_conference_im"/>
+		<text name="group_chat">
+			Chat de grupo:
+		</text>
+		<combo_box name="GroupChatOptions">
+			<item label="Abrir ventana de conversaciones" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="Abrir el mensaje en una ventana emergente" name="PopUpMessage" value="toast"/>
+			<item label="Botón de la barra de herramientas de Flash" name="FlashToolbarButton" value="flash"/>
+			<item label="Ninguna acción" name="NoAction" value="noaction"/>
+		</combo_box>
+		<check_box label="Reproducir sonido" name="play_sound_group_chat_im"/>
+		<text name="nearby_chat">
+			Chat con gente cercana:
+		</text>
+		<combo_box name="NearbyChatOptions">
+			<item label="Abrir ventana de conversaciones" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="Abrir el mensaje en una ventana emergente" name="PopUpMessage" value="toast"/>
+			<item label="Botón de la barra de herramientas de Flash" name="FlashToolBarButton" value="flash"/>
+			<item label="Ninguna acción" name="NoAction" value="noaction"/>
+		</combo_box>
+		<check_box label="Reproducir sonido" name="play_sound_nearby_chat_im"/>
+		<text name="object_ims">
+			MI de objetos:
+		</text>
+		<combo_box name="ObjectIMOptions">
+			<item label="Abrir ventana de conversaciones" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="Abrir el mensaje en una ventana emergente" name="PopUpMessage" value="toast"/>
+			<item label="Botón de la barra de herramientas de Flash" name="FlashToolBarButton" value="flash"/>
+			<item label="Ninguna acción" name="NoAction" value="noaction"/>
+		</combo_box>
+		<check_box label="Reproducir sonido" name="play_sound_object_im"/>
+		<text name="notifications_alert">
+			Para dejar de recibir avisos durante un tiempo, usa Comunicarme &gt; No molestar.
+		</text>
+	</panel>
+	<panel name="play_sound_settings">
+		<text name="play_sound">
+			Reproducir sonido:
+		</text>
+		<check_box label="Nueva conversación" name="new_conversation"/>
+		<check_box label="Llamada de voz entrante" name="incoming_voice_call"/>
+		<check_box label="Oferta de teleporte" name="teleport_offer"/>
+		<check_box label="Oferta de inventario" name="inventory_offer"/>
+	</panel>
+	<panel name="log_settings">
+		<button label="Borrar registro..." name="clear_log"/>
+		<button label="Borrar grabaciones..." name="delete_transcripts"/>
+		<button label="Examinar..." label_selected="Examinar" name="log_path_button"/>
+	</panel>
 	<button label="Traducción…" name="ok_btn"/>
 	<button label="Reemplazo automático..." name="autoreplace_showgui"/>
 	<button label="Revisión ortográfica..." name="spellcheck_showgui"/>

@@ -33,6 +33,7 @@
 #include "llerror.h"
 #include "llrect.h"
 #include "llstring.h"
+#include "llstat.h"
 
 // project includes
 #include "lluictrlfactory.h"
@@ -83,7 +84,8 @@ BOOL LLFloaterJoystick::postBuild()
 
 	for (U32 i = 0; i < 6; i++)
 	{
-		mAxisStats[i] = new LLStat(4);
+		std::string stat_name(llformat("Joystick axis %d", i));
+		mAxisStats[i] = new LLStat(stat_name, 4);
 		std::string axisname = llformat("axis%d", i);
 		mAxisStatsBar[i] = getChild<LLStatBar>(axisname);
 		if (mAxisStatsBar[i])

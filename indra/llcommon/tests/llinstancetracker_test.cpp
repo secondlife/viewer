@@ -267,7 +267,6 @@ namespace tut
         {
             existing.insert(&*uki);
         }
-        Unkeyed* puk = NULL;
         try
         {
             // We don't expect the assignment to take place because we expect
@@ -280,7 +279,7 @@ namespace tut
             // realize we're testing the C++ implementation more than
             // Unkeyed's implementation, but this seems an important point to
             // nail down.
-            puk = new Unkeyed("throw");
+            new Unkeyed("throw");
         }
         catch (const Badness&)
         {

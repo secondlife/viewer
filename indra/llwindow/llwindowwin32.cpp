@@ -58,7 +58,6 @@
 #include <dinput.h>
 #include <Dbt.h.>
 
-#include "llmemtype.h"
 // culled from winuser.h
 #ifndef WM_MOUSEWHEEL /* Added to be compatible with later SDK's */
 const S32	WM_MOUSEWHEEL = 0x020A;
@@ -160,9 +159,8 @@ LLWinImm LLWinImm::sTheInstance;
 LLWinImm::LLWinImm() : mHImmDll(NULL)
 {
 	// Check system metrics 
-	if ( !GetSystemMetrics( SM_DBCSENABLED ) )
+	if ( !GetSystemMetrics( SM_IMMENABLED ) )
 		return;
-	
 
 	mHImmDll = LoadLibraryA("Imm32");
 	if (mHImmDll != NULL)
@@ -1772,8 +1770,6 @@ void LLWindowWin32::gatherInput()
 {
 	MSG		msg;
 	int		msg_count = 0;
-
-	LLMemType m1(LLMemType::MTYPE_GATHER_INPUT);
 
 	while ((msg_count < MAX_MESSAGE_PER_UPDATE) && PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 	{
@@ -3503,19 +3499,11 @@ void LLWindowWin32::updateLanguageTextInputArea()
 
 void LLWindowWin32::interruptLanguageTextInput()
 {
-	if (mPreeditor)
+	if (mPreeditor && LLWinImm::isAvailable())
 	{
-		if (LLWinImm::isAvailable())
-		{
-			HIMC himc = LLWinImm::getContext(mWindowHandle);
-			LLWinImm::notifyIME(himc, NI_COMPOSITIONSTR, CPS_COMPLETE, 0);
-			LLWinImm::releaseContext(mWindowHandle, himc);
-		}
-
-		// Win32 document says there will be no composition string
-		// after NI_COMPOSITIONSTR returns.  The following call to
-		// resetPreedit should be a NOP unless IME goes mad...
-		mPreeditor->resetPreedit();
+		HIMC himc = LLWinImm::getContext(mWindowHandle);
+		LLWinImm::notifyIME(himc, NI_COMPOSITIONSTR, CPS_COMPLETE, 0);
+		LLWinImm::releaseContext(mWindowHandle, himc);
 	}
 }
 

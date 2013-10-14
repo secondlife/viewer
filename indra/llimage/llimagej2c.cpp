@@ -26,7 +26,6 @@
 
 #include "lldir.h"
 #include "llimagej2c.h"
-#include "llmemtype.h"
 #include "lltimer.h"
 #include "llmath.h"
 #include "llmemory.h"
@@ -161,7 +160,6 @@ BOOL LLImageJ2C::decode(LLImageRaw *raw_imagep, F32 decode_time)
 BOOL LLImageJ2C::decodeChannels(LLImageRaw *raw_imagep, F32 decode_time, S32 first_channel, S32 max_channel_count )
 {
 	LLTimer elapsed;
-	LLMemType mt1(mMemType);
 
 	BOOL res = TRUE;
 	
@@ -227,7 +225,6 @@ BOOL LLImageJ2C::encode(const LLImageRaw *raw_imagep, F32 encode_time)
 BOOL LLImageJ2C::encode(const LLImageRaw *raw_imagep, const char* comment_text, F32 encode_time)
 {
 	LLTimer elapsed;
-	LLMemType mt1(mMemType);
 	resetLastError();
 	BOOL res = mImpl->encodeImpl(*this, *raw_imagep, comment_text, encode_time, mReversible);
 	if (!mLastError.empty())
@@ -404,7 +401,6 @@ BOOL LLImageJ2C::loadAndValidate(const std::string &filename)
 
 BOOL LLImageJ2C::validate(U8 *data, U32 file_size)
 {
-	LLMemType mt1(mMemType);
 
 	resetLastError();
 	

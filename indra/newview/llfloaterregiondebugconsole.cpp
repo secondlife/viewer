@@ -75,7 +75,7 @@ namespace
 	{
 	public:
 		/* virtual */
-		void error(U32 status, const std::string& reason)
+		void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 		{
 			sConsoleReplySignal(UNABLE_TO_SEND_COMMAND);
 		}

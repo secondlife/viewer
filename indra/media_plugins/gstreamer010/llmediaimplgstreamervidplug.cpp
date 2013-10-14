@@ -278,10 +278,9 @@ gst_slvideo_set_caps (GstBaseSink * bsink, GstCaps * caps)
 static gboolean
 gst_slvideo_start (GstBaseSink * bsink)
 {
-	GstSLVideo *slvideo;
 	gboolean ret = TRUE;
 	
-	slvideo = GST_SLVIDEO(bsink);
+	GST_SLVIDEO(bsink);
 
 	return ret;
 }

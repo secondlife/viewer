@@ -90,7 +90,7 @@ public:
 	S32 removeCommand(const LLCommandId& commandId, int& rank);	// Sets the rank the removed command was at, RANK_NONE if not found
 	S32 enableCommand(const LLCommandId& commandId, bool enabled);
 	S32 stopCommandInProgress(const LLCommandId& commandId);
-	S32 flashCommand(const LLCommandId& commandId, bool flash);
+	S32 flashCommand(const LLCommandId& commandId, bool flash, bool force_flashing = false);
 
 	// Loads the toolbars from the existing user or default settings
 	bool loadToolbars(bool force_default = false);	// return false if load fails
@@ -108,7 +108,8 @@ public:
 	static BOOL handleDropTool(void* cargo_data, S32 x, S32 y, LLToolBar* toolbar);
 	static void resetDragTool(LLToolBarButton* toolbarButton);
 	LLInventoryObject* getDragItem();
-
+	LLView* getBottomToolbar() { return mBottomToolbarPanel; }
+	LLToolBar* getToolbar(EToolBarLocation toolbar) { return mToolbars[toolbar]; }
 	bool isModified() const;
 	
 protected:
@@ -133,6 +134,7 @@ private:
 	LLToolBarButton*	mDragToolbarButton;
 	LLInventoryObject*	mDragItem;
 	bool				mShowToolbars;
+	LLView*				mBottomToolbarPanel;
 };
 
 extern LLToolBarView* gToolBarView;

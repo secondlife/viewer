@@ -150,7 +150,7 @@
 		<usetemplate canceltext="取り消し" name="yesnocancelbuttons" notext="保存しない" yestext="すべて保存"/>
 	</notification>
 	<notification name="FriendsAndGroupsOnly">
-		フレンド以外からのコールやインスタントメッセージを無視する設定にしたことを、相手に知られることはありません。
+		フレンド以外の人からのコールや、インスタントメッセージを無視する設定にしたことを、相手に知られることはありません。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="FavoritesOnLogin">
@@ -220,6 +220,14 @@
 
 この能力を [ROLE_NAME] に割り当てますか？
 		<usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい"/>
+	</notification>
+	<notification name="EjectGroupMemberWarning">
+		[AVATAR_NAME] をグループから追放しようとしています。
+		<usetemplate ignoretext="グループからの参加者の追放を確認します" name="okcancelignore" notext="取り消し" yestext="追放"/>
+	</notification>
+	<notification name="EjectGroupMembersWarning">
+		[COUNT] 名のメンバーをグループから追放しようとしています。
+		<usetemplate ignoretext="グループからの複数のメンバーの追放を確認します" name="okcancelignore" notext="取り消し" yestext="追放"/>
 	</notification>
 	<notification name="AttachmentDrop">
 		アタッチメントを下に置こうとしています。
@@ -537,6 +545,24 @@ L$ が不足しているのでこのグループに参加することができ�
 			http://www.intel.com/p/ja_JP/support/detect/graphics
 		</url>
 		<usetemplate ignoretext="使用しているグラフィックドライバが古い場合" name="okcancelignore" notext="いいえ" yestext="はい"/>
+	</notification>
+	<notification name="AMDOldDriver">
+		お使いのグラフィックチップには最新のドライバが存在するようです。グラフィックドライバを更新すると、パフォーマンスが大幅に改善されます。
+
+[_URL] へアクセスして、ドライバーを更新しますか。
+		<url name="url">
+			http://support.amd.com/us/Pages/AMDSupportHub.aspx
+		</url>
+		<usetemplate ignoretext="自分のグラフィックドライバが旧くなりました。" name="okcancelignore" notext="いいえ" yestext="はい"/>
+	</notification>
+	<notification name="NVIDIAOldDriver">
+		お使いのグラフィックチップには最新のドライバが存在するようです。グラフィックドライバを更新すると、パフォーマンスが大幅に改善されます。
+
+[_URL] へアクセスして、ドライバーを更新しますか。
+		<url name="url">
+			http://www.nvidia.com/Download/index.aspx?lang=en-us
+		</url>
+		<usetemplate ignoretext="自分のグラフィックドライバが旧くなりました。" name="okcancelignore" notext="いいえ" yestext="はい"/>
 	</notification>
 	<notification name="UnknownGPU">
 		お使いのシステムには、[APP_NAME] が認識できないグラフィックカードが搭載されています。
@@ -1121,7 +1147,7 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries を参照してく
 金額を増やしてください。
 	</notification>
 	<notification name="ConfirmItemDeleteHasLinks">
-		ここにリンクされたアイテムが少なくとも1つあります。  このアイテムを削除するとここにリンクされたものが機能しなくなります。  リンクを先に削除することを強くお勧めします。
+		1 つ以上のアイテムにポイントするリンクがあります。このアイテムを削除する場合、そのリンクは永久に機能しなくなります。まず最初にリンクを削除することを強くお勧めします。
 
 これらのアイテムを削除しますか？
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
@@ -1139,9 +1165,9 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries を参照してく
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmObjectDeleteNoOwn">
-		選択したアイテムのうち、少なくとも 1 つがあなたの所有物ではありません。
+		選択したアイテムの 1 つ以上を所有していません。
 
-本当に削除しますか？
+これらのアイテムを削除しますか？
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmObjectDeleteLockNoCopy">
@@ -1152,26 +1178,26 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries を参照してく
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmObjectDeleteLockNoOwn">
-		少なくとも 1 つのオブジェクトがロックされています。
-少なくとも 1 つのオブジェクトが、あなたの所有物ではありません。
+		1 つ以上のオブジェクトがロックされました。
+1 つ以上のオブジェクトを所有していません。
 
-本当に削除しますか？
+これらのアイテムを削除しますか？
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmObjectDeleteNoCopyNoOwn">
-		少なくとも 1 つのオブジェクトがコピーできません。
-少なくとも 1 つのオブジェクトが、あなたの所有物ではありません。
+		1 つ以上のオブジェクトがコピーできません。
+1 つ以上のオブジェクトを所有していません。
 
-本当に削除しますか？
+これらのアイテムを削除しますか？
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmObjectDeleteLockNoCopyNoOwn">
-		少なくとも 1 つのオブジェクトがロックされています。
-少なくとも 1 つのオブジェクトがコピーできません。
-少なくとも 1 つのオブジェクトが、あなたの所有物ではありません。
+		1 つ以上のオブジェクトがロックされています。
+1 つ以上のオブジェクトがコピーできません。
+1 つ以上のオブジェクトを所有していません。
 
-本当に削除しますか？
-		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
+これらのアイテムを削除しますか？
+		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmObjectTakeLock">
 		少なくとも 1 つのオブジェクトがロックされています。
@@ -1495,13 +1521,43 @@ http://secondlife.com/download から最新バージョンをダウンロード�
 	</notification>
 	<notification name="RequiredUpdateDownloadedVerboseDialog">
 		必要なソフトウェアのアップデートをダウンロードしました。
-バージョン [VERSION]
+バージョン [VERSION] [[INFO_URL] このアップデートに関する情報]
 
 アップデートをインストールするには [APP_NAME] を再起動する必要があります。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="RequiredUpdateDownloadedDialog">
 		アップデートをインストールするには [APP_NAME] を再起動する必要があります。
+[[INFO_URL] このアップデートに関する情報]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OtherChannelDownloadBackgroundTip">
+		お使いの [APP_NAME] に必要なアップデートをダウンロードしました。
+バージョン [VERSION] 
+この試験的なビューアが [NEW_CHANNEL] ビューアに置き換えられています;
+このアップデートの詳細については、[[INFO_URL] を参照してください]
+		<usetemplate name="okcancelbuttons" notext="後で実行" yestext="今すぐインストールして [APP_NAME] を再起動"/>
+	</notification>
+	<notification name="OtherChannelDownloadBackgroundDialog">
+		お使いの [APP_NAME] に必要なアップデートをダウンロードしました。
+バージョン [VERSION]
+この試験的なビューアが [NEW_CHANNEL] ビューアに置き換えられています;
+[[INFO_URL] このアップデートに関する情報] を参照
+		<usetemplate name="okcancelbuttons" notext="後で実行" yestext="今すぐインストールして [APP_NAME] を再起動"/>
+	</notification>
+	<notification name="OtherChannelRequiredUpdateDownloadedVerboseDialog">
+		必要なソフトウェアのアップデートをダウンロードしました。
+バージョン [VERSION]
+この試験的なビューアが [NEW_CHANNEL] ビューアに置き換えられています;
+[[INFO_URL] このアップデートに関する情報] を参照
+
+アップデートをインストールするには [APP_NAME] を再起動する必要があります。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OtherChannelRequiredUpdateDownloadedDialog">
+		アップデートをインストールするには [APP_NAME] を再起動する必要があります。
+この試験的なビューアが [NEW_CHANNEL] ビューアに置き換えられています;
+[[INFO_URL] このアップデートに関する情報] を参照
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DeedObjectToGroup">
@@ -1554,6 +1610,10 @@ http://secondlife.com/download から最新バージョンをダウンロード�
 グループから脱退しますか？
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
+	<notification name="OwnerCannotLeaveGroup">
+		グループを抜けることができません。グループの最後のオーナーであるため、グループを抜けることができません。最初に、別のメンバーをオーナーの役割に割り当ててください。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="ConfirmKick">
 		本当に住人全員をグリッドから追い出しますか？
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="住人全員を追い出す"/>
@@ -1582,10 +1642,13 @@ http://secondlife.com/download から最新バージョンをダウンロード�
 		現在フレンドシップを送れません。数分後にもう一度お試しください。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
-	<notification name="BusyModeSet">
-		取り込み中モードになりました。
-チャットとインスタントメッセージは表示されません。 受信するインスタントメッセージには取り込み中返答メッセージが表示されます。 テレポートのオファーは受け取り拒否となります。 アイテムのオファーはすべてごみ箱に入ります。
-		<usetemplate ignoretext="ログイン状態を取り込み中モードに変更するとき" name="okignore" yestext="OK"/>
+	<notification name="DoNotDisturbModeSet">
+		「通知を受けない」がオンになります。着信通信はあなたには通知されません。
+
+- 他の住民は「通知を受けない」の応答（「設定」&gt;「一般」で設定）を受け取ることになります。
+- テレポートのオファーはすべて受け取り拒否となります。
+- ボイスコールは拒否されます。
+		<usetemplate ignoretext="マイ ログイン状態を「通知を受けない」モードに変更しました。" name="okignore" yestext="OK"/>
 	</notification>
 	<notification name="JoinedTooManyGroupsMember">
 		加入できるグループの最大限に達しました。 このグループに加入するために他のグループを脱退するか、この申し入れを断ってください。
@@ -2076,6 +2139,10 @@ L$ [AMOUNT] で、このクラシファイド広告を今すぐ公開します�
 		[http://jp.secondlife.com/account/ マイアカウント] ページに移動してアカウント履歴を確認しますか？
 		<usetemplate ignoretext="ブラウザを起動してアカウント履歴を見るとき" name="okcancelignore" notext="取り消し" yestext="ページに移動"/>
 	</notification>
+	<notification name="ConfirmAddingChatParticipants">
+		既存の会話に人を加えると、新しい会話が作成されます。参加者全員に新しい会話についての通知が配信されます。
+		<usetemplate ignoretext="チャットの参加者の追加を確認してください" name="okcancelignore" notext="取り消し" yestext="OＫ"/>
+	</notification>
 	<notification name="ConfirmQuit">
 		終了しようとしています。続けますか？
 		<usetemplate ignoretext="終了時の確認" name="okcancelignore" notext="終了しない" yestext="終了"/>
@@ -2153,14 +2220,14 @@ Linden Lab
 			<button ignore="交換しない" name="No" text="キャンセル"/>
 		</form>
 	</notification>
-	<notification label="取り込み中の警告" name="BusyModePay">
-		現在、「取り込み中」モードのため、支払いと引き換えにアイテムを受け取ることができません。
+	<notification label="「通知を受けない」モードの警告" name="DoNotDisturbModePay">
+		「通知を受けない」をオンにします。この支払との交換で提供されるアイテムが受信されなくなります。
 
-この取引を行うために「取り込み中」の設定を解除しますか？
+このトランザクションを完了するために、「通知を受けない」をオフにしてもよろしいですか。
 		<form name="form">
-			<ignore name="ignore" save_option="true" text="取り込み中モード時に支払をするとき"/>
-			<button ignore="常に「取り込み中」の設定を解除" name="Yes" text="OK"/>
-			<button ignore="常に「取り込み中」の設定を継続" name="No" text="キャンセル"/>
+			<ignore name="ignore" text="「通知を受けない」モード時に、人や物を支払う予定です。"/>
+			<button ignore="「通知を受けない」モードを維持しない" name="Yes" text="OK"/>
+			<button ignore="「通知を受けない」モードを維持する" name="No" text="取り消し"/>
 		</form>
 	</notification>
 	<notification name="ConfirmDeleteProtectedCategory">
@@ -2296,11 +2363,8 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 	<notification name="GroupNotice">
 		件名： [SUBJECT]、メッセージ： [MESSAGE]
 	</notification>
-	<notification name="FriendOnline">
-		&lt;nolink&gt;[NAME]&lt;/nolink&gt; はオンラインです
-	</notification>
-	<notification name="FriendOffline">
-		&lt;nolink&gt;[NAME]&lt;/nolink&gt; はオフラインです
+	<notification name="FriendOnlineOffline">
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; は [STATUS] です
 	</notification>
 	<notification name="AddSelfFriend">
 		残念ながら自分自身をフレンド登録することはできません。
@@ -2421,9 +2485,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 「テレポート」を選択して実行することもできます。）
 	</notification>
 	<notification name="TeleportToPerson">
-		[NAME] のような住人に連絡をとるには、「人」ボタンをクリックし、表示されるウィンドウで「住人」を選択してから、
-ウィンドウ下部にある「IM」をクリックします。
-（リストの名前をダブルクリック、または右クリックして「IM」を選んでも同じです。）
+		誰かとのプライベートな会話を開くには、相手のアバターをクリックして、メニューから「IM」を選択します。
 	</notification>
 	<notification name="CantSelectLandFromMultipleRegions">
 		サーバーの境界を越えて土地を選択することできません。
@@ -2529,13 +2591,6 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 	</notification>
 	<notification name="DynamicPathfindingDisabled">
 		この地域（リージョン）でダイナミックパスファインディングが有効になっていません。パスファインディング LSL 呼び出しを使用するスクリプト化されたオブジェクトがこの地域（リージョン）では動作できません。
-	</notification>
-	<notification name="PathfindingRebakeNavmesh">
-		この地域（リージョン）のオブジェクトを変更すると、他の移動オブジェクトが正しく動作しなくなる恐れがあります。移動オブジェクトを正しく動作させるには、「地域の再構築」ボタンをクリックします。詳しい情報は見るには「ヘルプ」を選択してください。
-		<url name="url">
-			http://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer
-		</url>
-		<usetemplate helptext="ヘルプ" ignoretext="この地域（リージョン）のオブジェクトを変更すると、他の移動オブジェクトが正しく動作しなくなる恐れがあります。" name="okhelpignore" yestext="OK"/>
 	</notification>
 	<notification name="PathfindingCannotRebakeNavmesh">
 		エラーが発生しました。ネットワークまたはサーバーに問題があるか、制作権がない可能性があります。この問題は、一度ログアウトしてから、ログインし直すと解決される場合があります。
@@ -2797,12 +2852,21 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		</form>
 	</notification>
 	<notification name="ScriptQuestionCaution">
-		警告：オブジェクト &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; はあなたのリンデンドルアカウントへのトータルアクセスを希望しています。アクセスを許可すると、このオブジェクトはいつでもあなたのアカウントから資金を削除したり、今後警告を表示することなく継続的にアカウントを完全に空にできるようになります。
+		警告:オブジェクト &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; は、あなたのリンデンドルアカウントへのフルアクセスを要求しています。アクセスを許可すると、このオブジェクトは、特に警告を発せずに単発で、随時アカウントから資金を削除するか、アカウントを完全に空にします。
   
-このようなリクエストが正当であることは稀です。このオブジェクトがあなたのアカウントにアクセスしたい理由を完全に理解している場合を除き、アクセスの許可は避けてください。
+そのオブジェクトがアカウントへのアクセスを要求する理由がよくわからない場合は、アクセスを許可しないでください。
 		<form name="form">
 			<button name="Grant" text="トータルアクセスを許可"/>
 			<button name="Deny" text="拒否"/>
+		</form>
+	</notification>
+	<notification name="UnknownScriptQuestion">
+		&apos;[NAME]&apos; が所有する &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; によってリクエストされたランタイムスクリプト権限がビューアによって認識されないため、許可できません。
+
+この権限を許可するには、ビューアを [DOWNLOADURL] からの最新バージョンにアップデートしてください。
+		<form name="form">
+			<button name="Deny" text="Ok"/>
+			<button name="Mute" text="ブロック"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialog">
@@ -3377,5 +3441,628 @@ M キーを押して変更します。
 	<notification name="PathfindingDeleteMultipleItems">
 		[NUM_ITEMS] 個のアイテムを削除中です。続けますか？
 		<usetemplate ignoretext="複数のアイテムを削除しますか？" name="okcancelignore" notext="いいえ" yestext="はい"/>
+	</notification>
+	<notification name="AvatarFrozen">
+		[AV_FREEZER] によってあなたはフリーズされています。世界を動かすことも、世界とインタラクションすることもできません。
+	</notification>
+	<notification name="AvatarFrozenDuration">
+		[AV_FREEZER] によって、あなたは [AV_FREEZE_TIME] 秒間フリーズされました。世界を動かすことも、世界とインタラクションすることもできません。
+	</notification>
+	<notification name="YouFrozeAvatar">
+		アバターがフリーズされています。
+	</notification>
+	<notification name="AvatarHasUnFrozenYou">
+		[AV_FREEZER] によってフリーズが解除されています。
+	</notification>
+	<notification name="AvatarUnFrozen">
+		アバターのフリーズが解除されました。
+	</notification>
+	<notification name="AvatarFreezeFailure">
+		その区画の管理権限を持っていないため、フリーズに失敗しました。
+	</notification>
+	<notification name="AvatarFreezeThaw">
+		フリーズ期間が切れました。仕事に戻ってください。
+	</notification>
+	<notification name="AvatarCantFreeze">
+		残念ながら、そのユーザーをフリーズできません。
+	</notification>
+	<notification name="NowOwnObject">
+		これで、オブジェクト [OBJECT_NAME] の所有者になりました
+	</notification>
+	<notification name="CantRezOnLand">
+		この土地の所有者が許可していないため、[OBJECT_POS] でオブジェクトを Rez することができません。土地ツールを使用して、土地の所有を確認してください。
+	</notification>
+	<notification name="RezFailTooManyRequests">
+		リクエストが多すぎて、オブジェクトを Rez することができません。
+	</notification>
+	<notification name="SitFailCantMove">
+		今回移動できなかったため、座ることができません。
+	</notification>
+	<notification name="SitFailNotAllowedOnLand">
+		その土地に対して許可を受けていないため、座ることができません。
+	</notification>
+	<notification name="SitFailNotSameRegion">
+		移動して近づけてみてください。オブジェクトが同じリージョンにないため、オブジェクトを配置できません。
+	</notification>
+	<notification name="NoNewObjectRegionFull">
+		新しいオブジェクトを作成できません。リージョンが埋まっています。
+	</notification>
+	<notification name="FailedToPlaceObject">
+		指定した場所にオブジェクトを配置できませんでした。もう一度お試しください。
+	</notification>
+	<notification name="NoOwnNoGardening">
+		所有していない土地に木や草を植えることはできません。
+	</notification>
+	<notification name="NoCopyPermsNoObject">
+		オブジェクト &apos;[OBJ_NAME]&apos; をコピーする権限がないため、コピーに失敗しました。
+	</notification>
+	<notification name="NoTransPermsNoObject">
+		オブジェクト &apos;[OBJ_NAME]&apos; をあなたに転送できないため、コピーに失敗しました。
+	</notification>
+	<notification name="AddToNavMeshNoCopy">
+		オブジェクト &apos;[OBJ_NAME]&apos; がナビメッシュに貢献しているため、コピーに失敗しました。
+	</notification>
+	<notification name="DupeWithNoRootsSelected">
+		ルートオブジェクトを選択せずに複製します。
+	</notification>
+	<notification name="CantDupeCuzRegionIsFull">
+		リージョンが埋まっているため、オブジェクトのコピーを作成することができません。
+	</notification>
+	<notification name="CantDupeCuzParcelNotFound">
+		オブジェクトのコピーを作成できません。オブジェクトのある区画が見つかりません。
+	</notification>
+	<notification name="CantCreateCuzParcelFull">
+		区画がいっぱいのため、
+オブジェクトを作成できません。
+	</notification>
+	<notification name="RezAttemptFailed">
+		オブジェクトへの Rez の試みに失敗しました。
+	</notification>
+	<notification name="ToxicInvRezAttemptFailed">
+		このリージョンで問題を引き起こすアイテムは作成できません。
+	</notification>
+	<notification name="InvItemIsBlacklisted">
+		その持ち物アイテムはブラックリストに登録されています。
+	</notification>
+	<notification name="NoCanRezObjects">
+		現在あなたにはオブジェクトを作成するための許可がありません。
+	</notification>
+	<notification name="LandSearchBlocked">
+		土地の検索がブロックされました。
+短期間に多くの土地を検索したためです。
+しばらくしてから再度お試しください。
+	</notification>
+	<notification name="NotEnoughResourcesToAttach">
+		オブジェクトの着用に使用できるスクリプトリソースが足りません。
+	</notification>
+	<notification name="YouDiedAndGotTPHome">
+		死んでしまったので、ホームにテレポートされました。
+	</notification>
+	<notification name="EjectComingSoon">
+		ここへの入場が許可されていないため、[EJECT_TIME] 秒後に追放されます。
+	</notification>
+	<notification name="NoEnterServerFull">
+		サーバーが埋まっているため、
+このリージョンに入場することはできません。
+	</notification>
+	<notification name="SaveBackToInvDisabled">
+		「「持ち物」に保存」が無効になっています。
+	</notification>
+	<notification name="NoExistNoSaveToContents">
+		&apos;[OBJ_NAME]&apos; の Rez 元であるオブジェクトが存在しないため、このオブジェクトをオブジェクトコンテンツに保存できません。
+	</notification>
+	<notification name="NoModNoSaveToContents">
+		オブジェクト &apos;[DEST_NAME]&apos; を修正する権限がないため、オブジェクトのコンテンツに &apos;[OBJ_NAME]&apos; を保存できません。
+	</notification>
+	<notification name="NoSaveBackToInvDisabled">
+		インベントリに &apos;[OBJ_NAME]&apos; を保存することはできません - この操作が無効になっています。
+	</notification>
+	<notification name="NoCopyNoSelCopy">
+		オブジェクト &apos;[OBJ_NAME]&apos; を変更する権限を持っていないため、選択したものをコピーできません。
+	</notification>
+	<notification name="NoTransNoSelCopy">
+		オブジェクト &apos;[OBJ_NAME]&apos; を転送できないため、選択したものをコピーできません。
+	</notification>
+	<notification name="NoTransNoCopy">
+		オブジェクト &apos;[OBJ_NAME]&apos; を転送できないため、選択したものをコピーできません。
+	</notification>
+	<notification name="NoPermsNoRemoval">
+		シミュレータからのオブジェクト &apos;[OBJ_NAME]&apos; の削除は、権限システムによって無効にされています。
+	</notification>
+	<notification name="NoModNoSaveSelection">
+		オブジェクト &apos;[OBJ_NAME]&apos; を変更する権限を持っていないため、選択したものを保存できません。
+	</notification>
+	<notification name="NoCopyNoSaveSelection">
+		オブジェクト &apos;[OBJ_NAME]&apos; をコピーできないため、選択したものを保存できません。
+	</notification>
+	<notification name="NoModNoTaking">
+		オブジェクト &apos;[OBJ_NAME]&apos; を変更する権限を持っていないため、選択したものを取得できません。
+	</notification>
+	<notification name="RezDestInternalError">
+		内部エラー: 不明な宛先タイプ。
+	</notification>
+	<notification name="DeleteFailObjNotFound">
+		オブジェクトが見つからないため削除できませんでした。
+	</notification>
+	<notification name="SorryCantEjectUser">
+		残念ながら、そのユーザーを追放することはできません。
+	</notification>
+	<notification name="RegionSezNotAHome">
+		このリージョンでは、ここにホームの位置を設定できません。
+	</notification>
+	<notification name="HomeLocationLimits">
+		ホームの場所を設定できるのは、自分の土地か、またはメインランドのインフォハブでのみです。
+	</notification>
+	<notification name="HomePositionSet">
+		家の配置の設定。
+	</notification>
+	<notification name="AvatarEjected">
+		アバターが追放されました。
+	</notification>
+	<notification name="AvatarEjectFailed">
+		その区画の管理権限がないため、追放できませんでした。
+	</notification>
+	<notification name="CantMoveObjectParcelFull">
+		区画が埋まっているため、オブジェクト &apos;[OBJECT_NAME]&apos; を、リージョン [REGION_NAME] 内の [OBJ_POSITION] に移動できません。
+	</notification>
+	<notification name="CantMoveObjectParcelPerms">
+		オブジェクト &apos;[OBJECT_NAME]&apos; は、この区画で許可されていないため、リージョン [REGION_NAME] 内の [OBJ_POSITION] に移動できません。
+	</notification>
+	<notification name="CantMoveObjectParcelResources">
+		この区画でこのオブジェクトのリソースが不足しているため、オブジェクト &apos;[OBJECT_NAME]&apos; をリージョン [REGION_NAME] 内の [OBJ_POSITION] に移動できません。
+	</notification>
+	<notification name="CantMoveObjectRegionVersion">
+		オブジェクト &apos;[OBJECT_NAME]&apos; をリージョン [REGION_NAME] 内の [OBJ_POSITION] に移動することはできません。他のリージョンでは、リージョンの境界をまたいだこのオブジェクトを受信することができない古いバージョンを実行しているためです。
+	</notification>
+	<notification name="CantMoveObjectNavMesh">
+		リージョン境界をまたぐナビメッシュを変更できないため、オブジェクト &apos;[OBJECT_NAME]&apos; をリージョン [REGION_NAME] 内の [OBJ_POSITION] に移動できません。
+	</notification>
+	<notification name="CantMoveObjectWTF">
+		不明な理由により、オブジェクト &apos;[OBJECT_NAME]&apos; を、リージョン [REGION_NAME] 内の [OBJ_POSITION] に移動できません。
+([FAILURE_TYPE])
+	</notification>
+	<notification name="NoPermModifyObject">
+		そのオブジェクトを変更する権限がありません
+	</notification>
+	<notification name="CantEnablePhysObjContributesToNav">
+		ナビメッシュに貢献するオブジェクトに対して物理を有効にできません。
+	</notification>
+	<notification name="CantEnablePhysKeyframedObj">
+		キーフレームオブジェクトのために物理を有効にできません。
+	</notification>
+	<notification name="CantEnablePhysNotEnoughLandResources">
+		土地のリソースが足りないため、オブジェクトの物理を有効にできません。
+	</notification>
+	<notification name="CantEnablePhysCostTooGreat">
+		[MAX_OBJECTS] より大きい物理リソースコストを持つオブジェクトでは、物理を有効にできません。
+	</notification>
+	<notification name="PhantomWithConcavePiece">
+		このオブジェクトはファントムで、ナビメッシュに貢献しているため、くぼみを持たせることができません。
+	</notification>
+	<notification name="UnableAddItem">
+		アイテムを追加できません!
+	</notification>
+	<notification name="UnableEditItem">
+		これは編集できません!
+	</notification>
+	<notification name="NoPermToEdit">
+		これを編集する許可がありません。
+	</notification>
+	<notification name="NoPermToCopyInventory">
+		そのインベントリをコピーすることは許可されません。
+	</notification>
+	<notification name="CantSaveItemDoesntExist">
+		オブジェクトのコンテンツに保存できません。アイテムが存在していません。
+	</notification>
+	<notification name="CantSaveItemAlreadyExists">
+		オブジェクトのコンテンツに保存できません。同じ名前を持つアイテムがすでにインベントリに存在します。
+	</notification>
+	<notification name="CantSaveModifyAttachment">
+		オブジェクトのコンテンツに保存できません。このため、アタッチメントの権限が変更されます。
+	</notification>
+	<notification name="TooManyScripts">
+		スクリプトが多すぎます。
+	</notification>
+	<notification name="UnableAddScript">
+		テキストを追加できません!
+	</notification>
+	<notification name="AssetServerTimeoutObjReturn">
+		資産サーバーがタイムリーに応答しませんでした。オブジェクトが sim に返されました。
+	</notification>
+	<notification name="RegionDisablePhysicsShapes">
+		このリージョンでは、物理的シェイプが有効にされていません。
+	</notification>
+	<notification name="NoModNavmeshAcrossRegions">
+		リージョンの境界をまたぐナビメッシュは変更できません。
+	</notification>
+	<notification name="NoSetPhysicsPropertiesOnObjectType">
+		そのオブジェクトタイプの物理的プロパティを設定できません。
+	</notification>
+	<notification name="NoSetRootPrimWithNoShape">
+		ルートプリムを設定できないため、シェイプがありません。
+	</notification>
+	<notification name="NoRegionSupportPhysMats">
+		このリージョンでは、物理的素材が有効にされていません。
+	</notification>
+	<notification name="OnlyRootPrimPhysMats">
+		物理的素材を調整できるのは、ルートプリムだけです。
+	</notification>
+	<notification name="NoSupportCharacterPhysMats">
+		キャラクターへの物理的素材の設定はまだサポートされていません。
+	</notification>
+	<notification name="InvalidPhysMatProperty">
+		指定した物理的素材のプロパティが 1 つ以上無効です。
+	</notification>
+	<notification name="NoPermsAlterStitchingMeshObj">
+		メッシュオブジェクトの縫い目のタイプを変更することはできません。
+	</notification>
+	<notification name="NoPermsAlterShapeMeshObj">
+		メッシュオブジェクトの形状を変更することはできません
+	</notification>
+	<notification name="FullRegionCantEnter">
+		リージョンが埋まっているため、\nこのリージョンに入場できません。
+	</notification>
+	<notification name="LinkFailedOwnersDiffer">
+		リンクエラー -- 所有者が違います
+	</notification>
+	<notification name="LinkFailedNoModNavmeshAcrossRegions">
+		リンクエラー -- リージョンの境界をまたぐナビメッシュは変更できません。
+	</notification>
+	<notification name="LinkFailedNoPermToEdit">
+		リンクエラー -- 編集権限がありません。
+	</notification>
+	<notification name="LinkFailedTooManyPrims">
+		リンクエラー -- プリミティブが多すぎます。
+	</notification>
+	<notification name="LinkFailedCantLinkNoCopyNoTrans">
+		リンクエラー -- コピーなしと転送なしをリンクできません。
+	</notification>
+	<notification name="LinkFailedNothingLinkable">
+		リンクエラー -- リンクできるものがありません。
+	</notification>
+	<notification name="LinkFailedTooManyPathfindingChars">
+		リンクエラー -- パスファインディングの文字数が多すぎます
+	</notification>
+	<notification name="LinkFailedInsufficientLand">
+		リンクエラー -- 土地のリソースが足りません
+	</notification>
+	<notification name="LinkFailedTooMuchPhysics">
+		オブジェクトが使用している物理リソースが多すぎたため、ダイナミックスが無効にされました。
+	</notification>
+	<notification name="TeleportedHomeByObjectOnParcel">
+		区画 &apos;[PARCEL_NAME]&apos; のオブジェクト &apos;[OBJECT_NAME]&apos; によって、あなたはホームにテレポートされました。
+	</notification>
+	<notification name="TeleportedHomeByObject">
+		​オブジェクト ​&apos;[OBJECT_NAME]&apos; によって、あなたはホームへテレポートされています。
+	</notification>
+	<notification name="TeleportedByAttachment">
+		[ITEM_ID] へのアタッチメントによって、あなたはテレポートされています。
+	</notification>
+	<notification name="TeleportedByObjectOnParcel">
+		区画 &apos;[PARCEL_NAME]&apos; のオブジェクト &apos;[OBJECT_NAME]&apos; によって、あなたはテレポートされています。
+	</notification>
+	<notification name="TeleportedByObjectOwnedBy">
+		[OWNER_ID] が所有しているオブジェクト &apos;[OBJECT_NAME]&apos; によって、あなたはテレポートされています。
+	</notification>
+	<notification name="TeleportedByObjectUnknownUser">
+		不明なユーザーが所有しているオブジェクト &apos;[OBJECT_NAME]&apos; によって、あなたはテレポートされています。
+	</notification>
+	<notification name="CantCreateObjectRegionFull">
+		リクエストされたオブジェクトを作成できません。リージョンが埋まっています。
+	</notification>
+	<notification name="CantAttackMultipleObjOneSpot">
+		1 つの場所に複数のオブジェクトを着用することはできません。
+	</notification>
+	<notification name="CantCreateMultipleObjAtLoc">
+		ここでは、複数のオブジェクトを作成することはできません。
+	</notification>
+	<notification name="UnableToCreateObjTimeOut">
+		リクエストされたオブジェクトを作成できません。オブジェクトがデータベースに見つかりません。
+	</notification>
+	<notification name="UnableToCreateObjUnknown">
+		リクエストされたオブジェクトを作成できません。リクエストがタイムアウトになりました。もう一度お試しください。
+	</notification>
+	<notification name="UnableToCreateObjMissingFromDB">
+		要求されたオブジェクトを作成できません。もう一度お試しください。
+	</notification>
+	<notification name="RezFailureTookTooLong">
+		リクエストされたオブジェクトのロードに時間がかかりすぎたため、Rez に失敗しました。
+	</notification>
+	<notification name="FailedToPlaceObjAtLoc">
+		指定した場所にオブジェクトを配置できませんでした。もう一度お試しください。
+	</notification>
+	<notification name="CantCreatePlantsOnLand">
+		この土地に木を植えることはできません。
+	</notification>
+	<notification name="CantRestoreObjectNoWorldPos">
+		オブジェクトをリストアできません。ワールドの位置が見つかりません。
+	</notification>
+	<notification name="CantRezObjectInvalidMeshData">
+		メッシュデータが無効なため、オブジェクトを Rez することができません。
+	</notification>
+	<notification name="CantRezObjectTooManyScripts">
+		このリージョンに既に多くのスクリプトが存在するため、オブジェクトを Rez することができません。
+	</notification>
+	<notification name="CantCreateObjectNoAccess">
+		現在のアクセス権限では、そこにオブジェクトを作成できません。
+	</notification>
+	<notification name="CantCreateObject">
+		現在あなたにはオブジェクト作成する許可がありません。
+	</notification>
+	<notification name="InvalidObjectParams">
+		無効なオブジェクトパラメーター
+	</notification>
+	<notification name="CantDuplicateObjectNoAcess">
+		現在のアクセス権限では、ここにオブジェクトのコピーを作成できません。
+	</notification>
+	<notification name="CantChangeShape">
+		あなたにはこのシェイプを変更する許可がありません。
+	</notification>
+	<notification name="NoAccessToClaimObjects">
+		現在のアクセス権限では、ここにオブジェクトを取得できません。
+	</notification>
+	<notification name="DeedFailedNoPermToDeedForGroup">
+		あなたのグループにオブジェクトを譲渡する権限がないため、譲渡に失敗しました。
+	</notification>
+	<notification name="NoPrivsToBuyObject">
+		現在のアクセス権限では、ここでオブジェクトを購入できません。
+	</notification>
+	<notification name="CantAttachObjectAvatarSittingOnIt">
+		アバターがオブジェクトに存在するため、オブジェクトを着用できません。
+	</notification>
+	<notification name="WhyAreYouTryingToWearShrubbery">
+		木や草をアタッチメントとして着用できません。
+	</notification>
+	<notification name="CantAttachGroupOwnedObjs">
+		グループが所有しているオブジェクトは着用できません。
+	</notification>
+	<notification name="CantAttachObjectsNotOwned">
+		所有していないオブジェクトは着用できません。
+	</notification>
+	<notification name="CantAttachNavmeshObjects">
+		ナビメッシュに貢献しているオブジェクトは着用できません。
+	</notification>
+	<notification name="CantAttachObjectNoMovePermissions">
+		あなたにはオブジェクトを移動する権限がないため、そのオブジェクト添付できません。
+	</notification>
+	<notification name="CantAttachNotEnoughScriptResources">
+		オブジェクトの着用に使用できるスクリプトリソースが足りません。
+	</notification>
+	<notification name="CantDropItemTrialUser">
+		オブジェクトをここにドロップできません。フリートライアル領域をお試しください。
+	</notification>
+	<notification name="CantDropMeshAttachment">
+		メッシュアタッチメントをドロップすることはできません。インベントリから切り離して、ワールドで Rez してください。
+	</notification>
+	<notification name="CantDropAttachmentNoPermission">
+		アタッチメントのドロップに失敗しました。そこへドロップする権限がありません。
+	</notification>
+	<notification name="CantDropAttachmentInsufficientLandResources">
+		アタッチメントのドロップに失敗しました。利用できる土地リソースの数が足りません。
+	</notification>
+	<notification name="CantDropAttachmentInsufficientResources">
+		利用できるリソースが足りないため、アタッチメントのドロップに失敗しました。
+	</notification>
+	<notification name="CantDropObjectFullParcel">
+		ここにオブジェクトをドロップできません。区画が埋まっています。
+	</notification>
+	<notification name="CantTouchObjectBannedFromParcel">
+		土地区画に入場することを禁止されているため、このオブジェクトを触ったり、つかむことができません。
+	</notification>
+	<notification name="PlzNarrowDeleteParams">
+		削除パラメーターを絞ってください。
+	</notification>
+	<notification name="UnableToUploadAsset">
+		資産をアップロードできません。
+	</notification>
+	<notification name="CantTeleportCouldNotFindUser">
+		ホームをテレポートするユーザーが見つかりませんでした。
+	</notification>
+	<notification name="GodlikeRequestFailed">
+		過剰なリクエストが失敗しました
+	</notification>
+	<notification name="GenericRequestFailed">
+		一般的なリクエストに失敗しました
+	</notification>
+	<notification name="CantUploadPostcard">
+		ポストカードをアップロードできません。後でもう一度お試しください。
+	</notification>
+	<notification name="CantFetchInventoryForGroupNotice">
+		グループ通知のインベントリの詳細を取得できません。
+	</notification>
+	<notification name="CantSendGroupNoticeNotPermitted">
+		グループ通知の送信が許可されないため、送信できません。
+	</notification>
+	<notification name="CantSendGroupNoticeCantConstructInventory">
+		グループ通知を送信できません。持ち物を作成することもできません。
+	</notification>
+	<notification name="CantParceInventoryInNotice">
+		通知内の持ち物を検出できません。
+	</notification>
+	<notification name="TerrainUploadFailed">
+		地形のアップロードに失敗しました。
+	</notification>
+	<notification name="TerrainFileWritten">
+		地形ファイルが書き込まれました。
+	</notification>
+	<notification name="TerrainFileWrittenStartingDownload">
+		地形ファイルを書き出し、ダウンロードを開始しています...
+	</notification>
+	<notification name="TerrainBaked">
+		地形がベークされました。
+	</notification>
+	<notification name="TenObjectsDisabledPlzRefresh">
+		選択された最初の 10 個のオブジェクトのみが無効にされました。必要に応じて、リフレッシュして選択内容を追加してください。
+	</notification>
+	<notification name="UpdateViewerBuyParcel">
+		この区画を購入するには、ビューワをアップデートする必要があります。
+	</notification>
+	<notification name="CantBuyParcelNotForSale">
+		購入することができません。この区画は販売対象ではありません。
+	</notification>
+	<notification name="CantBuySalePriceOrLandAreaChanged">
+		販売価格または土地の面積が変わったため、購入できません。
+	</notification>
+	<notification name="CantBuyParcelNotAuthorized">
+		あなたはこの区画の委任された買い手ではありません。
+	</notification>
+	<notification name="CantBuyParcelAwaitingPurchaseAuth">
+		すでに購入の認証を待機しているため、この区画を購入できません。
+	</notification>
+	<notification name="CantBuildOverflowParcel">
+		区画をオーバーフローするため、ここでオブジェクトを構築することはできません。
+	</notification>
+	<notification name="SelectedMultipleOwnedLand">
+		所有者の違う土地を選びました。選択する面積を小さくして、もう一度試してください。
+	</notification>
+	<notification name="CantJoinTooFewLeasedParcels">
+		選択範囲のリース区画の数が少ないため、参加できません。
+	</notification>
+	<notification name="CantDivideLandMultipleParcelsSelected">
+		土地を分割できません。\n区画が複数選択されています。\nもっと小さい土地を選択してみてください。
+	</notification>
+	<notification name="CantDivideLandCantFindParcel">
+		土地を分解できません。\n区画が見つかりません。\n「Help」&gt;「Reprt Bug...」でレポートを行ってください。
+	</notification>
+	<notification name="CantDivideLandWholeParcelSelected">
+		土地を分割できません。区画全体を選択します。\n小さい土地を選択してみてください。
+	</notification>
+	<notification name="LandHasBeenDivided">
+		土地が分割されています。
+	</notification>
+	<notification name="PassPurchased">
+		入場許可を購入しました。
+	</notification>
+	<notification name="RegionDisallowsClassifieds">
+		リージョンでは、クラシファイド広告を許可しません。
+	</notification>
+	<notification name="LandPassExpireSoon">
+		この土地への入場許可はまもなく期限が切れます。
+	</notification>
+	<notification name="CantSitNoSuitableSurface">
+		配置に適した表面がありません。別の場所を試してみたください。
+	</notification>
+	<notification name="CantSitNoRoom">
+		ここには座る余地がありません。他の場所を試してください。
+	</notification>
+	<notification name="ClaimObjectFailedNoPermission">
+		権限がないため、オブジェクトを取得できませんでした。
+	</notification>
+	<notification name="ClaimObjectFailedNoMoney">
+		リンデンドルが足りないため、オブジェクトの取得に失敗しました。
+	</notification>
+	<notification name="CantDeedGroupLand">
+		グループ所有の土地は、譲渡できません。
+	</notification>
+	<notification name="BuyObjectFailedNoMoney">
+		リンデンドルが足りないため、オブジェクトの購入に失敗しました。
+	</notification>
+	<notification name="BuyInventoryFailedNoMoney">
+		リンデンドルが不足しているため、インベントリを購入できませんでした。
+	</notification>
+	<notification name="BuyPassFailedNoMoney">
+		リンデンドルが足りないため、この土地への入場許可を購入できません。
+	</notification>
+	<notification name="CantBuyPassTryAgain">
+		今すぐには入場許可を購入できません。後でもう一度お試しください。
+	</notification>
+	<notification name="CantCreateObjectParcelFull">
+		区画が埋まっているため、オブジェクトを\n作成することができません。
+	</notification>
+	<notification name="FailedPlacingObject">
+		指定した場所にオブジェクトを配置できませんでした。もう一度お試しください。
+	</notification>
+	<notification name="CantCreateLandmarkForEvent">
+		イベントのためのランドマークを作成することができません。
+	</notification>
+	<notification name="GodBeatsFreeze">
+		強力な力でフリーズを解除します。
+	</notification>
+	<notification name="SpecialPowersRequestFailedLogged">
+		特殊な権限のリクエストに失敗しました。このリクエストはログに記録されています。
+	</notification>
+	<notification name="ExpireExplanation">
+		システムは、現在あなたのリクエストを処理できません。リクエストがタイムアウトになりました。
+	</notification>
+	<notification name="DieExplanation">
+		システムは、あなたのリクエストを処理できません。
+	</notification>
+	<notification name="AddPrimitiveFailure">
+		プリミティブ広告を出すには、資金が足りません。
+	</notification>
+	<notification name="RezObjectFailure">
+		資金が足りないため、オブジェクトを作成できません。
+	</notification>
+	<notification name="ResetHomePositionNotLegal">
+		ホームが不正なため、ホームの位置をリセットします。
+	</notification>
+	<notification name="CantInviteRegionFull">
+		リージョンが埋まっているため、現在の場所に誰かを招待することはできません。後でもう一度お試しください。
+	</notification>
+	<notification name="CantSetHomeAtRegion">
+		このリージョンでは、ここにホームの位置を設定できません。
+	</notification>
+	<notification name="ListValidHomeLocations">
+		ホームの場所を設定できるのは、自分の土地か、またはメインランドのインフォハブでのみです。
+	</notification>
+	<notification name="SetHomePosition">
+		家の配置の設定。
+	</notification>
+	<notification name="CantDerezInventoryError">
+		インベントリエラーのため、オブジェクトの Rez 解除ができません。
+	</notification>
+	<notification name="CantCreateRequestedInv">
+		リクエストされたインベントリを作成できません。
+	</notification>
+	<notification name="CantCreateRequestedInvFolder">
+		リクエストされた持ち物フォルダーを作成できません。
+	</notification>
+	<notification name="CantCreateInventory">
+		そのインベントリを作成できません。
+	</notification>
+	<notification name="CantCreateLandmark">
+		ランドマークを作成できません。
+	</notification>
+	<notification name="CantCreateOutfit">
+		アウトフィットをすぐには作成できません。しばらくしてから再度お試しください。
+	</notification>
+	<notification name="InventoryNotForSale">
+		インベントリは販売対象ではありません。
+	</notification>
+	<notification name="CantFindInvItem">
+		持ち物アイテムを見つけることができません。
+	</notification>
+	<notification name="CantFindObject">
+		オブジェクトが見つかりません。
+	</notification>
+	<notification name="CantTransfterMoneyRegionDisabled">
+		オブジェクトへの送金は、このリージョンでは現在無効にされています。
+	</notification>
+	<notification name="CantPayNoAgent">
+		支払いの相手を把握できませんでした。
+	</notification>
+	<notification name="CantDonateToPublicObjects">
+		パブリックオブジェクトにリンデンドルを与えることはできません。
+	</notification>
+	<notification name="InventoryCreationInWorldObjectFailed">
+		インワールドオブジェクトでのインベントリ作成に失敗しました。
+	</notification>
+	<notification name="UserBalanceOrLandUsageError">
+		内部エラーが発生したため、ビューワを正しく更新できませんでした。ビューワに表示されるリンデンドルの残高または区画の所有は、サーバー上の実際の残高を反映していない可能性があります。
+	</notification>
+	<notification name="LargePrimAgentIntersect">
+		他のプレイヤーの関心を引く大きなプリムを作成できません。他のプレイヤーが移動したときに再試行してください。
+	</notification>
+	<notification name="PreferenceChatClearLog">
+		これにより、過去の会話のログ、およびそのファイルのすべてのバックアップが削除されます。
+		<usetemplate ignoretext="以前の会話のログを削除する前に確認してください。" name="okcancelignore" notext="取り消し" yestext="OK"/>
+	</notification>
+	<notification name="PreferenceChatDeleteTranscripts">
+		これにより、以前のすべての会話のテキストが削除されます。過去の会話のリストには影響しません。.txt および txt.backup の拡張子が付いたすべてのファイルが [FOLDER] フォルダーから削除されます。
+		<usetemplate ignoretext="テキストを削除するまえに確認してください。" name="okcancelignore" notext="取り消し" yestext="OK"/>
+	</notification>
+	<notification name="PreferenceChatPathChanged">
+		ファイルを移動できません。以前のパスがリストアされました。
+		<usetemplate ignoretext="ファイルを移動できません。以前のパスがリストアされました。" name="okignore" yestext="OK"/>
 	</notification>
 </notifications>

@@ -557,7 +557,7 @@ void LLPanelLandGeneral::refresh()
 		BOOL is_leased = (LLParcel::OS_LEASED == parcel->getOwnershipStatus());
 		BOOL region_xfer = FALSE;
 		if(regionp
-		   && !(regionp->getRegionFlags() & REGION_FLAGS_BLOCK_LAND_RESELL))
+		   && !(regionp->getRegionFlag(REGION_FLAGS_BLOCK_LAND_RESELL)))
 		{
 			region_xfer = TRUE;
 		}
@@ -783,8 +783,9 @@ void LLPanelLandGeneral::refresh()
 			mBtnReleaseLand->setEnabled( can_release );
 		}
 
-		BOOL use_pass = parcel->getParcelFlag(PF_USE_PASS_LIST) && !LLViewerParcelMgr::getInstance()->isCollisionBanned();;
+		BOOL use_pass = parcel->getOwnerID()!= gAgent.getID() && parcel->getParcelFlag(PF_USE_PASS_LIST) && !LLViewerParcelMgr::getInstance()->isCollisionBanned();;
 		mBtnBuyPass->setEnabled(use_pass);
+
 	}
 }
 
@@ -1045,6 +1046,8 @@ void LLPanelLandGeneral::onCommitAny(LLUICtrl *ctrl, void *userdata)
 void LLPanelLandGeneral::onClickSellLand(void* data)
 {
 	LLViewerParcelMgr::getInstance()->startSellLand();
+	LLPanelLandGeneral *panelp = (LLPanelLandGeneral *)data;
+	panelp->refresh();
 }
 
 // static
@@ -2024,6 +2027,10 @@ void LLPanelLandOptions::refresh()
 		mSnapshotCtrl->setImageAssetID(parcel->getSnapshotID());
 		mSnapshotCtrl->setEnabled( can_change_identity );
 
+		// find out where we're looking and convert that to an angle in degrees on a regular compass (not the internal representation)
+		LLVector3 user_look_at = parcel->getUserLookAt();
+		U32 user_look_at_angle = ( (U32)( ( atan2(user_look_at[1], -user_look_at[0]) + F_PI * 2 ) * RAD_TO_DEG + 0.5) - 90) % 360;
+
 		LLVector3 pos = parcel->getUserLocation();
 		if (pos.isExactlyZero())
 		{
@@ -2031,10 +2038,11 @@ void LLPanelLandOptions::refresh()
 		}
 		else
 		{
-			mLocationText->setTextArg("[LANDING]",llformat("%d, %d, %d",
+			mLocationText->setTextArg("[LANDING]",llformat("%d, %d, %d (%d\xC2\xB0)",
 														   llround(pos.mV[VX]),
 														   llround(pos.mV[VY]),
-														   llround(pos.mV[VZ])));
+		   												   llround(pos.mV[VZ]),
+														   user_look_at_angle));
 		}
 
 		mSetBtn->setEnabled( can_change_landing_point );
@@ -2115,9 +2123,9 @@ void LLPanelLandOptions::refreshSearch()
 
 	bool can_change =
 			LLViewerParcelMgr::isParcelModifiableByAgent(
-				parcel, GP_LAND_CHANGE_IDENTITY)
+				parcel, GP_LAND_FIND_PLACES)
 			&& region
-			&& !(region->getRegionFlags() & REGION_FLAGS_BLOCK_PARCEL_SEARCH);
+			&& !(region->getRegionFlag(REGION_FLAGS_BLOCK_PARCEL_SEARCH));
 
 	// There is a bug with this panel whereby the Show Directory bit can be 
 	// slammed off by the Region based on an override.  Since this data is cached
@@ -2733,11 +2741,13 @@ void LLPanelLandAccess::onCommitAny(LLUICtrl *ctrl, void *userdata)
 
 void LLPanelLandAccess::onClickAddAccess()
 {
+    LLView * button = findChild<LLButton>("add_allowed");
+    LLFloater * root_floater = gFloaterView->getParentFloater(this);
 	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(
-		boost::bind(&LLPanelLandAccess::callbackAvatarCBAccess, this, _1));
+		boost::bind(&LLPanelLandAccess::callbackAvatarCBAccess, this, _1), FALSE, FALSE, FALSE, root_floater->getName(), button);
 	if (picker)
 	{
-		gFloaterView->getParentFloater(this)->addDependentFloater(picker);
+		root_floater->addDependentFloater(picker);
 	}
 }
 
@@ -2782,11 +2792,13 @@ void LLPanelLandAccess::onClickRemoveAccess(void* data)
 // static
 void LLPanelLandAccess::onClickAddBanned()
 {
+    LLView * button = findChild<LLButton>("add_banned");
+    LLFloater * root_floater = gFloaterView->getParentFloater(this);
 	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(
-		boost::bind(&LLPanelLandAccess::callbackAvatarCBBanned, this, _1));
+		boost::bind(&LLPanelLandAccess::callbackAvatarCBBanned, this, _1), FALSE, FALSE, FALSE, root_floater->getName(), button);
 	if (picker)
 	{
-		gFloaterView->getParentFloater(this)->addDependentFloater(picker);
+		root_floater->addDependentFloater(picker);
 	}
 }
 
@@ -2866,7 +2878,7 @@ void LLPanelLandCovenant::refresh()
 	LLTextBox* resellable_clause = getChild<LLTextBox>("resellable_clause");
 	if (resellable_clause)
 	{
-		if (region->getRegionFlags() & REGION_FLAGS_BLOCK_LAND_RESELL)
+		if (region->getRegionFlag(REGION_FLAGS_BLOCK_LAND_RESELL))
 		{
 			resellable_clause->setText(getString("can_not_resell"));
 		}
@@ -2879,7 +2891,7 @@ void LLPanelLandCovenant::refresh()
 	LLTextBox* changeable_clause = getChild<LLTextBox>("changeable_clause");
 	if (changeable_clause)
 	{
-		if (region->getRegionFlags() & REGION_FLAGS_ALLOW_PARCEL_CHANGES)
+		if (region->getRegionFlag(REGION_FLAGS_ALLOW_PARCEL_CHANGES))
 		{
 			changeable_clause->setText(getString("can_change"));
 		}

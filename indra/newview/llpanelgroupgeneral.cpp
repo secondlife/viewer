@@ -79,13 +79,18 @@ LLPanelGroupGeneral::LLPanelGroupGeneral()
 	mCtrlReceiveNotices(NULL),
 	mCtrlListGroup(NULL),
 	mActiveTitleLabel(NULL),
-	mComboActiveTitle(NULL)
+	mComboActiveTitle(NULL),
+	mAvatarNameCacheConnection()
 {
 
 }
 
 LLPanelGroupGeneral::~LLPanelGroupGeneral()
 {
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
 }
 
 BOOL LLPanelGroupGeneral::postBuild()
@@ -727,9 +732,12 @@ void LLPanelGroupGeneral::updateMembers()
 		else
 		{
 			// If name is not cached, onNameCache() should be called when it is cached and add this member to list.
-			LLAvatarNameCache::get(mMemberProgress->first, 
-									boost::bind(&LLPanelGroupGeneral::onNameCache,
-												this, gdatap->getMemberVersion(), member, _2));
+			// *TODO : Use a callback per member, not for the panel group.
+			if (mAvatarNameCacheConnection.connected())
+			{
+				mAvatarNameCacheConnection.disconnect();
+			}
+			mAvatarNameCacheConnection = LLAvatarNameCache::get(mMemberProgress->first, boost::bind(&LLPanelGroupGeneral::onNameCache, this, gdatap->getMemberVersion(), member, _2));
 		}
 	}
 
@@ -769,6 +777,8 @@ void LLPanelGroupGeneral::addMember(LLGroupMemberData* member)
 
 void LLPanelGroupGeneral::onNameCache(const LLUUID& update_id, LLGroupMemberData* member, const LLAvatarName& av_name)
 {
+	mAvatarNameCacheConnection.disconnect();
+
 	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 
 	if (!gdatap

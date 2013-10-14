@@ -71,10 +71,8 @@ class LLVoiceVisualizer : public LLHUDEffect
 	// public methods 
 	//---------------------------------------------------
 	public:
-		LLVoiceVisualizer ( const U8 type );	//constructor
+		LLVoiceVisualizer( const U8 type );	//constructor
 		~LLVoiceVisualizer();					//destructor
-		
-		friend class LLHUDObject;
 
 		void					setVoiceSourceWorldPosition( const LLVector3 &p );		// this should be the position of the speaking avatar's head
 		void					setMinGesticulationAmplitude( F32 );					// the lower range of meaningful amplitude for setting gesticulation level 
@@ -85,8 +83,6 @@ class LLVoiceVisualizer : public LLHUDEffect
 		void					setStopSpeaking();										// tell me when the av stops speaking
 		bool					getCurrentlySpeaking();									// the get for the above set
 		VoiceGesticulationLevel	getCurrentGesticulationLevel();							// based on voice amplitude, I'll give you the current "energy level" of avatar speech
-		static void				setPreferences( );
-		static void				lipStringToF32s ( std::string& in_string, F32*& out_F32s, U32& count_F32s ); // convert a string of digits to an array of floats
 		void					lipSyncOohAah( F32& ooh, F32& aah );
 		void					render();												// inherited from HUD Effect
 		void 					packData(LLMessageSystem *mesgsys);						// inherited from HUD Effect
@@ -108,7 +104,10 @@ class LLVoiceVisualizer : public LLHUDEffect
 	// private members 
 	//---------------------------------------------------
 	private:
-	
+		static bool				handleVoiceVisualizerPrefsChanged(const LLSD& newvalue);
+		static void				setPreferences( );
+		static void				lipStringToF32s ( std::string& in_string, F32*& out_F32s, U32& count_F32s ); // convert a string of digits to an array of floats
+
 		struct SoundSymbol
 		{
 			F32						mWaveExpansion			[ NUM_VOICE_SYMBOL_WAVES ];

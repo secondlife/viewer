@@ -137,16 +137,16 @@ public:
 	LLVector4a mStart;
 	LLVector4a mDir;
 	LLVector4a mEnd;
-	LLVector3* mIntersection;
+	LLVector4a* mIntersection;
 	LLVector2* mTexCoord;
-	LLVector3* mNormal;
-	LLVector3* mBinormal;
+	LLVector4a* mNormal;
+	LLVector4a* mTangent;
 	F32* mClosestT;
 	bool mHitFace;
 
 	LLOctreeTriangleRayIntersect(const LLVector4a& start, const LLVector4a& dir, 
 								   const LLVolumeFace* face, F32* closest_t,
-								   LLVector3* intersection,LLVector2* tex_coord, LLVector3* normal, LLVector3* bi_normal);
+								   LLVector4a* intersection,LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent);
 
 	void traverse(const LLOctreeNode<LLVolumeTriangle>* node);
 

@@ -642,3 +642,8 @@ void LLScrollbar::onLineDownBtnPressed( const LLSD& data )
 {
 	changeLine( mStepSize, TRUE );
 }
+
+void LLScrollbar::setThickness(S32 thickness)
+{
+	mThickness = thickness < 0 ? LLUI::sSettingGroups["config"]->getS32("UIScrollbarSize") : thickness;
+}

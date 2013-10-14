@@ -45,7 +45,8 @@
 // newview includes
 #include "llappearancemgr.h"
 #include "llappviewer.h"
-//#include "llfirstuse.h"
+#include "llclipboard.h"
+#include "lldonotdisturbnotificationstorage.h"
 #include "llfloaterinventory.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfocusmgr.h"
@@ -74,8 +75,10 @@
 #include "llsidepanelinventory.h"
 #include "lltabcontainer.h"
 #include "lltooldraganddrop.h"
+#include "lltrans.h"
 #include "lluictrlfactory.h"
 #include "llviewermessage.h"
+#include "llviewerfoldertype.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
@@ -959,8 +962,7 @@ void LLSaveFolderState::setApply(BOOL apply)
 
 void LLSaveFolderState::doFolder(LLFolderViewFolder* folder)
 {
-	LLMemType mt(LLMemType::MTYPE_INVENTORY_DO_FOLDER);
-	LLInvFVBridge* bridge = (LLInvFVBridge*)folder->getListener();
+	LLInvFVBridge* bridge = (LLInvFVBridge*)folder->getViewModelItem();
 	if(!bridge) return;
 	
 	if(mApply)
@@ -995,7 +997,7 @@ void LLSaveFolderState::doFolder(LLFolderViewFolder* folder)
 
 void LLOpenFilteredFolders::doItem(LLFolderViewItem *item)
 {
-	if (item->getFiltered())
+	if (item->passedFilter())
 	{
 		item->getParentFolder()->setOpenArrangeRecursively(TRUE, LLFolderViewFolder::RECURSE_UP);
 	}
@@ -1003,12 +1005,12 @@ void LLOpenFilteredFolders::doItem(LLFolderViewItem *item)
 
 void LLOpenFilteredFolders::doFolder(LLFolderViewFolder* folder)
 {
-	if (folder->getFiltered() && folder->getParentFolder())
+	if (folder->LLFolderViewItem::passedFilter() && folder->getParentFolder())
 	{
 		folder->getParentFolder()->setOpenArrangeRecursively(TRUE, LLFolderViewFolder::RECURSE_UP);
 	}
 	// if this folder didn't pass the filter, and none of its descendants did
-	else if (!folder->getFiltered() && !folder->hasFilteredDescendants())
+	else if (!folder->getViewModelItem()->passedFilter() && !folder->getViewModelItem()->descendantsPassedFilter())
 	{
 		folder->setOpenArrangeRecursively(FALSE, LLFolderViewFolder::RECURSE_NO);
 	}
@@ -1016,7 +1018,7 @@ void LLOpenFilteredFolders::doFolder(LLFolderViewFolder* folder)
 
 void LLSelectFirstFilteredItem::doItem(LLFolderViewItem *item)
 {
-	if (item->getFiltered() && !mItemSelected)
+	if (item->passedFilter() && !mItemSelected)
 	{
 		item->getRoot()->setSelection(item, FALSE, FALSE);
 		if (item->getParentFolder())
@@ -1029,14 +1031,12 @@ void LLSelectFirstFilteredItem::doItem(LLFolderViewItem *item)
 
 void LLSelectFirstFilteredItem::doFolder(LLFolderViewFolder* folder)
 {
-	if (folder->getFiltered() && !mItemSelected)
+	// Skip if folder or item already found, if not filtered or if no parent (root folder is not selectable)
+	if (!mFolderSelected && !mItemSelected && folder->LLFolderViewItem::passedFilter() && folder->getParentFolder())
 	{
 		folder->getRoot()->setSelection(folder, FALSE, FALSE);
-		if (folder->getParentFolder())
-		{
-			folder->getParentFolder()->setOpenArrangeRecursively(TRUE, LLFolderViewFolder::RECURSE_UP);
-		}
-		mItemSelected = TRUE;
+		folder->getParentFolder()->setOpenArrangeRecursively(TRUE, LLFolderViewFolder::RECURSE_UP);
+		mFolderSelected = TRUE;
 	}
 }
 
@@ -1056,3 +1056,113 @@ void LLOpenFoldersWithSelection::doFolder(LLFolderViewFolder* folder)
 	}
 }
 
+void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root, const std::string& action)
+{
+	if ("rename" == action)
+	{
+		root->startRenamingSelectedItem();
+		return;
+	}
+	if ("delete" == action)
+	{
+		LLSD args;
+		args["QUESTION"] = LLTrans::getString(root->getSelectedCount() > 1 ? "DeleteItems" :  "DeleteItem");
+		LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLInventoryAction::onItemsRemovalConfirmation, _1, _2, root));
+		return;
+	}
+	if (("copy" == action) || ("cut" == action))
+	{	
+		// Clear the clipboard before we start adding things on it
+		LLClipboard::instance().reset();
+	}
+
+	static const std::string change_folder_string = "change_folder_type_";
+	if (action.length() > change_folder_string.length() && 
+		(action.compare(0,change_folder_string.length(),"change_folder_type_") == 0))
+	{
+		LLFolderType::EType new_folder_type = LLViewerFolderType::lookupTypeFromXUIName(action.substr(change_folder_string.length()));
+		LLFolderViewModelItemInventory* inventory_item = static_cast<LLFolderViewModelItemInventory*>(root->getViewModelItem());
+		LLViewerInventoryCategory *cat = model->getCategory(inventory_item->getUUID());
+		if (!cat) return;
+		cat->changeType(new_folder_type);
+		return;
+	}
+
+
+	std::set<LLFolderViewItem*> selected_items = root->getSelectionList();
+
+	LLMultiPreview* multi_previewp = NULL;
+	LLMultiProperties* multi_propertiesp = NULL;
+
+	if (("task_open" == action  || "open" == action) && selected_items.size() > 1)
+	{
+		multi_previewp = new LLMultiPreview();
+		gFloaterView->addChild(multi_previewp);
+
+		LLFloater::setFloaterHost(multi_previewp);
+
+	}
+	else if (("task_properties" == action || "properties" == action) && selected_items.size() > 1)
+	{
+		multi_propertiesp = new LLMultiProperties();
+		gFloaterView->addChild(multi_propertiesp);
+
+		LLFloater::setFloaterHost(multi_propertiesp);
+	}
+
+	std::set<LLFolderViewItem*>::iterator set_iter;
+
+	for (set_iter = selected_items.begin(); set_iter != selected_items.end(); ++set_iter)
+	{
+		LLFolderViewItem* folder_item = *set_iter;
+		if(!folder_item) continue;
+		LLInvFVBridge* bridge = (LLInvFVBridge*)folder_item->getViewModelItem();
+		if(!bridge) continue;
+		bridge->performAction(model, action);
+	}
+
+	LLFloater::setFloaterHost(NULL);
+	if (multi_previewp)
+	{
+		multi_previewp->openFloater(LLSD());
+	}
+	else if (multi_propertiesp)
+	{
+		multi_propertiesp->openFloater(LLSD());
+	}
+}
+
+void LLInventoryAction::removeItemFromDND(LLFolderView* root)
+{
+    if(gAgent.isDoNotDisturb())
+    {
+        //Get selected items
+        LLFolderView::selected_items_t selectedItems = root->getSelectedItems();
+        LLFolderViewModelItemInventory * viewModel = NULL;
+
+        //If user is in DND and deletes item, make sure the notification is not displayed by removing the notification
+        //from DND history and .xml file. Once this is done, upon exit of DND mode the item deleted will not show a notification.
+        for(LLFolderView::selected_items_t::iterator it = selectedItems.begin(); it != selectedItems.end(); ++it)
+        {
+            viewModel = dynamic_cast<LLFolderViewModelItemInventory *>((*it)->getViewModelItem());
+
+            if(viewModel && viewModel->getUUID().notNull())
+            {
+                //Will remove the item offer notification
+                LLDoNotDisturbNotificationStorage::instance().removeNotification(LLDoNotDisturbNotificationStorage::offerName, viewModel->getUUID());
+            }
+        }
+    }
+}
+
+void LLInventoryAction::onItemsRemovalConfirmation( const LLSD& notification, const LLSD& response, LLFolderView* root )
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option == 0)
+	{
+        //Need to remove item from DND before item is removed from root folder view
+        //because once removed from root folder view the item is no longer a selected item
+        removeItemFromDND(root);
+		root->removeSelectedItems();
+	}
+}

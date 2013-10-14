@@ -128,7 +128,10 @@
 		Sair
 	</string>
 	<string name="create_account_url">
-		http://join.secondlife.com/index.php?lang=pt-BR&amp;sourceid=[sourceid]
+		http://join.secondlife.com/?sourceid=[sourceid]
+	</string>
+	<string name="ViewerDownloadURL">
+		http://secondlife.com/download
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		O visualizador utilizado já não é compatível com o Second Life.  Visite a página abaixo para baixar uma versão atual: http://secondlife.com/download
@@ -400,6 +403,9 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	<string name="SLappAgentRequestFriend">
 		Pedido de amizade
 	</string>
+	<string name="SLappAgentRemoveFriend">
+		Remoção de amigo
+	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
 		Fechar (⌘W)
 	</string>
@@ -571,8 +577,8 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	<string name="AvatarAway">
 		Distante
 	</string>
-	<string name="AvatarBusy">
-		Ocupado
+	<string name="AvatarDoNotDisturb">
+		Não perturbe
 	</string>
 	<string name="AvatarMuted">
 		Mudo
@@ -787,6 +793,9 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	<string name="multiple_textures">
 		Múltiplo
 	</string>
+	<string name="use_texture">
+		Usar textura
+	</string>
 	<string name="texture_loading">
 		Carregando...
 	</string>
@@ -807,6 +816,12 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	</string>
 	<string name="ST_NO_JOINT">
 		Não é possível encontrar a raiz (ROOT) ou junção (JOINT).
+	</string>
+	<string name="NearbyChatTitle">
+		Bate-papo local
+	</string>
+	<string name="NearbyChatLabel">
+		(Bate-papo local)
 	</string>
 	<string name="whisper">
 		sussurra:
@@ -871,8 +886,26 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	<string name="ControlYourCamera">
 		Controle sua camera
 	</string>
+	<string name="AgentNameSubst">
+		(Você)
+	</string>
 	<string name="TeleportYourAgent">
 		Teletransportá-lo
+	</string>
+	<string name="JoinAnExperience">
+		Participar de uma experiência
+	</string>
+	<string name="SilentlyManageEstateAccess">
+		Suprimir alertas ao gerenciar listas de acesso ao terreno
+	</string>
+	<string name="OverrideYourAnimations">
+		Substituir suas animações padrão
+	</string>
+	<string name="ScriptReturnObjects">
+		Retornar objetos em seu nome
+	</string>
+	<string name="UnknownScriptPermission">
+		(desconhecido)!
 	</string>
 	<string name="SIM_ACCESS_PG">
 		Público geral
@@ -954,18 +987,6 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	</string>
 	<string name="dictionary_files">
 		Dicionários
-	</string>
-	<string name="AvatarSetNotAway">
-		deixar como ausente
-	</string>
-	<string name="AvatarSetAway">
-		deixar como ausente
-	</string>
-	<string name="AvatarSetNotBusy">
-		deixar como não ocupado
-	</string>
-	<string name="AvatarSetBusy">
-		Deixar como ocupado
 	</string>
 	<string name="shape">
 		Silhueta
@@ -1911,6 +1932,12 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		HUD direito inferior
 	</string>
+	<string name="ATTACH_NECK">
+		Pescoço
+	</string>
+	<string name="ATTACH_AVATAR_CENTER">
+		Centro do avatar
+	</string>
 	<string name="CursorPos">
 		Linha [LINE], Coluna [COLUMN]
 	</string>
@@ -1923,8 +1950,8 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	<string name="PanelContentsNewScript">
 		Novo Script
 	</string>
-	<string name="BusyModeResponseDefault">
-		O residente para o qual escreveu está no modo &apos;ocupado&apos;, ou seja, ele prefere não receber nada no momento. Sua mensagem será exibida como uma MI mais tarde.
+	<string name="DoNotDisturbModeResponseDefault">
+		Este residente ativou o &quot;Não perturbe&quot; e verá sua mensagem mais tarde.
 	</string>
 	<string name="MuteByName">
 		(por nome)
@@ -2036,9 +2063,6 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	</string>
 	<string name="GroupMoneyDate">
 		[weekday,datetime,utc] [mth,datetime,utc] [day,datetime,utc], [year,datetime,utc]
-	</string>
-	<string name="ViewerObjectContents">
-		Conteúdo
 	</string>
 	<string name="AcquiredItems">
 		Itens adquiridos
@@ -2900,6 +2924,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="Hip Width">
 		Largura do quadril
 	</string>
+	<string name="Hover">
+		Pairar
+	</string>
 	<string name="In">
 		Dentro
 	</string>
@@ -3753,7 +3780,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		Região em geral
 	</string>
 	<string name="LocationCtrlSeeAVsTooltip">
-		Avatar visíveis e bate-papo permitido fora deste terreno
+		Os avatares neste lote não podem ser vistos ou ouvidos por avatares fora dele
 	</string>
 	<string name="LocationCtrlPathfindingDirtyTooltip">
 		Os objetos que se movem podem não se comportar corretamente nesta região até que ela seja recarregada.
@@ -3830,6 +3857,12 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="IM_unblock_only_groups_friends">
 		Para visualizar esta mensagem, você deve desmarcar &quot;Apenas amigos e grupos podem me ligar ou enviar MIs&quot; em Preferências/Privacidade.
 	</string>
+	<string name="OnlineStatus">
+		Conectado
+	</string>
+	<string name="OfflineStatus">
+		Desconectado
+	</string>
 	<string name="answered_call">
 		Ligação atendida
 	</string>
@@ -3838,6 +3871,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
 	<string name="you_joined_call">
 		Você entrou na ligação
+	</string>
+	<string name="you_auto_rejected_call-im">
+		Você recusou automaticamente a chamada de voz enquanto &quot;Não perturbe&quot; estava ativado.
 	</string>
 	<string name="name_started_call">
 		[NAME] iniciou uma ligação de voz
@@ -3850,6 +3886,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
 	<string name="hang_up-im">
 		Saiu da ligação de voz
+	</string>
+	<string name="conference-title">
+		Bate-papo com várias pessoas
 	</string>
 	<string name="conference-title-incoming">
 		Conversa com [AGENT_NAME]
@@ -4726,6 +4765,9 @@ Tente colocar o caminho do editor entre aspas.
 	<string name="Command_Chat_Label">
 		Bate-papo
 	</string>
+	<string name="Command_Conversations_Label">
+		Conversas
+	</string>
 	<string name="Command_Compass_Label">
 		Bússola
 	</string>
@@ -4800,6 +4842,9 @@ Tente colocar o caminho do editor entre aspas.
 	</string>
 	<string name="Command_Chat_Tooltip">
 		Bater papo com pessoas próximas usando texto
+	</string>
+	<string name="Command_Conversations_Tooltip">
+		Conversar com todos
 	</string>
 	<string name="Command_Compass_Tooltip">
 		Bússola
@@ -4929,5 +4974,17 @@ Tente colocar o caminho do editor entre aspas.
 	</string>
 	<string name="UserDictionary">
 		[Usuário]
+	</string>
+	<string name="logging_calls_disabled_log_empty">
+		As conversas não estão sendo registradas. Para começar a manter um registro, selecione &quot;Salvar: apenas registro&quot; ou &quot;Salvar: registro e transcrições&quot; em Preferências&gt; Bate-papo.
+	</string>
+	<string name="logging_calls_disabled_log_not_empty">
+		Nenhuma conversa será registrada. Para recomeçar a gravação de registros, selecione &quot;Salvar: apenas registro&quot; ou &quot;Salvar: registro e transcrições&quot; em Preferências&gt; Bate-papo.
+	</string>
+	<string name="logging_calls_enabled_log_empty">
+		Não há conversas registradas. Depois que você entrar em contato com alguém, ou alguém entrar em contato com você, um registro será exibido aqui.
+	</string>
+	<string name="loading_chat_logs">
+		Carregando...
 	</string>
 </strings>

@@ -111,6 +111,8 @@ public:
 		Optional<std::string>	is_starting_function;
 		Optional<LLSD>			is_starting_parameters;
 
+		Optional<bool>			is_flashing_allowed;
+
 		Params();
 	};
 
@@ -138,6 +140,8 @@ public:
 	const std::string& isStartingFunctionName() const { return mIsStartingFunction; }
 	const LLSD& isStartingParameters() const { return mIsStartingParameters; }
 
+	bool isFlashingAllowed() const { return mIsFlashingAllowed; }
+
 private:
 	LLCommandId mIdentifier;
 
@@ -161,6 +165,8 @@ private:
 
 	std::string mIsStartingFunction;
 	LLSD        mIsStartingParameters;
+
+	bool		mIsFlashingAllowed;
 };
 
 

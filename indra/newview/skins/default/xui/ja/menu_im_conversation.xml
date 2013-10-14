@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="Conversation Gear Menu">
+	<menu_item_call label="プロフィールを表示" name="View Profile"/>
+	<menu_item_call label="フレンド登録" name="Add Friend"/>
+	<menu_item_call label="フレンドを削除" name="remove_friend"/>
+	<menu_item_call label="テレポートを送る" name="offer_teleport"/>
+	<menu_item_call label="グループに招待..." name="invite_to_group"/>
+	<menu_item_call label="チャットの履歴..." name="chat_history"/>
+	<menu_item_call label="ズームイン" name="zoom_in"/>
+	<menu_item_call label="地図" name="map"/>
+	<menu_item_call label="共有" name="Share"/>
+	<menu_item_call label="支払い" name="Pay"/>
+	<menu_item_check label="ボイスをブロック" name="Block/Unblock"/>
+	<menu_item_check label="文字をブロックする" name="MuteText"/>
+</toggleable_menu>

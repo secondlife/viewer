@@ -58,8 +58,7 @@ mWidth(0),
 mHeight(0),
 mComponents(0),
 mBadBufferAllocation(false),
-mAllowOverSize(false),
-mMemType(LLMemType::MTYPE_IMAGEBASE)
+mAllowOverSize(false)
 { }
 LLImageBase::~LLImageBase() { }
 U8* LLImageBase::allocateData(S32 ) { return NULL; }

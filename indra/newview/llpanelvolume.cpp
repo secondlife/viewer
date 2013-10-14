@@ -252,10 +252,9 @@ void LLPanelVolume::getState( )
 		return;
 	}
 
-	BOOL owners_identical;
 	LLUUID owner_id;
 	std::string owner_name;
-	owners_identical = LLSelectMgr::getInstance()->selectGetOwner(owner_id, owner_name);
+	LLSelectMgr::getInstance()->selectGetOwner(owner_id, owner_name);
 
 	// BUG? Check for all objects being editable?
 	BOOL editable = root_objectp->permModify() && !root_objectp->isPermanentEnforced();
@@ -711,9 +710,19 @@ void LLPanelVolume::onLightCancelColor(const LLSD& data)
 void LLPanelVolume::onLightCancelTexture(const LLSD& data)
 {
 	LLTextureCtrl* LightTextureCtrl = getChild<LLTextureCtrl>("light texture control");
+
 	if (LightTextureCtrl)
 	{
-		LightTextureCtrl->setImageAssetID(mLightSavedTexture);
+		LightTextureCtrl->setImageAssetID(LLUUID::null);
+	}
+
+	LLVOVolume *volobjp = (LLVOVolume *) mObject.get();
+	if(volobjp)
+	{
+		// Cancel the light texture as requested
+		// NORSPEC-292
+		//
+		volobjp->setLightTextureID(LLUUID::null);
 	}
 }
 

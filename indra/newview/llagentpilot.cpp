@@ -139,7 +139,7 @@ void LLAgentPilot::loadXML(const std::string& filename)
 
 	mActions.reset();
 	LLSD record;
-	while (!file.eof() && LLSDSerialize::fromXML(record, file))
+	while (!file.eof() && LLSDParser::PARSE_FAILURE != LLSDSerialize::fromXML(record, file))
 	{
 		Action action;
 		action.mTime = record["time"].asReal();

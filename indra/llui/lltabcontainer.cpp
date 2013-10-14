@@ -506,8 +506,8 @@ void LLTabContainer::draw()
 		}
 	}
 
-	mPrevArrowBtn->setFlashing(FALSE);
-	mNextArrowBtn->setFlashing(FALSE);
+	mPrevArrowBtn->setFlashing(false);
+	mNextArrowBtn->setFlashing(false);
 }
 
 
@@ -1209,11 +1209,17 @@ void LLTabContainer::removeTabPanel(LLPanel* child)
 				update_images(mTabList[mTabList.size()-2], mLastTabParams, getTabPosition());
 			}
 
-			removeChild( tuple->mButton );
+			if (!getTabsHidden())
+			{
+				// We need to remove tab buttons only if the tabs are not hidden.
+				removeChild( tuple->mButton );
+			}
  			delete tuple->mButton;
+            tuple->mButton = NULL;
 
  			removeChild( tuple->mTabPanel );
 // 			delete tuple->mTabPanel;
+            tuple->mTabPanel = NULL;
 			
 			mTabList.erase( iter );
 			delete tuple;
@@ -1275,9 +1281,11 @@ void LLTabContainer::deleteAllTabs()
 
 		removeChild( tuple->mButton );
 		delete tuple->mButton;
+        tuple->mButton = NULL;
 
  		removeChild( tuple->mTabPanel );
 // 		delete tuple->mTabPanel;
+        tuple->mTabPanel = NULL;
 	}
 
 	// Actually delete the tuples themselves
@@ -1480,13 +1488,20 @@ BOOL LLTabContainer::setTab(S32 which)
 		{
 			LLTabTuple* tuple = *iter;
 			BOOL is_selected = ( tuple == selected_tuple );
-			tuple->mButton->setUseEllipses(mUseTabEllipses);
-			tuple->mButton->setHAlign(mFontHalign);
-			tuple->mTabPanel->setVisible( is_selected );
-// 			tuple->mTabPanel->setFocus(is_selected); // not clear that we want to do this here.
-			tuple->mButton->setToggleState( is_selected );
-			// RN: this limits tab-stops to active button only, which would require arrow keys to switch tabs
-			tuple->mButton->setTabStop( is_selected );
+            // Although the selected tab must be complete, we may have hollow LLTabTuple tucked in the list
+            if (tuple && tuple->mButton)
+            {
+                tuple->mButton->setUseEllipses(mUseTabEllipses);
+                tuple->mButton->setHAlign(mFontHalign);
+                tuple->mButton->setToggleState( is_selected );
+                // RN: this limits tab-stops to active button only, which would require arrow keys to switch tabs
+                tuple->mButton->setTabStop( is_selected );
+            }
+            if (tuple && tuple->mTabPanel)
+            {
+                tuple->mTabPanel->setVisible( is_selected );
+                //tuple->mTabPanel->setFocus(is_selected); // not clear that we want to do this here.
+            }
 			
 			if (is_selected)
 			{
@@ -1513,7 +1528,7 @@ BOOL LLTabContainer::setTab(S32 which)
 					else
 					{
 						S32 available_width_with_arrows = getRect().getWidth() - mRightTabBtnOffset - 2 * (LLPANEL_BORDER_WIDTH + tabcntr_arrow_btn_size  + tabcntr_arrow_btn_size + 1);
-						S32 running_tab_width = tuple->mButton->getRect().getWidth();
+						S32 running_tab_width = (tuple && tuple->mButton ? tuple->mButton->getRect().getWidth() : 0);
 						S32 j = i - 1;
 						S32 min_scroll_pos = i;
 						if (running_tab_width < available_width_with_arrows)
@@ -1521,7 +1536,7 @@ BOOL LLTabContainer::setTab(S32 which)
 							while (j >= 0)
 							{
 								LLTabTuple* other_tuple = getTab(j);
-								running_tab_width += other_tuple->mButton->getRect().getWidth();
+								running_tab_width += (other_tuple && other_tuple->mButton ? other_tuple->mButton->getRect().getWidth() : 0);
 								if (running_tab_width > available_width_with_arrows)
 								{
 									break;
@@ -1557,8 +1572,7 @@ BOOL LLTabContainer::selectTabByName(const std::string& name)
 	LLPanel* panel = getPanelByName(name);
 	if (!panel)
 	{
-		llwarns << "LLTabContainer::selectTabByName("
-			<< name << ") failed" << llendl;
+		llwarns << "LLTabContainer::selectTabByName(" << name << ") failed" << llendl;
 		return FALSE;
 	}
 

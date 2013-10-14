@@ -309,8 +309,8 @@ RenderVolumeLODFactor		1	2.0
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
 WLSkyDetail					1	128
-RenderDeferred				1	0
-RenderDeferredSSAO			1	0
+RenderDeferred				1	1
+RenderDeferredSSAO			1	1
 RenderShadowDetail			1	2
 RenderFSAASamples			1	2
 

@@ -78,7 +78,7 @@ public:
 
 	typedef LLOctreeTraveler<T>									oct_traveler;
 	typedef LLTreeTraveler<T>									tree_traveler;
-	typedef std::vector<LLPointer<T> >							element_list;
+	typedef std::vector< LLPointer<T> >							element_list;		// note:  don't remove the whitespace between "> >"
 	typedef LLPointer<T>*										element_iter;
 	typedef const LLPointer<T>*									const_element_iter;
 	typedef typename std::vector<LLTreeListener<T>*>::iterator	tree_listener_iter;

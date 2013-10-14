@@ -29,7 +29,7 @@
 #if ! defined(LL_LLCOROS_H)
 #define LL_LLCOROS_H
 
-#include <boost/coroutine/coroutine.hpp>
+#include <boost/dcoroutine/coroutine.hpp>
 #include "llsingleton.h"
 #include <boost/ptr_container/ptr_map.hpp>
 #include <string>
@@ -78,8 +78,8 @@
 class LL_COMMON_API LLCoros: public LLSingleton<LLCoros>
 {
 public:
-    /// Canonical boost::coroutines::coroutine signature we use
-    typedef boost::coroutines::coroutine<void()> coro;
+    /// Canonical boost::dcoroutines::coroutine signature we use
+    typedef boost::dcoroutines::coroutine<void()> coro;
     /// Canonical 'self' type
     typedef coro::self self;
 
@@ -125,7 +125,7 @@ public:
     template <typename CALLABLE>
     std::string launch(const std::string& prefix, const CALLABLE& callable)
     {
-        return launchImpl(prefix, new coro(callable));
+        return launchImpl(prefix, new coro(callable, mStackSize));
     }
 
     /**
@@ -152,6 +152,9 @@ public:
     /// getName() by self.get_id()
     std::string getNameByID(const void* self_id) const;
 
+    /// for delayed initialization
+    void setStackSize(S32 stacksize);
+
 private:
     friend class LLSingleton<LLCoros>;
     LLCoros();
@@ -159,6 +162,7 @@ private:
     std::string generateDistinctName(const std::string& prefix) const;
     bool cleanup(const LLSD&);
 
+    S32 mStackSize;
     typedef boost::ptr_map<std::string, coro> CoroMap;
     CoroMap mCoros;
 };

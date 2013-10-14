@@ -167,6 +167,7 @@ public:
 	static void onEjectMembers(void*);
 	void handleEjectMembers();
 	void sendEjectNotifications(const LLUUID& group_id, const uuid_vec_t& selected_members);
+	bool handleEjectCallback(const LLSD& notification, const LLSD& response);
 
 	static void onRoleCheck(LLUICtrl* check, void* user_data);
 	void handleRoleCheck(const LLUUID& role_id,
@@ -214,6 +215,7 @@ protected:
 	U32 mNumOwnerAdditions;
 
 	LLGroupMgrGroupData::member_list_t::iterator mMemberProgress;
+	boost::signals2::connection mAvatarNameCacheConnection;
 };
 
 class LLPanelGroupRolesSubTab : public LLPanelGroupSubTab

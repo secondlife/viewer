@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_conversation_log" title="REGISTRO DE CONVERSACIONES">
+	<panel name="buttons_panel">
+		<filter_editor label="Filtrar la gente" name="people_filter_input"/>
+		<menu_button name="conversation_view_btn" tool_tip="Opciones de vista/orden"/>
+		<menu_button name="conversations_gear_btn" tool_tip="Acciones en la persona o el grupo seleccionado"/>
+	</panel>
+</floater>

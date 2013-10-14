@@ -1523,10 +1523,7 @@ namespace tut
                         "sys.path.insert(0,\n"
                         "    os.path.join(os.path.dirname(r'" __FILE__ "'),\n"
                         "                 os.pardir, os.pardir, 'lib', 'python'))\n"
-                        "try:\n"
-                        "    from llbase import llsd\n"
-                        "except ImportError:\n"
-                        "    from indra.base import llsd\n")
+                        "from indra.base import llsd\n")
         {}
         ~TestPythonCompatible() {}
 

@@ -365,10 +365,8 @@ void LLPanelPermissions::refresh()
 	
 	// Update creator text field
 	getChildView("Creator:")->setEnabled(TRUE);
-	BOOL creators_identical;
 	std::string creator_name;
-	creators_identical = LLSelectMgr::getInstance()->selectGetCreator(mCreatorID,
-																	  creator_name);
+	LLSelectMgr::getInstance()->selectGetCreator(mCreatorID, creator_name);
 
 	getChild<LLUICtrl>("Creator Name")->setValue(creator_name);
 	getChildView("Creator Name")->setEnabled(TRUE);
@@ -425,7 +423,7 @@ void LLPanelPermissions::refresh()
 		}
 	}
 	
-	getChildView("button set group")->setEnabled(owners_identical && (mOwnerID == gAgent.getID()) && is_nonpermanent_enforced);
+	getChildView("button set group")->setEnabled(root_selected && owners_identical && (mOwnerID == gAgent.getID()) && is_nonpermanent_enforced);
 
 	getChildView("Name:")->setEnabled(TRUE);
 	LLLineEditor* LineEditorObjectName = getChild<LLLineEditor>("Object Name");

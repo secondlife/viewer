@@ -73,7 +73,8 @@ LLScrollContainer::Params::Params()
 	hide_scrollbar("hide_scrollbar"),
 	min_auto_scroll_rate("min_auto_scroll_rate", 100),
 	max_auto_scroll_rate("max_auto_scroll_rate", 1000),
-	reserve_scroll_corner("reserve_scroll_corner", false)
+	reserve_scroll_corner("reserve_scroll_corner", false),
+	size("size", -1)
 {}
 
 
@@ -88,9 +89,12 @@ LLScrollContainer::LLScrollContainer(const LLScrollContainer::Params& p)
 	mReserveScrollCorner(p.reserve_scroll_corner),
 	mMinAutoScrollRate(p.min_auto_scroll_rate),
 	mMaxAutoScrollRate(p.max_auto_scroll_rate),
-	mScrolledView(NULL)
+	mScrolledView(NULL),
+	mSize(p.size)
 {
-	static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
+	static LLUICachedControl<S32> scrollbar_size_control ("UIScrollbarSize", 0);
+	S32 scrollbar_size = (mSize == -1 ? scrollbar_size_control : mSize);
+
 	LLRect border_rect( 0, getRect().getHeight(), getRect().getWidth(), 0 );
 	LLViewBorder::Params params;
 	params.name("scroll border");
@@ -276,7 +280,6 @@ BOOL LLScrollContainer::handleDragAndDrop(S32 x, S32 y, MASK mask,
 												  EAcceptance* accept,
 												  std::string& tooltip_msg)
 {
-	static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
 	// Scroll folder view if needed.  Never accepts a drag or drop.
 	*accept = ACCEPT_NO;
 	BOOL handled = autoScroll(x, y);
@@ -292,7 +295,8 @@ BOOL LLScrollContainer::handleDragAndDrop(S32 x, S32 y, MASK mask,
 
 bool LLScrollContainer::autoScroll(S32 x, S32 y)
 {
-	static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
+	static LLUICachedControl<S32> scrollbar_size_control ("UIScrollbarSize", 0);
+	S32 scrollbar_size = (mSize == -1 ? scrollbar_size_control : mSize);
 
 	bool scrolling = false;
 	if( mScrollbar[HORIZONTAL]->getVisible() || mScrollbar[VERTICAL]->getVisible() )
@@ -365,7 +369,9 @@ bool LLScrollContainer::autoScroll(S32 x, S32 y)
 void LLScrollContainer::calcVisibleSize( S32 *visible_width, S32 *visible_height, BOOL* show_h_scrollbar, BOOL* show_v_scrollbar ) const
 {
 	const LLRect& doc_rect = getScrolledViewRect();
-	static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
+	static LLUICachedControl<S32> scrollbar_size_control ("UIScrollbarSize", 0);
+	S32 scrollbar_size = (mSize == -1 ? scrollbar_size_control : mSize);
+
 	S32 doc_width = doc_rect.getWidth();
 	S32 doc_height = doc_rect.getHeight();
 
@@ -406,7 +412,9 @@ void LLScrollContainer::calcVisibleSize( S32 *visible_width, S32 *visible_height
 
 void LLScrollContainer::draw()
 {
-	static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
+	static LLUICachedControl<S32> scrollbar_size_control ("UIScrollbarSize", 0);
+	S32 scrollbar_size = (mSize == -1 ? scrollbar_size_control : mSize);
+
 	if (mAutoScrolling)
 	{
 		// add acceleration to autoscroll
@@ -515,7 +523,9 @@ void LLScrollContainer::updateScroll()
 	{
 		return;
 	}
-	static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
+	static LLUICachedControl<S32> scrollbar_size_control ("UIScrollbarSize", 0);
+	S32 scrollbar_size = (mSize == -1 ? scrollbar_size_control : mSize);
+
 	LLRect doc_rect = mScrolledView->getRect();
 	S32 doc_width = doc_rect.getWidth();
 	S32 doc_height = doc_rect.getHeight();
@@ -716,3 +726,9 @@ S32 LLScrollContainer::getBorderWidth() const
 	return 0;
 }
 
+void LLScrollContainer::setSize(S32 size)
+{
+	mSize = size;
+	mScrollbar[VERTICAL]->setThickness(size);
+	mScrollbar[HORIZONTAL]->setThickness(size);
+}

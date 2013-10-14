@@ -147,13 +147,15 @@ LLXMLNodePtr LLXMLNode::deepCopy()
 		for (LLXMLChildList::iterator iter = mChildren->map.begin();
 			 iter != mChildren->map.end(); ++iter)	
 		{
-			newnode->addChild(iter->second->deepCopy());
+			LLXMLNodePtr temp_ptr_for_gcc(iter->second->deepCopy());
+			newnode->addChild(temp_ptr_for_gcc);
 		}
 	}
 	for (LLXMLAttribList::iterator iter = mAttributes.begin();
 		 iter != mAttributes.end(); ++iter)
 	{
-		newnode->addChild(iter->second->deepCopy());
+		LLXMLNodePtr temp_ptr_for_gcc(iter->second->deepCopy());
+		newnode->addChild(temp_ptr_for_gcc);
 	}
 
 	return newnode;
@@ -259,7 +261,7 @@ BOOL LLXMLNode::removeChild(LLXMLNode *target_child)
 	return FALSE;
 }
 
-void LLXMLNode::addChild(LLXMLNodePtr new_child, LLXMLNodePtr after_child)
+void LLXMLNode::addChild(LLXMLNodePtr& new_child)
 {
 	if (new_child->mParent != NULL)
 	{
@@ -273,6 +275,11 @@ void LLXMLNode::addChild(LLXMLNodePtr new_child, LLXMLNodePtr after_child)
 	new_child->mParent = this;
 	if (new_child->mIsAttribute)
 	{
+		LLXMLAttribList::iterator found_it = mAttributes.find(new_child->mName);
+		if (found_it != mAttributes.end())
+		{
+			removeChild(found_it->second);
+		}
 		mAttributes.insert(std::make_pair(new_child->mName, new_child));
 	}
 	else
@@ -285,49 +292,11 @@ void LLXMLNode::addChild(LLXMLNodePtr new_child, LLXMLNodePtr after_child)
 		}
 		mChildren->map.insert(std::make_pair(new_child->mName, new_child));
 
-		// if after_child is specified, it damn well better be in the list of children
-		// for this node. I'm not going to assert that, because it would be expensive,
-		// but don't specify that parameter if you didn't get the value for it from the
-		// list of children of this node!
-		if (after_child.isNull())
+		if (mChildren->tail != new_child)
 		{
-			if (mChildren->tail != new_child)
-			{
-				mChildren->tail->mNext = new_child;
-				new_child->mPrev = mChildren->tail;
-				mChildren->tail = new_child;
-			}
-		}
-		// if after_child == parent, then put new_child at beginning
-		else if (after_child == this)
-		{
-			// add to front of list
-			new_child->mNext = mChildren->head;
-			if (mChildren->head)
-			{
-				mChildren->head->mPrev = new_child;
-				mChildren->head = new_child;
-			}
-			else // no children
-			{
-				mChildren->head = new_child;
-				mChildren->tail = new_child;
-			}
-		}
-		else
-		{
-			if (after_child->mNext.notNull())
-			{
-				// if after_child was not the last item, fix up some pointers
-				after_child->mNext->mPrev = new_child;
-				new_child->mNext = after_child->mNext;
-			}
-			new_child->mPrev = after_child;
-			after_child->mNext = new_child;
-			if (mChildren->tail == after_child)
-			{
-				mChildren->tail = new_child;
-			}
+			mChildren->tail->mNext = new_child;
+			new_child->mPrev = mChildren->tail;
+			mChildren->tail = new_child;
 		}
 	}
 
@@ -343,8 +312,9 @@ LLXMLNodePtr LLXMLNode::createChild(const char* name, BOOL is_attribute)
 // virtual 
 LLXMLNodePtr LLXMLNode::createChild(LLStringTableEntry* name, BOOL is_attribute)
 {
-	LLXMLNode* ret = new LLXMLNode(name, is_attribute);
+	LLXMLNodePtr ret(new LLXMLNode(name, is_attribute));
 	ret->mID.clear();
+	
 	addChild(ret);
 	return ret;
 }
@@ -358,11 +328,12 @@ BOOL LLXMLNode::deleteChild(LLXMLNode *child)
 	return FALSE;
 }
 
-void LLXMLNode::setParent(LLXMLNodePtr new_parent)
+void LLXMLNode::setParent(LLXMLNodePtr& new_parent)
 {
 	if (new_parent.notNull())
 	{
-		new_parent->addChild(this);
+		LLXMLNodePtr this_ptr(this);
+		new_parent->addChild(this_ptr);
 	}
 	else
 	{
@@ -680,27 +651,6 @@ bool LLXMLNode::updateNode(
 
 	return TRUE;
 }
-
-
-// static 
-LLXMLNodePtr LLXMLNode::replaceNode(LLXMLNodePtr node, LLXMLNodePtr update_node)
-{	
-	if (!node || !update_node)
-	{
-		llwarns << "Node invalid" << llendl;
-		return node;
-	}
-	
-	LLXMLNodePtr cloned_node = update_node->deepCopy();
-	node->mParent->addChild(cloned_node, node);	// add after node
-	LLXMLNodePtr parent = node->mParent;
-	parent->removeChild(node);
-	parent->updateDefault();
-	
-	return cloned_node;
-}
-
-
 
 // static
 bool LLXMLNode::parseFile(const std::string& filename, LLXMLNodePtr& node, LLXMLNode* defaults_tree)
@@ -1199,7 +1149,8 @@ void LLXMLNode::scrubToTree(LLXMLNode *tree)
 		std::vector<LLXMLNodePtr>::iterator itor3;
 		for (itor3=to_delete_list.begin(); itor3!=to_delete_list.end(); ++itor3)
 		{
-			(*itor3)->setParent(NULL);
+			LLXMLNodePtr ptr;
+			(*itor3)->setParent(ptr);
 		}
 	}
 }
@@ -2734,7 +2685,8 @@ void LLXMLNode::setName(LLStringTableEntry* name)
 	mName = name;
 	if (old_parent)
 	{
-		old_parent->addChild(this);
+		LLXMLNodePtr this_ptr(this);
+		old_parent->addChild(this_ptr);
 	}
 }
 

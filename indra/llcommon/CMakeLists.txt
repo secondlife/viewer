@@ -17,6 +17,7 @@ include_directories(
     ${EXPAT_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
     ${ZLIB_INCLUDE_DIRS}
+    ${BREAKPAD_INCLUDE_DIRECTORIES}
     )
 
 # add_executable(lltreeiterators lltreeiterators.cpp)
@@ -53,7 +54,7 @@ set(llcommon_SOURCE_FILES
     lleventfilter.cpp
     llevents.cpp
     lleventtimer.cpp
-    llfasttimer_class.cpp
+    llfasttimer.cpp
     llfile.cpp
     llfindlocale.cpp
     llfixedbuffer.cpp
@@ -71,7 +72,6 @@ set(llcommon_SOURCE_FILES
     llmd5.cpp
     llmemory.cpp
     llmemorystream.cpp
-    llmemtype.cpp
     llmetrics.cpp
     llmetricperformancetester.cpp
     llmortician.cpp
@@ -122,6 +122,7 @@ set(llcommon_HEADER_FILES
     linden_common.h
     linked_lists.h
     llaccountingcost.h
+    llalignedarray.h
     llallocator.h
     llallocator_heap_profile.h
     llagentconstants.h
@@ -168,7 +169,6 @@ set(llcommon_HEADER_FILES
     lleventemitter.h
     llextendedstatus.h
     llfasttimer.h
-    llfasttimer_class.h
     llfile.h
     llfindlocale.h
     llfixedbuffer.h
@@ -197,7 +197,6 @@ set(llcommon_HEADER_FILES
     llmd5.h
     llmemory.h
     llmemorystream.h
-    llmemtype.h
     llmetrics.h
     llmetricperformancetester.h
     llmortician.h
@@ -239,6 +238,7 @@ set(llcommon_HEADER_FILES
     llstrider.h
     llstring.h
     llstringtable.h
+    llstaticstringtable.h
     llsys.h
     llthread.h
     llthreadsafequeue.h
@@ -249,7 +249,6 @@ set(llcommon_HEADER_FILES
     lluuid.h
     lluuidhashmap.h
     llversionserver.h
-    llversionviewer.h
     llworkerthread.h
     ll_template_cast.h
     metaclass.h
@@ -340,6 +339,7 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(reflection "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(stringize "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lleventdispatcher "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(lleventcoro "" "${test_libs};${BOOST_CONTEXT_LIBRARY}")
   LL_ADD_INTEGRATION_TEST(llprocess "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llleap "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llstreamqueue "" "${test_libs}")

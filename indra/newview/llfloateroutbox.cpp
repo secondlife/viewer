@@ -44,14 +44,17 @@
 #include "llviewernetwork.h"
 #include "llwindowshade.h"
 
-#define USE_WINDOWSHADE_DIALOGS	0
-
 
 ///----------------------------------------------------------------------------
 /// LLOutboxNotification class
 ///----------------------------------------------------------------------------
 
-bool LLNotificationsUI::LLOutboxNotification::processNotification(const LLSD& notify)
+LLNotificationsUI::LLOutboxNotification::LLOutboxNotification()
+	: LLSystemNotificationHandler("Outbox", "outbox")
+{
+}
+
+bool LLNotificationsUI::LLOutboxNotification::processNotification(const LLNotificationPtr& notify)
 {
 	LLFloaterOutbox* outbox_floater = LLFloaterReg::getTypedInstance<LLFloaterOutbox>("outbox");
 	
@@ -60,6 +63,14 @@ bool LLNotificationsUI::LLOutboxNotification::processNotification(const LLSD& no
 	return false;
 }
 
+void LLNotificationsUI::LLOutboxNotification::onDelete(LLNotificationPtr p)
+{
+	LLNotificationsUI::LLNotificationHandler * notification_handler = dynamic_cast<LLNotificationsUI::LLNotificationHandler*>(LLNotifications::instance().getChannel("AlertModal").get());
+	if (notification_handler)
+	{
+		notification_handler->onDelete(p);
+	}
+}
 
 ///----------------------------------------------------------------------------
 /// LLOutboxAddedObserver helper class
@@ -210,7 +221,7 @@ void LLFloaterOutbox::setupOutbox()
 	}
 		
 	// We are a merchant. Get the outbox, create it if needs be.
-	mOutboxId = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, true, false);
+	mOutboxId = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, true);
 	if (mOutboxId.isNull())
 	{
 		// We should never get there unless the inventory fails badly
@@ -250,8 +261,9 @@ void LLFloaterOutbox::setupOutbox()
 	mOutboxInventoryPanel->setShape(inventory_placeholder_rect);
 	
 	// Set the sort order newest to oldest
-	mOutboxInventoryPanel->setSortOrder(LLInventoryFilter::SO_FOLDERS_BY_NAME);	
-	mOutboxInventoryPanel->getFilter()->markDefault();
+
+	mOutboxInventoryPanel->getFolderViewModel()->setSorter(LLInventoryFilter::SO_FOLDERS_BY_NAME);	
+	mOutboxInventoryPanel->getFilter().markDefault();
 	
 	// Get the content of the outbox
 	fetchOutboxContents();
@@ -411,7 +423,7 @@ BOOL LLFloaterOutbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	// Determine if the mouse is inside the inventory panel itself or just within the floater
 	bool pointInInventoryPanel = false;
 	bool pointInInventoryPanelChild = false;
-	LLFolderView * root_folder = mOutboxInventoryPanel->getRootFolder();
+	LLFolderView* root_folder = mOutboxInventoryPanel->getRootFolder();
 	if (mOutboxInventoryPanel->getVisible())
 	{
 		S32 inv_x, inv_y;
@@ -467,11 +479,11 @@ void LLFloaterOutbox::onImportButtonClicked()
 void LLFloaterOutbox::onOutboxChanged()
 {
 	llassert(!mOutboxId.isNull());
-
-	if (mOutboxInventoryPanel)
-	{
-		mOutboxInventoryPanel->requestSort();
-	}
+	
+	//if (mOutboxInventoryPanel)
+	//{
+	//	mOutboxInventoryPanel->requestSort();
+	//}
 
 	fetchOutboxContents();
 
@@ -553,52 +565,11 @@ void LLFloaterOutbox::initializationReportError(U32 status, const LLSD& content)
 	updateView();
 }
 
-void LLFloaterOutbox::showNotification(const LLSD& notify)
+void LLFloaterOutbox::showNotification(const LLNotificationPtr& notification)
 {
-	LLNotificationPtr notification = LLNotifications::instance().find(notify["id"].asUUID());
+	LLNotificationsUI::LLNotificationHandler * notification_handler = dynamic_cast<LLNotificationsUI::LLNotificationHandler*>(LLNotifications::instance().getChannel("AlertModal").get());
+	llassert(notification_handler);
 	
-	if (!notification)
-	{
-		llerrs << "Unable to find outbox notification!" << notify.asString() << llendl;
-		
-		return;
-	}
-
-#if USE_WINDOWSHADE_DIALOGS
-
-	if (mWindowShade)
-	{
-		delete mWindowShade;
-	}
-	
-	LLRect floater_rect = getLocalRect();
-	floater_rect.mTop -= getHeaderHeight();
-	floater_rect.stretch(-5, 0);
-	
-	LLWindowShade::Params params;
-	params.name = "notification_shade";
-	params.rect = floater_rect;
-	params.follows.flags = FOLLOWS_ALL;
-	params.modal = true;
-	params.can_close = false;
-	params.shade_color = LLColor4::white % 0.25f;
-	params.text_color = LLColor4::white;
-	
-	mWindowShade = LLUICtrlFactory::create<LLWindowShade>(params);
-	
-	addChild(mWindowShade);
-	mWindowShade->show(notification);
-	
-#else
-	
-	LLNotificationsUI::LLEventHandler * handler =
-		LLNotificationsUI::LLNotificationManager::instance().getHandlerForNotification("alertmodal");
-	
-	LLNotificationsUI::LLSysHandler * sys_handler = dynamic_cast<LLNotificationsUI::LLSysHandler *>(handler);
-	llassert(sys_handler);
-	
-	sys_handler->processNotification(notify);
-	
-#endif
+	notification_handler->processNotification(notification);
 }
 

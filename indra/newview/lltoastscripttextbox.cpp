@@ -65,7 +65,7 @@ LLToastScriptTextbox::LLToastScriptTextbox(const LLNotificationPtr& notification
 	pMessageText->clear();
 
 	LLStyle::Params style;
-	style.font = pMessageText->getDefaultFont();
+	style.font = pMessageText->getFont();
 	pMessageText->appendText(message, TRUE, style);
 
 	//submit button

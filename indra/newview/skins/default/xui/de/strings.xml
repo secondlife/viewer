@@ -137,7 +137,10 @@
 		Beenden
 	</string>
 	<string name="create_account_url">
-		http://join.secondlife.com/index.php?lang=de-DE&amp;sourceid=[sourceid]
+		http://join.secondlife.com/?sourceid=[sourceid]
+	</string>
+	<string name="ViewerDownloadURL">
+		http://secondlife.com/download
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		Mit dem von Ihnen verwendeten Viewer ist der Zugriff auf Second Life nicht mehr möglich. Laden Sie von den folgenden Seite einen neuen Viewer herunter:
@@ -448,6 +451,9 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="SLappAgentRequestFriend">
 		Freundschaftsangebot
 	</string>
+	<string name="SLappAgentRemoveFriend">
+		Entfernen von Freunden
+	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
 		Schließen (⌘W)
 	</string>
@@ -622,8 +628,8 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="AvatarAway">
 		Abwesend
 	</string>
-	<string name="AvatarBusy">
-		Beschäftigt
+	<string name="AvatarDoNotDisturb">
+		Nicht stören
 	</string>
 	<string name="AvatarMuted">
 		Ignoriert
@@ -838,6 +844,9 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="multiple_textures">
 		Mehrfach
 	</string>
+	<string name="use_texture">
+		Textur verwenden
+	</string>
 	<string name="texture_loading">
 		Wird geladen...
 	</string>
@@ -858,6 +867,12 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	</string>
 	<string name="ST_NO_JOINT">
 		HAUPTVERZEICHNIS oder VERBINDUNG nicht gefunden.
+	</string>
+	<string name="NearbyChatTitle">
+		Chat in der Nähe
+	</string>
+	<string name="NearbyChatLabel">
+		(Chat in der Nähe)
 	</string>
 	<string name="whisper">
 		flüstert:
@@ -922,11 +937,29 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="ControlYourCamera">
 		Kamerasteuerung
 	</string>
+	<string name="NotConnected">
+		Nicht verbunden
+	</string>
+	<string name="AgentNameSubst">
+		(Sie)
+	</string>
 	<string name="TeleportYourAgent">
 		Sie teleportieren
 	</string>
-	<string name="NotConnected">
-		Nicht verbunden
+	<string name="JoinAnExperience">
+		Bei einem Erlebnis mitmachen
+	</string>
+	<string name="SilentlyManageEstateAccess">
+		Beim Verwalten von Grundbesitzzugangslisten Warnhinweise unterdrücken
+	</string>
+	<string name="OverrideYourAnimations">
+		Ihre Standardanimationen ersetzen
+	</string>
+	<string name="ScriptReturnObjects">
+		Objekte in Ihrem Namen zurückgeben
+	</string>
+	<string name="UnknownScriptPermission">
+		(unbekannt)
 	</string>
 	<string name="SIM_ACCESS_PG">
 		Generell
@@ -1008,18 +1041,6 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	</string>
 	<string name="dictionary_files">
 		Wörterbücher
-	</string>
-	<string name="AvatarSetNotAway">
-		Nicht abwesend
-	</string>
-	<string name="AvatarSetAway">
-		Abwesend
-	</string>
-	<string name="AvatarSetNotBusy">
-		Nicht beschäftigt
-	</string>
-	<string name="AvatarSetBusy">
-		Beschäftigt
 	</string>
 	<string name="shape">
 		Form
@@ -1971,6 +1992,12 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		HUD unten rechts
 	</string>
+	<string name="ATTACH_NECK">
+		Hals
+	</string>
+	<string name="ATTACH_AVATAR_CENTER">
+		Avatar-Mitte
+	</string>
 	<string name="CursorPos">
 		Zeile [LINE], Spalte [COLUMN]
 	</string>
@@ -1989,8 +2016,8 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="PanelContentsNewScript">
 		Neues Skript
 	</string>
-	<string name="BusyModeResponseDefault">
-		Der Einwohner/Die Einwohnerin ist „beschäftigt”, d.h. er/sie möchte im Moment nicht gestört werden.  Ihre Nachricht wird dem Einwohner/der Einwohnerin als IM angezeigt, und kann später beantwortet werden.
+	<string name="DoNotDisturbModeResponseDefault">
+		Dieser Einwohner hat den Nicht-stören-Modus aktiviert und wird Ihre Nachricht später sehen.
 	</string>
 	<string name="MuteByName">
 		(Nach Namen)
@@ -2102,9 +2129,6 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	</string>
 	<string name="GroupMoneyDate">
 		[weekday,datetime,utc] [mth,datetime,utc] [day,datetime,utc], [year,datetime,utc]
-	</string>
-	<string name="ViewerObjectContents">
-		Inhalte
 	</string>
 	<string name="AcquiredItems">
 		Erworbene Artikel
@@ -3003,6 +3027,9 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="Hip Width">
 		Breite der Hüfte
 	</string>
+	<string name="Hover">
+		Schweben
+	</string>
 	<string name="In">
 		In
 	</string>
@@ -3877,7 +3904,7 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 		Generelle Region
 	</string>
 	<string name="LocationCtrlSeeAVsTooltip">
-		Avatare sichtbar; Chat außerhalb dieser Parzelle gestattet
+		Avatare in dieser Parzelle können von Avataren außerhalb dieser Parzelle weder gesehen noch gehört werden
 	</string>
 	<string name="LocationCtrlPathfindingDirtyTooltip">
 		Bewegliche Objekte verhalten sich in dieser Region u. U. erst dann korrekt, wenn die Region neu geformt wird.
@@ -3954,6 +3981,12 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="IM_unblock_only_groups_friends">
 		Wenn Sie diese Meldung sehen, müssen Sie unter „Einstellungen“ &gt; „Privatsphäre“ die Option „Nur IMs und Anrufe von Freunden oder Gruppen durchstellen“ deaktivieren.
 	</string>
+	<string name="OnlineStatus">
+		Online
+	</string>
+	<string name="OfflineStatus">
+		Offline
+	</string>
 	<string name="answered_call">
 		Ihr Anruf wurde entgegengenommen
 	</string>
@@ -3962,6 +3995,9 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	</string>
 	<string name="you_joined_call">
 		Sie sind dem Gespräch beigetreten
+	</string>
+	<string name="you_auto_rejected_call-im">
+		Sie haben den Voice-Anruf automatisch abgelehnt, während der Nicht-stören-Modus aktiviert war.
 	</string>
 	<string name="name_started_call">
 		[NAME] hat einen Voice-Anruf begonnen
@@ -3979,7 +4015,7 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 		Wird verbunden...
 	</string>
 	<string name="conference-title">
-		Ad-hoc-Konferenz
+		Chat mit mehreren Personen
 	</string>
 	<string name="conference-title-incoming">
 		Konferenz mit [AGENT_NAME]
@@ -4859,6 +4895,9 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	<string name="Command_Chat_Label">
 		Chat
 	</string>
+	<string name="Command_Conversations_Label">
+		Unterhaltungen
+	</string>
 	<string name="Command_Compass_Label">
 		Kompass
 	</string>
@@ -4933,6 +4972,9 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	</string>
 	<string name="Command_Chat_Tooltip">
 		Mit Leuten in der Nähe chatten
+	</string>
+	<string name="Command_Conversations_Tooltip">
+		Mit allen unterhalten
 	</string>
 	<string name="Command_Compass_Tooltip">
 		Kompass
@@ -5062,5 +5104,17 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	</string>
 	<string name="UserDictionary">
 		[Benutzer]
+	</string>
+	<string name="logging_calls_disabled_log_empty">
+		Unterhaltungen werden nicht protokolliert. Um ein Protokoll zu starten, wählen Sie „Speichern: nur Protokoll“ oder „Speichern: Protokoll und Transkripte“ unter „Einstellungen“ &gt; „Chat“.
+	</string>
+	<string name="logging_calls_disabled_log_not_empty">
+		Es werden keine Unterhaltungen mehr protokolliert. Um weiterhin ein Protokoll zu führen, wählen Sie „Speichern: nur Protokoll“ oder „Speichern: Protokoll und Transkripte“ unter „Einstellungen“ &gt; „Chat“.
+	</string>
+	<string name="logging_calls_enabled_log_empty">
+		Keine protokollierten Unterhaltungen verfügbar. Hier erscheint ein Protokolleintrag, wenn Sie eine Person kontaktieren oder von einer Person kontaktiert werden.
+	</string>
+	<string name="loading_chat_logs">
+		Laden...
 	</string>
 </strings>

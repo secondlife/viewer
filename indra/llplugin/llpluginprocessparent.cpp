@@ -31,6 +31,7 @@
 #include "llpluginprocessparent.h"
 #include "llpluginmessagepipe.h"
 #include "llpluginmessageclasses.h"
+#include "llsdserialize.h"
 #include "stringize.h"
 
 #include "llapr.h"
@@ -836,7 +837,7 @@ void LLPluginProcessParent::receiveMessageRaw(const std::string &message)
 	LL_DEBUGS("Plugin") << "Received: " << message << LL_ENDL;
 	
 	LLPluginMessage parsed;
-	if(parsed.parse(message) != -1)
+	if(LLSDParser::PARSE_FAILURE != parsed.parse(message))
 	{
 		if(parsed.hasValue("blocking_request"))
 		{

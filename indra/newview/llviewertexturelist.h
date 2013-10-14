@@ -114,7 +114,7 @@ public:
 	void setDebugFetching(LLViewerFetchedTexture* tex, S32 debug_level);
 
 	static S32 getMinVideoRamSetting();
-	static S32 getMaxVideoRamSetting(bool get_recommended = false);
+	static S32 getMaxVideoRamSetting(bool get_recommended, float mem_multiplier);
 	
 private:
 	void updateImagesDecodePriorities();
@@ -130,8 +130,9 @@ private:
 	void removeImageFromList(LLViewerFetchedTexture *image);
 
 	LLViewerFetchedTexture * getImage(const LLUUID &image_id,									 
+									 FTType f_type = FTT_DEFAULT,
 									 BOOL usemipmap = TRUE,
-									 LLViewerTexture::EBoostLevel boost_priority = LLViewerTexture::BOOST_NONE,		// Get the requested level immediately upon creation.
+									 LLViewerTexture::EBoostLevel boost_priority = LLGLTexture::BOOST_NONE,		// Get the requested level immediately upon creation.
 									 S8 texture_type = LLViewerTexture::FETCHED_TEXTURE,
 									 LLGLint internal_format = 0,
 									 LLGLenum primary_format = 0,
@@ -139,8 +140,9 @@ private:
 									 );
 	
 	LLViewerFetchedTexture * getImageFromFile(const std::string& filename,									 
+									 FTType f_type = FTT_LOCAL_FILE,
 									 BOOL usemipmap = TRUE,
-									 LLViewerTexture::EBoostLevel boost_priority = LLViewerTexture::BOOST_NONE,		// Get the requested level immediately upon creation.
+									 LLViewerTexture::EBoostLevel boost_priority = LLGLTexture::BOOST_NONE,		// Get the requested level immediately upon creation.
 									 S8 texture_type = LLViewerTexture::FETCHED_TEXTURE,
 									 LLGLint internal_format = 0,
 									 LLGLenum primary_format = 0,
@@ -148,8 +150,9 @@ private:
 									 );
 	
 	LLViewerFetchedTexture* getImageFromUrl(const std::string& url,
+									 FTType f_type,
 									 BOOL usemipmap = TRUE,
-									 LLViewerTexture::EBoostLevel boost_priority = LLViewerTexture::BOOST_NONE,		// Get the requested level immediately upon creation.
+									 LLViewerTexture::EBoostLevel boost_priority = LLGLTexture::BOOST_NONE,		// Get the requested level immediately upon creation.
 									 S8 texture_type = LLViewerTexture::FETCHED_TEXTURE,
 									 LLGLint internal_format = 0,
 									 LLGLenum primary_format = 0,
@@ -157,8 +160,9 @@ private:
 									 );
 
 	LLViewerFetchedTexture* createImage(const LLUUID &image_id,
+									 FTType f_type,
 									 BOOL usemipmap = TRUE,
-									 LLViewerTexture::EBoostLevel boost_priority = LLViewerTexture::BOOST_NONE,		// Get the requested level immediately upon creation.
+									 LLViewerTexture::EBoostLevel boost_priority = LLGLTexture::BOOST_NONE,		// Get the requested level immediately upon creation.
 									 S8 texture_type = LLViewerTexture::FETCHED_TEXTURE,
 									 LLGLint internal_format = 0,
 									 LLGLenum primary_format = 0,
@@ -167,8 +171,8 @@ private:
 	
 	// Request image from a specific host, used for baked avatar textures.
 	// Implemented in header in case someone changes default params above. JC
-	LLViewerFetchedTexture* getImageFromHost(const LLUUID& image_id, LLHost host)
-	{ return getImage(image_id, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, host); }	
+	LLViewerFetchedTexture* getImageFromHost(const LLUUID& image_id, FTType f_type, LLHost host)
+	{ return getImage(image_id, f_type, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, host); }	
 
 public:
 	typedef std::set<LLPointer<LLViewerFetchedTexture> > image_list_t;	
@@ -233,11 +237,11 @@ private:
 	LLPointer<LLUIImage> loadUIImageByName(const std::string& name, const std::string& filename,
 		                           BOOL use_mips = FALSE, const LLRect& scale_rect = LLRect::null, 
 								   const LLRect& clip_rect = LLRect::null,
-		                           LLViewerTexture::EBoostLevel boost_priority = LLViewerTexture::BOOST_UI);
+		                           LLViewerTexture::EBoostLevel boost_priority = LLGLTexture::BOOST_UI);
 	LLPointer<LLUIImage> loadUIImageByID(const LLUUID& id,
 								 BOOL use_mips = FALSE, const LLRect& scale_rect = LLRect::null, 
 								 const LLRect& clip_rect = LLRect::null,
-								 LLViewerTexture::EBoostLevel boost_priority = LLViewerTexture::BOOST_UI);
+								 LLViewerTexture::EBoostLevel boost_priority = LLGLTexture::BOOST_UI);
 
 	LLPointer<LLUIImage> loadUIImage(LLViewerFetchedTexture* imagep, const std::string& name, BOOL use_mips = FALSE, const LLRect& scale_rect = LLRect::null, const LLRect& clip_rect = LLRect::null);
 

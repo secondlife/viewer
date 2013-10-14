@@ -97,6 +97,7 @@ const U32 RT_OTHER	= 0x1 << 3;
 const U32 RT_LIST	= 0x1 << 4;
 const U32 RT_SELL	= 0x1 << 5;
 
+const S32 INVALID_PARCEL_ID = -1;
 
 // Timeouts for parcels
 // default is 21 days * 24h/d * 60m/h * 60s/m *1000000 usec/s = 1814400000000

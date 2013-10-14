@@ -42,7 +42,7 @@
 #include <boost/spirit/include/classic_core.hpp>
 
 #include "lluicolor.h"
-
+#include "v3math.h"
 using namespace BOOST_SPIRIT_CLASSIC_NS;
 
 const S32 MAX_STRING_ATTRIBUTE_SIZE = 40;
@@ -79,7 +79,6 @@ struct Occurs : public LLInitParam::Block<Occurs>
 	{}
 };
 
-
 typedef enum
 {
 	USE_REQUIRED,
@@ -101,14 +100,23 @@ namespace LLInitParam
 
 struct Element;
 struct Group;
-struct Choice;
 struct Sequence;
-struct Any;
+
+struct All : public LLInitParam::Block<All, Occurs>
+{
+	Multiple< Lazy<Element, IS_A_BLOCK> > elements;
+
+	All()
+	:	elements("element")
+	{
+		maxOccurs = 1;
+	}
+};
 
 struct Attribute : public LLInitParam::Block<Attribute>
 {
-	Mandatory<std::string>	name;
-	Mandatory<std::string>	type;
+	Mandatory<std::string>	name,
+							type;
 	Mandatory<EUse>			use;
 	
 	Attribute()
@@ -127,24 +135,13 @@ struct Any : public LLInitParam::Block<Any, Occurs>
 	{}
 };
 
-struct All : public LLInitParam::Block<All, Occurs>
-{
-	Multiple< Lazy<Element> > elements;
-
-	All()
-	:	elements("element")
-	{
-		maxOccurs = 1;
-	}
-};
-
 struct Choice : public LLInitParam::ChoiceBlock<Choice, Occurs>
 {
-	Alternative< Lazy<Element> >	element;
-	Alternative< Lazy<Group> >		group;
-	Alternative< Lazy<Choice> >		choice;
-	Alternative< Lazy<Sequence> >	sequence;
-	Alternative< Lazy<Any> >		any;
+	Alternative< Lazy<Element, IS_A_BLOCK> >	element;
+	Alternative< Lazy<Group, IS_A_BLOCK> >		group;
+	Alternative< Lazy<Choice, IS_A_BLOCK> >		choice;
+	Alternative< Lazy<Sequence, IS_A_BLOCK> >	sequence;
+	Alternative< Lazy<Any> >					any;
 
 	Choice()
 	:	element("element"),
@@ -158,11 +155,11 @@ struct Choice : public LLInitParam::ChoiceBlock<Choice, Occurs>
 
 struct Sequence : public LLInitParam::ChoiceBlock<Sequence, Occurs>
 {
-	Alternative< Lazy<Element> >	element;
-	Alternative< Lazy<Group> >		group;
-	Alternative< Lazy<Choice> >		choice;
-	Alternative< Lazy<Sequence> >	sequence;
-	Alternative< Lazy<Any> >		any;
+	Alternative< Lazy<Element, IS_A_BLOCK> >	element;
+	Alternative< Lazy<Group, IS_A_BLOCK> >		group;
+	Alternative< Lazy<Choice> >					choice;
+	Alternative< Lazy<Sequence, IS_A_BLOCK> >	sequence;
+	Alternative< Lazy<Any> >					any;
 };
 
 struct GroupContents : public LLInitParam::ChoiceBlock<GroupContents, Occurs>
@@ -247,7 +244,7 @@ struct ComplexType : public LLInitParam::Block<ComplexType, ComplexTypeContents>
 	Optional<bool>					mixed;
 
 	Multiple<Attribute>				attribute;
-	Multiple< Lazy<Element> >			elements;
+	Multiple< Lazy<Element, IS_A_BLOCK > >			elements;
 
 	ComplexType()
 	:	name("name"),
@@ -313,7 +310,6 @@ public:
 			setNameSpace(ns);
 		};
 	}
-
 };
 
 //
@@ -625,7 +621,7 @@ void LLXUIXSDWriter::writeXSD(const std::string& type_name, const std::string& p
 			nodep->createChild("schemaLocation", true)->setStringValue(widget_name + ".xsd");
 			
 			// add to front of schema
-			mSchemaNode->addChild(nodep, mSchemaNode);
+			mSchemaNode->addChild(nodep);
 		}
 
 		for (widget_registry_t::Registrar::registry_map_t::const_iterator it = widget_registryp->currentRegistrar().beginItems();
@@ -670,6 +666,7 @@ LLXUIParser::LLXUIParser()
 		registerParserFuncs<S32>(readS32Value, writeS32Value);
 		registerParserFuncs<F32>(readF32Value, writeF32Value);
 		registerParserFuncs<F64>(readF64Value, writeF64Value);
+		registerParserFuncs<LLVector3>(readVector3Value, writeVector3Value);
 		registerParserFuncs<LLColor4>(readColor4Value, writeColor4Value);
 		registerParserFuncs<LLUIColor>(readUIColorValue, writeUIColorValue);
 		registerParserFuncs<LLUUID>(readUUIDValue, writeUUIDValue);
@@ -880,16 +877,24 @@ LLXMLNodePtr LLXUIParser::getNode(name_stack_t& stack)
 		it = next_it)
 	{
 		++next_it;
+		bool force_new_node = false;
+
 		if (it->first.empty())
 		{
 			it->second = false;
 			continue;
 		}
 
+		if (next_it != stack.end() && next_it->first.empty() && next_it->second)
+		{
+			force_new_node = true;
+		}
+
+
 		out_nodes_t::iterator found_it = mOutNodes.find(it->first);
 
 		// node with this name not yet written
-		if (found_it == mOutNodes.end() || it->second)
+		if (found_it == mOutNodes.end() || it->second || force_new_node)
 		{
 			// make an attribute if we are the last element on the name stack
 			bool is_attribute = next_it == stack.end();
@@ -1144,6 +1149,31 @@ bool LLXUIParser::writeF64Value(Parser& parser, const void* val_ptr, name_stack_
 	return false;
 }
 
+bool LLXUIParser::readVector3Value(Parser& parser, void* val_ptr)
+{
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
+	LLVector3* vecp = (LLVector3*)val_ptr;
+	if(self.mCurReadNode->getFloatValue(3, vecp->mV) >= 3)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool LLXUIParser::writeVector3Value(Parser& parser, const void* val_ptr, name_stack_t& stack)
+{
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
+	LLXMLNodePtr node = self.getNode(stack);
+	if (node.notNull())
+	{
+		LLVector3 vector = *((LLVector3*)val_ptr);
+		node->setFloatValue(3, vector.mV);
+		return true;
+	}
+	return false;
+}
+
 bool LLXUIParser::readColor4Value(Parser& parser, void* val_ptr)
 {
 	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
@@ -1279,10 +1309,8 @@ bool LLXUIParser::writeSDValue(Parser& parser, const void* val_ptr, name_stack_t
 void LLXUIParser::parserWarning(const std::string& message)
 {
 #ifdef LL_WINDOWS
-	// use Visual Studo friendly formatting of output message for easy access to originating xml
-	llutf16string utf16str = utf8str_to_utf16str(llformat("%s(%d):\t%s", mCurFileName.c_str(), mCurReadNode->getLineNumber(), message.c_str()).c_str());
-	utf16str += '\n';
-	OutputDebugString(utf16str.c_str());
+	// use Visual Studio friendly formatting of output message for easy access to originating xml
+	LL_WINDOWS_OUTPUT_DEBUG(llformat("%s(%d):\t%s", mCurFileName.c_str(), mCurReadNode->getLineNumber(), message.c_str()));
 #else
 	Parser::parserWarning(message);
 #endif
@@ -1291,9 +1319,8 @@ void LLXUIParser::parserWarning(const std::string& message)
 void LLXUIParser::parserError(const std::string& message)
 {
 #ifdef LL_WINDOWS
-	llutf16string utf16str = utf8str_to_utf16str(llformat("%s(%d):\t%s", mCurFileName.c_str(), mCurReadNode->getLineNumber(), message.c_str()).c_str());
-	utf16str += '\n';
-	OutputDebugString(utf16str.c_str());
+        // use Visual Studio friendly formatting of output message for easy access to originating xml
+	LL_WINDOWS_OUTPUT_DEBUG(llformat("%s(%d):\t%s", mCurFileName.c_str(), mCurReadNode->getLineNumber(), message.c_str()));
 #else
 	Parser::parserError(message);
 #endif
@@ -1610,10 +1637,8 @@ bool LLSimpleXUIParser::processText()
 void LLSimpleXUIParser::parserWarning(const std::string& message)
 {
 #ifdef LL_WINDOWS
-	// use Visual Studo friendly formatting of output message for easy access to originating xml
-	llutf16string utf16str = utf8str_to_utf16str(llformat("%s(%d):\t%s", mCurFileName.c_str(), LINE_NUMBER_HERE, message.c_str()).c_str());
-	utf16str += '\n';
-	OutputDebugString(utf16str.c_str());
+	// use Visual Studio friendly formatting of output message for easy access to originating xml
+	LL_WINDOWS_OUTPUT_DEBUG(llformat("%s(%d):\t%s", mCurFileName.c_str(), LINE_NUMBER_HERE, message.c_str()));
 #else
 	Parser::parserWarning(message);
 #endif
@@ -1622,9 +1647,8 @@ void LLSimpleXUIParser::parserWarning(const std::string& message)
 void LLSimpleXUIParser::parserError(const std::string& message)
 {
 #ifdef LL_WINDOWS
-	llutf16string utf16str = utf8str_to_utf16str(llformat("%s(%d):\t%s", mCurFileName.c_str(), LINE_NUMBER_HERE, message.c_str()).c_str());
-	utf16str += '\n';
-	OutputDebugString(utf16str.c_str());
+        // use Visual Studio friendly formatting of output message for easy access to originating xml
+	LL_WINDOWS_OUTPUT_DEBUG(llformat("%s(%d):\t%s", mCurFileName.c_str(), LINE_NUMBER_HERE, message.c_str()));
 #else
 	Parser::parserError(message);
 #endif
