@@ -548,6 +548,7 @@ protected:
 				menu->setItemEnabled("Remove Friend", false);
 				menu->setItemEnabled("Offer Teleport",false);
 				menu->setItemEnabled("Voice Call", false);
+				menu->setItemEnabled("Chat History", false);
 				menu->setItemEnabled("Invite Group", false);
 				menu->setItemEnabled("Zoom In", false);
 				menu->setItemEnabled("Share", false);
@@ -570,9 +571,9 @@ protected:
 				menu->setItemVisible("Zoom In", should_show_zoom && gObjectList.findObject(mAvatarID));	
 				menu->setItemEnabled("Block Unblock", LLAvatarActions::canBlock(mAvatarID));
 				menu->setItemEnabled("Mute Text", LLAvatarActions::canBlock(mAvatarID));
+				menu->setItemEnabled("Chat History", LLLogChat::isTranscriptExist(mAvatarID));
 			}
 
-			menu->setItemEnabled("Chat History", LLLogChat::isTranscriptExist(mAvatarID));
 			menu->setItemEnabled("Map", (LLAvatarTracker::instance().isBuddyOnline(mAvatarID) && is_agent_mappable(mAvatarID)) || gAgent.isGodlike() );
 			menu->buildDrawLabels();
 			menu->updateParent(LLMenuGL::sMenuContainer);
