@@ -126,7 +126,7 @@ enum EInstantMessage
 	IM_LURE_ACCEPTED = 23,
 	IM_LURE_DECLINED = 24,
 	IM_GODLIKE_LURE_USER = 25,
-	IM_YET_TO_BE_USED = 26,
+	IM_TELEPORT_REQUEST = 26,
 
 	// IM that notifie of a new group election.
 	// Name is name of person who called vote.

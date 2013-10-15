@@ -313,6 +313,10 @@ void LLConversationLogList::onCustomAction(const LLSD& userdata)
 	{
 		LLAvatarActions::offerTeleport(selected_conversation_participant_id);
 	}
+	else if ("request_teleport" == command_name)
+	{
+		LLAvatarActions::teleportRequest(selected_conversation_participant_id);
+	}
 	else if("add_friend" == command_name)
 	{
 		if (!LLAvatarActions::isFriend(selected_conversation_participant_id))

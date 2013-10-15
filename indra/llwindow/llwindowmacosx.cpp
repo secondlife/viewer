@@ -1300,6 +1300,8 @@ void LLWindowMacOSX::setupFailure(const std::string& text, const std::string& ca
 	OSMessageBox(text, caption, type);
 }
 
+			// Note on event recording - QUIT is a known special case and we are choosing NOT to record it for the record and playback feature 
+			// it is handled at a very low-level
 const char* cursorIDToName(int id)
 {
 	switch (id)

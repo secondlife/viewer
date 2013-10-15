@@ -2955,6 +2955,34 @@
          label="Recorder"
          name="Recorder"
          tear_off="true">
+            <menu_item_call visible="false"
+             label="Start event recording"
+             name="Start event recording">
+	      <menu_item_call.on_visible
+		 function="displayViewerEventRecorderMenuItems" />
+                <menu_item_call.on_click
+                 function="Advanced.EventRecorder"
+                 parameter="start recording" />
+            </menu_item_call>
+            <menu_item_call visible="false"
+             label="Stop event recording"
+             name="Stop event recording">
+	      <menu_item_call.on_visible
+		 function="displayViewerEventRecorderMenuItems" />
+                <menu_item_call.on_click
+                 function="Advanced.EventRecorder"
+                 parameter="stop recording" />
+            </menu_item_call>
+            <menu_item_call visible="false"
+             label="Playback event recording"
+             name="Playback event recording">
+	      <menu_item_call.on_visible
+		 function="displayViewerEventRecorderMenuItems" />
+                <menu_item_call.on_click
+                 function="Advanced.EventRecorder"
+                 parameter="start playback" />
+            </menu_item_call>
+
             <menu_item_call
              label="Start Playback"
              name="Start Playback">

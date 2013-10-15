@@ -40,6 +40,7 @@
 #include "llinventorypanel.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
+#include "llviewereventrecorder.h"
 
 // newview includes
 #include "llagent.h"
@@ -1952,6 +1953,43 @@ class LLAdvancedDropPacket : public view_listener_t
 		return true;
 	}
 };
+
+
+////////////////////
+// EVENT Recorder //
+///////////////////
+
+
+class LLAdvancedViewerEventRecorder : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		std::string command = userdata.asString();
+		if ("start playback" == command)
+		{
+			llinfos << "Event Playback starting" << llendl;
+			LLViewerEventRecorder::instance().playbackRecording();
+			llinfos << "Event Playback completed" << llendl;
+		}
+		else if ("stop playback" == command)
+		{
+			// Future
+		}
+		else if ("start recording" == command)
+		{
+			LLViewerEventRecorder::instance().setEventLoggingOn();
+			llinfos << "Event recording started" << llendl;
+		}
+		else if ("stop recording" == command)
+		{
+			LLViewerEventRecorder::instance().setEventLoggingOff();
+			llinfos << "Event recording stopped" << llendl;
+		} 
+
+		return true;
+	}		
+};
+
 
 
 
@@ -8422,6 +8460,8 @@ void initialize_menus()
 	// Don't prepend MenuName.Foo because these can be used in any menu.
 	enable.add("IsGodCustomerService", boost::bind(&is_god_customer_service));
 
+	enable.add("displayViewerEventRecorderMenuItems",boost::bind(&LLViewerEventRecorder::displayViewerEventRecorderMenuItems,&LLViewerEventRecorder::instance()));
+
 	view_listener_t::addEnable(new LLUploadCostCalculator(), "Upload.CalculateCosts");
 
 	enable.add("Conversation.IsConversationLoggingAllowed", boost::bind(&LLFloaterIMContainer::isConversationLoggingAllowed));
@@ -8680,6 +8720,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedAgentPilot(), "Advanced.AgentPilot");
 	view_listener_t::addMenu(new LLAdvancedToggleAgentPilotLoop(), "Advanced.ToggleAgentPilotLoop");
 	view_listener_t::addMenu(new LLAdvancedCheckAgentPilotLoop(), "Advanced.CheckAgentPilotLoop");
+	view_listener_t::addMenu(new LLAdvancedViewerEventRecorder(), "Advanced.EventRecorder");
 
 	// Advanced > Debugging
 	view_listener_t::addMenu(new LLAdvancedForceErrorBreakpoint(), "Advanced.ForceErrorBreakpoint");

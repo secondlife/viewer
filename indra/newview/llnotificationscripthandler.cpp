@@ -90,7 +90,7 @@ bool LLScriptHandler::processNotification(const LLNotificationPtr& notification)
 	{
 		LLScriptFloaterManager::getInstance()->onAddNotification(notification->getID());
 	}
-	else
+	else if (notification->canShowToast())
 	{
 		LLToastPanel* notify_box = LLToastPanel::buidPanelFromNotification(notification);
 
