@@ -193,7 +193,7 @@ protected:
 	std::string	getArguments(LLSD& args);
 
 private:
-	BOOL		ready() { return mReady; };
+	BOOL		ready() { return mReady; }
 	BOOL		mReady;
 	std::string	mFilenameSyntax;
 };
