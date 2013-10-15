@@ -35,7 +35,6 @@
 #include "lltexteditor.h"
 #include "llstl.h"
 
-
 inline BOOL LLKeywordToken::isHead(const llwchar* s) const
 {
 	// strncmp is much faster than string compare
@@ -71,7 +70,7 @@ inline BOOL LLKeywordToken::isTail(const llwchar* s) const
 
 LLKeywords::LLKeywords() : mLoaded(FALSE)
 {
-	setFilenameSyntax( gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"keywords_lsl_tokens.xml") );
+	setFilenameSyntax( gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"keywords_lsl_default.xml") );
 }
 
 LLKeywords::~LLKeywords()
