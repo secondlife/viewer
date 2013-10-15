@@ -1298,10 +1298,16 @@ BOOL LLVOVolume::calcLOD()
 		mLOD = cur_detail;		
 		return TRUE;
 	}
-	else
+	else if(cur_detail > MIN_LOD)
 	{
-		return FALSE;
+		LLFace* facep = mDrawable->getFace(0);
+		if(facep && !facep->getVertexBuffer())
+		{
+			return TRUE; //force geometry update if visible object does not have vertex buffer.
+		}
 	}
+
+	return FALSE;
 }
 
 BOOL LLVOVolume::updateLOD()
