@@ -89,28 +89,17 @@ class LLOcclusionQueryPool : public LLGLNamePool
 public:
 	LLOcclusionQueryPool()
 	{
-		mCurQuery = 1;
+		
 	}
 
 protected:
 
-	std::list<GLuint> mAvailableName;
-	GLuint mCurQuery;
-		
 	virtual GLuint allocateName()
 	{
 		GLuint ret = 0;
 
-		if (!mAvailableName.empty())
-		{
-			ret = mAvailableName.front();
-			mAvailableName.pop_front();
-		}
-		else
-		{
-			ret = mCurQuery++;
-		}
-
+		glGenQueriesARB(1, &ret);
+	
 		return ret;
 	}
 
@@ -119,8 +108,7 @@ protected:
 #if LL_TRACK_PENDING_OCCLUSION_QUERIES
 		LLSpatialGroup::sPendingQueries.erase(name);
 #endif
-		llassert(std::find(mAvailableName.begin(), mAvailableName.end(), name) == mAvailableName.end());
-		mAvailableName.push_back(name);
+		glDeleteQueriesARB(1, &name);
 	}
 };
 
@@ -1580,7 +1568,7 @@ void LLSpatialGroup::checkOcclusion()
 			{
 				glGetQueryObjectuivARB(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
 
-				static LLCachedControl<bool> wait_for_query(gSavedSettings, "RenderSynchronousOcclusion");
+				static LLCachedControl<bool> wait_for_query(gSavedSettings, "RenderSynchronousOcclusion", true);
 
 				if (wait_for_query && mOcclusionIssued[LLViewerCamera::sCurCameraID] < gFrameCount)
 				{ //query was issued last frame, wait until it's available

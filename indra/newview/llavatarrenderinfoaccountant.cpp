@@ -336,7 +336,7 @@ void LLAvatarRenderInfoAccountant::idle()
 		sRenderInfoReportTimer.resetWithExpiry(SECS_BETWEEN_REGION_SCANS);
 	}
 
-	static LLCachedControl<U32> render_auto_mute_functions(gSavedSettings, "RenderAutoMuteFunctions");
+	static LLCachedControl<U32> render_auto_mute_functions(gSavedSettings, "RenderAutoMuteFunctions", 0);
 	static U32 prev_render_auto_mute_functions = (U32) -1;
 	if (prev_render_auto_mute_functions != render_auto_mute_functions)
 	{
