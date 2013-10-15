@@ -407,7 +407,7 @@ LLAgent::LLAgent() :
 	mNextFidgetTime(0.f),
 	mCurrentFidget(0),
 	mFirstLogin(FALSE),
-	mGenderChosen(FALSE),
+	mOutfitChosen(FALSE),
 	
 	mVoiceConnected(false),
 
@@ -1853,7 +1853,7 @@ BOOL LLAgent::needsRenderAvatar()
 		return FALSE;
 	}
 
-	return mShowAvatar && mGenderChosen;
+	return mShowAvatar && mOutfitChosen;
 }
 
 // TRUE if we need to render your own avatar's head.

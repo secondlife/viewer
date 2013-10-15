@@ -175,10 +175,6 @@ void LLAgentWearables::setAvatarObject(LLVOAvatarSelf *avatar)
 {
 	llassert(avatar);
 	setAvatarAppearance(avatar);
-	gAgentWearables.notifyLoadingStarted();
-	callAfterCategoryFetch(LLAppearanceMgr::instance().getCOF(),
-						   boost::bind(&LLAppearanceMgr::updateAppearanceFromCOF,
-									   LLAppearanceMgr::getInstance(), true, true, no_op));
 }
 
 
