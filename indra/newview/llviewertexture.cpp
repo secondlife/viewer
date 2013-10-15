@@ -1046,7 +1046,7 @@ void LLViewerFetchedTexture::init(bool firstinit)
 	mLastReferencedSavedRawImageTime = 0.0f ;
 	mKeptSavedRawImageTime = 0.f ;
 	mLastCallBackActiveTime = 0.f;
-
+	mForceCallbackFetch = FALSE;
 	mInDebug = FALSE;
 
 	mFTType = FTT_UNKNOWN;
@@ -2169,6 +2169,7 @@ void LLViewerFetchedTexture::setLoadedCallback( loaded_callback_func loaded_call
 		}
 	}
 	mLastCallBackActiveTime = sCurrentTime ;
+        mLastReferencedSavedRawImageTime = sCurrentTime;
 }
 
 void LLViewerFetchedTexture::clearCallbackEntryList()
@@ -2281,6 +2282,7 @@ void LLViewerFetchedTexture::unpauseLoadedCallbacks(const LLLoadedCallbackEntry:
 	}
 	mPauseLoadedCallBacks = FALSE ;
 	mLastCallBackActiveTime = sCurrentTime ;
+	mForceCallbackFetch = TRUE;
 	if(need_raw)
 	{
 		mSaveRawImage = TRUE ;
@@ -2321,6 +2323,7 @@ void LLViewerFetchedTexture::pauseLoadedCallbacks(const LLLoadedCallbackEntry::s
 bool LLViewerFetchedTexture::doLoadedCallbacks()
 {
 	static const F32 MAX_INACTIVE_TIME = 900.f ; //seconds
+	static const F32 MAX_IDLE_WAIT_TIME = 5.f ; //seconds
 
 	if (mNeedsCreateTexture)
 	{
@@ -2525,6 +2528,9 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
 		}
 	}
 
+	// Done with any raw image data at this point (will be re-created if we still have callbacks)
+	destroyRawImage();
+
 	//
 	// If we have no callbacks, take us off of the image callback list.
 	//
@@ -2532,10 +2538,13 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
 	{
 		gTextureList.mCallbackList.erase(this);
 	}
+	else if(!res && mForceCallbackFetch && sCurrentTime - mLastCallBackActiveTime > MAX_IDLE_WAIT_TIME && !mIsFetching)
+	{
+		//wait for long enough but no fetching request issued, force one.
+		forceToRefetchTexture(mLoadedCallbackDesiredDiscardLevel, 5.f);
+		mForceCallbackFetch = FALSE; //fire once.
+	}
 
-	// Done with any raw image data at this point (will be re-created if we still have callbacks)
-	destroyRawImage();
-	
 	return res;
 }
 
@@ -2774,9 +2783,8 @@ void LLViewerFetchedTexture::saveRawImage()
 }
 
 //force to refetch the texture to the discard level 
-void LLViewerFetchedTexture::forceToRefetchTexture(S32 desired_discard)
+void LLViewerFetchedTexture::forceToRefetchTexture(S32 desired_discard, F32 kept_time)
 {
-	F32 kept_time = 60.0; //seconds
 	if(mForceToSaveRawImage)
 	{
 		desired_discard = llmin(desired_discard, mDesiredSavedRawDiscardLevel);
