@@ -36,8 +36,14 @@ public:
 	LLFloaterExperiences(const LLSD& data);
 
     void clearFromRecent(const LLSD& ids);
+    void resizeToTabs();
+
 protected:
 	/*virtual*/ BOOL	postBuild();
+
+    void refreshContents();
+
+
 
     void setupRecentTabs();
     void addTab(const std::string& name, bool select);

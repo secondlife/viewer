@@ -6,9 +6,15 @@
   enabled="true"
   can_resize="true"
   title="EXPERIENCE PROFILE"
+  save_rect="true"
   min_width="325"
+  min_height="325"
   width="358"
   height="580">
+  <floater.string
+    name="empty_slurl">
+    (none)
+  </floater.string>
   <floater.string
     name="maturity_icon_general">
     "Parcel_PG_Light"
@@ -195,7 +201,7 @@
                 layout="topleft"
                 left="10"
                 name="ContentRating"
-                width="100">
+                width="75">
                 Rating:
               </text>
               <text
@@ -240,6 +246,7 @@
                 layout="topleft"
                 left="10"
                 valign="center"
+                use_ellipses="true"
                 name="LocationTextText"
                 width="288">
               </text>
@@ -272,13 +279,14 @@
                 layout="topleft"
                 left="10"
                 valign="center"
+                use_ellipses="true"
                 name="marketplace"
                 width="288">
               </text>
             </layout_panel>
             <layout_panel
               follows="left|top|right"
-              height="75"
+              height="18"
               left="0"
               top="0"
               auto_resize="false"
@@ -291,7 +299,7 @@
                 layout="topleft"
                 left="10"
                 name="Owner"
-                width="100">
+                width="75">
                 Owner:
               </text>
               <text
@@ -303,39 +311,85 @@
                 left_pad="2"
                 valign="center"
                 name="OwnerText"
+                use_ellipses="true"
                 top_delta="-2"
                 width="188">
               </text>
-              <button
-                follows="bottom|left"
-                height="23"
-                label="Allow"
+            </layout_panel>
+            <layout_panel
+              follows="all"
+              height="18"
+              layout="topleft"
+              left="0"
+              top="5"
+              width="313"
+              visible="false"
+              auto_resize="false"
+              name="group_panel">
+              <text
+                type="string"
+                length="1"
+                follows="left|top"
+                height="16"
                 layout="topleft"
-                name="allow_btn"
-                width="80"
-                top_pad="3"
                 left="10"
-                enabled="false"/>
-              <button
-                follows="bottom|left"
-                height="23"
-                label="Forget"
+                name="Group"
+                width="75">
+                Group:
+              </text>
+              <text
+                type="string"
+                length="1"
+                follows="left|top|right"
+                height="18"
                 layout="topleft"
-                name="forget_btn"
-                width="80"
-                top_pad="-23"
-                left_pad="3"
-                enabled="false"/>
-              <button
-                follows="bottom|left"
-                height="23"
-                label="Block"
-                layout="topleft"
-                name="block_btn"
-                width="80"
-                top_pad="-23"
-                left_pad="3"
-                enabled="false"/>
+                left_pad="2"
+                valign="center"
+                name="GroupText"
+                use_ellipses="true"
+                top_delta="-2"
+                width="188">
+              </text>
+            </layout_panel>
+            <layout_panel
+              follows="all"
+              height="33"
+              layout="topleft"
+              left="0"
+              top="5"
+              width="313"
+              auto_resize="false"
+              name="perm panel">
+            <button
+              follows="bottom|left"
+              height="23"
+              label="Allow"
+              layout="topleft"
+              name="allow_btn"
+              width="80"
+              top_pad="3"
+              left="10"
+              enabled="false"/>
+            <button
+              follows="bottom|left"
+              height="23"
+              label="Forget"
+              layout="topleft"
+              name="forget_btn"
+              width="80"
+              top_pad="-23"
+              left_pad="3"
+              enabled="false"/>
+            <button
+              follows="bottom|left"
+              height="23"
+              label="Block"
+              layout="topleft"
+              name="block_btn"
+              width="80"
+              top_pad="-23"
+              left_pad="3"
+              enabled="false"/>
 
             </layout_panel>
           </layout_stack>
@@ -436,7 +490,7 @@
             label="Moderate"
             layout="topleft"
             right="-10"
-            top_pad="-17"
+            top_pad="-19"
             name="edit_ContentRatingText"
             width="105">
             <icons_combo_box.drop_down_button
@@ -478,26 +532,39 @@
           <text
             type="string"
             length="1"
-            follows="left|top|right"
+            follows="left|top"
             height="14"
             layout="topleft"
             left="10"
             top_pad="10"
             name="edit_Location"
-            right="-10">
+            right="90">
             Location:
           </text>
-          <line_editor
+          <text
             type="string"
             length="1"
             follows="left|top|right"
-            height="19"
+            height="14"
             layout="topleft"
-            left="10"
-            max_length_bytes="255"
-            valign="center"
+            left_pad="5"
+            top_pad="-14"
             name="edit_LocationTextText"
-            right="-10"/>
+            right="-10">Location</text>
+          <button
+            left="10"
+            width="150"
+            height="23"
+            name="location_btn"
+            label="Set to Current"
+            />
+          <button
+            top_pad="-23"
+            follows="top|right"
+            right="-10"
+            width="80"
+            name="clear_btn"
+            label="Clear"/>
           <text
             type="string"
             length="1"

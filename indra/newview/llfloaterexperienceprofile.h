@@ -63,12 +63,12 @@ protected:
     void onClickPermission(const char* permission);
     void onClickForget();
     void onClickCancel();
+    void onClickSave();
+    void onClickLocation();
+    void onClickClear();
+    void onFieldChanged();
 
     void changeToView();
-
-    void onClickSave();
-
-    void onFieldChanged();
 
     static void experienceCallback(LLHandle<LLFloaterExperienceProfile> handle, const LLSD& experience);
 

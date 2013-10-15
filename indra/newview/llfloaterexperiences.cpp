@@ -27,7 +27,6 @@ public:
             return;
 
         LLFloaterExperiences* parent=mParent.get();
- 
         LLTabContainer* tabs = parent->getChild<LLTabContainer>("xp_tabs");
  
         NameMap::iterator it = mNameMap.begin();
@@ -40,7 +39,7 @@ public:
                 {
                     const LLSD& ids = content[it->first];
                     tab->setExperienceList(ids);
-                    parent->clearFromRecent(ids);
+                    //parent->clearFromRecent(ids);
                 }
             }
             ++it;
@@ -70,36 +69,10 @@ BOOL LLFloaterExperiences::postBuild()
     addTab("Admin_Experiences_Tab", false);
     addTab("Contrib_Experiences_Tab", false);
     addTab("Recent_Experiences_Tab", false);
+    resizeToTabs();
 
-    setupRecentTabs();
+    refreshContents();
 
-    LLViewerRegion* region = gAgent.getRegion();
-    
-    if (region)
-    {
-        LLExperienceListResponder::NameMap nameMap;
-    	std::string lookup_url=region->getCapability("GetExperiences"); 
-    	if(!lookup_url.empty())
-    	{
-            nameMap["experiences"]="Allowed_Experiences_Tab";
-            nameMap["blocked"]="Blocked_Experiences_Tab";
-    		LLHTTPClient::get(lookup_url, new LLExperienceListResponder(getDerivedHandle<LLFloaterExperiences>(), nameMap));
-        }
-
-        lookup_url = region->getCapability("GetAdminExperiences"); 
-        if(!lookup_url.empty())
-        {
-            nameMap["experience_ids"]="Admin_Experiences_Tab";
-            LLHTTPClient::get(lookup_url, new LLExperienceListResponder(getDerivedHandle<LLFloaterExperiences>(), nameMap));
-        }
-
-        lookup_url = region->getCapability("GetCreatorExperiences"); 
-        if(!lookup_url.empty())
-        {
-            nameMap["experience_ids"]="Contrib_Experiences_Tab";
-            LLHTTPClient::get(lookup_url, new LLExperienceListResponder(getDerivedHandle<LLFloaterExperiences>(), nameMap));
-        }
-    }
 	return TRUE;
 }
 
@@ -137,4 +110,50 @@ void LLFloaterExperiences::setupRecentTabs()
     }
 
     tab->setExperienceList(recent);
+}
+
+void LLFloaterExperiences::resizeToTabs()
+{
+    const S32 TAB_WIDTH_PADDING = 16;
+
+    LLTabContainer* tabs = getChild<LLTabContainer>("xp_tabs");
+    LLRect rect = getRect();
+    if(rect.getWidth() < tabs->getTotalTabWidth() + TAB_WIDTH_PADDING)
+    {
+        rect.mRight = rect.mLeft + tabs->getTotalTabWidth() + TAB_WIDTH_PADDING;
+    }
+    reshape(rect.getWidth(), rect.getHeight(), FALSE);
+}
+
+void LLFloaterExperiences::refreshContents()
+{
+    setupRecentTabs();
+
+    LLViewerRegion* region = gAgent.getRegion();
+
+    if (region)
+    {
+        LLExperienceListResponder::NameMap nameMap;
+        std::string lookup_url=region->getCapability("GetExperiences"); 
+        if(!lookup_url.empty())
+        {
+            nameMap["experiences"]="Allowed_Experiences_Tab";
+            nameMap["blocked"]="Blocked_Experiences_Tab";
+            LLHTTPClient::get(lookup_url, new LLExperienceListResponder(getDerivedHandle<LLFloaterExperiences>(), nameMap));
+        }
+
+        lookup_url = region->getCapability("GetAdminExperiences"); 
+        if(!lookup_url.empty())
+        {
+            nameMap["experience_ids"]="Admin_Experiences_Tab";
+            LLHTTPClient::get(lookup_url, new LLExperienceListResponder(getDerivedHandle<LLFloaterExperiences>(), nameMap));
+        }
+
+        lookup_url = region->getCapability("GetCreatorExperiences"); 
+        if(!lookup_url.empty())
+        {
+            nameMap["experience_ids"]="Contrib_Experiences_Tab";
+            LLHTTPClient::get(lookup_url, new LLExperienceListResponder(getDerivedHandle<LLFloaterExperiences>(), nameMap));
+        }
+    }
 }

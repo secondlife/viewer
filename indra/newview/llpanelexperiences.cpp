@@ -87,3 +87,22 @@ LLExperienceItem::~LLExperienceItem()
 {
 
 }
+
+void LLPanelSearchExperiences::doSearch()
+{
+
+}
+
+LLPanelSearchExperiences* LLPanelSearchExperiences::create( const std::string& name )
+{
+    LLPanelSearchExperiences* panel= new LLPanelSearchExperiences();
+    panel->getChild<LLPanel>("results")->addChild(LLPanelExperiences::create(name));
+    ///XXXif(
+    return panel;
+}
+
+BOOL LLPanelSearchExperiences::postBuild( void )
+{
+    childSetAction("search_button", boost::bind(&LLPanelSearchExperiences::doSearch, this));
+    return TRUE;
+}

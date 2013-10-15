@@ -35,6 +35,17 @@ class LLExperienceItem;
 class LLPanelProfile; 
 
 
+class LLPanelSearchExperiences 
+    : public LLPanel
+{
+public:
+    LLPanelSearchExperiences(){}
+    static LLPanelSearchExperiences* create(const std::string& name);
+    /*virtual*/ BOOL postBuild(void);
+
+    void doSearch();
+};
+
 class LLPanelExperiences
 	: public LLPanel 
 {

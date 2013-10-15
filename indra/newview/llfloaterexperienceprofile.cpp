@@ -55,6 +55,7 @@
 #define TF_MRKT "marketplace"
 #define TF_MATURITY "ContentRatingText"
 #define TF_OWNER "OwnerText"
+#define TF_GROUP "GroupText"
 #define TF_GRID_WIDE "grid_wide"
 #define EDIT "edit_"
 
@@ -65,6 +66,7 @@
 #define PNL_DESC "description panel"
 #define PNL_LOC "location panel"
 #define PNL_MRKT "marketplace panel"
+#define PNL_GROUP "group_panel"
 
 #define BTN_EDIT "edit_btn"
 #define BTN_ALLOW "allow_btn"
@@ -74,6 +76,8 @@
 #define BTN_SAVE "save_btn"
 #define BTN_ENABLE "enable_btn"
 #define BTN_PRIVATE "private_btn"
+#define BTN_SET_LOCATION "location_btn"
+#define BTN_CLEAR_LOCATION "clear_btn"
 
 
 
@@ -236,14 +240,15 @@ BOOL LLFloaterExperienceProfile::postBuild()
     childSetAction(BTN_BLOCK, boost::bind(&LLFloaterExperienceProfile::onClickPermission, this, "Block"));
     childSetAction(BTN_CANCEL, boost::bind(&LLFloaterExperienceProfile::onClickCancel, this));
     childSetAction(BTN_SAVE, boost::bind(&LLFloaterExperienceProfile::onClickSave, this));
+    childSetAction(BTN_SET_LOCATION, boost::bind(&LLFloaterExperienceProfile::onClickLocation, this));
+    childSetAction(BTN_CLEAR_LOCATION, boost::bind(&LLFloaterExperienceProfile::onClickClear, this));
 
 
-    getChild<LLUICtrl>(EDIT TF_NAME)->setCommitCallback(boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this));
-    getChild<LLUICtrl>(EDIT TF_DESC)->setCommitCallback(boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this));
-    getChild<LLUICtrl>(EDIT TF_SLURL)->setCommitCallback(boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this));
+    getChild<LLTextEditor>(EDIT TF_DESC)->setKeystrokeCallback(boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this));
     getChild<LLUICtrl>(EDIT TF_MATURITY)->setCommitCallback(boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this));
-    getChild<LLUICtrl>(EDIT TF_MRKT)->setCommitCallback(boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this));
-    getChild<LLLineEditor>(EDIT TF_NAME)->setCommitCallback(boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this));
+    getChild<LLLineEditor>(EDIT TF_MRKT)->setKeystrokeCallback(boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this), NULL);
+    getChild<LLLineEditor>(EDIT TF_NAME)->setKeystrokeCallback(boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this), NULL);
+    
     childSetAction(EDIT BTN_ENABLE, boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this));
     childSetAction(EDIT BTN_PRIVATE, boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this));
 
@@ -384,28 +389,35 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
    
     value = experience[LLExperienceCache::SLURL].asString();
     child = getChild<LLTextBox>(TF_SLURL);
+    bool has_value = value.length()>0;
+    locationPanel->setVisible(has_value);
     value = LLSLURL(value).getSLURLString();
     child->setText(value);
-    locationPanel->setVisible(value.length()>0);
 
-    linechild = getChild<LLLineEditor>(EDIT TF_SLURL);
-    linechild->setText(value);
-    
-    setMaturityString((U8)(experience[LLExperienceCache::MATURITY].asInteger()), getChild<LLTextBox>(TF_MATURITY), getChild<LLComboBox>(EDIT TF_MATURITY));
 
-    child = getChild<LLTextBox>(TF_OWNER);
-
-    LLUUID id = experience[LLExperienceCache::GROUP_ID].asUUID();
-    if(id.notNull())
+    child = getChild<LLTextBox>(EDIT TF_SLURL);
+    if(has_value)
     {
-        value = LLSLURL("group", id, "inspect").getSLURLString();
+        child->setText(value);
     }
     else
     {
-        id = experience[LLExperienceCache::AGENT_ID].asUUID();
-        value = LLSLURL("agent", id, "inspect").getSLURLString();
+        child->setText(getString("empty_slurl"));
     }
+    
+    setMaturityString((U8)(experience[LLExperienceCache::MATURITY].asInteger()), getChild<LLTextBox>(TF_MATURITY), getChild<LLComboBox>(EDIT TF_MATURITY));
+
+    LLUUID id = experience[LLExperienceCache::AGENT_ID].asUUID();
+    child = getChild<LLTextBox>(TF_OWNER);
+    value = LLSLURL("agent", id, "inspect").getSLURLString();
     child->setText(value);
+
+
+    id = experience[LLExperienceCache::GROUP_ID].asUUID();
+    child = getChild<LLTextBox>(TF_GROUP);
+    value = LLSLURL("group", id, "inspect").getSLURLString();
+    child->setText(value);
+    getChild<LLLayoutPanel>(PNL_GROUP)->setVisible(id.notNull());
     
     LLCheckBoxCtrl* enable = getChild<LLCheckBoxCtrl>(EDIT BTN_ENABLE);
     S32 properties = mExperienceDetails[LLExperienceCache::PROPERTIES].asInteger();
@@ -479,7 +491,7 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
 
     mDirty=false;
     setCanClose(!mDirty);
-
+    mForceClose = false;
     getChild<LLButton>(BTN_SAVE)->setEnabled(mDirty);
 }
 
@@ -702,4 +714,22 @@ void LLFloaterExperienceProfile::changeToView()
         // Bring up view-modal dialog: Save changes? Yes, No, Cancel
         LLNotificationsUtil::add("SaveChanges", LLSD(), LLSD(), boost::bind(&LLFloaterExperienceProfile::handleSaveChangesDialog, this, _1, _2, VIEW));
     }
+}
+
+void LLFloaterExperienceProfile::onClickLocation()
+{
+    LLViewerRegion* region = gAgent.getRegion();
+    if(region)
+    {
+        LLTextBox* child = getChild<LLTextBox>(EDIT TF_SLURL);
+        child->setText(LLSLURL(region->getName(), gAgent.getPositionGlobal()).getSLURLString());
+        onFieldChanged();
+    }
+}
+
+void LLFloaterExperienceProfile::onClickClear()
+{
+    LLTextBox* child = getChild<LLTextBox>(EDIT TF_SLURL);
+    child->setText(getString("empty_slurl"));
+    onFieldChanged();
 }
