@@ -62,7 +62,10 @@
           <stat_bar name="objs"
                     label="Total Objects"
                     stat="numobjectsstat"/>
-          <stat_bar name="newobjs"
+					<stat_bar name="objs"
+                    label="Cached Objects"
+                    stat="numactivecachedobjects"/>
+					<stat_bar name="newobjs"
                     label="New Objects"
                     stat="numnewobjectsstat"/>
           <stat_bar name="object_cache_hits"

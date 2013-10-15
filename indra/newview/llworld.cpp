@@ -661,6 +661,8 @@ void LLWorld::updateVisibilities()
 	LLViewerCamera::getInstance()->setFar(cur_far_clip);
 }
 
+static LLTrace::SampleStatHandle<> sNumActiveCachedObjects("numactivecachedobjects", "Number of objects loaded from cache");
+
 void LLWorld::updateRegions(F32 max_update_time)
 {
 	if(LLViewerCamera::getInstance()->isChanged())
@@ -682,6 +684,7 @@ void LLWorld::updateRegions(F32 max_update_time)
 	{
 		mNumOfActiveCachedObjects += (*iter)->getNumOfActiveCachedObjects();
 	}
+	sample(sNumActiveCachedObjects, mNumOfActiveCachedObjects);
 }
 
 void LLWorld::clearAllVisibleObjects()
