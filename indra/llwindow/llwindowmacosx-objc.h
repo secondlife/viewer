@@ -49,6 +49,7 @@ void handleQuit();
 bool runMainLoop();
 void initMainLoop();
 void cleanupViewer();
+void handleUrl(const char* url);
 
 /* Defined in llwindowmacosx-objc.mm: */
 int createNSApp(int argc, const char **argv);

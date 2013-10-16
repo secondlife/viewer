@@ -934,7 +934,7 @@ void LLVOAvatar::deleteLayerSetCaches(bool clearAll)
 		}
 		if (mBakedTextureDatas[i].mMaskTexName)
 		{
-			LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, 0, -1, 1, (GLuint*)&(mBakedTextureDatas[i].mMaskTexName));
+			LLImageGL::deleteTextures(1, (GLuint*)&(mBakedTextureDatas[i].mMaskTexName));
 			mBakedTextureDatas[i].mMaskTexName = 0 ;
 		}
 	}
@@ -5521,10 +5521,7 @@ void LLVOAvatar::addChild(LLViewerObject *childp)
 	LLViewerObject::addChild(childp);
 	if (childp->mDrawable)
 	{
-		if (!attachObject(childp))
-		{
-			mPendingAttachment.push_back(childp);
-		}
+		attachObject(childp);
 	}
 	else
 	{
@@ -5558,21 +5555,7 @@ LLViewerJointAttachment* LLVOAvatar::getTargetAttachmentPoint(LLViewerObject* vi
 	if (!attachment)
 	{
 		llwarns << "Object attachment point invalid: " << attachmentID << llendl;
-
-		for (int i = 0; i < 15 && !attachment; i++)
-		{
-			attachment = get_if_there(mAttachmentPoints, i, (LLViewerJointAttachment*)NULL); // Arbitrary using 1 (chest)
-
-			if (attachment)
-			{
-				llwarns << "Object attachment point falling back to : " << i << llendl;
-			}
-		}
-		
-		if (!attachment)
-		{
-			llerrs << "Could not find any object attachment point for: " << attachmentID << llendl;
-		}
+		attachment = get_if_there(mAttachmentPoints, 1, (LLViewerJointAttachment*)NULL); // Arbitrary using 1 (chest)
 	}
 
 	return attachment;
@@ -5645,10 +5628,7 @@ void LLVOAvatar::lazyAttach()
 	{
 		if (mPendingAttachment[i]->mDrawable)
 		{
-			if (!attachObject(mPendingAttachment[i]))
-			{
-				still_pending.push_back(mPendingAttachment[i]);
-			}
+			attachObject(mPendingAttachment[i]);
 		}
 		else
 		{
