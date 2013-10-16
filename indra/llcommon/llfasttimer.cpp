@@ -73,37 +73,52 @@ U64         BlockTimerStatHandle::sClockResolution = 1000000; // Microsecond res
 static LLMutex*			sLogLock = NULL;
 static std::queue<LLSD> sLogQueue;
 
-
-// FIXME: move these declarations to the relevant modules
-
-// helper functions
-typedef LLTreeDFSPostIter<BlockTimerStatHandle, BlockTimerStatHandle::child_const_iter> timer_tree_bottom_up_iterator_t;
-
-static timer_tree_bottom_up_iterator_t begin_timer_tree_bottom_up(BlockTimerStatHandle& id) 
+block_timer_tree_df_iterator_t begin_block_timer_tree_df(BlockTimerStatHandle& id) 
 { 
-	return timer_tree_bottom_up_iterator_t(&id, 
+	return block_timer_tree_df_iterator_t(&id, 
+		boost::bind(boost::mem_fn(&BlockTimerStatHandle::beginChildren), _1), 
+		boost::bind(boost::mem_fn(&BlockTimerStatHandle::endChildren), _1));
+}
+
+block_timer_tree_df_iterator_t end_block_timer_tree_df() 
+{ 
+	return block_timer_tree_df_iterator_t(); 
+}
+
+block_timer_tree_df_post_iterator_t begin_block_timer_tree_df_post(BlockTimerStatHandle& id) 
+{ 
+	return block_timer_tree_df_post_iterator_t(&id, 
 							boost::bind(boost::mem_fn(&BlockTimerStatHandle::beginChildren), _1), 
 							boost::bind(boost::mem_fn(&BlockTimerStatHandle::endChildren), _1));
 }
 
-static timer_tree_bottom_up_iterator_t end_timer_tree_bottom_up() 
+block_timer_tree_df_post_iterator_t end_block_timer_tree_df_post() 
 { 
-	return timer_tree_bottom_up_iterator_t(); 
+	return block_timer_tree_df_post_iterator_t(); 
 }
 
-typedef LLTreeDFSIter<BlockTimerStatHandle, BlockTimerStatHandle::child_const_iter> timer_tree_dfs_iterator_t;
+block_timer_tree_bf_iterator_t begin_block_timer_tree_bf(BlockTimerStatHandle& id)
+{
+	return block_timer_tree_bf_iterator_t(&id, 
+		boost::bind(boost::mem_fn(&BlockTimerStatHandle::beginChildren), _1), 
+		boost::bind(boost::mem_fn(&BlockTimerStatHandle::endChildren), _1));
+}
 
+block_timer_tree_bf_iterator_t end_block_timer_tree_bf()
+{
+	return block_timer_tree_bf_iterator_t(); 
+}
 
-static timer_tree_dfs_iterator_t begin_timer_tree(BlockTimerStatHandle& id) 
+block_timer_tree_df_iterator_t begin_timer_tree(BlockTimerStatHandle& id) 
 { 
-	return timer_tree_dfs_iterator_t(&id, 
+	return block_timer_tree_df_iterator_t(&id, 
 		boost::bind(boost::mem_fn(&BlockTimerStatHandle::beginChildren), _1), 
 							boost::bind(boost::mem_fn(&BlockTimerStatHandle::endChildren), _1));
 }
 
-static timer_tree_dfs_iterator_t end_timer_tree() 
+block_timer_tree_df_iterator_t end_timer_tree() 
 { 
-	return timer_tree_dfs_iterator_t(); 
+	return block_timer_tree_df_iterator_t(); 
 }
 
 
@@ -111,9 +126,9 @@ static timer_tree_dfs_iterator_t end_timer_tree()
 struct SortTimerByName
 {
 	bool operator()(const BlockTimerStatHandle* i1, const BlockTimerStatHandle* i2)
-        {
+	{
 		return i1->getName() < i2->getName();
-        }
+    }
 };
 
 BlockTimerStatHandle& BlockTimerStatHandle::getRootTimeBlock()
@@ -207,8 +222,8 @@ void BlockTimerStatHandle::bootstrapTimerTree()
 // this preserves partial order derived from current frame's observations
 void BlockTimerStatHandle::incrementalUpdateTimerTree()
 {
-	for(timer_tree_bottom_up_iterator_t it = begin_timer_tree_bottom_up(BlockTimerStatHandle::getRootTimeBlock());
-		it != end_timer_tree_bottom_up();
+	for(block_timer_tree_df_post_iterator_t it = begin_block_timer_tree_df_post(BlockTimerStatHandle::getRootTimeBlock());
+		it != end_block_timer_tree_df_post();
 		++it)
 	{
 		BlockTimerStatHandle* timerp = *it;
@@ -374,7 +389,7 @@ void BlockTimerStatHandle::dumpCurTimes()
 	LLTrace::Recording& last_frame_recording = frame_recording.getLastRecording();
 
 	// walk over timers in depth order and output timings
-	for(timer_tree_dfs_iterator_t it = begin_timer_tree(BlockTimerStatHandle::getRootTimeBlock());
+	for(block_timer_tree_df_iterator_t it = begin_timer_tree(BlockTimerStatHandle::getRootTimeBlock());
 		it != end_timer_tree();
 		++it)
 	{

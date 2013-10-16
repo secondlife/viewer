@@ -29,6 +29,7 @@
 
 #include "llinstancetracker.h"
 #include "lltrace.h"
+#include "lltreeiterators.h"
 
 #define LL_FAST_TIMER_ON 1
 #define LL_FASTTIMER_USE_RDTSC 1
@@ -276,6 +277,18 @@ public:
 												sLog;	
 	static U64									sClockResolution;
 };
+
+// iterators and helper functions for walking the call hierarchy of block timers in different ways
+typedef LLTreeDFSIter<BlockTimerStatHandle, BlockTimerStatHandle::child_const_iter> block_timer_tree_df_iterator_t;
+typedef LLTreeDFSPostIter<BlockTimerStatHandle, BlockTimerStatHandle::child_const_iter> block_timer_tree_df_post_iterator_t;
+typedef LLTreeBFSIter<BlockTimerStatHandle, BlockTimerStatHandle::child_const_iter> block_timer_tree_bf_iterator_t;
+
+block_timer_tree_df_iterator_t begin_block_timer_tree_df(BlockTimerStatHandle& id);
+block_timer_tree_df_iterator_t end_block_timer_tree_df();
+block_timer_tree_df_post_iterator_t begin_block_timer_tree_df_post(BlockTimerStatHandle& id);
+block_timer_tree_df_post_iterator_t end_block_timer_tree_df_post();
+block_timer_tree_bf_iterator_t begin_block_timer_tree_bf(BlockTimerStatHandle& id);
+block_timer_tree_bf_iterator_t end_block_timer_tree_bf();
 
 LL_FORCE_INLINE BlockTimer::BlockTimer(BlockTimerStatHandle& timer)
 {

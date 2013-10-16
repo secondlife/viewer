@@ -66,21 +66,7 @@ static const S32 NUM_FRAMES_HISTORY = 200;
 
 std::vector<BlockTimerStatHandle*> ft_display_idx; // line of table entry for display purposes (for collapse)
 
-typedef LLTreeDFSIter<BlockTimerStatHandle, BlockTimerStatHandle::child_const_iter> timer_tree_iterator_t;
-
 BOOL LLFastTimerView::sAnalyzePerformance = FALSE;
-
-static timer_tree_iterator_t begin_timer_tree(BlockTimerStatHandle& id) 
-{ 
-	return timer_tree_iterator_t(&id, 
-							boost::bind(boost::mem_fn(&BlockTimerStatHandle::beginChildren), _1), 
-							boost::bind(boost::mem_fn(&BlockTimerStatHandle::endChildren), _1));
-}
-
-static timer_tree_iterator_t end_timer_tree() 
-{ 
-	return timer_tree_iterator_t(); 
-}
 
 S32 get_depth(const BlockTimerStatHandle* blockp)
 {
@@ -186,8 +172,8 @@ BlockTimerStatHandle* LLFastTimerView::getLegendID(S32 y)
 
 BOOL LLFastTimerView::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
-	for(timer_tree_iterator_t it = begin_timer_tree(FTM_FRAME);
-		it != end_timer_tree();
+	for(LLTrace::block_timer_tree_df_iterator_t it = LLTrace::begin_block_timer_tree_df(FTM_FRAME);
+		it != LLTrace::end_block_timer_tree_df();
 		++it)
 	{
 		(*it)->getTreeNode().mCollapsed = false;
@@ -962,8 +948,8 @@ void LLFastTimerView::printLineStats()
 	{
 		std::string legend_stat;
 		bool first = true;
-		for(timer_tree_iterator_t it = begin_timer_tree(FTM_FRAME);
-			it != end_timer_tree();
+		for(block_timer_tree_df_iterator_t it = LLTrace::begin_block_timer_tree_df(FTM_FRAME);
+			it != LLTrace::end_block_timer_tree_df();
 			++it)
 		{
 			BlockTimerStatHandle* idp = (*it);
@@ -984,8 +970,8 @@ void LLFastTimerView::printLineStats()
 
 		std::string timer_stat;
 		first = true;
-		for(timer_tree_iterator_t it = begin_timer_tree(FTM_FRAME);
-			it != end_timer_tree();
+		for(block_timer_tree_df_iterator_t it = LLTrace::begin_block_timer_tree_df(FTM_FRAME);
+			it != LLTrace::end_block_timer_tree_df();
 			++it)
 		{
 			BlockTimerStatHandle* idp = (*it);
@@ -1062,8 +1048,8 @@ void LLFastTimerView::drawLineGraph()
 
 	F32Seconds cur_max(0);
 	U32 cur_max_calls = 0;
-	for(timer_tree_iterator_t it = begin_timer_tree(FTM_FRAME);
-		it != end_timer_tree();
+	for(block_timer_tree_df_iterator_t it = LLTrace::begin_block_timer_tree_df(FTM_FRAME);
+		it != LLTrace::end_block_timer_tree_df();
 		++it)
 	{
 		BlockTimerStatHandle* idp = (*it);
@@ -1209,8 +1195,8 @@ void LLFastTimerView::drawLegend()
 		S32 cur_line = 0;
 		ft_display_idx.clear();
 		std::map<BlockTimerStatHandle*, S32> display_line;
-		for (timer_tree_iterator_t it = begin_timer_tree(FTM_FRAME);
-			it != timer_tree_iterator_t();
+		for (block_timer_tree_df_iterator_t it = LLTrace::begin_block_timer_tree_df(FTM_FRAME);
+			it != block_timer_tree_df_iterator_t();
 			++it)
 		{
 			BlockTimerStatHandle* idp = (*it);
@@ -1308,8 +1294,8 @@ void LLFastTimerView::generateUniqueColors()
 
 		F32 hue = 0.f;
 
-		for (timer_tree_iterator_t it = begin_timer_tree(FTM_FRAME);
-			it != timer_tree_iterator_t();
+		for (block_timer_tree_df_iterator_t it = LLTrace::begin_block_timer_tree_df(FTM_FRAME);
+			it != block_timer_tree_df_iterator_t();
 			++it)
 		{
 			BlockTimerStatHandle* idp = (*it);
