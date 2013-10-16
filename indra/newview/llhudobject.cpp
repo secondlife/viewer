@@ -252,7 +252,7 @@ LLHUDEffect *LLHUDObject::addHUDEffect(const U8 type)
 	return hud_objectp;
 }
 
-static LLTrace::TimeBlock FTM_HUD_UPDATE("Update Hud");
+static LLTrace::BlockTimerStatHandle FTM_HUD_UPDATE("Update Hud");
 
 // static
 void LLHUDObject::updateAll()

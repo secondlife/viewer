@@ -43,7 +43,7 @@ class LLWatchdogTimeout;
 class LLUpdaterService;
 class LLViewerJoystick;
 
-extern LLTrace::TimeBlock FTM_FRAME;
+extern LLTrace::BlockTimerStatHandle FTM_FRAME;
 
 
 class LLAppViewer : public LLApp

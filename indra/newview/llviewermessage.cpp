@@ -4245,7 +4245,7 @@ const F32 THRESHOLD_HEAD_ROT_QDOT = 0.9997f;	// ~= 2.5 degrees -- if its less th
 const F32 MAX_HEAD_ROT_QDOT = 0.99999f;			// ~= 0.5 degrees -- if its greater than this then no need to update head_rot
 												// between these values we delay the updates (but no more than one second)
 
-static LLTrace::TimeBlock FTM_AGENT_UPDATE_SEND("Send Message");
+static LLTrace::BlockTimerStatHandle FTM_AGENT_UPDATE_SEND("Send Message");
 
 void send_agent_update(BOOL force_send, BOOL send_reliable)
 {
@@ -4560,7 +4560,7 @@ void process_terse_object_update_improved(LLMessageSystem *mesgsys, void **user_
 	gObjectList.processCompressedObjectUpdate(mesgsys, user_data, OUT_TERSE_IMPROVED);
 }
 
-static LLTrace::TimeBlock FTM_PROCESS_OBJECTS("Process Kill Objects");
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_OBJECTS("Process Kill Objects");
 
 void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 {

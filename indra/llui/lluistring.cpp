@@ -31,7 +31,7 @@
 #include "llsd.h"
 #include "lltrans.h"
 
-LLTrace::TimeBlock FTM_UI_STRING("UI String");
+LLTrace::BlockTimerStatHandle FTM_UI_STRING("UI String");
 
 
 LLUIString::LLUIString(const std::string& instring, const LLStringUtil::format_map_t& args)

@@ -942,7 +942,7 @@ void LLFolderViewFolder::addToFolder(LLFolderViewFolder* folder)
 	folder->addFolder(this);
 }
 
-static LLTrace::TimeBlock FTM_ARRANGE("Arrange");
+static LLTrace::BlockTimerStatHandle FTM_ARRANGE("Arrange");
 
 // Make everything right and in the right place ready for drawing (CHUI-849)
 // * Sort everything correctly if necessary

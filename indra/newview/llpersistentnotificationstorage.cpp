@@ -47,7 +47,7 @@ LLPersistentNotificationStorage::~LLPersistentNotificationStorage()
 {
 }
 
-static LLTrace::TimeBlock FTM_SAVE_NOTIFICATIONS("Save Notifications");
+static LLTrace::BlockTimerStatHandle FTM_SAVE_NOTIFICATIONS("Save Notifications");
 
 void LLPersistentNotificationStorage::saveNotifications()
 {
@@ -82,7 +82,7 @@ void LLPersistentNotificationStorage::saveNotifications()
 	writeNotifications(output);
 }
 
-static LLTrace::TimeBlock FTM_LOAD_NOTIFICATIONS("Load Notifications");
+static LLTrace::BlockTimerStatHandle FTM_LOAD_NOTIFICATIONS("Load Notifications");
 
 void LLPersistentNotificationStorage::loadNotifications()
 {

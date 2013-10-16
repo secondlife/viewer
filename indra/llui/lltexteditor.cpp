@@ -2501,7 +2501,7 @@ BOOL LLTextEditor::tryToRevertToPristineState()
 }
 
 
-static LLTrace::TimeBlock FTM_SYNTAX_HIGHLIGHTING("Syntax Highlighting");
+static LLTrace::BlockTimerStatHandle FTM_SYNTAX_HIGHLIGHTING("Syntax Highlighting");
 void LLTextEditor::loadKeywords(const std::string& filename,
 								const std::vector<std::string>& funcs,
 								const std::vector<std::string>& tooltips,

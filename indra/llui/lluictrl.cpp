@@ -737,7 +737,7 @@ public:
 	}
 };
 
-LLTrace::TimeBlock FTM_FOCUS_FIRST_ITEM("Focus First Item");
+LLTrace::BlockTimerStatHandle FTM_FOCUS_FIRST_ITEM("Focus First Item");
 
 BOOL LLUICtrl::focusFirstItem(BOOL prefer_text_fields, BOOL focus_flash)
 {

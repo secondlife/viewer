@@ -1062,7 +1062,7 @@ void gl_rect_2d_simple( S32 width, S32 height )
 	gGL.end();
 }
 
-static LLTrace::TimeBlock FTM_RENDER_SEGMENTED_RECT ("Render segmented rectangle");
+static LLTrace::BlockTimerStatHandle FTM_RENDER_SEGMENTED_RECT ("Render segmented rectangle");
 
 void gl_segmented_rect_2d_tex(const S32 left, 
 							  const S32 top, 

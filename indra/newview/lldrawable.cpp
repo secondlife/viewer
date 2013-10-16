@@ -56,7 +56,7 @@ const F32 MAX_INTERPOLATE_DISTANCE_SQUARED = 10.f * 10.f;
 const F32 OBJECT_DAMPING_TIME_CONSTANT = 0.06f;
 const F32 MIN_SHADOW_CASTER_RADIUS = 2.0f;
 
-static LLTrace::TimeBlock FTM_CULL_REBOUND("Cull Rebound");
+static LLTrace::BlockTimerStatHandle FTM_CULL_REBOUND("Cull Rebound");
 
 extern bool gShiftFrame;
 
@@ -236,9 +236,9 @@ BOOL LLDrawable::isLight() const
 	}
 }
 
-static LLTrace::TimeBlock FTM_CLEANUP_DRAWABLE("Cleanup Drawable");
-static LLTrace::TimeBlock FTM_DEREF_DRAWABLE("Deref");
-static LLTrace::TimeBlock FTM_DELETE_FACES("Faces");
+static LLTrace::BlockTimerStatHandle FTM_CLEANUP_DRAWABLE("Cleanup Drawable");
+static LLTrace::BlockTimerStatHandle FTM_DEREF_DRAWABLE("Deref");
+static LLTrace::BlockTimerStatHandle FTM_DELETE_FACES("Faces");
 
 void LLDrawable::cleanupReferences()
 {
@@ -306,7 +306,7 @@ S32 LLDrawable::findReferences(LLDrawable *drawablep)
 	return count;
 }
 
-static LLTrace::TimeBlock FTM_ALLOCATE_FACE("Allocate Face");
+static LLTrace::BlockTimerStatHandle FTM_ALLOCATE_FACE("Allocate Face");
 
 LLFace*	LLDrawable::addFace(LLFacePool *poolp, LLViewerTexture *texturep)
 {

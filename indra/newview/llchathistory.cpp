@@ -734,7 +734,7 @@ void LLChatHistory::clear()
 	mLastFromID = LLUUID::null;
 }
 
-static LLTrace::TimeBlock FTM_APPEND_MESSAGE("Append Chat Message");
+static LLTrace::BlockTimerStatHandle FTM_APPEND_MESSAGE("Append Chat Message");
 
 void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LLStyle::Params& input_append_params)
 {

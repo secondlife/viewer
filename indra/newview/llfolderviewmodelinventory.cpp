@@ -34,7 +34,7 @@
 //
 // class LLFolderViewModelInventory
 //
-static LLTrace::TimeBlock FTM_INVENTORY_SORT("Sort");
+static LLTrace::BlockTimerStatHandle FTM_INVENTORY_SORT("Sort");
 
 bool LLFolderViewModelInventory::startDrag(std::vector<LLFolderViewModelItem*>& items)
 {

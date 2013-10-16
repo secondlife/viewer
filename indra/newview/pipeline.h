@@ -70,26 +70,26 @@ glh::matrix4f gl_ortho(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top,
 glh::matrix4f gl_perspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar);
 glh::matrix4f gl_lookat(LLVector3 eye, LLVector3 center, LLVector3 up);
 
-extern LLTrace::TimeBlock FTM_RENDER_GEOMETRY;
-extern LLTrace::TimeBlock FTM_RENDER_GRASS;
-extern LLTrace::TimeBlock FTM_RENDER_INVISIBLE;
-extern LLTrace::TimeBlock FTM_RENDER_OCCLUSION;
-extern LLTrace::TimeBlock FTM_RENDER_SHINY;
-extern LLTrace::TimeBlock FTM_RENDER_SIMPLE;
-extern LLTrace::TimeBlock FTM_RENDER_TERRAIN;
-extern LLTrace::TimeBlock FTM_RENDER_TREES;
-extern LLTrace::TimeBlock FTM_RENDER_UI;
-extern LLTrace::TimeBlock FTM_RENDER_WATER;
-extern LLTrace::TimeBlock FTM_RENDER_WL_SKY;
-extern LLTrace::TimeBlock FTM_RENDER_ALPHA;
-extern LLTrace::TimeBlock FTM_RENDER_CHARACTERS;
-extern LLTrace::TimeBlock FTM_RENDER_BUMP;
-extern LLTrace::TimeBlock FTM_RENDER_MATERIALS;
-extern LLTrace::TimeBlock FTM_RENDER_FULLBRIGHT;
-extern LLTrace::TimeBlock FTM_RENDER_GLOW;
-extern LLTrace::TimeBlock FTM_STATESORT;
-extern LLTrace::TimeBlock FTM_PIPELINE;
-extern LLTrace::TimeBlock FTM_CLIENT_COPY;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_GEOMETRY;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_GRASS;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_INVISIBLE;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_OCCLUSION;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_SHINY;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_SIMPLE;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_TERRAIN;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_TREES;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_UI;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_WATER;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_WL_SKY;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_CHARACTERS;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_BUMP;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_MATERIALS;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_FULLBRIGHT;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_GLOW;
+extern LLTrace::BlockTimerStatHandle FTM_STATESORT;
+extern LLTrace::BlockTimerStatHandle FTM_PIPELINE;
+extern LLTrace::BlockTimerStatHandle FTM_CLIENT_COPY;
 
 
 class LLPipeline

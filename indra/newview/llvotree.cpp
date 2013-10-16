@@ -479,7 +479,7 @@ LLDrawable* LLVOTree::createDrawable(LLPipeline *pipeline)
 const S32 LEAF_INDICES = 24;
 const S32 LEAF_VERTICES = 16;
 
-static LLTrace::TimeBlock FTM_UPDATE_TREE("Update Tree");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_TREE("Update Tree");
 
 BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 {

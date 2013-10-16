@@ -1243,7 +1243,7 @@ void LLVOSky::createDummyVertexBuffer()
 	}
 }
 
-static LLTrace::TimeBlock FTM_RENDER_FAKE_VBO_UPDATE("Fake VBO Update");
+static LLTrace::BlockTimerStatHandle FTM_RENDER_FAKE_VBO_UPDATE("Fake VBO Update");
 
 void LLVOSky::updateDummyVertexBuffer()
 {	
@@ -1269,7 +1269,7 @@ void LLVOSky::updateDummyVertexBuffer()
 //----------------------------------
 //end of fake vertex buffer updating
 //----------------------------------
-static LLTrace::TimeBlock FTM_GEO_SKY("Sky Geometry");
+static LLTrace::BlockTimerStatHandle FTM_GEO_SKY("Sky Geometry");
 
 BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
 {

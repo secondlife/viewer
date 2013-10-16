@@ -215,7 +215,7 @@ void LLWaterParamManager::applyParams(const LLSD& params, bool interpolate)
 	}
 }
 
-static LLTrace::TimeBlock FTM_UPDATE_WATERPARAM("Update Water Params");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_WATERPARAM("Update Water Params");
 
 void LLWaterParamManager::update(LLViewerCamera * cam)
 {

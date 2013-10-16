@@ -179,7 +179,7 @@ BOOL LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
 //-----------------------------------------------------------------------------
 // apply()
 //-----------------------------------------------------------------------------
-static LLTrace::TimeBlock FTM_POLYSKELETAL_DISTORTION_APPLY("Skeletal Distortion");
+static LLTrace::BlockTimerStatHandle FTM_POLYSKELETAL_DISTORTION_APPLY("Skeletal Distortion");
 
 void LLPolySkeletalDistortion::apply( ESex avatar_sex )
 {

@@ -64,17 +64,17 @@ static const S32 MIN_BAR_HEIGHT = 3;
 static const S32 RUNNING_AVERAGE_WIDTH = 100;
 static const S32 NUM_FRAMES_HISTORY = 200;
 
-std::vector<TimeBlock*> ft_display_idx; // line of table entry for display purposes (for collapse)
+std::vector<BlockTimerStatHandle*> ft_display_idx; // line of table entry for display purposes (for collapse)
 
-typedef LLTreeDFSIter<TimeBlock, TimeBlock::child_const_iter> timer_tree_iterator_t;
+typedef LLTreeDFSIter<BlockTimerStatHandle, BlockTimerStatHandle::child_const_iter> timer_tree_iterator_t;
 
 BOOL LLFastTimerView::sAnalyzePerformance = FALSE;
 
-static timer_tree_iterator_t begin_timer_tree(TimeBlock& id) 
+static timer_tree_iterator_t begin_timer_tree(BlockTimerStatHandle& id) 
 { 
 	return timer_tree_iterator_t(&id, 
-							boost::bind(boost::mem_fn(&TimeBlock::beginChildren), _1), 
-							boost::bind(boost::mem_fn(&TimeBlock::endChildren), _1));
+							boost::bind(boost::mem_fn(&BlockTimerStatHandle::beginChildren), _1), 
+							boost::bind(boost::mem_fn(&BlockTimerStatHandle::endChildren), _1));
 }
 
 static timer_tree_iterator_t end_timer_tree() 
@@ -82,10 +82,10 @@ static timer_tree_iterator_t end_timer_tree()
 	return timer_tree_iterator_t(); 
 }
 
-S32 get_depth(const TimeBlock* blockp)
+S32 get_depth(const BlockTimerStatHandle* blockp)
 {
 	S32 depth = 0;
-	TimeBlock* timerp = blockp->getParent();
+	BlockTimerStatHandle* timerp = blockp->getParent();
 	while(timerp)
 	{
 		depth++;
@@ -172,7 +172,7 @@ BOOL LLFastTimerView::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	return LLFloater::handleRightMouseDown(x, y, mask);
 }
 
-TimeBlock* LLFastTimerView::getLegendID(S32 y)
+BlockTimerStatHandle* LLFastTimerView::getLegendID(S32 y)
 {
 	S32 idx = (mLegendRect.mTop - y) / (LLFontGL::getFontMonospace()->getLineHeight() + 2);
 
@@ -199,7 +199,7 @@ BOOL LLFastTimerView::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	if (x < mBarRect.mLeft) 
 	{
-		TimeBlock* idp = getLegendID(y);
+		BlockTimerStatHandle* idp = getLegendID(y);
 		if (idp)
 		{
 			idp->getTreeNode().mCollapsed = !idp->getTreeNode().mCollapsed;
@@ -261,7 +261,7 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 
 		TimerBar* hover_bar = NULL;
 		F32Seconds mouse_time_offset = ((F32)(x - mBarRect.mLeft) / (F32)mBarRect.getWidth()) * mTotalTimeDisplay;
-		for (int bar_index = 0, end_index = LLInstanceTracker<LLTrace::TimeBlock>::instanceCount(); 
+		for (int bar_index = 0, end_index = LLTrace::BlockTimerStatHandle::instance_tracker_t::instanceCount(); 
 			bar_index < end_index; 
 			++bar_index)
 		{
@@ -275,7 +275,7 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 				hover_bar = &bar;
 				if (bar.mTimeBlock->getTreeNode().mCollapsed)
 		{
-					// stop on first collapsed timeblock, since we can't select any children
+					// stop on first collapsed BlockTimerStatHandle, since we can't select any children
 					break;
 				}
 			}
@@ -300,7 +300,7 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 	}
 	else if (x < mBarRect.mLeft) 
 	{
-		TimeBlock* timer_id = getLegendID(y);
+		BlockTimerStatHandle* timer_id = getLegendID(y);
 		if (timer_id)
 		{
 			mHoverID = timer_id;
@@ -311,7 +311,7 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 }
 
 
-static std::string get_tooltip(TimeBlock& timer, S32 history_index, PeriodicRecording& frame_recording)
+static std::string get_tooltip(BlockTimerStatHandle& timer, S32 history_index, PeriodicRecording& frame_recording)
 {
 	std::string tooltip;
 	if (history_index == 0)
@@ -351,7 +351,7 @@ BOOL LLFastTimerView::handleToolTip(S32 x, S32 y, MASK mask)
 		// tooltips for timer legend
 		if (x < mBarRect.mLeft) 
 		{
-			TimeBlock* idp = getLegendID(y);
+			BlockTimerStatHandle* idp = getLegendID(y);
 			if (idp)
 			{
 				LLToolTipMgr::instance().show(get_tooltip(*idp, 0, mRecording));
@@ -373,7 +373,7 @@ BOOL LLFastTimerView::handleScrollWheel(S32 x, S32 y, S32 clicks)
 	return TRUE;
 }
 
-static TimeBlock FTM_RENDER_TIMER("Timers");
+static BlockTimerStatHandle FTM_RENDER_TIMER("Timers");
 static const S32 MARGIN = 10;
 static const S32 LEGEND_WIDTH = 220;
 
@@ -938,13 +938,13 @@ void LLFastTimerView::outputAllMetrics()
 //static
 void LLFastTimerView::doAnalysis(std::string baseline, std::string target, std::string output)
 {
-	if(TimeBlock::sLog)
+	if(BlockTimerStatHandle::sLog)
 	{
 		doAnalysisDefault(baseline, target, output) ;
 		return ;
 	}
 
-	if(TimeBlock::sMetricLog)
+	if(BlockTimerStatHandle::sMetricLog)
 	{
 		LLMetricPerformanceTesterBasic::doAnalysisMetrics(baseline, target, output) ;
 		return ;
@@ -966,7 +966,7 @@ void LLFastTimerView::printLineStats()
 			it != end_timer_tree();
 			++it)
 		{
-			TimeBlock* idp = (*it);
+			BlockTimerStatHandle* idp = (*it);
 
 			if (!first)
 			{
@@ -988,7 +988,7 @@ void LLFastTimerView::printLineStats()
 			it != end_timer_tree();
 			++it)
 		{
-			TimeBlock* idp = (*it);
+			BlockTimerStatHandle* idp = (*it);
 
 			if (!first)
 			{
@@ -1019,7 +1019,7 @@ void LLFastTimerView::printLineStats()
 	}
 }
 
-static LLTrace::TimeBlock FTM_DRAW_LINE_GRAPH("Draw line graph");
+static LLTrace::BlockTimerStatHandle FTM_DRAW_LINE_GRAPH("Draw line graph");
 
 void LLFastTimerView::drawLineGraph()
 {
@@ -1066,7 +1066,7 @@ void LLFastTimerView::drawLineGraph()
 		it != end_timer_tree();
 		++it)
 	{
-		TimeBlock* idp = (*it);
+		BlockTimerStatHandle* idp = (*it);
 
 		//fatten highlighted timer
 		if (mHoverID == idp)
@@ -1208,12 +1208,12 @@ void LLFastTimerView::drawLegend()
 		LLLocalClipRect clip(mLegendRect);
 		S32 cur_line = 0;
 		ft_display_idx.clear();
-		std::map<TimeBlock*, S32> display_line;
+		std::map<BlockTimerStatHandle*, S32> display_line;
 		for (timer_tree_iterator_t it = begin_timer_tree(FTM_FRAME);
 			it != timer_tree_iterator_t();
 			++it)
 		{
-			TimeBlock* idp = (*it);
+			BlockTimerStatHandle* idp = (*it);
 			display_line[idp] = cur_line;
 			ft_display_idx.push_back(idp);
 			cur_line++;
@@ -1275,7 +1275,7 @@ void LLFastTimerView::drawLegend()
 
 			x += dx;
 			BOOL is_child_of_hover_item = (idp == mHoverID);
-			TimeBlock* next_parent = idp->getParent();
+			BlockTimerStatHandle* next_parent = idp->getParent();
 			while(!is_child_of_hover_item && next_parent)
 			{
 				is_child_of_hover_item = (mHoverID == next_parent);
@@ -1303,7 +1303,7 @@ void LLFastTimerView::generateUniqueColors()
 {
 	// generate unique colors
 	{
-		sTimerColors.resize(LLTrace::TimeBlock::getNumIndices());
+		sTimerColors.resize(LLTrace::BlockTimerStatHandle::getNumIndices());
 		sTimerColors[FTM_FRAME.getIndex()] = LLColor4::grey;
 
 		F32 hue = 0.f;
@@ -1312,7 +1312,7 @@ void LLFastTimerView::generateUniqueColors()
 			it != timer_tree_iterator_t();
 			++it)
 		{
-			TimeBlock* idp = (*it);
+			BlockTimerStatHandle* idp = (*it);
 
 			const F32 HUE_INCREMENT = 0.23f;
 			hue = fmodf(hue + HUE_INCREMENT, 1.f);
@@ -1462,7 +1462,7 @@ void LLFastTimerView::drawBars()
 			U32 bar_index = 0;
 			if (!mAverageTimerRow.mBars)
 			{
-				mAverageTimerRow.mBars = new TimerBar[LLInstanceTracker<LLTrace::TimeBlock>::instanceCount()];
+				mAverageTimerRow.mBars = new TimerBar[LLTrace::BlockTimerStatHandle::instance_tracker_t::instanceCount()];
 			}
 			updateTimerBarWidths(&FTM_FRAME, mAverageTimerRow, -1, bar_index);
 			updateTimerBarOffsets(&FTM_FRAME, mAverageTimerRow);
@@ -1474,7 +1474,7 @@ void LLFastTimerView::drawBars()
 				bar_index = 0;
 				if (!row.mBars)
 				{
-					row.mBars = new TimerBar[LLInstanceTracker<LLTrace::TimeBlock>::instanceCount()];
+					row.mBars = new TimerBar[LLTrace::BlockTimerStatHandle::instance_tracker_t::instanceCount()];
 					updateTimerBarWidths(&FTM_FRAME, row, history_index, bar_index);
 					updateTimerBarOffsets(&FTM_FRAME, row);
 				}
@@ -1509,9 +1509,9 @@ void LLFastTimerView::drawBars()
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 }
 
-static LLTrace::TimeBlock FTM_UPDATE_TIMER_BAR_WIDTHS("Update timer bar widths");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_TIMER_BAR_WIDTHS("Update timer bar widths");
 
-F32Seconds LLFastTimerView::updateTimerBarWidths(LLTrace::TimeBlock* time_block, TimerBarRow& row, S32 history_index, U32& bar_index)
+F32Seconds LLFastTimerView::updateTimerBarWidths(LLTrace::BlockTimerStatHandle* time_block, TimerBarRow& row, S32 history_index, U32& bar_index)
 {
 	LL_RECORD_BLOCK_TIME(FTM_UPDATE_TIMER_BAR_WIDTHS);
 	const F32Seconds self_time = history_index == -1
@@ -1525,7 +1525,7 @@ F32Seconds LLFastTimerView::updateTimerBarWidths(LLTrace::TimeBlock* time_block,
 	TimerBar& timer_bar = row.mBars[bar_index];
 	bar_index++;
 
-	for (TimeBlock::child_iter it = time_block->beginChildren(), end_it = time_block->endChildren(); it != end_it; ++it)
+	for (BlockTimerStatHandle::child_iter it = time_block->beginChildren(), end_it = time_block->endChildren(); it != end_it; ++it)
 	{
 		full_time += updateTimerBarWidths(*it, row, history_index, bar_index);
 	}
@@ -1537,9 +1537,9 @@ F32Seconds LLFastTimerView::updateTimerBarWidths(LLTrace::TimeBlock* time_block,
 	return full_time;
 }
 
-static LLTrace::TimeBlock FTM_UPDATE_TIMER_BAR_FRACTIONS("Update timer bar fractions");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_TIMER_BAR_FRACTIONS("Update timer bar fractions");
 
-S32 LLFastTimerView::updateTimerBarOffsets(LLTrace::TimeBlock* time_block, TimerBarRow& row, S32 timer_bar_index)
+S32 LLFastTimerView::updateTimerBarOffsets(LLTrace::BlockTimerStatHandle* time_block, TimerBarRow& row, S32 timer_bar_index)
 {
 	LL_RECORD_BLOCK_TIME(FTM_UPDATE_TIMER_BAR_FRACTIONS);
 
@@ -1560,14 +1560,14 @@ S32 LLFastTimerView::updateTimerBarOffsets(LLTrace::TimeBlock* time_block, Timer
 	TimerBar* last_child_timer_bar = NULL;
 
 	bool first_child = true;
-	for (TimeBlock::child_iter it = time_block->beginChildren(), end_it = time_block->endChildren(); 
+	for (BlockTimerStatHandle::child_iter it = time_block->beginChildren(), end_it = time_block->endChildren(); 
 		it != end_it; 
 		++it)
 	{
 		timer_bar_index++;
 		
 		TimerBar& child_timer_bar = row.mBars[timer_bar_index];
-		TimeBlock* child_time_block = *it;
+		BlockTimerStatHandle* child_time_block = *it;
 
 		if (last_child_timer_bar)
 		{
@@ -1603,7 +1603,7 @@ S32 LLFastTimerView::updateTimerBarOffsets(LLTrace::TimeBlock* time_block, Timer
 S32 LLFastTimerView::drawBar(LLRect bar_rect, TimerBarRow& row, S32 image_width, S32 image_height, bool hovered, bool visible, S32 bar_index)
 {
 	TimerBar& timer_bar = row.mBars[bar_index];
-	LLTrace::TimeBlock* time_block = timer_bar.mTimeBlock;
+	LLTrace::BlockTimerStatHandle* time_block = timer_bar.mTimeBlock;
 
 	hovered |= mHoverID == time_block;
 
@@ -1648,7 +1648,7 @@ S32 LLFastTimerView::drawBar(LLRect bar_rect, TimerBarRow& row, S32 image_width,
 	bool children_visible = visible && !time_block->getTreeNode().mCollapsed;
 
 	bar_index++;
-	const U32 num_bars = LLInstanceTracker<LLTrace::TimeBlock>::instanceCount();
+	const U32 num_bars = LLTrace::BlockTimerStatHandle::instance_tracker_t::instanceCount();
 	if (bar_index < num_bars && row.mBars[bar_index].mFirstChild)
 	{
 		bool is_last = false;

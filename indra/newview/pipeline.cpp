@@ -228,40 +228,40 @@ BOOL	gDebugPipeline = FALSE;
 LLPipeline gPipeline;
 const LLMatrix4* gGLLastMatrix = NULL;
 
-LLTrace::TimeBlock FTM_RENDER_GEOMETRY("Render Geometry");
-LLTrace::TimeBlock FTM_RENDER_GRASS("Grass");
-LLTrace::TimeBlock FTM_RENDER_INVISIBLE("Invisible");
-LLTrace::TimeBlock FTM_RENDER_OCCLUSION("Occlusion");
-LLTrace::TimeBlock FTM_RENDER_SHINY("Shiny");
-LLTrace::TimeBlock FTM_RENDER_SIMPLE("Simple");
-LLTrace::TimeBlock FTM_RENDER_TERRAIN("Terrain");
-LLTrace::TimeBlock FTM_RENDER_TREES("Trees");
-LLTrace::TimeBlock FTM_RENDER_UI("UI");
-LLTrace::TimeBlock FTM_RENDER_WATER("Water");
-LLTrace::TimeBlock FTM_RENDER_WL_SKY("Windlight Sky");
-LLTrace::TimeBlock FTM_RENDER_ALPHA("Alpha Objects");
-LLTrace::TimeBlock FTM_RENDER_CHARACTERS("Avatars");
-LLTrace::TimeBlock FTM_RENDER_BUMP("Bump");
-LLTrace::TimeBlock FTM_RENDER_MATERIALS("Materials");
-LLTrace::TimeBlock FTM_RENDER_FULLBRIGHT("Fullbright");
-LLTrace::TimeBlock FTM_RENDER_GLOW("Glow");
-LLTrace::TimeBlock FTM_GEO_UPDATE("Geo Update");
-LLTrace::TimeBlock FTM_PIPELINE_CREATE("Pipeline Create");
-LLTrace::TimeBlock FTM_POOLRENDER("RenderPool");
-LLTrace::TimeBlock FTM_POOLS("Pools");
-LLTrace::TimeBlock FTM_DEFERRED_POOLRENDER("RenderPool (Deferred)");
-LLTrace::TimeBlock FTM_DEFERRED_POOLS("Pools (Deferred)");
-LLTrace::TimeBlock FTM_POST_DEFERRED_POOLRENDER("RenderPool (Post)");
-LLTrace::TimeBlock FTM_POST_DEFERRED_POOLS("Pools (Post)");
-LLTrace::TimeBlock FTM_RENDER_BLOOM_FBO("First FBO");
-LLTrace::TimeBlock FTM_STATESORT("Sort Draw State");
-LLTrace::TimeBlock FTM_PIPELINE("Pipeline");
-LLTrace::TimeBlock FTM_CLIENT_COPY("Client Copy");
-LLTrace::TimeBlock FTM_RENDER_DEFERRED("Deferred Shading");
+LLTrace::BlockTimerStatHandle FTM_RENDER_GEOMETRY("Render Geometry");
+LLTrace::BlockTimerStatHandle FTM_RENDER_GRASS("Grass");
+LLTrace::BlockTimerStatHandle FTM_RENDER_INVISIBLE("Invisible");
+LLTrace::BlockTimerStatHandle FTM_RENDER_OCCLUSION("Occlusion");
+LLTrace::BlockTimerStatHandle FTM_RENDER_SHINY("Shiny");
+LLTrace::BlockTimerStatHandle FTM_RENDER_SIMPLE("Simple");
+LLTrace::BlockTimerStatHandle FTM_RENDER_TERRAIN("Terrain");
+LLTrace::BlockTimerStatHandle FTM_RENDER_TREES("Trees");
+LLTrace::BlockTimerStatHandle FTM_RENDER_UI("UI");
+LLTrace::BlockTimerStatHandle FTM_RENDER_WATER("Water");
+LLTrace::BlockTimerStatHandle FTM_RENDER_WL_SKY("Windlight Sky");
+LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA("Alpha Objects");
+LLTrace::BlockTimerStatHandle FTM_RENDER_CHARACTERS("Avatars");
+LLTrace::BlockTimerStatHandle FTM_RENDER_BUMP("Bump");
+LLTrace::BlockTimerStatHandle FTM_RENDER_MATERIALS("Materials");
+LLTrace::BlockTimerStatHandle FTM_RENDER_FULLBRIGHT("Fullbright");
+LLTrace::BlockTimerStatHandle FTM_RENDER_GLOW("Glow");
+LLTrace::BlockTimerStatHandle FTM_GEO_UPDATE("Geo Update");
+LLTrace::BlockTimerStatHandle FTM_PIPELINE_CREATE("Pipeline Create");
+LLTrace::BlockTimerStatHandle FTM_POOLRENDER("RenderPool");
+LLTrace::BlockTimerStatHandle FTM_POOLS("Pools");
+LLTrace::BlockTimerStatHandle FTM_DEFERRED_POOLRENDER("RenderPool (Deferred)");
+LLTrace::BlockTimerStatHandle FTM_DEFERRED_POOLS("Pools (Deferred)");
+LLTrace::BlockTimerStatHandle FTM_POST_DEFERRED_POOLRENDER("RenderPool (Post)");
+LLTrace::BlockTimerStatHandle FTM_POST_DEFERRED_POOLS("Pools (Post)");
+LLTrace::BlockTimerStatHandle FTM_RENDER_BLOOM_FBO("First FBO");
+LLTrace::BlockTimerStatHandle FTM_STATESORT("Sort Draw State");
+LLTrace::BlockTimerStatHandle FTM_PIPELINE("Pipeline");
+LLTrace::BlockTimerStatHandle FTM_CLIENT_COPY("Client Copy");
+LLTrace::BlockTimerStatHandle FTM_RENDER_DEFERRED("Deferred Shading");
 
 
-static LLTrace::TimeBlock FTM_STATESORT_DRAWABLE("Sort Drawables");
-static LLTrace::TimeBlock FTM_STATESORT_POSTSORT("Post Sort");
+static LLTrace::BlockTimerStatHandle FTM_STATESORT_DRAWABLE("Sort Drawables");
+static LLTrace::BlockTimerStatHandle FTM_STATESORT_POSTSORT("Post Sort");
 
 static LLStaticHashedString sTint("tint");
 static LLStaticHashedString sAmbiance("ambiance");
@@ -772,7 +772,7 @@ void LLPipeline::destroyGL()
 	}
 }
 
-static LLTrace::TimeBlock FTM_RESIZE_SCREEN_TEXTURE("Resize Screen Texture");
+static LLTrace::BlockTimerStatHandle FTM_RESIZE_SCREEN_TEXTURE("Resize Screen Texture");
 
 //static
 void LLPipeline::throttleNewMemoryAllocation(BOOL disable)
@@ -1821,11 +1821,11 @@ void LLPipeline::allocDrawable(LLViewerObject *vobj)
 }
 
 
-static LLTrace::TimeBlock FTM_UNLINK("Unlink");
-static LLTrace::TimeBlock FTM_REMOVE_FROM_MOVE_LIST("Movelist");
-static LLTrace::TimeBlock FTM_REMOVE_FROM_SPATIAL_PARTITION("Spatial Partition");
-static LLTrace::TimeBlock FTM_REMOVE_FROM_LIGHT_SET("Light Set");
-static LLTrace::TimeBlock FTM_REMOVE_FROM_HIGHLIGHT_SET("Highlight Set");
+static LLTrace::BlockTimerStatHandle FTM_UNLINK("Unlink");
+static LLTrace::BlockTimerStatHandle FTM_REMOVE_FROM_MOVE_LIST("Movelist");
+static LLTrace::BlockTimerStatHandle FTM_REMOVE_FROM_SPATIAL_PARTITION("Spatial Partition");
+static LLTrace::BlockTimerStatHandle FTM_REMOVE_FROM_LIGHT_SET("Light Set");
+static LLTrace::BlockTimerStatHandle FTM_REMOVE_FROM_HIGHLIGHT_SET("Highlight Set");
 
 void LLPipeline::unlinkDrawable(LLDrawable *drawable)
 {
@@ -2101,10 +2101,10 @@ void LLPipeline::updateMovedList(LLDrawable::drawable_vector_t& moved_list)
 	}
 }
 
-static LLTrace::TimeBlock FTM_OCTREE_BALANCE("Balance Octree");
-static LLTrace::TimeBlock FTM_UPDATE_MOVE("Update Move");
-static LLTrace::TimeBlock FTM_RETEXTURE("Retexture");
-static LLTrace::TimeBlock FTM_MOVED_LIST("Moved List");
+static LLTrace::BlockTimerStatHandle FTM_OCTREE_BALANCE("Balance Octree");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_MOVE("Update Move");
+static LLTrace::BlockTimerStatHandle FTM_RETEXTURE("Retexture");
+static LLTrace::BlockTimerStatHandle FTM_MOVED_LIST("Moved List");
 
 void LLPipeline::updateMove()
 {
@@ -2465,7 +2465,7 @@ BOOL LLPipeline::getVisibleExtents(LLCamera& camera, LLVector3& min, LLVector3& 
 	return res;
 }
 
-static LLTrace::TimeBlock FTM_CULL("Object Culling");
+static LLTrace::BlockTimerStatHandle FTM_CULL("Object Culling");
 
 void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_clip, LLPlane* planep)
 {
@@ -2869,9 +2869,9 @@ BOOL LLPipeline::updateDrawableGeom(LLDrawable* drawablep, BOOL priority)
 	return update_complete;
 }
 
-static LLTrace::TimeBlock FTM_SEED_VBO_POOLS("Seed VBO Pool");
+static LLTrace::BlockTimerStatHandle FTM_SEED_VBO_POOLS("Seed VBO Pool");
 
-static LLTrace::TimeBlock FTM_UPDATE_GL("Update GL");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_GL("Update GL");
 
 void LLPipeline::updateGL()
 {
@@ -2892,7 +2892,7 @@ void LLPipeline::updateGL()
 	}
 }
 
-static LLTrace::TimeBlock FTM_REBUILD_PRIORITY_GROUPS("Rebuild Priority Groups");
+static LLTrace::BlockTimerStatHandle FTM_REBUILD_PRIORITY_GROUPS("Rebuild Priority Groups");
 
 void LLPipeline::clearRebuildGroups()
 {
@@ -3022,7 +3022,7 @@ void LLPipeline::rebuildPriorityGroups()
 
 }
 
-static LLTrace::TimeBlock FTM_REBUILD_GROUPS("Rebuild Groups");
+static LLTrace::BlockTimerStatHandle FTM_REBUILD_GROUPS("Rebuild Groups");
 
 void LLPipeline::rebuildGroups()
 {
@@ -3268,9 +3268,9 @@ void LLPipeline::markShift(LLDrawable *drawablep)
 	}
 }
 
-static LLTrace::TimeBlock FTM_SHIFT_DRAWABLE("Shift Drawable");
-static LLTrace::TimeBlock FTM_SHIFT_OCTREE("Shift Octree");
-static LLTrace::TimeBlock FTM_SHIFT_HUD("Shift HUD");
+static LLTrace::BlockTimerStatHandle FTM_SHIFT_DRAWABLE("Shift Drawable");
+static LLTrace::BlockTimerStatHandle FTM_SHIFT_OCTREE("Shift Octree");
+static LLTrace::BlockTimerStatHandle FTM_SHIFT_HUD("Shift HUD");
 
 void LLPipeline::shiftObjects(const LLVector3 &offset)
 {
@@ -3352,7 +3352,7 @@ void LLPipeline::markPartitionMove(LLDrawable* drawable)
 	}
 }
 
-static LLTrace::TimeBlock FTM_PROCESS_PARTITIONQ("PartitionQ");
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_PARTITIONQ("PartitionQ");
 void LLPipeline::processPartitionQ()
 {
 	LL_RECORD_BLOCK_TIME(FTM_PROCESS_PARTITIONQ);
@@ -3443,7 +3443,7 @@ void LLPipeline::markRebuild(LLDrawable *drawablep, LLDrawable::EDrawableFlags f
 	}
 }
 
-static LLTrace::TimeBlock FTM_RESET_DRAWORDER("Reset Draw Order");
+static LLTrace::BlockTimerStatHandle FTM_RESET_DRAWORDER("Reset Draw Order");
 
 void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 {
@@ -5668,7 +5668,7 @@ void LLPipeline::renderDebug()
 	}
 }
 
-static LLTrace::TimeBlock FTM_REBUILD_POOLS("Rebuild Pools");
+static LLTrace::BlockTimerStatHandle FTM_REBUILD_POOLS("Rebuild Pools");
 
 void LLPipeline::rebuildPools()
 {
@@ -7383,7 +7383,7 @@ void LLPipeline::resetVertexBuffers()
 	mResetVertexBuffers = true;
 }
 
-static LLTrace::TimeBlock FTM_RESET_VB("Reset VB");
+static LLTrace::BlockTimerStatHandle FTM_RESET_VB("Reset VB");
 
 void LLPipeline::doResetVertexBuffers()
 {
@@ -7544,7 +7544,7 @@ void LLPipeline::bindScreenToTexture()
 	
 }
 
-static LLTrace::TimeBlock FTM_RENDER_BLOOM("Bloom");
+static LLTrace::BlockTimerStatHandle FTM_RENDER_BLOOM("Bloom");
 
 void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 {
@@ -8201,7 +8201,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 }
 
-static LLTrace::TimeBlock FTM_BIND_DEFERRED("Bind Deferred");
+static LLTrace::BlockTimerStatHandle FTM_BIND_DEFERRED("Bind Deferred");
 
 void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 noise_map)
 {
@@ -8426,16 +8426,16 @@ LLVector4 pow4fsrgb(LLVector4 v, F32 f)
 	return v;
 }
 
-static LLTrace::TimeBlock FTM_GI_TRACE("Trace");
-static LLTrace::TimeBlock FTM_GI_GATHER("Gather");
-static LLTrace::TimeBlock FTM_SUN_SHADOW("Shadow Map");
-static LLTrace::TimeBlock FTM_SOFTEN_SHADOW("Shadow Soften");
-static LLTrace::TimeBlock FTM_EDGE_DETECTION("Find Edges");
-static LLTrace::TimeBlock FTM_LOCAL_LIGHTS("Local Lights");
-static LLTrace::TimeBlock FTM_ATMOSPHERICS("Atmospherics");
-static LLTrace::TimeBlock FTM_FULLSCREEN_LIGHTS("Fullscreen Lights");
-static LLTrace::TimeBlock FTM_PROJECTORS("Projectors");
-static LLTrace::TimeBlock FTM_POST("Post");
+static LLTrace::BlockTimerStatHandle FTM_GI_TRACE("Trace");
+static LLTrace::BlockTimerStatHandle FTM_GI_GATHER("Gather");
+static LLTrace::BlockTimerStatHandle FTM_SUN_SHADOW("Shadow Map");
+static LLTrace::BlockTimerStatHandle FTM_SOFTEN_SHADOW("Shadow Soften");
+static LLTrace::BlockTimerStatHandle FTM_EDGE_DETECTION("Find Edges");
+static LLTrace::BlockTimerStatHandle FTM_LOCAL_LIGHTS("Local Lights");
+static LLTrace::BlockTimerStatHandle FTM_ATMOSPHERICS("Atmospherics");
+static LLTrace::BlockTimerStatHandle FTM_FULLSCREEN_LIGHTS("Fullscreen Lights");
+static LLTrace::BlockTimerStatHandle FTM_PROJECTORS("Projectors");
+static LLTrace::BlockTimerStatHandle FTM_POST("Post");
 
 
 void LLPipeline::renderDeferredLighting()
@@ -10143,9 +10143,9 @@ glh::matrix4f scale_translate_to_fit(const LLVector3 min, const LLVector3 max)
 	return ret;
 }
 
-static LLTrace::TimeBlock FTM_SHADOW_RENDER("Render Shadows");
-static LLTrace::TimeBlock FTM_SHADOW_ALPHA("Alpha Shadow");
-static LLTrace::TimeBlock FTM_SHADOW_SIMPLE("Simple Shadow");
+static LLTrace::BlockTimerStatHandle FTM_SHADOW_RENDER("Render Shadows");
+static LLTrace::BlockTimerStatHandle FTM_SHADOW_ALPHA("Alpha Shadow");
+static LLTrace::BlockTimerStatHandle FTM_SHADOW_SIMPLE("Simple Shadow");
 
 void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera& shadow_cam, LLCullResult &result, BOOL use_shader, BOOL use_occlusion, U32 target_width)
 {
@@ -10303,7 +10303,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 	LLPipeline::sShadowRender = FALSE;
 }
 
-static LLTrace::TimeBlock FTM_VISIBLE_CLOUD("Visible Cloud");
+static LLTrace::BlockTimerStatHandle FTM_VISIBLE_CLOUD("Visible Cloud");
 BOOL LLPipeline::getVisiblePointCloud(LLCamera& camera, LLVector3& min, LLVector3& max, std::vector<LLVector3>& fp, LLVector3 light_dir)
 {
 	LL_RECORD_BLOCK_TIME(FTM_VISIBLE_CLOUD);
@@ -10553,7 +10553,7 @@ void LLPipeline::generateHighlight(LLCamera& camera)
 }
 
 
-static LLTrace::TimeBlock FTM_GEN_SUN_SHADOW("Gen Sun Shadow");
+static LLTrace::BlockTimerStatHandle FTM_GEN_SUN_SHADOW("Gen Sun Shadow");
 
 void LLPipeline::generateSunShadow(LLCamera& camera)
 {
@@ -11343,11 +11343,11 @@ void LLPipeline::renderGroups(LLRenderPass* pass, U32 type, U32 mask, BOOL textu
 	}
 }
 
-static LLTrace::TimeBlock FTM_IMPOSTOR_MARK_VISIBLE("Impostor Mark Visible");
-static LLTrace::TimeBlock FTM_IMPOSTOR_SETUP("Impostor Setup");
-static LLTrace::TimeBlock FTM_IMPOSTOR_BACKGROUND("Impostor Background");
-static LLTrace::TimeBlock FTM_IMPOSTOR_ALLOCATE("Impostor Allocate");
-static LLTrace::TimeBlock FTM_IMPOSTOR_RESIZE("Impostor Resize");
+static LLTrace::BlockTimerStatHandle FTM_IMPOSTOR_MARK_VISIBLE("Impostor Mark Visible");
+static LLTrace::BlockTimerStatHandle FTM_IMPOSTOR_SETUP("Impostor Setup");
+static LLTrace::BlockTimerStatHandle FTM_IMPOSTOR_BACKGROUND("Impostor Background");
+static LLTrace::BlockTimerStatHandle FTM_IMPOSTOR_ALLOCATE("Impostor Allocate");
+static LLTrace::BlockTimerStatHandle FTM_IMPOSTOR_RESIZE("Impostor Resize");
 
 void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 {

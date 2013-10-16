@@ -627,7 +627,7 @@ public:
 		
 		while (!LLAppViewer::instance()->isQuitting())
 		{
-			LLTrace::TimeBlock::writeLog(os);
+			LLTrace::BlockTimerStatHandle::writeLog(os);
 			os.flush();
 			ms_sleep(32);
 		}
@@ -1240,24 +1240,24 @@ void LLAppViewer::checkMemory()
 	}
 }
 
-static LLTrace::TimeBlock FTM_MESSAGES("System Messages");
-static LLTrace::TimeBlock FTM_SLEEP("Sleep");
-static LLTrace::TimeBlock FTM_YIELD("Yield");
+static LLTrace::BlockTimerStatHandle FTM_MESSAGES("System Messages");
+static LLTrace::BlockTimerStatHandle FTM_SLEEP("Sleep");
+static LLTrace::BlockTimerStatHandle FTM_YIELD("Yield");
 
-static LLTrace::TimeBlock FTM_TEXTURE_CACHE("Texture Cache");
-static LLTrace::TimeBlock FTM_DECODE("Image Decode");
-static LLTrace::TimeBlock FTM_VFS("VFS Thread");
-static LLTrace::TimeBlock FTM_LFS("LFS Thread");
-static LLTrace::TimeBlock FTM_PAUSE_THREADS("Pause Threads");
-static LLTrace::TimeBlock FTM_IDLE("Idle");
-static LLTrace::TimeBlock FTM_PUMP("Pump");
-static LLTrace::TimeBlock FTM_PUMP_ARES("Ares");
-static LLTrace::TimeBlock FTM_PUMP_SERVICE("Service");
-static LLTrace::TimeBlock FTM_SERVICE_CALLBACK("Callback");
-static LLTrace::TimeBlock FTM_AGENT_AUTOPILOT("Autopilot");
-static LLTrace::TimeBlock FTM_AGENT_UPDATE("Update");
+static LLTrace::BlockTimerStatHandle FTM_TEXTURE_CACHE("Texture Cache");
+static LLTrace::BlockTimerStatHandle FTM_DECODE("Image Decode");
+static LLTrace::BlockTimerStatHandle FTM_VFS("VFS Thread");
+static LLTrace::BlockTimerStatHandle FTM_LFS("LFS Thread");
+static LLTrace::BlockTimerStatHandle FTM_PAUSE_THREADS("Pause Threads");
+static LLTrace::BlockTimerStatHandle FTM_IDLE("Idle");
+static LLTrace::BlockTimerStatHandle FTM_PUMP("Pump");
+static LLTrace::BlockTimerStatHandle FTM_PUMP_ARES("Ares");
+static LLTrace::BlockTimerStatHandle FTM_PUMP_SERVICE("Service");
+static LLTrace::BlockTimerStatHandle FTM_SERVICE_CALLBACK("Callback");
+static LLTrace::BlockTimerStatHandle FTM_AGENT_AUTOPILOT("Autopilot");
+static LLTrace::BlockTimerStatHandle FTM_AGENT_UPDATE("Update");
 
-LLTrace::TimeBlock FTM_FRAME("Frame");
+LLTrace::BlockTimerStatHandle FTM_FRAME("Frame");
 
 bool LLAppViewer::mainLoop()
 {
@@ -1315,9 +1315,9 @@ bool LLAppViewer::mainLoop()
 #endif
 	{
 		LL_RECORD_BLOCK_TIME(FTM_FRAME);
-		LLTrace::TimeBlock::processTimes();
+		LLTrace::BlockTimerStatHandle::processTimes();
 		LLTrace::get_frame_recording().nextPeriod();
-		LLTrace::TimeBlock::logStats();
+		LLTrace::BlockTimerStatHandle::logStats();
 
 		LLTrace::get_master_thread_recorder()->pullFromChildren();
 
@@ -1662,9 +1662,9 @@ bool LLAppViewer::cleanup()
 	if (LLFastTimerView::sAnalyzePerformance)
 	{
 		LL_INFOS() << "Analyzing performance" << LL_ENDL;
-		std::string baseline_name = LLTrace::TimeBlock::sLogName + "_baseline.slp";
-		std::string current_name  = LLTrace::TimeBlock::sLogName + ".slp"; 
-		std::string report_name   = LLTrace::TimeBlock::sLogName + "_report.csv";
+		std::string baseline_name = LLTrace::BlockTimerStatHandle::sLogName + "_baseline.slp";
+		std::string current_name  = LLTrace::BlockTimerStatHandle::sLogName + ".slp"; 
+		std::string report_name   = LLTrace::BlockTimerStatHandle::sLogName + "_report.csv";
 
 		LLFastTimerView::doAnalysis(
 			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, baseline_name),
@@ -2018,9 +2018,9 @@ bool LLAppViewer::cleanup()
 	{
 		LL_INFOS() << "Analyzing performance" << LL_ENDL;
 		
-		std::string baseline_name = LLTrace::TimeBlock::sLogName + "_baseline.slp";
-		std::string current_name  = LLTrace::TimeBlock::sLogName + ".slp"; 
-		std::string report_name   = LLTrace::TimeBlock::sLogName + "_report.csv";
+		std::string baseline_name = LLTrace::BlockTimerStatHandle::sLogName + "_baseline.slp";
+		std::string current_name  = LLTrace::BlockTimerStatHandle::sLogName + ".slp"; 
+		std::string report_name   = LLTrace::BlockTimerStatHandle::sLogName + "_report.csv";
 
 		LLFastTimerView::doAnalysis(
 			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, baseline_name),
@@ -2139,10 +2139,10 @@ bool LLAppViewer::initThreads()
 													enable_threads && true,
 													app_metrics_qa_mode);	
 
-	if (LLTrace::TimeBlock::sLog || LLTrace::TimeBlock::sMetricLog)
+	if (LLTrace::BlockTimerStatHandle::sLog || LLTrace::BlockTimerStatHandle::sMetricLog)
 	{
-		LLTrace::TimeBlock::setLogLock(new LLMutex(NULL));
-		mFastTimerLogThread = new LLFastTimerLogThread(LLTrace::TimeBlock::sLogName);
+		LLTrace::BlockTimerStatHandle::setLogLock(new LLMutex(NULL));
+		mFastTimerLogThread = new LLFastTimerLogThread(LLTrace::BlockTimerStatHandle::sLogName);
 		mFastTimerLogThread->start();
 	}
 
@@ -2597,18 +2597,18 @@ bool LLAppViewer::initConfiguration()
 
 	if (gSavedSettings.getBOOL("LogPerformance"))
 	{
-		LLTrace::TimeBlock::sLog = true;
-		LLTrace::TimeBlock::sLogName = std::string("performance");		
+		LLTrace::BlockTimerStatHandle::sLog = true;
+		LLTrace::BlockTimerStatHandle::sLogName = std::string("performance");		
 	}
 
 	std::string test_name(gSavedSettings.getString("LogMetrics"));
 	if (! test_name.empty())
 	{
-		LLTrace::TimeBlock::sMetricLog = TRUE ;
+		LLTrace::BlockTimerStatHandle::sMetricLog = TRUE ;
 		// '--logmetrics' is specified with a named test metric argument so the data gathering is done only on that test
 		// In the absence of argument, every metric would be gathered (makes for a rather slow run and hard to decipher report...)
 		LL_INFOS() << "'--logmetrics' argument : " << test_name << LL_ENDL;
-		LLTrace::TimeBlock::sLogName = test_name;
+		LLTrace::BlockTimerStatHandle::sLogName = test_name;
  	}
 
 	if (clp.hasOption("graphicslevel"))
@@ -4470,20 +4470,20 @@ public:
 		}
 };
 
-static LLTrace::TimeBlock FTM_AUDIO_UPDATE("Update Audio");
-static LLTrace::TimeBlock FTM_CLEANUP("Cleanup");
-static LLTrace::TimeBlock FTM_CLEANUP_DRAWABLES("Drawables");
-static LLTrace::TimeBlock FTM_CLEANUP_OBJECTS("Objects");
-static LLTrace::TimeBlock FTM_IDLE_CB("Idle Callbacks");
-static LLTrace::TimeBlock FTM_LOD_UPDATE("Update LOD");
-static LLTrace::TimeBlock FTM_OBJECTLIST_UPDATE("Update Objectlist");
-static LLTrace::TimeBlock FTM_REGION_UPDATE("Update Region");
-static LLTrace::TimeBlock FTM_WORLD_UPDATE("Update World");
-static LLTrace::TimeBlock FTM_NETWORK("Network");
-static LLTrace::TimeBlock FTM_AGENT_NETWORK("Agent Network");
-static LLTrace::TimeBlock FTM_VLMANAGER("VL Manager");
-static LLTrace::TimeBlock FTM_AGENT_POSITION("Agent Position");
-static LLTrace::TimeBlock FTM_HUD_EFFECTS("HUD Effects");
+static LLTrace::BlockTimerStatHandle FTM_AUDIO_UPDATE("Update Audio");
+static LLTrace::BlockTimerStatHandle FTM_CLEANUP("Cleanup");
+static LLTrace::BlockTimerStatHandle FTM_CLEANUP_DRAWABLES("Drawables");
+static LLTrace::BlockTimerStatHandle FTM_CLEANUP_OBJECTS("Objects");
+static LLTrace::BlockTimerStatHandle FTM_IDLE_CB("Idle Callbacks");
+static LLTrace::BlockTimerStatHandle FTM_LOD_UPDATE("Update LOD");
+static LLTrace::BlockTimerStatHandle FTM_OBJECTLIST_UPDATE("Update Objectlist");
+static LLTrace::BlockTimerStatHandle FTM_REGION_UPDATE("Update Region");
+static LLTrace::BlockTimerStatHandle FTM_WORLD_UPDATE("Update World");
+static LLTrace::BlockTimerStatHandle FTM_NETWORK("Network");
+static LLTrace::BlockTimerStatHandle FTM_AGENT_NETWORK("Agent Network");
+static LLTrace::BlockTimerStatHandle FTM_VLMANAGER("VL Manager");
+static LLTrace::BlockTimerStatHandle FTM_AGENT_POSITION("Agent Position");
+static LLTrace::BlockTimerStatHandle FTM_HUD_EFFECTS("HUD Effects");
 
 ///////////////////////////////////////////////////////
 // idle()
@@ -5079,12 +5079,12 @@ void LLAppViewer::idleNameCache()
 static F32 CheckMessagesMaxTime = CHECK_MESSAGES_DEFAULT_MAX_TIME;
 #endif
 
-static LLTrace::TimeBlock FTM_IDLE_NETWORK("Idle Network");
-static LLTrace::TimeBlock FTM_MESSAGE_ACKS("Message Acks");
-static LLTrace::TimeBlock FTM_RETRANSMIT("Retransmit");
-static LLTrace::TimeBlock FTM_TIMEOUT_CHECK("Timeout Check");
-static LLTrace::TimeBlock FTM_DYNAMIC_THROTTLE("Dynamic Throttle");
-static LLTrace::TimeBlock FTM_CHECK_REGION_CIRCUIT("Check Region Circuit");
+static LLTrace::BlockTimerStatHandle FTM_IDLE_NETWORK("Idle Network");
+static LLTrace::BlockTimerStatHandle FTM_MESSAGE_ACKS("Message Acks");
+static LLTrace::BlockTimerStatHandle FTM_RETRANSMIT("Retransmit");
+static LLTrace::BlockTimerStatHandle FTM_TIMEOUT_CHECK("Timeout Check");
+static LLTrace::BlockTimerStatHandle FTM_DYNAMIC_THROTTLE("Dynamic Throttle");
+static LLTrace::BlockTimerStatHandle FTM_CHECK_REGION_CIRCUIT("Check Region Circuit");
 
 void LLAppViewer::idleNetwork()
 {

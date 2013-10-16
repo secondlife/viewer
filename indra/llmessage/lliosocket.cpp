@@ -294,7 +294,7 @@ LLIOSocketReader::~LLIOSocketReader()
 	//LL_DEBUGS() << "Destroying LLIOSocketReader" << LL_ENDL;
 }
 
-static LLTrace::TimeBlock FTM_PROCESS_SOCKET_READER("Socket Reader");
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_SOCKET_READER("Socket Reader");
 
 // virtual
 LLIOPipe::EStatus LLIOSocketReader::process_impl(
@@ -394,7 +394,7 @@ LLIOSocketWriter::~LLIOSocketWriter()
 	//LL_DEBUGS() << "Destroying LLIOSocketWriter" << LL_ENDL;
 }
 
-static LLTrace::TimeBlock FTM_PROCESS_SOCKET_WRITER("Socket Writer");
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_SOCKET_WRITER("Socket Writer");
 // virtual
 LLIOPipe::EStatus LLIOSocketWriter::process_impl(
 	const LLChannelDescriptors& channels,
@@ -550,7 +550,7 @@ void LLIOServerSocket::setResponseTimeout(F32 timeout_secs)
 	mResponseTimeout = timeout_secs;
 }
 
-static LLTrace::TimeBlock FTM_PROCESS_SERVER_SOCKET("Server Socket");
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_SERVER_SOCKET("Server Socket");
 // virtual
 LLIOPipe::EStatus LLIOServerSocket::process_impl(
 	const LLChannelDescriptors& channels,

@@ -86,7 +86,7 @@ std::string LLDate::asRFC1123() const
 	return toHTTPDateString (std::string ("%A, %d %b %Y %H:%M:%S GMT"));
 }
 
-LLTrace::TimeBlock FT_DATE_FORMAT("Date Format");
+LLTrace::BlockTimerStatHandle FT_DATE_FORMAT("Date Format");
 
 std::string LLDate::toHTTPDateString (std::string fmt) const
 {

@@ -96,9 +96,9 @@ S32 LLVOVolume::mRenderComplexity_current = 0;
 LLPointer<LLObjectMediaDataClient> LLVOVolume::sObjectMediaClient = NULL;
 LLPointer<LLObjectMediaNavigateClient> LLVOVolume::sObjectMediaNavigateClient = NULL;
 
-static LLTrace::TimeBlock FTM_GEN_TRIANGLES("Generate Triangles");
-static LLTrace::TimeBlock FTM_GEN_VOLUME("Generate Volumes");
-static LLTrace::TimeBlock FTM_VOLUME_TEXTURES("Volume Textures");
+static LLTrace::BlockTimerStatHandle FTM_GEN_TRIANGLES("Generate Triangles");
+static LLTrace::BlockTimerStatHandle FTM_GEN_VOLUME("Generate Volumes");
+static LLTrace::BlockTimerStatHandle FTM_VOLUME_TEXTURES("Volume Textures");
 
 extern BOOL gGLDebugLoggingEnabled;
 
@@ -1630,9 +1630,9 @@ void LLVOVolume::updateRelativeXform(bool force_identity)
 	}
 }
 
-static LLTrace::TimeBlock FTM_GEN_FLEX("Generate Flexies");
-static LLTrace::TimeBlock FTM_UPDATE_PRIMITIVES("Update Primitives");
-static LLTrace::TimeBlock FTM_UPDATE_RIGGED_VOLUME("Update Rigged");
+static LLTrace::BlockTimerStatHandle FTM_GEN_FLEX("Generate Flexies");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_PRIMITIVES("Update Primitives");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_RIGGED_VOLUME("Update Rigged");
 
 BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 {
@@ -3917,8 +3917,8 @@ void LLVOVolume::updateRiggedVolume()
 
 }
 
-static LLTrace::TimeBlock FTM_SKIN_RIGGED("Skin");
-static LLTrace::TimeBlock FTM_RIGGED_OCTREE("Octree");
+static LLTrace::BlockTimerStatHandle FTM_SKIN_RIGGED("Skin");
+static LLTrace::BlockTimerStatHandle FTM_RIGGED_OCTREE("Octree");
 
 void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, const LLVolume* volume)
 {
@@ -4115,7 +4115,7 @@ bool can_batch_texture(LLFace* facep)
 	return true;
 }
 
-static LLTrace::TimeBlock FTM_REGISTER_FACE("Register Face");
+static LLTrace::BlockTimerStatHandle FTM_REGISTER_FACE("Register Face");
 
 void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep, U32 type)
 {
@@ -4346,9 +4346,9 @@ void LLVolumeGeometryManager::getGeometry(LLSpatialGroup* group)
 
 }
 
-static LLTrace::TimeBlock FTM_REBUILD_VOLUME_VB("Volume VB");
-static LLTrace::TimeBlock FTM_REBUILD_VOLUME_FACE_LIST("Build Face List");
-static LLTrace::TimeBlock FTM_REBUILD_VOLUME_GEN_DRAW_INFO("Gen Draw Info");
+static LLTrace::BlockTimerStatHandle FTM_REBUILD_VOLUME_VB("Volume VB");
+static LLTrace::BlockTimerStatHandle FTM_REBUILD_VOLUME_FACE_LIST("Build Face List");
+static LLTrace::BlockTimerStatHandle FTM_REBUILD_VOLUME_GEN_DRAW_INFO("Gen Draw Info");
 
 static LLDrawPoolAvatar* get_avatar_drawpool(LLViewerObject* vobj)
 {
@@ -5047,7 +5047,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 }
 }
 
-static LLFastTimer::DeclareTimer FTM_REBUILD_MESH_FLUSH("Flush Mesh");
+static LLTrace::BlockTimerStatHandle FTM_REBUILD_MESH_FLUSH("Flush Mesh");
 
 void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 {
@@ -5195,11 +5195,11 @@ struct CompareBatchBreakerModified
 	}
 };
 
-static LLTrace::TimeBlock FTM_GEN_DRAW_INFO_SORT("Draw Info Face Sort");
-static LLTrace::TimeBlock FTM_GEN_DRAW_INFO_FACE_SIZE("Face Sizing");
-static LLTrace::TimeBlock FTM_GEN_DRAW_INFO_ALLOCATE("Allocate VB");
-static LLTrace::TimeBlock FTM_GEN_DRAW_INFO_FIND_VB("Find VB");
-static LLTrace::TimeBlock FTM_GEN_DRAW_INFO_RESIZE_VB("Resize VB");
+static LLTrace::BlockTimerStatHandle FTM_GEN_DRAW_INFO_SORT("Draw Info Face Sort");
+static LLTrace::BlockTimerStatHandle FTM_GEN_DRAW_INFO_FACE_SIZE("Face Sizing");
+static LLTrace::BlockTimerStatHandle FTM_GEN_DRAW_INFO_ALLOCATE("Allocate VB");
+static LLTrace::BlockTimerStatHandle FTM_GEN_DRAW_INFO_FIND_VB("Find VB");
+static LLTrace::BlockTimerStatHandle FTM_GEN_DRAW_INFO_RESIZE_VB("Resize VB");
 
 
 

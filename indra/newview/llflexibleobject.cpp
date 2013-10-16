@@ -47,8 +47,8 @@
 std::vector<LLVolumeImplFlexible*> LLVolumeImplFlexible::sInstanceList;
 std::vector<S32> LLVolumeImplFlexible::sUpdateDelay;
 
-static LLTrace::TimeBlock FTM_FLEXIBLE_REBUILD("Rebuild");
-static LLTrace::TimeBlock FTM_DO_FLEXIBLE_UPDATE("Flexible Update");
+static LLTrace::BlockTimerStatHandle FTM_FLEXIBLE_REBUILD("Rebuild");
+static LLTrace::BlockTimerStatHandle FTM_DO_FLEXIBLE_UPDATE("Flexible Update");
 
 // LLFlexibleObjectData::pack/unpack now in llprimitive.cpp
 
@@ -334,7 +334,7 @@ void LLVolumeImplFlexible::updateRenderRes()
 // updated every time step. In the future, perhaps there could be an 
 // optimization similar to what Havok does for objects that are stationary. 
 //---------------------------------------------------------------------------------
-static LLTrace::TimeBlock FTM_FLEXIBLE_UPDATE("Update Flexies");
+static LLTrace::BlockTimerStatHandle FTM_FLEXIBLE_UPDATE("Update Flexies");
 void LLVolumeImplFlexible::doIdleUpdate()
 {
 	LLDrawable* drawablep = mVO->mDrawable;
@@ -715,7 +715,7 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 	mLastSegmentRotation = parentSegmentRotation;
 }
 
-static LLFastTimer::DeclareTimer FTM_FLEXI_PREBUILD("Flexi Prebuild");
+static LLTrace::BlockTimerStatHandle FTM_FLEXI_PREBUILD("Flexi Prebuild");
 
 void LLVolumeImplFlexible::preRebuild()
 {

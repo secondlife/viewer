@@ -42,8 +42,8 @@
 static LLGLSLShader* simple_shader = NULL;
 static LLGLSLShader* fullbright_shader = NULL;
 
-static LLTrace::TimeBlock FTM_RENDER_SIMPLE_DEFERRED("Deferred Simple");
-static LLTrace::TimeBlock FTM_RENDER_GRASS_DEFERRED("Deferred Grass");
+static LLTrace::BlockTimerStatHandle FTM_RENDER_SIMPLE_DEFERRED("Deferred Simple");
+static LLTrace::BlockTimerStatHandle FTM_RENDER_GRASS_DEFERRED("Deferred Grass");
 
 void LLDrawPoolGlow::beginPostDeferredPass(S32 pass)
 {
@@ -51,7 +51,7 @@ void LLDrawPoolGlow::beginPostDeferredPass(S32 pass)
 	gDeferredEmissiveProgram.uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
 }
 
-static LLTrace::TimeBlock FTM_RENDER_GLOW_PUSH("Glow Push");
+static LLTrace::BlockTimerStatHandle FTM_RENDER_GLOW_PUSH("Glow Push");
 
 void LLDrawPoolGlow::renderPostDeferred(S32 pass)
 {
@@ -237,7 +237,7 @@ void LLDrawPoolSimple::render(S32 pass)
 
 
 
-static LLTrace::TimeBlock FTM_RENDER_ALPHA_MASK("Alpha Mask");
+static LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA_MASK("Alpha Mask");
 
 LLDrawPoolAlphaMask::LLDrawPoolAlphaMask() :
 	LLRenderPass(POOL_ALPHA_MASK)
@@ -420,7 +420,7 @@ void LLDrawPoolSimple::renderDeferred(S32 pass)
 	}
 }
 
-static LLTrace::TimeBlock FTM_RENDER_ALPHA_MASK_DEFERRED("Deferred Alpha Mask");
+static LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA_MASK_DEFERRED("Deferred Alpha Mask");
 
 void LLDrawPoolAlphaMask::beginDeferredPass(S32 pass)
 {

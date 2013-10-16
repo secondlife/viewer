@@ -318,7 +318,7 @@ S32 LLFolderView::arrange( S32* unused_width, S32* unused_height )
 	return llround(mTargetHeight);
 }
 
-static LLTrace::TimeBlock FTM_FILTER("Filter Folder View");
+static LLTrace::BlockTimerStatHandle FTM_FILTER("Filter Folder View");
 
 void LLFolderView::filter( LLFolderViewFilter& filter )
 {
@@ -482,7 +482,7 @@ BOOL LLFolderView::changeSelection(LLFolderViewItem* selection, BOOL selected)
 	return rv;
 }
 
-static LLTrace::TimeBlock FTM_SANITIZE_SELECTION("Sanitize Selection");
+static LLTrace::BlockTimerStatHandle FTM_SANITIZE_SELECTION("Sanitize Selection");
 void LLFolderView::sanitizeSelection()
 {
 	LL_RECORD_BLOCK_TIME(FTM_SANITIZE_SELECTION);
@@ -1588,8 +1588,8 @@ void LLFolderView::setShowSingleSelection(bool show)
 	}
 }
 
-static LLTrace::TimeBlock FTM_AUTO_SELECT("Open and Select");
-static LLTrace::TimeBlock FTM_INVENTORY("Inventory");
+static LLTrace::BlockTimerStatHandle FTM_AUTO_SELECT("Open and Select");
+static LLTrace::BlockTimerStatHandle FTM_INVENTORY("Inventory");
 
 // Main idle routine
 void LLFolderView::update()

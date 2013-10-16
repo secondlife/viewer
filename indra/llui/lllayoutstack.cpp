@@ -349,7 +349,7 @@ void LLLayoutStack::collapsePanel(LLPanel* panel, BOOL collapsed)
 	mNeedsLayout = true;
 }
 
-static LLTrace::TimeBlock FTM_UPDATE_LAYOUT("Update LayoutStacks");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_LAYOUT("Update LayoutStacks");
 
 void LLLayoutStack::updateLayout()
 {	

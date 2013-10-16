@@ -60,7 +60,7 @@ LLWLParamSet::LLWLParamSet(void) :
 	mCloudScrollXOffset(0.f), mCloudScrollYOffset(0.f)	
 {}
 
-static LLTrace::TimeBlock FTM_WL_PARAM_UPDATE("WL Param Update");
+static LLTrace::BlockTimerStatHandle FTM_WL_PARAM_UPDATE("WL Param Update");
 
 void LLWLParamSet::update(LLGLSLShader * shader) const 
 {	

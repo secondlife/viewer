@@ -364,7 +364,7 @@ void LLWLParamManager::updateShaderUniforms(LLGLSLShader * shader)
 	
 }
 
-static LLTrace::TimeBlock FTM_UPDATE_WLPARAM("Update Windlight Params");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_WLPARAM("Update Windlight Params");
 
 void LLWLParamManager::propagateParameters(void)
 {

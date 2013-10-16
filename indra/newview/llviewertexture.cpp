@@ -455,7 +455,7 @@ const S32 min_non_tex_system_mem = (128<<20); // 128 MB
 F32 texmem_lower_bound_scale = 0.85f;
 F32 texmem_middle_bound_scale = 0.925f;
 
-static LLTrace::TimeBlock FTM_TEXTURE_MEMORY_CHECK("Memory Check");
+static LLTrace::BlockTimerStatHandle FTM_TEXTURE_MEMORY_CHECK("Memory Check");
 
 //static 
 bool LLViewerTexture::isMemoryForTextureLow()
@@ -510,8 +510,8 @@ bool LLViewerTexture::isMemoryForTextureLow()
 	return low_mem;
 }
 
-static LLTrace::TimeBlock FTM_TEXTURE_UPDATE_MEDIA("Media");
-static LLTrace::TimeBlock FTM_TEXTURE_UPDATE_TEST("Test");
+static LLTrace::BlockTimerStatHandle FTM_TEXTURE_UPDATE_MEDIA("Media");
+static LLTrace::BlockTimerStatHandle FTM_TEXTURE_UPDATE_TEST("Test");
 
 //static
 void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity)

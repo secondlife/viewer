@@ -1081,7 +1081,7 @@ bool LLFace::canRenderAsMask()
 }
 
 
-static LLTrace::TimeBlock FTM_FACE_GEOM_VOLUME("Volume VB Cache");
+static LLTrace::BlockTimerStatHandle FTM_FACE_GEOM_VOLUME("Volume VB Cache");
 
 //static 
 void LLFace::cacheFaceInVRAM(const LLVolumeFace& vf)
@@ -1148,33 +1148,33 @@ void push_for_transform(LLVertexBuffer* buff, U32 source_count, U32 dest_count)
 	}
 }
 
-static LLTrace::TimeBlock FTM_FACE_GET_GEOM("Face Geom");
-static LLTrace::TimeBlock FTM_FACE_GEOM_POSITION("Position");
-static LLTrace::TimeBlock FTM_FACE_GEOM_NORMAL("Normal");
-static LLTrace::TimeBlock FTM_FACE_GEOM_TEXTURE("Texture");
-static LLTrace::TimeBlock FTM_FACE_GEOM_COLOR("Color");
-static LLTrace::TimeBlock FTM_FACE_GEOM_EMISSIVE("Emissive");
-static LLTrace::TimeBlock FTM_FACE_GEOM_WEIGHTS("Weights");
-static LLTrace::TimeBlock FTM_FACE_GEOM_TANGENT("Binormal");
+static LLTrace::BlockTimerStatHandle FTM_FACE_GET_GEOM("Face Geom");
+static LLTrace::BlockTimerStatHandle FTM_FACE_GEOM_POSITION("Position");
+static LLTrace::BlockTimerStatHandle FTM_FACE_GEOM_NORMAL("Normal");
+static LLTrace::BlockTimerStatHandle FTM_FACE_GEOM_TEXTURE("Texture");
+static LLTrace::BlockTimerStatHandle FTM_FACE_GEOM_COLOR("Color");
+static LLTrace::BlockTimerStatHandle FTM_FACE_GEOM_EMISSIVE("Emissive");
+static LLTrace::BlockTimerStatHandle FTM_FACE_GEOM_WEIGHTS("Weights");
+static LLTrace::BlockTimerStatHandle FTM_FACE_GEOM_TANGENT("Binormal");
 
-static LLTrace::TimeBlock FTM_FACE_GEOM_FEEDBACK("Face Feedback");
-static LLTrace::TimeBlock FTM_FACE_GEOM_FEEDBACK_POSITION("Feedback Position");
-static LLTrace::TimeBlock FTM_FACE_GEOM_FEEDBACK_NORMAL("Feedback  Normal");
-static LLTrace::TimeBlock FTM_FACE_GEOM_FEEDBACK_TEXTURE("Feedback  Texture");
-static LLTrace::TimeBlock FTM_FACE_GEOM_FEEDBACK_COLOR("Feedback  Color");
-static LLTrace::TimeBlock FTM_FACE_GEOM_FEEDBACK_EMISSIVE("Feedback  Emissive");
-static LLTrace::TimeBlock FTM_FACE_GEOM_FEEDBACK_BINORMAL("Feedback Binormal");
+static LLTrace::BlockTimerStatHandle FTM_FACE_GEOM_FEEDBACK("Face Feedback");
+static LLTrace::BlockTimerStatHandle FTM_FACE_GEOM_FEEDBACK_POSITION("Feedback Position");
+static LLTrace::BlockTimerStatHandle FTM_FACE_GEOM_FEEDBACK_NORMAL("Feedback  Normal");
+static LLTrace::BlockTimerStatHandle FTM_FACE_GEOM_FEEDBACK_TEXTURE("Feedback  Texture");
+static LLTrace::BlockTimerStatHandle FTM_FACE_GEOM_FEEDBACK_COLOR("Feedback  Color");
+static LLTrace::BlockTimerStatHandle FTM_FACE_GEOM_FEEDBACK_EMISSIVE("Feedback  Emissive");
+static LLTrace::BlockTimerStatHandle FTM_FACE_GEOM_FEEDBACK_BINORMAL("Feedback Binormal");
 
-static LLTrace::TimeBlock FTM_FACE_GEOM_INDEX("Index");
-static LLTrace::TimeBlock FTM_FACE_GEOM_INDEX_TAIL("Tail");
-static LLTrace::TimeBlock FTM_FACE_POSITION_STORE("Pos");
-static LLTrace::TimeBlock FTM_FACE_TEXTURE_INDEX_STORE("TexIdx");
-static LLTrace::TimeBlock FTM_FACE_POSITION_PAD("Pad");
-static LLTrace::TimeBlock FTM_FACE_TEX_DEFAULT("Default");
-static LLTrace::TimeBlock FTM_FACE_TEX_QUICK("Quick");
-static LLTrace::TimeBlock FTM_FACE_TEX_QUICK_NO_XFORM("No Xform");
-static LLTrace::TimeBlock FTM_FACE_TEX_QUICK_XFORM("Xform");
-static LLTrace::TimeBlock FTM_FACE_TEX_QUICK_PLANAR("Quick Planar");
+static LLTrace::BlockTimerStatHandle FTM_FACE_GEOM_INDEX("Index");
+static LLTrace::BlockTimerStatHandle FTM_FACE_GEOM_INDEX_TAIL("Tail");
+static LLTrace::BlockTimerStatHandle FTM_FACE_POSITION_STORE("Pos");
+static LLTrace::BlockTimerStatHandle FTM_FACE_TEXTURE_INDEX_STORE("TexIdx");
+static LLTrace::BlockTimerStatHandle FTM_FACE_POSITION_PAD("Pad");
+static LLTrace::BlockTimerStatHandle FTM_FACE_TEX_DEFAULT("Default");
+static LLTrace::BlockTimerStatHandle FTM_FACE_TEX_QUICK("Quick");
+static LLTrace::BlockTimerStatHandle FTM_FACE_TEX_QUICK_NO_XFORM("No Xform");
+static LLTrace::BlockTimerStatHandle FTM_FACE_TEX_QUICK_XFORM("Xform");
+static LLTrace::BlockTimerStatHandle FTM_FACE_TEX_QUICK_PLANAR("Quick Planar");
 
 BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 							   const S32 &f,

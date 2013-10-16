@@ -72,7 +72,7 @@ class StatType
 	public LLInstanceTracker<StatType<ACCUMULATOR>, std::string>
 {
 public:
-	StatType(const char* name, const char* description = NULL)
+	StatType(const char* name, const char* description)
 	:	LLInstanceTracker<StatType<ACCUMULATOR>, std::string>(name),
 		StatBase(name, description),
 		mAccumulatorIndex(AccumulatorBuffer<ACCUMULATOR>::getDefaultBuffer()->reserveSlot())
@@ -210,8 +210,8 @@ class MemStatHandle : public StatType<MemAccumulator>
 {
 public:
 	typedef StatType<MemAccumulator> stat_t;
-	MemStatHandle(const char* name)
-	:	stat_t(name)
+	MemStatHandle(const char* name, const char* description = "")
+	:	stat_t(name, description)
 	{
 		mName = name;
 	}

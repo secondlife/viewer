@@ -657,7 +657,7 @@ void LLViewerPartSim::shift(const LLVector3 &offset)
 	}
 }
 
-static LLTrace::TimeBlock FTM_SIMULATE_PARTICLES("Simulate Particles");
+static LLTrace::BlockTimerStatHandle FTM_SIMULATE_PARTICLES("Simulate Particles");
 
 void LLViewerPartSim::updateSimulation()
 {

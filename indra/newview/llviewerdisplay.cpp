@@ -180,7 +180,7 @@ void display_startup()
 	glClear(GL_DEPTH_BUFFER_BIT);
 }
 
-static LLTrace::TimeBlock FTM_UPDATE_CAMERA("Update Camera");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_CAMERA("Update Camera");
 
 void display_update_camera()
 {
@@ -228,20 +228,20 @@ void display_stats()
 	}
 }
 
-static LLTrace::TimeBlock FTM_PICK("Picking");
-static LLTrace::TimeBlock FTM_RENDER("Render");
-static LLTrace::TimeBlock FTM_UPDATE_SKY("Update Sky");
-static LLTrace::TimeBlock FTM_UPDATE_TEXTURES("Update Textures");
-static LLTrace::TimeBlock FTM_IMAGE_UPDATE("Update Images");
-static LLTrace::TimeBlock FTM_IMAGE_UPDATE_CLASS("Class");
-static LLTrace::TimeBlock FTM_IMAGE_UPDATE_BUMP("Image Update Bump");
-static LLTrace::TimeBlock FTM_IMAGE_UPDATE_LIST("List");
-static LLTrace::TimeBlock FTM_IMAGE_UPDATE_DELETE("Delete");
-static LLTrace::TimeBlock FTM_RESIZE_WINDOW("Resize Window");
-static LLTrace::TimeBlock FTM_HUD_UPDATE("HUD Update");
-static LLTrace::TimeBlock FTM_DISPLAY_UPDATE_GEOM("Update Geom");
-static LLTrace::TimeBlock FTM_TEXTURE_UNBIND("Texture Unbind");
-static LLTrace::TimeBlock FTM_TELEPORT_DISPLAY("Teleport Display");
+static LLTrace::BlockTimerStatHandle FTM_PICK("Picking");
+static LLTrace::BlockTimerStatHandle FTM_RENDER("Render");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_SKY("Update Sky");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_TEXTURES("Update Textures");
+static LLTrace::BlockTimerStatHandle FTM_IMAGE_UPDATE("Update Images");
+static LLTrace::BlockTimerStatHandle FTM_IMAGE_UPDATE_CLASS("Class");
+static LLTrace::BlockTimerStatHandle FTM_IMAGE_UPDATE_BUMP("Image Update Bump");
+static LLTrace::BlockTimerStatHandle FTM_IMAGE_UPDATE_LIST("List");
+static LLTrace::BlockTimerStatHandle FTM_IMAGE_UPDATE_DELETE("Delete");
+static LLTrace::BlockTimerStatHandle FTM_RESIZE_WINDOW("Resize Window");
+static LLTrace::BlockTimerStatHandle FTM_HUD_UPDATE("HUD Update");
+static LLTrace::BlockTimerStatHandle FTM_DISPLAY_UPDATE_GEOM("Update Geom");
+static LLTrace::BlockTimerStatHandle FTM_TEXTURE_UNBIND("Texture Unbind");
+static LLTrace::BlockTimerStatHandle FTM_TELEPORT_DISPLAY("Teleport Display");
 
 // Paint the display!
 void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
@@ -1331,7 +1331,7 @@ void render_ui(F32 zoom_factor, int subfield)
 	}
 }
 
-static LLTrace::TimeBlock FTM_SWAP("Swap");
+static LLTrace::BlockTimerStatHandle FTM_SWAP("Swap");
 
 void swap()
 {

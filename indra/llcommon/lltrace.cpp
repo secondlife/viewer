@@ -59,7 +59,7 @@ TimeBlockTreeNode::TimeBlockTreeNode()
 	mCollapsed(true)
 {}
 
-void TimeBlockTreeNode::setParent( TimeBlock* parent )
+void TimeBlockTreeNode::setParent( BlockTimerStatHandle* parent )
 {
 	llassert_always(parent != mBlock);
 	llassert_always(parent != NULL);
@@ -69,8 +69,8 @@ void TimeBlockTreeNode::setParent( TimeBlock* parent )
 
 	if (mParent)
 	{
-		std::vector<TimeBlock*>& children = mParent->getChildren();
-		std::vector<TimeBlock*>::iterator found_it = std::find(children.begin(), children.end(), mBlock);
+		std::vector<BlockTimerStatHandle*>& children = mParent->getChildren();
+		std::vector<BlockTimerStatHandle*>::iterator found_it = std::find(children.begin(), children.end(), mBlock);
 		if (found_it != children.end())
 		{
 			children.erase(found_it);

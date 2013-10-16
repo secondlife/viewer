@@ -123,7 +123,7 @@ LLDrawable *LLVOWater::createDrawable(LLPipeline *pipeline)
 	return mDrawable;
 }
 
-static LLTrace::TimeBlock FTM_UPDATE_WATER("Update Water");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_WATER("Update Water");
 
 BOOL LLVOWater::updateGeometry(LLDrawable *drawable)
 {

@@ -372,7 +372,7 @@ void LLPanel::setBorderVisible(BOOL b)
 	}
 }
 
-LLTrace::TimeBlock FTM_PANEL_CONSTRUCTION("Panel Construction");
+LLTrace::BlockTimerStatHandle FTM_PANEL_CONSTRUCTION("Panel Construction");
 
 LLView* LLPanel::fromXML(LLXMLNodePtr node, LLView* parent, LLXMLNodePtr output_node)
 {
@@ -488,9 +488,9 @@ void LLPanel::initFromParams(const LLPanel::Params& p)
 	setAcceptsBadge(p.accepts_badge);
 }
 
-static LLTrace::TimeBlock FTM_PANEL_SETUP("Panel Setup");
-static LLTrace::TimeBlock FTM_EXTERNAL_PANEL_LOAD("Load Extern Panel Reference");
-static LLTrace::TimeBlock FTM_PANEL_POSTBUILD("Panel PostBuild");
+static LLTrace::BlockTimerStatHandle FTM_PANEL_SETUP("Panel Setup");
+static LLTrace::BlockTimerStatHandle FTM_EXTERNAL_PANEL_LOAD("Load Extern Panel Reference");
+static LLTrace::BlockTimerStatHandle FTM_PANEL_POSTBUILD("Panel PostBuild");
 
 BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node, const LLPanel::Params& default_params)
 {
@@ -963,7 +963,7 @@ boost::signals2::connection LLPanel::setVisibleCallback( const commit_signal_t::
 	return mVisibleSignal->connect(cb);
 }
 
-static LLTrace::TimeBlock FTM_BUILD_PANELS("Build Panels");
+static LLTrace::BlockTimerStatHandle FTM_BUILD_PANELS("Build Panels");
 
 //-----------------------------------------------------------------------------
 // buildPanel()

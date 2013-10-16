@@ -42,7 +42,7 @@
 #include "llclipboard.h"
 #include "lltrans.h"
 
-LLTrace::TimeBlock FT_FILTER_CLIPBOARD("Filter Clipboard");
+LLTrace::BlockTimerStatHandle FT_FILTER_CLIPBOARD("Filter Clipboard");
 
 LLInventoryFilter::FilterOps::FilterOps(const Params& p)
 :	mFilterObjectTypes(p.object_types),

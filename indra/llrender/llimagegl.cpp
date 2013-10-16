@@ -242,7 +242,7 @@ S32 LLImageGL::dataFormatComponents(S32 dataformat)
 
 //----------------------------------------------------------------------------
 
-static LLTrace::TimeBlock FTM_IMAGE_UPDATE_STATS("Image Stats");
+static LLTrace::BlockTimerStatHandle FTM_IMAGE_UPDATE_STATS("Image Stats");
 // static
 void LLImageGL::updateStats(F32 current_time)
 {
@@ -623,7 +623,7 @@ void LLImageGL::setImage(const LLImageRaw* imageraw)
 	setImage(rawdata, FALSE);
 }
 
-static LLTrace::TimeBlock FTM_SET_IMAGE("setImage");
+static LLTrace::BlockTimerStatHandle FTM_SET_IMAGE("setImage");
 void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 {
 	LL_RECORD_BLOCK_TIME(FTM_SET_IMAGE);
@@ -1091,7 +1091,7 @@ BOOL LLImageGL::setSubImageFromFrameBuffer(S32 fb_x, S32 fb_y, S32 x_pos, S32 y_
 }
 
 // static
-static LLTrace::TimeBlock FTM_GENERATE_TEXTURES("generate textures");
+static LLTrace::BlockTimerStatHandle FTM_GENERATE_TEXTURES("generate textures");
 void LLImageGL::generateTextures(LLTexUnit::eTextureType type, U32 format, S32 numTextures, U32 *textures)
 {
 	LL_RECORD_BLOCK_TIME(FTM_GENERATE_TEXTURES);
@@ -1184,7 +1184,7 @@ void LLImageGL::deleteTextures(LLTexUnit::eTextureType type, U32 format, S32 mip
 }
 
 // static
-static LLTrace::TimeBlock FTM_SET_MANUAL_IMAGE("setManualImage");
+static LLTrace::BlockTimerStatHandle FTM_SET_MANUAL_IMAGE("setManualImage");
 void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 width, S32 height, U32 pixformat, U32 pixtype, const void *pixels, bool allow_compression)
 {
 	LL_RECORD_BLOCK_TIME(FTM_SET_MANUAL_IMAGE);
@@ -1291,7 +1291,7 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
 
 //create an empty GL texture: just create a texture name
 //the texture is assiciate with some image by calling glTexImage outside LLImageGL
-static LLTrace::TimeBlock FTM_CREATE_GL_TEXTURE1("createGLTexture()");
+static LLTrace::BlockTimerStatHandle FTM_CREATE_GL_TEXTURE1("createGLTexture()");
 BOOL LLImageGL::createGLTexture()
 {
 	LL_RECORD_BLOCK_TIME(FTM_CREATE_GL_TEXTURE1);
@@ -1322,7 +1322,7 @@ BOOL LLImageGL::createGLTexture()
 	return TRUE ;
 }
 
-static LLTrace::TimeBlock FTM_CREATE_GL_TEXTURE2("createGLTexture(raw)");
+static LLTrace::BlockTimerStatHandle FTM_CREATE_GL_TEXTURE2("createGLTexture(raw)");
 BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename/*=0*/, BOOL to_create, S32 category)
 {
 	LL_RECORD_BLOCK_TIME(FTM_CREATE_GL_TEXTURE2);
@@ -1397,7 +1397,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
 	return createGLTexture(discard_level, rawdata, FALSE, usename);
 }
 
-static LLTrace::TimeBlock FTM_CREATE_GL_TEXTURE3("createGLTexture3(data)");
+static LLTrace::BlockTimerStatHandle FTM_CREATE_GL_TEXTURE3("createGLTexture3(data)");
 BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_hasmips, S32 usename)
 {
 	LL_RECORD_BLOCK_TIME(FTM_CREATE_GL_TEXTURE3);

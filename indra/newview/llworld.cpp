@@ -1035,7 +1035,7 @@ void LLWorld::disconnectRegions()
 	}
 }
 
-static LLTrace::TimeBlock FTM_ENABLE_SIMULATOR("Enable Sim");
+static LLTrace::BlockTimerStatHandle FTM_ENABLE_SIMULATOR("Enable Sim");
 
 void process_enable_simulator(LLMessageSystem *msg, void **user_data)
 {

@@ -1095,7 +1095,7 @@ LLViewerTexture* LLBumpImageList::getBrightnessDarknessImage(LLViewerFetchedText
 }
 
 
-static LLTrace::TimeBlock FTM_BUMP_SOURCE_STANDARD_LOADED("Bump Standard Callback");
+static LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_STANDARD_LOADED("Bump Standard Callback");
 
 // static
 void LLBumpImageList::onSourceBrightnessLoaded( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata )
@@ -1119,8 +1119,8 @@ void LLBumpImageList::onSourceDarknessLoaded( BOOL success, LLViewerFetchedTextu
 	}
 }
 
-static LLTrace::TimeBlock FTM_BUMP_GEN_NORMAL("Generate Normal Map");
-static LLTrace::TimeBlock FTM_BUMP_CREATE_TEXTURE("Create GL Normal Map");
+static LLTrace::BlockTimerStatHandle FTM_BUMP_GEN_NORMAL("Generate Normal Map");
+static LLTrace::BlockTimerStatHandle FTM_BUMP_CREATE_TEXTURE("Create GL Normal Map");
 
 void LLBumpImageList::onSourceStandardLoaded( BOOL success, LLViewerFetchedTexture* src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
 {
@@ -1196,13 +1196,13 @@ void LLBumpImageList::generateNormalMapFromAlpha(LLImageRaw* src, LLImageRaw* nr
 }
 
 
-static LLTrace::TimeBlock FTM_BUMP_SOURCE_LOADED("Bump Source Loaded");
-static LLTrace::TimeBlock FTM_BUMP_SOURCE_ENTRIES_UPDATE("Entries Update");
-static LLTrace::TimeBlock FTM_BUMP_SOURCE_MIN_MAX("Min/Max");
-static LLTrace::TimeBlock FTM_BUMP_SOURCE_RGB2LUM("RGB to Luminance");
-static LLTrace::TimeBlock FTM_BUMP_SOURCE_RESCALE("Rescale");
-static LLTrace::TimeBlock FTM_BUMP_SOURCE_GEN_NORMAL("Generate Normal");
-static LLTrace::TimeBlock FTM_BUMP_SOURCE_CREATE("Bump Source Create");
+static LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_LOADED("Bump Source Loaded");
+static LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_ENTRIES_UPDATE("Entries Update");
+static LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_MIN_MAX("Min/Max");
+static LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_RGB2LUM("RGB to Luminance");
+static LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_RESCALE("Rescale");
+static LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_GEN_NORMAL("Generate Normal");
+static LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_CREATE("Bump Source Create");
 
 // static
 void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLImageRaw* src, LLUUID& source_asset_id, EBumpEffect bump_code )

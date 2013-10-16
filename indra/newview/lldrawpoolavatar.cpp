@@ -102,7 +102,7 @@ S32 normal_channel = -1;
 S32 specular_channel = -1;
 S32 cube_channel = -1;
 
-static LLTrace::TimeBlock FTM_SHADOW_AVATAR("Avatar Shadow");
+static LLTrace::BlockTimerStatHandle FTM_SHADOW_AVATAR("Avatar Shadow");
 
 LLDrawPoolAvatar::LLDrawPoolAvatar() : 
 	LLFacePool(POOL_AVATAR)	
@@ -1174,7 +1174,7 @@ void LLDrawPoolAvatar::endDeferredSkinned()
 	gGL.getTexUnit(0)->activate();
 }
 
-static LLTrace::TimeBlock FTM_RENDER_AVATARS("renderAvatars");
+static LLTrace::BlockTimerStatHandle FTM_RENDER_AVATARS("renderAvatars");
 
 
 void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
@@ -1836,7 +1836,7 @@ void LLDrawPoolAvatar::renderDeferredRiggedMaterial(LLVOAvatar* avatar, S32 pass
 	renderRigged(avatar, pass);
 }
 
-static LLTrace::TimeBlock FTM_RIGGED_VBO("Rigged VBO");
+static LLTrace::BlockTimerStatHandle FTM_RIGGED_VBO("Rigged VBO");
 
 void LLDrawPoolAvatar::updateRiggedVertexBuffers(LLVOAvatar* avatar)
 {

@@ -53,8 +53,8 @@
 #include "lltextureatlas.h"
 #include "llviewershadermgr.h"
 
-static LLTrace::TimeBlock FTM_FRUSTUM_CULL("Frustum Culling");
-static LLTrace::TimeBlock FTM_CULL_REBOUND("Cull Rebound Partition");
+static LLTrace::BlockTimerStatHandle FTM_FRUSTUM_CULL("Frustum Culling");
+static LLTrace::BlockTimerStatHandle FTM_CULL_REBOUND("Cull Rebound Partition");
 
 extern bool gShiftFrame;
 
@@ -409,10 +409,10 @@ void LLSpatialGroup::rebuildMesh()
 	}
 }
 
-static LLTrace::TimeBlock FTM_REBUILD_VBO("VBO Rebuilt");
-static LLTrace::TimeBlock FTM_ADD_GEOMETRY_COUNT("Add Geometry");
-static LLTrace::TimeBlock FTM_CREATE_VB("Create VB");
-static LLTrace::TimeBlock FTM_GET_GEOMETRY("Get Geometry");
+static LLTrace::BlockTimerStatHandle FTM_REBUILD_VBO("VBO Rebuilt");
+static LLTrace::BlockTimerStatHandle FTM_ADD_GEOMETRY_COUNT("Add Geometry");
+static LLTrace::BlockTimerStatHandle FTM_CREATE_VB("Create VB");
+static LLTrace::BlockTimerStatHandle FTM_GET_GEOMETRY("Get Geometry");
 
 void LLSpatialPartition::rebuildGeom(LLSpatialGroup* group)
 {

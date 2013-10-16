@@ -132,7 +132,7 @@ std::map<std::string, U32> LLViewerObject::sObjectDataMap;
 
 const F32 PHYSICS_TIMESTEP = 1.f / 45.f;
 
-static LLTrace::TimeBlock FTM_CREATE_OBJECT("Create Object");
+static LLTrace::BlockTimerStatHandle FTM_CREATE_OBJECT("Create Object");
 
 // static
 LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
@@ -2409,7 +2409,7 @@ void LLViewerObject::loadFlags(U32 flags)
 
 void LLViewerObject::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
-	//static LLTrace::TimeBlock ftm("Viewer Object");
+	//static LLTrace::BlockTimerStatHandle ftm("Viewer Object");
 	//LL_RECORD_BLOCK_TIME(ftm);
 
 	if (!mDead)

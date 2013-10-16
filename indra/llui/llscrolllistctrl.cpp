@@ -2840,7 +2840,7 @@ LLScrollListColumn* LLScrollListCtrl::getColumn(const std::string& name)
 	return NULL;
 }
 
-LLTrace::TimeBlock FTM_ADD_SCROLLLIST_ELEMENT("Add Scroll List Item");
+LLTrace::BlockTimerStatHandle FTM_ADD_SCROLLLIST_ELEMENT("Add Scroll List Item");
 LLScrollListItem* LLScrollListCtrl::addElement(const LLSD& element, EAddPosition pos, void* userdata)
 {
 	LL_RECORD_BLOCK_TIME(FTM_ADD_SCROLLLIST_ELEMENT);

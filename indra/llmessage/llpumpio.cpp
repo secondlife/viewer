@@ -431,8 +431,8 @@ void LLPumpIO::pump()
 	pump(DEFAULT_POLL_TIMEOUT);
 }
 
-static LLTrace::TimeBlock FTM_PUMP_IO("Pump IO");
-static LLTrace::TimeBlock FTM_PUMP_POLL("Pump Poll");
+static LLTrace::BlockTimerStatHandle FTM_PUMP_IO("Pump IO");
+static LLTrace::BlockTimerStatHandle FTM_PUMP_POLL("Pump Poll");
 
 LLPumpIO::current_chain_t LLPumpIO::removeRunningChain(LLPumpIO::current_chain_t& run_chain) 
 {
@@ -774,7 +774,7 @@ bool LLPumpIO::respond(
 	return true;
 }
 
-static LLTrace::TimeBlock FTM_PUMP_CALLBACK_CHAIN("Chain");
+static LLTrace::BlockTimerStatHandle FTM_PUMP_CALLBACK_CHAIN("Chain");
 
 void LLPumpIO::callback()
 {

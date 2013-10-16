@@ -1020,8 +1020,8 @@ void LLOcclusionCullingGroup::clearOcclusionState(U32 state, S32 mode)
 	}
 }
 
-static LLTrace::TimeBlock FTM_OCCLUSION_READBACK("Readback Occlusion");
-static LLTrace::TimeBlock FTM_OCCLUSION_WAIT("Occlusion Wait");
+static LLTrace::BlockTimerStatHandle FTM_OCCLUSION_READBACK("Readback Occlusion");
+static LLTrace::BlockTimerStatHandle FTM_OCCLUSION_WAIT("Occlusion Wait");
 
 BOOL LLOcclusionCullingGroup::earlyFail(LLCamera* camera, const LLVector4a* bounds)
 {
@@ -1158,16 +1158,16 @@ void LLOcclusionCullingGroup::checkOcclusion()
 	}
 }
 
-static LLTrace::TimeBlock FTM_PUSH_OCCLUSION_VERTS("Push Occlusion");
-static LLTrace::TimeBlock FTM_SET_OCCLUSION_STATE("Occlusion State");
-static LLTrace::TimeBlock FTM_OCCLUSION_EARLY_FAIL("Occlusion Early Fail");
-static LLTrace::TimeBlock FTM_OCCLUSION_ALLOCATE("Allocate");
-static LLTrace::TimeBlock FTM_OCCLUSION_BUILD("Build");
-static LLTrace::TimeBlock FTM_OCCLUSION_BEGIN_QUERY("Begin Query");
-static LLTrace::TimeBlock FTM_OCCLUSION_END_QUERY("End Query");
-static LLTrace::TimeBlock FTM_OCCLUSION_SET_BUFFER("Set Buffer");
-static LLTrace::TimeBlock FTM_OCCLUSION_DRAW_WATER("Draw Water");
-static LLTrace::TimeBlock FTM_OCCLUSION_DRAW("Draw");
+static LLTrace::BlockTimerStatHandle FTM_PUSH_OCCLUSION_VERTS("Push Occlusion");
+static LLTrace::BlockTimerStatHandle FTM_SET_OCCLUSION_STATE("Occlusion State");
+static LLTrace::BlockTimerStatHandle FTM_OCCLUSION_EARLY_FAIL("Occlusion Early Fail");
+static LLTrace::BlockTimerStatHandle FTM_OCCLUSION_ALLOCATE("Allocate");
+static LLTrace::BlockTimerStatHandle FTM_OCCLUSION_BUILD("Build");
+static LLTrace::BlockTimerStatHandle FTM_OCCLUSION_BEGIN_QUERY("Begin Query");
+static LLTrace::BlockTimerStatHandle FTM_OCCLUSION_END_QUERY("End Query");
+static LLTrace::BlockTimerStatHandle FTM_OCCLUSION_SET_BUFFER("Set Buffer");
+static LLTrace::BlockTimerStatHandle FTM_OCCLUSION_DRAW_WATER("Draw Water");
+static LLTrace::BlockTimerStatHandle FTM_OCCLUSION_DRAW("Draw");
 
 void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector4a* shift)
 {

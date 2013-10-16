@@ -677,7 +677,7 @@ LLXUIParser::LLXUIParser()
 	}
 }
 
-static LLTrace::TimeBlock FTM_PARSE_XUI("XUI Parsing");
+static LLTrace::BlockTimerStatHandle FTM_PARSE_XUI("XUI Parsing");
 const LLXMLNodePtr DUMMY_NODE = new LLXMLNode();
 
 void LLXUIParser::readXUI(LLXMLNodePtr node, LLInitParam::BaseBlock& block, const std::string& filename, bool silent)

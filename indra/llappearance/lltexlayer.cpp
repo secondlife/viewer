@@ -518,7 +518,7 @@ const LLTexLayerSetBuffer* LLTexLayerSet::getComposite() const
 	return mComposite;
 }
 
-static LLTrace::TimeBlock FTM_GATHER_MORPH_MASK_ALPHA("gatherMorphMaskAlpha");
+static LLTrace::BlockTimerStatHandle FTM_GATHER_MORPH_MASK_ALPHA("gatherMorphMaskAlpha");
 void LLTexLayerSet::gatherMorphMaskAlpha(U8 *data, S32 origin_x, S32 origin_y, S32 width, S32 height)
 {
 	LL_RECORD_BLOCK_TIME(FTM_GATHER_MORPH_MASK_ALPHA);
@@ -534,7 +534,7 @@ void LLTexLayerSet::gatherMorphMaskAlpha(U8 *data, S32 origin_x, S32 origin_y, S
 	renderAlphaMaskTextures(origin_x, origin_y, width, height, true);
 }
 
-static LLTrace::TimeBlock FTM_RENDER_ALPHA_MASK_TEXTURES("renderAlphaMaskTextures");
+static LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA_MASK_TEXTURES("renderAlphaMaskTextures");
 void LLTexLayerSet::renderAlphaMaskTextures(S32 x, S32 y, S32 width, S32 height, bool forceClear)
 {
 	LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_MASK_TEXTURES);
@@ -1424,7 +1424,7 @@ BOOL LLTexLayer::blendAlphaTexture(S32 x, S32 y, S32 width, S32 height)
 	addAlphaMask(data, originX, originY, width, height);
 }
 
-static LLTrace::TimeBlock FTM_RENDER_MORPH_MASKS("renderMorphMasks");
+static LLTrace::BlockTimerStatHandle FTM_RENDER_MORPH_MASKS("renderMorphMasks");
 void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLColor4 &layer_color, bool force_render)
 {
 	if (!force_render && !hasMorph())
@@ -1575,7 +1575,7 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 	}
 }
 
-static LLTrace::TimeBlock FTM_ADD_ALPHA_MASK("addAlphaMask");
+static LLTrace::BlockTimerStatHandle FTM_ADD_ALPHA_MASK("addAlphaMask");
 void LLTexLayer::addAlphaMask(U8 *data, S32 originX, S32 originY, S32 width, S32 height)
 {
 	LL_RECORD_BLOCK_TIME(FTM_ADD_ALPHA_MASK);
@@ -1921,7 +1921,7 @@ void LLTexLayerStaticImageList::deleteCachedImages()
 
 // Returns an LLImageTGA that contains the encoded data from a tga file named file_name.
 // Caches the result to speed identical subsequent requests.
-static LLTrace::TimeBlock FTM_LOAD_STATIC_TGA("getImageTGA");
+static LLTrace::BlockTimerStatHandle FTM_LOAD_STATIC_TGA("getImageTGA");
 LLImageTGA* LLTexLayerStaticImageList::getImageTGA(const std::string& file_name)
 {
 	LL_RECORD_BLOCK_TIME(FTM_LOAD_STATIC_TGA);
@@ -1951,7 +1951,7 @@ LLImageTGA* LLTexLayerStaticImageList::getImageTGA(const std::string& file_name)
 
 // Returns a GL Image (without a backing ImageRaw) that contains the decoded data from a tga file named file_name.
 // Caches the result to speed identical subsequent requests.
-static LLTrace::TimeBlock FTM_LOAD_STATIC_TEXTURE("getTexture");
+static LLTrace::BlockTimerStatHandle FTM_LOAD_STATIC_TEXTURE("getTexture");
 LLGLTexture* LLTexLayerStaticImageList::getTexture(const std::string& file_name, BOOL is_mask)
 {
 	LL_RECORD_BLOCK_TIME(FTM_LOAD_STATIC_TEXTURE);
@@ -2001,7 +2001,7 @@ LLGLTexture* LLTexLayerStaticImageList::getTexture(const std::string& file_name,
 
 // Reads a .tga file, decodes it, and puts the decoded data in image_raw.
 // Returns TRUE if successful.
-static LLTrace::TimeBlock FTM_LOAD_IMAGE_RAW("loadImageRaw");
+static LLTrace::BlockTimerStatHandle FTM_LOAD_IMAGE_RAW("loadImageRaw");
 BOOL LLTexLayerStaticImageList::loadImageRaw(const std::string& file_name, LLImageRaw* image_raw)
 {
 	LL_RECORD_BLOCK_TIME(FTM_LOAD_IMAGE_RAW);

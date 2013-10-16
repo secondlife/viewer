@@ -37,7 +37,7 @@ static 	LLInitParam::Parser::parser_write_func_map_t sWriteFuncs;
 static 	LLInitParam::Parser::parser_inspect_func_map_t sInspectFuncs;
 static const LLSD NO_VALUE_MARKER;
 
-LLTrace::TimeBlock FTM_SD_PARAM_ADAPTOR("LLSD to LLInitParam conversion");
+LLTrace::BlockTimerStatHandle FTM_SD_PARAM_ADAPTOR("LLSD to LLInitParam conversion");
 
 //
 // LLParamSDParser

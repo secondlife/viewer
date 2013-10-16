@@ -36,7 +36,7 @@
 #include <winnls.h> // for WideCharToMultiByte
 #endif
 
-LLTrace::TimeBlock FT_STRING_FORMAT("String Format");
+LLTrace::BlockTimerStatHandle FT_STRING_FORMAT("String Format");
 
 
 std::string ll_safe_string(const char* in)

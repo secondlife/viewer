@@ -460,26 +460,26 @@ namespace LLTrace
 		U64					mTotalTimeCounter,
 							mSelfTimeCounter;
 		S32					mCalls;
-		class TimeBlock*	mParent;		// last acknowledged parent of this time block
-		class TimeBlock*	mLastCaller;	// used to bootstrap tree construction
+		class BlockTimerStatHandle*	mParent;		// last acknowledged parent of this time block
+		class BlockTimerStatHandle*	mLastCaller;	// used to bootstrap tree construction
 		U16					mActiveCount;	// number of timers with this ID active on stack
 		bool				mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame
 
 	};
 
-	class TimeBlock;
+	class BlockTimerStatHandle;
 
 	class TimeBlockTreeNode
 	{
 	public:
 		TimeBlockTreeNode();
 
-		void setParent(TimeBlock* parent);
-		TimeBlock* getParent() { return mParent; }
+		void setParent(BlockTimerStatHandle* parent);
+		BlockTimerStatHandle* getParent() { return mParent; }
 
-		TimeBlock*					mBlock;
-		TimeBlock*					mParent;	
-		std::vector<TimeBlock*>		mChildren;
+		BlockTimerStatHandle*					mBlock;
+		BlockTimerStatHandle*					mParent;	
+		std::vector<BlockTimerStatHandle*>		mChildren;
 		bool						mCollapsed;
 		bool						mNeedsSorting;
 	};
@@ -487,7 +487,7 @@ namespace LLTrace
 	struct BlockTimerStackRecord
 	{
 		class BlockTimer*	mActiveTimer;
-		class TimeBlock*	mTimeBlock;
+		class BlockTimerStatHandle*	mTimeBlock;
 		U64					mChildTime;
 	};
 

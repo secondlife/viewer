@@ -776,12 +776,12 @@ static bool proximity_comparitor(const LLViewerMediaImpl* i1, const LLViewerMedi
 	}
 }
 
-static LLTrace::TimeBlock FTM_MEDIA_UPDATE("Update Media");
-static LLTrace::TimeBlock FTM_MEDIA_SPARE_IDLE("Spare Idle");
-static LLTrace::TimeBlock FTM_MEDIA_UPDATE_INTEREST("Update/Interest");
-static LLTrace::TimeBlock FTM_MEDIA_SORT("Sort");
-static LLTrace::TimeBlock FTM_MEDIA_SORT2("Sort 2");
-static LLTrace::TimeBlock FTM_MEDIA_MISC("Misc");
+static LLTrace::BlockTimerStatHandle FTM_MEDIA_UPDATE("Update Media");
+static LLTrace::BlockTimerStatHandle FTM_MEDIA_SPARE_IDLE("Spare Idle");
+static LLTrace::BlockTimerStatHandle FTM_MEDIA_UPDATE_INTEREST("Update/Interest");
+static LLTrace::BlockTimerStatHandle FTM_MEDIA_SORT("Sort");
+static LLTrace::BlockTimerStatHandle FTM_MEDIA_SORT2("Sort 2");
+static LLTrace::BlockTimerStatHandle FTM_MEDIA_MISC("Misc");
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -2746,9 +2746,9 @@ bool LLViewerMediaImpl::canNavigateBack()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-static LLTrace::TimeBlock FTM_MEDIA_DO_UPDATE("Do Update");
-static LLTrace::TimeBlock FTM_MEDIA_GET_DATA("Get Data");
-static LLTrace::TimeBlock FTM_MEDIA_SET_SUBIMAGE("Set Subimage");
+static LLTrace::BlockTimerStatHandle FTM_MEDIA_DO_UPDATE("Do Update");
+static LLTrace::BlockTimerStatHandle FTM_MEDIA_GET_DATA("Get Data");
+static LLTrace::BlockTimerStatHandle FTM_MEDIA_SET_SUBIMAGE("Set Subimage");
 
 
 void LLViewerMediaImpl::update()
@@ -3435,7 +3435,7 @@ BOOL LLViewerMediaImpl::isUpdated()
 	return mIsUpdated ;
 }
 
-static LLTrace::TimeBlock FTM_MEDIA_CALCULATE_INTEREST("Calculate Interest");
+static LLTrace::BlockTimerStatHandle FTM_MEDIA_CALCULATE_INTEREST("Calculate Interest");
 
 void LLViewerMediaImpl::calculateInterest()
 {

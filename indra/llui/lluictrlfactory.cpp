@@ -44,9 +44,9 @@
 // this library includes
 #include "llpanel.h"
 
-LLTrace::TimeBlock FTM_WIDGET_CONSTRUCTION("Widget Construction");
-LLTrace::TimeBlock FTM_INIT_FROM_PARAMS("Widget InitFromParams");
-LLTrace::TimeBlock FTM_WIDGET_SETUP("Widget Setup");
+LLTrace::BlockTimerStatHandle FTM_WIDGET_CONSTRUCTION("Widget Construction");
+LLTrace::BlockTimerStatHandle FTM_INIT_FROM_PARAMS("Widget InitFromParams");
+LLTrace::BlockTimerStatHandle FTM_WIDGET_SETUP("Widget Setup");
 
 //-----------------------------------------------------------------------------
 
@@ -105,7 +105,7 @@ void LLUICtrlFactory::loadWidgetTemplate(const std::string& widget_tag, LLInitPa
 	}
 }
 
-static LLTrace::TimeBlock FTM_CREATE_CHILDREN("Create XUI Children");
+static LLTrace::BlockTimerStatHandle FTM_CREATE_CHILDREN("Create XUI Children");
 
 //static 
 void LLUICtrlFactory::createChildren(LLView* viewp, LLXMLNodePtr node, const widget_registry_t& registry, LLXMLNodePtr output_node)
@@ -147,7 +147,7 @@ void LLUICtrlFactory::createChildren(LLView* viewp, LLXMLNodePtr node, const wid
 
 }
 
-static LLTrace::TimeBlock FTM_XML_PARSE("XML Reading/Parsing");
+static LLTrace::BlockTimerStatHandle FTM_XML_PARSE("XML Reading/Parsing");
 //-----------------------------------------------------------------------------
 // getLayeredXMLNode()
 //-----------------------------------------------------------------------------
@@ -179,7 +179,7 @@ S32 LLUICtrlFactory::saveToXML(LLView* viewp, const std::string& filename)
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-static LLTrace::TimeBlock FTM_CREATE_FROM_XML("Create child widget");
+static LLTrace::BlockTimerStatHandle FTM_CREATE_FROM_XML("Create child widget");
 
 LLView *LLUICtrlFactory::createFromXML(LLXMLNodePtr node, LLView* parent, const std::string& filename, const widget_registry_t& registry, LLXMLNodePtr output_node)
 {

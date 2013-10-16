@@ -30,36 +30,34 @@
 #include "llinstancetracker.h"
 #include "lltrace.h"
 
-#define FAST_TIMER_ON 1
+#define LL_FAST_TIMER_ON 1
 #define LL_FASTTIMER_USE_RDTSC 1
-
-class LLMutex;
 
 #define LL_RECORD_BLOCK_TIME(timer_stat) const LLTrace::BlockTimer& LL_GLUE_TOKENS(block_time_recorder, __LINE__)(LLTrace::timeThisBlock(timer_stat)); (void)LL_GLUE_TOKENS(block_time_recorder, __LINE__);
 
 namespace LLTrace
 {
-
-class BlockTimer timeThisBlock(class TimeBlock& timer);
+// use to create blocktimer rvalue to be captured in a reference so that the BlockTimer lives to the end of the block.
+class BlockTimer timeThisBlock(class BlockTimerStatHandle& timer);
 
 class BlockTimer
 {
 public:
 	typedef BlockTimer self_t;
-	typedef class TimeBlock DeclareTimer;
+	typedef class BlockTimerStatHandle DeclareTimer;
 
 	~BlockTimer();
 
 	F64Seconds getElapsedTime();
 
 private:
-	friend class TimeBlock;
+	friend class BlockTimerStatHandle;
 	// FIXME: this friendship exists so that each thread can instantiate a root timer, 
 	// which could be a derived class with a public constructor instead, possibly
 	friend class ThreadRecorder; 
-	friend BlockTimer timeThisBlock(TimeBlock&); 
+	friend BlockTimer timeThisBlock(BlockTimerStatHandle&); 
 
-	BlockTimer(TimeBlock& timer);
+	BlockTimer(BlockTimerStatHandle& timer);
 #if !defined(MSC_VER) || MSC_VER < 1700
 	// Visual Studio 2010 has a bug where capturing an object returned by value
 	// into a local reference requires access to the copy constructor at the call site.
@@ -79,28 +77,28 @@ private:
 // (This is most easily done using the macro LL_RECORD_BLOCK_TIME)
 // Otherwise, it would be possible to store a BlockTimer on the heap, resulting in non-nested lifetimes, 
 // which would break the invariants of the timing hierarchy logic
-LL_FORCE_INLINE class BlockTimer timeThisBlock(class TimeBlock& timer)
+LL_FORCE_INLINE class BlockTimer timeThisBlock(class BlockTimerStatHandle& timer)
 {
 	return BlockTimer(timer);
 }
 
 // stores a "named" timer instance to be reused via multiple BlockTimer stack instances
-class TimeBlock 
-:	public StatType<TimeBlockAccumulator>,
-	public LLInstanceTracker<TimeBlock>
+class BlockTimerStatHandle 
+:	public StatType<TimeBlockAccumulator>
 {
 public:
-	TimeBlock(const char* name, TimeBlock* parent = &getRootTimeBlock());
+	typedef LLInstanceTracker<StatType<TimeBlockAccumulator>, std::string> instance_tracker_t;
+	BlockTimerStatHandle(const char* name, const char* description = "");
 
 	TimeBlockTreeNode& getTreeNode() const;
-	TimeBlock* getParent() const { return getTreeNode().getParent(); }
-	void setParent(TimeBlock* parent) { getTreeNode().setParent(parent); }
+	BlockTimerStatHandle* getParent() const { return getTreeNode().getParent(); }
+	void setParent(BlockTimerStatHandle* parent) { getTreeNode().setParent(parent); }
 
-	typedef std::vector<TimeBlock*>::iterator child_iter;
-	typedef std::vector<TimeBlock*>::const_iterator child_const_iter;
+	typedef std::vector<BlockTimerStatHandle*>::iterator child_iter;
+	typedef std::vector<BlockTimerStatHandle*>::const_iterator child_const_iter;
 	child_iter beginChildren();
 	child_iter endChildren();
-	std::vector<TimeBlock*>& getChildren();
+	std::vector<BlockTimerStatHandle*>& getChildren();
 
 	StatType<TimeBlockAccumulator::CallCountFacet>& callCount() 
 	{
@@ -112,9 +110,9 @@ public:
 		return static_cast<StatType<TimeBlockAccumulator::SelfTimeFacet>&>(*(StatType<TimeBlockAccumulator>*)this);
 	}
 
-	static TimeBlock& getRootTimeBlock();
+	static BlockTimerStatHandle& getRootTimeBlock();
 	static void pushLog(LLSD sd);
-	static void setLogLock(LLMutex* mutex);
+	static void setLogLock(class LLMutex* mutex);
 	static void writeLog(std::ostream& os);
 	static void updateTimes();
 
@@ -144,14 +142,14 @@ public:
 	//#undef _interlockedbittestandset
 	//#undef _interlockedbittestandreset
 
-	//inline U32 TimeBlock::getCPUClockCount32()
+	//inline U32 BlockTimerStatHandle::getCPUClockCount32()
 	//{
 	//	U64 time_stamp = __rdtsc();
 	//	return (U32)(time_stamp >> 8);
 	//}
 	//
 	//// return full timer value, *not* shifted by 8 bits
-	//inline U64 TimeBlock::getCPUClockCount64()
+	//inline U64 BlockTimerStatHandle::getCPUClockCount64()
 	//{
 	//	return __rdtsc();
 	//}
@@ -279,9 +277,9 @@ public:
 	static U64									sClockResolution;
 };
 
-LL_FORCE_INLINE BlockTimer::BlockTimer(TimeBlock& timer)
+LL_FORCE_INLINE BlockTimer::BlockTimer(BlockTimerStatHandle& timer)
 {
-#if FAST_TIMER_ON
+#if LL_FAST_TIMER_ON
 	BlockTimerStackRecord* cur_timer_data = LLThreadLocalSingletonPointer<BlockTimerStackRecord>::getInstance();
 	if (!cur_timer_data) return;
 	TimeBlockAccumulator& accumulator = timer.getCurrentAccumulator();
@@ -296,14 +294,14 @@ LL_FORCE_INLINE BlockTimer::BlockTimer(TimeBlock& timer)
 	cur_timer_data->mTimeBlock = &timer;
 	cur_timer_data->mChildTime = 0;
 
-	mStartTime = TimeBlock::getCPUClockCount64();
+	mStartTime = BlockTimerStatHandle::getCPUClockCount64();
 #endif
 }
 
 LL_FORCE_INLINE BlockTimer::~BlockTimer()
 {
-#if FAST_TIMER_ON
-	U64 total_time = TimeBlock::getCPUClockCount64() - mStartTime;
+#if LL_FAST_TIMER_ON
+	U64 total_time = BlockTimerStatHandle::getCPUClockCount64() - mStartTime;
 	BlockTimerStackRecord* cur_timer_data = LLThreadLocalSingletonPointer<BlockTimerStackRecord>::getInstance();
 	if (!cur_timer_data) return;
 

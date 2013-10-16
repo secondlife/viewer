@@ -376,7 +376,7 @@ void LLViewerJointMesh::updateFaceSizes(U32 &num_vertices, U32& num_indices, F32
 //-----------------------------------------------------------------------------
 // updateFaceData()
 //-----------------------------------------------------------------------------
-static LLTrace::TimeBlock FTM_AVATAR_FACE("Avatar Face");
+static LLTrace::BlockTimerStatHandle FTM_AVATAR_FACE("Avatar Face");
 
 void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind, bool terse_update)
 {

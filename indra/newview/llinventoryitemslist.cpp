@@ -133,7 +133,7 @@ void LLInventoryItemsList::idle(void* user_data)
 	}
 }
 
-LLTrace::TimeBlock FTM_INVENTORY_ITEMS_REFRESH("Inventory List Refresh");
+LLTrace::BlockTimerStatHandle FTM_INVENTORY_ITEMS_REFRESH("Inventory List Refresh");
 
 void LLInventoryItemsList::refresh()
 {

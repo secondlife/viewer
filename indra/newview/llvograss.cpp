@@ -412,7 +412,7 @@ LLDrawable* LLVOGrass::createDrawable(LLPipeline *pipeline)
 	return mDrawable;
 }
 
-static LLTrace::TimeBlock FTM_UPDATE_GRASS("Update Grass");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_GRASS("Update Grass");
 
 BOOL LLVOGrass::updateGeometry(LLDrawable *drawable)
 {
@@ -671,7 +671,7 @@ void LLGrassPartition::addGeometryCount(LLSpatialGroup* group, U32& vertex_count
 	}
 }
 
-static LLTrace::TimeBlock FTM_REBUILD_GRASS_VB("Grass VB");
+static LLTrace::BlockTimerStatHandle FTM_REBUILD_GRASS_VB("Grass VB");
 
 void LLGrassPartition::getGeometry(LLSpatialGroup* group)
 {

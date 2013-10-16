@@ -292,7 +292,7 @@ LLVector3 LLVOPartGroup::getCameraPosition() const
 	return gAgentCamera.getCameraPositionAgent();
 }
 
-static LLTrace::TimeBlock FTM_UPDATE_PARTICLES("Update Particles");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_PARTICLES("Update Particles");
 BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 {
 	LL_RECORD_BLOCK_TIME(FTM_UPDATE_PARTICLES);
@@ -739,7 +739,7 @@ LLHUDParticlePartition::LLHUDParticlePartition(LLViewerRegion* regionp) :
 	mPartitionType = LLViewerRegion::PARTITION_HUD_PARTICLE;
 }
 
-static LLTrace::TimeBlock FTM_REBUILD_PARTICLE_VBO("Particle VBO");
+static LLTrace::BlockTimerStatHandle FTM_REBUILD_PARTICLE_VBO("Particle VBO");
 
 void LLParticlePartition::rebuildGeom(LLSpatialGroup* group)
 {
@@ -828,7 +828,7 @@ void LLParticlePartition::addGeometryCount(LLSpatialGroup* group, U32& vertex_co
 }
 
 
-static LLTrace::TimeBlock FTM_REBUILD_PARTICLE_GEOM("Particle Geom");
+static LLTrace::BlockTimerStatHandle FTM_REBUILD_PARTICLE_GEOM("Particle Geom");
 
 void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 {

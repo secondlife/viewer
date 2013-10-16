@@ -289,7 +289,7 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 	}
 }
 
-static LLTrace::TimeBlock FTM_PROCESS_OBJECTS("Process Objects");
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_OBJECTS("Process Objects");
 
 LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry* entry, LLViewerRegion* regionp)
 {
@@ -978,7 +978,7 @@ private:
 	LLSD mObjectIDs;
 };
 
-static LLTrace::TimeBlock FTM_IDLE_COPY("Idle Copy");
+static LLTrace::BlockTimerStatHandle FTM_IDLE_COPY("Idle Copy");
 
 void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 {
@@ -1328,7 +1328,7 @@ void LLViewerObjectList::cleanupReferences(LLViewerObject *objectp)
 	mNumDeadObjects++;
 }
 
-static LLTrace::TimeBlock FTM_REMOVE_DRAWABLE("Remove Drawable");
+static LLTrace::BlockTimerStatHandle FTM_REMOVE_DRAWABLE("Remove Drawable");
 
 void LLViewerObjectList::removeDrawable(LLDrawable* drawablep)
 {
@@ -1617,9 +1617,9 @@ void LLViewerObjectList::onPhysicsFlagsFetchFailure(const LLUUID& object_id)
 	mPendingPhysicsFlags.erase(object_id);
 }
 
-static LLTrace::TimeBlock FTM_SHIFT_OBJECTS("Shift Objects");
-static LLTrace::TimeBlock FTM_PIPELINE_SHIFT("Pipeline Shift");
-static LLTrace::TimeBlock FTM_REGION_SHIFT("Region Shift");
+static LLTrace::BlockTimerStatHandle FTM_SHIFT_OBJECTS("Shift Objects");
+static LLTrace::BlockTimerStatHandle FTM_PIPELINE_SHIFT("Pipeline Shift");
+static LLTrace::BlockTimerStatHandle FTM_REGION_SHIFT("Region Shift");
 
 void LLViewerObjectList::shiftObjects(const LLVector3 &offset)
 {

@@ -110,7 +110,7 @@ private:
 };
 
 
-extern LL_COMMON_API LLTrace::TimeBlock FTM_SD_PARAM_ADAPTOR;
+extern LL_COMMON_API LLTrace::BlockTimerStatHandle FTM_SD_PARAM_ADAPTOR;
 template<typename T>
 class LLSDParamAdapter : public T
 {

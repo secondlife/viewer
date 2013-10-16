@@ -541,7 +541,7 @@ void LLMotionController::updateIdleActiveMotions()
 //-----------------------------------------------------------------------------
 // updateMotionsByType()
 //-----------------------------------------------------------------------------
-static LLTrace::TimeBlock FTM_MOTION_ON_UPDATE("Motion onUpdate");
+static LLTrace::BlockTimerStatHandle FTM_MOTION_ON_UPDATE("Motion onUpdate");
 
 void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_type)
 {

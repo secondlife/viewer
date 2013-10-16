@@ -95,7 +95,7 @@ void LLSDRPCServer::clearLock()
 	}
 }
 
-static LLTrace::TimeBlock FTM_PROCESS_SDRPC_SERVER("SDRPC Server");
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_SDRPC_SERVER("SDRPC Server");
 
 // virtual
 LLIOPipe::EStatus LLSDRPCServer::process_impl(

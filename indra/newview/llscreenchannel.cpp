@@ -49,7 +49,7 @@ using namespace LLNotificationsUI;
 
 bool LLScreenChannel::mWasStartUpToastShown = false;
 
-LLTrace::TimeBlock FTM_GET_CHANNEL_RECT("Calculate Notification Channel Region");
+LLTrace::BlockTimerStatHandle FTM_GET_CHANNEL_RECT("Calculate Notification Channel Region");
 LLRect LLScreenChannelBase::getChannelRect()
 {
 	LL_RECORD_BLOCK_TIME(FTM_GET_CHANNEL_RECT);

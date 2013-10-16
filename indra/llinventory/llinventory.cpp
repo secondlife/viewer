@@ -1066,7 +1066,7 @@ void LLInventoryItem::asLLSD( LLSD& sd ) const
 	sd[INV_CREATION_DATE_LABEL] = (S32) mCreationDate;
 }
 
-LLTrace::TimeBlock FTM_INVENTORY_SD_DESERIALIZE("Inventory SD Deserialize");
+LLTrace::BlockTimerStatHandle FTM_INVENTORY_SD_DESERIALIZE("Inventory SD Deserialize");
 
 bool LLInventoryItem::fromLLSD(const LLSD& sd)
 {

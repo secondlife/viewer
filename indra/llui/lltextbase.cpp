@@ -1437,7 +1437,7 @@ S32 LLTextBase::getLeftOffset(S32 width)
 }
 
 
-static LLTrace::TimeBlock FTM_TEXT_REFLOW ("Text Reflow");
+static LLTrace::BlockTimerStatHandle FTM_TEXT_REFLOW ("Text Reflow");
 void LLTextBase::reflow()
 {
 	LL_RECORD_BLOCK_TIME(FTM_TEXT_REFLOW);
@@ -1779,7 +1779,7 @@ void LLTextBase::removeDocumentChild(LLView* view)
 }
 
 
-static LLTrace::TimeBlock FTM_UPDATE_TEXT_SEGMENTS("Update Text Segments");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_TEXT_SEGMENTS("Update Text Segments");
 void LLTextBase::updateSegments()
 {
 	LL_RECORD_BLOCK_TIME(FTM_UPDATE_TEXT_SEGMENTS);
@@ -2020,7 +2020,7 @@ static LLUIImagePtr image_from_icon_name(const std::string& icon_name)
 	}
 }
 
-static LLTrace::TimeBlock FTM_PARSE_HTML("Parse HTML");
+static LLTrace::BlockTimerStatHandle FTM_PARSE_HTML("Parse HTML");
 
 void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Params& input_params)
 {
@@ -2097,7 +2097,7 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 	}
 }
 
-static LLTrace::TimeBlock FTM_APPEND_TEXT("Append Text");
+static LLTrace::BlockTimerStatHandle FTM_APPEND_TEXT("Append Text");
 
 void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, const LLStyle::Params& input_params)
 {

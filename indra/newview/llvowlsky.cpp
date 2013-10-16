@@ -301,7 +301,7 @@ void LLVOWLSky::restoreGL()
 	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
 }
 
-static LLTrace::TimeBlock FTM_GEO_SKY("Windlight Sky Geometry");
+static LLTrace::BlockTimerStatHandle FTM_GEO_SKY("Windlight Sky Geometry");
 
 BOOL LLVOWLSky::updateGeometry(LLDrawable * drawable)
 {

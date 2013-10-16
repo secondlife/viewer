@@ -62,7 +62,7 @@ public:
 	virtual BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
 	virtual void draw();
 	virtual void onOpen(const LLSD& key);
-	LLTrace::TimeBlock* getLegendID(S32 y);
+	LLTrace::BlockTimerStatHandle* getLegendID(S32 y);
 
 private:	
 	virtual	void	onClickCloseBtn();
@@ -93,7 +93,7 @@ private:
 							mChildrenEnd,
 							mSelfStart,
 							mSelfEnd;
-		LLTrace::TimeBlock* mTimeBlock;
+		LLTrace::BlockTimerStatHandle* mTimeBlock;
 		bool				mVisible,
 							mFirstChild,
 							mLastChild;
@@ -113,8 +113,8 @@ private:
 		TimerBar*	mBars;
 	};
 
-	F32Seconds updateTimerBarWidths(LLTrace::TimeBlock* time_block, TimerBarRow& row, S32 history_index, U32& bar_index);
-	S32 updateTimerBarOffsets(LLTrace::TimeBlock* time_block, TimerBarRow& row, S32 timer_bar_index = 0);
+	F32Seconds updateTimerBarWidths(LLTrace::BlockTimerStatHandle* time_block, TimerBarRow& row, S32 history_index, U32& bar_index);
+	S32 updateTimerBarOffsets(LLTrace::BlockTimerStatHandle* time_block, TimerBarRow& row, S32 timer_bar_index = 0);
 	S32 drawBar(LLRect bar_rect, TimerBarRow& row, S32 image_width, S32 image_height, bool hovered = false, bool visible = true, S32 bar_index = 0);
 	void setPauseState(bool pause_state);
 
@@ -134,8 +134,8 @@ private:
 									mHoverBarIndex,
 									mStatsIndex;
 	S32								mDisplayMode;
-	LLTrace::TimeBlock*				mHoverID;
-	LLTrace::TimeBlock*				mHoverTimer;
+	LLTrace::BlockTimerStatHandle*				mHoverID;
+	LLTrace::BlockTimerStatHandle*				mHoverTimer;
 	LLRect							mToolTipRect,
 									mGraphRect,
 									mBarRect,

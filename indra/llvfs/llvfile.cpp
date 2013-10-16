@@ -40,7 +40,7 @@ const S32 LLVFile::WRITE		= 0x00000002;
 const S32 LLVFile::READ_WRITE	= 0x00000003;  // LLVFile::READ & LLVFile::WRITE
 const S32 LLVFile::APPEND		= 0x00000006;  // 0x00000004 & LLVFile::WRITE
 
-static LLTrace::TimeBlock FTM_VFILE_WAIT("VFile Wait");
+static LLTrace::BlockTimerStatHandle FTM_VFILE_WAIT("VFile Wait");
 
 //----------------------------------------------------------------------------
 LLVFSThread* LLVFile::sVFSThread = NULL;

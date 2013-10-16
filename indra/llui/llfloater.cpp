@@ -3114,8 +3114,8 @@ boost::signals2::connection LLFloater::setCloseCallback( const commit_signal_t::
 	return mCloseSignal.connect(cb);
 }
 
-LLTrace::TimeBlock POST_BUILD("Floater Post Build");
-static LLTrace::TimeBlock FTM_EXTERNAL_FLOATER_LOAD("Load Extern Floater Reference");
+LLTrace::BlockTimerStatHandle POST_BUILD("Floater Post Build");
+static LLTrace::BlockTimerStatHandle FTM_EXTERNAL_FLOATER_LOAD("Load Extern Floater Reference");
 
 bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::string& filename, LLXMLNodePtr output_node)
 {
@@ -3270,7 +3270,7 @@ bool LLFloater::isVisible(const LLFloater* floater)
     return floater && floater->getVisible();
 }
 
-static LLTrace::TimeBlock FTM_BUILD_FLOATERS("Build Floaters");
+static LLTrace::BlockTimerStatHandle FTM_BUILD_FLOATERS("Build Floaters");
 
 bool LLFloater::buildFromFile(const std::string& filename)
 {

@@ -212,7 +212,7 @@ LLDrawable *LLVOSurfacePatch::createDrawable(LLPipeline *pipeline)
 	return mDrawable;
 }
 
-static LLTrace::TimeBlock FTM_UPDATE_TERRAIN("Update Terrain");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_TERRAIN("Update Terrain");
 
 void LLVOSurfacePatch::updateGL()
 {
@@ -1070,7 +1070,7 @@ LLVertexBuffer* LLTerrainPartition::createVertexBuffer(U32 type_mask, U32 usage)
 	return new LLVertexBufferTerrain();
 }
 
-static LLTrace::TimeBlock FTM_REBUILD_TERRAIN_VB("Terrain VB");
+static LLTrace::BlockTimerStatHandle FTM_REBUILD_TERRAIN_VB("Terrain VB");
 void LLTerrainPartition::getGeometry(LLSpatialGroup* group)
 {
 	LL_RECORD_BLOCK_TIME(FTM_REBUILD_TERRAIN_VB);

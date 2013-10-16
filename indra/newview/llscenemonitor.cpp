@@ -331,8 +331,8 @@ bool LLSceneMonitor::needsUpdate() const
 	return mDiffState == NEED_DIFF;
 }
 
-static LLTrace::TimeBlock FTM_GENERATE_SCENE_LOAD_DITHER_TEXTURE("Generate Scene Load Dither Texture");
-static LLTrace::TimeBlock FTM_SCENE_LOAD_IMAGE_DIFF("Scene Load Image Diff");
+static LLTrace::BlockTimerStatHandle FTM_GENERATE_SCENE_LOAD_DITHER_TEXTURE("Generate Scene Load Dither Texture");
+static LLTrace::BlockTimerStatHandle FTM_SCENE_LOAD_IMAGE_DIFF("Scene Load Image Diff");
 
 static LLStaticHashedString sDitherScale("dither_scale");
 static LLStaticHashedString sDitherScaleS("dither_scale_s");

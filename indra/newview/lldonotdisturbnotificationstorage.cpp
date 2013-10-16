@@ -97,7 +97,7 @@ void LLDoNotDisturbNotificationStorage::resetDirty()
     mDirty = false;
 }
 
-static LLTrace::TimeBlock FTM_SAVE_DND_NOTIFICATIONS("Save DND Notifications");
+static LLTrace::BlockTimerStatHandle FTM_SAVE_DND_NOTIFICATIONS("Save DND Notifications");
 
 void LLDoNotDisturbNotificationStorage::saveNotifications()
 {
@@ -128,7 +128,7 @@ void LLDoNotDisturbNotificationStorage::saveNotifications()
     resetDirty();
 }
 
-static LLTrace::TimeBlock FTM_LOAD_DND_NOTIFICATIONS("Load DND Notifications");
+static LLTrace::BlockTimerStatHandle FTM_LOAD_DND_NOTIFICATIONS("Load DND Notifications");
 
 void LLDoNotDisturbNotificationStorage::loadNotifications()
 {

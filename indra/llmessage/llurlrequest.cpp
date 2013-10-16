@@ -282,11 +282,11 @@ LLIOPipe::EStatus LLURLRequest::handleError(
 	return status;
 }
 
-static LLTrace::TimeBlock FTM_PROCESS_URL_REQUEST("URL Request");
-static LLTrace::TimeBlock FTM_PROCESS_URL_REQUEST_GET_RESULT("Get Result");
-static LLTrace::TimeBlock FTM_URL_PERFORM("Perform");
-static LLTrace::TimeBlock FTM_PROCESS_URL_PUMP_RESPOND("Pump Respond");
-static LLTrace::TimeBlock FTM_URL_ADJUST_TIMEOUT("Adjust Timeout");
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_URL_REQUEST("URL Request");
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_URL_REQUEST_GET_RESULT("Get Result");
+static LLTrace::BlockTimerStatHandle FTM_URL_PERFORM("Perform");
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_URL_PUMP_RESPOND("Pump Respond");
+static LLTrace::BlockTimerStatHandle FTM_URL_ADJUST_TIMEOUT("Adjust Timeout");
 
 // virtual
 LLIOPipe::EStatus LLURLRequest::process_impl(
@@ -466,7 +466,7 @@ void LLURLRequest::initialize()
 	mResponseTransferedBytes = 0;
 }
 
-static LLTrace::TimeBlock FTM_URL_REQUEST_CONFIGURE("URL Configure");
+static LLTrace::BlockTimerStatHandle FTM_URL_REQUEST_CONFIGURE("URL Configure");
 bool LLURLRequest::configure()
 {
 	LL_RECORD_BLOCK_TIME(FTM_URL_REQUEST_CONFIGURE);
@@ -668,7 +668,7 @@ static size_t headerCallback(void* data, size_t size, size_t nmemb, void* user)
 	return header_len;
 }
 
-static LLTrace::TimeBlock FTM_PROCESS_URL_EXTRACTOR("URL Extractor");
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_URL_EXTRACTOR("URL Extractor");
 /**
  * LLContextURLExtractor
  */
@@ -755,7 +755,7 @@ void LLURLRequestComplete::responseStatus(LLIOPipe::EStatus status)
 	mRequestStatus = status;
 }
 
-static LLTrace::TimeBlock FTM_PROCESS_URL_COMPLETE("URL Complete");
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_URL_COMPLETE("URL Complete");
 // virtual
 LLIOPipe::EStatus LLURLRequestComplete::process_impl(
 	const LLChannelDescriptors& channels,

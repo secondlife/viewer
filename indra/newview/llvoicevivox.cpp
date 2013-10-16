@@ -6314,7 +6314,7 @@ LLVivoxProtocolParser::~LLVivoxProtocolParser()
 		XML_ParserFree(parser);
 }
 
-static LLTrace::TimeBlock FTM_VIVOX_PROCESS("Vivox Process");
+static LLTrace::BlockTimerStatHandle FTM_VIVOX_PROCESS("Vivox Process");
 
 // virtual
 LLIOPipe::EStatus LLVivoxProtocolParser::process_impl(

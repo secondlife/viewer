@@ -54,7 +54,7 @@ LLHUDManager::~LLHUDManager()
 {
 }
 
-static LLTrace::TimeBlock FTM_HUD_EFFECTS("Hud Effects");
+static LLTrace::BlockTimerStatHandle FTM_HUD_EFFECTS("Hud Effects");
 
 void LLHUDManager::updateEffects()
 {

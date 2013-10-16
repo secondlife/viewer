@@ -363,8 +363,8 @@ void LLDrawPoolAlpha::renderAlphaHighlight(U32 mask)
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_RENDER_ALPHA_GROUP_LOOP("Alpha Group");
-static LLFastTimer::DeclareTimer FTM_RENDER_ALPHA_PUSH("Alpha Push Verts");
+static LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA_GROUP_LOOP("Alpha Group");
+static LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA_PUSH("Alpha Push Verts");
 
 void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 {

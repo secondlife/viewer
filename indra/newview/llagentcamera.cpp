@@ -1126,7 +1126,7 @@ void LLAgentCamera::updateLookAt(const S32 mouse_x, const S32 mouse_y)
 	}
 }
 
-static LLTrace::TimeBlock FTM_UPDATE_CAMERA("Camera");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_CAMERA("Camera");
 
 //-----------------------------------------------------------------------------
 // updateCamera()

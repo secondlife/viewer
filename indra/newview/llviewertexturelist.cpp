@@ -68,7 +68,7 @@ void (*LLViewerTextureList::sUUIDCallback)(void **, const LLUUID&) = NULL;
 S32 LLViewerTextureList::sNumImages = 0;
 
 LLViewerTextureList gTextureList;
-static LLTrace::TimeBlock FTM_PROCESS_IMAGES("Process Images");
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_IMAGES("Process Images");
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -662,14 +662,14 @@ void LLViewerTextureList::dirtyImage(LLViewerFetchedTexture *image)
 }
 
 ////////////////////////////////////////////////////////////////////////////
-static LLTrace::TimeBlock FTM_IMAGE_MARK_DIRTY("Dirty Images");
-static LLTrace::TimeBlock FTM_IMAGE_UPDATE_PRIORITIES("Prioritize");
-static LLTrace::TimeBlock FTM_IMAGE_CALLBACKS("Callbacks");
-static LLTrace::TimeBlock FTM_IMAGE_FETCH("Fetch");
-static LLTrace::TimeBlock FTM_FAST_CACHE_IMAGE_FETCH("Fast Cache Fetch");
-static LLTrace::TimeBlock FTM_IMAGE_CREATE("Create");
-static LLTrace::TimeBlock FTM_IMAGE_STATS("Stats");
-static LLTrace::TimeBlock FTM_UPDATE_IMAGES("Update Images");
+static LLTrace::BlockTimerStatHandle FTM_IMAGE_MARK_DIRTY("Dirty Images");
+static LLTrace::BlockTimerStatHandle FTM_IMAGE_UPDATE_PRIORITIES("Prioritize");
+static LLTrace::BlockTimerStatHandle FTM_IMAGE_CALLBACKS("Callbacks");
+static LLTrace::BlockTimerStatHandle FTM_IMAGE_FETCH("Fetch");
+static LLTrace::BlockTimerStatHandle FTM_FAST_CACHE_IMAGE_FETCH("Fast Cache Fetch");
+static LLTrace::BlockTimerStatHandle FTM_IMAGE_CREATE("Create");
+static LLTrace::BlockTimerStatHandle FTM_IMAGE_STATS("Stats");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_IMAGES("Update Images");
 
 void LLViewerTextureList::updateImages(F32 max_time)
 {

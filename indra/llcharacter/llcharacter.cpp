@@ -188,9 +188,9 @@ void LLCharacter::requestStopMotion( LLMotion* motion)
 //-----------------------------------------------------------------------------
 // updateMotions()
 //-----------------------------------------------------------------------------
-static LLTrace::TimeBlock FTM_UPDATE_ANIMATION("Update Animation");
-static LLTrace::TimeBlock FTM_UPDATE_HIDDEN_ANIMATION("Update Hidden Anim");
-static LLTrace::TimeBlock FTM_UPDATE_MOTIONS("Update Motions");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_ANIMATION("Update Animation");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_HIDDEN_ANIMATION("Update Hidden Anim");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_MOTIONS("Update Motions");
 
 void LLCharacter::updateMotions(e_update_t update_type)
 {

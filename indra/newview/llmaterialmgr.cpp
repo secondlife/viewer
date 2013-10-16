@@ -527,7 +527,7 @@ void LLMaterialMgr::onPutResponse(bool success, const LLSD& content)
 	}
 }
 
-static LLTrace::TimeBlock FTM_MATERIALS_IDLE("Materials");
+static LLTrace::BlockTimerStatHandle FTM_MATERIALS_IDLE("Materials");
 
 void LLMaterialMgr::onIdle(void*)
 {

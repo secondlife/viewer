@@ -288,7 +288,7 @@ public:
 // LLDebugText
 //
 
-static LLTrace::TimeBlock FTM_DISPLAY_DEBUG_TEXT("Display Debug Text");
+static LLTrace::BlockTimerStatHandle FTM_DISPLAY_DEBUG_TEXT("Display Debug Text");
 
 class LLDebugText
 {
@@ -2839,7 +2839,7 @@ void append_xui_tooltip(LLView* viewp, LLToolTip::Params& params)
 	}
 }
 
-static LLTrace::TimeBlock ftm("Update UI");
+static LLTrace::BlockTimerStatHandle ftm("Update UI");
 
 // Update UI based on stored mouse position from mouse-move
 // event processing.
@@ -3417,7 +3417,7 @@ void LLViewerWindow::updateKeyboardFocus()
 	}
 }
 
-static LLTrace::TimeBlock FTM_UPDATE_WORLD_VIEW("Update World View");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_WORLD_VIEW("Update World View");
 void LLViewerWindow::updateWorldViewRect(bool use_full_window)
 {
 	LL_RECORD_BLOCK_TIME(FTM_UPDATE_WORLD_VIEW);
@@ -4914,7 +4914,7 @@ void LLViewerWindow::requestResolutionUpdate()
 	mResDirty = true;
 }
 
-static LLTrace::TimeBlock FTM_WINDOW_CHECK_SETTINGS("Window Settings");
+static LLTrace::BlockTimerStatHandle FTM_WINDOW_CHECK_SETTINGS("Window Settings");
 
 void LLViewerWindow::checkSettings()
 {

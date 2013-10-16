@@ -524,7 +524,7 @@ class LLAdvancedToggleConsole : public view_listener_t
 		}
 		else if ("fast timers" == console_type)
 		{
-			LLFloaterReg::toggleInstance("fast_timers");
+			LLFloaterReg::toggleInstance("block_timers");
 		}
 		else if ("scene view" == console_type)
 		{
@@ -550,7 +550,7 @@ class LLAdvancedCheckConsole : public view_listener_t
 		}
 		else if ("fast timers" == console_type)
 		{
-			new_value = LLFloaterReg::instanceVisible("fast_timers");
+			new_value = LLFloaterReg::instanceVisible("block_timers");
 		}
 		else if ("scene view" == console_type)
 		{
@@ -7491,7 +7491,7 @@ void handle_dump_avatar_local_textures(void*)
 
 void handle_dump_timers()
 {
-	LLTrace::TimeBlock::dumpCurTimes();
+	LLTrace::BlockTimerStatHandle::dumpCurTimes();
 }
 
 void handle_debug_avatar_textures(void*)

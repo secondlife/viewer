@@ -74,9 +74,9 @@ class LLWidgetNameRegistry
 //:	public LLRegistrySingleton<const std::type_info*, empty_param_block_func_t, LLDefaultParamBlockRegistry>
 //{};
 
-extern LLTrace::TimeBlock FTM_WIDGET_SETUP;
-extern LLTrace::TimeBlock FTM_WIDGET_CONSTRUCTION;
-extern LLTrace::TimeBlock FTM_INIT_FROM_PARAMS;
+extern LLTrace::BlockTimerStatHandle FTM_WIDGET_SETUP;
+extern LLTrace::BlockTimerStatHandle FTM_WIDGET_CONSTRUCTION;
+extern LLTrace::BlockTimerStatHandle FTM_INIT_FROM_PARAMS;
 
 // Build time optimization, generate this once in .cpp file
 #ifndef LLUICTRLFACTORY_CPP

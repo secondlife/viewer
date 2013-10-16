@@ -89,7 +89,7 @@ void LLDebugView::init()
 	r.setLeftTopAndSize(25, rect.getHeight() - 50, (S32) (gViewerWindow->getWindowRectScaled().getWidth() * 0.75f), 
   									 (S32) (gViewerWindow->getWindowRectScaled().getHeight() * 0.75f));
 	
-	mFastTimerView = dynamic_cast<LLFastTimerView*>(LLFloaterReg::getInstance("fast_timers"));
+	mFastTimerView = dynamic_cast<LLFastTimerView*>(LLFloaterReg::getInstance("block_timers"));
 
 	gSceneView = new LLSceneView(r);
 	gSceneView->setFollowsTop();

@@ -1929,8 +1929,8 @@ S32 LLVOAvatar::setTETexture(const U8 te, const LLUUID& uuid)
 	return setTETextureCore(te, image);
 }
 
-static LLTrace::TimeBlock FTM_AVATAR_UPDATE("Avatar Update");
-static LLTrace::TimeBlock FTM_JOINT_UPDATE("Update Joints");
+static LLTrace::BlockTimerStatHandle FTM_AVATAR_UPDATE("Avatar Update");
+static LLTrace::BlockTimerStatHandle FTM_JOINT_UPDATE("Update Joints");
 
 //------------------------------------------------------------------------
 // LLVOAvatar::dumpAnimationState()
@@ -2169,7 +2169,7 @@ void LLVOAvatar::idleUpdateVoiceVisualizer(bool voice_enabled)
 	}//if ( voiceEnabled )
 }		
 
-static LLTrace::TimeBlock FTM_ATTACHMENT_UPDATE("Update Attachments");
+static LLTrace::BlockTimerStatHandle FTM_ATTACHMENT_UPDATE("Update Attachments");
 
 void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 {
@@ -5426,7 +5426,7 @@ void LLVOAvatar::updateGL()
 //-----------------------------------------------------------------------------
 // updateGeometry()
 //-----------------------------------------------------------------------------
-static LLTrace::TimeBlock FTM_UPDATE_AVATAR("Update Avatar");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_AVATAR("Update Avatar");
 BOOL LLVOAvatar::updateGeometry(LLDrawable *drawable)
 {
 	LL_RECORD_BLOCK_TIME(FTM_UPDATE_AVATAR);

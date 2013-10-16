@@ -60,14 +60,14 @@ namespace LLTrace
 //////////////////////////////////////////////////////////////////////////////
 // statics
 
-bool        TimeBlock::sLog		     = false;
-std::string TimeBlock::sLogName         = "";
-bool        TimeBlock::sMetricLog       = false;
+bool        BlockTimerStatHandle::sLog		     = false;
+std::string BlockTimerStatHandle::sLogName         = "";
+bool        BlockTimerStatHandle::sMetricLog       = false;
 
 #if LL_LINUX || LL_SOLARIS
-U64         TimeBlock::sClockResolution = 1000000000; // Nanosecond resolution
+U64         BlockTimerStatHandle::sClockResolution = 1000000000; // Nanosecond resolution
 #else
-U64         TimeBlock::sClockResolution = 1000000; // Microsecond resolution
+U64         BlockTimerStatHandle::sClockResolution = 1000000; // Microsecond resolution
 #endif
 
 static LLMutex*			sLogLock = NULL;
@@ -77,13 +77,13 @@ static std::queue<LLSD> sLogQueue;
 // FIXME: move these declarations to the relevant modules
 
 // helper functions
-typedef LLTreeDFSPostIter<TimeBlock, TimeBlock::child_const_iter> timer_tree_bottom_up_iterator_t;
+typedef LLTreeDFSPostIter<BlockTimerStatHandle, BlockTimerStatHandle::child_const_iter> timer_tree_bottom_up_iterator_t;
 
-static timer_tree_bottom_up_iterator_t begin_timer_tree_bottom_up(TimeBlock& id) 
+static timer_tree_bottom_up_iterator_t begin_timer_tree_bottom_up(BlockTimerStatHandle& id) 
 { 
 	return timer_tree_bottom_up_iterator_t(&id, 
-							boost::bind(boost::mem_fn(&TimeBlock::beginChildren), _1), 
-							boost::bind(boost::mem_fn(&TimeBlock::endChildren), _1));
+							boost::bind(boost::mem_fn(&BlockTimerStatHandle::beginChildren), _1), 
+							boost::bind(boost::mem_fn(&BlockTimerStatHandle::endChildren), _1));
 }
 
 static timer_tree_bottom_up_iterator_t end_timer_tree_bottom_up() 
@@ -91,14 +91,14 @@ static timer_tree_bottom_up_iterator_t end_timer_tree_bottom_up()
 	return timer_tree_bottom_up_iterator_t(); 
 }
 
-typedef LLTreeDFSIter<TimeBlock, TimeBlock::child_const_iter> timer_tree_dfs_iterator_t;
+typedef LLTreeDFSIter<BlockTimerStatHandle, BlockTimerStatHandle::child_const_iter> timer_tree_dfs_iterator_t;
 
 
-static timer_tree_dfs_iterator_t begin_timer_tree(TimeBlock& id) 
+static timer_tree_dfs_iterator_t begin_timer_tree(BlockTimerStatHandle& id) 
 { 
 	return timer_tree_dfs_iterator_t(&id, 
-		boost::bind(boost::mem_fn(&TimeBlock::beginChildren), _1), 
-							boost::bind(boost::mem_fn(&TimeBlock::endChildren), _1));
+		boost::bind(boost::mem_fn(&BlockTimerStatHandle::beginChildren), _1), 
+							boost::bind(boost::mem_fn(&BlockTimerStatHandle::endChildren), _1));
 }
 
 static timer_tree_dfs_iterator_t end_timer_tree() 
@@ -110,26 +110,26 @@ static timer_tree_dfs_iterator_t end_timer_tree()
 // sort child timers by name
 struct SortTimerByName
 {
-	bool operator()(const TimeBlock* i1, const TimeBlock* i2)
+	bool operator()(const BlockTimerStatHandle* i1, const BlockTimerStatHandle* i2)
         {
 		return i1->getName() < i2->getName();
         }
 };
 
-TimeBlock& TimeBlock::getRootTimeBlock()
+BlockTimerStatHandle& BlockTimerStatHandle::getRootTimeBlock()
 {
-	static TimeBlock root_timer("root", NULL);
+	static BlockTimerStatHandle root_timer("root", NULL);
 	return root_timer;
 }
 
-void TimeBlock::pushLog(LLSD log)
+void BlockTimerStatHandle::pushLog(LLSD log)
 {
 	LLMutexLock lock(sLogLock);
 
 	sLogQueue.push(log);
 }
 
-void TimeBlock::setLogLock(LLMutex* lock)
+void BlockTimerStatHandle::setLogLock(LLMutex* lock)
 {
 	sLogLock = lock;
 }
@@ -137,12 +137,12 @@ void TimeBlock::setLogLock(LLMutex* lock)
 
 //static
 #if (LL_DARWIN || LL_LINUX || LL_SOLARIS) && !(defined(__i386__) || defined(__amd64__))
-U64 TimeBlock::countsPerSecond()
+U64 BlockTimerStatHandle::countsPerSecond()
 {
 	return sClockResolution;
 }
 #else // windows or x86-mac or x86-linux or x86-solaris
-U64 TimeBlock::countsPerSecond()
+U64 BlockTimerStatHandle::countsPerSecond()
 {
 #if LL_FASTTIMER_USE_RDTSC || !LL_WINDOWS
 	//getCPUFrequency returns MHz and sCPUClockFrequency wants to be in Hz
@@ -164,11 +164,11 @@ U64 TimeBlock::countsPerSecond()
 }
 #endif
 
-TimeBlock::TimeBlock(const char* name, TimeBlock* parent)
-:	StatType<TimeBlockAccumulator>(name)
+BlockTimerStatHandle::BlockTimerStatHandle(const char* name, const char* description)
+:	StatType<TimeBlockAccumulator>(name, description)
 {}
 
-TimeBlockTreeNode& TimeBlock::getTreeNode() const
+TimeBlockTreeNode& BlockTimerStatHandle::getTreeNode() const
 {
 	TimeBlockTreeNode* nodep = LLTrace::get_thread_recorder()->getTimeBlockTreeNode(getIndex());
 	llassert(nodep);
@@ -176,18 +176,18 @@ TimeBlockTreeNode& TimeBlock::getTreeNode() const
 }
 
 
-void TimeBlock::bootstrapTimerTree()
+void BlockTimerStatHandle::bootstrapTimerTree()
 {
-	for (LLInstanceTracker<TimeBlock>::instance_iter begin_it = LLInstanceTracker<TimeBlock>::beginInstances(), end_it = LLInstanceTracker<TimeBlock>::endInstances(), it = begin_it; 
+	for (BlockTimerStatHandle::instance_tracker_t::instance_iter begin_it = BlockTimerStatHandle::instance_tracker_t::beginInstances(), end_it = BlockTimerStatHandle::instance_tracker_t::endInstances(), it = begin_it; 
 		it != end_it; 
 		++it)
 	{
-		TimeBlock& timer = *it;
-		if (&timer == &TimeBlock::getRootTimeBlock()) continue;
+		BlockTimerStatHandle& timer = static_cast<BlockTimerStatHandle&>(*it);
+		if (&timer == &BlockTimerStatHandle::getRootTimeBlock()) continue;
 
 		// bootstrap tree construction by attaching to last timer to be on stack
 		// when this timer was called
-		if (timer.getParent() == &TimeBlock::getRootTimeBlock())
+		if (timer.getParent() == &BlockTimerStatHandle::getRootTimeBlock())
 		{
 			TimeBlockAccumulator& accumulator = timer.getCurrentAccumulator();
 
@@ -205,13 +205,13 @@ void TimeBlock::bootstrapTimerTree()
 // bump timers up tree if they have been flagged as being in the wrong place
 // do this in a bottom up order to promote descendants first before promoting ancestors
 // this preserves partial order derived from current frame's observations
-void TimeBlock::incrementalUpdateTimerTree()
+void BlockTimerStatHandle::incrementalUpdateTimerTree()
 {
-	for(timer_tree_bottom_up_iterator_t it = begin_timer_tree_bottom_up(TimeBlock::getRootTimeBlock());
+	for(timer_tree_bottom_up_iterator_t it = begin_timer_tree_bottom_up(BlockTimerStatHandle::getRootTimeBlock());
 		it != end_timer_tree_bottom_up();
 		++it)
 	{
-		TimeBlock* timerp = *it;
+		BlockTimerStatHandle* timerp = *it;
 
 		// sort timers by time last called, so call graph makes sense
 		TimeBlockTreeNode& tree_node = timerp->getTreeNode();
@@ -221,7 +221,7 @@ void TimeBlock::incrementalUpdateTimerTree()
 		}
 
 		// skip root timer
-		if (timerp != &TimeBlock::getRootTimeBlock())
+		if (timerp != &BlockTimerStatHandle::getRootTimeBlock())
 		{
 			TimeBlockAccumulator& accumulator = timerp->getCurrentAccumulator();
 
@@ -245,7 +245,7 @@ void TimeBlock::incrementalUpdateTimerTree()
 }
 
 
-void TimeBlock::updateTimes()
+void BlockTimerStatHandle::updateTimes()
 {
 	// walk up stack of active timers and accumulate current time while leaving timing structures active
 	BlockTimerStackRecord* stack_record	= LLThreadLocalSingletonPointer<BlockTimerStackRecord>::getInstance();
@@ -273,11 +273,11 @@ void TimeBlock::updateTimes()
 	}
 }
 
-static LLTrace::TimeBlock FTM_PROCESS_TIMES("Process FastTimer Times");
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_TIMES("Process FastTimer Times");
 
 // not thread safe, so only call on main thread
 //static
-void TimeBlock::processTimes()
+void BlockTimerStatHandle::processTimes()
 {
 	LL_RECORD_BLOCK_TIME(FTM_PROCESS_TIMES);
 	get_clock_count(); // good place to calculate clock frequency
@@ -290,12 +290,12 @@ void TimeBlock::processTimes()
 	updateTimes();
 
 	// reset for next frame
-	for (LLInstanceTracker<TimeBlock>::instance_iter it = LLInstanceTracker<TimeBlock>::beginInstances(),
-			end_it = LLInstanceTracker<TimeBlock>::endInstances();
+	for (BlockTimerStatHandle::instance_tracker_t::instance_iter it = BlockTimerStatHandle::instance_tracker_t::beginInstances(),
+			end_it = BlockTimerStatHandle::instance_tracker_t::endInstances();
 		it != end_it;
 		++it)
 	{
-		TimeBlock& timer = *it;
+		BlockTimerStatHandle& timer = static_cast<BlockTimerStatHandle&>(*it);
 		TimeBlockAccumulator& accumulator = timer.getCurrentAccumulator();
 
 		accumulator.mLastCaller = NULL;
@@ -303,23 +303,23 @@ void TimeBlock::processTimes()
 	}
 }
 
-std::vector<TimeBlock*>::iterator TimeBlock::beginChildren()
+std::vector<BlockTimerStatHandle*>::iterator BlockTimerStatHandle::beginChildren()
 {
 	return getTreeNode().mChildren.begin(); 
 }
 
-std::vector<TimeBlock*>::iterator TimeBlock::endChildren()
+std::vector<BlockTimerStatHandle*>::iterator BlockTimerStatHandle::endChildren()
 {
 	return getTreeNode().mChildren.end();
 }
 
-std::vector<TimeBlock*>& TimeBlock::getChildren()
+std::vector<BlockTimerStatHandle*>& BlockTimerStatHandle::getChildren()
 {
 	return getTreeNode().mChildren;
 }
 
 // static
-void TimeBlock::logStats()
+void BlockTimerStatHandle::logStats()
 {
 	// get ready for next frame
 	if (sLog)
@@ -340,12 +340,12 @@ void TimeBlock::logStats()
 		LLSD sd;
 
 		{
-			for (LLInstanceTracker<TimeBlock>::instance_iter it = LLInstanceTracker<TimeBlock>::beginInstances(), 
-				end_it = LLInstanceTracker<TimeBlock>::endInstances(); 
+			for (BlockTimerStatHandle::instance_tracker_t::instance_iter it = BlockTimerStatHandle::instance_tracker_t::beginInstances(), 
+				end_it = BlockTimerStatHandle::instance_tracker_t::endInstances(); 
 				it != end_it; 
 			++it)
 			{
-				TimeBlock& timer = *it;
+				BlockTimerStatHandle& timer = static_cast<BlockTimerStatHandle&>(*it);
 				LLTrace::PeriodicRecording& frame_recording = LLTrace::get_frame_recording();
 				sd[timer.getName()]["Time"] = (LLSD::Real) (frame_recording.getLastRecording().getSum(timer).value());	
 				sd[timer.getName()]["Calls"] = (LLSD::Integer) (frame_recording.getLastRecording().getSum(timer.callCount()));
@@ -368,17 +368,17 @@ void TimeBlock::logStats()
 }
 
 //static
-void TimeBlock::dumpCurTimes()
+void BlockTimerStatHandle::dumpCurTimes()
 {
 	LLTrace::PeriodicRecording& frame_recording = LLTrace::get_frame_recording();
 	LLTrace::Recording& last_frame_recording = frame_recording.getLastRecording();
 
 	// walk over timers in depth order and output timings
-	for(timer_tree_dfs_iterator_t it = begin_timer_tree(TimeBlock::getRootTimeBlock());
+	for(timer_tree_dfs_iterator_t it = begin_timer_tree(BlockTimerStatHandle::getRootTimeBlock());
 		it != end_timer_tree();
 		++it)
 	{
-		TimeBlock* timerp = (*it);
+		BlockTimerStatHandle* timerp = (*it);
 		F64Seconds total_time = last_frame_recording.getSum(*timerp);
 		U32 num_calls = last_frame_recording.getSum(timerp->callCount());
 
@@ -386,7 +386,7 @@ void TimeBlock::dumpCurTimes()
 		if (total_time < F32Milliseconds(0.1f)) continue;
 
 		std::ostringstream out_str;
-		TimeBlock* parent_timerp = timerp;
+		BlockTimerStatHandle* parent_timerp = timerp;
 		while(parent_timerp && parent_timerp != parent_timerp->getParent())
 		{
 			out_str << "\t";
@@ -402,7 +402,7 @@ void TimeBlock::dumpCurTimes()
 }
 
 //static 
-void TimeBlock::writeLog(std::ostream& os)
+void BlockTimerStatHandle::writeLog(std::ostream& os)
 {
 	while (!sLogQueue.empty())
 	{
@@ -458,9 +458,9 @@ void TimeBlockAccumulator::reset( const TimeBlockAccumulator* other )
 
 F64Seconds BlockTimer::getElapsedTime()
 {
-	U64 total_time = TimeBlock::getCPUClockCount64() - mStartTime;
+	U64 total_time = BlockTimerStatHandle::getCPUClockCount64() - mStartTime;
 
-	return F64Seconds((F64)total_time / (F64)TimeBlock::countsPerSecond());
+	return F64Seconds((F64)total_time / (F64)BlockTimerStatHandle::countsPerSecond());
 }
 
 

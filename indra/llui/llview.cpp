@@ -1504,7 +1504,7 @@ LLView* LLView::getChildView(const std::string& name, BOOL recurse) const
 	return getChild<LLView>(name, recurse);
 }
 
-static LLTrace::TimeBlock FTM_FIND_VIEWS("Find Widgets");
+static LLTrace::BlockTimerStatHandle FTM_FIND_VIEWS("Find Widgets");
 
 LLView* LLView::findChildView(const std::string& name, BOOL recurse) const
 {

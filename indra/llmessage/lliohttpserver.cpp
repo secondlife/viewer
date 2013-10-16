@@ -139,11 +139,11 @@ private:
 	LLSD mHeaders;
 };
 
-static LLTrace::TimeBlock FTM_PROCESS_HTTP_PIPE("HTTP Pipe");
-static LLTrace::TimeBlock FTM_PROCESS_HTTP_GET("HTTP Get");
-static LLTrace::TimeBlock FTM_PROCESS_HTTP_PUT("HTTP Put");
-static LLTrace::TimeBlock FTM_PROCESS_HTTP_POST("HTTP Post");
-static LLTrace::TimeBlock FTM_PROCESS_HTTP_DELETE("HTTP Delete");
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_HTTP_PIPE("HTTP Pipe");
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_HTTP_GET("HTTP Get");
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_HTTP_PUT("HTTP Put");
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_HTTP_POST("HTTP Post");
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_HTTP_DELETE("HTTP Delete");
 
 LLIOPipe::EStatus LLHTTPPipe::process_impl(
 	const LLChannelDescriptors& channels,
@@ -435,7 +435,7 @@ protected:
  * LLHTTPResponseHeader
  */
 
-static LLTrace::TimeBlock FTM_PROCESS_HTTP_HEADER("HTTP Header");
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_HTTP_HEADER("HTTP Header");
 
 // virtual
 LLIOPipe::EStatus LLHTTPResponseHeader::process_impl(
@@ -635,7 +635,7 @@ void LLHTTPResponder::markBad(
 		<< "</body>\n</html>\n";
 }
 
-static LLTrace::TimeBlock FTM_PROCESS_HTTP_RESPONDER("HTTP Responder");
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_HTTP_RESPONDER("HTTP Responder");
 
 // virtual
 LLIOPipe::EStatus LLHTTPResponder::process_impl(

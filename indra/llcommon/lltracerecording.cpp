@@ -139,192 +139,228 @@ void Recording::appendRecording( Recording& other )
 
 F64Seconds Recording::getSum(const StatType<TimeBlockAccumulator>& stat)
 {
+	llassert(!isStarted());
 	const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
 	return F64Seconds((F64)(accumulator.mTotalTimeCounter) 
-				/ (F64)LLTrace::TimeBlock::countsPerSecond());
+				/ (F64)LLTrace::BlockTimerStatHandle::countsPerSecond());
 }
 
 F64Seconds Recording::getSum(const StatType<TimeBlockAccumulator::SelfTimeFacet>& stat)
 {
+	llassert(!isStarted());
 	const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
-	return F64Seconds((F64)(accumulator.mSelfTimeCounter) / (F64)LLTrace::TimeBlock::countsPerSecond());
+	return F64Seconds((F64)(accumulator.mSelfTimeCounter) / (F64)LLTrace::BlockTimerStatHandle::countsPerSecond());
 }
 
 
 S32 Recording::getSum(const StatType<TimeBlockAccumulator::CallCountFacet>& stat)
 {
+	llassert(!isStarted());
 	return mBuffers->mStackTimers[stat.getIndex()].mCalls;
 }
 
 F64Seconds Recording::getPerSec(const StatType<TimeBlockAccumulator>& stat)
 {
+	llassert(!isStarted());
 	const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
 
 	return F64Seconds((F64)(accumulator.mTotalTimeCounter) 
-				/ ((F64)LLTrace::TimeBlock::countsPerSecond() * mElapsedSeconds.value()));
+				/ ((F64)LLTrace::BlockTimerStatHandle::countsPerSecond() * mElapsedSeconds.value()));
 }
 
 F64Seconds Recording::getPerSec(const StatType<TimeBlockAccumulator::SelfTimeFacet>& stat)
 {
+	llassert(!isStarted());
 	const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
 
 	return F64Seconds((F64)(accumulator.mSelfTimeCounter) 
-			/ ((F64)LLTrace::TimeBlock::countsPerSecond() * mElapsedSeconds.value()));
+			/ ((F64)LLTrace::BlockTimerStatHandle::countsPerSecond() * mElapsedSeconds.value()));
 }
 
 F32 Recording::getPerSec(const StatType<TimeBlockAccumulator::CallCountFacet>& stat)
 {
+	llassert(!isStarted());
 	return (F32)mBuffers->mStackTimers[stat.getIndex()].mCalls / mElapsedSeconds.value();
 }
 
 bool Recording::hasValue(const StatType<MemAccumulator>& stat)
 {
+	llassert(!isStarted());
 	return mBuffers->mMemStats[stat.getIndex()].mSize.hasValue();
 }
 
 F64Kilobytes Recording::getMin(const StatType<MemAccumulator>& stat)
 {
+	llassert(!isStarted());
 	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mSize.getMin());
 }
 
 F64Kilobytes Recording::getMean(const StatType<MemAccumulator>& stat)
 {
+	llassert(!isStarted());
 	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mSize.getMean());
 }
 
 F64Kilobytes Recording::getMax(const StatType<MemAccumulator>& stat)
 {
+	llassert(!isStarted());
 	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mSize.getMax());
 }
 
 F64Kilobytes Recording::getStandardDeviation(const StatType<MemAccumulator>& stat)
 {
+	llassert(!isStarted());
 	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mSize.getStandardDeviation());
 }
 
 F64Kilobytes Recording::getLastValue(const StatType<MemAccumulator>& stat)
 {
+	llassert(!isStarted());
 	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mSize.getLastValue());
 }
 
 F64Kilobytes Recording::getSum(const StatType<MemAccumulator::AllocationFacet>& stat)
 {
+	llassert(!isStarted());
 	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mAllocations.getSum());
 }
 
 F64Kilobytes Recording::getPerSec(const StatType<MemAccumulator::AllocationFacet>& stat)
 {
+	llassert(!isStarted());
 	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mAllocations.getSum() / mElapsedSeconds.value());
 }
 
 S32 Recording::getSampleCount(const StatType<MemAccumulator::AllocationFacet>& stat)
 {
+	llassert(!isStarted());
 	return mBuffers->mMemStats[stat.getIndex()].mAllocations.getSampleCount();
 }
 
 F64Kilobytes Recording::getSum(const StatType<MemAccumulator::DeallocationFacet>& stat)
 {
+	llassert(!isStarted());
 	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mDeallocations.getSum());
 }
 
 F64Kilobytes Recording::getPerSec(const StatType<MemAccumulator::DeallocationFacet>& stat)
 {
+	llassert(!isStarted());
 	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mDeallocations.getSum() / mElapsedSeconds.value());
 }
 
 S32 Recording::getSampleCount(const StatType<MemAccumulator::DeallocationFacet>& stat)
 {
+	llassert(!isStarted());
 	return mBuffers->mMemStats[stat.getIndex()].mDeallocations.getSampleCount();
 }
 
 F64 Recording::getSum( const StatType<CountAccumulator>& stat )
 {
+	llassert(!isStarted());
 	return mBuffers->mCounts[stat.getIndex()].getSum();
 }
 
 F64 Recording::getSum( const StatType<EventAccumulator>& stat )
 {
+	llassert(!isStarted());
 	return (F64)mBuffers->mEvents[stat.getIndex()].getSum();
 }
 
 F64 Recording::getPerSec( const StatType<CountAccumulator>& stat )
 {
+	llassert(!isStarted());
 	F64 sum = mBuffers->mCounts[stat.getIndex()].getSum();
 	return  sum / mElapsedSeconds.value();
 }
 
 S32 Recording::getSampleCount( const StatType<CountAccumulator>& stat )
 {
+	llassert(!isStarted());
 	return mBuffers->mCounts[stat.getIndex()].getSampleCount();
 }
 
 bool Recording::hasValue(const StatType<SampleAccumulator>& stat)
 {
+	llassert(!isStarted());
 	return mBuffers->mSamples[stat.getIndex()].hasValue();
 }
 
 F64 Recording::getMin( const StatType<SampleAccumulator>& stat )
 {
+	llassert(!isStarted());
 	return mBuffers->mSamples[stat.getIndex()].getMin();
 }
 
 F64 Recording::getMax( const StatType<SampleAccumulator>& stat )
 {
+	llassert(!isStarted());
 	return mBuffers->mSamples[stat.getIndex()].getMax();
 }
 
 F64 Recording::getMean( const StatType<SampleAccumulator>& stat )
 {
+	llassert(!isStarted());
 	return mBuffers->mSamples[stat.getIndex()].getMean();
 }
 
 F64 Recording::getStandardDeviation( const StatType<SampleAccumulator>& stat )
 {
+	llassert(!isStarted());
 	return mBuffers->mSamples[stat.getIndex()].getStandardDeviation();
 }
 
 F64 Recording::getLastValue( const StatType<SampleAccumulator>& stat )
 {
+	llassert(!isStarted());
 	return mBuffers->mSamples[stat.getIndex()].getLastValue();
 }
 
 S32 Recording::getSampleCount( const StatType<SampleAccumulator>& stat )
 {
+	llassert(!isStarted());
 	return mBuffers->mSamples[stat.getIndex()].getSampleCount();
 }
 
 bool Recording::hasValue(const StatType<EventAccumulator>& stat)
 {
+	llassert(!isStarted());
 	return mBuffers->mEvents[stat.getIndex()].hasValue();
 }
 
 F64 Recording::getMin( const StatType<EventAccumulator>& stat )
 {
+	llassert(!isStarted());
 	return mBuffers->mEvents[stat.getIndex()].getMin();
 }
 
 F64 Recording::getMax( const StatType<EventAccumulator>& stat )
 {
+	llassert(!isStarted());
 	return mBuffers->mEvents[stat.getIndex()].getMax();
 }
 
 F64 Recording::getMean( const StatType<EventAccumulator>& stat )
 {
+	llassert(!isStarted());
 	return mBuffers->mEvents[stat.getIndex()].getMean();
 }
 
 F64 Recording::getStandardDeviation( const StatType<EventAccumulator>& stat )
 {
+	llassert(!isStarted());
 	return mBuffers->mEvents[stat.getIndex()].getStandardDeviation();
 }
 
 F64 Recording::getLastValue( const StatType<EventAccumulator>& stat )
 {
+	llassert(!isStarted());
 	return mBuffers->mEvents[stat.getIndex()].getLastValue();
 }
 
 S32 Recording::getSampleCount( const StatType<EventAccumulator>& stat )
 {
+	llassert(!isStarted());
 	return mBuffers->mEvents[stat.getIndex()].getSampleCount();
 }
 

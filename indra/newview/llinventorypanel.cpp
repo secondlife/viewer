@@ -397,7 +397,7 @@ LLInventoryFilter::EFolderShow LLInventoryPanel::getShowFolderState()
 }
 
 // Called when something changed in the global model (new item, item coming through the wire, rename, move, etc...) (CHUI-849)
-static LLTrace::TimeBlock FTM_REFRESH("Inventory Refresh");
+static LLTrace::BlockTimerStatHandle FTM_REFRESH("Inventory Refresh");
 void LLInventoryPanel::modelChanged(U32 mask)
 {
 	LL_RECORD_BLOCK_TIME(FTM_REFRESH);
@@ -1295,7 +1295,7 @@ void LLInventoryPanel::removeItemID(const LLUUID& id)
 	}
 }
 
-LLTrace::TimeBlock FTM_GET_ITEM_BY_ID("Get FolderViewItem by ID");
+LLTrace::BlockTimerStatHandle FTM_GET_ITEM_BY_ID("Get FolderViewItem by ID");
 LLFolderViewItem* LLInventoryPanel::getItemByID(const LLUUID& id)
 {
 	LL_RECORD_BLOCK_TIME(FTM_GET_ITEM_BY_ID);
