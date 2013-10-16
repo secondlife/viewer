@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="script goto" title="PASSA ALLA RIGA">
+	<button label="OK" label_selected="OK" name="goto_btn"/>
+	<text name="txt">
+		Passa alla riga
+	</text>
+</floater>

@@ -262,7 +262,7 @@ BOOL LLFeatureManager::maskFeatures(const std::string& name)
 	return maskList(*maskp);
 }
 
-BOOL LLFeatureManager::loadFeatureTables()
+bool LLFeatureManager::loadFeatureTables()
 {
 	// *TODO - if I or anyone else adds something else to the skipped list
 	// make this data driven.  Put it in the feature table and parse it
@@ -303,28 +303,36 @@ BOOL LLFeatureManager::loadFeatureTables()
 
 	// use HTTP table if it exists
 	std::string path;
+	bool parse_ok = false;
 	if (gDirUtilp->fileExists(http_path))
 	{
-		path = http_path;
-	}
-	else
-	{
-		path = app_path;
+		parse_ok = parseFeatureTable(http_path);
+		if (!parse_ok)
+		{
+			// the HTTP table failed to parse, so delete it
+			LLFile::remove(http_path);
+			LL_WARNS("RenderInit") << "Removed invalid feature table '" << http_path << "'" << LL_ENDL;
+		}
 	}
 
-	
-	return parseFeatureTable(path);
+	if (!parse_ok)
+	{
+		parse_ok = parseFeatureTable(app_path);
+	}
+
+	return parse_ok;
 }
 
 
-BOOL LLFeatureManager::parseFeatureTable(std::string filename)
+bool LLFeatureManager::parseFeatureTable(std::string filename)
 {
-	llinfos << "Looking for feature table in " << filename << llendl;
+	LL_INFOS("RenderInit") << "Attempting to parse feature table from " << filename << LL_ENDL;
 
 	llifstream file;
 	std::string name;
 	U32		version;
 	
+	cleanupFeatureTables(); // in case an earlier attempt left partial results
 	file.open(filename); 	 /*Flawfinder: ignore*/
 
 	if (!file)
@@ -339,13 +347,14 @@ BOOL LLFeatureManager::parseFeatureTable(std::string filename)
 	if (name != "version")
 	{
 		LL_WARNS("RenderInit") << filename << " does not appear to be a valid feature table!" << LL_ENDL;
-		return FALSE;
+		return false;
 	}
 
 	mTableVersion = version;
-
+	
 	LLFeatureList *flp = NULL;
-	while (file >> name)
+	bool parse_ok = true;
+	while (file >> name && parse_ok)
 	{
 		char buffer[MAX_STRING];		 /*Flawfinder: ignore*/
 		
@@ -358,39 +367,58 @@ BOOL LLFeatureManager::parseFeatureTable(std::string filename)
 
 		if (name == "list")
 		{
+			LL_DEBUGS("RenderInit") << "Before new list" << std::endl;
 			if (flp)
 			{
-				//flp->dump();
+				flp->dump();
 			}
+			else
+			{
+				LL_CONT << "No current list";
+			}
+			LL_CONT << LL_ENDL;
+			
 			// It's a new mask, create it.
 			file >> name;
-			if (mMaskList.count(name))
+			if (!mMaskList.count(name))
 			{
-				LL_ERRS("RenderInit") << "Overriding mask " << name << ", this is invalid!" << LL_ENDL;
+				flp = new LLFeatureList(name);
+				mMaskList[name] = flp;
 			}
-
-			flp = new LLFeatureList(name);
-			mMaskList[name] = flp;
+			else
+			{
+				LL_WARNS("RenderInit") << "Overriding mask " << name << ", this is invalid!" << LL_ENDL;
+				parse_ok = false;
+			}
 		}
 		else
 		{
-			if (!flp)
+			if (flp)
 			{
-				LL_ERRS("RenderInit") << "Specified parameter before <list> keyword!" << LL_ENDL;
-				return FALSE;
+				S32 available;
+				F32 recommended;
+				file >> available >> recommended;
+				flp->addFeature(name, available, recommended);
 			}
-			S32 available;
-			F32 recommended;
-			file >> available >> recommended;
-			flp->addFeature(name, available, recommended);
+			else
+			{
+				LL_WARNS("RenderInit") << "Specified parameter before <list> keyword!" << LL_ENDL;
+				parse_ok = false;
+			}
 		}
 	}
 	file.close();
 
-	return TRUE;
+	if (!parse_ok)
+	{
+		LL_WARNS("RenderInit") << "Discarding feature table data from " << filename << LL_ENDL;
+		cleanupFeatureTables();
+	}
+	
+	return parse_ok;
 }
 
-void LLFeatureManager::loadGPUClass()
+bool LLFeatureManager::loadGPUClass()
 {
 	// defaults
 	mGPUClass = GPU_CLASS_UNKNOWN;
@@ -408,29 +436,49 @@ void LLFeatureManager::loadGPUClass()
 
 	// use HTTP table if it exists
 	std::string path;
+	bool parse_ok = false;
 	if (gDirUtilp->fileExists(http_path))
 	{
-		path = http_path;
-	}
-	else
-	{
-		path = app_path;
+		parse_ok = parseGPUTable(http_path);
+		if (!parse_ok)
+		{
+			// the HTTP table failed to parse, so delete it
+			LLFile::remove(http_path);
+			LL_WARNS("RenderInit") << "Removed invalid gpu table '" << http_path << "'" << LL_ENDL;
+		}
 	}
 
-	parseGPUTable(path);
+	if (!parse_ok)
+	{
+		parse_ok = parseGPUTable(app_path);
+	}
+
+	return parse_ok; // indicates that the file parsed correctly, not that the gpu was recognized
 }
 
 	
-void LLFeatureManager::parseGPUTable(std::string filename)
+bool LLFeatureManager::parseGPUTable(std::string filename)
 {
 	llifstream file;
-		
+	
+	LL_INFOS("RenderInit") << "Attempting to parse GPU table from " << filename << LL_ENDL;
 	file.open(filename);
 
-	if (!file)
+	if (file)
+	{
+		const char recognizer[] = "//GPU_TABLE";
+		char first_line[MAX_STRING];
+		file.getline(first_line, MAX_STRING);
+		if (0 != strncmp(first_line, recognizer, strlen(recognizer)))
+		{
+			LL_WARNS("RenderInit") << "Invalid GPU table: " << filename << "!" << LL_ENDL;
+			return false;
+		}
+	}
+	else
 	{
 		LL_WARNS("RenderInit") << "Unable to open GPU table: " << filename << "!" << LL_ENDL;
-		return;
+		return false;
 	}
 
 	std::string rawRenderer = gGLManager.getRawGLString();
@@ -557,6 +605,7 @@ void LLFeatureManager::parseGPUTable(std::string filename)
 #if LL_DARWIN // never go over "Mid" settings by default on OS X
 	mGPUClass = llmin(mGPUClass, GPU_CLASS_2);
 #endif
+	return true;
 }
 
 // responder saves table into file

@@ -3,6 +3,7 @@
 	<menu_item_call label="Fermer la conversation" name="close_conversation"/>
 	<menu_item_call label="Ouvrir une conversation vocale" name="open_voice_conversation"/>
 	<menu_item_call label="Se déconnecter de la conversation et du canal vocal" name="disconnect_from_voice"/>
+	<menu_item_call label="Fermer la sélection" name="close_selected_conversations"/>
 	<menu_item_call label="Voir le profil" name="view_profile"/>
 	<menu_item_call label="IM" name="im"/>
 	<menu_item_call label="Proposer une téléportation." name="offer_teleport"/>

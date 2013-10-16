@@ -2678,7 +2678,8 @@ void LLIMMgr::addMessage(
 		name_is_setted = true;
 	}
 	bool skip_message = false;
-	if (gSavedSettings.getBOOL("VoiceCallsFriendsOnly"))
+	bool from_linden = LLMuteList::getInstance()->isLinden(from);
+	if (gSavedSettings.getBOOL("VoiceCallsFriendsOnly") && !from_linden)
 	{
 		// Evaluate if we need to skip this message when that setting is true (default is false)
 		skip_message = (LLAvatarTracker::instance().getBuddyInfo(other_participant_id) == NULL);	// Skip non friends...
@@ -2724,7 +2725,7 @@ void LLIMMgr::addMessage(
 
 		// Logically it would make more sense to reject the session sooner, in another area of the
 		// code, but the session has to be established inside the server before it can be left.
-		if (LLMuteList::getInstance()->isMuted(other_participant_id) && !LLMuteList::getInstance()->isLinden(from))
+		if (LLMuteList::getInstance()->isMuted(other_participant_id) && !from_linden)
 		{
 			llwarns << "Leaving IM session from initiating muted resident " << from << llendl;
 			if(!gIMMgr->leaveSession(new_session_id))

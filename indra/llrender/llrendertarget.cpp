@@ -79,7 +79,7 @@ LLRenderTarget::~LLRenderTarget()
 	release();
 }
 
-void LLRenderTarget::resize(U32 resx, U32 resy, U32 color_fmt)
+void LLRenderTarget::resize(U32 resx, U32 resy)
 { 
 	//for accounting, get the number of pixels added/subtracted
 	S32 pix_diff = (resx*resy)-(mResX*mResY);
@@ -87,10 +87,12 @@ void LLRenderTarget::resize(U32 resx, U32 resy, U32 color_fmt)
 	mResX = resx;
 	mResY = resy;
 
+	llassert(mInternalFormat.size() == mTex.size());
+
 	for (U32 i = 0; i < mTex.size(); ++i)
 	{ //resize color attachments
 		gGL.getTexUnit(0)->bindManual(mUsage, mTex[i]);
-		LLImageGL::setManualImage(LLTexUnit::getInternalType(mUsage), 0, color_fmt, mResX, mResY, GL_RGBA, GL_UNSIGNED_BYTE, NULL, false);
+		LLImageGL::setManualImage(LLTexUnit::getInternalType(mUsage), 0, mInternalFormat[i], mResX, mResY, GL_RGBA, GL_UNSIGNED_BYTE, NULL, false);
 		sBytesAllocated += pix_diff*4;
 	}
 
@@ -473,6 +475,12 @@ U32 LLRenderTarget::getTexture(U32 attachment) const
 	return mTex[attachment];
 }
 
+U32 LLRenderTarget::getNumTextures() const
+{
+	return mTex.size();
+}
+
+
 void LLRenderTarget::bindTexture(U32 index, S32 channel)
 {
 	gGL.getTexUnit(channel)->bindManual(mUsage, getTexture(index));
@@ -575,8 +583,10 @@ void LLRenderTarget::copyContentsToFramebuffer(LLRenderTarget& source, S32 srcX0
 {
 	if (!source.mFBO)
 	{
-		llerrs << "Cannot copy framebuffer contents for non FBO render targets." << llendl;
+		llwarns << "Cannot copy framebuffer contents for non FBO render targets." << llendl;
+		return;
 	}
+
 	{
 		GLboolean write_depth = mask & GL_DEPTH_BUFFER_BIT ? TRUE : FALSE;
 

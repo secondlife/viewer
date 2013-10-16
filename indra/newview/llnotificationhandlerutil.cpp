@@ -125,24 +125,29 @@ void log_name_callback(const std::string& full_name, const std::string& from_nam
 // static
 void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification, bool to_file_only)
 {
-		LLUUID from_id = notification->getPayload()["from_id"];
-
-		if (from_id.isNull())
-		{
-			// Normal behavior for system generated messages, don't spam.
-			// llwarns << " from_id for notification " << notification->getName() << " is null " << llendl;
-			return;
-		}
-
-		if(to_file_only)
-		{
-			gCacheName->get(from_id, false, boost::bind(&log_name_callback, _2, "", notification->getMessage(), LLUUID()));
-		}
-		else
-		{
-			gCacheName->get(from_id, false, boost::bind(&log_name_callback, _2, INTERACTIVE_SYSTEM_FROM, notification->getMessage(), from_id));
-		}
+	if (!gCacheName)
+	{
+		return;
 	}
+
+	LLUUID from_id = notification->getPayload()["from_id"];
+
+	if (from_id.isNull())
+	{
+		// Normal behavior for system generated messages, don't spam.
+		// llwarns << " from_id for notification " << notification->getName() << " is null " << llendl;
+		return;
+	}
+
+	if(to_file_only)
+	{
+		gCacheName->get(from_id, false, boost::bind(&log_name_callback, _2, "", notification->getMessage(), LLUUID()));
+	}
+	else
+	{
+		gCacheName->get(from_id, false, boost::bind(&log_name_callback, _2, INTERACTIVE_SYSTEM_FROM, notification->getMessage(), from_id));
+	}
+}
 
 // static
 void LLHandlerUtil::logGroupNoticeToIMGroup(

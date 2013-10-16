@@ -3,6 +3,7 @@
 	<menu_item_call label="Unterhaltung schließen" name="close_conversation"/>
 	<menu_item_call label="Unterhaltung öffnen" name="open_voice_conversation"/>
 	<menu_item_call label="Voice-Verbindung trennen" name="disconnect_from_voice"/>
+	<menu_item_call label="Ausgewählte schließen" name="close_selected_conversations"/>
 	<menu_item_call label="Profil anzeigen" name="view_profile"/>
 	<menu_item_call label="IM" name="im"/>
 	<menu_item_call label="Teleport anbieten" name="offer_teleport"/>

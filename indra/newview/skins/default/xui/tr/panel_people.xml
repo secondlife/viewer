@@ -49,6 +49,9 @@ Birlikte takılacak kişiler mi arıyorsunuz? [secondlife:///app/worldmap Dünya
 				<menu_button name="plus_btn" tool_tip="Gruba katıl/yeni grup oluştur"/>
 				<dnd_button name="minus_btn" tool_tip="Seçilen gruptan ayrıl"/>
 			</panel>
+			<text name="groupcount">
+				[COUNT] gruba üyesiniz, daha [REMAINING] gruba üye olabilirsiniz.
+			</text>
 		</panel>
 		<panel label="SON" name="recent_panel">
 			<panel label="bottom_panel" name="recent_buttons_panel">

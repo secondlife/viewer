@@ -49,6 +49,7 @@
 #include "llappviewer.h"
 #include "llrendersphere.h"
 #include "llviewerpartsim.h"
+#include "llviewercontrol.h" // for gSavedSettings
 
 static U32 sDataMask = LLDrawPoolAvatar::VERTEX_DATA_MASK;
 static U32 sBufferUsage = GL_STREAM_DRAW_ARB;
@@ -59,6 +60,7 @@ LLGLSLShader* LLDrawPoolAvatar::sVertexProgram = NULL;
 BOOL	LLDrawPoolAvatar::sSkipOpaque = FALSE;
 BOOL	LLDrawPoolAvatar::sSkipTransparent = FALSE;
 S32 LLDrawPoolAvatar::sDiffuseChannel = 0;
+F32 LLDrawPoolAvatar::sMinimumAlpha = 0.2f;
 
 
 static bool is_deferred_render = false;
@@ -282,7 +284,7 @@ void LLDrawPoolAvatar::beginPostDeferredAlpha()
 
 	gPipeline.bindDeferredShader(*sVertexProgram);
 
-	sVertexProgram->setMinimumAlpha(0.2f);
+	sVertexProgram->setMinimumAlpha(LLDrawPoolAvatar::sMinimumAlpha);
 
 	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 }
@@ -308,6 +310,11 @@ void LLDrawPoolAvatar::beginDeferredRiggedMaterialAlpha(S32 pass)
 	pass += LLMaterial::SHADER_COUNT;
 
 	sVertexProgram = &gDeferredMaterialProgram[pass];
+
+	if (LLPipeline::sUnderWaterRender)
+	{
+		sVertexProgram = &(gDeferredMaterialWaterProgram[pass]);
+	}
 
 	gPipeline.bindDeferredShader(*sVertexProgram);
 	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
@@ -501,7 +508,7 @@ S32 LLDrawPoolAvatar::getNumDeferredPasses()
 {
 	if (LLPipeline::sImpostorRender)
 	{
-		return 3;
+		return 19;
 	}
 	else
 	{
@@ -660,7 +667,7 @@ void LLDrawPoolAvatar::beginRigid()
 		if (sVertexProgram != NULL)
 		{	//eyeballs render with the specular shader
 			sVertexProgram->bind();
-			sVertexProgram->setMinimumAlpha(0.2f);
+			sVertexProgram->setMinimumAlpha(LLDrawPoolAvatar::sMinimumAlpha);
 		}
 	}
 	else
@@ -687,12 +694,10 @@ void LLDrawPoolAvatar::beginDeferredImpostor()
 	}
 
 	sVertexProgram = &gDeferredImpostorProgram;
-
 	specular_channel = sVertexProgram->enableTexture(LLViewerShaderMgr::SPECULAR_MAP);
 	normal_channel = sVertexProgram->enableTexture(LLViewerShaderMgr::DEFERRED_NORMAL);
 	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
-
-	sVertexProgram->bind();
+	gPipeline.bindDeferredShader(*sVertexProgram);
 	sVertexProgram->setMinimumAlpha(0.01f);
 }
 
@@ -702,8 +707,9 @@ void LLDrawPoolAvatar::endDeferredImpostor()
 	sVertexProgram->disableTexture(LLViewerShaderMgr::DEFERRED_NORMAL);
 	sVertexProgram->disableTexture(LLViewerShaderMgr::SPECULAR_MAP);
 	sVertexProgram->disableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
-	sVertexProgram->unbind();
-	gGL.getTexUnit(0)->activate();
+	gPipeline.unbindDeferredShader(*sVertexProgram);
+   sVertexProgram = NULL;
+   sDiffuseChannel = 0;
 }
 
 void LLDrawPoolAvatar::beginDeferredRigid()
@@ -711,7 +717,7 @@ void LLDrawPoolAvatar::beginDeferredRigid()
 	sVertexProgram = &gDeferredNonIndexedDiffuseAlphaMaskNoColorProgram;
 	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 	sVertexProgram->bind();
-	sVertexProgram->setMinimumAlpha(0.2f);
+	sVertexProgram->setMinimumAlpha(LLDrawPoolAvatar::sMinimumAlpha);
 }
 
 void LLDrawPoolAvatar::endDeferredRigid()
@@ -769,7 +775,7 @@ void LLDrawPoolAvatar::beginSkinned()
 
 	if (LLGLSLShader::sNoFixedFunction)
 	{
-		sVertexProgram->setMinimumAlpha(0.2f);
+		sVertexProgram->setMinimumAlpha(LLDrawPoolAvatar::sMinimumAlpha);
 	}
 }
 
@@ -891,6 +897,8 @@ void LLDrawPoolAvatar::beginRiggedGlow()
 		sVertexProgram->bind();
 
 		sVertexProgram->uniform1f(LLShaderMgr::TEXTURE_GAMMA, LLPipeline::sRenderDeferred ? 2.2f : 1.1f);
+		F32 gamma = gSavedSettings.getF32("RenderDeferredDisplayGamma");
+		sVertexProgram->uniform1f(LLShaderMgr::DISPLAY_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f/2.2f));
 	}
 }
 
@@ -943,6 +951,9 @@ void LLDrawPoolAvatar::beginRiggedFullbright()
 		else 
 		{
 			sVertexProgram->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
+
+			F32 gamma = gSavedSettings.getF32("RenderDeferredDisplayGamma");
+			sVertexProgram->uniform1f(LLShaderMgr::DISPLAY_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f/2.2f));
 		}
 	}
 }
@@ -1044,6 +1055,8 @@ void LLDrawPoolAvatar::beginRiggedFullbrightShiny()
 		else 
 		{
 			sVertexProgram->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
+			F32 gamma = gSavedSettings.getF32("RenderDeferredDisplayGamma");
+			sVertexProgram->uniform1f(LLShaderMgr::DISPLAY_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f/2.2f));
 		}
 	}
 }
@@ -1103,6 +1116,12 @@ void LLDrawPoolAvatar::beginDeferredRiggedMaterial(S32 pass)
 		return;
 	}
 	sVertexProgram = &gDeferredMaterialProgram[pass+LLMaterial::SHADER_COUNT];
+
+	if (LLPipeline::sUnderWaterRender)
+	{
+		sVertexProgram = &(gDeferredMaterialWaterProgram[pass+LLMaterial::SHADER_COUNT]);
+	}
+
 	sVertexProgram->bind();
 	normal_channel = sVertexProgram->enableTexture(LLViewerShaderMgr::BUMP_MAP);
 	specular_channel = sVertexProgram->enableTexture(LLViewerShaderMgr::SPECULAR_MAP);
@@ -1136,7 +1155,7 @@ void LLDrawPoolAvatar::beginDeferredSkinned()
 	sRenderingSkinned = TRUE;
 
 	sVertexProgram->bind();
-	sVertexProgram->setMinimumAlpha(0.2f);
+	sVertexProgram->setMinimumAlpha(LLDrawPoolAvatar::sMinimumAlpha);
 	
 	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 	gGL.getTexUnit(0)->activate();
@@ -1705,7 +1724,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 				
 				stop_glerror();
 
-				LLDrawPoolAvatar::sVertexProgram->uniformMatrix4fv("matrixPalette", 
+				LLDrawPoolAvatar::sVertexProgram->uniformMatrix4fv(LLViewerShaderMgr::AVATAR_MATRIX, 
 					count,
 					FALSE,
 					(GLfloat*) mat[0].mMatrix);
@@ -1782,7 +1801,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 				}
 			}
 
-			if (face->mTextureMatrix)
+			if (face->mTextureMatrix && vobj->mTexAnimMode)
 			{
 				gGL.matrixMode(LLRender::MM_TEXTURE);
 				gGL.loadMatrix((F32*) face->mTextureMatrix->mMatrix);
@@ -1796,6 +1815,8 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 				buff->setBuffer(data_mask);
 				buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);		
 			}
+
+			gPipeline.addTrianglesDrawn(count, LLRender::TRIANGLES);
 		}
 	}
 }

@@ -290,7 +290,14 @@ public:
 
 	~LLMeshSkinInfoResponder()
 	{
-		llassert(mProcessed);
+		if (!LLApp::isQuitting() &&
+			!mProcessed &&
+			mMeshID.notNull())
+		{	// Something went wrong, retry
+			llwarns << "Timeout or service unavailable, retrying loadMeshSkinInfo() for " << mMeshID << llendl;
+			LLMeshRepository::sHTTPRetryCount++;
+			gMeshRepo.mThread->loadMeshSkinInfo(mMeshID);
+		}
 	}
 
 	virtual void completedRaw(const LLChannelDescriptors& channels,
@@ -315,7 +322,14 @@ public:
 
 	~LLMeshDecompositionResponder()
 	{
-		llassert(mProcessed);
+		if (!LLApp::isQuitting() &&
+			!mProcessed &&
+			mMeshID.notNull())
+		{	// Something went wrong, retry
+			llwarns << "Timeout or service unavailable, retrying loadMeshDecomposition() for " << mMeshID << llendl;
+			LLMeshRepository::sHTTPRetryCount++;
+			gMeshRepo.mThread->loadMeshDecomposition(mMeshID);
+		}
 	}
 
 	virtual void completedRaw(const LLChannelDescriptors& channels,
@@ -340,7 +354,14 @@ public:
 
 	~LLMeshPhysicsShapeResponder()
 	{
-		llassert(mProcessed);
+		if (!LLApp::isQuitting() &&
+			!mProcessed &&
+			mMeshID.notNull())
+		{	// Something went wrong, retry
+			llwarns << "Timeout or service unavailable, retrying loadMeshPhysicsShape() for " << mMeshID << llendl;
+			LLMeshRepository::sHTTPRetryCount++;
+			gMeshRepo.mThread->loadMeshPhysicsShape(mMeshID);
+		}
 	}
 
 	virtual void completedRaw(const LLChannelDescriptors& channels,
@@ -590,7 +611,7 @@ void LLMeshRepoThread::run()
 					if (!fetchMeshLOD(req.mMeshParams, req.mLOD, count))//failed, resubmit
 					{
 						mMutex->lock();
-						mLODReqQ.push(req) ; 
+						mLODReqQ.push(req); 
 						mMutex->unlock();
 					}
 				}
@@ -1202,8 +1223,7 @@ bool LLMeshRepoThread::headerReceived(const LLVolumeParams& mesh_params, U8* dat
 			LLMutexLock lock(mHeaderMutex);
 			mMeshHeaderSize[mesh_id] = header_size;
 			mMeshHeader[mesh_id] = header;
-			}
-
+		}
 
 		LLMutexLock lock(mMutex); // make sure only one thread access mPendingLOD at the same time.
 
@@ -1989,14 +2009,14 @@ void LLMeshSkinInfoResponder::completedRaw(const LLChannelDescriptors& channels,
 	{
 		if (status == HTTP_INTERNAL_ERROR || status == HTTP_SERVICE_UNAVAILABLE)
 		{ //timeout or service unavailable, try again
-			llwarns << "Timeout or service unavailable, retrying." << llendl;
+			llwarns << "Timeout or service unavailable, retrying loadMeshSkinInfo() for " << mMeshID << llendl;
 			LLMeshRepository::sHTTPRetryCount++;
 			gMeshRepo.mThread->loadMeshSkinInfo(mMeshID);
 		}
 		else
 		{
-			llassert(status == HTTP_INTERNAL_ERROR || status == HTTP_SERVICE_UNAVAILABLE); //intentionally trigger a breakpoint
 			llwarns << "Unhandled status " << dumpResponse() << llendl;
+			llassert(status == HTTP_INTERNAL_ERROR || status == HTTP_SERVICE_UNAVAILABLE); //intentionally trigger a breakpoint
 		}
 		return;
 	}
@@ -2053,14 +2073,14 @@ void LLMeshDecompositionResponder::completedRaw(const LLChannelDescriptors& chan
 	{
 		if (status == HTTP_INTERNAL_ERROR || status == HTTP_SERVICE_UNAVAILABLE)
 		{ //timeout or service unavailable, try again
-			llwarns << "Timeout or service unavailable, retrying." << llendl;
+			llwarns << "Timeout or service unavailable, retrying loadMeshDecomposition() for " << mMeshID << llendl;
 			LLMeshRepository::sHTTPRetryCount++;
 			gMeshRepo.mThread->loadMeshDecomposition(mMeshID);
 		}
 		else
 		{
-			llassert(status == HTTP_INTERNAL_ERROR || status == HTTP_SERVICE_UNAVAILABLE); //intentionally trigger a breakpoint
 			llwarns << "Unhandled status " << dumpResponse() << llendl;
+			llassert(status == HTTP_INTERNAL_ERROR || status == HTTP_SERVICE_UNAVAILABLE); //intentionally trigger a breakpoint
 		}
 		return;
 	}
@@ -2118,14 +2138,14 @@ void LLMeshPhysicsShapeResponder::completedRaw(const LLChannelDescriptors& chann
 	{
 		if (status == HTTP_INTERNAL_ERROR || status == HTTP_SERVICE_UNAVAILABLE)
 		{ //timeout or service unavailable, try again
-			llwarns << "Timeout or service unavailable, retrying." << llendl;
+			llwarns << "Timeout or service unavailable, retrying loadMeshPhysicsShape() for " << mMeshID << llendl;
 			LLMeshRepository::sHTTPRetryCount++;
 			gMeshRepo.mThread->loadMeshPhysicsShape(mMeshID);
 		}
 		else
 		{
-			llassert(status == HTTP_INTERNAL_ERROR || status == HTTP_SERVICE_UNAVAILABLE); //intentionally trigger a breakpoint
 			llwarns << "Unhandled status " << dumpResponse() << llendl;
+			llassert(status == HTTP_INTERNAL_ERROR || status == HTTP_SERVICE_UNAVAILABLE); //intentionally trigger a breakpoint
 		}
 		return;
 	}
@@ -2178,16 +2198,14 @@ void LLMeshHeaderResponder::completedRaw(const LLChannelDescriptors& channels,
 		//	<< "Header responder failed with status: "
 		//	<< status << ": " << reason << llendl;
 
-		// 503 (service unavailable) or 499 (timeout)
+		// 503 (service unavailable) or 499 (internal Linden-generated error)
 		// can be due to server load and can be retried
 
 		// TODO*: Add maximum retry logic, exponential backoff
 		// and (somewhat more optional than the others) retries
 		// again after some set period of time
 
-		llassert(status == HTTP_SERVICE_UNAVAILABLE || status == HTTP_INTERNAL_ERROR);
-
-		if (status == HTTP_SERVICE_UNAVAILABLE || status == HTTP_INTERNAL_ERROR)
+		if (status == HTTP_SERVICE_UNAVAILABLE || status == HTTP_REQUEST_TIME_OUT || status == HTTP_INTERNAL_ERROR)
 		{ //retry
 			llwarns << "Timeout or service unavailable, retrying." << llendl;
 			LLMeshRepository::sHTTPRetryCount++;

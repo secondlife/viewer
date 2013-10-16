@@ -6,4 +6,5 @@
 	<menu_item_call label="購買通行權" name="Land Buy Pass"/>
 	<menu_item_call label="建造" name="Create"/>
 	<menu_item_call label="編輯地形" name="Edit Terrain"/>
+	<menu_item_call label="封鎖粒子所有人" name="Mute Particle"/>
 </context_menu>
