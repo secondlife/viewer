@@ -343,7 +343,7 @@ void update_statistics()
 	sample(LLStatViewer::DRAW_DISTANCE,   (F64)gSavedSettings.getF32("RenderFarClip"));
 	sample(LLStatViewer::CHAT_BUBBLES,    gSavedSettings.getBOOL("UseChatBubbles"));
 
-	typedef LLInstanceTracker<LLTrace::StatType<LLTrace::TimeBlockAccumulator>, std::string> stat_type_t;
+	typedef LLTrace::StatType<LLTrace::TimeBlockAccumulator>::instance_tracker_t stat_type_t;
 
 	F64Seconds idle_secs = last_frame_recording.getSum(*stat_type_t::getInstance("Idle"));
 	F64Seconds network_secs = last_frame_recording.getSum(*stat_type_t::getInstance("Network"));
