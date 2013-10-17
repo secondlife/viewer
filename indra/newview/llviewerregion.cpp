@@ -2096,6 +2096,9 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLDataPackerB
 			}
 			else //invisible
 			{
+				//copy some contents from old entry
+				entry->moveTo(new_entry);
+
 				//remove old entry
 				killCacheEntry(entry);
 				entry = new_entry;
