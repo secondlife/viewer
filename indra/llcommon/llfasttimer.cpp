@@ -131,10 +131,10 @@ struct SortTimerByName
     }
 };
 
+static BlockTimerStatHandle sRootTimer("root", NULL);
 BlockTimerStatHandle& BlockTimerStatHandle::getRootTimeBlock()
 {
-	static BlockTimerStatHandle root_timer("root", NULL);
-	return root_timer;
+	return sRootTimer;
 }
 
 void BlockTimerStatHandle::pushLog(LLSD log)
@@ -331,6 +331,11 @@ std::vector<BlockTimerStatHandle*>::iterator BlockTimerStatHandle::endChildren()
 std::vector<BlockTimerStatHandle*>& BlockTimerStatHandle::getChildren()
 {
 	return getTreeNode().mChildren;
+}
+
+bool BlockTimerStatHandle::hasChildren()
+{
+	return ! getTreeNode().mChildren.empty();
 }
 
 // static

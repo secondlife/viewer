@@ -88,7 +88,6 @@ class BlockTimerStatHandle
 :	public StatType<TimeBlockAccumulator>
 {
 public:
-	typedef LLInstanceTracker<StatType<TimeBlockAccumulator>, std::string> instance_tracker_t;
 	BlockTimerStatHandle(const char* name, const char* description = "");
 
 	TimeBlockTreeNode& getTreeNode() const;
@@ -99,6 +98,7 @@ public:
 	typedef std::vector<BlockTimerStatHandle*>::const_iterator child_const_iter;
 	child_iter beginChildren();
 	child_iter endChildren();
+	bool hasChildren();
 	std::vector<BlockTimerStatHandle*>& getChildren();
 
 	StatType<TimeBlockAccumulator::CallCountFacet>& callCount() 
