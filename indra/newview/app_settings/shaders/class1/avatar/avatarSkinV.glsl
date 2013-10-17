@@ -31,11 +31,9 @@ uniform vec4 matrixPalette[45];
 mat4 getSkinnedTransform()
 {
 	mat4 ret;
-	
-	float x = fract(weight.x);
 	int i = int(floor(weight.x));
-		i = min(i, 15);
-		i = max(i, 0);
+	float x = fract(weight.x);
+	
 	ret[0] = mix(matrixPalette[i+0], matrixPalette[i+1],  x);
 	ret[1] = mix(matrixPalette[i+15],matrixPalette[i+16], x);
 	ret[2] = mix(matrixPalette[i+30],matrixPalette[i+31], x);
