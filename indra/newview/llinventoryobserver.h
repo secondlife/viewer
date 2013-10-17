@@ -152,25 +152,6 @@ protected:
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Class LLInventoryExistenceObserver
-//
-//   Used as a base class for doing something when all the
-//   observed item ids exist in the inventory somewhere.
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-class LLInventoryExistenceObserver : public LLInventoryObserver
-{
-public:
-	LLInventoryExistenceObserver() {}
-	/*virtual*/ void changed(U32 mask);
-
-	void watchItem(const LLUUID& id);
-protected:
-	virtual void done() = 0;
-	uuid_vec_t mExist;
-	uuid_vec_t mMIA;
-};
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLInventoryMovedObserver
 //
 // This class is used as a base class for doing something when all the
@@ -238,25 +219,6 @@ protected:
 	virtual void done() = 0;
 	
 	cat_vec_t	mAddedCategories;
-};
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Class LLInventoryTransactionObserver
-//
-//   Base class for doing something when an inventory transaction completes.
-//   NOTE: This class is not quite complete. Avoid using unless you fix up its
-//   functionality gaps.
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-class LLInventoryTransactionObserver : public LLInventoryObserver
-{
-public:
-	LLInventoryTransactionObserver(const LLTransactionID& transaction_id);
-	/*virtual*/ void changed(U32 mask);
-
-protected:
-	virtual void done(const uuid_vec_t& folders, const uuid_vec_t& items) = 0;
-
-	LLTransactionID mTransactionID;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -456,7 +456,6 @@ void LLTexLayerParamColor::setWeight(F32 weight)
 		return;
 	}
 
-	const LLTexLayerParamColorInfo *info = (LLTexLayerParamColorInfo *)getInfo();
 	F32 min_weight = getMinWeight();
 	F32 max_weight = getMaxWeight();
 	F32 new_weight = llclamp(weight, min_weight, max_weight);

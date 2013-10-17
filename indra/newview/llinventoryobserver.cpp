@@ -465,38 +465,6 @@ void LLInventoryFetchComboObserver::startFetch()
 	mFetchDescendents->startFetch();
 }
 
-void LLInventoryExistenceObserver::watchItem(const LLUUID& id)
-{
-	if (id.notNull())
-	{
-		mMIA.push_back(id);
-	}
-}
-
-void LLInventoryExistenceObserver::changed(U32 mask)
-{
-	// scan through the incomplete items and move or erase them as
-	// appropriate.
-	if (!mMIA.empty())
-	{
-		for (uuid_vec_t::iterator it = mMIA.begin(); it < mMIA.end(); )
-		{
-			LLViewerInventoryItem* item = gInventory.getItem(*it);
-			if (!item)
-			{
-				++it;
-				continue;
-			}
-			mExist.push_back(*it);
-			it = mMIA.erase(it);
-		}
-		if (mMIA.empty())
-		{
-			done();
-		}
-	}
-}
-
 void LLInventoryAddItemByAssetObserver::changed(U32 mask)
 {
 	if(!(mask & LLInventoryObserver::ADD))
@@ -630,58 +598,6 @@ void LLInventoryCategoryAddedObserver::changed(U32 mask)
 		done();
 		
 		mAddedCategories.clear();
-	}
-}
-
-
-LLInventoryTransactionObserver::LLInventoryTransactionObserver(const LLTransactionID& transaction_id) :
-	mTransactionID(transaction_id)
-{
-}
-
-void LLInventoryTransactionObserver::changed(U32 mask)
-{
-	if (mask & LLInventoryObserver::ADD)
-	{
-		// This could be it - see if we are processing a bulk update
-		LLMessageSystem* msg = gMessageSystem;
-		if (msg->getMessageName()
-		   && (0 == strcmp(msg->getMessageName(), "BulkUpdateInventory")))
-		{
-			// we have a match for the message - now check the
-			// transaction id.
-			LLUUID id;
-			msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_TransactionID, id);
-			if (id == mTransactionID)
-			{
-				// woo hoo, we found it
-				uuid_vec_t folders;
-				uuid_vec_t items;
-				S32 count;
-				count = msg->getNumberOfBlocksFast(_PREHASH_FolderData);
-				S32 i;
-				for (i = 0; i < count; ++i)
-				{
-					msg->getUUIDFast(_PREHASH_FolderData, _PREHASH_FolderID, id, i);
-					if (id.notNull())
-					{
-						folders.push_back(id);
-					}
-				}
-				count = msg->getNumberOfBlocksFast(_PREHASH_ItemData);
-				for (i = 0; i < count; ++i)
-				{
-					msg->getUUIDFast(_PREHASH_ItemData, _PREHASH_ItemID, id, i);
-					if (id.notNull())
-					{
-						items.push_back(id);
-					}
-				}
-
-				// call the derived class the implements this method.
-				done(folders, items);
-			}
-		}
 	}
 }
 
