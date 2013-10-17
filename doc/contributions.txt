@@ -310,6 +310,7 @@ Cinder Roxley
     OPEN-185
     STORM-1703
 	STORM-1948
+    STORM-1888
     STORM-1958
     STORM-1952
     STORM-1951
@@ -688,6 +689,7 @@ Kagehi Kohn
 Kaimen Takahe
 Katharine Berry
 	STORM-1900
+    OPEN-149
 	STORM-1940
     OPEN-149
 	STORM-1941
@@ -938,6 +940,7 @@ Nicky Dasmijn
 	STORM-1936
 	BUG-3605
 	CHUIBUG-197
+	OPEN-187
 	STORM-1937
 	OPEN-187
 Nicky Perian
@@ -1136,6 +1139,7 @@ Slee Mayo
 snowy Sidran
 Sovereign Engineer
     MAINT-2334
+    OPEN-189
 SpacedOut Frye
 	VWR-34
 	VWR-45
@@ -1304,6 +1308,7 @@ Westley Streeter
 Whimsy Winx
 Whirly Fizzle
 	STORM-1895
+	VWR-29543
 	MAINT-873
 	STORM-1930
 Whoops Babii
@@ -1367,6 +1372,7 @@ YongYong Francois
 Zak Westminster
 Zai Lynch
 	VWR-19505
+    STORM-1902
 Zana Kohime
 Zaren Alexander
 Zarkonnen Decosta
