@@ -67,6 +67,7 @@
 #define PNL_LOC "location panel"
 #define PNL_MRKT "marketplace panel"
 #define PNL_GROUP "group_panel"
+#define PNL_PERMS "perm panel"
 
 #define BTN_EDIT "edit_btn"
 #define BTN_ALLOW "allow_btn"
@@ -249,8 +250,8 @@ BOOL LLFloaterExperienceProfile::postBuild()
     getChild<LLLineEditor>(EDIT TF_MRKT)->setKeystrokeCallback(boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this), NULL);
     getChild<LLLineEditor>(EDIT TF_NAME)->setKeystrokeCallback(boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this), NULL);
     
-    childSetAction(EDIT BTN_ENABLE, boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this));
-    childSetAction(EDIT BTN_PRIVATE, boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this));
+    childSetCommitCallback(EDIT BTN_ENABLE, boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this), NULL);
+    childSetCommitCallback(EDIT BTN_PRIVATE, boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this), NULL);
 
     getChild<LLTextEditor>(EDIT TF_DESC)->setCommitOnFocusLost(TRUE);
     
@@ -364,6 +365,7 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
     LLLayoutPanel* locationPanel = getChild<LLLayoutPanel>(PNL_LOC);
     LLLayoutPanel* marketplacePanel = getChild<LLLayoutPanel>(PNL_MRKT);  
     LLLayoutPanel* topPanel = getChild<LLLayoutPanel>(PNL_TOP);  
+    LLLayoutPanel* permPanel = getChild<LLLayoutPanel>(PNL_PERMS);
 
 
     imagePanel->setVisible(FALSE);
@@ -433,6 +435,9 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
         child->setVisible(TRUE);
         child->setText(LLTrans::getString("GRID_WIDE"));
     }
+
+
+    permPanel->setVisible((properties & LLExperienceCache::PROPERTY_PRIVILEGED) == 0);
             
     value=experience[LLExperienceCache::METADATA].asString();
     if(value.empty())
@@ -490,7 +495,6 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
     }
 
     mDirty=false;
-    setCanClose(!mDirty);
     mForceClose = false;
     getChild<LLButton>(BTN_SAVE)->setEnabled(mDirty);
 }
@@ -548,7 +552,6 @@ void LLFloaterExperienceProfile::setPreferences( const LLSD& content )
 void LLFloaterExperienceProfile::onFieldChanged()
 {
     mDirty=true;
-    setCanClose(!mDirty);
     getChild<LLButton>(BTN_SAVE)->setEnabled(mDirty);
 }
 

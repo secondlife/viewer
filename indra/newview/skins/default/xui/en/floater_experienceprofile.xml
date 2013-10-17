@@ -359,37 +359,38 @@
               top="5"
               width="313"
               auto_resize="false"
+              visible="false"
               name="perm panel">
-            <button
-              follows="bottom|left"
-              height="23"
-              label="Allow"
-              layout="topleft"
-              name="allow_btn"
-              width="80"
-              top_pad="3"
-              left="10"
-              enabled="false"/>
-            <button
-              follows="bottom|left"
-              height="23"
-              label="Forget"
-              layout="topleft"
-              name="forget_btn"
-              width="80"
-              top_pad="-23"
-              left_pad="3"
-              enabled="false"/>
-            <button
-              follows="bottom|left"
-              height="23"
-              label="Block"
-              layout="topleft"
-              name="block_btn"
-              width="80"
-              top_pad="-23"
-              left_pad="3"
-              enabled="false"/>
+              <button
+                follows="bottom|left"
+                height="23"
+                label="Allow"
+                layout="topleft"
+                name="allow_btn"
+                width="80"
+                top_pad="3"
+                left="10"
+                enabled="false"/>
+              <button
+                follows="bottom|left"
+                height="23"
+                label="Forget"
+                layout="topleft"
+                name="forget_btn"
+                width="80"
+                top_pad="-23"
+                left_pad="3"
+                enabled="false"/>
+              <button
+                follows="bottom|left"
+                height="23"
+                label="Block"
+                layout="topleft"
+                name="block_btn"
+                width="80"
+                top_pad="-23"
+                left_pad="3"
+                enabled="false"/>
 
             </layout_panel>
           </layout_stack>
@@ -549,8 +550,9 @@
             layout="topleft"
             left_pad="5"
             top_pad="-14"
+            use_ellipses="true"
             name="edit_LocationTextText"
-            right="-10">Location</text>
+            right="-10"></text>
           <button
             left="10"
             width="150"
