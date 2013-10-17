@@ -103,7 +103,7 @@ public:
 	void recordHit();
 	void recordDupe() { mDupeCount++; }
 	
-	void moveTo(LLVOCacheEntry* new_entry); //copy variables 
+	void moveTo(LLVOCacheEntry* new_entry, bool no_entry_move = false); //copy variables 
 	/*virtual*/ void setOctreeEntry(LLViewerOctreeEntry* entry);
 
 	void setParentID(U32 id) {mParentID = id;}

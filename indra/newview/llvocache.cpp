@@ -191,10 +191,10 @@ void LLVOCacheEntry::setOctreeEntry(LLViewerOctreeEntry* entry)
 	LLViewerOctreeEntryData::setOctreeEntry(entry);
 }
 
-void LLVOCacheEntry::moveTo(LLVOCacheEntry* new_entry)
+void LLVOCacheEntry::moveTo(LLVOCacheEntry* new_entry, bool no_entry_move)
 {
 	//copy LLViewerOctreeEntry
-	if(mEntry.notNull())
+	if(mEntry.notNull() && !no_entry_move)
 	{
 		new_entry->setOctreeEntry(mEntry);
 		mEntry = NULL;
