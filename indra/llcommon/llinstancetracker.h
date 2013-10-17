@@ -62,16 +62,22 @@ protected:
 
 LL_COMMON_API void assert_main_thread();
 
+enum EInstanceTrackerAllowKeyCollisions
+{
+	InstanceTrackerAllowKeyCollisions,
+	InstanceTrackerDisallowKeyCollisions
+};
+
 /// This mix-in class adds support for tracking all instances of the specified class parameter T
 /// The (optional) key associates a value of type KEY with a given instance of T, for quick lookup
 /// If KEY is not provided, then instances are stored in a simple set
 /// @NOTE: see explicit specialization below for default KEY==void case
 /// @NOTE: this class is not thread-safe unless used as read-only
-template<typename T, typename KEY = void>
+template<typename T, typename KEY = void, EInstanceTrackerAllowKeyCollisions ALLOW_KEY_COLLISIONS = InstanceTrackerDisallowKeyCollisions>
 class LLInstanceTracker : public LLInstanceTrackerBase
 {
 	typedef LLInstanceTracker<T, KEY> self_t;
-	typedef typename std::map<KEY, T*> InstanceMap;
+	typedef typename std::multimap<KEY, T*> InstanceMap;
 	struct StaticData: public StaticBase
 	{
 		InstanceMap sMap;
@@ -208,7 +214,18 @@ private:
 	void add_(KEY key) 
 	{ 
 		mInstanceKey = key; 
-		getMap_()[key] = static_cast<T*>(this); 
+		InstanceMap& map = getMap_();
+		InstanceMap::iterator insertion_point_it = map.lower_bound(key);
+		if (ALLOW_KEY_COLLISIONS == InstanceTrackerDisallowKeyCollisions
+			&& insertion_point_it != map.end() 
+			&& insertion_point_it->first == key)
+		{
+			LL_ERRS() << "Key " << key << " already exists in instance map for " << typeid(T).name() << LL_ENDL;
+		}
+		else
+		{
+			map.insert(insertion_point_it, std::make_pair(key, static_cast<T*>(this)));
+		}
 	}
 	void remove_()
 	{
@@ -225,8 +242,8 @@ private:
 
 /// explicit specialization for default case where KEY is void
 /// use a simple std::set<T*>
-template<typename T>
-class LLInstanceTracker<T, void> : public LLInstanceTrackerBase
+template<typename T, EInstanceTrackerAllowKeyCollisions ALLOW_KEY_COLLISIONS>
+class LLInstanceTracker<T, void, ALLOW_KEY_COLLISIONS> : public LLInstanceTrackerBase
 {
 	typedef LLInstanceTracker<T, void> self_t;
 	typedef typename std::set<T*> InstanceSet;

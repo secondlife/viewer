@@ -81,7 +81,7 @@ void ThreadRecorder::init()
 	BlockTimerStatHandle::getRootTimeBlock().getCurrentAccumulator().mActiveCount = 1;
 
 	claim_alloc(gTraceMemStat, this);
-	claim_alloc(gTraceMemStat, sizeof(BlockTimer));
+	claim_alloc(gTraceMemStat, mRootTimer);
 	claim_alloc(gTraceMemStat, sizeof(TimeBlockTreeNode) * mNumTimeBlockTreeNodes);
 }
 
