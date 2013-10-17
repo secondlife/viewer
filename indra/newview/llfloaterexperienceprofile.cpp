@@ -620,7 +620,7 @@ void LLFloaterExperienceProfile::doSave( int success_action )
 
     package[LLExperienceCache::NAME] = getChild<LLLineEditor>(EDIT TF_NAME)->getText();
     package[LLExperienceCache::DESCRIPTION] = getChild<LLTextEditor>(EDIT TF_DESC)->getText();
-    package[LLExperienceCache::SLURL] = getChild<LLLineEditor>(EDIT TF_SLURL)->getText();
+    package[LLExperienceCache::SLURL] = getChild<LLTextBox>(EDIT TF_SLURL)->getText();
 
     package[LLExperienceCache::MATURITY] = getChild<LLComboBox>(EDIT TF_MATURITY)->getSelectedValue().asInteger();
 
