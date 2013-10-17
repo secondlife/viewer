@@ -4,7 +4,7 @@
 		среднюю кнопку мыши
 	</panel.string>
 	<slider label="Общая громкость" name="System Volume"/>
-	<check_box initial_value="истина" name="mute_when_minimized"/>
+	<check_box initial_value="true" name="mute_when_minimized"/>
 	<text name="mute_chb_label">
 		Заглушать, когда свернуто
 	</text>
@@ -17,9 +17,9 @@
 	<check_box label="Включено" name="enable_media"/>
 	<slider label="Голосовой чат" name="Voice Volume"/>
 	<check_box label="Включено" name="enable_voice_check"/>
-	<check_box label="Разрешить автовоспроизведение медиа" name="media_auto_play_btn" tool_tip="Установка флажка позволит вам автоматически воспроизводить медиа" value="истина"/>
-	<check_box label="Воспроизводить медиа, присоединенные к другому аватару" name="media_show_on_others_btn" tool_tip="Снятие флажка скроет медиа, присоединенные к другому аватару" value="истина"/>
-	<check_box label="Сопровождать жесты звуками" name="gesture_audio_play_btn" tool_tip="Установите флажок, чтобы слышать звуки при жестах" value="истина"/>
+	<check_box label="Разрешить автовоспроизведение медиа" name="media_auto_play_btn" tool_tip="Установка флажка позволит вам автоматически воспроизводить медиа" value="true"/>
+	<check_box label="Воспроизводить медиа, присоединенные к другому аватару" name="media_show_on_others_btn" tool_tip="Снятие флажка скроет медиа, присоединенные к другому аватару" value="true"/>
+	<check_box label="Сопровождать жесты звуками" name="gesture_audio_play_btn" tool_tip="Установите флажок, чтобы слышать звуки при жестах" value="true"/>
 	<text name="voice_chat_settings">
 		Настройки голосового чата
 	</text>
