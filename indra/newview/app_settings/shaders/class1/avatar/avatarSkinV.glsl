@@ -34,8 +34,8 @@ mat4 getSkinnedTransform()
 	
 	float x = fract(weight.x);
 	int i = int(floor(weight.x));
-		i = min(i, 15);
-		i = max(i, 0);
+    i = int(min(i, 15));
+    i = int(max(i, 0));
 	ret[0] = mix(matrixPalette[i+0], matrixPalette[i+1],  x);
 	ret[1] = mix(matrixPalette[i+15],matrixPalette[i+16], x);
 	ret[2] = mix(matrixPalette[i+30],matrixPalette[i+31], x);
