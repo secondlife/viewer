@@ -162,10 +162,6 @@ public:
 	// collection calls.
 	void setRegion(region_handle_t region_handle);
 
-	// gather latest metrics data
-	// call from main thread
-	void updateStats();
-	
 	// Retrieve current metrics for all visited regions (NULL region UUID/handle excluded)
     // Uses AssetStats structure seen above
 	void getStats(AssetStats& stats, bool compact_output);

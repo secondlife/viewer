@@ -46,16 +46,18 @@ public:
 		STARTED
 	};
 
-	void start();
-	void stop();
-	void pause();
-	void resume();
-	void restart();
-	void reset();
+	void start();   // moves to started state, resetting if stopped
+	void stop();    // moves to stopped state
+	void pause();   // moves to paused state, unless stopped
+	void unpause(); // moves to started state if paused
+	void resume();  // moves to started state, without resetting
+	void restart(); // moves to started state, always resetting
+	void reset();   // resets
 
 	bool isStarted() const { return mPlayState == STARTED; }
 	bool isPaused() const  { return mPlayState == PAUSED; }
 	bool isStopped() const { return mPlayState == STOPPED; }
+
 	EPlayState getPlayState() const { return mPlayState; }
 	// force play state to specific value by calling appropriate handle* methods
 	void setPlayState(EPlayState state);
@@ -66,11 +68,13 @@ protected:
 	{}
 
 private:
-	// trigger active behavior (without reset)
+	// override these methods to provide started/stopped semantics
+
+	// activate behavior (without reset)
 	virtual void handleStart() = 0;
-	// stop active behavior
+	// deactivate behavior
 	virtual void handleStop() = 0;
-	// clear accumulated state, can be called while started
+	// clear accumulated state, may be called while started
 	virtual void handleReset() = 0;
 
 	EPlayState mPlayState;

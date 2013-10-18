@@ -5601,8 +5601,6 @@ void LLAppViewer::metricsSend(bool enable_reporting)
 			LLViewerAssetStats * main_stats(new LLViewerAssetStats(*gViewerAssetStats));
 			main_stats->stop();
 
-			main_stats->updateStats();
-			
 			// Send a report request into 'thread1' to get the rest of the data
 			// and provide some additional parameters while here.
 			LLAppViewer::sTextureFetch->commandSendMetrics(caps_url,

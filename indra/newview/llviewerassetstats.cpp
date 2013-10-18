@@ -353,14 +353,6 @@ void LLViewerAssetStats::setRegion(region_handle_t region_handle)
 	mRegionHandle = region_handle;
 }
 
-void LLViewerAssetStats::updateStats()
-{
-	if (mCurRecording && mCurRecording->isStarted())
-	{
-		mCurRecording->update();
-	}
-}
-
 void LLViewerAssetStats::getStats(AssetStats& stats, bool compact_output)
 {
 	using namespace LLViewerAssetStatsFF;
