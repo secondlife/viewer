@@ -375,7 +375,7 @@ namespace LLTrace
 			num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
 			bool has_value = false;
-			T::value_t min_val(std::numeric_limits<T::value_t>::max());
+			typename T::value_t min_val(std::numeric_limits<T::value_t>::max());
 			for (S32 i = 1; i <= num_periods; i++)
 			{
 				Recording& recording = getPrevRecording(i);
@@ -447,7 +447,7 @@ namespace LLTrace
 			num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
 			bool has_value = false;
-			T::value_t max_val(std::numeric_limits<T::value_t>::min());
+			typename T::value_t max_val(std::numeric_limits<T::value_t>::min());
 			for (S32 i = 1; i <= num_periods; i++)
 			{
 				Recording& recording = getPrevRecording(i);
