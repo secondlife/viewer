@@ -524,9 +524,10 @@ LLVOCachePartition::LLVOCachePartition(LLViewerRegion* regionp)
 	
 	for(S32 i = 0; i < LLViewerCamera::NUM_CAMERAS; i++)
 	{
-		mCulledTime[i] = 0;
-		mCullHistory[i] = -1;
+		mCulledTime[i] = 0;	
 	}
+	mCullHistory = -1;
+
 	new LLVOCacheGroup(mOctree, this);
 }
 
@@ -548,10 +549,11 @@ class LLVOCacheOctreeCull : public LLViewerOctreeCull
 {
 public:
 	LLVOCacheOctreeCull(LLCamera* camera, LLViewerRegion* regionp, 
-		const LLVector3& shift, bool use_object_cache_occlusion, LLVOCachePartition* part) 
+		const LLVector3& shift, bool use_object_cache_occlusion, F32 projection_area_cutoff, LLVOCachePartition* part) 
 		: LLViewerOctreeCull(camera), 
 		  mRegionp(regionp),
-		  mPartition(part)
+		  mPartition(part),
+		  mProjectionAreaCutOff(projection_area_cutoff)
 	{
 		mLocalShift = shift;
 		mUseObjectCacheOcclusion = use_object_cache_occlusion;
@@ -605,6 +607,14 @@ public:
 		{
 			res = llmin(res, AABBRegionSphereIntersectObjectExtents(group, mLocalShift));
 		}
+
+		if(res != 0)
+		{
+			//check if the objects projection large enough
+			const LLVector4a* exts = group->getObjectExtents();
+			res = checkProjectionArea(exts[0], exts[1], mLocalShift, mProjectionAreaCutOff);
+		}
+
 		return res;
 	}
 
@@ -648,6 +658,7 @@ private:
 	LLVOCachePartition* mPartition;
 	LLViewerRegion*     mRegionp;
 	LLVector3           mLocalShift; //shift vector from agent space to local region space.
+	F32                 mProjectionAreaCutOff;
 	bool                mUseObjectCacheOcclusion;
 };
 
@@ -655,8 +666,8 @@ private:
 class LLVOCacheOctreeBackCull : public LLViewerOctreeCull
 {
 public:
-	LLVOCacheOctreeBackCull(LLCamera* camera, const LLVector3& shift, LLViewerRegion* regionp, F32 back_sphere_radius) 
-		: LLViewerOctreeCull(camera), mRegionp(regionp)
+	LLVOCacheOctreeBackCull(LLCamera* camera, const LLVector3& shift, LLViewerRegion* regionp, F32 back_sphere_radius, F32 projection_area_cutoff) 
+		: LLViewerOctreeCull(camera), mRegionp(regionp), mProjectionAreaCutOff(projection_area_cutoff)
 	{
 		mLocalShift = shift;
 		mSphereRadius = back_sphere_radius;
@@ -671,7 +682,13 @@ public:
 	virtual S32 frustumCheckObjects(const LLViewerOctreeGroup* group)
 	{
 		const LLVector4a* exts = group->getObjectExtents();
-		return backSphereCheck(exts[0], exts[1]);
+		if(backSphereCheck(exts[0], exts[1]))
+		{
+			//check if the objects projection large enough
+			const LLVector4a* exts = group->getObjectExtents();
+			return checkProjectionArea(exts[0], exts[1], mLocalShift, mProjectionAreaCutOff);
+		}
+		return false;
 	}
 
 	virtual void processGroup(LLViewerOctreeGroup* base_group)
@@ -691,9 +708,10 @@ private:
 	F32              mSphereRadius;
 	LLViewerRegion*  mRegionp;
 	LLVector3        mLocalShift; //shift vector from agent space to local region space.
+	F32              mProjectionAreaCutOff;
 };
 
-void LLVOCachePartition::selectBackObjects(LLCamera &camera, F32 back_sphere_radius)
+void LLVOCachePartition::selectBackObjects(LLCamera &camera, F32 back_sphere_radius, F32 projection_area_cutoff)
 {
 	if(LLViewerCamera::sCurCameraID != LLViewerCamera::CAMERA_WORLD)
 	{
@@ -714,7 +732,7 @@ void LLVOCachePartition::selectBackObjects(LLCamera &camera, F32 back_sphere_rad
 	//localize the camera
 	LLVector3 region_agent = mRegionp->getOriginAgent();
 	
-	LLVOCacheOctreeBackCull culler(&camera, region_agent, mRegionp, back_sphere_radius);
+	LLVOCacheOctreeBackCull culler(&camera, region_agent, mRegionp, back_sphere_radius, projection_area_cutoff);
 	culler.traverse(mOctree);
 
 	mBackSlectionEnabled--;
@@ -730,6 +748,7 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 {
 	static LLCachedControl<bool> use_object_cache_occlusion(gSavedSettings,"UseObjectCacheOcclusion");
 	static LLCachedControl<F32> back_sphere_radius(gSavedSettings,"BackShpereCullingRadius");
+	static LLCachedControl<F32> projection_area_cutoff(gSavedSettings,"ObjectProjectionAreaCutOFF");
 	
 	if(!LLViewerRegion::sVOCacheCullingEnabled)
 	{
@@ -742,7 +761,7 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 
 	((LLViewerOctreeGroup*)mOctree->getListener(0))->rebound();
 
-	if(LLViewerCamera::sCurCameraID >= LLViewerCamera::CAMERA_WATER0)
+	if(LLViewerCamera::sCurCameraID != LLViewerCamera::CAMERA_WORLD)
 	{
 		return 0; //no need for those cameras.
 	}
@@ -753,7 +772,12 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 	}
 	mCulledTime[LLViewerCamera::sCurCameraID] = LLViewerOctreeEntryData::getCurrentFrame();
 
-	if(!mCullHistory[LLViewerCamera::sCurCameraID] && LLViewerRegion::isViewerCameraStatic())
+	//object projected area threshold
+	F32 pixel_meter_ratio = LLViewerCamera::getInstance()->getPixelMeterRatio();
+	F32 projection_threshold = pixel_meter_ratio > 0.f ? projection_area_cutoff / pixel_meter_ratio : 0.f;
+	projection_threshold *= projection_threshold;
+
+	if(!mCullHistory && LLViewerRegion::isViewerCameraStatic())
 	{
 		U32 seed = llmax(mLODPeriod >> 1, (U32)4);
 		if(LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD)
@@ -765,7 +789,7 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 		}
 		if(LLViewerOctreeEntryData::getCurrentFrame() % seed != mIdleHash)
 		{
-			selectBackObjects(camera, back_sphere_radius);//process back objects selection
+			selectBackObjects(camera, back_sphere_radius, projection_threshold);//process back objects selection
 			return 0; //nothing changed, reduce frequency of culling
 		}
 	}
@@ -774,28 +798,24 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 		mBackSlectionEnabled = -1; //reset it.
 	}
 
-	if(LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD)
-	{
-		mCullHistory[LLViewerCamera::sCurCameraID] <<= 1;
-	}
-
 	//localize the camera
 	LLVector3 region_agent = mRegionp->getOriginAgent();
 	camera.calcRegionFrustumPlanes(region_agent);
 
-	LLVOCacheOctreeCull culler(&camera, mRegionp, region_agent, do_occlusion && use_object_cache_occlusion, this);
-	culler.traverse(mOctree);
-
-	if(mRegionp->getNumOfVisibleGroups() > 0)
-	{
-		mCullHistory[LLViewerCamera::sCurCameraID] |= 1;
-	}
+	LLVOCacheOctreeCull culler(&camera, mRegionp, region_agent, do_occlusion && use_object_cache_occlusion, projection_threshold, this);
+	culler.traverse(mOctree);	
 
 	if(!sNeedsOcclusionCheck)
 	{
 		sNeedsOcclusionCheck = !mOccludedGroups.empty();
 	}
 	return 1;
+}
+
+void LLVOCachePartition::setCullHistory(BOOL has_new_object)
+{
+	mCullHistory <<= 1;
+	mCullHistory |= has_new_object;
 }
 
 void LLVOCachePartition::addOccluders(LLViewerOctreeGroup* gp)

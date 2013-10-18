@@ -362,9 +362,11 @@ class LLViewerOctreeCull : public OctreeTraveler
 public:
 	LLViewerOctreeCull(LLCamera* camera)
 		: mCamera(camera), mRes(0) { }
-
-	virtual bool earlyFail(LLViewerOctreeGroup* group);
+	
 	virtual void traverse(const OctreeNode* n);
+
+protected:
+	virtual bool earlyFail(LLViewerOctreeGroup* group);	
 	
 	//agent space group cull
 	S32 AABBInFrustumNoFarClipGroupBounds(const LLViewerOctreeGroup* group);	
@@ -389,6 +391,7 @@ public:
 	virtual S32 frustumCheck(const LLViewerOctreeGroup* group) = 0;
 	virtual S32 frustumCheckObjects(const LLViewerOctreeGroup* group) = 0;
 
+	bool checkProjectionArea(const LLVector4a& center, const LLVector4a& size, const LLVector3& shift, F32 projection_cutoff);
 	virtual bool checkObjects(const OctreeNode* branch, const LLViewerOctreeGroup* group);
 	virtual void preprocess(LLViewerOctreeGroup* group);
 	virtual void processGroup(LLViewerOctreeGroup* group);

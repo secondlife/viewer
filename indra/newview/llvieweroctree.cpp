@@ -1430,6 +1430,25 @@ S32 LLViewerOctreeCull::AABBRegionSphereIntersectObjectExtents(const LLViewerOct
 	return AABBSphereIntersect(group->mObjectExtents[0], group->mObjectExtents[1], mCamera->getOrigin() - shift, mCamera->mFrustumCornerDist);
 }
 //------------------------------------------
+//check if the objects projection large enough
+bool LLViewerOctreeCull::checkProjectionArea(const LLVector4a& center, const LLVector4a& size, const LLVector3& shift, F32 projection_cutoff)
+{	
+	LLVector3 local_orig = mCamera->getOrigin() - shift;
+	LLVector4a origin;
+	origin.load3(local_orig.mV);
+
+	LLVector4a lookAt;
+	lookAt.setSub(center, origin);
+	F32 squared_dist = lookAt.dot3(lookAt).getF32();
+	F32 squared_rad = size.dot3(size).getF32();
+
+	if(squared_dist > 0.f)
+	{
+		return squared_rad / squared_dist > projection_cutoff;
+	}
+
+	return true;
+}
 
 //virtual 
 bool LLViewerOctreeCull::checkObjects(const OctreeNode* branch, const LLViewerOctreeGroup* group)
