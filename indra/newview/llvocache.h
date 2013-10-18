@@ -186,7 +186,7 @@ public:
 	void removeOccluder(LLVOCacheGroup* group);
 
 private:
-	void selectBackObjects(LLCamera &camera, F32 back_sphere_radius); //select objects behind camera.
+	void selectBackObjects(LLCamera &camera, F32 back_sphere_radius, F32 projection_area_cutoff); //select objects behind camera.
 
 public:
 	static BOOL sNeedsOcclusionCheck;

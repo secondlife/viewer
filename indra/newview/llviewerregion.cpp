@@ -1157,6 +1157,8 @@ F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 
 F32 LLViewerRegion::createVisibleObjects(F32 max_time)
 {
+	static LLCachedControl<F32> projection_area_cutoff(gSavedSettings,"ObjectProjectionAreaCutOFF");
+
 	if(mDead)
 	{
 		return max_time;
@@ -1166,6 +1168,11 @@ F32 LLViewerRegion::createVisibleObjects(F32 max_time)
 		return max_time;
 	}
 
+	//object projected area threshold
+	F32 pixel_meter_ratio = LLViewerCamera::getInstance()->getPixelMeterRatio();
+	F32 projection_threshold = pixel_meter_ratio > 0.f ? projection_area_cutoff / pixel_meter_ratio : 0.f;
+	projection_threshold *= projection_threshold;
+
 	S32 throttle = sNewObjectCreationThrottle;
 	LLTimer update_timer;	
 	for(LLVOCacheEntry::vocache_entry_priority_list_t::iterator iter = mImpl->mWaitingList.begin();
@@ -1173,6 +1180,11 @@ F32 LLViewerRegion::createVisibleObjects(F32 max_time)
 	{
 		LLVOCacheEntry* vo_entry = *iter;
 			
+		if(vo_entry->getSceneContribution() < projection_threshold)
+		{
+			break;
+		}
+
 		if(vo_entry->getState() < LLVOCacheEntry::WAITING)
 		{
 			addNewObject(vo_entry);

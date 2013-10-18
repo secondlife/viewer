@@ -7114,7 +7114,17 @@
       <real>0.75</real>
     </array>
   </map>
-  
+  <key>ObjectProjectionAreaCutOFF</key>
+  <map>
+    <key>Comment</key>
+    <string>Threshold in number of pixels of the projection area in screen of object bounding sphere. Objects smaller than this threshold are not rendered.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>1.0</real>
+  </map>
     <key>ParcelMediaAutoPlayEnable</key>
     <map>
       <key>Comment</key>
