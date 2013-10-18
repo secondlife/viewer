@@ -1165,6 +1165,7 @@ F32 LLViewerRegion::createVisibleObjects(F32 max_time)
 	}
 	if(mImpl->mWaitingList.empty())
 	{
+		mImpl->mVOCachePartition->setCullHistory(FALSE);
 		return max_time;
 	}
 
@@ -1174,6 +1175,7 @@ F32 LLViewerRegion::createVisibleObjects(F32 max_time)
 	projection_threshold *= projection_threshold;
 
 	S32 throttle = sNewObjectCreationThrottle;
+	BOOL has_new_obj = FALSE;
 	LLTimer update_timer;	
 	for(LLVOCacheEntry::vocache_entry_priority_list_t::iterator iter = mImpl->mWaitingList.begin();
 		iter != mImpl->mWaitingList.end(); ++iter)
@@ -1188,12 +1190,15 @@ F32 LLViewerRegion::createVisibleObjects(F32 max_time)
 		if(vo_entry->getState() < LLVOCacheEntry::WAITING)
 		{
 			addNewObject(vo_entry);
+			has_new_obj = TRUE;
 			if(throttle > 0 && !(--throttle) && update_timer.getElapsedTimeF32() > max_time)
 			{
 				break;
 			}
 		}
 	}	
+
+	mImpl->mVOCachePartition->setCullHistory(has_new_obj);
 
 	return max_time - update_timer.getElapsedTimeF32();
 }

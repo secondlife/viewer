@@ -185,6 +185,8 @@ public:
 	void processOccluders(LLCamera* camera);
 	void removeOccluder(LLVOCacheGroup* group);
 
+	void setCullHistory(BOOL has_new_object);
+
 private:
 	void selectBackObjects(LLCamera &camera, F32 back_sphere_radius, F32 projection_area_cutoff); //select objects behind camera.
 
@@ -192,7 +194,7 @@ public:
 	static BOOL sNeedsOcclusionCheck;
 
 private:
-	U32   mCullHistory[LLViewerCamera::NUM_CAMERAS];
+	U32   mCullHistory;
 	U32   mCulledTime[LLViewerCamera::NUM_CAMERAS];
 	std::set<LLVOCacheGroup*> mOccludedGroups;
 

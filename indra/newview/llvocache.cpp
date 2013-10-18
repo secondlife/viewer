@@ -524,9 +524,10 @@ LLVOCachePartition::LLVOCachePartition(LLViewerRegion* regionp)
 	
 	for(S32 i = 0; i < LLViewerCamera::NUM_CAMERAS; i++)
 	{
-		mCulledTime[i] = 0;
-		mCullHistory[i] = -1;
+		mCulledTime[i] = 0;	
 	}
+	mCullHistory = -1;
+
 	new LLVOCacheGroup(mOctree, this);
 }
 
@@ -760,7 +761,7 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 
 	((LLViewerOctreeGroup*)mOctree->getListener(0))->rebound();
 
-	if(LLViewerCamera::sCurCameraID >= LLViewerCamera::CAMERA_WATER0)
+	if(LLViewerCamera::sCurCameraID != LLViewerCamera::CAMERA_WORLD)
 	{
 		return 0; //no need for those cameras.
 	}
@@ -776,7 +777,7 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 	F32 projection_threshold = pixel_meter_ratio > 0.f ? projection_area_cutoff / pixel_meter_ratio : 0.f;
 	projection_threshold *= projection_threshold;
 
-	if(!mCullHistory[LLViewerCamera::sCurCameraID] && LLViewerRegion::isViewerCameraStatic())
+	if(!mCullHistory && LLViewerRegion::isViewerCameraStatic())
 	{
 		U32 seed = llmax(mLODPeriod >> 1, (U32)4);
 		if(LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD)
@@ -797,28 +798,24 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 		mBackSlectionEnabled = -1; //reset it.
 	}
 
-	if(LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD)
-	{
-		mCullHistory[LLViewerCamera::sCurCameraID] <<= 1;
-	}
-
 	//localize the camera
 	LLVector3 region_agent = mRegionp->getOriginAgent();
 	camera.calcRegionFrustumPlanes(region_agent);
 
 	LLVOCacheOctreeCull culler(&camera, mRegionp, region_agent, do_occlusion && use_object_cache_occlusion, projection_threshold, this);
-	culler.traverse(mOctree);
-
-	if(mRegionp->getNumOfVisibleGroups() > 0)
-	{
-		mCullHistory[LLViewerCamera::sCurCameraID] |= 1;
-	}
+	culler.traverse(mOctree);	
 
 	if(!sNeedsOcclusionCheck)
 	{
 		sNeedsOcclusionCheck = !mOccludedGroups.empty();
 	}
 	return 1;
+}
+
+void LLVOCachePartition::setCullHistory(BOOL has_new_object)
+{
+	mCullHistory <<= 1;
+	mCullHistory |= has_new_object;
 }
 
 void LLVOCachePartition::addOccluders(LLViewerOctreeGroup* gp)
