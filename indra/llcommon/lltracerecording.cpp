@@ -137,6 +137,12 @@ void Recording::appendRecording( Recording& other )
 	mElapsedSeconds += other.mElapsedSeconds;
 }
 
+bool Recording::hasValue(const StatType<TimeBlockAccumulator>& stat)
+{
+	llassert(!isStarted());
+	return mBuffers->mStackTimers[stat.getIndex()].hasValue();
+}
+
 F64Seconds Recording::getSum(const StatType<TimeBlockAccumulator>& stat)
 {
 	llassert(!isStarted());
@@ -219,6 +225,12 @@ F64Kilobytes Recording::getLastValue(const StatType<MemAccumulator>& stat)
 	return F64Bytes(mBuffers->mMemStats[stat.getIndex()].mSize.getLastValue());
 }
 
+bool Recording::hasValue(const StatType<MemAccumulator::AllocationFacet>& stat)
+{
+	llassert(!isStarted());
+	return mBuffers->mMemStats[stat.getIndex()].mAllocations.hasValue();
+}
+
 F64Kilobytes Recording::getSum(const StatType<MemAccumulator::AllocationFacet>& stat)
 {
 	llassert(!isStarted());
@@ -236,6 +248,13 @@ S32 Recording::getSampleCount(const StatType<MemAccumulator::AllocationFacet>& s
 	llassert(!isStarted());
 	return mBuffers->mMemStats[stat.getIndex()].mAllocations.getSampleCount();
 }
+
+bool Recording::hasValue(const StatType<MemAccumulator::DeallocationFacet>& stat)
+{
+	llassert(!isStarted());
+	return mBuffers->mMemStats[stat.getIndex()].mDeallocations.hasValue();
+}
+
 
 F64Kilobytes Recording::getSum(const StatType<MemAccumulator::DeallocationFacet>& stat)
 {
@@ -255,13 +274,19 @@ S32 Recording::getSampleCount(const StatType<MemAccumulator::DeallocationFacet>&
 	return mBuffers->mMemStats[stat.getIndex()].mDeallocations.getSampleCount();
 }
 
-F64 Recording::getSum( const StatType<CountAccumulator>& stat )
+bool Recording::hasValue(const StatType<CountAccumulator>& stat)
+{
+	llassert(!isStarted());
+	return mBuffers->mCounts[stat.getIndex()].hasValue();
+}
+
+F64 Recording::getSum(const StatType<CountAccumulator>& stat)
 {
 	llassert(!isStarted());
 	return mBuffers->mCounts[stat.getIndex()].getSum();
 }
 
-F64 Recording::getSum( const StatType<EventAccumulator>& stat )
+F64 Recording::getSum( const StatType<EventAccumulator>& stat)
 {
 	llassert(!isStarted());
 	return (F64)mBuffers->mEvents[stat.getIndex()].getSum();

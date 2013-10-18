@@ -168,6 +168,7 @@ namespace LLTrace
 		void makeUnique() { mBuffers.makeUnique(); }
 
 		// Timer accessors
+		bool hasValue(const StatType<TimeBlockAccumulator>& stat);
 		F64Seconds getSum(const StatType<TimeBlockAccumulator>& stat);
 		F64Seconds getSum(const StatType<TimeBlockAccumulator::SelfTimeFacet>& stat);
 		S32 getSum(const StatType<TimeBlockAccumulator::CallCountFacet>& stat);
@@ -178,22 +179,24 @@ namespace LLTrace
 
 		// Memory accessors
 		bool hasValue(const StatType<MemAccumulator>& stat);
-
 		F64Kilobytes getMin(const StatType<MemAccumulator>& stat);
 		F64Kilobytes getMean(const StatType<MemAccumulator>& stat);
 		F64Kilobytes getMax(const StatType<MemAccumulator>& stat);
 		F64Kilobytes getStandardDeviation(const StatType<MemAccumulator>& stat);
 		F64Kilobytes getLastValue(const StatType<MemAccumulator>& stat);
 
+		bool hasValue(const StatType<MemAccumulator::AllocationFacet>& stat);
 		F64Kilobytes getSum(const StatType<MemAccumulator::AllocationFacet>& stat);
 		F64Kilobytes getPerSec(const StatType<MemAccumulator::AllocationFacet>& stat);
 		S32 getSampleCount(const StatType<MemAccumulator::AllocationFacet>& stat);
 
+		bool hasValue(const StatType<MemAccumulator::DeallocationFacet>& stat);
 		F64Kilobytes getSum(const StatType<MemAccumulator::DeallocationFacet>& stat);
 		F64Kilobytes getPerSec(const StatType<MemAccumulator::DeallocationFacet>& stat);
 		S32 getSampleCount(const StatType<MemAccumulator::DeallocationFacet>& stat);
 
 		// CountStatHandle accessors
+		bool hasValue(const StatType<CountAccumulator>& stat);
 		F64 getSum(const StatType<CountAccumulator>& stat);
 		template <typename T>
 		typename RelatedTypes<T>::sum_t getSum(const CountStatHandle<T>& stat)
@@ -367,13 +370,21 @@ namespace LLTrace
 			S32 total_periods = mNumPeriods;
 			num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
-			typename T::value_t min_val = std::numeric_limits<typename T::value_t>::max();
+			bool has_value = false;
+			T::value_t min_val(std::numeric_limits<T::value_t>::max());
 			for (S32 i = 1; i <= num_periods; i++)
 			{
 				Recording& recording = getPrevRecording(i);
-				min_val = llmin(min_val, recording.getSum(stat));
+				if (recording.hasValue(stat))
+				{
+					min_val = llmin(min_val, recording.getSum(stat));
+					has_value = true;
+				}
 			}
-			return min_val;
+
+			return has_value 
+				? min_val 
+				: T::getDefaultValue();
 		}
 
 		template<typename T>
@@ -405,7 +416,7 @@ namespace LLTrace
 			S32 total_periods = mNumPeriods;
 			num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
-			typename RelatedTypes<typename T::value_t>::fractional_t min_val = std::numeric_limits<F64>::max();
+			typename RelatedTypes<typename T::value_t>::fractional_t min_val(std::numeric_limits<F64>::max());
 			for (S32 i = 1; i <= num_periods; i++)
 			{
 				Recording& recording = getPrevRecording(i);
@@ -431,13 +442,21 @@ namespace LLTrace
 			S32 total_periods = mNumPeriods;
 			num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
 
-			typename T::value_t max_val = std::numeric_limits<typename T::value_t>::min();
+			bool has_value = false;
+			T::value_t max_val(std::numeric_limits<T::value_t>::min());
 			for (S32 i = 1; i <= num_periods; i++)
 			{
 				Recording& recording = getPrevRecording(i);
-				max_val = llmax(max_val, recording.getSum(stat));
+				if (recording.hasValue(stat))
+				{
+					max_val = llmax(max_val, recording.getSum(stat));
+					has_value = true;
+				}
 			}
-			return max_val;
+
+			return has_value 
+				? max_val 
+				: T::getDefaultValue();
 		}
 
 		template<typename T>

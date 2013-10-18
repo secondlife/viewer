@@ -215,7 +215,7 @@ private:
 	{ 
 		mInstanceKey = key; 
 		InstanceMap& map = getMap_();
-		InstanceMap::iterator insertion_point_it = map.lower_bound(key);
+		typename InstanceMap::iterator insertion_point_it = map.lower_bound(key);
 		if (ALLOW_KEY_COLLISIONS == InstanceTrackerDisallowKeyCollisions
 			&& insertion_point_it != map.end() 
 			&& insertion_point_it->first == key)

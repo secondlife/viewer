@@ -208,7 +208,7 @@ LLTrace::EventStatHandle<LLUnit<F32, LLUnits::Percent> > OBJECT_CACHE_HIT_RATE("
 LLViewerStats::LLViewerStats() 
 :	mLastTimeDiff(0.0)
 {
-	mRecording.start();
+	getRecording().start();
 }
 
 LLViewerStats::~LLViewerStats()
@@ -216,7 +216,7 @@ LLViewerStats::~LLViewerStats()
 
 void LLViewerStats::resetStats()
 {
-	LLViewerStats::instance().mRecording.reset();
+	getRecording().reset();
 }
 
 void LLViewerStats::updateFrameStats(const F64Seconds time_diff)
@@ -457,6 +457,8 @@ void send_stats()
 		return;
 	}
 	
+	LLViewerStats::instance().getRecording().pause();
+
 	body["session_id"] = gAgentSessionID;
 	
 	LLSD &agent = body["agent"];
@@ -616,6 +618,8 @@ void send_stats()
 	
 	LLViewerStats::getInstance()->addToMessage(body);
 	LLHTTPClient::post(url, body, new ViewerStatsResponder());
+
+	LLViewerStats::instance().getRecording().resume();
 }
 
 LLFrameTimer& LLViewerStats::PhaseMap::getPhaseTimer(const std::string& phase_name)

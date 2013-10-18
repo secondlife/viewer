@@ -226,6 +226,7 @@ namespace LLTrace
 	{
 	public:
 		typedef F64 value_t;
+		static F64 getDefaultValue() { return NaN; }
 
 		EventAccumulator()
 		:	mSum(0),
@@ -293,6 +294,7 @@ namespace LLTrace
 	{
 	public:
 		typedef F64 value_t;
+		static F64 getDefaultValue() { return NaN; }
 
 		SampleAccumulator()
 		:	mSum(0),
@@ -385,6 +387,7 @@ namespace LLTrace
 	{
 	public:
 		typedef F64 value_t;
+		static F64 getDefaultValue() { return 0; }
 
 		CountAccumulator()
 		:	mSum(0),
@@ -415,6 +418,8 @@ namespace LLTrace
 
 		S32 getSampleCount() const { return mNumSamples; }
 
+		bool hasValue() const			 { return true; }
+
 	private:
 		F64	mSum;
 
@@ -425,6 +430,8 @@ namespace LLTrace
 	{
 	public:
 		typedef F64Seconds value_t;
+		static F64Seconds getDefaultValue() { return F64Seconds(0); }
+
 		typedef TimeBlockAccumulator self_t;
 
 		// fake classes that allows us to view different facets of underlying statistic
@@ -453,6 +460,7 @@ namespace LLTrace
 		void addSamples(const self_t& other, EBufferAppendType append_type);
 		void reset(const self_t* other);
 		void sync(F64SecondsImplicit) {}
+		bool hasValue() const { return true; }
 
 		//
 		// members
@@ -493,17 +501,22 @@ namespace LLTrace
 
 	struct MemAccumulator
 	{
+		typedef F64Bytes value_t;
+		static F64Bytes getDefaultValue() { return F64Bytes(0); }
+
 		typedef MemAccumulator self_t;
 
 		// fake classes that allows us to view different facets of underlying statistic
 		struct AllocationFacet 
 		{
 			typedef F64Bytes value_t;
+			static F64Bytes getDefaultValue() { return F64Bytes(0); }
 		};
 
 		struct DeallocationFacet 
 		{
 			typedef F64Bytes value_t;
+			static F64Bytes getDefaultValue() { return F64Bytes(0); }
 		};
 
 		void addSamples(const MemAccumulator& other, EBufferAppendType append_type)
@@ -535,6 +548,8 @@ namespace LLTrace
 		{
 			mSize.sync(time_stamp);
 		}
+
+		bool hasValue() const			 { return mSize.hasValue(); }
 
 		SampleAccumulator	mSize;
 		EventAccumulator	mAllocations;
