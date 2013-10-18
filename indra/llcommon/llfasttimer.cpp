@@ -193,7 +193,7 @@ TimeBlockTreeNode& BlockTimerStatHandle::getTreeNode() const
 
 void BlockTimerStatHandle::bootstrapTimerTree()
 {
-	for (BlockTimerStatHandle::instance_tracker_t::instance_iter begin_it = BlockTimerStatHandle::instance_tracker_t::beginInstances(), end_it = BlockTimerStatHandle::instance_tracker_t::endInstances(), it = begin_it; 
+	for (BlockTimerStatHandle::instance_tracker_t::instance_iter it = BlockTimerStatHandle::instance_tracker_t::beginInstances(), end_it = BlockTimerStatHandle::instance_tracker_t::endInstances(); 
 		it != end_it; 
 		++it)
 	{

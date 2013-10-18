@@ -41,6 +41,7 @@ void LLInstanceTrackerBase::StaticBase::incrementDepth()
 
 void LLInstanceTrackerBase::StaticBase::decrementDepth()
 {
+	llassert(sIterationNestDepth);
 	apr_atomic_dec32(&sIterationNestDepth);
 }
 
