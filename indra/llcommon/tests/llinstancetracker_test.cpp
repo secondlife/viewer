@@ -194,20 +194,21 @@ namespace tut
     {
         set_test_name("delete Keyed with outstanding instance_iter");
         std::string what;
-        Keyed* keyed = new Keyed("one");
+        Keyed* keyed = new Keyed("delete Keyed with outstanding instance_iter");
         {
-            WrapLL_ERRS wrapper;
+            WrapLLErrs wrapper;
             Keyed::instance_iter i(Keyed::beginInstances());
             try
             {
                 delete keyed;
             }
-            catch (const WrapLL_ERRS::FatalException& e)
+            catch (const WrapLLErrs::FatalException& e)
             {
                 what = e.what();
             }
         }
         ensure(! what.empty());
+		delete keyed;
     }
 
     template<> template<>
@@ -215,15 +216,15 @@ namespace tut
     {
         set_test_name("delete Keyed with outstanding key_iter");
         std::string what;
-        Keyed* keyed = new Keyed("one");
+        Keyed* keyed = new Keyed("delete Keyed with outstanding key_it");
         {
-            WrapLL_ERRS wrapper;
+            WrapLLErrs wrapper;
             Keyed::key_iter i(Keyed::beginKeys());
             try
             {
                 delete keyed;
             }
-            catch (const WrapLL_ERRS::FatalException& e)
+            catch (const WrapLLErrs::FatalException& e)
             {
                 what = e.what();
             }
@@ -238,13 +239,13 @@ namespace tut
         std::string what;
         Unkeyed* unkeyed = new Unkeyed;
         {
-            WrapLL_ERRS wrapper;
+            WrapLLErrs wrapper;
             Unkeyed::instance_iter i(Unkeyed::beginInstances());
             try
             {
                 delete unkeyed;
             }
-            catch (const WrapLL_ERRS::FatalException& e)
+            catch (const WrapLLErrs::FatalException& e)
             {
                 what = e.what();
             }
