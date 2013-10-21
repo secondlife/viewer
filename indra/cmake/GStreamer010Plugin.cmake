@@ -8,7 +8,7 @@ if (STANDALONE)
   pkg_check_modules(GSTREAMER010_PLUGINS_BASE REQUIRED gstreamer-plugins-base-0.10)
 elseif (LINUX)
   use_prebuilt_binary(gstreamer)
-  # possible libxml should have its own .cmake file instead
+  # possible libxml2 should have its own .cmake file instead
   use_prebuilt_binary(libxml2)
   set(GSTREAMER010_FOUND ON FORCE BOOL)
   set(GSTREAMER010_PLUGINS_BASE_FOUND ON FORCE BOOL)

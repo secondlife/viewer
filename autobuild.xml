@@ -1265,10 +1265,10 @@
           <map>
             <key>archive</key>
             <map>
-            <key>hash</key>
-            <string>fd34e3e818ad7dd26add1f05e6069c11</string>
-            <key>url</key>
-            <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-libxml/rev/282218/arch/Linux/installer/libxml2-2.7.8-linux-20131009.tar.bz2</string>
+              <key>hash</key>
+              <string>fd34e3e818ad7dd26add1f05e6069c11</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-libxml/rev/282218/arch/Linux/installer/libxml2-2.7.8-linux-20131009.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>

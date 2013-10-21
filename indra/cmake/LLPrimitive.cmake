@@ -11,7 +11,7 @@ set(LLPRIMITIVE_INCLUDE_DIRS
     ${LIBS_OPEN_DIR}/llprimitive
     )
 if (WINDOWS)
-    set(LLPRIMITIVE_LIBRARIES 
+    set(LLPRIMITIVE_LIBRARIES
         debug llprimitive
         optimized llprimitive
         debug libcollada14dom22-d
@@ -29,7 +29,7 @@ elseif (LINUX)
         pcre
         )
 else (WINDOWS)
-    set(LLPRIMITIVE_LIBRARIES 
+    set(LLPRIMITIVE_LIBRARIES
         llprimitive
         collada14dom
         minizip
