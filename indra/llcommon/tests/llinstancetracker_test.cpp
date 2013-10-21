@@ -208,7 +208,6 @@ namespace tut
             }
         }
         ensure(! what.empty());
-		delete keyed;
     }
 
     template<> template<>
