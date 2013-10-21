@@ -131,7 +131,7 @@ TimeBlockTreeNode* ThreadRecorder::getTimeBlockTreeNode( S32 index )
 }
 
 
-void ThreadRecorder::activate( AccumulatorBufferGroup* recording, bool from_handoff )
+AccumulatorBufferGroup* ThreadRecorder::activate( AccumulatorBufferGroup* recording)
 {
 	ActiveRecording* active_recording = new ActiveRecording(recording);
 	if (!mActiveRecordings.empty())
@@ -144,6 +144,7 @@ void ThreadRecorder::activate( AccumulatorBufferGroup* recording, bool from_hand
 	mActiveRecordings.push_back(active_recording);
 
 	mActiveRecordings.back()->mPartialRecording.makeCurrent();
+	return &active_recording->mPartialRecording;
 }
 
 ThreadRecorder::active_recording_list_t::iterator ThreadRecorder::bringUpToDate( AccumulatorBufferGroup* recording )

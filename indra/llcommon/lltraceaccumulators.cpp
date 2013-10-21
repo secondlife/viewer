@@ -155,6 +155,39 @@ void AccumulatorBufferGroup::sync()
 	}
 }
 
+F64 SampleAccumulator::mergeSumsOfSquares(const SampleAccumulator& a, const SampleAccumulator& b)
+{
+	const F64 epsilon = 0.0000001;
+
+	if (a.getSamplingTime() > epsilon && b.getSamplingTime() > epsilon)
+	{
+		// combine variance (and hence standard deviation) of 2 different sized sample groups using
+		// the following formula: http://www.mrc-bsu.cam.ac.uk/cochrane/handbook/chapter_7/7_7_3_8_combining_groups.htm
+		F64 n_1 = a.getSamplingTime(),
+			n_2 = b.getSamplingTime();
+		F64 m_1 = a.getMean(),
+			m_2 = b.getMean();
+		F64 v_1 = a.getSumOfSquares() / a.getSamplingTime(),
+			v_2 = b.getSumOfSquares() / b.getSamplingTime();
+		if (n_1 < epsilon)
+		{
+			return b.getSumOfSquares();
+		}
+		else
+		{
+			return a.getSamplingTime()
+				* ((((n_1 - epsilon) * v_1)
+				+ ((n_2 - epsilon) * v_2)
+				+ (((n_1 * n_2) / (n_1 + n_2))
+				* ((m_1 * m_1) + (m_2 * m_2) - (2.f * m_1 * m_2))))
+				/ (n_1 + n_2 - epsilon));
+		}
+	}
+
+	return a.getSumOfSquares();
+}
+
+
 void SampleAccumulator::addSamples( const SampleAccumulator& other, EBufferAppendType append_type )
 {
 	if (append_type == NON_SEQUENTIAL)
@@ -180,37 +213,8 @@ void SampleAccumulator::addSamples( const SampleAccumulator& other, EBufferAppen
 		if (other.mMin < mMin) { mMin = other.mMin; }
 		if (other.mMax > mMax) { mMax = other.mMax; }
 
-		F64 epsilon = 0.0000001;
+		mSumOfSquares = mergeSumsOfSquares(*this, other);
 
-		if (other.mTotalSamplingTime > epsilon && mTotalSamplingTime > epsilon)
-		{
-			// combine variance (and hence standard deviation) of 2 different sized sample groups using
-			// the following formula: http://www.mrc-bsu.cam.ac.uk/cochrane/handbook/chapter_7/7_7_3_8_combining_groups.htm
-			F64 n_1 = mTotalSamplingTime,
-				n_2 = other.mTotalSamplingTime;
-			F64 m_1 = mMean,
-				m_2 = other.mMean;
-			F64 v_1 = mSumOfSquares / mTotalSamplingTime,
-				v_2 = other.mSumOfSquares / other.mTotalSamplingTime;
-			if (n_1 < epsilon)
-			{
-				mSumOfSquares = other.mSumOfSquares;
-			}
-			else
-			{
-				mSumOfSquares =	mTotalSamplingTime
-					* ((((n_1 - epsilon) * v_1)
-					+ ((n_2 - epsilon) * v_2)
-					+ (((n_1 * n_2) / (n_1 + n_2))
-					* ((m_1 * m_1) + (m_2 * m_2) - (2.f * m_1 * m_2))))
-					/ (n_1 + n_2 - epsilon));
-			}
-
-			F64 weight = mTotalSamplingTime / (mTotalSamplingTime + other.mTotalSamplingTime);
-			mNumSamples += other.mNumSamples;
-			mTotalSamplingTime += other.mTotalSamplingTime;
-			mMean = (mMean * weight) + (other.mMean * (1.0 - weight));
-		}
 		if (append_type == SEQUENTIAL)
 		{
 			mLastValue = other.mLastValue;
@@ -234,6 +238,29 @@ void SampleAccumulator::reset( const SampleAccumulator* other )
 	mTotalSamplingTime = 0;
 }
 
+F64 EventAccumulator::mergeSumsOfSquares(const EventAccumulator& a, const EventAccumulator& b)
+{
+	if (a.mNumSamples && b.mNumSamples)
+	{
+		// combine variance (and hence standard deviation) of 2 different sized sample groups using
+		// the following formula: http://www.mrc-bsu.cam.ac.uk/cochrane/handbook/chapter_7/7_7_3_8_combining_groups.htm
+		F64 n_1 = a.mNumSamples,
+			n_2 = b.mNumSamples;
+		F64 m_1 = a.mMean,
+			m_2 = b.mMean;
+		F64 v_1 = a.mSumOfSquares / a.mNumSamples,
+			v_2 = b.mSumOfSquares / b.mNumSamples;
+		return (F64)a.mNumSamples
+			* ((((n_1 - 1.f) * v_1)
+			+ ((n_2 - 1.f) * v_2)
+			+ (((n_1 * n_2) / (n_1 + n_2))
+			* ((m_1 * m_1) + (m_2 * m_2) - (2.f * m_1 * m_2))))
+			/ (n_1 + n_2 - 1.f));
+	}
+
+	return a.mSumOfSquares;
+}
+
 void EventAccumulator::addSamples( const EventAccumulator& other, EBufferAppendType append_type )
 {
 	if (other.mNumSamples)
@@ -250,20 +277,7 @@ void EventAccumulator::addSamples( const EventAccumulator& other, EBufferAppendT
 			if (other.mMin < mMin) { mMin = other.mMin; }
 			if (other.mMax > mMax) { mMax = other.mMax; }
 
-			// combine variance (and hence standard deviation) of 2 different sized sample groups using
-			// the following formula: http://www.mrc-bsu.cam.ac.uk/cochrane/handbook/chapter_7/7_7_3_8_combining_groups.htm
-			F64 n_1 = (F64)mNumSamples,
-				n_2 = (F64)other.mNumSamples;
-			F64 m_1 = mMean,
-				m_2 = other.mMean;
-			F64 v_1 = mSumOfSquares / mNumSamples,
-				v_2 = other.mSumOfSquares / other.mNumSamples;
-			mSumOfSquares = (F64)mNumSamples
-				* ((((n_1 - 1.f) * v_1)
-				+ ((n_2 - 1.f) * v_2)
-				+ (((n_1 * n_2) / (n_1 + n_2))
-				* ((m_1 * m_1) + (m_2 * m_2) - (2.f * m_1 * m_2))))
-				/ (n_1 + n_2 - 1.f));
+			mSumOfSquares = mergeSumsOfSquares(*this, other);
 
 			F64 weight = (F64)mNumSamples / (F64)(mNumSamples + other.mNumSamples);
 			mNumSamples += other.mNumSamples;

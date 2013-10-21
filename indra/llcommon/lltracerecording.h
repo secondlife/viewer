@@ -322,7 +322,7 @@ namespace LLTrace
 		LLTimer											mSamplingTimer;
 		F64Seconds										mElapsedSeconds;
 		LLCopyOnWritePointer<AccumulatorBufferGroup>	mBuffers;
-		bool											mInHandOff;
+		AccumulatorBufferGroup*							mActiveBuffers;
 
 	};
 

@@ -109,8 +109,9 @@ namespace tut
 			at_work.stop();
 			drink_coffee(1, S32VentiCup(1));
 		}
-		after_3pm.stop();
-		all_day.stop();
+		// don't need to stop recordings to get accurate values out of them
+		//after_3pm.stop();
+		//all_day.stop();
 
 		ensure("count stats are counted when recording is active", 
 			at_work.getSum(sCupsOfCoffeeConsumed) == 3 

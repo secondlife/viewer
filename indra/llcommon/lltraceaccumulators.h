@@ -276,6 +276,9 @@ namespace LLTrace
 		S32 getSampleCount() const       { return mNumSamples; }
 		bool hasValue() const			 { return mNumSamples > 0; }
 
+		// helper utility to calculate combined sumofsquares total
+		static F64 mergeSumsOfSquares(const EventAccumulator& a, const EventAccumulator& b);
+
 	private:
 		F64	mSum,
 			mLastValue;
@@ -359,9 +362,12 @@ namespace LLTrace
 		F64	getMean() const              { return mMean; }
 		F64 getStandardDeviation() const { return sqrtf(mSumOfSquares / mTotalSamplingTime); }
 		F64 getSumOfSquares() const		 { return mSumOfSquares; }
-		F64SecondsImplicit getSamplingTime() { return mTotalSamplingTime; }
+		F64SecondsImplicit getSamplingTime() const { return mTotalSamplingTime; }
 		S32 getSampleCount() const       { return mNumSamples; }
 		bool hasValue() const            { return mHasValue; }
+
+		// helper utility to calculate combined sumofsquares total
+		static F64 mergeSumsOfSquares(const SampleAccumulator& a, const SampleAccumulator& b);
 
 	private:
 		F64		mSum,
