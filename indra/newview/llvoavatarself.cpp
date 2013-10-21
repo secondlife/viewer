@@ -3063,7 +3063,7 @@ void LLVOAvatarSelf::deleteScratchTextures()
 		it != end_it;
 		++it)
 	{
-		LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, 0, -1, 1, (U32 *)it->second );
+		LLImageGL::deleteTextures(1, (U32 *)it->second );
 		stop_glerror();
 	}
 

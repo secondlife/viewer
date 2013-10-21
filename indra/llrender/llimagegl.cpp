@@ -55,8 +55,6 @@ S32Bytes LLImageGL::sGlobalTextureMemory(0);
 S32Bytes LLImageGL::sBoundTextureMemory(0);
 S32Bytes LLImageGL::sCurBoundTextureMemory(0);
 S32 LLImageGL::sCount					= 0;
-LLImageGL::dead_texturelist_t LLImageGL::sDeadTextureList[LLTexUnit::TT_NONE];
-U32 LLImageGL::sCurTexName = 1;
 
 BOOL LLImageGL::sGlobalUseAnisotropic	= FALSE;
 F32 LLImageGL::sLastFrameTime			= 0.f;
@@ -724,7 +722,12 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 					mMipLevels = wpo2(llmax(w, h));
 
 					//use legacy mipmap generation mode (note: making this condional can cause rendering issues)
-					glTexParameteri(mTarget, GL_GENERATE_MIPMAP, GL_TRUE);
+					// -- but making it not conditional triggers deprecation warnings when core profile is enabled
+					//		(some rendering issues while core profile is enabled are acceptable at this point in time)
+					if (!LLRender::sGLCoreProfile)
+					{
+						glTexParameteri(mTarget, GL_GENERATE_MIPMAP, GL_TRUE);
+					}
 
 					LLImageGL::setManualImage(mTarget, 0, mFormatInternal,
 								 w, h, 
@@ -1092,95 +1095,19 @@ BOOL LLImageGL::setSubImageFromFrameBuffer(S32 fb_x, S32 fb_y, S32 x_pos, S32 y_
 
 // static
 static LLTrace::BlockTimerStatHandle FTM_GENERATE_TEXTURES("generate textures");
-void LLImageGL::generateTextures(LLTexUnit::eTextureType type, U32 format, S32 numTextures, U32 *textures)
+void LLImageGL::generateTextures(S32 numTextures, U32 *textures)
 {
 	LL_RECORD_BLOCK_TIME(FTM_GENERATE_TEXTURES);
-	bool empty = true;
-
-	if (LLRender::sGLCoreProfile)
-	{
-		switch (format)
-		{
-			case GL_LUMINANCE8: format = GL_RGB8; break;
-			case GL_LUMINANCE8_ALPHA8:
-			case GL_ALPHA8: format = GL_RGBA8; break;
-		}
-	}
-
-	dead_texturelist_t::iterator iter = sDeadTextureList[type].find(format);
-	
-	if (iter != sDeadTextureList[type].end())
-	{
-		empty = iter->second.empty();
-	}
-	
-	for (S32 i = 0; i < numTextures; ++i)
-	{
-		if (!empty)
-		{
-			textures[i] = iter->second.front();
-			iter->second.pop_front();
-			empty = iter->second.empty();
-		}
-		else
-		{
-			textures[i] = sCurTexName++;
-		}
-	}
+	glGenTextures(numTextures, textures);
 }
 
 // static
-void LLImageGL::deleteTextures(LLTexUnit::eTextureType type, U32 format, S32 mip_levels, S32 numTextures, U32 *textures, bool immediate)
+void LLImageGL::deleteTextures(S32 numTextures, U32 *textures)
 {
 	if (gGLManager.mInited)
 	{
-		switch (format)
-		{
-			case 0:
-
-			// We get ARB errors in debug when attempting to use glTexImage2D with these deprecated pix formats
-			//
-			case GL_LUMINANCE8:
-			case GL_INTENSITY8:
-			case GL_ALPHA8:
-				glDeleteTextures(numTextures, textures);
-			break;
-
-			default:
-			{
-				if (type == LLTexUnit::TT_CUBE_MAP || mip_levels == -1)
-				{ //unknown internal format or unknown number of mip levels, not safe to reuse
-					glDeleteTextures(numTextures, textures);
-				}
-				else
-				{
-					for (S32 i = 0; i < numTextures; ++i)
-					{ //remove texture from VRAM by setting its size to zero
-
-						for (S32 j = 0; j <= mip_levels; j++)
-						{
-							gGL.getTexUnit(0)->bindManual(type, textures[i]);
-							U32 internal_type = LLTexUnit::getInternalType(type);
-							glTexImage2D(internal_type, j, format, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-							stop_glerror();
-						}
-
-						llassert(std::find(sDeadTextureList[type][format].begin(),
-							sDeadTextureList[type][format].end(), textures[i]) == 
-							sDeadTextureList[type][format].end());
-
-						sDeadTextureList[type][format].push_back(textures[i]);
-					}	
-				}				
-			}
-			break;
-		}
+		glDeleteTextures(numTextures, textures);
 	}
-	
-	/*if (immediate)
-	{
-		LLImageGL::deleteDeadTextures();
-	}*/
 }
 
 // static
@@ -1308,11 +1235,11 @@ BOOL LLImageGL::createGLTexture()
 
 	if(mTexName)
 	{
-		LLImageGL::deleteTextures(mBindTarget, mFormatInternal, mMipLevels, 1, (reinterpret_cast<GLuint*>(&mTexName))) ;
+		LLImageGL::deleteTextures(1, (reinterpret_cast<GLuint*>(&mTexName))) ;
 	}
 	
 
-	LLImageGL::generateTextures(mBindTarget, mFormatInternal, 1, &mTexName);
+	LLImageGL::generateTextures(1, &mTexName);
 	stop_glerror();
 	if (!mTexName)
 	{
@@ -1427,7 +1354,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
 	}
 	else
 	{
-		LLImageGL::generateTextures(mBindTarget, mFormatInternal, 1, &mTexName);
+		LLImageGL::generateTextures(1, &mTexName);
 		stop_glerror();
 		{
 			llverify(gGL.getTexUnit(0)->bind(this));
@@ -1472,7 +1399,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
 	{
 		sGlobalTextureMemory -= mTextureMemory;
 
-		LLImageGL::deleteTextures(mBindTarget, mFormatInternal, mMipLevels, 1, &old_name);
+		LLImageGL::deleteTextures(1, &old_name);
 
 		stop_glerror();
 	}
@@ -1603,30 +1530,6 @@ void LLImageGL::deleteDeadTextures()
 {
 	bool reset = false;
 
-	/*while (!sDeadTextureList.empty())
-	{
-		GLuint tex = sDeadTextureList.front();
-		sDeadTextureList.pop_front();
-		for (int i = 0; i < gGLManager.mNumTextureImageUnits; i++)
-		{
-			LLTexUnit* tex_unit = gGL.getTexUnit(i);
-
-			if (tex_unit && tex_unit->getCurrTexture() == tex)
-			{
-				tex_unit->unbind(tex_unit->getCurrType());
-				stop_glerror();
-
-				if (i > 0)
-				{
-					reset = true;
-				}
-			}
-		}
-		
-		glDeleteTextures(1, &tex);
-		stop_glerror();
-	}*/
-
 	if (reset)
 	{
 		gGL.getTexUnit(0)->activate();
@@ -1644,7 +1547,7 @@ void LLImageGL::destroyGLTexture()
 			mTextureMemory = (S32Bytes)0;
 		}
 		
-		LLImageGL::deleteTextures(mBindTarget,  mFormatInternal, mMipLevels, 1, &mTexName);			
+		LLImageGL::deleteTextures(1, &mTexName);			
 		mCurrentDiscardLevel = -1 ; //invalidate mCurrentDiscardLevel.
 		mTexName = 0;		
 		mGLTextureCreated = FALSE ;
