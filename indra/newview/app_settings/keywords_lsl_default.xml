@@ -701,6 +701,15 @@
             <key>tooltip</key>
             <string/>
          </map>
+         <key>AVOID_NONE</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>0</integer>
+            <key>tooltip</key>
+            <string/>
+         </map>
          <key>CAMERA_ACTIVE</key>
          <map>
             <key>type</key>
@@ -1060,6 +1069,15 @@
             <integer>2</integer>
             <key>tooltip</key>
             <string>Set collision capsule radius.</string>
+         </map>
+         <key>CHARACTER_STAY_WITHIN_PARCEL</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>15</integer>
+            <key>tooltip</key>
+            <string>Determines whether a character can leave its starting parcel.\nTakes a boolean parameter. If TRUE, the character cannot voluntarilly leave the parcel, but can return to it.</string>
          </map>
          <key>CHARACTER_TYPE</key>
          <map>
@@ -1797,12 +1815,30 @@
             <key>tooltip</key>
             <string/>
          </map>
+         <key>JSON_APPEND</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>-1</integer>
+            <key>tooltip</key>
+            <string/>
+         </map>
          <key>JSON_ARRAY</key>
          <map>
             <key>type</key>
             <string>string</string>
             <key>value</key>
             <string>U+FDD2</string>
+            <key>tooltip</key>
+            <string/>
+         </map>
+         <key>JSON_DELETE</key>
+         <map>
+            <key>type</key>
+            <string>string</string>
+            <key>value</key>
+            <string>U+FDD8</string>
             <key>tooltip</key>
             <string/>
          </map>
@@ -2370,6 +2406,33 @@
             <string>integer</string>
             <key>value</key>
             <integer>13</integer>
+            <key>tooltip</key>
+            <string/>
+         </map>
+         <key>OBJECT_RETURN_PARCEL</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>1</integer>
+            <key>tooltip</key>
+            <string/>
+         </map>
+         <key>OBJECT_RETURN_PARCEL_OWNER</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>2</integer>
+            <key>tooltip</key>
+            <string/>
+         </map>
+         <key>OBJECT_RETURN_REGION</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>4</integer>
             <key>tooltip</key>
             <string/>
          </map>
@@ -3110,6 +3173,15 @@
             <integer>0x8</integer>
             <key>tooltip</key>
             <string>(not yet implemented)</string>
+         </map>
+         <key>PERMISSION_RETURN_OBJECTS</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>65536</integer>
+            <key>tooltip</key>
+            <string/>
          </map>
          <key>PERMISSION_TAKE_CONTROLS</key>
          <map>
@@ -4458,6 +4530,15 @@
             <key>tooltip</key>
             <string>Triggered when an llEvade character switches from hiding to running</string>
          </map>
+         <key>PU_FAILURE_DYNAMIC_PATHFINDING_DISABLED</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>10</integer>
+            <key>tooltip</key>
+            <string/>
+         </map>
          <key>PU_FAILURE_INVALID_GOAL</key>
          <map>
             <key>type</key>
@@ -4500,6 +4581,15 @@
             <string>integer</string>
             <key>value</key>
             <integer>1000000</integer>
+            <key>tooltip</key>
+            <string/>
+         </map>
+         <key>PU_FAILURE_PARCEL_UNREACHABLE</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>11</integer>
             <key>tooltip</key>
             <string/>
          </map>
@@ -10041,6 +10131,48 @@
             <string>Returns an integer that is the script start parameter.\nReturns the start parameter passed to llRezObject.\n
 			If the object was created from agent inventory, this function returns 0.</string>
          </map>
+         <key>llGetStaticPath</key>
+         <map>
+            <key>energy</key>
+            <real>10.0</real>
+            <key>sleep</key>
+            <real>0.0</real>
+            <key>return</key>
+            <string>list</string>
+            <key>arguments</key>
+            <map>
+               <key>Start</key>
+               <map>
+                  <key>type</key>
+                  <string>vector</string>
+                  <key>tooltip</key>
+                  <string/>
+               </map>
+               <key>End</key>
+               <map>
+                  <key>type</key>
+                  <string>vector</string>
+                  <key>tooltip</key>
+                  <string/>
+               </map>
+               <key>Radius</key>
+               <map>
+                  <key>type</key>
+                  <string>float</string>
+                  <key>tooltip</key>
+                  <string/>
+               </map>
+               <key>Parameters</key>
+               <map>
+                  <key>type</key>
+                  <string>list</string>
+                  <key>tooltip</key>
+                  <string/>
+               </map>
+            </map>
+            <key>tooltip</key>
+            <string/>
+         </map>
          <key>llGetStatus</key>
          <map>
             <key>energy</key>
@@ -10095,8 +10227,8 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Returns the indicated substring.\nReturns the indicated sub-string from String. The start and end are inclusive.\n
-				Using negative numbers for start and/or end causes the index to count backwards from the length of the string, so 0, -1 would capture the entire string.\n
+            <string>Returns the indicated substring.\nReturns the indicated sub-string from String. The Start and End are inclusive.\n
+				Using negative numbers for Start and/or End causes the index to count backwards from the length of the string, so 0, -1 would capture the entire string.\n
 				If start is larger than end, the sub string is the exclusion of the entries, so 6, 4 would give the entire string except for the 5th. character.</string>
          </map>
          <key>llGetSunDirection</key>
@@ -13354,7 +13486,7 @@
             <string>integer</string>
             <key>arguments</key>
             <map>
-               <key>lObjectIDs</key>
+               <key>ObjectIDs</key>
                <map>
                   <key>type</key>
                   <string>list</string>
@@ -13375,14 +13507,14 @@
             <string>integer</string>
             <key>arguments</key>
             <map>
-               <key>kID</key>
+               <key>ID</key>
                <map>
                   <key>type</key>
                   <string>key</string>
                   <key>tooltip</key>
                   <string/>
                </map>
-               <key>iScope</key>
+               <key>Scope</key>
                <map>
                   <key>type</key>
                   <string>integer</string>
@@ -14448,6 +14580,8 @@
          </map>
          <key>llSetInventoryPermMask</key>
          <map>
+            <key>god-mode</key>
+            <boolean>true</boolean>
             <key>energy</key>
             <real>10.0</real>
             <key>sleep</key>
@@ -14900,6 +15034,8 @@
          </map>
          <key>llSetObjectPermMask</key>
          <map>
+            <key>god-mode</key>
+            <boolean>true</boolean>
             <key>energy</key>
             <real>10.0</real>
             <key>sleep</key>
@@ -16799,6 +16935,34 @@
             <key>tooltip</key>
             <string>Returns the wind velocity at the object position + offset.\nReturns the wind velocity at the object's position + offset.</string>
          </map>
+         <key>llXorBase64</key>
+         <map>
+            <key>energy</key>
+            <real>10.0</real>
+            <key>sleep</key>
+            <real>0.3</real>
+            <key>return</key>
+            <string>string</string>
+            <key>arguments</key>
+            <map>
+               <key>Text1</key>
+               <map>
+                  <key>type</key>
+                  <string>string</string>
+                  <key>tooltip</key>
+                  <string/>
+               </map>
+               <key>Text2</key>
+               <map>
+                  <key>type</key>
+                  <string>string</string>
+                  <key>tooltip</key>
+                  <string/>
+               </map>
+            </map>
+            <key>tooltip</key>
+            <string>Performs an exclusive OR on two Base64 strings and returns a Base64 string.	Text2 repeats if it is shorter than Text1.	Retained for backwards compatibility.\nDeprecated: Use llXorBase64StringsCorrect instead.\nIncorrectly performs an exclusive OR on two Base64 strings and returns a Base64 string.</string>
+         </map>
          <key>llXorBase64Strings</key>
          <map>
             <key>deprecated</key>
@@ -16827,11 +16991,13 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Deprecated: Please use llXorBase64StringsCorrect instead.\n
+            <string>Deprecated: Please use llXorBase64 instead.\n
 				Incorrectly performs an exclusive OR on two Base64 strings and returns a Base64 string.	Text2 repeats if it is shorter than Text1.	Retained for backwards compatibility.\nDeprecated: Use llXorBase64StringsCorrect instead.\nIncorrectly performs an exclusive OR on two Base64 strings and returns a Base64 string.</string>
          </map>
          <key>llXorBase64StringsCorrect</key>
          <map>
+            <key>deprecated</key>
+            <boolean>true</boolean>
             <key>energy</key>
             <real>10.0</real>
             <key>sleep</key>
@@ -16856,7 +17022,8 @@
                </map>
             </map>
             <key>tooltip</key>
-            <string>Correctly performs an exclusive OR on two Base64 strings and returns a Base64 string.\n
+            <string>Deprecated: Please use llXorBase64 instead.\n
+				Correctly (unless nulls are present) performs an exclusive OR on two Base64 strings and returns a Base64 string.\n
 				Text2 repeats if it is shorter than Text1.\nPerforms an exclusive-OR on two Base64 strings and returns a Base64 string. text-2 repeats if it is shorter than text-1.\n
 				This function is for encrypting data. Put your data in text-1 and your key in text-2 to encrypt or put the encrypted data into text-1 with the same key in text-2 to decrypt again.</string>
          </map>
