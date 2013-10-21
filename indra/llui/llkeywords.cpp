@@ -29,7 +29,6 @@
 #include <iostream>
 #include <fstream>
 
-#include "lldir.h"
 #include "llkeywords.h"
 #include "llsdserialize.h"
 #include "lltexteditor.h"
@@ -70,7 +69,7 @@ inline BOOL LLKeywordToken::isTail(const llwchar* s) const
 
 LLKeywords::LLKeywords() : mLoaded(FALSE)
 {
-	setFilenameSyntax( gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"keywords_lsl_default.xml") );
+	//setFilenameSyntax( gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"keywords_lsl_default.xml") );
 }
 
 LLKeywords::~LLKeywords()
@@ -199,9 +198,10 @@ LLColor4 LLKeywords::getColorGroup(const std::string key_in)
 	return LLUIColorTable::instance().getColor(ColourGroup);
 }
 
-BOOL LLKeywords::initialise()
+BOOL LLKeywords::initialise(ELLPath path, const std::string filename)
 {
 	mReady = false;
+	setFilenameSyntax( gDirUtilp->getExpandedFilename(path, filename) );
 
 	if (! loadIntoLLSD(mFilenameSyntax, mSyntax) )
 	{

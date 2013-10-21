@@ -28,6 +28,7 @@
 #define LL_LLKEYWORDS_H
 
 
+#include "lldir.h"
 #include "llstring.h"
 #include "v3color.h"
 #include "v4color.h"
@@ -116,7 +117,7 @@ public:
 	void		setFilenameSyntax(const std::string filename) { mFilenameSyntax = filename; }
 
 	void		findSegments(std::vector<LLTextSegmentPtr> *seg_list, const LLWString& text, const LLColor4 &defaultColor, class LLTextEditor& editor );
-	BOOL		initialise();
+	BOOL		initialise(ELLPath path, const std::string filename);
 	std::string	processColors();
 	std::string	processColors(LLSD &data, const std::string strGroup);
 	void		processTokens();
