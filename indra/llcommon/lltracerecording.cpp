@@ -57,6 +57,7 @@ Recording::Recording(EPlayState state)
 }
 
 Recording::Recording( const Recording& other )
+:	mActiveBuffers(NULL)
 {
 	claim_alloc(gTraceMemStat, this);
 	*this = other;
