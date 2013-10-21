@@ -390,7 +390,6 @@ namespace tut
 		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_GESTURE, false, false);
 		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_GESTURE, false, false);
 
-		gViewerAssetStats->updateStats();
 		LLSD sd = gViewerAssetStats->asLLSD(false);
 
 		// std::cout << sd << std::endl;
@@ -465,7 +464,6 @@ namespace tut
 		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_GESTURE, false, false);
 		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_GESTURE, false, false);
 
-		gViewerAssetStats->updateStats();
 		LLSD sd = gViewerAssetStats->asLLSD(false);
 
 		ensure("Correct double-key LLSD map root", is_double_key_map(sd, "duration", "regions"));
@@ -533,7 +531,6 @@ namespace tut
 
 		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_LSL_BYTECODE, true, true);
 
-		gViewerAssetStats->updateStats();
 		LLSD sd = gViewerAssetStats->asLLSD(false);
 		ensure("Correct single-key LLSD map root", is_double_key_map(sd, "regions", "duration"));
 		ensure("Correct single-slot LLSD array regions", is_single_slot_array(sd["regions"], region1_handle));

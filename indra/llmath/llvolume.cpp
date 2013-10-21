@@ -1647,7 +1647,7 @@ BOOL LLPath::generate(const LLPathParams& params, F32 detail, S32 split,
 			F32 t = (F32)i * mStep;
 			mPath[i].mPos.set(0,
 								lerp(0,   -sin(F_PI*params.getTwist()*t)*0.5f,t),
-								lerp(-0.5, cos(F_PI*params.getTwist()*t)*0.5f,t));
+								lerp(-0.5f, cos(F_PI*params.getTwist()*t)*0.5f,t));
 			mPath[i].mScale.set(lerp(1,params.getScale().mV[0],t),
 								lerp(1,params.getScale().mV[1],t), 0,1);
 			mPath[i].mTexT  = t;

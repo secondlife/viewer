@@ -778,7 +778,7 @@ void LLButton::draw()
 	if (use_glow_effect)
 	{
 		mCurGlowStrength = lerp(mCurGlowStrength,
-					mFlashing ? (mFlashingTimer->isCurrentlyHighlighted() || !mFlashingTimer->isFlashingInProgress() || mNeedsHighlight? 1.0 : 0.0) : mHoverGlowStrength,
+					mFlashing ? (mFlashingTimer->isCurrentlyHighlighted() || !mFlashingTimer->isFlashingInProgress() || mNeedsHighlight? 1.f : 0.f) : mHoverGlowStrength,
 					LLSmoothInterpolation::getInterpolant(0.05f));
 	}
 	else
