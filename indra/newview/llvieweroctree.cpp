@@ -425,6 +425,13 @@ void LLViewerOctreeEntryData::setVisible() const
 	}
 }
 
+void LLViewerOctreeEntryData::resetVisible() const
+{
+	if(mEntry)
+	{
+		mEntry->mVisible = 0;
+	}
+}
 //-----------------------------------------------------------------------------------
 //class LLViewerOctreeGroup definitions
 //-----------------------------------------------------------------------------------

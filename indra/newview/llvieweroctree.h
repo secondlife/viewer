@@ -156,6 +156,7 @@ public:
 
 	U32          getVisible() const {return mEntry ? mEntry->mVisible : 0;}
 	void         setVisible() const;
+	void         resetVisible() const;
 	virtual bool isVisible() const;
 	virtual bool isRecentlyVisible() const;	
 	

@@ -250,6 +250,7 @@ void LLVOCacheEntry::addChild(LLVOCacheEntry* entry)
 	if(getEntry() != NULL && isState(INACTIVE))
 	{
 		updateParentBoundingInfo(entry);
+		resetVisible();
 	}
 }
 	
@@ -441,6 +442,7 @@ void LLVOCacheEntry::updateParentBoundingInfo()
 	{
 		updateParentBoundingInfo(mChildrenList[i]);
 	}
+	resetVisible();
 }
 
 //make the parent bounding box to include this child
