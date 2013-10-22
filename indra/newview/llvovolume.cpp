@@ -693,7 +693,7 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 		}
 	}
 
-	static LLCachedControl<bool> dont_load_textures(gSavedSettings,"TextureDisable");
+	static LLCachedControl<bool> dont_load_textures(gSavedSettings,"TextureDisable", false);
 		
 	if (dont_load_textures || LLAppViewer::getTextureFetch()->mDebugPause) // || !mDrawable->isVisible())
 	{
@@ -1036,8 +1036,7 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 			}
 		}
 
-
-		static LLCachedControl<bool> use_transform_feedback(gSavedSettings, "RenderUseTransformFeedback");
+		static LLCachedControl<bool> use_transform_feedback(gSavedSettings, "RenderUseTransformFeedback", false);
 
 		bool cache_in_vram = use_transform_feedback && gTransformPositionProgram.mProgramObject &&
 			(!mVolumeImpl || !mVolumeImpl->isVolumeUnique());
@@ -2618,7 +2617,6 @@ void LLVOVolume::setLightTextureID(LLUUID id)
 		if (hasLightTexture())
 		{
 			setParameterEntryInUse(LLNetworkData::PARAMS_LIGHT_IMAGE, FALSE, true);
-			parameterChanged(LLNetworkData::PARAMS_LIGHT_IMAGE, true);
 			mLightTexture = NULL;
 		}
 	}		
@@ -2636,8 +2634,7 @@ void LLVOVolume::setSpotLightParams(LLVector3 params)
 		
 void LLVOVolume::setIsLight(BOOL is_light)
 {
-	BOOL was_light = getIsLight();
-	if (is_light != was_light)
+	if (is_light != getIsLight())
 	{
 		if (is_light)
 		{
@@ -2822,7 +2819,7 @@ void LLVOVolume::updateSpotLightPriority()
 bool LLVOVolume::isLightSpotlight() const
 {
 	LLLightImageParams* params = (LLLightImageParams*) getParameterEntry(LLNetworkData::PARAMS_LIGHT_IMAGE);
-	if (params && getParameterEntryInUse(LLNetworkData::PARAMS_LIGHT_IMAGE))
+	if (params)
 	{
 		return params->isLightSpotlight();
 	}
@@ -3752,30 +3749,8 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 			{
 				LLFace* face = mDrawable->getFace(face_hit);				
 
-				bool ignore_alpha = false;
-
-				const LLTextureEntry* te = face->getTextureEntry();
-				if (te)
-				{
-					LLMaterial* mat = te->getMaterialParams();
-					if (mat)
-					{
-						U8 mode = mat->getDiffuseAlphaMode();
-
-						if (mode == LLMaterial::DIFFUSE_ALPHA_MODE_EMISSIVE ||
-							mode == LLMaterial::DIFFUSE_ALPHA_MODE_NONE)
-						{
-							ignore_alpha = true;
-						}
-					}
-				}
-
 				if (face &&
-					(ignore_alpha ||
-					pick_transparent || 
-					!face->getTexture() || 
-					!face->getTexture()->hasGLTexture() || 
-					face->getTexture()->getMask(face->surfaceToTexture(tc, p, n))))
+					(pick_transparent || !face->getTexture() || !face->getTexture()->hasGLTexture() || face->getTexture()->getMask(face->surfaceToTexture(tc, p, n))))
 				{
 					local_end = p;
 					if (face_hitp != NULL)
@@ -4459,6 +4434,8 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	U32 cur_total = 0;
 
 	bool emissive = false;
+
+	
 
 	{
 		LLFastTimer t(FTM_REBUILD_VOLUME_FACE_LIST);
@@ -5198,7 +5175,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFac
 
 	U32 buffer_usage = group->mBufferUsage;
 	
-	static LLCachedControl<bool> use_transform_feedback(gSavedSettings, "RenderUseTransformFeedback");
+	static LLCachedControl<bool> use_transform_feedback(gSavedSettings, "RenderUseTransformFeedback", false);
 
 	if (use_transform_feedback &&
 		gTransformPositionProgram.mProgramObject && //transform shaders are loaded

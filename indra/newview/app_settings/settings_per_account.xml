@@ -77,6 +77,17 @@
         <key>Value</key>
             <integer>412</integer>
     </map>
+    <key>ConversationsParticipantListCollapsed</key>
+    <map>
+        <key>Comment</key>
+            <string>Stores the expanded/collapsed state of Nearby chat participant list</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>true</integer>
+    </map>   
     <key>InstantMessageLogPath</key>
         <map>
         <key>Comment</key>
