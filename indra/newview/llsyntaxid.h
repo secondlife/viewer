@@ -33,7 +33,7 @@ public:
 	std::string	filenameCurrent() { return mFilenameCurrent; }
 	ELLPath		filenamePath() { return mFilenameLocation; }
 	void		initialise();
-	static void	setKeywordsXml(LLSD& content) { LLSyntaxIdLSL::mKeywordsXml = content; }
+	static void	setKeywordsXml(const LLSD& content) { LLSyntaxIdLSL::sKeywordsXml = content; }
 
 protected:
 	std::string	buildFilename(LLUUID& SyntaxId);
@@ -60,6 +60,7 @@ private:
 	std::string							mFilenameFull;
 	ELLPath								mFilenameLocation;
 	std::string							mFilenameSpec;
-	static LLSD							mKeywordsXml;
 	std::string							mSimulatorFeature;
+
+	static LLSD							sKeywordsXml;
 };

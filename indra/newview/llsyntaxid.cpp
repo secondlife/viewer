@@ -121,7 +121,9 @@ bool LLSyntaxIdLSL::checkSyntaxIdChange()
 				<< mRegion->getName()
 				<< "' has not received capabilities yet! Setting a callback for when they arrive."
 				<< LL_ENDL;
-		} else {
+		}
+		else
+		{
 			// get and check the hash
 			LLSD simFeatures;
 			mRegion->getSimulatorFeatures(simFeatures);
@@ -144,7 +146,9 @@ bool LLSyntaxIdLSL::checkSyntaxIdChange()
 						<< LL_ENDL;
 
 					changed = true;
-				} else {
+				}
+				else
+				{
 					LL_WARNS("LSLSyntax")
 						<< "Region changed to '"
 						<< mRegion->getName()
@@ -153,14 +157,18 @@ bool LLSyntaxIdLSL::checkSyntaxIdChange()
 						<< "'"
 						<< LL_ENDL;
 				}
-			} else {
+			}
+			else
+			{
 				// Set the hash to NULL_KEY to indicate use of default keywords file
 				if ( mCurrentSyntaxId.isNull() )
 				{
 					LL_WARNS("LSLSyntax")
 						<< "Region does not have LSLSyntaxId capability, remaining with default keywords file!"
 						<< LL_ENDL;
-				} else {
+				}
+				else
+				{
 					mCurrentSyntaxId = LLUUID();
 					mFilenameCurrent = mFilenameDefault;
 					mFilenameLocation = LL_PATH_APP_SETTINGS;
@@ -187,7 +195,7 @@ bool LLSyntaxIdLSL::fetchKeywordsFile()
 //	mResponder->setFileSpec(mFilenameSpec);
 	if ( !cap_url.empty() )
 	{
-		LLHTTPClient::get(cap_url, mResponder);
+		LLHTTPClient::get(cap_url, new fetchKeywordsFileResponder(mFilenameSpec));
 	}
 
 	return fetched;
@@ -207,7 +215,7 @@ void LLSyntaxIdLSL::initialise()
 			bool success = true;
 			if (!gDirUtilp->fileExists(mFilenameSpec))
 			{
-				mResponder = new fetchKeywordsFileResponder(mFilenameSpec);
+				//mResponder = new fetchKeywordsFileResponder(mFilenameSpec);
 				success = fetchKeywordsFile();
 			}
 		}
