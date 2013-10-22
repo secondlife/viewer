@@ -1061,15 +1061,19 @@ F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 
 	LLTimer update_timer;
 
+	const F32 LARGE_SCENE_CONTRIBUTION = 100.f; //a large number to force to load the object.
 	const LLVector3 camera_origin = LLViewerCamera::getInstance()->getOrigin();
 	const U32 cur_frame = LLViewerOctreeEntryData::getCurrentFrame();
 	bool needs_update = ((cur_frame - mImpl->mLastCameraUpdate) > 5) && ((camera_origin - mImpl->mLastCameraOrigin).lengthSquared() > 10.f);	
+	U32 last_update = mImpl->mLastCameraUpdate;
 
 	//process visible entries
 	for(LLVOCacheEntry::vocache_entry_set_t::iterator iter = mImpl->mVisibleEntries.begin(); iter != mImpl->mVisibleEntries.end();)
 	{
 		LLVOCacheEntry* vo_entry = *iter;
-		vo_entry->calcSceneContribution(camera_origin, needs_update, mImpl->mLastCameraUpdate);
+
+		//set a large number to force to load this object.
+		vo_entry->setSceneContribution(LARGE_SCENE_CONTRIBUTION);
 
 		if(vo_entry->getState() < LLVOCacheEntry::WAITING)
 		{			
@@ -1084,7 +1088,7 @@ F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 			child = vo_entry->getChild(i);
 			if(child->getState() < LLVOCacheEntry::WAITING)
 			{
-				child->setSceneContribution(vo_entry->getSceneContribution());
+				child->setSceneContribution(LARGE_SCENE_CONTRIBUTION); //a large number to force to load the child.
 				mImpl->mWaitingList.insert(child);
 			}
 			else
@@ -1140,7 +1144,7 @@ F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 					continue;
 				}
 
-				vo_entry->calcSceneContribution(camera_origin, needs_update, mImpl->mLastCameraUpdate);				
+				vo_entry->calcSceneContribution(camera_origin, needs_update, last_update);				
 				mImpl->mWaitingList.insert(vo_entry);
 			}
 		}
