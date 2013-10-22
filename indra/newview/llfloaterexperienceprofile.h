@@ -54,10 +54,13 @@ public:
 
     LLUUID getExperienceId() const { return mExperienceId; }
     void setPreferences( const LLSD& content );
+
+
     void refreshExperience(const LLSD& experience);
     void onSaveComplete( const LLSD& content );
     virtual BOOL canClose();
 
+    virtual void onClose(bool app_quitting);
 protected:
     void onClickEdit();
     void onClickPermission(const char* permission);
@@ -70,12 +73,18 @@ protected:
 
     void changeToView();
 
+    void experienceForgotten();
+    void experienceBlocked();
+    void experienceAllowed();
+
     static void experienceCallback(LLHandle<LLFloaterExperienceProfile> handle, const LLSD& experience);
+    static bool experiencePermission(LLHandle<LLFloaterExperienceProfile> handle, const LLSD& permission);
 
     BOOL postBuild();
     bool setMaturityString(U8 maturity, LLTextBox* child, LLComboBox* combo);
     bool handleSaveChangesDialog(const LLSD& notification, const LLSD& response, PostSaveAction action);
     void doSave( int success_action );
+    void updatePermission( const LLSD& permission );
     LLUUID mExperienceId;
     LLSD mExperienceDetails;
     int mSaveCompleteAction;

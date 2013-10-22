@@ -7,6 +7,7 @@
 #include "lltabcontainer.h"
 #include "lltrans.h"
 #include "llexperiencecache.h"
+#include "llevents.h"
 
 
 class LLExperienceListResponder : public LLHTTPClient::Responder
@@ -71,9 +72,11 @@ BOOL LLFloaterExperiences::postBuild()
     addTab("Recent_Experiences_Tab", false);
     resizeToTabs();
 
-    refreshContents();
-
-	return TRUE;
+   
+    LLEventPumps::instance().obtain("experience_permission").listen("LLFloaterExperiences", 
+        boost::bind(&LLFloaterExperiences::updatePermissions, this, _1));
+     
+   	return FALSE;
 }
 
 void LLFloaterExperiences::clearFromRecent(const LLSD& ids)
@@ -156,4 +159,78 @@ void LLFloaterExperiences::refreshContents()
             LLHTTPClient::get(lookup_url, new LLExperienceListResponder(getDerivedHandle<LLFloaterExperiences>(), nameMap));
         }
     }
+}
+
+void LLFloaterExperiences::onOpen( const LLSD& key )
+{
+    LLViewerRegion* region = gAgent.getRegion();
+    if(region)
+    {
+        if(region->capabilitiesReceived())
+        {
+            refreshContents();
+            return;
+        }
+        region->setCapabilitiesReceivedCallback(boost::bind(&LLFloaterExperiences::refreshContents, this));
+        return;
+    }
+}
+
+bool LLFloaterExperiences::updatePermissions( const LLSD& permission )
+{
+    LLTabContainer* tabs = getChild<LLTabContainer>("xp_tabs");
+    LLUUID experience;
+    std::string permission_string;
+    if(permission.has("experience"))
+    {
+        experience = permission["experience"].asUUID();
+        permission_string = permission[experience.asString()]["permission"].asString();
+
+    }
+    LLPanelExperiences* tab = (LLPanelExperiences*)tabs->getPanelByName("Allowed_Experiences_Tab");
+    if(tab)
+    {
+        if(permission.has("experiences"))
+        {
+            tab->setExperienceList(permission["experiences"]);
+        }
+        else if(experience.notNull())
+        {
+            if(permission_string != "Allow")
+            {
+                tab->removeExperience(experience);
+            }
+            else
+            {
+                tab->addExperience(experience);
+            }
+        }
+    }
+    
+    tab = (LLPanelExperiences*)tabs->getPanelByName("Blocked_Experiences_Tab");
+    if(tab)
+    {
+        if(permission.has("blocked"))
+        {
+            tab->setExperienceList(permission["blocked"]);
+        }
+        else if(experience.notNull())
+        {
+            if(permission_string != "Block")
+            {
+                tab->removeExperience(experience);
+            }
+            else
+            {
+                tab->addExperience(experience);
+            }
+        }
+    }
+    return false;
+}
+
+void LLFloaterExperiences::onClose( bool app_quitting )
+{
+    LLEventPumps::instance().obtain("experience_permission").stopListening("LLFloaterExperiences");
+    LLFloater::onClose(app_quitting);
 }

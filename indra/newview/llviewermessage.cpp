@@ -6343,6 +6343,12 @@ bool script_question_cb(const LLSD& notification, const LLSD& response)
 		return false;
 	}
 
+    LLUUID experience;
+    if(notification["payload"].has("experience"))
+    {
+        experience = notification["payload"]["experience"].asUUID();
+    }
+
 	// check whether permissions were granted or denied
 	BOOL allowed = TRUE;
 	// the "yes/accept" button is the first button in the template, making it button 0
@@ -6351,7 +6357,17 @@ bool script_question_cb(const LLSD& notification, const LLSD& response)
 	{
 		new_questions = 0;
 		allowed = FALSE;
-	}	
+	}
+    else if(experience.notNull())
+    {
+        LLSD permission;
+        LLSD data;
+        permission["permission"]="Allow";
+
+        data[experience.asString()]=permission;
+        data["experience"]=experience;
+        LLEventPumps::instance().obtain("experience_permission").post(data);
+    }
 
 	LLUUID task_id = notification["payload"]["task_id"].asUUID();
 	LLUUID item_id = notification["payload"]["item_id"].asUUID();
@@ -6381,7 +6397,7 @@ bool script_question_cb(const LLSD& notification, const LLSD& response)
 
     if ( response["BlockExperience"] )
     {
-        if(notification["payload"].has("experience"))
+        if(experience.notNull())
         {
             LLViewerRegion* region = gAgent.getRegion();
             if (!region)
@@ -6394,8 +6410,11 @@ bool script_question_cb(const LLSD& notification, const LLSD& response)
             LLSD data;
             permission["permission"]="Block";
 
-            data[notification["payload"]["experience"].asString()]=permission;
+            data[experience.asString()]=permission;
             LLHTTPClient::put(lookup_url, data, NULL);
+
+            data["experience"]=experience;
+            LLEventPumps::instance().obtain("experience_permission").post(data);
         }
 	}
 

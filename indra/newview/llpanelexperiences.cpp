@@ -67,9 +67,27 @@ void LLPanelExperiences::removeExperiences( const LLSD& ids )
     LLSD::array_const_iterator it = ids.beginArray();
     for( /**/ ; it != ids.endArray(); ++it)
     {
-        mExperiencesList->removeItemByUUID(it->asUUID());
+        removeExperience(it->asUUID());
     }
 }
+
+void LLPanelExperiences::removeExperience( const LLUUID& id )
+{
+    mExperiencesList->removeItemByUUID(id);
+}
+
+void LLPanelExperiences::addExperience( const LLUUID& id )
+{
+    if(!mExperiencesList->getItemByValue(id))
+    {
+        LLExperienceItem* item = new LLExperienceItem();
+
+        item->init(id);
+        mExperiencesList->addItem(item, id);
+    }
+}
+
+
 
 
 LLExperienceItem::LLExperienceItem()

@@ -33,21 +33,19 @@ class LLFloaterExperiences :
 	public LLFloater
 {
 public:
-	LLFloaterExperiences(const LLSD& data);
+    LLFloaterExperiences(const LLSD& data);
+    virtual void onClose(bool app_quitting);
 
+    virtual void onOpen(const LLSD& key);
+protected:
     void clearFromRecent(const LLSD& ids);
     void resizeToTabs();
-
-protected:
 	/*virtual*/ BOOL	postBuild();
-
     void refreshContents();
-
-
-
     void setupRecentTabs();
     void addTab(const std::string& name, bool select);
 
+    bool updatePermissions(const LLSD& permission);
 
 private:
 

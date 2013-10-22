@@ -61,6 +61,8 @@ public:
 
     LLExperienceItem* getSelectedExperienceItem();
     void removeExperiences( const LLSD& ids );
+    void removeExperience( const LLUUID& id);
+    void addExperience( const LLUUID& id);
 protected:
 
 private:

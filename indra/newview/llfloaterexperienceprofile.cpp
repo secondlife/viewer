@@ -47,6 +47,7 @@
 #include "lltexturectrl.h"
 #include "lltrans.h"
 #include "llviewerregion.h"
+#include "llevents.h"
 
 #define XML_PANEL_EXPERIENCE_PROFILE "floater_experienceprofile.xml"
 #define TF_NAME "experience_title"
@@ -157,21 +158,16 @@ public:
 
 
 
-class ExperiencePreferencesResponder : public HandleResponder<LLFloaterExperienceProfile>
+class ExperiencePreferencesResponder : public LLHTTPClient::Responder
 {
 public:
-    ExperiencePreferencesResponder(const LLHandle<LLFloaterExperienceProfile>& parent):HandleResponder<LLFloaterExperienceProfile>(parent)
+    ExperiencePreferencesResponder()
     {
     }
 
-
     virtual void result(const LLSD& content)
     {
-        LLFloaterExperienceProfile* parent=mParent.get();
-        if(parent)
-        {
-            parent->setPreferences(content);
-        }
+        LLEventPumps::instance().obtain("experience_permission").post(content);
     }
 };
 
@@ -230,7 +226,7 @@ BOOL LLFloaterExperienceProfile::postBuild()
             lookup_url=region->getCapability("ExperiencePreferences"); 
             if(!lookup_url.empty())
             {
-                LLHTTPClient::get(lookup_url+"?"+mExperienceId.asString(), new ExperiencePreferencesResponder(getDerivedHandle<LLFloaterExperienceProfile>()));
+                LLHTTPClient::get(lookup_url+"?"+mExperienceId.asString(), new ExperiencePreferencesResponder());
             }
         }
     }
@@ -254,6 +250,10 @@ BOOL LLFloaterExperienceProfile::postBuild()
     childSetCommitCallback(EDIT BTN_PRIVATE, boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this), NULL);
 
     getChild<LLTextEditor>(EDIT TF_DESC)->setCommitOnFocusLost(TRUE);
+
+
+    LLEventPumps::instance().obtain("experience_permission").listen(mExperienceId.asString()+"-profile", 
+        boost::bind(&LLFloaterExperienceProfile::experiencePermission, getDerivedHandle<LLFloaterExperienceProfile>(this), _1));
     
     return TRUE;
 }
@@ -266,6 +266,18 @@ void LLFloaterExperienceProfile::experienceCallback(LLHandle<LLFloaterExperience
         pllpep->refreshExperience(experience);
     }
 }
+
+
+bool LLFloaterExperienceProfile::experiencePermission( LLHandle<LLFloaterExperienceProfile> handle, const LLSD& permission )
+{
+    LLFloaterExperienceProfile* pllpep = handle.get();
+    if(pllpep)
+    {
+        pllpep->updatePermission(permission);
+    }
+    return false;
+}
+
 
 void LLFloaterExperienceProfile::onClickEdit()
 {
@@ -300,7 +312,7 @@ void LLFloaterExperienceProfile::onClickPermission(const char* perm)
     permission["permission"]=perm;
 
     data[mExperienceId.asString()]=permission;
-    LLHTTPClient::put(lookup_url, data, new ExperiencePreferencesResponder(getDerivedHandle<LLFloaterExperienceProfile>()));
+    LLHTTPClient::put(lookup_url, data, new ExperiencePreferencesResponder());
    
 }
 
@@ -315,7 +327,7 @@ void LLFloaterExperienceProfile::onClickForget()
     if(lookup_url.empty())
         return;
 
-    LLHTTPClient::del(lookup_url+"?"+mExperienceId.asString(), new ExperiencePreferencesResponder(getDerivedHandle<LLFloaterExperienceProfile>()));
+    LLHTTPClient::del(lookup_url+"?"+mExperienceId.asString(), new ExperiencePreferencesResponder());
 }
 
 bool LLFloaterExperienceProfile::setMaturityString( U8 maturity, LLTextBox* child, LLComboBox* combo )
@@ -503,21 +515,13 @@ void LLFloaterExperienceProfile::setPreferences( const LLSD& content )
 {
     const LLSD& experiences = content["experiences"];
     const LLSD& blocked = content["blocked"];
-    LLButton* button;
 
 
     for(LLSD::array_const_iterator it = experiences.beginArray(); it != experiences.endArray() ; ++it)
     {
         if(it->asUUID()==mExperienceId)
         {
-            button=getChild<LLButton>(BTN_ALLOW);
-            button->setEnabled(FALSE);
-
-            button=getChild<LLButton>(BTN_FORGET);
-            button->setEnabled(TRUE);
-
-            button=getChild<LLButton>(BTN_BLOCK);
-            button->setEnabled(TRUE);
+            experienceAllowed();
             return;
         }
     }
@@ -526,27 +530,12 @@ void LLFloaterExperienceProfile::setPreferences( const LLSD& content )
     {
         if(it->asUUID()==mExperienceId)
         {
-            button=getChild<LLButton>(BTN_ALLOW);
-            button->setEnabled(TRUE);
-
-            button=getChild<LLButton>(BTN_FORGET);
-            button->setEnabled(TRUE);
-
-            button=getChild<LLButton>(BTN_BLOCK);
-            button->setEnabled(FALSE);
+            experienceBlocked();
             return;
         }
     }
 
-
-    button=getChild<LLButton>(BTN_ALLOW);
-    button->setEnabled(TRUE);
-
-    button=getChild<LLButton>(BTN_FORGET);
-    button->setEnabled(FALSE);
-
-    button=getChild<LLButton>(BTN_BLOCK);
-    button->setEnabled(TRUE);
+    experienceForgotten();
 }
 
 void LLFloaterExperienceProfile::onFieldChanged()
@@ -620,7 +609,15 @@ void LLFloaterExperienceProfile::doSave( int success_action )
 
     package[LLExperienceCache::NAME] = getChild<LLLineEditor>(EDIT TF_NAME)->getText();
     package[LLExperienceCache::DESCRIPTION] = getChild<LLTextEditor>(EDIT TF_DESC)->getText();
-    package[LLExperienceCache::SLURL] = getChild<LLTextBox>(EDIT TF_SLURL)->getText();
+    std::string slurl = getChild<LLTextBox>(EDIT TF_SLURL)->getText();
+    if(slurl == getString("empty_slurl"))
+    {
+        package[LLExperienceCache::SLURL] = LLStringUtil::null;
+    }
+    else
+    {
+        package[LLExperienceCache::SLURL] = slurl;
+    }
 
     package[LLExperienceCache::MATURITY] = getChild<LLComboBox>(EDIT TF_MATURITY)->getSelectedValue().asInteger();
 
@@ -735,4 +732,71 @@ void LLFloaterExperienceProfile::onClickClear()
     LLTextBox* child = getChild<LLTextBox>(EDIT TF_SLURL);
     child->setText(getString("empty_slurl"));
     onFieldChanged();
+}
+
+void LLFloaterExperienceProfile::updatePermission( const LLSD& permission )
+{
+    std::string xp = mExperienceId.asString();
+    if(permission.has(xp))
+    {
+        std::string str = permission[xp]["permission"].asString();
+        if(str == "Allow")
+        {
+            experienceAllowed();
+        }
+        else if(str == "Block")
+        {
+            experienceBlocked();
+        }
+        else if(str == "Forget")
+        {
+            experienceForgotten();
+        }
+    }
+    else
+    {
+        setPreferences(permission);
+    }
+}
+
+void LLFloaterExperienceProfile::experienceAllowed()
+{
+    LLButton* button=getChild<LLButton>(BTN_ALLOW);
+    button->setEnabled(FALSE);
+
+    button=getChild<LLButton>(BTN_FORGET);
+    button->setEnabled(TRUE);
+
+    button=getChild<LLButton>(BTN_BLOCK);
+    button->setEnabled(TRUE);
+}
+
+void LLFloaterExperienceProfile::experienceForgotten()
+{
+    LLButton* button=getChild<LLButton>(BTN_ALLOW);
+    button->setEnabled(TRUE);
+
+    button=getChild<LLButton>(BTN_FORGET);
+    button->setEnabled(FALSE);
+
+    button=getChild<LLButton>(BTN_BLOCK);
+    button->setEnabled(TRUE);
+}
+
+void LLFloaterExperienceProfile::experienceBlocked()
+{
+    LLButton* button=getChild<LLButton>(BTN_ALLOW);
+    button->setEnabled(TRUE);
+
+    button=getChild<LLButton>(BTN_FORGET);
+    button->setEnabled(TRUE);
+
+    button=getChild<LLButton>(BTN_BLOCK);
+    button->setEnabled(FALSE);
+}
+
+void LLFloaterExperienceProfile::onClose( bool app_quitting )
+{
+    LLEventPumps::instance().obtain("experience_permission").stopListening(mExperienceId.asString()+"-profile");
+    LLFloater::onClose(app_quitting);
 }
