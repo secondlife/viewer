@@ -91,7 +91,7 @@ LLMetricPerformanceTesterBasic* LLMetricPerformanceTesterBasic::getTester(std::s
 // Return TRUE if this metric is requested or if the general default "catch all" metric is requested
 BOOL LLMetricPerformanceTesterBasic::isMetricLogRequested(std::string name)
 {
-	return (LLTrace::BlockTimerStatHandle::sMetricLog && ((LLTrace::BlockTimerStatHandle::sLogName == name) || (LLTrace::BlockTimerStatHandle::sLogName == DEFAULT_METRIC_NAME)));
+	return (LLTrace::BlockTimer::sMetricLog && ((LLTrace::BlockTimer::sLogName == name) || (LLTrace::BlockTimer::sLogName == DEFAULT_METRIC_NAME)));
 }
 
 /*static*/ 
@@ -194,7 +194,7 @@ void LLMetricPerformanceTesterBasic::preOutputTestResults(LLSD* sd)
 
 void LLMetricPerformanceTesterBasic::postOutputTestResults(LLSD* sd)
 {
-	LLTrace::BlockTimerStatHandle::pushLog(*sd);
+	LLTrace::BlockTimer::pushLog(*sd);
 }
 
 void LLMetricPerformanceTesterBasic::outputTestResults() 

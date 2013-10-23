@@ -51,77 +51,7 @@ public:
 
 	F64Seconds getElapsedTime();
 
-private:
-	friend class BlockTimerStatHandle;
-	// FIXME: this friendship exists so that each thread can instantiate a root timer, 
-	// which could be a derived class with a public constructor instead, possibly
-	friend class ThreadRecorder; 
-	friend BlockTimer timeThisBlock(BlockTimerStatHandle&); 
-
-	BlockTimer(BlockTimerStatHandle& timer);
-#if !defined(MSC_VER) || MSC_VER < 1700
-	// Visual Studio 2010 has a bug where capturing an object returned by value
-	// into a local reference requires access to the copy constructor at the call site.
-	// This appears to be fixed in 2012.
-public:
-#endif
-	// no-copy
-	BlockTimer(const BlockTimer& other) {};
-
-private:
-	U64						mStartTime;
-	BlockTimerStackRecord	mParentTimerData;
-};
-
-// this dummy function assists in allocating a block timer with stack-based lifetime.
-// this is done by capturing the return value in a stack-allocated const reference variable.  
-// (This is most easily done using the macro LL_RECORD_BLOCK_TIME)
-// Otherwise, it would be possible to store a BlockTimer on the heap, resulting in non-nested lifetimes, 
-// which would break the invariants of the timing hierarchy logic
-LL_FORCE_INLINE class BlockTimer timeThisBlock(class BlockTimerStatHandle& timer)
-{
-	return BlockTimer(timer);
-}
-
-// stores a "named" timer instance to be reused via multiple BlockTimer stack instances
-class BlockTimerStatHandle 
-:	public StatType<TimeBlockAccumulator>
-{
-public:
-	BlockTimerStatHandle(const char* name, const char* description = "");
-
-	TimeBlockTreeNode& getTreeNode() const;
-	BlockTimerStatHandle* getParent() const { return getTreeNode().getParent(); }
-	void setParent(BlockTimerStatHandle* parent) { getTreeNode().setParent(parent); }
-
-	typedef std::vector<BlockTimerStatHandle*>::iterator child_iter;
-	typedef std::vector<BlockTimerStatHandle*>::const_iterator child_const_iter;
-	child_iter beginChildren();
-	child_iter endChildren();
-	bool hasChildren();
-	std::vector<BlockTimerStatHandle*>& getChildren();
-
-	StatType<TimeBlockAccumulator::CallCountFacet>& callCount() 
-	{
-		return static_cast<StatType<TimeBlockAccumulator::CallCountFacet>&>(*(StatType<TimeBlockAccumulator>*)this);
-	}
-
-	StatType<TimeBlockAccumulator::SelfTimeFacet>& selfTime() 
-	{
-		return static_cast<StatType<TimeBlockAccumulator::SelfTimeFacet>&>(*(StatType<TimeBlockAccumulator>*)this);
-	}
-
-	static BlockTimerStatHandle& getRootTimeBlock();
-	static void pushLog(LLSD sd);
-	static void setLogLock(class LLMutex* mutex);
-	static void writeLog(std::ostream& os);
-	static void updateTimes();
-
-	// dumps current cumulative frame stats to log
-	// call nextFrame() to reset timers
-	static void dumpCurTimes();
-
-	//////////////////////////////////////////////////////////////////////////////
+		//////////////////////////////////////////////////////////////////////////////
 	//
 	// Important note: These implementations must be FAST!
 	//
@@ -143,14 +73,14 @@ public:
 	//#undef _interlockedbittestandset
 	//#undef _interlockedbittestandreset
 
-	//inline U32 BlockTimerStatHandle::getCPUClockCount32()
+	//inline U32 getCPUClockCount32()
 	//{
 	//	U64 time_stamp = __rdtsc();
 	//	return (U32)(time_stamp >> 8);
 	//}
 	//
 	//// return full timer value, *not* shifted by 8 bits
-	//inline U64 BlockTimerStatHandle::getCPUClockCount64()
+	//inline U64 getCPUClockCount64()
 	//{
 	//	return __rdtsc();
 	//}
@@ -257,6 +187,12 @@ public:
 
 #endif
 
+	static BlockTimerStatHandle& getRootTimeBlock();
+	static void pushLog(LLSD sd);
+	static void setLogLock(class LLMutex* mutex);
+	static void writeLog(std::ostream& os);
+	static void updateTimes();
+	
 	static U64 countsPerSecond();
 
 	// updates cumulative times and hierarchy,
@@ -269,13 +205,79 @@ public:
 	// call this once a frame to periodically log timers
 	static void logStats();
 
-	bool						mCollapsed;				// don't show children
+	// dumps current cumulative frame stats to log
+	// call nextFrame() to reset timers
+	static void dumpCurTimes();
 
+private:
+	friend class BlockTimerStatHandle;
+	// FIXME: this friendship exists so that each thread can instantiate a root timer, 
+	// which could be a derived class with a public constructor instead, possibly
+	friend class ThreadRecorder; 
+	friend BlockTimer timeThisBlock(BlockTimerStatHandle&); 
+
+	BlockTimer(BlockTimerStatHandle& timer);
+#if !defined(MSC_VER) || MSC_VER < 1700
+	// Visual Studio 2010 has a bug where capturing an object returned by value
+	// into a local reference requires access to the copy constructor at the call site.
+	// This appears to be fixed in 2012.
+public:
+#endif
+	// no-copy
+	BlockTimer(const BlockTimer& other) {};
+
+private:
+	U64						mStartTime;
+	BlockTimerStackRecord	mParentTimerData;
+
+public:
 	// statics
-	static std::string							sLogName;
-	static bool									sMetricLog,
-												sLog;	
-	static U64									sClockResolution;
+	static std::string		sLogName;
+	static bool				sMetricLog,
+							sLog;	
+	static U64				sClockResolution;
+
+};
+
+// this dummy function assists in allocating a block timer with stack-based lifetime.
+// this is done by capturing the return value in a stack-allocated const reference variable.  
+// (This is most easily done using the macro LL_RECORD_BLOCK_TIME)
+// Otherwise, it would be possible to store a BlockTimer on the heap, resulting in non-nested lifetimes, 
+// which would break the invariants of the timing hierarchy logic
+LL_FORCE_INLINE class BlockTimer timeThisBlock(class BlockTimerStatHandle& timer)
+{
+	return BlockTimer(timer);
+}
+
+// stores a "named" timer instance to be reused via multiple BlockTimer stack instances
+class BlockTimerStatHandle 
+:	public StatType<TimeBlockAccumulator>
+{
+public:
+	BlockTimerStatHandle(const char* name, const char* description = "");
+
+	TimeBlockTreeNode& getTreeNode() const;
+	BlockTimerStatHandle* getParent() const { return getTreeNode().getParent(); }
+	void setParent(BlockTimerStatHandle* parent) { getTreeNode().setParent(parent); }
+
+	typedef std::vector<BlockTimerStatHandle*>::iterator child_iter;
+	typedef std::vector<BlockTimerStatHandle*>::const_iterator child_const_iter;
+	child_iter beginChildren();
+	child_iter endChildren();
+	bool hasChildren();
+	std::vector<BlockTimerStatHandle*>& getChildren();
+
+	StatType<TimeBlockAccumulator::CallCountFacet>& callCount() 
+	{
+		return static_cast<StatType<TimeBlockAccumulator::CallCountFacet>&>(*(StatType<TimeBlockAccumulator>*)this);
+	}
+
+	StatType<TimeBlockAccumulator::SelfTimeFacet>& selfTime() 
+	{
+		return static_cast<StatType<TimeBlockAccumulator::SelfTimeFacet>&>(*(StatType<TimeBlockAccumulator>*)this);
+	}
+
+	bool						mCollapsed;				// don't show children
 };
 
 // iterators and helper functions for walking the call hierarchy of block timers in different ways
@@ -307,14 +309,14 @@ LL_FORCE_INLINE BlockTimer::BlockTimer(BlockTimerStatHandle& timer)
 	cur_timer_data->mTimeBlock = &timer;
 	cur_timer_data->mChildTime = 0;
 
-	mStartTime = BlockTimerStatHandle::getCPUClockCount64();
+	mStartTime = getCPUClockCount64();
 #endif
 }
 
 LL_FORCE_INLINE BlockTimer::~BlockTimer()
 {
 #if LL_FAST_TIMER_ON
-	U64 total_time = BlockTimerStatHandle::getCPUClockCount64() - mStartTime;
+	U64 total_time = getCPUClockCount64() - mStartTime;
 	BlockTimerStackRecord* cur_timer_data = LLThreadLocalSingletonPointer<BlockTimerStackRecord>::getInstance();
 	if (!cur_timer_data) return;
 

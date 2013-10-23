@@ -7491,7 +7491,7 @@ void handle_dump_avatar_local_textures(void*)
 
 void handle_dump_timers()
 {
-	LLTrace::BlockTimerStatHandle::dumpCurTimes();
+	LLTrace::BlockTimer::dumpCurTimes();
 }
 
 void handle_debug_avatar_textures(void*)

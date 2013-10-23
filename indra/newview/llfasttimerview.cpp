@@ -924,13 +924,13 @@ void LLFastTimerView::outputAllMetrics()
 //static
 void LLFastTimerView::doAnalysis(std::string baseline, std::string target, std::string output)
 {
-	if(BlockTimerStatHandle::sLog)
+	if(BlockTimer::sLog)
 	{
 		doAnalysisDefault(baseline, target, output) ;
 		return ;
 	}
 
-	if(BlockTimerStatHandle::sMetricLog)
+	if(BlockTimer::sMetricLog)
 	{
 		LLMetricPerformanceTesterBasic::doAnalysisMetrics(baseline, target, output) ;
 		return ;
