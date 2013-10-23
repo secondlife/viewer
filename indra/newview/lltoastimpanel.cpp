@@ -93,7 +93,7 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 
 	if(!mIsGroupMsg)
 	{
-		mAvatarName->setValue(p.from);
+	mAvatarName->setValue(p.from);
 	}
 	mTime->setValue(p.time);
 	mSessionID = p.session_id;
@@ -164,7 +164,7 @@ void LLToastIMPanel::spawnNameToolTip()
 	params.background_visible(false);
 	if(!mIsGroupMsg)
 	{
-		params.click_callback(boost::bind(&LLFloaterReg::showInstance, "inspect_avatar", LLSD().with("avatar_id", mAvatarID), FALSE));
+	params.click_callback(boost::bind(&LLFloaterReg::showInstance, "inspect_avatar", LLSD().with("avatar_id", mAvatarID), FALSE));
 	}
 	else
 	{

@@ -98,6 +98,8 @@
 #include "llrefcount.h"
 #include "llsdparam.h"
 
+#include "llnotificationslistener.h"
+
 class LLAvatarName;
 typedef enum e_notification_priority
 {
@@ -977,6 +979,8 @@ private:
 	GlobalStringMap mGlobalStrings;
 
 	bool mIgnoreAllNotifications;
+
+	boost::scoped_ptr<LLNotificationsListener> mListener;
 
 	std::vector<LLNotificationChannelPtr> mDefaultChannels;
 };

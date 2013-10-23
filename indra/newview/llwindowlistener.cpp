@@ -265,7 +265,9 @@ void LLWindowListener::getPaths(LLSD const & request)
 void LLWindowListener::keyDown(LLSD const & evt)
 {
 	Response response(LLSD(), evt);
-	
+	KEY key = getKEY(evt);
+	MASK mask = getMask(evt);
+
 	if (evt.has("path"))
 	{
 		std::string path(evt["path"]);
@@ -280,8 +282,6 @@ void LLWindowListener::keyDown(LLSD const & evt)
 			response.setResponse(target_view->getInfo());
 			
 			gFocusMgr.setKeyboardFocus(target_view);
-			KEY key = getKEY(evt);
-			MASK mask = getMask(evt);
 			gViewerKeyboard.handleKey(key, mask, false);
 			if(key < 0x80) mWindow->handleUnicodeChar(key, mask);
 		}
@@ -294,7 +294,8 @@ void LLWindowListener::keyDown(LLSD const & evt)
 	}
 	else 
 	{
-		mKbGetter()->handleTranslatedKeyDown(getKEY(evt), getMask(evt));
+		gViewerKeyboard.handleKey(key, mask, false); 
+		if(key < 0x80) mWindow->handleUnicodeChar(key, mask);
 	}
 }
 
