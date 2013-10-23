@@ -2027,6 +2027,10 @@ void LLPanelLandOptions::refresh()
 		mSnapshotCtrl->setImageAssetID(parcel->getSnapshotID());
 		mSnapshotCtrl->setEnabled( can_change_identity );
 
+		// find out where we're looking and convert that to an angle in degrees on a regular compass (not the internal representation)
+		LLVector3 user_look_at = parcel->getUserLookAt();
+		U32 user_look_at_angle = ( (U32)( ( atan2(user_look_at[1], -user_look_at[0]) + F_PI * 2 ) * RAD_TO_DEG + 0.5) - 90) % 360;
+
 		LLVector3 pos = parcel->getUserLocation();
 		if (pos.isExactlyZero())
 		{
@@ -2034,10 +2038,11 @@ void LLPanelLandOptions::refresh()
 		}
 		else
 		{
-			mLocationText->setTextArg("[LANDING]",llformat("%d, %d, %d",
+			mLocationText->setTextArg("[LANDING]",llformat("%d, %d, %d (%d\xC2\xB0)",
 														   llround(pos.mV[VX]),
 														   llround(pos.mV[VY]),
-														   llround(pos.mV[VZ])));
+		   												   llround(pos.mV[VZ]),
+														   user_look_at_angle));
 		}
 
 		mSetBtn->setEnabled( can_change_landing_point );
@@ -2092,7 +2097,6 @@ void LLPanelLandOptions::refresh()
 // virtual
 void LLPanelLandOptions::draw()
 {
-	refreshSearch();	// Is this necessary?  JC
 	LLPanel::draw();
 }
 
@@ -2106,9 +2110,8 @@ void LLPanelLandOptions::refreshSearch()
 		mCheckShowDirectory->set(FALSE);
 		mCheckShowDirectory->setEnabled(FALSE);
 
-		// *TODO:Translate
-		const std::string& none_string = LLParcel::getCategoryUIString(LLParcel::C_NONE);
-		mCategoryCombo->setSimple(none_string);
+		const std::string& none_string = LLParcel::getCategoryString(LLParcel::C_NONE);
+		mCategoryCombo->setValue(none_string);
 		mCategoryCombo->setEnabled(FALSE);
 		return;
 	}
@@ -2135,10 +2138,9 @@ void LLPanelLandOptions::refreshSearch()
 	mCheckShowDirectory	->set(show_directory);
 
 	// Set by string in case the order in UI doesn't match the order by index.
-	// *TODO:Translate
 	LLParcel::ECategory cat = parcel->getCategory();
-	const std::string& category_string = LLParcel::getCategoryUIString(cat);
-	mCategoryCombo->setSimple(category_string);
+	const std::string& category_string = LLParcel::getCategoryString(cat);
+	mCategoryCombo->setValue(category_string);
 
 	std::string tooltip;
 	bool enable_show_directory = false;

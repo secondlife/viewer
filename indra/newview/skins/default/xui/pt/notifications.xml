@@ -209,6 +209,14 @@ Qualquer membro numa função com esta habilidade, pode atribuir a sí mesmo -- 
 Adicionar esta habilidade a &apos;[ROLE_NAME]&apos;?
 		<usetemplate name="okcancelbuttons" notext="Não" yestext="Sim"/>
 	</notification>
+	<notification name="EjectGroupMemberWarning">
+		Você está prestes a expulsar [AVATAR_NAME] do grupo.
+		<usetemplate ignoretext="Confirmar expulsão de um participante do grupo" name="okcancelignore" notext="Cancelar" yestext="Expulsar"/>
+	</notification>
+	<notification name="EjectGroupMembersWarning">
+		Você está prestes a expulsar [COUNT] membros do grupo.
+		<usetemplate ignoretext="Confirmar expulsão de diversos membros do grupo" name="okcancelignore" notext="Cancelar" yestext="Expulsar"/>
+	</notification>
 	<notification name="AttachmentDrop">
 		Você está prestes a largar seu anexo. 
     Tem certeza de que quer prosseguir?
@@ -1105,9 +1113,9 @@ em TODOS OS TERRENOS deste sim?
 Por favor, insira um valor maior.
 	</notification>
 	<notification name="ConfirmItemDeleteHasLinks">
-		Pelo menos um dos itens possui links que levam a ele.  Ao excluir o item, os links não funcionarão mais.   Por isso, recomendamos excluir os links primeiro.
+		Pelo menos um dos itens possui links que levam a ele.  Ao excluir o item, os links não funcionarão mais.  Por isso, recomendamos excluir os links primeiro.
 
-Tem certeza de que quer excluir estes items?
+Tem certeza de que quer excluir estes itens?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmObjectDeleteLock">
@@ -1123,9 +1131,9 @@ Tem certeza de que deseja apagar estes itens?
 		<usetemplate name="okcancelbuttons" notext="Não" yestext="Sim"/>
 	</notification>
 	<notification name="ConfirmObjectDeleteNoOwn">
-		Você não é proprietário de pelo menos um dos itens selecionados.
+		Ao menos um dos itens selecionados não é seu.
 
-Tem certeza de que deseja apagar estes itens?
+Tem certeza de que quer excluir estes itens?
 		<usetemplate name="okcancelbuttons" notext="Não" yestext="Sim"/>
 	</notification>
 	<notification name="ConfirmObjectDeleteLockNoCopy">
@@ -1135,22 +1143,26 @@ Tem certeza de que deseja apagar estes itens?
 		<usetemplate name="okcancelbuttons" notext="Não" yestext="Sim"/>
 	</notification>
 	<notification name="ConfirmObjectDeleteLockNoOwn">
-		Pelo menos um dos objetos está trancado ou não é de sua posse.
+		Ao menos um objeto está bloqueado.
+Ao menos um objeto não é seu.
 
-Tem certeza de que deseja apagar estes itens?
+Tem certeza de que quer excluir estes itens?
 		<usetemplate name="okcancelbuttons" notext="Não" yestext="Sim"/>
 	</notification>
 	<notification name="ConfirmObjectDeleteNoCopyNoOwn">
-		Pelo menos um dos objetos não é copiável ou não é de sua posse.
+		Ao menos um objeto não é copiável.
+Ao menos um objeto não é seu.
 
-Tem certeza de que deseja apagar estes itens?
+Tem certeza de que quer excluir estes itens?
 		<usetemplate name="okcancelbuttons" notext="Não" yestext="Sim"/>
 	</notification>
 	<notification name="ConfirmObjectDeleteLockNoCopyNoOwn">
-		Pelo menos um dos objetos está trancado, não é copiável ou você não o possui.
+		Ao menos um objeto está bloqueado.
+Ao menos um objeto não é copiável.
+Ao menos um objeto não é seu.
 
-Tem certeza de que deseja apagar estes itens?
-		<usetemplate name="okcancelbuttons" notext="Não" yestext="Sim"/>
+Tem certeza de que quer excluir estes itens?
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Sim"/>
 	</notification>
 	<notification name="ConfirmObjectTakeLock">
 		Pelo menos um dos objetos está trancado.
@@ -1468,13 +1480,43 @@ Versão [VERSION] [[RELEASE_NOTES_FULL_URL] sobre esta atualização]
 	</notification>
 	<notification name="RequiredUpdateDownloadedVerboseDialog">
 		O software requer uma atualização que já foi baixada.
-Versão [VERSION]
+Versão [VERSION] Informação [[INFO_URL] sobre essa atualização]
 
 Para instalar a atualização, será preciso reiniciar o [APP_NAME].
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="RequiredUpdateDownloadedDialog">
 		Para instalar a atualização, será preciso reiniciar o [APP_NAME].
+Informação [[INFO_URL] sobre essa atualização]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OtherChannelDownloadBackgroundTip">
+		Baixamos uma atualização para a instalação do [APP_NAME].
+Versão [VERSION] 
+O visualizador experimental foi substituído por um visualizador [NEW_CHANNEL];
+consulte [[INFO_URL] para obter mais detalhes sobre essa atualização]
+		<usetemplate name="okcancelbuttons" notext="Depois..." yestext="Instalar agora e reiniciar o [APP_NAME]"/>
+	</notification>
+	<notification name="OtherChannelDownloadBackgroundDialog">
+		Baixamos uma atualização para a instalação do [APP_NAME].
+Versão [VERSION]
+O visualizador experimental foi substituído por um visualizador [NEW_CHANNEL];
+consulte a informação [[INFO_URL] sobre essa atualização]
+		<usetemplate name="okcancelbuttons" notext="Depois..." yestext="Instalar agora e reiniciar o [APP_NAME]"/>
+	</notification>
+	<notification name="OtherChannelRequiredUpdateDownloadedVerboseDialog">
+		O software requer uma atualização que já foi baixada.
+Versão [VERSION]
+O visualizador experimental foi substituído por um visualizador [NEW_CHANNEL];
+consulte a informação [[INFO_URL] sobre essa atualização]
+
+Para instalar a atualização, será preciso reiniciar o [APP_NAME].
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OtherChannelRequiredUpdateDownloadedDialog">
+		Para instalar a atualização, será preciso reiniciar o [APP_NAME].
+O visualizador experimental foi substituído por um visualizador [NEW_CHANNEL];
+consulte a informação [[INFO_URL] sobre essa atualização]
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DeedObjectToGroup">
@@ -1523,6 +1565,10 @@ Para instalar a atualização, será preciso reiniciar o [APP_NAME].
 	<notification name="GroupLeaveConfirmMember">
 		Você é atualmente um membro do grupo
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Sair"/>
+	</notification>
+	<notification name="OwnerCannotLeaveGroup">
+		Não foi possível deixar o grupo. Você não pode deixar o grupo pois é o último proprietário dele. Primeiramente, atribua outro membro à função de proprietário.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmKick">
 		Tem CERTEZA de que deseja expulsar todos os residentes do grid?
@@ -2384,9 +2430,7 @@ Selecione só um objeto.
     e selecionar &apos;Teletransportar&apos;.)
 	</notification>
 	<notification name="TeleportToPerson">
-		Para entrar em contato com residentes como &apos;[NAME]&apos;, clique no botão &quot;Pessoas&quot;, selecione um residente na janela que é exibida e clique em &apos;MI&apos; na
-    parte inferior da janela.
-    (Também é possível clicar duas vezes no nome, ou clicar no nome com o botão direito e selecionar &apos;MI&apos;.)
+		Para iniciar uma conversa particular com alguém, clique com o botão direito no avatar e selecione &quot;MI&quot; no menu.
 	</notification>
 	<notification name="CantSelectLandFromMultipleRegions">
 		Impossível selecionar terra nas fronteiras do servidor. Tente selecionar um pedaço menor de terra.
@@ -2755,6 +2799,15 @@ Não conceda acesso se você não entender completamente por que ele deseja aces
 		<form name="form">
 			<button name="Grant" text="Permitir acesso total"/>
 			<button name="Deny" text="Negar"/>
+		</form>
+	</notification>
+	<notification name="UnknownScriptQuestion">
+		A permissão de script de tempo de execução solicitada por &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, um objeto de &apos;[NAME]&apos;, não é reconhecida pelo visualizador e não pode ser concedida.
+
+Para conceder essa permissão, atualize seu visualizador para a versão mais recente em [DOWNLOADURL].
+		<form name="form">
+			<button name="Deny" text="Ok"/>
+			<button name="Mute" text="Bloquear"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialog">

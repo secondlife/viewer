@@ -148,6 +148,14 @@ Please try logging in again in a minute.</string>
 	<string name="SentToInvalidRegion">You were sent to an invalid region.</string>
 	<string name="TestingDisconnect">Testing viewer disconnect</string>
 
+	<!-- Facebook Connect and, eventually, other Social Network -->
+	<string name="SocialFacebookConnecting">Connecting to Facebook...</string>
+	<string name="SocialFacebookPosting">Posting...</string>
+	<string name="SocialFacebookDisconnecting">Disconnecting from Facebook...</string>
+	<string name="SocialFacebookErrorConnecting">Problem connecting to Facebook</string>
+	<string name="SocialFacebookErrorPosting">Problem posting to Facebook</string>
+	<string name="SocialFacebookErrorDisconnecting">Problem disconnecting from Facebook</string>
+    
 	<!-- Tooltip -->
 	<string name="TooltipPerson">Person</string><!-- Object under mouse pointer is an avatar -->
 	<string name="TooltipNoName">(no name)</string> <!-- No name on an object -->
@@ -379,7 +387,7 @@ Please try logging in again in a minute.</string>
 	<!-- world map -->
 	<string name="texture_loading">Loading...</string>
 	<string name="worldmap_offline">Offline</string>
-	<string name="worldmap_item_tooltip_format">[AREA] m² L$[PRICE]</string>
+	<string name="worldmap_item_tooltip_format">[AREA] m² L$[PRICE] ([SQMPRICE] L$/m²)</string>
 	<string name="worldmap_results_none_found">None found.</string>
 
 	<!-- animations uploading status codes -->
@@ -410,10 +418,13 @@ Please try logging in again in a minute.</string>
 	<string name="AddAndRemoveJoints">Add and remove joints with other objects</string>
 	<string name="ChangePermissions">Change its permissions</string>
 	<string name="TrackYourCamera">Track your camera</string>
-  <string name="ControlYourCamera">Control your camera</string>
+	<string name="ControlYourCamera">Control your camera</string>
+	<string name="TeleportYourAgent">Teleport you</string>
+	<string name="ManageEstateSilently">Manage your estates silently</string>
+	<string name="ChangeYourDefaultAnimations">Change your default animations</string>
+	
 	<string name="NotConnected">Not Connected</string>
 	<string name="AgentNameSubst">(You)</string> <!-- Substitution for agent name -->
-  <string name="TeleportYourAgent">Teleport you</string>
 	<string name="JoinAnExperience">Join an experience</string> <!-- not used -->
 	<string name="SilentlyManageEstateAccess">Suppress alerts when managing estate access lists</string>
 	<string name="OverrideYourAnimations">Replace your default animations</string>
@@ -644,11 +655,11 @@ Returns the wind velocity at the object position + offset
 	</string>
 	<string name="LSLTipText_llSetStatus" translate="false">
 llSetStatus(integer status, integer value)
-Sets status (STATUS_PHYSICS, STATUS_PHANTOM, STATUS_BLOCK_GRAB, STATUS_ROTATE_X, STATUS_ROTATE_Y, and/or STATUS_ROTATE_Z) to value
+Sets status (STATUS_PHYSICS, STATUS_PHANTOM, STATUS_BLOCK_GRAB, STATUS_BLOCK_GRAB_OBJECT, STATUS_ROTATE_X, STATUS_ROTATE_Y, and/or STATUS_ROTATE_Z) to value
 	</string>
 	<string name="LSLTipText_llGetStatus" translate="false">
 integer llGetStatus(integer status)
-Returns value of status (STATUS_PHYSICS, STATUS_PHANTOM, STATUS_BLOCK_GRAB, STATUS_ROTATE_X, STATUS_ROTATE_Y, and/or STATUS_ROTATE_Z)
+Returns the boolean value of status (STATUS_PHYSICS, STATUS_PHANTOM, STATUS_BLOCK_GRAB, STATUS_BLOCK_GRAB_OBJECT, STATUS_ROTATE_X, STATUS_ROTATE_Y, or STATUS_ROTATE_Z)
 	</string>
 	<string name="LSLTipText_llSetScale" translate="false">
 llSetScale(vector scale)
@@ -2182,7 +2193,7 @@ For AI Character: Get the closest navigable point to the point provided.
 	<string name="InventoryNoTexture">You do not have a copy of this texture in your inventory</string>
 	<string name="InventoryInboxNoItems">Your Marketplace purchases will appear here. You may then drag them into your inventory to use them.</string>
 	<string name="MarketplaceURL">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/</string>
-	<string name="MarketplaceURL_CreateStore">http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.4</string>
+	<string name="MarketplaceURL_CreateStore">http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.3</string>
 	<string name="MarketplaceURL_Dashboard">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/dashboard</string>
 	<string name="MarketplaceURL_Imports">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/imports</string>
 	<string name="MarketplaceURL_LearnMore">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more</string>
@@ -2461,7 +2472,11 @@ Drag folders to this area and click "Send to Marketplace" to list them for sale 
 		all estates that you manage for [OWNER]
 	</string>
 	<string name="RegionInfoAllowedResidents">Allowed Residents: ([ALLOWEDAGENTS], max [MAXACCESS])</string>
-	<string name="RegionInfoAllowedGroups">Allowed groups: ([ALLOWEDGROUPS], max [MAXACCESS])</string>
+	<string name="RegionInfoAllowedGroups">Allowed Groups: ([ALLOWEDGROUPS], max [MAXACCESS])</string>
+	<string name="RegionInfoEstateManagers">Estate Managers: ([ESTATEMANAGERS], max [MAXMANAGERS])</string>
+	<string name="RegionInfoBannedResidents">Banned Residents: ([BANNEDAGENTS], max [MAXBANNED])</string>
+	<string name="RegionInfoListTypeAllowedAgents">Allowed Residents</string>
+	<string name="RegionInfoListTypeBannedAgents">Banned Residents</string>
 
 	<!-- script limits floater -->
 	<string name="ScriptLimitsParcelScriptMemory">Parcel Script Memory</string>
@@ -3424,6 +3439,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
     Drag items from inventory here
   </string>
 
+  <string name="facebook_post_success">
+    You posted to Facebook.
+  </string>
 
   <string name="no_session_message">
     (IM Session Doesn't Exist)
@@ -3856,6 +3874,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Profile_Label">Profile</string>
   <string name="Command_Search_Label">Search</string>
   <string name="Command_Snapshot_Label">Snapshot</string>
+  <string name="Command_Social_Label">Facebook</string>
   <string name="Command_Speak_Label">Speak</string>
   <string name="Command_View_Label">Camera controls</string>
   <string name="Command_Voice_Label">Voice settings</string>
@@ -3883,6 +3902,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Profile_Tooltip">Edit or view your profile</string>
   <string name="Command_Search_Tooltip">Find places, events, people</string>
   <string name="Command_Snapshot_Tooltip">Take a picture</string>
+  <string name="Command_Social_Tooltip">Post to Facebook</string>
   <string name="Command_Speak_Tooltip">Speak with people nearby using your microphone</string>
   <string name="Command_View_Tooltip">Changing camera angle</string>
   <string name="Command_Voice_Tooltip">Volume controls for calls and people near you in world</string>

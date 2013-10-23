@@ -2224,6 +2224,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>DebugShowAvatarRenderInfo</key>
+    <map>
+      <key>Comment</key>
+      <string>Show avatar render cost information</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>DebugShowColor</key>
     <map>
       <key>Comment</key>
@@ -4929,6 +4940,16 @@
       <string>LLSD</string>
       <key>Value</key>
       <array />
+    </map>
+    <key>LeapPlaybackEventsCommand</key>
+    <map>
+      <key>Comment</key>
+      <string>Command line to use leap to launch playback of event recordings</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>LLSD</string>
+      <key>Value</key>
     </map>
     <key>LSLFindCaseInsensitivity</key>
         <map>
@@ -8831,6 +8852,18 @@
     </array>
   </map>
 
+  <key>RenderSpecularPrecision</key>
+  <map>
+    <key>Comment</key>
+    <string>Force 32-bit floating point LUT</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <real>0</real>
+  </map>
+  
   <key>RenderSpecularResX</key>
   <map>
     <key>Comment</key>
@@ -9121,6 +9154,17 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
+  <key>RenderDeferredDisplayGamma</key>
+  <map>
+    <key>Comment</key>
+    <string>Gamma ramp exponent for final correction before display gamma.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>2.2</real>
+  </map>
     <key>RenderGLCoreProfile</key>
     <map>
       <key>Comment</key>
@@ -9724,10 +9768,22 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+  
   <key>RenderAutoMuteByteLimit</key>
   <map>
     <key>Comment</key>
-    <string>Maximum bytes of attachments before an avatar is automatically visually muted (0 for no limit).</string>
+    <string>Maximum bytes of attachments before an avatar is rendered as a simple impostor (0 for no limit).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>RenderAutoMuteRenderWeightLimit</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum render weight before an avatar is rendered as a simple impostor (0 to not use this limit).</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -9738,7 +9794,7 @@
   <key>RenderAutoMuteSurfaceAreaLimit</key>
   <map>
     <key>Comment</key>
-    <string>Maximum surface area of attachments before an avatar is automatically visually muted (0 for no limit).</string>
+    <string>Maximum surface area of attachments before an avatar is rendered as a simple impostor (0 to not use this limit).</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -9746,7 +9802,28 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-    
+  <key>RenderAutoMuteFunctions</key>
+  <map>
+    <key>Comment</key>
+    <string>Developing feature to render some avatars using simple impostors or colored silhouettes.  (Set to 7 for all functionality)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <real>0</real>
+  </map>
+  <key>RenderAutoMuteLogging</key>
+  <map>
+    <key>Comment</key>
+    <string>Show extra information in viewer logs about avatar rendering costs</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>    
   <key>RenderAutoHideSurfaceAreaLimit</key>
   <map>
     <key>Comment</key>
@@ -9848,6 +9925,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>RenderWaterMaterials</key>
+    <map>
+      <key>Comment</key>
+      <string>Water planar reflections include materials rendering.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>RenderWaterMipNormal</key>
     <map>
       <key>Comment</key>
@@ -9891,6 +9979,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>RevokePermsOnStopAnimation</key>
+    <map>
+      <key>Comment</key>
+      <string>Clear animation permssions when choosing "Stop Animating Me"</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
     <key>RotateRight</key>
     <map>
@@ -10350,6 +10449,17 @@
       <string>Shows folders that do not have any visible contents when applying a filter to inventory</string>
       <key>Persist</key>
       <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowEventRecorderMenuItems</key>
+    <map>
+      <key>Comment</key>
+      <string>Whether or not Event Recorder menu choices - Start / Stop event recording should appear in the (currently) Develop menu</string>
+      <key>Persist</key>
+      <integer>0</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
@@ -12995,6 +13105,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>SocialPhotoResolution</key>
+    <map>
+      <key>Comment</key>
+      <string>Default resolution when sharing photo using the social floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>[i800,i600]</string>
+    </map>  
     <key>sourceid</key>
     <map>
       <key>Comment</key>
@@ -14794,5 +14915,18 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+
+  <key>VersionChannelName</key>
+    <map>
+      <key>Comment</key>
+      <string>Version information generated by running the viewer</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string />
+    </map>
 </map>
 </llsd>
+

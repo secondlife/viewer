@@ -24,6 +24,7 @@
  */
  
 #extension GL_ARB_texture_rectangle : enable
+#extension GL_ARB_shader_texture_lod : enable
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
@@ -68,22 +69,43 @@ uniform vec2 screen_res;
 
 uniform mat4 inv_proj;
 
-#ifdef SINGLE_FP_ONLY
-vec2 encode_normal(vec3 n)
+vec3 srgb_to_linear(vec3 cs)
 {
-	vec2 sn;
-	sn.xy = (n.xy * vec2(0.5f,0.5f)) + vec2(0.5f,0.5f);
-	return sn;
+	vec3 low_range = cs / vec3(12.92);
+	vec3 high_range = pow((cs+vec3(0.055))/vec3(1.055), vec3(2.4));
+	bvec3 lte = lessThanEqual(cs,vec3(0.04045));
+
+#ifdef OLD_SELECT
+	vec3 result;
+	result.r = lte.r ? low_range.r : high_range.r;
+	result.g = lte.g ? low_range.g : high_range.g;
+	result.b = lte.b ? low_range.b : high_range.b;
+    return result;
+#else
+	return mix(high_range, low_range, lte);
+#endif
+
 }
 
-vec3 decode_normal (vec2 enc)
+vec3 linear_to_srgb(vec3 cl)
 {
-	vec3 n;
-	n.xy = (enc.xy * vec2(2.0f,2.0f)) - vec2(1.0f,1.0f);
-	n.z = sqrt(1.0f - dot(n.xy,n.xy));
-	return n;
-}
+	cl = clamp(cl, vec3(0), vec3(1));
+	vec3 low_range  = cl * 12.92;
+	vec3 high_range = 1.055 * pow(cl, vec3(0.41666)) - 0.055;
+	bvec3 lt = lessThan(cl,vec3(0.0031308));
+
+#ifdef OLD_SELECT
+	vec3 result;
+	result.r = lt.r ? low_range.r : high_range.r;
+	result.g = lt.g ? low_range.g : high_range.g;
+	result.b = lt.b ? low_range.b : high_range.b;
+    return result;
 #else
+	return mix(high_range, low_range, lt);
+#endif
+
+}
+
 vec2 encode_normal(vec3 n)
 {
 	float f = sqrt(8 * n.z + 8);
@@ -100,13 +122,11 @@ vec3 decode_normal (vec2 enc)
     n.z = 1-f/2;
     return n;
 }
-#endif
 
 vec4 correctWithGamma(vec4 col)
 {
-	return vec4(pow(col.rgb, vec3(2.2)), col.a);
+	return vec4(srgb_to_linear(col.rgb), col.a);
 }
-
 
 vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
 {
@@ -314,14 +334,12 @@ void main()
 			vec3 pfinal = pos + ref * dot(pdelta, proj_n)/ds;
 			
 			vec4 stc = (proj_mat * vec4(pfinal.xyz, 1.0));
+			stc /= stc.w;
 
 			if (stc.z > 0.0)
 			{
-				stc.xy /= stc.w;
+				float fatten = clamp(envIntensity*envIntensity+envIntensity*0.25, 0.25, 1.0);
 
-				float fatten = clamp(envIntensity*envIntensity+envIntensity*0.5, 0.25, 1.0);
-				
-				//stc.xy = (stc.xy - vec2(0.5)) * fatten + vec2(0.5);
 				stc.xy = (stc.xy - vec2(0.5)) * fatten + vec2(0.5);
 								
 				if (stc.x < 1.0 &&
@@ -329,12 +347,16 @@ void main()
 					stc.x > 0.0 &&
 					stc.y > 0.0)
 				{
-					col += color.rgb*texture2DLodSpecular(projectionMap, stc.xy, proj_lod-envIntensity*proj_lod).rgb*shadow*spec.rgb;										
+					col += color.rgb*texture2DLodSpecular(projectionMap, stc.xy, proj_lod).rgb*shadow*spec.rgb;										
 				}
 			}
 		}
 	}
 	
+
+	//not sure why, but this line prevents MATBUG-194
+	col = max(col, vec3(0.0));
+
 	frag_color.rgb = col;	
 	frag_color.a = 0.0;
 }

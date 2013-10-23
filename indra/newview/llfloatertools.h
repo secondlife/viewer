@@ -109,6 +109,8 @@ public:
 
 	static void setGridMode(S32 mode);
 
+	LLPanelFace* getPanelFace() { return mPanelFace; }
+
 private:
 	void refresh();
 	void refreshMedia();

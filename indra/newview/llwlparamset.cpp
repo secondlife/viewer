@@ -39,6 +39,22 @@
 
 #include <sstream>
 
+static LLStaticHashedString sStarBrightness("star_brightness");
+static LLStaticHashedString sPresetNum("preset_num");
+static LLStaticHashedString sSunAngle("sun_angle");
+static LLStaticHashedString sEastAngle("east_angle");
+static LLStaticHashedString sEnableCloudScroll("enable_cloud_scroll");
+static LLStaticHashedString sCloudScrollRate("cloud_scroll_rate");
+static LLStaticHashedString sLightNorm("lightnorm");
+static LLStaticHashedString sCloudDensity("cloud_pos_density1");
+static LLStaticHashedString sCloudScale("cloud_scale");
+static LLStaticHashedString sCloudShadow("cloud_shadow");
+static LLStaticHashedString sDensityMultiplier("density_multiplier");
+static LLStaticHashedString sDistanceMultiplier("distance_multiplier");
+static LLStaticHashedString sHazeDensity("haze_density");
+static LLStaticHashedString sHazeHorizon("haze_horizon");
+static LLStaticHashedString sMaxY("max_y");
+
 LLWLParamSet::LLWLParamSet(void) :
 	mName("Unnamed Preset"),
 	mCloudScrollXOffset(0.f), mCloudScrollYOffset(0.f)	
@@ -49,21 +65,24 @@ static LLFastTimer::DeclareTimer FTM_WL_PARAM_UPDATE("WL Param Update");
 void LLWLParamSet::update(LLGLSLShader * shader) const 
 {	
 	LLFastTimer t(FTM_WL_PARAM_UPDATE);
-
-	for(LLSD::map_const_iterator i = mParamValues.beginMap();
-		i != mParamValues.endMap();
-		++i)
+	LLSD::map_const_iterator i = mParamValues.beginMap();
+	std::vector<LLStaticHashedString>::const_iterator n = mParamHashedNames.begin();
+	for(;(i != mParamValues.endMap()) && (n != mParamHashedNames.end());++i, n++)
 	{
-		const std::string& param = i->first;
+		const LLStaticHashedString& param = *n;
 		
-		if (param == "star_brightness" || param == "preset_num" || param == "sun_angle" ||
-			param == "east_angle" || param == "enable_cloud_scroll" ||
-			param == "cloud_scroll_rate" || param == "lightnorm" ) 
+		// check that our pre-hashed names are still tracking the mParamValues map correctly
+		//
+		llassert(param.String() == i->first);
+
+		if (param == sStarBrightness || param == sPresetNum || param == sSunAngle ||
+			param == sEastAngle || param == sEnableCloudScroll ||
+			param == sCloudScrollRate || param == sLightNorm ) 
 		{
 			continue;
 		}
 		
-		if (param == "cloud_pos_density1")
+		if (param == sCloudDensity)
 		{
 			LLVector4 val;
 			val.mV[0] = F32(i->second[0].asReal()) + mCloudScrollXOffset;
@@ -75,10 +94,10 @@ void LLWLParamSet::update(LLGLSLShader * shader) const
 			shader->uniform4fv(param, 1, val.mV);
 			stop_glerror();
 		}
-		else if (param == "cloud_scale" || param == "cloud_shadow" ||
-				 param == "density_multiplier" || param == "distance_multiplier" ||
-				 param == "haze_density" || param == "haze_horizon" ||
-				 param == "max_y" )
+		else if (param == sCloudScale || param == sCloudShadow ||
+				 param == sDensityMultiplier || param == sDistanceMultiplier ||
+				 param == sHazeDensity || param == sHazeHorizon ||
+				 param == sMaxY )
 		{
 			F32 val = (F32) i->second[0].asReal();
 
@@ -386,3 +405,14 @@ void LLWLParamSet::updateCloudScrolling(void)
 		mCloudScrollYOffset += F32(delta_t * (getCloudScrollY() - 10.f) / 100.f);
 	}
 }
+
+void LLWLParamSet::updateHashedNames()
+{
+	mParamHashedNames.clear();
+	// Iterate through values
+	for(LLSD::map_iterator iter = mParamValues.beginMap(); iter != mParamValues.endMap(); ++iter)
+	{
+		mParamHashedNames.push_back(LLStaticHashedString(iter->first));
+	}
+}
+

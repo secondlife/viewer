@@ -107,17 +107,13 @@ class NamedTimerFactory : public LLSingleton<NamedTimerFactory>
 {
 public:
 	NamedTimerFactory()
-	:	mTimerRoot(NULL)
-	{}
-
-	/*virtual */ void initSingleton()
+	:	mTimerRoot(new LLFastTimer::NamedTimer("root"))
 	{
-		mTimerRoot = new LLFastTimer::NamedTimer("root");
 		mRootFrameState.setNamedTimer(mTimerRoot);
 		mTimerRoot->setFrameState(&mRootFrameState);
 		mTimerRoot->mParent = mTimerRoot;
 		mTimerRoot->setCollapsed(false);
-		mRootFrameState.mParent = &mRootFrameState;
+		mRootFrameState.mParent = &mRootFrameState;	
 	}
 
 	~NamedTimerFactory()

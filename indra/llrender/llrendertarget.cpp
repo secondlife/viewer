@@ -79,7 +79,7 @@ LLRenderTarget::~LLRenderTarget()
 	release();
 }
 
-void LLRenderTarget::resize(U32 resx, U32 resy, U32 color_fmt)
+void LLRenderTarget::resize(U32 resx, U32 resy)
 { 
 	//for accounting, get the number of pixels added/subtracted
 	S32 pix_diff = (resx*resy)-(mResX*mResY);
@@ -87,10 +87,12 @@ void LLRenderTarget::resize(U32 resx, U32 resy, U32 color_fmt)
 	mResX = resx;
 	mResY = resy;
 
+	llassert(mInternalFormat.size() == mTex.size());
+
 	for (U32 i = 0; i < mTex.size(); ++i)
 	{ //resize color attachments
 		gGL.getTexUnit(0)->bindManual(mUsage, mTex[i]);
-		LLImageGL::setManualImage(LLTexUnit::getInternalType(mUsage), 0, color_fmt, mResX, mResY, GL_RGBA, GL_UNSIGNED_BYTE, NULL, false);
+		LLImageGL::setManualImage(LLTexUnit::getInternalType(mUsage), 0, mInternalFormat[i], mResX, mResY, GL_RGBA, GL_UNSIGNED_BYTE, NULL, false);
 		sBytesAllocated += pix_diff*4;
 	}
 
@@ -192,7 +194,7 @@ bool LLRenderTarget::addColorAttachment(U32 color_fmt)
 	}
 
 	U32 tex;
-	LLImageGL::generateTextures(mUsage, color_fmt, 1, &tex);
+	LLImageGL::generateTextures(1, &tex);
 	gGL.getTexUnit(0)->bindManual(mUsage, tex);
 
 	stop_glerror();
@@ -252,12 +254,15 @@ bool LLRenderTarget::addColorAttachment(U32 color_fmt)
 	mTex.push_back(tex);
 	mInternalFormat.push_back(color_fmt);
 
+#if !LL_DARWIN
 	if (gDebugGL)
 	{ //bind and unbind to validate target
 		bindTarget();
 		flush();
 	}
-
+#endif
+    
+    
 	return true;
 }
 
@@ -275,7 +280,7 @@ bool LLRenderTarget::allocateDepth()
 	}
 	else
 	{
-		LLImageGL::generateTextures(mUsage, GL_DEPTH_COMPONENT24, 1, &mDepth);
+		LLImageGL::generateTextures(1, &mDepth);
 		gGL.getTexUnit(0)->bindManual(mUsage, mDepth);
 		
 		U32 internal_type = LLTexUnit::getInternalType(mUsage);
@@ -352,7 +357,7 @@ void LLRenderTarget::release()
 		}
 		else
 		{
-			LLImageGL::deleteTextures(mUsage, 0, 0, 1, &mDepth, true);
+			LLImageGL::deleteTextures(1, &mDepth);
 			stop_glerror();
 		}
 		mDepth = 0;
@@ -384,7 +389,7 @@ void LLRenderTarget::release()
 	if (mTex.size() > 0)
 	{
 		sBytesAllocated -= mResX*mResY*4*mTex.size();
-		LLImageGL::deleteTextures(mUsage, mInternalFormat[0], 0, mTex.size(), &mTex[0], true);
+		LLImageGL::deleteTextures(mTex.size(), &mTex[0]);
 		mTex.clear();
 		mInternalFormat.clear();
 	}
@@ -469,6 +474,12 @@ U32 LLRenderTarget::getTexture(U32 attachment) const
 	}
 	return mTex[attachment];
 }
+
+U32 LLRenderTarget::getNumTextures() const
+{
+	return mTex.size();
+}
+
 
 void LLRenderTarget::bindTexture(U32 index, S32 channel)
 {
@@ -572,8 +583,10 @@ void LLRenderTarget::copyContentsToFramebuffer(LLRenderTarget& source, S32 srcX0
 {
 	if (!source.mFBO)
 	{
-		llerrs << "Cannot copy framebuffer contents for non FBO render targets." << llendl;
+		llwarns << "Cannot copy framebuffer contents for non FBO render targets." << llendl;
+		return;
 	}
+
 	{
 		GLboolean write_depth = mask & GL_DEPTH_BUFFER_BIT ? TRUE : FALSE;
 

@@ -31,8 +31,6 @@ out vec4 frag_color;
 
 uniform sampler2D depthMap;
 
-uniform float delta;
-
 VARYING vec2 tc0;
 VARYING vec2 tc1;
 VARYING vec2 tc2;

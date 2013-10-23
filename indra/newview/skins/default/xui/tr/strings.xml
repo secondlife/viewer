@@ -139,6 +139,9 @@
 	<string name="create_account_url">
 		http://join.secondlife.com/?sourceid=[sourceid]
 	</string>
+	<string name="ViewerDownloadURL">
+		http://secondlife.com/download
+	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		Kullandığınız görüntüleyici ile artık Second Life&apos;a erişemezsiniz. Yeni bir görüntüleyiciyi karşıdan yüklemek için lütfen şu sayfayı ziyaret edin:
 http://secondlife.com/download
@@ -447,6 +450,9 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	</string>
 	<string name="SLappAgentRequestFriend">
 		Arkadaşlık Talebi
+	</string>
+	<string name="SLappAgentRemoveFriend">
+		Arkadaşların Çıkarılması
 	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
 		Kapat (⌘W)
@@ -835,6 +841,9 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="multiple_textures">
 		Birden Çok
 	</string>
+	<string name="use_texture">
+		Dokuyu kullan
+	</string>
 	<string name="texture_loading">
 		Yükleniyor...
 	</string>
@@ -933,6 +942,21 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	</string>
 	<string name="TeleportYourAgent">
 		Sizi ışınlama
+	</string>
+	<string name="JoinAnExperience">
+		Bir tecrübeye katıl
+	</string>
+	<string name="SilentlyManageEstateAccess">
+		Gayri menkul erişim listelerini yönetirken uyarıları bastır
+	</string>
+	<string name="OverrideYourAnimations">
+		Varsayılan animasyonlarınızı değiştirin
+	</string>
+	<string name="ScriptReturnObjects">
+		Kendi adınıza nesneler iade edin
+	</string>
+	<string name="UnknownScriptPermission">
+		(bilinmiyor)!
 	</string>
 	<string name="SIM_ACCESS_PG">
 		Genel
@@ -1247,7 +1271,7 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
 	</string>
 	<string name="MarketplaceURL_CreateStore">
-		http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.4
+		http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.3
 	</string>
 	<string name="MarketplaceURL_Dashboard">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/dashboard
@@ -1964,6 +1988,12 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	</string>
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		BÜG Sağ Alt
+	</string>
+	<string name="ATTACH_NECK">
+		Boyun
+	</string>
+	<string name="ATTACH_AVATAR_CENTER">
+		Avatar Merkezi
 	</string>
 	<string name="CursorPos">
 		Satır [LINE], Sütun [COLUMN]
@@ -2993,6 +3023,9 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 	</string>
 	<string name="Hip Width">
 		Kalça Genişliği
+	</string>
+	<string name="Hover">
+		Üzerine getir
 	</string>
 	<string name="In">
 		İçeri
@@ -5087,5 +5120,8 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	</string>
 	<string name="logging_calls_enabled_log_empty">
 		Günlüğü tutulmuş sohbet yok. Siz biriyle iletişime geçtikten sonra veya biri sizinle iletişime geçtikten sonra, burada bir günlük girişi gösterilir.
+	</string>
+	<string name="loading_chat_logs">
+		Yükleniyor...
 	</string>
 </strings>

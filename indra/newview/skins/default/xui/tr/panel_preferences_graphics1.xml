@@ -30,7 +30,7 @@
 		<check_box initial_value="true" label="Yerel Işıklar" name="LocalLights"/>
 		<check_box initial_value="true" label="Temel gölgeleyiciler" name="BasicShaders" tool_tip="Bu seçeneğin devre dışı bırakılması bazı grafik kartlarının sürücülerinin kilitlenmesini önleyebilir"/>
 		<check_box initial_value="true" label="Atmosferik gölgeleyiciler" name="WindLightUseAtmosShaders"/>
-		<check_box initial_value="true" label="Işıklandırma ve Gölgeler" name="UseLightShaders"/>
+		<check_box initial_value="true" label="Gelişmiş Aydınlatma Modeli" name="UseLightShaders"/>
 		<check_box initial_value="true" label="Ortam Gölgeleme" name="UseSSAO"/>
 		<check_box initial_value="true" label="Alan Derinliği" name="UseDoF"/>
 		<text name="shadows_label">

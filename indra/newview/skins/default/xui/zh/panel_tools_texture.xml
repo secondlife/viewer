@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="材質" name="Texture">
+	<panel.string name="string repeats per meter">
+		每公尺重覆次數
+	</panel.string>
+	<panel.string name="string repeats per face">
+		每一面重覆次數
+	</panel.string>
+	<text name="color label">
+		顏色
+	</text>
+	<color_swatch label="" name="colorswatch" tool_tip="點按以開啟顏色挑選器"/>
+	<text name="color trans">
+		透明度 %
+	</text>
+	<text name="glow label">
+		光暈
+	</text>
+	<check_box label="全亮" name="checkbox fullbright"/>
+	<combo_box name="combobox matmedia">
+		<combo_box.item label="材料" name="Materials"/>
+		<combo_box.item label="媒體" name="Media"/>
+	</combo_box>
+	<combo_box name="combobox mattype">
+		<combo_box.item label="材質（漫反射圖）" name="Texture (diffuse)"/>
+		<combo_box.item label="凹凸度（正交）" name="Bumpiness (normal)"/>
+		<combo_box.item label="閃亮度（鏡反光）" name="Shininess (specular)"/>
+	</combo_box>
+	<texture_picker label="材質" name="texture control" tool_tip="點按以挑選圖片"/>
+	<text name="label alphamode">
+		半透明模式
+	</text>
+	<combo_box name="combobox alphamode">
+		<combo_box.item label="無" name="None"/>
+		<combo_box.item label="半透明攙混" name="Alpha blending"/>
+		<combo_box.item label="半透明遮罩" name="Alpha masking"/>
+		<combo_box.item label="自發光遮罩" name="Emissive mask"/>
+	</combo_box>
+	<text name="label maskcutoff">
+		遮罩截斷值
+	</text>
+	<texture_picker label="材質" name="bumpytexture control" tool_tip="點按以挑選圖片"/>
+	<text name="label bumpiness">
+		凹凸度
+	</text>
+	<combo_box name="combobox bumpiness">
+		<combo_box.item label="無" name="None"/>
+		<combo_box.item label="亮度" name="Brightness"/>
+		<combo_box.item label="暗度" name="Darkness"/>
+		<combo_box.item label="木紋" name="woodgrain"/>
+		<combo_box.item label="樹皮" name="bark"/>
+		<combo_box.item label="磚" name="bricks"/>
+		<combo_box.item label="格子" name="checker"/>
+		<combo_box.item label="混凝土" name="concrete"/>
+		<combo_box.item label="粗花磚" name="crustytile"/>
+		<combo_box.item label="石磚" name="cutstone"/>
+		<combo_box.item label="圓盤" name="discs"/>
+		<combo_box.item label="碎石" name="gravel"/>
+		<combo_box.item label="培養皿" name="petridish"/>
+		<combo_box.item label="側邊片" name="siding"/>
+		<combo_box.item label="石磚格" name="stonetile"/>
+		<combo_box.item label="彩色沙岩" name="stucco"/>
+		<combo_box.item label="吸附" name="suction"/>
+		<combo_box.item label="編織" name="weave"/>
+	</combo_box>
+	<texture_picker label="材質" name="shinytexture control" tool_tip="點按以挑選圖片"/>
+	<text name="label shininess">
+		閃亮度
+	</text>
+	<combo_box name="combobox shininess">
+		<combo_box.item label="無" name="None"/>
+		<combo_box.item label="低" name="Low"/>
+		<combo_box.item label="中" name="Medium"/>
+		<combo_box.item label="高" name="High"/>
+	</combo_box>
+	<text name="label glossiness">
+		光滑度
+	</text>
+	<text name="label environment">
+		環境
+	</text>
+	<text name="label shinycolor">
+		顏色
+	</text>
+	<color_swatch label="" name="shinycolorswatch" tool_tip="點按以開啟顏色挑選器"/>
+	<text name="media_info">
+		所選媒體如有 URL，置於此
+	</text>
+	<button label="選擇…" name="add_media" tool_tip="添加媒體"/>
+	<button label="移除" name="delete_media" tool_tip="刪除這個媒體材質"/>
+	<button label="對齊" label_selected="對齊媒體" name="button align" tool_tip="對齊媒體材質（須先載入）"/>
+	<text name="tex gen">
+		映射方式
+	</text>
+	<combo_box name="combobox texgen">
+		<combo_box.item label="預設" name="Default"/>
+		<combo_box.item label="平面" name="Planar"/>
+	</combo_box>
+	<spinner label="水平刻度" name="TexScaleU"/>
+	<spinner label="垂直刻度" name="TexScaleV"/>
+	<spinner label="每公尺重覆次數" name="rptctrl"/>
+	<spinner label="旋轉角度" name="TexRot"/>
+	<spinner label="水平偏距" name="TexOffsetU"/>
+	<spinner label="垂直偏距" name="TexOffsetV"/>
+	<spinner label="水平刻度" name="bumpyScaleU"/>
+	<spinner label="垂直刻度" name="bumpyScaleV"/>
+	<spinner label="旋轉角度" name="bumpyRot"/>
+	<spinner label="水平偏距" name="bumpyOffsetU"/>
+	<spinner label="垂直偏距" name="bumpyOffsetV"/>
+	<spinner label="水平刻度" name="shinyScaleU"/>
+	<spinner label="垂直刻度" name="shinyScaleV"/>
+	<spinner label="旋轉角度" name="shinyRot"/>
+	<spinner label="水平偏距" name="shinyOffsetU"/>
+	<spinner label="垂直偏距" name="shinyOffsetV"/>
+	<check_box initial_value="false" label="對齊平面" name="checkbox planar align" tool_tip="以最後所選擇的面為基準，對齊全部所選擇的面上的材質。 這必須使用平面材質映射方式。"/>
+</panel>

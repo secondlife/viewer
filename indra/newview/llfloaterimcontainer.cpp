@@ -662,9 +662,9 @@ void LLFloaterIMContainer::setVisible(BOOL visible)
 			LLFloater* session_floater = widget->getSessionFloater();
 			if (session_floater != nearby_chat)
 			{
-				widget->setVisibleIfDetached(visible);
-			}
+		    widget->setVisibleIfDetached(visible);
 		}
+	}
 	}
 	
 	// Now, do the normal multifloater show/hide
@@ -674,13 +674,18 @@ void LLFloaterIMContainer::setVisible(BOOL visible)
 void LLFloaterIMContainer::getDetachedConversationFloaters(floater_list_t& floaters)
 {
 	typedef conversations_widgets_map::value_type conv_pair;
+	LLFloaterIMNearbyChat *nearby_chat = LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
+
 	BOOST_FOREACH(conv_pair item, mConversationsWidgets)
 	{
 		LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(item.second);
 		if (widget)
 		{
 			LLFloater* session_floater = widget->getSessionFloater();
-			if (session_floater && session_floater->isDetachedAndNotMinimized())
+
+			// Exclude nearby chat from output, as it should be handled separately 
+			if (session_floater && session_floater->isDetachedAndNotMinimized() 
+				&& session_floater != nearby_chat)
 			{
 				floaters.push_back(session_floater);
 			}
@@ -695,13 +700,13 @@ void LLFloaterIMContainer::setVisibleAndFrontmost(BOOL take_focus, const LLSD& k
 	// Only select other sessions
 	if (!getSelectedSession().isNull())
 	{
-		selectConversationPair(getSelectedSession(), false, take_focus);
+    selectConversationPair(getSelectedSession(), false, take_focus);
 	}
 	if (mInitialized && mIsFirstLaunch)
 	{
 		collapseMessagesPane(gSavedPerAccountSettings.getBOOL("ConversationsMessagePaneCollapsed"));
 		mIsFirstLaunch = false;
-	}
+}
 }
 
 void LLFloaterIMContainer::updateResizeLimits()
@@ -829,7 +834,7 @@ void LLFloaterIMContainer::assignResizeLimits()
 
 	S32 conv_pane_target_width = is_conv_pane_expanded
 		? ( is_msg_pane_expanded?mConversationsPane->getRect().getWidth():mConversationsPane->getExpandedMinDim() )
-		: mConversationsPane->getMinDim();
+			: mConversationsPane->getMinDim();
 
 	S32 msg_pane_min_width  = is_msg_pane_expanded ? mMessagesPane->getExpandedMinDim() : 0;
 	S32 new_min_width = conv_pane_target_width + msg_pane_min_width + summary_width_of_visible_borders;
@@ -990,7 +995,7 @@ void LLFloaterIMContainer::setSortOrder(const LLConversationSort& order)
 			conversation_floater->setSortOrder(order);
 		}
 	}
-
+	
 	gSavedSettings.setU32("ConversationSortOrder", (U32)order);
 }
 
@@ -1074,6 +1079,10 @@ void LLFloaterIMContainer::doToParticipants(const std::string& command, uuid_vec
 		else if ("offer_teleport" == command)
 		{
 			LLAvatarActions::offerTeleport(selectedIDS);
+		}
+		else if ("request_teleport" == command)
+		{
+			LLAvatarActions::teleportRequest(selectedIDS.front());
 		}
 		else if ("voice_call" == command)
 		{
@@ -1177,7 +1186,7 @@ void LLFloaterIMContainer::doToSelectedConversation(const std::string& command, 
         }
         else if("chat_history" == command)
         {
-        	if (selectedIDS.size() > 0)
+			if (selectedIDS.size() > 0)
 			{
 				LLAvatarActions::viewChatHistory(selectedIDS.front());
 			}
@@ -1199,7 +1208,7 @@ void LLFloaterIMContainer::doToSelectedConversation(const std::string& command, 
     	    {
     	      	LLFloaterReg::showInstance("preview_conversation", LLSD(LLUUID::null), true);
     	    }
-    	}
+}
     }
 }
 
@@ -1230,7 +1239,7 @@ void LLFloaterIMContainer::doToSelectedGroup(const LLSD& userdata)
 
     if (action == "group_profile")
     {
-    	LLGroupActions::show(mSelectedSession);
+        LLGroupActions::show(mSelectedSession);
     }
     else if (action == "activate_group")
     {
@@ -1604,7 +1613,7 @@ LLConversationItem* LLFloaterIMContainer::addConversationListItem(const LLUUID& 
 
 	// Create the participants widgets now
 	// Note: usually, we do not get an updated avatar list at that point
-	if (uuid.isNull() || im_sessionp && !im_sessionp->isP2PSessionType())
+	if (uuid.isNull() || (im_sessionp && !im_sessionp->isP2PSessionType()))
 	{
 		LLFolderViewModelItemCommon::child_list_t::const_iterator current_participant_model = item->getChildrenBegin();
 		LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = item->getChildrenEnd();

@@ -18,7 +18,13 @@
 		<menu_item_call label="顯示 TOS" name="TOS"/>
 		<menu_item_call label="顯示嚴重訊息" name="Critical"/>
 		<menu_item_call label="網頁內容浮動視窗除錯測試" name="Web Content Floater Debug Test"/>
-		<menu label="設定記錄細節" name="Set Logging Level"/>
+		<menu label="設定記錄細節" name="Set Logging Level">
+			<menu_item_check label="除錯" name="Debug"/>
+			<menu_item_check label="資訊" name="Info"/>
+			<menu_item_check label="警告" name="Warning"/>
+			<menu_item_check label="錯誤" name="Error"/>
+			<menu_item_check label="無" name="None"/>
+		</menu>
 		<menu_item_check label="顯示網格挑選器" name="Show Grid Picker"/>
 		<menu_item_call label="顯示通知控制台" name="Show Notifications Console"/>
 	</menu>

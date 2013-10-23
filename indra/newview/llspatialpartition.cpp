@@ -89,28 +89,17 @@ class LLOcclusionQueryPool : public LLGLNamePool
 public:
 	LLOcclusionQueryPool()
 	{
-		mCurQuery = 1;
+		
 	}
 
 protected:
 
-	std::list<GLuint> mAvailableName;
-	GLuint mCurQuery;
-		
 	virtual GLuint allocateName()
 	{
 		GLuint ret = 0;
 
-		if (!mAvailableName.empty())
-		{
-			ret = mAvailableName.front();
-			mAvailableName.pop_front();
-		}
-		else
-		{
-			ret = mCurQuery++;
-		}
-
+		glGenQueriesARB(1, &ret);
+	
 		return ret;
 	}
 
@@ -119,8 +108,7 @@ protected:
 #if LL_TRACK_PENDING_OCCLUSION_QUERIES
 		LLSpatialGroup::sPendingQueries.erase(name);
 #endif
-		llassert(std::find(mAvailableName.begin(), mAvailableName.end(), name) == mAvailableName.end());
-		mAvailableName.push_back(name);
+		glDeleteQueriesARB(1, &name);
 	}
 };
 
@@ -1404,7 +1392,9 @@ void LLSpatialGroup::handleDestruction(const TreeNode* node)
 		if (bridge->mAvatar.notNull())
 		{
 			bridge->mAvatar->mAttachmentGeometryBytes -= mGeometryBytes;
+			bridge->mAvatar->mAttachmentGeometryBytes = llmax(bridge->mAvatar->mAttachmentGeometryBytes, 0);
 			bridge->mAvatar->mAttachmentSurfaceArea -= mSurfaceArea;
+			bridge->mAvatar->mAttachmentSurfaceArea = llmax(bridge->mAvatar->mAttachmentSurfaceArea, 0.f);
 		}
 	}
 
@@ -2240,6 +2230,18 @@ void drawBox(const LLVector4a& c, const LLVector4a& r)
 
 void drawBoxOutline(const LLVector3& pos, const LLVector3& size)
 {
+
+	llassert(pos.isFinite());
+	llassert(size.isFinite());
+
+	llassert(!llisnan(pos.mV[0]));
+	llassert(!llisnan(pos.mV[1]));
+	llassert(!llisnan(pos.mV[2]));
+
+	llassert(!llisnan(size.mV[0]));
+	llassert(!llisnan(size.mV[1]));
+	llassert(!llisnan(size.mV[2]));
+
 	LLVector3 v1 = size.scaledVec(LLVector3( 1, 1,1));
 	LLVector3 v2 = size.scaledVec(LLVector3(-1, 1,1));
 	LLVector3 v3 = size.scaledVec(LLVector3(-1,-1,1));
@@ -3064,20 +3066,23 @@ void renderBoundingBox(LLDrawable* drawable, BOOL set_color = TRUE)
 	const LLVector4a* ext;
 	LLVector4a pos, size;
 
-	//render face bounding boxes
-	for (S32 i = 0; i < drawable->getNumFaces(); i++)
+	if (drawable->getVOVolume())
 	{
-		LLFace* facep = drawable->getFace(i);
-		if (facep)
+		//render face bounding boxes
+		for (S32 i = 0; i < drawable->getNumFaces(); i++)
 		{
-			ext = facep->mExtents;
+			LLFace* facep = drawable->getFace(i);
+			if (facep)
+			{
+				ext = facep->mExtents;
 
-			pos.setAdd(ext[0], ext[1]);
-			pos.mul(0.5f);
-			size.setSub(ext[1], ext[0]);
-			size.mul(0.5f);
+				pos.setAdd(ext[0], ext[1]);
+				pos.mul(0.5f);
+				size.setSub(ext[1], ext[0]);
+				size.mul(0.5f);
 		
-			drawBoxOutline(pos,size);
+				drawBoxOutline(pos,size);
+			}
 		}
 	}
 
@@ -4195,6 +4200,10 @@ public:
 			if (!group->isEmpty())
 			{
 				gGL.diffuseColor3f(0,0,1);
+
+				llassert(group->mObjectBounds[0].isFinite3());
+				llassert(group->mObjectBounds[1].isFinite3());
+
 				drawBoxOutline(group->mObjectBounds[0],
 								group->mObjectBounds[1]);
 			}
@@ -4824,6 +4833,9 @@ LLDrawInfo::LLDrawInfo(U16 start, U16 end, U32 count, U32 offset,
 	mMaterial(NULL),
 	mShaderMask(0),
 	mSpecColor(1.0f, 1.0f, 1.0f, 0.5f),
+	mBlendFuncSrc(LLRender::BF_SOURCE_ALPHA),
+	mBlendFuncDst(LLRender::BF_ONE_MINUS_SOURCE_ALPHA),
+	mHasGlow(FALSE),
 	mEnvIntensity(0.0f),
 	mAlphaMaskCutoff(0.5f),
 	mDiffuseAlphaMode(0)

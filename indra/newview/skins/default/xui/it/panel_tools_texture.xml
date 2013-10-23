@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Texture" name="Texture">
+	<panel.string name="string repeats per meter">
+		Ripetizioni al metro
+	</panel.string>
+	<panel.string name="string repeats per face">
+		Ripetizioni per faccia
+	</panel.string>
+	<text name="color label">
+		Colore
+	</text>
+	<color_swatch label="" name="colorswatch" tool_tip="Clicca per aprire il selettore dei colori"/>
+	<text name="color trans">
+		Trasparenza %
+	</text>
+	<text name="glow label">
+		Bagliore
+	</text>
+	<check_box label="Luminosità massima" name="checkbox fullbright"/>
+	<combo_box name="combobox matmedia">
+		<combo_box.item label="Materiali" name="Materials"/>
+		<combo_box.item label="Multimedia" name="Media"/>
+	</combo_box>
+	<combo_box name="combobox mattype">
+		<combo_box.item label="Texture (diffusa)" name="Texture (diffuse)"/>
+		<combo_box.item label="Irregolarità (normale)" name="Bumpiness (normal)"/>
+		<combo_box.item label="Lucentezza (speculare)" name="Shininess (specular)"/>
+	</combo_box>
+	<texture_picker label="Texture" name="texture control" tool_tip="Clicca per scegliere una fotografia"/>
+	<text name="label alphamode">
+		Modalità Alfa
+	</text>
+	<combo_box name="combobox alphamode">
+		<combo_box.item label="Nessuno" name="None"/>
+		<combo_box.item label="Miscelazione Alfa" name="Alpha blending"/>
+		<combo_box.item label="Mascheratura Alfa" name="Alpha masking"/>
+		<combo_box.item label="Mascheratura emissiva" name="Emissive mask"/>
+	</combo_box>
+	<text name="label maskcutoff">
+		Limite mascheratura
+	</text>
+	<texture_picker label="Texture" name="bumpytexture control" tool_tip="Clicca per scegliere una fotografia"/>
+	<text name="label bumpiness">
+		Irregolarità
+	</text>
+	<combo_box name="combobox bumpiness">
+		<combo_box.item label="Nessuno" name="None"/>
+		<combo_box.item label="Luminosità" name="Brightness"/>
+		<combo_box.item label="Oscurità" name="Darkness"/>
+		<combo_box.item label="venatura" name="woodgrain"/>
+		<combo_box.item label="corteccia" name="bark"/>
+		<combo_box.item label="mattoni" name="bricks"/>
+		<combo_box.item label="scacchiera" name="checker"/>
+		<combo_box.item label="cemento" name="concrete"/>
+		<combo_box.item label="incrostatura" name="crustytile"/>
+		<combo_box.item label="gemma" name="cutstone"/>
+		<combo_box.item label="dischi" name="discs"/>
+		<combo_box.item label="ciottoli" name="gravel"/>
+		<combo_box.item label="batteri" name="petridish"/>
+		<combo_box.item label="rivestimento" name="siding"/>
+		<combo_box.item label="lastricato" name="stonetile"/>
+		<combo_box.item label="stucco" name="stucco"/>
+		<combo_box.item label="suzione" name="suction"/>
+		<combo_box.item label="trama" name="weave"/>
+	</combo_box>
+	<texture_picker label="Texture" name="shinytexture control" tool_tip="Clicca per scegliere una fotografia"/>
+	<text name="label shininess">
+		Lucentezza
+	</text>
+	<combo_box name="combobox shininess">
+		<combo_box.item label="Nessuna" name="None"/>
+		<combo_box.item label="Bassa" name="Low"/>
+		<combo_box.item label="Media" name="Medium"/>
+		<combo_box.item label="Alta" name="High"/>
+	</combo_box>
+	<text name="label glossiness">
+		Patinatura
+	</text>
+	<text name="label environment">
+		Ambiente
+	</text>
+	<text name="label shinycolor">
+		Colore
+	</text>
+	<color_swatch label="" name="shinycolorswatch" tool_tip="Clicca per aprire il selettore dei colori"/>
+	<text name="media_info">
+		L&apos;URL dell&apos;eventuale elemento multimediale selezionato va qui
+	</text>
+	<button label="Scegli..." name="add_media" tool_tip="Aggiungi elemento multimediale"/>
+	<button label="Rimuovi" name="delete_media" tool_tip="Cancella questa texture dell&apos;elemento multimediale"/>
+	<button label="Alllinea" label_selected="Allinea elmento multimediale" name="button align" tool_tip="Allinea texture dell&apos;elemento multimediale (il caricamento deve prima essere completato)"/>
+	<text name="tex gen">
+		Mappatura
+	</text>
+	<combo_box name="combobox texgen">
+		<combo_box.item label="Predefinita" name="Default"/>
+		<combo_box.item label="Planare" name="Planar"/>
+	</combo_box>
+	<spinner label="Scala orizzontale" name="TexScaleU"/>
+	<spinner label="Scala veritcale" name="TexScaleV"/>
+	<spinner label="Ripetizioni al metro" name="rptctrl"/>
+	<spinner label="Gradi di rotazione" name="TexRot"/>
+	<spinner label="Spostamento orizzontale" name="TexOffsetU"/>
+	<spinner label="Spostamento verticale" name="TexOffsetV"/>
+	<spinner label="Scala orizzontale" name="bumpyScaleU"/>
+	<spinner label="Scala veritcale" name="bumpyScaleV"/>
+	<spinner label="Gradi di rotazione" name="bumpyRot"/>
+	<spinner label="Spostamento orizzontale" name="bumpyOffsetU"/>
+	<spinner label="Spostamento verticale" name="bumpyOffsetV"/>
+	<spinner label="Scala orizzontale" name="shinyScaleU"/>
+	<spinner label="Scala veritcale" name="shinyScaleV"/>
+	<spinner label="Gradi di rotazione" name="shinyRot"/>
+	<spinner label="Spostamento orizzontale" name="shinyOffsetU"/>
+	<spinner label="Spostamento verticale" name="shinyOffsetV"/>
+	<check_box initial_value="falso" label="Allinea facce planari" name="checkbox planar align" tool_tip="Allinea le texture su tutte le facce selezionate con l’ultima faccia selezionata. È richiesta la mappatura planare delle texture."/>
+</panel>

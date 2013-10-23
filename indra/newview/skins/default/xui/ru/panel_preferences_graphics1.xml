@@ -30,7 +30,7 @@
 		<check_box initial_value="истина" label="Локальный свет" name="LocalLights"/>
 		<check_box initial_value="истина" label="Базовые шейдеры" name="BasicShaders" tool_tip="Отключение этого параметра может предотвратить зависание некоторых видеокарт"/>
 		<check_box initial_value="истина" label="Атмосферные шейдеры" name="WindLightUseAtmosShaders"/>
-		<check_box initial_value="истина" label="Освещение и тени" name="UseLightShaders"/>
+		<check_box initial_value="истина" label="Расширенная модель освещения" name="UseLightShaders"/>
 		<check_box initial_value="истина" label="Объемный свет" name="UseSSAO"/>
 		<check_box initial_value="истина" label="Глубина поля" name="UseDoF"/>
 		<text name="shadows_label">

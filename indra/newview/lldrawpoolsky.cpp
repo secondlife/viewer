@@ -155,3 +155,4 @@ void LLDrawPoolSky::renderSkyCubeFace(U8 side)
 void LLDrawPoolSky::endRenderPass( S32 pass )
 {
 }
+

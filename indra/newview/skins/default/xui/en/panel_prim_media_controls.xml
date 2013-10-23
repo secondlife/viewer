@@ -315,7 +315,18 @@
 		<line_editor.commit_callback
 			function="MediaCtrl.CommitURL"/>
 	  </line_editor>
-	  <layout_stack
+        <icon
+        name="media_secure_lock_flag"
+        height="16"
+        follows="top|left"
+        image_name="Lock2"
+        layout="topleft"
+        left_delta="2"
+        top_delta="2"
+        visible="false"
+        tool_tip="Secured Browsing"
+        width="16" />
+        <layout_stack
 		  name="media_address_url_icons"
 		  animate="false"
 		  follows="top|right"
@@ -338,19 +349,6 @@
 			  image_name="Flag"
 			  layout="topleft"
 			  tool_tip="White List enabled"
-			  width="16" />
-		</layout_panel>
-		<layout_panel
-			layout="topleft"
-			width="16"
-			mouse_opaque="false"
-			auto_resize="false">
-		  <icon
-			  name="media_secure_lock_flag"
-			  height="16"
-			  image_name="Lock2"
-			  layout="topleft"
-			  tool_tip="Secured Browsing"
 			  width="16" />
 		</layout_panel>
 	  </layout_stack>

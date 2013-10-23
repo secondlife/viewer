@@ -59,6 +59,7 @@ BOOL gDebugGL = FALSE;
 BOOL gClothRipple = FALSE;
 BOOL gHeadlessClient = FALSE;
 BOOL gGLActive = FALSE;
+BOOL gGLDebugLoggingEnabled = TRUE;
 
 static const std::string HEADLESS_VENDOR_STRING("Linden Lab");
 static const std::string HEADLESS_RENDERER_STRING("Headless");
@@ -80,6 +81,8 @@ void APIENTRY gl_debug_callback(GLenum source,
                                 const GLchar* message,
                                 GLvoid* userParam)
 {
+	if (gGLDebugLoggingEnabled)
+	{
 	if (severity == GL_DEBUG_SEVERITY_HIGH_ARB)
 	{
 		llwarns << "----- GL ERROR --------" << llendl;
@@ -97,6 +100,7 @@ void APIENTRY gl_debug_callback(GLenum source,
 	{
 		llerrs << "Halting on GL Error" << llendl;
 	}
+}
 }
 #endif
 
@@ -258,6 +262,7 @@ PFNGLBEGINTRANSFORMFEEDBACKPROC glBeginTransformFeedback = NULL;
 PFNGLENDTRANSFORMFEEDBACKPROC glEndTransformFeedback = NULL;
 PFNGLTRANSFORMFEEDBACKVARYINGSPROC glTransformFeedbackVaryings = NULL;
 PFNGLBINDBUFFERRANGEPROC glBindBufferRange = NULL;
+PFNGLBINDBUFFERBASEPROC glBindBufferBase = NULL;
 
 //GL_ARB_debug_output
 PFNGLDEBUGMESSAGECONTROLARBPROC glDebugMessageControlARB = NULL;
@@ -647,7 +652,8 @@ bool LLGLManager::initGL()
 		}
 #if LL_DARWIN
 		else if ((mGLRenderer.find("9400M") != std::string::npos)
-			  || (mGLRenderer.find("9600M") != std::string::npos))
+			  || (mGLRenderer.find("9600M") != std::string::npos)
+			  || (mGLRenderer.find("9800M") != std::string::npos))
 		{
 			mIsMobileGF = TRUE;
 		}
@@ -1246,6 +1252,7 @@ void LLGLManager::initExtensions()
 		glEndTransformFeedback = (PFNGLENDTRANSFORMFEEDBACKPROC) GLH_EXT_GET_PROC_ADDRESS("glEndTransformFeedback");
 		glTransformFeedbackVaryings = (PFNGLTRANSFORMFEEDBACKVARYINGSPROC) GLH_EXT_GET_PROC_ADDRESS("glTransformFeedbackVaryings");
 		glBindBufferRange = (PFNGLBINDBUFFERRANGEPROC) GLH_EXT_GET_PROC_ADDRESS("glBindBufferRange");
+		glBindBufferBase = (PFNGLBINDBUFFERBASEPROC) GLH_EXT_GET_PROC_ADDRESS("glBindBufferBase");
 	}
 	if (mHasDebugOutput)
 	{
@@ -1500,7 +1507,7 @@ void do_assert_glerror()
 
 void assert_glerror()
 {
-	if (!gGLActive)
+/*	if (!gGLActive)
 	{
 		//llwarns << "GL used while not active!" << llendl;
 
@@ -1509,8 +1516,13 @@ void assert_glerror()
 			//ll_fail("GL used while not active");
 		}
 	}
+*/
 
-	if (gDebugGL) 
+	if (!gDebugGL) 
+	{
+		//funny looking if for branch prediction -- gDebugGL is almost always false and assert_glerror is called often
+	}
+	else
 	{
 		do_assert_glerror();
 	}

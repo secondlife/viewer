@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Текстовый чат" name="chat">
-	<panel>
-		<check_box initial_value="истина" label="Воспроизводить анимацию ввода текста при общении" name="play_typing_animation"/>
+	<panel name="general_chat_settings">
+		<check_box initial_value="true" label="Воспроизводить анимацию ввода текста при общении" name="play_typing_animation"/>
 		<check_box label="Отправлять мне сообщения по почте, когда меня нет в сети" name="send_im_to_email"/>
 		<check_box label="Только друзья и группы могут звонить мне и отправлять IM" name="voice_call_friends_only_check"/>
 		<text name="font_size">
@@ -14,10 +14,7 @@
 		</combo_box>
 		<check_box label="Чат в пузырьках" name="bubble_text_chat"/>
 	</panel>
-	<panel>
-		<text name="notifications">
-			Уведомления
-		</text>
+	<panel name="im_notification_settings">
 		<text name="friend_ims">
 			IM друзей:
 		</text>
@@ -25,8 +22,9 @@
 			<item label="Открыть окно разговоров" name="OpenConversationsWindow" value="openconversations"/>
 			<item label="Сообщение во всплывающем окне" name="PopUpMessage" value="всплывание"/>
 			<item label="Мигание кнопки на панели инструментов" name="FlashToolbarButton" value="мигание"/>
-			<item label="Нет" name="None" value="нет"/>
+			<item label="Без действия" name="NoAction" value="noaction"/>
 		</combo_box>
+		<check_box label="Звук" name="play_sound_friend_im"/>
 		<text name="non_friend_ims">
 			IM чужих:
 		</text>
@@ -34,8 +32,9 @@
 			<item label="Открыть окно разговоров" name="OpenConversationsWindow" value="openconversations"/>
 			<item label="Сообщение во всплывающем окне" name="PopUpMessage" value="всплывание"/>
 			<item label="Мигание кнопки на панели инструментов" name="FlashToolbarButton" value="мигание"/>
-			<item label="Нет" name="None" value="нет"/>
+			<item label="Без действия" name="NoAction" value="noaction"/>
 		</combo_box>
+		<check_box label="Звук" name="play_sound_non_friend_im"/>
 		<text name="conference_ims">
 			IM конференции:
 		</text>
@@ -43,8 +42,9 @@
 			<item label="Открыть окно разговоров" name="OpenConversationsWindow" value="openconversations"/>
 			<item label="Сообщение во всплывающем окне" name="PopUpMessage" value="всплывание"/>
 			<item label="Мигание кнопки на панели инструментов" name="FlashToolbarButton" value="мигание"/>
-			<item label="Нет" name="None" value="нет"/>
+			<item label="Без действия" name="NoAction" value="noaction"/>
 		</combo_box>
+		<check_box label="Звук" name="play_sound_conference_im"/>
 		<text name="group_chat">
 			Групповой чат:
 		</text>
@@ -52,8 +52,9 @@
 			<item label="Открыть окно разговоров" name="OpenConversationsWindow" value="openconversations"/>
 			<item label="Сообщение во всплывающем окне" name="PopUpMessage" value="всплывание"/>
 			<item label="Мигание кнопки на панели инструментов" name="FlashToolbarButton" value="мигание"/>
-			<item label="Нет" name="None" value="нет"/>
+			<item label="Без действия" name="NoAction" value="noaction"/>
 		</combo_box>
+		<check_box label="Звук" name="play_sound_group_chat_im"/>
 		<text name="nearby_chat">
 			Локальный чат:
 		</text>
@@ -61,13 +62,24 @@
 			<item label="Открыть окно разговоров" name="OpenConversationsWindow" value="openconversations"/>
 			<item label="Сообщение во всплывающем окне" name="PopUpMessage" value="всплывание"/>
 			<item label="Мигание кнопки на панели инструментов" name="FlashToolBarButton" value="мигание"/>
-			<item label="Нет" name="None" value="нет"/>
+			<item label="Без действия" name="NoAction" value="noaction"/>
 		</combo_box>
+		<check_box label="Звук" name="play_sound_nearby_chat_im"/>
+		<text name="object_ims">
+			IM объектов:
+		</text>
+		<combo_box name="ObjectIMOptions">
+			<item label="Открыть окно разговоров" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="Сообщение во всплывающем окне" name="PopUpMessage" value="всплывание"/>
+			<item label="Мигание кнопки на панели инструментов" name="FlashToolBarButton" value="мигание"/>
+			<item label="Без действия" name="NoAction" value="noaction"/>
+		</combo_box>
+		<check_box label="Звук" name="play_sound_object_im"/>
 		<text name="notifications_alert">
 			Для временного отключения всех уведомлений вызовите меню «Общение &gt; Не беспокоить».
 		</text>
 	</panel>
-	<panel>
+	<panel name="play_sound_settings">
 		<text name="play_sound">
 			Звук:
 		</text>
@@ -76,7 +88,7 @@
 		<check_box label="Предложение телепортации" name="teleport_offer"/>
 		<check_box label="Предложение инвентаря" name="inventory_offer"/>
 	</panel>
-	<panel>
+	<panel name="log_settings">
 		<button label="Очистить журнал..." name="clear_log"/>
 		<button label="Удалить записи..." name="delete_transcripts"/>
 		<button label="Обзор..." label_selected="Обзор" name="log_path_button"/>

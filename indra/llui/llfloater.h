@@ -112,6 +112,8 @@ struct LLCoordFloater : LLCoord<LL_COORD_FLOATER>
 	bool operator!=(const LLCoordFloater& other) const { return !(*this == other); }
 
 	void setFloater(LLFloater& floater);
+
+	
 };
 
 class LLFloater : public LLPanel, public LLInstanceTracker<LLFloater>
@@ -121,6 +123,7 @@ class LLFloater : public LLPanel, public LLInstanceTracker<LLFloater>
 	friend class LLMultiFloater;
 
 public:
+
 	struct KeyCompare
 	{
 //		static bool compare(const LLSD& a, const LLSD& b);
@@ -286,6 +289,7 @@ public:
 	S32				getHeaderHeight() const { return mHeaderHeight; }
 
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
+	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleDoubleClick(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMiddleMouseDown(S32 x, S32 y, MASK mask);

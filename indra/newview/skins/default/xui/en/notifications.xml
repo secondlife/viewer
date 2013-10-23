@@ -4071,6 +4071,27 @@ Join me in [REGION]
 
   <notification
    icon="alertmodal.tga"
+   name="TeleportRequestPrompt"
+   type="alertmodal">
+Request a teleport to [NAME] with the following message
+    <tag>confirm</tag>
+    <form name="form">
+      <input name="message" type="text">
+
+      </input>
+      <button
+       default="true"
+       index="0"
+       name="OK"
+       text="OK"/>
+      <button
+       index="1"
+       name="Cancel"
+       text="Cancel"/>
+    </form>
+  </notification>
+  <notification
+   icon="alertmodal.tga"
    name="TooManyTeleportOffers"
    type="alertmodal">
 You attempted to make [OFFERS] teleport offers
@@ -6017,6 +6038,13 @@ Please select at least one type of content to search (General, Moderate, or Adul
 [MESSAGE]
   </notification>
 
+ <notification
+  icon="notify.tga"
+  name="FacebookConnect"
+  type="notifytip">
+[MESSAGE]
+ </notification>
+    
   <notification
    icon="notify.tga"
    name="PaymentReceived"
@@ -6637,7 +6665,7 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
    sound="UISndNewIncomingIMSession">
 [NAME_SLURL] has offered to teleport you to their location:
 
-“[MESSAGE]”
+"[MESSAGE]”
 &lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt; - [MATURITY_STR]
     <tag>confirm</tag>
     <form name="form">
@@ -6702,6 +6730,27 @@ However, this region contains content accessible to adults only.
 	Teleport offer sent to [TO_NAME]
   </notification>
 
+  <notification
+   icon="notify.tga"
+   name="TeleportRequest"
+   log_to_im="true"
+   type="offer">
+[NAME_SLURL] is requesting to be teleported to your location.
+[MESSAGE]
+
+Offer a teleport?
+    <tag>confirm</tag>
+    <form name="form">
+      <button
+       index="0"
+       name="Yes"
+       text="Yes"/>
+      <button
+       index="1"
+       name="No"
+       text="No"/>
+    </form>
+  </notification>
 
   <notification
    icon="notify.tga"
@@ -6750,7 +6799,6 @@ However, this region contains content accessible to adults only.
    icon="notify.tga"
    name="FriendshipOffered"
    log_to_im="true"   
-   show_toast="false"   
    type="notify">
     <tag>friendship</tag>
 	You have offered friendship to [TO_NAME]
@@ -6800,7 +6848,6 @@ However, this region contains content accessible to adults only.
    icon="notify.tga"
    name="FriendshipAcceptedByMe"
    log_to_im="true"   
-   show_toast="false"
    type="notify">
     <tag>friendship</tag>
 Friendship offer accepted.
@@ -6810,7 +6857,6 @@ Friendship offer accepted.
    icon="notify.tga"
    name="FriendshipDeclinedByMe"
    log_to_im="true"   
-   show_toast="false"   
    type="notify">
     <tag>friendship</tag>
 Friendship offer declined.
@@ -10109,7 +10155,7 @@ An internal error prevented us from properly updating your viewer.  The L$ balan
    <tag>fail</tag>
 Cannot create large prims that intersect other players.  Please re-try when other players have moved.
   </notification>
-
+  
   <notification
    icon="alertmodal.tga"
    name="PreferenceChatClearLog"

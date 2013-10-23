@@ -1965,11 +1965,11 @@
     <key>package_description</key>
     <map>
       <key>description</key>
-      <string>Spell checking dictionaries</string>
+      <string>Second Life Viewer</string>
       <key>license</key>
-      <string>various open</string>
+      <string>LGPL</string>
       <key>name</key>
-      <string>dictionaries</string>
+      <string>Second Life Viewer</string>
       <key>platforms</key>
       <map>
         <key>common</key>
@@ -2638,7 +2638,6 @@
                 <array>
                   <string>/build</string>
                   <string>"/cfg=Release|Win32"</string>
-                  <string>"/CL_ADD=/m:1"</string>
                 </array>
               </map>
               <key>configure</key>
