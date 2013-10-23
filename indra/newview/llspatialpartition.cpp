@@ -903,7 +903,7 @@ void LLSpatialGroup::destroyGL(bool keep_occlusion)
 {
 	setState(LLSpatialGroup::GEOM_DIRTY | LLSpatialGroup::IMAGE_DIRTY);
 
-	if (!keep_occlusion && !LLSpatialPartition::sTeleportRequested)
+	if (!keep_occlusion)
 	{ //going to need a rebuild
 		gPipeline.markRebuild(this, TRUE);
 	}
