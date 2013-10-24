@@ -76,7 +76,7 @@ BOOL LLFloaterExperiences::postBuild()
     LLEventPumps::instance().obtain("experience_permission").listen("LLFloaterExperiences", 
         boost::bind(&LLFloaterExperiences::updatePermissions, this, _1));
      
-   	return FALSE;
+   	return TRUE;
 }
 
 void LLFloaterExperiences::clearFromRecent(const LLSD& ids)
