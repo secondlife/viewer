@@ -50,7 +50,7 @@ void ThreadRecorder::init()
 	LLThreadLocalSingletonPointer<BlockTimerStackRecord>::setInstance(&mBlockTimerStackRecord);
 	//NB: the ordering of initialization in this function is very fragile due to a large number of implicit dependencies
 	set_thread_recorder(this);
-	BlockTimerStatHandle& root_time_block = BlockTimerStatHandle::getRootTimeBlock();
+	BlockTimerStatHandle& root_time_block = BlockTimer::getRootTimeBlock();
 
 	BlockTimerStackRecord* timer_stack = LLThreadLocalSingletonPointer<BlockTimerStackRecord>::getInstance();
 	timer_stack->mTimeBlock = &root_time_block;
@@ -78,7 +78,7 @@ void ThreadRecorder::init()
 	mRootTimer = new BlockTimer(root_time_block);
 	timer_stack->mActiveTimer = mRootTimer;
 
-	BlockTimerStatHandle::getRootTimeBlock().getCurrentAccumulator().mActiveCount = 1;
+	BlockTimer::getRootTimeBlock().getCurrentAccumulator().mActiveCount = 1;
 
 	claim_alloc(gTraceMemStat, this);
 	claim_alloc(gTraceMemStat, mRootTimer);
@@ -138,7 +138,7 @@ AccumulatorBufferGroup* ThreadRecorder::activate( AccumulatorBufferGroup* record
 	{
 		AccumulatorBufferGroup& prev_active_recording = mActiveRecordings.back()->mPartialRecording;
 		prev_active_recording.sync();
-		BlockTimerStatHandle::updateTimes();
+		BlockTimer::updateTimes();
 		prev_active_recording.handOffTo(active_recording->mPartialRecording);
 	}
 	mActiveRecordings.push_back(active_recording);
@@ -152,7 +152,7 @@ ThreadRecorder::active_recording_list_t::iterator ThreadRecorder::bringUpToDate(
 	if (mActiveRecordings.empty()) return mActiveRecordings.end();
 
 	mActiveRecordings.back()->mPartialRecording.sync();
-	BlockTimerStatHandle::updateTimes();
+	BlockTimer::updateTimes();
 
 	active_recording_list_t::reverse_iterator it, end_it;
 	for (it = mActiveRecordings.rbegin(), end_it = mActiveRecordings.rend();

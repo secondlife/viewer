@@ -627,7 +627,7 @@ public:
 		
 		while (!LLAppViewer::instance()->isQuitting())
 		{
-			LLTrace::BlockTimerStatHandle::writeLog(os);
+			LLTrace::BlockTimer::writeLog(os);
 			os.flush();
 			ms_sleep(32);
 		}
@@ -1315,9 +1315,9 @@ bool LLAppViewer::mainLoop()
 #endif
 	{
 		LL_RECORD_BLOCK_TIME(FTM_FRAME);
-		LLTrace::BlockTimerStatHandle::processTimes();
+		LLTrace::BlockTimer::processTimes();
 		LLTrace::get_frame_recording().nextPeriod();
-		LLTrace::BlockTimerStatHandle::logStats();
+		LLTrace::BlockTimer::logStats();
 
 		LLTrace::get_master_thread_recorder()->pullFromChildren();
 
@@ -1662,9 +1662,9 @@ bool LLAppViewer::cleanup()
 	if (LLFastTimerView::sAnalyzePerformance)
 	{
 		LL_INFOS() << "Analyzing performance" << LL_ENDL;
-		std::string baseline_name = LLTrace::BlockTimerStatHandle::sLogName + "_baseline.slp";
-		std::string current_name  = LLTrace::BlockTimerStatHandle::sLogName + ".slp"; 
-		std::string report_name   = LLTrace::BlockTimerStatHandle::sLogName + "_report.csv";
+		std::string baseline_name = LLTrace::BlockTimer::sLogName + "_baseline.slp";
+		std::string current_name  = LLTrace::BlockTimer::sLogName + ".slp"; 
+		std::string report_name   = LLTrace::BlockTimer::sLogName + "_report.csv";
 
 		LLFastTimerView::doAnalysis(
 			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, baseline_name),
@@ -2018,9 +2018,9 @@ bool LLAppViewer::cleanup()
 	{
 		LL_INFOS() << "Analyzing performance" << LL_ENDL;
 		
-		std::string baseline_name = LLTrace::BlockTimerStatHandle::sLogName + "_baseline.slp";
-		std::string current_name  = LLTrace::BlockTimerStatHandle::sLogName + ".slp"; 
-		std::string report_name   = LLTrace::BlockTimerStatHandle::sLogName + "_report.csv";
+		std::string baseline_name = LLTrace::BlockTimer::sLogName + "_baseline.slp";
+		std::string current_name  = LLTrace::BlockTimer::sLogName + ".slp"; 
+		std::string report_name   = LLTrace::BlockTimer::sLogName + "_report.csv";
 
 		LLFastTimerView::doAnalysis(
 			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, baseline_name),
@@ -2139,10 +2139,10 @@ bool LLAppViewer::initThreads()
 													enable_threads && true,
 													app_metrics_qa_mode);	
 
-	if (LLTrace::BlockTimerStatHandle::sLog || LLTrace::BlockTimerStatHandle::sMetricLog)
+	if (LLTrace::BlockTimer::sLog || LLTrace::BlockTimer::sMetricLog)
 	{
-		LLTrace::BlockTimerStatHandle::setLogLock(new LLMutex(NULL));
-		mFastTimerLogThread = new LLFastTimerLogThread(LLTrace::BlockTimerStatHandle::sLogName);
+		LLTrace::BlockTimer::setLogLock(new LLMutex(NULL));
+		mFastTimerLogThread = new LLFastTimerLogThread(LLTrace::BlockTimer::sLogName);
 		mFastTimerLogThread->start();
 	}
 
@@ -2597,18 +2597,18 @@ bool LLAppViewer::initConfiguration()
 
 	if (gSavedSettings.getBOOL("LogPerformance"))
 	{
-		LLTrace::BlockTimerStatHandle::sLog = true;
-		LLTrace::BlockTimerStatHandle::sLogName = std::string("performance");		
+		LLTrace::BlockTimer::sLog = true;
+		LLTrace::BlockTimer::sLogName = std::string("performance");		
 	}
 
 	std::string test_name(gSavedSettings.getString("LogMetrics"));
 	if (! test_name.empty())
 	{
-		LLTrace::BlockTimerStatHandle::sMetricLog = TRUE ;
+		LLTrace::BlockTimer::sMetricLog = TRUE ;
 		// '--logmetrics' is specified with a named test metric argument so the data gathering is done only on that test
 		// In the absence of argument, every metric would be gathered (makes for a rather slow run and hard to decipher report...)
 		LL_INFOS() << "'--logmetrics' argument : " << test_name << LL_ENDL;
-		LLTrace::BlockTimerStatHandle::sLogName = test_name;
+		LLTrace::BlockTimer::sLogName = test_name;
  	}
 
 	if (clp.hasOption("graphicslevel"))
