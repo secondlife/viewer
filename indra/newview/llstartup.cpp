@@ -1962,10 +1962,9 @@ bool idle_startup()
 				((start_slurl.getType() == LLSLURL::LAST_LOCATION) && (gAgentStartLocation == "last")) ||
 				((start_slurl.getType() == LLSLURL::HOME_LOCATION) && (gAgentStartLocation == "home")))
 			{
-				// Start location is OK
-				// Disabled code to restore camera location and focus if logging in to default location
-				static bool samename = false;
-				if (samename)
+				if (start_slurl.getType() == LLSLURL::LAST_LOCATION 
+					&& gAgentStartLocation == "last" 
+					&& gSavedSettings.getBOOL("RestoreCameraPosOnLogin"))
 				{
 					// restore old camera pos
 					gAgentCamera.setFocusOnAvatar(FALSE, FALSE);

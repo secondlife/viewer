@@ -72,11 +72,13 @@ const int LL_ERR_NOERR = 0;
 
 #endif // !_DEBUG
 
-#define llassert_always(func)	if (LL_UNLIKELY(!(func))) LL_ERRS() << "ASSERT (" << #func << ")" << LL_ENDL;
+#define llassert_always_msg(func, msg) if (LL_UNLIKELY(!(func))) LL_ERRS() << "ASSERT (" << msg << ")" << LL_ENDL
+
+#define llassert_always(func)	llassert_always_msg(func, #func)
 
 #ifdef SHOW_ASSERT
-#define llassert(func)			llassert_always(func)
-#define llverify(func)			llassert_always(func)
+#define llassert(func)			llassert_always_msg(func, #func)
+#define llverify(func)			llassert_always_msg(func, #func)
 #else
 #define llassert(func)
 #define llverify(func)			do {if (func) {}} while(0)

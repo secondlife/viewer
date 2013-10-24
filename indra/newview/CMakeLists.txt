@@ -238,6 +238,9 @@ set(viewer_SOURCE_FILES
     llfloaterhelpbrowser.cpp
     llfloaterhud.cpp
     llfloaterimagepreview.cpp
+    llfloaterimsessiontab.cpp
+    llfloaterimsession.cpp
+    llfloaterimcontainer.cpp
     llfloaterinspect.cpp
     llfloaterinventory.cpp
     llfloaterjoystick.cpp
@@ -320,9 +323,6 @@ set(viewer_SOURCE_FILES
     llhudrender.cpp
     llhudtext.cpp
     llhudview.cpp
-    llfloaterimsessiontab.cpp
-    llfloaterimsession.cpp
-    llfloaterimcontainer.cpp
     llimhandler.cpp
     llimview.cpp
     llinspect.cpp
@@ -826,6 +826,12 @@ set(viewer_HEADER_FILES
     llfloaterhelpbrowser.h
     llfloaterhud.h
     llfloaterimagepreview.h
+    llfloaterimnearbychat.h
+    llfloaterimnearbychathandler.h
+    llfloaterimnearbychatlistener.h
+    llfloaterimsessiontab.h
+    llfloaterimsession.h
+    llfloaterimcontainer.h
     llfloaterinspect.h
     llfloaterinventory.h
     llfloaterjoystick.h
@@ -907,9 +913,6 @@ set(viewer_HEADER_FILES
     llhudrender.h
     llhudtext.h
     llhudview.h
-    llfloaterimsessiontab.h
-    llfloaterimsession.h
-    llfloaterimcontainer.h
     llimview.h
     llinspect.h
     llinspectavatar.h
@@ -961,9 +964,6 @@ set(viewer_HEADER_FILES
     llnameeditor.h
     llnamelistctrl.h
     llnavigationbar.h
-    llfloaterimnearbychat.h
-    llfloaterimnearbychathandler.h
-    llfloaterimnearbychatlistener.h
     llnetmap.h
     llnotificationhandler.h
     llnotificationmanager.h

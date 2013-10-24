@@ -43,7 +43,7 @@ public:
 	}
 
 	LLThreadLocalPointerBase( const LLThreadLocalPointerBase& other)
-		:	mThreadKey(NULL)
+	:	mThreadKey(NULL)
 	{
 		if (sInitialized)
 		{
