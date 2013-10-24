@@ -64,8 +64,8 @@ LL_COMMON_API void assert_main_thread();
 
 enum EInstanceTrackerAllowKeyCollisions
 {
-	InstanceTrackerAllowKeyCollisions,
-	InstanceTrackerDisallowKeyCollisions
+	LLInstanceTrackerAllowKeyCollisions,
+	LLInstanceTrackerDisallowKeyCollisions
 };
 
 /// This mix-in class adds support for tracking all instances of the specified class parameter T
@@ -73,7 +73,7 @@ enum EInstanceTrackerAllowKeyCollisions
 /// If KEY is not provided, then instances are stored in a simple set
 /// @NOTE: see explicit specialization below for default KEY==void case
 /// @NOTE: this class is not thread-safe unless used as read-only
-template<typename T, typename KEY = void, EInstanceTrackerAllowKeyCollisions ALLOW_KEY_COLLISIONS = InstanceTrackerDisallowKeyCollisions>
+template<typename T, typename KEY = void, EInstanceTrackerAllowKeyCollisions ALLOW_KEY_COLLISIONS = LLInstanceTrackerDisallowKeyCollisions>
 class LLInstanceTracker : public LLInstanceTrackerBase
 {
 	typedef LLInstanceTracker<T, KEY> self_t;
@@ -216,7 +216,7 @@ private:
 		mInstanceKey = key; 
 		InstanceMap& map = getMap_();
 		typename InstanceMap::iterator insertion_point_it = map.lower_bound(key);
-		if (ALLOW_KEY_COLLISIONS == InstanceTrackerDisallowKeyCollisions
+		if (ALLOW_KEY_COLLISIONS == LLInstanceTrackerDisallowKeyCollisions
 			&& insertion_point_it != map.end() 
 			&& insertion_point_it->first == key)
 		{
