@@ -405,7 +405,7 @@ bool LLAssetStorage::findInStaticVFSAndInvokeCallback(const LLUUID& uuid, LLAsse
 	if (user_data)
 	{
 		// The *user_data should not be passed without a callback to clean it up.
-		llassert(callback != NULL)
+		llassert(callback != NULL);
 	}
 
 	BOOL exists = mStaticVFS->getExists(uuid, type);
@@ -445,7 +445,7 @@ void LLAssetStorage::getAssetData(const LLUUID uuid, LLAssetType::EType type, LL
 	if (user_data)
 	{
 		// The *user_data should not be passed without a callback to clean it up.
-		llassert(callback != NULL)
+		llassert(callback != NULL);
 	}
 
 	if (mShutDown)

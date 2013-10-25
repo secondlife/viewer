@@ -660,7 +660,7 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 	mSection[i].mdPosition = (mSection[i].mPosition - mSection[i-1].mPosition) * inv_section_length;
 
 	// Create points
-	llassert(mRenderRes > -1)
+	llassert(mRenderRes > -1);
 	S32 num_render_sections = 1<<mRenderRes;
 	if (path->getPathLength() != num_render_sections+1)
 	{

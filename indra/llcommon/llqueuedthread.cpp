@@ -246,7 +246,7 @@ bool LLQueuedThread::addRequest(QueuedRequest* req)
 // MAIN thread
 bool LLQueuedThread::waitForResult(LLQueuedThread::handle_t handle, bool auto_complete)
 {
-	llassert (handle != nullHandle())
+	llassert (handle != nullHandle());
 	bool res = false;
 	bool waspaused = isPaused();
 	bool done = false;
