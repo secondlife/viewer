@@ -1049,8 +1049,6 @@ void LLViewerRegion::addVisibleCacheEntry(LLVOCacheEntry* entry)
 
 F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 {
-	static LLCachedControl<F32> projection_area_cutoff(gSavedSettings,"ObjectProjectionAreaCutOFF");
-
 	if(mDead)
 	{
 		return max_time;
@@ -1065,22 +1063,8 @@ F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 	{
 		return max_time;
 	}
-	U32 new_obj_count = sNewObjectCreationThrottle;
-	if(sNewObjectCreationThrottle < 0)
-	{
-		new_obj_count = (U32)-1; //maximum
-	}
-	else
-	{
-		new_obj_count *= 1.5f; //load 50% more for selection
-	}
 
 	LLTimer update_timer;
-
-	//object projected area threshold
-	F32 pixel_meter_ratio = LLViewerCamera::getInstance()->getPixelMeterRatio();
-	F32 projection_threshold = pixel_meter_ratio > 0.f ? projection_area_cutoff / pixel_meter_ratio : 0.f;
-	projection_threshold *= projection_threshold;
 	
 	const F32 LARGE_SCENE_CONTRIBUTION = 100.f; //a large number to force to load the object.
 	const LLVector3 camera_origin = LLViewerCamera::getInstance()->getOrigin();
@@ -1089,7 +1073,7 @@ F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 	U32 last_update = mImpl->mLastCameraUpdate;
 
 	//process visible entries
-	for(LLVOCacheEntry::vocache_entry_set_t::iterator iter = mImpl->mVisibleEntries.begin(); new_obj_count > 0 && iter != mImpl->mVisibleEntries.end();)
+	for(LLVOCacheEntry::vocache_entry_set_t::iterator iter = mImpl->mVisibleEntries.begin(); iter != mImpl->mVisibleEntries.end();)
 	{
 		LLVOCacheEntry* vo_entry = *iter;
 
@@ -1099,10 +1083,6 @@ F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 		if(vo_entry->getState() < LLVOCacheEntry::WAITING)
 		{			
 			mImpl->mWaitingList.insert(vo_entry);
-			if(!(--new_obj_count))
-			{
-				break;
-			}
 		}
 
 		LLVOCacheEntry* child;
@@ -1115,11 +1095,6 @@ F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 			{
 				child->setSceneContribution(LARGE_SCENE_CONTRIBUTION); //a large number to force to load the child.
 				mImpl->mWaitingList.insert(child);
-
-				if(!(--new_obj_count))
-				{
-					break;
-				}
 			}
 			else
 			{
@@ -1153,7 +1128,7 @@ F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 
 	//process visible groups
 	std::set< LLPointer<LLViewerOctreeGroup> >::iterator group_iter = mImpl->mVisibleGroups.begin();
-	for(; new_obj_count > 0 && group_iter != mImpl->mVisibleGroups.end(); ++group_iter)
+	for(; group_iter != mImpl->mVisibleGroups.end(); ++group_iter)
 	{
 		LLPointer<LLViewerOctreeGroup> group = *group_iter;
 		if(group->getNumRefs() < 3 || //group to be deleted
@@ -1175,16 +1150,7 @@ F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 				}
 
 				vo_entry->calcSceneContribution(camera_origin, needs_update, last_update);				
-
-				if(vo_entry->getSceneContribution() > projection_threshold)
-				{
-					mImpl->mWaitingList.insert(vo_entry);
-					
-					if(!(--new_obj_count))
-					{
-						break;
-					}
-				}
+				mImpl->mWaitingList.insert(vo_entry);			
 			}
 		}
 	}
@@ -1200,6 +1166,8 @@ F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 
 F32 LLViewerRegion::createVisibleObjects(F32 max_time)
 {
+	static LLCachedControl<F32> projection_area_cutoff(gSavedSettings,"ObjectProjectionAreaCutOFF");
+
 	if(mDead)
 	{
 		return max_time;
@@ -1210,6 +1178,11 @@ F32 LLViewerRegion::createVisibleObjects(F32 max_time)
 		return max_time;
 	}	
 
+	//object projected area threshold
+	F32 pixel_meter_ratio = LLViewerCamera::getInstance()->getPixelMeterRatio();
+	F32 projection_threshold = pixel_meter_ratio > 0.f ? projection_area_cutoff / pixel_meter_ratio : 0.f;
+	projection_threshold *= projection_threshold;
+
 	S32 throttle = sNewObjectCreationThrottle;
 	BOOL has_new_obj = FALSE;
 	LLTimer update_timer;	
@@ -1217,6 +1190,11 @@ F32 LLViewerRegion::createVisibleObjects(F32 max_time)
 		iter != mImpl->mWaitingList.end(); ++iter)
 	{
 		LLVOCacheEntry* vo_entry = *iter;		
+
+		if(vo_entry->getSceneContribution() < projection_threshold)
+		{
+			break;
+		}
 
 		if(vo_entry->getState() < LLVOCacheEntry::WAITING)
 		{
