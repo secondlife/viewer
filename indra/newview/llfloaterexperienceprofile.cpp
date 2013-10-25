@@ -58,6 +58,7 @@
 #define TF_OWNER "OwnerText"
 #define TF_GROUP "GroupText"
 #define TF_GRID_WIDE "grid_wide"
+#define TF_PRIVILEGED "privileged"
 #define EDIT "edit_"
 
 #define IMG_LOGO "logo"
@@ -161,14 +162,45 @@ public:
 class ExperiencePreferencesResponder : public LLHTTPClient::Responder
 {
 public:
-    ExperiencePreferencesResponder()
+    ExperiencePreferencesResponder(bool single):mSingle(single)
     {
+    }
+
+    void sendSingle(const LLSD& content, const LLSD& permission, const char* name)
+    {
+        if(!content.has(name))
+            return;
+
+        LLEventPump& pump = LLEventPumps::instance().obtain("experience_permission");
+        const LLSD& list = content[name];
+        LLSD::array_const_iterator it = list.beginArray();
+        while(it != list.endArray())
+        {
+            LLSD message;
+            message[it->asString()] = permission;
+            pump.post(message);
+            ++it;
+        }
     }
 
     virtual void result(const LLSD& content)
     {
+        if(mSingle)
+        {
+            LLSD experience;
+            experience["permission"]="Allow";
+
+            sendSingle(content, experience, "experiences");
+
+            experience["permission"]="Block";
+            sendSingle(content, experience, "blocked");
+
+            return;
+        }
         LLEventPumps::instance().obtain("experience_permission").post(content);
     }
+private:
+    bool mSingle;
 };
 
 
@@ -221,12 +253,6 @@ BOOL LLFloaterExperienceProfile::postBuild()
             if(!lookup_url.empty())
             {
                 LLHTTPClient::get(lookup_url+"?experience_id="+mExperienceId.asString(), new IsAdminResponder(getDerivedHandle<LLFloaterExperienceProfile>()));
-            }
-
-            lookup_url=region->getCapability("ExperiencePreferences"); 
-            if(!lookup_url.empty())
-            {
-                LLHTTPClient::get(lookup_url+"?"+mExperienceId.asString(), new ExperiencePreferencesResponder());
             }
         }
     }
@@ -312,7 +338,7 @@ void LLFloaterExperienceProfile::onClickPermission(const char* perm)
     permission["permission"]=perm;
 
     data[mExperienceId.asString()]=permission;
-    LLHTTPClient::put(lookup_url, data, new ExperiencePreferencesResponder());
+    LLHTTPClient::put(lookup_url, data, new ExperiencePreferencesResponder(false));
    
 }
 
@@ -327,7 +353,7 @@ void LLFloaterExperienceProfile::onClickForget()
     if(lookup_url.empty())
         return;
 
-    LLHTTPClient::del(lookup_url+"?"+mExperienceId.asString(), new ExperiencePreferencesResponder());
+    LLHTTPClient::del(lookup_url+"?"+mExperienceId.asString(), new ExperiencePreferencesResponder(false));
 }
 
 bool LLFloaterExperienceProfile::setMaturityString( U8 maturity, LLTextBox* child, LLComboBox* combo )
@@ -377,7 +403,6 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
     LLLayoutPanel* locationPanel = getChild<LLLayoutPanel>(PNL_LOC);
     LLLayoutPanel* marketplacePanel = getChild<LLLayoutPanel>(PNL_MRKT);  
     LLLayoutPanel* topPanel = getChild<LLLayoutPanel>(PNL_TOP);  
-    LLLayoutPanel* permPanel = getChild<LLLayoutPanel>(PNL_PERMS);
 
 
     imagePanel->setVisible(FALSE);
@@ -449,7 +474,23 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
     }
 
 
-    permPanel->setVisible((properties & LLExperienceCache::PROPERTY_PRIVILEGED) == 0);
+    if(properties & LLExperienceCache::PROPERTY_PRIVILEGED)
+    {
+        child = getChild<LLTextBox>(TF_PRIVILEGED);
+        child->setVisible(TRUE);
+    }
+    else
+    {
+        LLViewerRegion* region = gAgent.getRegion();
+        if (region)
+        {
+            std::string lookup_url=region->getCapability("ExperiencePreferences"); 
+            if(!lookup_url.empty())
+            {
+                LLHTTPClient::get(lookup_url+"?"+mExperienceId.asString(), new ExperiencePreferencesResponder(true));
+            }
+        }
+    }
             
     value=experience[LLExperienceCache::METADATA].asString();
     if(value.empty())

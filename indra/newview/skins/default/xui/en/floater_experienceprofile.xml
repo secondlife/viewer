@@ -353,13 +353,13 @@
             </layout_panel>
             <layout_panel
               follows="all"
-              height="33"
+              height="49"
               layout="topleft"
               left="0"
               top="5"
               width="313"
               auto_resize="false"
-              visible="false"
+              visible="true"
               name="perm panel">
               <button
                 follows="bottom|left"
@@ -391,7 +391,19 @@
                 top_pad="-23"
                 left_pad="3"
                 enabled="false"/>
-
+              <text
+                type="string"
+                length="1"
+                follows="left|top|right"
+                height="16"
+                layout="topleft"
+                left="10"
+                name="privileged"
+                use_ellipses="true"
+                visible="false"
+                right ="-10">
+                This experience is enabled for all residents.
+              </text>
             </layout_panel>
           </layout_stack>
         </panel>
