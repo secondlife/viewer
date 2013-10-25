@@ -755,7 +755,7 @@ bool LLAppViewer::init()
 	initLoggingAndGetLastDuration();
 	
 	processMarkerFiles();
-
+	
 	//
 	// OK to write stuff to logs now, we've now crash reported if necessary
 	//
@@ -1230,8 +1230,8 @@ void LLAppViewer::checkMemory()
 	}
 	mMemCheckTimer.reset() ;
 
-		//update the availability of memory
-		LLMemory::updateMemoryInfo() ;
+	//update the availability of memory
+	LLMemory::updateMemoryInfo() ;
 
 	bool is_low = LLMemory::isMemoryPoolLow() ;
 
@@ -1761,7 +1761,7 @@ bool LLAppViewer::cleanup()
 		gAudiop->setStreamingAudioImpl(NULL);
 
 		// shut down the audio subsystem
-			gAudiop->shutdown();
+        gAudiop->shutdown();
 
 		delete gAudiop;
 		gAudiop = NULL;
@@ -2574,9 +2574,9 @@ bool LLAppViewer::initConfiguration()
                 {
 					llwarns << "Failed --set " << name << ": setting name unknown." << llendl;
                 }
+                }
             }
         }
-    }
 
     if  (clp.hasOption("logevents")) {
 	LLViewerEventRecorder::instance().setEventLoggingOn();
@@ -2584,7 +2584,7 @@ bool LLAppViewer::initConfiguration()
 
 	std::string CmdLineChannel(gSavedSettings.getString("CmdLineChannel"));
 	if(! CmdLineChannel.empty())
-    {
+	{
 		LLVersionInfo::resetChannel(CmdLineChannel);
 	}
 
@@ -2596,16 +2596,16 @@ bool LLAppViewer::initConfiguration()
 		LLFastTimer::sLog = TRUE;
 		LLFastTimer::sLogName = std::string("performance");		
 	}
-	
+
 	std::string test_name(gSavedSettings.getString("LogMetrics"));
 	if (! test_name.empty())
- 	{
+	{
  		LLFastTimer::sMetricLog = TRUE ;
 		// '--logmetrics' is specified with a named test metric argument so the data gathering is done only on that test
 		// In the absence of argument, every metric would be gathered (makes for a rather slow run and hard to decipher report...)
 		llinfos << "'--logmetrics' argument : " << test_name << llendl;
 			LLFastTimer::sLogName = test_name;
-		}
+ 	}
 
 	if (clp.hasOption("graphicslevel"))
 	{
@@ -2614,14 +2614,14 @@ bool LLAppViewer::initConfiguration()
 		// that value for validity.
 		U32 graphicslevel = gSavedSettings.getU32("RenderQualityPerformance");
 		if (LLFeatureManager::instance().isValidGraphicsLevel(graphicslevel))
-        {
+		{
 			// graphicslevel is valid: save it and engage it later. Capture
 			// the requested value separately from the settings variable
 			// because, if this is the first run, LLViewerWindow's constructor
 			// will call LLFeatureManager::applyRecommendedSettings(), which
 			// overwrites this settings variable!
 			mForceGraphicsLevel = graphicslevel;
-        }
+		}
 	}
 
 	LLFastTimerView::sAnalyzePerformance = gSavedSettings.getBOOL("AnalyzePerformance");
@@ -2655,14 +2655,14 @@ bool LLAppViewer::initConfiguration()
 	LLSLURL start_slurl;
 	std::string CmdLineLoginLocation(gSavedSettings.getString("CmdLineLoginLocation"));
 	if(! CmdLineLoginLocation.empty())
-    {
+	{
 		start_slurl = CmdLineLoginLocation;
 		LLStartUp::setStartSLURL(start_slurl);
 		if(start_slurl.getType() == LLSLURL::LOCATION) 
-		{  
+	{
 			LLGridManager::getInstance()->setGridChoice(start_slurl.getGrid());
-    }
-    }
+		}
+	}
 
 	//RN: if we received a URL, hand it off to the existing instance.
 	// don't call anotherInstanceRunning() when doing URL handoff, as
@@ -2673,11 +2673,11 @@ bool LLAppViewer::initConfiguration()
 		(gSavedSettings.getBOOL("SLURLPassToOtherInstance")))
 	{
 		if (sendURLToOtherInstance(start_slurl.getSLURLString()))
-		{
+		{  
 			// successfully handed off URL to existing instance, exit
 			return false;
 		}
-    }
+	}
 
 	const LLControlVariable* skinfolder = gSavedSettings.getControl("SkinCurrent");
 	if(skinfolder && LLStringUtil::null != skinfolder->getValue().asString())
@@ -2994,26 +2994,26 @@ namespace {
 		{
 			LL_WARNS("UpdaterService") << "no info url supplied - defaulting to hard coded release notes pattern" << LL_ENDL;
 
-		// truncate version at the rightmost '.' 
-		std::string version_short(data["version"]);
-		size_t short_length = version_short.rfind('.');
-		if (short_length != std::string::npos)
-		{
-			version_short.resize(short_length);
-		}
+			// truncate version at the rightmost '.' 
+			std::string version_short(data["version"]);
+			size_t short_length = version_short.rfind('.');
+			if (short_length != std::string::npos)
+			{
+				version_short.resize(short_length);
+			}
 
-		LLUIString relnotes_url("[RELEASE_NOTES_BASE_URL][CHANNEL_URL]/[VERSION_SHORT]");
-		relnotes_url.setArg("[VERSION_SHORT]", version_short);
+			LLUIString relnotes_url("[RELEASE_NOTES_BASE_URL][CHANNEL_URL]/[VERSION_SHORT]");
+			relnotes_url.setArg("[VERSION_SHORT]", version_short);
 
-		// *TODO thread the update service's response through to this point
-		std::string const & channel = LLVersionInfo::getChannel();
-		boost::shared_ptr<char> channel_escaped(curl_escape(channel.c_str(), channel.size()), &curl_free);
+			// *TODO thread the update service's response through to this point
+			std::string const & channel = LLVersionInfo::getChannel();
+			boost::shared_ptr<char> channel_escaped(curl_escape(channel.c_str(), channel.size()), &curl_free);
 
-		relnotes_url.setArg("[CHANNEL_URL]", channel_escaped.get());
-		relnotes_url.setArg("[RELEASE_NOTES_BASE_URL]", LLTrans::getString("RELEASE_NOTES_BASE_URL"));
+			relnotes_url.setArg("[CHANNEL_URL]", channel_escaped.get());
+			relnotes_url.setArg("[RELEASE_NOTES_BASE_URL]", LLTrans::getString("RELEASE_NOTES_BASE_URL"));
 			substitutions["INFO_URL"] = relnotes_url.getString();
 		}
-
+		
 		LLNotificationsUtil::add(notification_name, substitutions, LLSD(), apply_callback);
 	}
 
@@ -3202,7 +3202,7 @@ bool LLAppViewer::initWindow()
 		LLFeatureManager::getInstance()->setGraphicsLevel(*mForceGraphicsLevel, false);
 		gSavedSettings.setU32("RenderQualityPerformance", *mForceGraphicsLevel);
 	}
-			
+
 	// Set this flag in case we crash while initializing GL
 	gSavedSettings.setBOOL("RenderInitError", TRUE);
 	gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
@@ -3485,9 +3485,9 @@ void LLAppViewer::handleViewerCrash()
 	if (gDirUtilp)
 	{
 		std::string crash_marker_file_name = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
-																			gLLErrorActivated
-																			? LLERROR_MARKER_FILE_NAME
-																			: ERROR_MARKER_FILE_NAME);
+																	 gLLErrorActivated
+																	 ? LLERROR_MARKER_FILE_NAME
+																	 : ERROR_MARKER_FILE_NAME);
 		LLAPRFile crash_marker_file ;
 		crash_marker_file.open(crash_marker_file_name, LL_APR_WB);
 		if (crash_marker_file.getFileHandle())
@@ -3498,7 +3498,7 @@ void LLAppViewer::handleViewerCrash()
 		else
 		{
 			LL_WARNS("MarkerFile") << "Cannot create error marker file " << crash_marker_file_name << LL_ENDL;
-		}
+		}		
 	}
 	else
 	{
@@ -3637,7 +3637,7 @@ void LLAppViewer::processMarkerFiles()
 		}
 
 		if (mSecondInstance)
-		{
+	{
 			LL_INFOS("MarkerFile") << "Exec marker '"<< mMarkerFileName << "' owned by another instance" << LL_ENDL;
 		}
 		else if (marker_is_same_version)
@@ -3651,7 +3651,7 @@ void LLAppViewer::processMarkerFiles()
 		{
 			LL_INFOS("MarkerFile") << "Exec marker '"<< mMarkerFileName << "' found, but versions did not match" << LL_ENDL;
 		}
-	}
+	}    
 	else // marker did not exist... last exec (if any) did not freeze
 	{
 		// Create the marker file for this execution & lock it; it will be deleted on a clean exit
@@ -3705,12 +3705,12 @@ void LLAppViewer::processMarkerFiles()
 			{
 				gLastExecEvent = LAST_EXEC_LOGOUT_CRASH;
 				LL_INFOS("MarkerFile") << "LLError marker '"<< llerror_marker_file << "' crashed, setting LastExecEvent to LOGOUT_CRASH" << LL_ENDL;
-			}
-			else
-			{
+		}
+		else
+		{
 				gLastExecEvent = LAST_EXEC_LLERROR_CRASH;
 				LL_INFOS("MarkerFile") << "LLError marker '"<< llerror_marker_file << "' crashed, setting LastExecEvent to LLERROR_CRASH" << LL_ENDL;
-			}
+		}
 		}
 		else
 		{
@@ -3723,20 +3723,20 @@ void LLAppViewer::processMarkerFiles()
 	if(LLAPRFile::isExist(error_marker_file, NULL, LL_APR_RB))
 	{
 		if (markerIsSameVersion(error_marker_file))
-		{
+	{
 			if (gLastExecEvent == LAST_EXEC_LOGOUT_FROZE)
-			{
+		{
 				gLastExecEvent = LAST_EXEC_LOGOUT_CRASH;
 				LL_INFOS("MarkerFile") << "Error marker '"<< error_marker_file << "' crashed, setting LastExecEvent to LOGOUT_CRASH" << LL_ENDL;
-			}
-			else
-			{
-				gLastExecEvent = LAST_EXEC_OTHER_CRASH;
-				LL_INFOS("MarkerFile") << "Error marker '"<< error_marker_file << "' crashed, setting LastExecEvent to " << gLastExecEvent << LL_ENDL;
-			}
 		}
 		else
 		{
+				gLastExecEvent = LAST_EXEC_OTHER_CRASH;
+				LL_INFOS("MarkerFile") << "Error marker '"<< error_marker_file << "' crashed, setting LastExecEvent to " << gLastExecEvent << LL_ENDL;
+		}
+	}
+	else
+	{
 			LL_INFOS("MarkerFile") << "Error marker '"<< error_marker_file << "' marker found, but versions did not match" << LL_ENDL;
 		}
 		LLAPRFile::remove(error_marker_file);
@@ -3748,29 +3748,29 @@ void LLAppViewer::removeMarkerFile(bool leave_logout_marker)
 	if (!mSecondInstance)
 	{		
 		LL_DEBUGS("MarkerFile") << (leave_logout_marker?"leave":"remove") <<" logout" << LL_ENDL;
-		if (mMarkerFile.getFileHandle())
-		{
+	if (mMarkerFile.getFileHandle())
+	{
 			LL_DEBUGS("MarkerFile") << "removing exec marker '"<<mMarkerFileName<<"'"<< LL_ENDL;
 			mMarkerFile.close() ;
-			LLAPRFile::remove( mMarkerFileName );
+		LLAPRFile::remove( mMarkerFileName );
+	}
+	else
+	{
+			LL_WARNS("MarkerFile") << "marker '"<<mMarkerFileName<<"' not open"<< LL_ENDL;
+	}
+	if (!leave_logout_marker)
+	{
+		if (mLogoutMarkerFile.getFileHandle())
+		{
+				LL_DEBUGS("MarkerFile") << "removing logout marker '"<<mLogoutMarkerFileName<<"'"<< LL_ENDL;
+			mLogoutMarkerFile.close();
 		}
 		else
 		{
-			LL_WARNS("MarkerFile") << "marker '"<<mMarkerFileName<<"' not open"<< LL_ENDL;
-		}
-		if (!leave_logout_marker)
-		{
-			if (mLogoutMarkerFile.getFileHandle())
-			{
-				LL_DEBUGS("MarkerFile") << "removing logout marker '"<<mLogoutMarkerFileName<<"'"<< LL_ENDL;
-				mLogoutMarkerFile.close();
-			}
-			else
-			{
 				LL_WARNS("MarkerFile") << "logout marker '"<<mLogoutMarkerFileName<<"' not open"<< LL_ENDL;
-			}
-			LLAPRFile::remove( mLogoutMarkerFileName );
 		}
+		LLAPRFile::remove( mLogoutMarkerFileName );
+	}
 	}
 	else
 	{
@@ -4713,7 +4713,7 @@ void LLAppViewer::idle()
 		
         if (!(logoutRequestSent() && hasSavedFinalSnapshot()))
 		{
-			gObjectList.update(gAgent, *LLWorld::getInstance());
+			gObjectList.update(gAgent);
 		}
 	}
 	
@@ -5402,7 +5402,7 @@ void LLAppViewer::handleLoginComplete()
 
 void LLAppViewer::launchUpdater()
 {
-		LLSD query_map = LLSD::emptyMap();
+	LLSD query_map = LLSD::emptyMap();
 	query_map["os"] = gPlatform;
 
 	// *TODO change userserver to be grid on both viewer and sim, since
@@ -5599,7 +5599,7 @@ void LLAppViewer::metricsSend(bool enable_reporting)
 			// Make a copy of the main stats to send into another thread.
 			// Receiving thread takes ownership.
 			LLViewerAssetStats * main_stats(new LLViewerAssetStats(*gViewerAssetStatsMain));
-			
+
 			// Send a report request into 'thread1' to get the rest of the data
 			// and provide some additional parameters while here.
 			LLAppViewer::sTextureFetch->commandSendMetrics(caps_url,
