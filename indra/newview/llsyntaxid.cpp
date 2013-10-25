@@ -41,14 +41,17 @@
 //-----------------------------------------------------------------------------
 class fetchKeywordsFileResponder : public LLCurl::Responder
 {
-	std::string	mFileSpec;
 public:
+	std::string	mFileSpec;
+
 	fetchKeywordsFileResponder(std::string filespec)
 	{
 		mFileSpec = filespec;
 	}
 
-	void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+	void errorWithContent(U32 status,
+						  const std::string& reason,
+						  const LLSD& content)
 	{
 		LL_WARNS("")
 				<< "fetchKeywordsFileResponder error [status:"
@@ -58,15 +61,14 @@ public:
 				<< LL_ENDL;
 	}
 
-	void result(LLSD& content_ref)
+	void result(const LLSD& content_ref)
 	{
-		LLSyntaxIdLSL::setKeywordsXml(content_ref);
+		//LLSyntaxIdLSL::setKeywordsXml(content_ref);
 
 		std::stringstream str;
 		LLSDSerialize::toPrettyXML(content_ref, str);
 		LL_WARNS("")
-				<< "fetchKeywordsFileResponder result:"
-				<< str.str()
+				<< "fetchKeywordsFileResponder result:" << str.str()
 				<< "filename: '" << mFileSpec << "'"
 				<< LL_ENDL;
 
@@ -80,20 +82,21 @@ public:
 //-----------------------------------------------------------------------------
 // LLSyntaxIdLSL
 //-----------------------------------------------------------------------------
+/**
+ * @brief LLSyntaxIdLSL constructor
+ */
 LLSyntaxIdLSL::LLSyntaxIdLSL() :
 	// Move these to signature?
-	mFilenameDefault("keywords_lsl_default.xml"),
+	mFileNameDefault("keywords_lsl_default.xml"),
 	mSimulatorFeature("LSLSyntaxId"),
-	mCapabilityName("LSLSyntax")
+	mCapabilityName("LSLSyntax"),
+	mFilePath(LL_PATH_APP_SETTINGS)
 {
 	mCurrentSyntaxId = LLUUID();
-	mFilenameCurrent = mFilenameDefault;
-	mFilenameLocation = LL_PATH_APP_SETTINGS;
-	checkSyntaxIdChange();
-	//LLEnvManagerNew::instance().setRegionChangeCallback(boost::bind(&LLSyntaxIdLSL::checkSyntaxIdChange(), this));
+	mFileNameCurrent = mFileNameDefault;
 }
 
-std::string LLSyntaxIdLSL::buildFilename(LLUUID& SyntaxId)
+std::string LLSyntaxIdLSL::buildFileName(LLUUID& SyntaxId)
 {
 	std::string filename = "keywords_lsl_" + SyntaxId.asString() + "_" + gLastVersionChannel + ".llsd.xml";
 	return filename;
@@ -102,23 +105,24 @@ std::string LLSyntaxIdLSL::buildFilename(LLUUID& SyntaxId)
 //-----------------------------------------------------------------------------
 // checkSyntaxIdChange()
 //-----------------------------------------------------------------------------
-bool LLSyntaxIdLSL::checkSyntaxIdChange()
+bool LLSyntaxIdLSL::checkSyntaxIdChanged()
 {
 	bool changed = false;
-	if (mRegion)
-	{
-		LL_WARNS("LSLSyntax")
-			<< "REGION is '"
-			<< mRegion->getName()
-			<< "'"
-			<< LL_ENDL;
+	LLViewerRegion* region = gAgent.getRegion();
 
-		if (!mRegion->capabilitiesReceived())
+	if (region)
+	{
+		/*
+		LL_WARNS("LSLSyntax")
+			<< "REGION is '" << region->getName() << "'"
+			<< LL_ENDL;
+			*/
+
+		if (!region->capabilitiesReceived())
 		{   // Shouldn't be possible, but experience shows that it's needed
-//				mRegion->setCapabilitiesReceivedCallback(boost::bind(&LLSyntaxIdLSL::checkSyntaxIdChange, this));
+//				region->setCapabilitiesReceivedCallback(boost::bind(&LLSyntaxIdLSL::checkSyntaxIdChange, this));
 			LL_WARNS("LSLSyntax")
-				<< "mRegion '"
-				<< mRegion->getName()
+				<< "region '" << region->getName()
 				<< "' has not received capabilities yet! Setting a callback for when they arrive."
 				<< LL_ENDL;
 		}
@@ -126,23 +130,21 @@ bool LLSyntaxIdLSL::checkSyntaxIdChange()
 		{
 			// get and check the hash
 			LLSD simFeatures;
-			mRegion->getSimulatorFeatures(simFeatures);
+			region->getSimulatorFeatures(simFeatures);
 			if (simFeatures.has("LSLSyntaxId"))
 			{
 				LLUUID SyntaxId = simFeatures["LSLSyntaxId"].asUUID();
 				if (mCurrentSyntaxId != SyntaxId)
 				{
 					// set the properties for the fetcher to use
-					mFilenameCurrent = buildFilename(SyntaxId);
-					mFilenameLocation = LL_PATH_CACHE;
+					mFileNameCurrent = buildFileName(SyntaxId);
+					mFilePath = LL_PATH_CACHE;
 					mCurrentSyntaxId = SyntaxId;
 
 					LL_WARNS("LSLSyntax")
-						<< "Region changed to '"
-						<< mRegion->getName()
+						<< "Region changed to '" << region->getName()
 						<< "' it has LSLSyntaxId capability, and the new hash is '"
-						<< SyntaxId
-						<< "'"
+						<< SyntaxId << "'"
 						<< LL_ENDL;
 
 					changed = true;
@@ -150,11 +152,9 @@ bool LLSyntaxIdLSL::checkSyntaxIdChange()
 				else
 				{
 					LL_WARNS("LSLSyntax")
-						<< "Region changed to '"
-						<< mRegion->getName()
+						<< "Region changed to '" << region->getName()
 						<< "' it has the same LSLSyntaxId! Leaving hash as '"
-						<< mCurrentSyntaxId
-						<< "'"
+						<< mCurrentSyntaxId << "'"
 						<< LL_ENDL;
 				}
 			}
@@ -164,17 +164,19 @@ bool LLSyntaxIdLSL::checkSyntaxIdChange()
 				if ( mCurrentSyntaxId.isNull() )
 				{
 					LL_WARNS("LSLSyntax")
-						<< "Region does not have LSLSyntaxId capability, remaining with default keywords file!"
+						<< "Region changed to '" << region->getName()
+						<< " it does not have LSLSyntaxId capability, remaining with default keywords file!"
 						<< LL_ENDL;
 				}
 				else
 				{
 					mCurrentSyntaxId = LLUUID();
-					mFilenameCurrent = mFilenameDefault;
-					mFilenameLocation = LL_PATH_APP_SETTINGS;
+					mFileNameCurrent = mFileNameDefault;
+					mFilePath = LL_PATH_APP_SETTINGS;
 
 					LL_WARNS("LSLSyntax")
-						<< "Region does not have LSLSyntaxId capability, using default keywords file!"
+						<< "Region changed to '" << region->getName()
+						<< " it does not have LSLSyntaxId capability, using default keywords file!"
 						<< LL_ENDL;
 
 					changed = true;
@@ -190,12 +192,13 @@ bool LLSyntaxIdLSL::checkSyntaxIdChange()
 //-----------------------------------------------------------------------------
 bool LLSyntaxIdLSL::fetchKeywordsFile()
 {
+	LLViewerRegion* region = gAgent.getRegion();
 	bool fetched = false;
-	std::string cap_url = mRegion->getCapability(mCapabilityName);
-//	mResponder->setFileSpec(mFilenameSpec);
+
+	std::string cap_url = region->getCapability(mCapabilityName);
 	if ( !cap_url.empty() )
 	{
-		LLHTTPClient::get(cap_url, new fetchKeywordsFileResponder(mFilenameSpec));
+		LLHTTPClient::get(cap_url, new fetchKeywordsFileResponder(mFullFileSpec));
 	}
 
 	return fetched;
@@ -203,26 +206,34 @@ bool LLSyntaxIdLSL::fetchKeywordsFile()
 
 void LLSyntaxIdLSL::initialise()
 {
-	mRegion = gAgent.getRegion();
-	if (checkSyntaxIdChange())
+	if (checkSyntaxIdChanged())
 	{
-		mFilenameFull = gDirUtilp->getExpandedFilename(
-					mFilenameLocation,
-					mFilenameCurrent
-					);
+		LL_WARNS("LSLSyntax")
+				<< "Change to syntax, setting up new file."
+				<< LL_ENDL;
+
+		setFileNameNew(gDirUtilp->getExpandedFilename(
+					mFilePath,
+					mFileNameCurrent
+					));
 		if ( !mCurrentSyntaxId.isNull() )
 		{
-			bool success = true;
-			if (!gDirUtilp->fileExists(mFilenameSpec))
-			{
-				//mResponder = new fetchKeywordsFileResponder(mFilenameSpec);
+			bool success = false;
+			if ( !gDirUtilp->fileExists(mFullFileSpec) )
+			{ // Does not exist, so fetch it from the capability
 				success = fetchKeywordsFile();
 			}
 		}
 		// TODO add a signal here to tell the editor the hash has changed?
 	}
+	else
+	{
+		LL_WARNS("LSLSyntax")
+				<< "Apparently there is no change to Syntax!"
+				<< LL_ENDL;
 
-	mRegion = NULL;
+	}
+	//LLEnvManagerNew::instance().setRegionChangeCallback(boost::bind(&LLSyntaxIdLSL::checkSyntaxIdChange(), this));
 }
 
 //-----------------------------------------------------------------------------

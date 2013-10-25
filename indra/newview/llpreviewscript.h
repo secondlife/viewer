@@ -150,7 +150,7 @@ private:
 	BOOL			mEnableSave;
 	BOOL			mHasScriptData;
 	LLLiveLSLFile*	mLiveFile;
-	LLSyntaxIdLSL	mSyntaxLSL;
+	LLSyntaxIdLSL	mSyntaxIdLSL;
 
 	LLScriptEdContainer* mContainer; // parent view
 };

@@ -12,9 +12,6 @@
 #include "llviewerregion.h"
 
 
-//class LLKeywords;
-
-
 /**
  * @file llsyntaxid.h
  * @brief The LLSyntaxIdLSL class
@@ -22,45 +19,45 @@
 class LLSyntaxIdLSL
 {
 public:
-	/**
-	 * @brief LLSyntaxIdLSL constructor
-	 */
 	LLSyntaxIdLSL();
 
-	LLUUID		getSyntaxId() const { return mCurrentSyntaxId; }
+	bool			checkSyntaxIdChanged();
+	std::string		getFileNameCurrent()	const { return mFileNameCurrent; }
+	ELLPath			getFilePath()			const { return mFilePath; }
+	LLUUID			getSyntaxId()			const { return mCurrentSyntaxId; }
 
-	bool		checkSyntaxIdChange();
-	std::string	filenameCurrent() { return mFilenameCurrent; }
-	ELLPath		filenamePath() { return mFilenameLocation; }
-	void		initialise();
-	static void	setKeywordsXml(const LLSD& content) { LLSyntaxIdLSL::sKeywordsXml = content; }
+	void			initialise();
 
-protected:
-	std::string	buildFilename(LLUUID& SyntaxId);
-	bool		fetchKeywordsFile();
-	void		openKeywordsFile();
-	void		setSyntaxId(LLUUID SyntaxId) { mCurrentSyntaxId = SyntaxId; }
-	void		setFilenameCurrent(std::string& name) { mFilenameCurrent = name; }
-	void		setFilenameDefault(std::string& name) { mFilenameDefault = name; }
-	void		setSimulatorFeatureName(const std::string& name) { mSimulatorFeature = name; }
-
-public:
-	static LLHTTPClient::ResponderPtr	mResponder;
+	static void		setKeywordsXml(const LLSD& content) { sKeywordsXml = content; }
 
 
 protected:
-//	LLKeywords&							mKeywords;
-	LLViewerRegion*						mRegion;
+	std::string		buildFileName(LLUUID& SyntaxId);
+	bool			fetchKeywordsFile();
+	void			openKeywordsFile();
+	void			setSyntaxId(LLUUID SyntaxId) { mCurrentSyntaxId = SyntaxId; }
+	void			setFileNameCurrent(std::string& name) { mFileNameCurrent = name; }
+	void			setFileNameDefault(std::string& name) { mFileNameDefault = name; }
+	void			setFileNameNew(std::string& name) { mFileNameNew = name; }
+	void			setSimulatorFeatureName(const std::string& name) { mSimulatorFeature = name; }
+
+
+//public:
+
+
+protected:
+	LLViewerRegion*	region;
+
 
 private:
-	std::string							mCapabilityName;
-	LLUUID								mCurrentSyntaxId;
-	std::string							mFilenameCurrent;
-	std::string							mFilenameDefault;
-	std::string							mFilenameFull;
-	ELLPath								mFilenameLocation;
-	std::string							mFilenameSpec;
-	std::string							mSimulatorFeature;
+	std::string		mCapabilityName;
+	LLUUID			mCurrentSyntaxId;
+	std::string		mFileNameCurrent;
+	std::string		mFileNameDefault;
+	std::string		mFileNameNew;
+	ELLPath			mFilePath;
+	std::string		mFullFileSpec;
+	std::string		mSimulatorFeature;
 
-	static LLSD							sKeywordsXml;
+	static LLSD		sKeywordsXml;
 };

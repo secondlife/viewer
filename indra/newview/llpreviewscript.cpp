@@ -407,14 +407,10 @@ BOOL LLScriptEdCore::postBuild()
 	initMenu();
 
 // Make this work ;-)
-	mSyntaxLSL = LLSyntaxIdLSL();
-
-//	mSyntaxLSL.initialise();
-//	mSyntaxLSL.mKeywords = &mEditor->mKeywords;
+	mSyntaxIdLSL.initialise();
 	// ...
-//	mSyntaxLSL->mKeywords.initialise();
-// Move into the SyntaxIdLSL class
-	mEditor->mKeywords.initialise(mSyntaxLSL.filenamePath(), mSyntaxLSL.filenameCurrent());
+	mEditor->mKeywords.initialise(LL_PATH_APP_SETTINGS, "keywords_lsl_default.xml");
+//	mEditor->mKeywords.initialise(mSyntaxIdLSL.getFullFileSpec());
 
 	// FIX: Refactor LLTextEditor::loadKeywords so these can be removed.
 	std::vector<std::string> funcs;
