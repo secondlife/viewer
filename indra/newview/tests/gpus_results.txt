@@ -1444,6 +1444,7 @@ Intel Intel(R) HD Graphics Family                                               
 Intel Intel(R) HD Graphics P3000                                                                         supported      2     1     4      Intel HD Graphics
 Intel Intel(R) HD Graphics P4000                                                                         supported      2     1     4      Intel HD Graphics
 Intel Intel(R) Q45/Q43 Express Chipset                                                                   supported      1     1     2.1    Intel Q45/Q43
+Intel Iris OpenGL Graphics Engine                                                                        supported      4     0     4      Intel Intel Iris OpenGL Engine
 Intel Mobile 4 Series                                                                                    supported      0     1     2.1    Intel Mobile 4 Series
 Intel Mobile Intel(R) 4 Series Express Chipset Family                                                    supported      0     1     2.1    Intel Mobile 4 Series
 Intel Mobile Intel(R) 4 Series Express Chipset Family v2                                                 supported      0     1     2.1    Intel Mobile 4 Series

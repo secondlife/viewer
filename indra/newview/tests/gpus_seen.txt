@@ -1908,6 +1908,7 @@ Intel Intel(R) HD Graphics P3000
 Intel Intel(R) HD Graphics P4000
 Intel Intel(R) Q45/Q43 Express Chipset
 Intel Intel(R) Q45/Q43 Express Chipset
+Intel Iris OpenGL Graphics Engine
 Intel Mobile 4 Series
 Intel Mobile Intel(R) 4 Series Express Chipset Family
 Intel Mobile Intel(R) 4 Series Express Chipset Family
