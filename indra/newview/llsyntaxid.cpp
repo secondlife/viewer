@@ -69,11 +69,10 @@ public:
 
 		LLSD& xml = LLSD::emptyMap();
 		LLSDSerialize::deserialize(xml, str, 10485760);
-		//LLSyntaxIdLSL::setKeywordsXml(xml);
 		LL_WARNS("")
-				<< "fetchKeywordsFileResponder result:" << str.str()
-				<< "filename: '" << mFileSpec << "'"
-				<< LL_ENDL;
+			<< "fetchKeywordsFileResponder result:" << str.str()
+			<< "filename: '" << mFileSpec << "'"
+			<< LL_ENDL;
 
 		// TODO save the damn str to disc
 		//llofstream file(mFileSpec, std::ios_base::out);
