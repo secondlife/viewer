@@ -35,6 +35,9 @@
 #include "llnotificationmanager.h"
 #include "llnotifications.h"
 #include "llscriptfloater.h"
+#include "llfacebookconnect.h"
+#include "llavatarname.h"
+#include "llavatarnamecache.h"
 
 using namespace LLNotificationsUI;
 
@@ -87,7 +90,7 @@ bool LLScriptHandler::processNotification(const LLNotificationPtr& notification)
 	{
 		LLScriptFloaterManager::getInstance()->onAddNotification(notification->getID());
 	}
-	else
+	else if (notification->canShowToast())
 	{
 		LLToastPanel* notify_box = LLToastPanel::buidPanelFromNotification(notification);
 

@@ -307,7 +307,12 @@ std::set<LLFolderViewItem*> LLFolderViewItem::getSelectionList() const
 // addToFolder() returns TRUE if it succeeds. FALSE otherwise
 void LLFolderViewItem::addToFolder(LLFolderViewFolder* folder)
 {
-	folder->addItem(this);
+	folder->addItem(this); 
+
+	// Compute indentation since parent folder changed
+	mIndentation = (getParentFolder())
+		? getParentFolder()->getIndentation() + mLocalIndentation
+		: 0; 
 }
 
 
@@ -940,6 +945,11 @@ LLFolderViewFolder::~LLFolderViewFolder( void )
 void LLFolderViewFolder::addToFolder(LLFolderViewFolder* folder)
 {
 	folder->addFolder(this);
+
+	// Compute indentation since parent folder changed
+	mIndentation = (getParentFolder())
+		? getParentFolder()->getIndentation() + mLocalIndentation
+		: 0; 
 }
 
 static LLFastTimer::DeclareTimer FTM_ARRANGE("Arrange");
@@ -1109,7 +1119,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 
 BOOL LLFolderViewFolder::needsArrange()
 {
-	return mLastArrangeGeneration < getRoot()->getArrangeGeneration(); 
+	return mLastArrangeGeneration < getRoot()->getArrangeGeneration();
 }
 
 // Passes selection information on to children and record selection

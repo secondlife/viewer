@@ -224,6 +224,10 @@
 #include "llmachineid.h"
 #include "llmainlooprepeater.h"
 
+
+#include "llviewereventrecorder.h"
+
+
 // *FIX: These extern globals should be cleaned up.
 // The globals either represent state/config/resource-storage of either 
 // this app, or another 'component' of the viewer. App globals should be 
@@ -697,6 +701,7 @@ LLAppViewer::LLAppViewer() :
 LLAppViewer::~LLAppViewer()
 {
 	delete mSettingsLocationList;
+	LLViewerEventRecorder::instance().~LLViewerEventRecorder();
 
 	LLLoginInstance::instance().setUpdaterService(0);
 	
@@ -2251,13 +2256,13 @@ bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
 
 		BOOST_FOREACH(const SettingsFile& file, group.files)
 		{
-			llinfos << "Attempting to load settings for the group " << file.name()
-			    << " - from location " << location_key << llendl;
+			LL_INFOS("Settings") << "Attempting to load settings for the group " << file.name()
+			    << " - from location " << location_key << LL_ENDL;
 
 			LLControlGroup* settings_group = LLControlGroup::getInstance(file.name);
 			if(!settings_group)
 			{
-				llwarns << "No matching settings group for name " << file.name() << llendl;
+				LL_WARNS("Settings") << "No matching settings group for name " << file.name() << LL_ENDL;
 				continue;
 			}
 
@@ -2286,7 +2291,7 @@ bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
 
 			if(settings_group->loadFromFile(full_settings_path, set_defaults, file.persistent))
 			{	// success!
-				llinfos << "Loaded settings file " << full_settings_path << llendl;
+				LL_INFOS("Settings") << "Loaded settings file " << full_settings_path << LL_ENDL;
 			}
 			else
 			{	// failed to load
@@ -2300,7 +2305,7 @@ bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
 					// only complain if we actually have a filename at this point
 					if (!full_settings_path.empty())
 					{
-						llinfos << "Cannot load " << full_settings_path << " - No settings found." << llendl;
+						LL_INFOS("Settings") << "Cannot load " << full_settings_path << " - No settings found." << LL_ENDL;
 					}
 				}
 			}
@@ -2396,8 +2401,6 @@ bool LLAppViewer::initConfiguration()
 	gSavedSettings.setString("ClientSettingsFile", 
         gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, getSettingsFilename("Default", "Global")));
 
-	gSavedSettings.setString("VersionChannelName", LLVersionInfo::getChannel());
-
 #ifndef	LL_RELEASE_FOR_DOWNLOAD
 	// provide developer build only overrides for these control variables that are not
 	// persisted to settings.xml
@@ -2461,8 +2464,8 @@ bool LLAppViewer::initConfiguration()
 			gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, 
 										   clp.getOption("settings")[0]);		
 		gSavedSettings.setString("ClientSettingsFile", user_settings_filename);
-		llinfos	<< "Using command line specified settings filename: " 
-			<< user_settings_filename << llendl;
+		LL_INFOS("Settings")	<< "Using command line specified settings filename: " 
+			<< user_settings_filename << LL_ENDL;
 	}
 
 	// - load overrides from user_settings 
@@ -2478,8 +2481,8 @@ bool LLAppViewer::initConfiguration()
 	{
 		std::string session_settings_filename = clp.getOption("sessionsettings")[0];		
 		gSavedSettings.setString("SessionSettingsFile", session_settings_filename);
-		llinfos	<< "Using session settings filename: " 
-			<< session_settings_filename << llendl;
+		LL_INFOS("Settings")	<< "Using session settings filename: " 
+			<< session_settings_filename << LL_ENDL;
 	}
 	loadSettingsFromDirectory("Session");
 
@@ -2487,8 +2490,8 @@ bool LLAppViewer::initConfiguration()
 	{
 		std::string user_session_settings_filename = clp.getOption("usersessionsettings")[0];		
 		gSavedSettings.setString("UserSessionSettingsFile", user_session_settings_filename);
-		llinfos	<< "Using user session settings filename: " 
-			<< user_session_settings_filename << llendl;
+		LL_INFOS("Settings") << "Using user session settings filename: " 
+			<< user_session_settings_filename << LL_ENDL;
 
 	}
 	loadSettingsFromDirectory("UserSession");
@@ -2576,9 +2579,13 @@ bool LLAppViewer::initConfiguration()
         }
     }
 
+    if  (clp.hasOption("logevents")) {
+	LLViewerEventRecorder::instance().setEventLoggingOn();
+    }
+
 	std::string CmdLineChannel(gSavedSettings.getString("CmdLineChannel"));
 	if(! CmdLineChannel.empty())
-	{
+    {
 		LLVersionInfo::resetChannel(CmdLineChannel);
 	}
 
@@ -2590,16 +2597,16 @@ bool LLAppViewer::initConfiguration()
 		LLFastTimer::sLog = TRUE;
 		LLFastTimer::sLogName = std::string("performance");		
 	}
-
+	
 	std::string test_name(gSavedSettings.getString("LogMetrics"));
 	if (! test_name.empty())
-	{
-		LLFastTimer::sMetricLog = TRUE ;
+ 	{
+ 		LLFastTimer::sMetricLog = TRUE ;
 		// '--logmetrics' is specified with a named test metric argument so the data gathering is done only on that test
 		// In the absence of argument, every metric would be gathered (makes for a rather slow run and hard to decipher report...)
 		llinfos << "'--logmetrics' argument : " << test_name << llendl;
-		LLFastTimer::sLogName = test_name;
- 	}
+			LLFastTimer::sLogName = test_name;
+		}
 
 	if (clp.hasOption("graphicslevel"))
 	{
@@ -2608,14 +2615,14 @@ bool LLAppViewer::initConfiguration()
 		// that value for validity.
 		U32 graphicslevel = gSavedSettings.getU32("RenderQualityPerformance");
 		if (LLFeatureManager::instance().isValidGraphicsLevel(graphicslevel))
-		{
+        {
 			// graphicslevel is valid: save it and engage it later. Capture
 			// the requested value separately from the settings variable
 			// because, if this is the first run, LLViewerWindow's constructor
 			// will call LLFeatureManager::applyRecommendedSettings(), which
 			// overwrites this settings variable!
 			mForceGraphicsLevel = graphicslevel;
-		}
+        }
 	}
 
 	LLFastTimerView::sAnalyzePerformance = gSavedSettings.getBOOL("AnalyzePerformance");
@@ -2646,16 +2653,32 @@ bool LLAppViewer::initConfiguration()
     // What can happen is that someone can use IE (or potentially 
     // other browsers) and do the rough equivalent of command 
     // injection and steal passwords. Phoenix. SL-55321
+	LLSLURL start_slurl;
 	std::string CmdLineLoginLocation(gSavedSettings.getString("CmdLineLoginLocation"));
 	if(! CmdLineLoginLocation.empty())
-	{
-		LLSLURL start_slurl(CmdLineLoginLocation);
+    {
+		start_slurl = CmdLineLoginLocation;
 		LLStartUp::setStartSLURL(start_slurl);
 		if(start_slurl.getType() == LLSLURL::LOCATION) 
 		{  
 			LLGridManager::getInstance()->setGridChoice(start_slurl.getGrid());
+    }
+    }
+
+	//RN: if we received a URL, hand it off to the existing instance.
+	// don't call anotherInstanceRunning() when doing URL handoff, as
+	// it relies on checking a marker file which will not work when running
+	// out of different directories
+
+	if (start_slurl.isValid() &&
+		(gSavedSettings.getBOOL("SLURLPassToOtherInstance")))
+	{
+		if (sendURLToOtherInstance(start_slurl.getSLURLString()))
+		{
+			// successfully handed off URL to existing instance, exit
+			return false;
 		}
-	}
+    }
 
 	const LLControlVariable* skinfolder = gSavedSettings.getControl("SkinCurrent");
 	if(skinfolder && LLStringUtil::null != skinfolder->getValue().asString())
@@ -2796,7 +2819,7 @@ bool LLAppViewer::initConfiguration()
 		LL_DEBUGS("AppInit")<<"set start from NextLoginLocation: "<<nextLoginLocation<<LL_ENDL;
 		LLStartUp::setStartSLURL(LLSLURL(nextLoginLocation));
 	}
-	else if ((clp.hasOption("login") || clp.hasOption("autologin"))
+	else if (   (   clp.hasOption("login") || clp.hasOption("autologin"))
 			 && gSavedSettings.getString("CmdLineLoginLocation").empty())
 	{
 		// If automatic login from command line with --login switch
@@ -3180,7 +3203,7 @@ bool LLAppViewer::initWindow()
 		LLFeatureManager::getInstance()->setGraphicsLevel(*mForceGraphicsLevel, false);
 		gSavedSettings.setU32("RenderQualityPerformance", *mForceGraphicsLevel);
 	}
-
+			
 	// Set this flag in case we crash while initializing GL
 	gSavedSettings.setBOOL("RenderInitError", TRUE);
 	gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
