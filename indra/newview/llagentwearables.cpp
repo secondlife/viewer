@@ -765,6 +765,40 @@ void LLAgentWearables::createStandardWearables()
 	}
 }
 
+// We no longer need this message in the current viewer, but send
+// it for now to maintain compatibility with release viewers. Can
+// remove this function once the SH-3455 changesets are universally deployed.
+void LLAgentWearables::sendDummyAgentWearablesUpdate()
+{
+	LL_DEBUGS("Avatar") << "sendAgentWearablesUpdate()" << llendl;
+
+	// Send the AgentIsNowWearing 
+	gMessageSystem->newMessageFast(_PREHASH_AgentIsNowWearing);
+	
+	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
+	gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+	gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+
+	// Send 4 standardized nonsense item ids (same as returned by the modified sim, not that it especially matters).
+	gMessageSystem->nextBlockFast(_PREHASH_WearableData);
+	gMessageSystem->addU8Fast(_PREHASH_WearableType, U8(1));
+	gMessageSystem->addUUIDFast(_PREHASH_ItemID, LLUUID("db5a4e5f-9da3-44c8-992d-1181c5795498"));			
+
+	gMessageSystem->nextBlockFast(_PREHASH_WearableData);
+	gMessageSystem->addU8Fast(_PREHASH_WearableType, U8(2));
+	gMessageSystem->addUUIDFast(_PREHASH_ItemID, LLUUID("6969c7cc-f72f-4a76-a19b-c293cce8ce4f"));			
+
+	gMessageSystem->nextBlockFast(_PREHASH_WearableData);
+	gMessageSystem->addU8Fast(_PREHASH_WearableType, U8(3));
+	gMessageSystem->addUUIDFast(_PREHASH_ItemID, LLUUID("7999702b-b291-48f9-8903-c91dfb828408"));			
+
+	gMessageSystem->nextBlockFast(_PREHASH_WearableData);
+	gMessageSystem->addU8Fast(_PREHASH_WearableType, U8(4));
+	gMessageSystem->addUUIDFast(_PREHASH_ItemID, LLUUID("566cb59e-ef60-41d7-bfa6-e0f293fbea40"));			
+
+	gAgent.sendReliableMessage();
+}
+
 void LLAgentWearables::makeNewOutfitDone(S32 type, U32 index)
 {
 	LLUUID first_item_id = getWearableItemID((LLWearableType::EType)type, index);

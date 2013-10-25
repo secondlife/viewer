@@ -164,6 +164,11 @@ public:
 	void			saveAllWearables();
 	void			revertWearable(const LLWearableType::EType type, const U32 index);
 
+	// We no longer need this message in the current viewer, but send
+	// it for now to maintain compatibility with release viewers. Can
+	// remove this function once the SH-3455 changesets are universally deployed.
+	void			sendDummyAgentWearablesUpdate();
+
 	//--------------------------------------------------------------------
 	// Static UI hooks
 	//--------------------------------------------------------------------

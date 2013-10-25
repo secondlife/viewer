@@ -2044,6 +2044,7 @@ bool idle_startup()
 											   LLAppearanceMgr::getInstance(), true, true, no_op));
 			LLAppearanceMgr::instance().setAttachmentInvLinkEnable(true);
 			gAgent.setOutfitChosen(TRUE);
+			gAgentWearables.sendDummyAgentWearablesUpdate();
 		}
 
 		display_startup();
@@ -2622,6 +2623,7 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 	}
 
 	gAgent.setOutfitChosen(TRUE);
+	gAgentWearables.sendDummyAgentWearablesUpdate();
 }
 
 //static
