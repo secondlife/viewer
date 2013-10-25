@@ -64,9 +64,12 @@ public:
 	void result(const LLSD& content_ref)
 	{
 		//LLSyntaxIdLSL::setKeywordsXml(content_ref);
-
 		std::stringstream str;
 		LLSDSerialize::toPrettyXML(content_ref, str);
+
+		LLSD& xml = LLSD::emptyMap();
+		LLSDSerialize::deserialize(xml, str, 10485760);
+		//LLSyntaxIdLSL::setKeywordsXml(xml);
 		LL_WARNS("")
 				<< "fetchKeywordsFileResponder result:" << str.str()
 				<< "filename: '" << mFileSpec << "'"
