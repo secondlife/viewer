@@ -178,6 +178,7 @@ void LLTexLayerParamAlpha::setWeight(F32 weight)
 		if ((mAvatarAppearance->getSex() & getSex()) &&
 			(mAvatarAppearance->isSelf() && !mIsDummy)) // only trigger a baked texture update if we're changing a wearable's visual param.
 		{
+			mAvatarAppearance->invalidateComposite(mTexLayer->getTexLayerSet());
 			mTexLayer->invalidateMorphMasks();
 		}
 	}
@@ -464,6 +465,24 @@ void LLTexLayerParamColor::setWeight(F32 weight)
 	if (cur_u8 != new_u8)
 	{
 		mCurWeight = new_weight;
+
+                const LLTexLayerParamColorInfo *info = (LLTexLayerParamColorInfo *)getInfo();
+
+		if (info->mNumColors <= 0)
+		{
+			// This will happen when we set the default weight the first time.
+			return;
+		}
+
+		if ((mAvatarAppearance->getSex() & getSex()) && (mAvatarAppearance->isSelf() && !mIsDummy)) // only trigger a baked texture update if we're changing a wearable's visual param.
+		{
+			onGlobalColorChanged();
+			if (mTexLayer)
+			{
+				mAvatarAppearance->invalidateComposite(mTexLayer->getTexLayerSet());
+			}
+		}
+
 //		llinfos << "param " << mName << " = " << new_weight << llendl;
 	}
 }

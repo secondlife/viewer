@@ -103,6 +103,11 @@ LLTexParamGlobalColor::LLTexParamGlobalColor(LLTexGlobalColor* tex_global_color)
 	return new_param;
 }
 
+void LLTexParamGlobalColor::onGlobalColorChanged()
+{
+	mAvatarAppearance->onGlobalColorChanged(mTexGlobalColor);
+}
+
 //-----------------------------------------------------------------------------
 // LLTexGlobalColorInfo
 //-----------------------------------------------------------------------------

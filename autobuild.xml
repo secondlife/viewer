@@ -1290,9 +1290,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>bda18a1f808eb248d69ff14fa2c69862</string>
+              <string>43826f8f0a5ce5bcdbfed9ea0b6f4ebb</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llappearanceutility-source/rev/282464/arch/Linux/installer/llappearanceutility_source-0.1-linux-20131016.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llappearanceutility-source/rev/283022/arch/Linux/installer/llappearanceutility_source-0.1-linux-20131025.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>

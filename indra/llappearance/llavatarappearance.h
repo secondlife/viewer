@@ -219,6 +219,12 @@ public:
  **                                                                            **
  *******************************************************************************/
 
+	//--------------------------------------------------------------------
+	// Composites
+	//--------------------------------------------------------------------
+public:
+	virtual void	invalidateComposite(LLTexLayerSet* layerset) = 0;
+
 /********************************************************************************
  **                                                                            **
  **                    MESHES
@@ -257,6 +263,7 @@ public:
 	//--------------------------------------------------------------------
 public:
 	LLColor4		getGlobalColor(const std::string& color_name ) const;
+	virtual void	onGlobalColorChanged(const LLTexGlobalColor* global_color) = 0;
 protected:
 	LLTexGlobalColor* mTexSkinColor;
 	LLTexGlobalColor* mTexHairColor;
