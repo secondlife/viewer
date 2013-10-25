@@ -504,6 +504,7 @@
             layout="topleft"
             right="-10"
             top_pad="-19"
+            tool_tip="Increasing the maturity rating on an experience will reset permission for all residents which have allowed the experience."
             name="edit_ContentRatingText"
             width="105">
             <icons_combo_box.drop_down_button
@@ -606,6 +607,7 @@
                      left="10"
                      layout="topleft"
                      follows="top|left"
+                     tool_tip=""
                      label="Enable Experience"
                      name="edit_enable_btn"/>
           <check_box width="130"
@@ -636,6 +638,17 @@
             width="120"
             right="-10"
             visible="true"/>
+          <text
+            follows="left|top|right"
+            height="50"
+            layout="topleft"
+            left="10"
+            top_pad="10"
+            name="changes"
+            use_ellipses="true"
+            word_wrap="true"
+            value="Experience changes may take several minutes to be seen on all regions."
+            right="-10"/>
         </panel>
       </scroll_container>
     </panel>

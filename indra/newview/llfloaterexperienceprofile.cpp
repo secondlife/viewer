@@ -275,6 +275,8 @@ BOOL LLFloaterExperienceProfile::postBuild()
     childSetCommitCallback(EDIT BTN_ENABLE, boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this), NULL);
     childSetCommitCallback(EDIT BTN_PRIVATE, boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this), NULL);
 
+    childSetCommitCallback(EDIT IMG_LOGO, boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this), NULL);
+
     getChild<LLTextEditor>(EDIT TF_DESC)->setCommitOnFocusLost(TRUE);
 
 
@@ -396,6 +398,7 @@ bool LLFloaterExperienceProfile::setMaturityString( U8 maturity, LLTextBox* chil
 void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
 {
     mExperienceDetails = experience;
+    mPackage = experience;
 
 
     LLLayoutPanel* imagePanel = getChild<LLLayoutPanel>(PNL_IMAGE);
@@ -581,7 +584,23 @@ void LLFloaterExperienceProfile::setPreferences( const LLSD& content )
 
 void LLFloaterExperienceProfile::onFieldChanged()
 {
-    mDirty=true;
+    updatePackage();
+
+    LLSD::map_const_iterator st = mExperienceDetails.beginMap();
+    LLSD::map_const_iterator dt = mPackage.beginMap();
+
+    mDirty = false;
+    while( !mDirty && st != mExperienceDetails.endMap() && dt != mPackage.endMap())
+    {
+        mDirty = st->first != dt->first || st->second.asString() != dt->second.asString();
+        ++st;++dt;
+    }
+
+    if(!mDirty && (st != mExperienceDetails.endMap() || dt != mPackage.endMap()))
+    {
+        mDirty = true;
+    }
+
     getChild<LLButton>(BTN_SAVE)->setEnabled(mDirty);
 }
 
@@ -645,60 +664,8 @@ void LLFloaterExperienceProfile::doSave( int success_action )
     std::string url=region->getCapability("UpdateExperience"); 
     if(url.empty())
         return;
-
-    LLSD package=mExperienceDetails;
-
-    package[LLExperienceCache::NAME] = getChild<LLLineEditor>(EDIT TF_NAME)->getText();
-    package[LLExperienceCache::DESCRIPTION] = getChild<LLTextEditor>(EDIT TF_DESC)->getText();
-    std::string slurl = getChild<LLTextBox>(EDIT TF_SLURL)->getText();
-    if(slurl == getString("empty_slurl"))
-    {
-        package[LLExperienceCache::SLURL] = LLStringUtil::null;
-    }
-    else
-    {
-        package[LLExperienceCache::SLURL] = slurl;
-    }
-
-    package[LLExperienceCache::MATURITY] = getChild<LLComboBox>(EDIT TF_MATURITY)->getSelectedValue().asInteger();
-
-    LLSD metadata;
-
-    metadata[TF_MRKT] = getChild<LLLineEditor>(EDIT TF_MRKT)->getText();
-    metadata[IMG_LOGO] = getChild<LLTextureCtrl>(EDIT IMG_LOGO)->getImageAssetID();
-
-    LLPointer<LLSDXMLFormatter> formatter = new LLSDXMLFormatter();
-
-    std::ostringstream os;
-    if(formatter->format(metadata, os))
-    {
-        package[LLExperienceCache::METADATA]=os.str();
-    }
-
-    int properties = package[LLExperienceCache::PROPERTIES].asInteger();
-    LLCheckBoxCtrl* enable = getChild<LLCheckBoxCtrl>(EDIT BTN_ENABLE);
-    if(enable->get())
-    {
-        properties &= ~LLExperienceCache::PROPERTY_DISABLED;
-    }
-    else
-    {
-        properties |= LLExperienceCache::PROPERTY_DISABLED;
-    }
-
-    enable = getChild<LLCheckBoxCtrl>(EDIT BTN_PRIVATE);
-    if(enable->get())
-    {
-        properties |= LLExperienceCache::PROPERTY_PRIVATE;
-    }
-    else
-    {
-        properties &= ~LLExperienceCache::PROPERTY_PRIVATE;
-    }
-
-    package[LLExperienceCache::PROPERTIES] = properties; 
-
-    LLHTTPClient::post(url, package, new ExperienceUpdateResponder(getDerivedHandle<LLFloaterExperienceProfile>()));
+    
+    LLHTTPClient::post(url, mPackage, new ExperienceUpdateResponder(getDerivedHandle<LLFloaterExperienceProfile>()));
 }
 
 void LLFloaterExperienceProfile::onSaveComplete( const LLSD& content )
@@ -840,4 +807,57 @@ void LLFloaterExperienceProfile::onClose( bool app_quitting )
 {
     LLEventPumps::instance().obtain("experience_permission").stopListening(mExperienceId.asString()+"-profile");
     LLFloater::onClose(app_quitting);
+}
+
+void LLFloaterExperienceProfile::updatePackage()
+{
+    mPackage[LLExperienceCache::NAME] = getChild<LLLineEditor>(EDIT TF_NAME)->getText();
+    mPackage[LLExperienceCache::DESCRIPTION] = getChild<LLTextEditor>(EDIT TF_DESC)->getText();
+    std::string slurl = getChild<LLTextBox>(EDIT TF_SLURL)->getText();
+    if(slurl == getString("empty_slurl"))
+    {
+        mPackage[LLExperienceCache::SLURL] = LLStringUtil::null;
+    }
+    else
+    {
+        mPackage[LLExperienceCache::SLURL] = slurl;
+    }
+
+    mPackage[LLExperienceCache::MATURITY] = getChild<LLComboBox>(EDIT TF_MATURITY)->getSelectedValue().asInteger();
+
+    LLSD metadata;
+
+    metadata[TF_MRKT] = getChild<LLLineEditor>(EDIT TF_MRKT)->getText();
+    metadata[IMG_LOGO] = getChild<LLTextureCtrl>(EDIT IMG_LOGO)->getImageAssetID();
+
+    LLPointer<LLSDXMLFormatter> formatter = new LLSDXMLFormatter();
+
+    std::ostringstream os;
+    if(formatter->format(metadata, os))
+    {
+        mPackage[LLExperienceCache::METADATA]=os.str();
+    }
+
+    int properties = mPackage[LLExperienceCache::PROPERTIES].asInteger();
+    LLCheckBoxCtrl* enable = getChild<LLCheckBoxCtrl>(EDIT BTN_ENABLE);
+    if(enable->get())
+    {
+        properties &= ~LLExperienceCache::PROPERTY_DISABLED;
+    }
+    else
+    {
+        properties |= LLExperienceCache::PROPERTY_DISABLED;
+    }
+
+    enable = getChild<LLCheckBoxCtrl>(EDIT BTN_PRIVATE);
+    if(enable->get())
+    {
+        properties |= LLExperienceCache::PROPERTY_PRIVATE;
+    }
+    else
+    {
+        properties &= ~LLExperienceCache::PROPERTY_PRIVATE;
+    }
+
+    mPackage[LLExperienceCache::PROPERTIES] = properties;
 }

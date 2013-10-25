@@ -84,9 +84,13 @@ protected:
     bool setMaturityString(U8 maturity, LLTextBox* child, LLComboBox* combo);
     bool handleSaveChangesDialog(const LLSD& notification, const LLSD& response, PostSaveAction action);
     void doSave( int success_action );
+
+    void updatePackage();
+
     void updatePermission( const LLSD& permission );
     LLUUID mExperienceId;
     LLSD mExperienceDetails;
+    LLSD mPackage;
     int mSaveCompleteAction;
     bool mDirty;
     bool mForceClose;
