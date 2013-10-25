@@ -397,7 +397,7 @@ void LLSidepanelInventory::onToggleInboxBtn()
 void LLSidepanelInventory::onOpen(const LLSD& key)
 {
 	LLFirstUse::newInventory(false);
-	mPanelMainInventory->setFocusFilterEditor();
+
 #if AUTO_EXPAND_INBOX
 	// Expand the inbox if we have fresh items
 	LLPanelMarketplaceInbox * inbox = findChild<LLPanelMarketplaceInbox>(MARKETPLACE_INBOX_PANEL);

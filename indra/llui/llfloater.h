@@ -390,7 +390,7 @@ protected:
 
 	void			destroy(); // Don't call this directly.  You probably want to call closeFloater()
 
-	virtual	void	onClickCloseBtn(bool app_quitting = false);
+	virtual	void	onClickCloseBtn();
 
 	virtual void	updateTitleButtons();
 

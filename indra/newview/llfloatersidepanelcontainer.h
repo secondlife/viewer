@@ -51,7 +51,7 @@ public:
 
 	/*virtual*/ void onOpen(const LLSD& key);
 
-	/*virtual*/ void onClickCloseBtn(bool app_quitting = false);
+	/*virtual*/ void onClickCloseBtn();
 
 	LLPanel* openChildPanel(const std::string& panel_name, const LLSD& params);
 

@@ -101,7 +101,6 @@ LLFloaterIMContainer::~LLFloaterIMContainer()
 
 	gSavedPerAccountSettings.setBOOL("ConversationsListPaneCollapsed", mConversationsPane->isCollapsed());
 	gSavedPerAccountSettings.setBOOL("ConversationsMessagePaneCollapsed", mMessagesPane->isCollapsed());
-	gSavedPerAccountSettings.setBOOL("ConversationsParticipantListCollapsed", !isParticipantListExpanded());
 
 	if (!LLSingleton<LLIMMgr>::destroyed())
 	{
@@ -251,11 +250,6 @@ BOOL LLFloaterIMContainer::postBuild()
 	// Init the sort order now that the root had been created
 	setSortOrder(LLConversationSort(gSavedSettings.getU32("ConversationSortOrder")));
 	
-	//We should expand nearby chat participants list for the new user
-	if(gAgent.isFirstLogin() || !gSavedPerAccountSettings.getBOOL("ConversationsParticipantListCollapsed"))
-	{
-		expandConversation();
-	}
 	// Keep the xml set title around for when we have to overwrite it
 	mGeneralTitle = getTitle();
 	
@@ -668,9 +662,9 @@ void LLFloaterIMContainer::setVisible(BOOL visible)
 			LLFloater* session_floater = widget->getSessionFloater();
 			if (session_floater != nearby_chat)
 			{
-				widget->setVisibleIfDetached(visible);
-			}
+		    widget->setVisibleIfDetached(visible);
 		}
+	}
 	}
 	
 	// Now, do the normal multifloater show/hide
@@ -706,13 +700,13 @@ void LLFloaterIMContainer::setVisibleAndFrontmost(BOOL take_focus, const LLSD& k
 	// Only select other sessions
 	if (!getSelectedSession().isNull())
 	{
-		selectConversationPair(getSelectedSession(), false, take_focus);
+    selectConversationPair(getSelectedSession(), false, take_focus);
 	}
 	if (mInitialized && mIsFirstLaunch)
 	{
 		collapseMessagesPane(gSavedPerAccountSettings.getBOOL("ConversationsMessagePaneCollapsed"));
 		mIsFirstLaunch = false;
-	}
+}
 }
 
 void LLFloaterIMContainer::updateResizeLimits()
@@ -840,7 +834,7 @@ void LLFloaterIMContainer::assignResizeLimits()
 
 	S32 conv_pane_target_width = is_conv_pane_expanded
 		? ( is_msg_pane_expanded?mConversationsPane->getRect().getWidth():mConversationsPane->getExpandedMinDim() )
-		: mConversationsPane->getMinDim();
+			: mConversationsPane->getMinDim();
 
 	S32 msg_pane_min_width  = is_msg_pane_expanded ? mMessagesPane->getExpandedMinDim() : 0;
 	S32 new_min_width = conv_pane_target_width + msg_pane_min_width + summary_width_of_visible_borders;
@@ -1001,7 +995,7 @@ void LLFloaterIMContainer::setSortOrder(const LLConversationSort& order)
 			conversation_floater->setSortOrder(order);
 		}
 	}
-
+	
 	gSavedSettings.setU32("ConversationSortOrder", (U32)order);
 }
 
@@ -1192,7 +1186,7 @@ void LLFloaterIMContainer::doToSelectedConversation(const std::string& command, 
         }
         else if("chat_history" == command)
         {
-        	if (selectedIDS.size() > 0)
+			if (selectedIDS.size() > 0)
 			{
 				LLAvatarActions::viewChatHistory(selectedIDS.front());
 			}
@@ -1214,7 +1208,7 @@ void LLFloaterIMContainer::doToSelectedConversation(const std::string& command, 
     	    {
     	      	LLFloaterReg::showInstance("preview_conversation", LLSD(LLUUID::null), true);
     	    }
-    	}
+}
     }
 }
 
@@ -1245,7 +1239,7 @@ void LLFloaterIMContainer::doToSelectedGroup(const LLSD& userdata)
 
     if (action == "group_profile")
     {
-    	LLGroupActions::show(mSelectedSession);
+        LLGroupActions::show(mSelectedSession);
     }
     else if (action == "activate_group")
     {
@@ -2092,19 +2086,6 @@ void LLFloaterIMContainer::expandConversation()
 		}
 	}
 }
-bool LLFloaterIMContainer::isParticipantListExpanded()
-{
-	bool is_expanded = false;
-	if(!mConversationsPane->isCollapsed())
-	{
-		LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(get_ptr_in_map(mConversationsWidgets,getSelectedSession()));
-		if (widget)
-		{
-			is_expanded = widget->isOpen();
-		}
-	}
-	return is_expanded;
-}
 
 // By default, if torn off session is currently frontmost, LLFloater::isFrontmost() will return FALSE, which can lead to some bugs
 // So LLFloater::isFrontmost() is overriden here to check both selected session and the IM floater itself
@@ -2121,7 +2102,7 @@ BOOL LLFloaterIMContainer::isFrontmost()
 
 // For conversations, closeFloater() (linked to Ctrl-W) does not actually close the floater but the active conversation.
 // This is intentional so it doesn't confuse the user. onClickCloseBtn() closes the whole floater.
-void LLFloaterIMContainer::onClickCloseBtn(bool app_quitting/* = false*/)
+void LLFloaterIMContainer::onClickCloseBtn()
 {
 	// Always unminimize before trying to close.
 	// Most of the time the user will never see this state.
@@ -2130,7 +2111,7 @@ void LLFloaterIMContainer::onClickCloseBtn(bool app_quitting/* = false*/)
 		LLMultiFloater::setMinimized(FALSE);
 	}
 
-	LLFloater::closeFloater(app_quitting);
+	LLFloater::closeFloater();
 }
 
 void LLFloaterIMContainer::closeHostedFloater()
@@ -2177,7 +2158,7 @@ void LLFloaterIMContainer::closeFloater(bool app_quitting/* = false*/)
 	if(app_quitting)
 	{
 		closeAllConversations();
-		onClickCloseBtn(app_quitting);
+		onClickCloseBtn();
 	}
 	else
 	{

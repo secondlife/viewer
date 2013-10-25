@@ -251,7 +251,6 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 			llinfos << "Muting by name " << mute.mName << llendl;
 			updateAdd(mute);
 			notifyObservers();
-			notifyObserversDetailed(mute);
 			return TRUE;
 		}
 		else
@@ -300,7 +299,6 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 				llinfos << "Muting " << localmute.mName << " id " << localmute.mID << " flags " << localmute.mFlags << llendl;
 				updateAdd(localmute);
 				notifyObservers();
-				notifyObserversDetailed(localmute);
 				if(!(localmute.mFlags & LLMute::flagParticles))
 				{
 					//Kill all particle systems owned by muted task
@@ -398,7 +396,6 @@ BOOL LLMuteList::remove(const LLMute& mute, U32 flags)
 		}
 		
 		// Must be after erase.
-		notifyObserversDetailed(localmute);
 		setLoaded();  // why is this here? -MG
 	}
 	else
@@ -412,7 +409,6 @@ BOOL LLMuteList::remove(const LLMute& mute, U32 flags)
 			updateRemove(mute);
 			mLegacyMutes.erase(legacy_it);
 			// Must be after erase.
-			notifyObserversDetailed(mute);
 			setLoaded(); // why is this here? -MG
 		}
 	}
@@ -762,19 +758,6 @@ void LLMuteList::notifyObservers()
 	{
 		LLMuteListObserver* observer = *it;
 		observer->onChange();
-		// In case onChange() deleted an entry.
-		it = mObservers.upper_bound(observer);
-	}
-}
-
-void LLMuteList::notifyObserversDetailed(const LLMute& mute)
-{
-	for (observer_set_t::iterator it = mObservers.begin();
-		it != mObservers.end();
-		)
-	{
-		LLMuteListObserver* observer = *it;
-		observer->onChangeDetailed(mute);
 		// In case onChange() deleted an entry.
 		it = mObservers.upper_bound(observer);
 	}

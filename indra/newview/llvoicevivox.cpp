@@ -786,6 +786,7 @@ void LLVivoxVoiceClient::stateMachine()
 						{
 							loglevel = "0";	// turn logging off completely
 						}
+						loglevel = "0";	// turn logging off completely
 						params.args.add("-ll");
 						params.args.add(loglevel);
 						params.cwd = gDirUtilp->getAppRODataDir();

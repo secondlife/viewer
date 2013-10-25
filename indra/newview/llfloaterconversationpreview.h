@@ -62,7 +62,7 @@ private:
 	std::string		mAccountName;
 	std::string		mCompleteName;
 	std::string     mChatHistoryFileName;
-	bool			mShowHistory;
+	bool			mChatHistoryLoaded;
 };
 
 #endif /* LLFLOATERCONVERSATIONPREVIEW_H_ */

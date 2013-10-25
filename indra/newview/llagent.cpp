@@ -1092,18 +1092,10 @@ const LLVector3d &LLAgent::getPositionGlobal() const
 //-----------------------------------------------------------------------------
 const LLVector3 &LLAgent::getPositionAgent()
 {
-	if (isAgentAvatarValid())
-	{
-		if(gAgentAvatarp->mDrawable.isNull())
-		{
-			mFrameAgent.setOrigin(gAgentAvatarp->getPositionAgent());
-		}
-		else
+	if (isAgentAvatarValid() && !gAgentAvatarp->mDrawable.isNull())
 		{
 			mFrameAgent.setOrigin(gAgentAvatarp->getRenderPosition());
 		}
-	}
-
 
 	return mFrameAgent.getOrigin();
 }

@@ -63,7 +63,7 @@ public:
 	F64 getTime(const std::string& name);
 
 protected:
-	virtual	void	onClickCloseBtn(bool app_quitting = false);
+	virtual	void	onClickCloseBtn();
 private:	
 	typedef std::vector<std::vector<S32> > bar_positions_t;
 	bar_positions_t mBarStart;

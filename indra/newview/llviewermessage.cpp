@@ -45,7 +45,6 @@
 #include "llsd.h"
 #include "llsdserialize.h"
 #include "llteleportflags.h"
-#include "lltoastnotifypanel.h"
 #include "lltransactionflags.h"
 #include "llvfile.h"
 #include "llvfs.h"
@@ -3229,20 +3228,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			payload["online"] = (offline == IM_ONLINE);
 			payload["sender"] = msg->getSender().getIPandPort();
 
-			bool add_notification = true;
-			for (LLToastNotifyPanel::instance_iter ti(LLToastNotifyPanel::beginInstances())
-				, tend(LLToastNotifyPanel::endInstances()); ti != tend; ++ti)
-			{
-				LLToastNotifyPanel& panel = *ti;
-				const std::string& notification_name = panel.getNotificationName();
-				if (notification_name == "OfferFriendship" && panel.isControlPanelEnabled())
-				{
-					add_notification = false;
-					break;
-				}
-			}
-
-			if (is_muted && add_notification)
+			if (is_muted)
 			{
 				LLNotifications::instance().forceResponse(LLNotification::Params("OfferFriendship").payload(payload), 1);
 			}
@@ -3253,9 +3239,6 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 					send_do_not_disturb_message(msg, from_id);
 				}
 				args["NAME_SLURL"] = LLSLURL("agent", from_id, "about").getSLURLString();
-
-				if (add_notification)
-				{
 				if(message.empty())
 				{
 					//support for frienship offers from clients before July 2008
@@ -3270,7 +3253,6 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				    LLPostponedNotification::add<LLPostponedOfferNotification>(	params, from_id, false);
 				}
 			}
-		}
 		}
 		break;
 
@@ -3834,6 +3816,19 @@ public:
 				LLInventoryModel::EXCLUDE_TRASH,
 				is_card);
 		}
+		LLSD args;
+		if ( land_items.count() > 0 )
+		{	// Show notification that they can now teleport to landmarks.  Use a random landmark from the inventory
+			S32 random_land = ll_rand( land_items.count() - 1 );
+			args["NAME"] = land_items[random_land]->getName();
+			LLNotificationsUtil::add("TeleportToLandmark",args);
+		}
+		if ( card_items.count() > 0 )
+		{	// Show notification that they can now contact people.  Use a random calling card from the inventory
+			S32 random_card = ll_rand( card_items.count() - 1 );
+			args["NAME"] = card_items[random_card]->getName();
+			LLNotificationsUtil::add("TeleportToPerson",args);
+		}
 
 		gInventory.removeObserver(this);
 		delete this;
@@ -4110,6 +4105,18 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 
 		if (isAgentAvatarValid())
 		{
+			// Chat the "back" SLURL. (DEV-4907)
+
+			LLSLURL slurl;
+			gAgent.getTeleportSourceSLURL(slurl);
+			LLSD substitution = LLSD().with("[T_SLURL]", slurl.getSLURLString());
+			std::string completed_from = LLAgent::sTeleportProgressMessages["completed_from"];
+			LLStringUtil::format(completed_from, substitution);
+
+			LLSD args;
+			args["MESSAGE"] = completed_from;
+			LLNotificationsUtil::add("SystemMessageTip", args);
+
 			// Set the new position
 			gAgentAvatarp->setPositionAgent(agent_pos);
 			gAgentAvatarp->clearChat();
@@ -6885,43 +6892,43 @@ void send_lures(const LLSD& notification, const LLSD& response)
 	LLAgentUI::buildSLURL(slurl);
 	text.append("\r\n").append(slurl.getSLURLString());
 
-		LLMessageSystem* msg = gMessageSystem;
-		msg->newMessageFast(_PREHASH_StartLure);
-		msg->nextBlockFast(_PREHASH_AgentData);
-		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-		msg->nextBlockFast(_PREHASH_Info);
-		msg->addU8Fast(_PREHASH_LureType, (U8)0); // sim will fill this in.
-		msg->addStringFast(_PREHASH_Message, text);
-		for(LLSD::array_const_iterator it = notification["payload"]["ids"].beginArray();
-			it != notification["payload"]["ids"].endArray();
-			++it)
+	LLMessageSystem* msg = gMessageSystem;
+	msg->newMessageFast(_PREHASH_StartLure);
+	msg->nextBlockFast(_PREHASH_AgentData);
+	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+	msg->nextBlockFast(_PREHASH_Info);
+	msg->addU8Fast(_PREHASH_LureType, (U8)0); // sim will fill this in.
+	msg->addStringFast(_PREHASH_Message, text);
+	for(LLSD::array_const_iterator it = notification["payload"]["ids"].beginArray();
+		it != notification["payload"]["ids"].endArray();
+		++it)
+	{
+		LLUUID target_id = it->asUUID();
+
+		msg->nextBlockFast(_PREHASH_TargetData);
+		msg->addUUIDFast(_PREHASH_TargetID, target_id);
+
+		// Record the offer.
 		{
-			LLUUID target_id = it->asUUID();
-
-			msg->nextBlockFast(_PREHASH_TargetData);
-			msg->addUUIDFast(_PREHASH_TargetID, target_id);
-
-			// Record the offer.
-			{
-				std::string target_name;
-				gCacheName->getFullName(target_id, target_name);  // for im log filenames
-				LLSD args;
-				args["TO_NAME"] = LLSLURL("agent", target_id, "displayname").getSLURLString();;
+			std::string target_name;
+			gCacheName->getFullName(target_id, target_name);  // for im log filenames
+			LLSD args;
+			args["TO_NAME"] = LLSLURL("agent", target_id, "displayname").getSLURLString();;
 	
-				LLSD payload;
+			LLSD payload;
 				
-				//*TODO please rewrite all keys to the same case, lower or upper
-				payload["from_id"] = target_id;
+			//*TODO please rewrite all keys to the same case, lower or upper
+			payload["from_id"] = target_id;
 			payload["SUPPRESS_TOAST"] = true;
-				LLNotificationsUtil::add("TeleportOfferSent", args, payload);
+			LLNotificationsUtil::add("TeleportOfferSent", args, payload);
 
-				// Add the recepient to the recent people list.
-				LLRecentPeople::instance().add(target_id);
-			}
+			// Add the recepient to the recent people list.
+			LLRecentPeople::instance().add(target_id);
 		}
-		gAgent.sendReliableMessage();
 	}
+	gAgent.sendReliableMessage();
+}
 
 bool handle_lure_callback(const LLSD& notification, const LLSD& response)
 {

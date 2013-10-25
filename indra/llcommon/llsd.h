@@ -320,15 +320,11 @@ public:
 		
 		typedef std::vector<LLSD>::iterator			array_iterator;
 		typedef std::vector<LLSD>::const_iterator	array_const_iterator;
-		typedef std::vector<LLSD>::reverse_iterator reverse_array_iterator;
-
+		
 		array_iterator			beginArray();
 		array_iterator			endArray();
 		array_const_iterator	beginArray() const;
 		array_const_iterator	endArray() const;
-
-		reverse_array_iterator	rbeginArray();
-		reverse_array_iterator	rendArray();
 	//@}
 	
 	/** @name Type Testing */

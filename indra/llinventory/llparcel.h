@@ -527,6 +527,23 @@ public:
 	// Can this agent change the shape of the land?
 	BOOL	allowTerraformBy(const LLUUID &agent_id) const;
 
+	// Returns 0 if access is OK, otherwise a BA_ return code above.
+	S32	 blockAccess(const LLUUID& agent_id, 
+			const LLUUID& group_id, 
+			const BOOL is_agent_identified, 
+			const BOOL is_agent_transacted,
+			const BOOL is_agent_ageverified) const;
+
+	// Only checks if the agent is explicitly banned from this parcel
+	BOOL isAgentBanned(const LLUUID& agent_id) const;
+
+	static bool isAgentBlockedFromParcel(LLParcel* parcelp, 
+									const LLUUID& agent_id,
+									const uuid_vec_t& group_ids,
+									const BOOL is_agent_identified,
+									const BOOL is_agent_transacted,
+									const BOOL is_agent_ageverified);
+
 	bool	operator==(const LLParcel &rhs) const;
 
 	// Calculate rent - area * rent * discount rate

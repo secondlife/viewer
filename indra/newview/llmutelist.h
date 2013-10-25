@@ -123,7 +123,6 @@ private:
 
 	void setLoaded();
 	void notifyObservers();
-	void notifyObserversDetailed(const LLMute &mute);
 
 	void updateAdd(const LLMute& mute);
 	void updateRemove(const LLMute& mute);
@@ -174,7 +173,6 @@ class LLMuteListObserver
 public:
 	virtual ~LLMuteListObserver() { }
 	virtual void onChange() = 0;
-	virtual void onChangeDetailed(const LLMute& ) { }
 };
 
 

@@ -509,8 +509,8 @@ LLFloater::~LLFloater()
 	
 	if( gFocusMgr.childHasKeyboardFocus(this))
 	{
-		// Just in case we might still have focus here, release it.
-		releaseFocus();
+	// Just in case we might still have focus here, release it.
+	releaseFocus();
 	}
 
 	// This is important so that floaters with persistent rects (i.e., those
@@ -1821,7 +1821,7 @@ void LLFloater::onClickClose( LLFloater* self )
 	self->onClickCloseBtn();
 }
 
-void LLFloater::onClickCloseBtn(bool app_quitting)
+void	LLFloater::onClickCloseBtn()
 {
 	closeFloater(false);
 }

@@ -519,7 +519,7 @@ bool LLScrollContainer::addChild(LLView* view, S32 tab_group)
 
 void LLScrollContainer::updateScroll()
 {
-	if (!getVisible() || !mScrolledView)
+	if (!mScrolledView)
 	{
 		return;
 	}

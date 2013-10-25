@@ -422,19 +422,6 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename)
 			L"PNG Images (*.png)\0*.png\0" \
 			L"\0";
 		break;
-	case FFSAVE_TGAPNG:
-		if (filename.empty())
-		{
-			wcsncpy( mFilesW,L"untitled.png", FILENAME_BUFFER_SIZE);	/*Flawfinder: ignore*/
-			//PNG by default
-		}
-		mOFN.lpstrDefExt = L"png";
-		mOFN.lpstrFilter =
-			L"PNG Images (*.png)\0*.png\0" \
-			L"Targa Images (*.tga)\0*.tga\0" \
-			L"\0";
-		break;
-		
 	case FFSAVE_JPEG:
 		if (filename.empty())
 		{
@@ -653,16 +640,13 @@ bool	LLFilePicker::doNavSaveDialog(ESaveFilter filter, const std::string& filena
 			creator = "TVOD";
 			extension = "wav";
 			break;
+		
 		case FFSAVE_TGA:
 			type = "TPIC";
 			creator = "prvw";
 			extension = "tga";
 			break;
-		case FFSAVE_TGAPNG:
-			type = "PNG";
-			creator = "prvw";
-			extension = "png";
-			break;
+		
 		case FFSAVE_BMP:
 			type = "BMPf";
 			creator = "prvw";
@@ -937,20 +921,6 @@ void LLFilePicker::chooser_responder(GtkWidget *widget, gint response, gpointer 
 		g_slist_free (file_list);
 	}
 
-	// let's save the extension of the last added file(considering current filter)
-	GtkFileFilter *gfilter = gtk_file_chooser_get_filter(GTK_FILE_CHOOSER(widget));
-	std::string filter = gtk_file_filter_get_name(gfilter);
-
-	if(filter == LLTrans::getString("png_image_files"))
-	{
-		picker->mCurrentExtension = ".png";
-	}
-	else if(filter == LLTrans::getString("targa_image_files"))
-	{
-		picker->mCurrentExtension = ".tga";
-	}
-
-
 	// set the default path for this usage context.
 	const char* cur_folder = gtk_file_chooser_get_current_folder(GTK_FILE_CHOOSER(widget));
 	if (cur_folder != NULL)
@@ -1122,24 +1092,6 @@ static std::string add_dictionary_filter_to_gtkchooser(GtkWindow *picker)
 							LLTrans::getString("dictionary_files") + " (*.dic; *.xcu)");
 }
 
-static std::string add_save_texture_filter_to_gtkchooser(GtkWindow *picker)
-{
-	GtkFileFilter *gfilter_tga = gtk_file_filter_new();
-	GtkFileFilter *gfilter_png = gtk_file_filter_new();
-
-	gtk_file_filter_add_pattern(gfilter_tga, "*.tga");
-	gtk_file_filter_add_mime_type(gfilter_png, "image/png");
-	std::string caption = LLTrans::getString("save_texture_image_files") + " (*.tga; *.png)";
-	gtk_file_filter_set_name(gfilter_tga, LLTrans::getString("targa_image_files").c_str());
-	gtk_file_filter_set_name(gfilter_png, LLTrans::getString("png_image_files").c_str());
-
-	gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(picker),
-					gfilter_png);
-	gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(picker),
-					gfilter_tga);
-	return caption;
-}
-
 BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename )
 {
 	BOOL rtn = FALSE;
@@ -1176,15 +1128,6 @@ BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename 
 			caption += add_simple_mime_filter_to_gtkchooser
 				(picker, "image/bmp", LLTrans::getString("bitmap_image_files") + " (*.bmp)");
 			suggest_ext = ".bmp";
-			break;
-		case FFSAVE_PNG:
-			caption += add_simple_mime_filter_to_gtkchooser
-				(picker, "image/png", LLTrans::getString("png_image_files") + " (*.png)");
-			suggest_ext = ".png";
-			break;
-		case FFSAVE_TGAPNG:
-			caption += add_save_texture_filter_to_gtkchooser(picker);
-			suggest_ext = ".png";
 			break;
 		case FFSAVE_AVI:
 			caption += add_simple_mime_filter_to_gtkchooser
@@ -1238,17 +1181,9 @@ BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename 
 		}
 
 		gtk_widget_show_all(GTK_WIDGET(picker));
-
 		gtk_main();
 
 		rtn = (getFileCount() == 1);
-
-		if(rtn && filter == FFSAVE_TGAPNG)
-		{
-			std::string selected_file = mFiles.back();
-			mFiles.pop_back();
-			mFiles.push_back(selected_file + mCurrentExtension);
-		}
 	}
 
 	gViewerWindow->getWindow()->afterDialog();

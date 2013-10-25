@@ -140,7 +140,6 @@ LLViewerRegion* LLWorld::addRegion(const U64 &region_handle, const LLHost &host)
 {
 	llinfos << "Add region with handle: " << region_handle << " on host " << host << llendl;
 	LLViewerRegion *regionp = getRegionFromHandle(region_handle);
-	std::string seedUrl;
 	if (regionp)
 	{
 		llinfos << "Region exists, removing it " << llendl;
@@ -161,9 +160,6 @@ LLViewerRegion* LLWorld::addRegion(const U64 &region_handle, const LLHost &host)
 		{
 			llwarns << "LLWorld::addRegion exists, but isn't alive" << llendl;
 		}
-
-		// Save capabilities seed URL
-		seedUrl = regionp->getCapability("Seed");
 
 		// Kill the old host, and then we can continue on and add the new host.  We have to kill even if the host
 		// matches, because all the agent state for the new camera is completely different.
@@ -190,11 +186,6 @@ LLViewerRegion* LLWorld::addRegion(const U64 &region_handle, const LLHost &host)
 	if (!regionp)
 	{
 		llerrs << "Unable to create new region!" << llendl;
-	}
-
-	if ( !seedUrl.empty() )
-	{
-		regionp->setCapability("Seed", seedUrl);
 	}
 
 	mRegionList.push_back(regionp);

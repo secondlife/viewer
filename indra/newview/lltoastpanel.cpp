@@ -53,12 +53,6 @@ std::string LLToastPanel::getTitle()
 }
 
 //virtual
-const std::string& LLToastPanel::getNotificationName()
-{
-	return mNotification->getName();
-}
-
-//virtual
 const LLUUID& LLToastPanel::getID()
 {
 	return mNotification->id();

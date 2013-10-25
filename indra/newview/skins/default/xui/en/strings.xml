@@ -456,8 +456,6 @@ Please try logging in again in a minute.</string>
 	<string name="load_file_verb">Load</string>
 	<string name="targa_image_files">Targa Images</string>
 	<string name="bitmap_image_files">Bitmap Images</string>
-	<string name="png_image_files">PNG Images</string>
-	<string name="save_texture_image_files">Targa or PNG Images</string>
 	<string name="avi_movie_file">AVI Movie File</string>
 	<string name="xaf_animation_file">XAF Anim File</string>
 	<string name="xml_file">XML File</string>
