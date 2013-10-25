@@ -36,7 +36,7 @@
 //-----------------------------------------------------------------------------------
 //static variables definitions
 //-----------------------------------------------------------------------------------
-U32 LLViewerOctreeEntryData::sCurVisible = 0;
+U32 LLViewerOctreeEntryData::sCurVisible = 10; //reserve the low numbers for special use.
 BOOL LLViewerOctreeDebug::sInDebug = FALSE;
 
 static LLTrace::CountStatHandle<S32> sOcclusionQueries("occlusion_queries", "Number of occlusion queries executed"),
@@ -234,7 +234,8 @@ LLViewerOctreeEntry::LLViewerOctreeEntry()
 :	LLTrace::MemTrackable<LLViewerOctreeEntry, 16>("LLViewerOctreeEntry"),
 	mGroup(NULL),
 	mBinRadius(0.f),
-	mBinIndex(-1)
+	mBinIndex(-1),
+	mVisible(0)
 {
 	mPositionGroup.clear();
 	mExtents[0].clear();
