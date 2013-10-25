@@ -175,8 +175,11 @@ Ansariel Hiller
 	STORM-1685
 	STORM-1713
 	STORM-1899
+	STORM-1932
+	STORM-1933
 	MAINT-2368
 	STORM-1931
+	MAINT-2773
 Aralara Rajal
 Arare Chantilly
 	CHUIBUG-191
@@ -304,9 +307,13 @@ Christopher  Organiser
 Ciaran Laval
 Cinder Roxley
     BUG-2326
+    OPEN-185
     STORM-1703
 	STORM-1948
+    STORM-1888
+    STORM-1958
     STORM-1952
+    STORM-1951
 Clara Young
 Coaldust Numbers
     VWR-1095
@@ -652,7 +659,7 @@ Jonathan Yap
 	STORM-1809
 	STORM-1793
 	STORM-1810
-	STORM-1877
+	STORM-1838
 	STORM-1892
 	STORM-1894
 	STORM-1860
@@ -662,8 +669,11 @@ Jonathan Yap
 	STORM-1858
 	STORM-1862
 	STORM-1918
+	STORM-1929
 	STORM-1953
 	OPEN-161
+	STORM-1953
+	STORM-1957
 Kadah Coba
 	STORM-1060
     STORM-1843
@@ -679,7 +689,9 @@ Kagehi Kohn
 Kaimen Takahe
 Katharine Berry
 	STORM-1900
+    OPEN-149
 	STORM-1940
+    OPEN-149
 	STORM-1941
 Keklily Longfall
 Ken Lavender
@@ -928,7 +940,9 @@ Nicky Dasmijn
 	STORM-1936
 	BUG-3605
 	CHUIBUG-197
+	OPEN-187
 	STORM-1937
+	OPEN-187
 Nicky Perian
 	OPEN-1
 	STORM-1087
@@ -1125,6 +1139,7 @@ Slee Mayo
 snowy Sidran
 Sovereign Engineer
     MAINT-2334
+    OPEN-189
 SpacedOut Frye
 	VWR-34
 	VWR-45
@@ -1294,6 +1309,7 @@ Westley Streeter
 Whimsy Winx
 Whirly Fizzle
 	STORM-1895
+	VWR-29543
 	MAINT-873
 	STORM-1930
 Whoops Babii
@@ -1357,6 +1373,7 @@ YongYong Francois
 Zak Westminster
 Zai Lynch
 	VWR-19505
+    STORM-1902
 Zana Kohime
 Zaren Alexander
 Zarkonnen Decosta

@@ -118,6 +118,11 @@ void LLSysWellWindow::removeItemByID(const LLUUID& id)
 	}
 }
 
+ LLPanel * LLSysWellWindow::findItemByID(const LLUUID& id)
+{
+       return mMessageList->getItemByValue(id);
+}
+
 //---------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------
 void LLSysWellWindow::initChannel() 

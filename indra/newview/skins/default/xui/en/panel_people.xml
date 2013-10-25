@@ -66,8 +66,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
      tab_position="top"
      top="0"
      halign="center"
-     right="-5"
-     use_highlighting_on_hover="true">
+     right="-5">
 
 <!-- ================================= NEARBY tab =========================== -->
 
@@ -366,6 +365,23 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                          top="0"
                          width="307" />
                 </accordion_tab>
+              <accordion_tab
+               layout="topleft"
+               height="173"
+               name="tab_suggested_friends"
+               title="People you may want to friend">
+                <avatar_list
+                 ignore_online_status="true"
+                 allow_select="true"
+                 follows="all"
+                 height="173"
+                 layout="topleft"
+                 left="0"
+                 name="suggested_friends"
+                 show_permissions_granted="true"
+                 top="0"
+                 width="307" />
+              </accordion_tab>              
             </accordion>
             <text
              follows="all"
@@ -484,7 +500,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
             <text
                 type="string"
                 length="1"
-                follows="left|top|right"
+                follows="all"
                 height="14"
                 layout="topleft"
                 right="-10"

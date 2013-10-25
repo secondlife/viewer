@@ -1206,6 +1206,7 @@ LLNotifications::LLNotifications()
 :	LLNotificationChannelBase(LLNotificationFilters::includeEverything),
 	mIgnoreAllNotifications(false)
 {
+        mListener.reset(new LLNotificationsListener(*this));
 	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Notification.Show", boost::bind(&LLNotifications::addFromCallback, this, _2));
 }
 

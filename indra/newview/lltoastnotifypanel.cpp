@@ -407,28 +407,6 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
 	}
 }
 
-bool LLToastNotifyPanel::isControlPanelEnabled() const
-{
-	bool cp_enabled = mControlPanel->getEnabled();
-	bool some_buttons_enabled = false;
-	if (cp_enabled)
-	{
-		LLView::child_list_const_iter_t child_it = mControlPanel->beginChild();
-		LLView::child_list_const_iter_t child_it_end = mControlPanel->endChild();
-		for(; child_it != child_it_end; ++child_it)
-		{
-			LLButton * buttonp = dynamic_cast<LLButton *>(*child_it);
-			if (buttonp && buttonp->getEnabled())
-			{
-				some_buttons_enabled = true;
-				break;
-			}
-		}
-	}
-
-	return cp_enabled && some_buttons_enabled;
-}
-
 //////////////////////////////////////////////////////////////////////////
 
 LLIMToastNotifyPanel::LLIMToastNotifyPanel(LLNotificationPtr& pNotification, const LLUUID& session_id, const LLRect& rect /* = LLRect::null */,

@@ -16,11 +16,11 @@
    imgoverlay_label_space="10"
    label="Post to My Profile Feed"
    layout="topleft"
-   left="10"
+   left_delta="0"
    name="save_to_profile_btn"
    pad_left="10"
    right="-10"
-   top="5">
+   top_pad="10">
     <button.commit_callback
      function="Snapshot.SaveToProfile" />
   </button>

@@ -3481,7 +3481,7 @@ or you can install it now.
    name="DownloadBackgroundTip"
    type="notify">
 We have downloaded an update to your [APP_NAME] installation.
-Version [VERSION] [[INFO_URL] Information about this update]
+Version [VERSION] [[RELEASE_NOTES_FULL_URL] Information about this update]
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -3493,8 +3493,8 @@ Version [VERSION] [[INFO_URL] Information about this update]
  icon="alertmodal.tga"
  name="DownloadBackgroundDialog"
  type="alertmodal">
-    We have downloaded an update to your [APP_NAME] installation.
-    Version [VERSION] [[INFO_URL] Information about this update]
+We have downloaded an update to your [APP_NAME] installation.
+Version [VERSION] [[RELEASE_NOTES_FULL_URL] Information about this update]
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -4069,6 +4069,27 @@ Join me in [REGION]
     </form>
   </notification>
 
+  <notification
+   icon="alertmodal.tga"
+   name="TeleportRequestPrompt"
+   type="alertmodal">
+Request a teleport to [NAME] with the following message
+    <tag>confirm</tag>
+    <form name="form">
+      <input name="message" type="text">
+
+      </input>
+      <button
+       default="true"
+       index="0"
+       name="OK"
+       text="OK"/>
+      <button
+       index="1"
+       name="Cancel"
+       text="Cancel"/>
+    </form>
+  </notification>
   <notification
    icon="alertmodal.tga"
    name="TooManyTeleportOffers"
@@ -6019,6 +6040,13 @@ Please select at least one type of content to search (General, Moderate, or Adul
 
   <notification
    icon="notify.tga"
+  name="FacebookConnect"
+  type="notifytip">
+[MESSAGE]
+ </notification>
+    
+  <notification
+   icon="notify.tga"
    name="PaymentReceived"
    log_to_im="true"   
    persist="true"
@@ -6309,21 +6337,12 @@ You can only claim public land in the Region you&apos;re in.
   <notification
    icon="notify.tga"
    name="RegionTPAccessBlocked"
-   persist="false"
+   persist="true"
    type="notify">
    <tag>fail</tag>
     The region you're trying to visit contains content exceeding your current preferences.  You can change your preferences using Me &gt; Preferences &gt; General.
   </notification>
 
-  <notification
-   icon="notify.tga"
-   name="RegionAboutToShutdown"
-   persist="false"
-   type="notify">
-    <tag>fail</tag>
-    The region you're trying to enter is about to shut down.
-  </notification>
-  
   <notification
 	icon="notify.tga"
 	name="URBannedFromRegion"
@@ -6646,7 +6665,7 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
    sound="UISndNewIncomingIMSession">
 [NAME_SLURL] has offered to teleport you to their location:
 
-“[MESSAGE]”
+"[MESSAGE]”
 &lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt; - [MATURITY_STR]
     <tag>confirm</tag>
     <form name="form">
@@ -6711,6 +6730,27 @@ However, this region contains content accessible to adults only.
 	Teleport offer sent to [TO_NAME]
   </notification>
 
+  <notification
+   icon="notify.tga"
+   name="TeleportRequest"
+   log_to_im="true"
+   type="offer">
+[NAME_SLURL] is requesting to be teleported to your location.
+[MESSAGE]
+
+Offer a teleport?
+    <tag>confirm</tag>
+    <form name="form">
+      <button
+       index="0"
+       name="Yes"
+       text="Yes"/>
+      <button
+       index="1"
+       name="No"
+       text="No"/>
+    </form>
+  </notification>
 
   <notification
    icon="notify.tga"
@@ -6759,7 +6799,6 @@ However, this region contains content accessible to adults only.
    icon="notify.tga"
    name="FriendshipOffered"
    log_to_im="true"   
-   show_toast="false"   
    type="notify">
     <tag>friendship</tag>
 	You have offered friendship to [TO_NAME]
@@ -6809,7 +6848,6 @@ However, this region contains content accessible to adults only.
    icon="notify.tga"
    name="FriendshipAcceptedByMe"
    log_to_im="true"   
-   show_toast="false"
    type="notify">
     <tag>friendship</tag>
 Friendship offer accepted.
@@ -6819,7 +6857,6 @@ Friendship offer accepted.
    icon="notify.tga"
    name="FriendshipDeclinedByMe"
    log_to_im="true"   
-   show_toast="false"   
    type="notify">
     <tag>friendship</tag>
 Friendship offer declined.
@@ -6850,7 +6887,7 @@ This will add a bookmark in your inventory so you can quickly IM this Resident.
    priority="high"
    sound="UISndAlert"
    type="notify">
-The region "[NAME]" will restart in [MINUTES] minutes.
+This region will restart in [MINUTES] minutes.
 If you stay in this region you will be logged out.
   </notification>
 
@@ -6860,7 +6897,7 @@ If you stay in this region you will be logged out.
    priority="high"
    sound="UISndAlert"
    type="notify">
-The region "[NAME]" will restart in [SECONDS] seconds.
+This region will restart in [SECONDS] seconds.
 If you stay in this region you will be logged out.
   </notification>
 
@@ -8743,11 +8780,11 @@ You are no longer allowed here and have [EJECT_TIME] seconds to leave.
 
   <notification
    icon="alertmodal.tga"
-   name="NoEnterRegionMaybeFull"
+   name="NoEnterServerFull"
    type="notify">
    <tag>fail</tag>
-You can't enter region "[NAME]".
-It may be full or restarting soon.
+You can't enter this region because 
+the server is full.
   </notification>
 
   <notification
@@ -9509,14 +9546,6 @@ Cannot attach object because you do not have permission to move it.
    type="notify">
    <tag>fail</tag>
 Not enough script resources available to attach object!
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="CantAttachObjectBeingRemoved"
-   type="notify">
-    <tag>fail</tag>
-    Cannot attach object because it is already being removed.
   </notification>
 
   <notification
