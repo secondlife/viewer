@@ -162,45 +162,87 @@ public:
 class ExperiencePreferencesResponder : public LLHTTPClient::Responder
 {
 public:
-    ExperiencePreferencesResponder(bool single):mSingle(single)
+    ExperiencePreferencesResponder(const LLUUID& single = LLUUID::null):mId(single)
     {
     }
 
-    void sendSingle(const LLSD& content, const LLSD& permission, const char* name)
+    bool sendSingle(const LLSD& content, const LLSD& permission, const char* name)
     {
         if(!content.has(name))
-            return;
+            return false;
 
         LLEventPump& pump = LLEventPumps::instance().obtain("experience_permission");
         const LLSD& list = content[name];
         LLSD::array_const_iterator it = list.beginArray();
         while(it != list.endArray())
         {
-            LLSD message;
-            message[it->asString()] = permission;
-            pump.post(message);
+            if(it->asUUID() == mId)
+            {
+                LLSD message;
+                message[it->asString()] = permission;
+                message["experience"] = mId;
+                pump.post(message);
+                return true;
+            }
             ++it;
         }
+        return false;
     }
+
+    bool hasPermission(const LLSD& content, const char* name)
+    {
+        if(!content.has(name))
+            return false;
+
+        const LLSD& list = content[name];
+        LLSD::array_const_iterator it = list.beginArray();
+        while(it != list.endArray())
+        {
+            if(it->asUUID() == mId)
+            {
+                return true;
+            }
+            ++it;
+        }
+        return false;
+    }
+
+    const char* getPermission(const LLSD& content)
+    {
+        if(hasPermission(content, "experiences"))
+        {
+            return "Allow";
+        }
+        else if(hasPermission(content, "blocked"))
+        {
+            return "Block";
+        }
+        return "Forget";
+    }
+
 
     virtual void result(const LLSD& content)
     {
-        if(mSingle)
+        if(mId.notNull())
         {
-            LLSD experience;
-            experience["permission"]="Allow";
-
-            sendSingle(content, experience, "experiences");
-
-            experience["permission"]="Block";
-            sendSingle(content, experience, "blocked");
-
+            post(getPermission(content));
             return;
         }
         LLEventPumps::instance().obtain("experience_permission").post(content);
     }
+
+    void post( const char* perm )
+    {
+        LLSD experience;
+        LLSD message;
+        experience["permission"]=perm;
+        message["experience"] = mId;
+        message[mId.asString()] = experience;
+        LLEventPumps::instance().obtain("experience_permission").post(message);
+    }
+
 private:
-    bool mSingle;
+    LLUUID mId;
 };
 
 
@@ -340,7 +382,7 @@ void LLFloaterExperienceProfile::onClickPermission(const char* perm)
     permission["permission"]=perm;
 
     data[mExperienceId.asString()]=permission;
-    LLHTTPClient::put(lookup_url, data, new ExperiencePreferencesResponder(false));
+    LLHTTPClient::put(lookup_url, data, new ExperiencePreferencesResponder(mExperienceId));
    
 }
 
@@ -355,7 +397,7 @@ void LLFloaterExperienceProfile::onClickForget()
     if(lookup_url.empty())
         return;
 
-    LLHTTPClient::del(lookup_url+"?"+mExperienceId.asString(), new ExperiencePreferencesResponder(false));
+    LLHTTPClient::del(lookup_url+"?"+mExperienceId.asString(), new ExperiencePreferencesResponder(mExperienceId));
 }
 
 bool LLFloaterExperienceProfile::setMaturityString( U8 maturity, LLTextBox* child, LLComboBox* combo )
@@ -490,7 +532,7 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
             std::string lookup_url=region->getCapability("ExperiencePreferences"); 
             if(!lookup_url.empty())
             {
-                LLHTTPClient::get(lookup_url+"?"+mExperienceId.asString(), new ExperiencePreferencesResponder(true));
+                LLHTTPClient::get(lookup_url+"?"+mExperienceId.asString(), new ExperiencePreferencesResponder(mExperienceId));
             }
         }
     }
@@ -557,6 +599,12 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
 
 void LLFloaterExperienceProfile::setPreferences( const LLSD& content )
 {
+    S32 properties = mExperienceDetails[LLExperienceCache::PROPERTIES].asInteger();
+    if(properties & LLExperienceCache::PROPERTY_PRIVILEGED)
+    {
+        return;
+    }
+
     const LLSD& experiences = content["experiences"];
     const LLSD& blocked = content["blocked"];
 
@@ -744,10 +792,14 @@ void LLFloaterExperienceProfile::onClickClear()
 
 void LLFloaterExperienceProfile::updatePermission( const LLSD& permission )
 {
-    std::string xp = mExperienceId.asString();
-    if(permission.has(xp))
+    if(permission.has("experience"))
     {
-        std::string str = permission[xp]["permission"].asString();
+        if(permission["experience"].asUUID() != mExperienceId)
+        {
+            return;
+        }
+
+        std::string str = permission[mExperienceId.asString()]["permission"].asString();
         if(str == "Allow")
         {
             experienceAllowed();
