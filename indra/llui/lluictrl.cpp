@@ -29,7 +29,7 @@
 
 #define LLUICTRL_CPP
 #include "lluictrl.h"
-
+#include "llviewereventrecorder.h"
 #include "llfocusmgr.h"
 #include "llpanel.h"
 #include "lluictrlfactory.h"
@@ -308,10 +308,19 @@ void LLUICtrl::onMouseLeave(S32 x, S32 y, MASK mask)
 //virtual 
 BOOL LLUICtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 {
+
+	lldebugs << "LLUICtrl::handleMouseDown calling	LLView)'s handleMouseUp (first initialized xui to: " << getPathname() << " )" << llendl;
+  
 	BOOL handled  = LLView::handleMouseDown(x,y,mask);
+	
 	if (mMouseDownSignal)
 	{
 		(*mMouseDownSignal)(this,x,y,mask);
+	}
+	lldebugs << "LLUICtrl::handleMousedown - handled is returning as: " << handled << "	  " << llendl;
+	
+	if (handled) {
+		LLViewerEventRecorder::instance().updateMouseEventInfo(x,y,-56,-56,getPathname());
 	}
 	return handled;
 }
@@ -319,11 +328,20 @@ BOOL LLUICtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 //virtual
 BOOL LLUICtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 {
+
+	lldebugs << "LLUICtrl::handleMouseUp calling LLView)'s handleMouseUp (first initialized xui to: " << getPathname() << " )" << llendl;
+
 	BOOL handled  = LLView::handleMouseUp(x,y,mask);
+	if (handled) {
+		LLViewerEventRecorder::instance().updateMouseEventInfo(x,y,-56,-56,getPathname()); 
+	}
 	if (mMouseUpSignal)
 	{
 		(*mMouseUpSignal)(this,x,y,mask);
 	}
+
+	lldebugs << "LLUICtrl::handleMouseUp - handled for xui " << getPathname() << "  -  is returning as: " << handled << "   " << llendl;
+
 	return handled;
 }
 

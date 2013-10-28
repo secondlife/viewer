@@ -55,6 +55,7 @@ public:
 
 	// Operating with items
 	void removeItemByID(const LLUUID& id);
+	LLPanel * findItemByID(const LLUUID& id);
 
 	// Operating with outfit
 	virtual void setVisible(BOOL visible);

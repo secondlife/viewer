@@ -387,7 +387,7 @@ Please try logging in again in a minute.</string>
 	<!-- world map -->
 	<string name="texture_loading">Loading...</string>
 	<string name="worldmap_offline">Offline</string>
-	<string name="worldmap_item_tooltip_format">[AREA] m² L$[PRICE]</string>
+	<string name="worldmap_item_tooltip_format">[AREA] m² L$[PRICE] ([SQMPRICE] L$/m²)</string>
 	<string name="worldmap_results_none_found">None found.</string>
 
 	<!-- animations uploading status codes -->
@@ -2193,7 +2193,7 @@ For AI Character: Get the closest navigable point to the point provided.
 	<string name="InventoryNoTexture">You do not have a copy of this texture in your inventory</string>
 	<string name="InventoryInboxNoItems">Your Marketplace purchases will appear here. You may then drag them into your inventory to use them.</string>
 	<string name="MarketplaceURL">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/</string>
-	<string name="MarketplaceURL_CreateStore">http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.4</string>
+	<string name="MarketplaceURL_CreateStore">http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.3</string>
 	<string name="MarketplaceURL_Dashboard">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/dashboard</string>
 	<string name="MarketplaceURL_Imports">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/imports</string>
 	<string name="MarketplaceURL_LearnMore">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more</string>
@@ -2472,7 +2472,11 @@ Drag folders to this area and click "Send to Marketplace" to list them for sale 
 		all estates that you manage for [OWNER]
 	</string>
 	<string name="RegionInfoAllowedResidents">Allowed Residents: ([ALLOWEDAGENTS], max [MAXACCESS])</string>
-	<string name="RegionInfoAllowedGroups">Allowed groups: ([ALLOWEDGROUPS], max [MAXACCESS])</string>
+	<string name="RegionInfoAllowedGroups">Allowed Groups: ([ALLOWEDGROUPS], max [MAXACCESS])</string>
+	<string name="RegionInfoEstateManagers">Estate Managers: ([ESTATEMANAGERS], max [MAXMANAGERS])</string>
+	<string name="RegionInfoBannedResidents">Banned Residents: ([BANNEDAGENTS], max [MAXBANNED])</string>
+	<string name="RegionInfoListTypeAllowedAgents">Allowed Residents</string>
+	<string name="RegionInfoListTypeBannedAgents">Banned Residents</string>
 
 	<!-- script limits floater -->
 	<string name="ScriptLimitsParcelScriptMemory">Parcel Script Memory</string>

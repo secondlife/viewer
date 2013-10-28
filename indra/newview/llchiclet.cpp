@@ -220,18 +220,25 @@ void LLNotificationChiclet::setCounter(S32 counter)
 
 bool LLNotificationChiclet::ChicletNotificationChannel::filterNotification( LLNotificationPtr notification )
 {
-	if (notification->getName() == "ScriptDialog")
+	bool displayNotification;
+	if (   (notification->getName() == "ScriptDialog") // special case for scripts
+		// if there is no toast window for the notification, filter it
+		|| (!LLNotificationWellWindow::getInstance()->findItemByID(notification->getID()))
+		)
 	{
-		return false;
+		displayNotification = false;
 	}
-
-	if( !(notification->canLogToIM() && notification->hasFormElements())
-		&& (!notification->getPayload().has("give_inventory_notification")
-			|| notification->getPayload()["give_inventory_notification"]))
+	else if( !(notification->canLogToIM() && notification->hasFormElements())
+			&& (!notification->getPayload().has("give_inventory_notification")
+				|| notification->getPayload()["give_inventory_notification"]))
 	{
-		return true;
+		displayNotification = true;
 	}
-	return false;
+	else
+	{
+		displayNotification = false;
+	}
+	return displayNotification;
 }
 
 //////////////////////////////////////////////////////////////////////////
