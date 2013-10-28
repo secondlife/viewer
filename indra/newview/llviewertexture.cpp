@@ -1889,7 +1889,7 @@ bool LLViewerFetchedTexture::updateFetch()
 			if ((decode_priority > 0) && (mRawDiscardLevel < 0 || mRawDiscardLevel == INVALID_DISCARD_LEVEL))
 			{
 				// We finished but received no data
-				if (current_discard < 0)
+				if (getDiscardLevel() < 0)
 				{
 					if (getFTType() != FTT_MAP_TILE)
 					{
@@ -1906,8 +1906,17 @@ bool LLViewerFetchedTexture::updateFetch()
 				else
 				{
 					//llwarns << mID << ": Setting min discard to " << current_discard << llendl;
-					mMinDiscardLevel = current_discard;
-					desired_discard = current_discard;
+					if(current_discard >= 0)
+					{
+						mMinDiscardLevel = current_discard;
+						desired_discard = current_discard;
+					}
+					else
+					{
+						S32 dis_level = getDiscardLevel();
+						mMinDiscardLevel = dis_level;
+						desired_discard = dis_level;
+					}
 				}
 				destroyRawImage();
 			}
