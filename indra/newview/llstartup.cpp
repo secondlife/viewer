@@ -313,6 +313,12 @@ void update_texture_fetch()
 	gTextureList.updateImages(0.10f);
 }
 
+void set_flags_and_update_appearance()
+{
+	LLAppearanceMgr::instance().setAttachmentInvLinkEnable(true);
+	LLAppearanceMgr::instance().updateAppearanceFromCOF(true, true, no_op);
+}
+
 // Returns false to skip other idle processing. Should only return
 // true when all initialization done.
 bool idle_startup()
@@ -2039,12 +2045,9 @@ bool idle_startup()
 		if (isAgentAvatarValid() && !gAgent.isFirstLogin() && !gAgent.isOutfitChosen())
 		{
 			gAgentWearables.notifyLoadingStarted();
-			callAfterCategoryFetch(LLAppearanceMgr::instance().getCOF(),
-								   boost::bind(&LLAppearanceMgr::updateAppearanceFromCOF,
-											   LLAppearanceMgr::getInstance(), true, true, no_op));
-			LLAppearanceMgr::instance().setAttachmentInvLinkEnable(true);
 			gAgent.setOutfitChosen(TRUE);
 			gAgentWearables.sendDummyAgentWearablesUpdate();
+			callAfterCategoryFetch(LLAppearanceMgr::instance().getCOF(), set_flags_and_update_appearance);
 		}
 
 		display_startup();
