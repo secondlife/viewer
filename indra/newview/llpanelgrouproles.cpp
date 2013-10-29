@@ -872,7 +872,7 @@ void LLPanelGroupMembersSubTab::handleMemberSelect()
 
 	// Build a vector of all selected members, and gather allowed actions.
 	uuid_vec_t selected_members;
-	U64 allowed_by_all = 0xffffffffffffLL;
+	U64 allowed_by_all = 0xFFFFffffFFFFffffLL;
 	U64 allowed_by_some = 0;
 
 	std::vector<LLScrollListItem*>::iterator itor;

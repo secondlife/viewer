@@ -57,7 +57,7 @@
    width="200" />
   <button
    height="20"
-   label="BAN THIS SICK FILTH"
+   label="Ban Residents"
    layout="topleft"
    left="4"
    name="ban_button"

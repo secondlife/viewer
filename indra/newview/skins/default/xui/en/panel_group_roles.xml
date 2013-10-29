@@ -116,7 +116,7 @@
        width="100" />
       <button
        height="23"
-       label="Ban"
+       label="Ban Member(s)"
        follows="top|left"
        left_pad="10"
        name="member_ban"
@@ -336,7 +336,7 @@
       <button
         follows="top|left"
         height="23"
-        label="Ban!"
+        label="Ban Resident(s)"
         layout="topleft"
         left="3"
         name="ban_create"
@@ -345,7 +345,7 @@
       <button
         follows="top|left"
         height="23"
-        label="Unban!"
+        label="Remove Ban(s)"
         layout="topleft"
         left_pad="5"
         name="ban_delete"
