@@ -106,7 +106,7 @@ void LLFloaterIMSession::refresh()
 		// Send an additional Start Typing packet every ME_TYPING_TIMEOUT seconds
 		if (mMeTypingTimer.getElapsedTimeF32() > ME_TYPING_TIMEOUT && false == mShouldSendTypingState)
 		{
-llwarns << "DBG Send additional Start Typing packet" << llendl;
+			LL_DEBUGS("TypingMsgs") << "Send additional Start Typing packet" << LL_ENDL;
 			LLIMModel::instance().sendTypingState(mSessionID, mOtherParticipantUUID, TRUE);
 			mMeTypingTimer.reset();
 		}
@@ -115,14 +115,14 @@ llwarns << "DBG Send additional Start Typing packet" << llendl;
 		if (mTypingTimeoutTimer.getElapsedTimeF32() > LLAgent::TYPING_TIMEOUT_SECS)
 		{
 			setTyping(false);
-llwarns << "DBG Send stop typing due to timeout" << llendl;
+			LL_DEBUGS("TypingMsgs") << "Send stop typing due to timeout" << LL_ENDL;
 		}
 	}
 
 	// Clear <name is typing> message if no data received for OTHER_TYPING_TIMEOUT seconds
 	if (mOtherTyping && mOtherTypingTimer.getElapsedTimeF32() > OTHER_TYPING_TIMEOUT)
 	{
-llwarns << "DBG Received: is typing cleared due to timeout" << llendl;
+		LL_DEBUGS("TypingMsgs") << "Received: is typing cleared due to timeout" << LL_ENDL;
 		removeTypingIndicator(mImInfo);
 		mOtherTyping = false;
 	}
@@ -1007,7 +1007,7 @@ void LLFloaterIMSession::setTyping(bool typing)
 
 void LLFloaterIMSession::processIMTyping(const LLIMInfo* im_info, BOOL typing)
 {
-llwarns << "DBG typing=" << typing << llendl;
+	LL_DEBUGS("TypingMsgs") << "typing=" << typing << LL_ENDL;
 	if ( typing )
 	{
 		// other user started typing
