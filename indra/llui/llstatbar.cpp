@@ -327,6 +327,7 @@ void LLStatBar::draw()
 						? mNumHistoryFrames 
 						: mNumShortHistoryFrames;
 	S32 num_rapid_changes = 0;
+	S32 decimal_digits = mDecimalDigits;
 
 	switch(mStatType)
 	{
@@ -374,6 +375,10 @@ void LLStatBar::draw()
 				display_value = current;
 				// always display current value, don't rate limit
 				mLastDisplayValue = current;
+				if (is_approx_equal((F32)(S32)display_value, display_value))
+				{
+					decimal_digits = 0;
+				}
 			}
 		}
 		break;
@@ -411,12 +416,6 @@ void LLStatBar::draw()
 
 	mCurMaxBar = LLSmoothInterpolation::lerp(mCurMaxBar, mMaxBar, 0.05f);
 	mCurMinBar = LLSmoothInterpolation::lerp(mCurMinBar, mMinBar, 0.05f);
-
-	S32 decimal_digits = mDecimalDigits;
-	if (is_approx_equal((F32)(S32)display_value, display_value))
-	{
-		decimal_digits = 0;
-	}
 
 	// rate limited updates
 	if (mLastDisplayValueTimer.getElapsedTimeF32() < MEAN_VALUE_UPDATE_TIME)

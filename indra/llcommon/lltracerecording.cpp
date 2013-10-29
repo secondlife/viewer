@@ -171,7 +171,7 @@ F64Seconds Recording::getSum(const StatType<TimeBlockAccumulator::SelfTimeFacet>
 	update();
 	const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
 	const TimeBlockAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mStackTimers[stat.getIndex()] : NULL;
-	return F64Seconds((F64)(accumulator.mSelfTimeCounter) + (F64)(active_accumulator ? active_accumulator->mSelfTimeCounter : 0) / (F64)LLTrace::BlockTimer::countsPerSecond());
+	return F64Seconds(((F64)(accumulator.mSelfTimeCounter) + (F64)(active_accumulator ? active_accumulator->mSelfTimeCounter : 0)) / (F64)LLTrace::BlockTimer::countsPerSecond());
 }
 
 
