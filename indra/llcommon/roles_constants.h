@@ -53,7 +53,7 @@ enum LLRoleChangeType
 
 // KNOWN HOLES: use these for any single bit powers you need
 // bit 0x1 << 46
-// bit 0x1 << 50 and above
+// bit 0x1 << 52 and above
 
 // These powers were removed to make group roles simpler
 // bit 0x1 << 41 (GP_ACCOUNTING_VIEW)
@@ -146,7 +146,7 @@ const U64 GP_SESSION_VOICE				= 0x1LL << 27;	//can hear/talk
 const U64 GP_SESSION_MODERATOR			= 0x1LL << 37;	//can mute people's session
 
 // Group Banning
-const U64 GP_GROUP_BAN_ACCESS			= 0x1LL << 49;	// Allows access to ban / un-ban agents from a group.
+const U64 GP_GROUP_BAN_ACCESS			= 0x1LL << 51;	// Allows access to ban / un-ban agents from a group.
 
 const U64 GP_DEFAULT_MEMBER = GP_ACCOUNTING_ACCOUNTABLE
 								| GP_LAND_ALLOW_SET_HOME
