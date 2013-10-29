@@ -373,25 +373,35 @@ std::string LLFacebookConnect::getFacebookConnectURL(const std::string& route, b
 
 std::string LLFacebookConnect::getFlickrConnectURL(const std::string& route, bool include_read_from_master)
 {
-	std::string url = gAgent.getRegion()->getCapability("FlickrConnect");
-	url += route;
+    std::string url("");
+    LLViewerRegion *regionp = gAgent.getRegion();
+    if (regionp)
+    {
+        url = regionp->getCapability("FlickrConnect");
+        url += route;
     
-	if (include_read_from_master && mReadFromMaster)
-	{
-		url += "?read_from_master=true";
-	}
+        if (include_read_from_master && mReadFromMaster)
+        {
+            url += "?read_from_master=true";
+        }
+    }
 	return url;
 }
 
 std::string LLFacebookConnect::getTwitterConnectURL(const std::string& route, bool include_read_from_master)
 {
-	std::string url = gAgent.getRegion()->getCapability("TwitterConnect");
-	url += route;
+    std::string url("");
+    LLViewerRegion *regionp = gAgent.getRegion();
+    if (regionp)
+    {
+        url = regionp->getCapability("TwitterConnect");
+        url += route;
     
-	if (include_read_from_master && mReadFromMaster)
-	{
-		url += "?read_from_master=true";
-	}
+        if (include_read_from_master && mReadFromMaster)
+        {
+            url += "?read_from_master=true";
+        }
+    }
 	return url;
 }
 
@@ -399,9 +409,13 @@ void LLFacebookConnect::connectToFacebook(const std::string& auth_code, const st
 {
 	LLSD body;
 	if (!auth_code.empty())
+    {
 		body["code"] = auth_code;
+    }
 	if (!auth_state.empty())
+    {
 		body["state"] = auth_state;
+    }
     
 	LLHTTPClient::put(getFacebookConnectURL("/connection"), body, new LLFacebookConnectResponder());
 }
@@ -450,15 +464,25 @@ void LLFacebookConnect::postCheckin(const std::string& location, const std::stri
 {
 	LLSD body;
 	if (!location.empty())
+    {
 		body["location"] = location;
+    }
 	if (!name.empty())
+    {
 		body["name"] = name;
+    }
 	if (!description.empty())
+    {
 		body["description"] = description;
+    }
 	if (!image.empty())
+    {
 		body["image"] = image;
+    }
 	if (!message.empty())
+    {
 		body["message"] = message;
+    }
 
 	// Note: we can use that route for different publish action. We should be able to use the same responder.
 	LLHTTPClient::post(getFacebookConnectURL("/share/checkin", true), body, new LLFacebookShareResponder());
