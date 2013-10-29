@@ -36,7 +36,7 @@
 		<combo_box.item label="Мое последнее место" name="MyLastLocation"/>
 		<combo_box.item label="Мой дом" name="MyHome"/>
 	</combo_box>
-	<check_box initial_value="истина" label="Показывать на экране входа" name="show_location_checkbox"/>
+	<check_box initial_value="true" label="Показывать на экране входа" name="show_location_checkbox"/>
 	<text name="name_tags_textbox">
 		Теги имен:
 	</text>

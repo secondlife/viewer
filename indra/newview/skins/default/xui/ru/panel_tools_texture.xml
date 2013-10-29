@@ -112,5 +112,5 @@
 	<spinner label="Поворот, градусы" name="shinyRot"/>
 	<spinner label="Смещение по горизонтали" name="shinyOffsetU"/>
 	<spinner label="Смещение по вертикали" name="shinyOffsetV"/>
-	<check_box initial_value="ложь" label="Согласование" name="checkbox planar align" tool_tip="Согласование текстур на всех выбранных гранях по последней выбранной грани. Должно быть выбрано наложение по плоскостям."/>
+	<check_box initial_value="false" label="Согласование" name="checkbox planar align" tool_tip="Согласование текстур на всех выбранных гранях по последней выбранной грани. Должно быть выбрано наложение по плоскостям."/>
 </panel>

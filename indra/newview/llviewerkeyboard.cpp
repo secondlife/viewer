@@ -687,7 +687,10 @@ BOOL LLViewerKeyboard::handleKey(KEY translated_key,  MASK translated_mask, BOOL
 	{
 		// it is sufficient to set this value once per call to handlekey
 		// without clearing it, as it is only used in the subsequent call to scanKey
-		mKeyHandledByUI[translated_key] = gViewerWindow->handleKey(translated_key, translated_mask);
+		mKeyHandledByUI[translated_key] = gViewerWindow->handleKey(translated_key, translated_mask); 
+		// mKeyHandledByUI is not what you think ... this indicates whether the UI has handled this keypress yet (any keypress)
+		// NOT whether some UI shortcut wishes to handle the keypress
+	  
 	}
 	return mKeyHandledByUI[translated_key];
 }

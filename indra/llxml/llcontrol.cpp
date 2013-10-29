@@ -391,7 +391,7 @@ LLControlVariable* LLControlGroup::declareControl(const std::string& name, eCont
 		}
 		else
 		{
-			llwarns << "Control named " << name << " already exists, ignoring new declaration." << llendl;
+			LL_WARNS("Settings") << "Control named " << name << " already exists, ignoring new declaration." << LL_ENDL;
 		}
  		return existing_control;
 	}
@@ -630,14 +630,14 @@ U32 LLControlGroup::loadFromFileLegacy(const std::string& filename, BOOL require
 
 	if (!xml_controls.parseFile(filename))
 	{
-		llwarns << "Unable to open control file " << filename << llendl;
+		LL_WARNS("Settings") << "Unable to open control file " << filename << LL_ENDL;
 		return 0;
 	}
 
 	LLXmlTreeNode* rootp = xml_controls.getRoot();
 	if (!rootp || !rootp->hasAttribute("version"))
 	{
-		llwarns << "No valid settings header found in control file " << filename << llendl;
+		LL_WARNS("Settings") << "No valid settings header found in control file " << filename << LL_ENDL;
 		return 0;
 	}
 
@@ -650,7 +650,7 @@ U32 LLControlGroup::loadFromFileLegacy(const std::string& filename, BOOL require
 	// Check file version
 	if (version != CURRENT_VERSION)
 	{
-		llinfos << filename << " does not appear to be a version " << CURRENT_VERSION << " controls file" << llendl;
+		LL_INFOS("Settings") << filename << " does not appear to be a version " << CURRENT_VERSION << " controls file" << LL_ENDL;
 		return 0;
 	}
 
@@ -668,7 +668,7 @@ U32 LLControlGroup::loadFromFileLegacy(const std::string& filename, BOOL require
 			if (!name.empty())
 			{
 				//read in to end of line
-				llwarns << "LLControlGroup::loadFromFile() : Trying to set \"" << name << "\", setting doesn't exist." << llendl;
+				LL_WARNS("Settings") << "LLControlGroup::loadFromFile() : Trying to set \"" << name << "\", setting doesn't exist." << LL_ENDL;
 			}
 			child_nodep = rootp->getNextChild();
 			continue;
@@ -822,7 +822,7 @@ U32 LLControlGroup::saveToFile(const std::string& filename, BOOL nondefault_only
 		LLControlVariable* control = iter->second;
 		if (!control)
 		{
-			llwarns << "Tried to save invalid control: " << iter->first << llendl;
+			LL_WARNS("Settings") << "Tried to save invalid control: " << iter->first << LL_ENDL;
 		}
 		else if( control->shouldSave(nondefault_only) )
 		{
@@ -838,12 +838,12 @@ U32 LLControlGroup::saveToFile(const std::string& filename, BOOL nondefault_only
 	{
 		LLSDSerialize::toPrettyXML(settings, file);
 		file.close();
-		llinfos << "Saved to " << filename << llendl;
+		LL_INFOS("Settings") << "Saved to " << filename << LL_ENDL;
 	}
 	else
 	{
         // This is a warning because sometime we want to use settings files which can't be written...
-		llwarns << "Unable to open settings file: " << filename << llendl;
+		LL_WARNS("Settings") << "Unable to open settings file: " << filename << LL_ENDL;
 		return 0;
 	}
 	return num_saved;
@@ -856,14 +856,14 @@ U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_v
 	infile.open(filename);
 	if(!infile.is_open())
 	{
-		llwarns << "Cannot find file " << filename << " to load." << llendl;
+		LL_WARNS("Settings") << "Cannot find file " << filename << " to load." << LL_ENDL;
 		return 0;
 	}
 
 	if (LLSDParser::PARSE_FAILURE == LLSDSerialize::fromXML(settings, infile))
 	{
 		infile.close();
-		llwarns << "Unable to parse LLSD control file " << filename << ". Trying Legacy Method." << llendl;
+		LL_WARNS("Settings") << "Unable to parse LLSD control file " << filename << ". Trying Legacy Method." << LL_ENDL;
 		return loadFromFileLegacy(filename, TRUE, TYPE_STRING);
 	}
 
@@ -976,6 +976,7 @@ U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_v
 		++validitems;
 	}
 
+	LL_DEBUGS("Settings") << "Loaded " << validitems << " settings from " << filename << LL_ENDL;
 	return validitems;
 }
 
@@ -1012,7 +1013,7 @@ void main()
 	BOOL_CONTROL baz;
 
 	U32 count = gGlobals.loadFromFile("controls.ini");
-	llinfos << "Loaded " << count << " controls" << llendl;
+	LL_INFOS("Settings") << "Loaded " << count << " controls" << LL_ENDL;
 
 	// test insertion
 	foo = new LLControlVariable<F32>("gFoo", 5.f, 1.f, 20.f);
@@ -1273,19 +1274,19 @@ LLColor4 convert_from_llsd<LLColor4>(const LLSD& sd, eControlType type, const st
 		LLColor4 color(sd);
 		if (color.mV[VRED] < 0.f || color.mV[VRED] > 1.f)
 		{
-			llwarns << "Color " << control_name << " red value out of range: " << color << llendl;
+			LL_WARNS("Settings") << "Color " << control_name << " red value out of range: " << color << LL_ENDL;
 		}
 		else if (color.mV[VGREEN] < 0.f || color.mV[VGREEN] > 1.f)
 		{
-			llwarns << "Color " << control_name << " green value out of range: " << color << llendl;
+			LL_WARNS("Settings") << "Color " << control_name << " green value out of range: " << color << LL_ENDL;
 		}
 		else if (color.mV[VBLUE] < 0.f || color.mV[VBLUE] > 1.f)
 		{
-			llwarns << "Color " << control_name << " blue value out of range: " << color << llendl;
+			LL_WARNS("Settings") << "Color " << control_name << " blue value out of range: " << color << LL_ENDL;
 		}
 		else if (color.mV[VALPHA] < 0.f || color.mV[VALPHA] > 1.f)
 		{
-			llwarns << "Color " << control_name << " alpha value out of range: " << color << llendl;
+			LL_WARNS("Settings") << "Color " << control_name << " alpha value out of range: " << color << LL_ENDL;
 		}
 
 		return LLColor4(sd);

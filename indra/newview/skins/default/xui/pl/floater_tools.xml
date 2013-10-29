@@ -442,16 +442,11 @@
 				<combo_box.item label="Suction" name="suction"/>
 				<combo_box.item label="Fali" name="weave"/>
 			</combo_box>
-			<check_box initial_value="nieprawda" label="Połącz powierzchnie planarne" name="checkbox planar align" tool_tip="Połącz tekstury na wszystkich wybranych powierzchniach z powierzchnią wybraną jako ostatnia. Wymaga planarnego mapowania tekstury."/>
-			<text name="rpt">
-				Powtórzenia / Powierzchnia
-			</text>
 			<spinner label="Poziomo (U)" name="TexScaleU"/>
 			<check_box label="Odwróć" name="checkbox flip s"/>
 			<spinner label="Pionowo (V)" name="TexScaleV"/>
 			<check_box label="Odwróć" name="checkbox flip t"/>
 			<spinner label="Powtórzenia˚" name="TexRot"/>
-			<spinner label="Powtórzenia / metr" name="rptctrl"/>
 			<button label="Zastosuj" label_selected="Zastosuj" name="button apply"/>
 			<text name="tex offset">
 				Wyrównanie tekstury
