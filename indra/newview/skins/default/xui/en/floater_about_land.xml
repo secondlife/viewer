@@ -1365,7 +1365,7 @@ Only large parcels can be listed in search.
                 <combo_box.item
                  label="Any Category"
                  name="item0"
-                 value="any" />
+                 value="none" />
                 <combo_box.item
                  label="Linden Location"
                  name="item1"

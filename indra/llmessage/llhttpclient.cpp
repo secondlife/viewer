@@ -220,7 +220,8 @@ static void request(
 	Injector* body_injector,
 	LLCurl::ResponderPtr responder,
 	const F32 timeout = HTTP_REQUEST_EXPIRY_SECS,
-	const LLSD& headers = LLSD()
+	const LLSD& headers = LLSD(),
+	bool follow_redirects = true
     )
 {
 	if (!LLHTTPClient::hasPump())
@@ -234,7 +235,7 @@ static void request(
 	}
 	LLPumpIO::chain_t chain;
 
-	LLURLRequest* req = new LLURLRequest(method, url);
+	LLURLRequest* req = new LLURLRequest(method, url, follow_redirects);
 	if(!req->isValid())//failed
 	{
 		if (responder)
@@ -330,7 +331,8 @@ void LLHTTPClient::getByteRange(
 	S32 bytes,
 	ResponderPtr responder,
 	const LLSD& hdrs,
-	const F32 timeout)
+	const F32 timeout,
+	bool follow_redirects /* = true */)
 {
 	LLSD headers = hdrs;
 	if(offset > 0 || bytes > 0)
@@ -338,37 +340,42 @@ void LLHTTPClient::getByteRange(
 		std::string range = llformat("bytes=%d-%d", offset, offset+bytes-1);
 		headers[HTTP_OUT_HEADER_RANGE] = range;
 	}
-    request(url,HTTP_GET, NULL, responder, timeout, headers);
+    request(url,HTTP_GET, NULL, responder, timeout, headers, follow_redirects);
 }
 
 void LLHTTPClient::head(
 	const std::string& url,
 	ResponderPtr responder,
 	const LLSD& headers,
-	const F32 timeout)
+	const F32 timeout,
+	bool follow_redirects /* = true */)
 {
-	request(url, HTTP_HEAD, NULL, responder, timeout, headers);
+	request(url, HTTP_HEAD, NULL, responder, timeout, headers, follow_redirects);
 }
 
-void LLHTTPClient::get(const std::string& url, ResponderPtr responder, const LLSD& headers, const F32 timeout)
+void LLHTTPClient::get(const std::string& url, ResponderPtr responder, const LLSD& headers, const F32 timeout,
+					   bool follow_redirects /* = true */)
 {
-	request(url, HTTP_GET, NULL, responder, timeout, headers);
+	request(url, HTTP_GET, NULL, responder, timeout, headers, follow_redirects);
 }
-void LLHTTPClient::getHeaderOnly(const std::string& url, ResponderPtr responder, const LLSD& headers, const F32 timeout)
+void LLHTTPClient::getHeaderOnly(const std::string& url, ResponderPtr responder, const LLSD& headers,
+								 const F32 timeout, bool follow_redirects /* = true */)
 {
-	request(url, HTTP_HEAD, NULL, responder, timeout, headers);
+	request(url, HTTP_HEAD, NULL, responder, timeout, headers, follow_redirects);
 }
-void LLHTTPClient::getHeaderOnly(const std::string& url, ResponderPtr responder, const F32 timeout)
+void LLHTTPClient::getHeaderOnly(const std::string& url, ResponderPtr responder, const F32 timeout,
+								 bool follow_redirects /* = true */)
 {
-	getHeaderOnly(url, responder, LLSD(), timeout);
+	getHeaderOnly(url, responder, LLSD(), timeout, follow_redirects);
 }
 
-void LLHTTPClient::get(const std::string& url, const LLSD& query, ResponderPtr responder, const LLSD& headers, const F32 timeout)
+void LLHTTPClient::get(const std::string& url, const LLSD& query, ResponderPtr responder, const LLSD& headers,
+					   const F32 timeout, bool follow_redirects /* = true */)
 {
 	LLURI uri;
 	
 	uri = LLURI::buildHTTP(url, LLSD::emptyArray(), query);
-	get(uri.asString(), responder, headers, timeout);
+	get(uri.asString(), responder, headers, timeout, follow_redirects);
 }
 
 // A simple class for managing data returned from a curl http request.

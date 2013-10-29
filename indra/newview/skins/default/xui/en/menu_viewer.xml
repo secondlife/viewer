@@ -16,6 +16,14 @@
          parameter="agent" />
       </menu_item_call>
       <menu_item_call
+        label="Post to Facebook..."
+        name="PostToFacebook">
+        <menu_item_call.on_click
+          function="Floater.Toggle"
+          parameter="social"/>
+      </menu_item_call>      
+      <menu_item_separator/>
+      <menu_item_call
        label="Appearance..."
        name="ChangeOutfit">
         <menu_item_call.on_click
@@ -189,7 +197,7 @@
          name="Preferences"
          shortcut="control|P">
             <menu_item_call.on_click
-             function="Floater.Show"
+             function="Floater.Toggle"
              parameter="preferences" />
         </menu_item_call>
          <menu_item_call
@@ -2947,6 +2955,34 @@
          label="Recorder"
          name="Recorder"
          tear_off="true">
+            <menu_item_call visible="false"
+             label="Start event recording"
+             name="Start event recording">
+	      <menu_item_call.on_visible
+		 function="displayViewerEventRecorderMenuItems" />
+                <menu_item_call.on_click
+                 function="Advanced.EventRecorder"
+                 parameter="start recording" />
+            </menu_item_call>
+            <menu_item_call visible="false"
+             label="Stop event recording"
+             name="Stop event recording">
+	      <menu_item_call.on_visible
+		 function="displayViewerEventRecorderMenuItems" />
+                <menu_item_call.on_click
+                 function="Advanced.EventRecorder"
+                 parameter="stop recording" />
+            </menu_item_call>
+            <menu_item_call visible="false"
+             label="Playback event recording"
+             name="Playback event recording">
+	      <menu_item_call.on_visible
+		 function="displayViewerEventRecorderMenuItems" />
+                <menu_item_call.on_click
+                 function="Advanced.EventRecorder"
+                 parameter="start playback" />
+            </menu_item_call>
+
             <menu_item_call
              label="Start Playback"
              name="Start Playback">
@@ -3047,6 +3083,13 @@
             <menu_item_call.on_click
              function="Advanced.WebContentTest"
              parameter="http://google.com"/>
+          </menu_item_call>
+          <menu_item_call
+           label="FB Connect Test"
+           name="FB Connect Test">
+            <menu_item_call.on_click
+             function="Advanced.WebContentTest"
+             parameter="https://cryptic-ridge-1632.herokuapp.com/"/>
           </menu_item_call>
           <menu_item_call
              label="Dump SelectMgr"

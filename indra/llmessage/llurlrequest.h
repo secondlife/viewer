@@ -76,7 +76,7 @@ public:
 	 *
 	 * @param action One of the EHTTPMethod enumerations.
 	 */
-	LLURLRequest(EHTTPMethod action);
+	LLURLRequest(EHTTPMethod action, bool follow_redirects = true);
 
 	/** 
 	 * @brief Constructor.
@@ -84,7 +84,7 @@ public:
 	 * @param action One of the EHTTPMethod enumerations.
 	 * @param url The url of the request. It should already be encoded.
 	 */
-	LLURLRequest(EHTTPMethod action, const std::string& url);
+	LLURLRequest(EHTTPMethod action, const std::string& url, bool follow_redirects = true);
 
 	/** 
 	 * @brief Destructor.
@@ -200,10 +200,11 @@ protected:
 	};
 	EState mState;
 	EHTTPMethod mAction;
+	bool mFollowRedirects;
 	LLURLRequestDetail* mDetail;
 	LLIOPipe::ptr_t mCompletionCallback;
-	 S32 mRequestTransferedBytes;
-	 S32 mResponseTransferedBytes;
+	S32 mRequestTransferedBytes;
+	S32 mResponseTransferedBytes;
 
 	static CURLcode _sslCtxCallback(CURL * curl, void *sslctx, void *param);
 	

@@ -63,10 +63,15 @@ public:
 		const std::string& url,
 		ResponderPtr,
 		const LLSD& headers = LLSD(),
-		const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
-	static void getByteRange(const std::string& url, S32 offset, S32 bytes, ResponderPtr, const LLSD& headers=LLSD(), const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
-	static void get(const std::string& url, ResponderPtr, const LLSD& headers = LLSD(), const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
-	static void get(const std::string& url, const LLSD& query, ResponderPtr, const LLSD& headers = LLSD(), const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
+		const F32 timeout=HTTP_REQUEST_EXPIRY_SECS,
+		bool follow_redirects = true);
+	static void getByteRange(const std::string& url, S32 offset, S32 bytes, ResponderPtr,
+							 const LLSD& headers=LLSD(), const F32 timeout=HTTP_REQUEST_EXPIRY_SECS,
+							 bool follow_redirects = true);
+	static void get(const std::string& url, ResponderPtr, const LLSD& headers = LLSD(),
+					const F32 timeout=HTTP_REQUEST_EXPIRY_SECS, bool follow_redirects = true);
+	static void get(const std::string& url, const LLSD& query, ResponderPtr, const LLSD& headers = LLSD(),
+					const F32 timeout=HTTP_REQUEST_EXPIRY_SECS, bool follow_redirects = true);
 
 	static void put(
 		const std::string& url,
@@ -82,8 +87,10 @@ public:
 		const LLSD& headers = LLSD(),
 		const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 
-	static void getHeaderOnly(const std::string& url, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
-	static void getHeaderOnly(const std::string& url, ResponderPtr, const LLSD& headers, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
+	static void getHeaderOnly(const std::string& url, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS,
+							  bool follow_redirects = true);
+	static void getHeaderOnly(const std::string& url, ResponderPtr, const LLSD& headers,
+							  const F32 timeout=HTTP_REQUEST_EXPIRY_SECS, bool follow_redirects = true);
 
 	static void post(
 		const std::string& url,
