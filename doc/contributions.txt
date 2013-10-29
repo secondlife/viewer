@@ -1259,6 +1259,8 @@ Tofu Buzzard
 Tony Kembia
 Tonya Souther
 	STORM-1905
+	BUG-3875
+	BUG-3968
 Torben Trautman
 TouchaHoney Perhaps
 TraductoresAnonimos Alter
