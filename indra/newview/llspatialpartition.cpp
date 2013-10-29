@@ -1201,7 +1201,7 @@ public:
 	{
 		LLSpatialGroup* group = (LLSpatialGroup*)base_group;
 		
-		llassert(!group->hasState(LLSpatialGroup::DIRTY) && !group->isEmpty())
+		llassert(!group->hasState(LLSpatialGroup::DIRTY) && !group->isEmpty());
 		
 		if (mRes < 2)
 		{
