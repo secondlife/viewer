@@ -1071,6 +1071,8 @@ F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 	const U32 cur_frame = LLViewerOctreeEntryData::getCurrentFrame();
 	bool needs_update = ((cur_frame - mImpl->mLastCameraUpdate) > 5) && ((camera_origin - mImpl->mLastCameraOrigin).lengthSquared() > 10.f);	
 	U32 last_update = mImpl->mLastCameraUpdate;
+	LLVector4a local_origin;
+	local_origin.load3((camera_origin - getOriginAgent()).mV);
 
 	//process visible entries
 	for(LLVOCacheEntry::vocache_entry_set_t::iterator iter = mImpl->mVisibleEntries.begin(); iter != mImpl->mVisibleEntries.end();)
@@ -1149,7 +1151,7 @@ F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 					continue;
 				}
 
-				vo_entry->calcSceneContribution(camera_origin, needs_update, last_update);				
+				vo_entry->calcSceneContribution(local_origin, needs_update, last_update);				
 				mImpl->mWaitingList.insert(vo_entry);			
 			}
 		}

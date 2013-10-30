@@ -93,7 +93,7 @@ public:
 	S32 getHitCount() const			{ return mHitCount; }
 	S32 getCRCChangeCount() const	{ return mCRCChangeCount; }
 	
-	void calcSceneContribution(const LLVector3& camera_origin, bool needs_update, U32 last_update);
+	void calcSceneContribution(const LLVector4a& camera_origin, bool needs_update, U32 last_update);
 	void setSceneContribution(F32 scene_contrib) {mSceneContrib = scene_contrib;}
 	F32 getSceneContribution() const             { return mSceneContrib;}
 
