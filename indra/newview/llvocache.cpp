@@ -383,20 +383,15 @@ bool LLVOCacheEntry::isRecentlyVisible() const
 	return vis;
 }
 
-void LLVOCacheEntry::calcSceneContribution(const LLVector3& camera_origin, bool needs_update, U32 last_update)
+void LLVOCacheEntry::calcSceneContribution(const LLVector4a& camera_origin, bool needs_update, U32 last_update)
 {
 	if(!needs_update && getVisible() >= last_update)
 	{
 		return; //no need to update
 	}
 
-	const LLVector4a& center = getPositionGroup();
-	
-	LLVector4a origin;
-	origin.load3(camera_origin.mV);
-
 	LLVector4a lookAt;
-	lookAt.setSub(center, origin);
+	lookAt.setSub(getPositionGroup(), camera_origin);
 	F32 squared_dist = lookAt.dot3(lookAt).getF32();
 
 	if(squared_dist > 0.f)
