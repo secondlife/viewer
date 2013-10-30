@@ -904,7 +904,7 @@ void gpu_benchmark()
 
 	LLRenderTarget dest[count];
 	U32 source[count];
-	LLImageGL::generateTextures(LLTexUnit::TT_TEXTURE, GL_RGBA, count, source);
+	LLImageGL::generateTextures(count, source);
 	std::vector<F32> results;
 
 	//build a random texture
@@ -983,7 +983,7 @@ void gpu_benchmark()
 
 	LLGLSLShader::finishProfile();
 	
-	LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, GL_RGBA, 0, count, source);
+	LLImageGL::deleteTextures(count, source);
 
 
 	std::sort(results.begin(), results.end());
