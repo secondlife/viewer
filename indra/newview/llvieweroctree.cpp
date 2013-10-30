@@ -746,7 +746,11 @@ BOOL LLViewerOctreeGroup::isRecentlyVisible() const
 void LLViewerOctreeGroup::setVisible()
 {
 	mVisible[LLViewerCamera::sCurCameraID] = LLViewerOctreeEntryData::getCurrentFrame();
-	mAnyVisible = LLViewerOctreeEntryData::getCurrentFrame();
+	
+	if(LLViewerCamera::sCurCameraID < LLViewerCamera::CAMERA_WATER0)
+	{
+		mAnyVisible = LLViewerOctreeEntryData::getCurrentFrame();
+	}
 }
 
 void LLViewerOctreeGroup::checkStates()
