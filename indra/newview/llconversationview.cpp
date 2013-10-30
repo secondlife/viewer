@@ -281,7 +281,6 @@ BOOL LLConversationViewSession::handleMouseDown( S32 x, S32 y, MASK mask )
 			{
 				im_container->collapseMessagesPane(false);
 			}
-
 		}
 		selectConversationItem();
     }
