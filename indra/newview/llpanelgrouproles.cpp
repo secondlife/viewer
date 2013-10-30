@@ -2699,7 +2699,7 @@ BOOL LLPanelGroupBanListSubTab::postBuildSubTab(LLView* root)
 	mBanList->setCommitCallback(onBanEntrySelect, this);
 
 	mCreateBanButton->setClickedCallback(onCreateBanEntry, this);
-	mCreateBanButton->setEnabled(TRUE);
+	mCreateBanButton->setEnabled(FALSE);
 
 	mDeleteBanButton->setClickedCallback(onDeleteBanEntry, this);
 	mDeleteBanButton->setEnabled(FALSE);
@@ -2719,6 +2719,11 @@ void LLPanelGroupBanListSubTab::activate()
 
 	mBanList->deselectAllItems();
 	mDeleteBanButton->setEnabled(FALSE);
+
+	if (gAgent.hasPowerInGroup(mGroupID, GP_GROUP_BAN_ACCESS))
+	{
+		mCreateBanButton->setEnabled(TRUE);
+	}
 
 	// BAKER: Should I really request everytime activate() is called?
 	//		  Perhaps I should only do it on a force refresh, or if an action on the list happens...
@@ -2756,7 +2761,9 @@ void LLPanelGroupBanListSubTab::onBanEntrySelect(LLUICtrl* ctrl, void* user_data
 void LLPanelGroupBanListSubTab::handleBanEntrySelect()
 {
 	if (gAgent.hasPowerInGroup(mGroupID, GP_GROUP_BAN_ACCESS))
+	{
 		mDeleteBanButton->setEnabled(TRUE);
+	}
 }
 
 void LLPanelGroupBanListSubTab::onCreateBanEntry(void* user_data)
