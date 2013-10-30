@@ -111,16 +111,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	setBackgroundVisible(FALSE);
 	setBackgroundOpaque(TRUE);
 
-	// instance management
-	if (LLPanelLogin::sInstance)
-	{
-		LL_WARNS("AppInit") << "Duplicate instance of login view deleted" << LL_ENDL;
-		// Don't leave bad pointer in gFocusMgr
-		gFocusMgr.setDefaultKeyboardFocus(NULL);
-
-		delete LLPanelLogin::sInstance;
-	}
-
 	mPasswordModified = FALSE;
 	LLPanelLogin::sInstance = this;
 
@@ -442,6 +432,16 @@ void LLPanelLogin::show(const LLRect &rect,
 						void (*callback)(S32 option, void* user_data),
 						void* callback_data)
 {
+	// instance management
+	if (LLPanelLogin::sInstance)
+	{
+		LL_WARNS("AppInit") << "Duplicate instance of login view deleted" << LL_ENDL;
+		// Don't leave bad pointer in gFocusMgr
+		gFocusMgr.setDefaultKeyboardFocus(NULL);
+
+		delete LLPanelLogin::sInstance;
+	}
+
 	new LLPanelLogin(rect, callback, callback_data);
 
 	if( !gFocusMgr.getKeyboardFocus() )
