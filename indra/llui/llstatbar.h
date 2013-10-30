@@ -44,13 +44,12 @@ public:
 								bar_max,
 								tick_spacing;
 
-		Optional<U32>			decimal_digits;
-
 		Optional<bool>			show_bar,
 								show_history,
 								scale_range;
 
-		Optional<S32>			num_frames,
+		Optional<S32>			decimal_digits,
+								num_frames,
 								num_frames_short,
 								max_height;
 		Optional<std::string>	stat;
@@ -67,7 +66,7 @@ public:
 	void setStat(const std::string& stat_name);
 
 	void setRange(F32 bar_min, F32 bar_max);
-	void getRange(F32& bar_min, F32& bar_max) { bar_min = mMinBar; bar_max = mMaxBar; }
+	void getRange(F32& bar_min, F32& bar_max) { bar_min = mTargetMinBar; bar_max = mTargetMaxBar; }
 	
 	/*virtual*/ LLRect getRequiredRect();	// Return the height of this object, given the set options.
 
@@ -75,20 +74,18 @@ private:
 	void drawLabelAndValue( F32 mean, std::string &unit_label, LLRect &bar_rect, S32 decimal_digits );
 	void drawTicks( F32 min, F32 max, F32 value_scale, LLRect &bar_rect );
 
-	F32          mMinBar,
-				 mMaxBar,
+	F32          mTargetMinBar,
+				 mTargetMaxBar,
+				 mFloatingTargetMinBar,
+				 mFloatingTargetMaxBar,
 				 mCurMaxBar,
 				 mCurMinBar,
-				 mLabelSpacing;
-	F32			 mTickValue;
-	U32          mDecimalDigits;
-	S32			 mNumHistoryFrames,
+				 mLabelSpacing,
+				 mTickSpacing;
+	S32          mDecimalDigits,
+				 mNumHistoryFrames,
 				 mNumShortHistoryFrames;
 	S32			 mMaxHeight;
-	bool         mDisplayBar,			// Display the bar graph.
-				 mDisplayHistory,
-				 mAutoScaleMax,
-				 mAutoScaleMin;
 	EOrientation mOrientation;
 	F32			 mLastDisplayValue;
 	LLFrameTimer mLastDisplayValueTimer;
@@ -113,6 +110,11 @@ private:
 
 	LLUIString   mLabel;
 	std::string  mUnitLabel;
+
+	bool         mDisplayBar,			// Display the bar graph.
+				 mDisplayHistory,
+				 mAutoScaleMax,
+				 mAutoScaleMin;
 };
 
 #endif
