@@ -961,10 +961,10 @@ void LLFastTimerView::printLineStats()
 			first = false;
 			legend_stat += idp->getName();
 
-			if (idp->getTreeNode().mCollapsed)
-			{
-				it.skipDescendants();
-			}
+			//if (idp->getTreeNode().mCollapsed)
+			//{
+			//	it.skipDescendants();
+			//}
 		}
 		LL_INFOS() << legend_stat << LL_ENDL;
 
@@ -995,10 +995,10 @@ void LLFastTimerView::printLineStats()
 
 			timer_stat += llformat("%.1f",ms.value());
 
-			if (idp->getTreeNode().mCollapsed)
-			{
-				it.skipDescendants();
-			}
+			//if (idp->getTreeNode().mCollapsed)
+			//{
+			//	it.skipDescendants();
+			//}
 		}
 		LL_INFOS() << timer_stat << LL_ENDL;
 		mStatsIndex = -1;
