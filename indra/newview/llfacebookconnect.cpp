@@ -373,25 +373,35 @@ std::string LLFacebookConnect::getFacebookConnectURL(const std::string& route, b
 
 std::string LLFacebookConnect::getFlickrConnectURL(const std::string& route, bool include_read_from_master)
 {
-	std::string url = gAgent.getRegion()->getCapability("FlickrConnect");
-	url += route;
+    std::string url("");
+    LLViewerRegion *regionp = gAgent.getRegion();
+    if (regionp)
+    {
+        url = regionp->getCapability("FlickrConnect");
+        url += route;
     
-	if (include_read_from_master && mReadFromMaster)
-	{
-		url += "?read_from_master=true";
-	}
+        if (include_read_from_master && mReadFromMaster)
+        {
+            url += "?read_from_master=true";
+        }
+    }
 	return url;
 }
 
 std::string LLFacebookConnect::getTwitterConnectURL(const std::string& route, bool include_read_from_master)
 {
-	std::string url = gAgent.getRegion()->getCapability("TwitterConnect");
-	url += route;
+    std::string url("");
+    LLViewerRegion *regionp = gAgent.getRegion();
+    if (regionp)
+    {
+        url = regionp->getCapability("TwitterConnect");
+        url += route;
     
-	if (include_read_from_master && mReadFromMaster)
-	{
-		url += "?read_from_master=true";
-	}
+        if (include_read_from_master && mReadFromMaster)
+        {
+            url += "?read_from_master=true";
+        }
+    }
 	return url;
 }
 
