@@ -176,8 +176,8 @@ LLStatBar::LLStatBar(const Params& p)
 :	LLView(p),
 	mLabel(p.label),
 	mUnitLabel(p.unit_label),
-	mMinBar(llmin(p.bar_min, p.bar_max)),
-	mMaxBar(llmax(p.bar_max, p.bar_min)),
+	mTargetMinBar(llmin(p.bar_min, p.bar_max)),
+	mTargetMaxBar(llmax(p.bar_max, p.bar_min)),
 	mCurMaxBar(p.bar_max),
     mCurMinBar(0),
 	mDecimalDigits(p.decimal_digits),
@@ -189,15 +189,18 @@ LLStatBar::LLStatBar(const Params& p)
 	mOrientation(p.orientation),
 	mAutoScaleMax(!p.bar_max.isProvided()),
 	mAutoScaleMin(!p.bar_min.isProvided()),
-	mTickValue(p.tick_spacing),
+	mTickSpacing(p.tick_spacing),
 	mLastDisplayValue(0.f),
 	mStatType(STAT_NONE)
 {
+	mFloatingTargetMinBar = mTargetMinBar;
+	mFloatingTargetMaxBar = mTargetMaxBar;
+
 	mStat.valid = NULL;
 	// tick value will be automatically calculated later
 	if (!p.tick_spacing.isProvided() && p.bar_min.isProvided() && p.bar_max.isProvided())
 	{
-		mTickValue = calc_tick_value(mMinBar, mMaxBar);
+		mTickSpacing = calc_tick_value(mTargetMinBar, mTargetMaxBar);
 	}
 
 	setStat(p.stat);
@@ -259,42 +262,16 @@ BOOL LLStatBar::handleMouseDown(S32 x, S32 y, MASK mask)
 template<typename T>
 S32 calc_num_rapid_changes(LLTrace::PeriodicRecording& periodic_recording, const T& stat, const F32Seconds time_period)
 {
-	F32Seconds	elapsed_time,
-				time_since_value_changed;
-	S32 num_rapid_changes = 0;
-	const F32Seconds	RAPID_CHANGE_THRESHOLD = F32Seconds(0.3f);
+	F32Seconds			elapsed_time,
+						time_since_value_changed;
+	S32					num_rapid_changes			= 0;
+	const F32Seconds	RAPID_CHANGE_THRESHOLD		= F32Seconds(0.3f);
+	F64					last_value					= periodic_recording.getPrevRecording(1).getLastValue(stat);
 
-	F64 last_value = periodic_recording.getPrevRecording(1).getLastValue(stat);
 	for (S32 i = 2; i < periodic_recording.getNumRecordedPeriods(); i++)
 	{
 		LLTrace::Recording& recording = periodic_recording.getPrevRecording(i);
 		F64 cur_value = recording.getLastValue(stat);
-
-		if (last_value != cur_value)
-		{
-			if (time_since_value_changed < RAPID_CHANGE_THRESHOLD) num_rapid_changes++;
-			time_since_value_changed = (F32Seconds)0;	
-		}
-		last_value = cur_value;
-
-		elapsed_time += recording.getDuration();
-		if (elapsed_time > time_period) break;
-	}
-
-	return num_rapid_changes;
-}
-
-S32 calc_num_rapid_changes(LLTrace::PeriodicRecording& periodic_recording, const LLTrace::StatType<LLTrace::CountAccumulator>& stat, const F32Seconds time_period)
-{
-	F32Seconds	elapsed_time,
-				time_since_value_changed;
-	S32 num_rapid_changes = 0;
-
-	F64 last_value = periodic_recording.getPrevRecording(1).getSum(stat);
-	for (S32 i = 1; i < periodic_recording.getNumRecordedPeriods(); i++)
-	{
-		LLTrace::Recording& recording = periodic_recording.getPrevRecording(i);
-		F64 cur_value = recording.getSum(stat);
 
 		if (last_value != cur_value)
 		{
@@ -318,16 +295,16 @@ void LLStatBar::draw()
 	LLTrace::Recording& last_frame_recording = frame_recording.getLastRecording(); 
 
 	std::string unit_label;
-	F32 current			= 0, 
-		min				= 0, 
-		max				= 0,
-		mean			= 0,
-		display_value	= 0;
-	S32 num_frames		= mDisplayHistory 
-						? mNumHistoryFrames 
-						: mNumShortHistoryFrames;
-	S32 num_rapid_changes = 0;
-	S32 decimal_digits = mDecimalDigits;
+	F32			current			= 0, 
+				min				= 0, 
+				max				= 0,
+				mean			= 0,
+				display_value	= 0;
+	S32			num_frames		= mDisplayHistory 
+								? mNumHistoryFrames 
+								: mNumShortHistoryFrames;
+	S32			num_rapid_changes = 0;
+	S32			decimal_digits = mDecimalDigits;
 
 	switch(mStatType)
 	{
@@ -414,8 +391,8 @@ void LLStatBar::draw()
 		bar_rect.mBottom = llmin(bar_rect.mTop - 5, 20);
 	}
 
-	mCurMaxBar = LLSmoothInterpolation::lerp(mCurMaxBar, mMaxBar, 0.05f);
-	mCurMinBar = LLSmoothInterpolation::lerp(mCurMinBar, mMinBar, 0.05f);
+	mCurMaxBar = LLSmoothInterpolation::lerp(mCurMaxBar, mTargetMaxBar, 0.05f);
+	mCurMinBar = LLSmoothInterpolation::lerp(mCurMinBar, mTargetMinBar, 0.05f);
 
 	// rate limited updates
 	if (mLastDisplayValueTimer.getElapsedTimeF32() < MEAN_VALUE_UPDATE_TIME)
@@ -428,7 +405,6 @@ void LLStatBar::draw()
 	}
 	drawLabelAndValue(display_value, unit_label, bar_rect, decimal_digits);
 	mLastDisplayValue = display_value;
-
 
 	if (mDisplayBar && mStat.valid)
 	{
@@ -607,9 +583,11 @@ void LLStatBar::setStat(const std::string& stat_name)
 
 void LLStatBar::setRange(F32 bar_min, F32 bar_max)
 {
-	mMinBar		= llmin(bar_min, bar_max);
-	mMaxBar		= llmax(bar_min, bar_max);
-	mTickValue	= calc_tick_value(mMinBar, mMaxBar);
+	mTargetMinBar		= llmin(bar_min, bar_max);
+	mTargetMaxBar		= llmax(bar_min, bar_max);
+	mFloatingTargetMinBar = mTargetMinBar;
+	mFloatingTargetMaxBar = mTargetMaxBar;
+	mTickSpacing	= calc_tick_value(mTargetMinBar, mTargetMaxBar);
 }
 
 LLRect LLStatBar::getRequiredRect()
@@ -660,21 +638,24 @@ void LLStatBar::drawLabelAndValue( F32 value, std::string &label, LLRect &bar_re
 
 void LLStatBar::drawTicks( F32 min, F32 max, F32 value_scale, LLRect &bar_rect )
 {
-	if ((mAutoScaleMax && max >= mCurMaxBar)|| (mAutoScaleMin && min <= mCurMinBar))
+	if (mAutoScaleMax || mAutoScaleMin)
 	{
-		F32 range_min = mAutoScaleMin ? llmin(mMinBar, min) : mMinBar;
-		F32 range_max = mAutoScaleMax ? llmax(mMaxBar, max) : mMaxBar;
+		F32 u = LLSmoothInterpolation::getInterpolant(10.f);
+		mFloatingTargetMinBar = llmin(min, lerp(mFloatingTargetMinBar, min, u));
+		mFloatingTargetMaxBar = llmax(max, lerp(mFloatingTargetMaxBar, max, u));
+		F32 range_min = mAutoScaleMin ? mFloatingTargetMinBar : mTargetMinBar;
+		F32 range_max = mAutoScaleMax ? mFloatingTargetMaxBar : mTargetMaxBar;
 		F32 tick_value = 0.f;
 		calc_auto_scale_range(range_min, range_max, tick_value);
-		if (mAutoScaleMin) { mMinBar = range_min; }
-		if (mAutoScaleMax) { mMaxBar = range_max; }
+		if (mAutoScaleMin) { mTargetMinBar = range_min; }
+		if (mAutoScaleMax) { mTargetMaxBar = range_max; }
 		if (mAutoScaleMin && mAutoScaleMax)
 		{
-			mTickValue = tick_value;
+			mTickSpacing = tick_value;
 		}
 		else
 		{
-			mTickValue = calc_tick_value(mMinBar, mMaxBar);
+			mTickSpacing = calc_tick_value(mTargetMinBar, mTargetMaxBar);
 		}
 	}
 
@@ -682,7 +663,7 @@ void LLStatBar::drawTicks( F32 min, F32 max, F32 value_scale, LLRect &bar_rect )
 	// ensure ticks always hit 0
 	S32 last_tick = S32_MIN;
 	S32 last_label = S32_MIN;
-	if (mTickValue > 0.f && value_scale > 0.f)
+	if (mTickSpacing > 0.f && value_scale > 0.f)
 	{
 		const S32 MIN_TICK_SPACING  = mOrientation == HORIZONTAL ? 20 : 30;
 		const S32 MIN_LABEL_SPACING = mOrientation == HORIZONTAL ? 30 : 60;
@@ -690,17 +671,18 @@ void LLStatBar::drawTicks( F32 min, F32 max, F32 value_scale, LLRect &bar_rect )
 		const S32 TICK_WIDTH = 1;
 
 		F32 start = mCurMinBar < 0.f
-			? llceil(-mCurMinBar / mTickValue) * -mTickValue
+			? llceil(-mCurMinBar / mTickSpacing) * -mTickSpacing
 			: 0.f;
-		for (F32 tick_value = start; ;tick_value += mTickValue)
+		for (F32 tick_value = start; ;tick_value += mTickSpacing)
 		{
-			const S32 begin = llfloor((tick_value - mCurMinBar)*value_scale);
-			const S32 end = begin + TICK_WIDTH;
-			if (begin < last_tick + MIN_TICK_SPACING)
+			// clamp to S32_MAX / 2 to avoid floating point to integer overflow resulting in S32_MIN
+			const S32 tick_begin = llfloor(llmin((F32)(S32_MAX / 2), (tick_value - mCurMinBar)*value_scale));
+			const S32 tick_end = tick_begin + TICK_WIDTH;
+			if (tick_begin < last_tick + MIN_TICK_SPACING)
 			{
 				continue;
 			}
-			last_tick = begin;
+			last_tick = tick_begin;
 
 			S32 decimal_digits = mDecimalDigits;
 			if (is_approx_equal((F32)(S32)tick_value, tick_value))
@@ -711,25 +693,25 @@ void LLStatBar::drawTicks( F32 min, F32 max, F32 value_scale, LLRect &bar_rect )
 			S32 tick_label_width = LLFontGL::getFontMonospace()->getWidth(tick_label);
 			if (mOrientation == HORIZONTAL)
 			{
-				if (begin > last_label + MIN_LABEL_SPACING)
+				if (tick_begin > last_label + MIN_LABEL_SPACING)
 				{
-					gl_rect_2d(bar_rect.mLeft, end, bar_rect.mRight - TICK_LENGTH, begin, LLColor4(1.f, 1.f, 1.f, 0.25f));
-					LLFontGL::getFontMonospace()->renderUTF8(tick_label, 0, bar_rect.mRight, begin,
+					gl_rect_2d(bar_rect.mLeft, tick_end, bar_rect.mRight - TICK_LENGTH, tick_begin, LLColor4(1.f, 1.f, 1.f, 0.25f));
+					LLFontGL::getFontMonospace()->renderUTF8(tick_label, 0, bar_rect.mRight, tick_begin,
 						LLColor4(1.f, 1.f, 1.f, 0.5f),
 						LLFontGL::LEFT, LLFontGL::VCENTER);
-					last_label = begin;
+					last_label = tick_begin;
 				}
 				else
 				{
-					gl_rect_2d(bar_rect.mLeft, end, bar_rect.mRight - TICK_LENGTH/2, begin, LLColor4(1.f, 1.f, 1.f, 0.1f));
+					gl_rect_2d(bar_rect.mLeft, tick_end, bar_rect.mRight - TICK_LENGTH/2, tick_begin, LLColor4(1.f, 1.f, 1.f, 0.1f));
 				}
 			}
 			else
 			{
-				if (begin > last_label + MIN_LABEL_SPACING)
+				if (tick_begin > last_label + MIN_LABEL_SPACING)
 				{
-					gl_rect_2d(begin, bar_rect.mTop, end, bar_rect.mBottom - TICK_LENGTH, LLColor4(1.f, 1.f, 1.f, 0.25f));
-					S32 label_pos = begin - llround((F32)tick_label_width * ((F32)begin / (F32)bar_rect.getWidth()));
+					gl_rect_2d(tick_begin, bar_rect.mTop, tick_end, bar_rect.mBottom - TICK_LENGTH, LLColor4(1.f, 1.f, 1.f, 0.25f));
+					S32 label_pos = tick_begin - llround((F32)tick_label_width * ((F32)tick_begin / (F32)bar_rect.getWidth()));
 					LLFontGL::getFontMonospace()->renderUTF8(tick_label, 0, label_pos, bar_rect.mBottom - TICK_LENGTH,
 						LLColor4(1.f, 1.f, 1.f, 0.5f),
 						LLFontGL::LEFT, LLFontGL::TOP);
@@ -737,10 +719,10 @@ void LLStatBar::drawTicks( F32 min, F32 max, F32 value_scale, LLRect &bar_rect )
 				}
 				else
 				{
-					gl_rect_2d(begin, bar_rect.mTop, end, bar_rect.mBottom - TICK_LENGTH/2, LLColor4(1.f, 1.f, 1.f, 0.1f));
+					gl_rect_2d(tick_begin, bar_rect.mTop, tick_end, bar_rect.mBottom - TICK_LENGTH/2, LLColor4(1.f, 1.f, 1.f, 0.1f));
 				}
 			}
-			// always draw one tick value past end, so we can see part of the text, if possible
+			// always draw one tick value past tick_end, so we can see part of the text, if possible
 			if (tick_value > mCurMaxBar)
 			{
 				break;
