@@ -2196,9 +2196,8 @@ void LLRender::texCoord2fv(const GLfloat* tc)
 
 void LLRender::color4ub(const GLubyte& r, const GLubyte& g, const GLubyte& b, const GLubyte& a)
 {
-	if (LLGLSLShader::sNoFixedFunction && 
-		(!LLGLSLShader::sCurBoundShaderPtr || 
-		LLGLSLShader::sCurBoundShaderPtr->mAttributeMask & LLVertexBuffer::MAP_COLOR))
+	if (!LLGLSLShader::sCurBoundShaderPtr ||
+		LLGLSLShader::sCurBoundShaderPtr->mAttributeMask & LLVertexBuffer::MAP_COLOR)
 	{
 		mColorsp[mCount] = LLColor4U(r,g,b,a);
 	}
