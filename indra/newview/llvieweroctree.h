@@ -217,6 +217,7 @@ public:
 	BOOL isVisible() const;
 	virtual BOOL isRecentlyVisible() const;
 	S32  getVisible(LLViewerCamera::eCameraID id) const {return mVisible[id];}
+	S32  getAnyVisible() const {return mAnyVisible;}
 	bool isEmpty() const { return mOctreeNode->isEmpty(); }
 
 	U32  getState()				   {return mState; }

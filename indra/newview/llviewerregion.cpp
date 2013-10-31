@@ -1359,6 +1359,8 @@ BOOL LLViewerRegion::isViewerCameraStatic()
 
 F32 LLViewerRegion::killInvisibleObjects(F32 max_time)
 {
+	static LLCachedControl<F32> back_sphere_radius(gSavedSettings,"BackShpereCullingRadius");
+
 #if 1
 	if(!sVOCacheCullingEnabled)
 	{
@@ -1368,6 +1370,10 @@ F32 LLViewerRegion::killInvisibleObjects(F32 max_time)
 	{
 		return max_time;
 	}
+
+	LLVector4a camera_origin;
+	camera_origin.load3(LLViewerCamera::getInstance()->getOrigin().mV);
+	F32 squared_back_threshold = back_sphere_radius * back_sphere_radius;
 
 	bool unstable = sNewObjectCreationThrottle < 0;
 	size_t max_update = unstable ? mImpl->mActiveSet.size() : 64; 
@@ -1388,7 +1394,7 @@ F32 LLViewerRegion::killInvisibleObjects(F32 max_time)
 			iter = mImpl->mActiveSet.begin();
 		}
 
-		if(!(*iter)->isRecentlyVisible() && (unstable || (*iter)->mLastCameraUpdated < sLastCameraUpdated))
+		if(!(*iter)->isAnyVisible(camera_origin, squared_back_threshold) && (unstable || (*iter)->mLastCameraUpdated < sLastCameraUpdated))
 		{
 			killObject((*iter), delete_list);
 		}
@@ -1425,18 +1431,18 @@ void LLViewerRegion::killObject(LLVOCacheEntry* entry, std::vector<LLDrawable*>&
 
 	if(!drawablep->getParent())
 	{
-		LLViewerObject::const_child_list_t& child_list = drawablep->getVObj()->getChildren();
-		for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
-			iter != child_list.end(); iter++)
-		{
-			LLViewerObject* child = *iter;
-			if(child->mDrawable->isRecentlyVisible())
-			{
-				//set the parent group visible if any of its children visible.
-				((LLViewerOctreeEntryData*)drawablep)->setVisible();
-				return;
-			}
-		}
+		//LLViewerObject::const_child_list_t& child_list = drawablep->getVObj()->getChildren();
+		//for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+		//	iter != child_list.end(); iter++)
+		//{
+		//	LLViewerObject* child = *iter;
+		//	if(child->mDrawable->isRecentlyVisible())
+		//	{
+		//		//set the parent group visible if any of its children visible.
+		//		((LLViewerOctreeEntryData*)drawablep)->setVisible();
+		//		return;
+		//	}
+		//}
 		delete_list.push_back(drawablep);				
 	}				
 }

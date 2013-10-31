@@ -358,26 +358,34 @@ void LLVOCacheEntry::updateDebugSettings()
 	sBackAngleTanSquared = squared_back_angle;
 }
 
-bool LLVOCacheEntry::isRecentlyVisible() const
+bool LLVOCacheEntry::isAnyVisible(const LLVector4a& camera_origin, F32 squared_dist_threshold)
 {
-	bool vis = LLViewerOctreeEntryData::isRecentlyVisible();
-
-	if(!vis && getGroup())
+	LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)getGroup();
+	if(!group)
 	{
-		//recently visible to any camera?
-		vis = ((LLOcclusionCullingGroup*)getGroup())->isAnyRecentlyVisible();
+		return false;
 	}
 
-	//combination of projected area and squared distance
-	if(!vis && !mParentID && mSceneContrib > sBackAngleTanSquared) 
-	{
-		F32 rad = getBinRadius();
-		vis = (rad * rad / mSceneContrib < sBackDistanceSquared);
-	}
+	//any visible
+	bool vis = group->isAnyRecentlyVisible();
 
+	//not ready to remove
 	if(!vis)
 	{
-		vis = (getVisible() + sMinFrameRange > LLViewerOctreeEntryData::getCurrentFrame());
+		vis = (group->getAnyVisible() + sMinFrameRange > LLViewerOctreeEntryData::getCurrentFrame());
+	}
+
+	//within the back sphere
+	if(!vis && !mParentID)
+	{
+		LLVector4a lookAt;
+		lookAt.setSub(getPositionGroup(), camera_origin);
+		F32 squared_dist = lookAt.dot3(lookAt).getF32();
+		F32 rad = getBinRadius();
+		rad *= rad;
+		
+		//rough estimation
+		vis = (squared_dist - rad < squared_dist_threshold);
 	}
 
 	return vis;
