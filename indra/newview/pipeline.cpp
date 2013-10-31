@@ -2155,11 +2155,11 @@ void LLPipeline::updateMove()
 			}
 
 			//balance the VO Cache tree
-			LLVOCachePartition* vo_part = region->getVOCachePartition();
+			/*LLVOCachePartition* vo_part = region->getVOCachePartition();
 			if(vo_part)
 			{
 				vo_part->mOctree->balance();
-			}
+			}*/
 		}
 	}
 }

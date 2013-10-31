@@ -840,6 +840,10 @@ void LLVOCachePartition::processOccluders(LLCamera* camera)
 	{
 		return;
 	}
+	if(LLViewerCamera::sCurCameraID != LLViewerCamera::CAMERA_WORLD)
+	{
+		return; //no need for those cameras.
+	}
 
 	LLVector3 region_agent = mRegionp->getOriginAgent();
 	LLVector4a shift(region_agent[0], region_agent[1], region_agent[2]);
@@ -864,7 +868,7 @@ void LLVOCachePartition::resetOccluders()
 	for(std::set<LLVOCacheGroup*>::iterator iter = mOccludedGroups.begin(); iter != mOccludedGroups.end(); ++iter)
 	{
 		LLVOCacheGroup* group = *iter;
-		group->clearOcclusionState(LLOcclusionCullingGroup::ACTIVE_OCCLUSION, LLOcclusionCullingGroup::STATE_MODE_ALL_CAMERAS);
+		group->clearOcclusionState(LLOcclusionCullingGroup::ACTIVE_OCCLUSION);
 	}	
 	mOccludedGroups.clear();
 	sNeedsOcclusionCheck = FALSE;

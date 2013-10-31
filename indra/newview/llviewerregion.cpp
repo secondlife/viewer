@@ -1299,6 +1299,9 @@ BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 		mPaused = FALSE; //unpause.
 	}
 
+	LLViewerCamera::eCameraID old_camera_id = LLViewerCamera::sCurCameraID;
+	LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
+
 	//reset all occluders
 	mImpl->mVOCachePartition->resetOccluders();	
 
@@ -1313,6 +1316,7 @@ BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 	mImpl->mWaitingList.clear();
 	mImpl->mVisibleGroups.clear();
 
+	LLViewerCamera::sCurCameraID = old_camera_id;
 	return did_update;
 }
 
