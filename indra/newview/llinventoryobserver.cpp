@@ -541,34 +541,7 @@ void LLInventoryAddedObserver::changed(U32 mask)
 		return;
 	}
 
-	// *HACK: If this was in response to a packet off
-	// the network, figure out which item was updated.
-	LLMessageSystem* msg = gMessageSystem;
-
-	std::string msg_name = msg->getMessageName();
-	if (msg_name.empty())
-	{
-		return;
-	}
-	
-	// We only want newly created inventory items. JC
-	if ( msg_name != "UpdateCreateInventoryItem")
-	{
-		return;
-	}
-
-	LLPointer<LLViewerInventoryItem> titem = new LLViewerInventoryItem;
-	S32 num_blocks = msg->getNumberOfBlocksFast(_PREHASH_InventoryData);
-	for (S32 i = 0; i < num_blocks; ++i)
-	{
-		titem->unpackMessage(msg, _PREHASH_InventoryData, i);
-		if (!(titem->getUUID().isNull()))
-		{
-			//we don't do anything with null keys
-			mAdded.push_back(titem->getUUID());
-		}
-	}
-	if (!mAdded.empty())
+	if (!gInventory.getAddedIDs().empty())
 	{
 		done();
 	}
@@ -581,9 +554,9 @@ void LLInventoryCategoryAddedObserver::changed(U32 mask)
 		return;
 	}
 	
-	const LLInventoryModel::changed_items_t& changed_ids = gInventory.getChangedIDs();
+	const LLInventoryModel::changed_items_t& added_ids = gInventory.getAddedIDs();
 	
-	for (LLInventoryModel::changed_items_t::const_iterator cit = changed_ids.begin(); cit != changed_ids.end(); ++cit)
+	for (LLInventoryModel::changed_items_t::const_iterator cit = added_ids.begin(); cit != added_ids.end(); ++cit)
 	{
 		LLViewerInventoryCategory* cat = gInventory.getCategory(*cit);
 		

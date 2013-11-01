@@ -1454,6 +1454,7 @@ void LLInventoryModel::notifyObservers()
 
 	mModifyMask = LLInventoryObserver::NONE;
 	mChangedItemIDs.clear();
+	mAddedItemIDs.clear();
 	mIsNotifyObservers = FALSE;
 }
 
@@ -1473,13 +1474,18 @@ void LLInventoryModel::addChangedMask(U32 mask, const LLUUID& referent)
 	if (referent.notNull())
 	{
 		mChangedItemIDs.insert(referent);
-	}
+
+		if (mask & LLInventoryObserver::ADD)
+		{
+			mAddedItemIDs.insert(referent);
+		}
 	
-	// Update all linked items.  Starting with just LABEL because I'm
-	// not sure what else might need to be accounted for this.
-	if (mModifyMask & LLInventoryObserver::LABEL)
-	{
-		addChangedMaskForLinks(referent, LLInventoryObserver::LABEL);
+		// Update all linked items.  Starting with just LABEL because I'm
+		// not sure what else might need to be accounted for this.
+		if (mask & LLInventoryObserver::LABEL)
+		{
+			addChangedMaskForLinks(referent, LLInventoryObserver::LABEL);
+		}
 	}
 }
 

@@ -190,13 +190,11 @@ private:
 class LLInventoryAddedObserver : public LLInventoryObserver
 {
 public:
-	LLInventoryAddedObserver() : mAdded() {}
+	LLInventoryAddedObserver() {}
 	/*virtual*/ void changed(U32 mask);
 
 protected:
 	virtual void done() = 0;
-
-	uuid_vec_t mAdded;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

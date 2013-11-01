@@ -73,7 +73,6 @@ public:
 
 	typedef LLDynamicArray<LLPointer<LLViewerInventoryCategory> > cat_array_t;
 	typedef LLDynamicArray<LLPointer<LLViewerInventoryItem> > item_array_t;
-	typedef std::set<LLUUID> changed_items_t;
 
 	class fetchInventoryResponder : public LLHTTPClient::Responder
 	{
@@ -472,7 +471,9 @@ public:
 	// been changed 'under the hood', but outside the control of the
 	// inventory. The next notify will include that notification.
 	void addChangedMask(U32 mask, const LLUUID& referent);
+	typedef uuid_set_t changed_items_t;
 	const changed_items_t& getChangedIDs() const { return mChangedItemIDs; }
+	const changed_items_t& getAddedIDs() const { return mAddedItemIDs; }
 protected:
 	// Updates all linked items pointing to this id.
 	void addChangedMaskForLinks(const LLUUID& object_id, U32 mask);
@@ -483,6 +484,8 @@ private:
 	// Variables used to track what has changed since the last notify.
 	U32 mModifyMask;
 	changed_items_t mChangedItemIDs;
+	changed_items_t mAddedItemIDs;
+	
 	
 	//--------------------------------------------------------------------
 	// Observers
