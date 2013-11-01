@@ -286,7 +286,7 @@ elseif(LINUX)
         libuuid.so.16
         libuuid.so.16.0.22
         libssl.so.1.0.0
-        libfontconfig.so.1.4.4
+        libfontconfig.so.1.8.0
        )
 
     if (USE_TCMALLOC)
