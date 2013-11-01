@@ -3442,6 +3442,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="facebook_post_success">
     You posted to Facebook.
   </string>
+  <string name="flickr_post_success">
+    You posted to Flickr.
+  </string>
 
   <string name="no_session_message">
     (IM Session Doesn't Exist)
