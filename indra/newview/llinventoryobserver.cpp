@@ -478,20 +478,12 @@ void LLInventoryAddItemByAssetObserver::changed(U32 mask)
 		return;
 	}
 
-	LLMessageSystem* msg = gMessageSystem;
-	if (!(msg->getMessageName() && (0 == strcmp(msg->getMessageName(), "UpdateCreateInventoryItem"))))
+	const uuid_set_t& added = gInventory.getAddedIDs();
+	for (uuid_set_t::iterator it = added.begin(); it != added.end(); ++it)
 	{
-		// this is not our message
-		return; // to prevent a crash. EXT-7921;
-	}
-
-	LLPointer<LLViewerInventoryItem> item = new LLViewerInventoryItem;
-	S32 num_blocks = msg->getNumberOfBlocksFast(_PREHASH_InventoryData);
-	for(S32 i = 0; i < num_blocks; ++i)
-	{
-		item->unpackMessage(msg, _PREHASH_InventoryData, i);
+		LLInventoryItem *item = gInventory.getItem(*it);
 		const LLUUID& asset_uuid = item->getAssetUUID();
-		if (item->getUUID().notNull() && asset_uuid.notNull())
+		if (item && item->getUUID().notNull() && asset_uuid.notNull())
 		{
 			if (isAssetWatched(asset_uuid))
 			{
@@ -500,11 +492,11 @@ void LLInventoryAddItemByAssetObserver::changed(U32 mask)
 			}
 		}
 	}
-
+	
 	if (mAddedItems.size() == mWatchedAssets.size())
 	{
-		done();
 		LL_DEBUGS("Inventory_Move") << "All watched items are added & processed." << LL_ENDL;
+		done();
 		mAddedItems.clear();
 
 		// Unable to clean watched items here due to somebody can require to check them in current frame.
