@@ -212,6 +212,8 @@ ATI Radeon 9500							.*ATI.*Radeon 95..									0	1	1	2.1
 ATI Radeon 9600							.*ATI.*Radeon 96..									0	1	1	2.1
 ATI Radeon 9700							.*ATI.*Radeon 97..									1	1	0	0
 ATI Radeon 9800							.*ATI.*Radeon 98..									1	1	1	2.1
+ATI Radeon R7						.*ATI.*(Radeon|ASUS).* R7.*								4	1	0	4.2
+ATI Radeon R9						.*ATI.*(Radeon|ASUS).* R9.*								5	1	0	4.2
 ATI Radeon RV250						.*ATI.*RV250.*										0	1	0	0
 ATI Radeon RV600						.*ATI.*RV6.*										1	1	0	0
 ATI Radeon RX700						.*ATI.*RX70.*										1	1	0	0
