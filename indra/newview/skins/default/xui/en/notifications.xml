@@ -6054,6 +6054,13 @@ Please select at least one type of content to search (General, Moderate, or Adul
 
   <notification
    icon="notify.tga"
+   name="TwitterConnect"
+   type="notifytip">
+    [MESSAGE]
+  </notification>
+
+  <notification
+   icon="notify.tga"
    name="PaymentReceived"
    log_to_im="true"   
    persist="true"

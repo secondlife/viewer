@@ -3445,6 +3445,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="flickr_post_success">
     You posted to Flickr.
   </string>
+  <string name="twitter_post_success">
+    You posted to Twitter.
+  </string>
 
   <string name="no_session_message">
     (IM Session Doesn't Exist)
