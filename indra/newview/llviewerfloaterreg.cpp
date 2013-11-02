@@ -53,13 +53,14 @@
 #include "llfloaterconversationlog.h"
 #include "llfloaterconversationpreview.h"
 #include "llfloaterdeleteenvpreset.h"
+#include "llfloaterdestinations.h"
 #include "llfloaterdisplayname.h"
 #include "llfloatereditdaycycle.h"
 #include "llfloatereditsky.h"
 #include "llfloatereditwater.h"
 #include "llfloaterenvironmentsettings.h"
 #include "llfloaterevent.h"
-#include "llfloaterdestinations.h"
+#include "llfloaterflickr.h"
 #include "llfloaterfonttest.h"
 #include "llfloatergesture.h"
 #include "llfloatergodtools.h"
@@ -305,6 +306,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("settings_debug", "floater_settings_debug.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSettingsDebug>);
 	LLFloaterReg::add("sound_devices", "floater_sound_devices.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSoundDevices>);
 	LLFloaterReg::add("social", "floater_social.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSocial>);
+	LLFloaterReg::add("flickr", "floater_flickr.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterFlickr>);
 	LLFloaterReg::add("stats", "floater_stats.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloater>);
 	LLFloaterReg::add("start_queue", "floater_script_queue.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterRunQueue>);
 	LLFloaterReg::add("stop_queue", "floater_script_queue.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterNotRunQueue>);

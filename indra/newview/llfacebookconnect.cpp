@@ -28,6 +28,8 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llfacebookconnect.h"
+#include "llflickrconnect.h"
+#include "lltwitterconnect.h"
 
 #include "llagent.h"
 #include "llcallingcard.h"			// for LLAvatarTracker
@@ -76,7 +78,7 @@ public:
 	{
 		if (tokens.size() >= 2)
 		{
-			if (tokens[0].asString() == "connect" && tokens[1].asString() == "facebook")
+			if (tokens[0].asString() == "connect")
 			{
 				// this command probably came from the fbc_web browser, so close it
 				LLFloater* fbc_web = LLFloaterReg::getInstance("fbc_web");
@@ -85,12 +87,33 @@ public:
 					fbc_web->closeFloater();
 				}
 
-				// connect to facebook
-				if (query_map.has("code"))
+				if (tokens[1].asString() == "facebook")
 				{
-                    LLFacebookConnect::instance().connectToFacebook(query_map["code"], query_map.get("state"));
+					// connect to facebook
+					if (query_map.has("code"))
+					{
+						LLFacebookConnect::instance().connectToFacebook(query_map["code"], query_map.get("state"));
+					}
+					return true;
 				}
-				return true;
+				else if (tokens[1].asString() == "flickr")
+				{
+					// connect to flickr
+					if (query_map.has("oauth_token"))
+					{
+						LLFlickrConnect::instance().connectToFlickr(query_map["oauth_token"], query_map.get("oauth_verifier"));
+					}
+					return true;
+				}
+				else if (tokens[1].asString() == "twitter")
+				{
+					// connect to twitter
+					if (query_map.has("oauth_token"))
+					{
+						LLTwitterConnect::instance().connectToTwitter(query_map["oauth_token"], query_map.get("oauth_verifier"));
+					}
+					return true;
+				}
 			}
 		}
 		return false;

@@ -148,13 +148,19 @@ Please try logging in again in a minute.</string>
 	<string name="SentToInvalidRegion">You were sent to an invalid region.</string>
 	<string name="TestingDisconnect">Testing viewer disconnect</string>
 
-	<!-- Facebook Connect and, eventually, other Social Network -->
-	<string name="SocialFacebookConnecting">Connecting to Facebook...</string>
-	<string name="SocialFacebookPosting">Posting...</string>
-	<string name="SocialFacebookDisconnecting">Disconnecting from Facebook...</string>
-	<string name="SocialFacebookErrorConnecting">Problem connecting to Facebook</string>
-	<string name="SocialFacebookErrorPosting">Problem posting to Facebook</string>
-	<string name="SocialFacebookErrorDisconnecting">Problem disconnecting from Facebook</string>
+	<!-- SLShare: Facebook, Flickr, and so on... -->
+  <string name="SocialFacebookConnecting">Connecting to Facebook...</string>
+  <string name="SocialFacebookPosting">Posting...</string>
+  <string name="SocialFacebookDisconnecting">Disconnecting from Facebook...</string>
+  <string name="SocialFacebookErrorConnecting">Problem connecting to Facebook</string>
+  <string name="SocialFacebookErrorPosting">Problem posting to Facebook</string>
+  <string name="SocialFacebookErrorDisconnecting">Problem disconnecting from Facebook</string>
+  <string name="SocialFlickrConnecting">Connecting to Flickr...</string>
+  <string name="SocialFlickrPosting">Posting...</string>
+  <string name="SocialFlickrDisconnecting">Disconnecting from Flickr...</string>
+  <string name="SocialFlickrErrorConnecting">Problem connecting to Flickr</string>
+  <string name="SocialFlickrErrorPosting">Problem posting to Flickr</string>
+  <string name="SocialFlickrErrorDisconnecting">Problem disconnecting from Flickr</string>
     
 	<!-- Tooltip -->
 	<string name="TooltipPerson">Person</string><!-- Object under mouse pointer is an avatar -->

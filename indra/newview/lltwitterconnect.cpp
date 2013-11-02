@@ -67,39 +67,6 @@ void toast_user_for_twitter_success()
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-class LLTwitterConnectHandler : public LLCommandHandler
-{
-public:
-	LLTwitterConnectHandler() : LLCommandHandler("fbc", UNTRUSTED_THROTTLE) { }
-    
-	bool handle(const LLSD& tokens, const LLSD& query_map, LLMediaCtrl* web)
-	{
-		if (tokens.size() >= 2)
-		{
-			if (tokens[0].asString() == "connect" && tokens[1].asString() == "twitter")
-			{
-				// this command probably came from the fbc_web browser, so close it
-				LLFloater* fbc_web = LLFloaterReg::getInstance("fbc_web");
-				if (fbc_web)
-				{
-					fbc_web->closeFloater();
-				}
-
-				// connect to twitter
-				if (query_map.has("oauth_token"))
-				{
-                    LLTwitterConnect::instance().connectToTwitter(query_map["oauth_token"], query_map.get("oauth_verifier"));
-				}
-				return true;
-			}
-		}
-		return false;
-	}
-};
-LLTwitterConnectHandler gTwitterConnectHandler;
-
-///////////////////////////////////////////////////////////////////////////////
-//
 class LLTwitterConnectResponder : public LLHTTPClient::Responder
 {
 	LOG_CLASS(LLTwitterConnectResponder);

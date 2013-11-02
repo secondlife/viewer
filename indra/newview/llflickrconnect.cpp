@@ -67,39 +67,6 @@ void toast_user_for_flickr_success()
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-class LLFlickrConnectHandler : public LLCommandHandler
-{
-public:
-	LLFlickrConnectHandler() : LLCommandHandler("fbc", UNTRUSTED_THROTTLE) { }
-    
-	bool handle(const LLSD& tokens, const LLSD& query_map, LLMediaCtrl* web)
-	{
-		if (tokens.size() >= 2)
-		{
-			if (tokens[0].asString() == "connect" && tokens[1].asString() == "flickr")
-			{
-				// this command probably came from the fbc_web browser, so close it
-				LLFloater* fbc_web = LLFloaterReg::getInstance("fbc_web");
-				if (fbc_web)
-				{
-					fbc_web->closeFloater();
-				}
-
-				// connect to flickr
-				if (query_map.has("oauth_token"))
-				{
-                    LLFlickrConnect::instance().connectToFlickr(query_map["oauth_token"], query_map.get("oauth_verifier"));
-				}
-				return true;
-			}
-		}
-		return false;
-	}
-};
-LLFlickrConnectHandler gFlickrConnectHandler;
-
-///////////////////////////////////////////////////////////////////////////////
-//
 class LLFlickrConnectResponder : public LLHTTPClient::Responder
 {
 	LOG_CLASS(LLFlickrConnectResponder);
@@ -329,7 +296,8 @@ std::string LLFlickrConnect::getFlickrConnectURL(const std::string& route, bool 
     LLViewerRegion *regionp = gAgent.getRegion();
     if (regionp)
     {
-        url = regionp->getCapability("FlickrConnect");
+		url = "http://pdp15.lindenlab.com/flickr/agent/" + gAgentID.asString(); // TEMPORARY FOR TESTING - CHO
+        //url = regionp->getCapability("FlickrConnect");
         url += route;
     
         if (include_read_from_master && mReadFromMaster)
