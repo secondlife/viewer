@@ -1047,25 +1047,23 @@ void LLViewerRegion::addVisibleCacheEntry(LLVOCacheEntry* entry)
 	mImpl->mVisibleEntries.insert(entry);
 }
 
-F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
+void LLViewerRegion::updateVisibleEntries(F32 max_time)
 {
 	if(mDead)
 	{
-		return max_time;
+		return;
 	}
 
 	if(mImpl->mVisibleGroups.empty() && mImpl->mVisibleEntries.empty())
 	{
-		return max_time;
+		return;
 	}
 
 	if(!sNewObjectCreationThrottle)
 	{
-		return max_time;
+		return;
 	}
 
-	LLTimer update_timer;
-	
 	const F32 LARGE_SCENE_CONTRIBUTION = 100.f; //a large number to force to load the object.
 	const LLVector3 camera_origin = LLViewerCamera::getInstance()->getOrigin();
 	const U32 cur_frame = LLViewerOctreeEntryData::getCurrentFrame();
@@ -1163,21 +1161,21 @@ F32 LLViewerRegion::updateVisibleEntries(F32 max_time)
 		mImpl->mLastCameraUpdate = cur_frame;
 	}
 
-	return max_time - update_timer.getElapsedTimeF32();
+	return;
 }
 
-F32 LLViewerRegion::createVisibleObjects(F32 max_time)
+void LLViewerRegion::createVisibleObjects(F32 max_time)
 {
 	static LLCachedControl<F32> projection_area_cutoff(gSavedSettings,"ObjectProjectionAreaCutOFF");
 
 	if(mDead)
 	{
-		return max_time;
+		return;
 	}
 	if(mImpl->mWaitingList.empty())
 	{
 		mImpl->mVOCachePartition->setCullHistory(FALSE);
-		return max_time;
+		return;
 	}	
 
 	//object projected area threshold
@@ -1211,7 +1209,7 @@ F32 LLViewerRegion::createVisibleObjects(F32 max_time)
 
 	mImpl->mVOCachePartition->setCullHistory(has_new_obj);
 
-	return max_time - update_timer.getElapsedTimeF32();
+	return;
 }
 
 void LLViewerRegion::clearCachedVisibleObjects()
@@ -1273,12 +1271,31 @@ void LLViewerRegion::clearCachedVisibleObjects()
 	return;
 }
 
-BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
+//perform some necessary but very light updates.
+//to replace the function idleUpdate(...) in case there is no enough time.
+void LLViewerRegion::lightIdleUpdate()
+{
+	if(!sVOCacheCullingEnabled)
+	{
+		return;
+	}
+	if(mImpl->mCacheMap.empty())
+	{
+		return;
+	}
+
+	//reset all occluders
+	mImpl->mVOCachePartition->resetOccluders();	
+}
+
+void LLViewerRegion::idleUpdate(F32 max_update_time)
 {	
 	LLTimer update_timer;
+	F32 max_time;
 
-	// did_update returns TRUE if we did at least one significant update
-	BOOL did_update = mImpl->mLandp->idleUpdate(max_update_time);
+	mLastUpdate = LLViewerOctreeEntryData::getCurrentFrame();
+
+	mImpl->mLandp->idleUpdate(max_update_time);
 	
 	if (mParcelOverlay)
 	{
@@ -1288,11 +1305,11 @@ BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 	
 	if(!sVOCacheCullingEnabled)
 	{
-		return did_update;
+		return;
 	}
 	if(mImpl->mCacheMap.empty())
 	{
-		return did_update;
+		return;
 	}	
 	if(mPaused)
 	{
@@ -1305,19 +1322,22 @@ BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 	//reset all occluders
 	mImpl->mVOCachePartition->resetOccluders();	
 
-	max_update_time -= update_timer.getElapsedTimeF32();	
+	max_time = max_update_time - update_timer.getElapsedTimeF32();	
 
 	//kill invisible objects
-	max_update_time = killInvisibleObjects(max_update_time);	
-	
-	max_update_time = updateVisibleEntries(max_update_time);
-	createVisibleObjects(max_update_time);
+	killInvisibleObjects(max_time * 0.4f);	
+	max_time = max_update_time - update_timer.getElapsedTimeF32();	
+
+	updateVisibleEntries(max_time);
+	max_time = max_update_time - update_timer.getElapsedTimeF32();	
+
+	createVisibleObjects(max_time);
 
 	mImpl->mWaitingList.clear();
 	mImpl->mVisibleGroups.clear();
 
 	LLViewerCamera::sCurCameraID = old_camera_id;
-	return did_update;
+	return;
 }
 
 //update the throttling number for new object creation
@@ -1361,20 +1381,20 @@ BOOL LLViewerRegion::isViewerCameraStatic()
 	return sLastCameraUpdated < LLViewerOctreeEntryData::getCurrentFrame();
 }
 
-F32 LLViewerRegion::killInvisibleObjects(F32 max_time)
+void LLViewerRegion::killInvisibleObjects(F32 max_time)
 {
 	static LLCachedControl<F32> back_sphere_radius(gSavedSettings,"BackShpereCullingRadius");
 
-#if 1
 	if(!sVOCacheCullingEnabled)
 	{
-		return max_time;
+		return;
 	}
 	if(mImpl->mActiveSet.empty())
 	{
-		return max_time;
+		return;
 	}
 
+	LLTimer update_timer;
 	LLVector4a camera_origin;
 	camera_origin.load3(LLViewerCamera::getInstance()->getOrigin().mV);
 	F32 squared_back_threshold = back_sphere_radius * back_sphere_radius;
@@ -1402,6 +1422,11 @@ F32 LLViewerRegion::killInvisibleObjects(F32 max_time)
 		{
 			killObject((*iter), delete_list);
 		}
+
+		if(max_time < update_timer.getElapsedTimeF32()) //time out
+		{
+			break;
+		}
 	}
 
 	if(iter == mImpl->mActiveSet.end())
@@ -1423,8 +1448,8 @@ F32 LLViewerRegion::killInvisibleObjects(F32 max_time)
 		}
 		delete_list.clear();
 	}
-#endif
-	return max_time;
+
+	return;
 }
 
 void LLViewerRegion::killObject(LLVOCacheEntry* entry, std::vector<LLDrawable*>& delete_list)

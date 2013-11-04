@@ -229,7 +229,8 @@ public:
 
 	F32	getWidth() const						{ return mWidth; }
 
-	BOOL idleUpdate(F32 max_update_time);
+	void idleUpdate(F32 max_update_time);
+	void lightIdleUpdate();
 	bool addVisibleGroup(LLViewerOctreeGroup* group);
 	void addVisibleCacheEntry(LLVOCacheEntry* entry);
 	void addActiveCacheEntry(LLVOCacheEntry* entry);
@@ -374,6 +375,9 @@ public:
 	void addToCreatedList(U32 local_id);	
 
 	BOOL isPaused() const {return mPaused;}
+	S32  getLastUpdate() const {return mLastUpdate;}
+
+	static BOOL isNewObjectCreationThrottleDisabled() {return sNewObjectCreationThrottle < 0;}
 
 private:
 	void addToVOCacheTree(LLVOCacheEntry* entry);
@@ -383,9 +387,9 @@ private:
 	void replaceVisibleCacheEntry(LLVOCacheEntry* old_entry, LLVOCacheEntry* new_entry);
 	void killCacheEntry(LLVOCacheEntry* entry); //physically delete the cache entry	
 
-	F32 killInvisibleObjects(F32 max_time);
-	F32 createVisibleObjects(F32 max_time);
-	F32 updateVisibleEntries(F32 max_time); //update visible entries
+	void killInvisibleObjects(F32 max_time);
+	void createVisibleObjects(F32 max_time);
+	void updateVisibleEntries(F32 max_time); //update visible entries
 
 	void addCacheMiss(U32 id, LLViewerRegion::eCacheMissType miss_type);
 	void decodeBoundingInfo(LLVOCacheEntry* entry);
@@ -426,8 +430,31 @@ public:
 	static BOOL sVOCacheCullingEnabled; //vo cache culling enabled or not.
 	static S32  sLastCameraUpdated;
 
-
 	LLFrameTimer &	getRenderInfoRequestTimer()			{ return mRenderInfoRequestTimer;		};
+
+	struct CompareRegionByLastUpdate
+	{
+		bool operator()(const LLViewerRegion* const& lhs, const LLViewerRegion* const& rhs)
+		{
+			S32 lpa = lhs->getLastUpdate();
+			S32 rpa = rhs->getLastUpdate();
+
+			//small mLastUpdate first
+			if(lpa < rpa)		
+			{
+				return true;
+			}
+			else if(lpa > rpa)
+			{
+				return false;
+			}
+			else
+			{
+				return lhs < rhs;
+			}			
+		}
+	};
+	typedef std::set<LLViewerRegion*, CompareRegionByLastUpdate> region_priority_list_t;
 
 private:
 	static S32  sNewObjectCreationThrottle;
@@ -437,6 +464,7 @@ private:
 	F32			mWidth;			// Width of region on a side (meters)
 	U64			mHandle;
 	F32			mTimeDilation;	// time dilation of physics simulation on simulator
+	S32         mLastUpdate; //last time called idleUpdate()
 
 	// simulator name
 	std::string mName;

@@ -665,25 +665,61 @@ static LLTrace::SampleStatHandle<> sNumActiveCachedObjects("numactivecachedobjec
 
 void LLWorld::updateRegions(F32 max_update_time)
 {
+	LLTimer update_timer;
+	mNumOfActiveCachedObjects = 0;
+
 	if(LLViewerCamera::getInstance()->isChanged())
 	{
 		LLViewerRegion::sLastCameraUpdated = LLViewerOctreeEntryData::getCurrentFrame() + 1;
 	}
 	LLViewerRegion::calcNewObjectCreationThrottle();
+	if(LLViewerRegion::isNewObjectCreationThrottleDisabled())
+	{
+		max_update_time = llmax(max_update_time, 1.0f); //seconds, loosen the time throttle.
+	}
+
+	F32 max_time = llmin((F32)(max_update_time - update_timer.getElapsedTimeF32()), max_update_time * 0.25f);
+	//update the self avatar region
+	LLViewerRegion* self_regionp = gAgent.getRegion();
+	if(self_regionp)
+	{		
+		self_regionp->idleUpdate(max_time);
+	}
+
+	//sort regions by its mLastUpdate
+	//smaller mLastUpdate first to make sure every region has chance to get updated.
+	LLViewerRegion::region_priority_list_t region_list;
+	for (region_list_t::iterator iter = mRegionList.begin();
+		 iter != mRegionList.end(); ++iter)
+	{
+		LLViewerRegion* regionp = *iter;
+		if(regionp != self_regionp)
+		{
+			region_list.insert(regionp);
+		}
+		mNumOfActiveCachedObjects += regionp->getNumOfActiveCachedObjects();
+	}
 
 	// Perform idle time updates for the regions (and associated surfaces)
-	for (region_list_t::iterator iter = mRegionList.begin();
-		 iter != mRegionList.end(); ++iter)
+	for (LLViewerRegion::region_priority_list_t::iterator iter = region_list.begin();
+		 iter != region_list.end(); ++iter)
 	{
-		(*iter)->idleUpdate(max_update_time);
+		if(max_time > 0.f)
+		{
+			max_time = llmin((F32)(max_update_time - update_timer.getElapsedTimeF32()), max_update_time * 0.25f);
+		}
+
+		if(max_time > 0.f)
+		{
+			(*iter)->idleUpdate(max_time);
+		}
+		else
+		{
+			//perform some necessary but very light updates.
+			(*iter)->lightIdleUpdate();
+		}		
 	}
 
-	mNumOfActiveCachedObjects = 0;
-	for (region_list_t::iterator iter = mRegionList.begin();
-		 iter != mRegionList.end(); ++iter)
-	{
-		mNumOfActiveCachedObjects += (*iter)->getNumOfActiveCachedObjects();
-	}
 	sample(sNumActiveCachedObjects, mNumOfActiveCachedObjects);
 }
 
