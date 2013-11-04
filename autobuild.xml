@@ -66,9 +66,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>54f1d3658ccb296a43110bf66c03288b</string>
+              <string>1fc3f59c43a7c0a496a387f3ac863e77</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-sdl-update/rev/283292/arch/Linux/installer/SDL-1.2.14-linux-20131101.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-sdl-update/rev/283356/arch/Linux/installer/SDL-1.2.14-linux-20131104.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1194,9 +1194,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2af1b87fb0bef24d719769b351b7b99f</string>
+              <string>0ebd7e5bc41ecfda46374599ab968ce9</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-libpng-update/rev/283244/arch/Darwin/installer/libpng-1.6.6-darwin-20131101.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-libpng-update/rev/283342/arch/Darwin/installer/libpng-1.6.6-darwin-20131104.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1206,9 +1206,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9f8e9f2fa6fb0fff69c34158a4d441ee</string>
+              <string>db6395f1fe7eca0381c87221dea75dc8</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-libpng-update/rev/283244/arch/Linux/installer/libpng-1.6.6-linux-20131101.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-libpng-update/rev/283342/arch/Linux/installer/libpng-1.6.6-linux-20131104.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1218,9 +1218,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a550626c3f421d0d601fdf88ddd69b64</string>
+              <string>85ee721b97edd322e3cd8e3a504da5f7</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-libpng-update/rev/283244/arch/CYGWIN/installer/libpng-1.6.6-windows-20131101.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-libpng-update/rev/283342/arch/CYGWIN/installer/libpng-1.6.6-windows-20131104.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
