@@ -282,14 +282,21 @@
         <menu_item_separator/>
       <menu_item_call
         label="Facebook..."
-        name="PostToFacebook">
+        name="Facebook">
         <menu_item_call.on_click
           function="Floater.Toggle"
           parameter="social"/>
       </menu_item_call>
       <menu_item_call
+        label="Twitter..."
+        name="Twitter">
+        <menu_item_call.on_click
+          function="Floater.Toggle"
+          parameter="twitter"/>
+      </menu_item_call>
+      <menu_item_call
         label="Flickr..."
-        name="UploadToFacebook">
+        name="Flickr">
         <menu_item_call.on_click
           function="Floater.Toggle"
           parameter="flickr"/>

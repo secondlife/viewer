@@ -116,6 +116,7 @@
 #include "llfloatertopobjects.h"
 #include "llfloatertoybox.h"
 #include "llfloatertranslationsettings.h"
+#include "llfloatertwitter.h"
 #include "llfloateruipreview.h"
 #include "llfloatervoiceeffect.h"
 #include "llfloatervoicevolume.h"
@@ -307,6 +308,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("sound_devices", "floater_sound_devices.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSoundDevices>);
 	LLFloaterReg::add("social", "floater_social.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSocial>);
 	LLFloaterReg::add("flickr", "floater_flickr.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterFlickr>);
+	LLFloaterReg::add("twitter", "floater_twitter.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterTwitter>);
 	LLFloaterReg::add("stats", "floater_stats.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloater>);
 	LLFloaterReg::add("start_queue", "floater_script_queue.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterRunQueue>);
 	LLFloaterReg::add("stop_queue", "floater_script_queue.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterNotRunQueue>);
