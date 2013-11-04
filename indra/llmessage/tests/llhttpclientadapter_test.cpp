@@ -34,7 +34,7 @@ float const HTTP_REQUEST_EXPIRY_SECS = 1.0F;
 
 std::vector<std::string> get_urls;
 std::vector< LLCurl::ResponderPtr > get_responders;
-void LLHTTPClient::get(const std::string& url, LLCurl::ResponderPtr responder, const LLSD& headers, const F32 timeout)
+void LLHTTPClient::get(const std::string& url, LLCurl::ResponderPtr responder, const LLSD& headers, const F32 timeout, bool follow_redirects)
 {
 	get_urls.push_back(url);
 	get_responders.push_back(responder);

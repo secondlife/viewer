@@ -308,8 +308,8 @@ void LLCurl::Responder::httpCompleted() { }
 void LLCurl::Responder::completedRaw(LLChannelDescriptors const &,boost::shared_ptr<LLBufferArray> const &) { }
 LLCurl::Responder::~Responder() {}
 
-void LLHTTPClient::get(const std::string&, const LLSD&, ResponderPtr, const LLSD&, const F32) {}
-void LLHTTPClient::get(const std::string&, LLPointer<LLCurl::Responder>, const LLSD&, const F32) {}
+void LLHTTPClient::get(const std::string&, const LLSD&, ResponderPtr, const LLSD&, const F32, bool) {}
+void LLHTTPClient::get(const std::string&, LLPointer<LLCurl::Responder>, const LLSD&, const F32, bool) {}
 
 LLBufferStream::LLBufferStream(const LLChannelDescriptors& channels, LLBufferArray* buffer)
 :	std::iostream(&mStreamBuf), mStreamBuf(channels, buffer) {}

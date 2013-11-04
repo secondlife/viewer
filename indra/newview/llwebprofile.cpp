@@ -145,9 +145,6 @@ public:
 		LL_DEBUGS("Snapshots") << "Uploading image succeeded. Response: [" << body << "]" << llendl;
 		LLWebProfile::reportImageUploadStatus(true);
 	}
-
-private:
-	LLPointer<LLImageFormatted> mImagep;
 };
 
 
