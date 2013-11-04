@@ -467,7 +467,7 @@ void LLInventoryFetchComboObserver::startFetch()
 
 void LLInventoryAddItemByAssetObserver::changed(U32 mask)
 {
-	if(!(mask & LLInventoryObserver::ADD))
+	if(!(mask & LLInventoryObserver::ADD) || !(mask & LLInventoryObserver::CREATE))
 	{
 		return;
 	}
@@ -528,7 +528,7 @@ bool LLInventoryAddItemByAssetObserver::isAssetWatched( const LLUUID& asset_id )
 
 void LLInventoryAddedObserver::changed(U32 mask)
 {
-	if (!(mask & LLInventoryObserver::ADD))
+	if (!(mask & LLInventoryObserver::ADD) || !(mask & LLInventoryObserver::CREATE))
 	{
 		return;
 	}

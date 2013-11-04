@@ -298,7 +298,7 @@ public:
 	//    NOTE: In usage, you will want to perform cache accounting
 	//    operations in LLInventoryModel::accountForUpdate() or
 	//    LLViewerInventoryItem::updateServer() before calling this method.
-	U32 updateItem(const LLViewerInventoryItem* item);
+	U32 updateItem(const LLViewerInventoryItem* item, U32 mask = 0);
 
 	// Change an existing item with the matching id or add
 	// the category. No notifcation will be sent to observers. This

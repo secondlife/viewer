@@ -58,6 +58,7 @@ public:
 		GESTURE 		= 64,
 		REBUILD 		= 128, 	// Item UI changed (e.g. item type different)
 		SORT 			= 256, 	// Folder needs to be resorted.
+		CREATE			= 512,  // With ADD, item has just been created.
 		ALL 			= 0xffffffff
 	};
 	LLInventoryObserver();

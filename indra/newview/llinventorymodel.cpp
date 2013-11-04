@@ -774,9 +774,8 @@ bool LLInventoryModel::isInventoryUsable() const
 // Calling this method with an inventory item will either change an
 // existing item with a matching item_id, or will add the item to the
 // current inventory.
-U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item)
+U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item, U32 mask)
 {
-	U32 mask = LLInventoryObserver::NONE;
 	if(item->getUUID().isNull())
 	{
 		return mask;
@@ -2652,10 +2651,11 @@ bool LLInventoryModel::messageUpdateCore(LLMessageSystem* msg, bool account)
 	}
 
 	U32 changes = 0x0;
+	U32 mask = account ? LLInventoryObserver::CREATE : 0x0;
 	//as above, this loop never seems to loop more than once per call
 	for (item_array_t::iterator it = items.begin(); it != items.end(); ++it)
 	{
-		changes |= gInventory.updateItem(*it);
+		changes |= gInventory.updateItem(*it, mask);
 	}
 	gInventory.notifyObservers();
 	gViewerWindow->getWindow()->decBusyCount();
