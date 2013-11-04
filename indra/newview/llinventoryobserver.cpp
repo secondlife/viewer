@@ -478,20 +478,12 @@ void LLInventoryAddItemByAssetObserver::changed(U32 mask)
 		return;
 	}
 
-	LLMessageSystem* msg = gMessageSystem;
-	if (!(msg->getMessageName() && (0 == strcmp(msg->getMessageName(), "UpdateCreateInventoryItem"))))
+	const uuid_set_t& added = gInventory.getAddedIDs();
+	for (uuid_set_t::iterator it = added.begin(); it != added.end(); ++it)
 	{
-		// this is not our message
-		return; // to prevent a crash. EXT-7921;
-	}
-
-	LLPointer<LLViewerInventoryItem> item = new LLViewerInventoryItem;
-	S32 num_blocks = msg->getNumberOfBlocksFast(_PREHASH_InventoryData);
-	for(S32 i = 0; i < num_blocks; ++i)
-	{
-		item->unpackMessage(msg, _PREHASH_InventoryData, i);
+		LLInventoryItem *item = gInventory.getItem(*it);
 		const LLUUID& asset_uuid = item->getAssetUUID();
-		if (item->getUUID().notNull() && asset_uuid.notNull())
+		if (item && item->getUUID().notNull() && asset_uuid.notNull())
 		{
 			if (isAssetWatched(asset_uuid))
 			{
@@ -500,11 +492,11 @@ void LLInventoryAddItemByAssetObserver::changed(U32 mask)
 			}
 		}
 	}
-
+	
 	if (mAddedItems.size() == mWatchedAssets.size())
 	{
-		done();
 		LL_DEBUGS("Inventory_Move") << "All watched items are added & processed." << LL_ENDL;
+		done();
 		mAddedItems.clear();
 
 		// Unable to clean watched items here due to somebody can require to check them in current frame.
@@ -541,34 +533,7 @@ void LLInventoryAddedObserver::changed(U32 mask)
 		return;
 	}
 
-	// *HACK: If this was in response to a packet off
-	// the network, figure out which item was updated.
-	LLMessageSystem* msg = gMessageSystem;
-
-	std::string msg_name = msg->getMessageName();
-	if (msg_name.empty())
-	{
-		return;
-	}
-	
-	// We only want newly created inventory items. JC
-	if ( msg_name != "UpdateCreateInventoryItem")
-	{
-		return;
-	}
-
-	LLPointer<LLViewerInventoryItem> titem = new LLViewerInventoryItem;
-	S32 num_blocks = msg->getNumberOfBlocksFast(_PREHASH_InventoryData);
-	for (S32 i = 0; i < num_blocks; ++i)
-	{
-		titem->unpackMessage(msg, _PREHASH_InventoryData, i);
-		if (!(titem->getUUID().isNull()))
-		{
-			//we don't do anything with null keys
-			mAdded.push_back(titem->getUUID());
-		}
-	}
-	if (!mAdded.empty())
+	if (!gInventory.getAddedIDs().empty())
 	{
 		done();
 	}
@@ -581,9 +546,9 @@ void LLInventoryCategoryAddedObserver::changed(U32 mask)
 		return;
 	}
 	
-	const LLInventoryModel::changed_items_t& changed_ids = gInventory.getChangedIDs();
+	const LLInventoryModel::changed_items_t& added_ids = gInventory.getAddedIDs();
 	
-	for (LLInventoryModel::changed_items_t::const_iterator cit = changed_ids.begin(); cit != changed_ids.end(); ++cit)
+	for (LLInventoryModel::changed_items_t::const_iterator cit = added_ids.begin(); cit != added_ids.end(); ++cit)
 	{
 		LLViewerInventoryCategory* cat = gInventory.getCategory(*cit);
 		
