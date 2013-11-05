@@ -2551,6 +2551,9 @@ Drag folders to this area and click "Send to Marketplace" to list them for sale 
   <!-- panel preferences general -->
   <string name="DoNotDisturbModeResponseDefault">This resident has turned on &apos;Do Not Disturb&apos; and will see your message later.</string>
 
+	<!-- viewermessage -->
+	<string name="ViewerMessageTime">[hour12, datetime, slt]:[min, datetime, slt] [ampm, datetime, slt] [timezone,datetime, slt]</string>
+
 	<!-- Mute -->
 	<string name="MuteByName">(By name)</string>
 	<string name="MuteAgent">(Resident)</string>

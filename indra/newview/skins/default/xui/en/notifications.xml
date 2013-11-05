@@ -6887,7 +6887,7 @@ This will add a bookmark in your inventory so you can quickly IM this Resident.
    priority="high"
    sound="UISndAlert"
    type="notify">
-This region will restart in [MINUTES] minutes.
+[TIME] This region will restart in [MINUTES] minutes.
 If you stay in this region you will be logged out.
   </notification>
 
@@ -6897,7 +6897,7 @@ If you stay in this region you will be logged out.
    priority="high"
    sound="UISndAlert"
    type="notify">
-This region will restart in [SECONDS] seconds.
+[TIME] This region will restart in [SECONDS] seconds.
 If you stay in this region you will be logged out.
   </notification>
 
