@@ -6085,6 +6085,7 @@ void process_alert_core(const std::string& message, BOOL modal)
 			LLStringUtil::convertToS32(text.substr(18), mins);
 			args["MINUTES"] = llformat("%d",mins);
 			LLNotificationsUtil::add("RegionRestartMinutes", args);
+			send_sound_trigger(LLUUID(gSavedSettings.getString("UISndAlert")), 1.0f);
 		}
 		else if (text.substr(0,17) == "RESTART_X_SECONDS")
 		{
@@ -6092,6 +6093,7 @@ void process_alert_core(const std::string& message, BOOL modal)
 			LLStringUtil::convertToS32(text.substr(18), secs);
 			args["SECONDS"] = llformat("%d",secs);
 			LLNotificationsUtil::add("RegionRestartSeconds", args);
+			send_sound_trigger(LLUUID(gSavedSettings.getString("UISndAlert")), 1.0f);
 		}
 		else
 		{
