@@ -5960,21 +5960,21 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 			gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw(), FALSE, FALSE);
 		}
 
-	if (notificationID == "RegionRestartMinutes" ||
-		notificationID == "RegionRestartSeconds")
-	{
-		// Get current UTC time, adjusted for the user's clock
-		// being off.
-		time_t utc_time;
-		utc_time = time_corrected();
-		std::string timeStr = LLTrans::getString("ViewerMessageTime");
-		LLSD substitution;
-		substitution["datetime"] = (S32) utc_time;
-		LLStringUtil::format(timeStr, substitution);
-		llsdBlock["TIME"] = timeStr;
+		if (notificationID == "RegionRestartMinutes" ||
+			notificationID == "RegionRestartSeconds")
+		{
+			// Get current UTC time, adjusted for the user's clock
+			// being off.
+			time_t utc_time;
+			utc_time = time_corrected();
+			std::string timeStr = LLTrans::getString("ViewerMessageTime");
+			LLSD substitution;
+			substitution["datetime"] = (S32) utc_time;
+			LLStringUtil::format(timeStr, substitution);
+			llsdBlock["TIME"] = timeStr;
 
-		send_sound_trigger(LLUUID(gSavedSettings.getString("UISndAlert")), 1.0f);
-	}
+			send_sound_trigger(LLUUID("4b315701-1972-9e23-cdd8-23cbc8cb0f42"), 1.0f);
+		}
 
 		LLNotificationsUtil::add(notificationID, llsdBlock);
 		return true;
