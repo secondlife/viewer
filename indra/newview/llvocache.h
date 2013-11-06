@@ -153,9 +153,6 @@ protected:
 
 	BOOL                        mTouched; //if set, this entry is valid, otherwise it is invalid.
 
-	static F32                  sBackDistanceSquared;
-	static F32                  sBackAngleTanSquared;
-
 public:
 	static U32                  sMinFrameRange;
 };

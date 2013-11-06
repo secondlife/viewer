@@ -35,8 +35,6 @@
 #include "pipeline.h"
 #include "llagentcamera.h"
 
-F32 LLVOCacheEntry::sBackDistanceSquared = 0.f;
-F32 LLVOCacheEntry::sBackAngleTanSquared = 0.f;
 U32 LLVOCacheEntry::sMinFrameRange = 0;
 BOOL LLVOCachePartition::sNeedsOcclusionCheck = FALSE;
 
@@ -341,21 +339,10 @@ BOOL LLVOCacheEntry::writeToFile(LLAPRFile* apr_file) const
 //static 
 void LLVOCacheEntry::updateDebugSettings()
 {
-	//distance to keep objects = back_dist_factor * draw_distance
-	static LLCachedControl<F32> back_dist_factor(gSavedSettings,"BackDistanceFactor");
-
-	//squared tan(projection angle of the bbox), default is 10 (degree)
-	static LLCachedControl<F32> squared_back_angle(gSavedSettings,"BackProjectionAngleSquared");
-
 	//the number of frames invisible objects stay in memory
 	static LLCachedControl<U32> inv_obj_time(gSavedSettings,"NonvisibleObjectsInMemoryTime");
 
 	sMinFrameRange = inv_obj_time - 1; //make 0 to be the maximum 
-
-	sBackDistanceSquared = back_dist_factor * gAgentCamera.mDrawDistance;
-	sBackDistanceSquared *= sBackDistanceSquared;
-
-	sBackAngleTanSquared = squared_back_angle;
 }
 
 //static 

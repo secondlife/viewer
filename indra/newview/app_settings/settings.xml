@@ -731,18 +731,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-
-    <key>BackDistanceFactor</key>
-    <map>
-      <key>Comment</key>
-      <string>Keep invisible objects in memory which are in the distance range (the factor * draw_distance) to the camera</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>0.125</real>
-    </map>
     <key>BackgroundYieldTime</key>
     <map>
       <key>Comment</key>
@@ -753,17 +741,6 @@
       <string>S32</string>
       <key>Value</key>
       <integer>40</integer>
-    </map>
-    <key>BackProjectionAngleSquared</key>
-    <map>
-      <key>Comment</key>
-      <string>squared tan(object bbox projection angle). that of invisible objects greater than this threshold are kept in memory</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>0.0311</real>
     </map>
     <key>BackShpereCullingRadius</key>
     <map>
