@@ -125,6 +125,7 @@ public:
 	U32  getUpdateFlags() const    {return mUpdateFlags;}
 
 	static void updateDebugSettings();
+	static F32  getSquaredObjectScreenAreaThreshold();
 
 private:
 	void updateParentBoundingInfo(const LLVOCacheEntry* child);	

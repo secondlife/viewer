@@ -358,6 +358,19 @@ void LLVOCacheEntry::updateDebugSettings()
 	sBackAngleTanSquared = squared_back_angle;
 }
 
+//static 
+F32 LLVOCacheEntry::getSquaredObjectScreenAreaThreshold()
+{
+	static LLCachedControl<F32> projection_area_cutoff(gSavedSettings,"ObjectProjectionAreaCutOff");
+
+	//object projected area threshold
+	F32 pixel_meter_ratio = LLViewerCamera::getInstance()->getPixelMeterRatio();
+	F32 projection_threshold = pixel_meter_ratio > 0.f ? projection_area_cutoff / pixel_meter_ratio : 0.f;
+	projection_threshold *= projection_threshold;
+
+	return projection_threshold;
+}
+
 bool LLVOCacheEntry::isAnyVisible(const LLVector4a& camera_origin, F32 squared_dist_threshold)
 {
 	LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)getGroup();
@@ -752,8 +765,7 @@ void LLVOCachePartition::selectBackObjects(LLCamera &camera, F32 back_sphere_rad
 S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 {
 	static LLCachedControl<bool> use_object_cache_occlusion(gSavedSettings,"UseObjectCacheOcclusion");
-	static LLCachedControl<F32> back_sphere_radius(gSavedSettings,"BackShpereCullingRadius");
-	static LLCachedControl<F32> projection_area_cutoff(gSavedSettings,"ObjectProjectionAreaCutOFF");
+	static LLCachedControl<F32> back_sphere_radius(gSavedSettings,"BackShpereCullingRadius");	
 	
 	if(!LLViewerRegion::sVOCacheCullingEnabled)
 	{
@@ -778,10 +790,8 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 	mCulledTime[LLViewerCamera::sCurCameraID] = LLViewerOctreeEntryData::getCurrentFrame();
 
 	//object projected area threshold
-	F32 pixel_meter_ratio = LLViewerCamera::getInstance()->getPixelMeterRatio();
-	F32 projection_threshold = pixel_meter_ratio > 0.f ? projection_area_cutoff / pixel_meter_ratio : 0.f;
-	projection_threshold *= projection_threshold;
-
+	F32 projection_threshold = LLVOCacheEntry::getSquaredObjectScreenAreaThreshold();
+	
 	if(!mCullHistory && LLViewerRegion::isViewerCameraStatic())
 	{
 		U32 seed = llmax(mLODPeriod >> 1, (U32)4);
