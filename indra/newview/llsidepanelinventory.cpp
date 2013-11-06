@@ -161,7 +161,7 @@ BOOL LLSidepanelInventory::postBuild()
 {
 	// UI elements from inventory panel
 	{
-		mInventoryPanel = getChild<LLPanel>("sidepanel__inventory_panel");
+		mInventoryPanel = getChild<LLPanel>("sidepanel_inventory_panel");
 
 		mInfoBtn = mInventoryPanel->getChild<LLButton>("info_btn");
 		mInfoBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onInfoButtonClicked, this));

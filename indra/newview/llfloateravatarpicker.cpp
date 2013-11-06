@@ -736,7 +736,7 @@ void LLFloaterAvatarPicker::processResponse(const LLUUID& query_id, const LLSD& 
 		if (search_results->isEmpty())
 		{
 			LLStringUtil::format_map_t map;
-			map["[TEXT]"] = childGetText("Edit");
+			map["[TEXT]"] = getChild<LLUICtrl>("Edit")->getValue().asString();
 			LLSD item;
 			item["id"] = LLUUID::null;
 			item["columns"][0]["column"] = "name";

@@ -38,10 +38,8 @@
 #include "lldir.h"
 #include "lltimer.h"
 
-#include "llaccordionctrltab.h"
 #include "llbutton.h"
 #include "llmenugl.h"
-//#include "llstatusbar.h"
 #include "llui.h"
 #include "llkeyboard.h"
 #include "lllineeditor.h"
@@ -50,7 +48,6 @@
 #include "lluictrl.h"
 #include "lluictrlfactory.h"
 #include "llviewborder.h"
-#include "lltabcontainer.h"
 
 static LLDefaultChildRegistry::Register<LLPanel> r1("panel", &LLPanel::fromXML);
 LLPanel::factory_stack_t	LLPanel::sFactoryStack;
@@ -166,8 +163,8 @@ void LLPanel::removeBorder()
 // virtual
 void LLPanel::clearCtrls()
 {
-	LLView::ctrl_list_t ctrls = getCtrlList();
-	for (LLView::ctrl_list_t::iterator ctrl_it = ctrls.begin(); ctrl_it != ctrls.end(); ++ctrl_it)
+	LLPanel::ctrl_list_t ctrls = getCtrlList();
+	for (LLPanel::ctrl_list_t::iterator ctrl_it = ctrls.begin(); ctrl_it != ctrls.end(); ++ctrl_it)
 	{
 		LLUICtrl* ctrl = *ctrl_it;
 		ctrl->setFocus( FALSE );
@@ -178,13 +175,28 @@ void LLPanel::clearCtrls()
 
 void LLPanel::setCtrlsEnabled( BOOL b )
 {
-	LLView::ctrl_list_t ctrls = getCtrlList();
-	for (LLView::ctrl_list_t::iterator ctrl_it = ctrls.begin(); ctrl_it != ctrls.end(); ++ctrl_it)
+	LLPanel::ctrl_list_t ctrls = getCtrlList();
+	for (LLPanel::ctrl_list_t::iterator ctrl_it = ctrls.begin(); ctrl_it != ctrls.end(); ++ctrl_it)
 	{
 		LLUICtrl* ctrl = *ctrl_it;
 		ctrl->setEnabled( b );
 	}
 }
+
+LLPanel::ctrl_list_t LLPanel::getCtrlList() const
+{
+	ctrl_list_t controls;
+	for(child_list_t::const_iterator it = getChildList()->begin(), end_it = getChildList()->end(); it != end_it; ++it)
+	{
+		LLView* viewp = *it;
+		if(viewp->isCtrl())
+		{
+			controls.push_back(static_cast<LLUICtrl*>(viewp));
+		}
+	}
+	return controls;
+}
+
 
 void LLPanel::draw()
 {
@@ -637,16 +649,6 @@ void LLPanel::childSetVisible(const std::string& id, bool visible)
 	}
 }
 
-bool LLPanel::childIsVisible(const std::string& id) const
-{
-	LLView* child = findChild<LLView>(id);
-	if (child)
-	{
-		return (bool)child->getVisible();
-	}
-	return false;
-}
-
 void LLPanel::childSetEnabled(const std::string& id, bool enabled)
 {
 	LLView* child = findChild<LLView>(id);
@@ -654,55 +656,6 @@ void LLPanel::childSetEnabled(const std::string& id, bool enabled)
 	{
 		child->setEnabled(enabled);
 	}
-}
-
-void LLPanel::childSetTentative(const std::string& id, bool tentative)
-{
-	LLUICtrl* child = findChild<LLUICtrl>(id);
-	if (child)
-	{
-		child->setTentative(tentative);
-	}
-}
-
-bool LLPanel::childIsEnabled(const std::string& id) const
-{
-	LLView* child = findChild<LLView>(id);
-	if (child)
-	{
-		return (bool)child->getEnabled();
-	}
-	return false;
-}
-
-
-void LLPanel::childSetToolTip(const std::string& id, const std::string& msg)
-{
-	LLView* child = findChild<LLView>(id);
-	if (child)
-	{
-		child->setToolTip(msg);
-	}
-}
-
-void LLPanel::childSetRect(const std::string& id, const LLRect& rect)
-{
-	LLView* child = findChild<LLView>(id);
-	if (child)
-	{
-		child->setRect(rect);
-	}
-}
-
-bool LLPanel::childGetRect(const std::string& id, LLRect& rect) const
-{
-	LLView* child = findChild<LLView>(id);
-	if (child)
-	{
-		rect = child->getRect();
-		return true;
-	}
-	return false;
 }
 
 void LLPanel::childSetFocus(const std::string& id, BOOL focus)
@@ -737,15 +690,6 @@ void LLPanel::childSetCommitCallback(const std::string& id, boost::function<void
 	if (child)
 	{
 		child->setCommitCallback(boost::bind(cb, child, data));
-	}
-}
-
-void LLPanel::childSetValidate(const std::string& id, boost::function<bool (const LLSD& data)> cb)
-{
-	LLUICtrl* child = findChild<LLUICtrl>(id);
-	if (child)
-	{
-		child->setValidateBeforeCommit(cb);
 	}
 }
 
@@ -828,95 +772,6 @@ BOOL LLPanel::childSetLabelArg(const std::string& id, const std::string& key, co
 	return FALSE;
 }
 
-BOOL LLPanel::childSetToolTipArg(const std::string& id, const std::string& key, const LLStringExplicit& text)
-{
-	LLView* child = findChild<LLView>(id);
-	if (child)
-	{
-		return child->setToolTipArg(key, text);
-	}
-	return FALSE;
-}
-
-void LLPanel::childShowTab(const std::string& id, const std::string& tabname, bool visible)
-{
-	LLTabContainer* child = findChild<LLTabContainer>(id);
-	if (child)
-	{
-		child->selectTabByName(tabname);
-	}
-}
-
-LLPanel *LLPanel::childGetVisibleTab(const std::string& id) const
-{
-	LLTabContainer* child = findChild<LLTabContainer>(id);
-	if (child)
-	{
-		return child->getCurrentPanel();
-	}
-	return NULL;
-}
-
-LLPanel* LLPanel::childGetVisibleTabWithHelp()
-{
-	LLView *child;
-
-	bfs_tree_iterator_t it = beginTreeBFS();
-	// skip ourselves
-	++it;
-	for (; it != endTreeBFS(); ++it)
-	{
-		child = *it;
-		LLPanel *curTabPanel = NULL;
-
-		// do we have a tab container?
-		LLTabContainer *tab = dynamic_cast<LLTabContainer *>(child);
-		if (tab && tab->getVisible())
-		{
-			curTabPanel = tab->getCurrentPanel();
-		}
-
-		// do we have an accordion tab?
-		LLAccordionCtrlTab* accordion = dynamic_cast<LLAccordionCtrlTab *>(child);
-		if (accordion && accordion->getDisplayChildren())
-		{
-			curTabPanel = dynamic_cast<LLPanel *>(accordion->getAccordionView());
-		}
-
-		// if we found a valid tab, does it have a help topic?
-		if (curTabPanel && !curTabPanel->getHelpTopic().empty())
-		{
-			return curTabPanel;
-		}
-	}
-
-	// couldn't find any active tabs with a help topic string
-	return NULL;
-}
-
-
-LLPanel *LLPanel::childGetVisiblePanelWithHelp()
-{
-	LLView *child;
-
-	bfs_tree_iterator_t it = beginTreeBFS();
-	// skip ourselves
-	++it;
-	for (; it != endTreeBFS(); ++it)
-	{
-		child = *it;
-		// do we have a panel with a help topic?
-		LLPanel *panel = dynamic_cast<LLPanel *>(child);
-		if (panel && panel->isInVisibleChain() && !panel->getHelpTopic().empty())
-		{
-			return panel;
-		}
-	}
-
-	// couldn't find any active panels with a help topic string
-	return NULL;
-}
-
 void LLPanel::childSetAction(const std::string& id, const commit_signal_t::slot_type& function)
 {
 	LLButton* button = findChild<LLButton>(id);
@@ -932,24 +787,6 @@ void LLPanel::childSetAction(const std::string& id, boost::function<void(void*)>
 	if (button)
 	{
 		button->setClickedCallback(boost::bind(function, value));
-	}
-}
-
-void LLPanel::childSetActionTextbox(const std::string& id, boost::function<void(void*)> function, void* value)
-{
-	LLTextBox* textbox = findChild<LLTextBox>(id);
-	if (textbox)
-	{
-		textbox->setClickedCallback(boost::bind(function, value));
-	}
-}
-
-void LLPanel::childSetControlName(const std::string& id, const std::string& control_name)
-{
-	LLUICtrl* view = findChild<LLUICtrl>(id);
-	if (view)
-	{
-		view->setControlName(control_name, NULL);
 	}
 }
 

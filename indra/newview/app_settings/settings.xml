@@ -11981,50 +11981,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>UIAvatariconctrlSymbolHPad</key>
-    <map>
-      <key>Comment</key>
-      <string>UI Avatar Icon Control Symbol Horizontal Pad</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <real>2</real>
-    </map>    
-    <key>UIAvatariconctrlSymbolVPad</key>
-    <map>
-      <key>Comment</key>
-      <string>UI Avatar Icon Control Symbol Vertical Pad</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <real>2</real>
-    </map>    
-    <key>UIAvatariconctrlSymbolSize</key>
-    <map>
-      <key>Comment</key>
-      <string>UI Avatar Icon Control Symbol Size</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <real>5</real>
-    </map>    
-    <key>UIAvatariconctrlSymbolPosition</key>
-    <map>
-      <key>Comment</key>
-      <string>UI Avatar Icon Control Symbol Position (TopLeft|TopRight|BottomLeft|BottomRight)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>BottomRight</string>
-    </map>
     <key>UIButtonOrigHPad</key>
     <map>
       <key>Comment</key>

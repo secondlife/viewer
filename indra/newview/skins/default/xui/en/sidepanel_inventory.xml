@@ -12,17 +12,19 @@
 		 follows="all"
 		 layout="topleft"
 		 left="0"
-		 name="sidepanel__inventory_panel"
+		 name="sidepanel_inventory_panel"
 		 top="0"
 		 label=""
 		 height="570"
 		 visible="true"
+		 default_tab_group="1"
 		 width="330">
-         <layout_stack
+      <layout_stack
               follows="left|right|top|bottom"
               layout="topleft"
               left="0"
               top="0"
+							tab_group="1"
               orientation="vertical"
               name="inventory_layout_stack"
               height="535"
@@ -75,7 +77,7 @@
                      <button
                         control_name="InventoryInboxToggleState"
                         label="Received items"
-						font="SansSerifMedium"
+												font="SansSerifMedium"
                         name="inbox_btn"
                         height="35"
                         width="308"
@@ -116,61 +118,56 @@
                         background_opaque="true"
                         tool_tip="Drag and drop items to your inventory to use them"
                         >
-                        <text
-							name="inbox_inventory_placeholder"
-							type="string"
-							follows="all"
-							layout="topleft"
-							top="0"
-							left="0"
-							width="308"
-							height="200"
-							wrap="true"
-							halign="center">
-							Purchases from the marketplace will be delivered here.
-						</text>
+                        <text name="inbox_inventory_placeholder"
+															type="string"
+															follows="all"
+															layout="topleft"
+															top="0"
+															left="0"
+															width="308"
+															height="200"
+															wrap="true"
+															halign="center">
+Purchases from the marketplace will be delivered here.
+												</text>
                     </panel>
                  </panel>
              </layout_panel>
          </layout_stack>
-		<panel
-		     follows="bottom|left|right"
-			 height="30"
-			 layout="topleft"
-			 name="button_panel"
-			 left="9"
-             top_pad="7"
-			 width="308">
-			<layout_stack
-     	         follows="bottom|left|right"
-		         height="23"
-		         layout="topleft"
-		         mouse_opaque="false"
-		         name="button_panel_ls"
-		         left="0"
-		         orientation="horizontal"
-		         top="0"
-		         width="308">	
-			    <layout_panel
-			         follows="bottom|left|right"
-			         height="23"
-                     layout="bottomleft"
-                     left="0"			
-                     mouse_opaque="false"
-                     name="info_btn_lp"
-                     auto_resize="true"
-                     width="101">
-                    <button
-                         enabled="true"
-                         follows="bottom|left|right"
-                         height="23"
-                         label="Profile"
-                         layout="topleft"
-                         left="1"
-                         name="info_btn"
-                         tool_tip="Show object profile"
-                         top="0"
-                         width="100" />
+			<panel follows="bottom|left|right"
+					 height="30"
+					 layout="topleft"
+					 name="button_panel"
+					 left="9"
+					 top_pad="7"
+					 width="308">
+				<layout_stack follows="bottom|left|right"
+											height="23"
+											layout="topleft"
+											mouse_opaque="false"
+											name="button_panel_ls"
+											left="0"
+											orientation="horizontal"
+											top="0"
+											width="308">	
+			    <layout_panel follows="bottom|left|right"
+												height="23"
+												layout="bottomleft"
+												left="0"			
+												mouse_opaque="false"
+												name="info_btn_lp"
+												auto_resize="true"
+												width="101">
+						<button enabled="true"
+										follows="bottom|left|right"
+										height="23"
+										label="Profile"
+										layout="topleft"
+										left="1"
+										name="info_btn"
+										tool_tip="Show object profile"
+										top="0"
+										width="100" />
 			    </layout_panel>
 			    <layout_panel
                      follows="bottom|left|right"
