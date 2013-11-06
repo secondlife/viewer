@@ -76,7 +76,7 @@ public:
     
 	bool handle(const LLSD& tokens, const LLSD& query_map, LLMediaCtrl* web)
 	{
-		if (tokens.size() >= 2)
+		if (tokens.size() >= 1)
 		{
 			if (tokens[0].asString() == "connect")
 			{
@@ -87,16 +87,7 @@ public:
 					fbc_web->closeFloater();
 				}
 
-				if (tokens[1].asString() == "facebook")
-				{
-					// connect to facebook
-					if (query_map.has("code"))
-					{
-						LLFacebookConnect::instance().connectToFacebook(query_map["code"], query_map.get("state"));
-					}
-					return true;
-				}
-				else if (tokens[1].asString() == "flickr")
+				if (tokens.size() >= 2 && tokens[1].asString() == "flickr")
 				{
 					// connect to flickr
 					if (query_map.has("oauth_token"))
@@ -105,12 +96,21 @@ public:
 					}
 					return true;
 				}
-				else if (tokens[1].asString() == "twitter")
+				else if (tokens.size() >= 2 && tokens[1].asString() == "twitter")
 				{
 					// connect to twitter
 					if (query_map.has("oauth_token"))
 					{
 						LLTwitterConnect::instance().connectToTwitter(query_map["oauth_token"], query_map.get("oauth_verifier"));
+					}
+					return true;
+				}
+				else //if (tokens.size() >= 2 && tokens[1].asString() == "facebook")
+				{
+					// connect to facebook
+					if (query_map.has("code"))
+					{
+						LLFacebookConnect::instance().connectToFacebook(query_map["code"], query_map.get("state"));
 					}
 					return true;
 				}
