@@ -316,8 +316,10 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("search", "floater_search.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSearch>);
 	LLFloaterReg::add("my_profile", "floater_my_web_profile.xml", (LLFloaterBuildFunc)&LLFloaterWebProfile::create);
 	LLFloaterReg::add("profile", "floater_web_profile.xml", (LLFloaterBuildFunc)&LLFloaterWebProfile::create);
-	LLFloaterReg::add("how_to", "floater_how_to.xml", (LLFloaterBuildFunc)&LLFloaterWebContent::create);	
+	LLFloaterReg::add("how_to", "floater_how_to.xml", (LLFloaterBuildFunc)&LLFloaterWebContent::create);
 	LLFloaterReg::add("fbc_web", "floater_fbc_web.xml", (LLFloaterBuildFunc)&LLFloaterWebContent::create);
+	LLFloaterReg::add("flickr_web", "floater_fbc_web.xml", (LLFloaterBuildFunc)&LLFloaterWebContent::create);
+	LLFloaterReg::add("twitter_web", "floater_fbc_web.xml", (LLFloaterBuildFunc)&LLFloaterWebContent::create);
 	
 	LLFloaterUIPreviewUtil::registerFloater();
 	LLFloaterReg::add("upload_anim_bvh", "floater_animation_bvh_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterBvhPreview>, "upload");
