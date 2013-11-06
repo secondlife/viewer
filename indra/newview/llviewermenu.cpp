@@ -2537,11 +2537,11 @@ bool enable_object_touch(LLUICtrl* ctrl)
 	LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode();
 	if (node && node->mValid && !node->mTouchName.empty())
 	{
-		gMenuHolder->childSetText(item_name, node->mTouchName);
+		gMenuHolder->childSetValue(item_name, node->mTouchName);
 	}
 	else
 	{
-		gMenuHolder->childSetText(item_name, get_default_item_label(item_name));
+		gMenuHolder->childSetValue(item_name, get_default_item_label(item_name));
 	}
 
 	return new_value;
@@ -5951,11 +5951,11 @@ bool enable_object_sit(LLUICtrl* ctrl)
 		LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode();
 		if (node && node->mValid && !node->mSitName.empty())
 		{
-			gMenuHolder->childSetText(item_name, node->mSitName);
+			gMenuHolder->childSetValue(item_name, node->mSitName);
 		}
 		else
 		{
-			gMenuHolder->childSetText(item_name, get_default_item_label(item_name));
+			gMenuHolder->childSetValue(item_name, get_default_item_label(item_name));
 		}
 	}
 	return !sitting_on_sel && is_object_sittable();

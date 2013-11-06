@@ -33,6 +33,8 @@
 #include "llfocusmgr.h"
 #include "llpanel.h"
 #include "lluictrlfactory.h"
+#include "lltabcontainer.h"
+#include "llaccordionctrltab.h"
 
 static LLDefaultChildRegistry::Register<LLUICtrl> r("ui_ctrl");
 
@@ -702,40 +704,7 @@ BOOL LLUICtrl::getIsChrome() const
 	}
 }
 
-// this comparator uses the crazy disambiguating logic of LLCompareByTabOrder,
-// but to switch up the order so that children that have the default tab group come first
-// and those that are prior to the default tab group come last
-class CompareByDefaultTabGroup: public LLCompareByTabOrder
-{
-public:
-	CompareByDefaultTabGroup(const LLView::child_tab_order_t& order, S32 default_tab_group):
-			LLCompareByTabOrder(order),
-			mDefaultTabGroup(default_tab_group) {}
-private:
-	/*virtual*/ bool compareTabOrders(const LLView::tab_order_t & a, const LLView::tab_order_t & b) const
-	{
-		S32 ag = a.first; // tab group for a
-		S32 bg = b.first; // tab group for b
-		// these two ifs have the effect of moving elements prior to the default tab group to the end of the list 
-		// (still sorted relative to each other, though)
-		if(ag < mDefaultTabGroup && bg >= mDefaultTabGroup) return false;
-		if(bg < mDefaultTabGroup && ag >= mDefaultTabGroup) return true;
-		return a < b;  // sort correctly if they're both on the same side of the default tab group
-	}
-	S32 mDefaultTabGroup;
-};
 
-
-// Sorter for plugging into the query.
-// I'd have defined it local to the one method that uses it but that broke the VS 05 compiler. -MG
-class LLUICtrl::DefaultTabGroupFirstSorter : public LLQuerySorter, public LLSingleton<DefaultTabGroupFirstSorter>
-{
-public:
-	/*virtual*/ void operator() (LLView * parent, viewList_t &children) const
-	{	
-		children.sort(CompareByDefaultTabGroup(parent->getCtrlOrder(), parent->getDefaultTabGroup()));
-	}
-};
 
 LLTrace::BlockTimerStatHandle FTM_FOCUS_FIRST_ITEM("Focus First Item");
 
@@ -743,13 +712,11 @@ BOOL LLUICtrl::focusFirstItem(BOOL prefer_text_fields, BOOL focus_flash)
 {
 	LL_RECORD_BLOCK_TIME(FTM_FOCUS_FIRST_ITEM);
 	// try to select default tab group child
-	LLCtrlQuery query = getTabOrderQuery();
-	// sort things such that the default tab group is at the front
-	query.setSorter(DefaultTabGroupFirstSorter::getInstance());
+	LLViewQuery query = getTabOrderQuery();
 	child_list_t result = query(this);
 	if(result.size() > 0)
 	{
-		LLUICtrl * ctrl = static_cast<LLUICtrl*>(result.front());
+		LLUICtrl * ctrl = static_cast<LLUICtrl*>(result.back());
 		if(!ctrl->hasFocus())
 		{
 			ctrl->setFocus(TRUE);
@@ -764,43 +731,7 @@ BOOL LLUICtrl::focusFirstItem(BOOL prefer_text_fields, BOOL focus_flash)
 	// search for text field first
 	if(prefer_text_fields)
 	{
-		LLCtrlQuery query = getTabOrderQuery();
-		query.addPreFilter(LLUICtrl::LLTextInputFilter::getInstance());
-		child_list_t result = query(this);
-		if(result.size() > 0)
-		{
-			LLUICtrl * ctrl = static_cast<LLUICtrl*>(result.front());
-			if(!ctrl->hasFocus())
-			{
-				ctrl->setFocus(TRUE);
-				ctrl->onTabInto();  
-				gFocusMgr.triggerFocusFlash();
-			}
-			return TRUE;
-		}
-	}
-	// no text field found, or we don't care about text fields
-	result = getTabOrderQuery().run(this);
-	if(result.size() > 0)
-	{
-		LLUICtrl * ctrl = static_cast<LLUICtrl*>(result.front());
-		if(!ctrl->hasFocus())
-		{
-			ctrl->setFocus(TRUE);
-			ctrl->onTabInto();  
-			gFocusMgr.triggerFocusFlash();
-		}
-		return TRUE;
-	}	
-	return FALSE;
-}
-
-BOOL LLUICtrl::focusLastItem(BOOL prefer_text_fields)
-{
-	// search for text field first
-	if(prefer_text_fields)
-	{
-		LLCtrlQuery query = getTabOrderQuery();
+		LLViewQuery query = getTabOrderQuery();
 		query.addPreFilter(LLUICtrl::LLTextInputFilter::getInstance());
 		child_list_t result = query(this);
 		if(result.size() > 0)
@@ -810,13 +741,16 @@ BOOL LLUICtrl::focusLastItem(BOOL prefer_text_fields)
 			{
 				ctrl->setFocus(TRUE);
 				ctrl->onTabInto();  
-				gFocusMgr.triggerFocusFlash();
+				if(focus_flash)
+				{
+					gFocusMgr.triggerFocusFlash();
+				}
 			}
 			return TRUE;
 		}
 	}
 	// no text field found, or we don't care about text fields
-	child_list_t result = getTabOrderQuery().run(this);
+	result = getTabOrderQuery().run(this);
 	if(result.size() > 0)
 	{
 		LLUICtrl * ctrl = static_cast<LLUICtrl*>(result.back());
@@ -824,17 +758,21 @@ BOOL LLUICtrl::focusLastItem(BOOL prefer_text_fields)
 		{
 			ctrl->setFocus(TRUE);
 			ctrl->onTabInto();  
-			gFocusMgr.triggerFocusFlash();
+			if(focus_flash)
+			{
+				gFocusMgr.triggerFocusFlash();
+			}
 		}
 		return TRUE;
 	}	
 	return FALSE;
 }
 
+
 BOOL LLUICtrl::focusNextItem(BOOL text_fields_only)
 {
 	// this assumes that this method is called on the focus root.
-	LLCtrlQuery query = getTabOrderQuery();
+	LLViewQuery query = getTabOrderQuery();
 	static LLUICachedControl<bool> tab_to_text_fields_only ("TabToTextFieldsOnly", false);
 	if(text_fields_only || tab_to_text_fields_only)
 	{
@@ -847,7 +785,7 @@ BOOL LLUICtrl::focusNextItem(BOOL text_fields_only)
 BOOL LLUICtrl::focusPrevItem(BOOL text_fields_only)
 {
 	// this assumes that this method is called on the focus root.
-	LLCtrlQuery query = getTabOrderQuery();
+	LLViewQuery query = getTabOrderQuery();
 	static LLUICachedControl<bool> tab_to_text_fields_only ("TabToTextFieldsOnly", false);
 	if(text_fields_only || tab_to_text_fields_only)
 	{
@@ -904,8 +842,26 @@ bool LLUICtrl::findHelpTopic(std::string& help_topic_out)
 
 		if (panel)
 		{
+
+			LLView *child;
+			LLPanel *subpanel = NULL;
+
 			// does the panel have a sub-panel with a help topic?
-			LLPanel *subpanel = panel->childGetVisiblePanelWithHelp();
+			bfs_tree_iterator_t it = beginTreeBFS();
+			// skip ourselves
+			++it;
+			for (; it != endTreeBFS(); ++it)
+			{
+				child = *it;
+				// do we have a panel with a help topic?
+				LLPanel *panel = dynamic_cast<LLPanel *>(child);
+				if (panel && panel->isInVisibleChain() && !panel->getHelpTopic().empty())
+				{
+					subpanel = panel;
+					break;
+				}
+			}
+
 			if (subpanel)
 			{
 				help_topic_out = subpanel->getHelpTopic();
@@ -913,10 +869,41 @@ bool LLUICtrl::findHelpTopic(std::string& help_topic_out)
 			}
 
 			// does the panel have an active tab with a help topic?
-			LLPanel *tab = panel->childGetVisibleTabWithHelp();
-			if (tab)
+			LLPanel *tab_panel = NULL;
+
+			it = beginTreeBFS();
+			// skip ourselves
+			++it;
+			for (; it != endTreeBFS(); ++it)
 			{
-				help_topic_out = tab->getHelpTopic();
+				child = *it;
+				LLPanel *curTabPanel = NULL;
+
+				// do we have a tab container?
+				LLTabContainer *tab = dynamic_cast<LLTabContainer *>(child);
+				if (tab && tab->getVisible())
+				{
+					curTabPanel = tab->getCurrentPanel();
+				}
+
+				// do we have an accordion tab?
+				LLAccordionCtrlTab* accordion = dynamic_cast<LLAccordionCtrlTab *>(child);
+				if (accordion && accordion->getDisplayChildren())
+				{
+					curTabPanel = dynamic_cast<LLPanel *>(accordion->getAccordionView());
+				}
+
+				// if we found a valid tab, does it have a help topic?
+				if (curTabPanel && !curTabPanel->getHelpTopic().empty())
+				{
+					tab_panel = curTabPanel;
+					break;
+				}
+			}
+
+			if (tab_panel)
+			{
+				help_topic_out = tab_panel->getHelpTopic();
 				return true; // success (tab)
 			}
 

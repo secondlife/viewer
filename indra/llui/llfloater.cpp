@@ -2905,13 +2905,6 @@ void LLFloaterView::syncFloaterTabOrder()
 			}
 		}
 	}
-
-	// sync draw order to tab order
-	for ( child_list_const_reverse_iter_t child_it = getChildList()->rbegin(); child_it != getChildList()->rend(); ++child_it)
-	{
-		LLFloater* floaterp = (LLFloater*)*child_it;
-		moveChildToFrontOfTabGroup(floaterp);
-	}
 }
 
 LLFloater*	LLFloaterView::getParentFloater(LLView* viewp) const

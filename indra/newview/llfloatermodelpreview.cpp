@@ -591,7 +591,7 @@ bool LLFloaterModelPreview::isViewOptionChecked(const LLSD& userdata)
 
 bool LLFloaterModelPreview::isViewOptionEnabled(const LLSD& userdata)
 {
-	return childIsEnabled(userdata.asString());
+	return getChildView(userdata.asString())->getEnabled();
 }
 
 void LLFloaterModelPreview::setViewOptionEnabled(const std::string& option, bool enabled)
@@ -3587,11 +3587,11 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
 	
 	if (lod == mPreviewLOD)
 	{
-		mFMP->childSetText("lod_file_" + lod_name[lod], mLODFile[lod]);
+		mFMP->childSetValue("lod_file_" + lod_name[lod], mLODFile[lod]);
 	}
 	else if (lod == LLModel::LOD_PHYSICS)
 	{
-		mFMP->childSetText("physics_file", mLODFile[lod]);
+		mFMP->childSetValue("physics_file", mLODFile[lod]);
 	}
 
 	mFMP->openFloater();
@@ -3606,7 +3606,7 @@ void LLModelPreview::setPhysicsFromLOD(S32 lod)
 		mModel[LLModel::LOD_PHYSICS] = mModel[lod];
 		mScene[LLModel::LOD_PHYSICS] = mScene[lod];
 		mLODFile[LLModel::LOD_PHYSICS].clear();
-		mFMP->childSetText("physics_file", mLODFile[LLModel::LOD_PHYSICS]);
+		mFMP->childSetValue("physics_file", mLODFile[LLModel::LOD_PHYSICS]);
 		mVertexBuffer[LLModel::LOD_PHYSICS].clear();
 		rebuildUploadData();
 		refresh();
@@ -4322,8 +4322,8 @@ void LLModelPreview::updateStatusMessages()
 
 		if (total_tris[lod] > 0)
 		{
-			mFMP->childSetText(lod_triangles_name[lod], llformat("%d", total_tris[lod]));
-			mFMP->childSetText(lod_vertices_name[lod], llformat("%d", total_verts[lod]));
+			mFMP->childSetValue(lod_triangles_name[lod], llformat("%d", total_tris[lod]));
+			mFMP->childSetValue(lod_vertices_name[lod], llformat("%d", total_verts[lod]));
 		}
 		else
 		{
@@ -4344,8 +4344,8 @@ void LLModelPreview::updateStatusMessages()
 				}
 			}
 
-			mFMP->childSetText(lod_triangles_name[lod], mesh_status_na);
-			mFMP->childSetText(lod_vertices_name[lod], mesh_status_na);
+			mFMP->childSetValue(lod_triangles_name[lod], mesh_status_na);
+			mFMP->childSetValue(lod_vertices_name[lod], mesh_status_na);
 		}
 
 		const U32 lod_high = LLModel::LOD_HIGH;
@@ -4394,7 +4394,7 @@ void LLModelPreview::updateStatusMessages()
 
 		if (lod == mPreviewLOD)
 		{
-			mFMP->childSetText("lod_status_message_text", mFMP->getString(message));
+			mFMP->childSetValue("lod_status_message_text", mFMP->getString(message));
 			icon = mFMP->getChild<LLIconCtrl>("lod_status_message_icon");
 			icon->setImage(img);
 		}
@@ -4645,12 +4645,12 @@ void LLModelPreview::updateLodControls(S32 lod)
 		fmp->mLODMode[lod] = 0;
 		for (U32 i = 0; i < num_file_controls; ++i)
 		{
-			mFMP->childShow(file_controls[i] + lod_name[lod]);
+			mFMP->childSetVisible(file_controls[i] + lod_name[lod], true);
 		}
 
 		for (U32 i = 0; i < num_lod_controls; ++i)
 		{
-			mFMP->childHide(lod_controls[i] + lod_name[lod]);
+			mFMP->childSetVisible(lod_controls[i] + lod_name[lod], true);
 		}
 	}
 	else if (lod_mode == USE_LOD_ABOVE) // use LoD above
@@ -4658,12 +4658,12 @@ void LLModelPreview::updateLodControls(S32 lod)
 		fmp->mLODMode[lod] = 2;
 		for (U32 i = 0; i < num_file_controls; ++i)
 		{
-			mFMP->childHide(file_controls[i] + lod_name[lod]);
+			mFMP->childSetVisible(file_controls[i] + lod_name[lod], false);
 		}
 
 		for (U32 i = 0; i < num_lod_controls; ++i)
 		{
-			mFMP->childHide(lod_controls[i] + lod_name[lod]);
+			mFMP->childSetVisible(lod_controls[i] + lod_name[lod], false);
 		}
 
 		if (lod < LLModel::LOD_HIGH)
@@ -4688,12 +4688,12 @@ void LLModelPreview::updateLodControls(S32 lod)
 
 		for (U32 i = 0; i < num_file_controls; ++i)
 		{
-			mFMP->childHide(file_controls[i] + lod_name[lod]);
+			mFMP->getChildView(file_controls[i] + lod_name[lod])->setVisible(false);
 		}
 
 		for (U32 i = 0; i < num_lod_controls; ++i)
 		{
-			mFMP->childShow(lod_controls[i] + lod_name[lod]);
+			mFMP->getChildView(lod_controls[i] + lod_name[lod])->setVisible(true);
 		}
 
 
@@ -5644,7 +5644,7 @@ void LLModelPreview::setPreviewLOD(S32 lod)
 
 		LLComboBox* combo_box = mFMP->getChild<LLComboBox>("preview_lod_combo");
 		combo_box->setCurrentByIndex((NUM_LOD-1)-mPreviewLOD); // combo box list of lods is in reverse order
-		mFMP->childSetText("lod_file_" + lod_name[mPreviewLOD], mLODFile[mPreviewLOD]);
+		mFMP->childSetValue("lod_file_" + lod_name[mPreviewLOD], mLODFile[mPreviewLOD]);
 
 		LLComboBox* combo_box2 = mFMP->getChild<LLComboBox>("preview_lod_combo2");
 		combo_box2->setCurrentByIndex((NUM_LOD-1)-mPreviewLOD); // combo box list of lods is in reverse order
