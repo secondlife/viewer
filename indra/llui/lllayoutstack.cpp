@@ -33,6 +33,7 @@
 #include "lllocalcliprect.h"
 #include "llpanel.h"
 #include "llcriticaldamp.h"
+#include "lliconctrl.h"
 #include "boost/foreach.hpp"
 
 static const F32 MIN_FRACTIONAL_SIZE = 0.00001f;
@@ -268,25 +269,9 @@ void LLLayoutStack::draw()
 			// only force drawing invisible children if visible amount is non-zero
 			drawChild(panelp, 0, 0, !clip_rect.isEmpty());
 		}
-	}
-
-	const LLView::child_list_t * child_listp = getChildList();
-	BOOST_FOREACH(LLView * childp, * child_listp)
-	{
-		LLResizeBar * resize_barp = dynamic_cast<LLResizeBar*>(childp);
-		if (resize_barp && resize_barp->isShowDragHandle() && resize_barp->getVisible() && resize_barp->getRect().isValid())
+		if (panelp->getResizeBar()->getVisible())
 		{
-			LLRect screen_rect = resize_barp->calcScreenRect();
-			if (LLUI::getRootView()->getLocalRect().overlaps(screen_rect) && LLUI::sDirtyRect.overlaps(screen_rect))
-			{
-				LLUI::pushMatrix();
-				{
-					const LLRect& rb_rect(resize_barp->getRect());
-					LLUI::translate(rb_rect.mLeft, rb_rect.mBottom);
-					resize_barp->draw();
-				}
-				LLUI::popMatrix();
-			}
+			drawChild(panelp->getResizeBar());
 		}
 	}
 }
@@ -350,6 +335,31 @@ void LLLayoutStack::collapsePanel(LLPanel* panel, BOOL collapsed)
 }
 
 static LLTrace::BlockTimerStatHandle FTM_UPDATE_LAYOUT("Update LayoutStacks");
+
+class LLImagePanel : public LLPanel
+{
+public:
+	struct Params :	public LLInitParam::Block<Params, LLPanel::Params>
+	{
+		Optional<bool> horizontal;
+		Params() : horizontal("horizontal", false) {}
+	};
+	LLImagePanel(const Params& p) : LLPanel(p), mHorizontal(p.horizontal) {}
+	virtual ~LLImagePanel() {}
+
+	void draw()
+	{
+		const LLRect& parent_rect = getParent()->getRect();
+		const LLRect& rect = getRect();
+		LLRect clip_rect( -rect.mLeft, parent_rect.getHeight() - rect.mBottom - 2
+			, parent_rect.getWidth() - rect.mLeft - (mHorizontal ? 2 : 0), -rect.mBottom);
+		LLLocalClipRect clip(clip_rect);
+		LLPanel::draw();
+	}
+
+private:
+	bool mHorizontal;
+};
 
 void LLLayoutStack::updateLayout()
 {	
@@ -435,8 +445,6 @@ void LLLayoutStack::updateLayout()
 		}
 
 		LLRect resize_bar_rect(panel_rect);
-		LLResizeBar * resize_barp = panelp->getResizeBar();
-		bool show_drag_handle = resize_barp->isShowDragHandle();
 		F32 panel_spacing = (F32)mPanelSpacing * panelp->getVisibleAmount();
 		F32 panel_visible_dim = panelp->getVisibleDim();
 		S32 panel_spacing_round = (S32)(llround(panel_spacing));
@@ -445,7 +453,7 @@ void LLLayoutStack::updateLayout()
 		{
 			cur_pos += panel_visible_dim + panel_spacing;
 
-			if (show_drag_handle && panel_spacing_round > mDragHandleThickness)
+			if (mShowDragHandle && panel_spacing_round > mDragHandleThickness)
 			{
 				resize_bar_rect.mLeft = panel_rect.mRight + mDragHandleShift;
 				resize_bar_rect.mRight = resize_bar_rect.mLeft + mDragHandleThickness;
@@ -456,7 +464,7 @@ void LLLayoutStack::updateLayout()
 				resize_bar_rect.mRight = panel_rect.mRight + panel_spacing_round + mResizeBarOverlap;
 			}
 
-			if (show_drag_handle)
+			if (mShowDragHandle)
 			{
 				resize_bar_rect.mBottom += mDragHandleSecondIndent;
 				resize_bar_rect.mTop -= mDragHandleFirstIndent;
@@ -467,7 +475,7 @@ void LLLayoutStack::updateLayout()
 		{
 			cur_pos -= panel_visible_dim + panel_spacing;
 
-			if (show_drag_handle && panel_spacing_round > mDragHandleThickness)
+			if (mShowDragHandle && panel_spacing_round > mDragHandleThickness)
 			{
 				resize_bar_rect.mTop = panel_rect.mBottom - mDragHandleShift;
 				resize_bar_rect.mBottom = resize_bar_rect.mTop - mDragHandleThickness;
@@ -478,7 +486,7 @@ void LLLayoutStack::updateLayout()
 				resize_bar_rect.mBottom = panel_rect.mBottom - panel_spacing_round - mResizeBarOverlap;
 			}
 
-			if (show_drag_handle)
+			if (mShowDragHandle)
 			{
 				resize_bar_rect.mLeft += mDragHandleFirstIndent;
 				resize_bar_rect.mRight -= mDragHandleSecondIndent;
@@ -541,9 +549,69 @@ void LLLayoutStack::createResizeBar(LLLayoutPanel* panelp)
 			resize_params.min_size(lp->getRelevantMinDim());
 			resize_params.side((mOrientation == HORIZONTAL) ? LLResizeBar::RIGHT : LLResizeBar::BOTTOM);
 			resize_params.snapping_enabled(false);
-			resize_params.show_drag_handle(mShowDragHandle);
 			LLResizeBar* resize_bar = LLUICtrlFactory::create<LLResizeBar>(resize_params);
 			lp->mResizeBar = resize_bar;
+
+			if (mShowDragHandle)
+			{
+				LLPanel::Params resize_bar_bg_panel_p;
+				resize_bar_bg_panel_p.name = "resize_handle_bg_panel";
+				resize_bar_bg_panel_p.rect = lp->mResizeBar->getLocalRect();
+				resize_bar_bg_panel_p.follows.flags = FOLLOWS_ALL;
+				resize_bar_bg_panel_p.tab_stop = false;
+				resize_bar_bg_panel_p.background_visible = true;
+				resize_bar_bg_panel_p.bg_alpha_color = LLUIColorTable::instance().getColor("ResizebarBody");
+				resize_bar_bg_panel_p.has_border = true;
+				resize_bar_bg_panel_p.border.border_thickness = 1;
+				resize_bar_bg_panel_p.border.highlight_light_color = LLUIColorTable::instance().getColor("ResizebarBorderLight");
+				resize_bar_bg_panel_p.border.shadow_dark_color = LLUIColorTable::instance().getColor("ResizebarBorderDark");
+
+				LLPanel* resize_bar_bg_panel = LLUICtrlFactory::create<LLPanel>(resize_bar_bg_panel_p);
+
+				LLIconCtrl::Params icon_p;
+				icon_p.name = "resize_handle_image";
+				icon_p.rect = lp->mResizeBar->getLocalRect();
+				icon_p.follows.flags = FOLLOWS_ALL;
+				icon_p.image = LLUI::getUIImage(mOrientation == HORIZONTAL ? "Vertical Drag Handle" : "Horizontal Drag Handle");
+				resize_bar_bg_panel->addChild(LLUICtrlFactory::create<LLIconCtrl>(icon_p));
+
+				lp->mResizeBar->addChild(resize_bar_bg_panel);
+			}
+
+			/*if (mShowDragHandle)
+			{
+				LLViewBorder::Params border_params;
+				border_params.border_thickness = 1;
+				border_params.highlight_light_color = LLUIColorTable::instance().getColor("ResizebarBorderLight");
+				border_params.shadow_dark_color = LLUIColorTable::instance().getColor("ResizebarBorderDark");
+
+				addBorder(border_params);
+				setBorderVisible(TRUE);
+
+				LLImagePanel::Params image_panel;
+				mDragHandleImage = LLUI::getUIImage(LLResizeBar::RIGHT == mSide ? "Vertical Drag Handle" : "Horizontal Drag Handle");
+				image_panel.bg_alpha_image = mDragHandleImage;
+				image_panel.background_visible = true;
+				image_panel.horizontal = (LLResizeBar::BOTTOM == mSide);
+				mImagePanel = LLUICtrlFactory::create<LLImagePanel>(image_panel);
+				setImagePanel(mImagePanel);
+			}*/
+
+			//if (mShowDragHandle)
+			//{
+			//	setBackgroundVisible(TRUE);
+			//	setTransparentColor(LLUIColorTable::instance().getColor("ResizebarBody"));
+			//}
+
+			/*if (mShowDragHandle)
+			{
+			S32 image_width = mDragHandleImage->getTextureWidth();
+			S32 image_height = mDragHandleImage->getTextureHeight();
+			const LLRect& panel_rect = getRect();
+			S32 image_left = (panel_rect.getWidth() - image_width) / 2 - 1;
+			S32 image_bottom = (panel_rect.getHeight() - image_height) / 2;
+			mImagePanel->setRect(LLRect(image_left, image_bottom + image_height, image_left + image_width, image_bottom));
+			}*/
 			LLView::addChild(resize_bar, 0);
 		}
 	}

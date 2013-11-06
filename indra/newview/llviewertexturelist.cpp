@@ -70,6 +70,7 @@ S32 LLViewerTextureList::sNumImages = 0;
 LLViewerTextureList gTextureList;
 static LLTrace::BlockTimerStatHandle FTM_PROCESS_IMAGES("Process Images");
 
+
 ///////////////////////////////////////////////////////////////////////////////
 
 LLViewerTextureList::LLViewerTextureList() 
@@ -1587,28 +1588,31 @@ LLUIImagePtr LLUIImageList::getUIImage(const std::string& image_name, S32 priori
 }
 
 LLUIImagePtr LLUIImageList::loadUIImageByName(const std::string& name, const std::string& filename,
-											  BOOL use_mips, const LLRect& scale_rect, const LLRect& clip_rect, LLViewerTexture::EBoostLevel boost_priority )
+											  BOOL use_mips, const LLRect& scale_rect, const LLRect& clip_rect, LLViewerTexture::EBoostLevel boost_priority,
+											  LLUIImage::EScaleStyle scale_style)
 {
 	if (boost_priority == LLGLTexture::BOOST_NONE)
 	{
 		boost_priority = LLGLTexture::BOOST_UI;
 	}
 	LLViewerFetchedTexture* imagep = LLViewerTextureManager::getFetchedTextureFromFile(filename, FTT_LOCAL_FILE, MIPMAP_NO, boost_priority);
-	return loadUIImage(imagep, name, use_mips, scale_rect, clip_rect);
+	return loadUIImage(imagep, name, use_mips, scale_rect, clip_rect, scale_style);
 }
 
 LLUIImagePtr LLUIImageList::loadUIImageByID(const LLUUID& id,
-											BOOL use_mips, const LLRect& scale_rect, const LLRect& clip_rect, LLViewerTexture::EBoostLevel boost_priority)
+											BOOL use_mips, const LLRect& scale_rect, const LLRect& clip_rect, LLViewerTexture::EBoostLevel boost_priority,
+											LLUIImage::EScaleStyle scale_style)
 {
 	if (boost_priority == LLGLTexture::BOOST_NONE)
 	{
 		boost_priority = LLGLTexture::BOOST_UI;
 	}
 	LLViewerFetchedTexture* imagep = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, MIPMAP_NO, boost_priority);
-	return loadUIImage(imagep, id.asString(), use_mips, scale_rect, clip_rect);
+	return loadUIImage(imagep, id.asString(), use_mips, scale_rect, clip_rect, scale_style);
 }
 
-LLUIImagePtr LLUIImageList::loadUIImage(LLViewerFetchedTexture* imagep, const std::string& name, BOOL use_mips, const LLRect& scale_rect, const LLRect& clip_rect)
+LLUIImagePtr LLUIImageList::loadUIImage(LLViewerFetchedTexture* imagep, const std::string& name, BOOL use_mips, const LLRect& scale_rect, const LLRect& clip_rect,
+										LLUIImage::EScaleStyle scale_style)
 {
 	if (!imagep) return NULL;
 
@@ -1621,6 +1625,8 @@ LLUIImagePtr LLUIImageList::loadUIImage(LLViewerFetchedTexture* imagep, const st
 	imagep->setNoDelete();
 
 	LLUIImagePtr new_imagep = new LLUIImage(name, imagep);
+	new_imagep->setScaleStyle(scale_style);
+
 	mUIImages.insert(std::make_pair(name, new_imagep));
 	mUITextureList.push_back(imagep);
 
@@ -1639,7 +1645,7 @@ LLUIImagePtr LLUIImageList::loadUIImage(LLViewerFetchedTexture* imagep, const st
 	return new_imagep;
 }
 
-LLUIImagePtr LLUIImageList::preloadUIImage(const std::string& name, const std::string& filename, BOOL use_mips, const LLRect& scale_rect, const LLRect& clip_rect)
+LLUIImagePtr LLUIImageList::preloadUIImage(const std::string& name, const std::string& filename, BOOL use_mips, const LLRect& scale_rect, const LLRect& clip_rect, LLUIImage::EScaleStyle scale_style)
 {
 	// look for existing image
 	uuid_ui_image_map_t::iterator found_it = mUIImages.find(name);
@@ -1649,7 +1655,7 @@ LLUIImagePtr LLUIImageList::preloadUIImage(const std::string& name, const std::s
 		LL_ERRS() << "UI Image " << name << " already loaded." << LL_ENDL;
 	}
 
-	return loadUIImageByName(name, filename, use_mips, scale_rect, clip_rect);
+	return loadUIImageByName(name, filename, use_mips, scale_rect, clip_rect, LLGLTexture::BOOST_UI, scale_style);
 }
 
 //static 
@@ -1709,14 +1715,28 @@ void LLUIImageList::onUIImageLoaded( BOOL success, LLViewerFetchedTexture *src_v
 	}
 }
 
+namespace LLInitParam
+{
+	template<>
+	struct TypeValues<LLUIImage::EScaleStyle> : public TypeValuesHelper<LLUIImage::EScaleStyle>
+	{
+		static void declareValues()
+		{
+			declare("scale_inner",	LLUIImage::SCALE_INNER);
+			declare("scale_outer",	LLUIImage::SCALE_OUTER);
+		}
+	};
+}
+
 struct UIImageDeclaration : public LLInitParam::Block<UIImageDeclaration>
 {
-	Mandatory<std::string>	name;
-	Optional<std::string>	file_name;
-	Optional<bool>			preload;
-	Optional<LLRect>		scale;
-	Optional<LLRect>		clip;
-	Optional<bool>			use_mips;
+	Mandatory<std::string>		name;
+	Optional<std::string>		file_name;
+	Optional<bool>				preload;
+	Optional<LLRect>			scale;
+	Optional<LLRect>			clip;
+	Optional<bool>				use_mips;
+	Optional<LLUIImage::EScaleStyle> scale_type;
 
 	UIImageDeclaration()
 	:	name("name"),
@@ -1724,7 +1744,8 @@ struct UIImageDeclaration : public LLInitParam::Block<UIImageDeclaration>
 		preload("preload", false),
 		scale("scale"),
 		clip("clip"),
-		use_mips("use_mips", false)
+		use_mips("use_mips", false),
+		scale_type("scale_type", LLUIImage::SCALE_INNER)
 	{}
 };
 
@@ -1812,7 +1833,7 @@ bool LLUIImageList::initFromFile()
 			{
 				continue;
 			}
-			preloadUIImage(image.name, file_name, image.use_mips, image.scale, image.clip);
+			preloadUIImage(image.name, file_name, image.use_mips, image.scale, image.clip, image.scale_type);
 		}
 
 		if (cur_pass == PASS_DECODE_NOW && !gSavedSettings.getBOOL("NoPreload"))
