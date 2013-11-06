@@ -12621,6 +12621,17 @@
       <key>Value</key>
       <string>00000000-0000-0000-0000-000000000000</string>
     </map>
+    <key>UISndRestart</key>
+    <map>
+      <key>Comment</key>
+      <string>Sound file for region restarting (uuid for sound asset)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>4b315701-1972-9e23-cdd8-23cbc8cb0f42</string>
+    </map>
     <key>UISndSnapshot</key>
     <map>
       <key>Comment</key>

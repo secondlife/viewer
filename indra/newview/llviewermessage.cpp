@@ -5973,7 +5973,7 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 			LLStringUtil::format(timeStr, substitution);
 			llsdBlock["TIME"] = timeStr;
 
-			send_sound_trigger(LLUUID(gSavedSettings.getString("UISndAlert")), 1.0f);
+			send_sound_trigger(LLUUID(gSavedSettings.getString("UISndRestart")), 1.0f);
 		}
 
 		LLNotificationsUtil::add(notificationID, llsdBlock);
