@@ -192,7 +192,7 @@ bool LLGiveInventory::doGiveInventoryItem(const LLUUID& to_agent,
 
 {
 	bool res = true;
-	llinfos << "LLGiveInventory::giveInventory()" << llendl;
+	LL_INFOS() << "LLGiveInventory::giveInventory()" << LL_ENDL;
 	if (!isInventoryGiveAcceptable(item))
 	{
 		return false;
@@ -230,8 +230,8 @@ bool LLGiveInventory::doGiveInventoryCategory(const LLUUID& to_agent,
 	{
 		return false;
 	}
-	llinfos << "LLGiveInventory::giveInventoryCategory() - "
-		<< cat->getUUID() << llendl;
+	LL_INFOS() << "LLGiveInventory::giveInventoryCategory() - "
+		<< cat->getUUID() << LL_ENDL;
 
 	if (!isAgentAvatarValid())
 	{
@@ -248,11 +248,11 @@ bool LLGiveInventory::doGiveInventoryCategory(const LLUUID& to_agent,
 		items,
 		LLInventoryModel::EXCLUDE_TRASH,
 		giveable);
-	S32 count = cats.count();
+	S32 count = cats.size();
 	bool complete = true;
 	for(S32 i = 0; i < count; ++i)
 	{
-		if (!gInventory.isCategoryComplete(cats.get(i)->getUUID()))
+		if (!gInventory.isCategoryComplete(cats.at(i)->getUUID()))
 		{
 			complete = false;
 			break;
@@ -263,7 +263,7 @@ bool LLGiveInventory::doGiveInventoryCategory(const LLUUID& to_agent,
 		LLNotificationsUtil::add("IncompleteInventory");
 		give_successful = false;
 	}
-	count = items.count() + cats.count();
+	count = items.size() + cats.size();
 	if (count > MAX_ITEMS)
 	{
 		LLNotificationsUtil::add("TooManyItems");
@@ -447,10 +447,10 @@ bool LLGiveInventory::handleCopyProtectedCategory(const LLSD& notification, cons
 				items,
 				LLInventoryModel::EXCLUDE_TRASH,
 				remove);
-			S32 count = items.count();
+			S32 count = items.size();
 			for(S32 i = 0; i < count; ++i)
 			{
-				gInventory.deleteObject(items.get(i)->getUUID());
+				gInventory.deleteObject(items.at(i)->getUUID());
 			}
 			gInventory.notifyObservers();
 
@@ -484,8 +484,8 @@ bool LLGiveInventory::commitGiveInventoryCategory(const LLUUID& to_agent,
 	{
 		return false;
 	}
-	llinfos << "LLGiveInventory::commitGiveInventoryCategory() - "
-		<< cat->getUUID() << llendl;
+	LL_INFOS() << "LLGiveInventory::commitGiveInventoryCategory() - "
+		<< cat->getUUID() << LL_ENDL;
 
 	// add buddy to recent people list
 	LLRecentPeople::instance().add(to_agent);
@@ -504,7 +504,7 @@ bool LLGiveInventory::commitGiveInventoryCategory(const LLUUID& to_agent,
 	// MAX ITEMS is based on (sizeof(uuid)+2) * count must be <
 	// MTUBYTES or 18 * count < 1200 => count < 1200/18 =>
 	// 66. I've cut it down a bit from there to give some pad.
-	S32 count = items.count() + cats.count();
+	S32 count = items.size() + cats.size();
 	if (count > MAX_ITEMS)
 	{
 		LLNotificationsUtil::add("TooManyItems");
@@ -530,21 +530,21 @@ bool LLGiveInventory::commitGiveInventoryCategory(const LLUUID& to_agent,
 		memcpy(pos, &(cat->getUUID()), UUID_BYTES);		/* Flawfinder: ignore */
 		pos += UUID_BYTES;
 		S32 i;
-		count = cats.count();
+		count = cats.size();
 		for(i = 0; i < count; ++i)
 		{
 			memcpy(pos, &type, sizeof(U8));		/* Flawfinder: ignore */
 			pos += sizeof(U8);
-			memcpy(pos, &(cats.get(i)->getUUID()), UUID_BYTES);		/* Flawfinder: ignore */
+			memcpy(pos, &(cats.at(i)->getUUID()), UUID_BYTES);		/* Flawfinder: ignore */
 			pos += UUID_BYTES;
 		}
-		count = items.count();
+		count = items.size();
 		for(i = 0; i < count; ++i)
 		{
-			type = (U8)items.get(i)->getType();
+			type = (U8)items.at(i)->getType();
 			memcpy(pos, &type, sizeof(U8));		/* Flawfinder: ignore */
 			pos += sizeof(U8);
-			memcpy(pos, &(items.get(i)->getUUID()), UUID_BYTES);		/* Flawfinder: ignore */
+			memcpy(pos, &(items.at(i)->getUUID()), UUID_BYTES);		/* Flawfinder: ignore */
 			pos += UUID_BYTES;
 		}
 		pack_instant_message(

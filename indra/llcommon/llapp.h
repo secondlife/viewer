@@ -30,7 +30,6 @@
 #include <map>
 #include "llrun.h"
 #include "llsd.h"
-#include "lloptioninterface.h"
 
 // Forward declarations
 template <typename Type> class LLAtomic32;
@@ -64,7 +63,7 @@ namespace google_breakpad {
 	class ExceptionHandler; // See exception_handler.h
 }
 
-class LL_COMMON_API LLApp : public LLOptionInterface
+class LL_COMMON_API LLApp
 {
 	friend class LLErrorThread;
 public:
@@ -113,7 +112,7 @@ public:
 	 * @param name The name of the option.
 	 * @return Returns the option data.
 	 */
-	virtual LLSD getOption(const std::string& name) const;
+	LLSD getOption(const std::string& name) const;
 
 	/** 
 	 * @brief Parse command line options and insert them into

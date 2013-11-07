@@ -71,7 +71,7 @@ static BOOL do_ask_dialog(void)
 #if LL_GTK
 	gtk_disable_setlocale();
 	if (!gtk_init_check(NULL, NULL)) {
-		llinfos << "Could not initialize GTK for 'ask to send crash report' dialog; not sending report." << llendl;
+		LL_INFOS() << "Could not initialize GTK for 'ask to send crash report' dialog; not sending report." << LL_ENDL;
 		return FALSE;
 	}
 	

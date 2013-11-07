@@ -89,7 +89,7 @@ S32 LLDrawPoolAlpha::getNumPostDeferredPasses()
 
 void LLDrawPoolAlpha::beginPostDeferredPass(S32 pass) 
 { 
-	LLFastTimer t(FTM_RENDER_ALPHA);
+	LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA);
 
 	if (pass == 0)
 	{
@@ -179,7 +179,7 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
 
 void LLDrawPoolAlpha::beginRenderPass(S32 pass)
 {
-	LLFastTimer t(FTM_RENDER_ALPHA);
+	LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA);
 	
 	if (LLPipeline::sImpostorRender)
 	{
@@ -211,7 +211,7 @@ void LLDrawPoolAlpha::beginRenderPass(S32 pass)
 
 void LLDrawPoolAlpha::endRenderPass( S32 pass )
 {
-	LLFastTimer t(FTM_RENDER_ALPHA);
+	LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA);
 	LLRenderPass::endRenderPass(pass);
 
 	if(gPipeline.canUseWindLightShaders()) 
@@ -222,7 +222,7 @@ void LLDrawPoolAlpha::endRenderPass( S32 pass )
 
 void LLDrawPoolAlpha::render(S32 pass)
 {
-	LLFastTimer t(FTM_RENDER_ALPHA);
+	LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA);
 
 	LLGLSPipelineAlpha gls_pipeline_alpha;
 
@@ -336,7 +336,7 @@ void LLDrawPoolAlpha::renderAlphaHighlight(U32 mask)
 	for (LLCullResult::sg_iterator i = gPipeline.beginAlphaGroups(); i != gPipeline.endAlphaGroups(); ++i)
 	{
 		LLSpatialGroup* group = *i;
-		if (group->mSpatialPartition->mRenderByGroup &&
+		if (group->getSpatialPartition()->mRenderByGroup &&
 			!group->isDead())
 		{
 			LLSpatialGroup::drawmap_elem_t& draw_info = group->mDrawMap[LLRenderPass::PASS_ALPHA];	
@@ -363,6 +363,9 @@ void LLDrawPoolAlpha::renderAlphaHighlight(U32 mask)
 	}
 }
 
+static LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA_GROUP_LOOP("Alpha Group");
+static LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA_PUSH("Alpha Push Verts");
+
 void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 {
 	BOOL initialized_lighting = FALSE;
@@ -374,20 +377,20 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 	{
 		LLSpatialGroup* group = *i;
 		llassert(group);
-		llassert(group->mSpatialPartition);
+		llassert(group->getSpatialPartition());
 
-		if (group->mSpatialPartition->mRenderByGroup &&
+		if (group->getSpatialPartition()->mRenderByGroup &&
 		    !group->isDead())
 		{
-			bool is_particle_or_hud_particle = group->mSpatialPartition->mPartitionType == LLViewerRegion::PARTITION_PARTICLE
-													  || group->mSpatialPartition->mPartitionType == LLViewerRegion::PARTITION_HUD_PARTICLE;
+			bool is_particle_or_hud_particle = group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_PARTICLE
+													  || group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_HUD_PARTICLE;
 
 			bool draw_glow_for_this_partition = mVertexShaderLevel > 0 && // no shaders = no glow.
 				// All particle systems seem to come off the wire with texture entries which claim that they glow.  This is probably a bug in the data.  Suppress.
 				!is_particle_or_hud_particle;
 
-			static LLFastTimer::DeclareTimer FTM_RENDER_ALPHA_GROUP_LOOP("Alpha Group");
-			LLFastTimer t(FTM_RENDER_ALPHA_GROUP_LOOP);
+			
+			LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_GROUP_LOOP);
 
 			bool disable_cull = is_particle_or_hud_particle;
 			LLGLDisable cull(disable_cull ? GL_CULL_FACE : 0);
@@ -400,7 +403,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 
 				if ((params.mVertexBuffer->getTypeMask() & mask) != mask)
 				{ //FIXME!
-					llwarns << "Missing required components, skipping render batch." << llendl;
+					LL_WARNS() << "Missing required components, skipping render batch." << LL_ENDL;
 					continue;
 				}
 
@@ -422,14 +425,14 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 				}
 
 				LLRenderPass::applyModelMatrix(params);
-				
+
 				LLMaterial* mat = NULL;
 
 				if (deferred_render)
 				{
 					mat = params.mMaterial;
 				}
-
+				
 				if (params.mFullbright)
 				{
 					// Turn off lighting if it hasn't already been so.
@@ -499,7 +502,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 					LLGLSLShader::bindNoShader();
 					current_shader = NULL;
 				}
-				
+
 				if (use_shaders && mat)
 				{
 					// We have a material.  Supply the appropriate data here.
@@ -549,7 +552,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 						}
 					}
 				}
-				else  
+				else
 				{ //not batching textures or batch has only 1 texture -- might need a texture matrix
 					if (params.mTexture.notNull())
 					{
@@ -560,7 +563,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 						}
 						else
 						{
-							gGL.getTexUnit(0)->bind(params.mTexture, TRUE);
+						gGL.getTexUnit(0)->bind(params.mTexture, TRUE) ;
 						}
 						
 						if (params.mTextureMatrix)
@@ -578,9 +581,8 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 					}
 				}
 
-				static LLFastTimer::DeclareTimer FTM_RENDER_ALPHA_PUSH("Alpha Push Verts");
 				{
-					LLFastTimer t(FTM_RENDER_ALPHA_PUSH);
+					LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_PUSH);
     gGL.blendFunc((LLRender::eBlendFactor) params.mBlendFuncSrc, (LLRender::eBlendFactor) params.mBlendFuncDst, mAlphaSFactor, mAlphaDFactor);					
 				params.mVertexBuffer->setBuffer(mask & ~(params.mFullbright ? (LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2) : 0));
                 

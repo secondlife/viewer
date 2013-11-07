@@ -163,8 +163,8 @@ void LLCrashLogger::gatherFiles()
 			LLCurl::setCAFile(gDirUtilp->getCAFile());
 		}
 
-		llinfos << "Using log file from debug log " << mFileMap["SecondLifeLog"] << llendl;
-		llinfos << "Using settings file from debug log " << mFileMap["SettingsXml"] << llendl;
+		LL_INFOS() << "Using log file from debug log " << mFileMap["SecondLifeLog"] << LL_ENDL;
+		LL_INFOS() << "Using settings file from debug log " << mFileMap["SettingsXml"] << LL_ENDL;
 	}
 	else
 	{
@@ -376,7 +376,7 @@ void LLCrashLogger::updateApplication(const std::string& message)
 {
 	gServicePump->pump();
     gServicePump->callback();
-	if (!message.empty()) llinfos << message << llendl;
+	if (!message.empty()) LL_INFOS() << message << LL_ENDL;
 }
 
 bool LLCrashLogger::init()
@@ -405,13 +405,13 @@ bool LLCrashLogger::init()
 							  "1 = always send crash report, "
 							  "2 = never send crash report)");
 
-	// llinfos << "Loading crash behavior setting" << llendl;
+	// LL_INFOS() << "Loading crash behavior setting" << LL_ENDL;
 	// mCrashBehavior = loadCrashBehaviorSetting();
 
 	// If user doesn't want to send, bail out
 	if (mCrashBehavior == CRASH_BEHAVIOR_NEVER_SEND)
 	{
-		llinfos << "Crash behavior is never_send, quitting" << llendl;
+		LL_INFOS() << "Crash behavior is never_send, quitting" << LL_ENDL;
 		return false;
 	}
 

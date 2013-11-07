@@ -127,7 +127,7 @@ void LLFloaterDisplayName::onCacheSetName(bool success,
 
 	// Request failed, notify the user
 	std::string error_tag = content["error_tag"].asString();
-	llinfos << "set name failure error_tag " << error_tag << llendl;
+	LL_INFOS() << "set name failure error_tag " << error_tag << LL_ENDL;
 
 	// We might have a localized string for this message
 	// error_args will usually be empty from the server.

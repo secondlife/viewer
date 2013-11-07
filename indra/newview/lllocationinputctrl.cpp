@@ -384,7 +384,7 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	mLocationContextMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_navbar.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	if (!mLocationContextMenu)
 	{
-		llwarns << "Error loading navigation bar context menu" << llendl;
+		LL_WARNS() << "Error loading navigation bar context menu" << LL_ENDL;
 		
 	}
 	getTextEntry()->setRightMouseUpCallback(boost::bind(&LLLocationInputCtrl::onTextEditorRightClicked,this,_2,_3,_4));
@@ -777,7 +777,7 @@ void LLLocationInputCtrl::refreshLocation()
 	    (mTextEntry && mTextEntry->hasFocus()) ||
 	    (mAddLandmarkBtn->hasFocus()))
 	{
-		llwarns << "Location input should not be refreshed when having focus" << llendl;
+		LL_WARNS() << "Location input should not be refreshed when having focus" << LL_ENDL;
 		return;
 	}
 

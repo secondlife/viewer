@@ -47,11 +47,11 @@ LLPersistentNotificationStorage::~LLPersistentNotificationStorage()
 {
 }
 
-static LLFastTimer::DeclareTimer FTM_SAVE_NOTIFICATIONS("Save Notifications");
+static LLTrace::BlockTimerStatHandle FTM_SAVE_NOTIFICATIONS("Save Notifications");
 
 void LLPersistentNotificationStorage::saveNotifications()
 {
-	LLFastTimer _(FTM_SAVE_NOTIFICATIONS);
+	LL_RECORD_BLOCK_TIME(FTM_SAVE_NOTIFICATIONS);
 
 	boost::intrusive_ptr<LLPersistentNotificationChannel> history_channel = boost::dynamic_pointer_cast<LLPersistentNotificationChannel>(LLNotifications::instance().getChannel("Persistent"));
 	if (!history_channel)
@@ -82,11 +82,11 @@ void LLPersistentNotificationStorage::saveNotifications()
 	writeNotifications(output);
 }
 
-static LLFastTimer::DeclareTimer FTM_LOAD_NOTIFICATIONS("Load Notifications");
+static LLTrace::BlockTimerStatHandle FTM_LOAD_NOTIFICATIONS("Load Notifications");
 
 void LLPersistentNotificationStorage::loadNotifications()
 {
-	LLFastTimer _(FTM_LOAD_NOTIFICATIONS);
+	LL_RECORD_BLOCK_TIME(FTM_LOAD_NOTIFICATIONS);
 
 	LL_INFOS("LLPersistentNotificationStorage") << "start loading notifications" << LL_ENDL;
 

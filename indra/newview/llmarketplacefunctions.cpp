@@ -132,11 +132,11 @@ namespace LLMarketplaceImport
 
 			if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 			{
-				llinfos << " SLM POST status: " << status << llendl;
-				llinfos << " SLM POST reason: " << reason << llendl;
-				llinfos << " SLM POST content: " << content.asString() << llendl;
+				LL_INFOS() << " SLM POST status: " << status << LL_ENDL;
+				LL_INFOS() << " SLM POST reason: " << reason << LL_ENDL;
+				LL_INFOS() << " SLM POST content: " << content.asString() << LL_ENDL;
 
-				llinfos << " SLM POST timer: " << slmPostTimer.getElapsedTimeF32() << llendl;
+				LL_INFOS() << " SLM POST timer: " << slmPostTimer.getElapsedTimeF32() << LL_ENDL;
 			}
 
 			if ((status == MarketplaceErrorCodes::IMPORT_REDIRECT) ||
@@ -145,7 +145,7 @@ namespace LLMarketplaceImport
 			{
 				if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 				{
-					llinfos << " SLM POST clearing marketplace cookie due to authentication failure or timeout" << llendl;
+					LL_INFOS() << " SLM POST clearing marketplace cookie due to authentication failure or timeout" << LL_ENDL;
 				}
 
 				sMarketplaceCookie.clear();
@@ -179,11 +179,11 @@ namespace LLMarketplaceImport
 
 			if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 			{
-				llinfos << " SLM GET status: " << status << llendl;
-				llinfos << " SLM GET reason: " << reason << llendl;
-				llinfos << " SLM GET content: " << content.asString() << llendl;
+				LL_INFOS() << " SLM GET status: " << status << LL_ENDL;
+				LL_INFOS() << " SLM GET reason: " << reason << LL_ENDL;
+				LL_INFOS() << " SLM GET content: " << content.asString() << LL_ENDL;
 
-				llinfos << " SLM GET timer: " << slmGetTimer.getElapsedTimeF32() << llendl;
+				LL_INFOS() << " SLM GET timer: " << slmGetTimer.getElapsedTimeF32() << LL_ENDL;
 			}
 			
 			if ((status == MarketplaceErrorCodes::IMPORT_AUTHENTICATION_ERROR) ||
@@ -191,7 +191,7 @@ namespace LLMarketplaceImport
 			{
 				if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 				{
-					llinfos << " SLM GET clearing marketplace cookie due to authentication failure or timeout" << llendl;
+					LL_INFOS() << " SLM GET clearing marketplace cookie due to authentication failure or timeout" << LL_ENDL;
 				}
 
 				sMarketplaceCookie.clear();
@@ -256,7 +256,7 @@ namespace LLMarketplaceImport
 		
 		if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 		{
-			llinfos << " SLM GET: " << url << llendl;
+			LL_INFOS() << " SLM GET: " << url << LL_ENDL;
 		}
 
 		slmGetTimer.start();
@@ -287,7 +287,7 @@ namespace LLMarketplaceImport
 		
 		if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 		{
-			llinfos << " SLM GET: " << url << llendl;
+			LL_INFOS() << " SLM GET: " << url << LL_ENDL;
 		}
 
 		slmGetTimer.start();
@@ -321,7 +321,7 @@ namespace LLMarketplaceImport
 		
 		if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 		{
-			llinfos << " SLM POST: " << url << llendl;
+			LL_INFOS() << " SLM POST: " << url << LL_ENDL;
 		}
 
 		slmPostTimer.start();

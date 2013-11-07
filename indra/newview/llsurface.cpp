@@ -34,7 +34,7 @@
 #include "llpatchvertexarray.h"
 #include "patch_dct.h"
 #include "patch_code.h"
-#include "bitpack.h"
+#include "llbitpack.h"
 #include "llviewerobjectlist.h"
 #include "llregionhandle.h"
 #include "llagent.h"
@@ -123,7 +123,7 @@ LLSurface::~LLSurface()
 	LLDrawPoolTerrain *poolp = (LLDrawPoolTerrain*) gPipeline.findPool(LLDrawPool::POOL_TERRAIN, mSTexturep);
 	if (!poolp)
 	{
-		llwarns << "No pool for terrain on destruction!" << llendl;
+		LL_WARNS() << "No pool for terrain on destruction!" << LL_ENDL;
 	}
 	else if (poolp->mReferences.empty())
 	{
@@ -140,7 +140,7 @@ LLSurface::~LLSurface()
 	}
 	else
 	{
-		llerrs << "Terrain pool not empty!" << llendl;
+		LL_ERRS() << "Terrain pool not empty!" << LL_ENDL;
 	}
 }
 
@@ -709,7 +709,7 @@ void LLSurface::decompressDCTPatch(LLBitPack &bitpack, LLGroupHeader *gopp, BOOL
 
 		if ((i >= mPatchesPerEdge) || (j >= mPatchesPerEdge))
 		{
-			llwarns << "Received invalid terrain packet - patch header patch ID incorrect!" 
+			LL_WARNS() << "Received invalid terrain packet - patch header patch ID incorrect!" 
 				<< " patches per edge " << mPatchesPerEdge
 				<< " i " << i
 				<< " j " << j
@@ -717,7 +717,7 @@ void LLSurface::decompressDCTPatch(LLBitPack &bitpack, LLGroupHeader *gopp, BOOL
 				<< " range " << (S32)ph.range
 				<< " quant_wbits " << (S32)ph.quant_wbits
 				<< " patchids " << (S32)ph.patchids
-				<< llendl;
+				<< LL_ENDL;
             LLAppViewer::instance()->badNetworkHandler();
 			return;
 		}
@@ -955,13 +955,13 @@ LLSurfacePatch *LLSurface::resolvePatchRegion(const F32 x, const F32 y) const
 	{
 		if(0 == mNumberOfPatches)
 		{
-			llwarns << "No patches for current region!" << llendl;
+			LL_WARNS() << "No patches for current region!" << LL_ENDL;
 			return NULL;
 		}
 		S32 old_index = index;
 		index = llclamp(old_index, 0, (mNumberOfPatches - 1));
-		llwarns << "Clamping out of range patch index " << old_index
-				<< " to " << index << llendl;
+		LL_WARNS() << "Clamping out of range patch index " << old_index
+				<< " to " << index << LL_ENDL;
 	}
 	return &(mPatchList[index]);
 }
@@ -1150,12 +1150,12 @@ LLSurfacePatch *LLSurface::getPatch(const S32 x, const S32 y) const
 {
 	if ((x < 0) || (x >= mPatchesPerEdge))
 	{
-		llerrs << "Asking for patch out of bounds" << llendl;
+		LL_ERRS() << "Asking for patch out of bounds" << LL_ENDL;
 		return NULL;
 	}
 	if ((y < 0) || (y >= mPatchesPerEdge))
 	{
-		llerrs << "Asking for patch out of bounds" << llendl;
+		LL_ERRS() << "Asking for patch out of bounds" << LL_ENDL;
 		return NULL;
 	}
 
@@ -1194,7 +1194,7 @@ void LLSurface::setWaterHeight(F32 height)
 	}
 	else
 	{
-		llwarns << "LLSurface::setWaterHeight with no water object!" << llendl;
+		LL_WARNS() << "LLSurface::setWaterHeight with no water object!" << LL_ENDL;
 	}
 }
 

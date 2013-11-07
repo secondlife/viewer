@@ -82,10 +82,10 @@ LLVector3 LLLine::nearestApproach( const LLLine& other_line ) const
 	if ( one_minus_dir_dot_dir < SOME_VERY_SMALL_NUMBER )
 	{
 #ifdef LL_DEBUG
-		llwarns << "LLLine::nearestApproach() was given two very "
+		LL_WARNS() << "LLLine::nearestApproach() was given two very "
 			<< "nearly parallel lines dir1 = " << mDirection 
 			<< " dir2 = " << other_line.mDirection << " with 1-dot_product = " 
-			<< one_minus_dir_dot_dir << llendl;
+			<< one_minus_dir_dot_dir << LL_ENDL;
 #endif
 		// the lines are approximately parallel
 		// We shouldn't fall in here because this check should have been made

@@ -495,7 +495,7 @@ BOOL LLFolderViewItem::handleMouseDown( S32 x, S32 y, MASK mask )
 	// No handler needed for focus lost since this class has no
 	// state that depends on it.
 	gFocusMgr.setMouseCapture( this );
-    
+
 	if (!mIsSelected)
 	{
 		if(mask & MASK_CONTROL)
@@ -642,7 +642,7 @@ BOOL LLFolderViewItem::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	}
 	if (handled)
 	{
-		lldebugst(LLERR_USER_INPUT) << "dragAndDrop handled by LLFolderViewItem" << llendl;
+		LL_DEBUGS("UserInput") << "dragAndDrop handled by LLFolderViewItem" << LL_ENDL;
 	}
 
 	return handled;
@@ -712,7 +712,7 @@ void LLFolderViewItem::drawHighlight(const BOOL showContent, const BOOL hasKeybo
                 bg_color.mV[VALPHA] = clamp_rescale(fade_time, 0.f, 0.4f, 0.f, bg_color.mV[VALPHA]);
             }
         	gl_rect_2d(FOCUS_LEFT,
-					   focus_top,
+					   focus_top, 
 					   getRect().getWidth() - 2,
 					   focus_bottom,
 					   bg_color, hasKeyboardFocus);
@@ -866,7 +866,7 @@ void LLFolderViewItem::draw()
 						  LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
 						  S32_MAX, S32_MAX, &right_x, FALSE );
 	}
-    
+
 	//--------------------------------------------------------------------------------//
 	// Highlight string match
 	//
@@ -888,7 +888,7 @@ const LLFolderViewModelInterface* LLFolderViewItem::getFolderViewModel( void ) c
 {
 	return getRoot()->getFolderViewModel();
 }
-
+		
 LLFolderViewModelInterface* LLFolderViewItem::getFolderViewModel( void )
 {
 	return getRoot()->getFolderViewModel();
@@ -925,11 +925,11 @@ void LLFolderViewFolder::updateLabelRotation()
 	}
 	else if (isOpen())
 	{
-		mControlLabelRotation = lerp(mControlLabelRotation, -90.f, LLCriticalDamp::getInterpolant(0.04f));
+		mControlLabelRotation = lerp(mControlLabelRotation, -90.f, LLSmoothInterpolation::getInterpolant(0.04f));
 	}
 	else
 	{
-		mControlLabelRotation = lerp(mControlLabelRotation, 0.f, LLCriticalDamp::getInterpolant(0.025f));
+		mControlLabelRotation = lerp(mControlLabelRotation, 0.f, LLSmoothInterpolation::getInterpolant(0.025f));
 	}
 }
 
@@ -952,7 +952,7 @@ void LLFolderViewFolder::addToFolder(LLFolderViewFolder* folder)
 		: 0; 
 }
 
-static LLFastTimer::DeclareTimer FTM_ARRANGE("Arrange");
+static LLTrace::BlockTimerStatHandle FTM_ARRANGE("Arrange");
 
 // Make everything right and in the right place ready for drawing (CHUI-849)
 // * Sort everything correctly if necessary
@@ -967,7 +967,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
     // Note that we sort from the root (CHUI-849)
 	getRoot()->getFolderViewModel()->sort(this);
 
-	LLFastTimer t2(FTM_ARRANGE);
+	LL_RECORD_BLOCK_TIME(FTM_ARRANGE);
 
 	// evaluate mHasVisibleChildren
 	mHasVisibleChildren = false;
@@ -1073,7 +1073,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 	// animate current height towards target height
 	if (llabs(mCurHeight - mTargetHeight) > 1.f)
 	{
-		mCurHeight = lerp(mCurHeight, mTargetHeight, LLCriticalDamp::getInterpolant(isOpen() ? FOLDER_OPEN_TIME_CONSTANT : FOLDER_CLOSE_TIME_CONSTANT));
+		mCurHeight = lerp(mCurHeight, mTargetHeight, LLSmoothInterpolation::getInterpolant(isOpen() ? FOLDER_OPEN_TIME_CONSTANT : FOLDER_CLOSE_TIME_CONSTANT));
 
 		requestArrange();
 
@@ -1594,7 +1594,7 @@ void LLFolderViewFolder::addItem(LLFolderViewItem* item)
 	item->setVisible(FALSE);
 	
 	addChild(item);
-
+	
 	// When the model is already hooked into a hierarchy (i.e. has a parent), do not reparent it
 	// Note: this happens when models are created before views or shared between views
 	if (!item->getViewModelItem()->hasParent())
@@ -1767,7 +1767,7 @@ BOOL LLFolderViewFolder::handleDragAndDrop(S32 x, S32 y, MASK mask,
 	{
 		handleDragAndDropToThisFolder(mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
 
-		lldebugst(LLERR_USER_INPUT) << "dragAndDrop handled by LLFolderViewFolder" << llendl;
+		LL_DEBUGS("UserInput") << "dragAndDrop handled by LLFolderViewFolder" << LL_ENDL;
 	}
 
 	return TRUE;

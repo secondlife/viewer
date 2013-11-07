@@ -38,6 +38,7 @@ include_directories(SYSTEM
     )
 
 set(llwindow_SOURCE_FILES
+    llcursortypes.cpp
     llkeyboard.cpp
     llkeyboardheadless.cpp
     llwindowheadless.cpp
@@ -48,6 +49,7 @@ set(llwindow_SOURCE_FILES
 set(llwindow_HEADER_FILES
     CMakeLists.txt
 
+    llcursortypes.h
     llkeyboard.h
     llkeyboardheadless.h
     llwindowheadless.h

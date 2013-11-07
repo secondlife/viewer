@@ -52,13 +52,13 @@ LLDataPacker::LLDataPacker() : mPassFlags(0), mWriteEnabled(FALSE)
 //virtual
 void LLDataPacker::reset()
 {
-	llerrs << "Using unimplemented datapacker reset!" << llendl;
+	LL_ERRS() << "Using unimplemented datapacker reset!" << LL_ENDL;
 }
 
 //virtual
 void LLDataPacker::dumpBufferToLog()
 {
-	llerrs << "dumpBufferToLog not implemented for this type!" << llendl;
+	LL_ERRS() << "dumpBufferToLog not implemented for this type!" << LL_ENDL;
 }
 
 BOOL LLDataPacker::packFixed(const F32 value, const char *name,
@@ -108,7 +108,7 @@ BOOL LLDataPacker::packFixed(const F32 value, const char *name,
 	}
 	else
 	{
-		llerrs << "Using fixed-point packing of " << total_bits << " bits, why?!" << llendl;
+		LL_ERRS() << "Using fixed-point packing of " << total_bits << " bits, why?!" << LL_ENDL;
 	}
 	return success;
 }
@@ -117,7 +117,7 @@ BOOL LLDataPacker::unpackFixed(F32 &value, const char *name,
 							   const BOOL is_signed, const U32 int_bits, const U32 frac_bits)
 {
 	//BOOL success = TRUE;
-	//llinfos << "unpackFixed:" << name << " int:" << int_bits << " frac:" << frac_bits << llendl;
+	//LL_INFOS() << "unpackFixed:" << name << " int:" << int_bits << " frac:" << frac_bits << LL_ENDL;
 	BOOL ok = FALSE;
 	S32 unsigned_bits = int_bits + frac_bits;
 	S32 total_bits = unsigned_bits;
@@ -158,10 +158,10 @@ BOOL LLDataPacker::unpackFixed(F32 &value, const char *name,
 	else
 	{
 		fixed_val = 0;
-		llerrs << "Bad bit count: " << total_bits << llendl;
+		LL_ERRS() << "Bad bit count: " << total_bits << LL_ENDL;
 	}
 
-	//llinfos << "Fixed_val:" << fixed_val << llendl;
+	//LL_INFOS() << "Fixed_val:" << fixed_val << LL_ENDL;
 
 	fixed_val /= (F32)(1 << frac_bits);
 	if (is_signed)
@@ -169,7 +169,7 @@ BOOL LLDataPacker::unpackFixed(F32 &value, const char *name,
 		fixed_val -= max_val;
 	}
 	value = fixed_val;
-	//llinfos << "Value: " << value << llendl;
+	//LL_INFOS() << "Value: " << value << LL_ENDL;
 	return ok;
 }
 
@@ -239,7 +239,7 @@ BOOL LLDataPackerBinaryBuffer::unpackBinaryData(U8 *value, S32 &size, const char
 	}
 	else
 	{
-		llwarns << "LLDataPackerBinaryBuffer::unpackBinaryData would unpack invalid data, aborting!" << llendl;
+		LL_WARNS() << "LLDataPackerBinaryBuffer::unpackBinaryData would unpack invalid data, aborting!" << LL_ENDL;
 		success = FALSE;
 	}
 	return success;
@@ -550,7 +550,7 @@ const LLDataPackerBinaryBuffer&	LLDataPackerBinaryBuffer::operator=(const LLData
 	if (a.getBufferSize() > getBufferSize())
 	{
 		// We've got problems, ack!
-		llerrs << "Trying to do an assignment with not enough room in the target." << llendl;
+		LL_ERRS() << "Trying to do an assignment with not enough room in the target." << LL_ENDL;
 	}
 	memcpy(mBufferp, a.mBufferp, a.getBufferSize());	/*Flawfinder: ignore*/
 	return *this;
@@ -558,7 +558,7 @@ const LLDataPackerBinaryBuffer&	LLDataPackerBinaryBuffer::operator=(const LLData
 
 void LLDataPackerBinaryBuffer::dumpBufferToLog()
 {
-	llwarns << "Binary Buffer Dump, size: " << mBufferSize << llendl;
+	LL_WARNS() << "Binary Buffer Dump, size: " << mBufferSize << LL_ENDL;
 	char line_buffer[256]; /*Flawfinder: ignore*/
 	S32 i;
 	S32 cur_line_pos = 0;
@@ -571,13 +571,13 @@ void LLDataPackerBinaryBuffer::dumpBufferToLog()
 		if (cur_line_pos >= 16)
 		{
 			cur_line_pos = 0;
-			llwarns << "Offset:" << std::hex << cur_line*16 << std::dec << " Data:" << line_buffer << llendl;
+			LL_WARNS() << "Offset:" << std::hex << cur_line*16 << std::dec << " Data:" << line_buffer << LL_ENDL;
 			cur_line++;
 		}
 	}
 	if (cur_line_pos)
 	{
-		llwarns << "Offset:" << std::hex << cur_line*16 << std::dec << " Data:" << line_buffer << llendl;
+		LL_WARNS() << "Offset:" << std::hex << cur_line*16 << std::dec << " Data:" << line_buffer << LL_ENDL;
 	}
 }
 
@@ -608,7 +608,7 @@ BOOL LLDataPackerAsciiBuffer::packString(const std::string& value, const char *n
 	{
 		// *NOTE: I believe we need to mark a failure bit at this point.
 	    numCopied = getBufferSize()-getCurrentSize();
-		llwarns << "LLDataPackerAsciiBuffer::packString: string truncated: " << value << llendl;
+		LL_WARNS() << "LLDataPackerAsciiBuffer::packString: string truncated: " << value << LL_ENDL;
 	}
 	mCurBufferp += numCopied;
 	return success;
@@ -647,7 +647,7 @@ BOOL LLDataPackerAsciiBuffer::packBinaryData(const U8 *value, S32 size, const ch
 		if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 		{
 			numCopied = getBufferSize()-getCurrentSize();
-			llwarns << "LLDataPackerAsciiBuffer::packBinaryData: number truncated: " << size << llendl;
+			LL_WARNS() << "LLDataPackerAsciiBuffer::packBinaryData: number truncated: " << size << LL_ENDL;
 		}
 		mCurBufferp += numCopied;
 
@@ -660,7 +660,7 @@ BOOL LLDataPackerAsciiBuffer::packBinaryData(const U8 *value, S32 size, const ch
 			if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 			{
 				numCopied = getBufferSize()-getCurrentSize();
-				llwarns << "LLDataPackerAsciiBuffer::packBinaryData: data truncated: " << llendl;
+				LL_WARNS() << "LLDataPackerAsciiBuffer::packBinaryData: data truncated: " << LL_ENDL;
 				bBufferFull = TRUE;
 			}
 			mCurBufferp += numCopied;
@@ -672,7 +672,7 @@ BOOL LLDataPackerAsciiBuffer::packBinaryData(const U8 *value, S32 size, const ch
 			if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 		    	{
 				numCopied = getBufferSize()-getCurrentSize();
-				llwarns << "LLDataPackerAsciiBuffer::packBinaryData: newline truncated: " << llendl;
+				LL_WARNS() << "LLDataPackerAsciiBuffer::packBinaryData: newline truncated: " << LL_ENDL;
 		    	}
 		    	mCurBufferp += numCopied;
 		}
@@ -734,7 +734,7 @@ BOOL LLDataPackerAsciiBuffer::packBinaryDataFixed(const U8 *value, S32 size, con
 			if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 			{
 			    numCopied = getBufferSize()-getCurrentSize();
-				llwarns << "LLDataPackerAsciiBuffer::packBinaryDataFixed: data truncated: " << llendl;
+				LL_WARNS() << "LLDataPackerAsciiBuffer::packBinaryDataFixed: data truncated: " << LL_ENDL;
 			    bBufferFull = TRUE;
 			}
 			mCurBufferp += numCopied;
@@ -746,7 +746,7 @@ BOOL LLDataPackerAsciiBuffer::packBinaryDataFixed(const U8 *value, S32 size, con
 			if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 			{
 				numCopied = getBufferSize()-getCurrentSize();
-				llwarns << "LLDataPackerAsciiBuffer::packBinaryDataFixed: newline truncated: " << llendl;
+				LL_WARNS() << "LLDataPackerAsciiBuffer::packBinaryDataFixed: newline truncated: " << LL_ENDL;
 			}
 			
 			mCurBufferp += numCopied;
@@ -813,7 +813,7 @@ BOOL LLDataPackerAsciiBuffer::packU8(const U8 value, const char *name)
 	if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 	{
 		numCopied = getBufferSize()-getCurrentSize();
-		llwarns << "LLDataPackerAsciiBuffer::packU8: val truncated: " << llendl;
+		LL_WARNS() << "LLDataPackerAsciiBuffer::packU8: val truncated: " << LL_ENDL;
 	}
 
 	mCurBufferp += numCopied;
@@ -860,7 +860,7 @@ BOOL LLDataPackerAsciiBuffer::packU16(const U16 value, const char *name)
 	if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 	{
 		numCopied = getBufferSize()-getCurrentSize();
-		llwarns << "LLDataPackerAsciiBuffer::packU16: val truncated: " << llendl;
+		LL_WARNS() << "LLDataPackerAsciiBuffer::packU16: val truncated: " << LL_ENDL;
 	}
 
 	mCurBufferp += numCopied;
@@ -907,7 +907,7 @@ BOOL LLDataPackerAsciiBuffer::packU32(const U32 value, const char *name)
 	if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 	{
 		numCopied = getBufferSize()-getCurrentSize();
-		llwarns << "LLDataPackerAsciiBuffer::packU32: val truncated: " << llendl;
+		LL_WARNS() << "LLDataPackerAsciiBuffer::packU32: val truncated: " << LL_ENDL;
 	}
 
 	mCurBufferp += numCopied;
@@ -951,7 +951,7 @@ BOOL LLDataPackerAsciiBuffer::packS32(const S32 value, const char *name)
 	if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 	{
 		numCopied = getBufferSize()-getCurrentSize();
-		llwarns << "LLDataPackerAsciiBuffer::packS32: val truncated: " << llendl;
+		LL_WARNS() << "LLDataPackerAsciiBuffer::packS32: val truncated: " << LL_ENDL;
 	}
 
 	mCurBufferp += numCopied;
@@ -995,7 +995,7 @@ BOOL LLDataPackerAsciiBuffer::packF32(const F32 value, const char *name)
 	if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 	{
 		numCopied = getBufferSize()-getCurrentSize();
-		llwarns << "LLDataPackerAsciiBuffer::packF32: val truncated: " << llendl;
+		LL_WARNS() << "LLDataPackerAsciiBuffer::packF32: val truncated: " << LL_ENDL;
 	}
 
 	mCurBufferp += numCopied;
@@ -1039,7 +1039,7 @@ BOOL LLDataPackerAsciiBuffer::packColor4(const LLColor4 &value, const char *name
 	if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 	{
 		numCopied = getBufferSize()-getCurrentSize();
-		llwarns << "LLDataPackerAsciiBuffer::packColor4: truncated: " << llendl;
+		LL_WARNS() << "LLDataPackerAsciiBuffer::packColor4: truncated: " << LL_ENDL;
 	}
 
 	mCurBufferp += numCopied;
@@ -1082,7 +1082,7 @@ BOOL LLDataPackerAsciiBuffer::packColor4U(const LLColor4U &value, const char *na
 	if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 	{
 		numCopied = getBufferSize()-getCurrentSize();
-		llwarns << "LLDataPackerAsciiBuffer::packColor4U: truncated: " << llendl;
+		LL_WARNS() << "LLDataPackerAsciiBuffer::packColor4U: truncated: " << LL_ENDL;
 	}
 
 	mCurBufferp += numCopied;
@@ -1132,7 +1132,7 @@ BOOL LLDataPackerAsciiBuffer::packVector2(const LLVector2 &value, const char *na
 	if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 	{
 		numCopied = getBufferSize()-getCurrentSize();
-		llwarns << "LLDataPackerAsciiBuffer::packVector2: truncated: " << llendl;
+		LL_WARNS() << "LLDataPackerAsciiBuffer::packVector2: truncated: " << LL_ENDL;
 	}
 
 	mCurBufferp += numCopied;
@@ -1176,7 +1176,7 @@ BOOL LLDataPackerAsciiBuffer::packVector3(const LLVector3 &value, const char *na
 	if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 	{
 	    numCopied = getBufferSize()-getCurrentSize();
-		llwarns << "LLDataPackerAsciiBuffer::packVector3: truncated: " << llendl;
+		LL_WARNS() << "LLDataPackerAsciiBuffer::packVector3: truncated: " << LL_ENDL;
 	}
 
 	mCurBufferp += numCopied;
@@ -1219,7 +1219,7 @@ BOOL LLDataPackerAsciiBuffer::packVector4(const LLVector4 &value, const char *na
 	if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 	{
 	    numCopied = getBufferSize()-getCurrentSize();
-		llwarns << "LLDataPackerAsciiBuffer::packVector4: truncated: " << llendl;
+		LL_WARNS() << "LLDataPackerAsciiBuffer::packVector4: truncated: " << LL_ENDL;
 	}
 
 	mCurBufferp += numCopied;
@@ -1266,7 +1266,7 @@ BOOL LLDataPackerAsciiBuffer::packUUID(const LLUUID &value, const char *name)
 	if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 	{
 	    numCopied = getBufferSize()-getCurrentSize();
-		llwarns << "LLDataPackerAsciiBuffer::packUUID: truncated: " << llendl;
+		LL_WARNS() << "LLDataPackerAsciiBuffer::packUUID: truncated: " << LL_ENDL;
 		success = FALSE;
 	}
 	mCurBufferp += numCopied;
@@ -1292,7 +1292,7 @@ BOOL LLDataPackerAsciiBuffer::unpackUUID(LLUUID &value, const char *name)
 
 void LLDataPackerAsciiBuffer::dump()
 {
-	llinfos << "Buffer: " << mBufferp << llendl;
+	LL_INFOS() << "Buffer: " << mBufferp << LL_ENDL;
 }
 
 void LLDataPackerAsciiBuffer::writeIndentedName(const char *name)
@@ -1318,7 +1318,7 @@ void LLDataPackerAsciiBuffer::writeIndentedName(const char *name)
 		if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 		{
 			numCopied = getBufferSize()-getCurrentSize();
-			llwarns << "LLDataPackerAsciiBuffer::writeIndentedName: truncated: " << llendl;
+			LL_WARNS() << "LLDataPackerAsciiBuffer::writeIndentedName: truncated: " << LL_ENDL;
 		}
 
 		mCurBufferp += numCopied;
@@ -1347,7 +1347,7 @@ BOOL LLDataPackerAsciiBuffer::getValueStr(const char *name, char *out_value, S32
 
 		if (strcmp(keyword, name))
 		{
-			llwarns << "Data packer expecting keyword of type " << name << ", got " << keyword << " instead!" << llendl;
+			LL_WARNS() << "Data packer expecting keyword of type " << name << ", got " << keyword << " instead!" << LL_ENDL;
 			return FALSE;
 		}
 	}
@@ -1904,7 +1904,7 @@ BOOL LLDataPackerAsciiFile::getValueStr(const char *name, char *out_value, S32 v
 		fpos_t last_pos;
 		if (0 != fgetpos(mFP, &last_pos)) // 0==success for fgetpos
 		{
-			llwarns << "Data packer failed to fgetpos" << llendl;
+			LL_WARNS() << "Data packer failed to fgetpos" << LL_ENDL;
 			return FALSE;
 		}
 
@@ -1917,13 +1917,13 @@ BOOL LLDataPackerAsciiFile::getValueStr(const char *name, char *out_value, S32 v
 	
 		if (!keyword[0])
 		{
-			llwarns << "Data packer could not get the keyword!" << llendl;
+			LL_WARNS() << "Data packer could not get the keyword!" << LL_ENDL;
 			fsetpos(mFP, &last_pos);
 			return FALSE;
 		}
 		if (strcmp(keyword, name))
 		{
-			llwarns << "Data packer expecting keyword of type " << name << ", got " << keyword << " instead!" << llendl;
+			LL_WARNS() << "Data packer expecting keyword of type " << name << ", got " << keyword << " instead!" << LL_ENDL;
 			fsetpos(mFP, &last_pos);
 			return FALSE;
 		}
@@ -1941,12 +1941,12 @@ BOOL LLDataPackerAsciiFile::getValueStr(const char *name, char *out_value, S32 v
 		sscanf(buffer, "%511s %511[^\n]", keyword, value);	/* Flawfinder: ignore */
 		if (!keyword[0])
 		{
-			llwarns << "Data packer could not get the keyword!" << llendl;
+			LL_WARNS() << "Data packer could not get the keyword!" << LL_ENDL;
 			return FALSE;
 		}
 		if (strcmp(keyword, name))
 		{
-			llwarns << "Data packer expecting keyword of type " << name << ", got " << keyword << " instead!" << llendl;
+			LL_WARNS() << "Data packer expecting keyword of type " << name << ", got " << keyword << " instead!" << LL_ENDL;
 			return FALSE;
 		}
 

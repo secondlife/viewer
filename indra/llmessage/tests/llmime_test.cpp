@@ -83,8 +83,8 @@ namespace tut
 		headers["Content-Length"] = MULTI_CONTENT_LENGTH;
 		headers["Content-Type"] = MULTI_CONTENT_TYPE;
 		LLMimeIndex mime(headers, MULTI_CONTENT_OFFSET);
-		llinfos << "headers: " << LLSDOStreamer<LLSDNotationFormatter>(headers)
-			<< llendl;
+		LL_INFOS() << "headers: " << LLSDOStreamer<LLSDNotationFormatter>(headers)
+			<< LL_ENDL;
 
 
 		const S32 META_CONTENT_LENGTH = 700;

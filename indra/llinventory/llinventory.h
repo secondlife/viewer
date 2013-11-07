@@ -27,7 +27,6 @@
 #ifndef LL_LLINVENTORY_H
 #define LL_LLINVENTORY_H
 
-#include "lldarray.h"
 #include "llfoldertype.h"
 #include "llinventorytype.h"
 #include "llpermissions.h"
@@ -35,6 +34,7 @@
 #include "llsaleinfo.h"
 #include "llsd.h"
 #include "lluuid.h"
+#include "lltrace.h"
 
 class LLMessageSystem;
 
@@ -44,7 +44,7 @@ class LLMessageSystem;
 //   Base class for anything in the user's inventory.   Handles the common code 
 //   between items and categories. 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-class LLInventoryObject : public LLRefCount
+class LLInventoryObject : public LLRefCount, public LLTrace::MemTrackable<LLInventoryObject>
 {
 public:
 	typedef std::list<LLPointer<LLInventoryObject> > object_list_t;
@@ -124,7 +124,7 @@ protected:
 class LLInventoryItem : public LLInventoryObject
 {
 public:
-	typedef LLDynamicArray<LLPointer<LLInventoryItem> > item_array_t;
+	typedef std::vector<LLPointer<LLInventoryItem> > item_array_t;
 
 	//--------------------------------------------------------------------
 	// Initialization
@@ -235,7 +235,7 @@ protected:
 class LLInventoryCategory : public LLInventoryObject
 {
 public:
-	typedef LLDynamicArray<LLPointer<LLInventoryCategory> > cat_array_t;
+	typedef std::vector<LLPointer<LLInventoryCategory> > cat_array_t;
 
 	//--------------------------------------------------------------------
 	// Initialization

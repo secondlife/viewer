@@ -159,7 +159,7 @@ void LLViewerParcelMedia::update(LLParcel* parcel)
 // static
 void LLViewerParcelMedia::play(LLParcel* parcel)
 {
-	lldebugs << "LLViewerParcelMedia::play" << llendl;
+	LL_DEBUGS() << "LLViewerParcelMedia::play" << LL_ENDL;
 
 	if (!parcel) return;
 
@@ -471,7 +471,7 @@ void LLViewerParcelMedia::sendMediaNavigateMessage(const std::string& url)
 	}
 	else
 	{
-		llwarns << "can't get ParcelNavigateMedia capability" << llendl;
+		LL_WARNS() << "can't get ParcelNavigateMedia capability" << LL_ENDL;
 	}
 
 }

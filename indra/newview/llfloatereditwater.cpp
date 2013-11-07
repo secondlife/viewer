@@ -546,7 +546,7 @@ void LLFloaterEditWater::saveRegionWater()
 {
 	llassert(getCurrentScope() == LLEnvKey::SCOPE_REGION); // make sure we're editing region water
 
-	LL_DEBUGS("Windlight") << "Saving region water preset" << llendl;
+	LL_DEBUGS("Windlight") << "Saving region water preset" << LL_ENDL;
 
 	//LLWaterParamSet region_water = water_mgr.mCurParams;
 
@@ -665,7 +665,7 @@ void LLFloaterEditWater::onSaveConfirmed()
 	// Change preference if requested.
 	if (mMakeDefaultCheckBox->getEnabled() && mMakeDefaultCheckBox->getValue())
 	{
-		LL_DEBUGS("Windlight") << name << " is now the new preferred water preset" << llendl;
+		LL_DEBUGS("Windlight") << name << " is now the new preferred water preset" << LL_ENDL;
 		LLEnvManagerNew::instance().setUseWaterPreset(name);
 	}
 
@@ -688,7 +688,7 @@ void LLFloaterEditWater::onBtnSave()
 	if (name.empty())
 	{
 		// *TODO: show an alert
-		llwarns << "Empty water preset name" << llendl;
+		LL_WARNS() << "Empty water preset name" << LL_ENDL;
 		return;
 	}
 

@@ -89,7 +89,7 @@ BOOL LLDriverParamInfo::parseXml(LLXmlTreeNode* node)
 		}
 		else
 		{
-			llerrs << "<driven> Unable to resolve driven parameter: " << driven_id << llendl;
+			LL_ERRS() << "<driven> Unable to resolve driven parameter: " << driven_id << LL_ENDL;
 			return FALSE;
 		}
 	}
@@ -139,9 +139,9 @@ void LLDriverParamInfo::toStream(std::ostream &out)
 			}
 			else
 			{
-				llwarns << "could not get parameter " << driven.mDrivenID << " from avatar " 
+				LL_WARNS() << "could not get parameter " << driven.mDrivenID << " from avatar " 
 						<< mDriverParam->getAvatarAppearance() 
-						<< " for driver parameter " << getID() << llendl;
+						<< " for driver parameter " << getID() << LL_ENDL;
 			}
 			out << std::endl;
 		}

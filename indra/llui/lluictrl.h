@@ -220,7 +220,6 @@ public:
 	BOOL	focusNextItem(BOOL text_entry_only);
 	BOOL	focusPrevItem(BOOL text_entry_only);
 	BOOL 	focusFirstItem(BOOL prefer_text_fields = FALSE, BOOL focus_flash = TRUE );
-	BOOL	focusLastItem(BOOL prefer_text_fields = FALSE);
 
 	// Non Virtuals
 	LLHandle<LLUICtrl> getHandle() const { return getDerivedHandle<LLUICtrl>(); }
@@ -315,8 +314,6 @@ private:
 	BOOL			mTentative;
 
 	ETypeTransparency mTransparencyType;
-
-	class DefaultTabGroupFirstSorter;
 };
 
 // Build time optimization, generate once in .cpp file

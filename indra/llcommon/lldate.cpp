@@ -39,6 +39,7 @@
 
 #include "lltimer.h"
 #include "llstring.h"
+#include "llfasttimer.h"
 
 static const F64 DATE_EPOCH = 0.0;
 
@@ -48,25 +49,22 @@ static const F64 LL_APR_USEC_PER_SEC = 1000000.0;
 
 
 LLDate::LLDate() : mSecondsSinceEpoch(DATE_EPOCH)
-{
-}
+{}
 
 LLDate::LLDate(const LLDate& date) :
 	mSecondsSinceEpoch(date.mSecondsSinceEpoch)
-{
-}
+{}
 
-LLDate::LLDate(F64 seconds_since_epoch) :
-	mSecondsSinceEpoch(seconds_since_epoch)
-{
-}
+LLDate::LLDate(F64SecondsImplicit seconds_since_epoch) :
+	mSecondsSinceEpoch(seconds_since_epoch.value())
+{}
 
 LLDate::LLDate(const std::string& iso8601_date)
 {
 	if(!fromString(iso8601_date))
 	{
-		llwarns << "date " << iso8601_date << " failed to parse; "
-			<< "ZEROING IT OUT" << llendl;
+		LL_WARNS() << "date " << iso8601_date << " failed to parse; "
+			<< "ZEROING IT OUT" << LL_ENDL;
 		mSecondsSinceEpoch = DATE_EPOCH;
 	}
 }
@@ -88,11 +86,11 @@ std::string LLDate::asRFC1123() const
 	return toHTTPDateString (std::string ("%A, %d %b %Y %H:%M:%S GMT"));
 }
 
-LLFastTimer::DeclareTimer FT_DATE_FORMAT("Date Format");
+LLTrace::BlockTimerStatHandle FT_DATE_FORMAT("Date Format");
 
 std::string LLDate::toHTTPDateString (std::string fmt) const
 {
-	LLFastTimer ft1(FT_DATE_FORMAT);
+	LL_RECORD_BLOCK_TIME(FT_DATE_FORMAT);
 	
 	time_t locSeconds = (time_t) mSecondsSinceEpoch;
 	struct tm * gmt = gmtime (&locSeconds);
@@ -101,7 +99,7 @@ std::string LLDate::toHTTPDateString (std::string fmt) const
 
 std::string LLDate::toHTTPDateString (tm * gmt, std::string fmt)
 {
-	LLFastTimer ft1(FT_DATE_FORMAT);
+	LL_RECORD_BLOCK_TIME(FT_DATE_FORMAT);
 
 	// avoid calling setlocale() unnecessarily - it's expensive.
 	static std::string prev_locale = "";

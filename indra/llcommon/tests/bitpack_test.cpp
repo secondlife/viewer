@@ -28,7 +28,7 @@
  
 #include "linden_common.h"
 
-#include "../bitpack.h"
+#include "../llbitpack.h"
 
 #include "../test/lltut.h"
 

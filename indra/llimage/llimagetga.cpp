@@ -266,7 +266,7 @@ BOOL LLImageTGA::updateData()
 			mColorMap = new U8[ color_map_bytes ];  
 			if (!mColorMap)
 			{
-				llerrs << "Out of Memory in BOOL LLImageTGA::updateData()" << llendl;
+				LL_ERRS() << "Out of Memory in BOOL LLImageTGA::updateData()" << LL_ENDL;
 				return FALSE;
 			}
 			memcpy( mColorMap, getData() + mDataOffset, color_map_bytes );	/* Flawfinder: ignore */
@@ -1043,7 +1043,7 @@ BOOL LLImageTGA::decodeAndProcess( LLImageRaw* raw_image, F32 domain, F32 weight
 	// Only works for unflipped monochrome RLE images
 	if( (getComponents() != 1) || (mImageType != 11) || mOriginTopBit || mOriginRightBit ) 
 	{
-		llerrs << "LLImageTGA trying to alpha-gradient process an image that's not a standard RLE, one component image" << llendl;
+		LL_ERRS() << "LLImageTGA trying to alpha-gradient process an image that's not a standard RLE, one component image" << LL_ENDL;
 		return FALSE;
 	}
 
@@ -1151,7 +1151,7 @@ bool LLImageTGA::loadFile( const std::string& path )
 	LLFILE* file = LLFile::fopen(path, "rb");	/* Flawfinder: ignore */
 	if( !file )
 	{
-		llwarns << "Couldn't open file " << path << llendl;
+		LL_WARNS() << "Couldn't open file " << path << LL_ENDL;
 		return false;
 	}
 
@@ -1167,7 +1167,7 @@ bool LLImageTGA::loadFile( const std::string& path )
 	if( bytes_read != file_size )
 	{
 		deleteData();
-		llwarns << "Couldn't read file " << path << llendl;
+		LL_WARNS() << "Couldn't read file " << path << LL_ENDL;
 		return false;
 	}
 
@@ -1175,7 +1175,7 @@ bool LLImageTGA::loadFile( const std::string& path )
 
 	if( !updateData() )
 	{
-		llwarns << "Couldn't decode file " << path << llendl;
+		LL_WARNS() << "Couldn't decode file " << path << LL_ENDL;
 		deleteData();
 		return false;
 	}

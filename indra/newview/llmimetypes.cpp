@@ -55,8 +55,8 @@ bool LLMIMETypes::parseMIMETypes(const std::string& xml_filename)
 	bool success = LLUICtrlFactory::getLayeredXMLNode(xml_filename, root);
 	if ( ! success || root.isNull() || ! root->hasName( "mimetypes" ) )
 	{
-		llwarns << "Unable to read MIME type file: "
-			<< xml_filename << llendl;
+		LL_WARNS() << "Unable to read MIME type file: "
+			<< xml_filename << LL_ENDL;
 		return false;
 	}
 
