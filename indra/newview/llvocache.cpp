@@ -752,7 +752,7 @@ void LLVOCachePartition::selectBackObjects(LLCamera &camera, F32 back_sphere_rad
 S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 {
 	static LLCachedControl<bool> use_object_cache_occlusion(gSavedSettings,"UseObjectCacheOcclusion");
-	static LLCachedControl<F32> back_sphere_radius(gSavedSettings,"BackShpereCullingRadius");	
+	static LLCachedControl<F32> back_sphere_radius(gSavedSettings,"BackSphereCullingRadius");	
 	
 	if(!LLViewerRegion::sVOCacheCullingEnabled)
 	{

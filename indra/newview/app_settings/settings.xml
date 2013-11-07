@@ -742,7 +742,7 @@
       <key>Value</key>
       <integer>40</integer>
     </map>
-    <key>BackShpereCullingRadius</key>
+    <key>BackSphereCullingRadius</key>
     <map>
       <key>Comment</key>
       <string>Radius of back sphere in meters, objects behind camera but within this radius are loaded for rendering</string>
@@ -751,7 +751,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>20.0</real>
+      <real>100.0</real>
     </map>
     <key>BottomPanelNew</key>
     <map>
@@ -6456,7 +6456,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>64</integer>
+      <integer>200</integer>
     </map>
     <key>NewObjectCreationThrottleDelayTime</key>
     <map>
@@ -6577,7 +6577,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>64</integer>
+			<integer>300</integer>
     </map>
     <key>NoPreload</key>
     <map>
@@ -7121,7 +7121,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>16.0</real>
+    <real>100.0</real>
   </map>
     <key>ParcelMediaAutoPlayEnable</key>
     <map>

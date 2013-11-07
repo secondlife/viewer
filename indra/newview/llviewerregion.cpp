@@ -1379,7 +1379,7 @@ BOOL LLViewerRegion::isViewerCameraStatic()
 
 void LLViewerRegion::killInvisibleObjects(F32 max_time)
 {
-	static LLCachedControl<F32> back_sphere_radius(gSavedSettings,"BackShpereCullingRadius");
+	static LLCachedControl<F32> back_sphere_radius(gSavedSettings,"BackSphereCullingRadius");
 
 	if(!sVOCacheCullingEnabled)
 	{
