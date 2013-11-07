@@ -9861,7 +9861,7 @@
     <key>RenderUseVAO</key>
     <map>
       <key>Comment</key>
-      <string>[EXPERIMENTAL] Use GL Vertex Array Objects</string>
+      <string>[EXPERIMENTAL] Use GL Vertex Array Objects.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
