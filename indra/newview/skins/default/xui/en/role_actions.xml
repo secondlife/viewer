@@ -5,7 +5,7 @@
       name="Group Ban">
     <action description="Manage ban list"
             longdescription="Allows the group member to ban / un-ban Residents from this group."
-            name="allow ban" value="49" />
+            name="allow ban" value="51" />
   </action_set>
 	<action_set
 	     description="These Abilities include powers to add and remove group Members, and allow new Members to join without an invitation."
