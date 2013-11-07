@@ -2345,6 +2345,15 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
 	}	
 	if(sCurrentTime - mLastCallBackActiveTime > MAX_INACTIVE_TIME && !mIsFetching)
 	{
+		if (mFTType == FTT_SERVER_BAKE)
+		{
+			//output some debug info
+			llinfos << "baked texture: " << mID << "clears all call backs due to inactivity." << llendl;
+			llinfos << mUrl << llendl;
+			llinfos << "current discard: " << getDiscardLevel() << " current discard for fetch: " << getCurrentDiscardLevelForFetching() <<
+				" Desired discard: " << getDesiredDiscardLevel() << "decode Pri: " << getDecodePriority() << llendl;
+		}
+
 		clearCallbackEntryList() ; //remove all callbacks.
 		return false ;
 	}
@@ -2353,6 +2362,13 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
 	
 	if (isMissingAsset())
 	{
+		if (mFTType == FTT_SERVER_BAKE)
+		{
+			//output some debug info
+			llinfos << "baked texture: " << mID << "is missing." << llendl;
+			llinfos << mUrl << llendl;
+		}
+
 		for(callback_list_t::iterator iter = mLoadedCallbackList.begin();
 			iter != mLoadedCallbackList.end(); )
 		{
