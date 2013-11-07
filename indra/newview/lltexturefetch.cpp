@@ -1205,9 +1205,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 																		  offset, size, responder);
 				mCacheReadTimer.reset();
 			}
-/* SH-3980 - disabling caching of server bakes until we can fix the blurring problems */
-/*			else if ((mUrl.empty()||mFTType==FTT_SERVER_BAKE) && mFetcher->canLoadFromCache()) */
-			else if (mUrl.empty() && mFetcher->canLoadFromCache())
+			else if ((mUrl.empty() || mFTType==FTT_SERVER_BAKE) && mFetcher->canLoadFromCache())
 			{
 				setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority); // Set priority first since Responder may change it
 
@@ -1343,12 +1341,11 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				mCanUseHTTP = false;
 			}
 		}
-#if 0 /* SH-3980 - disabling caching of server bakes until we can fix the blurring problems */
-		if (mFTType == FTT_SERVER_BAKE)
+		else if (mFTType == FTT_SERVER_BAKE)
 		{
 			mWriteToCacheState = CAN_WRITE;
 		}
-#endif
+
 		if (mCanUseHTTP && !mUrl.empty())
 		{
 			setState(WAIT_HTTP_RESOURCE);
