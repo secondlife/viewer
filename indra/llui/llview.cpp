@@ -603,7 +603,7 @@ void LLView::onVisibilityChange ( BOOL new_visibility )
 		// Consider changing returns to confirm success and know which widget grabbed it
 		// For now assume success and log at highest xui possible 
 		// NOTE we log actual state - which may differ if it somehow failed to set visibility
-		lldebugs << "LLView::handleVisibilityChange	 - now: " << getVisible()  << " xui: " << viewp->getPathname() << " name: " << viewp->getName() << llendl;
+		LL_DEBUGS() << "LLView::handleVisibilityChange	 - now: " << getVisible()  << " xui: " << viewp->getPathname() << " name: " << viewp->getName() << LL_ENDL;
 		
 	}
 }
@@ -700,8 +700,8 @@ LLView* LLView::childrenHandleMouseEvent(const METHOD& method, S32 x, S32 y, XDA
 		if ((viewp->*method)( local_x, local_y, extra )
 			|| (allow_mouse_block && viewp->blockMouseEvent( local_x, local_y )))
 		{
-			lldebugs << "LLView::childrenHandleMouseEvent calling updatemouseeventinfo - local_x|global x  "<< local_x << " " << x	<< "local/global y " << local_y << " " << y << llendl;
-			lldebugs << "LLView::childrenHandleMouseEvent  getPathname for viewp result: " << viewp->getPathname() << "for this view: " << getPathname() << llendl;
+			LL_DEBUGS() << "LLView::childrenHandleMouseEvent calling updatemouseeventinfo - local_x|global x  "<< local_x << " " << x	<< "local/global y " << local_y << " " << y << LL_ENDL;
+			LL_DEBUGS() << "LLView::childrenHandleMouseEvent  getPathname for viewp result: " << viewp->getPathname() << "for this view: " << getPathname() << LL_ENDL;
 
 			LLViewerEventRecorder::instance().updateMouseEventInfo(x,y,-55,-55,getPathname()); 
 

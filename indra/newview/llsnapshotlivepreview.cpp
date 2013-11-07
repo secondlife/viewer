@@ -827,7 +827,7 @@ void LLSnapshotLivePreview::saveTexture()
 	else
 	{
 		LLNotificationsUtil::add("ErrorEncodingSnapshot");
-		llwarns << "Error encoding snapshot" << LL_ENDL;
+		LL_WARNS() << "Error encoding snapshot" << LL_ENDL;
 	}
 
 	add(LLStatViewer::SNAPSHOT, 1);
@@ -853,7 +853,7 @@ void LLSnapshotLivePreview::saveWeb()
 	LLImageJPEG* jpg = dynamic_cast<LLImageJPEG*>(mFormattedImage.get());
 	if(!jpg)
 	{
-		llwarns << "Formatted image not a JPEG" << LL_ENDL;
+		LL_WARNS() << "Formatted image not a JPEG" << LL_ENDL;
 		return;
 	}
 

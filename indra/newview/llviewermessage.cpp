@@ -6882,7 +6882,7 @@ bool teleport_request_callback(const LLSD& notification, const LLSD& response)
 	LLUUID from_id = notification["payload"]["from_id"].asUUID();
 	if(from_id.isNull())
 	{
-		llwarns << "from_id is NULL" << llendl;
+		LL_WARNS() << "from_id is NULL" << LL_ENDL;
 		return false;
 	}
 

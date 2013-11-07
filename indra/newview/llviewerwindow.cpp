@@ -963,7 +963,7 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK 
 			BOOL r = mouse_captor->handleAnyMouseClick(local_x, local_y, mask, clicktype, down); 
 			if (r) {
 
-				lldebugs << "LLViewerWindow::handleAnyMouseClick viewer with mousecaptor calling updatemouseeventinfo - local_x|global x  "<< local_x << " " << x  << "local/global y " << local_y << " " << y << llendl;
+				LL_DEBUGS() << "LLViewerWindow::handleAnyMouseClick viewer with mousecaptor calling updatemouseeventinfo - local_x|global x  "<< local_x << " " << x  << "local/global y " << local_y << " " << y << LL_ENDL;
 
 				LLViewerEventRecorder::instance().setMouseGlobalCoords(x,y);
 				LLViewerEventRecorder::instance().logMouseEvent(std::string(buttonstatestr),std::string(buttonname)); 
@@ -983,7 +983,7 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK 
 		if (r) 
 		{
 
-			lldebugs << "LLViewerWindow::handleAnyMouseClick calling updatemouseeventinfo - global x  "<< " " << x	<< "global y " << y	 << "buttonstate: " << buttonstatestr << " buttonname " << buttonname << llendl;
+			LL_DEBUGS() << "LLViewerWindow::handleAnyMouseClick calling updatemouseeventinfo - global x  "<< " " << x	<< "global y " << y	 << "buttonstate: " << buttonstatestr << " buttonname " << buttonname << LL_ENDL;
 
 			LLViewerEventRecorder::instance().setMouseGlobalCoords(x,y);
 
@@ -2531,7 +2531,7 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 		||(gLoginMenuBarView && gLoginMenuBarView->handleKey(key, mask, TRUE))
 		||(gMenuHolder && gMenuHolder->handleKey(key, mask, TRUE)))
 	{
-		lldebugs << "LLviewerWindow::handleKey handle nav keys for nav" << llendl;
+		LL_DEBUGS() << "LLviewerWindow::handleKey handle nav keys for nav" << LL_ENDL;
 		LLViewerEventRecorder::instance().logKeyEvent(key,mask);
 		return TRUE;
 	}
@@ -2564,7 +2564,7 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	// if nothing has focus, go to first or last UI element as appropriate
 	if (key == KEY_TAB && (mask & MASK_CONTROL || gFocusMgr.getKeyboardFocus() == NULL))
 	{
-		llwarns << "LLviewerWindow::handleKey give floaters first chance at tab key " << llendl;
+		LL_WARNS() << "LLviewerWindow::handleKey give floaters first chance at tab key " << LL_ENDL;
 		if (gMenuHolder) gMenuHolder->hideMenus();
 
 		// if CTRL-tabbing (and not just TAB with no focus), go into window cycle mode
@@ -2626,17 +2626,17 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 		if (keyboard_focus->handleKey(key, mask, FALSE))
 		{
 
-			lldebugs << "LLviewerWindow::handleKey - in 'traverse up' - no loops seen... just called keyboard_focus->handleKey an it returned true" << llendl;
+			LL_DEBUGS() << "LLviewerWindow::handleKey - in 'traverse up' - no loops seen... just called keyboard_focus->handleKey an it returned true" << LL_ENDL;
 			LLViewerEventRecorder::instance().logKeyEvent(key,mask); 
 			return TRUE;
 		} else {
-			lldebugs << "LLviewerWindow::handleKey - in 'traverse up' - no loops seen... just called keyboard_focus->handleKey an it returned FALSE" << llendl;
+			LL_DEBUGS() << "LLviewerWindow::handleKey - in 'traverse up' - no loops seen... just called keyboard_focus->handleKey an it returned FALSE" << LL_ENDL;
 		}
 	}
 
 	if( LLToolMgr::getInstance()->getCurrentTool()->handleKey(key, mask) )
 	{
-		lldebugs << "LLviewerWindow::handleKey toolbar handling?" << llendl;
+		LL_DEBUGS() << "LLviewerWindow::handleKey toolbar handling?" << LL_ENDL;
 		LLViewerEventRecorder::instance().logKeyEvent(key,mask);
 		return TRUE;
 	}
@@ -2644,7 +2644,7 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	// Try for a new-format gesture
 	if (LLGestureMgr::instance().triggerGesture(key, mask))
 	{
-		lldebugs << "LLviewerWindow::handleKey new gesture feature" << llendl;
+		LL_DEBUGS() << "LLviewerWindow::handleKey new gesture feature" << LL_ENDL;
 		LLViewerEventRecorder::instance().logKeyEvent(key,mask);
 		return TRUE;
 	}
@@ -2653,7 +2653,7 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	// don't pass it down to the menus.
 	if (gGestureList.trigger(key, mask))
 	{
-		lldebugs << "LLviewerWindow::handleKey check gesture trigger" << llendl;
+		LL_DEBUGS() << "LLviewerWindow::handleKey check gesture trigger" << LL_ENDL;
 		LLViewerEventRecorder::instance().logKeyEvent(key,mask);
 		return TRUE;
 	}

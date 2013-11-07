@@ -1954,9 +1954,9 @@ class LLAdvancedViewerEventRecorder : public view_listener_t
 		std::string command = userdata.asString();
 		if ("start playback" == command)
 		{
-			llinfos << "Event Playback starting" << llendl;
+			LL_INFOS() << "Event Playback starting" << LL_ENDL;
 			LLViewerEventRecorder::instance().playbackRecording();
-			llinfos << "Event Playback completed" << llendl;
+			LL_INFOS() << "Event Playback completed" << LL_ENDL;
 		}
 		else if ("stop playback" == command)
 		{
@@ -1965,12 +1965,12 @@ class LLAdvancedViewerEventRecorder : public view_listener_t
 		else if ("start recording" == command)
 		{
 			LLViewerEventRecorder::instance().setEventLoggingOn();
-			llinfos << "Event recording started" << llendl;
+			LL_INFOS() << "Event recording started" << LL_ENDL;
 		}
 		else if ("stop recording" == command)
 		{
 			LLViewerEventRecorder::instance().setEventLoggingOff();
-			llinfos << "Event recording stopped" << llendl;
+			LL_INFOS() << "Event recording stopped" << LL_ENDL;
 		} 
 
 		return true;

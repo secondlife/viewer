@@ -8042,7 +8042,7 @@ LLColor4 LLVOAvatar::calcMutedAVColor(F32 value, S32 range_low, S32 range_high)
 	//LL_INFOS() << "From value " << std::setprecision(3) << value << " returning color " << new_color 
 	//	<< " using indexes " << spectrum_index_1 << ", " << spectrum_index_2
 	//	<< " and fractBetween " << fractBetween
-	//	<< llendl;
+	//	<< LL_ENDL;
 
 	return new_color;
 }

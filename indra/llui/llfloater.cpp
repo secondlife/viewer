@@ -1549,7 +1549,7 @@ BOOL LLFloater::handleScrollWheel(S32 x, S32 y, S32 clicks)
 // virtual
 BOOL LLFloater::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	lldebugs << "LLFloater::handleMouseUp calling LLPanel (really LLView)'s handleMouseUp (first initialized xui to: " << getPathname() << " )" << llendl;
+	LL_DEBUGS() << "LLFloater::handleMouseUp calling LLPanel (really LLView)'s handleMouseUp (first initialized xui to: " << getPathname() << " )" << LL_ENDL;
 	BOOL handled = LLPanel::handleMouseUp(x,y,mask); // Not implemented in LLPanel so this actually calls LLView
 	if (handled) {
 		LLViewerEventRecorder::instance().updateMouseEventInfo(x,y,-55,-55,getPathname());
