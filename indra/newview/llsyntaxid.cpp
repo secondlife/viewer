@@ -41,7 +41,7 @@
 fetchKeywordsFileResponder::fetchKeywordsFileResponder(std::string filespec)
 {
 	mFileSpec = filespec;
-	LL_WARNS("")
+	LL_WARNS("LSLSyntax")
 			<< "Instantiating with file saving to: '" << filespec << "'"
 			<< LL_ENDL;
 }
@@ -51,7 +51,7 @@ void fetchKeywordsFileResponder::errorWithContent(U32 status,
 						  const std::string& reason,
 						  const LLSD& content)
 {
-	LL_WARNS("")
+	LL_WARNS("LSLSyntax")
 			<< "fetchKeywordsFileResponder error [status:"
 			<< status
 			<< "]: "
@@ -72,7 +72,7 @@ void fetchKeywordsFileResponder::result(const LLSD& content_ref)
 	file.write(xml.c_str(), str.str().size());
 	file.close();
 
-	LL_WARNS("")
+	LL_WARNS("LSLSyntax")
 		<< "Syntax file received, saving as: '" << mFileSpec << "'"
 		<< LL_ENDL;
 }
@@ -150,10 +150,6 @@ bool LLSyntaxIdLSL::checkSyntaxIdChanged()
 				mCapabilityURL = region->getCapability(mCapabilityName);
 				if (mSyntaxIdCurrent != mSyntaxIdNew)
 				{
-					// set the properties for the fetcher to use
-					//mFileNameNew = buildFileNameNew(mSyntaxIdNew);
-					//mFilePath = LL_PATH_CACHE;
-
 					LL_WARNS("LSLSyntax")
 						<< "Region changed to '" << region->getName()
 						<< "' it has LSLSyntaxId capability, and the new hash is '"
@@ -184,8 +180,6 @@ bool LLSyntaxIdLSL::checkSyntaxIdChanged()
 				else
 				{
 					mSyntaxIdNew = LLUUID();
-					//mFileNameNew = mFileNameDefault;
-					//mFilePath = LL_PATH_APP_SETTINGS;
 
 					LL_WARNS("LSLSyntax")
 						<< "Region changed to '" << region->getName()
