@@ -7722,5 +7722,16 @@ Disabling future updates for this file.
 Attempted to add an invalid or unreadable image file [FNAME] which could not be opened or decoded.
 Attempt cancelled.
   </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="DefaultObjectPermissions"
+   type="alert">
+	There was a problem saving the default permissions due to the following reason: [REASON].  Please try setting the default permissions later.
+	<tag>fail</tag>
+   <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
   
 </notifications>

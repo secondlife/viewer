@@ -70,6 +70,7 @@
 #include "stringize.h"
 #include "llviewercontrol.h"
 #include "llsdserialize.h"
+#include "llfloaterperms.h"
 
 #ifdef LL_WINDOWS
 	#pragma warning(disable:4355)
@@ -1485,6 +1486,8 @@ void LLViewerRegion::unpackRegionHandshake()
 	msg->nextBlock("RegionInfo");
 	msg->addU32("Flags", 0x0 );
 	msg->sendReliable(host);
+
+	LLFloaterPermsDefault::updateCap();
 }
 
 void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
@@ -1494,6 +1497,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("ChatSessionRequest");
 	capabilityNames.append("CopyInventoryFromNotecard");
 	capabilityNames.append("CreateInventoryCategory");
+	capabilityNames.append("DefaultObjectPermissions");
 	capabilityNames.append("DispatchRegionInfo");
 	capabilityNames.append("EstateChangeInfo");
 	capabilityNames.append("EventQueueGet");

@@ -32,7 +32,9 @@
 #include "llviewerwindow.h"
 #include "lluictrlfactory.h"
 #include "llpermissions.h"
-
+#include "llagent.h"
+#include "llviewerregion.h"
+#include "llnotificationsutil.h"
 
 LLFloaterPerms::LLFloaterPerms(const LLSD& seed)
 : LLFloater(seed)
@@ -96,7 +98,7 @@ U32 LLFloaterPerms::getNextOwnerPermsInverted(std::string prefix)
 }
 
 LLFloaterPermsDefault::LLFloaterPermsDefault(const LLSD& seed)
-: LLFloater(seed)
+	: LLFloater(seed)
 {
 	mCommitCallbackRegistrar.add("PermsDefault.Copy", boost::bind(&LLFloaterPermsDefault::onCommitCopy, this, _2));
 	mCommitCallbackRegistrar.add("PermsDefault.OK", boost::bind(&LLFloaterPermsDefault::onClickOK, this));
@@ -145,9 +147,46 @@ void LLFloaterPermsDefault::onCommitCopy(const LLSD& user_data)
 	xfer->setEnabled(copyable);
 }
 
+class LLFloaterPermsResponder : public LLHTTPClient::Responder
+{
+public:
+	LLFloaterPermsResponder(): LLHTTPClient::Responder()  {}
+
+	void error(U32 status, const std::string& reason)
+	{
+		LLSD args;
+		args["REASON"] = reason;
+		LLNotificationsUtil::add("DefaultObjectPermissions", args);
+	}
+	void result(const LLSD& content)
+	{
+		LL_INFOS("FloaterPermsResponder") << "Set new values" << LL_ENDL;
+	}
+};
+
+void LLFloaterPermsDefault::updateCap()
+{
+	std::string object_url = gAgent.getRegion()->getCapability("DefaultObjectPermissions");
+
+	if(!object_url.empty())
+	{
+		LLSD report = LLSD::emptyMap();
+		report["Group"] = (LLSD::Integer)LLFloaterPerms::getGroupPerms("Objects");
+		report["Everyone"] = (LLSD::Integer)LLFloaterPerms::getEveryonePerms("Objects");
+		report["NextOwner"] = (LLSD::Integer)LLFloaterPerms::getNextOwnerPerms("Objects");
+		LLHTTPClient::post(object_url, report, new LLFloaterPermsResponder());
+	}
+}
+
 void LLFloaterPermsDefault::ok()
 {
-	refresh(); // Changes were already applied to saved settings. Refreshing internal values makes it official.
+//	Changes were already applied automatically to saved settings.
+//	Refreshing internal values makes it official.
+	refresh();
+
+// We know some setting has changed but not which one.  Just in case it was a setting for
+// object permissions tell the server what the values are.
+	updateCap();
 }
 
 void LLFloaterPermsDefault::cancel()
