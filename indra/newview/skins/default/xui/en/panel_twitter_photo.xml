@@ -130,7 +130,7 @@
            top="0"
            left="9"
            height="23"
-           label="Post"
+           label="Tweet"
            name="post_photo_btn"
            width="100">
             <button.commit_callback

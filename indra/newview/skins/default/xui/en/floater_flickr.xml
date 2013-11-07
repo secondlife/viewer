@@ -10,10 +10,10 @@
   single_instance="true"
   reuse_instance="true"
   title="UPLOAD TO FLICKR"
-  height="482"
+  height="622"
   width="304">
   <panel
-   height="482"
+   height="622"
    width="304"
    visible="true"
    name="background"
@@ -27,7 +27,7 @@
      tab_height="30"
      tab_position="top"
      top="7"
-     height="437"
+     height="577"
      halign="center">
      <panel
        filename="panel_flickr_photo.xml"

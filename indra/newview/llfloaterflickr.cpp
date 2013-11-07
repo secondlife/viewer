@@ -63,8 +63,11 @@ mResolutionComboBox(NULL),
 mRefreshBtn(NULL),
 mWorkingLabel(NULL),
 mThumbnailPlaceholder(NULL),
-mCaptionTextBox(NULL),
+mTitleTextBox(NULL),
+mDescriptionTextBox(NULL),
 mLocationCheckbox(NULL),
+mTagsTextBox(NULL),
+mRatingComboBox(NULL),
 mPostButton(NULL)
 {
 	mCommitCallbackRegistrar.add("SocialSharing.SendPhoto", boost::bind(&LLFlickrPhotoPanel::onSend, this));
@@ -89,8 +92,11 @@ BOOL LLFlickrPhotoPanel::postBuild()
 	mRefreshBtn = getChild<LLUICtrl>("new_snapshot_btn");
     mWorkingLabel = getChild<LLUICtrl>("working_lbl");
 	mThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");
-	mCaptionTextBox = getChild<LLUICtrl>("photo_caption");
+	mTitleTextBox = getChild<LLUICtrl>("photo_title");
+	mDescriptionTextBox = getChild<LLUICtrl>("photo_description");
 	mLocationCheckbox = getChild<LLUICtrl>("add_location_cb");
+	mTagsTextBox = getChild<LLUICtrl>("photo_tags");
+	mRatingComboBox = getChild<LLUICtrl>("rating_combobox");
 	mPostButton = getChild<LLUICtrl>("post_photo_btn");
 	mCancelButton = getChild<LLUICtrl>("cancel_photo_btn");
 
@@ -104,7 +110,10 @@ void LLFlickrPhotoPanel::draw()
     // Enable interaction only if no transaction with the service is on-going (prevent duplicated posts)
     bool no_ongoing_connection = !(LLFlickrConnect::instance().isTransactionOngoing());
     mCancelButton->setEnabled(no_ongoing_connection);
-    mCaptionTextBox->setEnabled(no_ongoing_connection);
+    mTitleTextBox->setEnabled(no_ongoing_connection);
+    mDescriptionTextBox->setEnabled(no_ongoing_connection);
+    mTagsTextBox->setEnabled(no_ongoing_connection);
+    mRatingComboBox->setEnabled(no_ongoing_connection);
     mResolutionComboBox->setEnabled(no_ongoing_connection);
     mRefreshBtn->setEnabled(no_ongoing_connection);
     mLocationCheckbox->setEnabled(no_ongoing_connection);
@@ -144,7 +153,7 @@ void LLFlickrPhotoPanel::draw()
     mWorkingLabel->setVisible(!(previewp && previewp->getSnapshotUpToDate()));
     
     // Enable Post if we have a preview to send and no on going connection being processed
-    mPostButton->setEnabled(no_ongoing_connection && (previewp && previewp->getSnapshotUpToDate()));
+    mPostButton->setEnabled(no_ongoing_connection && (previewp && previewp->getSnapshotUpToDate()) && (mRatingComboBox && mRatingComboBox->getValue().isDefined()));
     
     // Draw the rest of the panel on top of it
 	LLPanel::draw();
@@ -234,8 +243,10 @@ bool LLFlickrPhotoPanel::onFlickrConnectStateChange(const LLSD& data)
 
 void LLFlickrPhotoPanel::sendPhoto()
 {
-	// Get the caption
-	std::string caption = mCaptionTextBox->getValue().asString();
+	// Get the title, description, and tags
+	std::string title = mTitleTextBox->getValue().asString();
+	std::string description = mDescriptionTextBox->getValue().asString();
+	std::string tags = mTagsTextBox->getValue().asString();
 
 	// Add the location if required
 	bool add_location = mLocationCheckbox->getValue().asBoolean();
@@ -249,25 +260,30 @@ void LLFlickrPhotoPanel::sendPhoto()
 		// Add query parameters so Google Analytics can track incoming clicks!
 		slurl_string += DEFAULT_PHOTO_QUERY_PARAMETERS;
 
-		// Add it to the caption (pretty crude, but we don't have a better option with photos)
-		if (caption.empty())
-			caption = slurl_string;
+		// Add it to the description (pretty crude, but we don't have a better option with photos)
+		if (description.empty())
+			description = slurl_string;
 		else
-			caption = caption + " " + slurl_string;
+			description = description + " " + slurl_string;
 	}
+
+	// Get the content rating
+	int content_rating = mRatingComboBox->getValue().asInteger();
 
 	// Get the image
 	LLSnapshotLivePreview* previewp = getPreviewView();
 	
 	// Post to Flickr
-	LLFlickrConnect::instance().uploadPhoto(previewp->getFormattedImage(), "", caption, "", 1);
+	LLFlickrConnect::instance().uploadPhoto(previewp->getFormattedImage(), title, description, tags, content_rating);
 
 	updateControls();
 }
 
 void LLFlickrPhotoPanel::clearAndClose()
 {
-	mCaptionTextBox->setValue("");
+	mTitleTextBox->setValue("");
+	mDescriptionTextBox->setValue("");
+	mTagsTextBox->setValue("");
 
 	LLFloater* floater = getParentByType<LLFloater>();
 	if (floater)

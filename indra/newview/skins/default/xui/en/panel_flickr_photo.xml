@@ -1,19 +1,19 @@
     <panel
-      height="400"
+      height="540"
       width="304"
       layout="topleft"
       name="panel_flickr_photo">
       <layout_stack
 	   layout="topleft"
        border_size="0"
-       height="392"
+       height="532"
        follows="all"
        orientation="vertical"
        name="stack_photo"
        top="8">
         <layout_panel	
          name="snapshot_panel"
-         height="367">
+         height="507">
             <combo_box
              control_name="SocialPhotoResolution"
              follows="left|top"
@@ -97,30 +97,110 @@
              font="SansSerif"
              height="16"
              left="9"
-             name="caption_label"
+             name="title_label"
              top_pad="20"
              type="string">
-              Comment (optional):
+              Title:
             </text>
             <text_editor
              follows="left|top"
-             height="87"
+             height="20"
+             width="250"
+             left="9"
+             length="1"
+             max_length="256"
+             name="photo_title"
+             type="string"
+             word_wrap="true">
+            </text_editor>
+            <text
+             length="1"
+             follows="top|left|right"
+             font="SansSerif"
+             height="16"
+             left="9"
+             name="description_label"
+             top_pad="10"
+             type="string">
+              Description:
+            </text>
+            <text_editor
+             follows="left|top"
+             height="50"
              width="250"
              left="9"
              length="1"
              max_length="700"
-             name="photo_caption"
+             name="photo_description"
              type="string"
              word_wrap="true">
             </text_editor>
             <check_box
              follows="left|top"
              initial_value="true"
-             label="Include location in posting"
+             label="Include SL location at end of description"
              name="add_location_cb"
               left="9"
               height="16"
              top_pad="8"/>
+            <text
+             length="1"
+             follows="top|left|right"
+             font="SansSerif"
+             height="16"
+             left="9"
+             name="tags_label"
+             top_pad="10"
+             type="string">
+              Tags:
+            </text>
+            <text
+              length="1"
+              follows="top|left"
+              font="SansSerifSmall"
+              text_color="White_50"
+              height="30"
+              name="tags_help_label"
+              left="50"
+              top_pad="-16"
+              type="string">
+Separate tags with spaces
+Use "" for multi-word tags
+            </text>
+            <text_editor
+             follows="left|top"
+             height="50"
+             width="250"
+             left="9"
+             length="1"
+             max_length="700"
+             name="photo_tags"
+             type="string"
+             word_wrap="true">
+            </text_editor>
+            <combo_box
+             control_name="FlickrPhotoRating"
+             follows="left|top"
+             top_pad="16"
+             left="9"
+             label="Choose Flickr rating (required)..."
+             name="rating_combobox"
+             tool_tip="Flickr content rating"
+             height="21"
+             width="250">
+              <combo_box.item
+               label="Safe"
+               name="SafeRating"
+               value="1" />
+              <combo_box.item
+               label="Moderate"
+               name="ModerateRating"
+               value="2" />
+              <combo_box.item
+               label="Restricted"
+               name="RestrictedRating"
+               value="3" />
+            </combo_box>
         </layout_panel>
         <layout_panel
           name="photo_button_panel"
@@ -130,7 +210,7 @@
            top="0"
            left="9"
            height="23"
-           label="Post"
+           label="Upload"
            name="post_photo_btn"
            width="100">
             <button.commit_callback
