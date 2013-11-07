@@ -11,9 +11,43 @@
        orientation="vertical"
        name="stack_photo"
        top="8">
-        <layout_panel	
-         name="snapshot_panel"
-         height="367">
+        <layout_panel
+         name="text_panel"
+         height="140">
+          <text
+           length="1"
+           follows="top|left|right"
+           font="SansSerif"
+           height="16"
+           left="9"
+           name="status_label"
+           top="3"
+           type="string">
+            What's happening?
+          </text>
+          <text_editor
+           follows="left|top"
+           height="87"
+           width="250"
+           left="9"
+           length="1"
+           max_length="700"
+           name="photo_status"
+           type="string"
+           word_wrap="true">
+          </text_editor>
+          <check_box
+           follows="left|top"
+           initial_value="true"
+           label="Include a photo"
+           name="add_photo_cb"
+            left="9"
+            height="16"
+           top_pad="10"/>
+        </layout_panel>
+          <layout_panel
+           name="snapshot_panel"
+           height="227">
             <combo_box
              control_name="SocialPhotoResolution"
              follows="left|top"
@@ -91,36 +125,6 @@
                 width="150">
                 Refreshing...
             </text>
-            <text
-             length="1"
-             follows="top|left|right"
-             font="SansSerif"
-             height="16"
-             left="9"
-             name="caption_label"
-             top_pad="20"
-             type="string">
-              Comment (optional):
-            </text>
-            <text_editor
-             follows="left|top"
-             height="87"
-             width="250"
-             left="9"
-             length="1"
-             max_length="700"
-             name="photo_caption"
-             type="string"
-             word_wrap="true">
-            </text_editor>
-            <check_box
-             follows="left|top"
-             initial_value="true"
-             label="Include location in posting"
-             name="add_location_cb"
-              left="9"
-              height="16"
-             top_pad="8"/>
         </layout_panel>
         <layout_panel
           name="photo_button_panel"

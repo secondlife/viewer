@@ -63,8 +63,8 @@ mResolutionComboBox(NULL),
 mRefreshBtn(NULL),
 mWorkingLabel(NULL),
 mThumbnailPlaceholder(NULL),
-mCaptionTextBox(NULL),
-mLocationCheckbox(NULL),
+mStatusTextBox(NULL),
+mPhotoCheckbox(NULL),
 mPostButton(NULL)
 {
 	mCommitCallbackRegistrar.add("SocialSharing.SendPhoto", boost::bind(&LLTwitterPhotoPanel::onSend, this));
@@ -89,8 +89,8 @@ BOOL LLTwitterPhotoPanel::postBuild()
 	mRefreshBtn = getChild<LLUICtrl>("new_snapshot_btn");
     mWorkingLabel = getChild<LLUICtrl>("working_lbl");
 	mThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");
-	mCaptionTextBox = getChild<LLUICtrl>("photo_caption");
-	mLocationCheckbox = getChild<LLUICtrl>("add_location_cb");
+	mStatusTextBox = getChild<LLUICtrl>("photo_status");
+	mPhotoCheckbox = getChild<LLUICtrl>("add_photo_cb");
 	mPostButton = getChild<LLUICtrl>("post_photo_btn");
 	mCancelButton = getChild<LLUICtrl>("cancel_photo_btn");
 
@@ -104,11 +104,11 @@ void LLTwitterPhotoPanel::draw()
     // Enable interaction only if no transaction with the service is on-going (prevent duplicated posts)
     bool no_ongoing_connection = !(LLTwitterConnect::instance().isTransactionOngoing());
     mCancelButton->setEnabled(no_ongoing_connection);
-    mCaptionTextBox->setEnabled(no_ongoing_connection);
-    mResolutionComboBox->setEnabled(no_ongoing_connection);
-    mRefreshBtn->setEnabled(no_ongoing_connection);
-    mLocationCheckbox->setEnabled(no_ongoing_connection);
-    
+    mStatusTextBox->setEnabled(no_ongoing_connection);
+    mResolutionComboBox->setEnabled(no_ongoing_connection && mPhotoCheckbox->getValue().asBoolean());
+    mRefreshBtn->setEnabled(no_ongoing_connection && mPhotoCheckbox->getValue().asBoolean());
+    mPhotoCheckbox->setEnabled(no_ongoing_connection);
+
     // Display the preview if one is available
 	if (previewp && previewp->getThumbnailImage())
 	{
@@ -131,7 +131,7 @@ void LLTwitterPhotoPanel::draw()
         
 		gGL.matrixMode(LLRender::MM_MODELVIEW);
 		// Apply floater transparency to the texture unless the floater is focused.
-		F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
+		F32 alpha = (mPhotoCheckbox->getValue().asBoolean() ? (getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency()) : 0.5f);
 		LLColor4 color = LLColor4::white;
 		gl_draw_scaled_image(offset_x, offset_y, 
 			thumbnail_w, thumbnail_h,
@@ -234,40 +234,31 @@ bool LLTwitterPhotoPanel::onTwitterConnectStateChange(const LLSD& data)
 
 void LLTwitterPhotoPanel::sendPhoto()
 {
-	// Get the caption
-	std::string caption = mCaptionTextBox->getValue().asString();
+	// Get the status text
+	std::string status = mStatusTextBox->getValue().asString();
 
-	// Add the location if required
-	bool add_location = mLocationCheckbox->getValue().asBoolean();
-	if (add_location)
+	// Add the photo if required
+	bool add_photo = mPhotoCheckbox->getValue().asBoolean();
+	if (add_photo)
 	{
-		// Get the SLURL for the location
-		LLSLURL slurl;
-		LLAgentUI::buildSLURL(slurl);
-		std::string slurl_string = slurl.getSLURLString();
-
-		// Add query parameters so Google Analytics can track incoming clicks!
-		slurl_string += DEFAULT_PHOTO_QUERY_PARAMETERS;
-
-		// Add it to the caption (pretty crude, but we don't have a better option with photos)
-		if (caption.empty())
-			caption = slurl_string;
-		else
-			caption = caption + " " + slurl_string;
-	}
-
-	// Get the image
-	LLSnapshotLivePreview* previewp = getPreviewView();
+		// Get the image
+		LLSnapshotLivePreview* previewp = getPreviewView();
 	
-	// Post to Twitter
-	LLTwitterConnect::instance().uploadPhoto(previewp->getFormattedImage(), caption);
+		// Post to Twitter
+		LLTwitterConnect::instance().uploadPhoto(previewp->getFormattedImage(), status);
+	}
+	else
+	{
+		// Just post the status to Twitter
+		LLTwitterConnect::instance().updateStatus(status);
+	}
 
 	updateControls();
 }
 
 void LLTwitterPhotoPanel::clearAndClose()
 {
-	mCaptionTextBox->setValue("");
+	mStatusTextBox->setValue("");
 
 	LLFloater* floater = getParentByType<LLFloater>();
 	if (floater)
