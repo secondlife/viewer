@@ -157,7 +157,7 @@
      height="376"
      ignore_tab="false"
      layout="topleft"
-     max_length="65536"
+     max_length="262144"
      name="Script Editor"
      text_readonly_color="DkGray"
      width="487"
