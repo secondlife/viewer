@@ -5967,7 +5967,7 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 			// being off.
 			time_t utc_time;
 			utc_time = time_corrected();
-			std::string timeStr = LLTrans::getString("ViewerMessageTime");
+			std::string timeStr = LLTrans::getString("HMSTime");
 			LLSD substitution;
 			substitution["datetime"] = (S32) utc_time;
 			LLStringUtil::format(timeStr, substitution);
