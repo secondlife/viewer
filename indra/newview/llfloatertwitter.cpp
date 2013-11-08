@@ -109,6 +109,8 @@ void LLTwitterPhotoPanel::draw()
     mRefreshBtn->setEnabled(no_ongoing_connection && mPhotoCheckbox->getValue().asBoolean());
     mPhotoCheckbox->setEnabled(no_ongoing_connection);
 
+	bool add_photo = mPhotoCheckbox->getValue().asBoolean();
+
     // Display the preview if one is available
 	if (previewp && previewp->getThumbnailImage())
 	{
@@ -131,7 +133,7 @@ void LLTwitterPhotoPanel::draw()
         
 		gGL.matrixMode(LLRender::MM_MODELVIEW);
 		// Apply floater transparency to the texture unless the floater is focused.
-		F32 alpha = (mPhotoCheckbox->getValue().asBoolean() ? (getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency()) : 0.5f);
+		F32 alpha = (add_photo ? (getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency()) : 0.5f);
 		LLColor4 color = LLColor4::white;
 		gl_draw_scaled_image(offset_x, offset_y, 
 			thumbnail_w, thumbnail_h,
@@ -144,7 +146,7 @@ void LLTwitterPhotoPanel::draw()
     mWorkingLabel->setVisible(!(previewp && previewp->getSnapshotUpToDate()));
     
     // Enable Post if we have a preview to send and no on going connection being processed
-    mPostButton->setEnabled(no_ongoing_connection && (previewp && previewp->getSnapshotUpToDate()));
+    mPostButton->setEnabled(no_ongoing_connection && ((add_photo && previewp && previewp->getSnapshotUpToDate()) || !mStatusTextBox->getValue().asString().empty()));
     
     // Draw the rest of the panel on top of it
 	LLPanel::draw();

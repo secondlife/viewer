@@ -31,6 +31,7 @@
 #include "llsidetraypanelcontainer.h"
 
 #include "llfloatersnapshot.h" // FIXME: create a snapshot model
+#include "llfloaterreg.h"
 
 /**
  * Provides several ways to save a snapshot.
@@ -44,6 +45,7 @@ class LLPanelSnapshotOptions
 public:
 	LLPanelSnapshotOptions();
 	~LLPanelSnapshotOptions();
+	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ void onEconomyDataChange() { updateUploadCost(); }
 
@@ -54,6 +56,9 @@ private:
 	void onSaveToEmail();
 	void onSaveToInventory();
 	void onSaveToComputer();
+	void onSendToFacebook();
+	void onSendToTwitter();
+	void onSendToFlickr();
 };
 
 static LLRegisterPanelClassWrapper<LLPanelSnapshotOptions> panel_class("llpanelsnapshotoptions");
@@ -71,6 +76,19 @@ LLPanelSnapshotOptions::LLPanelSnapshotOptions()
 LLPanelSnapshotOptions::~LLPanelSnapshotOptions()
 {
 	LLGlobalEconomy::Singleton::getInstance()->removeObserver(this);
+}
+
+// virtual
+BOOL LLPanelSnapshotOptions::postBuild()
+{
+    LLTextBox* sendToFacebookTextBox = getChild<LLTextBox>("send_to_facebook_textbox");
+    sendToFacebookTextBox->setURLClickedCallback(boost::bind(&LLPanelSnapshotOptions::onSendToFacebook, this));
+    LLTextBox* sendToTwitterTextBox = getChild<LLTextBox>("send_to_twitter_textbox");
+    sendToTwitterTextBox->setURLClickedCallback(boost::bind(&LLPanelSnapshotOptions::onSendToTwitter, this));
+    LLTextBox* sendToFlickrTextBox = getChild<LLTextBox>("send_to_flickr_textbox");
+    sendToFlickrTextBox->setURLClickedCallback(boost::bind(&LLPanelSnapshotOptions::onSendToFlickr, this));
+
+	return LLPanel::postBuild();
 }
 
 // virtual
@@ -117,4 +135,22 @@ void LLPanelSnapshotOptions::onSaveToInventory()
 void LLPanelSnapshotOptions::onSaveToComputer()
 {
 	openPanel("panel_snapshot_local");
+}
+
+void LLPanelSnapshotOptions::onSendToFacebook()
+{
+	LLFloaterReg::hideInstance("snapshot");
+	LLFloaterReg::showInstance("social");
+}
+
+void LLPanelSnapshotOptions::onSendToTwitter()
+{
+	LLFloaterReg::hideInstance("snapshot");
+	LLFloaterReg::showInstance("twitter");
+}
+
+void LLPanelSnapshotOptions::onSendToFlickr()
+{
+	LLFloaterReg::hideInstance("snapshot");
+	LLFloaterReg::showInstance("flickr");
 }
