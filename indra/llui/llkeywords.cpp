@@ -34,7 +34,7 @@
 #include "lltexteditor.h"
 #include "llstl.h"
 
-inline bool LLKeywordToken::isHead(const llwchar* s) const
+inline BOOL LLKeywordToken::isHead(const llwchar* s) const
 {
 	// strncmp is much faster than string compare
 	BOOL res = TRUE;
@@ -51,7 +51,7 @@ inline bool LLKeywordToken::isHead(const llwchar* s) const
 	return res;
 }
 
-inline bool LLKeywordToken::isTail(const llwchar* s) const
+inline BOOL LLKeywordToken::isTail(const llwchar* s) const
 {
 	BOOL res = TRUE;
 	const llwchar* t = mDelimiter.c_str();
@@ -198,7 +198,7 @@ LLColor4 LLKeywords::getColorGroup(const std::string key_in)
 	return LLUIColorTable::instance().getColor(ColourGroup);
 }
 
-bool LLKeywords::initialise(ELLPath path, const std::string filename)
+BOOL LLKeywords::initialise(ELLPath path, const std::string filename)
 {
 	mReady = false;
 	setFilenameSyntax( gDirUtilp->getExpandedFilename(path, filename) );
@@ -214,7 +214,7 @@ bool LLKeywords::initialise(ELLPath path, const std::string filename)
 	return mReady;
 }
 
-bool LLKeywords::loadFromFile()
+BOOL LLKeywords::loadFromFile()
 {
 	processTokens();
 	return true;
@@ -226,14 +226,14 @@ bool LLKeywords::loadFromFile()
  *			contained data to the specified LLSD object.
  * @return	Returns boolean true/false indicating success or failure.
  */
-bool LLKeywords::loadIntoLLSD(const std::string& filename, LLSD& data)
+BOOL LLKeywords::loadIntoLLSD(const std::string& filename, LLSD& data)
 {
 	mLoaded = false;
 	llifstream file;
 	file.open(filename);
 	if(file.is_open())
 	{
-		mLoaded = (bool)LLSDSerialize::fromXML(data, file);
+		mLoaded = (BOOL)LLSDSerialize::fromXML(data, file);
 		if (!mLoaded)
 		{
 			LL_WARNS("") << "Unable to deserialise file: " << filename << LL_ENDL;
