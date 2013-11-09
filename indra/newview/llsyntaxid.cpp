@@ -248,7 +248,7 @@ void LLSyntaxIdLSL::initialise()
 				LL_WARNS("LSLSyntax")
 						<< "Filename is cached, no need to download!"
 						<< LL_ENDL;
-				openKeywordsFile();
+				loadKeywordsFileIntoLLSD();
 			}
 		}
 		else
@@ -256,27 +256,58 @@ void LLSyntaxIdLSL::initialise()
 			LL_WARNS("LSLSyntax")
 					<< "ID is null so SyntaxID does not need to be processed!"
 					<< LL_ENDL;
-			openKeywordsFile();
+			loadKeywordsFileIntoLLSD();
 		}
-		// TODO add a signal here to tell the editor the hash has changed?
+		mFileNameCurrent = mFileNameNew;
+		mSyntaxIdCurrent = mSyntaxIdNew;
 	}
 	else
 	{
 		LL_WARNS("LSLSyntax")
 				<< "No change to Syntax! Nothing to see here. Move along now!"
 				<< LL_ENDL;
-
 	}
-	//LLEnvManagerNew::instance().setRegionChangeCallback(boost::bind(&LLSyntaxIdLSL::checkSyntaxIdChange(), this));
 }
 
 //-----------------------------------------------------------------------------
-// openKeywordsFile
+// loadKeywordsFileIntoLLSD
 //-----------------------------------------------------------------------------
-void LLSyntaxIdLSL::openKeywordsFile()
+/**
+ * @brief	Load xml serialised LLSD
+ * @desc	Opens the specified filespec and attempts to deserialise the
+ *			contained data to the specified LLSD object.
+ * @return	Returns boolean true/false indicating success or failure.
+ */
+bool LLSyntaxIdLSL::loadKeywordsFileIntoLLSD()
 {
 	LL_WARNS("LSLSyntax")
 			<< "Trying to open default or cached keyword file ;-)"
 			<< LL_ENDL;
-	// TODO Open the file and load LLSD into sKeywordsXml
+
+	bool loaded = false;
+	LLSD content;
+	llifstream file;
+	file.open(mFullFileSpec);
+	if (file.is_open())
+	{
+		loaded = (bool)LLSDSerialize::fromXML(content, file);
+		if (!loaded)
+		{
+			LL_WARNS("LSLSyntax") << "Unable to deserialise file: " << filename << LL_ENDL;
+
+			// Is this the right thing to do, or should we leave the old content
+			// even if it isn't entirely accurate anymore?
+			sKeywordsXml = LLSD.emptyMap();
+		}
+		else
+		{
+			sKeywordsXml = content;
+			LL_INFOS("LSLSyntax") << "Deserialised file: " << filename << LL_ENDL;
+		}
+	}
+	else
+	{
+		LL_WARNS("LSLSyntax") << "Unable to open file: " << filename << LL_ENDL;
+	}
+	return loaded;
 }

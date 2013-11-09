@@ -83,8 +83,8 @@ public:
 
 	S32					getLengthHead() const	{ return mToken.size(); }
 	S32					getLengthTail() const	{ return mDelimiter.size(); }
-	BOOL				isHead(const llwchar* s) const;
-	BOOL				isTail(const llwchar* s) const;
+	bool				isHead(const llwchar* s) const;
+	bool				isTail(const llwchar* s) const;
 	const LLWString&	getToken() const		{ return mToken; }
 	const LLColor4&		getColor() const		{ return mColor; }
 	TOKEN_TYPE			getType()  const		{ return mType; }
@@ -111,13 +111,13 @@ public:
 
 	void		addColorGroup(const std::string key_in, const LLColor4 color);
 	LLColor4	getColorGroup(const std::string key_in);
-	BOOL		loadFromFile();
-	BOOL		loadFromFile(const std::string& filename);
-	BOOL		isLoaded() const	{ return mLoaded; }
+	bool		loadFromFile();
+	bool		loadFromFile(const std::string& filename);
+	bool		isLoaded() const	{ return mLoaded; }
 	void		setFilenameSyntax(const std::string filename) { mFilenameSyntax = filename; }
 
 	void		findSegments(std::vector<LLTextSegmentPtr> *seg_list, const LLWString& text, const LLColor4 &defaultColor, class LLTextEditor& editor );
-	BOOL		initialise(ELLPath path, const std::string filename);
+	bool		initialise(ELLPath path, const std::string filename);
 	std::string	processColors();
 	std::string	processColors(LLSD &data, const std::string strGroup);
 	void		processTokens();
@@ -176,10 +176,10 @@ protected:
 	LLColor4	readColor(LLSD& sd);
 	void		insertSegment(std::vector<LLTextSegmentPtr>& seg_list, LLTextSegmentPtr new_segment, S32 text_len, const LLColor4 &defaultColor, class LLTextEditor& editor);
 	void		insertSegments(const LLWString& wtext, std::vector<LLTextSegmentPtr>& seg_list, LLKeywordToken* token, S32 text_len, S32 seg_start, S32 seg_end, const LLColor4 &defaultColor, LLTextEditor& editor);
-	BOOL		loadIntoLLSD( const std::string& filename, LLSD& data );
+	bool		loadIntoLLSD( const std::string& filename, LLSD& data );
 
 	LLSD		mColors;
-	BOOL		mLoaded;
+	bool		mLoaded;
 	LLSD		mSyntax;
 	word_token_map_t mWordTokenMap;
 	typedef std::deque<LLKeywordToken*> token_list_t;
@@ -194,8 +194,8 @@ protected:
 	std::string	getArguments(LLSD& args);
 
 private:
-	BOOL		ready() { return mReady; }
-	BOOL		mReady;
+	bool		ready() { return mReady; }
+	bool		mReady;
 	std::string	mFilenameSyntax;
 };
 

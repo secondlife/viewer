@@ -406,11 +406,7 @@ BOOL LLScriptEdCore::postBuild()
 
 	initMenu();
 
-// Make this work ;-)
-	mSyntaxIdLSL.initialise();
-	// ...
-	mEditor->mKeywords.initialise(LL_PATH_APP_SETTINGS, "keywords_lsl_default.xml");
-//	mEditor->mKeywords.initialise(mSyntaxIdLSL.getFullFileSpec());
+	LLEnvManagerNew::instance().setRegionChangeCallback(boost::bind(&LLScriptEdCore::initKeywords(), this));
 
 	// FIX: Refactor LLTextEditor::loadKeywords so these can be removed.
 	std::vector<std::string> funcs;
@@ -454,6 +450,15 @@ BOOL LLScriptEdCore::postBuild()
 	}
 
 	return TRUE;
+}
+
+void LLScriptEdCore::initKeywords()
+{
+	// Make this work ;-)
+		mSyntaxIdLSL.initialise();
+		// ...
+		mEditor->mKeywords.initialise(LL_PATH_APP_SETTINGS, "keywords_lsl_default.xml");
+	//	mEditor->mKeywords.initialise(mSyntaxIdLSL.getKeywordsXML());
 }
 
 void LLScriptEdCore::initMenu()
