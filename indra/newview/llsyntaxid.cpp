@@ -293,7 +293,7 @@ bool LLSyntaxIdLSL::loadKeywordsFileIntoLLSD()
 		loaded = (bool)LLSDSerialize::fromXML(content, file);
 		if (!loaded)
 		{
-			LL_WARNS("LSLSyntax") << "Unable to deserialise file: " << filename << LL_ENDL;
+			LL_WARNS("LSLSyntax") << "Unable to deserialise file: " << mFullFileSpec << LL_ENDL;
 
 			// Is this the right thing to do, or should we leave the old content
 			// even if it isn't entirely accurate anymore?
@@ -302,12 +302,12 @@ bool LLSyntaxIdLSL::loadKeywordsFileIntoLLSD()
 		else
 		{
 			sKeywordsXml = content;
-			LL_INFOS("LSLSyntax") << "Deserialised file: " << filename << LL_ENDL;
+			LL_INFOS("LSLSyntax") << "Deserialised file: " << mFullFileSpec << LL_ENDL;
 		}
 	}
 	else
 	{
-		LL_WARNS("LSLSyntax") << "Unable to open file: " << filename << LL_ENDL;
+		LL_WARNS("LSLSyntax") << "Unable to open file: " << mFullFileSpec << LL_ENDL;
 	}
 	return loaded;
 }
