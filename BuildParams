@@ -197,16 +197,6 @@ runway.viewer_grid = agni
 runway.build_debug_release_separately = true
 runway.build_CYGWIN_Debug = false
 runway.build_viewer_update_version_manager = false
-
-# ========================================
-# viewer-interesting
-# ========================================
-
-viewer-interesting.viewer_channel = "Project Viewer - Interesting"
-viewer-interesting.build_debug_release_separately = true
-viewer-interesting.build_CYGWIN_Debug = false
-viewer-interesting.build_viewer_update_version_manager = false
-
 # eof
 
 
