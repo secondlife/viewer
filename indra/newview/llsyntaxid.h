@@ -39,6 +39,7 @@ public:
 	bool			checkSyntaxIdChanged();
 	std::string		getFileNameCurrent()	const { return mFileNameCurrent; }
 	ELLPath			getFilePath()			const { return mFilePath; }
+	LLSD			getKeywordsXML()		const { return sKeywordsXml; }
 	LLUUID			getSyntaxId()			const { return mSyntaxIdCurrent; }
 
 	void			initialise();
@@ -50,7 +51,8 @@ protected:
 	std::string		buildFileNameNew();
 	std::string		buildFullFileSpec();
 	void			fetchKeywordsFile();
-	void			openKeywordsFile();
+	//void			openKeywordsFile();
+	bool			loadKeywordsFileIntoLLSD();
 	void			setSyntaxId(LLUUID SyntaxId) { mSyntaxIdCurrent = SyntaxId; }
 	void			setFileNameCurrent(std::string& name) { mFileNameCurrent = name; }
 	void			setFileNameDefault(std::string& name) { mFileNameDefault = name; }
