@@ -78,6 +78,7 @@ public:
 	~LLScriptEdCore();
 	
 	void			initMenu();
+	bool			initKeywords();
 
 	virtual void	draw();
 	/*virtual*/	BOOL	postBuild();

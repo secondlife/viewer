@@ -406,53 +406,58 @@ BOOL LLScriptEdCore::postBuild()
 
 	initMenu();
 
-// Make this work ;-)
-	mSyntaxIdLSL.initialise();
-	// ...
-	mEditor->mKeywords.initialise(mSyntaxIdLSL.getKeywordsXML());
+	return initKeywords();
+}
 
-	// FIX: Refactor LLTextEditor::loadKeywords so these can be removed.
-	std::vector<std::string> funcs;
-	std::vector<std::string> tooltips;
-	
-	LLColor3 color(0.5f, 0.0f, 0.15f);
-	mEditor->loadKeywords(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"keywords.ini"), funcs, tooltips, color);
+bool LLScriptEdCore::initKeywords()
+{
+	// Make this work ;-)
+		mSyntaxIdLSL.initialise();
+		// ...
+		mEditor->mKeywords.initialise(mSyntaxIdLSL.getKeywordsXML());
 
-	std::vector<std::string> primary_keywords;
-	std::vector<std::string> secondary_keywords;
-	LLKeywordToken *token;
-	LLKeywords::keyword_iterator_t token_it;
-	for (token_it = mEditor->keywordsBegin(); token_it != mEditor->keywordsEnd(); ++token_it)
-	{
-		token = token_it->second;
-		// FIX: change this to use the new Token Type enum entries.
-		if (token->getColor() == color) // Wow, what a disgusting hack.
+		// FIX: Refactor LLTextEditor::loadKeywords so these can be removed.
+		//std::vector<std::string> funcs;
+		//std::vector<std::string> tooltips;
+
+		LLColor3 color(0.5f, 0.0f, 0.15f);
+		mEditor->loadKeywords();
+
+		std::vector<std::string> primary_keywords;
+		std::vector<std::string> secondary_keywords;
+		LLKeywordToken *token;
+		LLKeywords::keyword_iterator_t token_it;
+		for (token_it = mEditor->keywordsBegin(); token_it != mEditor->keywordsEnd(); ++token_it)
 		{
-			primary_keywords.push_back( wstring_to_utf8str(token->getToken()) );
+			token = token_it->second;
+			// FIX: change this to use the new Token Type enum entries.
+			if (token->getColor() == color) // Wow, what a disgusting hack.
+			{
+				primary_keywords.push_back( wstring_to_utf8str(token->getToken()) );
+			}
+			else
+			{
+				secondary_keywords.push_back( wstring_to_utf8str(token->getToken()) );
+			}
 		}
-		else
+
+		// Case-insensitive dictionary sort for primary keywords. We don't sort the secondary
+		// keywords. They're intelligently grouped in keywords.ini.
+		std::stable_sort( primary_keywords.begin(), primary_keywords.end(), LLSECKeywordCompare() );
+
+		for (std::vector<std::string>::const_iterator iter= primary_keywords.begin();
+				iter!= primary_keywords.end(); ++iter)
 		{
-			secondary_keywords.push_back( wstring_to_utf8str(token->getToken()) );
+			mFunctions->add(*iter);
 		}
-	}
 
-	// Case-insensitive dictionary sort for primary keywords. We don't sort the secondary
-	// keywords. They're intelligently grouped in keywords.ini.
-	std::stable_sort( primary_keywords.begin(), primary_keywords.end(), LLSECKeywordCompare() );
+		for (std::vector<std::string>::const_iterator iter= secondary_keywords.begin();
+				iter!= secondary_keywords.end(); ++iter)
+		{
+			mFunctions->add(*iter);
+		}
 
-	for (std::vector<std::string>::const_iterator iter= primary_keywords.begin();
-			iter!= primary_keywords.end(); ++iter)
-	{
-		mFunctions->add(*iter);
-	}
-
-	for (std::vector<std::string>::const_iterator iter= secondary_keywords.begin();
-			iter!= secondary_keywords.end(); ++iter)
-	{
-		mFunctions->add(*iter);
-	}
-
-	return TRUE;
+		return TRUE;
 }
 
 void LLScriptEdCore::initMenu()
