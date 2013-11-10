@@ -205,42 +205,6 @@ bool LLKeywords::initialise(LLSD SyntaxXML)
 	return mReady;
 }
 
-BOOL LLKeywords::loadFromFile()
-{
-	processTokens();
-	return true;
-}
-
-/**
- * @brief	Load xml serialised LLSD
- * @desc	Opens the specified filespec and attempts to deserialise the
- *			contained data to the specified LLSD object.
- * @return	Returns boolean true/false indicating success or failure.
- */
-BOOL LLKeywords::loadIntoLLSD(const std::string& filename, LLSD& data)
-{
-	mLoaded = false;
-	llifstream file;
-	file.open(filename);
-	if(file.is_open())
-	{
-		mLoaded = (BOOL)LLSDSerialize::fromXML(data, file);
-		if (!mLoaded)
-		{
-			LL_WARNS("") << "Unable to deserialise file: " << filename << LL_ENDL;
-		}
-		else
-		{
-			LL_INFOS("") << "Deserialised file: " << filename << LL_ENDL;
-		}
-	}
-	else
-	{
-		LL_WARNS("") << "Unable to open file: " << filename << LL_ENDL;
-	}
-	return mLoaded;
-}
-
 ///**
 // * @brief Start processing the colour LLSD from its beginning.
 // *

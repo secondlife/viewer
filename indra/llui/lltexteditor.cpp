@@ -2502,23 +2502,19 @@ BOOL LLTextEditor::tryToRevertToPristineState()
 
 
 static LLFastTimer::DeclareTimer FTM_SYNTAX_HIGHLIGHTING("Syntax Highlighting");
-void LLTextEditor::loadKeywords(const std::string& filename,
-								const std::vector<std::string>& funcs,
-								const std::vector<std::string>& tooltips,
-								const LLColor4& color)
+void LLTextEditor::loadKeywords()
 {
 	LLFastTimer ft(FTM_SYNTAX_HIGHLIGHTING);
-	if(mKeywords.loadFromFile())
-	{
-		segment_vec_t segment_list;
-		mKeywords.findSegments(&segment_list, getWText(), mDefaultColor.get(), *this);
+	mKeywords.processTokens();
 
-		mSegments.clear();
-		segment_set_t::iterator insert_it = mSegments.begin();
-		for (segment_vec_t::iterator list_it = segment_list.begin(); list_it != segment_list.end(); ++list_it)
-		{
-			insert_it = mSegments.insert(insert_it, *list_it);
-		}
+	segment_vec_t segment_list;
+	mKeywords.findSegments(&segment_list, getWText(), mDefaultColor.get(), *this);
+
+	mSegments.clear();
+	segment_set_t::iterator insert_it = mSegments.begin();
+	for (segment_vec_t::iterator list_it = segment_list.begin(); list_it != segment_list.end(); ++list_it)
+	{
+		insert_it = mSegments.insert(insert_it, *list_it);
 	}
 }
 
