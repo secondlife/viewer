@@ -406,19 +406,15 @@ BOOL LLScriptEdCore::postBuild()
 
 	initMenu();
 
-	return initKeywords();
+	initKeywords();
+
+	return TRUE;
 }
 
-bool LLScriptEdCore::initKeywords()
+void LLScriptEdCore::initKeywords()
 {
-	// Make this work ;-)
 		mSyntaxIdLSL.initialise();
-		// ...
 		mEditor->mKeywords.initialise(mSyntaxIdLSL.getKeywordsXML());
-
-		// FIX: Refactor LLTextEditor::loadKeywords so these can be removed.
-		//std::vector<std::string> funcs;
-		//std::vector<std::string> tooltips;
 
 		LLColor3 color(0.5f, 0.0f, 0.15f);
 		mEditor->loadKeywords();
@@ -443,6 +439,7 @@ bool LLScriptEdCore::initKeywords()
 
 		// Case-insensitive dictionary sort for primary keywords. We don't sort the secondary
 		// keywords. They're intelligently grouped in keywords.ini.
+		// As we don't use keywords.ini, this is no longer true. Do we need to sort now?
 		std::stable_sort( primary_keywords.begin(), primary_keywords.end(), LLSECKeywordCompare() );
 
 		for (std::vector<std::string>::const_iterator iter= primary_keywords.begin();
@@ -456,8 +453,6 @@ bool LLScriptEdCore::initKeywords()
 		{
 			mFunctions->add(*iter);
 		}
-
-		return TRUE;
 }
 
 void LLScriptEdCore::initMenu()
