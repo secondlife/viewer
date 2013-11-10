@@ -297,7 +297,7 @@ bool LLSyntaxIdLSL::loadKeywordsFileIntoLLSD()
 
 			// Is this the right thing to do, or should we leave the old content
 			// even if it isn't entirely accurate anymore?
-			sKeywordsXml = LLSD.emptyMap();
+			sKeywordsXml = LLSD().emptyMap();
 		}
 		else
 		{
