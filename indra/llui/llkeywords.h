@@ -113,8 +113,7 @@ public:
 	LLColor4	getColorGroup(const std::string key_in);
 	BOOL		loadFromFile();
 	BOOL		loadFromFile(const std::string& filename);
-	BOOL		isLoaded() const	{ return mLoaded; }
-	void		setFilenameSyntax(const std::string filename) { mFilenameSyntax = filename; }
+	bool		isLoaded() const	{ return mLoaded; }
 
 	void		findSegments(std::vector<LLTextSegmentPtr> *seg_list, const LLWString& text, const LLColor4 &defaultColor, class LLTextEditor& editor );
 	bool		initialise(LLSD SyntaxXML);
@@ -179,7 +178,7 @@ protected:
 	BOOL		loadIntoLLSD( const std::string& filename, LLSD& data );
 
 	LLSD		mColors;
-	BOOL		mLoaded;
+	bool		mLoaded;
 	LLSD		mSyntax;
 	word_token_map_t mWordTokenMap;
 	typedef std::deque<LLKeywordToken*> token_list_t;
@@ -194,9 +193,6 @@ protected:
 	std::string	getArguments(LLSD& args);
 
 private:
-	BOOL		ready() { return mReady; }
-	BOOL		mReady;
-	std::string	mFilenameSyntax;
 };
 
 #endif  // LL_LLKEYWORDS_H
