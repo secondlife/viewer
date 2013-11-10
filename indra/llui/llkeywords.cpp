@@ -198,19 +198,10 @@ LLColor4 LLKeywords::getColorGroup(const std::string key_in)
 	return LLUIColorTable::instance().getColor(ColourGroup);
 }
 
-BOOL LLKeywords::initialise(ELLPath path, const std::string filename)
+bool LLKeywords::initialise(LLSD SyntaxXML)
 {
-	mReady = false;
-	setFilenameSyntax( gDirUtilp->getExpandedFilename(path, filename) );
-
-	if (! loadIntoLLSD(mFilenameSyntax, mSyntax) )
-	{
-		LL_ERRS("") << "Failed to load syntax data from '" << mFilenameSyntax << "', cannot continue!" << LL_ENDL;
-	}
-	else
-	{
-		mReady = true;
-	}
+	mSyntax = SyntaxXML;
+	mLoaded = mReady = true;
 	return mReady;
 }
 

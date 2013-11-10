@@ -409,8 +409,7 @@ BOOL LLScriptEdCore::postBuild()
 // Make this work ;-)
 	mSyntaxIdLSL.initialise();
 	// ...
-	mEditor->mKeywords.initialise(LL_PATH_APP_SETTINGS, "keywords_lsl_default.xml");
-//	mEditor->mKeywords.initialise(mSyntaxIdLSL.getFullFileSpec());
+	mEditor->mKeywords.initialise(mSyntaxIdLSL.getKeywordsXML());
 
 	// FIX: Refactor LLTextEditor::loadKeywords so these can be removed.
 	std::vector<std::string> funcs;

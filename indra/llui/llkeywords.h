@@ -117,7 +117,7 @@ public:
 	void		setFilenameSyntax(const std::string filename) { mFilenameSyntax = filename; }
 
 	void		findSegments(std::vector<LLTextSegmentPtr> *seg_list, const LLWString& text, const LLColor4 &defaultColor, class LLTextEditor& editor );
-	BOOL		initialise(ELLPath path, const std::string filename);
+	bool		initialise(LLSD SyntaxXML);
 	std::string	processColors();
 	std::string	processColors(LLSD &data, const std::string strGroup);
 	void		processTokens();
