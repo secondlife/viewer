@@ -248,7 +248,7 @@ void LLSyntaxIdLSL::initialise()
 				LL_WARNS("LSLSyntax")
 						<< "Filename is cached, no need to download!"
 						<< LL_ENDL;
-				loadKeywordsFileIntoLLSD();
+				loadKeywordsIntoLLSD();
 			}
 		}
 		else
@@ -256,7 +256,7 @@ void LLSyntaxIdLSL::initialise()
 			LL_WARNS("LSLSyntax")
 					<< "ID is null so SyntaxID does not need to be processed!"
 					<< LL_ENDL;
-			loadKeywordsFileIntoLLSD();
+			loadKeywordsIntoLLSD();
 		}
 		mFileNameCurrent = mFileNameNew;
 		mSyntaxIdCurrent = mSyntaxIdNew;
@@ -278,7 +278,7 @@ void LLSyntaxIdLSL::initialise()
  *			contained data to the specified LLSD object.
  * @return	Returns boolean true/false indicating success or failure.
  */
-bool LLSyntaxIdLSL::loadKeywordsFileIntoLLSD()
+bool LLSyntaxIdLSL::loadKeywordsIntoLLSD()
 {
 	LL_WARNS("LSLSyntax")
 			<< "Trying to open default or cached keyword file ;-)"
