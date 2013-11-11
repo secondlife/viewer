@@ -141,7 +141,7 @@ private:
 	/*virtual*/ void refresh();
 
     /*virtual*/ void onTearOffClicked();
-	/*virtual*/ void onClickCloseBtn();
+	/*virtual*/ void onClickCloseBtn(bool app_qutting);
 
 	// Update the window title and input field help text
 	/*virtual*/ void updateSessionName(const std::string& name);

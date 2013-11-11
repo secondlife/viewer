@@ -469,16 +469,11 @@
 				<combo_box.item label="吸い込み" name="suction"/>
 				<combo_box.item label="織目" name="weave"/>
 			</combo_box>
-			<check_box initial_value="false" label="平面を揃える" name="checkbox planar align" tool_tip="選択面全てのテクスチャを、最後に選択された面に揃えます。 平面テクスチャのマッピングが必要です。"/>
-			<text name="rpt">
-				反復 / 面
-			</text>
 			<spinner label="水平（U）" name="TexScaleU"/>
 			<check_box label="反転" name="checkbox flip s"/>
 			<spinner label="垂直（V）" name="TexScaleV"/>
 			<check_box label="反転" name="checkbox flip t"/>
 			<spinner label="回転˚" name="TexRot"/>
-			<spinner label="反復 / メーター" name="rptctrl"/>
 			<button label="適用" label_selected="適用" name="button apply"/>
 			<text name="tex offset">
 				テクスチャのズレ

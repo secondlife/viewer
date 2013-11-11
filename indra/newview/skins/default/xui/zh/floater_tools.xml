@@ -465,16 +465,11 @@
 				<combo_box.item label="吸附" name="suction"/>
 				<combo_box.item label="編織" name="weave"/>
 			</combo_box>
-			<check_box initial_value="false" label="對齊平面" name="checkbox planar align" tool_tip="以最後所選擇的面為基準，對齊全部所選擇的面上的材質。 這必須使用平面材質映射方式。"/>
-			<text name="rpt">
-				重覆次數 / 面
-			</text>
 			<spinner label="水平（U）" name="TexScaleU"/>
 			<check_box label="翻轉" name="checkbox flip s"/>
 			<spinner label="垂直（V）" name="TexScaleV"/>
 			<check_box label="翻轉" name="checkbox flip t"/>
 			<spinner label="旋轉˚" name="TexRot"/>
-			<spinner label="重覆次數 / 公尺" name="rptctrl"/>
 			<button label="套用" label_selected="套用" name="button apply"/>
 			<text name="tex offset">
 				材質位移
