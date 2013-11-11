@@ -343,6 +343,7 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 					}
 				}
 				mTexAnimMode = 0;
+				
 				mTextureAnimp->unpackTAMessage(mesgsys, block_num);
 			}
 			else
