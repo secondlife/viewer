@@ -201,8 +201,8 @@ LLColor4 LLKeywords::getColorGroup(const std::string key_in)
 bool LLKeywords::initialise(LLSD SyntaxXML)
 {
 	mSyntax = SyntaxXML;
-	mLoaded = mReady = true;
-	return mReady;
+	mLoaded = true;
+	return mLoaded;
 }
 
 ///**
