@@ -34,6 +34,7 @@
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "lldir.h"
+#include "llenvmanager.h"
 #include "llexternaleditor.h"
 #include "llfilepicker.h"
 #include "llfloaterreg.h"
@@ -406,13 +407,14 @@ BOOL LLScriptEdCore::postBuild()
 
 	initMenu();
 
-	initKeywords();
-
+	onRegionChangeInitialiseKeywords();
+	//LLEnvManagerNew::getInstance()->setRegionChangeCallback(boost::bind(&LLScriptEdCore::onRegionChangeInitialiseKeywords(), this));
 	return TRUE;
 }
 
-void LLScriptEdCore::initKeywords()
+void LLScriptEdCore::onRegionChangeInitialiseKeywords()
 {
+	mEditor->mKeywords.clearLoaded();
 	mSyntaxIdLSL.initialise();
 	mEditor->mKeywords.initialise(mSyntaxIdLSL.getKeywordsXML());
 
