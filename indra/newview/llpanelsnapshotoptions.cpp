@@ -32,6 +32,9 @@
 
 #include "llfloatersnapshot.h" // FIXME: create a snapshot model
 #include "llfloaterreg.h"
+#include "llfloatersocial.h"
+#include "llfloaterflickr.h"
+#include "llfloatertwitter.h"
 
 /**
  * Provides several ways to save a snapshot.
@@ -140,17 +143,35 @@ void LLPanelSnapshotOptions::onSaveToComputer()
 void LLPanelSnapshotOptions::onSendToFacebook()
 {
 	LLFloaterReg::hideInstance("snapshot");
+
+	LLFloaterSocial* social_floater = dynamic_cast<LLFloaterSocial*>(LLFloaterReg::getInstance("social"));
+	if (social_floater)
+	{
+		social_floater->showPhotoPanel();
+	}
 	LLFloaterReg::showInstance("social");
 }
 
 void LLPanelSnapshotOptions::onSendToTwitter()
 {
 	LLFloaterReg::hideInstance("snapshot");
+
+	LLFloaterTwitter* twitter_floater = dynamic_cast<LLFloaterTwitter*>(LLFloaterReg::getInstance("twitter"));
+	if (twitter_floater)
+	{
+		twitter_floater->showPhotoPanel();
+	}
 	LLFloaterReg::showInstance("twitter");
 }
 
 void LLPanelSnapshotOptions::onSendToFlickr()
 {
 	LLFloaterReg::hideInstance("snapshot");
+
+	LLFloaterFlickr* flickr_floater = dynamic_cast<LLFloaterFlickr*>(LLFloaterReg::getInstance("flickr"));
+	if (flickr_floater)
+	{
+		flickr_floater->showPhotoPanel();
+	}
 	LLFloaterReg::showInstance("flickr");
 }

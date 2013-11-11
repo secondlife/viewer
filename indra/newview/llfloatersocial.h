@@ -150,6 +150,8 @@ public:
 	BOOL postBuild();
 	void draw();
 	void onCancel();
+	
+	void showPhotoPanel();
 
 	static void preUpdate();
 	static void postUpdate();

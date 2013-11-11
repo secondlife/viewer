@@ -46,6 +46,7 @@
 #include "llviewerregion.h"
 #include "llviewercontrol.h"
 #include "llviewermedia.h"
+#include "lltabcontainer.h"
 
 static LLRegisterPanelClassWrapper<LLFlickrPhotoPanel> t_panel_photo("llflickrphotopanel");
 static LLRegisterPanelClassWrapper<LLFlickrAccountPanel> t_panel_account("llflickraccountpanel");
@@ -586,6 +587,18 @@ BOOL LLFloaterFlickr::postBuild()
     mStatusLoadingText = getChild<LLTextBox>("connection_loading_text");
     mStatusLoadingIndicator = getChild<LLUICtrl>("connection_loading_indicator");
 	return LLFloater::postBuild();
+}
+
+void LLFloaterFlickr::showPhotoPanel()
+{
+	LLTabContainer* parent = dynamic_cast<LLTabContainer*>(mSocialPhotoPanel->getParent());
+	if (!parent)
+	{
+		llwarns << "Cannot find panel container" << llendl;
+		return;
+	}
+
+	parent->selectTabPanel(mSocialPhotoPanel);
 }
 
 // static

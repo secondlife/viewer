@@ -108,6 +108,8 @@ public:
 	void draw();
 	void onCancel();
 
+	void showPhotoPanel();
+
 	static void preUpdate();
 	static void postUpdate();
 
