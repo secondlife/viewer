@@ -35,7 +35,12 @@
 #include "pipeline.h"
 #include "llagentcamera.h"
 
+//static variables
 U32 LLVOCacheEntry::sMinFrameRange = 0;
+F32 LLVOCacheEntry::sNearRadiusSquared = 1.0f;
+F32 LLVOCacheEntry::sRearFarRadius = 1.0f;
+F32 LLVOCacheEntry::sFrontPixelThreshold = 1.0f;
+F32 LLVOCacheEntry::sRearPixelThreshold = 1.0f;
 BOOL LLVOCachePartition::sNeedsOcclusionCheck = FALSE;
 
 BOOL check_read(LLAPRFile* apr_file, void* src, S32 n_bytes) 
@@ -341,18 +346,46 @@ void LLVOCacheEntry::updateDebugSettings()
 {
 	//the number of frames invisible objects stay in memory
 	static LLCachedControl<U32> inv_obj_time(gSavedSettings,"NonvisibleObjectsInMemoryTime");
-
 	sMinFrameRange = inv_obj_time - 1; //make 0 to be the maximum 
+
+	//min radius: all objects within this radius remain loaded in memory
+	static LLCachedControl<F32> min_radius(gSavedSettings,"SceneLoadMinRadius");
+	sNearRadiusSquared = llmin((F32)min_radius, gAgentCamera.mDrawDistance); //can not exceed the draw distance
+	sNearRadiusSquared *= sNearRadiusSquared;
+	sNearRadiusSquared = llmax(sNearRadiusSquared, 1.f); //minimum value is 1.0m
+
+	//objects within the view frustum whose visible area is greater than this threshold will be loaded
+	static LLCachedControl<F32> front_pixel_threshold(gSavedSettings,"SceneLoadFrontPixelThreshold");
+	sFrontPixelThreshold = front_pixel_threshold;
+
+	//objects out of the view frustum whose visible area is greater than this threshold will remain loaded
+	static LLCachedControl<F32> rear_pixel_threshold(gSavedSettings,"SceneLoadRearPixelThreshold");
+	sRearPixelThreshold = rear_pixel_threshold;
+	sRearPixelThreshold = llmax(sRearPixelThreshold, sFrontPixelThreshold); //can not be smaller than sFrontPixelThreshold.
+
+	// a percentage of draw distance beyond which all objects outside of view frustum will be unloaded, regardless of pixel threshold
+	static LLCachedControl<F32> rear_max_radius_frac(gSavedSettings,"SceneLoadRearMaxRadiusFraction");
+	sRearFarRadius = llmax(rear_max_radius_frac * gAgentCamera.mDrawDistance / 100.f, 1.0f); //minimum value is 1.0m
+	sRearFarRadius = llmax(sRearFarRadius, (F32)min_radius); //can not be less than "SceneLoadMinRadius".
+	sRearFarRadius = llmin(sRearFarRadius, gAgentCamera.mDrawDistance); //can not be more than the draw distance.
 }
 
 //static 
-F32 LLVOCacheEntry::getSquaredObjectScreenAreaThreshold()
+F32 LLVOCacheEntry::getSquaredPixelThreshold(bool is_front)
 {
-	static LLCachedControl<F32> projection_area_cutoff(gSavedSettings,"ObjectProjectionAreaCutOff");
+	F32 threshold;
+	if(is_front)
+	{
+		threshold = sFrontPixelThreshold;
+	}
+	else
+	{
+		threshold = sRearPixelThreshold;
+	}
 
 	//object projected area threshold
 	F32 pixel_meter_ratio = LLViewerCamera::getInstance()->getPixelMeterRatio();
-	F32 projection_threshold = pixel_meter_ratio > 0.f ? projection_area_cutoff / pixel_meter_ratio : 0.f;
+	F32 projection_threshold = pixel_meter_ratio > 0.f ? threshold / pixel_meter_ratio : 0.f;
 	projection_threshold *= projection_threshold;
 
 	return projection_threshold;
@@ -402,7 +435,13 @@ void LLVOCacheEntry::calcSceneContribution(const LLVector4a& camera_origin, bool
 	lookAt.setSub(getPositionGroup(), camera_origin);
 	F32 squared_dist = lookAt.dot3(lookAt).getF32();
 
-	if(squared_dist > 0.f)
+	if(squared_dist < sNearRadiusSquared)
+	{
+		//nearby objects, set a large number
+		const F32 LARGE_SCENE_CONTRIBUTION = 1000.f; //a large number to force to load the object.
+		mSceneContrib = LARGE_SCENE_CONTRIBUTION;
+	}
+	else
 	{
 		F32 rad = getBinRadius();
 		mSceneContrib = rad * rad / squared_dist;
@@ -554,14 +593,15 @@ class LLVOCacheOctreeCull : public LLViewerOctreeCull
 {
 public:
 	LLVOCacheOctreeCull(LLCamera* camera, LLViewerRegion* regionp, 
-		const LLVector3& shift, bool use_object_cache_occlusion, F32 projection_area_cutoff, LLVOCachePartition* part) 
+		const LLVector3& shift, bool use_object_cache_occlusion, F32 pixel_threshold, LLVOCachePartition* part) 
 		: LLViewerOctreeCull(camera), 
 		  mRegionp(regionp),
 		  mPartition(part),
-		  mProjectionAreaCutOff(projection_area_cutoff)
+		  mPixelThreshold(pixel_threshold)
 	{
 		mLocalShift = shift;
 		mUseObjectCacheOcclusion = use_object_cache_occlusion;
+		mSquaredNearRadius = LLVOCacheEntry::sNearRadiusSquared;
 	}
 
 	virtual bool earlyFail(LLViewerOctreeGroup* base_group)
@@ -617,7 +657,7 @@ public:
 		{
 			//check if the objects projection large enough
 			const LLVector4a* exts = group->getObjectExtents();
-			res = checkProjectionArea(exts[0], exts[1], mLocalShift, mProjectionAreaCutOff);
+			res = checkProjectionArea(exts[0], exts[1], mLocalShift, mPixelThreshold, mSquaredNearRadius);
 		}
 
 		return res;
@@ -663,7 +703,8 @@ private:
 	LLVOCachePartition* mPartition;
 	LLViewerRegion*     mRegionp;
 	LLVector3           mLocalShift; //shift vector from agent space to local region space.
-	F32                 mProjectionAreaCutOff;
+	F32                 mPixelThreshold;
+	F32                 mSquaredNearRadius;
 	bool                mUseObjectCacheOcclusion;
 };
 
@@ -671,11 +712,11 @@ private:
 class LLVOCacheOctreeBackCull : public LLViewerOctreeCull
 {
 public:
-	LLVOCacheOctreeBackCull(LLCamera* camera, const LLVector3& shift, LLViewerRegion* regionp, F32 back_sphere_radius, F32 projection_area_cutoff) 
-		: LLViewerOctreeCull(camera), mRegionp(regionp), mProjectionAreaCutOff(projection_area_cutoff)
+	LLVOCacheOctreeBackCull(LLCamera* camera, const LLVector3& shift, LLViewerRegion* regionp, F32 pixel_threshold) 
+		: LLViewerOctreeCull(camera), mRegionp(regionp), mPixelThreshold(pixel_threshold)
 	{
 		mLocalShift = shift;
-		mSphereRadius = back_sphere_radius;
+		mSphereRadius = LLVOCacheEntry::sRearFarRadius;
 	}
 
 	virtual S32 frustumCheck(const LLViewerOctreeGroup* group)
@@ -691,7 +732,7 @@ public:
 		{
 			//check if the objects projection large enough
 			const LLVector4a* exts = group->getObjectExtents();
-			return checkProjectionArea(exts[0], exts[1], mLocalShift, mProjectionAreaCutOff);
+			return checkProjectionArea(exts[0], exts[1], mLocalShift, mPixelThreshold, mSphereRadius * mSphereRadius);
 		}
 		return false;
 	}
@@ -713,10 +754,10 @@ private:
 	F32              mSphereRadius;
 	LLViewerRegion*  mRegionp;
 	LLVector3        mLocalShift; //shift vector from agent space to local region space.
-	F32              mProjectionAreaCutOff;
+	F32              mPixelThreshold;
 };
 
-void LLVOCachePartition::selectBackObjects(LLCamera &camera, F32 back_sphere_radius, F32 projection_area_cutoff)
+void LLVOCachePartition::selectBackObjects(LLCamera &camera, F32 pixel_threshold)
 {
 	if(LLViewerCamera::sCurCameraID != LLViewerCamera::CAMERA_WORLD)
 	{
@@ -737,7 +778,7 @@ void LLVOCachePartition::selectBackObjects(LLCamera &camera, F32 back_sphere_rad
 	//localize the camera
 	LLVector3 region_agent = mRegionp->getOriginAgent();
 	
-	LLVOCacheOctreeBackCull culler(&camera, region_agent, mRegionp, back_sphere_radius, projection_area_cutoff);
+	LLVOCacheOctreeBackCull culler(&camera, region_agent, mRegionp, pixel_threshold);
 	culler.traverse(mOctree);
 
 	mBackSlectionEnabled--;
@@ -752,7 +793,6 @@ void LLVOCachePartition::selectBackObjects(LLCamera &camera, F32 back_sphere_rad
 S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 {
 	static LLCachedControl<bool> use_object_cache_occlusion(gSavedSettings,"UseObjectCacheOcclusion");
-	static LLCachedControl<F32> back_sphere_radius(gSavedSettings,"BackSphereCullingRadius");	
 	
 	if(!LLViewerRegion::sVOCacheCullingEnabled)
 	{
@@ -776,9 +816,6 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 	}
 	mCulledTime[LLViewerCamera::sCurCameraID] = LLViewerOctreeEntryData::getCurrentFrame();
 
-	//object projected area threshold
-	F32 projection_threshold = LLVOCacheEntry::getSquaredObjectScreenAreaThreshold();
-	
 	if(!mCullHistory && LLViewerRegion::isViewerCameraStatic())
 	{
 		U32 seed = llmax(mLODPeriod >> 1, (U32)4);
@@ -791,7 +828,8 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 		}
 		if(LLViewerOctreeEntryData::getCurrentFrame() % seed != mIdleHash)
 		{
-			selectBackObjects(camera, back_sphere_radius, projection_threshold);//process back objects selection
+			mFrontCull = FALSE;
+			selectBackObjects(camera, LLVOCacheEntry::getSquaredPixelThreshold(mFrontCull));//process back objects selection
 			return 0; //nothing changed, reduce frequency of culling
 		}
 	}
@@ -804,7 +842,9 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 	LLVector3 region_agent = mRegionp->getOriginAgent();
 	camera.calcRegionFrustumPlanes(region_agent);
 
-	LLVOCacheOctreeCull culler(&camera, mRegionp, region_agent, do_occlusion && use_object_cache_occlusion, projection_threshold, this);
+	mFrontCull = TRUE;
+	LLVOCacheOctreeCull culler(&camera, mRegionp, region_agent, do_occlusion && use_object_cache_occlusion, 
+		LLVOCacheEntry::getSquaredPixelThreshold(mFrontCull), this);
 	culler.traverse(mOctree);	
 
 	if(!sNeedsOcclusionCheck)

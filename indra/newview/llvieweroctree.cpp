@@ -1429,7 +1429,7 @@ S32 LLViewerOctreeCull::AABBRegionSphereIntersectObjectExtents(const LLViewerOct
 }
 //------------------------------------------
 //check if the objects projection large enough
-bool LLViewerOctreeCull::checkProjectionArea(const LLVector4a& center, const LLVector4a& size, const LLVector3& shift, F32 projection_cutoff)
+bool LLViewerOctreeCull::checkProjectionArea(const LLVector4a& center, const LLVector4a& size, const LLVector3& shift, F32 pixel_threshold, F32 near_squared_radius)
 {	
 	LLVector3 local_orig = mCamera->getOrigin() - shift;
 	LLVector4a origin;
@@ -1438,14 +1438,13 @@ bool LLViewerOctreeCull::checkProjectionArea(const LLVector4a& center, const LLV
 	LLVector4a lookAt;
 	lookAt.setSub(center, origin);
 	F32 squared_dist = lookAt.dot3(lookAt).getF32();
-	F32 squared_rad = size.dot3(size).getF32();
-
-	if(squared_dist > 0.f)
+	if(squared_dist < near_squared_radius)
 	{
-		return squared_rad / squared_dist > projection_cutoff;
+		return true; //always load closeby objects
 	}
 
-	return true;
+	F32 squared_rad = size.dot3(size).getF32();
+	return squared_rad / squared_dist > pixel_threshold;
 }
 
 //virtual 

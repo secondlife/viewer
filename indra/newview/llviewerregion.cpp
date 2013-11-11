@@ -1064,7 +1064,7 @@ void LLViewerRegion::updateVisibleEntries(F32 max_time)
 		return;
 	}
 
-	const F32 LARGE_SCENE_CONTRIBUTION = 100.f; //a large number to force to load the object.
+	const F32 LARGE_SCENE_CONTRIBUTION = 1000.f; //a large number to force to load the object.
 	const LLVector3 camera_origin = LLViewerCamera::getInstance()->getOrigin();
 	const U32 cur_frame = LLViewerOctreeEntryData::getCurrentFrame();
 	bool needs_update = ((cur_frame - mImpl->mLastCameraUpdate) > 5) && ((camera_origin - mImpl->mLastCameraOrigin).lengthSquared() > 10.f);	
@@ -1126,7 +1126,11 @@ void LLViewerRegion::updateVisibleEntries(F32 max_time)
 		}
 	}
 
+	//
 	//process visible groups
+	//
+	//object projected area threshold
+	F32 projection_threshold = LLVOCacheEntry::getSquaredPixelThreshold(mImpl->mVOCachePartition->isFrontCull());
 	std::set< LLPointer<LLViewerOctreeGroup> >::iterator group_iter = mImpl->mVisibleGroups.begin();
 	for(; group_iter != mImpl->mVisibleGroups.end(); ++group_iter)
 	{
@@ -1149,8 +1153,11 @@ void LLViewerRegion::updateVisibleEntries(F32 max_time)
 					continue;
 				}
 
-				vo_entry->calcSceneContribution(local_origin, needs_update, last_update);				
-				mImpl->mWaitingList.insert(vo_entry);			
+				vo_entry->calcSceneContribution(local_origin, needs_update, last_update);
+				if(vo_entry->getSceneContribution() > projection_threshold)
+				{
+					mImpl->mWaitingList.insert(vo_entry);			
+				}
 			}
 		}
 	}
@@ -1175,9 +1182,6 @@ void LLViewerRegion::createVisibleObjects(F32 max_time)
 		mImpl->mVOCachePartition->setCullHistory(FALSE);
 		return;
 	}	
-
-	//object projected area threshold
-	F32 projection_threshold = LLVOCacheEntry::getSquaredObjectScreenAreaThreshold();
 	
 	S32 throttle = sNewObjectCreationThrottle;
 	BOOL has_new_obj = FALSE;
@@ -1186,11 +1190,6 @@ void LLViewerRegion::createVisibleObjects(F32 max_time)
 		iter != mImpl->mWaitingList.end(); ++iter)
 	{
 		LLVOCacheEntry* vo_entry = *iter;		
-
-		if(vo_entry->getSceneContribution() < projection_threshold)
-		{
-			break;
-		}
 
 		if(vo_entry->getState() < LLVOCacheEntry::WAITING)
 		{
@@ -1379,8 +1378,6 @@ BOOL LLViewerRegion::isViewerCameraStatic()
 
 void LLViewerRegion::killInvisibleObjects(F32 max_time)
 {
-	static LLCachedControl<F32> back_sphere_radius(gSavedSettings,"BackSphereCullingRadius");
-
 	if(!sVOCacheCullingEnabled)
 	{
 		return;
@@ -1393,7 +1390,8 @@ void LLViewerRegion::killInvisibleObjects(F32 max_time)
 	LLTimer update_timer;
 	LLVector4a camera_origin;
 	camera_origin.load3(LLViewerCamera::getInstance()->getOrigin().mV);
-	F32 squared_back_threshold = back_sphere_radius * back_sphere_radius;
+	F32 squared_back_threshold = LLVOCacheEntry::sRearFarRadius;
+	squared_back_threshold *= squared_back_threshold;
 
 	bool unstable = sNewObjectCreationThrottle < 0;
 	size_t max_update = unstable ? mImpl->mActiveSet.size() : 64; 

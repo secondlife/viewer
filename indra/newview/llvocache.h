@@ -125,7 +125,7 @@ public:
 	U32  getUpdateFlags() const    {return mUpdateFlags;}
 
 	static void updateDebugSettings();
-	static F32  getSquaredObjectScreenAreaThreshold();
+	static F32  getSquaredPixelThreshold(bool is_front);
 
 private:
 	void updateParentBoundingInfo(const LLVOCacheEntry* child);	
@@ -154,7 +154,11 @@ protected:
 	BOOL                        mTouched; //if set, this entry is valid, otherwise it is invalid.
 
 public:
-	static U32                  sMinFrameRange;
+	static U32  sMinFrameRange;
+	static F32  sNearRadiusSquared;
+	static F32  sRearFarRadius;
+	static F32  sFrontPixelThreshold;
+	static F32  sRearPixelThreshold;
 };
 
 class LLVOCacheGroup : public LLOcclusionCullingGroup
@@ -184,13 +188,16 @@ public:
 
 	void setCullHistory(BOOL has_new_object);
 
+	bool isFrontCull() const {return mFrontCull;}
+
 private:
-	void selectBackObjects(LLCamera &camera, F32 back_sphere_radius, F32 projection_area_cutoff); //select objects behind camera.
+	void selectBackObjects(LLCamera &camera, F32 projection_area_cutoff); //select objects behind camera.
 
 public:
 	static BOOL sNeedsOcclusionCheck;
 
 private:
+	BOOL  mFrontCull; //the view frustum cull if set, otherwise is back sphere cull.
 	U32   mCullHistory;
 	U32   mCulledTime[LLViewerCamera::NUM_CAMERAS];
 	std::set<LLVOCacheGroup*> mOccludedGroups;
