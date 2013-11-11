@@ -150,6 +150,7 @@
   <combo_button
 		name="Location History"
                 label=""
+                image_hover_unselected="ComboButton_Hovered"
                 pad_right="0"/>
   <combo_list
 	      bg_writeable_color="MenuDefaultBgColor"

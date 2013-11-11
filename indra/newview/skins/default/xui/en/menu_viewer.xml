@@ -1305,19 +1305,19 @@
      tear_off="true">
         <menu_item_call
          label="How to..."
-         name="How To">
+         name="How To"
+         shortcut="F1">
             <menu_item_call.on_click
              function="Help.ToggleHowTo"
              parameter="" />
         </menu_item_call>
         <menu_item_call
-         label="[SECOND_LIFE] Help"
-         name="Second Life Help"
-         shortcut="F1">
-            <menu_item_call.on_click
-             function="ShowHelp"
-             parameter="f1_help" />
-        </menu_item_call>
+           label="Quickstart"
+           name="Quickstart">
+        <menu_item_call.on_click
+            function="Advanced.ShowURL"
+            parameter="http://community.secondlife.com/t5/English-Knowledge-Base/Second-Life-Quickstart/ta-p/1087919"/>
+        </menu_item_call>              
 <!--        <menu_item_call
          label="Tutorial"
          name="Tutorial">
@@ -1326,21 +1326,13 @@
              parameter="hud" />
         </menu_item_call>-->
 		<menu_item_separator/>
-		
-		<menu_item_call
-             label="User’s guide"
-             name="User’s guide">
-             <menu_item_call.on_click
-                 function="Advanced.ShowURL"
-                 parameter="http://community.secondlife.com/t5/English-Knowledge-Base/Second-Life-User-s-Guide/ta-p/1244857"/>
-        </menu_item_call>
-        <menu_item_call
-             label="Knowledge Base"
-             name="Knowledge Base">
-             <menu_item_call.on_click
-                 function="Advanced.ShowURL"
-                 parameter="http://community.secondlife.com/t5/tkb/communitypage"/>
-        </menu_item_call>
+      <menu_item_call
+           label="Knowledge Base"
+           name="Knowledge Base">
+        <menu_item_call.on_click
+            function="Advanced.ShowURL"
+            parameter="http://community.secondlife.com/t5/English-Knowledge-Base/Second-Life-User-s-Guide/ta-p/1244857"/>
+      </menu_item_call>
         <menu_item_call
              label="Wiki"
              name="Wiki">

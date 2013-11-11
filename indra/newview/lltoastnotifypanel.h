@@ -69,6 +69,8 @@ public:
 
 	virtual void updateNotification() {}
 
+	bool isControlPanelEnabled() const;
+
 protected:
 	LLButton* createButton(const LLSD& form_element, BOOL is_option);
 
