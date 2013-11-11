@@ -393,7 +393,7 @@ protected:
 	virtual S32 frustumCheck(const LLViewerOctreeGroup* group) = 0;
 	virtual S32 frustumCheckObjects(const LLViewerOctreeGroup* group) = 0;
 
-	bool checkProjectionArea(const LLVector4a& center, const LLVector4a& size, const LLVector3& shift, F32 projection_cutoff);
+	bool checkProjectionArea(const LLVector4a& center, const LLVector4a& size, const LLVector3& shift, F32 pixel_threshold, F32 near_squared_radius);
 	virtual bool checkObjects(const OctreeNode* branch, const LLViewerOctreeGroup* group);
 	virtual void preprocess(LLViewerOctreeGroup* group);
 	virtual void processGroup(LLViewerOctreeGroup* group);

@@ -742,17 +742,6 @@
       <key>Value</key>
       <integer>40</integer>
     </map>
-    <key>BackSphereCullingRadius</key>
-    <map>
-      <key>Comment</key>
-      <string>Radius of back sphere in meters, objects behind camera but within this radius are loaded for rendering</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>100.0</real>
-    </map>
     <key>BottomPanelNew</key>
     <map>
       <key>Comment</key>
@@ -7112,17 +7101,6 @@
       <real>0.75</real>
     </array>
   </map>
-  <key>ObjectProjectionAreaCutOff</key>
-  <map>
-    <key>Comment</key>
-    <string>Threshold in number of pixels of the projection area in screen of object bounding sphere. Objects smaller than this threshold are not rendered.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>100.0</real>
-  </map>
     <key>ParcelMediaAutoPlayEnable</key>
     <map>
       <key>Comment</key>
@@ -10231,6 +10209,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>SceneLoadFrontPixelThreshold</key>
+    <map>
+      <key>Comment</key>
+      <string>in pixels, all objects in view frustum whose screen area is greater than this threshold will be loaded</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>100.0</real>
+    </map>
     <key>SceneLoadingMonitorEnabled</key>
     <map>
       <key>Comment</key>
@@ -10263,6 +10252,39 @@
       <string>F32</string>
       <key>Value</key>
       <real>0.02</real>
+    </map>
+    <key>SceneLoadMinRadius</key>
+    <map>
+      <key>Comment</key>
+      <string>in meters, all objects (visible or invisible) within this radius will remain loaded in memory</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>16.0</real>
+    </map>
+  <key>SceneLoadRearMaxRadiusFraction</key>
+  <map>
+    <key>Comment</key>
+    <string>a percentage of draw distance beyond which all objects outside of view frustum will be unloaded, regardless of pixel threshold</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>20.0</real>
+  </map>
+    <key>SceneLoadRearPixelThreshold</key>
+    <map>
+      <key>Comment</key>
+      <string>in pixels, all objects out of view frustum whose screen area is greater than this threshold will remain loaded</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>200.0</real>
     </map>
     <key>ScriptHelpFollowsCursor</key>
     <map>
