@@ -97,6 +97,8 @@ U32 LLFloaterPerms::getNextOwnerPermsInverted(std::string prefix)
 	return flags;
 }
 
+static bool mCapSent = false;
+
 LLFloaterPermsDefault::LLFloaterPermsDefault(const LLSD& seed)
 	: LLFloater(seed)
 {
@@ -160,12 +162,18 @@ public:
 	}
 	void result(const LLSD& content)
 	{
-		LL_INFOS("FloaterPermsResponder") << "Set new values" << LL_ENDL;
+		LLFloaterPermsDefault::setCapSent(true);
+		LL_INFOS("FloaterPermsResponder") << "Sent default permissions to simulator" << LL_ENDL;
 	}
 };
 
-void LLFloaterPermsDefault::updateCap()
+void LLFloaterPermsDefault::updateCap(bool alwaysUpdate)
 {
+	if(!alwaysUpdate && mCapSent)
+	{
+		return;
+	}
+
 	std::string object_url = gAgent.getRegion()->getCapability("DefaultObjectPermissions");
 
 	if(!object_url.empty())
@@ -178,6 +186,11 @@ void LLFloaterPermsDefault::updateCap()
 	}
 }
 
+void LLFloaterPermsDefault::setCapSent(bool cap_sent)
+{
+	mCapSent = cap_sent;
+}
+
 void LLFloaterPermsDefault::ok()
 {
 //	Changes were already applied automatically to saved settings.
@@ -186,7 +199,7 @@ void LLFloaterPermsDefault::ok()
 
 // We know some setting has changed but not which one.  Just in case it was a setting for
 // object permissions tell the server what the values are.
-	updateCap();
+	updateCap(true);
 }
 
 void LLFloaterPermsDefault::cancel()

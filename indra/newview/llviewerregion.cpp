@@ -1487,7 +1487,10 @@ void LLViewerRegion::unpackRegionHandshake()
 	msg->addU32("Flags", 0x0 );
 	msg->sendReliable(host);
 
-	LLFloaterPermsDefault::updateCap();
+	// Supplying false in this call means only send the default permissions to the simulator if 
+	// it has never been sent.  Once this data is sent the simulator will pass this data to new
+	// simulators as the agent moves around.
+	LLFloaterPermsDefault::updateCap(false);
 }
 
 void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)

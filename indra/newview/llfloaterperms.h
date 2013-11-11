@@ -59,7 +59,8 @@ public:
 	void onClickOK();
 	void onClickCancel();
 	void onCommitCopy(const LLSD& user_data);
-	static void updateCap();
+	static void updateCap(bool alwaysUpdate);
+	static void setCapSent(bool cap_sent);
 
 enum Categories
 {
