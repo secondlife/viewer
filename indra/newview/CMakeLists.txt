@@ -189,7 +189,7 @@ set(viewer_SOURCE_FILES
     lleventnotifier.cpp
     lleventpoll.cpp
     llexpandabletextbox.cpp
-	llexperienceassociationresponder.cpp
+    llexperienceassociationresponder.cpp
     llexternaleditor.cpp
     llface.cpp
     llfacebookconnect.cpp
@@ -781,7 +781,7 @@ set(viewer_HEADER_FILES
     lleventnotifier.h
     lleventpoll.h
     llexpandabletextbox.h
-	llexperienceassociationresponder.h
+    llexperienceassociationresponder.h
     llexternaleditor.h
     llface.h
     llfacebookconnect.h
