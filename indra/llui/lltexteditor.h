@@ -144,6 +144,8 @@ public:
 	virtual void	selectAll();
 	virtual BOOL	canSelectAll()	const;
 
+	void 			selectByCursorPosition(S32 prev_cursor_pos, S32 next_cursor_pos);
+
 	virtual bool	canLoadOrSaveToFile();
 
 	void			selectNext(const std::string& search_text_in, BOOL case_insensitive, BOOL wrap = TRUE);

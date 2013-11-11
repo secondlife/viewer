@@ -355,7 +355,7 @@ void LLToolDragAndDrop::setDragStart(S32 x, S32 y)
 
 BOOL LLToolDragAndDrop::isOverThreshold(S32 x,S32 y)
 {
-	static LLCachedControl<S32> drag_and_drop_threshold(gSavedSettings,"DragAndDropDistanceThreshold");
+	static LLCachedControl<S32> drag_and_drop_threshold(gSavedSettings,"DragAndDropDistanceThreshold", 3);
 	
 	S32 mouse_delta_x = x - mDragStartX;
 	S32 mouse_delta_y = y - mDragStartY;

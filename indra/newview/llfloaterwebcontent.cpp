@@ -47,7 +47,7 @@ LLFloaterWebContent::_Params::_Params()
 	id("id"),
 	window_class("window_class", "web_content"),
 	show_chrome("show_chrome", true),
-	allow_address_entry("allow_address_entry", true),
+    allow_address_entry("allow_address_entry", true),
     allow_back_forward_navigation("allow_back_forward_navigation", true),
 	preferred_media_size("preferred_media_size"),
 	trusted_content("trusted_content", false),
@@ -103,7 +103,7 @@ BOOL LLFloaterWebContent::postBuild()
 
 	// cache image for secure browsing
 	mSecureLockIcon = getChild< LLIconCtrl >("media_secure_lock_flag");
-
+    
 	// initialize the URL history using the system URL History manager
 	initializeURLHistory();
 
@@ -362,6 +362,8 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 		// we populate the status bar with URLs as they change so clear it now we're done
 		const std::string end_str = "";
 		mStatusBarText->setText( end_str );
+			mAddressCombo->setLeftTextPadding(22);
+			mAddressCombo->setLeftTextPadding(2);
 	}
 	else if(event == MEDIA_EVENT_CLOSE_REQUEST)
 	{
@@ -414,12 +416,12 @@ void LLFloaterWebContent::set_current_url(const std::string& url)
         }
 
         // Update current URL
-	mCurrentURL = url;
+        mCurrentURL = url;
         LLStringUtil::trim(mCurrentURL);
 
         // Serialize url history into the system URL History manager
-	LLURLHistory::removeURL("browser", mCurrentURL);
-	LLURLHistory::addURL("browser", mCurrentURL);
+        LLURLHistory::removeURL("browser", mCurrentURL);
+        LLURLHistory::addURL("browser", mCurrentURL);
 
 		// Check if this is a secure URL
 		static const std::string secure_prefix = std::string("https://");
@@ -431,7 +433,7 @@ void LLFloaterWebContent::set_current_url(const std::string& url)
 		mDisplayURL = (mSecureURL ? "      " + mCurrentURL : mCurrentURL);
 
         // Clean up browsing list (prevent dupes) and add/select the new URL to it
-	mAddressCombo->remove( mCurrentURL );
+        mAddressCombo->remove(mCurrentURL);
         mAddressCombo->add(mDisplayURL);
         mAddressCombo->selectByValue(mDisplayURL);
 
