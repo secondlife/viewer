@@ -413,46 +413,46 @@ BOOL LLScriptEdCore::postBuild()
 
 void LLScriptEdCore::initKeywords()
 {
-		mSyntaxIdLSL.initialise();
-		mEditor->mKeywords.initialise(mSyntaxIdLSL.getKeywordsXML());
+	mSyntaxIdLSL.initialise();
+	mEditor->mKeywords.initialise(mSyntaxIdLSL.getKeywordsXML());
 
-		LLColor3 color(0.5f, 0.0f, 0.15f);
-		mEditor->loadKeywords();
+	LLColor3 color(0.5f, 0.0f, 0.15f);
+	mEditor->loadKeywords();
 
-		std::vector<std::string> primary_keywords;
-		std::vector<std::string> secondary_keywords;
-		LLKeywordToken *token;
-		LLKeywords::keyword_iterator_t token_it;
-		for (token_it = mEditor->keywordsBegin(); token_it != mEditor->keywordsEnd(); ++token_it)
+	std::vector<std::string> primary_keywords;
+	std::vector<std::string> secondary_keywords;
+	LLKeywordToken *token;
+	LLKeywords::keyword_iterator_t token_it;
+	for (token_it = mEditor->keywordsBegin(); token_it != mEditor->keywordsEnd(); ++token_it)
+	{
+		token = token_it->second;
+		// FIX: change this to use the new Token Type enum entries.
+		if (token->getColor() == color) // Wow, what a disgusting hack.
 		{
-			token = token_it->second;
-			// FIX: change this to use the new Token Type enum entries.
-			if (token->getColor() == color) // Wow, what a disgusting hack.
-			{
-				primary_keywords.push_back( wstring_to_utf8str(token->getToken()) );
-			}
-			else
-			{
-				secondary_keywords.push_back( wstring_to_utf8str(token->getToken()) );
-			}
+			primary_keywords.push_back( wstring_to_utf8str(token->getToken()) );
 		}
-
-		// Case-insensitive dictionary sort for primary keywords. We don't sort the secondary
-		// keywords. They're intelligently grouped in keywords.ini.
-		// As we don't use keywords.ini, this is no longer true. Do we need to sort now?
-		std::stable_sort( primary_keywords.begin(), primary_keywords.end(), LLSECKeywordCompare() );
-
-		for (std::vector<std::string>::const_iterator iter= primary_keywords.begin();
-				iter!= primary_keywords.end(); ++iter)
+		else
 		{
-			mFunctions->add(*iter);
+			secondary_keywords.push_back( wstring_to_utf8str(token->getToken()) );
 		}
+	}
 
-		for (std::vector<std::string>::const_iterator iter= secondary_keywords.begin();
-				iter!= secondary_keywords.end(); ++iter)
-		{
-			mFunctions->add(*iter);
-		}
+	// Case-insensitive dictionary sort for primary keywords. We don't sort the secondary
+	// keywords. They're intelligently grouped in keywords.ini.
+	// As we don't use keywords.ini, this is no longer true. Do we need to sort now?
+	std::stable_sort( primary_keywords.begin(), primary_keywords.end(), LLSECKeywordCompare() );
+
+	for (std::vector<std::string>::const_iterator iter= primary_keywords.begin();
+			iter!= primary_keywords.end(); ++iter)
+	{
+		mFunctions->add(*iter);
+	}
+
+	for (std::vector<std::string>::const_iterator iter= secondary_keywords.begin();
+			iter!= secondary_keywords.end(); ++iter)
+	{
+		mFunctions->add(*iter);
+	}
 }
 
 void LLScriptEdCore::initMenu()
