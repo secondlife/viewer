@@ -2582,7 +2582,18 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 
 	S32 desired_size;
 	std::string exten = gDirUtilp->getExtension(url);
-	if (!url.empty() && (!exten.empty() && LLImageBase::getCodecFromExtension(exten) != IMG_CODEC_J2C))
+	if (f_type == FTT_SERVER_BAKE)
+	{
+		// SH-4030: This case should be redundant with the following one, just
+		// breaking it out here to clarify that it's intended behavior.
+		llassert(!url.empty() && (!exten.empty() && LLImageBase::getCodecFromExtension(exten) != IMG_CODEC_J2C));
+
+		// Do full requests for baked textures to reduce interim blurring.
+		LL_DEBUGS("Texture") << "full request for " << id << " texture is FTT_SERVER_BAKE" << llendl;
+		desired_size = MAX_IMAGE_DATA_SIZE;
+		desired_discard = 0;
+	}
+	else if (!url.empty() && (!exten.empty() && LLImageBase::getCodecFromExtension(exten) != IMG_CODEC_J2C))
 	{
 		LL_DEBUGS("Texture") << "full request for " << id << " exten is not J2C: " << exten << llendl;
 		// Only do partial requests for J2C at the moment
