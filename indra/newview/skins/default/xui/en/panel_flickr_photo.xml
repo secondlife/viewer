@@ -189,15 +189,15 @@ Use "" for multi-word tags
              height="21"
              width="250">
               <combo_box.item
-               label="Safe"
+               label="Safe content rating"
                name="SafeRating"
                value="1" />
               <combo_box.item
-               label="Moderate"
+               label="Moderate content rating"
                name="ModerateRating"
                value="2" />
               <combo_box.item
-               label="Restricted"
+               label="Restricted content rating"
                name="RestrictedRating"
                value="3" />
             </combo_box>
