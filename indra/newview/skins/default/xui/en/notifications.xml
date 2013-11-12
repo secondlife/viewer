@@ -4758,6 +4758,14 @@ Problems adding a new estate manager.  One or more estates may have a full manag
 
   <notification
    icon="alertmodal.tga"
+   name="ProblemAddingEstateBanManager"
+   type="alertmodal">
+Unable to add estate owner or manager to ban list.
+    <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="ProblemAddingEstateGeneric"
    type="alertmodal">
 Problems adding to this estate list.  One or more estates may have a full list.
