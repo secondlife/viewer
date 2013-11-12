@@ -228,7 +228,7 @@
            />
   <command name="flickr"
            available_in_toybox="true"
-           icon="Command_Social_Icon"
+           icon="Command_Flickr_Icon"
            label_ref="Command_Flickr_Label"
            tooltip_ref="Command_Flickr_Tooltip"
            execute_function="Floater.ToggleOrBringToFront"
@@ -238,7 +238,7 @@
            />
   <command name="twitter"
            available_in_toybox="true"
-           icon="Command_Social_Icon"
+           icon="Command_Twitter_Icon"
            label_ref="Command_Twitter_Label"
            tooltip_ref="Command_Twitter_Tooltip"
            execute_function="Floater.ToggleOrBringToFront"
