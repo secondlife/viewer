@@ -47,6 +47,7 @@
 #include "llviewercontrol.h"
 #include "llviewermedia.h"
 #include "lltabcontainer.h"
+#include "lltexteditor.h"
 
 static LLRegisterPanelClassWrapper<LLTwitterPhotoPanel> t_panel_photo("lltwitterphotopanel");
 static LLRegisterPanelClassWrapper<LLTwitterAccountPanel> t_panel_account("lltwitteraccountpanel");
@@ -111,6 +112,18 @@ void LLTwitterPhotoPanel::draw()
     mPhotoCheckbox->setEnabled(no_ongoing_connection);
 
 	bool add_photo = mPhotoCheckbox->getValue().asBoolean();
+
+	// Restrict the status text length to Twitter's character limit
+	LLTextEditor* status_text_box = dynamic_cast<LLTextEditor*>(mStatusTextBox);
+	if (status_text_box)
+	{
+		int max_status_length = add_photo ? 119 : 140;
+		status_text_box->setMaxTextLength(max_status_length);
+		if (status_text_box->getText().length() > max_status_length)
+		{
+			status_text_box->setText(status_text_box->getText().substr(0, max_status_length));
+		}
+	}
 
     // Display the preview if one is available
 	if (previewp && previewp->getThumbnailImage())
