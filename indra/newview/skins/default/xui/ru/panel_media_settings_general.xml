@@ -15,14 +15,14 @@
 	</text>
 	<text name="current_url" tool_tip="Текущая страница для этого медиа-источника" value=""/>
 	<button label="Сброс" name="current_url_reset_btn"/>
-	<check_box initial_value="ложь" label="Автоматическое зацикливание" name="auto_loop"/>
-	<check_box initial_value="ложь" label="Реакция на первый щелчок" name="first_click_interact"/>
-	<check_box initial_value="ложь" label="Автоувеличение" name="auto_zoom"/>
-	<check_box initial_value="ложь" label="Автоматическое проигрывание" name="auto_play"/>
+	<check_box initial_value="false" label="Автоматическое зацикливание" name="auto_loop"/>
+	<check_box initial_value="false" label="Реакция на первый щелчок" name="first_click_interact"/>
+	<check_box initial_value="false" label="Автоувеличение" name="auto_zoom"/>
+	<check_box initial_value="false" label="Автоматическое проигрывание" name="auto_play"/>
 	<text name="media_setting_note">
 		Примечание. Жители могут переопределять эту настройку.
 	</text>
-	<check_box initial_value="ложь" label="Автомасштабирование на объекте" name="auto_scale"/>
+	<check_box initial_value="false" label="Автомасштабирование на объекте" name="auto_scale"/>
 	<text name="size_label">
 		Размер:
 	</text>

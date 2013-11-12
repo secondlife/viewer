@@ -919,7 +919,7 @@ void LLViewerJoystick::moveFlycam(bool reset)
 		{
 			if (i == X_I || i == Y_I || i == Z_I)
 			{
-				static LLCachedControl<F32> build_mode_scale(gSavedSettings,"FlycamBuildModeScale");
+				static LLCachedControl<F32> build_mode_scale(gSavedSettings,"FlycamBuildModeScale", 1.0);
 				cur_delta[i] *= build_mode_scale;
 			}
 		}

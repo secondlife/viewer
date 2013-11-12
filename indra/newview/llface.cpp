@@ -1386,7 +1386,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		}
 	}
 	
-	static LLCachedControl<bool> use_transform_feedback(gSavedSettings, "RenderUseTransformFeedback");
+	static LLCachedControl<bool> use_transform_feedback(gSavedSettings, "RenderUseTransformFeedback", false);
 
 #ifdef GL_TRANSFORM_FEEDBACK_BUFFER
 	if (use_transform_feedback &&
@@ -1526,7 +1526,6 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		}
 
 		glBindBufferARB(GL_TRANSFORM_FEEDBACK_BUFFER, 0);
-
 		gGL.popMatrix();
 
 		if (cur_shader)

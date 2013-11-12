@@ -17,6 +17,7 @@ $/LicenseInfo$
 import os
 import sys
 import cgitb
+from contextlib import contextmanager
 import errno
 import glob
 import plistlib
@@ -32,6 +33,11 @@ import Tkinter, tkMessageBox
 TITLE = "Second Life Viewer Updater"
 # Magic bundle identifier used by all Second Life viewer bundles
 BUNDLE_IDENTIFIER = "com.secondlife.indra.viewer"
+# Magic OS directory name that causes Cocoa viewer to crash on OS X 10.7.5
+# (see MAINT-3331)
+STATE_DIR = os.path.join(
+    os.environ["HOME"], "Library", "Saved Application State",
+    BUNDLE_IDENTIFIER + ".savedState")
 
 # Global handle to the MessageFrame so we can update message
 FRAME = None
@@ -137,6 +143,23 @@ def write_marker(markerfile, markertext):
         log("%s exception: %s" % (err.__class__.__name__, err))
 
 # ****************************************************************************
+#   Utility
+# ****************************************************************************
+@contextmanager
+def allow_errno(errn):
+    """
+    Execute body of 'with' statement, accepting OSError with specific errno
+    'errn'. Propagate any other exception, or an OSError with any other errno.
+    """
+    try:
+        # run the body of the 'with' statement
+        yield
+    except OSError, err:
+        # unless errno == passed errn, re-raise the exception
+        if err.errno != errn:
+            raise
+
+# ****************************************************************************
 #   Main script logic
 # ****************************************************************************
 def main(dmgfile, markerfile, markertext):
@@ -158,12 +181,9 @@ def main(dmgfile, markerfile, markertext):
 
         # Move the old updater.log file out of the way
         logname = os.path.join(logsdir, "updater.log")
-        try:
+        # Nonexistence is okay. Anything else, not so much.
+        with allow_errno(errno.ENOENT):
             os.rename(logname, logname + ".old")
-        except OSError, err:
-            # Nonexistence is okay. Anything else, not so much.
-            if err.errno != errno.ENOENT:
-                raise
 
         # Open new updater.log.
         global LOGF
@@ -344,6 +364,13 @@ def main(dmgfile, markerfile, markertext):
 
             log("touch " + appdir)
             os.utime(appdir, None)      # set to current time
+
+            # MAINT-3331: remove STATE_DIR. Empirically, this resolves a
+            # persistent, mysterious crash after updating our viewer on an OS
+            # X 10.7.5 system.
+            log("rm -rf '%s'" % STATE_DIR)
+            with allow_errno(errno.ENOENT):
+                shutil.rmtree(STATE_DIR)
 
             command = ["open", appdir]
             log(' '.join(command))

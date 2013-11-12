@@ -27,7 +27,7 @@
 #include "linden_common.h"
 
 #include "lltabcontainer.h"
-
+#include "llviewereventrecorder.h"
 #include "llfocusmgr.h"
 #include "lllocalcliprect.h"
 #include "llrect.h"
@@ -193,12 +193,15 @@ LLTabContainer::TabParams::TabParams()
 :	tab_top_image_unselected("tab_top_image_unselected"),
 	tab_top_image_selected("tab_top_image_selected"),
 	tab_top_image_flash("tab_top_image_flash"),
+	tab_top_image_hovered("tab_top_image_hovered"),
 	tab_bottom_image_unselected("tab_bottom_image_unselected"),
 	tab_bottom_image_selected("tab_bottom_image_selected"),
 	tab_bottom_image_flash("tab_bottom_image_flash"),
+	tab_bottom_image_hovered("tab_bottom_image_hovered"),
 	tab_left_image_unselected("tab_left_image_unselected"),
 	tab_left_image_selected("tab_left_image_selected"),
-	tab_left_image_flash("tab_left_image_flash")
+	tab_left_image_flash("tab_left_image_flash"),
+	tab_left_image_hovered("tab_left_image_hovered")
 {}
 
 LLTabContainer::Params::Params()
@@ -218,7 +221,8 @@ LLTabContainer::Params::Params()
 	open_tabs_on_drag_and_drop("open_tabs_on_drag_and_drop", false),
 	tab_icon_ctrl_pad("tab_icon_ctrl_pad", 0),
 	use_ellipses("use_ellipses"),
-	font_halign("halign")
+	font_halign("halign"),
+	use_highlighting_on_hover("use_highlighting_on_hover",false)
 {}
 
 LLTabContainer::LLTabContainer(const LLTabContainer::Params& p)
@@ -254,7 +258,8 @@ LLTabContainer::LLTabContainer(const LLTabContainer::Params& p)
 	mCustomIconCtrlUsed(p.use_custom_icon_ctrl),
 	mOpenTabsOnDragAndDrop(p.open_tabs_on_drag_and_drop),
 	mTabIconCtrlPad(p.tab_icon_ctrl_pad),
-	mUseTabEllipses(p.use_ellipses)
+	mUseTabEllipses(p.use_ellipses),
+	mUseHighlightingOnHover(p.use_highlighting_on_hover)
 {
 	static LLUICachedControl<S32> tabcntr_vert_tab_min_width ("UITabCntrVertTabMinWidth", 0);
 
@@ -578,6 +583,11 @@ BOOL LLTabContainer::handleMouseDown( S32 x, S32 y, MASK mask )
 			tab_button->setFocus(TRUE);
 		}
 	}
+	if (handled) {
+		// Note: May need to also capture local coords right here ?
+		LLViewerEventRecorder::instance().update_xui(getPathname( ));
+	}
+
 	return handled;
 }
 
@@ -629,30 +639,33 @@ BOOL LLTabContainer::handleMouseUp( S32 x, S32 y, MASK mask )
 	BOOL handled = FALSE;
 	BOOL has_scroll_arrows = (getMaxScrollPos() > 0)  && !getTabsHidden();
 
+	S32 local_x = x - getRect().mLeft;
+	S32 local_y = y - getRect().mBottom;
+
 	if (has_scroll_arrows)
 	{
 		if (mJumpPrevArrowBtn && mJumpPrevArrowBtn->getRect().pointInRect(x, y))
 		{
-			S32 local_x = x - mJumpPrevArrowBtn->getRect().mLeft;
-			S32 local_y = y - mJumpPrevArrowBtn->getRect().mBottom;
+			local_x = x - mJumpPrevArrowBtn->getRect().mLeft;
+			local_y = y - mJumpPrevArrowBtn->getRect().mBottom;
 			handled = mJumpPrevArrowBtn->handleMouseUp(local_x, local_y, mask);
 		}
 		else if (mJumpNextArrowBtn && mJumpNextArrowBtn->getRect().pointInRect(x,	y))
 		{
-			S32	local_x	= x	- mJumpNextArrowBtn->getRect().mLeft;
-			S32	local_y	= y	- mJumpNextArrowBtn->getRect().mBottom;
+			local_x	= x	- mJumpNextArrowBtn->getRect().mLeft;
+			local_y	= y	- mJumpNextArrowBtn->getRect().mBottom;
 			handled = mJumpNextArrowBtn->handleMouseUp(local_x,	local_y, mask);
 		}
 		else if (mPrevArrowBtn && mPrevArrowBtn->getRect().pointInRect(x, y))
 		{
-			S32 local_x = x - mPrevArrowBtn->getRect().mLeft;
-			S32 local_y = y - mPrevArrowBtn->getRect().mBottom;
+			local_x = x - mPrevArrowBtn->getRect().mLeft;
+			local_y = y - mPrevArrowBtn->getRect().mBottom;
 			handled = mPrevArrowBtn->handleMouseUp(local_x, local_y, mask);
 		}
 		else if (mNextArrowBtn && mNextArrowBtn->getRect().pointInRect(x, y))
 		{
-			S32 local_x = x - mNextArrowBtn->getRect().mLeft;
-			S32 local_y = y - mNextArrowBtn->getRect().mBottom;
+			local_x = x - mNextArrowBtn->getRect().mLeft;
+			local_y = y - mNextArrowBtn->getRect().mBottom;
 			handled = mNextArrowBtn->handleMouseUp(local_x, local_y, mask);
 		}
 	}
@@ -675,6 +688,10 @@ BOOL LLTabContainer::handleMouseUp( S32 x, S32 y, MASK mask )
 			}
 		}
 		gFocusMgr.setMouseCapture(NULL);
+	}
+	if (handled) {
+		// Note: may need to capture local coords here
+		LLViewerEventRecorder::instance().update_xui(getPathname( ));
 	}
 	return handled;
 }
@@ -891,18 +908,30 @@ void LLTabContainer::update_images(LLTabTuple* tuple, TabParams params, LLTabCon
 			tuple->mButton->setImageUnselected(static_cast<LLUIImage*>(params.tab_top_image_unselected));
 			tuple->mButton->setImageSelected(static_cast<LLUIImage*>(params.tab_top_image_selected));
 			tuple->mButton->setImageFlash(static_cast<LLUIImage*>(params.tab_top_image_flash));
+			if(mUseHighlightingOnHover)
+			{
+				tuple->mButton->setImageHoverUnselected(static_cast<LLUIImage*>(params.tab_top_image_hovered));
+			}
 		}
 		else if (pos == LLTabContainer::BOTTOM)
 		{
 			tuple->mButton->setImageUnselected(static_cast<LLUIImage*>(params.tab_bottom_image_unselected));
 			tuple->mButton->setImageSelected(static_cast<LLUIImage*>(params.tab_bottom_image_selected));
 			tuple->mButton->setImageFlash(static_cast<LLUIImage*>(params.tab_bottom_image_flash));
+			if(mUseHighlightingOnHover)
+			{
+				tuple->mButton->setImageHoverUnselected(static_cast<LLUIImage*>(params.tab_bottom_image_hovered));
+			}
 		}
 		else if (pos == LLTabContainer::LEFT)
 		{
 			tuple->mButton->setImageUnselected(static_cast<LLUIImage*>(params.tab_left_image_unselected));
 			tuple->mButton->setImageSelected(static_cast<LLUIImage*>(params.tab_left_image_selected));
 			tuple->mButton->setImageFlash(static_cast<LLUIImage*>(params.tab_left_image_flash));
+			if(mUseHighlightingOnHover)
+			{
+				tuple->mButton->setImageHoverUnselected(static_cast<LLUIImage*>(params.tab_left_image_hovered));
+			}
 		}
 	}
 }
@@ -1059,21 +1088,21 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 		
 		if (mIsVertical)
 		{
-			p.name(std::string("vert tab button"));
-			p.image_unselected(mMiddleTabParams.tab_left_image_unselected);
-			p.image_selected(mMiddleTabParams.tab_left_image_selected);
-			p.follows.flags = p.follows.flags() | FOLLOWS_TOP;
+		  p.name("vtab_"+std::string(child->getName()));
+		  p.image_unselected(mMiddleTabParams.tab_left_image_unselected);
+		  p.image_selected(mMiddleTabParams.tab_left_image_selected);
+		  p.follows.flags = p.follows.flags() | FOLLOWS_TOP;
 		}
 		else
-		{
-			p.name(std::string(child->getName()) + " tab");
-			p.visible(false);
-			p.image_unselected(tab_img);
-			p.image_selected(tab_selected_img);
-			p.follows.flags = p.follows.flags() | (getTabPosition() == TOP ? FOLLOWS_TOP : FOLLOWS_BOTTOM);
-			// Try to squeeze in a bit more text
-			p.pad_left( mLabelPadLeft );
-			p.pad_right(2);
+		  { 
+		    p.name("htab_"+std::string(child->getName()));
+		    p.visible(false);
+		    p.image_unselected(tab_img);
+		    p.image_selected(tab_selected_img);
+		    p.follows.flags = p.follows.flags() | (getTabPosition() == TOP ? FOLLOWS_TOP : FOLLOWS_BOTTOM);
+		    // Try to squeeze in a bit more text
+		    p.pad_left( mLabelPadLeft );
+		    p.pad_right(2);
 		}
 		
 		// *TODO : It seems wrong not to use p in both cases considering the way p is initialized

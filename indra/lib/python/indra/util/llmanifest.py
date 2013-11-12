@@ -224,15 +224,98 @@ def main():
     for opt in args:
         print "Option:", opt, "=", args[opt]
 
+    # pass in sourceid as an argument now instead of an environment variable
+    try:
+        args['sourceid'] = os.environ["sourceid"]
+    except KeyError:
+        args['sourceid'] = ""
+
+    # Build base package.
+    touch = args.get('touch')
+    if touch:
+        print 'Creating base package'
+    args['package_id'] = "" # base package has no package ID
     wm = LLManifest.for_platform(args['platform'], args.get('arch'))(args)
     wm.do(*args['actions'])
+    # Store package file for later if making touched file.
+    base_package_file = ""
+    if touch:
+        print 'Created base package ', wm.package_file
+        base_package_file = "" + wm.package_file
 
+    # handle multiple packages if set
+    try:
+        additional_packages = os.environ["additional_packages"]
+    except KeyError:
+        additional_packages = ""
+    if additional_packages:
+        # Determine destination prefix / suffix for additional packages.
+        base_dest_postfix = args['dest']
+        base_dest_prefix = ""
+        base_dest_parts = args['dest'].split(os.sep)
+        if len(base_dest_parts) > 1:
+            base_dest_postfix = base_dest_parts[len(base_dest_parts) - 1]
+            base_dest_prefix = base_dest_parts[0]
+            i = 1
+            while i < len(base_dest_parts) - 1:
+                base_dest_prefix = base_dest_prefix + os.sep + base_dest_parts[i]
+                i = i + 1
+        # Determine touched prefix / suffix for additional packages.
+        base_touch_postfix = ""
+        base_touch_prefix = ""
+        if touch:
+            base_touch_postfix = touch
+            base_touch_parts = touch.split('/')
+            if "arwin" in args['platform']:
+                if len(base_touch_parts) > 1:
+                    base_touch_postfix = base_touch_parts[len(base_touch_parts) - 1]
+                    base_touch_prefix = base_touch_parts[0]
+                    i = 1
+                    while i < len(base_touch_parts) - 1:
+                        base_touch_prefix = base_touch_prefix + '/' + base_touch_parts[i]
+                        i = i + 1
+            else:
+                if len(base_touch_parts) > 2:
+                    base_touch_postfix = base_touch_parts[len(base_touch_parts) - 2] + '/' + base_touch_parts[len(base_touch_parts) - 1]
+                    base_touch_prefix = base_touch_parts[0]
+                    i = 1
+                    while i < len(base_touch_parts) - 2:
+                        base_touch_prefix = base_touch_prefix + '/' + base_touch_parts[i]
+                        i = i + 1
+        # Store base channel name.
+        base_channel_name = args['channel']
+        # Build each additional package.
+        package_id_list = additional_packages.split(" ")
+        for package_id in package_id_list:
+            try:
+                args['package_id'] = package_id
+                args['channel'] = base_channel_name + os.environ[package_id + "_viewer_channel_suffix"]
+                if package_id + "_sourceid" in os.environ:
+                    args['sourceid'] = os.environ[package_id + "_sourceid"]
+                else:
+                    args['sourceid'] = ""
+                args['dest'] = base_dest_prefix + os.sep + package_id + os.sep + base_dest_postfix
+            except KeyError:
+                sys.stderr.write("Failed to create package for package_id: %s" % package_id)
+                sys.stderr.flush()
+                continue
+            if touch:
+                print 'Creating additional package for ', package_id, ' in ', args['dest']
+            wm = LLManifest.for_platform(args['platform'], args.get('arch'))(args)
+            wm.do(*args['actions'])
+            if touch:
+                print 'Created additional package ', wm.package_file, ' for ', package_id
+                faketouch = base_touch_prefix + '/' + package_id + '/' + base_touch_postfix
+                fp = open(faketouch, 'w')
+                fp.write('set package_file=%s\n' % wm.package_file)
+                fp.close()
+    
     # Write out the package file in this format, so that it can easily be called
     # and used in a .bat file - yeah, it sucks, but this is the simplest...
     touch = args.get('touch')
     if touch:
         fp = open(touch, 'w')
-        fp.write('set package_file=%s\n' % wm.package_file)
+        fp.write('set package_file=%s\n' % base_package_file)
         fp.close()
         print 'touched', touch
     return 0

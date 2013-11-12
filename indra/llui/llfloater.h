@@ -289,6 +289,7 @@ public:
 	S32				getHeaderHeight() const { return mHeaderHeight; }
 
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
+	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleDoubleClick(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMiddleMouseDown(S32 x, S32 y, MASK mask);
@@ -389,7 +390,7 @@ protected:
 
 	void			destroy(); // Don't call this directly.  You probably want to call closeFloater()
 
-	virtual	void	onClickCloseBtn();
+	virtual	void	onClickCloseBtn(bool app_quitting = false);
 
 	virtual void	updateTitleButtons();
 

@@ -29,7 +29,7 @@
 // mini-map floater, etc.
 
 #include "linden_common.h"
-
+#include "llviewereventrecorder.h"
 #include "llfloater.h"
 
 #include "llfocusmgr.h"
@@ -509,8 +509,8 @@ LLFloater::~LLFloater()
 	
 	if( gFocusMgr.childHasKeyboardFocus(this))
 	{
-		// Just in case we might still have focus here, release it.
-		releaseFocus();
+	// Just in case we might still have focus here, release it.
+	releaseFocus();
 	}
 
 	// This is important so that floaters with persistent rects (i.e., those
@@ -642,7 +642,10 @@ void LLFloater::handleVisibilityChange ( BOOL new_visibility )
 
 void LLFloater::openFloater(const LLSD& key)
 {
-	llinfos << "Opening floater " << getName() << llendl;
+    llinfos << "Opening floater " << getName() << " full path: " << getPathname() << llendl;
+
+	LLViewerEventRecorder::instance().logVisibilityChange( getPathname(), getName(), true,"floater"); // Last param is event subtype or empty string
+
 	mKey = key; // in case we need to open ourselves again
 
 	if (getSoundFlags() != SILENT 
@@ -696,6 +699,7 @@ void LLFloater::openFloater(const LLSD& key)
 void LLFloater::closeFloater(bool app_quitting)
 {
 	llinfos << "Closing floater " << getName() << llendl;
+	LLViewerEventRecorder::instance().logVisibilityChange( getPathname(), getName(), false,"floater"); // Last param is event subtype or empty string
 	if (app_quitting)
 	{
 		LLFloater::sQuitting = true;
@@ -1335,7 +1339,7 @@ void LLFloater::setFocus( BOOL b )
 	{
 		return;
 	}
-	LLUICtrl* last_focus = gFocusMgr.getLastFocusForGroup(this);
+	LLView* last_focus = gFocusMgr.getLastFocusForGroup(this);
 	// a descendent already has focus
 	BOOL child_had_focus = hasFocus();
 
@@ -1543,6 +1547,17 @@ BOOL LLFloater::handleScrollWheel(S32 x, S32 y, S32 clicks)
 }
 
 // virtual
+BOOL LLFloater::handleMouseUp(S32 x, S32 y, MASK mask)
+{
+	lldebugs << "LLFloater::handleMouseUp calling LLPanel (really LLView)'s handleMouseUp (first initialized xui to: " << getPathname() << " )" << llendl;
+	BOOL handled = LLPanel::handleMouseUp(x,y,mask); // Not implemented in LLPanel so this actually calls LLView
+	if (handled) {
+		LLViewerEventRecorder::instance().updateMouseEventInfo(x,y,-55,-55,getPathname());
+	}
+	return handled;
+}
+
+// virtual
 BOOL LLFloater::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	if( mMinimized )
@@ -1562,7 +1577,11 @@ BOOL LLFloater::handleMouseDown(S32 x, S32 y, MASK mask)
 	else
 	{
 		bringToFront( x, y );
-		return LLPanel::handleMouseDown( x, y, mask );
+		BOOL handled = LLPanel::handleMouseDown( x, y, mask ); 
+		if (handled) {
+			LLViewerEventRecorder::instance().updateMouseEventInfo(x,y,-55,-55,getPathname()); 
+		}
+		return handled;
 	}
 }
 
@@ -1802,7 +1821,7 @@ void LLFloater::onClickClose( LLFloater* self )
 	self->onClickCloseBtn();
 }
 
-void	LLFloater::onClickCloseBtn()
+void LLFloater::onClickCloseBtn(bool app_quitting)
 {
 	closeFloater(false);
 }
