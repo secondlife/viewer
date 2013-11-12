@@ -1381,8 +1381,7 @@
              label="Report Bug"
              name="Report Bug">
                 <menu_item_call.on_click
-                 function="ShowHelp"
-                 parameter="report_bug" />
+                 function="Advanced.ReportBug"/>
             </menu_item_call>
 
         <menu_item_separator/>
