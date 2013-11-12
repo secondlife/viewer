@@ -176,6 +176,7 @@ LLFolderView::LLFolderView(const Params& p)
 {
 	mViewModel->setFolderView(this);
 	mRoot = this;
+    llinfos << "Merov : create folder view, this = " << this << ", name = " << (std::string(p.name)) << ", model = " << getFolderViewModel() << llendl;
 
 	LLRect rect = p.rect;
 	LLRect new_rect(rect.mLeft, rect.mBottom + getRect().getHeight(), rect.mLeft + getRect().getWidth(), rect.mBottom);
@@ -243,6 +244,7 @@ LLFolderView::LLFolderView(const Params& p)
 // Destroys the object
 LLFolderView::~LLFolderView( void )
 {
+    llinfos << "Merov : delete folder view (start), this = " << this << ", model = " << getFolderViewModel() << llendl;
 	closeRenamer();
 
 	// The release focus call can potentially call the
@@ -264,7 +266,9 @@ LLFolderView::~LLFolderView( void )
 	mItems.clear();
 	mFolders.clear();
 
+	mViewModel->setFolderView(NULL);
 	mViewModel = NULL;
+    llinfos << "Merov : delete folder view (end), this = " << this << ", model = " << getFolderViewModel() << llendl;
 }
 
 BOOL LLFolderView::canFocusChildren() const
@@ -1598,6 +1602,13 @@ void LLFolderView::update()
 	// If this is associated with the user's inventory, don't do anything
 	// until that inventory is loaded up.
 	LLFastTimer t2(FTM_INVENTORY);
+    
+    // If there's no model, the view is in suspended state (being deleted) and shouldn't be updated
+    if (getFolderViewModel() == NULL)
+    {
+        return;
+    }
+    //llinfos << "Merov : update, this = " << this << ", model = " << getFolderViewModel() << llendl;
 
 	if (getFolderViewModel()->getFilter().isModified() && getFolderViewModel()->getFilter().isNotDefault())
 	{

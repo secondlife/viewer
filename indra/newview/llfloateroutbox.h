@@ -105,7 +105,7 @@ private:
 	LLTextBox *		mInventoryTitle;
 	
 	LLUUID				mOutboxId;
-	LLInventoryPanel *	mOutboxInventoryPanel;
+	LLHandle<LLInventoryPanel> mOutboxInventoryPanel;
 	U32					mOutboxItemCount;
 	LLPanel *			mOutboxTopLevelDropZone;
 	

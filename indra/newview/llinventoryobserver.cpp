@@ -690,15 +690,22 @@ void LLInventoryCategoriesObserver::changed(U32 mask)
 	if (!mCategoryMap.size())
 		return;
 
+    llinfos << "Merov : Categories Observer changed, map size = " << mCategoryMap.size() << ", mask = " << mask << llendl;
+
 	for (category_map_t::iterator iter = mCategoryMap.begin();
 		 iter != mCategoryMap.end();
 		 ++iter)
 	{
 		const LLUUID& cat_id = (*iter).first;
-
+		LLCategoryData& cat_data = (*iter).second;
+        
 		LLViewerInventoryCategory* category = gInventory.getCategory(cat_id);
 		if (!category)
+        {
+            llinfos << "Merov : Categories Observer disappeared, cat_id = " << cat_id << llendl;
+			cat_data.mCallback();
 			continue;
+        }
 
 		const S32 version = category->getVersion();
 		const S32 expected_num_descendents = category->getDescendentCount();
@@ -726,8 +733,6 @@ void LLInventoryCategoriesObserver::changed(U32 mask)
 		
 		const S32 current_num_known_descendents = cats->count() + items->count();
 
-		LLCategoryData& cat_data = (*iter).second;
-
 		bool cat_changed = false;
 
 		// If category version or descendents count has changed
@@ -752,6 +757,8 @@ void LLInventoryCategoriesObserver::changed(U32 mask)
 				cat_changed = true;
 			}
 		}
+        
+        llinfos << "Merov : Categories Observer changed, cat_id = " << cat_id << ", changed = " << cat_changed << llendl;
 
 		// If anything has changed above, fire the callback.
 		if (cat_changed)

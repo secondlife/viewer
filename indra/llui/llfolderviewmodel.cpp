@@ -36,6 +36,10 @@ bool LLFolderViewModelCommon::needsSort(LLFolderViewModelItem* item)
 
 std::string LLFolderViewModelCommon::getStatusText()
 {
+    if (!mFolderView)
+    {
+        llinfos << "Merov : Trying LLFolderViewModelCommon::getStatusText() on a NULL mFolderView!!!" << llendl;
+    }
 	if (!contentsReady() || mFolderView->getViewModelItem()->getLastFilterGeneration() < getFilter().getCurrentGeneration())
 	{
 		return LLTrans::getString("Searching");
@@ -48,6 +52,10 @@ std::string LLFolderViewModelCommon::getStatusText()
 
 void LLFolderViewModelCommon::filter()
 {
+    if (!mFolderView)
+    {
+        llinfos << "Merov : Trying LLFolderViewModelCommon::filter() on a NULL mFolderView!!!" << llendl;
+    }
     getFilter().resetTime(llclamp(LLUI::sSettingGroups["config"]->getS32("FilterItemsMaxTimePerFrameVisible"), 1, 100));
 	mFolderView->getViewModelItem()->filter(getFilter());
 }
