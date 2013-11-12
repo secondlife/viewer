@@ -29,7 +29,7 @@
 #include "llpacketbuffer.h"
 
 #include "net.h"
-#include "timing.h"
+#include "lltimer.h"
 #include "llhost.h"
 
 ///////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@ LLPacketBuffer::LLPacketBuffer(const LLHost &host, const char *datap, const S32 
 
 	if (size > NET_BUFFER_SIZE)
 	{
-		llerrs << "Sending packet > " << NET_BUFFER_SIZE << " of size " << size << llendl;
+		LL_ERRS() << "Sending packet > " << NET_BUFFER_SIZE << " of size " << size << LL_ENDL;
 	}
 	else
 	{

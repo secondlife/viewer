@@ -30,7 +30,7 @@
 #include "lluictrl.h"
 #include "llviewquery.h"
 
-void LLQuerySorter::operator() (LLView * parent, viewList_t &children) const {}
+void LLQuerySorter::sort(LLView * parent, viewList_t &children) const {}
 
 filterResult_t LLLeavesFilter::operator() (const LLView* const view, const viewList_t & children) const 
 {
@@ -89,8 +89,8 @@ viewList_t LLViewQuery::run(LLView* view) const
 		if (pre.first)
 		{
 			post = runFilters(view, filtered_children, mPostFilters);
-			}
 		}
+	}
 
 	if(pre.first && post.first) 
 	{
@@ -105,12 +105,12 @@ viewList_t LLViewQuery::run(LLView* view) const
 	return result;
 }
 
-void LLViewQuery::filterChildren(LLView * view, viewList_t & filtered_children) const
+void LLViewQuery::filterChildren(LLView* parent_view, viewList_t & filtered_children) const
 {
-	LLView::child_list_t views(*(view->getChildList()));
+	LLView::child_list_t views(*(parent_view->getChildList()));
 	if (mSorterp)
 	{
-		(*mSorterp)(view, views); // sort the children per the sorter
+		mSorterp->sort(parent_view, views); // sort the children per the sorter
 	}
 	for(LLView::child_list_iter_t iter = views.begin();
 		iter != views.end();
@@ -134,18 +134,3 @@ filterResult_t LLViewQuery::runFilters(LLView * view, const viewList_t children,
 	}
 	return result;
 }
-
-class SortByTabOrder : public LLQuerySorter, public LLSingleton<SortByTabOrder>
-{
-	/*virtual*/ void operator() (LLView * parent, LLView::child_list_t &children) const 
-	{
-		children.sort(LLCompareByTabOrder(parent->getCtrlOrder()));
-	}
-};
-
-LLCtrlQuery::LLCtrlQuery() : 
-	LLViewQuery()
-{
-	setSorter(SortByTabOrder::getInstance());
-}
-

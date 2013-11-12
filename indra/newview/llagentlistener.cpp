@@ -193,8 +193,8 @@ void LLAgentListener::requestSit(LLSD const & event_data) const
     }
 	else
 	{
-		llwarns << "LLAgent requestSit could not find the sit target: " 
-			<< event_data << llendl;
+		LL_WARNS() << "LLAgent requestSit could not find the sit target: " 
+			<< event_data << LL_ENDL;
 	}
 }
 
@@ -276,8 +276,8 @@ void LLAgentListener::requestTouch(LLSD const & event_data) const
     }
 	else
 	{
-		llwarns << "LLAgent requestTouch could not find the touch target " 
-			<< event_data["obj_uuid"].asUUID() << llendl;
+		LL_WARNS() << "LLAgent requestTouch could not find the touch target " 
+			<< event_data["obj_uuid"].asUUID() << LL_ENDL;
 	}
 }
 
@@ -504,7 +504,7 @@ void LLAgentListener::lookAt(LLSD const & event_data) const
 void LLAgentListener::getGroups(const LLSD& event) const
 {
     LLSD reply(LLSD::emptyArray());
-    for (LLDynamicArray<LLGroupData>::const_iterator
+    for (std::vector<LLGroupData>::const_iterator
              gi(mAgent.mGroups.begin()), gend(mAgent.mGroups.end());
          gi != gend; ++gi)
     {

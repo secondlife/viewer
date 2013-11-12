@@ -172,7 +172,7 @@ void LLFloaterEditDayCycle::loadTrack()
 
 	// add sliders
 
-	lldebugs << "Adding " << LLWLParamManager::getInstance()->mDay.mTimeMap.size() << " keys to slider" << llendl;
+	LL_DEBUGS() << "Adding " << LLWLParamManager::getInstance()->mDay.mTimeMap.size() << " keys to slider" << LL_ENDL;
 
 	LLWLDayCycle& cur_dayp = LLWLParamManager::instance().mDay;
 	for (std::map<F32, LLWLParamKey>::iterator it = cur_dayp.mTimeMap.begin(); it != cur_dayp.mTimeMap.end(); ++it)
@@ -192,12 +192,12 @@ void LLFloaterEditDayCycle::loadTrack()
 
 void LLFloaterEditDayCycle::applyTrack()
 {
-	lldebugs << "Applying track (" << mSliderToKey.size() << ")" << llendl;
+	LL_DEBUGS() << "Applying track (" << mSliderToKey.size() << ")" << LL_ENDL;
 
 	// if no keys, do nothing
 	if (mSliderToKey.size() == 0)
 	{
-		lldebugs << "No keys, not syncing" << llendl;
+		LL_DEBUGS() << "No keys, not syncing" << LL_ENDL;
 		return;
 	}
 
@@ -342,7 +342,7 @@ void LLFloaterEditDayCycle::onKeyTimeMoved()
 
 	// check to see if a key exists
 	LLWLParamKey key = mSliderToKey[cur_sldr].keyframe;
-	lldebugs << "Setting key time: " << time24 << LL_ENDL;
+	LL_DEBUGS() << "Setting key time: " << time24 << LL_ENDL;
 	mSliderToKey[cur_sldr].time = time24;
 
 	// if it exists, turn on check box
@@ -368,7 +368,7 @@ void LLFloaterEditDayCycle::onKeyTimeChanged()
 	F32 time = mKeysSlider->getCurSliderValue() / sHoursPerDay;
 
 	// now set the key's time in the sliderToKey map
-	lldebugs << "Setting key time: " << time << LL_ENDL;
+	LL_DEBUGS() << "Setting key time: " << time << LL_ENDL;
 	mSliderToKey[cur_sldr].time = time;
 
 	applyTrack();
@@ -564,7 +564,7 @@ void LLFloaterEditDayCycle::saveRegionDayCycle()
 #else // Temporary disabled ability to upload new region settings from the Day Cycle Editor.
 	if (!LLEnvManagerNew::instance().sendRegionSettings(new_region_settings))
 	{
-		llwarns << "Error applying region environment settings" << llendl;
+		LL_WARNS() << "Error applying region environment settings" << LL_ENDL;
 		return;
 	}
 
@@ -637,7 +637,7 @@ void LLFloaterEditDayCycle::onRegionSettingsChange()
 		// Change preference if requested.
 		if (mMakeDefaultCheckBox->getValue())
 		{
-			LL_DEBUGS("Windlight") << "Changed environment preference to region settings" << llendl;
+			LL_DEBUGS("Windlight") << "Changed environment preference to region settings" << LL_ENDL;
 			LLEnvManagerNew::instance().setUseRegionSettings(true);
 		}
 
@@ -699,7 +699,7 @@ void LLFloaterEditDayCycle::onDayCycleSelected()
 	{
 		if (!LLDayCycleManager::instance().getPreset(dc_key.name, day_data))
 		{
-			llwarns << "No day cycle named " << dc_key.name << llendl;
+			LL_WARNS() << "No day cycle named " << dc_key.name << LL_ENDL;
 			return;
 		}
 	}
@@ -708,7 +708,7 @@ void LLFloaterEditDayCycle::onDayCycleSelected()
 		day_data = LLEnvManagerNew::instance().getRegionSettings().getWLDayCycle();
 		if (day_data.size() == 0)
 		{
-			llwarns << "Empty region day cycle" << llendl;
+			LL_WARNS() << "Empty region day cycle" << LL_ENDL;
 			llassert(day_data.size() > 0);
 			return;
 		}
@@ -742,7 +742,7 @@ void LLFloaterEditDayCycle::onBtnSave()
 	if (name.empty())
 	{
 		// *TODO: show an alert
-		llwarns << "Empty day cycle name" << llendl;
+		LL_WARNS() << "Empty day cycle name" << LL_ENDL;
 		return;
 	}
 
@@ -795,7 +795,7 @@ void LLFloaterEditDayCycle::onSaveConfirmed()
 	// Change preference if requested.
 	if (mMakeDefaultCheckBox->getValue())
 	{
-		LL_DEBUGS("Windlight") << name << " is now the new preferred day cycle" << llendl;
+		LL_DEBUGS("Windlight") << name << " is now the new preferred day cycle" << LL_ENDL;
 		LLEnvManagerNew::instance().setUseDayCycle(name);
 	}
 

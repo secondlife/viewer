@@ -550,7 +550,7 @@ std::string LLGridManager::getUpdateServiceURL()
 	std::string update_url_base = gSavedSettings.getString("CmdLineUpdateService");;
 	if ( !update_url_base.empty() )
 	{
-		LL_INFOS2("UpdaterService","GridManager")
+		LL_INFOS("UpdaterService","GridManager")
 			<< "Update URL base overridden from command line: " << update_url_base
 			<< LL_ENDL;
 	}
@@ -560,7 +560,7 @@ std::string LLGridManager::getUpdateServiceURL()
 	}
 	else
 	{
-		LL_WARNS2("UpdaterService","GridManager")
+		LL_WARNS("UpdaterService","GridManager")
 			<< "The grid property '" << GRID_UPDATE_SERVICE_URL
 			<< "' is not defined for the grid '" << mGrid << "'"
 			<< LL_ENDL;

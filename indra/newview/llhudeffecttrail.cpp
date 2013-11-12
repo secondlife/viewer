@@ -85,7 +85,7 @@ void LLHUDEffectSpiral::packData(LLMessageSystem *mesgsys)
 {
 	if (!mSourceObject)
 	{
-		//llwarns << "Missing object in trail pack!" << llendl;
+		//LL_WARNS() << "Missing object in trail pack!" << LL_ENDL;
 	}
 	LLHUDEffect::packData(mesgsys);
 
@@ -117,7 +117,7 @@ void LLHUDEffectSpiral::unpackData(LLMessageSystem *mesgsys, S32 blocknum)
 	size_t size = mesgsys->getSizeFast(_PREHASH_Effect, blocknum, _PREHASH_TypeData);
 	if (size != EFFECT_SIZE)
 	{
-		llwarns << "Spiral effect with bad size " << size << llendl;
+		LL_WARNS() << "Spiral effect with bad size " << size << LL_ENDL;
 		return;
 	}
 	mesgsys->getBinaryDataFast(_PREHASH_Effect, _PREHASH_TypeData, 

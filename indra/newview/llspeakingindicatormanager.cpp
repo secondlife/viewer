@@ -279,7 +279,7 @@ void SpeakingIndicatorManager::ensureInstanceDoesNotExist(LLSpeakingIndicator* c
 	// So, using stored deleted pointer leads to crash. See EXT-4782.
 	if (it != mSpeakingIndicators.end())
 	{
-		llwarns << "The same instance of indicator has already been registered, removing it: " << it->first << "|"<< speaking_indicator << llendl;
+		LL_WARNS() << "The same instance of indicator has already been registered, removing it: " << it->first << "|"<< speaking_indicator << LL_ENDL;
 		llassert(it == mSpeakingIndicators.end());
 		mSpeakingIndicators.erase(it);
 	}

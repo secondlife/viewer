@@ -233,7 +233,7 @@ bool LLLandmarkActions::canCreateLandmarkHere()
 	LLParcel* agent_parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 	if(!agent_parcel)
 	{
-		llwarns << "No agent region" << llendl;
+		LL_WARNS() << "No agent region" << LL_ENDL;
 		return false;
 	}
 	if (agent_parcel->getAllowLandmark()
@@ -252,13 +252,13 @@ void LLLandmarkActions::createLandmarkHere(
 {
 	if(!gAgent.getRegion())
 	{
-		llwarns << "No agent region" << llendl;
+		LL_WARNS() << "No agent region" << LL_ENDL;
 		return;
 	}
 	LLParcel* agent_parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 	if (!agent_parcel)
 	{
-		llwarns << "No agent parcel" << llendl;
+		LL_WARNS() << "No agent parcel" << LL_ENDL;
 		return;
 	}
 	if (!canCreateLandmarkHere())

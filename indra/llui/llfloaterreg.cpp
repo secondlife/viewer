@@ -151,13 +151,13 @@ LLFloater* LLFloaterReg::getInstance(const std::string& name, const LLSD& key)
 				res = build_func(key);
 				if (!res)
 				{
-					llwarns << "Failed to build floater type: '" << name << "'." << llendl;
+					LL_WARNS() << "Failed to build floater type: '" << name << "'." << LL_ENDL;
 					return NULL;
 				}
 				bool success = res->buildFromFile(xui_file);
 				if (!success)
 				{
-					llwarns << "Failed to build floater type: '" << name << "'." << llendl;
+					LL_WARNS() << "Failed to build floater type: '" << name << "'." << LL_ENDL;
 					return NULL;
 				}
 
@@ -179,7 +179,7 @@ LLFloater* LLFloaterReg::getInstance(const std::string& name, const LLSD& key)
 		}
 		if (!res)
 		{
-			llwarns << "Floater type: '" << name << "' not registered." << llendl;
+			LL_WARNS() << "Floater type: '" << name << "' not registered." << LL_ENDL;
 		}
 	}
 	return res;
@@ -475,7 +475,7 @@ void LLFloaterReg::toggleInstanceOrBringToFront(const LLSD& sdname, const LLSD& 
 
 	if (!instance)
 	{
-		lldebugs << "Unable to get instance of floater '" << name << "'" << llendl;
+		LL_DEBUGS() << "Unable to get instance of floater '" << name << "'" << LL_ENDL;
 		return;
 	}
 	

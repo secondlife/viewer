@@ -37,6 +37,7 @@
 #include <string>
 #include <list>
 // units conversions
+#include "llunits.h"
 #ifndef USEC_PER_SEC
     const U32	USEC_PER_SEC	= 1000000;
 #endif
@@ -55,27 +56,34 @@ public:
 protected:	
 	U64 mLastClockCount;
 	U64 mExpirationTicks;
-	BOOL mStarted;
+	bool mStarted;
 
 public:
 	LLTimer();
 	~LLTimer();
 
-	static void initClass() { if (!sTimer) sTimer = new LLTimer; }
-	static void cleanupClass() { delete sTimer; sTimer = NULL; }
+	static void initClass();
+	static void cleanupClass();
 
 	// Return a high precision number of seconds since the start of
 	// this application instance.
-	static F64 getElapsedSeconds()
+	static F64SecondsImplicit getElapsedSeconds()
 	{
-		return sTimer->getElapsedTimeF64();
+		if (sTimer) 
+		{
+			return sTimer->getElapsedTimeF64();
+		}
+		else
+		{
+			return 0;
+		}
 	}
 
 	// Return a high precision usec since epoch
-	static U64 getTotalTime();
+	static U64MicrosecondsImplicit getTotalTime();
 
 	// Return a high precision seconds since epoch
-	static F64 getTotalSeconds();
+	static F64SecondsImplicit getTotalSeconds();
 
 
 	// MANIPULATORS
@@ -83,21 +91,21 @@ public:
 	void stop() { mStarted = FALSE; }
 	void reset();								// Resets the timer
 	void setLastClockCount(U64 current_count);		// Sets the timer so that the next elapsed call will be relative to this time
-	void setTimerExpirySec(F32 expiration);
+	void setTimerExpirySec(F32SecondsImplicit expiration);
 	BOOL checkExpirationAndReset(F32 expiration);
 	BOOL hasExpired() const;
-	F32 getElapsedTimeAndResetF32();	// Returns elapsed time in seconds with reset
-	F64 getElapsedTimeAndResetF64();
+	F32SecondsImplicit getElapsedTimeAndResetF32();	// Returns elapsed time in seconds with reset
+	F64SecondsImplicit getElapsedTimeAndResetF64();
 
-	F32 getRemainingTimeF32() const;
+	F32SecondsImplicit getRemainingTimeF32() const;
 
 	static BOOL knownBadTimer();
 
 	// ACCESSORS
-	F32 getElapsedTimeF32() const;			// Returns elapsed time in seconds
-	F64 getElapsedTimeF64() const;			// Returns elapsed time in seconds
+	F32SecondsImplicit getElapsedTimeF32() const;			// Returns elapsed time in seconds
+	F64SecondsImplicit getElapsedTimeF64() const;			// Returns elapsed time in seconds
 
-	BOOL getStarted() const { return mStarted; }
+	bool getStarted() const { return mStarted; }
 
 
 	static U64 getCurrentClockCount();		// Returns the raw clockticks
@@ -160,9 +168,9 @@ LL_COMMON_API BOOL is_daylight_savings();
 // struct tm* internal_time = utc_to_pacific_time(utc_time, gDaylight);
 LL_COMMON_API struct tm* utc_to_pacific_time(time_t utc_time, BOOL pacific_daylight_time);
 
-LL_COMMON_API void microsecondsToTimecodeString(U64 current_time, std::string& tcstring);
-LL_COMMON_API void secondsToTimecodeString(F32 current_time, std::string& tcstring);
+LL_COMMON_API void microsecondsToTimecodeString(U64MicrosecondsImplicit current_time, std::string& tcstring);
+LL_COMMON_API void secondsToTimecodeString(F32SecondsImplicit current_time, std::string& tcstring);
 
-U64 LL_COMMON_API totalTime();					// Returns current system time in microseconds
+U64MicrosecondsImplicit LL_COMMON_API totalTime();					// Returns current system time in microseconds
 
 #endif

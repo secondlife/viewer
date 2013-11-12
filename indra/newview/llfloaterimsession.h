@@ -62,7 +62,7 @@ public:
 
 	void initIMSession(const LLUUID& session_id);
 	void initIMFloater();
-
+	
 	// LLView overrides
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void setMinimized(BOOL b);
@@ -107,7 +107,7 @@ public:
 	// called when docked floater's position has been set by chiclet
 	void setPositioned(bool b) { mPositioned = b; };
 
-	void onVisibilityChange(const LLSD& new_visibility);
+	void onVisibilityChanged(const LLSD& new_visibility);
 	bool enableGearMenuItem(const LLSD& userdata);
 	void GearDoToSelected(const LLSD& userdata);
 	bool checkGearMenuItem(const LLSD& userdata);
@@ -145,7 +145,7 @@ private:
 
 	// Update the window title and input field help text
 	/*virtual*/ void updateSessionName(const std::string& name);
-
+	
 	bool dropPerson(LLUUID* person_id, bool drop);
 
 	BOOL isInviteAllowed() const;
@@ -161,7 +161,7 @@ private:
 	bool canAddSelectedToChat(const uuid_vec_t& uuids);
 
 	void onCallButtonClicked();
-
+	
 	void boundVoiceChannel();
 
 	// Add the "User is typing..." indicator.

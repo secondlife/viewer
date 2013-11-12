@@ -4,7 +4,6 @@
   can_dock="false"
   can_minimize="false"
   can_resize="false"
-  default_tab_group="1"
   height="375"
   help_topic="toybox"
   layout="topleft"

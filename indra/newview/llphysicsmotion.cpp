@@ -224,7 +224,7 @@ BOOL LLPhysicsMotion::initialize()
         mParamDriver = (LLViewerVisualParam*)mCharacter->getVisualParam(mParamDriverName.c_str());
         if (mParamDriver == NULL)
         {
-                llinfos << "Failure reading in  [ " << mParamDriverName << " ]" << llendl;
+                LL_INFOS() << "Failure reading in  [ " << mParamDriverName << " ]" << LL_ENDL;
                 return FALSE;
         }
 

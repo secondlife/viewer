@@ -54,13 +54,13 @@ LLHUDManager::~LLHUDManager()
 {
 }
 
-static LLFastTimer::DeclareTimer FTM_HUD_EFFECTS("Hud Effects");
+static LLTrace::BlockTimerStatHandle FTM_HUD_EFFECTS("Hud Effects");
 
 void LLHUDManager::updateEffects()
 {
-	LLFastTimer ftm(FTM_HUD_EFFECTS);
+	LL_RECORD_BLOCK_TIME(FTM_HUD_EFFECTS);
 	S32 i;
-	for (i = 0; i < mHUDEffects.count(); i++)
+	for (i = 0; i < mHUDEffects.size(); i++)
 	{
 		LLHUDEffect *hep = mHUDEffects[i];
 		if (hep->isDead())
@@ -74,17 +74,17 @@ void LLHUDManager::updateEffects()
 void LLHUDManager::sendEffects()
 {
 	S32 i;
-	for (i = 0; i < mHUDEffects.count(); i++)
+	for (i = 0; i < mHUDEffects.size(); i++)
 	{
 		LLHUDEffect *hep = mHUDEffects[i];
 		if (hep->isDead())
 		{
-			llwarns << "Trying to send dead effect!" << llendl;
+			LL_WARNS() << "Trying to send dead effect!" << LL_ENDL;
 			continue;
 		}
 		if (hep->mType < LLHUDObject::LL_HUD_EFFECT_BEAM)
 		{
-			llwarns << "Trying to send effect of type " << hep->mType << " which isn't really an effect and shouldn't be in this list!" << llendl;
+			LL_WARNS() << "Trying to send effect of type " << hep->mType << " which isn't really an effect and shouldn't be in this list!" << LL_ENDL;
 			continue;
 		}
 		if (hep->getNeedsSendToSim() && hep->getOriginatedHere())
@@ -105,18 +105,18 @@ void LLHUDManager::sendEffects()
 //static
 void LLHUDManager::shutdownClass()
 {
-	getInstance()->mHUDEffects.reset();
+	getInstance()->mHUDEffects.clear();
 }
 
 void LLHUDManager::cleanupEffects()
 {
 	S32 i = 0;
 
-	while (i < mHUDEffects.count())
+	while (i < mHUDEffects.size())
 	{
 		if (mHUDEffects[i]->isDead())
 		{
-			mHUDEffects.remove(i);
+			mHUDEffects.erase(mHUDEffects.begin() + i);
 		}
 		else
 		{
@@ -140,7 +140,7 @@ LLHUDEffect *LLHUDManager::createViewerEffect(const U8 type, BOOL send_to_sim, B
 	hep->setNeedsSendToSim(send_to_sim);
 	hep->setOriginatedHere(originated_here);
 
-	mHUDEffects.put(hep);
+	mHUDEffects.push_back(hep);
 	return hep;
 }
 
@@ -159,20 +159,20 @@ void LLHUDManager::processViewerEffect(LLMessageSystem *mesgsys, void **user_dat
 		effectp = NULL;
 		LLHUDEffect::getIDType(mesgsys, k, effect_id, effect_type);
 		S32 i;
-		for (i = 0; i < LLHUDManager::getInstance()->mHUDEffects.count(); i++)
+		for (i = 0; i < LLHUDManager::getInstance()->mHUDEffects.size(); i++)
 		{
 			LLHUDEffect *cur_effectp = LLHUDManager::getInstance()->mHUDEffects[i];
 			if (!cur_effectp)
 			{
-				llwarns << "Null effect in effect manager, skipping" << llendl;
-				LLHUDManager::getInstance()->mHUDEffects.remove(i);
+				LL_WARNS() << "Null effect in effect manager, skipping" << LL_ENDL;
+				LLHUDManager::getInstance()->mHUDEffects.erase(LLHUDManager::getInstance()->mHUDEffects.begin() + i);
 				i--;
 				continue;
 			}
 			if (cur_effectp->isDead())
 			{
-	//			llwarns << "Dead effect in effect manager, removing" << llendl;
-				LLHUDManager::getInstance()->mHUDEffects.remove(i);
+	//			LL_WARNS() << "Dead effect in effect manager, removing" << LL_ENDL;
+				LLHUDManager::getInstance()->mHUDEffects.erase(LLHUDManager::getInstance()->mHUDEffects.begin() + i);
 				i--;
 				continue;
 			}
@@ -180,7 +180,7 @@ void LLHUDManager::processViewerEffect(LLMessageSystem *mesgsys, void **user_dat
 			{
 				if (cur_effectp->getType() != effect_type)
 				{
-					llwarns << "Viewer effect update doesn't match old type!" << llendl;
+					LL_WARNS() << "Viewer effect update doesn't match old type!" << LL_ENDL;
 				}
 				effectp = cur_effectp;
 				break;
@@ -201,10 +201,10 @@ void LLHUDManager::processViewerEffect(LLMessageSystem *mesgsys, void **user_dat
 		}
 		else
 		{
-			llwarns << "Received viewer effect of type " << effect_type << " which isn't really an effect!" << llendl;
+			LL_WARNS() << "Received viewer effect of type " << effect_type << " which isn't really an effect!" << LL_ENDL;
 		}
 	}
 
-	//llinfos << "Got viewer effect: " << effect_id << llendl;
+	//LL_INFOS() << "Got viewer effect: " << effect_id << LL_ENDL;
 }
 

@@ -72,7 +72,7 @@ public:
 
 		if ((data_mask & type_mask) != data_mask)
 		{
-			llerrs << "LLVertexBuffer::setupVertexBuffer missing required components for supplied data mask." << llendl;
+			LL_ERRS() << "LLVertexBuffer::setupVertexBuffer missing required components for supplied data mask." << LL_ENDL;
 		}
 
 		if (data_mask & MAP_NORMAL)
@@ -212,7 +212,7 @@ LLDrawable *LLVOSurfacePatch::createDrawable(LLPipeline *pipeline)
 	return mDrawable;
 }
 
-static LLFastTimer::DeclareTimer FTM_UPDATE_TERRAIN("Update Terrain");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_TERRAIN("Update Terrain");
 
 void LLVOSurfacePatch::updateGL()
 {
@@ -224,7 +224,7 @@ void LLVOSurfacePatch::updateGL()
 
 BOOL LLVOSurfacePatch::updateGeometry(LLDrawable *drawable)
 {
-	LLFastTimer ftm(FTM_UPDATE_TERRAIN);
+	LL_RECORD_BLOCK_TIME(FTM_UPDATE_TERRAIN);
 
 	dirtySpatialGroup(TRUE);
 	
@@ -291,7 +291,7 @@ void LLVOSurfacePatch::updateFaceSize(S32 idx)
 {
 	if (idx != 0)
 	{
-		llwarns << "Terrain partition requested invalid face!!!" << llendl;
+		LL_WARNS() << "Terrain partition requested invalid face!!!" << LL_ENDL;
 		return;
 	}
 
@@ -1056,8 +1056,8 @@ U32 LLVOSurfacePatch::getPartitionType() const
 	return LLViewerRegion::PARTITION_TERRAIN; 
 }
 
-LLTerrainPartition::LLTerrainPartition()
-: LLSpatialPartition(LLDrawPoolTerrain::VERTEX_DATA_MASK, FALSE, GL_DYNAMIC_DRAW_ARB)
+LLTerrainPartition::LLTerrainPartition(LLViewerRegion* regionp)
+: LLSpatialPartition(LLDrawPoolTerrain::VERTEX_DATA_MASK, FALSE, GL_DYNAMIC_DRAW_ARB, regionp)
 {
 	mOcclusionEnabled = FALSE;
 	mInfiniteFarClip = TRUE;
@@ -1070,10 +1070,10 @@ LLVertexBuffer* LLTerrainPartition::createVertexBuffer(U32 type_mask, U32 usage)
 	return new LLVertexBufferTerrain();
 }
 
-static LLFastTimer::DeclareTimer FTM_REBUILD_TERRAIN_VB("Terrain VB");
+static LLTrace::BlockTimerStatHandle FTM_REBUILD_TERRAIN_VB("Terrain VB");
 void LLTerrainPartition::getGeometry(LLSpatialGroup* group)
 {
-	LLFastTimer ftm(FTM_REBUILD_TERRAIN_VB);
+	LL_RECORD_BLOCK_TIME(FTM_REBUILD_TERRAIN_VB);
 
 	LLVertexBuffer* buffer = group->mVertexBuffer;
 

@@ -41,7 +41,7 @@ LLService::~LLService()
 // static
 bool LLService::registerCreator(const std::string& name, creator_t fn)
 {
-	llinfos << "LLService::registerCreator(" << name << ")" << llendl;
+	LL_INFOS() << "LLService::registerCreator(" << name << ")" << LL_ENDL;
 	if(name.empty())
 	{
 		return false;
@@ -64,7 +64,7 @@ LLIOPipe* LLService::activate(
 {
 	if(name.empty())
 	{
-		llinfos << "LLService::activate - no service specified." << llendl;
+		LL_INFOS() << "LLService::activate - no service specified." << LL_ENDL;
 		return NULL;
 	}
 	creators_t::iterator it = sCreatorFunctors.find(name);
@@ -79,15 +79,15 @@ LLIOPipe* LLService::activate(
 		{
 			// empty out the chain, because failed service creation
 			// should just discard this stuff.
-			llwarns << "LLService::activate - unable to build chain: " << name
-					<< llendl;
+			LL_WARNS() << "LLService::activate - unable to build chain: " << name
+					<< LL_ENDL;
 			chain.clear();
 		}
 	}
 	else
 	{
-		llwarns << "LLService::activate - unable find factory: " << name
-				<< llendl;
+		LL_WARNS() << "LLService::activate - unable find factory: " << name
+				<< LL_ENDL;
 	}
 	return rv;
 }

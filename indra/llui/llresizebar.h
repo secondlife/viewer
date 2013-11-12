@@ -27,14 +27,14 @@
 #ifndef LL_RESIZEBAR_H
 #define LL_RESIZEBAR_H
 
-#include "llpanel.h"
+#include "llview.h"
 
-class LLResizeBar : public LLPanel
+class LLResizeBar : public LLView
 {
 public:
 	enum Side { LEFT, TOP, RIGHT, BOTTOM };
 
-	struct Params : public LLInitParam::Block<Params, LLPanel::Params>
+	struct Params : public LLInitParam::Block<Params, LLView::Params>
 	{
 		Mandatory<LLView*> resizing_view;
 		Mandatory<Side>	side;
@@ -43,7 +43,6 @@ public:
 		Optional<S32>	max_size;
 		Optional<bool>	snapping_enabled;
 		Optional<bool>	allow_double_click_snapping;
-		Optional<bool>	show_drag_handle;
 
 		Params();
 	};
@@ -52,10 +51,8 @@ protected:
 	LLResizeBar(const LLResizeBar::Params& p);
 	friend class LLUICtrlFactory;
 
-	/*virtual*/ BOOL postBuild();
 public:
 
-	virtual void	draw();
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
@@ -66,7 +63,6 @@ public:
 	void			setAllowDoubleClickSnapping(BOOL allow) { mAllowDoubleClickSnapping = allow; }
 	bool			canResize() { return getEnabled() && mMaxSize > mMinSize; }
 	void            setResizeListener(boost::function<void(void*)> listener) {mResizeListener = listener;}
-	BOOL			isShowDragHandle() const { return mShowDragHandle; }
 	void			setImagePanel(LLPanel * panelp);
 	LLPanel *		getImagePanel() const;
 
@@ -79,9 +75,8 @@ private:
 	S32								mMinSize;
 	S32								mMaxSize;
 	const Side						mSide;
-	BOOL							mSnappingEnabled;
-	BOOL							mAllowDoubleClickSnapping;
-	BOOL							mShowDragHandle;
+	bool							mSnappingEnabled,
+									mAllowDoubleClickSnapping;
 	LLView*							mResizingView;
 	boost::function<void(void*)>	mResizeListener;
 	LLPointer<LLUIImage>			mDragHandleImage;

@@ -43,7 +43,7 @@
 //	S32 count = LLCategory::none.getSubCategoryCount();
 //	for(S32 i = 0; i < count; i++)
 //	{
-//		llinfos << none.getSubCategory(i).lookupNmae() << llendl;
+//		LL_INFOS() << none.getSubCategory(i).lookupNmae() << LL_ENDL;
 //	}
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

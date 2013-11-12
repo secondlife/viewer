@@ -29,12 +29,12 @@
 
 #include "indra_constants.h"
 #include "llevent.h" 				// LLObservable base class
-#include "llagentconstants.h"
 #include "llagentdata.h" 			// gAgentID, gAgentSessionID
 #include "llcharacter.h"
 #include "llcoordframe.h"			// for mFrameAgent
 #include "llavatarappearancedefines.h"
 #include "llpermissionsflags.h"
+#include "v3dmath.h"
 
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
@@ -251,6 +251,7 @@ public:
 	
 	const LLVector3d &getLastPositionGlobal() const { return mLastPositionGlobal; }
 	void			setLastPositionGlobal(const LLVector3d &pos) { mLastPositionGlobal = pos; }
+
 private:
 	std::set<U64>	mRegionsVisited;		// Stat - what distinct regions has the avatar been to?
 	F64				mDistanceTraveled;		// Stat - how far has the avatar moved?
@@ -429,7 +430,7 @@ public:
 	void            stopCurrentAnimations();
 	void			requestStopMotion(LLMotion* motion);
 	void			onAnimStop(const LLUUID& id);
-	void			sendAnimationRequests(LLDynamicArray<LLUUID> &anim_ids, EAnimRequest request);
+	void			sendAnimationRequests(const std::vector<LLUUID> &anim_ids, EAnimRequest request);
 	void			sendAnimationRequest(const LLUUID &anim_id, EAnimRequest request);
 	void			sendAnimationStateReset();
 	void			sendRevokePermissions(const LLUUID & target, U32 permissions);
@@ -801,7 +802,7 @@ protected:
 	// Only used for building titles.
 	BOOL			isGroupMember() const 		{ return !mGroupID.isNull(); } 
 public:
-	LLDynamicArray<LLGroupData> mGroups;
+	std::vector<LLGroupData> mGroups;
 
 	//--------------------------------------------------------------------
 	// Group Title

@@ -28,7 +28,6 @@
 #define LL_LLVOGRASS_H
 
 #include "llviewerobject.h"
-#include "lldarray.h"
 #include <map>
 
 class LLSurfacePatch;

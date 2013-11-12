@@ -168,7 +168,7 @@ BOOL LLKeyframeMotionParam::onUpdate(F32 time, U8* joint_mask)
 		for (motion_list_t::iterator iter2 = motionList.begin(); iter2 != motionList.end(); ++iter2)
 		{
 			const ParameterizedMotion& paramMotion = *iter2;
-//			llinfos << "Weight for pose " << paramMotion.mMotion->getName() << " is " << paramMotion.mMotion->getPose()->getWeight() << llendl;
+//			LL_INFOS() << "Weight for pose " << paramMotion.mMotion->getName() << " is " << paramMotion.mMotion->getPose()->getWeight() << LL_ENDL;
 			paramMotion.mMotion->getPose()->setWeight(0.f);
 		}
 	}
@@ -181,7 +181,7 @@ BOOL LLKeyframeMotionParam::onUpdate(F32 time, U8* joint_mask)
 		F32* paramValue = (F32 *)mCharacter->getAnimationData(paramName);
 		if (NULL == paramValue) // unexpected, but...
 		{
-			llwarns << "paramValue == NULL" << llendl;
+			LL_WARNS() << "paramValue == NULL" << LL_ENDL;
 			continue;
 		}
 
@@ -256,8 +256,8 @@ BOOL LLKeyframeMotionParam::onUpdate(F32 time, U8* joint_mask)
 				firstPose->setWeight(first_weight * weightFactor);
 				secondPose->setWeight(second_weight * weightFactor);
 
-//				llinfos << "Parameter " << *paramName << ": " << *paramValue << llendl;
-//				llinfos << "Weights " << firstPose->getWeight() << " " << secondPose->getWeight() << llendl;
+//				LL_INFOS() << "Parameter " << *paramName << ": " << *paramValue << LL_ENDL;
+//				LL_INFOS() << "Weights " << firstPose->getWeight() << " " << secondPose->getWeight() << LL_ENDL;
 			}
 		}
 		else if (firstMotion && !secondMotion)
@@ -269,7 +269,7 @@ BOOL LLKeyframeMotionParam::onUpdate(F32 time, U8* joint_mask)
 	// blend poses
 	mPoseBlender.blendAndApply();
 
-	llinfos << "Param Motion weight " << mPoseBlender.getBlendedPose()->getWeight() << llendl;
+	LL_INFOS() << "Param Motion weight " << mPoseBlender.getBlendedPose()->getWeight() << LL_ENDL;
 
 	return TRUE;
 }
@@ -356,7 +356,7 @@ BOOL LLKeyframeMotionParam::loadMotions()
 	apr_file_t* fp = infile.getFileHandle() ;
 	if (!fp || fileSize == 0)
 	{
-		llinfos << "ERROR: can't open: " << path << llendl;
+		LL_INFOS() << "ERROR: can't open: " << path << LL_ENDL;
 		return FALSE;
 	}
 
@@ -395,11 +395,11 @@ BOOL LLKeyframeMotionParam::loadMotions()
 
 	if ( error )
 	{
-		llinfos << "ERROR: error while reading from " << path << llendl;
+		LL_INFOS() << "ERROR: error while reading from " << path << LL_ENDL;
 		return FALSE;
 	}
 
-	llinfos << "Loading parametric keyframe data for: " << getName() << llendl;
+	LL_INFOS() << "Loading parametric keyframe data for: " << getName() << LL_ENDL;
 
 	//-------------------------------------------------------------------------
 	// parse the text and build keyframe data structures
@@ -422,7 +422,7 @@ BOOL LLKeyframeMotionParam::loadMotions()
 		if (num == 0 || num == EOF) break;
 		if ((num != 3))
 		{
-			llinfos << "WARNING: can't read parametric motion" << llendl;
+			LL_INFOS() << "WARNING: can't read parametric motion" << LL_ENDL;
 			return FALSE;
 		}
 
