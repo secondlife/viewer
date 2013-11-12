@@ -699,7 +699,7 @@ LLSceneMonitorView::LLSceneMonitorView(const LLRect& rect)
 	setCanClose(true);
 }
 
-void LLSceneMonitorView::onClickCloseBtn()
+void LLSceneMonitorView::onClose(bool app_quitting)
 {
 	setVisible(false);	
 }

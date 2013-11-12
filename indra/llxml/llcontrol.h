@@ -395,7 +395,6 @@ class LLCachedControl
 public:
 	LLCachedControl(LLControlGroup& group,
 					const std::string& name,
-
 					const T& default_value, 
 					const std::string& comment = "Declared In Code")
 	{
@@ -403,6 +402,16 @@ public:
 		if (mCachedControlPtr.isNull())
 		{
 			mCachedControlPtr = new LLControlCache<T>(group, name, default_value, comment);
+		}
+	}
+
+	LLCachedControl(LLControlGroup& group,
+					const std::string& name)
+	{
+		mCachedControlPtr = LLControlCache<T>::getInstance(name);
+		if (mCachedControlPtr.isNull())
+		{
+			mCachedControlPtr = new LLControlCache<T>(group, name);
 		}
 	}
 

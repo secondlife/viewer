@@ -2133,14 +2133,7 @@ BOOL LLFloaterIMContainer::isFrontmost()
 // This is intentional so it doesn't confuse the user. onClickCloseBtn() closes the whole floater.
 void LLFloaterIMContainer::onClickCloseBtn(bool app_quitting/* = false*/)
 {
-	// Always unminimize before trying to close.
-	// Most of the time the user will never see this state.
-	if(isMinimized())
-	{
-		LLMultiFloater::setMinimized(FALSE);
-	}
-
-	LLFloater::closeFloater(app_quitting);
+	LLMultiFloater::closeFloater(app_quitting);
 }
 
 void LLFloaterIMContainer::closeHostedFloater()

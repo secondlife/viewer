@@ -5517,10 +5517,10 @@ void LLVOAvatar::addChild(LLViewerObject *childp)
 	{
 		if (!attachObject(childp))
 		{
-			llwarns << "addChild() failed for " 
+			LL_WARNS() << "addChild() failed for " 
 					<< childp->getID()
 					<< " item " << childp->getAttachmentItemID()
-					<< llendl;
+					<< LL_ENDL;
 			// MAINT-3312 backout
 			// mPendingAttachment.push_back(childp);
 		}
@@ -5652,10 +5652,10 @@ void LLVOAvatar::lazyAttach()
 		{
 			if (!attachObject(cur_attachment))
 			{	// Drop it
-				llwarns << "attachObject() failed for " 
+				LL_WARNS() << "attachObject() failed for " 
 					<< cur_attachment->getID()
 					<< " item " << cur_attachment->getAttachmentItemID()
-					<< llendl;
+					<< LL_ENDL;
 				// MAINT-3312 backout
 				//still_pending.push_back(cur_attachment);
 			}

@@ -67,14 +67,13 @@ void LLMultiFloater::buildTabContainer()
 	}
 }
 
-void LLMultiFloater::onOpen(const LLSD& key)
+void LLMultiFloater::onClose(bool app_quitting)
 {
-// 	if (mTabContainer->getTabCount() <= 0)
-// 	{
-// 		// for now, don't allow multifloaters
-// 		// without any child floaters
-// 		closeFloater();
-// 	}
+	if(isMinimized())
+	{
+		setMinimized(FALSE);
+	}
+	LLFloater::onClose(app_quitting);
 }
 
 void LLMultiFloater::draw()

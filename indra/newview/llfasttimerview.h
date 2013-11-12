@@ -62,10 +62,10 @@ public:
 	virtual BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
 	virtual void draw();
 	virtual void onOpen(const LLSD& key);
+	virtual void onClose(bool app_quitting);
 	LLTrace::BlockTimerStatHandle* getLegendID(S32 y);
 
 private:	
-	virtual	void	onClickCloseBtn(bool app_quitting = false);
 	void drawTicks();
 	void drawLineGraph();
 	void drawLegend();

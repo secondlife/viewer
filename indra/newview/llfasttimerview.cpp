@@ -413,7 +413,7 @@ void LLFastTimerView::draw()
 	mAllTimeMax = llmax(mAllTimeMax, mRecording.getLastRecording().getSum(FTM_FRAME));
 	mHoverID = NULL;
 	mHoverBarIndex = -1;
-					}
+}
 
 void LLFastTimerView::onOpen(const LLSD& key)
 {
@@ -429,6 +429,10 @@ void LLFastTimerView::onOpen(const LLSD& key)
 	}
 }
 										
+void LLFastTimerView::onClose(bool app_quitting)
+{
+	setVisible(FALSE);
+}
 
 void saveChart(const std::string& label, const char* suffix, LLImageRaw* scratch)
 {
@@ -936,10 +940,7 @@ void LLFastTimerView::doAnalysis(std::string baseline, std::string target, std::
 		return ;
 	}
 }
-void	LLFastTimerView::onClickCloseBtn(bool)
-{
-	setVisible(false);
-}
+
 
 void LLFastTimerView::printLineStats()
 {

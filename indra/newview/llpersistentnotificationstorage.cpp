@@ -79,9 +79,9 @@ void LLPersistentNotificationStorage::saveNotifications()
 		data.append(notification->asLLSD(true));
 		if (data.size() >= gSavedSettings.getS32("MaxPersistentNotifications"))
 		{
-			llwarns << "Too many persistent notifications."
+			LL_WARNS() << "Too many persistent notifications."
 					<< " Saved " << gSavedSettings.getS32("MaxPersistentNotifications") << " of " << history_channel->size()
-					<< " persistent notifications." << llendl;
+					<< " persistent notifications." << LL_ENDL;
 			break;
 		}
 
@@ -147,7 +147,7 @@ void LLPersistentNotificationStorage::loadNotifications()
 		if (processed_notifications >= gSavedSettings.getS32("MaxPersistentNotifications"))
 		{
 			llwarns << "Too many persistent notifications."
-					<< " Processed " << gSavedSettings.getS32("MaxPersistentNotifications") << " of " << data.size() << " persistent notifications." << llendl;
+					<< " Processed " << gSavedSettings.getS32("MaxPersistentNotifications") << " of " << data.size() << " persistent notifications." << LL_ENDL;
 		    break;
 		}
 	}

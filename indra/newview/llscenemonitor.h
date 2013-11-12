@@ -115,7 +115,7 @@ public:
 	virtual void onVisibilityChange(BOOL visible);
 
 protected:
-	virtual void onClickCloseBtn();
+	virtual void onClose(bool app_quitting=false);
 };
 
 extern LLSceneMonitorView* gSceneMonitorView;

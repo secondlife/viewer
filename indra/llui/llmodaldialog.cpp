@@ -195,7 +195,7 @@ BOOL LLModalDialog::handleHover(S32 x, S32 y, MASK mask)
 	if( childrenHandleHover(x, y, mask) == NULL )
 	{
 		getWindow()->setCursor(UI_CURSOR_ARROW);
-		LL_DEBUGS(LLERR_USER_INPUT) << "hover handled by " << getName() << LL_ENDL;		
+		LL_DEBUGS("UserInput") << "hover handled by " << getName() << LL_ENDL;		
 	}
 
 	LLView* popup_menu = LLMenuGL::sMenuContainer->getVisibleMenu();
