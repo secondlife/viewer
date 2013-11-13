@@ -70,7 +70,8 @@ LLVOCacheEntry::LLVOCacheEntry(U32 local_id, U32 crc, LLDataPackerBinaryBuffer &
 	mState(INACTIVE),
 	mSceneContrib(0.f),
 	mTouched(TRUE),
-	mParentID(0)
+	mParentID(0),
+	mBSphereRadius(-1.0f)
 {
 	mBuffer = new U8[dp.getBufferSize()];
 	mDP.assignBuffer(mBuffer, dp.getBufferSize());
@@ -90,7 +91,8 @@ LLVOCacheEntry::LLVOCacheEntry()
 	mState(INACTIVE),
 	mSceneContrib(0.f),
 	mTouched(TRUE),
-	mParentID(0)
+	mParentID(0),
+	mBSphereRadius(-1.0f)
 {
 	mDP.assignBuffer(mBuffer, 0);
 }
@@ -103,7 +105,8 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 	mState(INACTIVE),
 	mSceneContrib(0.f),
 	mTouched(FALSE),
-	mParentID(0)
+	mParentID(0),
+	mBSphereRadius(-1.0f)
 {
 	S32 size = -1;
 	BOOL success;
@@ -391,7 +394,7 @@ F32 LLVOCacheEntry::getSquaredPixelThreshold(bool is_front)
 	return projection_threshold;
 }
 
-bool LLVOCacheEntry::isAnyVisible(const LLVector4a& camera_origin, F32 squared_dist_threshold)
+bool LLVOCacheEntry::isAnyVisible(const LLVector4a& camera_origin, const LLVector4a& local_camera_origin, F32 dist_threshold)
 {
 	LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)getGroup();
 	if(!group)
@@ -412,19 +415,25 @@ bool LLVOCacheEntry::isAnyVisible(const LLVector4a& camera_origin, F32 squared_d
 	if(!vis && !mParentID)
 	{
 		LLVector4a lookAt;
-		lookAt.setSub(getPositionGroup(), camera_origin);
-		F32 squared_dist = lookAt.dot3(lookAt).getF32();
-		F32 rad = getBinRadius();
-		rad *= rad;
-		
-		//rough estimation
-		vis = (squared_dist - rad < squared_dist_threshold);
+
+		if(mBSphereRadius > 0.f)
+		{
+			lookAt.setSub(mBSphereCenter, local_camera_origin);		
+			dist_threshold += mBSphereRadius;
+		}
+		else
+		{
+			lookAt.setSub(getPositionGroup(), camera_origin);
+			dist_threshold += getBinRadius();
+		}
+
+		vis = (lookAt.dot3(lookAt).getF32() < dist_threshold * dist_threshold);
 	}
 
 	return vis;
 }
 
-void LLVOCacheEntry::calcSceneContribution(const LLVector4a& camera_origin, bool needs_update, U32 last_update)
+void LLVOCacheEntry::calcSceneContribution(const LLVector4a& camera_origin, bool needs_update, U32 last_update, F32 dist_threshold)
 {
 	if(!needs_update && getVisible() >= last_update)
 	{
@@ -444,10 +453,26 @@ void LLVOCacheEntry::calcSceneContribution(const LLVector4a& camera_origin, bool
 	else
 	{
 		F32 rad = getBinRadius();
-		mSceneContrib = rad * rad / squared_dist;
+		dist_threshold += rad;
+		dist_threshold *= dist_threshold;
+
+		if(squared_dist < dist_threshold)
+		{
+			mSceneContrib = rad * rad / squared_dist;		
+		}
+		else
+		{
+			mSceneContrib = 0.f; //out of draw distance, not to load
+		}
 	}
 
 	setVisible();
+}
+
+void LLVOCacheEntry::saveBoundingSphere()
+{
+	mBSphereCenter = getPositionGroup();
+	mBSphereRadius = getBinRadius();
 }
 
 void LLVOCacheEntry::setBoundingInfo(const LLVector3& pos, const LLVector3& scale)

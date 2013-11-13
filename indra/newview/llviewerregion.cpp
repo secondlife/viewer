@@ -956,6 +956,7 @@ void LLViewerRegion::removeActiveCacheEntry(LLVOCacheEntry* entry, LLDrawable* d
 	else //insert to vo cache tree.
 	{		
 		entry->updateParentBoundingInfo();
+		entry->saveBoundingSphere();
 		addToVOCacheTree(entry);
 	}
 
@@ -1125,6 +1126,8 @@ void LLViewerRegion::updateVisibleEntries(F32 max_time)
 	//
 	//object projected area threshold
 	F32 projection_threshold = LLVOCacheEntry::getSquaredPixelThreshold(mImpl->mVOCachePartition->isFrontCull());
+	F32 dist_threshold = mImpl->mVOCachePartition->isFrontCull() ? gAgentCamera.mDrawDistance : LLVOCacheEntry::sRearFarRadius;
+	
 	std::set< LLPointer<LLViewerOctreeGroup> >::iterator group_iter = mImpl->mVisibleGroups.begin();
 	for(; group_iter != mImpl->mVisibleGroups.end(); ++group_iter)
 	{
@@ -1147,7 +1150,7 @@ void LLViewerRegion::updateVisibleEntries(F32 max_time)
 					continue;
 				}
 
-				vo_entry->calcSceneContribution(local_origin, needs_update, last_update);
+				vo_entry->calcSceneContribution(local_origin, needs_update, last_update, dist_threshold);
 				if(vo_entry->getSceneContribution() > projection_threshold)
 				{
 					mImpl->mWaitingList.insert(vo_entry);			
@@ -1384,9 +1387,10 @@ void LLViewerRegion::killInvisibleObjects(F32 max_time)
 	LLTimer update_timer;
 	LLVector4a camera_origin;
 	camera_origin.load3(LLViewerCamera::getInstance()->getOrigin().mV);
-	F32 squared_back_threshold = LLVOCacheEntry::sRearFarRadius;
-	squared_back_threshold *= squared_back_threshold;
-
+	LLVector4a local_origin;
+	local_origin.load3((LLViewerCamera::getInstance()->getOrigin() - getOriginAgent()).mV);
+	F32 back_threshold = LLVOCacheEntry::sRearFarRadius;
+	
 	bool unstable = sNewObjectCreationThrottle < 0;
 	size_t max_update = unstable ? mImpl->mActiveSet.size() : 64; 
 	if(!mInvisibilityCheckHistory && isViewerCameraStatic())
@@ -1405,8 +1409,12 @@ void LLViewerRegion::killInvisibleObjects(F32 max_time)
 		{
 			iter = mImpl->mActiveSet.begin();
 		}
+		if((*iter)->getParentID() > 0)
+		{
+			continue; //skip child objects, they are removed with their parent.
+		}
 
-		if(!(*iter)->isAnyVisible(camera_origin, squared_back_threshold) && (unstable || (*iter)->mLastCameraUpdated < sLastCameraUpdated))
+		if(!(*iter)->isAnyVisible(camera_origin, local_origin, back_threshold) && (unstable || (*iter)->mLastCameraUpdated < sLastCameraUpdated))
 		{
 			killObject((*iter), delete_list);
 		}

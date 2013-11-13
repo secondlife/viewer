@@ -85,14 +85,14 @@ public:
 	bool hasState(U32 state)   {return mState & state;}
 	U32  getState() const      {return mState;}
 	
-	bool isAnyVisible(const LLVector4a& camera_origin, F32 squared_dist_threshold);
+	bool isAnyVisible(const LLVector4a& camera_origin, const LLVector4a& local_camera_origin, F32 dist_threshold);
 
 	U32 getLocalID() const			{ return mLocalID; }
 	U32 getCRC() const				{ return mCRC; }
 	S32 getHitCount() const			{ return mHitCount; }
 	S32 getCRCChangeCount() const	{ return mCRCChangeCount; }
 	
-	void calcSceneContribution(const LLVector4a& camera_origin, bool needs_update, U32 last_update);
+	void calcSceneContribution(const LLVector4a& camera_origin, bool needs_update, U32 last_update, F32 dist_threshold);
 	void setSceneContribution(F32 scene_contrib) {mSceneContrib = scene_contrib;}
 	F32 getSceneContribution() const             { return mSceneContrib;}
 
@@ -117,6 +117,7 @@ public:
 	
 	void setBoundingInfo(const LLVector3& pos, const LLVector3& scale); //called from processing object update message	
 	void updateParentBoundingInfo();
+	void saveBoundingSphere();
 
 	void setTouched(BOOL touched = TRUE) {mTouched = touched;}
 	BOOL isTouched() const {return mTouched;}
@@ -152,6 +153,9 @@ protected:
 	std::vector<LLVOCacheEntry*> mChildrenList; //children entries in a linked set.
 
 	BOOL                        mTouched; //if set, this entry is valid, otherwise it is invalid.
+
+	LLVector4a                  mBSphereCenter; //bounding sphere center
+	F32                         mBSphereRadius; //bounding sphere radius
 
 public:
 	static U32  sMinFrameRange;
