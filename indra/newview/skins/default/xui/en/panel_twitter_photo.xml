@@ -31,7 +31,7 @@
            width="250"
            left="9"
            length="1"
-           max_length="119"
+           max_length="140"
            name="photo_status"
            type="string"
            word_wrap="true">

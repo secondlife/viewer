@@ -117,7 +117,7 @@ void LLTwitterPhotoPanel::draw()
 	LLTextEditor* status_text_box = dynamic_cast<LLTextEditor*>(mStatusTextBox);
 	if (status_text_box)
 	{
-		int max_status_length = add_photo ? 119 : 140;
+		int max_status_length = add_photo ? 100 : 140;
 		status_text_box->setMaxTextLength(max_status_length);
 		if (status_text_box->getText().length() > max_status_length)
 		{

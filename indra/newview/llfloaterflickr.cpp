@@ -261,11 +261,13 @@ void LLFlickrPhotoPanel::sendPhoto()
 		// Add query parameters so Google Analytics can track incoming clicks!
 		slurl_string += DEFAULT_PHOTO_QUERY_PARAMETERS;
 
+		slurl_string = "<a href=\"" + slurl_string + "\">VISIT THIS LOCATION</a>";
+
 		// Add it to the description (pretty crude, but we don't have a better option with photos)
 		if (description.empty())
 			description = slurl_string;
 		else
-			description = description + " " + slurl_string;
+			description = description + "\n\n" + slurl_string;
 	}
 
 	// Get the content rating
