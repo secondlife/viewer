@@ -4267,8 +4267,8 @@
       <param_morph>
         <volume_morph
           name="CHEST"
-          scale="0 0 0"
-          pos="0 0 0"/>
+          scale="0.03 0.04 0.02"
+          pos="-0.03 0 -0.01"/>
         <volume_morph
           name="BELLY"
           scale="0.03 0.03 0.0"
