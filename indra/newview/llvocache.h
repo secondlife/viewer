@@ -85,14 +85,14 @@ public:
 	bool hasState(U32 state)   {return mState & state;}
 	U32  getState() const      {return mState;}
 	
-	bool isAnyVisible(const LLVector4a& camera_origin, F32 squared_dist_threshold);
+	bool isAnyVisible(const LLVector4a& camera_origin, F32 dist_threshold);
 
 	U32 getLocalID() const			{ return mLocalID; }
 	U32 getCRC() const				{ return mCRC; }
 	S32 getHitCount() const			{ return mHitCount; }
 	S32 getCRCChangeCount() const	{ return mCRCChangeCount; }
 	
-	void calcSceneContribution(const LLVector4a& camera_origin, bool needs_update, U32 last_update);
+	void calcSceneContribution(const LLVector4a& camera_origin, bool needs_update, U32 last_update, F32 dist_threshold);
 	void setSceneContribution(F32 scene_contrib) {mSceneContrib = scene_contrib;}
 	F32 getSceneContribution() const             { return mSceneContrib;}
 
