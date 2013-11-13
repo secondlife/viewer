@@ -590,6 +590,7 @@ LLUUID LLInventoryPanel::getRootFolderID()
 			}
 			else if (preferred_type != LLFolderType::FT_NONE)
 			{
+                llinfos << "Merov : getRootFolderID, name = " << mParams.start_folder.name() << ", type = " << mParams.start_folder.type << llendl;
 				root_id = gInventory.findCategoryUUIDForType(preferred_type, false);
 				if (root_id.isNull())
 				{

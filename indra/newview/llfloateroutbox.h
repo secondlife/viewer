@@ -71,6 +71,7 @@ public:
 
 protected:
 	void setupOutbox();
+    void cleanOutbox();
 	void fetchOutboxContents();
 
 	void importReportResults(U32 status, const LLSD& content);
