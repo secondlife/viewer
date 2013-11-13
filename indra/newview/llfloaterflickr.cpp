@@ -54,6 +54,7 @@ static LLRegisterPanelClassWrapper<LLFlickrAccountPanel> t_panel_account("llflic
 const S32 MAX_POSTCARD_DATASIZE = 1024 * 1024; // one megabyte
 const std::string DEFAULT_PHOTO_QUERY_PARAMETERS = "?sourceid=slshare_photo&utm_source=flickr&utm_medium=photo&utm_campaign=slshare";
 const std::string DEFAULT_PHOTO_LINK_TEXT = "VISIT THIS LOCATION NOW";
+const std::string DEFAULT_TAG_TEXT = "secondlife ";
 
 ///////////////////////////
 //LLFlickrPhotoPanel///////
@@ -98,6 +99,7 @@ BOOL LLFlickrPhotoPanel::postBuild()
 	mDescriptionTextBox = getChild<LLUICtrl>("photo_description");
 	mLocationCheckbox = getChild<LLUICtrl>("add_location_cb");
 	mTagsTextBox = getChild<LLUICtrl>("photo_tags");
+	mTagsTextBox->setValue(DEFAULT_TAG_TEXT);
 	mRatingComboBox = getChild<LLUICtrl>("rating_combobox");
 	mPostButton = getChild<LLUICtrl>("post_photo_btn");
 	mCancelButton = getChild<LLUICtrl>("cancel_photo_btn");
@@ -287,7 +289,7 @@ void LLFlickrPhotoPanel::clearAndClose()
 {
 	mTitleTextBox->setValue("");
 	mDescriptionTextBox->setValue("");
-	mTagsTextBox->setValue("");
+	mTagsTextBox->setValue(DEFAULT_TAG_TEXT);
 
 	LLFloater* floater = getParentByType<LLFloater>();
 	if (floater)
