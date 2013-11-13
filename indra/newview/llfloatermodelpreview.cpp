@@ -4650,7 +4650,7 @@ void LLModelPreview::updateLodControls(S32 lod)
 
 		for (U32 i = 0; i < num_lod_controls; ++i)
 		{
-			mFMP->childSetVisible(lod_controls[i] + lod_name[lod], true);
+			mFMP->childSetVisible(lod_controls[i] + lod_name[lod], false);
 		}
 	}
 	else if (lod_mode == USE_LOD_ABOVE) // use LoD above
