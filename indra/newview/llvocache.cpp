@@ -70,7 +70,8 @@ LLVOCacheEntry::LLVOCacheEntry(U32 local_id, U32 crc, LLDataPackerBinaryBuffer &
 	mState(INACTIVE),
 	mSceneContrib(0.f),
 	mTouched(TRUE),
-	mParentID(0)
+	mParentID(0),
+	mBSphereRadius(-1.0f)
 {
 	mBuffer = new U8[dp.getBufferSize()];
 	mDP.assignBuffer(mBuffer, dp.getBufferSize());
@@ -90,7 +91,8 @@ LLVOCacheEntry::LLVOCacheEntry()
 	mState(INACTIVE),
 	mSceneContrib(0.f),
 	mTouched(TRUE),
-	mParentID(0)
+	mParentID(0),
+	mBSphereRadius(-1.0f)
 {
 	mDP.assignBuffer(mBuffer, 0);
 }
@@ -103,7 +105,8 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 	mState(INACTIVE),
 	mSceneContrib(0.f),
 	mTouched(FALSE),
-	mParentID(0)
+	mParentID(0),
+	mBSphereRadius(-1.0f)
 {
 	S32 size = -1;
 	BOOL success;
@@ -391,7 +394,7 @@ F32 LLVOCacheEntry::getSquaredPixelThreshold(bool is_front)
 	return projection_threshold;
 }
 
-bool LLVOCacheEntry::isAnyVisible(const LLVector4a& camera_origin, F32 dist_threshold)
+bool LLVOCacheEntry::isAnyVisible(const LLVector4a& camera_origin, const LLVector4a& local_camera_origin, F32 dist_threshold)
 {
 	LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)getGroup();
 	if(!group)
@@ -413,8 +416,16 @@ bool LLVOCacheEntry::isAnyVisible(const LLVector4a& camera_origin, F32 dist_thre
 	{
 		LLVector4a lookAt;
 
-		lookAt.setSub(getPositionGroup(), camera_origin);
-		dist_threshold += getBinRadius();		
+		if(mBSphereRadius > 0.f)
+		{
+			lookAt.setSub(mBSphereCenter, local_camera_origin);		
+			dist_threshold += mBSphereRadius;
+		}
+		else
+		{
+			lookAt.setSub(getPositionGroup(), camera_origin);
+			dist_threshold += getBinRadius();
+		}
 
 		vis = (lookAt.dot3(lookAt).getF32() < dist_threshold * dist_threshold);
 	}
@@ -456,6 +467,12 @@ void LLVOCacheEntry::calcSceneContribution(const LLVector4a& camera_origin, bool
 	}
 
 	setVisible();
+}
+
+void LLVOCacheEntry::saveBoundingSphere()
+{
+	mBSphereCenter = getPositionGroup();
+	mBSphereRadius = getBinRadius();
 }
 
 void LLVOCacheEntry::setBoundingInfo(const LLVector3& pos, const LLVector3& scale)

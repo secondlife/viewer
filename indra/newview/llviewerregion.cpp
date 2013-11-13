@@ -962,6 +962,7 @@ void LLViewerRegion::removeActiveCacheEntry(LLVOCacheEntry* entry, LLDrawable* d
 	else //insert to vo cache tree.
 	{		
 		entry->updateParentBoundingInfo();
+		entry->saveBoundingSphere();
 		addToVOCacheTree(entry);
 	}
 
@@ -1391,7 +1392,9 @@ void LLViewerRegion::killInvisibleObjects(F32 max_time)
 
 	LLTimer update_timer;
 	LLVector4a camera_origin;
-	camera_origin.load3(LLViewerCamera::getInstance()->getOrigin().mV);	
+	camera_origin.load3(LLViewerCamera::getInstance()->getOrigin().mV);
+	LLVector4a local_origin;
+	local_origin.load3((LLViewerCamera::getInstance()->getOrigin() - getOriginAgent()).mV);
 	F32 back_threshold = LLVOCacheEntry::sRearFarRadius;
 	
 	bool unstable = sNewObjectCreationThrottle < 0;
@@ -1417,7 +1420,7 @@ void LLViewerRegion::killInvisibleObjects(F32 max_time)
 			continue; //skip child objects, they are removed with their parent.
 		}
 
-		if(!(*iter)->isAnyVisible(camera_origin, back_threshold) && (unstable || (*iter)->mLastCameraUpdated < sLastCameraUpdated))
+		if(!(*iter)->isAnyVisible(camera_origin, local_origin, back_threshold) && (unstable || (*iter)->mLastCameraUpdated < sLastCameraUpdated))
 		{
 			killObject((*iter), delete_list);
 		}
