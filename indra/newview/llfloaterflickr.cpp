@@ -53,6 +53,7 @@ static LLRegisterPanelClassWrapper<LLFlickrAccountPanel> t_panel_account("llflic
 
 const S32 MAX_POSTCARD_DATASIZE = 1024 * 1024; // one megabyte
 const std::string DEFAULT_PHOTO_QUERY_PARAMETERS = "?sourceid=slshare_photo&utm_source=flickr&utm_medium=photo&utm_campaign=slshare";
+const std::string DEFAULT_PHOTO_LINK_TEXT = "VISIT THIS LOCATION NOW";
 
 ///////////////////////////
 //LLFlickrPhotoPanel///////
@@ -261,7 +262,7 @@ void LLFlickrPhotoPanel::sendPhoto()
 		// Add query parameters so Google Analytics can track incoming clicks!
 		slurl_string += DEFAULT_PHOTO_QUERY_PARAMETERS;
 
-		slurl_string = "<a href=\"" + slurl_string + "\">VISIT THIS LOCATION</a>";
+		slurl_string = "<a href=\"" + slurl_string + "\">" + DEFAULT_PHOTO_LINK_TEXT + "</a>";
 
 		// Add it to the description (pretty crude, but we don't have a better option with photos)
 		if (description.empty())

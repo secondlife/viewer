@@ -296,8 +296,8 @@ std::string LLFlickrConnect::getFlickrConnectURL(const std::string& route, bool 
     LLViewerRegion *regionp = gAgent.getRegion();
     if (regionp)
     {
-		//url = "http://pdp15.lindenlab.com/flickr/agent/" + gAgentID.asString(); // TEMPORARY FOR TESTING - CHO
-        url = regionp->getCapability("FlickrConnect");
+		url = "http://pdp15.lindenlab.com/flickr/agent/" + gAgentID.asString(); // TEMPORARY FOR TESTING - CHO
+        //url = regionp->getCapability("FlickrConnect");
         url += route;
     
         if (include_read_from_master && mReadFromMaster)

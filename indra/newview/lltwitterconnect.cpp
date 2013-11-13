@@ -296,8 +296,8 @@ std::string LLTwitterConnect::getTwitterConnectURL(const std::string& route, boo
     LLViewerRegion *regionp = gAgent.getRegion();
     if (regionp)
     {
-		//url = "http://pdp15.lindenlab.com/twitter/agent/" + gAgentID.asString(); // TEMPORARY FOR TESTING - CHO
-        url = regionp->getCapability("TwitterConnect");
+		url = "http://pdp15.lindenlab.com/twitter/agent/" + gAgentID.asString(); // TEMPORARY FOR TESTING - CHO
+        //url = regionp->getCapability("TwitterConnect");
         url += route;
     
         if (include_read_from_master && mReadFromMaster)
