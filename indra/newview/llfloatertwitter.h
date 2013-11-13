@@ -70,6 +70,8 @@ private:
 	LLUICtrl * mPhotoCheckbox;
 	LLUICtrl * mPostButton;
 	LLUICtrl* mCancelButton;
+
+	std::string mOldStatusText;
 };
 
 class LLTwitterAccountPanel : public LLPanel

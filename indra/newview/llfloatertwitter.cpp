@@ -119,9 +119,18 @@ void LLTwitterPhotoPanel::draw()
 	{
 		int max_status_length = add_photo ? 100 : 140;
 		status_text_box->setMaxTextLength(max_status_length);
+		if (!add_photo)
+		{
+			if (mOldStatusText.length() > status_text_box->getText().length() && status_text_box->getText() == mOldStatusText.substr(0, status_text_box->getText().length()))
+			{
+				status_text_box->setText(mOldStatusText);
+			}
+			mOldStatusText = "";
+		}
 		if (status_text_box->getText().length() > max_status_length)
 		{
-			status_text_box->setText(status_text_box->getText().substr(0, max_status_length));
+			mOldStatusText = status_text_box->getText();
+			status_text_box->setText(mOldStatusText.substr(0, max_status_length));
 		}
 	}
 
