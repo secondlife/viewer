@@ -53,7 +53,7 @@ static LLRegisterPanelClassWrapper<LLFlickrAccountPanel> t_panel_account("llflic
 
 const S32 MAX_POSTCARD_DATASIZE = 1024 * 1024; // one megabyte
 const std::string DEFAULT_PHOTO_QUERY_PARAMETERS = "?sourceid=slshare_photo&utm_source=flickr&utm_medium=photo&utm_campaign=slshare";
-const std::string DEFAULT_PHOTO_LINK_TEXT = "VISIT THIS LOCATION NOW";
+const std::string DEFAULT_PHOTO_LINK_TEXT = "Visit this location now";
 const std::string DEFAULT_TAG_TEXT = "secondlife ";
 
 ///////////////////////////
