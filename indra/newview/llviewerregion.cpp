@@ -1383,6 +1383,10 @@ void LLViewerRegion::killInvisibleObjects(F32 max_time)
 	{
 		return;
 	}
+	if(sNewObjectCreationThrottle < 0)
+	{
+		return;
+	}
 
 	LLTimer update_timer;
 	LLVector4a camera_origin;
@@ -1391,12 +1395,11 @@ void LLViewerRegion::killInvisibleObjects(F32 max_time)
 	local_origin.load3((LLViewerCamera::getInstance()->getOrigin() - getOriginAgent()).mV);
 	F32 back_threshold = LLVOCacheEntry::sRearFarRadius;
 	
-	bool unstable = sNewObjectCreationThrottle < 0;
-	size_t max_update = unstable ? mImpl->mActiveSet.size() : 64; 
+	size_t max_update = 64; 
 	if(!mInvisibilityCheckHistory && isViewerCameraStatic())
 	{
 		//history is clean, reduce number of checking
-		max_update = llmax(max_update / 2, (size_t)8);
+		max_update /= 2;
 	}
 	
 	std::vector<LLDrawable*> delete_list;
@@ -1414,7 +1417,7 @@ void LLViewerRegion::killInvisibleObjects(F32 max_time)
 			continue; //skip child objects, they are removed with their parent.
 		}
 
-		if(!(*iter)->isAnyVisible(camera_origin, local_origin, back_threshold) && (unstable || (*iter)->mLastCameraUpdated < sLastCameraUpdated))
+		if(!(*iter)->isAnyVisible(camera_origin, local_origin, back_threshold) && (*iter)->mLastCameraUpdated < sLastCameraUpdated)
 		{
 			killObject((*iter), delete_list);
 		}
