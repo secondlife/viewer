@@ -498,7 +498,7 @@ void LLSceneMonitor::fetchQueryResult()
 			LL_DEBUGS("SceneMonitor") << "Frame difference: " << mDiffResult << LL_ENDL;
 			record(sFramePixelDiff, mDiffResult);
 
-			static LLCachedControl<F32> diff_threshold(gSavedSettings,"SceneLoadingPixelDiffThreshold");
+			static LLCachedControl<F32> diff_threshold(gSavedSettings,"SceneLoadingMonitorPixelDiffThreshold");
 			F32Seconds elapsed_time = mRecordingTimer.getElapsedTimeF32();
 
 			if (elapsed_time > scene_load_sample_time)
