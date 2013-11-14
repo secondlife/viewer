@@ -194,7 +194,7 @@ public:
 	// Return number of bytes copied.
 	size_t readFrustumFromBuffer(const char *buffer);
 	void calcAgentFrustumPlanes(LLVector3* frust);
-	void calcRegionFrustumPlanes(const LLVector3& shift); //calculate regional planes from mAgentPlanes.
+	void calcRegionFrustumPlanes(const LLVector3& shift, F32 far_clip_distance); //calculate regional planes from mAgentPlanes.
 	void ignoreAgentFrustumPlane(S32 idx);
 
 	// Returns 1 if partly in, 2 if fully in.

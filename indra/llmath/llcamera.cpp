@@ -629,8 +629,24 @@ void LLCamera::calcAgentFrustumPlanes(LLVector3* frust)
 
 //calculate regional planes from mAgentPlanes.
 //vector "shift" is the vector of the region origin in the agent space.
-void LLCamera::calcRegionFrustumPlanes(const LLVector3& shift) 
+void LLCamera::calcRegionFrustumPlanes(const LLVector3& shift, F32 far_clip_distance) 
 {
+	F32 far_w;
+	{
+		LLVector3 p = getOrigin();
+		LLVector3 n(mAgentPlanes[5][0], mAgentPlanes[5][1], mAgentPlanes[5][2]);
+		F32 dd = n * p;
+		if(dd + mAgentPlanes[5][3] < 0) //signed distance
+		{
+			far_w = -far_clip_distance - dd;
+		}
+		else
+		{
+			far_w = far_clip_distance - dd;
+		}
+		far_w += n * shift;
+	}
+
 	F32 d;
 	LLVector3 n;
 	for(S32 i = 0 ; i < 7; i++)
@@ -638,7 +654,15 @@ void LLCamera::calcRegionFrustumPlanes(const LLVector3& shift)
 		if (mPlaneMask[i] != 0xff)
 		{
 			n.setVec(mAgentPlanes[i][0], mAgentPlanes[i][1], mAgentPlanes[i][2]);
-			d = mAgentPlanes[i][3] + n * shift;
+
+			if(i != 5)
+			{
+				d = mAgentPlanes[i][3] + n * shift;
+			}
+			else
+			{
+				d = far_w;
+			}
 			mRegionPlanes[i].setVec(n, d);
 		}
 	}
