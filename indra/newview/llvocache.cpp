@@ -654,29 +654,30 @@ public:
 
 	virtual S32 frustumCheck(const LLViewerOctreeGroup* group)
 	{
-#if 1
+#if 0
 		S32 res = AABBInRegionFrustumGroupBounds(group);
 #else	
 		S32 res = AABBInRegionFrustumNoFarClipGroupBounds(group);
-#endif
 		if (res != 0)
 		{
 			res = llmin(res, AABBRegionSphereIntersectGroupExtents(group, mLocalShift));
 		}
+#endif
+
 		return res;
 	}
 
 	virtual S32 frustumCheckObjects(const LLViewerOctreeGroup* group)
 	{
-#if 1
+#if 0
 		S32 res = AABBInRegionFrustumObjectBounds(group);
 #else
 		S32 res = AABBInRegionFrustumNoFarClipObjectBounds(group);
-#endif
 		if (res != 0)
 		{
 			res = llmin(res, AABBRegionSphereIntersectObjectExtents(group, mLocalShift));
 		}
+#endif
 
 		if(res != 0)
 		{
