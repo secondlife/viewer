@@ -146,7 +146,7 @@ void LLPersistentNotificationStorage::loadNotifications()
 		++processed_notifications;
 		if (processed_notifications >= gSavedSettings.getS32("MaxPersistentNotifications"))
 		{
-			llwarns << "Too many persistent notifications."
+			LL_WARNS() << "Too many persistent notifications."
 					<< " Processed " << gSavedSettings.getS32("MaxPersistentNotifications") << " of " << data.size() << " persistent notifications." << LL_ENDL;
 		    break;
 		}

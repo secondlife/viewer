@@ -146,9 +146,11 @@ void agent_push_forward( EKeystate s )
 	if (LLFloaterCamera::inFreeCameraMode())
 	{
 		camera_move_forward(s);
-		return;
 	}
-	agent_push_forwardbackward(s, 1, LLAgent::DOUBLETAP_FORWARD);
+	else
+	{
+		agent_push_forwardbackward(s, 1, LLAgent::DOUBLETAP_FORWARD);
+	}
 }
 
 void camera_move_backward( EKeystate s );
@@ -159,14 +161,15 @@ void agent_push_backward( EKeystate s )
 	if (LLFloaterCamera::inFreeCameraMode())
 	{
 		camera_move_backward(s);
-		return;
 	}
-	else if (gAgentAvatarp->isSitting())
+	else if (!gAgent.backwardGrabbed() && gAgentAvatarp->isSitting())
 	{
 		gAgentCamera.changeCameraToThirdPerson();
-		return;
 	}
-	agent_push_forwardbackward(s, -1, LLAgent::DOUBLETAP_BACKWARD);
+	else
+	{
+		agent_push_forwardbackward(s, -1, LLAgent::DOUBLETAP_BACKWARD);
+	}
 }
 
 static void agent_slide_leftright( EKeystate s, S32 direction, LLAgent::EDoubleTapRunMode mode )
