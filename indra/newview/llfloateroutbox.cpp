@@ -165,34 +165,13 @@ BOOL LLFloaterOutbox::postBuild()
 
 void LLFloaterOutbox::cleanOutbox()
 {
-    /*
-	// Create a new category creation observer
-	if (mCategoryAddedObserver == NULL)
-	{
-        mCategoryAddedObserver = new LLOutboxAddedObserver(this);
-        gInventory.addObserver(mCategoryAddedObserver);
-	}
-	llassert(mCategoryAddedObserver);
-	
-	// Delete the observer for outbox modifications
-	if (mCategoriesObserver)
-	{
-		gInventory.removeObserver(mCategoriesObserver);
-		delete mCategoriesObserver;
-        mCategoriesObserver = NULL;
-	}
-	llassert(!mCategoriesObserver);
-     */
-	
-	// Clear the outbox data
-    mOutboxId.setNull();
-    mOutboxItemCount = 0;
-    
     // Note: we cannot delete the mOutboxInventoryPanel as that point
     // as this is called through callback observers of the panel itself.
-    // Doing so crashes rapidly.
+    // Doing so would crash rapidly.
 	
-    llinfos << "Merov : cleanOutbox!" << llendl;
+	// Invalidate the outbox data
+    mOutboxId.setNull();
+    mOutboxItemCount = 0;
 }
 
 void LLFloaterOutbox::onClose(bool app_quitting)
@@ -261,11 +240,10 @@ void LLFloaterOutbox::setupOutbox()
 	}
     if (outbox_id == mOutboxId)
     {
-        llinfos << "Merov : setupOutbox, we already have an outbox set = " << mOutboxId.asString() << llendl;
+        llwarns << "Inventory warning: Merchant outbox already set" << llendl;
         return;
     }
     mOutboxId = outbox_id;
-    llinfos << "Merov : setupOutbox!!!, mOutboxId = " << mOutboxId.asString() << llendl;
 
 	// No longer need to observe new category creation
 	if (mCategoryAddedObserver && gInventory.containsObserver(mCategoryAddedObserver))
@@ -288,26 +266,23 @@ void LLFloaterOutbox::setupOutbox()
 	llassert(mCategoriesObserver);
 	
 	// Set up the outbox inventory view
-	LLInventoryPanel* panel = mOutboxInventoryPanel.get();
-    if (panel)
+	LLInventoryPanel* inventory_panel = mOutboxInventoryPanel.get();
+    if (inventory_panel)
     {
-        delete panel;
+        delete inventory_panel;
     }
-    LLInventoryPanel* inventory_panel = LLUICtrlFactory::createFromFile<LLInventoryPanel>("panel_outbox_inventory.xml", mInventoryPlaceholder->getParent(), LLInventoryPanel::child_registry_t::instance());
+    inventory_panel = LLUICtrlFactory::createFromFile<LLInventoryPanel>("panel_outbox_inventory.xml", mInventoryPlaceholder->getParent(), LLInventoryPanel::child_registry_t::instance());
     mOutboxInventoryPanel = inventory_panel->getInventoryPanelHandle();
 	llassert(mOutboxInventoryPanel.get() != NULL);
 	
 	// Reshape the inventory to the proper size
-	panel = mOutboxInventoryPanel.get();
 	LLRect inventory_placeholder_rect = mInventoryPlaceholder->getRect();
-	panel->setShape(inventory_placeholder_rect);
+	inventory_panel->setShape(inventory_placeholder_rect);
 	
 	// Set the sort order newest to oldest
-	panel->getFolderViewModel()->setSorter(LLInventoryFilter::SO_FOLDERS_BY_NAME);	
-	panel->getFilter().markDefault();
+	inventory_panel->getFolderViewModel()->setSorter(LLInventoryFilter::SO_FOLDERS_BY_NAME);	
+	inventory_panel->getFilter().markDefault();
     
-    llinfos << "Merov : setupOutbox!!!, viewModel = " << panel->getFolderViewModel() << llendl;
-	
 	// Get the content of the outbox
 	fetchOutboxContents();
 }
@@ -390,14 +365,6 @@ void LLFloaterOutbox::updateView()
 {
 	updateFolderCount();
 	LLInventoryPanel* panel = mOutboxInventoryPanel.get();
-    if (panel)
-    {
-        llinfos << "Merov : LLFloaterOutbox::updateView(), panel = " << panel << ", viewModel = " << panel->getFolderViewModel() << llendl;
-    }
-    else
-    {
-        llinfos << "Merov : LLFloaterOutbox::updateView(), panel = " << panel << llendl;
-    }
 
 	if (mOutboxItemCount > 0)
 	{
@@ -538,10 +505,9 @@ void LLFloaterOutbox::onMouseLeave(S32 x, S32 y, MASK mask)
 
 void LLFloaterOutbox::onImportButtonClicked()
 {
-	LLInventoryPanel* panel = mOutboxInventoryPanel.get();
-    if (panel)
+    if (mOutboxInventoryPanel.get())
     {
-        panel->clearSelection();
+        mOutboxInventoryPanel.get()->clearSelection();
     }
 
 	mImportBusy = LLMarketplaceInventoryImporter::instance().triggerImport();
@@ -549,18 +515,14 @@ void LLFloaterOutbox::onImportButtonClicked()
 
 void LLFloaterOutbox::onOutboxChanged()
 {
-	//llassert(!mOutboxId.isNull());
-	LLInventoryPanel* panel = mOutboxInventoryPanel.get();
-    llinfos << "Merov : onOutboxChanged!!!, panel = " << panel << ", view model = " << (panel ? panel->getFolderViewModel() : NULL) << llendl;
     LLViewerInventoryCategory* category = gInventory.getCategory(mOutboxId);
-	if (category)
+	if (mOutboxId.notNull() && category)
     {
         fetchOutboxContents();
         updateView();
     }
     else
     {
-        llinfos << "Merov : onOutboxChanged!!!, the category disappeared!" << llendl;
         cleanOutbox();
     }
 }

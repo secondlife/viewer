@@ -167,16 +167,16 @@ LLFolderView::LLFolderView(const Params& p)
 	mMinWidth(0),
 	mDragAndDropThisFrame(FALSE),
 	mCallbackRegistrar(NULL),
-	mParentPanel(p.parent_panel),
 	mUseEllipses(p.use_ellipses),
 	mDraggingOverItem(NULL),
 	mStatusTextBox(NULL),
 	mShowItemLinkOverlays(p.show_item_link_overlays),
 	mViewModel(p.view_model)
 {
+    LLPanel* panel = p.parent_panel;
+    mParentPanel = panel->getHandle();
 	mViewModel->setFolderView(this);
 	mRoot = this;
-    llinfos << "Merov : create folder view, this = " << this << ", name = " << (std::string(p.name)) << ", model = " << getFolderViewModel() << llendl;
 
 	LLRect rect = p.rect;
 	LLRect new_rect(rect.mLeft, rect.mBottom + getRect().getHeight(), rect.mLeft + getRect().getWidth(), rect.mBottom);
@@ -244,7 +244,6 @@ LLFolderView::LLFolderView(const Params& p)
 // Destroys the object
 LLFolderView::~LLFolderView( void )
 {
-    llinfos << "Merov : delete folder view (start), this = " << this << ", model = " << getFolderViewModel() << llendl;
 	closeRenamer();
 
 	// The release focus call can potentially call the
@@ -268,7 +267,6 @@ LLFolderView::~LLFolderView( void )
 
 	mViewModel->setFolderView(NULL);
 	mViewModel = NULL;
-    llinfos << "Merov : delete folder view (end), this = " << this << ", model = " << getFolderViewModel() << llendl;
 }
 
 BOOL LLFolderView::canFocusChildren() const
@@ -329,7 +327,7 @@ void LLFolderView::filter( LLFolderViewFilter& filter )
 {
     // Entry point of inventory filtering (CHUI-849)
 	LLFastTimer t2(FTM_FILTER);
-    filter.resetTime(llclamp(LLUI::sSettingGroups["config"]->getS32(mParentPanel->getVisible() ? "FilterItemsMaxTimePerFrameVisible" : "FilterItemsMaxTimePerFrameUnvisible"), 1, 100));
+    filter.resetTime(llclamp(LLUI::sSettingGroups["config"]->getS32(mParentPanel.get()->getVisible() ? "FilterItemsMaxTimePerFrameVisible" : "FilterItemsMaxTimePerFrameUnvisible"), 1, 100));
 
     // Note: we filter the model, not the view
 	getViewModelItem()->filter(filter);
@@ -423,7 +421,7 @@ BOOL LLFolderView::setSelection(LLFolderViewItem* selection, BOOL openitem,
 
 	if( selection && take_keyboard_focus)
 	{
-		mParentPanel->setFocus(TRUE);
+		mParentPanel.get()->setFocus(TRUE);
 	}
 
 	// clear selection down here because change of keyboard focus can potentially
@@ -761,7 +759,7 @@ void LLFolderView::removeSelectedItems()
 				if (item_to_delete->remove())
 				{
 					// change selection on successful delete
-					setSelection(item_to_select, item_to_select ? item_to_select->isOpen() : false, mParentPanel->hasFocus());
+					setSelection(item_to_select, item_to_select ? item_to_select->isOpen() : false, mParentPanel.get()->hasFocus());
 				}
 			}
 			arrangeAll();
@@ -771,7 +769,7 @@ void LLFolderView::removeSelectedItems()
 			LLDynamicArray<LLFolderViewModelItem*> listeners;
 			LLFolderViewModelItem* listener;
 
-			setSelection(item_to_select, item_to_select ? item_to_select->isOpen() : false, mParentPanel->hasFocus());
+			setSelection(item_to_select, item_to_select ? item_to_select->isOpen() : false, mParentPanel.get()->hasFocus());
 
 			for(S32 i = 0; i < count; ++i)
 			{
@@ -951,7 +949,7 @@ void LLFolderView::cut()
 		}
 		
 		// Update the selection
-		setSelection(item_to_select, item_to_select ? item_to_select->isOpen() : false, mParentPanel->hasFocus());
+		setSelection(item_to_select, item_to_select ? item_to_select->isOpen() : false, mParentPanel.get()->hasFocus());
 	}
 	mSearchString.clear();
 }
@@ -1293,7 +1291,7 @@ BOOL LLFolderView::handleUnicodeCharHere(llwchar uni_char)
 	}
 
 	BOOL handled = FALSE;
-	if (mParentPanel->hasFocus())
+	if (mParentPanel.get()->hasFocus())
 	{
 		// SL-51858: Key presses are not being passed to the Popup menu.
 		// A proper fix is non-trivial so instead just close the menu.
@@ -1327,7 +1325,7 @@ BOOL LLFolderView::handleMouseDown( S32 x, S32 y, MASK mask )
 	mKeyboardSelection = FALSE;
 	mSearchString.clear();
 
-	mParentPanel->setFocus(TRUE);
+	mParentPanel.get()->setFocus(TRUE);
 
 	LLEditMenuHandler::gEditMenuHandler = this;
 
@@ -1410,7 +1408,7 @@ BOOL LLFolderView::handleRightMouseDown( S32 x, S32 y, MASK mask )
 {
 	// all user operations move keyboard focus to inventory
 	// this way, we know when to stop auto-updating a search
-	mParentPanel->setFocus(TRUE);
+	mParentPanel.get()->setFocus(TRUE);
 
 	BOOL handled = childrenHandleRightMouseDown(x, y, mask) != NULL;
 	S32 count = mSelectedItems.size();
@@ -1608,7 +1606,6 @@ void LLFolderView::update()
     {
         return;
     }
-    //llinfos << "Merov : update, this = " << this << ", model = " << getFolderViewModel() << llendl;
 
 	if (getFolderViewModel()->getFilter().isModified() && getFolderViewModel()->getFilter().isNotDefault())
 	{
@@ -1655,8 +1652,8 @@ void LLFolderView::update()
 	BOOL filter_finished = getViewModelItem()->passedFilter()
 						&& mViewModel->contentsReady();
 	if (filter_finished 
-		|| gFocusMgr.childHasKeyboardFocus(mParentPanel)
-		|| gFocusMgr.childHasMouseCapture(mParentPanel))
+		|| gFocusMgr.childHasKeyboardFocus(mParentPanel.get())
+		|| gFocusMgr.childHasMouseCapture(mParentPanel.get()))
 	{
 		// finishing the filter process, giving focus to the folder view, or dragging the scrollbar all stop the auto select process
 		mNeedsAutoSelect = FALSE;
