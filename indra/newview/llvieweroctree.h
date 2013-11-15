@@ -305,6 +305,7 @@ public:
 	void checkOcclusion(); //read back last occlusion query (if any)
 	void doOcclusion(LLCamera* camera, const LLVector4a* shift = NULL); //issue occlusion query
 	BOOL isOcclusionState(U32 state) const	{ return mOcclusionState[LLViewerCamera::sCurCameraID] & state ? TRUE : FALSE; }
+	U32  getOcclusionState() const	{ return mOcclusionState[LLViewerCamera::sCurCameraID];}
 
 	BOOL needsUpdate();
 	U32  getLastOcclusionIssuedTime();
