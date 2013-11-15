@@ -1779,6 +1779,15 @@ bool idle_startup()
 		// This method MUST be called before gInventory.findCategoryUUIDForType because of 
 		// gInventory.mIsAgentInvUsable is set to true in the gInventory.buildParentChildMap.
 		gInventory.buildParentChildMap();
+		gInventory.createCommonSystemCategories();
+
+		// It's debatable whether this flag is a good idea - sets all
+		// bits, and in general it isn't true that inventory
+		// initialization generates all types of changes. Maybe add an
+		// INITIALIZE mask bit instead?
+		gInventory.addChangedMask(LLInventoryObserver::ALL, LLUUID::null);
+		gInventory.notifyObservers();
+		
 		display_startup();
 
 		//all categories loaded. lets create "My Favorites" category

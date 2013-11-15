@@ -134,6 +134,8 @@ public:
 	// during authentication. Returns true if everything parsed.
 	bool loadSkeleton(const LLSD& options, const LLUUID& owner_id);
 	void buildParentChildMap(); // brute force method to rebuild the entire parent-child relations
+	void createCommonSystemCategories();
+	
 	// Call on logout to save a terse representation.
 	void cache(const LLUUID& parent_folder_id, const LLUUID& agent_id);
 private:

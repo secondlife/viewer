@@ -1467,6 +1467,19 @@ void LLInventoryModel::addChangedMask(U32 mask, const LLUUID& referent)
 		// (which is in the process of processing the list of items marked for change).
 		// This means the change may fail to be processed.
 		llwarns << "Adding changed mask within notify observers!  Change will likely be lost." << llendl;
+		LLViewerInventoryItem *item = getItem(referent);
+		if (item)
+		{
+			llwarns << "Item " << item->getName() << llendl;
+		}
+		else
+		{
+			LLViewerInventoryCategory *cat = getCategory(referent);
+			if (cat)
+			{
+				llwarns << "Category " << cat->getName() << llendl;
+			}
+		}
 	}
 	
 	mModifyMask |= mask; 
@@ -2344,9 +2357,10 @@ void LLInventoryModel::buildParentChildMap()
 			// The inv tree is built.
 			mIsAgentInvUsable = true;
 
-			llinfos << "Inventory initialized, notifying observers" << llendl;
-			addChangedMask(LLInventoryObserver::ALL, LLUUID::null);
-			notifyObservers();
+			// notifyObservers() has been moved to
+			// llstartup/idle_startup() after this func completes.
+			// Allows some system categories to be created before
+			// observers start firing.
 		}
 	}
 
@@ -2354,6 +2368,14 @@ void LLInventoryModel::buildParentChildMap()
 	{
 	 	llwarns << "model failed validity check!" << llendl;
 	}
+}
+
+void LLInventoryModel::createCommonSystemCategories()
+{
+	gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH,true);
+	gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE,true);
+	gInventory.findCategoryUUIDForType(LLFolderType::FT_CALLINGCARD,true);
+	gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS,true);
 }
 
 struct LLUUIDAndName

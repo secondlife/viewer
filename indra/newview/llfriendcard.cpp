@@ -38,6 +38,7 @@
 #include "llcallingcard.h" // for LLAvatarTracker
 #include "llviewerinventory.h"
 #include "llinventorymodel.h"
+#include "llcallbacklist.h"
 
 // Constants;
 
@@ -154,7 +155,7 @@ void LLInitialFriendCardsFetch::done()
 	// This observer is no longer needed.
 	gInventory.removeObserver(this);
 
-	mCheckFolderCallback();
+	doOnIdleOneTime(mCheckFolderCallback);
 
 	delete this;
 }
