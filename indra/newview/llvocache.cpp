@@ -412,7 +412,7 @@ bool LLVOCacheEntry::isAnyVisible(const LLVector4a& camera_origin, const LLVecto
 	}
 
 	//within the back sphere
-	if(!vis && !mParentID)
+	if(!vis && !mParentID && !group->isOcclusionState(LLOcclusionCullingGroup::OCCLUDED))
 	{
 		LLVector4a lookAt;
 
@@ -738,11 +738,27 @@ private:
 class LLVOCacheOctreeBackCull : public LLViewerOctreeCull
 {
 public:
-	LLVOCacheOctreeBackCull(LLCamera* camera, const LLVector3& shift, LLViewerRegion* regionp, F32 pixel_threshold) 
-		: LLViewerOctreeCull(camera), mRegionp(regionp), mPixelThreshold(pixel_threshold)
+	LLVOCacheOctreeBackCull(LLCamera* camera, const LLVector3& shift, LLViewerRegion* regionp, F32 pixel_threshold, bool use_occlusion) 
+		: LLViewerOctreeCull(camera), mRegionp(regionp), mPixelThreshold(pixel_threshold), mUseObjectCacheOcclusion(use_occlusion)
 	{
 		mLocalShift = shift;
 		mSphereRadius = LLVOCacheEntry::sRearFarRadius;
+	}
+	
+	virtual bool earlyFail(LLViewerOctreeGroup* base_group)
+	{
+		if( mUseObjectCacheOcclusion &&
+			base_group->getOctreeNode()->getParent()) //never occlusion cull the root node
+		{
+			LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)base_group;
+
+			if (group->getOcclusionState() > 0) //occlusion state is not clear.
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	virtual S32 frustumCheck(const LLViewerOctreeGroup* group)
@@ -781,9 +797,10 @@ private:
 	LLViewerRegion*  mRegionp;
 	LLVector3        mLocalShift; //shift vector from agent space to local region space.
 	F32              mPixelThreshold;
+	bool             mUseObjectCacheOcclusion;
 };
 
-void LLVOCachePartition::selectBackObjects(LLCamera &camera, F32 pixel_threshold)
+void LLVOCachePartition::selectBackObjects(LLCamera &camera, F32 pixel_threshold, bool use_occlusion)
 {
 	if(LLViewerCamera::sCurCameraID != LLViewerCamera::CAMERA_WORLD)
 	{
@@ -804,7 +821,7 @@ void LLVOCachePartition::selectBackObjects(LLCamera &camera, F32 pixel_threshold
 	//localize the camera
 	LLVector3 region_agent = mRegionp->getOriginAgent();
 	
-	LLVOCacheOctreeBackCull culler(&camera, region_agent, mRegionp, pixel_threshold);
+	LLVOCacheOctreeBackCull culler(&camera, region_agent, mRegionp, pixel_threshold, use_occlusion);
 	culler.traverse(mOctree);
 
 	mBackSlectionEnabled--;
@@ -855,7 +872,10 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 		if(LLViewerOctreeEntryData::getCurrentFrame() % seed != mIdleHash)
 		{
 			mFrontCull = FALSE;
-			selectBackObjects(camera, LLVOCacheEntry::getSquaredPixelThreshold(mFrontCull));//process back objects selection
+
+			//process back objects selection
+			selectBackObjects(camera, LLVOCacheEntry::getSquaredPixelThreshold(mFrontCull), 
+				do_occlusion && use_object_cache_occlusion);
 			return 0; //nothing changed, reduce frequency of culling
 		}
 	}
