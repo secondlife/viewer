@@ -110,6 +110,7 @@
 #include "llpanelblockedlist.h"
 #include "llpanelplaceprofile.h"
 #include "llviewerregion.h"
+#include "llfloaterregionrestarting.h"
 
 #include <boost/algorithm/string/split.hpp> //
 #include <boost/regex.hpp>
@@ -5963,15 +5964,30 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 		if (notificationID == "RegionRestartMinutes" ||
 			notificationID == "RegionRestartSeconds")
 		{
-			// Get current UTC time, adjusted for the user's clock
-			// being off.
-			time_t utc_time;
-			utc_time = time_corrected();
-			std::string timeStr = LLTrans::getString("HMSTime");
-			LLSD substitution;
-			substitution["datetime"] = (S32) utc_time;
-			LLStringUtil::format(timeStr, substitution);
-			llsdBlock["TIME"] = timeStr;
+			U32 seconds;
+			if (notificationID == "RegionRestartMinutes")
+			{
+				seconds = 60 * static_cast<U32>(llsdBlock["MINUTES"].asInteger());
+			}
+			else
+			{
+				seconds = static_cast<U32>(llsdBlock["SECONDS"].asInteger());
+			}
+
+			LLSD params;
+			params["NAME"] = llsdBlock["NAME"];
+			params["SECONDS"] = (LLSD::Integer)seconds;
+
+			LLFloaterRegionRestarting* floaterp = LLFloaterReg::findTypedInstance<LLFloaterRegionRestarting>("region_restarting");
+
+			if (floaterp)
+			{
+				LLFloaterRegionRestarting::updateTime(seconds);
+			}
+			else
+			{
+				LLFloaterReg::showInstance("region_restarting", params);
+			}
 
 			send_sound_trigger(LLUUID(gSavedSettings.getString("UISndRestart")), 1.0f);
 		}
@@ -6093,6 +6109,13 @@ void process_alert_core(const std::string& message, BOOL modal)
 		// System message is important, show in upper-right box not tip
 		std::string text(message.substr(1));
 		LLSD args;
+
+		// *NOTE: If the text from the server ever changes this line will need to be adjusted.
+		std::string restart_cancelled = "Region restart cancelled.";
+		if (text.substr(0, restart_cancelled.length()) == restart_cancelled)
+		{
+			LLFloaterRegionRestarting::close();
+		}
 
 		std::string new_msg =LLNotifications::instance().getGlobalString(text);
 		args["MESSAGE"] = new_msg;

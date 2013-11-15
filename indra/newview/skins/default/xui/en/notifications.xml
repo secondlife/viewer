@@ -6884,8 +6884,9 @@ This will add a bookmark in your inventory so you can quickly IM this Resident.
   <notification
    icon="notify.tga"
    name="RegionRestartMinutes"
+   show_toast="false"
    priority="high"
-   type="alert">
+   type="notify">
 [TIME] The region [NAME] will restart in [MINUTES] minutes.
 If you stay in this region you will be logged out.
   </notification>
@@ -6893,8 +6894,9 @@ If you stay in this region you will be logged out.
   <notification
    icon="notify.tga"
    name="RegionRestartSeconds"
+   show_toast="false"
    priority="high"
-   type="alert">
+   type="notify">
 [TIME] The region [NAME] will restart in [SECONDS] seconds.
 If you stay in this region you will be logged out.
   </notification>

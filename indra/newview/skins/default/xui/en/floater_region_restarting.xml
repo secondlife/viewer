@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ height="245"
+ width="500"
+ layout="topleft"
+ name="region_restarting"
+ help_topic="floater_region_restarting"
+ single_instance="true"
+ reuse_instance="false"
+ title="REGION RESTARTING">
+    <string name="RegionName">
+    The region you are in now ([NAME]) is about to restart.
+
+If you stay in this region you will be logged out.
+    </string>
+    <string name="RestartSeconds">
+     Seconds until restart
+[SECONDS]
+    </string>
+     <panel
+     name="layout_panel_1"
+     height="245"
+     width="500"
+     follows="right|top"
+     top="0"
+     left="0"
+     background_visible="true"
+     bg_alpha_color="Orange">
+    <text
+     type="string"
+     length="1"
+     follows="top|left"
+     layout="topleft"
+     name="region_name"
+     text_color="Black"
+     font="SansSerifLarge"
+     word_wrap="true"
+     height="100"
+     top="30"
+     left="10"
+     width="480">
+    The region you are in now (-The longest region name-) is about to restart.
+
+If you stay in this region you will be logged out.
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="top|left"
+     layout="topleft"
+     name="restart_seconds"
+     text_color="Black"
+     font="SansSerifHuge"
+     height="100"
+     left="0"
+     halign="center"
+     width="500">
+     Seconds until restart
+     32767
+    </text>
+  </panel>
+ </floater>

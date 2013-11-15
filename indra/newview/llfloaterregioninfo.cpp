@@ -91,6 +91,7 @@
 #include "lltrans.h"
 #include "llagentui.h"
 #include "llmeshrepository.h"
+#include "llfloaterregionrestarting.h"
 
 const S32 TERRAIN_TEXTURE_COUNT = 4;
 const S32 CORNER_COUNT = 4;
