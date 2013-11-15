@@ -407,8 +407,11 @@ BOOL LLScriptEdCore::postBuild()
 
 	initMenu();
 
+	// Intialise keyword highlighting for the current simulator's version of LSL
 	onRegionChangeInitialiseKeywords();
-	//LLEnvManagerNew::getInstance()->setRegionChangeCallback(boost::bind(&LLScriptEdCore::onRegionChangeInitialiseKeywords(), this));
+	// Set up a callback for region changes, so that highlighting is updated to the new region's version of LSL
+	LLEnvManagerNew::getInstance()->setRegionChangeCallback(boost::bind(&LLScriptEdCore::onRegionChangeInitialiseKeywords, this));
+
 	return TRUE;
 }
 
