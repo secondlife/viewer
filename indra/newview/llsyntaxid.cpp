@@ -72,8 +72,7 @@ void fetchKeywordsFileResponder::result(const LLSD& content_ref)
 	file.close();
 
 	LL_WARNS("LSLSyntax")
-		<< "Syntax file received, saving as: '" << mFileSpec << "'"
-		<< LL_ENDL;
+		<< "Syntax file received, saving as: '" << mFileSpec << "'" << LL_ENDL;
 }
 
 
@@ -131,18 +130,19 @@ bool LLSyntaxIdLSL::checkSyntaxIdChanged()
 	if (region)
 	{
 		if (!region->capabilitiesReceived())
-		{   // Shouldn't be possible, but experience shows that it's needed
-			//region->setCapabilitiesReceivedCallback(boost::bind(&LLSyntaxIdLSL::checkSyntaxIdChange, this));
+		{   // Shouldn't be possible, but experience shows that it may be needed.
 			LL_WARNS("LSLSyntax")
 				<< "region '" << region->getName()
-				<< "' has not received capabilities yet! Setting a callback for when they arrive."
+				<< "' has not received capabilities yet! Cannot process SyntaxId."
 				<< LL_ENDL;
 		}
 		else
 		{
-			// get and check the hash
 			LLSD simFeatures;
+			std::string message;
 			region->getSimulatorFeatures(simFeatures);
+
+			// get and check the hash
 			if (simFeatures.has("LSLSyntaxId"))
 			{
 				mSyntaxIdNew = simFeatures["LSLSyntaxId"].asUUID();
@@ -165,28 +165,23 @@ bool LLSyntaxIdLSL::checkSyntaxIdChanged()
 						<< mSyntaxIdCurrent << "'"
 						<< LL_ENDL;
 				}
+
 			}
 			else
 			{
-				// Set the hash to NULL_KEY to indicate use of default keywords file
 				if ( mSyntaxIdCurrent.isNull() )
 				{
-					LL_WARNS("LSLSyntax")
-						<< "Region is '" << region->getName()
-						<< " it does not have LSLSyntaxId capability, remaining with default keywords file!"
-						<< LL_ENDL;
+					message = " it does not have LSLSyntaxId capability, remaining with default keywords file!";
 				}
 				else
 				{
+					// The hash is set to NULL_KEY to indicate use of default keywords file
 					mSyntaxIdNew = LLUUID();
-
-					LL_WARNS("LSLSyntax")
-						<< "Region is '" << region->getName()
-						<< " it does not have LSLSyntaxId capability, using default keywords file!"
-						<< LL_ENDL;
-
+					message = " it does not have LSLSyntaxId capability, using default keywords file!";
 					changed = true;
 				}
+				LL_WARNS("LSLSyntax")
+					<< "Region is '" << region->getName() << message << LL_ENDL;
 			}
 		}
 	}
@@ -204,7 +199,7 @@ void LLSyntaxIdLSL::fetchKeywordsFile()
 						  new fetchKeywordsFileResponder(mFullFileSpec),
 						  LLSD(), 30.f
 						  );
-		LL_WARNS("LSLSyntax")
+		LL_INFOS("LSLSyntax")
 				<< "LSLSyntaxId capability URL is: " << mCapabilityURL
 				<< ". Filename to use is: '" << mFullFileSpec << "'."
 				<< LL_ENDL;
@@ -212,9 +207,7 @@ void LLSyntaxIdLSL::fetchKeywordsFile()
 	else
 	{
 		LL_WARNS("LSLSyntax")
-				<< "LSLSyntaxId capability URL is empty using capability: '"
-				<< mCapabilityName << "'"
-				<< LL_ENDL;
+				<< "LSLSyntaxId capability URL is empty!!" << LL_ENDL;
 	}
 }
 
@@ -222,28 +215,28 @@ void LLSyntaxIdLSL::initialise()
 {
 	if (checkSyntaxIdChanged())
 	{
-		LL_WARNS("LSLSyntax")
-				<< "Change to LSL version, getting appropriate file."
+		LL_INFOS("LSLSyntax")
+				<< "LSL version has changed, getting appropriate file."
 				<< LL_ENDL;
 
 		// Need a full spec regardless of file source, so build it now.
 		buildFullFileSpec();
 		if ( !mSyntaxIdNew.isNull() )
 		{
-			LL_WARNS("LSLSyntax")
-					<< "We have an ID for the version, so we will process it!"
+			LL_INFOS("LSLSyntax")
+					<< "We have an ID for the version, processing it!"
 					<< LL_ENDL;
 
 			if ( !gDirUtilp->fileExists(mFullFileSpec) )
 			{ // Does not exist, so fetch it from the capability
 				fetchKeywordsFile();
-				LL_WARNS("LSLSyntax")
+				LL_INFOS("LSLSyntax")
 						<< "File is not cached, we will try to download it!"
 						<< LL_ENDL;
 			}
 			else
 			{
-				LL_WARNS("LSLSyntax")
+				LL_INFOS("LSLSyntax")
 						<< "File is cached, no need to download!"
 						<< LL_ENDL;
 				loadKeywordsIntoLLSD();
@@ -251,8 +244,8 @@ void LLSyntaxIdLSL::initialise()
 		}
 		else
 		{ // Need to open the default
-			LL_WARNS("LSLSyntax")
-					<< "ID is null so we will use the default file!"
+			LL_INFOS("LSLSyntax")
+					<< "LSLSyntaxId is null so we will use the default file!"
 					<< LL_ENDL;
 			loadKeywordsIntoLLSD();
 		}
@@ -278,7 +271,7 @@ void LLSyntaxIdLSL::initialise()
  */
 bool LLSyntaxIdLSL::loadKeywordsIntoLLSD()
 {
-	LL_WARNS("LSLSyntax")
+	LL_INFOS("LSLSyntax")
 			<< "Trying to open cached or default keyword file ;-)"
 			<< LL_ENDL;
 
