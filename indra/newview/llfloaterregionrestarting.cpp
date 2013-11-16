@@ -39,7 +39,7 @@ LLFloaterRegionRestarting::LLFloaterRegionRestarting(const LLSD& key) :
 	LLFloater(key),
 	LLEventTimer(1)
 {
-	mName = key["NAME"];
+	mName = (std::string)key["NAME"];
 	mSeconds = (LLSD::Integer)key["SECONDS"];
 }
 
@@ -60,16 +60,6 @@ BOOL LLFloaterRegionRestarting::postBuild()
 	refresh();
 
 	LLEnvManagerNew::instance().setRegionChangeCallback(boost::bind(&LLFloaterRegionRestarting::regionChange, this));
-
-	LLFloaterRegionRestarting* floaterp = LLFloaterReg::findTypedInstance<LLFloaterRegionRestarting>("region_restarting");
-
-	if (floaterp)
-	{
-llwarns << "DBG setting color" << llendl;
-		LLColor4 bg_color;
-		bg_color = LLUIColorTable::instance().getColor("LtOrange");
-		floaterp->setBackgroundColor(bg_color);
-	}
 
 	return TRUE;
 }
@@ -92,9 +82,7 @@ void LLFloaterRegionRestarting::refresh()
 	std::string text;
 
 	args["[SECONDS]"] = llformat("%d", mSeconds);
-	text = getString("RestartSeconds", args);
-	LLTextBox* textbox = getChild<LLTextBox>("restart_seconds");
-	textbox->setValue(text);
+	getChild<LLTextBox>("restart_seconds")->setValue(getString("RestartSeconds", args));
 
 	mSeconds = mSeconds - 1;
 	if(mSeconds < 0.0)
@@ -113,7 +101,7 @@ void LLFloaterRegionRestarting::close()
 	}
 }
 
-void LLFloaterRegionRestarting::updateTime(U32 time)
+void LLFloaterRegionRestarting::updateTime(S32 time)
 {
 	mSeconds = time;
 }

@@ -37,7 +37,7 @@ class LLFloaterRegionRestarting : public LLFloater,  public LLEventTimer
 
 public:
 	static void close();
-	static void updateTime(U32 time);
+	static void updateTime(S32 time);
 
 private:
 	LLFloaterRegionRestarting(const LLSD& key);
@@ -46,8 +46,6 @@ private:
 	virtual BOOL tick();
 	virtual void refresh();
 	virtual void regionChange();
-
-	LLTextBox*	mRestartSeconds;
 
 	std::string mName;
 };

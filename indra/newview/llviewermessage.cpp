@@ -5964,14 +5964,14 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 		if (notificationID == "RegionRestartMinutes" ||
 			notificationID == "RegionRestartSeconds")
 		{
-			U32 seconds;
+			S32 seconds;
 			if (notificationID == "RegionRestartMinutes")
 			{
-				seconds = 60 * static_cast<U32>(llsdBlock["MINUTES"].asInteger());
+				seconds = 60 * static_cast<S32>(llsdBlock["MINUTES"].asInteger());
 			}
 			else
 			{
-				seconds = static_cast<U32>(llsdBlock["SECONDS"].asInteger());
+				seconds = static_cast<S32>(llsdBlock["SECONDS"].asInteger());
 			}
 
 			LLSD params;
