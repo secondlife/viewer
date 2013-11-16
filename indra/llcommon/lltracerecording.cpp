@@ -532,7 +532,7 @@ S32 Recording::getSampleCount( const StatType<EventAccumulator>& stat )
 PeriodicRecording::PeriodicRecording( S32 num_periods, EPlayState state) 
 :	mAutoResize(num_periods == 0),
 	mCurPeriod(0),
-	mNumPeriods(0),
+	mNumRecordedPeriods(0),
 	mRecordingPeriods(num_periods ? num_periods : 1)
 {
 	setPlayState(state);
@@ -555,7 +555,7 @@ void PeriodicRecording::nextPeriod()
 	mCurPeriod = (mCurPeriod + 1) % mRecordingPeriods.size();
 	old_recording.splitTo(getCurRecording());
 
-	mNumPeriods = llmin((S32)mRecordingPeriods.size(), mNumPeriods + 1);
+	mNumRecordedPeriods = llmin((S32)mRecordingPeriods.size() - 1, mNumRecordedPeriods + 1);
 }
 
 void PeriodicRecording::appendRecording(Recording& recording)
@@ -575,7 +575,7 @@ void PeriodicRecording::appendPeriodicRecording( PeriodicRecording& other )
 	const S32 other_recording_slots = other.mRecordingPeriods.size();
 	const S32 other_num_recordings = other.getNumRecordedPeriods();
 	const S32 other_current_recording_index = other.mCurPeriod;
-	const S32 other_oldest_recording_index = (other_current_recording_index + other_recording_slots - other_num_recordings + 1) % other_recording_slots;
+	const S32 other_oldest_recording_index = (other_current_recording_index + other_recording_slots - other_num_recordings) % other_recording_slots;
 
 	// append first recording into our current slot
 	getCurRecording().appendRecording(other.mRecordingPeriods[other_oldest_recording_index]);
@@ -600,7 +600,7 @@ void PeriodicRecording::appendPeriodicRecording( PeriodicRecording& other )
 		}
 
 		mCurPeriod = mRecordingPeriods.size() - 1;
-		mNumPeriods = mRecordingPeriods.size();
+		mNumRecordedPeriods = mRecordingPeriods.size() - 1;
 	}
 	else
 	{
@@ -629,7 +629,7 @@ void PeriodicRecording::appendPeriodicRecording( PeriodicRecording& other )
 		llassert(num_to_copy >= 1);
 		// advance to last recording period copied, and make that our current period
 		mCurPeriod = (mCurPeriod + num_to_copy - 1) % mRecordingPeriods.size();
-		mNumPeriods = llmin((S32)mRecordingPeriods.size(), mNumPeriods + num_to_copy - 1);
+		mNumRecordedPeriods = llmin((S32)mRecordingPeriods.size() - 1, mNumRecordedPeriods + num_to_copy - 1);
 	}
 
 	// end with fresh period, otherwise next appendPeriodicRecording() will merge the first
@@ -722,7 +722,7 @@ void PeriodicRecording::handleReset()
 		}
 	}
 	mCurPeriod = 0;
-	mNumPeriods = 0;
+	mNumRecordedPeriods = 0;
 	getCurRecording().setPlayState(getPlayState());
 }
 
@@ -733,8 +733,7 @@ void PeriodicRecording::handleSplitTo(PeriodicRecording& other)
 
 F64 PeriodicRecording::getPeriodMin( const StatType<EventAccumulator>& stat, S32 num_periods /*= S32_MAX*/ )
 {
-	S32 total_periods = mRecordingPeriods.size();
-	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
+	num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 	bool has_value = false;
 	F64 min_val = std::numeric_limits<F64>::max();
@@ -755,8 +754,7 @@ F64 PeriodicRecording::getPeriodMin( const StatType<EventAccumulator>& stat, S32
 
 F64 PeriodicRecording::getPeriodMax( const StatType<EventAccumulator>& stat, S32 num_periods /*= S32_MAX*/ )
 {
-	S32 total_periods = mRecordingPeriods.size();
-	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
+	num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 	bool has_value = false;
 	F64 max_val = std::numeric_limits<F64>::min();
@@ -778,8 +776,7 @@ F64 PeriodicRecording::getPeriodMax( const StatType<EventAccumulator>& stat, S32
 // calculates means using aggregates per period
 F64 PeriodicRecording::getPeriodMean( const StatType<EventAccumulator>& stat, S32 num_periods /*= S32_MAX*/ )
 {
-	S32 total_periods = mRecordingPeriods.size();
-	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
+	num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 	F64 mean = 0;
 	S32 valid_period_count = 0;
@@ -802,8 +799,7 @@ F64 PeriodicRecording::getPeriodMean( const StatType<EventAccumulator>& stat, S3
 
 F64 PeriodicRecording::getPeriodStandardDeviation( const StatType<EventAccumulator>& stat, S32 num_periods /*= S32_MAX*/ )
 {
-	S32 total_periods = mRecordingPeriods.size();
-	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
+	num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 	F64 period_mean = getPeriodMean(stat, num_periods);
 	F64 sum_of_squares = 0;
@@ -827,8 +823,7 @@ F64 PeriodicRecording::getPeriodStandardDeviation( const StatType<EventAccumulat
 
 F64 PeriodicRecording::getPeriodMin( const StatType<SampleAccumulator>& stat, S32 num_periods /*= S32_MAX*/ )
 {
-	S32 total_periods = mRecordingPeriods.size();
-	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
+	num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 	bool has_value = false;
 	F64 min_val = std::numeric_limits<F64>::max();
@@ -849,8 +844,7 @@ F64 PeriodicRecording::getPeriodMin( const StatType<SampleAccumulator>& stat, S3
 
 F64 PeriodicRecording::getPeriodMax(const StatType<SampleAccumulator>& stat, S32 num_periods /*= S32_MAX*/)
 {
-	S32 total_periods = mRecordingPeriods.size();
-	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
+	num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 	bool has_value = false;
 	F64 max_val = std::numeric_limits<F64>::min();
@@ -872,8 +866,7 @@ F64 PeriodicRecording::getPeriodMax(const StatType<SampleAccumulator>& stat, S32
 
 F64 PeriodicRecording::getPeriodMean( const StatType<SampleAccumulator>& stat, S32 num_periods /*= S32_MAX*/ )
 {
-	S32 total_periods = mRecordingPeriods.size();
-	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
+	num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 	S32 valid_period_count = 0;
 	F64 mean = 0;
@@ -895,8 +888,7 @@ F64 PeriodicRecording::getPeriodMean( const StatType<SampleAccumulator>& stat, S
 
 F64 PeriodicRecording::getPeriodStandardDeviation( const StatType<SampleAccumulator>& stat, S32 num_periods /*= S32_MAX*/ )
 {
-	S32 total_periods = mRecordingPeriods.size();
-	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
+	num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 	F64 period_mean = getPeriodMean(stat, num_periods);
 	S32 valid_period_count = 0;
@@ -921,8 +913,7 @@ F64 PeriodicRecording::getPeriodStandardDeviation( const StatType<SampleAccumula
 
 F64Kilobytes PeriodicRecording::getPeriodMin( const StatType<MemAccumulator>& stat, S32 num_periods /*= S32_MAX*/ )
 {
-	S32 total_periods = mRecordingPeriods.size();
-	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
+	num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 	F64Kilobytes min_val(std::numeric_limits<F64>::max());
 	for (S32 i = 1; i <= num_periods; i++)
@@ -941,8 +932,7 @@ F64Kilobytes PeriodicRecording::getPeriodMin(const MemStatHandle& stat, S32 num_
 
 F64Kilobytes PeriodicRecording::getPeriodMax(const StatType<MemAccumulator>& stat, S32 num_periods /*= S32_MAX*/)
 {
-	S32 total_periods = mRecordingPeriods.size();
-	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
+	num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 	F64Kilobytes max_val(0.0);
 	for (S32 i = 1; i <= num_periods; i++)
@@ -961,8 +951,7 @@ F64Kilobytes PeriodicRecording::getPeriodMax(const MemStatHandle& stat, S32 num_
 
 F64Kilobytes PeriodicRecording::getPeriodMean( const StatType<MemAccumulator>& stat, S32 num_periods /*= S32_MAX*/ )
 {
-	S32 total_periods = mRecordingPeriods.size();
-	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
+	num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 	F64Kilobytes mean(0);
 
@@ -982,8 +971,7 @@ F64Kilobytes PeriodicRecording::getPeriodMean(const MemStatHandle& stat, S32 num
 
 F64Kilobytes PeriodicRecording::getPeriodStandardDeviation( const StatType<MemAccumulator>& stat, S32 num_periods /*= S32_MAX*/ )
 {
-	S32 total_periods = mRecordingPeriods.size();
-	num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
+	num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 	F64Kilobytes period_mean = getPeriodMean(stat, num_periods);
 	S32 valid_period_count = 0;
