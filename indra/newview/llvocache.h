@@ -195,7 +195,7 @@ public:
 	bool isFrontCull() const {return mFrontCull;}
 
 private:
-	void selectBackObjects(LLCamera &camera, F32 projection_area_cutoff); //select objects behind camera.
+	void selectBackObjects(LLCamera &camera, F32 projection_area_cutoff, bool use_occlusion); //select objects behind camera.
 
 public:
 	static BOOL sNeedsOcclusionCheck;
