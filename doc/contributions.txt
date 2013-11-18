@@ -350,8 +350,6 @@ Dimitrio Lewis
 Dirk
 Draconis Neurocam
 	STORM-1259
-Drake Arconis
-    OPEN-195
 Drew Dri
 	VWR-19683
 Drew Dwi
@@ -1147,6 +1145,7 @@ snowy Sidran
 Sovereign Engineer
     MAINT-2334
     OPEN-189
+    OPEN-195
 SpacedOut Frye
 	VWR-34
 	VWR-45
