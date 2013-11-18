@@ -155,11 +155,9 @@ public:
 	///
 	void ringBell(time_type now, unsigned int count);
 	
-	/// Checks on the status of the timer Declare that something interesting happened.  This has two
-	/// effects on an unexpired-timer.  1)  The expiration time
-	/// is extended for 'horizon' seconds after the 'now' value.
-	/// 2)  An internal counter associated with the event is incremented.
-	/// This count is returned via the @see isExpired() method.
+	/// Checks the status of the timer.  If the timer has expired,
+	/// also returns various timer-related stats.  Unlike ringBell(),
+	/// does not extend the horizon, it only checks for expiration.
 	///
 	/// @param now		Current time as returned by @see
 	///					LLTimer::getCurrentClockCount().  If zero,
@@ -192,7 +190,7 @@ public:
 	bool isExpired(time_type now, F64 & started, F64 & stopped, U64 & count,
 				   U64 & user_cpu, U64 & sys_cpu);
 
-	/// Identical to the six-arugment form except is does without the
+	/// Identical to the six-arugment form except it does without the
 	/// CPU time return if the caller isn't interested in it.
 	bool isExpired(time_type now, F64 & started, F64 & stopped, U64 & count);
 
