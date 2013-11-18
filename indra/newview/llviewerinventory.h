@@ -217,6 +217,8 @@ public:
 	enum { DESCENDENT_COUNT_UNKNOWN = -1 };
 	S32 getDescendentCount() const { return mDescendentCount; }
 	void setDescendentCount(S32 descendents) { mDescendentCount = descendents; }
+	// How many descendents do we currently have information for in the InventoryModel?
+	S32 getViewerDescendentCount() const;
 
 	// file handling on the viewer. These are not meant for anything
 	// other than caching.

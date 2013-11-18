@@ -105,17 +105,7 @@ bool LLCanCache::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 		if(c->getVersion() != LLViewerInventoryCategory::VERSION_UNKNOWN)
 		{
 			S32 descendents_server = c->getDescendentCount();
-			LLInventoryModel::cat_array_t* cats;
-			LLInventoryModel::item_array_t* items;
-			mModel->getDirectDescendentsOf(
-				c->getUUID(),
-				cats,
-				items);
-			S32 descendents_actual = 0;
-			if(cats && items)
-			{
-				descendents_actual = cats->count() + items->count();
-			}
+			S32 descendents_actual = c->getViewerDescendentCount();
 			if(descendents_server == descendents_actual)
 			{
 				mCachedCatIDs.insert(c->getUUID());
@@ -1717,14 +1707,7 @@ void LLInventoryModel::accountForUpdate(const LLCategoryUpdate& update) const
 		if(version != LLViewerInventoryCategory::VERSION_UNKNOWN)
 		{
 			S32 descendents_server = cat->getDescendentCount();
-			LLInventoryModel::cat_array_t* cats;
-			LLInventoryModel::item_array_t* items;
-			getDirectDescendentsOf(update.mCategoryID, cats, items);
-			S32 descendents_actual = 0;
-			if(cats && items)
-			{
-				descendents_actual = cats->count() + items->count();
-			}
+			S32 descendents_actual = cat->getViewerDescendentCount();
 			if(descendents_server == descendents_actual)
 			{
 				descendents_actual += update.mDescendentDelta;
@@ -1821,14 +1804,7 @@ bool LLInventoryModel::isCategoryComplete(const LLUUID& cat_id) const
 	if(cat && (cat->getVersion()!=LLViewerInventoryCategory::VERSION_UNKNOWN))
 	{
 		S32 descendents_server = cat->getDescendentCount();
-		LLInventoryModel::cat_array_t* cats;
-		LLInventoryModel::item_array_t* items;
-		getDirectDescendentsOf(cat_id, cats, items);
-		S32 descendents_actual = 0;
-		if(cats && items)
-		{
-			descendents_actual = cats->count() + items->count();
-		}
+		S32 descendents_actual = cat->getViewerDescendentCount();
 		if(descendents_server == descendents_actual)
 		{
 			return true;

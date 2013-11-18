@@ -2124,6 +2124,13 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool enforce_item_restrictions,
 	dumpItemArray(wear_items,"asset_dump: wear_item");
 	dumpItemArray(obj_items,"asset_dump: obj_item");
 
+	LLViewerInventoryCategory *cof = gInventory.getCategory(current_outfit_id);
+	if (!gInventory.isCategoryComplete(current_outfit_id))
+	{
+		llwarns << "COF info is not complete. Version " << cof->getVersion()
+				<< " descendent_count " << cof->getDescendentCount()
+				<< " viewer desc count " << cof->getViewerDescendentCount() << llendl;
+	}
 	if(!wear_items.count())
 	{
 		LLNotificationsUtil::add("CouldNotPutOnOutfit");

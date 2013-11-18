@@ -701,6 +701,19 @@ bool LLViewerInventoryCategory::fetch()
 	return false;
 }
 
+S32 LLViewerInventoryCategory::getViewerDescendentCount() const
+{
+	LLInventoryModel::cat_array_t* cats;
+	LLInventoryModel::item_array_t* items;
+	gInventory.getDirectDescendentsOf(getUUID(), cats, items);
+	S32 descendents_actual = 0;
+	if(cats && items)
+	{
+		descendents_actual = cats->count() + items->count();
+	}
+	return descendents_actual;
+}
+
 bool LLViewerInventoryCategory::importFileLocal(LLFILE* fp)
 {
 	// *NOTE: This buffer size is hard coded into scanf() below.
