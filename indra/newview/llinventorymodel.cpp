@@ -3704,7 +3704,7 @@ bool LLInventoryModel::validate() const
 	
 	if (cat_lock > 0 || item_lock > 0)
 	{
-		llwarns << "Found locks on some categories: sub-cat arrays "
+		llinfos << "Found locks on some categories: sub-cat arrays "
 				<< cat_lock << ", item arrays " << item_lock << llendl;
 	}
 	if (desc_unknown_count != 0)
