@@ -35,6 +35,7 @@
 #include "lliconctrl.h"
 #include "llframetimer.h"
 #include "llfloatergotoline.h"
+#include "llsyntaxid.h"
 
 class LLLiveLSLFile;
 class LLMessageSystem;
@@ -77,6 +78,7 @@ public:
 	~LLScriptEdCore();
 	
 	void			initMenu();
+	void			onRegionChangeInitialiseKeywords();
 
 	virtual void	draw();
 	/*virtual*/	BOOL	postBuild();
@@ -149,6 +151,7 @@ private:
 	BOOL			mEnableSave;
 	BOOL			mHasScriptData;
 	LLLiveLSLFile*	mLiveFile;
+	LLSyntaxIdLSL	mSyntaxIdLSL;
 
 	LLScriptEdContainer* mContainer; // parent view
 };
