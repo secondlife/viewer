@@ -850,7 +850,6 @@ boost::signals2::connection LLAgent::addParcelChangedCallback(parcel_changed_cal
 //-----------------------------------------------------------------------------
 void LLAgent::setRegion(LLViewerRegion *regionp)
 {
-	bool teleport = true;
 	bool notifyRegionChange;
 	
 	llassert(regionp);
@@ -888,9 +887,6 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 			{
 				gSky.mVOGroundp->setRegion(regionp);
 			}
-
-			// Notify windlight managers
-			teleport = (gAgent.getTeleportState() != LLAgent::TELEPORT_NONE);
 		}
 		else
 		{
@@ -937,15 +933,6 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 	LLSelectMgr::getInstance()->updateSelectionCenter();
 
 	LLFloaterMove::sUpdateFlyingStatus();
-
-	if (teleport)
-	{
-		LLEnvManagerNew::instance().onTeleport();
-	}
-	else
-	{
-		LLEnvManagerNew::instance().onRegionCrossing();
-	}
 
 	// If the newly entered region is using server bakes, and our
 	// current appearance is non-baked, request appearance update from
