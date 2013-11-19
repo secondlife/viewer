@@ -26,6 +26,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llappviewer.h"
 #include "llstartup.h"
 
 #if LL_WINDOWS
@@ -37,8 +38,8 @@
 #include "llviewermedia_streamingaudio.h"
 #include "llaudioengine.h"
 
-#ifdef LL_FMOD
-# include "llaudioengine_fmod.h"
+#ifdef LL_FMODEX
+# include "llaudioengine_fmodex.h"
 #endif
 
 #ifdef LL_OPENAL
@@ -50,11 +51,12 @@
 #include "lllandmark.h"
 #include "llcachename.h"
 #include "lldir.h"
+#include "lldonotdisturbnotificationstorage.h"
 #include "llerrorcontrol.h"
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
 #include "llhttpsender.h"
-#include "llimfloater.h"
+#include "llfloaterimsession.h"
 #include "lllocationhistory.h"
 #include "llimageworker.h"
 
@@ -63,9 +65,11 @@
 #include "llmemorystream.h"
 #include "llmessageconfig.h"
 #include "llmoveview.h"
-#include "llnearbychat.h"
+#include "llfloaterimcontainer.h"
+#include "llfloaterimnearbychat.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
+#include "llpersistentnotificationstorage.h"
 #include "llteleporthistory.h"
 #include "llregionhandle.h"
 #include "llsd.h"
@@ -94,6 +98,7 @@
 #include "llcallingcard.h"
 #include "llconsole.h"
 #include "llcontainerview.h"
+#include "llconversationlog.h"
 #include "lldebugview.h"
 #include "lldrawable.h"
 #include "lleventnotifier.h"
@@ -186,6 +191,7 @@
 #include "llappearancemgr.h"
 #include "llavatariconctrl.h"
 #include "llvoicechannel.h"
+#include "llpathfindingmanager.h"
 
 #include "lllogin.h"
 #include "llevents.h"
@@ -240,6 +246,7 @@ static bool mLoginStatePastUI = false;
 
 boost::scoped_ptr<LLEventPump> LLStartUp::sStateWatcher(new LLEventStream("StartupState"));
 boost::scoped_ptr<LLStartupListener> LLStartUp::sListener(new LLStartupListener());
+boost::scoped_ptr<LLViewerStats::PhaseMap> LLStartUp::sPhases(new LLViewerStats::PhaseMap);
 
 //
 // local function declaration
@@ -310,11 +317,8 @@ void update_texture_fetch()
 // true when all initialization done.
 bool idle_startup()
 {
-	LLMemType mt1(LLMemType::MTYPE_STARTUP);
-	
 	const F32 PRECACHING_DELAY = gSavedSettings.getF32("PrecachingDelay");
 	static LLTimer timeout;
-	static S32 timeout_count = 0;
 
 	static LLTimer login_time;
 
@@ -330,7 +334,6 @@ bool idle_startup()
 
 	// last location by default
 	static S32  agent_location_id = START_LOCATION_ID_LAST;
-	static S32  location_which = START_LOCATION_ID_LAST;
 
 	static bool show_connect_box = true;
 
@@ -360,6 +363,15 @@ bool idle_startup()
 
 	if ( STATE_FIRST == LLStartUp::getStartupState() )
 	{
+		static bool first_call = true;
+		if (first_call)
+		{
+			// Other phases get handled when startup state changes,
+			// need to capture the initial state as well.
+			LLStartUp::getPhases().startPhase(LLStartUp::getStartupStateString());
+			first_call = false;
+		}
+
 		gViewerWindow->showCursor(); 
 		gViewerWindow->getWindow()->setCursor(UI_CURSOR_WAIT);
 
@@ -614,6 +626,17 @@ bool idle_startup()
 		{
 			gAudiop = NULL;
 
+#ifdef LL_FMODEX		
+			if (!gAudiop
+#if !LL_WINDOWS
+			    && NULL == getenv("LL_BAD_FMODEX_DRIVER")
+#endif // !LL_WINDOWS
+			    )
+			{
+				gAudiop = (LLAudioEngine *) new LLAudioEngine_FMODEX(gSavedSettings.getBOOL("FMODExProfilerEnable"));
+			}
+#endif
+
 #ifdef LL_OPENAL
 			if (!gAudiop
 #if !LL_WINDOWS
@@ -625,21 +648,10 @@ bool idle_startup()
 			}
 #endif
 
-#ifdef LL_FMOD			
-			if (!gAudiop
-#if !LL_WINDOWS
-			    && NULL == getenv("LL_BAD_FMOD_DRIVER")
-#endif // !LL_WINDOWS
-			    )
-			{
-				gAudiop = (LLAudioEngine *) new LLAudioEngine_FMOD();
-			}
-#endif
-
 			if (gAudiop)
 			{
 #if LL_WINDOWS
-				// FMOD on Windows needs the window handle to stop playing audio
+				// FMOD Ex on Windows needs the window handle to stop playing audio
 				// when window is minimized. JC
 				void* window_handle = (HWND)gViewerWindow->getPlatformWindow();
 #else
@@ -719,26 +731,28 @@ bool idle_startup()
 
 	if (STATE_LOGIN_SHOW == LLStartUp::getStartupState())
 	{
-		LL_DEBUGS("AppInit") << "Initializing Window" << LL_ENDL;
+		LL_DEBUGS("AppInit") << "Initializing Window, show_connect_box = "
+							 << show_connect_box << LL_ENDL;
 
 		// if we've gone backwards in the login state machine, to this state where we show the UI
 		// AND the debug setting to exit in this case is true, then go ahead and bail quickly
 		if ( mLoginStatePastUI && gSavedSettings.getBOOL("QuitOnLoginActivated") )
 		{
+			LL_DEBUGS("AppInit") << "taking QuitOnLoginActivated exit" << LL_ENDL;
 			// no requirement for notification here - just exit
 			LLAppViewer::instance()->earlyExitNoNotify();
 		}
 
 		gViewerWindow->getWindow()->setCursor(UI_CURSOR_ARROW);
 
-		timeout_count = 0;
-
 		// Login screen needs menus for preferences, but we can enter
 		// this startup phase more than once.
 		if (gLoginMenuBarView == NULL)
 		{
+			LL_DEBUGS("AppInit") << "initializing menu bar" << LL_ENDL;
 			display_startup();
 			initialize_edit_menu();
+			initialize_spellcheck_menu();
 			display_startup();
 			init_menus();
 			display_startup();
@@ -746,19 +760,17 @@ bool idle_startup()
 
 		if (show_connect_box)
 		{
+			LL_DEBUGS("AppInit") << "show_connect_box on" << LL_ENDL;
 			// Load all the name information out of the login view
 			// NOTE: Hits "Attempted getFields with no login view shown" warning, since we don't
 			// show the login view until login_show() is called below.  
 			if (gUserCredential.isNull())                                                                          
 			{                                                  
+				LL_DEBUGS("AppInit") << "loading credentials from gLoginHandler" << LL_ENDL;
 				display_startup();
 				gUserCredential = gLoginHandler.initializeLoginInfo();                 
 				display_startup();
 			}     
-			if (gHeadlessClient)
-			{
-				LL_WARNS("AppInit") << "Waiting at connection box in headless client.  Did you mean to add autologin params?" << LL_ENDL;
-			}
 			// Make sure the process dialog doesn't hide things
 			display_startup();
 			gViewerWindow->setShowProgress(FALSE);
@@ -767,17 +779,28 @@ bool idle_startup()
 			login_show();
 			display_startup();
 			// connect dialog is already shown, so fill in the names
-			if (gUserCredential.notNull())                                                                         
-			{                                                                                                      
-				LLPanelLogin::setFields( gUserCredential, gRememberPassword);                                  
-			}     
+			if (gUserCredential.notNull())
+			{
+				LLPanelLogin::setFields( gUserCredential, gRememberPassword);
+			}
 			display_startup();
 			LLPanelLogin::giveFocus();
+
+			if (gSavedSettings.getBOOL("FirstLoginThisInstall"))
+			{
+				LL_INFOS("AppInit") << "FirstLoginThisInstall, calling show_first_run_dialog()" << LL_ENDL;
+				show_first_run_dialog();
+			}
+			else
+			{
+				LL_DEBUGS("AppInit") << "FirstLoginThisInstall off" << LL_ENDL;
+			}
 
 			LLStartUp::setStartupState( STATE_LOGIN_WAIT );		// Wait for user input
 		}
 		else
 		{
+			LL_DEBUGS("AppInit") << "show_connect_box off, skipping to STATE_LOGIN_CLEANUP" << LL_ENDL;
 			// skip directly to message template verification
 			LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
 		}
@@ -879,6 +902,10 @@ bool idle_startup()
 		gDirUtilp->setLindenUserDir(userid);
 		LLFile::mkdir(gDirUtilp->getLindenUserDir());
 
+		// As soon as directories are ready initialize notification storages
+		LLPersistentNotificationStorage::getInstance()->initialize();
+		LLDoNotDisturbNotificationStorage::getInstance()->initialize();
+
 		// Set PerAccountSettingsFile to the default value.
 		gSavedSettings.setString("PerAccountSettingsFile",
 			gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, 
@@ -888,6 +915,13 @@ bool idle_startup()
 		
 		// Overwrite default user settings with user settings								 
 		LLAppViewer::instance()->loadSettingsFromDirectory("Account");
+
+		// Convert 'LogInstantMessages' into 'KeepConversationLogTranscripts' for backward compatibility (CHUI-743).
+		LLControlVariablePtr logInstantMessagesControl = gSavedPerAccountSettings.getControl("LogInstantMessages");
+		if (logInstantMessagesControl.notNull())
+		{
+			gSavedPerAccountSettings.setS32("KeepConversationLogTranscripts", logInstantMessagesControl->getValue() ? 2 : 1);
+		}
 
 		// Need to set the LastLogoff time here if we don't have one.  LastLogoff is used for "Recent Items" calculation
 		// and startup time is close enough if we don't have a real value.
@@ -958,15 +992,12 @@ bool idle_startup()
 		  {
 		  case LLSLURL::LOCATION:
 		    agent_location_id = START_LOCATION_ID_URL;
-		    location_which = START_LOCATION_ID_LAST;
 		    break;
 		  case LLSLURL::LAST_LOCATION:
 		    agent_location_id = START_LOCATION_ID_LAST;
-		    location_which = START_LOCATION_ID_LAST;
 		    break;
 		  default:
 		    agent_location_id = START_LOCATION_ID_HOME;
-		    location_which = START_LOCATION_ID_HOME;
 		    break;
 		  }
 
@@ -994,7 +1025,7 @@ bool idle_startup()
 
 	if(STATE_LOGIN_AUTH_INIT == LLStartUp::getStartupState())
 	{
-		gDebugInfo["GridName"] = LLGridManager::getInstance()->getGridLabel();
+		gDebugInfo["GridName"] = LLGridManager::getInstance()->getGridId();
 
 		// Update progress status and the display loop.
 		auth_desc = LLTrans::getString("LoginInProgress");
@@ -1008,6 +1039,7 @@ bool idle_startup()
 
 		login->setSerialNumber(LLAppViewer::instance()->getSerialNumber());
 		login->setLastExecEvent(gLastExecEvent);
+		login->setLastExecDuration(gLastExecDuration);
 		login->setUpdaterLauncher(boost::bind(&LLAppViewer::launchUpdater, LLAppViewer::instance()));
 
 		// This call to LLLoginInstance::connect() starts the 
@@ -1158,7 +1190,6 @@ bool idle_startup()
 				LLVoiceClient::getInstance()->userAuthorized(gUserCredential->userID(), gAgentID);
 				// create the default proximal channel
 				LLVoiceChannel::initClass();
-				LLGridManager::getInstance()->setFavorite(); 
 				LLStartUp::setStartupState( STATE_WORLD_INIT);
 			}
 			else
@@ -1220,6 +1251,9 @@ bool idle_startup()
 		LLPostProcess::initClass();
 		display_startup();
 
+		LLAvatarAppearance::initClass();
+		display_startup();
+
 		LLViewerObject::initVOClasses();
 		display_startup();
 
@@ -1266,6 +1300,8 @@ bool idle_startup()
 		display_startup();
 		LLStartUp::setStartupState( STATE_MULTIMEDIA_INIT );
 		
+		LLConversationLog::getInstance();
+
 		return FALSE;
 	}
 
@@ -1376,14 +1412,9 @@ bool idle_startup()
 		LLVoiceClient::getInstance()->updateSettings();
 		display_startup();
 
-		//gCacheName is required for nearby chat history loading
-		//so I just moved nearby history loading a few states further
-		if (gSavedPerAccountSettings.getBOOL("LogShowHistory"))
-		{
-			LLNearbyChat* nearby_chat = LLNearbyChat::getInstance();
-			if (nearby_chat) nearby_chat->loadHistory();
-		}
-		display_startup();
+		// create a container's instance for start a controlling conversation windows
+		// by the voice's events
+		LLFloaterIMContainer::getInstance();
 
 		// *Note: this is where gWorldMap used to be initialized.
 
@@ -1393,7 +1424,7 @@ bool idle_startup()
 		display_startup();
 
 		//reset statistics
-		LLViewerStats::getInstance()->resetStats();
+		LLViewerStats::instance().resetStats();
 
 		display_startup();
 		//
@@ -1494,7 +1525,7 @@ bool idle_startup()
 	}
 
 	//---------------------------------------------------------------------
-	// Agent Send
+	// World Wait
 	//---------------------------------------------------------------------
 	if(STATE_WORLD_WAIT == LLStartUp::getStartupState())
 	{
@@ -1820,6 +1851,10 @@ bool idle_startup()
 			// Set the show start location to true, now that the user has logged
 			// on with this install.
 			gSavedSettings.setBOOL("ShowStartLocation", TRUE);
+
+			// Open Conversation floater on first login.
+			LLFloaterReg::toggleInstanceOrBringToFront("im_container");
+
 		}
 
 		display_startup();
@@ -1921,6 +1956,7 @@ bool idle_startup()
 		{
 			llinfos << "gAgentStartLocation : " << gAgentStartLocation << llendl;
 			LLSLURL start_slurl = LLStartUp::getStartSLURL();
+			LL_DEBUGS("AppInit") << "start slurl "<<start_slurl.asString()<<LL_ENDL;
 			
 			if (((start_slurl.getType() == LLSLURL::LOCATION) && (gAgentStartLocation == "url")) ||
 				((start_slurl.getType() == LLSLURL::LAST_LOCATION) && (gAgentStartLocation == "last")) ||
@@ -2141,7 +2177,6 @@ bool idle_startup()
 		display_startup();
 
 		// Unmute audio if desired and setup volumes.
-		// Unmute audio if desired and setup volumes.
 		// This is a not-uncommon crash site, so surround it with
 		// llinfos output to aid diagnosis.
 		LL_INFOS("AppInit") << "Doing first audio_update_volume..." << LL_ENDL;
@@ -2162,8 +2197,10 @@ bool idle_startup()
 
 		LLAgentPicksInfo::getInstance()->requestNumberOfPicks();
 
-		LLIMFloater::initIMFloater();
 		display_startup();
+
+		llassert(LLPathfindingManager::getInstance() != NULL);
+		LLPathfindingManager::getInstance()->initSystem();
 
 		return TRUE;
 	}
@@ -2180,21 +2217,13 @@ void login_show()
 {
 	LL_INFOS("AppInit") << "Initializing Login Screen" << LL_ENDL;
 
-#ifdef LL_RELEASE_FOR_DOWNLOAD
-	BOOL bUseDebugLogin = gSavedSettings.getBOOL("UseDebugLogin");
-#else
-	BOOL bUseDebugLogin = TRUE;
-#endif
 	// Hide the toolbars: may happen to come back here if login fails after login agent but before login in region
 	if (gToolBarView)
 	{
 		gToolBarView->setVisible(FALSE);
 	}
 	
-	LLPanelLogin::show(	gViewerWindow->getWindowRectScaled(),
-						bUseDebugLogin || gSavedSettings.getBOOL("SecondLifeEnterprise"),
-						login_callback, NULL );
-
+	LLPanelLogin::show(	gViewerWindow->getWindowRectScaled(), login_callback, NULL );
 }
 
 // Callback for when login screen is closed.  Option 0 = connect, option 1 = quit.
@@ -2559,12 +2588,17 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 	}
 	else
 	{
+		// FIXME SH-3860 - this creates a race condition, where COF
+		// changes (base outfit link added) after appearance update
+		// request has been submitted.
 		sWearablesLoadedCon = gAgentWearables.addLoadedCallback(LLStartUp::saveInitialOutfit);
 
 		bool do_copy = true;
 		bool do_append = false;
 		LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
-		LLAppearanceMgr::instance().wearInventoryCategory(cat, do_copy, do_append);
+		// Need to fetch cof contents before we can wear.
+		callAfterCategoryFetch(LLAppearanceMgr::instance().getCOF(),
+							   boost::bind(&LLAppearanceMgr::wearInventoryCategory, LLAppearanceMgr::getInstance(), cat, do_copy, do_append));
 		lldebugs << "initial outfit category id: " << cat_id << llendl;
 	}
 
@@ -2705,7 +2739,11 @@ void LLStartUp::setStartupState( EStartupState state )
 	LL_INFOS("AppInit") << "Startup state changing from " <<  
 		getStartupStateString() << " to " <<  
 		startupStateToString(state) << LL_ENDL;
+
+	getPhases().stopPhase(getStartupStateString());
 	gStartupState = state;
+	getPhases().startPhase(getStartupStateString());
+
 	postStartupState();
 }
 
@@ -2778,7 +2816,7 @@ void LLStartUp::initNameCache()
 
 	// Start cache in not-running state until we figure out if we have
 	// capabilities for display name lookup
-	LLAvatarNameCache::initClass(false);
+	LLAvatarNameCache::initClass(false,gSavedSettings.getBOOL("UsePeopleAPI"));
 	LLAvatarNameCache::setUseDisplayNames(gSavedSettings.getBOOL("UseDisplayNames"));
 }
 
@@ -2822,24 +2860,32 @@ bool LLStartUp::dispatchURL()
 
 void LLStartUp::setStartSLURL(const LLSLURL& slurl) 
 {
-  sStartSLURL = slurl;
-  switch(slurl.getType())
-    {
-    case LLSLURL::HOME_LOCATION:
-      {
-		  gSavedSettings.setString("LoginLocation", LLSLURL::SIM_LOCATION_HOME);
-	break;
-      }
-    case LLSLURL::LAST_LOCATION:
-      {
-	gSavedSettings.setString("LoginLocation", LLSLURL::SIM_LOCATION_LAST);
-	break;
-      }
-    default:
-			LLGridManager::getInstance()->setGridChoice(slurl.getGrid());
-			break;
-    }
+	LL_DEBUGS("AppInit")<<slurl.asString()<<LL_ENDL;
+
+	if ( slurl.isSpatial() )
+	{
+		std::string new_start = slurl.getSLURLString();
+		LL_DEBUGS("AppInit")<<new_start<<LL_ENDL;
+		sStartSLURL = slurl;
+		LLPanelLogin::onUpdateStartSLURL(slurl); // updates grid if needed
+
+		// remember that this is where we wanted to log in...if the login fails,
+		// the next attempt will default to the same place.
+		gSavedSettings.setString("NextLoginLocation", new_start);
+		// following a successful login, this is cleared
+		// and the default reverts to LoginLocation
+	}
+	else
+	{
+		LL_WARNS("AppInit")<<"Invalid start SLURL (ignored): "<<slurl.asString()<<LL_ENDL;
+	}
 }
+
+// static
+LLSLURL& LLStartUp::getStartSLURL()
+{
+	return sStartSLURL;
+} 
 
 /**
  * Read all proxy configuration settings and set up both the HTTP proxy and
@@ -3211,17 +3257,6 @@ bool process_login_success_response()
 
 		gSavedSettings.setU32("PreferredMaturity", preferredMaturity);
 	}
-	// During the AO transition, this flag will be true. Then the flag will
-	// go away. After the AO transition, this code and all the code that
-	// uses it can be deleted.
-	text = response["ao_transition"].asString();
-	if (!text.empty())
-	{
-		if (text == "1")
-		{
-			gAgent.setAOTransition();
-		}
-	}
 
 	text = response["start_location"].asString();
 	if(!text.empty()) 
@@ -3283,11 +3318,8 @@ bool process_login_success_response()
 	{
 		// replace the default help URL format
 		gSavedSettings.setString("HelpURLFormat",text);
-		
-		// don't fall back to Standalone's pre-connection static help
-		gSavedSettings.setBOOL("HelpUseLocal", false);
 	}
-			
+
 	std::string home_location = response["home"];
 	if(!home_location.empty())
 	{
@@ -3428,6 +3460,14 @@ bool process_login_success_response()
 
 	}
 
+	// set the location of the Agent Appearance service, from which we can request
+	// avatar baked textures if they are supported by the current region
+	std::string agent_appearance_url = response["agent_appearance_service"];
+	if (!agent_appearance_url.empty())
+	{
+		LLAppearanceMgr::instance().setAppearanceServiceURL(agent_appearance_url);
+	}
+
 	// Set the location of the snapshot sharing config endpoint
 	std::string snapshot_config_url = response["snapshot_config_url"];
 	if(!snapshot_config_url.empty())
@@ -3472,13 +3512,6 @@ bool process_login_success_response()
 
 void transition_back_to_login_panel(const std::string& emsg)
 {
-	if (gHeadlessClient && gSavedSettings.getBOOL("AutoLogin"))
-	{
-		LL_WARNS("AppInit") << "Failed to login!" << LL_ENDL;
-		LL_WARNS("AppInit") << emsg << LL_ENDL;
-		exit(0);
-	}
-
 	// Bounce back to the login screen.
 	reset_login(); // calls LLStartUp::setStartupState( STATE_LOGIN_SHOW );
 	gSavedSettings.setBOOL("AutoLogin", FALSE);

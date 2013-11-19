@@ -47,8 +47,26 @@ std::string ll_safe_string(const char* in)
 
 std::string ll_safe_string(const char* in, S32 maxlen)
 {
-	if(in) return std::string(in, maxlen);
+	if(in && maxlen > 0 ) return std::string(in, maxlen);
+
 	return std::string();
+}
+
+bool is_char_hex(char hex)
+{
+	if((hex >= '0') && (hex <= '9'))
+	{
+		return true;
+	}
+	else if((hex >= 'a') && (hex <='f'))
+	{
+		return true;
+	}
+	else if((hex >= 'A') && (hex <='F'))
+	{
+		return true;
+	}
+	return false; // uh - oh, not hex any more...
 }
 
 U8 hex_as_nybble(char hex)
@@ -912,22 +930,24 @@ S32 LLStringUtil::format(std::string& s, const format_map_t& substitutions);
 template<> 
 void LLStringUtil::getTokens(const std::string& instr, std::vector<std::string >& tokens, const std::string& delims)
 {
-	std::string currToken;
-	std::string::size_type begIdx, endIdx;
-
-	begIdx = instr.find_first_not_of (delims);
-	while (begIdx != std::string::npos)
+	// Starting at offset 0, scan forward for the next non-delimiter. We're
+	// done when the only characters left in 'instr' are delimiters.
+	for (std::string::size_type begIdx, endIdx = 0;
+		 (begIdx = instr.find_first_not_of (delims, endIdx)) != std::string::npos; )
 	{
+		// Found a non-delimiter. After that, find the next delimiter.
 		endIdx = instr.find_first_of (delims, begIdx);
 		if (endIdx == std::string::npos)
 		{
+			// No more delimiters: this token extends to the end of the string.
 			endIdx = instr.length();
 		}
 
-		currToken = instr.substr(begIdx, endIdx - begIdx);
+		// extract the token between begIdx and endIdx; substr() needs length
+		std::string currToken(instr.substr(begIdx, endIdx - begIdx));
 		LLStringUtil::trim (currToken);
 		tokens.push_back(currToken);
-		begIdx = instr.find_first_not_of (delims, endIdx);
+		// next scan past delimiters starts at endIdx
 	}
 }
 

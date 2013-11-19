@@ -20,6 +20,7 @@ if(WINDOWS)
     set(vivox_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(vivox_files
         SLVoice.exe
+        ca-bundle.crt
         libsndfile-1.dll
         vivoxplatform.dll
         vivoxsdk.dll
@@ -41,6 +42,7 @@ if(WINDOWS)
         libeay32.dll
         libcollada14dom22-d.dll
         glod.dll    
+        libhunspell.dll
         )
 
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
@@ -53,17 +55,17 @@ if(WINDOWS)
         libeay32.dll
         libcollada14dom22.dll
         glod.dll
+        libhunspell.dll
         )
 
-    if(USE_GOOGLE_PERFTOOLS)
+    if(USE_TCMALLOC)
       set(debug_files ${debug_files} libtcmalloc_minimal-debug.dll)
       set(release_files ${release_files} libtcmalloc_minimal.dll)
-    endif(USE_GOOGLE_PERFTOOLS)
+    endif(USE_TCMALLOC)
 
-    if (FMOD)
-      set(debug_files ${debug_files} fmod.dll)
-      set(release_files ${release_files} fmod.dll)
-    endif (FMOD)
+    if (FMODEX)
+      set(release_files ${release_files} fmodex.dll)
+    endif (FMODEX)
 
 #*******************************
 # Copy MS C runtime dlls, required for packaging.
@@ -194,6 +196,7 @@ elseif(DARWIN)
     set(vivox_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(vivox_files
         SLVoice
+        ca-bundle.crt
         libsndfile.dylib
         libvivoxoal.dylib
         libortp.dylib
@@ -212,15 +215,18 @@ elseif(DARWIN)
         libexpat.1.5.2.dylib
         libexpat.dylib
         libGLOD.dylib
-    libllqtwebkit.dylib
-    libminizip.a
+        libllqtwebkit.dylib
+        libminizip.a
         libndofdev.dylib
+        libhunspell-1.3.0.dylib
         libexception_handler.dylib
-    libcollada14dom.dylib
+        libcollada14dom.dylib
        )
 
-    # fmod is statically linked on darwin
-    set(fmod_files "")
+    if (FMODEX)
+      set(debug_files ${debug_files} libfmodexL.dylib)
+      set(release_files ${release_files} libfmodex.dylib)
+    endif (FMODEX)
 
 elseif(LINUX)
     # linux is weird, multiple side by side configurations aren't supported
@@ -237,6 +243,7 @@ elseif(LINUX)
         libvivoxplatform.so
         libvivoxsdk.so
         SLVoice
+        # ca-bundle.crt   #No cert for linux.  It is actually still 3.2SDK.
        )
     # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
     # or ARCH_PREBUILT_DIRS
@@ -251,33 +258,44 @@ elseif(LINUX)
         libapr-1.so.0
         libaprutil-1.so.0
         libatk-1.0.so
-        libbreakpad_client.so.0
+        libboost_context-mt.so.${BOOST_VERSION}.0
+        libboost_filesystem-mt.so.${BOOST_VERSION}.0
+        libboost_program_options-mt.so.${BOOST_VERSION}.0
+        libboost_regex-mt.so.${BOOST_VERSION}.0
+        libboost_signals-mt.so.${BOOST_VERSION}.0
+        libboost_system-mt.so.${BOOST_VERSION}.0
+        libboost_thread-mt.so.${BOOST_VERSION}.0
         libcollada14dom.so
         libcrypto.so.1.0.0
         libdb-5.1.so
         libexpat.so
         libexpat.so.1
-    libglod.so
+        libfreetype.so.6
+        libGLOD.so
         libgmock_main.so
         libgmock.so.0
         libgmodule-2.0.so
         libgobject-2.0.so
         libgtest_main.so
         libgtest.so.0
-    libminizip.so
+        libhunspell-1.3.so.0.0.0
+        libminizip.so
         libopenal.so
         libopenjpeg.so
         libssl.so
-        libtcmalloc_minimal.so
         libuuid.so.16
         libuuid.so.16.0.22
         libssl.so.1.0.0
         libfontconfig.so.1.4.4
        )
 
-    if (FMOD)
-      set(release_files ${release_files} "libfmod-3.75.so")
-    endif (FMOD)
+    if (USE_TCMALLOC)
+      set(release_files ${release_files} "libtcmalloc_minimal.so")
+    endif (USE_TCMALLOC)
+
+    if (FMODEX)
+      set(release_file ${release_files} "libfmodex.so")
+    endif (FMODEX)
 
 else(WINDOWS)
     message(STATUS "WARNING: unrecognized platform for staging 3rd party libs, skipping...")
@@ -291,8 +309,6 @@ else(WINDOWS)
     # or ARCH_PREBUILT_DIRS
     set(release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-linux/lib/release")
     set(release_files "")
-
-    set(fmod_files "")
 
     set(debug_llkdu_src "")
     set(debug_llkdu_dst "")
@@ -355,30 +371,6 @@ copy_if_different(
     ${release_files}
     )
 set(third_party_targets ${third_party_targets} ${out_targets})
-
-if (FMOD_SDK_DIR)
-    copy_if_different(
-        ${FMOD_SDK_DIR} 
-        "${CMAKE_CURRENT_BINARY_DIR}/Debug"
-        out_targets 
-        ${fmod_files}
-        )
-    set(all_targets ${all_targets} ${out_targets})
-    copy_if_different(
-        ${FMOD_SDK_DIR} 
-        "${CMAKE_CURRENT_BINARY_DIR}/Release"
-        out_targets 
-        ${fmod_files}
-        )
-    set(all_targets ${all_targets} ${out_targets})
-    copy_if_different(
-        ${FMOD_SDK_DIR} 
-        "${CMAKE_CURRENT_BINARY_DIR}/RelWithDbgInfo"
-        out_targets 
-        ${fmod_files}
-        )
-    set(all_targets ${all_targets} ${out_targets})
-endif (FMOD_SDK_DIR)
 
 if(NOT STANDALONE)
   add_custom_target(

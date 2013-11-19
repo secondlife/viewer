@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="chat_bar" title="附近的聊天">
+	<panel name="bottom_panel">
+		<line_editor label="點按此處開始聊天。" name="chat_box" tool_tip="按下 Enter 鍵來說或按下 Ctrl+Enter 來喊叫"/>
+		<button name="show_nearby_chat" tool_tip="顯示 / 隱藏 附近的聊天紀錄"/>
+	</panel>
+</floater>

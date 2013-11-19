@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="move_floater">
+<floater name="move_floater" title="行走 / 跑步 / 飛行">
 	<string name="walk_forward_tooltip">
-		Walk Forward (press Up Arrow or W)
+		向前走（按下向上箭頭或 W 鍵）
 	</string>
 	<string name="walk_back_tooltip">
-		Walk Backwards (press Down Arrow or S)
+		倒退行走（按下向下箭頭或 S 鍵）
 	</string>
 	<string name="walk_left_tooltip">
-		Walk left (press Shift + Left Arrow or A)
+		向左走（按下 Shift 加左方向鍵或按 A 鍵）
 	</string>
 	<string name="walk_right_tooltip">
-		Walk right (press Shift + Right Arrow or D)
+		向右走（按下 Shift 加右方向鍵或按 D 鍵）
 	</string>
 	<string name="run_forward_tooltip">
-		Run Forward (press Up Arrow or W)
+		向前跑（按下向上箭頭或 W 鍵）
 	</string>
 	<string name="run_back_tooltip">
-		Run Backwards (press Down Arrow or S)
+		倒退跑步（按下向下箭頭或 S 鍵）
 	</string>
 	<string name="run_left_tooltip">
-		Run left (press Shift + Left Arrow or A)
+		向左跑（按下 Shift + 左方向鍵或按 A 鍵）
 	</string>
 	<string name="run_right_tooltip">
-		Run right (press Shift + Right Arrow or D)
+		向右跑（按下 Shift + 右方向鍵或按 D 鍵）
 	</string>
 	<string name="fly_forward_tooltip">
 		向前飛（按下向上箭頭或 W 鍵）
@@ -65,7 +65,7 @@
 		<joystick_turn name="forward btn" tool_tip="向前走（按向上方向鍵或按 W 鍵）"/>
 		<joystick_turn name="backward btn" tool_tip="向後退（按向下方向鍵或按 S 鍵）"/>
 		<button name="move up btn" tool_tip="向上飛（按下 E 鍵）"/>
-		<button name="move down btn" tool_tip="向下飛（按下 C 建）"/>
+		<button name="move down btn" tool_tip="向下飛（按下 C 鍵）"/>
 	</panel>
 	<panel name="panel_modes">
 		<button label="" name="mode_walk_btn" tool_tip="行走模式"/>

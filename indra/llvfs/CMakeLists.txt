@@ -8,6 +8,7 @@ include(UnixInstall)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
+    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
     )
 
 set(llvfs_SOURCE_FILES
@@ -36,18 +37,20 @@ set(llvfs_HEADER_FILES
 if (DARWIN)
   LIST(APPEND llvfs_SOURCE_FILES lldir_mac.cpp)
   LIST(APPEND llvfs_HEADER_FILES lldir_mac.h)
+  LIST(APPEND llvfs_SOURCE_FILES llvfs_objc.mm)
+  LIST(APPEND llvfs_HEADER_FILES llvfs_objc.h)
 endif (DARWIN)
 
 if (LINUX)
   LIST(APPEND llvfs_SOURCE_FILES lldir_linux.cpp)
   LIST(APPEND llvfs_HEADER_FILES lldir_linux.h)
 
-  if (VIEWER AND INSTALL)
+  if (INSTALL)
     set_source_files_properties(lldir_linux.cpp
                                 PROPERTIES COMPILE_FLAGS
                                 "-DAPP_RO_DATA_DIR=\\\"${APP_SHARE_DIR}\\\""
                                 )
-  endif (VIEWER AND INSTALL)
+  endif (INSTALL)
 endif (LINUX)
 
 if (WINDOWS)
@@ -68,13 +71,14 @@ set(vfs_BOOST_LIBRARIES
     )
 
 target_link_libraries(llvfs
+    ${LLCOMMON_LIBRARIES}
     ${vfs_BOOST_LIBRARIES}
     )
 
 if (DARWIN)
   include(CMakeFindFrameworks)
-  find_library(CARBON_LIBRARY Carbon)
-  target_link_libraries(llvfs ${CARBON_LIBRARY})
+  find_library(COCOA_LIBRARY Cocoa)
+  target_link_libraries(llvfs ${COCOA_LIBRARY})
 endif (DARWIN)
 
 

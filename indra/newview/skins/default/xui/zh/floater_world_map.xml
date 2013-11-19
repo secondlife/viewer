@@ -8,7 +8,7 @@
 	<panel name="layout_panel_2">
 		<button name="Show My Location" tool_tip="以我的化身所在位置居中地圖"/>
 		<text name="me_label">
-			自己
+			我自己
 		</text>
 		<text name="person_label">
 			人
@@ -23,14 +23,14 @@
 			土地拍賣
 		</text>
 		<text name="by_owner_label">
-			依擁有者
+			依所有人
 		</text>
-		<button name="Go Home" tool_tip="瞬間傳送到我的家位置"/>
+		<button name="Go Home" tool_tip="瞬間返回我的家"/>
 		<text name="Home_label">
-			家
+			我的家
 		</text>
 		<text name="events_label">
-			事件：
+			活動：
 		</text>
 		<text name="pg_label">
 			一般普級
@@ -57,17 +57,17 @@
 		</combo_box>
 		<search_editor label="地區依名稱" name="location" tool_tip="輸入一個地區的名稱"/>
 		<button label="尋找" name="DoSearch" tool_tip="搜尋地區"/>
-		<button name="Clear" tool_tip="Clear tracking lines and reset map"/>
+		<button name="Clear" tool_tip="清楚追蹤線並重設地圖"/>
 		<text name="events_label">
 			位置：
 		</text>
 		<button label="瞬間傳送" name="Teleport" tool_tip="瞬間傳送到所選的位置"/>
-		<button label="覆製 SLurl" name="copy_slurl" tool_tip="Copies current location as SLurl to be used on the web."/>
-		<button label="Show Selection" name="Show Destination" tool_tip="Center map on selected location"/>
+		<button label="覆製 SLurl" name="copy_slurl" tool_tip="將目前位置複製為可在網路上使用的 SLurl。"/>
+		<button label="顯示選擇" name="Show Destination" tool_tip="將所選位置移到地圖中央"/>
 	</panel>
 	<panel name="layout_panel_5">
 		<text name="zoom_label">
-			Zoom
+			縮放
 		</text>
 	</panel>
 </floater>

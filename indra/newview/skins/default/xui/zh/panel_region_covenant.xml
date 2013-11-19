@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="契約" name="Covenant">
 	<panel.string name="can_resell">
-		Purchased land in this region may be resold.
+		購買這地區的土地允許轉售。
 	</panel.string>
 	<panel.string name="can_not_resell">
-		Purchased land in this region may not be resold.
+		購買這地區的土地不允許轉售。
 	</panel.string>
 	<panel.string name="can_change">
-		Purchased land in this region may be joined or subdivided.
+		購買這地區的土地允許進行合併或分割。
 	</panel.string>
 	<panel.string name="can_not_change">
-		Purchased land in this region may not be joined or subdivided.
+		購買這地區的土地不允許進行合併或分割。
 	</panel.string>
 	<text name="estate_section_lbl">
 		領地
@@ -19,10 +19,10 @@
 		名稱：
 	</text>
 	<text name="estate_name_text">
-		mainland
+		大陸
 	</text>
 	<text name="estate_owner_lbl">
-		擁有者：
+		所有人：
 	</text>
 	<text name="estate_owner_text">
 		（無）
@@ -31,17 +31,17 @@
 		契約：
 	</text>
 	<text name="covenant_timestamp_text">
-		Last Modified Wed Dec 31 16:00:00 1969
+		上次修改於 Wed Dec 31 16:00:00 1969
 	</text>
 	<text_editor name="covenant_editor">
-		There is no Covenant provided for this Estate.
+		此領地沒有任何契約要求。
 	</text_editor>
 	<button label="重設" name="reset_covenant"/>
 	<text name="covenant_help_text">
-		Changes to the covenant will show on all parcels in the estate.
+		契約修訂內容將顯示於領地裡所有地段。
 	</text>
 	<text name="covenant_instructions">
-		Drag and drop a notecard to change the Covenant for this estate.
+		拖曳並置放一張記事卡，即可修訂領地契約。
 	</text>
 	<text name="region_section_lbl">
 		地區
@@ -56,7 +56,7 @@
 		類型：
 	</text>
 	<text name="region_landtype_text">
-		Mainland / Homestead
+		大陸 / 家園
 	</text>
 	<text name="region_maturity_lbl">
 		分級：

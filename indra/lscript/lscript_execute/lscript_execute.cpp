@@ -806,16 +806,7 @@ void LLScriptExecute::runInstructions(BOOL b_print, const LLUUID &id,
 	//  is there a fault?
 	//	if yes, print out message and exit
 	S32 value = getVersion();
-	S32 major_version = 0;
-	if (value == LSL2_VERSION1_END_NUMBER)
-	{
-		major_version = 1;
-	}
-	else if (value == LSL2_VERSION_NUMBER)
-	{
-		major_version = 2;
-	}
-	else
+	if ( (value != LSL2_VERSION1_END_NUMBER) && (value != LSL2_VERSION_NUMBER) )
 	{
 		setFault(LSRF_VERSION_MISMATCH);
 	}

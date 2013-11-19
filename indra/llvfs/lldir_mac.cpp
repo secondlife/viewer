@@ -22,7 +22,7 @@
  * 
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
- */
+ */ 
 
 #if LL_DARWIN
 
@@ -35,73 +35,27 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <glob.h>
-
-#include <Carbon/Carbon.h>
-
-// --------------------------------------------------------------------------------
-
-static OSStatus CFCreateDirectory(FSRef	*parentRef, CFStringRef name, FSRef *newRef)
-{
-	OSStatus		result = noErr;
-	HFSUniStr255	uniStr;
-	
-	uniStr.length = CFStringGetLength(name);
-	CFStringGetCharacters(name, CFRangeMake(0, uniStr.length), uniStr.unicode);
-	result = FSMakeFSRefUnicode(parentRef, uniStr.length, uniStr.unicode, kTextEncodingMacRoman, newRef);
-	if (result != noErr)
-	{
-		result = FSCreateDirectoryUnicode(parentRef, uniStr.length, uniStr.unicode, 0, NULL, newRef, NULL, NULL);
-	}
-
-	return result;
-}
+#include <boost/filesystem.hpp>
+#include "llvfs_objc.h"
 
 // --------------------------------------------------------------------------------
 
-static void CFStringRefToLLString(CFStringRef stringRef, std::string &llString, bool releaseWhenDone)
+static bool CreateDirectory(const std::string &parent, 
+                            const std::string &child,
+                            std::string *fullname)
 {
-	if (stringRef)
-	{
-		long stringSize = CFStringGetLength(stringRef) + 1;
-		long bufferSize = CFStringGetMaximumSizeForEncoding(stringSize,kCFStringEncodingUTF8);
-		char* buffer = new char[bufferSize];
-		memset(buffer, 0, bufferSize);
-		if (CFStringGetCString(stringRef, buffer, bufferSize, kCFStringEncodingUTF8))
-			llString = buffer;
-		delete[] buffer;
-		if (releaseWhenDone)
-			CFRelease(stringRef);
-	}
-}
-
-// --------------------------------------------------------------------------------
-
-static void CFURLRefToLLString(CFURLRef urlRef, std::string &llString, bool releaseWhenDone)
-{
-	if (urlRef)
-	{
-		CFURLRef	absoluteURLRef = CFURLCopyAbsoluteURL(urlRef);
-		if (absoluteURLRef)
-		{
-			CFStringRef	stringRef = CFURLCopyFileSystemPath(absoluteURLRef, kCFURLPOSIXPathStyle);
-			CFStringRefToLLString(stringRef, llString, true);
-			CFRelease(absoluteURLRef);
-		}
-		if (releaseWhenDone)
-			CFRelease(urlRef);
-	}
-}
-
-// --------------------------------------------------------------------------------
-
-static void FSRefToLLString(FSRef *fsRef, std::string &llString)
-{
-	OSStatus	error = noErr;
-	char		path[MAX_PATH];
-	
-	error = FSRefMakePath(fsRef, (UInt8*) path, sizeof(path));
-	if (error == noErr)
-		llString = path;
+    
+    boost::filesystem::path p(parent);
+    p /= child;
+    
+    if (fullname)
+        *fullname = std::string(p.string());
+    
+    if (! boost::filesystem::create_directory(p))
+    {
+        return (boost::filesystem::is_directory(p));
+    }
+    return true;
 }
 
 // --------------------------------------------------------------------------------
@@ -109,35 +63,28 @@ static void FSRefToLLString(FSRef *fsRef, std::string &llString)
 LLDir_Mac::LLDir_Mac()
 {
 	mDirDelimiter = "/";
-	mCurrentDirIndex = -1;
-	mCurrentDirCount = -1;
-	
-	CFBundleRef		mainBundleRef = NULL;
-	CFURLRef		executableURLRef = NULL;
-	CFStringRef		stringRef = NULL;
-	OSStatus		error = noErr;
-	FSRef			fileRef;
-	CFStringRef		secondLifeString = CFSTR("SecondLife");
-	
-	mainBundleRef = CFBundleGetMainBundle();
-		
-	executableURLRef = CFBundleCopyExecutableURL(mainBundleRef);
-	
-	if (executableURLRef != NULL)
+
+    const std::string     secondLifeString = "SecondLife";
+    
+    std::string *executablepathstr = getSystemExecutableFolder();
+
+    //NOTE:  LLINFOS/LLERRS will not output to log here.  The streams are not initialized.
+    
+	if (executablepathstr)
 	{
 		// mExecutablePathAndName
-		CFURLRefToLLString(executableURLRef, mExecutablePathAndName, false);
-		
-		// mExecutableFilename
-		stringRef = CFURLCopyLastPathComponent(executableURLRef);
-		CFStringRefToLLString(stringRef, mExecutableFilename, true);
-		
-		// mExecutableDir
-		CFURLRef	executableParentURLRef = CFURLCreateCopyDeletingLastPathComponent(NULL, executableURLRef);
-		CFURLRefToLLString(executableParentURLRef, mExecutableDir, true);
+		mExecutablePathAndName = *executablepathstr;
+        
+        boost::filesystem::path executablepath(*executablepathstr);
+        
+# ifndef BOOST_SYSTEM_NO_DEPRECATED
+#endif
+        mExecutableFilename = executablepath.filename().string();
+        mExecutableDir = executablepath.parent_path().string();
 		
 		// mAppRODataDir
-
+        std::string *resourcepath = getSystemResourceFolder();
+        mAppRODataDir = *resourcepath;
 		
 		// *NOTE: When running in a dev tree, use the copy of
 		// skins in indra/newview/ rather than in the application bundle.  This
@@ -146,10 +93,7 @@ LLDir_Mac::LLDir_Mac()
 		
 		// MBW -- This keeps the mac application from finding other things.
 		// If this is really for skins, it should JUST apply to skins.
-
-		CFURLRef resourcesURLRef = CFBundleCopyResourcesDirectoryURL(mainBundleRef);
-		CFURLRefToLLString(resourcesURLRef, mAppRODataDir, true);
-		
+        
 		U32 build_dir_pos = mExecutableDir.rfind("/build-darwin-");
 		if (build_dir_pos != std::string::npos)
 		{
@@ -166,55 +110,50 @@ LLDir_Mac::LLDir_Mac()
 		}
 		
 		// mOSUserDir
-		error = FSFindFolder(kUserDomain, kApplicationSupportFolderType, true, &fileRef);
-		if (error == noErr)
-		{
-			FSRef	newFileRef;
-			
-			// Create the directory
-			error = CFCreateDirectory(&fileRef, secondLifeString, &newFileRef);
-			if (error == noErr)
-			{
-				// Save the full path to the folder
-				FSRefToLLString(&newFileRef, mOSUserDir);
-				
-				// Create our sub-dirs
-				(void) CFCreateDirectory(&newFileRef, CFSTR("data"), NULL);
-				//(void) CFCreateDirectory(&newFileRef, CFSTR("cache"), NULL);
-				(void) CFCreateDirectory(&newFileRef, CFSTR("logs"), NULL);
-				(void) CFCreateDirectory(&newFileRef, CFSTR("user_settings"), NULL);
-				(void) CFCreateDirectory(&newFileRef, CFSTR("browser_profile"), NULL);
-			}
-		}
-		
+        std::string *appdir = getSystemApplicationSupportFolder();
+        std::string rootdir;
+
+        //Create root directory
+        if (CreateDirectory(*appdir, secondLifeString, &rootdir))
+        {
+            
+            // Save the full path to the folder
+            mOSUserDir = rootdir;
+            
+            // Create our sub-dirs
+            CreateDirectory(rootdir, std::string("data"), NULL);
+            CreateDirectory(rootdir, std::string("logs"), NULL);
+            CreateDirectory(rootdir, std::string("user_settings"), NULL);
+            CreateDirectory(rootdir, std::string("browser_profile"), NULL);
+        }
+    
 		//mOSCacheDir
-		FSRef cacheDirRef;
-		error = FSFindFolder(kUserDomain, kCachedDataFolderType, true, &cacheDirRef);
-		if (error == noErr)
+        std::string *cachedir =  getSystemCacheFolder();
+
+        if (cachedir)
+		
 		{
-			FSRefToLLString(&cacheDirRef, mOSCacheDir);
-			(void)CFCreateDirectory(&cacheDirRef, CFSTR("SecondLife"),NULL);
+            mOSCacheDir = *cachedir;
+            //Aura TODO:  This changes from ~/Library/Cache/Secondlife to ~/Library/Cache/com.app.secondlife/Secondlife.  Last dir level could go away.
+            CreateDirectory(mOSCacheDir, secondLifeString, NULL);
 		}
 		
 		// mOSUserAppDir
 		mOSUserAppDir = mOSUserDir;
 		
 		// mTempDir
-		error = FSFindFolder(kOnAppropriateDisk, kTemporaryFolderType, true, &fileRef);
-		if (error == noErr)
-		{
-			FSRef	tempRef;
-			error = CFCreateDirectory(&fileRef, secondLifeString, &tempRef);
-			if (error == noErr)
-				FSRefToLLString(&tempRef, mTempDir);
-		}
+        //Aura 120920 boost::filesystem::temp_directory_path() not yet implemented on mac. :(
+        std::string *tmpdir = getSystemTempFolder();
+        if (tmpdir)
+        {
+            
+            CreateDirectory(*tmpdir, secondLifeString, &mTempDir);
+            if (tmpdir) delete tmpdir;
+        }
 		
 		mWorkingDir = getCurPath();
 
 		mLLPluginDir = mAppRODataDir + mDirDelimiter + "llplugin";
-				
-		CFRelease(executableURLRef);
-		executableURLRef = NULL;
 	}
 }
 
@@ -235,52 +174,18 @@ void LLDir_Mac::initAppDirs(const std::string &app_name,
 		mSkinBaseDir = mAppRODataDir + mDirDelimiter + "skins";
 	}
 	mCAFile = getExpandedFilename(LL_PATH_APP_SETTINGS, "CA.pem");
-
-	//dumpCurrentDirectories();
-}
-
-U32 LLDir_Mac::countFilesInDir(const std::string &dirname, const std::string &mask)
-{
-	U32 file_count = 0;
-	glob_t g;
-
-	std::string tmp_str;
-	tmp_str = dirname;
-	tmp_str += mask;
-	
-	if(glob(tmp_str.c_str(), GLOB_NOSORT, NULL, &g) == 0)
-	{
-		file_count = g.gl_pathc;
-
-		globfree(&g);
-	}
-
-	return (file_count);
 }
 
 std::string LLDir_Mac::getCurPath()
 {
-	char tmp_str[LL_MAX_PATH];	/* Flawfinder: ignore */ 
-	getcwd(tmp_str, LL_MAX_PATH);
-	return tmp_str;
+	return boost::filesystem::path( boost::filesystem::current_path() ).string();
 }
 
 
 
-BOOL LLDir_Mac::fileExists(const std::string &filename) const
+bool LLDir_Mac::fileExists(const std::string &filename) const
 {
-	struct stat stat_data;
-	// Check the age of the file
-	// Now, we see if the files we've gathered are recent...
-	int res = stat(filename.c_str(), &stat_data);
-	if (!res)
-	{
-		return TRUE;
-	}
-	else
-	{
-		return FALSE;
-	}
+    return boost::filesystem::exists(filename);
 }
 
 

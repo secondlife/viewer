@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_buy_contents" title="BUY CONTENTS">
+<floater name="floater_buy_contents" title="購買內容">
 	<floater.string name="no_copy_text">
-		(no copy)
+		（禁止複製）
 	</floater.string>
 	<floater.string name="no_modify_text">
-		(no modify)
+		（禁止修改）
 	</floater.string>
 	<floater.string name="no_transfer_text">
-		(no transfer)
+		（禁止轉讓）
 	</floater.string>
 	<text name="contains_text">
-		[NAME] contains:
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; 內含：
 	</text>
 	<text name="buy_text">
-		Buy for L$[AMOUNT] from [NAME]?
+		是否花 L$[AMOUNT] 向 [NAME] 購買？
 	</text>
 	<check_box label="立即穿上服裝" name="wear_check"/>
 	<button label="購買" label_selected="購買" name="buy_btn"/>

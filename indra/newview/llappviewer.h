@@ -31,6 +31,8 @@
 #include "llcontrol.h"
 #include "llsys.h"			// for LLOSInfo
 #include "lltimer.h"
+#include "llappcorehttp.h"
+#include <boost/optional.hpp>
 
 class LLCommandLineParser;
 class LLFrameTimer;
@@ -40,8 +42,10 @@ class LLImageDecodeThread;
 class LLTextureFetch;
 class LLWatchdogTimeout;
 class LLUpdaterService;
+class LLViewerJoystick;
 
-struct apr_dso_handle_t;
+extern LLFastTimer::DeclareTimer FTM_FRAME;
+
 
 class LLAppViewer : public LLApp
 {
@@ -175,10 +179,13 @@ public:
 	// Metrics policy helper statics.
 	static void metricsUpdateRegion(U64 region_handle);
 	static void metricsSend(bool enable_reporting);
+
+	// llcorehttp init/shutdown/config information.
+	LLAppCoreHttp & getAppCoreHttp()			{ return mAppCoreHttp; }
 	
 protected:
 	virtual bool initWindow(); // Initialize the viewer's window.
-	virtual bool initLogging(); // Initialize log files, logging system, return false on failure.
+	virtual void initLoggingAndGetLastDuration(); // Initialize log files, logging system
 	virtual void initConsole() {}; // Initialize OS level debugging console.
 	virtual bool initHardwareTest() { return true; } // A false result indicates the app should quit.
 	virtual bool initSLURLHandler();
@@ -196,6 +203,7 @@ private:
 	void initMaxHeapSize();
 	bool initThreads(); // Initialize viewer threads, return false on failure.
 	bool initConfiguration(); // Initialize settings from the command line/config file.
+	void initStrings();       // Initialize LLTrans machinery
 	void initUpdater(); // Initialize the updater service.
 	bool initCache(); // Initialize local client cache.
 	void checkMemory() ;
@@ -209,9 +217,10 @@ private:
 
 	void writeSystemInfo(); // Write system info to "debug_info.log"
 
-	bool anotherInstanceRunning(); 
-	void initMarkerFile(); 
-    
+	void processMarkerFiles(); 
+	static void recordMarkerVersion(LLAPRFile& marker_file);
+	bool markerIsSameVersion(const std::string& marker_name) const;
+	
     void idle(); 
     void idleShutdown();
 	// update avatar SLID and display name caches
@@ -220,8 +229,6 @@ private:
 
     void sendLogoutRequest();
     void disconnectViewer();
-
-	void loadEventHostModule(S32 listen_port);
 	
 	// *FIX: the app viewer class should be some sort of singleton, no?
 	// Perhaps its child class is the singleton and this should be an abstract base.
@@ -233,7 +240,7 @@ private:
 	LLAPRFile mMarkerFile; // A file created to indicate the app is running.
 
 	std::string mLogoutMarkerFileName;
-	apr_file_t* mLogoutMarkerFile; // A file created to indicate the app is running.
+	LLAPRFile mLogoutMarkerFile; // A file created to indicate the app is running.
 
 	
 	LLOSInfo mSysOSInfo; 
@@ -249,10 +256,13 @@ private:
 	std::string mSerialNumber;
 	bool mPurgeCache;
     bool mPurgeOnExit;
+	bool mMainLoopInitialized;
+	LLViewerJoystick* joystick;
 
 	bool mSavedFinalSnapshot;
+	bool mSavePerAccountSettings;		// only save per account settings if login succeeded
 
-	bool mForceGraphicsDetail;
+	boost::optional<U32> mForceGraphicsLevel;
 
     bool mQuitRequested;				// User wants to quit, may have modified documents open.
     bool mLogoutRequestSent;			// Disconnect message sent to simulator, no longer safe to send messages to the sim.
@@ -270,11 +280,12 @@ private:
 
     LLAllocator mAlloc;
 
-	std::set<struct apr_dso_handle_t*> mPlugins;
-
 	LLFrameTimer mMemCheckTimer;
 	
 	boost::scoped_ptr<LLUpdaterService> mUpdater;
+
+	// llcorehttp library init/shutdown helper
+	LLAppCoreHttp mAppCoreHttp;
 
 	//---------------------------------------------
 	//*NOTE: Mani - legacy updater stuff
@@ -315,6 +326,9 @@ typedef enum
 } eLastExecEvent;
 
 extern eLastExecEvent gLastExecEvent; // llstartup
+extern S32 gLastExecDuration; ///< the duration of the previous run in seconds (<0 indicates unknown)
+
+extern const char* gPlatform;
 
 extern U32 gFrameCount;
 extern U32 gForegroundFrameCount;
@@ -335,6 +349,8 @@ extern LLFrameTimer gLoggedInTime;
 
 extern F32 gLogoutMaxTime;
 extern LLTimer gLogoutTimer;
+
+extern S32 gPendingMetricsUploads;
 
 extern F32 gSimLastTime; 
 extern F32 gSimFrames;

@@ -357,6 +357,7 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 	if (mLineEditor)
 	{
 		mLineEditor->selectAll();
+		mLineEditor->setFocus(TRUE);
 	}
 	if(mDefaultOption >= 0)
 	{
@@ -491,7 +492,7 @@ void LLToastAlertPanel::draw()
 	}
 
 	static LLUIColor shadow_color = LLUIColorTable::instance().getColor("ColorDropShadow");
-	static LLUICachedControl<S32> shadow_lines ("DropShadowFloater");
+	static LLUICachedControl<S32> shadow_lines ("DropShadowFloater", 5);
 
 	gl_drop_shadow( 0, LLToastPanel::getRect().getHeight(), LLToastPanel::getRect().getWidth(), 0,
 		shadow_color, shadow_lines);

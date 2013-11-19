@@ -14,81 +14,56 @@
 	<string name="no_filtered_friends_msg">
 		¿No encuentras lo que buscas? Prueba con [secondlife:///app/search/people/[SEARCH_TERM] Buscar].
 	</string>
-	<string name="people_filter_label" value="Filtrar a la gente"/>
-	<string name="groups_filter_label" value="Filtrar a los grupos"/>
 	<string name="no_filtered_groups_msg" value="¿No encuentras lo que buscas? Prueba con [secondlife:///app/search/groups/[SEARCH_TERM] Buscar]."/>
 	<string name="no_groups_msg" value="¿Buscas grupos en que participar? Prueba la [secondlife:///app/search/groups Búsqueda]."/>
 	<string name="MiniMapToolTipMsg" value="[REGION](Pulsa dos veces para abrir el mapa, pulsa mayús y arrastra para obtener una panorámica)"/>
 	<string name="AltMiniMapToolTipMsg" value="[REGION](Pulsa dos veces para teleportarte, pulsa mayús y arrastra para obtener una panorámica)"/>
-	<filter_editor label="Filtrar" name="filter_input"/>
 	<tab_container name="tabs">
 		<panel label="CERCANA" name="nearby_panel">
-			<panel label="bottom_panel" name="bottom_panel">
-				<menu_button name="nearby_view_sort_btn" tool_tip="Opciones"/>
-				<button name="add_friend_btn" tool_tip="Añadir al Residente seleccionado a la lista de tus amigos"/>
+			<panel label="bottom_panel" name="nearby_buttons_panel">
+				<filter_editor label="Filtrar la gente" name="nearby_filter_input"/>
+				<button name="gear_btn" tool_tip="Acciones en la persona seleccionada"/>
+				<menu_button name="nearby_view_btn" tool_tip="Opciones de vista/orden"/>
+				<button name="add_friend_btn" tool_tip="Ofrecer amistad a un residente"/>
+				<dnd_button name="nearby_del_btn" tool_tip="Quitar la persona seleccionada de la lista de amigos"/>
 			</panel>
 		</panel>
-		<panel label="MIS AMIGOS" name="friends_panel">
+		<panel label="AMIGOS" name="friends_panel">
+			<panel label="bottom_panel" name="friends_buttons_panel">
+				<filter_editor label="Filtrar la gente" name="friends_filter_input"/>
+				<button name="gear_btn" tool_tip="Acciones en la persona seleccionada"/>
+				<menu_button name="friends_view_btn" tool_tip="Opciones de vista/orden"/>
+				<button name="friends_add_btn" tool_tip="Ofrecer amistad a un residente"/>
+				<dnd_button name="friends_del_btn" tool_tip="Quitar la persona seleccionada de la lista de amigos"/>
+			</panel>
 			<accordion name="friends_accordion">
 				<accordion_tab name="tab_online" title="Conectado"/>
 				<accordion_tab name="tab_all" title="Todos"/>
 			</accordion>
-			<panel label="bottom_panel" name="bottom_panel">
-				<layout_stack name="bottom_panel">
-					<layout_panel name="options_gear_btn_panel">
-						<menu_button name="friends_viewsort_btn" tool_tip="Ver más opciones"/>
-					</layout_panel>
-					<layout_panel name="add_btn_panel">
-						<button name="add_btn" tool_tip="Ofrecer amistad a un Residente"/>
-					</layout_panel>
-					<layout_panel name="trash_btn_panel">
-						<dnd_button name="del_btn" tool_tip="Quitar a la persona seleccionada de tu lista de amigos"/>
-					</layout_panel>
-				</layout_stack>
-			</panel>
 		</panel>
-		<panel label="MIS GRUPOS" name="groups_panel">
-			<panel label="bottom_panel" name="bottom_panel">
-				<menu_button name="groups_viewsort_btn" tool_tip="Opciones"/>
-				<button name="plus_btn" tool_tip="Entrar en un grupo o crear uno"/>
-				<button name="activate_btn" tool_tip="Activar el grupo seleccionado"/>
+		<panel label="GRUPOS" name="groups_panel">
+			<panel label="bottom_panel" name="groups_buttons_panel">
+				<filter_editor label="Filtrar los grupos" name="groups_filter_input"/>
+				<menu_button name="groups_gear_btn" tool_tip="Acciones en el grupo seleccionado"/>
+				<menu_button name="groups_view_btn" tool_tip="Opciones de vista/orden"/>
+				<menu_button name="plus_btn" tool_tip="Entrar en un grupo o crear uno"/>
+				<dnd_button name="minus_btn" tool_tip="Dejar el grupo seleccionado"/>
 			</panel>
+			<text name="groupcount">
+				Formas parte de [COUNT] grupos y puedes unirte a [REMAINING] más.
+			</text>
 		</panel>
 		<panel label="RECIENTE" name="recent_panel">
-			<panel label="bottom_panel" name="bottom_panel">
-				<menu_button name="recent_viewsort_btn" tool_tip="Opciones"/>
-				<button name="add_friend_btn" tool_tip="Añadir al Residente seleccionado a la lista de tus amigos"/>
+			<panel label="bottom_panel" name="recent_buttons_panel">
+				<filter_editor label="Filtrar la gente" name="recent_filter_input"/>
+				<button name="gear_btn" tool_tip="Acciones en la persona seleccionada"/>
+				<menu_button name="recent_view_btn" tool_tip="Opciones de vista/orden"/>
+				<button name="add_friend_btn" tool_tip="Ofrecer amistad a un residente"/>
+				<dnd_button name="recent_del_btn" tool_tip="Quitar la persona seleccionada de la lista de amigos"/>
 			</panel>
 		</panel>
+		<panel label="BLOQUEADO" name="blocked_panel">
+			<panel label="Residentes y objetos ignorados" name="panel_block_list_sidetray"/>
+		</panel>
 	</tab_container>
-	<panel name="button_bar">
-		<layout_stack name="bottom_bar_ls">
-			<layout_panel name="view_profile_btn_lp">
-				<button label="Perfil" name="view_profile_btn" tool_tip="Mostrar imágenes, grupos y otra información del Residente"/>
-			</layout_panel>
-			<layout_panel name="im_btn_lp">
-				<button label="MI" name="im_btn" tool_tip="Abrir una sesión de mensajes instantáneos"/>
-			</layout_panel>
-			<layout_panel name="call_btn_lp">
-				<button label="Llamar" name="call_btn" tool_tip="Llamar a este Residente"/>
-			</layout_panel>
-			<layout_panel name="share_btn_lp">
-				<button label="Compartir" name="share_btn" tool_tip="Compartir un objeto del inventario"/>
-			</layout_panel>
-			<layout_panel name="teleport_btn_lp">
-				<button label="Teleporte" name="teleport_btn" tool_tip="Ofrecer teleporte"/>
-			</layout_panel>
-		</layout_stack>
-		<layout_stack name="bottom_bar_ls1">
-			<layout_panel name="group_info_btn_lp">
-				<button label="Perfil del grupo" name="group_info_btn" tool_tip="Ver la información del grupo"/>
-			</layout_panel>
-			<layout_panel name="chat_btn_lp">
-				<button label="Chat de grupo" name="chat_btn" tool_tip="Abrir el chat"/>
-			</layout_panel>
-			<layout_panel name="group_call_btn_lp">
-				<button label="Llamar al grupo" name="group_call_btn" tool_tip="Llama a este grupo"/>
-			</layout_panel>
-		</layout_stack>
-	</panel>
 </panel>

@@ -5,40 +5,40 @@
 -->
 <floater name="inspect_object">
 	<string name="Creator">
-		By [CREATOR]
+		創作人 [CREATOR]
 	</string>
 	<string name="CreatorAndOwner">
-		By [CREATOR]
-Owner [OWNER]
+		創作人 [CREATOR]
+所有人 [OWNER]
 	</string>
 	<string name="Price">
 		L$[AMOUNT]
 	</string>
 	<string name="PriceFree">
-		Free!
+		免費！
 	</string>
 	<string name="Touch">
-		Touch
+		觸碰
 	</string>
 	<string name="Sit">
-		Sit
+		坐下
 	</string>
 	<text name="object_creator">
-		by secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
-owner secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
+		創作人 secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
+所有人 secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
 	</text>
 	<text name="price_text">
 		L$30,000
 	</text>
-	<icon name="secure_browsing" tool_tip="Secure Browsing"/>
+	<icon name="secure_browsing" tool_tip="安全瀏覽"/>
 	<text name="object_media_url">
 		http://www.superdupertest.com
 	</text>
 	<button label="購買" name="buy_btn"/>
 	<button label="支付" name="pay_btn"/>
 	<button label="取得副本" name="take_free_copy_btn"/>
-	<button label="Touch" name="touch_btn"/>
-	<button label="Sit" name="sit_btn"/>
-	<button label="Open" name="open_btn"/>
-	<button label="More" name="more_info_btn"/>
+	<button label="觸碰" name="touch_btn"/>
+	<button label="坐下" name="sit_btn"/>
+	<button label="打開" name="open_btn"/>
+	<button label="更多" name="more_info_btn"/>
 </floater>

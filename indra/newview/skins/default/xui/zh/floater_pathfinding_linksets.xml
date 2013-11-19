@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_pathfinding_linksets" title="尋徑聯結集">
+	<floater.string name="messaging_get_inprogress">
+		尋徑聯結集查詢中…
+	</floater.string>
+	<floater.string name="messaging_get_error">
+		查詢尋徑聯結集時出錯。
+	</floater.string>
+	<floater.string name="messaging_set_inprogress">
+		正在修改所選尋徑聯結集…
+	</floater.string>
+	<floater.string name="messaging_set_error">
+		修改所選尋徑聯結集時出錯。
+	</floater.string>
+	<floater.string name="messaging_complete_none_found">
+		沒有尋徑聯結集。
+	</floater.string>
+	<floater.string name="messaging_complete_available">
+		從 [NUM_TOTAL] 個聯結集中選取了 [NUM_SELECTED] 個。
+	</floater.string>
+	<floater.string name="messaging_not_enabled">
+		這地區並未啟用尋徑。
+	</floater.string>
+	<floater.string name="linkset_terrain_name">
+		[Terrain]
+	</floater.string>
+	<floater.string name="linkset_terrain_description">
+		--
+	</floater.string>
+	<floater.string name="linkset_terrain_owner">
+		--
+	</floater.string>
+	<floater.string name="linkset_terrain_scripted">
+		--
+	</floater.string>
+	<floater.string name="linkset_terrain_land_impact">
+		--
+	</floater.string>
+	<floater.string name="linkset_terrain_dist_from_you">
+		--
+	</floater.string>
+	<floater.string name="linkset_owner_loading">
+		[Loading]
+	</floater.string>
+	<floater.string name="linkset_owner_unknown">
+		[Unknown]
+	</floater.string>
+	<floater.string name="linkset_owner_group">
+		[group]
+	</floater.string>
+	<floater.string name="linkset_is_scripted">
+		是
+	</floater.string>
+	<floater.string name="linkset_is_not_scripted">
+		否
+	</floater.string>
+	<floater.string name="linkset_is_unknown_scripted">
+		未知
+	</floater.string>
+	<floater.string name="linkset_use_walkable">
+		可行走的
+	</floater.string>
+	<floater.string name="linkset_use_static_obstacle">
+		靜態障礙
+	</floater.string>
+	<floater.string name="linkset_use_dynamic_obstacle">
+		可移動障礙
+	</floater.string>
+	<floater.string name="linkset_use_material_volume">
+		實質體積
+	</floater.string>
+	<floater.string name="linkset_use_exclusion_volume">
+		排除體積
+	</floater.string>
+	<floater.string name="linkset_use_dynamic_phantom">
+		可移動幻影
+	</floater.string>
+	<floater.string name="linkset_is_terrain">
+		[unmodifiable]
+	</floater.string>
+	<floater.string name="linkset_is_restricted_state">
+		[restricted]
+	</floater.string>
+	<floater.string name="linkset_is_non_volume_state">
+		[concave]
+	</floater.string>
+	<floater.string name="linkset_is_restricted_non_volume_state">
+		[restricted,concave]
+	</floater.string>
+	<floater.string name="linkset_choose_use">
+		選擇聯結集的使用…
+	</floater.string>
+	<panel>
+		<combo_box name="filter_by_linkset_use">
+			<combo_box.item label="按聯結集的使用來過濾…" name="filter_by_linkset_use_none"/>
+			<combo_box.item label="可行走的" name="filter_by_linkset_use_walkable"/>
+			<combo_box.item label="靜態障礙" name="filter_by_linkset_use_static_obstacle"/>
+			<combo_box.item label="可移動障礙" name="filter_by_linkset_use_dynamic_obstacle"/>
+			<combo_box.item label="實質體積" name="filter_by_linkset_use_material_volume"/>
+			<combo_box.item label="排除體積" name="filter_by_linkset_use_exclusion_volume"/>
+			<combo_box.item label="可移動幻影" name="filter_by_linkset_use_dynamic_phantom"/>
+		</combo_box>
+		<button label="套用" name="apply_filters"/>
+		<button label="清除" name="clear_filters"/>
+		<scroll_list name="objects_scroll_list">
+			<scroll_list.columns label="名稱（根幾何元件）" name="name"/>
+			<scroll_list.columns label="描述（根幾何元件）" name="description"/>
+			<scroll_list.columns label="所有人" name="owner"/>
+			<scroll_list.columns label="有腳本" name="scripted"/>
+			<scroll_list.columns label="衝擊" name="land_impact"/>
+			<scroll_list.columns label="距離" name="dist_from_you"/>
+			<scroll_list.columns label="聯結集的使用" name="linkset_use"/>
+			<scroll_list.columns label="A %" name="a_percent"/>
+			<scroll_list.columns label="B %" name="b_percent"/>
+			<scroll_list.columns label="C %" name="c_percent"/>
+			<scroll_list.columns label="D %" name="d_percent"/>
+		</scroll_list>
+		<text name="messaging_status">
+			聯結集：
+		</text>
+		<button label="刷新清單" name="refresh_objects_list"/>
+		<button label="全選" name="select_all_objects"/>
+		<button label="全都不選" name="select_none_objects"/>
+	</panel>
+	<panel>
+		<check_box label="顯示指標" name="show_beacon"/>
+		<button label="取得" name="take_objects"/>
+		<button label="拿取副本" name="take_copy_objects"/>
+		<button label="瞬間傳送我到那裡" name="teleport_me_to_object"/>
+		<button label="退回" name="return_objects"/>
+		<button label="刪除" name="delete_objects"/>
+	</panel>
+	<panel>
+		<text name="walkability_coefficients_label">
+			可行走性：
+		</text>
+		<text name="edit_a_label">
+			A
+		</text>
+		<line_editor name="edit_a_value" tool_tip="A 類型角色的可行走性。以類人類為範例角色類型。"/>
+		<text name="edit_b_label">
+			B
+		</text>
+		<line_editor name="edit_b_value" tool_tip="B 類型角色的可行走性。以獸類為範例角色類型。"/>
+		<text name="edit_c_label">
+			C
+		</text>
+		<line_editor name="edit_c_value" tool_tip="C 類型角色的可行走性。以機械類為範例角色類型。"/>
+		<text name="edit_d_label">
+			D
+		</text>
+		<line_editor name="edit_d_value" tool_tip="D 類型角色的可行走性。以其他種類為範例角色類型。"/>
+		<button label="套用變更" name="apply_edit_values"/>
+		<text name="suggested_use_a_label">
+			（類人類）
+		</text>
+		<text name="suggested_use_b_label">
+			（獸類）
+		</text>
+		<text name="suggested_use_c_label">
+			（機械類）
+		</text>
+		<text name="suggested_use_d_label">
+			（其他）
+		</text>
+	</panel>
+</floater>

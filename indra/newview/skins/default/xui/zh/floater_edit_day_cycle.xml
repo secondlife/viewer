@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Edit Day cycle" title="編輯日循環">
+	<string name="title_new">
+		新建一個日循環
+	</string>
+	<string name="title_edit">
+		編輯日循環
+	</string>
+	<string name="hint_new">
+		為日循環定名，調整各項控制確定細節，再點按「儲存」。
+	</string>
+	<string name="hint_edit">
+		若要編輯你的日循環，請調整下方各項控制，再點按「儲存」。
+	</string>
+	<string name="combo_label">
+		-選擇一個自訂配置-
+	</string>
+	<text name="label">
+		自訂配置名稱：
+	</text>
+	<text name="note">
+		注意：更改自訂配置的名稱將會新建一個自訂配置，不會改變原有的自訂配置。
+	</text>
+	<text name="hint_item1">
+		- 點按一個頁籤，編輯特定的天空設定和時間。
+	</text>
+	<text name="hint_item2">
+		- 點按並拖曳各個頁籤，即可設定過渡時間。
+	</text>
+	<text name="hint_item3">
+		- 使用 scrubber 預覽你的日循環。
+	</text>
+	<panel name="day_cycle_slider_panel">
+		<multi_slider initial_value="0" name="WLTimeSlider"/>
+		<multi_slider initial_value="0" name="WLDayCycleKeys"/>
+		<button label="新增鍵" label_selected="新增鍵" name="WLAddKey"/>
+		<button label="刪除鍵" label_selected="刪除鍵" name="WLDeleteKey"/>
+		<text name="WL12am">
+			午夜 12 點
+		</text>
+		<text name="WL3am">
+			凌晨 3 點
+		</text>
+		<text name="WL6am">
+			上午 6 點
+		</text>
+		<text name="WL9amHash">
+			上午 9 點
+		</text>
+		<text name="WL12pmHash">
+			中午 12 點
+		</text>
+		<text name="WL3pm">
+			下午 3 點
+		</text>
+		<text name="WL6pm">
+			下午 6 點
+		</text>
+		<text name="WL9pm">
+			下午 9 點
+		</text>
+		<text name="WL12am2">
+			午夜 12 點
+		</text>
+		<text name="WL12amHash">
+			|
+		</text>
+		<text name="WL3amHash">
+			I
+		</text>
+		<text name="WL6amHash">
+			|
+		</text>
+		<text name="WL9amHash2">
+			I
+		</text>
+		<text name="WL12pmHash2">
+			|
+		</text>
+		<text name="WL3pmHash">
+			I
+		</text>
+		<text name="WL6pmHash">
+			|
+		</text>
+		<text name="WL9pmHash">
+			I
+		</text>
+		<text name="WL12amHash2">
+			|
+		</text>
+	</panel>
+	<text name="WLCurKeyPresetText">
+		天空設定：
+	</text>
+	<combo_box label="預設值" name="WLSkyPresets"/>
+	<text name="WLCurKeyTimeText">
+		時間：
+	</text>
+	<time name="time" value="上午 6 點"/>
+	<check_box label="根據這設定變更我的日循環" name="make_default_cb"/>
+	<button label="儲存" name="save"/>
+	<button label="取消" name="cancel"/>
+</floater>

@@ -98,6 +98,7 @@ BOOL LLScrollColumnHeader::handleDoubleClick(S32 x, S32 y, MASK mask)
 	if (canResize() && mResizeBar->getRect().pointInRect(x, y))
 	{
 		// reshape column to max content width
+		mColumn->mParentCtrl->calcMaxContentWidth();
 		LLRect column_rect = getRect();
 		column_rect.mRight = column_rect.mLeft + mColumn->mMaxContentWidth;
 		setShape(column_rect, true);
@@ -126,6 +127,8 @@ LLView*	LLScrollColumnHeader::findSnapEdge(S32& new_edge_val, const LLCoordGL& m
 	threshold = llmin(threshold, 10);
 
 	LLRect snap_rect = getSnapRect();
+
+	mColumn->mParentCtrl->calcMaxContentWidth();
 
 	S32 snap_delta = mColumn->mMaxContentWidth - snap_rect.getWidth();
 
@@ -233,7 +236,8 @@ void LLScrollColumnHeader::handleReshape(const LLRect& new_rect, bool by_user)
 		// tell scroll list to layout columns again
 		// do immediate update to get proper feedback to resize handle
 		// which needs to know how far the resize actually went
-		mColumn->mParentCtrl->updateColumns();
+		const bool force_update = true;
+		mColumn->mParentCtrl->updateColumns(force_update);
 	}
 }
 

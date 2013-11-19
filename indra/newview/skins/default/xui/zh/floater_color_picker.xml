@@ -10,13 +10,13 @@
 		藍色：
 	</text>
 	<text name="h_val_text">
-		Hue:
+		色調：
 	</text>
 	<text name="s_val_text">
-		Sat:
+		飽和度：
 	</text>
 	<text name="l_val_text">
-		Lum:
+		亮度：
 	</text>
 	<check_box label="立即套用" name="apply_immediate"/>
 	<button label="確定" label_selected="確定" name="select_btn"/>
@@ -25,6 +25,6 @@
 		目前顏色：
 	</text>
 	<text name="(Drag below to save.)">
-		(Drag below to save)
+		（拖曳到下方即可儲存）
 	</text>
 </floater>

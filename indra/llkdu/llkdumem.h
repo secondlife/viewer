@@ -28,6 +28,7 @@
 #define LL_LLKDUMEM_H
 
 // Support classes for reading and writing from memory buffers in KDU
+#define KDU_NO_THREADS
 #include "kdu_image.h"
 #include "kdu_elementary.h"
 #include "kdu_messaging.h"

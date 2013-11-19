@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <toggleable_menu name="picks_plus_menu">
 	<menu_item_call label="新精選地點" name="create_pick"/>
-	<menu_item_call label="New Classified" name="create_classified"/>
+	<menu_item_call label="新個人廣告" name="create_classified"/>
 </toggleable_menu>

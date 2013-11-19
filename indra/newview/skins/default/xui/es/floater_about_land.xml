@@ -465,7 +465,7 @@ los media:
 				Permitir únicamente el acceso a los Residentes que:
 			</text>
 			<check_box label="Han aportado información de pago [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Para poder acceder a esta parcela los Residentes deben haber aportado información de pago en su cuenta. Para más información, ver [SUPPORT_SITE]."/>
-			<check_box label="Han verificado su edad [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Para poder acceder a esta parcela los Residentes deben haber verificado su edad. Para más información, ver [SUPPORT_SITE]."/>
+			<check_box label="Son mayores de 18 años [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Para poder acceder a esta parcela los Residentes deben ser mayores de 18 años. Para más información, consulta [SUPPORT_SITE]."/>
 			<check_box label="Acceso permitido al grupo: [GROUP]" name="GroupCheck" tool_tip="Elija el grupo en la pestaña General."/>
 			<check_box label="Vender pases a:" name="PassCheck" tool_tip="Permitir acceso temporal a esta parcela"/>
 			<combo_box name="pass_combo">

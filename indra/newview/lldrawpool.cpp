@@ -35,6 +35,7 @@
 #include "lldrawpoolalpha.h"
 #include "lldrawpoolavatar.h"
 #include "lldrawpoolbump.h"
+#include "lldrawpoolmaterials.h"
 #include "lldrawpoolground.h"
 #include "lldrawpoolsimple.h"
 #include "lldrawpoolsky.h"
@@ -47,6 +48,7 @@
 #include "llspatialpartition.h"
 #include "llviewercamera.h"
 #include "lldrawpoolwlsky.h"
+#include "llglslshader.h"
 
 S32 LLDrawPool::sNumDrawPools = 0;
 
@@ -63,6 +65,12 @@ LLDrawPool *LLDrawPool::createPool(const U32 type, LLViewerTexture *tex0)
 		break;
 	case POOL_GRASS:
 		poolp = new LLDrawPoolGrass();
+		break;
+	case POOL_ALPHA_MASK:
+		poolp = new LLDrawPoolAlphaMask();
+		break;
+	case POOL_FULLBRIGHT_ALPHA_MASK:
+		poolp = new LLDrawPoolFullbrightAlphaMask();
 		break;
 	case POOL_FULLBRIGHT:
 		poolp = new LLDrawPoolFullbright();
@@ -98,6 +106,9 @@ LLDrawPool *LLDrawPool::createPool(const U32 type, LLViewerTexture *tex0)
 	case POOL_BUMP:
 		poolp = new LLDrawPoolBump();
 		break;
+	case POOL_MATERIALS:
+		poolp = new LLDrawPoolMaterials();
+		break;
 	case POOL_WL_SKY:
 		poolp = new LLDrawPoolWLSky();
 		break;
@@ -116,6 +127,7 @@ LLDrawPool::LLDrawPool(const U32 type)
 	sNumDrawPools++;
 	mId = sNumDrawPools;
 	mVertexShaderLevel = 0;
+	mSkipRender = false;
 }
 
 LLDrawPool::~LLDrawPool()
@@ -251,48 +263,6 @@ void LLFacePool::destroy()
 
 void LLFacePool::dirtyTextures(const std::set<LLViewerFetchedTexture*>& textures)
 {
-}
-
-// static
-S32 LLFacePool::drawLoop(face_array_t& face_list)
-{
-	S32 res = 0;
-	if (!face_list.empty())
-	{
-		for (std::vector<LLFace*>::iterator iter = face_list.begin();
-			 iter != face_list.end(); iter++)
-		{
-			LLFace *facep = *iter;
-			res += facep->renderIndexed();
-		}
-	}
-	return res;
-}
-
-// static
-S32 LLFacePool::drawLoopSetTex(face_array_t& face_list, S32 stage)
-{
-	S32 res = 0;
-	if (!face_list.empty())
-	{
-		for (std::vector<LLFace*>::iterator iter = face_list.begin();
-			 iter != face_list.end(); iter++)
-		{
-			LLFace *facep = *iter;
-			gGL.getTexUnit(stage)->bind(facep->getTexture(), TRUE) ;
-			gGL.getTexUnit(0)->activate();
-			res += facep->renderIndexed();
-		}
-	}
-	return res;
-}
-
-void LLFacePool::drawLoop()
-{
-	if (!mDrawFace.empty())
-	{
-		drawLoop(mDrawFace);
-	}
 }
 
 void LLFacePool::enqueue(LLFace* facep)
@@ -442,11 +412,32 @@ void LLRenderPass::renderTexture(U32 type, U32 mask)
 
 void LLRenderPass::pushBatches(U32 type, U32 mask, BOOL texture, BOOL batch_textures)
 {
-	for (LLCullResult::drawinfo_list_t::iterator i = gPipeline.beginRenderMap(type); i != gPipeline.endRenderMap(type); ++i)	
+	for (LLCullResult::drawinfo_iterator i = gPipeline.beginRenderMap(type); i != gPipeline.endRenderMap(type); ++i)	
 	{
 		LLDrawInfo* pparams = *i;
 		if (pparams) 
 		{
+			pushBatch(*pparams, mask, texture, batch_textures);
+		}
+	}
+}
+
+void LLRenderPass::pushMaskBatches(U32 type, U32 mask, BOOL texture, BOOL batch_textures)
+{
+	for (LLCullResult::drawinfo_iterator i = gPipeline.beginRenderMap(type); i != gPipeline.endRenderMap(type); ++i)	
+	{
+		LLDrawInfo* pparams = *i;
+		if (pparams) 
+		{
+			if (LLGLSLShader::sCurBoundShaderPtr)
+			{
+				LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(pparams->mAlphaMaskCutoff);
+			}
+			else
+			{
+				gGL.setAlphaRejectSettings(LLRender::CF_GREATER, pparams->mAlphaMaskCutoff);
+			}
+			
 			pushBatch(*pparams, mask, texture, batch_textures);
 		}
 	}
@@ -460,6 +451,7 @@ void LLRenderPass::applyModelMatrix(LLDrawInfo& params)
 		gGL.loadMatrix(gGLModelView);
 		if (params.mModelMatrix)
 		{
+			llassert(gGL.getMatrixMode() == LLRender::MM_MODELVIEW);
 			gGL.multMatrix((GLfloat*) params.mModelMatrix->mMatrix);
 		}
 		gPipeline.mMatrixOpCount++;
@@ -512,6 +504,7 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL ba
 		{
 			params.mGroup->rebuildMesh();
 		}
+		
 		params.mVertexBuffer->setBuffer(mask);
 		params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
 		gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);

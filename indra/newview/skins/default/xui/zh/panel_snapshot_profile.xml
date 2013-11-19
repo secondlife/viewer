@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_snapshot_profile">
+	<text name="title">
+		送至我的檔案訊息發佈
+	</text>
+	<combo_box label="解析度" name="profile_size_combo">
+		<combo_box.item label="目前視窗" name="CurrentWindow"/>
+		<combo_box.item label="640x480" name="640x480"/>
+		<combo_box.item label="800x600" name="800x600"/>
+		<combo_box.item label="1024x768" name="1024x768"/>
+		<combo_box.item label="自訂" name="Custom"/>
+	</combo_box>
+	<layout_stack name="profile_image_params_ls">
+		<layout_panel name="profile_image_size_lp">
+			<spinner label="寬" name="profile_snapshot_width"/>
+			<spinner label="高度" name="profile_snapshot_height"/>
+			<check_box label="鎖住比例" name="profile_keep_aspect_check"/>
+		</layout_panel>
+		<layout_panel name="profile_image_metadata_lp">
+			<text name="caption_label">
+				內容敘述：
+			</text>
+			<check_box initial_value="true" label="加入所在位置" name="add_location_cb"/>
+		</layout_panel>
+	</layout_stack>
+	<button label="取消" name="cancel_btn"/>
+	<button label="發佈" name="post_btn"/>
+</panel>

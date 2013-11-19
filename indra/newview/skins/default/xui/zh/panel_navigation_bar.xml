@@ -1,18 +1,23 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="navigation_bar">
-	<panel name="navigation_panel">
-		<pull_button name="back_btn" tool_tip="前往上一個位置"/>
-		<pull_button name="forward_btn" tool_tip="前往下一個位置"/>
-		<button name="home_btn" tool_tip="瞬間傳送到我家的位置"/>
-		<location_input label="位置" name="location_combo"/>
-		<search_combo_box label="搜尋" name="search_combo_box" tool_tip="搜尋">
-			<combo_editor label="搜尋 [SECOND_LIFE]" name="search_combo_editor"/>
-		</search_combo_box>
-	</panel>
-	<favorites_bar name="favorite" tool_tip="拖曳傳送地標到此以便讓你在第二人生中能快速傳送到你最愛的地點!!">
-		<label name="favorites_bar_label" tool_tip="拖曳傳送地標到此以便讓你在第二人生中能快速傳送到你最愛的地點!!">
-			最愛列
-		</label>
-		<chevron_button name="&gt;&gt;" tool_tip="顯示更多我的最愛"/>
-	</favorites_bar>
+	<layout_stack name="nvp_stack">
+		<layout_panel name="navigation_layout_panel">
+			<panel name="navigation_panel">
+				<pull_button name="back_btn" tool_tip="前往上一個位置"/>
+				<pull_button name="forward_btn" tool_tip="前往下一個位置"/>
+				<button name="home_btn" tool_tip="瞬間返回我的家"/>
+				<location_input label="位置" name="location_combo"/>
+			</panel>
+		</layout_panel>
+		<layout_panel name="favorites_layout_panel">
+			<favorites_bar name="favorite" tool_tip="拖曳傳送地標到此以便讓你在第二人生中能快速傳送到你最愛的地點!!">
+				<label name="favorites_bar_label" tool_tip="拖曳傳送地標到此以便讓你在第二人生中能快速傳送到你最愛的地點!!">
+					最愛列
+				</label>
+				<more_button name="&gt;&gt;" tool_tip="顯示更多我的最愛">
+					詳情 ▼
+				</more_button>
+			</favorites_bar>
+		</layout_panel>
+	</layout_stack>
 </panel>

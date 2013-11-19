@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="clothing_list_button_bar_panel">
-	<button label="Switch" name="switch_btn"/>
+	<button label="切換" name="switch_btn"/>
 </panel>

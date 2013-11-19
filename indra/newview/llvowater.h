@@ -58,7 +58,7 @@ public:
 	static void initClass();
 	static void cleanupClass();
 
-	/*virtual*/ BOOL idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
+	/*virtual*/ void idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
 	/*virtual*/ LLDrawable* createDrawable(LLPipeline *pipeline);
 	/*virtual*/ BOOL        updateGeometry(LLDrawable *drawable);
 	/*virtual*/ void		updateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax);

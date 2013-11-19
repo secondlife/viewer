@@ -73,6 +73,7 @@ class LLToast : public LLModalDialog, public LLInstanceTracker<LLToast>
 {
 	friend class LLToastLifeTimer;
 public:
+
 	typedef boost::function<void (LLToast* toast)> toast_callback_t;
 	typedef boost::signals2::signal<void (LLToast* toast)> toast_signal_t;
 	typedef boost::signals2::signal<void (LLToast* toast, bool mouse_enter)> toast_hover_check_signal_t;
@@ -105,6 +106,7 @@ public:
 	};
 	
 	static void updateClass();
+	static void cleanupToasts();
 
 	LLToast(const LLToast::Params& p);
 	virtual ~LLToast();
@@ -169,6 +171,7 @@ public:
 	// get/set Toast's flags or states
 	// get information whether the notification corresponding to the toast is valid or not
 	bool isNotificationValid();
+
 	// get toast's Notification ID
 	const LLUUID getNotificationID() const { return mNotificationID;}
 	// get toast's Session ID
@@ -212,7 +215,7 @@ private:
 
 	//LLRootHandle<LLToast>	mHandle;
 		
-	LLPanel* mWrapperPanel;
+	LLPanel*	 mWrapperPanel;
 
 	// timer counts a lifetime of a toast
 	std::auto_ptr<LLToastLifeTimer> mTimer;
@@ -220,8 +223,8 @@ private:
 	F32			mToastLifetime; // in seconds
 	F32			mToastFadingTime; // in seconds
 	
-	LLPanel*		mPanel;
-	LLButton*		mHideBtn;
+	LLPanel*	mPanel;
+	LLButton*	mHideBtn;
 
 	LLColor4	mBgColor;
 	bool		mCanFade;

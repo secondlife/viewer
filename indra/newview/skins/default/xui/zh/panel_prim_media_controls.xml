@@ -26,15 +26,15 @@
 	</string>
 	<layout_stack name="progress_indicator_area">
 		<layout_panel name="media_progress_indicator">
-			<progress_bar name="media_progress_bar" tool_tip="Media is Loading"/>
+			<progress_bar name="media_progress_bar" tool_tip="媒體載入中"/>
 		</layout_panel>
 	</layout_stack>
 	<layout_stack name="media_controls">
 		<layout_panel name="back">
-			<button name="back_btn" tool_tip="Navigate back"/>
+			<button name="back_btn" tool_tip="向後導覽"/>
 		</layout_panel>
 		<layout_panel name="fwd">
-			<button name="fwd_btn" tool_tip="Navigate forward"/>
+			<button name="fwd_btn" tool_tip="向前導覽"/>
 		</layout_panel>
 		<layout_panel name="home">
 			<button name="home_btn" tool_tip="首頁"/>
@@ -61,31 +61,31 @@
 					<icon name="media_whitelist_flag" tool_tip="白名單已啟用"/>
 				</layout_panel>
 				<layout_panel>
-					<icon name="media_secure_lock_flag" tool_tip="Secured Browsing"/>
+					<icon name="media_secure_lock_flag" tool_tip="加密的瀏覽"/>
 				</layout_panel>
 			</layout_stack>
 		</layout_panel>
 		<layout_panel name="media_play_position">
-			<slider_bar initial_value="0.5" name="media_play_slider" tool_tip="Movie play progress"/>
+			<slider_bar initial_value="0.5" name="media_play_slider" tool_tip="影片播放進度"/>
 		</layout_panel>
 		<layout_panel name="skip_back">
-			<button name="skip_back_btn" tool_tip="Step back"/>
+			<button name="skip_back_btn" tool_tip="倒轉"/>
 		</layout_panel>
 		<layout_panel name="skip_forward">
-			<button name="skip_forward_btn" tool_tip="Step forward"/>
+			<button name="skip_forward_btn" tool_tip="快轉"/>
 		</layout_panel>
 		<layout_panel name="media_volume">
-			<button name="media_mute_button" tool_tip="Mute This Media"/>
-			<slider name="volume_slider" tool_tip="Media Volume"/>
+			<button name="media_mute_button" tool_tip="把這個媒體消音"/>
+			<slider name="volume_slider" tool_tip="媒體音量"/>
 		</layout_panel>
 		<layout_panel name="zoom_frame">
-			<button name="zoom_frame_btn" tool_tip="Zoom into media"/>
+			<button name="zoom_frame_btn" tool_tip="以媒體為中心放大"/>
 		</layout_panel>
 		<layout_panel name="close">
-			<button name="close_btn" tool_tip="Zoom Back"/>
+			<button name="close_btn" tool_tip="縮小"/>
 		</layout_panel>
 		<layout_panel name="new_window">
-			<button name="new_window_btn" tool_tip="Open URL in browser"/>
+			<button name="new_window_btn" tool_tip="用瀏覽器開啟 URL"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

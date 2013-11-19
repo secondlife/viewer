@@ -132,18 +132,68 @@ BOOL LLHandMotion::onUpdate(F32 time, U8* joint_mask)
 	{
 		if (mNewPose != HAND_POSE_RELAXED && mNewPose != mCurrentPose)
 		{
-			mCharacter->setVisualParamWeight(gHandPoseNames[mNewPose], 0.f);
+			// Only set param weight for poses other than
+			// default (HAND_POSE_SPREAD); HAND_POSE_SPREAD
+			// is not an animatable morph!
+			if (mNewPose != HAND_POSE_SPREAD)
+			{
+				mCharacter->setVisualParamWeight(gHandPoseNames[mNewPose], 0.f);
+			}
+
+			// Reset morph weight for current pose back to its
+			// full extend or it might be stuck somewhere in the middle if a
+			// pose is requested and the old pose is requested again shortly
+			// after while still blending to the other pose!
+			if (mCurrentPose != HAND_POSE_SPREAD)
+			{
+				mCharacter->setVisualParamWeight(gHandPoseNames[mCurrentPose], 1.f);
+			}
+
+			// Update visual params now if we won't blend
+			if (mCurrentPose == HAND_POSE_RELAXED)
+			{
+				mCharacter->updateVisualParams();
+			}
 		}
 		mNewPose = HAND_POSE_RELAXED;
 	}
 	else
 	{
-		// this is a new morph we didn't know about before
-		if (*requestedHandPose != mNewPose && mNewPose != mCurrentPose && mNewPose != HAND_POSE_SPREAD)
+		// Sometimes we seem to get garbage here, with poses that are out of bounds.
+		// So check for a valid pose first.
+		if (*requestedHandPose >= 0 && *requestedHandPose < NUM_HAND_POSES)
 		{
-			mCharacter->setVisualParamWeight(gHandPoseNames[mNewPose], 0.f);
+			// This is a new morph we didn't know about before:
+			// Reset morph weight for both current and new pose
+			// back their starting values while still blending.
+			if (*requestedHandPose != mNewPose && mNewPose != mCurrentPose)
+			{
+				if (mNewPose != HAND_POSE_SPREAD)
+				{
+					mCharacter->setVisualParamWeight(gHandPoseNames[mNewPose], 0.f);
+				}
+
+				// Reset morph weight for current pose back to its full extend
+				// or it might be stuck somewhere in the middle if a pose is
+				// requested and the old pose is requested again shortly after
+				// while still blending to the other pose!
+				if (mCurrentPose != HAND_POSE_SPREAD)
+				{
+					mCharacter->setVisualParamWeight(gHandPoseNames[mCurrentPose], 1.f);
+				}
+
+				// Update visual params now if we won't blend
+				if (mCurrentPose == *requestedHandPose)
+				{
+					mCharacter->updateVisualParams();
+				}
+			}
+			mNewPose = *requestedHandPose;
 		}
-		mNewPose = *requestedHandPose;
+		else
+		{
+			llwarns << "Requested hand pose out of range. Ignoring requested pose." << llendl;
+		}
 	}
 
 	mCharacter->removeAnimationData("Hand Pose");

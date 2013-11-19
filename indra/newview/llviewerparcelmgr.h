@@ -78,8 +78,8 @@ class LLViewerParcelMgr : public LLSingleton<LLViewerParcelMgr>
 {
 
 public:
-	typedef boost::function<void (const LLVector3d&)> teleport_finished_callback_t;
-	typedef boost::signals2::signal<void (const LLVector3d&)> teleport_finished_signal_t;
+	typedef boost::function<void (const LLVector3d&, const bool& local)> teleport_finished_callback_t;
+	typedef boost::signals2::signal<void (const LLVector3d&, const bool&)> teleport_finished_signal_t;
 	typedef boost::function<void()> parcel_changed_callback_t;
 	typedef boost::signals2::signal<void()> parcel_changed_signal_t;
 
@@ -223,11 +223,6 @@ public:
 	// Takes an Access List flag, like AL_ACCESS or AL_BAN
 	void	sendParcelAccessListRequest(U32 flags);
 
-	// asks for the parcel's media url filter list
-	void    requestParcelMediaURLFilter();
-	// receive the response
-	void    receiveParcelMediaURLFilter(const LLSD &content);
-	
 	// Dwell is not part of the usual parcel update information because the
 	// simulator doesn't actually know the per-parcel dwell.  Ack!  We have
 	// to get it out of the database.
@@ -274,6 +269,8 @@ public:
 	// currently selected parcel.
 	// *NOTE: Taken out 2005-03-21. Phoenix.
 	//void makeLandmarkAtSelection();
+
+	static void optionally_start_music(const std::string& music_url);
 
 	static void processParcelOverlay(LLMessageSystem *msg, void **user_data);
 	static void processParcelProperties(LLMessageSystem *msg, void **user_data);

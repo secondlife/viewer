@@ -4,25 +4,25 @@
 		購買
 	</floater.string>
 	<floater.string name="title_buy_copy_text">
-		Buy a copy of
+		購買一個
 	</floater.string>
 	<floater.string name="no_copy_text">
-		(no copy)
+		（禁止複製）
 	</floater.string>
 	<floater.string name="no_modify_text">
-		(no modify)
+		（禁止修改）
 	</floater.string>
 	<floater.string name="no_transfer_text">
-		(no transfer)
+		（禁止轉讓）
 	</floater.string>
 	<text name="contents_text">
-		Contains:
+		內含：
 	</text>
 	<text name="buy_text">
-		Buy for L$[AMOUNT] from:
+		購買，支付 L$[AMOUNT] 給：
 	</text>
 	<text name="buy_name_text">
-		[NAME]?
+		[NAME]？
 	</text>
 	<button label="購買" label_selected="購買" name="buy_btn"/>
 	<button label="取消" label_selected="取消" name="cancel_btn"/>

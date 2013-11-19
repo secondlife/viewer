@@ -7,14 +7,14 @@
 		支付居民
 	</string>
 	<text name="payee_name">
-		Test Name That Is Extremely Long To Check Clipping
+		測試一個長度非常非常非常長的名稱，檢查是否被切斷
 	</text>
 	<button label="L$1" label_selected="L$1" name="fastpay 1"/>
 	<button label="L$5" label_selected="L$5" name="fastpay 5"/>
 	<button label="L$10" label_selected="L$10" name="fastpay 10"/>
 	<button label="L$20" label_selected="L$20" name="fastpay 20"/>
 	<text name="amount text">
-		或，選擇一個金額：
+		或選擇一個金額：
 	</text>
 	<button label="支付" label_selected="支付" name="pay btn"/>
 	<button label="取消" label_selected="取消" name="cancel btn"/>

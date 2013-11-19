@@ -196,24 +196,24 @@ void LLContainerView::arrange(S32 width, S32 height, BOOL called_from_parent)
 	if (total_height < height)
 		total_height = height;
 	
+	LLRect my_rect = getRect();
 	if (followsTop())
 	{
-		// HACK: casting away const. Should use setRect or some helper function instead.
-		const_cast<LLRect&>(getRect()).mBottom = getRect().mTop - total_height;
+		my_rect.mBottom = my_rect.mTop - total_height;
 	}
 	else
 	{
-		// HACK: casting away const. Should use setRect or some helper function instead.
-		const_cast<LLRect&>(getRect()).mTop = getRect().mBottom + total_height;
+		my_rect.mTop = my_rect.mBottom + total_height;
 	}
-	// HACK: casting away const. Should use setRect or some helper function instead.
-		const_cast<LLRect&>(getRect()).mRight = getRect().mLeft + width;
+
+	my_rect.mRight = my_rect.mLeft + width;
+	setRect(my_rect);
 
 	top = total_height;
 	if (mShowLabel)
-		{
-			top -= 20;
-		}
+	{
+		top -= 20;
+	}
 	
 	bottom = top;
 

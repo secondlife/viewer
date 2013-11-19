@@ -19,7 +19,7 @@
 		次の住人にのみアクセスを許可：
 	</text>
 	<check_box label="支払情情報が登録されている" name="limit_payment" tool_tip="支払情報が登録されていないと、この不動産にアクセスすることはできません。詳細については、[SUPPORT_SITE] をご覧ください。"/>
-	<check_box label="年齢確認が済んでいる" name="limit_age_verified" tool_tip="この不動産にアクセスするには、年齢確認を済ませる必要があります。詳細については、[SUPPORT_SITE] をご覧ください。"/>
+	<check_box label="18 才以上です" name="limit_age_verified" tool_tip="この不動産（エステート）にアクセスするには、18 才以上でなければなりません。詳細については、[SUPPORT_SITE] をご覧ください。"/>
 	<check_box label="ボイスチャットを許可" name="voice_chat_check"/>
 	<button label="?" name="voice_chat_help"/>
 	<text name="abuse_email_text">

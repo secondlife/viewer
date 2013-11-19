@@ -14,8 +14,11 @@
 					<stat_bar label="KTris desenhados por segundo" name="ktrissec"/>
 					<stat_bar label="Total Objects" name="objs"/>
 					<stat_bar label="New Objects" name="newobjs"/>
+					<stat_bar label="Taxa de acertos do cache do objeto" name="object_cache_hits"/>
 				</stat_view>
 				<stat_view label="Texture" name="texture">
+					<stat_bar label="Taxa de acertos do cache" name="texture_cache_hits"/>
+					<stat_bar label="Latência de leitura do cache" name="texture_cache_read_latency"/>
 					<stat_bar label="Count" name="numimagesstat"/>
 					<stat_bar label="Raw Count" name="numrawimagesstat"/>
 					<stat_bar label="GL Mem" name="gltexmemstat"/>
@@ -43,6 +46,12 @@
 					<stat_bar label="Pinned Objects" name="physicspinnedtasks"/>
 					<stat_bar label="Low LOD Objects" name="physicslodtasks"/>
 					<stat_bar label="Memory Allocated" name="physicsmemoryallocated"/>
+				</stat_view>
+				<stat_bar label="Scripts executados" name="simpctscriptsrun"/>
+				<stat_view label="Pathfinding" name="simpathfinding">
+					<stat_bar label="Tempo de etapa de AI" name="simsimaistepmsec"/>
+					<stat_bar label="Etapas de silhueta ignoradas" name="simsimskippedsilhouettesteps"/>
+					<stat_bar label="Personagens atualizados" name="simsimpctsteppedcharacters"/>
 				</stat_view>
 				<stat_view label="Time (ms)" name="simperf">
 					<stat_bar label="Total Frame Time" name="simframemsec"/>

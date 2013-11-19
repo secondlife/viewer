@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Proxy Settings Floater" title="代理伺服器設定">
+	<check_box initial_value="false" label="使用 HTTP 代理伺服器瀏覽網頁" name="web_proxy_enabled"/>
+	<text name="http_proxy_label">
+		HTTP 代理伺服器：
+	</text>
+	<line_editor name="web_proxy_editor" tool_tip="你希望使用的 HTTP 代理伺服器的 DNS 名稱或 IP 位址。"/>
+	<spinner label="埠號：" name="web_proxy_port" tool_tip="你希望使用的 HTTP 代理伺服器的埠號。"/>
+	<check_box label="使用 SOCKS 5 代理伺服器處理 UDP 資料流" name="socks_proxy_enabled"/>
+	<text name="socks5_proxy_label">
+		SOCKS 5 代理伺服器：
+	</text>
+	<line_editor name="socks_proxy_editor" tool_tip="你希望使用的 SOCKS 5 代理伺服器的 DNS 名稱或 IP 位址。"/>
+	<spinner label="埠號：" name="socks_proxy_port" tool_tip="你希望使用的 SOCKS 5 代理伺服器的埠號。"/>
+	<text name="socks_auth_label">
+		SOCKS 鑒認：
+	</text>
+	<radio_group name="socks5_auth_type">
+		<radio_item label="無鑒認" name="Socks5NoAuth" tool_tip="Socks5 代理伺服器無需鑒認。" value="無"/>
+		<radio_item label="使用者名稱 / 密碼" name="Socks5UserPass" tool_tip="Socks5 代理伺服器需要透過使用者名稱 / 密碼鑒認。" value="UserPass"/>
+	</radio_group>
+	<text name="socks5_username_label">
+		使用者名稱：
+	</text>
+	<text name="socks5_password_label">
+		密碼：
+	</text>
+	<line_editor name="socks5_username" tool_tip="你的 SOCKS 5 伺服器鑒認所用的使用者名稱"/>
+	<line_editor name="socks5_password" tool_tip="你的 SOCKS 5 伺服器鑒認所用的密碼"/>
+	<text name="other_proxy_label">
+		其他 HTTP 資料流代理伺服器：
+	</text>
+	<radio_group name="other_http_proxy_type">
+		<radio_item label="不使用代理伺服器" name="OtherNoProxy" tool_tip="非網頁的 HTTP 資料流不會被導向任何代理伺服器。" value="無"/>
+		<radio_item label="使用 HTTP 代理伺服器" name="OtherHTTPProxy" tool_tip="非網頁的 HTTP 資料流將導向所設的網頁代理伺服器。" value="網頁"/>
+		<radio_item label="使用 SOCKS 5 代理伺服器" name="OtherSocksProxy" tool_tip="非網頁的 HTTP 資料流將導向所設的 Socks 5 代理伺服器。" value="網路套接"/>
+	</radio_group>
+	<button label="確定" label_selected="確定" name="OK"/>
+	<button label="取消" label_selected="取消" name="Cancel"/>
+</floater>

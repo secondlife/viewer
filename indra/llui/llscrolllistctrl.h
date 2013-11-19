@@ -241,7 +241,7 @@ public:
 	// one of which can be selected at a time.
 	virtual LLScrollListItem* addSimpleElement(const std::string& value, EAddPosition pos = ADD_BOTTOM, const LLSD& id = LLSD());
 
-	BOOL			selectItemByLabel( const std::string& item, BOOL case_sensitive = TRUE );		// FALSE if item not found
+	BOOL			selectItemByLabel( const std::string& item, BOOL case_sensitive = TRUE, S32 column = 0 );		// FALSE if item not found
 	BOOL			selectItemByPrefix(const std::string& target, BOOL case_sensitive = TRUE);
 	BOOL			selectItemByPrefix(const LLWString& target, BOOL case_sensitive = TRUE);
 	LLScrollListItem*  getItemByLabel( const std::string& item, BOOL case_sensitive = TRUE, S32 column = 0 );
@@ -257,6 +257,7 @@ public:
 	LLScrollListItem*	getFirstSelected() const;
 	virtual S32			getFirstSelectedIndex() const;
 	std::vector<LLScrollListItem*> getAllSelected() const;
+	S32                 getNumSelected() const;
 	LLScrollListItem*	getLastSelectedItem() const { return mLastSelected; }
 
 	// iterate over all items
@@ -341,9 +342,9 @@ public:
 
 	static void onClickColumn(void *userdata);
 
-	virtual void updateColumns();
-	void calcColumnWidths();
-	S32 getMaxContentWidth() { return mMaxContentWidth; }
+	virtual void updateColumns(bool force_update = false);
+	S32 calcMaxContentWidth();
+	bool updateColumnWidths();
 
 	void setHeadingHeight(S32 heading_height);
 	/**
@@ -373,6 +374,7 @@ public:
 	std::string     getSortColumnName();
 	BOOL			getSortAscending() { return mSortColumns.empty() ? TRUE : mSortColumns.back().second; }
 	BOOL			hasSortOrder() const;
+	void			clearSortOrder();
 
 	S32		selectMultiple( uuid_vec_t ids );
 	// conceptually const, but mutates mItemList
@@ -428,6 +430,9 @@ private:
 	BOOL			setSort(S32 column, BOOL ascending);
 	S32				getLinesPerPage();
 
+	static void		showProfile(std::string id, bool is_group);
+	static void		sendIM(std::string id);
+	static void		addFriend(std::string id);
 	static void		showNameDetails(std::string id, bool is_group);
 	static void		copyNameToClipboard(std::string id, bool is_group);
 	static void		copySLURLToClipboard(std::string id, bool is_group);
@@ -438,16 +443,17 @@ private:
 	S32				mHeadingHeight;	// the height of the column header buttons, if visible
 	U32				mMaxSelectable; 
 	LLScrollbar*	mScrollbar;
-	BOOL 			mAllowMultipleSelection;
-	BOOL			mAllowKeyboardMovement;
-	BOOL			mCommitOnKeyboardMovement;
-	BOOL			mCommitOnSelectionChange;
-	BOOL			mSelectionChanged;
-	BOOL			mNeedsScroll;
-	BOOL			mMouseWheelOpaque;
-	BOOL			mCanSelect;
-	const BOOL		mDisplayColumnHeaders;
-	BOOL			mColumnsDirty;
+	bool 			mAllowMultipleSelection;
+	bool			mAllowKeyboardMovement;
+	bool			mCommitOnKeyboardMovement;
+	bool			mCommitOnSelectionChange;
+	bool			mSelectionChanged;
+	bool			mNeedsScroll;
+	bool			mMouseWheelOpaque;
+	bool			mCanSelect;
+	bool			mDisplayColumnHeaders;
+	bool			mColumnsDirty;
+	bool			mColumnWidthsDirty;
 
 	mutable item_list	mItemList;
 
@@ -456,7 +462,6 @@ private:
 	S32				mMaxItemCount; 
 
 	LLRect			mItemListRect;
-	S32				mMaxContentWidth;
 	S32             mColumnPadding;
 
 	BOOL			mBackgroundVisible;
@@ -496,7 +501,7 @@ private:
 	typedef std::map<std::string, LLScrollListColumn*> column_map_t;
 	column_map_t mColumns;
 
-	BOOL			mDirty;
+	bool			mDirty;
 	S32				mOriginalSelection;
 
 	ContextMenuType mContextMenuType;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- Width and height of this panel should be synchronized with "panel_modes" in the floater_moveview.xml-->
 <panel name="panel_stand_stop_flying">
-	<button label="站立" name="stand_btn" tool_tip="點擊此處起立。"/>
+	<button label="站立" name="stand_btn" tool_tip="點按此處起立。"/>
 	<button label="停止飛行" name="stop_fly_btn" tool_tip="停止飛行"/>
 </panel>

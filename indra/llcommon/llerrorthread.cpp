@@ -112,13 +112,8 @@ void LLErrorThread::run()
 #if !LL_WINDOWS
 	U32 last_sig_child_count = 0;
 #endif
-	while (1)
+	while (! (LLApp::isError() || LLApp::isStopped()))
 	{
-		if (LLApp::isError() || LLApp::isStopped())
-		{
-			// The application has stopped running, time to take action (maybe)
-			break;
-		}
 #if !LL_WINDOWS
 		// Check whether or not the main thread had a sig child we haven't handled.
 		U32 current_sig_child_count = LLApp::getSigChildCount();

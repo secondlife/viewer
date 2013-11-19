@@ -8,41 +8,289 @@
  border="false"
  chrome="true"
  follows="bottom"
- height="150"
+ height="155"
  layout="topleft"
  name="volumepulldown_floater"
- width="32">
- <slider
-  control_name="AudioLevelMaster"
-  follows="left|top"
-  left="0"
-  top="1"
-  orientation="vertical"
-  height="120"
-  increment="0.05"
-  initial_value="0.5"
-  layout="topleft"
-  name="mastervolume"
-  show_text="false"
-  slider_label.halign="right"
-  top_pad="2"
-  volume="true">
-  <slider.commit_callback
-   function="Vol.setControlFalse"
-   parameter="MuteAudio" />
-  </slider>
-  <button
-    left="10"
-    top_pad="9"
-    width="12"
-    height="12"
-    follows="top|left"
-    name="prefs_btn"
-    image_unselected="Icon_Gear_Foreground"
-    image_disabled="Icon_Gear_Background"
-    image_pressed="Icon_Gear_Press"
-    scale_image="false">
-    <button.commit_callback
-       function="Vol.GoAudioPrefs" />
-  </button>
+ width="225">
+      <slider
+     control_name="AudioLevelMaster"
+     follows="top|left"
+     font.style="BOLD"
+     height="15"
+     increment="0.025"
+     initial_value="0.5"
+     label="Master"
+     label_width="60"
+     left="10"
+     width="160"
+     layout="topleft"
+     name="System Volume"
+     show_text="false"
+     top="10"
+     volume="true">
+        <slider.commit_callback
+         function="Pref.setControlFalse"
+         parameter="MuteAudio" />
+    </slider>
+    <button
+     control_name="MuteAudio"
+     follows="top|left"
+     height="16"
+     image_selected="AudioMute_Off"
+     image_unselected="Audio_Off"
+     is_toggle="true"
+     layout="topleft"
+     left_pad="5"
+     name="mute_audio"
+     tab_stop="false"
+     width="16" />
+    <slider
+        control_name="AudioLevelUI"
+        disabled_control="MuteAudio"
+        follows="left|top"
+        height="15"
+        increment="0.025"
+        initial_value="0.5"
+        label="Buttons"
+        label_width="60"
+        left="10"
+        width="160"
+        layout="topleft"
+        name="UI Volume"
+        show_text="false"
+        top_pad="4"
+        volume="true">
+    <slider.commit_callback
+        function="Pref.setControlFalse"
+        parameter="MuteUI" />
+    </slider>
+    <button
+        control_name="MuteUI"
+        disabled_control="MuteAudio"
+        follows="top|left"
+        height="16"
+        image_selected="AudioMute_Off"
+        image_unselected="Audio_Off"
+        is_toggle="true"
+        layout="topleft"
+        left_pad="5"
+        name="mute_audio"
+        tab_stop="false"
+        width="16" />
+    <slider
+     control_name="AudioLevelAmbient"
+     disabled_control="MuteAudio"
+     follows="left|top"
+     height="15"
+     increment="0.025"
+     initial_value="0.5"
+     label="Ambient"
+     label_width="60"
+     left="10"
+     width="160"
+     layout="topleft"
+     name="Wind Volume"
+     show_text="false"
+     top_pad="4"
+     volume="true">
+        <slider.commit_callback
+         function="Pref.setControlFalse"
+         parameter="MuteAmbient" />
+    </slider>
+    <button
+     control_name="MuteAmbient"
+     disabled_control="MuteAudio"
+     follows="top|left"
+     height="16"
+     image_selected="AudioMute_Off"
+     image_unselected="Audio_Off"
+     is_toggle="true"
+     layout="topleft"
+     left_pad="5"
+     name="mute_audio"
+     tab_stop="false"
+     width="16" />
+    <slider
+     control_name="AudioLevelSFX"
+     disabled_control="MuteAudio"
+     follows="left|top"
+     height="15"
+     increment="0.025"
+     initial_value="0.5"
+     label="Sounds"
+     label_width="60"
+     left="10"
+     width="160"
+     layout="topleft"
+     name="SFX Volume"
+     show_text="false"
+     top_pad="4"
+     volume="true">
+        <slider.commit_callback
+         function="Pref.setControlFalse"
+         parameter="MuteSounds" />
+    </slider>
+    <button
+     control_name="MuteSounds"
+     disabled_control="MuteAudio"
+     follows="top|left"
+     height="16"
+     image_selected="AudioMute_Off"
+     image_unselected="Audio_Off"
+     is_toggle="true"
+     layout="topleft"
+     left_pad="5"
+     name="mute_audio"
+     tab_stop="false"
+     width="16">
+      <button.commit_callback
+      function="Pref.SetSounds"/>
+    </button>
+  <check_box
+    name="gesture_audio_play_btn"
+		control_name="EnableGestureSounds"
+    disabled_control="MuteAudio"
+    height="16"
+    layout="topleft"
+    left_pad="5"
+    tool_tip="Enable sounds from gestures"
+    top_delta="2"
+    width="350"/>
+    <slider
+     control_name="AudioLevelMusic"
+     disabled_control="MuteAudio"
+     follows="left|top"
+     height="15"
+     increment="0.025"
+     initial_value="0.5"
+     label="Music"
+     label_width="60"
+     left="10"
+     width="160"
+     layout="topleft"
+     name="Music Volume"
+     show_text="false"
+     top_pad="4"
+     volume="true">
+        <slider.commit_callback
+         function="Pref.setControlFalse"
+         parameter="MuteMusic" />
+    </slider>
+    <button
+     control_name="MuteMusic"
+     disabled_control="MuteAudio"
+     follows="top|left"
+     height="16"
+     image_selected="AudioMute_Off"
+     image_unselected="Audio_Off"
+     is_toggle="true"
+     layout="topleft"
+     left_pad="5"
+     name="mute_audio"
+     tab_stop="false"
+     width="16" />
+    <check_box
+        control_name="AudioStreamingMusic"
+        height="16"
+        tool_tip="Enable Streaming Music"
+        layout="topleft"
+        left_pad="5"
+        name="enable_music"
+        top_delta="2"
+        width="350">
+        <check_box.commit_callback
+            function="Pref.updateMediaAutoPlayCheckbox"/>
+    </check_box>
+    <slider
+        control_name="AudioLevelMedia"
+        disabled_control="MuteAudio"
+        follows="left|top"
+        height="16"
+        increment="0.025"
+        initial_value="0.5"
+        label="Media"
+        label_width="60"
+        left="10"
+        width="160"
+        layout="topleft"
+        name="Media Volume"
+        show_text="false"
+        top_pad="4"
+        volume="true">
+      <slider.commit_callback
+        function="Pref.setControlFalse"
+        parameter="MuteMedia" />
+    </slider>
+    <button
+        control_name="MuteMedia"
+        disabled_control="MuteAudio"
+        follows="top|left"
+        height="16"
+        image_selected="AudioMute_Off"
+        image_unselected="Audio_Off"
+        is_toggle="true"
+        layout="topleft"
+        left_pad="5"
+        name="mute_audio"
+        tab_stop="false"
+        width="16" />
+    <check_box
+        label_text.halign="left"
+        follows="left|top"
+        height="16"
+        control_name ="AudioStreamingMedia"
+        tool_tip="Enable Streaming Media"
+        layout="topleft"
+        top_delta="2"
+        left_pad="5"
+        name="enable_media"
+        width="110">
+        <check_box.commit_callback
+            function="Pref.updateMediaAutoPlayCheckbox"/>
+    </check_box>
+    <slider
+        control_name="AudioLevelVoice"
+        disabled_control="MuteAudio"
+        follows="left|top"
+        height="16"
+        increment="0.025"
+        initial_value="0.5"
+        label="Voice"
+        label_width="60"
+        left="10"
+        width="160"
+        layout="topleft"
+        top_pad="4"
+        name="Voice Volume"
+        show_text="false"
+        volume="true">
+    <slider.commit_callback
+        function="Pref.setControlFalse"
+        parameter="MuteVoice" />
+    </slider>
+    <button
+        control_name="MuteVoice"
+        disabled_control="MuteAudio"
+        follows="top|left"
+        height="16"
+        image_selected="AudioMute_Off"
+        image_unselected="Audio_Off"
+        is_toggle="true"
+        layout="topleft"
+        left_pad="5"
+        name="mute_audio"
+        tab_stop="false"
+        width="16" />
+    <check_box
+        label_text.halign="left"
+        follows="left|top"
+        height="16"
+        control_name ="EnableVoiceChat"
+        disabled_control="CmdLineDisableVoice"
+        tool_tip="Enable Voice Chat"
+        layout="topleft"
+        top_delta="2"
+        left_pad="5"
+        name="enable_voice_check"
+        width="110"/>
 </panel>

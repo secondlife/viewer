@@ -119,8 +119,8 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 
 	if(!getDecoupleTextureSize())
 	{
-		S32 screen_width = llround((F32)getRect().getWidth() * LLUI::sGLScaleFactor.mV[VX]);
-		S32 screen_height = llround((F32)getRect().getHeight() * LLUI::sGLScaleFactor.mV[VY]);
+		S32 screen_width = llround((F32)getRect().getWidth() * LLUI::getScaleFactor().mV[VX]);
+		S32 screen_height = llround((F32)getRect().getHeight() * LLUI::getScaleFactor().mV[VY]);
 			
 		setTextureSize(screen_width, screen_height);
 	}
@@ -469,8 +469,8 @@ void LLMediaCtrl::reshape( S32 width, S32 height, BOOL called_from_parent )
 {
 	if(!getDecoupleTextureSize())
 	{
-		S32 screen_width = llround((F32)width * LLUI::sGLScaleFactor.mV[VX]);
-		S32 screen_height = llround((F32)height * LLUI::sGLScaleFactor.mV[VY]);
+		S32 screen_width = llround((F32)width * LLUI::getScaleFactor().mV[VX]);
+		S32 screen_height = llround((F32)height * LLUI::getScaleFactor().mV[VY]);
 
 		// when floater is minimized, these sizes are negative
 		if ( screen_height > 0 && screen_width > 0 )
@@ -564,32 +564,13 @@ void LLMediaCtrl::navigateTo( std::string url_in, std::string mime_type)
 //
 void LLMediaCtrl::navigateToLocalPage( const std::string& subdir, const std::string& filename_in )
 {
-	std::string language = LLUI::getLanguage();
-	std::string delim = gDirUtilp->getDirDelimiter();
-	std::string filename;
+	std::string filename(gDirUtilp->add(subdir, filename_in));
+	std::string expanded_filename = gDirUtilp->findSkinnedFilename("html", filename);
 
-	filename += subdir;
-	filename += delim;
-	filename += filename_in;
-
-	std::string expanded_filename = gDirUtilp->findSkinnedFilename("html", language, filename);
-
-	if (! gDirUtilp->fileExists(expanded_filename))
+	if (expanded_filename.empty())
 	{
-		if (language != "en")
-		{
-			expanded_filename = gDirUtilp->findSkinnedFilename("html", "en", filename);
-			if (! gDirUtilp->fileExists(expanded_filename))
-			{
-				llwarns << "File " << subdir << delim << filename_in << "not found" << llendl;
-				return;
-			}
-		}
-		else
-		{
-			llwarns << "File " << subdir << delim << filename_in << "not found" << llendl;
-			return;
-		}
+		llwarns << "File " << filename << "not found" << llendl;
+		return;
 	}
 	if (ensureMediaSourceExists())
 	{
@@ -597,7 +578,6 @@ void LLMediaCtrl::navigateToLocalPage( const std::string& subdir, const std::str
 		mMediaSource->setSize(mTextureWidth, mTextureHeight);
 		mMediaSource->navigateTo(expanded_filename, "text/html", false);
 	}
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -687,7 +667,7 @@ bool LLMediaCtrl::ensureMediaSourceExists()
 			mMediaSource->addObserver( this );
 			mMediaSource->setBackgroundColor( getBackgroundColor() );
 			mMediaSource->setTrustedBrowser(mTrusted);
-			mMediaSource->setPageZoomFactor( LLUI::sGLScaleFactor.mV[ VX ] );
+			mMediaSource->setPageZoomFactor( LLUI::getScaleFactor().mV[ VX ] );
 
 			if(mClearCache)
 			{
@@ -770,7 +750,7 @@ void LLMediaCtrl::draw()
 	{
 		gGL.pushUIMatrix();
 		{
-			mMediaSource->setPageZoomFactor( LLUI::sGLScaleFactor.mV[ VX ] );
+			mMediaSource->setPageZoomFactor( LLUI::getScaleFactor().mV[ VX ] );
 
 			// scale texture to fit the space using texture coords
 			gGL.getTexUnit(0)->bind(media_texture);
@@ -884,14 +864,14 @@ void LLMediaCtrl::convertInputCoords(S32& x, S32& y)
 		coords_opengl = mMediaSource->getMediaPlugin()->getTextureCoordsOpenGL();
 	}
 	
-	x = llround((F32)x * LLUI::sGLScaleFactor.mV[VX]);
+	x = llround((F32)x * LLUI::getScaleFactor().mV[VX]);
 	if ( ! coords_opengl )
 	{
-		y = llround((F32)(y) * LLUI::sGLScaleFactor.mV[VY]);
+		y = llround((F32)(y) * LLUI::getScaleFactor().mV[VY]);
 	}
 	else
 	{
-		y = llround((F32)(getRect().getHeight() - y) * LLUI::sGLScaleFactor.mV[VY]);
+		y = llround((F32)(getRect().getHeight() - y) * LLUI::getScaleFactor().mV[VY]);
 	};
 }
 

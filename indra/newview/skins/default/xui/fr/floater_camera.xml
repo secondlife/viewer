@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="camera_floater" title="PARAMÈTRES DE LA CAMÉRA">
+<floater name="camera_floater" title="CONTRÔLE DE LA CAMÉRA">
 	<floater.string name="rotate_tooltip">
 		Faire tourner la caméra autour du point central
 	</floater.string>

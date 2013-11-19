@@ -7,10 +7,17 @@
 		設定視窗尺寸大小：
 	</text>
 	<combo_box name="window_size_combo" tool_tip="寬度 x 高度">
-		<combo_box.item label="1000 x 700 （預設）" name="item0"/>
-		<combo_box.item label="1024 x 768" name="item1"/>
-		<combo_box.item label="1280 x 720 （720p）" name="item2"/>
-		<combo_box.item label="1920 x 1080 （1080p）" name="item3"/>
+		<combo_box.item label="1000 x 700 （預設）" name="item1"/>
+		<combo_box.item label="1024 x 768 (4:3 XGA)" name="item2"/>
+		<combo_box.item label="1280 x 720 (16:9 HDTV)" name="item3"/>
+		<combo_box.item label="1280 x 800 (5:8 WXGA)" name="item4"/>
+		<combo_box.item label="1280 x 1024 (5:4 SXGA)" name="item5"/>
+		<combo_box.item label="1440 x 900 (8:5 WSXGA)" name="item7"/>
+		<combo_box.item label="1600 x 900 (16:9 HD+)" name="item8"/>
+		<combo_box.item label="1600 x 1200 (4:3 UXGA)" name="item9"/>
+		<combo_box.item label="1680 x 1050 (8:5 WSXGA+)" name="item10"/>
+		<combo_box.item label="1920 x 1080 (16:9 HDTV)" name="item11"/>
+		<combo_box.item label="1920 x 1200 (8:5 WUXGA)" name="item12"/>
 	</combo_box>
 	<button label="設定" name="set_btn"/>
 	<button label="取消" name="cancel_btn"/>

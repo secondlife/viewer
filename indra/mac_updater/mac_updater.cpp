@@ -47,6 +47,11 @@
 
 #include "llerrorcontrol.h"
 
+#if LL_DARWIN
+// FSPathMakeRef, FSObjectCopy, deprecations...
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 enum
 {
 	kEventClassCustom = 'Cust',
@@ -1188,9 +1193,7 @@ void *updatethreadproc(void*)
 	
 			llinfos << "Clearing cache..." << llendl;
 			
-			char mask[LL_MAX_PATH];		/* Flawfinder: ignore */
-			snprintf(mask, LL_MAX_PATH, "%s*.*", gDirUtilp->getDirDelimiter().c_str());		
-			gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE,""),mask);
+			gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE,""), "*.*");
 			
 			llinfos << "Clear complete." << llendl;
 
@@ -1257,3 +1260,7 @@ void *updatethreadproc(void*)
 	
 	return(NULL);
 }
+
+#if LL_DARWIN
+#pragma GCC diagnostic warning "-Wdeprecated-declarations"
+#endif

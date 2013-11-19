@@ -102,6 +102,7 @@ public:
 	// New functions
     /// Get the stored value in string form
     const LLWString& getDisplay() const { return mDisplay; }
+	LLWString& getEditableDisplay() { mDirty = true; mUpdateFromDisplay = true; return mDisplay; }
 
     /**
      * Set the display string directly (see LLTextEditor). What the user is

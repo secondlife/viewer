@@ -36,5 +36,5 @@
 	<button label="?" name="top_scripts_help"/>
 	<button label="地域再起動" name="restart_btn" tool_tip="2分間のカウントダウン後、地域を再起動します"/>
 	<button label="?" name="restart_help"/>
-	<button label="再起動を遅延" name="cancel_restart_btn" tool_tip="地域の再起動を１時間遅延します"/>
+	<button label="再起動をキャンセル" name="cancel_restart_btn" tool_tip="リージョンの再起動をキャンセル"/>
 </panel>

@@ -100,7 +100,7 @@ void LLWaterParamManager::loadPresetsFromDir(const std::string& dir)
 			break; // no more files
 		}
 
-		std::string path = dir + file;
+		std::string path = gDirUtilp->add(dir, file);
 		if (!loadPreset(path))
 		{
 			llwarns << "Error loading water preset from " << path << llendl;
@@ -188,13 +188,12 @@ void LLWaterParamManager::updateShaderUniforms(LLGLSLShader * shader)
 	if (shader->mShaderGroup == LLGLSLShader::SG_WATER)
 	{
 		shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, LLWLParamManager::getInstance()->getRotatedLightDir().mV);
-		shader->uniform3fv("camPosLocal", 1, LLViewerCamera::getInstance()->getOrigin().mV);
-		shader->uniform4fv("waterFogColor", 1, LLDrawPoolWater::sWaterFogColor.mV);
-		shader->uniform1f("waterFogEnd", LLDrawPoolWater::sWaterFogEnd);
-		shader->uniform4fv("waterPlane", 1, mWaterPlane.mV);
-		shader->uniform1f("waterFogDensity", getFogDensity());
-		shader->uniform1f("waterFogKS", mWaterFogKS);
-		shader->uniform1f("distance_multiplier", 0);
+shader->uniform3fv(LLShaderMgr::WL_CAMPOSLOCAL, 1, LLViewerCamera::getInstance()->getOrigin().mV);
+		shader->uniform4fv(LLShaderMgr::WATER_FOGCOLOR, 1, LLDrawPoolWater::sWaterFogColor.mV);
+		shader->uniform4fv(LLShaderMgr::WATER_WATERPLANE, 1, mWaterPlane.mV);
+		shader->uniform1f(LLShaderMgr::WATER_FOGDENSITY, getFogDensity());
+		shader->uniform1f(LLShaderMgr::WATER_FOGKS, mWaterFogKS);
+		shader->uniform1f(LLViewerShaderMgr::DISTANCE_MULTIPLIER, 0);
 	}
 }
 

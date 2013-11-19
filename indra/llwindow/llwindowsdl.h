@@ -41,8 +41,8 @@
 #endif
 
 // AssertMacros.h does bad things.
+#include "fix_macros.h"
 #undef verify
-#undef check
 #undef require
 
 

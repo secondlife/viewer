@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="camera_floater">
+<floater name="camera_floater" title="攝影機控制">
 	<floater.string name="rotate_tooltip">
-		Rotate Camera Around Focus
+		繞著焦點轉動攝影機
 	</floater.string>
 	<floater.string name="zoom_tooltip">
-		Zoom Camera Towards Focus
+		攝影機移近焦點
 	</floater.string>
 	<floater.string name="move_tooltip">
-		Move Camera Up and Down, Left and Right
+		攝影機上下左右移動
+	</floater.string>
+	<floater.string name="camera_modes_title">
+		攝影機模式
+	</floater.string>
+	<floater.string name="pan_mode_title">
+		環繞縮放平移
+	</floater.string>
+	<floater.string name="presets_mode_title">
+		預設視角
 	</floater.string>
 	<floater.string name="free_mode_title">
 		視角物件
@@ -43,14 +52,14 @@
 			</panel_camera_item>
 		</panel>
 		<panel name="zoom">
-			<joystick_rotate name="cam_rotate_stick" tool_tip="Orbit camera around focus"/>
-			<slider_bar name="zoom_slider" tool_tip="Zoom camera toward focus"/>
+			<joystick_rotate name="cam_rotate_stick" tool_tip="攝影機繞焦點旋轉"/>
+			<slider_bar name="zoom_slider" tool_tip="攝影機移近焦點"/>
 			<joystick_track name="cam_track_stick" tool_tip="移動攝影機上下左右"/>
 		</panel>
 	</panel>
 	<panel name="buttons">
 		<button label="" name="presets_btn" tool_tip="預設視角"/>
-		<button label="" name="pan_btn" tool_tip="Orbit Zoom Pan"/>
+		<button label="" name="pan_btn" tool_tip="環繞縮放平移"/>
 		<button label="" name="avatarview_btn" tool_tip="攝影機模式"/>
 	</panel>
 </floater>

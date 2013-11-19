@@ -30,7 +30,9 @@
 #include "llsd.h"
 #include "llupdatechecker.h"
 #include "lluri.h"
-
+#if LL_DARWIN
+#include <CoreServices/CoreServices.h>
+#endif
 
 #if LL_WINDOWS
 #pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
@@ -49,37 +51,6 @@ public:
 };
 
 
-class LLUpdateChecker::Implementation:
-	public LLHTTPClient::Responder
-{
-public:
-	Implementation(Client & client);
-	~Implementation();
-	void check(std::string const & protocolVersion, std::string const & hostUrl, 
-			   std::string const & servicePath, std::string channel, std::string version);
-	
-	// Responder:
-	virtual void completed(U32 status,
-						   const std::string & reason,
-						   const LLSD& content);
-	virtual void error(U32 status, const std::string & reason);
-	
-private:	
-	static const char * sProtocolVersion;
-	
-	Client & mClient;
-	LLHTTPClient mHttpClient;
-	bool mInProgress;
-	std::string mVersion;
-	
-	std::string buildUrl(std::string const & protocolVersion, std::string const & hostUrl, 
-						 std::string const & servicePath, std::string channel, std::string version);
-
-	LOG_CLASS(LLUpdateChecker::Implementation);
-};
-
-
-
 // LLUpdateChecker
 //-----------------------------------------------------------------------------
 
@@ -91,10 +62,15 @@ LLUpdateChecker::LLUpdateChecker(LLUpdateChecker::Client & client):
 }
 
 
-void LLUpdateChecker::check(std::string const & protocolVersion, std::string const & hostUrl, 
-							std::string const & servicePath, std::string channel, std::string version)
+void LLUpdateChecker::checkVersion(std::string const & urlBase, 
+								   std::string const & channel,
+								   std::string const & version,
+								   std::string const & platform,
+								   std::string const & platform_version,
+								   unsigned char       uniqueid[MD5HEX_STR_SIZE],
+								   bool                willing_to_test)
 {
-	mImplementation->check(protocolVersion, hostUrl, servicePath, channel, version);
+	mImplementation->checkVersion(urlBase, channel, version, platform, platform_version, uniqueid, willing_to_test);
 }
 
 
@@ -103,12 +79,13 @@ void LLUpdateChecker::check(std::string const & protocolVersion, std::string con
 //-----------------------------------------------------------------------------
 
 
-const char * LLUpdateChecker::Implementation::sProtocolVersion = "v1.0";
+const char * LLUpdateChecker::Implementation::sProtocolVersion = "v1.1";
 
 
 LLUpdateChecker::Implementation::Implementation(LLUpdateChecker::Client & client):
 	mClient(client),
-	mInProgress(false)
+	mInProgress(false),
+	mProtocol(sProtocolVersion)
 {
 	; // No op.
 }
@@ -120,47 +97,67 @@ LLUpdateChecker::Implementation::~Implementation()
 }
 
 
-void LLUpdateChecker::Implementation::check(std::string const & protocolVersion, std::string const & hostUrl, 
-											std::string const & servicePath, std::string channel, std::string version)
+void LLUpdateChecker::Implementation::checkVersion(std::string const & urlBase, 
+												   std::string const & channel,
+												   std::string const & version,
+												   std::string const & platform,
+												   std::string const & platform_version,
+												   unsigned char       uniqueid[MD5HEX_STR_SIZE],
+												   bool                willing_to_test)
 {
-	llassert(!mInProgress);
+	if (!mInProgress)
+	{
+		mInProgress = true;
+
+		mUrlBase     	 = urlBase;
+		mChannel     	 = channel;
+		mVersion     	 = version;
+		mPlatform        = platform;
+		mPlatformVersion = platform_version;
+		memcpy(mUniqueId, uniqueid, MD5HEX_STR_SIZE);
+		mWillingToTest   = willing_to_test;
 	
-	if(protocolVersion != sProtocolVersion) throw CheckError("unsupported protocol");
-		
-	mInProgress = true;
-	mVersion = version;
-	std::string checkUrl = buildUrl(protocolVersion, hostUrl, servicePath, channel, version);
-	LL_INFOS("UpdateCheck") << "checking for updates at " << checkUrl << llendl;
+		mProtocol = sProtocolVersion;
+
+		std::string checkUrl = buildUrl(urlBase, channel, version, platform, platform_version, uniqueid, willing_to_test);
+		LL_INFOS("UpdaterService") << "checking for updates at " << checkUrl << LL_ENDL;
 	
-	// The HTTP client will wrap a raw pointer in a boost::intrusive_ptr causing the
-	// passed object to be silently and automatically deleted.  We pass a self-
-	// referential intrusive pointer to which we add a reference to keep the
-	// client from deleting the update checker implementation instance.
-	LLHTTPClient::ResponderPtr temporaryPtr(this);
-	boost::intrusive_ptr_add_ref(temporaryPtr.get());
-	mHttpClient.get(checkUrl, temporaryPtr);
+		mHttpClient.get(checkUrl, this);
+	}
+	else
+	{
+		LL_WARNS("UpdaterService") << "attempting to restart a check when one is in progress; ignored" << LL_ENDL;
+	}
 }
 
 void LLUpdateChecker::Implementation::completed(U32 status,
-							  const std::string & reason,
-							  const LLSD & content)
+												const std::string & reason,
+												const LLSD & content)
 {
 	mInProgress = false;	
 	
-	if(status != 200) {
-		LL_WARNS("UpdateCheck") << "html error " << status << " (" << reason << ")" << llendl;
+	if(status != 200)
+	{
+		std::string server_error;
+		if ( content.has("error_code") )
+		{
+			server_error += content["error_code"].asString();
+		}
+		if ( content.has("error_text") )
+		{
+			server_error += server_error.empty() ? "" : ": ";
+			server_error += content["error_text"].asString();
+		}
+
+		LL_WARNS("UpdaterService") << "response error " << status
+								   << " " << reason
+								   << " (" << server_error << ")"
+								   << LL_ENDL;
 		mClient.error(reason);
-	} else if(!content.asBoolean()) {
-		LL_INFOS("UpdateCheck") << "up to date" << llendl;
-		mClient.upToDate();
-	} else if(content["required"].asBoolean()) {
-		LL_INFOS("UpdateCheck") << "version invalid" << llendl;
-		LLURI uri(content["url"].asString());
-		mClient.requiredUpdate(content["version"].asString(), uri, content["hash"].asString());
-	} else {
-		LL_INFOS("UpdateCheck") << "newer version " << content["version"].asString() << " available" << llendl;
-		LLURI uri(content["url"].asString());
-		mClient.optionalUpdate(content["version"].asString(), uri, content["hash"].asString());
+	}
+	else
+	{
+		mClient.response(content);
 	}
 }
 
@@ -168,27 +165,26 @@ void LLUpdateChecker::Implementation::completed(U32 status,
 void LLUpdateChecker::Implementation::error(U32 status, const std::string & reason)
 {
 	mInProgress = false;
-	LL_WARNS("UpdateCheck") << "update check failed; " << reason << llendl;
+	LL_WARNS("UpdaterService") << "update check failed; " << reason << LL_ENDL;
 	mClient.error(reason);
 }
 
 
-std::string LLUpdateChecker::Implementation::buildUrl(std::string const & protocolVersion, std::string const & hostUrl, 
-													  std::string const & servicePath, std::string channel, std::string version)
-{	
-#ifdef LL_WINDOWS
-	static const char * platform = "win";
-#elif LL_DARWIN
-	static const char * platform = "mac";
-#else
-	static const char * platform = "lnx";
-#endif
-	
+std::string LLUpdateChecker::Implementation::buildUrl(std::string const & urlBase, 
+													  std::string const & channel,
+													  std::string const & version,
+													  std::string const & platform,
+													  std::string const & platform_version,
+													  unsigned char       uniqueid[MD5HEX_STR_SIZE],
+													  bool                willing_to_test)
+{
 	LLSD path;
-	path.append(servicePath);
-	path.append(protocolVersion);
+	path.append(mProtocol);
 	path.append(channel);
 	path.append(version);
 	path.append(platform);
-	return LLURI::buildHTTP(hostUrl, path).asString();
+	path.append(platform_version);
+	path.append(willing_to_test ? "testok" : "testno");
+	path.append((char*)uniqueid);
+	return LLURI::buildHTTP(urlBase, path).asString();
 }

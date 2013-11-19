@@ -26,10 +26,10 @@
 #include "linden_common.h"
 #include <apr_file_io.h>
 #include "llapr.h"
-#include "llprocesslauncher.h"
+#include "llprocess.h"
 #include "llupdateinstaller.h"
 #include "lldir.h" 
-
+#include "llsd.h"
 
 #if defined(LL_WINDOWS)
 #pragma warning(disable: 4702)      // disable 'unreachable code' so we can use lexical_cast (really!).
@@ -75,18 +75,16 @@ int ll_install_update(std::string const & script,
 			llassert(!"unpossible copy mode");
 	}
 	
-	llinfos << "UpdateInstaller: installing " << updatePath << " using " <<
+	LL_INFOS("Updater") << "UpdateInstaller: installing " << updatePath << " using " <<
 		actualScriptPath << LL_ENDL;
 	
-	LLProcessLauncher launcher;
-	launcher.setExecutable(actualScriptPath);
-	launcher.addArgument(updatePath);
-	launcher.addArgument(ll_install_failed_marker_path().c_str());
-	launcher.addArgument(boost::lexical_cast<std::string>(required));
-	int result = launcher.launch();
-	launcher.orphan();
-	
-	return result;
+	LLProcess::Params params;
+	params.executable = actualScriptPath;
+	params.args.add(updatePath);
+	params.args.add(ll_install_failed_marker_path());
+	params.args.add(boost::lexical_cast<std::string>(required));
+	params.autokill = false;
+	return LLProcess::create(params)? 0 : -1;
 }
 
 

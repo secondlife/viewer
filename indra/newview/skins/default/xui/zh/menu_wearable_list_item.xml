@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Outfit Wearable Context Menu">
 	<menu_item_call label="取代" name="wear_replace"/>
-	<menu_item_call label="Wear" name="wear_wear"/>
+	<menu_item_call label="穿上" name="wear_wear"/>
 	<menu_item_call label="添加" name="wear_add"/>
-	<menu_item_call label="Take Off / Detach" name="take_off_or_detach"/>
+	<menu_item_call label="脫下裝扮 / 卸除附件" name="take_off_or_detach"/>
 	<menu_item_call label="卸下" name="detach"/>
-	<context_menu label="Attach to" name="wearable_attach_to"/>
-	<context_menu label="Attach to HUD" name="wearable_attach_to_hud"/>
+	<context_menu label="附著到..." name="wearable_attach_to"/>
+	<context_menu label="附著到擡頭顯示" name="wearable_attach_to_hud"/>
 	<menu_item_call label="脫下" name="take_off"/>
 	<menu_item_call label="編輯" name="edit"/>
 	<menu_item_call label="物品檔案" name="object_profile"/>

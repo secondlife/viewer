@@ -27,6 +27,8 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include <boost/signals2.hpp>
+
 #include "llavataractions.h"
 #include "llavatarlistitem.h"
 
@@ -38,6 +40,7 @@
 #include "llavatarnamecache.h"
 #include "llavatariconctrl.h"
 #include "lloutputmonitorctrl.h"
+#include "lltooldraganddrop.h"
 
 bool LLAvatarListItem::sStaticInitialized = false;
 S32 LLAvatarListItem::sLeftPadding = 0;
@@ -58,7 +61,8 @@ LLAvatarListItem::Params::Params()
 
 
 LLAvatarListItem::LLAvatarListItem(bool not_from_ui_factory/* = true*/)
-:	LLPanel(),
+	: LLPanel(),
+	LLFriendObserver(),
 	mAvatarIcon(NULL),
 	mAvatarName(NULL),
 	mLastInteractionTime(NULL),
@@ -73,7 +77,8 @@ LLAvatarListItem::LLAvatarListItem(bool not_from_ui_factory/* = true*/)
 	mShowInfoBtn(true),
 	mShowProfileBtn(true),
 	mShowPermissions(false),
-	mHovered(false)
+	mHovered(false),
+	mAvatarNameCacheConnection()
 {
 	if (not_from_ui_factory)
 	{
@@ -86,7 +91,14 @@ LLAvatarListItem::LLAvatarListItem(bool not_from_ui_factory/* = true*/)
 LLAvatarListItem::~LLAvatarListItem()
 {
 	if (mAvatarId.notNull())
+	{
 		LLAvatarTracker::instance().removeParticularFriendObserver(mAvatarId, this);
+	}
+
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
 }
 
 BOOL  LLAvatarListItem::postBuild()
@@ -127,6 +139,29 @@ BOOL  LLAvatarListItem::postBuild()
 	}
 
 	return TRUE;
+}
+
+void LLAvatarListItem::handleVisibilityChange ( BOOL new_visibility )
+{
+    //Adjust positions of icons (info button etc) when 
+    //speaking indicator visibility was changed/toggled while panel was closed (not visible)
+    if(new_visibility && mSpeakingIndicator->getIndicatorToggled())
+    {
+        updateChildren();
+        mSpeakingIndicator->setIndicatorToggled(false);
+    }
+}
+
+void LLAvatarListItem::fetchAvatarName()
+{
+	if (mAvatarId.notNull())
+	{
+		if (mAvatarNameCacheConnection.connected())
+		{
+			mAvatarNameCacheConnection.disconnect();
+		}
+		mAvatarNameCacheConnection = LLAvatarNameCache::get(getAvatarId(), boost::bind(&LLAvatarListItem::onAvatarNameCache, this, _2));
+	}
 }
 
 S32 LLAvatarListItem::notifyParent(const LLSD& info)
@@ -259,8 +294,7 @@ void LLAvatarListItem::setAvatarId(const LLUUID& id, const LLUUID& session_id, b
 		mAvatarIcon->setValue(id);
 
 		// Set avatar name.
-		LLAvatarNameCache::get(id,
-			boost::bind(&LLAvatarListItem::onAvatarNameCache, this, _2));
+		fetchAvatarName();
 	}
 }
 
@@ -358,8 +392,7 @@ std::string LLAvatarListItem::getAvatarToolTip() const
 
 void LLAvatarListItem::updateAvatarName()
 {
-	LLAvatarNameCache::get(getAvatarId(),
-			boost::bind(&LLAvatarListItem::onAvatarNameCache, this, _2));
+	fetchAvatarName();
 }
 
 //== PRIVATE SECITON ==========================================================
@@ -371,8 +404,10 @@ void LLAvatarListItem::setNameInternal(const std::string& name, const std::strin
 
 void LLAvatarListItem::onAvatarNameCache(const LLAvatarName& av_name)
 {
-	setAvatarName(av_name.mDisplayName);
-	setAvatarToolTip(av_name.mUsername);
+	mAvatarNameCacheConnection.disconnect();
+
+	setAvatarName(av_name.getDisplayName());
+	setAvatarToolTip(av_name.getUserName());
 
 	//requesting the list to resort
 	notifyParent(LLSD().with("sort", LLSD()));

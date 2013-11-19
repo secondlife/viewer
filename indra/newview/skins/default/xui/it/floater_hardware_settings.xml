@@ -25,6 +25,10 @@
 		Attiva VBO:
 	</text>
 	<check_box initial_value="true" label="Attiva oggetti OpenGL Vertex Buffer" name="vbo" tool_tip="Attivandolo su un hardware moderno aumenta la performance.  Ma, su un vecchio hardware, spesso l&apos;implementazione dei VBO è scarsa e potresti avere dei crash quando è attivato."/>
+	<text name="tc label">
+		Attiva S3TC:
+	</text>
+	<check_box initial_value="true" label="Attiva compressione texture (richiede riavvio)" name="texture compression" tool_tip="Comprime le texture nella memoria video, consentendo il caricamento di texture a risoluzione maggiore al prezzo di ua perdita di qualit&apos; del colore."/>
 	<slider label="Memoria texture (MB):" name="GraphicsCardTextureMemory" tool_tip="Spazio di memoria da ssegnare alle textures. Utilizza la memoria della scheda video come impostazione predefinita. La riduzione di questa impostazione potrebbe migliorare il rendimento ma potrebbe anche rendere le texture poco definite."/>
 	<spinner label="Indice della distanza  della nebbia:" name="fog"/>
 	<button label="OK" label_selected="OK" name="OK"/>

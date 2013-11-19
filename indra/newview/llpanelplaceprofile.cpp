@@ -499,9 +499,7 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 			std::string parcel_owner =
 				LLSLURL("agent", parcel->getOwnerID(), "inspect").getSLURLString();
 			mParcelOwner->setText(parcel_owner);
-			LLAvatarNameCache::get(region->getOwner(),
-								   boost::bind(&LLPanelPlaceInfo::onAvatarNameCache,
-											   _1, _2, mRegionOwnerText));
+			LLAvatarNameCache::get(region->getOwner(), boost::bind(&LLPanelPlaceInfo::onAvatarNameCache, _1, _2, mRegionOwnerText));
 		}
 
 		if(LLParcel::OS_LEASE_PENDING == parcel->getOwnershipStatus())
@@ -523,9 +521,7 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 		const LLUUID& auth_buyer_id = parcel->getAuthorizedBuyerID();
 		if(auth_buyer_id.notNull())
 		{
-			LLAvatarNameCache::get(auth_buyer_id,
-								   boost::bind(&LLPanelPlaceInfo::onAvatarNameCache,
-											   _1, _2, mSaleToText));
+			LLAvatarNameCache::get(auth_buyer_id, boost::bind(&LLPanelPlaceInfo::onAvatarNameCache, _1, _2, mSaleToText));
 			
 			// Show sales info to a specific person or a group he belongs to.
 			if (auth_buyer_id != gAgent.getID() && !gAgent.isInGroup(auth_buyer_id))
@@ -572,7 +568,7 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 
 		mTerraformLimitsText->setText(parcel->getAllowTerraform() ? on : off);
 
-		if (region->getRegionFlags() & REGION_FLAGS_ALLOW_PARCEL_CHANGES)
+		if (region->getRegionFlag(REGION_FLAGS_ALLOW_PARCEL_CHANGES))
 		{
 			mSubdivideText->setText(getString("can_change"));
 		}
@@ -580,7 +576,7 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 		{
 			mSubdivideText->setText(getString("can_not_change"));
 		}
-		if (region->getRegionFlags() & REGION_FLAGS_BLOCK_LAND_RESELL)
+		if (region->getRegionFlag(REGION_FLAGS_BLOCK_LAND_RESELL))
 		{
 			mResaleText->setText(getString("can_not_resell"));
 		}

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="事物" name="main inventory panel">
 	<panel.string name="ItemcountFetching">
-		Fetching [ITEM_COUNT] Items... [FILTER]
+		正在擷取 [ITEM_COUNT] 個物項… [FILTER]
 	</panel.string>
 	<panel.string name="ItemcountCompleted">
 		[ITEM_COUNT] 物品 [FILTER]

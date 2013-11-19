@@ -34,6 +34,7 @@
 #include "lluistring.h"
 #include "llviewertexturelist.h"
 #include "lltrans.h"
+#include "llgltexture.h"
 
 // Timers to temporise database requests
 const F32 AGENTS_UPDATE_TIMER = 60.0;			// Seconds between 2 agent requests for a region
@@ -78,7 +79,7 @@ void LLSimInfo::setLandForSaleImage (LLUUID image_id)
 	// Fetch the image
 	if (mMapImageID.notNull())
 	{
-		mOverlayImage = LLViewerTextureManager::getFetchedTexture(mMapImageID, MIPMAP_TRUE, LLViewerTexture::BOOST_MAP, LLViewerTexture::LOD_TEXTURE);
+		mOverlayImage = LLViewerTextureManager::getFetchedTexture(mMapImageID, FTT_DEFAULT, MIPMAP_TRUE, LLGLTexture::BOOST_MAP, LLViewerTexture::LOD_TEXTURE);
 		mOverlayImage->setAddressMode(LLTexUnit::TAM_CLAMP);
 	}
 	else
@@ -92,13 +93,13 @@ LLPointer<LLViewerFetchedTexture> LLSimInfo::getLandForSaleImage ()
 	if (mOverlayImage.isNull() && mMapImageID.notNull())
 	{
 		// Fetch the image if it hasn't been done yet (unlikely but...)
-		mOverlayImage = LLViewerTextureManager::getFetchedTexture(mMapImageID, MIPMAP_TRUE, LLViewerTexture::BOOST_MAP, LLViewerTexture::LOD_TEXTURE);
+		mOverlayImage = LLViewerTextureManager::getFetchedTexture(mMapImageID, FTT_DEFAULT, MIPMAP_TRUE, LLGLTexture::BOOST_MAP, LLViewerTexture::LOD_TEXTURE);
 		mOverlayImage->setAddressMode(LLTexUnit::TAM_CLAMP);
 	}
 	if (!mOverlayImage.isNull())
 	{
 		// Boost the fetch level when we try to access that image
-		mOverlayImage->setBoostLevel(LLViewerTexture::BOOST_MAP);
+		mOverlayImage->setBoostLevel(LLGLTexture::BOOST_MAP);
 	}
 	return mOverlayImage;
 }
@@ -521,6 +522,17 @@ bool LLWorldMap::insertItem(U32 x_world, U32 y_world, std::string& name, LLUUID&
 
 			tooltip_fmt.setArg("[AREA]",  llformat("%d", extra));
 			tooltip_fmt.setArg("[PRICE]", llformat("%d", extra2));
+
+			// Check for division by zero
+			if (extra != 0)
+			{
+				tooltip_fmt.setArg("[SQMPRICE]", llformat("%.1f", (F32)extra2 / (F32)extra));
+			}
+			else
+			{
+				tooltip_fmt.setArg("[SQMPRICE]",  LLTrans::getString("Unknown"));
+			}
+
 			new_item.setTooltip(tooltip_fmt.getString());
 
 			if (type == MAP_ITEM_LAND_FOR_SALE)

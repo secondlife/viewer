@@ -34,6 +34,7 @@
 
 #include <boost/signals2.hpp>	// boost::signals2::trackable
 
+class LLInventoryPanel;
 class LLFolderView;
 class LLFolderBridge;
 class LLViewerInventoryCategory;
@@ -61,7 +62,7 @@ public:
 	virtual const LLUUID& getProtectedAssetUUID() const; // returns LLUUID::null if current agent does not have permission to expose this asset's UUID to the user
 	virtual const std::string& getName() const;
 	virtual S32 getSortField() const;
-	virtual void setSortField(S32 sortField);
+	//virtual void setSortField(S32 sortField);
 	virtual void getSLURL(); //Caches SLURL for landmark. //*TODO: Find a better way to do it and remove this method from here.
 	virtual const LLPermissions& getPermissions() const;
 	virtual const bool getIsFullPerm() const; // 'fullperm' in the popular sense: modify-ok & copy-ok & transfer-ok, no special god rules applied
@@ -205,13 +206,13 @@ public:
 
 	// Version handling
 	enum { VERSION_UNKNOWN = -1, VERSION_INITIAL = 1 };
-	S32 getVersion() const { return mVersion; }
-	void setVersion(S32 version) { mVersion = version; }
+	S32 getVersion() const;
+	void setVersion(S32 version);
 
 	// Returns true if a fetch was issued.
 	bool fetch();
 
-	// used to help make cacheing more robust - for example, if
+	// used to help make caching more robust - for example, if
 	// someone is getting 4 packets but logs out after 3. the viewer
 	// may never know the cache is wrong.
 	enum { DESCENDENT_COUNT_UNKNOWN = -1 };
@@ -219,7 +220,7 @@ public:
 	void setDescendentCount(S32 descendents) { mDescendentCount = descendents; }
 
 	// file handling on the viewer. These are not meant for anything
-	// other than cacheing.
+	// other than caching.
 	bool exportFileLocal(LLFILE* fp) const;
 	bool importFileLocal(LLFILE* fp);
 	void determineFolderType();
@@ -242,71 +243,60 @@ public:
 	virtual void fire(const LLUUID& inv_item) = 0;
 };
 
-class WearOnAvatarCallback : public LLInventoryCallback
-{
-public:
-	WearOnAvatarCallback(bool do_replace = false) : mReplace(do_replace) {}
-	
-	void fire(const LLUUID& inv_item);
-
-protected:
-	bool mReplace;
-};
-
-class ModifiedCOFCallback : public LLInventoryCallback
-{
-	void fire(const LLUUID& inv_item);
-};
-
 class LLViewerJointAttachment;
 
-class RezAttachmentCallback : public LLInventoryCallback
-{
-public:
-	RezAttachmentCallback(LLViewerJointAttachment *attachmentp);
-	void fire(const LLUUID& inv_item);
+void rez_attachment_cb(const LLUUID& inv_item, LLViewerJointAttachment *attachmentp);
 
-protected:
-	~RezAttachmentCallback();
+void activate_gesture_cb(const LLUUID& inv_item);
 
-private:
-	LLViewerJointAttachment* mAttach;
-};
-
-class ActivateGestureCallback : public LLInventoryCallback
-{
-public:
-	void fire(const LLUUID& inv_item);
-};
-
-class CreateScriptCallback : public LLInventoryCallback
-{
-public:
-	void fire(const LLUUID& inv_item);
-};
-
-class CreateGestureCallback : public LLInventoryCallback
-{
-public:
-	void fire(const LLUUID& inv_item);
-};
-
-class CreateNotecardCallback : public LLInventoryCallback
-{
-public:
-	void fire(const LLUUID& inv_item);
-};
+void create_gesture_cb(const LLUUID& inv_item);
 
 class AddFavoriteLandmarkCallback : public LLInventoryCallback
 {
 public:
 	AddFavoriteLandmarkCallback() : mTargetLandmarkId(LLUUID::null) {}
 	void setTargetLandmarkId(const LLUUID& target_uuid) { mTargetLandmarkId = target_uuid; }
-
+	
 private:
 	void fire(const LLUUID& inv_item);
 
 	LLUUID mTargetLandmarkId;
+};
+
+typedef boost::function<void(const LLUUID&)> inventory_func_type;
+void no_op_inventory_func(const LLUUID&); // A do-nothing inventory_func
+
+typedef boost::function<void()> nullary_func_type;
+void no_op(); // A do-nothing nullary func.
+
+// Shim between inventory callback and boost function/callable
+class LLBoostFuncInventoryCallback: public LLInventoryCallback
+{
+public:
+
+	LLBoostFuncInventoryCallback(inventory_func_type fire_func,
+								 nullary_func_type destroy_func = no_op):
+		mFireFunc(fire_func),
+		mDestroyFunc(destroy_func)
+	{
+	}
+
+	// virtual
+	void fire(const LLUUID& item_id)
+{
+		mFireFunc(item_id);
+	}
+
+	// virtual
+	~LLBoostFuncInventoryCallback()
+{
+		mDestroyFunc();
+	}
+	
+
+private:
+	inventory_func_type mFireFunc;
+	nullary_func_type mDestroyFunc;
 };
 
 // misc functions
@@ -384,7 +374,7 @@ void copy_inventory_from_notecard(const LLUUID& destination_id,
 								  U32 callback_id = 0);
 
 
-void menu_create_inventory_item(LLFolderView* root,
+void menu_create_inventory_item(LLInventoryPanel* root,
 								LLFolderBridge* bridge,
 								const LLSD& userdata,
 								const LLUUID& default_parent_uuid = LLUUID::null);

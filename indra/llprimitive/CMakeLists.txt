@@ -7,6 +7,7 @@ include(LLCommon)
 include(LLMath)
 include(LLMessage)
 include(LLXML)
+include(LLPhysicsExtensions)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
@@ -16,8 +17,15 @@ include_directories(
     ${LIBS_PREBUILT_DIR}/include/collada
     ${LIBS_PREBUILT_DIR}/include/collada/1.4
     )
+include_directories(SYSTEM
+    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
+    ${LLXML_SYSTEM_INCLUDE_DIRS}
+    ${LLPHYSICSEXTENSIONS_INCLUDE_DIRS}
+    )
 
 set(llprimitive_SOURCE_FILES
+    llmaterialid.cpp
+    llmaterial.cpp
     llmaterialtable.cpp
     llmediaentry.cpp
     llmodel.cpp
@@ -35,6 +43,8 @@ set(llprimitive_HEADER_FILES
     CMakeLists.txt
 
     legacy_object_types.h
+    llmaterial.h
+    llmaterialid.h
     llmaterialtable.h
     llmediaentry.h
     llmodel.h
@@ -56,6 +66,15 @@ set_source_files_properties(${llprimitive_HEADER_FILES}
 list(APPEND llprimitive_SOURCE_FILES ${llprimitive_HEADER_FILES})
 
 add_library (llprimitive ${llprimitive_SOURCE_FILES})
+
+target_link_libraries(llprimitive
+    ${LLCOMMON_LIBRARIES}
+    ${LLMATH_LIBRARIES}
+    ${LLMESSAGE_LIBRARIES}
+    ${LLXML_LIBRARIES}
+    ${LLPHYSICSEXTENSIONS_LIBRARIES}
+    )
+
 
 #add unit tests
 if (LL_TESTS)

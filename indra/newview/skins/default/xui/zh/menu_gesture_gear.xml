@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <toggleable_menu name="menu_gesture_gear">
 	<menu_item_call label="由我的最愛中 添加/移除" name="activate"/>
-	<menu_item_call label="覆製" name="copy_gesture"/>
+	<menu_item_call label="恚庨" name="copy_gesture"/>
 	<menu_item_call label="貼上" name="paste"/>
 	<menu_item_call label="覆製 UUID" name="copy_uuid"/>
 	<menu_item_call label="儲存到目前裝扮" name="save_to_outfit"/>

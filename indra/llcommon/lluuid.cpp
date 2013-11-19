@@ -44,9 +44,15 @@
 #include "llmd5.h"
 #include "llstring.h"
 #include "lltimer.h"
+#include "llthread.h"
 
 const LLUUID LLUUID::null;
 const LLTransactionID LLTransactionID::tnull;
+
+// static 
+LLMutex * LLUUID::mMutex = NULL;
+
+
 
 /*
 
@@ -734,6 +740,7 @@ void LLUUID::getCurrentTime(uuid_time_t *timestamp)
       getSystemTime(&time_last);
       uuids_this_tick = uuids_per_tick;
       init = TRUE;
+	  mMutex = new LLMutex(NULL);
    }
 
    uuid_time_t time_now = {0,0};
@@ -785,6 +792,7 @@ void LLUUID::generate()
 #endif
 	if (!has_init) 
 	{
+		has_init = 1;
 		if (getNodeID(node_id) <= 0) 
 		{
 			get_random_bytes(node_id, 6);
@@ -806,17 +814,23 @@ void LLUUID::generate()
 #else
 		clock_seq = (U16)ll_rand(65536);
 #endif
-		has_init = 1;
 	}
 
 	// get current time
 	getCurrentTime(&timestamp);
+	U16 our_clock_seq = clock_seq;
 
-	// if clock went backward change clockseq
-	if (cmpTime(&timestamp, &time_last) == -1) {
+	// if clock hasn't changed or went backward, change clockseq
+	if (cmpTime(&timestamp, &time_last) != 1) 
+	{
+		LLMutexLock	lock(mMutex);
 		clock_seq = (clock_seq + 1) & 0x3FFF;
-		if (clock_seq == 0) clock_seq++;
+		if (clock_seq == 0) 
+			clock_seq++;
+		our_clock_seq = clock_seq;	// Ensure we're using a different clock_seq value from previous time
 	}
+
+    time_last = timestamp;
 
 	memcpy(mData+10, node_id, 6);		/* Flawfinder: ignore */
 	U32 tmp;
@@ -839,7 +853,8 @@ void LLUUID::generate()
 	tmp >>= 8;
 	mData[6] = (unsigned char) tmp;
 
-	tmp = clock_seq;
+	tmp = our_clock_seq;
+
 	mData[9] = (unsigned char) tmp;
 	tmp >>= 8;
 	mData[8] = (unsigned char) tmp;
@@ -849,8 +864,6 @@ void LLUUID::generate()
 	md5_uuid.update(mData,16);
 	md5_uuid.finalize();
 	md5_uuid.raw_digest(mData);
-
-    time_last = timestamp;
 }
 
 void LLUUID::generate(const std::string& hash_string)
@@ -864,8 +877,14 @@ U32 LLUUID::getRandomSeed()
    static unsigned char seed[16];		/* Flawfinder: ignore */
    
    getNodeID(&seed[0]);
-   seed[6]='\0';
-   seed[7]='\0';
+
+   // Incorporate the pid into the seed to prevent
+   // processes that start on the same host at the same
+   // time from generating the same seed.
+   pid_t pid = LLApp::getPid();
+
+   seed[6]=(unsigned char)(pid >> 8);
+   seed[7]=(unsigned char)(pid);
    getSystemTime((uuid_time_t *)(&seed[8]));
 
    LLMD5 md5_seed;
@@ -921,4 +940,175 @@ LLAssetID LLTransactionID::makeAssetID(const LLUUID& session) const
 		combine(session, result);
 	}
 	return result;
+}
+
+// Construct
+LLUUID::LLUUID()
+{
+	setNull();
+}
+
+
+// Faster than copying from memory
+ void LLUUID::setNull()
+{
+	U32 *word = (U32 *)mData;
+	word[0] = 0;
+	word[1] = 0;
+	word[2] = 0;
+	word[3] = 0;
+}
+
+
+// Compare
+ bool LLUUID::operator==(const LLUUID& rhs) const
+{
+	U32 *tmp = (U32 *)mData;
+	U32 *rhstmp = (U32 *)rhs.mData;
+	// Note: binary & to avoid branching
+	return 
+		(tmp[0] == rhstmp[0]) &  
+		(tmp[1] == rhstmp[1]) &
+		(tmp[2] == rhstmp[2]) &
+		(tmp[3] == rhstmp[3]);
+}
+
+
+ bool LLUUID::operator!=(const LLUUID& rhs) const
+{
+	U32 *tmp = (U32 *)mData;
+	U32 *rhstmp = (U32 *)rhs.mData;
+	// Note: binary | to avoid branching
+	return 
+		(tmp[0] != rhstmp[0]) |
+		(tmp[1] != rhstmp[1]) |
+		(tmp[2] != rhstmp[2]) |
+		(tmp[3] != rhstmp[3]);
+}
+
+/*
+// JC: This is dangerous.  It allows UUIDs to be cast automatically
+// to integers, among other things.  Use isNull() or notNull().
+ LLUUID::operator bool() const
+{
+	U32 *word = (U32 *)mData;
+	return (word[0] | word[1] | word[2] | word[3]) > 0;
+}
+*/
+
+ BOOL LLUUID::notNull() const
+{
+	U32 *word = (U32 *)mData;
+	return (word[0] | word[1] | word[2] | word[3]) > 0;
+}
+
+// Faster than == LLUUID::null because doesn't require
+// as much memory access.
+ BOOL LLUUID::isNull() const
+{
+	U32 *word = (U32 *)mData;
+	// If all bits are zero, return !0 == TRUE
+	return !(word[0] | word[1] | word[2] | word[3]);
+}
+
+// Copy constructor
+ LLUUID::LLUUID(const LLUUID& rhs)
+{
+	U32 *tmp = (U32 *)mData;
+	U32 *rhstmp = (U32 *)rhs.mData;
+	tmp[0] = rhstmp[0];
+	tmp[1] = rhstmp[1];
+	tmp[2] = rhstmp[2];
+	tmp[3] = rhstmp[3];
+}
+
+ LLUUID::~LLUUID()
+{
+}
+
+// Assignment
+ LLUUID& LLUUID::operator=(const LLUUID& rhs)
+{
+	// No need to check the case where this==&rhs.  The branch is slower than the write.
+	U32 *tmp = (U32 *)mData;
+	U32 *rhstmp = (U32 *)rhs.mData;
+	tmp[0] = rhstmp[0];
+	tmp[1] = rhstmp[1];
+	tmp[2] = rhstmp[2];
+	tmp[3] = rhstmp[3];
+	
+	return *this;
+}
+
+
+ LLUUID::LLUUID(const char *in_string)
+{
+	if (!in_string || in_string[0] == 0)
+	{
+		setNull();
+		return;
+	}
+ 
+	set(in_string);
+}
+
+ LLUUID::LLUUID(const std::string& in_string)
+{
+	if (in_string.empty())
+	{
+		setNull();
+		return;
+	}
+
+	set(in_string);
+}
+
+// IW: DON'T "optimize" these w/ U32s or you'll scoogie the sort order
+// IW: this will make me very sad
+ bool LLUUID::operator<(const LLUUID &rhs) const
+{
+	U32 i;
+	for( i = 0; i < (UUID_BYTES - 1); i++ )
+	{
+		if( mData[i] != rhs.mData[i] )
+		{
+			return (mData[i] < rhs.mData[i]);
+		}
+	}
+	return (mData[UUID_BYTES - 1] < rhs.mData[UUID_BYTES - 1]);
+}
+
+ bool LLUUID::operator>(const LLUUID &rhs) const
+{
+	U32 i;
+	for( i = 0; i < (UUID_BYTES - 1); i++ )
+	{
+		if( mData[i] != rhs.mData[i] )
+		{
+			return (mData[i] > rhs.mData[i]);
+		}
+	}
+	return (mData[UUID_BYTES - 1] > rhs.mData[UUID_BYTES - 1]);
+}
+
+ U16 LLUUID::getCRC16() const
+{
+	// A UUID is 16 bytes, or 8 shorts.
+	U16 *short_data = (U16*)mData;
+	U16 out = 0;
+	out += short_data[0];
+	out += short_data[1];
+	out += short_data[2];
+	out += short_data[3];
+	out += short_data[4];
+	out += short_data[5];
+	out += short_data[6];
+	out += short_data[7];
+	return out;
+}
+
+ U32 LLUUID::getCRC32() const
+{
+	U32 *tmp = (U32*)mData;
+	return tmp[0] + tmp[1] + tmp[2] + tmp[3];
 }

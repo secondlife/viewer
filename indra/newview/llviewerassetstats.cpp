@@ -30,6 +30,7 @@
 #include "llregionhandle.h"
 
 #include "stdtypes.h"
+#include "llvoavatar.h"
 
 /*
  * Classes and utility functions for per-thread and per-region
@@ -126,6 +127,8 @@ LLViewerAssetStats::PerRegionStats::merge(const LLViewerAssetStats::PerRegionSta
 		mFPS.merge(src.mFPS);
 	}
 
+	// Avatar stats - data all comes from main thread, so leave alone.
+
 	// Requests
 	for (int i = 0; i < LL_ARRAY_SIZE(mRequests); ++i)
 	{
@@ -133,6 +136,7 @@ LLViewerAssetStats::PerRegionStats::merge(const LLViewerAssetStats::PerRegionSta
 		mRequests[i].mDequeued.merge(src.mRequests[i].mDequeued);
 		mRequests[i].mResponse.merge(src.mRequests[i].mResponse);
 	}
+
 }
 
 
@@ -329,7 +333,6 @@ LLViewerAssetStats::asLLSD(bool compact_output)
 			slot[max_tag] = LLSD(F64(stats.mFPS.getMax()));
 			slot[mean_tag] = LLSD(F64(stats.mFPS.getMean()));
 		}
-
 		U32 grid_x(0), grid_y(0);
 		grid_from_region_handle(it->first, &grid_x, &grid_y);
 		reg_stat["grid_x"] = LLSD::Integer(grid_x);
@@ -438,7 +441,6 @@ record_fps_main(F32 fps)
 
 	gViewerAssetStatsMain->recordFPS(fps);
 }
-
 
 // 'thread1' - should be for TextureFetch thread
 

@@ -50,6 +50,8 @@ const LLCommandId LLCommandId::null = LLCommandId("null command");
 LLCommand::Params::Params()
 	: available_in_toybox("available_in_toybox", false)
 	, icon("icon")
+	, hover_icon_unselected("hover_icon_unselected")
+	, hover_icon_selected("hover_icon_selected")
 	, label_ref("label_ref")
 	, name("name")
 	, tooltip_ref("tooltip_ref")
@@ -63,6 +65,7 @@ LLCommand::Params::Params()
 	, is_running_parameters("is_running_parameters")
 	, is_starting_function("is_starting_function")
 	, is_starting_parameters("is_starting_parameters")
+	, is_flashing_allowed("is_flashing_allowed", false)
 {
 }
 
@@ -70,6 +73,8 @@ LLCommand::LLCommand(const LLCommand::Params& p)
 	: mIdentifier(p.name)
 	, mAvailableInToybox(p.available_in_toybox)
 	, mIcon(p.icon)
+	, mHoverIconUnselected(p.hover_icon_unselected)
+	, mHoverIconSelected(p.hover_icon_selected)
 	, mLabelRef(p.label_ref)
 	, mName(p.name)
 	, mTooltipRef(p.tooltip_ref)
@@ -83,6 +88,7 @@ LLCommand::LLCommand(const LLCommand::Params& p)
 	, mIsRunningParameters(p.is_running_parameters)
 	, mIsStartingFunction(p.is_starting_function)
 	, mIsStartingParameters(p.is_starting_parameters)
+	, mIsFlashingAllowed(p.is_flashing_allowed)
 {
 }
 

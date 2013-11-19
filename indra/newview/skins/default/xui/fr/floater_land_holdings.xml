@@ -7,7 +7,7 @@
 		<column label="Surface" name="area"/>
 		<column label="" name="hidden"/>
 	</scroll_list>
-	<button label="Téléporter" label_selected="Téléporter" name="Teleport" tool_tip="Téléportez-vous au milieu de ce terrain."/>
+	<button label="Téléportation" label_selected="Téléportation" name="Teleport" tool_tip="Téléportez-vous au milieu de ce terrain."/>
 	<button label="Carte" label_selected="Carte" name="Show on Map" tool_tip="Afficher ce terrain sur la carte du monde"/>
 	<text name="contrib_label">
 		Vos contributions :

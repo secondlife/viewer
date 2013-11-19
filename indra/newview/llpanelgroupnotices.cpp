@@ -35,6 +35,7 @@
 #include "llviewerinventory.h"
 #include "llinventorydefines.h"
 #include "llinventoryfunctions.h"
+#include "llinventoryicon.h"
 #include "llinventorymodel.h"
 #include "llfloaterinventory.h"
 #include "llagent.h"
@@ -543,10 +544,7 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 		msg->getU32("Data","Timestamp",timestamp,i);
 
 		// we only have the legacy name here, convert it to a username
-		if (LLAvatarNameCache::useDisplayNames())
-		{
-			name = LLCacheName::buildUsername(name);
-		}
+		name = LLCacheName::buildUsername(name);
 
 		LLSD row;
 		row["id"] = id;

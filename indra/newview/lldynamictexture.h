@@ -36,6 +36,16 @@
 class LLViewerDynamicTexture : public LLViewerTexture
 {
 public:
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free_16(ptr);
+	}
+
 	enum
 	{
 		LL_VIEWER_DYNAMIC_TEXTURE = LLViewerTexture::DYNAMIC_TEXTURE,
@@ -62,8 +72,8 @@ public:
 	
 	/*virtual*/ S8 getType() const ;
 
-	S32			getOriginX()	{ return mOrigin.mX; }
-	S32			getOriginY()	{ return mOrigin.mY; }
+	S32			getOriginX() const	{ return mOrigin.mX; }
+	S32			getOriginY() const	{ return mOrigin.mY; }
 	
 	S32			getSize()		{ return mFullWidth * mFullHeight * mComponents; }
 
@@ -85,7 +95,7 @@ protected:
 protected:
 	BOOL mClamp;
 	LLCoordGL mOrigin;
-	LLCamera mCamera;
+	LL_ALIGN_16(LLCamera mCamera);
 	
 	typedef std::set<LLViewerDynamicTexture*> instance_list_t;
 	static instance_list_t sInstances[ LLViewerDynamicTexture::ORDER_COUNT ];

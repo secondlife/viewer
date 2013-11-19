@@ -263,8 +263,8 @@ public :
 		EService mService;
 	};
 
-	typedef boost::intrusive_ptr<TranslationReceiver> TranslationReceiverPtr;
-	typedef boost::intrusive_ptr<KeyVerificationReceiver> KeyVerificationReceiverPtr;
+	typedef LLPointer<TranslationReceiver> TranslationReceiverPtr;
+	typedef LLPointer<KeyVerificationReceiver> KeyVerificationReceiverPtr;
 
 	/**
 	 * Translate given text.

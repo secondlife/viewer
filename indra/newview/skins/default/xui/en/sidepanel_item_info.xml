@@ -11,6 +11,10 @@
 		 name="unknown">
         (unknown)
 	</panel.string>
+    <panel.string
+         name="unknown_multiple">
+        (unknown / multiple)
+    </panel.string>
 	<panel.string
 		 name="public">
         (public)

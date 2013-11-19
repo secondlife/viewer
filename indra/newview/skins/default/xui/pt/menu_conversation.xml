@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="menu_conversation_participant">
+	<menu_item_call label="Encerrar conversa" name="close_conversation"/>
+	<menu_item_call label="Abrir conversa de voz" name="open_voice_conversation"/>
+	<menu_item_call label="Desconectar de voz" name="disconnect_from_voice"/>
+	<menu_item_call label="Fechar selecionados" name="close_selected_conversations"/>
+	<menu_item_call label="Exibir perfil" name="view_profile"/>
+	<menu_item_call label="MI" name="im"/>
+	<menu_item_call label="Oferecer teletransporte" name="offer_teleport"/>
+	<menu_item_call label="Chamada de voz" name="voice_call"/>
+	<menu_item_call label="Histórico de bate-papo..." name="chat_history"/>
+	<menu_item_call label="Adicionar amigo" name="add_friend"/>
+	<menu_item_call label="Remover amigo" name="remove_friend"/>
+	<menu_item_call label="Remover amigos" name="remove_friends"/>
+	<menu_item_call label="Convidar para entrar no grupo..." name="invite_to_group"/>
+	<menu_item_call label="Mais zoom" name="zoom_in"/>
+	<menu_item_call label="Mapa" name="map"/>
+	<menu_item_call label="Compartilhar" name="share"/>
+	<menu_item_call label="Pagar" name="pay"/>
+	<menu_item_check label="Bloquear voz" name="block_unblock"/>
+	<menu_item_check label="Bloquear texto" name="MuteText"/>
+	<menu_item_call label="Perfil do grupo" name="group_profile"/>
+	<menu_item_call label="Ativar grupo" name="activate_group"/>
+	<menu_item_call label="Sair do grupo" name="leave_group"/>
+	<context_menu label="Opções do moderador &gt;" name="Moderator Options">
+		<menu_item_check label="Pode bater papo por escrito" name="AllowTextChat"/>
+		<menu_item_call label="Silenciar este participante" name="ModerateVoiceMuteSelected"/>
+		<menu_item_call label="Desfazer silenciar deste participante" name="ModerateVoiceUnMuteSelected"/>
+		<menu_item_call label="Silenciar todos" name="ModerateVoiceMute"/>
+		<menu_item_call label="Desfazer silenciar para todos" name="ModerateVoiceUnmute"/>
+	</context_menu>
+</toggleable_menu>

@@ -31,7 +31,7 @@
 #include "llurlentry_stub.cpp"
 #include "lltut.h"
 #include "../lluicolortable.h"
-#include "../lluiimage.h"
+#include "../llrender/lluiimage.h"
 
 #include <boost/regex.hpp>
 
@@ -68,21 +68,6 @@ S32 LLUIImage::getWidth() const
 S32 LLUIImage::getHeight() const
 {
 	return 0;
-}
-
-namespace LLInitParam
-{
-	BlockDescriptor::BlockDescriptor() {}
-	ParamDescriptor::ParamDescriptor(param_handle_t p, 
-						merge_func_t merge_func, 
-						deserialize_func_t deserialize_func, 
-						serialize_func_t serialize_func,
-						validation_func_t validation_func,
-						inspect_func_t inspect_func,
-						S32 min_count,
-						S32 max_count){}
-	ParamDescriptor::~ParamDescriptor() {}
-
 }
 
 namespace tut

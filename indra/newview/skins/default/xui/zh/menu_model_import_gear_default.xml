@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="model_menu_gear_default">
+	<menu_item_check label="顯示側邊" name="show_edges"/>
+	<menu_item_check label="顯示物理" name="show_physics"/>
+	<menu_item_check label="顯示材質" name="show_textures"/>
+	<menu_item_check label="顯示表皮重量" name="show_skin_weight"/>
+	<menu_item_check label="顯示接點位置" name="show_joint_positions"/>
+</toggleable_menu>

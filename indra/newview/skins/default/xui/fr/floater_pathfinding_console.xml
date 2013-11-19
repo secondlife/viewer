@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_pathfinding_console" title="Vue/Test de recherche de chemin">
+	<floater.string name="navmesh_viewer_status_library_not_implemented">
+		Implémentation de la bibliothèque de recherche de chemin introuvable
+	</floater.string>
+	<floater.string name="navmesh_viewer_status_region_not_enabled">
+		La recherche de chemin n&apos;a pas été activée pour cette région.
+	</floater.string>
+	<floater.string name="navmesh_viewer_status_region_loading">
+		En attente de fin de chargement de la région.
+	</floater.string>
+	<floater.string name="navmesh_viewer_status_checking_version">
+		Vérification de l&apos;état du maillage de navigation.
+	</floater.string>
+	<floater.string name="navmesh_viewer_status_downloading">
+		Téléchargement du maillage de navigation.
+	</floater.string>
+	<floater.string name="navmesh_viewer_status_updating">
+		Maillage de navigation modifié sur le serveur. Téléchargement du plus récent.
+	</floater.string>
+	<floater.string name="navmesh_viewer_status_has_navmesh">
+		Le maillage de navigation le plus récent a été téléchargé.
+	</floater.string>
+	<floater.string name="navmesh_viewer_status_error">
+		Impossible de télécharger le maillage de navigation.
+	</floater.string>
+	<floater.string name="navmesh_simulator_status_pending">
+		Des modifications sont en attente concernant le maillage de navigation.
+	</floater.string>
+	<floater.string name="navmesh_simulator_status_building">
+		Maillage de navigation en cours de création.
+	</floater.string>
+	<floater.string name="navmesh_simulator_status_some_pending">
+		Des modifications sont en attente pour certaines régions de maillage de navigation.
+	</floater.string>
+	<floater.string name="navmesh_simulator_status_some_building">
+		Certaines régions de maillage de navigation sont en cours de création.
+	</floater.string>
+	<floater.string name="navmesh_simulator_status_pending_and_building">
+		Des modifications sont en attente pour certaines régions de maillage de navigation et d&apos;autres sont en cours de création.
+	</floater.string>
+	<floater.string name="navmesh_simulator_status_complete">
+		Maillage de navigation à jour.
+	</floater.string>
+	<floater.string name="pathing_library_not_implemented">
+		Implémentation de la bibliothèque de recherche de chemin introuvable
+	</floater.string>
+	<floater.string name="pathing_region_not_enabled">
+		La recherche de chemin n&apos;a pas été activée pour cette région.
+	</floater.string>
+	<floater.string name="pathing_choose_start_and_end_points">
+		Choisissez un point de départ et un point d&apos;arrivée.
+	</floater.string>
+	<floater.string name="pathing_choose_start_point">
+		Choisissez un point de départ.
+	</floater.string>
+	<floater.string name="pathing_choose_end_point">
+		Choisissez un point d&apos;arrivée.
+	</floater.string>
+	<floater.string name="pathing_path_valid">
+		Le chemin s&apos;affiche en orange.
+	</floater.string>
+	<floater.string name="pathing_path_invalid">
+		Impossible de trouver un chemin entre les points choisis.
+	</floater.string>
+	<floater.string name="pathing_error">
+		Erreur lors de la génération du chemin.
+	</floater.string>
+	<tab_container name="view_test_tab_container">
+		<panel label="Vue" name="view_panel">
+			<text name="show_label">
+				Afficher :
+			</text>
+			<check_box label="Monde" name="show_world"/>
+			<check_box label="Mobiles uniquement" name="show_world_movables_only"/>
+			<check_box label="Maillage de navigation" name="show_navmesh"/>
+			<text name="show_walkability_label">
+				Où marcher est possible :
+			</text>
+			<combo_box name="show_heatmap_mode">
+				<combo_box.item label="Ne pas afficher" name="show_heatmap_mode_none"/>
+				<combo_box.item label="Type de personnage A" name="show_heatmap_mode_a"/>
+				<combo_box.item label="Type de personnage B" name="show_heatmap_mode_b"/>
+				<combo_box.item label="Type de personnage C" name="show_heatmap_mode_c"/>
+				<combo_box.item label="Type de personnage D" name="show_heatmap_mode_d"/>
+			</combo_box>
+			<check_box label="Marche possible" name="show_walkables"/>
+			<check_box label="Volumes de matériau" name="show_material_volumes"/>
+			<check_box label="Obstacles statiques" name="show_static_obstacles"/>
+			<check_box label="Volumes d&apos;exclusion" name="show_exclusion_volumes"/>
+			<check_box label="Plan de l&apos;eau" name="show_water_plane"/>
+			<check_box label="Mode rayons X" name="show_xray"/>
+		</panel>
+		<panel label="Chemin test" name="test_panel">
+			<text name="ctrl_click_label">
+				Ctrl-clic : sélection point de départ
+			</text>
+			<text name="shift_click_label">
+				Maj-clic : sélection point d&apos;arrivée
+			</text>
+			<text name="character_width_label">
+				Largeur du personnage
+			</text>
+			<slider name="character_width" value="1"/>
+			<text name="character_width_unit_label">
+				m
+			</text>
+			<text name="character_type_label">
+				Type de personnage
+			</text>
+			<combo_box name="path_character_type">
+				<combo_box.item label="Aucun" name="path_character_type_none"/>
+				<combo_box.item label="A" name="path_character_type_a"/>
+				<combo_box.item label="B" name="path_character_type_b"/>
+				<combo_box.item label="C" name="path_character_type_c"/>
+				<combo_box.item label="D" name="path_character_type_d"/>
+			</combo_box>
+			<button label="Effacer chemin" name="clear_path"/>
+		</panel>
+	</tab_container>
+</floater>

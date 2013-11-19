@@ -98,12 +98,14 @@ public:
 	BOOL mHasFragmentShader;
 	S32  mNumTextureImageUnits;
 	BOOL mHasOcclusionQuery;
+	BOOL mHasTimerQuery;
 	BOOL mHasOcclusionQuery2;
 	BOOL mHasPointParameters;
 	BOOL mHasDrawBuffers;
 	BOOL mHasDepthClamp;
 	BOOL mHasTextureRectangle;
 	BOOL mHasTextureMultisample;
+	BOOL mHasTransformFeedback;
 	S32 mMaxSampleMaskWords;
 	S32 mMaxColorTextureSamples;
 	S32 mMaxDepthTextureSamples;
@@ -114,6 +116,8 @@ public:
 	BOOL mHasARBEnvCombine;
 	BOOL mHasCubeMap;
 	BOOL mHasDebugOutput;
+	BOOL mHassRGBTexture;
+	BOOL mHassRGBFramebuffer;
 
 	// Vendor-specific extensions
 	BOOL mIsATI;
@@ -125,6 +129,11 @@ public:
 	BOOL mATIOffsetVerticalLines;
 	BOOL mATIOldDriver;
 
+#if LL_DARWIN
+	// Needed to distinguish problem cards on older Macs that break with Materials
+	BOOL mIsMobileGF;
+#endif
+	
 	// Whether this version of GL is good enough for SL to use
 	BOOL mHasRequirements;
 
@@ -141,10 +150,12 @@ public:
 	S32 mGLSLVersionMajor;
 	S32 mGLSLVersionMinor;
 	std::string mDriverVersionVendorString;
+	std::string mGLVersionString;
 
 	S32 mVRAM; // VRAM in MB
 	S32 mGLMaxVertexRange;
 	S32 mGLMaxIndexRange;
+	S32 mGLMaxTextureSize;
 	
 	void getPixelFormat(); // Get the best pixel format
 
@@ -417,13 +428,42 @@ public:
 	virtual void updateGL() = 0;
 };
 
+const U32 FENCE_WAIT_TIME_NANOSECONDS = 1000;  //1 ms
+
+class LLGLFence
+{
+public:
+	virtual ~LLGLFence()
+	{
+	}
+
+	virtual void placeFence() = 0;
+	virtual bool isCompleted() = 0;
+	virtual void wait() = 0;
+};
+
+class LLGLSyncFence : public LLGLFence
+{
+public:
+#ifdef GL_ARB_sync
+	GLsync mSync;
+#endif
+	
+	LLGLSyncFence();
+	virtual ~LLGLSyncFence();
+
+	void placeFence();
+	bool isCompleted();
+	void wait();
+};
+
 extern LLMatrix4 gGLObliqueProjectionInverse;
 
 #include "llglstates.h"
 
 void init_glstates();
 
-void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor_specific );
+void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor_specific, std::string* version_string );
 
 extern BOOL gClothRipple;
 extern BOOL gHeadlessClient;

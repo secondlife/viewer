@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="modal container">
 	<text name="Save item as:">
-		Press a key to set your Speak button trigger.
+		按任一鍵設定「說話」按鈕的觸發。
 	</text>
 	<button label="取消" label_selected="取消" name="Cancel"/>
 </floater>

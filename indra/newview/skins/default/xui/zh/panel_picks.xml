@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="精選地點" name="panel_picks">
 	<string name="no_picks" value="無精選地點"/>
-	<string name="no_classifieds" value="No Classifieds"/>
+	<string name="no_classifieds" value="禁止個人廣告"/>
 	<accordion name="accordion">
 		<accordion_tab name="tab_picks" title="精選地點"/>
-		<accordion_tab name="tab_classifieds" title="Classifieds"/>
+		<accordion_tab name="tab_classifieds" title="個人廣告"/>
 	</accordion>
 	<panel label="bottom_panel" name="edit_panel">
 		<layout_stack name="edit_panel_ls">

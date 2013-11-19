@@ -50,10 +50,13 @@ public:
 		POOL_GROUND,
 		POOL_FULLBRIGHT,
 		POOL_BUMP,
+		POOL_MATERIALS,
 		POOL_TERRAIN,	
 		POOL_SKY,
 		POOL_WL_SKY,
 		POOL_TREE,
+		POOL_ALPHA_MASK,
+		POOL_FULLBRIGHT_ALPHA_MASK,
 		POOL_GRASS,
 		POOL_INVISIBLE, // see below *
 		POOL_AVATAR,
@@ -76,6 +79,9 @@ public:
 
 	S32 getId() const { return mId; }
 	U32 getType() const { return mType; }
+
+	BOOL getSkipRenderFlag() const { return mSkipRender;}
+	void setSkipRenderFlag( BOOL flag ) { mSkipRender = flag; }
 
 	virtual LLViewerTexture *getDebugTexture();
 	virtual void beginRenderPass( S32 pass );
@@ -113,6 +119,7 @@ protected:
 	S32 mVertexShaderLevel;
 	S32	mId;
 	U32 mType;				// Type of draw pool
+	BOOL mSkipRender;
 };
 
 class LLRenderPass : public LLDrawPool
@@ -129,6 +136,22 @@ public:
 		PASS_SHINY,
 		PASS_BUMP,
 		PASS_POST_BUMP,
+		PASS_MATERIAL,
+		PASS_MATERIAL_ALPHA,
+		PASS_MATERIAL_ALPHA_MASK,
+		PASS_MATERIAL_ALPHA_EMISSIVE,
+		PASS_SPECMAP,
+		PASS_SPECMAP_BLEND,
+		PASS_SPECMAP_MASK,
+		PASS_SPECMAP_EMISSIVE,
+		PASS_NORMMAP,
+		PASS_NORMMAP_BLEND,
+		PASS_NORMMAP_MASK,
+		PASS_NORMMAP_EMISSIVE,
+		PASS_NORMSPEC,
+		PASS_NORMSPEC_BLEND,
+		PASS_NORMSPEC_MASK,
+		PASS_NORMSPEC_EMISSIVE,
 		PASS_GLOW,
 		PASS_ALPHA,
 		PASS_ALPHA_MASK,
@@ -147,6 +170,7 @@ public:
 
 	static void applyModelMatrix(LLDrawInfo& params);
 	virtual void pushBatches(U32 type, U32 mask, BOOL texture = TRUE, BOOL batch_textures = FALSE);
+	virtual void pushMaskBatches(U32 type, U32 mask, BOOL texture = TRUE, BOOL batch_textures = FALSE);
 	virtual void pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures = FALSE);
 	virtual void renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture = TRUE);
 	virtual void renderGroups(U32 type, U32 mask, BOOL texture = TRUE);
@@ -185,10 +209,6 @@ public:
 	void destroy();
 
 	void buildEdges();
-
-	static S32 drawLoop(face_array_t& face_list);
-	static S32 drawLoopSetTex(face_array_t& face_list, S32 stage);
-	void drawLoop();
 
 	void addFaceReference(LLFace *facep);
 	void removeFaceReference(LLFace *facep);

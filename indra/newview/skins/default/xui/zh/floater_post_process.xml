@@ -1,50 +1,50 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Post-Process Floater" title="POST-PROCESS SETTINGS">
+<floater name="Post-Process Floater" title="後處理設定：">
 	<tab_container name="Post-Process Tabs">
-		<panel label="Color Filter" name="wmiColorFilterPanel">
-			<check_box label="Enable" name="wmiColorFilterToggle"/>
+		<panel label="顏色過濾" name="wmiColorFilterPanel">
+			<check_box label="啟用" name="wmiColorFilterToggle"/>
 			<text name="wmiColorFilterBrightnessText">
-				Brightness
+				亮度
 			</text>
 			<text name="wmiColorFilterSaturationText">
-				Saturation
+				飽和度
 			</text>
 			<text name="wmiColorFilterContrastText">
-				Contrast
+				對比
 			</text>
 			<text name="wmiColorFilterBaseText">
-				Contrast Base Color
+				對比基本色
 			</text>
 			<slider label="R" name="wmiColorFilterBaseR"/>
 			<slider label="G" name="wmiColorFilterBaseG"/>
 			<slider label="B" name="wmiColorFilterBaseB"/>
 			<slider label="I" name="wmiColorFilterBaseI"/>
 		</panel>
-		<panel label="Night Vision" name="wmiNightVisionPanel">
-			<check_box label="Enable" name="wmiNightVisionToggle"/>
+		<panel label="夜視" name="wmiNightVisionPanel">
+			<check_box label="啟用" name="wmiNightVisionToggle"/>
 			<text name="wmiNightVisionBrightMultText">
-				Light Amplification Multiple
+				光放大倍數
 			</text>
 			<text name="wmiNightVisionNoiseSizeText">
-				Noise Size
+				噪音規模
 			</text>
 			<text name="wmiNightVisionNoiseStrengthText">
-				Noise Strength
+				噪音強度
 			</text>
 		</panel>
-		<panel label="Bloom" name="wmiBloomPanel">
-			<check_box label="Enable" name="wmiBloomToggle"/>
+		<panel label="開花" name="wmiBloomPanel">
+			<check_box label="啟用" name="wmiBloomToggle"/>
 			<text name="wmiBloomExtractText">
-				Luminosity Extraction
+				光度萃取
 			</text>
 			<text name="wmiBloomSizeText">
-				Bloom Size
+				開花大小
 			</text>
 			<text name="wmiBloomStrengthText">
-				Bloom Strength
+				開花強度
 			</text>
 		</panel>
-		<panel label="Extras" name="Extras">
+		<panel label="其他" name="Extras">
 			<button label="LoadEffect" label_selected="LoadEffect" name="PPLoadEffect"/>
 			<button label="SaveEffect" label_selected="SaveEffect" name="PPSaveEffect"/>
 			<line_editor label="效果名稱" name="PPEffectNameEditor"/>

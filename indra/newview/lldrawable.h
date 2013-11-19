@@ -38,7 +38,6 @@
 #include "llvector4a.h"
 #include "llquaternion.h"
 #include "xform.h"
-#include "llmemtype.h"
 #include "lldarray.h"
 #include "llviewerobject.h"
 #include "llrect.h"
@@ -59,6 +58,7 @@ class LLViewerTexture;
 const U32 SILHOUETTE_HIGHLIGHT = 0;
 
 // All data for new renderer goes into this class.
+LL_ALIGN_PREFIX(16)
 class LLDrawable : public LLRefCount
 {
 public:
@@ -75,8 +75,17 @@ public:
 
 	static void initClass();
 
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free_16(ptr);
+	}
+
 	LLDrawable()				{ init(); }
-	MEM_TYPE_NEW(LLMemType::MTYPE_DRAWABLE);
 	
 	void markDead();			// Mark this drawable as dead
 	BOOL isDead() const			{ return isState(DEAD); }
@@ -109,6 +118,9 @@ public:
 	F32			          getIntensity() const			{ return llmin(mXform.getScale().mV[0], 4.f); }
 	S32					  getLOD() const				{ return mVObjp ? mVObjp->getLOD() : 1; }
 	F32					  getBinRadius() const			{ return mBinRadius; }
+	S32					  getBinIndex() const			{ return mBinIndex; }
+	void				  setBinIndex(S32 index) const	{ mBinIndex = index; }
+
 	void  getMinMax(LLVector3& min,LLVector3& max) const { mXform.getMinMax(min,max); }
 	LLXformMatrix*		getXform() { return &mXform; }
 
@@ -133,6 +145,8 @@ public:
 	//void                removeFace(const S32 i); // SJB: Avoid using this, it's slow
 	LLFace*				addFace(LLFacePool *poolp, LLViewerTexture *texturep);
 	LLFace*				addFace(const LLTextureEntry *te, LLViewerTexture *texturep);
+	LLFace*				addFace(const LLTextureEntry *te, LLViewerTexture *texturep, LLViewerTexture *normalp);
+	LLFace*				addFace(const LLTextureEntry *te, LLViewerTexture *texturep, LLViewerTexture *normalp, LLViewerTexture *specularp);
 	void				deleteFaces(S32 offset, S32 count);
 	void                setNumFaces(const S32 numFaces, LLFacePool *poolp, LLViewerTexture *texturep);
 	void                setNumFacesFast(const S32 numFaces, LLFacePool *poolp, LLViewerTexture *texturep);
@@ -194,7 +208,7 @@ public:
 	S32 findReferences(LLDrawable *drawablep); // Not const because of @#$! iterators...
 
 	void setSpatialGroup(LLSpatialGroup *groupp);
-	LLSpatialGroup *getSpatialGroup() const			{ return mSpatialGroupp; }
+	LLSpatialGroup *getSpatialGroup() const;
 	LLSpatialPartition* getSpatialPartition();
 	
 	// Statics
@@ -272,16 +286,17 @@ public:
  		NEARBY_LIGHT	= 0x00200000, // In gPipeline.mNearbyLightSet
 		BUILT			= 0x00400000,
 		FORCE_INVISIBLE = 0x00800000, // stay invis until CLEAR_INVISIBLE is set (set of orphaned)
-		CLEAR_INVISIBLE = 0x01000000, // clear FORCE_INVISIBLE next draw frame
 		REBUILD_SHADOW =  0x02000000,
 		HAS_ALPHA		= 0x04000000,
 		RIGGED			= 0x08000000,
 		PARTITION_MOVE	= 0x10000000,
+		ANIMATED_CHILD  = 0x20000000,
+		ACTIVE_CHILD	= 0x40000000,
 	} EDrawableFlags;
 
 private: //aligned members
-	LLVector4a		mExtents[2];
-	LLVector4a		mPositionGroup;
+	LL_ALIGN_16(LLVector4a		mExtents[2]);
+	LL_ALIGN_16(LLVector4a		mPositionGroup);
 	
 public:
 	LLXformMatrix       mXform;
@@ -290,8 +305,6 @@ public:
 	LLPointer<LLDrawable> mParent;
 
 	F32				mDistanceWRTCamera;
-	
-	S32				mQuietCount;
 
 	static S32 getCurrentFrame() { return sCurVisible; }
 	static S32 getMinVisFrameRange();
@@ -314,6 +327,7 @@ private:
 	mutable U32		mVisible;
 	F32				mRadius;
 	F32				mBinRadius;
+	mutable S32		mBinIndex;
 	S32				mGeneration;
 	
 	LLVector3		mCurrentScale;
@@ -322,7 +336,7 @@ private:
 
 	static U32 sNumZombieDrawables;
 	static LLDynamicArrayPtr<LLPointer<LLDrawable> > sDeadList;
-};
+} LL_ALIGN_POSTFIX(16);
 
 
 inline LLFace* LLDrawable::getFace(const S32 i) const
@@ -333,12 +347,14 @@ inline LLFace* LLDrawable::getFace(const S32 i) const
 
 	if ((U32) i >= mFaces.size())
 	{
-		llerrs << "Invalid face index." << llendl;
+		llwarns << "Invalid face index." << llendl;
+		return NULL;
 	}
 
 	if (!mFaces[i])
 	{
-		llerrs << "Null face found." << llendl;
+		llwarns << "Null face found." << llendl;
+		return NULL;
 	}
 	
 	return mFaces[i];

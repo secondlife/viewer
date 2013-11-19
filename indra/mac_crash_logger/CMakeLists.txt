@@ -19,16 +19,22 @@ include_directories(
     ${LLVFS_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
     )
+include_directories(SYSTEM
+    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
+    ${LLXML_SYSTEM_INCLUDE_DIRS}
+    )
 
 set(mac_crash_logger_SOURCE_FILES
     mac_crash_logger.cpp
     llcrashloggermac.cpp
+    llcrashloggermacdelegate.mm
     )
 
 set(mac_crash_logger_HEADER_FILES
     CMakeLists.txt
 
     llcrashloggermac.h
+    llcrashloggermacdelegate.h
     )
 
 set_source_files_properties(${mac_crash_logger_HEADER_FILES}
@@ -55,9 +61,12 @@ set_target_properties(mac-crash-logger
   MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist
   )
 
+find_library(COCOA_LIBRARY Cocoa)
+
 target_link_libraries(mac-crash-logger
     ${LLCRASHLOGGER_LIBRARIES}
     ${LLVFS_LIBRARIES}
+    ${COCOA_LIBRARIES}
     ${LLXML_LIBRARIES}
     ${LLMESSAGE_LIBRARIES}
     ${LLVFS_LIBRARIES}

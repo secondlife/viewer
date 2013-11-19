@@ -416,16 +416,20 @@ void LLFloaterBvhPreview::draw()
 //-----------------------------------------------------------------------------
 void LLFloaterBvhPreview::resetMotion()
 {
+	if (!mAnimPreview)
+		return;
+
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
 	BOOL paused = avatarp->areAnimationsPaused();
 
-	// *TODO: Fix awful casting hack
-	LLKeyframeMotion* motionp = (LLKeyframeMotion*)avatarp->findMotion(mMotionID);
-	
-	// Set emotion
-	std::string emote = getChild<LLUICtrl>("emote_combo")->getValue().asString();
-	motionp->setEmote(mIDList[emote]);
-	
+	LLKeyframeMotion* motionp = dynamic_cast<LLKeyframeMotion*>(avatarp->findMotion(mMotionID));
+	if( motionp )
+	{
+		// Set emotion
+		std::string emote = getChild<LLUICtrl>("emote_combo")->getValue().asString();
+		motionp->setEmote(mIDList[emote]);
+	}
+
 	LLUUID base_id = mIDList[getChild<LLUICtrl>("preview_base_anim")->getValue().asString()];
 	avatarp->deactivateAllMotions();
 	avatarp->startMotion(mMotionID, 0.0f);
@@ -435,8 +439,12 @@ void LLFloaterBvhPreview::resetMotion()
 	// Set pose
 	std::string handpose = getChild<LLUICtrl>("hand_pose_combo")->getValue().asString();
 	avatarp->startMotion( ANIM_AGENT_HAND_MOTION, 0.0f );
-	motionp->setHandPose(LLHandMotion::getHandPose(handpose));
 
+	if( motionp )
+	{
+		motionp->setHandPose(LLHandMotion::getHandPose(handpose));
+	}
+	
 	if (paused)
 	{
 		mPauseRequest = avatarp->requestPause();
@@ -535,6 +543,9 @@ BOOL LLFloaterBvhPreview::handleHover(S32 x, S32 y, MASK mask)
 //-----------------------------------------------------------------------------
 BOOL LLFloaterBvhPreview::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
+	if (!mAnimPreview)
+		return false;
+
 	mAnimPreview->zoom((F32)clicks * -0.2f);
 	mAnimPreview->requestUpdate();
 
@@ -670,7 +681,7 @@ void LLFloaterBvhPreview::onCommitBaseAnim()
 //-----------------------------------------------------------------------------
 void LLFloaterBvhPreview::onCommitLoop()
 {
-	if (!getEnabled())
+	if (!getEnabled() || !mAnimPreview)
 		return;
 	
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
@@ -689,7 +700,7 @@ void LLFloaterBvhPreview::onCommitLoop()
 //-----------------------------------------------------------------------------
 void LLFloaterBvhPreview::onCommitLoopIn()
 {
-	if (!getEnabled())
+	if (!getEnabled() || !mAnimPreview)
 		return;
 
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
@@ -709,7 +720,7 @@ void LLFloaterBvhPreview::onCommitLoopIn()
 //-----------------------------------------------------------------------------
 void LLFloaterBvhPreview::onCommitLoopOut()
 {
-	if (!getEnabled())
+	if (!getEnabled() || !mAnimPreview)
 		return;
 
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
@@ -729,7 +740,7 @@ void LLFloaterBvhPreview::onCommitLoopOut()
 //-----------------------------------------------------------------------------
 void LLFloaterBvhPreview::onCommitName()
 {
-	if (!getEnabled())
+	if (!getEnabled() || !mAnimPreview)
 		return;
 
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
@@ -770,7 +781,7 @@ void LLFloaterBvhPreview::onCommitEmote()
 //-----------------------------------------------------------------------------
 void LLFloaterBvhPreview::onCommitPriority()
 {
-	if (!getEnabled())
+	if (!getEnabled() || !mAnimPreview)
 		return;
 
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
@@ -784,7 +795,7 @@ void LLFloaterBvhPreview::onCommitPriority()
 //-----------------------------------------------------------------------------
 void LLFloaterBvhPreview::onCommitEaseIn()
 {
-	if (!getEnabled())
+	if (!getEnabled() || !mAnimPreview)
 		return;
 
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
@@ -799,7 +810,7 @@ void LLFloaterBvhPreview::onCommitEaseIn()
 //-----------------------------------------------------------------------------
 void LLFloaterBvhPreview::onCommitEaseOut()
 {
-	if (!getEnabled())
+	if (!getEnabled() || !mAnimPreview)
 		return;
 
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
@@ -814,7 +825,7 @@ void LLFloaterBvhPreview::onCommitEaseOut()
 //-----------------------------------------------------------------------------
 bool LLFloaterBvhPreview::validateEaseIn(const LLSD& data)
 {
-	if (!getEnabled())
+	if (!getEnabled() || !mAnimPreview)
 		return false;
 
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
@@ -834,7 +845,7 @@ bool LLFloaterBvhPreview::validateEaseIn(const LLSD& data)
 //-----------------------------------------------------------------------------
 bool LLFloaterBvhPreview::validateEaseOut(const LLSD& data)
 {
-	if (!getEnabled())
+	if (!getEnabled() || !mAnimPreview)
 		return false;
 
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
@@ -1091,12 +1102,12 @@ BOOL	LLPreviewAnimation::render()
 
 	gGL.flush();
 
-	LLVector3 target_pos = avatarp->mRoot.getWorldPosition();
+	LLVector3 target_pos = avatarp->mRoot->getWorldPosition();
 
 	LLQuaternion camera_rot = LLQuaternion(mCameraPitch, LLVector3::y_axis) * 
 		LLQuaternion(mCameraYaw, LLVector3::z_axis);
 
-	LLQuaternion av_rot = avatarp->mRoot.getWorldRotation() * camera_rot;
+	LLQuaternion av_rot = avatarp->mRoot->getWorldRotation() * camera_rot;
 	LLViewerCamera::getInstance()->setOriginAndLookAt(
 		target_pos + ((LLVector3(mCameraDistance, 0.f, 0.f) + mCameraOffset) * av_rot),		// camera
 		LLVector3::z_axis,																	// up
@@ -1118,9 +1129,13 @@ BOOL	LLPreviewAnimation::render()
 		LLVertexBuffer::unbind();
 		LLGLDepthTest gls_depth(GL_TRUE);
 
-		LLDrawPoolAvatar *avatarPoolp = (LLDrawPoolAvatar *)avatarp->mDrawable->getFace(0)->getPool();
-		avatarp->dirtyMesh();
-		avatarPoolp->renderAvatars(avatarp);  // renders only one avatar
+		LLFace* face = avatarp->mDrawable->getFace(0);
+		if (face)
+		{
+			LLDrawPoolAvatar *avatarPoolp = (LLDrawPoolAvatar *)face->getPool();
+			avatarp->dirtyMesh();
+			avatarPoolp->renderAvatars(avatarp);  // renders only one avatar
+		}
 	}
 
 	gGL.color4f(1,1,1,1);

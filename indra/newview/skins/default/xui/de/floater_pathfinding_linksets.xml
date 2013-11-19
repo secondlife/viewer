@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_pathfinding_linksets" title="Pathfinding-Linksets">
+	<floater.string name="messaging_get_inprogress">
+		Pathfinding-Linksets werden abgerufen...
+	</floater.string>
+	<floater.string name="messaging_get_error">
+		Fehler beim Abrufen von Pathfinding-Linksets.
+	</floater.string>
+	<floater.string name="messaging_set_inprogress">
+		Ausgewählte Pathfinding-Linksets werden geändert...
+	</floater.string>
+	<floater.string name="messaging_set_error">
+		Fehler beim Ändern der ausgewählten Pathfinding-Linksets.
+	</floater.string>
+	<floater.string name="messaging_complete_none_found">
+		Keine Pathfinding-Linksets.
+	</floater.string>
+	<floater.string name="messaging_complete_available">
+		[NUM_SELECTED] Linksets von [NUM_TOTAL] ausgewählt.
+	</floater.string>
+	<floater.string name="messaging_not_enabled">
+		Pathfinding ist in dieser Region nicht aktiviert.
+	</floater.string>
+	<floater.string name="linkset_terrain_name">
+		[Terrain]
+	</floater.string>
+	<floater.string name="linkset_terrain_description">
+		--
+	</floater.string>
+	<floater.string name="linkset_terrain_owner">
+		--
+	</floater.string>
+	<floater.string name="linkset_terrain_scripted">
+		--
+	</floater.string>
+	<floater.string name="linkset_terrain_land_impact">
+		--
+	</floater.string>
+	<floater.string name="linkset_terrain_dist_from_you">
+		--
+	</floater.string>
+	<floater.string name="linkset_owner_loading">
+		[Laden]
+	</floater.string>
+	<floater.string name="linkset_owner_unknown">
+		[Unbekannt]
+	</floater.string>
+	<floater.string name="linkset_owner_group">
+		[Gruppe]
+	</floater.string>
+	<floater.string name="linkset_is_scripted">
+		Ja
+	</floater.string>
+	<floater.string name="linkset_is_not_scripted">
+		Nein
+	</floater.string>
+	<floater.string name="linkset_is_unknown_scripted">
+		Unbekannt
+	</floater.string>
+	<floater.string name="linkset_use_walkable">
+		Begehbar
+	</floater.string>
+	<floater.string name="linkset_use_static_obstacle">
+		Statisches Hinternis
+	</floater.string>
+	<floater.string name="linkset_use_dynamic_obstacle">
+		Bewegliches Hinternis
+	</floater.string>
+	<floater.string name="linkset_use_material_volume">
+		Materialvolumen
+	</floater.string>
+	<floater.string name="linkset_use_exclusion_volume">
+		Ausschlussvolumen
+	</floater.string>
+	<floater.string name="linkset_use_dynamic_phantom">
+		Bewegliches Phantom
+	</floater.string>
+	<floater.string name="linkset_is_terrain">
+		[nicht änderbar]
+	</floater.string>
+	<floater.string name="linkset_is_restricted_state">
+		[beschränkt]
+	</floater.string>
+	<floater.string name="linkset_is_non_volume_state">
+		[konkav]
+	</floater.string>
+	<floater.string name="linkset_is_restricted_non_volume_state">
+		[beschränkt,konkav]
+	</floater.string>
+	<floater.string name="linkset_choose_use">
+		Linkset-Nutzung auswählen...
+	</floater.string>
+	<panel>
+		<combo_box name="filter_by_linkset_use">
+			<combo_box.item label="Nach Linkset-Nutzung filtern..." name="filter_by_linkset_use_none"/>
+			<combo_box.item label="Begehbar" name="filter_by_linkset_use_walkable"/>
+			<combo_box.item label="Statisches Hinternis" name="filter_by_linkset_use_static_obstacle"/>
+			<combo_box.item label="Bewegliches Hinternis" name="filter_by_linkset_use_dynamic_obstacle"/>
+			<combo_box.item label="Materialvolumen" name="filter_by_linkset_use_material_volume"/>
+			<combo_box.item label="Ausschlussvolumen" name="filter_by_linkset_use_exclusion_volume"/>
+			<combo_box.item label="Bewegliches Phantom" name="filter_by_linkset_use_dynamic_phantom"/>
+		</combo_box>
+		<button label="Anwenden" name="apply_filters"/>
+		<button label="Entfernen" name="clear_filters"/>
+		<scroll_list name="objects_scroll_list">
+			<scroll_list.columns label="Name (Hauptprim)" name="name"/>
+			<scroll_list.columns label="Beschreibung (Hauptprim)" name="description"/>
+			<scroll_list.columns label="Eigentümer" name="owner"/>
+			<scroll_list.columns label="Geskriptet" name="scripted"/>
+			<scroll_list.columns label="Belastung" name="land_impact"/>
+			<scroll_list.columns label="Abstand" name="dist_from_you"/>
+			<scroll_list.columns label="Linkset-Nutzung" name="linkset_use"/>
+			<scroll_list.columns label="A %" name="a_percent"/>
+			<scroll_list.columns label="B %" name="b_percent"/>
+			<scroll_list.columns label="C %" name="c_percent"/>
+			<scroll_list.columns label="D %" name="d_percent"/>
+		</scroll_list>
+		<text name="messaging_status">
+			Linksets:
+		</text>
+		<button label="Liste aktualisieren" name="refresh_objects_list"/>
+		<button label="Alle auswählen" name="select_all_objects"/>
+		<button label="Keine auswählen" name="select_none_objects"/>
+	</panel>
+	<panel>
+		<check_box label="Beacon anzeigen" name="show_beacon"/>
+		<button label="Nehmen" name="take_objects"/>
+		<button label="Kopie nehmen" name="take_copy_objects"/>
+		<button label="Dorthin teleportieren" name="teleport_me_to_object"/>
+		<button label="Zurückgeben" name="return_objects"/>
+		<button label="Löschen" name="delete_objects"/>
+	</panel>
+	<panel>
+		<text name="walkability_coefficients_label">
+			Begehbarkeit:
+		</text>
+		<text name="edit_a_label">
+			A
+		</text>
+		<line_editor name="edit_a_value" tool_tip="Begehbarkeit für Figuren vom Typ A. Ein Beispiel für diesen Typ wäre „Humanoid“."/>
+		<text name="edit_b_label">
+			B
+		</text>
+		<line_editor name="edit_b_value" tool_tip="Begehbarkeit für Figuren vom Typ B. Ein Beispiel für diesen Typ wäre „Kreatur“."/>
+		<text name="edit_c_label">
+			C
+		</text>
+		<line_editor name="edit_c_value" tool_tip="Begehbarkeit für Figuren vom Typ C. Ein Beispiel für diesen Typ wäre „Mechanisch“."/>
+		<text name="edit_d_label">
+			D
+		</text>
+		<line_editor name="edit_d_value" tool_tip="Begehbarkeit für Figuren vom Typ D. Ein Beispiel für diesen Typ wäre „Anderer“."/>
+		<button label="Änderungen übernehmen" name="apply_edit_values"/>
+		<text name="suggested_use_a_label">
+			(Humanoid)
+		</text>
+		<text name="suggested_use_b_label">
+			(Kreatur)
+		</text>
+		<text name="suggested_use_c_label">
+			(Mechanisch)
+		</text>
+		<text name="suggested_use_d_label">
+			(Anderer)
+		</text>
+	</panel>
+</floater>

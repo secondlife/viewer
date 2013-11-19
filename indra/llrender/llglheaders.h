@@ -116,6 +116,11 @@ extern PFNGLGETQUERYIVARBPROC glGetQueryivARB;
 extern PFNGLGETQUERYOBJECTIVARBPROC glGetQueryObjectivARB;
 extern PFNGLGETQUERYOBJECTUIVARBPROC glGetQueryObjectuivARB;
 
+// GL_ARB_timer_query
+extern PFNGLQUERYCOUNTERPROC glQueryCounter;
+extern PFNGLGETQUERYOBJECTI64VPROC glGetQueryObjecti64v;
+extern PFNGLGETQUERYOBJECTUI64VPROC glGetQueryObjectui64v;
+
 // GL_ARB_point_parameters
 extern PFNGLPOINTPARAMETERFARBPROC glPointParameterfARB;
 extern PFNGLPOINTPARAMETERFVARBPROC glPointParameterfvARB;
@@ -378,6 +383,11 @@ extern PFNGLGETQUERYIVARBPROC glGetQueryivARB;
 extern PFNGLGETQUERYOBJECTIVARBPROC glGetQueryObjectivARB;
 extern PFNGLGETQUERYOBJECTUIVARBPROC glGetQueryObjectuivARB;
 
+// GL_ARB_timer_query
+extern PFNGLQUERYCOUNTERPROC glQueryCounter;
+extern PFNGLGETQUERYOBJECTI64VPROC glGetQueryObjecti64v;
+extern PFNGLGETQUERYOBJECTUI64VPROC glGetQueryObjectui64v;
+
 // GL_ARB_point_parameters
 extern PFNGLPOINTPARAMETERFARBPROC glPointParameterfARB;
 extern PFNGLPOINTPARAMETERFVARBPROC glPointParameterfvARB;
@@ -528,6 +538,14 @@ extern PFNGLTEXIMAGE3DMULTISAMPLEPROC glTexImage3DMultisample;
 extern PFNGLGETMULTISAMPLEFVPROC glGetMultisamplefv;
 extern PFNGLSAMPLEMASKIPROC glSampleMaski;
 
+//transform feedback (4.0 core)
+extern PFNGLBEGINTRANSFORMFEEDBACKPROC glBeginTransformFeedback;
+extern PFNGLENDTRANSFORMFEEDBACKPROC glEndTransformFeedback;
+extern PFNGLTRANSFORMFEEDBACKVARYINGSPROC glTransformFeedbackVaryings;
+extern PFNGLBINDBUFFERRANGEPROC glBindBufferRange;
+extern PFNGLBINDBUFFERBASEPROC glBindBufferBase;
+
+
 #elif LL_WINDOWS
 //----------------------------------------------------------------------------
 // LL_WINDOWS
@@ -611,6 +629,12 @@ extern PFNGLENDQUERYARBPROC glEndQueryARB;
 extern PFNGLGETQUERYIVARBPROC glGetQueryivARB;
 extern PFNGLGETQUERYOBJECTIVARBPROC glGetQueryObjectivARB;
 extern PFNGLGETQUERYOBJECTUIVARBPROC glGetQueryObjectuivARB;
+
+// GL_ARB_timer_query
+extern PFNGLQUERYCOUNTERPROC glQueryCounter;
+extern PFNGLGETQUERYOBJECTI64VPROC glGetQueryObjecti64v;
+extern PFNGLGETQUERYOBJECTUI64VPROC glGetQueryObjectui64v;
+
 
 // GL_ARB_point_parameters
 extern PFNGLPOINTPARAMETERFARBPROC glPointParameterfARB;
@@ -758,6 +782,13 @@ extern PFNGLTEXIMAGE2DMULTISAMPLEPROC glTexImage2DMultisample;
 extern PFNGLTEXIMAGE3DMULTISAMPLEPROC glTexImage3DMultisample;
 extern PFNGLGETMULTISAMPLEFVPROC glGetMultisamplefv;
 extern PFNGLSAMPLEMASKIPROC glSampleMaski;
+
+//transform feedback (4.0 core)
+extern PFNGLBEGINTRANSFORMFEEDBACKPROC glBeginTransformFeedback;
+extern PFNGLENDTRANSFORMFEEDBACKPROC glEndTransformFeedback;
+extern PFNGLTRANSFORMFEEDBACKVARYINGSPROC glTransformFeedbackVaryings;
+extern PFNGLBINDBUFFERRANGEPROC glBindBufferRange;
+extern PFNGLBINDBUFFERBASEPROC glBindBufferBase;
 
 //GL_ARB_debug_output
 extern PFNGLDEBUGMESSAGECONTROLARBPROC glDebugMessageControlARB;
@@ -980,7 +1011,7 @@ extern void glGetBufferPointervARB (GLenum, GLenum, GLvoid* *);
 }
 #endif
 
-#include <AGL/gl.h>
+#include <OpenGL/gl.h>
 
 #endif // LL_MESA / LL_WINDOWS / LL_DARWIN
 

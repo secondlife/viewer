@@ -30,6 +30,7 @@
 
 #include "v4color.h"
 #include "lleditmenuhandler.h"
+#include "llspellcheckmenuhandler.h"
 #include "llstyle.h"
 #include "llkeywords.h"
 #include "llpanel.h"
@@ -40,6 +41,7 @@
 
 #include <boost/signals2.hpp>
 
+class LLScrollContainer;
 class LLContextMenu;
 class LLUrlMatch;
 
@@ -105,7 +107,7 @@ class LLNormalTextSegment : public LLTextSegment
 public:
 	LLNormalTextSegment( LLStyleConstSP style, S32 start, S32 end, LLTextBase& editor );
 	LLNormalTextSegment( const LLColor4& color, S32 start, S32 end, LLTextBase& editor, BOOL is_visible = TRUE);
-	~LLNormalTextSegment();
+	virtual ~LLNormalTextSegment();
 
 	/*virtual*/ bool				getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const;
 	/*virtual*/ S32					getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const;
@@ -130,6 +132,9 @@ public:
 protected:
 	F32					drawClippedSegment(S32 seg_start, S32 seg_end, S32 selection_start, S32 selection_end, LLRect rect);
 
+	virtual		const LLWString&	getWText()	const;
+	virtual		const S32			getLength()	const;
+
 protected:
 	class LLTextBase&	mEditor;
 	LLStyleConstSP		mStyle;
@@ -137,6 +142,21 @@ protected:
 	LLKeywordToken* 	mToken;
 	std::string     	mTooltip;
 	boost::signals2::connection mImageLoadedConnection;
+};
+
+// This text segment is the same as LLNormalTextSegment, the only difference
+// is that LLNormalTextSegment draws value of LLTextBase (LLTextBase::getWText()),
+// but LLLabelTextSegment draws label of the LLTextBase (LLTextBase::mLabel)
+class LLLabelTextSegment : public LLNormalTextSegment
+{
+public:
+	LLLabelTextSegment( LLStyleConstSP style, S32 start, S32 end, LLTextBase& editor );
+	LLLabelTextSegment( const LLColor4& color, S32 start, S32 end, LLTextBase& editor, BOOL is_visible = TRUE);
+
+protected:
+
+	/*virtual*/	const LLWString&	getWText()	const;
+	/*virtual*/	const S32			getLength()	const;
 };
 
 // Text segment that changes it's style depending of mouse pointer position ( is it inside or outside segment)
@@ -230,12 +250,15 @@ typedef LLPointer<LLTextSegment> LLTextSegmentPtr;
 ///
 class LLTextBase 
 :	public LLUICtrl,
-	protected LLEditMenuHandler
+	protected LLEditMenuHandler,
+	public LLSpellCheckMenuHandler
 {
 public:
 	friend class LLTextSegment;
 	friend class LLNormalTextSegment;
 	friend class LLUICtrlFactory;
+
+	typedef boost::signals2::signal<bool (const LLUUID& user_id)> is_friend_signal_t;
 
 	struct LineSpacingParams : public LLInitParam::ChoiceBlock<LineSpacingParams>
 	{
@@ -249,6 +272,7 @@ public:
 		Optional<LLUIColor>		cursor_color,
 								text_color,
 								text_readonly_color,
+								text_tentative_color,
 								bg_readonly_color,
 								bg_writeable_color,
 								bg_focus_color,
@@ -259,6 +283,7 @@ public:
 								border_visible,
 								track_end,
 								read_only,
+								spellcheck,
 								allow_scroll,
 								plain_text,
 								wrap,
@@ -311,6 +336,27 @@ public:
 	/*virtual*/ BOOL		canDeselect() const;
 	/*virtual*/ void		deselect();
 
+	virtual void	onFocusReceived();
+	virtual void	onFocusLost();
+
+	// LLSpellCheckMenuHandler overrides
+	/*virtual*/ bool		getSpellCheck() const;
+
+	/*virtual*/ const std::string& getSuggestion(U32 index) const;
+	/*virtual*/ U32			getSuggestionCount() const;
+	/*virtual*/ void		replaceWithSuggestion(U32 index);
+
+	/*virtual*/ void		addToDictionary();
+	/*virtual*/ bool		canAddToDictionary() const;
+
+	/*virtual*/ void		addToIgnore();
+	/*virtual*/ bool		canAddToIgnore() const;
+
+	// Spell checking helper functions
+	std::string				getMisspelledWord(U32 pos) const;
+	bool					isMisspelledWord(U32 pos) const;
+	void					onSpellCheckSettingsChange();
+
 	// used by LLTextSegment layout code
 	bool					getWordWrap() { return mWordWrap; }
 	bool					getUseEllipses() { return mUseEllipses; }
@@ -330,6 +376,21 @@ public:
 	const LLWString&       	getWText() const;
 
 	void					appendText(const std::string &new_text, bool prepend_newline, const LLStyle::Params& input_params = LLStyle::Params());
+
+	void					setLabel(const LLStringExplicit& label);
+	virtual BOOL			setLabelArg(const std::string& key, const LLStringExplicit& text );
+
+	const	std::string& 	getLabel()	{ return mLabel.getString(); }
+	const	LLWString&		getWlabel() { return mLabel.getWString();}
+
+	/**
+	 * If label is set, draws text label (which is LLLabelTextSegment)
+	 * that is visible when no user text provided
+	 */
+	void					resetLabel();
+
+	void					setFont(const LLFontGL* font);
+
 	// force reflow of text
 	void					needsReflow(S32 index = 0);
 
@@ -369,12 +430,16 @@ public:
 	bool					scrolledToStart();
 	bool					scrolledToEnd();
 
-	const LLFontGL*			getDefaultFont() const					{ return mDefaultFont; }
+	const LLFontGL*			getFont() const					{ return mFont; }
 
 	virtual void			appendLineBreakSegment(const LLStyle::Params& style_params);
 	virtual void			appendImageSegment(const LLStyle::Params& style_params);
 	virtual void			appendWidget(const LLInlineViewSegment::Params& params, const std::string& text, bool allow_undo);
 	boost::signals2::connection setURLClickedCallback(const commit_signal_t::slot_type& cb);
+	boost::signals2::connection setIsFriendCallback(const is_friend_signal_t::slot_type& cb);
+
+	void					setWordWrap(bool wrap);
+	LLScrollContainer*		getScrollContainer() const { return mScroller; }
 
 protected:
 	// helper structs
@@ -443,7 +508,9 @@ protected:
 	LLTextBase(const Params &p);
 	virtual ~LLTextBase();
 	void							initFromParams(const Params& p);
+    virtual void					beforeValueChange();
 	virtual void					onValueChange(S32 start, S32 end);
+    virtual bool                    useLabel() const;
 
 	// draw methods
 	void							drawSelectionBackground(); // draws the black box behind the selected text
@@ -469,7 +536,7 @@ protected:
 	void							createDefaultSegment();
 	virtual void					updateSegments();
 	void							insertSegment(LLTextSegmentPtr segment_to_insert);
-	const LLStyle::Params&			getDefaultStyleParams();
+	const LLStyle::Params&			getStyleParams();
 
 	//  manage lines
 	S32								getLineStart( S32 line ) const;
@@ -514,15 +581,16 @@ protected:
 	LLRect						mTextBoundingRect;
 
 	// default text style
-	LLStyle::Params				mDefaultStyle;
+	LLStyle::Params				mStyle;
 	bool						mStyleDirty;
-	const LLFontGL* const		mDefaultFont;		// font that is used when none specified, can only be set by constructor
-	const LLFontGL::ShadowType	mFontShadow;		// shadow style, can only be set by constructor
+	const LLFontGL*				mFont;
+	const LLFontGL::ShadowType	mFontShadow;
 
 	// colors
 	LLUIColor					mCursorColor;
 	LLUIColor					mFgColor;
 	LLUIColor					mReadOnlyFgColor;
+	LLUIColor					mTentativeFgColor;
 	LLUIColor					mWriteableBgColor;
 	LLUIColor					mReadOnlyBgColor;
 	LLUIColor					mFocusBgColor;
@@ -537,8 +605,17 @@ protected:
 	// selection
 	S32							mSelectionStart;
 	S32							mSelectionEnd;
-	
+	LLTimer		                mTripleClickTimer;
+
 	BOOL						mIsSelecting;		// Are we in the middle of a drag-select? 
+
+	// spell checking
+	bool						mSpellCheck;
+	S32							mSpellCheckStart;
+	S32							mSpellCheckEnd;
+	LLTimer						mSpellCheckTimer;
+	std::list<std::pair<U32, U32> > mMisspellRanges;
+	std::vector<std::string>		mSuggestionList;
 
 	// configuration
 	S32							mHPad;				// padding on left of text
@@ -558,12 +635,13 @@ protected:
 	bool						mClip;				// clip text to widget rect
 	bool						mClipPartial;		// false if we show lines that are partially inside bounding rect
 	bool						mPlainText;			// didn't use Image or Icon segments
+	bool						mAutoIndent;
 	S32							mMaxTextByteLength;	// Maximum length mText is allowed to be in bytes
 
 	// support widgets
 	LLContextMenu*				mPopupMenu;
 	LLView*						mDocumentView;
-	class LLScrollContainer*	mScroller;
+	LLScrollContainer*			mScroller;
 
 	// transient state
 	S32							mReflowIndex;		// index at which to start reflow.  S32_MAX indicates no reflow needed.
@@ -573,6 +651,10 @@ protected:
 	// Fired when a URL link is clicked
 	commit_signal_t*			mURLClickSignal;
 
+	// Used to check if user with given ID is avatar's friend
+	is_friend_signal_t*         mIsFriendSignal;
+
+	LLUIString					mLabel;	// text label that is visible when no user text provided
 };
 
 #endif

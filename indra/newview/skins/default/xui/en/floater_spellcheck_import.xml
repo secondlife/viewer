@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ border="true"
+ can_close="true"
+ can_minimize="true"
+ bottom="275"
+ left="300"
+ can_resize="false"
+ height="140"
+ width="400"
+ name="spellcheck_import"
+ title="Import Dictionary">
+  <text
+   follows="top|left"
+   height="16"
+   layout="topleft"
+   left="25"
+   top="15"
+   type="string"
+   width="65">
+   Dictionary:
+  </text>
+  <line_editor
+   enabled="false"
+   follows="left|top"
+   height="23"
+   layout="topleft"
+   left_pad="10"
+   max_length_bytes="255"
+   name="dictionary_path"
+   top_delta="-5"
+   width="200" />
+  <button
+   follows="left|top"
+   height="23"
+   label="Browse"
+   label_selected="Browse"
+   layout="topleft"
+   left_pad="5"
+   name="dictionary_path_browse"
+   top_delta="0"
+   width="75" />
+  <text
+   follows="top|left"
+   height="16"
+   layout="topleft"
+   left="25"
+   top_pad="8"
+   type="string"
+   width="65">
+   Name:
+  </text>
+  <line_editor
+   enabled="false"
+   follows="left|top"
+   height="23"
+   layout="topleft"
+   left_pad="10"
+   max_length_bytes="255"
+   name="dictionary_name"
+   top_delta="-5"
+   width="200" />
+  <text
+   follows="top|left"
+   height="16"
+   layout="topleft"
+   left="25"
+   top_pad="8"
+   type="string"
+   width="65">
+   Language:
+  </text>
+  <line_editor
+   follows="left|top"
+   height="23"
+   layout="topleft"
+   left_pad="10"
+   max_length_bytes="255"
+   name="dictionary_language"
+   top_delta="-5"
+   width="200" />
+  <view_border
+   top_pad="10"
+   left="2"
+   height="0"
+   width="396"
+   follows="left|top"
+   bevel_style="none"
+   border_thickness="1"
+   mouse_opaque="false"
+   name="divisor"/>
+  <button
+   top_pad="10"
+   right="280"
+   height="22"
+   width="90"
+   enabled="true"
+   follows="left|top"
+   mouse_opaque="true"
+   halign="center"
+   scale_image="true"
+   name="ok_btn"
+   label="Import" />
+  <button
+   top_delta="0"
+   right="380"
+   height="22"
+   width="90"
+   enabled="true"
+   follows="left|top"
+   mouse_opaque="true"
+   halign="center"
+   scale_image="true"
+   name="cancel_btn"
+   label="Cancel" />
+</floater>

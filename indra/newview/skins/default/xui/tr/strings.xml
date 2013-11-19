@@ -137,7 +137,10 @@
 		Çık
 	</string>
 	<string name="create_account_url">
-		http://join.secondlife.com/
+		http://join.secondlife.com/?sourceid=[sourceid]
+	</string>
+	<string name="ViewerDownloadURL">
+		http://secondlife.com/download
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		Kullandığınız görüntüleyici ile artık Second Life&apos;a erişemezsiniz. Yeni bir görüntüleyiciyi karşıdan yüklemek için lütfen şu sayfayı ziyaret edin:
@@ -448,6 +451,9 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="SLappAgentRequestFriend">
 		Arkadaşlık Talebi
 	</string>
+	<string name="SLappAgentRemoveFriend">
+		Arkadaşların Çıkarılması
+	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
 		Kapat (⌘W)
 	</string>
@@ -619,8 +625,8 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="AvatarAway">
 		Uzakta
 	</string>
-	<string name="AvatarBusy">
-		Meşgul
+	<string name="AvatarDoNotDisturb">
+		Rahatsız Etme
 	</string>
 	<string name="AvatarMuted">
 		Engellenmiş
@@ -835,6 +841,9 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="multiple_textures">
 		Birden Çok
 	</string>
+	<string name="use_texture">
+		Dokuyu kullan
+	</string>
 	<string name="texture_loading">
 		Yükleniyor...
 	</string>
@@ -855,6 +864,12 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	</string>
 	<string name="ST_NO_JOINT">
 		KÖK veya EKLEM bulunamıyor.
+	</string>
+	<string name="NearbyChatTitle">
+		Yakındaki sohbet
+	</string>
+	<string name="NearbyChatLabel">
+		(Yakındaki sohbet)
 	</string>
 	<string name="whisper">
 		fısıldar:
@@ -882,6 +897,9 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	</string>
 	<string name="ScriptQuestionCautionChatDenied">
 		&apos;[OWNERNAME]&apos; adlı kişiye ait, [REGIONPOS] üzerinde [REGIONNAME] içerisinde bulunan &apos;[OBJECTNAME]&apos; nesnesine şunu yapma izni verilmedi: [PERMISSIONS].
+	</string>
+	<string name="AdditionalPermissionsRequestHeader">
+		Eğer hesabınıza erişime izin verirseniz, bu nesneye aynı zamanda şunun için izin vermiş olacaksınız:
 	</string>
 	<string name="ScriptTakeMoney">
 		Sizden Linden dolar (L$) almak
@@ -918,6 +936,27 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	</string>
 	<string name="NotConnected">
 		Bağlı Değil
+	</string>
+	<string name="AgentNameSubst">
+		(Siz)
+	</string>
+	<string name="TeleportYourAgent">
+		Sizi ışınlama
+	</string>
+	<string name="JoinAnExperience">
+		Bir tecrübeye katıl
+	</string>
+	<string name="SilentlyManageEstateAccess">
+		Gayri menkul erişim listelerini yönetirken uyarıları bastır
+	</string>
+	<string name="OverrideYourAnimations">
+		Varsayılan animasyonlarınızı değiştirin
+	</string>
+	<string name="ScriptReturnObjects">
+		Kendi adınıza nesneler iade edin
+	</string>
+	<string name="UnknownScriptPermission">
+		(bilinmiyor)!
 	</string>
 	<string name="SIM_ACCESS_PG">
 		Genel
@@ -997,17 +1036,8 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="script_files">
 		Komut Dosyaları
 	</string>
-	<string name="AvatarSetNotAway">
-		Uzakta Değil
-	</string>
-	<string name="AvatarSetAway">
-		Uzakta
-	</string>
-	<string name="AvatarSetNotBusy">
-		Meşgul Değil
-	</string>
-	<string name="AvatarSetBusy">
-		Meşgul
+	<string name="dictionary_files">
+		Sözlükler
 	</string>
 	<string name="shape">
 		Şekil
@@ -1241,7 +1271,7 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
 	</string>
 	<string name="MarketplaceURL_CreateStore">
-		http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.4
+		http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.3
 	</string>
 	<string name="MarketplaceURL_Dashboard">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/dashboard
@@ -1402,6 +1432,12 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="InvFolder favorite">
 		Favorilerim
 	</string>
+	<string name="InvFolder Favorites">
+		Sık Kullanılanlarım
+	</string>
+	<string name="InvFolder favorites">
+		Sık Kullanılanlarım
+	</string>
 	<string name="InvFolder Current Outfit">
 		Mevcut Dış Görünüm
 	</string>
@@ -1416,6 +1452,12 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	</string>
 	<string name="InvFolder Meshes">
 		Örgüler
+	</string>
+	<string name="InvFolder Received Items">
+		Alınan Öğeler
+	</string>
+	<string name="InvFolder Merchant Outbox">
+		Satıcı Giden Kutusu
 	</string>
 	<string name="InvFolder Friends">
 		Arkadaşlar
@@ -1947,6 +1989,12 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		BÜG Sağ Alt
 	</string>
+	<string name="ATTACH_NECK">
+		Boyun
+	</string>
+	<string name="ATTACH_AVATAR_CENTER">
+		Avatar Merkezi
+	</string>
 	<string name="CursorPos">
 		Satır [LINE], Sütun [COLUMN]
 	</string>
@@ -1965,8 +2013,8 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="PanelContentsNewScript">
 		Yeni Komut Dosyası
 	</string>
-	<string name="BusyModeResponseDefault">
-		İleti gönderdiğiniz Sakin &apos;meşgul modu&apos;nda, bu da rahatsız edilmek istemediği anlamına geliyor.  İletiniz daha sonra incelenmesi için kendisine ait Aİ panelinde gösterilecektir.
+	<string name="DoNotDisturbModeResponseDefault">
+		Bu sakin &quot;Rahatsız Etme&quot; seçeneğini devreye almış, mesajınızı sonra görecek.
 	</string>
 	<string name="MuteByName">
 		(Adına göre)
@@ -2078,9 +2126,6 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	</string>
 	<string name="GroupMoneyDate">
 		[weekday,datetime,utc] [mth,datetime,utc] [day,datetime,utc], [year,datetime,utc]
-	</string>
-	<string name="ViewerObjectContents">
-		İçerik
 	</string>
 	<string name="AcquiredItems">
 		Alınan Öğeler
@@ -2979,6 +3024,9 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 	<string name="Hip Width">
 		Kalça Genişliği
 	</string>
+	<string name="Hover">
+		Üzerine getir
+	</string>
 	<string name="In">
 		İçeri
 	</string>
@@ -3853,7 +3901,13 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Genel Bölge
 	</string>
 	<string name="LocationCtrlSeeAVsTooltip">
-		Bu parselin dışında avatarlar görünür durumda ve sohbete izin veriliyor
+		Bu parselin içindeki avatarlar, bu parselin dışındaki avatarlar tarafından görülemez veya işitilemez
+	</string>
+	<string name="LocationCtrlPathfindingDirtyTooltip">
+		Bölge yeniden kaydedilinceye kadar hareket eden nesneler bu bölgede doğru davranmayabilir.
+	</string>
+	<string name="LocationCtrlPathfindingDisabledTooltip">
+		Bu bölgede dinamik yol bulma etkin değil.
 	</string>
 	<string name="UpdaterWindowTitle">
 		[APP_NAME] Güncelleştirme
@@ -3924,6 +3978,12 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 	<string name="IM_unblock_only_groups_friends">
 		Bu mesajı görmek için Tercihler/Gizlilik&apos;de &apos;Sadece arkadaşlar ve gruplar beni arasın veya Aİ göndersin&apos; seçeneğinin işaretini kaldırmalısınız.
 	</string>
+	<string name="OnlineStatus">
+		Çevrimiçi
+	</string>
+	<string name="OfflineStatus">
+		Çevrimdışı
+	</string>
 	<string name="answered_call">
 		Aramanız yanıtlandı
 	</string>
@@ -3932,6 +3992,9 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 	</string>
 	<string name="you_joined_call">
 		Sesli aramaya katıldınız
+	</string>
+	<string name="you_auto_rejected_call-im">
+		&quot;Rahatsız Etme&quot; seçeneğini devredeyken sesli aramayı otomatik olarak reddettiniz.
 	</string>
 	<string name="name_started_call">
 		[NAME] bir sesli arama başlattı
@@ -3949,7 +4012,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Bağlanıyor...
 	</string>
 	<string name="conference-title">
-		Özel Konferans
+		Çok kişili sohbet
 	</string>
 	<string name="conference-title-incoming">
 		[AGENT_NAME] ile konferans
@@ -4839,6 +4902,9 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	<string name="Command_Chat_Label">
 		Sohbet
 	</string>
+	<string name="Command_Conversations_Label">
+		Sohbetler
+	</string>
 	<string name="Command_Compass_Label">
 		Pusula
 	</string>
@@ -4913,6 +4979,9 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	</string>
 	<string name="Command_Chat_Tooltip">
 		Metin kullanarak yakındaki kişilerle sohbet etmek
+	</string>
+	<string name="Command_Conversations_Tooltip">
+		Herkesle sohbet et
 	</string>
 	<string name="Command_Compass_Tooltip">
 		Pusula
@@ -5007,6 +5076,21 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	<string name="Normal">
 		Normal
 	</string>
+	<string name="Pathfinding_Wiki_URL">
+		http://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer
+	</string>
+	<string name="Pathfinding_Object_Attr_None">
+		Hiçbiri
+	</string>
+	<string name="Pathfinding_Object_Attr_Permanent">
+		Navigasyon örgüsünü etkiler
+	</string>
+	<string name="Pathfinding_Object_Attr_Character">
+		Karakter
+	</string>
+	<string name="Pathfinding_Object_Attr_MultiSelect">
+		(Birden çok)
+	</string>
 	<string name="snapshot_quality_very_low">
 		Çok Düşük
 	</string>
@@ -5021,5 +5105,23 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	</string>
 	<string name="snapshot_quality_very_high">
 		Çok Yüksek
+	</string>
+	<string name="TeleportMaturityExceeded">
+		Sakin bu bölgeyi ziyaret edemez.
+	</string>
+	<string name="UserDictionary">
+		[User]
+	</string>
+	<string name="logging_calls_disabled_log_empty">
+		Sohbetlerin günlüğü tutulmuyor. Bir günlük tutmaya başlamak için, Tercihler &gt; Sohbet altında &quot;Kaydet: Sadece günlük&quot; veya &quot;Kaydet: Günlük ve dökümler&quot; seçimini yapın.
+	</string>
+	<string name="logging_calls_disabled_log_not_empty">
+		Bundan böyle sohbetlerin günlükleri tutulmayacak. Bir günlük tutmaya devam etmek için, Tercihler &gt; Sohbet altında &quot;Kaydet: Sadece günlük&quot; veya &quot;Kaydet: Günlük ve dökümler&quot; seçimini yapın.
+	</string>
+	<string name="logging_calls_enabled_log_empty">
+		Günlüğü tutulmuş sohbet yok. Siz biriyle iletişime geçtikten sonra veya biri sizinle iletişime geçtikten sonra, burada bir günlük girişi gösterilir.
+	</string>
+	<string name="loading_chat_logs">
+		Yükleniyor...
 	</string>
 </strings>

@@ -5,7 +5,7 @@
 			網頁內容
 		</label>
 		<tooltip name="web_tooltip">
-			This location has Web content
+			這個位置有網頁內容
 		</tooltip>
 		<playtip name="web_playtip">
 			顯示網頁內容
@@ -27,7 +27,7 @@
 			圖像
 		</label>
 		<tooltip name="image_tooltip">
-			There is an image at this location
+			有一個圖像在此位置
 		</tooltip>
 		<playtip name="image_playtip">
 			察看這個位置的圖像
@@ -106,12 +106,12 @@
 	</mimetype>
 	<mimetype name="application/smil">
 		<label name="application/smil_label">
-			Synchronized Multimedia Integration Language (SMIL)
+			同步多媒體整合語言（SMIL）
 		</label>
 	</mimetype>
 	<mimetype name="application/xhtml+xml">
 		<label name="application/xhtml+xml_label">
-			選項（XHTML）
+			網頁（XHTML）
 		</label>
 	</mimetype>
 	<mimetype name="application/x-director">
@@ -171,7 +171,7 @@
 	</mimetype>
 	<mimetype name="text/html">
 		<label name="text/html_label">
-			選項
+			網頁
 		</label>
 	</mimetype>
 	<mimetype name="text/plain">

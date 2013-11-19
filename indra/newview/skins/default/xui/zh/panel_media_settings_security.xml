@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Security" name="Media Settings Security">
-	<check_box initial_value="false" label="Only Allow Access to Specified URL patterns" name="whitelist_enable"/>
+<panel label="安全" name="Media Settings Security">
+	<check_box initial_value="false" label="只允許進入符合特定形態的 URL 目標" name="whitelist_enable"/>
 	<text name="home_url_fails_some_items_in_whitelist">
-		Entries that the home page fails against are marked:
+		被首頁視為出錯的物項已標示：
 	</text>
 	<button label="添加" name="whitelist_add"/>
 	<button label="刪除" name="whitelist_del"/>
 	<text name="home_url_fails_whitelist">
-		Warning: the home page specified in the General tab fails to pass this whitelist. It has been disabled until a valid entry has been added.
+		警告：在基本資料頁籤裡指定的首頁，未能通過這一許可清單。 它已被停用，請設定有效的資料。
 	</text>
 </panel>

@@ -42,10 +42,11 @@ LLNotificationsListener::LLNotificationsListener(LLNotifications & notifications
         "Add a notification with specified [\"name\"], [\"substitutions\"] and [\"payload\"].\n"
         "If optional [\"reply\"] specified, arrange to send user response on that LLEventPump.",
         &LLNotificationsListener::requestAdd);
-    add("listChannels",
+    /*    add("listChannels",
         "Post to [\"reply\"] a map of info on existing channels",
         &LLNotificationsListener::listChannels,
         LLSD().with("reply", LLSD()));
+    */
     add("listChannelNotifications",
         "Post to [\"reply\"] an array of info on notifications in channel [\"channel\"]",
         &LLNotificationsListener::listChannelNotifications,
@@ -116,11 +117,15 @@ void LLNotificationsListener::NotificationResponder(const std::string& reply_pum
 	reponse_event["response"] = response;
 	LLEventPumps::getInstance()->obtain(reply_pump).post(reponse_event);
 }
-
+/*
 void LLNotificationsListener::listChannels(const LLSD& params) const
 {
     LLReqID reqID(params);
     LLSD response(reqID.makeResponse());
+    for (LLNotifications::
+
+
+
     for (LLNotifications::ChannelMap::const_iterator cmi(mNotifications.mChannels.begin()),
                                                      cmend(mNotifications.mChannels.end());
          cmi != cmend; ++cmi)
@@ -131,7 +136,7 @@ void LLNotificationsListener::listChannels(const LLSD& params) const
     }
     LLEventPumps::instance().obtain(params["reply"]).post(response);
 }
-
+*/
 void LLNotificationsListener::listChannelNotifications(const LLSD& params) const
 {
     LLReqID reqID(params);

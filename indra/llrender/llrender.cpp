@@ -225,35 +225,16 @@ void LLTexUnit::disable(void)
 bool LLTexUnit::bind(LLTexture* texture, bool for_rendering, bool forceBind)
 {
 	stop_glerror();
-	if (mIndex < 0) return false;
-
+	if (mIndex >= 0)
+	{
 	gGL.flush();
 
 	LLImageGL* gl_tex = NULL ;
-	if (texture == NULL || !(gl_tex = texture->getGLTexture()))
+		if (texture != NULL && (gl_tex = texture->getGLTexture()))
 	{
-		llwarns << "NULL LLTexUnit::bind texture" << llendl;
-		return false;
-	}
-
-	if (!gl_tex->getTexName()) //if texture does not exist
+			if (gl_tex->getTexName()) //if texture exists
 	{
-		//if deleted, will re-generate it immediately
-		texture->forceImmediateUpdate() ;
-
-		gl_tex->forceUpdateBindStats() ;
-		return texture->bindDefaultImage(mIndex);
-	}
-
 	//in audit, replace the selected texture by the default one.
-	if(gAuditTexture && for_rendering && LLImageGL::sCurTexPickSize > 0)
-	{
-		if(texture->getWidth() * texture->getHeight() == LLImageGL::sCurTexPickSize)
-		{
-			gl_tex->updateBindStats(gl_tex->mTextureMemory);
-			return bind(LLImageGL::sHighlightTexturep.get());
-		}
-	}
 	if ((mCurrTexture != gl_tex->getTexName()) || forceBind)
 	{
 		activate();
@@ -273,6 +254,27 @@ bool LLTexUnit::bind(LLTexture* texture, bool for_rendering, bool forceBind)
 			setTextureFilteringOption(gl_tex->mFilterOption);
 		}
 	}
+			}
+			else
+			{
+				//if deleted, will re-generate it immediately
+				texture->forceImmediateUpdate() ;
+
+				gl_tex->forceUpdateBindStats() ;
+				return texture->bindDefaultImage(mIndex);
+			}
+		}
+		else
+		{
+			llwarns << "NULL LLTexUnit::bind texture" << llendl;
+			return false;
+		}
+	}
+	else
+	{ // mIndex < 0
+		return false;
+	}
+
 	return true;
 }
 
@@ -365,7 +367,6 @@ bool LLTexUnit::bind(LLCubeMap* cubeMap)
 }
 
 // LLRenderTarget is unavailible on the mapserver since it uses FBOs.
-#if !LL_MESA_HEADLESS
 bool LLTexUnit::bind(LLRenderTarget* renderTarget, bool bindDepth)
 {
 	if (mIndex < 0) return false;
@@ -388,7 +389,6 @@ bool LLTexUnit::bind(LLRenderTarget* renderTarget, bool bindDepth)
 
 	return true;
 }
-#endif // LL_MESA_HEADLESS
 
 bool LLTexUnit::bindManual(eTextureType type, U32 texture, bool hasMips)
 {
@@ -416,12 +416,14 @@ void LLTexUnit::unbind(eTextureType type)
 
 	if (mIndex < 0) return;
 
+	//always flush and activate for consistency 
+	//   some code paths assume unbind always flushes and sets the active texture
+	gGL.flush();
+	activate();
+
 	// Disabled caching of binding state.
 	if (mCurrTexType == type)
 	{
-		gGL.flush();
-
-		activate();
 		mCurrTexture = 0;
 		if (LLGLSLShader::sNoFixedFunction && type == LLTexUnit::TT_TEXTURE)
 		{
@@ -472,11 +474,25 @@ void LLTexUnit::setTextureFilteringOption(LLTexUnit::eTextureFilterOptions optio
 	} 
 	else if (option >= TFO_BILINEAR)
 	{
-		glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		if (mHasMipMaps)
+		{
+			glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+		}
+		else
+		{
+			glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		}
 	}
 	else
 	{
-		glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		if (mHasMipMaps)
+		{
+			glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+		}
+		else
+		{
+			glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		}
 	}
 
 	if (gGLManager.mHasAnisotropic)
@@ -640,7 +656,7 @@ void LLTexUnit::setTextureCombiner(eTextureBlendOp op, eTextureBlendSrc src1, eT
 		gGL.flush();
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
 	}
-
+	
 	// We want an early out, because this function does a LOT of stuff.
 	if ( ( (isAlpha && (mCurrAlphaOp == op) && (mCurrAlphaSrc1 == src1) && (mCurrAlphaSrc2 == src2))
 			|| (!isAlpha && (mCurrColorOp == op) && (mCurrColorSrc1 == src1) && (mCurrColorSrc2 == src2)) ) && !gGL.mDirty)
@@ -1052,6 +1068,16 @@ LLRender::~LLRender()
 
 void LLRender::init()
 {
+	if (sGLCoreProfile && !LLVertexBuffer::sUseVAO)
+	{ //bind a dummy vertex array object so we're core profile compliant
+#ifdef GL_ARB_vertex_array_object
+		U32 ret;
+		glGenVertexArrays(1, &ret);
+		glBindVertexArray(ret);
+#endif
+	}
+
+
 	llassert_always(mBuffer.isNull()) ;
 	stop_glerror();
 	mBuffer = new LLVertexBuffer(immediate_mask, 0);
@@ -1428,6 +1454,17 @@ void LLRender::matrixMode(U32 mode)
 	llassert(mode < NUM_MATRIX_MODES);
 	mMatrixMode = mode;
 }
+
+U32 LLRender::getMatrixMode()
+{
+	if (mMatrixMode >= MM_TEXTURE0 && mMatrixMode <= MM_TEXTURE3)
+	{ //always return MM_TEXTURE if current matrix mode points at any texture matrix
+		return MM_TEXTURE;
+	}
+
+	return mMatrixMode;
+}
+
 
 void LLRender::loadIdentity()
 {
@@ -1832,13 +1869,15 @@ void LLRender::flush()
 			sUIVerts += mCount;
 		}
 		
-		if (gDebugGL)
-		{
+		//store mCount in a local variable to avoid re-entrance (drawArrays may call flush)
+		U32 count = mCount;
+
 			if (mMode == LLRender::QUADS && !sGLCoreProfile)
 			{
 				if (mCount%4 != 0)
 				{
-					llerrs << "Incomplete quad rendered." << llendl;
+				count -= (mCount % 4);
+				llwarns << "Incomplete quad requested." << llendl;
 				}
 			}
 			
@@ -1846,7 +1885,8 @@ void LLRender::flush()
 			{
 				if (mCount%3 != 0)
 				{
-					llerrs << "Incomplete triangle rendered." << llendl;
+				count -= (mCount % 3);
+				llwarns << "Incomplete triangle requested." << llendl;
 				}
 			}
 			
@@ -1854,13 +1894,11 @@ void LLRender::flush()
 			{
 				if (mCount%2 != 0)
 				{
-					llerrs << "Incomplete line rendered." << llendl;
-				}
+				count -= (mCount % 2);
+				llwarns << "Incomplete line requested." << llendl;
 			}
 		}
 
-		//store mCount in a local variable to avoid re-entrance (drawArrays may call flush)
-		U32 count = mCount;
 		mCount = 0;
 
 		if (mBuffer->useVBOs() && !mBuffer->isLocked())
@@ -2262,6 +2300,22 @@ void LLRender::diffuseColor4ubv(const U8* c)
 		glColor4ubv(c);
 	}
 }
+
+void LLRender::diffuseColor4ub(U8 r, U8 g, U8 b, U8 a)
+{
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+	llassert(!LLGLSLShader::sNoFixedFunction || shader != NULL);
+
+	if (shader)
+	{
+		shader->uniform4f(LLShaderMgr::DIFFUSE_COLOR, r/255.f, g/255.f, b/255.f, a/255.f);
+	}
+	else
+	{
+		glColor4ub(r,g,b,a);
+	}
+}
+
 
 void LLRender::debugTexUnits(void)
 {

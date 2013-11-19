@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="block by name" title="依名稱封鎖物件">
 	<text name="message">
-		Block an object:
+		封鎖一個物件：
 	</text>
 	<line_editor name="object_name">
 		物件名稱
 	</line_editor>
 	<text name="note">
-		* Only blocks object text, not sounds
+		* 只封鎖物件文字，不封鎖聲音
 	</text>
 	<button label="確定" name="OK"/>
 	<button label="取消" name="Cancel"/>

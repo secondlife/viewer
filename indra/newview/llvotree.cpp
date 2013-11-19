@@ -316,7 +316,7 @@ U32 LLVOTree::processUpdateMessage(LLMessageSystem *mesgsys,
 	//  Load Species-Specific data 
 	//
 	static const S32 MAX_TREE_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL = 32 ; //frames.
-	mTreeImagep = LLViewerTextureManager::getFetchedTexture(sSpeciesTable[mSpecies]->mTextureID, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+	mTreeImagep = LLViewerTextureManager::getFetchedTexture(sSpeciesTable[mSpecies]->mTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
 	mTreeImagep->setMaxVirtualSizeResetInterval(MAX_TREE_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL); //allow to wait for at most 16 frames to reset virtual size.
 
 	mBranchLength = sSpeciesTable[mSpecies]->mBranchLength;
@@ -339,11 +339,11 @@ U32 LLVOTree::processUpdateMessage(LLMessageSystem *mesgsys,
 	return retval;
 }
 
-BOOL LLVOTree::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
+void LLVOTree::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
  	if (mDead || !(gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_TREE)))
 	{
-		return TRUE;
+		return;
 	}
 	
 	S32 trunk_LOD = sMAX_NUM_TREE_LOD_LEVELS ;
@@ -374,7 +374,7 @@ BOOL LLVOTree::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 		// *TODO: I don't know what's so special about trees
 		// that they don't get REBUILD_POSITION automatically
 		// at a higher level.
-		const LLVector3 &this_position = getPositionAgent();
+		const LLVector3 &this_position = getPositionRegion();
 		if (this_position != mLastPosition)
 		{
 			gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_POSITION);
@@ -393,8 +393,6 @@ BOOL LLVOTree::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 	}
 
 	mTrunkLOD = trunk_LOD;
-
-	return TRUE;
 }
 
 const F32 TREE_BLEND_MIN = 1.f;
@@ -490,11 +488,16 @@ BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 	if(mTrunkLOD >= sMAX_NUM_TREE_LOD_LEVELS) //do not display the tree.
 	{
 		mReferenceBuffer = NULL ;
-		mDrawable->getFace(0)->setVertexBuffer(NULL);
+		LLFace * facep = drawable->getFace(0);
+		if (facep)
+		{
+			facep->setVertexBuffer(NULL);
+		}
 		return TRUE ;
 	}
 
-	if (mReferenceBuffer.isNull() || !mDrawable->getFace(0)->getVertexBuffer())
+	if (mDrawable->getFace(0) &&
+		(mReferenceBuffer.isNull() || !mDrawable->getFace(0)->getVertexBuffer()))
 	{
 		const F32 SRR3 = 0.577350269f; // sqrt(1/3)
 		const F32 SRR2 = 0.707106781f; // sqrt(1/2)
@@ -507,6 +510,7 @@ BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 		S32 lod;
 
 		LLFace *face = drawable->getFace(0);
+		if (!face) return TRUE;
 
 		face->mCenterAgent = getPositionAgent();
 		face->mCenterLocal = face->mCenterAgent;
@@ -837,10 +841,10 @@ void LLVOTree::updateMesh()
 	LLMatrix4 matrix;
 	
 	// Translate to tree base  HACK - adjustment in Z plants tree underground
-	const LLVector3 &pos_agent = getPositionAgent();
+	const LLVector3 &pos_region = getPositionRegion();
 	//gGL.translatef(pos_agent.mV[VX], pos_agent.mV[VY], pos_agent.mV[VZ] - 0.1f);
 	LLMatrix4 trans_mat;
-	trans_mat.setTranslation(pos_agent.mV[VX], pos_agent.mV[VY], pos_agent.mV[VZ] - 0.1f);
+	trans_mat.setTranslation(pos_region.mV[VX], pos_region.mV[VY], pos_region.mV[VZ] - 0.1f);
 	trans_mat *= matrix;
 	
 	// Rotate to tree position and bend for current trunk/wind
@@ -879,6 +883,7 @@ void LLVOTree::updateMesh()
 	calcNumVerts(vert_count, index_count, mTrunkLOD, stop_depth, mDepth, mTrunkDepth, mBranches);
 
 	LLFace* facep = mDrawable->getFace(0);
+	if (!facep) return;
 	LLVertexBuffer* buff = new LLVertexBuffer(LLDrawPoolTree::VERTEX_DATA_MASK, GL_STATIC_DRAW_ARB);
 	buff->allocateBuffer(vert_count, index_count, TRUE);
 	facep->setVertexBuffer(buff);
@@ -1080,132 +1085,6 @@ void LLVOTree::calcNumVerts(U32& vert_count, U32& index_count, S32 trunk_LOD, S3
 	}
 }
 
-U32 LLVOTree::drawBranchPipeline(LLMatrix4& matrix, U16* indicesp, S32 trunk_LOD, S32 stop_level, U16 depth, U16 trunk_depth,  F32 scale, F32 twist, F32 droop,  F32 branches, F32 alpha)
-{
-	U32 ret = 0;
-	//
-	//  Draws a tree by recursing, drawing branches and then a 'leaf' texture.
-	//  If stop_level = -1, simply draws the whole tree as a billboarded texture
-	//
-	
-	static F32 constant_twist;
-	static F32 width = 0;
-
-	//F32 length = ((scale == 1.f)? mTrunkLength:mBranchLength);
-	//F32 aspect = ((scale == 1.f)? mTrunkAspect:mBranchAspect);
-	F32 length = ((trunk_depth || (scale == 1.f))? mTrunkLength:mBranchLength);
-	F32 aspect = ((trunk_depth || (scale == 1.f))? mTrunkAspect:mBranchAspect);
-	
-	constant_twist = 360.f/branches;
-
-	if (!LLPipeline::sReflectionRender && stop_level >= 0)
-	{
-		//
-		//  Draw the tree using recursion
-		//
-		if (depth > stop_level)
-		{
-			{
-				llassert(sLODIndexCount[trunk_LOD] > 0);
-				width = scale * length * aspect;
-				LLMatrix4 scale_mat;
-				scale_mat.mMatrix[0][0] = width;
-				scale_mat.mMatrix[1][1] = width;
-				scale_mat.mMatrix[2][2] = scale*length;
-				scale_mat *= matrix;
-
-				gGL.loadMatrix((F32*) scale_mat.mMatrix);
-				gGL.syncMatrices();
- 				glDrawElements(GL_TRIANGLES, sLODIndexCount[trunk_LOD], GL_UNSIGNED_SHORT, indicesp + sLODIndexOffset[trunk_LOD]);
-				gPipeline.addTrianglesDrawn(LEAF_INDICES);
-				stop_glerror();
-				ret += sLODIndexCount[trunk_LOD];
-			}
-			
-			// Recurse to create more branches
-			for (S32 i=0; i < (S32)branches; i++) 
-			{
-				LLMatrix4 trans_mat;
-				trans_mat.setTranslation(0,0,scale*length);
-				trans_mat *= matrix;
-
-				LLQuaternion rot = 
-					LLQuaternion(20.f*DEG_TO_RAD, LLVector4(0.f, 0.f, 1.f)) *
-					LLQuaternion(droop*DEG_TO_RAD, LLVector4(0.f, 1.f, 0.f)) *
-					LLQuaternion(((constant_twist + ((i%2==0)?twist:-twist))*i)*DEG_TO_RAD, LLVector4(0.f, 0.f, 1.f));
-				
-				LLMatrix4 rot_mat(rot);
-				rot_mat *= trans_mat;
-
-				ret += drawBranchPipeline(rot_mat, indicesp, trunk_LOD, stop_level, depth - 1, 0, scale*mScaleStep, twist, droop, branches, alpha);
-			}
-			//  Recurse to continue trunk
-			if (trunk_depth)
-			{
-				LLMatrix4 trans_mat;
-				trans_mat.setTranslation(0,0,scale*length);
-				trans_mat *= matrix;
-
-				LLMatrix4 rot_mat(70.5f*DEG_TO_RAD, LLVector4(0,0,1));
-				rot_mat *= trans_mat; // rotate a bit around Z when ascending 
-				ret += drawBranchPipeline(rot_mat, indicesp, trunk_LOD, stop_level, depth, trunk_depth-1, scale*mScaleStep, twist, droop, branches, alpha);
-			}
-		}
-		else
-		{
-			//
-			//  Draw leaves as two 90 deg crossed quads with leaf textures
-			//
-			{
-				LLMatrix4 scale_mat;
-				scale_mat.mMatrix[0][0] = 
-					scale_mat.mMatrix[1][1] =
-					scale_mat.mMatrix[2][2] = scale*mLeafScale;
-
-				scale_mat *= matrix;
-
-			
-				gGL.loadMatrix((F32*) scale_mat.mMatrix);
-				gGL.syncMatrices();
-				glDrawElements(GL_TRIANGLES, LEAF_INDICES, GL_UNSIGNED_SHORT, indicesp);
-				gPipeline.addTrianglesDrawn(LEAF_INDICES);							
-				stop_glerror();
-				ret += LEAF_INDICES;
-			}
-		}
-	}
-	else
-	{
-		//
-		//  Draw the tree as a single billboard texture 
-		//
-
-		LLMatrix4 scale_mat;
-		scale_mat.mMatrix[0][0] = 
-			scale_mat.mMatrix[1][1] =
-			scale_mat.mMatrix[2][2] = mBillboardScale*mBillboardRatio;
-
-		scale_mat *= matrix;
-	
-		gGL.matrixMode(LLRender::MM_TEXTURE);
-		gGL.translatef(0.0, -0.5, 0.0);
-		gGL.matrixMode(LLRender::MM_MODELVIEW);
-					
-		gGL.loadMatrix((F32*) scale_mat.mMatrix);
-		gGL.syncMatrices();
-		glDrawElements(GL_TRIANGLES, LEAF_INDICES, GL_UNSIGNED_SHORT, indicesp);
-		gPipeline.addTrianglesDrawn(LEAF_INDICES);
-		stop_glerror();
-		ret += LEAF_INDICES;
-
-		gGL.matrixMode(LLRender::MM_TEXTURE);
-		gGL.loadIdentity();
-		gGL.matrixMode(LLRender::MM_MODELVIEW);
-	}
-
-	return ret;
-}
-
 void LLVOTree::updateRadius()
 {
 	if (mDrawable.isNull())
@@ -1233,8 +1112,8 @@ void LLVOTree::updateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 	mDrawable->setPositionGroup(pos);
 }
 
-BOOL LLVOTree::lineSegmentIntersect(const LLVector3& start, const LLVector3& end, S32 face, BOOL pick_transparent, S32 *face_hitp,
-									  LLVector3* intersection,LLVector2* tex_coord, LLVector3* normal, LLVector3* bi_normal)
+BOOL LLVOTree::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, S32 face, BOOL pick_transparent, S32 *face_hitp,
+									  LLVector4a* intersection,LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
 	
 {
 
@@ -1263,16 +1142,19 @@ BOOL LLVOTree::lineSegmentIntersect(const LLVector3& start, const LLVector3& end
 
 	LLVector3 pos, norm;
 		
-	if (linesegment_tetrahedron(start, end, center, size, quat, pos, norm))
+	LLVector3 start3(start.getF32ptr());
+	LLVector3 end3(end.getF32ptr());
+
+	if (linesegment_tetrahedron(start3, end3, center, size, quat, pos, norm))
 	{
 		if (intersection)
 		{
-			*intersection = pos;
+			intersection->load3(pos.mV);
 		}
 
 		if (normal)
 		{
-			*normal = norm;
+			normal->load3(norm.mV);
 		}
 		return TRUE;
 	}

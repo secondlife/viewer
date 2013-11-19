@@ -5,7 +5,7 @@
 			網頁內容
 		</label>
 		<tooltip name="web_tooltip">
-			這位置有網頁內容
+			這個位置有網頁內容
 		</tooltip>
 		<playtip name="web_playtip">
 			顯示網頁內容
@@ -41,7 +41,7 @@
 			有一個音頻在此位置
 		</tooltip>
 		<playtip name="audio_playtip">
-			播放這個硾的音頻
+			播放這個位置的音頻
 		</playtip>
 	</widgetset>
 	<scheme name="rtsp">
@@ -66,7 +66,7 @@
 	</mimetype>
 	<mimetype name="video/*">
 		<label name="video2_label">
-			視頻
+			影片
 		</label>
 	</mimetype>
 	<mimetype name="image/*">
@@ -111,7 +111,7 @@
 	</mimetype>
 	<mimetype name="application/xhtml+xml">
 		<label name="application/xhtml+xml_label">
-			選項（XHTML）
+			網頁（XHTML）
 		</label>
 	</mimetype>
 	<mimetype name="application/x-director">
@@ -171,7 +171,7 @@
 	</mimetype>
 	<mimetype name="text/html">
 		<label name="text/html_label">
-			選項
+			網頁
 		</label>
 	</mimetype>
 	<mimetype name="text/plain">

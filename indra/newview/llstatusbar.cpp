@@ -469,7 +469,7 @@ void LLStatusBar::onMouseEnterVolume()
 	LLRect vol_btn_rect = volbtn->getRect();
 	LLRect volume_pulldown_rect = mPanelVolumePulldown->getRect();
 	volume_pulldown_rect.setLeftTopAndSize(vol_btn_rect.mLeft -
-	     (volume_pulldown_rect.getWidth() - vol_btn_rect.getWidth())/2,
+	     (volume_pulldown_rect.getWidth() - vol_btn_rect.getWidth()),
 			       vol_btn_rect.mBottom,
 			       volume_pulldown_rect.getWidth(),
 			       volume_pulldown_rect.getHeight());

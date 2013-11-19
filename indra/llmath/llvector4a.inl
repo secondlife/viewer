@@ -409,6 +409,26 @@ inline void LLVector4a::normalize3fast()
 	mQ = _mm_mul_ps( mQ, approxRsqrt );
 }
 
+inline void LLVector4a::normalize3fast_checked(LLVector4a* d)
+{
+	if (!isFinite3())
+	{
+		*this = d ? *d : LLVector4a(0,1,0,1);
+		return;
+	}
+
+	LLVector4a lenSqrd; lenSqrd.setAllDot3( *this, *this );
+
+	if (lenSqrd.getF32ptr()[0] <= FLT_EPSILON)
+	{
+		*this = d ? *d : LLVector4a(0,1,0,1);
+		return;
+	}
+
+	const LLQuad approxRsqrt = _mm_rsqrt_ps(lenSqrd.mQ);
+	mQ = _mm_mul_ps( mQ, approxRsqrt );
+}
+
 // Return true if this vector is normalized with respect to x,y,z up to tolerance
 inline LLBool32 LLVector4a::isNormalized3( F32 tolerance ) const
 {
@@ -460,21 +480,19 @@ inline void LLVector4a::setMax(const LLVector4a& lhs, const LLVector4a& rhs)
 	mQ = _mm_max_ps(lhs.mQ, rhs.mQ);
 }
 
-// Set this to  (c * lhs) + rhs * ( 1 - c)
+// Set this to  lhs + (rhs-lhs)*c
 inline void LLVector4a::setLerp(const LLVector4a& lhs, const LLVector4a& rhs, F32 c)
 {
-	LLVector4a a = lhs;
-	a.mul(c);
-	
-	LLVector4a b = rhs;
-	b.mul(1.f-c);
-	
-	setAdd(a, b);
+	LLVector4a t;
+	t.setSub(rhs,lhs);
+	t.mul(c);
+	setAdd(lhs, t);
 }
 
 inline LLBool32 LLVector4a::isFinite3() const
 {
 	static LL_ALIGN_16(const U32 nanOrInfMask[4]) = { 0x7f800000, 0x7f800000, 0x7f800000, 0x7f800000 };
+	ll_assert_aligned(nanOrInfMask,16);
 	const __m128i nanOrInfMaskV = *reinterpret_cast<const __m128i*> (nanOrInfMask);
 	const __m128i maskResult = _mm_and_si128( _mm_castps_si128(mQ), nanOrInfMaskV );
 	const LLVector4Logical equalityCheck = _mm_castsi128_ps(_mm_cmpeq_epi32( maskResult, nanOrInfMaskV ));

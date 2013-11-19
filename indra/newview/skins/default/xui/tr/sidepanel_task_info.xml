@@ -18,6 +18,12 @@
 	<panel.string name="text modify info 4">
 		Bu nesneleri değiştiremezsiniz
 	</panel.string>
+	<panel.string name="text modify info 5">
+		Bir bölge sınırı üzerinden bu nesneyi değiştiremezsiniz
+	</panel.string>
+	<panel.string name="text modify info 6">
+		Bir bölge sınırı üzerinden bu nesneleri değiştiremezsiniz
+	</panel.string>
 	<panel.string name="text modify warning">
 		Bu nesne bağlantılı parçalara sahip
 	</panel.string>
@@ -66,6 +72,7 @@
 			<combo_box.item label="Nesneyi satın al" name="Buyobject"/>
 			<combo_box.item label="Nesneye ödeme yap" name="Payobject"/>
 			<combo_box.item label="Aç" name="Open"/>
+			<combo_box.item label="Yakınlaştır" name="Zoom"/>
 		</combo_box>
 		<panel name="perms_inv">
 			<text name="perm_modify">
@@ -95,6 +102,9 @@
 		</combo_box>
 		<spinner label="Fiyat: L$" name="Edit Cost"/>
 		<check_box label="Aramada göster" name="search_check" tool_tip="Kişiler arama sonuçlarında bu nesneyi görebilsin"/>
+		<text name="pathfinding_attributes_label">
+			Yol bulma özellikleri:
+		</text>
 		<text name="B:">
 			B:
 		</text>

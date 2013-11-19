@@ -137,7 +137,7 @@ public:
 	virtual ~LLFloaterUIPreview();
 
 	std::string getLocStr(S32 ID);							// fetches the localization string based on what is selected in the drop-down menu
-	void displayFloater(BOOL click, S32 ID, bool save = false);			// needs to be public so live file can call it when it finds an update
+	void displayFloater(BOOL click, S32 ID);			// needs to be public so live file can call it when it finds an update
 
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onClose(bool app_quitting);
@@ -291,7 +291,8 @@ LLLocalizationResetForcer::LLLocalizationResetForcer(LLFloaterUIPreview* floater
 {
 	mSavedLocalization = LLUI::sSettingGroups["config"]->getString("Language");				// save current localization setting
 	LLUI::sSettingGroups["config"]->setString("Language", floater->getLocStr(ID));// hack language to be the one we want to preview floaters in
-	LLUI::setupPaths();														// forcibly reset XUI paths with this new language
+	// forcibly reset XUI paths with this new language
+	gDirUtilp->setSkinFolder(gDirUtilp->getSkinFolder(), floater->getLocStr(ID));
 }
 
 // Actually reset in destructor
@@ -299,7 +300,8 @@ LLLocalizationResetForcer::LLLocalizationResetForcer(LLFloaterUIPreview* floater
 LLLocalizationResetForcer::~LLLocalizationResetForcer()
 {
 	LLUI::sSettingGroups["config"]->setString("Language", mSavedLocalization);	// reset language to what it was before we changed it
-	LLUI::setupPaths();														// forcibly reset XUI paths with this new language
+	// forcibly reset XUI paths with this new language
+	gDirUtilp->setSkinFolder(gDirUtilp->getSkinFolder(), mSavedLocalization);
 }
 
 // Live file constructor
@@ -488,7 +490,7 @@ BOOL LLFloaterUIPreview::postBuild()
 	{
 		if((found = iter.next(language_directory)))							// get next directory
 		{
-			std::string full_path = xui_dir + language_directory;
+			std::string full_path = gDirUtilp->add(xui_dir, language_directory);
 			if(LLFile::isfile(full_path.c_str()))																	// if it's not a directory, skip it
 			{
 				continue;
@@ -773,7 +775,8 @@ void LLFloaterUIPreview::onClickDisplayFloater(S32 caller_id)
 // Saves the current floater/panel
 void LLFloaterUIPreview::onClickSaveFloater(S32 caller_id)
 {
-	displayFloater(TRUE, caller_id, true);
+	displayFloater(TRUE, caller_id);
+	popupAndPrintWarning("Save-floater functionality removed, use XML schema to clean up XUI files");
 }
 
 // Saves all floater/panels
@@ -784,25 +787,15 @@ void LLFloaterUIPreview::onClickSaveAll(S32 caller_id)
 	for (int index = 0; index < listSize; index++)
 	{
 		mFileList->selectNthItem(index);
-		displayFloater(TRUE, caller_id, true);
+		displayFloater(TRUE, caller_id);
 	}
-}
-
-// Given path to floater or panel XML file "filename.xml",
-// returns "filename_new.xml"
-static std::string append_new_to_xml_filename(const std::string& path)
-{
-	std::string full_filename = gDirUtilp->findSkinnedFilename(LLUI::getLocalizedSkinPath(), path);
-	std::string::size_type extension_pos = full_filename.rfind(".xml");
-	full_filename.resize(extension_pos);
-	full_filename += "_new.xml";
-	return full_filename;
+	popupAndPrintWarning("Save-floater functionality removed, use XML schema to clean up XUI files");
 }
 
 // Actually display the floater
 // Only set up a new live file if this came from a click (at which point there should be no existing live file), rather than from the live file's update itself;
 // otherwise, we get an infinite loop as the live file keeps recreating itself.  That means this function is generally called twice.
-void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
+void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID)
 {
 	// Convince UI that we're in a different language (the one selected on the drop-down menu)
 	LLLocalizationResetForcer reset_forcer(this, ID);						// save old language in reset forcer object (to be reset upon destruction when it falls out of scope)
@@ -843,48 +836,13 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 	if(!strncmp(path.c_str(),"floater_",8)
 		|| !strncmp(path.c_str(), "inspect_", 8))		// if it's a floater
 	{
-		if (save)
-		{
-			LLXMLNodePtr floater_write = new LLXMLNode();			
-			(*floaterp)->buildFromFile(path, floater_write);	// just build it
-
-			if (!floater_write->isNull())
-			{
-				std::string full_filename = append_new_to_xml_filename(path);
-				LLFILE* floater_temp = LLFile::fopen(full_filename.c_str(), "w");
-				LLXMLNode::writeHeaderToFile(floater_temp);
-				const bool use_type_decorations = false;
-				floater_write->writeToFile(floater_temp, std::string(), use_type_decorations);
-				fclose(floater_temp);
-			}
-		}
-		else
-		{
-			(*floaterp)->buildFromFile(path);	// just build it
-			(*floaterp)->openFloater((*floaterp)->getKey());
-			(*floaterp)->setCanResize((*floaterp)->isResizable());
-		}
-
+		(*floaterp)->buildFromFile(path);	// just build it
+		(*floaterp)->openFloater((*floaterp)->getKey());
+		(*floaterp)->setCanResize((*floaterp)->isResizable());
 	}
 	else if (!strncmp(path.c_str(),"menu_",5))								// if it's a menu
 	{
-		if (save)
-		{	
-			LLXMLNodePtr menu_write = new LLXMLNode();	
-			LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(path, gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance(), menu_write);
-
-			if (!menu_write->isNull())
-			{
-				std::string full_filename = append_new_to_xml_filename(path);
-				LLFILE* menu_temp = LLFile::fopen(full_filename.c_str(), "w");
-				LLXMLNode::writeHeaderToFile(menu_temp);
-				const bool use_type_decorations = false;
-				menu_write->writeToFile(menu_temp, std::string(), use_type_decorations);
-				fclose(menu_temp);
-			}
-
-			delete menu;
-		}
+		// former 'save' processing excised
 	}
 	else																// if it is a panel...
 	{
@@ -896,39 +854,20 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 		LLPanel::Params panel_params;
 		LLPanel* panel = LLUICtrlFactory::create<LLPanel>(panel_params);	// create a new panel
 
-		if (save)
-		{
-			LLXMLNodePtr panel_write = new LLXMLNode();
-			panel->buildFromFile(path, panel_write);		// build it
-			
-			if (!panel_write->isNull())
-			{
-				std::string full_filename = append_new_to_xml_filename(path);
-				LLFILE* panel_temp = LLFile::fopen(full_filename.c_str(), "w");
-				LLXMLNode::writeHeaderToFile(panel_temp);
-				const bool use_type_decorations = false;
-				panel_write->writeToFile(panel_temp, std::string(), use_type_decorations);
-				fclose(panel_temp);
-			}
-		}
-		else
-		{
-			panel->buildFromFile(path);										// build it
-			LLRect new_size = panel->getRect();								// get its rectangle
-			panel->setOrigin(2,2);											// reset its origin point so it's not offset by -left or other XUI attributes
-			(*floaterp)->setTitle(path);									// use the file name as its title, since panels have no guaranteed meaningful name attribute
-			panel->setUseBoundingRect(TRUE);								// enable the use of its outer bounding rect (normally disabled because it's O(n) on the number of sub-elements)
-			panel->updateBoundingRect();									// update bounding rect
-			LLRect bounding_rect = panel->getBoundingRect();				// get the bounding rect
-			LLRect new_rect = panel->getRect();								// get the panel's rect
-			new_rect.unionWith(bounding_rect);								// union them to make sure we get the biggest one possible
-			LLRect floater_rect = new_rect;
-			floater_rect.stretch(4, 4);
-			(*floaterp)->reshape(floater_rect.getWidth(), floater_rect.getHeight() + floater_header_size);	// reshape floater to match the union rect's dimensions
-			panel->reshape(new_rect.getWidth(), new_rect.getHeight());		// reshape panel to match the union rect's dimensions as well (both are needed)
-			(*floaterp)->addChild(panel);					// add panel as child
-			(*floaterp)->openFloater();						// open floater (needed?)
-		}
+		panel->buildFromFile(path);										// build it
+		panel->setOrigin(2,2);											// reset its origin point so it's not offset by -left or other XUI attributes
+		(*floaterp)->setTitle(path);									// use the file name as its title, since panels have no guaranteed meaningful name attribute
+		panel->setUseBoundingRect(TRUE);								// enable the use of its outer bounding rect (normally disabled because it's O(n) on the number of sub-elements)
+		panel->updateBoundingRect();									// update bounding rect
+		LLRect bounding_rect = panel->getBoundingRect();				// get the bounding rect
+		LLRect new_rect = panel->getRect();								// get the panel's rect
+		new_rect.unionWith(bounding_rect);								// union them to make sure we get the biggest one possible
+		LLRect floater_rect = new_rect;
+		floater_rect.stretch(4, 4);
+		(*floaterp)->reshape(floater_rect.getWidth(), floater_rect.getHeight() + floater_header_size);	// reshape floater to match the union rect's dimensions
+		panel->reshape(new_rect.getWidth(), new_rect.getHeight());		// reshape panel to match the union rect's dimensions as well (both are needed)
+		(*floaterp)->addChild(panel);					// add panel as child
+		(*floaterp)->openFloater();						// open floater (needed?)
 	}
 
 	if(ID == 1)
@@ -964,7 +903,7 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 	(*floaterp)->center();
 	addDependentFloater(*floaterp);
 
-	if(click && ID == 1 && !save)
+	if(click && ID == 1)
 	{
 		// set up live file to track it
 		if(mLiveFile)

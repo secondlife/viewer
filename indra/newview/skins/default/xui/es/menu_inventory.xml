@@ -67,6 +67,7 @@
 	<menu_item_call label="Borrar carpeta del sistema" name="Delete System Folder"/>
 	<menu_item_call label="Empezar multiconferencia" name="Conference Chat Folder"/>
 	<menu_item_call label="Escuchar" name="Sound Play"/>
+	<menu_item_call label="Copiar la SLurl" name="url_copy"/>
 	<menu_item_call label="Acerca del hito" name="About Landmark"/>
 	<menu_item_call label="Escuchar en el mundo" name="Animation Play"/>
 	<menu_item_call label="Ejecutarla para usted" name="Animation Audition"/>

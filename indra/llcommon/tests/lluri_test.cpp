@@ -58,12 +58,12 @@ namespace tut
 			ensure_equals("escape/unescape escaped", uri_esc_2, uri_esc_1);
 		}
 	};
-	
+
 	typedef test_group<URITestData>	URITestGroup;
 	typedef URITestGroup::object	URITestObject;
 
 	URITestGroup uriTestGroup("LLURI");
-	
+
 	template<> template<>
 	void URITestObject::test<1>()
 	{
@@ -89,14 +89,14 @@ namespace tut
 	template<> template<>
 	void URITestObject::test<2>()
 	{
-		// empty string
+		set_test_name("empty string");
 		checkParts(LLURI(""), "", "", "", "");
 	}
-	
+
 	template<> template<>
 	void URITestObject::test<3>()
 	{
-		// no scheme
+		set_test_name("no scheme");
 		checkParts(LLURI("foo"), "", "foo", "", "");
 		checkParts(LLURI("foo%3A"), "", "foo:", "", "");
 	}
@@ -104,7 +104,7 @@ namespace tut
 	template<> template<>
 	void URITestObject::test<4>()
 	{
-		// scheme w/o paths
+		set_test_name("scheme w/o paths");
 		checkParts(LLURI("mailto:zero@ll.com"),
 			"mailto", "zero@ll.com", "", "");
 		checkParts(LLURI("silly://abc/def?foo"),
@@ -114,16 +114,16 @@ namespace tut
 	template<> template<>
 	void URITestObject::test<5>()
 	{
-		// authority section
+		set_test_name("authority section");
 		checkParts(LLURI("http:///"),
 			"http", "///", "", "/");
-			
+
 		checkParts(LLURI("http://abc"),
 			"http", "//abc", "abc", "");
-			
+
 		checkParts(LLURI("http://a%2Fb/cd"),
 			"http", "//a/b/cd", "a/b", "/cd");
-			
+
 		checkParts(LLURI("http://host?"),
 			"http", "//host?", "host", "");
 	}
@@ -131,13 +131,13 @@ namespace tut
 	template<> template<>
 	void URITestObject::test<6>()
 	{		
-		// path section
+		set_test_name("path section");
 		checkParts(LLURI("http://host/a/b/"),
 				"http", "//host/a/b/", "host", "/a/b/");
-				
+
 		checkParts(LLURI("http://host/a%3Fb/"),
 				"http", "//host/a?b/", "host", "/a?b/");
-				
+
 		checkParts(LLURI("http://host/a:b/"),
 				"http", "//host/a:b/", "host", "/a:b/");
 	}
@@ -145,16 +145,16 @@ namespace tut
 	template<> template<>
 	void URITestObject::test<7>()
 	{		
-		// query string
+		set_test_name("query string");
 		checkParts(LLURI("http://host/?"),
 				"http", "//host/?", "host", "/", "");
-				
+
 		checkParts(LLURI("http://host/?x"),
 				"http", "//host/?x", "host", "/", "x");
-				
+
 		checkParts(LLURI("http://host/??"),
 				"http", "//host/??", "host", "/", "?");
-				
+
 		checkParts(LLURI("http://host/?%3F"),
 				"http", "//host/??", "host", "/", "?");
 	}
@@ -167,19 +167,44 @@ namespace tut
 		path.append("123");
 		checkParts(LLURI::buildHTTP("host", path),
 			"http", "//host/x/123", "host", "/x/123");
-		
+
 		LLSD query;
 		query["123"] = "12";
 		query["abcd"] = "abc";
 		checkParts(LLURI::buildHTTP("host", path, query),
 			"http", "//host/x/123?123=12&abcd=abc",
 			"host", "/x/123", "123=12&abcd=abc");
+
+		ensure_equals(LLURI::buildHTTP("host", "").asString(),
+					  "http://host");
+		ensure_equals(LLURI::buildHTTP("host", "/").asString(),
+					  "http://host/");
+		ensure_equals(LLURI::buildHTTP("host", "//").asString(),
+					  "http://host/");
+		ensure_equals(LLURI::buildHTTP("host", "dir name").asString(),
+					  "http://host/dir%20name");
+		ensure_equals(LLURI::buildHTTP("host", "dir name/").asString(),
+					  "http://host/dir%20name/");
+		ensure_equals(LLURI::buildHTTP("host", "/dir name").asString(),
+					  "http://host/dir%20name");
+		ensure_equals(LLURI::buildHTTP("host", "/dir name/").asString(),
+					  "http://host/dir%20name/");
+		ensure_equals(LLURI::buildHTTP("host", "dir name/subdir name").asString(),
+					  "http://host/dir%20name/subdir%20name");
+		ensure_equals(LLURI::buildHTTP("host", "dir name/subdir name/").asString(),
+					  "http://host/dir%20name/subdir%20name/");
+		ensure_equals(LLURI::buildHTTP("host", "/dir name/subdir name").asString(),
+					  "http://host/dir%20name/subdir%20name");
+		ensure_equals(LLURI::buildHTTP("host", "/dir name/subdir name/").asString(),
+					  "http://host/dir%20name/subdir%20name/");
+		ensure_equals(LLURI::buildHTTP("host", "//dir name//subdir name//").asString(),
+					  "http://host/dir%20name/subdir%20name/");
 	}
 
 	template<> template<>
 	void URITestObject::test<9>()
 	{
-		// test unescaped path components
+		set_test_name("test unescaped path components");
 		LLSD path;
 		path.append("x@*//*$&^");
 		path.append("123");
@@ -190,7 +215,7 @@ namespace tut
 	template<> template<>
 	void URITestObject::test<10>()
 	{
-		// test unescaped query components
+		set_test_name("test unescaped query components");
 		LLSD path;
 		path.append("x");
 		path.append("123");
@@ -205,7 +230,7 @@ namespace tut
 	template<> template<>
 	void URITestObject::test<11>()
 	{
-		// test unescaped host components
+		set_test_name("test unescaped host components");
 		LLSD path;
 		path.append("x");
 		path.append("123");
@@ -216,16 +241,16 @@ namespace tut
 			"http", "//hi123*33--}{:portstuffs/x/123?123=12&abcd=abc",
 			"hi123*33--}{:portstuffs", "/x/123", "123=12&abcd=abc");
 	}
-	
+
 	template<> template<>
 	void URITestObject::test<12>()
 	{
-		// test funky host_port values that are actually prefixes
-		
+		set_test_name("test funky host_port values that are actually prefixes");
+
 		checkParts(LLURI::buildHTTP("http://example.com:8080", LLSD()),
 			"http", "//example.com:8080",
 			"example.com:8080", "");
-			
+
 		checkParts(LLURI::buildHTTP("http://example.com:8080/", LLSD()),
 			"http", "//example.com:8080/",
 			"example.com:8080", "/");
@@ -242,7 +267,7 @@ namespace tut
 			"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 			"0123456789"
 			"-._~";
-		// test escape
+		set_test_name("test escape");
 		ensure_equals("escaping", LLURI::escape("abcdefg", "abcdef"), "abcdef%67");
 		ensure_equals("escaping", LLURI::escape("|/&\\+-_!@", ""), "%7C%2F%26%5C%2B%2D%5F%21%40");
 		ensure_equals("escaping as query variable", 
@@ -259,13 +284,12 @@ namespace tut
 		cedilla.push_back( (char)0xA7 );
 		ensure_equals("escape UTF8", LLURI::escape( cedilla, unreserved), "%C3%A7");
 	}
-	
+
 
 	template<> template<>
 	void URITestObject::test<14>()
 	{
-		// make sure escape and unescape of empty strings return empty
-		// strings.
+		set_test_name("make sure escape and unescape of empty strings return empty strings.");
 		std::string uri_esc(LLURI::escape(""));
 		ensure("escape string empty", uri_esc.empty());
 		std::string uri_raw(LLURI::unescape(""));
@@ -275,7 +299,7 @@ namespace tut
 	template<> template<>
 	void URITestObject::test<15>()
 	{
-		// do some round-trip tests
+		set_test_name("do some round-trip tests");
 		escapeRoundTrip("http://secondlife.com");
 		escapeRoundTrip("http://secondlife.com/url with spaces");
 		escapeRoundTrip("http://bad[domain]name.com/");
@@ -286,7 +310,7 @@ namespace tut
 	template<> template<>
 	void URITestObject::test<16>()
 	{
-		// Test the default escaping
+		set_test_name("Test the default escaping");
 		// yes -- this mangles the url. This is expected behavior
 		std::string simple("http://secondlife.com");
 		ensure_equals(
@@ -302,7 +326,7 @@ namespace tut
 	template<> template<>
 	void URITestObject::test<17>()
 	{
-		// do some round-trip tests with very long strings.
+		set_test_name("do some round-trip tests with very long strings.");
 		escapeRoundTrip("Welcome to Second Life.We hope you'll have a richly rewarding experience, filled with creativity, self expression and fun.The goals of the Community Standards are simple: treat each other with respect and without harassment, adhere to local standards as indicated by simulator ratings, and refrain from any hate activity which slurs a real-world individual or real-world community. Behavioral Guidelines - The Big Six");
 		escapeRoundTrip(
 			"'asset_data':b(12100){'task_id':ucc706f2d-0b68-68f8-11a4-f1043ff35ca0}\n{\n\tname\tObject|\n\tpermissions 0\n\t{\n\t\tbase_mask\t7fffffff\n\t\towner_mask\t7fffffff\n\t\tgroup_mask\t00000000\n\t\teveryone_mask\t00000000\n\t\tnext_owner_mask\t7fffffff\n\t\tcreator_id\t13fd9595-a47b-4d64-a5fb-6da645f038e0\n\t\towner_id\t3c115e51-04f4-523c-9fa6-98aff1034730\n\t\tlast_owner_id\t3c115e51-04f4-523c-9fa6-98aff1034730\n\t\tgroup_id\t00000000-0000-0000-0000-000000000000\n\t}\n\tlocal_id\t217444921\n\ttotal_crc\t323\n\ttype\t2\n\ttask_valid\t2\n\ttravel_access\t13\n\tdisplayopts\t2\n\tdisplaytype\tv\n\tpos\t-0.368634403\t0.00781063363\t-0.569040775\n\toldpos\t150.117996\t25.8658009\t8.19664001\n\trotation\t-0.06293071806430816650390625\t-0.6995697021484375\t-0.7002241611480712890625\t0.1277817934751510620117188\n\tchildpos\t-0.00499999989\t-0.0359999985\t0.307999998\n\tchildrot\t-0.515492737293243408203125\t-0.46601200103759765625\t0.529055416584014892578125\t0.4870323240756988525390625\n\tscale"
@@ -322,7 +346,7 @@ namespace tut
 			"D STRING RW SV 20f36c3a-b44b-9bc7-87f3-018bfdfc8cda\n\tscratchpad\t0\n\t{\n\t\n\t}\n\tsale_info\t0\n\t{\n\t\tsale_type\tnot\n\t\tsale_price\t10\n\t}\n\torig_asset_id\t8747acbc-d391-1e59-69f1-41d06830e6c0\n\torig_item_id\t20f36c3a-b44b-9bc7-87f3-018bfdfc8cda\n\tfrom_task_id\t3c115e51-04f4-523c-9fa6-98aff1034730\n\tcorrect_family_id\t00000000-0000-0000-0000-000000000000\n\thas_rezzed\t0\n\tpre_link_base_mask\t7fffffff\n\tlinked \tlinked\n\tdefault_pay_price\t-2\t1\t5\t10\t20\n}\n");
 	}
 
-	 
+
 	template<> template<>
 	void URITestObject::test<18>()
 	{
@@ -335,7 +359,7 @@ namespace tut
 		ensure_equals("pathmap",	u.pathArray()[1].asString(),	"login");
 		ensure_equals("query",		u.query(),		"first_name=Testert4&last_name=Tester&web_login_key=test");
 		ensure_equals("query map element", u.queryMap()["last_name"].asString(), "Tester");
-		
+
 		u = LLURI("secondlife://Da Boom/128/128/128");
 		// if secondlife is the scheme, LLURI should parse /128/128/128 as path, with Da Boom as authority
 		ensure_equals("scheme",		u.scheme(),		"secondlife");
@@ -350,7 +374,7 @@ namespace tut
 	template<> template<>
 	void URITestObject::test<19>()
 	{
-		// Parse about: schemes
+		set_test_name("Parse about: schemes");
 		LLURI u("about:blank?redirect-http-hack=secondlife%3A%2F%2F%2Fapp%2Flogin%3Ffirst_name%3DCallum%26last_name%3DLinden%26location%3Dspecify%26grid%3Dvaak%26region%3D%2FMorris%2F128%2F128%26web_login_key%3Defaa4795-c2aa-4c58-8966-763c27931e78");
 		ensure_equals("scheme",		u.scheme(),		"about");
 		ensure_equals("authority",	u.authority(),	"");

@@ -8,7 +8,7 @@
 			<button label="加為朋友" name="add_friend_btn"/>
 		</layout_panel>
 		<layout_panel name="teleport_btn_panel">
-			<button label="瞬間傳送" name="teleport_btn" tool_tip="Offer to teleport this person"/>
+			<button label="瞬間傳送" name="teleport_btn" tool_tip="發出瞬間傳送邀請給此人"/>
 		</layout_panel>
 		<layout_panel name="share_btn_panel">
 			<button label="分享" name="share_btn"/>

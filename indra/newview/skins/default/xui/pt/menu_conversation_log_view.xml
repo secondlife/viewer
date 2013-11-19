@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="menu_conversation_view">
+	<menu_item_check label="Ordenar por nome" name="sort_by_name"/>
+	<menu_item_check label="Ordenar por data" name="sort_by_date"/>
+	<menu_item_check label="Ordenar com amigos acima" name="sort_by_friends"/>
+	<menu_item_call label="Exibir histórico de Bate-papo local..." name="view_nearby_chat_history"/>
+</toggleable_menu>

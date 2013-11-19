@@ -42,7 +42,6 @@
 #include "lllistener.h"
 
 const F32 LL_WIND_UPDATE_INTERVAL = 0.1f;
-const F32 LL_ROLLOFF_MULTIPLIER_UNDER_WATER = 5.f;			//  How much sounds are weaker under water
 const F32 LL_WIND_UNDERWATER_CENTER_FREQ = 20.f;
 
 const F32 ATTACHED_OBJECT_TIMEOUT = 5.0f;
@@ -66,6 +65,7 @@ class LLAudioChannel;
 class LLAudioChannelOpenAL;
 class LLAudioBuffer;
 class LLStreamingAudioInterface;
+struct SoundData;
 
 
 //
@@ -144,6 +144,8 @@ public:
 	void triggerSound(const LLUUID &sound_id, const LLUUID& owner_id, const F32 gain,
 					  const S32 type = LLAudioEngine::AUDIO_TYPE_NONE,
 					  const LLVector3d &pos_global = LLVector3d::zero);
+	void triggerSound(SoundData& soundData);
+
 	bool preloadSound(const LLUUID &id);
 
 	void addAudioSource(LLAudioSource *asp);
@@ -372,10 +374,12 @@ public:
 
 	bool	hasLocalData() const		{ return mHasLocalData; }
 	bool	hasDecodedData() const		{ return mHasDecodedData; }
+	bool	hasCompletedDecode() const	{ return mHasCompletedDecode; }
 	bool	hasValidData() const		{ return mHasValidData; }
 
 	void	setHasLocalData(const bool hld)		{ mHasLocalData = hld; }
 	void	setHasDecodedData(const bool hdd)	{ mHasDecodedData = hdd; }
+	void	setHasCompletedDecode(const bool hcd)	{ mHasCompletedDecode = hcd; }
 	void	setHasValidData(const bool hvd)		{ mHasValidData = hvd; }
 
 	friend class LLAudioEngine; // Severe laziness, bad.
@@ -383,9 +387,10 @@ public:
 protected:
 	LLUUID mID;
 	LLAudioBuffer *mBufferp;	// If this data is being used by the audio system, a pointer to the buffer will be set here.
-	bool mHasLocalData;
-	bool mHasDecodedData;
-	bool mHasValidData;
+	bool mHasLocalData;			// Set true if the sound asset file is available locally
+	bool mHasDecodedData;		// Set true if the sound file has been decoded
+	bool mHasCompletedDecode;	// Set true when the sound is decoded
+	bool mHasValidData;			// Set false if decoding failed, meaning the sound asset is bad
 };
 
 
@@ -453,6 +458,27 @@ protected:
 	LLFrameTimer mLastUseTimer;
 };
 
+struct SoundData
+{
+	LLUUID audio_uuid;
+	LLUUID owner_id;
+	F32 gain;
+	S32 type;
+	LLVector3d pos_global;
+
+	SoundData(const LLUUID &audio_uuid, 
+		const LLUUID& owner_id, 
+		const F32 gain, 					  
+		const S32 type = LLAudioEngine::AUDIO_TYPE_NONE,
+		const LLVector3d &pos_global = LLVector3d::zero)
+	{
+		this->audio_uuid = audio_uuid;
+		this->owner_id = owner_id;
+		this->gain = gain;
+		this->type = type;
+		this->pos_global = pos_global;
+	}
+};
 
 
 extern LLAudioEngine* gAudiop;

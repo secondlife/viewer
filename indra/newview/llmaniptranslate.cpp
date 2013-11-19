@@ -60,6 +60,7 @@
 #include "llworld.h"
 #include "llui.h"
 #include "pipeline.h"
+#include "llviewershadermgr.h"
 
 const S32 NUM_AXES = 3;
 const S32 MOUSE_DRAG_SLOP = 2;       // pixels
@@ -484,7 +485,6 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 	}
 
 	// Throttle updates to 10 per second.
-	BOOL send_update = FALSE;
 
 	LLVector3		axis_f;
 	LLVector3d		axis_d;
@@ -687,7 +687,9 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 			}
 		}
 
-		if (object->permMove())
+		LLViewerObject* root_object = (object == NULL) ? NULL : object->getRootEdit();
+		if (object->permMove() && !object->isPermanentEnforced() &&
+			((root_object == NULL) || !root_object->isPermanentEnforced()))
 		{
 			// handle attachments in local space
 			if (object->isAttachment() && object->mDrawable.notNull())
@@ -699,11 +701,6 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 				LLVector3 old_position_local = object->getPosition();
 				LLVector3 new_position_local = selectNode->mSavedPositionLocal + (clamped_relative_move_f * objWorldRotation);
 
-				// move and clamp root object first, before adjusting children
-				if (new_position_local != old_position_local)
-				{
-					send_update = TRUE;
-				}
 				//RN: I forget, but we need to do this because of snapping which doesn't often result
 				// in position changes even when the mouse moves
 				object->setPosition(new_position_local);
@@ -713,8 +710,6 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 
 				if (selectNode->mIndividualSelection)
 				{
-					send_update = FALSE;
-		
 					// counter-translate child objects if we are moving the root as an individual
 					object->resetChildrenPosition(old_position_local - new_position_local, TRUE) ;					
 				}
@@ -750,7 +745,6 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 				}
 
 				// PR: Only update if changed
-				LLVector3d old_position_global = object->getPositionGlobal();
 				LLVector3 old_position_agent = object->getPositionAgent();
 				LLVector3 new_position_agent = gAgent.getPosAgentFromGlobal(new_position_global);
 				if (object->isRootEdit())
@@ -772,11 +766,6 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 				{
 					// counter-translate child objects if we are moving the root as an individual
 					object->resetChildrenPosition(old_position_agent - new_position_agent, TRUE) ;					
-					send_update = FALSE;
-				}
-				else if (old_position_global != new_position_global)
-				{
-					send_update = TRUE;
 				}
 			}
 			selectNode->mLastPositionLocal  = object->getPosition();
@@ -1307,7 +1296,6 @@ void LLManipTranslate::renderSnapGuides()
 					// add in off-axis offset
 					tick_start += (mSnapOffsetAxis * mSnapOffsetMeters);
 
-					BOOL is_sub_tick = FALSE;
 					F32 tick_scale = 1.f;
 					for (F32 division_level = max_subdivisions; division_level >= sGridMinSubdivisionLevel; division_level /= 2.f)
 					{
@@ -1316,7 +1304,6 @@ void LLManipTranslate::renderSnapGuides()
 							break;
 						}
 						tick_scale *= 0.7f;
-						is_sub_tick = TRUE;
 					}
 
 // 					S32 num_ticks_to_fade = is_sub_tick ? num_ticks_per_side / 2 : num_ticks_per_side;
@@ -1539,7 +1526,6 @@ void LLManipTranslate::renderSnapGuides()
 		
 		float a = line_alpha;
 
-		LLColor4 col = LLUIColorTable::instance().getColor("SilhouetteChildColor");
 		{
 			//draw grid behind objects
 			LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
@@ -1580,7 +1566,11 @@ void LLManipTranslate::renderSnapGuides()
 					LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE, GL_GREATER);
 					LLGLEnable stipple(GL_LINE_STIPPLE);
 					gGL.flush();
-					glLineStipple(1, 0x3333);
+
+					if (!LLGLSLShader::sNoFixedFunction)
+					{
+						glLineStipple(1, 0x3333);
+					}
 		
 					switch (mManipPart)
 					{
@@ -1645,17 +1635,28 @@ void LLManipTranslate::highlightIntersection(LLVector3 normal,
 											 LLQuaternion grid_rotation, 
 											 LLColor4 inner_color)
 {
-	if (!gSavedSettings.getBOOL("GridCrossSections"))
+	if (!gSavedSettings.getBOOL("GridCrossSections") || !LLGLSLShader::sNoFixedFunction)
 	{
 		return;
 	}
+	
+	
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+
 	
 	U32 types[] = { LLRenderPass::PASS_SIMPLE, LLRenderPass::PASS_ALPHA, LLRenderPass::PASS_FULLBRIGHT, LLRenderPass::PASS_SHINY };
 	U32 num_types = LL_ARRAY_SIZE(types);
 
 	GLuint stencil_mask = 0xFFFFFFFF;
 	//stencil in volumes
+
 	gGL.flush();
+
+	if (shader)
+	{
+		gClipProgram.bind();
+	}
+		
 	{
 		glStencilMask(stencil_mask);
 		glClearStencil(1);
@@ -1666,6 +1667,7 @@ void LLManipTranslate::highlightIntersection(LLVector3 normal,
 		glStencilFunc(GL_ALWAYS, 0, stencil_mask);
 		gGL.setColorMask(false, false);
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+
 		gGL.diffuseColor4f(1,1,1,1);
 
 		//setup clip plane
@@ -1675,10 +1677,13 @@ void LLManipTranslate::highlightIntersection(LLVector3 normal,
 			normal = -normal;
 		}
 		F32 d = -(selection_center * normal);
-		F64 plane[] = { normal.mV[0], normal.mV[1], normal.mV[2], d };
-		LLGLEnable clip(GL_CLIP_PLANE0);
-		glClipPlane(GL_CLIP_PLANE0, plane);
+		glh::vec4f plane(normal.mV[0], normal.mV[1], normal.mV[2], d );
 
+		gGL.getModelviewMatrix().inverse().mult_vec_matrix(plane);
+
+		static LLStaticHashedString sClipPlane("clip_plane");
+		gClipProgram.uniform4fv(sClipPlane, 1, plane.v);
+		
 		BOOL particles = gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_PARTICLES);
 		BOOL clouds = gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS);
 		
@@ -1728,6 +1733,16 @@ void LLManipTranslate::highlightIntersection(LLVector3 normal,
 	
 	F32 sz = mGridSizeMeters;
 	F32 tiles = sz;
+
+	if (shader)
+	{
+		shader->bind();
+	}
+
+	if (shader)
+	{
+		shader->bind();
+	}
 
 	//draw volume/plane intersections
 	{
@@ -2281,7 +2296,10 @@ BOOL LLManipTranslate::canAffectSelection()
 		{
 			virtual bool apply(LLViewerObject* objectp)
 			{
-				return objectp->permMove() && (objectp->permModify() || !gSavedSettings.getBOOL("EditLinkedParts"));
+				LLViewerObject *root_object = (objectp == NULL) ? NULL : objectp->getRootEdit();
+				return objectp->permMove() && !objectp->isPermanentEnforced() &&
+					((root_object == NULL) || !root_object->isPermanentEnforced()) &&
+					(objectp->permModify() || !gSavedSettings.getBOOL("EditLinkedParts"));
 			}
 		} func;
 		can_move = mObjectSelection->applyToObjects(&func);

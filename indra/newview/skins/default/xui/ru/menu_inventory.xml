@@ -68,6 +68,7 @@
 	<menu_item_call label="Удалить системную папку" name="Delete System Folder"/>
 	<menu_item_call label="Начать конференцию" name="Conference Chat Folder"/>
 	<menu_item_call label="Воспроизвести" name="Sound Play"/>
+	<menu_item_call label="Копировать URL SL" name="url_copy"/>
 	<menu_item_call label="О закладке" name="About Landmark"/>
 	<menu_item_call label="Проиграть для всех" name="Animation Play"/>
 	<menu_item_call label="Проиграть для себя" name="Animation Audition"/>

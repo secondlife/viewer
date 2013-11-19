@@ -164,14 +164,20 @@ public:
 	~LLAtomic32<Type>() {};
 
 	operator const Type() { apr_uint32_t data = apr_atomic_read32(&mData); return Type(data); }
+	
+	Type	CurrentValue() const { apr_uint32_t data = apr_atomic_read32(const_cast< volatile apr_uint32_t* >(&mData)); return Type(data); }
+
 	Type operator =(const Type& x) { apr_atomic_set32(&mData, apr_uint32_t(x)); return Type(mData); }
 	void operator -=(Type x) { apr_atomic_sub32(&mData, apr_uint32_t(x)); }
 	void operator +=(Type x) { apr_atomic_add32(&mData, apr_uint32_t(x)); }
 	Type operator ++(int) { return apr_atomic_inc32(&mData); } // Type++
-	Type operator --(int) { return apr_atomic_dec32(&mData); } // Type--
+	Type operator --(int) { return apr_atomic_dec32(&mData); } // approximately --Type (0 if final is 0, non-zero otherwise)
+
+	Type operator ++() { return apr_atomic_inc32(&mData); } // Type++
+	Type operator --() { return apr_atomic_dec32(&mData); } // approximately --Type (0 if final is 0, non-zero otherwise)
 	
 private:
-	apr_uint32_t mData;
+	volatile apr_uint32_t mData;
 };
 
 typedef LLAtomic32<U32> LLAtomicU32;
@@ -182,8 +188,10 @@ typedef LLAtomic32<S32> LLAtomicS32;
 // abbreviated flags
 #define LL_APR_R (APR_READ) // "r"
 #define LL_APR_W (APR_CREATE|APR_TRUNCATE|APR_WRITE) // "w"
+#define LL_APR_A (APR_CREATE|APR_WRITE|APR_APPEND) // "w"
 #define LL_APR_RB (APR_READ|APR_BINARY) // "rb"
 #define LL_APR_WB (APR_CREATE|APR_TRUNCATE|APR_WRITE|APR_BINARY) // "wb"
+#define LL_APR_AB (APR_CREATE|APR_WRITE|APR_BINARY|APR_APPEND)
 #define LL_APR_RPB (APR_READ|APR_WRITE|APR_BINARY) // "r+b"
 #define LL_APR_WPB (APR_CREATE|APR_TRUNCATE|APR_READ|APR_WRITE|APR_BINARY) // "w+b"
 

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Hardware Settings Floater" title="硬體設定">
 	<text name="Filtering:">
-		Filtering:
+		過濾：
 	</text>
-	<check_box label="Anisotropic Filtering (slower when enabled)" name="ani"/>
-	<text name="Antialiasing:">
-		Antialiasing:
+	<check_box label="各向異性過濾（若啟用會變慢）" name="ani"/>
+	<text name="antialiasing label">
+		消除鋸齒：
 	</text>
-	<combo_box label="Antialiasing" name="fsaa">
-		<combo_box.item label="Disabled" name="FSAADisabled"/>
+	<combo_box label="消除鋸齒" name="fsaa">
+		<combo_box.item label="已停用" name="FSAADisabled"/>
 		<combo_box.item label="2x" name="2x"/>
 		<combo_box.item label="4x" name="4x"/>
 		<combo_box.item label="8x" name="8x"/>
@@ -17,15 +17,19 @@
 	<text name="antialiasing restart">
 		（須重新啟動瀏覽器）
 	</text>
-	<spinner label="Gamma:" name="gamma"/>
+	<spinner label="伽瑪值：" name="gamma"/>
 	<text name="(brightness, lower is brighter)">
-		(0 = default brightness, lower = brighter)
+		（0 = 預設亮度；值越小 = 亮度越高）
 	</text>
 	<text name="Enable VBO:">
-		Enable VBO:
+		啟用頂點緩衝物件(VBO)：
 	</text>
-	<check_box initial_value="true" label="Enable OpenGL Vertex Buffer Objects" name="vbo" tool_tip="Enabling this on modern hardware gives a performance gain.  However, older hardware often has poor implementations of VBOs and you may get crashes when this is enabled."/>
-	<slider label="材質記憶體（MB）：" name="GraphicsCardTextureMemory" tool_tip="Amount of memory to allocate for textures. Defaults to video card memory. Reducing this may improve performance but may also make textures blurry."/>
-	<spinner label="Fog Distance Ratio:" name="fog"/>
+	<check_box initial_value="true" label="啟用 OpenGL 頂點緩衝物件(VBO)" name="vbo" tool_tip="在較新硬體上啟用，可提升效能。  但是，較舊硬體的 VBO 實作不佳，若啟用可能導致當機。"/>
+	<text name="tc label">
+		啟用 S3TC：
+	</text>
+	<check_box initial_value="true" label="啟用材質壓縮（須重新啟動）" name="texture compression" tool_tip="在影片記憶體中壓縮材質，讓高解析度材質可以載入，但色彩品質稍差。"/>
+	<slider label="材質記憶體（MB）：" name="GraphicsCardTextureMemory" tool_tip="配置給材質使用的記憶體量。 預設為顯像卡記憶體。 降低此值可以提升效能，但材質也會變模糊。"/>
+	<spinner label="霧距離比率：" name="fog"/>
 	<button label="確定" label_selected="確定" name="OK"/>
 </floater>

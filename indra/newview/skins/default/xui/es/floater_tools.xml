@@ -128,6 +128,12 @@
 			<panel.string name="text modify info 4">
 				No puedes modificar estos objetos
 			</panel.string>
+			<panel.string name="text modify info 5">
+				No se puede modificar este objeto a través del límite de una región
+			</panel.string>
+			<panel.string name="text modify info 6">
+				No se pueden modificar estos objetos a través del límite de una región
+			</panel.string>
 			<panel.string name="text modify warning">
 				Para configurar los permisos, debes seleccionar el objeto completo
 			</panel.string>
@@ -177,12 +183,12 @@
 				<combo_box.item label="Zoom" name="Zoom"/>
 			</combo_box>
 			<check_box label="En venta:" name="checkbox for sale"/>
+			<spinner label="L$" name="Edit Cost"/>
 			<combo_box name="sale type">
 				<combo_box.item label="Copia" name="Copy"/>
 				<combo_box.item label="Contenidos" name="Contents"/>
 				<combo_box.item label="Original" name="Original"/>
 			</combo_box>
-			<spinner label="Precio: L$" name="Edit Cost"/>
 			<check_box label="Mostrar en la búsqueda" name="search_check" tool_tip="Dejar que la gente vea este objeto en los resultados de la búsqueda"/>
 			<panel name="perms_build">
 				<text name="perm_modify">
@@ -216,6 +222,11 @@
 				</text>
 				<text name="F:">
 					F:
+				</text>
+			</panel>
+			<panel name="pathfinding_attrs_panel">
+				<text name="pathfinding_attributes_label">
+					Atributos de pathfinding:
 				</text>
 			</panel>
 		</panel>
@@ -432,16 +443,11 @@
 				<combo_box.item label="succión" name="suction"/>
 				<combo_box.item label="tejido" name="weave"/>
 			</combo_box>
-			<check_box initial_value="falso" label="Alinear caras del plano" name="checkbox planar align" tool_tip="Alinear texturas en todas las caras seleccionadas con la última cara seleccionada. Requiere la representación de texturas en el plano."/>
-			<text name="rpt">
-				Repeticiones por cara
-			</text>
 			<spinner label="Horizontal (U)" name="TexScaleU"/>
 			<check_box label="Voltear" name="checkbox flip s"/>
 			<spinner label="Vertical (V)" name="TexScaleV"/>
 			<check_box label="Voltear" name="checkbox flip t"/>
 			<spinner label="Rotación" name="TexRot"/>
-			<spinner label="Repeticiones / Metro" name="rptctrl"/>
 			<button label="Aplicar" label_selected="Aplicar" name="button apply"/>
 			<text name="tex offset">
 				Desplazar

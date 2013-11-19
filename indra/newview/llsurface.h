@@ -142,6 +142,7 @@ public:
 	friend std::ostream& operator<<(std::ostream &s, const LLSurface &S);
 	
 	void getNeighboringRegions( std::vector<LLViewerRegion*>& uniqueRegions );
+	void getNeighboringRegionsStatus( std::vector<S32>& regions );
 	
 public:
 	// Number of grid points on one side of a region, including +1 buffer for
@@ -167,9 +168,6 @@ public:
 	U32 mType;				// Useful for identifying derived classes
 	
 	F32 mDetailTextureScale;	//  Number of times to repeat detail texture across this surface 
-
-	static F32 sTextureUpdateTime;
-	static S32 sTexelsUpdated;
 
 protected:
 	void createSTexture();

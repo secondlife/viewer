@@ -17,14 +17,14 @@
 		你是成員
 	</string>
 	<text name="group_subtitle">
-		123 members
+		123 位成員
 	</text>
 	<text name="group_details">
-		A group of folks charged with creating a room with a moose.
-Fear the moose!  Fear it!  And the mongoose too!
+		這一群人責在建立有麋鹿的房間。
+麋鹿萬歲！貓鼬萬歲！
 	</text>
 	<text name="group_cost">
-		L$123 to join
+		加入費用 L$123
 	</text>
 	<button label="加入" name="join_btn"/>
 	<button label="退出" name="leave_btn"/>

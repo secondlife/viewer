@@ -123,6 +123,14 @@ name="Edit Outfit">
     <menu_item_call.on_visible
      function="IsGodCustomerService"/>
   </menu_item_call>
+    <menu_item_call
+		 label="Dump XML"
+         name="Dump XML">
+            <menu_item_call.on_click
+             function="Advanced.AppearanceToXML" />
+            <menu_item_call.on_visible
+             function="Advanced.EnableAppearanceToXML"/>
+    </menu_item_call>
   <menu_item_separator
   layout="topleft" />
   <menu_item_call
@@ -134,5 +142,16 @@ name="Edit Outfit">
      function="Attachment.Drop" />
     <menu_item_call.on_enable
      function="Attachment.EnableDrop" />
+  </menu_item_call>
+  <menu_item_separator
+       layout="topleft" />
+  <menu_item_call
+     enabled="false"
+     label="Block Particle Owner"
+     name="Mute Particle">
+    <menu_item_call.on_click
+     function="Particle.Mute" />
+    <menu_item_call.on_enable
+     function="EnableMuteParticle" />
   </menu_item_call>
 </context_menu>

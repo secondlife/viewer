@@ -10,6 +10,8 @@
 	<menu_item_call label="立ち上がる" name="Object Stand Up"/>
 	<menu_item_call label="オブジェクトのプロフィール" name="Object Inspect"/>
 	<menu_item_call label="ズームイン" name="Zoom In"/>
+	<menu_item_call label="リンクセットで表示" name="show_in_linksets"/>
+	<menu_item_call label="キャラクターで表示" name="show_in_characters"/>
 	<context_menu label="装着" name="Put On">
 		<menu_item_call label="装着" name="Wear"/>
 		<menu_item_call label="追加" name="Add"/>
@@ -26,4 +28,5 @@
 	<menu_item_call label="支払う" name="Pay..."/>
 	<menu_item_call label="買う" name="Buy..."/>
 	<menu_item_call label="削除" name="Delete"/>
+	<menu_item_call label="パーティクル所有者をブロック" name="Mute Particle"/>
 </context_menu>

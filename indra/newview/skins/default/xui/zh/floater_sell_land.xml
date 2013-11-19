@@ -12,16 +12,16 @@
 				尺寸：
 			</text>
 			<text name="info_size">
-				[AREA] m²
+				[AREA] 平方公尺
 			</text>
 			<text name="info_action">
-				To sell this parcel:
+				出售地段：
 			</text>
 			<text name="price_label">
-				1. Set a price:
+				1. 訂定價格：
 			</text>
 			<text name="price_text">
-				Choose an appropriate price.
+				選擇適合的價格。
 			</text>
 			<text name="price_ld">
 				L$
@@ -30,13 +30,13 @@
 				0
 			</line_editor>
 			<text name="price_per_m">
-				(L$[PER_METER] per m²)
+				（每平方公尺 L$[PER_METER]）
 			</text>
 			<text name="sell_to_label">
-				2. Sell the land to:
+				2. 出售土地給：
 			</text>
 			<text name="sell_to_text">
-				Choose whether to sell to anyone or a particular buyer.
+				選擇要賣給任何人或賣給特定買主。
 			</text>
 			<combo_box name="sell_to">
 				<combo_box.item label="- 選擇一個 -" name="--selectone--"/>
@@ -45,20 +45,20 @@
 			</combo_box>
 			<button label="選擇" name="sell_to_select_agent"/>
 			<text name="sell_objects_label">
-				3. Sell the objects with the land?
+				3. 物件連同土地一起售出？
 			</text>
 			<text name="sell_objects_text">
-				Land owner&apos;s transferable objects on parcel will change ownership.
+				地段上地主的可轉讓物件將過繼所有權。
 			</text>
 			<radio_group name="sell_objects">
-				<radio_item label="No, keep ownership of objects" name="no"/>
-				<radio_item label="Yes, sell objects with land" name="yes"/>
+				<radio_item label="不，我要保留物件所有權" name="no"/>
+				<radio_item label="好，物件連同土地一起售出" name="yes"/>
 			</radio_group>
 			<button label="顯示物件" name="show_objects"/>
 			<text name="nag_message_label">
-				REMEMBER: All sales are final.
+				請記住：售後一概不退。
 			</text>
-			<button label="Set Land For Sale" name="sell_btn"/>
+			<button label="設定土地待售" name="sell_btn"/>
 			<button label="取消" name="cancel_btn"/>
 		</panel>
 	</scroll_container>

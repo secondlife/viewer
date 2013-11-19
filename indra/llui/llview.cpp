@@ -48,12 +48,16 @@
 #include "lluictrlfactory.h"
 #include "lltooltip.h"
 #include "llsdutil.h"
-
+#include "llsdserialize.h"
+#include "llviewereventrecorder.h"
+#include "llkeyboard.h"
 // for ui edit hack
 #include "llbutton.h"
 #include "lllineeditor.h"
 #include "lltexteditor.h"
 #include "lltextbox.h"
+
+static const S32 LINE_HEIGHT = 15;
 
 S32		LLView::sDepth = 0;
 bool	LLView::sDebugRects = false;
@@ -349,7 +353,7 @@ void LLView::removeChild(LLView* child)
 	}
 	else
 	{
-		llwarns << child->getName() << "is not a child of " << getName() << llendl;
+		llwarns << "\"" << child->getName() << "\" is not a child of " << getName() << llendl;
 	}
 	updateBoundingRect();
 }
@@ -640,13 +644,27 @@ void LLView::setVisible(BOOL visible)
 // virtual
 void LLView::handleVisibilityChange ( BOOL new_visibility )
 {
+	BOOL old_visibility;
 	BOOST_FOREACH(LLView* viewp, mChildList)
 	{
 		// only views that are themselves visible will have their overall visibility affected by their ancestors
-		if (viewp->getVisible())
+		old_visibility=viewp->getVisible();
+
+		if (old_visibility!=new_visibility)
+		{
+			LLViewerEventRecorder::instance().logVisibilityChange( viewp->getPathname(), viewp->getName(), new_visibility,"widget");
+		}
+
+		if (old_visibility)
 		{
 			viewp->handleVisibilityChange ( new_visibility );
 		}
+
+		// Consider changing returns to confirm success and know which widget grabbed it
+		// For now assume success and log at highest xui possible 
+		// NOTE we log actual state - which may differ if it somehow failed to set visibility
+		lldebugs << "LLView::handleVisibilityChange	 - now: " << getVisible()  << " xui: " << viewp->getPathname() << " name: " << viewp->getName() << llendl;
+		
 	}
 }
 
@@ -695,6 +713,7 @@ bool LLView::visibleEnabledAndContains(S32 local_x, S32 local_y)
 		&& getEnabled();
 }
 
+// This is NOT event recording related
 void LLView::logMouseEvent()
 {
 	if (sDebugMouseHandling)
@@ -741,7 +760,14 @@ LLView* LLView::childrenHandleMouseEvent(const METHOD& method, S32 x, S32 y, XDA
 		if ((viewp->*method)( local_x, local_y, extra )
 			|| (allow_mouse_block && viewp->blockMouseEvent( local_x, local_y )))
 		{
+			lldebugs << "LLView::childrenHandleMouseEvent calling updatemouseeventinfo - local_x|global x  "<< local_x << " " << x	<< "local/global y " << local_y << " " << y << llendl;
+			lldebugs << "LLView::childrenHandleMouseEvent  getPathname for viewp result: " << viewp->getPathname() << "for this view: " << getPathname() << llendl;
+
+			LLViewerEventRecorder::instance().updateMouseEventInfo(x,y,-55,-55,getPathname()); 
+
+			// This is NOT event recording related
 			viewp->logMouseEvent();
+
 			return viewp;
 		}
 	}
@@ -764,6 +790,7 @@ LLView* LLView::childrenHandleToolTip(S32 x, S32 y, MASK mask)
 		if (viewp->handleToolTip(local_x, local_y, mask) 
 			|| viewp->blockMouseEvent(local_x, local_y))
 		{
+			// This is NOT event recording related
 			viewp->logMouseEvent();
 			return viewp;
 		}
@@ -822,6 +849,7 @@ LLView* LLView::childrenHandleHover(S32 x, S32 y, MASK mask)
 		if (viewp->handleHover(local_x, local_y, mask)
 			|| viewp->blockMouseEvent(local_x, local_y))
 		{
+			// This is NOT event recording related
 			viewp->logMouseEvent();
 			return viewp;
 		}
@@ -873,13 +901,12 @@ BOOL LLView::handleToolTip(S32 x, S32 y, MASK mask)
 		// allow "scrubbing" over ui by showing next tooltip immediately
 		// if previous one was still visible
 		F32 timeout = LLToolTipMgr::instance().toolTipVisible() 
-			? LLUI::sSettingGroups["config"]->getF32( "ToolTipFastDelay" )
-			: LLUI::sSettingGroups["config"]->getF32( "ToolTipDelay" );
+		              ? LLUI::sSettingGroups["config"]->getF32( "ToolTipFastDelay" )
+		              : LLUI::sSettingGroups["config"]->getF32( "ToolTipDelay" );
 		LLToolTipMgr::instance().show(LLToolTip::Params()
-			.message(tooltip)
-			.sticky_rect(calcScreenRect())
-			.delay_time(timeout));
-
+		                              .message(tooltip)
+		                              .sticky_rect(calcScreenRect())
+		                              .delay_time(timeout));
 		handled = TRUE;
 	}
 
@@ -906,10 +933,12 @@ BOOL LLView::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 
 		if (!handled)
 		{
+			// For event logging we don't care which widget handles it
+			// So we capture the key at the end of this function once we know if it was handled
 			handled = handleKeyHere( key, mask );
-			if (handled && LLView::sDebugKeys)
+			if (handled)
 			{
-				llinfos << "Key handled by " << getName() << llendl;
+				llwarns << "Key handled by " << getName() << llendl;
 			}
 		}
 	}
@@ -957,6 +986,11 @@ BOOL LLView::handleUnicodeChar(llwchar uni_char, BOOL called_from_parent)
 		handled = mParentView->handleUnicodeChar(uni_char, FALSE);
 	}
 
+	if (handled)
+	{
+		LLViewerEventRecorder::instance().logKeyUnicodeEvent(uni_char);
+	}
+	
 	return handled;
 }
 
@@ -986,12 +1020,16 @@ BOOL LLView::hasMouseCapture()
 
 BOOL LLView::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	return childrenHandleMouseUp( x, y, mask ) != NULL;
+	LLView* r = childrenHandleMouseUp( x, y, mask );
+
+	return (r!=NULL);
 }
 
 BOOL LLView::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	return childrenHandleMouseDown( x, y, mask ) != NULL;
+	LLView* r= childrenHandleMouseDown(x, y, mask );
+
+	return (r!=NULL);
 }
 
 BOOL LLView::handleDoubleClick(S32 x, S32 y, MASK mask)
@@ -1064,7 +1102,7 @@ LLView* LLView::childrenHandleDoubleClick(S32 x, S32 y, MASK mask)
 
 LLView* LLView::childrenHandleMouseUp(S32 x, S32 y, MASK mask)
 {
-	return childrenHandleMouseEvent(&LLView::handleMouseUp, x, y, mask);
+	return	childrenHandleMouseEvent(&LLView::handleMouseUp, x, y, mask);
 }
 
 LLView* LLView::childrenHandleRightMouseUp(S32 x, S32 y, MASK mask)
@@ -1204,11 +1242,24 @@ void LLView::drawDebugRect()
 			&& preview_iter == sPreviewHighlightedElements.end()
 			&& sDebugRectsShowNames)
 		{
-			//char temp[256];
 			S32 x, y;
 			gGL.color4fv( border_color.mV );
-			x = debug_rect.getWidth()/2;
-			y = debug_rect.getHeight()/2;
+
+			x = debug_rect.getWidth() / 2;
+
+			S32 rect_height = debug_rect.getHeight();
+			S32 lines = rect_height / LINE_HEIGHT + 1;
+
+			S32 depth = 0;
+			LLView * viewp = this;
+			while (NULL != viewp)
+			{
+				viewp = viewp->getParent();
+				depth++;
+			}
+
+			y = rect_height - LINE_HEIGHT * (depth % lines + 1);
+
 			std::string debug_text = llformat("%s (%d x %d)", getName().c_str(),
 										debug_rect.getWidth(), debug_rect.getHeight());
 			LLFontGL::getFontSansSerifSmall()->renderUTF8(debug_text, 0, (F32)x, (F32)y, border_color,
@@ -1549,16 +1600,18 @@ void LLView::screenPointToLocal(S32 screen_x, S32 screen_y, S32* local_x, S32* l
 
 void LLView::localPointToScreen(S32 local_x, S32 local_y, S32* screen_x, S32* screen_y) const
 {
-	*screen_x = local_x + getRect().mLeft;
-	*screen_y = local_y + getRect().mBottom;
+	*screen_x = local_x;
+	*screen_y = local_y;
 
 	const LLView* cur = this;
-	while( cur->mParentView )
+	do
 	{
+		LLRect cur_rect = cur->getRect();
+		*screen_x += cur_rect.mLeft;
+		*screen_y += cur_rect.mBottom;
 		cur = cur->mParentView;
-		*screen_x += cur->getRect().mLeft;
-		*screen_y += cur->getRect().mBottom;
 	}
+	while( cur );
 }
 
 void LLView::screenRectToLocal(const LLRect& screen, LLRect* local) const

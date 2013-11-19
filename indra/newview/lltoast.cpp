@@ -118,7 +118,7 @@ LLToast::LLToast(const LLToast::Params& p)
 {
 	mTimer.reset(new LLToastLifeTimer(this, p.lifetime_secs));
 
-	buildFromFile("panel_toast.xml", NULL);
+	buildFromFile("panel_toast.xml");
 
 	setCanDrag(FALSE);
 
@@ -173,8 +173,20 @@ void LLToast::setHideButtonEnabled(bool enabled)
 
 //--------------------------------------------------------------------------
 LLToast::~LLToast()
-{	
-	mOnToastDestroyedSignal(this);
+{
+	if(LLApp::isQuitting())
+	{
+		mOnFadeSignal.disconnect_all_slots();
+		mOnDeleteToastSignal.disconnect_all_slots();
+		mOnToastDestroyedSignal.disconnect_all_slots();
+		mOnToastHoverSignal.disconnect_all_slots();
+		mToastMouseEnterSignal.disconnect_all_slots();
+		mToastMouseLeaveSignal.disconnect_all_slots();
+	}
+	else
+	{
+		mOnToastDestroyedSignal(this);
+	}
 }
 
 //--------------------------------------------------------------------------
@@ -543,7 +555,7 @@ BOOL LLToast::handleMouseDown(S32 x, S32 y, MASK mask)
 		mHideBtnPressed = mHideBtn->getRect().pointInRect(x, y);
 	}
 
-	return LLFloater::handleMouseDown(x, y, mask);
+	return LLModalDialog::handleMouseDown(x, y, mask);
 }
 
 //--------------------------------------------------------------------------
@@ -572,10 +584,34 @@ S32	LLToast::notifyParent(const LLSD& info)
 //static
 void LLToast::updateClass()
 {
-	for (LLInstanceTracker<LLToast>::instance_iter iter = LLInstanceTracker<LLToast>::beginInstances(); iter != LLInstanceTracker<LLToast>::endInstances(); ) 
+	for (LLInstanceTracker<LLToast>::instance_iter iter = LLInstanceTracker<LLToast>::beginInstances(); 
+			iter != LLInstanceTracker<LLToast>::endInstances(); ) 
 	{
 		LLToast& toast = *iter++;
 		
 		toast.updateHoveredState();
 	}
 }
+
+// static 
+void LLToast::cleanupToasts()
+{
+	LLToast * toastp = NULL;
+
+	while (LLInstanceTracker<LLToast>::instanceCount() > 0)
+	{
+		{	// Need to scope iter to allow deletion
+			LLInstanceTracker<LLToast>::instance_iter iter = LLInstanceTracker<LLToast>::beginInstances(); 
+			toastp = &(*iter);
+		}
+
+		//llinfos << "Cleaning up toast id " << toastp->getNotificationID() << llendl;
+
+		// LLToast destructor will remove it from the LLInstanceTracker.
+		if (!toastp)
+			break;		// Don't get stuck in the loop if a null pointer somehow got on the list
+
+		delete toastp;
+	}
+}
+

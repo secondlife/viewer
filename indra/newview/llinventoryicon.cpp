@@ -25,6 +25,8 @@
  */
 
 #include "llviewerprecompiledheaders.h"
+
+#include "linden_common.h"
 #include "llinventoryicon.h"
 
 #include "lldictionary.h"
@@ -41,7 +43,7 @@ struct IconEntry : public LLDictionaryEntry
 };
 
 class LLIconDictionary : public LLSingleton<LLIconDictionary>,
-						 public LLDictionary<LLInventoryIcon::EIconName, IconEntry>
+						 public LLDictionary<LLInventoryType::EIconName, IconEntry>
 {
 public:
 	LLIconDictionary();
@@ -49,48 +51,48 @@ public:
 
 LLIconDictionary::LLIconDictionary()
 {
-	addEntry(LLInventoryIcon::ICONNAME_TEXTURE, 				new IconEntry("Inv_Texture"));
-	addEntry(LLInventoryIcon::ICONNAME_SOUND, 					new IconEntry("Inv_Sound"));
-	addEntry(LLInventoryIcon::ICONNAME_CALLINGCARD_ONLINE, 		new IconEntry("Inv_CallingCard"));
-	addEntry(LLInventoryIcon::ICONNAME_CALLINGCARD_OFFLINE, 	new IconEntry("Inv_CallingCard"));
-	addEntry(LLInventoryIcon::ICONNAME_LANDMARK, 				new IconEntry("Inv_Landmark"));
-	addEntry(LLInventoryIcon::ICONNAME_LANDMARK_VISITED, 		new IconEntry("Inv_Landmark"));
-	addEntry(LLInventoryIcon::ICONNAME_SCRIPT, 					new IconEntry("Inv_Script"));
-	addEntry(LLInventoryIcon::ICONNAME_CLOTHING, 				new IconEntry("Inv_Clothing"));
-	addEntry(LLInventoryIcon::ICONNAME_OBJECT, 					new IconEntry("Inv_Object"));
-	addEntry(LLInventoryIcon::ICONNAME_OBJECT_MULTI, 			new IconEntry("Inv_Object_Multi"));
-	addEntry(LLInventoryIcon::ICONNAME_NOTECARD, 				new IconEntry("Inv_Notecard"));
-	addEntry(LLInventoryIcon::ICONNAME_BODYPART, 				new IconEntry("Inv_Skin"));
-	addEntry(LLInventoryIcon::ICONNAME_SNAPSHOT, 				new IconEntry("Inv_Snapshot"));
+	addEntry(LLInventoryType::ICONNAME_TEXTURE, 				new IconEntry("Inv_Texture"));
+	addEntry(LLInventoryType::ICONNAME_SOUND, 					new IconEntry("Inv_Sound"));
+	addEntry(LLInventoryType::ICONNAME_CALLINGCARD_ONLINE, 		new IconEntry("Inv_CallingCard"));
+	addEntry(LLInventoryType::ICONNAME_CALLINGCARD_OFFLINE, 	new IconEntry("Inv_CallingCard"));
+	addEntry(LLInventoryType::ICONNAME_LANDMARK, 				new IconEntry("Inv_Landmark"));
+	addEntry(LLInventoryType::ICONNAME_LANDMARK_VISITED, 		new IconEntry("Inv_Landmark"));
+	addEntry(LLInventoryType::ICONNAME_SCRIPT, 					new IconEntry("Inv_Script"));
+	addEntry(LLInventoryType::ICONNAME_CLOTHING, 				new IconEntry("Inv_Clothing"));
+	addEntry(LLInventoryType::ICONNAME_OBJECT, 					new IconEntry("Inv_Object"));
+	addEntry(LLInventoryType::ICONNAME_OBJECT_MULTI, 			new IconEntry("Inv_Object_Multi"));
+	addEntry(LLInventoryType::ICONNAME_NOTECARD, 				new IconEntry("Inv_Notecard"));
+	addEntry(LLInventoryType::ICONNAME_BODYPART, 				new IconEntry("Inv_Skin"));
+	addEntry(LLInventoryType::ICONNAME_SNAPSHOT, 				new IconEntry("Inv_Snapshot"));
 
-	addEntry(LLInventoryIcon::ICONNAME_BODYPART_SHAPE, 			new IconEntry("Inv_BodyShape"));
-	addEntry(LLInventoryIcon::ICONNAME_BODYPART_SKIN, 			new IconEntry("Inv_Skin"));
-	addEntry(LLInventoryIcon::ICONNAME_BODYPART_HAIR, 			new IconEntry("Inv_Hair"));
-	addEntry(LLInventoryIcon::ICONNAME_BODYPART_EYES, 			new IconEntry("Inv_Eye"));
+	addEntry(LLInventoryType::ICONNAME_BODYPART_SHAPE, 			new IconEntry("Inv_BodyShape"));
+	addEntry(LLInventoryType::ICONNAME_BODYPART_SKIN, 			new IconEntry("Inv_Skin"));
+	addEntry(LLInventoryType::ICONNAME_BODYPART_HAIR, 			new IconEntry("Inv_Hair"));
+	addEntry(LLInventoryType::ICONNAME_BODYPART_EYES, 			new IconEntry("Inv_Eye"));
 
-	addEntry(LLInventoryIcon::ICONNAME_CLOTHING_SHIRT, 			new IconEntry("Inv_Shirt"));
-	addEntry(LLInventoryIcon::ICONNAME_CLOTHING_PANTS, 			new IconEntry("Inv_Pants"));
-	addEntry(LLInventoryIcon::ICONNAME_CLOTHING_SHOES, 			new IconEntry("Inv_Shoe"));
-	addEntry(LLInventoryIcon::ICONNAME_CLOTHING_SOCKS, 			new IconEntry("Inv_Socks"));
-	addEntry(LLInventoryIcon::ICONNAME_CLOTHING_JACKET, 		new IconEntry("Inv_Jacket"));
-	addEntry(LLInventoryIcon::ICONNAME_CLOTHING_GLOVES, 		new IconEntry("Inv_Gloves"));
-	addEntry(LLInventoryIcon::ICONNAME_CLOTHING_UNDERSHIRT, 	new IconEntry("Inv_Undershirt"));
-	addEntry(LLInventoryIcon::ICONNAME_CLOTHING_UNDERPANTS, 	new IconEntry("Inv_Underpants"));
-	addEntry(LLInventoryIcon::ICONNAME_CLOTHING_SKIRT, 			new IconEntry("Inv_Skirt"));
-	addEntry(LLInventoryIcon::ICONNAME_CLOTHING_ALPHA, 			new IconEntry("Inv_Alpha"));
-	addEntry(LLInventoryIcon::ICONNAME_CLOTHING_TATTOO, 		new IconEntry("Inv_Tattoo"));
-	addEntry(LLInventoryIcon::ICONNAME_ANIMATION, 				new IconEntry("Inv_Animation"));
-	addEntry(LLInventoryIcon::ICONNAME_GESTURE, 				new IconEntry("Inv_Gesture"));
+	addEntry(LLInventoryType::ICONNAME_CLOTHING_SHIRT, 			new IconEntry("Inv_Shirt"));
+	addEntry(LLInventoryType::ICONNAME_CLOTHING_PANTS, 			new IconEntry("Inv_Pants"));
+	addEntry(LLInventoryType::ICONNAME_CLOTHING_SHOES, 			new IconEntry("Inv_Shoe"));
+	addEntry(LLInventoryType::ICONNAME_CLOTHING_SOCKS, 			new IconEntry("Inv_Socks"));
+	addEntry(LLInventoryType::ICONNAME_CLOTHING_JACKET, 		new IconEntry("Inv_Jacket"));
+	addEntry(LLInventoryType::ICONNAME_CLOTHING_GLOVES, 		new IconEntry("Inv_Gloves"));
+	addEntry(LLInventoryType::ICONNAME_CLOTHING_UNDERSHIRT, 	new IconEntry("Inv_Undershirt"));
+	addEntry(LLInventoryType::ICONNAME_CLOTHING_UNDERPANTS, 	new IconEntry("Inv_Underpants"));
+	addEntry(LLInventoryType::ICONNAME_CLOTHING_SKIRT, 			new IconEntry("Inv_Skirt"));
+	addEntry(LLInventoryType::ICONNAME_CLOTHING_ALPHA, 			new IconEntry("Inv_Alpha"));
+	addEntry(LLInventoryType::ICONNAME_CLOTHING_TATTOO, 		new IconEntry("Inv_Tattoo"));
+	addEntry(LLInventoryType::ICONNAME_ANIMATION, 				new IconEntry("Inv_Animation"));
+	addEntry(LLInventoryType::ICONNAME_GESTURE, 				new IconEntry("Inv_Gesture"));
 
-	addEntry(LLInventoryIcon::ICONNAME_CLOTHING_PHYSICS, 		new IconEntry("Inv_Physics"));
+	addEntry(LLInventoryType::ICONNAME_CLOTHING_PHYSICS, 		new IconEntry("Inv_Physics"));
 
-	addEntry(LLInventoryIcon::ICONNAME_LINKITEM, 				new IconEntry("Inv_LinkItem"));
-	addEntry(LLInventoryIcon::ICONNAME_LINKFOLDER, 				new IconEntry("Inv_LinkFolder"));
-	addEntry(LLInventoryIcon::ICONNAME_MESH,	 				new IconEntry("Inv_Mesh"));
+	addEntry(LLInventoryType::ICONNAME_LINKITEM, 				new IconEntry("Inv_LinkItem"));
+	addEntry(LLInventoryType::ICONNAME_LINKFOLDER, 				new IconEntry("Inv_LinkFolder"));
+	addEntry(LLInventoryType::ICONNAME_MESH,	 				new IconEntry("Inv_Mesh"));
 
-	addEntry(LLInventoryIcon::ICONNAME_INVALID, 				new IconEntry("Inv_Invalid"));
+	addEntry(LLInventoryType::ICONNAME_INVALID, 				new IconEntry("Inv_Invalid"));
 
-	addEntry(LLInventoryIcon::ICONNAME_NONE, 					new IconEntry("NONE"));
+	addEntry(LLInventoryType::ICONNAME_NONE, 					new IconEntry("NONE"));
 }
 
 LLUIImagePtr LLInventoryIcon::getIcon(LLAssetType::EType asset_type,
@@ -102,7 +104,7 @@ LLUIImagePtr LLInventoryIcon::getIcon(LLAssetType::EType asset_type,
 	return LLUI::getUIImage(icon_name);
 }
 
-LLUIImagePtr LLInventoryIcon::getIcon(EIconName idx)
+LLUIImagePtr LLInventoryIcon::getIcon(LLInventoryType::EIconName idx)
 {
 	return LLUI::getUIImage(getIconName(idx));
 }
@@ -112,56 +114,56 @@ const std::string& LLInventoryIcon::getIconName(LLAssetType::EType asset_type,
 												U32 misc_flag,
 												BOOL item_is_multi)
 {
-	EIconName idx = ICONNAME_OBJECT;
+	LLInventoryType::EIconName idx = LLInventoryType::ICONNAME_OBJECT;
 	if (item_is_multi)
 	{
-		idx = ICONNAME_OBJECT_MULTI;
+		idx = LLInventoryType::ICONNAME_OBJECT_MULTI;
 		return getIconName(idx);
 	}
 	
 	switch(asset_type)
 	{
 		case LLAssetType::AT_TEXTURE:
-			idx = (inventory_type == LLInventoryType::IT_SNAPSHOT) ? ICONNAME_SNAPSHOT : ICONNAME_TEXTURE;
+			idx = (inventory_type == LLInventoryType::IT_SNAPSHOT) ? LLInventoryType::ICONNAME_SNAPSHOT : LLInventoryType::ICONNAME_TEXTURE;
 			break;
 		case LLAssetType::AT_SOUND:
-			idx = ICONNAME_SOUND;
+			idx = LLInventoryType::ICONNAME_SOUND;
 			break;
 		case LLAssetType::AT_CALLINGCARD:
-			idx = (misc_flag != 0) ? ICONNAME_CALLINGCARD_ONLINE : ICONNAME_CALLINGCARD_OFFLINE;
+			idx = (misc_flag != 0) ? LLInventoryType::ICONNAME_CALLINGCARD_ONLINE : LLInventoryType::ICONNAME_CALLINGCARD_OFFLINE;
 			break;
 		case LLAssetType::AT_LANDMARK:
-			idx = (misc_flag != 0) ? ICONNAME_LANDMARK_VISITED : ICONNAME_LANDMARK;
+			idx = (misc_flag != 0) ? LLInventoryType::ICONNAME_LANDMARK_VISITED : LLInventoryType::ICONNAME_LANDMARK;
 			break;
 		case LLAssetType::AT_SCRIPT:
 		case LLAssetType::AT_LSL_TEXT:
 		case LLAssetType::AT_LSL_BYTECODE:
-			idx = ICONNAME_SCRIPT;
+			idx = LLInventoryType::ICONNAME_SCRIPT;
 			break;
 		case LLAssetType::AT_CLOTHING:
 		case LLAssetType::AT_BODYPART:
 			idx = assignWearableIcon(misc_flag);
 			break;
 		case LLAssetType::AT_NOTECARD:
-			idx = ICONNAME_NOTECARD;
+			idx = LLInventoryType::ICONNAME_NOTECARD;
 			break;
 		case LLAssetType::AT_ANIMATION:
-			idx = ICONNAME_ANIMATION;
+			idx = LLInventoryType::ICONNAME_ANIMATION;
 			break;
 		case LLAssetType::AT_GESTURE:
-			idx = ICONNAME_GESTURE;
+			idx = LLInventoryType::ICONNAME_GESTURE;
 			break;
 		case LLAssetType::AT_LINK:
-			idx = ICONNAME_LINKITEM;
+			idx = LLInventoryType::ICONNAME_LINKITEM;
 			break;
 		case LLAssetType::AT_LINK_FOLDER:
-			idx = ICONNAME_LINKFOLDER;
+			idx = LLInventoryType::ICONNAME_LINKFOLDER;
 			break;
 		case LLAssetType::AT_OBJECT:
-			idx = ICONNAME_OBJECT;
+			idx = LLInventoryType::ICONNAME_OBJECT;
 			break;
 		case LLAssetType::AT_MESH:
-			idx = ICONNAME_MESH;
+			idx = LLInventoryType::ICONNAME_MESH;
 		default:
 			break;
 	}
@@ -170,13 +172,13 @@ const std::string& LLInventoryIcon::getIconName(LLAssetType::EType asset_type,
 }
 
 
-const std::string& LLInventoryIcon::getIconName(EIconName idx)
+const std::string& LLInventoryIcon::getIconName(LLInventoryType::EIconName idx)
 {
 	const IconEntry *entry = LLIconDictionary::instance().lookup(idx);
 	return entry->mName;
 }
 
-LLInventoryIcon::EIconName LLInventoryIcon::assignWearableIcon(U32 misc_flag)
+LLInventoryType::EIconName LLInventoryIcon::assignWearableIcon(U32 misc_flag)
 {
 	const LLWearableType::EType wearable_type = LLWearableType::EType(LLInventoryItemFlags::II_FLAGS_WEARABLES_MASK & misc_flag);
 	return LLWearableType::getIconName(wearable_type);

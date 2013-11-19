@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="edit_tattoo_panel">
 	<panel name="avatar_tattoo_color_panel">
-		<texture_picker label="頭部刺青" name="Head Tattoo" tool_tip="點擊以挑選圖像"/>
-		<texture_picker label="上半身刺青" name="Upper Tattoo" tool_tip="點擊以挑選照片"/>
-		<texture_picker label="下半身刺青" name="Lower Tattoo" tool_tip="點擊以挑選圖像"/>
-		<color_swatch label="Color/Tint" name="Color/Tint" tool_tip="點擊以開啟顏色挑選器"/>
+		<texture_picker label="頭部刺青" name="Head Tattoo" tool_tip="點按以挑選圖片"/>
+		<texture_picker label="上半身刺青" name="Upper Tattoo" tool_tip="點按以挑選圖片"/>
+		<texture_picker label="下半身刺青" name="Lower Tattoo" tool_tip="點按以挑選圖片"/>
+		<color_swatch label="顏色/色調" name="Color/Tint" tool_tip="點按以開啟顏色挑選器"/>
 	</panel>
 </panel>

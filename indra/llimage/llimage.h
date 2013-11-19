@@ -30,7 +30,7 @@
 #include "lluuid.h"
 #include "llstring.h"
 #include "llthread.h"
-#include "llmemtype.h"
+#include "llpointer.h"
 
 const S32 MIN_IMAGE_MIP =  2; // 4x4, only used for expand/contract power of 2
 const S32 MAX_IMAGE_MIP = 11; // 2048x2048
@@ -48,6 +48,8 @@ const S32 MAX_PRECINCT_SIZE = 2048;			// No reason to be bigger than MAX_IMAGE_S
 const S32 MIN_PRECINCT_SIZE = 4;			// Can't be smaller than MIN_BLOCK_SIZE
 const S32 MAX_BLOCK_SIZE = 64;				// Max total block size is 4096, hence 64x64 when using square blocks
 const S32 MIN_BLOCK_SIZE = 4;				// Min block dim is 4 according to jpeg2000 spec
+const S32 MIN_LAYER_SIZE = 2000;			// Size of the first quality layer (after header). Must be > to FIRST_PACKET_SIZE!!
+const S32 MAX_NB_LAYERS = 64;				// Max number of layers we'll entertain in SL (practical limit)
 
 const S32 MIN_IMAGE_SIZE = (1<<MIN_IMAGE_MIP); // 4, only used for expand/contract power of 2
 const S32 MAX_IMAGE_SIZE = (1<<MAX_IMAGE_MIP); // 2048
@@ -60,6 +62,7 @@ const S32 MAX_IMAGE_DATA_SIZE = MAX_IMAGE_AREA * MAX_IMAGE_COMPONENTS; //2048 * 
 // *TODO: change both to 1024 when SIM texture fetching is deprecated
 const S32 FIRST_PACKET_SIZE = 600;
 const S32 MAX_IMG_PACKET_SIZE = 1000;
+const S32 HTTP_PACKET_SIZE = 1496;
 
 // Base classes for images.
 // There are two major parts for the image:
@@ -89,15 +92,20 @@ typedef enum e_image_codec
 class LLImage
 {
 public:
-	static void initClass();
+	static void initClass(bool use_new_byte_range = false, S32 minimal_reverse_byte_range_percent = 75);
 	static void cleanupClass();
 
 	static const std::string& getLastError();
 	static void setLastError(const std::string& message);
 	
+	static bool useNewByteRange() { return sUseNewByteRange; }
+    static S32  getReverseByteRangePercent() { return sMinimalReverseByteRangePercent; }
+	
 protected:
 	static LLMutex* sMutex;
 	static std::string sLastErrorMessage;
+	static bool sUseNewByteRange;
+    static S32  sMinimalReverseByteRangePercent;
 };
 
 //============================================================================
@@ -140,7 +148,7 @@ public:
 
 protected:
 	// special accessor to allow direct setting of mData and mDataSize by LLImageFormatted
-	void setDataAndSize(U8 *data, S32 size) { mData = data; mDataSize = size; }	
+	void setDataAndSize(U8 *data, S32 size);
 	
 public:
 	static void generateMip(const U8 *indata, U8* mipdata, int width, int height, S32 nchannels);
@@ -168,8 +176,6 @@ private:
 	bool mAllowOverSize ;
 
 	static LLPrivateMemoryPool* sPrivatePoolp ;
-public:
-	LLMemType::DeclareMemType& mMemType; // debug
 };
 
 // Raw representation of an image (used for textures, and other uncompressed formats
@@ -181,7 +187,7 @@ protected:
 public:
 	LLImageRaw();
 	LLImageRaw(U16 width, U16 height, S8 components);
-	LLImageRaw(U8 *data, U16 width, U16 height, S8 components);
+	LLImageRaw(U8 *data, U16 width, U16 height, S8 components, bool no_copy = false);
 	// Construct using createFromFile (used by tools)
 	//LLImageRaw(const std::string& filename, bool j2c_lowest_mip_only = false);
 
@@ -203,13 +209,15 @@ public:
 	void contractToPowerOfTwo(S32 max_dim = MAX_IMAGE_SIZE, BOOL scale_image = TRUE);
 	void biasedScaleToPowerOfTwo(S32 max_dim = MAX_IMAGE_SIZE);
 	BOOL scale( S32 new_width, S32 new_height, BOOL scale_image = TRUE );
-	//BOOL scaleDownWithoutBlending( S32 new_width, S32 new_height) ;
-
+	
 	// Fill the buffer with a constant color
 	void fill( const LLColor4U& color );
 
 	// Copy operations
 	
+	//duplicate this raw image if refCount > 1.
+	LLPointer<LLImageRaw> duplicate();
+
 	// Src and dst can be any size.  Src and dst can each have 3 or 4 components.
 	void copy( LLImageRaw* src );
 
@@ -221,6 +229,11 @@ public:
 
 	// Src and dst are same size.  Src has 3 components.  Dst has 4 components.
 	void copyUnscaled3onto4( LLImageRaw* src );
+
+	// Src and dst are same size.  Src has 1 component.  Dst has 4 components.
+	// Alpha component is set to source alpha mask component.
+	// RGB components are set to fill color.
+	void copyUnscaledAlphaMask( LLImageRaw* src, const LLColor4U& fill);
 
 	// Src and dst can be any size.  Src and dst have same number of components.
 	void copyScaled( LLImageRaw* src );
@@ -294,7 +307,7 @@ public:
 	// getRawDiscardLevel() by default returns mDiscardLevel, but may be overridden (LLImageJ2C)
 	virtual S8  getRawDiscardLevel() { return mDiscardLevel; }
 	
-	BOOL load(const std::string& filename);
+	BOOL load(const std::string& filename, int load_size = 0);
 	BOOL save(const std::string& filename);
 
 	virtual BOOL updateData() = 0; // pure virtual
@@ -313,6 +326,8 @@ public:
 	BOOL isDecoded()  const { return mDecoded ? TRUE : FALSE; }
 	void setDiscardLevel(S8 discard_level) { mDiscardLevel = discard_level; }
 	S8 getDiscardLevel() const { return mDiscardLevel; }
+	S8 getLevels() const { return mLevels; }
+	void setLevels(S8 nlevels) { mLevels = nlevels; }
 
 	// setLastError needs to be deferred for J2C images since it may be called from a DLL
 	virtual void resetLastError();
@@ -325,7 +340,8 @@ protected:
 	S8 mCodec;
 	S8 mDecoding;
 	S8 mDecoded;  // unused, but changing LLImage layout requires recompiling static Mac/Linux libs. 2009-01-30 JC
-	S8 mDiscardLevel;
+	S8 mDiscardLevel;	// Current resolution level worked on. 0 = full res, 1 = half res, 2 = quarter res, etc...
+	S8 mLevels;			// Number of resolution levels in that image. Min is 1. 0 means unknown.
 	
 public:
 	static S32 sGlobalFormattedMemory;

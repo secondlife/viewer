@@ -155,6 +155,7 @@
      name="object_name"
      top_delta="0"
      translate="false"
+     parse_urls="false"
      use_ellipses="true"
      width="185">
         Consetetur Sadipscing

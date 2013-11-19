@@ -94,14 +94,14 @@ LLInventoryPanel * LLPanelMarketplaceInbox::setupInventoryPanel()
 	mInventoryPanel->setShape(inventory_placeholder_rect);
 	
 	// Set the sort order newest to oldest
-	mInventoryPanel->setSortOrder(LLInventoryFilter::SO_DATE);	
-	mInventoryPanel->getFilter()->markDefault();
+	mInventoryPanel->getFolderViewModel()->setSorter(LLInventoryFilter::SO_DATE);
+	mInventoryPanel->getFilter().markDefault();
 
 	// Set selection callback for proper update of inventory status buttons
 	mInventoryPanel->setSelectCallback(boost::bind(&LLPanelMarketplaceInbox::onSelectionChange, this));
 
 	// Set up the note to display when the inbox is empty
-	mInventoryPanel->getFilter()->setEmptyLookupMessage("InventoryInboxNoItems");
+	mInventoryPanel->getFilter().setEmptyLookupMessage("InventoryInboxNoItems");
 	
 	// Hide the placeholder text
 	inbox_inventory_placeholder->setVisible(FALSE);
@@ -115,8 +115,8 @@ void LLPanelMarketplaceInbox::onFocusReceived()
 	if (sidepanel_inventory)
 	{
 		sidepanel_inventory->clearSelections(true, false);
-	}
-
+		}
+	
 	gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
 }
 
@@ -128,7 +128,6 @@ BOOL LLPanelMarketplaceInbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL dr
 
 U32 LLPanelMarketplaceInbox::getFreshItemCount() const
 {
-#if SUPPORTING_FRESH_ITEM_COUNT
 	
 	//
 	// NOTE: When turning this on, be sure to test the no inbox/outbox case because this code probably
@@ -139,7 +138,7 @@ U32 LLPanelMarketplaceInbox::getFreshItemCount() const
 
 	if (mInventoryPanel)
 	{
-		const LLFolderViewFolder * inbox_folder = mInventoryPanel->getRootFolder();
+		LLFolderViewFolder * inbox_folder = mInventoryPanel->getRootFolder();
 		
 		if (inbox_folder)
 		{
@@ -168,15 +167,12 @@ U32 LLPanelMarketplaceInbox::getFreshItemCount() const
 				if (inbox_item_view && inbox_item_view->isFresh())
 				{
 					fresh_item_count++;
-				}
-			}
+		}
+	}
 		}
 	}
 
 	return fresh_item_count;
-#else
-	return getTotalItemCount();
-#endif
 }
 
 U32 LLPanelMarketplaceInbox::getTotalItemCount() const
@@ -231,7 +227,6 @@ void LLPanelMarketplaceInbox::draw()
 		args["[NUM]"] = item_count_str;
 		mInboxButton->setLabel(getString("InboxLabelWithArg", args));
 
-#if SUPPORTING_FRESH_ITEM_COUNT
 		// set green text to fresh item count
 		U32 fresh_item_count = getFreshItemCount();
 		mFreshCountCtrl->setVisible((fresh_item_count > 0));
@@ -240,9 +235,6 @@ void LLPanelMarketplaceInbox::draw()
 		{
 			mFreshCountCtrl->setTextArg("[NUM]", llformat("%d", fresh_item_count));
 		}
-#else
-		mFreshCountCtrl->setVisible(FALSE);
-#endif
 	}
 	else
 	{

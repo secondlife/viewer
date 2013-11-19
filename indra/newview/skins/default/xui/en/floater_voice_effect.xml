@@ -5,12 +5,13 @@
  height="500"
  name="voice_effects"
  help_topic="voice_effects"
- title="VOICE MORPHING"
+ title="VOICE MORPHING PREVIEW"
  background_visible="true"
  label="Places"
  layout="topleft"
  min_height="360"
  min_width="200"
+ save_rect="true"
  width="300">
   <string name="no_voice_effect">
     (No Voice Morph)

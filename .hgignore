@@ -1,5 +1,6 @@
 syntax: glob
 
+
 # WinMerge temp files
 *.bak
 # Compiled python bytecode
@@ -9,7 +10,7 @@ syntax: glob
 .*.swp
 #OSX image cache file
 *.DS_Store
-*.orig
+#*.orig
 LICENSES
 indra/.distcc
 build-linux-*
@@ -24,6 +25,7 @@ indra/lib/mono/indra/*.exe
 indra/lib/mono/indra/*.pdb
 indra/lib/python/eventlet/
 indra/llwindow/glh/glh_linear.h
+indra/newview/app_settings/dictionaries
 indra/newview/app_settings/mozilla
 indra/newview/app_settings/mozilla-runtime-*
 indra/newview/app_settings/mozilla_debug
@@ -31,10 +33,11 @@ indra/newview/app_settings/static_*.db2
 indra/newview/browser_profile
 indra/newview/character
 indra/newview/fmod.dll
+indra/newview/fmod.log
 indra/newview/mozilla-theme
 indra/newview/mozilla-universal-darwin.tgz
 indra/newview/res/ll_icon.*
-indra/newview/res-sdl
+indra/newview/res-sdl/ll_icon.*
 indra/newview/vivox-runtime
 indra/server-linux-*
 indra/temp
@@ -48,6 +51,11 @@ indra/web/doc/asset-upload/plugins/verify-texture
 installed.xml
 libraries
 tarfile_tmp
+debian/secondlife-viewer*
+debian/secondlife-appearance-utility*
+debian/files
+build-stamp
+configure-stamp
 ^indra/lib/python/mulib.*
 ^web/locale.*
 ^web/secondlife.com.*
@@ -67,4 +75,4 @@ glob:indra/newview/filters.xml
 glob:indra/newview/avatar_icons_cache.txt
 glob:indra/newview/avatar_lad.log
 glob:*.diff
-*.rej
+#*.rej

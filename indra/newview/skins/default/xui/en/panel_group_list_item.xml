@@ -56,6 +56,7 @@
      left_pad="3"
      right="-31"
      name="info_btn"
+     tool_tip="More info"
      tab_stop="false"
      top_delta="-2"
      width="16" />

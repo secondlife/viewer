@@ -41,6 +41,8 @@ class LLProgressView :
 	public LLViewerMediaObserver
 
 {
+	LOG_CLASS(LLProgressView);
+
 public:
 	LLProgressView();
 	virtual ~LLProgressView();
@@ -74,10 +76,6 @@ public:
 	static void onClickMessage(void*);
 	bool onAlertModal(const LLSD& sd);
 
-	// note - this is not just hiding the intro panel - it also hides the parent panel
-	// and is used when the intro is finished and we want to show the world
-	void removeIntroPanel();
-
 protected:
 	LLProgressBar* mProgressBar;
 	LLMediaCtrl* mMediaCtrl;
@@ -96,6 +94,7 @@ protected:
 	LLEventStream mUpdateEvents; 
 
 	bool handleUpdate(const LLSD& event_data);
+	static void onIdle(void* user_data);
 };
 
 #endif // LL_LLPROGRESSVIEW_H

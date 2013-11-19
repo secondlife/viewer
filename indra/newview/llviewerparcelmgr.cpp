@@ -82,7 +82,6 @@ LLPointer<LLViewerTexture> sBlockedImage;
 LLPointer<LLViewerTexture> sPassImage;
 
 // Local functions
-void optionally_start_music(const std::string& music_url);
 void callback_start_music(S32 option, void* data);
 void optionally_prepare_video(const LLParcel *parcelp);
 void callback_prepare_video(S32 option, void* data);
@@ -546,9 +545,6 @@ LLParcelSelectionHandle LLViewerParcelMgr::selectLand(const LLVector3d &corner1,
 
 	mRequestResult = PARCEL_RESULT_NO_DATA;
 
-	// clear the list of segments to prevent flashing
-	resetSegments(mHighlightSegments);
-
 	mFloatingParcelSelection->setParcel(mCurrentParcel);
 	mCurrentParcelSelection->setParcel(NULL);
 	mCurrentParcelSelection = new LLParcelSelection(mCurrentParcel);
@@ -700,8 +696,8 @@ bool LLViewerParcelMgr::allowAgentScripts(const LLViewerRegion* region, const LL
 	// This mirrors the traditional menu bar parcel icon code, but is not
 	// technically correct.
 	return region
-		&& !(region->getRegionFlags() & REGION_FLAGS_SKIP_SCRIPTS)
-		&& !(region->getRegionFlags() & REGION_FLAGS_ESTATE_SKIP_SCRIPTS)
+		&& !region->getRegionFlag(REGION_FLAGS_SKIP_SCRIPTS)
+		&& !region->getRegionFlag(REGION_FLAGS_ESTATE_SKIP_SCRIPTS)
 		&& parcel
 		&& parcel->getAllowOtherScripts();
 }
@@ -1589,7 +1585,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 			if (instance->mTeleportInProgress)
 			{
 				instance->mTeleportInProgress = FALSE;
-				instance->mTeleportFinishedSignal(gAgent.getPositionGlobal());
+				instance->mTeleportFinishedSignal(gAgent.getPositionGlobal(), false);
 			}
 		}
 	}
@@ -1661,9 +1657,6 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 
 			// Request access list information for this land
 			parcel_mgr.sendParcelAccessListRequest(AL_ACCESS | AL_BAN);
-
-			// Request the media url filter list for this land
-			parcel_mgr.requestParcelMediaURLFilter();
 
 			// Request dwell for this land, if it's not public land.
 			parcel_mgr.mSelectedDwell = DWELL_NAN;
@@ -1773,13 +1766,13 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 	};
 }
 
-void optionally_start_music(const std::string& music_url)
+void LLViewerParcelMgr::optionally_start_music(const std::string& music_url)
 {
 	if (gSavedSettings.getBOOL("AudioStreamingMusic"))
 	{
 		// only play music when you enter a new parcel if the UI control for this
 		// was not *explicitly* stopped by the user. (part of SL-4878)
-		LLPanelNearByMedia* nearby_media_panel = gStatusBar->getNearbyMediaPanel();;
+		LLPanelNearByMedia* nearby_media_panel = gStatusBar->getNearbyMediaPanel();
 		if ((nearby_media_panel &&
 		     nearby_media_panel->getParcelAudioAutoStart()) ||
 		    // or they have expressed no opinion in the UI, but have autoplay on...
@@ -1993,67 +1986,6 @@ void LLViewerParcelMgr::sendParcelAccessListUpdate(U32 which)
 	}
 }
 
-class LLParcelMediaURLFilterResponder : public LLHTTPClient::Responder
-{
-	virtual void result(const LLSD& content)
-	{
-		LLViewerParcelMgr::getInstance()->receiveParcelMediaURLFilter(content);
-	}
-};
-
-void LLViewerParcelMgr::requestParcelMediaURLFilter()
-{
-	if (!mSelected)
-	{
-		return;
-	}
-
-	LLViewerRegion* region = LLWorld::getInstance()->getRegionFromPosGlobal( mWestSouth );
-	if (!region)
-	{
-		return;
-	}
-
-	LLParcel* parcel = mCurrentParcel;
-	if (!parcel)
-	{
-		llwarns << "no parcel" << llendl;
-		return;
-	}
-
-	LLSD body;
-	body["local-id"] = parcel->getLocalID();
-	body["list"] = parcel->getMediaURLFilterList();
-
-	std::string url = region->getCapability("ParcelMediaURLFilterList");
-	if (!url.empty())
-	{
-		LLHTTPClient::post(url, body, new LLParcelMediaURLFilterResponder);
-	}
-	else
-	{
-		llwarns << "can't get ParcelMediaURLFilterList cap" << llendl;
-	}
-}
-
-
-void LLViewerParcelMgr::receiveParcelMediaURLFilter(const LLSD &content)
-{
-	if (content.has("list"))
-	{
-		LLParcel* parcel = LLViewerParcelMgr::getInstance()->mCurrentParcel;
-		if (!parcel) return;
-		
-		if (content["local-id"].asInteger() == parcel->getLocalID())
-		{
-			parcel->setMediaURLFilterList(content["list"]);
-			
-			LLViewerParcelMgr::getInstance()->notifyObservers();
-		}
-	}
-}
-
-
 void LLViewerParcelMgr::deedLandToGroup()
 {
 	std::string group_name;
@@ -2125,7 +2057,7 @@ void LLViewerParcelMgr::startReleaseLand()
 		return;
 	}
 /*
-	if ((region->getRegionFlags() & REGION_FLAGS_BLOCK_LAND_RESELL)
+	if (region->getRegionFlag(REGION_FLAGS_BLOCK_LAND_RESELL)
 		&& !gAgent.isGodlike())
 	{
 		LLSD args;
@@ -2370,7 +2302,7 @@ void LLViewerParcelMgr::startDeedLandToGroup()
 	/*
 	if(!gAgent.isGodlike())
 	{
-		if((region->getRegionFlags() & REGION_FLAGS_BLOCK_LAND_RESELL)
+		if(region->getRegionFlag(REGION_FLAGS_BLOCK_LAND_RESELL)
 			&& (mCurrentParcel->getOwnerID() != region->getOwner()))
 		{
 			LLSD args;
@@ -2559,7 +2491,7 @@ void LLViewerParcelMgr::onTeleportFinished(bool local, const LLVector3d& new_pos
 	{
 		// Local teleport. We already have the agent parcel data.
 		// Emit the signal immediately.
-		getInstance()->mTeleportFinishedSignal(new_pos);
+		getInstance()->mTeleportFinishedSignal(new_pos, local);
 	}
 	else
 	{

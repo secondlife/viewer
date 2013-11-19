@@ -33,10 +33,41 @@
 
 class LLAvatarName;
 
+/**
+ * LLNameListCtrl item
+ *
+ * We don't use LLScrollListItem to be able to override getUUID(), which is needed
+ * because the name list item value is not simply an UUID but a map (uuid, is_group).
+ */
+class LLNameListItem : public LLScrollListItem, public LLHandleProvider<LLNameListItem>
+{
+public:
+	bool isGroup() const { return mIsGroup; }
+	void setIsGroup(bool is_group) { mIsGroup = is_group; }
+
+protected:
+	friend class LLNameListCtrl;
+
+	LLNameListItem( const LLScrollListItem::Params& p )
+	:	LLScrollListItem(p), mIsGroup(false)
+	{
+	}
+
+	LLNameListItem( const LLScrollListItem::Params& p, bool is_group )
+	:	LLScrollListItem(p), mIsGroup(is_group)
+	{
+	}
+
+private:
+	bool mIsGroup;
+};
+
+
 class LLNameListCtrl
 :	public LLScrollListCtrl, public LLInstanceTracker<LLNameListCtrl>
 {
 public:
+
 	typedef enum e_name_type
 	{
 		INDIVIDUAL,
@@ -81,13 +112,20 @@ public:
 
 protected:
 	LLNameListCtrl(const Params&);
+	virtual ~LLNameListCtrl()
+	{
+		if (mAvatarNameCacheConnection.connected())
+		{
+			mAvatarNameCacheConnection.disconnect();
+		}
+	}
 	friend class LLUICtrlFactory;
 public:
 	// Add a user to the list by name.  It will be added, the name
 	// requested from the cache, and updated as necessary.
-	void addNameItem(const LLUUID& agent_id, EAddPosition pos = ADD_BOTTOM,
+	LLScrollListItem* addNameItem(const LLUUID& agent_id, EAddPosition pos = ADD_BOTTOM,
 					 BOOL enabled = TRUE, const std::string& suffix = LLStringUtil::null);
-	void addNameItem(NameItem& item, EAddPosition pos = ADD_BOTTOM);
+	LLScrollListItem* addNameItem(NameItem& item, EAddPosition pos = ADD_BOTTOM);
 
 	/*virtual*/ LLScrollListItem* addElement(const LLSD& element, EAddPosition pos = ADD_BOTTOM, void* userdata = NULL);
 	LLScrollListItem* addNameItemRow(const NameItem& value, EAddPosition pos = ADD_BOTTOM, const std::string& suffix = LLStringUtil::null);
@@ -110,38 +148,22 @@ public:
 
 	void setAllowCallingCardDrop(BOOL b) { mAllowCallingCardDrop = b; }
 
-	/*virtual*/ void updateColumns();
+	void sortByName(BOOL ascending);
+
+	/*virtual*/ void updateColumns(bool force_update);
 
 	/*virtual*/ void	mouseOverHighlightNthItem( S32 index );
 private:
 	void showInspector(const LLUUID& avatar_id, bool is_group);
-	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
+	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name, LLHandle<LLNameListItem> item);
 
 private:
 	S32    			mNameColumnIndex;
 	std::string		mNameColumn;
 	BOOL			mAllowCallingCardDrop;
 	bool			mShortNames;  // display name only, no SLID
+	boost::signals2::connection mAvatarNameCacheConnection;
 };
 
-/**
- * LLNameListCtrl item
- *
- * We don't use LLScrollListItem to be able to override getUUID(), which is needed
- * because the name list item value is not simply an UUID but a map (uuid, is_group).
- */
-class LLNameListItem : public LLScrollListItem
-{
-public:
-	LLUUID	getUUID() const		{ return getValue()["uuid"].asUUID(); }
-
-protected:
-	friend class LLNameListCtrl;
-
-	LLNameListItem( const LLScrollListItem::Params& p )
-	:	LLScrollListItem(p)
-	{
-	}
-};
 
 #endif

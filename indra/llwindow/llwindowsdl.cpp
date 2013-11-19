@@ -1636,35 +1636,53 @@ void check_vm_bloat()
 {
 #if LL_LINUX
 	// watch our own VM and RSS sizes, warn if we bloated rapidly
-	FILE *fp = fopen("/proc/self/stat", "r");
+	static const std::string STATS_FILE = "/proc/self/stat";
+	FILE *fp = fopen(STATS_FILE.c_str(), "r");
 	if (fp)
 	{
 		static long long last_vm_size = 0;
 		static long long last_rss_size = 0;
 		const long long significant_vm_difference = 250 * 1024*1024;
 		const long long significant_rss_difference = 50 * 1024*1024;
+		long long this_vm_size = 0;
+		long long this_rss_size = 0;
 
 		ssize_t res;
 		size_t dummy;
-		char *ptr;
+		char *ptr = NULL;
 		for (int i=0; i<22; ++i) // parse past the values we don't want
 		{
-			ptr = NULL;
 			res = getdelim(&ptr, &dummy, ' ', fp);
+			if (-1 == res)
+			{
+				llwarns << "Unable to parse " << STATS_FILE << llendl;
+				goto finally;
+			}
 			free(ptr);
+			ptr = NULL;
 		}
 		// 23rd space-delimited entry is vsize
-		ptr = NULL;
 		res = getdelim(&ptr, &dummy, ' ', fp);
 		llassert(ptr);
-		long long this_vm_size = atoll(ptr);
+		if (-1 == res)
+		{
+			llwarns << "Unable to parse " << STATS_FILE << llendl;
+			goto finally;
+		}
+		this_vm_size = atoll(ptr);
 		free(ptr);
+		ptr = NULL;
 		// 24th space-delimited entry is RSS
-		ptr = NULL;
 		res = getdelim(&ptr, &dummy, ' ', fp);
 		llassert(ptr);
-		long long this_rss_size = getpagesize() * atoll(ptr);
+		if (-1 == res)
+		{
+			llwarns << "Unable to parse " << STATS_FILE << llendl;
+			goto finally;
+		}
+		this_rss_size = getpagesize() * atoll(ptr);
 		free(ptr);
+		ptr = NULL;
 
 		llinfos << "VM SIZE IS NOW " << (this_vm_size/(1024*1024)) << " MB, RSS SIZE IS NOW " << (this_rss_size/(1024*1024)) << " MB" << llendl;
 
@@ -1697,6 +1715,12 @@ void check_vm_bloat()
 		last_rss_size = this_rss_size;
 		last_vm_size = this_vm_size;
 
+finally:
+		if (NULL != ptr)
+		{
+			free(ptr);
+			ptr = NULL;
+		}
 		fclose(fp);
 	}
 #endif // LL_LINUX
@@ -2117,6 +2141,12 @@ void LLWindowSDL::initCursors()
 	mSDLCursors[UI_CURSOR_TOOLSIT] = makeSDLCursorFromBMP("toolsit.BMP",20,15);
 	mSDLCursors[UI_CURSOR_TOOLBUY] = makeSDLCursorFromBMP("toolbuy.BMP",20,15);
 	mSDLCursors[UI_CURSOR_TOOLOPEN] = makeSDLCursorFromBMP("toolopen.BMP",20,15);
+	mSDLCursors[UI_CURSOR_TOOLPATHFINDING] = makeSDLCursorFromBMP("lltoolpathfinding.BMP", 16, 16);
+	mSDLCursors[UI_CURSOR_TOOLPATHFINDING_PATH_START] = makeSDLCursorFromBMP("lltoolpathfindingpathstart.BMP", 16, 16);
+	mSDLCursors[UI_CURSOR_TOOLPATHFINDING_PATH_START_ADD] = makeSDLCursorFromBMP("lltoolpathfindingpathstartadd.BMP", 16, 16);
+	mSDLCursors[UI_CURSOR_TOOLPATHFINDING_PATH_END] = makeSDLCursorFromBMP("lltoolpathfindingpathend.BMP", 16, 16);
+	mSDLCursors[UI_CURSOR_TOOLPATHFINDING_PATH_END_ADD] = makeSDLCursorFromBMP("lltoolpathfindingpathendadd.BMP", 16, 16);
+	mSDLCursors[UI_CURSOR_TOOLNO] = makeSDLCursorFromBMP("llno.BMP",8,8);
 
 	if (getenv("LL_ATI_MOUSE_CURSOR_BUG") != NULL) {
 		llinfos << "Disabling cursor updating due to LL_ATI_MOUSE_CURSOR_BUG" << llendl;
@@ -2510,6 +2540,23 @@ void exec_cmd(const std::string& cmd, const std::string& arg)
 // Must begin with protocol identifier.
 void LLWindowSDL::spawnWebBrowser(const std::string& escaped_url, bool async)
 {
+	bool found = false;
+	S32 i;
+	for (i = 0; i < gURLProtocolWhitelistCount; i++)
+	{
+		if (escaped_url.find(gURLProtocolWhitelist[i]) != std::string::npos)
+		{
+			found = true;
+			break;
+		}
+	}
+
+	if (!found)
+	{
+		llwarns << "spawn_web_browser called for url with protocol not on whitelist: " << escaped_url << llendl;
+		return;
+	}
+
 	llinfos << "spawn_web_browser: " << escaped_url << llendl;
 	
 #if LL_LINUX || LL_SOLARIS
@@ -2640,8 +2687,9 @@ std::vector<std::string> LLWindowSDL::getDynamicFallbackFontList()
 	if (sortpat)
 	{
 		// Sort the list of system fonts from most-to-least-desirable.
+		FcResult result;
 		fs = FcFontSort(NULL, sortpat, elide_unicode_coverage,
-				NULL, NULL);
+				NULL, &result);
 		FcPatternDestroy(sortpat);
 	}
 

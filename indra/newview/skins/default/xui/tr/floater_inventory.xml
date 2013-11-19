@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Inventory" title="ENVANTERİM">
-	<panel label="Envanter Paneli" name="Inventory Panel"/>
-</floater>

@@ -16,33 +16,33 @@
 		[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]
 	</panel.string>
 	<panel.string name="auto_renew_on">
-		Enabled
+		已啟用
 	</panel.string>
 	<panel.string name="auto_renew_off">
-		Disabled
+		已停用
 	</panel.string>
-	<text name="title" value="Classified Info"/>
+	<text name="title" value="個人廣告資訊"/>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
 			<text_editor name="classified_name" value="[name]"/>
 			<text name="classified_location_label" value="位置："/>
 			<text_editor name="classified_location" value="[loading...]"/>
-			<text name="content_type_label" value="Content Type:"/>
+			<text name="content_type_label" value="內容類型："/>
 			<text_editor name="content_type" value="[content type]"/>
-			<text name="category_label" value="Category:"/>
+			<text name="category_label" value="分類："/>
 			<text_editor name="category" value="[category]"/>
-			<text name="creation_date_label" value="Creation date:"/>
-			<text_editor name="creation_date" tool_tip="Creation date" value="[date]"/>
-			<text name="price_for_listing_label" value="Price for listing:"/>
-			<text_editor name="price_for_listing" tool_tip="Price for listing." value="[price]"/>
+			<text name="creation_date_label" value="建立日期："/>
+			<text_editor name="creation_date" tool_tip="建立日期" value="[date]"/>
+			<text name="price_for_listing_label" value="刊登費："/>
+			<text_editor name="price_for_listing" tool_tip="刊登費。" value="[price]"/>
 			<layout_stack name="descr_stack">
 				<layout_panel name="clickthrough_layout_panel">
-					<text name="click_through_label" value="Clicks:"/>
-					<text_editor name="click_through_text" tool_tip="Click through data" value="[clicks]"/>
+					<text name="click_through_label" value="點按："/>
+					<text_editor name="click_through_text" tool_tip="點進資料" value="[clicks]"/>
 				</layout_panel>
 				<layout_panel name="price_layout_panel">
-					<text name="auto_renew_label" value="Auto renew:"/>
-					<text name="auto_renew" value="Enabled"/>
+					<text name="auto_renew_label" value="自動續訂："/>
+					<text name="auto_renew" value="已啟用"/>
 				</layout_panel>
 				<layout_panel name="descr_layout_panel">
 					<text name="classified_desc_label" value="描述："/>

@@ -10,7 +10,7 @@
 		你可以：
 	</floater.string>
 	<floater.string name="owner_can">
-		擁有者可以：
+		所有人可以：
 	</floater.string>
 	<floater.string name="acquiredDate">
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
@@ -26,11 +26,11 @@
 	</text>
 	<button label="檔案..." name="BtnCreator"/>
 	<text name="LabelOwnerTitle">
-		擁有者：
+		所有人：
 	</text>
 	<button label="檔案..." name="BtnOwner"/>
 	<text name="LabelAcquiredTitle">
-		Acquired:
+		取得於：
 	</text>
 	<text name="LabelAcquiredDate">
 		Wed May 24 12:50:46 2006
@@ -39,25 +39,25 @@
 		你：
 	</text>
 	<check_box label="編輯" name="CheckOwnerModify"/>
-	<check_box label="覆製" name="CheckOwnerCopy"/>
+	<check_box label="恚庨" name="CheckOwnerCopy"/>
 	<check_box label="轉售" name="CheckOwnerTransfer"/>
 	<text name="AnyoneLabel">
 		任何人：
 	</text>
-	<check_box label="覆製" name="CheckEveryoneCopy"/>
+	<check_box label="恚庨" name="CheckEveryoneCopy"/>
 	<text name="GroupLabel">
 		群組：
 	</text>
 	<check_box label="分享" name="CheckShareWithGroup"/>
 	<text name="NextOwnerLabel">
-		下一個擁有者：
+		下一個所有人：
 	</text>
 	<check_box label="編輯" name="CheckNextOwnerModify"/>
-	<check_box label="覆製" name="CheckNextOwnerCopy"/>
+	<check_box label="恚庨" name="CheckNextOwnerCopy"/>
 	<check_box label="轉售" name="CheckNextOwnerTransfer"/>
 	<check_box label="出售" name="CheckPurchase"/>
 	<combo_box name="combobox sale copy">
-		<combo_box.item label="副本" name="Copy"/>
+		<combo_box.item label="恚庨" name="Copy"/>
 		<combo_box.item label="原件" name="Original"/>
 	</combo_box>
 	<spinner label="價格：" name="Edit Cost"/>

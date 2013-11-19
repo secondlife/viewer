@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="edit_eyes_panel">
 	<panel name="avatar_eye_color_panel">
-		<texture_picker label="Iris" name="Iris" tool_tip="點擊以挑選圖像"/>
+		<texture_picker label="虹膜" name="Iris" tool_tip="點按以挑選圖片"/>
 	</panel>
 	<panel name="accordion_panel">
 		<accordion name="wearable_accordion">

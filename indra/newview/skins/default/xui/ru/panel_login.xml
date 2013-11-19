@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_login">
-	<panel.string name="create_account_url">
-		http://join.secondlife.com/
-	</panel.string>
 	<panel.string name="forgot_password_url">
 		http://secondlife.com/account/request.php
 	</panel.string>
 	<layout_stack name="login_widgets">
 		<layout_panel name="login">
+			<text name="log_in_text">
+				ВОЙТИ
+			</text>
 			<text name="username_text">
 				Имя пользователя:
 			</text>
@@ -15,15 +15,8 @@
 			<text name="password_text">
 				Пароль:
 			</text>
-			<check_box label="Запомнить пароль" name="remember_check"/>
-			<button label="Войти" name="connect_btn"/>
-			<text name="mode_selection_text">
-				Режим:
-			</text>
-			<combo_box name="mode_combo" tool_tip="Выберите режим. Основной – для быстрого и простого ознакомления с игрой, а также общения. Расширенный – для доступа к более широким возможностям.">
-				<combo_box.item label="Основной" name="Basic"/>
-				<combo_box.item label="Расширенный" name="Advanced"/>
-			</combo_box>
+		</layout_panel>
+		<layout_panel name="start_location_panel">
 			<text name="start_location_text">
 				Место старта:
 			</text>
@@ -33,16 +26,21 @@
 				<combo_box.item label="&lt;Введите название региона&gt;" name="Typeregionname"/>
 			</combo_box>
 		</layout_panel>
-		<layout_panel name="links">
-			<text name="create_new_account_text">
-				Регистрация
+		<layout_panel name="links_login_panel">
+			<text name="login_help">
+				Нужна помощь при входе?
 			</text>
 			<text name="forgot_password_text">
 				Забыли имя или пароль?
 			</text>
-			<text name="login_help">
-				Нужна помощь при входе?
+			<button label="Войти" name="connect_btn"/>
+			<check_box label="Запомнить пароль" name="remember_check"/>
+		</layout_panel>
+		<layout_panel name="links">
+			<text name="create_account_text">
+				СОЗДАЙТЕ СВОЙ АККАУНТ
 			</text>
+			<button label="Начать" name="create_new_account_btn"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

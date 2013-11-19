@@ -1106,7 +1106,6 @@ Możesz normalnie używać [SECOND_LIFE], inni użytkownicy będą Cię widzieli
 		Instalacja [APP_NAME] zakończona.
 
 Jeżeli używasz [SECOND_LIFE] po raz pierwszy to musisz stworzyć konto żeby móc się zalogować.
-Czy chcesz przejść na stronę [http://join.secondlife.com secondlife.com] żeby stworzyć nowe konto?
 		<usetemplate name="okcancelbuttons" notext="Kontynuuj" yestext="Nowe konto..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">

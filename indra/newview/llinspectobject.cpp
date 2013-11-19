@@ -111,6 +111,7 @@ private:
 	
 private:
 	LLUUID				mObjectID;
+	LLUUID				mPreviousObjectID;
 	S32					mObjectFace;
 	viewer_media_t		mMediaImpl;
 	LLMediaEntry*       mMediaEntry;
@@ -249,6 +250,7 @@ void LLInspectObject::onClose(bool app_quitting)
 {
 	// Release selection to deselect
 	mObjectSelection = NULL;
+	mPreviousObjectID = mObjectID;
 
 	getChild<LLMenuButton>("gear_btn")->hideMenu();
 }
@@ -265,6 +267,13 @@ void LLInspectObject::update()
 
 	LLSelectNode* nodep = selection->getFirstRootNode();
 	if (!nodep) return;
+
+	// If we don't have fresh object info yet and it's the object we inspected last time,
+	// keep showing the previously retrieved data until we get the update.
+	if (!nodep->mValid && nodep->getObject()->getID() == mPreviousObjectID)
+	{
+		return;
+	}
 
 	updateButtons(nodep);
 	updateName(nodep);

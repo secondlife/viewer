@@ -31,6 +31,9 @@
 #include "llassettype.h"
 #include "llmetricperformancetester.h"
 
+// JPEG2000 : compression rate used in j2c conversion.
+const F32 DEFAULT_COMPRESSION_RATE = 1.f/8.f;
+
 class LLImageJ2CImpl;
 class LLImageCompressionTester ;
 
@@ -67,12 +70,11 @@ public:
 
 	// Encode accessors
 	void setReversible(const BOOL reversible); // Use non-lossy?
-	void setRate(F32 rate);
 	void setMaxBytes(S32 max_bytes);
 	S32 getMaxBytes() const { return mMaxBytes; }
 
 	static S32 calcHeaderSizeJ2C();
-	static S32 calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, F32 rate = 0.f);
+	static S32 calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, F32 rate = DEFAULT_COMPRESSION_RATE);
 
 	static std::string getEngineInfo();
 
@@ -154,13 +156,15 @@ class LLImageCompressionTester : public LLMetricPerformanceTesterBasic
         U32 mTotalBytesOutDecompression;    // Total bytes produced by decompressor
         U32 mTotalBytesInCompression;       // Total bytes fed to compressor
         U32 mTotalBytesOutCompression;      // Total bytes produced by compressor
-		U32 mRunBytesInDecompression;		// Bytes fed to decompressor in this run
+        U32 mRunBytesInDecompression;		// Bytes fed to decompressor in this run
+        U32 mRunBytesOutDecompression;		// Bytes produced by the decompressor in this run
 		U32 mRunBytesInCompression;			// Bytes fed to compressor in this run
         //
         // Time
         //
         F32 mTotalTimeDecompression;        // Total time spent in computing decompression
         F32 mTotalTimeCompression;          // Total time spent in computing compression
+        F32 mRunTimeDecompression;          // Time in this run (we output every 5 sec in decompress)
     };
 
 #endif

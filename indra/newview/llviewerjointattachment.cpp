@@ -127,7 +127,11 @@ void LLViewerJointAttachment::setupDrawable(LLViewerObject *object)
 	{
 		for (S32 face_num = 0; face_num < object->mDrawable->getNumFaces(); face_num++)
 		{
-			object->mDrawable->getFace(face_num)->setState(LLFace::HUD_RENDER);
+			LLFace *face = object->mDrawable->getFace(face_num);
+			if (face)
+			{
+				face->setState(LLFace::HUD_RENDER);
+			}
 		}
 	}
 
@@ -146,7 +150,11 @@ void LLViewerJointAttachment::setupDrawable(LLViewerObject *object)
 			{
 				for (S32 face_num = 0; face_num < childp->mDrawable->getNumFaces(); face_num++)
 				{
-					childp->mDrawable->getFace(face_num)->setState(LLFace::HUD_RENDER);
+					LLFace * face = childp->mDrawable->getFace(face_num);
+					if (face)
+					{
+						face->setState(LLFace::HUD_RENDER);
+					}
 				}
 			}
 		}
@@ -254,7 +262,11 @@ void LLViewerJointAttachment::removeObject(LLViewerObject *object)
 		{
 			for (S32 face_num = 0; face_num < object->mDrawable->getNumFaces(); face_num++)
 			{
-				object->mDrawable->getFace(face_num)->clearState(LLFace::HUD_RENDER);
+				LLFace * face = object->mDrawable->getFace(face_num);
+				if (face)
+				{
+					face->clearState(LLFace::HUD_RENDER);
+				}
 			}
 		}
 	}
@@ -272,7 +284,11 @@ void LLViewerJointAttachment::removeObject(LLViewerObject *object)
 			{
 				for (S32 face_num = 0; face_num < childp->mDrawable->getNumFaces(); face_num++)
 				{
-					childp->mDrawable->getFace(face_num)->clearState(LLFace::HUD_RENDER);
+					LLFace * face = childp->mDrawable->getFace(face_num);
+					if (face)
+					{
+						face->clearState(LLFace::HUD_RENDER);
+					}
 				}
 			}
 		}

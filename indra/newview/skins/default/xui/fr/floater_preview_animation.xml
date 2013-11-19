@@ -6,6 +6,6 @@
 	<text name="desc txt">
 		Description :
 	</text>
-	<button label="Exécuter dans Second Life" label_selected="Arrêter" name="Inworld" tool_tip="Lire cette animation de façon à ce que les autres la voient."/>
+	<button label="Exécuter dans SL" label_selected="Arrêter" name="Inworld" tool_tip="Lire cette animation de façon à ce que les autres la voient dans Second Life."/>
 	<button label="Exécuter localement" label_selected="Arrêter" name="Locally" tool_tip="Lire cette animation de façon à ce que vous soyez la seule personne à la voir."/>
 </floater>

@@ -3,9 +3,9 @@
 	<button label="儲存" label_selected="儲存" name="Save"/>
 	<button label="取消" label_selected="取消" name="Cancel"/>
 	<text name="Save item as:">
-		儲存我正在穿的為新裝扮：
+		儲存我現在的穿著為新裝扮：
 	</text>
 	<line_editor name="name ed">
-		[DESC] （新）
+		[DESC]（新）
 	</line_editor>
 </floater>

@@ -45,8 +45,8 @@ public:
 	
 	virtual BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ void draw();
-	/*virtual*/ void setVisible(BOOL visible);
+	virtual void draw();
+	virtual void setVisible(BOOL visible);
 	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);
 	/*virtual*/ bool addChild(LLView* view, S32 tab_group = 0);
 
@@ -79,10 +79,11 @@ public:
 protected:
 	struct LLFloaterData
 	{
-		S32		mWidth;
-		S32		mHeight;
-		BOOL	mCanMinimize;
-		BOOL	mCanResize;
+		S32		    mWidth;
+		S32		    mHeight;
+		BOOL	    mCanMinimize;
+		BOOL	    mCanResize;
+		BOOL        mSaveRect;
 	};
 
 	LLTabContainer*		mTabContainer;
@@ -93,6 +94,9 @@ protected:
 	LLTabContainer::TabPosition mTabPos;
 	BOOL				mAutoResize;
 	S32					mOrigMinWidth, mOrigMinHeight;  // logically const but initialized late
+
+private:
+	virtual void computeResizeLimits(S32& new_min_width, S32& new_min_height);
 };
 
 #endif  // LL_MULTI_FLOATER_H

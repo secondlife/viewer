@@ -149,11 +149,11 @@
     <check_box
      follows="top|left"
      height="16"
-     label="Have been age-verified"
+     label="Are age 18 or older"
      layout="topleft"
      left_delta="0"
      name="limit_age_verified"
-     tool_tip="Residents must be age verified to access this estate. See the [SUPPORT_SITE] for more information."
+     tool_tip="Residents must be age 18 or older to access this estate. See the [SUPPORT_SITE] for more information."
      top_pad="2"
      width="278" />
 

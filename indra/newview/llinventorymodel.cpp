@@ -373,13 +373,12 @@ void LLInventoryModel::unlockDirectDescendentArrays(const LLUUID& cat_id)
 // specifies 'type' as what it defaults to containing. The category is
 // not necessarily only for that type. *NOTE: This will create a new
 // inventory category on the fly if one does not exist.
-const LLUUID LLInventoryModel::findCategoryUUIDForType(LLFolderType::EType preferred_type, 
-													   bool create_folder, 
-													   bool find_in_library)
+const LLUUID LLInventoryModel::findCategoryUUIDForType(LLFolderType::EType preferred_type, bool create_folder/*, 
+					  bool find_in_library*/)
 {
 	LLUUID rv = LLUUID::null;
 	
-	const LLUUID &root_id = (find_in_library) ? gInventory.getLibraryRootFolderID() : gInventory.getRootFolderID();
+	const LLUUID &root_id = /*(find_in_library) ? gInventory.getLibraryRootFolderID() :*/ gInventory.getRootFolderID();
 	if(LLFolderType::FT_ROOT_INVENTORY == preferred_type)
 	{
 		rv = root_id;
@@ -402,7 +401,44 @@ const LLUUID LLInventoryModel::findCategoryUUIDForType(LLFolderType::EType prefe
 		}
 	}
 	
-	if(rv.isNull() && isInventoryUsable() && (create_folder && !find_in_library))
+	if(rv.isNull() && isInventoryUsable() && (create_folder && true/*!find_in_library*/))
+	{
+		if(root_id.notNull())
+		{
+			return createNewCategory(root_id, preferred_type, LLStringUtil::null);
+		}
+	}
+	return rv;
+}
+
+const LLUUID LLInventoryModel::findLibraryCategoryUUIDForType(LLFolderType::EType preferred_type, bool create_folder)
+{
+	LLUUID rv = LLUUID::null;
+
+	const LLUUID &root_id = gInventory.getLibraryRootFolderID();
+	if(LLFolderType::FT_ROOT_INVENTORY == preferred_type)
+	{
+		rv = root_id;
+	}
+	else if (root_id.notNull())
+	{
+		cat_array_t* cats = NULL;
+		cats = get_ptr_in_map(mParentChildCategoryTree, root_id);
+		if(cats)
+		{
+			S32 count = cats->count();
+			for(S32 i = 0; i < count; ++i)
+			{
+				if(cats->get(i)->getPreferredType() == preferred_type)
+				{
+					rv = cats->get(i)->getUUID();
+					break;
+				}
+			}
+		}
+	}
+
+	if(rv.isNull() && isInventoryUsable() && (create_folder && true/*!find_in_library*/))
 	{
 		if(root_id.notNull())
 		{
@@ -424,9 +460,10 @@ public:
 	{
 	}
 	
-	virtual void error(U32 status, const std::string& reason)
+	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 	{
-		LL_WARNS("InvAPI") << "CreateInventoryCategory failed.   status = " << status << ", reasion = \"" << reason << "\"" << LL_ENDL;
+		LL_WARNS("InvAPI") << "CreateInventoryCategory failed [status:"
+				<< status << "]: " << content << LL_ENDL;
 	}
 	
 	virtual void result(const LLSD& content)
@@ -822,6 +859,11 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item)
 			{
 				parent_id = findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
 				new_item->setParent(parent_id);
+				LLInventoryModel::update_list_t update;
+				LLInventoryModel::LLCategoryUpdate new_folder(parent_id, 1);
+				update.push_back(new_folder);
+				accountForUpdate(update);
+
 			}
 			item_array_t* item_array = get_ptr_in_map(mParentChildItemTree, parent_id);
 			if(item_array)
@@ -945,6 +987,7 @@ void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat)
 				cat_array->put(old_cat);
 			}
 			mask |= LLInventoryObserver::STRUCTURE;
+            mask |= LLInventoryObserver::INTERNAL;
 		}
 		if(old_cat->getName() != cat->getName())
 		{
@@ -1240,14 +1283,33 @@ void LLInventoryModel::purgeDescendentsOf(const LLUUID& id)
 							   items,
 							   INCLUDE_TRASH);
 			S32 count = items.count();
+
+			item_map_t::iterator item_map_end = mItemMap.end();
+			cat_map_t::iterator cat_map_end = mCategoryMap.end();
+			LLUUID uu_id;
+
 			for(S32 i = 0; i < count; ++i)
 			{
-				deleteObject(items.get(i)->getUUID());
+				uu_id = items.get(i)->getUUID();
+
+				// This check prevents the deletion of a previously deleted item.
+				// This is necessary because deletion is not done in a hierarchical
+				// order. The current item may have been already deleted as a child
+				// of its deleted parent.
+				if (mItemMap.find(uu_id) != item_map_end)
+				{
+					deleteObject(uu_id);
+				}
 			}
+
 			count = categories.count();
 			for(S32 i = 0; i < count; ++i)
 			{
-				deleteObject(categories.get(i)->getUUID());
+				uu_id = categories.get(i)->getUUID();
+				if (mCategoryMap.find(uu_id) != cat_map_end)
+				{
+					deleteObject(uu_id);
+				}
 			}
 		}
 	}
@@ -1349,7 +1411,6 @@ void  LLInventoryModel::fetchInventoryResponder::result(const LLSD& content)
 	item_array_t items;
 	update_map_t update;
 	S32 count = content["items"].size();
-	bool all_one_folder = true;
 	LLUUID folder_id;
 	// Does this loop ever execute more than once?
 	for(S32 i = 0; i < count; ++i)
@@ -1382,10 +1443,6 @@ void  LLInventoryModel::fetchInventoryResponder::result(const LLSD& content)
 		{
 			folder_id = titem->getParentUUID();
 		}
-		else
-		{
-			all_one_folder = false;
-		}
 	}
 
 	U32 changes = 0x0;
@@ -1399,10 +1456,9 @@ void  LLInventoryModel::fetchInventoryResponder::result(const LLSD& content)
 }
 
 //If we get back an error (not found, etc...), handle it here
-void LLInventoryModel::fetchInventoryResponder::error(U32 status, const std::string& reason)
+void LLInventoryModel::fetchInventoryResponder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 {
-	llinfos << "fetchInventory::error "
-		<< status << ": " << reason << llendl;
+	llwarns << "fetchInventory error [status:" << status << "]: " << content << llendl;
 	gInventory.notifyObservers();
 }
 
@@ -1759,6 +1815,7 @@ bool LLInventoryModel::loadSkeleton(
 		update_map_t child_counts;
 		cat_array_t categories;
 		item_array_t items;
+		item_array_t possible_broken_links;
 		cat_set_t invalid_categories; // Used to mark categories that weren't successfully loaded.
 		std::string owner_id_str;
 		owner_id.toString(owner_id_str);
@@ -1807,7 +1864,7 @@ bool LLInventoryModel::loadSkeleton(
 				LLViewerInventoryCategory* tcat = *cit;
 				
 				// we can safely ignore anything loaded from file, but
-				// not sent down in the skeleton.
+				// not sent down in the skeleton. Must have been removed from inventory.
 				if(cit == not_cached)
 				{
 					continue;
@@ -1845,6 +1902,8 @@ bool LLInventoryModel::loadSkeleton(
 			// Add all the items loaded which are parented to a
 			// category with a correctly cached parent
 			S32 bad_link_count = 0;
+			S32 good_link_count = 0;
+			S32 recovered_link_count = 0;
 			cat_map_t::iterator unparented = mCategoryMap.end();
 			for(item_array_t::const_iterator item_iter = items.begin();
 				item_iter != items.end();
@@ -1861,13 +1920,17 @@ bool LLInventoryModel::loadSkeleton(
 						// This can happen if the linked object's baseobj is removed from the cache but the linked object is still in the cache.
 						if (item->getIsBrokenLink())
 						{
-							bad_link_count++;
+							//bad_link_count++;
 							lldebugs << "Attempted to add cached link item without baseobj present ( name: "
 									 << item->getName() << " itemID: " << item->getUUID()
 									 << " assetID: " << item->getAssetUUID()
 									 << " ).  Ignoring and invalidating " << cat->getName() << " . " << llendl;
-							invalid_categories.insert(cit->second);
+							possible_broken_links.push_back(item);
 							continue;
+						}
+						else if (item->getIsLinkType())
+						{
+							good_link_count++;
 						}
 						addItem(item);
 						cached_item_count += 1;
@@ -1875,12 +1938,38 @@ bool LLInventoryModel::loadSkeleton(
 					}
 				}
 			}
-			if (bad_link_count > 0)
+			if (possible_broken_links.size() > 0)
 			{
-				llinfos << "Attempted to add " << bad_link_count
-						<< " cached link items without baseobj present. "
-						<< "The corresponding categories were invalidated." << llendl;
+				for(item_array_t::const_iterator item_iter = possible_broken_links.begin();
+				    item_iter != possible_broken_links.end();
+				    ++item_iter)
+				{
+					LLViewerInventoryItem *item = (*item_iter).get();
+					const cat_map_t::iterator cit = mCategoryMap.find(item->getParentUUID());
+					const LLViewerInventoryCategory* cat = cit->second.get();
+					if (item->getIsBrokenLink())
+					{
+						bad_link_count++;
+						invalid_categories.insert(cit->second);
+						//llinfos << "link still broken: " << item->getName() << " in folder " << cat->getName() << llendl;
+					}
+					else
+					{
+						// was marked as broken because of loading order, its actually fine to load
+						addItem(item);
+						cached_item_count += 1;
+						++child_counts[cat->getUUID()];
+						recovered_link_count++;
+					}
+				}
+
+ 				llinfos << "Attempted to add " << bad_link_count
+ 						<< " cached link items without baseobj present. "
+					    << good_link_count << " link items were successfully added. "
+					    << recovered_link_count << " links added in recovery. "
+ 						<< "The corresponding categories were invalidated." << llendl;
 			}
+
 		}
 		else
 		{
@@ -1902,8 +1991,9 @@ bool LLInventoryModel::loadSkeleton(
 		{
 			LLViewerInventoryCategory* cat = (*invalid_cat_it).get();
 			cat->setVersion(NO_VERSION);
-			llinfos << "Invalidating category name: " << cat->getName() << " UUID: " << cat->getUUID() << " due to invalid descendents cache" << llendl;
+			LL_DEBUGS("Inventory") << "Invalidating category name: " << cat->getName() << " UUID: " << cat->getUUID() << " due to invalid descendents cache" << llendl;
 		}
+		LL_INFOS("Inventory") << "Invalidated " << invalid_categories.size() << " categories due to invalid descendents cache" << llendl;
 
 		// At this point, we need to set the known descendents for each
 		// category which successfully cached so that we do not
@@ -2440,7 +2530,6 @@ bool LLInventoryModel::messageUpdateCore(LLMessageSystem* msg, bool account)
 	item_array_t items;
 	update_map_t update;
 	S32 count = msg->getNumberOfBlocksFast(_PREHASH_InventoryData);
-	bool all_one_folder = true;
 	LLUUID folder_id;
 	// Does this loop ever execute more than once?
 	for(S32 i = 0; i < count; ++i)
@@ -2471,10 +2560,6 @@ bool LLInventoryModel::messageUpdateCore(LLMessageSystem* msg, bool account)
 		if (folder_id.isNull())
 		{
 			folder_id = titem->getParentUUID();
-		}
-		else
-		{
-			all_one_folder = false;
 		}
 	}
 	if(account)
@@ -3202,6 +3287,7 @@ void LLInventoryModel::updateItemsOrder(LLInventoryModel::item_array_t& items, c
 }
 
 //* @param[in] items vector of items in order to be saved.
+/*
 void LLInventoryModel::saveItemsOrder(const LLInventoryModel::item_array_t& items)
 {
 	int sortField = 0;
@@ -3223,7 +3309,7 @@ void LLInventoryModel::saveItemsOrder(const LLInventoryModel::item_array_t& item
 
 	notifyObservers();
 }
-
+*/
 // See also LLInventorySort where landmarks in the Favorites folder are sorted.
 class LLViewerInventoryItemSort
 {
@@ -3239,14 +3325,15 @@ public:
  *
  * @param[in, out] items - array of items, not sorted.
  */
-static void rearrange_item_order_by_sort_field(LLInventoryModel::item_array_t& items)
-{
-	static LLViewerInventoryItemSort sort_functor;
-	std::sort(items.begin(), items.end(), sort_functor);
-}
+//static void rearrange_item_order_by_sort_field(LLInventoryModel::item_array_t& items)
+//{
+//	static LLViewerInventoryItemSort sort_functor;
+//	std::sort(items.begin(), items.end(), sort_functor);
+//}
 
 // * @param source_item_id - LLUUID of the source item to be moved into new position
 // * @param target_item_id - LLUUID of the target item before which source item should be placed.
+/*
 void LLInventoryModel::rearrangeFavoriteLandmarks(const LLUUID& source_item_id, const LLUUID& target_item_id)
 {
 	LLInventoryModel::cat_array_t cats;
@@ -3263,7 +3350,7 @@ void LLInventoryModel::rearrangeFavoriteLandmarks(const LLUUID& source_item_id, 
 
 	saveItemsOrder(items);
 }
-
+*/
 //----------------------------------------------------------------------------
 
 // *NOTE: DEBUG functionality

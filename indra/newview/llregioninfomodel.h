@@ -52,7 +52,7 @@ public:
 	U8			mSimAccess;
 	U8			mAgentLimit;
 
-	U32			mRegionFlags;
+	U64			mRegionFlags;
 	U32			mEstateID;
 	U32			mParentEstateID;
 

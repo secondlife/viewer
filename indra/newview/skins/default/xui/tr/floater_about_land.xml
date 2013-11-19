@@ -451,7 +451,7 @@ Sadece büyük parseller aramada görünür.
 				Sadece şu Sakinlere erişim izni verin:
 			</text>
 			<check_box label="Ödeme bilgileri kayıtlı [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Sakinlerin bu parsele erişebilmesi için ödeme bilgilerinin kayıtlı olması gerekir.  Daha fazla bilgi için [SUPPORT_SITE] adresini ziyaret edin."/>
-			<check_box label="Yaş doğrulaması yapılmış [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Sakinlerin bu parsele erişebilmesi için yaş doğrulamalarının yapılmış olması gerekir. Daha fazla bilgi için [SUPPORT_SITE] adresini ziyaret edin."/>
+			<check_box label="18 veya üzeri bir yaşta [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Sakinlerin bu parsele erişebilmesi için 18 veya üzeri bir yaşta olmaları gerekir. Daha fazla bilgi için [SUPPORT_SITE] adresini ziyaret edin."/>
 			<check_box label="Grup Erişimine İzin Ver: [GROUP]" name="GroupCheck" tool_tip="Genel sekmesinde grup ayarla."/>
 			<check_box label="Geçiş haklr. şuna sat:" name="PassCheck" tool_tip="Bu parsele geçici erişim verir"/>
 			<combo_box name="pass_combo">

@@ -57,6 +57,8 @@ const F32 MIN_SHADOW_CASTER_RADIUS = 2.0f;
 
 static LLFastTimer::DeclareTimer FTM_CULL_REBOUND("Cull Rebound");
 
+extern bool gShiftFrame;
+
 
 ////////////////////////
 //
@@ -97,7 +99,6 @@ void LLDrawable::init()
 	mPositionGroup.clear();
 	mExtents[0].clear();
 	mExtents[1].clear();
-	mQuietCount = 0;
 
 	mState     = 0;
 	mVObjp   = NULL;
@@ -108,6 +109,8 @@ void LLDrawable::init()
 	
 	mGeneration = -1;
 	mBinRadius = 1.f;
+	mBinIndex = -1;
+
 	mSpatialBridge = NULL;
 }
 
@@ -129,10 +132,16 @@ void LLDrawable::destroy()
 		sNumZombieDrawables--;
 	}
 
+	// Attempt to catch violations of this in debug,
+	// knowing that some false alarms may result
+	//
+	llassert(!LLSpatialGroup::sNoDelete);
+
+	/* cannot be guaranteed and causes crashes on false alarms
 	if (LLSpatialGroup::sNoDelete)
 	{
 		llerrs << "Illegal deletion of LLDrawable!" << llendl;
-	}
+	}*/
 
 	std::for_each(mFaces.begin(), mFaces.end(), DeletePointer());
 	mFaces.clear();
@@ -251,11 +260,17 @@ S32 LLDrawable::findReferences(LLDrawable *drawablep)
 	return count;
 }
 
+static LLFastTimer::DeclareTimer FTM_ALLOCATE_FACE("Allocate Face", true);
+
 LLFace*	LLDrawable::addFace(LLFacePool *poolp, LLViewerTexture *texturep)
 {
-	LLMemType mt(LLMemType::MTYPE_DRAWABLE);
 	
-	LLFace *face = new LLFace(this, mVObjp);
+	LLFace *face;
+	{
+		LLFastTimer t(FTM_ALLOCATE_FACE);
+		face = new LLFace(this, mVObjp);
+	}
+
 	if (!face) llerrs << "Allocating new Face: " << mFaces.size() << llendl;
 	
 	if (face)
@@ -277,10 +292,12 @@ LLFace*	LLDrawable::addFace(LLFacePool *poolp, LLViewerTexture *texturep)
 
 LLFace*	LLDrawable::addFace(const LLTextureEntry *te, LLViewerTexture *texturep)
 {
-	LLMemType mt(LLMemType::MTYPE_DRAWABLE);
-	
 	LLFace *face;
-	face = new LLFace(this, mVObjp);
+
+	{
+		LLFastTimer t(FTM_ALLOCATE_FACE);
+		face = new LLFace(this, mVObjp);
+	}
 
 	face->setTEOffset(mFaces.size());
 	face->setTexture(texturep);
@@ -295,6 +312,49 @@ LLFace*	LLDrawable::addFace(const LLTextureEntry *te, LLViewerTexture *texturep)
 
 	return face;
 
+}
+
+LLFace*	LLDrawable::addFace(const LLTextureEntry *te, LLViewerTexture *texturep, LLViewerTexture *normalp)
+{
+	LLFace *face;
+	face = new LLFace(this, mVObjp);
+	
+	face->setTEOffset(mFaces.size());
+	face->setTexture(texturep);
+	face->setNormalMap(normalp);
+	face->setPoolType(gPipeline.getPoolTypeFromTE(te, texturep));
+	
+	mFaces.push_back(face);
+	
+	if (isState(UNLIT))
+	{
+		face->setState(LLFace::FULLBRIGHT);
+	}
+	
+	return face;
+	
+}
+
+LLFace*	LLDrawable::addFace(const LLTextureEntry *te, LLViewerTexture *texturep, LLViewerTexture *normalp, LLViewerTexture *specularp)
+{
+	LLFace *face;
+	face = new LLFace(this, mVObjp);
+	
+	face->setTEOffset(mFaces.size());
+	face->setTexture(texturep);
+	face->setNormalMap(normalp);
+	face->setSpecularMap(specularp);
+	face->setPoolType(gPipeline.getPoolTypeFromTE(te, texturep));
+	
+	mFaces.push_back(face);
+	
+	if (isState(UNLIT))
+	{
+		face->setState(LLFace::FULLBRIGHT);
+	}
+	
+	return face;
+	
 }
 
 void LLDrawable::setNumFaces(const S32 newFaces, LLFacePool *poolp, LLViewerTexture *texturep)
@@ -403,6 +463,8 @@ void LLDrawable::makeActive()
 		if (!isRoot() && !mParent->isActive())
 		{
 			mParent->makeActive();
+			//NOTE: linked set will now NEVER become static
+			mParent->setState(LLDrawable::ACTIVE_CHILD);
 		}
 
 		//all child objects must also be active
@@ -422,40 +484,26 @@ void LLDrawable::makeActive()
 
 		if (mVObjp->getPCode() == LL_PCODE_VOLUME)
 		{
-			if (mVObjp->isFlexible())
-			{
-				return;
-			}
-		}
-	
-		if (mVObjp->getPCode() == LL_PCODE_VOLUME)
-		{
 			gPipeline.markRebuild(this, LLDrawable::REBUILD_VOLUME, TRUE);
 		}
 		updatePartition();
 	}
 
-	if (isRoot())
-	{
-		mQuietCount = 0;
-	}
-	else
-	{
-		getParent()->mQuietCount = 0;
-	}
+	llassert(isAvatar() || isRoot() || mParent->isActive());
 }
 
 
 void LLDrawable::makeStatic(BOOL warning_enabled)
 {
-	if (isState(ACTIVE))
+	if (isState(ACTIVE) && 
+		!isState(ACTIVE_CHILD) && 
+		!mVObjp->isAttachment() && 
+		!mVObjp->isFlexible())
 	{
-		clearState(ACTIVE);
+		clearState(ACTIVE | ANIMATED_CHILD);
 
-		if (mParent.notNull() && mParent->isActive() && warning_enabled)
-		{
-			LL_WARNS_ONCE("Drawable") << "Drawable becomes static with active parent!" << LL_ENDL;
-		}
+		//drawable became static with active parent, not acceptable
+		llassert(mParent.isNull() || !mParent->isActive() || !warning_enabled);
 
 		LLViewerObject::const_child_list_t& child_list = mVObjp->getChildren();
 		for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
@@ -483,8 +531,10 @@ void LLDrawable::makeStatic(BOOL warning_enabled)
 			mSpatialBridge->markDead();
 			setSpatialBridge(NULL);
 		}
+		updatePartition();
 	}
-	updatePartition();
+
+	llassert(isAvatar() || isRoot() || mParent->isStatic());
 }
 
 // Returns "distance" between target destination and resulting xfrom
@@ -512,7 +562,6 @@ F32 LLDrawable::updateXform(BOOL undamped)
 	//scaling
 	LLVector3 target_scale = mVObjp->getScale();
 	LLVector3 old_scale = mCurrentScale;
-	LLVector3 dest_scale = target_scale;
 	
 	// Damping
 	F32 dist_squared = 0.f;
@@ -525,6 +574,7 @@ F32 LLDrawable::updateXform(BOOL undamped)
 		dist_squared = dist_vec_squared(new_pos, target_pos);
 
 		LLQuaternion new_rot = nlerp(lerp_amt, old_rot, target_rot);
+		// FIXME: This can be negative! It is be possible for some rots to 'cancel out' pos or size changes.
 		dist_squared += (1.f - dot(new_rot, target_rot)) * 10.f;
 
 		LLVector3 new_scale = lerp(old_scale, target_scale, lerp_amt);
@@ -538,9 +588,9 @@ F32 LLDrawable::updateXform(BOOL undamped)
 			target_rot = new_rot;
 			target_scale = new_scale;
 		}
-		else
+		else if (mVObjp->getAngularVelocity().isExactlyZero())
 		{
-			// snap to final position
+			// snap to final position (only if no target omega is applied)
 			dist_squared = 0.0f;
 			if (getVOVolume() && !isRoot())
 			{ //child prim snapping to some position, needs a rebuild
@@ -548,15 +598,40 @@ F32 LLDrawable::updateXform(BOOL undamped)
 			}
 		}
 	}
+	else
+	{
+		// The following fixes MAINT-1742 but breaks vehicles similar to MAINT-2275
+		// dist_squared = dist_vec_squared(old_pos, target_pos);
 
-	if ((mCurrentScale != target_scale) ||
-		(!isRoot() && 
-		 (dist_squared >= MIN_INTERPOLATE_DISTANCE_SQUARED || 
-		 !mVObjp->getAngularVelocity().isExactlyZero() ||
-		 target_pos != mXform.getPosition() ||
-		 target_rot != mXform.getRotation())))
-	{ //child prim moving or scale change requires immediate rebuild
+		// The following fixes MAINT-2247 but causes MAINT-2275
+		//dist_squared += (1.f - dot(old_rot, target_rot)) * 10.f;
+		//dist_squared += dist_vec_squared(old_scale, target_scale);
+	}
+
+	LLVector3 vec = mCurrentScale-target_scale;
+	
+	if (vec*vec > MIN_INTERPOLATE_DISTANCE_SQUARED)
+	{ //scale change requires immediate rebuild
+		mCurrentScale = target_scale;
 		gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
+	}
+	else if (!isRoot() && 
+		 (!mVObjp->getAngularVelocity().isExactlyZero() ||
+			dist_squared > 0.f))
+	{ //child prim moving relative to parent, tag as needing to be rendered atomically and rebuild
+		dist_squared = 1.f; //keep this object on the move list
+		if (!isState(LLDrawable::ANIMATED_CHILD))
+		{			
+			setState(LLDrawable::ANIMATED_CHILD);
+			gPipeline.markRebuild(this, LLDrawable::REBUILD_ALL, TRUE);
+			mVObjp->dirtySpatialGroup();
+		}
+	}
+	else if (!isRoot() &&
+			((dist_vec_squared(old_pos, target_pos) > 0.f)
+			|| (1.f - dot(old_rot, target_rot)) > 0.f))
+	{ //fix for BUG-840, MAINT-2275, MAINT-1742, MAINT-2247
+			gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
 	}
 	else if (!getVOVolume() && !isAvatar())
 	{
@@ -568,9 +643,7 @@ F32 LLDrawable::updateXform(BOOL undamped)
 	mXform.setRotation(target_rot);
 	mXform.setScale(LLVector3(1,1,1)); //no scale in drawable transforms (IT'S A RULE!)
 	mXform.updateMatrix();
-	
-	mCurrentScale = target_scale;
-	
+
 	if (mSpatialBridge)
 	{
 		gPipeline.markMoved(mSpatialBridge, FALSE);
@@ -596,7 +669,11 @@ void LLDrawable::moveUpdatePipeline(BOOL moved)
 	// Update the face centers.
 	for (S32 i = 0; i < getNumFaces(); i++)
 	{
-		getFace(i)->updateCenterAgent();
+		LLFace* face = getFace(i);
+		if (face)
+		{
+			face->updateCenterAgent();
+		}
 	}
 }
 
@@ -623,18 +700,8 @@ BOOL LLDrawable::updateMove()
 	}
 	
 	makeActive();
-	
-	BOOL done;
 
-	if (isState(MOVE_UNDAMPED))
-	{
-		done = updateMoveUndamped();
-	}
-	else
-	{
-		done = updateMoveDamped();
-	}
-	return done;
+	return isState(MOVE_UNDAMPED) ? updateMoveUndamped() : updateMoveDamped();
 }
 
 BOOL LLDrawable::updateMoveUndamped()
@@ -651,7 +718,6 @@ BOOL LLDrawable::updateMoveUndamped()
 	}
 
 	mVObjp->clearChanged(LLXform::MOVED);
-	
 	return TRUE;
 }
 
@@ -703,6 +769,11 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 		return;
 	}
 
+	if (gShiftFrame)
+	{
+		return;
+	}
+
 	//switch LOD with the spatial group to avoid artifacts
 	//LLSpatialGroup* sg = getSpatialGroup();
 
@@ -727,7 +798,8 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 				for (S32 i = 0; i < getNumFaces(); i++)
 				{
 					LLFace* facep = getFace(i);
-					if (force_update || facep->getPoolType() == LLDrawPool::POOL_ALPHA)
+					if (facep && 
+						(force_update || facep->getPoolType() == LLDrawPool::POOL_ALPHA))
 					{
 						LLVector4a box;
 						box.setSub(facep->mExtents[1], facep->mExtents[0]);
@@ -756,8 +828,6 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 
 void LLDrawable::updateTexture()
 {
-	LLMemType mt(LLMemType::MTYPE_DRAWABLE);
-	
 	if (isDead())
 	{
 		llwarns << "Dead drawable updating texture!" << llendl;
@@ -771,18 +841,6 @@ void LLDrawable::updateTexture()
 
 	if (getVOVolume())
 	{
-		/*if (isActive())
-		{
-			if (isRoot())
-			{
-				mQuietCount = 0;
-			}
-			else
-			{
-				getParent()->mQuietCount = 0;
-			}
-		}*/
-				
 		gPipeline.markRebuild(this, LLDrawable::REBUILD_MATERIAL, TRUE);
 	}
 }
@@ -811,14 +869,19 @@ void LLDrawable::shiftPos(const LLVector4a &shift_vector)
 		mXform.setPosition(mVObjp->getPositionAgent());
 	}
 
-	mXform.setRotation(mVObjp->getRotation());
-	mXform.setScale(1,1,1);
 	mXform.updateMatrix();
 
 	if (isStatic())
 	{
 		LLVOVolume* volume = getVOVolume();
-		if (!volume)
+
+		bool rebuild = (!volume && 
+						getRenderType() != LLPipeline::RENDER_TYPE_TREE &&
+						getRenderType() != LLPipeline::RENDER_TYPE_TERRAIN &&
+						getRenderType() != LLPipeline::RENDER_TYPE_SKY &&
+						getRenderType() != LLPipeline::RENDER_TYPE_GROUND);
+
+		if (rebuild)
 		{
 			gPipeline.markRebuild(this, LLDrawable::REBUILD_ALL, TRUE);
 		}
@@ -826,13 +889,16 @@ void LLDrawable::shiftPos(const LLVector4a &shift_vector)
 		for (S32 i = 0; i < getNumFaces(); i++)
 		{
 			LLFace *facep = getFace(i);
-			facep->mCenterAgent += LLVector3(shift_vector.getF32ptr());
-			facep->mExtents[0].add(shift_vector);
-			facep->mExtents[1].add(shift_vector);
-			
-			if (!volume && facep->hasGeometry())
+			if (facep)
 			{
-				facep->clearVertexBuffer();
+				facep->mCenterAgent += LLVector3(shift_vector.getF32ptr());
+				facep->mExtents[0].add(shift_vector);
+				facep->mExtents[1].add(shift_vector);
+			
+				if (rebuild && facep->hasGeometry())
+				{
+					facep->clearVertexBuffer();
+				}
 			}
 		}
 		
@@ -940,8 +1006,20 @@ void LLDrawable::updateUVMinMax()
 {
 }
 
+LLSpatialGroup* LLDrawable::getSpatialGroup() const
+{ 
+	llassert((mSpatialGroupp == NULL) ? getBinIndex() == -1 : getBinIndex() != -1);
+	return mSpatialGroupp; 
+}
+
 void LLDrawable::setSpatialGroup(LLSpatialGroup *groupp)
 {
+	//precondition: mSpatialGroupp MUST be null or DEAD or mSpatialGroupp MUST NOT contain this
+	llassert(!mSpatialGroupp || mSpatialGroupp->isDead() || !mSpatialGroupp->hasElement(this));
+
+	//precondition: groupp MUST be null or groupp MUST contain this
+	llassert(!groupp || groupp->hasElement(this));
+
 /*if (mSpatialGroupp && (groupp != mSpatialGroupp))
 	{
 		mSpatialGroupp->setState(LLSpatialGroup::GEOM_DIRTY);
@@ -954,9 +1032,17 @@ void LLDrawable::setSpatialGroup(LLSpatialGroup *groupp)
 		for (S32 i = 0; i < getNumFaces(); ++i)
 		{
 			LLFace* facep = getFace(i);
-			facep->clearVertexBuffer();
+			if (facep)
+			{
+				facep->clearVertexBuffer();
+			}
 		}
 	}
+
+	//postcondition: if next group is NULL, previous group must be dead OR NULL OR binIndex must be -1
+	//postcondition: if next group is NOT NULL, binIndex must not be -1
+	llassert(groupp == NULL ? (mSpatialGroupp == NULL || mSpatialGroupp->isDead()) || getBinIndex() == -1 :
+							getBinIndex() != -1);
 
 	mSpatialGroupp = groupp;
 }
@@ -1081,6 +1167,8 @@ LLSpatialBridge::LLSpatialBridge(LLDrawable* root, BOOL render_by_group, U32 dat
 	mDrawable = root;
 	root->setSpatialBridge(this);
 	
+	mBinIndex = -1;
+
 	mRenderType = mDrawable->mRenderType;
 	mDrawableType = mDrawable->mRenderType;
 	
@@ -1199,7 +1287,6 @@ LLCamera LLSpatialBridge::transformCamera(LLCamera& camera)
 	LLCamera ret = camera;
 	LLXformMatrix* mat = mDrawable->getXform();
 	LLVector3 center = LLVector3(0,0,0) * mat->getWorldMatrix();
-	LLQuaternion rotation = LLQuaternion(mat->getWorldMatrix());
 
 	LLVector3 delta = ret.getOrigin() - center;
 	LLQuaternion rot = ~mat->getRotation();
@@ -1385,6 +1472,11 @@ void LLSpatialBridge::updateDistance(LLCamera& camera_in, bool force_update)
 		return;
 	}
 
+	if (gShiftFrame)
+	{
+		return;
+	}
+
 	if (mDrawable->getVObj())
 	{
 		if (mDrawable->getVObj()->isAttachment())
@@ -1462,6 +1554,10 @@ void LLSpatialBridge::cleanupReferences()
 	LLDrawable::cleanupReferences();
 	if (mDrawable)
 	{
+		/*
+		
+		DON'T DO THIS -- this should happen through octree destruction
+
 		mDrawable->setSpatialGroup(NULL);
 		if (mDrawable->getVObj())
 		{
@@ -1476,7 +1572,7 @@ void LLSpatialBridge::cleanupReferences()
 					drawable->setSpatialGroup(NULL);
 				}
 			}
-		}
+		}*/
 
 		LLDrawable* drawablep = mDrawable;
 		mDrawable = NULL;
@@ -1529,10 +1625,10 @@ BOOL LLDrawable::isAnimating() const
 		return TRUE;
 	}
 
-	if (!isRoot() && !mVObjp->getAngularVelocity().isExactlyZero())
-	{
+	/*if (!isRoot() && !mVObjp->getAngularVelocity().isExactlyZero())
+	{ //target omega
 		return TRUE;
-	}
+	}*/
 
 	return FALSE;
 }

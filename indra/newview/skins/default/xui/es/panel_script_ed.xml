@@ -34,6 +34,7 @@
 			<menu_item_call label="Seleccionar todo" name="Select All"/>
 			<menu_item_call label="Deseleccionar" name="Deselect"/>
 			<menu_item_call label="Buscar / Reemplazar..." name="Search / Replace..."/>
+			<menu_item_call label="Ir a la línea..." name="Go to line..."/>
 		</menu>
 		<menu label="Ayuda" name="Help">
 			<menu_item_call label="Ayuda..." name="Help..."/>

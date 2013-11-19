@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="spellcheck_floater" title="Impostazioni controllo ortografico">
+	<check_box label="Attiva controllo ortografico" name="spellcheck_enable"/>
+	<text name="spellcheck_main">
+		Dizionario principale:
+	</text>
+	<text label="Registri:" name="spellcheck_additional">
+		Dizionari aggiuntivi:
+	</text>
+	<text name="spellcheck_available">
+		Disponibile
+	</text>
+	<text name="spellcheck_active">
+		Attivato
+	</text>
+	<button label="Rimuovi" name="spellcheck_remove_btn"/>
+	<button label="Importa..." name="spellcheck_import_btn"/>
+</floater>

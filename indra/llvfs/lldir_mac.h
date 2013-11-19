@@ -22,7 +22,7 @@
  * 
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
- */
+ */ 
 
 #if !LL_DARWIN
 #error This header must not be included when compiling for any target other than Mac OS. Consider including lldir.h instead.
@@ -45,16 +45,10 @@ public:
 		const std::string& app_read_only_data_dir);
 
 	virtual std::string getCurPath();
-	virtual U32 countFilesInDir(const std::string &dirname, const std::string &mask);
-	virtual BOOL fileExists(const std::string &filename) const;
+	virtual bool fileExists(const std::string &filename) const;
 
 	/*virtual*/ std::string getLLPluginLauncher();
 	/*virtual*/ std::string getLLPluginFilename(std::string base_name);
-
-private:
-	int mCurrentDirIndex;
-	int mCurrentDirCount;
-	std::string mCurrentDir;
 };
 
 #endif // LL_LLDIR_MAC_H

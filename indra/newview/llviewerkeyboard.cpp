@@ -27,11 +27,12 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llappviewer.h"
+#include "llfloaterreg.h"
 #include "llviewerkeyboard.h"
 #include "llmath.h"
 #include "llagent.h"
 #include "llagentcamera.h"
-#include "llnearbychatbar.h"
+#include "llfloaterimnearbychat.h"
 #include "llviewercontrol.h"
 #include "llfocusmgr.h"
 #include "llmorphview.h"
@@ -533,8 +534,13 @@ void stop_moving( EKeystate s )
 
 void start_chat( EKeystate s )
 {
+    if (LLAppViewer::instance()->quitRequested())
+    {
+        return; // can't talk, gotta go, kthxbye!
+    }
+    
 	// start chat
-	LLNearbyChatBar::startChat(NULL);
+	LLFloaterIMNearbyChat::startChat(NULL);
 }
 
 void start_gesture( EKeystate s )
@@ -543,15 +549,15 @@ void start_gesture( EKeystate s )
 	if (KEYSTATE_UP == s &&
 		! (focus_ctrlp && focus_ctrlp->acceptsTextInput()))
 	{
- 		if (LLNearbyChatBar::getInstance()->getCurrentChat().empty())
+ 		if ((LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat"))->getCurrentChat().empty())
  		{
  			// No existing chat in chat editor, insert '/'
- 			LLNearbyChatBar::startChat("/");
+ 			LLFloaterIMNearbyChat::startChat("/");
  		}
  		else
  		{
  			// Don't overwrite existing text in chat editor
- 			LLNearbyChatBar::startChat(NULL);
+ 			LLFloaterIMNearbyChat::startChat(NULL);
  		}
 	}
 }
@@ -675,12 +681,16 @@ BOOL LLViewerKeyboard::handleKey(KEY translated_key,  MASK translated_mask, BOOL
 	if(mKeysSkippedByUI.find(translated_key) != mKeysSkippedByUI.end()) 
 	{
 		mKeyHandledByUI[translated_key] = FALSE;
+		LL_INFOS("Keyboard Handling") << "Key wasn't handled by UI!" << LL_ENDL;
 	}
 	else
 	{
 		// it is sufficient to set this value once per call to handlekey
 		// without clearing it, as it is only used in the subsequent call to scanKey
-		mKeyHandledByUI[translated_key] = gViewerWindow->handleKey(translated_key, translated_mask);
+		mKeyHandledByUI[translated_key] = gViewerWindow->handleKey(translated_key, translated_mask); 
+		// mKeyHandledByUI is not what you think ... this indicates whether the UI has handled this keypress yet (any keypress)
+		// NOT whether some UI shortcut wishes to handle the keypress
+	  
 	}
 	return mKeyHandledByUI[translated_key];
 }

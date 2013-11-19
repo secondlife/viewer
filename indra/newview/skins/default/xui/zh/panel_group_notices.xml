@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="通知" name="notices_tab">
 	<panel.string name="help_text">
-		Notices let you send a message and an optionally attached item.
-Notices only go to group members in Roles with the ability to receive Notices.
-You can turn off Notices on the General tab.
+		通知可讓你傳送訊息並選擇性地附上一個附件。
+通知僅能傳給可接收通知的角色的群組成員。
+你可到基本資料頁籤停用通知功能。
 	</panel.string>
 	<panel.string name="no_notices_text">
 		沒有過去的通知
@@ -21,7 +21,7 @@ You can turn off Notices on the General tab.
 		沒發現。
 	</text>
 	<button label="新通知" name="create_new_notice" tool_tip="建立一個新通知"/>
-	<button name="refresh_notices" tool_tip="Refresh list of notices"/>
+	<button name="refresh_notices" tool_tip="刷新通知清單。"/>
 	<panel label="建立新通知" name="panel_create_new_notice">
 		<text name="lbl">
 			建立一個通知
@@ -36,19 +36,19 @@ You can turn off Notices on the General tab.
 			附件：
 		</text>
 		<text name="string">
-			將物品拖曳並丟於此處以添加為附件：
+			拖曳並置放物品到這裡，即可添加為附件：
 		</text>
 		<button label="收納區" name="open_inventory" tool_tip="開啟收納區"/>
 		<button name="remove_attachment" tool_tip="由你的通知移除附件"/>
 		<button label="送出" label_selected="送出" name="send_notice"/>
-		<group_drop_target name="drop_target" tool_tip="Drag an inventory item onto this target box to send it with this notice. You must have permission to copy and transfer the item in order to attach it."/>
+		<group_drop_target name="drop_target" tool_tip="將一個收納區物項拖曳到這個目標箱框，便可隨通知送出該物項。 你必須有權複製並轉移此物項，才可以附加它。"/>
 	</panel>
 	<panel label="察看過去的通知" name="panel_view_past_notice">
 		<text name="lbl">
 			存檔的通知
 		</text>
 		<text name="lbl2">
-			要送出一個新通知，點擊 + 按鈕
+			要送出一個新通知，點按 + 按鈕
 		</text>
 		<text name="lbl3">
 			主旨：

@@ -40,14 +40,10 @@ bool LLAvatarNameCache::get(const LLUUID& agent_id, LLAvatarName *av_name)
 	return false;
 }
 
-void LLAvatarNameCache::get(const LLUUID& agent_id, callback_slot_t slot)
+LLAvatarNameCache::callback_connection_t LLAvatarNameCache::get(const LLUUID& agent_id, callback_slot_t slot)
 {
-	return;
-}
-
-bool LLAvatarNameCache::useDisplayNames()
-{
-	return false;
+	callback_connection_t connection;
+	return connection;
 }
 
 //
@@ -105,36 +101,14 @@ LLStyle::Params::Params()
 
 namespace LLInitParam
 {
-	Param::Param(BaseBlock* enclosing_block)
-	:	mIsProvided(false)
-	{
-		const U8* my_addr = reinterpret_cast<const U8*>(this);
-		const U8* block_addr = reinterpret_cast<const U8*>(enclosing_block);
-		mEnclosingBlockOffset = (U16)(my_addr - block_addr);
-	}
-
-	void BaseBlock::addParam(BlockDescriptor& block_data, const ParamDescriptorPtr in_param, const char* char_name){}
-	void BaseBlock::addSynonym(Param& param, const std::string& synonym) {}
-	param_handle_t BaseBlock::getHandleFromParam(const Param* param) const {return 0;}
-	
-	void BaseBlock::init(BlockDescriptor& descriptor, BlockDescriptor& base_descriptor, size_t block_size)
-	{
-		descriptor.mCurrentBlockPtr = this;
-	}
-	bool BaseBlock::deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack, bool new_name){ return true; }
-	void BaseBlock::serializeBlock(Parser& parser, Parser::name_stack_t& name_stack, const LLInitParam::BaseBlock* diff_block) const {}
-	bool BaseBlock::inspectBlock(Parser& parser, Parser::name_stack_t name_stack, S32 min_value, S32 max_value) const { return true; }
-	bool BaseBlock::mergeBlock(BlockDescriptor& block_data, const BaseBlock& other, bool overwrite) { return true; }
-	bool BaseBlock::validateBlock(bool emit_errors) const { return true; }
-
-	ParamValue<LLUIColor, TypeValues<LLUIColor> >::ParamValue(const LLUIColor& color)
+	ParamValue<LLUIColor>::ParamValue(const LLUIColor& color)
 	:	super_t(color)
 	{}
 
-	void ParamValue<LLUIColor, TypeValues<LLUIColor> >::updateValueFromBlock() 
+	void ParamValue<LLUIColor>::updateValueFromBlock() 
 	{}
 	
-	void ParamValue<LLUIColor, TypeValues<LLUIColor> >::updateBlockFromValue(bool)
+	void ParamValue<LLUIColor>::updateBlockFromValue(bool)
 	{}
 
 	bool ParamCompare<const LLFontGL*, false>::equals(const LLFontGL* a, const LLFontGL* b)
@@ -142,14 +116,14 @@ namespace LLInitParam
 		return false;
 	}
 
-	ParamValue<const LLFontGL*, TypeValues<const LLFontGL*> >::ParamValue(const LLFontGL* fontp)
+	ParamValue<const LLFontGL*>::ParamValue(const LLFontGL* fontp)
 	:	super_t(fontp)
 	{}
 
-	void ParamValue<const LLFontGL*, TypeValues<const LLFontGL*> >::updateValueFromBlock()
+	void ParamValue<const LLFontGL*>::updateValueFromBlock()
 	{}
 	
-	void ParamValue<const LLFontGL*, TypeValues<const LLFontGL*> >::updateBlockFromValue(bool)
+	void ParamValue<const LLFontGL*>::updateBlockFromValue(bool)
 	{}
 
 	void TypeValues<LLFontGL::HAlign>::declareValues()
@@ -161,10 +135,10 @@ namespace LLInitParam
 	void TypeValues<LLFontGL::ShadowType>::declareValues()
 	{}
 
-	void ParamValue<LLUIImage*, TypeValues<LLUIImage*> >::updateValueFromBlock()
+	void ParamValue<LLUIImage*>::updateValueFromBlock()
 	{}
 	
-	void ParamValue<LLUIImage*, TypeValues<LLUIImage*> >::updateBlockFromValue(bool)
+	void ParamValue<LLUIImage*>::updateBlockFromValue(bool)
 	{}
 
 	

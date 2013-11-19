@@ -8,7 +8,7 @@
 			<layout_panel name="lp1">
 				<layout_stack name="bottom_bar_ls1">
 					<layout_panel name="teleport_btn_lp">
-						<button label="瞬間傳送" name="teleport_btn" tool_tip="瞬間傳送到所選擇的區域"/>
+						<button label="瞬間傳送" name="teleport_btn" tool_tip="瞬間傳送到所選的區域"/>
 					</layout_panel>
 					<layout_panel name="chat_btn_lp">
 						<button label="地圖" name="map_btn" tool_tip="在世界地圖上顯示相對應的區域"/>
@@ -24,7 +24,7 @@
 						<menu_button name="overflow_btn" tool_tip="顯示額外選項"/>
 					</layout_panel>
 				</layout_stack>
-				<layout_stack name="bottom_bar_ls3">
+				<layout_stack name="bottom_bar_profile_ls">
 					<layout_panel name="profile_btn_lp">
 						<button label="檔案" name="profile_btn" tool_tip="顯示地點檔案"/>
 					</layout_panel>

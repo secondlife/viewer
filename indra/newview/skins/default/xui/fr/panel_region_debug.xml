@@ -30,11 +30,11 @@
 	<check_box label="Sur le terrain d&apos;un autre résident" name="return_other_land" tool_tip="Ne renvoyer que les objets se trouvant sur le terrain de quelqu&apos;un d&apos;autre"/>
 	<check_box label="Dans toutes les régions de ce domaine" name="return_estate_wide" tool_tip="Renvoyer les objets dans toutes les régions qui constituent ce domaine"/>
 	<button label="Renvoyer" name="return_btn"/>
-	<button label="Afficher les collisions les plus consommatrices..." name="top_colliders_btn" tool_tip="Liste des objets avec le plus de collisions potentielles" width="320"/>
+	<button label="Collisions les plus consommatrices" name="top_colliders_btn" tool_tip="Liste des objets avec le plus de collisions potentielles" width="320"/>
 	<button label="?" left="337" name="top_colliders_help"/>
-	<button label="Afficher les objets scriptés les plus consommateurs..." name="top_scripts_btn" tool_tip="Liste des objets qui passent le plus de temps à exécuter des scripts" width="320"/>
+	<button label="Scripts les plus consommateurs" name="top_scripts_btn" tool_tip="Liste des objets passant le plus de temps à exécuter des scripts" width="320"/>
 	<button label="?" left="337" name="top_scripts_help"/>
 	<button label="Redémarrer la région" name="restart_btn" tool_tip="Redémarrer la région au bout de 2 minutes" width="160"/>
 	<button label="?" left="177" name="restart_help"/>
-	<button label="Retarder le redémarrage" name="cancel_restart_btn" tool_tip="Retarder le redémarrage de la région d&apos;une heure" width="160"/>
+	<button label="Annuler le redémarrage" name="cancel_restart_btn" tool_tip="Annuler le redémarrage de la région." width="160"/>
 </panel>

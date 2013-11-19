@@ -7,6 +7,7 @@ include(LLCommon)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
+    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
     )
 
 set(llmath_SOURCE_FILES
@@ -99,6 +100,10 @@ list(APPEND llmath_SOURCE_FILES ${llmath_HEADER_FILES})
 
 add_library (llmath ${llmath_SOURCE_FILES})
 
+target_link_libraries(llmath
+    ${LLCOMMON_LIBRARIES}
+    )
+
 # Add tests
 if (LL_TESTS)
   include(LLAddBuildTest)
@@ -117,6 +122,7 @@ if (LL_TESTS)
   # INTEGRATION TESTS
   set(test_libs llmath llcommon ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES})
   # TODO: Some of these need refactoring to be proper Unit tests rather than Integration tests.
+  LL_ADD_INTEGRATION_TEST(alignment "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llbbox llbbox.cpp "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llquaternion llquaternion.cpp "${test_libs}")
   LL_ADD_INTEGRATION_TEST(mathmisc "" "${test_libs}")

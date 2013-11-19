@@ -9,9 +9,6 @@
 	<floater.string name="scripts_score_label">
 		Время
 	</floater.string>
-	<floater.string name="scripts_mono_time_label">
-		Время моно
-	</floater.string>
 	<floater.string name="top_colliders_title">
 		Лучшие столкновения
 	</floater.string>
@@ -32,9 +29,10 @@
 		<scroll_list.columns label="Название" name="name"/>
 		<scroll_list.columns label="Владелец" name="owner"/>
 		<scroll_list.columns label="Место" name="location"/>
+		<scroll_list.columns label="Участок" name="parcel"/>
 		<scroll_list.columns label="Время" name="time"/>
-		<scroll_list.columns label="Время моно" name="mono_time"/>
 		<scroll_list.columns label="URL-адреса" name="URLs"/>
+		<scroll_list.columns label="Память (КБ)" name="memory"/>
 	</scroll_list>
 	<text name="id_text">
 		ID объекта:
@@ -48,6 +46,10 @@
 		Владелец:
 	</text>
 	<button label="Фильтр" name="filter_owner_btn"/>
+	<text name="parcel_name_text">
+		Участок:
+	</text>
+	<button label="Фильтр" name="filter_parcel_btn"/>
 	<button label="Вернуть выбранное" name="return_selected_btn"/>
 	<button label="Вернуть все" name="return_all_btn"/>
 	<button label="Отключить выбранное" name="disable_selected_btn"/>

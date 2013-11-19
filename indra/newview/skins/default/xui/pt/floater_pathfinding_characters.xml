@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_pathfinding_characters" title="Personagens do pathfinding">
+	<floater.string name="messaging_get_inprogress">
+		Procurando por personagens do pathfinding...
+	</floater.string>
+	<floater.string name="messaging_get_error">
+		Erro detectado ao procurar por personagens do pathfinding.
+	</floater.string>
+	<floater.string name="messaging_complete_none_found">
+		Nenhum personagem do pathfinding.
+	</floater.string>
+	<floater.string name="messaging_complete_available">
+		[NUM_SELECTED] personagens selecionados de [NUM_TOTAL].
+	</floater.string>
+	<floater.string name="messaging_not_enabled">
+		Esta região não está habilitada para pathfinding.
+	</floater.string>
+	<floater.string name="character_cpu_time">
+		[CPU_TIME] µs
+	</floater.string>
+	<floater.string name="character_owner_loading">
+		[Carregando]
+	</floater.string>
+	<floater.string name="character_owner_unknown">
+		[Desconhecido]
+	</floater.string>
+	<floater.string name="character_owner_group">
+		[grupo]
+	</floater.string>
+	<panel>
+		<scroll_list name="objects_scroll_list">
+			<scroll_list.columns label="Nome" name="name"/>
+			<scroll_list.columns label="Descrição" name="description"/>
+			<scroll_list.columns label="Proprietário" name="owner"/>
+			<scroll_list.columns label="CPU" name="cpu_time"/>
+			<scroll_list.columns label="Altitude" name="altitude"/>
+		</scroll_list>
+		<text name="messaging_status">
+			Personagens:
+		</text>
+		<button label="Atualizar lista" name="refresh_objects_list"/>
+		<button label="Selecionar tudo" name="select_all_objects"/>
+		<button label="Selecionar nenhum" name="select_none_objects"/>
+	</panel>
+	<panel>
+		<text name="actions_label">
+			Ações nos personagens selecionados:
+		</text>
+		<check_box label="Exibir baliza" name="show_beacon"/>
+		<check_box label="Exibir cápsula da física" name="show_physics_capsule"/>
+		<button label="Pegar" name="take_objects"/>
+		<button label="Pegar uma cópia" name="take_copy_objects"/>
+		<button label="Teletransportar-me até ele" name="teleport_me_to_object" tool_tip="Habilitado apenas quando um personagem é selecionado."/>
+		<button label="Devolver" name="return_objects"/>
+		<button label="Excluir" name="delete_objects"/>
+	</panel>
+</floater>

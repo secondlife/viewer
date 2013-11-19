@@ -193,8 +193,6 @@ void LLParcel::init(const LLUUID &owner_id,
 	mMediaWidth = 0;
 	mMediaHeight = 0;
 	setMediaCurrentURL(LLStringUtil::null);
-	mMediaURLFilterEnable = FALSE;
-	mMediaURLFilterList = LLSD::emptyArray();
 	mMediaAllowNavigate = TRUE;
 	mMediaURLTimeout = 0.0f;
 	mMediaPreventCameraZoom = FALSE;
@@ -207,7 +205,7 @@ void LLParcel::init(const LLUUID &owner_id,
 	mAABBMin.setVec(SOME_BIG_NUMBER, SOME_BIG_NUMBER, SOME_BIG_NUMBER);
 	mAABBMax.setVec(SOME_BIG_NEG_NUMBER, SOME_BIG_NEG_NUMBER, SOME_BIG_NEG_NUMBER);
 
-	mLocalID = 0;
+	mLocalID = INVALID_PARCEL_ID;
 
 	//mSimWidePrimCorrection = 0;
 	setMaxPrimCapacity((S32)(sim_object_limit * area / (F32)(REGION_WIDTH_METERS * REGION_WIDTH_METERS)));
@@ -336,38 +334,6 @@ void LLParcel::setMediaURLResetTimer(F32 time)
 	mMediaResetTimer.setTimerExpirySec(time);
 }
 
-void LLParcel::setMediaURLFilterList(LLSD list)
-{
-	// sanity check LLSD
-	// must be array of strings
-	if (!list.isArray())
-	{
-		return;
-	}
-
-	for (S32 i = 0; i < list.size(); i++)
-	{
-		if (!list[i].isString())
-			return;
-	}
-
-	// can't be too big
-	const S32 MAX_SIZE = 50;
-	if (list.size() > MAX_SIZE)
-	{
-		LLSD new_list = LLSD::emptyArray();
-
-		for (S32 i = 0; i < llmin(list.size(), MAX_SIZE); i++)
-		{
-			new_list.append(list[i]);
-		}
-
-		list = new_list;
-	}
-	
-	mMediaURLFilterList = list;
-}
-
 // virtual
 void LLParcel::setLocalID(S32 local_id)
 {
@@ -448,117 +414,6 @@ BOOL LLParcel::allowTerraformBy(const LLUUID &agent_id) const
 }
 
 
-bool LLParcel::isAgentBlockedFromParcel(LLParcel* parcelp,
-                                        const LLUUID& agent_id,
-                                        const uuid_vec_t& group_ids,
-                                        const BOOL is_agent_identified,
-                                        const BOOL is_agent_transacted,
-                                        const BOOL is_agent_ageverified)
-{
-    S32 current_group_access = parcelp->blockAccess(agent_id, LLUUID::null, is_agent_identified, is_agent_transacted, is_agent_ageverified);
-    S32 count;
-    bool is_allowed = (current_group_access == BA_ALLOWED) ? true: false;
-    LLUUID group_id;
-    
-    count = group_ids.size();
-    for (int i = 0; i < count && !is_allowed; i++)
-    {
-        group_id = group_ids[i];
-        current_group_access = parcelp->blockAccess(agent_id, group_id, is_agent_identified, is_agent_transacted, is_agent_ageverified);
-        
-        if (current_group_access == BA_ALLOWED) is_allowed = true;
-    }
-    
-    return !is_allowed;
-}
-
-BOOL LLParcel::isAgentBanned(const LLUUID& agent_id) const
-{
-	// Test ban list
-	if (mBanList.find(agent_id) != mBanList.end())
-	{
-		return TRUE;
-	}
-    
-    return FALSE;
-}
-
-S32 LLParcel::blockAccess(const LLUUID& agent_id, const LLUUID& group_id,
-                          const BOOL is_agent_identified,
-                          const BOOL is_agent_transacted,
-                          const BOOL is_agent_ageverified) const
-{
-    // Test ban list
-    if (isAgentBanned(agent_id))
-    {
-        return BA_BANNED;
-    }
-    
-    // Always allow owner on (unless he banned himself, useful for
-    // testing). We will also allow estate owners/managers in if they 
-    // are not explicitly banned.
-    if (agent_id == mOwnerID)
-    {
-        return BA_ALLOWED;
-    }
-    
-    // Special case when using pass list where group access is being restricted but not 
-    // using access list.	 In this case group members are allowed only if they buy a pass.
-    // We return BA_NOT_IN_LIST if not in list
-    BOOL passWithGroup = getParcelFlag(PF_USE_PASS_LIST) && !getParcelFlag(PF_USE_ACCESS_LIST) 
-    && getParcelFlag(PF_USE_ACCESS_GROUP) && !mGroupID.isNull() && group_id == mGroupID;
-    
-    
-    // Test group list
-    if (getParcelFlag(PF_USE_ACCESS_GROUP)
-        && !mGroupID.isNull()
-        && group_id == mGroupID
-        && !passWithGroup)
-    {
-        return BA_ALLOWED;
-    }
-    
-    // Test access list
-    if (getParcelFlag(PF_USE_ACCESS_LIST) || passWithGroup )
-    {
-        if (mAccessList.find(agent_id) != mAccessList.end())
-        {
-            return BA_ALLOWED;
-        }
-        
-        return BA_NOT_ON_LIST; 
-    }
-    
-    // If we're not doing any other limitations, all users
-    // can enter, unless
-    if (		 !getParcelFlag(PF_USE_ACCESS_GROUP)
-                 && !getParcelFlag(PF_USE_ACCESS_LIST))
-    { 
-        //If the land is group owned, and you are in the group, bypass these checks
-        if(getIsGroupOwned() && group_id == mGroupID)
-        {
-            return BA_ALLOWED;
-        }
-        
-        // Test for "payment" access levels
-        // Anonymous - No Payment Info on File
-        if(getParcelFlag(PF_DENY_ANONYMOUS) && !is_agent_identified && !is_agent_transacted)
-        {
-            return BA_NO_ACCESS_LEVEL;
-        }
-        // AgeUnverified - Not Age Verified
-        if(getParcelFlag(PF_DENY_AGEUNVERIFIED) && !is_agent_ageverified)
-        {
-			return BA_NOT_AGE_VERIFIED;
-        }
-    
-        return BA_ALLOWED;
-    }
-    
-    return BA_NOT_IN_GROUP;
-    
-}
-
 
 void LLParcel::setArea(S32 area, S32 sim_object_limit)
 {
@@ -622,34 +477,6 @@ BOOL LLParcel::importAccessEntry(std::istream& input_stream, LLAccessEntry* entr
     return input_stream.good();
 }
 
-BOOL LLParcel::importMediaURLFilter(std::istream& input_stream, std::string& url)
-{
-	skip_to_end_of_next_keyword("{", input_stream);
-
-	while(input_stream.good())
-	{
-		skip_comments_and_emptyspace(input_stream);
-		std::string line, keyword, value;
-		get_line(line, input_stream, MAX_STRING);
-		get_keyword_and_value(keyword, value, line);
-
-		if ("}" == keyword)
-		{
-			break;
-		}
-		else if ("url" == keyword)
-		{
-			url = value;
-		}
-		else
-		{
-			llwarns << "Unknown keyword in parcel media url filter section: <"
-					<< keyword << ">" << llendl;
-		}
-	}
-	return input_stream.good();
-}
-
 // Assumes we are in a block "ParcelData"
 void LLParcel::packMessage(LLMessageSystem* msg)
 {
@@ -696,8 +523,6 @@ void LLParcel::packMessage(LLSD& msg)
 	msg["media_allow_navigate"] = getMediaAllowNavigate();
 	msg["media_prevent_camera_zoom"] = getMediaPreventCameraZoom();
 	msg["media_url_timeout"] = getMediaURLTimeout();
-	msg["media_url_filter_enable"] = getMediaURLFilterEnable();
-	msg["media_url_filter_list"] = getMediaURLFilterList();
 	msg["group_id"] = getGroupID();
 	msg["pass_price"] = mPassPrice;
 	msg["pass_hours"] = mPassHours;
@@ -789,7 +614,6 @@ void LLParcel::unpackMessage(LLMessageSystem* msg)
 		msg->getString("MediaLinkSharing", "MediaCurrentURL", buffer);
 		setMediaCurrentURL(buffer);
 		msg->getU8 ( "MediaLinkSharing", "MediaAllowNavigate", mMediaAllowNavigate );
-		msg->getU8 ( "MediaLinkSharing", "MediaURLFilterEnable", mMediaURLFilterEnable );
 		msg->getU8 ( "MediaLinkSharing", "MediaPreventCameraZoom", mMediaPreventCameraZoom );
 		msg->getF32( "MediaLinkSharing", "MediaURLTimeout", mMediaURLTimeout);
 	}
@@ -1250,8 +1074,6 @@ void LLParcel::clearParcel()
 	mMediaWidth = 0;
 	mMediaHeight = 0;
 	setMediaCurrentURL(LLStringUtil::null);
-	setMediaURLFilterList(LLSD::emptyArray());
-	setMediaURLFilterEnable(FALSE);
 	setMediaAllowNavigate(TRUE);
 	setMediaPreventCameraZoom(FALSE);
 	setMediaURLTimeout(0.0f);

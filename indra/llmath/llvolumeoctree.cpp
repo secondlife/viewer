@@ -94,14 +94,14 @@ void LLVolumeOctreeListener::handleChildAddition(const LLOctreeNode<LLVolumeTria
 
 LLOctreeTriangleRayIntersect::LLOctreeTriangleRayIntersect(const LLVector4a& start, const LLVector4a& dir, 
 							   const LLVolumeFace* face, F32* closest_t,
-							   LLVector3* intersection,LLVector2* tex_coord, LLVector3* normal, LLVector3* bi_normal)
+							   LLVector4a* intersection,LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
    : mFace(face),
      mStart(start),
 	 mDir(dir),
 	 mIntersection(intersection),
 	 mTexCoord(tex_coord),
 	 mNormal(normal),
-	 mBinormal(bi_normal),
+	 mTangent(tangent),
 	 mClosestT(closest_t),
 	 mHitFace(false)
 {
@@ -112,13 +112,7 @@ void LLOctreeTriangleRayIntersect::traverse(const LLOctreeNode<LLVolumeTriangle>
 {
 	LLVolumeOctreeListener* vl = (LLVolumeOctreeListener*) node->getListener(0);
 
-	/*const F32* start = mStart.getF32();
-	const F32* end = mEnd.getF32();
-	const F32* center = vl->mBounds[0].getF32();
-	const F32* size = vl->mBounds[1].getF32();*/
-
-	//if (LLLineSegmentBoxIntersect(mStart, mEnd, vl->mBounds[0], vl->mBounds[1]))
-	if (LLLineSegmentBoxIntersect(mStart.getF32ptr(), mEnd.getF32ptr(), vl->mBounds[0].getF32ptr(), vl->mBounds[1].getF32ptr()))
+	if (LLLineSegmentBoxIntersect(mStart, mEnd, vl->mBounds[0], vl->mBounds[1]))
 	{
 		node->accept(this);
 		for (S32 i = 0; i < node->getChildCount(); ++i)
@@ -131,7 +125,7 @@ void LLOctreeTriangleRayIntersect::traverse(const LLOctreeNode<LLVolumeTriangle>
 void LLOctreeTriangleRayIntersect::visit(const LLOctreeNode<LLVolumeTriangle>* node)
 {
 	for (LLOctreeNode<LLVolumeTriangle>::const_element_iter iter = 
-			node->getData().begin(); iter != node->getData().end(); ++iter)
+			node->getDataBegin(); iter != node->getDataEnd(); ++iter)
 	{
 		const LLVolumeTriangle* tri = *iter;
 
@@ -152,34 +146,60 @@ void LLOctreeTriangleRayIntersect::visit(const LLOctreeNode<LLVolumeTriangle>* n
 					LLVector4a intersect = mDir;
 					intersect.mul(*mClosestT);
 					intersect.add(mStart);
-					mIntersection->set(intersect.getF32ptr());
+					*mIntersection = intersect;
 				}
 
+				U32 idx0 = tri->mIndex[0];
+				U32 idx1 = tri->mIndex[1];
+				U32 idx2 = tri->mIndex[2];
 
 				if (mTexCoord != NULL)
 				{
 					LLVector2* tc = (LLVector2*) mFace->mTexCoords;
-					*mTexCoord = ((1.f - a - b)  * tc[tri->mIndex[0]] +
-						a              * tc[tri->mIndex[1]] +
-						b              * tc[tri->mIndex[2]]);
+					*mTexCoord = ((1.f - a - b)  * tc[idx0] +
+						a              * tc[idx1] +
+						b              * tc[idx2]);
 
 				}
 
 				if (mNormal != NULL)
 				{
-					LLVector4* norm = (LLVector4*) mFace->mNormals;
+					LLVector4a* norm = mFace->mNormals;
+								
+					LLVector4a n1,n2,n3;
+					n1 = norm[idx0];
+					n1.mul(1.f-a-b);
+								
+					n2 = norm[idx1];
+					n2.mul(a);
+								
+					n3 = norm[idx2];
+					n3.mul(b);
 
-					*mNormal    = ((1.f - a - b)  * LLVector3(norm[tri->mIndex[0]]) + 
-						a              * LLVector3(norm[tri->mIndex[1]]) +
-						b              * LLVector3(norm[tri->mIndex[2]]));
+					n1.add(n2);
+					n1.add(n3);
+								
+					*mNormal		= n1; 
 				}
 
-				if (mBinormal != NULL)
+				if (mTangent != NULL)
 				{
-					LLVector4* binormal = (LLVector4*) mFace->mBinormals;
-					*mBinormal = ((1.f - a - b)  * LLVector3(binormal[tri->mIndex[0]]) + 
-							a              * LLVector3(binormal[tri->mIndex[1]]) +
-							b              * LLVector3(binormal[tri->mIndex[2]]));
+					LLVector4a* tangents = mFace->mTangents;
+								
+					LLVector4a t1,t2,t3;
+					t1 = tangents[idx0];
+					t1.mul(1.f-a-b);
+								
+					t2 = tangents[idx1];
+					t2.mul(a);
+								
+					t3 = tangents[idx2];
+					t3.mul(b);
+
+					t1.add(t2);
+					t1.add(t3);
+								
+					*mTangent = t1; 
 				}
 			}
 		}
@@ -236,8 +256,8 @@ void LLVolumeOctreeValidate::visit(const LLOctreeNode<LLVolumeTriangle>* branch)
 	}
 
 	//children fit, check data
-	for (LLOctreeNode<LLVolumeTriangle>::const_element_iter iter = branch->getData().begin(); 
-			iter != branch->getData().end(); ++iter)
+	for (LLOctreeNode<LLVolumeTriangle>::const_element_iter iter = branch->getDataBegin(); 
+			iter != branch->getDataEnd(); ++iter)
 	{
 		const LLVolumeTriangle* tri = *iter;
 

@@ -118,7 +118,9 @@ public:
 
 	void dirtyAllObjectInventory();
 
+	void removeFromActiveList(LLViewerObject* objectp);
 	void updateActive(LLViewerObject *objectp);
+	
 	void updateAvatarVisibility();
 
 	// Selection related stuff
@@ -127,6 +129,7 @@ public:
 	LLViewerObject *getSelectedObject(const U32 object_id);
 
 	inline S32 getNumObjects() { return (S32) mObjects.size(); }
+	inline S32 getNumActiveObjects() { return (S32) mActiveObjects.size(); }
 
 	void addToMap(LLViewerObject *objectp);
 	void removeFromMap(LLViewerObject *objectp);
@@ -185,17 +188,18 @@ public:
 
 	S32 mNumUnknownUpdates;
 	S32 mNumDeadObjectUpdates;
-	S32 mNumUnknownKills;
 	S32 mNumDeadObjects;
 protected:
 	std::vector<U64>	mOrphanParents;	// LocalID/ip,port of orphaned objects
 	std::vector<OrphanInfo> mOrphanChildren;	// UUID's of orphaned objects
 	S32 mNumOrphans;
 
+	static LLStat sCacheHitRate;
+
 	typedef std::vector<LLPointer<LLViewerObject> > vobj_list_t;
 
 	vobj_list_t mObjects;
-	std::set<LLPointer<LLViewerObject> > mActiveObjects;
+	std::vector<LLPointer<LLViewerObject> > mActiveObjects;
 
 	vobj_list_t mMapObjects;
 

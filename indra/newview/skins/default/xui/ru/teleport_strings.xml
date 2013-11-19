@@ -45,6 +45,9 @@
 		<message name="no_inventory_host">
 			Система инвентаря сейчас недоступна.
 		</message>
+		<message name="MustGetAgeRegion">
+			Входить в этот регион могут только жители 18 лет и старше.
+		</message>
 	</message_set>
 	<message_set name="progress">
 		<message name="sending_dest">
@@ -79,6 +82,9 @@
 		</message>
 		<message name="requesting">
 			Запрос телепортации…
+		</message>
+		<message name="pending">
+			Телепортация не закончена...
 		</message>
 	</message_set>
 </teleport_messages>

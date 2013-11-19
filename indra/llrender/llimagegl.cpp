@@ -42,8 +42,11 @@
 //----------------------------------------------------------------------------
 const F32 MIN_TEXTURE_LIFETIME = 10.f;
 
+//which power of 2 is i?
+//assumes i is a power of 2 > 0
+U32 wpo2(U32 i);
+
 //statics
-LLGLuint LLImageGL::sCurrentBoundTextures[MAX_GL_TEXTURE_UNITS] = { 0 };
 
 U32 LLImageGL::sUniqueCount				= 0;
 U32 LLImageGL::sBindCount				= 0;
@@ -51,12 +54,12 @@ S32 LLImageGL::sGlobalTextureMemoryInBytes		= 0;
 S32 LLImageGL::sBoundTextureMemoryInBytes		= 0;
 S32 LLImageGL::sCurBoundTextureMemory	= 0;
 S32 LLImageGL::sCount					= 0;
-std::list<U32> LLImageGL::sDeadTextureList;
 
 BOOL LLImageGL::sGlobalUseAnisotropic	= FALSE;
 F32 LLImageGL::sLastFrameTime			= 0.f;
 BOOL LLImageGL::sAllowReadBackRaw       = FALSE ;
 LLImageGL* LLImageGL::sDefaultGLTexture = NULL ;
+bool LLImageGL::sCompressTextures = false;
 
 std::set<LLImageGL*> LLImageGL::sImageList;
 
@@ -65,19 +68,13 @@ std::set<LLImageGL*> LLImageGL::sImageList;
 //****************************************************************************************************
 //-----------------------
 //debug use
-BOOL gAuditTexture = FALSE ;
-#define MAX_TEXTURE_LOG_SIZE 22 //2048 * 2048
-std::vector<S32> LLImageGL::sTextureLoadedCounter(MAX_TEXTURE_LOG_SIZE + 1) ;
-std::vector<S32> LLImageGL::sTextureBoundCounter(MAX_TEXTURE_LOG_SIZE + 1) ;
-std::vector<S32> LLImageGL::sTextureCurBoundCounter(MAX_TEXTURE_LOG_SIZE + 1) ;
 S32 LLImageGL::sCurTexSizeBar = -1 ;
 S32 LLImageGL::sCurTexPickSize = -1 ;
-LLPointer<LLImageGL> LLImageGL::sHighlightTexturep = NULL;
-S32 LLImageGL::sMaxCatagories = 1 ;
+S32 LLImageGL::sMaxCategories = 1 ;
 
-std::vector<S32> LLImageGL::sTextureMemByCategory;
-std::vector<S32> LLImageGL::sTextureMemByCategoryBound ;
-std::vector<S32> LLImageGL::sTextureCurMemByCategoryBound ;
+//optimization for when we don't need to calculate mIsMask
+BOOL LLImageGL::sSkipAnalyzeAlpha;
+
 //------------------------
 //****************************************************************************************************
 //End for texture auditing use only
@@ -173,51 +170,14 @@ BOOL is_little_endian()
 	return (*c == 0x78) ;
 }
 //static 
-void LLImageGL::initClass(S32 num_catagories) 
+void LLImageGL::initClass(S32 num_catagories, BOOL skip_analyze_alpha /* = false */)
 {
-	sMaxCatagories = num_catagories ;
-
-	sTextureMemByCategory.resize(sMaxCatagories);
-	sTextureMemByCategoryBound.resize(sMaxCatagories) ;
-	sTextureCurMemByCategoryBound.resize(sMaxCatagories) ;
+	sSkipAnalyzeAlpha = skip_analyze_alpha;
 }
 
 //static 
 void LLImageGL::cleanupClass() 
 {	
-	sTextureMemByCategory.clear() ;
-	sTextureMemByCategoryBound.clear() ;
-	sTextureCurMemByCategoryBound.clear() ;
-}
-
-//static 
-void LLImageGL::setHighlightTexture(S32 category) 
-{
-	const S32 dim = 128;
-	sHighlightTexturep = new LLImageGL() ;
-	LLPointer<LLImageRaw> image_raw = new LLImageRaw(dim,dim,3);
-	U8* data = image_raw->getData();
-	for (S32 i = 0; i<dim; i++)
-	{
-		for (S32 j = 0; j<dim; j++)
-		{
-			const S32 border = 2;
-			if (i<border || j<border || i>=(dim-border) || j>=(dim-border))
-			{
-				*data++ = 0xff;
-				*data++ = 0xff;
-				*data++ = 0xff;
-			}
-			else
-			{
-				*data++ = 0xff;
-				*data++ = 0xff;
-				*data++ = 0x00;
-			}
-		}
-	}
-	sHighlightTexturep->createGLTexture(0, image_raw, 0, TRUE, category);
-	image_raw = NULL;
 }
 
 //static
@@ -279,37 +239,19 @@ S32 LLImageGL::dataFormatComponents(S32 dataformat)
 
 //----------------------------------------------------------------------------
 
+static LLFastTimer::DeclareTimer FTM_IMAGE_UPDATE_STATS("Image Stats");
 // static
 void LLImageGL::updateStats(F32 current_time)
 {
+	LLFastTimer t(FTM_IMAGE_UPDATE_STATS);
 	sLastFrameTime = current_time;
 	sBoundTextureMemoryInBytes = sCurBoundTextureMemory;
 	sCurBoundTextureMemory = 0;
-
-	if(gAuditTexture)
-	{
-		for(U32 i = 0 ; i < sTextureCurBoundCounter.size() ; i++)
-		{
-			sTextureBoundCounter[i] = sTextureCurBoundCounter[i] ;
-			sTextureCurBoundCounter[i] = 0 ;
-		}
-		for(U32 i = 0 ; i < sTextureCurMemByCategoryBound.size() ; i++)
-		{
-			sTextureMemByCategoryBound[i] = sTextureCurMemByCategoryBound[i] ;
-			sTextureCurMemByCategoryBound[i] = 0 ;
-		}
-	}
 }
 
 //static
 S32 LLImageGL::updateBoundTexMem(const S32 mem, const S32 ncomponents, S32 category)
 {
-	if(gAuditTexture && ncomponents > 0 && category > -1)
-	{
-		sTextureCurBoundCounter[getTextureCounterIndex(mem / ncomponents)]++ ;
-		sTextureCurMemByCategoryBound[category] += mem ;
-	}
-	
 	LLImageGL::sCurBoundTextureMemory += mem ;
 	return LLImageGL::sCurBoundTextureMemory;
 }
@@ -477,10 +419,13 @@ void LLImageGL::init(BOOL usemipmaps)
 	mDiscardLevelInAtlas = -1 ;
 	mTexelsInAtlas = 0 ;
 	mTexelsInGLTexture = 0 ;
+
+	mAllowCompression = true;
 	
 	mTarget = GL_TEXTURE_2D;
 	mBindTarget = LLTexUnit::TT_TEXTURE;
 	mHasMipMaps = false;
+	mMipLevels = -1;
 
 	mIsResident = 0;
 
@@ -535,7 +480,7 @@ bool LLImageGL::checkSize(S32 width, S32 height)
 	return check_power_of_two(width) && check_power_of_two(height);
 }
 
-void LLImageGL::setSize(S32 width, S32 height, S32 ncomponents)
+void LLImageGL::setSize(S32 width, S32 height, S32 ncomponents, S32 discard_level)
 {
 	if (width != mWidth || height != mHeight || ncomponents != mComponents)
 	{
@@ -567,6 +512,11 @@ void LLImageGL::setSize(S32 width, S32 height, S32 ncomponents)
 				mMaxDiscardLevel++;
 				width >>= 1;
 				height >>= 1;
+			}
+
+			if(discard_level > 0)
+			{
+				mMaxDiscardLevel = llmax(mMaxDiscardLevel, (S8)discard_level);
 			}
 		}
 		else
@@ -663,15 +613,33 @@ void LLImageGL::setImage(const LLImageRaw* imageraw)
 	setImage(rawdata, FALSE);
 }
 
+static LLFastTimer::DeclareTimer FTM_SET_IMAGE("setImage");
 void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 {
+	LLFastTimer t(FTM_SET_IMAGE);
 	bool is_compressed = false;
 	if (mFormatPrimary >= GL_COMPRESSED_RGBA_S3TC_DXT1_EXT && mFormatPrimary <= GL_COMPRESSED_RGBA_S3TC_DXT5_EXT)
 	{
 		is_compressed = true;
 	}
-
+	
+	
+	
+	if (mUseMipMaps)
+	{
+		//set has mip maps to true before binding image so tex parameters get set properly
+		gGL.getTexUnit(0)->unbind(mBindTarget);
+		mHasMipMaps = true;
+		mTexOptionsDirty = true;
+		setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
+	}
+	else
+	{
+		mHasMipMaps = false;
+	}
+	
 	llverify(gGL.getTexUnit(0)->bind(this));
+	
 	
 	if (mUseMipMaps)
 	{
@@ -685,6 +653,9 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 				S32 w = getWidth(d);
 				S32 h = getHeight(d);
 				S32 gl_level = d-mCurrentDiscardLevel;
+
+				mMipLevels = llmax(mMipLevels, gl_level);
+
 				if (d > mCurrentDiscardLevel)
 				{
 					data_in -= dataFormatBytes(mFormatPrimary, w, h); // see above comment
@@ -705,7 +676,7 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 						stop_glerror();
 					}
 						
-					LLImageGL::setManualImage(mTarget, gl_level, mFormatInternal, w, h, mFormatPrimary, GL_UNSIGNED_BYTE, (GLvoid*)data_in);
+					LLImageGL::setManualImage(mTarget, gl_level, mFormatInternal, w, h, mFormatPrimary, GL_UNSIGNED_BYTE, (GLvoid*)data_in, mAllowCompression);
 					if (gl_level == 0)
 					{
 						analyzeAlpha(data_in, w, h);
@@ -727,10 +698,6 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 		{
 			if (mAutoGenMips)
 			{
-				if (!gGLManager.mHasFramebufferObject)
-				{
-					glTexParameteri(LLTexUnit::getInternalType(mBindTarget), GL_GENERATE_MIPMAP_SGIS, TRUE);
-				}
 				stop_glerror();
 				{
 // 					LLFastTimer t2(FTM_TEMP4);
@@ -744,10 +711,20 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 					S32 w = getWidth(mCurrentDiscardLevel);
 					S32 h = getHeight(mCurrentDiscardLevel);
 
+					mMipLevels = wpo2(llmax(w, h));
+
+					//use legacy mipmap generation mode (note: making this condional can cause rendering issues)
+					// -- but making it not conditional triggers deprecation warnings when core profile is enabled
+					//		(some rendering issues while core profile is enabled are acceptable at this point in time)
+					if (!LLRender::sGLCoreProfile)
+					{
+						glTexParameteri(mTarget, GL_GENERATE_MIPMAP, GL_TRUE);
+					}
+
 					LLImageGL::setManualImage(mTarget, 0, mFormatInternal,
 								 w, h, 
 								 mFormatPrimary, mFormatType,
-								 data_in);
+								 data_in, mAllowCompression);
 					analyzeAlpha(data_in, w, h);
 					stop_glerror();
 
@@ -758,45 +735,67 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 						glPixelStorei(GL_UNPACK_SWAP_BYTES, 0);
 						stop_glerror();
 					}
-				}
 
-				if (gGLManager.mHasFramebufferObject)
-				{
-					glGenerateMipmap(LLTexUnit::getInternalType(mBindTarget));
+					if (LLRender::sGLCoreProfile)
+					{
+						glGenerateMipmap(mTarget);
+					}	
+					stop_glerror();
 				}
 			}
 			else
 			{
 				// Create mips by hand
-				// about 30% faster than autogen on ATI 9800, 50% slower on nVidia 4800
 				// ~4x faster than gluBuild2DMipmaps
 				S32 width = getWidth(mCurrentDiscardLevel);
 				S32 height = getHeight(mCurrentDiscardLevel);
 				S32 nummips = mMaxDiscardLevel - mCurrentDiscardLevel + 1;
 				S32 w = width, h = height;
+
+
+				const U8* new_data = 0;
+				(void)new_data;
+
 				const U8* prev_mip_data = 0;
 				const U8* cur_mip_data = 0;
-				S32 prev_mip_size = 0;
+#ifdef SHOW_ASSERT
 				S32 cur_mip_size = 0;
+#endif
+				mMipLevels = nummips;
+
 				for (int m=0; m<nummips; m++)
 				{
 					if (m==0)
 					{
 						cur_mip_data = data_in;
+#ifdef SHOW_ASSERT
 						cur_mip_size = width * height * mComponents; 
+#endif
 					}
 					else
 					{
 						S32 bytes = w * h * mComponents;
+#ifdef SHOW_ASSERT
 						llassert(prev_mip_data);
-						llassert(prev_mip_size == bytes*4);
+						llassert(cur_mip_size == bytes*4);
+#endif
 						U8* new_data = new U8[bytes];
+
+#ifdef SHOW_ASSERT
+						llassert(prev_mip_data);
+						llassert(cur_mip_size == bytes*4);
 						llassert_always(new_data);
+#endif
+
 						LLImageBase::generateMip(prev_mip_data, new_data, w, h, mComponents);
 						cur_mip_data = new_data;
+#ifdef SHOW_ASSERT
 						cur_mip_size = bytes; 
+#endif
+
 					}
 					llassert(w > 0 && h > 0 && cur_mip_data);
+					(void)cur_mip_data;
 					{
 // 						LLFastTimer t1(FTM_TEMP4);
 						if(mFormatSwapBytes)
@@ -805,7 +804,7 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 							stop_glerror();
 						}
 
-						LLImageGL::setManualImage(mTarget, m, mFormatInternal, w, h, mFormatPrimary, mFormatType, cur_mip_data);
+						LLImageGL::setManualImage(mTarget, m, mFormatInternal, w, h, mFormatPrimary, mFormatType, cur_mip_data, mAllowCompression);
 						if (m == 0)
 						{
 							analyzeAlpha(data_in, w, h);
@@ -827,7 +826,6 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 						delete[] prev_mip_data;
 					}
 					prev_mip_data = cur_mip_data;
-					prev_mip_size = cur_mip_size;
 					w >>= 1;
 					h >>= 1;
 				}
@@ -842,10 +840,10 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 		{
 			llerrs << "Compressed Image has mipmaps but data does not (can not auto generate compressed mips)" << llendl;
 		}
-		mHasMipMaps = true;
 	}
 	else
 	{
+		mMipLevels = 0;
 		S32 w = getWidth();
 		S32 h = getHeight();
 		if (is_compressed)
@@ -863,7 +861,7 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 			}
 
 			LLImageGL::setManualImage(mTarget, 0, mFormatInternal, w, h,
-						 mFormatPrimary, mFormatType, (GLvoid *)data_in);
+						 mFormatPrimary, mFormatType, (GLvoid *)data_in, mAllowCompression);
 			analyzeAlpha(data_in, w, h);
 			
 			updatePickMask(w, h, data_in);
@@ -877,7 +875,6 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 			}
 
 		}
-		mHasMipMaps = false;
 	}
 	stop_glerror();
 	mGLTextureCreated = true;
@@ -901,14 +898,13 @@ BOOL LLImageGL::preAddToAtlas(S32 discard_level, const LLImageRaw* raw_image)
 		llassert(mCurrentDiscardLevel >= 0);
 		discard_level = mCurrentDiscardLevel;
 	}
-	discard_level = llclamp(discard_level, 0, (S32)mMaxDiscardLevel);
-
+	
 	// Actual image width/height = raw image width/height * 2^discard_level
 	S32 w = raw_image->getWidth() << discard_level;
 	S32 h = raw_image->getHeight() << discard_level;
 
 	// setSize may call destroyGLTexture if the size does not match
-	setSize(w, h, raw_image->getComponents());
+	setSize(w, h, raw_image->getComponents(), discard_level);
 
 	if( !mHasExplicitFormat )
 	{
@@ -1090,28 +1086,27 @@ BOOL LLImageGL::setSubImageFromFrameBuffer(S32 fb_x, S32 fb_y, S32 x_pos, S32 y_
 }
 
 // static
+static LLFastTimer::DeclareTimer FTM_GENERATE_TEXTURES("generate textures");
 void LLImageGL::generateTextures(S32 numTextures, U32 *textures)
 {
-	glGenTextures(numTextures, (GLuint*)textures);
+	LLFastTimer t(FTM_GENERATE_TEXTURES);
+	glGenTextures(numTextures, textures);
 }
 
 // static
-void LLImageGL::deleteTextures(S32 numTextures, U32 *textures, bool immediate)
+void LLImageGL::deleteTextures(S32 numTextures, U32 *textures)
 {
-	for (S32 i = 0; i < numTextures; i++)
+	if (gGLManager.mInited)
 	{
-		sDeadTextureList.push_back(textures[i]);
-	}
-
-	if (immediate)
-	{
-		LLImageGL::deleteDeadTextures();
+		glDeleteTextures(numTextures, textures);
 	}
 }
 
 // static
-void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 width, S32 height, U32 pixformat, U32 pixtype, const void *pixels)
+static LLFastTimer::DeclareTimer FTM_SET_MANUAL_IMAGE("setManualImage");
+void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 width, S32 height, U32 pixformat, U32 pixtype, const void *pixels, bool allow_compression)
 {
+	LLFastTimer t(FTM_SET_MANUAL_IMAGE);
 	bool use_scratch = false;
 	U32* scratch = NULL;
 	if (LLRender::sGLCoreProfile)
@@ -1173,6 +1168,36 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
 		}
 	}
 
+	if (LLImageGL::sCompressTextures && allow_compression)
+	{
+		switch (intformat)
+		{
+			case GL_RGB: 
+			case GL_RGB8:
+				intformat = GL_COMPRESSED_RGB; 
+				break;
+			case GL_RGBA:
+			case GL_RGBA8:
+				intformat = GL_COMPRESSED_RGBA; 
+				break;
+			case GL_LUMINANCE:
+			case GL_LUMINANCE8:
+				intformat = GL_COMPRESSED_LUMINANCE;
+				break;
+			case GL_LUMINANCE_ALPHA:
+			case GL_LUMINANCE8_ALPHA8:
+				intformat = GL_COMPRESSED_LUMINANCE_ALPHA;
+				break;
+			case GL_ALPHA:
+			case GL_ALPHA8:
+				intformat = GL_COMPRESSED_ALPHA;
+				break;
+			default:
+				llwarns << "Could not compress format: " << std::hex << intformat << llendl;
+				break;
+		}
+	}
+
 	stop_glerror();
 	glTexImage2D(target, miplevel, intformat, width, height, 0, pixformat, pixtype, use_scratch ? scratch : pixels);
 	stop_glerror();
@@ -1185,9 +1210,10 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
 
 //create an empty GL texture: just create a texture name
 //the texture is assiciate with some image by calling glTexImage outside LLImageGL
+static LLFastTimer::DeclareTimer FTM_CREATE_GL_TEXTURE1("createGLTexture()");
 BOOL LLImageGL::createGLTexture()
 {
-	if (gHeadlessClient) return FALSE;
+	LLFastTimer t(FTM_CREATE_GL_TEXTURE1);
 	if (gGLManager.mIsDisabled)
 	{
 		llwarns << "Trying to create a texture while GL is disabled!" << llendl;
@@ -1201,10 +1227,11 @@ BOOL LLImageGL::createGLTexture()
 
 	if(mTexName)
 	{
-		glDeleteTextures(1, (reinterpret_cast<GLuint*>(&mTexName))) ;
+		LLImageGL::deleteTextures(1, (reinterpret_cast<GLuint*>(&mTexName))) ;
 	}
 	
-	glGenTextures(1, (GLuint*)&mTexName);
+
+	LLImageGL::generateTextures(1, &mTexName);
 	stop_glerror();
 	if (!mTexName)
 	{
@@ -1214,9 +1241,10 @@ BOOL LLImageGL::createGLTexture()
 	return TRUE ;
 }
 
+static LLFastTimer::DeclareTimer FTM_CREATE_GL_TEXTURE2("createGLTexture(raw)");
 BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename/*=0*/, BOOL to_create, S32 category)
 {
-	if (gHeadlessClient) return FALSE;
+	LLFastTimer t(FTM_CREATE_GL_TEXTURE2);
 	if (gGLManager.mIsDisabled)
 	{
 		llwarns << "Trying to create a texture while GL is disabled!" << llendl;
@@ -1232,8 +1260,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
 		llassert(mCurrentDiscardLevel >= 0);
 		discard_level = mCurrentDiscardLevel;
 	}
-	discard_level = llclamp(discard_level, 0, (S32)mMaxDiscardLevel);
-
+	
 	// Actual image width/height = raw image width/height * 2^discard_level
 	S32 raw_w = imageraw->getWidth() ;
 	S32 raw_h = imageraw->getHeight() ;
@@ -1241,7 +1268,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
 	S32 h = raw_h << discard_level;
 
 	// setSize may call destroyGLTexture if the size does not match
-	setSize(w, h, imageraw->getComponents());
+	setSize(w, h, imageraw->getComponents(), discard_level);
 
 	if( !mHasExplicitFormat )
 	{
@@ -1284,13 +1311,15 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
 		return TRUE ;
 	}
 
-	setCategory(category) ;
+	setCategory(category);
  	const U8* rawdata = imageraw->getData();
 	return createGLTexture(discard_level, rawdata, FALSE, usename);
 }
 
+static LLFastTimer::DeclareTimer FTM_CREATE_GL_TEXTURE3("createGLTexture3(data)");
 BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_hasmips, S32 usename)
 {
+	LLFastTimer t(FTM_CREATE_GL_TEXTURE3);
 	llassert(data_in);
 	stop_glerror();
 
@@ -1362,11 +1391,6 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
 	{
 		sGlobalTextureMemoryInBytes -= mTextureMemory;
 
-		if(gAuditTexture)
-		{
-			decTextureCounter(mTextureMemory, mComponents, mCategory) ;
-		}
-
 		LLImageGL::deleteTextures(1, &old_name);
 
 		stop_glerror();
@@ -1376,10 +1400,6 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
 	sGlobalTextureMemoryInBytes += mTextureMemory;
 	mTexelsInGLTexture = getWidth() * getHeight() ;
 
-	if(gAuditTexture)
-	{
-		incTextureCounter(mTextureMemory, mComponents, mCategory) ;
-	}
 	// mark this as bound at this point, so we don't throw it out immediately
 	mLastBindTime = sLastFrameTime;
 	return TRUE;
@@ -1500,30 +1520,6 @@ void LLImageGL::deleteDeadTextures()
 {
 	bool reset = false;
 
-	while (!sDeadTextureList.empty())
-	{
-		GLuint tex = sDeadTextureList.front();
-		sDeadTextureList.pop_front();
-		for (int i = 0; i < gGLManager.mNumTextureImageUnits; i++)
-		{
-			LLTexUnit* tex_unit = gGL.getTexUnit(i);
-
-			if (tex_unit && tex_unit->getCurrTexture() == tex)
-			{
-				tex_unit->unbind(tex_unit->getCurrType());
-				stop_glerror();
-
-				if (i > 0)
-				{
-					reset = true;
-				}
-			}
-		}
-		
-		glDeleteTextures(1, &tex);
-		stop_glerror();
-	}
-
 	if (reset)
 	{
 		gGL.getTexUnit(0)->activate();
@@ -1536,22 +1532,29 @@ void LLImageGL::destroyGLTexture()
 	{
 		if(mTextureMemory)
 		{
-			if(gAuditTexture)
-			{
-				decTextureCounter(mTextureMemory, mComponents, mCategory) ;
-			}
 			sGlobalTextureMemoryInBytes -= mTextureMemory;
 			mTextureMemory = 0;
 		}
 		
 		LLImageGL::deleteTextures(1, &mTexName);			
-		mTexName = 0;
 		mCurrentDiscardLevel = -1 ; //invalidate mCurrentDiscardLevel.
+		mTexName = 0;		
 		mGLTextureCreated = FALSE ;
-	}
+	}	
 }
 
-
+//force to invalidate the gl texture, most likely a sculpty texture
+void LLImageGL::forceToInvalidateGLTexture()
+{
+	if (mTexName != 0)
+	{
+		destroyGLTexture();
+	}
+	else
+	{
+		mCurrentDiscardLevel = -1 ; //invalidate mCurrentDiscardLevel.
+	}
+}
 
 //----------------------------------------------------------------------------
 
@@ -1669,6 +1672,12 @@ BOOL LLImageGL::getBoundRecently() const
 	return (BOOL)(sLastFrameTime - mLastBindTime < MIN_TEXTURE_LIFETIME);
 }
 
+BOOL LLImageGL::getIsAlphaMask() const
+{
+	llassert_always(!sSkipAnalyzeAlpha);
+	return mIsMask;
+}
+
 void LLImageGL::setTarget(const LLGLenum target, const LLTexUnit::eTextureType bind_target)
 {
 	mTarget = target;
@@ -1766,7 +1775,7 @@ void LLImageGL::calcAlphaChannelOffsetAndStride()
 
 void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
 {
-	if(!mNeedsAlphaAndPickMask)
+	if(sSkipAnalyzeAlpha || !mNeedsAlphaAndPickMask)
 	{
 		return ;
 	}
@@ -1967,70 +1976,6 @@ BOOL LLImageGL::getMask(const LLVector2 &tc)
 	}
 	
 	return res;
-}
-
-void LLImageGL::setCategory(S32 category) 
-{
-#if 0 //turn this off temporarily because it is not in use now.
-	if(!gAuditTexture)
-	{
-		return ;
-	}
-	if(mCategory != category)
-	{		
-		if(mCategory > -1)
-		{
-			sTextureMemByCategory[mCategory] -= mTextureMemory ;
-		}
-		if(category > -1 && category < sMaxCatagories)
-		{
-			sTextureMemByCategory[category] += mTextureMemory ;		
-			mCategory = category;
-		}
-		else
-		{
-			mCategory = -1 ;
-		}
-	}
-#endif
-}
-
-//for debug use 
-//val is a "power of two" number
-S32 LLImageGL::getTextureCounterIndex(U32 val) 
-{
-	//index range is [0, MAX_TEXTURE_LOG_SIZE].
-	if(val < 2)
-	{
-		return 0 ;
-	}
-	else if(val >= (1 << MAX_TEXTURE_LOG_SIZE))
-	{
-		return MAX_TEXTURE_LOG_SIZE ;
-	}
-	else
-	{
-		S32 ret = 0 ;
-		while(val >>= 1)
-		{
-			++ret;
-		}
-		return ret ;
-	}
-}
-
-//static
-void LLImageGL::incTextureCounter(U32 val, S32 ncomponents, S32 category) 
-{
-	sTextureLoadedCounter[getTextureCounterIndex(val)]++ ;
-	sTextureMemByCategory[category] += (S32)val * ncomponents ;
-}
-
-//static
-void LLImageGL::decTextureCounter(U32 val, S32 ncomponents, S32 category) 
-{
-	sTextureLoadedCounter[getTextureCounterIndex(val)]-- ;
-	sTextureMemByCategory[category] += (S32)val * ncomponents ;
 }
 
 void LLImageGL::setCurTexSizebar(S32 index, BOOL set_pick_size)

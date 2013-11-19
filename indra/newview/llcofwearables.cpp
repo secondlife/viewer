@@ -139,8 +139,7 @@ protected:
 	{
 		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 
-		functor_t take_off = boost::bind(&LLAppearanceMgr::removeItemFromAvatar, LLAppearanceMgr::getInstance(), _1);
-		registrar.add("Attachment.Detach", boost::bind(handleMultiple, take_off, mUUIDs));
+		registrar.add("Attachment.Detach", boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), mUUIDs));
 
 		return createFromFile("menu_cof_attachment.xml");
 	}
@@ -173,9 +172,8 @@ protected:
 		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 		LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 		LLUUID selected_id = mUUIDs.back();
-		functor_t take_off = boost::bind(&LLAppearanceMgr::removeItemFromAvatar, LLAppearanceMgr::getInstance(), _1);
 
-		registrar.add("Clothing.TakeOff", boost::bind(handleMultiple, take_off, mUUIDs));
+		registrar.add("Clothing.TakeOff", boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), mUUIDs));
 		registrar.add("Clothing.Replace", boost::bind(replaceWearable, selected_id));
 		registrar.add("Clothing.Edit", boost::bind(LLAgentWearables::editWearable, selected_id));
 		registrar.add("Clothing.Create", boost::bind(&CofClothingContextMenu::createNew, this, selected_id));

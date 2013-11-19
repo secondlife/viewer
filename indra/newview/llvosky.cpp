@@ -298,7 +298,7 @@ void LLSkyTex::create(const F32 brightness)
 
 void LLSkyTex::createGLImage(S32 which)
 {	
-	mTexture[which]->createGLTexture(0, mImageRaw[which], 0, TRUE, LLViewerTexture::LOCAL);
+	mTexture[which]->createGLTexture(0, mImageRaw[which], 0, TRUE, LLGLTexture::LOCAL);
 	mTexture[which]->setAddressMode(LLTexUnit::TAM_CLAMP);
 }
 
@@ -384,9 +384,9 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 	mSun.setIntensity(SUN_INTENSITY);
 	mMoon.setIntensity(0.1f * SUN_INTENSITY);
 
-	mSunTexturep = LLViewerTextureManager::getFetchedTexture(gSunTextureID, TRUE, LLViewerTexture::BOOST_UI);
+	mSunTexturep = LLViewerTextureManager::getFetchedTexture(gSunTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
 	mSunTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
-	mMoonTexturep = LLViewerTextureManager::getFetchedTexture(gMoonTextureID, TRUE, LLViewerTexture::BOOST_UI);
+	mMoonTexturep = LLViewerTextureManager::getFetchedTexture(gMoonTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
 	mMoonTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
 	mBloomTexturep = LLViewerTextureManager::getFetchedTexture(IMG_BLOOM1);
 	mBloomTexturep->setNoDelete() ;
@@ -478,9 +478,9 @@ void LLVOSky::restoreGL()
 	{
 		mSkyTex[i].restoreGL();
 	}
-	mSunTexturep = LLViewerTextureManager::getFetchedTexture(gSunTextureID, TRUE, LLViewerTexture::BOOST_UI);
+	mSunTexturep = LLViewerTextureManager::getFetchedTexture(gSunTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
 	mSunTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
-	mMoonTexturep = LLViewerTextureManager::getFetchedTexture(gMoonTextureID, TRUE, LLViewerTexture::BOOST_UI);
+	mMoonTexturep = LLViewerTextureManager::getFetchedTexture(gMoonTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
 	mMoonTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
 	mBloomTexturep = LLViewerTextureManager::getFetchedTexture(IMG_BLOOM1);
 	mBloomTexturep->setNoDelete() ;
@@ -1052,9 +1052,8 @@ void LLVOSky::calcAtmospherics(void)
 	mFadeColor.setAlpha(0);
 }
 
-BOOL LLVOSky::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
+void LLVOSky::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
-	return TRUE;
 }
 
 BOOL LLVOSky::updateSky()

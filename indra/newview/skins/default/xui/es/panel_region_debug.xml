@@ -36,5 +36,5 @@
 	<button label="?" left="297" name="top_scripts_help"/>
 	<button label="Reiniciar la región" name="restart_btn" tool_tip="Cuenta atrás de 2 minutos y reiniciar la región"/>
 	<button label="?" name="restart_help"/>
-	<button label="Retrasar el reinicio" name="cancel_restart_btn" tool_tip="Retrasar una hora el reinicio de la región"/>
+	<button label="Cancelar reinicio" name="cancel_restart_btn" tool_tip="Cancelar el reinicio de región"/>
 </panel>

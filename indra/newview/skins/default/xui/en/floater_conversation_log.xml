@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+
+<floater
+ can_resize="true"
+ positioning="cascading"
+ help_topic="conversation_log"
+ height="200"
+ min_height="100"
+ min_width="230"
+ layout="topleft"
+ name="floater_conversation_log"
+ save_rect="true"
+ single_instance="true"
+ reuse_instance="true"
+ title="CONVERSATION LOG"
+ width="300">
+  <panel
+   follows="left|top|right"
+   height="32"
+   left="0"
+   name="buttons_panel"
+   top="0">
+    <filter_editor
+     follows="left|top|right"
+     height="23"
+     layout="topleft"
+     left="8"
+     label="Filter People"
+     max_length_chars="300"
+     name="people_filter_input"
+     text_color="Black"
+     text_pad_left="10"
+     top="4"
+     width="204" />
+    <menu_button
+     follows="top|right"
+     height="25"
+     image_hover_unselected="Toolbar_Middle_Over"
+     image_overlay="Conv_toolbar_sort"
+     image_selected="Toolbar_Middle_Selected"
+     image_unselected="Toolbar_Middle_Off"
+     layout="topleft"
+     left_pad="8"
+     menu_filename="menu_conversation_log_view.xml"
+     menu_position="bottomleft"
+     name="conversation_view_btn"
+     tool_tip="View/sort options"
+     top="3"
+     width="31" />
+    <menu_button
+     follows="top|right"
+     height="25"
+     image_hover_unselected="Toolbar_Middle_Over"
+     image_overlay="OptionsMenu_Off"
+     image_selected="Toolbar_Middle_Selected"
+     image_unselected="Toolbar_Middle_Off"
+     layout="topleft"
+     left_pad="8"
+     name="conversations_gear_btn"
+     tool_tip="Actions on selected person or group"
+     top="3"
+     width="31" />
+  </panel>
+  <panel
+   bottom="-1"
+   follows="all"
+   left="0"
+   name="log_panel"
+   right="-1"
+   top="32">
+    <conversation_log_list
+     allow_select="true"
+     bottom="-8"
+     opaque="true"
+     follows="all"
+     left="8"
+     keep_selection_visible_on_reshape="true"
+     item_pad="2"
+     multi_select="false"
+     name="conversation_log_list"
+     right="-8"
+     top="0" />
+  </panel>
+</floater>

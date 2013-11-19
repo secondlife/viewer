@@ -2,7 +2,7 @@
 <panel name="cof_wearables">
 	<accordion name="cof_wearables_accordion">
 		<accordion_tab name="tab_clothing" title="服裝"/>
-		<accordion_tab name="tab_attachments" title="Attachments"/>
+		<accordion_tab name="tab_attachments" title="附件"/>
 		<accordion_tab name="tab_body_parts" title="身體部位"/>
 	</accordion>
 </panel>

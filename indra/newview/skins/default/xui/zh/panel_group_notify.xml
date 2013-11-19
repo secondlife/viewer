@@ -3,10 +3,10 @@
 	<string name="message_max_lines_count" value="7"/>
 	<string name="subject_font" value="SANSSERIF_BIG"/>
 	<string name="date_font" value="SANSSERIF"/>
-	<panel label="header" name="header">
-		<text name="title" value="Sender Name / Group Name"/>
+	<panel label="表頭" name="header">
+		<text name="title" value="發件者名/群組名"/>
 	</panel>
 	<text_editor name="message" value="訊息"/>
-	<text name="attachment" value="Attachment"/>
+	<text name="attachment" value="附件"/>
 	<button label="確定" name="btn_ok"/>
 </panel>

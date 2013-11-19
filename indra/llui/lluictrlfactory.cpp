@@ -90,10 +90,12 @@ LLUICtrlFactory::~LLUICtrlFactory()
 
 void LLUICtrlFactory::loadWidgetTemplate(const std::string& widget_tag, LLInitParam::BaseBlock& block)
 {
-	std::string filename = std::string("widgets") + gDirUtilp->getDirDelimiter() + widget_tag + ".xml";
+	std::string filename = gDirUtilp->add("widgets", widget_tag + ".xml");
 	LLXMLNodePtr root_node;
 
-	std::string full_filename = gDirUtilp->findSkinnedFilename(LLUI::getXUIPaths().front(), filename);
+	// Here we're looking for the "en" version, the default-language version
+	// of the file, rather than the localized version.
+	std::string full_filename = gDirUtilp->findSkinnedFilenameBaseLang(LLDir::XUI, filename);
 	if (!full_filename.empty())
 	{
 		LLUICtrlFactory::instance().pushFileName(full_filename);
@@ -149,22 +151,12 @@ static LLFastTimer::DeclareTimer FTM_XML_PARSE("XML Reading/Parsing");
 //-----------------------------------------------------------------------------
 // getLayeredXMLNode()
 //-----------------------------------------------------------------------------
-bool LLUICtrlFactory::getLayeredXMLNode(const std::string &xui_filename, LLXMLNodePtr& root)
+bool LLUICtrlFactory::getLayeredXMLNode(const std::string &xui_filename, LLXMLNodePtr& root,
+                                        LLDir::ESkinConstraint constraint)
 {
 	LLFastTimer timer(FTM_XML_PARSE);
-	
-	std::vector<std::string> paths;
-	std::string path = gDirUtilp->findSkinnedFilename(LLUI::getSkinPath(), xui_filename);
-	if (!path.empty())
-	{
-		paths.push_back(path);
-	}
-
-	std::string localize_path = gDirUtilp->findSkinnedFilename(LLUI::getLocalizedSkinPath(), xui_filename);
-	if (!localize_path.empty() && localize_path != path)
-	{
-		paths.push_back(localize_path);
-	}
+	std::vector<std::string> paths =
+		gDirUtilp->findSkinnedFilenames(LLDir::XUI, xui_filename, constraint);
 
 	if (paths.empty())
 	{
@@ -175,23 +167,6 @@ bool LLUICtrlFactory::getLayeredXMLNode(const std::string &xui_filename, LLXMLNo
 	return LLXMLNode::getLayeredXMLNode(root, paths);
 }
 
-
-//-----------------------------------------------------------------------------
-// getLocalizedXMLNode()
-//-----------------------------------------------------------------------------
-bool LLUICtrlFactory::getLocalizedXMLNode(const std::string &xui_filename, LLXMLNodePtr& root)
-{
-	LLFastTimer timer(FTM_XML_PARSE);
-	std::string full_filename = gDirUtilp->findSkinnedFilename(LLUI::getLocalizedSkinPath(), xui_filename);
-	if (!LLXMLNode::parseFile(full_filename, root, NULL))
-	{
-		return false;
-	}
-	else
-	{
-		return true;
-	}
-}
 
 //-----------------------------------------------------------------------------
 // saveToXML()
@@ -239,8 +214,10 @@ std::string LLUICtrlFactory::getCurFileName()
 
 
 void LLUICtrlFactory::pushFileName(const std::string& name) 
-{ 
-	mFileNames.push_back(gDirUtilp->findSkinnedFilename(LLUI::getSkinPath(), name)); 
+{
+	// Here we seem to be looking for the default language file ("en") rather
+	// than the localized one, if any.
+	mFileNames.push_back(gDirUtilp->findSkinnedFilenameBaseLang(LLDir::XUI, name));
 }
 
 void LLUICtrlFactory::popFileName() 
@@ -253,14 +230,6 @@ void LLUICtrlFactory::setCtrlParent(LLView* view, LLView* parent, S32 tab_group)
 {
 	if (tab_group == S32_MAX) tab_group = parent->getLastTabGroup();
 	parent->addChild(view, tab_group);
-}
-
-
-// Avoid directly using LLUI and LLDir in the template code
-//static
-std::string LLUICtrlFactory::findSkinnedFilename(const std::string& filename)
-{
-	return gDirUtilp->findSkinnedFilename(LLUI::getSkinPath(), filename);
 }
 
 //static 
@@ -278,13 +247,13 @@ const LLInitParam::BaseBlock& get_empty_param_block()
 
 // adds a widget and its param block to various registries
 //static 
-void LLUICtrlFactory::registerWidget(const std::type_info* widget_type, const std::type_info* param_block_type, const std::string& tag)
+void LLUICtrlFactory::registerWidget(const std::type_info* widget_type, const std::type_info* param_block_type, const std::string& name)
 {
 	// associate parameter block type with template .xml file
-	std::string* existing_tag = LLWidgetNameRegistry::instance().getValue(param_block_type);
-	if (existing_tag != NULL)
+	std::string* existing_name = LLWidgetNameRegistry::instance().getValue(param_block_type);
+	if (existing_name != NULL)
 	{
-		if(*existing_tag != tag)
+		if(*existing_name != name)
 		{
 			std::cerr << "Duplicate entry for T::Params, try creating empty param block in derived classes that inherit T::Params" << std::endl;
 			// forcing crash here
@@ -293,19 +262,15 @@ void LLUICtrlFactory::registerWidget(const std::type_info* widget_type, const st
 		}
 		else
 		{
-			// widget already registered
+			// widget already registered this name
 			return;
 		}
 	}
-	LLWidgetNameRegistry::instance().defaultRegistrar().add(param_block_type, tag);
+
+	LLWidgetNameRegistry::instance().defaultRegistrar().add(param_block_type, name);
 	//FIXME: comment this in when working on schema generation
 	//LLWidgetTypeRegistry::instance().defaultRegistrar().add(tag, widget_type);
 	//LLDefaultParamBlockRegistry::instance().defaultRegistrar().add(widget_type, &get_empty_param_block<T>);
 }
 
-//static 
-const std::string* LLUICtrlFactory::getWidgetTag(const std::type_info* widget_type)
-{
-	return LLWidgetNameRegistry::instance().getValue(widget_type);
-}
 

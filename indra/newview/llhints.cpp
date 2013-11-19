@@ -171,12 +171,12 @@ LLHintPopup::LLHintPopup(const LLHintPopup::Params& p)
 	}
 	if (p.hint_image.isProvided())
 	{
-		buildFromFile("panel_hint_image.xml", NULL, p);
+		buildFromFile("panel_hint_image.xml", p);
 		getChild<LLIconCtrl>("hint_image")->setImage(p.hint_image());
 	}
 	else
 	{
-		buildFromFile( "panel_hint.xml", NULL, p);
+		buildFromFile( "panel_hint.xml", p);
 	}
 }
 

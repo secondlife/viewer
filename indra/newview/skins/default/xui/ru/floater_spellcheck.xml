@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="spellcheck_floater" title="Настройки проверки правописания">
+	<check_box label="Включить проверку правописания" name="spellcheck_enable"/>
+	<text name="spellcheck_main">
+		Основной словарь:
+	</text>
+	<text label="Журналы:" name="spellcheck_additional">
+		Дополнительные словари:
+	</text>
+	<text name="spellcheck_available">
+		Доступно
+	</text>
+	<text name="spellcheck_active">
+		Активно
+	</text>
+	<button label="Удалить" name="spellcheck_remove_btn"/>
+	<button label="Импорт..." name="spellcheck_import_btn"/>
+</floater>

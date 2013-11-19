@@ -22,6 +22,10 @@ include_directories(
     ${LLWINDOW_INCLUDE_DIRS}
     ${LLQTWEBKIT_INCLUDE_DIR}
     )
+include_directories(SYSTEM
+    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
+    ${LLXML_SYSTEM_INCLUDE_DIRS}
+    )
 
 set(llplugin_SOURCE_FILES
     llpluginclassmedia.cpp

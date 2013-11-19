@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_login">
-	<panel.string name="create_account_url">
-		http://join.secondlife.com/
-	</panel.string>
 	<panel.string name="forgot_password_url">
 		http://secondlife.com/account/request.php?lang=pt
 	</panel.string>
 	<layout_stack name="login_widgets">
 		<layout_panel name="login">
+			<text name="log_in_text">
+				LOGIN
+			</text>
 			<text name="username_text">
 				Nome de usuário:
 			</text>
@@ -15,33 +15,32 @@
 			<text name="password_text">
 				Senha:
 			</text>
-			<check_box label="Lembrar senha" name="remember_check"/>
-			<button label="conectar" name="connect_btn"/>
-			<text name="mode_selection_text">
-				Modo:
-			</text>
-			<combo_box name="mode_combo" tool_tip="Selecione o modo. O modo Básico é mais rápido e ideal para explorar e conversar. Use o modo Avançado para acessar mais recursos.">
-				<combo_box.item label="Básico" name="Basic"/>
-				<combo_box.item label="Avançado" name="Advanced"/>
-			</combo_box>
+		</layout_panel>
+		<layout_panel name="start_location_panel">
 			<text name="start_location_text">
 				Começar em:
 			</text>
 			<combo_box name="start_location_combo">
 				<combo_box.item label="Última posição" name="MyLastLocation"/>
-				<combo_box.item label="Meu início" name="MyHome"/>
+				<combo_box.item label="Minha casa" name="MyHome"/>
+				<combo_box.item label="&lt;Digite o nome da região&gt;" name="Typeregionname"/>
 			</combo_box>
 		</layout_panel>
-		<layout_panel name="links">
-			<text name="create_new_account_text">
-				Cadastre-se
+		<layout_panel name="links_login_panel">
+			<text name="login_help">
+				Precisa de ajuda com o login?
 			</text>
 			<text name="forgot_password_text">
 				Esqueceu seu nome ou senha?
 			</text>
-			<text name="login_help">
-				Precisa de ajuda ao conectar?
+			<button label="Login" name="connect_btn"/>
+			<check_box label="Lembrar senha" name="remember_check"/>
+		</layout_panel>
+		<layout_panel name="links">
+			<text name="create_account_text">
+				CRIE SUA CONTA
 			</text>
+			<button label="Comece agora" name="create_new_account_btn"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

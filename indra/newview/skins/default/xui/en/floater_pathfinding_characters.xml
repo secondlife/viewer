@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+    positioning="cascading"
+    can_resize="true"
+    can_tear_off="false"
+    height="273"
+    width="635"
+    min_height="273"
+    min_width="635"
+    layout="topleft"
+    name="floater_pathfinding_characters"
+    help_topic="floater_pathfinding_characters"
+    reuse_instance="true"
+    save_rect="false"
+    single_instance="true"
+    title="Pathfinding characters">
+  <floater.string name="messaging_initial"></floater.string>
+  <floater.string name="messaging_get_inprogress">Querying for pathfinding characters ...</floater.string>
+  <floater.string name="messaging_get_error">Error detected while querying for pathfinding characters.</floater.string>
+  <floater.string name="messaging_set_inprogress"></floater.string>
+  <floater.string name="messaging_set_error"></floater.string>
+  <floater.string name="messaging_complete_none_found">No pathfinding characters.</floater.string>
+  <floater.string name="messaging_complete_available">[NUM_SELECTED] characters selected out of [NUM_TOTAL].</floater.string>
+  <floater.string name="messaging_not_enabled">This region is not enabled for pathfinding.</floater.string>
+  <floater.string name="character_cpu_time">[CPU_TIME] µs</floater.string>
+  <floater.string name="character_owner_loading">[Loading]</floater.string>
+  <floater.string name="character_owner_unknown">[Unknown]</floater.string>
+  <floater.string name="character_owner_group">[group]</floater.string>
+  <panel
+      border="false"
+      bevel_style="none"
+      follows="left|top|right|bottom"
+      layout="topleft"
+      height="191"
+      width="635">
+    <scroll_list
+        column_padding="0"
+        draw_heading="true"
+        follows="all"
+        height="135"
+        layout="topleft"
+        left="18"
+        top_pad="10"
+        tab_stop="false"
+        multi_select="true"
+        name="objects_scroll_list"
+        width="600">
+      <scroll_list.columns
+          label="Name"
+          name="name"
+          dynamic_width="true" />
+      <scroll_list.columns
+          label="Description"
+          name="description"
+          width="172" />
+      <scroll_list.columns
+          label="Owner"
+          name="owner"
+          width="141" />
+      <scroll_list.columns
+          label="CPU"
+          name="cpu_time"
+          width="60" />
+      <scroll_list.columns
+          label="Altitude"
+          name="altitude"
+          width="64" />
+    </scroll_list>
+    <text
+        height="26"
+        word_wrap="true"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        length="1"
+        follows="left|bottom|right"
+        layout="topleft"
+        name="messaging_status"
+        top_pad="17"
+        width="238">
+      Characters:
+    </text>
+    <button
+        follows="right|bottom"
+        height="21"
+        label="Refresh list"
+        layout="topleft"
+        name="refresh_objects_list"
+        top_pad="-29"
+        left_pad="0"
+        width="115"/>
+    <button
+        follows="right|bottom"
+        height="21"
+        label="Select all"
+        layout="topleft"
+        name="select_all_objects"
+        top_pad="-21"
+        left_pad="8"
+        width="115"/>
+    <button
+        follows="right|bottom"
+        height="21"
+        label="Select none"
+        layout="topleft"
+        name="select_none_objects"
+        top_pad="-21"
+        left_pad="8"
+        width="115"/>
+  </panel>
+  <view_border
+      bevel_style="none"
+      follows="left|right|bottom"
+      height="0"
+      layout="topleft"
+      name="horiz_separator"
+      top_pad="0"
+      left="18"
+      width="600"/>
+  <panel
+      border="false"
+      bevel_style="none"
+      follows="left|right|bottom"
+      layout="topleft"
+      left="0"
+      height="67"
+      width="635">
+    <text
+        height="13"
+        word_wrap="false"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        text_readonly_color="LabelDisabledColor"
+        length="1"
+        follows="left|bottom|right"
+        layout="topleft"
+        name="actions_label"
+        left="18"
+        top_pad="8"
+        width="242">
+      Actions on selected characters:
+    </text>
+    <check_box
+        height="19"
+        follows="left|bottom"
+        label="Show beacon"
+        layout="topleft"
+        name="show_beacon"
+        top_pad="-16"
+        left_pad="0"
+        width="150" />
+    <check_box
+        height="19"
+        follows="left|bottom"
+        label="Show physics capsule"
+        layout="topleft"
+        name="show_physics_capsule"
+        top_pad="-19"
+        left_pad="0"
+        width="150" />
+    <button
+        follows="left|bottom"
+        height="22"
+        label="Take"
+        layout="topleft"
+        name="take_objects"
+        top_pad="9"
+        left="18"
+        width="94"/>
+    <button
+        follows="left|bottom"
+        height="22"
+        label="Take copy"
+        layout="topleft"
+        name="take_copy_objects"
+        top_pad="-22"
+        left_pad="6"
+        width="94"/>
+    <button
+        follows="left|bottom"
+        height="22"
+        label="Teleport me to it"
+        layout="topleft"
+        name="teleport_me_to_object"
+        tool_tip="Enabled only when one character is selected."
+        top_pad="-22"
+        left_pad="26"
+        width="159"/>
+    <button
+        follows="right|bottom"
+        height="22"
+        label="Return"
+        layout="topleft"
+        name="return_objects"
+        top_pad="-22"
+        left_pad="26"
+        width="94"/>
+    <button
+        follows="right|bottom"
+        height="22"
+        label="Delete"
+        layout="topleft"
+        name="delete_objects"
+        top_pad="-22"
+        left_pad="6"
+        width="94"/>
+  </panel>
+</floater>

@@ -39,7 +39,9 @@ typedef enum EGPUClass
 	GPU_CLASS_0 = 0,
 	GPU_CLASS_1 = 1,
 	GPU_CLASS_2 = 2,
-	GPU_CLASS_3 = 3
+	GPU_CLASS_3 = 3,
+	GPU_CLASS_4 = 4,
+	GPU_CLASS_5 = 5
 } EGPUClass; 
 
 
@@ -73,7 +75,7 @@ public:
 	void setFeatureAvailable(const std::string& name, const BOOL available);
 	void setRecommendedLevel(const std::string& name, const F32 level);
 
-	BOOL loadFeatureList(LLFILE *fp);
+	bool loadFeatureList(LLFILE *fp);
 
 	BOOL maskList(LLFeatureList &mask);
 
@@ -101,7 +103,8 @@ public:
 		mTableVersion(0),
 		mSafe(FALSE),
 		mGPUClass(GPU_CLASS_UNKNOWN),
-		mGPUSupported(FALSE)
+		mExpectedGLVersion(0.f),
+		mGPUSupported(FALSE)		
 	{
 	}
 	~LLFeatureManager() {cleanupFeatureTables();}
@@ -111,11 +114,12 @@ public:
 
 	void maskCurrentList(const std::string& name); // Mask the current feature list with the named list
 
-	BOOL loadFeatureTables();
+	bool loadFeatureTables();
 
 	EGPUClass getGPUClass() 			{ return mGPUClass; }
 	std::string& getGPUString() 		{ return mGPUString; }
 	BOOL isGPUSupported()				{ return mGPUSupported; }
+	F32 getExpectedGLVersion()			{ return mExpectedGLVersion; }
 	
 	void cleanupFeatureTables();
 
@@ -130,8 +134,18 @@ public:
 	// skipFeatures forces skipping of mostly hardware settings
 	// that we don't want to change when we change graphics
 	// settings
-	void setGraphicsLevel(S32 level, bool skipFeatures);
-	
+	void setGraphicsLevel(U32 level, bool skipFeatures);
+
+	// What 'level' values are valid to pass to setGraphicsLevel()?
+	// 0 is the low end...
+	U32 getMaxGraphicsLevel() const;
+	bool isValidGraphicsLevel(U32 level) const;
+
+	// setGraphicsLevel() levels have names.
+	std::string getNameForGraphicsLevel(U32 level) const;
+	// returns -1 for unrecognized name (hence S32 rather than U32)
+	S32 getGraphicsLevelForName(const std::string& name) const;
+
 	void applyBaseMasks();
 	void applyRecommendedSettings();
 
@@ -143,9 +157,14 @@ public:
 	void fetchHTTPTables();
 	
 protected:
-	void loadGPUClass();
-	BOOL parseFeatureTable(std::string filename);
-	void parseGPUTable(std::string filename);
+	bool loadGPUClass();
+
+	bool parseFeatureTable(std::string filename);
+	///< @returns TRUE is file parsed correctly, FALSE if not
+
+	bool parseGPUTable(std::string filename);
+	///< @returns true if file parsed correctly, false if not - does not reflect whether or not the gpu was recognized
+
 	void initBaseMask();
 
 
@@ -155,6 +174,7 @@ protected:
 	S32			mTableVersion;
 	BOOL		mSafe;					// Reinitialize everything to the "safe" mask
 	EGPUClass	mGPUClass;
+	F32			mExpectedGLVersion;		//expected GL version according to gpu table
 	std::string	mGPUString;
 	BOOL		mGPUSupported;
 };

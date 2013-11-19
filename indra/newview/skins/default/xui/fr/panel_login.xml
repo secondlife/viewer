@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_login">
-	<panel.string name="create_account_url">
-		http://fr.secondlife.com/registration/
-	</panel.string>
 	<panel.string name="forgot_password_url">
 		http://secondlife.com/account/request.php?lang=fr
 	</panel.string>
 	<layout_stack name="login_widgets">
 		<layout_panel name="login">
+			<text name="log_in_text">
+				CONNEXION
+			</text>
 			<text name="username_text">
 				Nom d&apos;utilisateur :
 			</text>
@@ -15,34 +15,32 @@
 			<text name="password_text">
 				Mot de passe :
 			</text>
-			<check_box label="Enregistrer" name="remember_check"/>
-			<button label="Connexion" name="connect_btn"/>
-			<text name="mode_selection_text">
-				Mode :
-			</text>
-			<combo_box name="mode_combo" tool_tip="Sélectionnez un mode. Pour une exploration facile et rapide avec chat, choisissez Basique. Pour accéder à plus de fonctionnalités, choisissez Avancé.">
-				<combo_box.item label="Basique" name="Basic"/>
-				<combo_box.item label="Avancé" name="Advanced"/>
-			</combo_box>
+		</layout_panel>
+		<layout_panel name="start_location_panel">
 			<text name="start_location_text">
 				Lieu de départ :
 			</text>
 			<combo_box name="start_location_combo">
 				<combo_box.item label="Dernier emplacement" name="MyLastLocation"/>
 				<combo_box.item label="Domicile" name="MyHome"/>
-				<combo_box.item label="&lt;Saisir le nom de la région&gt;" name="Typeregionname"/>
+				<combo_box.item label="&lt;Nom de la région&gt;" name="Typeregionname"/>
 			</combo_box>
 		</layout_panel>
-		<layout_panel name="links">
-			<text name="create_new_account_text">
-				S&apos;inscrire
+		<layout_panel name="links_login_panel">
+			<text name="login_help">
+				Besoin d&apos;aide ?
 			</text>
 			<text name="forgot_password_text">
 				Nom d&apos;utilisateur ou mot de passe oublié ?
 			</text>
-			<text name="login_help">
-				Besoin d&apos;aide ?
+			<button label="Connexion" name="connect_btn"/>
+			<check_box label="Enregistrer" name="remember_check"/>
+		</layout_panel>
+		<layout_panel name="links">
+			<text name="create_account_text">
+				CRÉER VOTRE COMPTE
 			</text>
+			<button label="Commencer" name="create_new_account_btn"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

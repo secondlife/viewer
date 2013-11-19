@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="環境" name="panel_env_info">
+	<text name="water_settings_title">
+		選擇你希望到你地區的訪客所能看到的水和天空 / 日循環設定。  詳情
+	</text>
+	<radio_group name="region_settings_radio_group">
+		<radio_item label="使用第二人生預設值" name="use_sl_default_settings"/>
+		<radio_item label="使用以下設定" name="use_my_settings"/>
+	</radio_group>
+	<panel name="user_environment_settings">
+		<text name="water_settings_title">
+			水的設定
+		</text>
+		<combo_box name="water_settings_preset_combo">
+			<combo_box.item label="-選擇一個自訂配置-" name="item0"/>
+		</combo_box>
+		<text name="sky_dayc_settings_title">
+			天空 / 日循環
+		</text>
+		<radio_group name="sky_dayc_settings_radio_group">
+			<radio_item label="固定天空" name="my_sky_settings"/>
+			<radio_item label="日循環" name="my_dayc_settings"/>
+		</radio_group>
+		<combo_box name="sky_settings_preset_combo">
+			<combo_box.item label="-選擇一個自訂配置-" name="item0"/>
+		</combo_box>
+		<combo_box name="dayc_settings_preset_combo">
+			<combo_box.item label="-選擇一個自訂配置-" name="item0"/>
+		</combo_box>
+	</panel>
+	<button label="套用" name="apply_btn"/>
+	<button label="取消" name="cancel_btn"/>
+</panel>

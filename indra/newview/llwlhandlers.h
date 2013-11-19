@@ -47,7 +47,7 @@ class LLEnvironmentRequestResponder: public LLHTTPClient::Responder
 	LOG_CLASS(LLEnvironmentRequestResponder);
 public:
 	virtual void result(const LLSD& content);
-	virtual void error(U32 status, const std::string& reason);
+	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
 
 private:
 	friend class LLEnvironmentRequest;
@@ -89,7 +89,8 @@ public:
 	 */
 	virtual void result(const LLSD& content);
 
-	virtual void error(U32 status, const std::string& reason); // non-200 errors only
+	// non-200 errors only
+	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
 
 private:
 	friend class LLEnvironmentApply;

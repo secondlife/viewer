@@ -207,6 +207,7 @@ LLSD _basic_constraints_ext(X509* cert)
 			}
 		}
 
+		BASIC_CONSTRAINTS_free( bs );
 	}
 	return result;
 }
@@ -268,6 +269,8 @@ LLSD _ext_key_usage_ext(X509* cert)
 				ASN1_OBJECT_free(usage);
 			}
 		}
+
+		EXTENDED_KEY_USAGE_free( eku );
 	}
 	return result;
 }
@@ -280,6 +283,8 @@ LLSD _subject_key_identifier_ext(X509 *cert)
 	if(skeyid)
 	{
 		result = cert_string_from_octet_string(skeyid);
+
+		ASN1_OCTET_STRING_free( skeyid );
 	}
 	return result;
 }
@@ -300,6 +305,9 @@ LLSD _authority_key_identifier_ext(X509* cert)
 		{
 			result[CERT_AUTHORITY_KEY_IDENTIFIER_SERIAL] = cert_string_from_asn1_integer(akeyid->serial);
 		}	
+
+
+		AUTHORITY_KEYID_free( akeyid );
 	}
 	
 	// we ignore the issuer name in the authority key identifier, we check the issue name via
@@ -1049,6 +1057,8 @@ void LLBasicCertificateStore::validate(int validation_policy,
 		throw LLInvalidCertificate((*current_cert));			
 	}
 	std::string sha1_hash((const char *)cert_x509->sha1_hash, SHA_DIGEST_LENGTH);
+	X509_free( cert_x509 );
+	cert_x509 = NULL;
 	t_cert_cache::iterator cache_entry = mTrustedCertCache.find(sha1_hash);
 	if(cache_entry != mTrustedCertCache.end())
 	{
@@ -1239,7 +1249,6 @@ void LLSecAPIBasicHandler::_readProtectedData()
 									llifstream::binary);
 
 	if (!protected_data_stream.fail()) {
-		int offset;
 		U8 salt[STORE_SALT_SIZE];
 		U8 buffer[BUFFER_READ_SIZE];
 		U8 decrypted_buffer[BUFFER_READ_SIZE];
@@ -1250,7 +1259,6 @@ void LLSecAPIBasicHandler::_readProtectedData()
 
 		// read in the salt and key
 		protected_data_stream.read((char *)salt, STORE_SALT_SIZE);
-		offset = 0;
 		if (protected_data_stream.gcount() < STORE_SALT_SIZE)
 		{
 			throw LLProtectedDataException("Config file too short.");

@@ -43,6 +43,7 @@
 #include "llcapabilityprovider.h"
 #include "m4math.h"					// LLMatrix4
 #include "llhttpclient.h"
+#include "llframetimer.h"
 
 // Surface id's
 #define LAND  1
@@ -109,13 +110,13 @@ public:
 	//void setAgentOffset(const LLVector3d &offset);
 	void updateRenderMatrix();
 
-	void setAllowDamage(BOOL b) { setFlags(b, REGION_FLAGS_ALLOW_DAMAGE); }
-	void setAllowLandmark(BOOL b) { setFlags(b, REGION_FLAGS_ALLOW_LANDMARK); }
-	void setAllowSetHome(BOOL b) { setFlags(b, REGION_FLAGS_ALLOW_SET_HOME); }
-	void setResetHomeOnTeleport(BOOL b) { setFlags(b, REGION_FLAGS_RESET_HOME_ON_TELEPORT); }
-	void setSunFixed(BOOL b) { setFlags(b, REGION_FLAGS_SUN_FIXED); }
-	void setBlockFly(BOOL b) { setFlags(b, REGION_FLAGS_BLOCK_FLY); }
-	void setAllowDirectTeleport(BOOL b) { setFlags(b, REGION_FLAGS_ALLOW_DIRECT_TELEPORT); }
+	void setAllowDamage(BOOL b) { setRegionFlag(REGION_FLAGS_ALLOW_DAMAGE, b); }
+	void setAllowLandmark(BOOL b) { setRegionFlag(REGION_FLAGS_ALLOW_LANDMARK, b); }
+	void setAllowSetHome(BOOL b) { setRegionFlag(REGION_FLAGS_ALLOW_SET_HOME, b); }
+	void setResetHomeOnTeleport(BOOL b) { setRegionFlag(REGION_FLAGS_RESET_HOME_ON_TELEPORT, b); }
+	void setSunFixed(BOOL b) { setRegionFlag(REGION_FLAGS_SUN_FIXED, b); }
+	void setBlockFly(BOOL b) { setRegionFlag(REGION_FLAGS_BLOCK_FLY, b); }
+	void setAllowDirectTeleport(BOOL b) { setRegionFlag(REGION_FLAGS_ALLOW_DIRECT_TELEPORT, b); }
 
 
 	inline BOOL getAllowDamage()			const;
@@ -156,8 +157,15 @@ public:
 	LLViewerParcelOverlay *getParcelOverlay() const
 			{ return mParcelOverlay; }
 
-	void setRegionFlags(U32 flags);
-	U32 getRegionFlags() const					{ return mRegionFlags; }
+	inline void setRegionFlag(U64 flag, BOOL on);
+	inline BOOL getRegionFlag(U64 flag) const;
+	void setRegionFlags(U64 flags);
+	U64 getRegionFlags() const					{ return mRegionFlags; }
+
+	inline void setRegionProtocol(U64 protocol, BOOL on);
+	BOOL getRegionProtocol(U64 protocol) const;
+	void setRegionProtocols(U64 protocols)			{ mRegionProtocols = protocols; }
+	U64 getRegionProtocols() const					{ return mRegionProtocols; }
 
 	void setTimeDilation(F32 time_dilation);
 	F32  getTimeDilation() const				{ return mTimeDilation; }
@@ -195,13 +203,14 @@ public:
 	std::string getLocalizedSimProductName() const;
 
 	// Returns "Sandbox", "Expensive", etc.
-	static std::string regionFlagsToString(U32 flags);
+	static std::string regionFlagsToString(U64 flags);
 
 	// Returns translated version of "Mature", "PG", "Adult", etc.
 	static std::string accessToString(U8 sim_access);
 
 	// Returns "M", "PG", "A" etc.
 	static std::string accessToShortString(U8 sim_access);
+	static U8          shortStringToAccess(const std::string &sim_access);
 
 	// Return access icon name
 	static std::string getAccessIcon(U8 sim_access);
@@ -233,6 +242,7 @@ public:
 	void failedSeedCapability();
 	S32 getNumSeedCapRetries();
 	void setCapability(const std::string& name, const std::string& url);
+	void setCapabilityDebug(const std::string& name, const std::string& url);
 	// implements LLCapabilityProvider
     virtual std::string getCapability(const std::string& name) const;
 
@@ -277,13 +287,18 @@ public:
 
 	F32 getLandHeightRegion(const LLVector3& region_pos);
 
+	U8 getCentralBakeVersion() { return mCentralBakeVersion; }
+
 	void getInfo(LLSD& info);
 	
 	bool meshRezEnabled() const;
 	bool meshUploadEnabled() const;
 
-	void getSimulatorFeatures(LLSD& info);	
+	void getSimulatorFeatures(LLSD& info) const;	
 	void setSimulatorFeatures(const LLSD& info);
+
+	
+	bool dynamicPathfindingEnabled() const;
 
 	typedef enum
 	{
@@ -325,7 +340,15 @@ public:
 	bool objectsCrossParcel(const std::vector<LLBBox>& boxes) const;
 
 	void getNeighboringRegions( std::vector<LLViewerRegion*>& uniqueRegions );
+	void getNeighboringRegionsStatus( std::vector<S32>& regions );
+	const LLViewerRegionImpl * getRegionImpl() const { return mImpl; }
+	LLViewerRegionImpl * getRegionImplNC() { return mImpl; }
 	
+	// implements the materials capability throttle
+	bool materialsCapThrottled() const { return !mMaterialsCapThrottleTimer.hasExpired(); }
+	void resetMaterialsCapThrottle();
+	
+	U32 getMaxMaterialsPerTransaction() const;
 public:
 	struct CompareDistance
 	{
@@ -340,7 +363,6 @@ public:
 protected:
 	void disconnectAllNeighbors();
 	void initStats();
-	void setFlags(BOOL b, U32 flags);
 
 public:
 	LLWind  mWind;
@@ -359,6 +381,8 @@ public:
 	// we stop supporting the old CoarseLocationUpdate message.
 	LLDynamicArray<U32> mMapAvatars;
 	LLDynamicArray<LLUUID> mMapAvatarIDs;
+
+	LLFrameTimer &	getRenderInfoRequestTimer()			{ return mRenderInfoRequestTimer;		};
 
 private:
 	LLViewerRegionImpl * mImpl;
@@ -385,11 +409,13 @@ private:
 	U32		mPingDelay;
 	F32		mDeltaTime;				// Time since last measurement of lastPackets, Bits, etc
 
-	U32		mRegionFlags;			// includes damage flags
+	U64		mRegionFlags;			// includes damage flags
+	U64		mRegionProtocols;		// protocols supported by this region
 	U8		mSimAccess;
 	F32 	mBillableFactor;
 	U32		mMaxTasks;				// max prim count
 	F32		mCameraDistanceSquared;	// updated once per frame
+	U8		mCentralBakeVersion;
 	
 	// Information for Homestead / CR-53
 	S32 mClassID;
@@ -416,7 +442,45 @@ private:
 	BOOL mReleaseNotesRequested;
 	
 	LLSD mSimulatorFeatures;
+
+	// the materials capability throttle
+	LLFrameTimer mMaterialsCapThrottleTimer;
+LLFrameTimer	mRenderInfoRequestTimer;
 };
+
+inline BOOL LLViewerRegion::getRegionProtocol(U64 protocol) const
+{
+	return ((mRegionProtocols & protocol) != 0);
+}
+
+inline void LLViewerRegion::setRegionProtocol(U64 protocol, BOOL on)
+{
+	if (on)
+	{
+		mRegionProtocols |= protocol;
+	}
+	else
+	{
+		mRegionProtocols &= ~protocol;
+	}
+}
+
+inline BOOL LLViewerRegion::getRegionFlag(U64 flag) const
+{
+	return ((mRegionFlags & flag) != 0);
+}
+
+inline void LLViewerRegion::setRegionFlag(U64 flag, BOOL on)
+{
+	if (on)
+	{
+		mRegionFlags |= flag;
+	}
+	else
+	{
+		mRegionFlags &= ~flag;
+	}
+}
 
 inline BOOL LLViewerRegion::getAllowDamage() const
 {

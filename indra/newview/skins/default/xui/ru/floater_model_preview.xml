@@ -92,19 +92,54 @@
 				<text initial_value="Треугольники" name="triangles" value="Треугольники"/>
 				<text initial_value="Вершины" name="vertices" value="Вершины"/>
 				<text initial_value="Высокий" name="high_label" value="Высокий"/>
+				<combo_box name="lod_source_high">
+					<item name="Load from file" value="Загрузка из файла"/>
+					<item name="Generate" value="Создать"/>
+				</combo_box>
 				<button label="Обзор..." name="lod_browse_high"/>
+				<combo_box name="lod_mode_high">
+					<item name="Triangle Limit" value="Предельное число треугольников"/>
+					<item name="Error Threshold" value="Порог ошибки"/>
+				</combo_box>
 				<text initial_value="0" name="high_triangles" value="0"/>
 				<text initial_value="0" name="high_vertices" value="0"/>
 				<text initial_value="Средний" name="medium_label" value="Средний"/>
+				<combo_box name="lod_source_medium">
+					<item name="Load from file" value="Загрузка из файла"/>
+					<item name="Generate" value="Создать"/>
+					<item name="Use LoD above" value="Использовать УД выше"/>
+				</combo_box>
 				<button label="Обзор..." name="lod_browse_medium"/>
+				<combo_box name="lod_mode_medium">
+					<item name="Triangle Limit" value="Предельное число треугольников"/>
+					<item name="Error Threshold" value="Порог ошибки"/>
+				</combo_box>
 				<text initial_value="0" name="medium_triangles" value="0"/>
 				<text initial_value="0" name="medium_vertices" value="0"/>
 				<text initial_value="Низкий" name="low_label" value="Низкий"/>
+				<combo_box name="lod_source_low">
+					<item name="Load from file" value="Загрузка из файла"/>
+					<item name="Generate" value="Создать"/>
+					<item name="Use LoD above" value="Использовать УД выше"/>
+				</combo_box>
 				<button label="Обзор..." name="lod_browse_low"/>
+				<combo_box name="lod_mode_low">
+					<item name="Triangle Limit" value="Предельное число треугольников"/>
+					<item name="Error Threshold" value="Порог ошибки"/>
+				</combo_box>
 				<text initial_value="0" name="low_triangles" value="0"/>
 				<text initial_value="0" name="low_vertices" value="0"/>
 				<text initial_value="Самый низкий" name="lowest_label" value="Самый низкий"/>
+				<combo_box name="lod_source_lowest">
+					<item name="Load from file" value="Загрузка из файла"/>
+					<item name="Generate" value="Создать"/>
+					<item name="Use LoD above" value="Использовать УД выше"/>
+				</combo_box>
 				<button label="Обзор..." name="lod_browse_lowest"/>
+				<combo_box name="lod_mode_lowest">
+					<item name="Triangle Limit" value="Предельное число треугольников"/>
+					<item name="Error Threshold" value="Порог ошибки"/>
+				</combo_box>
 				<text initial_value="0" name="lowest_triangles" value="0"/>
 				<text initial_value="0" name="lowest_vertices" value="0"/>
 				<check_box label="Генерировать нормали" name="gen_normals"/>

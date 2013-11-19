@@ -138,9 +138,9 @@ void LLWorld::destroyClass()
 
 LLViewerRegion* LLWorld::addRegion(const U64 &region_handle, const LLHost &host)
 {
-	LLMemType mt(LLMemType::MTYPE_REGIONS);
 	llinfos << "Add region with handle: " << region_handle << " on host " << host << llendl;
 	LLViewerRegion *regionp = getRegionFromHandle(region_handle);
+	std::string seedUrl;
 	if (regionp)
 	{
 		llinfos << "Region exists, removing it " << llendl;
@@ -161,6 +161,9 @@ LLViewerRegion* LLWorld::addRegion(const U64 &region_handle, const LLHost &host)
 		{
 			llwarns << "LLWorld::addRegion exists, but isn't alive" << llendl;
 		}
+
+		// Save capabilities seed URL
+		seedUrl = regionp->getCapability("Seed");
 
 		// Kill the old host, and then we can continue on and add the new host.  We have to kill even if the host
 		// matches, because all the agent state for the new camera is completely different.
@@ -187,6 +190,11 @@ LLViewerRegion* LLWorld::addRegion(const U64 &region_handle, const LLHost &host)
 	if (!regionp)
 	{
 		llerrs << "Unable to create new region!" << llendl;
+	}
+
+	if ( !seedUrl.empty() )
+	{
+		regionp->setCapability("Seed", seedUrl);
 	}
 
 	mRegionList.push_back(regionp);
@@ -275,7 +283,9 @@ void LLWorld::removeRegion(const LLHost &host)
 	mActiveRegionList.remove(regionp);
 	mCulledRegionList.remove(regionp);
 	mVisibleRegionList.remove(regionp);
-	
+
+	mRegionRemovedSignal(regionp);
+
 	delete regionp;
 
 	updateWaterObjects();
@@ -403,6 +413,19 @@ LLViewerRegion* LLWorld::getRegionFromHandle(const U64 &handle)
 	return NULL;
 }
 
+LLViewerRegion* LLWorld::getRegionFromID(const LLUUID& region_id)
+{
+	for (region_list_t::iterator iter = mRegionList.begin();
+		 iter != mRegionList.end(); ++iter)
+	{
+		LLViewerRegion* regionp = *iter;
+		if (regionp->getRegionID() == region_id)
+		{
+			return regionp;
+		}
+	}
+	return NULL;
+}
 
 void LLWorld::updateAgentOffset(const LLVector3d &offset_global)
 {
@@ -644,7 +667,6 @@ void LLWorld::updateVisibilities()
 
 void LLWorld::updateRegions(F32 max_update_time)
 {
-	LLMemType mt_ur(LLMemType::MTYPE_IDLE_UPDATE_REGIONS);
 	LLTimer update_timer;
 	BOOL did_one = FALSE;
 	
@@ -657,7 +679,10 @@ void LLWorld::updateRegions(F32 max_update_time)
 		if (did_one && max_time <= 0.f)
 			break;
 		max_time = llmin(max_time, max_update_time*.1f);
-		did_one |= regionp->idleUpdate(max_update_time);
+		if (regionp->idleUpdate(max_update_time))
+		{
+			did_one = TRUE;
+		}
 	}
 }
 
@@ -837,21 +862,23 @@ void LLWorld::updateWaterObjects()
 	}
 	mHoleWaterObjects.clear();
 
+	// Use the water height of the region we're on for areas where there is no region
+	F32 water_height = gAgent.getRegion()->getWaterHeight();
+
 	// Now, get a list of the holes
 	S32 x, y;
-	F32 water_height = gAgent.getRegion()->getWaterHeight() + 256.f;
 	for (x = min_x; x <= max_x; x += rwidth)
 	{
 		for (y = min_y; y <= max_y; y += rwidth)
 		{
 			U64 region_handle = to_region_handle(x, y);
 			if (!getRegionFromHandle(region_handle))
-			{
+			{	// No region at that area, so make water
 				LLVOWater* waterp = (LLVOWater *)gObjectList.createObjectViewer(LLViewerObject::LL_VO_WATER, gAgent.getRegion());
 				waterp->setUseTexture(FALSE);
 				waterp->setPositionGlobal(LLVector3d(x + rwidth/2,
 													 y + rwidth/2,
-													 water_height));
+													 256.f + water_height));
 				waterp->setScale(LLVector3((F32)rwidth, (F32)rwidth, 512.f));
 				gPipeline.createObject(waterp);
 				mHoleWaterObjects.push_back(waterp);
@@ -908,7 +935,7 @@ void LLWorld::updateWaterObjects()
 		}
 
 		waterp->setRegion(gAgent.getRegion());
-		LLVector3d water_pos(water_center_x, water_center_y, water_height) ;
+		LLVector3d water_pos(water_center_x, water_center_y, 256.f + water_height) ;
 		LLVector3 water_scale((F32) dim[0], (F32) dim[1], 512.f);
 
 		//stretch out to horizon
@@ -1189,7 +1216,7 @@ void LLWorld::getAvatars(uuid_vec_t* avatar_ids, std::vector<LLVector3d>* positi
 	{
 		LLVOAvatar* pVOAvatar = (LLVOAvatar*) *iter;
 
-		if (!pVOAvatar->isDead() && !pVOAvatar->isSelf())
+		if (!pVOAvatar->isDead() && !pVOAvatar->mIsDummy)
 		{
 			LLVector3d pos_global = pVOAvatar->getPositionGlobal();
 			LLUUID uuid = pVOAvatar->getID();
@@ -1239,6 +1266,11 @@ bool LLWorld::isRegionListed(const LLViewerRegion* region) const
 {
 	region_list_t::const_iterator it = find(mRegionList.begin(), mRegionList.end(), region);
 	return it != mRegionList.end();
+}
+
+boost::signals2::connection LLWorld::setRegionRemovedCallback(const region_remove_signal_t::slot_type& cb)
+{
+	return mRegionRemovedSignal.connect(cb);
 }
 
 LLHTTPRegistration<LLEstablishAgentCommunication>

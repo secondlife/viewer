@@ -29,6 +29,9 @@
 
 #include "lltrans.h"
 #include "llui.h"
+#include "llprocess.h"
+#include "llsdutil.h"
+#include <boost/foreach.hpp>
 
 // static
 const std::string LLExternalEditor::sFilenameMarker = "%s";
@@ -45,19 +48,8 @@ LLExternalEditor::EErrorCode LLExternalEditor::setCommand(const std::string& env
 		return EC_NOT_SPECIFIED;
 	}
 
-	// Add the filename marker if missing.
-	if (cmd.find(sFilenameMarker) == std::string::npos)
-	{
-		cmd += " \"" + sFilenameMarker + "\"";
-		llinfos << "Adding the filename marker (" << sFilenameMarker << ")" << llendl;
-	}
-
 	string_vec_t tokens;
-	if (tokenize(tokens, cmd) < 2) // 2 = bin + at least one arg (%s)
-	{
-		llwarns << "Error parsing editor command" << llendl;
-		return EC_PARSE_ERROR;
-	}
+	tokenize(tokens, cmd);
 
 	// Check executable for existence.
 	std::string bin_path = tokens[0];
@@ -68,51 +60,48 @@ LLExternalEditor::EErrorCode LLExternalEditor::setCommand(const std::string& env
 	}
 
 	// Save command.
-	mProcess.setExecutable(bin_path);
-	mArgs.clear();
+	mProcessParams = LLProcess::Params();
+	mProcessParams.executable = bin_path;
 	for (size_t i = 1; i < tokens.size(); ++i)
 	{
-		if (i > 1) mArgs += " ";
-		mArgs += "\"" + tokens[i] + "\"";
+		mProcessParams.args.add(tokens[i]);
 	}
-	llinfos << "Setting command [" << bin_path << " " << mArgs << "]" << llendl;
+
+	// Add the filename marker if missing.
+	if (cmd.find(sFilenameMarker) == std::string::npos)
+	{
+		mProcessParams.args.add(sFilenameMarker);
+		llinfos << "Adding the filename marker (" << sFilenameMarker << ")" << llendl;
+	}
+
+	llinfos << "Setting command [" << mProcessParams << "]" << llendl;
 
 	return EC_SUCCESS;
 }
 
 LLExternalEditor::EErrorCode LLExternalEditor::run(const std::string& file_path)
 {
-	std::string args = mArgs;
-	if (mProcess.getExecutable().empty() || args.empty())
+	if (std::string(mProcessParams.executable).empty() || mProcessParams.args.empty())
 	{
 		llwarns << "Editor command not set" << llendl;
 		return EC_NOT_SPECIFIED;
 	}
 
+	// Copy params block so we can replace sFilenameMarker
+	LLProcess::Params params;
+	params.executable = mProcessParams.executable;
+
 	// Substitute the filename marker in the command with the actual passed file name.
-	LLStringUtil::replaceString(args, sFilenameMarker, file_path);
-
-	// Split command into separate tokens.
-	string_vec_t tokens;
-	tokenize(tokens, args);
-
-	// Set process arguments taken from the command.
-	mProcess.clearArguments();
-	for (string_vec_t::const_iterator arg_it = tokens.begin(); arg_it != tokens.end(); ++arg_it)
+	BOOST_FOREACH(const std::string& arg, mProcessParams.args)
 	{
-		mProcess.addArgument(*arg_it);
+		std::string fixed(arg);
+		LLStringUtil::replaceString(fixed, sFilenameMarker, file_path);
+		params.args.add(fixed);
 	}
 
-	// Run the editor.
-	llinfos << "Running editor command [" << mProcess.getExecutable() + " " + args << "]" << llendl;
-	int result = mProcess.launch();
-	if (result == 0)
-	{
-		// Prevent killing the process in destructor (will add it to the zombies list).
-		mProcess.orphan();
-	}
-
-	return result == 0 ? EC_SUCCESS : EC_FAILED_TO_RUN;
+	// Run the editor. Prevent killing the process in destructor.
+	params.autokill = false;
+	return LLProcess::create(params) ? EC_SUCCESS : EC_FAILED_TO_RUN;
 }
 
 // static
@@ -129,6 +118,12 @@ std::string LLExternalEditor::getErrorMessage(EErrorCode code)
 
 	return LLTrans::getString("Unknown");
 }
+
+// TODO:
+// - Unit-test this with tests like LLStringUtil::getTokens() (the
+//   command-line overload that supports quoted tokens)
+// - Unless there are significant semantic differences, eliminate this method
+//   and use LLStringUtil::getTokens() instead.
 
 // static
 size_t LLExternalEditor::tokenize(string_vec_t& tokens, const std::string& str)

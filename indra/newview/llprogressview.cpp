@@ -40,6 +40,7 @@
 
 #include "llagent.h"
 #include "llbutton.h"
+#include "llcallbacklist.h"
 #include "llfocusmgr.h"
 #include "llnotifications.h"
 #include "llprogressbar.h"
@@ -72,6 +73,8 @@ LLProgressView::LLProgressView()
 	mStartupComplete(false)
 {
 	mUpdateEvents.listen("self", boost::bind(&LLProgressView::handleUpdate, this, _1));
+	mFadeToWorldTimer.stop();
+	mFadeFromLoginTimer.stop();
 }
 
 BOOL LLProgressView::postBuild()
@@ -87,15 +90,13 @@ BOOL LLProgressView::postBuild()
 
 	mCancelBtn = getChild<LLButton>("cancel_btn");
 	mCancelBtn->setClickedCallback(  LLProgressView::onCancelButtonClicked, NULL );
-	mFadeToWorldTimer.stop();
-	mFadeFromLoginTimer.stop();
 
 	getChild<LLTextBox>("title_text")->setText(LLStringExplicit(LLAppViewer::instance()->getSecondLifeTitle()));
 
 	getChild<LLTextBox>("message_text")->setClickedCallback(onClickMessage, this);
 
 	// hidden initially, until we need it
-	LLPanel::setVisible(FALSE);
+	setVisible(FALSE);
 
 	LLNotifications::instance().getChannel("AlertModal")->connectChanged(boost::bind(&LLProgressView::onAlertModal, this, _1));
 
@@ -106,6 +107,9 @@ BOOL LLProgressView::postBuild()
 
 LLProgressView::~LLProgressView()
 {
+	// Just in case something went wrong, make sure we deregister our idle callback.
+	gIdleCallbacks.deleteFunction(onIdle, this);
+
 	gFocusMgr.releaseFocusIfNeeded( this );
 
 	sInstance = NULL;
@@ -154,6 +158,7 @@ void LLProgressView::revealIntroPanel()
 	}
 
 	mFadeFromLoginTimer.start();
+	gIdleCallbacks.addFunction(onIdle, this);
 }
 
 void LLProgressView::setStartupComplete()
@@ -236,13 +241,6 @@ void LLProgressView::draw()
 		}
 		
 		LLPanel::draw();
-
-		if (mFadeFromLoginTimer.getElapsedTimeF32() > FADE_TO_WORLD_TIME )
-		{
-			mFadeFromLoginTimer.stop();
-			LLPanelLogin::closePanel();
-		}
-
 		return;
 	}
 
@@ -267,7 +265,7 @@ void LLProgressView::draw()
 			gFocusMgr.releaseFocusIfNeeded( this );
 
 			// turn off panel that hosts intro so we see the world
-			LLPanel::setVisible(FALSE);
+			setVisible(FALSE);
 
 			// stop observing events since we no longer care
 			mMediaCtrl->remObserver( this );
@@ -422,5 +420,23 @@ void LLProgressView::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent even
 			// show the progress bar
 			getChild<LLView>("stack1")->setVisible(true);
 		}
+	}
+}
+
+
+// static
+void LLProgressView::onIdle(void* user_data)
+{
+	LLProgressView* self = (LLProgressView*) user_data;
+
+	// Close login panel on mFadeToWorldTimer expiration.
+	if (self->mFadeFromLoginTimer.getStarted() &&
+		self->mFadeFromLoginTimer.getElapsedTimeF32() > FADE_TO_WORLD_TIME)
+	{
+		self->mFadeFromLoginTimer.stop();
+		LLPanelLogin::closePanel();
+
+		// Nothing to do anymore.
+		gIdleCallbacks.deleteFunction(onIdle, user_data);
 	}
 }

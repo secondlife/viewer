@@ -1,4 +1,4 @@
-/**
+/** 
  * @file   llupdaterservice_test.cpp
  * @brief  Tests of llupdaterservice.cpp.
  * 
@@ -44,11 +44,16 @@
 *****************************************************************************/
 LLUpdateChecker::LLUpdateChecker(LLUpdateChecker::Client & client)
 {}
-void LLUpdateChecker::check(std::string const & protocolVersion, std::string const & hostUrl, 
-								  std::string const & servicePath, std::string channel, std::string version)
+void LLUpdateChecker::checkVersion(std::string const & urlBase, 
+								   std::string const & channel,
+								   std::string const & version,
+								   std::string const & platform,
+								   std::string const & platform_version,
+								   unsigned char       uniqueid[MD5HEX_STR_SIZE],
+								   bool                willing_to_test)
 {}
 LLUpdateDownloader::LLUpdateDownloader(Client & ) {}
-void LLUpdateDownloader::download(LLURI const & , std::string const &, std::string const &, bool){}
+void LLUpdateDownloader::download(LLURI const & , std::string const &, std::string const &, std::string const &, std::string const &, bool){}
 
 class LLDir_Mock : public LLDir
 {
@@ -63,7 +68,7 @@ class LLDir_Mock : public LLDir
 							const std::string &mask, 
 							std::string &fname) {}
 	std::string getCurPath() { return ""; }
-	BOOL fileExists(const std::string &filename) const { return false; }
+	bool fileExists(const std::string &filename) const { return false; }
 	std::string getLLPluginLauncher() { return ""; }
 	std::string getLLPluginFilename(std::string base_name) { return ""; }
 
@@ -78,9 +83,27 @@ S32 LLDir::deleteFilesInDir(const std::string &dirname,
 void LLDir::setChatLogsDir(const std::string &path){}		
 void LLDir::setPerAccountChatLogsDir(const std::string &username){}
 void LLDir::setLindenUserDir(const std::string &username){}		
-void LLDir::setSkinFolder(const std::string &skin_folder){}
+void LLDir::setSkinFolder(const std::string &skin_folder, const std::string& language){}
+std::string LLDir::getSkinFolder() const { return "default"; }
+std::string LLDir::getLanguage() const { return "en"; }
 bool LLDir::setCacheDir(const std::string &path){ return true; }
 void LLDir::dumpCurrentDirectories() {}
+void LLDir::updatePerAccountChatLogsDir() {}
+
+#include "llviewernetwork.h"
+LLGridManager::LLGridManager() :
+	mGrid("test.grid.lindenlab.com"),
+	mIsInProductionGrid(false)
+{
+}
+std::string LLGridManager::getUpdateServiceURL()
+{
+	return "https://update.secondlife.com/update";
+}
+LLGridManager::~LLGridManager()
+{
+}
+
 
 std::string LLDir::getExpandedFilename(ELLPath location, 
 									   const std::string &filename) const 
@@ -169,9 +192,11 @@ namespace tut
 		bool got_usage_error = false;
 		try
 		{
-			updater.initialize("1.0",test_url, "update" ,test_channel, test_version);
+			unsigned char id1[MD5HEX_STR_SIZE] = "11111111111111111111111111111111";
+			updater.initialize(test_channel, test_version, "win", "1.2.3", id1, true);
 			updater.startChecking();
-			updater.initialize("1.0", "other_url", "update", test_channel, test_version);
+			unsigned char id2[MD5HEX_STR_SIZE] = "22222222222222222222222222222222";
+			updater.initialize(test_channel, test_version, "win", "4.5.6", id2, true);
 		}
 		catch(LLUpdaterService::UsageError)
 		{
@@ -185,7 +210,8 @@ namespace tut
     {
         DEBUG;
 		LLUpdaterService updater;
-		updater.initialize("1.0", test_url, "update", test_channel, test_version);
+		unsigned char id[MD5HEX_STR_SIZE] = "33333333333333333333333333333333";
+		updater.initialize(test_channel, test_version, "win", "7.8.9", id, true);
 		updater.startChecking();
 		ensure(updater.isChecking());
 		updater.stopChecking();

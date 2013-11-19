@@ -24,6 +24,7 @@
  * $/LicenseInfo$
  */
 
+#include "llmemory.h"
 #include "llmath.h"
 #include "llquantize.h"
 
@@ -40,52 +41,7 @@ extern const LLVector4a LL_V4A_EPSILON = reinterpret_cast<const LLVector4a&> ( F
 
 /*static */void LLVector4a::memcpyNonAliased16(F32* __restrict dst, const F32* __restrict src, size_t bytes)
 {
-	assert(src != NULL);
-	assert(dst != NULL);
-	assert(bytes > 0);
-	assert((bytes % sizeof(F32))== 0); 
-	
-	F32* end = dst + (bytes / sizeof(F32) );
-
-	if (bytes > 64)
-	{
-		F32* begin_64 = LL_NEXT_ALIGNED_ADDRESS_64(dst);
-		
-		//at least 64 (16*4) bytes before the end of the destination, switch to 16 byte copies
-		F32* end_64 = end-16;
-		
-		_mm_prefetch((char*)begin_64, _MM_HINT_NTA);
-		_mm_prefetch((char*)begin_64 + 64, _MM_HINT_NTA);
-		_mm_prefetch((char*)begin_64 + 128, _MM_HINT_NTA);
-		_mm_prefetch((char*)begin_64 + 192, _MM_HINT_NTA);
-		
-		while (dst < begin_64)
-		{
-			copy4a(dst, src);
-			dst += 4;
-			src += 4;
-		}
-		
-		while (dst < end_64)
-		{
-			_mm_prefetch((char*)src + 512, _MM_HINT_NTA);
-			_mm_prefetch((char*)dst + 512, _MM_HINT_NTA);
-			copy4a(dst, src);
-			copy4a(dst+4, src+4);
-			copy4a(dst+8, src+8);
-			copy4a(dst+12, src+12);
-			
-			dst += 16;
-			src += 16;
-		}
-	}
-
-	while (dst < end)
-	{
-		copy4a(dst, src);
-		dst += 4;
-		src += 4;
-	}
+        ll_memcpy_nonaliased_aligned_16((char*)dst, (char*)src, bytes);
 }
 
 void LLVector4a::setRotated( const LLRotation& rot, const LLVector4a& vec )
@@ -189,6 +145,8 @@ void LLVector4a::quantize16( const LLVector4a& low, const LLVector4a& high )
 		LLVector4a oneOverDelta;
 		{
 			static LL_ALIGN_16( const F32 F_TWO_4A[4] ) = { 2.f, 2.f, 2.f, 2.f };
+			ll_assert_aligned(F_TWO_4A,16);
+			
 			LLVector4a two; two.load4a( F_TWO_4A );
 
 			// Here we use _mm_rcp_ps plus one round of newton-raphson

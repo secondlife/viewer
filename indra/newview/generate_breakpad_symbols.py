@@ -39,17 +39,20 @@ import shlex
 import subprocess
 import tarfile
 import StringIO
+import pprint
+
+DEBUG=False
 
 def usage():
-    print >>sys.stderr, "usage: %s viewer_dir viewer_exes libs_suffix dump_syms_tool viewer_symbol_file" % sys.argv[0]
+    print >>sys.stderr, "usage: %s search_dirs viewer_exes libs_suffix dump_syms_tool viewer_symbol_file" % sys.argv[0]
 
 class MissingModuleError(Exception):
     def __init__(self, modules):
         Exception.__init__(self, "Failed to find required modules: %r" % modules)
         self.modules = modules
 
-def main(configuration, viewer_dir, viewer_exes, libs_suffix, dump_syms_tool, viewer_symbol_file):
-    print "generate_breakpad_symbols run with args: %s" % str((configuration, viewer_dir, viewer_exes, libs_suffix, dump_syms_tool, viewer_symbol_file))
+def main(configuration, search_dirs, viewer_exes, libs_suffix, dump_syms_tool, viewer_symbol_file):
+    print "generate_breakpad_symbols run with args: %s" % str((configuration, search_dirs, viewer_exes, libs_suffix, dump_syms_tool, viewer_symbol_file))
 
     if not re.match("release", configuration, re.IGNORECASE):
         print "skipping breakpad symbol generation for non-release build."
@@ -67,21 +70,49 @@ def main(configuration, viewer_dir, viewer_exes, libs_suffix, dump_syms_tool, vi
             return True
         return fnmatch.fnmatch(f, libs_suffix)
 
+    search_dirs = search_dirs.split(";")
+
     def list_files():
-        for (dirname, subdirs, filenames) in os.walk(viewer_dir):
-            #print "scanning '%s' for modules..." % dirname
-            for f in itertools.ifilter(matches, filenames):
-                yield os.path.join(dirname, f)
+        for search_dir in search_dirs:
+            for (dirname, subdirs, filenames) in os.walk(search_dir):
+                if DEBUG:
+                    print "scanning '%s' for modules..." % dirname
+                for f in itertools.ifilter(matches, filenames):
+                    yield os.path.join(dirname, f)
 
     def dump_module(m):
         print "dumping module '%s' with '%s'..." % (m, dump_syms_tool)
-        child = subprocess.Popen([dump_syms_tool, m] , stdout=subprocess.PIPE)
+        dsym_full_path = m
+        child = subprocess.Popen([dump_syms_tool, dsym_full_path] , stdout=subprocess.PIPE)
         out, err = child.communicate()
         return (m,child.returncode, out, err)
 
-    out = tarfile.open(viewer_symbol_file, 'w:bz2')
+    
+    modules = {}
+        
+    for m in list_files():
+        if DEBUG:
+            print "examining module '%s' ... " % m,
+        filename=os.path.basename(m)
+        if -1 != m.find("DWARF"):
+            # Just use this module; it has the symbols we want.
+            modules[filename] = m
+            if DEBUG:
+                print "found dSYM entry"
+        elif filename not in modules:
+            # Only use this if we don't already have a (possibly better) entry.
+            modules[filename] = m
+            if DEBUG:
+                print "found new entry"
+        elif DEBUG:
+            print "ignoring entry"
 
-    for (filename,status,symbols,err) in itertools.imap(dump_module, list_files()):
+
+    print "Found these following modules:"
+    pprint.pprint( modules )
+
+    out = tarfile.open(viewer_symbol_file, 'w:bz2')
+    for (filename,status,symbols,err) in itertools.imap(dump_module, modules.values()):
         if status == 0:
             module_line = symbols[:symbols.index('\n')]
             module_line = module_line.split()

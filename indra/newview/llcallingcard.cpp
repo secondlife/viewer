@@ -54,6 +54,7 @@
 #include "llresmgr.h"
 #include "llslurl.h"
 #include "llimview.h"
+#include "lltrans.h"
 #include "llviewercontrol.h"
 #include "llviewernetwork.h"
 #include "llviewerobjectlist.h"
@@ -183,7 +184,8 @@ LLVector3d LLAvatarTracker::getGlobalPos()
 		global_pos = object->getPositionGlobal();
 		// HACK - for making the tracker point above the avatar's head
 		// rather than its groin
-		global_pos.mdV[VZ] += 0.7f * ((LLVOAvatar *)object)->mBodySize.mV[VZ];
+		LLVOAvatar* av = (LLVOAvatar*)object;
+		global_pos.mdV[VZ] += 0.7f * (av->mBodySize.mV[VZ] + av->mAvatarOffset.mV[VZ]);
 
 		mTrackingData->mGlobalPositionEstimate = global_pos;
 	}
@@ -703,9 +705,7 @@ void LLAvatarTracker::processNotify(LLMessageSystem* msg, bool online)
 		if(chat_notify)
 		{
 			// Look up the name of this agent for the notification
-			LLAvatarNameCache::get(agent_id,
-				boost::bind(&on_avatar_name_cache_notify,
-					_1, _2, online, payload));
+			LLAvatarNameCache::get(agent_id,boost::bind(&on_avatar_name_cache_notify,_1, _2, online, payload));
 		}
 
 		mModifyMask |= LLFriendObserver::ONLINE;
@@ -722,13 +722,14 @@ static void on_avatar_name_cache_notify(const LLUUID& agent_id,
 	// Popup a notify box with online status of this agent
 	// Use display name only because this user is your friend
 	LLSD args;
-	args["NAME"] = av_name.mDisplayName;
+	args["NAME"] = av_name.getDisplayName();
+	args["STATUS"] = online ? LLTrans::getString("OnlineStatus") : LLTrans::getString("OfflineStatus");
 
 	LLNotificationPtr notification;
 	if (online)
 	{
 		notification =
-			LLNotificationsUtil::add("FriendOnline",
+			LLNotificationsUtil::add("FriendOnlineOffline",
 									 args,
 									 payload.with("respond_on_mousedown", TRUE),
 									 boost::bind(&LLAvatarActions::startIM, agent_id));
@@ -736,7 +737,7 @@ static void on_avatar_name_cache_notify(const LLUUID& agent_id,
 	else
 	{
 		notification =
-			LLNotificationsUtil::add("FriendOffline", args, payload);
+			LLNotificationsUtil::add("FriendOnlineOffline", args, payload);
 	}
 
 	// If there's an open IM session with this agent, send a notification there too.
@@ -867,7 +868,7 @@ bool LLCollectMappableBuddies::operator()(const LLUUID& buddy_id, LLRelationship
 {
 	LLAvatarName av_name;
 	LLAvatarNameCache::get( buddy_id, &av_name);
-	buddy_map_t::value_type value(av_name.mDisplayName, buddy_id);
+	buddy_map_t::value_type value(av_name.getDisplayName(), buddy_id);
 	if(buddy->isOnline() && buddy->isRightGrantedFrom(LLRelationship::GRANT_MAP_LOCATION))
 	{
 		mMappable.insert(value);
@@ -890,7 +891,7 @@ bool LLCollectAllBuddies::operator()(const LLUUID& buddy_id, LLRelationship* bud
 {
 	LLAvatarName av_name;
 	LLAvatarNameCache::get(buddy_id, &av_name);
-	mFullName = av_name.mDisplayName;
+	mFullName = av_name.getDisplayName();
 	buddy_map_t::value_type value(mFullName, buddy_id);
 	if(buddy->isOnline())
 	{

@@ -1,5 +1,8 @@
 # -*- cmake -*-
 
+if(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)
+set(${CMAKE_CURRENT_LIST_FILE}_INCLUDED "YES")
+
 include(Variables)
 
 set(ARCH_PREBUILT_DIRS ${AUTOBUILD_INSTALL_DIR}/lib)
@@ -38,9 +41,8 @@ if (NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Release")
   # packages/lib/release directory to deal with autobuild packages that don't
   # provide (e.g.) lib/debug libraries.
   list(APPEND AUTOBUILD_LIBS_INSTALL_DIRS ${ARCH_PREBUILT_DIRS_RELEASE})
-  message(STATUS "CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}, extending AUTOBUILD_LIBS_INSTALL_DIRS")
 endif (NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Release")
-message(STATUS "For ${CMAKE_BUILD_TYPE}, AUTOBUILD_LIBS_INSTALL_DIRS: ${AUTOBUILD_LIBS_INSTALL_DIRS}")
+
 link_directories(${AUTOBUILD_LIBS_INSTALL_DIRS})
 
 if (LINUX)
@@ -70,3 +72,5 @@ else (WINDOWS)
 endif (WINDOWS)
     
 mark_as_advanced(DL_LIBRARY PTHREAD_LIBRARY WINDOWS_LIBRARIES)
+
+endif(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)

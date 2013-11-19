@@ -71,13 +71,21 @@
 #include "llpaneloutfitsinventory.h"
 #include "llpanellogin.h"
 #include "llpaneltopinfobar.h"
+#include "llspellcheck.h"
+#include "llslurl.h"
+#include "llstartup.h"
 #include "llupdaterservice.h"
+
+// Third party library includes
+#include <boost/algorithm/string.hpp>
 
 #ifdef TOGGLE_HACKED_GODLIKE_VIEWER
 BOOL 				gHackGodmode = FALSE;
 #endif
 
-
+// Should you contemplate changing the name "Global", please first grep for
+// that string literal. There are at least a couple other places in the C++
+// code that assume the LLControlGroup named "Global" is gSavedSettings.
 LLControlGroup gSavedSettings("Global");	// saved at end of session
 LLControlGroup gSavedPerAccountSettings("PerAccount"); // saved at end of session
 LLControlGroup gCrashSettings("CrashSettings");	// saved at end of session
@@ -87,7 +95,6 @@ std::string gLastRunVersion;
 
 extern BOOL gResizeScreenTexture;
 extern BOOL gDebugGL;
-extern BOOL gAuditTexture;
 ////////////////////////////////////////////////////////////////////////////
 // Listeners
 
@@ -326,7 +333,7 @@ static bool handleJoystickChanged(const LLSD& newvalue)
 
 static bool handleUseOcclusionChanged(const LLSD& newvalue)
 {
-	LLPipeline::sUseOcclusion = (newvalue.asBoolean() && gGLManager.mHasOcclusionQuery 
+	LLPipeline::sUseOcclusion = (newvalue.asBoolean() && gGLManager.mHasOcclusionQuery && LLGLSLShader::sNoFixedFunction
 		&& LLFeatureManager::getInstance()->isFeatureAvailable("UseOcclusion") && !gUseWireframe) ? 2 : 0;
 	return true;
 }
@@ -337,15 +344,6 @@ static bool handleUploadBakedTexOldChanged(const LLSD& newvalue)
 	return true;
 }
 
-
-static bool handleNumpadControlChanged(const LLSD& newvalue)
-{
-	if (gKeyboard)
-	{
-		gKeyboard->setNumpadDistinct(static_cast<LLKeyboard::e_numpad_distinct>(newvalue.asInteger()));
-	}
-	return true;
-}
 
 static bool handleWLSkyDetailChanged(const LLSD&)
 {
@@ -405,15 +403,28 @@ static bool handleRenderDeferredChanged(const LLSD& newvalue)
 	return true;
 }
 
-static bool handleRenderUseImpostorsChanged(const LLSD& newvalue)
+// This looks a great deal like handleRenderDeferredChanged because
+// Advanced Lighting (Materials) implies bumps and shiny so disabling
+// bumps should further disable that feature.
+//
+static bool handleRenderBumpChanged(const LLSD& newval)
 {
-	LLVOAvatar::sUseImpostors = newvalue.asBoolean();
+	LLRenderTarget::sUseFBO = newval.asBoolean();
+	if (gPipeline.isInit())
+	{
+		gPipeline.updateRenderBump();
+		gPipeline.updateRenderDeferred();
+		gPipeline.releaseGLBuffers();
+		gPipeline.createGLBuffers();
+		gPipeline.resetVertexBuffers();
+		LLViewerShaderMgr::instance()->setShaders();
+	}
 	return true;
 }
 
-static bool handleAuditTextureChanged(const LLSD& newvalue)
+static bool handleRenderUseImpostorsChanged(const LLSD& newvalue)
 {
-	gAuditTexture = newvalue.asBoolean();
+	LLVOAvatar::sUseImpostors = newvalue.asBoolean();
 	return true;
 }
 
@@ -505,6 +516,39 @@ bool handleVelocityInterpolate(const LLSD& newvalue)
 bool handleForceShowGrid(const LLSD& newvalue)
 {
 	LLPanelLogin::updateServer( );
+	return true;
+}
+
+bool handleLoginLocationChanged()
+{
+	/*
+	 * This connects the default preference setting to the state of the login
+	 * panel if it is displayed; if you open the preferences panel before
+	 * logging in, and change the default login location there, the login
+	 * panel immediately changes to match your new preference.
+	 */
+	std::string new_login_location = gSavedSettings.getString("LoginLocation");
+	LL_DEBUGS("AppInit")<<new_login_location<<LL_ENDL;
+	LLStartUp::setStartSLURL(LLSLURL(new_login_location));
+	return true;
+}
+
+bool handleSpellCheckChanged()
+{
+	if (gSavedSettings.getBOOL("SpellCheck"))
+	{
+		std::list<std::string> dict_list;
+		std::string dict_setting = gSavedSettings.getString("SpellCheckDictionary");
+		boost::split(dict_list, dict_setting, boost::is_any_of(std::string(",")));
+		if (!dict_list.empty())
+		{
+			LLSpellChecker::setUseSpellCheck(dict_list.front());
+			dict_list.pop_front();
+			LLSpellChecker::instance().setSecondaryDictionaries(dict_list);
+			return true;
+		}
+	}
+	LLSpellChecker::setUseSpellCheck(LLStringUtil::null);
 	return true;
 }
 
@@ -606,7 +650,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("RenderDebugTextureBind")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
 	gSavedSettings.getControl("RenderAutoMaskAlphaDeferred")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
 	gSavedSettings.getControl("RenderAutoMaskAlphaNonDeferred")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
-	gSavedSettings.getControl("RenderObjectBump")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
+	gSavedSettings.getControl("RenderObjectBump")->getSignal()->connect(boost::bind(&handleRenderBumpChanged, _2));
 	gSavedSettings.getControl("RenderMaxVBOSize")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
 	gSavedSettings.getControl("RenderDeferredNoise")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
 	gSavedSettings.getControl("RenderUseImpostors")->getSignal()->connect(boost::bind(&handleRenderUseImpostorsChanged, _2));
@@ -618,7 +662,6 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("RenderDeferredSSAO")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
 	gSavedSettings.getControl("RenderPerformanceTest")->getSignal()->connect(boost::bind(&handleRenderPerfTestChanged, _2));
 	gSavedSettings.getControl("TextureMemory")->getSignal()->connect(boost::bind(&handleVideoMemoryChanged, _2));
-	gSavedSettings.getControl("AuditTexture")->getSignal()->connect(boost::bind(&handleAuditTextureChanged, _2));
 	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&handleChatFontSizeChanged, _2));
 	gSavedSettings.getControl("ChatPersistTime")->getSignal()->connect(boost::bind(&handleChatPersistTimeChanged, _2));
 	gSavedSettings.getControl("ConsoleMaxLines")->getSignal()->connect(boost::bind(&handleConsoleMaxLinesChanged, _2));
@@ -633,6 +676,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("AudioLevelVoice")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _2));
 	gSavedSettings.getControl("AudioLevelDoppler")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _2));
 	gSavedSettings.getControl("AudioLevelRolloff")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _2));
+	gSavedSettings.getControl("AudioLevelUnderwaterRolloff")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _2));
 	gSavedSettings.getControl("MuteAudio")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _2));
 	gSavedSettings.getControl("MuteMusic")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _2));
 	gSavedSettings.getControl("MuteMedia")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _2));
@@ -645,7 +689,6 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("RenderUseStreamVBO")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
 	gSavedSettings.getControl("RenderPreferStreamDraw")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
 	gSavedSettings.getControl("WLSkyDetail")->getSignal()->connect(boost::bind(&handleWLSkyDetailChanged, _2));
-	gSavedSettings.getControl("NumpadControl")->getSignal()->connect(boost::bind(&handleNumpadControlChanged, _2));
 	gSavedSettings.getControl("JoystickAxis0")->getSignal()->connect(boost::bind(&handleJoystickChanged, _2));
 	gSavedSettings.getControl("JoystickAxis1")->getSignal()->connect(boost::bind(&handleJoystickChanged, _2));
 	gSavedSettings.getControl("JoystickAxis2")->getSignal()->connect(boost::bind(&handleJoystickChanged, _2));
@@ -714,6 +757,9 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("UpdaterServiceSetting")->getSignal()->connect(boost::bind(&toggle_updater_service_active, _2));
 	gSavedSettings.getControl("ForceShowGrid")->getSignal()->connect(boost::bind(&handleForceShowGrid, _2));
 	gSavedSettings.getControl("RenderTransparentWater")->getSignal()->connect(boost::bind(&handleRenderTransparentWaterChanged, _2));
+	gSavedSettings.getControl("SpellCheck")->getSignal()->connect(boost::bind(&handleSpellCheckChanged));
+	gSavedSettings.getControl("SpellCheckDictionary")->getSignal()->connect(boost::bind(&handleSpellCheckChanged));
+	gSavedSettings.getControl("LoginLocation")->getSignal()->connect(boost::bind(&handleLoginLocationChanged));
 }
 
 #if TEST_CACHED_CONTROL

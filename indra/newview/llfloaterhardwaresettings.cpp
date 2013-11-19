@@ -37,6 +37,7 @@
 #include "llspinctrl.h"
 #include "llstartup.h"
 #include "lltextbox.h"
+#include "llcombobox.h"
 #include "pipeline.h"
 
 // Linden library includes
@@ -88,8 +89,10 @@ void LLFloaterHardwareSettings::refresh()
 
 void LLFloaterHardwareSettings::refreshEnabledState()
 {
+    F32 mem_multiplier = gSavedSettings.getF32("RenderTextureMemoryMultiple");
+    
 	S32 min_tex_mem = LLViewerTextureList::getMinVideoRamSetting();
-	S32 max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting();
+	S32 max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting(false, mem_multiplier);
 	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMinValue(min_tex_mem);
 	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMaxValue(max_tex_mem);
 
@@ -97,6 +100,12 @@ void LLFloaterHardwareSettings::refreshEnabledState()
 		!gGLManager.mHasVertexBufferObject)
 	{
 		getChildView("vbo")->setEnabled(FALSE);
+	}
+
+	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderCompressTextures") ||
+		!gGLManager.mHasVertexBufferObject)
+	{
+		getChildView("texture compression")->setEnabled(FALSE);
 	}
 
 	// if no windlight shaders, turn off nighttime brightness, gamma, and fog distance
@@ -141,6 +150,18 @@ void LLFloaterHardwareSettings::refreshEnabledState()
 BOOL LLFloaterHardwareSettings::postBuild()
 {
 	childSetAction("OK", onBtnOK, this);
+
+// Don't do this on Mac as their braindead GL versioning
+// sets this when 8x and 16x are indeed available
+//
+#if !LL_DARWIN
+	if (gGLManager.mIsIntel || gGLManager.mGLVersion < 3.f)
+	{ //remove FSAA settings above "4x"
+		LLComboBox* combo = getChild<LLComboBox>("fsaa");
+		combo->remove("8x");
+		combo->remove("16x");
+	}
+#endif
 
 	refresh();
 	center();

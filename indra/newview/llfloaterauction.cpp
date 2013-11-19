@@ -38,6 +38,7 @@
 #include "message.h"
 
 #include "llagent.h"
+#include "llassetstorage.h"
 #include "llcombobox.h"
 #include "llestateinfomodel.h"
 #include "llmimetypes.h"

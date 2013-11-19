@@ -38,16 +38,23 @@
 #endif
 
 #include <boost/program_options.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
-#include<boost/tokenizer.hpp>
+#include <boost/tokenizer.hpp>
+#include <boost/assign/list_of.hpp>
 
 #if _MSC_VER
 #   pragma warning(pop)
 #endif
 
 #include "llsdserialize.h"
+#include "llerror.h"
+#include "stringize.h"
+#include <string>
+#include <set>
 #include <iostream>
 #include <sstream>
+#include <typeinfo>
 
 #include "llcontrol.h"
 
@@ -63,10 +70,22 @@ namespace po = boost::program_options;
 // This could be good or bad, and probably won't matter for most use cases.
 namespace 
 {
+    // List of command-line switches that can't map-to settings variables.
+    // Going forward, we want every new command-line switch to map-to some
+    // settings variable. This list is used to validate that.
+    const std::set<std::string> unmapped_options = boost::assign::list_of
+        ("help")
+        ("set")
+        ("setdefault")
+        ("settings")
+        ("sessionsettings")
+        ("usersessionsettings")
+    ;
+
     po::options_description gOptionsDesc;
     po::positional_options_description gPositionalOptions;
 	po::variables_map gVariableMap;
-    
+
     const LLCommandLineParser::token_vector_t gEmptyValue;
 
     void read_file_into_string(std::string& str, const std::basic_istream < char >& file)
@@ -342,6 +361,15 @@ bool LLCommandLineParser::parseCommandLine(int argc, char **argv)
     return parseAndStoreResults(clp);
 }
 
+// TODO:
+// - Break out this funky parsing logic into separate method
+// - Unit-test it with tests like LLStringUtil::getTokens() (the command-line
+//   overload that supports quoted tokens)
+// - Unless this logic offers significant semantic benefits, replace it with
+//   LLStringUtil::getTokens(). This would fix a known bug: you cannot --set a
+//   string-valued variable to the empty string, because empty strings are
+//   eliminated below.
+
 bool LLCommandLineParser::parseCommandLineString(const std::string& str)
 {
     // Split the string content into tokens
@@ -375,9 +403,19 @@ bool LLCommandLineParser::parseCommandLineFile(const std::basic_istream < char >
     return parseCommandLineString(args);
 }
 
-void LLCommandLineParser::notify()
+bool LLCommandLineParser::notify()
 {
-    po::notify(gVariableMap);    
+    try
+    {
+        po::notify(gVariableMap);
+        return true;
+    }
+    catch (const LLCLPError& e)
+    {
+        llwarns << "Caught Error: " << e.what() << llendl;
+        mErrorMsg = e.what();
+        return false;
+    }
 }
 
 void LLCommandLineParser::printOptions() const
@@ -419,43 +457,129 @@ const LLCommandLineParser::token_vector_t& LLCommandLineParser::getOption(const 
 //----------------------------------------------------------------------------
 // LLControlGroupCLP defintions
 //----------------------------------------------------------------------------
-void setControlValueCB(const LLCommandLineParser::token_vector_t& value, 
-                       const std::string& opt_name, 
-                       LLControlGroup* ctrlGroup)
+namespace {
+LLCommandLineParser::token_vector_t::value_type
+onevalue(const std::string& option,
+         const LLCommandLineParser::token_vector_t& value)
 {
-    // *FIX: Do sematic conversion here.
+    if (value.empty())
+    {
+        // What does it mean when the user specifies a command-line switch
+        // that requires a value, but omits the value? Complain.
+        throw LLCLPError(STRINGIZE("No value specified for --" << option << "!"));
+    }
+    else if (value.size() > 1)
+    {
+        llwarns << "Ignoring extra tokens specified for --"
+                << option << "." << llendl; 
+    }
+    return value[0];
+}
+
+void badvalue(const std::string& option,
+              const std::string& varname,
+              const std::string& type,
+              const std::string& value)
+{
+    // If the user passes an unusable value for a command-line switch, it
+    // seems like a really bad idea to just ignore it, even with a log
+    // warning.
+    throw LLCLPError(STRINGIZE("Invalid value specified by command-line switch '" << option
+                               << "' for variable '" << varname << "' of type " << type
+                               << ": '" << value << "'"));
+}
+
+template <typename T>
+T convertTo(const std::string& option,
+            const std::string& varname,
+            const LLCommandLineParser::token_vector_t::value_type& value)
+{
+    try
+    {
+        return boost::lexical_cast<T>(value);
+    }
+    catch (const boost::bad_lexical_cast&)
+    {
+        badvalue(option, varname, typeid(T).name(), value);
+        // bogus return; compiler unaware that badvalue() won't return
+        return T();
+    }
+}
+
+void setControlValueCB(const LLCommandLineParser::token_vector_t& value, 
+                       const std::string& option, 
+                       LLControlVariable* ctrl)
+{
+    // *FIX: Do semantic conversion here.
     // LLSD (ImplString) Is no good for doing string to type conversion for...
     // booleans
     // compound types
     // ?...
 
-    LLControlVariable* ctrl = ctrlGroup->getControl(opt_name);
     if(NULL != ctrl)
     {
         switch(ctrl->type())
         {
         case TYPE_BOOLEAN:
-            if(value.size() > 1)
+            if (value.empty())
             {
-                llwarns << "Ignoring extra tokens." << llendl; 
-            }
-              
-            if(value.size() > 0)
-            {
-                // There's a token. check the string for true/false/1/0 etc.
-                BOOL result = false;
-                BOOL gotSet = LLStringUtil::convertToBOOL(value[0], result);
-                if(gotSet)
-                {
-                    ctrl->setValue(LLSD(result), false);
-                }
+                // Boolean-valued command-line switches are unusual. If you
+                // simply specify the switch without an explicit value, we can
+                // infer you mean 'true'.
+                ctrl->setValue(LLSD(true), false);
             }
             else
             {
-                ctrl->setValue(LLSD(true), false);
+                // Only call onevalue() AFTER handling value.empty() case!
+                std::string token(onevalue(option, value));
+            
+                // There's a token. check the string for true/false/1/0 etc.
+                BOOL result = false;
+                BOOL gotSet = LLStringUtil::convertToBOOL(token, result);
+                if (gotSet)
+                {
+                    ctrl->setValue(LLSD(result), false);
+                }
+                else
+                {
+                    badvalue(option, ctrl->getName(), "bool", token);
+                }
             }
             break;
 
+        case TYPE_U32:
+        {
+            std::string token(onevalue(option, value));
+            // To my surprise, for an unsigned target, lexical_cast() doesn't
+            // complain about an input string such as "-17". In that case, you
+            // get a very large positive result. So for U32, make sure there's
+            // no minus sign!
+            if (token.find('-') == std::string::npos)
+            {
+                ctrl->setValue(LLSD::Integer(convertTo<U32>(option, ctrl->getName(), token)),
+                               false);
+            }
+            else
+            {
+                badvalue(option, ctrl->getName(), "unsigned", token);
+            }
+            break;
+        }
+
+        case TYPE_S32:
+            ctrl->setValue(convertTo<S32>(option, ctrl->getName(),
+                                          onevalue(option, value)), false);
+            break;
+
+        case TYPE_F32:
+            ctrl->setValue(convertTo<F32>(option, ctrl->getName(),
+                                          onevalue(option, value)), false);
+            break;
+
+        // It appears that no one has yet tried to define a command-line
+        // switch mapped to a settings variable of TYPE_VEC3, TYPE_VEC3D,
+        // TYPE_RECT, TYPE_COL4, TYPE_COL3. Such types would certainly seem to
+        // call for a bit of special handling here...
         default:
             {
                 // For the default types, let llsd do the conversion.
@@ -472,16 +596,9 @@ void setControlValueCB(const LLCommandLineParser::token_vector_t& value,
 
                     ctrl->setValue(llsdArray, false);
                 }
-                else if(value.size() > 0)
+                else
                 {
-					if(value.size() > 1)
-					{
-						llwarns << "Ignoring extra tokens mapped to the setting: " << opt_name << "." << llendl; 
-					}
-
-                    LLSD llsdValue;
-                    llsdValue.assign(LLSD::String(value[0]));
-                    ctrl->setValue(llsdValue, false);
+                    ctrl->setValue(onevalue(option, value), false);
                 }
             }
             break;
@@ -489,12 +606,14 @@ void setControlValueCB(const LLCommandLineParser::token_vector_t& value,
     }
     else
     {
-        llwarns << "Command Line option mapping '" 
-            << opt_name 
-            << "' not found! Ignoring." 
-            << llendl;
+        // This isn't anything a user can affect -- it's a misconfiguration on
+        // the part of the coder. Rub the coder's nose in the problem right
+        // away so even preliminary testing will surface it.
+        llerrs << "Command Line option --" << option
+               << " maps to unknown setting!" << llendl;
     }
 }
+} // anonymous namespace
 
 void LLControlGroupCLP::configure(const std::string& config_filename, LLControlGroup* controlGroup)
 {
@@ -552,11 +671,37 @@ void LLControlGroupCLP::configure(const std::string& config_filename, LLControlG
             }
 
             boost::function1<void, const token_vector_t&> callback;
-            if(option_params.has("map-to") && (NULL != controlGroup))
+            if (! option_params.has("map-to"))
+            {
+                // If this option isn't mapped to a settings variable, is it
+                // one of the ones for which that's unreasonable, or did
+                // someone carelessly add a new option? (Make all these
+                // configuration errors fatal so a maintainer will catch them
+                // right away.)
+                std::set<std::string>::const_iterator found = unmapped_options.find(long_name);
+                if (found == unmapped_options.end())
+                {
+                    llerrs << "New command-line option " << long_name
+                           << " should map-to a variable in settings.xml" << llendl;
+                }
+            }
+            else                    // option specifies map-to
             {
                 std::string controlName = option_params["map-to"].asString();
-                callback = boost::bind(setControlValueCB, _1, 
-                                       controlName, controlGroup);
+                if (! controlGroup)
+                {
+                    llerrs << "Must pass gSavedSettings to LLControlGroupCLP::configure() for "
+                           << long_name << " (map-to " << controlName << ")" << llendl;
+                }
+
+                LLControlVariable* ctrl = controlGroup->getControl(controlName);
+                if (! ctrl)
+                {
+                    llerrs << "Option " << long_name << " specifies map-to " << controlName
+                           << " which does not exist" << llendl;
+                }
+
+                callback = boost::bind(setControlValueCB, _1, long_name, ctrl);
             }
 
             this->addOptionDesc(

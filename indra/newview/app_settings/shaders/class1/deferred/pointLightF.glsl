@@ -42,16 +42,34 @@ uniform sampler2DRect depthMap;
 uniform vec3 env_mat[3];
 uniform float sun_wash;
 
-uniform vec3 center;
 uniform vec3 color;
 uniform float falloff;
 uniform float size;
 
 VARYING vec4 vary_fragcoord;
+VARYING vec3 trans_center;
+
 uniform vec2 screen_res;
 
 uniform mat4 inv_proj;
 uniform vec4 viewport;
+
+vec2 encode_normal(vec3 n)
+{
+	float f = sqrt(8 * n.z + 8);
+	return n.xy / f + 0.5;
+}
+
+vec3 decode_normal (vec2 enc)
+{
+    vec2 fenc = enc*4-2;
+    float f = dot(fenc,fenc);
+    float g = sqrt(1-f/4);
+    vec3 n;
+    n.xy = fenc*g;
+    n.z = 1-f/2;
+    return n;
+}
 
 vec4 getPosition(vec2 pos_screen)
 {
@@ -74,16 +92,16 @@ void main()
 	frag.xy *= screen_res;
 	
 	vec3 pos = getPosition(frag.xy).xyz;
-	vec3 lv = center.xyz-pos;
-	float dist2 = dot(lv,lv);
-	dist2 /= size;
-	if (dist2 > 1.0)
+	vec3 lv = trans_center.xyz-pos;
+	float dist = length(lv);
+	dist /= size;
+	if (dist > 1.0)
 	{
 		discard;
 	}
 	
 	vec3 norm = texture2DRect(normalMap, frag.xy).xyz;
-	norm = vec3((norm.xy-0.5)*2.0,norm.z); // unpack norm
+	norm = decode_normal(norm.xy); // unpack norm
 	float da = dot(norm, lv);
 	if (da < 0.0)
 	{
@@ -98,20 +116,33 @@ void main()
 	
 	vec3 col = texture2DRect(diffuseRect, frag.xy).rgb;
 	float fa = falloff+1.0;
-	float dist_atten = clamp(1.0-(dist2-1.0*(1.0-fa))/fa, 0.0, 1.0);
-	float lit = da * dist_atten * noise;
+	float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
+	dist_atten *= dist_atten;
+	dist_atten *= 2.0;
 	
+	float lit = da * dist_atten * noise;
+
 	col = color.rgb*lit*col;
 
 	vec4 spec = texture2DRect(specularRect, frag.xy);
 	if (spec.a > 0.0)
 	{
-		float sa = dot(normalize(lv-normalize(pos)),norm);
-		if (sa > 0.0)
+		lit = min(da*6.0, 1.0) * dist_atten;
+
+		vec3 npos = -normalize(pos);
+		vec3 h = normalize(lv+npos);
+		float nh = dot(norm, h);
+		float nv = dot(norm, npos);
+		float vh = dot(npos, h);
+		float sa = nh;
+		float fres = pow(1 - dot(h, npos), 5) * 0.4+0.5;
+		float gtdenom = 2 * nh;
+		float gt = max(0,(min(gtdenom * nv / vh, gtdenom * da / vh)));
+
+		if (nh > 0.0)
 		{
-			sa = 6 * texture2D(lightFunc, vec2(sa, spec.a)).r * min(dist_atten*4.0, 1.0);
-			sa *= noise;
-			col += da*sa*color.rgb*spec.rgb;
+			float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
+			col += lit*scol*color.rgb*spec.rgb;
 		}
 	}
 	

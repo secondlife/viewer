@@ -465,7 +465,7 @@ Mídia:
 				Permitir acesso apenas para residentes que:
 			</text>
 			<check_box label="Possuam Dados de pagamento fornecidos [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Os residentes devem ter seus dados de pagamento cadastrados para acessar este lote.  Consulte o [SUPPORT_SITE] para saber mais."/>
-			<check_box label="Tiveram sua idade verificada [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Os residentes devem ter a idade verificada para acessar este lote. Consulte o [SUPPORT_SITE] para saber mais."/>
+			<check_box label="Tem 18 anos ou mais [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Os residentes devem ter 18 anos ou mais para acessar este lote. Consulte o [SUPPORT_SITE] para obter mais informações."/>
 			<check_box label="Permitir acesso do grupo: [GROUP]" name="GroupCheck" tool_tip="Definir grupo na aba Geral."/>
 			<check_box label="Vender passes para:" name="PassCheck" tool_tip="Permite acesso temporário a este terreno"/>
 			<combo_box name="pass_combo">

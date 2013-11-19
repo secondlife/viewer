@@ -251,7 +251,7 @@ void LLTracker::render3D()
 				instance()->mBeaconText->setDoFade(FALSE);
 			}
 			
-			F32 dist = gFloaterWorldMap->getDistanceToDestination(instance()->mTrackedPositionGlobal, 0.0f);
+			F32 dist = gFloaterWorldMap->getDistanceToDestination(instance()->getTrackedPositionGlobal(), 0.0f);
 			if (dist < DESTINATION_REACHED_RADIUS)
 			{
 				instance()->stopTrackingAvatar();

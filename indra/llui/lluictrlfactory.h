@@ -31,17 +31,10 @@
 #include "llinitparam.h"
 #include "llregistry.h"
 #include "llxuiparser.h"
+#include "llstl.h"
+#include "lldir.h"
 
 class LLView;
-
-// sort functor for typeid maps
-struct LLCompareTypeID
-{
-	bool operator()(const std::type_info* lhs, const std::type_info* rhs) const
-	{
-		return lhs->before(*rhs);
-	}
-};
 
 // lookup widget constructor funcs by widget name
 template <typename DERIVED_TYPE>
@@ -71,14 +64,14 @@ protected:
 
 // lookup widget name by type
 class LLWidgetNameRegistry 
-:	public LLRegistrySingleton<const std::type_info*, std::string, LLWidgetNameRegistry , LLCompareTypeID>
+:	public LLRegistrySingleton<const std::type_info*, std::string, LLWidgetNameRegistry>
 {};
 
 // lookup function for generating empty param block by widget type
 // this is used for schema generation
 //typedef const LLInitParam::BaseBlock& (*empty_param_block_func_t)();
 //class LLDefaultParamBlockRegistry
-//:	public LLRegistrySingleton<const std::type_info*, empty_param_block_func_t, LLDefaultParamBlockRegistry, LLCompareTypeID>
+//:	public LLRegistrySingleton<const std::type_info*, empty_param_block_func_t, LLDefaultParamBlockRegistry>
 //{};
 
 extern LLFastTimer::DeclareTimer FTM_WIDGET_SETUP;
@@ -105,7 +98,7 @@ private:
 		ParamDefaults()
 		{
 			// look up template file for this param block...
-			const std::string* param_block_tag = getWidgetTag(&typeid(PARAM_BLOCK));
+			const std::string* param_block_tag = LLWidgetNameRegistry::instance().getValue(&typeid(PARAM_BLOCK));
 			if (param_block_tag)
 			{	// ...and if it exists, back fill values using the most specific template first
 				PARAM_BLOCK params;
@@ -139,7 +132,6 @@ public:
 	template<typename T>
 	static const typename T::Params& getDefaultParams()
 	{
-		//#pragma message("Generating ParamDefaults")
 		return ParamDefaults<typename T::Params, 0>::instance().get();
 	}
 
@@ -169,32 +161,21 @@ public:
 	LLView* createFromXML(LLXMLNodePtr node, LLView* parent, const std::string& filename, const widget_registry_t&, LLXMLNodePtr output_node );
 
 	template<typename T>
-	static T* createFromFile(const std::string &filename, LLView *parent, const widget_registry_t& registry, LLXMLNodePtr output_node = NULL)
+	static T* createFromFile(const std::string &filename, LLView *parent, const widget_registry_t& registry)
 	{
 		T* widget = NULL;
-		
-		std::string skinned_filename = findSkinnedFilename(filename);
+
 		instance().pushFileName(filename);
 		{
 			LLXMLNodePtr root_node;
 
-			//if exporting, only load the language being exported, 			
-			//instead of layering localized version on top of english			
-			if (output_node)			
-			{					
-				if (!LLUICtrlFactory::getLocalizedXMLNode(filename, root_node))				
-				{							
-					llwarns << "Couldn't parse XUI file: " <<  filename  << llendl;					
-					goto fail;				
-				}
-			}
-			else if (!LLUICtrlFactory::getLayeredXMLNode(filename, root_node))
+			if (!LLUICtrlFactory::getLayeredXMLNode(filename, root_node))
 			{
-				llwarns << "Couldn't parse XUI file: " << skinned_filename << llendl;
+				llwarns << "Couldn't parse XUI file: " << instance().getCurFileName() << llendl;
 				goto fail;
 			}
-			
-			LLView* view = getInstance()->createFromXML(root_node, parent, filename, registry, output_node);
+
+			LLView* view = getInstance()->createFromXML(root_node, parent, filename, registry, NULL);
 			if (view)
 			{
 				widget = dynamic_cast<T*>(view);
@@ -222,8 +203,8 @@ fail:
 
 	static void createChildren(LLView* viewp, LLXMLNodePtr node, const widget_registry_t&, LLXMLNodePtr output_node = NULL);
 
-	static bool getLayeredXMLNode(const std::string &filename, LLXMLNodePtr& root);
-	static bool getLocalizedXMLNode(const std::string &xui_filename, LLXMLNodePtr& root);
+	static bool getLayeredXMLNode(const std::string &filename, LLXMLNodePtr& root,
+								  LLDir::ESkinConstraint constraint=LLDir::CURRENT_SKIN);
 
 private:
 	//NOTE: both friend declarations are necessary to keep both gcc and msvc happy
@@ -303,13 +284,8 @@ private:
 	}
 
 
-	static const std::string* getWidgetTag(const std::type_info* widget_type);
-
 	// this exists to get around dependency on llview
 	static void setCtrlParent(LLView* view, LLView* parent, S32 tab_group);
-
-	// Avoid directly using LLUI and LLDir in the template code
-	static std::string findSkinnedFilename(const std::string& filename);
 
 	class LLPanel*		mDummyPanel;
 	std::vector<std::string>	mFileNames;

@@ -226,9 +226,7 @@ void LLVolatileAPRPool::clearVolatileAPRPool()
 		llassert_always(mNumActiveRef > 0) ;
 	}
 
-	//paranoia check if the pool is jammed.
-	//will remove the check before going to release.
-	llassert_always(mNumTotalRef < (FULL_VOLATILE_APR_POOL << 2)) ;
+	llassert(mNumTotalRef <= (FULL_VOLATILE_APR_POOL << 2)) ;
 }
 
 BOOL LLVolatileAPRPool::isFull()

@@ -85,7 +85,7 @@ const F32	F_ALMOST_ONE	= 1.0f - F_ALMOST_ZERO;
 const F32 FP_MAG_THRESHOLD = 0.0000001f;
 
 // TODO: Replace with logic like is_approx_equal
-inline BOOL is_approx_zero( F32 f ) { return (-F_APPROXIMATELY_ZERO < f) && (f < F_APPROXIMATELY_ZERO); }
+inline bool is_approx_zero( F32 f ) { return (-F_APPROXIMATELY_ZERO < f) && (f < F_APPROXIMATELY_ZERO); }
 
 // These functions work by interpreting sign+exp+mantissa as an unsigned
 // integer.
@@ -111,13 +111,13 @@ inline BOOL is_approx_zero( F32 f ) { return (-F_APPROXIMATELY_ZERO < f) && (f <
 // WARNING: Infinity is comparable with F32_MAX and negative 
 // infinity is comparable with F32_MIN
 
-inline BOOL is_approx_equal(F32 x, F32 y)
+inline bool is_approx_equal(F32 x, F32 y)
 {
 	const S32 COMPARE_MANTISSA_UP_TO_BIT = 0x02;
 	return (std::abs((S32) ((U32&)x - (U32&)y) ) < COMPARE_MANTISSA_UP_TO_BIT);
 }
 
-inline BOOL is_approx_equal(F64 x, F64 y)
+inline bool is_approx_equal(F64 x, F64 y)
 {
 	const S64 COMPARE_MANTISSA_UP_TO_BIT = 0x02;
 	return (std::abs((S32) ((U64&)x - (U64&)y) ) < COMPARE_MANTISSA_UP_TO_BIT);

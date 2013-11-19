@@ -134,7 +134,10 @@
 		Esci
 	</string>
 	<string name="create_account_url">
-		http://join.secondlife.com/index.php?lang=it-IT
+		http://join.secondlife.com/?sourceid=[sourceid]
+	</string>
+	<string name="ViewerDownloadURL">
+		http://secondlife.com/download.
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		Il viewer utilizzato non è più in grado di accedere a Second Life. Visita la parina seguente per scaricare un nuovo viewer:
@@ -445,6 +448,9 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="SLappAgentRequestFriend">
 		Richiesta di amicizia
 	</string>
+	<string name="SLappAgentRemoveFriend">
+		Rimozione amico
+	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
 		Chiudi (⌘W)
 	</string>
@@ -616,8 +622,8 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="AvatarAway">
 		Assente
 	</string>
-	<string name="AvatarBusy">
-		Occupato
+	<string name="AvatarDoNotDisturb">
+		Non disturbare
 	</string>
 	<string name="AvatarMuted">
 		Mutato
@@ -832,6 +838,9 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="multiple_textures">
 		Multiple
 	</string>
+	<string name="use_texture">
+		Usa texture
+	</string>
 	<string name="texture_loading">
 		Caricamento in corso...
 	</string>
@@ -852,6 +861,12 @@ Prova ad accedere nuovamente tra un minuto.
 	</string>
 	<string name="ST_NO_JOINT">
 		Impossibile trovare ROOT o JOINT.
+	</string>
+	<string name="NearbyChatTitle">
+		Chat nei dintorni
+	</string>
+	<string name="NearbyChatLabel">
+		(Chat nei dintorni)
 	</string>
 	<string name="whisper">
 		sussurra:
@@ -879,6 +894,9 @@ Prova ad accedere nuovamente tra un minuto.
 	</string>
 	<string name="ScriptQuestionCautionChatDenied">
 		A &apos;[OBJECTNAME]&apos;, un oggetto di proprietà di &apos;[OWNERNAME]&apos;, situato in [REGIONNAME] [REGIONPOS], è stato negato il permesso di: [PERMISSIONS].
+	</string>
+	<string name="AdditionalPermissionsRequestHeader">
+		Se consenti l&apos;accesso al tuo account, consentirai anche all&apos;oggetto di:
 	</string>
 	<string name="ScriptTakeMoney">
 		Prendere dollari Linden (L$) da te
@@ -912,6 +930,27 @@ Prova ad accedere nuovamente tra un minuto.
 	</string>
 	<string name="ControlYourCamera">
 		Controllare la tua fotocamera
+	</string>
+	<string name="AgentNameSubst">
+		(Tu)
+	</string>
+	<string name="TeleportYourAgent">
+		Teleportarti
+	</string>
+	<string name="JoinAnExperience">
+		Partecipa a un&apos;esperienza
+	</string>
+	<string name="SilentlyManageEstateAccess">
+		Omette gli avvisi durante la gestione degli elenchi di accesso alle proprietà immobiliari
+	</string>
+	<string name="OverrideYourAnimations">
+		Sostituisce le animazioni predefinite
+	</string>
+	<string name="ScriptReturnObjects">
+		Restituisce oggetti per conto tuo
+	</string>
+	<string name="UnknownScriptPermission">
+		(sconosciuto)!
 	</string>
 	<string name="SIM_ACCESS_PG">
 		Generale
@@ -991,17 +1030,8 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="script_files">
 		Script
 	</string>
-	<string name="AvatarSetNotAway">
-		Imposta come non assente
-	</string>
-	<string name="AvatarSetAway">
-		Imposta come assente
-	</string>
-	<string name="AvatarSetNotBusy">
-		Imposta come non occupato
-	</string>
-	<string name="AvatarSetBusy">
-		Imposta come occupato
+	<string name="dictionary_files">
+		Dizionari
 	</string>
 	<string name="shape">
 		Figura corporea
@@ -1235,7 +1265,7 @@ Prova ad accedere nuovamente tra un minuto.
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
 	</string>
 	<string name="MarketplaceURL_CreateStore">
-		http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.4
+		http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.3
 	</string>
 	<string name="MarketplaceURL_Dashboard">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/dashboard
@@ -1390,6 +1420,12 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="InvFolder favorite">
 		I miei preferiti
 	</string>
+	<string name="InvFolder Favorites">
+		I miei preferiti
+	</string>
+	<string name="InvFolder favorites">
+		I miei preferiti
+	</string>
 	<string name="InvFolder Current Outfit">
 		Abbigliamento attuale
 	</string>
@@ -1404,6 +1440,12 @@ Prova ad accedere nuovamente tra un minuto.
 	</string>
 	<string name="InvFolder Meshes">
 		Reticoli
+	</string>
+	<string name="InvFolder Received Items">
+		Oggetti ricevuti
+	</string>
+	<string name="InvFolder Merchant Outbox">
+		Casella venditore in uscita
 	</string>
 	<string name="InvFolder Friends">
 		Amici
@@ -1935,6 +1977,12 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		HUD basso a destra
 	</string>
+	<string name="ATTACH_NECK">
+		Collo
+	</string>
+	<string name="ATTACH_AVATAR_CENTER">
+		Centro avatar
+	</string>
 	<string name="CursorPos">
 		Riga [LINE], Colonna [COLUMN]
 	</string>
@@ -1947,8 +1995,8 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="PanelContentsNewScript">
 		Nuovo script
 	</string>
-	<string name="BusyModeResponseDefault">
-		Il residente al quale hai inviato un messaggio è in modalità &apos;occupato&apos;, ovvero ha chiesto di non essere disturbato.  Il tuo messaggio comparirà nel suo pannello IM, dove potrà essere letto in un secondo momento.
+	<string name="DoNotDisturbModeResponseDefault">
+		Questo residente ha attivato la modalità &apos;Non disturbare&apos; e vedrà il tuo messaggio più tardi.
 	</string>
 	<string name="MuteByName">
 		(In base al nome)
@@ -2060,9 +2108,6 @@ Prova ad accedere nuovamente tra un minuto.
 	</string>
 	<string name="GroupMoneyDate">
 		[weekday,datetime,utc] [mth,datetime,utc] [day,datetime,utc], [year,datetime,utc]
-	</string>
-	<string name="ViewerObjectContents">
-		Contenuto
 	</string>
 	<string name="AcquiredItems">
 		Oggetti acquisiti
@@ -2925,6 +2970,9 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="Hip Width">
 		Larghezza bacino
 	</string>
+	<string name="Hover">
+		Muovi sopra
+	</string>
 	<string name="In">
 		Dentro
 	</string>
@@ -3778,7 +3826,13 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 		Regione generale
 	</string>
 	<string name="LocationCtrlSeeAVsTooltip">
-		Avatar visibili e chat consentita fuori di questo lotto
+		Gli avatar in questo lotto non possono essere visti o sentiti da avatar all&apos;esterno del lotto
+	</string>
+	<string name="LocationCtrlPathfindingDirtyTooltip">
+		Gli oggetti che si muovono potrebbero non comportarsi correttamente in questa regione fino a quando non viene eseguito il rebake della regione.
+	</string>
+	<string name="LocationCtrlPathfindingDisabledTooltip">
+		Il pathfinding dinamico non è attivato in questa regione.
 	</string>
 	<string name="UpdaterWindowTitle">
 		Aggiornamento [APP_NAME]
@@ -3849,6 +3903,12 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="IM_unblock_only_groups_friends">
 		Per vedere questo messaggio, devi deselezionare &apos;Solo amici e gruppi possono chiamarmi o mandarmi IM&apos; in Preferenze/Privacy.
 	</string>
+	<string name="OnlineStatus">
+		Online
+	</string>
+	<string name="OfflineStatus">
+		Offline
+	</string>
 	<string name="answered_call">
 		Risposto alla chiamata
 	</string>
@@ -3857,6 +3917,9 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	</string>
 	<string name="you_joined_call">
 		Ti sei collegato alla chiamata in voce
+	</string>
+	<string name="you_auto_rejected_call-im">
+		Hai rifiutato automaticamente la chiamata voce mentre era attivata la modalità &apos;Non disturbare&apos;.
 	</string>
 	<string name="name_started_call">
 		[NAME] ha iniziato una chiamata vocale
@@ -3869,6 +3932,9 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	</string>
 	<string name="hang_up-im">
 		Chiusa la chiamata
+	</string>
+	<string name="conference-title">
+		Chat con più persone
 	</string>
 	<string name="conference-title-incoming">
 		Chiamata in conferenza con [AGENT_NAME]
@@ -4742,6 +4808,9 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	<string name="Command_Chat_Label">
 		Chat
 	</string>
+	<string name="Command_Conversations_Label">
+		Conversazioni
+	</string>
 	<string name="Command_Compass_Label">
 		Bussola
 	</string>
@@ -4816,6 +4885,9 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	</string>
 	<string name="Command_Chat_Tooltip">
 		Chatta con persone vicine usando il testo
+	</string>
+	<string name="Command_Conversations_Tooltip">
+		Conversa con chiunque
 	</string>
 	<string name="Command_Compass_Tooltip">
 		Bussola
@@ -4910,6 +4982,21 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	<string name="Normal">
 		Normale
 	</string>
+	<string name="Pathfinding_Wiki_URL">
+		http://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer
+	</string>
+	<string name="Pathfinding_Object_Attr_None">
+		Nessuno
+	</string>
+	<string name="Pathfinding_Object_Attr_Permanent">
+		Influenza il navmesh
+	</string>
+	<string name="Pathfinding_Object_Attr_Character">
+		Personaggio
+	</string>
+	<string name="Pathfinding_Object_Attr_MultiSelect">
+		(Multiple)
+	</string>
 	<string name="snapshot_quality_very_low">
 		Molto basso
 	</string>
@@ -4924,5 +5011,23 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	</string>
 	<string name="snapshot_quality_very_high">
 		Molto alto
+	</string>
+	<string name="TeleportMaturityExceeded">
+		Il Residente non può visitare questa regione.
+	</string>
+	<string name="UserDictionary">
+		[User]
+	</string>
+	<string name="logging_calls_disabled_log_empty">
+		Le conversazioni non vengono registrate. Per iniziare a registrare, seleziona &quot;Salva: Solo registro&quot; oppure &quot;Salva: Registri e trascrizioni&quot; in Preferenze &gt; Chat.
+	</string>
+	<string name="logging_calls_disabled_log_not_empty">
+		Non verranno registrate più le conversazioni. Per riprendere a registrare, seleziona &quot;Salva: Solo registro&quot; oppure &quot;Salva: Registri e trascrizioni&quot; in Preferenze &gt; Chat.
+	</string>
+	<string name="logging_calls_enabled_log_empty">
+		Nessuna conversazione in registro. Dopo che hai contattato qualcuno o se qualcuno ti contatta, una voce del registro verrà mostrata qui.
+	</string>
+	<string name="loading_chat_logs">
+		Caricamento in corso...
 	</string>
 </strings>

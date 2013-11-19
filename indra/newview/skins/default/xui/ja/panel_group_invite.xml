@@ -9,6 +9,9 @@
 	<panel.string name="already_in_group">
 		選択した住人のなかに、既にグループに所属している人がいるため、招待を送ることができませんでした。
 	</panel.string>
+	<panel.string name="invite_selection_too_large">
+		グループへの招待が送信されていません: 選択された住人が多すぎます。グループへの招待は1回のリクエストあたり100人に制限されています。
+	</panel.string>
 	<text bottom_delta="-96" font="SansSerifSmall" height="72" name="help_text">
 		グループには一度に複数の住人を招待することができます。 「リストから住人を選択」をクリックしてください。
 	</text>

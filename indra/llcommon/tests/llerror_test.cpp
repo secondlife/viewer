@@ -1,4 +1,4 @@
-/** 
+/**
  * @file llerror_test.cpp
  * @date   December 2006
  * @brief error unit tests
@@ -6,21 +6,21 @@
  * $LicenseInfo:firstyear=2006&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -49,7 +49,7 @@ namespace
 	static bool fatalWasCalled;
 	void fatalCall(const std::string&) { fatalWasCalled = true; }
 }
-	
+
 namespace tut
 {
 	class TestRecorder : public LLError::Recorder
@@ -57,59 +57,65 @@ namespace tut
 	public:
 		TestRecorder() : mWantsTime(false) { }
 		~TestRecorder() { LLError::removeRecorder(this); }
-		
+
 		void recordMessage(LLError::ELevel level,
 						   const std::string& message)
 		{
 			mMessages.push_back(message);
 		}
-		
+
 		int countMessages()			{ return (int) mMessages.size(); }
 		void clearMessages()		{ mMessages.clear(); }
-		
+
 		void setWantsTime(bool t)	{ mWantsTime = t; }
 		bool wantsTime()			{ return mWantsTime; }
-		
+
 		std::string message(int n)
 		{
 			std::ostringstream test_name;
 			test_name << "testing message " << n << ", not enough messages";
-			
+
 			tut::ensure(test_name.str(), n < countMessages());
 			return mMessages[n];
 		}
-		
+
 	private:
 		typedef std::vector<std::string> MessageVector;
 		MessageVector mMessages;
-		
+
 		bool mWantsTime;
 	};
 
 	struct ErrorTestData
 	{
-		TestRecorder mRecorder;
+		// addRecorder() expects to be able to later delete the passed
+		// Recorder*. Even though removeRecorder() reclaims ownership, passing
+		// a pointer to a data member rather than a heap Recorder subclass
+		// instance would just be Wrong.
+		TestRecorder* mRecorder;
 		LLError::Settings* mPriorErrorSettings;
-		
-		ErrorTestData()
+
+		ErrorTestData():
+			mRecorder(new TestRecorder)
 		{
 			fatalWasCalled = false;
-			
+
 			mPriorErrorSettings = LLError::saveAndResetSettings();
 			LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
 			LLError::setFatalFunction(fatalCall);
-			LLError::addRecorder(&mRecorder);
+			LLError::addRecorder(mRecorder);
 		}
-		
+
 		~ErrorTestData()
 		{
-			LLError::removeRecorder(&mRecorder);
+			LLError::removeRecorder(mRecorder);
+			delete mRecorder;
 			LLError::restoreSettings(mPriorErrorSettings);
 		}
-		
+
 		void ensure_message_count(int expectedCount)
 		{
-			ensure_equals("message count", mRecorder.countMessages(), expectedCount);
+			ensure_equals("message count", mRecorder->countMessages(), expectedCount);
 		}
 
 		void ensure_message_contains(int n, const std::string& expectedText)
@@ -117,7 +123,7 @@ namespace tut
 			std::ostringstream test_name;
 			test_name << "testing message " << n;
 
-			ensure_contains(test_name.str(), mRecorder.message(n), expectedText);
+			ensure_contains(test_name.str(), mRecorder->message(n), expectedText);
 		}
 
 		void ensure_message_does_not_contain(int n, const std::string& expectedText)
@@ -125,22 +131,22 @@ namespace tut
 			std::ostringstream test_name;
 			test_name << "testing message " << n;
 
-			ensure_does_not_contain(test_name.str(), mRecorder.message(n), expectedText);
+			ensure_does_not_contain(test_name.str(), mRecorder->message(n), expectedText);
 		}
 	};
-	
+
 	typedef test_group<ErrorTestData>	ErrorTestGroup;
 	typedef ErrorTestGroup::object		ErrorTestObject;
-	
+
 	ErrorTestGroup errorTestGroup("error");
-	
+
 	template<> template<>
 	void ErrorTestObject::test<1>()
 		// basic test of output
 	{
 		llinfos << "test" << llendl;
 		llinfos << "bob" << llendl;
-		
+
 		ensure_message_contains(0, "test");
 		ensure_message_contains(1, "bob");
 	}
@@ -159,7 +165,7 @@ namespace
 };
 
 namespace tut
-{	
+{
 	template<> template<>
 	void ErrorTestObject::test<2>()
 		// messages are filtered based on default level
@@ -172,7 +178,7 @@ namespace tut
 		ensure_message_contains(3, "error");
 		ensure_message_contains(4, "four");
 		ensure_message_count(5);
-	
+
 		LLError::setDefaultLevel(LLError::LEVEL_INFO);
 		writeSome();
 		ensure_message_contains(5, "two");
@@ -180,20 +186,20 @@ namespace tut
 		ensure_message_contains(7, "error");
 		ensure_message_contains(8, "four");
 		ensure_message_count(9);
-		
+
 		LLError::setDefaultLevel(LLError::LEVEL_WARN);
 		writeSome();
 		ensure_message_contains(9, "three");
 		ensure_message_contains(10, "error");
 		ensure_message_contains(11, "four");
 		ensure_message_count(12);
-		
+
 		LLError::setDefaultLevel(LLError::LEVEL_ERROR);
 		writeSome();
 		ensure_message_contains(12, "error");
 		ensure_message_contains(13, "four");
 		ensure_message_count(14);
-		
+
 		LLError::setDefaultLevel(LLError::LEVEL_NONE);
 		writeSome();
 		ensure_message_count(14);
@@ -218,14 +224,14 @@ namespace tut
 	{
 		std::string thisFile = __FILE__;
 		std::string abbreviateFile = LLError::abbreviateFile(thisFile);
-		
+
 		ensure_ends_with("file name abbreviation",
 			abbreviateFile,
 			"llcommon/tests/llerror_test.cpp"
 			);
 		ensure_does_not_contain("file name abbreviation",
 			abbreviateFile, "indra");
-			
+
 		std::string someFile =
 #if LL_WINDOWS
 			"C:/amy/bob/cam.cpp"
@@ -234,12 +240,12 @@ namespace tut
 #endif
 			;
 		std::string someAbbreviation = LLError::abbreviateFile(someFile);
-		
+
 		ensure_equals("non-indra file abbreviation",
 			someAbbreviation, someFile);
 	}
 }
-	
+
 namespace
 {
 	std::string locationString(int line)
@@ -247,22 +253,22 @@ namespace
 		std::ostringstream location;
 		location << LLError::abbreviateFile(__FILE__)
 				 << "(" << line << ") : ";
-				 
+
 		return location.str();
 	}
-	
+
 	std::string writeReturningLocation()
 	{
 		llinfos << "apple" << llendl;	int this_line = __LINE__;
 		return locationString(this_line);
 	}
-	
+
 	std::string writeReturningLocationAndFunction()
 	{
 		llinfos << "apple" << llendl;	int this_line = __LINE__;
 		return locationString(this_line) + __FUNCTION__;
 	}
-	
+
 	std::string errorReturningLocation()
 	{
 		llerrs << "die" << llendl;	int this_line = __LINE__;
@@ -271,20 +277,20 @@ namespace
 }
 
 namespace tut
-{	
+{
 	template<> template<>
 	void ErrorTestObject::test<5>()
 		// file and line information in log messages
 	{
 		std::string location = writeReturningLocation();
 			// expecting default to not print location information
-		
+
 		LLError::setPrintLocation(true);
 		writeReturningLocation();
-		
+
 		LLError::setPrintLocation(false);
 		writeReturningLocation();
-		
+
 		ensure_message_does_not_contain(0, location);
 		ensure_message_contains(1, location);
 		ensure_message_does_not_contain(2, location);
@@ -297,7 +303,7 @@ namespace tut
 	existing log messages often do.)  The functions all return their C++
 	name so that test can be substantial mechanized.
  */
- 
+
 std::string logFromGlobal(bool id)
 {
 	llinfos << (id ? "logFromGlobal: " : "") << "hi" << llendl;
@@ -345,7 +351,7 @@ namespace
 			return "ClassWithNoLogType::logFromStatic";
 		}
 	};
-	
+
 	class ClassWithLogType {
 		LOG_CLASS(ClassWithLogType);
 	public:
@@ -360,13 +366,13 @@ namespace
 			return "ClassWithLogType::logFromStatic";
 		}
 	};
-	
+
 	std::string logFromNamespace(bool id) { return Foo::logFromNamespace(id); }
 	std::string logFromClassWithNoLogTypeMember(bool id) { ClassWithNoLogType c; return c.logFromMember(id); }
 	std::string logFromClassWithNoLogTypeStatic(bool id) { return ClassWithNoLogType::logFromStatic(id); }
 	std::string logFromClassWithLogTypeMember(bool id) { ClassWithLogType c; return c.logFromMember(id); }
 	std::string logFromClassWithLogTypeStatic(bool id) { return ClassWithLogType::logFromStatic(id); }
-	
+
 	void ensure_has(const std::string& message,
 		const std::string& actual, const std::string& expected)
 	{
@@ -379,18 +385,18 @@ namespace
 			throw tut::failure(ss.str().c_str());
 		}
 	}
-	
+
 	typedef std::string (*LogFromFunction)(bool);
-	void testLogName(tut::TestRecorder& recorder, LogFromFunction f,
+	void testLogName(tut::TestRecorder* recorder, LogFromFunction f,
 		const std::string& class_name = "")
 	{
-		recorder.clearMessages();
+		recorder->clearMessages();
 		std::string name = f(false);
 		f(true);
-		
-		std::string messageWithoutName = recorder.message(0);
-		std::string messageWithName = recorder.message(1);
-		
+
+		std::string messageWithoutName = recorder->message(0);
+		std::string messageWithName = recorder->message(1);
+
 		ensure_has(name + " logged without name",
 			messageWithoutName, name);
 		ensure_has(name + " logged with name",
@@ -431,18 +437,18 @@ namespace
 		llinfos << "inside" << llendl;
 		return "moo";
 	}
-	
+
 	std::string outerLogger()
 	{
 		llinfos << "outside(" << innerLogger() << ")" << llendl;
 		return "bar";
 	}
-	
+
 	void uberLogger()
 	{
 		llinfos << "uber(" << outerLogger() << "," << innerLogger() << ")" << llendl;
 	}
-	
+
 	class LogWhileLogging
 	{
 	public:
@@ -461,11 +467,11 @@ namespace
 		LogWhileLogging l;
 		llinfos << "meta(" << l << ")" << llendl;
 	}
-	
+
 }
 
 namespace tut
-{			
+{
 	template<> template<>
 		// handle nested logging
 	void ErrorTestObject::test<7>()
@@ -474,31 +480,31 @@ namespace tut
 		ensure_message_contains(0, "inside");
 		ensure_message_contains(1, "outside(moo)");
 		ensure_message_count(2);
-		
+
 		uberLogger();
 		ensure_message_contains(2, "inside");
 		ensure_message_contains(3, "inside");
 		ensure_message_contains(4, "outside(moo)");
 		ensure_message_contains(5, "uber(bar,moo)");
 		ensure_message_count(6);
-		
+
 		metaLogger();
 		ensure_message_contains(6, "logging");
 		ensure_message_contains(7, "meta(baz)");
 		ensure_message_count(8);
 	}
-	
+
 	template<> template<>
 		// special handling of llerrs calls
 	void ErrorTestObject::test<8>()
 	{
 		LLError::setPrintLocation(false);
 		std::string location = errorReturningLocation();
-		
+
 		ensure_message_contains(0, location + "error");
 		ensure_message_contains(1, "die");
 		ensure_message_count(2);
-		
+
 		ensure("fatal callback called", fatalWasCalled);
 	}
 }
@@ -509,7 +515,7 @@ namespace
 	{
 		return "1947-07-08T03:04:05Z";
 	}
-	
+
 	void ufoSighting()
 	{
 		llinfos << "ufo" << llendl;
@@ -517,35 +523,35 @@ namespace
 }
 
 namespace tut
-{	
+{
 	template<> template<>
 		// time in output (for recorders that need it)
 	void ErrorTestObject::test<9>()
 	{
 		LLError::setTimeFunction(roswell);
 
-		mRecorder.setWantsTime(false);
+		mRecorder->setWantsTime(false);
 		ufoSighting();
 		ensure_message_contains(0, "ufo");
 		ensure_message_does_not_contain(0, roswell());
-		
-		mRecorder.setWantsTime(true);
+
+		mRecorder->setWantsTime(true);
 		ufoSighting();
 		ensure_message_contains(1, "ufo");
 		ensure_message_contains(1, roswell());
 	}
-	
+
 	template<> template<>
 		// output order
 	void ErrorTestObject::test<10>()
 	{
 		LLError::setPrintLocation(true);
 		LLError::setTimeFunction(roswell);
-		mRecorder.setWantsTime(true);
+		mRecorder->setWantsTime(true);
 		std::string locationAndFunction = writeReturningLocationAndFunction();
-		
+
 		ensure_equals("order is time type location function message",
-			mRecorder.message(0),
+			mRecorder->message(0),
 			roswell() + " INFO: " + locationAndFunction + ": apple");
 	}
 
@@ -553,30 +559,30 @@ namespace tut
 		// multiple recorders
 	void ErrorTestObject::test<11>()
 	{
-		TestRecorder altRecorder;
-		LLError::addRecorder(&altRecorder);
-		
+		TestRecorder* altRecorder(new TestRecorder);
+		LLError::addRecorder(altRecorder);
+
 		llinfos << "boo" << llendl;
 
 		ensure_message_contains(0, "boo");
-		ensure_equals("alt recorder count", altRecorder.countMessages(), 1);
-		ensure_contains("alt recorder message 0", altRecorder.message(0), "boo");
-		
+		ensure_equals("alt recorder count", altRecorder->countMessages(), 1);
+		ensure_contains("alt recorder message 0", altRecorder->message(0), "boo");
+
 		LLError::setTimeFunction(roswell);
 
-		TestRecorder anotherRecorder;
-		anotherRecorder.setWantsTime(true);
-		LLError::addRecorder(&anotherRecorder);
-		
+		TestRecorder* anotherRecorder(new TestRecorder);
+		anotherRecorder->setWantsTime(true);
+		LLError::addRecorder(anotherRecorder);
+
 		llinfos << "baz" << llendl;
 
 		std::string when = roswell();
-		
+
 		ensure_message_does_not_contain(1, when);
-		ensure_equals("alt recorder count", altRecorder.countMessages(), 2);
-		ensure_does_not_contain("alt recorder message 1", altRecorder.message(1), when);
-		ensure_equals("another recorder count", anotherRecorder.countMessages(), 1);
-		ensure_contains("another recorder message 0", anotherRecorder.message(0), when);
+		ensure_equals("alt recorder count", altRecorder->countMessages(), 2);
+		ensure_does_not_contain("alt recorder message 1", altRecorder->message(1), when);
+		ensure_equals("another recorder count", anotherRecorder->countMessages(), 1);
+		ensure_contains("another recorder message 0", anotherRecorder->message(0), when);
 	}
 }
 
@@ -610,10 +616,10 @@ namespace tut
 	{
 		LLError::setDefaultLevel(LLError::LEVEL_WARN);
 		LLError::setClassLevel("TestBeta", LLError::LEVEL_INFO);
-		
+
 		TestAlpha::doAll();
 		TestBeta::doAll();
-		
+
 		ensure_message_contains(0, "aim west");
 		ensure_message_contains(1, "error");
 		ensure_message_contains(2, "ate eels");
@@ -623,7 +629,7 @@ namespace tut
 		ensure_message_contains(6, "big easy");
 		ensure_message_count(7);
 	}
-	
+
 	template<> template<>
 		// filtering by function, and that it will override class filtering
 	void ErrorTestObject::test<13>()
@@ -632,13 +638,13 @@ namespace tut
 		LLError::setClassLevel("TestBeta", LLError::LEVEL_WARN);
 		LLError::setFunctionLevel("TestBeta::doInfo", LLError::LEVEL_DEBUG);
 		LLError::setFunctionLevel("TestBeta::doError", LLError::LEVEL_NONE);
-		
+
 		TestBeta::doAll();
 		ensure_message_contains(0, "buy iron");
 		ensure_message_contains(1, "bad word");
 		ensure_message_count(2);
 	}
-	
+
 	template<> template<>
 		// filtering by file
 		// and that it is overridden by both class and function filtering
@@ -652,7 +658,7 @@ namespace tut
 									LLError::LEVEL_NONE);
 		LLError::setFunctionLevel("TestBeta::doError",
 									LLError::LEVEL_NONE);
-		
+
 		TestAlpha::doAll();
 		TestBeta::doAll();
 		ensure_message_contains(0, "any idea");
@@ -660,7 +666,7 @@ namespace tut
 		ensure_message_contains(2, "bad word");
 		ensure_message_count(3);
 	}
-	
+
 	template<> template<>
 		// proper cached, efficient lookup of filtering
 	void ErrorTestObject::test<15>()
@@ -690,7 +696,7 @@ namespace tut
 		ensure_message_count(2);
 		ensure_equals("sixth check", LLError::shouldLogCallCount(), 3);
 	}
-	
+
 	template<> template<>
 		// configuration from LLSD
 	void ErrorTestObject::test<16>()
@@ -699,26 +705,26 @@ namespace tut
 		LLSD config;
 		config["print-location"] = true;
 		config["default-level"] = "DEBUG";
-		
+
 		LLSD set1;
 		set1["level"] = "WARN";
 		set1["files"][0] = this_file;
-		
+
 		LLSD set2;
 		set2["level"] = "INFO";
 		set2["classes"][0] = "TestAlpha";
-		
+
 		LLSD set3;
 		set3["level"] = "NONE";
 		set3["functions"][0] = "TestAlpha::doError";
 		set3["functions"][1] = "TestBeta::doError";
-		
+
 		config["settings"][0] = set1;
 		config["settings"][1] = set2;
 		config["settings"][2] = set3;
-		
+
 		LLError::configure(config);
-		
+
 		TestAlpha::doAll();
 		TestBeta::doAll();
 		ensure_message_contains(0, "any idea");
@@ -726,13 +732,13 @@ namespace tut
 		ensure_message_contains(1, "aim west");
 		ensure_message_contains(2, "bad word");
 		ensure_message_count(3);
-		
+
 		// make sure reconfiguring works
 		LLSD config2;
 		config2["default-level"] = "WARN";
-		
+
 		LLError::configure(config2);
-		
+
 		TestAlpha::doAll();
 		TestBeta::doAll();
 		ensure_message_contains(3, "aim west");
@@ -744,13 +750,13 @@ namespace tut
 		ensure_message_contains(8, "big easy");
 		ensure_message_count(9);
 	}
-}	
+}
 
 /* Tests left:
 	handling of classes without LOG_CLASS
 
-	live update of filtering from file	
-	
+	live update of filtering from file
+
 	syslog recorder
 	file recorder
 	cerr/stderr recorder

@@ -18,6 +18,12 @@
 	<panel.string name="text modify info 4">
 		Эти объекты нельзя изменять
 	</panel.string>
+	<panel.string name="text modify info 5">
+		Этот объект нельзя изменять через границу региона
+	</panel.string>
+	<panel.string name="text modify info 6">
+		Эти объекты нельзя изменять через границу региона
+	</panel.string>
 	<panel.string name="text modify warning">
 		Этот объект содержит объединенные части
 	</panel.string>
@@ -66,6 +72,7 @@
 			<combo_box.item label="Купить объект" name="Buyobject"/>
 			<combo_box.item label="Заплатить за объект" name="Payobject"/>
 			<combo_box.item label="Открыть" name="Open"/>
+			<combo_box.item label="Приблизить" name="Zoom"/>
 		</combo_box>
 		<panel name="perms_inv">
 			<text name="perm_modify">
@@ -95,6 +102,9 @@
 		</combo_box>
 		<spinner label="Цена: L$" name="Edit Cost"/>
 		<check_box label="Показать в результатах поиска" name="search_check" tool_tip="Показывать объект в результатах поиска"/>
+		<text name="pathfinding_attributes_label">
+			Атрибуты поиска пути:
+		</text>
 		<text name="B:">
 			Н:
 		</text>

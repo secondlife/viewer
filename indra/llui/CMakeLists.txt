@@ -12,7 +12,6 @@ include(LLRender)
 include(LLWindow)
 include(LLVFS)
 include(LLXML)
-include(LLXUIXML)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
@@ -24,7 +23,11 @@ include_directories(
     ${LLWINDOW_INCLUDE_DIRS}
     ${LLVFS_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
-    ${LLXUIXML_INCLUDE_DIRS}
+    ${LIBS_PREBUILD_DIR}/include/hunspell
+    )
+include_directories(SYSTEM
+    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
+    ${LLXML_SYSTEM_INCLUDE_DIRS}
     )
 
 set(llui_SOURCE_FILES
@@ -34,6 +37,7 @@ set(llui_SOURCE_FILES
     llbadgeholder.cpp
     llbadgeowner.cpp
     llbutton.cpp
+    llchatentry.cpp
     llcheckboxctrl.cpp
     llclipboard.cpp
     llcombobox.cpp
@@ -47,12 +51,16 @@ set(llui_SOURCE_FILES
     lleditmenuhandler.cpp
     llf32uictrl.cpp
     llfiltereditor.cpp
+    llflashtimer.cpp
     llflatlistview.cpp
     llfloater.cpp
     llfloaterreg.cpp
     llfloaterreglistener.cpp
     llflyoutbutton.cpp 
     llfocusmgr.cpp
+    llfolderview.cpp
+    llfolderviewitem.cpp
+    llfolderviewmodel.cpp
     llfunctorregistry.cpp
     lliconctrl.cpp
     llkeywords.cpp
@@ -83,10 +91,10 @@ set(llui_SOURCE_FILES
     llscrolllistcolumn.cpp
     llscrolllistctrl.cpp
     llscrolllistitem.cpp
-    llsdparam.cpp
     llsearcheditor.cpp
     llslider.cpp
     llsliderctrl.cpp
+    llspellcheck.cpp
     llspinctrl.cpp
     llstatbar.cpp
     llstatgraph.cpp
@@ -100,15 +108,16 @@ set(llui_SOURCE_FILES
     lltextutil.cpp
     lltextvalidate.cpp
     lltimectrl.cpp
+    lltrans.cpp
     lltransutil.cpp
     lltoggleablemenu.cpp
     lltoolbar.cpp
     lltooltip.cpp
     llui.cpp
+    lluicolor.cpp
     lluicolortable.cpp
     lluictrl.cpp
     lluictrlfactory.cpp
-    lluiimage.cpp
     lluistring.cpp
     llundo.cpp
     llurlaction.cpp
@@ -120,7 +129,9 @@ set(llui_SOURCE_FILES
     llviewmodel.cpp
     llview.cpp
     llviewquery.cpp
+    llviewereventrecorder.cpp
     llwindowshade.cpp
+    llxuiparser.cpp
     )
     
 set(llui_HEADER_FILES
@@ -133,6 +144,7 @@ set(llui_HEADER_FILES
     llbadgeowner.h
     llbutton.h
     llcallbackmap.h
+    llchatentry.h
     llcheckboxctrl.h
     llclipboard.h
     llcombobox.h
@@ -146,14 +158,17 @@ set(llui_HEADER_FILES
     lleditmenuhandler.h
     llf32uictrl.h
     llfiltereditor.h 
+    llflashtimer.h
     llflatlistview.h
     llfloater.h
     llfloaterreg.h
     llfloaterreglistener.h
     llflyoutbutton.h 
     llfocusmgr.h
+    llfolderview.h
+    llfolderviewitem.h
+    llfolderviewmodel.h
     llfunctorregistry.h
-    llhandle.h
     llhelp.h
     lliconctrl.h
     llkeywords.h
@@ -189,9 +204,10 @@ set(llui_HEADER_FILES
     llscrolllistcolumn.h
     llscrolllistctrl.h
     llscrolllistitem.h
-    llsdparam.h
     llsliderctrl.h
     llslider.h
+    llspellcheck.h
+    llspellcheckmenuhandler.h
     llspinctrl.h
     llstatbar.h
     llstatgraph.h
@@ -208,6 +224,7 @@ set(llui_HEADER_FILES
     lltoggleablemenu.h
     lltoolbar.h
     lltooltip.h
+    lltrans.h
     lltransutil.h
     lluicolortable.h
     lluiconstants.h
@@ -215,7 +232,7 @@ set(llui_HEADER_FILES
     lluictrl.h
     lluifwd.h
     llui.h
-    lluiimage.h
+    lluicolor.h
     lluistring.h
     llundo.h
     llurlaction.h
@@ -226,8 +243,10 @@ set(llui_HEADER_FILES
     llviewinject.h
     llviewmodel.h
     llview.h
+    llviewereventrecorder.h
     llviewquery.h
     llwindowshade.h
+    llxuiparser.h
     )
 
 set_source_files_properties(${llui_HEADER_FILES}
@@ -258,6 +277,7 @@ target_link_libraries(llui
     ${LLXUIXML_LIBRARIES}
     ${LLXML_LIBRARIES}
     ${LLMATH_LIBRARIES}
+    ${HUNSPELL_LIBRARY}
     ${LLCOMMON_LIBRARIES} # must be after llimage, llwindow, llrender
     )
 

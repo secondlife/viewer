@@ -481,7 +481,6 @@ Du kan bruge [SECOND_LIFE] normalt og andre personer vil se dig korrekt.
 		[APP_NAME] installationen er færdig.
 
 Hvis det er første gang du bruger [SECOND_LIFE], skal du først oprette en konto for at logge på.
-Vend tilbage til [http://join.secondlife.com secondlife.com] for at oprette en ny konto?
 	</notification>
 	<notification name="LoginPacketNeverReceived">
 		Der er problemer med at koble på.  Der kan være et problem med din Internet forbindelse eller [SECOND_LIFE_GRID].

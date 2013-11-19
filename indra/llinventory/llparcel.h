@@ -45,7 +45,7 @@ const S32 PARCEL_UNIT_AREA			= 16;
 const F32 PARCEL_HEIGHT = 50.f;
 
 //Height above ground which parcel boundries exist for explicitly banned avatars
-const F32 BAN_HEIGHT = 768.f;
+const F32 BAN_HEIGHT = 5000.f;
 
 // Maximum number of entries in an access list
 const S32 PARCEL_MAX_ACCESS_LIST = 300;
@@ -97,6 +97,7 @@ const U32 RT_OTHER	= 0x1 << 3;
 const U32 RT_LIST	= 0x1 << 4;
 const U32 RT_SELL	= 0x1 << 5;
 
+const S32 INVALID_PARCEL_ID = -1;
 
 // Timeouts for parcels
 // default is 21 days * 24h/d * 60m/h * 60s/m *1000000 usec/s = 1814400000000
@@ -247,8 +248,6 @@ public:
 	void setMediaWidth(S32 width);
 	void setMediaHeight(S32 height);
 	void setMediaCurrentURL(const std::string& url);
-	void setMediaURLFilterEnable(U8 enable) { mMediaURLFilterEnable = enable; }
-	void setMediaURLFilterList(LLSD list);
 	void setMediaAllowNavigate(U8 enable) { mMediaAllowNavigate = enable; }
 	void setMediaURLTimeout(F32 timeout) { mMediaURLTimeout = timeout; }
 	void setMediaPreventCameraZoom(U8 enable) { mMediaPreventCameraZoom = enable; }
@@ -310,7 +309,6 @@ public:
 
 //	BOOL	importStream(std::istream& input_stream);
 	BOOL	importAccessEntry(std::istream& input_stream, LLAccessEntry* entry);
-	BOOL    importMediaURLFilter(std::istream& input_stream, std::string& url);
 	// BOOL	exportStream(std::ostream& output_stream);
 
 	void	packMessage(LLMessageSystem* msg);
@@ -354,8 +352,6 @@ public:
 	U8				getMediaAutoScale() const	{ return mMediaAutoScale; }
 	U8              getMediaLoop() const        { return mMediaLoop; }
 	const std::string&  getMediaCurrentURL() const { return mMediaCurrentURL; }
-	U8              getMediaURLFilterEnable() const   { return mMediaURLFilterEnable; }
-	LLSD            getMediaURLFilterList() const     { return mMediaURLFilterList; }
 	U8              getMediaAllowNavigate() const { return mMediaAllowNavigate; }
 	F32				getMediaURLTimeout() const { return mMediaURLTimeout; }
 	U8              getMediaPreventCameraZoom() const { return mMediaPreventCameraZoom; }
@@ -531,23 +527,6 @@ public:
 	// Can this agent change the shape of the land?
 	BOOL	allowTerraformBy(const LLUUID &agent_id) const;
 
-	// Returns 0 if access is OK, otherwise a BA_ return code above.
-	S32	 blockAccess(const LLUUID& agent_id, 
-			const LLUUID& group_id, 
-			const BOOL is_agent_identified, 
-			const BOOL is_agent_transacted,
-			const BOOL is_agent_ageverified) const;
-
-	// Only checks if the agent is explicitly banned from this parcel
-	BOOL isAgentBanned(const LLUUID& agent_id) const;
-
-	static bool isAgentBlockedFromParcel(LLParcel* parcelp, 
-									const LLUUID& agent_id,
-									const uuid_vec_t& group_ids,
-									const BOOL is_agent_identified,
-									const BOOL is_agent_transacted,
-									const BOOL is_agent_ageverified);
-
 	bool	operator==(const LLParcel &rhs) const;
 
 	// Calculate rent - area * rent * discount rate
@@ -651,8 +630,6 @@ protected:
 	U8                  mMediaLoop;
 	std::string         mMediaCurrentURL;
 	LLUUID				mMediaID;
-	U8                  mMediaURLFilterEnable;
-	LLSD                mMediaURLFilterList;
 	U8                  mMediaAllowNavigate;
 	U8					mMediaPreventCameraZoom;
 	F32					mMediaURLTimeout;

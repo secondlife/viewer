@@ -30,7 +30,6 @@
 
 #include "llmath.h"
 #include "v4coloru.h"
-#include "llmemtype.h"
 
 #include "llimagebmp.h"
 #include "llimagetga.h"
@@ -48,11 +47,15 @@
 //static
 std::string LLImage::sLastErrorMessage;
 LLMutex* LLImage::sMutex = NULL;
+bool LLImage::sUseNewByteRange = false;
+S32  LLImage::sMinimalReverseByteRangePercent = 75;
 LLPrivateMemoryPool* LLImageBase::sPrivatePoolp = NULL ;
 
 //static
-void LLImage::initClass()
+void LLImage::initClass(bool use_new_byte_range, S32 minimal_reverse_byte_range_percent)
 {
+	sUseNewByteRange = use_new_byte_range;
+    sMinimalReverseByteRangePercent = minimal_reverse_byte_range_percent;
 	sMutex = new LLMutex(NULL);
 
 	LLImageBase::createPrivatePool() ;
@@ -92,8 +95,7 @@ LLImageBase::LLImageBase()
 	  mHeight(0),
 	  mComponents(0),
 	  mBadBufferAllocation(false),
-	  mAllowOverSize(false),
-	  mMemType(LLMemType::MTYPE_IMAGEBASE)
+	  mAllowOverSize(false)
 {
 }
 
@@ -163,8 +165,6 @@ void LLImageBase::deleteData()
 // virtual
 U8* LLImageBase::allocateData(S32 size)
 {
-	LLMemType mt1(mMemType);
-	
 	if (size < 0)
 	{
 		size = mWidth * mHeight * mComponents;
@@ -209,7 +209,6 @@ U8* LLImageBase::allocateData(S32 size)
 // virtual
 U8* LLImageBase::reallocateData(S32 size)
 {
-	LLMemType mt1(mMemType);
 	U8 *new_datap = (U8*)ALLOCATE_MEM(sPrivatePoolp, size);
 	if (!new_datap)
 	{
@@ -275,24 +274,26 @@ S32 LLImageRaw::sRawImageCount = 0;
 LLImageRaw::LLImageRaw()
 	: LLImageBase()
 {
-	mMemType = LLMemType::MTYPE_IMAGERAW;
 	++sRawImageCount;
 }
 
 LLImageRaw::LLImageRaw(U16 width, U16 height, S8 components)
 	: LLImageBase()
 {
-	mMemType = LLMemType::MTYPE_IMAGERAW;
 	//llassert( S32(width) * S32(height) * S32(components) <= MAX_IMAGE_DATA_SIZE );
 	allocateDataSize(width, height, components);
 	++sRawImageCount;
 }
 
-LLImageRaw::LLImageRaw(U8 *data, U16 width, U16 height, S8 components)
+LLImageRaw::LLImageRaw(U8 *data, U16 width, U16 height, S8 components, bool no_copy)
 	: LLImageBase()
 {
-	mMemType = LLMemType::MTYPE_IMAGERAW;
-	if(allocateDataSize(width, height, components))
+
+	if(no_copy)
+	{
+		setDataAndSize(data, width, height, components);
+	}
+	else if(allocateDataSize(width, height, components))
 	{
 		memcpy(getData(), data, width*height*components);
 	}
@@ -366,29 +367,6 @@ BOOL LLImageRaw::resize(U16 width, U16 height, S8 components)
 	return TRUE;
 }
 
-#if 0
-U8 * LLImageRaw::getSubImage(U32 x_pos, U32 y_pos, U32 width, U32 height) const
-{
-	LLMemType mt1(mMemType);
-	U8 *data = new U8[width*height*getComponents()];
-
-	// Should do some simple bounds checking
-	if (!data)
-	{
-		llerrs << "Out of memory in LLImageRaw::getSubImage" << llendl;
-		return NULL;
-	}
-
-	U32 i;
-	for (i = y_pos; i < y_pos+height; i++)
-	{
-		memcpy(data + i*width*getComponents(),		/* Flawfinder: ignore */
-				getData() + ((y_pos + i)*getWidth() + x_pos)*getComponents(), getComponents()*width);
-	}
-	return data;
-}
-#endif
-
 BOOL LLImageRaw::setSubImage(U32 x_pos, U32 y_pos, U32 width, U32 height,
 							 const U8 *data, U32 stride, BOOL reverse_y)
 {
@@ -453,7 +431,6 @@ void LLImageRaw::clear(U8 r, U8 g, U8 b, U8 a)
 // Reverses the order of the rows in the image
 void LLImageRaw::verticalFlip()
 {
-	LLMemType mt1(mMemType);
 	S32 row_bytes = getWidth() * getComponents();
 	llassert(row_bytes > 0);
 	std::vector<U8> line_buffer(row_bytes);
@@ -586,7 +563,6 @@ void LLImageRaw::composite( LLImageRaw* src )
 // Src and dst can be any size.  Src has 4 components.  Dst has 3 components.
 void LLImageRaw::compositeScaled4onto3(LLImageRaw* src)
 {
-	LLMemType mt1(mMemType);
 	llinfos << "compositeScaled4onto3" << llendl;
 
 	LLImageRaw* dst = this;  // Just for clarity.
@@ -664,6 +640,29 @@ void LLImageRaw::compositeUnscaled4onto3( LLImageRaw* src )
 	}
 }
 
+void LLImageRaw::copyUnscaledAlphaMask( LLImageRaw* src, const LLColor4U& fill)
+{
+	LLImageRaw* dst = this;  // Just for clarity.
+
+	llassert( 1 == src->getComponents() );
+	llassert( 4 == dst->getComponents() );
+	llassert( (src->getWidth() == dst->getWidth()) && (src->getHeight() == dst->getHeight()) );
+
+	S32 pixels = getWidth() * getHeight();
+	U8* src_data = src->getData();
+	U8* dst_data = dst->getData();
+	for ( S32 i = 0; i < pixels; i++ )
+	{
+		dst_data[0] = fill.mV[0];
+		dst_data[1] = fill.mV[1];
+		dst_data[2] = fill.mV[2];
+		dst_data[3] = src_data[0];
+		src_data += 1;
+		dst_data += 4;
+	}
+}
+
+
 // Fill the buffer with a constant color
 void LLImageRaw::fill( const LLColor4U& color )
 {
@@ -690,8 +689,17 @@ void LLImageRaw::fill( const LLColor4U& color )
 	}
 }
 
+LLPointer<LLImageRaw> LLImageRaw::duplicate()
+{
+	if(getNumRefs() < 2)
+	{
+		return this; //nobody else refences to this image, no need to duplicate.
+	}
 
-
+	//make a duplicate
+	LLPointer<LLImageRaw> dup = new LLImageRaw(getData(), getWidth(), getHeight(), getComponents());
+	return dup; 
+}
 
 // Src and dst can be any size.  Src and dst can each have 3 or 4 components.
 void LLImageRaw::copy(LLImageRaw* src)
@@ -828,7 +836,6 @@ void LLImageRaw::copyUnscaled3onto4( LLImageRaw* src )
 // Src and dst can be any size.  Src and dst have same number of components.
 void LLImageRaw::copyScaled( LLImageRaw* src )
 {
-	LLMemType mt1(mMemType);
 	LLImageRaw* dst = this;  // Just for clarity.
 
 	llassert_always( (1 == src->getComponents()) || (3 == src->getComponents()) || (4 == src->getComponents()) );
@@ -857,57 +864,9 @@ void LLImageRaw::copyScaled( LLImageRaw* src )
 	}
 }
 
-#if 0
-//scale down image by not blending a pixel with its neighbors.
-BOOL LLImageRaw::scaleDownWithoutBlending( S32 new_width, S32 new_height)
-{
-	LLMemType mt1(mMemType);
-
-	S8 c = getComponents() ;
-	llassert((1 == c) || (3 == c) || (4 == c) );
-
-	S32 old_width = getWidth();
-	S32 old_height = getHeight();
-	
-	S32 new_data_size = old_width * new_height * c ;
-	llassert_always(new_data_size > 0);
-
-	F32 ratio_x = (F32)old_width / new_width ;
-	F32 ratio_y = (F32)old_height / new_height ;
-	if( ratio_x < 1.0f || ratio_y < 1.0f )
-	{
-		return TRUE;  // Nothing to do.
-	}
-	ratio_x -= 1.0f ;
-	ratio_y -= 1.0f ;
-
-	U8* new_data = allocateMemory(new_data_size) ;
-	llassert_always(new_data != NULL) ;
-
-	U8* old_data = getData() ;
-	S32 i, j, k, s, t;
-	for(i = 0, s = 0, t = 0 ; i < new_height ; i++)
-	{
-		for(j = 0 ; j < new_width ; j++)
-		{
-			for(k = 0 ; k < c ; k++)
-			{
-				new_data[s++] = old_data[t++] ;
-			}
-			t += (S32)(ratio_x * c + 0.1f) ;
-		}
-		t += (S32)(ratio_y * old_width * c + 0.1f) ;
-	}
-
-	setDataAndSize(new_data, new_width, new_height, c) ;
-	
-	return TRUE ;
-}
-#endif
 
 BOOL LLImageRaw::scale( S32 new_width, S32 new_height, BOOL scale_image_data )
 {
-	LLMemType mt1(mMemType);
 	llassert((1 == getComponents()) || (3 == getComponents()) || (4 == getComponents()) );
 
 	S32 old_width = getWidth();
@@ -1334,9 +1293,9 @@ LLImageFormatted::LLImageFormatted(S8 codec)
 	  mCodec(codec),
 	  mDecoding(0),
 	  mDecoded(0),
-	  mDiscardLevel(-1)
+	  mDiscardLevel(-1),
+	  mLevels(0)
 {
-	mMemType = LLMemType::MTYPE_IMAGEFORMATTED;
 }
 
 // virtual
@@ -1561,7 +1520,7 @@ void LLImageFormatted::appendData(U8 *data, S32 size)
 
 //----------------------------------------------------------------------------
 
-BOOL LLImageFormatted::load(const std::string &filename)
+BOOL LLImageFormatted::load(const std::string &filename, int load_size)
 {
 	resetLastError();
 
@@ -1580,14 +1539,19 @@ BOOL LLImageFormatted::load(const std::string &filename)
 		return FALSE;
 	}
 
+	// Constrain the load size to acceptable values
+	if ((load_size == 0) || (load_size > file_size))
+	{
+		load_size = file_size;
+	}
 	BOOL res;
-	U8 *data = allocateData(file_size);
-	apr_size_t bytes_read = file_size;
+	U8 *data = allocateData(load_size);
+	apr_size_t bytes_read = load_size;
 	apr_status_t s = apr_file_read(apr_file, data, &bytes_read); // modifies bytes_read
-	if (s != APR_SUCCESS || (S32) bytes_read != file_size)
+	if (s != APR_SUCCESS || (S32) bytes_read != load_size)
 	{
 		deleteData();
-		setLastError("Unable to read entire file",filename);
+		setLastError("Unable to read file",filename);
 		res = FALSE;
 	}
 	else
@@ -1649,6 +1613,12 @@ static void avg4_colors2(const U8* a, const U8* b, const U8* c, const U8* d, U8*
 	dst[0] = (U8)(((U32)(a[0]) + b[0] + c[0] + d[0])>>2);
 	dst[1] = (U8)(((U32)(a[1]) + b[1] + c[1] + d[1])>>2);
 }
+
+void LLImageBase::setDataAndSize(U8 *data, S32 size)
+{ 
+	ll_assert_aligned(data, 16);
+	mData = data; mDataSize = size; 
+}	
 
 //static
 void LLImageBase::generateMip(const U8* indata, U8* mipdata, S32 width, S32 height, S32 nchannels)

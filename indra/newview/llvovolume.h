@@ -31,12 +31,14 @@
 #include "llviewertexture.h"
 #include "llviewermedia.h"
 #include "llframetimer.h"
+#include "lllocalbitmaps.h"
 #include "m3math.h"		// LLMatrix3
 #include "m4math.h"		// LLMatrix4
 #include <map>
 
 class LLViewerTextureAnim;
 class LLDrawPool;
+class LLMaterialID;
 class LLSelectNode;
 class LLObjectMediaDataClient;
 class LLObjectMediaNavigateClient;
@@ -68,7 +70,7 @@ class LLVolumeInterface
 public:
 	virtual ~LLVolumeInterface() { }
 	virtual LLVolumeInterfaceType getInterfaceType() const = 0;
-	virtual BOOL doIdleUpdate(LLAgent &agent, LLWorld &world, const F64 &time) = 0;
+	virtual void doIdleUpdate() = 0;
 	virtual BOOL doUpdateGeometry(LLDrawable *drawable) = 0;
 	virtual LLVector3 getPivotPosition() const = 0;
 	virtual void onSetVolume(const LLVolumeParams &volume_params, const S32 detail) = 0;
@@ -79,7 +81,7 @@ public:
 	virtual bool isVolumeGlobal() const = 0; // Are we in global space?
 	virtual bool isActive() const = 0; // Is this object currently active?
 	virtual const LLMatrix4& getWorldMatrix(LLXformMatrix* xform) const = 0;
-	virtual void updateRelativeXform() = 0;
+	virtual void updateRelativeXform(bool force_identity = false) = 0;
 	virtual U32 getID() const = 0;
 	virtual void preRebuild() = 0;
 };
@@ -114,8 +116,7 @@ public:
 				void	deleteFaces();
 
 				void	animateTextures();
-	/*virtual*/ BOOL	idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
-
+	
 	            BOOL    isVisible() const ;
 	/*virtual*/ BOOL	isActive() const;
 	/*virtual*/ BOOL	isAttachment() const;
@@ -136,14 +137,14 @@ public:
 
 	/*virtual*/ U32		getTriangleCount(S32* vcount = NULL) const;
 	/*virtual*/ U32		getHighLODTriangleCount();
-	/*virtual*/ BOOL lineSegmentIntersect(const LLVector3& start, const LLVector3& end, 
+	/*virtual*/ BOOL lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, 
 										  S32 face = -1,                        // which face to check, -1 = ALL_SIDES
 										  BOOL pick_transparent = FALSE,
 										  S32* face_hit = NULL,                 // which face was hit
-										  LLVector3* intersection = NULL,       // return the intersection point
+										  LLVector4a* intersection = NULL,       // return the intersection point
 										  LLVector2* tex_coord = NULL,          // return the texture coordinates of the intersection point
-										  LLVector3* normal = NULL,             // return the surface normal at the intersection point
-										  LLVector3* bi_normal = NULL           // return the surface bi-normal at the intersection point
+										  LLVector4a* normal = NULL,             // return the surface normal at the intersection point
+										  LLVector4a* tangent = NULL           // return the surface tangent at the intersection point
 		);
 	
 				LLVector3 agentPositionToVolume(const LLVector3& pos) const;
@@ -158,6 +159,7 @@ public:
 				const LLMatrix4& getWorldMatrix(LLXformMatrix* xform) const;
 
 				void	markForUpdate(BOOL priority)			{ LLViewerObject::markForUpdate(priority); mVolumeChanged = TRUE; }
+				void    faceMappingChanged()                    { mFaceMappingChanged=TRUE; };
 
 	/*virtual*/ void	onShift(const LLVector4a &shift_vector); // Called when the drawable shifts
 
@@ -174,6 +176,7 @@ public:
 
 	/*virtual*/ void	setScale(const LLVector3 &scale, BOOL damped);
 
+	/*virtual*/ void    changeTEImage(S32 index, LLViewerTexture* new_image)  ;
 	/*virtual*/ void	setNumTEs(const U8 num_tes);
 	/*virtual*/ void	setTEImage(const U8 te, LLViewerTexture *imagep);
 	/*virtual*/ S32		setTETexture(const U8 te, const LLUUID &uuid);
@@ -185,6 +188,11 @@ public:
 	/*virtual*/ S32		setTEBumpShinyFullbright(const U8 te, const U8 bump);
 	/*virtual*/ S32		setTEMediaFlags(const U8 te, const U8 media_flags);
 	/*virtual*/ S32		setTEGlow(const U8 te, const F32 glow);
+	/*virtual*/ S32		setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID);
+	
+	static void	setTEMaterialParamsCallbackTE(const LLUUID& objectID, const LLMaterialID& pMaterialID, const LLMaterialPtr pMaterialParams, U32 te);
+
+	/*virtual*/ S32		setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialParams);
 	/*virtual*/ S32		setTEScale(const U8 te, const F32 s, const F32 t);
 	/*virtual*/ S32		setTEScaleS(const U8 te, const F32 s);
 	/*virtual*/ S32		setTEScaleT(const U8 te, const F32 t);
@@ -203,7 +211,7 @@ public:
 														  LLAssetType::EType type,
 														  void* user_data, S32 status, LLExtStat ext_status);
 					
-				void	updateRelativeXform();
+				void	updateRelativeXform(bool force_identity = false);
 	/*virtual*/ BOOL	updateGeometry(LLDrawable *drawable);
 	/*virtual*/ void	updateFaceSize(S32 idx);
 	/*virtual*/ BOOL	updateLOD();
@@ -340,7 +348,8 @@ public:
 	U8 mTexAnimMode;
 private:
 	friend class LLDrawable;
-	
+	friend class LLFace;
+
 	BOOL		mFaceMappingChanged;
 	LLFrameTimer mTextureUpdateTimer;
 	S32			mLOD;
@@ -377,3 +386,4 @@ protected:
 };
 
 #endif // LL_LLVOVOLUME_H
+

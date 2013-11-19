@@ -64,7 +64,11 @@
 #include "llavatarnamecache.h"
 #include "llavataractions.h"
 #include "lllogininstance.h"
-#include "llfloaterperms.h"
+#include "llfavoritesbar.h"
+
+// Two do-nothing ops for use in callbacks.
+void no_op_inventory_func(const LLUUID&) {} 
+void no_op() {}
 
 ///----------------------------------------------------------------------------
 /// Helper class to store special inventory item names and their localized values.
@@ -343,8 +347,8 @@ void LLViewerInventoryItem::cloneViewerItem(LLPointer<LLViewerInventoryItem>& ne
 
 void LLViewerInventoryItem::removeFromServer()
 {
-	llinfos << "Removing inventory item " << mUUID << " from server."
-			<< llendl;
+	lldebugs << "Removing inventory item " << mUUID << " from server."
+			 << llendl;
 
 	LLInventoryModel::LLCategoryUpdate up(mParentUUID, -1);
 	gInventory.accountForUpdate(up);
@@ -589,7 +593,7 @@ void LLViewerInventoryCategory::copyViewerCategory(const LLViewerInventoryCatego
 {
 	copyCategory(other);
 	mOwnerID = other->mOwnerID;
-	mVersion = other->mVersion;
+	setVersion(other->getVersion());
 	mDescendentCount = other->mDescendentCount;
 	mDescendentsRequested = other->mDescendentsRequested;
 }
@@ -657,9 +661,19 @@ void LLViewerInventoryCategory::removeFromServer( void )
 	gAgent.sendReliableMessage();
 }
 
+S32 LLViewerInventoryCategory::getVersion() const
+{
+	return mVersion;
+}
+
+void LLViewerInventoryCategory::setVersion(S32 version)
+{
+	mVersion = version;
+}
+
 bool LLViewerInventoryCategory::fetch()
 {
-	if((VERSION_UNKNOWN == mVersion)
+	if((VERSION_UNKNOWN == getVersion())
 	   && mDescendentsRequested.hasExpired())	//Expired check prevents multiple downloads.
 	{
 		LL_DEBUGS("InventoryFetch") << "Fetching category children: " << mName << ", UUID: " << mUUID << LL_ENDL;
@@ -950,7 +964,7 @@ void LLInventoryCallbackManager::fire(U32 callback_id, const LLUUID& item_id)
 	}
 }
 
-void WearOnAvatarCallback::fire(const LLUUID& inv_item)
+void rez_attachment_cb(const LLUUID& inv_item, LLViewerJointAttachment *attachmentp)
 {
 	if (inv_item.isNull())
 		return;
@@ -958,50 +972,11 @@ void WearOnAvatarCallback::fire(const LLUUID& inv_item)
 	LLViewerInventoryItem *item = gInventory.getItem(inv_item);
 	if (item)
 	{
-		LLAppearanceMgr::instance().wearItemOnAvatar(inv_item, true, mReplace);
+		rez_attachment(item, attachmentp);
 	}
 }
 
-void ModifiedCOFCallback::fire(const LLUUID& inv_item)
-{
-	LLAppearanceMgr::instance().updateAppearanceFromCOF();
-
-	// Start editing the item if previously requested.
-	gAgentWearables.editWearableIfRequested(inv_item);
-
-	// TODO: camera mode may not be changed if a debug setting is tweaked
-	if( gAgentCamera.cameraCustomizeAvatar() )
-	{
-		// If we're in appearance editing mode, the current tab may need to be refreshed
-		LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLFloaterSidePanelContainer::getPanel("appearance"));
-		if (panel)
-		{
-			panel->showDefaultSubpart();
-		}
-	}
-}
-
-RezAttachmentCallback::RezAttachmentCallback(LLViewerJointAttachment *attachmentp)
-{
-	mAttach = attachmentp;
-}
-RezAttachmentCallback::~RezAttachmentCallback()
-{
-}
-
-void RezAttachmentCallback::fire(const LLUUID& inv_item)
-{
-	if (inv_item.isNull())
-		return;
-
-	LLViewerInventoryItem *item = gInventory.getItem(inv_item);
-	if (item)
-	{
-		rez_attachment(item, mAttach);
-	}
-}
-
-void ActivateGestureCallback::fire(const LLUUID& inv_item)
+void activate_gesture_cb(const LLUUID& inv_item)
 {
 	if (inv_item.isNull())
 		return;
@@ -1014,25 +989,7 @@ void ActivateGestureCallback::fire(const LLUUID& inv_item)
 	LLGestureMgr::instance().activateGesture(inv_item);
 }
 
-void CreateScriptCallback::fire(const LLUUID& inv_item)
-{
-	if (inv_item.isNull())
-		return;
-
-	LLViewerInventoryItem* item = gInventory.getItem(inv_item);
-	if (!item) return;
-
-	LLPermissions perm = item->getPermissions();
-	perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Scripts"));
-	perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Scripts"));
-	item->setPermissions(perm);
-
-	item->updateServer(FALSE);
-    gInventory.updateItem(item);
-    gInventory.notifyObservers();
-}
-
-void CreateGestureCallback::fire(const LLUUID& inv_item)
+void create_gesture_cb(const LLUUID& inv_item)
 {
 	if (inv_item.isNull())
 		return;
@@ -1041,45 +998,14 @@ void CreateGestureCallback::fire(const LLUUID& inv_item)
 	
 	LLViewerInventoryItem* item = gInventory.getItem(inv_item);
 	if (!item) return;
-
-	LLPermissions perm = item->getPermissions();
-	perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Gestures"));
-	perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Gestures"));
-	item->setPermissions(perm);
-
-	item->updateServer(FALSE);
-	gInventory.updateItem(item);
-	gInventory.notifyObservers();
+    gInventory.updateItem(item);
+    gInventory.notifyObservers();
 
 	LLPreviewGesture* preview = LLPreviewGesture::show(inv_item,  LLUUID::null);
 	// Force to be entirely onscreen.
 	gFloaterView->adjustToFitScreen(preview, FALSE);
 }
 
-void CreateNotecardCallback::fire(const LLUUID& inv_item)
-{
-	if (inv_item.isNull())
-		return;
-	
-	LLViewerInventoryItem* item = gInventory.getItem(inv_item);
-	if (!item) return;
-
-	LLPermissions perm = item->getPermissions();
-	perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Notecards"));
-	perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Notecards"));
-	item->setPermissions(perm);
-
-	item->updateServer(FALSE);
-    gInventory.updateItem(item);
-    gInventory.notifyObservers();
-}
-
-void AddFavoriteLandmarkCallback::fire(const LLUUID& inv_item_id)
-{
-	if (mTargetLandmarkId.isNull()) return;
-
-	gInventory.rearrangeFavoriteLandmarks(inv_item_id, mTargetLandmarkId);
-}
 
 LLInventoryCallbackManager gInventoryCallbacks;
 
@@ -1206,6 +1132,11 @@ void link_inventory_item(
 		}
 	}
 
+#if 1 // debugging stuff
+	LLViewerInventoryCategory* cat = gInventory.getCategory(parent_id);
+	lldebugs << "cat: " << cat << llendl;
+	
+#endif
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessageFast(_PREHASH_LinkInventoryItem);
 	msg->nextBlock(_PREHASH_AgentData);
@@ -1329,46 +1260,22 @@ void create_new_item(const std::string& name,
 	LLViewerAssetType::generateDescriptionFor(asset_type, desc);
 	next_owner_perm = (next_owner_perm) ? next_owner_perm : PERM_MOVE | PERM_TRANSFER;
 
-	LLPointer<LLInventoryCallback> cb = NULL;
-
-	switch (inv_type)
-	{
 	
-		case LLInventoryType::IT_LSL:
-		{
-			cb = new CreateScriptCallback();
-			next_owner_perm = LLFloaterPerms::getNextOwnerPerms("Scripts");
-			break;
-		}
-
-		case LLInventoryType::IT_GESTURE:
-		{
-			cb = new CreateGestureCallback();
-			next_owner_perm = LLFloaterPerms::getNextOwnerPerms("Gestures");
-			break;
-		}
-
-		case LLInventoryType::IT_NOTECARD:
-		{
-			cb = new CreateNotecardCallback();
-			next_owner_perm = LLFloaterPerms::getNextOwnerPerms("Notecards");
-			break;
-		}
-		default:
-			break;
+	if (inv_type == LLInventoryType::IT_GESTURE)
+	{
+		LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(create_gesture_cb);
+		create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
+							  parent_id, LLTransactionID::tnull, name, desc, asset_type, inv_type,
+							  NOT_WEARABLE, next_owner_perm, cb);
 	}
-
-	create_inventory_item(gAgent.getID(),
-						  gAgent.getSessionID(),
-						  parent_id,
-						  LLTransactionID::tnull,
-						  name,
-						  desc,
-						  asset_type,
-						  inv_type,
-						  NOT_WEARABLE,
-						  next_owner_perm,
-						  cb);
+	else
+	{
+		LLPointer<LLInventoryCallback> cb = NULL;
+		create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
+							  parent_id, LLTransactionID::tnull, name, desc, asset_type, inv_type,
+							  NOT_WEARABLE, next_owner_perm, cb);
+	}
+	
 }	
 
 const std::string NEW_LSL_NAME = "New Script"; // *TODO:Translate? (probably not)
@@ -1376,7 +1283,7 @@ const std::string NEW_NOTECARD_NAME = "New Note"; // *TODO:Translate? (probably 
 const std::string NEW_GESTURE_NAME = "New Gesture"; // *TODO:Translate? (probably not)
 
 // ! REFACTOR ! Really need to refactor this so that it's not a bunch of if-then statements...
-void menu_create_inventory_item(LLFolderView* root, LLFolderBridge *bridge, const LLSD& userdata, const LLUUID& default_parent_uuid)
+void menu_create_inventory_item(LLInventoryPanel* panel, LLFolderBridge *bridge, const LLSD& userdata, const LLUUID& default_parent_uuid)
 {
 	std::string type_name = userdata.asString();
 	
@@ -1400,7 +1307,7 @@ void menu_create_inventory_item(LLFolderView* root, LLFolderBridge *bridge, cons
 
 		LLUUID category = gInventory.createNewCategory(parent_id, preferred_type, LLStringUtil::null);
 		gInventory.notifyObservers();
-		root->setSelectionByID(category, TRUE);
+		panel->setSelectionByID(category, TRUE);
 	}
 	else if ("lsl" == type_name)
 	{
@@ -1409,7 +1316,7 @@ void menu_create_inventory_item(LLFolderView* root, LLFolderBridge *bridge, cons
 					  parent_id,
 					  LLAssetType::AT_LSL_TEXT,
 					  LLInventoryType::IT_LSL,
-					  PERM_MOVE | PERM_TRANSFER); // overridden in create_new_item
+					  PERM_MOVE | PERM_TRANSFER);
 	}
 	else if ("notecard" == type_name)
 	{
@@ -1418,7 +1325,7 @@ void menu_create_inventory_item(LLFolderView* root, LLFolderBridge *bridge, cons
 					  parent_id,
 					  LLAssetType::AT_NOTECARD,
 					  LLInventoryType::IT_NOTECARD,
-					  PERM_ALL); // overridden in create_new_item
+					  PERM_ALL);
 	}
 	else if ("gesture" == type_name)
 	{
@@ -1427,7 +1334,7 @@ void menu_create_inventory_item(LLFolderView* root, LLFolderBridge *bridge, cons
 					  parent_id,
 					  LLAssetType::AT_GESTURE,
 					  LLInventoryType::IT_GESTURE,
-					  PERM_ALL); // overridden in create_new_item
+					  PERM_ALL);
 	}
 	else
 	{
@@ -1443,7 +1350,7 @@ void menu_create_inventory_item(LLFolderView* root, LLFolderBridge *bridge, cons
 			llwarns << "Can't create unrecognized type " << type_name << llendl;
 		}
 	}
-	root->setNeedsAutoRename(TRUE);	
+	panel->getRootFolder()->setNeedsAutoRename(TRUE);	
 }
 
 LLAssetType::EType LLViewerInventoryItem::getType() const
@@ -1517,336 +1424,16 @@ const std::string& LLViewerInventoryItem::getName() const
 	return  LLInventoryItem::getName();
 }
 
-/**
- * Class to store sorting order of favorites landmarks in a local file. EXT-3985.
- * It replaced previously implemented solution to store sort index in landmark's name as a "<N>@" prefix.
- * Data are stored in user home directory.
- */
-class LLFavoritesOrderStorage : public LLSingleton<LLFavoritesOrderStorage>
-	, public LLDestroyClass<LLFavoritesOrderStorage>
-{
-	LOG_CLASS(LLFavoritesOrderStorage);
-public:
-	/**
-	 * Sets sort index for specified with LLUUID favorite landmark
-	 */
-	void setSortIndex(const LLUUID& inv_item_id, S32 sort_index);
-
-	/**
-	 * Gets sort index for specified with LLUUID favorite landmark
-	 */
-	S32 getSortIndex(const LLUUID& inv_item_id);
-	void removeSortIndex(const LLUUID& inv_item_id);
-
-	void getSLURL(const LLUUID& asset_id);
-
-	/**
-	 * Implementation of LLDestroyClass. Calls cleanup() instance method.
-	 *
-	 * It is important this callback is called before gInventory is cleaned.
-	 * For now it is called from LLAppViewer::cleanup() -> LLAppViewer::disconnectViewer(),
-	 * Inventory is cleaned later from LLAppViewer::cleanup() after LLAppViewer::disconnectViewer() is called.
-	 * @see cleanup()
-	 */
-	static void destroyClass();
-
-	const static S32 NO_INDEX;
-private:
-	friend class LLSingleton<LLFavoritesOrderStorage>;
-	LLFavoritesOrderStorage() : mIsDirty(false) { load(); }
-	~LLFavoritesOrderStorage() { save(); }
-
-	/**
-	 * Removes sort indexes for items which are not in Favorites bar for now.
-	 */
-	void cleanup();
-
-	const static std::string SORTING_DATA_FILE_NAME;
-
-	void load();
-	void save();
-
-	void saveFavoritesSLURLs();
-
-	// Remove record of current user's favorites from file on disk.
-	void removeFavoritesRecordOfUser();
-
-	void onLandmarkLoaded(const LLUUID& asset_id, LLLandmark* landmark);
-	void storeFavoriteSLURL(const LLUUID& asset_id, std::string& slurl);
-
-	typedef std::map<LLUUID, S32> sort_index_map_t;
-	sort_index_map_t mSortIndexes;
-
-	typedef std::map<LLUUID, std::string> slurls_map_t;
-	slurls_map_t mSLURLs;
-
-	bool mIsDirty;
-
-	struct IsNotInFavorites
-	{
-		IsNotInFavorites(const LLInventoryModel::item_array_t& items)
-			: mFavoriteItems(items)
-		{
-
-		}
-
-		/**
-		 * Returns true if specified item is not found among inventory items
-		 */
-		bool operator()(const sort_index_map_t::value_type& id_index_pair) const
-		{
-			LLPointer<LLViewerInventoryItem> item = gInventory.getItem(id_index_pair.first);
-			if (item.isNull()) return true;
-
-			LLInventoryModel::item_array_t::const_iterator found_it =
-				std::find(mFavoriteItems.begin(), mFavoriteItems.end(), item);
-
-			return found_it == mFavoriteItems.end();
-		}
-	private:
-		LLInventoryModel::item_array_t mFavoriteItems;
-	};
-
-};
-
-const std::string LLFavoritesOrderStorage::SORTING_DATA_FILE_NAME = "landmarks_sorting.xml";
-const S32 LLFavoritesOrderStorage::NO_INDEX = -1;
-
-void LLFavoritesOrderStorage::setSortIndex(const LLUUID& inv_item_id, S32 sort_index)
-{
-	mSortIndexes[inv_item_id] = sort_index;
-	mIsDirty = true;
-}
-
-S32 LLFavoritesOrderStorage::getSortIndex(const LLUUID& inv_item_id)
-{
-	sort_index_map_t::const_iterator it = mSortIndexes.find(inv_item_id);
-	if (it != mSortIndexes.end())
-	{
-		return it->second;
-	}
-	return NO_INDEX;
-}
-
-void LLFavoritesOrderStorage::removeSortIndex(const LLUUID& inv_item_id)
-{
-	mSortIndexes.erase(inv_item_id);
-	mIsDirty = true;
-}
-
-void LLFavoritesOrderStorage::getSLURL(const LLUUID& asset_id)
-{
-	slurls_map_t::iterator slurl_iter = mSLURLs.find(asset_id);
-	if (slurl_iter != mSLURLs.end()) return; // SLURL for current landmark is already cached
-
-	LLLandmark* lm = gLandmarkList.getAsset(asset_id,
-			boost::bind(&LLFavoritesOrderStorage::onLandmarkLoaded, this, asset_id, _1));
-	if (lm)
-	{
-		onLandmarkLoaded(asset_id, lm);
-	}
-}
-
-// static
-void LLFavoritesOrderStorage::destroyClass()
-{
-	LLFavoritesOrderStorage::instance().cleanup();
-	if (gSavedPerAccountSettings.getBOOL("ShowFavoritesOnLogin"))
-	{
-		LLFavoritesOrderStorage::instance().saveFavoritesSLURLs();
-	}
-	else
-	{
-		LLFavoritesOrderStorage::instance().removeFavoritesRecordOfUser();
-	}
-}
-
-void LLFavoritesOrderStorage::load()
-{
-	// load per-resident sorting information
-	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, SORTING_DATA_FILE_NAME);
-
-	LLSD settings_llsd;
-	llifstream file;
-	file.open(filename);
-	if (file.is_open())
-	{
-		LLSDSerialize::fromXML(settings_llsd, file);
-	}
-
-	for (LLSD::map_const_iterator iter = settings_llsd.beginMap();
-		iter != settings_llsd.endMap(); ++iter)
-	{
-		mSortIndexes.insert(std::make_pair(LLUUID(iter->first), (S32)iter->second.asInteger()));
-	}
-}
-
-void LLFavoritesOrderStorage::saveFavoritesSLURLs()
-{
-	// Do not change the file if we are not logged in yet.
-	if (!LLLoginInstance::getInstance()->authSuccess())
-	{
-		llwarns << "Cannot save favorites: not logged in" << llendl;
-		return;
-	}
-	
-	std::string user_dir = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "");
-	if (user_dir.empty())
-	{
-		llwarns << "Cannot save favorites: empty user dir name" << llendl;
-		return;
-	}
-
-	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites.xml");
-	llifstream in_file;
-	in_file.open(filename);
-	LLSD fav_llsd;
-	if (in_file.is_open())
-	{
-		LLSDSerialize::fromXML(fav_llsd, in_file);
-	}
-
-	const LLUUID fav_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
-	LLInventoryModel::cat_array_t cats;
-	LLInventoryModel::item_array_t items;
-	gInventory.collectDescendents(fav_id, cats, items, LLInventoryModel::EXCLUDE_TRASH);
-
-	LLSD user_llsd;
-	for (LLInventoryModel::item_array_t::iterator it = items.begin(); it != items.end(); it++)
-	{
-		LLSD value;
-		value["name"] = (*it)->getName();
-		value["asset_id"] = (*it)->getAssetUUID();
-
-		slurls_map_t::iterator slurl_iter = mSLURLs.find(value["asset_id"]);
-		if (slurl_iter != mSLURLs.end())
-		{
-			lldebugs << "Saving favorite: idx=" << (*it)->getSortField() << ", SLURL=" <<  slurl_iter->second << ", value=" << value << llendl;
-			value["slurl"] = slurl_iter->second;
-			user_llsd[(*it)->getSortField()] = value;
-		}
-		else
-		{
-			llwarns << "Not saving favorite " << value["name"] << ": no matching SLURL" << llendl;
-		}
-	}
-
-	LLAvatarName av_name;
-	LLAvatarNameCache::get( gAgentID, &av_name );
-	lldebugs << "Saved favorites for " << av_name.getLegacyName() << llendl;
-	fav_llsd[av_name.getLegacyName()] = user_llsd;
-
-	llofstream file;
-	file.open(filename);
-	LLSDSerialize::toPrettyXML(fav_llsd, file);
-}
-
-void LLFavoritesOrderStorage::removeFavoritesRecordOfUser()
-{
-	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites.xml");
-	LLSD fav_llsd;
-	llifstream file;
-	file.open(filename);
-	if (!file.is_open()) return;
-	LLSDSerialize::fromXML(fav_llsd, file);
-
-	LLAvatarName av_name;
-	LLAvatarNameCache::get( gAgentID, &av_name );
-	lldebugs << "Removed favorites for " << av_name.getLegacyName() << llendl;
-	if (fav_llsd.has(av_name.getLegacyName()))
-	{
-		fav_llsd.erase(av_name.getLegacyName());
-	}
-
-	llofstream out_file;
-	out_file.open(filename);
-	LLSDSerialize::toPrettyXML(fav_llsd, out_file);
-
-}
-
-void LLFavoritesOrderStorage::onLandmarkLoaded(const LLUUID& asset_id, LLLandmark* landmark)
-{
-	if (!landmark) return;
-
-	LLVector3d pos_global;
-	if (!landmark->getGlobalPos(pos_global))
-	{
-		// If global position was unknown on first getGlobalPos() call
-		// it should be set for the subsequent calls.
-		landmark->getGlobalPos(pos_global);
-	}
-
-	if (!pos_global.isExactlyZero())
-	{
-		LLLandmarkActions::getSLURLfromPosGlobal(pos_global,
-				boost::bind(&LLFavoritesOrderStorage::storeFavoriteSLURL, this, asset_id, _1));
-	}
-}
-
-void LLFavoritesOrderStorage::storeFavoriteSLURL(const LLUUID& asset_id, std::string& slurl)
-{
-	lldebugs << "Saving landmark SLURL: " << slurl << llendl;
-	mSLURLs[asset_id] = slurl;
-}
-
-void LLFavoritesOrderStorage::save()
-{
-	// nothing to save if clean
-	if (!mIsDirty) return;
-
-	// If we quit from the login screen we will not have an SL account
-	// name.  Don't try to save, otherwise we'll dump a file in
-	// C:\Program Files\SecondLife\ or similar. JC
-	std::string user_dir = gDirUtilp->getLindenUserDir();
-	if (!user_dir.empty())
-	{
-		std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, SORTING_DATA_FILE_NAME);
-		LLSD settings_llsd;
-
-		for(sort_index_map_t::const_iterator iter = mSortIndexes.begin(); iter != mSortIndexes.end(); ++iter)
-		{
-			settings_llsd[iter->first.asString()] = iter->second;
-		}
-
-		llofstream file;
-		file.open(filename);
-		LLSDSerialize::toPrettyXML(settings_llsd, file);
-	}
-}
-
-void LLFavoritesOrderStorage::cleanup()
-{
-	// nothing to clean
-	if (!mIsDirty) return;
-
-	const LLUUID fav_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
-	LLInventoryModel::cat_array_t cats;
-	LLInventoryModel::item_array_t items;
-	gInventory.collectDescendents(fav_id, cats, items, LLInventoryModel::EXCLUDE_TRASH);
-
-	IsNotInFavorites is_not_in_fav(items);
-
-	sort_index_map_t  aTempMap;
-	//copy unremoved values from mSortIndexes to aTempMap
-	std::remove_copy_if(mSortIndexes.begin(), mSortIndexes.end(), 
-		inserter(aTempMap, aTempMap.begin()),
-		is_not_in_fav);
-
-	//Swap the contents of mSortIndexes and aTempMap
-	mSortIndexes.swap(aTempMap);
-}
-
-
 S32 LLViewerInventoryItem::getSortField() const
 {
 	return LLFavoritesOrderStorage::instance().getSortIndex(mUUID);
 }
 
-void LLViewerInventoryItem::setSortField(S32 sortField)
-{
-	LLFavoritesOrderStorage::instance().setSortIndex(mUUID, sortField);
-	getSLURL();
-}
+//void LLViewerInventoryItem::setSortField(S32 sortField)
+//{
+//	LLFavoritesOrderStorage::instance().setSortIndex(mUUID, sortField);
+//	getSLURL();
+//}
 
 void LLViewerInventoryItem::getSLURL()
 {

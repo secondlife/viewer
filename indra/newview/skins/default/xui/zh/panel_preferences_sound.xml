@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="聲音" name="Preference Media panel">
 	<panel.string name="middle_mouse">
-		Middle Mouse
+		滑鼠中鍵
 	</panel.string>
 	<slider label="主音量" name="System Volume"/>
 	<check_box initial_value="true" name="mute_when_minimized"/>
@@ -18,7 +18,8 @@
 	<slider label="語音聊天" name="Voice Volume"/>
 	<check_box label="已啟用" name="enable_voice_check"/>
 	<check_box label="允許媒體自動播放" name="media_auto_play_btn" tool_tip="若你想要，可以勾選這個允許媒體自動播放" value="true"/>
-	<check_box label="播放附加到其他化身身上的媒體" name="media_show_on_others_btn" tool_tip="Uncheck this to hide media attached to other avatars nearby" value="true"/>
+	<check_box label="播放附加到其他化身身上的媒體" name="media_show_on_others_btn" tool_tip="若未勾選，將隱藏附著於附近其他化身身上的媒體" value="true"/>
+	<check_box label="播放來自姿勢的聲音" name="gesture_audio_play_btn" tool_tip="勾選即可聽到來自姿勢的聲音" value="true"/>
 	<text name="voice_chat_settings">
 		語音聊天設定
 	</text>
@@ -30,33 +31,10 @@
 		<radio_item label="化身位置" name="1"/>
 	</radio_group>
 	<check_box label="說話時同步移動化身嘴唇" name="enable_lip_sync"/>
-	<check_box label="Toggle speak on/off when I press:" name="push_to_talk_toggle_check" tool_tip="When in toggle mode, press and release the trigger key ONCE to switch your microphone on or off. When not in toggle mode, the microphone broadcasts your voice only while the trigger is being held down."/>
-	<line_editor label="Push-to-Speak trigger" name="modifier_combo"/>
+	<check_box label="切換說話 / 靜音，當我按下：" name="push_to_talk_toggle_check" tool_tip="在切換模式下，按下再放開啟動鍵一次，即可打開或關閉麥克風。 不在切換狀態時，麥克風只有在啟動鍵被按下時才會放送你的聲音。"/>
+	<line_editor label="「按下後說話」啟動鍵" name="modifier_combo"/>
 	<button label="設定按鍵" name="set_voice_hotkey_button"/>
 	<button name="set_voice_middlemouse_button" tool_tip="重設滑鼠中鍵按鈕"/>
 	<button label="輸入 / 輸出設備" name="device_settings_btn"/>
-	<panel label="設備設定" name="device_settings_panel">
-		<panel.string name="default_text">
-			預設
-		</panel.string>
-		<panel.string name="default system device">
-			預設系統設備
-		</panel.string>
-		<panel.string name="no device">
-			無設備
-		</panel.string>
-		<text name="Input">
-			輸入
-		</text>
-		<text name="My volume label">
-			我的音量：
-		</text>
-		<slider_bar initial_value="1.0" name="mic_volume_slider" tool_tip="Change the volume using this slider"/>
-		<text name="wait_text">
-			請稍候
-		</text>
-		<text name="Output">
-			輸出
-		</text>
-	</panel>
+	<panel label="設備設定" name="device_settings_panel"/>
 </panel>

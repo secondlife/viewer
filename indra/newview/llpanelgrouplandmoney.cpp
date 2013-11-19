@@ -517,7 +517,7 @@ void LLPanelGroupLandMoney::impl::processGroupLand(LLMessageSystem* msg)
 			
 			row["columns"][3]["column"] = "type";
 			row["columns"][3]["value"] = land_type;
-			row["columns"][3]["font"] = "SANSSERIFSMALL";
+			row["columns"][3]["font"] = "SANSSERIF_SMALL";
 			
 			// hidden is always last column
 			row["columns"][4]["column"] = "hidden";
@@ -1383,13 +1383,11 @@ void LLGroupMoneyPlanningTabEventHandler::processReply(LLMessageSystem* msg,
 	S32 cur_land_tax;
 	S32 cur_group_tax;
 	S32 cur_parcel_dir_fee;
-	S32 cur_total_tax;
 	S32 proj_object_tax;
 	S32 proj_light_tax;
 	S32 proj_land_tax;
 	S32 proj_group_tax;
 	S32 proj_parcel_dir_fee;
-	S32 proj_total_tax;
 	S32	non_exempt_members;
 
 	msg->getS32Fast(_PREHASH_MoneyData, _PREHASH_IntervalDays, interval_days );
@@ -1413,8 +1411,6 @@ void LLGroupMoneyPlanningTabEventHandler::processReply(LLMessageSystem* msg,
 	msg->getStringFast(_PREHASH_MoneyData, _PREHASH_LastTaxDate, last_stipend_date);
 	msg->getStringFast(_PREHASH_MoneyData, _PREHASH_TaxDate, next_stipend_date);
 
-	cur_total_tax = cur_object_tax + cur_light_tax + cur_land_tax + cur_group_tax +  cur_parcel_dir_fee;
-	proj_total_tax = proj_object_tax + proj_light_tax + proj_land_tax + proj_group_tax + proj_parcel_dir_fee;
 
 	if (interval_days != mImplementationp->mIntervalLength || 
 		current_interval != mImplementationp->mCurrentInterval)

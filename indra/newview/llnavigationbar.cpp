@@ -267,7 +267,6 @@ LLNavigationBar::LLNavigationBar()
 	mBtnForward(NULL),
 	mBtnHome(NULL),
 	mCmbLocation(NULL),
-	mPurgeTPHistoryItems(false),
 	mSaveToLocationHistory(false)
 {
 	buildFromFile( "panel_navigation_bar.xml");
@@ -338,12 +337,6 @@ void LLNavigationBar::setVisible(BOOL visible)
 
 void LLNavigationBar::draw()
 {
-	if(mPurgeTPHistoryItems)
-	{
-		LLTeleportHistory::getInstance()->purgeItems();
-		mPurgeTPHistoryItems = false;
-	}
-
 	if (isBackgroundVisible())
 	{
 		static LLUICachedControl<S32> drop_shadow_floater ("DropShadowFloater", 0);
@@ -687,7 +680,7 @@ void LLNavigationBar::clearHistoryCache()
 	LLLocationHistory* lh = LLLocationHistory::getInstance();
 	lh->removeItems();
 	lh->save();	
-	mPurgeTPHistoryItems= true;
+	LLTeleportHistory::getInstance()->purgeItems();
 }
 
 int LLNavigationBar::getDefNavBarHeight()

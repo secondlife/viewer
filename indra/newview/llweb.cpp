@@ -185,8 +185,8 @@ std::string LLWeb::expandURLSubstitutions(const std::string &url,
 	substitution["VERSION_PATCH"] = LLVersionInfo::getPatch();
 	substitution["VERSION_BUILD"] = LLVersionInfo::getBuild();
 	substitution["CHANNEL"] = LLVersionInfo::getChannel();
-	substitution["GRID"] = LLGridManager::getInstance()->getGridLabel();
-	substitution["GRID_LOWERCASE"] = utf8str_tolower(LLGridManager::getInstance()->getGridLabel());
+	substitution["GRID"] = LLGridManager::getInstance()->getGridId();
+	substitution["GRID_LOWERCASE"] = utf8str_tolower(LLGridManager::getInstance()->getGridId());
 	substitution["OS"] = LLAppViewer::instance()->getOSInfo().getOSStringSimple();
 	substitution["SESSION_ID"] = gAgent.getSessionID();
 	substitution["FIRST_LOGIN"] = gAgent.isFirstLogin();

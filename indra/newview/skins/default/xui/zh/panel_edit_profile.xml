@@ -7,15 +7,15 @@
 	<string name="RegisterDateFormat">
 		[REG_DATE] ([AGE])
 	</string>
-	<string name="AcctTypeResident" value="Resident"/>
-	<string name="AcctTypeTrial" value="Trial"/>
-	<string name="AcctTypeCharterMember" value="Charter Member"/>
-	<string name="AcctTypeEmployee" value="Linden Lab Employee"/>
-	<string name="PaymentInfoUsed" value="Payment Info Used"/>
-	<string name="PaymentInfoOnFile" value="Payment Info On File"/>
-	<string name="NoPaymentInfoOnFile" value="No Payment Info On File"/>
-	<string name="AgeVerified" value="Age-verified"/>
-	<string name="NotAgeVerified" value="Not Age-verified"/>
+	<string name="AcctTypeResident" value="居民"/>
+	<string name="AcctTypeTrial" value="試用"/>
+	<string name="AcctTypeCharterMember" value="老牌 Charter 成員"/>
+	<string name="AcctTypeEmployee" value="林登實驗室員工"/>
+	<string name="PaymentInfoUsed" value="使用的付款資料"/>
+	<string name="PaymentInfoOnFile" value="預留付款資料"/>
+	<string name="NoPaymentInfoOnFile" value="未預留付款資料"/>
+	<string name="AgeVerified" value="通過年齡驗證"/>
+	<string name="NotAgeVerified" value="未通過年齡驗證"/>
 	<string name="partner_edit_link_url">
 		http://www.secondlife.com/account/partners.php?lang=en
 	</string>
@@ -34,22 +34,22 @@
 					<panel name="second_life_image_panel">
 						<text name="second_life_photo_title_text" value="[SECOND_LIFE]:"/>
 					</panel>
-					<icon label="" name="2nd_life_edit_icon" tool_tip="點擊以選擇圖像"/>
+					<icon label="" name="2nd_life_edit_icon" tool_tip="點按以選擇圖像"/>
 				</panel>
 				<panel name="first_life_image_panel">
 					<text name="real_world_photo_title_text" value="真實世界："/>
 				</panel>
-				<icon label="" name="real_world_edit_icon" tool_tip="點擊以選擇圖像"/>
+				<icon label="" name="real_world_edit_icon" tool_tip="點按以選擇圖像"/>
 				<text name="title_homepage_text">
 					首頁：
 				</text>
 				<line_editor name="homepage_edit" value="http://"/>
 				<text name="title_acc_status_text" value="我的帳戶："/>
-				<text_editor name="acc_status_text" value="Resident. No payment info on file."/>
+				<text_editor name="acc_status_text" value="居民。 未預留付款資料。"/>
 				<text name="my_account_link" value="[[URL] 前往我的塗鴉牆]"/>
 				<text name="title_partner_text" value="我的配偶："/>
 				<panel name="partner_data_panel">
-					<text initial_value="(retrieving)" name="partner_text"/>
+					<text initial_value="（檢索中）" name="partner_text"/>
 				</panel>
 				<text name="partner_edit_link" value="[[URL] 編輯]"/>
 			</panel>

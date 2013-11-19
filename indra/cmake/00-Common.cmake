@@ -2,6 +2,9 @@
 #
 # Compilation options shared by all Second Life components.
 
+if(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)
+set(${CMAKE_CURRENT_LIST_FILE}_INCLUDED "YES")
+
 include(Variables)
 
 # Portable compilation flags.
@@ -51,6 +54,7 @@ if (WINDOWS)
   set(CMAKE_CXX_FLAGS_RELEASE
       "${CMAKE_CXX_FLAGS_RELEASE} ${LL_CXX_FLAGS} /O2 /Zi /MD /MP /Ob2 -D_SECURE_STL=0 -D_HAS_ITERATOR_DEBUGGING=0"
       CACHE STRING "C++ compiler release options" FORCE)
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE")
 
   set(CMAKE_CXX_STANDARD_LIBRARIES "")
   set(CMAKE_C_STANDARD_LIBRARIES "")
@@ -69,6 +73,7 @@ if (WINDOWS)
       /Oy-
       /Zc:wchar_t-
       /arch:SSE2
+      /fp:fast
       )
      
   # Are we using the crummy Visual Studio KDU build workaround?
@@ -126,6 +131,17 @@ if (LINUX)
   # Let's actually get a numerical version of gxx's version
   STRING(REGEX REPLACE ".* ([0-9])\\.([0-9])\\.([0-9]).*" "\\1\\2\\3" CXX_VERSION_NUMBER ${CXX_VERSION})
 
+  # Hacks to work around gcc 4.1 TC build pool machines which can't process pragma warning disables
+  # This is pure rubbish; I wish there was another way.
+  #
+  if(${CXX_VERSION_NUMBER} LESS 420)
+    set(CMAKE_CXX_FLAGS "-Wno-deprecated -Wno-uninitialized -Wno-unused-variable -Wno-unused-function ${CMAKE_CXX_FLAGS}")
+  endif (${CXX_VERSION_NUMBER} LESS 420)
+
+  if(${CXX_VERSION_NUMBER} GREATER 459)
+    set(CMAKE_CXX_FLAGS "-Wno-deprecated -Wno-unused-but-set-variable -Wno-unused-variable ${CMAKE_CXX_FLAGS}")
+  endif (${CXX_VERSION_NUMBER} GREATER 459)
+
   # gcc 4.3 and above don't like the LL boost and also
   # cause warnings due to our use of deprecated headers
   if(${CXX_VERSION_NUMBER} GREATER 429)
@@ -148,41 +164,21 @@ if (LINUX)
       -pthread
       )
 
-  if (SERVER)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth-60")
-    if (EXISTS /etc/debian_version)
-      FILE(READ /etc/debian_version DEBIAN_VERSION)
-    else (EXISTS /etc/debian_version)
-      set(DEBIAN_VERSION "")
-    endif (EXISTS /etc/debian_version)
-
-    if (NOT DEBIAN_VERSION STREQUAL "3.1")
-      add_definitions(-DCTYPE_WORKAROUND)
-    endif (NOT DEBIAN_VERSION STREQUAL "3.1")
-
-    if (EXISTS /usr/lib/mysql4/mysql)
-      link_directories(/usr/lib/mysql4/mysql)
-    endif (EXISTS /usr/lib/mysql4/mysql)
-
-  endif (SERVER)
-
-  if (VIEWER)
-    add_definitions(-DAPPID=secondlife)
-    add_definitions(-fvisibility=hidden)
-    # don't catch SIGCHLD in our base application class for the viewer - some of our 3rd party libs may need their *own* SIGCHLD handler to work.  Sigh!  The viewer doesn't need to catch SIGCHLD anyway.
-    add_definitions(-DLL_IGNORE_SIGCHLD)
-    if (WORD_SIZE EQUAL 32)
-      add_definitions(-march=pentium4)
-    endif (WORD_SIZE EQUAL 32)
-    add_definitions(-mfpmath=sse)
-    #add_definitions(-ftree-vectorize) # THIS CRASHES GCC 3.1-3.2
-    if (NOT STANDALONE)
-      # this stops us requiring a really recent glibc at runtime
-      add_definitions(-fno-stack-protector)
-      # linking can be very memory-hungry, especially the final viewer link
-      set(CMAKE_CXX_LINK_FLAGS "-Wl,--no-keep-memory")
-    endif (NOT STANDALONE)
-  endif (VIEWER)
+  add_definitions(-DAPPID=secondlife)
+  add_definitions(-fvisibility=hidden)
+  # don't catch SIGCHLD in our base application class for the viewer - some of our 3rd party libs may need their *own* SIGCHLD handler to work.  Sigh!  The viewer doesn't need to catch SIGCHLD anyway.
+  add_definitions(-DLL_IGNORE_SIGCHLD)
+  if (WORD_SIZE EQUAL 32)
+    add_definitions(-march=pentium4)
+  endif (WORD_SIZE EQUAL 32)
+  add_definitions(-mfpmath=sse)
+  #add_definitions(-ftree-vectorize) # THIS CRASHES GCC 3.1-3.2
+  if (NOT STANDALONE)
+    # this stops us requiring a really recent glibc at runtime
+    add_definitions(-fno-stack-protector)
+    # linking can be very memory-hungry, especially the final viewer link
+    set(CMAKE_CXX_LINK_FLAGS "-Wl,--no-keep-memory")
+  endif (NOT STANDALONE)
 
   set(CMAKE_CXX_FLAGS_DEBUG "-fno-inline ${CMAKE_CXX_FLAGS_DEBUG}")
   set(CMAKE_CXX_FLAGS_RELEASE "-O2 ${CMAKE_CXX_FLAGS_RELEASE}")
@@ -190,21 +186,20 @@ endif (LINUX)
 
 
 if (DARWIN)
-  # NOTE (per http://lists.apple.com/archives/darwin-dev/2008/Jan/msg00232.html):
-  # > Why the bus error? What am I doing wrong? 
-  # This is a known issue where getcontext(3) is writing past the end of the
-  # ucontext_t struct when _XOPEN_SOURCE is not defined (rdar://problem/5578699 ).
-  # As a workaround, define _XOPEN_SOURCE before including ucontext.h.
-  add_definitions(-DLL_DARWIN=1 -D_XOPEN_SOURCE)
-  set(CMAKE_CXX_LINK_FLAGS "-Wl,-headerpad_max_install_names,-search_paths_first")
+  add_definitions(-DLL_DARWIN=1)
+  set(CMAKE_CXX_LINK_FLAGS "-Wl,-no_compact_unwind -Wl,-headerpad_max_install_names,-search_paths_first")
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_CXX_LINK_FLAGS}")
-  set(DARWIN_extra_cstar_flags "-mlong-branch")
+  set(DARWIN_extra_cstar_flags "-mlong-branch -g")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DARWIN_extra_cstar_flags}")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  ${DARWIN_extra_cstar_flags}")
   # NOTE: it's critical that the optimization flag is put in front.
   # NOTE: it's critical to have both CXX_FLAGS and C_FLAGS covered.
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O0 ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
   set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O0 ${CMAKE_C_FLAGS_RELWITHDEBINFO}")
+  if (XCODE_VERSION GREATER 4.2)
+    set(ENABLE_SIGNING TRUE)
+    set(SIGNING_IDENTITY "Developer ID Application: Linden Research, Inc.")
+  endif (XCODE_VERSION GREATER 4.2)
 endif (DARWIN)
 
 
@@ -248,6 +243,4 @@ else (STANDALONE)
       )
 endif (STANDALONE)
 
-if(SERVER)
-  include_directories(${LIBS_PREBUILT_DIR}/include/havok)
-endif(SERVER)
+endif(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)

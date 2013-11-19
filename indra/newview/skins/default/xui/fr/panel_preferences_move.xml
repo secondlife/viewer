@@ -28,7 +28,7 @@
 		<combo_box.item label="Déplacement vers le clic" name="1"/>
 	</combo_box>
 	<text name="double_click_action_lbl">
-		Double-clic sur le terrain :
+		Double clic sur le terrain :
 	</text>
 	<combo_box name="double_click_action_combo">
 		<combo_box.item label="Aucune action" name="0"/>

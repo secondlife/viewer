@@ -207,7 +207,7 @@ namespace tut
 			const LLReflective* reflective = property->get(aggregated_data); // Wrong reflective type, should throw exception.
 
 			// useless op to get rid of compiler warning.
-			reflective = NULL;
+			reflective = reflective;
 		}
 		catch(...)
 		{

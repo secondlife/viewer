@@ -8,7 +8,7 @@
 		<menu_item_call label="Nouvelle fenêtre d&apos;inventaire" name="NewInventoryWindow"/>
 		<menu_item_call label="Endroits..." name="Places"/>
 		<menu_item_call label="Favoris..." name="Picks"/>
-		<menu_item_call label="Paramètres de la caméra..." name="Camera Controls"/>
+		<menu_item_call label="Contrôles de la caméra..." name="Camera Controls"/>
 		<menu label="Déplacement" name="Movement">
 			<menu_item_call label="M&apos;asseoir" name="Sit Down Here"/>
 			<menu_item_check label="Voler" name="Fly"/>
@@ -17,8 +17,8 @@
 			<menu_item_call label="Marcher / Courir / Voler..." name="Walk / run / fly"/>
 		</menu>
 		<menu label="Statut" name="Status">
-			<menu_item_call label="Absent" name="Set Away"/>
-			<menu_item_call label="Occupé" name="Set Busy"/>
+			<menu_item_check label="Absent" name="Away"/>
+			<menu_item_check label="Ne pas déranger" name="Do Not Disturb"/>
 		</menu>
 		<menu_item_call label="Acheter des L$..." name="Buy and Sell L$"/>
 		<menu_item_call label="Boîte d&apos;envoi vendeur..." name="MerchantOutbox"/>
@@ -28,17 +28,25 @@
 		<menu_item_call label="Préférences..." name="Preferences"/>
 		<menu_item_call label="Boutons des barres d&apos;outils..." name="Toolbars"/>
 		<menu_item_call label="Masquer tous les contrôles" name="Hide UI"/>
+		<menu_item_check label="Afficher les éléments HUD" name="Show HUD Attachments"/>
 		<menu_item_call label="Quitter [APP_NAME]" name="Quit"/>
 	</menu>
 	<menu label="Communiquer" name="Communicate">
-		<menu_item_check label="Chat..." name="Nearby Chat"/>
+		<menu_item_check label="Conversations..." name="Conversations"/>
+		<menu_item_check label="Chat près de moi..." name="Nearby Chat"/>
 		<menu_item_check label="Parler" name="Speak"/>
-		<menu_item_check label="Paramètres vocaux..." name="Nearby Voice"/>
-		<menu_item_check label="Effet de voix..." name="ShowVoice"/>
+		<menu_item_check label="Journal des conversations..." name="Conversation Log..."/>
+		<menu label="Effet de voix" name="VoiceMorphing">
+			<menu_item_check label="Aucun effet de voix" name="NoVoiceMorphing"/>
+			<menu_item_check label="Aperçu..." name="Preview"/>
+			<menu_item_call label="S&apos;abonner..." name="Subscribe"/>
+		</menu>
 		<menu_item_check label="Gestes..." name="Gestures"/>
-		<menu_item_call label="Amis" name="My Friends"/>
-		<menu_item_call label="Groupes" name="My Groups"/>
-		<menu_item_call label="Personnes près de vous" name="Active Speakers"/>
+		<menu_item_check label="Amis" name="My Friends"/>
+		<menu_item_check label="Groupes" name="My Groups"/>
+		<menu_item_check label="Personnes près de vous" name="Active Speakers"/>
+		<menu_item_call label="Liste des ignorés" name="Block List"/>
+		<menu_item_check label="Ne pas déranger" name="Do Not Disturb"/>
 	</menu>
 	<menu label="Monde" name="World">
 		<menu_item_call label="Créer un repère pour ce lieu" name="Create Landmark Here"/>
@@ -107,13 +115,13 @@
 			<menu_item_call label="Inclure la partie suivante" name="Include Next Part"/>
 			<menu_item_call label="Inclure la partie précédente" name="Include Previous Part"/>
 		</menu>
+		<menu_item_call label="Groupes de liens..." name="pathfinding_linkset_menu_item"/>
 		<menu_item_call label="Point central sur la sélection" name="Focus on Selection"/>
 		<menu_item_call label="Zoomer sur la sélection" name="Zoom to Selection"/>
 		<menu label="Objet" name="Object">
 			<menu_item_call label="Acheter" name="Menu Object Buy"/>
 			<menu_item_call label="Prendre" name="Menu Object Take"/>
 			<menu_item_call label="Prendre une copie" name="Take Copy"/>
-			<menu_item_call label="Enregistrer dans mon inventaire" name="Save Object Back to My Inventory"/>
 			<menu_item_call label="Enregistrer dans le contenu des objets" name="Save Object Back to Object Contents"/>
 			<menu_item_call label="Renvoi de l&apos;objet" name="Return Object back to Owner"/>
 		</menu>
@@ -123,6 +131,12 @@
 			<menu_item_call label="Réinitialiser les scripts" name="Reset Scripts"/>
 			<menu_item_call label="Définir les scripts sur Exécution" name="Set Scripts to Running"/>
 			<menu_item_call label="Définir les scripts sur Pas d&apos;exécution" name="Set Scripts to Not Running"/>
+		</menu>
+		<menu label="Recherche de chemin" name="Pathfinding">
+			<menu_item_call label="Groupes de liens..." name="pathfinding_linksets_menu_item"/>
+			<menu_item_call label="Personnages..." name="pathfinding_characters_menu_item"/>
+			<menu_item_call label="Vue / test..." name="pathfinding_console_menu_item"/>
+			<menu_item_call label="Refiger la région" name="pathfinding_rebake_navmesh_item"/>
 		</menu>
 		<menu label="Options" name="Options">
 			<menu_item_check label="Afficher les droits avancés" name="DebugPermissions"/>
@@ -152,6 +166,13 @@
 	<menu label="Aide" name="Help">
 		<menu_item_call label="Aide rapide..." name="How To"/>
 		<menu_item_call label="Aide de [SECOND_LIFE]" name="Second Life Help"/>
+		<menu_item_call label="Guide de l&apos;utilisateur" name="User’s guide"/>
+		<menu_item_call label="Base de connaissances" name="Knowledge Base"/>
+		<menu_item_call label="Wiki" name="Wiki"/>
+		<menu_item_call label="Forums de la communauté" name="Community Forums"/>
+		<menu_item_call label="Portail d&apos;assistance" name="Support portal"/>
+		<menu_item_call label="Actualités [SECOND_LIFE]" name="Second Life News"/>
+		<menu_item_call label="Blogs [SECOND_LIFE]" name="Second Life Blogs"/>
 		<menu_item_call label="Signaler une infraction" name="Report Abuse"/>
 		<menu_item_call label="Signaler un bug" name="Report Bug"/>
 		<menu_item_call label="À propos de [APP_NAME]" name="About Second Life"/>
@@ -171,10 +192,9 @@
 		</menu>
 		<menu label="Surbrillance et visibilité" name="Highlighting and Visibility">
 			<menu_item_check label="Balise animée" name="Cheesy Beacon"/>
-			<menu_item_check label="Cacher les particules" name="Hide Particles"/>
+			<menu_item_check label="Masquer les particules" name="Hide Particles"/>
 			<menu_item_check label="Masquer la sélection" name="Hide Selected"/>
 			<menu_item_check label="Mettre la transparence en surbrillance" name="Highlight Transparent"/>
-			<menu_item_check label="Afficher les éléments HUD" name="Show HUD Attachments"/>
 			<menu_item_check label="Afficher le réticule de la vue subjective" name="ShowCrosshairs"/>
 		</menu>
 		<menu label="Types de rendu" name="Rendering Types">
@@ -227,11 +247,10 @@
 			<menu_item_check label="Console de textures" name="Texture Console"/>
 			<menu_item_check label="Console de débogage" name="Debug Console"/>
 			<menu_item_call label="Console de notifications" name="Notifications"/>
-			<menu_item_check label="Console de tailles de textures" name="Texture Size"/>
-			<menu_item_check label="Console des catégories de textures" name="Texture Category"/>
 			<menu_item_check label="Chronos" name="Fast Timers"/>
 			<menu_item_check label="Mémoire" name="Memory"/>
 			<menu_item_check label="Statistiques de la scène" name="Scene Statistics"/>
+			<menu_item_call label="Console de débogage de la récupération des textures" name="Texture Fetch Debug Console"/>
 			<menu_item_call label="Infos de région vers la console de débogage" name="Region Info to Debug Console"/>
 			<menu_item_call label="Infos de groupe vers la console de débogage" name="Group Info to Debug Console"/>
 			<menu_item_call label="Infos de capacités vers la console de débogage" name="Capabilities Info to Debug Console"/>
@@ -266,6 +285,7 @@
 			<menu_item_check label="Taux de défilement aléatoire" name="Randomize Framerate"/>
 			<menu_item_check label="Cadre lent périodique" name="Periodic Slow Frame"/>
 			<menu_item_check label="Test cadre" name="Frame Test"/>
+			<menu_item_call label="Profil du cadre" name="Frame Profile"/>
 		</menu>
 		<menu label="Métadonnées de rendu" name="Render Metadata">
 			<menu_item_check label="Cadres" name="Bounding Boxes"/>
@@ -289,14 +309,21 @@
 			<menu_item_check label="Complexité du rendu" name="rendercomplexity"/>
 			<menu_item_check label="Octets d&apos;éléments attachés" name="attachment bytes"/>
 			<menu_item_check label="Sculpture" name="Sculpt"/>
+			<menu label="Densité des textures" name="Texture Density">
+				<menu_item_check label="Aucune" name="None"/>
+				<menu_item_check label="Actuelle" name="Current"/>
+				<menu_item_check label="Souhaitée" name="Desired"/>
+				<menu_item_check label="Complète" name="Full"/>
+			</menu>
 		</menu>
 		<menu label="Rendu" name="Rendering">
 			<menu_item_check label="Axes" name="Axes"/>
 			<menu_item_check label="Tangente" name="Tangent Basis"/>
 			<menu_item_call label="Base des infos de la texture sélectionnée" name="Selected Texture Info Basis"/>
+			<menu_item_call label="Infos sur les matériaux sélectionnés" name="Selected Material Info"/>
 			<menu_item_check label="Filaire" name="Wireframe"/>
 			<menu_item_check label="Occlusion objet-objet" name="Object-Object Occlusion"/>
-			<menu_item_check label="Éclairage et ombres" name="Lighting and Shadows"/>
+			<menu_item_check label="Modèle d&apos;éclairage avancé" name="Advanced Lighting Model"/>
 			<menu_item_check label="Ombres du soleil/de la lune/des projecteurs" name="Shadows from Sun/Moon/Projectors"/>
 			<menu_item_check label="SSAO et lissage des ombres" name="SSAO and Shadow Smoothing"/>
 			<menu_item_check label="Débogage GL" name="Debug GL"/>
@@ -306,8 +333,6 @@
 			<menu_item_check label="Textures d&apos;animation" name="Animation Textures"/>
 			<menu_item_check label="Désactiver les textures" name="Disable Textures"/>
 			<menu_item_check label="Textures pleine résolution" name="Rull Res Textures"/>
-			<menu_item_check label="Audit Textures" name="Audit Textures"/>
-			<menu_item_check label="Atlas des textures (expérimental)" name="Texture Atlas"/>
 			<menu_item_check label="Rendu des lumières jointes" name="Render Attached Lights"/>
 			<menu_item_check label="Rendu des particules jointes" name="Render Attached Particles"/>
 			<menu_item_check label="Objets en surbrillance avec le pointeur" name="Hover Glow Objects"/>
@@ -343,7 +368,6 @@
 			<menu_item_call label="Dump Focus Holder" name="Dump Focus Holder"/>
 			<menu_item_call label="Imprimer les infos sur l&apos;objet sélectionné" name="Print Selected Object Info"/>
 			<menu_item_call label="Imprimer les infos sur l&apos;avatar" name="Print Agent Info"/>
-			<menu_item_call label="Statistiques de mémoire" name="Memory Stats"/>
 			<menu_item_check label="Console de débogage de région" name="Region Debug Console"/>
 			<menu_item_check label="Débogage SelectMgr" name="Debug SelectMgr"/>
 			<menu_item_check label="Débogage clics" name="Debug Clicks"/>
@@ -373,12 +397,16 @@
 				<menu_item_call label="Basculer la géométrie des personnages" name="Toggle Character Geometry"/>
 				<menu_item_call label="Test homme" name="Test Male"/>
 				<menu_item_call label="Test femme" name="Test Female"/>
-				<menu_item_call label="Activer/désactiver PG" name="Toggle PG"/>
 				<menu_item_check label="Autoriser la sélection de l&apos;avatar" name="Allow Select Avatar"/>
+			</menu>
+			<menu label="Vitesse d&apos;animation" name="Animation Speed">
+				<menu_item_call label="Toutes les animations 10 % plus rapides" name="All Animations 10 Faster"/>
+				<menu_item_call label="Toutes les animations 10 % plus lentes" name="All Animations 10 Slower"/>
+				<menu_item_call label="Réinitialiser la vitesse de toutes les animations" name="Reset All Animation Speed"/>
+				<menu_item_check label="Animations au ralenti" name="Slow Motion Animations"/>
 			</menu>
 			<menu_item_call label="Forcer les paramètres par défaut" name="Force Params to Default"/>
 			<menu_item_check label="Infos sur l&apos;animation" name="Animation Info"/>
-			<menu_item_check label="Animations au ralenti" name="Slow Motion Animations"/>
 			<menu_item_check label="Afficher la direction du regard" name="Show Look At"/>
 			<menu_item_check label="Afficher la direction du pointeur" name="Show Point At"/>
 			<menu_item_check label="Débogages des mises à jour" name="Debug Joint Updates"/>

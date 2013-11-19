@@ -92,19 +92,54 @@
 				<text initial_value="Triângulos" name="triangles" value="Triângulos"/>
 				<text initial_value="Vértices" name="vertices" value="Vértices"/>
 				<text initial_value="Alto" name="high_label" value="Alto"/>
+				<combo_box name="lod_source_high">
+					<item name="Load from file" value="Carregar do arquivo"/>
+					<item name="Generate" value="Gerar"/>
+				</combo_box>
 				<button label="Procurar..." name="lod_browse_high"/>
+				<combo_box name="lod_mode_high">
+					<item name="Triangle Limit" value="Limite de triângulos"/>
+					<item name="Error Threshold" value="Limite de erro"/>
+				</combo_box>
 				<text initial_value="0" name="high_triangles" value="0"/>
 				<text initial_value="0" name="high_vertices" value="0"/>
 				<text initial_value="Médio" name="medium_label" value="Médio"/>
+				<combo_box name="lod_source_medium">
+					<item name="Load from file" value="Carregar do arquivo"/>
+					<item name="Generate" value="Gerar"/>
+					<item name="Use LoD above" value="Usar LoD acima"/>
+				</combo_box>
 				<button label="Procurar..." name="lod_browse_medium"/>
+				<combo_box name="lod_mode_medium">
+					<item name="Triangle Limit" value="Limite de triângulos"/>
+					<item name="Error Threshold" value="Limite de erro"/>
+				</combo_box>
 				<text initial_value="0" name="medium_triangles" value="0"/>
 				<text initial_value="0" name="medium_vertices" value="0"/>
 				<text initial_value="Baixo" name="low_label" value="Baixo"/>
+				<combo_box name="lod_source_low">
+					<item name="Load from file" value="Carregar do arquivo"/>
+					<item name="Generate" value="Gerar"/>
+					<item name="Use LoD above" value="Usar LoD acima"/>
+				</combo_box>
 				<button label="Procurar..." name="lod_browse_low"/>
+				<combo_box name="lod_mode_low">
+					<item name="Triangle Limit" value="Limite de triângulos"/>
+					<item name="Error Threshold" value="Limite de erro"/>
+				</combo_box>
 				<text initial_value="0" name="low_triangles" value="0"/>
 				<text initial_value="0" name="low_vertices" value="0"/>
 				<text initial_value="Mais baixo" name="lowest_label" value="Mais baixo"/>
+				<combo_box name="lod_source_lowest">
+					<item name="Load from file" value="Carregar do arquivo"/>
+					<item name="Generate" value="Gerar"/>
+					<item name="Use LoD above" value="Usar LoD acima"/>
+				</combo_box>
 				<button label="Procurar..." name="lod_browse_lowest"/>
+				<combo_box name="lod_mode_lowest">
+					<item name="Triangle Limit" value="Limite de triângulos"/>
+					<item name="Error Threshold" value="Limite de erro"/>
+				</combo_box>
 				<text initial_value="0" name="lowest_triangles" value="0"/>
 				<text initial_value="0" name="lowest_vertices" value="0"/>
 				<check_box label="Gerar normais" name="gen_normals"/>

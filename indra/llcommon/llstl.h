@@ -33,6 +33,7 @@
 #include <vector>
 #include <set>
 #include <deque>
+#include <typeinfo>
 
 // Use to compare the first element only of a pair
 // e.g. typedef std::set<std::pair<int, Data*>, compare_pair<int, Data*> > some_pair_set_t; 
@@ -469,5 +470,55 @@ llbind2nd(const _Operation& __oper, const _Tp& __x)
   typedef typename _Operation::second_argument_type _Arg2_type;
   return llbinder2nd<_Operation>(__oper, _Arg2_type(__x));
 }
+
+/**
+ * Compare std::type_info* pointers a la std::less. We break this out as a
+ * separate function for use in two different std::less specializations.
+ */
+inline
+bool before(const std::type_info* lhs, const std::type_info* rhs)
+{
+#if LL_LINUX && defined(__GNUC__) && ((__GNUC__ < 4) || (__GNUC__ == 4 && __GNUC_MINOR__ < 4))
+    // If we're building on Linux with gcc, and it's either gcc 3.x or
+    // 4.{0,1,2,3}, then we have to use a workaround. Note that we use gcc on
+    // Mac too, and some people build with gcc on Windows (cygwin or mingw).
+    // On Linux, different load modules may produce different type_info*
+    // pointers for the same type. Have to compare name strings to get good
+    // results.
+    return strcmp(lhs->name(), rhs->name()) < 0;
+#else  // not Linux, or gcc 4.4+
+    // Just use before(), as we normally would
+    return lhs->before(*rhs);
+#endif
+}
+
+/**
+ * Specialize std::less<std::type_info*> to use std::type_info::before().
+ * See MAINT-1175. It is NEVER a good idea to directly compare std::type_info*
+ * because, on Linux, you might get different std::type_info* pointers for the
+ * same type (from different load modules)!
+ */
+namespace std
+{
+	template <>
+	struct less<const std::type_info*>:
+		public std::binary_function<const std::type_info*, const std::type_info*, bool>
+	{
+		bool operator()(const std::type_info* lhs, const std::type_info* rhs) const
+		{
+			return before(lhs, rhs);
+		}
+	};
+
+	template <>
+	struct less<std::type_info*>:
+		public std::binary_function<std::type_info*, std::type_info*, bool>
+	{
+		bool operator()(std::type_info* lhs, std::type_info* rhs) const
+		{
+			return before(lhs, rhs);
+		}
+	};
+} // std
 
 #endif // LL_LLSTL_H

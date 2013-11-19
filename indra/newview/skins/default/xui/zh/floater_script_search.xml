@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="script search" title="腳本搜尋">
-	<check_box label="Case Insensitive" name="case_text"/>
+	<check_box label="大小寫視為相同" name="case_text"/>
 	<button label="搜尋" label_selected="搜尋" name="search_btn"/>
 	<button label="取代" label_selected="取代" name="replace_btn"/>
 	<button label="全部取代" label_selected="全部取代" name="replace_all_btn"/>

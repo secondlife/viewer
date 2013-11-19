@@ -71,12 +71,6 @@ LLHelpHandler gHelpHandler;
 
 std::string LLViewerHelp::getURL(const std::string &topic)
 {
-	// allow overriding the help server with a local help file
-	if( gSavedSettings.getBOOL("HelpUseLocal") )
-	{
-		return "__local";
-	}
-
 	// if the help topic is empty, use the default topic
 	std::string help_topic = topic;
 	if (help_topic.empty())

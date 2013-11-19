@@ -8,13 +8,13 @@
 	</floater.string>
 	<layout_stack name="stack1">
 		<layout_panel name="nav_controls">
-			<button label="向後" name="back"/>
+			<button label="返回" name="back"/>
 			<button label="向前" name="forward"/>
-			<button label="重載" name="reload"/>
-			<button label="Go" name="go"/>
+			<button label="重新載入" name="reload"/>
+			<button label="前往" name="go"/>
 		</layout_panel>
 		<layout_panel name="time_controls">
-			<button label="rewind" name="rewind"/>
+			<button label="倒轉" name="rewind"/>
 			<button label="停止" name="stop"/>
 			<button label="向前" name="seek"/>
 		</layout_panel>
@@ -22,8 +22,8 @@
 			<button label="送出目前頁面到地段" name="assign"/>
 		</layout_panel>
 		<layout_panel name="external_controls">
-			<button label="在我的網頁瀏覽器中開啟" name="open_browser"/>
-			<check_box label="總是在我的網頁瀏覽器中開啟" name="open_always"/>
+			<button label="用我的瀏覽器開啟" name="open_browser"/>
+			<check_box label="固定用我的瀏覽器開啟" name="open_always"/>
 			<button label="關閉" name="close"/>
 		</layout_panel>
 	</layout_stack>

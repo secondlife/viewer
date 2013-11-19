@@ -30,12 +30,12 @@
 #include "llpanel.h"
 #include "llscrollingpanellist.h"
 #include "llmodaldialog.h"
-#include "llvoavatardefines.h"
+#include "llavatarappearancedefines.h"
 #include "llwearabletype.h"
 
 class LLAccordionCtrl;
 class LLCheckBoxCtrl;
-class LLWearable;
+class LLViewerWearable;
 class LLTextBox;
 class LLViewerInventoryItem;
 class LLViewerVisualParam;
@@ -54,12 +54,13 @@ public:
 	/*virtual*/ BOOL 		postBuild();
 	/*virtual*/ BOOL		isDirty() const;	// LLUICtrl
 	/*virtual*/ void		draw();	
+				void		onClose();
 
 	// changes camera angle to default for selected subpart
 	void				changeCamera(U8 subpart);
 
-	LLWearable* 		getWearable() { return mWearablePtr; }
-	void				setWearable(LLWearable *wearable, BOOL disable_camera_switch = FALSE);
+	LLViewerWearable*	getWearable() { return mWearablePtr; }
+	void				setWearable(LLViewerWearable *wearable, BOOL disable_camera_switch = FALSE);
 
 	void				saveChanges(bool force_save_as = false);
 	void				revertChanges();
@@ -70,17 +71,17 @@ public:
 	void 				updateScrollingPanelList();
 
 	static void			onRevertButtonClicked(void* userdata);
+	static void			onBackButtonClicked(void* userdata); 
 	void				onCommitSexChange();
 	void				onSaveAsButtonClicked();
 	void				saveAsCallback(const LLSD& notification, const LLSD& response);
 
 	virtual void		setVisible(BOOL visible);
 
-
 private:
 	typedef std::map<F32, LLViewerVisualParam*> value_map_t;
 
-	void				showWearable(LLWearable* wearable, BOOL show, BOOL disable_camera_switch = FALSE);
+	void				showWearable(LLViewerWearable* wearable, BOOL show, BOOL disable_camera_switch = FALSE);
 	void				updateScrollingPanelUI();
 	LLPanel*			getPanel(LLWearableType::EType type);
 	void				getSortedParams(value_map_t &sorted_params, const std::string &edit_group);
@@ -95,16 +96,16 @@ private:
 	void				updateTypeSpecificControls(LLWearableType::EType type);
 
 	//alpha mask checkboxes
-	void configureAlphaCheckbox(LLVOAvatarDefines::ETextureIndex te, const std::string& name);
-	void onInvisibilityCommit(LLCheckBoxCtrl* checkbox_ctrl, LLVOAvatarDefines::ETextureIndex te);
+	void configureAlphaCheckbox(LLAvatarAppearanceDefines::ETextureIndex te, const std::string& name);
+	void onInvisibilityCommit(LLCheckBoxCtrl* checkbox_ctrl, LLAvatarAppearanceDefines::ETextureIndex te);
 	void updateAlphaCheckboxes();
 	void initPreviousAlphaTextures();
-	void initPreviousAlphaTextureEntry(LLVOAvatarDefines::ETextureIndex te);
+	void initPreviousAlphaTextureEntry(LLAvatarAppearanceDefines::ETextureIndex te);
 
 	// callback for HeightUnits parameter.
 	bool changeHeightUnits(const LLSD& new_value);
 
-	// updates current metric and replacemet metric label text
+	// updates current metric and replacement metric label text
 	void updateMetricLayout(BOOL new_value);
 
 	// updates avatar height label
@@ -114,8 +115,11 @@ private:
 
 	void setWearablePanelVisibilityChangeCallback(LLPanel* bodypart_panel);
 
+	// *HACK Remove this when serverside texture baking is available on all regions.
+	void incrementCofVersionLegacy();
+
 	// the pointer to the wearable we're editing. NULL means we're not editing a wearable.
-	LLWearable *mWearablePtr;
+	LLViewerWearable *mWearablePtr;
 	LLViewerInventoryItem* mWearableItem;
 
 	// these are constant no matter what wearable we're editing
@@ -128,7 +132,7 @@ private:
 	LLTextBox *mTxtAvatarHeight;
 
 
-	// localized and parametrized strings that used to build avatar_height_label
+	// localized and parameterized strings that used to build avatar_height_label
 	std::string mMeters;
 	std::string mFeet;
 	std::string mHeigth;
@@ -165,10 +169,10 @@ private:
 	LLPanel *mPanelTattoo;
 	LLPanel *mPanelPhysics;
 
-	typedef std::map<std::string, LLVOAvatarDefines::ETextureIndex> string_texture_index_map_t;
+	typedef std::map<std::string, LLAvatarAppearanceDefines::ETextureIndex> string_texture_index_map_t;
 	string_texture_index_map_t mAlphaCheckbox2Index;
 
-	typedef std::map<LLVOAvatarDefines::ETextureIndex, LLUUID> s32_uuid_map_t;
+	typedef std::map<LLAvatarAppearanceDefines::ETextureIndex, LLUUID> s32_uuid_map_t;
 	s32_uuid_map_t mPreviousAlphaTexture;
 };
 

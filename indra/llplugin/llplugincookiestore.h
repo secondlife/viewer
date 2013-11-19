@@ -67,6 +67,8 @@ public:
 	// quote or unquote a string as per the definition of 'quoted-string' in rfc2616
 	static std::string quoteString(const std::string &s);
 	static std::string unquoteString(const std::string &s);
+
+	void removeCookiesByDomain(const std::string &domain);
 	
 private:
 
@@ -79,6 +81,7 @@ private:
 		
 		// Construct a string from the cookie that uniquely represents it, to be used as a key in a std::map.
 		std::string getKey() const;
+		std::string getDomain() const;
 		
 		const std::string &getCookie() const { return mCookie; };
 		bool isSessionCookie() const { return mDate.isNull(); };

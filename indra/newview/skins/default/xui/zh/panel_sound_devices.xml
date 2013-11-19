@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel label="設備設定" name="device_settings_panel">
+	<panel.string name="default_text">
+		預設
+	</panel.string>
+	<string name="name_no_device">
+		無設備
+	</string>
+	<string name="name_default_system_device">
+		預設系統設備
+	</string>
+	<text name="Input">
+		輸入
+	</text>
+	<text name="Output">
+		輸出
+	</text>
+	<text name="My volume label">
+		我的音量：
+	</text>
+	<slider_bar initial_value="1.0" name="mic_volume_slider" tool_tip="用這控制條改變音量"/>
+	<text name="wait_text">
+		請稍候
+	</text>
+</panel>

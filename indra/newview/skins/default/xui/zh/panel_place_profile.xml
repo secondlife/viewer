@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="place_profile">
-	<string name="on" value="On"/>
-	<string name="off" value="Off"/>
-	<string name="anyone" value="Anyone"/>
-	<string name="available" value="available"/>
+	<string name="on" value="啟動"/>
+	<string name="off" value="關閉"/>
+	<string name="anyone" value="任何人"/>
+	<string name="available" value="可用的"/>
 	<string name="allocated" value="已分配"/>
 	<string name="title_place" value="地點檔案"/>
 	<string name="title_teleport_history" value="瞬間傳送歷史紀錄"/>
-	<string name="not_available" value="（N\A）"/>
+	<string name="not_available" value="（不適用）"/>
 	<string name="unknown" value="（未知）"/>
 	<string name="public" value="（公開）"/>
 	<string name="none_text" value="（無）"/>
 	<string name="sale_pending_text" value="（擱置銷售）"/>
-	<string name="group_owned_text" value="（群組所擁有）"/>
+	<string name="group_owned_text" value="（由群組所擁有）"/>
 	<string name="price_text" value="L$"/>
-	<string name="area_text" value="m²"/>
+	<string name="area_text" value="平方公尺"/>
 	<string name="all_residents_text" value="全部居民"/>
 	<string name="group_text" value="群組"/>
 	<string name="can_resell">
@@ -33,10 +33,10 @@
 		地點資訊因無伺服器更新故無法提供。
 	</string>
 	<string name="server_error_text">
-		Information about this location is unavailable at this time, please try again later.
+		目前無法取得此位置的訊息，請稍候再試。
 	</string>
 	<string name="server_forbidden_text">
-		Information about this location is unavailable due to access restrictions.  Please check your permissions with the parcel owner.
+		權限不足，無法取得此位置的資訊。  請向地段所有人查詢你的權限。
 	</string>
 	<string name="acquired_date">
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
@@ -48,7 +48,7 @@
 			<text name="region_title" value="SampleRegion"/>
 			<text name="parcel_title" value="SampleParcel, Name Long (145, 228, 26)"/>
 			<expandable_text name="description" value="Du waltz die spritz"/>
-			<text name="owner_label" value="擁有者："/>
+			<text name="owner_label" value="所有人："/>
 			<text name="owner_value" value="Alex Superduperlongenamenton"/>
 			<text name="maturity_value" value="未知"/>
 			<accordion name="advanced_info_accordion">
@@ -57,18 +57,20 @@
 						<text name="rating_label" value="分級："/>
 						<text name="rating_value" value="未知"/>
 						<text name="voice_label" value="語音："/>
-						<text name="voice_value" value="On"/>
+						<text name="voice_value" value="啟動"/>
 						<text name="fly_label" value="飛行："/>
-						<text name="fly_value" value="On"/>
+						<text name="fly_value" value="啟動"/>
 						<text name="push_label" value="推撞："/>
-						<text name="push_value" value="Off"/>
+						<text name="push_value" value="關閉"/>
 						<text name="build_label" value="建造："/>
-						<text name="build_value" value="On"/>
+						<text name="build_value" value="啟動"/>
 						<text name="scripts_label" value="腳本："/>
-						<text name="scripts_value" value="On"/>
+						<text name="scripts_value" value="啟動"/>
 						<text name="damage_label" value="傷害："/>
-						<text name="damage_value" value="Off"/>
-						<button label="關於土地" name="about_land_btn"/>
+						<text name="damage_value" value="關閉"/>
+						<text name="see_avatars_label" value="察看化身："/>
+						<text name="see_avatars_value" value="關閉"/>
+						<button label="土地資料" name="about_land_btn"/>
 					</panel>
 				</accordion_tab>
 				<accordion_tab name="region_information_tab" title="地區">
@@ -79,21 +81,21 @@
 						<text name="region_type" value="Moose"/>
 						<text name="region_rating_label" value="分級："/>
 						<text name="region_rating" value="完全成人"/>
-						<text name="region_owner_label" value="擁有者："/>
+						<text name="region_owner_label" value="所有人："/>
 						<text name="region_owner" value="moose Van Moose extra long name moose"/>
 						<text name="region_group_label" value="群組："/>
 						<text name="region_group">
 							The Mighty Moose of mooseville soundvillemoose
 						</text>
-						<button label="地區 / 領地" name="region_info_btn"/>
+						<button label="地區/領地" name="region_info_btn"/>
 					</panel>
 				</accordion_tab>
 				<accordion_tab name="estate_information_tab" title="領地">
 					<panel name="estate_information_panel">
 						<text name="estate_name_label" value="領地："/>
 						<text name="estate_rating_label" value="分級："/>
-						<text name="estate_owner_label" value="擁有者："/>
-						<text name="estate_owner" value="Testing owner name length with long name"/>
+						<text name="estate_owner_label" value="所有人："/>
+						<text name="estate_owner" value="正在測試名稱很長很長很長的所有人名稱…"/>
 						<text name="covenant_label" value="契約："/>
 					</panel>
 				</accordion_tab>

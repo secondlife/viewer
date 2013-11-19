@@ -56,13 +56,12 @@
 #include "lldrawable.h"
 
 extern LLPipeline gPipeline;
+extern bool gShiftFrame;
 
 LLColor4U MAX_WATER_COLOR(0, 48, 96, 240);
 
 
 S32 LLSurface::sTextureSize = 256;
-S32 LLSurface::sTexelsUpdated = 0;
-F32 LLSurface::sTextureUpdateTime = 0.f;
 
 // ---------------- LLSurface:: Public Members ---------------
 
@@ -294,7 +293,7 @@ void LLSurface::initTextures()
 		mWaterObjp = (LLVOWater *)gObjectList.createObjectViewer(LLViewerObject::LL_VO_WATER, mRegionp);
 		gPipeline.createObject(mWaterObjp);
 		LLVector3d water_pos_global = from_region_handle(mRegionp->getHandle());
-		water_pos_global += LLVector3d(128.0, 128.0, DEFAULT_WATER_HEIGHT);
+		water_pos_global += LLVector3d(128.0, 128.0, DEFAULT_WATER_HEIGHT);		// region doesn't have a valid water height yet
 		mWaterObjp->setPositionGlobal(water_pos_global);
 	}
 }
@@ -342,6 +341,19 @@ void LLSurface::getNeighboringRegions( std::vector<LLViewerRegion*>& uniqueRegio
 		if ( mNeighbors[i] != NULL )
 		{
 			uniqueRegions.push_back( mNeighbors[i]->getRegion() );
+		}
+	}	
+}
+
+
+void LLSurface::getNeighboringRegionsStatus( std::vector<S32>& regions )
+{
+	S32 i;
+	for (i = 0; i < 8; i++)
+	{
+		if ( mNeighbors[i] != NULL )
+		{
+			regions.push_back( i );
 		}
 	}	
 }
@@ -608,6 +620,11 @@ void LLSurface::moveZ(const S32 x, const S32 y, const F32 delta)
 
 void LLSurface::updatePatchVisibilities(LLAgent &agent) 
 {
+	if (gShiftFrame)
+	{
+		return;
+	}
+
 	LLVector3 pos_region = mRegionp->getPosRegionFromGlobal(gAgentCamera.getCameraPositionGlobal());
 
 	LLSurfacePatch *patchp;
@@ -628,7 +645,6 @@ void LLSurface::updatePatchVisibilities(LLAgent &agent)
 
 BOOL LLSurface::idleUpdate(F32 max_update_time)
 {
-	LLMemType mt_ius(LLMemType::MTYPE_IDLE_UPDATE_SURFACE);
 	if (!gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_TERRAIN))
 	{
 		return FALSE;
@@ -1229,8 +1245,6 @@ BOOL LLSurface::generateWaterTexture(const F32 x, const F32 y,
 	{
 		y_end = tex_width;
 	}
-
-	LLVector3d origin_global = from_region_handle(getRegion()->getHandle());
 
 	// OK, for now, just have the composition value equal the height at the point.
 	LLVector3 location;

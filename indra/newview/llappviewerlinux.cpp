@@ -31,7 +31,6 @@
 #include "llcommandlineparser.h"
 
 #include "lldiriterator.h"
-#include "llmemtype.h"
 #include "llurldispatcher.h"		// SLURL from other app instance
 #include "llviewernetwork.h"
 #include "llviewercontrol.h"
@@ -71,8 +70,6 @@ static void exceptionTerminateHandler()
 
 int main( int argc, char **argv ) 
 {
-	LLMemType mt1(LLMemType::MTYPE_STARTUP);
-
 #if LL_SOLARIS && defined(__sparc)
 	asm ("ta\t6");		 // NOTE:  Make sure memory alignment is enforced on SPARC
 #endif
@@ -365,7 +362,7 @@ void LLAppViewerLinux::handleCrashReporting(bool reportFreeze)
 		const char * cmdargv[] =
 			{cmd.c_str(),
 			 "-user",
-			 (char*)LLGridManager::getInstance()->getGridLabel().c_str(),
+			 (char*)LLGridManager::getInstance()->getGridId().c_str(),
 			 "-name",
 			 LLAppViewer::instance()->getSecondLifeTitle().c_str(),
 			 NULL};
@@ -443,7 +440,7 @@ bool LLAppViewerLinux::beingDebugged()
 #endif
 }
 
-bool LLAppViewerLinux::initLogging()
+void LLAppViewerLinux::initLoggingAndGetLastDuration()
 {
 	// Remove the last stack trace, if any
 	// This file is no longer created, since the move to Google Breakpad
@@ -452,7 +449,7 @@ bool LLAppViewerLinux::initLogging()
 		gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"stack_trace.log");
 	LLFile::remove(old_stack_file);
 
-	return LLAppViewer::initLogging();
+	LLAppViewer::initLoggingAndGetLastDuration();
 }
 
 bool LLAppViewerLinux::initParseCommandLine(LLCommandLineParser& clp)

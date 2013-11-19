@@ -557,7 +557,7 @@ void LLPanelLandGeneral::refresh()
 		BOOL is_leased = (LLParcel::OS_LEASED == parcel->getOwnershipStatus());
 		BOOL region_xfer = FALSE;
 		if(regionp
-		   && !(regionp->getRegionFlags() & REGION_FLAGS_BLOCK_LAND_RESELL))
+		   && !(regionp->getRegionFlag(REGION_FLAGS_BLOCK_LAND_RESELL)))
 		{
 			region_xfer = TRUE;
 		}
@@ -783,8 +783,9 @@ void LLPanelLandGeneral::refresh()
 			mBtnReleaseLand->setEnabled( can_release );
 		}
 
-		BOOL use_pass = parcel->getParcelFlag(PF_USE_PASS_LIST) && !LLViewerParcelMgr::getInstance()->isCollisionBanned();;
+		BOOL use_pass = parcel->getOwnerID()!= gAgent.getID() && parcel->getParcelFlag(PF_USE_PASS_LIST) && !LLViewerParcelMgr::getInstance()->isCollisionBanned();;
 		mBtnBuyPass->setEnabled(use_pass);
+
 	}
 }
 
@@ -1045,6 +1046,8 @@ void LLPanelLandGeneral::onCommitAny(LLUICtrl *ctrl, void *userdata)
 void LLPanelLandGeneral::onClickSellLand(void* data)
 {
 	LLViewerParcelMgr::getInstance()->startSellLand();
+	LLPanelLandGeneral *panelp = (LLPanelLandGeneral *)data;
+	panelp->refresh();
 }
 
 // static
@@ -1865,23 +1868,8 @@ BOOL LLPanelLandOptions::postBuild()
 	childSetCommitCallback("ShowDirectoryCheck", onCommitAny, this);
 
 	
-	if (gAgent.getAgentAccess().isInTransition())
-	{
-		// during the AO transition, this combo has an Adult item.
-		// Post-transition, it goes away. We can remove this conditional
-		// after the transition and just use the "else" clause.
-		mCategoryCombo = getChild<LLComboBox>( "land category with adult");
-		childSetCommitCallback("land category with adult", onCommitAny, this);
-	}
-	else
-	{
-		// this is the code that should be preserved post-transition
-		// you could also change the XML to set visibility and enabled true.
-		mCategoryCombo = getChild<LLComboBox>( "land category");
-		childSetCommitCallback("land category", onCommitAny, this);
-	}
-	mCategoryCombo->setVisible(true);
-	mCategoryCombo->setEnabled(true);
+	mCategoryCombo = getChild<LLComboBox>( "land category");
+	childSetCommitCallback("land category", onCommitAny, this);
 	
 
 	mMatureCtrl = getChild<LLCheckBoxCtrl>( "MatureCheck");
@@ -1901,6 +1889,7 @@ BOOL LLPanelLandOptions::postBuild()
 		mSnapshotCtrl->setCommitCallback( onCommitAny, this );
 		mSnapshotCtrl->setAllowNoTexture ( TRUE );
 		mSnapshotCtrl->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
+		mSnapshotCtrl->setDnDFilterPermMask(PERM_COPY | PERM_TRANSFER);
 		mSnapshotCtrl->setNonImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
 	}
 	else
@@ -2038,6 +2027,10 @@ void LLPanelLandOptions::refresh()
 		mSnapshotCtrl->setImageAssetID(parcel->getSnapshotID());
 		mSnapshotCtrl->setEnabled( can_change_identity );
 
+		// find out where we're looking and convert that to an angle in degrees on a regular compass (not the internal representation)
+		LLVector3 user_look_at = parcel->getUserLookAt();
+		U32 user_look_at_angle = ( (U32)( ( atan2(user_look_at[1], -user_look_at[0]) + F_PI * 2 ) * RAD_TO_DEG + 0.5) - 90) % 360;
+
 		LLVector3 pos = parcel->getUserLocation();
 		if (pos.isExactlyZero())
 		{
@@ -2045,10 +2038,11 @@ void LLPanelLandOptions::refresh()
 		}
 		else
 		{
-			mLocationText->setTextArg("[LANDING]",llformat("%d, %d, %d",
+			mLocationText->setTextArg("[LANDING]",llformat("%d, %d, %d (%d\xC2\xB0)",
 														   llround(pos.mV[VX]),
 														   llround(pos.mV[VY]),
-														   llround(pos.mV[VZ])));
+		   												   llround(pos.mV[VZ]),
+														   user_look_at_angle));
 		}
 
 		mSetBtn->setEnabled( can_change_landing_point );
@@ -2103,7 +2097,6 @@ void LLPanelLandOptions::refresh()
 // virtual
 void LLPanelLandOptions::draw()
 {
-	refreshSearch();	// Is this necessary?  JC
 	LLPanel::draw();
 }
 
@@ -2117,9 +2110,8 @@ void LLPanelLandOptions::refreshSearch()
 		mCheckShowDirectory->set(FALSE);
 		mCheckShowDirectory->setEnabled(FALSE);
 
-		// *TODO:Translate
-		const std::string& none_string = LLParcel::getCategoryUIString(LLParcel::C_NONE);
-		mCategoryCombo->setSimple(none_string);
+		const std::string& none_string = LLParcel::getCategoryString(LLParcel::C_NONE);
+		mCategoryCombo->setValue(none_string);
 		mCategoryCombo->setEnabled(FALSE);
 		return;
 	}
@@ -2129,9 +2121,9 @@ void LLPanelLandOptions::refreshSearch()
 
 	bool can_change =
 			LLViewerParcelMgr::isParcelModifiableByAgent(
-				parcel, GP_LAND_CHANGE_IDENTITY)
+				parcel, GP_LAND_FIND_PLACES)
 			&& region
-			&& !(region->getRegionFlags() & REGION_FLAGS_BLOCK_PARCEL_SEARCH);
+			&& !(region->getRegionFlag(REGION_FLAGS_BLOCK_PARCEL_SEARCH));
 
 	// There is a bug with this panel whereby the Show Directory bit can be 
 	// slammed off by the Region based on an override.  Since this data is cached
@@ -2146,10 +2138,9 @@ void LLPanelLandOptions::refreshSearch()
 	mCheckShowDirectory	->set(show_directory);
 
 	// Set by string in case the order in UI doesn't match the order by index.
-	// *TODO:Translate
 	LLParcel::ECategory cat = parcel->getCategory();
-	const std::string& category_string = LLParcel::getCategoryUIString(cat);
-	mCategoryCombo->setSimple(category_string);
+	const std::string& category_string = LLParcel::getCategoryString(cat);
+	mCategoryCombo->setValue(category_string);
 
 	std::string tooltip;
 	bool enable_show_directory = false;
@@ -2226,8 +2217,8 @@ void LLPanelLandOptions::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	BOOL allow_damage		= !self->mCheckSafe->get();
 	BOOL allow_fly			= self->mCheckFly->get();
 	BOOL allow_landmark		= TRUE; // cannot restrict landmark creation
-	BOOL allow_group_scripts	= self->mCheckGroupScripts->get() || self->mCheckOtherScripts->get();
 	BOOL allow_other_scripts	= self->mCheckOtherScripts->get();
+	BOOL allow_group_scripts	= self->mCheckGroupScripts->get() || allow_other_scripts;
 	BOOL allow_publish		= FALSE;
 	BOOL mature_publish		= self->mMatureCtrl->get();
 	BOOL push_restriction	= self->mPushRestrictionCtrl->get();
@@ -2240,11 +2231,16 @@ void LLPanelLandOptions::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	LLViewerRegion* region;
 	region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
 
-	if (!allow_other_scripts && region && region->getAllowDamage())
-	{
-
-		LLNotificationsUtil::add("UnableToDisableOutsideScripts");
-		return;
+	if (region && region->getAllowDamage())
+	{	// Damage is allowed on the region - server will always allow scripts
+		if ( (!allow_other_scripts && parcel->getParcelFlag(PF_ALLOW_OTHER_SCRIPTS)) ||
+			 (!allow_group_scripts && parcel->getParcelFlag(PF_ALLOW_GROUP_SCRIPTS)) )
+		{	// Don't allow turning off "Run Scripts" if damage is allowed in the region
+			self->mCheckOtherScripts->set(parcel->getParcelFlag(PF_ALLOW_OTHER_SCRIPTS));	// Restore UI to actual settings
+			self->mCheckGroupScripts->set(parcel->getParcelFlag(PF_ALLOW_GROUP_SCRIPTS));
+			LLNotificationsUtil::add("UnableToDisableOutsideScripts");
+			return;
+		}
 	}
 
 	// Push data into current parcel
@@ -2371,12 +2367,6 @@ LLPanelLandAccess::~LLPanelLandAccess()
 void LLPanelLandAccess::refresh()
 {
 	LLFloater* parent_floater = gFloaterView->getParentFloater(this);
-	
-	if (mListAccess)
-		mListAccess->deleteAllItems();
-	if (mListBanned)
-		mListBanned->deleteAllItems();
-	
 	LLParcel *parcel = mParcel->getParcel();
 		
 	// Display options
@@ -2384,7 +2374,7 @@ void LLPanelLandAccess::refresh()
 	{
 		BOOL use_access_list = parcel->getParcelFlag(PF_USE_ACCESS_LIST);
 		BOOL use_group = parcel->getParcelFlag(PF_USE_ACCESS_GROUP);
-		BOOL public_access = !use_access_list && !use_group;
+		BOOL public_access = !use_access_list;
 		
 		getChild<LLUICtrl>("public_access")->setValue(public_access );
 		getChild<LLUICtrl>("GroupCheck")->setValue(use_group );
@@ -2394,7 +2384,11 @@ void LLPanelLandAccess::refresh()
 		getChild<LLUICtrl>("GroupCheck")->setLabelArg("[GROUP]", group_name );
 		
 		// Allow list
+		if (mListAccess)
 		{
+			// Clear the sort order so we don't re-sort on every add.
+			mListAccess->clearSortOrder();
+			mListAccess->deleteAllItems();
 			S32 count = parcel->mAccessList.size();
 			getChild<LLUICtrl>("AccessList")->setToolTipArg(LLStringExplicit("[LISTED]"), llformat("%d",count));
 			getChild<LLUICtrl>("AccessList")->setToolTipArg(LLStringExplicit("[MAX]"), llformat("%d",PARCEL_MAX_ACCESS_LIST));
@@ -2429,13 +2423,17 @@ void LLPanelLandAccess::refresh()
 					}
 					suffix.append(" " + parent_floater->getString("Remaining") + ")");
 				}
-				if (mListAccess)
-					mListAccess->addNameItem(entry.mID, ADD_DEFAULT, TRUE, suffix);
+				mListAccess->addNameItem(entry.mID, ADD_DEFAULT, TRUE, suffix);
 			}
+			mListAccess->sortByName(TRUE);
 		}
 		
 		// Ban List
+		if(mListBanned)
 		{
+			// Clear the sort order so we don't re-sort on every add.
+			mListBanned->clearSortOrder();
+			mListBanned->deleteAllItems();
 			S32 count = parcel->mBanList.size();
 
 			getChild<LLUICtrl>("BannedList")->setToolTipArg(LLStringExplicit("[LISTED]"), llformat("%d",count));
@@ -2473,6 +2471,7 @@ void LLPanelLandAccess::refresh()
 				}
 				mListBanned->addNameItem(entry.mID, ADD_DEFAULT, TRUE, suffix);
 			}
+			mListBanned->sortByName(TRUE);
 		}
 
 		if(parcel->getRegionDenyAnonymousOverride())
@@ -2542,7 +2541,11 @@ void LLPanelLandAccess::refresh_ui()
 	getChildView("HoursSpin")->setEnabled(FALSE);
 	getChildView("AccessList")->setEnabled(FALSE);
 	getChildView("BannedList")->setEnabled(FALSE);
-	
+	getChildView("add_allowed")->setEnabled(FALSE);
+	getChildView("remove_allowed")->setEnabled(FALSE);
+	getChildView("add_banned")->setEnabled(FALSE);
+	getChildView("remove_banned")->setEnabled(FALSE);
+
 	LLParcel *parcel = mParcel->getParcel();
 	if (parcel)
 	{
@@ -2580,7 +2583,6 @@ void LLPanelLandAccess::refresh_ui()
 			{
 				getChildView("Only Allow")->setToolTip(std::string());
 			}
-			getChildView("GroupCheck")->setEnabled(FALSE);
 			getChildView("PassCheck")->setEnabled(FALSE);
 			getChildView("pass_combo")->setEnabled(FALSE);
 			getChildView("AccessList")->setEnabled(FALSE);
@@ -2590,11 +2592,7 @@ void LLPanelLandAccess::refresh_ui()
 			getChildView("limit_payment")->setEnabled(FALSE);
 			getChildView("limit_age_verified")->setEnabled(FALSE);
 
-			std::string group_name;
-			if (gCacheName->getGroupName(parcel->getGroupID(), group_name))
-			{			
-				getChildView("GroupCheck")->setEnabled(can_manage_allowed);
-			}
+
 			BOOL group_access = getChild<LLUICtrl>("GroupCheck")->getValue().asBoolean();
 			BOOL sell_passes = getChild<LLUICtrl>("PassCheck")->getValue().asBoolean();
 			getChildView("PassCheck")->setEnabled(can_manage_allowed);
@@ -2605,16 +2603,21 @@ void LLPanelLandAccess::refresh_ui()
 				getChildView("HoursSpin")->setEnabled(can_manage_allowed);
 			}
 		}
+		std::string group_name;
+		if (gCacheName->getGroupName(parcel->getGroupID(), group_name))
+		{
+			getChildView("GroupCheck")->setEnabled(can_manage_allowed);
+		}
 		getChildView("AccessList")->setEnabled(can_manage_allowed);
 		S32 allowed_list_count = parcel->mAccessList.size();
 		getChildView("add_allowed")->setEnabled(can_manage_allowed && allowed_list_count < PARCEL_MAX_ACCESS_LIST);
-		BOOL has_selected = mListAccess->getSelectionInterface()->getFirstSelectedIndex() >= 0;
+		BOOL has_selected = (mListAccess && mListAccess->getSelectionInterface()->getFirstSelectedIndex() >= 0);
 		getChildView("remove_allowed")->setEnabled(can_manage_allowed && has_selected);
 		
 		getChildView("BannedList")->setEnabled(can_manage_banned);
 		S32 banned_list_count = parcel->mBanList.size();
 		getChildView("add_banned")->setEnabled(can_manage_banned && banned_list_count < PARCEL_MAX_ACCESS_LIST);
-		has_selected = mListBanned->getSelectionInterface()->getFirstSelectedIndex() >= 0;
+		has_selected = (mListBanned && mListBanned->getSelectionInterface()->getFirstSelectedIndex() >= 0);
 		getChildView("remove_banned")->setEnabled(can_manage_banned && has_selected);
 	}
 }
@@ -2650,17 +2653,6 @@ void LLPanelLandAccess::onCommitPublicAccess(LLUICtrl *ctrl, void *userdata)
 	{
 		return;
 	}
-
-	// If we disabled public access, enable group access by default (if applicable)
-	BOOL public_access = self->getChild<LLUICtrl>("public_access")->getValue().asBoolean();
-	if (public_access == FALSE)
-	{
-		std::string group_name;
-		if (gCacheName->getGroupName(parcel->getGroupID(), group_name))
-		{
-			self->getChild<LLUICtrl>("GroupCheck")->setValue(public_access ? FALSE : TRUE);
-		}
-	}
 	
 	onCommitAny(ctrl, userdata);
 }
@@ -2695,7 +2687,6 @@ void LLPanelLandAccess::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	if (public_access)
 	{
 		use_access_list = FALSE;
-		use_access_group = FALSE;
 		limit_payment = self->getChild<LLUICtrl>("limit_payment")->getValue().asBoolean();
 		limit_age_verified = self->getChild<LLUICtrl>("limit_age_verified")->getValue().asBoolean();
 	}
@@ -2739,11 +2730,13 @@ void LLPanelLandAccess::onCommitAny(LLUICtrl *ctrl, void *userdata)
 
 void LLPanelLandAccess::onClickAddAccess()
 {
+    LLView * button = findChild<LLButton>("add_allowed");
+    LLFloater * root_floater = gFloaterView->getParentFloater(this);
 	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(
-		boost::bind(&LLPanelLandAccess::callbackAvatarCBAccess, this, _1));
+		boost::bind(&LLPanelLandAccess::callbackAvatarCBAccess, this, _1), FALSE, FALSE, FALSE, root_floater->getName(), button);
 	if (picker)
 	{
-		gFloaterView->getParentFloater(this)->addDependentFloater(picker);
+		root_floater->addDependentFloater(picker);
 	}
 }
 
@@ -2788,11 +2781,13 @@ void LLPanelLandAccess::onClickRemoveAccess(void* data)
 // static
 void LLPanelLandAccess::onClickAddBanned()
 {
+    LLView * button = findChild<LLButton>("add_banned");
+    LLFloater * root_floater = gFloaterView->getParentFloater(this);
 	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(
-		boost::bind(&LLPanelLandAccess::callbackAvatarCBBanned, this, _1));
+		boost::bind(&LLPanelLandAccess::callbackAvatarCBBanned, this, _1), FALSE, FALSE, FALSE, root_floater->getName(), button);
 	if (picker)
 	{
-		gFloaterView->getParentFloater(this)->addDependentFloater(picker);
+		root_floater->addDependentFloater(picker);
 	}
 }
 
@@ -2872,7 +2867,7 @@ void LLPanelLandCovenant::refresh()
 	LLTextBox* resellable_clause = getChild<LLTextBox>("resellable_clause");
 	if (resellable_clause)
 	{
-		if (region->getRegionFlags() & REGION_FLAGS_BLOCK_LAND_RESELL)
+		if (region->getRegionFlag(REGION_FLAGS_BLOCK_LAND_RESELL))
 		{
 			resellable_clause->setText(getString("can_not_resell"));
 		}
@@ -2885,7 +2880,7 @@ void LLPanelLandCovenant::refresh()
 	LLTextBox* changeable_clause = getChild<LLTextBox>("changeable_clause");
 	if (changeable_clause)
 	{
-		if (region->getRegionFlags() & REGION_FLAGS_ALLOW_PARCEL_CHANGES)
+		if (region->getRegionFlag(REGION_FLAGS_ALLOW_PARCEL_CHANGES))
 		{
 			changeable_clause->setText(getString("can_change"));
 		}

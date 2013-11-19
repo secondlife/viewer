@@ -68,6 +68,7 @@
 	<menu_item_call label="Supprimer le dossier système" name="Delete System Folder"/>
 	<menu_item_call label="Démarrer le chat conférence" name="Conference Chat Folder"/>
 	<menu_item_call label="Jouer" name="Sound Play"/>
+	<menu_item_call label="Copier la SLurl" name="url_copy"/>
 	<menu_item_call label="À propos du repère" name="About Landmark"/>
 	<menu_item_call label="Jouer dans Second Life" name="Animation Play"/>
 	<menu_item_call label="Jouer localement" name="Animation Audition"/>

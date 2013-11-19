@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Text editor context menu">
+	<menu_item_call label="（不明）" name="Suggestion 1"/>
+	<menu_item_call label="（不明）" name="Suggestion 2"/>
+	<menu_item_call label="（不明）" name="Suggestion 3"/>
+	<menu_item_call label="（不明）" name="Suggestion 4"/>
+	<menu_item_call label="（不明）" name="Suggestion 5"/>
+	<menu_item_call label="辞書に追加" name="Add to Dictionary"/>
+	<menu_item_call label="無視に追加" name="Add to Ignore"/>
 	<menu_item_call label="切り取り" name="Cut"/>
 	<menu_item_call label="コピー" name="Copy"/>
 	<menu_item_call label="貼り付け" name="Paste"/>

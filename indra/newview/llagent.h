@@ -33,8 +33,11 @@
 #include "llagentdata.h" 			// gAgentID, gAgentSessionID
 #include "llcharacter.h"
 #include "llcoordframe.h"			// for mFrameAgent
-#include "llvoavatardefines.h"
+#include "llavatarappearancedefines.h"
+#include "llpermissionsflags.h"
 
+#include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
 #include <boost/signals2.hpp>
 
 extern const BOOL 	ANIMATE;
@@ -56,6 +59,9 @@ class LLAgentAccess;
 class LLSLURL;
 class LLPauseRequestHandle;
 class LLUIColor;
+class LLTeleportRequest;
+
+typedef boost::shared_ptr<LLTeleportRequest> LLTeleportRequestPtr;
 
 //--------------------------------------------------------------------
 // Types
@@ -373,14 +379,13 @@ public:
 	void			sitDown();
 
 	//--------------------------------------------------------------------
-	// Busy
+	// Do Not Disturb
 	//--------------------------------------------------------------------
 public:
-	void			setBusy();
-	void			clearBusy();
-	BOOL			getBusy() const;
+	void			setDoNotDisturb(bool pIsDoNotDisturb);
+	bool			isDoNotDisturb() const;
 private:
-	BOOL			mIsBusy;
+	bool			mIsDoNotDisturb;
 
 	//--------------------------------------------------------------------
 	// Grab
@@ -426,6 +431,9 @@ public:
 	void			onAnimStop(const LLUUID& id);
 	void			sendAnimationRequests(LLDynamicArray<LLUUID> &anim_ids, EAnimRequest request);
 	void			sendAnimationRequest(const LLUUID &anim_id, EAnimRequest request);
+	void			sendAnimationStateReset();
+	void			sendRevokePermissions(const LLUUID & target, U32 permissions);
+
 	void			endAnimationUpdateUI();
 	void			unpauseAnimation() { mPauseRequest = NULL; }
 	BOOL			getCustomAnim() const { return mCustomAnim; }
@@ -539,7 +547,8 @@ public:
 		TELEPORT_MOVING = 3,		// Viewer has received destination location from source simulator
 		TELEPORT_START_ARRIVAL = 4,	// Transition to ARRIVING.  Viewer has received avatar update, etc., from destination simulator
 		TELEPORT_ARRIVING = 5,		// Make the user wait while content "pre-caches"
-		TELEPORT_LOCAL = 6			// Teleporting in-sim without showing the progress screen
+		TELEPORT_LOCAL = 6,			// Teleporting in-sim without showing the progress screen
+		TELEPORT_PENDING = 7
 	};
 
 public:
@@ -556,9 +565,6 @@ private:
 	// Teleport Actions
 	//--------------------------------------------------------------------
 public:
-	void 			teleportRequest(const U64& region_handle,
-									const LLVector3& pos_local,				// Go to a named location home
-									bool look_at_from_camera = false);
 	void 			teleportViaLandmark(const LLUUID& landmark_id);			// Teleport to a landmark
 	void 			teleportHome()	{ teleportViaLandmark(LLUUID::null); }	// Go home
 	void 			teleportViaLure(const LLUUID& lure_id, BOOL godlike);	// To an invited location
@@ -568,6 +574,45 @@ public:
 	bool			getTeleportKeepsLookAt() { return mbTeleportKeepsLookAt; } // Whether look-at reset after teleport
 protected:
 	bool 			teleportCore(bool is_local = false); 					// Stuff for all teleports; returns true if the teleport can proceed
+
+	//--------------------------------------------------------------------
+	// Teleport State
+	//--------------------------------------------------------------------
+
+public:
+	bool            hasRestartableFailedTeleportRequest();
+	void            restartFailedTeleportRequest();
+	void            clearTeleportRequest();
+	void            setMaturityRatingChangeDuringTeleport(U8 pMaturityRatingChange);
+
+private:
+	friend class LLTeleportRequest;
+	friend class LLTeleportRequestViaLandmark;
+	friend class LLTeleportRequestViaLure;
+	friend class LLTeleportRequestViaLocation;
+	friend class LLTeleportRequestViaLocationLookAt;
+
+	LLTeleportRequestPtr        mTeleportRequest;
+	boost::signals2::connection mTeleportFinishedSlot;
+	boost::signals2::connection mTeleportFailedSlot;
+
+	bool            mIsMaturityRatingChangingDuringTeleport;
+	U8              mMaturityRatingChange;
+
+	bool            hasPendingTeleportRequest();
+	void            startTeleportRequest();
+
+	void 			teleportRequest(const U64& region_handle,
+									const LLVector3& pos_local,				// Go to a named location home
+									bool look_at_from_camera = false);
+	void 			doTeleportViaLandmark(const LLUUID& landmark_id);			// Teleport to a landmark
+	void 			doTeleportViaLure(const LLUUID& lure_id, BOOL godlike);	// To an invited location
+	void 			doTeleportViaLocation(const LLVector3d& pos_global);		// To a global location - this will probably need to be deprecated
+	void			doTeleportViaLocationLookAt(const LLVector3d& pos_global);// To a global location, preserving camera rotation
+
+	void            handleTeleportFinished();
+	void            handleTeleportFailed();
+	void			handleServerBakeRegionTransition(const LLUUID& region_id);
 
 	//--------------------------------------------------------------------
 	// Teleport State
@@ -614,8 +659,6 @@ public:
 	const LLAgentAccess& getAgentAccess();
 	BOOL			canManageEstate() const;
 	BOOL			getAdminOverride() const;
-	// ! BACKWARDS COMPATIBILITY ! This function can go away after the AO transition (see llstartup.cpp).
-	void 			setAOTransition();
 private:
 	LLAgentAccess * mAgentAccess;
 	
@@ -630,6 +673,16 @@ public:
 	void			setGodLevel(U8 god_level);
 	void			requestEnterGodMode();
 	void			requestLeaveGodMode();
+
+	typedef boost::function<void (U8)>         god_level_change_callback_t;
+	typedef boost::signals2::signal<void (U8)> god_level_change_signal_t;
+	typedef boost::signals2::connection        god_level_change_slot_t;
+
+	god_level_change_slot_t registerGodLevelChanageListener(god_level_change_callback_t pGodLevelChangeCallback);
+
+private:
+	god_level_change_signal_t mGodLevelChangeSignal;
+	
 
 	//--------------------------------------------------------------------
 	// Maturity
@@ -650,13 +703,28 @@ public:
 	bool 			isTeen() const;
 	bool 			isMature() const;
 	bool 			isAdult() const;
-	void 			setTeen(bool teen);
 	void 			setMaturity(char text);
-	static int 		convertTextToMaturity(char text); 
-	bool 			sendMaturityPreferenceToServer(int preferredMaturity); // ! "U8" instead of "int"?
+	static int 		convertTextToMaturity(char text);
+
+private:
+	bool                            mIsDoSendMaturityPreferenceToServer;
+	unsigned int                    mMaturityPreferenceRequestId;
+	unsigned int                    mMaturityPreferenceResponseId;
+	unsigned int                    mMaturityPreferenceNumRetries;
+	U8                              mLastKnownRequestMaturity;
+	U8                              mLastKnownResponseMaturity;
+
+	bool            isMaturityPreferenceSyncedWithServer() const;
+	void 			sendMaturityPreferenceToServer(U8 pPreferredMaturity);
+
+	friend class LLMaturityPreferencesResponder;
+	void            handlePreferredMaturityResult(U8 pServerMaturity);
+	void            handlePreferredMaturityError();
+	void            reportPreferredMaturitySuccess();
+	void            reportPreferredMaturityError();
 
 	// Maturity callbacks for PreferredMaturity control variable
-	void 			handleMaturity(const LLSD& newvalue);
+	void 			handleMaturity(const LLSD &pNewValue);
 	bool 			validateMaturity(const LLSD& newvalue);
 
 
@@ -779,6 +847,7 @@ private:
 public:
 	void			sendMessage(); // Send message to this agent's region
 	void			sendReliableMessage();
+	void 			dumpSentAppearance(const std::string& dump_prefix);
 	void			sendAgentSetAppearance();
 	void 			sendAgentDataUpdateRequest();
 	void 			sendAgentUserInfoRequest();
@@ -837,7 +906,7 @@ private:
 	S32				mNumPendingQueries;
 	S32				mWearablesCacheQueryID;
 	U32				mUpdateSerialNum;
-	S32		    	mActiveCacheQueries[LLVOAvatarDefines::BAKED_NUM_INDICES];
+	S32		    	mActiveCacheQueries[LLAvatarAppearanceDefines::BAKED_NUM_INDICES];
 };
 
 extern LLAgentQueryManager gAgentQueryManager;

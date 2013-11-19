@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="Teleport History">
 	<accordion name="history_accordion">
-		<no_matched_tabs_text name="no_matched_teleports_msg" value="沒有發現你要找的嗎？試試 [secondlife:///app/search/places/[SEARCH_TERM] 搜尋]。"/>
-		<no_visible_tabs_text name="no_teleports_msg" value="瞬間傳送紀錄是空白的。試試 [secondlife:///app/search/places/ Search]。"/>
+		<no_matched_tabs_text name="no_matched_teleports_msg" value="找不到你要找的嗎？ 請試試 [secondlife:///app/search/places/[SEARCH_TERM] 搜尋]。"/>
+		<no_visible_tabs_text name="no_teleports_msg" value="瞬間傳送歷史記錄目前空白。 請試試[secondlife:///app/search/places/ 搜尋]。"/>
 		<accordion_tab name="today" title="今天"/>
 		<accordion_tab name="yesterday" title="昨天"/>
 		<accordion_tab name="2_days_ago" title="前天"/>

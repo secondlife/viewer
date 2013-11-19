@@ -68,6 +68,7 @@
 	<menu_item_call label="Excluir pasta do sistema" name="Delete System Folder"/>
 	<menu_item_call label="Pasta conversa em conferência" name="Conference Chat Folder"/>
 	<menu_item_call label="Executar som" name="Sound Play"/>
+	<menu_item_call label="Copiar SLurl" name="url_copy"/>
 	<menu_item_call label="Sobre o marco" name="About Landmark"/>
 	<menu_item_call label="Executar animação" name="Animation Play"/>
 	<menu_item_call label="Executar áudio" name="Animation Audition"/>

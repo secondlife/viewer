@@ -3,6 +3,9 @@
 	<panel.string name="unknown">
 		(неизвестно)
 	</panel.string>
+	<panel.string name="unknown_multiple">
+		(неизвестно/несколько)
+	</panel.string>
 	<panel.string name="public">
 		(публичное)
 	</panel.string>

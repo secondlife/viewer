@@ -4,10 +4,10 @@
 		<check_box label="與群組分享" name="share_with_group"/>
 		<check_box label="允許任何人覆製" name="everyone_copy"/>
 		<text name="NextOwnerLabel">
-			下一個擁有者可以：
+			下一個所有人可以：
 		</text>
 		<check_box label="修改" name="next_owner_modify"/>
-		<check_box label="覆製" name="next_owner_copy"/>
+		<check_box label="恚庨" name="next_owner_copy"/>
 		<check_box initial_value="true" label="轉售 / 送人" name="next_owner_transfer"/>
 	</panel>
 	<button label="確定" label_selected="確定" name="ok"/>

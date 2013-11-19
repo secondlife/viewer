@@ -163,14 +163,9 @@ LLFontDescriptor LLFontDescriptor::normalize() const
 	return LLFontDescriptor(new_name,new_size,new_style,getFileNames());
 }
 
-LLFontRegistry::LLFontRegistry(const string_vec_t& xui_paths,
-							   bool create_gl_textures)
+LLFontRegistry::LLFontRegistry(bool create_gl_textures)
 :	mCreateGLTextures(create_gl_textures)
 {
-	// Propagate this down from LLUICtrlFactory so LLRender doesn't
-	// need an upstream dependency on LLUI.
-	mXUIPaths = xui_paths;
-	
 	// This is potentially a slow directory traversal, so we want to
 	// cache the result.
 	mUltimateFallbackList = LLWindow::getDynamicFallbackFontList();
@@ -183,27 +178,30 @@ LLFontRegistry::~LLFontRegistry()
 
 bool LLFontRegistry::parseFontInfo(const std::string& xml_filename)
 {
-	bool success = false;  // Succeed if we find at least one XUI file
-	const string_vec_t& xml_paths = mXUIPaths;
+	bool success = false;  // Succeed if we find and read at least one XUI file
+	const string_vec_t xml_paths = gDirUtilp->findSkinnedFilenames(LLDir::XUI, xml_filename);
+	if (xml_paths.empty())
+	{
+		// We didn't even find one single XUI file
+		return false;
+	}
+
 	for (string_vec_t::const_iterator path_it = xml_paths.begin();
 		 path_it != xml_paths.end();
 		 ++path_it)
 	{
-	
 		LLXMLNodePtr root;
-		std::string full_filename = gDirUtilp->findSkinnedFilename(*path_it, xml_filename);
-		bool parsed_file = LLXMLNode::parseFile(full_filename, root, NULL);
+		bool parsed_file = LLXMLNode::parseFile(*path_it, root, NULL);
 
 		if (!parsed_file)
 			continue;
-		
+
 		if ( root.isNull() || ! root->hasName( "fonts" ) )
 		{
-			llwarns << "Bad font info file: "
-					<< full_filename << llendl;
+			llwarns << "Bad font info file: " << *path_it << llendl;
 			continue;
 		}
-		
+
 		std::string root_name;
 		root->getAttributeString("name",root_name);
 		if (root->hasName("fonts"))
@@ -215,7 +213,7 @@ bool LLFontRegistry::parseFontInfo(const std::string& xml_filename)
 	}
 	//if (success)
 	//	dump();
-	
+
 	return success;
 }
 
@@ -225,7 +223,7 @@ std::string currentOsName()
 	return "Windows";
 #elif LL_DARWIN
 	return "Mac";
-#elif LL_SDL
+#elif LL_SDL || LL_MESA_HEADLESS
 	return "Linux";
 #else
 	return "";

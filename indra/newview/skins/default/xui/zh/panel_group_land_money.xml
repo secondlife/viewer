@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Land &amp; L$" name="land_money_tab">
+<panel label="土地和 L$" name="land_money_tab">
 	<panel.string name="help_text">
-		A warning appears until the Total Land in Use is less than or = to the Total Contribution.
+		將持續出現警示，直到使用中總土地小於或等於總貢獻面積為止。
 	</panel.string>
 	<panel.string name="cant_view_group_land_text">
-		You don&apos;t have permission to view group owned land
+		你無權察看群組所有地。
 	</panel.string>
 	<panel.string name="epmty_view_group_land_text">
 		沒有項目
 	</panel.string>
 	<panel.string name="cant_view_group_accounting_text">
-		You don&apos;t have permission to view the group&apos;s accounting information.
+		你無權察看該群組的帳目資料。
 	</panel.string>
 	<panel.string name="loading_txt">
 		載入中...
@@ -27,42 +27,42 @@
 			<scroll_list.columns label="隱藏" name="hidden"/>
 		</scroll_list>
 		<text name="total_contributed_land_label">
-			Total contribution:
+			總貢獻：
 		</text>
 		<text name="total_contributed_land_value">
-			[AREA] m²
+			[AREA] 平方公尺
 		</text>
 		<button label="地圖" label_selected="地圖" name="map_button"/>
 		<text name="total_land_in_use_label">
-			Total land in use:
+			使用中土地總面積：
 		</text>
 		<text name="total_land_in_use_value">
-			[AREA] m²
+			[AREA] 平方公尺
 		</text>
 		<text name="land_available_label">
-			Land available:
+			可用土地：
 		</text>
 		<text name="land_available_value">
-			[AREA] m²
+			[AREA] 平方公尺
 		</text>
 		<text name="your_contribution_label">
 			你的捐獻：
 		</text>
 		<text name="your_contribution_units">
-			m²
+			平方公尺
 		</text>
 		<text name="your_contribution_max_value">
 			（[AMOUNT] 最大）
 		</text>
 		<text name="group_over_limit_text">
-			More land credits are needed to support land in use
+			使用中土地需要更大的土地額度
 		</text>
 		<text name="group_money_heading">
 			群組 L$
 		</text>
 	</panel>
 	<tab_container name="group_money_tab_container">
-		<panel label="PLANNING" name="group_money_planning_tab">
+		<panel label="策劃" name="group_money_planning_tab">
 			<text_editor name="group_money_planning_text">
 				載入中...
 			</text_editor>
@@ -71,15 +71,15 @@
 			<text_editor name="group_money_details_text">
 				載入中...
 			</text_editor>
-			<button name="earlier_details_button" tool_tip="Back"/>
-			<button name="later_details_button" tool_tip="Next"/>
+			<button name="earlier_details_button" tool_tip="返回"/>
+			<button name="later_details_button" tool_tip="下一個"/>
 		</panel>
 		<panel label="銷售" name="group_money_sales_tab">
 			<text_editor name="group_money_sales_text">
 				載入中...
 			</text_editor>
-			<button name="earlier_sales_button" tool_tip="Back"/>
-			<button name="later_sales_button" tool_tip="Next"/>
+			<button name="earlier_sales_button" tool_tip="返回"/>
+			<button name="later_sales_button" tool_tip="下一個"/>
 		</panel>
 	</tab_container>
 </panel>

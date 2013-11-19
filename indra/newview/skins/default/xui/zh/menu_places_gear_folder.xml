@@ -4,7 +4,7 @@
 	<menu_item_call label="添加資料夾" name="add_folder"/>
 	<menu_item_call label="還原物品" name="restore_item"/>
 	<menu_item_call label="剪下" name="cut"/>
-	<menu_item_call label="覆製" name="copy_folder"/>
+	<menu_item_call label="恚庨" name="copy_folder"/>
 	<menu_item_call label="貼上" name="paste"/>
 	<menu_item_call label="更名" name="rename"/>
 	<menu_item_call label="刪除" name="delete"/>

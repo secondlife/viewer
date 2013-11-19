@@ -26,7 +26,7 @@
 		Consenti l&apos;accesso solo ai Residenti che:
 	</text>
 	<check_box label="Hanno memorizzato le informazioni per l&apos;addebito" name="limit_payment" tool_tip="Per poter visitare questa proprietà immobiliare i Residenti devono aver fornito informazioni di pagamento a Linden Lab.  Vedi [SUPPORT_SITE] per maggiori informazioni."/>
-	<check_box label="Hanno verificato l&apos;età" name="limit_age_verified" tool_tip="Per poter visitare questa proprietà immobiliare i Residenti devono aver verificato la propria età. Vedi [SUPPORT_SITE] per maggiori informazioni."/>
+	<check_box label="Hanno almeno 18 anni" name="limit_age_verified" tool_tip="Per poter visitare questa proprietà immobiliare i Residenti devono avere almeno 18 anni. Vedi [SUPPORT_SITE] per maggiori informazioni."/>
 	<check_box label="Permetti la chat voice" name="voice_chat_check"/>
 	<button label="?" name="voice_chat_help"/>
 	<check_box label="Permetti teleport diretto" name="allow_direct_teleport"/>

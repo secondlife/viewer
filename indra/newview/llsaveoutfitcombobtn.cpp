@@ -76,8 +76,8 @@ void LLSaveOutfitComboBtn::saveOutfit(bool as_new)
 	if (panel_outfits_inventory)
 	{
 		panel_outfits_inventory->onSave();
-	}
-
+	} 	
+    
 	//*TODO how to get to know when base outfit is updated or new outfit is created?
 }
 

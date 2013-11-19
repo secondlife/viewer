@@ -169,7 +169,7 @@ public:
 
 		return menu;
 	}
-
+	
 private:
 	static void onCreate(const LLSD& param)
 	{
@@ -187,7 +187,7 @@ private:
 	static void populateCreateWearableSubmenus(LLMenuGL* menu)
 	{
 		LLView* menu_clothes	= gMenuHolder->getChildView("COF.Gear.New_Clothes", FALSE);
-		LLView* menu_bp			= gMenuHolder->getChildView("COF.Geear.New_Body_Parts", FALSE);
+		LLView* menu_bp			= gMenuHolder->getChildView("COF.Gear.New_Body_Parts", FALSE);
 
 		for (U8 i = LLWearableType::WT_SHAPE; i != (U8) LLWearableType::WT_COUNT; ++i)
 		{
@@ -200,8 +200,7 @@ private:
 			p.on_click.function_name = "Wearable.Create";
 			p.on_click.parameter = LLSD(type_name);
 
-			LLView* parent = LLWearableType::getAssetType(type) == LLAssetType::AT_CLOTHING ?
-				menu_clothes : menu_bp;
+            LLView* parent = LLWearableType::getAssetType(type) == LLAssetType::AT_CLOTHING ? menu_clothes : menu_bp;
 			LLUICtrlFactory::create<LLMenuItemCallGL>(p, parent);
 		}
 	}
@@ -270,7 +269,7 @@ private:
 
 		if (inventory_panel->getVisible())
 		{
-			inventory_panel->setSortOrder(sort_order);
+			inventory_panel->getFolderViewModel()->setSorter(sort_order);
 		}
 		else
 		{
@@ -738,7 +737,7 @@ void LLPanelOutfitEdit::onSearchEdit(const std::string& string)
 	}
 	
 	// save current folder open state if no filter currently applied
-	if (mInventoryItemsPanel->getRootFolder()->getFilterSubString().empty())
+	if (mInventoryItemsPanel->getFilterSubString().empty())
 	{
 		mSavedFolderState->setApply(FALSE);
 		mInventoryItemsPanel->getRootFolder()->applyFunctorRecursively(*mSavedFolderState);
@@ -885,13 +884,13 @@ LLPanelOutfitEdit::selection_info_t LLPanelOutfitEdit::getAddMorePanelSelectionT
 	{
 		if (mInventoryItemsPanel != NULL && mInventoryItemsPanel->getVisible())
 		{
-			std::set<LLUUID> selected_uuids = mInventoryItemsPanel->getRootFolder()->getSelectionList();
+			std::set<LLFolderViewItem*> selected_items =    mInventoryItemsPanel->getRootFolder()->getSelectionList();
 
-			result.second = selected_uuids.size();
+			result.second = selected_items.size();
 
 			if (result.second == 1)
 			{
-				result.first = getWearableTypeByItemUUID(*(selected_uuids.begin()));
+				result.first = getWearableTypeByItemUUID(static_cast<LLFolderViewModelItemInventory*>((*selected_items.begin())->getViewModelItem())->getUUID());
 			}
 		}
 		else if (mWearableItemsList != NULL && mWearableItemsList->getVisible())
@@ -1310,7 +1309,7 @@ void LLPanelOutfitEdit::getCurrentItemUUID(LLUUID& selected_id)
 		LLFolderViewItem* curr_item = mInventoryItemsPanel->getRootFolder()->getCurSelectedItem();
 		if (!curr_item) return;
 
-		LLFolderViewEventListener* listenerp  = curr_item->getListener();
+		LLFolderViewModelItemInventory* listenerp  = static_cast<LLFolderViewModelItemInventory*>(curr_item->getViewModelItem());
 		if (!listenerp) return;
 
 		selected_id = listenerp->getUUID();
@@ -1327,9 +1326,13 @@ void LLPanelOutfitEdit::getSelectedItemsUUID(uuid_vec_t& uuid_list)
 	void (uuid_vec_t::* tmp)(LLUUID const &) = &uuid_vec_t::push_back;
 	if (mInventoryItemsPanel->getVisible())
 	{
-		std::set<LLUUID> item_set = mInventoryItemsPanel->getRootFolder()->getSelectionList();
-
-		std::for_each(item_set.begin(), item_set.end(), boost::bind( tmp, &uuid_list, _1));
+		std::set<LLFolderViewItem*> item_set =    mInventoryItemsPanel->getRootFolder()->getSelectionList();
+		for (std::set<LLFolderViewItem*>::iterator it = item_set.begin(),    end_it = item_set.end();
+			it != end_it;
+			++it)
+		{
+			uuid_list.push_back(static_cast<LLFolderViewModelItemInventory*>((*it)->getViewModelItem())->getUUID());
+		}
 	}
 	else if (mWearablesListViewPanel->getVisible())
 	{
@@ -1374,13 +1377,13 @@ void LLPanelOutfitEdit::saveListSelection()
 {
 	if(mWearablesListViewPanel->getVisible())
 	{
-		std::set<LLUUID> selected_ids = mInventoryItemsPanel->getRootFolder()->getSelectionList();
+		std::set<LLFolderViewItem*> selected_ids =    mInventoryItemsPanel->getRootFolder()->getSelectionList();
 
 		if(!selected_ids.size()) return;
 
-		for (std::set<LLUUID>::const_iterator item_id = selected_ids.begin(); item_id != selected_ids.end(); ++item_id)
+		for (std::set<LLFolderViewItem*>::const_iterator item_id =    selected_ids.begin(); item_id != selected_ids.end(); ++item_id)
 		{
-			mWearableItemsList->selectItemByUUID(*item_id, true);
+			mWearableItemsList->selectItemByUUID(static_cast<LLFolderViewModelItemInventory*>((*item_id)->getViewModelItem())->getUUID(),    true);
 		}
 		mWearableItemsList->scrollToShowFirstSelectedItem();
 	}
@@ -1398,7 +1401,7 @@ void LLPanelOutfitEdit::saveListSelection()
 
 		for(std::vector<LLUUID>::const_iterator item_id = selected_ids.begin(); item_id != selected_ids.end(); ++item_id)
 		{
-			LLFolderViewItem* item = root->getItemByID(*item_id);
+			LLFolderViewItem* item = mInventoryItemsPanel->getItemByID(*item_id);
 			if (!item) continue;
 
 			LLFolderViewFolder* parent = item->getParentFolder();

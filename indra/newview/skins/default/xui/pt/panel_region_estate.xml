@@ -26,7 +26,7 @@
 		Permitir acesso apenas para residentes que:
 	</text>
 	<check_box label="Dados de pagamento constam no registro." name="limit_payment" tool_tip="Propriedade de acesso restrito a residentes que já cadastraram seus dados de pagamento  Consulte o [SUPPORT_SITE] para saber mais."/>
-	<check_box label="A idade foi verificada" name="limit_age_verified" tool_tip="Residentes devem ter a idade verificada para acessar esta propriedade. Consulte o [SUPPORT_SITE] para saber mais."/>
+	<check_box label="Tem 18 anos ou mais" name="limit_age_verified" tool_tip="Os residentes devem ter 18 anos ou mais para acessar esta propriedade. Consulte o [SUPPORT_SITE] para obter mais informações."/>
 	<check_box label="Permitir conversa de voz" name="voice_chat_check"/>
 	<button label="?" name="voice_chat_help"/>
 	<check_box label="Permitir Tele-transporte direto" name="allow_direct_teleport"/>

@@ -8,42 +8,42 @@
 			<text name="Region Name:">
 				地區名稱：
 			</text>
-			<check_box label="Prelude" name="check prelude" tool_tip="Set this to make the region a prelude"/>
-			<check_box label="固定太陽" name="check fixed sun" tool_tip="Fix the sun position (like in Region/Estate &gt; Terrain"/>
-			<check_box label="Reset Home On Teleport" name="check reset home" tool_tip="When Resident teleports out, reset their home to the destination position."/>
-			<check_box label="Visible" name="check visible" tool_tip="Set this to make the region visible to non-gods"/>
-			<check_box label="傷害" name="check damage" tool_tip="Set this to enable damage in this region"/>
-			<check_box label="阻止流量追蹤" name="block dwell" tool_tip="Set this to make the region not compute traffic"/>
-			<check_box label="阻止變形" name="block terraform" tool_tip="Set this to disallow people terraforming their land"/>
-			<check_box label="沙盒" name="is sandbox" tool_tip="Toggle whether this is a sandbox region"/>
-			<button label="Bake Terrain" label_selected="Bake Terrain" name="Bake Terrain" tool_tip="儲存目前的地形為預設"/>
-			<button label="Revert Terrain" label_selected="Revert Terrain" name="Revert Terrain" tool_tip="Replace the current terrain with default"/>
-			<button label="Swap Terrain" label_selected="Swap Terrain" name="Swap Terrain" tool_tip="Swap current terrain with default"/>
+			<check_box label="導引區" name="check prelude" tool_tip="在此設定，將區域設為導引區"/>
+			<check_box label="固定太陽" name="check fixed sun" tool_tip="固定太陽位置（如同地區/領地 &gt; 地形）"/>
+			<check_box label="瞬間傳送時重設家的位置" name="check reset home" tool_tip="居民瞬間傳送離開時，將他們的家重設為瞬間傳送的目的地。"/>
+			<check_box label="可看到" name="check visible" tool_tip="在此設定，將區域設為可讓非神者看到。"/>
+			<check_box label="傷害" name="check damage" tool_tip="在此設定，使本地區允許傷害。"/>
+			<check_box label="阻止流量追蹤" name="block dwell" tool_tip="在此設定，使本區域不計算流量。"/>
+			<check_box label="阻止土地變形" name="block terraform" tool_tip="設定禁止人們將其土地變形。"/>
+			<check_box label="沙盤" name="is sandbox" tool_tip="切換是否設為沙盤區域。"/>
+			<button label="確定地形" label_selected="確定地形" name="Bake Terrain" tool_tip="將目前的地形儲存為預設值"/>
+			<button label="回復原地形" label_selected="回復原地形" name="Revert Terrain" tool_tip="以預設值取代目前的地形"/>
+			<button label="交換地形" label_selected="交換地形" name="Swap Terrain" tool_tip="將目前的地形和預設值交換"/>
 			<text name="estate id">
 				領地 ID：
 			</text>
 			<text name="parent id">
-				Parent ID:
+				母領地 ID：
 			</text>
-			<line_editor name="parentestate" tool_tip="This is the parent estate for this region"/>
+			<line_editor name="parentestate" tool_tip="這是本區域的母領地"/>
 			<text name="Grid Pos: ">
 				網格位置：
 			</text>
-			<line_editor name="gridposx" tool_tip="This is the grid x position for this region"/>
-			<line_editor name="gridposy" tool_tip="This is the grid y position for this region"/>
+			<line_editor name="gridposx" tool_tip="這是本區域的網格 X 位置"/>
+			<line_editor name="gridposy" tool_tip="這是本區域的網格 Y 位置"/>
 			<text name="Redirect to Grid: ">
-				Redirect to Grid:
+				重新導向至網格：
 			</text>
 			<text name="billable factor text">
-				Billable Factor:
+				收費率：
 			</text>
 			<text name="land cost text">
-				L$ per m²:
+				每平方公尺 L$：
 			</text>
-			<button label="重新整理" label_selected="重新整理" name="Refresh" tool_tip="Click here to refresh the above information"/>
-			<button label="套用" label_selected="套用" name="Apply" tool_tip="點擊此處以接受套用上述變更"/>
-			<button label="選擇地區" label_selected="選擇地區" name="Select Region" tool_tip="Select the whole region with the land tool"/>
-			<button label="立即自動儲存" label_selected="立即自動儲存" name="Autosave now" tool_tip="Save gzipped state to autosave directory"/>
+			<button label="重新整理" label_selected="重新整理" name="Refresh" tool_tip="點按這裡刷新上列資料"/>
+			<button label="套用" label_selected="套用" name="Apply" tool_tip="點按此處以接受套用上述變更"/>
+			<button label="選擇地區" label_selected="選擇地區" name="Select Region" tool_tip="以土地工具選取整個區域"/>
+			<button label="立即自動儲存" label_selected="立即自動儲存" name="Autosave now" tool_tip="儲存 gzip 壓縮狀態至自動儲存目錄"/>
 		</panel>
 		<panel label="物件" name="objects">
 			<panel.string name="no_target">
@@ -53,44 +53,44 @@
 				地區名稱：
 			</text>
 			<text name="region name">
-				Welsh
+				威爾斯
 			</text>
 			<check_box label="關閉腳本" name="disable scripts" tool_tip="關閉這個地區現在的全部腳本"/>
-			<check_box label="Disable Collisions" name="disable collisions" tool_tip="Set this to disable non-agent collisions in this region"/>
-			<check_box label="Disable Physics" name="disable physics" tool_tip="Set this to disable all physics in this region"/>
-			<button label="套用" label_selected="套用" name="Apply" tool_tip="Click here to apply any changes from above"/>
-			<button label="Set Target" label_selected="Set Target" name="Set Target" tool_tip="Set the target avatar for object deletion"/>
+			<check_box label="禁止碰撞" name="disable collisions" tool_tip="設置關閉地區內除了人以外的碰撞"/>
+			<check_box label="關閉物理" name="disable physics" tool_tip="設置關閉本區域內所有物理"/>
+			<button label="套用" label_selected="套用" name="Apply" tool_tip="點按此處以接受套用上述變更"/>
+			<button label="設定目標" label_selected="設定目標" name="Set Target" tool_tip="將目標化身設為待刪除的物件"/>
 			<text name="target_avatar_name">
 				（無目標）
 			</text>
-			<button label="Delete Target&apos;s Scripted Objects On Others Land" label_selected="Delete Target&apos;s Scripted Objects On Others Land" name="Delete Target&apos;s Scripted Objects On Others Land" tool_tip="Delete all scripted objects owned by the target on land not owned by the target. (no copy) objects will be returned."/>
-			<button label="Delete Target&apos;s Scripted Objects On *Any* Land" label_selected="Delete Target&apos;s Scripted Objects On *Any* Land" name="Delete Target&apos;s Scripted Objects On *Any* Land" tool_tip="Delete all scripted objects owned by the target in this region. (no copy) objects will be returned."/>
-			<button label="Delete *ALL* Of Target&apos;s Objects" label_selected="Delete *ALL* Of Target&apos;s Objects" name="Delete *ALL* Of Target&apos;s Objects" tool_tip="Delete all objects owned by the target in this region. (no copy) objects will be returned."/>
-			<button label="Get Top Colliders" label_selected="Get Top Colliders" name="Get Top Colliders" tool_tip="Gets list of objects experiencing the most narrowphase callbacks"/>
-			<button label="Get Top Scripts" label_selected="Get Top Scripts" name="Get Top Scripts" tool_tip="Gets list of objects spending the most time running scripts"/>
-			<button label="Scripts digest" label_selected="Scripts digest" name="Scripts digest" tool_tip="Gets a list of all scripts and number of occurences of each"/>
+			<button label="刪除目標物在其他土地的帶腳本的物件" label_selected="刪除目標物在其他土地的帶腳本的物件" name="Delete Target&apos;s Scripted Objects On Others Land" tool_tip="在不是目標物所擁有的土地上，刪除屬於該目標物的所有帶腳本的物件。 「禁止複製」的物件將被送回。"/>
+			<button label="刪除目標物在任何土地的帶腳本的物件" label_selected="刪除目標物在任何土地的帶腳本的物件" name="Delete Target&apos;s Scripted Objects On *Any* Land" tool_tip="刪除本區域內屬於目標物的所有帶腳本的物件。 「禁止複製」的物件將被送回。"/>
+			<button label="刪除目標物所有的物件" label_selected="刪除目標物所有的物件" name="Delete *ALL* Of Target&apos;s Objects" tool_tip="刪除本區域內屬於目標物的所有物件。 「禁止複製」的物件將被送回。"/>
+			<button label="取得最常碰撞的物件" label_selected="取得最常碰撞的物件" name="Get Top Colliders" tool_tip="取得經歷最多次「窄相」回調的物件清單"/>
+			<button label="取得排名最高的腳本" label_selected="取得排名最高的腳本" name="Get Top Scripts" tool_tip="取得花最多時間執行腳本的物件清單"/>
+			<button label="腳本集" label_selected="腳本集" name="Scripts digest" tool_tip="取得所有腳本清單，並列出發生次數，針對每一"/>
 		</panel>
-		<panel label="Request" name="request">
+		<panel label="請求" name="request">
 			<text name="Destination:">
-				Destination:
+				目的地：
 			</text>
 			<combo_box name="destination">
-				<combo_box.item label="Selection" name="item1"/>
-				<combo_box.item label="Agent Region" name="item2"/>
+				<combo_box.item label="選擇" name="item1"/>
+				<combo_box.item label="用戶地區" name="item2"/>
 			</combo_box>
 			<text name="Request:">
-				Request:
+				請求：
 			</text>
 			<combo_box name="request">
-				<combo_box.item label="colliders &lt;steps&gt;" name="item1"/>
-				<combo_box.item label="scripts &lt;count&gt;,&lt;optional pattern&gt;" name="item2"/>
-				<combo_box.item label="objects &lt;pattern&gt;" name="item3"/>
+				<combo_box.item label="碰撞物 &lt;步驟&gt;" name="item1"/>
+				<combo_box.item label="腳本 &lt;計數&gt;,&lt;非必要形態&gt;" name="item2"/>
+				<combo_box.item label="物件 &lt;形態&gt;" name="item3"/>
 				<combo_box.item label="rez &lt;asset_id&gt;" name="item4"/>
 			</combo_box>
 			<text name="Parameter:">
-				Parameter:
+				參數：
 			</text>
-			<button label="Make Request" label_selected="Make Request" name="Make Request"/>
+			<button label="提出請求" label_selected="提出請求" name="Make Request"/>
 		</panel>
 	</tab_container>
 </floater>

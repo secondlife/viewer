@@ -19,7 +19,7 @@
 	<layout_stack name="layout">
 		<layout_panel name="group_accordions">
 			<accordion name="groups_accordion">
-				<accordion_tab name="group_general_tab" title="一般"/>
+				<accordion_tab name="group_general_tab" title="基本資料"/>
 				<accordion_tab name="group_roles_tab" title="角色"/>
 				<accordion_tab name="group_notices_tab" title="通知"/>
 				<accordion_tab name="group_land_tab" title="土地 / 資產"/>

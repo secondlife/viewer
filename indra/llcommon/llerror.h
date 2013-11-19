@@ -34,8 +34,7 @@
 #include "llerrorlegacy.h"
 #include "stdtypes.h"
 
-
-/* Error Logging Facility
+/** Error Logging Facility
 
 	Information for most users:
 	
@@ -100,7 +99,6 @@
 	even release.  Which means you can use them to help debug even when deployed
 	to a real grid.
 */
-
 namespace LLError
 {
 	enum ELevel
@@ -143,9 +141,13 @@ namespace LLError
 		CallSite(ELevel, const char* file, int line,
 				const std::type_info& class_info, const char* function, const char* broadTag, const char* narrowTag, bool printOnce);
 						
+#ifdef LL_LIBRARY_INCLUDE
+		bool shouldLog();
+#else // LL_LIBRARY_INCLUDE
 		bool shouldLog()
 			{ return mCached ? mShouldLog : Log::shouldLog(*this); }
 			// this member function needs to be in-line for efficiency
+#endif // LL_LIBRARY_INCLUDE
 		
 		void invalidate();
 		
@@ -196,7 +198,19 @@ namespace LLError
        static void clear() ;
 	   static void end(std::ostringstream* _out) ;
    }; 
+
+#if LL_WINDOWS
+	void LLOutputDebugUTF8(const std::string& s);
+#endif
+
 }
+
+#if LL_WINDOWS
+	// Macro accepting a std::string for display in windows debugging console
+	#define LL_WINDOWS_OUTPUT_DEBUG(a) LLError::LLOutputDebugUTF8(a)
+#else
+	#define LL_WINDOWS_OUTPUT_DEBUG(a)
+#endif
 
 //this is cheaper than llcallstacks if no need to output other variables to call stacks. 
 #define llpushcallstacks LLError::LLCallStacks::push(__FUNCTION__, __LINE__)

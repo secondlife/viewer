@@ -201,10 +201,7 @@ namespace {
 		virtual void recordMessage(LLError::ELevel level,
 								   const std::string& message)
 		{
-			llutf16string utf16str =
-				wstring_to_utf16str(utf8str_to_wstring(message));
-			utf16str += '\n';
-			OutputDebugString(utf16str.c_str());
+			LL_WINDOWS_OUTPUT_DEBUG(message);
 		}
 	};
 #endif
@@ -534,7 +531,7 @@ namespace
 	}
 	
 	
-	void commonInit(const std::string& dir)
+	void commonInit(const std::string& dir, bool log_to_stderr = true)
 	{
 		LLError::Settings::reset();
 		
@@ -542,7 +539,8 @@ namespace
 		LLError::setFatalFunction(LLError::crashAndLoop);
 		LLError::setTimeFunction(LLError::utcTime);
 
-		if (shouldLogToStderr())
+		// log_to_stderr is only false in the unit and integration tests to keep builds quieter
+		if (log_to_stderr && shouldLogToStderr())
 		{
 			LLError::addRecorder(new RecordToStderr(stderrLogWantsTime()));
 		}
@@ -580,9 +578,9 @@ namespace LLError
 #endif
 	}
 
-	void initForApplication(const std::string& dir)
+	void initForApplication(const std::string& dir, bool log_to_stderr)
 	{
-		commonInit(dir);
+		commonInit(dir, log_to_stderr);
 	}
 
 	void setPrintLocation(bool print)
@@ -654,9 +652,7 @@ namespace LLError
 		g.invalidateCallSites();
 		s.tagLevelMap[tag_name] = level;
 	}
-}
 
-namespace {
 	LLError::ELevel decodeLevel(std::string name)
 	{
 		static LevelMap level_names;
@@ -681,7 +677,9 @@ namespace {
 		
 		return i->second;
 	}
-	
+}
+
+namespace {
 	void setLevels(LevelMap& map, const LLSD& list, LLError::ELevel level)
 	{
 		LLSD::array_const_iterator i, end;
@@ -1400,5 +1398,27 @@ namespace LLError
    {
        sIndex = 0 ;
    }
+
+#if LL_WINDOWS
+	void LLOutputDebugUTF8(const std::string& s)
+	{
+		// Be careful when calling OutputDebugString as it throws DBG_PRINTEXCEPTION_C 
+		// which works just fine under the windows debugger, but can cause users who
+		// have enabled SEHOP exception chain validation to crash due to interactions
+		// between the Win 32-bit exception handling and boost coroutine fiber stacks. BUG-2707
+		//
+		if (IsDebuggerPresent())
+		{
+			// Need UTF16 for Unicode OutputDebugString
+			//
+			if (s.size())
+			{
+				OutputDebugString(utf8str_to_utf16str(s).c_str());
+				OutputDebugString(TEXT("\n"));
+			}
+		}
+	}
+#endif
+
 }
 

@@ -43,6 +43,7 @@ class LLViewerFetchedTexture;
 
 // used for setting drag & drop callbacks.
 typedef boost::function<BOOL (LLUICtrl*, LLInventoryItem*)> drag_n_drop_callback;
+typedef boost::function<void (LLInventoryItem*)> texture_selected_callback;
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -125,6 +126,7 @@ public:
 
 	// LLTextureCtrl interface
 	void			showPicker(BOOL take_focus);
+	bool			isPickerShown() { return !mFloaterHandle.isDead(); }
 	void			setLabel(const std::string& label);
 	void			setLabelWidth(S32 label_width) {mLabelWidth =label_width;}	
 	const std::string&	getLabel() const							{ return mLabel; }
@@ -144,11 +146,18 @@ public:
 
 	const std::string&	getDefaultImageName() const					{ return mDefaultImageName; }
 
+	void			setBlankImageAssetID( const LLUUID& id )	{ mBlankImageAssetID = id; }
+	const LLUUID&	getBlankImageAssetID() const { return mBlankImageAssetID; }
+
 	void			setCaption(const std::string& caption);
 	void			setCanApplyImmediately(BOOL b);
 
+	void			setCanApply(bool can_preview, bool can_apply);
+
 	void			setImmediateFilterPermMask(PermissionMask mask)
 					{ mImmediateFilterPermMask = mask; }
+	void			setDnDFilterPermMask(PermissionMask mask)
+						{ mDnDFilterPermMask = mask; }
 	void			setNonImmediateFilterPermMask(PermissionMask mask)
 					{ mNonImmediateFilterPermMask = mask; }
 	PermissionMask	getImmediateFilterPermMask() { return mImmediateFilterPermMask; }
@@ -169,8 +178,13 @@ public:
 	void setDropCallback(drag_n_drop_callback cb)	{ mDropCallback = cb; }
 	
 	void setOnCancelCallback(commit_callback_t cb)	{ mOnCancelCallback = cb; }
-	
+	void setOnCloseCallback(commit_callback_t cb)	{ mOnCloseCallback = cb; }
 	void setOnSelectCallback(commit_callback_t cb)	{ mOnSelectCallback = cb; }
+
+	/*
+	 * callback for changing texture selection in inventory list of texture floater
+	 */
+	void setOnTextureSelectedCallback(texture_selected_callback cb);
 
 	void setShowLoadingPlaceholder(BOOL showLoadingPlaceholder);
 
@@ -185,11 +199,14 @@ private:
 	drag_n_drop_callback	 	mDropCallback;
 	commit_callback_t		 	mOnCancelCallback;
 	commit_callback_t		 	mOnSelectCallback;
+	commit_callback_t		 	mOnCloseCallback;
+	texture_selected_callback	mOnTextureSelectedCallback;
 	LLPointer<LLViewerFetchedTexture> mTexturep;
 	LLUIColor				 	mBorderColor;
 	LLUUID					 	mImageItemID;
 	LLUUID					 	mImageAssetID;
 	LLUUID					 	mDefaultImageAssetID;
+	LLUUID					 	mBlankImageAssetID;
 	LLUIImagePtr				mFallbackImage;
 	std::string					mDefaultImageName;
 	LLHandle<LLFloater>			mFloaterHandle;
@@ -198,6 +215,7 @@ private:
 	std::string				 	mLabel;
 	BOOL					 	mAllowNoTexture; // If true, the user can select "none" as an option
 	PermissionMask			 	mImmediateFilterPermMask;
+	PermissionMask				mDnDFilterPermMask;
 	PermissionMask			 	mNonImmediateFilterPermMask;
 	BOOL					 	mCanApplyImmediately;
 	BOOL					 	mCommitOnSelection;

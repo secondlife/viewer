@@ -86,7 +86,7 @@ public:
 
 	LLUploadModelPremissionsResponder(const LLHandle<LLUploadPermissionsObserver>& observer);
 
-	void error(U32 status, const std::string& reason);
+	void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
 
 	void result(const LLSD& content);
 

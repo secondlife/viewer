@@ -103,24 +103,29 @@ LLSD LLURLHistory::getURLHistory(const std::string& collection)
 // static
 void LLURLHistory::addURL(const std::string& collection, const std::string& url)
 {
-	if(! url.empty())
+	if(!url.empty())
 	{
-		sHistorySD[collection].insert(0, url);
+        LLURI u(url);
+        std::string simplified_url = u.scheme() + "://" + u.authority() + u.path();
+		sHistorySD[collection].insert(0, simplified_url);
 		LLURLHistory::limitSize(collection);
 	}
 }
 // static
 void LLURLHistory::removeURL(const std::string& collection, const std::string& url)
 {
-	LLSD::array_iterator iter = sHistorySD[collection].beginArray();
-	LLSD::array_iterator end = sHistorySD[collection].endArray();
-	for(int index = 0; index < sHistorySD[collection].size(); index++)
+	if(!url.empty())
 	{
-		if(sHistorySD[collection].get(index).asString() == url)
-		{
-			sHistorySD[collection].erase(index);
-		}
-	}
+        LLURI u(url);
+        std::string simplified_url = u.scheme() + "://" + u.authority() + u.path();
+        for(int index = 0; index < sHistorySD[collection].size(); index++)
+        {
+            if(sHistorySD[collection].get(index).asString() == simplified_url)
+            {
+                sHistorySD[collection].erase(index);
+            }
+        }
+    }
 }
 
 // static

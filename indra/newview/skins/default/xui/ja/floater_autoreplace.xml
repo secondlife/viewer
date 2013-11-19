@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="autoreplace_floater" title="自動置換設定">
+	<check_box label="自動置換を有効にする" name="autoreplace_enable" tool_tip="チャットテキストを入力するにつれて、入力したキーワードを対応する置換キーワードに置き換えます"/>
+	<button label="リストをインポート..." name="autoreplace_import_list" tool_tip="以前にエクスポートしたリストをファイルからロードします。"/>
+	<button label="リストをエクスポート..." name="autoreplace_export_list" tool_tip="選択したリストをファイルに保存して、共有できるようにします。"/>
+	<button label="新規リスト..." name="autoreplace_new_list" tool_tip="新規リストを作成します。"/>
+	<button label="リストを削除" name="autoreplace_delete_list" tool_tip="選択したリストを削除します。"/>
+	<button name="autoreplace_list_up" tool_tip="このリストの優先度を上げます。"/>
+	<button name="autoreplace_list_down" tool_tip="このリストの優先度を下げます。"/>
+	<scroll_list name="autoreplace_list_replacements">
+		<scroll_list.columns label="キーワード" name="keyword"/>
+		<scroll_list.columns label="置換" name="replacement"/>
+	</scroll_list>
+	<button label="追加..." name="autoreplace_add_entry"/>
+	<button label="削除" name="autoreplace_delete_entry"/>
+	<button label="エントリを保存" name="autoreplace_save_entry" tool_tip="このエントリを保存します。"/>
+	<button label="変更を保存" name="autoreplace_save_changes" tool_tip="変更をすべて保存します。"/>
+	<button label="取り消し" name="autoreplace_cancel" tool_tip="変更をすべて破棄します。"/>
+</floater>
+<!--
+  <text 
+   top_pad="10"
+   left="10"
+   height="16"
+   width="260"
+   follows="left|top"
+   halign="center"
+   mouse_opaque="true"
+   name="autoreplace_text2">
+    Entries
+  </text>
+-->

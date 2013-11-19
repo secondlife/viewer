@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Text editor context menu">
+	<menu_item_call label="(неизвестно)" name="Suggestion 1"/>
+	<menu_item_call label="(неизвестно)" name="Suggestion 2"/>
+	<menu_item_call label="(неизвестно)" name="Suggestion 3"/>
+	<menu_item_call label="(неизвестно)" name="Suggestion 4"/>
+	<menu_item_call label="(неизвестно)" name="Suggestion 5"/>
+	<menu_item_call label="Добавить в словарь" name="Add to Dictionary"/>
+	<menu_item_call label="Добавить в список игнорируемых" name="Add to Ignore"/>
 	<menu_item_call label="Вырезать" name="Cut"/>
 	<menu_item_call label="Копировать" name="Copy"/>
 	<menu_item_call label="Вставить" name="Paste"/>

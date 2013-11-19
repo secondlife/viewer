@@ -61,6 +61,18 @@ BOOL LLMemory::sEnableMemoryFailurePrevention = FALSE;
 LLPrivateMemoryPoolManager::mem_allocation_info_t LLPrivateMemoryPoolManager::sMemAllocationTracker;
 #endif
 
+void ll_assert_aligned_func(uintptr_t ptr,U32 alignment)
+{
+#ifdef SHOW_ASSERT
+	// Redundant, place to set breakpoints.
+	if (ptr%alignment!=0)
+	{
+		llwarns << "alignment check failed" << llendl;
+	}
+	llassert(ptr%alignment==0);
+#endif
+}
+
 //static
 void LLMemory::initClass()
 {
@@ -238,21 +250,6 @@ U32 LLMemory::getMaxMemKB()
 U32 LLMemory::getAllocatedMemKB() 
 {
 	return sAllocatedMemInKB ;
-}
-
-void* ll_allocate (size_t size)
-{
-	if (size == 0)
-	{
-		llwarns << "Null allocation" << llendl;
-	}
-	void *p = malloc(size);
-	if (p == NULL)
-	{
-		LLMemory::freeReserve();
-		llerrs << "Out of memory Error" << llendl;
-	}
-	return p;
 }
 
 //----------------------------------------------------------------------------
@@ -1353,7 +1350,7 @@ char* LLPrivateMemoryPool::allocate(U32 size)
 	//if the asked size larger than MAX_BLOCK_SIZE, fetch from heap directly, the pool does not manage it
 	if(size >= CHUNK_SIZE)
 	{
-		return (char*)malloc(size) ;
+		return (char*)ll_aligned_malloc_16(size) ;
 	}
 
 	char* p = NULL ;
@@ -1410,7 +1407,7 @@ char* LLPrivateMemoryPool::allocate(U32 size)
 			to_log = false ;
 		}
 
-		return (char*)malloc(size) ;
+		return (char*)ll_aligned_malloc_16(size) ;
 	}
 
 	return p ;
@@ -1429,7 +1426,7 @@ void LLPrivateMemoryPool::freeMem(void* addr)
 	
 	if(!chunk)
 	{
-		free(addr) ; //release from heap
+		ll_aligned_free_16(addr) ; //release from heap
 	}
 	else
 	{
@@ -1553,7 +1550,7 @@ LLPrivateMemoryPool::LLMemoryChunk* LLPrivateMemoryPool::addChunk(S32 chunk_inde
 
 	mReservedPoolSize += preferred_size + overhead ;
 
-	char* buffer = (char*)malloc(preferred_size + overhead) ;
+	char* buffer = (char*)ll_aligned_malloc_16(preferred_size + overhead) ;
 	if(!buffer)
 	{
 		return NULL ;
@@ -1621,7 +1618,7 @@ void LLPrivateMemoryPool::removeChunk(LLMemoryChunk* chunk)
 	mReservedPoolSize -= chunk->getBufferSize() ;
 	
 	//release memory
-	free(chunk->getBuffer()) ;
+	ll_aligned_free_16(chunk->getBuffer()) ;
 }
 
 U16 LLPrivateMemoryPool::findHashKey(const char* addr)
@@ -1965,7 +1962,7 @@ char* LLPrivateMemoryPoolManager::allocate(LLPrivateMemoryPool* poolp, U32 size,
 
 	if(!poolp)
 	{
-		p = (char*)malloc(size) ;
+		p = (char*)ll_aligned_malloc_16(size) ;
 	}
 	else
 	{
@@ -1994,7 +1991,7 @@ char* LLPrivateMemoryPoolManager::allocate(LLPrivateMemoryPool* poolp, U32 size)
 	}
 	else
 	{
-		return (char*)malloc(size) ;
+		return (char*)ll_aligned_malloc_16(size) ;
 	}
 }
 #endif
@@ -2019,7 +2016,7 @@ void  LLPrivateMemoryPoolManager::freeMem(LLPrivateMemoryPool* poolp, void* addr
 	{
 		if(!sPrivatePoolEnabled)
 		{
-			free(addr) ; //private pool is disabled.
+			ll_aligned_free_16(addr) ; //private pool is disabled.
 		}
 		else if(!sInstance) //the private memory manager is destroyed, try the dangling list
 		{

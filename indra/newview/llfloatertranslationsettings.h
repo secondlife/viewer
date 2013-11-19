@@ -44,6 +44,7 @@ public:
 
 	void setBingVerified(bool ok, bool alert);
 	void setGoogleVerified(bool ok, bool alert);
+	void onClose(bool app_quitting);
 
 private:
 	std::string getSelectedService() const;

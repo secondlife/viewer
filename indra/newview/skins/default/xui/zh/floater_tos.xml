@@ -4,12 +4,12 @@
 		http://secondlife.com/app/tos/
 	</floater.string>
 	<floater.string name="loading_url">
-		data:text/html,%3Chtml%3E%3Chead%3E%3C/head%3E%3Cbody text=%22000000%22%3E%3Ch2%3E Loading %3Ca%20target%3D%22_external%22%20href%3D%22http%3A//secondlife.com/app/tos/%22%3ETerms%20of%20Service%3C/a%3E...%3C/h2%3E %3C/body%3E %3C/html%3E
+		data:text/html,%3Chtml%3E%3Chead%3E%3C/head%3E%3Cbody text=%22000000%22%3E%3Ch2%3E 正在載入 %3Ca%20target%3D%22_external%22%20href%3D%22http%3A//secondlife.com/app/tos/%22%3ETerms%20of%20Service%3C/a%3E...%3C/h2%3E %3C/body%3E %3C/html%3E
 	</floater.string>
 	<button label="繼續" label_selected="繼續" name="Continue"/>
 	<button label="取消" label_selected="取消" name="Cancel"/>
 	<check_box label="我同意接受服務條款及隱私政策" name="agree_chk"/>
 	<text name="tos_heading">
-		請謹慎閱讀以下的服務條款及隱私政策。要繼續登入到 [SECOND_LIFE]，你必須接受這些協議。
+		請仔細閱讀以下服務條款及隱私政策。 繼續登入 [SECOND_LIFE] 前，你必須同意條款。
 	</text>
 </floater>

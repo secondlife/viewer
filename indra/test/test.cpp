@@ -37,7 +37,9 @@
 #include "linden_common.h"
 #include "llerrorcontrol.h"
 #include "lltut.h"
+#include "tests/wrapllerrs.h"             // RecorderProxy
 #include "stringize.h"
+#include "namedtempfile.h"
 
 #include "apr_pools.h"
 #include "apr_getopt.h"
@@ -70,25 +72,91 @@
 #include <boost/foreach.hpp>
 #include <boost/lambda/lambda.hpp>
 
+#include <fstream>
+
+void wouldHaveCrashed(const std::string& message);
+
 namespace tut
 {
 	std::string sSourceDir;
-	
-    test_runner_singleton runner;
+
+	test_runner_singleton runner;
 }
+
+class LLReplayLog
+{
+public:
+	LLReplayLog() {}
+	virtual ~LLReplayLog() {}
+
+	virtual void reset() {}
+	virtual void replay(std::ostream&) {}
+};
+
+class LLReplayLogReal: public LLReplayLog, public LLError::Recorder, public boost::noncopyable
+{
+public:
+	LLReplayLogReal(LLError::ELevel level, apr_pool_t* pool):
+		mOldSettings(LLError::saveAndResetSettings()),
+		mProxy(new RecorderProxy(this)),
+		mTempFile("log", "", pool),		// create file
+		mFile(mTempFile.getName().c_str()) // open it
+	{
+		LLError::setFatalFunction(wouldHaveCrashed);
+		LLError::setDefaultLevel(level);
+		LLError::addRecorder(mProxy);
+	}
+
+	virtual ~LLReplayLogReal()
+	{
+		LLError::removeRecorder(mProxy);
+		delete mProxy;
+		LLError::restoreSettings(mOldSettings);
+	}
+
+	virtual void recordMessage(LLError::ELevel level, const std::string& message)
+	{
+		mFile << message << std::endl;
+	}
+
+	virtual void reset()
+	{
+		mFile.close();
+		mFile.open(mTempFile.getName().c_str());
+	}
+
+	virtual void replay(std::ostream& out)
+	{
+		mFile.close();
+		std::ifstream inf(mTempFile.getName().c_str());
+		std::string line;
+		while (std::getline(inf, line))
+		{
+			out << line << std::endl;
+		}
+	}
+
+private:
+	LLError::Settings* mOldSettings;
+	LLError::Recorder* mProxy;
+	NamedTempFile mTempFile;
+	std::ofstream mFile;
+};
 
 class LLTestCallback : public tut::callback
 {
 public:
-	LLTestCallback(bool verbose_mode, std::ostream *stream) :
-	mVerboseMode(verbose_mode),
-	mTotalTests(0),
-	mPassedTests(0),
-	mFailedTests(0),
-	mSkippedTests(0),
-	// By default, capture a shared_ptr to std::cout, with a no-op "deleter"
-	// so that destroying the shared_ptr makes no attempt to delete std::cout.
-	mStream(boost::shared_ptr<std::ostream>(&std::cout, boost::lambda::_1))
+	LLTestCallback(bool verbose_mode, std::ostream *stream,
+				   boost::shared_ptr<LLReplayLog> replayer) :
+		mVerboseMode(verbose_mode),
+		mTotalTests(0),
+		mPassedTests(0),
+		mFailedTests(0),
+		mSkippedTests(0),
+		// By default, capture a shared_ptr to std::cout, with a no-op "deleter"
+		// so that destroying the shared_ptr makes no attempt to delete std::cout.
+		mStream(boost::shared_ptr<std::ostream>(&std::cout, boost::lambda::_1)),
+		mReplayer(replayer)
 	{
 		if (stream)
 		{
@@ -113,19 +181,32 @@ public:
 	virtual void run_started()
 	{
 		//std::cout << "run_started" << std::endl;
+		LL_INFOS("TestRunner")<<"Test Started"<< LL_ENDL;
 	}
 
 	virtual void group_started(const std::string& name) {
+		LL_INFOS("TestRunner")<<"Unit test group_started name=" << name << LL_ENDL;
 		*mStream << "Unit test group_started name=" << name << std::endl;
 	}
 
 	virtual void group_completed(const std::string& name) {
+		LL_INFOS("TestRunner")<<"Unit test group_completed name=" << name << LL_ENDL;
 		*mStream << "Unit test group_completed name=" << name << std::endl;
 	}
 
 	virtual void test_completed(const tut::test_result& tr)
 	{
 		++mTotalTests;
+
+		// If this test failed, dump requested log messages BEFORE stating the
+		// test result.
+		if (tr.result != tut::test_result::ok && tr.result != tut::test_result::skip)
+		{
+			mReplayer->replay(*mStream);
+		}
+		// Either way, clear stored messages in preparation for next test.
+		mReplayer->reset();
+
 		std::ostringstream out;
 		out << "[" << tr.group << ", " << tr.test;
 		if (! tr.name.empty())
@@ -167,9 +248,11 @@ public:
 			if(!tr.message.empty())
 			{
 				*mStream << ": '" << tr.message << "'";
+				LL_WARNS("TestRunner") << "not ok : "<<tr.message << LL_ENDL;
 			}
 			*mStream << std::endl;
 		}
+		LL_INFOS("TestRunner")<<out.str()<<LL_ENDL;
 	}
 
 	virtual int getFailedTests() const { return mFailedTests; }
@@ -206,6 +289,7 @@ protected:
 	int mFailedTests;
 	int mSkippedTests;
 	boost::shared_ptr<std::ostream> mStream;
+	boost::shared_ptr<LLReplayLog> mReplayer;
 };
 
 // TeamCity specific class which emits service messages
@@ -214,8 +298,9 @@ protected:
 class LLTCTestCallback : public LLTestCallback
 {
 public:
-	LLTCTestCallback(bool verbose_mode, std::ostream *stream) :
-		LLTestCallback(verbose_mode, stream)
+	LLTCTestCallback(bool verbose_mode, std::ostream *stream,
+					 boost::shared_ptr<LLReplayLog> replayer) :
+		LLTestCallback(verbose_mode, stream, replayer)
 	{
 	}
 
@@ -356,6 +441,14 @@ void stream_usage(std::ostream& s, const char* app)
 		++option;
 	}
 
+	s << app << " is also sensitive to environment variables:\n"
+	  << "LOGTEST=level : for all tests, emit log messages at level 'level'\n"
+	  << "LOGFAIL=level : only for failed tests, emit log messages at level 'level'\n"
+	  << "where 'level' is one of ALL, DEBUG, INFO, WARN, ERROR, NONE.\n"
+	  << "--debug is like LOGTEST=DEBUG, but --debug overrides LOGTEST.\n"
+	  << "Setting LOGFAIL overrides both LOGTEST and --debug: the only log\n"
+	  << "messages you will see will be for failed tests.\n\n";
+
 	s << "Examples:" << std::endl;
 	s << "  " << app << " --verbose" << std::endl;
 	s << "\tRun all the tests and report all results." << std::endl;
@@ -363,6 +456,13 @@ void stream_usage(std::ostream& s, const char* app)
 	s << "\tList all available test groups." << std::endl;
 	s << "  " << app << " --group=uuid" << std::endl;
 	s << "\tRun the test group 'uuid'." << std::endl;
+
+	s << "\n\n"
+	  << "In any event, logs are recorded in the build directory by appending\n"
+	  << "the suffix '.log' to the full path name of this application.\n"
+	  << "If no level is specified as described above, these log files are at\n"
+	  << "DEBUG level.\n"
+		;
 }
 
 void stream_groups(std::ostream& s, const char* app)
@@ -389,11 +489,24 @@ int main(int argc, char **argv)
 #ifndef LL_WINDOWS
 	::testing::InitGoogleMock(&argc, argv);
 #endif
-	LLError::initForApplication(".");
+	// LOGTEST overrides default, but can be overridden by --debug or LOGFAIL.
+	const char* LOGTEST = getenv("LOGTEST");
+	if (LOGTEST)
+	{
+		LLError::initForApplication(".", true /* log to stderr */);
+		LLError::setDefaultLevel(LLError::decodeLevel(LOGTEST));
+	}
+	else
+	{
+		LLError::initForApplication(".", false /* do not log to stderr */);
+		LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
+	}	
 	LLError::setFatalFunction(wouldHaveCrashed);
-	LLError::setDefaultLevel(LLError::LEVEL_ERROR);
-	//< *TODO: should come from error config file. Note that we
-	// have a command line option that sets this to debug.
+	LLError::setPrintLocation(true);
+	std::string test_app_name(argv[0]);
+	std::string test_log = test_app_name + ".log";
+	LLFile::remove(test_log);
+	LLError::logToFile(test_log);
 
 #ifdef CTYPE_WORKAROUND
 	ctype_workaround();
@@ -468,8 +581,6 @@ int main(int argc, char **argv)
 				wait_at_exit = true;
 				break;
 			case 'd':
-				// *TODO: should come from error config file. We set it to
-				// ERROR by default, so this allows full debug levels.
 				LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
 				break;
 			case 'x':
@@ -484,14 +595,28 @@ int main(int argc, char **argv)
 
 	// run the tests
 
-	LLTestCallback* mycallback;
-	if (getenv("TEAMCITY_PROJECT_NAME"))
+	const char* LOGFAIL = getenv("LOGFAIL");
+	boost::shared_ptr<LLReplayLog> replayer;
+	// As described in stream_usage(), LOGFAIL overrides both --debug and
+	// LOGTEST.
+	if (LOGFAIL)
 	{
-		mycallback = new LLTCTestCallback(verbose_mode, output.get());		
+		LLError::ELevel level = LLError::decodeLevel(LOGFAIL);
+		replayer.reset(new LLReplayLogReal(level, pool));
 	}
 	else
 	{
-		mycallback = new LLTestCallback(verbose_mode, output.get());
+		replayer.reset(new LLReplayLog());
+	}
+
+	LLTestCallback* mycallback;
+	if (getenv("TEAMCITY_PROJECT_NAME"))
+	{
+		mycallback = new LLTCTestCallback(verbose_mode, output.get(), replayer);
+	}
+	else
+	{
+		mycallback = new LLTestCallback(verbose_mode, output.get(), replayer);
 	}
 
 	tut::runner.get().set_callback(mycallback);

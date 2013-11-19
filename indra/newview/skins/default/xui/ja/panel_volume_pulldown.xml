@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="volumepulldown_floater">
+	<slider label="マスター" name="System Volume"/>
+	<slider label="ボタン" name="UI Volume"/>
+	<slider label="環境音" name="Wind Volume"/>
+	<slider label="サウンド" name="SFX Volume"/>
+	<check_box name="gesture_audio_play_btn" tool_tip="ジェスチャーの音を有効にする"/>
+	<slider label="音楽" name="Music Volume"/>
+	<check_box name="enable_music" tool_tip="ストリーミング音楽を有効にする"/>
+	<slider label="メディア" name="Media Volume"/>
+	<check_box name="enable_media" tool_tip="ストリーミングメディアを有効にする"/>
+	<slider label="ボイス" name="Voice Volume"/>
+	<check_box name="enable_voice_check" tool_tip="ボイスチャットを有効にする"/>
+</panel>

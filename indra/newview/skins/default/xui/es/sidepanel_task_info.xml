@@ -18,6 +18,12 @@
 	<panel.string name="text modify info 4">
 		No puedes modificar estos objetos
 	</panel.string>
+	<panel.string name="text modify info 5">
+		No se puede modificar este objeto a través del límite de una región
+	</panel.string>
+	<panel.string name="text modify info 6">
+		No se pueden modificar estos objetos a través del límite de una región
+	</panel.string>
 	<panel.string name="text modify warning">
 		Este objeto tiene partes enlazadas
 	</panel.string>
@@ -66,6 +72,7 @@
 			<combo_box.item label="Comprar el objeto" name="Buyobject"/>
 			<combo_box.item label="Pagar el objeto" name="Payobject"/>
 			<combo_box.item label="Abrir" name="Open"/>
+			<combo_box.item label="Zoom" name="Zoom"/>
 		</combo_box>
 		<panel name="perms_inv">
 			<text name="perm_modify">
@@ -95,6 +102,9 @@
 		</combo_box>
 		<spinner label="Precio: L$" name="Edit Cost"/>
 		<check_box label="Mostrar en la búsqueda" name="search_check" tool_tip="Permitir que la gente vea este objeto en los resultados de la búsqueda"/>
+		<text name="pathfinding_attributes_label">
+			Atributos de pathfinding:
+		</text>
 		<text name="B:">
 			B:
 		</text>

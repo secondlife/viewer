@@ -96,6 +96,9 @@ public:
 		Mandatory<std::string>	name;
 		Mandatory<std::string>	tooltip_ref;
 
+		Optional<std::string>   hover_icon_selected;
+		Optional<std::string>   hover_icon_unselected;
+
 		Mandatory<std::string>	execute_function;
 		Optional<LLSD>			execute_parameters;
 
@@ -111,6 +114,8 @@ public:
 		Optional<std::string>	is_starting_function;
 		Optional<LLSD>			is_starting_parameters;
 
+		Optional<bool>			is_flashing_allowed;
+
 		Params();
 	};
 
@@ -122,6 +127,8 @@ public:
 	const std::string& labelRef() const { return mLabelRef; }
 	const std::string& name() const { return mName; }
 	const std::string& tooltipRef() const { return mTooltipRef; }
+	const std::string& hoverIconUnselected() const {return mHoverIconUnselected; }
+	const std::string& hoverIconSelected() const {return mHoverIconSelected; }
 
 	const std::string& executeFunctionName() const { return mExecuteFunction; }
 	const LLSD& executeParameters() const { return mExecuteParameters; }
@@ -138,6 +145,8 @@ public:
 	const std::string& isStartingFunctionName() const { return mIsStartingFunction; }
 	const LLSD& isStartingParameters() const { return mIsStartingParameters; }
 
+	bool isFlashingAllowed() const { return mIsFlashingAllowed; }
+
 private:
 	LLCommandId mIdentifier;
 
@@ -146,6 +155,8 @@ private:
 	std::string mLabelRef;
 	std::string mName;
 	std::string mTooltipRef;
+	std::string mHoverIconUnselected;
+	std::string mHoverIconSelected;
 
 	std::string mExecuteFunction;
 	LLSD        mExecuteParameters;
@@ -161,6 +172,8 @@ private:
 
 	std::string mIsStartingFunction;
 	LLSD        mIsStartingParameters;
+
+	bool		mIsFlashingAllowed;
 };
 
 

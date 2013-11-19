@@ -28,94 +28,97 @@
 #define LL_LLREGIONFLAGS_H
 
 // Can you be hurt here? Should health be on?
-const U32 REGION_FLAGS_ALLOW_DAMAGE				= (1 << 0);
+const U64 REGION_FLAGS_ALLOW_DAMAGE				= (1 << 0);
 
 // Can you make landmarks here?
-const U32 REGION_FLAGS_ALLOW_LANDMARK			= (1 << 1);
+const U64 REGION_FLAGS_ALLOW_LANDMARK			= (1 << 1);
 
 // Do we reset the home position when someone teleports away from here?
-const U32 REGION_FLAGS_ALLOW_SET_HOME			= (1 << 2);
+const U64 REGION_FLAGS_ALLOW_SET_HOME			= (1 << 2);
 
 // Do we reset the home position when someone teleports away from here?
-const U32 REGION_FLAGS_RESET_HOME_ON_TELEPORT	= (1 << 3);
+const U64 REGION_FLAGS_RESET_HOME_ON_TELEPORT	= (1 << 3);
 
 // Does the sun move?
-const U32 REGION_FLAGS_SUN_FIXED				= (1 << 4);
+const U64 REGION_FLAGS_SUN_FIXED				= (1 << 4);
 
 // Can't change the terrain heightfield, even on owned parcels,
 // but can plant trees and grass.
-const U32 REGION_FLAGS_BLOCK_TERRAFORM			= (1 << 6);
+const U64 REGION_FLAGS_BLOCK_TERRAFORM			= (1 << 6);
 
 // Can't release, sell, or buy land.
-const U32 REGION_FLAGS_BLOCK_LAND_RESELL		= (1 << 7);
+const U64 REGION_FLAGS_BLOCK_LAND_RESELL		= (1 << 7);
 
 // All content wiped once per night
-const U32 REGION_FLAGS_SANDBOX					= (1 << 8);
-const U32 REGION_FLAGS_SKIP_COLLISIONS			= (1 << 12); // Pin all non agent rigid bodies
-const U32 REGION_FLAGS_SKIP_SCRIPTS				= (1 << 13);
-const U32 REGION_FLAGS_SKIP_PHYSICS				= (1 << 14); // Skip all physics
-const U32 REGION_FLAGS_EXTERNALLY_VISIBLE		= (1 << 15);
-const U32 REGION_FLAGS_ALLOW_RETURN_ENCROACHING_OBJECT = (1 << 16);
-const U32 REGION_FLAGS_ALLOW_RETURN_ENCROACHING_ESTATE_OBJECT = (1 << 17);
-const U32 REGION_FLAGS_BLOCK_DWELL				= (1 << 18);
+const U64 REGION_FLAGS_SANDBOX					= (1 << 8);
+const U64 REGION_FLAGS_SKIP_COLLISIONS			= (1 << 12); // Pin all non agent rigid bodies
+const U64 REGION_FLAGS_SKIP_SCRIPTS				= (1 << 13);
+const U64 REGION_FLAGS_SKIP_PHYSICS				= (1 << 14); // Skip all physics
+const U64 REGION_FLAGS_EXTERNALLY_VISIBLE		= (1 << 15);
+const U64 REGION_FLAGS_ALLOW_RETURN_ENCROACHING_OBJECT = (1 << 16);
+const U64 REGION_FLAGS_ALLOW_RETURN_ENCROACHING_ESTATE_OBJECT = (1 << 17);
+const U64 REGION_FLAGS_BLOCK_DWELL				= (1 << 18);
 
 // Is flight allowed?
-const U32 REGION_FLAGS_BLOCK_FLY				= (1 << 19);	
+const U64 REGION_FLAGS_BLOCK_FLY				= (1 << 19);	
 
 // Is direct teleport (p2p) allowed?
-const U32 REGION_FLAGS_ALLOW_DIRECT_TELEPORT	= (1 << 20);
+const U64 REGION_FLAGS_ALLOW_DIRECT_TELEPORT	= (1 << 20);
 
 // Is there an administrative override on scripts in the region at the
 // moment. This is the similar skip scripts, except this flag is
 // presisted in the database on an estate level.
-const U32 REGION_FLAGS_ESTATE_SKIP_SCRIPTS		= (1 << 21);
+const U64 REGION_FLAGS_ESTATE_SKIP_SCRIPTS		= (1 << 21);
 
-const U32 REGION_FLAGS_RESTRICT_PUSHOBJECT		= (1 << 22);
+const U64 REGION_FLAGS_RESTRICT_PUSHOBJECT		= (1 << 22);
 
-const U32 REGION_FLAGS_DENY_ANONYMOUS			= (1 << 23);
+const U64 REGION_FLAGS_DENY_ANONYMOUS			= (1 << 23);
 
-const U32 REGION_FLAGS_ALLOW_PARCEL_CHANGES		= (1 << 26);
+const U64 REGION_FLAGS_ALLOW_PARCEL_CHANGES		= (1 << 26);
 
-const U32 REGION_FLAGS_ALLOW_VOICE = (1 << 28);
+const U64 REGION_FLAGS_ALLOW_VOICE = (1 << 28);
 
-const U32 REGION_FLAGS_BLOCK_PARCEL_SEARCH = (1 << 29);
-const U32 REGION_FLAGS_DENY_AGEUNVERIFIED	= (1 << 30);
+const U64 REGION_FLAGS_BLOCK_PARCEL_SEARCH = (1 << 29);
+const U64 REGION_FLAGS_DENY_AGEUNVERIFIED	= (1 << 30);
 
-const U32 REGION_FLAGS_DEFAULT = REGION_FLAGS_ALLOW_LANDMARK |
+const U64 REGION_FLAGS_DEFAULT = REGION_FLAGS_ALLOW_LANDMARK |
 								 REGION_FLAGS_ALLOW_SET_HOME |
                                  REGION_FLAGS_ALLOW_PARCEL_CHANGES |
                                  REGION_FLAGS_ALLOW_VOICE;
 
 
-const U32 REGION_FLAGS_PRELUDE_SET = REGION_FLAGS_RESET_HOME_ON_TELEPORT;
-const U32 REGION_FLAGS_PRELUDE_UNSET = REGION_FLAGS_ALLOW_LANDMARK 
+const U64 REGION_FLAGS_PRELUDE_SET = REGION_FLAGS_RESET_HOME_ON_TELEPORT;
+const U64 REGION_FLAGS_PRELUDE_UNSET = REGION_FLAGS_ALLOW_LANDMARK 
 									   | REGION_FLAGS_ALLOW_SET_HOME;
 
-const U32 REGION_FLAGS_ESTATE_MASK = REGION_FLAGS_EXTERNALLY_VISIBLE
+const U64 REGION_FLAGS_ESTATE_MASK = REGION_FLAGS_EXTERNALLY_VISIBLE
 									 | REGION_FLAGS_SUN_FIXED
 									 | REGION_FLAGS_DENY_ANONYMOUS
 									 | REGION_FLAGS_DENY_AGEUNVERIFIED;
 
-inline BOOL is_prelude( U32 flags )
+inline BOOL is_prelude( U64 flags )
 {
 	// definition of prelude does not depend on fixed-sun
 	return 0 == (flags & REGION_FLAGS_PRELUDE_UNSET)
 		   && 0 != (flags & REGION_FLAGS_PRELUDE_SET);
 }
 
-inline U32 set_prelude_flags(U32 flags)
+inline U64 set_prelude_flags(U64 flags)
 {
 	// also set the sun-fixed flag
 	return ((flags & ~REGION_FLAGS_PRELUDE_UNSET)
 			| (REGION_FLAGS_PRELUDE_SET | REGION_FLAGS_SUN_FIXED));
 }
 
-inline U32 unset_prelude_flags(U32 flags)
+inline U64 unset_prelude_flags(U64 flags)
 {
 	// also unset the fixed-sun flag
 	return ((flags | REGION_FLAGS_PRELUDE_UNSET) 
 			& ~(REGION_FLAGS_PRELUDE_SET | REGION_FLAGS_SUN_FIXED));
 }
+
+// Region protocols
+const U64 REGION_PROTOCOLS_AGENT_APPEARANCE_SERVICE = (1 << 0);
 
 // estate constants. Need to match first few etries in indra.estate table.
 const U32 ESTATE_ALL = 0; // will not match in db, reserved key for logic

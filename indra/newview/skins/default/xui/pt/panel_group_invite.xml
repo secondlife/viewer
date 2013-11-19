@@ -9,6 +9,9 @@
 	<panel.string name="already_in_group">
 		Alguns dos residentes selecionados já estão no grupo, portanto não receberam convite.
 	</panel.string>
+	<panel.string name="invite_selection_too_large">
+		Os convites para o grupo não foram enviados: muitos residentes selecionados. Os convites para o grupo são limitados a 100 por solicitação.
+	</panel.string>
 	<text name="help_text" width="214">
 		Selecione um ou mais residentes para convidar.  Clique em &apos;Abrir seletor de residentes&apos; para começar.
 	</text>

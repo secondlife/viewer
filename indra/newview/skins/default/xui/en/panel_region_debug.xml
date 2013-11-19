@@ -194,11 +194,11 @@
     <button
      follows="left|top"
      height="20"
-     label="Delay Restart"
+     label="Cancel Restart"
      layout="topleft"
      left_pad="155"
      name="cancel_restart_btn"
-     tool_tip="Delay region restart by one hour"
+     tool_tip="Cancel region restart"
      top_delta="0"
      width="150" />
 </panel>

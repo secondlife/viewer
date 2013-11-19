@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <teleport_messages>
 	<message_set name="errors">
 		<message name="invalid_tport">
@@ -47,6 +47,9 @@
 		<message name="no_inventory_host">
 			インベントリシステムは現在利用できません。
 		</message>
+		<message name="MustGetAgeRegion">
+			この地域（リージョン）に入るには 18 才以上である必要があります。
+		</message>
 	</message_set>
 	<message_set name="progress">
 		<message name="sending_dest">
@@ -81,6 +84,9 @@
 		</message>
 		<message name="requesting">
 			テレポートをリクエスト...
+		</message>
+		<message name="pending">
+			テレポートを保留中...
 		</message>
 	</message_set>
 </teleport_messages>

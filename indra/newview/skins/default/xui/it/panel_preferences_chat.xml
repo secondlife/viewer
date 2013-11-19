@@ -1,33 +1,99 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Text Chat" name="chat">
-	<text name="font_size">
-		Dimensioni caratteri:
-	</text>
-	<radio_group name="chat_font_size">
-		<radio_item label="Piccola" name="radio" value="0"/>
-		<radio_item label="Media" name="radio2" value="1"/>
-		<radio_item label="Grande" name="radio3" value="2"/>
-	</radio_group>
-	<check_box initial_value="true" label="Simula la battitura tasti quando scrivi" name="play_typing_animation"/>
-	<check_box label="Quando sono OFF-LINE, spediscimi gli IM in una e-mail" name="send_im_to_email"/>
-	<check_box label="Attiva IM in testo semplice e cronologia chat" name="plain_text_chat_history"/>
-	<check_box label="Chat a vignetta" name="bubble_text_chat"/>
-	<text name="show_ims_in_label">
-		Mostra gli IM in:
-	</text>
-	<text name="requires_restart_label">
-		(richiede il riavvio)
-	</text>
-	<radio_group name="chat_window" tool_tip="Mostra i tuoi messaggi istantanei in diverse finestre, o in una finestra con più schede (richiede il riavvio)">
-		<radio_item label="Finestre separate" name="radio" value="0"/>
-		<radio_item label="Schede" name="radio2" value="1"/>
-	</radio_group>
-	<text name="disable_toast_label">
-		Attiva popup per chat in arrivo:
-	</text>
-	<check_box label="Chat di gruppo" name="EnableGroupChatPopups" tool_tip="Seleziona per vedere una finestra popup quando arriva una chat di gruppo"/>
-	<check_box label="Chat IM" name="EnableIMChatPopups" tool_tip="Seleziona per vedere una finestra popup quando arriva un messaggio IM"/>
-	<spinner label="Durata chat vicine:" name="nearby_toasts_lifetime"/>
-	<spinner label="Durata dissolvenza chat vicine:" name="nearby_toasts_fadingtime"/>
-	<button label="Impostazioni traduzione chat" name="ok_btn"/>
+	<panel name="general_chat_settings">
+		<check_box initial_value="true" label="Simula la battitura tasti quando sei in chat" name="play_typing_animation"/>
+		<check_box label="Quando sono OFF-LINE, spediscimi gli IM in una e-mail" name="send_im_to_email"/>
+		<check_box label="Solo amici e gruppi possono chiamarmi o mandarmi IM" name="voice_call_friends_only_check"/>
+		<text name="font_size">
+			Dimensioni carattere:
+		</text>
+		<combo_box name="chat_font_size">
+			<item label="Piccolo" name="Small" value="0"/>
+			<item label="Medio" name="Medium" value="1"/>
+			<item label="Grande" name="Large" value="2"/>
+		</combo_box>
+		<check_box label="Chat a vignetta" name="bubble_text_chat"/>
+	</panel>
+	<panel name="im_notification_settings">
+		<text name="friend_ims">
+			IM degli amici:
+		</text>
+		<combo_box name="FriendIMOptions">
+			<item label="Apri finestra Conversazioni" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="Mostra il messaggio in una finestra pop-up" name="PopUpMessage" value="toast"/>
+			<item label="Pulsante barra strumenti Flash" name="FlashToolbarButton" value="flash"/>
+			<item label="Nessuna azione" name="NoAction" value="noaction"/>
+		</combo_box>
+		<check_box label="Riproduci suono" name="play_sound_friend_im"/>
+		<text name="non_friend_ims">
+			IM non di amici:
+		</text>
+		<combo_box name="NonFriendIMOptions">
+			<item label="Apri finestra Conversazioni" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="Mostra il messaggio in una finestra pop-up" name="PopUpMessage" value="toast"/>
+			<item label="Pulsante barra strumenti Flash" name="FlashToolbarButton" value="flash"/>
+			<item label="Nessuna azione" name="NoAction" value="noaction"/>
+		</combo_box>
+		<check_box label="Riproduci suono" name="play_sound_non_friend_im"/>
+		<text name="conference_ims">
+			IM conferenza:
+		</text>
+		<combo_box name="ConferenceIMOptions">
+			<item label="Apri finestra Conversazioni" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="Mostra il messaggio in una finestra pop-up" name="PopUpMessage" value="toast"/>
+			<item label="Pulsante barra strumenti Flash" name="FlashToolbarButton" value="flash"/>
+			<item label="Nessuna azione" name="NoAction" value="noaction"/>
+		</combo_box>
+		<check_box label="Riproduci suono" name="play_sound_conference_im"/>
+		<text name="group_chat">
+			Chat di gruppo:
+		</text>
+		<combo_box name="GroupChatOptions">
+			<item label="Apri finestra Conversazioni" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="Mostra il messaggio in una finestra pop-up" name="PopUpMessage" value="toast"/>
+			<item label="Pulsante barra strumenti Flash" name="FlashToolbarButton" value="flash"/>
+			<item label="Nessuna azione" name="NoAction" value="noaction"/>
+		</combo_box>
+		<check_box label="Riproduci suono" name="play_sound_group_chat_im"/>
+		<text name="nearby_chat">
+			Chat nei dintorni:
+		</text>
+		<combo_box name="NearbyChatOptions">
+			<item label="Apri finestra Conversazioni" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="Mostra il messaggio in una finestra pop-up" name="PopUpMessage" value="toast"/>
+			<item label="Pulsante barra strumenti Flash" name="FlashToolBarButton" value="flash"/>
+			<item label="Nessuna azione" name="NoAction" value="noaction"/>
+		</combo_box>
+		<check_box label="Riproduci suono" name="play_sound_nearby_chat_im"/>
+		<text name="object_ims">
+			IM di oggetti:
+		</text>
+		<combo_box name="ObjectIMOptions">
+			<item label="Apri finestra Conversazioni" name="OpenConversationsWindow" value="openconversations"/>
+			<item label="Mostra il messaggio in una finestra pop-up" name="PopUpMessage" value="toast"/>
+			<item label="Pulsante barra strumenti Flash" name="FlashToolBarButton" value="flash"/>
+			<item label="Nessuna azione" name="NoAction" value="noaction"/>
+		</combo_box>
+		<check_box label="Riproduci suono" name="play_sound_object_im"/>
+		<text name="notifications_alert">
+			Per interrompere temporaneamente le notifiche, usa Comunica &gt; Non disturbare.
+		</text>
+	</panel>
+	<panel name="play_sound_settings">
+		<text name="play_sound">
+			Riproduci suono:
+		</text>
+		<check_box label="Nuova conversazione" name="new_conversation"/>
+		<check_box label="Chiamata voce in arrivo" name="incoming_voice_call"/>
+		<check_box label="Offerta di Teleport" name="teleport_offer"/>
+		<check_box label="Offerta inventario" name="inventory_offer"/>
+	</panel>
+	<panel name="log_settings">
+		<button label="Cancella registro..." name="clear_log"/>
+		<button label="Cancella trascrizioni..." name="delete_transcripts"/>
+		<button label="Sfoglia..." label_selected="Sfoglia" name="log_path_button"/>
+	</panel>
+	<button label="Traduzione..." name="ok_btn"/>
+	<button label="Sostituzione automatica..." name="autoreplace_showgui"/>
+	<button label="Correzione ortografica..." name="spellcheck_showgui"/>
 </panel>

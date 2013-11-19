@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="price_for_listing" title="刊登個人廣告">
+	<text name="explanation_text">
+		你的個人廣告將從刊登日起連續刊載一星期。
+
+你的廣告在個人廣告欄出現的位置，取決於你決定付費的多寡。
+
+付費越多的個人廣告會出現在接近最上方位置，並顯示於搜尋結果的前面。
+	</text>
+	<text name="price_text">
+		刊登費：
+	</text>
+	<text name="price_symbol">
+		L$
+	</text>
+	<button label="確定" name="set_price_btn"/>
+	<button label="取消" name="cancel_btn"/>
+</floater>

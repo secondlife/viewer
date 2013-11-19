@@ -262,6 +262,14 @@ class LLRender
 	friend class LLTexUnit;
 public:
 
+	enum eTexIndex
+	{
+		DIFFUSE_MAP = 0,
+		NORMAL_MAP,
+		SPECULAR_MAP,
+		NUM_TEXTURE_CHANNELS,
+	};
+	
 	typedef enum {
 		TRIANGLES = 0,
 		TRIANGLE_STRIP,
@@ -346,6 +354,7 @@ public:
 	void loadIdentity();
 	void multMatrix(const GLfloat* m);
 	void matrixMode(U32 mode);	
+	U32 getMatrixMode();
 
 	const glh::matrix4f& getModelviewMatrix();
 	const glh::matrix4f& getProjectionMatrix();
@@ -387,6 +396,7 @@ public:
 	void diffuseColor4f(F32 r, F32 g, F32 b, F32 a);
 	void diffuseColor4fv(const F32* c);
 	void diffuseColor4ubv(const U8* c);
+	void diffuseColor4ub(U8 r, U8 g, U8 b, U8 a);
 
 	void vertexBatchPreTransformed(LLVector3* verts, S32 vert_count);
 	void vertexBatchPreTransformed(LLVector3* verts, LLVector2* uvs, S32 vert_count);

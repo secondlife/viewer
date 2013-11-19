@@ -107,7 +107,7 @@ void LLViewerDynamicTexture::generateGLTexture(LLGLint internal_format, LLGLenum
 	{
 		setExplicitFormat(internal_format, primary_format, type_format, swap_bytes);
 	}
-	createGLTexture(0, raw_image, 0, TRUE, LLViewerTexture::DYNAMIC_TEX);
+	createGLTexture(0, raw_image, 0, TRUE, LLGLTexture::DYNAMIC_TEX);
 	setAddressMode((mClamp) ? LLTexUnit::TAM_CLAMP : LLTexUnit::TAM_WRAP);
 	mGLTexturep->setGLTextureCreated(false);
 }
@@ -129,7 +129,7 @@ void LLViewerDynamicTexture::preRender(BOOL clear_depth)
 	llassert(mFullHeight <= 512);
 	llassert(mFullWidth <= 512);
 
-	if (gGLManager.mHasFramebufferObject && gPipeline.mWaterDis.isComplete())
+	if (gGLManager.mHasFramebufferObject && gPipeline.mWaterDis.isComplete() && !gGLManager.mIsATI)
 	{ //using offscreen render target, just use the bottom left corner
 		mOrigin.set(0, 0);
 	}
@@ -216,7 +216,7 @@ BOOL LLViewerDynamicTexture::updateAllInstances()
 		return TRUE;
 	}
 
-	bool use_fbo = gGLManager.mHasFramebufferObject && gPipeline.mWaterDis.isComplete();
+	bool use_fbo = gGLManager.mHasFramebufferObject && gPipeline.mWaterDis.isComplete() && !gGLManager.mIsATI;
 
 	if (use_fbo)
 	{

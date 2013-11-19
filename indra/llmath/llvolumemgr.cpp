@@ -26,7 +26,6 @@
 #include "linden_common.h"
 
 #include "llvolumemgr.h"
-#include "llmemtype.h"
 #include "llvolume.h"
 
 
@@ -182,7 +181,6 @@ void LLVolumeMgr::insertGroup(LLVolumeLODGroup* volgroup)
 // protected
 LLVolumeLODGroup* LLVolumeMgr::createNewGroup(const LLVolumeParams& volume_params)
 {
-	LLMemType m1(LLMemType::MTYPE_VOLUME);
 	LLVolumeLODGroup* volgroup = new LLVolumeLODGroup(volume_params);
 	insertGroup(volgroup);
 	return volgroup;
@@ -297,7 +295,6 @@ LLVolume* LLVolumeLODGroup::refLOD(const S32 detail)
 	mRefs++;
 	if (mVolumeLODs[detail].isNull())
 	{
-		LLMemType m1(LLMemType::MTYPE_VOLUME);
 		mVolumeLODs[detail] = new LLVolume(mVolumeParams, mDetailScales[detail]);
 	}
 	mLODRefs[detail]++;

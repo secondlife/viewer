@@ -451,7 +451,7 @@
 				Разрешить доступ только таким жителям:
 			</text>
 			<check_box label="Зарегистрирована информация об оплате [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Для доступа к этому участку у жителя должна быть зарегистрирована информация об оплате.  Более подробная информация находится здесь: [SUPPORT_SITE]."/>
-			<check_box label="Подтвержден возраст [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Для доступа к этому участку житель должен подтвердить свой возраст. Более подробная информация находится здесь: [SUPPORT_SITE]."/>
+			<check_box label="18 лет и старше [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Доступ к этому участку имеют только жители 18 лет и старше. Более подробная информация находится здесь: [SUPPORT_SITE]."/>
 			<check_box label="Разрешить доступ группе: [GROUP]" name="GroupCheck" tool_tip="Группа устанавливается на основной вкладке."/>
 			<check_box label="Продать доступ:" name="PassCheck" tool_tip="Разрешить временный доступ к участку."/>
 			<combo_box name="pass_combo">

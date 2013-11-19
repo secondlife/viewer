@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="volumepulldown_floater">
+	<slider label="Ana" name="System Volume"/>
+	<slider label="Düğmeler" name="UI Volume"/>
+	<slider label="Ortam" name="Wind Volume"/>
+	<slider label="Sesler" name="SFX Volume"/>
+	<check_box name="gesture_audio_play_btn" tool_tip="Mimiklerdeki sesleri etkinleştir"/>
+	<slider label="Müzik" name="Music Volume"/>
+	<check_box name="enable_music" tool_tip="Müzik Akışını Etkinleştir"/>
+	<slider label="Ortam" name="Media Volume"/>
+	<check_box name="enable_media" tool_tip="Akış Ortamını Etkinleştir"/>
+	<slider label="Ses" name="Voice Volume"/>
+	<check_box name="enable_voice_check" tool_tip="Sesli Sohbeti Etkinleştir"/>
+</panel>

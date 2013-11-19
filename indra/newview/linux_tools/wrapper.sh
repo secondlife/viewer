@@ -4,17 +4,17 @@
 ## These options are for self-assisted troubleshooting during this beta
 ## testing phase; you should not usually need to touch them.
 
+## - Avoids using any FMOD Ex audio driver.
+#export LL_BAD_FMODEX_DRIVER=x
 ## - Avoids using any OpenAL audio driver.
 #export LL_BAD_OPENAL_DRIVER=x
-## - Avoids using any FMOD audio driver.
-#export LL_BAD_FMOD_DRIVER=x
 
-## - Avoids using the FMOD ESD audio driver.
-#export LL_BAD_FMOD_ESD=x
-## - Avoids using the FMOD OSS audio driver.
-#export LL_BAD_FMOD_OSS=x
-## - Avoids using the FMOD ALSA audio driver.
+## - Avoids using the FMOD Ex PulseAudio audio driver.
+#export LL_BAD_FMOD_PULSEAUDIO=x
+## - Avoids using the FMOD or FMOD Ex ALSA audio driver.
 #export LL_BAD_FMOD_ALSA=x
+## - Avoids using the FMOD or FMOD Ex OSS audio driver.
+#export LL_BAD_FMOD_OSS=x
 
 ## - Avoids the optional OpenGL extensions which have proven most problematic
 ##   on some hardware.  Disabling this option may cause BETTER PERFORMANCE but
@@ -45,6 +45,7 @@ if [ "`uname -m`" = "x86_64" ]; then
     echo '64-bit Linux detected.'
 fi
 
+
 ## Everything below this line is just for advanced troubleshooters.
 ##-------------------------------------------------------------------
 
@@ -60,7 +61,15 @@ fi
 export SDL_VIDEO_X11_DGAMOUSE=0
 
 ## - Works around a problem with misconfigured 64-bit systems not finding GL
-export LIBGL_DRIVERS_PATH="${LIBGL_DRIVERS_PATH}":/usr/lib64/dri:/usr/lib32/dri:/usr/lib/dri
+I386_MULTIARCH="$(dpkg-architecture -ai386 -qDEB_HOST_MULTIARCH 2>/dev/null)"
+MULTIARCH_ERR=$?
+if [ $MULTIARCH_ERR -eq 0 ]; then
+    echo 'Multi-arch support detected.'
+    MULTIARCH_GL_DRIVERS="/usr/lib/${I386_MULTIARCH}/dri"
+    export LIBGL_DRIVERS_PATH="${LIBGL_DRIVERS_PATH}:${MULTIARCH_GL_DRIVERS}:/usr/lib64/dri:/usr/lib32/dri:/usr/lib/dri"
+else
+    export LIBGL_DRIVERS_PATH="${LIBGL_DRIVERS_PATH}:/usr/lib64/dri:/usr/lib32/dri:/usr/lib/dri"
+fi
 
 ## - The 'scim' GTK IM module widely crashes the viewer.  Avoid it.
 if [ "$GTK_IM_MODULE" = "scim" ]; then
@@ -110,22 +119,32 @@ export SAVED_LD_LIBRARY_PATH="${LD_LIBRARY_PATH}"
 #    fi
 #fi
 
-export SL_ENV='LD_LIBRARY_PATH="`pwd`"/lib:"${LD_LIBRARY_PATH}"'
-export SL_CMD='$LL_WRAPPER bin/do-not-directly-run-secondlife-bin'
-export SL_OPT="`cat etc/gridargs.dat` $@"
+export LD_LIBRARY_PATH="$PWD/lib:${LD_LIBRARY_PATH}"
 
-# Run the program
-eval ${SL_ENV} ${SL_CMD} ${SL_OPT} || LL_RUN_ERR=runerr
+# Copy "$@" to ARGS array specifically to delete the --skip-gridargs switch.
+# The gridargs.dat file is no more, but we still want to avoid breaking
+# scripts that invoke this one with --skip-gridargs.
+ARGS=()
+for ARG in "$@"; do
+    if [ "--skip-gridargs" != "$ARG" ]; then
+        ARGS[${#ARGS[*]}]="$ARG"
+    fi
+done
+
+# Run the program.
+# Don't quote $LL_WRAPPER because, if empty, it should simply vanish from the
+# command line. But DO quote "${ARGS[@]}": preserve separate args as
+# individually quoted.
+$LL_WRAPPER bin/do-not-directly-run-secondlife-bin "${ARGS[@]}"
+LL_RUN_ERR=$?
 
 # Handle any resulting errors
-if [ -n "$LL_RUN_ERR" ]; then
-	LL_RUN_ERR_MSG=""
-	if [ "$LL_RUN_ERR" = "runerr" ]; then
-		# generic error running the binary
-		echo '*** Bad shutdown. ***'
-		if [ "`uname -m`" = "x86_64" ]; then
-			echo
-			cat << EOFMARKER
+if [ $LL_RUN_ERR -ne 0 ]; then
+	# generic error running the binary
+	echo '*** Bad shutdown ($LL_RUN_ERR). ***'
+	if [ "$(uname -m)" = "x86_64" ]; then
+		echo
+		cat << EOFMARKER
 You are running the Second Life Viewer on a x86_64 platform.  The
 most common problems when launching the Viewer (particularly
 'bin/do-not-directly-run-secondlife-bin: not found' and 'error while
@@ -134,10 +153,8 @@ distribution's 32-bit compatibility packages.
 For example, on Ubuntu and other Debian-based Linuxes you might run:
 $ sudo apt-get install ia32-libs ia32-libs-gtk ia32-libs-kde ia32-libs-sdl
 EOFMARKER
-		fi
 	fi
 fi
-	
 
 echo
 echo '*******************************************************'

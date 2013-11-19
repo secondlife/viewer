@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="nearby_media">
 	<string name="media_item_count_format">
-		(%ld media items)
+		(%ld 項媒體物件）
 	</string>
 	<string name="empty_item_text">
-		&lt;empty&gt;
+		&lt;空白&gt;
 	</string>
 	<string name="parcel_media_name">
 		地段串流媒體
@@ -18,8 +18,8 @@
 	<panel name="minimized_controls">
 		<button label="全部停止" name="all_nearby_media_disable_btn" tool_tip="關閉附近全部的媒體"/>
 		<button label="全部開始" name="all_nearby_media_enable_btn" tool_tip="開啟附近全部的媒體"/>
-		<button name="open_prefs_btn" tool_tip="Bring up media prefs"/>
-		<button label="更多 &gt;&gt;" label_selected="&lt;&lt; 更少" name="more_btn" tool_tip="進階控制"/>
+		<button name="open_prefs_btn" tool_tip="打開媒體偏好設定"/>
+		<button label="細節&gt;&gt;" label_selected="&lt;&lt;基本" name="more_btn" tool_tip="進階控制"/>
 	</panel>
 	<panel name="nearby_media_panel">
 		<text name="nearby_media_title">
@@ -35,9 +35,9 @@
 			<combo_box.item label="在其他化身身上" name="OnOthers"/>
 		</combo_box>
 		<scroll_list name="media_list">
-			<scroll_list.columns label="Proximity" name="media_proximity"/>
-			<scroll_list.columns label="Visible" name="media_visibility"/>
-			<scroll_list.columns label="Class" name="media_class"/>
+			<scroll_list.columns label="鄰近" name="media_proximity"/>
+			<scroll_list.columns label="可看到" name="media_visibility"/>
+			<scroll_list.columns label="類型" name="media_class"/>
 			<scroll_list.columns label="名稱" name="media_name"/>
 			<scroll_list.columns label="除錯" name="media_debug"/>
 		</scroll_list>
@@ -59,10 +59,10 @@
 					<button name="mute_btn" tool_tip="靜音所選擇的媒體音頻"/>
 				</layout_panel>
 				<layout_panel name="zoom">
-					<button name="zoom_btn" tool_tip="Zoom into selected media"/>
+					<button name="zoom_btn" tool_tip="以所選媒體為中心放大"/>
 				</layout_panel>
 				<layout_panel name="unzoom">
-					<button name="unzoom_btn" tool_tip="Zoom back from selected media"/>
+					<button name="unzoom_btn" tool_tip="縮小遠離所選媒體"/>
 				</layout_panel>
 			</layout_stack>
 		</panel>

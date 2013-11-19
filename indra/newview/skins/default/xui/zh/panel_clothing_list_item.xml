@@ -2,8 +2,8 @@
 <panel name="wearable_item">
 	<button name="btn_delete" tool_tip="由裝扮移除"/>
 	<text name="item_name" value="..."/>
-	<panel name="btn_lock" tool_tip="你並沒有權限去編輯"/>
+	<panel name="btn_lock" tool_tip="你沒有編輯權"/>
 	<panel name="btn_edit_panel">
-		<button name="btn_edit" tool_tip="Edit this wearable"/>
+		<button name="btn_edit" tool_tip="編輯這可穿裝扮"/>
 	</panel>
 </panel>

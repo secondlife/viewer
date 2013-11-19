@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="spellcheck_floater" title="拼字檢查設定">
+	<check_box label="啟用拼字檢查" name="spellcheck_enable"/>
+	<text name="spellcheck_main">
+		主要字典：
+	</text>
+	<text label="記錄：" name="spellcheck_additional">
+		附加字典：
+	</text>
+	<text name="spellcheck_available">
+		可用的
+	</text>
+	<text name="spellcheck_active">
+		可用
+	</text>
+	<button label="移除" name="spellcheck_remove_btn"/>
+	<button label="匯入…" name="spellcheck_import_btn"/>
+</floater>

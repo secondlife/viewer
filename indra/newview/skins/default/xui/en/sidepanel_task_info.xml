@@ -31,6 +31,14 @@
                 You can't modify these objects
             </panel.string>
             <panel.string
+      name="text modify info 5">
+    You can't modify this object across a region boundary
+  </panel.string>
+  <panel.string
+      name="text modify info 6">
+    You can't modify these objects across a region boundary
+  </panel.string>
+  <panel.string
              name="text modify warning">
                 This object has linked parts
             </panel.string>
@@ -267,23 +275,27 @@
                 <combo_box.item
                  label="Touch  (default)"
                  name="Touch/grab(default)"
-                 value="Touch/grab (default)" />
+          value="Touch" />
                 <combo_box.item
                  label="Sit on object"
                  name="Sitonobject"
-                 value="Sit on object" />
+          value="Sit" />
                 <combo_box.item
                  label="Buy object"
                  name="Buyobject"
-                 value="Buy object" />
+          value="Buy" />
                 <combo_box.item
                  label="Pay object"
                  name="Payobject"
-                 value="Pay object" />
+          value="Pay" />
                 <combo_box.item
                  label="Open"
                  name="Open"
                  value="Open" />
+       <combo_box.item
+          label="Zoom"
+          name="Zoom"
+          value="Zoom" />
             </combo_box>
 	 <panel
          border="false"
@@ -300,7 +312,7 @@
 	  <text
              type="string"
              length="1"
-             left="10"
+          left="5"
              top_pad="15"
              text_color="EmphasisColor"
 	     height="15"
@@ -448,9 +460,27 @@
        tool_tip="Let people see this object in search results" />
             <text
              type="string"
+        follows="left|top"
+        name="pathfinding_attributes_label"
+        top_pad="6"
+        width="150"
+        left="5">
+      Pathfinding attributes:
+    </text>
+    <text
+        type="string"
+        follows="left|top"
              text_color="EmphasisColor"
+        name="pathfinding_attributes_value"
+        width="130"
+        word_wrap="false"
+        left_pad="0">
+    </text>
+    <text
+        type="string"
+        text_color="EmphasisColor"
              length="1"
-             top_pad="15"
+        top_pad="10"
              follows="left|top"
              layout="topleft"
              left="10"

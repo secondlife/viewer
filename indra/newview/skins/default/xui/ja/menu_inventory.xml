@@ -68,6 +68,7 @@
 	<menu_item_call label="システムフォルダを削除する" name="Delete System Folder"/>
 	<menu_item_call label="コンファレンスチャットを開始する" name="Conference Chat Folder"/>
 	<menu_item_call label="再生する" name="Sound Play"/>
+	<menu_item_call label="SLurl をコピー" name="url_copy"/>
 	<menu_item_call label="ランドマークの情報" name="About Landmark"/>
 	<menu_item_call label="インワールドで再生する" name="Animation Play"/>
 	<menu_item_call label="ローカルで再生する" name="Animation Audition"/>

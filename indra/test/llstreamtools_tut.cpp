@@ -385,16 +385,15 @@ namespace tut
 		std::string expected_result;
 		std::string actual_result;
 		std::istringstream is;
-		bool ret;
 
 		is.clear();
 		is.str(str = "  First Second \t \r  \n Third  Fourth-ShouldThisBePartOfFourth  Fifth\n");
 		actual_result = "";
-		ret = get_word(actual_result, is); // First
+		get_word(actual_result, is); // First
 		actual_result = "";
-		ret = get_word(actual_result, is); // Second
+		get_word(actual_result, is); // Second
 		actual_result = "";
-		ret = get_word(actual_result, is); // Third
+		get_word(actual_result, is); // Third
 
 		// the current implementation of get_word seems inconsistent with
 		// skip_to_next_word. skip_to_next_word treats any character other
@@ -403,22 +402,22 @@ namespace tut
 		// carriage  return ('\r'), horizontal tab ('\t'), and vertical tab ('\v')
 		// as delimiters 
 		actual_result = "";
-		ret = get_word(actual_result, is); // will copy Fourth-ShouldThisBePartOfFourth
+		get_word(actual_result, is); // will copy Fourth-ShouldThisBePartOfFourth
 
 		actual_result = "";
-		ret = get_word(actual_result, is); // will copy Fifth
+		get_word(actual_result, is); // will copy Fifth
 
 		is.clear();
 		is.str(str = "  First Second \t \r  \n Third  Fourth_ShouldThisBePartOfFourth Fifth\n");
-		ret = skip_to_next_word(is);  // should now point to First
-		ret = skip_to_next_word(is);  // should now point to Second
-		ret = skip_to_next_word(is);  // should now point to Third
-		ret = skip_to_next_word(is);  // should now point to Fourth
-		ret = skip_to_next_word(is);  // should now point to ShouldThisBePartOfFourth
+		skip_to_next_word(is);  // should now point to First
+		skip_to_next_word(is);  // should now point to Second
+		skip_to_next_word(is);  // should now point to Third
+		skip_to_next_word(is);  // should now point to Fourth
+		skip_to_next_word(is);  // should now point to ShouldThisBePartOfFourth
 		expected_result = "";
 		// will copy ShouldThisBePartOfFourth, the fifth word, 
 		// while using get_word above five times result in getting "Fifth"
-		ret = get_word(expected_result, is); 
+		get_word(expected_result, is); 
 		ensure_equals("get_word: skip_to_next_word compatibility", actual_result, expected_result);
 	}
 
@@ -480,39 +479,38 @@ namespace tut
 		std::string expected_result;
 		std::string actual_result;
 		std::istringstream is;
-		bool ret;
 
 		is.clear();
 		is.str(str = "First Second \t \r\n Third  Fourth-ShouldThisBePartOfFourth  IsThisFifth\n");
 		actual_result = "";
-		ret = get_line(actual_result, is);
+		get_line(actual_result, is);
 		expected_result = "First Second \t \r\n";
 		ensure_equals("get_line: 1", actual_result, expected_result);
 
 		actual_result = "";
-		ret = get_line(actual_result, is);
+		get_line(actual_result, is);
 		expected_result = " Third  Fourth-ShouldThisBePartOfFourth  IsThisFifth\n";
 		ensure_equals("get_line: 2", actual_result, expected_result);
 
 		is.clear();
 		is.str(str = "\nFirst Line.\n\nSecond Line.\n");
 		actual_result = "";
-		ret = get_line(actual_result, is);
+		get_line(actual_result, is);
 		expected_result = "\n";
 		ensure_equals("get_line: First char as newline", actual_result, expected_result);
 
 		actual_result = "";
-		ret = get_line(actual_result, is);
+		get_line(actual_result, is);
 		expected_result = "First Line.\n";
 		ensure_equals("get_line: 3", actual_result, expected_result);
 
 		actual_result = "";
-		ret = get_line(actual_result, is);
+		get_line(actual_result, is);
 		expected_result = "\n";
 		ensure_equals("get_line: 4", actual_result, expected_result);
 
 		actual_result = "";
-		ret = get_line(actual_result, is);
+		get_line(actual_result, is);
 		expected_result = "Second Line.\n";
 		ensure_equals("get_line: 5", actual_result, expected_result);
 	}	
@@ -544,13 +542,12 @@ namespace tut
 		std::string expected_result;
 		std::string actual_result;
 		std::istringstream is;
-		bool ret;
 
 		// need to be check if this test case is wrong or the implementation is wrong.
 		is.clear();
 		is.str(str = "Should not skip lone \r.\r\n");
 		actual_result = "";
-		ret = get_line(actual_result, is);
+		get_line(actual_result, is);
 		expected_result = "Should not skip lone \r.\r\n";
 		ensure_equals("get_line: carriage return skipped even though not followed by newline", actual_result, expected_result);
 	}
@@ -563,12 +560,11 @@ namespace tut
 		std::string expected_result;
 		std::string actual_result;
 		std::istringstream is;
-		bool ret;
 
 		is.clear();
 		is.str(str = "\n");
 		actual_result = "";
-		ret = get_line(actual_result, is);
+		get_line(actual_result, is);
 		expected_result = "\n";
 		ensure_equals("get_line: Just newline", actual_result, expected_result);
 	}
@@ -582,36 +578,35 @@ namespace tut
 		std::string expected_result;
 		std::string actual_result;
 		std::istringstream is;
-		bool ret;
 
 		is.clear();
 		is.str(str = "First Line.\nSecond Line.\n");
 		actual_result = "";
-		ret = get_line(actual_result, is, 255);
+		get_line(actual_result, is, 255);
 		expected_result = "First Line.\n";
 		ensure_equals("get_line: Basic Operation", actual_result, expected_result);
 
 		actual_result = "";
-		ret = get_line(actual_result, is, sizeof("Second")-1);
+		get_line(actual_result, is, sizeof("Second")-1);
 		expected_result = "Second\n";
 		ensure_equals("get_line: Insufficient length 1", actual_result, expected_result);
 
 		actual_result = "";
-		ret = get_line(actual_result, is, 255);
+		get_line(actual_result, is, 255);
 		expected_result = " Line.\n";
 		ensure_equals("get_line: Remainder after earlier insufficient length", actual_result, expected_result);
 
 		is.clear();
 		is.str(str = "One Line only with no newline with limited length");
 		actual_result = "";
-		ret = get_line(actual_result, is, sizeof("One Line only with no newline with limited length")-1);
+		get_line(actual_result, is, sizeof("One Line only with no newline with limited length")-1);
 		expected_result = "One Line only with no newline with limited length\n";
 		ensure_equals("get_line: No newline with limited length", actual_result, expected_result);
 
 		is.clear();
 		is.str(str = "One Line only with no newline");
 		actual_result = "";
-		ret = get_line(actual_result, is, 255);
+		get_line(actual_result, is, 255);
 		expected_result = "One Line only with no newline";
 		ensure_equals("get_line: No newline", actual_result, expected_result);
 	}

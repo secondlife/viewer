@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_login">
-	<panel.string name="create_account_url">
-		http://join.secondlife.com/
-	</panel.string>
 	<panel.string name="forgot_password_url">
 		http://secondlife.com/account/request.php
 	</panel.string>
 	<layout_stack name="login_widgets">
 		<layout_panel name="login">
+			<text name="log_in_text">
+				LOG PÅ
+			</text>
 			<text name="username_text">
 				Brugernavn:
 			</text>
@@ -15,15 +15,8 @@
 			<text name="password_text">
 				Password:
 			</text>
-			<check_box label="Husk password" name="remember_check"/>
-			<button label="Log på" name="connect_btn"/>
-			<text name="mode_selection_text">
-				Tilstand:
-			</text>
-			<combo_box name="mode_combo" tool_tip="Vælg ønsket tilstand. Vælg basis for hurtig og nem udforskning og chat. Vælg avanceret for at få adgang til flere muligheder.">
-				<combo_box.item label="Basis" name="Basic"/>
-				<combo_box.item label="Avanceret" name="Advanced"/>
-			</combo_box>
+		</layout_panel>
+		<layout_panel name="start_location_panel">
 			<text name="start_location_text">
 				Start ved:
 			</text>
@@ -33,16 +26,21 @@
 				<combo_box.item label="&lt;Indtast regionnavn&gt;" name="Typeregionname"/>
 			</combo_box>
 		</layout_panel>
-		<layout_panel name="links">
-			<text name="create_new_account_text">
-				Opret bruger
+		<layout_panel name="links_login_panel">
+			<text name="login_help">
+				Hjælp til login
 			</text>
 			<text name="forgot_password_text">
 				Har du glemt brugernavn eller password?
 			</text>
-			<text name="login_help">
-				Hjælp til login
+			<button label="Log på" name="connect_btn"/>
+			<check_box label="Husk password" name="remember_check"/>
+		</layout_panel>
+		<layout_panel name="links">
+			<text name="create_account_text">
+				CREATE YǾUR ACCǾUNT
 			</text>
+			<button name="create_new_account_btn" label="Opret bruger"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

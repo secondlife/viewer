@@ -9,9 +9,6 @@
 	<floater.string name="scripts_score_label">
 		Zeit
 	</floater.string>
-	<floater.string name="scripts_mono_time_label">
-		Mono-Uhrzeit:
-	</floater.string>
 	<floater.string name="top_colliders_title">
 		Top-Kollisionsobjekte
 	</floater.string>
@@ -32,9 +29,10 @@
 		<scroll_list.columns label="Name" name="name" width="135"/>
 		<scroll_list.columns label="Eigentümer" name="owner"/>
 		<scroll_list.columns label="Position" name="location" width="125"/>
+		<scroll_list.columns label="Parzelle" name="parcel"/>
 		<scroll_list.columns label="Uhrzeit" name="time"/>
-		<scroll_list.columns label="Mono-Uhrzeit:" name="mono_time"/>
 		<scroll_list.columns label="URLs" name="URLs"/>
+		<scroll_list.columns label="Speicher (KB)" name="memory"/>
 	</scroll_list>
 	<text name="id_text">
 		Objekt-ID:
@@ -42,12 +40,16 @@
 	<button label="Beacon anzeigen" name="show_beacon_btn"/>
 	<text name="obj_name_text">
 		Objektname:
-	</text>	
+	</text>
 	<button label="Filter" name="filter_object_btn"/>
 	<text name="owner_name_text">
 		Eigentümer:
-	</text>	
+	</text>
 	<button label="Filter" name="filter_owner_btn"/>
+	<text name="parcel_name_text">
+		Parzelle:
+	</text>
+	<button label="Filtern" name="filter_parcel_btn"/>
 	<button label="Aktualisieren" name="refresh_btn"/>
 	<button label="Auswahl zurückgeben" name="return_selected_btn" width="134"/>
 	<button label="Alle zurückgeben" left="150" name="return_all_btn" width="134"/>

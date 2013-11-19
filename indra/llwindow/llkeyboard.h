@@ -63,14 +63,6 @@ class LLWindowCallbacks;
 class LLKeyboard
 {
 public:
-	typedef enum e_numpad_distinct
-	{
-		ND_NEVER,
-		ND_NUMLOCK_OFF,
-		ND_NUMLOCK_ON
-	} ENumpadDistinct;
-
-public:
 	LLKeyboard();
 	virtual ~LLKeyboard();
 
@@ -90,6 +82,11 @@ public:
 
 	virtual BOOL	handleKeyUp(const U16 key, MASK mask) = 0;
 	virtual BOOL	handleKeyDown(const U16 key, MASK mask) = 0;
+	
+#ifdef LL_DARWIN
+	// We only actually use this for OS X.
+	virtual void	handleModifier(MASK mask) = 0;
+#endif // LL_DARWIN
 
 	// Asynchronously poll the control, alt, and shift keys and set the
 	// appropriate internal key masks.
@@ -107,8 +104,6 @@ public:
 	static BOOL		keyFromString(const std::string& str, KEY *key);			// False on failure
 	static std::string stringFromKey(KEY key);
 	static std::string stringFromAccelerator( MASK accel_mask, KEY key );
-	e_numpad_distinct getNumpadDistinct() { return mNumpadDistinct; }
-	void setNumpadDistinct(e_numpad_distinct val) { mNumpadDistinct = val; }
 
 	void setCallbacks(LLWindowCallbacks *cbs) { mCallbacks = cbs; }
 	F32				getKeyElapsedTime( KEY key );  // Returns time in seconds since key was pressed.
@@ -135,8 +130,6 @@ protected:
 
 	static LLKeyStringTranslatorFunc*	mStringTranslator;	// Used for l10n + PC/Mac/Linux accelerator labeling
 	
-	e_numpad_distinct mNumpadDistinct;
-
 	EKeyboardInsertMode mInsertMode;
 
 	static std::map<KEY,std::string> sKeysToNames;

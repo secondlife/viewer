@@ -184,7 +184,7 @@ void LLDayCycleManager::loadPresets(const std::string& dir)
 	{
 		std::string file;
 		if (!dir_iter.next(file)) break; // no more files
-		loadPreset(dir + file);
+		loadPreset(gDirUtilp->add(dir, file));
 	}
 }
 

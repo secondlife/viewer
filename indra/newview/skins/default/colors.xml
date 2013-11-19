@@ -12,6 +12,9 @@
 	 name="EmphasisColor_35"
 	 value="0.38 0.694 0.573 0.35" />
 	<color
+	 name="BeaconColor"
+    value="0.749 0.298 0 1" />	 
+	<color
 	 name="White"
 	 value="1 1 1 1" />
 	<color
@@ -98,6 +101,27 @@
 	<color
 	name="MdBlue"
 	value=".07 .38 .51 1" />
+  <color
+      name="DkBlue"
+      value=".06 .06 .3 1" />
+  <color
+      name="LtRed"
+      value="1 0.2 0.2 1" />
+  <color
+      name="LtGreen"
+      value="0.2 1 0.2 1" />
+  <color
+      name="Red_80"
+      value="1 0 0 0.8" />
+  <color
+      name="DkRed"
+      value="0.3 0.06 0.06 1" />
+  <color
+      name="Green_80"
+      value="0 1 0 0.8" />
+  <color
+      name="Blue_80"
+      value="0 0 1 0.8" />
 
   <!-- This color name makes potentially unused colors show up bright purple.
   Leave this here until all Unused? are removed below, otherwise
@@ -508,6 +532,9 @@
      name="MenuItemHighlightBgColor"
      reference="EmphasisColor_35" />
     <color
+     name="MenuItemFlashBgColor"
+     reference="BeaconColor" />
+    <color
      name="MenuItemHighlightFgColor"
      reference="White" />
     <color
@@ -621,6 +648,36 @@
      name="ParcelHoverColor"
      reference="White" />
     <color
+      name="PathfindingErrorColor"
+      reference="LtRed" />
+  <color
+      name="PathfindingWarningColor"
+      reference="DrYellow" />
+  <color
+      name="PathfindingGoodColor"
+      reference="LtGreen" />
+  <color
+      name="MaterialErrorColor"
+      reference="LtRed" />
+  <color
+      name="MaterialWarningColor"
+      reference="DrYellow" />
+  <color
+      name="MaterialGoodColor"
+      reference="LtGreen" />
+  <color
+      name="PathfindingDefaultBeaconColor"
+      reference="Red_80" />
+  <color
+      name="PathfindingDefaultBeaconTextColor"
+      reference="White" />
+  <color
+      name="PathfindingLinksetBeaconColor"
+      reference="Blue_80" />
+  <color
+      name="PathfindingCharacterBeaconColor"
+      reference="Red_80" />
+  <color
      name="PieMenuBgColor"
      value="0.24 0.24 0.24 0.59" />
     <color
@@ -766,7 +823,7 @@
      reference="LtGray" />
     <color
      name="UserChatColor"
-     reference="White" />
+     reference="Yellow" />
     <color
      name="llOwnerSayChatColor"
      reference="LtYellow" />
@@ -788,9 +845,14 @@
      name="ChatTimestampColor"
      reference="White" />
     <color
+      name="MenuBarBetaBgColor"
+      reference="DkBlue" />
+  <color
      name="MenuBarProjectBgColor"
      reference="MdBlue" />
-  
+  <color
+      name="MenuBarTestBgColor"
+      reference="DkRed" />
     <color
       name="MeshImportTableNormalColor"
       value="1 1 1 1"/>
@@ -822,4 +884,19 @@
   <color
     name="blue"
     value="0 0 1 1"/>
+
+  <!--Resize bar colors -->
+
+  <color
+    name="ResizebarBorderLight"
+    value="0.231 0.231 0.231 1"/>
+
+  <color
+    name="ResizebarBorderDark"
+    value="0.133 0.133 0.133 1"/>
+
+  <color
+    name="ResizebarBody"
+    value="0.208 0.208 0.208 1"/>
+    
 </colors>

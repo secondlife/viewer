@@ -45,6 +45,9 @@ Go to &apos;Welcome Island Public&apos; to repeat the tutorial.
 		<message name="no_inventory_host">
 			The inventory system is currently unavailable.
 		</message>
+    <message name="MustGetAgeRegion">
+      You must be age 18 or over to enter this region.
+    </message>
 	</message_set>
 	<message_set name="progress">
 		<message name="sending_dest">
@@ -80,5 +83,8 @@ Go to &apos;Welcome Island Public&apos; to repeat the tutorial.
 		<message name="requesting">
 			Requesting Teleport...
 		</message>
-	</message_set>
+    <message name="pending">
+      Pending Teleport...
+    </message>
+  </message_set>
 </teleport_messages>

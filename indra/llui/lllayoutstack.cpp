@@ -32,11 +32,10 @@
 
 #include "lllocalcliprect.h"
 #include "llpanel.h"
-#include "llresizebar.h"
 #include "llcriticaldamp.h"
 #include "boost/foreach.hpp"
 
-static const F32 MIN_FRACTIONAL_SIZE = 0.0f;
+static const F32 MIN_FRACTIONAL_SIZE = 0.00001f;
 static const F32 MAX_FRACTIONAL_SIZE = 1.f;
 
 static LLDefaultChildRegistry::Register<LLLayoutStack> register_layout_stack("layout_stack");
@@ -71,7 +70,7 @@ LLLayoutPanel::LLLayoutPanel(const Params& p)
 	mCollapseAmt(0.f),
 	mVisibleAmt(1.f), // default to fully visible
 	mResizeBar(NULL),
-	mFractionalSize(MIN_FRACTIONAL_SIZE),
+	mFractionalSize(0.f),
 	mTargetDim(0),
 	mIgnoreReshape(false),
 	mOrientation(LLLayoutStack::HORIZONTAL)
@@ -215,8 +214,15 @@ LLLayoutStack::Params::Params()
 	open_time_constant("open_time_constant", 0.02f),
 	close_time_constant("close_time_constant", 0.03f),
 	resize_bar_overlap("resize_bar_overlap", 1),
-	border_size("border_size", LLCachedControl<S32>(*LLUI::sSettingGroups["config"], "UIResizeBarHeight", 0))
-{}
+	border_size("border_size", LLCachedControl<S32>(*LLUI::sSettingGroups["config"], "UIResizeBarHeight", 0)),
+	show_drag_handle("show_drag_handle", false),
+	drag_handle_first_indent("drag_handle_first_indent", 0),
+	drag_handle_second_indent("drag_handle_second_indent", 0),
+	drag_handle_thickness("drag_handle_thickness", 5),
+	drag_handle_shift("drag_handle_shift", 2)
+{
+	addSynonym(border_size, "drag_handle_gap");
+}
 
 LLLayoutStack::LLLayoutStack(const LLLayoutStack::Params& p) 
 :	LLView(p),
@@ -228,8 +234,14 @@ LLLayoutStack::LLLayoutStack(const LLLayoutStack::Params& p)
 	mClip(p.clip),
 	mOpenTimeConstant(p.open_time_constant),
 	mCloseTimeConstant(p.close_time_constant),
-	mResizeBarOverlap(p.resize_bar_overlap)
-{}
+	mResizeBarOverlap(p.resize_bar_overlap),
+	mShowDragHandle(p.show_drag_handle),
+	mDragHandleFirstIndent(p.drag_handle_first_indent),
+	mDragHandleSecondIndent(p.drag_handle_second_indent),
+	mDragHandleThickness(p.drag_handle_thickness),
+	mDragHandleShift(p.drag_handle_shift)
+{
+}
 
 LLLayoutStack::~LLLayoutStack()
 {
@@ -261,6 +273,26 @@ void LLLayoutStack::draw()
 		{LLLocalClipRect clip(clip_rect, mClip);
 			// only force drawing invisible children if visible amount is non-zero
 			drawChild(panelp, 0, 0, !clip_rect.isEmpty());
+		}
+	}
+
+	const LLView::child_list_t * child_listp = getChildList();
+	BOOST_FOREACH(LLView * childp, * child_listp)
+	{
+		LLResizeBar * resize_barp = dynamic_cast<LLResizeBar*>(childp);
+		if (resize_barp && resize_barp->isShowDragHandle() && resize_barp->getVisible() && resize_barp->getRect().isValid())
+		{
+			LLRect screen_rect = resize_barp->calcScreenRect();
+			if (LLUI::getRootView()->getLocalRect().overlaps(screen_rect) && LLUI::sDirtyRect.overlaps(screen_rect))
+			{
+				LLUI::pushMatrix();
+				{
+					const LLRect& rb_rect(resize_barp->getRect());
+					LLUI::translate(rb_rect.mLeft, rb_rect.mBottom);
+					resize_barp->draw();
+				}
+				LLUI::popMatrix();
+			}
 		}
 	}
 }
@@ -391,7 +423,6 @@ void LLLayoutStack::updateLayout()
 	BOOST_FOREACH(LLLayoutPanel* panelp, mPanels)
 	{
 		F32 panel_dim = llmax(panelp->getExpandedMinDim(), panelp->mTargetDim);
-		F32 panel_visible_dim = panelp->getVisibleDim();
 
 		LLRect panel_rect;
 		if (mOrientation == HORIZONTAL)
@@ -408,27 +439,61 @@ void LLLayoutStack::updateLayout()
 										getRect().getWidth(),
 										llround(panel_dim));
 		}
-		panelp->setIgnoreReshape(true);
-		panelp->setShape(panel_rect);
-		panelp->setIgnoreReshape(false);
 
 		LLRect resize_bar_rect(panel_rect);
-
+		LLResizeBar * resize_barp = panelp->getResizeBar();
+		bool show_drag_handle = resize_barp->isShowDragHandle();
 		F32 panel_spacing = (F32)mPanelSpacing * panelp->getVisibleAmount();
+		F32 panel_visible_dim = panelp->getVisibleDim();
+		S32 panel_spacing_round = (S32)(llround(panel_spacing));
+
 		if (mOrientation == HORIZONTAL)
 		{
-			resize_bar_rect.mLeft = panel_rect.mRight - mResizeBarOverlap;
-			resize_bar_rect.mRight = panel_rect.mRight + (S32)(llround(panel_spacing)) + mResizeBarOverlap;
-
 			cur_pos += panel_visible_dim + panel_spacing;
+
+			if (show_drag_handle && panel_spacing_round > mDragHandleThickness)
+			{
+				resize_bar_rect.mLeft = panel_rect.mRight + mDragHandleShift;
+				resize_bar_rect.mRight = resize_bar_rect.mLeft + mDragHandleThickness;
+			}
+			else
+			{
+				resize_bar_rect.mLeft = panel_rect.mRight - mResizeBarOverlap;
+				resize_bar_rect.mRight = panel_rect.mRight + panel_spacing_round + mResizeBarOverlap;
+			}
+
+			if (show_drag_handle)
+			{
+				resize_bar_rect.mBottom += mDragHandleSecondIndent;
+				resize_bar_rect.mTop -= mDragHandleFirstIndent;
+			}
+
 		}
 		else //VERTICAL
 		{
-			resize_bar_rect.mTop = panel_rect.mBottom + mResizeBarOverlap;
-			resize_bar_rect.mBottom = panel_rect.mBottom - (S32)(llround(panel_spacing)) - mResizeBarOverlap;
-
 			cur_pos -= panel_visible_dim + panel_spacing;
+
+			if (show_drag_handle && panel_spacing_round > mDragHandleThickness)
+			{
+				resize_bar_rect.mTop = panel_rect.mBottom - mDragHandleShift;
+				resize_bar_rect.mBottom = resize_bar_rect.mTop - mDragHandleThickness;
+			}
+			else
+			{
+				resize_bar_rect.mTop = panel_rect.mBottom + mResizeBarOverlap;
+				resize_bar_rect.mBottom = panel_rect.mBottom - panel_spacing_round - mResizeBarOverlap;
+			}
+
+			if (show_drag_handle)
+			{
+				resize_bar_rect.mLeft += mDragHandleFirstIndent;
+				resize_bar_rect.mRight -= mDragHandleSecondIndent;
+			}
 		}
+
+		panelp->setIgnoreReshape(true);
+		panelp->setShape(panel_rect);
+		panelp->setIgnoreReshape(false);
 		panelp->mResizeBar->setShape(resize_bar_rect);
 	}
 
@@ -476,15 +541,13 @@ void LLLayoutStack::createResizeBar(LLLayoutPanel* panelp)
 	{
 		if (lp->mResizeBar == NULL)
 		{
-			LLResizeBar::Side side = (mOrientation == HORIZONTAL) ? LLResizeBar::RIGHT : LLResizeBar::BOTTOM;
-			LLRect resize_bar_rect = getRect();
-
 			LLResizeBar::Params resize_params;
 			resize_params.name("resize");
 			resize_params.resizing_view(lp);
 			resize_params.min_size(lp->getRelevantMinDim());
-			resize_params.side(side);
+			resize_params.side((mOrientation == HORIZONTAL) ? LLResizeBar::RIGHT : LLResizeBar::BOTTOM);
 			resize_params.snapping_enabled(false);
+			resize_params.show_drag_handle(mShowDragHandle);
 			LLResizeBar* resize_bar = LLUICtrlFactory::create<LLResizeBar>(resize_params);
 			lp->mResizeBar = resize_bar;
 			LLView::addChild(resize_bar, 0);
@@ -521,7 +584,7 @@ void LLLayoutStack::updateFractionalSizes()
 	{
 		if (panelp->mAutoResize)
 		{
-			total_resizable_dim += llmax(0, panelp->getLayoutDim() - panelp->getRelevantMinDim());
+			total_resizable_dim += llmax(MIN_FRACTIONAL_SIZE, (F32)(panelp->getLayoutDim() - panelp->getRelevantMinDim()));
 		}
 	}
 
@@ -672,12 +735,12 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
 	S32 new_dim = (mOrientation == HORIZONTAL)
 					? new_rect.getWidth()
 					: new_rect.getHeight();
-	S32 delta_dim = new_dim - resized_panel->getVisibleDim();
-	if (delta_dim == 0) return;
+	S32 delta_panel_dim = new_dim - resized_panel->getVisibleDim();
+	if (delta_panel_dim == 0) return;
 
 	F32 total_visible_fraction = 0.f;
 	F32 delta_auto_resize_headroom = 0.f;
-	F32 original_auto_resize_headroom = 0.f;
+	F32 old_auto_resize_headroom = 0.f;
 
 	LLLayoutPanel* other_resize_panel = NULL;
 	LLLayoutPanel* following_panel = NULL;
@@ -686,7 +749,7 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
 	{
 		if (panelp->mAutoResize)
 		{
-			original_auto_resize_headroom += (F32)(panelp->mTargetDim - panelp->getRelevantMinDim());
+			old_auto_resize_headroom += (F32)(panelp->mTargetDim - panelp->getRelevantMinDim());
 			if (panelp->getVisible() && !panelp->mCollapsed)
 			{
 				total_visible_fraction += panelp->mFractionalSize;
@@ -704,25 +767,24 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
 		}
 	}
 
-
 	if (resized_panel->mAutoResize)
 	{
 		if (!other_resize_panel || !other_resize_panel->mAutoResize)
 		{
-			delta_auto_resize_headroom += delta_dim;	
+			delta_auto_resize_headroom += delta_panel_dim;	
 		}
 	}
 	else 
 	{
 		if (!other_resize_panel || other_resize_panel->mAutoResize)
 		{
-			delta_auto_resize_headroom -= delta_dim;
+			delta_auto_resize_headroom -= delta_panel_dim;
 		}
 	}
 
 	F32 fraction_given_up = 0.f;
 	F32 fraction_remaining = 1.f;
-	F32 updated_auto_resize_headroom = original_auto_resize_headroom + delta_auto_resize_headroom;
+	F32 new_auto_resize_headroom = old_auto_resize_headroom + delta_auto_resize_headroom;
 
 	enum
 	{
@@ -734,7 +796,14 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
 
 	BOOST_FOREACH(LLLayoutPanel* panelp, mPanels)
 	{
-		if (!panelp->getVisible() || panelp->mCollapsed) continue;
+		if (!panelp->getVisible() || panelp->mCollapsed) 
+		{
+			if (panelp->mAutoResize) 
+			{
+				fraction_remaining -= panelp->mFractionalSize;
+			}
+			continue;
+		}
 
 		if (panelp == resized_panel)
 		{
@@ -746,9 +815,9 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
 		case BEFORE_RESIZED_PANEL:
 			if (panelp->mAutoResize)
 			{	// freeze current size as fraction of overall auto_resize space
-				F32 fractional_adjustment_factor = updated_auto_resize_headroom == 0.f
+				F32 fractional_adjustment_factor = new_auto_resize_headroom == 0.f
 													? 1.f
-													: original_auto_resize_headroom / updated_auto_resize_headroom;
+													: old_auto_resize_headroom / new_auto_resize_headroom;
 				F32 new_fractional_size = llclamp(panelp->mFractionalSize * fractional_adjustment_factor,
 													MIN_FRACTIONAL_SIZE,
 													MAX_FRACTIONAL_SIZE);
@@ -765,9 +834,9 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
 		case RESIZED_PANEL:
 			if (panelp->mAutoResize)
 			{	// freeze new size as fraction
-				F32 new_fractional_size = (updated_auto_resize_headroom == 0.f)
+				F32 new_fractional_size = (new_auto_resize_headroom == 0.f)
 					? MAX_FRACTIONAL_SIZE
-					: llclamp(total_visible_fraction * (F32)(new_dim - panelp->getRelevantMinDim()) / updated_auto_resize_headroom, MIN_FRACTIONAL_SIZE, MAX_FRACTIONAL_SIZE);
+					: llclamp(total_visible_fraction * (F32)(new_dim - panelp->getRelevantMinDim()) / new_auto_resize_headroom, MIN_FRACTIONAL_SIZE, MAX_FRACTIONAL_SIZE);
 				fraction_given_up -= new_fractional_size - panelp->mFractionalSize;
 				fraction_remaining -= panelp->mFractionalSize;
 				panelp->mFractionalSize = new_fractional_size;
@@ -790,8 +859,13 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
 				}
 				else
 				{
+					if (new_auto_resize_headroom < 1.f)
+					{
+						new_auto_resize_headroom = 1.f;
+					}
+
 					F32 new_fractional_size = llclamp(total_visible_fraction * (F32)(panelp->mTargetDim - panelp->getRelevantMinDim() + delta_auto_resize_headroom) 
-														/ updated_auto_resize_headroom,
+														/ new_auto_resize_headroom,
 													MIN_FRACTIONAL_SIZE,
 													MAX_FRACTIONAL_SIZE);
 					fraction_given_up -= new_fractional_size - panelp->mFractionalSize;
@@ -800,7 +874,7 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
 			}
 			else
 			{
-				panelp->mTargetDim -= delta_dim;
+				panelp->mTargetDim -= delta_panel_dim;
 			}
 			which_panel = AFTER_RESIZED_PANEL;
 			break;
@@ -816,7 +890,7 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
 		}
 	}
 	updateLayout();
-	normalizeFractionalSizes();
+	//normalizeFractionalSizes();
 }
 
 void LLLayoutStack::reshape(S32 width, S32 height, BOOL called_from_parent)
@@ -855,3 +929,4 @@ void LLLayoutStack::updateResizeBarLimits()
 		previous_visible_panelp = visible_panelp;
 	}
 }
+

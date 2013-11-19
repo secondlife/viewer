@@ -10,7 +10,7 @@
 		анонимно
 	</floater.string>
 	<floater.string name="VoiceInviteP2P">
-		вызывает.
+		вызывает вас.
 	</floater.string>
 	<floater.string name="VoiceInviteAdHoc">
 		теперь участвует в групповом голосовом чате.
@@ -25,9 +25,9 @@
 		Хотите выйти из чата «[CURRENT_CHAT]» и присоединиться к этому голосовому чату?
 	</floater.string>
 	<text name="question">
-		Хотите выйти из чата «[CURRENT_CHAT]» и присоединиться к этому голосовому чату?
+		Если вы ответите, вы покинете текущий голосовой чат.
 	</text>
-	<button label="Принять" label_selected="Принять" name="Accept"/>
-	<button label="Отклонить" label_selected="Отклонить" name="Reject"/>
-	<button label="Начать IM" name="Start IM"/>
+	<button label="Ответить" label_selected="Ответить" name="Accept"/>
+	<button label="Игнорировать" label_selected="Игнорировать" name="Reject"/>
+	<button label="Открыть IM" name="Start IM"/>
 </floater>

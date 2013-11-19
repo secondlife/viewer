@@ -18,6 +18,12 @@
 	<panel.string name="text modify info 4">
 		Sie können diese Objekte nicht bearbeiten.
 	</panel.string>
+	<panel.string name="text modify info 5">
+		Dieses Objekt kann nicht über eine Regionsgrenze hinweg geändert werden
+	</panel.string>
+	<panel.string name="text modify info 6">
+		Diese Objekte können nicht über eine Regionsgrenze hinweg geändert werden
+	</panel.string>
 	<panel.string name="text modify warning">
 		Diese Objekt verfügt über verknüpfte Teile
 	</panel.string>
@@ -66,6 +72,7 @@
 			<combo_box.item label="Objekt kaufen" name="Buyobject"/>
 			<combo_box.item label="Objekt bezahlen" name="Payobject"/>
 			<combo_box.item label="Öffnen" name="Open"/>
+			<combo_box.item label="Zoomen" name="Zoom"/>
 		</combo_box>
 		<panel name="perms_inv">
 			<text name="perm_modify">
@@ -95,6 +102,9 @@
 		</combo_box>
 		<spinner label="Preis: L$" name="Edit Cost"/>
 		<check_box label="In Suche anzeigen" name="search_check" tool_tip="Dieses Objekt in Suchergebnissen anzeigen"/>
+		<text name="pathfinding_attributes_label">
+			Pathfinding-Attribute:
+		</text>
 		<text name="B:">
 			B:
 		</text>

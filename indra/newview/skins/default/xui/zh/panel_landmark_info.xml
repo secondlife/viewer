@@ -3,22 +3,22 @@
 	<string name="title_create_landmark" value="創造地標"/>
 	<string name="title_edit_landmark" value="編輯地標"/>
 	<string name="title_landmark" value="地標"/>
-	<string name="not_available" value="(N\A)"/>
+	<string name="not_available" value="（不適用）"/>
 	<string name="unknown" value="（未知）"/>
 	<string name="public" value="（公開）"/>
 	<string name="server_update_text">
-		Place information not available without server update.
+		地點資訊因無伺服器更新故無法提供。
 	</string>
 	<string name="server_error_text">
-		Information about this location is unavailable at this time, please try again later.
+		目前無法取得此位置的訊息，請稍候再試。
 	</string>
 	<string name="server_forbidden_text">
-		Information about this location is unavailable due to access restrictions.  Please check your permissions with the parcel owner.
+		權限不足，無法取得此位置的資訊。  請向地段所有人查詢你的權限。
 	</string>
 	<string name="acquired_date">
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
 	</string>
-	<button name="back_btn" tool_tip="Back"/>
+	<button name="back_btn" tool_tip="返回"/>
 	<text name="title" value="地點檔案"/>
 	<scroll_container name="place_scroll">
 		<panel name="scrolling_panel">
@@ -27,13 +27,13 @@
 			<expandable_text name="description" value="Du waltz die spritz"/>
 			<text name="maturity_value" value="未知"/>
 			<panel name="landmark_info_panel">
-				<text name="owner_label" value="擁有者："/>
+				<text name="owner_label" value="所有人："/>
 				<text name="creator_label" value="創造者："/>
 				<text name="created_label" value="創造於："/>
 			</panel>
 			<panel name="landmark_edit_panel">
-				<text name="title_label" value="Title:"/>
-				<text name="notes_label" value="My notes:"/>
+				<text name="title_label" value="標題："/>
+				<text name="notes_label" value="我的記事："/>
 				<text name="folder_label" value="地標位置："/>
 			</panel>
 		</panel>

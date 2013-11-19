@@ -176,7 +176,7 @@ void LLPanelNearByMedia::handleMediaAutoPlayChanged(const LLSD& newvalue)
 {
 	// update mParcelAudioAutoStart if AUTO_PLAY_MEDIA_SETTING changes
 	mParcelAudioAutoStart = gSavedSettings.getBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING) &&
-							gSavedSettings.getBOOL("MediaTentativeAutoPlay");							
+							gSavedSettings.getBOOL("MediaTentativeAutoPlay");
 }
 
 /*virtual*/

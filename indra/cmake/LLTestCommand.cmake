@@ -9,6 +9,9 @@ MACRO(LL_TEST_COMMAND OUTVAR LD_LIBRARY_PATH)
   FOREACH(dir ${LD_LIBRARY_PATH})
     LIST(APPEND value "-l${dir}")
   ENDFOREACH(dir)
+  # Enough different tests want to be able to find CMake's PYTHON_EXECUTABLE
+  # that we should just pop it into the environment for everybody.
+  LIST(APPEND value "-DPYTHON=${PYTHON_EXECUTABLE}")
   LIST(APPEND value ${ARGN})
   SET(${OUTVAR} ${value})
 ##IF(LL_TEST_VERBOSE)

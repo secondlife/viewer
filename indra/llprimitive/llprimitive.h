@@ -42,6 +42,7 @@ class LLMessageSystem;
 class LLVolumeParams;
 class LLColor4;
 class LLColor3;
+class LLMaterialID;
 class LLTextureEntry;
 class LLDataPacker;
 class LLVolumeMgr;
@@ -289,6 +290,35 @@ public:
 };
 
 
+// This code is not naming-standards compliant. Leaving it like this for
+// now to make the connection to code in
+// 	BOOL packTEMessage(LLDataPacker &dp) const;
+// more obvious. This should be refactored to remove the duplication, at which
+// point we can fix the names as well.
+// - Vir
+struct LLTEContents
+{
+	static const U32 MAX_TES = 32;
+
+	U8     image_data[MAX_TES*16];
+	U8	  colors[MAX_TES*4];
+	F32    scale_s[MAX_TES];
+	F32    scale_t[MAX_TES];
+	S16    offset_s[MAX_TES];
+	S16    offset_t[MAX_TES];
+	S16    image_rot[MAX_TES];
+	U8	   bump[MAX_TES];
+	U8	   media_flags[MAX_TES];
+    U8     glow[MAX_TES];
+	LLMaterialID material_ids[MAX_TES];
+
+	static const U32 MAX_TE_BUFFER = 4096;
+	U8 packed_buffer[MAX_TE_BUFFER];
+
+	U32 size;
+	U32 face_count;
+};
+
 class LLPrimitive : public LLXform
 {
 public:
@@ -331,6 +361,7 @@ public:
 	LLTextureEntry* getTE(const U8 te_num) const;
 
 	virtual void setNumTEs(const U8 num_tes);
+	virtual void setAllTESelected(bool sel);
 	virtual void setAllTETextures(const LLUUID &tex_id);
 	virtual void setTE(const U8 index, const LLTextureEntry& te);
 	virtual S32 setTEColor(const U8 te, const LLColor4 &color);
@@ -353,16 +384,20 @@ public:
 	virtual S32 setTEFullbright(const U8 te, const U8 fullbright);
 	virtual S32 setTEMediaFlags(const U8 te, const U8 flags);
 	virtual S32 setTEGlow(const U8 te, const F32 glow);
+	virtual S32 setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID);
+	virtual S32 setTEMaterialParams(const U8 index, const LLMaterialPtr pMaterialParams);
 	virtual BOOL setMaterial(const U8 material); // returns TRUE if material changed
+	virtual void setTESelected(const U8 te, bool sel);
 
 	void copyTEs(const LLPrimitive *primitive);
 	S32 packTEField(U8 *cur_ptr, U8 *data_ptr, U8 data_size, U8 last_face_index, EMsgVariableType type) const;
 	S32 unpackTEField(U8 *cur_ptr, U8 *buffer_end, U8 *data_ptr, U8 data_size, U8 face_count, EMsgVariableType type);
 	BOOL packTEMessage(LLMessageSystem *mesgsys) const;
 	BOOL packTEMessage(LLDataPacker &dp) const;
-	S32 unpackTEMessage(LLMessageSystem* mesgsys, char const* block_name);
 	S32 unpackTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num); // Variable num of blocks
 	BOOL unpackTEMessage(LLDataPacker &dp);
+	S32 parseTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num, LLTEContents& tec);
+	S32 applyParsedTEMessage(LLTEContents& tec);
 	
 #ifdef CHECK_FOR_FINITE
 	inline void setPosition(const LLVector3& pos);
@@ -421,7 +456,8 @@ public:
 	inline BOOL	isAvatar() const;
 	inline BOOL	isSittingAvatar() const;
 	inline BOOL	isSittingAvatarOnGround() const;
-
+	inline bool hasBumpmap() const  { return mNumBumpmapTEs > 0;}
+	
 	void setFlags(U32 flags) { mMiscFlags = flags; }
 	void addFlags(U32 flags) { mMiscFlags |= flags; }
 	void removeFlags(U32 flags) { mMiscFlags &= ~flags; }
@@ -435,6 +471,9 @@ public:
 	inline static BOOL isPrimitive(const LLPCode pcode);
 	inline static BOOL isApp(const LLPCode pcode);
 
+private:
+	void updateNumBumpmap(const U8 index, const U8 bump);
+
 protected:
 	LLPCode				mPrimitiveCode;		// Primitive code
 	LLVector3			mVelocity;			// how fast are we moving?
@@ -444,6 +483,7 @@ protected:
 	LLPrimTextureList	mTextureList;		// list of texture GUIDs, scales, offsets
 	U8					mMaterial;			// Material code
 	U8					mNumTEs;			// # of faces on the primitve	
+	U8                  mNumBumpmapTEs;     // number of bumpmap TEs.
 	U32 				mMiscFlags;			// home for misc bools
 
 public:

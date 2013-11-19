@@ -33,7 +33,7 @@
 
 class LLOfferInfo;
 
-const S32 UPDATE_MEMBERS_PER_FRAME = 500;
+const F32 UPDATE_MEMBERS_SECONDS_PER_FRAME = 0.005; // 5ms
 
 // Forward declares
 class LLPanelGroupTab;

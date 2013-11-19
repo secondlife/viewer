@@ -9,6 +9,9 @@
 	<panel.string name="already_in_group">
 		Alguno de los Residentes que has elegido ya están en el grupo: no se les enviará la invitación.
 	</panel.string>
+	<panel.string name="invite_selection_too_large">
+		Las invitaciones al grupo no se han enviado: has seleccionado demasiados Residentes. Solo se permiten 100 invitaciones al grupo por solicitud.
+	</panel.string>
 	<text bottom_delta="-96" height="72" name="help_text" width="214">
 		Puedes elegir a varios Residentes para invitarles a tu grupo. Para empezar, pulsa &apos;Abrir el selector de residentes&apos;.
 	</text>

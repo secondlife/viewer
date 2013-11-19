@@ -37,7 +37,7 @@
 #include "llwindow.h"	// beforeDialog()
 #include "llviewercontrol.h"
 
-#if LL_LINUX || LL_SOLARIS
+#if LL_LINUX || LL_SOLARIS || LL_DARWIN
 # include "llfilepicker.h"
 #endif
 
@@ -147,152 +147,36 @@ std::string LLDirPicker::getDirName()
 #elif LL_DARWIN
 
 LLDirPicker::LLDirPicker() :
-	mFileName(NULL),
-	mLocked(false)
+mFileName(NULL),
+mLocked(false)
 {
+	mFilePicker = new LLFilePicker();
 	reset();
-
-	memset(&mNavOptions, 0, sizeof(mNavOptions));
-	OSStatus	error = NavGetDefaultDialogCreationOptions(&mNavOptions);
-	if (error == noErr)
-	{
-		mNavOptions.modality = kWindowModalityAppModal;
-	}
 }
 
 LLDirPicker::~LLDirPicker()
 {
-	// nothing
-}
-
-//static
-pascal void LLDirPicker::doNavCallbackEvent(NavEventCallbackMessage callBackSelector,
-										 NavCBRecPtr callBackParms, void* callBackUD)
-{
-	switch(callBackSelector)
-	{
-		case kNavCBStart:
-		{
-			if (!sInstance.mFileName) break;
- 
-			OSStatus error = noErr; 
-			AEDesc theLocation = {typeNull, NULL};
-			FSSpec outFSSpec;
-			
-			//Convert string to a FSSpec
-			FSRef myFSRef;
-			
-			const char* filename=sInstance.mFileName->c_str();
-			
-			error = FSPathMakeRef ((UInt8*)filename,	&myFSRef, 	NULL); 
-			
-			if (error != noErr) break;
-
-			error = FSGetCatalogInfo (&myFSRef, kFSCatInfoNone, NULL, NULL, &outFSSpec, NULL);
-
-			if (error != noErr) break;
-	
-			error = AECreateDesc(typeFSS, &outFSSpec, sizeof(FSSpec), &theLocation);
-
-			if (error != noErr) break;
-
-			error = NavCustomControl(callBackParms->context,
-							kNavCtlSetLocation, (void*)&theLocation);
-
-		}
-	}
-}
-
-OSStatus	LLDirPicker::doNavChooseDialog()
-{
-	OSStatus		error = noErr;
-	NavDialogRef	navRef = NULL;
-	NavReplyRecord	navReply;
-
-	memset(&navReply, 0, sizeof(navReply));
-	
-	// NOTE: we are passing the address of a local variable here.  
-	//   This is fine, because the object this call creates will exist for less than the lifetime of this function.
-	//   (It is destroyed by NavDialogDispose() below.)
-
-	error = NavCreateChooseFolderDialog(&mNavOptions, &doNavCallbackEvent, NULL, NULL, &navRef);
-
-	gViewerWindow->getWindow()->beforeDialog();
-
-	if (error == noErr)
-		error = NavDialogRun(navRef);
-
-	gViewerWindow->getWindow()->afterDialog();
-
-	if (error == noErr)
-		error = NavDialogGetReply(navRef, &navReply);
-
-	if (navRef)
-		NavDialogDispose(navRef);
-
-	if (error == noErr && navReply.validRecord)
-	{	
-		FSRef		fsRef;
-		AEKeyword	theAEKeyword;
-		DescType	typeCode;
-		Size		actualSize = 0;
-		char		path[LL_MAX_PATH];		 /*Flawfinder: ignore*/
-		
-		memset(&fsRef, 0, sizeof(fsRef));
-		error = AEGetNthPtr(&navReply.selection, 1, typeFSRef, &theAEKeyword, &typeCode, &fsRef, sizeof(fsRef), &actualSize);
-		
-		if (error == noErr)
-			error = FSRefMakePath(&fsRef, (UInt8*) path, sizeof(path));
-		
-		if (error == noErr)
-			mDir = path;
-	}
-	
-	return error;
-}
-
-BOOL LLDirPicker::getDir(std::string* filename)
-{
-	if( mLocked ) return FALSE;
-	BOOL success = FALSE;
-	OSStatus	error = noErr;
-
-	// if local file browsing is turned off, return without opening dialog
-	if ( check_local_file_access_enabled() == false )
-	{
-		return FALSE;
-	}
-
-	mFileName = filename;
-	
-//	mNavOptions.saveFileName 
-
-	// Modal, so pause agent
-	send_agent_pause();
-	{
-		error = doNavChooseDialog();
-	}
-	send_agent_resume();
-	if (error == noErr)
-	{
-		if (mDir.length() >  0)
-			success = true;
-	}
-
-	// Account for the fact that the app has been stalled.
-	LLFrameTimer::updateFrameTime();
-	return success;
-}
-
-std::string LLDirPicker::getDirName()
-{
-	return mDir;
+	delete mFilePicker;
 }
 
 void LLDirPicker::reset()
 {
-	mLocked = false;
-	mDir.clear();
+	if (mFilePicker)
+		mFilePicker->reset();
+}
+
+
+//static
+BOOL LLDirPicker::getDir(std::string* filename)
+{
+    LLFilePicker::ELoadFilter filter=LLFilePicker::FFLOAD_DIRECTORY;
+    
+    return mFilePicker->getOpenFile(filter, true);
+}
+
+std::string LLDirPicker::getDirName()
+{
+	return mFilePicker->getFirstFile();
 }
 
 #elif LL_LINUX || LL_SOLARIS
@@ -327,6 +211,8 @@ BOOL LLDirPicker::getDir(std::string* filename)
 		return FALSE;
 	}
 
+#if !LL_MESA_HEADLESS
+
 	if (mFilePicker)
 	{
 		GtkWindow* picker = mFilePicker->buildFilePicker(false, true,
@@ -340,6 +226,8 @@ BOOL LLDirPicker::getDir(std::string* filename)
 		   return (!mFilePicker->getFirstFile().empty());
 		}
 	}
+#endif // !LL_MESA_HEADLESS
+
 	return FALSE;
 }
 

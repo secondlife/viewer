@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_pathfinding_characters" title="尋徑角色">
+	<floater.string name="messaging_get_inprogress">
+		尋徑角色查詢中…
+	</floater.string>
+	<floater.string name="messaging_get_error">
+		查詢尋徑角色時出錯。
+	</floater.string>
+	<floater.string name="messaging_complete_none_found">
+		沒有尋徑角色。
+	</floater.string>
+	<floater.string name="messaging_complete_available">
+		從 [NUM_TOTAL] 個角色中選取了 [NUM_SELECTED] 個。
+	</floater.string>
+	<floater.string name="messaging_not_enabled">
+		這地區並未啟用尋徑。
+	</floater.string>
+	<floater.string name="character_cpu_time">
+		[CPU_TIME] 微秒
+	</floater.string>
+	<floater.string name="character_owner_loading">
+		[Loading]
+	</floater.string>
+	<floater.string name="character_owner_unknown">
+		[Unknown]
+	</floater.string>
+	<floater.string name="character_owner_group">
+		[group]
+	</floater.string>
+	<panel>
+		<scroll_list name="objects_scroll_list">
+			<scroll_list.columns label="名稱" name="name"/>
+			<scroll_list.columns label="描述" name="description"/>
+			<scroll_list.columns label="所有人" name="owner"/>
+			<scroll_list.columns label="中央處理器" name="cpu_time"/>
+			<scroll_list.columns label="高度" name="altitude"/>
+		</scroll_list>
+		<text name="messaging_status">
+			角色：
+		</text>
+		<button label="刷新清單" name="refresh_objects_list"/>
+		<button label="全選" name="select_all_objects"/>
+		<button label="全都不選" name="select_none_objects"/>
+	</panel>
+	<panel>
+		<text name="actions_label">
+			所選角色所採動作：
+		</text>
+		<check_box label="顯示指標" name="show_beacon"/>
+		<check_box label="顯示物理囊" name="show_physics_capsule"/>
+		<button label="取得" name="take_objects"/>
+		<button label="拿取副本" name="take_copy_objects"/>
+		<button label="瞬間傳送我到那裡" name="teleport_me_to_object" tool_tip="只在選取了一個角色時啟用。"/>
+		<button label="退回" name="return_objects"/>
+		<button label="刪除" name="delete_objects"/>
+	</panel>
+</floater>

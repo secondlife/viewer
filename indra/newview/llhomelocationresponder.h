@@ -36,7 +36,7 @@
 class LLHomeLocationResponder : public LLHTTPClient::Responder
 {
 	virtual void result( const LLSD& content );
-	virtual void error( U32 status, const std::string& reason );
+	virtual void errorWithContent( U32 status, const std::string& reason, const LLSD& content );
 };
 
 #endif

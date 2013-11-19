@@ -70,6 +70,7 @@
      max_length="65536"
      name="Notecard Editor"
      parse_urls="false" 
+     spellcheck="true"
      tab_group="1"
      top="46"
      width="392"

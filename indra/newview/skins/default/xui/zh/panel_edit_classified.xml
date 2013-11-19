@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Edit Classified" name="panel_edit_classified">
+<panel label="編輯個人廣告" name="panel_edit_classified">
 	<panel.string name="location_notice">
 		（儲存後將會更新）
 	</panel.string>
 	<string name="publish_label">
-		Publish
+		發布
 	</string>
 	<string name="save_label">
 		儲存
 	</string>
 	<text name="title">
-		Edit Classified
+		編輯個人廣告
 	</text>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
 			<panel name="snapshot_panel">
-				<icon label="" name="edit_icon" tool_tip="點擊以選擇圖像"/>
+				<icon label="" name="edit_icon" tool_tip="點按以選擇圖像"/>
 			</panel>
 			<text name="Name:">
-				Title:
+				標題：
 			</text>
 			<text name="description_label">
 				描述：
@@ -29,16 +29,16 @@
 			<text name="classified_location">
 				載入中...
 			</text>
-			<button label="Set to Current Location" name="set_to_curr_location_btn"/>
-			<text name="category_label" value="Category:"/>
-			<text name="content_type_label" value="Content type:"/>
+			<button label="設定為目前位置" name="set_to_curr_location_btn"/>
+			<text name="category_label" value="分類："/>
+			<text name="content_type_label" value="內容類型："/>
 			<icons_combo_box label="一般普級內容" name="content_type">
-				<icons_combo_box.item label="適度成人內容" name="mature_ci" value="Mature"/>
-				<icons_combo_box.item label="一般普級內容" name="pg_ci" value="PG"/>
+				<icons_combo_box.item label="適度成人內容" name="mature_ci" value="適度成人"/>
+				<icons_combo_box.item label="一般普級內容" name="pg_ci" value="一般普級"/>
 			</icons_combo_box>
-			<check_box label="Auto renew each week" name="auto_renew"/>
-			<text name="price_for_listing_label" value="Price for listing:"/>
-			<spinner label="L$" name="price_for_listing" tool_tip="Price for listing." value="50"/>
+			<check_box label="每星期自動續訂" name="auto_renew"/>
+			<text name="price_for_listing_label" value="刊登費："/>
+			<spinner label="L$" name="price_for_listing" tool_tip="刊登費。" value="50"/>
 		</panel>
 	</scroll_container>
 	<panel label="bottom_panel" name="bottom_panel">

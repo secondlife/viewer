@@ -32,7 +32,6 @@
 
 #include "llappviewerwin32.h"
 
-#include "llmemtype.h"
 
 #include "llwindowwin32.h" // *FIX: for setting gIconResource.
 #include "llgl.h"
@@ -46,6 +45,11 @@
 
 #include "llviewercontrol.h"
 #include "lldxhardware.h"
+
+#include "nvapi/nvapi.h"
+#include "nvapi/NvApiDriverSettings.h"
+
+#include <stdlib.h>
 
 #include "llweb.h"
 #include "llsecondlifeurls.h"
@@ -61,6 +65,7 @@
 #include "llwindebug.h"
 #endif
 
+
 // *FIX:Mani - This hack is to fix a linker issue with libndofdev.lib
 // The lib was compiled under VS2005 - in VS2003 we need to remap assert
 #ifdef LL_DEBUG
@@ -75,6 +80,20 @@ extern "C" {
 #endif
 
 const std::string LLAppViewerWin32::sWindowClass = "Second Life";
+
+/*
+    This function is used to print to the command line a text message 
+    describing the nvapi error and quits
+*/
+void nvapi_error(NvAPI_Status status)
+{
+    NvAPI_ShortString szDesc = {0};
+	NvAPI_GetErrorMessage(status, szDesc);
+	llwarns << szDesc << llendl;
+
+	//should always trigger when asserts are enabled
+	//llassert(status == NVAPI_OK);
+}
 
 // Create app mutex creates a unique global windows object. 
 // If the object can be created it returns true, otherwise
@@ -97,6 +116,78 @@ bool create_app_mutex()
 	return result;
 }
 
+void ll_nvapi_init(NvDRSSessionHandle hSession)
+{
+	// (2) load all the system settings into the session
+	NvAPI_Status status = NvAPI_DRS_LoadSettings(hSession);
+	if (status != NVAPI_OK) 
+	{
+		nvapi_error(status);
+		return;
+	}
+
+	NvAPI_UnicodeString profile_name;
+	std::string app_name = LLTrans::getString("APP_NAME");
+	llutf16string w_app_name = utf8str_to_utf16str(app_name);
+	wsprintf(profile_name, L"%s", w_app_name.c_str());
+	status = NvAPI_DRS_SetCurrentGlobalProfile(hSession, profile_name);
+	if (status != NVAPI_OK)
+	{
+		nvapi_error(status);
+		return;
+	}
+
+	// (3) Obtain the current profile. 
+	NvDRSProfileHandle hProfile = 0;
+	status = NvAPI_DRS_GetCurrentGlobalProfile(hSession, &hProfile);
+	if (status != NVAPI_OK) 
+	{
+		nvapi_error(status);
+		return;
+	}
+
+	// load settings for querying 
+	status = NvAPI_DRS_LoadSettings(hSession);
+	if (status != NVAPI_OK)
+	{
+		nvapi_error(status);
+		return;
+	}
+
+	//get the preferred power management mode for Second Life
+	NVDRS_SETTING drsSetting = {0};
+	drsSetting.version = NVDRS_SETTING_VER;
+	status = NvAPI_DRS_GetSetting(hSession, hProfile, PREFERRED_PSTATE_ID, &drsSetting);
+	if (status == NVAPI_SETTING_NOT_FOUND)
+	{ //only override if the user hasn't specifically set this setting
+		// (4) Specify that we want the VSYNC disabled setting
+		// first we fill the NVDRS_SETTING struct, then we call the function
+		drsSetting.version = NVDRS_SETTING_VER;
+		drsSetting.settingId = PREFERRED_PSTATE_ID;
+		drsSetting.settingType = NVDRS_DWORD_TYPE;
+		drsSetting.u32CurrentValue = PREFERRED_PSTATE_PREFER_MAX;
+		status = NvAPI_DRS_SetSetting(hSession, hProfile, &drsSetting);
+		if (status != NVAPI_OK) 
+		{
+			nvapi_error(status);
+			return;
+		}
+
+        // (5) Now we apply (or save) our changes to the system
+        status = NvAPI_DRS_SaveSettings(hSession);
+        if (status != NVAPI_OK) 
+        {
+            nvapi_error(status);
+            return;
+        }
+	}
+	else if (status != NVAPI_OK)
+	{
+		nvapi_error(status);
+		return;
+	}
+}
+
 //#define DEBUGGING_SEH_FILTER 1
 #if DEBUGGING_SEH_FILTER
 #	define WINMAIN DebuggingWinMain
@@ -117,19 +208,21 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 	#endif // _DEBUG
 #endif // INCLUDE_VLD
 
-	LLMemType mt1(LLMemType::MTYPE_STARTUP);
-
 	const S32 MAX_HEAPS = 255;
 	DWORD heap_enable_lfh_error[MAX_HEAPS];
 	S32 num_heaps = 0;
 	
 #if WINDOWS_CRT_MEM_CHECKS && !INCLUDE_VLD
 	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF ); // dump memory leaks on exit
-#elif 1
+#elif 0
 	// Experimental - enable the low fragmentation heap
 	// This results in a 2-3x improvement in opening a new Inventory window (which uses a large numebr of allocations)
 	// Note: This won't work when running from the debugger unless the _NO_DEBUG_HEAP environment variable is set to 1
 
+	// Enable to get mem debugging within visual studio.
+#if LL_DEBUG
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+#else
 	_CrtSetDbgFlag(0); // default, just making explicit
 	
 	ULONG ulEnableLFH = 2;
@@ -143,6 +236,7 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 		else
 			heap_enable_lfh_error[i] = GetLastError();
 	}
+#endif
 #endif
 	
 	// *FIX: global
@@ -163,6 +257,27 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 		return -1;
 	}
 	
+	NvAPI_Status status;
+    
+	// Initialize NVAPI
+	status = NvAPI_Initialize();
+	NvDRSSessionHandle hSession = 0;
+
+    if (status == NVAPI_OK) 
+	{
+		// Create the session handle to access driver settings
+		status = NvAPI_DRS_CreateSession(&hSession);
+		if (status != NVAPI_OK) 
+		{
+			nvapi_error(status);
+		}
+		else
+		{
+			//override driver setting as needed
+			ll_nvapi_init(hSession);
+		}
+	}
+
 	// Have to wait until after logging is initialized to display LFH info
 	if (num_heaps > 0)
 	{
@@ -230,6 +345,15 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 		LLAppViewer::sUpdaterInfo = NULL ;
 	}
 
+
+
+	// (NVAPI) (6) We clean up. This is analogous to doing a free()
+	if (hSession)
+	{
+		NvAPI_DRS_DestroySession(hSession);
+		hSession = 0;
+	}
+	
 	return 0;
 }
 
@@ -365,7 +489,7 @@ bool LLAppViewerWin32::init()
 	// (Don't send our data to Microsoft--at least until we are Logo approved and have a way
 	// of getting the data back from them.)
 	//
-	llinfos << "Turning off Windows error reporting." << llendl;
+	// llinfos << "Turning off Windows error reporting." << llendl;
 	disableWinErrorReporting();
 
 #ifndef LL_RELEASE_FOR_DOWNLOAD
@@ -384,9 +508,9 @@ bool LLAppViewerWin32::cleanup()
 	return result;
 }
 
-bool LLAppViewerWin32::initLogging()
+void LLAppViewerWin32::initLoggingAndGetLastDuration()
 {
-	return LLAppViewer::initLogging();
+	LLAppViewer::initLoggingAndGetLastDuration();
 }
 
 void LLAppViewerWin32::initConsole()

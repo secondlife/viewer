@@ -59,8 +59,9 @@
 	<string name="LoginFailedNoNetwork">Network error: Could not establish connection, please check your network connection.</string>
 	<string name="LoginFailed">Login failed.</string>
 	<string name="Quit">Quit</string>
-	<string name="create_account_url">http://join.secondlife.com/</string>
+	<string name="create_account_url">http://join.secondlife.com/?sourceid=[sourceid]</string>
 
+	<string name="ViewerDownloadURL">http://secondlife.com/download</string>
 	<string name="LoginFailedViewerNotPermitted">
 The viewer you are using can no longer access Second Life. Please visit the following page to download a new viewer:
 http://secondlife.com/download
@@ -147,6 +148,14 @@ Please try logging in again in a minute.</string>
 	<string name="SentToInvalidRegion">You were sent to an invalid region.</string>
 	<string name="TestingDisconnect">Testing viewer disconnect</string>
 
+	<!-- Facebook Connect and, eventually, other Social Network -->
+	<string name="SocialFacebookConnecting">Connecting to Facebook...</string>
+	<string name="SocialFacebookPosting">Posting...</string>
+	<string name="SocialFacebookDisconnecting">Disconnecting from Facebook...</string>
+	<string name="SocialFacebookErrorConnecting">Problem connecting to Facebook</string>
+	<string name="SocialFacebookErrorPosting">Problem posting to Facebook</string>
+	<string name="SocialFacebookErrorDisconnecting">Problem disconnecting from Facebook</string>
+    
 	<!-- Tooltip -->
 	<string name="TooltipPerson">Person</string><!-- Object under mouse pointer is an avatar -->
 	<string name="TooltipNoName">(no name)</string> <!-- No name on an object -->
@@ -208,7 +217,8 @@ Please try logging in again in a minute.</string>
 	<string name="SLappAgentIM">IM</string>
 	<string name="SLappAgentPay">Pay</string>
 	<string name="SLappAgentOfferTeleport">Offer Teleport to </string>
-	<string name="SLappAgentRequestFriend">Friend Request </string>
+	<string name="SLappAgentRequestFriend">Friend Request</string>
+  <string name="SLappAgentRemoveFriend">Friend Removal</string>
 
 	<!-- ButtonToolTips, llfloater.cpp -->
 	<string name="BUTTON_CLOSE_DARWIN">Close (&#8984;W)</string>
@@ -295,7 +305,7 @@ Please try logging in again in a minute.</string>
 	<!-- llvoavatar. Displayed in the avatar chat bubble -->
 	<string name="AvatarEditingAppearance">(Editing Appearance)</string>
 	<string name="AvatarAway">Away</string>
-	<string name="AvatarBusy">Busy</string>
+	<string name="AvatarDoNotDisturb">Do Not Disturb</string>
 	<string name="AvatarMuted">Blocked</string>
 
 	<!-- animations -->
@@ -372,10 +382,12 @@ Please try logging in again in a minute.</string>
 	<!-- build floater -->
 	<string name="multiple_textures">Multiple</string>
 
+<string name="use_texture">Use texture</string>
+
 	<!-- world map -->
 	<string name="texture_loading">Loading...</string>
 	<string name="worldmap_offline">Offline</string>
-	<string name="worldmap_item_tooltip_format">[AREA] m² L$[PRICE]</string>
+	<string name="worldmap_item_tooltip_format">[AREA] m² L$[PRICE] ([SQMPRICE] L$/m²)</string>
 	<string name="worldmap_results_none_found">None found.</string>
 
 	<!-- animations uploading status codes -->
@@ -384,6 +396,8 @@ Please try logging in again in a minute.</string>
 	<string name="ST_NO_JOINT">Can't find ROOT or JOINT.</string>
 
 	<!-- Chat -->
+	<string name="NearbyChatTitle">Nearby chat</string>
+  <string name="NearbyChatLabel">(Nearby chat)</string>
 	<string name="whisper">whispers:</string>
 	<string name="shout">shouts:</string>
 	<string name="ringing">Connecting to in-world Voice Chat...</string>
@@ -393,6 +407,7 @@ Please try logging in again in a minute.</string>
   <string name="reconnect_nearby">You will now be reconnected to Nearby Voice Chat</string>
 	<string name="ScriptQuestionCautionChatGranted">'[OBJECTNAME]', an object owned by '[OWNERNAME]', located in [REGIONNAME] at [REGIONPOS], has been granted permission to: [PERMISSIONS].</string>
 	<string name="ScriptQuestionCautionChatDenied">'[OBJECTNAME]', an object owned by '[OWNERNAME]', located in [REGIONNAME] at [REGIONPOS], has been denied permission to: [PERMISSIONS].</string>
+	<string name="AdditionalPermissionsRequestHeader">If you allow access to your account, you will also be allowing the object to:</string>
 	<string name="ScriptTakeMoney">Take Linden dollars (L$) from you</string>
 	<string name="ActOnControlInputs">Act on your control inputs</string>
 	<string name="RemapControlInputs">Remap your control inputs</string>
@@ -403,9 +418,18 @@ Please try logging in again in a minute.</string>
 	<string name="AddAndRemoveJoints">Add and remove joints with other objects</string>
 	<string name="ChangePermissions">Change its permissions</string>
 	<string name="TrackYourCamera">Track your camera</string>
-  <string name="ControlYourCamera">Control your camera</string>
-  <string name="TeleportYourAgent">Teleport you</string>
-  <string name="NotConnected">Not Connected</string>
+	<string name="ControlYourCamera">Control your camera</string>
+	<string name="TeleportYourAgent">Teleport you</string>
+	<string name="ManageEstateSilently">Manage your estates silently</string>
+	<string name="ChangeYourDefaultAnimations">Change your default animations</string>
+	
+	<string name="NotConnected">Not Connected</string>
+	<string name="AgentNameSubst">(You)</string> <!-- Substitution for agent name -->
+	<string name="JoinAnExperience">Join an experience</string> <!-- not used -->
+	<string name="SilentlyManageEstateAccess">Suppress alerts when managing estate access lists</string>
+	<string name="OverrideYourAnimations">Replace your default animations</string>
+	<string name="ScriptReturnObjects">Return objects on your behalf</string>
+	<string name="UnknownScriptPermission">(unknown)!</string>
 
 	<!-- Sim Access labels -->
 	<string name="SIM_ACCESS_PG">General</string>
@@ -432,6 +456,8 @@ Please try logging in again in a minute.</string>
 	<string name="load_file_verb">Load</string>
 	<string name="targa_image_files">Targa Images</string>
 	<string name="bitmap_image_files">Bitmap Images</string>
+	<string name="png_image_files">PNG Images</string>
+	<string name="save_texture_image_files">Targa or PNG Images</string>
 	<string name="avi_movie_file">AVI Movie File</string>
 	<string name="xaf_animation_file">XAF Anim File</string>
 	<string name="xml_file">XML File</string>
@@ -440,6 +466,7 @@ Please try logging in again in a minute.</string>
 	<string name="load_files">Load Files</string>
 	<string name="choose_the_directory">Choose Directory</string>
 	<string name="script_files">Scripts</string>
+	<string name="dictionary_files">Dictionaries</string>
 
   <!-- LSL Usage Hover Tips -->
   <!-- NOTE: For now these are set as translate="false", until DEV-40761 is implemented (to internationalize the rest of tooltips in the same window).
@@ -630,11 +657,11 @@ Returns the wind velocity at the object position + offset
 	</string>
 	<string name="LSLTipText_llSetStatus" translate="false">
 llSetStatus(integer status, integer value)
-Sets status (STATUS_PHYSICS, STATUS_PHANTOM, STATUS_BLOCK_GRAB, STATUS_ROTATE_X, STATUS_ROTATE_Y, and/or STATUS_ROTATE_Z) to value
+Sets status (STATUS_PHYSICS, STATUS_PHANTOM, STATUS_BLOCK_GRAB, STATUS_BLOCK_GRAB_OBJECT, STATUS_ROTATE_X, STATUS_ROTATE_Y, and/or STATUS_ROTATE_Z) to value
 	</string>
 	<string name="LSLTipText_llGetStatus" translate="false">
 integer llGetStatus(integer status)
-Returns value of status (STATUS_PHYSICS, STATUS_PHANTOM, STATUS_BLOCK_GRAB, STATUS_ROTATE_X, STATUS_ROTATE_Y, and/or STATUS_ROTATE_Z)
+Returns the boolean value of status (STATUS_PHYSICS, STATUS_PHANTOM, STATUS_BLOCK_GRAB, STATUS_BLOCK_GRAB_OBJECT, STATUS_ROTATE_X, STATUS_ROTATE_Y, or STATUS_ROTATE_Z)
 	</string>
 	<string name="LSLTipText_llSetScale" translate="false">
 llSetScale(vector scale)
@@ -670,7 +697,7 @@ Sets the texture u &amp; v scales for the chosen face or ALL_SIDES
 	</string>
 	<string name="LSLTipText_llOffsetTexture" translate="false">
 llOffsetTexture(float u, float v, integer face)
-Sets the texture u &amp; v offsets for the chosen face or ALL_SIDES
+Sets the texture u  &amp; v offsets for the chosen face or ALL_SIDES
 	</string>
 	<string name="LSLTipText_llRotateTexture" translate="false">
 llRotateTexture(float rotation, integer face)
@@ -788,9 +815,9 @@ Sets the script timer to zero
 float llGetAndResetTime()
 Returns the script time in seconds and then resets the script timer to zero
 	</string>
-	<string name="LSLTipText_llSoplayund" translate="false">
+	<string name="LSLTipText_llSound" translate="false">
 llSound(string sound, float volume, integer queue, integer loop)
-Plays sound at volume and whether it should loop or not
+Plays sound at volume and whether it should loop or not.
 	</string>
 	<string name="LSLTipText_llPlaySound" translate="false">
 llPlaySound(string sound, float volume)
@@ -1445,7 +1472,7 @@ integer llScriptDanger(vector pos)
 Returns TRUE if pos is over public land, sandbox land, land that doesn&apos;t allow everyone to edit and build, or land that doesn&apos;t allow outside scripts
 	</string>
 	<string name="LSLTipText_llDialog" translate="false">
-llDialog(key avatar, string message, list buttons, integer chat_channel
+llDialog(key avatar, string message, list buttons, integer chat_channel)
 Shows a dialog box on the avatar&apos;s screen with a message and up to 12 buttons.
 If a button is pressed, the avatar says the text of the button label on chat_channel.
 	</string>
@@ -1666,7 +1693,7 @@ Returns a list containing results of the sent query
 	</string>
 	<string name="LSLTipText_llModPow" translate="false">
 integer llModPow(integer a, integer b, integer c)
-Returns a raised to the b power, mod c. ( (a**b)%c )
+Returns a raised to the b power, mod c. ( (a**b)%c )
 b is capped at 0xFFFF (16 bits).
 	</string>
 	<string name="LSLTipText_llGetInventoryType" translate="false">
@@ -1779,10 +1806,10 @@ integer llGetParcelMaxPrims(vector pos, integer sim_wide)
 Returns the maximum number of prims allowed on the parcel at pos
 	</string>
 	<string name="LSLTipText_llGetParcelDetails" translate="false">
-    list llGetParcelDetails(vector pos, list params)
-    Returns the parcel details specified in params for the parcel at pos.
-    Params is one or more of: PARCEL_DETAILS_NAME, _DESC, _OWNER, _GROUP, _AREA, _ID, _SEE_AVATARS
-  </string>
+list llGetParcelDetails(vector pos, list params)
+Returns the parcel details specified in params for the parcel at pos.
+Params is one or more of: PARCEL_DETAILS_NAME, _DESC, _OWNER, _GROUP, _AREA, _ID, _SEE_AVATARS
+	</string>
 	<string name="LSLTipText_llSetLinkPrimitiveParams" translate="false">
 llSetLinkPrimitiveParams(integer linknumber, list rules)
 Sets primitive parameters for linknumber based on rules
@@ -1871,78 +1898,203 @@ Releases the specified URL, it will no longer be usable
 	<string name="LSLTipText_llHTTPResponse" translate="false">
 llHTTPResponse(key request_id, integer status, string body)
 Responds to request_id with status and body
-  </string>
+	</string>
 	<string name="LSLTipText_llGetHTTPHeader" translate="false">
 string llGetHTTPHeader(key request_id, string header)
 Returns the value for header for request_id
 	</string>
-  <string name="LSLTipText_llSetPrimMediaParams" translate="false">
+	<string name="LSLTipText_llSetPrimMediaParams" translate="false">
 llSetPrimMediaParams(integer face, list params)
 Sets the media params for a particular face on an object. If media is not already on this object, add it.
 List is a set of name/value pairs in no particular order.  Params not specified are unchanged, or if new media is added then set to the default specified.
 The possible names are below, along with the types of values and what they mean.
-  </string>
-  <string name="LSLTipText_llGetPrimMediaParams" translate="false">
+	</string>
+	<string name="LSLTipText_llGetPrimMediaParams" translate="false">
 list llGetPrimMediaParams(integer face, list params)
 Returns the media params for a particular face on an object, given the desired list of names, in the order requested.
 (Returns an empty list if no media exists on the face.)
-  </string>
-  <string name="LSLTipText_llClearPrimMedia" translate="false">
+	</string>
+	<string name="LSLTipText_llClearPrimMedia" translate="false">
 llClearPrimMedia(integer face)
 Clears (deletes) the media and all params from the given face.
-  </string>
-<string name="LSLTipText_llSetLinkPrimitiveParamsFast" translate="false">
+	</string>
+	<string name="LSLTipText_llSetLinkPrimitiveParamsFast" translate="false">
 llSetLinkPrimitiveParamsFast(integer linknumber,list rules)
 Set primitive parameters for linknumber based on rules.
-</string>
-<string name="LSLTipText_llGetLinkPrimitiveParams" translate="false">
+	</string>
+	<string name="LSLTipText_llGetLinkPrimitiveParams" translate="false">
 llGetLinkPrimitiveParams(integer linknumber,list rules)
 Get primitive parameters for linknumber based on rules.
-</string>
-<string name="LSLTipText_llLinkParticleSystem" translate="false">
+	</string>
+	<string name="LSLTipText_llLinkParticleSystem" translate="false">
 llLinkParticleSystem(integer linknumber,list rules)
 Creates a particle system based on rules.  Empty list removes particle system from object.
 List format is [ rule1, data1, rule2, data2 . . . rulen, datan ].
-</string>
-<string name="LSLTipText_llSetLinkTextureAnim" translate="false">
+	</string>
+	<string name="LSLTipText_llSetLinkTextureAnim" translate="false">
 llSetLinkTextureAnim(integer link, integer mode, integer face, integer sizex, integer sizey, float start, float length, float rate)
-Animate the texture on the specified prim's face/faces.
-</string>
-<string name="LSLTipText_llGetLinkNumberOfSides" translate="false">
+Animate the texture on the specified prim&apos;s face/faces.
+	</string>
+	<string name="LSLTipText_llGetLinkNumberOfSides" translate="false">
 integer llGetLinkNumberOfSides(integer link)
 Returns the number of sides of the specified linked prim.
-</string>
-<string name="LSLTipText_llGetUsername" translate="false">
+	</string>
+	<string name="LSLTipText_llGetUsername" translate="false">
 string llGetUsername(key id)
 Returns the single-word username of an avatar, iff the avatar is in the current region, otherwise the empty string.
-</string>
-<string name="LSLTipText_llRequestUsername" translate="false">
+	</string>
+	<string name="LSLTipText_llRequestUsername" translate="false">
 key llRequestUsername(key id)
 Requests single-word username of an avatar.  When data is available the dataserver event will be raised.
-</string>
-<string name="LSLTipText_llGetDisplayName" translate="false">
-  string llGetDisplayName(key id)
-  Returns the name of an avatar, iff the avatar is in the current simulator, and the name has been cached, otherwise the same as llGetUsername.  Use llRequestDisplayName if you absolutely must have the display name.
-</string>
-<string name="LSLTipText_llRequestDisplayName" translate="false">
+	</string>
+	<string name="LSLTipText_llGetDisplayName" translate="false">
+string llGetDisplayName(key id)
+Returns the name of an avatar, iff the avatar is in the current simulator, and the name has been cached, otherwise the same as llGetUsername.  Use llRequestDisplayName if you absolutely must have the display name.
+	</string>
+	<string name="LSLTipText_llRequestDisplayName" translate="false">
 key llRequestDisplayName(key id)
 Requests name of an avatar.  When data is available the dataserver event will be raised.
-</string>
-<string name="LSLTipText_llRegionSayTo" translate="false">
-llRegionSayTo(key target, integer channel, string msg)
-Sends msg on channel (not DEBUG_CHANNEL) directly to prim or avatar target anywhere within the region
-</string>
-<string name="LSLTipText_llGetEnv" translate="false">
+	</string>
+	<string name="LSLTipText_llGetEnv" translate="false">
 llGetEnv(string name)
 Returns a string with the requested data about the region
-</string>
+	</string>
+	<string name="LSLTipText_llCastRay" translate="false">
+llCastRay(vector start, vector end, list params)
+Casts a ray into the physics world from &apos;start&apos; to &apos;end&apos; and returns data according to details in params.
+	</string>
+	<string name="LSLTipText_llRegionSayTo" translate="false">
+llRegionSayTo(key target, integer channel, string msg)
+Sends msg on channel (not DEBUG_CHANNEL) directly to prim or avatar target anywhere within the region.
+	</string>
+	<string name="LSLTipText_llGetSPMaxMemory" translate="false">
+integer llGetSPMaxMemory()
+Returns the maximum used memory for the current script. Only valid after using PROFILE_SCRIPT_MEMORY. Non-mono scripts always use 16k.
+	</string>
+	<string name="LSLTipText_llGetUsedMemory" translate="false">
+integer llGetUsedMemory()
+Returns the current used memory for the current script. Non-mono scripts always use 16k.
+	</string>
+	<string name="LSLTipText_llScriptProfiler" translate="false">
+llScriptProfiler(integer flags)
+Enabled or disables script profiling options. Currently only supports PROFILE_SCRIPT_MEMORY (mono only) and PROFILE_NONE.
+MAY SIGNIFICANTLY REDUCE SCRIPT PERFORMANCE!
+	</string>
+	<string name="LSLTipText_llSetMemoryLimit" translate="false">
+integer llSetMemoryLimit(integer mem)
+	</string>
+	<string name="LSLTipText_llGetMemoryLimit" translate="false">
+integer llGetMemoryLimit()
+	</string>
+	<string name="LSLTipText_llSetLinkMedia" translate="false">
+llSetLinkMedia(integer link, integer face, list params)
+Set the media params for a particular face on linked prim.  List is a set of name/value pairs (in no particular order). The possible names are below, along with the types of values and what they mean.  If media is not already on this object, add it. Params not specified are unchanged, or if new media is added set to the default specified.
+	</string>
+	<string name="LSLTipText_llGetLinkMedia" translate="false">
+list llGetLinkMedia(integer link, integer face, list params)
+Get the media params for a particular face on linked prim, given the desired list of names. Returns a list of values in the order requested.  Returns an empty list if no media exists on the face.
+	</string>
+	<string name="LSLTipText_llClearLinkMedia" translate="false">
+llClearLinkMedia(integer link, integer face)
+Clears (deletes) the media and all params from the given face on linked prim.
+	</string>
+	<string name="LSLTipText_llSetContentType" translate="false">
+llSetContentType(key id, integer content_type)
+	</string>
+	<string name="LSLTipText_llLinkSitTarget" translate="false">
+llLinkSitTarget(integer link, vector offset, rotation rot)
+Set the sit location for this object (if offset == &lt;0,0,0&gt; clear it)
+	</string>
+	<string name="LSLTipText_llAvatarOnLinkSitTarget" translate="false">
+key llAvatarOnLinkSitTarget(integer link)
+If an avatar is sitting on the sit target, return the avatar&apos;s key, NULL_KEY otherwise
+	</string>
+	<string name="LSLTipText_llSetLinkCamera" translate="false">
+llSetLinkCamera(integer link, vector eye, vector at)
+	</string>
+	<string name="LSLTipText_llSetVelocity" translate="false">
+llSetVelocity(vector velocity, integer local)
+Sets an objects velocity, in local coords if local == TRUE (if the script is physical)
+	</string>
+	<string name="LSLTipText_llSetAngularVelocity" translate="false">
+llSetAngularVelocity(vector angular_velocity, integer local)
+Sets an objects angular velocity, in local coords if local == TRUE (if the script is physical)
+	</string>
+	<string name="LSLTipText_llSetPhysicsMaterial" translate="false">
+llSetPhysicsMaterial(integer flags, float gravity_multiplier, float restitution, float friction, float density )
+Sets the requested attributes of the root object&apos;s physics material.
+	</string>
+	<string name="LSLTipText_llGetPhysicsMaterial" translate="false">
+llGetPhysicsMaterial() returns the gravity multiplier, restitution, friction, and density of the linkset as a list in that order.
+	</string>
+	<string name="LSLTipText_llGetMassMKS" translate="false">
+llGetMassMKS() returns the mass of the linkset in kilograms.
+	</string>
+	<string name="LSLTipText_llGenerateKey" translate="false">
+llGenerateKey()
+Retun a unique generated key
+	</string>
+	<string name="LSLTipText_llSetKeyframedMotion" translate="false">
+llSetKeyframedMotion(list keyframes, list options)
+Requests that a nonphysical object be keyframed according to keyframe list.
+	</string>
+	<string name="LSLTipText_llTransferLindenDollars" translate="false">
+key llTransferLindenDollars(key destination, integer amount)
+Transfer amount of linden dollars (L$) from script owner to destination. Returns a key to a corresponding transaction_result event for the success of the transfer.
+	</string>
+	<string name="LSLTipText_llGetParcelMusicURL" translate="false">
+string llGetParcelMusicURL()
+Gets the streaming audio URL for the parcel of land on which the object is located.
+	</string>
+	<string name="LSLTipText_llSetRegionPos" translate="false">
+integer llSetRegionPos(vector pos)
+Sets the position anywhere within the region (if the object isn&apos;t physical)
+	</string>
+	<string name="LSLTipText_llNavigateTo" translate="false">
+llNavigateTo(vector point, list options)
+For AI Character: Navigate to destination.
+	</string>
+	<string name="LSLTipText_llCreateCharacter" translate="false">
+llCreateCharacter(list options)
+Convert linkset to AI Character which can navigate the world.
+	</string>
+	<string name="LSLTipText_llPursue" translate="false">
+llPursue(key target, list options)
+For AI Character: Chase after a target.
+	</string>
+	<string name="LSLTipText_llWanderWithin" translate="false">
+llWanderWithin(vector center, float radius, list options)
+For AI Character: Wander within a specified volume.
+	</string>
+	<string name="LSLTipText_llFleeFrom" translate="false">
+llFleeFrom(vector source, float radius, list options)
+For AI Character: Flee from a point.
+	</string>
+	<string name="LSLTipText_llPatrolPoints" translate="false">
+llPatrolPoints(list points, list options)
+For AI Character: Patrol a list of points.
+	</string>
+	<string name="LSLTipText_llExecCharacterCmd" translate="false">
+llExecCharacterCmd(integer cmd, list options)
+For AI Character: Execute a character command.
+	</string>
+	<string name="LSLTipText_llDeleteCharacter" translate="false">
+llDeleteCharacter()
+Convert linkset from AI Character to Physics object.
+	</string>
+	<string name="LSLTipText_llUpdateCharacter" translate="false">
+llUpdateCharacter(list options)
+Change the AI Character&apos;s settings.
+	</string>
+	<string name="LSLTipText_llEvade" translate="false">
+llEvade(key target, list options)
+For AI Character: Evade a specified target.
+	</string>
+	<string name="LSLTipText_llGetClosestNavPoint" translate="false">
+list llGetClosestNavPoint(vector point, list options)
+For AI Character: Get the closest navigable point to the point provided.
+	</string>
 
-
-  <!-- Avatar busy/away mode -->
-	<string name="AvatarSetNotAway">Not Away</string>
-	<string name="AvatarSetAway">Away</string>
-	<string name="AvatarSetNotBusy">Not Busy</string>
-	<string name="AvatarSetBusy">Busy</string>
 
 	<!-- Wearable Types -->
 	<string name="shape">Shape</string>
@@ -2043,7 +2195,7 @@ Returns a string with the requested data about the region
 	<string name="InventoryNoTexture">You do not have a copy of this texture in your inventory</string>
 	<string name="InventoryInboxNoItems">Your Marketplace purchases will appear here. You may then drag them into your inventory to use them.</string>
 	<string name="MarketplaceURL">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/</string>
-	<string name="MarketplaceURL_CreateStore">http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.4</string>
+	<string name="MarketplaceURL_CreateStore">http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.3</string>
 	<string name="MarketplaceURL_Dashboard">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/dashboard</string>
 	<string name="MarketplaceURL_Imports">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/imports</string>
 	<string name="MarketplaceURL_LearnMore">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more</string>
@@ -2137,16 +2289,22 @@ Drag folders to this area and click "Send to Marketplace" to list them for sale 
 	<string name="InvFolder Gestures">Gestures</string>
 	<string name="InvFolder Favorite">My Favorites</string>
   <!-- historically default name of the Favorites folder can start from either "f" or "F" letter.
-  We should localize both of them with the same value -->
+      Also, it can be written as "Favorite" or "Favorites".
+  We should localize all variants of them with the same value -->
 	<string name="InvFolder favorite">My Favorites</string>
+	<string name="InvFolder Favorites">My Favorites</string>
+	<string name="InvFolder favorites">My Favorites</string>
 	<string name="InvFolder Current Outfit">Current Outfit</string>
 	<string name="InvFolder Initial Outfits">Initial Outfits</string>
 	<string name="InvFolder My Outfits">My Outfits</string>
 	<string name="InvFolder Accessories">Accessories</string>
 	<string name="InvFolder Meshes">Meshes</string>
+	<string name="InvFolder Received Items">Received Items</string>
+	<string name="InvFolder Merchant Outbox">Merchant Outbox</string>
 
   <!-- are used for Friends and Friends/All folders in Inventory "Calling cards" folder. See EXT-694-->
 	<string name="InvFolder Friends">Friends</string>
+	<string name="InvFolder Received Items">Received Items</string>
 	<string name="InvFolder All">All</string>
 
 	<string name="no_attachments">No attachments worn</string>
@@ -2316,7 +2474,11 @@ Drag folders to this area and click "Send to Marketplace" to list them for sale 
 		all estates that you manage for [OWNER]
 	</string>
 	<string name="RegionInfoAllowedResidents">Allowed Residents: ([ALLOWEDAGENTS], max [MAXACCESS])</string>
-	<string name="RegionInfoAllowedGroups">Allowed groups: ([ALLOWEDGROUPS], max [MAXACCESS])</string>
+	<string name="RegionInfoAllowedGroups">Allowed Groups: ([ALLOWEDGROUPS], max [MAXACCESS])</string>
+	<string name="RegionInfoEstateManagers">Estate Managers: ([ESTATEMANAGERS], max [MAXMANAGERS])</string>
+	<string name="RegionInfoBannedResidents">Banned Residents: ([BANNEDAGENTS], max [MAXBANNED])</string>
+	<string name="RegionInfoListTypeAllowedAgents">Allowed Residents</string>
+	<string name="RegionInfoListTypeBannedAgents">Banned Residents</string>
 
 	<!-- script limits floater -->
 	<string name="ScriptLimitsParcelScriptMemory">Parcel Script Memory</string>
@@ -2371,6 +2533,8 @@ Drag folders to this area and click "Send to Marketplace" to list them for sale 
 	<string name="ATTACH_HUD_BOTTOM_LEFT">HUD Bottom Left</string>
 	<string name="ATTACH_HUD_BOTTOM">HUD Bottom</string>
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">HUD Bottom Right</string>
+	<string name="ATTACH_NECK">Neck</string>
+	<string name="ATTACH_AVATAR_CENTER">Avatar Center</string>
 
 	<!-- script editor -->
 	<string name="CursorPos">Line [LINE], Column [COLUMN]</string>
@@ -2387,7 +2551,7 @@ Drag folders to this area and click "Send to Marketplace" to list them for sale 
 	<string name="PanelContentsNewScript">New Script</string>
 
   <!-- panel preferences general -->
-  <string name="BusyModeResponseDefault">The Resident you messaged is in &apos;busy mode&apos; which means they have requested not to be disturbed.  Your message will still be shown in their IM panel for later viewing.</string>
+  <string name="DoNotDisturbModeResponseDefault">This resident has turned on &apos;Do Not Disturb&apos; and will see your message later.</string>
 
 	<!-- Mute -->
 	<string name="MuteByName">(By name)</string>
@@ -2445,9 +2609,6 @@ Drag folders to this area and click "Send to Marketplace" to list them for sale 
 	<string name="GroupMoneyCredits">Credits</string>
 	<string name="GroupMoneyDebits">Debits</string>
 	<string name="GroupMoneyDate">[weekday,datetime,utc] [mth,datetime,utc] [day,datetime,utc], [year,datetime,utc]</string>
-
-	<!-- viewer object -->
-	<string name="ViewerObjectContents">Contents</string>
 
 	<!-- Viewer menu -->
 	<string name="AcquiredItems">Acquired Items</string>
@@ -2854,6 +3015,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Higher">Higher</string>
 <string name="Hip Length">Hip Length</string>
 <string name="Hip Width">Hip Width</string>
+<string name="Hover">Hover</string>
 <string name="In">In</string>
 <string name="In Shdw Color">Inner Shadow Color</string>
 <string name="In Shdw Opacity">Inner Shadow Opacity</string>
@@ -3193,8 +3355,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="LocationCtrlAdultIconTooltip">Adult Region</string>
   <string name="LocationCtrlModerateIconTooltip">Moderate Region</string>
   <string name="LocationCtrlGeneralIconTooltip">General Region</string>
-  <string name="LocationCtrlSeeAVsTooltip">Avatars visible and chat allowed outside of this parcel</string>
-
+  <string name="LocationCtrlSeeAVsTooltip">Avatars inside this parcel cannot be seen or heard by avatars outside this parcel</string>
+  <string name="LocationCtrlPathfindingDirtyTooltip">Objects that move may not behave correctly in this region until the region is rebaked.</string>
+  <string name="LocationCtrlPathfindingDisabledTooltip">Dynamic pathfinding is not enabled on this region.</string>
   <!-- Strings used by the (currently Linux) auto-updater app -->
 	<string name="UpdaterWindowTitle">
 	  [APP_NAME] Update
@@ -3243,12 +3406,15 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="IM_moderator_label">(Moderator)</string>
 	<string name="Saved_message">(Saved [LONG_TIMESTAMP])</string>
 	<string name="IM_unblock_only_groups_friends">To see this message, you must uncheck &apos;Only friends and groups can call or IM me&apos; in Preferences/Privacy.</string>
+  <string name="OnlineStatus">Online</string>
+  <string name="OfflineStatus">Offline</string>
 
 	<!-- voice calls -->
 	<string name="answered_call">Your call has been answered</string>
 	<string name="you_started_call">You started a voice call</string>
 	<string name="you_joined_call">You joined the voice call</string>
-	<string name="name_started_call">[NAME] started a voice call</string>
+  <string name="you_auto_rejected_call-im">You automatically rejected the voice call while &apos;Do Not Disturb&apos; was on.</string>
+  <string name="name_started_call">[NAME] started a voice call</string>
 
   <string name="ringing-im">
     Joining voice call...
@@ -3263,7 +3429,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
     Connecting...
   </string>
   <string name="conference-title">
-    Ad-hoc Conference
+    Multi-person chat
   </string>
   <string name="conference-title-incoming">
     Conference with [AGENT_NAME]
@@ -3275,6 +3441,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
     Drag items from inventory here
   </string>
 
+  <string name="facebook_post_success">
+    You posted to Facebook.
+  </string>
 
   <string name="no_session_message">
     (IM Session Doesn't Exist)
@@ -3689,6 +3858,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Avatar_Label">Avatar</string>
   <string name="Command_Build_Label">Build</string>
   <string name="Command_Chat_Label">Chat</string>
+  <string name="Command_Conversations_Label">Conversations</string>
   <string name="Command_Compass_Label">Compass</string>
   <string name="Command_Destinations_Label">Destinations</string>
   <string name="Command_Gestures_Label">Gestures</string>
@@ -3706,6 +3876,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Profile_Label">Profile</string>
   <string name="Command_Search_Label">Search</string>
   <string name="Command_Snapshot_Label">Snapshot</string>
+  <string name="Command_Social_Label">Facebook</string>
   <string name="Command_Speak_Label">Speak</string>
   <string name="Command_View_Label">Camera controls</string>
   <string name="Command_Voice_Label">Voice settings</string>
@@ -3715,6 +3886,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Avatar_Tooltip">Choose a complete avatar</string>
   <string name="Command_Build_Tooltip">Building objects and reshaping terrain</string>
   <string name="Command_Chat_Tooltip">Chat with people nearby using text</string>
+  <string name="Command_Conversations_Tooltip">Converse with everyone</string>
   <string name="Command_Compass_Tooltip">Compass</string>
   <string name="Command_Destinations_Tooltip">Destinations of interest</string>
   <string name="Command_Gestures_Tooltip">Gestures for your avatar</string>
@@ -3732,6 +3904,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Profile_Tooltip">Edit or view your profile</string>
   <string name="Command_Search_Tooltip">Find places, events, people</string>
   <string name="Command_Snapshot_Tooltip">Take a picture</string>
+  <string name="Command_Social_Tooltip">Post to Facebook</string>
   <string name="Command_Speak_Tooltip">Speak with people nearby using your microphone</string>
   <string name="Command_View_Tooltip">Changing camera angle</string>
   <string name="Command_Voice_Tooltip">Volume controls for calls and people near you in world</string>
@@ -3750,6 +3923,13 @@ Try enclosing path to the editor with double quotes.
   <string name="Preview">Preview</string>
   <string name="Normal">Normal</string>
 
+  <!-- Pathfinding -->
+  <string name="Pathfinding_Wiki_URL">http://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer</string>
+  <string name="Pathfinding_Object_Attr_None">None</string>
+  <string name="Pathfinding_Object_Attr_Permanent">Affects navmesh</string>
+  <string name="Pathfinding_Object_Attr_Character">Character</string>
+  <string name="Pathfinding_Object_Attr_MultiSelect">(Multiple)</string>
+
   <!-- Snapshot image quality levels -->
   <string name="snapshot_quality_very_low">Very Low</string>
   <string name="snapshot_quality_low">Low</string>
@@ -3757,4 +3937,23 @@ Try enclosing path to the editor with double quotes.
   <string name="snapshot_quality_high">High</string>
   <string name="snapshot_quality_very_high">Very High</string>
 
+  <string name="TeleportMaturityExceeded">The Resident cannot visit this region.</string>
+
+  <!-- Spell check settings floater -->
+  <string name="UserDictionary">[User]</string>
+  
+  <!-- Conversation log messages -->
+  <string name="logging_calls_disabled_log_empty">
+    Conversations are not being logged. To begin keeping a log, choose "Save: Log only" or "Save: Log and transcripts" under Preferences > Chat.
+  </string>
+  <string name="logging_calls_disabled_log_not_empty">
+    No more conversations will be logged. To resume keeping a log, choose "Save: Log only" or "Save: Log and transcripts" under Preferences > Chat.
+  </string>
+  <string name="logging_calls_enabled_log_empty">
+    There are no logged conversations. After you contact someone, or someone contacts you, a log entry will be shown here.
+  </string>
+  <string name="loading_chat_logs">
+    Loading...
+  </string>
+  
   </strings>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="script goto" title="ŞU SATIRA GİT:">
+	<button label="Tamam" label_selected="Tamam" name="goto_btn"/>
+	<text name="txt">
+		Şu satıra git:
+	</text>
+</floater>

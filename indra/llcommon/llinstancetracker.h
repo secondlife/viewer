@@ -43,24 +43,10 @@
  * semantics: one instance per process, rather than one instance per module as
  * sometimes happens with data simply declared static.
  */
-class LL_COMMON_API LLInstanceTrackerBase : public boost::noncopyable
+class LL_COMMON_API LLInstanceTrackerBase
 {
 protected:
-	/// Get a process-unique void* pointer slot for the specified type_info
-	static void * & getInstances(std::type_info const & info);
 
-	/// Find or create a STATICDATA instance for the specified TRACKED class.
-	/// STATICDATA must be default-constructible.
-	template<typename STATICDATA, class TRACKED>
-	static STATICDATA& getStatic()
-	{
-		void *& instances = getInstances(typeid(TRACKED));
-		if (! instances)
-		{
-			instances = new STATICDATA;
-		}
-		return *static_cast<STATICDATA*>(instances);
-	}
 
     /// It's not essential to derive your STATICDATA (for use with
     /// getStatic()) from StaticBase; it's just that both known
@@ -74,6 +60,8 @@ protected:
     };
 };
 
+LL_COMMON_API void assert_main_thread();
+
 /// This mix-in class adds support for tracking all instances of the specified class parameter T
 /// The (optional) key associates a value of type KEY with a given instance of T, for quick lookup
 /// If KEY is not provided, then instances are stored in a simple set
@@ -81,14 +69,18 @@ protected:
 template<typename T, typename KEY = T*>
 class LLInstanceTracker : public LLInstanceTrackerBase
 {
-	typedef LLInstanceTracker<T, KEY> MyT;
+	typedef LLInstanceTracker<T, KEY> self_t;
 	typedef typename std::map<KEY, T*> InstanceMap;
 	struct StaticData: public StaticBase
 	{
 		InstanceMap sMap;
 	};
-	static StaticData& getStatic() { return LLInstanceTrackerBase::getStatic<StaticData, MyT>(); }
-	static InstanceMap& getMap_() { return getStatic().sMap; }
+	static StaticData& getStatic() { static StaticData sData; return sData;}
+	static InstanceMap& getMap_() 
+	{
+		// assert_main_thread();   fwiw this class is not thread safe, and it used by multiple threads.  Bad things happen.
+		return getStatic().sMap; 
+	}
 
 public:
 	class instance_iter : public boost::iterator_facade<instance_iter, T, boost::forward_traversal_tag>
@@ -167,8 +159,9 @@ public:
 
 	static T* getInstance(const KEY& k)
 	{
-		typename InstanceMap::const_iterator found = getMap_().find(k);
-		return (found == getMap_().end()) ? NULL : found->second;
+		const InstanceMap& map(getMap_());
+		typename InstanceMap::const_iterator found = map.find(k);
+		return (found == map.end()) ? NULL : found->second;
 	}
 
 	static instance_iter beginInstances() 
@@ -209,6 +202,9 @@ protected:
 	virtual const KEY& getKey() const { return mInstanceKey; }
 
 private:
+	LLInstanceTracker( const LLInstanceTracker& );
+	const LLInstanceTracker& operator=( const LLInstanceTracker& );
+
 	void add_(KEY key) 
 	{ 
 		mInstanceKey = key; 
@@ -216,7 +212,11 @@ private:
 	}
 	void remove_()
 	{
-		getMap_().erase(mInstanceKey);
+		typename InstanceMap::iterator iter = getMap_().find(mInstanceKey);
+		if (iter != getMap_().end())
+		{
+			getMap_().erase(iter);
+		}
 	}
 
 private:
@@ -228,19 +228,31 @@ private:
 template<typename T>
 class LLInstanceTracker<T, T*> : public LLInstanceTrackerBase
 {
-	typedef LLInstanceTracker<T, T*> MyT;
+	typedef LLInstanceTracker<T, T*> self_t;
 	typedef typename std::set<T*> InstanceSet;
 	struct StaticData: public StaticBase
 	{
 		InstanceSet sSet;
 	};
-	static StaticData& getStatic() { return LLInstanceTrackerBase::getStatic<StaticData, MyT>(); }
+	static StaticData& getStatic() { static StaticData sData; return sData; }
 	static InstanceSet& getSet_() { return getStatic().sSet; }
 
 public:
 
-	/// for completeness of analogy with the generic implementation
-	static T* getInstance(T* k) { return k; }
+	/**
+	 * Does a particular instance still exist? Of course, if you already have
+	 * a T* in hand, you need not call getInstance() to @em locate the
+	 * instance -- unlike the case where getInstance() accepts some kind of
+	 * key. Nonetheless this method is still useful to @em validate a
+	 * particular T*, since each instance's destructor removes itself from the
+	 * underlying set.
+	 */
+	static T* getInstance(T* k)
+	{
+		const InstanceSet& set(getSet_());
+		typename InstanceSet::const_iterator found = set.find(k);
+		return (found == set.end())? NULL : *found;
+	}
 	static S32 instanceCount() { return getSet_().size(); }
 
 	class instance_iter : public boost::iterator_facade<instance_iter, T, boost::forward_traversal_tag>

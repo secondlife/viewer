@@ -35,6 +35,7 @@
 #include "lluuid.h"
 #include "llsdutil.h"
 #include "llregionhandle.h"
+#include "../llvoavatar.h"
 
 static const char * all_keys[] = 
 {
@@ -98,7 +99,9 @@ is_empty_map(const LLSD & sd)
 {
 	return sd.isMap() && 0 == sd.size();
 }
+#endif
 
+#if 0
 static bool
 is_single_key_map(const LLSD & sd, const std::string & key)
 {
@@ -111,6 +114,14 @@ is_double_key_map(const LLSD & sd, const std::string & key1, const std::string &
 {
 	return sd.isMap() && 2 == sd.size() && sd.has(key1) && sd.has(key2);
 }
+
+#if 0
+static bool
+is_triple_key_map(const LLSD & sd, const std::string & key1, const std::string & key2, const std::string& key3)
+{
+	return sd.isMap() && 3 == sd.size() && sd.has(key1) && sd.has(key2) && sd.has(key3);
+}
+#endif
 
 static bool
 is_no_stats_map(const LLSD & sd)

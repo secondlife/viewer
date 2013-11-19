@@ -38,7 +38,7 @@ public:
 	virtual void draw();
 	
 protected:
-	virtual void onClickCloseBtn();
+	virtual void onClickCloseBtn(bool app_qutting = false);
 
 
 };

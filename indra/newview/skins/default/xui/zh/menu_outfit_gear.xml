@@ -8,7 +8,7 @@
 		<menu_item_call label="新褲子" name="New Pants"/>
 		<menu_item_call label="新鞋子" name="New Shoes"/>
 		<menu_item_call label="新襪子" name="New Socks"/>
-		<menu_item_call label="新夾克" name="New Jacket"/>
+		<menu_item_call label="新外套" name="New Jacket"/>
 		<menu_item_call label="新裙子" name="New Skirt"/>
 		<menu_item_call label="新手套" name="New Gloves"/>
 		<menu_item_call label="新內衣" name="New Undershirt"/>
@@ -23,6 +23,8 @@
 		<menu_item_call label="新頭髮" name="New Hair"/>
 		<menu_item_call label="新眼睛" name="New Eyes"/>
 	</menu>
+	<menu_item_call label="展開全部資料夾" name="expand"/>
+	<menu_item_call label="摺疊全部資料夾" name="collapse"/>
 	<menu_item_call label="裝扮更名" name="rename"/>
 	<menu_item_call label="刪除裝扮" name="delete_outfit"/>
 </toggleable_menu>

@@ -22,7 +22,7 @@
 	<check_box label="Interdire le vol" name="block_fly_check"/>
 	<check_box label="Autoriser les dégâts" name="allow_damage_check"/>
 	<check_box label="Interdire les bousculades" name="restrict_pushobject"/>
-	<check_box label="Autoriser la revente" name="allow_land_resell_check"/>
+	<check_box label="Autoriser la revente de terrain" name="allow_land_resell_check"/>
 	<check_box label="Autoriser la fusion/division" name="allow_parcel_changes_check"/>
 	<check_box label="Ne pas afficher dans la recherche" name="block_parcel_search_check" tool_tip="Afficher cette région et ses parcelles dans les résultats de recherche"/>
 	<check_box label="Autoriser les objets de maillage" name="mesh_rez_enabled_check" tool_tip="Laisser les gens rezzer des objets de maillage dans cette région."/>

@@ -34,7 +34,6 @@
 #include "llhudicon.h"
 #include "llinventory.h"
 #include "llrefcount.h"
-#include "llmemtype.h"
 #include "llprimitive.h"
 #include "lluuid.h"
 #include "llvoinventorylistener.h"
@@ -88,18 +87,6 @@ typedef void (*inventory_callback)(LLViewerObject*,
 								   S32 serial_num,
 								   void*);
 
-// a small struct for keeping track of joints
-struct LLVOJointInfo
-{
-	EHavokJointType mJointType;
-	LLVector3 mPivot;			// parent-frame
-	// whether the below an axis or anchor (and thus its frame)
-	// depends on the joint type:
-	//     HINGE   ==>   axis=parent-frame
-	//     P2P     ==>   anchor=child-frame
-	LLVector3 mAxisOrAnchor;	
-};
-
 // for exporting textured materials from SL
 struct LLMaterialExportInfo
 {
@@ -140,7 +127,6 @@ public:
 	typedef const child_list_t const_child_list_t;
 
 	LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp, BOOL is_global = FALSE);
-	MEM_TYPE_NEW(LLMemType::MTYPE_OBJECT);
 
 	virtual void markDead();				// Mark this object as dead, and clean up its references
 	BOOL isDead() const									{return mDead;}
@@ -157,7 +143,7 @@ public:
 	LLNameValue*	getNVPair(const std::string& name) const;			// null if no name value pair by that name
 
 	// Object create and update functions
-	virtual BOOL	idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
+	virtual void	idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
 
 	// Types of media we can associate
 	enum { MEDIA_NONE = 0, MEDIA_SET = 1 };
@@ -185,11 +171,11 @@ public:
 	virtual BOOL	isAttachment() const { return FALSE; }
 	virtual LLVOAvatar* getAvatar() const;  //get the avatar this object is attached to, or NULL if object is not an attachment
 	virtual BOOL	isHUDAttachment() const { return FALSE; }
+	virtual BOOL	isTempAttachment() const;
+
 	virtual void 	updateRadius() {};
 	virtual F32 	getVObjRadius() const; // default implemenation is mDrawable->getRadius()
 	
-	BOOL 			isJointChild() const { return mJointInfo ? TRUE : FALSE; } 
-	EHavokJointType	getJointType() const { return mJointInfo ? mJointInfo->mJointType : HJT_INVALID; }
 	// for jointed and other parent-relative hacks
 	LLViewerObject* getSubParent();
 	const LLViewerObject* getSubParent() const;
@@ -212,6 +198,9 @@ public:
 	virtual BOOL		updateLOD();
 	virtual BOOL		setDrawableParent(LLDrawable* parentp);
 	F32					getRotTime() { return mRotTime; }
+private:
+	void				resetRotTime();
+public:
 	void				resetRot();
 	void				applyAngularVelocity(F32 dt);
 
@@ -224,11 +213,13 @@ public:
 	LLViewerRegion* getRegion() const				{ return mRegionp; }
 
 	BOOL isSelected() const							{ return mUserSelected; }
-	virtual void setSelected(BOOL sel)				{ mUserSelected = sel; mRotTime = 0.f;}
+	virtual void setSelected(BOOL sel);
 
 	const LLUUID &getID() const						{ return mID; }
 	U32 getLocalID() const							{ return mLocalID; }
 	U32 getCRC() const								{ return mTotalCRC; }
+	S32 getListIndex() const						{ return mListIndex; }
+	void setListIndex(S32 idx)						{ mListIndex = idx; }
 
 	virtual BOOL isFlexible() const					{ return FALSE; }
 	virtual BOOL isSculpted() const 				{ return FALSE; }
@@ -269,17 +260,17 @@ public:
 
 	//detect if given line segment (in agent space) intersects with this viewer object.
 	//returns TRUE if intersection detected and returns information about intersection
-	virtual BOOL lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
+	virtual BOOL lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
 									  S32 face = -1,                          // which face to check, -1 = ALL_SIDES
 									  BOOL pick_transparent = FALSE,
 									  S32* face_hit = NULL,                   // which face was hit
-									  LLVector3* intersection = NULL,         // return the intersection point
+									  LLVector4a* intersection = NULL,         // return the intersection point
 									  LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
-									  LLVector3* normal = NULL,               // return the surface normal at the intersection point
-									  LLVector3* bi_normal = NULL             // return the surface bi-normal at the intersection point
+									  LLVector4a* normal = NULL,               // return the surface normal at the intersection point
+									  LLVector4a* tangent = NULL             // return the surface tangent at the intersection point
 		);
 	
-	virtual BOOL lineSegmentBoundingBox(const LLVector3& start, const LLVector3& end);
+	virtual BOOL lineSegmentBoundingBox(const LLVector4a& start, const LLVector4a& end);
 
 	virtual const LLVector3d getPositionGlobal() const;
 	virtual const LLVector3 &getPositionRegion() const;
@@ -308,12 +299,15 @@ public:
 
 	inline void setRotation(const F32 x, const F32 y, const F32 z, BOOL damped = FALSE);
 	inline void setRotation(const LLQuaternion& quat, BOOL damped = FALSE);
-	void sendRotationUpdate() const;
 
 	/*virtual*/	void	setNumTEs(const U8 num_tes);
 	/*virtual*/	void	setTE(const U8 te, const LLTextureEntry &texture_entry);
 	/*virtual*/ S32		setTETexture(const U8 te, const LLUUID &uuid);
-	S32 setTETextureCore(const U8 te, const LLUUID& uuid, LLHost host);
+	/*virtual*/ S32		setTENormalMap(const U8 te, const LLUUID &uuid);
+	/*virtual*/ S32		setTESpecularMap(const U8 te, const LLUUID &uuid);
+	S32 setTETextureCore(const U8 te, LLViewerTexture *image);
+	S32 setTENormalMapCore(const U8 te, LLViewerTexture *image);
+	S32 setTESpecularMapCore(const U8 te, LLViewerTexture *image);
 	/*virtual*/ S32		setTEColor(const U8 te, const LLColor3 &color);
 	/*virtual*/ S32		setTEColor(const U8 te, const LLColor4 &color);
 	/*virtual*/ S32		setTEScale(const U8 te, const F32 s, const F32 t);
@@ -330,11 +324,25 @@ public:
 	/*virtual*/	S32		setTEFullbright(const U8 te, const U8 fullbright );
 	/*virtual*/	S32		setTEMediaFlags(const U8 te, const U8 media_flags );
 	/*virtual*/ S32     setTEGlow(const U8 te, const F32 glow);
+	/*virtual*/ S32     setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID);
+	/*virtual*/ S32		setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialParams);
+
+	// Used by Materials update functions to properly kick off rebuilds
+	// of VBs etc when materials updates require changes.
+	//
+	void refreshMaterials();
+
 	/*virtual*/	BOOL	setMaterial(const U8 material);
 	virtual		void	setTEImage(const U8 te, LLViewerTexture *imagep); // Not derived from LLPrimitive
-	void                changeTEImage(S32 index, LLViewerTexture* new_image)  ;
+	virtual     void    changeTEImage(S32 index, LLViewerTexture* new_image)  ;
+	virtual     void    changeTENormalMap(S32 index, LLViewerTexture* new_image)  ;
+	virtual     void    changeTESpecularMap(S32 index, LLViewerTexture* new_image)  ;
 	LLViewerTexture		*getTEImage(const U8 te) const;
+	LLViewerTexture		*getTENormalMap(const U8 te) const;
+	LLViewerTexture		*getTESpecularMap(const U8 te) const;
 	
+	bool 						isImageAlphaBlended(const U8 te) const;
+
 	void fitFaceTexture(const U8 face);
 	void sendTEUpdate() const;			// Sends packed representation of all texture entry information
 	
@@ -432,11 +440,14 @@ public:
 	// manager until we have better iterators.
 	void updateInventory(LLViewerInventoryItem* item, U8 key, bool is_new);
 	void updateInventoryLocal(LLInventoryItem* item, U8 key); // Update without messaging.
+	void updateTextureInventory(LLViewerInventoryItem* item, U8 key, bool is_new);
 	LLInventoryObject* getInventoryObject(const LLUUID& item_id);
 	void getInventoryContents(LLInventoryObject::object_list_t& objects);
 	LLInventoryObject* getInventoryRoot();
 	LLViewerInventoryItem* getInventoryItemByAsset(const LLUUID& asset_id);
 	S16 getInventorySerial() const { return mInventorySerialNum; }
+
+	bool isTextureInInventory(LLViewerInventoryItem* item);
 
 	// These functions does viewer-side only object inventory modifications
 	void updateViewerInventoryAsset(
@@ -468,26 +479,37 @@ public:
 	BOOL			permCopy() const;	
 	BOOL			permMove() const;		
 	BOOL			permTransfer() const;
-	inline BOOL		usePhysics() const				{ return ((mFlags & FLAGS_USE_PHYSICS) != 0); }
+	inline BOOL		flagUsePhysics() const			{ return ((mFlags & FLAGS_USE_PHYSICS) != 0); }
+	inline BOOL		flagObjectAnyOwner() const		{ return ((mFlags & FLAGS_OBJECT_ANY_OWNER) != 0); }
+	inline BOOL		flagObjectYouOwner() const		{ return ((mFlags & FLAGS_OBJECT_YOU_OWNER) != 0); }
+	inline BOOL		flagObjectGroupOwned() const	{ return ((mFlags & FLAGS_OBJECT_GROUP_OWNED) != 0); }
+	inline BOOL		flagObjectOwnerModify() const	{ return ((mFlags & FLAGS_OBJECT_OWNER_MODIFY) != 0); }
+	inline BOOL		flagObjectModify() const		{ return ((mFlags & FLAGS_OBJECT_MODIFY) != 0); }
+	inline BOOL		flagObjectCopy() const			{ return ((mFlags & FLAGS_OBJECT_COPY) != 0); }
+	inline BOOL		flagObjectMove() const			{ return ((mFlags & FLAGS_OBJECT_MOVE) != 0); }
+	inline BOOL		flagObjectTransfer() const		{ return ((mFlags & FLAGS_OBJECT_TRANSFER) != 0); }
+	inline BOOL		flagObjectPermanent() const		{ return ((mFlags & FLAGS_AFFECTS_NAVMESH) != 0); }
+	inline BOOL		flagCharacter() const			{ return ((mFlags & FLAGS_CHARACTER) != 0); }
+	inline BOOL		flagVolumeDetect() const		{ return ((mFlags & FLAGS_VOLUME_DETECT) != 0); }
+	inline BOOL		flagIncludeInSearch() const     { return ((mFlags & FLAGS_INCLUDE_IN_SEARCH) != 0); }
 	inline BOOL		flagScripted() const			{ return ((mFlags & FLAGS_SCRIPTED) != 0); }
 	inline BOOL		flagHandleTouch() const			{ return ((mFlags & FLAGS_HANDLE_TOUCH) != 0); }
 	inline BOOL		flagTakesMoney() const			{ return ((mFlags & FLAGS_TAKES_MONEY) != 0); }
 	inline BOOL		flagPhantom() const				{ return ((mFlags & FLAGS_PHANTOM) != 0); }
 	inline BOOL		flagInventoryEmpty() const		{ return ((mFlags & FLAGS_INVENTORY_EMPTY) != 0); }
-	inline BOOL		flagCastShadows() const			{ return ((mFlags & FLAGS_CAST_SHADOWS) != 0); }
 	inline BOOL		flagAllowInventoryAdd() const	{ return ((mFlags & FLAGS_ALLOW_INVENTORY_DROP) != 0); }
-	inline BOOL		flagTemporary() const			{ return ((mFlags & FLAGS_TEMPORARY) != 0); }
 	inline BOOL		flagTemporaryOnRez() const		{ return ((mFlags & FLAGS_TEMPORARY_ON_REZ) != 0); }
 	inline BOOL		flagAnimSource() const			{ return ((mFlags & FLAGS_ANIM_SOURCE) != 0); }
 	inline BOOL		flagCameraSource() const		{ return ((mFlags & FLAGS_CAMERA_SOURCE) != 0); }
 	inline BOOL		flagCameraDecoupled() const		{ return ((mFlags & FLAGS_CAMERA_DECOUPLED) != 0); }
-	inline BOOL		flagObjectMove() const			{ return ((mFlags & FLAGS_OBJECT_MOVE) != 0); }
 
 	U8       getPhysicsShapeType() const;
 	inline F32      getPhysicsGravity() const       { return mPhysicsGravity; }
 	inline F32      getPhysicsFriction() const      { return mPhysicsFriction; }
 	inline F32      getPhysicsDensity() const       { return mPhysicsDensity; }
 	inline F32      getPhysicsRestitution() const   { return mPhysicsRestitution; }
+
+	bool            isPermanentEnforced() const;
 	
 	bool getIncludeInSearch() const;
 	void setIncludeInSearch(bool include_in_search);
@@ -504,6 +526,7 @@ public:
 
 	void updateFlags(BOOL physics_changed = FALSE);
 	BOOL setFlags(U32 flag, BOOL state);
+	BOOL setFlagsWithoutUpdate(U32 flag, BOOL state);
 	void setPhysicsShapeType(U8 type);
 	void setPhysicsGravity(F32 gravity);
 	void setPhysicsFriction(F32 friction);
@@ -581,6 +604,7 @@ public:
 	} EPhysicsShapeType;
 
 	LLUUID			mID;
+	LLUUID			mOwnerID; //null if unknown
 
 	// unique within region, not unique across regions
 	// Local ID = 0 is not used
@@ -589,15 +613,22 @@ public:
 	// Last total CRC received from sim, used for caching
 	U32				mTotalCRC;
 
+	// index into LLViewerObjectList::mActiveObjects or -1 if not in list
+	S32				mListIndex;
+
 	LLPointer<LLViewerTexture> *mTEImages;
+	LLPointer<LLViewerTexture> *mTENormalMaps;
+	LLPointer<LLViewerTexture> *mTESpecularMaps;
 
 	// Selection, picking and rendering variables
 	U32				mGLName;			// GL "name" used by selection code
 	BOOL			mbCanSelect;		// true if user can select this object by clicking
 
+private:
 	// Grabbed from UPDATE_FLAGS
 	U32				mFlags;
 
+public:
 	// Sent to sim in UPDATE_FLAGS, received in ObjectPhysicsProperties
 	U8              mPhysicsShapeType;
 	F32             mPhysicsGravity;
@@ -648,13 +679,13 @@ protected:
 	//
 
 	static void processTaskInvFile(void** user_data, S32 error_code, LLExtStat ext_status);
-	void loadTaskInvFile(const std::string& filename);
+	BOOL loadTaskInvFile(const std::string& filename);
 	void doInventoryCallback();
 	
 	BOOL isOnMap();
 
 	void unpackParticleSource(const S32 block_num, const LLUUID& owner_id);
-	void unpackParticleSource(LLDataPacker &dp, const LLUUID& owner_id);
+	void unpackParticleSource(LLDataPacker &dp, const LLUUID& owner_id, bool legacy);
 	void deleteParticleSource();
 	void setParticleSource(const LLPartSysData& particle_parameters, const LLUUID& owner_id);
 	
@@ -684,6 +715,10 @@ protected:
 	F32				mAppAngle;	// Apparent visual arc in degrees
 	F32				mPixelArea; // Apparent area in pixels
 
+	// IDs of of all items in the object's content which are added to the object's content,
+	// but not updated on the server yet. After item was updated, its ID will be removed from this list.
+	std::list<LLUUID> mPendingInventoryItemsIDs;
+
 	// This is the object's inventory from the viewer's perspective.
 	LLInventoryObject::object_list_t* mInventory;
 	class LLInventoryCallbackInfo
@@ -710,9 +745,9 @@ protected:
 
 	F32				mTimeDilation;				// Time dilation sent with the object.
 	F32				mRotTime;					// Amount (in seconds) that object has rotated according to angular velocity (llSetTargetOmega)
-	LLQuaternion	mLastRot;					// last rotation received from the simulator
+	LLQuaternion	mAngularVelocityRot;		// accumulated rotation from the angular velocity computations
+	LLQuaternion	mPreviousRotation;
 
-	LLVOJointInfo*  mJointInfo;
 	U8				mState;	// legacy
 	LLViewerObjectMedia* mMedia;	// NULL if no media associated
 	U8 mClickAction;
@@ -815,7 +850,10 @@ public:
 								LLStrider<LLVector3>& normalsp, 
 								LLStrider<LLVector2>& texcoordsp,
 								LLStrider<LLColor4U>& colorsp, 
+								LLStrider<LLColor4U>& emissivep,
 								LLStrider<U16>& indicesp) = 0;
+
+	virtual void getBlendFunc(S32 face, U32& src, U32& dst);
 
 	F32 mDepth;
 };

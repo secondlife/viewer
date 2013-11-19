@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="autoreplace_floater" title="Einstellungen für automatische Ersetzung...">
+	<check_box label="Automatische Ersetzung aktivieren..." name="autoreplace_enable" tool_tip="Eines oder mehrere Schlüsselwörter bei der Eingabe von Chat-Text durch die entsprechende Ersetzung substituieren"/>
+	<button label="Liste importieren..." name="autoreplace_import_list" tool_tip="Exportierte Liste aus einer Datei laden."/>
+	<button label="Liste exportieren..." name="autoreplace_export_list" tool_tip="Ausgewählte Liste zur Weitergabe in einer Datei speichern."/>
+	<button label="Neue Liste..." name="autoreplace_new_list" tool_tip="Neue Liste erstellen."/>
+	<button label="Liste löschen" name="autoreplace_delete_list" tool_tip="Ausgewählte Liste löschen."/>
+	<button name="autoreplace_list_up" tool_tip="Dieser Liste eine höhere Priorität einräumen."/>
+	<button name="autoreplace_list_down" tool_tip="Dieser Liste eine niedrigere Priorität einräumen."/>
+	<scroll_list name="autoreplace_list_replacements">
+		<scroll_list.columns label="Schlüsselwort" name="keyword"/>
+		<scroll_list.columns label="Ersetzung" name="replacement"/>
+	</scroll_list>
+	<button label="Hinzufügen..." name="autoreplace_add_entry"/>
+	<button label="Entfernen" name="autoreplace_delete_entry"/>
+	<button label="Eintrag speichern" name="autoreplace_save_entry" tool_tip="Diesen Eintrag speichern."/>
+	<button label="Änderungen speichern" name="autoreplace_save_changes" tool_tip="Alle Änderungen speichern."/>
+	<button label="Abbrechen" name="autoreplace_cancel" tool_tip="Alle Änderungen löschen."/>
+</floater>
+<!--
+  <text 
+   top_pad="10"
+   left="10"
+   height="16"
+   width="260"
+   follows="left|top"
+   halign="center"
+   mouse_opaque="true"
+   name="autoreplace_text2">
+    Entries
+  </text>
+-->

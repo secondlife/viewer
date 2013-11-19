@@ -6,6 +6,6 @@
 	<text name="desc txt">
 		描述：
 	</text>
-	<button label="播放於虛擬世界" label_selected="播放於虛擬世界" name="Sound play btn" tool_tip="Play this sound so that others can hear it"/>
-	<button label="播放於本地" label_selected="播放於本地" name="Sound audition btn" tool_tip="Play this sound so that only you can hear it"/>
+	<button label="在虛擬世界播放" label_selected="在虛擬世界播放" name="Sound play btn" tool_tip="播放此聲音讓他人聽見"/>
+	<button label="在本地播放" label_selected="在本地播放" name="Sound audition btn" tool_tip="播放此聲音，只讓自己聽見"/>
 </floater>

@@ -68,6 +68,7 @@
 	<menu_item_call label="Sistem Klasörünü Sil" name="Delete System Folder"/>
 	<menu_item_call label="Konferans Sohbeti Başlat" name="Conference Chat Folder"/>
 	<menu_item_call label="Oyna" name="Sound Play"/>
+	<menu_item_call label="SLurl&apos;i Kopyala" name="url_copy"/>
 	<menu_item_call label="Yer İmi Hakkında" name="About Landmark"/>
 	<menu_item_call label="SL Dünyasında Oynat" name="Animation Play"/>
 	<menu_item_call label="Yerel Olarak Oynat" name="Animation Audition"/>

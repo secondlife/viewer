@@ -30,5 +30,5 @@
 	<button label="Самые активные участники столкновений..." name="top_colliders_btn" tool_tip="Список объектов, для которых столкновения наиболее вероятны"/>
 	<button label="Список лучших скриптов..." name="top_scripts_btn" tool_tip="Объекты, в которых скрипты выполняются дольше всего"/>
 	<button label="Перезагрузить регион" name="restart_btn" tool_tip="Отсчитать 2 минуты и перезагрузить регион"/>
-	<button label="Отложить перезагрузку" name="cancel_restart_btn" tool_tip="Отложить перезагрузку региона на час"/>
+	<button label="Отменить перезапуск" name="cancel_restart_btn" tool_tip="Отменить перезапуск региона"/>
 </panel>
