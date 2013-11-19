@@ -369,15 +369,30 @@ void LLInventoryModel::unlockDirectDescendentArrays(const LLUUID& cat_id)
 	mItemLock[cat_id] = false;
 }
 
+void LLInventoryModel::consolidateForType(const LLUUID& id, LLFolderType::EType type)
+{
+    bool trace = (type == LLFolderType::FT_OUTBOX);
+    if (trace)
+    {
+        for (cat_map_t::iterator cit = mCategoryMap.begin(); cit != mCategoryMap.end(); ++cit)
+        {
+            LLViewerInventoryCategory* cat = cit->second;
+            if (cat->getPreferredType() == type)
+            {
+                llinfos << "Merov : List outbox from mCategoryMap, name = " << cat->getName() << ", type = " << cat->getPreferredType() << ", id = " << cat->getUUID().asString() << llendl;
+            }
+        }
+    }
+}
+
 // findCategoryUUIDForType() returns the uuid of the category that
 // specifies 'type' as what it defaults to containing. The category is
 // not necessarily only for that type. *NOTE: This will create a new
 // inventory category on the fly if one does not exist.
-const LLUUID LLInventoryModel::findCategoryUUIDForType(LLFolderType::EType preferred_type, bool create_folder/*, 
+const LLUUID LLInventoryModel::findCategoryUUIDForType(LLFolderType::EType preferred_type, bool create_folder/*,
 					  bool find_in_library*/)
 {
 	LLUUID rv = LLUUID::null;
-	
 	const LLUUID &root_id = /*(find_in_library) ? gInventory.getLibraryRootFolderID() :*/ gInventory.getRootFolderID();
 	if(LLFolderType::FT_ROOT_INVENTORY == preferred_type)
 	{
@@ -392,9 +407,9 @@ const LLUUID LLInventoryModel::findCategoryUUIDForType(LLFolderType::EType prefe
 			S32 count = cats->count();
 			for(S32 i = 0; i < count; ++i)
 			{
-				if(cats->get(i)->getPreferredType() == preferred_type)
+				if (cats->get(i)->getPreferredType() == preferred_type)
 				{
-					rv = cats->get(i)->getUUID();
+                    rv = cats->get(i)->getUUID();
 					break;
 				}
 			}

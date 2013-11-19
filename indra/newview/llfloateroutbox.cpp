@@ -238,6 +238,11 @@ void LLFloaterOutbox::setupOutbox()
 		llerrs << "Inventory problem: failure to create the outbox for a merchant!" << llendl;
 		return;
 	}
+    
+    // Consolidate Merchant Outbox
+    // We shouldn't have to do that but with a client/server system relying on a "well known folder" convention, things get messy and conventions get broken down eventually
+    gInventory.consolidateForType(outbox_id, LLFolderType::FT_OUTBOX);
+    
     if (outbox_id == mOutboxId)
     {
         llwarns << "Inventory warning: Merchant outbox already set" << llendl;
