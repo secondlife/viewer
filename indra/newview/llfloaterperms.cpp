@@ -1,7 +1,7 @@
 /** 
  * @file llfloaterperms.cpp
  * @brief Asset creation permission preferences.
- * @author Coco
+ * @author Jonathan Yap
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -43,7 +43,7 @@ LLFloaterPerms::LLFloaterPerms(const LLSD& seed)
 
 BOOL LLFloaterPerms::postBuild()
 {
-	return true;
+	return TRUE;
 }
 
 //static 
@@ -107,16 +107,22 @@ LLFloaterPermsDefault::LLFloaterPermsDefault(const LLSD& seed)
 	mCommitCallbackRegistrar.add("PermsDefault.Cancel", boost::bind(&LLFloaterPermsDefault::onClickCancel, this));
 }
 
+ 
+// String equivalents of enum Categories - initialization order must match enum order!
+const std::string LLFloaterPermsDefault::sCategoryNames[CAT_LAST] =
+{
+	"Objects",
+	"Uploads",
+	"Scripts",
+	"Notecards",
+	"Gestures",
+	"Wearables"
+};
+
+
 BOOL LLFloaterPermsDefault::postBuild()
 {
 	mCloseSignal.connect(boost::bind(&LLFloaterPermsDefault::cancel, this));
-
-	category_names[CAT_OBJECTS] = "Objects";
-	category_names[CAT_UPLOADS] = "Uploads";
-	category_names[CAT_SCRIPTS] = "Scripts";
-	category_names[CAT_NOTECARDS] = "Notecards";
-	category_names[CAT_GESTURES] = "Gestures";
-	category_names[CAT_WEARABLES] = "Wearables";
 
 	refresh();
 	
@@ -179,9 +185,9 @@ void LLFloaterPermsDefault::updateCap(bool alwaysUpdate)
 	if(!object_url.empty())
 	{
 		LLSD report = LLSD::emptyMap();
-		report["Group"] = (LLSD::Integer)LLFloaterPerms::getGroupPerms("Objects");
-		report["Everyone"] = (LLSD::Integer)LLFloaterPerms::getEveryonePerms("Objects");
-		report["NextOwner"] = (LLSD::Integer)LLFloaterPerms::getNextOwnerPerms("Objects");
+		report["Group"] = (LLSD::Integer)LLFloaterPerms::getGroupPerms(sCategoryNames[CAT_OBJECTS]);
+		report["Everyone"] = (LLSD::Integer)LLFloaterPerms::getEveryonePerms(sCategoryNames[CAT_OBJECTS]);
+		report["NextOwner"] = (LLSD::Integer)LLFloaterPerms::getNextOwnerPerms(sCategoryNames[CAT_OBJECTS]);
 		LLHTTPClient::post(object_url, report, new LLFloaterPermsResponder());
 	}
 }
@@ -206,11 +212,11 @@ void LLFloaterPermsDefault::cancel()
 {
 	for (U32 iter = CAT_OBJECTS; iter < CAT_LAST; iter++)
 	{
-		gSavedSettings.setBOOL(category_names[iter]+"NextOwnerCopy",		mNextOwnerCopy[iter]);
-		gSavedSettings.setBOOL(category_names[iter]+"NextOwnerModify",		mNextOwnerModify[iter]);
-		gSavedSettings.setBOOL(category_names[iter]+"NextOwnerTransfer",	mNextOwnerTransfer[iter]);
-		gSavedSettings.setBOOL(category_names[iter]+"ShareWithGroup",		mShareWithGroup[iter]);
-		gSavedSettings.setBOOL(category_names[iter]+"EveryoneCopy",			mEveryoneCopy[iter]);
+		gSavedSettings.setBOOL(sCategoryNames[iter]+"NextOwnerCopy",		mNextOwnerCopy[iter]);
+		gSavedSettings.setBOOL(sCategoryNames[iter]+"NextOwnerModify",		mNextOwnerModify[iter]);
+		gSavedSettings.setBOOL(sCategoryNames[iter]+"NextOwnerTransfer",	mNextOwnerTransfer[iter]);
+		gSavedSettings.setBOOL(sCategoryNames[iter]+"ShareWithGroup",		mShareWithGroup[iter]);
+		gSavedSettings.setBOOL(sCategoryNames[iter]+"EveryoneCopy",			mEveryoneCopy[iter]);
 	}
 }
 
@@ -218,10 +224,10 @@ void LLFloaterPermsDefault::refresh()
 {
 	for (U32 iter = CAT_OBJECTS; iter < CAT_LAST; iter++)
 	{
-		mShareWithGroup[iter]    = gSavedSettings.getBOOL(category_names[iter]+"ShareWithGroup");
-		mEveryoneCopy[iter]      = gSavedSettings.getBOOL(category_names[iter]+"EveryoneCopy");
-		mNextOwnerCopy[iter]     = gSavedSettings.getBOOL(category_names[iter]+"NextOwnerCopy");
-		mNextOwnerModify[iter]   = gSavedSettings.getBOOL(category_names[iter]+"NextOwnerModify");
-		mNextOwnerTransfer[iter] = gSavedSettings.getBOOL(category_names[iter]+"NextOwnerTransfer");
+		mShareWithGroup[iter]    = gSavedSettings.getBOOL(sCategoryNames[iter]+"ShareWithGroup");
+		mEveryoneCopy[iter]      = gSavedSettings.getBOOL(sCategoryNames[iter]+"EveryoneCopy");
+		mNextOwnerCopy[iter]     = gSavedSettings.getBOOL(sCategoryNames[iter]+"NextOwnerCopy");
+		mNextOwnerModify[iter]   = gSavedSettings.getBOOL(sCategoryNames[iter]+"NextOwnerModify");
+		mNextOwnerTransfer[iter] = gSavedSettings.getBOOL(sCategoryNames[iter]+"NextOwnerTransfer");
 	}
 }

@@ -1,7 +1,7 @@
 /** 
  * @file llfloaterperms.h
  * @brief Asset creation permission preferences.
- * @author Coco 
+ * @author Jonathan Yap
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -62,6 +62,7 @@ public:
 	static void updateCap(bool alwaysUpdate);
 	static void setCapSent(bool cap_sent);
 
+// Update instantiation of sCategoryNames in the .cpp file to match if you change this!
 enum Categories
 {
 	CAT_OBJECTS,
@@ -77,7 +78,7 @@ private:
 	LLFloaterPermsDefault(const LLSD& seed);
 	void refresh();
 
-	std::string category_names[CAT_LAST];
+	static const std::string sCategoryNames[CAT_LAST]; 
 
 	// cached values only for implementing cancel.
 	bool mShareWithGroup[CAT_LAST];
