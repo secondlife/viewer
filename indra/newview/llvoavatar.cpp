@@ -5523,7 +5523,12 @@ void LLVOAvatar::addChild(LLViewerObject *childp)
 	{
 		if (!attachObject(childp))
 		{
-			mPendingAttachment.push_back(childp);
+			llwarns << "addChild() failed for " 
+					<< childp->getID()
+					<< " item " << childp->getAttachmentItemID()
+					<< llendl;
+			// MAINT-3312 backout
+			// mPendingAttachment.push_back(childp);
 		}
 	}
 	else
@@ -5557,21 +5562,26 @@ LLViewerJointAttachment* LLVOAvatar::getTargetAttachmentPoint(LLViewerObject* vi
 
 	if (!attachment)
 	{
-		llwarns << "Object attachment point invalid: " << attachmentID << llendl;
+		llwarns << "Object attachment point invalid: " << attachmentID 
+			<< " trying to use 1 (chest)"
+			<< llendl;
 
-		for (int i = 0; i < 15 && !attachment; i++)
+		attachment = get_if_there(mAttachmentPoints, 1, (LLViewerJointAttachment*)NULL);	// Arbitrary using 1 (chest)
+		if (attachment)
 		{
-			attachment = get_if_there(mAttachmentPoints, i, (LLViewerJointAttachment*)NULL); // Arbitrary using 1 (chest)
-
-			if (attachment)
-			{
-				llwarns << "Object attachment point falling back to : " << i << llendl;
-			}
+			llwarns << "Object attachment point invalid: " << attachmentID 
+				<< " on object " << viewer_object->getID()
+				<< " attachment item " << viewer_object->getAttachmentItemID()
+				<< " falling back to 1 (chest)"
+				<< llendl;
 		}
-		
-		if (!attachment)
+		else
 		{
-			llerrs << "Could not find any object attachment point for: " << attachmentID << llendl;
+			llwarns << "Object attachment point invalid: " << attachmentID 
+				<< " on object " << viewer_object->getID()
+				<< " attachment item " << viewer_object->getAttachmentItemID()
+				<< "Unable to use fallback attachment point 1 (chest)"
+				<< llendl;
 		}
 	}
 
@@ -5643,16 +5653,22 @@ void LLVOAvatar::lazyAttach()
 	
 	for (U32 i = 0; i < mPendingAttachment.size(); i++)
 	{
-		if (mPendingAttachment[i]->mDrawable)
+		LLPointer<LLViewerObject> cur_attachment = mPendingAttachment[i];
+		if (cur_attachment->mDrawable)
 		{
-			if (!attachObject(mPendingAttachment[i]))
-			{
-				still_pending.push_back(mPendingAttachment[i]);
+			if (!attachObject(cur_attachment))
+			{	// Drop it
+				llwarns << "attachObject() failed for " 
+					<< cur_attachment->getID()
+					<< " item " << cur_attachment->getAttachmentItemID()
+					<< llendl;
+				// MAINT-3312 backout
+				//still_pending.push_back(cur_attachment);
 			}
 		}
 		else
 		{
-			still_pending.push_back(mPendingAttachment[i]);
+			still_pending.push_back(cur_attachment);
 		}
 	}
 
@@ -5959,6 +5975,28 @@ BOOL LLVOAvatar::isWearingWearableType(LLWearableType::EType type) const
 
 
 
+LLViewerObject *	LLVOAvatar::findAttachmentByID( const LLUUID & target_id ) const
+{
+	for(attachment_map_t::const_iterator attachment_points_iter = mAttachmentPoints.begin();
+		attachment_points_iter != gAgentAvatarp->mAttachmentPoints.end();
+		++attachment_points_iter)
+	{
+		LLViewerJointAttachment* attachment = attachment_points_iter->second;
+		for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+			 attachment_iter != attachment->mAttachedObjects.end();
+			 ++attachment_iter)
+		{
+			LLViewerObject *attached_object = (*attachment_iter);
+			if (attached_object &&
+				attached_object->getID() == target_id)
+			{
+				return attached_object;
+			}
+		}
+	}
+
+	return NULL;
+}
 
 
 // virtual

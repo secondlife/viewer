@@ -462,10 +462,6 @@
 				<combo_box.item label="Rør" name="suction"/>
 				<combo_box.item label="Væv" name="weave"/>
 			</combo_box>
-			<check_box initial_value="falsk" label="Flugt planare overflader" name="checkbox planar align" tool_tip="Flugt teksuter på alle valgte overflader med den sidst valgte overflade. Kræver at planar tekstur-mapning er valgt."/>
-			<text name="rpt">
-				Gentagelser / overflade
-			</text>
 			<spinner label="Vandret (U)" name="TexScaleU"/>
 			<check_box label="Vend" name="checkbox flip s"/>
 			<spinner label="Lodret (V)" name="TexScaleV"/>

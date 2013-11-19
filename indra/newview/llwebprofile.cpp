@@ -148,9 +148,6 @@ public:
 		LL_DEBUGS("Snapshots") << "Uploading image succeeded. Response: [" << body << "]" << llendl;
 		LLWebProfile::reportImageUploadStatus(true);
 	}
-
-private:
-	LLPointer<LLImageFormatted> mImagep;
 };
 
 
@@ -172,7 +169,7 @@ public:
 			headers["Cookie"] = LLWebProfile::getAuthCookie();
 			const std::string& redir_url = content["location"];
 			LL_DEBUGS("Snapshots") << "Got redirection URL: " << redir_url << llendl;
-			LLHTTPClient::get(redir_url, new LLWebProfileResponders::PostImageRedirectResponder, headers);
+			LLHTTPClient::get(redir_url, new LLWebProfileResponders::PostImageRedirectResponder(), headers);
 		}
 		else
 		{

@@ -51,6 +51,6 @@
 			<combo_box.item label="Умеренный контент" name="mature"/>
 			<combo_box.item label="Общий контент" name="pg"/>
 		</combo_box>
-		<check_box initial_value="истина" label="Показать в поиске" name="show_in_group_list" tool_tip="Позволить людям видеть эту группу в результатах поиска"/>
+		<check_box initial_value="true" label="Показать в поиске" name="show_in_group_list" tool_tip="Позволить людям видеть эту группу в результатах поиска"/>
 	</panel>
 </panel>

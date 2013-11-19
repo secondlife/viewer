@@ -112,5 +112,5 @@
 	<spinner label="Grados de rotación" name="shinyRot"/>
 	<spinner label="Desplazamiento horizontal" name="shinyOffsetU"/>
 	<spinner label="Desplazamiento vertical" name="shinyOffsetV"/>
-	<check_box initial_value="falso" label="Alinear caras del plano" name="checkbox planar align" tool_tip="Alinear texturas en todas las caras seleccionadas con la última cara seleccionada. Requiere la representación de texturas en el plano."/>
+	<check_box initial_value="false" label="Alinear caras del plano" name="checkbox planar align" tool_tip="Alinear texturas en todas las caras seleccionadas con la última cara seleccionada. Requiere la representación de texturas en el plano."/>
 </panel>

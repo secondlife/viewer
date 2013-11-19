@@ -10,6 +10,6 @@
 		СКРИПТ: [NAME]
 	</floater.string>
 	<button label="Сброс" label_selected="Сброс" name="Reset"/>
-	<check_box initial_value="истина" label="Выполняется" name="running"/>
-	<check_box initial_value="истина" label="Моно" name="mono"/>
+	<check_box initial_value="true" label="Выполняется" name="running"/>
+	<check_box initial_value="true" label="Моно" name="mono"/>
 </floater>

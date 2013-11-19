@@ -191,6 +191,7 @@ set(viewer_SOURCE_FILES
     llexpandabletextbox.cpp
     llexternaleditor.cpp
     llface.cpp
+    llfacebookconnect.cpp
     llfasttimerview.cpp
     llfavoritesbar.cpp
     llfeaturemanager.cpp
@@ -273,6 +274,7 @@ set(viewer_SOURCE_FILES
     llfloatersettingsdebug.cpp
     llfloatersidepanelcontainer.cpp
     llfloatersnapshot.cpp
+    llfloatersocial.cpp
     llfloatersounddevices.cpp
     llfloaterspellchecksettings.cpp
     llfloatertelehub.cpp
@@ -508,6 +510,7 @@ set(viewer_SOURCE_FILES
     llsidetraypanelcontainer.cpp
     llsky.cpp
     llslurl.cpp
+    llsnapshotlivepreview.cpp
     llspatialpartition.cpp
     llspeakers.cpp
     llspeakingindicatormanager.cpp
@@ -776,6 +779,7 @@ set(viewer_HEADER_FILES
     llexpandabletextbox.h
     llexternaleditor.h
     llface.h
+    llfacebookconnect.h
     llfasttimerview.h
     llfavoritesbar.h
     llfeaturemanager.h
@@ -858,6 +862,7 @@ set(viewer_HEADER_FILES
     llfloatersettingsdebug.h
     llfloatersidepanelcontainer.h
     llfloatersnapshot.h
+    llfloatersocial.h
     llfloatersounddevices.h
     llfloaterspellchecksettings.h
     llfloatertelehub.h
@@ -1082,6 +1087,7 @@ set(viewer_HEADER_FILES
     llsidetraypanelcontainer.h
     llsky.h
     llslurl.h
+    llsnapshotlivepreview.h
     llspatialpartition.h
     llspeakers.h
     llspeakingindicatormanager.h

@@ -25,7 +25,7 @@
 		<text name="ShadersText">
 			Effetti grafici:
 		</text>
-		<check_box initial_value="vero" label="Acqua trasparente" name="TransparentWater"/>
+		<check_box initial_value="true" label="Acqua trasparente" name="TransparentWater"/>
 		<check_box initial_value="true" label="Piccoli rilievi e scintillii" name="BumpShiny"/>
 		<check_box initial_value="true" label="Luci locali" name="LocalLights"/>
 		<check_box initial_value="true" label="Effetti grafici base" name="BasicShaders" tool_tip="Disabilitare questa opzione può evitare che qualche scheda grafica vada in crash."/>
