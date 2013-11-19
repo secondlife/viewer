@@ -25,6 +25,7 @@ If you stay in this region you will be logged out.
      top="0"
      left="0"
      background_visible="true"
+     bg_opaque_color="Orange"
      bg_alpha_color="Orange">
     <text
      type="string"
