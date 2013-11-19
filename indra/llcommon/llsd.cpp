@@ -506,6 +506,8 @@ namespace
 
 		LLSD::array_iterator beginArray() { return mData.begin(); }
 		LLSD::array_iterator endArray() { return mData.end(); }
+		LLSD::reverse_array_iterator rbeginArray() { return mData.rbegin(); }
+		LLSD::reverse_array_iterator rendArray() { return mData.rend(); }
 		virtual LLSD::array_const_iterator beginArray() const { return mData.begin(); }
 		virtual LLSD::array_const_iterator endArray() const { return mData.end(); }
 
@@ -946,6 +948,9 @@ LLSD::array_iterator		LLSD::beginArray()		{ return makeArray(impl).beginArray();
 LLSD::array_iterator		LLSD::endArray()		{ return makeArray(impl).endArray(); }
 LLSD::array_const_iterator	LLSD::beginArray() const{ return safe(impl).beginArray(); }
 LLSD::array_const_iterator	LLSD::endArray() const	{ return safe(impl).endArray(); }
+
+LLSD::reverse_array_iterator	LLSD::rbeginArray()		{ return makeArray(impl).rbeginArray(); }
+LLSD::reverse_array_iterator	LLSD::rendArray()		{ return makeArray(impl).rendArray(); }
 
 namespace llsd
 {

@@ -34,6 +34,8 @@
 class LLBlockedListItem;
 class LLMute;
 
+enum BlockListActionType {NONE, ADD, REMOVE};
+
 /**
  * List of blocked avatars and objects.
  * This list represents contents of the LLMuteList.
@@ -56,7 +58,8 @@ public:
 	LLToggleableMenu*	getContextMenu() const { return mContextMenu.get(); }
 	LLBlockedListItem*	getBlockedItem() const;
 
-	virtual void onChange() { refresh(); }
+	virtual void onChange() { }
+	virtual void onChangeDetailed(const LLMute& );
 	virtual void draw();
 
 	void setNameFilter(const std::string& filter);
@@ -67,18 +70,32 @@ public:
 private:
 
 	void addNewItem(const LLMute* mute);
+	void removeListItem(const LLMute* mute);
+	void hideListItem(LLBlockedListItem* item, bool show);
 	void setDirty(bool dirty = true) { mDirty = dirty; }
 	bool findInsensitive(std::string haystack, const std::string& needle_upper);
 
 	bool isActionEnabled(const LLSD& userdata);
 	void onCustomAction (const LLSD& userdata);
+	void createList();
 
-
+	BlockListActionType getCurrentMuteListActionType();
+	
 	LLHandle<LLToggleableMenu>	mContextMenu;
 
 	LLBlockedListItem*			mSelectedItem;
 	std::string 				mNameFilter;
 	bool 						mDirty;
+	bool						mShouldAddAll;
+	BlockListActionType			mActionType;
+	U32							mMuteListSize;
+
+	// This data is used to save information about item that currently changed(added or removed) 
+	LLUUID						mCurItemId;
+	std::string					mCurItemName;
+	LLMute::EType 				mCurItemType;
+	U32							mCurItemFlags;
+	std::string					mPrevNameFilter;
 
 };
 

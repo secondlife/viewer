@@ -408,16 +408,6 @@ public:
 		}
 	}
 
-	LLCachedControl(LLControlGroup& group,
-					const std::string& name)
-	{
-		mCachedControlPtr = LLControlCache<T>::getInstance(name);
-		if (mCachedControlPtr.isNull())
-		{
-			mCachedControlPtr = new LLControlCache<T>(group, name);
-		}
-	}
-
 	operator const T&() const { return mCachedControlPtr->getValue(); }
 	operator boost::function<const T&()> () const { return boost::function<const T&()>(*this); }
 	const T& operator()() { return mCachedControlPtr->getValue(); }

@@ -466,16 +466,11 @@
 				<combo_box.item label="Saugen" name="suction"/>
 				<combo_box.item label="gewoben" name="weave"/>
 			</combo_box>
-			<check_box initial_value="falsch" label="Flache Oberflächen ausrichten" name="checkbox planar align" tool_tip="Texturen auf allen ausgewählten Oberflächen an der zuletzt ausgewählten Oberfläche ausrichten. Planar Texture Mapping erforderlich."/>
-			<text name="rpt">
-				Wiederholungen / Oberfläche
-			</text>
 			<spinner label="Horizontal (U)" name="TexScaleU"/>
 			<check_box label="Umkehren" name="checkbox flip s"/>
 			<spinner label="Vertikal (V)" name="TexScaleV"/>
 			<check_box label="Umkehren" name="checkbox flip t"/>
 			<spinner label="Rotation˚" name="TexRot"/>
-			<spinner label="Wiederholungen / Meter" name="rptctrl"/>
 			<button label="Übernehmen" label_selected="Übernehmen" name="button apply"/>
 			<text name="tex offset">
 				Texture-Versatz

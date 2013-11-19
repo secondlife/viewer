@@ -308,7 +308,8 @@ void LLFloaterIMNearbyChat::onClose(bool app_quitting)
 }
 
 // virtual
-void LLFloaterIMNearbyChat::onClickCloseBtn()
+void LLFloaterIMNearbyChat::onClickCloseBtn(bool)
+
 {
 	if (!isTornOff())
 	{
@@ -493,11 +494,11 @@ void LLFloaterIMNearbyChat::onChatBoxKeystroke()
 			if (!rest_of_match.empty())
 			{
 				mInputEditor->setText(utf8_trigger + rest_of_match); // keep original capitalization for user-entered part
-
 				// Select to end of line, starting from the character
 				// after the last one the user typed.
-				mInputEditor->selectNext(rest_of_match, false);
+				mInputEditor->selectByCursorPosition(utf8_out_str.size()-rest_of_match.size(),utf8_out_str.size());
 			}
+
 		}
 		else if (matchChatTypeTrigger(utf8_trigger, &utf8_out_str))
 		{

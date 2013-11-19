@@ -39,7 +39,7 @@ void LLAutoReplace::autoreplaceCallback(S32& replacement_start, S32& replacement
 	replacement_length = 0;
 	replacement_string.clear();
 
-	static LLCachedControl<bool> perform_autoreplace(gSavedSettings, "AutoReplace");
+	static LLCachedControl<bool> perform_autoreplace(gSavedSettings, "AutoReplace", 0);
 	if (perform_autoreplace)
 	{
 		S32 word_end = cursor_pos - 1;
@@ -679,7 +679,7 @@ bool LLAutoReplaceSettings::decreaseListPriority(std::string listName)
 std::string LLAutoReplaceSettings::replaceWord(const std::string currentWord)
 {
 	std::string returnedWord = currentWord; // in case no replacement is found
-	static LLCachedControl<bool> autoreplace_enabled(gSavedSettings, "AutoReplace");
+	static LLCachedControl<bool> autoreplace_enabled(gSavedSettings, "AutoReplace", false);
 	if ( autoreplace_enabled )
 	{
 		LL_DEBUGS("AutoReplace")<<"checking '"<<currentWord<<"'"<< LL_ENDL;

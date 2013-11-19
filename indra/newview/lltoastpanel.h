@@ -45,6 +45,7 @@ public:
 	virtual ~LLToastPanel() = 0;
 
 	virtual std::string getTitle();
+	virtual const std::string& getNotificationName();
 	virtual const LLUUID& getID();
 
 	static const S32 MIN_PANEL_HEIGHT;

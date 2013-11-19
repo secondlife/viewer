@@ -30,8 +30,7 @@
 
 #include "llfloaterreg.h"
 #include "lluictrl.h"
-#include "llenvmanager.h"
-
+#include "llagent.h"
 
 static S32 mSeconds;
 
@@ -59,7 +58,7 @@ BOOL LLFloaterRegionRestarting::postBuild()
 
 	refresh();
 
-	LLEnvManagerNew::instance().setRegionChangeCallback(boost::bind(&LLFloaterRegionRestarting::regionChange, this));
+	gAgent.addRegionChangedCallback(boost::bind(&LLFloaterRegionRestarting::regionChange, this));
 
 	return TRUE;
 }

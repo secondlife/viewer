@@ -707,7 +707,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mVisualComplexityStale(TRUE),
 	mLoadedCallbacksPaused(FALSE),
 	mHasPelvisOffset( FALSE ),
-	mRenderUnloadedAvatar(LLCachedControl<bool>(gSavedSettings, "RenderUnloadedAvatar")),
+	mRenderUnloadedAvatar(LLCachedControl<bool>(gSavedSettings, "RenderUnloadedAvatar", false)),
 	mLastRezzedStatus(-1),
 	mIsEditingAppearance(FALSE),
 	mUseLocalAppearance(FALSE),
@@ -2707,8 +2707,8 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 				LLFontGL::getFontSansSerifSmall());
 		}
 
-		static LLUICachedControl<bool> show_display_names("NameTagShowDisplayNames");
-		static LLUICachedControl<bool> show_usernames("NameTagShowUsernames");
+		static LLUICachedControl<bool> show_display_names("NameTagShowDisplayNames", true);
+		static LLUICachedControl<bool> show_usernames("NameTagShowUsernames", true);
 
 		if (LLAvatarName::useDisplayNames())
 		{
@@ -2934,7 +2934,7 @@ void LLVOAvatar::idleUpdateNameTagAlpha(BOOL new_name, F32 alpha)
 
 LLColor4 LLVOAvatar::getNameTagColor(bool is_friend)
 {
-	static LLUICachedControl<bool> show_friends("NameTagShowFriends");
+	static LLUICachedControl<bool> show_friends("NameTagShowFriends", false);
 	const char* color_name;
 	if (show_friends && is_friend)
 	{
@@ -2989,7 +2989,7 @@ bool LLVOAvatar::isVisuallyMuted()
 
 	if (!isSelf())
 	{
-		static LLCachedControl<U32> render_auto_mute_functions(gSavedSettings, "RenderAutoMuteFunctions");
+		static LLCachedControl<U32> render_auto_mute_functions(gSavedSettings, "RenderAutoMuteFunctions", 0);
 		if (render_auto_mute_functions)		// Hacky debug switch for developing feature
 		{
 			// Priority order (highest priority first)
@@ -3001,9 +3001,9 @@ bool LLVOAvatar::isVisuallyMuted()
 			//       - AND aren't over the thresholds
 			// * otherwise visually mute all other avatars
 
-			static LLCachedControl<U32> max_attachment_bytes(gSavedSettings, "RenderAutoMuteByteLimit");
-			static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit");
-			static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAutoMuteRenderWeightLimit");
+			static LLCachedControl<U32> max_attachment_bytes(gSavedSettings, "RenderAutoMuteByteLimit", 0);
+			static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit", 0.0);
+			static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAutoMuteRenderWeightLimit", 0);
 
 			if (mVisuallyMuteSetting == ALWAYS_VISUAL_MUTE)
 			{	// Always want to see this AV as an impostor
@@ -3390,8 +3390,8 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 			LLVector3 pelvisDir( mRoot->getWorldMatrix().getFwdRow4().mV );
 
-			static LLCachedControl<F32> s_pelvis_rot_threshold_slow(gSavedSettings, "AvatarRotateThresholdSlow");
-			static LLCachedControl<F32> s_pelvis_rot_threshold_fast(gSavedSettings, "AvatarRotateThresholdFast");
+			static LLCachedControl<F32> s_pelvis_rot_threshold_slow(gSavedSettings, "AvatarRotateThresholdSlow", 60.0);
+			static LLCachedControl<F32> s_pelvis_rot_threshold_fast(gSavedSettings, "AvatarRotateThresholdFast", 2.0);
 
 			F32 pelvis_rot_threshold = clamp_rescale(speed, 0.1f, 1.0f, s_pelvis_rot_threshold_slow, s_pelvis_rot_threshold_fast);
 						
@@ -5521,7 +5521,15 @@ void LLVOAvatar::addChild(LLViewerObject *childp)
 	LLViewerObject::addChild(childp);
 	if (childp->mDrawable)
 	{
-		attachObject(childp);
+		if (!attachObject(childp))
+		{
+			llwarns << "addChild() failed for " 
+					<< childp->getID()
+					<< " item " << childp->getAttachmentItemID()
+					<< llendl;
+			// MAINT-3312 backout
+			// mPendingAttachment.push_back(childp);
+		}
 	}
 	else
 	{
@@ -5554,8 +5562,27 @@ LLViewerJointAttachment* LLVOAvatar::getTargetAttachmentPoint(LLViewerObject* vi
 
 	if (!attachment)
 	{
-		llwarns << "Object attachment point invalid: " << attachmentID << llendl;
-		attachment = get_if_there(mAttachmentPoints, 1, (LLViewerJointAttachment*)NULL); // Arbitrary using 1 (chest)
+		llwarns << "Object attachment point invalid: " << attachmentID 
+			<< " trying to use 1 (chest)"
+			<< llendl;
+
+		attachment = get_if_there(mAttachmentPoints, 1, (LLViewerJointAttachment*)NULL);	// Arbitrary using 1 (chest)
+		if (attachment)
+		{
+			llwarns << "Object attachment point invalid: " << attachmentID 
+				<< " on object " << viewer_object->getID()
+				<< " attachment item " << viewer_object->getAttachmentItemID()
+				<< " falling back to 1 (chest)"
+				<< llendl;
+		}
+		else
+		{
+			llwarns << "Object attachment point invalid: " << attachmentID 
+				<< " on object " << viewer_object->getID()
+				<< " attachment item " << viewer_object->getAttachmentItemID()
+				<< "Unable to use fallback attachment point 1 (chest)"
+				<< llendl;
+		}
 	}
 
 	return attachment;
@@ -5626,13 +5653,22 @@ void LLVOAvatar::lazyAttach()
 	
 	for (U32 i = 0; i < mPendingAttachment.size(); i++)
 	{
-		if (mPendingAttachment[i]->mDrawable)
+		LLPointer<LLViewerObject> cur_attachment = mPendingAttachment[i];
+		if (cur_attachment->mDrawable)
 		{
-			attachObject(mPendingAttachment[i]);
+			if (!attachObject(cur_attachment))
+			{	// Drop it
+				llwarns << "attachObject() failed for " 
+					<< cur_attachment->getID()
+					<< " item " << cur_attachment->getAttachmentItemID()
+					<< llendl;
+				// MAINT-3312 backout
+				//still_pending.push_back(cur_attachment);
+			}
 		}
 		else
 		{
-			still_pending.push_back(mPendingAttachment[i]);
+			still_pending.push_back(cur_attachment);
 		}
 	}
 
@@ -5939,6 +5975,28 @@ BOOL LLVOAvatar::isWearingWearableType(LLWearableType::EType type) const
 
 
 
+LLViewerObject *	LLVOAvatar::findAttachmentByID( const LLUUID & target_id ) const
+{
+	for(attachment_map_t::const_iterator attachment_points_iter = mAttachmentPoints.begin();
+		attachment_points_iter != gAgentAvatarp->mAttachmentPoints.end();
+		++attachment_points_iter)
+	{
+		LLViewerJointAttachment* attachment = attachment_points_iter->second;
+		for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+			 attachment_iter != attachment->mAttachedObjects.end();
+			 ++attachment_iter)
+		{
+			LLViewerObject *attached_object = (*attachment_iter);
+			if (attached_object &&
+				attached_object->getID() == target_id)
+			{
+				return attached_object;
+			}
+		}
+	}
+
+	return NULL;
+}
 
 
 // virtual
@@ -7877,7 +7935,7 @@ void LLVOAvatar::getImpostorValues(LLVector4a* extents, LLVector3& angle, F32& d
 
 void LLVOAvatar::idleUpdateRenderCost()
 {
-	static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAutoMuteRenderWeightLimit");
+	static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAutoMuteRenderWeightLimit", 0);
 	static const U32 ARC_LIMIT = 20000;
 
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_ATTACHMENT_BYTES))
