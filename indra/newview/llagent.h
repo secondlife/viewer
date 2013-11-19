@@ -253,7 +253,24 @@ private:
 	LLHost			getRegionHost() const;
 	BOOL			inPrelude();
 
-	// Register a boost callback to be called when the agent changes regions
+	/**
+	 * Register a boost callback to be called when the agent changes regions
+	 * Note that if you need to access a capability for the region, you may need to wait
+	 * for the capabilities to be received, since in some cases your region changed
+	 * callback will be called before the capabilities have been received.  Your callback
+	 * may need to look something like:
+	 *
+	 * 	 LLViewerRegion* region = gAgent.getRegion();
+	 * 	 if (region->capabilitiesReceived())
+	 * 	 {
+	 *       useCapability(region);
+	 * 	 }
+	 * 	 else // Need to handle via callback after caps arrive.
+	 * 	 {
+	 *       region->setCapabilitiesReceivedCallback(boost::bind(&useCapability,region,_1));
+	 *       // you may or may not want to remove that callback
+	 * 	 }
+	 */
 	typedef boost::function<void()> region_changed_callback_t;
 	boost::signals2::connection     addRegionChangedCallback(region_changed_callback_t);
 

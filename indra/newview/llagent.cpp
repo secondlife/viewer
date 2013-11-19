@@ -261,9 +261,7 @@ bool handleSlowMotionAnimation(const LLSD& newvalue)
 
 void LLAgent::setCanEditParcel() // called via mParcelChangedSignal
 {
-	LL_DEBUGS("AgentLocation") << LL_ENDL;
 	bool can_edit = LLToolMgr::getInstance()->canEdit();
-
 	gAgent.mCanEditParcel = can_edit;
 }
 
@@ -837,7 +835,7 @@ void LLAgent::handleServerBakeRegionTransition(const LLUUID& region_id)
 
 void LLAgent::changeParcels()
 {
-	LL_DEBUGS("AgentLocation") << LL_ENDL;
+	LL_DEBUGS("AgentLocation") << "Calling ParcelChanged callbacks" << LL_ENDL;
 	// Notify anything that wants to know about parcel changes
 	mParcelChangedSignal();
 }
@@ -919,6 +917,8 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 		notifyRegionChange = false;
 	}
 	mRegionp = regionp;
+
+	// TODO - most of what follows probably should be moved into callbacks
 
 	// Pass the region host to LLUrlEntryParcel to resolve parcel name
 	// with a server request.
