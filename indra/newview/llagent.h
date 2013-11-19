@@ -231,15 +231,36 @@ private:
 	LLVector3		mHomePosRegion;
 
 	//--------------------------------------------------------------------
-	// Region
+	// Parcel
 	//--------------------------------------------------------------------
 public:
+	void changeParcels(); // called by LLViewerParcelMgr when we cross a parcel boundary
+	
+	// Register a boost callback to be called when the agent changes parcels
+	typedef boost::function<void()> parcel_changed_callback_t;
+	boost::signals2::connection     addParcelChangedCallback(parcel_changed_callback_t);
+
+private:
+	typedef boost::signals2::signal<void()> parcel_changed_signal_t;
+	parcel_changed_signal_t		mParcelChangedSignal;
+
+	//--------------------------------------------------------------------
+	// Region
+	//--------------------------------------------------------------------
+  public:
 	void			setRegion(LLViewerRegion *regionp);
 	LLViewerRegion	*getRegion() const;
 	LLHost			getRegionHost() const;
 	BOOL			inPrelude();
-private:
+
+	// Register a boost callback to be called when the agent changes regions
+	typedef boost::function<void()> region_changed_callback_t;
+	boost::signals2::connection     addRegionChangedCallback(region_changed_callback_t);
+
+  private:
 	LLViewerRegion	*mRegionp;
+	typedef boost::signals2::signal<void()> region_changed_signal_t;
+	region_changed_signal_t		            mRegionChangedSignal;
 
 	//--------------------------------------------------------------------
 	// History
@@ -640,9 +661,10 @@ private:
 public:
 	bool			canEditParcel() const { return mCanEditParcel; }
 private:
+	static void     setCanEditParcel();
 	bool			mCanEditParcel;
 
-	static void parcelChangedCallback();
+
 
 /********************************************************************************
  **                                                                            **
