@@ -645,14 +645,18 @@ void LLView::setVisible(BOOL visible)
 void LLView::handleVisibilityChange ( BOOL new_visibility )
 {
 	BOOL old_visibility;
+	BOOL log_visibility_change = LLViewerEventRecorder::instance().getLoggingStatus();
 	BOOST_FOREACH(LLView* viewp, mChildList)
 	{
 		// only views that are themselves visible will have their overall visibility affected by their ancestors
 		old_visibility=viewp->getVisible();
 
-		if (old_visibility!=new_visibility)
+		if(log_visibility_change)
 		{
-			LLViewerEventRecorder::instance().logVisibilityChange( viewp->getPathname(), viewp->getName(), new_visibility,"widget");
+			if (old_visibility!=new_visibility)
+			{
+				LLViewerEventRecorder::instance().logVisibilityChange( viewp->getPathname(), viewp->getName(), new_visibility,"widget");
+			}
 		}
 
 		if (old_visibility)
@@ -660,11 +664,13 @@ void LLView::handleVisibilityChange ( BOOL new_visibility )
 			viewp->handleVisibilityChange ( new_visibility );
 		}
 
-		// Consider changing returns to confirm success and know which widget grabbed it
-		// For now assume success and log at highest xui possible 
-		// NOTE we log actual state - which may differ if it somehow failed to set visibility
-		lldebugs << "LLView::handleVisibilityChange	 - now: " << getVisible()  << " xui: " << viewp->getPathname() << " name: " << viewp->getName() << llendl;
-		
+		if(log_visibility_change)
+		{
+			// Consider changing returns to confirm success and know which widget grabbed it
+			// For now assume success and log at highest xui possible
+			// NOTE we log actual state - which may differ if it somehow failed to set visibility
+			lldebugs << "LLView::handleVisibilityChange	 - now: " << getVisible()  << " xui: " << viewp->getPathname() << " name: " << viewp->getName() << llendl;
+		}
 	}
 }
 
