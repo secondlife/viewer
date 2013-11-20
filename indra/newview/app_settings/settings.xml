@@ -10240,7 +10240,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>16.0</real>
+      <real>20.0</real>
     </map>
   <key>SceneLoadRearMaxRadiusFraction</key>
   <map>
@@ -10251,7 +10251,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>20.0</real>
+    <real>75.0</real>
   </map>
     <key>SceneLoadRearPixelThreshold</key>
     <map>
@@ -10262,7 +10262,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>200.0</real>
+      <real>400.0</real>
     </map>
 	<key>SceneLoadingMonitorEnabled</key>
 	<map>
