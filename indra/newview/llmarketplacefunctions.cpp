@@ -418,7 +418,10 @@ boost::signals2::connection LLMarketplaceInventoryImporter::setStatusReportCallb
 
 void LLMarketplaceInventoryImporter::initialize()
 {
-	llassert(!mInitialized);
+    if (mInitialized)
+    {
+        return;
+    }
 
 	if (!LLMarketplaceImport::hasSessionCookie())
 	{

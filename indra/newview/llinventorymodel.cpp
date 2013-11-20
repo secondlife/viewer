@@ -369,20 +369,64 @@ void LLInventoryModel::unlockDirectDescendentArrays(const LLUUID& cat_id)
 	mItemLock[cat_id] = false;
 }
 
-void LLInventoryModel::consolidateForType(const LLUUID& id, LLFolderType::EType type)
+void LLInventoryModel::consolidateForType(const LLUUID& main_id, LLFolderType::EType type)
 {
-    bool trace = (type == LLFolderType::FT_OUTBOX);
-    if (trace)
+    // Make a list of folders that are not "main_id" and are of "type"
+    std::vector<LLUUID> folder_ids;
+    for (cat_map_t::iterator cit = mCategoryMap.begin(); cit != mCategoryMap.end(); ++cit)
     {
-        for (cat_map_t::iterator cit = mCategoryMap.begin(); cit != mCategoryMap.end(); ++cit)
+        LLViewerInventoryCategory* cat = cit->second;
+        if ((cat->getPreferredType() == type) && (cat->getUUID() != main_id))
         {
-            LLViewerInventoryCategory* cat = cit->second;
-            if (cat->getPreferredType() == type)
-            {
-                llinfos << "Merov : List outbox from mCategoryMap, name = " << cat->getName() << ", type = " << cat->getPreferredType() << ", id = " << cat->getUUID().asString() << llendl;
-            }
+            folder_ids.push_back(cat->getUUID());
         }
     }
+
+    // Iterate through those folders
+	for (std::vector<LLUUID>::iterator folder_ids_it = folder_ids.begin(); folder_ids_it != folder_ids.end(); ++folder_ids_it)
+	{
+		LLUUID folder_id = (*folder_ids_it);
+        
+        // Get the content of this folder
+        cat_array_t* cats;
+        item_array_t* items;
+        getDirectDescendentsOf(folder_id, cats, items);
+        
+        // Move all items to the main folder
+        // Note : we get the list of UUIDs and iterate on them instead of iterating directly on item_array_t
+        // elements. This is because moving elements modify the maps and, consequently, invalidate iterators on them.
+        // This "gather and iterate" method is verbose but resilient.
+        std::vector<LLUUID> list_uuids;
+        for (item_array_t::const_iterator it = items->begin(); it != items->end(); ++it)
+        {
+            list_uuids.push_back((*it)->getUUID());
+        }
+        for (std::vector<LLUUID>::const_iterator it = list_uuids.begin(); it != list_uuids.end(); ++it)
+        {
+            LLViewerInventoryItem* item = getItem(*it);
+            changeItemParent(item, main_id, TRUE);
+        }
+
+        // Move all folders to the main folder
+        list_uuids.clear();
+        for (cat_array_t::const_iterator it = cats->begin(); it != cats->end(); ++it)
+        {
+            list_uuids.push_back((*it)->getUUID());
+        }
+        for (std::vector<LLUUID>::const_iterator it = list_uuids.begin(); it != list_uuids.end(); ++it)
+        {
+            LLViewerInventoryCategory* cat = getCategory(*it);
+            changeCategoryParent(cat, main_id, TRUE);
+        }
+        
+        // Purge the emptied folder
+        // Note: we'd like to use purgeObject() but it doesn't cleanly eliminate the folder
+        // which leads to issues further down the road when the folder is found again
+        //purgeObject(folder_id);
+        // We remove the folder and empty the trash instead which seems to work
+		removeCategory(folder_id);
+        gInventory.emptyFolderType("", LLFolderType::FT_TRASH);
+	}
 }
 
 // findCategoryUUIDForType() returns the uuid of the category that
@@ -602,7 +646,7 @@ LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 	return id;
 }
 
-// Starting with the object specified, add it's descendents to the
+// Starting with the object specified, add its descendents to the
 // array provided, but do not add the inventory object specified by
 // id. There is no guaranteed order. Neither array will be erased
 // before adding objects to it. Do not store a copy of the pointers
@@ -1018,7 +1062,7 @@ void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat)
 		new_cat->copyViewerCategory(cat);
 		addCategory(new_cat);
 
-		// make sure this category is correctly referenced by it's parent.
+		// make sure this category is correctly referenced by its parent.
 		cat_array_t* cat_array;
 		cat_array = getUnlockedCatArray(cat->getParentUUID());
 		if(cat_array)
@@ -1240,7 +1284,7 @@ void LLInventoryModel::purgeDescendentsOf(const LLUUID& id)
 			<< " iterate and purge non hidden items" << llendl;
 			cat_array_t* categories;
 			item_array_t* items;
-			// Get the list of direct descendants in tha categoy passed as argument
+			// Get the list of direct descendants in that category passed as argument
 			getDirectDescendentsOf(id, categories, items);
 			std::vector<LLUUID> list_uuids;
 			// Make a unique list with all the UUIDs of the direct descendants (items and categories are not treated differently)
