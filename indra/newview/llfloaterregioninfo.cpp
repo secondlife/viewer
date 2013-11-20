@@ -219,7 +219,7 @@ BOOL LLFloaterRegionInfo::postBuild()
 		&processEstateOwnerRequest);
 
 	// Request region info when agent region changes.
-	LLEnvManagerNew::instance().setRegionChangeCallback(boost::bind(&LLFloaterRegionInfo::requestRegionInfo, this));
+	gAgent.addRegionChangedCallback(boost::bind(&LLFloaterRegionInfo::requestRegionInfo, this));
 
 	return TRUE;
 }

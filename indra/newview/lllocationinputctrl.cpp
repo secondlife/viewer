@@ -407,14 +407,14 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	// - Make the "Add landmark" button updated when either current parcel gets changed
 	//   or a landmark gets created or removed from the inventory.
 	// - Update the location string on parcel change.
-	mParcelMgrConnection = LLViewerParcelMgr::getInstance()->addAgentParcelChangedCallback(
+	mParcelMgrConnection = gAgent.addParcelChangedCallback(
 		boost::bind(&LLLocationInputCtrl::onAgentParcelChange, this));
 	// LLLocationHistory instance is being created before the location input control, so we have to update initial state of button manually.
 	mButton->setEnabled(LLLocationHistory::instance().getItemCount() > 0);
 	mLocationHistoryConnection = LLLocationHistory::getInstance()->setChangedCallback(
 			boost::bind(&LLLocationInputCtrl::onLocationHistoryChanged, this,_1));
 
-	mRegionCrossingSlot = LLEnvManagerNew::getInstance()->setRegionChangeCallback(boost::bind(&LLLocationInputCtrl::onRegionBoundaryCrossed, this));
+	mRegionCrossingSlot = gAgent.addRegionChangedCallback(boost::bind(&LLLocationInputCtrl::onRegionBoundaryCrossed, this));
 	createNavMeshStatusListenerForCurrentRegion();
 
 	mRemoveLandmarkObserver	= new LLRemoveLandmarkObserver(this);
