@@ -479,8 +479,9 @@ private:
 
 	typedef std::map<LLCore::HttpHandle, S32> handle_fetch_map_t;
 	handle_fetch_map_t mHandleToFetchIndex;
-	
-	e_debug_state mState;
+
+	void setDebuggerState(e_debug_state new_state) { mDebuggerState = new_state; }
+	e_debug_state mDebuggerState;
 	
 	F32 mCacheReadTime;
 	F32 mCacheWriteTime;
@@ -553,7 +554,7 @@ public:
 	void callbackDecoded(S32 id, bool success, LLImageRaw* raw, LLImageRaw* aux);
 	void callbackHTTP(FetchEntry & fetch, LLCore::HttpResponse * response);
 
-	e_debug_state getState()             {return mState;}
+	e_debug_state getState()             {return mDebuggerState;}
 	S32  getNumFetchedTextures()         {return mNumFetchedTextures;}
 	S32  getNumFetchingRequests()        {return mFetchingHistory.size();}
 	S32  getNumCacheHits()               {return mNumCacheHits;}
