@@ -175,15 +175,18 @@ public:
 
 void LLFloaterPermsDefault::updateCap(bool alwaysUpdate)
 {
+llwarns << "DBG start" << llendl;
 	if(!alwaysUpdate && mCapSent)
 	{
 		return;
 	}
 
+llwarns << "DBG getRegion" << llendl;
 	std::string object_url = gAgent.getRegion()->getCapability("DefaultObjectPermissions");
 
 	if(!object_url.empty())
 	{
+llwarns << "DBG post" << llendl;
 		LLSD report = LLSD::emptyMap();
 		report["Group"] = (LLSD::Integer)LLFloaterPerms::getGroupPerms(sCategoryNames[CAT_OBJECTS]);
 		report["Everyone"] = (LLSD::Integer)LLFloaterPerms::getEveryonePerms(sCategoryNames[CAT_OBJECTS]);

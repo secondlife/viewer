@@ -898,9 +898,6 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 
 			// Update all of the regions.
 			LLWorld::getInstance()->updateAgentOffset(mAgentOriginGlobal);
-
-			// Send default object permissions to simulator
-			LLFloaterPermsDefault::updateCap(false);
 		}
 
 		// Pass new region along to metrics components that care about this level of detail.
