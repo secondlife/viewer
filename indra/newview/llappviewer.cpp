@@ -1262,6 +1262,7 @@ static LLTrace::BlockTimerStatHandle FTM_SERVICE_CALLBACK("Callback");
 static LLTrace::BlockTimerStatHandle FTM_AGENT_AUTOPILOT("Autopilot");
 static LLTrace::BlockTimerStatHandle FTM_AGENT_UPDATE("Update");
 
+// externally visible timers
 LLTrace::BlockTimerStatHandle FTM_FRAME("Frame");
 
 bool LLAppViewer::mainLoop()

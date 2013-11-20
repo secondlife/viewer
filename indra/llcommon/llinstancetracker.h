@@ -64,8 +64,8 @@ LL_COMMON_API void assert_main_thread();
 
 enum EInstanceTrackerAllowKeyCollisions
 {
-	LLInstanceTrackerAllowKeyCollisions,
-	LLInstanceTrackerDisallowKeyCollisions
+	LLInstanceTrackerErrorOnCollision,
+	LLInstanceTrackerReplaceOnCollision
 };
 
 /// This mix-in class adds support for tracking all instances of the specified class parameter T
@@ -73,7 +73,7 @@ enum EInstanceTrackerAllowKeyCollisions
 /// If KEY is not provided, then instances are stored in a simple set
 /// @NOTE: see explicit specialization below for default KEY==void case
 /// @NOTE: this class is not thread-safe unless used as read-only
-template<typename T, typename KEY = void, EInstanceTrackerAllowKeyCollisions ALLOW_KEY_COLLISIONS = LLInstanceTrackerDisallowKeyCollisions>
+template<typename T, typename KEY = void, EInstanceTrackerAllowKeyCollisions KEY_COLLISION_BEHAVIOR = LLInstanceTrackerErrorOnCollision>
 class LLInstanceTracker : public LLInstanceTrackerBase
 {
 	typedef LLInstanceTracker<T, KEY> self_t;
@@ -192,7 +192,7 @@ public:
 	}
 
 protected:
-	LLInstanceTracker(KEY key) 
+	LLInstanceTracker(const KEY& key) 
 	{ 
 		// make sure static data outlives all instances
 		getStatic();
@@ -211,28 +211,44 @@ private:
 	LLInstanceTracker( const LLInstanceTracker& );
 	const LLInstanceTracker& operator=( const LLInstanceTracker& );
 
-	void add_(KEY key) 
+	void add_(const KEY& key) 
 	{ 
 		mInstanceKey = key; 
 		InstanceMap& map = getMap_();
 		typename InstanceMap::iterator insertion_point_it = map.lower_bound(key);
-		if (ALLOW_KEY_COLLISIONS == LLInstanceTrackerDisallowKeyCollisions
-			&& insertion_point_it != map.end() 
+		if (insertion_point_it != map.end() 
 			&& insertion_point_it->first == key)
-		{
-			LL_ERRS() << "Key " << key << " already exists in instance map for " << typeid(T).name() << LL_ENDL;
+		{ // found existing entry with that key
+			switch(KEY_COLLISION_BEHAVIOR)
+			{
+				case LLInstanceTrackerErrorOnCollision:
+				{
+					// use assert here instead of LL_ERRS(), otherwise the error will be ignored since this call is made during global object initialization
+					llassert_always_msg(false, "ERROR: Instance with this same key already exists!");
+					break;
+				}
+				case LLInstanceTrackerReplaceOnCollision:
+				{
+					// replace pointer, but leave key (should have compared equal anyway)
+					insertion_point_it->second = static_cast<T*>(this);
+					break;
+				}
+				default:
+					break;
+			}
 		}
 		else
-		{
+		{ // new key
 			map.insert(insertion_point_it, std::make_pair(key, static_cast<T*>(this)));
 		}
 	}
 	void remove_()
 	{
-		typename InstanceMap::iterator iter = getMap_().find(mInstanceKey);
-		if (iter != getMap_().end())
+		InstanceMap& map = getMap_();
+		typename InstanceMap::iterator iter = map.find(mInstanceKey);
+		if (iter != map.end())
 		{
-			getMap_().erase(iter);
+			map.erase(iter);
 		}
 	}
 
@@ -242,8 +258,8 @@ private:
 
 /// explicit specialization for default case where KEY is void
 /// use a simple std::set<T*>
-template<typename T, EInstanceTrackerAllowKeyCollisions ALLOW_KEY_COLLISIONS>
-class LLInstanceTracker<T, void, ALLOW_KEY_COLLISIONS> : public LLInstanceTrackerBase
+template<typename T, EInstanceTrackerAllowKeyCollisions KEY_COLLISION_BEHAVIOR>
+class LLInstanceTracker<T, void, KEY_COLLISION_BEHAVIOR> : public LLInstanceTrackerBase
 {
 	typedef LLInstanceTracker<T, void> self_t;
 	typedef typename std::set<T*> InstanceSet;

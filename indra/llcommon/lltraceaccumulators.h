@@ -471,13 +471,13 @@ namespace LLTrace
 		//
 		// members
 		//
-		U64					mTotalTimeCounter,
-							mSelfTimeCounter;
-		S32					mCalls;
+		U64							mTotalTimeCounter,
+									mSelfTimeCounter;
+		S32							mCalls;
 		class BlockTimerStatHandle*	mParent;		// last acknowledged parent of this time block
 		class BlockTimerStatHandle*	mLastCaller;	// used to bootstrap tree construction
-		U16					mActiveCount;	// number of timers with this ID active on stack
-		bool				mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame
+		U16							mActiveCount;	// number of timers with this ID active on stack
+		bool						mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame
 
 	};
 

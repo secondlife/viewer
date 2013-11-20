@@ -670,11 +670,11 @@ static LLTrace::BlockTimerStatHandle FTM_IMAGE_FETCH("Fetch");
 static LLTrace::BlockTimerStatHandle FTM_FAST_CACHE_IMAGE_FETCH("Fast Cache Fetch");
 static LLTrace::BlockTimerStatHandle FTM_IMAGE_CREATE("Create");
 static LLTrace::BlockTimerStatHandle FTM_IMAGE_STATS("Stats");
-static LLTrace::BlockTimerStatHandle FTM_UPDATE_IMAGES("Update Images");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_TEXTURES("Update Textures");
 
 void LLViewerTextureList::updateImages(F32 max_time)
 {
-	LL_RECORD_BLOCK_TIME(FTM_UPDATE_IMAGES);
+	LL_RECORD_BLOCK_TIME(FTM_UPDATE_TEXTURES);
 	static BOOL cleared = FALSE;
 	if(gTeleportDisplay)
 	{

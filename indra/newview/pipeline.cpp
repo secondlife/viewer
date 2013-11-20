@@ -242,7 +242,7 @@ LLTrace::BlockTimerStatHandle FTM_RENDER_WL_SKY("Windlight Sky");
 LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA("Alpha Objects");
 LLTrace::BlockTimerStatHandle FTM_RENDER_CHARACTERS("Avatars");
 LLTrace::BlockTimerStatHandle FTM_RENDER_BUMP("Bump");
-LLTrace::BlockTimerStatHandle FTM_RENDER_MATERIALS("Materials");
+LLTrace::BlockTimerStatHandle FTM_RENDER_MATERIALS("Render Materials");
 LLTrace::BlockTimerStatHandle FTM_RENDER_FULLBRIGHT("Fullbright");
 LLTrace::BlockTimerStatHandle FTM_RENDER_GLOW("Glow");
 LLTrace::BlockTimerStatHandle FTM_GEO_UPDATE("Geo Update");

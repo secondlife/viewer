@@ -779,8 +779,8 @@ static bool proximity_comparitor(const LLViewerMediaImpl* i1, const LLViewerMedi
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_UPDATE("Update Media");
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_SPARE_IDLE("Spare Idle");
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_UPDATE_INTEREST("Update/Interest");
-static LLTrace::BlockTimerStatHandle FTM_MEDIA_SORT("Sort");
-static LLTrace::BlockTimerStatHandle FTM_MEDIA_SORT2("Sort 2");
+static LLTrace::BlockTimerStatHandle FTM_MEDIA_SORT("Media Sort");
+static LLTrace::BlockTimerStatHandle FTM_MEDIA_SORT2("Media Sort 2");
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_MISC("Misc");
 
 

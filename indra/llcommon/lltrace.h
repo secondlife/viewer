@@ -69,10 +69,10 @@ protected:
 template<typename ACCUMULATOR>
 class StatType 
 :	public StatBase,
-	public LLInstanceTracker<StatType<ACCUMULATOR>, std::string, LLInstanceTrackerAllowKeyCollisions>
+	public LLInstanceTracker<StatType<ACCUMULATOR>, std::string>
 {
 public:
-	typedef LLInstanceTracker<StatType<ACCUMULATOR>, std::string, LLInstanceTrackerAllowKeyCollisions> instance_tracker_t;
+	typedef LLInstanceTracker<StatType<ACCUMULATOR>, std::string> instance_tracker_t;
 	StatType(const char* name, const char* description)
 	:	instance_tracker_t(name),
 		StatBase(name, description),
