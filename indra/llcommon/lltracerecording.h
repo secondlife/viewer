@@ -334,7 +334,11 @@ namespace LLTrace
 		~PeriodicRecording();
 
 		void nextPeriod();
-		S32 getNumRecordedPeriods() { return mNumPeriods; }
+		S32 getNumRecordedPeriods() 
+		{ 
+			// current period counts if not active
+			return mNumRecordedPeriods + (isStarted() ? 0 : 1); 
+		}
 
 		F64Seconds getDuration() const;
 
@@ -351,8 +355,7 @@ namespace LLTrace
 		template <typename T>
 		S32 getSampleCount(const StatType<T>& stat, S32 num_periods = S32_MAX)
         {
-			S32 total_periods = mNumPeriods;
-			num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
+			num_periods = llmin(num_periods, getNumRecordedPeriods());
 
             S32 num_samples = 0;
 			for (S32 i = 1; i <= num_periods; i++)
@@ -371,8 +374,7 @@ namespace LLTrace
 		template <typename T>
 		typename T::value_t getPeriodMin(const StatType<T>& stat, S32 num_periods = S32_MAX)
 		{
-			S32 total_periods = mNumPeriods;
-			num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
+			num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 			bool has_value = false;
 			typename T::value_t min_val(std::numeric_limits<typename T::value_t>::max());
@@ -417,8 +419,7 @@ namespace LLTrace
 		template <typename T>
 		typename RelatedTypes<typename T::value_t>::fractional_t getPeriodMinPerSec(const StatType<T>& stat, S32 num_periods = S32_MAX)
 		{
-			S32 total_periods = mNumPeriods;
-			num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
+			num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 			typename RelatedTypes<typename T::value_t>::fractional_t min_val(std::numeric_limits<F64>::max());
 			for (S32 i = 1; i <= num_periods; i++)
@@ -443,8 +444,7 @@ namespace LLTrace
 		template <typename T>
 		typename T::value_t getPeriodMax(const StatType<T>& stat, S32 num_periods = S32_MAX)
 		{
-			S32 total_periods = mNumPeriods;
-			num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
+			num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 			bool has_value = false;
 			typename T::value_t max_val(std::numeric_limits<typename T::value_t>::min());
@@ -489,8 +489,7 @@ namespace LLTrace
 		template <typename T>
 		typename RelatedTypes<typename T::value_t>::fractional_t getPeriodMaxPerSec(const StatType<T>& stat, S32 num_periods = S32_MAX)
 		{
-			S32 total_periods = mNumPeriods;
-			num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
+			num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 			F64 max_val = std::numeric_limits<F64>::min();
 			for (S32 i = 1; i <= num_periods; i++)
@@ -515,8 +514,7 @@ namespace LLTrace
 		template <typename T>
 		typename RelatedTypes<typename T::value_t>::fractional_t getPeriodMean(const StatType<T >& stat, S32 num_periods = S32_MAX)
 		{
-			S32 total_periods = mNumPeriods;
-			num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
+			num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 			typename RelatedTypes<typename T::value_t>::fractional_t mean(0);
 
@@ -558,8 +556,7 @@ namespace LLTrace
 		template <typename T>
 		typename RelatedTypes<typename T::value_t>::fractional_t getPeriodMeanPerSec(const StatType<T>& stat, S32 num_periods = S32_MAX)
 		{
-			S32 total_periods = mNumPeriods;
-			num_periods = llmin(num_periods, isStarted() ? total_periods - 1 : total_periods);
+			num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 			typename RelatedTypes<typename T::value_t>::fractional_t mean = 0;
 
@@ -616,7 +613,7 @@ namespace LLTrace
 		std::vector<Recording>	mRecordingPeriods;
 		const bool				mAutoResize;
 		S32						mCurPeriod;
-		S32						mNumPeriods;
+		S32						mNumRecordedPeriods;
 	};
 
 	PeriodicRecording& get_frame_recording();
