@@ -923,6 +923,21 @@ void LLViewerRegion::addActiveCacheEntry(LLVOCacheEntry* entry)
 	mImpl->mActiveSet.insert(entry);
 }
 
+//remove vo entry which is in mImpl->mActiveSet but not in rendering pipeline.
+//this is caused by mImpl->mActiveSet failing to remove this entry somehow.
+void LLViewerRegion::removeDanglingEntry(LLVOCacheEntry* entry)
+{
+	if(mDead || !entry)
+	{
+		return;
+	}
+
+	mImpl->mVisibleEntries.erase(entry);
+	mImpl->mActiveSet.erase(entry);
+	mImpl->mWaitingSet.erase(entry);
+	entry->setState(LLVOCacheEntry::INACTIVE);
+}
+
 void LLViewerRegion::removeActiveCacheEntry(LLVOCacheEntry* entry, LLDrawable* drawablep)
 {
 	if(mDead || !entry)
@@ -1403,6 +1418,8 @@ void LLViewerRegion::killInvisibleObjects(F32 max_time)
 	}
 	
 	std::vector<LLDrawable*> delete_list;
+	std::vector<LLVOCacheEntry*> dangling_list;
+
 	S32 update_counter = llmin(max_update, mImpl->mActiveSet.size());
 	LLVOCacheEntry::vocache_entry_set_t::iterator iter = mImpl->mActiveSet.upper_bound(mLastVisitedEntry);		
 
@@ -1417,9 +1434,17 @@ void LLViewerRegion::killInvisibleObjects(F32 max_time)
 			continue; //skip child objects, they are removed with their parent.
 		}
 
-		if(!(*iter)->isAnyVisible(camera_origin, local_origin, back_threshold) && (*iter)->mLastCameraUpdated < sLastCameraUpdated)
+		LLVOCacheEntry* vo_entry = *iter;
+		if(!vo_entry->getEntry() || !vo_entry->getEntry()->getDrawable())
 		{
-			killObject((*iter), delete_list);
+			//sometimes mImpl->mActiveSet fails to erase some entry, causing this dangling case.
+			dangling_list.push_back(vo_entry);
+			continue;
+		}
+
+		if(!vo_entry->isAnyVisible(camera_origin, local_origin, back_threshold) && vo_entry->mLastCameraUpdated < sLastCameraUpdated)
+		{
+			killObject(vo_entry, delete_list);
 		}
 
 		if(max_time < update_timer.getElapsedTimeF32()) //time out
@@ -1441,11 +1466,20 @@ void LLViewerRegion::killInvisibleObjects(F32 max_time)
 	if(!delete_list.empty())
 	{
 		mInvisibilityCheckHistory |= 1;
-		for(S32 i = 0; i < delete_list.size(); i++)
+		S32 count = delete_list.size();
+		for(S32 i = 0; i < count; i++)
 		{
 			gObjectList.killObject(delete_list[i]->getVObj());
 		}
 		delete_list.clear();
+	}
+
+	if(!dangling_list.empty())
+	{
+		for(S32 i = 0; i < dangling_list.size(); i++)
+		{
+			removeDanglingEntry(dangling_list[i]);
+		}
 	}
 
 	return;
@@ -1457,7 +1491,7 @@ void LLViewerRegion::killObject(LLVOCacheEntry* entry, std::vector<LLDrawable*>&
 	LLDrawable* drawablep = (LLDrawable*)entry->getEntry()->getDrawable();
 	llassert(drawablep);
 
-	if(!drawablep->getParent())
+	if(drawablep && !drawablep->getParent())
 	{
 		LLViewerObject::const_child_list_t& child_list = drawablep->getVObj()->getChildren();
 		for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
