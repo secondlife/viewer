@@ -1,6 +1,7 @@
 /** 
- * @file llagentdata.h
- * @brief Contains commonly used agent data
+ * @file llsyntaxid.h
+ * @brief Contains methods to access the LSLSyntaxId feature and LSLSyntax capability
+ * to use the appropriate syntax file for the current region's LSL version.
  * @author Ima Mechanique
  *
  * $LicenseInfo:firstyear=2013&license=viewerlgpl$
