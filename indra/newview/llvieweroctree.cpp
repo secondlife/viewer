@@ -268,6 +268,10 @@ void LLViewerOctreeEntry::removeData(LLViewerOctreeEntryData* data)
 	{
 		return;
 	}
+	if(mData[data->getDataType()] != data)
+	{
+		return;
+	}
 
 	mData[data->getDataType()] = NULL;
 	
