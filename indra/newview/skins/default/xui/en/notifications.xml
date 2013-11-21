@@ -9764,15 +9764,7 @@ Only the first 10 selected objects have been disabled. Refresh and make addition
    type="notify">
    <tag>fail</tag>
 You need to update your viewer to buy this parcel.
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="LandBuyAccessBlocked"
-   type="notify">
-   <tag>fail</tag>
-You can't buy this land due to your maturity Rating. You may need to validate your age and/or install the latest Viewer. Please go to the Knowledge Base for details on accessing areas with this maturity Rating.
-  </notification>
+  </notification>  
 
   <notification
    icon="alertmodal.tga"
