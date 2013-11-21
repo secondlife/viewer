@@ -155,7 +155,7 @@ bool LLSyntaxIdLSL::checkSyntaxIdChanged()
 				else
 				{
 					message = "' it has the same LSLSyntaxId! Leaving hash as '"
-							+ mSyntaxIdCurrent + "'";
+							+ mSyntaxIdCurrent.asString() + "'";
 				}
 			}
 			else
