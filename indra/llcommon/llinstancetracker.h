@@ -224,7 +224,7 @@ private:
 				case LLInstanceTrackerErrorOnCollision:
 				{
 					// use assert here instead of LL_ERRS(), otherwise the error will be ignored since this call is made during global object initialization
-					llassert_always_msg(false, "ERROR: Instance with this same key already exists!");
+					llassert_always_msg(false, "Instance with this same key already exists!");
 					break;
 				}
 				case LLInstanceTrackerReplaceOnCollision:
