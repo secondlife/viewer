@@ -3256,21 +3256,21 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 				if (add_notification)
 				{
-					if(message.empty())
-					{
-						//support for frienship offers from clients before July 2008
-						LLNotificationsUtil::add("OfferFriendshipNoMessage", args, payload);
-					}
-					else
-					{
-						args["[MESSAGE]"] = message;
-						LLNotification::Params params("OfferFriendship");
-						params.substitutions = args;
-						params.payload = payload;
-						LLPostponedNotification::add<LLPostponedOfferNotification>(	params, from_id, false);
-					}
+				if(message.empty())
+				{
+					//support for frienship offers from clients before July 2008
+				        LLNotificationsUtil::add("OfferFriendshipNoMessage", args, payload);
+				}
+				else
+				{
+					args["[MESSAGE]"] = message;
+				    LLNotification::Params params("OfferFriendship");
+				    params.substitutions = args;
+				    params.payload = payload;
+				    LLPostponedNotification::add<LLPostponedOfferNotification>(	params, from_id, false);
 				}
 			}
+		}
 		}
 		break;
 
