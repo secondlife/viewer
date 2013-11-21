@@ -847,7 +847,7 @@ void LLViewerRegion::replaceVisibleCacheEntry(LLVOCacheEntry* old_entry, LLVOCac
 }
 
 //physically delete the cache entry
-void LLViewerRegion::killCacheEntry(LLVOCacheEntry* entry)
+void LLViewerRegion::killCacheEntry(LLVOCacheEntry* entry, bool kill_obj)
 {	
 	if(!entry)
 	{
@@ -857,6 +857,14 @@ void LLViewerRegion::killCacheEntry(LLVOCacheEntry* entry)
 	//remove from active list and waiting list
 	if(entry->isState(LLVOCacheEntry::ACTIVE))
 	{
+		if(kill_obj && entry->getEntry())
+		{
+			LLDrawable* drawablep = (LLDrawable*)entry->getEntry()->getDrawable();
+			if(drawablep)
+			{
+				gObjectList.killObject(drawablep->getVObj());
+			}
+		}
 		mImpl->mActiveSet.erase(entry);
 	}
 	else
@@ -887,16 +895,19 @@ void LLViewerRegion::killCacheEntry(LLVOCacheEntry* entry)
 		entry->removeAllChildren();
 	}
 	
-	entry->setState(LLVOCacheEntry::INACTIVE);
-	
+	if(kill_obj)
+	{
+		entry->setState(LLVOCacheEntry::INACTIVE);
+	}
+
 	//remove from mCacheMap, real deletion
 	mImpl->mCacheMap.erase(entry->getLocalID());
 }
 
 //physically delete the cache entry	
-void LLViewerRegion::killCacheEntry(U32 local_id) 
+void LLViewerRegion::killCacheEntry(U32 local_id, bool kill_obj) 
 {
-	killCacheEntry(getCacheEntry(local_id));
+	killCacheEntry(getCacheEntry(local_id), kill_obj);
 }
 
 U32 LLViewerRegion::getNumOfActiveCachedObjects() const
@@ -1458,6 +1469,7 @@ void LLViewerRegion::killObject(LLVOCacheEntry* entry, std::vector<LLDrawable*>&
 	//kill the object.
 	LLDrawable* drawablep = (LLDrawable*)entry->getEntry()->getDrawable();
 	llassert(drawablep);
+	llassert(drawablep->getRegion() == this);
 
 	if(drawablep && !drawablep->getParent())
 	{
@@ -1509,12 +1521,21 @@ LLViewerObject* LLViewerRegion::addNewObject(LLVOCacheEntry* entry)
 	}
 	else
 	{
+		LLViewerRegion* old_regionp = ((LLDrawable*)entry->getEntry()->getDrawable())->getRegion();
+		if(old_regionp != this)
+		{
+			//this object exists in two regions at the same time;
+			//this case can be safely ignored here because
+			//server should soon send update message to remove one region for this object.
+
+			LL_WARNS() << "Entry: " << entry->getLocalID() << " exists in two regions at the same time." << LL_ENDL;
+			return NULL;
+		}
+		
+		LL_WARNS() << "Entry: " << entry->getLocalID() << " in rendering pipeline but not set to be active." << LL_ENDL;
+
 		//should not hit here any more, but does not hurt either, just put it back to active list
 		addActiveCacheEntry(entry);
-
-		//object is already created, crash here for debug use.
-		LL_WARNS() << "Object is already created." << LL_ENDL;
-		llassert(!entry->getEntry()->hasDrawable());
 	}
 	return obj;
 }
@@ -2027,6 +2048,20 @@ void LLViewerRegion::decodeBoundingInfo(LLVOCacheEntry* entry)
 		
 		if(entry->getEntry()->hasDrawable()) //already in the rendering pipeline
 		{
+			LLViewerRegion* old_regionp = ((LLDrawable*)entry->getEntry()->getDrawable())->getRegion();
+			if(old_regionp != this && old_regionp)
+			{
+				LLViewerObject* obj = ((LLDrawable*)entry->getEntry()->getDrawable())->getVObj();
+				if(obj)
+				{
+					//remove from old region
+					old_regionp->killCacheEntry(obj->getLocalID(), false);
+
+					//change region
+					obj->setRegion(this);
+				}
+			}
+
 			addActiveCacheEntry(entry);
 		
 			//set parent id
@@ -2173,7 +2208,7 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLDataPackerB
 				
 				mImpl->mCacheMap[local_id] = entry;
 				decodeBoundingInfo(entry);
-		}
+			}
 
 			result = CACHE_UPDATE_CHANGED;
 		}
@@ -2198,23 +2233,6 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLDataPackerB
 LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp, U32 flags)
 {
 	eCacheUpdateResult result = cacheFullUpdate(dp, flags);
-
-#if 0
-	LLVOCacheEntry* entry = mImpl->mCacheMap[objectp->getLocalID()];
-	if(!entry)
-	{
-		return result;
-	}
-		
-	if(objectp->mDrawable.notNull() && !entry->getEntry())
-	{
-		entry->setOctreeEntry(objectp->mDrawable->getEntry());
-	}
-	if(entry->getEntry() && entry->getEntry()->hasDrawable() && entry->isState(LLVOCacheEntry::INACTIVE))
-	{
-		addActiveCacheEntry(entry);
-	}
-#endif
 
 	return result;
 }
