@@ -3112,6 +3112,7 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 		}
 	}
 
+#ifdef LL_WINDOWS
 	if (success)
 	{
 		gTwoTextureCompareProgram.mName = "Two Texture Compare Shader";
@@ -3143,6 +3144,7 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 			gOneTextureFilterProgram.uniform1i(sTex0, 0);
 		}
 	}
+#endif
 
 	if (success)
 	{

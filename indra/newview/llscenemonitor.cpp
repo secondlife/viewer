@@ -340,6 +340,7 @@ static LLStaticHashedString sDitherScaleT("dither_scale_t");
 
 void LLSceneMonitor::compare()
 {
+#ifdef LL_WINDOWS
 	if(mDiffState != NEED_DIFF)
 	{
 		return;
@@ -415,6 +416,7 @@ void LLSceneMonitor::compare()
 	{
 		calcDiffAggregate();
 	}
+#endif
 }
 
 static LLStaticHashedString sTolerance("tolerance");
@@ -422,6 +424,8 @@ static LLStaticHashedString sTolerance("tolerance");
 //calculate Diff aggregate information in GPU, and enable gl occlusion query to capture it.
 void LLSceneMonitor::calcDiffAggregate()
 {
+#ifdef LL_WINDOWS
+
 	LL_RECORD_BLOCK_TIME(FTM_SCENE_LOAD_IMAGE_DIFF);
 
 	if(mDiffState != EXECUTE_DIFF && !mDebugViewerVisible)
@@ -469,7 +473,8 @@ void LLSceneMonitor::calcDiffAggregate()
 	if(!mDebugViewerVisible)
 	{
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	}	
+	}
+#endif
 }
 
 static LLTrace::EventStatHandle<> sFramePixelDiff("FramePixelDifference");
