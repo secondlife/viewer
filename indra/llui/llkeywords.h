@@ -118,8 +118,6 @@ public:
 
 	void		findSegments(std::vector<LLTextSegmentPtr> *seg_list, const LLWString& text, const LLColor4 &defaultColor, class LLTextEditor& editor );
 	bool		initialise(LLSD SyntaxXML);
-	std::string	processColors();
-	std::string	processColors(LLSD &data, const std::string strGroup);
 	void		processTokens();
 
 	// Add the token as described

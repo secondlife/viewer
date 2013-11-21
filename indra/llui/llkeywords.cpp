@@ -67,10 +67,7 @@ inline BOOL LLKeywordToken::isTail(const llwchar* s) const
 	return res;
 }
 
-LLKeywords::LLKeywords() : mLoaded(FALSE)
-{
-	//setFilenameSyntax( gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"keywords_lsl_default.xml") );
-}
+LLKeywords::LLKeywords() : mLoaded(FALSE) { }
 
 LLKeywords::~LLKeywords()
 {
@@ -204,59 +201,6 @@ bool LLKeywords::initialise(LLSD SyntaxXML)
 	mLoaded = true;
 	return mLoaded;
 }
-
-///**
-// * @brief Start processing the colour LLSD from its beginning.
-// *
-// */
-//std::string LLKeywords::processColors()
-//{
-//	return processColors(mColors, "");
-//}
-
-///**
-// * @brief	Recursively process the colour LLSD from an arbitrary level.
-// * @desc	Process the supplied LLSD for colour data. The strPrefix is a string
-// *			of hyphen separated keys from previous levels.
-// */
-//std::string LLKeywords::processColors(LLSD &settings, const std::string strPrefix)
-//{
-//	if (settings.isMap() || (! settings.isMap() && strPrefix != "") )
-//	{
-//		LLSD llsd_map = settings;
-
-//		LLSD::map_iterator my_iter = llsd_map.beginMap();
-//		for ( ; my_iter != llsd_map.endMap(); ++my_iter)
-//		{
-//			std::string strGroup = strPrefix;
-//			const LLSD::String& key = my_iter->first;
-//			LLSD& value = my_iter->second;
-//
-//			if (key == "color")
-//			{
-//				if (value.isMap() || value.isArray())
-//				{
-//					addColorGroup(strGroup, readColor(value));
-//				}
-//				else
-//				{
-//					LL_WARNS("Invalid Color") << "Invalid Color Entry - first: '" << key << "' second: '" << value << "'" << LL_ENDL;
-//				}
-//			}
-//			else if (value.isMap())
-//			{
-//				strGroup += (strGroup.length() == 0) ? my_iter->first : "-" + my_iter->first;
-//				strGroup = processColors(value, strGroup);
-//			}
-//			else
-//			{
-//				LL_WARNS("Invalid Color") << "Invalid Color Entry - first: '" << key << "' second: '" << value << "'" << LL_ENDL;
-//			}
-//		}
-//	}
-//	return strPrefix;
-//}
-//*/
 
 void LLKeywords::processTokens()
 {
