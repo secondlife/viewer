@@ -223,10 +223,6 @@ void LLSyntaxIdLSL::initialise()
 		buildFullFileSpec();
 		if ( !mSyntaxIdNew.isNull() )
 		{
-			LL_INFOS("LSLSyntax")
-					<< "We have an ID for the version, processing it!"
-					<< LL_ENDL;
-
 			if ( !gDirUtilp->fileExists(mFullFileSpec) )
 			{ // Does not exist, so fetch it from the capability
 				fetchKeywordsFile();
