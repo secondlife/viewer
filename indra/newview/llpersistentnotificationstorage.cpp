@@ -149,7 +149,7 @@ void LLPersistentNotificationStorage::loadNotifications()
 			llwarns << "Too many persistent notifications."
 					<< " Processed " << gSavedSettings.getS32("MaxPersistentNotifications") << " of " << data.size() << " persistent notifications." << llendl;
 		    break;
-		}
+	}
 	}
 	LLNotifications::instance().getChannel("Persistent")->
 			connectChanged(boost::bind(&LLPersistentNotificationStorage::onPersistentChannelChanged, this, _1));

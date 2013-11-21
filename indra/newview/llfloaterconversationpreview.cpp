@@ -96,7 +96,7 @@ BOOL LLFloaterConversationPreview::postBuild()
 	return LLFloater::postBuild();
 }
 
-void LLFloaterConversationPreview::setPages(std::list<LLSD>& messages, const std::string& file_name)
+void LLFloaterConversationPreview::setPages(std::list<LLSD>& messages,const std::string& file_name)
 {
 	if(file_name == mChatHistoryFileName)
 	{
@@ -134,7 +134,7 @@ void LLFloaterConversationPreview::showHistory()
 {
 	// additional protection to avoid changes of mMessages in setPages
 	LLMutexLock lock(&mMutex);
-	if(!mMessages.size() || mCurrentPage * mPageSize >= mMessages.size())
+	if (!mMessages.size() || mCurrentPage * mPageSize >= mMessages.size())
 	{
 		return;
 	}
@@ -143,7 +143,7 @@ void LLFloaterConversationPreview::showHistory()
 	std::ostringstream message;
 	std::list<LLSD>::const_iterator iter = mMessages.begin();
 	std::advance(iter, mCurrentPage * mPageSize);
-	
+
 	for (int msg_num = 0; iter != mMessages.end() && msg_num < mPageSize; ++iter, ++msg_num)
 	{
 		LLSD msg = *iter;
