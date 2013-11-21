@@ -943,6 +943,10 @@ LLObjectSelectionHandle LLSelectMgr::setHoverObject(LLViewerObject *objectp, S32
 			 iter != objects.end(); ++iter)
 		{
 			LLViewerObject* cur_objectp = *iter;
+			if(!cur_objectp || cur_objectp->isDead())
+			{
+				continue;
+			}
 			LLSelectNode* nodep = new LLSelectNode(cur_objectp, FALSE);
 			nodep->selectTE(face, TRUE);
 			mHoverObjects->addNodeAtEnd(nodep);
