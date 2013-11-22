@@ -421,7 +421,6 @@ void LLScriptEdCore::onRegionChangeInitialiseKeywords()
 	mSyntaxIdLSL.initialise();
 	mEditor->mKeywords.initialise(mSyntaxIdLSL.getKeywordsXML());
 
-	LLColor3 color(0.5f, 0.0f, 0.15f);
 	mEditor->loadKeywords();
 
 	std::vector<std::string> primary_keywords;
@@ -431,8 +430,7 @@ void LLScriptEdCore::onRegionChangeInitialiseKeywords()
 	for (token_it = mEditor->keywordsBegin(); token_it != mEditor->keywordsEnd(); ++token_it)
 	{
 		token = token_it->second;
-		// FIX: change this to use the new Token Type enum entries.
-		if (token->getColor() == color) // Wow, what a disgusting hack.
+		if (token->getType() == LLKeywordToken::TT_FUNCTION)
 		{
 			primary_keywords.push_back( wstring_to_utf8str(token->getToken()) );
 		}
