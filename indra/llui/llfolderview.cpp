@@ -265,7 +265,7 @@ LLFolderView::~LLFolderView( void )
 	mItems.clear();
 	mFolders.clear();
 
-	mViewModel->setFolderView(NULL);
+	//mViewModel->setFolderView(NULL);
 	mViewModel = NULL;
 }
 
