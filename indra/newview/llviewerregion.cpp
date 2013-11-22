@@ -1480,10 +1480,18 @@ void LLViewerRegion::killObject(LLVOCacheEntry* entry, std::vector<LLDrawable*>&
 			LLViewerObject* child = *iter;
 			if(child->mDrawable)
 			{
+				if(!child->mDrawable->getEntry() || !child->mDrawable->getEntry()->hasVOCacheEntry())
+				{
+					//do not remove parent if any of its children non-cacheable
+					//especially for the case that an avatar sits on a cache-able object
+					((LLViewerOctreeEntryData*)drawablep)->setVisible();
+					return;
+				}
+
 				LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)child->mDrawable->getGroup();
 				if(group && group->isAnyRecentlyVisible())
 				{
-					//set the parent group visible if any of its children visible.
+					//set the parent visible if any of its children visible.
 					((LLViewerOctreeEntryData*)drawablep)->setVisible();
 					return;
 				}
