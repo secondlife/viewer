@@ -7385,11 +7385,25 @@ void LLPipeline::resetVertexBuffers()
 
 static LLTrace::BlockTimerStatHandle FTM_RESET_VB("Reset VB");
 
-void LLPipeline::doResetVertexBuffers()
+void LLPipeline::doResetVertexBuffers(bool forced)
 {
 	if (!mResetVertexBuffers)
 	{
 		return;
+	}
+	if(!forced && LLSpatialPartition::sTeleportRequested)
+	{
+		if(gAgent.getTeleportState() != LLAgent::TELEPORT_NONE)
+		{
+			return; //wait for teleporting to finish
+		}
+		else
+		{
+			//teleporting aborted
+			LLSpatialPartition::sTeleportRequested = FALSE;
+			mResetVertexBuffers = false;
+			return;
+		}
 	}
 
 	LL_RECORD_BLOCK_TIME(FTM_RESET_VB);

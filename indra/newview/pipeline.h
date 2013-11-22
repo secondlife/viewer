@@ -101,7 +101,7 @@ public:
 	void destroyGL();
 	void restoreGL();
 	void resetVertexBuffers();
-	void doResetVertexBuffers();
+	void doResetVertexBuffers(bool forced = false);
 	void resizeScreenTexture();
 	void releaseGLBuffers();
 	void releaseLUTBuffers();
