@@ -191,11 +191,11 @@ BOOL LLModalDialog::handleMouseDown(S32 x, S32 y, MASK mask)
 }
 
 BOOL LLModalDialog::handleHover(S32 x, S32 y, MASK mask)		
-{
+{ 
 	if( childrenHandleHover(x, y, mask) == NULL )
 	{
 		getWindow()->setCursor(UI_CURSOR_ARROW);
-		lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << llendl;
+		lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << llendl;		
 	}
 
 	LLView* popup_menu = LLMenuGL::sMenuContainer->getVisibleMenu();
