@@ -408,7 +408,8 @@ bool LLVOCacheEntry::isAnyVisible(const LLVector4a& camera_origin, const LLVecto
 	//not ready to remove
 	if(!vis)
 	{
-		vis = (group->getAnyVisible() + sMinFrameRange > LLViewerOctreeEntryData::getCurrentFrame());
+		S32 cur_vis = llmax(group->getAnyVisible(), (S32)getVisible());
+		vis = (cur_vis + sMinFrameRange > LLViewerOctreeEntryData::getCurrentFrame());
 	}
 
 	//within the back sphere
