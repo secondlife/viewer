@@ -287,4 +287,22 @@ protected:
 	category_map_t				mCategoryMap;
 };
 
+class LLFolderView;
+
+// Force a FolderView to scroll after an item in the corresponding view has been renamed.
+class LLScrollOnRenameObserver: public LLInventoryObserver
+{
+public:
+	LLFolderView *mView;
+	LLUUID mUUID;
+	
+	LLScrollOnRenameObserver(const LLUUID& uuid, LLFolderView *view):
+		mUUID(uuid),
+		mView(view)
+	{
+	}
+	/* virtual */ void changed(U32 mask);
+};
+
+
 #endif // LL_LLINVENTORYOBSERVERS_H

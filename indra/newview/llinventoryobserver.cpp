@@ -701,3 +701,24 @@ LLInventoryCategoriesObserver::LLCategoryData::LLCategoryData(
 {
 	mItemNameHash.finalize();
 }
+
+void LLScrollOnRenameObserver::changed(U32 mask)
+{
+	if (mask & LLInventoryObserver::LABEL)
+	{
+		// TODO - check for whether this is the item we're waiting for a rename of
+		const uuid_set_t& changed_item_ids = gInventory.getChangedIDs();
+		for (uuid_set_t::const_iterator it = changed_item_ids.begin(); it != changed_item_ids.end(); ++it)
+		{
+			const LLUUID& id = *it;
+			if (id == mUUID)
+			{
+				mView->scrollToShowSelection();
+					
+				gInventory.removeObserver(this);
+				delete this;
+				return;
+			}
+		}
+	}
+}
