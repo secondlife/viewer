@@ -847,7 +847,7 @@ void LLViewerRegion::replaceVisibleCacheEntry(LLVOCacheEntry* old_entry, LLVOCac
 }
 
 //physically delete the cache entry
-void LLViewerRegion::killCacheEntry(LLVOCacheEntry* entry, bool kill_obj)
+void LLViewerRegion::killCacheEntry(LLVOCacheEntry* entry)
 {	
 	if(!entry)
 	{
@@ -857,14 +857,6 @@ void LLViewerRegion::killCacheEntry(LLVOCacheEntry* entry, bool kill_obj)
 	//remove from active list and waiting list
 	if(entry->isState(LLVOCacheEntry::ACTIVE))
 	{
-		if(kill_obj && entry->getEntry())
-		{
-			LLDrawable* drawablep = (LLDrawable*)entry->getEntry()->getDrawable();
-			if(drawablep)
-			{
-				gObjectList.killObject(drawablep->getVObj());
-			}
-		}
 		mImpl->mActiveSet.erase(entry);
 	}
 	else
@@ -894,20 +886,15 @@ void LLViewerRegion::killCacheEntry(LLVOCacheEntry* entry, bool kill_obj)
 	{
 		entry->removeAllChildren();
 	}
-	
-	if(kill_obj)
-	{
-		entry->setState(LLVOCacheEntry::INACTIVE);
-	}
 
 	//remove from mCacheMap, real deletion
 	mImpl->mCacheMap.erase(entry->getLocalID());
 }
 
 //physically delete the cache entry	
-void LLViewerRegion::killCacheEntry(U32 local_id, bool kill_obj) 
+void LLViewerRegion::killCacheEntry(U32 local_id) 
 {
-	killCacheEntry(getCacheEntry(local_id), kill_obj);
+	killCacheEntry(getCacheEntry(local_id));
 }
 
 U32 LLViewerRegion::getNumOfActiveCachedObjects() const
@@ -2063,7 +2050,7 @@ void LLViewerRegion::decodeBoundingInfo(LLVOCacheEntry* entry)
 				if(obj)
 				{
 					//remove from old region
-					old_regionp->killCacheEntry(obj->getLocalID(), false);
+					old_regionp->killCacheEntry(obj->getLocalID());
 
 					//change region
 					obj->setRegion(this);
