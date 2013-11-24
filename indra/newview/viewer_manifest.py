@@ -112,6 +112,10 @@ class ViewerManifest(LLManifest):
                                   Persist=1,
                                   Type='String',
                                   Value=''),
+                    CmdLineGridChoice=dict(Comment='Default grid',
+                                  Persist=0,
+                                  Type='String',
+                                  Value=''),
                     CmdLineChannel=dict(Comment='Command line specified channel name',
                                         Persist=0,
                                         Type='String',
@@ -123,10 +127,14 @@ class ViewerManifest(LLManifest):
                     print "Set sourceid in settings_install.xml to '%s'" % self.args['sourceid']
 
                 if 'channel_suffix' in self.args and self.args['channel_suffix']:
-                    print "DEBUG CmdLineChannel channel_suffix '%s'" % self.args['channel_suffix']
                     settings_install['CmdLineChannel'] = settings_template['CmdLineChannel'].copy()
                     settings_install['CmdLineChannel']['Value'] = self.channel_with_pkg_suffix()
                     print "Set CmdLineChannel in settings_install.xml to '%s'" % self.channel_with_pkg_suffix()
+
+                if 'grid' in self.args and self.args['grid']:
+                    settings_install['CmdLineGridChoice'] = settings_template['CmdLineGridChoice'].copy()
+                    settings_install['CmdLineGridChoice']['Value'] = self.grid()
+                    print "Set CmdLineGridChoice in settings_install.xml to '%s'" % self.grid()
 
                 # did we actually copy anything into settings_install dict?
                 if settings_install:
@@ -263,31 +271,6 @@ class ViewerManifest(LLManifest):
     
     def icon_path(self):
         return "icons/" + self.channel_type()
-
-    def flags_list(self):
-        """ Convenience function that returns the command-line flags
-        for the grid"""
-
-        # The original role of this method seems to have been to build a
-        # grid-specific viewer: one that would, on launch, preselect a
-        # particular grid. (Apparently that dates back to when the protocol
-        # between viewer and simulator required them to be updated in
-        # lockstep, so that "the beta grid" required "a beta viewer.") But
-        # those viewer command-line switches no longer work without tweaking
-        # user_settings/grids.xml. In fact, going forward, it's unclear what
-        # use case that would address.
-
-        # This method also set a channel-specific (or grid-and-channel-
-        # specific) user_settings/settings_something.xml file. It has become
-        # clear that saving user settings in a channel-specific file causes
-        # more problems (confusion) than it solves, so we've discontinued that.
-
-        # In fact we now avoid forcing viewer command-line switches at all,
-        # instead introducing a settings_install.xml file. Command-line
-        # switches don't aggregate well; for instance the generated --channel
-        # switch actually prevented the user specifying --channel on the
-        # command line. Settings files have well-defined override semantics.
-        return None
 
     def extract_names(self,src):
         try:
@@ -616,9 +599,8 @@ class Windows_i686_Manifest(ViewerManifest):
         else:
             substitution_strings['caption'] = self.app_name() + ' ${VERSION}'
 
-        grid_vars_template = """
+        inst_vars_template = """
             OutFile "%(installer_file)s"
-            !define INSTFLAGS "%(flags)s"
             !define INSTNAME   "%(app_name_oneword)s"
             !define SHORTCUT   "%(app_name)s"
             !define URLNAME   "secondlife"
@@ -631,7 +613,7 @@ class Windows_i686_Manifest(ViewerManifest):
         self.replace_in("installers/windows/installer_template.nsi", tempfile, {
                 "%%VERSION%%":version_vars,
                 "%%SOURCE%%":self.get_src_prefix(),
-                "%%GRID_VARS%%":grid_vars_template % substitution_strings,
+                "%%INST_VARS%%":inst_vars_template % substitution_strings,
                 "%%INSTALL_FILES%%":self.nsi_file_commands(True),
                 "%%DELETE_FILES%%":self.nsi_file_commands(False)})
 

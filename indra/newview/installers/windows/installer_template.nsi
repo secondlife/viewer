@@ -72,16 +72,8 @@ LangString LanguageCode ${LANG_RUSSIAN}  "ru"
 LangString LanguageCode ${LANG_TURKISH}  "tr"
 LangString LanguageCode ${LANG_TRADCHINESE}  "zh"
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Tweak for different servers/builds (this placeholder is replaced by viewer_manifest.py)
-;; For example:
-;; !define INSTFLAGS "%(flags)s"
-;; !define INSTNAME   "SecondLife%(grid_caps)s"
-;; !define SHORTCUT   "Second Life (%(grid_caps)s)"
-;; !define URLNAME   "secondlife%(grid)s"
-;; !define UNINSTALL_SETTINGS 1
-
-%%GRID_VARS%%
+;; this placeholder is replaced by viewer_manifest.py
+%%INST_VARS%%
 
 Name ${INSTNAME}
 

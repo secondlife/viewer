@@ -113,10 +113,8 @@ ARGUMENTS=[
          default="Release"),
     dict(name='dest', description='Destination directory.', default=DEFAULT_SRCTREE),
     dict(name='grid',
-         description="""Which grid the client will try to connect to. Even
-        though it's not strictly a grid, 'firstlook' is also an acceptable
-        value for this parameter.""",
-         default=""),
+         description="""Which grid the client will try to connect to.""",
+         default=None),
     dict(name='channel',
          description="""The channel to use for updates, packaging, settings name, etc.""",
          default='CHANNEL UNSET'),
@@ -217,9 +215,9 @@ def main():
             print "Unable to read versionfile '%s'" % args['versionfile']
             raise
 
-    # default and agni are default
-    if args['grid'] in ['default', 'agni']:
-        args['grid'] = ''
+    # unspecified, default, and agni are default
+    if args['grid'] in ['', 'default', 'agni']:
+        args['grid'] = None
 
     if 'actions' in args:
         args['actions'] = args['actions'].split()
@@ -356,8 +354,6 @@ class LLManifest(object):
         self.created_paths = []
         self.package_name = "Unknown"
         
-    def default_grid(self):
-        return self.args.get('grid', None) == ''
     def default_channel(self):
         return self.args.get('channel', None) == RELEASE_CHANNEL
 
