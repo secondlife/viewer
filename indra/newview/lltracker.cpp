@@ -167,6 +167,7 @@ void LLTracker::render3D()
 	}
 	
 	static LLUIColor map_track_color = LLUIColorTable::instance().getColor("MapTrackColor", LLColor4::white);
+	static LLUIColor map_track_color_under = LLUIColorTable::instance().getColor("MapTrackColorUnder", LLColor4::white);
 	
 	// Arbitary location beacon
 	if( instance()->mIsTrackingLocation )
@@ -187,7 +188,7 @@ void LLTracker::render3D()
 		}
 		else
 		{
-			renderBeacon( instance()->mTrackedPositionGlobal, map_track_color, 
+			renderBeacon( instance()->mTrackedPositionGlobal, map_track_color, map_track_color_under,
 					  	instance()->mBeaconText, instance()->mTrackedLocationName );
 		}
 	}
@@ -229,7 +230,7 @@ void LLTracker::render3D()
 					// and back again
 					instance()->mHasReachedLandmark = FALSE;
 				}
-				renderBeacon( instance()->mTrackedPositionGlobal, map_track_color, 
+				renderBeacon( instance()->mTrackedPositionGlobal, map_track_color, map_track_color_under,
 							  instance()->mBeaconText, instance()->mTrackedLandmarkName );
 			}
 		}
@@ -258,7 +259,7 @@ void LLTracker::render3D()
 			}
 			else
 			{
-				renderBeacon( av_tracker.getGlobalPos(), map_track_color, 
+				renderBeacon( av_tracker.getGlobalPos(), map_track_color, map_track_color_under,
 						  	instance()->mBeaconText, av_tracker.getName() );
 			}
 		}
@@ -412,7 +413,7 @@ const std::string& LLTracker::getTrackedLocationName()
 	return instance()->mTrackedLocationName;
 }
 
-F32 pulse_func(F32 t, F32 z, bool tracking_avatar)
+F32 pulse_func(F32 t, F32 z, bool tracking_avatar, std::string direction)
 {
 	if (!LLTracker::sCheesyBeacon)
 	{
@@ -420,7 +421,7 @@ F32 pulse_func(F32 t, F32 z, bool tracking_avatar)
 	}
 	
 	t *= F_PI;
-	if (tracking_avatar)
+	if ("DOWN" == direction)
 	{
 		z += t*64.f - 256.f;
 	}
@@ -481,10 +482,79 @@ void draw_shockwave(F32 center_z, F32 t, S32 steps, LLColor4 color)
 	gGL.end();
 }
 
+void LLTracker::drawBeacon(LLVector3 pos_agent, std::string direction, LLColor4 fogged_color, F32 dist)
+{
+	const U32 BEACON_VERTS = 256;
+	F32 step;
+
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
+	gGL.pushMatrix();
+
+	if ("DOWN" == direction)
+	{
+		gGL.translatef(pos_agent.mV[0], pos_agent.mV[1], pos_agent.mV[2]);
+		draw_shockwave(1024.f, gRenderStartTime.getElapsedTimeF32(), 32, fogged_color);
+		step = (5020.0f - pos_agent.mV[2]) / BEACON_VERTS;
+	}
+	else
+	{
+		gGL.translatef(pos_agent.mV[0], pos_agent.mV[1], 0);
+		step = pos_agent.mV[2] / BEACON_VERTS;
+	}
+
+	gGL.color4fv(fogged_color.mV);
+
+	LLVector3 x_axis = LLViewerCamera::getInstance()->getLeftAxis();
+	F32 t = gRenderStartTime.getElapsedTimeF32();
+	F32 dr = dist/LLViewerCamera::getInstance()->getFar();
+
+	for (U32 i = 0; i < BEACON_VERTS; i++)
+	{
+		F32 x = x_axis.mV[0];
+		F32 y = x_axis.mV[1];
+			
+		F32 z = i * step;
+		F32 z_next = (i+1)*step;
+
+		bool tracking_avatar = getTrackingStatus() == TRACKING_AVATAR;
+		F32 a = pulse_func(t, z, tracking_avatar, direction);
+		F32 an = pulse_func(t, z_next, tracking_avatar, direction);
+
+		LLColor4 c_col = fogged_color + LLColor4(a,a,a,a);
+		LLColor4 col_next = fogged_color + LLColor4(an,an,an,an);
+		LLColor4 col_edge = fogged_color * LLColor4(a,a,a,0.0f);
+		LLColor4 col_edge_next = fogged_color * LLColor4(an,an,an,0.0f);
+
+		a *= 2.f;
+		a += 1.0f+dr;
+
+		an *= 2.f;
+		an += 1.0f+dr;
+
+		gGL.begin(LLRender::TRIANGLE_STRIP);
+		gGL.color4fv(col_edge.mV);
+		gGL.vertex3f(-x*a, -y*a, z);
+		gGL.color4fv(col_edge_next.mV);
+		gGL.vertex3f(-x*an, -y*an, z_next);
+
+		gGL.color4fv(c_col.mV);
+		gGL.vertex3f(0, 0, z);
+		gGL.color4fv(col_next.mV);
+		gGL.vertex3f(0, 0, z_next);
+
+		gGL.color4fv(col_edge.mV);
+		gGL.vertex3f(x*a,y*a,z);
+		gGL.color4fv(col_edge_next.mV);
+		gGL.vertex3f(x*an,y*an,z_next);
+		gGL.end();
+	}
+	gGL.popMatrix();
+}
 
 // static 
 void LLTracker::renderBeacon(LLVector3d pos_global, 
-							 const LLColor4& color, 
+							 const LLColor4& color,
+							 const LLColor4& color_under,
 							 LLHUDText* hud_textp, 
 							 const std::string& label )
 {
@@ -504,11 +574,11 @@ void LLTracker::renderBeacon(LLVector3d pos_global,
 	}
 
 	LLColor4 fogged_color = color_frac * color + (1 - color_frac)*gSky.getFogColor();
-	LLColor4 under_color = color_frac * LLColor4::blue + (1 - color_frac) * gSky.getFogColor();
+	LLColor4 fogged_color_under = color_frac * color_under + (1 - color_frac) * gSky.getFogColor();
 
 	F32 FADE_DIST = 3.f;
 	fogged_color.mV[3] = llmax(0.2f, llmin(0.5f,(dist-FADE_DIST)/FADE_DIST));
-	under_color.mV[3] = llmax(0.2f, llmin(0.5f,(dist-FADE_DIST)/FADE_DIST));
+	fogged_color_under.mV[3] = llmax(0.2f, llmin(0.5f,(dist-FADE_DIST)/FADE_DIST));
 
 	LLVector3 pos_agent = gAgent.getPosAgentFromGlobal(pos_global);
 
@@ -517,120 +587,8 @@ void LLTracker::renderBeacon(LLVector3d pos_global,
 	LLGLDisable cull_face(GL_CULL_FACE);
 	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
 	
-	gGL.matrixMode(LLRender::MM_MODELVIEW);
-	gGL.pushMatrix();
-	{
-		gGL.translatef(pos_agent.mV[0], pos_agent.mV[1], pos_agent.mV[2]);
-
-		draw_shockwave(1024.f, gRenderStartTime.getElapsedTimeF32(), 32, fogged_color);
-
-		gGL.color4fv(fogged_color.mV);
-		const U32 BEACON_VERTS = 256;
-		const F32 step = (5020.0f - pos_agent.mV[2]) / BEACON_VERTS;
-
-		LLVector3 x_axis = LLViewerCamera::getInstance()->getLeftAxis();
-		F32 t = gRenderStartTime.getElapsedTimeF32();
-		F32 dr = dist/LLViewerCamera::getInstance()->getFar();
-
-		for (U32 i = 0; i < BEACON_VERTS; i++)
-		{
-			F32 x = x_axis.mV[0];
-			F32 y = x_axis.mV[1];
-			
-			F32 z = i * step;
-			F32 z_next = (i+1)*step;
-
-			bool tracking_avatar = getTrackingStatus() == TRACKING_AVATAR;
-			F32 a = pulse_func(t, z, tracking_avatar);
-			F32 an = pulse_func(t, z_next, tracking_avatar);
-			
-			LLColor4 c_col = fogged_color + LLColor4(a,a,a,a);
-			LLColor4 col_next = fogged_color + LLColor4(an,an,an,an);
-			LLColor4 col_edge = fogged_color * LLColor4(a,a,a,0.0f);
-			LLColor4 col_edge_next = fogged_color * LLColor4(an,an,an,0.0f);
-			
-			a *= 2.f;
-			a += 1.0f+dr;
-			
-			an *= 2.f;
-			an += 1.0f+dr;
-		
-			gGL.begin(LLRender::TRIANGLE_STRIP);
-			gGL.color4fv(col_edge.mV);
-			gGL.vertex3f(-x*a, -y*a, z);
-			gGL.color4fv(col_edge_next.mV);
-			gGL.vertex3f(-x*an, -y*an, z_next);
-			
-			gGL.color4fv(c_col.mV);
-			gGL.vertex3f(0, 0, z);
-			gGL.color4fv(col_next.mV);
-			gGL.vertex3f(0, 0, z_next);
-			
-			gGL.color4fv(col_edge.mV);
-			gGL.vertex3f(x*a,y*a,z);
-			gGL.color4fv(col_edge_next.mV);
-			gGL.vertex3f(x*an,y*an,z_next);
-			gGL.end();
-		}
-	}
-	gGL.popMatrix();
-
-	gGL.pushMatrix();
-	{
-		gGL.translatef(pos_agent.mV[0], pos_agent.mV[1], 0);
-
-//		draw_shockwave(1024.f, gRenderStartTime.getElapsedTimeF32(), 32, under_color);
-
-		gGL.color4fv(under_color.mV);
-		const U32 BEACON_VERTS = 256;
-		const F32 step = pos_agent.mV[2] / BEACON_VERTS;
-
-		LLVector3 x_axis = LLViewerCamera::getInstance()->getLeftAxis();
-		F32 t = gRenderStartTime.getElapsedTimeF32();
-		F32 dr = dist/LLViewerCamera::getInstance()->getFar();
-
-		for (U32 i = 0; i < BEACON_VERTS; i++)
-		{
-			F32 x = x_axis.mV[0];
-			F32 y = x_axis.mV[1];
-			
-			F32 z = i * step;
-			F32 z_next = (i+1)*step;
-
-			bool tracking_avatar = getTrackingStatus() == TRACKING_AVATAR;
-			F32 a = pulse_func(t, z, tracking_avatar);
-			F32 an = pulse_func(t, z_next, tracking_avatar);
-			
-			LLColor4 c_col = under_color + LLColor4(a,a,a,a);
-			LLColor4 col_next = under_color + LLColor4(an,an,an,an);
-			LLColor4 col_edge = under_color * LLColor4(a,a,a,0.0f);
-			LLColor4 col_edge_next = under_color * LLColor4(an,an,an,0.0f);
-			
-			a *= 2.f;
-			a += 1.0f+dr;
-			
-			an *= 2.f;
-			an += 1.0f+dr;
-		
-			gGL.begin(LLRender::TRIANGLE_STRIP);
-			gGL.color4fv(col_edge.mV);
-			gGL.vertex3f(-x*a, -y*a, z);
-			gGL.color4fv(col_edge_next.mV);
-			gGL.vertex3f(-x*an, -y*an, z_next);
-			
-			gGL.color4fv(c_col.mV);
-			gGL.vertex3f(0, 0, z);
-			gGL.color4fv(col_next.mV);
-			gGL.vertex3f(0, 0, z_next);
-			
-			gGL.color4fv(col_edge.mV);
-			gGL.vertex3f(x*a,y*a,z);
-			gGL.color4fv(col_edge_next.mV);
-			gGL.vertex3f(x*an,y*an,z_next);
-			gGL.end();
-		}
-	}
-	gGL.popMatrix();
+	LLTracker::drawBeacon(pos_agent, "DOWN", fogged_color, dist);
+	LLTracker::drawBeacon(pos_agent, "UP", fogged_color_under, dist);
 
 	std::string text;
 	text = llformat( "%.0f m", to_vec.magVec());

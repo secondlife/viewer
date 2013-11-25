@@ -511,6 +511,9 @@
      name="MapTrackColor"
      reference="Red" />
     <color
+     name="MapTrackColorUnder"
+     reference="Blue" />
+    <color
      name="MapTrackDisabledColor"
      value="0.5 0 0 1" />
     <color
