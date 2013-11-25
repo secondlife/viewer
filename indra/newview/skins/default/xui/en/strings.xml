@@ -2339,8 +2339,7 @@ Drag folders to this area and click "Send to Marketplace" to list them for sale 
 	<string name="InvFolder Merchant Outbox">Merchant Outbox</string>
 
   <!-- are used for Friends and Friends/All folders in Inventory "Calling cards" folder. See EXT-694-->
-	<string name="InvFolder Friends">Friends</string>
-	<string name="InvFolder Received Items">Received Items</string>
+	<string name="InvFolder Friends">Friends</string>	
 	<string name="InvFolder All">All</string>
 
 	<string name="no_attachments">No attachments worn</string>

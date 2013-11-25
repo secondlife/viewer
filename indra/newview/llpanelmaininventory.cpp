@@ -574,13 +574,16 @@ void LLPanelMainInventory::draw()
 
 void LLPanelMainInventory::updateItemcountText()
 {
-	// *TODO: Calling setlocale() on each frame may be inefficient.
-	//LLLocale locale(LLStringUtil::getLocale());
-	std::string item_count_string;
-	LLResMgr::getInstance()->getIntegerString(item_count_string, gInventory.getItemCount());
+	if(mItemCount != gInventory.getItemCount())
+	{
+		mItemCount = gInventory.getItemCount();
+		mItemCountString = "";
+		LLLocale locale(LLLocale::USER_LOCALE);
+		LLResMgr::getInstance()->getIntegerString(mItemCountString, mItemCount);
+	}
 
 	LLStringUtil::format_map_t string_args;
-	string_args["[ITEM_COUNT]"] = item_count_string;
+	string_args["[ITEM_COUNT]"] = mItemCountString;
 	string_args["[FILTER]"] = getFilterText();
 
 	std::string text = "";

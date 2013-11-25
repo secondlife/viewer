@@ -9764,15 +9764,7 @@ Only the first 10 selected objects have been disabled. Refresh and make addition
    type="notify">
    <tag>fail</tag>
 You need to update your viewer to buy this parcel.
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="LandBuyAccessBlocked"
-   type="notify">
-   <tag>fail</tag>
-You can't buy this land due to your maturity Rating. You may need to validate your age and/or install the latest Viewer. Please go to the Knowledge Base for details on accessing areas with this maturity Rating.
-  </notification>
+  </notification>  
 
   <notification
    icon="alertmodal.tga"
@@ -9835,7 +9827,9 @@ Not enough leased parcels in selection to join.
    name="CantDivideLandMultipleParcelsSelected"
    type="notify">
    <tag>fail</tag>
-Can't divide land.\nThere is more than one parcel selected.\nTry selecting a smaller piece of land.
+Can't divide land.
+There is more than one parcel selected.
+Try selecting a smaller piece of land.
   </notification>
 
   <notification
@@ -9843,7 +9837,9 @@ Can't divide land.\nThere is more than one parcel selected.\nTry selecting a sma
    name="CantDivideLandCantFindParcel"
    type="notify">
    <tag>fail</tag>
-Can't divide land.\nCan't find the parcel.\nPlease report with Help -> Reprt Bug...
+Can't divide land.
+Can't find the parcel.
+Please report with Help -> Report Bug...
   </notification>
 
   <notification
@@ -9851,7 +9847,8 @@ Can't divide land.\nCan't find the parcel.\nPlease report with Help -> Reprt Bug
    name="CantDivideLandWholeParcelSelected"
    type="notify">
    <tag>fail</tag>
-Can't divide land. Whole parcel is selected.\nTry selecting a smaller piece of land.
+Can't divide land. Whole parcel is selected.
+Try selecting a smaller piece of land.
   </notification>
 
   <notification
