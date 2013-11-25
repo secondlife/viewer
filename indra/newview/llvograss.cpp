@@ -277,7 +277,7 @@ BOOL LLVOGrass::isActive() const
 	return TRUE;
 }
 
-void LLVOGrass::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
+void LLVOGrass::idleUpdate(LLAgent &agent, const F64 &time)
 {
  	if (mDead || !(gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_GRASS)))
 	{
