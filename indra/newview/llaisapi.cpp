@@ -33,6 +33,7 @@
 #include "llinventorymodel.h"
 #include "llsdutil.h"
 #include "llviewerregion.h"
+#include "llinventoryobserver.h"
 
 ///----------------------------------------------------------------------------
 /// Classes for AISv3 support.
@@ -781,7 +782,7 @@ void AISUpdate::doUpdate()
 		LLUUID category_id(create_it->first);
 		LLPointer<LLViewerInventoryCategory> new_category = create_it->second;
 
-		gInventory.updateCategory(new_category);
+		gInventory.updateCategory(new_category, LLInventoryObserver::CREATE);
 		LL_DEBUGS("Inventory") << "created category " << category_id << LL_ENDL;
 	}
 
@@ -818,7 +819,7 @@ void AISUpdate::doUpdate()
 		// cases.  Maybe break out the update/create cases, in which
 		// case this is create.
 		LL_DEBUGS("Inventory") << "created item " << item_id << LL_ENDL;
-		gInventory.updateItem(new_item);
+		gInventory.updateItem(new_item, LLInventoryObserver::CREATE);
 	}
 	
 	// UPDATE ITEMS

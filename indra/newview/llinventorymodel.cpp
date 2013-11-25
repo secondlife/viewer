@@ -944,7 +944,7 @@ LLInventoryModel::item_array_t* LLInventoryModel::getUnlockedItemArray(const LLU
 
 // Calling this method with an inventory category will either change
 // an existing item with the matching id, or it will add the category.
-void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat)
+void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat, U32 mask)
 {
 	if(cat->getUUID().isNull())
 	{
@@ -961,7 +961,6 @@ void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat)
 	if(old_cat)
 	{
 		// We already have an old category, modify it's values
-		U32 mask = LLInventoryObserver::NONE;
 		LLUUID old_parent_id = old_cat->getParentUUID();
 		LLUUID new_parent_id = cat->getParentUUID();
 		if(old_parent_id != new_parent_id)
@@ -1128,6 +1127,7 @@ void LLInventoryModel::onAISUpdateReceived(const std::string& context, const LLS
 	llinfos << "elapsed: " << timer.getElapsedTimeF32() << llendl;
 }
 
+// Does not appear to be used currently.
 void LLInventoryModel::onItemUpdated(const LLUUID& item_id, const LLSD& updates, bool update_parent_version)
 {
 	U32 mask = LLInventoryObserver::NONE;
@@ -1168,6 +1168,7 @@ void LLInventoryModel::onItemUpdated(const LLUUID& item_id, const LLSD& updates,
 	}
 }
 
+// Not used?
 void LLInventoryModel::onCategoryUpdated(const LLUUID& cat_id, const LLSD& updates)
 {
 	U32 mask = LLInventoryObserver::NONE;

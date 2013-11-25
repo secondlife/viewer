@@ -309,7 +309,7 @@ public:
 	//    NOTE: In usage, you will want to perform cache accounting
 	//    operations in accountForUpdate() or LLViewerInventoryCategory::
 	//    updateServer() before calling this method.
-	void updateCategory(const LLViewerInventoryCategory* cat);
+	void updateCategory(const LLViewerInventoryCategory* cat, U32 mask = 0);
 
 	// Move the specified object id to the specified category and
 	// update the internal structures. No cache accounting,
