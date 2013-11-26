@@ -506,7 +506,6 @@ void LLTracker::drawBeacon(LLVector3 pos_agent, std::string direction, LLColor4 
 
 	LLVector3 x_axis = LLViewerCamera::getInstance()->getLeftAxis();
 	F32 t = gRenderStartTime.getElapsedTimeF32();
-	F32 dr = dist/LLViewerCamera::getInstance()->getFar();
 
 	for (U32 i = 0; i < BEACON_VERTS; i++)
 	{
@@ -526,10 +525,10 @@ void LLTracker::drawBeacon(LLVector3 pos_agent, std::string direction, LLColor4 
 		LLColor4 col_edge_next = fogged_color * LLColor4(an,an,an,0.0f);
 
 		a *= 2.f;
-		a += 1.0f+dr;
+		a += 1.0f;
 
 		an *= 2.f;
-		an += 1.0f+dr;
+		an += 1.0f;
 
 		gGL.begin(LLRender::TRIANGLE_STRIP);
 		gGL.color4fv(col_edge.mV);
