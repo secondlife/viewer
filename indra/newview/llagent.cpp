@@ -1099,9 +1099,9 @@ const LLVector3 &LLAgent::getPositionAgent()
 			mFrameAgent.setOrigin(gAgentAvatarp->getPositionAgent());
 		}
 		else
-		{
-			mFrameAgent.setOrigin(gAgentAvatarp->getRenderPosition());
-		}
+	{
+		mFrameAgent.setOrigin(gAgentAvatarp->getRenderPosition());	
+	}
 	}
 
 
