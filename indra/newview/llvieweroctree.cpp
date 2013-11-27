@@ -481,6 +481,12 @@ bool LLViewerOctreeGroup::removeFromGroup(LLViewerOctreeEntry* entry)
 {
 	llassert(entry != NULL);
 	llassert(!entry->getGroup());
+	
+	if(isDead()) //group is about to be destroyed, not need to double delete the entry.
+	{
+		entry->setBinIndex(-1);
+		return true;
+	}
 
 	unbound();
 	setState(OBJECT_DIRTY);

@@ -840,9 +840,9 @@ void LLSpatialGroup::handleDestruction(const TreeNode* node)
 	{
 		return;
 	}
-	setState(DEAD);
-	
-	for (element_iter i = getDataBegin(); getElementCount() > 0 && i != getDataEnd();)
+	setState(DEAD);	
+
+	for (element_iter i = getDataBegin(); i != getDataEnd(); ++i)
 	{
 		LLViewerOctreeEntry* entry = *i;
 
@@ -852,14 +852,6 @@ void LLSpatialGroup::handleDestruction(const TreeNode* node)
 			{
 				((LLDrawable*)entry->getDrawable())->setGroup(NULL);
 			}
-			else
-	{
-				LL_ERRS() << "No Drawable found in the entry." << LL_ENDL;
-			}
-		}
-		else
-		{
-			++i;
 		}
 	}
 	
