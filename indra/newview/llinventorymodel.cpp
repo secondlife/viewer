@@ -1268,12 +1268,6 @@ void LLInventoryModel::updateLinkedObjectsFromPurge(const LLUUID &baseobj_id)
 // folders, items, etc in a fairly efficient manner.
 void LLInventoryModel::purgeDescendentsOf(const LLUUID& id)
 {
-	EHasChildren children = categoryHasChildren(id);
-	if(children == CHILDREN_NO)
-	{
-		llinfos << "Not purging descendents of " << id << llendl;
-		return;
-	}
 	LLPointer<LLViewerInventoryCategory> cat = getCategory(id);
 	if (cat.notNull())
 	{
