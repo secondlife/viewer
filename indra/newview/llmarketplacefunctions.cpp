@@ -192,9 +192,11 @@ namespace LLMarketplaceImport
 				llinfos << " SLM GET timer: " << slmGetTimer.getElapsedTimeF32() << llendl;
 			}
 			
-            // MAINT-2452 : Do not clear the cookie on IMPORT_DONE_WITH_ERRORS
+            // MAINT-2452 : Do not clear the cookie on IMPORT_DONE_WITH_ERRORS : Happens when trying to import objects with wrong permissions
+            // ACME-1221 : Do not clear the cookie on IMPORT_NOT_FOUND : Happens for newly created Merchant accounts that are initally empty
 			if ((status >= MarketplaceErrorCodes::IMPORT_BAD_REQUEST) &&
-                (status != MarketplaceErrorCodes::IMPORT_DONE_WITH_ERRORS))
+                (status != MarketplaceErrorCodes::IMPORT_DONE_WITH_ERRORS) &&
+                (status != MarketplaceErrorCodes::IMPORT_NOT_FOUND))
 			{
 				if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 				{
@@ -202,9 +204,9 @@ namespace LLMarketplaceImport
 				}
 				sMarketplaceCookie.clear();
 			}
-            else if (gSavedSettings.getBOOL("InventoryOutboxLogging") && (status == MarketplaceErrorCodes::IMPORT_DONE_WITH_ERRORS))
+            else if (gSavedSettings.getBOOL("InventoryOutboxLogging") && (status >= MarketplaceErrorCodes::IMPORT_BAD_REQUEST))
             {
-                llinfos << " SLM GET : Got IMPORT_DONE_WITH_ERRORS, marketplace cookie not cleared." << llendl;
+                llinfos << " SLM GET : Got error status = " << status << ", but marketplace cookie not cleared." << llendl;
             }
 
 			sImportInProgress = (status == MarketplaceErrorCodes::IMPORT_PROCESSING);
