@@ -90,6 +90,7 @@ public:
 	void initialize();
 	bool triggerImport();
 	bool isImportInProgress() const { return mImportInProgress; }
+	bool isInitialized() const { return mInitialized; }
 	U32 getMarketPlaceStatus() const { return mMarketPlaceStatus; }
 	
 protected:

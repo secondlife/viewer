@@ -297,13 +297,15 @@ void LLFloaterOutbox::initializeMarketPlace()
 	//
 	// Initialize the marketplace import API
 	//
-	
 	LLMarketplaceInventoryImporter& importer = LLMarketplaceInventoryImporter::instance();
 	
-	importer.setInitializationErrorCallback(boost::bind(&LLFloaterOutbox::initializationReportError, this, _1, _2));
-	importer.setStatusChangedCallback(boost::bind(&LLFloaterOutbox::importStatusChanged, this, _1));
-	importer.setStatusReportCallback(boost::bind(&LLFloaterOutbox::importReportResults, this, _1, _2));
-	importer.initialize();
+    if (!importer.isInitialized())
+    {
+        importer.setInitializationErrorCallback(boost::bind(&LLFloaterOutbox::initializationReportError, this, _1, _2));
+        importer.setStatusChangedCallback(boost::bind(&LLFloaterOutbox::importStatusChanged, this, _1));
+        importer.setStatusReportCallback(boost::bind(&LLFloaterOutbox::importReportResults, this, _1, _2));
+        importer.initialize();
+    }
 }
 
 void LLFloaterOutbox::setStatusString(const std::string& statusString)
