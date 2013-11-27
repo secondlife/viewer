@@ -1473,16 +1473,14 @@ void LLItemBridge::doShowOnMap(LLLandmark* landmark)
 {
 	LLVector3d landmark_global_pos;
 	// landmark has already been tested for NULL by calling routine
-	if (!landmark->getGlobalPos(landmark_global_pos))
+	if (landmark->getGlobalPos(landmark_global_pos))
 	{
-		return;
-	}
-
-	LLFloaterWorldMap* worldmap_instance = LLFloaterWorldMap::getInstance();
-	if (!landmark_global_pos.isExactlyZero() && worldmap_instance)
-	{
-		worldmap_instance->trackLocation(landmark_global_pos);
-		LLFloaterReg::showInstance("world_map", "center");
+		LLFloaterWorldMap* worldmap_instance = LLFloaterWorldMap::getInstance();
+		if (!landmark_global_pos.isExactlyZero() && worldmap_instance)
+		{
+			worldmap_instance->trackLocation(landmark_global_pos);
+			LLFloaterReg::showInstance("world_map", "center");
+		}
 	}
 }
 
