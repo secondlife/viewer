@@ -890,6 +890,7 @@ BOOL LLPanelRegionDebugInfo::postBuild()
 	childSetAction("top_scripts_btn", onClickTopScripts, this);
 	childSetAction("restart_btn", onClickRestart, this);
 	childSetAction("cancel_restart_btn", onClickCancelRestart, this);
+	childSetAction("region_debug_console_btn", onClickDebugConsole, this);
 
 	return TRUE;
 }
@@ -911,6 +912,7 @@ bool LLPanelRegionDebugInfo::refreshFromRegion(LLViewerRegion* region)
 	getChildView("top_scripts_btn")->setEnabled(allow_modify);
 	getChildView("restart_btn")->setEnabled(allow_modify);
 	getChildView("cancel_restart_btn")->setEnabled(allow_modify);
+	getChildView("region_debug_console_btn")->setEnabled(allow_modify);
 
 	return LLPanelRegionInfo::refreshFromRegion(region);
 }
@@ -1073,6 +1075,11 @@ void LLPanelRegionDebugInfo::onClickCancelRestart(void* data)
 	self->sendEstateOwnerMessage(gMessageSystem, "restart", invoice, strings);
 }
 
+// static
+void LLPanelRegionDebugInfo::onClickDebugConsole(void* data)
+{
+	LLFloaterReg::showInstance("region_debug_console");
+}
 
 BOOL LLPanelRegionTerrainInfo::validateTextureSizes()
 {
