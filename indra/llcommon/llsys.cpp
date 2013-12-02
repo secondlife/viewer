@@ -315,11 +315,11 @@ LLOSInfo::LLOSInfo() :
 					}
 					else
 					{
-						if(osvi.wProductType == VER_NT_WORKSTATION)
-							mOSStringSimple = "Microsoft Windows 8 ";
-						else
-							mOSStringSimple = "Windows Server 2012 ";
-					}
+					if(osvi.wProductType == VER_NT_WORKSTATION)
+						mOSStringSimple = "Microsoft Windows 8 ";
+					else
+						mOSStringSimple = "Windows Server 2012 ";
+				}
 				}
 
 				///get native system info if available..
