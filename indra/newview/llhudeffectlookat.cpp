@@ -204,7 +204,7 @@ static BOOL loadAttentions()
 	//-------------------------------------------------------------------------
 	if( !root->hasName( "linden_attentions" ) )
 	{
-		llwarns << "Invalid linden_attentions file header: " << filename << llendl;
+		LL_WARNS() << "Invalid linden_attentions file header: " << filename << LL_ENDL;
 		return FALSE;
 	}
 
@@ -212,7 +212,7 @@ static BOOL loadAttentions()
 	static LLStdStringHandle version_string = LLXmlTree::addAttributeString("version");
 	if( !root->getFastAttributeString( version_string, version ) || (version != "1.0") )
 	{
-		llwarns << "Invalid linden_attentions file version: " << version << llendl;
+		LL_WARNS() << "Invalid linden_attentions file version: " << version << LL_ENDL;
 		return FALSE;
 	}
 
@@ -322,7 +322,7 @@ void LLHUDEffectLookAt::unpackData(LLMessageSystem *mesgsys, S32 blocknum)
 	S32 size = mesgsys->getSizeFast(_PREHASH_Effect, blocknum, _PREHASH_TypeData);
 	if (size != PKT_SIZE)
 	{
-		llwarns << "LookAt effect with bad size " << size << llendl;
+		LL_WARNS() << "LookAt effect with bad size " << size << LL_ENDL;
 		return;
 	}
 	mesgsys->getBinaryDataFast(_PREHASH_Effect, _PREHASH_TypeData, packed_data, PKT_SIZE, blocknum);
@@ -336,7 +336,7 @@ void LLHUDEffectLookAt::unpackData(LLMessageSystem *mesgsys, S32 blocknum)
 	}
 	else
 	{
-		//llwarns << "Could not find source avatar for lookat effect" << llendl;
+		//LL_WARNS() << "Could not find source avatar for lookat effect" << LL_ENDL;
 		return;
 	}
 
@@ -356,7 +356,7 @@ void LLHUDEffectLookAt::unpackData(LLMessageSystem *mesgsys, S32 blocknum)
 	}
 	else
 	{
-		//llwarns << "Could not find target object for lookat effect" << llendl;
+		//LL_WARNS() << "Could not find target object for lookat effect" << LL_ENDL;
 	}
 
 	U8 lookAtTypeUnpacked = 0;
@@ -400,7 +400,7 @@ BOOL LLHUDEffectLookAt::setLookAt(ELookAtType target_type, LLViewerObject *objec
 	
 	if (target_type >= LOOKAT_NUM_TARGETS)
 	{
-		llwarns << "Bad target_type " << (int)target_type << " - ignoring." << llendl;
+		LL_WARNS() << "Bad target_type " << (int)target_type << " - ignoring." << LL_ENDL;
 		return FALSE;
 	}
 

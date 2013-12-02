@@ -37,7 +37,6 @@
 #include "lljointstate.h"
 #include "v3math.h"
 #include "llquaternion.h"
-#include "linked_lists.h"
 #include "llkeyframemotion.h"
 
 //-----------------------------------------------------------------------------

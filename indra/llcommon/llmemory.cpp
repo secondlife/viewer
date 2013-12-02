@@ -27,12 +27,9 @@
 #include "linden_common.h"
 
 
-//#if MEM_TRACK_MEM
 #include "llthread.h"
-//#endif
 
 #if defined(LL_WINDOWS)
-//# include <windows.h>
 # include <psapi.h>
 #elif defined(LL_DARWIN)
 # include <sys/types.h>
@@ -46,15 +43,18 @@
 
 #include "llsys.h"
 #include "llframetimer.h"
+#include "lltrace.h"
 //----------------------------------------------------------------------------
 
 //static
 char* LLMemory::reserveMem = 0;
-U32 LLMemory::sAvailPhysicalMemInKB = U32_MAX ;
-U32 LLMemory::sMaxPhysicalMemInKB = 0;
-U32 LLMemory::sAllocatedMemInKB = 0;
-U32 LLMemory::sAllocatedPageSizeInKB = 0 ;
-U32 LLMemory::sMaxHeapSizeInKB = U32_MAX ;
+U32Kilobytes LLMemory::sAvailPhysicalMemInKB(U32_MAX);
+U32Kilobytes LLMemory::sMaxPhysicalMemInKB(0);
+static LLTrace::SampleStatHandle<F64Megabytes> sAllocatedMem("allocated_mem", "active memory in use by application");
+static LLTrace::SampleStatHandle<F64Megabytes> sVirtualMem("virtual_mem", "virtual memory assigned to application");
+U32Kilobytes LLMemory::sAllocatedMemInKB(0);
+U32Kilobytes LLMemory::sAllocatedPageSizeInKB(0);
+U32Kilobytes LLMemory::sMaxHeapSizeInKB(U32_MAX);
 BOOL LLMemory::sEnableMemoryFailurePrevention = FALSE;
 
 #if __DEBUG_PRIVATE_MEM__
@@ -67,7 +67,7 @@ void ll_assert_aligned_func(uintptr_t ptr,U32 alignment)
 	// Redundant, place to set breakpoints.
 	if (ptr%alignment!=0)
 	{
-		llwarns << "alignment check failed" << llendl;
+		LL_WARNS() << "alignment check failed" << LL_ENDL;
 	}
 	llassert(ptr%alignment==0);
 #endif
@@ -97,9 +97,9 @@ void LLMemory::freeReserve()
 }
 
 //static 
-void LLMemory::initMaxHeapSizeGB(F32 max_heap_size_gb, BOOL prevent_heap_failure)
+void LLMemory::initMaxHeapSizeGB(F32Gigabytes max_heap_size, BOOL prevent_heap_failure)
 {
-	sMaxHeapSizeInKB = (U32)(max_heap_size_gb * 1024 * 1024) ;
+	sMaxHeapSizeInKB = max_heap_size;
 	sEnableMemoryFailurePrevention = prevent_heap_failure ;
 }
 
@@ -112,14 +112,16 @@ void LLMemory::updateMemoryInfo()
 	
 	if (!GetProcessMemoryInfo(self, &counters, sizeof(counters)))
 	{
-		llwarns << "GetProcessMemoryInfo failed" << llendl;
+		LL_WARNS() << "GetProcessMemoryInfo failed" << LL_ENDL;
 		return ;
 	}
 
-	sAllocatedMemInKB = (U32)(counters.WorkingSetSize / 1024) ;
-	sAllocatedPageSizeInKB = (U32)(counters.PagefileUsage / 1024) ;
+	sAllocatedMemInKB = (U32Bytes)(counters.WorkingSetSize) ;
+	sample(sAllocatedMem, sAllocatedMemInKB);
+	sAllocatedPageSizeInKB = (U32Bytes)(counters.PagefileUsage) ;
+	sample(sVirtualMem, sAllocatedPageSizeInKB);
 
-	U32 avail_phys, avail_virtual;
+	U32Kilobytes avail_phys, avail_virtual;
 	LLMemoryInfo::getAvailableMemoryKB(avail_phys, avail_virtual) ;
 	sMaxPhysicalMemInKB = llmin(avail_phys + sAllocatedMemInKB, sMaxHeapSizeInKB);
 
@@ -129,13 +131,13 @@ void LLMemory::updateMemoryInfo()
 	}
 	else
 	{
-		sAvailPhysicalMemInKB = 0 ;
+		sAvailPhysicalMemInKB = U32Kilobytes(0);
 	}
 #else
 	//not valid for other systems for now.
-	sAllocatedMemInKB = (U32)(LLMemory::getCurrentRSS() / 1024) ;
-	sMaxPhysicalMemInKB = U32_MAX ;
-	sAvailPhysicalMemInKB = U32_MAX ;
+	sAllocatedMemInKB = (U32Bytes)LLMemory::getCurrentRSS();
+	sMaxPhysicalMemInKB = (U32Bytes)U32_MAX ;
+	sAvailPhysicalMemInKB = (U32Bytes)U32_MAX ;
 #endif
 
 	return ;
@@ -156,7 +158,7 @@ void* LLMemory::tryToAlloc(void* address, U32 size)
 	{
 		if(!VirtualFree(address, 0, MEM_RELEASE))
 		{
-			llerrs << "error happens when free some memory reservation." << llendl ;
+			LL_ERRS() << "error happens when free some memory reservation." << LL_ENDL ;
 		}
 	}
 	return address ;
@@ -174,14 +176,14 @@ void LLMemory::logMemoryInfo(BOOL update)
 		LLPrivateMemoryPoolManager::getInstance()->updateStatistics() ;
 	}
 
-	llinfos << "Current allocated physical memory(KB): " << sAllocatedMemInKB << llendl ;
-	llinfos << "Current allocated page size (KB): " << sAllocatedPageSizeInKB << llendl ;
-	llinfos << "Current availabe physical memory(KB): " << sAvailPhysicalMemInKB << llendl ;
-	llinfos << "Current max usable memory(KB): " << sMaxPhysicalMemInKB << llendl ;
+	LL_INFOS() << "Current allocated physical memory(KB): " << sAllocatedMemInKB << LL_ENDL ;
+	LL_INFOS() << "Current allocated page size (KB): " << sAllocatedPageSizeInKB << LL_ENDL ;
+	LL_INFOS() << "Current availabe physical memory(KB): " << sAvailPhysicalMemInKB << LL_ENDL ;
+	LL_INFOS() << "Current max usable memory(KB): " << sMaxPhysicalMemInKB << LL_ENDL ;
 
-	llinfos << "--- private pool information -- " << llendl ;
-	llinfos << "Total reserved (KB): " << LLPrivateMemoryPoolManager::getInstance()->mTotalReservedSize / 1024 << llendl ;
-	llinfos << "Total allocated (KB): " << LLPrivateMemoryPoolManager::getInstance()->mTotalAllocatedSize / 1024 << llendl ;
+	LL_INFOS() << "--- private pool information -- " << LL_ENDL ;
+	LL_INFOS() << "Total reserved (KB): " << LLPrivateMemoryPoolManager::getInstance()->mTotalReservedSize / 1024 << LL_ENDL ;
+	LL_INFOS() << "Total allocated (KB): " << LLPrivateMemoryPoolManager::getInstance()->mTotalAllocatedSize / 1024 << LL_ENDL ;
 }
 
 //return 0: everything is normal;
@@ -190,8 +192,8 @@ void LLMemory::logMemoryInfo(BOOL update)
 //static 
 bool LLMemory::isMemoryPoolLow()
 {
-	static const U32 LOW_MEMEOY_POOL_THRESHOLD_KB = 64 * 1024 ; //64 MB for emergency use
-	const static U32 MAX_SIZE_CHECKED_MEMORY_BLOCK = 64 * 1024 * 1024 ; //64 MB
+	static const U32Megabytes LOW_MEMORY_POOL_THRESHOLD(64);
+	const static U32Megabytes MAX_SIZE_CHECKED_MEMORY_BLOCK(64);
 	static void* last_reserved_address = NULL ;
 
 	if(!sEnableMemoryFailurePrevention)
@@ -199,32 +201,32 @@ bool LLMemory::isMemoryPoolLow()
 		return false ; //no memory failure prevention.
 	}
 
-	if(sAvailPhysicalMemInKB < (LOW_MEMEOY_POOL_THRESHOLD_KB >> 2)) //out of physical memory
+	if(sAvailPhysicalMemInKB < (LOW_MEMORY_POOL_THRESHOLD / 4)) //out of physical memory
 	{
 		return true ;
 	}
 
-	if(sAllocatedPageSizeInKB + (LOW_MEMEOY_POOL_THRESHOLD_KB >> 2) > sMaxHeapSizeInKB) //out of virtual address space.
+	if(sAllocatedPageSizeInKB + (LOW_MEMORY_POOL_THRESHOLD / 4) > sMaxHeapSizeInKB) //out of virtual address space.
 	{
 		return true ;
 	}
 
-	bool is_low = (S32)(sAvailPhysicalMemInKB < LOW_MEMEOY_POOL_THRESHOLD_KB || 
-		sAllocatedPageSizeInKB + LOW_MEMEOY_POOL_THRESHOLD_KB > sMaxHeapSizeInKB) ;
+	bool is_low = (S32)(sAvailPhysicalMemInKB < LOW_MEMORY_POOL_THRESHOLD 
+						|| sAllocatedPageSizeInKB + LOW_MEMORY_POOL_THRESHOLD > sMaxHeapSizeInKB) ;
 
 	//check the virtual address space fragmentation
 	if(!is_low)
 	{
 		if(!last_reserved_address)
 		{
-			last_reserved_address = LLMemory::tryToAlloc(last_reserved_address, MAX_SIZE_CHECKED_MEMORY_BLOCK) ;
+			last_reserved_address = LLMemory::tryToAlloc(last_reserved_address, MAX_SIZE_CHECKED_MEMORY_BLOCK.value()) ;
 		}
 		else
 		{
-			last_reserved_address = LLMemory::tryToAlloc(last_reserved_address, MAX_SIZE_CHECKED_MEMORY_BLOCK) ;
+			last_reserved_address = LLMemory::tryToAlloc(last_reserved_address, MAX_SIZE_CHECKED_MEMORY_BLOCK.value()) ;
 			if(!last_reserved_address) //failed, try once more
 			{
-				last_reserved_address = LLMemory::tryToAlloc(last_reserved_address, MAX_SIZE_CHECKED_MEMORY_BLOCK) ;
+				last_reserved_address = LLMemory::tryToAlloc(last_reserved_address, MAX_SIZE_CHECKED_MEMORY_BLOCK.value()) ;
 			}
 		}
 
@@ -235,19 +237,19 @@ bool LLMemory::isMemoryPoolLow()
 }
 
 //static 
-U32 LLMemory::getAvailableMemKB() 
+U32Kilobytes LLMemory::getAvailableMemKB() 
 {
 	return sAvailPhysicalMemInKB ;
 }
 
 //static 
-U32 LLMemory::getMaxMemKB() 
+U32Kilobytes LLMemory::getMaxMemKB() 
 {
 	return sMaxPhysicalMemInKB ;
 }
 
 //static 
-U32 LLMemory::getAllocatedMemKB() 
+U32Kilobytes LLMemory::getAllocatedMemKB() 
 {
 	return sAllocatedMemInKB ;
 }
@@ -263,7 +265,7 @@ U64 LLMemory::getCurrentRSS()
 	
 	if (!GetProcessMemoryInfo(self, &counters, sizeof(counters)))
 	{
-		llwarns << "GetProcessMemoryInfo failed" << llendl;
+		LL_WARNS() << "GetProcessMemoryInfo failed" << LL_ENDL;
 		return 0;
 	}
 
@@ -301,7 +303,7 @@ U32 LLMemory::getWorkingSetSize()
 
 // 	if (sysctl(ctl, 2, &page_size, &size, NULL, 0) == -1)
 // 	{
-// 		llwarns << "Couldn't get page size" << llendl;
+// 		LL_WARNS() << "Couldn't get page size" << LL_ENDL;
 // 		return 0;
 // 	} else {
 // 		return page_size;
@@ -320,11 +322,11 @@ U64 LLMemory::getCurrentRSS()
 		// If we ever wanted it, the process virtual size is also available as:
 		// virtualSize = basicInfo.virtual_size;
 		
-//		llinfos << "resident size is " << residentSize << llendl;
+//		LL_INFOS() << "resident size is " << residentSize << LL_ENDL;
 	}
 	else
 	{
-		llwarns << "task_info failed" << llendl;
+		LL_WARNS() << "task_info failed" << LL_ENDL;
 	}
 
 	return residentSize;
@@ -345,7 +347,7 @@ U64 LLMemory::getCurrentRSS()
 
 	if (fp == NULL)
 	{
-		llwarns << "couldn't open " << statPath << llendl;
+		LL_WARNS() << "couldn't open " << statPath << LL_ENDL;
 		goto bail;
 	}
 
@@ -358,7 +360,7 @@ U64 LLMemory::getCurrentRSS()
 						 &rss);
 		if (ret != 1)
 		{
-			llwarns << "couldn't parse contents of " << statPath << llendl;
+			LL_WARNS() << "couldn't parse contents of " << statPath << LL_ENDL;
 			rss = 0;
 		}
 	}
@@ -388,12 +390,12 @@ U64 LLMemory::getCurrentRSS()
 	sprintf(path, "/proc/%d/psinfo", (int)getpid());
 	int proc_fd = -1;
 	if((proc_fd = open(path, O_RDONLY)) == -1){
-		llwarns << "LLmemory::getCurrentRSS() unable to open " << path << ". Returning 0 RSS!" << llendl;
+		LL_WARNS() << "LLmemory::getCurrentRSS() unable to open " << path << ". Returning 0 RSS!" << LL_ENDL;
 		return 0;
 	}
 	psinfo_t proc_psinfo;
 	if(read(proc_fd, &proc_psinfo, sizeof(psinfo_t)) != sizeof(psinfo_t)){
-		llwarns << "LLmemory::getCurrentRSS() Unable to read from " << path << ". Returning 0 RSS!" << llendl;
+		LL_WARNS() << "LLmemory::getCurrentRSS() Unable to read from " << path << ". Returning 0 RSS!" << LL_ENDL;
 		close(proc_fd);
 		return 0;
 	}
@@ -421,141 +423,6 @@ U32 LLMemory::getWorkingSetSize()
 }
 
 #endif
-
-//--------------------------------------------------------------------------------------------------
-#if MEM_TRACK_MEM
-#include "llframetimer.h"
-
-//static 
-LLMemTracker* LLMemTracker::sInstance = NULL ;
-
-LLMemTracker::LLMemTracker()
-{
-	mLastAllocatedMem = LLMemory::getWorkingSetSize() ;
-	mCapacity = 128 ;	
-	mCurIndex = 0 ;
-	mCounter = 0 ;
-	mDrawnIndex = 0 ;
-	mPaused = FALSE ;
-
-	mMutexp = new LLMutex() ;
-	mStringBuffer = new char*[128] ;
-	mStringBuffer[0] = new char[mCapacity * 128] ;
-	for(S32 i = 1 ; i < mCapacity ; i++)
-	{
-		mStringBuffer[i] = mStringBuffer[i-1] + 128 ;
-	}
-}
-
-LLMemTracker::~LLMemTracker()
-{
-	delete[] mStringBuffer[0] ;
-	delete[] mStringBuffer;
-	delete mMutexp ;
-}
-
-//static 
-LLMemTracker* LLMemTracker::getInstance()
-{
-	if(!sInstance)
-	{
-		sInstance = new LLMemTracker() ;
-	}
-	return sInstance ;
-}
-
-//static 
-void LLMemTracker::release() 
-{
-	if(sInstance)
-	{
-		delete sInstance ;
-		sInstance = NULL ;
-	}
-}
-
-//static
-void LLMemTracker::track(const char* function, const int line)
-{
-	static const S32 MIN_ALLOCATION = 0 ; //1KB
-
-	if(mPaused)
-	{
-		return ;
-	}
-
-	U32 allocated_mem = LLMemory::getWorkingSetSize() ;
-
-	LLMutexLock lock(mMutexp) ;
-
-	S32 delta_mem = allocated_mem - mLastAllocatedMem ;
-	mLastAllocatedMem = allocated_mem ;
-
-	if(delta_mem <= 0)
-	{
-		return ; //occupied memory does not grow
-	}
-
-	if(delta_mem < MIN_ALLOCATION)
-	{
-		return ;
-	}
-		
-	char* buffer = mStringBuffer[mCurIndex++] ;
-	F32 time = (F32)LLFrameTimer::getElapsedSeconds() ;
-	S32 hours = (S32)(time / (60*60));
-	S32 mins = (S32)((time - hours*(60*60)) / 60);
-	S32 secs = (S32)((time - hours*(60*60) - mins*60));
-	strcpy(buffer, function) ;
-	sprintf(buffer + strlen(function), " line: %d DeltaMem: %d (bytes) Time: %d:%02d:%02d", line, delta_mem, hours,mins,secs) ;
-
-	if(mCounter < mCapacity)
-	{
-		mCounter++ ;
-	}
-	if(mCurIndex >= mCapacity)
-	{
-		mCurIndex = 0 ;		
-	}
-}
-
-
-//static 
-void LLMemTracker::preDraw(BOOL pause) 
-{
-	mMutexp->lock() ;
-
-	mPaused = pause ;
-	mDrawnIndex = mCurIndex - 1;
-	mNumOfDrawn = 0 ;
-}
-	
-//static 
-void LLMemTracker::postDraw() 
-{
-	mMutexp->unlock() ;
-}
-
-//static 
-const char* LLMemTracker::getNextLine() 
-{
-	if(mNumOfDrawn >= mCounter)
-	{
-		return NULL ;
-	}
-	mNumOfDrawn++;
-
-	if(mDrawnIndex < 0)
-	{
-		mDrawnIndex = mCapacity - 1 ;
-	}
-
-	return mStringBuffer[mDrawnIndex--] ;
-}
-
-#endif //MEM_TRACK_MEM
-//--------------------------------------------------------------------------------------------------
-
 
 //--------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------
@@ -961,7 +828,7 @@ void LLPrivateMemoryPool::LLMemoryChunk::dump()
 		total_size += blk_list[i]->getBufferSize() ;
 		if((U32)blk_list[i]->getBuffer() < (U32)blk_list[i-1]->getBuffer() + blk_list[i-1]->getBufferSize())
 		{
-			llerrs << "buffer corrupted." << llendl ;
+			LL_ERRS() << "buffer corrupted." << LL_ENDL ;
 		}
 	}
 
@@ -982,32 +849,32 @@ void LLPrivateMemoryPool::LLMemoryChunk::dump()
 		}
 		else
 		{
-			llerrs << "gap happens" << llendl ;
+			LL_ERRS() << "gap happens" << LL_ENDL ;
 		}
 	}
 #endif
 #if 0
-	llinfos << "---------------------------" << llendl ;
-	llinfos << "Chunk buffer: " << (U32)getBuffer() << " size: " << getBufferSize() << llendl ;
+	LL_INFOS() << "---------------------------" << LL_ENDL ;
+	LL_INFOS() << "Chunk buffer: " << (U32)getBuffer() << " size: " << getBufferSize() << LL_ENDL ;
 
-	llinfos << "available blocks ... " << llendl ;
+	LL_INFOS() << "available blocks ... " << LL_ENDL ;
 	for(S32 i = 0 ; i < mBlockLevels ; i++)
 	{
 		LLMemoryBlock* blk = mAvailBlockList[i] ;
 		while(blk)
 		{
-			llinfos << "blk buffer " << (U32)blk->getBuffer() << " size: " << blk->getBufferSize() << llendl ;
+			LL_INFOS() << "blk buffer " << (U32)blk->getBuffer() << " size: " << blk->getBufferSize() << LL_ENDL ;
 			blk = blk->mNext ;
 		}
 	}
 
-	llinfos << "free blocks ... " << llendl ;
+	LL_INFOS() << "free blocks ... " << LL_ENDL ;
 	for(S32 i = 0 ; i < mPartitionLevels ; i++)
 	{
 		LLMemoryBlock* blk = mFreeSpaceList[i] ;
 		while(blk)
 		{
-			llinfos << "blk buffer " << (U32)blk->getBuffer() << " size: " << blk->getBufferSize() << llendl ;
+			LL_INFOS() << "blk buffer " << (U32)blk->getBuffer() << " size: " << blk->getBufferSize() << LL_ENDL ;
 			blk = blk->mNext ;
 		}
 	}
@@ -1403,7 +1270,7 @@ char* LLPrivateMemoryPool::allocate(U32 size)
 		
 		if(to_log)
 		{
-			llwarns << "The memory pool overflows, now using heap directly!" << llendl ;
+			LL_WARNS() << "The memory pool overflows, now using heap directly!" << LL_ENDL ;
 			to_log = false ;
 		}
 
@@ -1496,7 +1363,7 @@ void  LLPrivateMemoryPool::destroyPool()
 
 	if(mNumOfChunks > 0)
 	{
-		llwarns << "There is some memory not freed when destroy the memory pool!" << llendl ;
+		LL_WARNS() << "There is some memory not freed when destroy the memory pool!" << LL_ENDL ;
 	}
 
 	mNumOfChunks = 0 ;
@@ -1514,11 +1381,11 @@ bool LLPrivateMemoryPool::checkSize(U32 asked_size)
 {
 	if(mReservedPoolSize + asked_size > mMaxPoolSize)
 	{
-		llinfos << "Max pool size: " << mMaxPoolSize << llendl ;
-		llinfos << "Total reserved size: " << mReservedPoolSize + asked_size << llendl ;
-		llinfos << "Total_allocated Size: " << getTotalAllocatedSize() << llendl ;
+		LL_INFOS() << "Max pool size: " << mMaxPoolSize << LL_ENDL ;
+		LL_INFOS() << "Total reserved size: " << mReservedPoolSize + asked_size << LL_ENDL ;
+		LL_INFOS() << "Total_allocated Size: " << getTotalAllocatedSize() << LL_ENDL ;
 
-		//llerrs << "The pool is overflowing..." << llendl ;
+		//LL_ERRS() << "The pool is overflowing..." << LL_ENDL ;
 
 		return false ;
 	}
@@ -1731,7 +1598,7 @@ void LLPrivateMemoryPool::removeFromHashTable(LLMemoryChunk* chunk)
 
 void LLPrivateMemoryPool::rehash()
 {
-	llinfos << "new hash factor: " << mHashFactor << llendl ;
+	LL_INFOS() << "new hash factor: " << mHashFactor << LL_ENDL ;
 
 	mChunkHashList.clear() ;
 	mChunkHashList.resize(mHashFactor) ;
@@ -1811,7 +1678,7 @@ void LLPrivateMemoryPool::LLChunkHashElement::remove(LLPrivateMemoryPool::LLMemo
 	}
 	else
 	{
-		llerrs << "This slot does not contain this chunk!" << llendl ;
+		LL_ERRS() << "This slot does not contain this chunk!" << LL_ENDL ;
 	}
 }
 
@@ -1843,12 +1710,12 @@ LLPrivateMemoryPoolManager::~LLPrivateMemoryPoolManager()
 #if __DEBUG_PRIVATE_MEM__
 	if(!sMemAllocationTracker.empty())
 	{
-		llwarns << "there is potential memory leaking here. The list of not freed memory blocks are from: " <<llendl ;
+		LL_WARNS() << "there is potential memory leaking here. The list of not freed memory blocks are from: " <<LL_ENDL ;
 
 		S32 k = 0 ;
 		for(mem_allocation_info_t::iterator iter = sMemAllocationTracker.begin() ; iter != sMemAllocationTracker.end() ; ++iter)
 		{
-			llinfos << k++ << ", " << (U32)iter->first << " : " << iter->second << llendl ;
+			LL_INFOS() << k++ << ", " << (U32)iter->first << " : " << iter->second << LL_ENDL ;
 		}
 		sMemAllocationTracker.clear() ;
 	}
@@ -2044,7 +1911,7 @@ void  LLPrivateMemoryPoolManager::freeMem(LLPrivateMemoryPool* poolp, void* addr
 		}
 		else
 		{
-			llerrs << "private pool is used before initialized.!" << llendl ;
+			LL_ERRS() << "private pool is used before initialized.!" << LL_ENDL ;
 		}
 	}	
 }
@@ -2118,7 +1985,7 @@ void LLPrivateMemoryPoolTester::test(U32 min_size, U32 max_size, U32 stride, U32
 	//allocate space for p ;
 	if(!(p = ::new char**[times]) || !(*p = ::new char*[times * levels]))
 	{
-		llerrs << "memory initialization for p failed" << llendl ;
+		LL_ERRS() << "memory initialization for p failed" << LL_ENDL ;
 	}
 
 	//init
@@ -2190,8 +2057,8 @@ void LLPrivateMemoryPoolTester::testAndTime(U32 size, U32 times)
 {
 	LLTimer timer ;
 
-	llinfos << " -**********************- " << llendl ;
-	llinfos << "test size: " << size << " test times: " << times << llendl ;
+	LL_INFOS() << " -**********************- " << LL_ENDL ;
+	LL_INFOS() << "test size: " << size << " test times: " << times << LL_ENDL ;
 
 	timer.reset() ;
 	char** p = new char*[times] ;
@@ -2203,7 +2070,7 @@ void LLPrivateMemoryPoolTester::testAndTime(U32 size, U32 times)
 		p[i] = ALLOCATE_MEM(sPool, size) ;
 		if(!p[i])
 		{
-			llerrs << "allocation failed" << llendl ;
+			LL_ERRS() << "allocation failed" << LL_ENDL ;
 		}
 	}
 	//de-allocation
@@ -2212,7 +2079,7 @@ void LLPrivateMemoryPoolTester::testAndTime(U32 size, U32 times)
 		FREE_MEM(sPool, p[i]) ;
 		p[i] = NULL ;
 	}
-	llinfos << "time spent using customized memory pool: " << timer.getElapsedTimeF32() << llendl ;
+	LL_INFOS() << "time spent using customized memory pool: " << timer.getElapsedTimeF32() << LL_ENDL ;
 
 	timer.reset() ;
 
@@ -2223,7 +2090,7 @@ void LLPrivateMemoryPoolTester::testAndTime(U32 size, U32 times)
 		p[i] = ::new char[size] ;
 		if(!p[i])
 		{
-			llerrs << "allocation failed" << llendl ;
+			LL_ERRS() << "allocation failed" << LL_ENDL ;
 		}
 	}
 	//de-allocation
@@ -2232,7 +2099,7 @@ void LLPrivateMemoryPoolTester::testAndTime(U32 size, U32 times)
 		::delete[] p[i] ;
 		p[i] = NULL ;
 	}
-	llinfos << "time spent using standard allocator/de-allocator: " << timer.getElapsedTimeF32() << llendl ;
+	LL_INFOS() << "time spent using standard allocator/de-allocator: " << timer.getElapsedTimeF32() << LL_ENDL ;
 
 	delete[] p;
 }

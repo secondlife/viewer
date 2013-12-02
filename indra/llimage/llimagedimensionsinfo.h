@@ -27,6 +27,8 @@
 #ifndef LL_LLIMAGEDIMENSIONSINFO_H
 #define LL_LLIMAGEDIMENSIONSINFO_H
 
+#include "llapr.h"
+
 //-----------------------------------------------------------------------------
 // LLImageDimensionsInfo
 // helper class to get image dimensions WITHOUT loading image to memore

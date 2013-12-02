@@ -80,7 +80,7 @@ void LLListContextMenu::show(LLView* spawning_view, const uuid_vec_t& uuids, S32
 	menup = createMenu();
 	if (!menup)
 	{
-		llwarns << "Context menu creation failed" << llendl;
+		LL_WARNS() << "Context menu creation failed" << LL_ENDL;
 		return;
 	}
 

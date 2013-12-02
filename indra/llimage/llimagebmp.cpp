@@ -321,7 +321,7 @@ BOOL LLImageBMP::updateData()
 		mColorPalette = new U8[color_palette_size];
 		if (!mColorPalette)
 		{
-			llerrs << "Out of memory in LLImageBMP::updateData()" << llendl;
+			LL_ERRS() << "Out of memory in LLImageBMP::updateData()" << LL_ENDL;
 			return FALSE;
 		}
 		memcpy( mColorPalette, mdata + FILE_HEADER_SIZE + BITMAP_HEADER_SIZE + extension_size, color_palette_size );	/* Flawfinder: ignore */
@@ -528,7 +528,7 @@ BOOL LLImageBMP::encode(const LLImageRaw* raw_image, F32 encode_time)
 
 	if( (2 == src_components) || (4 == src_components) )
 	{
-		llinfos << "Dropping alpha information during BMP encoding" << llendl;
+		LL_INFOS() << "Dropping alpha information during BMP encoding" << LL_ENDL;
 	}
 
 	setSize(raw_image->getWidth(), raw_image->getHeight(), dst_components);

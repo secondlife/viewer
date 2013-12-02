@@ -39,7 +39,7 @@ BOOL LLMouseHandler::handleAnyMouseClick(S32 x, S32 y, MASK mask, EClickType cli
 		case CLICK_MIDDLE: handled = handleMiddleMouseDown(x, y, mask); break;
 		case CLICK_DOUBLELEFT: handled = handleDoubleClick(x, y, mask); break;
 		default:
-			llwarns << "Unhandled enum." << llendl;
+			LL_WARNS() << "Unhandled enum." << LL_ENDL;
 		}
 	}
 	else
@@ -51,7 +51,7 @@ BOOL LLMouseHandler::handleAnyMouseClick(S32 x, S32 y, MASK mask, EClickType cli
 		case CLICK_MIDDLE: handled = handleMiddleMouseUp(x, y, mask); break;
 		case CLICK_DOUBLELEFT: handled = handleDoubleClick(x, y, mask); break;
 		default:
-			llwarns << "Unhandled enum." << llendl;
+			LL_WARNS() << "Unhandled enum." << LL_ENDL;
 		}
 	}
 	return handled;

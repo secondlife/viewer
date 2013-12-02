@@ -67,14 +67,13 @@ void LLMultiFloater::buildTabContainer()
 	}
 }
 
-void LLMultiFloater::onOpen(const LLSD& key)
+void LLMultiFloater::onClose(bool app_quitting)
 {
-// 	if (mTabContainer->getTabCount() <= 0)
-// 	{
-// 		// for now, don't allow multifloaters
-// 		// without any child floaters
-// 		closeFloater();
-// 	}
+	if(isMinimized())
+	{
+		setMinimized(FALSE);
+	}
+	LLFloater::onClose(app_quitting);
 }
 
 void LLMultiFloater::draw()
@@ -159,7 +158,7 @@ void LLMultiFloater::addFloater(LLFloater* floaterp, BOOL select_added_floater, 
 
 	if (!mTabContainer)
 	{
-		llerrs << "Tab Container used without having been initialized." << llendl;
+		LL_ERRS() << "Tab Container used without having been initialized." << LL_ENDL;
 		return;
 	}
 

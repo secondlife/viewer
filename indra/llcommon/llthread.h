@@ -31,20 +31,15 @@
 #include "llapr.h"
 #include "apr_thread_cond.h"
 #include "boost/intrusive_ptr.hpp"
+#include "llmutex.h"
+#include "llrefcount.h"
 
-class LLThread;
-class LLMutex;
-class LLCondition;
-
-#if LL_WINDOWS
-#define ll_thread_local __declspec(thread)
-#else
-#define ll_thread_local __thread
-#endif
+LL_COMMON_API void assert_main_thread();
 
 class LL_COMMON_API LLThread
 {
 private:
+	friend class LLMutex;
 	static U32 sIDIter;
 
 public:
@@ -98,15 +93,15 @@ private:
 	BOOL				mPaused;
 	
 	// static function passed to APR thread creation routine
-	static void *APR_THREAD_FUNC staticRun(apr_thread_t *apr_threadp, void *datap);
+	static void *APR_THREAD_FUNC staticRun(struct apr_thread_t *apr_threadp, void *datap);
 
 protected:
 	std::string			mName;
-	LLCondition*		mRunCondition;
+	class LLCondition*	mRunCondition;
 	LLMutex*			mDataLock;
 
-	apr_thread_t		*mAPRThreadp;
-	apr_pool_t			*mAPRPoolp;
+	apr_thread_t*		mAPRThreadp;
+	apr_pool_t*			mAPRPoolp;
 	BOOL				mIsLocalPool;
 	EThreadStatus		mStatus;
 	U32					mID;
@@ -114,7 +109,7 @@ protected:
 	//a local apr_pool for APRFile operations in this thread. If it exists, LLAPRFile::sAPRFilePoolp should not be used.
 	//Note: this pool is used by APRFile ONLY, do NOT use it for any other purposes.
 	//      otherwise it will cause severe memory leaking!!! --bao
-	LLVolatileAPRPool  *mLocalAPRFilePoolp ; 
+	LLVolatileAPRPool*	mLocalAPRFilePoolp ; 
 
 	void setQuitting();
 	
@@ -140,75 +135,6 @@ protected:
 	// mDataLock->unlock();
 };
 
-//============================================================================
-
-#define MUTEX_DEBUG (LL_DEBUG || LL_RELEASE_WITH_DEBUG_INFO)
-
-class LL_COMMON_API LLMutex
-{
-public:
-	typedef enum
-	{
-		NO_THREAD = 0xFFFFFFFF
-	} e_locking_thread;
-
-	LLMutex(apr_pool_t *apr_poolp); // NULL pool constructs a new pool for the mutex
-	virtual ~LLMutex();
-	
-	void lock();		// blocks
-	void unlock();
-	bool isLocked(); 	// non-blocking, but does do a lock/unlock so not free
-	bool isSelfLocked(); //return true if locked in a same thread
-	U32 lockingThread() const; //get ID of locking thread
-	
-protected:
-	apr_thread_mutex_t *mAPRMutexp;
-	mutable U32			mCount;
-	mutable U32			mLockingThread;
-	
-	apr_pool_t			*mAPRPoolp;
-	BOOL				mIsLocalPool;
-	
-#if MUTEX_DEBUG
-	std::map<U32, BOOL> mIsLocked;
-#endif
-};
-
-// Actually a condition/mutex pair (since each condition needs to be associated with a mutex).
-class LL_COMMON_API LLCondition : public LLMutex
-{
-public:
-	LLCondition(apr_pool_t *apr_poolp); // Defaults to global pool, could use the thread pool as well.
-	~LLCondition();
-	
-	void wait();		// blocks
-	void signal();
-	void broadcast();
-	
-protected:
-	apr_thread_cond_t *mAPRCondp;
-};
-
-class LLMutexLock
-{
-public:
-	LLMutexLock(LLMutex* mutex)
-	{
-		mMutex = mutex;
-		
-		if(mMutex)
-			mMutex->lock();
-	}
-	~LLMutexLock()
-	{
-		if(mMutex)
-			mMutex->unlock();
-	}
-private:
-	LLMutex* mMutex;
-};
-
-//============================================================================
 
 void LLThread::lockData()
 {
@@ -221,76 +147,6 @@ void LLThread::unlockData()
 }
 
 
-//============================================================================
-
-// see llmemory.h for LLPointer<> definition
-
-class LL_COMMON_API LLThreadSafeRefCount
-{
-public:
-	static void initThreadSafeRefCount(); // creates sMutex
-	static void cleanupThreadSafeRefCount(); // destroys sMutex
-	
-private:
-	static LLMutex* sMutex;
-
-protected:
-	virtual ~LLThreadSafeRefCount(); // use unref()
-	
-public:
-	LLThreadSafeRefCount();
-	LLThreadSafeRefCount(const LLThreadSafeRefCount&);
-	LLThreadSafeRefCount& operator=(const LLThreadSafeRefCount& ref) 
-	{
-		mRef = 0;
-		return *this;
-	}
-
-	void ref()
-	{
-		mRef++; 
-	} 
-
-	void unref()
-	{
-		llassert(mRef >= 1);
-		if ((--mRef) == 0)		// See note in llapr.h on atomic decrement operator return value.  
-		{	
-			// If we hit zero, the caller should be the only smart pointer owning the object and we can delete it.
-			// It is technically possible for a vanilla pointer to mess this up, or another thread to
-			// jump in, find this object, create another smart pointer and end up dangling, but if
-			// the code is that bad and not thread-safe, it's trouble already.
-			delete this;
-		}
-	}
-
-	S32 getNumRefs() const
-	{
-		const S32 currentVal = mRef.CurrentValue();
-		return currentVal;
-	}
-
-private: 
-	LLAtomic32< S32	> mRef; 
-};
-
-
-/**
- * intrusive pointer support for LLThreadSafeRefCount
- * this allows you to use boost::intrusive_ptr with any LLThreadSafeRefCount-derived type
- */
-namespace boost
-{
-	inline void intrusive_ptr_add_ref(LLThreadSafeRefCount* p) 
-	{
-		p->ref();
-	}
-
-	inline void intrusive_ptr_release(LLThreadSafeRefCount* p) 
-	{
-		p->unref(); 
-	}
-};
 //============================================================================
 
 // Simple responder for self destructing callbacks

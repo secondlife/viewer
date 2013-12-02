@@ -29,6 +29,7 @@
 #ifndef LL_LLPLUGINPROCESSCHILD_H
 #define LL_LLPLUGINPROCESSCHILD_H
 
+#include <queue>
 #include "llpluginmessage.h"
 #include "llpluginmessagepipe.h"
 #include "llplugininstance.h"

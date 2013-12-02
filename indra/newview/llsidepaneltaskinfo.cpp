@@ -162,7 +162,7 @@ BOOL LLSidepanelTaskInfo::postBuild()
 	return TRUE;
 }
 
-/*virtual*/ void LLSidepanelTaskInfo::handleVisibilityChange ( BOOL visible )
+/*virtual*/ void LLSidepanelTaskInfo::onVisibilityChange ( BOOL visible )
 {
 	if (visible)
 	{
@@ -945,7 +945,6 @@ static bool callback_deed_to_group(const LLSD& notification, const LLSD& respons
 		if (group_id.notNull() && groups_identical && (gAgent.hasPowerInGroup(group_id, GP_OBJECT_DEED)))
 		{
 			LLSelectMgr::getInstance()->sendOwner(LLUUID::null, group_id, FALSE);
-//			LLViewerStats::getInstance()->incStat(LLViewerStats::ST_RELEASE_COUNT);
 		}
 	}
 	return FALSE;
@@ -996,28 +995,28 @@ void LLSidepanelTaskInfo::onCommitEveryoneCopy(LLUICtrl *ctrl, void *data)
 // static
 void LLSidepanelTaskInfo::onCommitNextOwnerModify(LLUICtrl* ctrl, void* data)
 {
-	//llinfos << "LLSidepanelTaskInfo::onCommitNextOwnerModify" << llendl;
+	//LL_INFOS() << "LLSidepanelTaskInfo::onCommitNextOwnerModify" << LL_ENDL;
 	onCommitPerm(ctrl, data, PERM_NEXT_OWNER, PERM_MODIFY);
 }
 
 // static
 void LLSidepanelTaskInfo::onCommitNextOwnerCopy(LLUICtrl* ctrl, void* data)
 {
-	//llinfos << "LLSidepanelTaskInfo::onCommitNextOwnerCopy" << llendl;
+	//LL_INFOS() << "LLSidepanelTaskInfo::onCommitNextOwnerCopy" << LL_ENDL;
 	onCommitPerm(ctrl, data, PERM_NEXT_OWNER, PERM_COPY);
 }
 
 // static
 void LLSidepanelTaskInfo::onCommitNextOwnerTransfer(LLUICtrl* ctrl, void* data)
 {
-	//llinfos << "LLSidepanelTaskInfo::onCommitNextOwnerTransfer" << llendl;
+	//LL_INFOS() << "LLSidepanelTaskInfo::onCommitNextOwnerTransfer" << LL_ENDL;
 	onCommitPerm(ctrl, data, PERM_NEXT_OWNER, PERM_TRANSFER);
 }
 
 // static
 void LLSidepanelTaskInfo::onCommitName(LLUICtrl*, void* data)
 {
-	//llinfos << "LLSidepanelTaskInfo::onCommitName()" << llendl;
+	//LL_INFOS() << "LLSidepanelTaskInfo::onCommitName()" << LL_ENDL;
 	LLSidepanelTaskInfo* self = (LLSidepanelTaskInfo*)data;
 	LLLineEditor*	tb = self->getChild<LLLineEditor>("Object Name");
 	if(tb)
@@ -1031,7 +1030,7 @@ void LLSidepanelTaskInfo::onCommitName(LLUICtrl*, void* data)
 // static
 void LLSidepanelTaskInfo::onCommitDesc(LLUICtrl*, void* data)
 {
-	//llinfos << "LLSidepanelTaskInfo::onCommitDesc()" << llendl;
+	//LL_INFOS() << "LLSidepanelTaskInfo::onCommitDesc()" << LL_ENDL;
 	LLSidepanelTaskInfo* self = (LLSidepanelTaskInfo*)data;
 	LLLineEditor*	le = self->getChild<LLLineEditor>("Object Description");
 	if(le)

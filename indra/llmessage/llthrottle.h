@@ -50,7 +50,7 @@ private:
 	F32 mLookaheadSecs;	// Seconds to look ahead, maximum
 	F32	mRate;	// BPS available, dynamically adjusted
 	F32	mAvailable;	// Bits available to send right now on each channel
-	F64	mLastSendTime;		// Time since last send on this channel
+	F64Seconds	mLastSendTime;		// Time since last send on this channel
 };
 
 typedef enum e_throttle_categories
@@ -93,8 +93,8 @@ protected:
 	F32		mBitsSentThisPeriod[TC_EOF];	// Sent in this dynamic allocation period
 	F32		mBitsSentHistory[TC_EOF];		// Sent before this dynamic allocation period, adjusted to one period length
 
-	F64		mLastSendTime[TC_EOF];		// Time since last send on this channel
-	F64		mDynamicAdjustTime;	// Only dynamic adjust every 2 seconds or so.
+	F64Seconds	mLastSendTime[TC_EOF];		// Time since last send on this channel
+	F64Seconds	mDynamicAdjustTime;	// Only dynamic adjust every 2 seconds or so.
 
 };
 

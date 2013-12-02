@@ -42,12 +42,12 @@
 // LLUIString mMessage("Welcome [USERNAME] to [SECONDLIFE]!");
 // mMessage.setArg("[USERNAME]", "Steve");
 // mMessage.setArg("[SECONDLIFE]", "Second Life");
-// llinfos << mMessage.getString() << llendl; // outputs "Welcome Steve to Second Life"
+// LL_INFOS() << mMessage.getString() << LL_ENDL; // outputs "Welcome Steve to Second Life"
 // mMessage.setArg("[USERNAME]", "Joe");
-// llinfos << mMessage.getString() << llendl; // outputs "Welcome Joe to Second Life"
+// LL_INFOS() << mMessage.getString() << LL_ENDL; // outputs "Welcome Joe to Second Life"
 // mMessage = "Bienvenido a la [SECONDLIFE] [USERNAME]"
 // mMessage.setArg("[SECONDLIFE]", "Segunda Vida");
-// llinfos << mMessage.getString() << llendl; // outputs "Bienvenido a la Segunda Vida Joe"
+// LL_INFOS() << mMessage.getString() << LL_ENDL; // outputs "Bienvenido a la Segunda Vida Joe"
 
 // Implementation Notes:
 // Attempting to have operator[](const std::string& s) return mArgs[s] fails because we have

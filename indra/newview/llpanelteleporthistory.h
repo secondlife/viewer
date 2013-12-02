@@ -112,7 +112,7 @@ private:
 	bool				mDirty;
 	S32				mCurrentItem;
 
-	typedef LLDynamicArray<LLAccordionCtrlTab*> item_containers_t;
+	typedef std::vector<LLAccordionCtrlTab*> item_containers_t;
 	item_containers_t mItemContainers;
 
 	ContextMenu mContextMenu;

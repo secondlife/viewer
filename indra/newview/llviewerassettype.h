@@ -29,6 +29,7 @@
 
 #include <string>
 #include "llassettype.h"
+#include "llui.h" //EDragAndDropType
 
 // This class is similar to llassettype, but contains methods
 // only used by the viewer.

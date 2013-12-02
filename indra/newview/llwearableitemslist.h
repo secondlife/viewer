@@ -258,7 +258,7 @@ public:
 
 		if (!wearable_item1 || !wearable_item2)
 		{
-			llwarning("item1 and item2 cannot be null", 0);
+			LL_WARNS() << "item1 and item2 cannot be null" << LL_ENDL;
 			return true;
 		}
 

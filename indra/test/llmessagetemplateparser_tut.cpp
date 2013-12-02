@@ -171,7 +171,7 @@ namespace tut
 
 		delete var;
 	
-		// *NOTE: the parsers call llerrs on invalid input, so we can't really
+		// *NOTE: the parsers call LL_ERRS() on invalid input, so we can't really
 		// test that  :-(
 	}
 

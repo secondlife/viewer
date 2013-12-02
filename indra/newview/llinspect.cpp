@@ -59,7 +59,7 @@ void LLInspect::draw()
 	}
 	else if (mCloseTimer.getStarted())
 	{
-		F32 alpha = clamp_rescale(mCloseTimer.getElapsedTimeF32(), 0.f, FADE_TIME, 1.f, 0.f);
+		F32 alpha = clamp_rescale(mCloseTimer.getElapsedTimeF32(), 0.f, FADE_TIME(), 1.f, 0.f);
 		LLViewDrawContext context(alpha);
 		LLFloater::draw();
 		if (mCloseTimer.getElapsedTimeF32() > FADE_TIME)

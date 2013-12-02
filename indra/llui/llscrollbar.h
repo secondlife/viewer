@@ -40,13 +40,11 @@ class LLScrollbar
 {
 public:
 
-	enum ORIENTATION { HORIZONTAL, VERTICAL };
-	
 	typedef boost::function<void (S32, LLScrollbar*)> callback_t;
 	struct Params 
 	:	public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
-		Mandatory<ORIENTATION>			orientation;
+		Mandatory<EOrientation>			orientation;
 		Mandatory<S32>					doc_size;
 		Mandatory<S32>					doc_pos;
 		Mandatory<S32>					page_size;
@@ -124,7 +122,7 @@ public:
 
 	void				onLineUpBtnPressed(const LLSD& data);
 	void				onLineDownBtnPressed(const LLSD& data);
-		
+
 	S32					getThickness() const { return mThickness; }
 	void				setThickness(S32 thickness);
 
@@ -134,7 +132,7 @@ private:
 
 	callback_t			mChangeCallback;
 
-	const ORIENTATION	mOrientation;	
+	const EOrientation	mOrientation;	
 	S32					mDocSize;		// Size of the document that the scrollbar is modeling.  Units depend on the user.  0 <= mDocSize.
 	S32					mDocPos;		// Position within the doc that the scrollbar is modeling, in "lines" (user size)
 	S32					mPageSize;		// Maximum number of lines that can be seen at one time.
