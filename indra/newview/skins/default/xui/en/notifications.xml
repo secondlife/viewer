@@ -10224,4 +10224,14 @@ Cannot create large prims that intersect other players.  Please re-try when othe
      yestext="OK"/>
   </notification>
   
+  <notification
+   icon="alert.tga"
+   name="ChatHistoryIsBusyAlert"
+   type="alertmodal">
+   Chat history file is busy with previous operation. Please try again in a few minutes or choose chat with another person.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+  
 </notifications>
