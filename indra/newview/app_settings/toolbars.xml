@@ -6,7 +6,6 @@
     <command name="speak"/>
     <command name="destinations"/>
     <command name="people"/>
-    <command name="social"/>
     <command name="profile"/>
     <command name="move"/>
     <command name="view"/>
@@ -22,5 +21,6 @@
     <command name="voice"/>
     <command name="minimap"/>
     <command name="snapshot"/>
+    <command name="social"/>
   </left_toolbar>
 </toolbars>

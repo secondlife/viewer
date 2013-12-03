@@ -1,0 +1,75 @@
+<panel
+	 height="540"
+	 width="304"
+	 layout="topleft"
+   name="panel_flickr_account">
+  <string
+      name="flickr_connected"
+      value="You are connected to Flickr as:" />
+  <string
+      name="flickr_disconnected"
+      value="Not connected to Flickr" />
+  <text
+   layout="topleft"
+   length="1"
+   follows="top|left"
+   font="SansSerif"
+   height="16"
+   left="9"
+   name="account_caption_label"
+   top="21"
+   type="string">
+    Not connected to Flickr.
+  </text>
+  <text
+   layout="topleft"
+   top_pad="2"
+   length="1"
+   follows="top|left"
+   font="SansSerif"
+   height="16"
+   left="9"
+   name="account_name_label"
+   parse_urls="true"
+   type="string"/>
+  <panel
+    layout="topleft"
+    name="panel_buttons"
+    height="345"
+    left="9">
+    <button
+     layout="topleft"
+     follows="left|top"
+     top_pad="9"
+     visible="true"
+     height="23"
+     label="Connect..."
+     name="connect_btn"
+     width="210">
+      <commit_callback function="SocialSharing.Connect"/>
+    </button>
+
+    <button
+     layout="topleft"
+     follows="left|top"
+     top_delta="0"
+     height="23"
+     label="Disconnect"
+     name="disconnect_btn"
+     width="210"
+     visible="false">
+      <commit_callback function="SocialSharing.Disconnect"/>
+    </button>
+    <text
+      layout="topleft"
+      length="1"
+      follows="top|left"
+      height="16"
+      left="0"
+      name="account_learn_more_label"
+      top_pad="20"
+      type="string">
+      [http://community.secondlife.com/t5/English-Knowledge-Base/Second-Life-Share/ta-p/2149711 Learn about posting to Flickr]
+    </text>
+  </panel>
+</panel>

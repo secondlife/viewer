@@ -1,7 +1,7 @@
 /** 
-* @file   llfloatersocial.h
-* @brief  Header file for llfloatersocial
-* @author Gilbert@lindenlab.com
+* @file   llfloaterflickr.h
+* @brief  Header file for llfloaterflickr
+* @author cho@lindenlab.com
 *
 * $LicenseInfo:firstyear=2013&license=viewerlgpl$
 * Second Life Viewer Source Code
@@ -24,8 +24,8 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LL_LLFLOATERSOCIAL_H
-#define LL_LLFLOATERSOCIAL_H
+#ifndef LL_LLFLOATERFLICKR_H
+#define LL_LLFLOATERFLICKR_H
 
 #include "llfloater.h"
 #include "lltextbox.h"
@@ -35,29 +35,11 @@ class LLIconCtrl;
 class LLCheckBoxCtrl;
 class LLSnapshotLivePreview;
 
-class LLSocialStatusPanel : public LLPanel
+class LLFlickrPhotoPanel : public LLPanel
 {
 public:
-    LLSocialStatusPanel();
-	BOOL postBuild();
-	void draw();
-    void onSend();
-	bool onFacebookConnectStateChange(const LLSD& data);
-
-	void sendStatus();
-	void clearAndClose();
-
-private:
-	LLUICtrl* mMessageTextEditor;
-	LLUICtrl* mPostButton;
-	LLUICtrl* mCancelButton;
-};
-
-class LLSocialPhotoPanel : public LLPanel
-{
-public:
-	LLSocialPhotoPanel();
-	~LLSocialPhotoPanel();
+	LLFlickrPhotoPanel();
+	~LLFlickrPhotoPanel();
 
 	BOOL postBuild();
 	void draw();
@@ -66,7 +48,7 @@ public:
 	void onVisibilityChange(const LLSD& new_visibility);
 	void onClickNewSnapshot();
 	void onSend();
-	bool onFacebookConnectStateChange(const LLSD& data);
+	bool onFlickrConnectStateChange(const LLSD& data);
 
 	void sendPhoto();
 	void clearAndClose();
@@ -84,48 +66,26 @@ private:
 	LLUICtrl * mRefreshBtn;
 	LLUICtrl * mWorkingLabel;
 	LLUICtrl * mThumbnailPlaceholder;
-	LLUICtrl * mCaptionTextBox;
+	LLUICtrl * mTitleTextBox;
+	LLUICtrl * mDescriptionTextBox;
 	LLUICtrl * mLocationCheckbox;
+	LLUICtrl * mTagsTextBox;
+	LLUICtrl * mRatingComboBox;
 	LLUICtrl * mPostButton;
 	LLUICtrl* mCancelButton;
 };
 
-class LLSocialCheckinPanel : public LLPanel
+class LLFlickrAccountPanel : public LLPanel
 {
 public:
-    LLSocialCheckinPanel();
-	BOOL postBuild();
-	void draw();
-    void onSend();
-	bool onFacebookConnectStateChange(const LLSD& data);
-
-	void sendCheckin();
-	void clearAndClose();
-
-private:
-    std::string mMapUrl;
-    LLPointer<LLViewerFetchedTexture> mMapTexture;
-	LLUICtrl* mPostButton;
-	LLUICtrl* mCancelButton;
-	LLUICtrl* mMessageTextEditor;
-    LLUICtrl* mMapLoadingIndicator;
-    LLIconCtrl* mMapPlaceholder;
-    LLIconCtrl* mMapDefault;
-    LLCheckBoxCtrl* mMapCheckBox;
-    bool mReloadingMapTexture;
-};
-
-class LLSocialAccountPanel : public LLPanel
-{
-public:
-	LLSocialAccountPanel();
+	LLFlickrAccountPanel();
 	BOOL postBuild();
 	void draw();
 
 private:
 	void onVisibilityChange(const LLSD& new_visibility);
-	bool onFacebookConnectStateChange(const LLSD& data);
-	bool onFacebookConnectInfoChange();
+	bool onFlickrConnectStateChange(const LLSD& data);
+	bool onFlickrConnectInfoChange();
 	void onConnect();
 	void onUseAnotherAccount();
 	void onDisconnect();
@@ -143,10 +103,10 @@ private:
 };
 
 
-class LLFloaterSocial : public LLFloater
+class LLFloaterFlickr : public LLFloater
 {
 public:
-	LLFloaterSocial(const LLSD& key);
+	LLFloaterFlickr(const LLSD& key);
 	BOOL postBuild();
 	void draw();
 	void onCancel();
@@ -157,11 +117,11 @@ public:
 	static void postUpdate();
 
 private:
-	LLSocialPhotoPanel* mSocialPhotoPanel;
+	LLFlickrPhotoPanel* mSocialPhotoPanel;
     LLTextBox* mStatusErrorText;
     LLTextBox* mStatusLoadingText;
     LLUICtrl*  mStatusLoadingIndicator;
 };
 
-#endif // LL_LLFLOATERSOCIAL_H
+#endif // LL_LLFLOATERFLICKR_H
 

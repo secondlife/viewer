@@ -28,6 +28,8 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llfacebookconnect.h"
+#include "llflickrconnect.h"
+#include "lltwitterconnect.h"
 
 #include "llagent.h"
 #include "llcallingcard.h"			// for LLAvatarTracker
@@ -58,7 +60,7 @@ void log_facebook_connect_error(const std::string& request, U32 status, const st
     }
 }
 
-void toast_user_for_success()
+void toast_user_for_facebook_success()
 {
 	LLSD args;
     args["MESSAGE"] = LLTrans::getString("facebook_post_success");
@@ -74,23 +76,58 @@ public:
     
 	bool handle(const LLSD& tokens, const LLSD& query_map, LLMediaCtrl* web)
 	{
-		if (tokens.size() > 0)
+		if (tokens.size() >= 1)
 		{
 			if (tokens[0].asString() == "connect")
 			{
-				// this command probably came from the fbc_web browser, so close it
-				LLFloater* fbc_web = LLFloaterReg::getInstance("fbc_web");
-				if (fbc_web)
+				if (tokens.size() >= 2 && tokens[1].asString() == "flickr")
 				{
-					fbc_web->closeFloater();
-				}
+					// this command probably came from the flickr_web browser, so close it
+					LLFloater* flickr_web = LLFloaterReg::getInstance("flickr_web");
+					if (flickr_web)
+					{
+						flickr_web->closeFloater();
+					}
 
-				// connect to facebook
-				if (query_map.has("code"))
-				{
-                    LLFacebookConnect::instance().connectToFacebook(query_map["code"], query_map.get("state"));
+					// connect to flickr
+					if (query_map.has("oauth_token"))
+					{
+						LLFlickrConnect::instance().connectToFlickr(query_map["oauth_token"], query_map.get("oauth_verifier"));
+					}
+					return true;
 				}
-				return true;
+				else if (tokens.size() >= 2 && tokens[1].asString() == "twitter")
+				{
+					// this command probably came from the twitter_web browser, so close it
+					LLFloater* twitter_web = LLFloaterReg::getInstance("twitter_web");
+					if (twitter_web)
+					{
+						twitter_web->closeFloater();
+					}
+
+					// connect to twitter
+					if (query_map.has("oauth_token"))
+					{
+						LLTwitterConnect::instance().connectToTwitter(query_map["oauth_token"], query_map.get("oauth_verifier"));
+					}
+					return true;
+				}
+				else //if (tokens.size() >= 2 && tokens[1].asString() == "facebook")
+				{
+					// this command probably came from the fbc_web browser, so close it
+					LLFloater* fbc_web = LLFloaterReg::getInstance("fbc_web");
+					if (fbc_web)
+					{
+						fbc_web->closeFloater();
+					}
+
+					// connect to facebook
+					if (query_map.has("code"))
+					{
+						LLFacebookConnect::instance().connectToFacebook(query_map["code"], query_map.get("state"));
+					}
+					return true;
+				}
 			}
 		}
 		return false;
@@ -150,7 +187,7 @@ public:
 	{
 		if (isGoodStatus(status))
 		{
-            toast_user_for_success();
+            toast_user_for_facebook_success();
 			LL_DEBUGS("FacebookConnect") << "Post successful. content: " << content << LL_ENDL;
 			
 			LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_POSTED);
@@ -371,40 +408,6 @@ std::string LLFacebookConnect::getFacebookConnectURL(const std::string& route, b
 	return url;
 }
 
-std::string LLFacebookConnect::getFlickrConnectURL(const std::string& route, bool include_read_from_master)
-{
-    std::string url("");
-    LLViewerRegion *regionp = gAgent.getRegion();
-    if (regionp)
-    {
-        url = regionp->getCapability("FlickrConnect");
-        url += route;
-    
-        if (include_read_from_master && mReadFromMaster)
-        {
-            url += "?read_from_master=true";
-        }
-    }
-	return url;
-}
-
-std::string LLFacebookConnect::getTwitterConnectURL(const std::string& route, bool include_read_from_master)
-{
-    std::string url("");
-    LLViewerRegion *regionp = gAgent.getRegion();
-    if (regionp)
-    {
-        url = regionp->getCapability("TwitterConnect");
-        url += route;
-    
-        if (include_read_from_master && mReadFromMaster)
-        {
-            url += "?read_from_master=true";
-        }
-    }
-	return url;
-}
-
 void LLFacebookConnect::connectToFacebook(const std::string& auth_code, const std::string& auth_state)
 {
 	LLSD body;
@@ -431,11 +434,6 @@ void LLFacebookConnect::checkConnectionToFacebook(bool auto_connect)
 	const F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
 	LLHTTPClient::get(getFacebookConnectURL("/connection", true), new LLFacebookConnectedResponder(auto_connect),
 						LLSD(), timeout, follow_redirects);
-	
-	// TEMPORARY FOR TESTING - CHO
-	llinfos << "FlickrConnect URL: " << getFlickrConnectURL() << LL_ENDL;
-	llinfos << "TwitterConnect URL: " << getTwitterConnectURL() << LL_ENDL;
-
 }
 
 void LLFacebookConnect::loadFacebookInfo()

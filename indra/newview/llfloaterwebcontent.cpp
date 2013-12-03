@@ -30,6 +30,8 @@
 #include "lliconctrl.h"
 #include "llfloaterreg.h"
 #include "llfacebookconnect.h"
+#include "llflickrconnect.h"
+#include "lltwitterconnect.h"
 #include "lllayoutstack.h"
 #include "llpluginclassmedia.h"
 #include "llprogressbar.h"
@@ -298,7 +300,24 @@ void LLFloaterWebContent::onClose(bool app_quitting)
             LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTION_FAILED);
         }
     }
-    
+	// Same with Flickr
+	LLFloater* flickr_web = LLFloaterReg::getInstance("flickr_web");
+    if (flickr_web == this)
+    {
+        if (!LLFlickrConnect::instance().isConnected())
+        {
+            LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_CONNECTION_FAILED);
+        }
+    }
+	// And Twitter
+	LLFloater* twitter_web = LLFloaterReg::getInstance("twitter_web");
+    if (twitter_web == this)
+    {
+        if (!LLTwitterConnect::instance().isConnected())
+        {
+            LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_CONNECTION_FAILED);
+        }
+    }
 	LLViewerMedia::proxyWindowClosed(mUUID);
 	destroy();
 }

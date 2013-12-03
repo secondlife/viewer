@@ -35,6 +35,8 @@
 #include "llfloaterperms.h"
 #include "llfloaterreg.h"
 #include "llfloatersocial.h"
+#include "llfloaterflickr.h"
+#include "llfloatertwitter.h"
 #include "llimagebmp.h"
 #include "llimagej2c.h"
 #include "llimagejpeg.h"
@@ -209,6 +211,8 @@ void LLSnapshotLivePreview::updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail
 		mSnapshotDelayTimer.setTimerExpirySec(delay);
 		LLFloaterSnapshot::preUpdate();
 		LLFloaterSocial::preUpdate();
+		LLFloaterFlickr::preUpdate();
+		LLFloaterTwitter::preUpdate();
 	}
 
 	// Update thumbnail if requested.
@@ -766,6 +770,8 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 	lldebugs << "done creating snapshot" << llendl;
 	LLFloaterSnapshot::postUpdate();
 	LLFloaterSocial::postUpdate();
+	LLFloaterFlickr::postUpdate();
+	LLFloaterTwitter::postUpdate();
 
 	return TRUE;
 }

@@ -10,7 +10,7 @@
  help_topic="snapshot"
  save_rect="true"
  save_visibility="false"
- title="SNAPSHOT PREVIEW"
+ title="SNAPSHOT"
  width="470">
     <floater.string
      name="unknown">
