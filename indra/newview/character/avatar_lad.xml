@@ -3825,7 +3825,11 @@
         <volume_morph
           name="BELLY"
           scale="0.075 0.04 0.03"
-          pos="0.07 0 -0.07"/>
+          pos="0.07 0 -0.02"/>
+        <volume_morph
+          name="PELVIS"
+          scale="0.075 0.04 0.03"
+          pos="0.07 0 -0.02"/>
       </param_morph>
     </param>
 
@@ -3873,12 +3877,12 @@
       <param_morph>
         <volume_morph
           name="LEFT_PEC"
-          scale="0.0 0.0 0.0"
-          pos="0.0 -0.027 0.007"/>
+          scale="-0.05 0.0 0.0"
+          pos="-0.01 -0.01 -0.02"/>
         <volume_morph
           name="RIGHT_PEC"
-          scale="0.0 0.0 0.0"
-          pos="0.0 0.027 0.007"/>
+          scale="-0.05 0.0 0.0"
+          pos="-0.01 -0.01 -0.02"/>
 	  </param_morph>
     </param>
 
@@ -3899,12 +3903,12 @@
       <param_morph>
         <volume_morph
           name="LEFT_PEC"
-          scale="0.0 0.0 0.0"
-          pos="0.0 -0.035 0.009"/>
+          scale="-0.051 0.0 0.0"
+          pos="-0.02 -0.01 -0.03"/>
         <volume_morph
           name="RIGHT_PEC"
-          scale="0.0 0.0 0.0"
-          pos="0.0 0.035 0.009"/>
+          scale="-0.051 0.0 0.0"
+          pos="-0.02 -0.01 -0.03"/>
 	  </param_morph>
     </param>
 
@@ -3971,6 +3975,10 @@
           scale="0.0 -0.01 0.0"
           pos="0.0 0.0 0"/>
         <volume_morph
+          name="UPPER_BACK"
+          scale="-0.01 -0.01 0.0"
+          pos="0.0 0.0 0"/>
+        <volume_morph
           name="CHEST"
           scale="-0.01 -0.01 0.0"
           pos="0.01 0.0 0"/>
@@ -4021,6 +4029,10 @@
           scale="-0.01 -0.01 0.0"
           pos="0.01 0.0 0"/>
         <volume_morph
+          name="UPPER_BACK"
+          scale="-0.01 -0.01 0.0"
+          pos="0.0 0.0 0"/>
+        <volume_morph
           name="CHEST"
           scale="-0.02 -0.02 0.0"
           pos="0.01 0.0 0"/>
@@ -4069,13 +4081,31 @@
           scale="0.02 0.03 0.03"
           pos="0 0 -0.03"/>
         <volume_morph
+          name="PELVIS"
+          scale="0.02 0.03 0.03"
+          pos="0 0 -0.03"/>
+        <volume_morph
+          name="UPPER_BACK"
+          scale="0.01 0.03 0.0"
+          pos="-0.03 0 0"/>
+        <volume_morph
+          name="LOWER_BACK"
+          scale="0.04 0.06 0.0"
+          pos="-0.06 0 0"/>
+        <volume_morph
+          name="LEFT_HANDLE"
+          pos="0.0 0.08 0.0"/>
+        <volume_morph
+          name="RIGHT_HANDLE"
+          pos="0.0 -0.08 0.0"/>
+        <volume_morph
           name="LEFT_PEC"
           scale="0.0367 0.0367 0.016"
-          pos="0.031 -0.005 -0.013"/>
+          pos="0.00 -0.005 -0.013"/>
         <volume_morph
           name="RIGHT_PEC"
           scale="0.0367 0.0367 0.016"
-          pos="0.031 0.005 -0.013"/>
+          pos="0.00 0.005 -0.013"/>
         <volume_morph
           name="BELLY"
           scale="0.09 0.08 0.07"
@@ -4188,6 +4218,9 @@
           name="BELLY"
           scale="0.0 0.02 0.0"/>
         <volume_morph
+          name="LOWER_BACK"
+          scale="0.0 0.02 0.0"/>
+        <volume_morph
           name="LEFT_HANDLE"
           pos="0.0 0.025 0.0"/>
         <volume_morph
@@ -4244,11 +4277,11 @@
         <volume_morph
           name="LEFT_PEC"
           scale="0.0 0.0 0.0"
-          pos="-0.01 -0.024 -0.05"/>
+          pos="-0.03 -0.024 -0.01"/>
         <volume_morph
           name="RIGHT_PEC"
           scale="0.0 0.0 0.0"
-          pos="-0.01 0.024 -0.05"/>
+          pos="-0.03 0.024 -0.01"/>
       </param_morph>
     </param>
 
