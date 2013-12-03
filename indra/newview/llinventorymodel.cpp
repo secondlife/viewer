@@ -687,8 +687,7 @@ void LLInventoryModel::addChangedMaskForLinks(const LLUUID& object_id, U32 mask)
 	if (!obj || obj->getIsLinkType())
 		return;
 
-	LLInventoryModel::item_array_t item_array = 
-		collectLinksTo(object_id,gInventory.getRootFolderID());
+	LLInventoryModel::item_array_t item_array = collectLinksTo(object_id);
 	for (LLInventoryModel::item_array_t::iterator iter = item_array.begin();
 		 iter != item_array.end();
 		 iter++)
@@ -716,56 +715,27 @@ LLViewerInventoryItem* LLInventoryModel::getLinkedItem(const LLUUID& object_id) 
 	return object_id.notNull() ? getItem(getLinkedItemID(object_id)) : NULL;
 }
 
-LLInventoryModel::item_array_t LLInventoryModel::collectLinksTo(const LLUUID& id,
-																const LLUUID& start_folder_id)
+LLInventoryModel::item_array_t LLInventoryModel::collectLinksTo(const LLUUID& id)
 {
 	// Get item list via collectDescendents (slow!)
 	item_array_t items;
 	const LLInventoryObject *obj = getObject(id);
-	// FIXME - should be as below, but this is causing a stack-smashing crash of cause TBD... check in the REBUILD code.
+	// FIXME - should be as in next line, but this is causing a
+	// stack-smashing crash of cause TBD... check in the REBUILD code.
 	//if (obj && obj->getIsLinkType())
 	if (!obj || obj->getIsLinkType())
 		return items;
 	
-	LLInventoryModel::cat_array_t cat_array;
-	LLLinkedItemIDMatches is_linked_item_match(id);
-	collectDescendentsIf((start_folder_id == LLUUID::null ? gInventory.getRootFolderID() : start_folder_id),
-						 cat_array,
-						 items,
-						 LLInventoryModel::INCLUDE_TRASH,
-						 is_linked_item_match);
-
-	// Get via backlinks - fast.
-	item_array_t fast_items;
 	std::pair<backlink_mmap_t::iterator, backlink_mmap_t::iterator> range = mBacklinkMMap.equal_range(id);
 	for (backlink_mmap_t::iterator it = range.first; it != range.second; ++it)
 	{
 		LLViewerInventoryItem *item = getItem(it->second);
 		if (item)
 		{
-			fast_items.put(item);
+			items.put(item);
 		}
 	}
 
-	// Validate equivalence.
-	if (items.size() != fast_items.size())
-	{
-		llwarns << "size mismatch, " << items.size() << " != " << fast_items.size() << llendl;
-	}
-	for (item_array_t::iterator ita = items.begin(); ita != items.end(); ++ita)
-	{
-		if (fast_items.find(*ita) == item_array_t::FAIL)
-		{
-			llwarns << "in descendents search but not fast search " << (*ita)->getUUID() << llendl;
-		}
-	}
-	for (item_array_t::iterator itb = fast_items.begin(); itb != fast_items.end(); ++itb)
-	{
-		if (items.find(*itb) == item_array_t::FAIL)
-		{
-			llwarns << "in fast search but not descendents search " << (*itb)->getUUID() << llendl;
-		}
-	}
 	return items;
 }
 

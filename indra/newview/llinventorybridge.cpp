@@ -1730,8 +1730,7 @@ BOOL LLItemBridge::removeItem()
 	{
 		if (!item->getIsLinkType())
 		{
-			LLInventoryModel::item_array_t item_array = 
-				gInventory.collectLinksTo(mUUID, gInventory.getRootFolderID());
+			LLInventoryModel::item_array_t item_array = gInventory.collectLinksTo(mUUID);
 			const U32 num_links = item_array.size();
 			if (num_links > 0)
 			{
