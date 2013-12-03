@@ -1440,11 +1440,8 @@ S32 LLViewerOctreeCull::AABBRegionSphereIntersectObjectExtents(const LLViewerOct
 //------------------------------------------
 //check if the objects projection large enough
 
-static LLTrace::BlockTimerStatHandle sProjectedAreaCheckTimeStat("Object projected area check", "Culling objects based on projected area");
-
 bool LLViewerOctreeCull::checkProjectionArea(const LLVector4a& center, const LLVector4a& size, const LLVector3& shift, F32 pixel_threshold, F32 near_radius)
 {	
-	LL_RECORD_BLOCK_TIME(sProjectedAreaCheckTimeStat);
 	LLVector3 local_orig = mCamera->getOrigin() - shift;
 	LLVector4a origin;
 	origin.load3(local_orig.mV);
@@ -1462,7 +1459,7 @@ bool LLViewerOctreeCull::checkProjectionArea(const LLVector4a& center, const LLV
 	distance -= near_radius;
 
 	F32 squared_rad = size.dot3(size).getF32();
-	return squared_rad / (distance * distance) > pixel_threshold;
+	return squared_rad / distance > pixel_threshold;
 }
 
 //virtual 

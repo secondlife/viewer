@@ -130,7 +130,6 @@ TimeBlockTreeNode* ThreadRecorder::getTimeBlockTreeNode( S32 index )
 	return NULL;
 }
 
-
 AccumulatorBufferGroup* ThreadRecorder::activate( AccumulatorBufferGroup* recording)
 {
 	ActiveRecording* active_recording = new ActiveRecording(recording);
@@ -215,8 +214,7 @@ void ThreadRecorder::deactivate( AccumulatorBufferGroup* recording )
 
 ThreadRecorder::ActiveRecording::ActiveRecording( AccumulatorBufferGroup* target ) 
 :	mTargetRecording(target)
-{
-}
+{}
 
 void ThreadRecorder::ActiveRecording::movePartialToTarget()
 {
@@ -238,21 +236,7 @@ void ThreadRecorder::addChildRecorder( class ThreadRecorder* child )
 void ThreadRecorder::removeChildRecorder( class ThreadRecorder* child )
 {	
 	{ LLMutexLock lock(&mChildListMutex);
-		for (child_thread_recorder_list_t::iterator it = mChildThreadRecorders.begin(), end_it = mChildThreadRecorders.end();
-			it != end_it;
-			++it)
-		{
-			if ((*it) == child)
-			{
-				// FIXME: this won't do any good, as the child stores the "pushed" values internally
-				// and it is in the process of being deleted.
-				// We need a way to finalize the stats from the outgoing thread, but the storage
-				// for those stats needs to be outside the child's thread recorder
-				//(*it)->pushToParent();
-				mChildThreadRecorders.erase(it);
-				break;
-			}
-		}
+		mChildThreadRecorders.remove(child);
 	}
 }
 
@@ -315,6 +299,5 @@ void set_thread_recorder( ThreadRecorder* recorder )
 {
 	get_thread_recorder_ptr() = recorder;
 }
-
 
 }

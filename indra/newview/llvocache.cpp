@@ -433,11 +433,8 @@ bool LLVOCacheEntry::isAnyVisible(const LLVector4a& camera_origin, const LLVecto
 	return vis;
 }
 
-static LLTrace::BlockTimerStatHandle sSceneContributionCalc("Calculate scene contribution", "Calculates relative importance of object to scene, to control object load from cache");
-
-void LLVOCacheEntry::calcSceneContribution(const LLVector4a& camera_origin, bool needs_update, U32 last_update, F32 dist_threshold)
+void LLVOCacheEntry::calcSceneContribution(const LLVector4a& camera_origin, bool needs_update, U32 last_update, F32 max_dist)
 {
-	LL_RECORD_BLOCK_TIME(sSceneContributionCalc);
 	if(!needs_update && getVisible() >= last_update)
 	{
 		return; //no need to update
@@ -446,8 +443,9 @@ void LLVOCacheEntry::calcSceneContribution(const LLVector4a& camera_origin, bool
 	LLVector4a lookAt;
 	lookAt.setSub(getPositionGroup(), camera_origin);
 	F32 distance = lookAt.getLength3().getF32();
+	distance -= sNearRadius;
 
-	if(distance <= sNearRadius)
+	if(distance <= 0.f)
 	{
 		//nearby objects, set a large number
 		const F32 LARGE_SCENE_CONTRIBUTION = 1000.f; //a large number to force to load the object.
@@ -455,14 +453,12 @@ void LLVOCacheEntry::calcSceneContribution(const LLVector4a& camera_origin, bool
 	}
 	else
 	{
-		distance -= sNearRadius;
-
 		F32 rad = getBinRadius();
-		dist_threshold += rad;
+		max_dist += rad;
 
-		if(distance < dist_threshold)
+		if(distance + sNearRadius < max_dist)
 		{
-			mSceneContrib = (rad * rad) / (distance * distance);		
+			mSceneContrib = (rad * rad) / distance;		
 		}
 		else
 		{

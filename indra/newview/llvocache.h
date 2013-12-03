@@ -158,11 +158,11 @@ protected:
 	F32                         mBSphereRadius; //bounding sphere radius
 
 public:
-	static U32  sMinFrameRange;
-	static F32  sNearRadius;
-	static F32  sRearFarRadius;
-	static F32  sFrontPixelThreshold;
-	static F32  sRearPixelThreshold;
+	static U32					sMinFrameRange;
+	static F32					sNearRadius;
+	static F32					sRearFarRadius;
+	static F32					sFrontPixelThreshold;
+	static F32					sRearPixelThreshold;
 };
 
 class LLVOCacheGroup : public LLOcclusionCullingGroup
