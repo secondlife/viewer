@@ -182,15 +182,18 @@ llwarns << "DBG start" << llendl;
 	}
 
 llwarns << "DBG getRegion" << llendl;
-	std::string object_url = gAgent.getRegion()->getCapability("DefaultObjectPermissions");
+	std::string object_url = gAgent.getRegion()->getCapability("AgentPreferences");
 
 	if(!object_url.empty())
 	{
-llwarns << "DBG post" << llendl;
 		LLSD report = LLSD::emptyMap();
-		report["Group"] = (LLSD::Integer)LLFloaterPerms::getGroupPerms(sCategoryNames[CAT_OBJECTS]);
-		report["Everyone"] = (LLSD::Integer)LLFloaterPerms::getEveryonePerms(sCategoryNames[CAT_OBJECTS]);
-		report["NextOwner"] = (LLSD::Integer)LLFloaterPerms::getNextOwnerPerms(sCategoryNames[CAT_OBJECTS]);
+		report["default_object_perm_masks"]["Group"] =
+			(LLSD::Integer)LLFloaterPerms::getGroupPerms(sCategoryNames[CAT_OBJECTS]);
+		report["default_object_perm_masks"]["Everyone"] =
+			(LLSD::Integer)LLFloaterPerms::getEveryonePerms(sCategoryNames[CAT_OBJECTS]);
+		report["default_object_perm_masks"]["NextOwner"] =
+			(LLSD::Integer)LLFloaterPerms::getNextOwnerPerms(sCategoryNames[CAT_OBJECTS]);
+llwarns << "DBG post:" << report << llendl;
 		LLHTTPClient::post(object_url, report, new LLFloaterPermsResponder());
 	}
 }

@@ -1582,6 +1582,7 @@ void LLViewerRegion::unpackRegionHandshake()
 
 void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 {
+	capabilityNames.append("AgentPreferences");
 	capabilityNames.append("AgentState");
 	capabilityNames.append("AttachmentResources");
 	capabilityNames.append("AvatarPickerSearch");
@@ -1589,7 +1590,6 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("ChatSessionRequest");
 	capabilityNames.append("CopyInventoryFromNotecard");
 	capabilityNames.append("CreateInventoryCategory");
-	capabilityNames.append("DefaultObjectPermissions");
 	capabilityNames.append("DispatchRegionInfo");
 	capabilityNames.append("EnvironmentSettings");
 	capabilityNames.append("EstateChangeInfo");
