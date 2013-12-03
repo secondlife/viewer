@@ -1439,22 +1439,30 @@ S32 LLViewerOctreeCull::AABBRegionSphereIntersectObjectExtents(const LLViewerOct
 }
 //------------------------------------------
 //check if the objects projection large enough
-bool LLViewerOctreeCull::checkProjectionArea(const LLVector4a& center, const LLVector4a& size, const LLVector3& shift, F32 pixel_threshold, F32 near_squared_radius)
+
+static LLTrace::BlockTimerStatHandle sProjectedAreaCheckTimeStat("Object projected area check", "Culling objects based on projected area");
+
+bool LLViewerOctreeCull::checkProjectionArea(const LLVector4a& center, const LLVector4a& size, const LLVector3& shift, F32 pixel_threshold, F32 near_radius)
 {	
+	LL_RECORD_BLOCK_TIME(sProjectedAreaCheckTimeStat);
 	LLVector3 local_orig = mCamera->getOrigin() - shift;
 	LLVector4a origin;
 	origin.load3(local_orig.mV);
 
 	LLVector4a lookAt;
 	lookAt.setSub(center, origin);
-	F32 squared_dist = lookAt.dot3(lookAt).getF32();
-	if(squared_dist < near_squared_radius)
+	F32 distance = lookAt.getLength3().getF32();
+	if(distance <= near_radius)
 	{
-		return true; //always load closeby objects
+		return true; //always load close-by objects
 	}
 
+	// treat object as if it were near_radius meters closer than it actually was.
+	// this allows us to get some temporal coherence on visibility...objects that can be reached quickly will tend to be visible
+	distance -= near_radius;
+
 	F32 squared_rad = size.dot3(size).getF32();
-	return squared_rad / squared_dist > pixel_threshold;
+	return squared_rad / (distance * distance) > pixel_threshold;
 }
 
 //virtual 

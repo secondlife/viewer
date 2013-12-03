@@ -37,7 +37,7 @@
 
 //static variables
 U32 LLVOCacheEntry::sMinFrameRange = 0;
-F32 LLVOCacheEntry::sNearRadiusSquared = 1.0f;
+F32 LLVOCacheEntry::sNearRadius = 1.0f;
 F32 LLVOCacheEntry::sRearFarRadius = 1.0f;
 F32 LLVOCacheEntry::sFrontPixelThreshold = 1.0f;
 F32 LLVOCacheEntry::sRearPixelThreshold = 1.0f;
@@ -353,9 +353,8 @@ void LLVOCacheEntry::updateDebugSettings()
 
 	//min radius: all objects within this radius remain loaded in memory
 	static LLCachedControl<F32> min_radius(gSavedSettings,"SceneLoadMinRadius");
-	sNearRadiusSquared = llmin((F32)min_radius, gAgentCamera.mDrawDistance); //can not exceed the draw distance
-	sNearRadiusSquared *= sNearRadiusSquared;
-	sNearRadiusSquared = llmax(sNearRadiusSquared, 1.f); //minimum value is 1.0m
+	sNearRadius = llmin((F32)min_radius, gAgentCamera.mDrawDistance); //can not exceed the draw distance
+	sNearRadius = llmax(sNearRadius, 1.f); //minimum value is 1.0m
 
 	//objects within the view frustum whose visible area is greater than this threshold will be loaded
 	static LLCachedControl<F32> front_pixel_threshold(gSavedSettings,"SceneLoadFrontPixelThreshold");
@@ -434,8 +433,11 @@ bool LLVOCacheEntry::isAnyVisible(const LLVector4a& camera_origin, const LLVecto
 	return vis;
 }
 
+static LLTrace::BlockTimerStatHandle sSceneContributionCalc("Calculate scene contribution", "Calculates relative importance of object to scene, to control object load from cache");
+
 void LLVOCacheEntry::calcSceneContribution(const LLVector4a& camera_origin, bool needs_update, U32 last_update, F32 dist_threshold)
 {
+	LL_RECORD_BLOCK_TIME(sSceneContributionCalc);
 	if(!needs_update && getVisible() >= last_update)
 	{
 		return; //no need to update
@@ -443,9 +445,9 @@ void LLVOCacheEntry::calcSceneContribution(const LLVector4a& camera_origin, bool
 
 	LLVector4a lookAt;
 	lookAt.setSub(getPositionGroup(), camera_origin);
-	F32 squared_dist = lookAt.dot3(lookAt).getF32();
+	F32 distance = lookAt.getLength3().getF32();
 
-	if(squared_dist < sNearRadiusSquared)
+	if(distance <= sNearRadius)
 	{
 		//nearby objects, set a large number
 		const F32 LARGE_SCENE_CONTRIBUTION = 1000.f; //a large number to force to load the object.
@@ -453,13 +455,14 @@ void LLVOCacheEntry::calcSceneContribution(const LLVector4a& camera_origin, bool
 	}
 	else
 	{
+		distance -= sNearRadius;
+
 		F32 rad = getBinRadius();
 		dist_threshold += rad;
-		dist_threshold *= dist_threshold;
 
-		if(squared_dist < dist_threshold)
+		if(distance < dist_threshold)
 		{
-			mSceneContrib = rad * rad / squared_dist;		
+			mSceneContrib = (rad * rad) / (distance * distance);		
 		}
 		else
 		{
@@ -627,7 +630,7 @@ public:
 	{
 		mLocalShift = shift;
 		mUseObjectCacheOcclusion = use_object_cache_occlusion;
-		mSquaredNearRadius = LLVOCacheEntry::sNearRadiusSquared;
+		mNearRadius = LLVOCacheEntry::sNearRadius;
 	}
 
 	virtual bool earlyFail(LLViewerOctreeGroup* base_group)
@@ -684,7 +687,7 @@ public:
 		{
 			//check if the objects projection large enough
 			const LLVector4a* exts = group->getObjectExtents();
-			res = checkProjectionArea(exts[0], exts[1], mLocalShift, mPixelThreshold, mSquaredNearRadius);
+			res = checkProjectionArea(exts[0], exts[1], mLocalShift, mPixelThreshold, mNearRadius);
 		}
 
 		return res;
@@ -731,7 +734,7 @@ private:
 	LLViewerRegion*     mRegionp;
 	LLVector3           mLocalShift; //shift vector from agent space to local region space.
 	F32                 mPixelThreshold;
-	F32                 mSquaredNearRadius;
+	F32                 mNearRadius;
 	bool                mUseObjectCacheOcclusion;
 };
 
@@ -775,7 +778,7 @@ public:
 		{
 			//check if the objects projection large enough
 			const LLVector4a* exts = group->getObjectExtents();
-			return checkProjectionArea(exts[0], exts[1], mLocalShift, mPixelThreshold, mSphereRadius * mSphereRadius);
+			return checkProjectionArea(exts[0], exts[1], mLocalShift, mPixelThreshold, mSphereRadius);
 		}
 		return false;
 	}

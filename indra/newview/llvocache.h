@@ -159,7 +159,7 @@ protected:
 
 public:
 	static U32  sMinFrameRange;
-	static F32  sNearRadiusSquared;
+	static F32  sNearRadius;
 	static F32  sRearFarRadius;
 	static F32  sFrontPixelThreshold;
 	static F32  sRearPixelThreshold;

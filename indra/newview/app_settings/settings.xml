@@ -10240,7 +10240,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>20.0</real>
+      <real>32.0</real>
     </map>
   <key>SceneLoadRearMaxRadiusFraction</key>
   <map>
