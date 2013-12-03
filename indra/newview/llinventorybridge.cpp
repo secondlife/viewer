@@ -1730,16 +1730,9 @@ BOOL LLItemBridge::removeItem()
 	{
 		if (!item->getIsLinkType())
 		{
-			LLInventoryModel::cat_array_t cat_array;
-			LLInventoryModel::item_array_t item_array;
-			LLLinkedItemIDMatches is_linked_item_match(mUUID);
-			gInventory.collectDescendentsIf(gInventory.getRootFolderID(),
-											cat_array,
-											item_array,
-											LLInventoryModel::INCLUDE_TRASH,
-											is_linked_item_match);
-
-			const U32 num_links = cat_array.size() + item_array.size();
+			LLInventoryModel::item_array_t item_array = 
+				gInventory.collectLinksTo(mUUID, gInventory.getRootFolderID());
+			const U32 num_links = item_array.size();
 			if (num_links > 0)
 			{
 				// Warn if the user is will break any links when deleting this item.

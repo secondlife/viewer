@@ -127,6 +127,7 @@ LLInventoryModel gInventory;
 LLInventoryModel::LLInventoryModel()
 :	mModifyMask(LLInventoryObserver::ALL),
 	mChangedItemIDs(),
+	mBacklinkMMap(),
 	mCategoryMap(),
 	mItemMap(),
 	mCategoryLock(),
@@ -686,26 +687,8 @@ void LLInventoryModel::addChangedMaskForLinks(const LLUUID& object_id, U32 mask)
 	if (!obj || obj->getIsLinkType())
 		return;
 
-	LLInventoryModel::cat_array_t cat_array;
-	LLInventoryModel::item_array_t item_array;
-	LLLinkedItemIDMatches is_linked_item_match(object_id);
-	collectDescendentsIf(gInventory.getRootFolderID(),
-						 cat_array,
-						 item_array,
-						 LLInventoryModel::INCLUDE_TRASH,
-						 is_linked_item_match);
-	if (cat_array.empty() && item_array.empty())
-	{
-		return;
-	}
-	for (LLInventoryModel::cat_array_t::iterator cat_iter = cat_array.begin();
-		 cat_iter != cat_array.end();
-		 cat_iter++)
-	{
-		LLViewerInventoryCategory *linked_cat = (*cat_iter);
-		addChangedMask(mask, linked_cat->getUUID());
-	};
-
+	LLInventoryModel::item_array_t item_array = 
+		collectLinksTo(object_id,gInventory.getRootFolderID());
 	for (LLInventoryModel::item_array_t::iterator iter = item_array.begin();
 		 iter != item_array.end();
 		 iter++)
@@ -733,11 +716,14 @@ LLViewerInventoryItem* LLInventoryModel::getLinkedItem(const LLUUID& object_id) 
 	return object_id.notNull() ? getItem(getLinkedItemID(object_id)) : NULL;
 }
 
-LLInventoryModel::item_array_t LLInventoryModel::collectLinkedItems(const LLUUID& id,
-																	const LLUUID& start_folder_id)
+LLInventoryModel::item_array_t LLInventoryModel::collectLinksTo(const LLUUID& id,
+																const LLUUID& start_folder_id)
 {
+	// Get item list via collectDescendents (slow!)
 	item_array_t items;
 	const LLInventoryObject *obj = getObject(id);
+	// FIXME - should be as below, but this is causing a stack-smashing crash of cause TBD... check in the REBUILD code.
+	//if (obj && obj->getIsLinkType())
 	if (!obj || obj->getIsLinkType())
 		return items;
 	
@@ -748,6 +734,38 @@ LLInventoryModel::item_array_t LLInventoryModel::collectLinkedItems(const LLUUID
 						 items,
 						 LLInventoryModel::INCLUDE_TRASH,
 						 is_linked_item_match);
+
+	// Get via backlinks - fast.
+	item_array_t fast_items;
+	std::pair<backlink_mmap_t::iterator, backlink_mmap_t::iterator> range = mBacklinkMMap.equal_range(id);
+	for (backlink_mmap_t::iterator it = range.first; it != range.second; ++it)
+	{
+		LLViewerInventoryItem *item = getItem(it->second);
+		if (item)
+		{
+			fast_items.put(item);
+		}
+	}
+
+	// Validate equivalence.
+	if (items.size() != fast_items.size())
+	{
+		llwarns << "size mismatch, " << items.size() << " != " << fast_items.size() << llendl;
+	}
+	for (item_array_t::iterator ita = items.begin(); ita != items.end(); ++ita)
+	{
+		if (fast_items.find(*ita) == item_array_t::FAIL)
+		{
+			llwarns << "in descendents search but not fast search " << (*ita)->getUUID() << llendl;
+		}
+	}
+	for (item_array_t::iterator itb = fast_items.begin(); itb != fast_items.end(); ++itb)
+	{
+		if (items.find(*itb) == item_array_t::FAIL)
+		{
+			llwarns << "in fast search but not descendents search " << (*itb)->getUUID() << llendl;
+		}
+	}
 	return items;
 }
 
@@ -1355,11 +1373,16 @@ void LLInventoryModel::deleteObject(const LLUUID& id, bool fix_broken_links, boo
 		mParentChildCategoryTree.erase(id);
 	}
 	addChangedMask(LLInventoryObserver::REMOVE, id);
-	
+
+	bool is_link_type = obj->getIsLinkType();
+	if (is_link_type)
+	{
+		removeBacklinkInfo(obj->getUUID(), obj->getLinkedUUID());
+	}
+
 	// Can't have links to links, so there's no need for this update
 	// if the item removed is a link. Can also skip if source of the
 	// update is getting broken link info separately.
-	bool is_link_type = obj->getIsLinkType();
 	obj = NULL; // delete obj
 	if (fix_broken_links && !is_link_type)
 	{
@@ -1373,7 +1396,7 @@ void LLInventoryModel::deleteObject(const LLUUID& id, bool fix_broken_links, boo
 
 void LLInventoryModel::updateLinkedObjectsFromPurge(const LLUUID &baseobj_id)
 {
-	LLInventoryModel::item_array_t item_array = collectLinkedItems(baseobj_id);
+	LLInventoryModel::item_array_t item_array = collectLinksTo(baseobj_id);
 
 	// REBUILD is expensive, so clear the current change list first else
 	// everything else on the changelist will also get rebuilt.
@@ -1653,6 +1676,47 @@ void LLInventoryModel::addCategory(LLViewerInventoryCategory* category)
 	}
 }
 
+bool LLInventoryModel::hasBacklinkInfo(const LLUUID& link_id, const LLUUID& target_id) const
+{
+	std::pair <backlink_mmap_t::const_iterator, backlink_mmap_t::const_iterator> range;
+	range = mBacklinkMMap.equal_range(target_id);
+	for (backlink_mmap_t::const_iterator it = range.first; it != range.second; ++it)
+	{
+		if (it->second == link_id)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+void LLInventoryModel::addBacklinkInfo(const LLUUID& link_id, const LLUUID& target_id)
+{
+	if (!hasBacklinkInfo(link_id, target_id))
+	{
+		mBacklinkMMap.insert(std::make_pair(target_id, link_id));
+	}
+}
+
+void LLInventoryModel::removeBacklinkInfo(const LLUUID& link_id, const LLUUID& target_id)
+{
+	std::pair <backlink_mmap_t::iterator, backlink_mmap_t::iterator> range;
+	range = mBacklinkMMap.equal_range(target_id);
+	for (backlink_mmap_t::iterator it = range.first; it != range.second; )
+	{
+		if (it->second == link_id)
+		{
+			backlink_mmap_t::iterator delete_it = it; // iterator will be invalidated by erase.
+			++it;
+			mBacklinkMMap.erase(delete_it);
+		}
+		else
+		{
+			++it;
+		}
+	}
+}
+
 void LLInventoryModel::addItem(LLViewerInventoryItem* item)
 {
 	llassert(item);
@@ -1674,7 +1738,13 @@ void LLInventoryModel::addItem(LLViewerInventoryItem* item)
 		{
 			llinfos << "Adding broken link [ name: " << item->getName() << " itemID: " << item->getUUID() << " assetID: " << item->getAssetUUID() << " )  parent: " << item->getParentUUID() << llendl;
 		}
-
+		if (item->getIsLinkType())
+		{
+			// Add back-link from linked-to UUID.
+			const LLUUID& link_id = item->getUUID();
+			const LLUUID& target_id = item->getLinkedUUID();
+			addBacklinkInfo(link_id, target_id);
+		}
 		mItemMap[item->getUUID()] = item;
 	}
 }
@@ -1693,6 +1763,7 @@ void LLInventoryModel::empty()
 		mParentChildItemTree.end(),
 		DeletePairedPointer());
 	mParentChildItemTree.clear();
+	mBacklinkMMap.clear(); // forget all backlink information.
 	mCategoryMap.clear(); // remove all references (should delete entries)
 	mItemMap.clear(); // remove all references (should delete entries)
 	mLastItem = NULL;
@@ -3700,6 +3771,57 @@ bool LLInventoryModel::validate() const
 				}
 			}
 				
+		}
+		// Link checking
+		if (item->getIsLinkType())
+		{
+			const LLUUID& link_id = item->getUUID();
+			const LLUUID& target_id = item->getLinkedUUID();
+			LLViewerInventoryItem *target_item = getItem(target_id);
+			LLViewerInventoryCategory *target_cat = getCategory(target_id);
+			// Linked-to UUID should have back reference to this link.
+			if (!hasBacklinkInfo(link_id, target_id))
+			{
+				llwarns << "link " << item->getUUID() << " type " << item->getActualType()
+						<< " missing backlink info at target_id " << target_id
+						<< llendl;
+			}
+			// Links should have referents.
+			if (item->getActualType() == LLAssetType::AT_LINK && !target_item)
+			{
+				llwarns << "broken item link " << item->getName() << " id " << item->getUUID() << llendl;
+			}
+			else if (item->getActualType() == LLAssetType::AT_LINK_FOLDER && !target_cat)
+			{
+				llwarns << "broken folder link " << item->getName() << " id " << item->getUUID() << llendl;
+			}
+			if (target_item && target_item->getIsLinkType())
+			{
+				llwarns << "link " << item->getName() << " references a link item "
+						<< target_item->getName() << " " << target_item->getUUID() << llendl;
+			}
+
+			// Links should not have backlinks.
+			std::pair<backlink_mmap_t::const_iterator, backlink_mmap_t::const_iterator> range = mBacklinkMMap.equal_range(link_id);
+			if (range.first != range.second)
+			{
+				llwarns << "Link item " << item->getName() << " has backlinks!" << llendl;
+			}
+		}
+		else
+		{
+			// Check the backlinks of a non-link item.
+			const LLUUID& target_id = item->getUUID();
+			std::pair<backlink_mmap_t::const_iterator, backlink_mmap_t::const_iterator> range = mBacklinkMMap.equal_range(target_id);
+			for (backlink_mmap_t::const_iterator it = range.first; it != range.second; ++it)
+			{
+				const LLUUID& link_id = it->second;
+				LLViewerInventoryItem *link_item = getItem(link_id);
+				if (!link_item || !link_item->getIsLinkType())
+				{
+					llwarns << "invalid backlink from target " << item->getName() << " to " << link_id << llendl;
+				}
+			}
 		}
 	}
 	

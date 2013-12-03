@@ -154,6 +154,15 @@ private:
 	parent_cat_map_t mParentChildCategoryTree;
 	parent_item_map_t mParentChildItemTree;
 
+	// Track links to items and categories. We do not store item or
+	// category pointers here, because broken links are also supported.
+	typedef std::multimap<LLUUID, LLUUID> backlink_mmap_t;
+	backlink_mmap_t mBacklinkMMap; // key = target_id: ID of item, values = link_ids: IDs of item or folder links referencing it.
+	// For internal use only
+	bool hasBacklinkInfo(const LLUUID& link_id, const LLUUID& target_id) const;
+	void addBacklinkInfo(const LLUUID& link_id, const LLUUID& target_id);
+	void removeBacklinkInfo(const LLUUID& link_id, const LLUUID& target_id);
+	
 	//--------------------------------------------------------------------
 	// Login
 	//--------------------------------------------------------------------
@@ -217,8 +226,8 @@ public:
 
 	// Collect all items in inventory that are linked to item_id.
 	// Assumes item_id is itself not a linked item.
-	item_array_t collectLinkedItems(const LLUUID& item_id,
-									const LLUUID& start_folder_id = LLUUID::null);
+	item_array_t collectLinksTo(const LLUUID& item_id,
+								const LLUUID& start_folder_id = LLUUID::null);
 	
 
 	// Check if one object has a parent chain up to the category specified by UUID.
