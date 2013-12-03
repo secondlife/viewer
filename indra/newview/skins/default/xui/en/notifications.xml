@@ -7634,7 +7634,7 @@ Are you sure you want to share the following items:
 
 With the following Residents:
 
-[RESIDENTS]
+&lt;nolink&gt;[RESIDENTS]&lt;/nolink&gt;
   <tag>confirm</tag>
 	<usetemplate
      name="okcancelbuttons"
@@ -7654,7 +7654,7 @@ Are you sure you want to share the following items:
 
 With the following Residents:
 
-[RESIDENTS]
+&lt;nolink&gt;[RESIDENTS]&lt;/nolink&gt;
   <tag>confirm</tag>
 	<usetemplate
      name="okcancelbuttons"
