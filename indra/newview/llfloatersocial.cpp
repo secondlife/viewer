@@ -62,9 +62,10 @@ const std::string DEFAULT_PHOTO_QUERY_PARAMETERS = "?sourceid=slshare_photo&utm_
 std::string get_map_url()
 {
     LLVector3d center_agent;
-    if (gAgent.getRegion())
+    LLViewerRegion *regionp = gAgent.getRegion();
+    if (regionp)
     {
-        center_agent = gAgent.getRegion()->getCenterGlobal();
+        center_agent = regionp->getCenterGlobal();
     }
     int x_pos = center_agent[0] / 256.0;
     int y_pos = center_agent[1] / 256.0;
@@ -607,7 +608,12 @@ void LLSocialCheckinPanel::sendCheckin()
 	slurl_string += DEFAULT_CHECKIN_QUERY_PARAMETERS;
     
 	// Get the region name
-	std::string region_name = gAgent.getRegion()->getName();
+	std::string region_name("");
+    LLViewerRegion *regionp = gAgent.getRegion();
+    if (regionp)
+    {
+        region_name = regionp->getName();
+    }
     
 	// Get the region description
 	std::string description;
