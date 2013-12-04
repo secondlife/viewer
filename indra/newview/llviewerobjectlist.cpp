@@ -458,7 +458,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 		LLTimer update_timer;
 		BOOL justCreated = FALSE;
 		S32	msg_size = 0;
-		bool remove_from_cache = false; //remove from object cache if it is a full-update or terse update
+		bool update_cache = false; //update object cache if it is a full-update or terse update
 
 		if (compressed)
 		{
@@ -486,9 +486,9 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 					continue;
 				}
 			}
-			else
+			else //OUT_TERSE_IMPROVED
 			{
-				remove_from_cache = true;
+				update_cache = true;
 				compressed_dp.unpackU32(local_id, "LocalID");
 				getUUIDFromLocal(fullid,
 								 local_id,
@@ -518,7 +518,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 		}
 		else // OUT_FULL only?
 		{
-			remove_from_cache = true;
+			update_cache = true;
 			mesgsys->getUUIDFast(_PREHASH_ObjectData, _PREHASH_FullID, fullid, i);
 			mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_ID, local_id, i);
 			msg_size += sizeof(LLUUID);
@@ -527,9 +527,9 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 		}
 		objectp = findObject(fullid);
 
-		if(remove_from_cache)
+		if(update_cache)
 		{
-			objectp = regionp->forceToRemoveFromCache(local_id, objectp);
+			objectp = regionp->updateCacheEntry(local_id, objectp, update_type);
 		}
 
 		// This looks like it will break if the local_id of the object doesn't change

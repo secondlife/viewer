@@ -335,8 +335,8 @@ public:
 	bool probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss_type);
 	void requestCacheMisses();
 	void addCacheMissFull(const U32 local_id);
-	//remove from object cache if the object receives a full-update or terse update
-	LLViewerObject* forceToRemoveFromCache(U32 local_id, LLViewerObject* objectp);
+	//update object cache if the object receives a full-update or terse update
+	LLViewerObject* updateCacheEntry(U32 local_id, LLViewerObject* objectp, U32 update_type);
 	void findOrphans(U32 parent_id);
 	void clearCachedVisibleObjects();
 	void dumpCache();
