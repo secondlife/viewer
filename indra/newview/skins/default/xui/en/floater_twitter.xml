@@ -10,10 +10,10 @@
   single_instance="true"
   reuse_instance="true"
   title="TWITTER"
-  height="482"
+  height="502"
   width="304">
   <panel
-   height="482"
+   height="502"
    width="304"
    visible="true"
    name="background"
@@ -27,7 +27,7 @@
      tab_height="30"
      tab_position="top"
      top="7"
-     height="437"
+     height="457"
      halign="center">
      <panel
        filename="panel_twitter_photo.xml"

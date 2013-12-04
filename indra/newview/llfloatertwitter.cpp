@@ -66,6 +66,7 @@ mRefreshBtn(NULL),
 mWorkingLabel(NULL),
 mThumbnailPlaceholder(NULL),
 mStatusTextBox(NULL),
+mLocationCheckbox(NULL),
 mPhotoCheckbox(NULL),
 mPostButton(NULL)
 {
@@ -92,7 +93,10 @@ BOOL LLTwitterPhotoPanel::postBuild()
     mWorkingLabel = getChild<LLUICtrl>("working_lbl");
 	mThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");
 	mStatusTextBox = getChild<LLUICtrl>("photo_status");
+	mLocationCheckbox = getChild<LLUICtrl>("add_location_cb");
+	mLocationCheckbox->setCommitCallback(boost::bind(&LLTwitterPhotoPanel::onAddLocationToggled, this));
 	mPhotoCheckbox = getChild<LLUICtrl>("add_photo_cb");
+	mPhotoCheckbox->setCommitCallback(boost::bind(&LLTwitterPhotoPanel::onAddPhotoToggled, this));
 	mPostButton = getChild<LLUICtrl>("post_photo_btn");
 	mCancelButton = getChild<LLUICtrl>("cancel_photo_btn");
 
@@ -109,30 +113,12 @@ void LLTwitterPhotoPanel::draw()
     mStatusTextBox->setEnabled(no_ongoing_connection);
     mResolutionComboBox->setEnabled(no_ongoing_connection && mPhotoCheckbox->getValue().asBoolean());
     mRefreshBtn->setEnabled(no_ongoing_connection && mPhotoCheckbox->getValue().asBoolean());
+    mLocationCheckbox->setEnabled(no_ongoing_connection);
     mPhotoCheckbox->setEnabled(no_ongoing_connection);
 
+	bool add_location = mLocationCheckbox->getValue().asBoolean();
 	bool add_photo = mPhotoCheckbox->getValue().asBoolean();
-
-	// Restrict the status text length to Twitter's character limit
-	LLTextEditor* status_text_box = dynamic_cast<LLTextEditor*>(mStatusTextBox);
-	if (status_text_box)
-	{
-		int max_status_length = add_photo ? 100 : 140;
-		status_text_box->setMaxTextLength(max_status_length);
-		if (!add_photo)
-		{
-			if (mOldStatusText.length() > status_text_box->getText().length() && status_text_box->getText() == mOldStatusText.substr(0, status_text_box->getText().length()))
-			{
-				status_text_box->setText(mOldStatusText);
-			}
-			mOldStatusText = "";
-		}
-		if (status_text_box->getText().length() > max_status_length)
-		{
-			mOldStatusText = status_text_box->getText();
-			status_text_box->setText(mOldStatusText.substr(0, max_status_length));
-		}
-	}
+	updateStatusTextLength(false);
 
     // Display the preview if one is available
 	if (previewp && previewp->getThumbnailImage())
@@ -169,7 +155,7 @@ void LLTwitterPhotoPanel::draw()
     mWorkingLabel->setVisible(!(previewp && previewp->getSnapshotUpToDate()));
     
     // Enable Post if we have a preview to send and no on going connection being processed
-    mPostButton->setEnabled(no_ongoing_connection && ((add_photo && previewp && previewp->getSnapshotUpToDate()) || !mStatusTextBox->getValue().asString().empty()));
+    mPostButton->setEnabled(no_ongoing_connection && ((add_photo && previewp && previewp->getSnapshotUpToDate()) || add_location || !mStatusTextBox->getValue().asString().empty()));
     
     // Draw the rest of the panel on top of it
 	LLPanel::draw();
@@ -211,6 +197,18 @@ void LLTwitterPhotoPanel::onVisibilityChange(const LLSD& new_visibility)
 			updateControls();
 		}
 	}
+}
+
+void LLTwitterPhotoPanel::onAddLocationToggled()
+{
+	bool add_location = mLocationCheckbox->getValue().asBoolean();
+	updateStatusTextLength(!add_location);
+}
+
+void LLTwitterPhotoPanel::onAddPhotoToggled()
+{
+	bool add_photo = mPhotoCheckbox->getValue().asBoolean();
+	updateStatusTextLength(!add_photo);
 }
 
 void LLTwitterPhotoPanel::onClickNewSnapshot()
@@ -261,6 +259,26 @@ void LLTwitterPhotoPanel::sendPhoto()
 {
 	// Get the status text
 	std::string status = mStatusTextBox->getValue().asString();
+	
+	// Add the location if required
+	bool add_location = mLocationCheckbox->getValue().asBoolean();
+	if (add_location)
+	{
+		// Get the SLURL for the location
+		LLSLURL slurl;
+		LLAgentUI::buildSLURL(slurl);
+		std::string slurl_string = slurl.getSLURLString();
+
+		// Add query parameters so Google Analytics can track incoming clicks!
+		slurl_string += DEFAULT_PHOTO_QUERY_PARAMETERS;
+
+		// Add it to the status (pretty crude, but we don't have a better option with photos)
+		if (status.empty())
+			status = slurl_string;
+		else
+			status = status + " " + slurl_string;
+	}
+
 
 	// Add the photo if required
 	bool add_photo = mPhotoCheckbox->getValue().asBoolean();
@@ -290,6 +308,40 @@ void LLTwitterPhotoPanel::clearAndClose()
 	{
 		floater->closeFloater();
 	}
+}
+
+void LLTwitterPhotoPanel::updateStatusTextLength(BOOL restore_old_status_text)
+{
+	bool add_location = mLocationCheckbox->getValue().asBoolean();
+	bool add_photo = mPhotoCheckbox->getValue().asBoolean();
+
+	// Restrict the status text length to Twitter's character limit
+	LLTextEditor* status_text_box = dynamic_cast<LLTextEditor*>(mStatusTextBox);
+	if (status_text_box)
+	{
+		int max_status_length = 140 - (add_location ? 40 : 0) - (add_photo ? 40 : 0);
+		status_text_box->setMaxTextLength(max_status_length);
+		if (restore_old_status_text)
+		{
+			if (mOldStatusText.length() > status_text_box->getText().length() && status_text_box->getText() == mOldStatusText.substr(0, status_text_box->getText().length()))
+			{
+				status_text_box->setText(mOldStatusText);
+			}
+			if (mOldStatusText.length() <= max_status_length)
+			{
+				mOldStatusText = "";
+			}
+		}
+		if (status_text_box->getText().length() > max_status_length)
+		{
+			if (mOldStatusText.length() < status_text_box->getText().length() || status_text_box->getText() != mOldStatusText.substr(0, status_text_box->getText().length()))
+			{
+				mOldStatusText = status_text_box->getText();
+			}
+			status_text_box->setText(mOldStatusText.substr(0, max_status_length));
+		}
+	}
+
 }
 
 void LLTwitterPhotoPanel::updateControls()
