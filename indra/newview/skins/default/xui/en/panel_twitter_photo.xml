@@ -25,6 +25,20 @@
            type="string">
             What's happening?
           </text>
+          <text
+           length="1"
+           follows="top|left"
+           font="SansSerif"
+           text_color="EmphasisColor"
+           halign="right"
+           height="16"
+           width="30"
+           left="227"
+           name="status_counter_label"
+           top="3"
+           type="string">
+            140
+          </text>
           <text_editor
            follows="left|top"
            height="87"

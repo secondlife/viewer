@@ -69,6 +69,7 @@ private:
 	LLUICtrl * mRefreshBtn;
 	LLUICtrl * mWorkingLabel;
 	LLUICtrl * mThumbnailPlaceholder;
+	LLUICtrl * mStatusCounterLabel;
 	LLUICtrl * mStatusTextBox;
 	LLUICtrl * mLocationCheckbox;
 	LLUICtrl * mPhotoCheckbox;

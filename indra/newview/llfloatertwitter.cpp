@@ -65,6 +65,7 @@ mResolutionComboBox(NULL),
 mRefreshBtn(NULL),
 mWorkingLabel(NULL),
 mThumbnailPlaceholder(NULL),
+mStatusCounterLabel(NULL),
 mStatusTextBox(NULL),
 mLocationCheckbox(NULL),
 mPhotoCheckbox(NULL),
@@ -92,6 +93,7 @@ BOOL LLTwitterPhotoPanel::postBuild()
 	mRefreshBtn = getChild<LLUICtrl>("new_snapshot_btn");
     mWorkingLabel = getChild<LLUICtrl>("working_lbl");
 	mThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");
+	mStatusCounterLabel = getChild<LLUICtrl>("status_counter_label");
 	mStatusTextBox = getChild<LLUICtrl>("photo_status");
 	mLocationCheckbox = getChild<LLUICtrl>("add_location_cb");
 	mLocationCheckbox->setCommitCallback(boost::bind(&LLTwitterPhotoPanel::onAddLocationToggled, this));
@@ -340,6 +342,10 @@ void LLTwitterPhotoPanel::updateStatusTextLength(BOOL restore_old_status_text)
 			}
 			status_text_box->setText(mOldStatusText.substr(0, max_status_length));
 		}
+
+		// Update the status character counter
+		int characters_remaining = max_status_length - status_text_box->getText().length();
+		mStatusCounterLabel->setValue(characters_remaining);
 	}
 
 }
