@@ -28,6 +28,34 @@
 #include "stdafx.h"
 #include <stdlib.h>
 #include "llcrashloggerwindows.h"
+#include <iostream>
+
+//SPATTERS killme
+#include <iostream>
+#include <fstream>
+
+std::ofstream gCLOG; //SPATTERS for testing only remove ASAP.
+
+void flog (std::string msg)
+{
+    //Windows can't even write a goddamned file without fucking it up.
+    static bool first_time=true;
+
+    std::cout << "Init Crash Logger" << std::endl;
+    static std::string logname="C:\\Users\\Aura\\AppData\\Roaming\\SecondLife\\logs\\WinCrashLog.log";
+    if (first_time)
+	{
+        gCLOG.open(logname, std::fstream::out); //first time open for overwrite.
+        first_time = false;
+        gCLOG << "BEGINNING Windows Crash Report Log\n";
+	}
+	else
+        gCLOG.open(logname,  std::fstream::out | std::fstream::app);
+
+    gCLOG << msg << "\n";
+    gCLOG.close();
+}
+//END SPATTERS KILLME
 
 int APIENTRY WinMain(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
@@ -35,17 +63,23 @@ int APIENTRY WinMain(HINSTANCE hInstance,
                      int       nCmdShow)
 {
 	llinfos << "Starting crash reporter." << llendl;
-
 	LLCrashLoggerWindows app;
 	app.setHandle(hInstance);
 	app.parseCommandOptions(__argc, __argv);
 
+	LLSD options = LLApp::instance()->getOptionData(
+                   LLApp::PRIORITY_COMMAND_LINE);
+    if (!(options.has("pid") && options.has("dumpdir")))
+    {
+        llwarns << "Insufficient parameters to crash report." << llendl; 
+    }
 	if (! app.init())
 	{
 		llwarns << "Unable to initialize application." << llendl;
-		return -1;
+		return 1;
 	}
-
+	flog("Hi there.");
+	app.processingLoop();
 	app.mainLoop();
 	app.cleanup();
 	llinfos << "Crash reporter finished normally." << llendl;

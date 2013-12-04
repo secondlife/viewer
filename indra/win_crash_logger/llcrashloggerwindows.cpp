@@ -42,6 +42,10 @@
 #include "lldxhardware.h"
 #include "lldir.h"
 #include "llsdserialize.h"
+#include "llsdutil.h"
+
+#include <client/windows/crash_generation/crash_generation_server.h>
+#include <client/windows/crash_generation/client_info.h>
 
 #define MAX_LOADSTRING 100
 #define MAX_STRING 2048
@@ -64,6 +68,7 @@ BOOL gFirstDialog = TRUE;	// Are we currently handling the Send/Don't Send dialo
 std::stringstream gDXInfo;
 bool gSendLogs = false;
 
+LLCrashLoggerWindows* LLCrashLoggerWindows::sInstance = NULL;
 
 //Conversion from char* to wchar*
 //Replacement for ATL macros, doesn't allocate memory
@@ -240,14 +245,181 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 
 LLCrashLoggerWindows::LLCrashLoggerWindows(void)
 {
+	if (LLCrashLoggerWindows::sInstance==NULL)
+	{
+		sInstance = this; 
+	}
 }
 
 LLCrashLoggerWindows::~LLCrashLoggerWindows(void)
 {
+	sInstance = NULL;
+}
+
+bool LLCrashLoggerWindows::getMessageWithTimeout(MSG *msg, UINT to)
+{
+    bool res;
+	const int timerID=37;
+    SetTimer(NULL, timerID, to, NULL);
+    res = GetMessage(msg, NULL, 0, 0);
+    KillTimer(NULL, timerID);
+    if (!res)
+        return false;
+    if (msg->message == WM_TIMER && msg->hwnd == NULL && msg->wParam == 1)
+        return false; //TIMEOUT! You could call SetLastError() or something...
+    return true;
+}
+
+int LLCrashLoggerWindows::processingLoop() {
+	const int millisecs=1000;
+	static int first_connect = 1;
+
+	LLSD options = getOptionData( LLApp::PRIORITY_COMMAND_LINE );
+
+	MSG msg;
+	
+	bool result;
+
+    while (1) 
+	{
+		result = getMessageWithTimeout(&msg, millisecs);
+		if ( result ) 
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+
+		if (first_connect )
+		{
+			if ( mClientsConnected > 0) 
+			{
+				first_connect = 0;
+			}
+		} 
+		else 
+		{
+			if (mClientsConnected == 0)
+			{
+				break;
+			}
+			if (!mKeyMaster.isProcessAlive(mPID, mProcName) )
+			{
+				break;
+			}
+		} 
+    }
+    
+    llinfos << "session ending.." << llendl;
+    
+    llinfos << "clients connected :" << mClientsConnected << llendl;
+    
+	return 0;
+}
+
+
+void LLCrashLoggerWindows::OnClientConnected(void* context,
+				const google_breakpad::ClientInfo* client_info) 
+{
+	llinfos << "client start. pid = " << client_info->pid() << llendl;
+	sInstance->mClientsConnected++;
+}
+
+void LLCrashLoggerWindows::OnClientExited(void* context,
+		const google_breakpad::ClientInfo* client_info) 
+{
+	llinfos << "client end. pid = " << client_info->pid() << llendl;
+	sInstance->mClientsConnected--;
+}
+
+/*
+void LLCrashLoggerWindows::OnClientDumpRequest(void* context,
+	const google_breakpad::ClientInfo* client_info,
+	const std::wstring* file_path) 
+{
+	ProcessingLock lock;
+
+	if (!file_path) 
+	{
+		llwarns << "dump with no file path" << llendl;
+		return;
+	}
+	if (!client_info) 
+	{
+		llwarns << "dump with no client info" << llendl;
+		return;
+	}
+
+	LLCrashLoggerWindows* self = static_cast<LLCrashLoggerWindows*>(context);
+	if (!self) 
+	{
+		llwarns << "dump with no context" << llendl;
+		return;
+	}
+
+	DWORD pid = client_info->pid();
+
+
+// Send the crash dump using a worker thread. This operation has retry
+// logic in case there is no internet connection at the time.
+DumpJobInfo* dump_job = new DumpJobInfo(pid, self, map,
+dump_location.value());
+if (!::QueueUserWorkItem(&CrashService::AsyncSendDump,
+dump_job, WT_EXECUTELONGFUNCTION)) {
+LOG(ERROR) << "could not queue job";
+}
+}
+*/
+
+bool LLCrashLoggerWindows::initCrashServer()
+{
+	//For Breakpad on Windows we need a full Out of Process service to get good data.
+	//This routine starts up the service on a named pipe that the viewer will then
+	//communicate with. 
+	using namespace google_breakpad;
+
+	LLSD options = getOptionData( LLApp::PRIORITY_COMMAND_LINE );
+	std::string dump_path = options["dumpdir"].asString();
+	mClientsConnected = 0;
+	mPID = options["pid"].asInteger();
+	mProcName = options["procname"].asString();
+
+	std::wostringstream ws;
+	//Generate a quasi-uniq name for the named pipe.  For our purposes
+	//this is unique-enough with least hassle.  Worst case for duplicate name
+	//is a second instance of the viewer will not do crash reporting. 
+	ws << mCrashReportPipeStr << mPID;
+	std::wstring wpipe_name = ws.str();
+
+	std::wstring wdump_path;
+	wdump_path.assign(dump_path.begin(), dump_path.end());
+
+	//Pipe naming conventions:  http://msdn.microsoft.com/en-us/library/aa365783%28v=vs.85%29.aspx
+	mCrashHandler = new CrashGenerationServer( (WCHAR *)wpipe_name.c_str(), 
+		NULL, 
+ 		&LLCrashLoggerWindows::OnClientConnected, this,
+		NULL, NULL,	// 	&LLCrashLoggerWindows::OnClientDumpRequest, this,
+ 		&LLCrashLoggerWindows::OnClientExited, this,
+ 		NULL, NULL,
+ 		true, &wdump_path);
+	
+ 	if (!mCrashHandler) {
+		//Failed to start the crash server.
+ 		llwarns << "Failed to init crash server." << llendl;
+		return false; 
+ 	}
+
+	// Start servicing clients.
+    if (!mCrashHandler->Start()) {
+		llwarns << "Failed to start crash server." << llendl;
+		return false;
+	}
+
+	return true;
 }
 
 bool LLCrashLoggerWindows::init(void)
 {	
+	initCrashServer();
 	bool ok = LLCrashLogger::init();
 	if(!ok) return false;
 
@@ -291,18 +463,16 @@ void LLCrashLoggerWindows::gatherPlatformSpecificFiles()
 	SetCursor(gCursorWait);
 	// At this point we're responsive enough the user could click the close button
 	SetCursor(gCursorArrow);
-	mDebugLog["DisplayDeviceInfo"] = gDXHardware.getDisplayInfo();
+	//mDebugLog["DisplayDeviceInfo"] = gDXHardware.getDisplayInfo();  //Not initialized.
 }
 
 bool LLCrashLoggerWindows::mainLoop()
 {	
 	llinfos << "CrashSubmitBehavior is " << mCrashBehavior << llendl;
-
 	// Note: parent hwnd is 0 (the desktop).  No dlg proc.  See Petzold (5th ed) HexCalc example, Chapter 11, p529
 	// win_crash_logger.rc has been edited by hand.
 	// Dialogs defined with CLASS "WIN_CRASH_LOGGER" (must be same as szWindowClass)
 	gProductName = mProductName;
-
 	gHwndProgress = CreateDialog(hInst, MAKEINTRESOURCE(IDD_PROGRESS), 0, NULL);
 	ProcessCaption(gHwndProgress);
 	ShowWindow(gHwndProgress, SW_HIDE );
@@ -371,5 +541,7 @@ bool LLCrashLoggerWindows::cleanup()
 	}
 	PostQuitMessage(0);
 	commonCleanup();
+	mKeyMaster.releaseMaster();
 	return true;
 }
+

@@ -1,8 +1,8 @@
-/** 
- * @file llpidlock.h
- * @brief System information debugging classes.
+/**
+ * @file llappviewermacosx.h
+ * @brief The LLAppViewerMacOSX class declaration
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -22,39 +22,15 @@
  * 
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
- */
+ */ 
 
-#ifndef LL_PIDLOCK_H
-#define LL_PIDLOCK_H
-#include "llnametable.h"
+#ifndef LL_LLAPPVIEWERMACOSX_OBJC_H
+#define LL_LLAPPVIEWERMACOSX_OBJC_H
 
-class LLSD;
-class LLFrameTimer;
+#include <string>
+#include <vector>
 
-#if !LL_WINDOWS	//For non-windows platforms.
-#include <signal.h>
-#endif
+//Why?  Because BOOL
+void launchApplication(const std::string* app_name, const std::vector<std::string>* args);
 
-namespace LLPidLock
-{
-    void initClass(); // { (void) LLPidLockFile::instance(); }
-
-    bool requestLock( LLNameTable<void *> *name_table=NULL, bool autosave=TRUE,
-                     bool force_immediate=FALSE, F32 timeout=300.0);
-    bool checkLock();
-    void releaseLock();
-    bool isClean();
-
-    //getters
-    LLNameTable<void *> * getNameTable();
-    bool getAutosave();
-    bool getClean();
-    std::string getSaveName();
-    S32 getPID();
-
-    //setters
-    void setClean(bool clean);
-    void setSaveName(std::string savename);
-};
-
-#endif // LL_PIDLOCK_H
+#endif // LL_LLAPPVIEWERMACOSX_OBJC_H

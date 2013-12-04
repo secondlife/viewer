@@ -61,7 +61,7 @@ protected:
 	virtual bool beingDebugged();
 	
 	virtual bool restoreErrorTrap();
-	virtual void handleCrashReporting(bool reportFreeze);
+	virtual void initCrashReporting(bool reportFreeze);
 
 	virtual void initLoggingAndGetLastDuration();
 	virtual bool initParseCommandLine(LLCommandLineParser& clp);

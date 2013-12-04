@@ -3506,7 +3506,8 @@ bool process_login_success_response()
 	{
 		success = true;
 	}
-
+    LLAppViewer* pApp = LLAppViewer::instance();
+	pApp->writeDebugInfo();     //Write our static data now that we have username, session_id, etc.
 	return success;
 }
 

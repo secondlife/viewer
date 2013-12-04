@@ -136,6 +136,7 @@ bool LLCrashLoggerLinux::mainLoop()
 bool LLCrashLoggerLinux::cleanup()
 {
 	commonCleanup();
+    mKeyMaster.releaseMaster();
 	return true;
 }
 

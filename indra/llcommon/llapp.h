@@ -27,6 +27,7 @@
 #ifndef LL_LLAPP_H
 #define LL_LLAPP_H
 
+//#define LL_SEND_CRASH_REPORTS 1 /*SPATTERS*/
 #include <map>
 #include "llrun.h"
 #include "llsd.h"
@@ -42,7 +43,6 @@ class LLLiveFile;
 #endif
 
 typedef void (*LLAppErrorHandler)();
-typedef void (*LLAppChildCallback)(int pid, bool exited, int status);
 
 #if !LL_WINDOWS
 extern S32 LL_SMACKDOWN_SIGNAL;
@@ -51,13 +51,6 @@ extern S32 LL_HEARTBEAT_SIGNAL;
 // Clear all of the signal handlers (which we want to do for the child process when we fork
 void clear_signals();
 
-class LLChildInfo
-{
-public:
-	LLChildInfo() : mGotSigChild(FALSE), mCallback(NULL) {}
-	BOOL mGotSigChild;
-	LLAppChildCallback mCallback;
-};
 #endif
 
 namespace google_breakpad {
@@ -206,10 +199,6 @@ public:
 	static bool isQuitting();
 	static bool isError();
 	static bool isExiting(); // Either quitting or error (app is exiting, cleanly or not)
-#if !LL_WINDOWS
-	static U32  getSigChildCount();
-	static void incSigChildCount();
-#endif
 	static int getPid();
 
 	/** @name Error handling methods */
@@ -238,32 +227,16 @@ public:
 
 	// change the directory where Breakpad minidump files are written to
 	void setMiniDumpDir(const std::string &path);
+    void setDebugFileNames(const std::string &path);
 
 	// Return the Google Breakpad minidump filename after a crash.
-	char *getMiniDumpFilename() { return minidump_path; }
+	char *getMiniDumpFilename() { return mMinidumpPath; }
+    std::string* getStaticDebugFile() { return &mStaticDebugFileName; }
+    std::string* getDynamicDebugFile() { return &mDynamicDebugFileName; }
 
 	// Write out a Google Breakpad minidump file.
 	void writeMiniDump();
 
-#if !LL_WINDOWS
-	//
-	// Child process handling (Unix only for now)
-	//
-	// Set a callback to be run on exit of a child process
-	// WARNING!  This callback is run from the signal handler due to
-	// Linux threading requiring waitpid() to be called from the thread that spawned the process.
-	// At some point I will make this more behaved, but I'm not going to fix this right now - djs
-	void setChildCallback(pid_t pid, LLAppChildCallback callback);
-
-    // The child callback to run if no specific handler is set
-	void setDefaultChildCallback(LLAppChildCallback callback); 
-	
-    // Fork and do the proper signal handling/error handling mojo
-	// *NOTE: You need to make sure your signal handling callback is
-	// correct after you fork, because not all threads are duplicated
-	// when you fork!
-	pid_t fork(); 
-#endif
 
 	/**
 	  * @brief Get a reference to the application runner
@@ -286,13 +259,9 @@ protected:
 	static EAppStatus sStatus; // Reflects current application status
 	static BOOL sErrorThreadRunning; // Set while the error thread is running
 	static BOOL sDisableCrashlogger; // Let the OS handle crashes for us.
+	std::wstring mCrashReportPipeStr;  //Name of pipe to use for crash reporting.
 
-#if !LL_WINDOWS
-	static LLAtomicU32* sSigChildCount; // Number of SIGCHLDs received.
-	typedef std::map<pid_t, LLChildInfo> child_map; // Map key is a PID
-	static child_map sChildMap;
-	static LLAppChildCallback sDefaultChildCallback;
-#endif
+    std::string mDumpPath;  //output path for google breakpad.  Dependency workaround.
 
 	/**
 	  * @brief This method is called once a frame to do once a frame tasks.
@@ -303,7 +272,10 @@ private:
 	void startErrorThread();
 	
 	// Contains the filename of the minidump file after a crash.
-	char minidump_path[MAX_MINDUMP_PATH_LENGTH];
+	char mMinidumpPath[MAX_MINDUMP_PATH_LENGTH];
+    
+    std::string mStaticDebugFileName;
+    std::string mDynamicDebugFileName;
 
 	// *NOTE: On Windows, we need a routine to reset the structured
 	// exception handler when some evil driver has taken it over for
