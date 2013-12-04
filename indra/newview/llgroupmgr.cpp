@@ -608,6 +608,11 @@ void LLGroupMgrGroupData::recalcAgentPowers(const LLUUID& agent_id)
 	}
 }
 
+bool LLGroupMgrGroupData::isSingleMemberNotOwner()
+{
+	return mMembers.size() == 1 && !mMembers.begin()->second->isOwner();
+}
+
 bool packRoleUpdateMessageBlock(LLMessageSystem* msg, 
 								const LLUUID& group_id,
 								const LLUUID& role_id, 

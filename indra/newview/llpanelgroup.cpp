@@ -49,6 +49,7 @@
 
 #include "llpanelgroupnotices.h"
 #include "llpanelgroupgeneral.h"
+#include "llpanelgrouproles.h"
 
 #include "llaccordionctrltab.h"
 #include "llaccordionctrl.h"
@@ -275,6 +276,7 @@ void LLPanelGroup::onBtnApply(void* user_data)
 {
 	LLPanelGroup* self = static_cast<LLPanelGroup*>(user_data);
 	self->apply();
+	self->refreshData();
 }
 
 void LLPanelGroup::onBtnGroupCallClicked(void* user_data)
@@ -495,6 +497,22 @@ bool LLPanelGroup::apply(LLPanelGroupTab* tab)
 	{
 		//we skip refreshing group after ew manually apply changes since its very annoying
 		//for those who are editing group
+
+		LLPanelGroupRoles * roles_tab = dynamic_cast<LLPanelGroupRoles*>(tab);
+		if (roles_tab)
+		{
+			LLGroupMgr* gmgrp = LLGroupMgr::getInstance();
+			LLGroupMgrGroupData* gdatap = gmgrp->getGroupData(roles_tab->getGroupID());
+
+			// allow refresh only for one specific case:
+			// there is only one member in group and it is not owner
+			// it's a wrong situation and need refresh panels from server
+			if (gdatap && gdatap->isSingleMemberNotOwner())
+			{
+				return true;
+			}
+		}
+
 		mSkipRefresh = TRUE;
 		return true;
 	}
