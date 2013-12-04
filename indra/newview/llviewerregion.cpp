@@ -1535,9 +1535,15 @@ LLViewerObject* LLViewerRegion::addNewObject(LLVOCacheEntry* entry)
 	return obj;
 }
 
-//remove from object cache if the object receives a full-update or terse update
-LLViewerObject* LLViewerRegion::forceToRemoveFromCache(U32 local_id, LLViewerObject* objectp)
+//update object cache if the object receives a full-update or terse update
+//update_type == EObjectUpdateType::OUT_TERSE_IMPROVED or EObjectUpdateType::OUT_FULL
+LLViewerObject* LLViewerRegion::updateCacheEntry(U32 local_id, LLViewerObject* objectp, U32 update_type)
 {
+	if(objectp && update_type != (U32)OUT_TERSE_IMPROVED)
+	{
+		return objectp; //no need to access cache
+	}
+
 	LLVOCacheEntry* entry = getCacheEntry(local_id);
 	if (!entry)
 	{
@@ -1545,14 +1551,15 @@ LLViewerObject* LLViewerRegion::forceToRemoveFromCache(U32 local_id, LLViewerObj
 	}
 	if(!objectp) //object not created
 	{
-		entry->setTouched(FALSE); //mark this entry invalid
-
-		//create a new object before delete it from cache.
+		//create a new object from cache.
 		objectp = gObjectList.processObjectUpdateFromCache(entry, this);
 	}
 
-	//remove from cache.
-	killCacheEntry(entry);
+	//remove from cache if terse update
+	if(update_type == (U32)OUT_TERSE_IMPROVED)
+	{
+		killCacheEntry(entry);
+	}
 
 	return objectp;
 }
