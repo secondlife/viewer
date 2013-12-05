@@ -173,7 +173,6 @@ public:
 
 	bool isVisible() const;
 	bool isRecentlyVisible() const;
-	bool hasVertexBuffer() const;
 
 	virtual void cleanupReferences();
 
