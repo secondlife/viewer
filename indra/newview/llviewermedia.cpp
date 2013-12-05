@@ -429,7 +429,7 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 	// Try to find media with the same media ID
 	viewer_media_t media_impl = getMediaImplFromTextureID(media_entry->getMediaID());
 	
-	llinfos << "Merov : called, current URL is \"" << media_entry->getCurrentURL()
+	lldebugs << "called, current URL is \"" << media_entry->getCurrentURL()
 			<< "\", previous URL is \"" << previous_url 
 			<< "\", update_from_self is " << (update_from_self?"true":"false")
 			<< llendl;
@@ -790,8 +790,6 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 {
 	LLFastTimer t1(FTM_MEDIA_UPDATE);
 	
-    //llinfos << "Merov : updateMedia called" << llendl;
-    
 	// Enable/disable the plugin read thread
 	LLPluginProcessParent::setUseReadThread(gSavedSettings.getBOOL("PluginUseReadThread"));
 	
@@ -1536,7 +1534,6 @@ void LLViewerMedia::createSpareBrowserMediaSource()
 	// popping up at the moment we start a media plugin.
 	if (!sSpareBrowserMediaSource && !gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins"))
 	{
-        llinfos << "Merov : createSpareBrowserMediaSource : need to create a spare browser..." << llendl;
 		// The null owner will keep the browser plugin from fully initializing
 		// (specifically, it keeps LLPluginClassMedia from negotiating a size change, 
 		// which keeps MediaPluginWebkit::initBrowserWindow from doing anything until we have some necessary data, like the background color)
@@ -1548,7 +1545,6 @@ void LLViewerMedia::createSpareBrowserMediaSource()
 // static
 LLPluginClassMedia* LLViewerMedia::getSpareBrowserMediaSource()
 {
-    llinfos << "Merov : getSpareBrowserMediaSource : give up the spare browser..." << llendl;
 	LLPluginClassMedia* result = sSpareBrowserMediaSource;
 	sSpareBrowserMediaSource = NULL;
 	return result; 
@@ -1596,7 +1592,6 @@ std::string LLViewerMedia::getParcelAudioURL()
 // static
 void LLViewerMedia::initClass()
 {
-    llinfos << "Merov : initClass called" << llendl;
 	gIdleCallbacks.addFunction(LLViewerMedia::updateMedia, NULL);
 	sTeleportFinishConnection = LLViewerParcelMgr::getInstance()->
 		setTeleportFinishedCallback(boost::bind(&LLViewerMedia::onTeleportFinished));
@@ -1606,7 +1601,6 @@ void LLViewerMedia::initClass()
 // static
 void LLViewerMedia::cleanupClass()
 {
-    llinfos << "Merov : cleanupClass called" << llendl;
 	gIdleCallbacks.deleteFunction(LLViewerMedia::updateMedia, NULL);
 	sTeleportFinishConnection.disconnect();
 }
@@ -1800,15 +1794,16 @@ void LLViewerMediaImpl::setMediaType(const std::string& media_type)
 
 //////////////////////////////////////////////////////////////////////////////////////////
 /*static*/
-LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_type, LLPluginClassMediaOwner *owner /* may be NULL */, S32 default_width, S32 default_height, const std::string target, bool get_clean_source)
+LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_type, LLPluginClassMediaOwner *owner /* may be NULL */, S32 default_width, S32 default_height, const std::string target, bool clean_browser)
 {
 	std::string plugin_basename = LLMIMETypes::implType(media_type);
 	LLPluginClassMedia* media_source = NULL;
 	
 	// HACK: we always try to keep a spare running webkit plugin around to improve launch times.
 	// If a spare was already created before PluginAttachDebuggerToPlugins was set, don't use it.
-    // Merov : do not use a spare if launching with full viewer control (e.g. Facebook, Twitter and few others)
-	if(plugin_basename == "media_plugin_webkit" && !gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins") && !get_clean_source)
+    // Do not use a spare if launching with full viewer control (e.g. Facebook, Twitter and few others)
+	if ((plugin_basename == "media_plugin_webkit") &&
+        !gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins") && !clean_browser)
 	{
 		media_source = LLViewerMedia::getSpareBrowserMediaSource();
 		if(media_source)
@@ -1820,7 +1815,6 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 			return media_source;
 		}
 	}
-	llinfos << "Merov : newSourceFromMediaType, get_clean_source = " << get_clean_source << llendl;
 	if(plugin_basename.empty())
 	{
 		LL_WARNS_ONCE("Media") << "Couldn't find plugin for media type " << media_type << LL_ENDL;
@@ -1864,19 +1858,18 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 
 			// collect 'cookies enabled' setting from prefs and send to embedded browser
 			bool cookies_enabled = gSavedSettings.getBOOL( "CookiesEnabled" );
-			media_source->enable_cookies( cookies_enabled || get_clean_source);
+			media_source->enable_cookies( cookies_enabled || clean_browser);
 
 			// collect 'plugins enabled' setting from prefs and send to embedded browser
 			bool plugins_enabled = gSavedSettings.getBOOL( "BrowserPluginsEnabled" );
-			media_source->setPluginsEnabled( plugins_enabled  || get_clean_source);
+			media_source->setPluginsEnabled( plugins_enabled  || clean_browser);
 
 			// collect 'javascript enabled' setting from prefs and send to embedded browser
 			bool javascript_enabled = gSavedSettings.getBOOL( "BrowserJavascriptEnabled" );
-            llinfos << "Merov : setting javascript flag : " << javascript_enabled << llendl;
-			media_source->setJavascriptEnabled( javascript_enabled || get_clean_source);
+			media_source->setJavascriptEnabled( javascript_enabled || clean_browser);
 		
 			bool media_plugin_debugging_enabled = gSavedSettings.getBOOL("MediaPluginDebugging");
-			media_source->enableMediaPluginDebugging( media_plugin_debugging_enabled  || get_clean_source);
+			media_source->enableMediaPluginDebugging( media_plugin_debugging_enabled  || clean_browser);
 
 			media_source->setTarget(target);
 			
@@ -2563,7 +2556,6 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
 	}
 	
 	// Always set the current URL and MIME type.
-    llinfos << "Merov : LLViewerMediaImpl::navigateTo url = " << url << llendl;
 	mMediaURL = url;
 	mMimeType = mime_type;
     mCleanBrowser = clean_browser;

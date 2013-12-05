@@ -241,7 +241,6 @@ void LLFloaterWebContent::preCreate(LLFloaterWebContent::Params& p)
 
 void LLFloaterWebContent::open_media(const Params& p)
 {
-    llinfos << "Merov : LLFloaterWebContent::open_media, allow_address_entry = " << p.allow_address_entry << ", clean_browser = " << p.clean_browser << llendl;
 	// Specifying a mime type of text/html here causes the plugin system to skip the MIME type probe and just open a browser plugin.
 	LLViewerMedia::proxyWindowOpened(p.target(), p.id());
 	mWebBrowser->setHomePageUrl(p.url, "text/html");
