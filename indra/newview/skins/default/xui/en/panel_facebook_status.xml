@@ -2,7 +2,7 @@
 	 height="400"
 	 width="304"
 	 layout="topleft"
-     name="panel_social_status">
+     name="panel_facebook_status">
      <layout_stack
       layout="topleft"
       border_size="0"

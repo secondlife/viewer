@@ -622,7 +622,7 @@ void LLTwitterAccountPanel::onDisconnect()
 ////////////////////////
 
 LLFloaterTwitter::LLFloaterTwitter(const LLSD& key) : LLFloater(key),
-    mSocialPhotoPanel(NULL),
+    mTwitterPhotoPanel(NULL),
     mStatusErrorText(NULL),
     mStatusLoadingText(NULL),
     mStatusLoadingIndicator(NULL)
@@ -638,7 +638,7 @@ void LLFloaterTwitter::onCancel()
 BOOL LLFloaterTwitter::postBuild()
 {
     // Keep tab of the Photo Panel
-	mSocialPhotoPanel = static_cast<LLTwitterPhotoPanel*>(getChild<LLUICtrl>("panel_twitter_photo"));
+	mTwitterPhotoPanel = static_cast<LLTwitterPhotoPanel*>(getChild<LLUICtrl>("panel_twitter_photo"));
     // Connection status widgets
     mStatusErrorText = getChild<LLTextBox>("connection_error_text");
     mStatusLoadingText = getChild<LLTextBox>("connection_loading_text");
@@ -648,14 +648,14 @@ BOOL LLFloaterTwitter::postBuild()
 
 void LLFloaterTwitter::showPhotoPanel()
 {
-	LLTabContainer* parent = dynamic_cast<LLTabContainer*>(mSocialPhotoPanel->getParent());
+	LLTabContainer* parent = dynamic_cast<LLTabContainer*>(mTwitterPhotoPanel->getParent());
 	if (!parent)
 	{
 		llwarns << "Cannot find panel container" << llendl;
 		return;
 	}
 
-	parent->selectTabPanel(mSocialPhotoPanel);
+	parent->selectTabPanel(mTwitterPhotoPanel);
 }
 
 // static
@@ -665,7 +665,7 @@ void LLFloaterTwitter::preUpdate()
 	if (instance)
 	{
 		//Will set file size text to 'unknown'
-		instance->mSocialPhotoPanel->updateControls();
+		instance->mTwitterPhotoPanel->updateControls();
 	}
 }
 
@@ -676,11 +676,11 @@ void LLFloaterTwitter::postUpdate()
 	if (instance)
 	{
 		//Will set the file size text
-		instance->mSocialPhotoPanel->updateControls();
+		instance->mTwitterPhotoPanel->updateControls();
 
 		// The refresh button is initially hidden. We show it after the first update,
 		// i.e. after snapshot is taken
-		LLUICtrl * refresh_button = instance->mSocialPhotoPanel->getRefreshBtn();
+		LLUICtrl * refresh_button = instance->mTwitterPhotoPanel->getRefreshBtn();
 
 		if (!refresh_button->getVisible())
 		{

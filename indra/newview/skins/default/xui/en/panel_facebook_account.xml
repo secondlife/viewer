@@ -2,7 +2,7 @@
 	 height="400"
 	 width="304"
 	 layout="topleft"
-   name="panel_social_account">
+   name="panel_facebook_account">
   <string
       name="facebook_connected"
       value="You are connected to Facebook as:" />

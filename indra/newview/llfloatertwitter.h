@@ -121,7 +121,7 @@ public:
 	static void postUpdate();
 
 private:
-	LLTwitterPhotoPanel* mSocialPhotoPanel;
+	LLTwitterPhotoPanel* mTwitterPhotoPanel;
     LLTextBox* mStatusErrorText;
     LLTextBox* mStatusLoadingText;
     LLUICtrl*  mStatusLoadingIndicator;

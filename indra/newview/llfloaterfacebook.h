@@ -1,6 +1,6 @@
 /** 
-* @file   llfloatersocial.h
-* @brief  Header file for llfloatersocial
+* @file   llfloaterfacebook.h
+* @brief  Header file for llfloaterfacebook
 * @author Gilbert@lindenlab.com
 *
 * $LicenseInfo:firstyear=2013&license=viewerlgpl$
@@ -24,8 +24,8 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LL_LLFLOATERSOCIAL_H
-#define LL_LLFLOATERSOCIAL_H
+#ifndef LL_LLFLOATERFACEBOOK_H
+#define LL_LLFLOATERFACEBOOK_H
 
 #include "llfloater.h"
 #include "lltextbox.h"
@@ -35,10 +35,10 @@ class LLIconCtrl;
 class LLCheckBoxCtrl;
 class LLSnapshotLivePreview;
 
-class LLSocialStatusPanel : public LLPanel
+class LLFacebookStatusPanel : public LLPanel
 {
 public:
-    LLSocialStatusPanel();
+    LLFacebookStatusPanel();
 	BOOL postBuild();
 	void draw();
     void onSend();
@@ -53,11 +53,11 @@ private:
 	LLUICtrl* mCancelButton;
 };
 
-class LLSocialPhotoPanel : public LLPanel
+class LLFacebookPhotoPanel : public LLPanel
 {
 public:
-	LLSocialPhotoPanel();
-	~LLSocialPhotoPanel();
+	LLFacebookPhotoPanel();
+	~LLFacebookPhotoPanel();
 
 	BOOL postBuild();
 	void draw();
@@ -90,10 +90,10 @@ private:
 	LLUICtrl* mCancelButton;
 };
 
-class LLSocialCheckinPanel : public LLPanel
+class LLFacebookCheckinPanel : public LLPanel
 {
 public:
-    LLSocialCheckinPanel();
+    LLFacebookCheckinPanel();
 	BOOL postBuild();
 	void draw();
     void onSend();
@@ -115,10 +115,10 @@ private:
     bool mReloadingMapTexture;
 };
 
-class LLSocialAccountPanel : public LLPanel
+class LLFacebookAccountPanel : public LLPanel
 {
 public:
-	LLSocialAccountPanel();
+	LLFacebookAccountPanel();
 	BOOL postBuild();
 	void draw();
 
@@ -143,10 +143,10 @@ private:
 };
 
 
-class LLFloaterSocial : public LLFloater
+class LLFloaterFacebook : public LLFloater
 {
 public:
-	LLFloaterSocial(const LLSD& key);
+	LLFloaterFacebook(const LLSD& key);
 	BOOL postBuild();
 	void draw();
 	void onCancel();
@@ -157,11 +157,11 @@ public:
 	static void postUpdate();
 
 private:
-	LLSocialPhotoPanel* mSocialPhotoPanel;
+	LLFacebookPhotoPanel* mFacebookPhotoPanel;
     LLTextBox* mStatusErrorText;
     LLTextBox* mStatusLoadingText;
     LLUICtrl*  mStatusLoadingIndicator;
 };
 
-#endif // LL_LLFLOATERSOCIAL_H
+#endif // LL_LLFLOATERFACEBOOK_H
 

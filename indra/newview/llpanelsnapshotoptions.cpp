@@ -32,7 +32,7 @@
 
 #include "llfloatersnapshot.h" // FIXME: create a snapshot model
 #include "llfloaterreg.h"
-#include "llfloatersocial.h"
+#include "llfloaterfacebook.h"
 #include "llfloaterflickr.h"
 #include "llfloatertwitter.h"
 
@@ -144,12 +144,12 @@ void LLPanelSnapshotOptions::onSendToFacebook()
 {
 	LLFloaterReg::hideInstance("snapshot");
 
-	LLFloaterSocial* social_floater = dynamic_cast<LLFloaterSocial*>(LLFloaterReg::getInstance("social"));
-	if (social_floater)
+	LLFloaterFacebook* facebook_floater = dynamic_cast<LLFloaterFacebook*>(LLFloaterReg::getInstance("facebook"));
+	if (facebook_floater)
 	{
-		social_floater->showPhotoPanel();
+		facebook_floater->showPhotoPanel();
 	}
-	LLFloaterReg::showInstance("social");
+	LLFloaterReg::showInstance("facebook");
 }
 
 void LLPanelSnapshotOptions::onSendToTwitter()
