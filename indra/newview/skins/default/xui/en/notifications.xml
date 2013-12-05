@@ -6986,9 +6986,21 @@ Is this OK?
     </form>
   </notification>
   <notification
+    icon="notify.tga"
+    name="ExperienceMaturityExceeded"
+    persist="false"
+    type="notify">
+You have declined participation in the following experience which exceeds your content ratings preferences:
+[EXPERIENCE_SLURL]
+    <form name="form">
+      <ignore name="ignore"
+              text="Experience declined due to content ratings"/>
+    </form>
+  </notification>
+  <notification
    icon="notify.tga"
    name="ScriptQuestionExperience"
-   persist="true"
+   persist="false"
    type="notify">
 &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, an object owned by &apos;[NAME]&apos;, requests your participation in the [GRID_WIDE]experience:
 

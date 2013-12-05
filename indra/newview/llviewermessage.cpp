@@ -5882,6 +5882,80 @@ bool handle_teleport_access_blocked(LLSD& llsdBlock)
 	return returnValue;
 }
 
+bool handle_home_position_set(std::string notificationID, LLSD& llsdBlock)
+{
+    std::string snap_filename = gDirUtilp->getLindenUserDir();
+    snap_filename += gDirUtilp->getDirDelimiter();
+    snap_filename += SCREEN_HOME_FILENAME;
+    gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw(), FALSE, FALSE);
+
+    return false;
+}
+
+bool handle_experience_maturity_exceeded(std::string notificationID, LLSD& llsdBlock)
+{
+    if(llsdBlock.has("experience_id"))
+    {
+        llsdBlock["EXPERIENCE_SLURL"]=LLSLURL("experience", llsdBlock["experience_id"].asUUID(), "profile").getSLURLString();
+    }
+    return false;
+}
+
+typedef boost::function<bool (std::string&, LLSD&)> standard_exception_function_t;
+typedef std::map<std::string, standard_exception_function_t> standard_exception_map_t;
+
+standard_exception_map_t sStandardExceptions;
+
+bool process_exceptions(std::string notificationID, LLSD& llsdBlock)
+{
+    if(sStandardExceptions.empty())
+    {
+        sStandardExceptions["RegionEntryAccessBlocked"] = handle_special_notification;
+        sStandardExceptions["LandClaimAccessBlocked"] = handle_special_notification;
+        sStandardExceptions["LandBuyAccessBlocked"] = handle_special_notification;
+        /*---------------------------------------------------------------------
+			 (Commented so a grep will find the notification strings, since
+			 we construct them on the fly; if you add additional notifications,
+			 please update the comment.)
+			 
+			 Could throw any of the following notifications:
+			 
+				RegionEntryAccessBlocked
+				RegionEntryAccessBlocked_Notify
+				RegionEntryAccessBlocked_NotifyAdultsOnly
+				RegionEntryAccessBlocked_Change
+				RegionEntryAccessBlocked_AdultsOnlyContent
+				RegionEntryAccessBlocked_ChangeAndReTeleport
+				LandClaimAccessBlocked 
+				LandClaimAccessBlocked_Notify 
+				LandClaimAccessBlocked_NotifyAdultsOnly
+				LandClaimAccessBlocked_Change 
+				LandClaimAccessBlocked_AdultsOnlyContent 
+				LandBuyAccessBlocked
+				LandBuyAccessBlocked_Notify
+				LandBuyAccessBlocked_NotifyAdultsOnly
+				LandBuyAccessBlocked_Change
+				LandBuyAccessBlocked_AdultsOnlyContent
+			 
+			-----------------------------------------------------------------------*/ 
+
+
+        sStandardExceptions["HomePositionSet"] = handle_home_position_set;
+        sStandardExceptions["ExperienceMaturityExceeded"] = handle_experience_maturity_exceeded;
+    }
+
+    standard_exception_map_t::iterator it = sStandardExceptions.find(notificationID);
+
+    if(it == sStandardExceptions.end())
+    {
+        return false;
+    }
+
+    return it->second(notificationID, llsdBlock);
+}
+
+
+
 bool attempt_standard_notification(LLMessageSystem* msgsystem)
 {
 	// if we have additional alert data
@@ -5907,53 +5981,12 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 				llwarns << "attempt_standard_notification: Attempted to read notification parameter data into LLSD but failed:" << llsdRaw << llendl;
 			}
 		}
-		
-		if (
-			(notificationID == "RegionEntryAccessBlocked") ||
-			(notificationID == "LandClaimAccessBlocked") ||
-			(notificationID == "LandBuyAccessBlocked")
-		   )
-		{
-			/*---------------------------------------------------------------------
-			 (Commented so a grep will find the notification strings, since
-			 we construct them on the fly; if you add additional notifications,
-			 please update the comment.)
-			 
-			 Could throw any of the following notifications:
-			 
-				RegionEntryAccessBlocked
-				RegionEntryAccessBlocked_Notify
-				RegionEntryAccessBlocked_NotifyAdultsOnly
-				RegionEntryAccessBlocked_Change
-				RegionEntryAccessBlocked_AdultsOnlyContent
-				RegionEntryAccessBlocked_ChangeAndReTeleport
-				LandClaimAccessBlocked 
-				LandClaimAccessBlocked_Notify 
-				LandClaimAccessBlocked_NotifyAdultsOnly
-				LandClaimAccessBlocked_Change 
-				LandClaimAccessBlocked_AdultsOnlyContent 
-				LandBuyAccessBlocked
-				LandBuyAccessBlocked_Notify
-				LandBuyAccessBlocked_NotifyAdultsOnly
-				LandBuyAccessBlocked_Change
-				LandBuyAccessBlocked_AdultsOnlyContent
-			 
-			-----------------------------------------------------------------------*/ 
-			if (handle_special_notification(notificationID, llsdBlock))
-			{
-				return true;
-			}
-		}
-		// HACK -- handle callbacks for specific alerts.
-		if( notificationID == "HomePositionSet" )
-		{
-			// save the home location image to disk
-			std::string snap_filename = gDirUtilp->getLindenUserDir();
-			snap_filename += gDirUtilp->getDirDelimiter();
-			snap_filename += SCREEN_HOME_FILENAME;
-			gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw(), FALSE, FALSE);
-		}
-		
+
+        if(process_exceptions(notificationID, llsdBlock))
+        {
+            return true;
+        }
+			
 		LLNotificationsUtil::add(notificationID, llsdBlock);
 		return true;
 	}	
