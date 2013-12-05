@@ -276,10 +276,12 @@ void LLFlickrConnect::openFlickrWeb(std::string url)
 {
 	// Open the URL in an internal browser window without navigation UI
 	LLFloaterWebContent::Params p;
-    p.url(url).show_chrome(true);
-    p.url(url).allow_address_entry(false);
-    p.url(url).allow_back_forward_navigation(false);
-    p.url(url).trusted_content(true);
+    p.url(url);
+    p.show_chrome(true);
+    p.allow_address_entry(false);
+    p.allow_back_forward_navigation(false);
+    p.trusted_content(true);
+    p.clean_browser(true);
 	LLFloater *floater = LLFloaterReg::showInstance("flickr_web", p);
 	//the internal web browser has a bug that prevents it from gaining focus unless a mouse event occurs first (it seems).
 	//So when showing the internal web browser, set focus to it's containing floater "flickr_web". When a mouse event 
