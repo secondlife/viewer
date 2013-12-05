@@ -53,7 +53,8 @@ LLFloaterWebContent::_Params::_Params()
     allow_back_forward_navigation("allow_back_forward_navigation", true),
 	preferred_media_size("preferred_media_size"),
 	trusted_content("trusted_content", false),
-	show_page_title("show_page_title", true)
+	show_page_title("show_page_title", true),
+    clean_browser("clean_browser", false)
 {}
 
 LLFloaterWebContent::LLFloaterWebContent( const Params& params )
@@ -240,11 +241,12 @@ void LLFloaterWebContent::preCreate(LLFloaterWebContent::Params& p)
 
 void LLFloaterWebContent::open_media(const Params& p)
 {
+    llinfos << "Merov : LLFloaterWebContent::open_media, allow_address_entry = " << p.allow_address_entry << ", clean_browser = " << p.clean_browser << llendl;
 	// Specifying a mime type of text/html here causes the plugin system to skip the MIME type probe and just open a browser plugin.
 	LLViewerMedia::proxyWindowOpened(p.target(), p.id());
 	mWebBrowser->setHomePageUrl(p.url, "text/html");
 	mWebBrowser->setTarget(p.target);
-	mWebBrowser->navigateTo(p.url, "text/html");
+	mWebBrowser->navigateTo(p.url, "text/html", p.clean_browser);
 	
 	set_current_url(p.url);
 

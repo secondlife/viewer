@@ -539,7 +539,7 @@ void LLMediaCtrl::clearCache()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void LLMediaCtrl::navigateTo( std::string url_in, std::string mime_type)
+void LLMediaCtrl::navigateTo( std::string url_in, std::string mime_type, bool clean_browser)
 {
 	// don't browse to anything that starts with secondlife:// or sl://
 	const std::string protocol1 = "secondlife://";
@@ -556,7 +556,7 @@ void LLMediaCtrl::navigateTo( std::string url_in, std::string mime_type)
 	{
 		mCurrentNavUrl = url_in;
 		mMediaSource->setSize(mTextureWidth, mTextureHeight);
-		mMediaSource->navigateTo(url_in, mime_type, mime_type.empty());
+		mMediaSource->navigateTo(url_in, mime_type, mime_type.empty(), false, clean_browser);
 	}
 }
 

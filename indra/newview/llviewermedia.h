@@ -234,7 +234,7 @@ public:
 	void navigateReload();
 	void navigateHome();
 	void unload();
-	void navigateTo(const std::string& url, const std::string& mime_type = "", bool rediscover_type = false, bool server_request = false);
+	void navigateTo(const std::string& url, const std::string& mime_type = "", bool rediscover_type = false, bool server_request = false, bool clean_browser = false);
 	void navigateInternal();
 	void navigateStop();
 	bool handleKeyHere(KEY key, MASK mask);
@@ -289,7 +289,7 @@ public:
 	void setTarget(const std::string& target) { mTarget = target; }
 	
 	// utility function to create a ready-to-use media instance from a desired media type.
-	static LLPluginClassMedia* newSourceFromMediaType(std::string media_type, LLPluginClassMediaOwner *owner /* may be NULL */, S32 default_width, S32 default_height, const std::string target = LLStringUtil::null);
+	static LLPluginClassMedia* newSourceFromMediaType(std::string media_type, LLPluginClassMediaOwner *owner /* may be NULL */, S32 default_width, S32 default_height, const std::string target = LLStringUtil::null, bool get_clean_source = false);
 
 	// Internally set our desired browser user agent string, including
 	// the Second Life version and skin name.  Used because we can
@@ -464,6 +464,7 @@ private:
 	bool mTrustedBrowser;
 	std::string mTarget;
 	LLNotificationPtr mNotification;
+    bool mCleanBrowser;     // force the creation of a clean browsing target with full options enabled
 
 private:
 	BOOL mIsUpdated ;
