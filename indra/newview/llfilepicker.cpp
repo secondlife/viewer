@@ -779,7 +779,7 @@ BOOL LLFilePicker::getOpenFile(ELoadFilter filter, bool blocking)
 
 	if(filter == FFLOAD_ALL)	// allow application bundles etc. to be traversed; important for DEV-16869, but generally useful
 	{
-        mPickOptions &= F_NAV_SUPPORT;
+        mPickOptions |= F_NAV_SUPPORT;
 	}
 	
 	if (blocking)
