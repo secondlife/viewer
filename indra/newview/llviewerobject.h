@@ -188,6 +188,8 @@ public:
 	virtual U32 getNumIndices() const;
 	S32 getNumFaces() const { return mNumFaces; }
 
+	bool hasVertexBuffer() const;
+
 	// Graphical stuff for objects - maybe broken out into render class later?
 	virtual void updateTextures();
 	virtual void boostTexturePriority(BOOL boost_children = TRUE);	// When you just want to boost priority of this object

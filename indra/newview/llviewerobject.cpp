@@ -444,6 +444,11 @@ void LLViewerObject::markDead()
 	}
 }
 
+bool LLViewerObject::hasVertexBuffer() const 
+{
+	return mDrawable.notNull() && mDrawable->hasVertexBuffer();
+}
+
 void LLViewerObject::dump() const
 {
 	LL_INFOS() << "Type: " << pCodeToString(mPrimitiveCode) << LL_ENDL;

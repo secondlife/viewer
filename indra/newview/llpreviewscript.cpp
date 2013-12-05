@@ -2101,7 +2101,7 @@ LLLiveLSLSaveData::LLLiveLSLSaveData(const LLUUID& id,
 void LLLiveLSLEditor::saveIfNeeded(bool sync /*= true*/)
 {
 	LLViewerObject* object = gObjectList.findObject(mObjectUUID);
-	if(!object)
+	if(!object || !object->hasVertexBuffer())
 	{
 		LLNotificationsUtil::add("SaveScriptFailObjectNotFound");
 		return;

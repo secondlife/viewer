@@ -968,6 +968,20 @@ void LLDrawable::shiftPos(const LLVector4a &shift_vector)
 	mVObjp->onShift(shift_vector);
 }
 
+bool LLDrawable::hasVertexBuffer() const
+{
+	for (S32 i = 0; i < getNumFaces(); i++)
+	{
+		LLFace *facep = getFace(i);
+		if (facep && facep->getVertexBuffer() != NULL)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 const LLVector3& LLDrawable::getBounds(LLVector3& min, LLVector3& max) const
 {
 	mXform.getMinMax(min,max);
