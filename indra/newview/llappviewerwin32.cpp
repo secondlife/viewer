@@ -269,13 +269,12 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 
 	LLAppViewerWin32* viewer_app_ptr = new LLAppViewerWin32(lpCmdLine);
 	
-    // install unexpected exception handler SPATTERS test point
 	gOldTerminateHandler = std::set_terminate(exceptionTerminateHandler);
 
 	viewer_app_ptr->setErrorHandler(LLAppViewer::handleViewerCrash);
 
 #if LL_SEND_CRASH_REPORTS 
-	::SetUnhandledExceptionFilter(catchallCrashHandler);	//SPATTERS test point
+	::SetUnhandledExceptionFilter(catchallCrashHandler);
 #endif
 
 	// Set a debug info flag to indicate if multiple instances are running.
@@ -386,14 +385,6 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 		hSession = 0;
 	}
 	
-	/* SPATTERS?
-    // Wait until child process exits.
-    WaitForSingleObject( mCrashReporterProcessInfo.hProcess, 30000 ); //Wait up to 30 seconds for crash report to finish up.
-
-    // Close process and thread handles. 
-    CloseHandle( mCrashReporterProcessInfo.hProcess );
-    CloseHandle( mCrashReporterProcessInfo.hThread );
-	*/
 	return 0;
 }
 
@@ -699,7 +690,6 @@ void LLAppViewerWin32::initCrashReporting(bool reportFreeze)
     std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_DUMP, "");
     std::string appname = gDirUtilp->getExecutableFilename();
 
-	std::cout << "SPATTERS in init" << std::endl;
 	S32 slen = logdir.length() -1;
 	S32 end = slen;
 	while (logdir.at(end) == '/' || logdir.at(end) == '\\') end--;
@@ -710,38 +700,6 @@ void LLAppViewerWin32::initCrashReporting(bool reportFreeze)
 	}
 	std::string arg_str = "\"" + exe_path + "\" -dumpdir \"" + logdir + "\" -procname \"" + appname + "\" -pid " + pid_str.str(); 
 	_spawnl(_P_NOWAIT, exe_path.c_str(), arg_str.c_str(), NULL);
-	  
-/*	STARTUPINFO         siStartupInfo;
-	
-	std::string arg_str =  "-dumpdir \"" + logdir + "\" -procname \"" + appname + "\" -pid " + pid_str.str(); 
-
-    memset(&siStartupInfo, 0, sizeof(siStartupInfo));
-    memset(&mCrashReporterProcessInfo, 0, sizeof(mCrashReporterProcessInfo));
-
-    siStartupInfo.cb = sizeof(siStartupInfo);
-
-	std::wstring exe_wstr;
-	exe_wstr.assign(exe_path.begin(), exe_path.end());
-
-	std::wstring arg_wstr;
-	arg_wstr.assign(arg_str.begin(), arg_str.end());
-
-    if(CreateProcess(&exe_wstr[0],     
-                     &arg_wstr[0],                 // Application arguments
-                     0,
-                     0,
-                     FALSE,
-                     CREATE_DEFAULT_ERROR_MODE,
-                     0,
-                     0,                              // Working directory
-                     &siStartupInfo,
-                     &mCrashReporterProcessInfo) == FALSE)
-      // Could not start application -> call 'GetLastError()'
-	{
-        //llinfos << "CreateProcess failed " << GetLastError() << llendl;
-        return;
-    }
-	*/
 }
 
 //virtual

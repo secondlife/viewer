@@ -27,7 +27,6 @@
 #ifndef LL_LLAPP_H
 #define LL_LLAPP_H
 
-//#define LL_SEND_CRASH_REPORTS 1 /*SPATTERS*/
 #include <map>
 #include "llrun.h"
 #include "llsd.h"

@@ -30,33 +30,6 @@
 #include "llcrashloggerwindows.h"
 #include <iostream>
 
-//SPATTERS killme
-#include <iostream>
-#include <fstream>
-
-std::ofstream gCLOG; //SPATTERS for testing only remove ASAP.
-
-void flog (std::string msg)
-{
-    //Windows can't even write a goddamned file without fucking it up.
-    static bool first_time=true;
-
-    std::cout << "Init Crash Logger" << std::endl;
-    static std::string logname="C:\\Users\\Aura\\AppData\\Roaming\\SecondLife\\logs\\WinCrashLog.log";
-    if (first_time)
-	{
-        gCLOG.open(logname, std::fstream::out); //first time open for overwrite.
-        first_time = false;
-        gCLOG << "BEGINNING Windows Crash Report Log\n";
-	}
-	else
-        gCLOG.open(logname,  std::fstream::out | std::fstream::app);
-
-    gCLOG << msg << "\n";
-    gCLOG.close();
-}
-//END SPATTERS KILLME
-
 int APIENTRY WinMain(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
                      LPSTR     lpCmdLine,
@@ -78,7 +51,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 		llwarns << "Unable to initialize application." << llendl;
 		return 1;
 	}
-	flog("Hi there.");
+
 	app.processingLoop();
 	app.mainLoop();
 	app.cleanup();

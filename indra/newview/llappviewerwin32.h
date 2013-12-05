@@ -55,8 +55,6 @@ protected:
 	virtual bool sendURLToOtherInstance(const std::string& url);
 
 	std::string generateSerialNumber();
-	PROCESS_INFORMATION mCrashReporterProcessInfo;
-
 
 	static const std::string sWindowClass;
 

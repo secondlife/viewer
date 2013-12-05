@@ -72,8 +72,7 @@ void default_unix_signal_handler(int signum, siginfo_t *info, void *);
 
 #if LL_LINUX
 #include "google_breakpad/minidump_descriptor.h"
-//SPATTERS this is static in my other version not sure why I changed it review.
-bool unix_minidump_callback(const google_breakpad::MinidumpDescriptor& minidump_desc, 
+static bool unix_minidump_callback(const google_breakpad::MinidumpDescriptor& minidump_desc, 
                                    void* context, 
                                    bool succeeded);
 #else
@@ -328,7 +327,7 @@ void LLApp::setupErrorHandling()
 #if LL_WINDOWS
 
 #if LL_SEND_CRASH_REPORTS
-	EnableCrashingOnCrashes(); //SPATTERS review
+	EnableCrashingOnCrashes();
 
 	// This sets a callback to handle w32 signals to the console window.
 	// The viewer shouldn't be affected, sicne its a windowed app.
@@ -345,7 +344,6 @@ void LLApp::setupErrorHandling()
 		std::string ptmp = std::string(wpipe_name.begin(), wpipe_name.end());
 
 		::Sleep(3000);  //HACK hopefully a static wait won't blow up in my face before google fixes their implementation.
-std::cout << "SPATTERS getting here" << std::endl;
 
 		//HACK this for loop is ueless.  Breakpad dumbly returns success when the OOP handler isn't initialized.
 		for (int retries=0;retries<5;++retries)
@@ -441,7 +439,6 @@ std::cout << "SPATTERS getting here" << std::endl;
 			mDumpPath = "/tmp";
 		}
 		google_breakpad::MinidumpDescriptor desc(mDumpPath);
-	    //SPATTERS mExceptionHandler = new google_breakpad::ExceptionHandler(desc, 0, unix_minidump_callback, 0, true, 0);
 	    mExceptionHandler = new google_breakpad::ExceptionHandler(desc, NULL, unix_minidump_callback, NULL, true, -1);
 	}
 #endif
@@ -990,9 +987,7 @@ bool windows_post_minidump_callback(const wchar_t* dump_path,
 									MDRawAssertionInfo* assertion,
 									bool succeeded)
 {
-	llinfos << "SPATTERS got to here." << llendl;
 	char * path = LLApp::instance()->getMiniDumpFilename();
-	std::cout << "SPATTERS path is " << path << std::endl;
 	S32 remaining = LLApp::MAX_MINDUMP_PATH_LENGTH;
 	size_t bytesUsed;
 

@@ -46,8 +46,6 @@
 #include "llsdserialize.h"
 #include "llproxy.h"
  
-extern void flog(std::string msg); //SPATTERS
-
 LLPumpIO* gServicePump;
 BOOL gBreak = false;
 BOOL gSent = false;
@@ -167,9 +165,6 @@ void LLCrashLogger::mergeLogs( LLSD src_sd )
 bool LLCrashLogger::readMinidump(std::string minidump_path)
 {
 	size_t length=0;
-
-	flog("SPATTERS 1");
-	flog (minidump_path);
 
 	std::ifstream minidump_stream(minidump_path.c_str(), std::ios_base::in | std::ios_base::binary);
 	if(minidump_stream.is_open())
@@ -302,8 +297,6 @@ void LLCrashLogger::gatherFiles()
 	if (has_minidump)
 	{
 		minidump_path = mDebugLog["MinidumpPath"].asString();
-		flog ("SPATTERS minidump name is");
-		flog (minidump_path);
 	}
 
 	if (has_minidump)
@@ -315,7 +308,6 @@ void LLCrashLogger::gatherFiles()
     {
        //Look for a filename at least 30 characters long in the dump dir which contains the characters MDMP as the first 4 characters in the file.
         typedef std::vector<std::string> vec;
-    flog("Failed to read minidump.");
         std::string pathname = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"");
         vec file_vec = gDirUtilp->getFilesInDir(pathname);
         for(vec::const_iterator iter=file_vec.begin(); iter!=file_vec.end(); ++iter)
@@ -334,8 +326,6 @@ void LLCrashLogger::gatherFiles()
                         minidump_path = *iter;
                         has_minidump = readMinidump(minidump_path);
 						mDebugLog["MinidumpPath"] = fullname;
-						flog ("Picked up minidump on the rebound.");
-						flog (fullname);
                     }
                 }
             }
@@ -498,7 +488,7 @@ bool LLCrashLogger::sendCrashLogs()
                         {
                             //mCrashInfo["DebugLog"].erase("MinidumpPath");
 
-                            //SPATTERS mKeyMaster.cleanupProcess((*lock)["dumpdir"].asString());
+                            mKeyMaster.cleanupProcess((*lock)["dumpdir"].asString());
                         }
                     }
 				}
