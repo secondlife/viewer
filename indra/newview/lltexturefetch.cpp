@@ -1612,7 +1612,10 @@ bool LLTextureFetchWorker::doWork(S32 param)
 							<< llendl;
 				}
 
-				mUrl.clear();
+				if (mFTType != FTT_SERVER_BAKE)
+				{
+					mUrl.clear();
+				}
 				if (cur_size > 0)
 				{
 					// Use available data
@@ -1639,7 +1642,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			// Clear the url since we're done with the fetch
 			// Note: mUrl is used to check is fetching is required so failure to clear it will force an http fetch
 			// next time the texture is requested, even if the data have already been fetched.
-			if(mWriteToCacheState != NOT_WRITE)
+			if(mWriteToCacheState != NOT_WRITE && mFTType != FTT_SERVER_BAKE)
 			{
 				// Why do we want to keep url if NOT_WRITE - is this a proxy for map tiles?
 				mUrl.clear();
