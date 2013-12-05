@@ -34,7 +34,7 @@
 #include "lleconomy.h"
 #include "llfloaterperms.h"
 #include "llfloaterreg.h"
-#include "llfloatersocial.h"
+#include "llfloaterfacebook.h"
 #include "llfloaterflickr.h"
 #include "llfloatertwitter.h"
 #include "llimagebmp.h"
@@ -210,7 +210,7 @@ void LLSnapshotLivePreview::updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail
 		mSnapshotDelayTimer.start();
 		mSnapshotDelayTimer.setTimerExpirySec(delay);
 		LLFloaterSnapshot::preUpdate();
-		LLFloaterSocial::preUpdate();
+		LLFloaterFacebook::preUpdate();
 		LLFloaterFlickr::preUpdate();
 		LLFloaterTwitter::preUpdate();
 	}
@@ -769,7 +769,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 	}
 	lldebugs << "done creating snapshot" << llendl;
 	LLFloaterSnapshot::postUpdate();
-	LLFloaterSocial::postUpdate();
+	LLFloaterFacebook::postUpdate();
 	LLFloaterFlickr::postUpdate();
 	LLFloaterTwitter::postUpdate();
 

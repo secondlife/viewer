@@ -2,7 +2,7 @@
       height="400"
       width="304"
       layout="topleft"
-      name="panel_social_photo">
+      name="panel_facebook_photo">
       <layout_stack
 	   layout="topleft"
        border_size="0"

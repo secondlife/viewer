@@ -285,7 +285,7 @@
         name="Facebook">
         <menu_item_call.on_click
           function="Floater.Toggle"
-          parameter="social"/>
+          parameter="facebook"/>
       </menu_item_call>
       <menu_item_call
         label="Twitter..."

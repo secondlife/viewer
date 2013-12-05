@@ -21,6 +21,6 @@
     <command name="voice"/>
     <command name="minimap"/>
     <command name="snapshot"/>
-    <command name="social"/>
+    <command name="facebook"/>
   </left_toolbar>
 </toolbars>

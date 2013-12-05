@@ -46,6 +46,8 @@ public:
 
 	LLSnapshotLivePreview* getPreviewView();
 	void onVisibilityChange(const LLSD& new_visibility);
+	void onAddLocationToggled();
+	void onAddPhotoToggled();
 	void onClickNewSnapshot();
 	void onSend();
 	bool onTwitterConnectStateChange(const LLSD& data);
@@ -53,6 +55,7 @@ public:
 	void sendPhoto();
 	void clearAndClose();
 
+	void updateStatusTextLength(BOOL restore_old_status_text);
 	void updateControls();
 	void updateResolution(BOOL do_update);
 	void checkAspectRatio(S32 index);
@@ -66,7 +69,9 @@ private:
 	LLUICtrl * mRefreshBtn;
 	LLUICtrl * mWorkingLabel;
 	LLUICtrl * mThumbnailPlaceholder;
+	LLUICtrl * mStatusCounterLabel;
 	LLUICtrl * mStatusTextBox;
+	LLUICtrl * mLocationCheckbox;
 	LLUICtrl * mPhotoCheckbox;
 	LLUICtrl * mPostButton;
 	LLUICtrl* mCancelButton;
@@ -116,7 +121,7 @@ public:
 	static void postUpdate();
 
 private:
-	LLTwitterPhotoPanel* mSocialPhotoPanel;
+	LLTwitterPhotoPanel* mTwitterPhotoPanel;
     LLTextBox* mStatusErrorText;
     LLTextBox* mStatusLoadingText;
     LLUICtrl*  mStatusLoadingIndicator;

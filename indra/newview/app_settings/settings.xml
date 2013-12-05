@@ -13108,7 +13108,7 @@
     <key>SocialPhotoResolution</key>
     <map>
       <key>Comment</key>
-      <string>Default resolution when sharing photo using the social floater</string>
+      <string>Default resolution when sharing photo using the social floaters</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

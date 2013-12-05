@@ -1,19 +1,19 @@
     <panel
-      height="400"
+      height="420"
       width="304"
       layout="topleft"
       name="panel_twitter_photo">
       <layout_stack
 	   layout="topleft"
        border_size="0"
-       height="392"
+       height="412"
        follows="all"
        orientation="vertical"
        name="stack_photo"
        top="8">
         <layout_panel
          name="text_panel"
-         height="140">
+         height="160">
           <text
            length="1"
            follows="top|left|right"
@@ -24,6 +24,20 @@
            top="3"
            type="string">
             What's happening?
+          </text>
+          <text
+           length="1"
+           follows="top|left"
+           font="SansSerif"
+           text_color="EmphasisColor"
+           halign="right"
+           height="16"
+           width="30"
+           left="227"
+           name="status_counter_label"
+           top="3"
+           type="string">
+            140
           </text>
           <text_editor
            follows="left|top"
@@ -36,6 +50,14 @@
            type="string"
            word_wrap="true">
           </text_editor>
+          <check_box
+           follows="left|top"
+           initial_value="true"
+           label="Include SL location"
+           name="add_location_cb"
+            left="9"
+            height="16"
+           top_pad="10"/>
           <check_box
            follows="left|top"
            initial_value="true"

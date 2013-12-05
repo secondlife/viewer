@@ -229,6 +229,7 @@ set(viewer_SOURCE_FILES
     llfloatereditwater.cpp
     llfloaterenvironmentsettings.cpp
     llfloaterevent.cpp
+    llfloaterfacebook.cpp
     llfloaterflickr.cpp
     llfloaterfonttest.cpp
     llfloatergesture.cpp
@@ -276,7 +277,6 @@ set(viewer_SOURCE_FILES
     llfloatersettingsdebug.cpp
     llfloatersidepanelcontainer.cpp
     llfloatersnapshot.cpp
-    llfloatersocial.cpp
     llfloatersounddevices.cpp
     llfloaterspellchecksettings.cpp
     llfloatertelehub.cpp
@@ -821,6 +821,7 @@ set(viewer_HEADER_FILES
     llfloatereditwater.h
     llfloaterenvironmentsettings.h
     llfloaterevent.h
+    llfloaterfacebook.h
     llfloaterflickr.h
     llfloaterfonttest.h
     llfloatergesture.h
@@ -868,7 +869,6 @@ set(viewer_HEADER_FILES
     llfloatersettingsdebug.h
     llfloatersidepanelcontainer.h
     llfloatersnapshot.h
-    llfloatersocial.h
     llfloatersounddevices.h
     llfloaterspellchecksettings.h
     llfloatertelehub.h

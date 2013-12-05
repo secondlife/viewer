@@ -570,7 +570,7 @@ void LLFlickrAccountPanel::onDisconnect()
 ////////////////////////
 
 LLFloaterFlickr::LLFloaterFlickr(const LLSD& key) : LLFloater(key),
-    mSocialPhotoPanel(NULL),
+    mFlickrPhotoPanel(NULL),
     mStatusErrorText(NULL),
     mStatusLoadingText(NULL),
     mStatusLoadingIndicator(NULL)
@@ -586,7 +586,7 @@ void LLFloaterFlickr::onCancel()
 BOOL LLFloaterFlickr::postBuild()
 {
     // Keep tab of the Photo Panel
-	mSocialPhotoPanel = static_cast<LLFlickrPhotoPanel*>(getChild<LLUICtrl>("panel_flickr_photo"));
+	mFlickrPhotoPanel = static_cast<LLFlickrPhotoPanel*>(getChild<LLUICtrl>("panel_flickr_photo"));
     // Connection status widgets
     mStatusErrorText = getChild<LLTextBox>("connection_error_text");
     mStatusLoadingText = getChild<LLTextBox>("connection_loading_text");
@@ -596,14 +596,14 @@ BOOL LLFloaterFlickr::postBuild()
 
 void LLFloaterFlickr::showPhotoPanel()
 {
-	LLTabContainer* parent = dynamic_cast<LLTabContainer*>(mSocialPhotoPanel->getParent());
+	LLTabContainer* parent = dynamic_cast<LLTabContainer*>(mFlickrPhotoPanel->getParent());
 	if (!parent)
 	{
 		llwarns << "Cannot find panel container" << llendl;
 		return;
 	}
 
-	parent->selectTabPanel(mSocialPhotoPanel);
+	parent->selectTabPanel(mFlickrPhotoPanel);
 }
 
 // static
@@ -613,7 +613,7 @@ void LLFloaterFlickr::preUpdate()
 	if (instance)
 	{
 		//Will set file size text to 'unknown'
-		instance->mSocialPhotoPanel->updateControls();
+		instance->mFlickrPhotoPanel->updateControls();
 	}
 }
 
@@ -624,11 +624,11 @@ void LLFloaterFlickr::postUpdate()
 	if (instance)
 	{
 		//Will set the file size text
-		instance->mSocialPhotoPanel->updateControls();
+		instance->mFlickrPhotoPanel->updateControls();
 
 		// The refresh button is initially hidden. We show it after the first update,
 		// i.e. after snapshot is taken
-		LLUICtrl * refresh_button = instance->mSocialPhotoPanel->getRefreshBtn();
+		LLUICtrl * refresh_button = instance->mFlickrPhotoPanel->getRefreshBtn();
 
 		if (!refresh_button->getVisible())
 		{

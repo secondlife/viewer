@@ -117,7 +117,7 @@ public:
 	static void postUpdate();
 
 private:
-	LLFlickrPhotoPanel* mSocialPhotoPanel;
+	LLFlickrPhotoPanel* mFlickrPhotoPanel;
     LLTextBox* mStatusErrorText;
     LLTextBox* mStatusLoadingText;
     LLUICtrl*  mStatusLoadingIndicator;

@@ -31,7 +31,7 @@
 #include "llagent.h"
 #include "llfacebookconnect.h"
 #include "llfloaterreg.h"
-#include "llfloatersocial.h"
+#include "llfloaterfacebook.h"
 #include "llfloaterflickr.h"
 #include "llfloatertwitter.h"
 #include "llcheckboxctrl.h"
@@ -1266,11 +1266,11 @@ S32 LLFloaterSnapshot::notify(const LLSD& info)
 void LLFloaterSnapshot::update()
 {
 	LLFloaterSnapshot* inst = LLFloaterReg::findTypedInstance<LLFloaterSnapshot>("snapshot");
-	LLFloaterSocial* floater_social = LLFloaterReg::findTypedInstance<LLFloaterSocial>("social"); 
+	LLFloaterFacebook* floater_facebook = LLFloaterReg::findTypedInstance<LLFloaterFacebook>("facebook"); 
 	LLFloaterFlickr* floater_flickr = LLFloaterReg::findTypedInstance<LLFloaterFlickr>("flickr"); 
 	LLFloaterTwitter* floater_twitter = LLFloaterReg::findTypedInstance<LLFloaterTwitter>("twitter"); 
 
-	if (!inst && !floater_social && !floater_flickr && !floater_twitter)
+	if (!inst && !floater_facebook && !floater_flickr && !floater_twitter)
 		return;
 	
 	BOOL changed = FALSE;
