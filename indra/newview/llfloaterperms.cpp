@@ -158,30 +158,42 @@ void LLFloaterPermsDefault::onCommitCopy(const LLSD& user_data)
 class LLFloaterPermsResponder : public LLHTTPClient::Responder
 {
 public:
-	LLFloaterPermsResponder(): LLHTTPClient::Responder()  {}
+	LLFloaterPermsResponder(): LLHTTPClient::Responder() {}
+private:
+	std::string mPreviousReason;
 
 	void error(U32 status, const std::string& reason)
 	{
-		LLSD args;
-		args["REASON"] = reason;
-		LLNotificationsUtil::add("DefaultObjectPermissions", args);
+llwarns << "DBG !" << mPreviousReason << "!" << llendl;
+		// Do not display the same error more than once in a row
+		if (reason != mPreviousReason)
+		{
+			mPreviousReason = reason;
+			LLSD args;
+			args["REASON"] = reason;
+			LLNotificationsUtil::add("DefaultObjectPermissions", args);
+		}
 	}
 	void result(const LLSD& content)
 	{
+		// Since we have had a successful POST call be sure to display the next error message
+		// even if it is the same as a previous one.
+		mPreviousReason = "";
 		LLFloaterPermsDefault::setCapSent(true);
 		LL_INFOS("FloaterPermsResponder") << "Sent default permissions to simulator" << LL_ENDL;
 	}
 };
 
-void LLFloaterPermsDefault::updateCap(bool alwaysUpdate)
+void LLFloaterPermsDefault::sendInitialPerms()
 {
-llwarns << "DBG start" << llendl;
-	if(!alwaysUpdate && mCapSent)
+	if(!mCapSent)
 	{
-		return;
+		updateCap();
 	}
+}
 
-llwarns << "DBG getRegion" << llendl;
+void LLFloaterPermsDefault::updateCap()
+{
 	std::string object_url = gAgent.getRegion()->getCapability("AgentPreferences");
 
 	if(!object_url.empty())
@@ -193,7 +205,7 @@ llwarns << "DBG getRegion" << llendl;
 			(LLSD::Integer)LLFloaterPerms::getEveryonePerms(sCategoryNames[CAT_OBJECTS]);
 		report["default_object_perm_masks"]["NextOwner"] =
 			(LLSD::Integer)LLFloaterPerms::getNextOwnerPerms(sCategoryNames[CAT_OBJECTS]);
-llwarns << "DBG post:" << report << llendl;
+
 		LLHTTPClient::post(object_url, report, new LLFloaterPermsResponder());
 	}
 }
@@ -211,7 +223,7 @@ void LLFloaterPermsDefault::ok()
 
 // We know some setting has changed but not which one.  Just in case it was a setting for
 // object permissions tell the server what the values are.
-	updateCap(true);
+	updateCap();
 }
 
 void LLFloaterPermsDefault::cancel()

@@ -59,7 +59,8 @@ public:
 	void onClickOK();
 	void onClickCancel();
 	void onCommitCopy(const LLSD& user_data);
-	static void updateCap(bool alwaysUpdate);
+	static void sendInitialPerms();
+	static void updateCap();
 	static void setCapSent(bool cap_sent);
 
 // Update instantiation of sCategoryNames in the .cpp file to match if you change this!
