@@ -112,5 +112,5 @@
 	<spinner label="Gradi di rotazione" name="shinyRot"/>
 	<spinner label="Spostamento orizzontale" name="shinyOffsetU"/>
 	<spinner label="Spostamento verticale" name="shinyOffsetV"/>
-	<check_box initial_value="falso" label="Allinea facce planari" name="checkbox planar align" tool_tip="Allinea le texture su tutte le facce selezionate con l’ultima faccia selezionata. È richiesta la mappatura planare delle texture."/>
+	<check_box initial_value="false" label="Allinea facce planari" name="checkbox planar align" tool_tip="Allinea le texture su tutte le facce selezionate con l’ultima faccia selezionata. È richiesta la mappatura planare delle texture."/>
 </panel>

@@ -5942,6 +5942,17 @@
       <key>Value</key>
       <real>1.6</real>
     </map>
+    <key>MaxPersistentNotifications</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum amount of persistent notifications</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>250</real>
+    </map>
     <key>MaxSelectDistance</key>
     <map>
       <key>Comment</key>
@@ -9850,7 +9861,7 @@
     <key>RenderUseVAO</key>
     <map>
       <key>Comment</key>
-      <string>[EXPERIMENTAL] Use GL Vertex Array Objects</string>
+      <string>[EXPERIMENTAL] Use GL Vertex Array Objects.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -13345,7 +13356,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>-1</string>
+      <string>0</string>
     </map>
     <key>VivoxDebugSIPURIHostName</key>
     <map>

@@ -19,10 +19,10 @@
 	<button label="По умолчанию" label_selected="По умолчанию" name="Default"/>
 	<button label="Очистить" label_selected="Очистить" name="Blank"/>
 	<button label="Нет" label_selected="Нет" name="None"/>
-	<check_box initial_value="истина" label="Применить сейчас" name="apply_immediate_check"/>
+	<check_box initial_value="true" label="Применить сейчас" name="apply_immediate_check"/>
 	<text name="preview_disabled" value="Просмотр отключен"/>
 	<filter_editor label="Фильтровать текстуры" name="inventory search editor"/>
-	<check_box initial_value="ложь" label="Показывать папки" name="show_folders_check"/>
+	<check_box initial_value="false" label="Показывать папки" name="show_folders_check"/>
 	<button label="Добавить" label_selected="Добавить" name="l_add_btn"/>
 	<button label="Удалить" label_selected="Удалить" name="l_rem_btn"/>
 	<button label="Передать" label_selected="Передать" name="l_upl_btn"/>

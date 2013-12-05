@@ -2970,7 +2970,7 @@ LLUIImagePtr LLFolderBridge::getIconOverlay() const
 
 std::string LLFolderBridge::getLabelSuffix() const
 {
-	static LLCachedControl<F32> folder_loading_message_delay(gSavedSettings, "FolderLoadingMessageWaitTime");
+	static LLCachedControl<F32> folder_loading_message_delay(gSavedSettings, "FolderLoadingMessageWaitTime", 0.5);
 	return mIsLoading && mTimeSinceRequestStart.getElapsedTimeF32() >= folder_loading_message_delay() 
 		? llformat(" ( %s ) ", LLTrans::getString("LoadingData").c_str())
 		: LLStringUtil::null;

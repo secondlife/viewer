@@ -394,13 +394,18 @@ void LLFacebookConnect::openFacebookWeb(std::string url)
 
 std::string LLFacebookConnect::getFacebookConnectURL(const std::string& route, bool include_read_from_master)
 {
-	std::string url = gAgent.getRegion()->getCapability("FacebookConnect");
-	url += route;
+    std::string url("");
+    LLViewerRegion *regionp = gAgent.getRegion();
+    if (regionp)
+    {
+        url = regionp->getCapability("FacebookConnect");
+        url += route;
     
-	if (include_read_from_master && mReadFromMaster)
-	{
-		url += "?read_from_master=true";
-	}
+        if (include_read_from_master && mReadFromMaster)
+        {
+            url += "?read_from_master=true";
+        }
+    }
 	return url;
 }
 
