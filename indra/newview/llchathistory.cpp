@@ -559,9 +559,9 @@ protected:
 			{
 				LLUUID currentSessionID = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, mAvatarID);
 				if (mSessionID == currentSessionID)
-				{
-					menu->setItemVisible("Send IM", false);
-				}
+			{
+				menu->setItemVisible("Send IM", false);
+			}
 				menu->setItemEnabled("Offer Teleport", LLAvatarActions::canOfferTeleport(mAvatarID));
 				menu->setItemEnabled("Voice Call", LLAvatarActions::canCall());
 
@@ -1081,27 +1081,27 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 
 		if (create_toast)
 		{
-			LLNotificationPtr notification = LLNotificationsUtil::find(chat.mNotifId);
-			if (notification != NULL)
-			{
-				LLIMToastNotifyPanel* notify_box = new LLIMToastNotifyPanel(
+		LLNotificationPtr notification = LLNotificationsUtil::find(chat.mNotifId);
+		if (notification != NULL)
+		{
+			LLIMToastNotifyPanel* notify_box = new LLIMToastNotifyPanel(
 					notification, chat.mSessionID, LLRect::null, !use_plain_text_chat_history, mEditor);
 
-				//Prepare the rect for the view
-				LLRect target_rect = mEditor->getDocumentView()->getRect();
-				// squeeze down the widget by subtracting padding off left and right
-				target_rect.mLeft += mLeftWidgetPad + mEditor->getHPad();
-				target_rect.mRight -= mRightWidgetPad;
-				notify_box->reshape(target_rect.getWidth(),	notify_box->getRect().getHeight());
-				notify_box->setOrigin(target_rect.mLeft, notify_box->getRect().mBottom);
+			//Prepare the rect for the view
+			LLRect target_rect = mEditor->getDocumentView()->getRect();
+			// squeeze down the widget by subtracting padding off left and right
+			target_rect.mLeft += mLeftWidgetPad + mEditor->getHPad();
+			target_rect.mRight -= mRightWidgetPad;
+			notify_box->reshape(target_rect.getWidth(),	notify_box->getRect().getHeight());
+			notify_box->setOrigin(target_rect.mLeft, notify_box->getRect().mBottom);
 
-				LLInlineViewSegment::Params params;
-				params.view = notify_box;
-				params.left_pad = mLeftWidgetPad;
-				params.right_pad = mRightWidgetPad;
-				mEditor->appendWidget(params, "\n", false);
-			}
+			LLInlineViewSegment::Params params;
+			params.view = notify_box;
+			params.left_pad = mLeftWidgetPad;
+			params.right_pad = mRightWidgetPad;
+			mEditor->appendWidget(params, "\n", false);
 		}
+	}
 	}
 
 	// usual messages showing
@@ -1130,7 +1130,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		if (square_brackets)
 		{
 			message += "]";
-		}
+	}
 
 		mEditor->appendText(message, prependNewLineState, body_message_params);
 		prependNewLineState = false;
