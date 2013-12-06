@@ -257,6 +257,11 @@
 //     mGetMeshVersion          mMutex        rw.main.mMutex, ro.repo.mMutex
 //     mHttp*                   none          rw.repo.none
 //
+//   LLMeshUploadThread:
+//
+//     mDiscarded               mMutex        rw.main.mMutex, ro.uploadN.none [1]
+//     ... more ...
+//
 // QA/Development Testing
 //
 //   Debug variable 'MeshUploadFakeErrors' takes a mask of bits that will
@@ -1852,7 +1857,7 @@ LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, 
 									   LLHandle<LLWholeModelUploadObserver> upload_observer)
   : LLThread("mesh upload"),
 	LLCore::HttpHandler(),
-	mDiscarded(FALSE),
+	mDiscarded(false),
 	mDoUpload(do_upload),
 	mWholeModelUploadURL(upload_url),
 	mFeeObserverHandle(fee_observer),
@@ -1940,10 +1945,10 @@ void LLMeshUploadThread::preStart()
 void LLMeshUploadThread::discard()
 {
 	LLMutexLock lock(mMutex);
-	mDiscarded = TRUE;
+	mDiscarded = true;
 }
 
-BOOL LLMeshUploadThread::isDiscarded() const
+bool LLMeshUploadThread::isDiscarded() const
 {
 	LLMutexLock lock(mMutex);
 	return mDiscarded;
@@ -2199,7 +2204,13 @@ void LLMeshUploadThread::generateHulls()
 		
 	if (has_valid_requests)
 	{
-		while (!mPhysicsComplete)
+		// *NOTE:  Interesting livelock condition on shutdown.  If there
+		// is an upload request in generateHulls() when shutdown starts,
+		// the main thread isn't available to manage communication between
+		// the decomposition thread and the upload thread and this loop
+		// wouldn't complete in turn stalling the main thread.  The check
+		// on isDiscarded() prevents that.
+		while (! mPhysicsComplete && ! isDiscarded())
 		{
 			apr_sleep(100);
 		}
@@ -2253,13 +2264,21 @@ void LLMeshUploadThread::doWholeModelUpload()
 			LL_DEBUGS(LOG_MESH) << "POST request issued." << LL_ENDL;
 			
 			mHttpRequest->update(0);
-			while (! LLApp::isQuitting() && ! mFinished)
+			while (! LLApp::isQuitting() && ! finished() && ! isDiscarded())
 			{
 				ms_sleep(sleep_time);
 				sleep_time = llmin(250U, sleep_time + sleep_time);
 				mHttpRequest->update(0);
 			}
-			LL_DEBUGS(LOG_MESH) << "Mesh upload operation completed." << LL_ENDL;
+
+			if (isDiscarded())
+			{
+				LL_DEBUGS(LOG_MESH) << "Mesh upload operation discarded." << LL_ENDL;
+			}
+			else
+			{
+				LL_DEBUGS(LOG_MESH) << "Mesh upload operation completed." << LL_ENDL;
+			}
 		}
 	}
 }
@@ -2299,11 +2318,15 @@ void LLMeshUploadThread::requestWholeModelFee()
 		U32 sleep_time(10);
 		
 		mHttpRequest->update(0);
-		while (! LLApp::isQuitting() && ! mFinished)
+		while (! LLApp::isQuitting() && ! finished() && ! isDiscarded())
 		{
 			ms_sleep(sleep_time);
 			sleep_time = llmin(250U, sleep_time + sleep_time);
 			mHttpRequest->update(0);
+		}
+		if (isDiscarded())
+		{
+			LL_DEBUGS(LOG_MESH) << "Mesh fee query operation discarded." << LL_ENDL;
 		}
 	}
 }
@@ -3020,7 +3043,7 @@ void LLMeshRepository::shutdown()
 
 	for (U32 i = 0; i < mUploads.size(); ++i)
 	{
-		LL_INFOS(LOG_MESH) << "Waiting for pending mesh upload " << i << "/" << mUploads.size() << LL_ENDL;
+		LL_INFOS(LOG_MESH) << "Waiting for pending mesh upload " << (i + 1) << "/" << mUploads.size() << LL_ENDL;
 		while (!mUploads[i]->isStopped())
 		{
 			apr_sleep(10);
