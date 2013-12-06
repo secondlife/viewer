@@ -847,11 +847,16 @@ void LLViewerRegion::replaceVisibleCacheEntry(LLVOCacheEntry* old_entry, LLVOCac
 }
 
 //physically delete the cache entry
-void LLViewerRegion::killCacheEntry(LLVOCacheEntry* entry)
+void LLViewerRegion::killCacheEntry(LLVOCacheEntry* entry, bool for_rendering)
 {	
 	if(!entry)
 	{
 		return;
+	}
+
+	if(for_rendering && !entry->isState(LLVOCacheEntry::ACTIVE))
+	{
+		addNewObject(entry); //force to add to rendering pipeline
 	}
 
 	//remove from active list and waiting list
@@ -882,9 +887,20 @@ void LLViewerRegion::killCacheEntry(LLVOCacheEntry* entry)
 			parent->removeChild(entry);
 		}
 	}
-	else if(entry->getNumOfChildren() > 0)//disconnect children if has any
+	else if(entry->getNumOfChildren() > 0)//remove children from cache if has any
 	{
-		entry->removeAllChildren();
+		S32 num_child = entry->getNumOfChildren();
+
+		LLVOCacheEntry* child;
+		for(S32 i = 0; i < num_child; i++)
+		{
+			child = entry->getChild(i);
+			if(child)
+			{
+				child->setParentID(0); //disconnect from parent
+				killCacheEntry(child, for_rendering);
+			}
+		}
 	}
 
 	//remove from mCacheMap, real deletion
@@ -1552,13 +1568,13 @@ LLViewerObject* LLViewerRegion::updateCacheEntry(U32 local_id, LLViewerObject* o
 	if(!objectp) //object not created
 	{
 		//create a new object from cache.
-		objectp = gObjectList.processObjectUpdateFromCache(entry, this);
+		objectp = addNewObject(entry);
 	}
 
 	//remove from cache if terse update
 	if(update_type == (U32)OUT_TERSE_IMPROVED)
 	{
-		killCacheEntry(entry);
+		killCacheEntry(entry, true);
 	}
 
 	return objectp;
