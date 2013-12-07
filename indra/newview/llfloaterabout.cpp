@@ -316,7 +316,7 @@ void LLServerReleaseNotesURLFetcher::completedHeader(U32 status, const std::stri
 		std::string location = content["location"].asString();
 		if (location.empty())
 		{
-			location = floater_about->getString("ErrorFetchingServerReleaseNotesURL");
+			location = LLTrans::getString("ErrorFetchingServerReleaseNotesURL");
 		}
 		LLAppViewer::instance()->setServerReleaseNotesURL(location);
 	}
