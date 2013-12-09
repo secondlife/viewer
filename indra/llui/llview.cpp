@@ -1314,52 +1314,55 @@ void LLView::reshape(S32 width, S32 height, BOOL called_from_parent)
 		// move child views according to reshape flags
 		BOOST_FOREACH(LLView* viewp, mChildList)
 		{
-			LLRect child_rect( viewp->mRect );
+			if (viewp != NULL)
+			{
+				LLRect child_rect( viewp->mRect );
 
-			if (viewp->followsRight() && viewp->followsLeft())
-			{
-				child_rect.mRight += delta_width;
-			}
-			else if (viewp->followsRight())
-			{
-				child_rect.mLeft += delta_width;
-				child_rect.mRight += delta_width;
-			}
-			else if (viewp->followsLeft())
-			{
-				// left is 0, don't need to adjust coords
-			}
-			else
-			{
-				// BUG what to do when we don't follow anyone?
-				// for now, same as followsLeft
-			}
+				if (viewp->followsRight() && viewp->followsLeft())
+				{
+					child_rect.mRight += delta_width;
+				}
+				else if (viewp->followsRight())
+				{
+					child_rect.mLeft += delta_width;
+					child_rect.mRight += delta_width;
+				}
+				else if (viewp->followsLeft())
+				{
+					// left is 0, don't need to adjust coords
+				}
+				else
+				{
+					// BUG what to do when we don't follow anyone?
+					// for now, same as followsLeft
+				}
 
-			if (viewp->followsTop() && viewp->followsBottom())
-			{
-				child_rect.mTop += delta_height;
-			}
-			else if (viewp->followsTop())
-			{
-				child_rect.mTop += delta_height;
-				child_rect.mBottom += delta_height;
-			}
-			else if (viewp->followsBottom())
-			{
-				// bottom is 0, so don't need to adjust coords
-			}
-			else
-			{
-				// BUG what to do when we don't follow?
-				// for now, same as bottom
-			}
+				if (viewp->followsTop() && viewp->followsBottom())
+				{
+					child_rect.mTop += delta_height;
+				}
+				else if (viewp->followsTop())
+				{
+					child_rect.mTop += delta_height;
+					child_rect.mBottom += delta_height;
+				}
+				else if (viewp->followsBottom())
+				{
+					// bottom is 0, so don't need to adjust coords
+				}
+				else
+				{
+					// BUG what to do when we don't follow?
+					// for now, same as bottom
+				}
 
-			S32 delta_x = child_rect.mLeft - viewp->getRect().mLeft;
-			S32 delta_y = child_rect.mBottom - viewp->getRect().mBottom;
-			viewp->translate( delta_x, delta_y );
-			if (child_rect.getWidth() != viewp->getRect().getWidth() || child_rect.getHeight() != viewp->getRect().getHeight())
-			{
-				viewp->reshape(child_rect.getWidth(), child_rect.getHeight());
+				S32 delta_x = child_rect.mLeft - viewp->getRect().mLeft;
+				S32 delta_y = child_rect.mBottom - viewp->getRect().mBottom;
+				viewp->translate( delta_x, delta_y );
+				if (child_rect.getWidth() != viewp->getRect().getWidth() || child_rect.getHeight() != viewp->getRect().getHeight())
+				{
+					viewp->reshape(child_rect.getWidth(), child_rect.getHeight());
+				}
 			}
 		}
 	}
