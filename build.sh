@@ -351,8 +351,7 @@ then
   if $build_viewer
   then
     begin_section Upload Installer
-    # Upload installer - note that ONLY THE FIRST ITEM uploaded as "installer"
-    # will appear in the version manager.
+    # Upload installer
     package=$(installer_$arch)
     if [ x"$package" = x ] || test -d "$package"
     then
@@ -376,7 +375,7 @@ then
         then
           upload_item installer "$package" binary/octet-stream
         else
-          record_failure "Failed to upload $package_id package."
+          record_failure "Failed to upload $package_id package ($package::$additional_package_name)."
         fi
       done
       export additional_package_name=""
