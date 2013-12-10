@@ -1573,8 +1573,6 @@ void LLViewerRegion::unpackRegionHandshake()
 	msg->nextBlock("RegionInfo");
 	msg->addU32("Flags", 0x0 );
 	msg->sendReliable(host);
-
-	LLFloaterPermsDefault::sendInitialPerms();
 }
 
 void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
@@ -1846,6 +1844,8 @@ void LLViewerRegion::setCapabilitiesReceived(bool received)
 	if (received)
 	{
 		mCapabilitiesReceivedSignal(getRegionID());
+
+		LLFloaterPermsDefault::sendInitialPerms();
 
 		// This is a single-shot signal. Forget callbacks to save resources.
 		mCapabilitiesReceivedSignal.disconnect_all_slots();
