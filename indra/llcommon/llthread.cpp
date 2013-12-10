@@ -131,7 +131,7 @@ void *APR_THREAD_FUNC LLThread::staticRun(apr_thread_t *apr_threadp, void *datap
 	set_thread_name(-1, threadp->mName.c_str());
 #endif
 
-
+	// for now, hard code all LLThreads to report to single master thread recorder, which is known to be running on main thread
 	LLTrace::ThreadRecorder thread_recorder(*LLTrace::get_master_thread_recorder());
 
 #if !LL_DARWIN
