@@ -43,7 +43,7 @@ namespace LLTrace
 		typedef std::vector<ActiveRecording*> active_recording_list_t;
 	public:
 		ThreadRecorder();
-		explicit ThreadRecorder(ThreadRecorder& master);
+		explicit ThreadRecorder(ThreadRecorder& parent);
 
 		~ThreadRecorder();
 
@@ -88,7 +88,7 @@ namespace LLTrace
 		LLMutex							mChildListMutex;		// protects access to child list
 		LLMutex							mSharedRecordingMutex;
 		AccumulatorBufferGroup			mSharedRecordingBuffers;
-		ThreadRecorder*					mMasterRecorder;
+		ThreadRecorder*					mParentRecorder;
 
 	};
 

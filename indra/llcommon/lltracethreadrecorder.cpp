@@ -40,7 +40,7 @@ static ThreadRecorder* sMasterThreadRecorder = NULL;
 ///////////////////////////////////////////////////////////////////////
 
 ThreadRecorder::ThreadRecorder()
-:	mMasterRecorder(NULL)
+:	mParentRecorder(NULL)
 {
 	init();
 }
@@ -86,11 +86,11 @@ void ThreadRecorder::init()
 }
 
 
-ThreadRecorder::ThreadRecorder( ThreadRecorder& master )
-:	mMasterRecorder(&master)
+ThreadRecorder::ThreadRecorder( ThreadRecorder& parent )
+:	mParentRecorder(&parent)
 {
 	init();
-	mMasterRecorder->addChildRecorder(this);
+	mParentRecorder->addChildRecorder(this);
 }
 
 
@@ -115,9 +115,9 @@ ThreadRecorder::~ThreadRecorder()
 	set_thread_recorder(NULL);
 	delete[] mTimeBlockTreeNodes;
 
-	if (mMasterRecorder)
+	if (mParentRecorder)
 	{
-		mMasterRecorder->removeChildRecorder(this);
+		mParentRecorder->removeChildRecorder(this);
 	}
 }
 

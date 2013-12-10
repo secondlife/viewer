@@ -146,6 +146,9 @@ void *APR_THREAD_FUNC LLThread::staticRun(apr_thread_t *apr_threadp, void *datap
 	// We're done with the run function, this thread is done executing now.
 	threadp->mStatus = STOPPED;
 
+	delete threadp->mRecorder;
+	threadp->mRecorder = NULL;
+
 	return NULL;
 }
 
@@ -153,7 +156,8 @@ LLThread::LLThread(const std::string& name, apr_pool_t *poolp) :
 	mPaused(FALSE),
 	mName(name),
 	mAPRThreadp(NULL),
-	mStatus(STOPPED)
+	mStatus(STOPPED),
+	mRecorder(NULL)
 {
 
 	mID = ++sIDIter;
@@ -242,7 +246,13 @@ void LLThread::shutdown()
 		mAPRPoolp = 0;
 	}
 
-	delete mRecorder;
+	if (mRecorder)
+	{
+		// missed chance to properly shut down recorder (needs to be done in thread context)
+		// probably due to abnormal thread termination
+		// so just leak it and remove it from parent
+		LLTrace::get_master_thread_recorder()->removeChildRecorder(mRecorder);
+	}
 }
 
 
