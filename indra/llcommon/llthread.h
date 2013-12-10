@@ -36,6 +36,11 @@
 
 LL_COMMON_API void assert_main_thread();
 
+namespace LLTrace
+{
+	class ThreadRecorder;
+}
+
 class LL_COMMON_API LLThread
 {
 private:
@@ -105,6 +110,7 @@ protected:
 	BOOL				mIsLocalPool;
 	EThreadStatus		mStatus;
 	U32					mID;
+	LLTrace::ThreadRecorder* mRecorder;
 
 	//a local apr_pool for APRFile operations in this thread. If it exists, LLAPRFile::sAPRFilePoolp should not be used.
 	//Note: this pool is used by APRFile ONLY, do NOT use it for any other purposes.

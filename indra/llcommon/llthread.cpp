@@ -132,7 +132,7 @@ void *APR_THREAD_FUNC LLThread::staticRun(apr_thread_t *apr_threadp, void *datap
 #endif
 
 	// for now, hard code all LLThreads to report to single master thread recorder, which is known to be running on main thread
-	LLTrace::ThreadRecorder thread_recorder(*LLTrace::get_master_thread_recorder());
+	mRecorder = new LLTrace::ThreadRecorder(*LLTrace::get_master_thread_recorder());
 
 #if !LL_DARWIN
 	sThreadID = threadp->mID;
@@ -222,6 +222,8 @@ void LLThread::shutdown()
 			// This thread just wouldn't stop, even though we gave it time
 			//LL_WARNS() << "LLThread::~LLThread() exiting thread before clean exit!" << LL_ENDL;
 			// Put a stake in its heart.
+			delete mRecorder;
+
 			apr_thread_exit(mAPRThreadp, -1);
 			return;
 		}
@@ -239,6 +241,8 @@ void LLThread::shutdown()
 		apr_pool_destroy(mAPRPoolp);
 		mAPRPoolp = 0;
 	}
+
+	delete mRecorder;
 }
 
 

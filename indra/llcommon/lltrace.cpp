@@ -40,7 +40,7 @@ StatBase::StatBase( const char* name, const char* description )
 	mDescription(description ? description : "")
 {
 #ifndef LL_RELEASE_FOR_DOWNLOAD
-	if (LLTrace::get_thread_recorder() != NULL)
+	if (LLTrace::get_thread_recorder().notNull())
 	{
 		LL_ERRS() << "Attempting to declare trace object after program initialization.  Trace objects should be statically initialized." << LL_ENDL;
 	}

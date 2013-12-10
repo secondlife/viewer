@@ -37,7 +37,7 @@
 #include "llvisualparam.h"
 #include "llstringtable.h"
 #include "llpointer.h"
-#include "llthread.h"
+#include "llrefcount.h"
 
 class LLPolyMesh;
 
