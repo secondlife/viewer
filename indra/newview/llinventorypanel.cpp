@@ -146,7 +146,8 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
 	mShowItemLinkOverlays(p.show_item_link_overlays),
 	mShowEmptyMessage(p.show_empty_message),
 	mViewsInitialized(false),
-	mInvFVBridgeBuilder(NULL)
+	mInvFVBridgeBuilder(NULL),
+	mInventoryViewModel(p.name)
 {
 	mInvFVBridgeBuilder = &INVENTORY_BRIDGE_BUILDER;
 
