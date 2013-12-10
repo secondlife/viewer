@@ -3493,7 +3493,7 @@ Version [VERSION] [[INFO_URL] Information about this update]
  icon="alertmodal.tga"
  name="DownloadBackgroundDialog"
  type="alertmodal">
-    We have downloaded an update to your [APP_NAME] installation.
+We have downloaded an update to your [APP_NAME] installation.
     Version [VERSION] [[INFO_URL] Information about this update]
     <tag>confirm</tag>
     <usetemplate
@@ -6352,7 +6352,7 @@ You can only claim public land in the Region you&apos;re in.
   </notification>
 
   <notification
-   icon="notify.tga"
+	icon="notify.tga"
    name="RegionAboutToShutdown"
    persist="false"
    type="notify">

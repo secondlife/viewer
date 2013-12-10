@@ -2545,7 +2545,7 @@ void LLPanelLandAccess::refresh_ui()
 	getChildView("remove_allowed")->setEnabled(FALSE);
 	getChildView("add_banned")->setEnabled(FALSE);
 	getChildView("remove_banned")->setEnabled(FALSE);
-
+	
 	LLParcel *parcel = mParcel->getParcel();
 	if (parcel)
 	{
@@ -2652,7 +2652,7 @@ void LLPanelLandAccess::onCommitPublicAccess(LLUICtrl *ctrl, void *userdata)
 	{
 		return;
 	}
-	
+
 	onCommitAny(ctrl, userdata);
 }
 
