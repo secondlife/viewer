@@ -673,6 +673,7 @@ Delete "$INSTDIR\*.glsl"
 Delete "$INSTDIR\motions\*.lla"
 Delete "$INSTDIR\trial\*.html"
 Delete "$INSTDIR\newview.exe"
+Delete "$INSTDIR\SecondLife.exe"
 ;; Remove entire help directory
 Delete "$INSTDIR\help\Advanced\*"
 RMDir  "$INSTDIR\help\Advanced"
