@@ -86,27 +86,26 @@ void wear_and_edit_cb(const LLUUID& inv_item)
 		LLAppearanceMgr::instance().wearItemOnAvatar(inv_item);
 	}
 
-class LLCreateWearableCallback : public LLInventoryCallback
+void wear_cb(const LLUUID& inv_item)
 {
-	void fire(const LLUUID& inv_item)
+	if (inv_item.isNull())
 	{
-		if (inv_item.isNull())
-			return;
-
-		LLViewerInventoryItem* item = gInventory.getItem(inv_item);
-		if (!item) return;
-
-		LLPermissions perm = item->getPermissions();
-		perm.setMaskNext(LLFloaterPerms::getNextOwnerPerms("Wearables"));
-		perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Wearables"));
-		perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Wearables"));
-		item->setPermissions(perm);
-
-		item->updateServer(FALSE);
-		gInventory.updateItem(item);
-		gInventory.notifyObservers();
+		return;
 	}
-};
+
+	LLViewerInventoryItem* item = gInventory.getItem(inv_item);
+	if (!item) return;
+
+	LLPermissions perm = item->getPermissions();
+	perm.setMaskNext(LLFloaterPerms::getNextOwnerPerms("Wearables"));
+	perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Wearables"));
+	perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Wearables"));
+	item->setPermissions(perm);
+
+	item->updateServer(FALSE);
+	gInventory.updateItem(item);
+	gInventory.notifyObservers();
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1841,7 +1840,16 @@ void LLAgentWearables::createWearable(LLWearableType::EType type, bool wear, con
 	LLViewerWearable* wearable = LLWearableList::instance().createNewWearable(type, gAgentAvatarp);
 	LLAssetType::EType asset_type = wearable->getAssetType();
 	LLInventoryType::EType inv_type = LLInventoryType::IT_WEARABLE;
-	LLPointer<LLInventoryCallback> cb = wear ? new LLBoostFuncInventoryCallback(wear_and_edit_cb) : NULL;
+	LLPointer<LLInventoryCallback> cb;
+	if(wear)
+	{
+		cb = new LLBoostFuncInventoryCallback(wear_and_edit_cb);
+	}
+	else
+	{
+		cb = new LLBoostFuncInventoryCallback(wear_cb);
+	}
+
 	LLUUID folder_id;
 
 	if (parent_id.notNull())
