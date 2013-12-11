@@ -1951,6 +1951,7 @@ void	LLFloater::drawShadow(LLPanel* panel)
 
 void LLFloater::updateTransparency(LLView* view, ETypeTransparency transparency_type)
 {
+	if (!view) return;
 	child_list_t children = *view->getChildList();
 	child_list_t::iterator it = children.begin();
 
