@@ -103,7 +103,6 @@ LLFloaterPermsDefault::LLFloaterPermsDefault(const LLSD& seed)
 	: LLFloater(seed)
 {
 	mCommitCallbackRegistrar.add("PermsDefault.Copy", boost::bind(&LLFloaterPermsDefault::onCommitCopy, this, _2));
-	mCommitCallbackRegistrar.add("PermsDefault.Apply", boost::bind(&LLFloaterPermsDefault::onClickApply, this));
 	mCommitCallbackRegistrar.add("PermsDefault.OK", boost::bind(&LLFloaterPermsDefault::onClickOK, this));
 	mCommitCallbackRegistrar.add("PermsDefault.Cancel", boost::bind(&LLFloaterPermsDefault::onClickCancel, this));
 }
@@ -123,6 +122,16 @@ const std::string LLFloaterPermsDefault::sCategoryNames[CAT_LAST] =
 
 BOOL LLFloaterPermsDefault::postBuild()
 {
+	if(!gSavedSettings.getBOOL("DefaultUploadPermissionsConverted"))
+	{
+		gSavedSettings.setBOOL("UploadsEveryoneCopy", gSavedSettings.getBOOL("EveryoneCopy"));
+		gSavedSettings.setBOOL("UploadsNextOwnerCopy", gSavedSettings.getBOOL("NextOwnerCopy"));
+		gSavedSettings.setBOOL("UploadsNextOwnerModify", gSavedSettings.getBOOL("NextOwnerModify"));
+		gSavedSettings.setBOOL("UploadsNextOwnerTransfer", gSavedSettings.getBOOL("NextOwnerTransfer"));
+		gSavedSettings.setBOOL("UploadsShareWithGroup", gSavedSettings.getBOOL("ShareWithGroup"));
+		gSavedSettings.setBOOL("DefaultUploadPermissionsConverted", true);
+	}
+
 	mCloseSignal.connect(boost::bind(&LLFloaterPermsDefault::cancel, this));
 
 	refresh();
@@ -130,14 +139,9 @@ BOOL LLFloaterPermsDefault::postBuild()
 	return true;
 }
 
-void LLFloaterPermsDefault::onClickApply()
-{
-	apply();
-}
-
 void LLFloaterPermsDefault::onClickOK()
 {
-	apply();
+	ok();
 	closeFloater();
 }
 
@@ -222,7 +226,7 @@ void LLFloaterPermsDefault::setCapSent(bool cap_sent)
 	mCapSent = cap_sent;
 }
 
-void LLFloaterPermsDefault::apply()
+void LLFloaterPermsDefault::ok()
 {
 //	Changes were already applied automatically to saved settings.
 //	Refreshing internal values makes it official.

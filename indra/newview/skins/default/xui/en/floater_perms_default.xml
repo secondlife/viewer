@@ -141,7 +141,7 @@
        control_name="ObjectsNextOwnerTransfer"
        height="16"
        layout="topleft"
-       name="Objects_transfer"
+       name="objects_t"
        left_pad="0"
        top_delta="0"
        width="100" />
@@ -157,7 +157,7 @@
        control_name="ObjectsEveryoneCopy"
        height="16"
        layout="topleft"
-       name="objects_a"
+       name="objects_e"
        left_pad="0"
        top_delta="0"
        width="100" />
@@ -204,7 +204,7 @@
        control_name="UploadsNextOwnerTransfer"
        height="16"
        layout="topleft"
-       name="Uploads_transfer"
+       name="uploads_t"
        left_pad="0"
        top_delta="0"
        width="100" />
@@ -220,7 +220,7 @@
        control_name="UploadsEveryoneCopy"
        height="16"
        layout="topleft"
-       name="uploads_a"
+       name="uploads_e"
        left_pad="0"
        top_delta="0"
        width="100" />
@@ -267,7 +267,7 @@
        control_name="ScriptsNextOwnerTransfer"
        height="16"
        layout="topleft"
-       name="Scripts_transfer"
+       name="scripts_t"
        left_pad="0"
        top_delta="0"
        width="100" />
@@ -283,7 +283,7 @@
        control_name="ScriptsEveryoneCopy"
        height="16"
        layout="topleft"
-       name="scripts_a"
+       name="scripts_e"
        left_pad="0"
        top_delta="0"
        width="100" />
@@ -330,7 +330,7 @@
        control_name="NotecardsNextOwnerTransfer"
        height="16"
        layout="topleft"
-       name="Notecards_transfer"
+       name="notecards_t"
        left_pad="0"
        top_delta="0"
        width="100" />
@@ -346,7 +346,7 @@
        control_name="NotecardsEveryoneCopy"
        height="16"
        layout="topleft"
-       name="notecards_a"
+       name="notecards_e"
        left_pad="0"
        top_delta="0"
        width="100" />
@@ -393,7 +393,7 @@
        control_name="GesturesNextOwnerTransfer"
        height="16"
        layout="topleft"
-       name="Gestures_transfer"
+       name="gestures_t"
        left_pad="0"
        top_delta="0"
        width="100" />
@@ -456,7 +456,7 @@
        control_name="WearablesNextOwnerTransfer"
        height="16"
        layout="topleft"
-       name="Wearables_transfer"
+       name="wearables_t"
        left_pad="0"
        top_delta="0"
        width="100" />
@@ -472,33 +472,21 @@
        control_name="WearablesEveryoneCopy"
        height="16"
        layout="topleft"
-       name="wearables_a"
+       name="wearables_e"
        left_pad="0"
        top_delta="0"
        width="100" />
   </panel>
   <button
    height="20"
-   label="Apply"
-   label_selected="Apply"
-   layout="topleft"
-   name="apply"
-   left="375"
-   width="100">
-	<button.commit_callback
-	 function="PermsDefault.Apply" />
-  </button>
-  <button
-   height="20"
    label="OK"
    label_selected="OK"
    layout="topleft"
-   left_pad="5"
    name="ok"
-   top_delta="0"
+   left="475"
    width="100">
-    <button.commit_callback
-     function="PermsDefault.OK" />
+	<button.commit_callback
+	 function="PermsDefault.OK" />
   </button>
   <button
    height="20"
