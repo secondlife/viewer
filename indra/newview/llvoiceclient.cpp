@@ -113,8 +113,8 @@ LLVoiceClient::LLVoiceClient()
 	:
 	mVoiceModule(NULL),
 	m_servicePump(NULL),
-	mVoiceEffectEnabled(LLCachedControl<bool>(gSavedSettings, "VoiceMorphingEnabled")),
-	mVoiceEffectDefault(LLCachedControl<std::string>(gSavedPerAccountSettings, "VoiceEffectDefault")),
+	mVoiceEffectEnabled(LLCachedControl<bool>(gSavedSettings, "VoiceMorphingEnabled", true)),
+	mVoiceEffectDefault(LLCachedControl<std::string>(gSavedPerAccountSettings, "VoiceEffectDefault", "00000000-0000-0000-0000-000000000000")),
 	mPTTDirty(true),
 	mPTT(true),
 	mUsePTT(true),

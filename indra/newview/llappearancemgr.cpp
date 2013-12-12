@@ -3415,20 +3415,49 @@ void LLAppearanceMgr::removeItemsFromAvatar(const uuid_vec_t& ids_to_remove)
 		llwarns << "called with empty list, nothing to do" << llendl;
 	}
 	for (uuid_vec_t::const_iterator it = ids_to_remove.begin(); it != ids_to_remove.end(); ++it)
-			{
+	{
 		const LLUUID& id_to_remove = *it;
 		const LLUUID& linked_item_id = gInventory.getLinkedItemID(id_to_remove);
 		removeCOFItemLinks(linked_item_id);
-			}
-	updateAppearanceFromCOF();
+		addDoomedTempAttachment(linked_item_id);
 	}
+	updateAppearanceFromCOF();
+}
 
 void LLAppearanceMgr::removeItemFromAvatar(const LLUUID& id_to_remove)
 {
 	LLUUID linked_item_id = gInventory.getLinkedItemID(id_to_remove);
 	removeCOFItemLinks(linked_item_id);
+	addDoomedTempAttachment(linked_item_id);
 	updateAppearanceFromCOF();
 }
+
+
+// Adds the given item ID to mDoomedTempAttachmentIDs iff it's a temp attachment
+void LLAppearanceMgr::addDoomedTempAttachment(const LLUUID& id_to_remove)
+{
+	LLViewerObject * attachmentp = gAgentAvatarp->findAttachmentByID(id_to_remove);
+	if (attachmentp &&
+		attachmentp->isTempAttachment())
+	{	// If this is a temp attachment and we want to remove it, record the ID 
+		// so it will be deleted when attachments are synced up with COF
+		mDoomedTempAttachmentIDs.insert(id_to_remove);
+		//llinfos << "Will remove temp attachment id " << id_to_remove << llendl;
+	}
+}
+
+// Find AND REMOVES the given UUID from mDoomedTempAttachmentIDs
+bool LLAppearanceMgr::shouldRemoveTempAttachment(const LLUUID& item_id)
+{
+	doomed_temp_attachments_t::iterator iter = mDoomedTempAttachmentIDs.find(item_id);
+	if (iter != mDoomedTempAttachmentIDs.end())
+	{
+		mDoomedTempAttachmentIDs.erase(iter);
+		return true;
+	}
+	return false;
+}
+
 
 bool LLAppearanceMgr::moveWearable(LLViewerInventoryItem* item, bool closer_to_body)
 {

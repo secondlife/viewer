@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="settings_debug" title="НАСТРОЙКИ ОТЛАДКИ">
 	<radio_group name="boolean_combo">
-		<radio_item label="ИСТИНА" name="TRUE" value="истина"/>
+		<radio_item label="ИСТИНА" name="TRUE" value="true"/>
 		<radio_item label="ЛОЖЬ" name="FALSE" value=""/>
 	</radio_group>
 	<color_swatch label="Цвет" name="val_color_swatch"/>
