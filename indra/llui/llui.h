@@ -405,11 +405,6 @@ public:
 					  const std::string& comment = "Declared In Code")
 	:	LLCachedControl<T>(LLUI::getControlControlGroup(name), name, default_value, comment)
 	{}
-
-	// This constructor will signal an error if the control doesn't exist in the control group
-	LLUICachedControl(const std::string& name)
-	:	LLCachedControl<T>(LLUI::getControlControlGroup(name), name)
-	{}
 };
 
 namespace LLInitParam

@@ -21,7 +21,7 @@
 	<check_box initial_value="true" label="Habilitar plugins" name="browser_plugins_enabled"/>
 	<check_box initial_value="true" label="Aceitar cookies" name="cookies_enabled"/>
 	<check_box initial_value="true" label="Habilitar Javascript" name="browser_javascript_enabled"/>
-	<check_box initial_value="falso" label="Ativar pop-ups no navegador de mídia" name="media_popup_enabled"/>
+	<check_box initial_value="false" label="Ativar pop-ups no navegador de mídia" name="media_popup_enabled"/>
 	<text name="Software updates:">
 		Atualizações de software:
 	</text>

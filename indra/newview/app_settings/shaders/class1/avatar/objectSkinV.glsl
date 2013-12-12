@@ -35,6 +35,9 @@ mat4 getObjectSkinnedTransform()
 	vec4 w = fract(weight4);
 	vec4 index = floor(weight4);
 	
+		 index = min(index, vec4(31.0));
+		 index = max(index, vec4( 0.0));
+
 	float scale = 1.0/(w.x+w.y+w.z+w.w);
 	w *= scale;
 	

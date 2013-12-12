@@ -14,16 +14,16 @@
 	<text name="owner_label">
 		Владелец
 	</text>
-	<check_box initial_value="ложь" label="Разрешить навигацию и взаимодействие" name="perms_owner_interact"/>
-	<check_box initial_value="ложь" label="Панель управления видна" name="perms_owner_control"/>
+	<check_box initial_value="false" label="Разрешить навигацию и взаимодействие" name="perms_owner_interact"/>
+	<check_box initial_value="false" label="Панель управления видна" name="perms_owner_control"/>
 	<text name="group_label">
 		Группа:
 	</text>
-	<check_box initial_value="ложь" label="Разрешить навигацию и взаимодействие" name="perms_group_interact"/>
-	<check_box initial_value="ложь" label="Панель управления видна" name="perms_group_control"/>
+	<check_box initial_value="false" label="Разрешить навигацию и взаимодействие" name="perms_group_interact"/>
+	<check_box initial_value="false" label="Панель управления видна" name="perms_group_control"/>
 	<text name="anyone_label">
 		всем
 	</text>
-	<check_box initial_value="ложь" label="Разрешить навигацию и взаимодействие" name="perms_anyone_interact"/>
-	<check_box initial_value="ложь" label="Панель управления видна" name="perms_anyone_control"/>
+	<check_box initial_value="false" label="Разрешить навигацию и взаимодействие" name="perms_anyone_interact"/>
+	<check_box initial_value="false" label="Панель управления видна" name="perms_anyone_control"/>
 </panel>

@@ -465,16 +465,11 @@
 				<combo_box.item label="vakum" name="suction"/>
 				<combo_box.item label="örgü" name="weave"/>
 			</combo_box>
-			<check_box initial_value="false" label="Planar yüzleri hizala" name="checkbox planar align" tool_tip="Tüm seçili yüzeylerdeki dokuları son seçili yüzdekiyle hizalar. Planar doku eşleştirmesi gerektirir."/>
-			<text name="rpt">
-				Tekrarlar / Yüz
-			</text>
 			<spinner label="Yatay (U)" name="TexScaleU"/>
 			<check_box label="Çevir" name="checkbox flip s"/>
 			<spinner label="Dikey (V)" name="TexScaleV"/>
 			<check_box label="Çevir" name="checkbox flip t"/>
 			<spinner label="Döndürme*" name="TexRot"/>
-			<spinner label="Tekrarlar / Metre" name="rptctrl"/>
 			<button label="Uygula" label_selected="Uygula" name="button apply"/>
 			<text name="tex offset">
 				Doku Dengeleyicisi

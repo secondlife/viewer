@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Proxy Settings Floater" title="Настройки прокси-сервера">
-	<check_box initial_value="ложь" label="Использовать HTTP-прокси для веб-страниц" name="web_proxy_enabled"/>
+	<check_box initial_value="false" label="Использовать HTTP-прокси для веб-страниц" name="web_proxy_enabled"/>
 	<text name="http_proxy_label">
 		HTTP-прокси:
 	</text>
