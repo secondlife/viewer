@@ -53,6 +53,7 @@ static LLRegisterPanelClassWrapper<LLTwitterPhotoPanel> t_panel_photo("lltwitter
 static LLRegisterPanelClassWrapper<LLTwitterAccountPanel> t_panel_account("lltwitteraccountpanel");
 
 const S32 MAX_POSTCARD_DATASIZE = 1024 * 1024; // one megabyte
+const std::string DEFAULT_PHOTO_LOCATION_URL = "http://maps.secondlife.com/";
 const std::string DEFAULT_PHOTO_QUERY_PARAMETERS = "?sourceid=slshare_photo&utm_source=twitter&utm_medium=photo&utm_campaign=slshare";
 
 ///////////////////////////
@@ -271,6 +272,13 @@ void LLTwitterPhotoPanel::sendPhoto()
 		LLAgentUI::buildSLURL(slurl);
 		std::string slurl_string = slurl.getSLURLString();
 
+		// Use a valid http:// URL if the scheme is secondlife:// 
+		LLURI slurl_uri(slurl_string);
+		if (slurl_uri.scheme() == LLSLURL::SLURL_SECONDLIFE_SCHEME)
+		{
+			slurl_string = DEFAULT_PHOTO_LOCATION_URL;
+		}
+
 		// Add query parameters so Google Analytics can track incoming clicks!
 		slurl_string += DEFAULT_PHOTO_QUERY_PARAMETERS;
 
@@ -280,7 +288,6 @@ void LLTwitterPhotoPanel::sendPhoto()
 		else
 			status = status + " " + slurl_string;
 	}
-
 
 	// Add the photo if required
 	bool add_photo = mPhotoCheckbox->getValue().asBoolean();
