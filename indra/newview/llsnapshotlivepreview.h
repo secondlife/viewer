@@ -93,7 +93,7 @@ public:
 
 	void setSnapshotType(ESnapshotType type) { mSnapshotType = type; }
 	void setSnapshotFormat(LLFloaterSnapshot::ESnapshotFormat type) { mSnapshotFormat = type; }
-	void setSnapshotQuality(S32 quality);
+	bool setSnapshotQuality(S32 quality, bool set_by_user = true);
 	void setSnapshotBufferType(LLViewerWindow::ESnapshotType type) { mSnapshotBufferType = type; }
 	void updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail = FALSE, F32 delay = 0.f);
 	void saveWeb();

@@ -39,6 +39,10 @@
                label="1024x768"
                name="1024x768"
                value="[i1024,i768]" />
+              <combo_box.item
+               label="1200x630"
+               name="1200x630"
+               value="[i1200,i630]" />
             </combo_box>
             <text
              follows="left|top"

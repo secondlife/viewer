@@ -88,6 +88,8 @@ private:
 	LLUICtrl * mLocationCheckbox;
 	LLUICtrl * mPostButton;
 	LLUICtrl* mCancelButton;
+    
+    S32 mQuality;       // Compression quality
 };
 
 class LLFacebookCheckinPanel : public LLPanel

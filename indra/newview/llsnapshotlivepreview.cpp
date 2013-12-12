@@ -222,15 +222,21 @@ void LLSnapshotLivePreview::updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail
 	}
 }
 
-void LLSnapshotLivePreview::setSnapshotQuality(S32 quality)
+// Return true if the quality has been changed, false otherwise
+bool LLSnapshotLivePreview::setSnapshotQuality(S32 quality, bool set_by_user)
 {
 	llclamp(quality, 0, 100);
 	if (quality != mSnapshotQuality)
 	{
 		mSnapshotQuality = quality;
-		gSavedSettings.setS32("SnapshotQuality", quality);
+        if (set_by_user)
+        {
+            gSavedSettings.setS32("SnapshotQuality", quality);
+        }
 		mSnapshotUpToDate = FALSE;
+        return true;
 	}
+    return false;
 }
 
 void LLSnapshotLivePreview::drawPreviewRect(S32 offset_x, S32 offset_y)

@@ -59,6 +59,13 @@ const std::string DEFAULT_CHECKIN_ICON_URL = "http://map.secondlife.com.s3.amazo
 const std::string DEFAULT_CHECKIN_QUERY_PARAMETERS = "?sourceid=slshare_checkin&utm_source=facebook&utm_medium=checkin&utm_campaign=slshare";
 const std::string DEFAULT_PHOTO_QUERY_PARAMETERS = "?sourceid=slshare_photo&utm_source=facebook&utm_medium=photo&utm_campaign=slshare";
 
+const S32 MAX_QUALITY = 100;        // Max quality value for jpeg images
+const S32 MIN_QUALITY = 0;          // Min quality value for jpeg images
+const S32 TARGET_DATA_SIZE = 95000; // Size of the image (compressed) we're trying to send to Facebook
+const S32 MAX_DATA_SIZE = 98000;    // Max size of the image (compressed) sent to Facebook
+const S32 QUALITY_DECREMENT = 5;    // Value we use to ratchet the quality down if we're over MAX_DATA_SIZE
+
+
 std::string get_map_url()
 {
     LLVector3d center_agent;
@@ -71,6 +78,14 @@ std::string get_map_url()
     int y_pos = center_agent[1] / 256.0;
     std::string map_url = gSavedSettings.getString("CurrentMapServerURL") + llformat("map-1-%d-%d-objects.jpg", x_pos, y_pos);
     return map_url;
+}
+
+// Compute target jpeg quality : see https://wiki.lindenlab.com/wiki/Facebook_Image_Quality for details
+S32 compute_jpeg_quality(S32 width, S32 height)
+{
+    F32 target_compression_ratio = (F32)(width * height * 3) / (F32)(TARGET_DATA_SIZE);
+    S32 quality = (S32)(110.0f - (2.0f * target_compression_ratio));
+    return llclamp(quality,MIN_QUALITY,MAX_QUALITY);
 }
 
 ///////////////////////////
@@ -173,7 +188,8 @@ mWorkingLabel(NULL),
 mThumbnailPlaceholder(NULL),
 mCaptionTextBox(NULL),
 mLocationCheckbox(NULL),
-mPostButton(NULL)
+mPostButton(NULL),
+mQuality(MAX_QUALITY)
 {
 	mCommitCallbackRegistrar.add("SocialSharing.SendPhoto", boost::bind(&LLFacebookPhotoPanel::onSend, this));
 	mCommitCallbackRegistrar.add("SocialSharing.RefreshPhoto", boost::bind(&LLFacebookPhotoPanel::onClickNewSnapshot, this));
@@ -285,10 +301,11 @@ void LLFacebookPhotoPanel::onVisibilityChange(const LLSD& new_visibility)
 			p.rect(full_screen_rect);
 			LLSnapshotLivePreview* previewp = new LLSnapshotLivePreview(p);
 			mPreviewHandle = previewp->getHandle();	
+            mQuality = MAX_QUALITY;
 
 			previewp->setSnapshotType(previewp->SNAPSHOT_WEB);
 			previewp->setSnapshotFormat(LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG);
-			//previewp->setSnapshotQuality(98);
+			previewp->setSnapshotQuality(mQuality, false);
 			previewp->setThumbnailPlaceholderRect(mThumbnailPlaceholder->getRect());
 
 			updateControls();
@@ -399,6 +416,11 @@ void LLFacebookPhotoPanel::updateControls()
 	if (got_snap)
 	{
 		LLResMgr::getInstance()->getIntegerString(bytes_string, (previewp->getDataSize()) >> 10 );
+        if (previewp->getDataSize() >= MAX_DATA_SIZE)
+        {
+            // If size too big, change mQuality
+            mQuality -= QUALITY_DECREMENT;
+        }
 	}
 
 	//getChild<LLUICtrl>("file_size_label")->setTextArg("[SIZE]", got_snap ? bytes_string : getString("unknown")); <---uses localized string
@@ -445,8 +467,14 @@ void LLFacebookPhotoPanel::updateResolution(BOOL do_update)
 		checkAspectRatio(width);
 
 		previewp->getSize(width, height);
+        if (do_update || (mQuality == MAX_QUALITY))
+        {
+            // Recompute quality setting if the update is requested by the UI or if quality has been reset
+            mQuality = compute_jpeg_quality(width, height);
+        }
+        bool quality_reset = previewp->setSnapshotQuality(mQuality, false);
 		
-		if(original_width != width || original_height != height)
+		if (original_width != width || original_height != height || quality_reset)
 		{
 			previewp->setSize(width, height);
 
@@ -454,7 +482,7 @@ void LLFacebookPhotoPanel::updateResolution(BOOL do_update)
 			lldebugs << "updating thumbnail" << llendl;
 			
 			previewp->updateSnapshot(FALSE, TRUE);
-			if(do_update)
+			if (do_update || quality_reset)
 			{
 				lldebugs << "Will update controls" << llendl;
 				updateControls();
