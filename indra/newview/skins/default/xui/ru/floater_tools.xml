@@ -76,8 +76,8 @@
 	<text label="Растяжка обеих сторон" name="checkbox uniform label">
 		Растяжка обеих сторон
 	</text>
-	<check_box initial_value="истина" label="Растягивать текстуры" name="checkbox stretch textures"/>
-	<check_box initial_value="истина" label="Привязка" name="checkbox snap to grid"/>
+	<check_box initial_value="true" label="Растягивать текстуры" name="checkbox stretch textures"/>
+	<check_box initial_value="true" label="Привязка" name="checkbox snap to grid"/>
 	<combo_box name="combobox grid mode" tool_tip="Выберите тип линейки сетки для размещения объекта">
 		<combo_box.item label="Мировая" name="World"/>
 		<combo_box.item label="Локальная" name="Local"/>
@@ -101,7 +101,7 @@
 	<button name="ToolGrass" tool_tip="Трава"/>
 	<check_box label="Держать инструмент" name="checkbox sticky"/>
 	<check_box label="Копировать выдел." name="checkbox copy selection"/>
-	<check_box initial_value="истина" label="Центрир. копию" name="checkbox copy centers"/>
+	<check_box initial_value="true" label="Центрир. копию" name="checkbox copy centers"/>
 	<check_box label="Повернуть копию" name="checkbox copy rotates"/>
 	<radio_group name="land_radio_group">
 		<radio_item label="Выбрать землю" name="radio select land"/>
@@ -465,16 +465,11 @@
 				<combo_box.item label="присоска" name="suction"/>
 				<combo_box.item label="переплетение" name="weave"/>
 			</combo_box>
-			<check_box initial_value="ложь" label="Согласование" name="checkbox planar align" tool_tip="Согласование текстур на всех выбранных граних по последней выбранной грани. Должно быть выбрано наложение по плоскостям."/>
-			<text name="rpt">
-				Повторов на грань
-			</text>
 			<spinner label="По горизонтали (U)" name="TexScaleU"/>
 			<check_box label="Разворот" name="checkbox flip s"/>
 			<spinner label="По вертикали (V)" name="TexScaleV"/>
 			<check_box label="Разворот" name="checkbox flip t"/>
 			<spinner label="Вращение˚" name="TexRot"/>
-			<spinner label="Повторов на метр" name="rptctrl"/>
 			<button label="Применить" label_selected="Применить" name="button apply"/>
 			<text name="tex offset">
 				Сдвиг текстуры

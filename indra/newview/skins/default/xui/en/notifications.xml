@@ -3481,7 +3481,7 @@ or you can install it now.
    name="DownloadBackgroundTip"
    type="notify">
 We have downloaded an update to your [APP_NAME] installation.
-Version [VERSION] [[RELEASE_NOTES_FULL_URL] Information about this update]
+Version [VERSION] [[INFO_URL] Information about this update]
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -3494,7 +3494,7 @@ Version [VERSION] [[RELEASE_NOTES_FULL_URL] Information about this update]
  name="DownloadBackgroundDialog"
  type="alertmodal">
 We have downloaded an update to your [APP_NAME] installation.
-Version [VERSION] [[RELEASE_NOTES_FULL_URL] Information about this update]
+    Version [VERSION] [[INFO_URL] Information about this update]
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -6351,12 +6351,21 @@ You can only claim public land in the Region you&apos;re in.
   <notification
    icon="notify.tga"
    name="RegionTPAccessBlocked"
-   persist="true"
+   persist="false"
    type="notify">
    <tag>fail</tag>
     The region you're trying to visit contains content exceeding your current preferences.  You can change your preferences using Me &gt; Preferences &gt; General.
   </notification>
 
+  <notification
+	icon="notify.tga"
+   name="RegionAboutToShutdown"
+   persist="false"
+   type="notify">
+    <tag>fail</tag>
+    The region you're trying to enter is about to shut down.
+  </notification>
+  
   <notification
 	icon="notify.tga"
 	name="URBannedFromRegion"
@@ -6901,7 +6910,7 @@ This will add a bookmark in your inventory so you can quickly IM this Resident.
    priority="high"
    sound="UISndAlert"
    type="notify">
-This region will restart in [MINUTES] minutes.
+The region "[NAME]" will restart in [MINUTES] minutes.
 If you stay in this region you will be logged out.
   </notification>
 
@@ -6911,7 +6920,7 @@ If you stay in this region you will be logged out.
    priority="high"
    sound="UISndAlert"
    type="notify">
-This region will restart in [SECONDS] seconds.
+The region "[NAME]" will restart in [SECONDS] seconds.
 If you stay in this region you will be logged out.
   </notification>
 
@@ -8794,11 +8803,11 @@ You are no longer allowed here and have [EJECT_TIME] seconds to leave.
 
   <notification
    icon="alertmodal.tga"
-   name="NoEnterServerFull"
+   name="NoEnterRegionMaybeFull"
    type="notify">
    <tag>fail</tag>
-You can't enter this region because 
-the server is full.
+You can't enter region "[NAME]".
+It may be full or restarting soon.
   </notification>
 
   <notification
@@ -9560,6 +9569,14 @@ Cannot attach object because you do not have permission to move it.
    type="notify">
    <tag>fail</tag>
 Not enough script resources available to attach object!
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantAttachObjectBeingRemoved"
+   type="notify">
+    <tag>fail</tag>
+    Cannot attach object because it is already being removed.
   </notification>
 
   <notification
