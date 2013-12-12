@@ -1004,6 +1004,7 @@ void create_script_cb(const LLUUID& inv_item)
 
 	item->setPermissions(perm);
 
+	item->updateServer(FALSE);
 	gInventory.updateItem(item);
 	gInventory.notifyObservers();
 }
@@ -1024,6 +1025,7 @@ void create_gesture_cb(const LLUUID& inv_item)
 
 	item->setPermissions(perm);
 
+	item->updateServer(FALSE);
     gInventory.updateItem(item);
     gInventory.notifyObservers();
 
@@ -1047,6 +1049,7 @@ void create_notecard_cb(const LLUUID& inv_item)
 
 	item->setPermissions(perm);
 
+	item->updateServer(FALSE);
 	gInventory.updateItem(item);
 	gInventory.notifyObservers();
 }

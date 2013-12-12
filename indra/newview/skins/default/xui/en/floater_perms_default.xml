@@ -17,24 +17,22 @@
    name="default permissions"
    top="20"
    width="690">
-
       <view_border
        bevel_style="none"
        height="18"
        top="8"
        left="0"
        width="430" /> 
-
-     <text
-      type="string"
-      length="1"
-      follows="left|top"
-      height="16"
-      halign="right"
-      layout="topleft"
-      left="0"
-      top="10"
-      width="115">
+      <text
+       type="string"
+       length="1"
+       follows="left|top"
+       height="16"
+       halign="right"
+       layout="topleft"
+       left="0"
+       top="10"
+       width="115">
          Next owner:
       </text>
       <text
@@ -481,14 +479,26 @@
   </panel>
   <button
    height="20"
+   label="Apply"
+   label_selected="Apply"
+   layout="topleft"
+   name="apply"
+   left="375"
+   width="100">
+	<button.commit_callback
+	 function="PermsDefault.Apply" />
+  </button>
+  <button
+   height="20"
    label="OK"
    label_selected="OK"
    layout="topleft"
+   left_pad="5"
    name="ok"
-   left="480"
+   top_delta="0"
    width="100">
-	<button.commit_callback
-	 function="PermsDefault.OK" />
+    <button.commit_callback
+     function="PermsDefault.OK" />
   </button>
   <button
    height="20"

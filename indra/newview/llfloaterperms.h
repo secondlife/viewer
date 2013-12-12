@@ -54,8 +54,9 @@ class LLFloaterPermsDefault : public LLFloater
 
 public:
 	/*virtual*/ BOOL postBuild();
-	void ok();
+	void apply();
 	void cancel();
+	void onClickApply();
 	void onClickOK();
 	void onClickCancel();
 	void onCommitCopy(const LLSD& user_data);

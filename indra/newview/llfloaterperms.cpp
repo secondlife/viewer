@@ -103,6 +103,7 @@ LLFloaterPermsDefault::LLFloaterPermsDefault(const LLSD& seed)
 	: LLFloater(seed)
 {
 	mCommitCallbackRegistrar.add("PermsDefault.Copy", boost::bind(&LLFloaterPermsDefault::onCommitCopy, this, _2));
+	mCommitCallbackRegistrar.add("PermsDefault.Apply", boost::bind(&LLFloaterPermsDefault::onClickApply, this));
 	mCommitCallbackRegistrar.add("PermsDefault.OK", boost::bind(&LLFloaterPermsDefault::onClickOK, this));
 	mCommitCallbackRegistrar.add("PermsDefault.Cancel", boost::bind(&LLFloaterPermsDefault::onClickCancel, this));
 }
@@ -129,9 +130,14 @@ BOOL LLFloaterPermsDefault::postBuild()
 	return true;
 }
 
+void LLFloaterPermsDefault::onClickApply()
+{
+	apply();
+}
+
 void LLFloaterPermsDefault::onClickOK()
 {
-	ok();
+	apply();
 	closeFloater();
 }
 
@@ -164,7 +170,6 @@ private:
 
 	void error(U32 status, const std::string& reason)
 	{
-llwarns << "DBG !" << sPreviousReason << "!" << llendl;
 		// Do not display the same error more than once in a row
 		if (reason != sPreviousReason)
 		{
@@ -217,7 +222,7 @@ void LLFloaterPermsDefault::setCapSent(bool cap_sent)
 	mCapSent = cap_sent;
 }
 
-void LLFloaterPermsDefault::ok()
+void LLFloaterPermsDefault::apply()
 {
 //	Changes were already applied automatically to saved settings.
 //	Refreshing internal values makes it official.
