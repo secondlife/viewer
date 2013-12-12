@@ -296,37 +296,49 @@ bool LLUpdaterServiceImpl::checkForInstall(bool launchInstaller)
 		update_marker.close();
 
 		// Get the path to the installer file.
-		LLSD path = update_info.get("path");
-		if(update_info["current_version"].asString() != ll_get_version())
+		std::string path(update_info.get("path"));
+		std::string downloader_version(update_info["current_version"]);
+		if (downloader_version != ll_get_version())
 		{
 			// This viewer is not the same version as the one that downloaded
-			// the update.  Do not install this update.
-			if(!path.asString().empty())
+			// the update. Do not install this update.
+			LL_INFOS("UpdaterService") << "ignoring update downloaded by "
+									   << "different viewer version "
+									   << downloader_version << LL_ENDL;
+			if (! path.empty())
 			{
-				LL_INFOS("UpdaterService") << "ignoring update dowloaded by different client version" << LL_ENDL;;
-				LLFile::remove(path.asString());
+				LL_INFOS("UpdaterService") << "removing " << path << LL_ENDL;
+				LLFile::remove(path);
 				LLFile::remove(update_marker_path());
 			}
-			else
-			{
-				; // Nothing to clean up.
-			}
-			
+
 			foundInstall = false;
 		} 
-		else if(path.isDefined() && !path.asString().empty())
+		else if (path.empty())
+		{
+			LL_WARNS("UpdaterService") << "Marker file " << update_marker_path()
+									   << " 'path' entry empty, ignoring" << LL_ENDL;
+			foundInstall = false;
+		}
+		else if (! LLFile::isfile(path))
+		{
+			LL_WARNS("UpdaterService") << "Nonexistent installer " << path
+									   << ", ignoring" << LL_ENDL;
+			foundInstall = false;
+		}
+		else
 		{
 			if(launchInstaller)
 			{
 				setState(LLUpdaterService::INSTALLING);
-				
+
 				LLFile::remove(update_marker_path());
 
 				int result = ll_install_update(install_script_path(),
-											   update_info["path"].asString(),
+											   path,
 											   update_info["required"].asBoolean(),
 											   install_script_mode());	
-				
+
 				if((result == 0) && mAppExitCallback)
 				{
 					mAppExitCallback();
@@ -360,7 +372,8 @@ bool LLUpdaterServiceImpl::checkForResume()
 			LLSD download_info;
 			LLSDSerialize::fromXMLDocument(download_info, download_marker_stream);
 			download_marker_stream.close();
-			if(download_info["current_version"].asString() == ll_get_version())
+			std::string downloader_version(download_info["current_version"]);
+			if (downloader_version == ll_get_version())
 			{
 				mIsDownloading = true;
 				mNewVersion = download_info["update_version"].asString();
@@ -371,10 +384,13 @@ bool LLUpdaterServiceImpl::checkForResume()
 			else 
 			{
 				// The viewer that started this download is not the same as this viewer; ignore.
-				LL_INFOS("UpdaterService") << "ignoring partial download from different viewer version" << LL_ENDL;;
+				LL_INFOS("UpdaterService") << "ignoring partial download "
+										   << "from different viewer version "
+										   << downloader_version << LL_ENDL;
 				std::string path = download_info["path"].asString();
 				if(!path.empty())
 				{
+					LL_INFOS("UpdaterService") << "removing " << path << LL_ENDL;
 					LLFile::remove(path);
 				}
 				LLFile::remove(download_marker_path);
@@ -539,7 +555,7 @@ bool LLUpdaterServiceImpl::onMainLoop(LLSD const & event)
 		// Check for failed install.
 		if(LLFile::isfile(ll_install_failed_marker_path()))
 		{
-			LL_DEBUGS("UpdaterService") << "found marker " << ll_install_failed_marker_path() << LL_ENDL;;
+			LL_DEBUGS("UpdaterService") << "found marker " << ll_install_failed_marker_path() << LL_ENDL;
 			int requiredValue = 0; 
 			{
 				llifstream stream(ll_install_failed_marker_path());
@@ -552,12 +568,12 @@ bool LLUpdaterServiceImpl::onMainLoop(LLSD const & event)
 			// TODO: notify the user.
 			LL_WARNS("UpdaterService") << "last install attempt failed" << LL_ENDL;;
 			LLFile::remove(ll_install_failed_marker_path());
-			
+
 			LLSD event;
 			event["type"] = LLSD(LLUpdaterService::INSTALL_ERROR);
 			event["required"] = LLSD(requiredValue);
 			LLEventPumps::instance().obtain(LLUpdaterService::pumpName()).post(event);
-			
+
 			setState(LLUpdaterService::TERMINAL);
 		}
 		else
