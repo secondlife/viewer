@@ -62,9 +62,6 @@ const std::string DEFAULT_PHOTO_QUERY_PARAMETERS = "?sourceid=slshare_photo&utm_
 const S32 MAX_QUALITY = 100;        // Max quality value for jpeg images
 const S32 MIN_QUALITY = 0;          // Min quality value for jpeg images
 const S32 TARGET_DATA_SIZE = 95000; // Size of the image (compressed) we're trying to send to Facebook
-const S32 MAX_DATA_SIZE = 98000;    // Max size of the image (compressed) sent to Facebook
-const S32 QUALITY_DECREMENT = 5;    // Value we use to ratchet the quality down if we're over MAX_DATA_SIZE
-
 
 std::string get_map_url()
 {
@@ -416,11 +413,6 @@ void LLFacebookPhotoPanel::updateControls()
 	if (got_snap)
 	{
 		LLResMgr::getInstance()->getIntegerString(bytes_string, (previewp->getDataSize()) >> 10 );
-        if (previewp->getDataSize() >= MAX_DATA_SIZE)
-        {
-            // If size too big, change mQuality
-            mQuality -= QUALITY_DECREMENT;
-        }
 	}
 
 	//getChild<LLUICtrl>("file_size_label")->setTextArg("[SIZE]", got_snap ? bytes_string : getString("unknown")); <---uses localized string
@@ -467,11 +459,9 @@ void LLFacebookPhotoPanel::updateResolution(BOOL do_update)
 		checkAspectRatio(width);
 
 		previewp->getSize(width, height);
-        if (do_update || (mQuality == MAX_QUALITY))
-        {
-            // Recompute quality setting if the update is requested by the UI or if quality has been reset
-            mQuality = compute_jpeg_quality(width, height);
-        }
+        
+        // Recompute quality setting
+        mQuality = compute_jpeg_quality(width, height);
         bool quality_reset = previewp->setSnapshotQuality(mQuality, false);
 		
 		if (original_width != width || original_height != height || quality_reset)
