@@ -981,6 +981,10 @@ boost::signals2::connection LLAgent::addRegionChangedCallback(region_changed_cal
 	return mRegionChangedSignal.connect(cb);
 }
 
+void LLAgent::removeRegionChangedCallback(boost::signals2::connection callback)
+{
+	mRegionChangedSignal.disconnect(callback);
+}
 
 //-----------------------------------------------------------------------------
 // inPrelude()
