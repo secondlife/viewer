@@ -1491,7 +1491,8 @@ LLPanelObjectInventory::LLPanelObjectInventory(const LLPanelObjectInventory::Par
 	mFolders(NULL),
 	mHaveInventory(FALSE),
 	mIsInventoryEmpty(TRUE),
-	mInventoryNeedsUpdate(FALSE)
+	mInventoryNeedsUpdate(FALSE),
+	mInventoryViewModel(p.name)
 {
 	// Setup context menu callbacks
 	mCommitCallbackRegistrar.add("Inventory.DoToSelected", boost::bind(&LLPanelObjectInventory::doToSelected, this, _2));

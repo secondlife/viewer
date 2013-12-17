@@ -85,7 +85,8 @@ def get_default_platform(dummy):
             }[sys.platform]
 
 DEFAULT_SRCTREE = os.path.dirname(sys.argv[0])
-RELEASE_CHANNEL = 'Second Life Release'
+CHANNEL_VENDOR_BASE = 'Second Life'
+RELEASE_CHANNEL = CHANNEL_VENDOR_BASE + ' Release'
 
 ARGUMENTS=[
     dict(name='actions',
@@ -112,13 +113,14 @@ ARGUMENTS=[
          default="Release"),
     dict(name='dest', description='Destination directory.', default=DEFAULT_SRCTREE),
     dict(name='grid',
-         description="""Which grid the client will try to connect to. Even
-        though it's not strictly a grid, 'firstlook' is also an acceptable
-        value for this parameter.""",
-         default=""),
+         description="""Which grid the client will try to connect to.""",
+         default=None),
     dict(name='channel',
          description="""The channel to use for updates, packaging, settings name, etc.""",
          default='CHANNEL UNSET'),
+    dict(name='channel_suffix',
+         description="""Addition to the channel for packaging and channel value, but not application name (used internally)""",
+         default=None),
     dict(name='installer_name',
          description=""" The name of the file that the installer should be
         packaged up into. Only used on Linux at the moment.""",
@@ -213,9 +215,9 @@ def main():
             print "Unable to read versionfile '%s'" % args['versionfile']
             raise
 
-    # default and agni are default
-    if args['grid'] in ['default', 'agni']:
-        args['grid'] = ''
+    # unspecified, default, and agni are default
+    if args['grid'] in ['', 'default', 'agni']:
+        args['grid'] = None
 
     if 'actions' in args:
         args['actions'] = args['actions'].split()
@@ -286,21 +288,24 @@ def main():
         base_channel_name = args['channel']
         # Build each additional package.
         package_id_list = additional_packages.split(" ")
+        args['channel'] = base_channel_name
         for package_id in package_id_list:
             try:
-                args['package_id'] = package_id
-                args['channel'] = base_channel_name + os.environ[package_id + "_viewer_channel_suffix"]
+                if package_id + "_viewer_channel_suffix" in os.environ:
+                    args['channel_suffix'] = os.environ[package_id + "_viewer_channel_suffix"]
+                else:
+                    args['channel_suffix'] = None
                 if package_id + "_sourceid" in os.environ:
                     args['sourceid'] = os.environ[package_id + "_sourceid"]
                 else:
-                    args['sourceid'] = ""
+                    args['sourceid'] = None
                 args['dest'] = base_dest_prefix + os.sep + package_id + os.sep + base_dest_postfix
             except KeyError:
                 sys.stderr.write("Failed to create package for package_id: %s" % package_id)
                 sys.stderr.flush()
                 continue
             if touch:
-                print 'Creating additional package for ', package_id, ' in ', args['dest']
+                print 'Creating additional package for "', package_id, '" in ', args['dest']
             wm = LLManifest.for_platform(args['platform'], args.get('arch'))(args)
             wm.do(*args['actions'])
             if touch:
@@ -332,7 +337,7 @@ class LLManifest(object):
     manifests = {}
     def for_platform(self, platform, arch = None):
         if arch:
-            platform = platform + '_' + arch
+            platform = platform + '_' + arch + '_'
         return self.manifests[platform.lower()]
     for_platform = classmethod(for_platform)
 
@@ -349,8 +354,6 @@ class LLManifest(object):
         self.created_paths = []
         self.package_name = "Unknown"
         
-    def default_grid(self):
-        return self.args.get('grid', None) == ''
     def default_channel(self):
         return self.args.get('channel', None) == RELEASE_CHANNEL
 

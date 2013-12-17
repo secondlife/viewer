@@ -77,7 +77,8 @@ private:
 	void run(void);
 	void startDownloading(LLURI const & uri, std::string const & hash);
 	void throwOnCurlError(CURLcode code);
-	bool validateDownload(void);
+	bool validateDownload(const std::string& filePath);
+	bool validateOrRemove(const std::string& filePath);
 
 	LOG_CLASS(LLUpdateDownloader::Implementation);
 };
@@ -295,9 +296,8 @@ void LLUpdateDownloader::Implementation::resume(void)
 			{
 				resumeDownloading(fileStatus.st_size);
 			}
-			else if(!validateDownload())
+			else if(!validateOrRemove(filePath))
 			{
-				LLFile::remove(filePath);
 				download(LLURI(mDownloadData["url"].asString()),
 						 mDownloadData["hash"].asString(),
 						 mDownloadData["update_channel"].asString(),
@@ -421,19 +421,13 @@ void LLUpdateDownloader::Implementation::run(void)
 	if(code == CURLE_OK)
 	{
 		LLFile::remove(mDownloadRecordPath);
-		if(validateDownload())
+		if(validateOrRemove(mDownloadData["path"]))
 		{
 			LL_INFOS("UpdaterService") << "download successful" << LL_ENDL;
 			mClient.downloadComplete(mDownloadData);
 		}
 		else
 		{
-			LL_INFOS("UpdaterService") << "download failed hash check" << LL_ENDL;
-			std::string filePath = mDownloadData["path"].asString();
-			if(filePath.size() != 0)
-			{
-				LLFile::remove(filePath);
-			}
 			mClient.downloadError("failed hash check");
 		}
 	}
@@ -449,7 +443,9 @@ void LLUpdateDownloader::Implementation::run(void)
 		LLFile::remove(mDownloadRecordPath);
 		if(mDownloadData.has("path"))
 		{
-			LLFile::remove(mDownloadData["path"].asString());
+			std::string filePath = mDownloadData["path"].asString();
+			LL_INFOS("UpdaterService") << "removing " << filePath << LL_ENDL;
+			LLFile::remove(filePath);
 		}
 		mClient.downloadError("curl error");
 	}
@@ -561,31 +557,49 @@ void LLUpdateDownloader::Implementation::throwOnCurlError(CURLcode code)
 	}
 }
 
-
-bool LLUpdateDownloader::Implementation::validateDownload(void)
+bool LLUpdateDownloader::Implementation::validateOrRemove(const std::string& filePath)
 {
-	std::string filePath = mDownloadData["path"].asString();
+	bool valid = validateDownload(filePath);
+	if (! valid)
+	{
+		LL_INFOS("UpdaterService") << "removing " << filePath << LL_ENDL;
+		LLFile::remove(filePath);
+	}
+	return valid;
+}
+
+bool LLUpdateDownloader::Implementation::validateDownload(const std::string& filePath)
+{
 	llifstream fileStream(filePath, std::ios_base::in | std::ios_base::binary);
 	if(!fileStream)
 	{
+		LL_INFOS("UpdaterService") << "can't open " << filePath << ", invalid" << LL_ENDL;
 		return false;
 	}
 
 	std::string hash = mDownloadData["hash"].asString();
-	if(hash.size() != 0)
+	if (! hash.empty())
 	{
-		LL_INFOS("UpdaterService") << "checking hash..." << LL_ENDL;
 		char digest[33];
 		LLMD5(fileStream).hex_digest(digest);
-		if(hash != digest)
+		if (hash == digest)
 		{
-			LL_WARNS("UpdaterService") << "download hash mismatch; expected " << hash <<
-				" but download is " << digest << LL_ENDL;
+			LL_INFOS("UpdaterService") << "verified hash " << hash
+									   << " for downloaded " << filePath << LL_ENDL;
+			return true;
 		}
-		return hash == digest;
+		else
+		{
+			LL_WARNS("UpdaterService") << "download hash mismatch for "
+									   << filePath << ": expected " << hash
+									   << " but computed " << digest << LL_ENDL;
+			return false;
+		}
 	}
 	else
 	{
+		LL_INFOS("UpdaterService") << "no hash specified for " << filePath
+								   << ", unverified" << LL_ENDL;
 		return true; // No hash check provided.
 	}
 }

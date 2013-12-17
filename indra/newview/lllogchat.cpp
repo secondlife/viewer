@@ -575,7 +575,7 @@ void LLLogChat::findTranscriptFiles(std::string pattern, std::vector<std::string
 				//Add Nearby chat history to the list of transcriptions
 				list_of_transcriptions.push_back(gDirUtilp->add(dirname, filename));
 				LLFile::close(filep);
-				return;
+				continue;
 			}
 			char buffer[LOG_RECALL_SIZE];
 
