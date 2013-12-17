@@ -83,8 +83,8 @@ public:
 
 	S32					getLengthHead() const	{ return mToken.size(); }
 	S32					getLengthTail() const	{ return mDelimiter.size(); }
-	BOOL				isHead(const llwchar* s) const;
-	BOOL				isTail(const llwchar* s) const;
+	bool				isHead(const llwchar* s) const;
+	bool				isTail(const llwchar* s) const;
 	const LLWString&	getToken() const		{ return mToken; }
 	const LLColor4&		getColor() const		{ return mColor; }
 	TOKEN_TYPE			getType()  const		{ return mType; }
@@ -112,12 +112,10 @@ public:
 	void		addColorGroup(const std::string key_in, const LLColor4 color);
 	void		clearLoaded() { mLoaded = false; }
 	LLColor4	getColorGroup(const std::string key_in);
-	BOOL		loadFromFile();
-	BOOL		loadFromFile(const std::string& filename);
 	bool		isLoaded() const	{ return mLoaded; }
 
 	void		findSegments(std::vector<LLTextSegmentPtr> *seg_list, const LLWString& text, const LLColor4 &defaultColor, class LLTextEditor& editor );
-	bool		initialise(LLSD SyntaxXML);
+	void		initialise(LLSD SyntaxXML);
 	void		processTokens();
 
 	// Add the token as described

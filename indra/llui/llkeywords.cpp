@@ -34,10 +34,10 @@
 #include "lltexteditor.h"
 #include "llstl.h"
 
-inline BOOL LLKeywordToken::isHead(const llwchar* s) const
+inline bool LLKeywordToken::isHead(const llwchar* s) const
 {
 	// strncmp is much faster than string compare
-	BOOL res = TRUE;
+	bool res = TRUE;
 	const llwchar* t = mToken.c_str();
 	S32 len = mToken.size();
 	for (S32 i=0; i<len; i++)
@@ -51,9 +51,9 @@ inline BOOL LLKeywordToken::isHead(const llwchar* s) const
 	return res;
 }
 
-inline BOOL LLKeywordToken::isTail(const llwchar* s) const
+inline bool LLKeywordToken::isTail(const llwchar* s) const
 {
-	BOOL res = TRUE;
+	bool res = TRUE;
 	const llwchar* t = mDelimiter.c_str();
 	S32 len = mDelimiter.size();
 	for (S32 i=0; i<len; i++)
@@ -67,7 +67,7 @@ inline BOOL LLKeywordToken::isTail(const llwchar* s) const
 	return res;
 }
 
-LLKeywords::LLKeywords() : mLoaded(FALSE) { }
+LLKeywords::LLKeywords() { }
 
 LLKeywords::~LLKeywords()
 {
@@ -195,11 +195,10 @@ LLColor4 LLKeywords::getColorGroup(const std::string key_in)
 	return LLUIColorTable::instance().getColor(ColourGroup);
 }
 
-bool LLKeywords::initialise(LLSD SyntaxXML)
+void LLKeywords::initialise(LLSD SyntaxXML)
 {
 	mSyntax = SyntaxXML;
-	mLoaded = true;
-	return mLoaded;
+	mLoaded = TRUE;
 }
 
 void LLKeywords::processTokens()
