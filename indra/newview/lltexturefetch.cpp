@@ -1949,7 +1949,7 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 		mFetcher->mTextureInfo.setRequestCompleteTimeAndLog(mID, timeNow);
 	}
 
-	static LLCachedControl<F32> fake_failure_rate(gSavedSettings, "TextureFetchFakeFailureRate", 0.0);
+	static LLCachedControl<F32> fake_failure_rate(gSavedSettings, "TextureFetchFakeFailureRate", 0.0f);
 	F32 rand_val = ll_frand();
 	F32 rate = fake_failure_rate;
 	if (mFTType == FTT_SERVER_BAKE && (fake_failure_rate > 0.0) && (rand_val < fake_failure_rate))
