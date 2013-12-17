@@ -273,6 +273,7 @@ private:
 	 */
 	typedef boost::function<void()> region_changed_callback_t;
 	boost::signals2::connection     addRegionChangedCallback(region_changed_callback_t);
+	void                            removeRegionChangedCallback(boost::signals2::connection callback);
 
   private:
 	LLViewerRegion	*mRegionp;
