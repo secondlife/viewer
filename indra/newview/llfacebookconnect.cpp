@@ -468,6 +468,7 @@ std::string LLFacebookConnect::getFacebookConnectURL(const std::string& route, b
     LLViewerRegion *regionp = gAgent.getRegion();
     if (regionp)
     {
+		//url = "http://pdp15.lindenlab.com/facebook/agent/" + gAgentID.asString(); // TEMPORARY FOR TESTING - CHO
         url = regionp->getCapability("FacebookConnect");
         url += route;
     
