@@ -933,6 +933,26 @@ BOOL LLImageRaw::scale( S32 new_width, S32 new_height, BOOL scale_image_data )
 	return TRUE ;
 }
 
+// *TODO : Implement real color transform
+// Merov : This is temporary code for testing... 
+void LLImageRaw::colorTransform()
+{
+	const S32 components = getComponents();
+	llassert( components >= 1 && components <= 4 );
+    
+	S32 pixels = getWidth() * getHeight();
+	U8* dst_data = getData();
+    llinfos << "Merov : Convert the image to Black and White!!! pixels = " << pixels << ", comp = " << components << llendl;
+	for( S32 i=0; i<pixels; i++ )
+	{
+        U8 gray = (U8)(((U32)(dst_data[0]) + (U32)(dst_data[1]) + (U32)(dst_data[2]))/3);
+		dst_data[0] = gray;
+		dst_data[1] = gray;
+		dst_data[2] = gray;
+		dst_data += components;
+	}
+}
+
 void LLImageRaw::copyLineScaled( U8* in, U8* out, S32 in_pixel_len, S32 out_pixel_len, S32 in_pixel_step, S32 out_pixel_step )
 {
 	const S32 components = getComponents();

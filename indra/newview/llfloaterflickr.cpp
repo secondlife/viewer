@@ -92,6 +92,8 @@ BOOL LLFlickrPhotoPanel::postBuild()
 	mSnapshotPanel = getChild<LLUICtrl>("snapshot_panel");
 	mResolutionComboBox = getChild<LLUICtrl>("resolution_combobox");
 	mResolutionComboBox->setCommitCallback(boost::bind(&LLFlickrPhotoPanel::updateResolution, this, TRUE));
+	mFilterComboBox = getChild<LLUICtrl>("filters_combobox");
+	mFilterComboBox->setCommitCallback(boost::bind(&LLFlickrPhotoPanel::updateResolution, this, TRUE));
 	mRefreshBtn = getChild<LLUICtrl>("new_snapshot_btn");
     mWorkingLabel = getChild<LLUICtrl>("working_lbl");
 	mThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");
@@ -301,33 +303,18 @@ void LLFlickrPhotoPanel::clearAndClose()
 void LLFlickrPhotoPanel::updateControls()
 {
 	LLSnapshotLivePreview* previewp = getPreviewView();
-	BOOL got_bytes = previewp && previewp->getDataSize() > 0;
 	BOOL got_snap = previewp && previewp->getSnapshotUpToDate();
-	LLSnapshotLivePreview::ESnapshotType shot_type = (previewp ? previewp->getSnapshotType() : LLSnapshotLivePreview::SNAPSHOT_POSTCARD);
 
 	// *TODO: Separate maximum size for Web images from postcards
 	lldebugs << "Is snapshot up-to-date? " << got_snap << llendl;
-
-	LLLocale locale(LLLocale::USER_LOCALE);
-	std::string bytes_string;
-	if (got_snap)
-	{
-		LLResMgr::getInstance()->getIntegerString(bytes_string, (previewp->getDataSize()) >> 10 );
-	}
-
-	//getChild<LLUICtrl>("file_size_label")->setTextArg("[SIZE]", got_snap ? bytes_string : getString("unknown")); <---uses localized string
-	getChild<LLUICtrl>("file_size_label")->setTextArg("[SIZE]", got_snap ? bytes_string : "unknown");
-	getChild<LLUICtrl>("file_size_label")->setColor(
-		shot_type == LLSnapshotLivePreview::SNAPSHOT_POSTCARD 
-		&& got_bytes
-		&& previewp->getDataSize() > MAX_POSTCARD_DATASIZE ? LLUIColor(LLColor4::red) : LLUIColorTable::instance().getColor( "LabelTextColor" ));
 
 	updateResolution(FALSE);
 }
 
 void LLFlickrPhotoPanel::updateResolution(BOOL do_update)
 {
-	LLComboBox* combobox = static_cast<LLComboBox *>(mResolutionComboBox);
+	LLComboBox* combobox  = static_cast<LLComboBox *>(mResolutionComboBox);
+	LLComboBox* filterbox = static_cast<LLComboBox *>(mFilterComboBox);
 
 	std::string sdstring = combobox->getSelectedValue();
 	LLSD sdres;
@@ -336,6 +323,9 @@ void LLFlickrPhotoPanel::updateResolution(BOOL do_update)
 
 	S32 width = sdres[0];
 	S32 height = sdres[1];
+    
+    const std::string& filter_name = filterbox->getSimple();
+    llinfos << "Merov : filter name is : " << filter_name << llendl;
 
 	LLSnapshotLivePreview * previewp = static_cast<LLSnapshotLivePreview *>(mPreviewHandle.get());
 	if (previewp && combobox->getCurrentIndex() >= 0)
@@ -359,10 +349,16 @@ void LLFlickrPhotoPanel::updateResolution(BOOL do_update)
 		checkAspectRatio(width);
 
 		previewp->getSize(width, height);
+        // Merov : 
+        // Get the old filter, compare to the current one "filter_name" and set if changed
+        // If changed, also force the updateSnapshot() here under
+        S32 original_filter = previewp->getFilter();
+        S32 filter = ("Gray Scale" == filter_name ? 1 : 0);
 		
-		if(original_width != width || original_height != height)
+		if ((original_width != width) || (original_height != height) || (original_filter != filter))
 		{
 			previewp->setSize(width, height);
+            previewp->setFilter(filter);
 
 			// hide old preview as the aspect ratio could be wrong
 			lldebugs << "updating thumbnail" << llendl;

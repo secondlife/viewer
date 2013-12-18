@@ -89,7 +89,8 @@ LLSnapshotLivePreview::LLSnapshotLivePreview (const LLSnapshotLivePreview::Param
 	mCameraPos(LLViewerCamera::getInstance()->getOrigin()),
 	mCameraRot(LLViewerCamera::getInstance()->getQuaternion()),
 	mSnapshotActive(FALSE),
-	mSnapshotBufferType(LLViewerWindow::SNAPSHOT_TYPE_COLOR)
+	mSnapshotBufferType(LLViewerWindow::SNAPSHOT_TYPE_COLOR),
+    mFilterType(0)
 {
 	setSnapshotQuality(gSavedSettings.getS32("SnapshotQuality"));
 	mSnapshotDelayTimer.setTimerExpirySec(0.0f);
@@ -585,7 +586,12 @@ void LLSnapshotLivePreview::generateThumbnailImage(BOOL force_update)
 	if(raw)
 	{
 		raw->expandToPowerOfTwo();
-		mThumbnailImage = LLViewerTextureManager::getLocalTexture(raw.get(), FALSE); 		
+        // Merov : Filter also the thumbnail?
+        if (getFilter() == 1)
+        {
+            raw->colorTransform();
+        }
+		mThumbnailImage = LLViewerTextureManager::getLocalTexture(raw.get(), FALSE);
 		mThumbnailUpToDate = TRUE ;
 	}
 
@@ -689,6 +695,12 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 		}
 		else
 		{
+            // Merov : Time to apply the filter to mPreviewImage!!!
+            if (previewp->getFilter() == 1)
+            {
+                previewp->mPreviewImage->colorTransform();
+            }
+            
 			// delete any existing image
 			previewp->mFormattedImage = NULL;
 			// now create the new one of the appropriate format.

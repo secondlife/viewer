@@ -255,6 +255,9 @@ public:
 
 	// Src and dst are same size.  Src has 4 components.  Dst has 3 components.
 	void compositeUnscaled4onto3( LLImageRaw* src );
+    
+    // Filter operations
+    void colorTransform();
 
 protected:
 	// Create an image from a local file (generally used in tools)
