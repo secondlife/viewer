@@ -185,7 +185,7 @@ LLFolderView::LLFolderView(const Params& p)
 	mAutoOpenCandidate = NULL;
 	mAutoOpenTimer.stop();
 	mKeyboardSelection = FALSE;
-	mIndentation = p.folder_indentation;
+	mIndentation = 	getParentFolder() ? getParentFolder()->getIndentation() + mLocalIndentation : 0;  
 
 	//clear label
 	// go ahead and render root folder as usual
@@ -1613,7 +1613,7 @@ void LLFolderView::update()
 	{
 		getFolderViewModel()->getFilter().clearModified();
 	}
-    
+
 	// automatically show matching items, and select first one if we had a selection
 	if (mNeedsAutoSelect)
 	{
@@ -1653,13 +1653,13 @@ void LLFolderView::update()
 
   BOOL is_visible = isInVisibleChain();
 
-  // Puts folders/items in proper positions
+  //Puts folders/items in proper positions
   // arrange() takes the model filter flag into account and call sort() if necessary (CHUI-849)
   // It also handles the open/close folder animation
-  if (is_visible)
+  if ( is_visible )
   {
     sanitizeSelection();
-    if (needsArrange())
+    if( needsArrange() )
     {
       S32 height = 0;
       S32 width = 0;

@@ -172,20 +172,19 @@ void ll_nvapi_init(NvDRSSessionHandle hSession)
 			nvapi_error(status);
 			return;
 		}
+
+        // (5) Now we apply (or save) our changes to the system
+        status = NvAPI_DRS_SaveSettings(hSession);
+        if (status != NVAPI_OK) 
+        {
+            nvapi_error(status);
+            return;
+        }
 	}
 	else if (status != NVAPI_OK)
 	{
 		nvapi_error(status);
 		return;
-	}
-
-	
-
-	// (5) Now we apply (or save) our changes to the system
-	status = NvAPI_DRS_SaveSettings(hSession);
-	if (status != NVAPI_OK) 
-	{
-		nvapi_error(status);
 	}
 }
 

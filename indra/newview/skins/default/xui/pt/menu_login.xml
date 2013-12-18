@@ -17,7 +17,13 @@
 		<menu_item_call label="Mostrar TOS" name="TOS"/>
 		<menu_item_call label="Mostrar mensagem crítica" name="Critical"/>
 		<menu_item_call label="Test de Bugs de Conteúdo Web" name="Web Content Floater Debug Test"/>
-		<menu label="Configurar nível de registro em log" name="Set Logging Level"/>
+		<menu label="Configurar nível de registro em log" name="Set Logging Level">
+			<menu_item_check label="Depurar" name="Debug"/>
+			<menu_item_check label="Info" name="Info"/>
+			<menu_item_check label="Aviso" name="Warning"/>
+			<menu_item_check label="Erro" name="Error"/>
+			<menu_item_check label="Nenhum" name="None"/>
+		</menu>
 		<menu_item_check label="Exibir seletor da grade" name="Show Grid Picker"/>
 		<menu_item_call label="Exibir painel de notificações" name="Show Notifications Console"/>
 	</menu>

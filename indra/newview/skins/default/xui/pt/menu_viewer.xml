@@ -16,7 +16,10 @@
 			<menu_item_call label="Parar minha animação" name="Stop Animating My Avatar"/>
 			<menu_item_call label="Andar/correr/voar..." name="Walk / run / fly"/>
 		</menu>
-		<menu label="Status" name="Status"/>
+		<menu label="Status" name="Status">
+			<menu_item_check label="Ausente" name="Away"/>
+			<menu_item_check label="Não perturbe" name="Do Not Disturb"/>
+		</menu>
 		<menu_item_call label="Comprar L$..." name="Buy and Sell L$"/>
 		<menu_item_call label="Caixa de saída do lojista..." name="MerchantOutbox"/>
 		<menu_item_call label="Painel da conta..." name="Manage My Account">
@@ -32,6 +35,7 @@
 		<menu_item_check label="Conversas..." name="Conversations"/>
 		<menu_item_check label="Bate-papo local..." name="Nearby Chat"/>
 		<menu_item_check label="Falar" name="Speak"/>
+		<menu_item_check label="Registro de conversas..." name="Conversation Log..."/>
 		<menu label="Distorção de voz" name="VoiceMorphing">
 			<menu_item_check label="Não distorcer voz" name="NoVoiceMorphing"/>
 			<menu_item_check label="Visualizar..." name="Preview"/>
@@ -42,6 +46,7 @@
 		<menu_item_check label="Grupos" name="My Groups"/>
 		<menu_item_check label="Pessoas próximas" name="Active Speakers"/>
 		<menu_item_call label="Lista de bloqueados" name="Block List"/>
+		<menu_item_check label="Não perturbe" name="Do Not Disturb"/>
 	</menu>
 	<menu label="Mundo" name="World">
 		<menu_item_call label="Criar marco deste lugar" name="Create Landmark Here"/>
@@ -110,6 +115,7 @@
 			<menu_item_call label="Incluir próxima parte" name="Include Next Part"/>
 			<menu_item_call label="Incluir parte anterior" name="Include Previous Part"/>
 		</menu>
+		<menu_item_call label="Linksets..." name="pathfinding_linkset_menu_item"/>
 		<menu_item_call label="Enfocar seleção" name="Focus on Selection"/>
 		<menu_item_call label="Ampliar seleção" name="Zoom to Selection"/>
 		<menu label="Objeto:" name="Object">
@@ -273,6 +279,7 @@
 			<menu_item_check label="Camera Offset" name="Camera Offset"/>
 			<menu_item_check label="Taxa de quadros aleatória" name="Randomize Framerate"/>
 			<menu_item_check label="Frame Test" name="Frame Test"/>
+			<menu_item_call label="Perfil do quadro" name="Frame Profile"/>
 		</menu>
 		<menu label="Render Metadata" name="Render Metadata">
 			<menu_item_check label="Normais" name="Normals"/>
@@ -293,15 +300,15 @@
 		</menu>
 		<menu label="Rendering" name="Rendering">
 			<menu_item_check label="Axes" name="Axes"/>
+			<menu_item_call label="Informações sobre o material selecionado" name="Selected Material Info"/>
 			<menu_item_check label="Wireframe" name="Wireframe"/>
-			<menu_item_check label="Iluminação e sombras" name="Advanced Lighting Model"/>
+			<menu_item_check label="Modelo avançado de luzes" name="Advanced Lighting Model"/>
 			<menu_item_check label="Sombras da projeção do sol/lua" name="Shadows from Sun/Moon/Projectors"/>
 			<menu_item_check label="SSAO e sombra suave" name="SSAO and Shadow Smoothing"/>
 			<menu_item_check label="Máscaras alpha automáticas (adiadas)" name="Automatic Alpha Masks (deferred)"/>
 			<menu_item_check label="Máscaras alpha automáticas (sem adiar)" name="Automatic Alpha Masks (non-deferred)"/>
 			<menu_item_check label="Texturas de animação" name="Animation Textures"/>
 			<menu_item_check label="Desativar texturas" name="Disable Textures"/>
-			<menu_item_check label="Atlas texturizado (fase experimental)" name="Texture Atlas"/>
 			<menu_item_check label="Render Attached Lights" name="Render Attached Lights"/>
 			<menu_item_check label="Render Attached Particles" name="Render Attached Particles"/>
 			<menu_item_check label="Objetos iridescentes" name="Hover Glow Objects"/>
@@ -320,7 +327,6 @@
 			<menu_item_call label="Teste de mídia do navegador" name="Web Browser Test"/>
 			<menu_item_call label="Navegador de conteúdo web" name="Web Content Browser"/>
 			<menu_item_call label="Print Selected Object Info" name="Print Selected Object Info"/>
-			<menu_item_call label="Dados de memória" name="Memory Stats"/>
 			<menu_item_check label="Console de depuração de região" name="Region Debug Console"/>
 			<menu_item_check label="Debug Clicks" name="Debug Clicks"/>
 			<menu_item_check label="Debug Mouse Events" name="Debug Mouse Events"/>

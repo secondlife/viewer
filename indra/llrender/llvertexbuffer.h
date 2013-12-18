@@ -57,8 +57,6 @@ public:
 	static U32 sBytesPooled;
 	static U32 sIndexBytesPooled;
 	
-	static U32 sCurGLName;
-
 	LLVBOPool(U32 vboUsage, U32 vboType);
 		
 	const U32 mUsage;
@@ -86,8 +84,6 @@ public:
 		volatile U8* mClientData;
 	};
 
-	std::list<U32> mGLNamePool;
-
 	typedef std::list<Record> record_list_t;
 	std::vector<record_list_t> mFreeList;
 	std::vector<U32> mMissCount;
@@ -107,6 +103,7 @@ public:
 		S32 mType;
 		S32 mIndex;
 		S32 mCount;
+		S32 mEnd;
 		
 		MappedRegion(S32 type, S32 index, S32 count);
 	};
@@ -125,9 +122,10 @@ public:
 
 	static LLVBOPool sStreamVBOPool;
 	static LLVBOPool sDynamicVBOPool;
+	static LLVBOPool sDynamicCopyVBOPool;
 	static LLVBOPool sStreamIBOPool;
 	static LLVBOPool sDynamicIBOPool;
-
+	
 	static std::list<U32> sAvailableVAOName;
 	static U32 sCurVAOName;
 

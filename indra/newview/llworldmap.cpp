@@ -522,6 +522,17 @@ bool LLWorldMap::insertItem(U32 x_world, U32 y_world, std::string& name, LLUUID&
 
 			tooltip_fmt.setArg("[AREA]",  llformat("%d", extra));
 			tooltip_fmt.setArg("[PRICE]", llformat("%d", extra2));
+
+			// Check for division by zero
+			if (extra != 0)
+			{
+				tooltip_fmt.setArg("[SQMPRICE]", llformat("%.1f", (F32)extra2 / (F32)extra));
+			}
+			else
+			{
+				tooltip_fmt.setArg("[SQMPRICE]",  LLTrans::getString("Unknown"));
+			}
+
 			new_item.setTooltip(tooltip_fmt.getString());
 
 			if (type == MAP_ITEM_LAND_FOR_SALE)

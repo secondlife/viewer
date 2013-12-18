@@ -6,6 +6,7 @@
     <command name="speak"/>
     <command name="destinations"/>
     <command name="people"/>
+    <command name="social"/>
     <command name="profile"/>
     <command name="move"/>
     <command name="view"/>

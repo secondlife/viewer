@@ -1029,7 +1029,7 @@ BOOL LLTextBase::handleMouseDown(S32 x, S32 y, MASK mask)
 BOOL LLTextBase::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
-	if (cur_segment && cur_segment->handleMouseUp(x, y, mask))
+	if (hasMouseCapture() && cur_segment && cur_segment->handleMouseUp(x, y, mask))
 	{
 		// Did we just click on a link?
 		if (mURLClickSignal
@@ -2379,7 +2379,6 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round,
 {
 	// Figure out which line we're nearest to.
 	LLRect doc_rect = mDocumentView->getRect();
-
 	S32 doc_y = local_y - doc_rect.mBottom;
 	
 	// binary search for line that starts before local_y

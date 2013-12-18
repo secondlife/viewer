@@ -11,7 +11,7 @@
      height="20"
      default_icon_name="Generic_Person"
      layout="topleft"
-     left="5"
+     left="9"
      top="2"
      visible="false"
      width="20" />
@@ -20,7 +20,7 @@
      height="20"
      default_icon_name="Generic_Group"
      layout="topleft"
-     left="5"
+     left="9"
      top="2"
      visible="false"
      width="20" />
@@ -29,9 +29,9 @@
      height="20"
      image_name="Nearby_chat_icon"
      layout="topleft"
-     left="5"
+     left="10"
      name="nearby_chat_icon"
-     top="2"
+     top="3"
      visible="false"
      width="20"/>
     <layout_stack

@@ -185,7 +185,7 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
 		da *= spot*spot; // GL_SPOT_EXPONENT=2
 
 		//angular attenuation
-		da *= max(dot(n, lv), 0.0);
+		da *= max(dot(n, lv), 0.0);		
 
 		float lit = max(da * dist_atten,0.0);
 
@@ -458,7 +458,7 @@ void main()
 	
 	float shadow = 1.0;
 
-#if HAS_SHADOW	
+#if HAS_SHADOW
 	vec4 spos = pos;
 		
 	if (spos.z > -shadow_clip.w)
@@ -541,7 +541,7 @@ void main()
 #else
 	float final_alpha = diff.a;
 #endif
-
+	
 	// Insure we don't pollute depth with invis pixels in impostor rendering
 	//
 	if (final_alpha < 0.01)
@@ -549,7 +549,7 @@ void main()
 		discard;
 	}
 #else
-
+	
 #ifdef USE_VERTEX_COLOR
 	float final_alpha = diff.a * vertex_color.a;
 	diff.rgb *= vertex_color.rgb;
@@ -591,16 +591,16 @@ void main()
 	color.rgb *= gamma_diff.rgb;
 
 	//color.rgb = mix(diff.rgb, color.rgb, final_alpha);
-
+	
 	color.rgb = atmosLighting(color.rgb);
 	color.rgb = scaleSoftClip(color.rgb);
 
 	vec4 light = vec4(0,0,0,0);
 
 	color.rgb = srgb_to_linear(color.rgb);
-
+	
    #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, diff.rgb, pos.xyz, norm, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
-   
+
 	LIGHT_LOOP(1)
 	LIGHT_LOOP(2)
 	LIGHT_LOOP(3)

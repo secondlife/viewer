@@ -3,6 +3,7 @@
 	<menu_item_call label="Закрыть разговор" name="close_conversation"/>
 	<menu_item_call label="Открыть голосовой чат" name="open_voice_conversation"/>
 	<menu_item_call label="Прекратить голосовой чат" name="disconnect_from_voice"/>
+	<menu_item_call label="Закрыть выбранные" name="close_selected_conversations"/>
 	<menu_item_call label="Смотреть профиль" name="view_profile"/>
 	<menu_item_call label="IM" name="im"/>
 	<menu_item_call label="Предложить телепортацию" name="offer_teleport"/>

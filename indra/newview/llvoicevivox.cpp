@@ -524,25 +524,25 @@ void LLVivoxVoiceClient::requestVoiceAccountProvision(S32 retries)
 {
 	LLViewerRegion *region = gAgent.getRegion();
 	
-	if ( region && (mVoiceEnabled || !mIsInitialized))
+	// If we've not received the capability yet, return.
+	// the password will remain empty, so we'll remain in
+	// stateIdle
+	if ( region && 
+		 region->capabilitiesReceived() &&
+		 (mVoiceEnabled || !mIsInitialized))
 	{
 		std::string url = 
 		region->getCapability("ProvisionVoiceAccountRequest");
 		
-		if ( url.empty() ) 
+		if ( !url.empty() ) 
 		{
-			// we've not received the capability yet, so return.
-			// the password will remain empty, so we'll remain in
-			// stateIdle
-			return;
+			LLHTTPClient::post(
+							   url,
+							   LLSD(),
+							   new LLVivoxVoiceAccountProvisionResponder(retries));
+		
+			setState(stateConnectorStart);		
 		}
-		
-		LLHTTPClient::post(
-						   url,
-						   LLSD(),
-						   new LLVivoxVoiceAccountProvisionResponder(retries));
-		
-		setState(stateConnectorStart);		
 	}
 }
 
@@ -786,7 +786,6 @@ void LLVivoxVoiceClient::stateMachine()
 						{
 							loglevel = "0";	// turn logging off completely
 						}
-						loglevel = "0";	// turn logging off completely
 						params.args.add("-ll");
 						params.args.add(loglevel);
 						params.cwd = gDirUtilp->getAppRODataDir();
@@ -6891,6 +6890,9 @@ void LLVivoxProtocolParser::processResponse(std::string tag)
 			 </Event>
 			 */
 			// We don't need to process this, but we also shouldn't warn on it, since that confuses people.
+		}
+		else if (!stricmp(eventTypeCstr, "VoiceServiceConnectionStateChangedEvent"))  
+		{	// Yet another ignored event
 		}
 		else
 		{

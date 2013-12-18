@@ -40,11 +40,13 @@
 #include "llinventorypanel.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
+#include "llviewereventrecorder.h"
 
 // newview includes
 #include "llagent.h"
 #include "llagentaccess.h"
 #include "llagentcamera.h"
+#include "llagentui.h"
 #include "llagentwearables.h"
 #include "llagentpilot.h"
 #include "llcompilequeue.h"
@@ -52,6 +54,7 @@
 #include "lldaycyclemanager.h"
 #include "lldebugview.h"
 #include "llenvmanager.h"
+#include "llfacebookconnect.h"
 #include "llfilepicker.h"
 #include "llfirstuse.h"
 #include "llfloaterbuy.h"
@@ -1073,8 +1076,6 @@ class LLAdvancedCheckInfoDisplay : public view_listener_t
 		U32 info_display = info_display_from_string( userdata.asString() );
 		bool new_value = false;
 
-		LL_INFOS("ViewerMenu") << "check " << userdata.asString() << LL_ENDL;
-
 		if ( info_display != 0 )
 		{
 			new_value = LLPipeline::toggleRenderDebugControl( (void*)info_display );
@@ -1952,6 +1953,43 @@ class LLAdvancedDropPacket : public view_listener_t
 		return true;
 	}
 };
+
+
+////////////////////
+// EVENT Recorder //
+///////////////////
+
+
+class LLAdvancedViewerEventRecorder : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		std::string command = userdata.asString();
+		if ("start playback" == command)
+		{
+			llinfos << "Event Playback starting" << llendl;
+			LLViewerEventRecorder::instance().playbackRecording();
+			llinfos << "Event Playback completed" << llendl;
+		}
+		else if ("stop playback" == command)
+		{
+			// Future
+		}
+		else if ("start recording" == command)
+		{
+			LLViewerEventRecorder::instance().setEventLoggingOn();
+			llinfos << "Event recording started" << llendl;
+		}
+		else if ("stop recording" == command)
+		{
+			LLViewerEventRecorder::instance().setEventLoggingOff();
+			llinfos << "Event recording stopped" << llendl;
+		} 
+
+		return true;
+	}		
+};
+
 
 
 
@@ -2929,6 +2967,67 @@ bool enable_object_unmute()
 			   LLMuteList::getInstance()->isMuted(object->getID());;
 	}
 }
+
+
+// 0 = normal, 1 = always, 2 = never
+class LLAvatarCheckImpostorMode : public view_listener_t
+{	
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+		if (!object) return false;
+
+		LLVOAvatar* avatar = find_avatar_from_object(object); 
+		if (!avatar) return false;
+		
+		U32 mode = userdata.asInteger();
+		switch (mode) 
+		{
+			case 0:
+				return (avatar->getVisualMuteSettings() == LLVOAvatar::VISUAL_MUTE_NOT_SET);
+			case 1:
+				return (avatar->getVisualMuteSettings() == LLVOAvatar::ALWAYS_VISUAL_MUTE);
+			case 2:
+				return (avatar->getVisualMuteSettings() == LLVOAvatar::NEVER_VISUAL_MUTE);
+			default:
+				return false;
+		}
+	}	// handleEvent()
+};
+
+// 0 = normal, 1 = always, 2 = never
+class LLAvatarSetImpostorMode : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+		if (!object) return false;
+
+		LLVOAvatar* avatar = find_avatar_from_object(object); 
+		if (!avatar) return false;
+		
+		U32 mode = userdata.asInteger();
+		switch (mode) 
+		{
+			case 0:
+				avatar->setVisualMuteSettings(LLVOAvatar::VISUAL_MUTE_NOT_SET);
+				break;
+			case 1:
+				avatar->setVisualMuteSettings(LLVOAvatar::ALWAYS_VISUAL_MUTE);
+				break;
+			case 2:
+				avatar->setVisualMuteSettings(LLVOAvatar::NEVER_VISUAL_MUTE);
+				break;
+			default:
+				return false;
+		}
+
+		avatar->forceUpdateVisualMuteSettings();
+		LLVOAvatar::cullAvatarsByPixelArea();
+		return true;
+	}	// handleEvent()
+};
+
 
 class LLObjectMute : public view_listener_t
 {
@@ -8361,6 +8460,8 @@ void initialize_menus()
 	// Don't prepend MenuName.Foo because these can be used in any menu.
 	enable.add("IsGodCustomerService", boost::bind(&is_god_customer_service));
 
+	enable.add("displayViewerEventRecorderMenuItems",boost::bind(&LLViewerEventRecorder::displayViewerEventRecorderMenuItems,&LLViewerEventRecorder::instance()));
+
 	view_listener_t::addEnable(new LLUploadCostCalculator(), "Upload.CalculateCosts");
 
 	enable.add("Conversation.IsConversationLoggingAllowed", boost::bind(&LLFloaterIMContainer::isConversationLoggingAllowed));
@@ -8619,6 +8720,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedAgentPilot(), "Advanced.AgentPilot");
 	view_listener_t::addMenu(new LLAdvancedToggleAgentPilotLoop(), "Advanced.ToggleAgentPilotLoop");
 	view_listener_t::addMenu(new LLAdvancedCheckAgentPilotLoop(), "Advanced.CheckAgentPilotLoop");
+	view_listener_t::addMenu(new LLAdvancedViewerEventRecorder(), "Advanced.EventRecorder");
 
 	// Advanced > Debugging
 	view_listener_t::addMenu(new LLAdvancedForceErrorBreakpoint(), "Advanced.ForceErrorBreakpoint");
@@ -8681,6 +8783,8 @@ void initialize_menus()
 	view_listener_t::addMenu( new LLCheckPanelPeopleTab(), "SideTray.CheckPanelPeopleTab");
 
 	 // Avatar pie menu
+	view_listener_t::addMenu(new LLAvatarCheckImpostorMode(), "Avatar.CheckImpostorMode");
+	view_listener_t::addMenu(new LLAvatarSetImpostorMode(), "Avatar.SetImpostorMode");
 	view_listener_t::addMenu(new LLObjectMute(), "Avatar.Mute");
 	view_listener_t::addMenu(new LLAvatarAddFriend(), "Avatar.AddFriend");
 	view_listener_t::addMenu(new LLAvatarAddContact(), "Avatar.AddContact");

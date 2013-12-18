@@ -60,6 +60,7 @@ LLGLSLShader* LLDrawPoolAvatar::sVertexProgram = NULL;
 BOOL	LLDrawPoolAvatar::sSkipOpaque = FALSE;
 BOOL	LLDrawPoolAvatar::sSkipTransparent = FALSE;
 S32 LLDrawPoolAvatar::sDiffuseChannel = 0;
+F32 LLDrawPoolAvatar::sMinimumAlpha = 0.2f;
 
 
 static bool is_deferred_render = false;
@@ -283,7 +284,7 @@ void LLDrawPoolAvatar::beginPostDeferredAlpha()
 
 	gPipeline.bindDeferredShader(*sVertexProgram);
 
-	sVertexProgram->setMinimumAlpha(0.2f);
+	sVertexProgram->setMinimumAlpha(LLDrawPoolAvatar::sMinimumAlpha);
 
 	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 }
@@ -666,7 +667,7 @@ void LLDrawPoolAvatar::beginRigid()
 		if (sVertexProgram != NULL)
 		{	//eyeballs render with the specular shader
 			sVertexProgram->bind();
-			sVertexProgram->setMinimumAlpha(0.2f);
+			sVertexProgram->setMinimumAlpha(LLDrawPoolAvatar::sMinimumAlpha);
 		}
 	}
 	else
@@ -696,7 +697,7 @@ void LLDrawPoolAvatar::beginDeferredImpostor()
 	specular_channel = sVertexProgram->enableTexture(LLViewerShaderMgr::SPECULAR_MAP);
 	normal_channel = sVertexProgram->enableTexture(LLViewerShaderMgr::DEFERRED_NORMAL);
 	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
-	gPipeline.bindDeferredShader(*sVertexProgram);
+	sVertexProgram->bind();
 	sVertexProgram->setMinimumAlpha(0.01f);
 }
 
@@ -716,7 +717,7 @@ void LLDrawPoolAvatar::beginDeferredRigid()
 	sVertexProgram = &gDeferredNonIndexedDiffuseAlphaMaskNoColorProgram;
 	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 	sVertexProgram->bind();
-	sVertexProgram->setMinimumAlpha(0.2f);
+	sVertexProgram->setMinimumAlpha(LLDrawPoolAvatar::sMinimumAlpha);
 }
 
 void LLDrawPoolAvatar::endDeferredRigid()
@@ -774,7 +775,7 @@ void LLDrawPoolAvatar::beginSkinned()
 
 	if (LLGLSLShader::sNoFixedFunction)
 	{
-		sVertexProgram->setMinimumAlpha(0.2f);
+		sVertexProgram->setMinimumAlpha(LLDrawPoolAvatar::sMinimumAlpha);
 	}
 }
 
@@ -1154,7 +1155,7 @@ void LLDrawPoolAvatar::beginDeferredSkinned()
 	sRenderingSkinned = TRUE;
 
 	sVertexProgram->bind();
-	sVertexProgram->setMinimumAlpha(0.2f);
+	sVertexProgram->setMinimumAlpha(LLDrawPoolAvatar::sMinimumAlpha);
 	
 	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 	gGL.getTexUnit(0)->activate();
@@ -1463,63 +1464,63 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 }
 
 void LLDrawPoolAvatar::getRiggedGeometry(LLFace* face, LLPointer<LLVertexBuffer>& buffer, U32 data_mask, const LLMeshSkinInfo* skin, LLVolume* volume, const LLVolumeFace& vol_face)
+{
+	face->setGeomIndex(0);
+	face->setIndicesIndex(0);
+		
+	//rigged faces do not batch textures
+	face->setTextureIndex(255);
+
+	if (buffer.isNull() || buffer->getTypeMask() != data_mask || !buffer->isWriteable())
+	{ //make a new buffer
+		if (sShaderLevel > 0)
+		{
+			buffer = new LLVertexBuffer(data_mask, GL_DYNAMIC_DRAW_ARB);
+		}
+		else
+		{
+			buffer = new LLVertexBuffer(data_mask, GL_STREAM_DRAW_ARB);
+		}
+		buffer->allocateBuffer(vol_face.mNumVertices, vol_face.mNumIndices, true);
+	}
+	else
+	{ //resize existing buffer
+		buffer->resizeBuffer(vol_face.mNumVertices, vol_face.mNumIndices);
+	}
+
+	face->setSize(vol_face.mNumVertices, vol_face.mNumIndices);
+	face->setVertexBuffer(buffer);
+
+	U16 offset = 0;
+		
+	LLMatrix4 mat_vert = skin->mBindShapeMatrix;
+	glh::matrix4f m((F32*) mat_vert.mMatrix);
+	m = m.inverse().transpose();
+		
+	F32 mat3[] = 
+	{ m.m[0], m.m[1], m.m[2],
+		m.m[4], m.m[5], m.m[6],
+		m.m[8], m.m[9], m.m[10] };
+
+	LLMatrix3 mat_normal(mat3);				
+
+	//let getGeometryVolume know if alpha should override shiny
+	U32 type = gPipeline.getPoolTypeFromTE(face->getTextureEntry(), face->getTexture());
+
+	if (type == LLDrawPool::POOL_ALPHA)
 	{
-		face->setGeomIndex(0);
-		face->setIndicesIndex(0);
-		
-		//rigged faces do not batch textures
-		face->setTextureIndex(255);
-
-		if (buffer.isNull() || buffer->getTypeMask() != data_mask || !buffer->isWriteable())
-		{ //make a new buffer
-			if (sShaderLevel > 0)
-			{
-				buffer = new LLVertexBuffer(data_mask, GL_DYNAMIC_DRAW_ARB);
-			}
-			else
-			{
-				buffer = new LLVertexBuffer(data_mask, GL_STREAM_DRAW_ARB);
-			}
-			buffer->allocateBuffer(vol_face.mNumVertices, vol_face.mNumIndices, true);
-		}
-		else
-		{ //resize existing buffer
-			buffer->resizeBuffer(vol_face.mNumVertices, vol_face.mNumIndices);
-		}
-
-		face->setSize(vol_face.mNumVertices, vol_face.mNumIndices);
-		face->setVertexBuffer(buffer);
-
-		U16 offset = 0;
-		
-		LLMatrix4 mat_vert = skin->mBindShapeMatrix;
-		glh::matrix4f m((F32*) mat_vert.mMatrix);
-		m = m.inverse().transpose();
-		
-		F32 mat3[] = 
-		{ m.m[0], m.m[1], m.m[2],
-		  m.m[4], m.m[5], m.m[6],
-		  m.m[8], m.m[9], m.m[10] };
-
-		LLMatrix3 mat_normal(mat3);				
-
-		//let getGeometryVolume know if alpha should override shiny
-		U32 type = gPipeline.getPoolTypeFromTE(face->getTextureEntry(), face->getTexture());
-
-		if (type == LLDrawPool::POOL_ALPHA)
-		{
-			face->setPoolType(LLDrawPool::POOL_ALPHA);
-		}
-		else
-		{
-			face->setPoolType(LLDrawPool::POOL_AVATAR);
-		}
+		face->setPoolType(LLDrawPool::POOL_ALPHA);
+	}
+	else
+	{
+		face->setPoolType(LLDrawPool::POOL_AVATAR);
+	}
 
 	//llinfos << "Rebuilt face " << face->getTEOffset() << " of " << face->getDrawable() << " at " << gFrameTimeSeconds << llendl;
-		face->getGeometryVolume(*volume, face->getTEOffset(), mat_vert, mat_normal, offset, true);
+	face->getGeometryVolume(*volume, face->getTEOffset(), mat_vert, mat_normal, offset, true);
 
-		buffer->flush();
-	}
+	buffer->flush();
+}
 
 void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* face, const LLMeshSkinInfo* skin, LLVolume* volume, const LLVolumeFace& vol_face)
 {
@@ -1723,7 +1724,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 				
 				stop_glerror();
 
-				LLDrawPoolAvatar::sVertexProgram->uniformMatrix4fv("matrixPalette", 
+				LLDrawPoolAvatar::sVertexProgram->uniformMatrix4fv(LLViewerShaderMgr::AVATAR_MATRIX, 
 					count,
 					FALSE,
 					(GLfloat*) mat[0].mMatrix);
@@ -1800,7 +1801,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 				}
 			}
 
-			if (face->mTextureMatrix)
+			if (face->mTextureMatrix && vobj->mTexAnimMode)
 			{
 				gGL.matrixMode(LLRender::MM_TEXTURE);
 				gGL.loadMatrix((F32*) face->mTextureMatrix->mMatrix);
@@ -1814,6 +1815,8 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 				buff->setBuffer(data_mask);
 				buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);		
 			}
+
+			gPipeline.addTrianglesDrawn(count, LLRender::TRIANGLES);
 		}
 	}
 }

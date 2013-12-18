@@ -31,6 +31,7 @@
 #include <fstream>
 #include "llgl.h"
 #include "llglheaders.h"
+#include "llstaticstringtable.h"
 
 class LLPostProcess 
 {
@@ -44,7 +45,7 @@ public:
 	} QuadType;
 
 	/// GLSL Shader Encapsulation Struct
-	typedef std::map<const char *, GLuint> glslUniforms;
+	typedef LLStaticStringTable<GLuint> glslUniforms;
 
 	struct PostProcessTweaks : public LLSD {
 		inline PostProcessTweaks() : LLSD(LLSD::emptyMap())

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <role_actions>
 	<action_set description="これらの能力には、グループメンバーを追加、排除し、招待状なしに新メンバーの参加を認める権限が含まれます。" name="Membership">
 		<action description="このグループに人を招待" longdescription="「役割」セクションの「メンバー」タブ内にある「招待」ボタンを押して、このグループにメンバーを招待します。" name="member invite" value="1"/>
@@ -25,7 +25,7 @@
 	</action_set>
 	<action_set description="これらの能力には、区画名、公開設定、検索ディレクトリへの登録、着地点ならびに TP ルートのオプションを変更する権限が含まれます。" name="Parcel Identity">
 		<action description="「場所検索に表示」を切り替えカテゴリを設定" longdescription="「場所検索に表示」に切り替え、「土地情報」 &gt; 「オプション」タブで区画のカテゴリを設定します。" name="land find places" value="17"/>
-		<action description="区画名、説明、「場所検索に表示」の設定を変更" longdescription="区画名、説明、「場所検索に表示」の設定を変更します。 「土地情報」 &gt; 「オプション」タブで行います。" name="land change identity" value="18"/>
+		<action description="区画名、説明、および「Moderate コンテンツ」設定を変更" longdescription="区画名、説明、および「Moderate コンテンツ」設定を変更します。「土地情報」 &gt; 「オプション」タブで行います。" name="land change identity" value="18"/>
 		<action description="着地点およびテレポートルートを設定" longdescription="この能力を持つ役割のメンバーは、グループ所有の区画上で着地点を設定することにより外部からのテレポートの到着位置を指定できると共に、テレポートルートを設定して細かく制御することができます。 この操作は、「土地情報」＞「オプション」タブで行います。" name="land set landing point" value="19"/>
 	</action_set>
 	<action_set description="これらの能力には、「オブジェクトを作成」、「地形を編集」、音楽とメディアの設定など、区画のオプションに関連する権限が含まれます。" name="Parcel Settings">

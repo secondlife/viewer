@@ -38,22 +38,22 @@ build_dir_CYGWIN()
 
 installer_Darwin()
 {
-  ls -1td "$(build_dir_Darwin ${last_built_variant:-Release})/newview/"*.dmg 2>/dev/null | sed 1q
+  ls -1tr "$(build_dir_Darwin ${last_built_variant:-Release})/newview/"*"$additional_package_name"*.dmg 2>/dev/null | sed 1q
 }
 
 installer_Linux()
 {
-  ls -1td "$(build_dir_Linux ${last_built_variant:-Release})/newview/"*.tar.bz2 2>/dev/null | sed 1q
+  ls -1tr "$(build_dir_Linux ${last_built_variant:-Release})/newview/"*"$additional_package_name"*.tar.bz2 2>/dev/null | grep -v symbols | sed 1q
 }
 
 installer_CYGWIN()
 {
   v=${last_built_variant:-Release}
   d=$(build_dir_CYGWIN $v)
-  if [ -r "$d/newview/$v/touched.bat" ]
+  if [ -r "$d/newview/$additional_package_name$v/touched.bat" ]
   then
-    p=$(sed 's:.*=::' "$d/newview/$v/touched.bat")
-    echo "$d/newview/$v/$p"
+    p=$(sed 's:.*=::' "$d/newview/$additional_package_name$v/touched.bat")
+    echo "$d/newview/$additional_package_name$v/$p"
   fi
 }
 
@@ -347,17 +347,34 @@ then
   if $build_viewer
   then
     begin_section Upload Installer
-    # Upload installer - note that ONLY THE FIRST ITEM uploaded as "installer"
-    # will appear in the version manager.
+    # Upload installer
     package=$(installer_$arch)
     if [ x"$package" = x ] || test -d "$package"
     then
       # Coverity doesn't package, so it's ok, anything else is fail
       succeeded=$build_coverity
     else
+      # Upload base package.
       upload_item installer "$package" binary/octet-stream
       upload_item quicklink "$package" binary/octet-stream
       [ -f $build_dir/summary.json ] && upload_item installer $build_dir/summary.json text/plain
+
+      # Upload additional packages.
+      for package_id in $additional_packages
+      do
+        case $arch in
+        CYGWIN) export additional_package_name="$package_id/" ;;
+        *) export additional_package_name=$package_id ;;
+        esac
+        package=$(installer_$arch)
+        if [ x"$package" != x ]
+        then
+          upload_item installer "$package" binary/octet-stream
+        else
+          record_failure "Failed to upload $package_id package ($package::$additional_package_name)."
+        fi
+      done
+      export additional_package_name=""
 
       case "$last_built_variant" in
       Release)

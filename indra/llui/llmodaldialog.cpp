@@ -34,7 +34,7 @@
 #include "llui.h"
 #include "llwindow.h"
 #include "llkeyboard.h"
-
+#include "llmenugl.h"
 // static
 std::list<LLModalDialog*> LLModalDialog::sModalStack;
 
@@ -161,6 +161,18 @@ void LLModalDialog::setVisible( BOOL visible )
 
 BOOL LLModalDialog::handleMouseDown(S32 x, S32 y, MASK mask)
 {
+	LLView* popup_menu = LLMenuGL::sMenuContainer->getVisibleMenu();
+	if (popup_menu != NULL)
+	{
+		S32 mx, my;
+		LLUI::getMousePositionScreen(&mx, &my);
+		LLRect menu_screen_rc = popup_menu->calcScreenRect();
+		if(!menu_screen_rc.pointInRect(mx, my))
+		{
+			LLMenuGL::sMenuContainer->hideMenus();
+		}
+	}
+
 	if (mModal)
 	{
 		if (!LLFloater::handleMouseDown(x, y, mask))
@@ -173,6 +185,8 @@ BOOL LLModalDialog::handleMouseDown(S32 x, S32 y, MASK mask)
 	{
 		LLFloater::handleMouseDown(x, y, mask);
 	}
+
+
 	return TRUE;
 }
 
@@ -183,6 +197,22 @@ BOOL LLModalDialog::handleHover(S32 x, S32 y, MASK mask)
 		getWindow()->setCursor(UI_CURSOR_ARROW);
 		lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << llendl;		
 	}
+
+	LLView* popup_menu = LLMenuGL::sMenuContainer->getVisibleMenu();
+	if (popup_menu != NULL)
+	{
+		S32 mx, my;
+		LLUI::getMousePositionScreen(&mx, &my);
+		LLRect menu_screen_rc = popup_menu->calcScreenRect();
+		if(menu_screen_rc.pointInRect(mx, my))
+		{
+			S32 local_x = mx - popup_menu->getRect().mLeft;
+			S32 local_y = my - popup_menu->getRect().mBottom;
+			popup_menu->handleHover(local_x, local_y, mask);
+			gFocusMgr.setMouseCapture(NULL);
+		}
+	}
+
 	return TRUE;
 }
 
@@ -210,6 +240,7 @@ BOOL LLModalDialog::handleDoubleClick(S32 x, S32 y, MASK mask)
 
 BOOL LLModalDialog::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
+	LLMenuGL::sMenuContainer->hideMenus();
 	childrenHandleRightMouseDown(x, y, mask);
 	return TRUE;
 }

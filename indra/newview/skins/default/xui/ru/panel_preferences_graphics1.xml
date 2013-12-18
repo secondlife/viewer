@@ -25,14 +25,14 @@
 		<text name="ShadersText">
 			Шейдеры:
 		</text>
-		<check_box initial_value="истина" label="Прозрачность воды" name="TransparentWater"/>
-		<check_box initial_value="истина" label="Рельефность и сияние" name="BumpShiny"/>
-		<check_box initial_value="истина" label="Локальный свет" name="LocalLights"/>
-		<check_box initial_value="истина" label="Базовые шейдеры" name="BasicShaders" tool_tip="Отключение этого параметра может предотвратить зависание некоторых видеокарт"/>
-		<check_box initial_value="истина" label="Атмосферные шейдеры" name="WindLightUseAtmosShaders"/>
-		<check_box initial_value="истина" label="Освещение и тени" name="UseLightShaders"/>
-		<check_box initial_value="истина" label="Объемный свет" name="UseSSAO"/>
-		<check_box initial_value="истина" label="Глубина поля" name="UseDoF"/>
+		<check_box initial_value="true" label="Прозрачность воды" name="TransparentWater"/>
+		<check_box initial_value="true" label="Рельефность и сияние" name="BumpShiny"/>
+		<check_box initial_value="true" label="Локальный свет" name="LocalLights"/>
+		<check_box initial_value="true" label="Базовые шейдеры" name="BasicShaders" tool_tip="Отключение этого параметра может предотвратить зависание некоторых видеокарт"/>
+		<check_box initial_value="true" label="Атмосферные шейдеры" name="WindLightUseAtmosShaders"/>
+		<check_box initial_value="true" label="Расширенная модель освещения" name="UseLightShaders"/>
+		<check_box initial_value="true" label="Объемный свет" name="UseSSAO"/>
+		<check_box initial_value="true" label="Глубина поля" name="UseDoF"/>
 		<text name="shadows_label">
 			Тени:
 		</text>
@@ -95,9 +95,9 @@
 		<text name="AvatarRenderingText">
 			Отрисовка аватара:
 		</text>
-		<check_box initial_value="истина" label="Плоские аватары" name="AvatarImpostors"/>
-		<check_box initial_value="истина" label="Аппаратная отрисовка" name="AvatarVertexProgram"/>
-		<check_box initial_value="истина" label="Одежда аватара" name="AvatarCloth"/>
+		<check_box initial_value="true" label="Плоские аватары" name="AvatarImpostors"/>
+		<check_box initial_value="true" label="Аппаратная отрисовка" name="AvatarVertexProgram"/>
+		<check_box initial_value="true" label="Одежда аватара" name="AvatarCloth"/>
 		<text name="TerrainDetailText">
 			Ландшафт:
 		</text>

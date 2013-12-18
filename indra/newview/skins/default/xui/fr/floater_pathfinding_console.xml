@@ -71,7 +71,7 @@
 			<text name="show_label">
 				Afficher :
 			</text>
-			<check_box label="Test" name="show_world"/>
+			<check_box label="Monde" name="show_world"/>
 			<check_box label="Mobiles uniquement" name="show_world_movables_only"/>
 			<check_box label="Maillage de navigation" name="show_navmesh"/>
 			<text name="show_walkability_label">

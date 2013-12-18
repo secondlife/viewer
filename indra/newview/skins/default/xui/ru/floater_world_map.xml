@@ -35,7 +35,7 @@
 		<text name="pg_label">
 			Общие
 		</text>
-		<check_box initial_value="истина" name="events_mature_chk"/>
+		<check_box initial_value="true" name="events_mature_chk"/>
 		<text name="events_mature_label">
 			Умеренные
 		</text>

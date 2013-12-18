@@ -139,6 +139,9 @@
 	<string name="create_account_url">
 		http://join.secondlife.com/?sourceid=[sourceid]
 	</string>
+	<string name="ViewerDownloadURL">
+		http://secondlife.com/download
+	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		你目前所用的 Viewer 已經無法再進入第二人生。 請到這個頁面下載最新 Viewer：
 http://secondlife.com/download
@@ -442,6 +445,9 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="SLappAgentRequestFriend">
 		交友要求
+	</string>
+	<string name="SLappAgentRemoveFriend">
+		移除朋友
 	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
 		關閉（⌘W）
@@ -830,6 +836,9 @@ http://secondlife.com/viewer-access-faq
 	<string name="multiple_textures">
 		多個
 	</string>
+	<string name="use_texture">
+		使用材質
+	</string>
 	<string name="texture_loading">
 		載入中...
 	</string>
@@ -928,6 +937,21 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="TeleportYourAgent">
 		瞬間傳送你本人
+	</string>
+	<string name="JoinAnExperience">
+		加入體驗
+	</string>
+	<string name="SilentlyManageEstateAccess">
+		管理領出入許可名單時，不顯示警示
+	</string>
+	<string name="OverrideYourAnimations">
+		替換你預設的動作
+	</string>
+	<string name="ScriptReturnObjects">
+		為你送返物件
+	</string>
+	<string name="UnknownScriptPermission">
+		（未知）！
 	</string>
 	<string name="SIM_ACCESS_PG">
 		一般普級
@@ -1960,6 +1984,12 @@ http://secondlife.com/viewer-access-faq
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		擡頭顯示右下
 	</string>
+	<string name="ATTACH_NECK">
+		頸部
+	</string>
+	<string name="ATTACH_AVATAR_CENTER">
+		化身中心
+	</string>
 	<string name="CursorPos">
 		橫行 [LINE]，縱列 [COLUMN]
 	</string>
@@ -2988,6 +3018,9 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="Hip Width">
 		腰寬
+	</string>
+	<string name="Hover">
+		停懸
 	</string>
 	<string name="In">
 		向內
@@ -5084,5 +5117,8 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="logging_calls_enabled_log_empty">
 		目前沒有交談記錄。 在你聯絡某人或某人聯絡你之後，這裡將留存記錄。
+	</string>
+	<string name="loading_chat_logs">
+		載入中…
 	</string>
 </strings>

@@ -194,7 +194,7 @@ bool LLRenderTarget::addColorAttachment(U32 color_fmt)
 	}
 
 	U32 tex;
-	LLImageGL::generateTextures(mUsage, color_fmt, 1, &tex);
+	LLImageGL::generateTextures(1, &tex);
 	gGL.getTexUnit(0)->bindManual(mUsage, tex);
 
 	stop_glerror();
@@ -262,7 +262,7 @@ bool LLRenderTarget::addColorAttachment(U32 color_fmt)
 	}
 #endif
     
-
+    
 	return true;
 }
 
@@ -280,7 +280,7 @@ bool LLRenderTarget::allocateDepth()
 	}
 	else
 	{
-		LLImageGL::generateTextures(mUsage, GL_DEPTH_COMPONENT24, 1, &mDepth);
+		LLImageGL::generateTextures(1, &mDepth);
 		gGL.getTexUnit(0)->bindManual(mUsage, mDepth);
 		
 		U32 internal_type = LLTexUnit::getInternalType(mUsage);
@@ -357,7 +357,7 @@ void LLRenderTarget::release()
 		}
 		else
 		{
-			LLImageGL::deleteTextures(mUsage, 0, 0, 1, &mDepth, true);
+			LLImageGL::deleteTextures(1, &mDepth);
 			stop_glerror();
 		}
 		mDepth = 0;
@@ -394,7 +394,7 @@ void LLRenderTarget::release()
 			sBytesAllocated -= mResX*mResY*4;
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+z, LLTexUnit::getInternalType(mUsage), 0, 0);
 			stop_glerror();
-			LLImageGL::deleteTextures(mUsage, mInternalFormat[z], 0, 1, &mTex[z], true);
+			LLImageGL::deleteTextures(1, &mTex[z]);
 		}
 	}
 
@@ -408,12 +408,12 @@ void LLRenderTarget::release()
 	if (mTex.size() > 0)
 	{
 		sBytesAllocated -= mResX*mResY*4;
-		LLImageGL::deleteTextures(mUsage, mInternalFormat[0], 0, 1, &mTex[0], true);
+		LLImageGL::deleteTextures(1, &mTex[0]);
 	}
 
-	mTex.clear();
-	mInternalFormat.clear();
-
+		mTex.clear();
+		mInternalFormat.clear();
+	
 	mResX = mResY = 0;
 
 	sBoundTarget = NULL;
@@ -494,6 +494,12 @@ U32 LLRenderTarget::getTexture(U32 attachment) const
 	}
 	return mTex[attachment];
 }
+
+U32 LLRenderTarget::getNumTextures() const
+{
+	return mTex.size();
+}
+
 
 void LLRenderTarget::bindTexture(U32 index, S32 channel)
 {
