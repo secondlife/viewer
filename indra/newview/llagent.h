@@ -271,13 +271,13 @@ private:
 	 *       // you may or may not want to remove that callback
 	 * 	 }
 	 */
-	typedef boost::function<void()> region_changed_callback_t;
-	boost::signals2::connection     addRegionChangedCallback(region_changed_callback_t);
+	typedef boost::signals2::signal<void()> region_changed_signal_t;
+
+	boost::signals2::connection     addRegionChangedCallback(const region_changed_signal_t::slot_type& cb);
 	void                            removeRegionChangedCallback(boost::signals2::connection callback);
 
   private:
 	LLViewerRegion	*mRegionp;
-	typedef boost::signals2::signal<void()> region_changed_signal_t;
 	region_changed_signal_t		            mRegionChangedSignal;
 
 	//--------------------------------------------------------------------

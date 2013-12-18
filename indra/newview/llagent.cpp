@@ -976,7 +976,7 @@ LLHost LLAgent::getRegionHost() const
 	}
 }
 
-boost::signals2::connection LLAgent::addRegionChangedCallback(region_changed_callback_t cb)
+boost::signals2::connection LLAgent::addRegionChangedCallback(const region_changed_signal_t::slot_type& cb)
 {
 	return mRegionChangedSignal.connect(cb);
 }
