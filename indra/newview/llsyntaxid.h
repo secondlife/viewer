@@ -111,6 +111,7 @@ protected:
 	std::string		buildFileNameNew();
 	std::string		buildFullFileSpec();
 	void			fetchKeywordsFile();
+	void			loadDefaultKeywordsIntoLLSD(const std::string message);
 	bool			loadKeywordsIntoLLSD();
 	void			setSyntaxId(LLUUID SyntaxId) { mSyntaxIdCurrent = SyntaxId; }
 	void			setFileNameCurrent(std::string& name) { mFileNameCurrent = name; }

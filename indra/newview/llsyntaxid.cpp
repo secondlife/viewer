@@ -96,16 +96,7 @@ LLSD LLSyntaxIdLSL::sKeywordsXml;
 
 std::string LLSyntaxIdLSL::buildFileNameNew()
 {
-	std::string filename = "keywords_lsl_";
-	if (!mSyntaxIdNew.isNull())
-	{
-		filename += gLastVersionChannel + "_" + mSyntaxIdNew.asString();
-	}
-	else
-	{
-		filename += mFileNameDefault;
-	}
-	mFileNameNew = filename + ".llsd.xml";
+	mFileNameNew = mSyntaxIdNew.isNull() ? mFileNameDefault : "keywords_lsl_" + gLastVersionChannel + "_" + mSyntaxIdNew.asString() + ".llsd.xml";
 	return mFileNameNew;
 }
 
@@ -204,6 +195,8 @@ void LLSyntaxIdLSL::fetchKeywordsFile()
 
 void LLSyntaxIdLSL::initialise()
 {
+	mFileNameNew = mFileNameCurrent;
+	mSyntaxIdNew = mSyntaxIdCurrent;
 	if (checkSyntaxIdChanged())
 	{
 		LL_INFOS("SyntaxLSL")
@@ -231,20 +224,33 @@ void LLSyntaxIdLSL::initialise()
 		}
 		else
 		{ // Need to open the default
-			LL_INFOS("SyntaxLSL")
-					<< "LSLSyntaxId is null so we will use the default file!"
-					<< LL_ENDL;
-			loadKeywordsIntoLLSD();
+			loadDefaultKeywordsIntoLLSD("LSLSyntaxId is null so we will use the default file!");
 		}
-		mFileNameCurrent = mFileNameNew;
-		mSyntaxIdCurrent = mSyntaxIdNew;
 	}
-	else
+	else if (sKeywordsXml.isDefined())
 	{
 		LL_INFOS("SyntaxLSL")
 				<< "No change to Syntax! Nothing to see. Move along now!"
 				<< LL_ENDL;
 	}
+	else
+	{ // Need to open the default
+		loadDefaultKeywordsIntoLLSD("LSLSyntaxId is null so we will use the default file!");
+	}
+
+	mFileNameCurrent = mFileNameNew;
+	mSyntaxIdCurrent = mSyntaxIdNew;
+}
+
+//-----------------------------------------------------------------------------
+// loadDefaultKeywordsIntoLLSD()
+//-----------------------------------------------------------------------------
+void LLSyntaxIdLSL::loadDefaultKeywordsIntoLLSD(const std::string message)
+{
+	LL_INFOS("SyntaxLSL") << message << LL_ENDL;
+	mSyntaxIdNew = LLUUID();
+	buildFullFileSpec();
+	loadKeywordsIntoLLSD();
 }
 
 //-----------------------------------------------------------------------------
