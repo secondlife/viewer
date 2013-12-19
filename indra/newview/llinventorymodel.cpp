@@ -1514,7 +1514,7 @@ void LLInventoryModel::fetchInventoryResponder::httpSuccess()
 		LLPointer<LLViewerInventoryItem> titem = new LLViewerInventoryItem;
 		titem->unpackMessage(content["items"][i]);
 		
-		lldebugs << "LLInventoryModel::messageUpdateCore() item id:"
+		lldebugs << "LLInventoryModel::fetchInventoryResponder item id: "
 				 << titem->getUUID() << llendl;
 		items.push_back(titem);
 		// examine update for changes.
@@ -2617,7 +2617,7 @@ void LLInventoryModel::registerCallbacks(LLMessageSystem* msg)
 void LLInventoryModel::processUpdateCreateInventoryItem(LLMessageSystem* msg, void**)
 {
 	// do accounting and highlight new items if they arrive
-	if (gInventory.messageUpdateCore(msg, true))
+	if (gInventory.messageUpdateCore(msg, true, LLInventoryObserver::UPDATE_CREATE))
 	{
 		U32 callback_id;
 		LLUUID item_id;
@@ -2637,7 +2637,7 @@ void LLInventoryModel::processFetchInventoryReply(LLMessageSystem* msg, void**)
 }
 
 
-bool LLInventoryModel::messageUpdateCore(LLMessageSystem* msg, bool account)
+bool LLInventoryModel::messageUpdateCore(LLMessageSystem* msg, bool account, U32 mask)
 {
 	//make sure our added inventory observer is active
 	start_new_inventory_observer();
@@ -2691,7 +2691,10 @@ bool LLInventoryModel::messageUpdateCore(LLMessageSystem* msg, bool account)
 	}
 
 	U32 changes = 0x0;
-	U32 mask = account ? LLInventoryObserver::CREATE : 0x0;
+	if (account)
+	{
+		mask |= LLInventoryObserver::CREATE;
+	}
 	//as above, this loop never seems to loop more than once per call
 	for (item_array_t::iterator it = items.begin(); it != items.end(); ++it)
 	{

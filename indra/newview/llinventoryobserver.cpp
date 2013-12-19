@@ -465,9 +465,13 @@ void LLInventoryFetchComboObserver::startFetch()
 	mFetchDescendents->startFetch();
 }
 
+// See comment preceding LLInventoryAddedObserver::changed() for some
+// concerns that also apply to this observer.
 void LLInventoryAddItemByAssetObserver::changed(U32 mask)
 {
-	if(!(mask & LLInventoryObserver::ADD) || !(mask & LLInventoryObserver::CREATE))
+	if(!(mask & LLInventoryObserver::ADD) ||
+	   !(mask & LLInventoryObserver::CREATE) ||
+	   !(mask & LLInventoryObserver::UPDATE_CREATE))
 	{
 		return;
 	}
@@ -526,9 +530,23 @@ bool LLInventoryAddItemByAssetObserver::isAssetWatched( const LLUUID& asset_id )
 	return std::find(mWatchedAssets.begin(), mWatchedAssets.end(), asset_id) != mWatchedAssets.end();
 }
 
+// This observer used to explicitly check for whether it was being
+// called as a result of an UpdateCreateInventoryItem message. It has
+// now been decoupled enough that it's not actually checking the
+// message system, but now we have the special UPDATE_CREATE flag
+// being used for the same purpose. Fixing this, as we would need to
+// do to get rid of the message, is somewhat subtle because there's no
+// particular obvious criterion for when creating a new item should
+// trigger this observer and when it shouldn't. For example, creating
+// a new notecard with new->notecard causes a preview window to pop up
+// via the derived class LLOpenTaskOffer, but creating a new notecard
+// by copy and paste does not, solely because one goes through
+// UpdateCreateInventoryItem and the other doesn't.
 void LLInventoryAddedObserver::changed(U32 mask)
 {
-	if (!(mask & LLInventoryObserver::ADD) || !(mask & LLInventoryObserver::CREATE))
+	if (!(mask & LLInventoryObserver::ADD) ||
+		!(mask & LLInventoryObserver::CREATE) ||
+		!(mask & LLInventoryObserver::UPDATE_CREATE))
 	{
 		return;
 	}

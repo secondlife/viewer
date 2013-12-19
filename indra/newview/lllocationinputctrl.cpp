@@ -140,7 +140,11 @@ public:
 private:
 	/*virtual*/ void changed(U32 mask)
 	{
-		if (mask & (~(LLInventoryObserver::LABEL|LLInventoryObserver::INTERNAL|LLInventoryObserver::ADD|LLInventoryObserver::CREATE)))
+		if (mask & (~(LLInventoryObserver::LABEL|
+					  LLInventoryObserver::INTERNAL|
+					  LLInventoryObserver::ADD|
+					  LLInventoryObserver::CREATE|
+					  LLInventoryObserver::UPDATE_CREATE)))
 		{
 			mInput->updateAddLandmarkButton();
 		}

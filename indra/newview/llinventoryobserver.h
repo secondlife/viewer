@@ -59,6 +59,8 @@ public:
 		REBUILD 		= 128, 	// Item UI changed (e.g. item type different)
 		SORT 			= 256, 	// Folder needs to be resorted.
 		CREATE			= 512,  // With ADD, item has just been created.
+		// unfortunately a particular message is still associated with some unique semantics.
+		UPDATE_CREATE	= 1024,  // With ADD, item added via UpdateCreateInventoryItem
 		ALL 			= 0xffffffff
 	};
 	LLInventoryObserver();
