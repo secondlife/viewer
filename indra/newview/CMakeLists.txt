@@ -659,7 +659,6 @@ set(viewer_SOURCE_FILES
     llwearablelist.cpp
     llweb.cpp
     llwebprofile.cpp
-    llwebsharing.cpp
     llwind.cpp
     llwindowlistener.cpp
     llwlanimator.cpp
@@ -1238,7 +1237,6 @@ set(viewer_HEADER_FILES
     llwearablelist.h
     llweb.h
     llwebprofile.h
-    llwebsharing.h
     llwind.h
     llwindowlistener.h
     llwlanimator.h
