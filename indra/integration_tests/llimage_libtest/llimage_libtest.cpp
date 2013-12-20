@@ -83,6 +83,9 @@ static const char USAGE[] = "\n"
 " -rev, --reversible\n"
 "        Set the compression to be lossless (reversible in j2c parlance).\n"
 "        Only valid for output j2c images.\n"
+" -f, --filter <name>\n"
+"        Apply the filter <name> to the input images.\n"
+"        Note: so far, only grayscale and sepia are supported.\n"
 " -log, --logmetrics <metric>\n"
 "        Log performance data for <metric>. Results in <metric>.slp\n"
 "        Note: so far, only ImageCompressionTester has been tested.\n"
@@ -350,6 +353,7 @@ int main(int argc, char** argv)
 	int blocks_size = -1;
 	int levels = 0;
 	bool reversible = false;
+    std::string filter_name = "";
 
 	// Init whatever is necessary
 	ll_init_apr();
@@ -523,6 +527,26 @@ int main(int argc, char** argv)
 					break;
 			}
 		}
+		else if (!strcmp(argv[arg], "--filter") || !strcmp(argv[arg], "-f"))
+		{
+			// '--filter' needs to be specified with a named filter argument
+			// Note: for the moment, only sepia and grayscale are supported
+			if ((arg + 1) < argc)
+			{
+				filter_name = argv[arg+1];
+			}
+			if (((arg + 1) >= argc) || (filter_name[0] == '-'))
+			{
+				// We don't have an argument left in the arg list or the next argument is another option
+				std::cout << "No --filter argument given, no filter will be applied" << std::endl;
+			}
+			else
+			{
+				arg += 1;					// Skip that arg now we know it's a valid test name
+				if ((arg + 1) == argc)		// Break out of the loop if we reach the end of the arg list
+					break;
+			}
+		}
 		else if (!strcmp(argv[arg], "--analyzeperformance") || !strcmp(argv[arg], "-a"))
 		{
 			analyze_performance = true;
@@ -568,6 +592,16 @@ int main(int argc, char** argv)
 			std::cout << "Error: Image " << *in_file << " could not be loaded" << std::endl;
 			continue;
 		}
+        
+        // Apply filter if any
+        if (filter_name == "sepia")
+        {
+            raw_image->filterSepia();
+        }
+        else if (filter_name == "grayscale")
+        {
+            raw_image->filterGrayScale();
+        }
 	
 		// Save file
 		if (out_file != out_end)

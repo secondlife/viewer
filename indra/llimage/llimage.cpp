@@ -30,6 +30,8 @@
 
 #include "llmath.h"
 #include "v4coloru.h"
+#include "m3math.h"
+#include "v3math.h"
 
 #include "llimagebmp.h"
 #include "llimagetga.h"
@@ -933,22 +935,42 @@ BOOL LLImageRaw::scale( S32 new_width, S32 new_height, BOOL scale_image_data )
 	return TRUE ;
 }
 
-// *TODO : Implement real color transform
-// Merov : This is temporary code for testing... 
-void LLImageRaw::colorTransform()
+// Filter Operations
+void LLImageRaw::filterGrayScale()
+{
+    LLMatrix3 gray_scale;
+    LLVector3 luminosity(0.2125, 0.7154, 0.0721);
+    gray_scale.setRows(luminosity, luminosity, luminosity);
+    gray_scale.transpose();
+    colorTransform(gray_scale);
+}
+
+void LLImageRaw::filterSepia()
+{
+    LLMatrix3 sepia;
+    sepia.setRows(LLVector3(0.3588, 0.7044, 0.1368),
+                  LLVector3(0.2990, 0.5870, 0.1140),
+                  LLVector3(0.2392, 0.4696, 0.0912));
+    sepia.transpose();
+    colorTransform(sepia);
+}
+
+// Filter Primitives
+void LLImageRaw::colorTransform(const LLMatrix3 &transform)
 {
 	const S32 components = getComponents();
 	llassert( components >= 1 && components <= 4 );
     
 	S32 pixels = getWidth() * getHeight();
 	U8* dst_data = getData();
-    llinfos << "Merov : Convert the image to Black and White!!! pixels = " << pixels << ", comp = " << components << llendl;
 	for( S32 i=0; i<pixels; i++ )
 	{
-        U8 gray = (U8)(((U32)(dst_data[0]) + (U32)(dst_data[1]) + (U32)(dst_data[2]))/3);
-		dst_data[0] = gray;
-		dst_data[1] = gray;
-		dst_data[2] = gray;
+        LLVector3 src((F32)(dst_data[VRED]),(F32)(dst_data[VGREEN]),(F32)(dst_data[VBLUE]));
+        LLVector3 dst = src * transform;
+        dst.clamp(0.0f,255.0f);
+		dst_data[VRED]   = dst.mV[VRED];
+		dst_data[VGREEN] = dst.mV[VGREEN];
+		dst_data[VBLUE]  = dst.mV[VBLUE];
 		dst_data += components;
 	}
 }

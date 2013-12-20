@@ -589,7 +589,7 @@ void LLSnapshotLivePreview::generateThumbnailImage(BOOL force_update)
         // Merov : Filter also the thumbnail?
         if (getFilter() == 1)
         {
-            raw->colorTransform();
+            raw->filterGrayScale();
         }
 		mThumbnailImage = LLViewerTextureManager::getLocalTexture(raw.get(), FALSE);
 		mThumbnailUpToDate = TRUE ;
@@ -698,7 +698,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
             // Merov : Time to apply the filter to mPreviewImage!!!
             if (previewp->getFilter() == 1)
             {
-                previewp->mPreviewImage->colorTransform();
+                previewp->mPreviewImage->filterGrayScale();
             }
             
 			// delete any existing image

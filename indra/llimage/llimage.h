@@ -71,6 +71,7 @@ const S32 HTTP_PACKET_SIZE = 1496;
 class LLImageFormatted;
 class LLImageRaw;
 class LLColor4U;
+class LLMatrix3;
 class LLPrivateMemoryPool;
 
 typedef enum e_image_codec
@@ -256,8 +257,11 @@ public:
 	// Src and dst are same size.  Src has 4 components.  Dst has 3 components.
 	void compositeUnscaled4onto3( LLImageRaw* src );
     
-    // Filter operations
-    void colorTransform();
+    // Filter Operations
+    void filterGrayScale();
+    void filterSepia();
+    // Filter Primitives
+    void colorTransform(const LLMatrix3 &transform);
 
 protected:
 	// Create an image from a local file (generally used in tools)
