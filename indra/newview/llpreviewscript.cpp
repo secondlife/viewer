@@ -518,6 +518,10 @@ void LLScriptEdCore::initMenu()
 	menuItem->setClickCallback(boost::bind(&LLTextEditor::selectAll, mEditor));
 	menuItem->setEnableCallback(boost::bind(&LLTextEditor::canSelectAll, mEditor));
 
+	menuItem = getChild<LLMenuItemCallGL>("Deselect");
+	menuItem->setClickCallback(boost::bind(&LLTextEditor::deselect, mEditor));
+	menuItem->setEnableCallback(boost::bind(&LLTextEditor::canDeselect, mEditor));
+
 	menuItem = getChild<LLMenuItemCallGL>("Search / Replace...");
 	menuItem->setClickCallback(boost::bind(&LLFloaterScriptSearch::show, this));
 
