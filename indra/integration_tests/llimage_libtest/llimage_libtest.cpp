@@ -602,6 +602,10 @@ int main(int argc, char** argv)
         {
             raw_image->filterGrayScale();
         }
+        else if (filter_name == "saturate")
+        {
+            raw_image->filterSaturate(2.0f);
+        }
 	
 		// Save file
 		if (out_file != out_end)

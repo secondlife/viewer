@@ -260,6 +260,7 @@ public:
     // Filter Operations
     void filterGrayScale();
     void filterSepia();
+    void filterSaturate(F32 s);
     // Filter Primitives
     void colorTransform(const LLMatrix3 &transform);
 

@@ -955,6 +955,37 @@ void LLImageRaw::filterSepia()
     colorTransform(sepia);
 }
 
+void LLImageRaw::filterSaturate(F32 saturation)
+{
+    // Matrix to Lij
+    LLMatrix3 r_a;
+    LLMatrix3 r_b;
+
+    // 45 degre rotation around z
+    r_a.setRows(LLVector3(0.7071,  0.7071, 0.0),
+                LLVector3(-0.7071,  0.7071, 0.0),
+                LLVector3(0.0,     0.0,    1.0));
+    // 54.73 degre rotation around y
+    r_b.setRows(LLVector3(0.5773,  0.0, -0.8165),
+                LLVector3(0.0,     1.0,  0.0),
+                LLVector3(0.8165,  0.0,  0.5773));
+
+    // Coordinate conversion
+    LLMatrix3 Lij = r_b * r_a;
+    LLMatrix3 Lij_inv = Lij;
+    Lij_inv.transpose();
+    
+    // Local saturation transform
+    LLMatrix3 s;
+    s.setRows(LLVector3(saturation, 0.0,  0.0),
+              LLVector3(0.0,  saturation, 0.0),
+              LLVector3(0.0,        0.0,  1.0));
+
+    // Global saturation transform
+    LLMatrix3 transfo = Lij_inv * s * Lij;
+    colorTransform(transfo);
+}
+
 // Filter Primitives
 void LLImageRaw::colorTransform(const LLMatrix3 &transform)
 {
