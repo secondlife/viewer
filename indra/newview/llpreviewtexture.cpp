@@ -131,7 +131,7 @@ BOOL LLPreviewTexture::postBuild()
 
 	// Fill in ratios list with common aspect ratio values
 	mRatiosList.clear();
-	mRatiosList.push_back("Unconstrained");
+	mRatiosList.push_back(LLTrans::getString("Unconstrained"));
 	mRatiosList.push_back("1:1");
 	mRatiosList.push_back("4:3");
 	mRatiosList.push_back("10:7");
@@ -142,6 +142,7 @@ BOOL LLPreviewTexture::postBuild()
 	
 	// Now fill combo box with provided list
 	LLComboBox* combo = getChild<LLComboBox>("combo_aspect_ratio");
+	combo->removeall();
 
 	for (std::vector<std::string>::const_iterator it = mRatiosList.begin(); it != mRatiosList.end(); ++it)
 	{
