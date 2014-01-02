@@ -97,7 +97,11 @@ LLImageBase::LLImageBase()
 	  mHeight(0),
 	  mComponents(0),
 	  mBadBufferAllocation(false),
-	  mAllowOverSize(false)
+	  mAllowOverSize(false),
+      mHistoRed(NULL),
+      mHistoGreen(NULL),
+      mHistoBlue(NULL),
+      mHistoBrightness(NULL)
 {
 }
 
@@ -105,10 +109,14 @@ LLImageBase::LLImageBase()
 LLImageBase::~LLImageBase()
 {
 	deleteData(); // virtual
+    ll_aligned_free_16(mHistoRed);
+    ll_aligned_free_16(mHistoGreen);
+    ll_aligned_free_16(mHistoBlue);
+    ll_aligned_free_16(mHistoBrightness);
 }
 
-//static 
-void LLImageBase::createPrivatePool() 
+//static
+void LLImageBase::createPrivatePool()
 {
 	if(!sPrivatePoolp)
 	{
@@ -1022,6 +1030,18 @@ void LLImageRaw::filterRotate(F32 alpha)
     colorTransform(transfo);
 }
 
+void LLImageRaw::filterGamma(F32 gamma)
+{
+    U8 gamma_lut[256];
+    
+    for (S32 i = 0; i < 256; i++)
+    {
+        gamma_lut[i] = (U8)(255.0 * (llclampf((float)(pow((float)(i)/255.0,gamma)))));
+    }
+    
+    colorCorrect(gamma_lut,gamma_lut,gamma_lut);
+}
+
 // Filter Primitives
 void LLImageRaw::colorTransform(const LLMatrix3 &transform)
 {
@@ -1030,7 +1050,7 @@ void LLImageRaw::colorTransform(const LLMatrix3 &transform)
     
 	S32 pixels = getWidth() * getHeight();
 	U8* dst_data = getData();
-	for( S32 i=0; i<pixels; i++ )
+	for (S32 i = 0; i < pixels; i++)
 	{
         LLVector3 src((F32)(dst_data[VRED]),(F32)(dst_data[VGREEN]),(F32)(dst_data[VBLUE]));
         LLVector3 dst = src * transform;
@@ -1038,6 +1058,70 @@ void LLImageRaw::colorTransform(const LLMatrix3 &transform)
 		dst_data[VRED]   = dst.mV[VRED];
 		dst_data[VGREEN] = dst.mV[VGREEN];
 		dst_data[VBLUE]  = dst.mV[VBLUE];
+		dst_data += components;
+	}
+}
+
+void LLImageRaw::colorCorrect(const U8* lut_red, const U8* lut_green, const U8* lut_blue)
+{
+	const S32 components = getComponents();
+	llassert( components >= 1 && components <= 4 );
+    
+	S32 pixels = getWidth() * getHeight();
+	U8* dst_data = getData();
+	for (S32 i = 0; i < pixels; i++)
+	{
+		dst_data[VRED]   = lut_red[dst_data[VRED]];
+		dst_data[VGREEN] = lut_green[dst_data[VGREEN]];
+		dst_data[VBLUE]  = lut_blue[dst_data[VBLUE]];
+		dst_data += components;
+	}
+}
+
+void LLImageRaw::computeHistograms()
+{
+ 	const S32 components = getComponents();
+	llassert( components >= 1 && components <= 4 );
+    
+    // Allocate memory for the histograms
+    if (!mHistoRed)
+    {
+        mHistoRed = (U32*) ll_aligned_malloc_16(256*sizeof(U32));
+    }
+    if (!mHistoGreen)
+    {
+        mHistoGreen = (U32*) ll_aligned_malloc_16(256*sizeof(U32));
+    }
+    if (!mHistoBlue)
+    {
+        mHistoBlue = (U32*) ll_aligned_malloc_16(256*sizeof(U32));
+    }
+    if (!mHistoBrightness)
+    {
+        mHistoBrightness = (U32*) ll_aligned_malloc_16(256*sizeof(U32));
+    }
+    
+    // Initialize them
+    for (S32 i = 0; i < 256; i++)
+    {
+        mHistoRed[i] = 0;
+        mHistoGreen[i] = 0;
+        mHistoBlue[i] = 0;
+        mHistoBrightness[i] = 0;
+    }
+    
+    // Compute them
+	S32 pixels = getWidth() * getHeight();
+	U8* dst_data = getData();
+	for (S32 i = 0; i < pixels; i++)
+	{
+        mHistoRed[dst_data[VRED]]++;
+        mHistoGreen[dst_data[VGREEN]]++;
+        mHistoBlue[dst_data[VBLUE]]++;
+        // Note: this is a very simple shorthand for brightness but it's OK for our use
+        S32 brightness = ((S32)(dst_data[VRED]) + (S32)(dst_data[VGREEN]) + (S32)(dst_data[VBLUE])) / 3;
+        mHistoBrightness[brightness]++;
+        // next pixel...
 		dst_data += components;
 	}
 }

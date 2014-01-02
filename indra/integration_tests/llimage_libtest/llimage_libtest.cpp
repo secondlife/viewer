@@ -622,6 +622,10 @@ int main(int argc, char** argv)
         {
             raw_image->filterRotate((float)(filter_param));
         }
+        else if (filter_name == "gamma")
+        {
+            raw_image->filterGamma((float)(filter_param));
+        }
 	
 		// Save file
 		if (out_file != out_end)

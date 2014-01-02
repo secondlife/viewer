@@ -151,6 +151,12 @@ protected:
 	// special accessor to allow direct setting of mData and mDataSize by LLImageFormatted
 	void setDataAndSize(U8 *data, S32 size);
 	
+    // Histograms (if we ever happen to need them)
+    U32 *mHistoRed;
+    U32 *mHistoGreen;
+    U32 *mHistoBlue;
+    U32 *mHistoBrightness;
+    
 public:
 	static void generateMip(const U8 *indata, U8* mipdata, int width, int height, S32 nchannels);
 	
@@ -262,8 +268,11 @@ public:
     void filterSepia();
     void filterSaturate(F32 saturation);    // < 1.0 desaturates, > 1.0 saturates
     void filterRotate(F32 alpha);           // rotates hue, alpha in degrees
+    void filterGamma(F32 gamma);            // Apply a gamma lookup to all channels
+    
     // Filter Primitives
     void colorTransform(const LLMatrix3 &transform);
+    void colorCorrect(const U8* lut_red, const U8* lut_green, const U8* lut_blue);
 
 protected:
 	// Create an image from a local file (generally used in tools)
@@ -275,6 +284,8 @@ protected:
 	U8	fastFractionalMult(U8 a,U8 b);
 
 	void setDataAndSize(U8 *data, S32 width, S32 height, S8 components) ;
+
+    void computeHistograms();
 
 public:
 	static S32 sGlobalRawMemory;
