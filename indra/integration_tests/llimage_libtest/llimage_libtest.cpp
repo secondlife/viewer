@@ -84,9 +84,10 @@ static const char USAGE[] = "\n"
 "        Set the compression to be lossless (reversible in j2c parlance).\n"
 "        Only valid for output j2c images.\n"
 " -f, --filter <name> [<param>]\n"
-"        Apply the filter <name> to the input images using the optional param (float) value.\n"
-"        Notes: - 'grayscale' and 'sepia' are supported (no param).\n"
-"               - 'saturate' uses the param: param < 1.0 will desaturate the colors, param > 1.0 will saturate them.\n"
+"        Apply the filter <name> to the input images using the optional param (float) value:\n"
+"        - 'grayscale' and 'sepia' just do that (no param).\n"
+"        - 'saturate' changes color saturation according to param: param < 1.0 will desaturate, param > 1.0 will saturate.\n"
+"        - 'rotate' rotates the color hue according to param (in degree, positive value only).\n"
 " -log, --logmetrics <metric>\n"
 "        Log performance data for <metric>. Results in <metric>.slp\n"
 "        Note: so far, only ImageCompressionTester has been tested.\n"
@@ -616,6 +617,10 @@ int main(int argc, char** argv)
         else if (filter_name == "saturate")
         {
             raw_image->filterSaturate((float)(filter_param));
+        }
+        else if (filter_name == "rotate")
+        {
+            raw_image->filterRotate((float)(filter_param));
         }
 	
 		// Save file

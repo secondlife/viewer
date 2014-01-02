@@ -962,13 +962,15 @@ void LLImageRaw::filterSaturate(F32 saturation)
     LLMatrix3 r_b;
 
     // 45 degre rotation around z
-    r_a.setRows(LLVector3(0.7071,  0.7071, 0.0),
-                LLVector3(-0.7071,  0.7071, 0.0),
-                LLVector3(0.0,     0.0,    1.0));
+    r_a.setRows(LLVector3( OO_SQRT2,  OO_SQRT2, 0.0),
+                LLVector3(-OO_SQRT2,  OO_SQRT2, 0.0),
+                LLVector3( 0.0,       0.0,      1.0));
     // 54.73 degre rotation around y
-    r_b.setRows(LLVector3(0.5773,  0.0, -0.8165),
-                LLVector3(0.0,     1.0,  0.0),
-                LLVector3(0.8165,  0.0,  0.5773));
+    float oo_sqrt3 = 1.0f / F_SQRT3;
+    float sin_54 = F_SQRT2 * oo_sqrt3;
+    r_b.setRows(LLVector3(oo_sqrt3, 0.0, -sin_54),
+                LLVector3(0.0,      1.0,  0.0),
+                LLVector3(sin_54,   0.0,  oo_sqrt3));
 
     // Coordinate conversion
     LLMatrix3 Lij = r_b * r_a;
@@ -983,6 +985,40 @@ void LLImageRaw::filterSaturate(F32 saturation)
 
     // Global saturation transform
     LLMatrix3 transfo = Lij_inv * s * Lij;
+    colorTransform(transfo);
+}
+
+void LLImageRaw::filterRotate(F32 alpha)
+{
+    // Matrix to Lij
+    LLMatrix3 r_a;
+    LLMatrix3 r_b;
+    
+    // 45 degre rotation around z
+    r_a.setRows(LLVector3( OO_SQRT2,  OO_SQRT2, 0.0),
+                LLVector3(-OO_SQRT2,  OO_SQRT2, 0.0),
+                LLVector3( 0.0,       0.0,      1.0));
+    // 54.73 degre rotation around y
+    float oo_sqrt3 = 1.0f / F_SQRT3;
+    float sin_54 = F_SQRT2 * oo_sqrt3;
+    r_b.setRows(LLVector3(oo_sqrt3, 0.0, -sin_54),
+                LLVector3(0.0,      1.0,  0.0),
+                LLVector3(sin_54,   0.0,  oo_sqrt3));
+    
+    // Coordinate conversion
+    LLMatrix3 Lij = r_b * r_a;
+    LLMatrix3 Lij_inv = Lij;
+    Lij_inv.transpose();
+    
+    // Local color rotation transform
+    LLMatrix3 r;
+    alpha *= DEG_TO_RAD;
+    r.setRows(LLVector3( cosf(alpha), sinf(alpha), 0.0),
+              LLVector3(-sinf(alpha), cosf(alpha), 0.0),
+              LLVector3( 0.0,         0.0,         1.0));
+    
+    // Global color rotation transform
+    LLMatrix3 transfo = Lij_inv * r * Lij;
     colorTransform(transfo);
 }
 

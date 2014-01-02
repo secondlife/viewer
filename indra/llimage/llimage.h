@@ -260,7 +260,8 @@ public:
     // Filter Operations
     void filterGrayScale();
     void filterSepia();
-    void filterSaturate(F32 s);
+    void filterSaturate(F32 saturation);    // < 1.0 desaturates, > 1.0 saturates
+    void filterRotate(F32 alpha);           // rotates hue, alpha in degrees
     // Filter Primitives
     void colorTransform(const LLMatrix3 &transform);
 
