@@ -48,6 +48,8 @@ private:
 	virtual void regionChange();
 
 	std::string mName;
+
+	boost::signals2::connection mRegionChangedConnection;
 };
 
 #endif // LL_LLFLOATERREGIONRESTARTING_H

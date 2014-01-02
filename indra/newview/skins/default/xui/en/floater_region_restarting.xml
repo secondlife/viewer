@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
- height="245"
- width="500"
+ height="150"
+ width="290"
  layout="topleft"
  name="region_restarting"
  help_topic="floater_region_restarting"
@@ -17,16 +17,27 @@ If you stay in this region you will be logged out.
      Seconds until restart
 [SECONDS]
     </string>
-     <panel
+    <panel
      name="layout_panel_1"
-     height="245"
-     width="500"
+     height="150"
+     width="290"
      follows="right|top"
      top="0"
      left="0"
      background_visible="true"
      bg_opaque_color="Orange"
      bg_alpha_color="Orange">
+
+    <icon color="1.0 1.0 1.0 1.0"
+     tab_stop="false"
+     mouse_opaque="false"
+     name="icon"
+     width="32"
+     height="32"
+     image_name="notify_caution_icon.tga"
+     follows="left|top">
+    </icon>
+
     <text
      type="string"
      length="1"
@@ -34,12 +45,12 @@ If you stay in this region you will be logged out.
      layout="topleft"
      name="region_name"
      text_color="Black"
-     font="SansSerifLarge"
+     font="SansSerifBold"
      word_wrap="true"
      height="100"
-     top="30"
-     left="10"
-     width="480">
+     top="5"
+     left="40"
+     width="230">
     The region you are in now (-The longest region name-) is about to restart.
 
 If you stay in this region you will be logged out.
@@ -51,11 +62,12 @@ If you stay in this region you will be logged out.
      layout="topleft"
      name="restart_seconds"
      text_color="Black"
-     font="SansSerifHuge"
-     height="100"
+     font="SansSerifLargeBold"
+     height="40"
+     top="110"
      left="0"
      halign="center"
-     width="500">
+     width="290">
      Seconds until restart
      32767
     </text>
