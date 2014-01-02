@@ -83,9 +83,10 @@ static const char USAGE[] = "\n"
 " -rev, --reversible\n"
 "        Set the compression to be lossless (reversible in j2c parlance).\n"
 "        Only valid for output j2c images.\n"
-" -f, --filter <name>\n"
-"        Apply the filter <name> to the input images.\n"
-"        Note: so far, only grayscale and sepia are supported.\n"
+" -f, --filter <name> [<param>]\n"
+"        Apply the filter <name> to the input images using the optional param (float) value.\n"
+"        Notes: - 'grayscale' and 'sepia' are supported (no param).\n"
+"               - 'saturate' uses the param: param < 1.0 will desaturate the colors, param > 1.0 will saturate them.\n"
 " -log, --logmetrics <metric>\n"
 "        Log performance data for <metric>. Results in <metric>.slp\n"
 "        Note: so far, only ImageCompressionTester has been tested.\n"
@@ -354,6 +355,7 @@ int main(int argc, char** argv)
 	int levels = 0;
 	bool reversible = false;
     std::string filter_name = "";
+    double filter_param = 0.0;
 
 	// Init whatever is necessary
 	ll_init_apr();
@@ -530,7 +532,6 @@ int main(int argc, char** argv)
 		else if (!strcmp(argv[arg], "--filter") || !strcmp(argv[arg], "-f"))
 		{
 			// '--filter' needs to be specified with a named filter argument
-			// Note: for the moment, only sepia and grayscale are supported
 			if ((arg + 1) < argc)
 			{
 				filter_name = argv[arg+1];
@@ -545,7 +546,17 @@ int main(int argc, char** argv)
 				arg += 1;					// Skip that arg now we know it's a valid test name
 				if ((arg + 1) == argc)		// Break out of the loop if we reach the end of the arg list
 					break;
-			}
+                // --filter can also have an optional parameter
+                std::string value_str;
+                value_str = argv[arg+1];    // Check the next arg
+                if (value_str[0] != '-')    // If it's not another argument, it's a filter parameter value
+                {
+                    filter_param = atof(value_str.c_str());
+                    arg += 1;					// Skip that arg now we used it as a valid filter param
+                    if ((arg + 1) == argc)		// Break out of the loop if we reach the end of the arg list
+                        break;
+               }
+            }
 		}
 		else if (!strcmp(argv[arg], "--analyzeperformance") || !strcmp(argv[arg], "-a"))
 		{
@@ -604,7 +615,7 @@ int main(int argc, char** argv)
         }
         else if (filter_name == "saturate")
         {
-            raw_image->filterSaturate(2.0f);
+            raw_image->filterSaturate((float)(filter_param));
         }
 	
 		// Save file
