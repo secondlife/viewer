@@ -49,7 +49,8 @@ private:
 	virtual void regionChange();
 
 	std::string mName;
-	U32 mIterations;
+	U32 mShakeIterations;
+	F32 mShakeMagnitude;
 	LLTimer mShakeTimer;
 
 	boost::signals2::connection mRegionChangedConnection;

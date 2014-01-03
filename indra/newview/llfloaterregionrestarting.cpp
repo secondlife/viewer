@@ -100,15 +100,17 @@ void LLFloaterRegionRestarting::draw()
 {
 	LLFloater::draw();
 
-	const F32 SHAKE_INTERVAL = 0.03;
-	const U32 SHAKE_ITERATIONS = 4;
-	const F32 SHAKE_AMOUNT = 1.5;
-
+	const F32 SHAKE_INTERVAL = 0.04;
+	const F32 SHAKE_TOTAL_DURATION = 1.8; // the length of the default alert tone for this
+	const F32 SHAKE_INITIAL_MAGNITUDE = 1.5;
+	F32 time_shaking;
+	
 	if(SHAKE_START == sShakeState)
 	{
 			mShakeTimer.setTimerExpirySec(SHAKE_INTERVAL);
 			sShakeState = SHAKE_LEFT;
-			mIterations = 0;
+			mShakeIterations = 0;
+			mShakeMagnitude = SHAKE_INITIAL_MAGNITUDE;
 	}
 
 	if(SHAKE_DONE != sShakeState && mShakeTimer.hasExpired())
@@ -118,30 +120,34 @@ void LLFloaterRegionRestarting::draw()
 		switch(sShakeState)
 		{
 			case SHAKE_LEFT:
-				gAgentCamera.setPanLeftKey(SHAKE_AMOUNT);
+				gAgentCamera.setPanLeftKey(mShakeMagnitude);
 				sShakeState = SHAKE_UP;
 				break;
 
 			case SHAKE_UP:
-				gAgentCamera.setPanUpKey(SHAKE_AMOUNT);
+				gAgentCamera.setPanUpKey(mShakeMagnitude);
 				sShakeState = SHAKE_RIGHT;
 				break;
 
 			case SHAKE_RIGHT:
-				gAgentCamera.setPanRightKey(SHAKE_AMOUNT);
+				gAgentCamera.setPanRightKey(mShakeMagnitude);
 				sShakeState = SHAKE_DOWN;
 				break;
 
 			case SHAKE_DOWN:
-				gAgentCamera.setPanDownKey(SHAKE_AMOUNT);
-				mIterations = mIterations + 1;
-				if(SHAKE_ITERATIONS == mIterations)
+				gAgentCamera.setPanDownKey(mShakeMagnitude);
+				mShakeIterations++;
+				time_shaking = SHAKE_INTERVAL * (mShakeIterations * 4 /* left, up, right, down */);
+				if(SHAKE_TOTAL_DURATION <= time_shaking)
 				{
 					sShakeState = SHAKE_DONE;
+					mShakeMagnitude = 0.0;
 				}
 				else
 				{
 					sShakeState = SHAKE_LEFT;
+					F32 percent_done_shaking = (SHAKE_TOTAL_DURATION - time_shaking) / SHAKE_TOTAL_DURATION;
+					mShakeMagnitude = SHAKE_INITIAL_MAGNITUDE * (percent_done_shaking * percent_done_shaking); // exponential decay
 				}
 				break;
 
