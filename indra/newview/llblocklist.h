@@ -80,7 +80,7 @@ private:
 	void createList();
 
 	BlockListActionType getCurrentMuteListActionType();
-	
+
 	LLHandle<LLToggleableMenu>	mContextMenu;
 
 	LLBlockedListItem*			mSelectedItem;

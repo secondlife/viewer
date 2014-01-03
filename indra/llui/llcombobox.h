@@ -190,7 +190,7 @@ public:
 	virtual BOOL	operateOnAll(EOperation op);
 
 	//========================================================================
-
+	
 	void			setLeftTextPadding(S32 pad);
 	
 	void*			getCurrentUserdata();

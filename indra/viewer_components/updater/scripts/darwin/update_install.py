@@ -199,6 +199,11 @@ def main(dmgfile, markerfile, markertext):
         # prepare for other cleanup
         with Janitor(LOGF) as janitor:
 
+            # Under some circumstances, this script seems to be invoked with a
+            # nonexistent pathname. Check for that.
+            if not os.path.isfile(dmgfile):
+                fail(dmgfile + " has been deleted")
+
             # Try to derive the name of the running viewer app bundle from our
             # own pathname. (Hopefully the old viewer won't copy this script
             # to a temp dir before running!)
@@ -375,6 +380,13 @@ def main(dmgfile, markerfile, markertext):
             command = ["open", appdir]
             log(' '.join(command))
             subprocess.check_call(command, stdout=LOGF, stderr=subprocess.STDOUT)
+
+        # If all the above succeeded, delete the .dmg file. We don't do this
+        # as a janitor.later() operation because we only want to do it if we
+        # get this far successfully. Note that this is out of the scope of the
+        # Janitor: we must detach the .dmg before removing it!
+        log("rm " + dmgfile)
+        os.remove(dmgfile)
 
     except Exception, err:
         # Because we carefully set sys.excepthook -- and even modify it to log
