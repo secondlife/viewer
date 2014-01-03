@@ -39,6 +39,7 @@
 #include "llimagej2c.h"
 #include "lldir.h"
 #include "lldiriterator.h"
+#include "v4coloru.h"
 
 // system libraries
 #include <iostream>
@@ -84,10 +85,18 @@ static const char USAGE[] = "\n"
 "        Set the compression to be lossless (reversible in j2c parlance).\n"
 "        Only valid for output j2c images.\n"
 " -f, --filter <name> [<param>]\n"
-"        Apply the filter <name> to the input images using the optional param (float) value:\n"
-"        - 'grayscale' and 'sepia' just do that (no param).\n"
-"        - 'saturate' changes color saturation according to param: param < 1.0 will desaturate, param > 1.0 will saturate.\n"
-"        - 'rotate' rotates the color hue according to param (in degree, positive value only).\n"
+"        Apply the filter <name> to the input images using the optional <param> value. Admissible names:\n"
+"        - 'grayscale' converts to grayscale (no param).\n"
+"        - 'sepia' converts to sepia (no param).\n"
+"        - 'saturate' changes color saturation according to <param>: < 1.0 will desaturate, > 1.0 will saturate.\n"
+"        - 'rotate' rotates the color hue according to <param> (in degree, positive value only).\n"
+"        - 'gamma' applies gamma curve <param> to all channels: > 1.0 will darken, < 1.0 will lighten.\n"
+"        - 'colorize' applies a red tint to the image using <param> as an alpha (transparency between 0.0 and 1.0) value.\n"
+"        - 'contrast' modifies the contrast according to <param> : > 1.0 will enhance the contrast, <1.0 will flatten it.\n"
+"        - 'brighten' adds <param> light to the image (<param> between 0 and 255).\n"
+"        - 'darken' substracts <param> light to the image (<param> between 0 and 255).\n"
+"        - 'linearize' optimizes the contrast using the brightness histogram. <param> is the fraction (between 0.0 and 1.0) of discarded tail of the histogram.\n"
+"        - 'posterize' redistributes the colors between <param> classes per channel (<param> between 2 and 255).\n"
 " -log, --logmetrics <metric>\n"
 "        Log performance data for <metric>. Results in <metric>.slp\n"
 "        Note: so far, only ImageCompressionTester has been tested.\n"
@@ -625,6 +634,33 @@ int main(int argc, char** argv)
         else if (filter_name == "gamma")
         {
             raw_image->filterGamma((float)(filter_param));
+        }
+        else if (filter_name == "colorize")
+        {
+            // For testing, we just colorize in red, modulate by the alpha passed as a parameter
+            LLColor4U color = LLColor4U::red;
+            color.setAlpha((U8)(filter_param * 255.0));
+            raw_image->filterColorize(color);
+        }
+        else if (filter_name == "contrast")
+        {
+            raw_image->filterContrast((float)(filter_param));
+        }
+        else if (filter_name == "brighten")
+        {
+            raw_image->filterBrightness((S32)(filter_param));
+        }
+        else if (filter_name == "darken")
+        {
+            raw_image->filterBrightness((S32)(-filter_param));
+        }
+        else if (filter_name == "linearize")
+        {
+            raw_image->filterLinearize((float)(filter_param));
+        }
+        else if (filter_name == "posterize")
+        {
+            raw_image->filterEqualize((S32)(filter_param));
         }
 	
 		// Save file

@@ -1042,6 +1042,152 @@ void LLImageRaw::filterGamma(F32 gamma)
     colorCorrect(gamma_lut,gamma_lut,gamma_lut);
 }
 
+void LLImageRaw::filterLinearize(F32 tail)
+{
+    // Get the histogram
+    U32* histo = getBrightnessHistogram();
+    
+    // Compute cumulated histogram
+    U32 cumulated_histo[256];
+    cumulated_histo[0] = histo[0];
+    for (S32 i = 1; i < 256; i++)
+    {
+        cumulated_histo[i] = cumulated_histo[i-1] + histo[i];
+    }
+    
+    // Compute min and max counts minus tail
+    tail = llclampf(tail);
+    S32 total = cumulated_histo[255];
+    S32 min_c = (S32)((F32)(total) * tail);
+    S32 max_c = (S32)((F32)(total) * (1.0 - tail));
+    
+    // Find min and max values
+    S32 min_v = 0;
+    while (cumulated_histo[min_v] < min_c)
+    {
+        min_v++;
+    }
+    S32 max_v = 255;
+    while (cumulated_histo[max_v] > max_c)
+    {
+        max_v--;
+    }
+    
+    // Compute linear lookup table
+    U8 linear_lut[256];
+    if (max_v == min_v)
+    {
+        // Degenerated binary split case
+        for (S32 i = 0; i < 256; i++)
+        {
+            linear_lut[i] = (i < min_v ? 0 : 255);
+        }
+    }
+    else
+    {
+        // Linearize between min and max
+        F32 slope = 255.0 / (F32)(max_v - min_v);
+        F32 translate = -min_v * slope;
+        for (S32 i = 0; i < 256; i++)
+        {
+            linear_lut[i] = (U8)(llclampb((S32)(slope*i + translate)));
+        }
+    }
+    
+    // Apply lookup table
+    colorCorrect(linear_lut,linear_lut,linear_lut);    
+}
+
+void LLImageRaw::filterEqualize(S32 nb_classes)
+{
+    // Regularize the parameter: must be between 2 and 255
+    nb_classes = llmax(nb_classes,2);
+    nb_classes = llclampb(nb_classes);
+    
+    // Get the histogram
+    U32* histo = getBrightnessHistogram();
+    
+    // Compute cumulated histogram
+    U32 cumulated_histo[256];
+    cumulated_histo[0] = histo[0];
+    for (S32 i = 1; i < 256; i++)
+    {
+        cumulated_histo[i] = cumulated_histo[i-1] + histo[i];
+    }
+    
+    // Compute deltas
+    S32 total = cumulated_histo[255];
+    S32 delta_count = total / nb_classes;
+    S32 current_count = delta_count;
+    S32 delta_value = 256 / (nb_classes - 1);
+    S32 current_value = 0;
+    
+    // Compute equalized lookup table
+    U8 equalize_lut[256];
+    for (S32 i = 0; i < 256; i++)
+    {
+        equalize_lut[i] = (U8)(current_value);
+        if (cumulated_histo[i] >= current_count)
+        {
+            current_count += delta_count;
+            current_value += delta_value;
+            current_value = llclampb(current_value);
+        }
+    }
+
+    // Apply lookup table
+    colorCorrect(equalize_lut,equalize_lut,equalize_lut);
+}
+
+void LLImageRaw::filterColorize(const LLColor4U& color)
+{
+    U8 red_lut[256];
+    U8 green_lut[256];
+    U8 blue_lut[256];
+    
+    F32 alpha = (F32)(color.mV[3])/255.0;
+    F32 inv_alpha = 1.0 - alpha;
+    
+    F32 red_composite   =  alpha * (F32)(color.mV[0]);
+    F32 green_composite =  alpha * (F32)(color.mV[1]);
+    F32 blue_composite  =  alpha * (F32)(color.mV[2]);
+    
+    for (S32 i = 0; i < 256; i++)
+    {
+        red_lut[i]   = (U8)(llclampb((S32)(inv_alpha*(F32)(i) + red_composite)));
+        green_lut[i] = (U8)(llclampb((S32)(inv_alpha*(F32)(i) + green_composite)));
+        blue_lut[i]  = (U8)(llclampb((S32)(inv_alpha*(F32)(i) + blue_composite)));
+    }
+    
+    colorCorrect(red_lut,green_lut,blue_lut);
+}
+
+void LLImageRaw::filterContrast(F32 slope)
+{
+    U8 contrast_lut[256];
+    
+    F32 translate = 128.0 * (1.0 - slope);
+    
+    for (S32 i = 0; i < 256; i++)
+    {
+        contrast_lut[i] = (U8)(llclampb((S32)(slope*i + translate)));
+    }
+    
+    colorCorrect(contrast_lut,contrast_lut,contrast_lut);
+}
+
+void LLImageRaw::filterBrightness(S32 add)
+{
+    U8 brightness_lut[256];
+    
+    for (S32 i = 0; i < 256; i++)
+    {
+        brightness_lut[i] = (U8)(llclampb((S32)((S32)(i) + add)));
+    }
+    
+    colorCorrect(brightness_lut,brightness_lut,brightness_lut);
+}
+
 // Filter Primitives
 void LLImageRaw::colorTransform(const LLMatrix3 &transform)
 {
@@ -1076,6 +1222,15 @@ void LLImageRaw::colorCorrect(const U8* lut_red, const U8* lut_green, const U8* 
 		dst_data[VBLUE]  = lut_blue[dst_data[VBLUE]];
 		dst_data += components;
 	}
+}
+
+U32* LLImageRaw::getBrightnessHistogram()
+{
+    if (!mHistoBrightness)
+    {
+        computeHistograms();
+    }
+    return mHistoBrightness;
 }
 
 void LLImageRaw::computeHistograms()

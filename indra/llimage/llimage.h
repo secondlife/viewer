@@ -264,15 +264,21 @@ public:
 	void compositeUnscaled4onto3( LLImageRaw* src );
     
     // Filter Operations
-    void filterGrayScale();
-    void filterSepia();
-    void filterSaturate(F32 saturation);    // < 1.0 desaturates, > 1.0 saturates
-    void filterRotate(F32 alpha);           // rotates hue, alpha in degrees
-    void filterGamma(F32 gamma);            // Apply a gamma lookup to all channels
+    void filterGrayScale();                         // Convert to grayscale
+    void filterSepia();                             // Convert to sepia
+    void filterSaturate(F32 saturation);            // < 1.0 desaturates, > 1.0 saturates
+    void filterRotate(F32 alpha);                   // Rotates hue according to alpha, alpha in degrees
+    void filterGamma(F32 gamma);                    // Apply gamma to all channels
+    void filterLinearize(F32 tail);                 // Use histogram to linearize constrast between min and max values minus tail
+    void filterEqualize(S32 nb_classes);            // Use histogram to equalize constrast throughout the image
+    void filterColorize(const LLColor4U& color);    // Colorize with color. Alpha will be taken into account for colorization intensity.
+    void filterContrast(F32 slope);                 // Change contrast according to slope: > 1.0 more contrast, < 1.0 less contrast
+    void filterBrightness(S32 add);                 // Change brightness according to add: > 0 brighter, < 0 darker
     
     // Filter Primitives
     void colorTransform(const LLMatrix3 &transform);
     void colorCorrect(const U8* lut_red, const U8* lut_green, const U8* lut_blue);
+    U32* getBrightnessHistogram();
 
 protected:
 	// Create an image from a local file (generally used in tools)

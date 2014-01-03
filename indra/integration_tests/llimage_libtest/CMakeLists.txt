@@ -7,6 +7,7 @@ project (llimage_libtest)
 include(00-Common)
 include(LLCommon)
 include(LLImage)
+include(LLMath)
 include(LLImageJ2COJ) 
 include(LLKDU)
 include(LLVFS)
@@ -15,6 +16,7 @@ include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLVFS_INCLUDE_DIRS}
     ${LLIMAGE_INCLUDE_DIRS}
+    ${LLMATH_INCLUDE_DIRS}
     )
 include_directories(SYSTEM
     ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
@@ -64,6 +66,7 @@ endif (DARWIN)
 target_link_libraries(llimage_libtest
     ${LLCOMMON_LIBRARIES}
     ${LLVFS_LIBRARIES}
+    ${LLMATH_LIBRARIES}
     ${LLIMAGE_LIBRARIES}
     ${LLKDU_LIBRARIES}
     ${KDU_LIBRARY}
