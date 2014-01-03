@@ -100,8 +100,9 @@ void LLFloaterRegionRestarting::draw()
 {
 	LLFloater::draw();
 
-	const F32 SHAKE_INTERVAL = 0.05;
+	const F32 SHAKE_INTERVAL = 0.03;
 	const U32 SHAKE_ITERATIONS = 4;
+	const F32 SHAKE_AMOUNT = 1.5;
 
 	if(SHAKE_START == sShakeState)
 	{
@@ -117,26 +118,22 @@ void LLFloaterRegionRestarting::draw()
 		switch(sShakeState)
 		{
 			case SHAKE_LEFT:
-				gAgentCamera.setPanLeftKey(1.0);
-				gAgentCamera.setPanLeftKey(1.0);
+				gAgentCamera.setPanLeftKey(SHAKE_AMOUNT);
 				sShakeState = SHAKE_UP;
 				break;
 
 			case SHAKE_UP:
-				gAgentCamera.setPanUpKey(1.0);
-				gAgentCamera.setPanUpKey(1.0);
+				gAgentCamera.setPanUpKey(SHAKE_AMOUNT);
 				sShakeState = SHAKE_RIGHT;
 				break;
 
 			case SHAKE_RIGHT:
-				gAgentCamera.setPanRightKey(1.0);
-				gAgentCamera.setPanRightKey(1.0);
+				gAgentCamera.setPanRightKey(SHAKE_AMOUNT);
 				sShakeState = SHAKE_DOWN;
 				break;
 
 			case SHAKE_DOWN:
-				gAgentCamera.setPanDownKey(1.0);
-				gAgentCamera.setPanDownKey(1.0);
+				gAgentCamera.setPanDownKey(SHAKE_AMOUNT);
 				mIterations = mIterations + 1;
 				if(SHAKE_ITERATIONS == mIterations)
 				{
