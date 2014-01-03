@@ -45,11 +45,24 @@ private:
 	virtual BOOL postBuild();
 	virtual BOOL tick();
 	virtual void refresh();
+	virtual void draw();
 	virtual void regionChange();
 
 	std::string mName;
+	U32 mIterations;
+	LLTimer mShakeTimer;
 
 	boost::signals2::connection mRegionChangedConnection;
+
+	enum
+	{
+		SHAKE_START,
+		SHAKE_LEFT,
+		SHAKE_UP,
+		SHAKE_RIGHT,
+		SHAKE_DOWN,
+		SHAKE_DONE
+	};
 };
 
 #endif // LL_LLFLOATERREGIONRESTARTING_H

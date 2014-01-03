@@ -31,15 +31,18 @@
 #include "llfloaterreg.h"
 #include "lluictrl.h"
 #include "llagent.h"
+#include "llagentcamera.h"
+#include "llviewerwindow.h"
 
-static S32 mSeconds;
+static S32 sSeconds;
+static U32 sShakeState;
 
 LLFloaterRegionRestarting::LLFloaterRegionRestarting(const LLSD& key) :
 	LLFloater(key),
 	LLEventTimer(1)
 {
 	mName = (std::string)key["NAME"];
-	mSeconds = (LLSD::Integer)key["SECONDS"];
+	sSeconds = (LLSD::Integer)key["SECONDS"];
 }
 
 LLFloaterRegionRestarting::~LLFloaterRegionRestarting()
@@ -49,6 +52,8 @@ LLFloaterRegionRestarting::~LLFloaterRegionRestarting()
 
 BOOL LLFloaterRegionRestarting::postBuild()
 {
+	mRegionChangedConnection = gAgent.addRegionChangedCallback(boost::bind(&LLFloaterRegionRestarting::regionChange, this));
+
 	LLStringUtil::format_map_t args;
 	std::string text;
 
@@ -57,9 +62,9 @@ BOOL LLFloaterRegionRestarting::postBuild()
 	LLTextBox* textbox = getChild<LLTextBox>("region_name");
 	textbox->setValue(text);
 
-	refresh();
+	sShakeState = SHAKE_START;
 
-	mRegionChangedConnection = gAgent.addRegionChangedCallback(boost::bind(&LLFloaterRegionRestarting::regionChange, this));
+	refresh();
 
 	return TRUE;
 }
@@ -81,13 +86,72 @@ void LLFloaterRegionRestarting::refresh()
 	LLStringUtil::format_map_t args;
 	std::string text;
 
-	args["[SECONDS]"] = llformat("%d", mSeconds);
+	args["[SECONDS]"] = llformat("%d", sSeconds);
 	getChild<LLTextBox>("restart_seconds")->setValue(getString("RestartSeconds", args));
 
-	mSeconds = mSeconds - 1;
-	if(mSeconds < 0.0)
+	sSeconds = sSeconds - 1;
+	if(sSeconds < 0.0)
 	{
-		mSeconds = 0;
+		sSeconds = 0;
+	}
+}
+
+void LLFloaterRegionRestarting::draw()
+{
+	LLFloater::draw();
+
+	const F32 SHAKE_INTERVAL = 0.05;
+	const U32 SHAKE_ITERATIONS = 4;
+
+	if(SHAKE_START == sShakeState)
+	{
+			mShakeTimer.setTimerExpirySec(SHAKE_INTERVAL);
+			sShakeState = SHAKE_LEFT;
+			mIterations = 0;
+	}
+
+	if(SHAKE_DONE != sShakeState && mShakeTimer.hasExpired())
+	{
+		gAgentCamera.unlockView();
+
+		switch(sShakeState)
+		{
+			case SHAKE_LEFT:
+				gAgentCamera.setPanLeftKey(1.0);
+				gAgentCamera.setPanLeftKey(1.0);
+				sShakeState = SHAKE_UP;
+				break;
+
+			case SHAKE_UP:
+				gAgentCamera.setPanUpKey(1.0);
+				gAgentCamera.setPanUpKey(1.0);
+				sShakeState = SHAKE_RIGHT;
+				break;
+
+			case SHAKE_RIGHT:
+				gAgentCamera.setPanRightKey(1.0);
+				gAgentCamera.setPanRightKey(1.0);
+				sShakeState = SHAKE_DOWN;
+				break;
+
+			case SHAKE_DOWN:
+				gAgentCamera.setPanDownKey(1.0);
+				gAgentCamera.setPanDownKey(1.0);
+				mIterations = mIterations + 1;
+				if(SHAKE_ITERATIONS == mIterations)
+				{
+					sShakeState = SHAKE_DONE;
+				}
+				else
+				{
+					sShakeState = SHAKE_LEFT;
+				}
+				break;
+
+			default:
+				break;
+		}
+		mShakeTimer.setTimerExpirySec(SHAKE_INTERVAL);
 	}
 }
 
@@ -103,5 +167,6 @@ void LLFloaterRegionRestarting::close()
 
 void LLFloaterRegionRestarting::updateTime(S32 time)
 {
-	mSeconds = time;
+	sSeconds = time;
+	sShakeState = SHAKE_START;
 }

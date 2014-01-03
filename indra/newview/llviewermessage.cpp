@@ -5967,10 +5967,6 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 				seconds = static_cast<S32>(llsdBlock["SECONDS"].asInteger());
 			}
 
-			LLSD params;
-			params["NAME"] = llsdBlock["NAME"];
-			params["SECONDS"] = (LLSD::Integer)seconds;
-
 			LLFloaterRegionRestarting* floaterp = LLFloaterReg::findTypedInstance<LLFloaterRegionRestarting>("region_restarting");
 
 			if (floaterp)
@@ -5979,6 +5975,9 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 			}
 			else
 			{
+				LLSD params;
+				params["NAME"] = llsdBlock["NAME"];
+				params["SECONDS"] = (LLSD::Integer)seconds;
 				LLFloaterReg::showInstance("region_restarting", params);
 			}
 
