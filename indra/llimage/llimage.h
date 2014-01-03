@@ -170,6 +170,7 @@ protected:
     S32 mVignetteCenterY;
     S32 mVignetteWidth;
     F32 mVignetteGamma;
+    F32 mVignetteMin;
     
 public:
 	static void generateMip(const U8 *indata, U8* mipdata, int width, int height, S32 nchannels);
@@ -292,7 +293,7 @@ public:
     // Filter Primitives
     void colorTransform(const LLMatrix3 &transform);
     void colorCorrect(const U8* lut_red, const U8* lut_green, const U8* lut_blue);
-    void setVignette(EVignetteMode mode, F32 gamma);
+    void setVignette(EVignetteMode mode, F32 gamma, F32 min);
     U32* getBrightnessHistogram();
 
 protected:

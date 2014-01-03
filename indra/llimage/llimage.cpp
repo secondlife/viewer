@@ -103,7 +103,8 @@ LLImageBase::LLImageBase()
       mHistoBlue(NULL),
       mHistoBrightness(NULL),
       mVignetteMode(VIGNETTE_MODE_NONE),
-      mVignetteGamma(1.0)
+      mVignetteGamma(1.0),
+      mVignetteMin(0.0)
 {
 }
 
@@ -1280,10 +1281,11 @@ void LLImageRaw::colorCorrect(const U8* lut_red, const U8* lut_green, const U8* 
 	}
 }
 
-void LLImageRaw::setVignette(EVignetteMode mode, F32 gamma)
+void LLImageRaw::setVignette(EVignetteMode mode, F32 gamma, F32 min)
 {
     mVignetteMode = mode;
     mVignetteGamma = gamma;
+    mVignetteMin = llclampf(min);
     // We always center the vignette on the image and fits it in the image smallest dimension
     mVignetteCenterX = getWidth()/2;
     mVignetteCenterY = getHeight()/2;
@@ -1293,9 +1295,11 @@ void LLImageRaw::setVignette(EVignetteMode mode, F32 gamma)
 F32 LLImageRaw::getVignetteAlpha(S32 i, S32 j)
 {
     // alpha is a modified gaussian value, with a center and fading in a circular pattern toward the edges
-    // the gamma parameter controls the intensity of the drop down from alpha 1.0 to 0.0
+    // The gamma parameter controls the intensity of the drop down from alpha 1.0 (center) to 0.0
     F32 d_center_square = (i - mVignetteCenterX)*(i - mVignetteCenterX) + (j - mVignetteCenterY)*(j - mVignetteCenterY);
-    return powf(F_E, -(powf((d_center_square/(mVignetteWidth*mVignetteWidth)),mVignetteGamma)/2.0f));
+    F32 alpha = powf(F_E, -(powf((d_center_square/(mVignetteWidth*mVignetteWidth)),mVignetteGamma)/2.0f));
+    // We rescale alpha between min and 1.0 so to avoid complete fading if so desired.
+    return (mVignetteMin + alpha * (1.0 - mVignetteMin));
 }
 
 U32* LLImageRaw::getBrightnessHistogram()

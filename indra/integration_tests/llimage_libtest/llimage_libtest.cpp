@@ -97,8 +97,8 @@ static const char USAGE[] = "\n"
 "        - 'darken' substracts <param> light to the image (<param> between 0 and 255).\n"
 "        - 'linearize' optimizes the contrast using the brightness histogram. <param> is the fraction (between 0.0 and 1.0) of discarded tail of the histogram.\n"
 "        - 'posterize' redistributes the colors between <param> classes per channel (<param> between 2 and 255).\n"
-" -v, --vignette <name> [<feather>]\n"
-"        Apply a circular central vignette <name> to the filter using the optional <feather> value. Admissible names:\n"
+" -v, --vignette <name> [<feather> <min>]\n"
+"        Apply a circular central vignette <name> to the filter using the optional <feather> and <min> values. Admissible names:\n"
 "        - 'blend' : the filter is applied with full intensity in the center and blends with the image to the periphery.\n"
 "        - 'fade' : the filter is applied with full intensity in the center and fades to black to the periphery.\n"
 " -log, --logmetrics <metric>\n"
@@ -371,7 +371,8 @@ int main(int argc, char** argv)
     std::string filter_name = "";
     double filter_param = 0.0;
     std::string vignette_name = "";
-    double vignette_param = 1.0;
+    double vignette_param_1 = 1.0;
+    double vignette_param_2 = 0.0;
 
 	// Init whatever is necessary
 	ll_init_apr();
@@ -591,15 +592,23 @@ int main(int argc, char** argv)
 				arg += 1;					// Skip that arg now we know it's a valid vignette name
 				if ((arg + 1) == argc)		// Break out of the loop if we reach the end of the arg list
 					break;
-                // --vignette can also have an optional parameter
+                // --vignette can also have optional parameters
                 std::string value_str;
                 value_str = argv[arg+1];    // Check the next arg
                 if (value_str[0] != '-')    // If it's not another argument, it's a vignette parameter value
                 {
-                    vignette_param = atof(value_str.c_str());
+                    vignette_param_1 = atof(value_str.c_str());
                     arg += 1;					// Skip that arg now we used it as a valid vignette param
                     if ((arg + 1) == argc)		// Break out of the loop if we reach the end of the arg list
                         break;
+                    value_str = argv[arg+1];    // Check the next arg
+                    if (value_str[0] != '-')    // If it's not another argument, it's a vignette parameter value
+                    {
+                        vignette_param_2 = atof(value_str.c_str());
+                        arg += 1;					// Skip that arg now we used it as a valid vignette param
+                        if ((arg + 1) == argc)		// Break out of the loop if we reach the end of the arg list
+                            break;
+                    }
                 }
             }
 		}
@@ -652,11 +661,11 @@ int main(int argc, char** argv)
         // Set the vignette if any
         if (vignette_name == "blend")
         {
-            raw_image->setVignette(VIGNETTE_MODE_BLEND,(float)(vignette_param));
+            raw_image->setVignette(VIGNETTE_MODE_BLEND,(float)(vignette_param_1),(float)(vignette_param_2));
         }
         else if (vignette_name == "fade")
         {
-            raw_image->setVignette(VIGNETTE_MODE_FADE,(float)(vignette_param));
+            raw_image->setVignette(VIGNETTE_MODE_FADE,(float)(vignette_param_1),(float)(vignette_param_2));
         }
         
         // Apply filter if any
