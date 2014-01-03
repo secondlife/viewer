@@ -101,7 +101,9 @@ LLImageBase::LLImageBase()
       mHistoRed(NULL),
       mHistoGreen(NULL),
       mHistoBlue(NULL),
-      mHistoBrightness(NULL)
+      mHistoBrightness(NULL),
+      mVignetteMode(VIGNETTE_MODE_NONE),
+      mVignetteGamma(1.0)
 {
 }
 
@@ -1194,17 +1196,44 @@ void LLImageRaw::colorTransform(const LLMatrix3 &transform)
 	const S32 components = getComponents();
 	llassert( components >= 1 && components <= 4 );
     
-	S32 pixels = getWidth() * getHeight();
+	S32 width  = getWidth();
+    S32 height = getHeight();
+    
 	U8* dst_data = getData();
-	for (S32 i = 0; i < pixels; i++)
+	for (S32 j = 0; j < height; j++)
 	{
-        LLVector3 src((F32)(dst_data[VRED]),(F32)(dst_data[VGREEN]),(F32)(dst_data[VBLUE]));
-        LLVector3 dst = src * transform;
-        dst.clamp(0.0f,255.0f);
-		dst_data[VRED]   = dst.mV[VRED];
-		dst_data[VGREEN] = dst.mV[VGREEN];
-		dst_data[VBLUE]  = dst.mV[VBLUE];
-		dst_data += components;
+        for (S32 i = 0; i < width; i++)
+        {
+            LLVector3 src((F32)(dst_data[VRED]),(F32)(dst_data[VGREEN]),(F32)(dst_data[VBLUE]));
+            LLVector3 dst = src * transform;
+            dst.clamp(0.0f,255.0f);
+            if (mVignetteMode == VIGNETTE_MODE_NONE)
+            {
+                dst_data[VRED]   = dst.mV[VRED];
+                dst_data[VGREEN] = dst.mV[VGREEN];
+                dst_data[VBLUE]  = dst.mV[VBLUE];
+            }
+            else
+            {
+                F32 alpha = getVignetteAlpha(i,j);
+                if (mVignetteMode == VIGNETTE_MODE_BLEND)
+                {
+                    // Blends with the source image on the edges
+                    F32 inv_alpha = 1.0 - alpha;
+                    dst_data[VRED]   = inv_alpha * src.mV[VRED]   + alpha * dst.mV[VRED];
+                    dst_data[VGREEN] = inv_alpha * src.mV[VGREEN] + alpha * dst.mV[VGREEN];
+                    dst_data[VBLUE]  = inv_alpha * src.mV[VBLUE]  + alpha * dst.mV[VBLUE];
+                }
+                else // VIGNETTE_MODE_FADE
+                {
+                    // Fade to black on the edges
+                    dst_data[VRED]   = alpha * dst.mV[VRED];
+                    dst_data[VGREEN] = alpha * dst.mV[VGREEN];
+                    dst_data[VBLUE]  = alpha * dst.mV[VBLUE];
+                }
+            }
+            dst_data += components;
+        }
 	}
 }
 
@@ -1213,15 +1242,60 @@ void LLImageRaw::colorCorrect(const U8* lut_red, const U8* lut_green, const U8* 
 	const S32 components = getComponents();
 	llassert( components >= 1 && components <= 4 );
     
-	S32 pixels = getWidth() * getHeight();
+	S32 width  = getWidth();
+    S32 height = getHeight();
+    
 	U8* dst_data = getData();
-	for (S32 i = 0; i < pixels; i++)
+	for (S32 j = 0; j < height; j++)
 	{
-		dst_data[VRED]   = lut_red[dst_data[VRED]];
-		dst_data[VGREEN] = lut_green[dst_data[VGREEN]];
-		dst_data[VBLUE]  = lut_blue[dst_data[VBLUE]];
-		dst_data += components;
+        for (S32 i = 0; i < width; i++)
+        {
+            if (mVignetteMode == VIGNETTE_MODE_NONE)
+            {
+                dst_data[VRED]   = lut_red[dst_data[VRED]];
+                dst_data[VGREEN] = lut_green[dst_data[VGREEN]];
+                dst_data[VBLUE]  = lut_blue[dst_data[VBLUE]];
+            }
+            else
+            {
+                F32 alpha = getVignetteAlpha(i,j);
+                if (mVignetteMode == VIGNETTE_MODE_BLEND)
+                {
+                    // Blends with the source image on the edges
+                    F32 inv_alpha = 1.0 - alpha;
+                    dst_data[VRED]   = inv_alpha * dst_data[VRED]  + alpha * lut_red[dst_data[VRED]];
+                    dst_data[VGREEN] = inv_alpha * dst_data[VGREEN] + alpha * lut_green[dst_data[VGREEN]];
+                    dst_data[VBLUE]  = inv_alpha * dst_data[VBLUE]  + alpha * lut_blue[dst_data[VBLUE]];
+                }
+                else // VIGNETTE_MODE_FADE
+                {
+                    // Fade to black on the edges
+                    dst_data[VRED]   = alpha * lut_red[dst_data[VRED]];
+                    dst_data[VGREEN] = alpha * lut_green[dst_data[VGREEN]];
+                    dst_data[VBLUE]  = alpha * lut_blue[dst_data[VBLUE]];
+                }
+            }
+            dst_data += components;
+        }
 	}
+}
+
+void LLImageRaw::setVignette(EVignetteMode mode, F32 gamma)
+{
+    mVignetteMode = mode;
+    mVignetteGamma = gamma;
+    // We always center the vignette on the image and fits it in the image smallest dimension
+    mVignetteCenterX = getWidth()/2;
+    mVignetteCenterY = getHeight()/2;
+    mVignetteWidth = llmin(getWidth()/2,getHeight()/2);
+}
+
+F32 LLImageRaw::getVignetteAlpha(S32 i, S32 j)
+{
+    // alpha is a modified gaussian value, with a center and fading in a circular pattern toward the edges
+    // the gamma parameter controls the intensity of the drop down from alpha 1.0 to 0.0
+    F32 d_center_square = (i - mVignetteCenterX)*(i - mVignetteCenterX) + (j - mVignetteCenterY)*(j - mVignetteCenterY);
+    return powf(F_E, -(powf((d_center_square/(mVignetteWidth*mVignetteWidth)),mVignetteGamma)/2.0f));
 }
 
 U32* LLImageRaw::getBrightnessHistogram()

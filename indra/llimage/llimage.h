@@ -87,6 +87,13 @@ typedef enum e_image_codec
 	IMG_CODEC_EOF  = 8
 } EImageCodec;
 
+typedef enum e_vignette_mode
+{
+	VIGNETTE_MODE_NONE  = 0,
+	VIGNETTE_MODE_BLEND = 1,
+	VIGNETTE_MODE_FADE  = 2
+} EVignetteMode;
+
 //============================================================================
 // library initialization class
 
@@ -156,6 +163,13 @@ protected:
     U32 *mHistoGreen;
     U32 *mHistoBlue;
     U32 *mHistoBrightness;
+    
+    // Vignette filtering
+    EVignetteMode mVignetteMode;
+    S32 mVignetteCenterX;
+    S32 mVignetteCenterY;
+    S32 mVignetteWidth;
+    F32 mVignetteGamma;
     
 public:
 	static void generateMip(const U8 *indata, U8* mipdata, int width, int height, S32 nchannels);
@@ -278,6 +292,7 @@ public:
     // Filter Primitives
     void colorTransform(const LLMatrix3 &transform);
     void colorCorrect(const U8* lut_red, const U8* lut_green, const U8* lut_blue);
+    void setVignette(EVignetteMode mode, F32 gamma);
     U32* getBrightnessHistogram();
 
 protected:
@@ -292,6 +307,7 @@ protected:
 	void setDataAndSize(U8 *data, S32 width, S32 height, S8 components) ;
 
     void computeHistograms();
+    F32 getVignetteAlpha(S32 i, S32 j);
 
 public:
 	static S32 sGlobalRawMemory;
