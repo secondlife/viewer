@@ -440,11 +440,6 @@ void LLScriptEdCore::onRegionChangeInitialiseKeywords()
 		}
 	}
 
-	// Case-insensitive dictionary sort for primary keywords. We don't sort the secondary
-	// keywords. They're intelligently grouped in keywords.ini.
-	// As we don't use keywords.ini, this is no longer true. Do we need to sort now?
-	std::stable_sort( primary_keywords.begin(), primary_keywords.end(), LLSECKeywordCompare() );
-
 	for (std::vector<std::string>::const_iterator iter= primary_keywords.begin();
 			iter!= primary_keywords.end(); ++iter)
 	{
