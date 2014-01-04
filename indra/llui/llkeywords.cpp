@@ -132,25 +132,40 @@ void LLKeywords::addToken(LLKeywordToken::TOKEN_TYPE type,
 
 std::string LLKeywords::getArguments(LLSD& arguments)
 {
-	std::string args = "";
-	if (arguments.isMap())
+	std::string argString = "";
+
+	if (arguments.isArray())
 	{
-		int count = arguments.size();
-		LLSD::map_iterator argsIt = arguments.beginMap();
-		for ( ; argsIt != arguments.endMap(); ++argsIt)
+		int argsCount = arguments.size();
+		LLSD::array_iterator arrayIt = arguments.beginArray();
+		for ( ; arrayIt != arguments.endArray(); ++arrayIt)
 		{
-				args += argsIt->second.get("type").asString() + " " + argsIt->first;
-				if (count-- > 1)
+			LLSD& args = (*arrayIt);
+			if (args.isMap())
+			{
+				LLSD::map_iterator argsIt = args.beginMap();
+				for ( ; argsIt != args.endMap(); ++argsIt)
 				{
-					args += ", ";
+					argString += argsIt->second.get("type").asString() + " " + argsIt->first;
+					if (argsCount-- > 1)
+					{
+						argString += ", ";
+					}
 				}
+			}
+			else
+			{
+				LL_INFOS("SyntaxLSL")
+						<< "Argument array does not comtain a map element!" << LL_ENDL;
+			}
 		}
 	}
 	else if (!arguments.isUndefined())
 	{
-		LL_WARNS("Arguments") << "Not a map! Invalid LLSD passed to function.\n" << arguments << LL_ENDL;
+		LL_WARNS("SyntaxLSL")
+				<< "Not an array! Invalid arguments LLSD passed to function." << arguments << LL_ENDL;
 	}
-	return args == "" ? " void " : args;
+	return argString == "" ? " void " : argString;
 }
 
 std::string LLKeywords::getAttribute(const std::string& key)
@@ -246,7 +261,6 @@ void LLKeywords::processTokens()
 void LLKeywords::processTokensGroup(LLSD& Tokens, const std::string Group)
 {
 	LLColor4 Color;
-	LL_INFOS("Tokens") << "Group: '" << Group << "', using colour: '" << Color << "'" << LL_ENDL;
 
 	LLKeywordToken::TOKEN_TYPE token_type = LLKeywordToken::TT_UNKNOWN;
 	// If a new token type is added here, it must also be added to the 'addToken' method
@@ -275,12 +289,14 @@ void LLKeywords::processTokensGroup(LLSD& Tokens, const std::string Group)
 		token_type = LLKeywordToken::TT_TYPE;
 	}
 
+	Color = getColorGroup(Group);
+	LL_INFOS("Tokens") << "Group: '" << Group << "', using colour: '" << Color << "'" << LL_ENDL;
+
 	if (Tokens.isMap())
 	{
 		LLSD::map_iterator outerIt = Tokens.beginMap();
 		for ( ; outerIt != Tokens.endMap(); ++outerIt)
 		{
-			Color = getColorGroup(Group);
 			if (outerIt->second.isMap())
 			{
 				mAttributes.clear();
@@ -291,7 +307,7 @@ void LLKeywords::processTokensGroup(LLSD& Tokens, const std::string Group)
 				{
 					if (innerIt->first == "arguments")
 					{ 
-						if (innerIt->second.isMap())
+						if (innerIt->second.isArray())
 						{
 							arguments = innerIt->second;
 						}
@@ -343,6 +359,7 @@ void LLKeywords::processTokensGroup(LLSD& Tokens, const std::string Group)
 	}
 	else if (Tokens.isArray())	// Currently nothing should need this, but it's here for completeness
 	{
+		LL_INFOS("SyntaxLSL") << "Curious, shouldn't be an array here" << LL_ENDL;
 		for (int count = 0; count < Tokens.size(); ++count)
 		{
 			addToken(token_type, Tokens[count], Color, "");
