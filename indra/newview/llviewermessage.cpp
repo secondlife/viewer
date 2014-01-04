@@ -5978,7 +5978,11 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 				LLSD params;
 				params["NAME"] = llsdBlock["NAME"];
 				params["SECONDS"] = (LLSD::Integer)seconds;
-				LLFloaterReg::showInstance("region_restarting", params);
+				LLFloaterRegionRestarting* restarting_floater = dynamic_cast<LLFloaterRegionRestarting*>(LLFloaterReg::showInstance("region_restarting", params));
+				if(restarting_floater)
+				{
+					restarting_floater->center();
+				}
 			}
 
 			send_sound_trigger(LLUUID(gSavedSettings.getString("UISndRestart")), 1.0f);

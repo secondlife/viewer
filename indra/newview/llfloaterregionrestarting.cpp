@@ -100,9 +100,10 @@ void LLFloaterRegionRestarting::draw()
 {
 	LLFloater::draw();
 
-	const F32 SHAKE_INTERVAL = 0.04;
+	const F32 SHAKE_INTERVAL = 0.025;
 	const F32 SHAKE_TOTAL_DURATION = 1.8; // the length of the default alert tone for this
 	const F32 SHAKE_INITIAL_MAGNITUDE = 1.5;
+	const F32 SHAKE_HORIZONTAL_BIAS = 0.25;
 	F32 time_shaking;
 	
 	if(SHAKE_START == sShakeState)
@@ -120,7 +121,7 @@ void LLFloaterRegionRestarting::draw()
 		switch(sShakeState)
 		{
 			case SHAKE_LEFT:
-				gAgentCamera.setPanLeftKey(mShakeMagnitude);
+				gAgentCamera.setPanLeftKey(mShakeMagnitude * SHAKE_HORIZONTAL_BIAS);
 				sShakeState = SHAKE_UP;
 				break;
 
@@ -130,7 +131,7 @@ void LLFloaterRegionRestarting::draw()
 				break;
 
 			case SHAKE_RIGHT:
-				gAgentCamera.setPanRightKey(mShakeMagnitude);
+				gAgentCamera.setPanRightKey(mShakeMagnitude * SHAKE_HORIZONTAL_BIAS);
 				sShakeState = SHAKE_DOWN;
 				break;
 
