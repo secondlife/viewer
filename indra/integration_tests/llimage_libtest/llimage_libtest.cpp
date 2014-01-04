@@ -716,7 +716,45 @@ int main(int argc, char** argv)
         {
             raw_image->filterEqualize((S32)(filter_param));
         }
-	
+        // Test for some "a la Instagram" filters
+        else if (filter_name == "Lomofi")
+        {
+            raw_image->setVignette(VIGNETTE_MODE_BLEND,4.0,0.0);
+            raw_image->filterLinearize(0.2);
+        }
+        else if (filter_name == "Sutro")
+        {
+            raw_image->filterLinearize(0.2);
+            raw_image->setVignette(VIGNETTE_MODE_FADE,4.0,0.5);
+            raw_image->filterSepia();
+        }
+        else if (filter_name == "Inkwell")
+        {
+            raw_image->filterLinearize(0.0);
+            raw_image->filterGrayScale();
+        }
+        else if (filter_name == "Poprocket")
+        {
+            LLColor4U color = LLColor4U::red;
+            color.setAlpha((U8)(0.2 * 255.0));
+            raw_image->filterLinearize(0.0);
+            raw_image->setVignette(VIGNETTE_MODE_FADE,4.0,0.5);
+            raw_image->filterColorize(color);
+        }
+        else if (filter_name == "Gotham")
+        {
+            raw_image->filterLinearize(0.0);
+            raw_image->filterColorBalance(1.0,1.0,20.0);
+            raw_image->filterGrayScale();
+        }
+        else if (filter_name == "Toaster")
+        {
+            raw_image->filterContrast(0.8);
+            raw_image->setVignette(VIGNETTE_MODE_FADE,4.0,0.5);
+            raw_image->filterBrightness(10);
+            raw_image->filterColorBalance(0.5,1.0,1.0);
+        }
+
 		// Save file
 		if (out_file != out_end)
 		{

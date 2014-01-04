@@ -289,7 +289,9 @@ public:
     void filterColorize(const LLColor4U& color);    // Colorize with color. Alpha will be taken into account for colorization intensity.
     void filterContrast(F32 slope);                 // Change contrast according to slope: > 1.0 more contrast, < 1.0 less contrast
     void filterBrightness(S32 add);                 // Change brightness according to add: > 0 brighter, < 0 darker
-    
+    void filterColorBalance(F32 gamma_red, F32 gamma_green, F32 gamma_blue); // Change the color balance applying gammas to each channel
+    void filterMinMax(S32 min, S32 max);            // Redistribute contrast / brightness between min and max in a linear way
+   
     // Filter Primitives
     void colorTransform(const LLMatrix3 &transform);
     void colorCorrect(const U8* lut_red, const U8* lut_green, const U8* lut_blue);

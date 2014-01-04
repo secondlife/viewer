@@ -1045,6 +1045,22 @@ void LLImageRaw::filterGamma(F32 gamma)
     colorCorrect(gamma_lut,gamma_lut,gamma_lut);
 }
 
+void LLImageRaw::filterColorBalance(F32 gamma_red, F32 gamma_green, F32 gamma_blue)
+{
+    U8 gamma_red_lut[256];
+    U8 gamma_green_lut[256];
+    U8 gamma_blue_lut[256];
+    
+    for (S32 i = 0; i < 256; i++)
+    {
+        gamma_red_lut[i]   = (U8)(255.0 * (llclampf((float)(pow((float)(i)/255.0,gamma_red)))));
+        gamma_green_lut[i] = (U8)(255.0 * (llclampf((float)(pow((float)(i)/255.0,gamma_green)))));
+        gamma_blue_lut[i]  = (U8)(255.0 * (llclampf((float)(pow((float)(i)/255.0,gamma_blue)))));
+    }
+    
+    colorCorrect(gamma_red_lut,gamma_green_lut,gamma_blue_lut);
+}
+
 void LLImageRaw::filterLinearize(F32 tail)
 {
     // Get the histogram
@@ -1189,6 +1205,23 @@ void LLImageRaw::filterBrightness(S32 add)
     }
     
     colorCorrect(brightness_lut,brightness_lut,brightness_lut);
+}
+
+void LLImageRaw::filterMinMax(S32 min, S32 max)
+{
+    U8 contrast_lut[256];
+    min = llclampb(min);
+    max = llclampb(max);
+    
+    F32 slope = 255.0/(F32)(max - min);
+    F32 translate = -slope*min;
+    
+    for (S32 i = 0; i < 256; i++)
+    {
+        contrast_lut[i] = (U8)(llclampb((S32)(slope*i + translate)));
+    }
+    
+    colorCorrect(contrast_lut,contrast_lut,contrast_lut);    
 }
 
 // Filter Primitives
