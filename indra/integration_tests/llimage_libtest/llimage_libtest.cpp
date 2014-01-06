@@ -687,72 +687,84 @@ int main(int argc, char** argv)
         }
         else if (filter_name == "gamma")
         {
-            raw_image->filterGamma((float)(filter_param));
+            raw_image->filterGamma((float)(filter_param),LLColor3::white);
         }
         else if (filter_name == "colorize")
         {
-            // For testing, we just colorize in red, modulate by the alpha passed as a parameter
-            LLColor4U color = LLColor4U::red;
-            color.setAlpha((U8)(filter_param * 255.0));
-            raw_image->filterColorize(color);
+            // For testing, we just colorize in the red channel, modulate by the alpha passed as a parameter
+            LLColor3 color(1.0,0.0,0.0);
+            LLColor3 alpha((F32)(filter_param),0.0,0.0);
+            raw_image->filterColorize(color,alpha);
         }
         else if (filter_name == "contrast")
         {
-            raw_image->filterContrast((float)(filter_param));
+            raw_image->filterContrast((float)(filter_param),LLColor3::white);
         }
         else if (filter_name == "brighten")
         {
-            raw_image->filterBrightness((S32)(filter_param));
+            raw_image->filterBrightness((S32)(filter_param),LLColor3::white);
         }
         else if (filter_name == "darken")
         {
-            raw_image->filterBrightness((S32)(-filter_param));
+            raw_image->filterBrightness((S32)(-filter_param),LLColor3::white);
         }
         else if (filter_name == "linearize")
         {
-            raw_image->filterLinearize((float)(filter_param));
+            raw_image->filterLinearize((float)(filter_param),LLColor3::white);
         }
         else if (filter_name == "posterize")
         {
-            raw_image->filterEqualize((S32)(filter_param));
+            raw_image->filterEqualize((S32)(filter_param),LLColor3::white);
         }
         // Test for some "a la Instagram" filters
         else if (filter_name == "Lomofi")
         {
             raw_image->setVignette(VIGNETTE_MODE_BLEND,4.0,0.0);
-            raw_image->filterLinearize(0.2);
-        }
-        else if (filter_name == "Sutro")
-        {
-            raw_image->filterLinearize(0.2);
-            raw_image->setVignette(VIGNETTE_MODE_FADE,4.0,0.5);
-            raw_image->filterSepia();
-        }
-        else if (filter_name == "Inkwell")
-        {
-            raw_image->filterLinearize(0.0);
-            raw_image->filterGrayScale();
+            raw_image->filterLinearize(0.2,LLColor3::white);
+            raw_image->filterBrightness(20,LLColor3::white);
         }
         else if (filter_name == "Poprocket")
         {
-            LLColor4U color = LLColor4U::red;
-            color.setAlpha((U8)(0.2 * 255.0));
-            raw_image->filterLinearize(0.0);
+            LLColor3 color(1.0,0.0,0.0);
+            LLColor3 alpha(0.5,0.0,0.0);
+            raw_image->filterLinearize(0.0,LLColor3::white);
+            raw_image->filterContrast(0.5,LLColor3::white);
             raw_image->setVignette(VIGNETTE_MODE_FADE,4.0,0.5);
-            raw_image->filterColorize(color);
+            raw_image->filterColorize(color,alpha);
         }
-        else if (filter_name == "Gotham")
+        else if (filter_name == "Sutro")
         {
-            raw_image->filterLinearize(0.0);
-            raw_image->filterColorBalance(1.0,1.0,20.0);
-            raw_image->filterGrayScale();
+            raw_image->filterLinearize(0.2,LLColor3::white);
+            raw_image->setVignette(VIGNETTE_MODE_FADE,4.0,0.5);
+            raw_image->filterSepia();
         }
         else if (filter_name == "Toaster")
         {
-            raw_image->filterContrast(0.8);
+            raw_image->filterContrast(0.8,LLColor3::white);
             raw_image->setVignette(VIGNETTE_MODE_FADE,4.0,0.5);
-            raw_image->filterBrightness(10);
-            raw_image->filterColorBalance(0.5,1.0,1.0);
+            raw_image->filterBrightness(10,LLColor3::white);
+            //raw_image->filterColorBalance(0.5,1.0,1.0);
+        }
+        else if (filter_name == "Inkwell")
+        {
+            raw_image->filterLinearize(0.0,LLColor3::white);
+            raw_image->filterGrayScale();
+        }
+        else if (filter_name == "Hefe")
+        {
+            raw_image->filterLinearize(0.0,LLColor3::white);
+            raw_image->setVignette(VIGNETTE_MODE_FADE,4.0,0.5);
+            raw_image->filterContrast(1.5,LLColor3::white);
+        }
+        else if (filter_name == "Gotham")
+        {
+            raw_image->filterLinearize(0.0,LLColor3::white);
+            // Blow out the Blue
+            LLColor3 color(0.0,0.0,0.0);
+            LLColor3 alpha(0.0,0.0,1.0);
+            raw_image->filterColorize(color,alpha);
+            // Convert to Grayscale
+            raw_image->filterGrayScale();
         }
 
 		// Save file

@@ -29,6 +29,7 @@
 #include "llimage.h"
 
 #include "llmath.h"
+#include "v3color.h"
 #include "v4coloru.h"
 #include "m3math.h"
 #include "v3math.h"
@@ -1033,19 +1034,7 @@ void LLImageRaw::filterRotate(F32 alpha)
     colorTransform(transfo);
 }
 
-void LLImageRaw::filterGamma(F32 gamma)
-{
-    U8 gamma_lut[256];
-    
-    for (S32 i = 0; i < 256; i++)
-    {
-        gamma_lut[i] = (U8)(255.0 * (llclampf((float)(pow((float)(i)/255.0,gamma)))));
-    }
-    
-    colorCorrect(gamma_lut,gamma_lut,gamma_lut);
-}
-
-void LLImageRaw::filterColorBalance(F32 gamma_red, F32 gamma_green, F32 gamma_blue)
+void LLImageRaw::filterGamma(F32 gamma, const LLColor3& alpha)
 {
     U8 gamma_red_lut[256];
     U8 gamma_green_lut[256];
@@ -1053,15 +1042,17 @@ void LLImageRaw::filterColorBalance(F32 gamma_red, F32 gamma_green, F32 gamma_bl
     
     for (S32 i = 0; i < 256; i++)
     {
-        gamma_red_lut[i]   = (U8)(255.0 * (llclampf((float)(pow((float)(i)/255.0,gamma_red)))));
-        gamma_green_lut[i] = (U8)(255.0 * (llclampf((float)(pow((float)(i)/255.0,gamma_green)))));
-        gamma_blue_lut[i]  = (U8)(255.0 * (llclampf((float)(pow((float)(i)/255.0,gamma_blue)))));
+        F32 gamma_i = llclampf((float)(pow((float)(i)/255.0,gamma)));
+        // Blend in with alpha values
+        gamma_red_lut[i]   = (U8)((1.0 - alpha.mV[0]) * (float)(i) + alpha.mV[0] * 255.0 * gamma_i);
+        gamma_green_lut[i] = (U8)((1.0 - alpha.mV[1]) * (float)(i) + alpha.mV[1] * 255.0 * gamma_i);
+        gamma_blue_lut[i]  = (U8)((1.0 - alpha.mV[2]) * (float)(i) + alpha.mV[2] * 255.0 * gamma_i);
     }
     
     colorCorrect(gamma_red_lut,gamma_green_lut,gamma_blue_lut);
 }
 
-void LLImageRaw::filterLinearize(F32 tail)
+void LLImageRaw::filterLinearize(F32 tail, const LLColor3& alpha)
 {
     // Get the histogram
     U32* histo = getBrightnessHistogram();
@@ -1093,13 +1084,19 @@ void LLImageRaw::filterLinearize(F32 tail)
     }
     
     // Compute linear lookup table
-    U8 linear_lut[256];
+    U8 linear_red_lut[256];
+    U8 linear_green_lut[256];
+    U8 linear_blue_lut[256];
     if (max_v == min_v)
     {
         // Degenerated binary split case
         for (S32 i = 0; i < 256; i++)
         {
-            linear_lut[i] = (i < min_v ? 0 : 255);
+            U8 value_i = (i < min_v ? 0 : 255);
+            // Blend in with alpha values
+            linear_red_lut[i]   = (U8)((1.0 - alpha.mV[0]) * (float)(i) + alpha.mV[0] * value_i);
+            linear_green_lut[i] = (U8)((1.0 - alpha.mV[1]) * (float)(i) + alpha.mV[1] * value_i);
+            linear_blue_lut[i]  = (U8)((1.0 - alpha.mV[2]) * (float)(i) + alpha.mV[2] * value_i);
         }
     }
     else
@@ -1109,15 +1106,19 @@ void LLImageRaw::filterLinearize(F32 tail)
         F32 translate = -min_v * slope;
         for (S32 i = 0; i < 256; i++)
         {
-            linear_lut[i] = (U8)(llclampb((S32)(slope*i + translate)));
+            U8 value_i = (U8)(llclampb((S32)(slope*i + translate)));
+            // Blend in with alpha values
+            linear_red_lut[i]   = (U8)((1.0 - alpha.mV[0]) * (float)(i) + alpha.mV[0] * value_i);
+            linear_green_lut[i] = (U8)((1.0 - alpha.mV[1]) * (float)(i) + alpha.mV[1] * value_i);
+            linear_blue_lut[i]  = (U8)((1.0 - alpha.mV[2]) * (float)(i) + alpha.mV[2] * value_i);
         }
     }
     
     // Apply lookup table
-    colorCorrect(linear_lut,linear_lut,linear_lut);    
+    colorCorrect(linear_red_lut,linear_green_lut,linear_blue_lut);
 }
 
-void LLImageRaw::filterEqualize(S32 nb_classes)
+void LLImageRaw::filterEqualize(S32 nb_classes, const LLColor3& alpha)
 {
     // Regularize the parameter: must be between 2 and 255
     nb_classes = llmax(nb_classes,2);
@@ -1142,10 +1143,15 @@ void LLImageRaw::filterEqualize(S32 nb_classes)
     S32 current_value = 0;
     
     // Compute equalized lookup table
-    U8 equalize_lut[256];
+    U8 equalize_red_lut[256];
+    U8 equalize_green_lut[256];
+    U8 equalize_blue_lut[256];
     for (S32 i = 0; i < 256; i++)
     {
-        equalize_lut[i] = (U8)(current_value);
+        // Blend in current_value with alpha values
+        equalize_red_lut[i]   = (U8)((1.0 - alpha.mV[0]) * (float)(i) + alpha.mV[0] * current_value);
+        equalize_green_lut[i] = (U8)((1.0 - alpha.mV[1]) * (float)(i) + alpha.mV[1] * current_value);
+        equalize_blue_lut[i]  = (U8)((1.0 - alpha.mV[2]) * (float)(i) + alpha.mV[2] * current_value);
         if (cumulated_histo[i] >= current_count)
         {
             current_count += delta_count;
@@ -1155,73 +1161,65 @@ void LLImageRaw::filterEqualize(S32 nb_classes)
     }
 
     // Apply lookup table
-    colorCorrect(equalize_lut,equalize_lut,equalize_lut);
+    colorCorrect(equalize_red_lut,equalize_green_lut,equalize_blue_lut);
 }
 
-void LLImageRaw::filterColorize(const LLColor4U& color)
+void LLImageRaw::filterColorize(const LLColor3& color, const LLColor3& alpha)
 {
     U8 red_lut[256];
     U8 green_lut[256];
     U8 blue_lut[256];
     
-    F32 alpha = (F32)(color.mV[3])/255.0;
-    F32 inv_alpha = 1.0 - alpha;
-    
-    F32 red_composite   =  alpha * (F32)(color.mV[0]);
-    F32 green_composite =  alpha * (F32)(color.mV[1]);
-    F32 blue_composite  =  alpha * (F32)(color.mV[2]);
+    F32 red_composite   =  255.0 * alpha.mV[0] * color.mV[0];
+    F32 green_composite =  255.0 * alpha.mV[1] * color.mV[1];
+    F32 blue_composite  =  255.0 * alpha.mV[2] * color.mV[2];
     
     for (S32 i = 0; i < 256; i++)
     {
-        red_lut[i]   = (U8)(llclampb((S32)(inv_alpha*(F32)(i) + red_composite)));
-        green_lut[i] = (U8)(llclampb((S32)(inv_alpha*(F32)(i) + green_composite)));
-        blue_lut[i]  = (U8)(llclampb((S32)(inv_alpha*(F32)(i) + blue_composite)));
+        red_lut[i]   = (U8)(llclampb((S32)((1.0 - alpha.mV[0]) * (F32)(i) + red_composite)));
+        green_lut[i] = (U8)(llclampb((S32)((1.0 - alpha.mV[1]) * (F32)(i) + green_composite)));
+        blue_lut[i]  = (U8)(llclampb((S32)((1.0 - alpha.mV[2]) * (F32)(i) + blue_composite)));
     }
     
     colorCorrect(red_lut,green_lut,blue_lut);
 }
 
-void LLImageRaw::filterContrast(F32 slope)
+void LLImageRaw::filterContrast(F32 slope, const LLColor3& alpha)
 {
-    U8 contrast_lut[256];
+    U8 contrast_red_lut[256];
+    U8 contrast_green_lut[256];
+    U8 contrast_blue_lut[256];
     
     F32 translate = 128.0 * (1.0 - slope);
     
     for (S32 i = 0; i < 256; i++)
     {
-        contrast_lut[i] = (U8)(llclampb((S32)(slope*i + translate)));
+        U8 value_i = (U8)(llclampb((S32)(slope*i + translate)));
+        // Blend in with alpha values
+        contrast_red_lut[i]   = (U8)((1.0 - alpha.mV[0]) * (float)(i) + alpha.mV[0] * value_i);
+        contrast_green_lut[i] = (U8)((1.0 - alpha.mV[1]) * (float)(i) + alpha.mV[1] * value_i);
+        contrast_blue_lut[i]  = (U8)((1.0 - alpha.mV[2]) * (float)(i) + alpha.mV[2] * value_i);
     }
     
-    colorCorrect(contrast_lut,contrast_lut,contrast_lut);
+    colorCorrect(contrast_red_lut,contrast_green_lut,contrast_blue_lut);
 }
 
-void LLImageRaw::filterBrightness(S32 add)
+void LLImageRaw::filterBrightness(S32 add, const LLColor3& alpha)
 {
-    U8 brightness_lut[256];
+    U8 brightness_red_lut[256];
+    U8 brightness_green_lut[256];
+    U8 brightness_blue_lut[256];
     
     for (S32 i = 0; i < 256; i++)
     {
-        brightness_lut[i] = (U8)(llclampb((S32)((S32)(i) + add)));
+        U8 value_i = (U8)(llclampb((S32)((S32)(i) + add)));
+        // Blend in with alpha values
+        brightness_red_lut[i]   = (U8)((1.0 - alpha.mV[0]) * (float)(i) + alpha.mV[0] * value_i);
+        brightness_green_lut[i] = (U8)((1.0 - alpha.mV[1]) * (float)(i) + alpha.mV[1] * value_i);
+        brightness_blue_lut[i]  = (U8)((1.0 - alpha.mV[2]) * (float)(i) + alpha.mV[2] * value_i);
     }
     
-    colorCorrect(brightness_lut,brightness_lut,brightness_lut);
-}
-
-void LLImageRaw::filterMinMax(S32 min, S32 max)
-{
-    U8 contrast_lut[256];
-    min = llclampb(min);
-    max = llclampb(max);
-    
-    F32 slope = 255.0/(F32)(max - min);
-    F32 translate = -slope*min;
-    
-    for (S32 i = 0; i < 256; i++)
-    {
-        contrast_lut[i] = (U8)(llclampb((S32)(slope*i + translate)));
-    }
-    
-    colorCorrect(contrast_lut,contrast_lut,contrast_lut);    
+    colorCorrect(brightness_red_lut,brightness_green_lut,brightness_blue_lut);
 }
 
 // Filter Primitives

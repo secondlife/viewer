@@ -71,6 +71,7 @@ const S32 HTTP_PACKET_SIZE = 1496;
 class LLImageFormatted;
 class LLImageRaw;
 class LLColor4U;
+class LLColor3;
 class LLMatrix3;
 class LLPrivateMemoryPool;
 
@@ -278,19 +279,22 @@ public:
 	// Src and dst are same size.  Src has 4 components.  Dst has 3 components.
 	void compositeUnscaled4onto3( LLImageRaw* src );
     
-    // Filter Operations
+    // Filter Operations : Transforms
     void filterGrayScale();                         // Convert to grayscale
     void filterSepia();                             // Convert to sepia
     void filterSaturate(F32 saturation);            // < 1.0 desaturates, > 1.0 saturates
-    void filterRotate(F32 alpha);                   // Rotates hue according to alpha, alpha in degrees
-    void filterGamma(F32 gamma);                    // Apply gamma to all channels
-    void filterLinearize(F32 tail);                 // Use histogram to linearize constrast between min and max values minus tail
-    void filterEqualize(S32 nb_classes);            // Use histogram to equalize constrast throughout the image
-    void filterColorize(const LLColor4U& color);    // Colorize with color. Alpha will be taken into account for colorization intensity.
-    void filterContrast(F32 slope);                 // Change contrast according to slope: > 1.0 more contrast, < 1.0 less contrast
-    void filterBrightness(S32 add);                 // Change brightness according to add: > 0 brighter, < 0 darker
-    void filterColorBalance(F32 gamma_red, F32 gamma_green, F32 gamma_blue); // Change the color balance applying gammas to each channel
-    void filterMinMax(S32 min, S32 max);            // Redistribute contrast / brightness between min and max in a linear way
+    void filterRotate(F32 alpha);                   // Rotates hue according to alpha, alpha is an angle in degrees
+    
+    // Filter Operations : Color Corrections
+    // When specified, the LLColor3 alpha parameter indicates the intensity of the effect for each color channel
+    // acting in effect as an alpha blending factor different for each channel. For instance (1.0,0.0,0.0) will apply
+    // the effect only to the Red channel. Intermediate values blends the effect with the source color.
+    void filterGamma(F32 gamma, const LLColor3& alpha);         // Apply gamma to each channel
+    void filterLinearize(F32 tail, const LLColor3& alpha);      // Use histogram to linearize constrast between min and max values minus tail
+    void filterEqualize(S32 nb_classes, const LLColor3& alpha); // Use histogram to equalize constrast between nb_classes throughout the image
+    void filterColorize(const LLColor3& color, const LLColor3& alpha);  // Colorize with color and alpha per channel
+    void filterContrast(F32 slope, const LLColor3& alpha);      // Change contrast according to slope: > 1.0 more contrast, < 1.0 less contrast
+    void filterBrightness(S32 add, const LLColor3& alpha);      // Change brightness according to add: > 0 brighter, < 0 darker
    
     // Filter Primitives
     void colorTransform(const LLMatrix3 &transform);
