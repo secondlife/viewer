@@ -330,6 +330,8 @@ LLViewerOctreeEntryData::LLViewerOctreeEntryData(LLViewerOctreeEntry::eEntryData
 //virtual
 void LLViewerOctreeEntryData::setOctreeEntry(LLViewerOctreeEntry* entry)
 {
+	llassert_always(mEntry.isNull());
+
 	if(mEntry.notNull())
 	{
 		return; 
@@ -344,6 +346,15 @@ void LLViewerOctreeEntryData::setOctreeEntry(LLViewerOctreeEntry* entry)
 		mEntry = entry;
 	}
 	mEntry->addData(this);
+}
+
+void LLViewerOctreeEntryData::removeOctreeEntry()
+{
+	if(mEntry)
+	{
+		mEntry->removeData(this);
+		mEntry = NULL;
+	}
 }
 
 void LLViewerOctreeEntryData::setSpatialExtents(const LLVector3& min, const LLVector3& max)

@@ -42,12 +42,19 @@ class LLVOCacheEntry
 	public LLTrace::MemTrackable<LLVOCacheEntry, 16>
 {
 public:
-	enum //low 16-bit state
+	enum 
 	{
+		//low 16-bit state
 		INACTIVE = 0x00000000,     //not visible
 		IN_QUEUE = 0x00000001,     //in visible queue, object to be created
 		WAITING  = 0x00000002,     //object creation request sent
-		ACTIVE   = 0x00000004      //object created, and in rendering pipeline.
+		ACTIVE   = 0x00000004,      //object created, and in rendering pipeline.
+
+		//high 16-bit state
+		IN_VO_TREE = 0x00010000,    //the entry is in the object cache tree.
+
+		LOW_BITS  = 0x0000ffff,
+		HIGH_BITS = 0xffff0000
 	};
 
 	struct CompareVOCacheEntry
@@ -79,11 +86,13 @@ public:
 	LLVOCacheEntry(LLAPRFile* apr_file);
 	LLVOCacheEntry();	
 
-	void setState(U32 state);
-	//void clearState(U32 state) {mState &= ~state;}
-	bool isState(U32 state)    {return mState == state;}
-	bool hasState(U32 state)   {return mState & state;}
-	U32  getState() const      {return mState;}
+	void updateEntry(U32 crc, LLDataPackerBinaryBuffer &dp);
+
+	void clearState(U32 state) {mState &= ~state;}
+	bool hasState(U32 state)   {return mState & state;}	
+	void setState(U32 state);	
+	bool isState(U32 state)    {return (mState & LOW_BITS) == state;}	
+	U32  getState() const      {return mState & LOW_BITS;}
 	
 	bool isAnyVisible(const LLVector4a& camera_origin, const LLVector4a& local_camera_origin, F32 dist_threshold);
 
@@ -102,7 +111,6 @@ public:
 	void recordHit();
 	void recordDupe() { mDupeCount++; }
 	
-	void moveTo(LLVOCacheEntry* new_entry, bool no_entry_move = false); //copy variables 
 	/*virtual*/ void setOctreeEntry(LLViewerOctreeEntry* entry);
 
 	void setParentID(U32 id) {mParentID = id;}
@@ -110,17 +118,15 @@ public:
 
 	void addChild(LLVOCacheEntry* entry);
 	void removeChild(LLVOCacheEntry* entry);
-	void removeAllChildren();
-	LLVOCacheEntry* getChild(S32 i) {return mChildrenList[i];}
-	S32  getNumOfChildren()         {return mChildrenList.size();}
-	void clearChildrenList()        {mChildrenList.clear();}
+	LLVOCacheEntry* getChild(); //remove the first child, and return it.
+	S32  getNumOfChildren() const  {return mChildrenList.size();}
 	
 	void setBoundingInfo(const LLVector3& pos, const LLVector3& scale); //called from processing object update message	
 	void updateParentBoundingInfo();
 	void saveBoundingSphere();
 
-	void setTouched(BOOL touched = TRUE) {mTouched = touched;}
-	BOOL isTouched() const {return mTouched;}
+	void setValid(BOOL valid = TRUE) {mValid = valid;}
+	BOOL isValid() const {return mValid;}
 
 	void setUpdateFlags(U32 flags) {mUpdateFlags = flags;}
 	U32  getUpdateFlags() const    {return mUpdateFlags;}
@@ -150,9 +156,9 @@ protected:
 
 	F32                         mSceneContrib; //projected scene contributuion of this object.
 	U32                         mState; //high 16 bits reserved for special use.
-	std::vector<LLVOCacheEntry*> mChildrenList; //children entries in a linked set.
+	vocache_entry_set_t         mChildrenList; //children entries in a linked set.
 
-	BOOL                        mTouched; //if set, this entry is valid, otherwise it is invalid.
+	BOOL                        mValid; //if set, this entry is valid, otherwise it is invalid and will be removed.
 
 	LLVector4a                  mBSphereCenter; //bounding sphere center
 	F32                         mBSphereRadius; //bounding sphere radius

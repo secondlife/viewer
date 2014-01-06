@@ -140,6 +140,7 @@ public:
 	LLViewerOctreeEntry* getEntry() {return mEntry;}
 	
 	virtual void setOctreeEntry(LLViewerOctreeEntry* entry);
+	void         removeOctreeEntry();
 
 	F32                  getBinRadius() const   {return mEntry->getBinRadius();}
 	const LLVector4a*    getSpatialExtents() const;

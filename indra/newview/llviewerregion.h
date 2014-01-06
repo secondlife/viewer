@@ -331,7 +331,7 @@ public:
 	eCacheUpdateResult cacheFullUpdate(LLDataPackerBinaryBuffer &dp, U32 flags);
 	eCacheUpdateResult cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp, U32 flags);	
 	LLVOCacheEntry* getCacheEntryForOctree(U32 local_id);
-	LLVOCacheEntry* getCacheEntry(U32 local_id);
+	LLVOCacheEntry* getCacheEntry(U32 local_id, bool valid = true);
 	bool probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss_type);
 	void requestCacheMisses();
 	void addCacheMissFull(const U32 local_id);
@@ -384,7 +384,6 @@ private:
 	LLViewerObject* addNewObject(LLVOCacheEntry* entry);
 	void killObject(LLVOCacheEntry* entry, std::vector<LLDrawable*>& delete_list);	
 	void removeFromVOCacheTree(LLVOCacheEntry* entry);
-	void replaceVisibleCacheEntry(LLVOCacheEntry* old_entry, LLVOCacheEntry* new_entry);
 	void killCacheEntry(LLVOCacheEntry* entry, bool for_rendering = false); //physically delete the cache entry	
 	void killInvisibleObjects(F32 max_time);
 	void createVisibleObjects(F32 max_time);

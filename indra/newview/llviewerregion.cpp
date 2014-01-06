@@ -806,50 +806,10 @@ void LLViewerRegion::dirtyHeights()
 	}
 }
 
-void LLViewerRegion::replaceVisibleCacheEntry(LLVOCacheEntry* old_entry, LLVOCacheEntry* new_entry)
-{
-	//save old entry
-	old_entry->moveTo(new_entry);
-	U32 state = old_entry->getState();
-	U32 old_parent_id = old_entry->getParentID();
-
-	//kill old entry
-	killCacheEntry(old_entry);
-	
-	//parse new entry
-	U32	new_parent_id = 0;
-	LLViewerObject::unpackParentID(new_entry->getDP(), new_parent_id);
-	
-	//store new entry
-	mImpl->mCacheMap[new_entry->getLocalID()] = new_entry;	
-	
-	//process entry state
-	new_entry->setState(state);
-	if(state == LLVOCacheEntry::ACTIVE)
-	{
-		llassert(new_entry->getEntry()->hasDrawable());
-		mImpl->mActiveSet.insert(new_entry);
-	}
-	else if(state == LLVOCacheEntry::WAITING)
-	{
-		mImpl->mWaitingSet.insert(new_entry);
-	}
-	
-	//process parent info
-	if(!old_parent_id && new_parent_id > 0) //becomes a child
-	{
-		new_entry->clearChildrenList();
-	}
-	new_entry->setParentID(new_parent_id);
-
-	//update the object
-	gObjectList.processObjectUpdateFromCache(new_entry, this);
-}
-
 //physically delete the cache entry
 void LLViewerRegion::killCacheEntry(LLVOCacheEntry* entry, bool for_rendering)
 {	
-	if(!entry)
+	if(!entry || !entry->isValid())
 	{
 		return;
 	}
@@ -889,22 +849,18 @@ void LLViewerRegion::killCacheEntry(LLVOCacheEntry* entry, bool for_rendering)
 	}
 	else if(entry->getNumOfChildren() > 0)//remove children from cache if has any
 	{
-		S32 num_child = entry->getNumOfChildren();
-
-		LLVOCacheEntry* child;
-		for(S32 i = 0; i < num_child; i++)
+		LLVOCacheEntry* child = entry->getChild();
+		while(child != NULL)
 		{
-			child = entry->getChild(i);
-			if(child)
-			{
-				child->setParentID(0); //disconnect from parent
-				killCacheEntry(child, for_rendering);
-			}
+			killCacheEntry(child, for_rendering);
+			child = entry->getChild();
 		}
 	}
 
-	//remove from mCacheMap, real deletion
-	mImpl->mCacheMap.erase(entry->getLocalID());
+	//will remove it from the object cache, real deletion
+	entry->setState(LLVOCacheEntry::INACTIVE);
+	entry->removeOctreeEntry();
+	entry->setValid(FALSE);
 }
 
 //physically delete the cache entry	
@@ -924,6 +880,10 @@ void LLViewerRegion::addActiveCacheEntry(LLVOCacheEntry* entry)
 	{
 		return;
 	}
+	if(entry->isState(LLVOCacheEntry::ACTIVE))
+	{
+		return; //already inserted.
+	}
 
 	if(entry->isState(LLVOCacheEntry::WAITING))
 	{
@@ -939,9 +899,13 @@ void LLViewerRegion::addActiveCacheEntry(LLVOCacheEntry* entry)
 
 void LLViewerRegion::removeActiveCacheEntry(LLVOCacheEntry* entry, LLDrawable* drawablep)
 {
-	if(mDead || !entry)
+	if(mDead || !entry || !entry->isValid())
 	{
 		return;
+	}
+	if(!entry->isState(LLVOCacheEntry::ACTIVE))
+	{
+		return; //not an active entry.
 	}
 
 	//shift to the local regional space from agent space
@@ -1004,11 +968,7 @@ void LLViewerRegion::addToVOCacheTree(LLVOCacheEntry* entry)
 		return;
 	}
 
-	if(mDead || !entry || !entry->getEntry())
-	{
-		return;
-	}
-	if(entry->getGroup()) //already in octree.
+	if(mDead || !entry || !entry->getEntry() || !entry->isValid())
 	{
 		return;
 	}
@@ -1017,7 +977,14 @@ void LLViewerRegion::addToVOCacheTree(LLVOCacheEntry* entry)
 		return; //no child prim in cache octree.
 	}
 
-	llassert(!entry->getEntry()->hasDrawable());
+	if(entry->hasState(LLVOCacheEntry::IN_VO_TREE))
+	{
+		return; //already in the tree.
+	}
+	entry->setState(LLVOCacheEntry::IN_VO_TREE);
+
+	llassert_always(!entry->getGroup()); //not in octree.
+	llassert(!entry->getEntry()->hasDrawable()); //not have drawables
 
 	mImpl->mVOCachePartition->addEntry(entry->getEntry());
 }
@@ -1028,10 +995,12 @@ void LLViewerRegion::removeFromVOCacheTree(LLVOCacheEntry* entry)
 	{
 		return;
 	}
-	if(!entry->getGroup())
+	
+	if(!entry->hasState(LLVOCacheEntry::IN_VO_TREE))
 	{
-		return;
+		return; //not in the tree.
 	}
+	entry->clearState(LLVOCacheEntry::IN_VO_TREE);
 
 	mImpl->mVOCachePartition->removeEntry(entry->getEntry());	
 }
@@ -1039,7 +1008,7 @@ void LLViewerRegion::removeFromVOCacheTree(LLVOCacheEntry* entry)
 //add the visible entries
 void LLViewerRegion::addVisibleCacheEntry(LLVOCacheEntry* entry)
 {
-	if(mDead || !entry || !entry->getEntry())
+	if(mDead || !entry || !entry->getEntry() || !entry->isValid())
 	{
 		return; 
 	}
@@ -1053,7 +1022,22 @@ void LLViewerRegion::addVisibleCacheEntry(LLVOCacheEntry* entry)
 	{
 		entry->setState(LLVOCacheEntry::IN_QUEUE);
 	}
-	mImpl->mVisibleEntries.insert(entry);
+
+	if(!entry->isState(LLVOCacheEntry::ACTIVE))
+	{
+		mImpl->mVisibleEntries.insert(entry);
+	}
+
+	//add all children
+	if(entry->getNumOfChildren() > 0)
+	{
+		LLVOCacheEntry* child = entry->getChild();
+		while(child != NULL)
+		{
+			addVisibleCacheEntry(child);
+			child = entry->getChild();
+		}
+	}
 }
 
 void LLViewerRegion::updateVisibleEntries(F32 max_time)
@@ -1085,53 +1069,18 @@ void LLViewerRegion::updateVisibleEntries(F32 max_time)
 	for(LLVOCacheEntry::vocache_entry_set_t::iterator iter = mImpl->mVisibleEntries.begin(); iter != mImpl->mVisibleEntries.end();)
 	{
 		LLVOCacheEntry* vo_entry = *iter;
-
-		//set a large number to force to load this object.
-		vo_entry->setSceneContribution(LARGE_SCENE_CONTRIBUTION);
-
-		if(vo_entry->getState() < LLVOCacheEntry::WAITING)
-		{			
+		
+		if(vo_entry->isValid() && vo_entry->getState() < LLVOCacheEntry::WAITING)
+		{
+			//set a large number to force to load this object.
+			vo_entry->setSceneContribution(LARGE_SCENE_CONTRIBUTION);
+			
 			mImpl->mWaitingList.insert(vo_entry);
-		}
-
-		LLVOCacheEntry* child;
-		S32 num_child = vo_entry->getNumOfChildren();
-		S32 num_done = 0;
-		for(S32 i = 0; i < num_child; i++)
-		{
-			child = vo_entry->getChild(i);
-			if(child->getState() < LLVOCacheEntry::WAITING)
-			{
-				child->setSceneContribution(LARGE_SCENE_CONTRIBUTION); //a large number to force to load the child.
-				mImpl->mWaitingList.insert(child);
-			}
-			else
-			{
-				num_done++;
-			}
-		}
-		if(num_done == num_child)
-		{
-			vo_entry->clearChildrenList();
-		}
-
-		if(!vo_entry->getNumOfChildren())
-		{
-			if(vo_entry->getState() >= LLVOCacheEntry::WAITING)
-			{
-				LLVOCacheEntry::vocache_entry_set_t::iterator next_iter = iter;
-				++next_iter;
-				mImpl->mVisibleEntries.erase(iter);
-				iter = next_iter;
-			}
-			else
-			{
-				++iter;
-			}
+			++iter;
 		}
 		else
 		{
-			++iter;
+			iter = mImpl->mVisibleEntries.erase(iter);
 		}
 	}
 
@@ -1162,6 +1111,10 @@ void LLViewerRegion::updateVisibleEntries(F32 max_time)
 				{
 					//child visibility depends on its parent.
 					continue;
+				}
+				if(!vo_entry->isValid())
+				{
+					continue; //skip invalid entry.
 				}
 
 				vo_entry->calcSceneContribution(local_origin, needs_update, last_update, dist_threshold);
@@ -1240,10 +1193,7 @@ void LLViewerRegion::clearCachedVisibleObjects()
 				parent->addChild(entry);
 			}
 
-			LLVOCacheEntry::vocache_entry_set_t::iterator next_iter = iter;
-			++next_iter;
-			mImpl->mVisibleEntries.erase(iter);
-			iter = next_iter;
+			iter = mImpl->mVisibleEntries.erase(iter);
 		}
 		else //parent is not cache-able, leave it.
 		{
@@ -2044,8 +1994,7 @@ void LLViewerRegion::findOrphans(U32 parent_id)
 		for(S32 i = 0; i < children->size(); i++)
 		{
 			//parent is visible, so is the child.
-			LLVOCacheEntry* child = getCacheEntry((*children)[i]);
-			addVisibleCacheEntry(child);
+			addVisibleCacheEntry(getCacheEntry((*children)[i]));
 		}
 		children->clear();
 		mOrphanMap.erase(parent_id);
@@ -2059,46 +2008,50 @@ void LLViewerRegion::decodeBoundingInfo(LLVOCacheEntry* entry)
 		gObjectList.processObjectUpdateFromCache(entry, this);
 		return;
 	}
+	if(!entry || !entry->isValid())
+	{
+		return;
+	}
 
-	if(entry != NULL && !entry->getEntry())
+	if(!entry->getEntry())
 	{
 		entry->setOctreeEntry(NULL);
-		
-		if(entry->getEntry()->hasDrawable()) //already in the rendering pipeline
-		{
-			LLViewerRegion* old_regionp = ((LLDrawable*)entry->getEntry()->getDrawable())->getRegion();
-			if(old_regionp != this && old_regionp)
-			{
-				LLViewerObject* obj = ((LLDrawable*)entry->getEntry()->getDrawable())->getVObj();
-				if(obj)
-				{
-					//remove from old region
-					old_regionp->killCacheEntry(obj->getLocalID());
-
-					//change region
-					obj->setRegion(this);
-				}
-			}
-
-			addActiveCacheEntry(entry);
-		
-			//set parent id
-			U32	parent_id = 0;
-			LLViewerObject::unpackParentID(entry->getDP(), parent_id);
-			if(parent_id > 0)
-			{
-				entry->setParentID(parent_id);
-			}
-
-			//update the object
-			gObjectList.processObjectUpdateFromCache(entry, this);
-			return; //done
-		}
 	}
-	else if(entry->getGroup() != NULL)
+		
+	if(entry->getEntry()->hasDrawable()) //already in the rendering pipeline
 	{
-		return; //already in octree, no post processing.
-	}	
+		LLViewerRegion* old_regionp = ((LLDrawable*)entry->getEntry()->getDrawable())->getRegion();
+		if(old_regionp != this && old_regionp)
+		{
+			LLViewerObject* obj = ((LLDrawable*)entry->getEntry()->getDrawable())->getVObj();
+			if(obj)
+			{
+				//remove from old region
+				old_regionp->killCacheEntry(obj->getLocalID());
+
+				//change region
+				obj->setRegion(this);
+			}
+		}
+
+		addActiveCacheEntry(entry);
+		
+		//set parent id
+		U32	parent_id = 0;
+		LLViewerObject::unpackParentID(entry->getDP(), parent_id);
+		if(parent_id != entry->getParentID())
+		{				
+			entry->setParentID(parent_id);
+		}
+
+		//update the object
+		gObjectList.processObjectUpdateFromCache(entry, this);
+		return; //done
+	}
+	
+	//must not be active.
+	llassert_always(!entry->isState(LLVOCacheEntry::ACTIVE));
+	removeFromVOCacheTree(entry); //remove from cache octree if it is in.
 
 	LLVector3 pos;
 	LLVector3 scale;
@@ -2107,27 +2060,56 @@ void LLViewerRegion::decodeBoundingInfo(LLVOCacheEntry* entry)
 	//decode spatial info and parent info
 	U32 parent_id = LLViewerObject::extractSpatialExtents(entry->getDP(), pos, scale, rot);
 	
-	if(parent_id > 0) //has parent
+	U32 old_parent_id = entry->getParentID();
+	bool same_old_parent = false;
+	if(parent_id != old_parent_id) //parent changed.
 	{
+		if(old_parent_id > 0) //has an old parent, disconnect it
+		{
+			LLVOCacheEntry* old_parent = getCacheEntry(old_parent_id);
+			if(old_parent)
+			{
+				old_parent->removeChild(entry);
+				if(!old_parent->isState(LLVOCacheEntry::INACTIVE))
+				{
+					mImpl->mVisibleEntries.erase(entry);
+					entry->setState(LLVOCacheEntry::INACTIVE);
+				}
+			}
+		}
 		entry->setParentID(parent_id);
-	
+	}
+	else
+	{
+		same_old_parent = true;
+	}
+
+	if(parent_id > 0) //has a new parent
+	{	
 		//1, find the parent in cache
 		LLVOCacheEntry* parent = getCacheEntry(parent_id);
 		
 		//2, parent is not in the cache, put into the orphan list.
 		if(!parent)
 		{
-			//check if parent is non-cacheable and already created
-			if(isNonCacheableObjectCreated(parent_id))
+			if(!same_old_parent)
 			{
-				//parent is visible, so is the child.
-				addVisibleCacheEntry(entry);
+				//check if parent is non-cacheable and already created
+				if(isNonCacheableObjectCreated(parent_id))
+				{
+					//parent is visible, so is the child.
+					addVisibleCacheEntry(entry);
+				}
+				else
+				{
+					entry->setBoundingInfo(pos, scale);
+					mOrphanMap[parent_id].push_back(entry->getLocalID());
+				}
 			}
 			else
 			{
 				entry->setBoundingInfo(pos, scale);
-				mOrphanMap[parent_id].push_back(entry->getLocalID());
-		    }
+			}
 		}
 		else //parent in cache.
 		{
@@ -2194,10 +2176,12 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLDataPackerB
 	LLViewerObject::unpackU32(&dp, local_id, "LocalID");
 	LLViewerObject::unpackU32(&dp, crc, "CRC");
 
-	LLVOCacheEntry* entry = getCacheEntry(local_id);
+	LLVOCacheEntry* entry = getCacheEntry(local_id, false);
 
 	if (entry)
 	{
+		entry->setValid();
+
 		// we've seen this object before
 		if (entry->getCRC() == crc)
 		{
@@ -2205,31 +2189,15 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLDataPackerB
 			entry->recordDupe();
 			result = CACHE_UPDATE_DUPE;
 		}
-		else
+		else //CRC changed
 		{
 			// Update the cache entry
-			LLPointer<LLVOCacheEntry> new_entry = new LLVOCacheEntry(local_id, crc, dp);
-			
-			//if visible, update it
-			if(!entry->isState(LLVOCacheEntry::INACTIVE))
-			{
-				replaceVisibleCacheEntry(entry, new_entry);
-			}
-			else //invisible
-			{
-				//copy some contents from old entry
-				entry->moveTo(new_entry, true);
+			entry->updateEntry(crc, dp);
 
-				//remove old entry
-				killCacheEntry(entry);
-				entry = new_entry;
-				
-				mImpl->mCacheMap[local_id] = entry;
-				decodeBoundingInfo(entry);
-			}
+			decodeBoundingInfo(entry);
 
 			result = CACHE_UPDATE_CHANGED;
-		}
+		}		
 	}
 	else
 	{
@@ -2268,12 +2236,15 @@ LLVOCacheEntry* LLViewerRegion::getCacheEntryForOctree(U32 local_id)
 	return entry;
 }
 
-LLVOCacheEntry* LLViewerRegion::getCacheEntry(U32 local_id)
+LLVOCacheEntry* LLViewerRegion::getCacheEntry(U32 local_id, bool valid)
 {
 	LLVOCacheEntry::vocache_entry_map_t::iterator iter = mImpl->mCacheMap.find(local_id);
 	if(iter != mImpl->mCacheMap.end())
 	{
-		return iter->second;
+		if(!valid || iter->second->isValid())
+		{
+			return iter->second;
+		}
 	}
 	return NULL;
 }
@@ -2323,7 +2294,7 @@ bool LLViewerRegion::probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss
 {
 	//llassert(mCacheLoaded);  This assert failes often, changing to early-out -- davep, 2010/10/18
 
-	LLVOCacheEntry* entry = getCacheEntry(local_id);
+	LLVOCacheEntry* entry = getCacheEntry(local_id, false);
 
 	if (entry)
 	{
@@ -2341,15 +2312,12 @@ bool LLViewerRegion::probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss
 				return true;
 			}
 
-			if(entry->getGroup() || !entry->isState(LLVOCacheEntry::INACTIVE)) //already probed
+			if(entry->isValid())
 			{
-				return true;
-			}
-			if(entry->getParentID() > 0) //already probed
-			{
-				return true;
+				return true; //already probed
 			}
 
+			entry->setValid();
 			decodeBoundingInfo(entry);
 			return true;
 		}

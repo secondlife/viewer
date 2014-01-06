@@ -69,7 +69,7 @@ LLVOCacheEntry::LLVOCacheEntry(U32 local_id, U32 crc, LLDataPackerBinaryBuffer &
 	mCRCChangeCount(0),
 	mState(INACTIVE),
 	mSceneContrib(0.f),
-	mTouched(TRUE),
+	mValid(TRUE),
 	mParentID(0),
 	mBSphereRadius(-1.0f)
 {
@@ -90,7 +90,7 @@ LLVOCacheEntry::LLVOCacheEntry()
 	mBuffer(NULL),
 	mState(INACTIVE),
 	mSceneContrib(0.f),
-	mTouched(TRUE),
+	mValid(TRUE),
 	mParentID(0),
 	mBSphereRadius(-1.0f)
 {
@@ -104,7 +104,7 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 	mUpdateFlags(-1),
 	mState(INACTIVE),
 	mSceneContrib(0.f),
-	mTouched(FALSE),
+	mValid(FALSE),
 	mParentID(0),
 	mBSphereRadius(-1.0f)
 {
@@ -169,14 +169,29 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 		mCRCChangeCount = 0;
 		mBuffer = NULL;
 		mEntry = NULL;
-		mState = 0;
+		mState = INACTIVE;
 	}
 }
 
 LLVOCacheEntry::~LLVOCacheEntry()
 {
 	mDP.freeBuffer();
-	//llassert(mState == INACTIVE);
+}
+
+void LLVOCacheEntry::updateEntry(U32 crc, LLDataPackerBinaryBuffer &dp)
+{
+	if(mCRC != crc)
+	{
+		mCRC = crc;
+		mCRCChangeCount++;
+	}
+
+	mDP.freeBuffer();
+
+	llassert_always(dp.getBufferSize() > 0);
+	mBuffer = new U8[dp.getBufferSize()];
+	mDP.assignBuffer(mBuffer, dp.getBufferSize());
+	mDP = dp;
 }
 
 //virtual 
@@ -197,27 +212,19 @@ void LLVOCacheEntry::setOctreeEntry(LLViewerOctreeEntry* entry)
 	LLViewerOctreeEntryData::setOctreeEntry(entry);
 }
 
-void LLVOCacheEntry::moveTo(LLVOCacheEntry* new_entry, bool no_entry_move)
-{
-	//copy LLViewerOctreeEntry
-	if(mEntry.notNull() && !no_entry_move)
-	{
-		new_entry->setOctreeEntry(mEntry);
-		mEntry = NULL;
-	}
-
-	//copy children
-	S32 num_children = getNumOfChildren();
-	for(S32 i = 0; i < num_children; i++)
-	{
-		new_entry->addChild(getChild(i));
-	}
-	mChildrenList.clear();
-}
-
 void LLVOCacheEntry::setState(U32 state)
 {
-	mState = state;
+	if(state > LOW_BITS) //special states
+	{
+		mState |= (HIGH_BITS & state);
+		return;
+	}
+
+	//
+	//otherwise LOW_BITS states
+	//
+	clearState(LOW_BITS);
+	mState |= (LOW_BITS & state);
 
 	if(getState() == ACTIVE)
 	{
@@ -249,8 +256,8 @@ void LLVOCacheEntry::addChild(LLVOCacheEntry* entry)
 	{
 		return;
 	}
-
-	mChildrenList.push_back(entry);
+	
+	mChildrenList.insert(entry);
 
 	//update parent bbox
 	if(getEntry() != NULL && isState(INACTIVE))
@@ -262,24 +269,27 @@ void LLVOCacheEntry::addChild(LLVOCacheEntry* entry)
 	
 void LLVOCacheEntry::removeChild(LLVOCacheEntry* entry)
 {
-	for(S32 i = 0; i < mChildrenList.size(); i++)
+	entry->setParentID(0);
+
+	vocache_entry_set_t::iterator iter = mChildrenList.find(entry);
+	if(iter != mChildrenList.end())
 	{
-		if(mChildrenList[i] == entry)
-		{
-			entry->setParentID(0);
-			mChildrenList[i] = mChildrenList[mChildrenList.size() - 1];
-			mChildrenList.pop_back();
-		}
+		mChildrenList.erase(iter);
 	}
 }
 
-void LLVOCacheEntry::removeAllChildren()
+//remove the first child, and return it.
+LLVOCacheEntry* LLVOCacheEntry::getChild()
 {
-	for(S32 i = 0; i < mChildrenList.size(); i++)
+	LLVOCacheEntry* child = NULL;
+	vocache_entry_set_t::iterator iter = mChildrenList.begin();
+	if(iter != mChildrenList.end())
 	{
-		mChildrenList[i]->setParentID(0);
+		child = *iter;
+		mChildrenList.erase(iter);
 	}
-	mChildrenList.clear();
+
+	return child;
 }
 
 LLDataPackerBinaryBuffer *LLVOCacheEntry::getDP()
@@ -295,7 +305,6 @@ LLDataPackerBinaryBuffer *LLVOCacheEntry::getDP()
 
 void LLVOCacheEntry::recordHit()
 {
-	setTouched();
 	mHitCount++;
 }
 
@@ -505,9 +514,9 @@ void LLVOCacheEntry::updateParentBoundingInfo()
 		return;
 	}
 
-	for(S32 i = 0; i < mChildrenList.size(); i++)
+	for(vocache_entry_set_t::iterator iter = mChildrenList.begin(); iter != mChildrenList.end(); ++iter)
 	{
-		updateParentBoundingInfo(mChildrenList[i]);
+		updateParentBoundingInfo(*iter);
 	}
 	resetVisible();
 }
@@ -1463,7 +1472,7 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
 	
 			for (LLVOCacheEntry::vocache_entry_map_t::const_iterator iter = cache_entry_map.begin(); success && iter != cache_entry_map.end(); ++iter)
 			{
-				if(!removal_enabled || iter->second->isTouched())
+				if(!removal_enabled || iter->second->isValid())
 				{
 					success = iter->second->writeToFile(&apr_file) ;
 					if(!success)
