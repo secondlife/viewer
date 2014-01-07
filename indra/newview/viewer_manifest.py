@@ -38,7 +38,7 @@ viewer_dir = os.path.dirname(__file__)
 # Put it FIRST because some of our build hosts have an ancient install of
 # indra.util.llmanifest under their system Python!
 sys.path.insert(0, os.path.join(viewer_dir, os.pardir, "lib", "python"))
-from indra.util.llmanifest import LLManifest, main, proper_windows_path, path_ancestors
+from indra.util.llmanifest import LLManifest, main, proper_windows_path, path_ancestors, CHANNEL_VENDOR_BASE, RELEASE_CHANNEL
 try:
     from llbase import llsd
 except ImportError:
@@ -112,21 +112,29 @@ class ViewerManifest(LLManifest):
                                   Persist=1,
                                   Type='String',
                                   Value=''),
+                    CmdLineGridChoice=dict(Comment='Default grid',
+                                  Persist=0,
+                                  Type='String',
+                                  Value=''),
                     CmdLineChannel=dict(Comment='Command line specified channel name',
                                         Persist=0,
                                         Type='String',
                                         Value=''))
                 settings_install = {}
-                for key, setting in (("sourceid", "sourceid"),
-                                     ("channel", "CmdLineChannel")):
-                    if key in self.args:
-                        # only set if value is non-empty
-                        if self.args[key]:
-                            # copy corresponding setting from settings_template
-                            settings_install[setting] = settings_template[setting].copy()
-                            # then fill in Value
-                            settings_install[setting]["Value"] = self.args[key]
-                            print "Put %s '%s' in settings_install.xml" % (setting, self.args[key])
+                if 'sourceid' in self.args and self.args['sourceid']:
+                    settings_install['sourceid'] = settings_template['sourceid'].copy()
+                    settings_install['sourceid']['Value'] = self.args['sourceid']
+                    print "Set sourceid in settings_install.xml to '%s'" % self.args['sourceid']
+
+                if 'channel_suffix' in self.args and self.args['channel_suffix']:
+                    settings_install['CmdLineChannel'] = settings_template['CmdLineChannel'].copy()
+                    settings_install['CmdLineChannel']['Value'] = self.channel_with_pkg_suffix()
+                    print "Set CmdLineChannel in settings_install.xml to '%s'" % self.channel_with_pkg_suffix()
+
+                if 'grid' in self.args and self.args['grid']:
+                    settings_install['CmdLineGridChoice'] = settings_template['CmdLineGridChoice'].copy()
+                    settings_install['CmdLineGridChoice']['Value'] = self.grid()
+                    print "Set CmdLineGridChoice in settings_install.xml to '%s'" % self.grid()
 
                 # did we actually copy anything into settings_install dict?
                 if settings_install:
@@ -197,62 +205,72 @@ class ViewerManifest(LLManifest):
 
     def grid(self):
         return self.args['grid']
+
     def channel(self):
         return self.args['channel']
-    def channel_unique(self):
-        return self.channel().replace("Second Life", "").strip()
-    def channel_oneword(self):
-        return "".join(self.channel_unique().split())
-    def channel_lowerword(self):
-        return self.channel_oneword().lower()
+
+    def channel_with_pkg_suffix(self):
+        fullchannel=self.channel()
+        if 'channel_suffix' in self.args and self.args['channel_suffix']:
+            fullchannel+=' '+self.args['channel_suffix']
+        return fullchannel
+
+    def channel_variant(self):
+        global CHANNEL_VENDOR_BASE
+        return self.channel().replace(CHANNEL_VENDOR_BASE, "").strip()
+
+    def channel_type(self): # returns 'release', 'beta', 'project', or 'test'
+        global CHANNEL_VENDOR_BASE
+        channel_qualifier=self.channel().replace(CHANNEL_VENDOR_BASE, "").lower().strip()
+        if channel_qualifier.startswith('release'):
+            channel_type='release'
+        elif channel_qualifier.startswith('beta'):
+            channel_type='beta'
+        elif channel_qualifier.startswith('project'):
+            channel_type='project'
+        else:
+            channel_type='test'
+        return channel_type
+
+    def channel_variant_app_suffix(self):
+        # get any part of the compiled channel name after the CHANNEL_VENDOR_BASE
+        suffix=self.channel_variant()
+        # by ancient convention, we don't use Release in the app name
+        if self.channel_type() == 'release':
+            suffix=suffix.replace('Release', '').strip()
+        # for the base release viewer, suffix will now be null - for any other, append what remains
+        if len(suffix) > 0:
+            suffix = "_"+ ("_".join(suffix.split()))
+        # the additional_packages mechanism adds more to the installer name (but not to the app name itself)
+        if 'channel_suffix' in self.args and self.args['channel_suffix']:
+            suffix+='_'+("_".join(self.args['channel_suffix'].split()))
+        return suffix
+
+    def installer_base_name(self):
+        global CHANNEL_VENDOR_BASE
+        # a standard map of strings for replacing in the templates
+        substitution_strings = {
+            'channel_vendor_base' : '_'.join(CHANNEL_VENDOR_BASE.split()),
+            'channel_variant_underscores':self.channel_variant_app_suffix(),
+            'version_underscores' : '_'.join(self.args['version']),
+            'arch':self.args['arch']
+            }
+        return "%(channel_vendor_base)s%(channel_variant_underscores)s_%(version_underscores)s_%(arch)s" % substitution_strings
 
     def app_name(self):
-        app_suffix='Test'
-        channel_type=self.channel_lowerword()
-        if channel_type.startswith('release') :
+        global CHANNEL_VENDOR_BASE
+        channel_type=self.channel_type()
+        if channel_type == 'release':
             app_suffix='Viewer'
-        elif re.match('^(beta|project).*',channel_type) :
-            app_suffix=self.channel_unique()
-        return "Second Life "+app_suffix
-        
+        else:
+            app_suffix=self.channel_variant()
+        return CHANNEL_VENDOR_BASE + ' ' + app_suffix
+
+    def app_name_oneword(self):
+        return ''.join(self.app_name().split())
+    
     def icon_path(self):
-        icon_path="icons/"
-        channel_type=self.channel_lowerword()
-        print "Icon channel type '%s'" % channel_type
-        if channel_type.startswith('release') :
-            icon_path += 'release'
-        elif re.match('^beta.*',channel_type) :
-            icon_path += 'beta'
-        elif re.match('^project.*',channel_type) :
-            icon_path += 'project'
-        else :
-            icon_path += 'test'
-        return icon_path
-
-    def flags_list(self):
-        """ Convenience function that returns the command-line flags
-        for the grid"""
-
-        # The original role of this method seems to have been to build a
-        # grid-specific viewer: one that would, on launch, preselect a
-        # particular grid. (Apparently that dates back to when the protocol
-        # between viewer and simulator required them to be updated in
-        # lockstep, so that "the beta grid" required "a beta viewer.") But
-        # those viewer command-line switches no longer work without tweaking
-        # user_settings/grids.xml. In fact, going forward, it's unclear what
-        # use case that would address.
-
-        # This method also set a channel-specific (or grid-and-channel-
-        # specific) user_settings/settings_something.xml file. It has become
-        # clear that saving user settings in a channel-specific file causes
-        # more problems (confusion) than it solves, so we've discontinued that.
-
-        # In fact we now avoid forcing viewer command-line switches at all,
-        # instead introducing a settings_install.xml file. Command-line
-        # switches don't aggregate well; for instance the generated --channel
-        # switch actually prevented the user specifying --channel on the
-        # command line. Settings files have well-defined override semantics.
-        return None
+        return "icons/" + self.channel_type()
 
     def extract_names(self,src):
         try:
@@ -277,15 +295,9 @@ class ViewerManifest(LLManifest):
         random.shuffle(names)
         return ', '.join(names)
 
-class WindowsManifest(ViewerManifest):
+class Windows_i686_Manifest(ViewerManifest):
     def final_exe(self):
-        app_suffix="Test"
-        channel_type=self.channel_lowerword()
-        if channel_type.startswith('release') :
-            app_suffix=''
-        elif re.match('^(beta|project).*',channel_type) :
-            app_suffix=''.join(self.channel_unique().split())
-        return "SecondLife"+app_suffix+".exe"
+        return self.app_name_oneword()+".exe"
 
     def test_msvcrt_and_copy_action(self, src, dst):
         # This is used to test a dll manifest.
@@ -334,7 +346,7 @@ class WindowsManifest(ViewerManifest):
             print "Doesn't exist:", src
         
     def construct(self):
-        super(WindowsManifest, self).construct()
+        super(Windows_i686_Manifest, self).construct()
 
         if self.is_packaging_viewer():
             # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
@@ -567,65 +579,33 @@ class WindowsManifest(ViewerManifest):
             'version_short' : '.'.join(self.args['version'][:-1]),
             'version_dashes' : '-'.join(self.args['version']),
             'final_exe' : self.final_exe(),
-            'grid':self.args['grid'],
-            'grid_caps':self.args['grid'].upper(),
             'flags':'',
-            'channel':self.channel(),
-            'channel_oneword':self.channel_oneword(),
-            'channel_unique':self.channel_unique(),
-            'subchannel_underscores':'_'.join(self.channel_unique().split())
+            'app_name':self.app_name(),
+            'app_name_oneword':self.app_name_oneword()
             }
 
+        installer_file = self.installer_base_name() + '_Setup.exe'
+        substitution_strings['installer_file'] = installer_file
+        
         version_vars = """
         !define INSTEXE  "%(final_exe)s"
         !define VERSION "%(version_short)s"
         !define VERSION_LONG "%(version)s"
         !define VERSION_DASHES "%(version_dashes)s"
         """ % substitution_strings
-        if self.default_channel():
-            if self.default_grid():
-                # release viewer
-                installer_file = "Second_Life_%(version_dashes)s_Setup.exe"
-                grid_vars_template = """
-                OutFile "%(installer_file)s"
-                !define INSTFLAGS "%(flags)s"
-                !define INSTNAME   "SecondLifeViewer"
-                !define SHORTCUT   "Second Life Viewer"
-                !define URLNAME   "secondlife"
-                Caption "Second Life"
-                """
-            else:
-                # alternate grid viewer
-                installer_file = "Second_Life_%(version_dashes)s_(%(grid_caps)s)_Setup.exe"
-                grid_vars_template = """
-                OutFile "%(installer_file)s"
-                !define INSTFLAGS "%(flags)s"
-                !define INSTNAME   "SecondLife%(grid_caps)s"
-                !define SHORTCUT   "Second Life (%(grid_caps)s)"
-                !define URLNAME   "secondlife%(grid)s"
-                !define UNINSTALL_SETTINGS 1
-                Caption "Second Life %(grid)s ${VERSION}"
-                """
+        
+        if self.channel_type() == 'release':
+            substitution_strings['caption'] = CHANNEL_VENDOR_BASE
         else:
-            # some other channel (grid name not used)
-            installer_file = "Second_Life_%(version_dashes)s_%(subchannel_underscores)s_Setup.exe"
-            grid_vars_template = """
+            substitution_strings['caption'] = self.app_name() + ' ${VERSION}'
+
+        inst_vars_template = """
             OutFile "%(installer_file)s"
-            !define INSTFLAGS "%(flags)s"
-            !define INSTNAME   "SecondLife%(channel_oneword)s"
-            !define SHORTCUT   "%(channel)s"
+            !define INSTNAME   "%(app_name_oneword)s"
+            !define SHORTCUT   "%(app_name)s"
             !define URLNAME   "secondlife"
-            !define UNINSTALL_SETTINGS 1
-            Caption "%(channel)s ${VERSION}"
+            Caption "%(caption)s"
             """
-        if 'installer_name' in self.args:
-            installer_file = self.args['installer_name']
-        else:
-            installer_file = installer_file % substitution_strings
-        if len(self.args['package_id']) > 0:
-            installer_file = installer_file.replace(self.args['package_id'], "")
-            installer_file = installer_file.replace(".exe", self.args['package_id'] + ".exe")
-        substitution_strings['installer_file'] = installer_file
 
         tempfile = "secondlife_setup_tmp.nsi"
         # the following replaces strings in the nsi template
@@ -633,7 +613,7 @@ class WindowsManifest(ViewerManifest):
         self.replace_in("installers/windows/installer_template.nsi", tempfile, {
                 "%%VERSION%%":version_vars,
                 "%%SOURCE%%":self.get_src_prefix(),
-                "%%GRID_VARS%%":grid_vars_template % substitution_strings,
+                "%%INST_VARS%%":inst_vars_template % substitution_strings,
                 "%%INSTALL_FILES%%":self.nsi_file_commands(True),
                 "%%DELETE_FILES%%":self.nsi_file_commands(False)})
 
@@ -663,7 +643,7 @@ class WindowsManifest(ViewerManifest):
         self.package_file = installer_file
 
 
-class DarwinManifest(ViewerManifest):
+class Darwin_i386_Manifest(ViewerManifest):
     def is_packaging_viewer(self):
         # darwin requires full app bundle packaging even for debugging.
         return True
@@ -685,7 +665,7 @@ class DarwinManifest(ViewerManifest):
 
             # most everything goes in the Resources directory
             if self.prefix(src="", dst="Resources"):
-                super(DarwinManifest, self).construct()
+                super(Darwin_i386_Manifest, self).construct()
 
                 if self.prefix("cursors_mac"):
                     self.path("*.tif")
@@ -821,6 +801,7 @@ class DarwinManifest(ViewerManifest):
             self.run_command("chmod +x %r" % os.path.join(self.get_dst_prefix(), script))
 
     def package_finish(self):
+        global CHANNEL_VENDOR_BASE
         # Sign the app if requested.
         if 'signature' in self.args:
             identity = self.args['signature']
@@ -850,17 +831,9 @@ class DarwinManifest(ViewerManifest):
         # MBW -- If the mounted volume name changes, it breaks the .DS_Store's background image and icon positioning.
         #  If we really need differently named volumes, we'll need to create multiple DS_Store file images, or use some other trick.
 
-        volname="Second Life Installer"  # DO NOT CHANGE without understanding comment above
+        volname=CHANNEL_VENDOR_BASE+" Installer"  # DO NOT CHANGE without understanding comment above
 
-        if len(self.args['package_id']) > 0:
-            imagename = imagename + self.args['package_id']
-        elif self.default_channel():
-            if not self.default_grid():
-                # beta case
-                imagename = imagename + '_' + self.args['grid'].upper()
-        else:
-            # first look, etc
-            imagename = imagename + '_' + self.channel_oneword().upper()
+        imagename = self.installer_base_name()
 
         sparsename = imagename + ".sparseimage"
         finalname = imagename + ".dmg"
@@ -894,7 +867,7 @@ class DarwinManifest(ViewerManifest):
             # will use the release .DS_Store, and will look broken.
             # - Ambroff 2008-08-20
             dmg_template = os.path.join(
-                'installers', 'darwin', '%s-dmg' % self.channel_lowerword())
+                'installers', 'darwin', '%s-dmg' % self.channel_type())
 
             if not os.path.exists (self.src_path_of(dmg_template)):
                 dmg_template = os.path.join ('installers', 'darwin', 'release-dmg')
@@ -977,8 +950,9 @@ class LinuxManifest(ViewerManifest):
             # recurse
             self.end_prefix("res-sdl")
 
-        # Get the icons based on the channel
+        # Get the icons based on the channel type
         icon_path = self.icon_path()
+        print "DEBUG: icon_path '%s'" % icon_path
         if self.prefix(src=icon_path, dst="") :
             self.path("secondlife_256.png","secondlife_icon.png")
             if self.prefix(src="",dst="res-sdl") :
@@ -1004,18 +978,7 @@ class LinuxManifest(ViewerManifest):
             self.run_command("chmod +x %r" % os.path.join(self.get_dst_prefix(), script))
 
     def package_finish(self):
-        if 'installer_name' in self.args:
-            installer_name = self.args['installer_name']
-        else:
-            installer_name_components = ['SecondLife_', self.args.get('arch')]
-            installer_name_components.extend(self.args['version'])
-            installer_name = "_".join(installer_name_components)
-            if self.default_channel():
-                if not self.default_grid():
-                    installer_name += '_' + self.args['grid'].upper()
-            else:
-                installer_name += '_' + self.channel_oneword().upper()
-        installer_name = installer_name + self.args['package_id']
+        installer_name = self.installer_base_name()
 
         self.strip_binaries()
 
@@ -1057,9 +1020,9 @@ class LinuxManifest(ViewerManifest):
             print "* Going strip-crazy on the packaged binaries, since this is a RELEASE build"
             self.run_command(r"find %(d)r/bin %(d)r/lib -type f \! -name update_install | xargs --no-run-if-empty strip -S" % {'d': self.get_dst_prefix()} ) # makes some small assumptions about our packaged dir structure
 
-class Linux_i686Manifest(LinuxManifest):
+class Linux_i686_Manifest(LinuxManifest):
     def construct(self):
-        super(Linux_i686Manifest, self).construct()
+        super(Linux_i686_Manifest, self).construct()
 
         if self.prefix("../packages/lib/release", dst="lib"):
             self.path("libapr-1.so")
@@ -1145,9 +1108,9 @@ class Linux_i686Manifest(LinuxManifest):
             self.strip_binaries()
 
 
-class Linux_x86_64Manifest(LinuxManifest):
+class Linux_x86_64_Manifest(LinuxManifest):
     def construct(self):
-        super(Linux_x86_64Manifest, self).construct()
+        super(Linux_x86_64_Manifest, self).construct()
 
         # support file for valgrind debug tool
         self.path("secondlife-i686.supp")

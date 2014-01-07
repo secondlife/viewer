@@ -307,7 +307,7 @@ public:
 			/*CapabilityMap::const_iterator iter = regionp->getRegionImpl()->mCapabilities.begin();
 			while (iter!=regionp->getRegionImpl()->mCapabilities.end() )
 			{
-				llinfos<<"BaseCapabilitiesCompleteTracker Original "<<iter->first<<" "<< iter->second<<llendl;
+				llinfos << "BaseCapabilitiesCompleteTracker Original " << iter->first << " " << iter->second<<llendl;
 				++iter;
 			}
 			*/
