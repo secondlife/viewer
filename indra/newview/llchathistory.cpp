@@ -731,7 +731,8 @@ LLChatHistory::LLChatHistory(const LLChatHistory::Params& p)
 	editor_params.follows.flags = FOLLOWS_ALL;
 	editor_params.enabled = false; // read only
 	editor_params.show_context_menu = "true";
-	editor_params.trusted_content = false;
+	// MAINT-535 reversion test
+	//editor_params.trusted_content = false;
 	mEditor = LLUICtrlFactory::create<LLTextEditor>(editor_params, this);
 	mEditor->setIsFriendCallback(LLAvatarActions::isFriend);
 }

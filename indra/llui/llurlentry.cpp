@@ -1067,8 +1067,10 @@ LLUrlEntrySLLabel::LLUrlEntrySLLabel()
 
 std::string LLUrlEntrySLLabel::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
 {
-	std::string label = getLabelFromWikiLink(url);
-	return (!LLUrlRegistry::instance().hasUrl(label)) ? label : getUrl(url);
+	// MAINT-535 reversion test
+	// std::string label = getLabelFromWikiLink(url);
+	// return (!LLUrlRegistry::instance().hasUrl(label)) ? label : getUrl(url);
+	return getLabelFromWikiLink(url);
 }
 
 std::string LLUrlEntrySLLabel::getUrl(const std::string &string) const
