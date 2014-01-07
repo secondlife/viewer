@@ -1080,7 +1080,10 @@ void LLViewerRegion::updateVisibleEntries(F32 max_time)
 		}
 		else
 		{
-			iter = mImpl->mVisibleEntries.erase(iter);
+			LLVOCacheEntry::vocache_entry_set_t::iterator next_iter = iter;
+			++next_iter;
+			mImpl->mVisibleEntries.erase(iter);
+			iter = next_iter;
 		}
 	}
 
@@ -1193,7 +1196,10 @@ void LLViewerRegion::clearCachedVisibleObjects()
 				parent->addChild(entry);
 			}
 
-			iter = mImpl->mVisibleEntries.erase(iter);
+			LLVOCacheEntry::vocache_entry_set_t::iterator next_iter = iter;
+			++next_iter;
+			mImpl->mVisibleEntries.erase(iter);
+			iter = next_iter;
 		}
 		else //parent is not cache-able, leave it.
 		{
