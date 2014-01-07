@@ -370,6 +370,7 @@ then
         if [ x"$package" != x ]
         then
           upload_item installer "$package" binary/octet-stream
+          upload_item quicklink "$package" binary/octet-stream
         else
           record_failure "Failed to upload $package_id package ($package::$additional_package_name)."
         fi

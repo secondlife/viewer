@@ -41,7 +41,6 @@
 #include "llavatarnamecache.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
-#include "llenvmanager.h"
 #include "llfloater.h"
 #include "llfontgl.h"
 #include "llnotifications.h"
@@ -85,7 +84,7 @@ void LLFloaterPathfindingObjects::onOpen(const LLSD &pKey)
 
 	if (!mRegionBoundaryCrossingSlot.connected())
 	{
-		mRegionBoundaryCrossingSlot = LLEnvManagerNew::getInstance()->setRegionChangeCallback(boost::bind(&LLFloaterPathfindingObjects::onRegionBoundaryCrossed, this));
+		mRegionBoundaryCrossingSlot = gAgent.addRegionChangedCallback(boost::bind(&LLFloaterPathfindingObjects::onRegionBoundaryCrossed, this));
 	}
 
 	if (!mGodLevelChangeSlot.connected())
