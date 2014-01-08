@@ -119,7 +119,6 @@ const std::string LLFloaterPermsDefault::sCategoryNames[CAT_LAST] =
 	"Wearables"
 };
 
-
 BOOL LLFloaterPermsDefault::postBuild()
 {
 	if(!gSavedSettings.getBOOL("DefaultUploadPermissionsConverted"))

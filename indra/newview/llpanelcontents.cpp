@@ -162,7 +162,6 @@ void LLPanelContents::onClickNewScript(void *userdata)
 		perm.initMasks(
 			PERM_ALL,
 			PERM_ALL,
-			// *NOTE: this does not work, needs server change
 			LLFloaterPerms::getEveryonePerms("Scripts"),
 			LLFloaterPerms::getGroupPerms("Scripts"),
 			PERM_MOVE | LLFloaterPerms::getNextOwnerPerms("Scripts"));

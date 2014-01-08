@@ -88,23 +88,22 @@ void wear_and_edit_cb(const LLUUID& inv_item)
 
 void wear_cb(const LLUUID& inv_item)
 {
-	if (inv_item.isNull())
+	if (!inv_item.isNull())
 	{
-		return;
+		LLViewerInventoryItem* item = gInventory.getItem(inv_item);
+		if (item)
+		{
+			LLPermissions perm = item->getPermissions();
+			perm.setMaskNext(LLFloaterPerms::getNextOwnerPerms("Wearables"));
+			perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Wearables"));
+			perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Wearables"));
+			item->setPermissions(perm);
+
+			item->updateServer(FALSE);
+			gInventory.updateItem(item);
+			gInventory.notifyObservers();
+		}
 	}
-
-	LLViewerInventoryItem* item = gInventory.getItem(inv_item);
-	if (!item) return;
-
-	LLPermissions perm = item->getPermissions();
-	perm.setMaskNext(LLFloaterPerms::getNextOwnerPerms("Wearables"));
-	perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Wearables"));
-	perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Wearables"));
-	item->setPermissions(perm);
-
-	item->updateServer(FALSE);
-	gInventory.updateItem(item);
-	gInventory.notifyObservers();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

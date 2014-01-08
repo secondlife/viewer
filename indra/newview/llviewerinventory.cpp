@@ -992,66 +992,69 @@ void activate_gesture_cb(const LLUUID& inv_item)
 
 void create_script_cb(const LLUUID& inv_item)
 {
-	if (inv_item.isNull())
-		return;
+	if (!inv_item.isNull())
+	{
+		LLViewerInventoryItem* item = gInventory.getItem(inv_item);
+		if (item)
+		{
+			LLPermissions perm = item->getPermissions();
+			perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Scripts"));
+			perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Scripts"));
 
-	LLViewerInventoryItem* item = gInventory.getItem(inv_item);
-	if (!item) return;
+			item->setPermissions(perm);
 
-	LLPermissions perm = item->getPermissions();
-	perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Scripts"));
-	perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Scripts"));
-
-	item->setPermissions(perm);
-
-	item->updateServer(FALSE);
-	gInventory.updateItem(item);
-	gInventory.notifyObservers();
+			item->updateServer(FALSE);
+			gInventory.updateItem(item);
+			gInventory.notifyObservers();
+		}
+	}
 }
 
 void create_gesture_cb(const LLUUID& inv_item)
 {
-	if (inv_item.isNull())
-		return;
-
-	LLGestureMgr::instance().activateGesture(inv_item);
+	if (!inv_item.isNull())
+	{
+		LLGestureMgr::instance().activateGesture(inv_item);
 	
-	LLViewerInventoryItem* item = gInventory.getItem(inv_item);
-	if (!item) return;
+		LLViewerInventoryItem* item = gInventory.getItem(inv_item);
+		if (item)
+		{
+			LLPermissions perm = item->getPermissions();
+			perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Gestures"));
+			perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Gestures"));
 
-	LLPermissions perm = item->getPermissions();
-	perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Gestures"));
-	perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Gestures"));
+			item->setPermissions(perm);
 
-	item->setPermissions(perm);
+			item->updateServer(FALSE);
+			gInventory.updateItem(item);
+			gInventory.notifyObservers();
 
-	item->updateServer(FALSE);
-    gInventory.updateItem(item);
-    gInventory.notifyObservers();
-
-	LLPreviewGesture* preview = LLPreviewGesture::show(inv_item,  LLUUID::null);
-	// Force to be entirely onscreen.
-	gFloaterView->adjustToFitScreen(preview, FALSE);
+			LLPreviewGesture* preview = LLPreviewGesture::show(inv_item,  LLUUID::null);
+			// Force to be entirely onscreen.
+			gFloaterView->adjustToFitScreen(preview, FALSE);
+		}
+	}
 }
 
 
 void create_notecard_cb(const LLUUID& inv_item)
 {
-	if (inv_item.isNull())
-		return;
-	
-	LLViewerInventoryItem* item = gInventory.getItem(inv_item);
-	if (!item) return;
+	if (!inv_item.isNull())
+		{
+		LLViewerInventoryItem* item = gInventory.getItem(inv_item);
+		if (item)
+		{
+			LLPermissions perm = item->getPermissions();
+			perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Notecards"));
+			perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Notecards"));
 
-	LLPermissions perm = item->getPermissions();
-	perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Notecards"));
-	perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Notecards"));
+			item->setPermissions(perm);
 
-	item->setPermissions(perm);
-
-	item->updateServer(FALSE);
-	gInventory.updateItem(item);
-	gInventory.notifyObservers();
+			item->updateServer(FALSE);
+			gInventory.updateItem(item);
+			gInventory.notifyObservers();
+		}
+	}
 }
 
 LLInventoryCallbackManager gInventoryCallbacks;
