@@ -71,8 +71,7 @@ LLPreviewTexture::LLPreviewTexture(const LLSD& key)
 	  mAspectRatio(0.f),
 	  mPreviewToSave(FALSE),
 	  mImage(NULL),
-	  mImageOldBoostLevel(LLGLTexture::BOOST_NONE),
-	  mRatiosList(NULL)
+	  mImageOldBoostLevel(LLGLTexture::BOOST_NONE)
 {
 	updateImageID();
 	if (key.has("save_as"))
@@ -551,8 +550,9 @@ void LLPreviewTexture::adjustAspectRatio()
 		LLComboBox* combo = getChild<LLComboBox>("combo_aspect_ratio");
 		if (combo)
 		{
-			std::string ratio = std::to_string((ULONGLONG)num) + ":" + std::to_string((ULONGLONG)denom);
-			std::vector<std::string>::const_iterator found = std::find(mRatiosList.begin(), mRatiosList.end(), ratio);
+			std::ostringstream ratio;
+			ratio << num << ":" << denom;
+			std::vector<std::string>::const_iterator found = std::find(mRatiosList.begin(), mRatiosList.end(), ratio.str());
 			if (found == mRatiosList.end())
 			{
 				combo->setCurrentByIndex(0);
