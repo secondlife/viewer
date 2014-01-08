@@ -83,11 +83,7 @@ public:
 				if (tokens.size() >= 2 && tokens[1].asString() == "flickr")
 				{
 					// this command probably came from the flickr_web browser, so close it
-					LLFloater* flickr_web = LLFloaterReg::getInstance("flickr_web");
-					if (flickr_web)
-					{
-						flickr_web->closeFloater();
-					}
+					LLFloaterReg::hideInstance("flickr_web");
 
 					// connect to flickr
 					if (query_map.has("oauth_token"))
@@ -99,11 +95,7 @@ public:
 				else if (tokens.size() >= 2 && tokens[1].asString() == "twitter")
 				{
 					// this command probably came from the twitter_web browser, so close it
-					LLFloater* twitter_web = LLFloaterReg::getInstance("twitter_web");
-					if (twitter_web)
-					{
-						twitter_web->closeFloater();
-					}
+					LLFloaterReg::hideInstance("twitter_web");
 
 					// connect to twitter
 					if (query_map.has("oauth_token"))
@@ -115,11 +107,7 @@ public:
 				else //if (tokens.size() >= 2 && tokens[1].asString() == "facebook")
 				{
 					// this command probably came from the fbc_web browser, so close it
-					LLFloater* fbc_web = LLFloaterReg::getInstance("fbc_web");
-					if (fbc_web)
-					{
-						fbc_web->closeFloater();
-					}
+					LLFloaterReg::hideInstance("fbc_web");
 
 					// connect to facebook
 					if (query_map.has("code"))
@@ -152,11 +140,7 @@ public:
 				if (tokens.size() >= 2 && tokens[1].asString() == "flickr")
 				{
 					// this command probably came from the flickr_web browser, so close it
-					LLFloater* flickr_web = LLFloaterReg::getInstance("flickr_web");
-					if (flickr_web)
-					{
-						flickr_web->closeFloater();
-					}
+					LLFloaterReg::hideInstance("flickr_web");
 
 					// connect to flickr
 					if (query_map.has("oauth_token"))
@@ -168,11 +152,7 @@ public:
 				else if (tokens.size() >= 2 && tokens[1].asString() == "twitter")
 				{
 					// this command probably came from the twitter_web browser, so close it
-					LLFloater* twitter_web = LLFloaterReg::getInstance("twitter_web");
-					if (twitter_web)
-					{
-						twitter_web->closeFloater();
-					}
+					LLFloaterReg::hideInstance("twitter_web");
 
 					// connect to twitter
 					if (query_map.has("oauth_token"))
@@ -184,11 +164,7 @@ public:
 				else //if (tokens.size() >= 2 && tokens[1].asString() == "facebook")
 				{
 					// this command probably came from the fbc_web browser, so close it
-					LLFloater* fbc_web = LLFloaterReg::getInstance("fbc_web");
-					if (fbc_web)
-					{
-						fbc_web->closeFloater();
-					}
+					LLFloaterReg::hideInstance("fbc_web");
 
 					// connect to facebook
 					if (query_map.has("code"))
@@ -468,6 +444,7 @@ std::string LLFacebookConnect::getFacebookConnectURL(const std::string& route, b
     LLViewerRegion *regionp = gAgent.getRegion();
     if (regionp)
     {
+		//url = "http://pdp15.lindenlab.com/facebook/agent/" + gAgentID.asString(); // TEMPORARY FOR TESTING - CHO
         url = regionp->getCapability("FacebookConnect");
         url += route;
     
