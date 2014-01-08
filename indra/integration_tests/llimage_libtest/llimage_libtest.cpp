@@ -40,6 +40,7 @@
 #include "lldir.h"
 #include "lldiriterator.h"
 #include "v4coloru.h"
+#include "llsdserialize.h"
 
 // system libraries
 #include <iostream>
@@ -97,6 +98,7 @@ static const char USAGE[] = "\n"
 "        - 'darken' substracts <param> light to the image (<param> between 0 and 255).\n"
 "        - 'linearize' optimizes the contrast using the brightness histogram. <param> is the fraction (between 0.0 and 1.0) of discarded tail of the histogram.\n"
 "        - 'posterize' redistributes the colors between <param> classes per channel (<param> between 2 and 255).\n"
+"        - Any other value will be interpreted as a file name describing a sequence of filters and parameters to be applied to the input images\n"
 " -v, --vignette <name> [<feather> <min>]\n"
 "        Apply a circular central vignette <name> to the filter using the optional <feather> and <min> values. Admissible names:\n"
 "        - 'blend' : the filter is applied with full intensity in the center and blends with the image to the periphery.\n"
@@ -114,10 +116,110 @@ static const char USAGE[] = "\n"
 // true when all image loading is done. Used by metric logging thread to know when to stop the thread.
 static bool sAllDone = false;
 
+// Load filter from file
+LLSD load_filter_from_file(const std::string& file_path)
+{
+	std::cout << "Loading filter settings from : " << file_path << std::endl;
+	
+	llifstream filter_xml(file_path);
+	if (filter_xml.is_open())
+	{
+		// load and parse it
+		LLSD filter_data(LLSD::emptyArray());
+		LLPointer<LLSDParser> parser = new LLSDXMLParser();
+		parser->parse(filter_xml, filter_data, LLSDSerialize::SIZE_UNLIMITED);
+		filter_xml.close();
+		return filter_data;
+	}
+	else
+	{
+		return LLSD();
+	}
+}
+
+// Apply the filter data to the image passed as parameter
+void execute_filter(const LLSD& filter_data, LLPointer<LLImageRaw> raw_image)
+{
+	//std::cout << "Filter : size = " << filter_data.size() << std::endl;
+	for (S32 i = 0; i < filter_data.size(); ++i)
+	{
+        std::string filter_name = filter_data[i][0].asString();
+        // Dump out the filter values (for debug)
+        //std::cout << "Filter : name = " << filter_data[i][0].asString() << ", params = ";
+        //for (S32 j = 1; j < filter_data[i].size(); ++j)
+        //{
+        //    std::cout << filter_data[i][j].asString() << ", ";
+        //}
+        //std::cout << std::endl;
+        
+        // Execute the filter described on this line
+        if (filter_name == "blend")
+        {
+            raw_image->setVignette(VIGNETTE_MODE_BLEND,(float)(filter_data[i][1].asReal()),(float)(filter_data[i][2].asReal()));
+        }
+        else if (filter_name == "fade")
+        {
+            raw_image->setVignette(VIGNETTE_MODE_FADE,(float)(filter_data[i][1].asReal()),(float)(filter_data[i][2].asReal()));
+        }
+        else if (filter_name == "sepia")
+        {
+            raw_image->filterSepia();
+        }
+        else if (filter_name == "grayscale")
+        {
+            raw_image->filterGrayScale();
+        }
+        else if (filter_name == "saturate")
+        {
+            raw_image->filterSaturate((float)(filter_data[i][1].asReal()));
+        }
+        else if (filter_name == "rotate")
+        {
+            raw_image->filterRotate((float)(filter_data[i][1].asReal()));
+        }
+        else if (filter_name == "gamma")
+        {
+            LLColor3 color((float)(filter_data[i][2].asReal()),(float)(filter_data[i][3].asReal()),(float)(filter_data[i][4].asReal()));
+            raw_image->filterGamma((float)(filter_data[i][1].asReal()),color);
+        }
+        else if (filter_name == "colorize")
+        {
+            LLColor3 color((float)(filter_data[i][1].asReal()),(float)(filter_data[i][2].asReal()),(float)(filter_data[i][3].asReal()));
+            LLColor3 alpha((F32)(filter_data[i][4].asReal()),(float)(filter_data[i][5].asReal()),(float)(filter_data[i][6].asReal()));
+            raw_image->filterColorize(color,alpha);
+        }
+        else if (filter_name == "contrast")
+        {
+            LLColor3 color((float)(filter_data[i][2].asReal()),(float)(filter_data[i][3].asReal()),(float)(filter_data[i][4].asReal()));
+            raw_image->filterContrast((float)(filter_data[i][1].asReal()),color);
+        }
+        else if (filter_name == "brighten")
+        {
+            LLColor3 color((float)(filter_data[i][2].asReal()),(float)(filter_data[i][3].asReal()),(float)(filter_data[i][4].asReal()));
+            raw_image->filterBrightness((S32)(filter_data[i][1].asReal()),color);
+        }
+        else if (filter_name == "darken")
+        {
+            LLColor3 color((float)(filter_data[i][2].asReal()),(float)(filter_data[i][3].asReal()),(float)(filter_data[i][4].asReal()));
+            raw_image->filterBrightness((S32)(-filter_data[i][1].asReal()),color);
+        }
+        else if (filter_name == "linearize")
+        {
+            LLColor3 color((float)(filter_data[i][2].asReal()),(float)(filter_data[i][3].asReal()),(float)(filter_data[i][4].asReal()));
+            raw_image->filterLinearize((float)(filter_data[i][1].asReal()),color);
+        }
+        else if (filter_name == "posterize")
+        {
+            LLColor3 color((float)(filter_data[i][2].asReal()),(float)(filter_data[i][3].asReal()),(float)(filter_data[i][4].asReal()));
+            raw_image->filterEqualize((S32)(filter_data[i][1].asReal()),color);
+        }
+    }
+}
+
 // Create an empty formatted image instance of the correct type from the filename
 LLPointer<LLImageFormatted> create_image(const std::string &filename)
 {
-	std::string exten = gDirUtilp->getExtension(filename);	
+	std::string exten = gDirUtilp->getExtension(filename);
 	LLPointer<LLImageFormatted> image = LLImageFormatted::createFromExtension(exten);
 	return image;
 }
@@ -716,55 +818,11 @@ int main(int argc, char** argv)
         {
             raw_image->filterEqualize((S32)(filter_param),LLColor3::white);
         }
-        // Test for some "a la Instagram" filters
-        else if (filter_name == "Lomofi")
+        else if (filter_name != "")
         {
-            raw_image->setVignette(VIGNETTE_MODE_BLEND,4.0,0.0);
-            raw_image->filterLinearize(0.2,LLColor3::white);
-            raw_image->filterBrightness(20,LLColor3::white);
-        }
-        else if (filter_name == "Poprocket")
-        {
-            LLColor3 color(1.0,0.0,0.0);
-            LLColor3 alpha(0.5,0.0,0.0);
-            raw_image->filterLinearize(0.0,LLColor3::white);
-            raw_image->filterContrast(0.5,LLColor3::white);
-            raw_image->setVignette(VIGNETTE_MODE_FADE,4.0,0.5);
-            raw_image->filterColorize(color,alpha);
-        }
-        else if (filter_name == "Sutro")
-        {
-            raw_image->filterLinearize(0.2,LLColor3::white);
-            raw_image->setVignette(VIGNETTE_MODE_FADE,4.0,0.5);
-            raw_image->filterSepia();
-        }
-        else if (filter_name == "Toaster")
-        {
-            raw_image->filterContrast(0.8,LLColor3::white);
-            raw_image->setVignette(VIGNETTE_MODE_FADE,4.0,0.5);
-            raw_image->filterBrightness(10,LLColor3::white);
-            //raw_image->filterColorBalance(0.5,1.0,1.0);
-        }
-        else if (filter_name == "Inkwell")
-        {
-            raw_image->filterLinearize(0.0,LLColor3::white);
-            raw_image->filterGrayScale();
-        }
-        else if (filter_name == "Hefe")
-        {
-            raw_image->filterLinearize(0.0,LLColor3::white);
-            raw_image->setVignette(VIGNETTE_MODE_FADE,4.0,0.5);
-            raw_image->filterContrast(1.5,LLColor3::white);
-        }
-        else if (filter_name == "Gotham")
-        {
-            raw_image->filterLinearize(0.0,LLColor3::white);
-            // Blow out the Blue
-            LLColor3 color(0.0,0.0,0.0);
-            LLColor3 alpha(0.0,0.0,1.0);
-            raw_image->filterColorize(color,alpha);
-            // Convert to Grayscale
-            raw_image->filterGrayScale();
+            // We're interpreting the filter as a filter file name
+            LLSD filter_data = load_filter_from_file(filter_name);
+            execute_filter(filter_data,raw_image);
         }
 
 		// Save file
