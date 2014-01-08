@@ -1000,7 +1000,7 @@ void LLImageRaw::filterSaturate(F32 saturation)
     colorTransform(transfo);
 }
 
-void LLImageRaw::filterRotate(F32 alpha)
+void LLImageRaw::filterRotate(F32 angle)
 {
     // Matrix to Lij
     LLMatrix3 r_a;
@@ -1024,9 +1024,9 @@ void LLImageRaw::filterRotate(F32 alpha)
     
     // Local color rotation transform
     LLMatrix3 r;
-    alpha *= DEG_TO_RAD;
-    r.setRows(LLVector3( cosf(alpha), sinf(alpha), 0.0),
-              LLVector3(-sinf(alpha), cosf(alpha), 0.0),
+    angle *= DEG_TO_RAD;
+    r.setRows(LLVector3( cosf(angle), sinf(angle), 0.0),
+              LLVector3(-sinf(angle), cosf(angle), 0.0),
               LLVector3( 0.0,         0.0,         1.0));
     
     // Global color rotation transform
@@ -1312,7 +1312,7 @@ void LLImageRaw::colorCorrect(const U8* lut_red, const U8* lut_green, const U8* 
 	}
 }
 
-void LLImageRaw::screenFilter(const S32 wave_length)
+void LLImageRaw::filterScreen(EScreenMode mode, const S32 wave_length, const F32 angle)
 {
 	const S32 components = getComponents();
 	llassert( components >= 1 && components <= 4 );
@@ -1320,14 +1320,28 @@ void LLImageRaw::screenFilter(const S32 wave_length)
 	S32 width  = getWidth();
     S32 height = getHeight();
     
+    F32 sin = sinf(angle*DEG_TO_RAD);
+    F32 cos = cosf(angle*DEG_TO_RAD);
+    
 	U8* dst_data = getData();
 	for (S32 j = 0; j < height; j++)
 	{
         for (S32 i = 0; i < width; i++)
         {
-            F32 value = (sinf(2*F_PI*i/wave_length)*sinf(2*F_PI*j/wave_length)+1.0)*255.0/2.0;
-            //F32 value = (sinf(2*F_PI*i/wave_length)+1.0)*255.0/2.0; // will do line
+            F32 value = 0.0;
+            F32 d = 0.0;
+            switch (mode)
+            {
+                case SCREEN_MODE_2DSINE:
+                    value = (sinf(2*F_PI*i/wave_length)*sinf(2*F_PI*j/wave_length)+1.0)*255.0/2.0;
+                    break;
+                case SCREEN_MODE_LINE:
+                    d = sin*i - cos*j;
+                    value = (sinf(2*F_PI*d/wave_length)+1.0)*255.0/2.0;
+                    break;
+            }
             U8 dst_value = (dst_data[VRED] >= (U8)(value) ? 255 : 0);
+            
             if (mVignetteMode == VIGNETTE_MODE_NONE)
             {
                 dst_data[VRED]   = dst_value;

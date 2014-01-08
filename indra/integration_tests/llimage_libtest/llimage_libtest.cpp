@@ -98,7 +98,11 @@ static const char USAGE[] = "\n"
 "        - 'darken' substracts <param> light to the image (<param> between 0 and 255).\n"
 "        - 'linearize' optimizes the contrast using the brightness histogram. <param> is the fraction (between 0.0 and 1.0) of discarded tail of the histogram.\n"
 "        - 'posterize' redistributes the colors between <param> classes per channel (<param> between 2 and 255).\n"
-"        - Any other value will be interpreted as a file name describing a sequence of filters and parameters to be applied to the input images\n"
+"        - 'newsscreen' applies a 2D sine screening to the red channel and output to black and white.\n"
+"        - 'horizontalscreen' applies a horizontal screening to the red channel and output to black and white.\n"
+"        - 'verticalscreen' applies a vertical screening to the red channel and output to black and white.\n"
+"        - 'slantedscreen' applies a 45 degrees slanted screening to the red channel and output to black and white.\n"
+"        - Any other value will be interpreted as a file name describing a sequence of filters and parameters to be applied to the input images.\n"
 " -v, --vignette <name> [<feather> <min>]\n"
 "        Apply a circular central vignette <name> to the filter using the optional <feather> and <min> values. Admissible names:\n"
 "        - 'blend' : the filter is applied with full intensity in the center and blends with the image to the periphery.\n"
@@ -214,7 +218,17 @@ void execute_filter(const LLSD& filter_data, LLPointer<LLImageRaw> raw_image)
         }
         else if (filter_name == "screen")
         {
-            raw_image->screenFilter((S32)(filter_data[i][1].asReal()));
+            std::string screen_name = filter_data[i][1].asString();
+            EScreenMode mode = SCREEN_MODE_2DSINE;
+            if (screen_name == "2Dsine")
+            {
+                mode = SCREEN_MODE_2DSINE;
+            }
+            else if (screen_name == "line")
+            {
+                mode = SCREEN_MODE_LINE;
+            }
+            raw_image->filterScreen(mode,(S32)(filter_data[i][2].asReal()),(F32)(filter_data[i][3].asReal()));
         }
     }
 }
@@ -821,9 +835,21 @@ int main(int argc, char** argv)
         {
             raw_image->filterEqualize((S32)(filter_param),LLColor3::white);
         }
-        else if (filter_name == "screen")
+        else if (filter_name == "newsscreen")
         {
-            raw_image->screenFilter((S32)(filter_param));
+            raw_image->filterScreen(SCREEN_MODE_2DSINE,(S32)(filter_param),0.0);
+        }
+        else if (filter_name == "horizontalscreen")
+        {
+            raw_image->filterScreen(SCREEN_MODE_LINE,(S32)(filter_param),0.0);
+        }
+        else if (filter_name == "verticalscreen")
+        {
+            raw_image->filterScreen(SCREEN_MODE_LINE,(S32)(filter_param),90.0);
+        }
+        else if (filter_name == "slantedscreen")
+        {
+            raw_image->filterScreen(SCREEN_MODE_LINE,(S32)(filter_param),45.0);
         }
         else if (filter_name != "")
         {

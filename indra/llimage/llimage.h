@@ -95,6 +95,12 @@ typedef enum e_vignette_mode
 	VIGNETTE_MODE_FADE  = 2
 } EVignetteMode;
 
+typedef enum e_screen_mode
+{
+	SCREEN_MODE_2DSINE   = 0,
+	SCREEN_MODE_LINE     = 1
+} EScreenMode;
+
 //============================================================================
 // library initialization class
 
@@ -283,7 +289,7 @@ public:
     void filterGrayScale();                         // Convert to grayscale
     void filterSepia();                             // Convert to sepia
     void filterSaturate(F32 saturation);            // < 1.0 desaturates, > 1.0 saturates
-    void filterRotate(F32 alpha);                   // Rotates hue according to alpha, alpha is an angle in degrees
+    void filterRotate(F32 angle);                   // Rotates hue according to angle, angle in degrees
     
     // Filter Operations : Color Corrections
     // When specified, the LLColor3 alpha parameter indicates the intensity of the effect for each color channel
@@ -299,7 +305,7 @@ public:
     // Filter Primitives
     void colorTransform(const LLMatrix3 &transform);
     void colorCorrect(const U8* lut_red, const U8* lut_green, const U8* lut_blue);
-    void screenFilter(const S32 wave_length);
+    void filterScreen(EScreenMode mode, const S32 wave_length, const F32 angle);
     void setVignette(EVignetteMode mode, F32 gamma, F32 min);
     U32* getBrightnessHistogram();
 
