@@ -676,24 +676,9 @@ FunctionEnd
 Function .onInstSuccess
 Call CheckWindowsServPack		# Warn if not on the latest SP before asking to launch.
     Push $R0					# Option value, unused
-
-    StrCmp $SKIP_DIALOGS "true" label_launch 
-
-    ${GetOptions} $COMMANDLINE "/AUTOSTART" $R0
-    # If parameter was there (no error) just launch
-    # Otherwise ask
-    IfErrors label_ask_launch label_launch
-    
-label_ask_launch:
-    # Don't launch by default when silent
-    IfSilent label_no_launch
-	MessageBox MB_YESNO $(InstSuccesssQuestion) \
-        IDYES label_launch IDNO label_no_launch
         
-label_launch:
 # Assumes SetOutPath $INSTDIR
 	Exec '"$WINDIR\explorer.exe" "$INSTDIR\$INSTEXE"'
-label_no_launch:
 	Pop $R0
 
 FunctionEnd
