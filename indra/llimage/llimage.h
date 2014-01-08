@@ -299,6 +299,7 @@ public:
     // Filter Primitives
     void colorTransform(const LLMatrix3 &transform);
     void colorCorrect(const U8* lut_red, const U8* lut_green, const U8* lut_blue);
+    void screenFilter(const S32 wave_length);
     void setVignette(EVignetteMode mode, F32 gamma, F32 min);
     U32* getBrightnessHistogram();
 

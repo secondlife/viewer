@@ -119,8 +119,7 @@ static bool sAllDone = false;
 // Load filter from file
 LLSD load_filter_from_file(const std::string& file_path)
 {
-	std::cout << "Loading filter settings from : " << file_path << std::endl;
-	
+	//std::cout << "Loading filter settings from : " << file_path << std::endl;
 	llifstream filter_xml(file_path);
 	if (filter_xml.is_open())
 	{
@@ -212,6 +211,10 @@ void execute_filter(const LLSD& filter_data, LLPointer<LLImageRaw> raw_image)
         {
             LLColor3 color((float)(filter_data[i][2].asReal()),(float)(filter_data[i][3].asReal()),(float)(filter_data[i][4].asReal()));
             raw_image->filterEqualize((S32)(filter_data[i][1].asReal()),color);
+        }
+        else if (filter_name == "screen")
+        {
+            raw_image->screenFilter((S32)(filter_data[i][1].asReal()));
         }
     }
 }
@@ -817,6 +820,10 @@ int main(int argc, char** argv)
         else if (filter_name == "posterize")
         {
             raw_image->filterEqualize((S32)(filter_param),LLColor3::white);
+        }
+        else if (filter_name == "screen")
+        {
+            raw_image->screenFilter((S32)(filter_param));
         }
         else if (filter_name != "")
         {
