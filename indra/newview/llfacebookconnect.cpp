@@ -69,63 +69,6 @@ void toast_user_for_facebook_success()
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-class LLSLShareHandler : public LLCommandHandler
-{
-public:
-	LLSLShareHandler() : LLCommandHandler("slshare", UNTRUSTED_THROTTLE) { }
-    
-	bool handle(const LLSD& tokens, const LLSD& query_map, LLMediaCtrl* web)
-	{
-		if (tokens.size() >= 1)
-		{
-			if (tokens[0].asString() == "connect")
-			{
-				if (tokens.size() >= 2 && tokens[1].asString() == "flickr")
-				{
-					// this command probably came from the flickr_web browser, so close it
-					LLFloaterReg::hideInstance("flickr_web");
-
-					// connect to flickr
-					if (query_map.has("oauth_token"))
-					{
-						LLFlickrConnect::instance().connectToFlickr(query_map["oauth_token"], query_map.get("oauth_verifier"));
-					}
-					return true;
-				}
-				else if (tokens.size() >= 2 && tokens[1].asString() == "twitter")
-				{
-					// this command probably came from the twitter_web browser, so close it
-					LLFloaterReg::hideInstance("twitter_web");
-
-					// connect to twitter
-					if (query_map.has("oauth_token"))
-					{
-						LLTwitterConnect::instance().connectToTwitter(query_map["oauth_token"], query_map.get("oauth_verifier"));
-					}
-					return true;
-				}
-				else //if (tokens.size() >= 2 && tokens[1].asString() == "facebook")
-				{
-					// this command probably came from the fbc_web browser, so close it
-					LLFloaterReg::hideInstance("fbc_web");
-
-					// connect to facebook
-					if (query_map.has("code"))
-					{
-						LLFacebookConnect::instance().connectToFacebook(query_map["code"], query_map.get("state"));
-					}
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-};
-LLSLShareHandler gSLShareHandler;
-
-///////////////////////////////////////////////////////////////////////////////
-//
-// DEPRECATED - please remove once "fbc" is phased out of the web service
 class LLFacebookConnectHandler : public LLCommandHandler
 {
 public:
@@ -444,7 +387,7 @@ std::string LLFacebookConnect::getFacebookConnectURL(const std::string& route, b
     LLViewerRegion *regionp = gAgent.getRegion();
     if (regionp)
     {
-		//url = "http://pdp15.lindenlab.com/facebook/agent/" + gAgentID.asString(); // TEMPORARY FOR TESTING - CHO
+		//url = "http://pdp15.lindenlab.com/fbc/agent/" + gAgentID.asString(); // TEMPORARY FOR TESTING - CHO
         url = regionp->getCapability("FacebookConnect");
         url += route;
     
