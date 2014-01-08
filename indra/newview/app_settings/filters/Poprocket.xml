@@ -1,0 +1,25 @@
+<llsd>
+    <array>
+        <array>
+            <string>linearize</string>
+            <real>0.0</real>
+            <real>1.0</real>
+            <real>1.0</real>
+            <real>1.0</real>
+        </array>
+        <array>
+            <string>fade</string>
+            <real>4.0</real>
+            <real>0.5</real>
+        </array>
+        <array>
+            <string>colorize</string>
+            <real>1.0</real>
+            <real>0.0</real>
+            <real>0.0</real>
+            <real>0.4</real>
+            <real>0.0</real>
+            <real>0.0</real>
+        </array>
+    </array>
+</llsd>

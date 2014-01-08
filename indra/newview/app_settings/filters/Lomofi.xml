@@ -1,0 +1,23 @@
+<llsd>
+    <array>
+        <array>
+            <string>blend</string>
+            <real>4.0</real>
+            <real>0.0</real>
+        </array>
+        <array>
+            <string>linearize</string>
+            <real>0.2</real>
+            <real>1.0</real>
+            <real>1.0</real>
+            <real>1.0</real>
+        </array>
+        <array>
+            <string>brighten</string>
+            <real>20.0</real>
+            <real>1.0</real>
+            <real>1.0</real>
+            <real>1.0</real>
+        </array>
+    </array>
+</llsd>

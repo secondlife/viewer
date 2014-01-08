@@ -1,0 +1,23 @@
+<llsd>
+    <array>
+        <array>
+            <string>contrast</string>
+            <real>0.8</real>
+            <real>1.0</real>
+            <real>1.0</real>
+            <real>1.0</real>
+        </array>
+        <array>
+            <string>fade</string>
+            <real>4.0</real>
+            <real>0.5</real>
+        </array>
+        <array>
+            <string>brighten</string>
+            <real>10.0</real>
+            <real>1.0</real>
+            <real>1.0</real>
+            <real>1.0</real>
+        </array>
+    </array>
+</llsd>
