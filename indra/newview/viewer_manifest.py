@@ -136,13 +136,11 @@ class ViewerManifest(LLManifest):
                     settings_install['CmdLineGridChoice']['Value'] = self.grid()
                     print "Set CmdLineGridChoice in settings_install.xml to '%s'" % self.grid()
 
-                # did we actually copy anything into settings_install dict?
-                if settings_install:
-                    # put_in_file(src=) need not be an actual pathname; it
-                    # only needs to be non-empty
-                    self.put_in_file(llsd.format_pretty_xml(settings_install),
-                                     "settings_install.xml",
-                                     src="environment")
+                # put_in_file(src=) need not be an actual pathname; it
+                # only needs to be non-empty
+                self.put_in_file(llsd.format_pretty_xml(settings_install),
+                                 "settings_install.xml",
+                                 src="environment")
 
                 self.end_prefix("app_settings")
 
