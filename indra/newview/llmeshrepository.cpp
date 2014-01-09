@@ -5,7 +5,7 @@
  *
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010-2013, Linden Research, Inc.
+ * Copyright (C) 2010-2014, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -358,6 +358,16 @@ const S32 REQUEST2_LOW_WATER_MAX = 40;
 const U32 LARGE_MESH_FETCH_THRESHOLD = 1U << 21;		// Size at which requests goes to narrow/slow queue
 const long SMALL_MESH_XFER_TIMEOUT = 120L;				// Seconds to complete xfer, small mesh downloads
 const long LARGE_MESH_XFER_TIMEOUT = 600L;				// Seconds to complete xfer, large downloads
+
+// Would normally like to retry on uploads as some
+// retryable failures would be recoverable.  Unfortunately,
+// the mesh service is using 500 (retryable) rather than
+// 400/bad request (permanent) for a bad payload and
+// retrying that just leads to revocation of the one-shot
+// cap which then produces a 404 on retry destroying some
+// (occasionally) useful error information.  We'll leave
+// upload retries to the user as in the past.  SH-4667.
+const long UPLOAD_RETRY_LIMIT = 0L;
 
 // Maximum mesh version to support.  Three least significant digits are reserved for the minor version, 
 // with major version changes indicating a format change that is not backwards compatible and should not
@@ -1883,6 +1893,7 @@ LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, 
 	mHttpOptions = new LLCore::HttpOptions;
 	mHttpOptions->setTransferTimeout(mMeshUploadTimeOut);
 	mHttpOptions->setUseRetryAfter(gSavedSettings.getBOOL("MeshUseHttpRetryAfter"));
+	mHttpOptions->setRetries(UPLOAD_RETRY_LIMIT);
 	mHttpHeaders = new LLCore::HttpHeaders;
 	mHttpHeaders->append("Content-Type", "application/llsd+xml");
 	mHttpPolicyClass = LLAppViewer::instance()->getAppCoreHttp().getPolicy(LLAppCoreHttp::AP_UPLOADS);
