@@ -32,7 +32,6 @@
 
 // viewer includes
 #include "llagent.h"
-#include "llavatarconstants.h"
 #include "llcallingcard.h" // for LLAvatarTracker
 #include "llavataractions.h"
 #include "llmenugl.h"
@@ -50,6 +49,18 @@
 
 static LLDefaultChildRegistry::Register<LLAvatarIconCtrl> r("avatar_icon");
 
+namespace LLInitParam
+{
+	void TypeValues<LLAvatarIconCtrlEnums::ESymbolPos>::declareValues()
+	{
+		declare("BottomLeft",   LLAvatarIconCtrlEnums::BOTTOM_LEFT);
+		declare("BottomRight",  LLAvatarIconCtrlEnums::BOTTOM_RIGHT);
+		declare("TopLeft",		LLAvatarIconCtrlEnums::TOP_LEFT);
+		declare("TopRight",		LLAvatarIconCtrlEnums::TOP_RIGHT);
+	}
+}
+
+
 bool LLAvatarIconIDCache::LLAvatarIconIDCacheItem::expired()
 {
 	const F64 SEC_PER_DAY_PLUS_HOUR = (24.0 + 1.0) * 60.0 * 60.0;
@@ -61,7 +72,7 @@ bool LLAvatarIconIDCache::LLAvatarIconIDCacheItem::expired()
 
 void LLAvatarIconIDCache::load	()
 {
-	llinfos << "Loading avatar icon id cache." << llendl;
+	LL_INFOS() << "Loading avatar icon id cache." << LL_ENDL;
 	
 	// build filename for each user
 	std::string resolved_filename = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, mFilename);
@@ -106,7 +117,7 @@ void LLAvatarIconIDCache::save	()
 	llofstream file (resolved_filename);
 	if (!file.is_open())
 	{
-		llwarns << "can't open avatar icons cache file\"" << mFilename << "\" for writing" << llendl;
+		LL_WARNS() << "can't open avatar icons cache file\"" << mFilename << "\" for writing" << LL_ENDL;
 		return;
 	}
 
@@ -146,52 +157,63 @@ void LLAvatarIconIDCache::remove	(const LLUUID& avatar_id)
 LLAvatarIconCtrl::Params::Params()
 :	avatar_id("avatar_id"),
 	draw_tooltip("draw_tooltip", true),
-	default_icon_name("default_icon_name")
+	default_icon_name("default_icon_name"),
+	symbol_hpad("symbol_hpad"),
+	symbol_vpad("symbol_vpad"),
+	symbol_size("symbol_size", 1),
+	symbol_pos("symbol_pos", LLAvatarIconCtrlEnums::BOTTOM_RIGHT)
 {
+	changeDefault(min_width, 32);
+	changeDefault(min_height, 32);
 }
 
 
 LLAvatarIconCtrl::LLAvatarIconCtrl(const LLAvatarIconCtrl::Params& p)
-	: LLIconCtrl(p),
+:	LLIconCtrl(p),
 	LLAvatarPropertiesObserver(),
 	mAvatarId(),
 	mFullName(),
 	mDrawTooltip(p.draw_tooltip),
 	mDefaultIconName(p.default_icon_name),
-	mAvatarNameCacheConnection()
+	mAvatarNameCacheConnection(),
+	mSymbolHpad(p.symbol_hpad),
+	mSymbolVpad(p.symbol_vpad),
+	mSymbolSize(p.symbol_size),
+	mSymbolPos(p.symbol_pos)
 {
 	mPriority = LLViewerFetchedTexture::BOOST_ICON;
 	
 	LLRect rect = p.rect;
-	mDrawWidth  = llmax(32, rect.getWidth()) ;
-	mDrawHeight = llmax(32, rect.getHeight()) ;
-
-	static LLUICachedControl<S32> llavatariconctrl_symbol_hpad("UIAvatariconctrlSymbolHPad", 2);
-	static LLUICachedControl<S32> llavatariconctrl_symbol_vpad("UIAvatariconctrlSymbolVPad", 2);
-	static LLUICachedControl<S32> llavatariconctrl_symbol_size("UIAvatariconctrlSymbolSize", 5);
-	static LLUICachedControl<std::string> llavatariconctrl_symbol_pos("UIAvatariconctrlSymbolPosition", "BottomRight");
 
 	// BottomRight is the default position
-	S32 left = rect.getWidth() - llavatariconctrl_symbol_size - llavatariconctrl_symbol_hpad;
-	S32 bottom = llavatariconctrl_symbol_vpad;
+	S32 left = rect.getWidth() - mSymbolSize - mSymbolHpad;
+	S32 bottom = mSymbolVpad;
 
-	if ("BottomLeft" == (std::string)llavatariconctrl_symbol_pos)
+	switch(mSymbolPos)
 	{
-		left = llavatariconctrl_symbol_hpad;
-		bottom = llavatariconctrl_symbol_vpad;
-	}
-	else if ("TopLeft" == (std::string)llavatariconctrl_symbol_pos)
+	case LLAvatarIconCtrlEnums::BOTTOM_LEFT:
 	{
-		left = llavatariconctrl_symbol_hpad;
-		bottom = rect.getHeight() - llavatariconctrl_symbol_size - llavatariconctrl_symbol_vpad;
-	}
-	else if ("TopRight" == (std::string)llavatariconctrl_symbol_pos)
-	{
-		left = rect.getWidth() - llavatariconctrl_symbol_size - llavatariconctrl_symbol_hpad;
-		bottom = rect.getHeight() - llavatariconctrl_symbol_size - llavatariconctrl_symbol_vpad;
+		left = mSymbolHpad;
+		bottom = mSymbolVpad;
 	}
 
-	rect.setOriginAndSize(left, bottom, llavatariconctrl_symbol_size, llavatariconctrl_symbol_size);
+	case LLAvatarIconCtrlEnums::TOP_LEFT:
+	{
+		left = mSymbolHpad;
+		bottom = rect.getHeight() - mSymbolSize - mSymbolVpad;
+	}
+
+	case LLAvatarIconCtrlEnums::TOP_RIGHT:
+	{
+		left = rect.getWidth() - mSymbolSize - mSymbolHpad;
+		bottom = rect.getHeight() - mSymbolSize - mSymbolVpad;
+	}
+
+	case LLAvatarIconCtrlEnums::BOTTOM_RIGHT:
+		// fallthrough, is default
+	default:
+		rect.setOriginAndSize(left, bottom, mSymbolSize, mSymbolSize);
+	}
 
 	if (p.avatar_id.isProvided())
 	{

@@ -163,7 +163,7 @@ private:
 	
 	bool checkNaN(const F32& a) const { return !llisnan(a); }
 	
-	//FIX* non ambigious function fix making SIN() work for calc -Cryogenic Blitz
+	//FIX* non ambiguous function fix making SIN() work for calc -Cryogenic Blitz
 	F32 _sin(const F32& a) const { return sin(DEG_TO_RAD * a); }
 	F32 _cos(const F32& a) const { return cos(DEG_TO_RAD * a); }
 	F32 _tan(const F32& a) const { return tan(DEG_TO_RAD * a); }
@@ -176,10 +176,7 @@ private:
 	F32 _fabs(const F32& a) const { return fabs(a); }
 	F32 _floor(const F32& a) const { return (F32)llfloor(a); }
 	F32 _ceil(const F32& a) const { return llceil(a); }
-
 	F32 _atan2(const F32& a,const F32& b) const { return atan2(a,b); }
-
-
 
 	LLCalc::calc_map_t* mConstants;
 	LLCalc::calc_map_t* mVariables;

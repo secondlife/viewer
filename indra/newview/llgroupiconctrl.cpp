@@ -30,33 +30,21 @@
 
 #include "llagent.h"
 #include "llviewertexture.h"
-/*
-#include "llavatarconstants.h"
-#include "llcallingcard.h" // for LLAvatarTracker
-#include "llavataractions.h"
-#include "llmenugl.h"
-#include "lluictrlfactory.h"
-
-#include "llcachename.h"
-#include "llagentdata.h"
-#include "llfloaterimsession.h"
-*/
 
 static LLDefaultChildRegistry::Register<LLGroupIconCtrl> g_i("group_icon");
 
 LLGroupIconCtrl::Params::Params()
-:	group_id("group_id")
-,	draw_tooltip("draw_tooltip", true)
-,	default_icon_name("default_icon_name")
-{
-}
+:	group_id("group_id"),
+	draw_tooltip("draw_tooltip", true),
+	default_icon_name("default_icon_name")
+{}
 
 
 LLGroupIconCtrl::LLGroupIconCtrl(const LLGroupIconCtrl::Params& p)
-:	LLIconCtrl(p)
-,	mGroupId(LLUUID::null)
-,	mDrawTooltip(p.draw_tooltip)
-,	mDefaultIconName(p.default_icon_name)
+:	LLIconCtrl(p),
+	mGroupId(LLUUID::null),
+	mDrawTooltip(p.draw_tooltip),
+	mDefaultIconName(p.default_icon_name)
 {
 	mPriority = LLViewerFetchedTexture::BOOST_ICON;
 

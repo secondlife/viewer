@@ -107,11 +107,11 @@ bool LLLocationHistory::getMatchingItems(const std::string& substring, location_
 
 void LLLocationHistory::dump() const
 {
-	llinfos << "Location history dump:" << llendl;
+	LL_INFOS() << "Location history dump:" << LL_ENDL;
 	int i = 0;
 	for (location_list_t::const_iterator it = mItems.begin(); it != mItems.end(); ++it, ++i)
 	{
-	    llinfos << "#" << std::setw(2) << std::setfill('0') << i << ": " << it->getLocation() << llendl;
+	    LL_INFOS() << "#" << std::setw(2) << std::setfill('0') << i << ": " << it->getLocation() << LL_ENDL;
 	}
 }
 
@@ -122,7 +122,7 @@ void LLLocationHistory::save() const
 
 	if (resolved_filename.empty())
 	{
-		llinfos << "can't get path to location history filename - probably not logged in yet." << llendl;
+		LL_INFOS() << "can't get path to location history filename - probably not logged in yet." << LL_ENDL;
 		return;
 	}
 
@@ -130,7 +130,7 @@ void LLLocationHistory::save() const
 	llofstream file (resolved_filename);
 	if (!file.is_open())
 	{
-		llwarns << "can't open location history file \"" << mFilename << "\" for writing" << llendl;
+		LL_WARNS() << "can't open location history file \"" << mFilename << "\" for writing" << LL_ENDL;
 		return;
 	}
 
@@ -144,7 +144,7 @@ void LLLocationHistory::save() const
 
 void LLLocationHistory::load()
 {
-	llinfos << "Loading location history." << llendl;
+	LL_INFOS() << "Loading location history." << LL_ENDL;
 	
 	// build filename for each user
 	std::string resolved_filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, mFilename);
@@ -152,7 +152,7 @@ void LLLocationHistory::load()
 
 	if (!file.is_open())
 	{
-		llwarns << "can't load location history from file \"" << mFilename << "\"" << llendl;
+		LL_WARNS() << "can't load location history from file \"" << mFilename << "\"" << LL_ENDL;
 		return;
 	}
 	
@@ -166,7 +166,7 @@ void LLLocationHistory::load()
 		std::istringstream iss(line);
 		if (parser->parse(iss, s_item, line.length()) == LLSDParser::PARSE_FAILURE)
 		{
-			llinfos<< "Parsing saved teleport history failed" << llendl;
+			LL_INFOS()<< "Parsing saved teleport history failed" << LL_ENDL;
 			break;
 		}
 

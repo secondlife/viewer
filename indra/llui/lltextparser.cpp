@@ -228,7 +228,7 @@ bool LLTextParser::saveToDisk(LLSD highlights)
 	std::string filename=getFileName();
 	if (filename.empty())
 	{
-		llwarns << "LLTextParser::saveToDisk() no valid user directory." << llendl; 
+		LL_WARNS() << "LLTextParser::saveToDisk() no valid user directory." << LL_ENDL; 
 		return FALSE;
 	}	
 	llofstream file;

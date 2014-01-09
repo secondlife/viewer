@@ -105,6 +105,8 @@ protected:
 	LLPanel(const LLPanel::Params& params = getDefaultParams());
 	
 public:
+	typedef std::vector<class LLUICtrl *>				ctrl_list_t;
+
 	BOOL buildFromFile(const std::string &filename, const LLPanel::Params& default_params = getDefaultParams());
 
 	static LLPanel* createFactoryPanel(const std::string& name);
@@ -115,7 +117,7 @@ public:
 	/*virtual*/ BOOL 	isPanel() const;
 	/*virtual*/ void	draw();	
 	/*virtual*/ BOOL	handleKeyHere( KEY key, MASK mask );
-	/*virtual*/ void 	handleVisibilityChange ( BOOL new_visibility );
+	/*virtual*/ void 	onVisibilityChange ( BOOL new_visibility );
 
 	// From LLFocusableElement
 	/*virtual*/ void	setFocus( BOOL b );
@@ -154,6 +156,7 @@ public:
 	std::string		getHelpTopic() const { return mHelpTopic; }
 	
 	void			setCtrlsEnabled(BOOL b);
+	ctrl_list_t		getCtrlList() const;
 
 	LLHandle<LLPanel>	getHandle() const { return getDerivedHandle<LLPanel>(); }
 
@@ -174,19 +177,10 @@ public:
 
 	// LLView
 	void childSetVisible(const std::string& name, bool visible);
-	void childShow(const std::string& name) { childSetVisible(name, true); }
-	void childHide(const std::string& name) { childSetVisible(name, false); }
-	bool childIsVisible(const std::string& id) const;
-	void childSetTentative(const std::string& name, bool tentative);
 
 	void childSetEnabled(const std::string& name, bool enabled);
 	void childEnable(const std::string& name)	{ childSetEnabled(name, true); }
 	void childDisable(const std::string& name) { childSetEnabled(name, false); };
-	bool childIsEnabled(const std::string& id) const;
-
-	void childSetToolTip(const std::string& id, const std::string& msg);
-	void childSetRect(const std::string& id, const LLRect &rect);
-	bool childGetRect(const std::string& id, LLRect& rect) const;
 
 	// LLUICtrl
 	void childSetFocus(const std::string& id, BOOL focus = TRUE);
@@ -197,9 +191,6 @@ public:
 	// which takes a generic slot.  Or use mCommitCallbackRegistrar.add() with
 	// a named callback and reference it in XML.
 	void childSetCommitCallback(const std::string& id, boost::function<void (LLUICtrl*,void*)> cb, void* data);	
-	
-	void childSetValidate(const std::string& id, boost::function<bool (const LLSD& data)> cb );
-
 	void childSetColor(const std::string& id, const LLColor4& color);
 
 	LLCtrlSelectionInterface* childGetSelectionInterface(const std::string& id) const;
@@ -214,33 +205,10 @@ public:
 	// Not implemented for all types, defaults to noop, returns FALSE if not applicaple
 	BOOL childSetTextArg(const std::string& id, const std::string& key, const LLStringExplicit& text);
 	BOOL childSetLabelArg(const std::string& id, const std::string& key, const LLStringExplicit& text);
-	BOOL childSetToolTipArg(const std::string& id, const std::string& key, const LLStringExplicit& text);
 	
-	// LLTabContainer
-	void childShowTab(const std::string& id, const std::string& tabname, bool visible = true);
-	LLPanel *childGetVisibleTab(const std::string& id) const;
-
-	// Find a child with a nonempty Help topic 
-	LLPanel *childGetVisibleTabWithHelp();
-	LLPanel *childGetVisiblePanelWithHelp();
-
-	// LLTextBox/LLTextEditor/LLLineEditor
-	void childSetText(const std::string& id, const LLStringExplicit& text) { childSetValue(id, LLSD(text)); }
-
-	// *NOTE: Does not return text from <string> tags, use getString()
-	std::string childGetText(const std::string& id) const { return childGetValue(id).asString(); }
-
-	// LLLineEditor
-	void childSetPrevalidate(const std::string& id, bool (*func)(const LLWString &) );
-
 	// LLButton
 	void childSetAction(const std::string& id, boost::function<void(void*)> function, void* value);
 	void childSetAction(const std::string& id, const commit_signal_t::slot_type& function);
-
-	// LLTextBox
-	void childSetActionTextbox(const std::string& id, boost::function<void(void*)> function, void* value = NULL);
-
-	void childSetControlName(const std::string& id, const std::string& control_name);
 
 	static LLView*	fromXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node = NULL);
 

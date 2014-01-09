@@ -57,33 +57,33 @@ bool LLNotecard::importEmbeddedItemsStream(std::istream& str)
 	str >> std::ws >> "LLEmbeddedItems version" >> mEmbeddedVersion >> "\n";
 	if (str.fail())
 	{
-		llwarns << "Invalid Linden text file header" << llendl;
+		LL_WARNS() << "Invalid Linden text file header" << LL_ENDL;
 		goto import_file_failed;
 	}
 
 	if( 1 != mEmbeddedVersion )
 	{
-		llwarns << "Invalid LLEmbeddedItems version: " << mEmbeddedVersion << llendl;
+		LL_WARNS() << "Invalid LLEmbeddedItems version: " << mEmbeddedVersion << LL_ENDL;
 		goto import_file_failed;
 	}
 
 	str >> std::ws >> "{\n";
 	if(str.fail())
 	{
-		llwarns << "Invalid Linden text file format: missing {" << llendl;
+		LL_WARNS() << "Invalid Linden text file format: missing {" << LL_ENDL;
 		goto import_file_failed;
 	}
 
 	str >> std::ws >> "count " >> count >> "\n";
 	if(str.fail())
 	{
-		llwarns << "Invalid LLEmbeddedItems count" << llendl;
+		LL_WARNS() << "Invalid LLEmbeddedItems count" << LL_ENDL;
 		goto import_file_failed;
 	}
 
 	if((count < 0))
 	{
-		llwarns << "Invalid LLEmbeddedItems count value: " << count << llendl;
+		LL_WARNS() << "Invalid LLEmbeddedItems count value: " << count << LL_ENDL;
 		goto import_file_failed;
 	}
 
@@ -92,7 +92,7 @@ bool LLNotecard::importEmbeddedItemsStream(std::istream& str)
 		str >> std::ws >> "{\n";
 		if(str.fail())
 		{
-			llwarns << "Invalid LLEmbeddedItems file format: missing {" << llendl;
+			LL_WARNS() << "Invalid LLEmbeddedItems file format: missing {" << LL_ENDL;
 			goto import_file_failed;
 		}
 
@@ -100,21 +100,21 @@ bool LLNotecard::importEmbeddedItemsStream(std::istream& str)
 		str >> std::ws >> "ext char index " >> index >> "\n";
 		if(str.fail())
 		{
-			llwarns << "Invalid LLEmbeddedItems file format: missing ext char index" << llendl;
+			LL_WARNS() << "Invalid LLEmbeddedItems file format: missing ext char index" << LL_ENDL;
 			goto import_file_failed;
 		}
 
 		str >> std::ws >> "inv_item\t0\n";
 		if(str.fail())
 		{
-			llwarns << "Invalid LLEmbeddedItems file format: missing inv_item" << llendl;
+			LL_WARNS() << "Invalid LLEmbeddedItems file format: missing inv_item" << LL_ENDL;
 			goto import_file_failed;
 		}
 
 		LLPointer<LLInventoryItem> item = new LLInventoryItem;
 		if (!item->importLegacyStream(str))
 		{
-			llinfos << "notecard import failed" << llendl;
+			LL_INFOS() << "notecard import failed" << LL_ENDL;
 			goto import_file_failed;
 		}		
 		mItems.push_back(item);
@@ -122,7 +122,7 @@ bool LLNotecard::importEmbeddedItemsStream(std::istream& str)
 		str >> std::ws >> "}\n";
 		if(str.fail())
 		{
-			llwarns << "Invalid LLEmbeddedItems file format: missing }" << llendl;
+			LL_WARNS() << "Invalid LLEmbeddedItems file format: missing }" << LL_ENDL;
 			goto import_file_failed;
 		}
 	}
@@ -130,7 +130,7 @@ bool LLNotecard::importEmbeddedItemsStream(std::istream& str)
 	str >> std::ws >> "}\n";
 	if(str.fail())
 	{
-		llwarns << "Invalid LLEmbeddedItems file format: missing }" << llendl;
+		LL_WARNS() << "Invalid LLEmbeddedItems file format: missing }" << LL_ENDL;
 		goto import_file_failed;
 	}
 
@@ -161,20 +161,20 @@ bool LLNotecard::importStream(std::istream& str)
 	str >> std::ws >> "Linden text version " >> mVersion >> "\n";
 	if(str.fail())
 	{
-		llwarns << "Invalid Linden text file header " << llendl;
+		LL_WARNS() << "Invalid Linden text file header " << LL_ENDL;
 		return FALSE;
 	}
 
 	if( 1 != mVersion && 2 != mVersion)
 	{
-		llwarns << "Invalid Linden text file version: " << mVersion << llendl;
+		LL_WARNS() << "Invalid Linden text file version: " << mVersion << LL_ENDL;
 		return FALSE;
 	}
 
 	str >> std::ws >> "{\n";
 	if(str.fail())
 	{
-		llwarns << "Invalid Linden text file format" << llendl;
+		LL_WARNS() << "Invalid Linden text file format" << LL_ENDL;
 		return FALSE;
 	}
 
@@ -187,7 +187,7 @@ bool LLNotecard::importStream(std::istream& str)
 	str.getline(line_buf, STD_STRING_BUF_SIZE);
 	if(str.fail())
 	{
-		llwarns << "Invalid Linden text length field" << llendl;
+		LL_WARNS() << "Invalid Linden text length field" << LL_ENDL;
 		return FALSE;
 	}
 	line_buf[STD_STRING_STR_LEN] = '\0';
@@ -195,13 +195,13 @@ bool LLNotecard::importStream(std::istream& str)
 	S32 text_len = 0;
 	if( 1 != sscanf(line_buf, "Text length %d", &text_len) )
 	{
-		llwarns << "Invalid Linden text length field" << llendl;
+		LL_WARNS() << "Invalid Linden text length field" << LL_ENDL;
 		return FALSE;
 	}
 
 	if(text_len > mMaxText || text_len < 0)
 	{
-		llwarns << "Invalid Linden text length: " << text_len << llendl;
+		LL_WARNS() << "Invalid Linden text length: " << text_len << LL_ENDL;
 		return FALSE;
 	}
 
@@ -211,7 +211,7 @@ bool LLNotecard::importStream(std::istream& str)
 	fullread(str, text, text_len);
 	if(str.fail())
 	{
-		llwarns << "Invalid Linden text: text shorter than text length: " << text_len << llendl;
+		LL_WARNS() << "Invalid Linden text: text shorter than text length: " << text_len << LL_ENDL;
 		success = FALSE;
 	}
 	text[text_len] = '\0';

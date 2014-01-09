@@ -289,7 +289,7 @@ BOOL LLRadioGroup::handleMouseDown(S32 x, S32 y, MASK mask)
 
 void LLRadioGroup::onClickButton(LLUICtrl* ctrl)
 {
-	// llinfos << "LLRadioGroup::onClickButton" << llendl;
+	// LL_INFOS() << "LLRadioGroup::onClickButton" << LL_ENDL;
 	LLRadioCtrl* clicked_radio = dynamic_cast<LLRadioCtrl*>(ctrl);
 	if (!clicked_radio)
 	    return;
@@ -319,7 +319,7 @@ void LLRadioGroup::onClickButton(LLUICtrl* ctrl)
 		index++;
 	}
 
-	llwarns << "LLRadioGroup::onClickButton - clicked button that isn't a child" << llendl;
+	LL_WARNS() << "LLRadioGroup::onClickButton - clicked button that isn't a child" << LL_ENDL;
 }
 
 void LLRadioGroup::setValue( const LLSD& value )

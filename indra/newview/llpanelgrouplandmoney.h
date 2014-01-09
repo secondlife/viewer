@@ -28,7 +28,7 @@
 #define LL_PANEL_GROUP_LAND_MONEY_H
 
 #include "llpanelgroup.h"
-#include "llmap.h"
+#include <map>
 #include "lluuid.h"
 
 class LLPanelGroupLandMoney : public LLPanelGroupTab
@@ -47,7 +47,8 @@ public:
 
 	static void processPlacesReply(LLMessageSystem* msg, void**);
 
-	static LLMap<LLUUID, LLPanelGroupLandMoney*> sGroupIDs;
+	typedef std::map<LLUUID, LLPanelGroupLandMoney*> group_id_map_t;
+	static group_id_map_t sGroupIDs;
 
 	static void processGroupAccountDetailsReply(LLMessageSystem* msg,  void** data);
 	static void processGroupAccountTransactionsReply(LLMessageSystem* msg, void** data);

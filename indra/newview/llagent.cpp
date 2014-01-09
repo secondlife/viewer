@@ -757,7 +757,7 @@ void LLAgent::setFlying(BOOL fly)
 		}
 		if( !was_flying )
 		{
-			LLViewerStats::getInstance()->incStat(LLViewerStats::ST_FLY_COUNT);
+			add(LLStatViewer::FLY, 1);
 		}
 		setControlFlags(AGENT_CONTROL_FLY);
 	}
@@ -814,7 +814,7 @@ void LLAgent::standUp()
 
 void LLAgent::handleServerBakeRegionTransition(const LLUUID& region_id)
 {
-	llinfos << "called" << llendl;
+	LL_INFOS() << "called" << LL_ENDL;
 
 
 	// Old-style appearance entering a server-bake region.
@@ -822,7 +822,7 @@ void LLAgent::handleServerBakeRegionTransition(const LLUUID& region_id)
 		!gAgentAvatarp->isUsingServerBakes() &&
 		(mRegionp->getCentralBakeVersion()>0))
 	{
-		llinfos << "update requested due to region transition" << llendl;
+		LL_INFOS() << "update requested due to region transition" << LL_ENDL;
 		LLAppearanceMgr::instance().requestServerAppearanceUpdate();
 	}
 	// new-style appearance entering a non-bake region,
@@ -849,8 +849,8 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 		// host_name = regionp->getHost().getHostName();
 
 		std::string ip = regionp->getHost().getString();
-		llinfos << "Moving agent into region: " << regionp->getName()
-				<< " located at " << ip << llendl;
+		LL_INFOS() << "Moving agent into region: " << regionp->getName()
+				<< " located at " << ip << LL_ENDL;
 		if (mRegionp)
 		{
 			// We've changed regions, we're now going to change our agent coordinate frame.
@@ -992,12 +992,12 @@ void LLAgent::sendMessage()
 {
 	if (gDisconnected)
 	{
-		llwarns << "Trying to send message when disconnected!" << llendl;
+		LL_WARNS() << "Trying to send message when disconnected!" << LL_ENDL;
 		return;
 	}
 	if (!mRegionp)
 	{
-		llerrs << "No region for agent yet!" << llendl;
+		LL_ERRS() << "No region for agent yet!" << LL_ENDL;
 		return;
 	}
 	gMessageSystem->sendMessage(mRegionp->getHost());
@@ -1011,12 +1011,12 @@ void LLAgent::sendReliableMessage()
 {
 	if (gDisconnected)
 	{
-		lldebugs << "Trying to send message when disconnected!" << llendl;
+		LL_DEBUGS() << "Trying to send message when disconnected!" << LL_ENDL;
 		return;
 	}
 	if (!mRegionp)
 	{
-		lldebugs << "LLAgent::sendReliableMessage No region for agent yet, not sending message!" << llendl;
+		LL_DEBUGS() << "LLAgent::sendReliableMessage No region for agent yet, not sending message!" << LL_ENDL;
 		return;
 	}
 	gMessageSystem->sendReliable(mRegionp->getHost());
@@ -1045,7 +1045,7 @@ void LLAgent::setPositionAgent(const LLVector3 &pos_agent)
 {
 	if (!pos_agent.isFinite())
 	{
-		llerrs << "setPositionAgent is not a number" << llendl;
+		LL_ERRS() << "setPositionAgent is not a number" << LL_ENDL;
 	}
 
 	if (isAgentAvatarValid() && gAgentAvatarp->getParent())
@@ -1177,7 +1177,7 @@ void LLAgent::resetAxes(const LLVector3 &look_at)
 	LLVector3 cross(look_at % skyward);
 	if (cross.isNull())
 	{
-		llinfos << "LLAgent::resetAxes cross-product is zero" << llendl;
+		LL_INFOS() << "LLAgent::resetAxes cross-product is zero" << LL_ENDL;
 		return;
 	}
 
@@ -2054,7 +2054,7 @@ void LLAgent::endAnimationUpdateUI()
 			im_box->getDetachedConversationFloaters(conversations);
 			BOOST_FOREACH(LLFloater* conversation, conversations)
 			{
-				llinfos << "skip_list.insert(session_floater): " << conversation->getTitle() << llendl;
+				LL_INFOS() << "skip_list.insert(session_floater): " << conversation->getTitle() << LL_ENDL;
 				skip_list.insert(conversation);
 			}
 
@@ -2317,7 +2317,7 @@ void LLAgent::setStartPosition( U32 location_id )
     object = gObjectList.findObject(gAgentID);
     if (! object)
     {
-        llinfos << "setStartPosition - Can't find agent viewerobject id " << gAgentID << llendl;
+        LL_INFOS() << "setStartPosition - Can't find agent viewerobject id " << gAgentID << LL_ENDL;
         return;
     }
     // we've got the viewer object
@@ -2418,7 +2418,7 @@ void LLAgent::requestStopMotion( LLMotion* motion )
 
 	// if motion is not looping, it could have stopped by running out of time
 	// so we need to tell the server this
-//	llinfos << "Sending stop for motion " << motion->getName() << llendl;
+//	LL_INFOS() << "Sending stop for motion " << motion->getName() << LL_ENDL;
 	sendAnimationRequest( anim_state, ANIM_REQUEST_STOP );
 }
 
@@ -2581,19 +2581,19 @@ void LLMaturityPreferencesResponder::result(const LLSD &pContent)
 
 	if (actualMaturity != mPreferredMaturity)
 	{
-		llwarns << "while attempting to change maturity preference from '" << LLViewerRegion::accessToString(mPreviousMaturity)
+		LL_WARNS() << "while attempting to change maturity preference from '" << LLViewerRegion::accessToString(mPreviousMaturity)
 			<< "' to '" << LLViewerRegion::accessToString(mPreferredMaturity) << "', the server responded with '"
 			<< LLViewerRegion::accessToString(actualMaturity) << "' [value:" << static_cast<U32>(actualMaturity) << ", llsd:"
-			<< pContent << "]" << llendl;
+			<< pContent << "]" << LL_ENDL;
 	}
 	mAgent->handlePreferredMaturityResult(actualMaturity);
 }
 
 void LLMaturityPreferencesResponder::errorWithContent(U32 pStatus, const std::string& pReason, const LLSD& pContent)
 {
-	llwarns << "while attempting to change maturity preference from '" << LLViewerRegion::accessToString(mPreviousMaturity)
+	LL_WARNS() << "while attempting to change maturity preference from '" << LLViewerRegion::accessToString(mPreviousMaturity)
 		<< "' to '" << LLViewerRegion::accessToString(mPreferredMaturity) << "', we got an error with [status:"
-		<< pStatus << "]: " << (pContent.isDefined() ? pContent : LLSD(pReason)) << llendl;
+		<< pStatus << "]: " << (pContent.isDefined() ? pContent : LLSD(pReason)) << LL_ENDL;
 	mAgent->handlePreferredMaturityError();
 }
 
@@ -2642,8 +2642,8 @@ void LLAgent::handlePreferredMaturityResult(U8 pServerMaturity)
 		// server by re-sending our last known request.  Cap the re-tries at 3 just to be safe.
 		else if (++mMaturityPreferenceNumRetries <= 3)
 		{
-			llinfos << "Retrying attempt #" << mMaturityPreferenceNumRetries << " to set viewer preferred maturity to '"
-				<< LLViewerRegion::accessToString(mLastKnownRequestMaturity) << "'" << llendl;
+			LL_INFOS() << "Retrying attempt #" << mMaturityPreferenceNumRetries << " to set viewer preferred maturity to '"
+				<< LLViewerRegion::accessToString(mLastKnownRequestMaturity) << "'" << LL_ENDL;
 			sendMaturityPreferenceToServer(mLastKnownRequestMaturity);
 		}
 		// Else, the viewer is style out of sync with the server after 3 retries, so inform the user
@@ -2670,8 +2670,8 @@ void LLAgent::handlePreferredMaturityError()
 		// the server, but not quite sure why we are
 		if (mLastKnownRequestMaturity == mLastKnownResponseMaturity)
 		{
-			llwarns << "Got an error but maturity preference '" << LLViewerRegion::accessToString(mLastKnownRequestMaturity)
-				<< "' seems to be in sync with the server" << llendl;
+			LL_WARNS() << "Got an error but maturity preference '" << LLViewerRegion::accessToString(mLastKnownRequestMaturity)
+				<< "' seems to be in sync with the server" << LL_ENDL;
 			reportPreferredMaturitySuccess();
 		}
 		// Else, the more likely case is that the last request does not match the last response,
@@ -2725,7 +2725,7 @@ void LLAgent::reportPreferredMaturityError()
 	{
 		bool tmpIsDoSendMaturityPreferenceToServer = mIsDoSendMaturityPreferenceToServer;
 		mIsDoSendMaturityPreferenceToServer = false;
-		llinfos << "Setting viewer preferred maturity to '" << LLViewerRegion::accessToString(mLastKnownResponseMaturity) << "'" << llendl;
+		LL_INFOS() << "Setting viewer preferred maturity to '" << LLViewerRegion::accessToString(mLastKnownResponseMaturity) << "'" << LL_ENDL;
 		gSavedSettings.setU32("PreferredMaturity", static_cast<U32>(mLastKnownResponseMaturity));
 		mIsDoSendMaturityPreferenceToServer = tmpIsDoSendMaturityPreferenceToServer;
 	}
@@ -2774,8 +2774,8 @@ void LLAgent::sendMaturityPreferenceToServer(U8 pPreferredMaturity)
 
 				LLSD body = LLSD::emptyMap();
 				body["access_prefs"] = access_prefs;
-				llinfos << "Sending viewer preferred maturity to '" << LLViewerRegion::accessToString(pPreferredMaturity)
-					<< "' via capability to: " << url << llendl;
+				LL_INFOS() << "Sending viewer preferred maturity to '" << LLViewerRegion::accessToString(pPreferredMaturity)
+					<< "' via capability to: " << url << LL_ENDL;
 				LLSD headers;
 				LLHTTPClient::post(url, body, responderPtr, headers, 30.0f);
 			}
@@ -2850,10 +2850,10 @@ BOOL LLAgent::isInGroup(const LLUUID& group_id, BOOL ignore_god_mode /* FALSE */
 	if (!ignore_god_mode && isGodlike())
 		return true;
 
-	S32 count = mGroups.count();
-	for(S32 i = 0; i < count; ++i)
+	U32 count = mGroups.size();
+	for(U32 i = 0; i < count; ++i)
 	{
-		if(mGroups.get(i).mID == group_id)
+		if(mGroups[i].mID == group_id)
 		{
 			return TRUE;
 		}
@@ -2870,12 +2870,12 @@ BOOL LLAgent::hasPowerInGroup(const LLUUID& group_id, U64 power) const
 	// GP_NO_POWERS can also mean no power is enough to grant an ability.
 	if (GP_NO_POWERS == power) return FALSE;
 
-	S32 count = mGroups.count();
-	for(S32 i = 0; i < count; ++i)
+	U32 count = mGroups.size();
+	for(U32 i = 0; i < count; ++i)
 	{
-		if(mGroups.get(i).mID == group_id)
+		if(mGroups[i].mID == group_id)
 		{
-			return (BOOL)((mGroups.get(i).mPowers & power) > 0);
+			return (BOOL)((mGroups[i].mPowers & power) > 0);
 		}
 	}
 	return FALSE;
@@ -2891,12 +2891,12 @@ U64 LLAgent::getPowerInGroup(const LLUUID& group_id) const
 	if (isGodlike())
 		return GP_ALL_POWERS;
 	
-	S32 count = mGroups.count();
-	for(S32 i = 0; i < count; ++i)
+	U32 count = mGroups.size();
+	for(U32 i = 0; i < count; ++i)
 	{
-		if(mGroups.get(i).mID == group_id)
+		if(mGroups[i].mID == group_id)
 		{
-			return (mGroups.get(i).mPowers);
+			return (mGroups[i].mPowers);
 		}
 	}
 
@@ -2905,12 +2905,12 @@ U64 LLAgent::getPowerInGroup(const LLUUID& group_id) const
 
 BOOL LLAgent::getGroupData(const LLUUID& group_id, LLGroupData& data) const
 {
-	S32 count = mGroups.count();
+	S32 count = mGroups.size();
 	for(S32 i = 0; i < count; ++i)
 	{
-		if(mGroups.get(i).mID == group_id)
+		if(mGroups[i].mID == group_id)
 		{
-			data = mGroups.get(i);
+			data = mGroups[i];
 			return TRUE;
 		}
 	}
@@ -2919,12 +2919,12 @@ BOOL LLAgent::getGroupData(const LLUUID& group_id, LLGroupData& data) const
 
 S32 LLAgent::getGroupContribution(const LLUUID& group_id) const
 {
-	S32 count = mGroups.count();
+	S32 count = mGroups.size();
 	for(S32 i = 0; i < count; ++i)
 	{
-		if(mGroups.get(i).mID == group_id)
+		if(mGroups[i].mID == group_id)
 		{
-			S32 contribution = mGroups.get(i).mContribution;
+			S32 contribution = mGroups[i].mContribution;
 			return contribution;
 		}
 	}
@@ -2933,12 +2933,12 @@ S32 LLAgent::getGroupContribution(const LLUUID& group_id) const
 
 BOOL LLAgent::setGroupContribution(const LLUUID& group_id, S32 contribution)
 {
-	S32 count = mGroups.count();
+	S32 count = mGroups.size();
 	for(S32 i = 0; i < count; ++i)
 	{
-		if(mGroups.get(i).mID == group_id)
+		if(mGroups[i].mID == group_id)
 		{
-			mGroups.get(i).mContribution = contribution;
+			mGroups[i].mContribution = contribution;
 			LLMessageSystem* msg = gMessageSystem;
 			msg->newMessage("SetGroupContribution");
 			msg->nextBlock("AgentData");
@@ -2956,13 +2956,13 @@ BOOL LLAgent::setGroupContribution(const LLUUID& group_id, S32 contribution)
 
 BOOL LLAgent::setUserGroupFlags(const LLUUID& group_id, BOOL accept_notices, BOOL list_in_profile)
 {
-	S32 count = mGroups.count();
+	S32 count = mGroups.size();
 	for(S32 i = 0; i < count; ++i)
 	{
-		if(mGroups.get(i).mID == group_id)
+		if(mGroups[i].mID == group_id)
 		{
-			mGroups.get(i).mAcceptNotices = accept_notices;
-			mGroups.get(i).mListInProfile = list_in_profile;
+			mGroups[i].mAcceptNotices = accept_notices;
+			mGroups[i].mListInProfile = list_in_profile;
 			LLMessageSystem* msg = gMessageSystem;
 			msg->newMessage("SetGroupAcceptNotices");
 			msg->nextBlock("AgentData");
@@ -2982,7 +2982,7 @@ BOOL LLAgent::setUserGroupFlags(const LLUUID& group_id, BOOL accept_notices, BOO
 
 BOOL LLAgent::canJoinGroups() const
 {
-	return mGroups.count() < gMaxAgentGroups;
+	return (S32)mGroups.size() < gMaxAgentGroups;
 }
 
 LLQuaternion LLAgent::getHeadRotation()
@@ -3011,7 +3011,7 @@ LLQuaternion LLAgent::getHeadRotation()
 	return rot;
 }
 
-void LLAgent::sendAnimationRequests(LLDynamicArray<LLUUID> &anim_ids, EAnimRequest request)
+void LLAgent::sendAnimationRequests(const std::vector<LLUUID> &anim_ids, EAnimRequest request)
 {
 	if (gAgentID.isNull())
 	{
@@ -3026,7 +3026,7 @@ void LLAgent::sendAnimationRequests(LLDynamicArray<LLUUID> &anim_ids, EAnimReque
 	msg->addUUIDFast(_PREHASH_AgentID, getID());
 	msg->addUUIDFast(_PREHASH_SessionID, getSessionID());
 
-	for (S32 i = 0; i < anim_ids.count(); i++)
+	for (S32 i = 0; i < anim_ids.size(); i++)
 	{
 		if (anim_ids[i].isNull())
 		{
@@ -3263,7 +3263,7 @@ void LLAgent::processAgentDropGroup(LLMessageSystem *msg, void **)
 
 	if (agent_id != gAgentID)
 	{
-		llwarns << "processAgentDropGroup for agent other than me" << llendl;
+		LL_WARNS() << "processAgentDropGroup for agent other than me" << LL_ENDL;
 		return;
 	}
 
@@ -3273,10 +3273,10 @@ void LLAgent::processAgentDropGroup(LLMessageSystem *msg, void **)
 	// Remove the group if it already exists remove it and add the new data to pick up changes.
 	LLGroupData gd;
 	gd.mID = group_id;
-	S32 index = gAgent.mGroups.find(gd);
-	if (index != -1)
+	std::vector<LLGroupData>::iterator found_it = std::find(gAgent.mGroups.begin(), gAgent.mGroups.end(), gd);
+	if (found_it != gAgent.mGroups.end())
 	{
-		gAgent.mGroups.remove(index);
+		gAgent.mGroups.erase(found_it);
 		if (gAgent.getGroupID() == group_id)
 		{
 			gAgent.mGroupID.setNull();
@@ -3294,7 +3294,7 @@ void LLAgent::processAgentDropGroup(LLMessageSystem *msg, void **)
 	}
 	else
 	{
-		llwarns << "processAgentDropGroup, agent is not part of group " << group_id << llendl;
+		LL_WARNS() << "processAgentDropGroup, agent is not part of group " << group_id << LL_ENDL;
 	}
 }
 
@@ -3327,7 +3327,7 @@ class LLAgentDropGroupViewerNode : public LLHTTPNode
 			body["AgentData"].isArray() &&
 			body["AgentData"][0].isMap() )
 		{
-			llinfos << "VALID DROP GROUP" << llendl;
+			LL_INFOS() << "VALID DROP GROUP" << LL_ENDL;
 
 			//there is only one set of data in the AgentData block
 			LLSD agent_data = body["AgentData"][0];
@@ -3339,8 +3339,8 @@ class LLAgentDropGroupViewerNode : public LLHTTPNode
 
 			if (agent_id != gAgentID)
 			{
-				llwarns
-					<< "AgentDropGroup for agent other than me" << llendl;
+				LL_WARNS()
+					<< "AgentDropGroup for agent other than me" << LL_ENDL;
 
 				response->notFound();
 				return;
@@ -3350,10 +3350,10 @@ class LLAgentDropGroupViewerNode : public LLHTTPNode
 			// and add the new data to pick up changes.
 			LLGroupData gd;
 			gd.mID = group_id;
-			S32 index = gAgent.mGroups.find(gd);
-			if (index != -1)
+			std::vector<LLGroupData>::iterator found_it = std::find(gAgent.mGroups.begin(), gAgent.mGroups.end(), gd);
+			if (found_it != gAgent.mGroups.end())
 			{
-				gAgent.mGroups.remove(index);
+				gAgent.mGroups.erase(found_it);
 				if (gAgent.getGroupID() == group_id)
 				{
 					gAgent.mGroupID.setNull();
@@ -3371,9 +3371,9 @@ class LLAgentDropGroupViewerNode : public LLHTTPNode
 			}
 			else
 			{
-				llwarns
+				LL_WARNS()
 					<< "AgentDropGroup, agent is not part of group "
-					<< group_id << llendl;
+					<< group_id << LL_ENDL;
 			}
 
 			response->result(LLSD());
@@ -3400,13 +3400,12 @@ void LLAgent::processAgentGroupDataUpdate(LLMessageSystem *msg, void **)
 
 	if (agent_id != gAgentID)
 	{
-		llwarns << "processAgentGroupDataUpdate for agent other than me" << llendl;
+		LL_WARNS() << "processAgentGroupDataUpdate for agent other than me" << LL_ENDL;
 		return;
 	}	
 	
 	S32 count = msg->getNumberOfBlocksFast(_PREHASH_GroupData);
 	LLGroupData group;
-	S32 index = -1;
 	bool need_floater_update = false;
 	for(S32 i = 0; i < count; ++i)
 	{
@@ -3421,12 +3420,12 @@ void LLAgent::processAgentGroupDataUpdate(LLMessageSystem *msg, void **)
 		{
 			need_floater_update = true;
 			// Remove the group if it already exists remove it and add the new data to pick up changes.
-			index = gAgent.mGroups.find(group);
-			if (index != -1)
+			std::vector<LLGroupData>::iterator found_it = std::find(gAgent.mGroups.begin(), gAgent.mGroups.end(), group);
+			if (found_it != gAgent.mGroups.end())
 			{
-				gAgent.mGroups.remove(index);
+				gAgent.mGroups.erase(found_it);
 			}
-			gAgent.mGroups.put(group);
+			gAgent.mGroups.push_back(group);
 		}
 		if (need_floater_update)
 		{
@@ -3450,7 +3449,7 @@ class LLAgentGroupDataUpdateViewerNode : public LLHTTPNode
 
 		if (agent_id != gAgentID)
 		{
-			llwarns << "processAgentGroupDataUpdate for agent other than me" << llendl;
+			LL_WARNS() << "processAgentGroupDataUpdate for agent other than me" << LL_ENDL;
 			return;
 		}	
 
@@ -3465,7 +3464,6 @@ class LLAgentGroupDataUpdateViewerNode : public LLHTTPNode
 		{
 
 			LLGroupData group;
-			S32 index = -1;
 			bool need_floater_update = false;
 
 			group.mID = (*iter_group)["GroupID"].asUUID();
@@ -3482,12 +3480,12 @@ class LLAgentGroupDataUpdateViewerNode : public LLHTTPNode
 			{
 				need_floater_update = true;
 				// Remove the group if it already exists remove it and add the new data to pick up changes.
-				index = gAgent.mGroups.find(group);
-				if (index != -1)
+				std::vector<LLGroupData>::iterator found_it = std::find(gAgent.mGroups.begin(), gAgent.mGroups.end(), group);
+				if (found_it != gAgent.mGroups.end())
 				{
-					gAgent.mGroups.remove(index);
+					gAgent.mGroups.erase(found_it);
 				}
-				gAgent.mGroups.put(group);
+				gAgent.mGroups.push_back(group);
 			}
 			if (need_floater_update)
 			{
@@ -3509,7 +3507,7 @@ void LLAgent::processAgentDataUpdate(LLMessageSystem *msg, void **)
 
 	if (agent_id != gAgentID)
 	{
-		llwarns << "processAgentDataUpdate for agent other than me" << llendl;
+		LL_WARNS() << "processAgentDataUpdate for agent other than me" << LL_ENDL;
 		return;
 	}
 
@@ -3677,7 +3675,7 @@ void LLAgent::processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void *
 
 	if (!isAgentAvatarValid() || gAgentAvatarp->isDead())
 	{
-		llwarns << "No avatar for user in cached texture update!" << llendl;
+		LL_WARNS() << "No avatar for user in cached texture update!" << LL_ENDL;
 		return;
 	}
 
@@ -3714,7 +3712,7 @@ void LLAgent::processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void *
 				{
 					if (texture_id.notNull())
 					{
-						//llinfos << "Received cached texture " << (U32)texture_index << ": " << texture_id << llendl;
+						//LL_INFOS() << "Received cached texture " << (U32)texture_index << ": " << texture_id << LL_ENDL;
 						gAgentAvatarp->setCachedBakedTexture((ETextureIndex)texture_index, texture_id);
 						//gAgentAvatarp->setTETexture( LLVOAvatar::sBakedTextureIndices[texture_index], texture_id );
 						gAgentQueryManager.mActiveCacheQueries[baked_index] = 0;
@@ -3729,7 +3727,7 @@ void LLAgent::processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void *
 			}
 		}
 	}
-	llinfos << "Received cached texture response for " << num_results << " textures." << llendl;
+	LL_INFOS() << "Received cached texture response for " << num_results << " textures." << LL_ENDL;
 	gAgentAvatarp->outputRezTiming("Fetched agent wearables textures from cache. Will now load them");
 
 	gAgentAvatarp->updateMeshTextures();
@@ -3807,7 +3805,7 @@ bool LLAgent::teleportCore(bool is_local)
 {
 	if ((TELEPORT_NONE != mTeleportState) && (mTeleportState != TELEPORT_PENDING))
 	{
-		llwarns << "Attempt to teleport when already teleporting." << llendl;
+		LL_WARNS() << "Attempt to teleport when already teleporting." << LL_ENDL;
 		return false;
 	}
 
@@ -3861,7 +3859,7 @@ bool LLAgent::teleportCore(bool is_local)
 	gAgentCamera.resetView(FALSE);
 
 	// local logic
-	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_TELEPORT_COUNT);
+	add(LLStatViewer::TELEPORT, 1);
 	if (is_local)
 	{
 		gAgent.setTeleportState( LLAgent::TELEPORT_LOCAL );
@@ -3873,6 +3871,7 @@ bool LLAgent::teleportCore(bool is_local)
 
 		//release geometry from old location
 		gPipeline.resetVertexBuffers();
+		LLSpatialPartition::sTeleportRequested = TRUE;
 	}
 	make_ui_sound("UISndTeleportOut");
 	
@@ -4085,6 +4084,7 @@ void LLAgent::teleportCancel()
 	}
 	clearTeleportRequest();
 	gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
+	gPipeline.resetVertexBuffers();
 }
 
 
@@ -4117,7 +4117,7 @@ void LLAgent::doTeleportViaLocation(const LLVector3d& pos_global)
 	else if(regionp && 
 		teleportCore(regionp->getHandle() == to_region_handle_global((F32)pos_global.mdV[VX], (F32)pos_global.mdV[VY])))
 	{
-		llwarns << "Using deprecated teleportlocationrequest." << llendl; 
+		LL_WARNS() << "Using deprecated teleportlocationrequest." << LL_ENDL; 
 		// send the message
 		LLMessageSystem* msg = gMessageSystem;
 		msg->newMessageFast(_PREHASH_TeleportLocationRequest);
@@ -4178,7 +4178,7 @@ void LLAgent::setTeleportState(ETeleportState state)
 
 		case TELEPORT_ARRIVING:
 		// First two position updates after a teleport tend to be weird
-		LLViewerStats::getInstance()->mAgentPositionSnaps.mCountOfNextUpdatesToIgnore = 2;
+		//LLViewerStats::getInstance()->mAgentPositionSnaps.mCountOfNextUpdatesToIgnore = 2;
 
 		// Let the interested parties know we've teleported.
 		LLViewerParcelMgr::getInstance()->onTeleportFinished(false, getPositionGlobal());
@@ -4195,7 +4195,7 @@ void LLAgent::stopCurrentAnimations()
 	// avatar, propagating this change back to the server.
 	if (isAgentAvatarValid())
 	{
-		LLDynamicArray<LLUUID> anim_ids;
+		std::vector<LLUUID> anim_ids;
 
 		for ( LLVOAvatar::AnimIterator anim_it =
 			      gAgentAvatarp->mPlayingAnimations.begin();
@@ -4291,11 +4291,12 @@ void LLAgent::fidget()
 
 void LLAgent::stopFidget()
 {
-	LLDynamicArray<LLUUID> anims;
-	anims.put(ANIM_AGENT_STAND_1);
-	anims.put(ANIM_AGENT_STAND_2);
-	anims.put(ANIM_AGENT_STAND_3);
-	anims.put(ANIM_AGENT_STAND_4);
+	std::vector<LLUUID> anims;
+	anims.reserve(4);
+	anims.push_back(ANIM_AGENT_STAND_1);
+	anims.push_back(ANIM_AGENT_STAND_2);
+	anims.push_back(ANIM_AGENT_STAND_3);
+	anims.push_back(ANIM_AGENT_STAND_4);
 
 	gAgent.sendAnimationRequests(anims, ANIM_REQUEST_STOP);
 }
@@ -4346,7 +4347,7 @@ void LLAgent::dumpSentAppearance(const std::string& dump_prefix)
 	}
 	else
 	{
-		LL_DEBUGS("Avatar") << "dumping sent appearance message to " << fullpath << llendl;
+		LL_DEBUGS("Avatar") << "dumping sent appearance message to " << fullpath << LL_ENDL;
 	}
 
 	LLVisualParam* appearance_version_param = gAgentAvatarp->getVisualParam(11000);
@@ -4389,7 +4390,7 @@ void LLAgent::sendAgentSetAppearance()
 	gAgentAvatarp->bakedTextureOriginCounts(sb_count, host_count, both_count, neither_count);
 	if (both_count != 0 || neither_count != 0)
 	{
-		llwarns << "bad bake texture state " << sb_count << "," << host_count << "," << both_count << "," << neither_count << llendl;
+		LL_WARNS() << "bad bake texture state " << sb_count << "," << host_count << "," << both_count << "," << neither_count << LL_ENDL;
 	}
 	if (sb_count != 0 && host_count == 0)
 	{
@@ -4401,11 +4402,11 @@ void LLAgent::sendAgentSetAppearance()
 	}
 	else if (sb_count + host_count > 0)
 	{
-		llwarns << "unclear baked texture state, not sending appearance" << llendl;
+		LL_WARNS() << "unclear baked texture state, not sending appearance" << LL_ENDL;
 		return;
 	}
 	
-	
+
 	LL_DEBUGS("Avatar") << gAgentAvatarp->avString() << "TAT: Sent AgentSetAppearance: " << gAgentAvatarp->getBakedStatusForPrintout() << LL_ENDL;
 	//dumpAvatarTEs( "sendAgentSetAppearance()" );
 
@@ -4445,7 +4446,7 @@ void LLAgent::sendAgentSetAppearance()
 		// IMG_DEFAULT_AVATAR means not baked. 0 index should be ignored for baked textures
 		if (!gAgentAvatarp->isTextureDefined(texture_index, 0))
 		{
-			LL_DEBUGS("Avatar") << "texture not current for baked " << (S32)baked_index << " local " << (S32)texture_index << llendl;
+			LL_DEBUGS("Avatar") << "texture not current for baked " << (S32)baked_index << " local " << (S32)texture_index << LL_ENDL;
 			textures_current = FALSE;
 			break;
 		}
@@ -4513,7 +4514,7 @@ void LLAgent::sendAgentSetAppearance()
 		}
 	}
 
-//	llinfos << "Avatar XML num VisualParams transmitted = " << transmitted_params << llendl;
+	//LL_INFOS() << "Avatar XML num VisualParams transmitted = " << transmitted_params << LL_ENDL;
 	sendReliableMessage();
 }
 
@@ -4554,8 +4555,8 @@ void LLAgent::parseTeleportMessages(const std::string& xml_filename)
 
 	if (!success || !root || !root->hasName( "teleport_messages" ))
 	{
-		llerrs << "Problem reading teleport string XML file: " 
-			   << xml_filename << llendl;
+		LL_ERRS() << "Problem reading teleport string XML file: " 
+			   << xml_filename << LL_ENDL;
 		return;
 	}
 
@@ -4619,11 +4620,11 @@ void LLAgent::sendAgentUpdateUserInfo(bool im_via_email, const std::string& dire
 // static
 void LLAgent::dumpGroupInfo()
 {
-	llinfos << "group   " << gAgent.mGroupName << llendl;
-	llinfos << "ID      " << gAgent.mGroupID << llendl;
-	llinfos << "powers " << gAgent.mGroupPowers << llendl;
-	llinfos << "title   " << gAgent.mGroupTitle << llendl;
-	//llinfos << "insig   " << gAgent.mGroupInsigniaID << llendl;
+	LL_INFOS() << "group   " << gAgent.mGroupName << LL_ENDL;
+	LL_INFOS() << "ID      " << gAgent.mGroupID << LL_ENDL;
+	LL_INFOS() << "powers " << gAgent.mGroupPowers << LL_ENDL;
+	LL_INFOS() << "title   " << gAgent.mGroupTitle << LL_ENDL;
+	//LL_INFOS() << "insig   " << gAgent.mGroupInsigniaID << LL_ENDL;
 }
 
 // Draw a representation of current autopilot target

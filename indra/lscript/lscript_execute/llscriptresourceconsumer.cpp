@@ -56,7 +56,7 @@ bool LLScriptResourceConsumer::switchScriptResourcePools(LLScriptResourcePool& n
 {
 	if (&new_pool == &LLScriptResourcePool::null)
 	{
-		llwarns << "New pool is null" << llendl;
+		LL_WARNS() << "New pool is null" << LL_ENDL;
 	}
 
 	if (isInPool(new_pool))

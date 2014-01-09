@@ -153,7 +153,7 @@ namespace tut
 	{
 		LLPointer<LLInventoryItem> src = create_random_inventory_item();
 		LLSD sd = ll_create_sd_from_inventory_item(src);
-		//llinfos << "sd: " << *sd << llendl;
+		//LL_INFOS() << "sd: " << *sd << LL_ENDL;
 		LLPointer<LLInventoryItem> dst = new LLInventoryItem;
 		bool successful_parse = dst->fromLLSD(sd);
 		ensure_equals("0.LLInventoryItem::fromLLSD()", successful_parse, true);
@@ -219,7 +219,7 @@ namespace tut
 		src->setCreationDate(new_creation);
 
 		sd = ll_create_sd_from_inventory_item(src);
-		//llinfos << "sd: " << *sd << llendl;
+		//LL_INFOS() << "sd: " << *sd << LL_ENDL;
 		successful_parse = dst->fromLLSD(sd);
 		ensure_equals("13.item id::getUUID() failed", dst->getUUID(), src->getUUID());
 		ensure_equals("14.parent::getParentUUID() failed", dst->getParentUUID(), src->getParentUUID());
@@ -323,7 +323,7 @@ namespace tut
 		LLFILE* fp = LLFile::fopen("linden_file.dat","w+");
 		if(!fp)
 		{
-			llerrs << "file could not be opened\n" << llendl;
+			LL_ERRS() << "file could not be opened\n" << LL_ENDL;
 			return;
 		}
 			
@@ -335,7 +335,7 @@ namespace tut
 		fp = LLFile::fopen("linden_file.dat","r+");
 		if(!fp)
 		{
-			llerrs << "file could not be opened\n" << llendl;
+			LL_ERRS() << "file could not be opened\n" << LL_ENDL;
 			return;
 		}
 		
@@ -460,7 +460,7 @@ namespace tut
 		LLFILE* fp = LLFile::fopen("linden_file.dat","w");
 		if(!fp)
 		{
-			llerrs << "file coudnt be opened\n" << llendl;
+			LL_ERRS() << "file coudnt be opened\n" << LL_ENDL;
 			return;
 		}
 			
@@ -472,7 +472,7 @@ namespace tut
 		fp = LLFile::fopen("linden_file.dat","r");
 		if(!fp)
 		{
-			llerrs << "file coudnt be opened\n" << llendl;
+			LL_ERRS() << "file coudnt be opened\n" << LL_ENDL;
 			return;
 		}
 		

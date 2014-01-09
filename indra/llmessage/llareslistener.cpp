@@ -99,6 +99,6 @@ void LLAresListener::rewriteURI(const LLSD& data)
 	}
 	else
 	{
-		llinfos << "LLAresListener::rewriteURI requested without Ares present. Ignoring: " << data << llendl;
+		LL_INFOS() << "LLAresListener::rewriteURI requested without Ares present. Ignoring: " << data << LL_ENDL;
 	}
 }

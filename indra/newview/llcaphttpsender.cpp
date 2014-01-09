@@ -40,8 +40,8 @@ void LLCapHTTPSender::send(const LLHost& host, const std::string& message,
 								  const LLSD& body, 
 								  LLHTTPClient::ResponderPtr response) const
 {
-	llinfos << "LLCapHTTPSender::send: message " << message
-			<< " to host " << host << llendl;
+	LL_INFOS() << "LLCapHTTPSender::send: message " << message
+			<< " to host " << host << LL_ENDL;
 	LLSD llsd;
 	llsd["message"] = message;
 	llsd["body"] = body;

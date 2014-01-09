@@ -346,7 +346,7 @@ void LLHUDText::updateVisibility()
 
 	if (!mSourceObject)
 	{
-		//llwarns << "LLHUDText::updateScreenPos -- mSourceObject is NULL!" << llendl;
+		//LL_WARNS() << "LLHUDText::updateScreenPos -- mSourceObject is NULL!" << LL_ENDL;
 		mVisible = TRUE;
 		if (mOnHUDAttachment)
 		{

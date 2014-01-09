@@ -27,6 +27,7 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llwatchdog.h"
+#include "llthread.h"
 
 const U32 WATCHDOG_SLEEP_TIME_USEC = 1000000;
 
@@ -221,7 +222,7 @@ void LLWatchdog::run()
 	
 	if(current_run_delta > (WATCHDOG_SLEEP_TIME_USEC * TIME_ELAPSED_MULTIPLIER))
 	{
-		llinfos << "Watchdog thread delayed: resetting entries." << llendl;
+		LL_INFOS() << "Watchdog thread delayed: resetting entries." << LL_ENDL;
 		std::for_each(mSuspects.begin(), 
 			mSuspects.end(), 
 			std::mem_fun(&LLWatchdogEntry::reset)
@@ -243,7 +244,7 @@ void LLWatchdog::run()
 				mTimer->stop();
 			}
 
-			llinfos << "Watchdog detected error:" << llendl;
+			LL_INFOS() << "Watchdog detected error:" << LL_ENDL;
 			mKillerCallback();
 		}
 	}
