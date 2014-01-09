@@ -1042,7 +1042,7 @@ void LLImageRaw::filterGamma(F32 gamma, const LLColor3& alpha)
     
     for (S32 i = 0; i < 256; i++)
     {
-        F32 gamma_i = llclampf((float)(pow((float)(i)/255.0,gamma)));
+        F32 gamma_i = llclampf((float)(powf((float)(i)/255.0,gamma)));
         // Blend in with alpha values
         gamma_red_lut[i]   = (U8)((1.0 - alpha.mV[0]) * (float)(i) + alpha.mV[0] * 255.0 * gamma_i);
         gamma_green_lut[i] = (U8)((1.0 - alpha.mV[1]) * (float)(i) + alpha.mV[1] * 255.0 * gamma_i);
