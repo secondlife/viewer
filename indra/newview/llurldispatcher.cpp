@@ -307,7 +307,9 @@ bool LLURLDispatcher::dispatchRightClick(const std::string& slurl)
 }
 
 // static
-bool LLURLDispatcher::dispatchFromTextEditor(const std::string& slurl, bool trusted_content)
+// MAINT-535 reversion test
+// bool LLURLDispatcher::dispatchFromTextEditor(const std::string& slurl, bool trusted_content)
+bool LLURLDispatcher::dispatchFromTextEditor(const std::string& slurl)
 {
 	// *NOTE: Text editors are considered sources of trusted URLs
 	// in order to make avatar profile links in chat history work.
@@ -315,9 +317,13 @@ bool LLURLDispatcher::dispatchFromTextEditor(const std::string& slurl, bool trus
 	// receiving resident will see it and must affirmatively
 	// click on it.
 	// *TODO: Make this trust model more refined.  JC
+	const bool trusted_browser = true;
 
 	LLMediaCtrl* web = NULL;
-	return LLURLDispatcherImpl::dispatch(LLSLURL(slurl), "clicked", web, trusted_content);
+	return LLURLDispatcherImpl::dispatch(LLSLURL(slurl), "clicked", web, trusted_browser);
+
+	// MAINT-535 reversion test
+	//return LLURLDispatcherImpl::dispatch(LLSLURL(slurl), "clicked", web, trusted_content);
 }
 
 

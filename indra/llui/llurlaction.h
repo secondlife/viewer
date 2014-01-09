@@ -66,7 +66,9 @@ public:
 	static void showLocationOnMap(std::string url);
 
 	/// perform the appropriate action for left-clicking on a Url
-	static void clickAction(std::string url, bool trusted_content);
+	static void clickAction(std::string url);
+	// MAINT-535 reversion test
+	//static void clickAction(std::string url, bool trusted_content);
 
 	/// copy the label for a Url to the clipboard
 	static void copyLabelToClipboard(std::string url);
@@ -86,7 +88,9 @@ public:
 
 	/// specify the callbacks to enable this class's functionality
 	typedef boost::function<void (const std::string&)> url_callback_t;
-	typedef boost::function<bool(const std::string& url, bool trusted_content)> execute_url_callback_t;
+	typedef boost::function<bool(const std::string& url)> execute_url_callback_t;
+	// MAINT-535 reversion test
+	//typedef boost::function<bool(const std::string& url, bool trusted_content)> execute_url_callback_t;
 
 	static void	setOpenURLCallback(url_callback_t cb);
 	static void	setOpenURLInternalCallback(url_callback_t cb);
