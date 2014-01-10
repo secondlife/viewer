@@ -609,11 +609,18 @@ LLVOCachePartition::LLVOCachePartition(LLViewerRegion* regionp)
 	new LLVOCacheGroup(mOctree, this);
 }
 
-void LLVOCachePartition::addEntry(LLViewerOctreeEntry* entry)
+bool LLVOCachePartition::addEntry(LLViewerOctreeEntry* entry)
 {
 	llassert(entry->hasVOCacheEntry());
 
+	if(!llfinite(entry->getBinRadius()) || !entry->getPositionGroup().isFinite3())
+	{
+		return false; //data corrupted
+	}
+
 	mOctree->insert(entry);
+
+	return true;
 }
 	
 void LLVOCachePartition::removeEntry(LLViewerOctreeEntry* entry)

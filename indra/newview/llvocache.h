@@ -188,7 +188,7 @@ class LLVOCachePartition : public LLViewerOctreePartition, public LLTrace::MemTr
 public:
 	LLVOCachePartition(LLViewerRegion* regionp);
 
-	void addEntry(LLViewerOctreeEntry* entry);
+	bool addEntry(LLViewerOctreeEntry* entry);
 	void removeEntry(LLViewerOctreeEntry* entry);
 	/*virtual*/ S32 cull(LLCamera &camera, bool do_occlusion);
 	void addOccluders(LLViewerOctreeGroup* gp);

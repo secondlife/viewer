@@ -980,13 +980,15 @@ void LLViewerRegion::addToVOCacheTree(LLVOCacheEntry* entry)
 	if(entry->hasState(LLVOCacheEntry::IN_VO_TREE))
 	{
 		return; //already in the tree.
-	}
-	entry->setState(LLVOCacheEntry::IN_VO_TREE);
+	}	
 
 	llassert_always(!entry->getGroup()); //not in octree.
 	llassert(!entry->getEntry()->hasDrawable()); //not have drawables
 
-	mImpl->mVOCachePartition->addEntry(entry->getEntry());
+	if(mImpl->mVOCachePartition->addEntry(entry->getEntry()))
+	{
+		entry->setState(LLVOCacheEntry::IN_VO_TREE);
+	}
 }
 
 void LLViewerRegion::removeFromVOCacheTree(LLVOCacheEntry* entry)
