@@ -17,7 +17,7 @@
         </array>
         <array>
             <string>screen</string>
-            <string>2Dsine</string>
+            <string>line</string>
             <real>5.0</real>
             <real>0.0</real>
         </array>
