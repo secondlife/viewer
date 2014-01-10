@@ -158,11 +158,15 @@ void execute_filter(const LLSD& filter_data, LLPointer<LLImageRaw> raw_image)
         // Execute the filter described on this line
         if (filter_name == "blend")
         {
-            raw_image->setVignette(VIGNETTE_MODE_BLEND,(float)(filter_data[i][1].asReal()),(float)(filter_data[i][2].asReal()));
+            raw_image->setVignette(VIGNETTE_MODE_BLEND,VIGNETTE_TYPE_CENTER,(float)(filter_data[i][1].asReal()),(float)(filter_data[i][2].asReal()));
         }
         else if (filter_name == "fade")
         {
-            raw_image->setVignette(VIGNETTE_MODE_FADE,(float)(filter_data[i][1].asReal()),(float)(filter_data[i][2].asReal()));
+            raw_image->setVignette(VIGNETTE_MODE_FADE,VIGNETTE_TYPE_CENTER,(float)(filter_data[i][1].asReal()),(float)(filter_data[i][2].asReal()));
+        }
+        else if (filter_name == "lines")
+        {
+            raw_image->setVignette(VIGNETTE_MODE_BLEND,VIGNETTE_TYPE_LINES,(float)(filter_data[i][1].asReal()),(float)(filter_data[i][2].asReal()));
         }
         else if (filter_name == "sepia")
         {
@@ -780,11 +784,11 @@ int main(int argc, char** argv)
         // Set the vignette if any
         if (vignette_name == "blend")
         {
-            raw_image->setVignette(VIGNETTE_MODE_BLEND,(float)(vignette_param_1),(float)(vignette_param_2));
+            raw_image->setVignette(VIGNETTE_MODE_BLEND,VIGNETTE_TYPE_CENTER,(float)(vignette_param_1),(float)(vignette_param_2));
         }
         else if (vignette_name == "fade")
         {
-            raw_image->setVignette(VIGNETTE_MODE_FADE,(float)(vignette_param_1),(float)(vignette_param_2));
+            raw_image->setVignette(VIGNETTE_MODE_FADE,VIGNETTE_TYPE_CENTER,(float)(vignette_param_1),(float)(vignette_param_2));
         }
         
         // Apply filter if any

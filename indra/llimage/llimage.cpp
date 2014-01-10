@@ -1372,9 +1372,10 @@ void LLImageRaw::filterScreen(EScreenMode mode, const S32 wave_length, const F32
 	}
 }
 
-void LLImageRaw::setVignette(EVignetteMode mode, F32 gamma, F32 min)
+void LLImageRaw::setVignette(EVignetteMode mode, EVignetteType type, F32 gamma, F32 min)
 {
     mVignetteMode = mode;
+    mVignetteType = type;
     mVignetteGamma = gamma;
     mVignetteMin = llclampf(min);
     // We always center the vignette on the image and fits it in the image smallest dimension
@@ -1385,10 +1386,20 @@ void LLImageRaw::setVignette(EVignetteMode mode, F32 gamma, F32 min)
 
 F32 LLImageRaw::getVignetteAlpha(S32 i, S32 j)
 {
-    // alpha is a modified gaussian value, with a center and fading in a circular pattern toward the edges
-    // The gamma parameter controls the intensity of the drop down from alpha 1.0 (center) to 0.0
-    F32 d_center_square = (i - mVignetteCenterX)*(i - mVignetteCenterX) + (j - mVignetteCenterY)*(j - mVignetteCenterY);
-    F32 alpha = powf(F_E, -(powf((d_center_square/(mVignetteWidth*mVignetteWidth)),mVignetteGamma)/2.0f));
+    F32 alpha = 1.0;
+    if (mVignetteType == VIGNETTE_TYPE_CENTER)
+    {
+        // alpha is a modified gaussian value, with a center and fading in a circular pattern toward the edges
+        // The gamma parameter controls the intensity of the drop down from alpha 1.0 (center) to 0.0
+        F32 d_center_square = (i - mVignetteCenterX)*(i - mVignetteCenterX) + (j - mVignetteCenterY)*(j - mVignetteCenterY);
+        alpha = powf(F_E, -(powf((d_center_square/(mVignetteWidth*mVignetteWidth)),mVignetteGamma)/2.0f));
+    }
+    else if (mVignetteType == VIGNETTE_TYPE_LINES)
+    {
+        // alpha varies according to a squared sine function vertically.
+        // gamma is interpreted as the wavelength (in pixels) of the sine in that case.
+        alpha = (sinf(2*F_PI*j/mVignetteGamma) > 0.0 ? 1.0 : 0.0);
+    }
     // We rescale alpha between min and 1.0 so to avoid complete fading if so desired.
     return (mVignetteMin + alpha * (1.0 - mVignetteMin));
 }

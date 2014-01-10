@@ -95,6 +95,12 @@ typedef enum e_vignette_mode
 	VIGNETTE_MODE_FADE  = 2
 } EVignetteMode;
 
+typedef enum e_vignette_type
+{
+	VIGNETTE_TYPE_CENTER = 0,
+	VIGNETTE_TYPE_LINES  = 1
+} EVignetteType;
+
 typedef enum e_screen_mode
 {
 	SCREEN_MODE_2DSINE   = 0,
@@ -173,6 +179,7 @@ protected:
     
     // Vignette filtering
     EVignetteMode mVignetteMode;
+    EVignetteType mVignetteType;
     S32 mVignetteCenterX;
     S32 mVignetteCenterY;
     S32 mVignetteWidth;
@@ -306,7 +313,7 @@ public:
     void colorTransform(const LLMatrix3 &transform);
     void colorCorrect(const U8* lut_red, const U8* lut_green, const U8* lut_blue);
     void filterScreen(EScreenMode mode, const S32 wave_length, const F32 angle);
-    void setVignette(EVignetteMode mode, F32 gamma, F32 min);
+    void setVignette(EVignetteMode mode, EVignetteType type, F32 gamma, F32 min);
     U32* getBrightnessHistogram();
 
 protected:
