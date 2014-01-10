@@ -242,7 +242,7 @@ void LLFloaterTexturePicker::setImageID(const LLUUID& image_id)
 		LLUUID item_id = findItemID(mImageAssetID, FALSE);
 		if (item_id.isNull())
 		{
-			mInventoryPanel->clearSelection();
+			mInventoryPanel->getRootFolder()->clearSelection();
 		}
 		else
 		{
