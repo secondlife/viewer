@@ -2,7 +2,14 @@
     <array>
         <array>
             <string>linearize</string>
-            <real>0.0</real>
+            <real>0.1</real>
+            <real>1.0</real>
+            <real>1.0</real>
+            <real>1.0</real>
+        </array>
+        <array>
+            <string>contrast</string>
+            <real>0.8</real>
             <real>1.0</real>
             <real>1.0</real>
             <real>1.0</real>
@@ -16,10 +23,10 @@
             <string>colorize</string>
             <real>1.0</real>
             <real>0.0</real>
-            <real>0.0</real>
+            <real>1.0</real>
             <real>0.4</real>
             <real>0.0</real>
-            <real>0.0</real>
+            <real>0.2</real>
         </array>
     </array>
 </llsd>

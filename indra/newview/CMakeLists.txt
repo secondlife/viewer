@@ -328,6 +328,7 @@ set(viewer_SOURCE_FILES
     llfloaterimsessiontab.cpp
     llfloaterimsession.cpp
     llfloaterimcontainer.cpp
+    llimagefiltersmanager.cpp
     llimhandler.cpp
     llimview.cpp
     llinspect.cpp
@@ -919,6 +920,7 @@ set(viewer_HEADER_FILES
     llfloaterimsessiontab.h
     llfloaterimsession.h
     llfloaterimcontainer.h
+    llimagefiltersmanager.h
     llimview.h
     llinspect.h
     llinspectavatar.h
