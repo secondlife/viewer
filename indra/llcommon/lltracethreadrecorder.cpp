@@ -191,25 +191,25 @@ ThreadRecorder::active_recording_list_t::iterator ThreadRecorder::bringUpToDate(
 void ThreadRecorder::deactivate( AccumulatorBufferGroup* recording )
 {
 	active_recording_list_t::iterator recording_it = bringUpToDate(recording);
-	if (recording_it != mActiveRecordings.end())
+	// this method should only be called on a thread where the recorder is active
+	llassert_always(recording_it != mActiveRecordings.end());
+
+	ActiveRecording* recording_to_remove = *recording_it;
+	bool was_current = recording_to_remove->mPartialRecording.isCurrent();
+	llassert(recording_to_remove->mTargetRecording == recording);
+	mActiveRecordings.erase(recording_it);
+	if (was_current)
 	{
-		ActiveRecording* recording_to_remove = *recording_it;
-		bool was_current = recording_to_remove->mPartialRecording.isCurrent();
-		llassert(recording_to_remove->mTargetRecording == recording);
-		mActiveRecordings.erase(recording_it);
-		if (was_current)
+		if (mActiveRecordings.empty())
 		{
-			if (mActiveRecordings.empty())
-			{
-				AccumulatorBufferGroup::clearCurrent();
-			}
-			else
-			{
-				mActiveRecordings.back()->mPartialRecording.makeCurrent();
-			}
+			AccumulatorBufferGroup::clearCurrent();
 		}
-		delete recording_to_remove;
+		else
+		{
+			mActiveRecordings.back()->mPartialRecording.makeCurrent();
+		}
 	}
+	delete recording_to_remove;
 }
 
 ThreadRecorder::ActiveRecording::ActiveRecording( AccumulatorBufferGroup* target ) 

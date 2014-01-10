@@ -88,6 +88,9 @@ Recording::~Recording()
 	disclaim_alloc(gTraceMemStat, this);
 	disclaim_alloc(gTraceMemStat, mBuffers);
 
+	// allow recording destruction without thread recorder running, 
+	// otherwise thread shutdown could crash if a recording outlives the thread recorder
+	// besides, recording construction and destruction is fine without a recorder...just don't attempt to start one
 	if (isStarted() && LLTrace::get_thread_recorder().notNull())
 	{
 		LLTrace::get_thread_recorder()->deactivate(mBuffers.write());
@@ -101,7 +104,10 @@ void Recording::update()
 	{
 		mElapsedSeconds += mSamplingTimer.getElapsedTimeF64();
 
-		llassert(mActiveBuffers);
+		// must have 
+		llassert(mActiveBuffers != NULL 
+				&& LLTrace::get_thread_recorder().notNull());
+
 		if(!mActiveBuffers->isCurrent())
 		{
 			AccumulatorBufferGroup* buffers = mBuffers.write();
@@ -125,12 +131,16 @@ void Recording::handleStart()
 {
 	mSamplingTimer.reset();
 	mBuffers.setStayUnique(true);
+	// must have thread recorder running on this thread
+	llassert(LLTrace::get_thread_recorder().notNull());
 	mActiveBuffers = LLTrace::get_thread_recorder()->activate(mBuffers.write());
 }
 
 void Recording::handleStop()
 {
 	mElapsedSeconds += mSamplingTimer.getElapsedTimeF64();
+	// must have thread recorder running on this thread
+	llassert(LLTrace::get_thread_recorder().notNull());
 	LLTrace::get_thread_recorder()->deactivate(mBuffers.write());
 	mActiveBuffers = NULL;
 	mBuffers.setStayUnique(false);
