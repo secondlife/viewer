@@ -1,5 +1,5 @@
 /** 
- * @file llimagefilters.cpp
+ * @file llimagefiltersmanager.cpp
  * @brief Load and execute image filters. Mostly used for Flickr at the moment.
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
@@ -26,7 +26,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llimagefilters.h"
+#include "llimagefiltersmanager.h"
 
 #include "lldiriterator.h"
 
@@ -35,34 +35,36 @@
 // LLImageFilters
 //---------------------------------------------------------------------------
 
-LLImageFilters::LLImageFilters()
+LLImageFiltersManager::LLImageFiltersManager()
 {
 }
 
-LLImageFilters::~LLImageFilters()
+LLImageFiltersManager::~LLImageFiltersManager()
 {
 }
 
 // virtual static
-void LLImageFilters::initSingleton()
+void LLImageFiltersManager::initSingleton()
 {
 	loadAllFilters();
 }
 
 // static
-std::string LLImageFilters::getSysDir()
+std::string LLImageFiltersManager::getSysDir()
 {
 	return gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "filters", "");
 }
 
-void LLImageFilters::loadAllFilters()
+void LLImageFiltersManager::loadAllFilters()
 {
 	// Load system (coming out of the box) filters
 	loadFiltersFromDir(getSysDir());
 }
 
-void LLImageFilters::loadFiltersFromDir(const std::string& dir)
+void LLImageFiltersManager::loadFiltersFromDir(const std::string& dir)
 {
+	mFiltersList.clear();
+
 	LLDirIterator dir_iter(dir, "*.xml");
 	while (1)
 	{
@@ -71,11 +73,15 @@ void LLImageFilters::loadFiltersFromDir(const std::string& dir)
 		{
 			break; // no more files
 		}
+		
+		// Get the ".xml" out of the file name to get the filter name
+		std::string filter_name = file.substr(0,file.length()-4);
+        mFiltersList.push_back(filter_name);
         
 		std::string path = gDirUtilp->add(dir, file);
 
         // For the moment, just output the file found to the log
-        llinfos << "Merov : loadFiltersFromDir, filter = " << path << llendl;
+        llinfos << "Merov : loadFiltersFromDir, filter = " << file << ",path = " << path << llendl;
 	}
 }
 

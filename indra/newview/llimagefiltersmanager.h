@@ -1,5 +1,5 @@
 /** 
- * @file llimagefilters.h
+ * @file llimagefiltersmanager.h
  * @brief Load and execute image filters. Mostly used for Flickr at the moment.
  *
  * $LicenseInfo:firstyear=2000&license=viewerlgpl$
@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLIMAGEFILTERS_H
-#define LL_LLIMAGEFILTERS_H
+#ifndef LL_LLIMAGEFILTERSMANAGER_H
+#define LL_LLIMAGEFILTERSMANAGER_H
 
 #include "llsingleton.h"
 #include "llimage.h"
@@ -46,29 +46,30 @@ typedef enum e_screen_mode
 //============================================================================
 // library initialization class
 
-class LLImageFilters : public LLSingleton<LLImageFilters>
+class LLImageFiltersManager : public LLSingleton<LLImageFiltersManager>
 {
-	LOG_CLASS(LLImageFilters);
+	LOG_CLASS(LLImageFiltersManager);
 public:
     // getFilters(); get a vector of std::string containing the filter names
     //LLSD loadFilter(const std::string& filter_name);
     //void executeFilter(const LLSD& filter_data, LLPointer<LLImageRaw> raw_image);
-   
+    const std::vector<std::string> &getFiltersList() const { return mFiltersList; }
+  
 protected:
 private:
 	void loadAllFilters();
 	void loadFiltersFromDir(const std::string& dir);
-	LLSD loadFilter(const std::string& path);
+//	LLSD loadFilter(const std::string& path);
     
 	static std::string getSysDir();
     
-    friend class LLSingleton<LLImageFilters>;
+    friend class LLSingleton<LLImageFiltersManager>;
 	/*virtual*/ void initSingleton();
-	LLImageFilters();
-	~LLImageFilters();
+	LLImageFiltersManager();
+	~LLImageFiltersManager();
     
-    // Needed here:
-    // - a map of filter files with name and path
+	// List of filters
+    std::vector<std::string> mFiltersList;
 };
 
-#endif
+#endif // LL_LLIMAGEFILTERSMANAGER_H

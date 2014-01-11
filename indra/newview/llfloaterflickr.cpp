@@ -36,6 +36,7 @@
 #include "llflickrconnect.h"
 #include "llfloaterreg.h"
 #include "lliconctrl.h"
+#include "llimagefiltersmanager.h"
 #include "llresmgr.h"		// LLLocale
 #include "llsdserialize.h"
 #include "llloadingindicator.h"
@@ -105,6 +106,14 @@ BOOL LLFlickrPhotoPanel::postBuild()
 	mRatingComboBox = getChild<LLUICtrl>("rating_combobox");
 	mPostButton = getChild<LLUICtrl>("post_photo_btn");
 	mCancelButton = getChild<LLUICtrl>("cancel_photo_btn");
+
+	// Update filter list
+    std::vector<std::string> filter_list = LLImageFiltersManager::getInstance()->getFiltersList();
+	LLComboBox* filterbox = static_cast<LLComboBox *>(mFilterComboBox);
+    for (U32 i = 0; i < filter_list.size(); i++) 
+	{
+        filterbox->add(filter_list[i]);
+    }
 
 	return LLPanel::postBuild();
 }
