@@ -136,7 +136,7 @@ std::string LLKeywords::getArguments(LLSD& arguments)
 
 	if (arguments.isArray())
 	{
-		int argsCount = arguments.size();
+		U32 argsCount = arguments.size();
 		LLSD::array_iterator arrayIt = arguments.beginArray();
 		for ( ; arrayIt != arguments.endArray(); ++arrayIt)
 		{
