@@ -53,10 +53,6 @@
                  label="No Filter"
                  name="NoFilter"
                  value="NoFilter" />
-                <combo_box.item
-                 label="Gray Scale"
-                 name="GrayScale"
-                 value="GrayScale" />
             </combo_box>
             <panel
                 height="150"
