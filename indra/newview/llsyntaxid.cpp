@@ -58,6 +58,8 @@ void fetchKeywordsFileResponder::errorWithContent(U32 status,
 
 void fetchKeywordsFileResponder::result(const LLSD& content_ref)
 {
+	// TODO check for llsd-lsl-syntax-version key and return if not present or not 1.
+
 	LLSyntaxIdLSL::setKeywordsXml(content_ref);
 
 	std::stringstream str;
