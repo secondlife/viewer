@@ -85,6 +85,13 @@ void LLImageFiltersManager::loadFiltersFromDir(const std::string& dir)
 	}
 }
 
-
+std::string LLImageFiltersManager::getFilterPath(const std::string& filter_name)
+{
+    // *TODO : we should store (filter name, path) in a std::map
+    std::string file = filter_name + ".xml";
+    std::string dir = getSysDir();
+    std::string path = gDirUtilp->add(dir, file);
+    return path;
+}
 
 //============================================================================

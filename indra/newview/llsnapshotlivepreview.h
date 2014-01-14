@@ -95,8 +95,8 @@ public:
 	void setSnapshotFormat(LLFloaterSnapshot::ESnapshotFormat type) { mSnapshotFormat = type; }
 	bool setSnapshotQuality(S32 quality, bool set_by_user = true);
 	void setSnapshotBufferType(LLViewerWindow::ESnapshotType type) { mSnapshotBufferType = type; }
-    void setFilter(S32 filter) { mFilterType = filter; }
-    S32  getFilter() { return mFilterType; }
+    void setFilter(std::string filter_name) { mFilterName = filter_name; }
+    std::string  getFilter() { return mFilterName; }
 	void updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail = FALSE, F32 delay = 0.f);
 	void saveWeb();
 	void saveTexture();
@@ -156,7 +156,7 @@ private:
 	LLQuaternion				mCameraRot;
 	BOOL						mSnapshotActive;
 	LLViewerWindow::ESnapshotType mSnapshotBufferType;
-    S32                         mFilterType; // *TODO: eventually use a string and a named filter
+    std::string                 mFilterName;
 
 public:
 	static std::set<LLSnapshotLivePreview*> sList;

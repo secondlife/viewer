@@ -361,13 +361,12 @@ void LLFlickrPhotoPanel::updateResolution(BOOL do_update)
         // Merov : 
         // Get the old filter, compare to the current one "filter_name" and set if changed
         // If changed, also force the updateSnapshot() here under
-        S32 original_filter = previewp->getFilter();
-        S32 filter = ("Gray Scale" == filter_name ? 1 : 0);
+        std::string original_filter = previewp->getFilter();
 		
-		if ((original_width != width) || (original_height != height) || (original_filter != filter))
+		if ((original_width != width) || (original_height != height) || (original_filter != filter_name))
 		{
 			previewp->setSize(width, height);
-            previewp->setFilter(filter);
+            previewp->setFilter(filter_name);
 
 			// hide old preview as the aspect ratio could be wrong
 			lldebugs << "updating thumbnail" << llendl;

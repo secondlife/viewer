@@ -37,6 +37,8 @@
 #include "llfloaterfacebook.h"
 #include "llfloaterflickr.h"
 #include "llfloatertwitter.h"
+#include "llimagefilter.h"
+#include "llimagefiltersmanager.h"
 #include "llimagebmp.h"
 #include "llimagej2c.h"
 #include "llimagejpeg.h"
@@ -90,7 +92,7 @@ LLSnapshotLivePreview::LLSnapshotLivePreview (const LLSnapshotLivePreview::Param
 	mCameraRot(LLViewerCamera::getInstance()->getQuaternion()),
 	mSnapshotActive(FALSE),
 	mSnapshotBufferType(LLViewerWindow::SNAPSHOT_TYPE_COLOR),
-    mFilterType(0)
+    mFilterName("")
 {
 	setSnapshotQuality(gSavedSettings.getS32("SnapshotQuality"));
 	mSnapshotDelayTimer.setTimerExpirySec(0.0f);
@@ -586,10 +588,14 @@ void LLSnapshotLivePreview::generateThumbnailImage(BOOL force_update)
 	if(raw)
 	{
 		raw->expandToPowerOfTwo();
-        // Merov : Filter also the thumbnail?
-        if (getFilter() == 1)
+        // Filter the thumbnail
+        if (getFilter() != "")
         {
-            raw->filterGrayScale();
+            LLImageFilter filter;
+            std::string filter_path = LLImageFiltersManager::getInstance()->getFilterPath(getFilter());
+            filter.loadFromFile(filter_path);
+            filter.executeFilter(raw);
+            //raw->filterGrayScale();
         }
 		mThumbnailImage = LLViewerTextureManager::getLocalTexture(raw.get(), FALSE);
 		mThumbnailUpToDate = TRUE ;
@@ -695,10 +701,14 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 		}
 		else
 		{
-            // Merov : Time to apply the filter to mPreviewImage!!!
-            if (previewp->getFilter() == 1)
+            // Apply the filter to mPreviewImage
+            if (previewp->getFilter() != "")
             {
-                previewp->mPreviewImage->filterGrayScale();
+                LLImageFilter filter;
+                std::string filter_path = LLImageFiltersManager::getInstance()->getFilterPath(previewp->getFilter());
+                filter.loadFromFile(filter_path);
+                filter.executeFilter(previewp->mPreviewImage);
+                //previewp->mPreviewImage->filterGrayScale();
             }
             
 			// delete any existing image

@@ -54,6 +54,7 @@ public:
     //LLSD loadFilter(const std::string& filter_name);
     //void executeFilter(const LLSD& filter_data, LLPointer<LLImageRaw> raw_image);
     const std::vector<std::string> &getFiltersList() const { return mFiltersList; }
+    std::string getFilterPath(const std::string& filter_name);
   
 protected:
 private:
