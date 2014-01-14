@@ -177,33 +177,68 @@ std::string LLKeywords::getAttribute(const std::string& key)
 LLColor4 LLKeywords::getColorGroup(const std::string key_in)
 {
 	std::string ColourGroup = "Black";
-	if (key_in == "constants-float") {
+	if (key_in == "constants-float")
+	{
 		ColourGroup = "SyntaxLslConstantFloat";
-	} else if (key_in == "constants-integer") {
+	}
+	else if (key_in == "constants-integer")
+	{
 		ColourGroup = "SyntaxLslConstantInteger";
-	} else if (key_in == "constants-key") {
+	}
+	else if (key_in == "constants-key")
+	{
 		ColourGroup = "SyntaxLslConstantKey";
-	} else if (key_in == "constants-string") {
+	}
+	else if (key_in == "constants-string")
+	{
 		ColourGroup = "SyntaxLslConstantRotation";
-	} else if (key_in == "constants-string") {
+	}
+	else if (key_in == "constants-string")
+	{
 		ColourGroup = "SyntaxLslConstantString";
-	} else if (key_in == "constants-vector") {
+	}
+	else if (key_in == "constants-vector")
+	{
 		ColourGroup = "SyntaxLslConstantVector";
-	} else if (key_in == "controls") {
+	}
+	else if (key_in == "controls")
+	{
 		ColourGroup = "SyntaxLslControlFlow";
-	} else if (key_in == "events") {
+	}
+	else if (key_in =="deprecated")
+	{
+		ColourGroup = "SyntaxLslDeprecated";
+	}
+	else if (key_in == "events")
+	{
 		ColourGroup = "SyntaxLslEvent";
-	} else if (key_in == "functions") {
+	}
+	else if (key_in == "functions")
+	{
 		ColourGroup = "SyntaxLslFunction";
-	} else if (key_in == "types") {
+	}
+	else if (key_in =="god-mode")
+	{
+		ColourGroup = "SyntaxLslGodMode";
+	}
+	else if (key_in == "types")
+	{
 		ColourGroup = "SyntaxLslDataType";
-	} else if (key_in == "sections") {
+	}
+	else if (key_in == "sections")
+	{
 		ColourGroup = "SyntaxLslSection";
-	} else if (key_in == "misc-double_quotation_marks") {
+	}
+	else if (key_in == "misc-double_quotation_marks")
+	{
 		ColourGroup = "SyntaxLslStringLiteral";
-	} else if (key_in == "misc-comments_1_sided") {
+	}
+	else if (key_in == "misc-comments_1_sided")
+	{
 		ColourGroup = "SyntaxLslComment1Sided";
-	} else if (key_in == "misc-comments_2_sided") {
+	}
+	else if (key_in == "misc-comments_2_sided")
+	{
 		ColourGroup = "SyntaxLslComment2Sided";	
 	}
 
@@ -228,20 +263,9 @@ void LLKeywords::processTokens()
 	LLSD::map_iterator outerIt = mSyntax.beginMap();
 	for ( ; outerIt != mSyntax.endMap(); ++outerIt)
 	{
-		if (outerIt->first == "misc")
+		if (outerIt->first == "llsd-lsl-syntax-version")
 		{
-			if (outerIt->second.isMap())
-			{
-				LLSD::map_iterator innerIt = outerIt->second.beginMap();
-				for ( ; innerIt != outerIt->second.endMap(); ++innerIt)
-				{
-					processTokensGroup(innerIt->second, "misc-" + innerIt->first);
-				}
-			}
-			else
-			{
-				LL_ERRS("LSL-Tokens-Processing") << "Map for misc entries is missing! Ignoring." << LL_ENDL;
-			}
+			LL_INFOS("SyntaxLSL") << "Skipping over version key." << LL_ENDL;
 		}
 		else
 		{
@@ -255,12 +279,15 @@ void LLKeywords::processTokens()
 			}
 		}
 	}
-	LL_INFOS("") << LL_ENDL;
+	LL_INFOS("SyntaxLSL") << "Finished processing tokens." << LL_ENDL;
 }
 
 void LLKeywords::processTokensGroup(LLSD& Tokens, const std::string Group)
 {
 	LLColor4 Color;
+	LLColor4 ColorGroup;
+	LLColor4 ColorDeprecated = getColorGroup("deprecated");
+	LLColor4 ColorGM = getColorGroup("god-mode");
 
 	LLKeywordToken::TOKEN_TYPE token_type = LLKeywordToken::TT_UNKNOWN;
 	// If a new token type is added here, it must also be added to the 'addToken' method
@@ -289,7 +316,7 @@ void LLKeywords::processTokensGroup(LLSD& Tokens, const std::string Group)
 		token_type = LLKeywordToken::TT_TYPE;
 	}
 
-	Color = getColorGroup(Group);
+	ColorGroup = getColorGroup(Group);
 	LL_INFOS("Tokens") << "Group: '" << Group << "', using colour: '" << Color << "'" << LL_ENDL;
 
 	if (Tokens.isMap())
@@ -299,6 +326,7 @@ void LLKeywords::processTokensGroup(LLSD& Tokens, const std::string Group)
 		{
 			if (outerIt->second.isMap())
 			{
+				Color = ColorGroup;
 				mAttributes.clear();
 				bool deprecated = false;
 				LLSD arguments = LLSD ();
@@ -348,11 +376,13 @@ void LLKeywords::processTokensGroup(LLSD& Tokens, const std::string Group)
 					tooltip += getAttribute("tooltip");
 				}
 
-				deprecated = getAttribute("deprecated") == "true" ? true : false;
-				if (deprecated)
+				Color = getAttribute("deprecated") == "true" ? ColorDeprecated : ColorGroup;
+
+				if (getAttribute("god-mode") == "true")
 				{
-					Color = getColorGroup("deprecated");
+					Color = ColorGM;
 				}
+
 				addToken(token_type, outerIt->first, Color, tooltip);
 			}
 		}
