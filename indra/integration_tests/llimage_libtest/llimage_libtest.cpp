@@ -32,6 +32,7 @@
 
 // Linden library includes
 #include "llimage.h"
+#include "llimagefilter.h"
 #include "llimagejpeg.h"
 #include "llimagepng.h"
 #include "llimagebmp.h"
@@ -85,28 +86,8 @@ static const char USAGE[] = "\n"
 " -rev, --reversible\n"
 "        Set the compression to be lossless (reversible in j2c parlance).\n"
 "        Only valid for output j2c images.\n"
-" -f, --filter <name> [<param>]\n"
-"        Apply the filter <name> to the input images using the optional <param> value. Admissible names:\n"
-"        - 'grayscale' converts to grayscale (no param).\n"
-"        - 'sepia' converts to sepia (no param).\n"
-"        - 'saturate' changes color saturation according to <param>: < 1.0 will desaturate, > 1.0 will saturate.\n"
-"        - 'rotate' rotates the color hue according to <param> (in degree, positive value only).\n"
-"        - 'gamma' applies gamma curve <param> to all channels: > 1.0 will darken, < 1.0 will lighten.\n"
-"        - 'colorize' applies a red tint to the image using <param> as an alpha (transparency between 0.0 and 1.0) value.\n"
-"        - 'contrast' modifies the contrast according to <param> : > 1.0 will enhance the contrast, <1.0 will flatten it.\n"
-"        - 'brighten' adds <param> light to the image (<param> between 0 and 255).\n"
-"        - 'darken' substracts <param> light to the image (<param> between 0 and 255).\n"
-"        - 'linearize' optimizes the contrast using the brightness histogram. <param> is the fraction (between 0.0 and 1.0) of discarded tail of the histogram.\n"
-"        - 'posterize' redistributes the colors between <param> classes per channel (<param> between 2 and 255).\n"
-"        - 'newsscreen' applies a 2D sine screening to the red channel and output to black and white.\n"
-"        - 'horizontalscreen' applies a horizontal screening to the red channel and output to black and white.\n"
-"        - 'verticalscreen' applies a vertical screening to the red channel and output to black and white.\n"
-"        - 'slantedscreen' applies a 45 degrees slanted screening to the red channel and output to black and white.\n"
-"        - Any other value will be interpreted as a file name describing a sequence of filters and parameters to be applied to the input images.\n"
-" -v, --vignette <name> [<feather> <min>]\n"
-"        Apply a circular central vignette <name> to the filter using the optional <feather> and <min> values. Admissible names:\n"
-"        - 'blend' : the filter is applied with full intensity in the center and blends with the image to the periphery.\n"
-"        - 'fade' : the filter is applied with full intensity in the center and fades to black to the periphery.\n"
+" -f, --filter <file>\n"
+"        Apply the filter <file> to the input images.\n"
 " -log, --logmetrics <metric>\n"
 "        Log performance data for <metric>. Results in <metric>.slp\n"
 "        Note: so far, only ImageCompressionTester has been tested.\n"
@@ -119,123 +100,6 @@ static const char USAGE[] = "\n"
 
 // true when all image loading is done. Used by metric logging thread to know when to stop the thread.
 static bool sAllDone = false;
-
-// Load filter from file
-LLSD load_filter_from_file(const std::string& file_path)
-{
-	//std::cout << "Loading filter settings from : " << file_path << std::endl;
-	llifstream filter_xml(file_path);
-	if (filter_xml.is_open())
-	{
-		// load and parse it
-		LLSD filter_data(LLSD::emptyArray());
-		LLPointer<LLSDParser> parser = new LLSDXMLParser();
-		parser->parse(filter_xml, filter_data, LLSDSerialize::SIZE_UNLIMITED);
-		filter_xml.close();
-		return filter_data;
-	}
-	else
-	{
-		return LLSD();
-	}
-}
-
-// Apply the filter data to the image passed as parameter
-void execute_filter(const LLSD& filter_data, LLPointer<LLImageRaw> raw_image)
-{
-	//std::cout << "Filter : size = " << filter_data.size() << std::endl;
-	for (S32 i = 0; i < filter_data.size(); ++i)
-	{
-        std::string filter_name = filter_data[i][0].asString();
-        // Dump out the filter values (for debug)
-        //std::cout << "Filter : name = " << filter_data[i][0].asString() << ", params = ";
-        //for (S32 j = 1; j < filter_data[i].size(); ++j)
-        //{
-        //    std::cout << filter_data[i][j].asString() << ", ";
-        //}
-        //std::cout << std::endl;
-        
-        // Execute the filter described on this line
-        if (filter_name == "blend")
-        {
-            raw_image->setVignette(VIGNETTE_MODE_BLEND,VIGNETTE_TYPE_CENTER,(float)(filter_data[i][1].asReal()),(float)(filter_data[i][2].asReal()));
-        }
-        else if (filter_name == "fade")
-        {
-            raw_image->setVignette(VIGNETTE_MODE_FADE,VIGNETTE_TYPE_CENTER,(float)(filter_data[i][1].asReal()),(float)(filter_data[i][2].asReal()));
-        }
-        else if (filter_name == "lines")
-        {
-            raw_image->setVignette(VIGNETTE_MODE_BLEND,VIGNETTE_TYPE_LINES,(float)(filter_data[i][1].asReal()),(float)(filter_data[i][2].asReal()));
-        }
-        else if (filter_name == "sepia")
-        {
-            raw_image->filterSepia();
-        }
-        else if (filter_name == "grayscale")
-        {
-            raw_image->filterGrayScale();
-        }
-        else if (filter_name == "saturate")
-        {
-            raw_image->filterSaturate((float)(filter_data[i][1].asReal()));
-        }
-        else if (filter_name == "rotate")
-        {
-            raw_image->filterRotate((float)(filter_data[i][1].asReal()));
-        }
-        else if (filter_name == "gamma")
-        {
-            LLColor3 color((float)(filter_data[i][2].asReal()),(float)(filter_data[i][3].asReal()),(float)(filter_data[i][4].asReal()));
-            raw_image->filterGamma((float)(filter_data[i][1].asReal()),color);
-        }
-        else if (filter_name == "colorize")
-        {
-            LLColor3 color((float)(filter_data[i][1].asReal()),(float)(filter_data[i][2].asReal()),(float)(filter_data[i][3].asReal()));
-            LLColor3 alpha((F32)(filter_data[i][4].asReal()),(float)(filter_data[i][5].asReal()),(float)(filter_data[i][6].asReal()));
-            raw_image->filterColorize(color,alpha);
-        }
-        else if (filter_name == "contrast")
-        {
-            LLColor3 color((float)(filter_data[i][2].asReal()),(float)(filter_data[i][3].asReal()),(float)(filter_data[i][4].asReal()));
-            raw_image->filterContrast((float)(filter_data[i][1].asReal()),color);
-        }
-        else if (filter_name == "brighten")
-        {
-            LLColor3 color((float)(filter_data[i][2].asReal()),(float)(filter_data[i][3].asReal()),(float)(filter_data[i][4].asReal()));
-            raw_image->filterBrightness((S32)(filter_data[i][1].asReal()),color);
-        }
-        else if (filter_name == "darken")
-        {
-            LLColor3 color((float)(filter_data[i][2].asReal()),(float)(filter_data[i][3].asReal()),(float)(filter_data[i][4].asReal()));
-            raw_image->filterBrightness((S32)(-filter_data[i][1].asReal()),color);
-        }
-        else if (filter_name == "linearize")
-        {
-            LLColor3 color((float)(filter_data[i][2].asReal()),(float)(filter_data[i][3].asReal()),(float)(filter_data[i][4].asReal()));
-            raw_image->filterLinearize((float)(filter_data[i][1].asReal()),color);
-        }
-        else if (filter_name == "posterize")
-        {
-            LLColor3 color((float)(filter_data[i][2].asReal()),(float)(filter_data[i][3].asReal()),(float)(filter_data[i][4].asReal()));
-            raw_image->filterEqualize((S32)(filter_data[i][1].asReal()),color);
-        }
-        else if (filter_name == "screen")
-        {
-            std::string screen_name = filter_data[i][1].asString();
-            EScreenMode mode = SCREEN_MODE_2DSINE;
-            if (screen_name == "2Dsine")
-            {
-                mode = SCREEN_MODE_2DSINE;
-            }
-            else if (screen_name == "line")
-            {
-                mode = SCREEN_MODE_LINE;
-            }
-            raw_image->filterScreen(mode,(S32)(filter_data[i][2].asReal()),(F32)(filter_data[i][3].asReal()));
-        }
-    }
-}
 
 // Create an empty formatted image instance of the correct type from the filename
 LLPointer<LLImageFormatted> create_image(const std::string &filename)
@@ -492,10 +356,6 @@ int main(int argc, char** argv)
 	int levels = 0;
 	bool reversible = false;
     std::string filter_name = "";
-    double filter_param = 0.0;
-    std::string vignette_name = "";
-    double vignette_param_1 = 1.0;
-    double vignette_param_2 = 0.0;
 
 	// Init whatever is necessary
 	ll_init_apr();
@@ -686,53 +546,6 @@ int main(int argc, char** argv)
 				arg += 1;					// Skip that arg now we know it's a valid test name
 				if ((arg + 1) == argc)		// Break out of the loop if we reach the end of the arg list
 					break;
-                // --filter can also have an optional parameter
-                std::string value_str;
-                value_str = argv[arg+1];    // Check the next arg
-                if (value_str[0] != '-')    // If it's not another argument, it's a filter parameter value
-                {
-                    filter_param = atof(value_str.c_str());
-                    arg += 1;					// Skip that arg now we used it as a valid filter param
-                    if ((arg + 1) == argc)		// Break out of the loop if we reach the end of the arg list
-                        break;
-               }
-            }
-		}
-		else if (!strcmp(argv[arg], "--vignette") || !strcmp(argv[arg], "-v"))
-		{
-			// '--vignette' needs to be specified with a named vignette argument
-			if ((arg + 1) < argc)
-			{
-				vignette_name = argv[arg+1];
-			}
-			if (((arg + 1) >= argc) || (vignette_name[0] == '-'))
-			{
-				// We don't have an argument left in the arg list or the next argument is another option
-				std::cout << "No --vignette argument given, no vignette will be applied to filters" << std::endl;
-			}
-			else
-			{
-				arg += 1;					// Skip that arg now we know it's a valid vignette name
-				if ((arg + 1) == argc)		// Break out of the loop if we reach the end of the arg list
-					break;
-                // --vignette can also have optional parameters
-                std::string value_str;
-                value_str = argv[arg+1];    // Check the next arg
-                if (value_str[0] != '-')    // If it's not another argument, it's a vignette parameter value
-                {
-                    vignette_param_1 = atof(value_str.c_str());
-                    arg += 1;					// Skip that arg now we used it as a valid vignette param
-                    if ((arg + 1) == argc)		// Break out of the loop if we reach the end of the arg list
-                        break;
-                    value_str = argv[arg+1];    // Check the next arg
-                    if (value_str[0] != '-')    // If it's not another argument, it's a vignette parameter value
-                    {
-                        vignette_param_2 = atof(value_str.c_str());
-                        arg += 1;					// Skip that arg now we used it as a valid vignette param
-                        if ((arg + 1) == argc)		// Break out of the loop if we reach the end of the arg list
-                            break;
-                    }
-                }
             }
 		}
         else if (!strcmp(argv[arg], "--analyzeperformance") || !strcmp(argv[arg], "-a"))
@@ -781,85 +594,12 @@ int main(int argc, char** argv)
 			continue;
 		}
         
-        // Set the vignette if any
-        if (vignette_name == "blend")
-        {
-            raw_image->setVignette(VIGNETTE_MODE_BLEND,VIGNETTE_TYPE_CENTER,(float)(vignette_param_1),(float)(vignette_param_2));
-        }
-        else if (vignette_name == "fade")
-        {
-            raw_image->setVignette(VIGNETTE_MODE_FADE,VIGNETTE_TYPE_CENTER,(float)(vignette_param_1),(float)(vignette_param_2));
-        }
-        
-        // Apply filter if any
-        if (filter_name == "sepia")
-        {
-            raw_image->filterSepia();
-        }
-        else if (filter_name == "grayscale")
-        {
-            raw_image->filterGrayScale();
-        }
-        else if (filter_name == "saturate")
-        {
-            raw_image->filterSaturate((float)(filter_param));
-        }
-        else if (filter_name == "rotate")
-        {
-            raw_image->filterRotate((float)(filter_param));
-        }
-        else if (filter_name == "gamma")
-        {
-            raw_image->filterGamma((float)(filter_param),LLColor3::white);
-        }
-        else if (filter_name == "colorize")
-        {
-            // For testing, we just colorize in the red channel, modulate by the alpha passed as a parameter
-            LLColor3 color(1.0,0.0,0.0);
-            LLColor3 alpha((F32)(filter_param),0.0,0.0);
-            raw_image->filterColorize(color,alpha);
-        }
-        else if (filter_name == "contrast")
-        {
-            raw_image->filterContrast((float)(filter_param),LLColor3::white);
-        }
-        else if (filter_name == "brighten")
-        {
-            raw_image->filterBrightness((S32)(filter_param),LLColor3::white);
-        }
-        else if (filter_name == "darken")
-        {
-            raw_image->filterBrightness((S32)(-filter_param),LLColor3::white);
-        }
-        else if (filter_name == "linearize")
-        {
-            raw_image->filterLinearize((float)(filter_param),LLColor3::white);
-        }
-        else if (filter_name == "posterize")
-        {
-            raw_image->filterEqualize((S32)(filter_param),LLColor3::white);
-        }
-        else if (filter_name == "newsscreen")
-        {
-            raw_image->filterScreen(SCREEN_MODE_2DSINE,(S32)(filter_param),0.0);
-        }
-        else if (filter_name == "horizontalscreen")
-        {
-            raw_image->filterScreen(SCREEN_MODE_LINE,(S32)(filter_param),0.0);
-        }
-        else if (filter_name == "verticalscreen")
-        {
-            raw_image->filterScreen(SCREEN_MODE_LINE,(S32)(filter_param),90.0);
-        }
-        else if (filter_name == "slantedscreen")
-        {
-            raw_image->filterScreen(SCREEN_MODE_LINE,(S32)(filter_param),45.0);
-        }
-        else if (filter_name != "")
+        if (filter_name != "")
         {
             // We're interpreting the filter as a filter file name
-            LLSD filter_data = load_filter_from_file(filter_name);
-            execute_filter(filter_data,raw_image);
+            LLImageFilter filter;
+            filter.loadFromFile(filter_name);
+            filter.executeFilter(raw_image);
         }
 
 		// Save file
