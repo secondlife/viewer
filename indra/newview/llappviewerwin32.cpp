@@ -65,6 +65,8 @@
 #include "llwindebug.h"
 #endif
 
+#include "stringize.h"
+
 #include <exception>
 namespace
 {
@@ -685,8 +687,6 @@ void LLAppViewerWin32::initCrashReporting(bool reportFreeze)
 	exe_path += gDirUtilp->getDirDelimiter();
 	exe_path += logger_name;
 
-    std::stringstream pid_str;
-    pid_str <<  LLApp::getPid();
     std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_DUMP, "");
     std::string appname = gDirUtilp->getExecutableFilename();
 
@@ -698,7 +698,7 @@ void LLAppViewerWin32::initCrashReporting(bool reportFreeze)
 	{
 		logdir = logdir.substr(0,end+1);
 	}
-	std::string arg_str = "\"" + exe_path + "\" -dumpdir \"" + logdir + "\" -procname \"" + appname + "\" -pid " + pid_str.str(); 
+	std::string arg_str = "\"" + exe_path + "\" -dumpdir \"" + logdir + "\" -procname \"" + appname + "\" -pid " + stringize(LLApp::getPid());
 	_spawnl(_P_NOWAIT, exe_path.c_str(), arg_str.c_str(), NULL);
 }
 

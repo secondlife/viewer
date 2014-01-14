@@ -3512,7 +3512,10 @@ void LLAppViewer::handleViewerCrash()
 		gDebugInfo["Dynamic"]["MinidumpPath"] = minidump_file;
 	}
 #ifdef LL_WINDOWS
-	getFileList();
+	else
+	{
+		getFileList();
+	}
 #endif
     gDebugInfo["Dynamic"]["CrashType"]="crash";
 	

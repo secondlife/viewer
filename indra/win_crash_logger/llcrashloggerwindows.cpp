@@ -383,18 +383,17 @@ bool LLCrashLoggerWindows::initCrashServer()
 	mPID = options["pid"].asInteger();
 	mProcName = options["procname"].asString();
 
-	std::wostringstream ws;
 	//Generate a quasi-uniq name for the named pipe.  For our purposes
 	//this is unique-enough with least hassle.  Worst case for duplicate name
 	//is a second instance of the viewer will not do crash reporting. 
-	ws << mCrashReportPipeStr << mPID;
-	std::wstring wpipe_name = ws.str();
+	std::wstring wpipe_name;
+	wpipe_name = mCrashReportPipeStr + stringize(mPID);
 
 	std::wstring wdump_path;
-	wdump_path.assign(dump_path.begin(), dump_path.end());
+	wdump_path = stringize(dump_path);
 
 	//Pipe naming conventions:  http://msdn.microsoft.com/en-us/library/aa365783%28v=vs.85%29.aspx
-	mCrashHandler = new CrashGenerationServer( (WCHAR *)wpipe_name.c_str(), 
+	mCrashHandler = new CrashGenerationServer( stringize(wpipe_name).c_str(),
 		NULL, 
  		&LLCrashLoggerWindows::OnClientConnected, this,
 		NULL, NULL,	// 	&LLCrashLoggerWindows::OnClientDumpRequest, this,

@@ -47,6 +47,7 @@
 #include "llstring.h"
 #include "lleventtimer.h"
 #include "google_breakpad/exception_handler.h"
+#include "stringize.h"
 
 //
 // Signal handling
@@ -338,10 +339,7 @@ void LLApp::setupErrorHandling()
 	{
 		llwarns << "adding breakpad exception handler" << llendl;
 
-		std::wostringstream ws;
-		ws << mCrashReportPipeStr << getPid();
-		std::wstring wpipe_name = ws.str();
-		std::string ptmp = std::string(wpipe_name.begin(), wpipe_name.end());
+		const std::wstring wpipe_name(wstringize(getPid());
 
 		::Sleep(3000);  //HACK hopefully a static wait won't blow up in my face before google fixes their implementation.
 
@@ -349,13 +347,13 @@ void LLApp::setupErrorHandling()
 		for (int retries=0;retries<5;++retries)
 		{
 			mExceptionHandler = new google_breakpad::ExceptionHandler(
-														std::wstring(mDumpPath.begin(),mDumpPath.end()),		
+														wstringize(mDumpPath),		
 														NULL,		//No filter
 														windows_post_minidump_callback,
 														0,
 														google_breakpad::ExceptionHandler::HANDLER_ALL,
 														MiniDumpNormal, //Generate a 'normal' minidump.
-														(WCHAR *)wpipe_name.c_str(), 
+														strinize(wpipe_name).c_str(),
 														NULL);  //No custom client info.
 			if (mExceptionHandler)
 			{
@@ -370,7 +368,7 @@ void LLApp::setupErrorHandling()
 		{
 				llwarns << "Failed to initialize OOP exception handler.  Defaulting to In Process handling" << llendl;
 				mExceptionHandler = new google_breakpad::ExceptionHandler(
-                                                                  std::wstring(mDumpPath.begin(),mDumpPath.end()), //Dump path
+																  wstringize(mDumpPath),		
 																  0,		//dump filename	
 																  windows_post_minidump_callback, 
 																  0, 
@@ -900,26 +898,21 @@ bool unix_minidump_callback(const google_breakpad::MinidumpDescriptor& minidump_
 	// heap allocations in a crash handler.
 	
 	// path format: <dump_dir>/<minidump_id>.dmp
-	
-	//HACK:  *path points to the buffer in getMiniDumpFilename which has already allocated space
-	//to avoid doing allocation during crash.
-	char * path = LLApp::instance()->getMiniDumpFilename();
-	int dir_path_len = strlen(path);
+	int dirPathLength = strlen(minidump_desc.path());
 	
 	// The path must not be truncated.
-	S32 remaining =  LLApp::MAX_MINDUMP_PATH_LENGTH - dir_path_len;
-
-	llassert( (remaining - strlen(minidump_desc.path())) > 5);
+	llassert((dirPathLength + 5) <= LLApp::MAX_MINDUMP_PATH_LENGTH);
 	
-	path += dir_path_len;
-
-	if (dir_path_len > 0 && path[-1] != '/')
+	char * path = LLApp::instance()->getMiniDumpFilename();
+	S32 remaining = LLApp::MAX_MINDUMP_PATH_LENGTH;
+	strncpy(path, minidump_desc.path(), remaining);
+	remaining -= dirPathLength;
+	path += dirPathLength;
+	if (remaining > 0 && dirPathLength > 0 && path[-1] != '/')
 	{
 		*path++ = '/';
 		--remaining;
 	}
-
-	strncpy(path, minidump_desc.path(), remaining);
 	
 	llinfos << "generated minidump: " << LLApp::instance()->getMiniDumpFilename() << llendl;
 	LLApp::runErrorHandler();

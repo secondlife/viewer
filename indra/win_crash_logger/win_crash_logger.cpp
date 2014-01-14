@@ -28,7 +28,6 @@
 #include "stdafx.h"
 #include <stdlib.h>
 #include "llcrashloggerwindows.h"
-#include <iostream>
 
 int APIENTRY WinMain(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
