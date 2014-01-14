@@ -165,7 +165,7 @@ std::string LLKeywords::getArguments(LLSD& arguments)
 		LL_WARNS("SyntaxLSL")
 				<< "Not an array! Invalid arguments LLSD passed to function." << arguments << LL_ENDL;
 	}
-	return argString == "" ? " void " : argString;
+	return argString == "" ? "" : argString;
 }
 
 std::string LLKeywords::getAttribute(const std::string& key)
