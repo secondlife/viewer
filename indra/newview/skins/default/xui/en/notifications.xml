@@ -9305,7 +9305,7 @@ Object uses too many physics resources -- its dynamics have been disabled.
    persist="false"
    type="notify">
     <tag>fail</tag>
-The object '[OBJECT_NAME]' at [OBJECT_POS] cannot teleport estate managers home.
+The object '[OBJECT_NAME]' at [SLURL] cannot teleport estate managers home.
   </notification>
 
   <notification
