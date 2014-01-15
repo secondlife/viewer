@@ -29,10 +29,7 @@
 #include "llimage.h"
 
 #include "llmath.h"
-#include "v3color.h"
 #include "v4coloru.h"
-#include "m3math.h"
-#include "v3math.h"
 
 #include "llimagebmp.h"
 #include "llimagetga.h"
@@ -108,8 +105,8 @@ LLImageBase::~LLImageBase()
 	deleteData(); // virtual
 }
 
-//static
-void LLImageBase::createPrivatePool()
+//static 
+void LLImageBase::createPrivatePool() 
 {
 	if(!sPrivatePoolp)
 	{

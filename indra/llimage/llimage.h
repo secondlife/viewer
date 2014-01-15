@@ -71,8 +71,6 @@ const S32 HTTP_PACKET_SIZE = 1496;
 class LLImageFormatted;
 class LLImageRaw;
 class LLColor4U;
-class LLColor3;
-class LLMatrix3;
 class LLPrivateMemoryPool;
 
 typedef enum e_image_codec
