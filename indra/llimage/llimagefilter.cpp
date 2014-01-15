@@ -62,6 +62,34 @@ LLImageFilter::~LLImageFilter()
 }
 
 /*
+ *TODO 
+ * Rename vignette to stencil
+ * Separate shape from mode
+ * Add shapes : uniform and gradients
+ * Add modes
+ * Add stencil (min,max) range
+ * Suppress alpha from colorcorrect and use uniform alpha instead
+ * Refactor stencil composition in the filter primitives
+ 
+ <array>
+ <string>stencil</string>
+ <string>shape</string>
+ <string>blend_mode</string>
+ <real>min</real>
+ <real>max</real>
+ <real>param1</real>
+ <real>param2</real>
+ <real>param3</real>
+ <real>param4</real>
+ </array>
+ 
+ vignette : center_x, center_y, width, feather
+ sine : wavelength, angle
+ flat
+ gradient : start_x, start_y, end_x, end_y
+
+ * Document all the admissible names in the wiki
+ 
  "        Apply the filter <name> to the input images using the optional <param> value. Admissible names:\n"
  "        - 'grayscale' converts to grayscale (no param).\n"
  "        - 'sepia' converts to sepia (no param).\n"
@@ -85,7 +113,10 @@ LLImageFilter::~LLImageFilter()
  "        - 'fade' : the filter is applied with full intensity in the center and fades to black to the periphery.\n"
  */
 
+//============================================================================
 // Load filter from file
+//============================================================================
+
 void LLImageFilter::loadFromFile(const std::string& file_path)
 {
 	//std::cout << "Loading filter settings from : " << file_path << std::endl;
@@ -104,7 +135,10 @@ void LLImageFilter::loadFromFile(const std::string& file_path)
 	}
 }
 
+//============================================================================
 // Apply the filter data to the image passed as parameter
+//============================================================================
+
 void LLImageFilter::executeFilter(LLPointer<LLImageRaw> raw_image)
 {
     mImage = raw_image;
@@ -203,7 +237,10 @@ void LLImageFilter::executeFilter(LLPointer<LLImageRaw> raw_image)
     }
 }
 
+//============================================================================
 // Filter Primitives
+//============================================================================
+
 void LLImageFilter::colorCorrect(const U8* lut_red, const U8* lut_green, const U8* lut_blue)
 {
 	const S32 components = mImage->getComponents();
@@ -353,7 +390,10 @@ void LLImageFilter::filterScreen(EScreenMode mode, const S32 wave_length, const 
 	}
 }
 
+//============================================================================
 // Procedural Stencils
+//============================================================================
+
 void LLImageFilter::setVignette(EVignetteMode mode, EVignetteType type, F32 gamma, F32 min)
 {
     mVignetteMode = mode;
@@ -386,7 +426,10 @@ F32 LLImageFilter::getVignetteAlpha(S32 i, S32 j)
     return (mVignetteMin + alpha * (1.0 - mVignetteMin));
 }
 
+//============================================================================
 // Histograms
+//============================================================================
+
 U32* LLImageFilter::getBrightnessHistogram()
 {
     if (!mHistoBrightness)
@@ -444,7 +487,10 @@ void LLImageFilter::computeHistograms()
 	}
 }
 
+//============================================================================
 // Secondary Filters
+//============================================================================
+
 void LLImageFilter::filterGrayScale()
 {
     LLMatrix3 gray_scale;
