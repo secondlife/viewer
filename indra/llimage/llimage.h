@@ -88,25 +88,6 @@ typedef enum e_image_codec
 	IMG_CODEC_EOF  = 8
 } EImageCodec;
 
-typedef enum e_vignette_mode
-{
-	VIGNETTE_MODE_NONE  = 0,
-	VIGNETTE_MODE_BLEND = 1,
-	VIGNETTE_MODE_FADE  = 2
-} EVignetteMode;
-
-typedef enum e_vignette_type
-{
-	VIGNETTE_TYPE_CENTER = 0,
-	VIGNETTE_TYPE_LINES  = 1
-} EVignetteType;
-
-typedef enum e_screen_mode
-{
-	SCREEN_MODE_2DSINE   = 0,
-	SCREEN_MODE_LINE     = 1
-} EScreenMode;
-
 //============================================================================
 // library initialization class
 
@@ -171,21 +152,6 @@ protected:
 	// special accessor to allow direct setting of mData and mDataSize by LLImageFormatted
 	void setDataAndSize(U8 *data, S32 size);
 	
-    // Histograms (if we ever happen to need them)
-    U32 *mHistoRed;
-    U32 *mHistoGreen;
-    U32 *mHistoBlue;
-    U32 *mHistoBrightness;
-    
-    // Vignette filtering
-    EVignetteMode mVignetteMode;
-    EVignetteType mVignetteType;
-    S32 mVignetteCenterX;
-    S32 mVignetteCenterY;
-    S32 mVignetteWidth;
-    F32 mVignetteGamma;
-    F32 mVignetteMin;
-    
 public:
 	static void generateMip(const U8 *indata, U8* mipdata, int width, int height, S32 nchannels);
 	
@@ -291,30 +257,6 @@ public:
 
 	// Src and dst are same size.  Src has 4 components.  Dst has 3 components.
 	void compositeUnscaled4onto3( LLImageRaw* src );
-    
-    // Filter Operations : Transforms
-    void filterGrayScale();                         // Convert to grayscale
-    void filterSepia();                             // Convert to sepia
-    void filterSaturate(F32 saturation);            // < 1.0 desaturates, > 1.0 saturates
-    void filterRotate(F32 angle);                   // Rotates hue according to angle, angle in degrees
-    
-    // Filter Operations : Color Corrections
-    // When specified, the LLColor3 alpha parameter indicates the intensity of the effect for each color channel
-    // acting in effect as an alpha blending factor different for each channel. For instance (1.0,0.0,0.0) will apply
-    // the effect only to the Red channel. Intermediate values blends the effect with the source color.
-    void filterGamma(F32 gamma, const LLColor3& alpha);         // Apply gamma to each channel
-    void filterLinearize(F32 tail, const LLColor3& alpha);      // Use histogram to linearize constrast between min and max values minus tail
-    void filterEqualize(S32 nb_classes, const LLColor3& alpha); // Use histogram to equalize constrast between nb_classes throughout the image
-    void filterColorize(const LLColor3& color, const LLColor3& alpha);  // Colorize with color and alpha per channel
-    void filterContrast(F32 slope, const LLColor3& alpha);      // Change contrast according to slope: > 1.0 more contrast, < 1.0 less contrast
-    void filterBrightness(S32 add, const LLColor3& alpha);      // Change brightness according to add: > 0 brighter, < 0 darker
-   
-    // Filter Primitives
-    void colorTransform(const LLMatrix3 &transform);
-    void colorCorrect(const U8* lut_red, const U8* lut_green, const U8* lut_blue);
-    void filterScreen(EScreenMode mode, const S32 wave_length, const F32 angle);
-    void setVignette(EVignetteMode mode, EVignetteType type, F32 gamma, F32 min);
-    U32* getBrightnessHistogram();
 
 protected:
 	// Create an image from a local file (generally used in tools)
@@ -326,9 +268,6 @@ protected:
 	U8	fastFractionalMult(U8 a,U8 b);
 
 	void setDataAndSize(U8 *data, S32 width, S32 height, S8 components) ;
-
-    void computeHistograms();
-    F32 getVignetteAlpha(S32 i, S32 j);
 
 public:
 	static S32 sGlobalRawMemory;
