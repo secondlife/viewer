@@ -340,9 +340,13 @@ void LLKeywords::processTokensGroup(LLSD& Tokens, const std::string Group)
 							arguments = innerIt->second;
 						}
 					}
-					else
+					else if (!innerIt->second.isMap() && !innerIt->second.isArray())
 					{
 						mAttributes[innerIt->first] = innerIt->second.asString();
+					}
+					else
+					{
+						LL_ERRS("SyntaxLSL") << "Not a valid attribute" << LL_ENDL;
 					}
 				}
 
