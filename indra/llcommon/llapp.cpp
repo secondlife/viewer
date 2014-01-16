@@ -339,7 +339,8 @@ void LLApp::setupErrorHandling()
 	{
 		llwarns << "adding breakpad exception handler" << llendl;
 
-		const std::wstring wpipe_name(wstringize(getPid());
+		const std::wstring wpipe_name(wstringize(getPid()));
+		const std::string pipe_name(stringize(wpipe_name));
 
 		::Sleep(3000);  //HACK hopefully a static wait won't blow up in my face before google fixes their implementation.
 
@@ -353,7 +354,7 @@ void LLApp::setupErrorHandling()
 														0,
 														google_breakpad::ExceptionHandler::HANDLER_ALL,
 														MiniDumpNormal, //Generate a 'normal' minidump.
-														stringize(wpipe_name).c_str(),
+														pipe_name.c_str(),
 														NULL);  //No custom client info.
 			if (mExceptionHandler)
 			{
