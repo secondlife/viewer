@@ -43,6 +43,7 @@
 #include "lldir.h"
 #include "llsdserialize.h"
 #include "llsdutil.h"
+#include "stringize.h"
 
 #include <client/windows/crash_generation/crash_generation_server.h>
 #include <client/windows/crash_generation/client_info.h>
@@ -387,13 +388,12 @@ bool LLCrashLoggerWindows::initCrashServer()
 	//this is unique-enough with least hassle.  Worst case for duplicate name
 	//is a second instance of the viewer will not do crash reporting. 
 	std::wstring wpipe_name;
-	wpipe_name = mCrashReportPipeStr + stringize(mPID);
+	wpipe_name = mCrashReportPipeStr + std::wstring(wstringize(mPID));
 
-	std::wstring wdump_path;
-	wdump_path = stringize(dump_path);
+	std::wstring wdump_path( wstringize(dump_path) );
 
 	//Pipe naming conventions:  http://msdn.microsoft.com/en-us/library/aa365783%28v=vs.85%29.aspx
-	mCrashHandler = new CrashGenerationServer( stringize(wpipe_name).c_str(),
+	mCrashHandler = new CrashGenerationServer( wpipe_name,
 		NULL, 
  		&LLCrashLoggerWindows::OnClientConnected, this,
 		NULL, NULL,	// 	&LLCrashLoggerWindows::OnClientDumpRequest, this,
