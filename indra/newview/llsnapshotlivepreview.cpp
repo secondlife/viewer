@@ -591,11 +591,17 @@ void LLSnapshotLivePreview::generateThumbnailImage(BOOL force_update)
         // Filter the thumbnail
         if (getFilter() != "")
         {
-            LLImageFilter filter;
             std::string filter_path = LLImageFiltersManager::getInstance()->getFilterPath(getFilter());
-            filter.loadFromFile(filter_path);
-            filter.executeFilter(raw);
-            //raw->filterGrayScale();
+            if (filter_path != "")
+            {
+                LLImageFilter filter;
+                filter.loadFromFile(filter_path);
+                filter.executeFilter(raw);
+            }
+            else
+            {
+                llwarns << "Couldn't find a path to the following filter : " << getFilter() << llendl;
+            }
         }
 		mThumbnailImage = LLViewerTextureManager::getLocalTexture(raw.get(), FALSE);
 		mThumbnailUpToDate = TRUE ;
@@ -704,11 +710,17 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
             // Apply the filter to mPreviewImage
             if (previewp->getFilter() != "")
             {
-                LLImageFilter filter;
                 std::string filter_path = LLImageFiltersManager::getInstance()->getFilterPath(previewp->getFilter());
-                filter.loadFromFile(filter_path);
-                filter.executeFilter(previewp->mPreviewImage);
-                //previewp->mPreviewImage->filterGrayScale();
+                if (filter_path != "")
+                {
+                    LLImageFilter filter;
+                    filter.loadFromFile(filter_path);
+                    filter.executeFilter(previewp->mPreviewImage);
+                }
+                else
+                {
+                    llwarns << "Couldn't find a path to the following filter : " << previewp->getFilter() << llendl;
+                }
             }
             
 			// delete any existing image

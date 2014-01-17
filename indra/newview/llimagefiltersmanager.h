@@ -1,6 +1,6 @@
 /** 
  * @file llimagefiltersmanager.h
- * @brief Load and execute image filters. Mostly used for Flickr at the moment.
+ * @brief Load image filters list and retrieve their path. Mostly used for Flickr UI at the moment.
  *
  * $LicenseInfo:firstyear=2000&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -28,49 +28,28 @@
 #define LL_LLIMAGEFILTERSMANAGER_H
 
 #include "llsingleton.h"
-#include "llimage.h"
-/*
-typedef enum e_vignette_mode
-{
-	VIGNETTE_MODE_NONE  = 0,
-	VIGNETTE_MODE_BLEND = 1,
-	VIGNETTE_MODE_FADE  = 2
-} EVignetteMode;
 
-typedef enum e_screen_mode
-{
-	SCREEN_MODE_2DSINE   = 0,
-	SCREEN_MODE_LINE     = 1
-} EScreenMode;
-*/
 //============================================================================
-// library initialization class
+// LLImageFiltersManager class
 
 class LLImageFiltersManager : public LLSingleton<LLImageFiltersManager>
 {
 	LOG_CLASS(LLImageFiltersManager);
 public:
-    // getFilters(); get a vector of std::string containing the filter names
-    //LLSD loadFilter(const std::string& filter_name);
-    //void executeFilter(const LLSD& filter_data, LLPointer<LLImageRaw> raw_image);
-    const std::vector<std::string> &getFiltersList() const { return mFiltersList; }
+    const std::vector<std::string> getFiltersList() const;
     std::string getFilterPath(const std::string& filter_name);
   
-protected:
 private:
 	void loadAllFilters();
 	void loadFiltersFromDir(const std::string& dir);
-//	LLSD loadFilter(const std::string& path);
-    
-	static std::string getSysDir();
     
     friend class LLSingleton<LLImageFiltersManager>;
 	/*virtual*/ void initSingleton();
 	LLImageFiltersManager();
 	~LLImageFiltersManager();
     
-	// List of filters
-    std::vector<std::string> mFiltersList;
+	// List of filters : first is the user friendly localized name, second is the xml file name
+    std::map<std::string,std::string> mFiltersList;
 };
 
 #endif // LL_LLIMAGEFILTERSMANAGER_H

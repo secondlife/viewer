@@ -168,6 +168,18 @@ Please try logging in again in a minute.</string>
   <string name="SocialTwitterErrorPosting">Problem posting to Twitter</string>
   <string name="SocialTwitterErrorDisconnecting">Problem disconnecting from Twitter</string>
     
+	<!-- SLShare: User Friendly Filter Names Translation -->
+    <string name="BlackAndWhite">Black &amp; White</string>
+    <string name="Colors1970">1970&apos;s Colors</string>
+    <string name="Heatwave">Heat Wave</string>
+    <string name="Intense">Intense</string>
+    <string name="JulesVerne">Jules Verne</string>
+    <string name="Newspaper">Newspaper</string>
+    <string name="Overcast">Overcast</string>
+    <string name="Sepia">Sepia</string>
+    <string name="Spotlight">Spotlight</string>
+    <string name="Video">Video</string>
+    
 	<!-- Tooltip -->
 	<string name="TooltipPerson">Person</string><!-- Object under mouse pointer is an avatar -->
 	<string name="TooltipNoName">(no name)</string> <!-- No name on an object -->
