@@ -594,8 +594,7 @@ void LLSnapshotLivePreview::generateThumbnailImage(BOOL force_update)
             std::string filter_path = LLImageFiltersManager::getInstance()->getFilterPath(getFilter());
             if (filter_path != "")
             {
-                LLImageFilter filter;
-                filter.loadFromFile(filter_path);
+                LLImageFilter filter(filter_path);
                 filter.executeFilter(raw);
             }
             else
@@ -713,8 +712,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
                 std::string filter_path = LLImageFiltersManager::getInstance()->getFilterPath(previewp->getFilter());
                 if (filter_path != "")
                 {
-                    LLImageFilter filter;
-                    filter.loadFromFile(filter_path);
+                    LLImageFilter filter(filter_path);
                     filter.executeFilter(previewp->mPreviewImage);
                 }
                 else

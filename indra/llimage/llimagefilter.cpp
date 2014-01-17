@@ -39,7 +39,7 @@
 // LLImageFilter
 //---------------------------------------------------------------------------
 
-LLImageFilter::LLImageFilter() :
+LLImageFilter::LLImageFilter(const std::string& file_path) :
     mFilterData(LLSD::emptyArray()),
     mImage(NULL),
     mHistoRed(NULL),
@@ -50,6 +50,15 @@ LLImageFilter::LLImageFilter() :
     mVignetteGamma(1.0),
     mVignetteMin(0.0)
 {
+    // Load filter description from file
+	llifstream filter_xml(file_path);
+	if (filter_xml.is_open())
+	{
+		// Load and parse the file
+		LLPointer<LLSDParser> parser = new LLSDXMLParser();
+		parser->parse(filter_xml, mFilterData, LLSDSerialize::SIZE_UNLIMITED);
+		filter_xml.close();
+	}
 }
 
 LLImageFilter::~LLImageFilter()
@@ -112,28 +121,6 @@ LLImageFilter::~LLImageFilter()
  "        - 'blend' : the filter is applied with full intensity in the center and blends with the image to the periphery.\n"
  "        - 'fade' : the filter is applied with full intensity in the center and fades to black to the periphery.\n"
  */
-
-//============================================================================
-// Load filter from file
-//============================================================================
-
-void LLImageFilter::loadFromFile(const std::string& file_path)
-{
-	//std::cout << "Loading filter settings from : " << file_path << std::endl;
-	llifstream filter_xml(file_path);
-	if (filter_xml.is_open())
-	{
-		// Load and parse the file
-		LLPointer<LLSDParser> parser = new LLSDXMLParser();
-		parser->parse(filter_xml, mFilterData, LLSDSerialize::SIZE_UNLIMITED);
-		filter_xml.close();
-	}
-	else
-	{
-        // File couldn't be open, reset the filter data
-		mFilterData = LLSD();
-	}
-}
 
 //============================================================================
 // Apply the filter data to the image passed as parameter

@@ -334,7 +334,6 @@ void LLFlickrPhotoPanel::updateResolution(BOOL do_update)
 	S32 height = sdres[1];
     
     const std::string& filter_name = filterbox->getSimple();
-    llinfos << "Merov : filter name is : " << filter_name << llendl;
 
 	LLSnapshotLivePreview * previewp = static_cast<LLSnapshotLivePreview *>(mPreviewHandle.get());
 	if (previewp && combobox->getCurrentIndex() >= 0)
@@ -358,7 +357,6 @@ void LLFlickrPhotoPanel::updateResolution(BOOL do_update)
 		checkAspectRatio(width);
 
 		previewp->getSize(width, height);
-        // Merov : 
         // Get the old filter, compare to the current one "filter_name" and set if changed
         // If changed, also force the updateSnapshot() here under
         std::string original_filter = previewp->getFilter();

@@ -578,7 +578,10 @@ int main(int argc, char** argv)
 		fast_timer_log_thread = new LogThread(LLFastTimer::sLogName);
 		fast_timer_log_thread->start();
 	}
-	
+    
+    // Load the filter once and for all
+    LLImageFilter filter(filter_name);
+
 	// Perform action on each input file
 	std::list<std::string>::iterator in_file  = input_filenames.begin();
 	std::list<std::string>::iterator out_file = output_filenames.begin();
@@ -594,13 +597,8 @@ int main(int argc, char** argv)
 			continue;
 		}
         
-        if (filter_name != "")
-        {
-            // We're interpreting the filter as a filter file name
-            LLImageFilter filter;
-            filter.loadFromFile(filter_name);
-            filter.executeFilter(raw_image);
-        }
+        // Apply the filter
+        filter.executeFilter(raw_image);
 
 		// Save file
 		if (out_file != out_end)

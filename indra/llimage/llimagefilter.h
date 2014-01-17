@@ -54,15 +54,15 @@ typedef enum e_screen_mode
 } EScreenMode;
 
 //============================================================================
-// Image Filter 
+// LLImageFilter 
+//============================================================================
 
 class LLImageFilter
 {
 public:
-    LLImageFilter();
+    LLImageFilter(const std::string& file_path);
     ~LLImageFilter();
     
-    void loadFromFile(const std::string& file_path);
     void executeFilter(LLPointer<LLImageRaw> raw_image);
     
 private:
