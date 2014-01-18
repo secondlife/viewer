@@ -1,6 +1,6 @@
 /** 
  * @file llui.h
- * @brief GL function declarations and other general static UI services.
+ * @brief General static UI services.
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -24,121 +24,37 @@
  * $/LicenseInfo$
  */
 
-// All immediate-mode gl drawing should happen here.
 
 #ifndef LL_LLUI_H
 #define LL_LLUI_H
 
-#include "llpointer.h"		// LLPointer<>
 #include "llrect.h"
 #include "llcontrol.h"
 #include "llcoord.h"
-#include "llglslshader.h"
+#include "v2math.h"
 #include "llinitparam.h"
 #include "llregistry.h"
+#include "llrender2dutils.h"
+#include "llpointer.h"
 #include "lluicolor.h"
 #include "lluicolortable.h"
+#include "lluiimage.h"
 #include <boost/signals2.hpp>
 #include "lllazyvalue.h"
 #include "llframetimer.h"
 #include <limits>
 
-// LLUIFactory
-#include "llsd.h"
-
 // for initparam specialization
 #include "llfontgl.h"
 
 
-class LLColor4; 
-class LLVector3;
-class LLVector2;
-class LLUIImage;
 class LLUUID;
 class LLWindow;
 class LLView;
 class LLHelp;
 
-// UI colors
-extern const LLColor4 UI_VERTEX_COLOR;
 void make_ui_sound(const char* name);
-
-BOOL ui_point_in_rect(S32 x, S32 y, S32 left, S32 top, S32 right, S32 bottom);
-void gl_state_for_2d(S32 width, S32 height);
-
-void gl_line_2d(S32 x1, S32 y1, S32 x2, S32 y2);
-void gl_line_2d(S32 x1, S32 y1, S32 x2, S32 y2, const LLColor4 &color );
-void gl_triangle_2d(S32 x1, S32 y1, S32 x2, S32 y2, S32 x3, S32 y3, const LLColor4& color, BOOL filled);
-void gl_rect_2d_simple( S32 width, S32 height );
-
-void gl_draw_x(const LLRect& rect, const LLColor4& color);
-
-void gl_rect_2d(S32 left, S32 top, S32 right, S32 bottom, BOOL filled = TRUE );
-void gl_rect_2d(S32 left, S32 top, S32 right, S32 bottom, const LLColor4 &color, BOOL filled = TRUE );
-void gl_rect_2d_offset_local( S32 left, S32 top, S32 right, S32 bottom, const LLColor4 &color, S32 pixel_offset = 0, BOOL filled = TRUE );
-void gl_rect_2d_offset_local( S32 left, S32 top, S32 right, S32 bottom, S32 pixel_offset = 0, BOOL filled = TRUE );
-void gl_rect_2d(const LLRect& rect, BOOL filled = TRUE );
-void gl_rect_2d(const LLRect& rect, const LLColor4& color, BOOL filled = TRUE );
-void gl_rect_2d_checkerboard(const LLRect& rect, GLfloat alpha = 1.0f);
-
-void gl_drop_shadow(S32 left, S32 top, S32 right, S32 bottom, const LLColor4 &start_color, S32 lines);
-
-void gl_circle_2d(F32 x, F32 y, F32 radius, S32 steps, BOOL filled);
-void gl_arc_2d(F32 center_x, F32 center_y, F32 radius, S32 steps, BOOL filled, F32 start_angle, F32 end_angle);
-void gl_deep_circle( F32 radius, F32 depth );
-void gl_ring( F32 radius, F32 width, const LLColor4& center_color, const LLColor4& side_color, S32 steps, BOOL render_center );
-void gl_corners_2d(S32 left, S32 top, S32 right, S32 bottom, S32 length, F32 max_frac);
-void gl_washer_2d(F32 outer_radius, F32 inner_radius, S32 steps, const LLColor4& inner_color, const LLColor4& outer_color);
-void gl_washer_segment_2d(F32 outer_radius, F32 inner_radius, F32 start_radians, F32 end_radians, S32 steps, const LLColor4& inner_color, const LLColor4& outer_color);
-
-void gl_draw_image(S32 x, S32 y, LLTexture* image, const LLColor4& color = UI_VERTEX_COLOR, const LLRectf& uv_rect = LLRectf(0.f, 1.f, 1.f, 0.f));
-void gl_draw_scaled_image(S32 x, S32 y, S32 width, S32 height, LLTexture* image, const LLColor4& color = UI_VERTEX_COLOR, const LLRectf& uv_rect = LLRectf(0.f, 1.f, 1.f, 0.f));
-void gl_draw_rotated_image(S32 x, S32 y, F32 degrees, LLTexture* image, const LLColor4& color = UI_VERTEX_COLOR, const LLRectf& uv_rect = LLRectf(0.f, 1.f, 1.f, 0.f));
-void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degrees,LLTexture* image, const LLColor4& color = UI_VERTEX_COLOR, const LLRectf& uv_rect = LLRectf(0.f, 1.f, 1.f, 0.f));
-void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 border_width, S32 border_height, S32 width, S32 height, LLTexture* image, const LLColor4 &color, BOOL solid_color = FALSE, const LLRectf& uv_rect = LLRectf(0.f, 1.f, 1.f, 0.f));
-void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTexture* image, const LLColor4 &color, BOOL solid_color = FALSE, const LLRectf& uv_rect = LLRectf(0.f, 1.f, 1.f, 0.f), const LLRectf& scale_rect = LLRectf(0.f, 1.f, 1.f, 0.f));
-
-void gl_stippled_line_3d( const LLVector3& start, const LLVector3& end, const LLColor4& color, F32 phase = 0.f ); 
-
-void gl_rect_2d_simple_tex( S32 width, S32 height );
-
-// segmented rectangles
-
-/*
-   TL |______TOP_________| TR 
-     /|                  |\  
-   _/_|__________________|_\_
-   L| |    MIDDLE        | |R
-   _|_|__________________|_|_
-    \ |    BOTTOM        | /  
-   BL\|__________________|/ BR
-      |                  |    
-*/
-
-typedef enum e_rounded_edge
-{
-	ROUNDED_RECT_LEFT	= 0x1, 
-	ROUNDED_RECT_TOP	= 0x2, 
-	ROUNDED_RECT_RIGHT	= 0x4, 
-	ROUNDED_RECT_BOTTOM	= 0x8,
-	ROUNDED_RECT_ALL	= 0xf
-}ERoundedEdge;
-
-
-void gl_segmented_rect_2d_tex(const S32 left, const S32 top, const S32 right, const S32 bottom, const S32 texture_width, const S32 texture_height, const S32 border_size, const U32 edges = ROUNDED_RECT_ALL);
-void gl_segmented_rect_2d_fragment_tex(const S32 left, const S32 top, const S32 right, const S32 bottom, const S32 texture_width, const S32 texture_height, const S32 border_size, const F32 start_fragment, const F32 end_fragment, const U32 edges = ROUNDED_RECT_ALL);
-void gl_segmented_rect_3d_tex(const LLVector2& border_scale, const LLVector3& border_width, const LLVector3& border_height, const LLVector3& width_vec, const LLVector3& height_vec, U32 edges = ROUNDED_RECT_ALL);
-void gl_segmented_rect_3d_tex_top(const LLVector2& border_scale, const LLVector3& border_width, const LLVector3& border_height, const LLVector3& width_vec, const LLVector3& height_vec);
-
-inline void gl_rect_2d( const LLRect& rect, BOOL filled )
-{
-	gl_rect_2d( rect.mLeft, rect.mTop, rect.mRight, rect.mBottom, filled );
-}
-
-inline void gl_rect_2d_offset_local( const LLRect& rect, S32 pixel_offset, BOOL filled)
-{
-	gl_rect_2d_offset_local( rect.mLeft, rect.mTop, rect.mRight, rect.mBottom, pixel_offset, filled );
-}
+void make_ui_sound_deferred(const char * name);
 
 class LLImageProviderInterface;
 
@@ -275,15 +191,16 @@ public:
 	static void initClass(const settings_map_t& settings,
 						  LLImageProviderInterface* image_provider,
 						  LLUIAudioCallback audio_callback = NULL,
+						  LLUIAudioCallback deferred_audio_callback = NULL,
 						  const LLVector2 *scale_factor = NULL,
 						  const std::string& language = LLStringUtil::null);
 	static void cleanupClass();
 	static void setPopupFuncs(const add_popup_t& add_popup, const remove_popup_t&, const clear_popups_t& );
 
-	static void pushMatrix();
-	static void popMatrix();
-	static void loadIdentity();
-	static void translate(F32 x, F32 y, F32 z = 0.0f);
+	static void pushMatrix() { LLRender2D::pushMatrix(); }
+	static void popMatrix() { LLRender2D::popMatrix(); }
+	static void loadIdentity() { LLRender2D::loadIdentity(); }
+	static void translate(F32 x, F32 y, F32 z = 0.0f) { LLRender2D::translate(x, y, z); }
 
 	static LLRect	sDirtyRect;
 	static BOOL		sDirty;
@@ -328,10 +245,13 @@ public:
 	static void getMousePositionScreen(S32 *x, S32 *y);
 	static void setMousePositionLocal(const LLView* viewp, S32 x, S32 y);
 	static void getMousePositionLocal(const LLView* viewp, S32 *x, S32 *y);
-	static void setScaleFactor(const LLVector2& scale_factor);
-	static void setLineWidth(F32 width);
-	static LLPointer<LLUIImage> getUIImageByID(const LLUUID& image_id, S32 priority = 0);
-	static LLPointer<LLUIImage> getUIImage(const std::string& name, S32 priority = 0);
+	static LLVector2& getScaleFactor() { return LLRender2D::sGLScaleFactor; }
+	static void setScaleFactor(const LLVector2& scale_factor) { LLRender2D::setScaleFactor(scale_factor); }
+	static void setLineWidth(F32 width) { LLRender2D::setLineWidth(width); }
+	static LLPointer<LLUIImage> getUIImageByID(const LLUUID& image_id, S32 priority = 0)
+		{ return LLRender2D::getUIImageByID(image_id, priority); }
+	static LLPointer<LLUIImage> getUIImage(const std::string& name, S32 priority = 0)
+		{ return LLRender2D::getUIImage(name, priority); }
 	static LLVector2 getWindowSize();
 	static void screenPointToGL(S32 screen_x, S32 screen_y, S32 *gl_x, S32 *gl_y);
 	static void glPointToScreen(S32 gl_x, S32 gl_y, S32 *screen_x, S32 *screen_y);
@@ -360,12 +280,11 @@ public:
 	//
 	static settings_map_t sSettingGroups;
 	static LLUIAudioCallback sAudioCallback;
-	static LLVector2		sGLScaleFactor;
+	static LLUIAudioCallback sDeferredAudioCallback;
 	static LLWindow*		sWindow;
 	static LLView*			sRootView;
 	static LLHelp*			sHelpImpl;
 private:
-	static LLImageProviderInterface* sImageProvider;
 	static std::vector<std::string> sXUIPaths;
 	static LLFrameTimer		sMouseIdleTimer;
 	static add_popup_t		sAddPopupFunc;
@@ -375,18 +294,6 @@ private:
 
 
 // Moved LLLocalClipRect to lllocalcliprect.h
-
-//RN: maybe this needs to moved elsewhere?
-class LLImageProviderInterface
-{
-protected:
-	LLImageProviderInterface() {};
-	virtual ~LLImageProviderInterface() {};
-public:
-	virtual LLPointer<LLUIImage> getUIImage(const std::string& name, S32 priority) = 0;
-	virtual LLPointer<LLUIImage> getUIImageByID(const LLUUID& id, S32 priority) = 0;
-	virtual void cleanUp() = 0;
-};
 
 class LLCallbackRegistry
 {
@@ -436,10 +343,11 @@ public:
 
 	// this avoids a MSVC bug where non-referenced static members are "optimized" away
 	// even if their constructors have side effects
-	void reference()
+	S32 reference()
 	{
 		S32 dummy;
 		dummy = 0;
+		return dummy;
 	}
 };
 
@@ -497,17 +405,12 @@ public:
 					  const std::string& comment = "Declared In Code")
 	:	LLCachedControl<T>(LLUI::getControlControlGroup(name), name, default_value, comment)
 	{}
-
-	// This constructor will signal an error if the control doesn't exist in the control group
-	LLUICachedControl(const std::string& name)
-	:	LLCachedControl<T>(LLUI::getControlControlGroup(name), name)
-	{}
 };
 
 namespace LLInitParam
 {
 	template<>
-	class ParamValue<LLRect, TypeValues<LLRect> > 
+	class ParamValue<LLRect> 
 	:	public CustomParamValue<LLRect>
 	{
         typedef CustomParamValue<LLRect> super_t;
@@ -526,7 +429,7 @@ namespace LLInitParam
 	};
 
 	template<>
-	class ParamValue<LLUIColor, TypeValues<LLUIColor> > 
+	class ParamValue<LLUIColor> 
 	:	public CustomParamValue<LLUIColor>
 	{
         typedef CustomParamValue<LLUIColor> super_t;
@@ -544,7 +447,7 @@ namespace LLInitParam
 	};
 
 	template<>
-	class ParamValue<const LLFontGL*, TypeValues<const LLFontGL*> > 
+	class ParamValue<const LLFontGL*> 
 	:	public CustomParamValue<const LLFontGL* >
 	{
         typedef CustomParamValue<const LLFontGL*> super_t;
@@ -584,7 +487,7 @@ namespace LLInitParam
 
 
 	template<>
-	class ParamValue<LLCoordGL, TypeValues<LLCoordGL> >
+	class ParamValue<LLCoordGL>
 	:	public CustomParamValue<LLCoordGL>
 	{
 		typedef CustomParamValue<LLCoordGL> super_t;
@@ -597,8 +500,5 @@ namespace LLInitParam
 		void updateBlockFromValue(bool make_block_authoritative);
 	};
 }
-
-extern LLGLSLShader gSolidColorProgram;
-extern LLGLSLShader gUIProgram;
 
 #endif

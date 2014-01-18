@@ -24,6 +24,7 @@
  */
  
 #extension GL_ARB_texture_rectangle : enable
+#extension GL_ARB_shader_texture_lod : enable
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
@@ -2093,7 +2094,6 @@ uniform sampler2D diffuseMap;
 uniform vec2 rcp_screen_res;
 uniform vec4 rcp_frame_opt;
 uniform vec4 rcp_frame_opt2;
-uniform vec2 screen_res;
 VARYING vec2 vary_fragcoord;
 VARYING vec2 vary_tc;
 

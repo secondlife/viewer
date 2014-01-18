@@ -568,8 +568,11 @@ bool LLTextureCacheRemoteWorker::doWrite()
 			idx = mCache->setHeaderCacheEntry(mID, entry, mImageSize, mDataSize); // create the new entry.
 			if(idx >= 0)
 			{
-				//write to the fast cache.
-				llassert_always(mCache->writeToFastCache(idx, mRawImage, mRawDiscardLevel));
+				// (almost always) write to the fast cache.
+				if (mRawImage->getDataSize())
+				{
+					llassert_always(mCache->writeToFastCache(idx, mRawImage, mRawDiscardLevel));
+				}
 			}
 		}
 		else
@@ -1861,7 +1864,12 @@ LLPointer<LLImageRaw> LLTextureCache::readFromFastCache(const LLUUID& id, S32& d
 
 		mFastCachep->seek(APR_SET, offset);		
 	
-		llassert_always(mFastCachep->read(head, TEXTURE_FAST_CACHE_ENTRY_OVERHEAD) == TEXTURE_FAST_CACHE_ENTRY_OVERHEAD);
+		if(mFastCachep->read(head, TEXTURE_FAST_CACHE_ENTRY_OVERHEAD) != TEXTURE_FAST_CACHE_ENTRY_OVERHEAD)
+		{
+			//cache corrupted or under thread race condition
+			closeFastCache(); 
+			return NULL;
+		}
 		
 		S32 image_size = head[0] * head[1] * head[2];
 		if(!image_size) //invalid
@@ -1872,7 +1880,13 @@ LLPointer<LLImageRaw> LLTextureCache::readFromFastCache(const LLUUID& id, S32& d
 		discardlevel = head[3];
 		
 		data =  (U8*)ALLOCATE_MEM(LLImageBase::getPrivatePool(), image_size);
-		llassert_always(mFastCachep->read(data, image_size) == image_size);
+		if(mFastCachep->read(data, image_size) != image_size)
+		{
+			FREE_MEM(LLImageBase::getPrivatePool(), data);
+			closeFastCache();
+			return NULL;
+		}
+
 		closeFastCache();
 	}
 	LLPointer<LLImageRaw> raw = new LLImageRaw(data, head[0], head[1], head[2], true);
@@ -1884,10 +1898,17 @@ LLPointer<LLImageRaw> LLTextureCache::readFromFastCache(const LLUUID& id, S32& d
 bool LLTextureCache::writeToFastCache(S32 id, LLPointer<LLImageRaw> raw, S32 discardlevel)
 {
 	//rescale image if needed
+	if (raw.isNull() || !raw->getData())
+	{
+		llerrs << "Attempted to write NULL raw image to fastcache" << llendl;
+		return false;
+	}
+
 	S32 w, h, c;
 	w = raw->getWidth();
 	h = raw->getHeight();
 	c = raw->getComponents();
+
 	S32 i = 0 ;
 	
 	while(((w >> i) * (h >> i) * c) > TEXTURE_FAST_CACHE_ENTRY_SIZE - TEXTURE_FAST_CACHE_ENTRY_OVERHEAD)
@@ -1901,10 +1922,10 @@ bool LLTextureCache::writeToFastCache(S32 id, LLPointer<LLImageRaw> raw, S32 dis
 		h >>= i;
 		if(w * h *c > 0) //valid
 		{
-			LLPointer<LLImageRaw> newraw = new LLImageRaw(raw->getData(), raw->getWidth(), raw->getHeight(), raw->getComponents());
-			newraw->scale(w, h) ;
-			raw = newraw;
-
+			//make a duplicate to keep the original raw image untouched.
+			raw = raw->duplicate();
+			raw->scale(w, h) ;
+			
 			discardlevel += i ;
 		}
 	}
@@ -1914,9 +1935,12 @@ bool LLTextureCache::writeToFastCache(S32 id, LLPointer<LLImageRaw> raw, S32 dis
 	memcpy(mFastCachePadBuffer + sizeof(S32), &h, sizeof(S32));
 	memcpy(mFastCachePadBuffer + sizeof(S32) * 2, &c, sizeof(S32));
 	memcpy(mFastCachePadBuffer + sizeof(S32) * 3, &discardlevel, sizeof(S32));
-	if(w * h * c > 0) //valid
+
+	S32 copy_size = w * h * c;
+	if(copy_size > 0) //valid
 	{
-		memcpy(mFastCachePadBuffer + TEXTURE_FAST_CACHE_ENTRY_OVERHEAD, raw->getData(), w * h * c);
+		copy_size = llmin(copy_size, TEXTURE_FAST_CACHE_ENTRY_SIZE - TEXTURE_FAST_CACHE_ENTRY_OVERHEAD);
+		memcpy(mFastCachePadBuffer + TEXTURE_FAST_CACHE_ENTRY_OVERHEAD, raw->getData(), copy_size);
 	}
 	S32 offset = id * TEXTURE_FAST_CACHE_ENTRY_SIZE;
 
@@ -1926,7 +1950,11 @@ bool LLTextureCache::writeToFastCache(S32 id, LLPointer<LLImageRaw> raw, S32 dis
 		openFastCache();
 
 		mFastCachep->seek(APR_SET, offset);	
-		llassert_always(mFastCachep->write(mFastCachePadBuffer, TEXTURE_FAST_CACHE_ENTRY_SIZE) == TEXTURE_FAST_CACHE_ENTRY_SIZE);
+		
+		//no need to do this assertion check. When it fails, let it fail quietly.
+		//this failure could happen because other viewer removes the fast cache file when clearing cache.
+		//--> llassert_always(mFastCachep->write(mFastCachePadBuffer, TEXTURE_FAST_CACHE_ENTRY_SIZE) == TEXTURE_FAST_CACHE_ENTRY_SIZE);
+		mFastCachep->write(mFastCachePadBuffer, TEXTURE_FAST_CACHE_ENTRY_SIZE);
 
 		closeFastCache(true);
 	}

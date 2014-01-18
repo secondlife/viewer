@@ -48,7 +48,6 @@ class LLVivoxProtocolParser;
 class LLAvatarName;
 class LLVivoxVoiceAccountProvisionResponder;
 class LLVivoxVoiceClientMuteListObserver;
-class LLVivoxVoiceClientFriendsObserver;	
 
 
 class LLVivoxVoiceClient :	public LLSingleton<LLVivoxVoiceClient>,
@@ -181,7 +180,6 @@ public:
 	//@{
 	virtual BOOL getVoiceEnabled(const LLUUID& id);		// true if we've received data for this avatar
 	virtual std::string getDisplayName(const LLUUID& id);
-	virtual BOOL isOnlineSIP(const LLUUID &id);
 	virtual BOOL isParticipantAvatar(const LLUUID &id);
 	virtual BOOL getIsSpeaking(const LLUUID& id);
 	virtual BOOL getIsModeratorMuted(const LLUUID& id);
@@ -246,6 +244,8 @@ public:
 
 	//@}
 
+	bool onCheckVoiceEffect(const std::string& voice_effect_name);
+	void onClickVoiceEffect(const std::string& voice_effect_name);
 
 protected:
 	//////////////////////
@@ -488,14 +488,10 @@ protected:
 	void participantRemovedEvent(std::string &sessionHandle, std::string &sessionGroupHandle, std::string &uriString, std::string &alias, std::string &nameString);
 	void participantUpdatedEvent(std::string &sessionHandle, std::string &sessionGroupHandle, std::string &uriString, std::string &alias, bool isModeratorMuted, bool isSpeaking, int volume, F32 energy);
 	void auxAudioPropertiesEvent(F32 energy);
-	void buddyPresenceEvent(std::string &uriString, std::string &alias, std::string &statusString, std::string &applicationString);
 	void messageEvent(std::string &sessionHandle, std::string &uriString, std::string &alias, std::string &messageHeader, std::string &messageBody, std::string &applicationString);
 	void sessionNotificationEvent(std::string &sessionHandle, std::string &uriString, std::string &notificationType);
-	void subscriptionEvent(std::string &buddyURI, std::string &subscriptionHandle, std::string &alias, std::string &displayName, std::string &applicationString, std::string &subscriptionType);
 	
-	void buddyListChanged();
 	void muteListChanged();
-	void updateFriends(U32 mask);
 		
 	/////////////////////////////
 	// Sending updates of current state
@@ -582,29 +578,10 @@ protected:
 		bool mNameResolved;
 		bool mInSLFriends;
 		bool mInVivoxBuddies;
-		bool mNeedsNameUpdate;
 	};
 
 	typedef std::map<std::string, buddyListEntry*> buddyListMap;
 	
-	// This should be called when parsing a buddy list entry sent by SLVoice.		
-	void processBuddyListEntry(const std::string &uri, const std::string &displayName);
-
-	buddyListEntry *addBuddy(const std::string &uri);
-	buddyListEntry *addBuddy(const std::string &uri, const std::string &displayName);
-	buddyListEntry *findBuddy(const std::string &uri);
-	buddyListEntry *findBuddy(const LLUUID &id);
-	buddyListEntry *findBuddyByDisplayName(const std::string &name);
-	void deleteBuddy(const std::string &uri);
-	void deleteAllBuddies(void);
-
-	void deleteAllBlockRules(void);
-	void addBlockRule(const std::string &blockMask, const std::string &presenceOnly);
-	void deleteAllAutoAcceptRules(void);
-	void addAutoAcceptRule(const std::string &autoAcceptMask, const std::string &autoAddAsBuddy);
-	void accountListBlockRulesResponse(int statusCode, const std::string &statusString);						
-	void accountListAutoAcceptRulesResponse(int statusCode, const std::string &statusString);
-
 	/////////////////////////////
 	// session control messages
 
@@ -641,6 +618,7 @@ protected:
 	void lookupName(const LLUUID &id);
 	void onAvatarNameCache(const LLUUID& id, const LLAvatarName& av_name);
 	void avatarNameResolved(const LLUUID &id, const std::string &name);
+	boost::signals2::connection mAvatarNameCacheConnection;
 
 	/////////////////////////////
 	// Voice fonts
@@ -741,6 +719,8 @@ private:
 	std::string mRenderDevice;
 	bool mCaptureDeviceDirty;
 	bool mRenderDeviceDirty;
+
+	bool mIsInitialized;
 	
 	
 	bool checkParcelChanged(bool update = false);
@@ -770,8 +750,7 @@ private:
 	void buildSetCaptureDevice(std::ostringstream &stream);
 	void buildSetRenderDevice(std::ostringstream &stream);
 	
-	void clearAllLists();
-	void checkFriend(const LLUUID& id);
+
 	void sendFriendsListUpdates();
 
 	// start a text IM session with the specified user
@@ -851,6 +830,7 @@ private:
 	void accountGetTemplateFontsSendMessage();
 	void sessionSetVoiceFontSendMessage(sessionState *session);
 
+	void updateVoiceMorphingMenu();
 	void notifyVoiceFontObservers();
 
 	typedef enum e_voice_font_type

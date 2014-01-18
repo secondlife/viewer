@@ -42,6 +42,7 @@ class LLWindowCallbacks;
 class LLWindow : public LLInstanceTracker<LLWindow>
 {
 public:
+
 	struct LLWindowResolution
 	{
 		S32 mWidth;
@@ -280,7 +281,7 @@ extern BOOL gDebugWindowProc;
 // Protocols, like "http" and "https" we support in URLs
 extern const S32 gURLProtocolWhitelistCount;
 extern const std::string gURLProtocolWhitelist[];
-extern const std::string gURLProtocolWhitelistHandler[];
+//extern const std::string gURLProtocolWhitelistHandler[];
 
 void simpleEscapeString ( std::string& stringIn  );
 

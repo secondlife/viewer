@@ -406,11 +406,9 @@ void LLViewerMediaFocus::update()
 	LLViewerObject *viewer_object = getFocusedObject();
 	S32 face = mFocusedObjectFace;
 	LLVector3 normal = mFocusedObjectNormal;
-	bool focus = true;
 	
 	if(!media_impl || !viewer_object)
 	{
-		focus = false;
 		media_impl = getHoverMediaImpl();
 		viewer_object = getHoverObject();
 		face = mHoverObjectFace;

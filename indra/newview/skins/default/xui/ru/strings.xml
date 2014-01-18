@@ -137,7 +137,10 @@
 		Выйти
 	</string>
 	<string name="create_account_url">
-		http://join.secondlife.com/index.php?lang=ru-RU&amp;sourceid=[sourceid]
+		http://join.secondlife.com/?sourceid=[sourceid]
+	</string>
+	<string name="ViewerDownloadURL">
+		http://secondlife.com/download
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		У клиента, которым вы пользуетесь, больше нет доступа к игре Second Life. Загрузить новую версию клиента можно по адресу
@@ -448,6 +451,9 @@ support@secondlife.com.
 	<string name="SLappAgentRequestFriend">
 		Предложить дружбу
 	</string>
+	<string name="SLappAgentRemoveFriend">
+		Удаление друга
+	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
 		Закрыть (⌘W)
 	</string>
@@ -619,7 +625,7 @@ support@secondlife.com.
 	<string name="AvatarAway">
 		Нет на месте
 	</string>
-	<string name="AvatarBusy">
+	<string name="AvatarDoNotDisturb">
 		Не беспокоить
 	</string>
 	<string name="AvatarMuted">
@@ -835,6 +841,9 @@ support@secondlife.com.
 	<string name="multiple_textures">
 		Несколько
 	</string>
+	<string name="use_texture">
+		Использовать текстуру
+	</string>
 	<string name="texture_loading">
 		Загрузка...
 	</string>
@@ -855,6 +864,12 @@ support@secondlife.com.
 	</string>
 	<string name="ST_NO_JOINT">
 		Не удается найти объект ROOT или JOINT.
+	</string>
+	<string name="NearbyChatTitle">
+		Локальный чат
+	</string>
+	<string name="NearbyChatLabel">
+		(Локальный чат)
 	</string>
 	<string name="whisper">
 		шепчет:
@@ -919,11 +934,29 @@ support@secondlife.com.
 	<string name="ControlYourCamera">
 		Управлять камерой
 	</string>
+	<string name="NotConnected">
+		Нет подключения
+	</string>
+	<string name="AgentNameSubst">
+		(Вы)
+	</string>
 	<string name="TeleportYourAgent">
 		Телепортировать вас
 	</string>
-	<string name="NotConnected">
-		Нет подключения
+	<string name="JoinAnExperience">
+		Присоединитесь
+	</string>
+	<string name="SilentlyManageEstateAccess">
+		Отключить извещения при управлении списками доступа к землевладениям
+	</string>
+	<string name="OverrideYourAnimations">
+		Заменить ваши стандартные анимации
+	</string>
+	<string name="ScriptReturnObjects">
+		Вернуть объекты от вашего имени
+	</string>
+	<string name="UnknownScriptPermission">
+		(неизвестно)!
 	</string>
 	<string name="SIM_ACCESS_PG">
 		Общий
@@ -1005,18 +1038,6 @@ support@secondlife.com.
 	</string>
 	<string name="dictionary_files">
 		Словари
-	</string>
-	<string name="AvatarSetNotAway">
-		На месте
-	</string>
-	<string name="AvatarSetAway">
-		Нет на месте
-	</string>
-	<string name="AvatarSetNotBusy">
-		Не занят(а)
-	</string>
-	<string name="AvatarSetBusy">
-		Не беспокоить
 	</string>
 	<string name="shape">
 		Фигура
@@ -1250,7 +1271,7 @@ support@secondlife.com.
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
 	</string>
 	<string name="MarketplaceURL_CreateStore">
-		http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.4
+		http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.3
 	</string>
 	<string name="MarketplaceURL_Dashboard">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/dashboard
@@ -1968,6 +1989,12 @@ support@secondlife.com.
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		Данные в игре внизу справа
 	</string>
+	<string name="ATTACH_NECK">
+		Шея
+	</string>
+	<string name="ATTACH_AVATAR_CENTER">
+		Центр аватара
+	</string>
 	<string name="CursorPos">
 		Строка [LINE], столбец [COLUMN]
 	</string>
@@ -1986,8 +2013,8 @@ support@secondlife.com.
 	<string name="PanelContentsNewScript">
 		Новый скрипт
 	</string>
-	<string name="BusyModeResponseDefault">
-		У адресата вашего сообщения задан статус «Не беспокоить».  Ваше сообщение все равно будет отображено на панели IM для просмотра позже.
+	<string name="DoNotDisturbModeResponseDefault">
+		Этот житель включил режим «Не беспокоить» и увидит ваше сообщение позже.
 	</string>
 	<string name="MuteByName">
 		(по имени)
@@ -2099,9 +2126,6 @@ support@secondlife.com.
 	</string>
 	<string name="GroupMoneyDate">
 		[weekday,datetime,utc], [day,datetime,utc] [mth,datetime,utc] [year,datetime,utc]
-	</string>
-	<string name="ViewerObjectContents">
-		Контент
 	</string>
 	<string name="AcquiredItems">
 		Купленные вещи
@@ -2997,6 +3021,9 @@ support@secondlife.com.
 	<string name="Hip Width">
 		Ширина бедер
 	</string>
+	<string name="Hover">
+		Наведите
+	</string>
 	<string name="In">
 		Внутрь
 	</string>
@@ -3871,7 +3898,7 @@ support@secondlife.com.
 		Область общей дозволенности
 	</string>
 	<string name="LocationCtrlSeeAVsTooltip">
-		Все жители с других участков могут видеть аватары и общаться в чате
+		Аватары на этом участке невидимы и неслышимы для аватаров с других участков
 	</string>
 	<string name="LocationCtrlPathfindingDirtyTooltip">
 		Возможны неполадки подвижных объектов в этом регионе, пока регион не будет восстановлен.
@@ -3948,6 +3975,12 @@ support@secondlife.com.
 	<string name="IM_unblock_only_groups_friends">
 		Для просмотра этого сообщения снимите флажок «Только друзья и группы могут звонить мне и отправлять IM» в окне «Настройки/Приватность».
 	</string>
+	<string name="OnlineStatus">
+		Онлайн
+	</string>
+	<string name="OfflineStatus">
+		Оффлайн
+	</string>
 	<string name="answered_call">
 		На ваш звонок ответили
 	</string>
@@ -3956,6 +3989,9 @@ support@secondlife.com.
 	</string>
 	<string name="you_joined_call">
 		Вы присоединились к голосовой беседе
+	</string>
+	<string name="you_auto_rejected_call-im">
+		Голосовой вызов автоматически отклонен, так как включен режим «Не беспокоить».
 	</string>
 	<string name="name_started_call">
 		Житель [NAME] начал голосовую беседу
@@ -3973,7 +4009,7 @@ support@secondlife.com.
 		Соединяется...
 	</string>
 	<string name="conference-title">
-		Спонтанная конференция
+		Чат с несколькими участниками
 	</string>
 	<string name="conference-title-incoming">
 		Конференция с жителем [AGENT_NAME]
@@ -4865,6 +4901,9 @@ support@secondlife.com.
 	<string name="Command_Chat_Label">
 		Чат
 	</string>
+	<string name="Command_Conversations_Label">
+		Разговоры
+	</string>
 	<string name="Command_Compass_Label">
 		Компас
 	</string>
@@ -4939,6 +4978,9 @@ support@secondlife.com.
 	</string>
 	<string name="Command_Chat_Tooltip">
 		Обменивайтесь текстовыми репликами с людьми вокруг вас
+	</string>
+	<string name="Command_Conversations_Tooltip">
+		Поговорить со всеми
 	</string>
 	<string name="Command_Compass_Tooltip">
 		Компас
@@ -5068,5 +5110,17 @@ support@secondlife.com.
 	</string>
 	<string name="UserDictionary">
 		[Пользователь]
+	</string>
+	<string name="logging_calls_disabled_log_empty">
+		Разговоры не записываются. Чтобы начать запись разговора, в меню «Настройки &gt; Чат» выберите «Сохранять: только журнал» или «Сохранять: журнал и записи».
+	</string>
+	<string name="logging_calls_disabled_log_not_empty">
+		Разговоры больше не будут записываться. Чтобы восстановить запись разговора, в меню «Настройки &gt; Чат» выберите «Сохранять: только журнал» или «Сохранять: журнал и записи».
+	</string>
+	<string name="logging_calls_enabled_log_empty">
+		Нет зарегистрированных разговоров. Если вы обратитесь к кому-то или наоборот, в журнале появится новая запись.
+	</string>
+	<string name="loading_chat_logs">
+		Загрузка...
 	</string>
 </strings>

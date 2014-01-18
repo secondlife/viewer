@@ -46,7 +46,7 @@ LLUUID const ANIM_AGENT_BLOW_KISS             ("db84829b-462c-ee83-1e27-9bbee66b
 LLUUID const ANIM_AGENT_BORED                 ("b906c4ba-703b-1940-32a3-0c7f7d791510");
 LLUUID const ANIM_AGENT_BOW                   ("82e99230-c906-1403-4d9c-3889dd98daba");
 LLUUID const ANIM_AGENT_BRUSH                 ("349a3801-54f9-bf2c-3bd0-1ac89772af01");
-LLUUID const ANIM_AGENT_BUSY                  ("efcf670c-2d18-8128-973a-034ebc806b67");
+LLUUID const ANIM_AGENT_DO_NOT_DISTURB        ("efcf670c-2d18-8128-973a-034ebc806b67");
 LLUUID const ANIM_AGENT_CLAP                  ("9b0c1c4e-8ac7-7969-1494-28c874c4f668");
 LLUUID const ANIM_AGENT_COURTBOW              ("9ba1c942-08be-e43a-fb29-16ad440efc50");
 LLUUID const ANIM_AGENT_CROUCH                ("201f3fdf-cb1f-dbec-201f-7333e328ae7c");
@@ -211,7 +211,7 @@ LLAnimationLibrary::LLAnimationLibrary() :
 	mAnimMap[ANIM_AGENT_BORED]=				mAnimStringTable.addString("express_bored");
 	mAnimMap[ANIM_AGENT_BOW]=				mAnimStringTable.addString("bow");
 	mAnimMap[ANIM_AGENT_BRUSH]=				mAnimStringTable.addString("brush");
-	mAnimMap[ANIM_AGENT_BUSY]=				mAnimStringTable.addString("busy");
+	mAnimMap[ANIM_AGENT_DO_NOT_DISTURB]=	mAnimStringTable.addString("busy");
 	mAnimMap[ANIM_AGENT_CLAP]=				mAnimStringTable.addString("clap");
 	mAnimMap[ANIM_AGENT_COURTBOW]=			mAnimStringTable.addString("courtbow");
 	mAnimMap[ANIM_AGENT_CROUCH]=			mAnimStringTable.addString("crouch");

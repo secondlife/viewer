@@ -330,6 +330,10 @@ void LLFloaterCamera::onClose(bool app_quitting)
 	//We don't care of camera mode if app is quitting
 	if(app_quitting)
 		return;
+	// It is necessary to reset mCurrMode to CAMERA_CTRL_MODE_PAN so 
+	// to avoid seeing an empty floater when reopening the control.
+	if (mCurrMode == CAMERA_CTRL_MODE_FREE_CAMERA)
+		mCurrMode = CAMERA_CTRL_MODE_PAN;
 	// When mCurrMode is in CAMERA_CTRL_MODE_PAN
 	// switchMode won't modify mPrevMode, so force it here.
 	// It is needed to correctly return to previous mode on open, see EXT-2727.

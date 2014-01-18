@@ -743,13 +743,17 @@ LLPanelGroupMembersSubTab::LLPanelGroupMembersSubTab()
 	mChanged(FALSE),
 	mPendingMemberUpdate(FALSE),
 	mHasMatch(FALSE),
-	mNumOwnerAdditions(0)
+	mNumOwnerAdditions(0),
+	mAvatarNameCacheConnection()
 {
-	mUdpateSessionID = LLUUID::null;
 }
 
 LLPanelGroupMembersSubTab::~LLPanelGroupMembersSubTab()
 {
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
 	if (mMembersList)
 	{
 		gSavedSettings.setString("GroupMembersSortOrder", mMembersList->getSortColumnName());
@@ -1097,27 +1101,61 @@ void LLPanelGroupMembersSubTab::onEjectMembers(void *userdata)
 }
 
 void LLPanelGroupMembersSubTab::handleEjectMembers()
-{
-	//send down an eject message
-	uuid_vec_t selected_members;
-
+{	
 	std::vector<LLScrollListItem*> selection = mMembersList->getAllSelected();
 	if (selection.empty()) return;
-
-	std::vector<LLScrollListItem*>::iterator itor;
-	for (itor = selection.begin() ; 
-		 itor != selection.end(); ++itor)
+	
+	S32 selection_count = selection.size();
+	if (selection_count == 1)
 	{
-		LLUUID member_id = (*itor)->getUUID();
-		selected_members.push_back( member_id );
+		LLSD args;
+		LLUUID selected_avatar = mMembersList->getValue().asUUID();
+		std::string fullname = LLSLURL("agent", selected_avatar, "inspect").getSLURLString();
+		args["AVATAR_NAME"] = fullname;
+		LLSD payload;
+		LLNotificationsUtil::add("EjectGroupMemberWarning",
+								 args,
+								 payload,
+								 boost::bind(&LLPanelGroupMembersSubTab::handleEjectCallback, this, _1, _2));
 	}
+	else
+	{
+		LLSD args;
+		args["COUNT"] = llformat("%d", selection_count);
+		LLSD payload;
+		LLNotificationsUtil::add("EjectGroupMembersWarning",
+								 args,
+								 payload,
+								 boost::bind(&LLPanelGroupMembersSubTab::handleEjectCallback, this, _1, _2));
+	}
+}
 
-	mMembersList->deleteSelectedItems();
-
-	sendEjectNotifications(mGroupID, selected_members);
-
-	LLGroupMgr::getInstance()->sendGroupMemberEjects(mGroupID,
-									 selected_members);
+bool LLPanelGroupMembersSubTab::handleEjectCallback(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (0 == option) // Eject button
+	{
+		//send down an eject message
+		uuid_vec_t selected_members;
+		
+		std::vector<LLScrollListItem*> selection = mMembersList->getAllSelected();
+		if (selection.empty()) return false;
+		
+		std::vector<LLScrollListItem*>::iterator itor;
+		for (itor = selection.begin() ;
+			 itor != selection.end(); ++itor)
+		{
+			LLUUID member_id = (*itor)->getUUID();
+			selected_members.push_back( member_id );
+		}
+		
+		mMembersList->deleteSelectedItems();
+		
+		sendEjectNotifications(mGroupID, selected_members);
+		
+		LLGroupMgr::getInstance()->sendGroupMemberEjects(mGroupID, selected_members);
+	}
+	return false;
 }
 
 void LLPanelGroupMembersSubTab::sendEjectNotifications(const LLUUID& group_id, const uuid_vec_t& selected_members)
@@ -1427,10 +1465,17 @@ U64 LLPanelGroupMembersSubTab::getAgentPowersBasedOnRoleChanges(const LLUUID& ag
 		return GP_NO_POWERS;
 	}
 
-	LLGroupMemberData* member_data = gdatap->mMembers[agent_id];
-	if ( !member_data )
+	LLGroupMgrGroupData::member_list_t::iterator iter = gdatap->mMembers.find(agent_id);
+	if ( iter == gdatap->mMembers.end() )
 	{
 		llwarns << "LLPanelGroupMembersSubTab::getAgentPowersBasedOnRoleChanges() -- No member data for member with UUID " << agent_id << llendl;
+		return GP_NO_POWERS;
+	}
+
+	LLGroupMemberData* member_data = (*iter).second;
+	if (!member_data)
+	{
+		llwarns << "LLPanelGroupMembersSubTab::getAgentPowersBasedOnRoleChanges() -- Null member data for member with UUID " << agent_id << llendl;
 		return GP_NO_POWERS;
 	}
 
@@ -1548,10 +1593,6 @@ void LLPanelGroupMembersSubTab::update(LLGroupChange gc)
 		mMemberProgress = gdatap->mMembers.begin();
 		mPendingMemberUpdate = TRUE;
 		mHasMatch = FALSE;
-		// Generate unique ID for current updateMembers()- see onNameCache for details.
-		// Using unique UUID is perhaps an overkill but this way we are perfectly safe
-		// from coincidences.
-		mUdpateSessionID.generate();
 	}
 	else
 	{
@@ -1579,14 +1620,14 @@ void LLPanelGroupMembersSubTab::update(LLGroupChange gc)
 	}
 }
 
-void LLPanelGroupMembersSubTab::addMemberToList(LLUUID id, LLGroupMemberData* data)
+void LLPanelGroupMembersSubTab::addMemberToList(LLGroupMemberData* data)
 {
 	if (!data) return;
 	LLUIString donated = getString("donation_area");
 	donated.setArg("[AREA]", llformat("%d", data->getContribution()));
 
 	LLNameListCtrl::NameItem item_params;
-	item_params.value = id;
+	item_params.value = data->getID();
 
 	item_params.columns.add().column("name").font.name("SANSSERIF_SMALL").style("NORMAL");
 
@@ -1600,25 +1641,22 @@ void LLPanelGroupMembersSubTab::addMemberToList(LLUUID id, LLGroupMemberData* da
 	mHasMatch = TRUE;
 }
 
-void LLPanelGroupMembersSubTab::onNameCache(const LLUUID& update_id, LLGroupMemberData* member, const LLUUID& id, const LLAvatarName& av_name)
+void LLPanelGroupMembersSubTab::onNameCache(const LLUUID& update_id, LLGroupMemberData* member, const LLAvatarName& av_name)
 {
-	// Update ID is used to determine whether member whose id is passed
-	// into onNameCache() was passed after current or previous user-initiated update.
-	// This is needed to avoid probable duplication of members in list after changing filter
-	// or adding of members of another group if gets for their names were called on
-	// previous update. If this id is from get() called from older update,
-	// we do nothing.
-	if (mUdpateSessionID != update_id) return;
-	
-	if (!member)
+	mAvatarNameCacheConnection.disconnect();
+
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
+	if (!gdatap
+		|| gdatap->getMemberVersion() != update_id
+		|| !member)
 	{
 		return;
 	}
 	
 	// trying to avoid unnecessary hash lookups
-	if (matchesSearchFilter(av_name.getLegacyName()))
+	if (matchesSearchFilter(av_name.getAccountName()))
 	{
-		addMemberToList(id, member);
+		addMemberToList(member);
 		if(!mMembersList->getEnabled())
 		{
 			mMembersList->setEnabled(TRUE);
@@ -1670,16 +1708,20 @@ void LLPanelGroupMembersSubTab::updateMembers()
 		LLAvatarName av_name;
 		if (LLAvatarNameCache::get(mMemberProgress->first, &av_name))
 		{
-			if (matchesSearchFilter(av_name.getLegacyName()))
+			if (matchesSearchFilter(av_name.getAccountName()))
 			{
-				addMemberToList(mMemberProgress->first, mMemberProgress->second);
+				addMemberToList(mMemberProgress->second);
 			}
 		}
 		else
 		{
 			// If name is not cached, onNameCache() should be called when it is cached and add this member to list.
-			LLAvatarNameCache::get(mMemberProgress->first, boost::bind(&LLPanelGroupMembersSubTab::onNameCache,
-																	   this, mUdpateSessionID, mMemberProgress->second, _1, _2));
+			// *TODO : Add one callback per fetched avatar name
+			if (mAvatarNameCacheConnection.connected())
+			{
+				mAvatarNameCacheConnection.disconnect();
+			}
+			mAvatarNameCacheConnection = LLAvatarNameCache::get(mMemberProgress->first, boost::bind(&LLPanelGroupMembersSubTab::onNameCache, this, gdatap->getMemberVersion(), mMemberProgress->second, _2));
 		}
 	}
 

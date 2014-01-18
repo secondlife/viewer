@@ -32,7 +32,7 @@
 #define MAX_PATH MAXPATHLEN
 #endif
 
-// these numbers *may* get serialized (really??), so we need to be explicit
+// these numbers are read from settings_files.xml, so we need to be explicit
 typedef enum ELLPath
 {
 	LL_PATH_NONE = 0,
@@ -73,10 +73,8 @@ class LLDir
 	virtual S32 deleteFilesInDir(const std::string &dirname, const std::string &mask);
 
 // pure virtual functions
-	virtual U32 countFilesInDir(const std::string &dirname, const std::string &mask) = 0;
-
 	virtual std::string getCurPath() = 0;
-	virtual BOOL fileExists(const std::string &filename) const = 0;
+	virtual bool fileExists(const std::string &filename) const = 0;
 
 	const std::string findFile(const std::string& filename, const std::vector<std::string> filenames) const; 
 	const std::string findFile(const std::string& filename, const std::string& searchPath1 = "", const std::string& searchPath2 = "", const std::string& searchPath3 = "") const;
@@ -106,6 +104,7 @@ class LLDir
 	const std::string &getUserSkinDir() const;		// User-specified skin folder with user modifications. e.g. c:\documents and settings\username\application data\second life\skins\curskin
 	const std::string getSkinBaseDir() const;		// folder that contains all installed skins (not user modifications). e.g. c:\program files\second life\skins
 	const std::string &getLLPluginDir() const;		// Directory containing plugins and plugin shell
+	const std::string &getUserName() const;
 
 	// Expanded filename
 	std::string getExpandedFilename(ELLPath location, const std::string &filename) const;
@@ -188,6 +187,7 @@ class LLDir
 	virtual std::string getSkinFolder() const;
 	virtual std::string getLanguage() const;
 	virtual bool setCacheDir(const std::string &path);
+	virtual void updatePerAccountChatLogsDir();
 
 	virtual void dumpCurrentDirectories();
 
@@ -245,6 +245,7 @@ protected:
 	std::vector<std::string> mSearchSkinDirs;
 	std::string mLanguage;              // Current viewer language
 	std::string mLLPluginDir;			// Location for plugins and plugin shell
+	std::string mUserName;				// Current user name
 };
 
 void dir_exists_or_crash(const std::string &dir_name);

@@ -36,6 +36,7 @@
 #include "llfilepicker.h"
 #include "llfloaterreg.h"
 #include "llimagetga.h"
+#include "llimagepng.h"
 #include "llinventory.h"
 #include "llnotificationsutil.h"
 #include "llresmgr.h"
@@ -70,7 +71,7 @@ LLPreviewTexture::LLPreviewTexture(const LLSD& key)
 	  mAspectRatio(0.f),
 	  mPreviewToSave(FALSE),
 	  mImage(NULL),
-	  mImageOldBoostLevel(LLViewerTexture::BOOST_NONE)
+	  mImageOldBoostLevel(LLGLTexture::BOOST_NONE)
 {
 	updateImageID();
 	if (key.has("save_as"))
@@ -261,7 +262,7 @@ void LLPreviewTexture::saveAs()
 
 	LLFilePicker& file_picker = LLFilePicker::instance();
 	const LLInventoryItem* item = getItem() ;
-	if( !file_picker.getSaveFile( LLFilePicker::FFSAVE_TGA, item ? LLDir::getScrubbedFileName(item->getName()) : LLStringUtil::null) )
+	if( !file_picker.getSaveFile( LLFilePicker::FFSAVE_TGAPNG, item ? LLDir::getScrubbedFileName(item->getName()) : LLStringUtil::null) )
 	{
 		// User canceled or we failed to acquire save file.
 		return;
@@ -358,14 +359,27 @@ void LLPreviewTexture::onFileLoadedForSave(BOOL success,
 
 	if( self && final && success )
 	{
-		LLPointer<LLImageTGA> image_tga = new LLImageTGA;
-		if( !image_tga->encode( src ) )
+		const U32 ext_length = 3;
+		std::string extension = self->mSaveFileName.substr( self->mSaveFileName.length() - ext_length);
+
+		// We only support saving in PNG or TGA format
+		LLPointer<LLImageFormatted> image;
+		if(extension == "png")
+		{
+			image = new LLImagePNG;
+		}
+		else if(extension == "tga")
+		{
+			image = new LLImageTGA;
+		}
+
+		if( image && !image->encode( src, 0 ) )
 		{
 			LLSD args;
 			args["FILE"] = self->mSaveFileName;
 			LLNotificationsUtil::add("CannotEncodeFile", args);
 		}
-		else if( !image_tga->save( self->mSaveFileName ) )
+		else if( image && !image->save( self->mSaveFileName ) )
 		{
 			LLSD args;
 			args["FILE"] = self->mSaveFileName;
@@ -468,9 +482,9 @@ void LLPreviewTexture::onAspectRatioCommit(LLUICtrl* ctrl, void* userdata)
 
 void LLPreviewTexture::loadAsset()
 {
-	mImage = LLViewerTextureManager::getFetchedTexture(mImageID, MIPMAP_TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+	mImage = LLViewerTextureManager::getFetchedTexture(mImageID, FTT_DEFAULT, MIPMAP_TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
 	mImageOldBoostLevel = mImage->getBoostLevel();
-	mImage->setBoostLevel(LLViewerTexture::BOOST_PREVIEW);
+	mImage->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
 	mImage->forceToSaveRawImage(0) ;
 	mAssetStatus = PREVIEW_ASSET_LOADING;
 	mUpdateDimensions = TRUE;

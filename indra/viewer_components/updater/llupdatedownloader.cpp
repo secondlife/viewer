@@ -50,7 +50,9 @@ public:
 	void cancel(void);
 	void download(LLURI const & uri,
 				  std::string const & hash,
+				  std::string const & updateChannel,
 				  std::string const & updateVersion,
+				  std::string const & info_url,
 				  bool required);
 	bool isDownloading(void);
 	size_t onHeader(void * header, size_t size);
@@ -75,7 +77,8 @@ private:
 	void run(void);
 	void startDownloading(LLURI const & uri, std::string const & hash);
 	void throwOnCurlError(CURLcode code);
-	bool validateDownload(void);
+	bool validateDownload(const std::string& filePath);
+	bool validateOrRemove(const std::string& filePath);
 
 	LOG_CLASS(LLUpdateDownloader::Implementation);
 };
@@ -125,10 +128,12 @@ void LLUpdateDownloader::cancel(void)
 
 void LLUpdateDownloader::download(LLURI const & uri,
 								  std::string const & hash,
+								  std::string const & updateChannel,
 								  std::string const & updateVersion,
+								  std::string const & info_url,
 								  bool required)
 {
-	mImplementation->download(uri, hash, updateVersion, required);
+	mImplementation->download(uri, hash, updateChannel, updateVersion, info_url, required);
 }
 
 
@@ -222,18 +227,28 @@ void LLUpdateDownloader::Implementation::cancel(void)
 
 void LLUpdateDownloader::Implementation::download(LLURI const & uri,
 												  std::string const & hash,
+												  std::string const & updateChannel,
 												  std::string const & updateVersion,
+												  std::string const & info_url,
 												  bool required)
-{
+{ 
 	if(isDownloading()) mClient.downloadError("download in progress");
 
 	mDownloadRecordPath = downloadMarkerPath();
 	mDownloadData = LLSD();
 	mDownloadData["required"] = required;
+	mDownloadData["update_channel"] = updateChannel;
 	mDownloadData["update_version"] = updateVersion;
-	try {
+	if (!info_url.empty())
+	{
+		mDownloadData["info_url"] = info_url;
+	}
+	try
+	{
 		startDownloading(uri, hash);
-	} catch(DownloadError const & e) {
+	}
+	catch(DownloadError const & e)
+	{
 		mClient.downloadError(e.what());
 	}
 }
@@ -249,47 +264,64 @@ void LLUpdateDownloader::Implementation::resume(void)
 {
 	mCancelled = false;
 
-	if(isDownloading()) {
+	if(isDownloading())
+	{
 		mClient.downloadError("download in progress");
 	}
 
 	mDownloadRecordPath = downloadMarkerPath();
 	llifstream dataStream(mDownloadRecordPath);
-	if(!dataStream) {
+	if(!dataStream)
+	{
 		mClient.downloadError("no download marker");
 		return;
 	}
 
 	LLSDSerialize::fromXMLDocument(mDownloadData, dataStream);
 
-	if(!mDownloadData.asBoolean()) {
+	if(!mDownloadData.asBoolean())
+	{
 		mClient.downloadError("no download information in marker");
 		return;
 	}
 
 	std::string filePath = mDownloadData["path"].asString();
-	try {
-		if(LLFile::isfile(filePath)) {
+	try
+	{
+		if(LLFile::isfile(filePath))
+		{
 			llstat fileStatus;
 			LLFile::stat(filePath, &fileStatus);
-			if(fileStatus.st_size != mDownloadData["size"].asInteger()) {
+			if(fileStatus.st_size != mDownloadData["size"].asInteger())
+			{
 				resumeDownloading(fileStatus.st_size);
-			} else if(!validateDownload()) {
-				LLFile::remove(filePath);
+			}
+			else if(!validateOrRemove(filePath))
+			{
 				download(LLURI(mDownloadData["url"].asString()),
 						 mDownloadData["hash"].asString(),
+						 mDownloadData["update_channel"].asString(),
 						 mDownloadData["update_version"].asString(),
+						 mDownloadData["info_url"].asString(),
 						 mDownloadData["required"].asBoolean());
-			} else {
+			}
+			else
+			{
 				mClient.downloadComplete(mDownloadData);
 			}
-		} else {
+		}
+		else
+		{
 			download(LLURI(mDownloadData["url"].asString()),
 					 mDownloadData["hash"].asString(),
+					 mDownloadData["update_channel"].asString(),
 					 mDownloadData["update_version"].asString(),
+					 mDownloadData["info_url"].asString(),
 					 mDownloadData["required"].asBoolean());
 		}
-	} catch(DownloadError & e) {
+	}
+	catch(DownloadError & e)
+	{
 		mClient.downloadError(e.what());
 	}
 }
@@ -297,13 +329,18 @@ void LLUpdateDownloader::Implementation::resume(void)
 
 void LLUpdateDownloader::Implementation::setBandwidthLimit(U64 bytesPerSecond)
 {
-	if((mBandwidthLimit != bytesPerSecond) && isDownloading() && !mDownloadData["required"].asBoolean()) {
+	if((mBandwidthLimit != bytesPerSecond) && isDownloading() && !mDownloadData["required"].asBoolean())
+	{
 		llassert(mCurl != 0);
 		mBandwidthLimit = bytesPerSecond;
 		CURLcode code = curl_easy_setopt(mCurl, CURLOPT_MAX_RECV_SPEED_LARGE, &mBandwidthLimit);
-		if(code != CURLE_OK) LL_WARNS("UpdateDownload") <<
-			"unable to change dowload bandwidth" << LL_ENDL;
-	} else {
+		if(code != CURLE_OK)
+		{
+			LL_WARNS("UpdaterService") << "unable to change dowload bandwidth" << LL_ENDL;
+		}
+	}
+	else
+	{
 		mBandwidthLimit = bytesPerSecond;
 	}
 }
@@ -322,13 +359,13 @@ size_t LLUpdateDownloader::Implementation::onHeader(void * buffer, size_t size)
 			size_t lastDigitPos = header.find_last_of("0123456789");
 			std::string contentLength = header.substr(firstDigitPos, lastDigitPos - firstDigitPos + 1);
 			size_t size = boost::lexical_cast<size_t>(contentLength);
-			LL_INFOS("UpdateDownload") << "download size is " << size << LL_ENDL;
+			LL_INFOS("UpdaterService") << "download size is " << size << LL_ENDL;
 
 			mDownloadData["size"] = LLSD(LLSD::Integer(size));
 			llofstream odataStream(mDownloadRecordPath);
 			LLSDSerialize::toPrettyXML(mDownloadData, odataStream);
 		} catch (std::exception const & e) {
-			LL_WARNS("UpdateDownload") << "unable to read content length ("
+			LL_WARNS("UpdaterService") << "unable to read content length ("
 				<< e.what() << ")" << LL_ENDL;
 		}
 	} else {
@@ -368,7 +405,7 @@ int LLUpdateDownloader::Implementation::onProgress(double downloadSize, double b
 		event["payload"] = payload;
 		LLEventPumps::instance().obtain("mainlooprepeater").post(event);
 
-		LL_INFOS("UpdateDownload") << "progress event " << payload << LL_ENDL;
+		LL_INFOS("UpdaterService") << "progress event " << payload << LL_ENDL;
 	} else {
 		; // Keep events to a reasonalbe number.
 	}
@@ -381,29 +418,40 @@ void LLUpdateDownloader::Implementation::run(void)
 {
 	CURLcode code = curl_easy_perform(mCurl);
 	mDownloadStream.close();
-	if(code == CURLE_OK) {
+	if(code == CURLE_OK)
+	{
 		LLFile::remove(mDownloadRecordPath);
-		if(validateDownload()) {
-			LL_INFOS("UpdateDownload") << "download successful" << LL_ENDL;
+		if(validateOrRemove(mDownloadData["path"]))
+		{
+			LL_INFOS("UpdaterService") << "download successful" << LL_ENDL;
 			mClient.downloadComplete(mDownloadData);
-		} else {
-			LL_INFOS("UpdateDownload") << "download failed hash check" << LL_ENDL;
-			std::string filePath = mDownloadData["path"].asString();
-			if(filePath.size() != 0) LLFile::remove(filePath);
+		}
+		else
+		{
 			mClient.downloadError("failed hash check");
 		}
-	} else if(mCancelled && (code == CURLE_WRITE_ERROR)) {
-		LL_INFOS("UpdateDownload") << "download canceled by user" << LL_ENDL;
+	}
+	else if(mCancelled && (code == CURLE_WRITE_ERROR))
+	{
+		LL_INFOS("UpdaterService") << "download canceled by user" << LL_ENDL;
 		// Do not call back client.
-	} else {
-		LL_WARNS("UpdateDownload") << "download failed with error '" <<
+	}
+	else
+	{
+		LL_WARNS("UpdaterService") << "download failed with error '" <<
 			curl_easy_strerror(code) << "'" << LL_ENDL;
 		LLFile::remove(mDownloadRecordPath);
-		if(mDownloadData.has("path")) LLFile::remove(mDownloadData["path"].asString());
+		if(mDownloadData.has("path"))
+		{
+			std::string filePath = mDownloadData["path"].asString();
+			LL_INFOS("UpdaterService") << "removing " << filePath << LL_ENDL;
+			LLFile::remove(filePath);
+		}
 		mClient.downloadError("curl error");
 	}
 
-	if(mHeaderList) {
+	if(mHeaderList)
+	{
 		curl_slist_free_all(mHeaderList);
 		mHeaderList = 0;
 	}
@@ -421,13 +469,16 @@ void LLUpdateDownloader::Implementation::initializeCurlGet(std::string const & u
 		curl_easy_reset(mCurl);
 	}
 
-	if(mCurl == 0) throw DownloadError("failed to initialize curl");
-
+	if(mCurl == 0)
+	{
+		throw DownloadError("failed to initialize curl");
+	}
 	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_NOSIGNAL, true));
 	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_FOLLOWLOCATION, true));
 	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_WRITEFUNCTION, &write_function));
 	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_WRITEDATA, this));
-	if(processHeader) {
+	if(processHeader)
+	{
 	   throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_HEADERFUNCTION, &header_function));
 	   throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_HEADERDATA, this));
 	}
@@ -446,7 +497,7 @@ void LLUpdateDownloader::Implementation::initializeCurlGet(std::string const & u
 
 void LLUpdateDownloader::Implementation::resumeDownloading(size_t startByte)
 {
-	LL_INFOS("UpdateDownload") << "resuming download from " << mDownloadData["url"].asString()
+	LL_INFOS("UpdaterService") << "resuming download from " << mDownloadData["url"].asString()
 		<< " at byte " << startByte << LL_ENDL;
 
 	initializeCurlGet(mDownloadData["url"].asString(), false);
@@ -456,7 +507,10 @@ void LLUpdateDownloader::Implementation::resumeDownloading(size_t startByte)
 	boost::format rangeHeaderFormat("Range: bytes=%u-");
 	rangeHeaderFormat % startByte;
 	mHeaderList = curl_slist_append(mHeaderList, rangeHeaderFormat.str().c_str());
-	if(mHeaderList == 0) throw DownloadError("cannot add Range header");
+	if(mHeaderList == 0)
+	{
+		throw DownloadError("cannot add Range header");
+	}
 	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_HTTPHEADER, mHeaderList));
 
 	mDownloadStream.open(mDownloadData["path"].asString(),
@@ -476,9 +530,9 @@ void LLUpdateDownloader::Implementation::startDownloading(LLURI const & uri, std
 	std::string filePath = gDirUtilp->getExpandedFilename(LL_PATH_TEMP, fileName);
 	mDownloadData["path"] = filePath;
 
-	LL_INFOS("UpdateDownload") << "downloading " << filePath
+	LL_INFOS("UpdaterService") << "downloading " << filePath
 		<< " from " << uri.asString() << LL_ENDL;
-	LL_INFOS("UpdateDownload") << "hash of file is " << hash << LL_ENDL;
+	LL_INFOS("UpdaterService") << "hash of file is " << hash << LL_ENDL;
 
 	llofstream dataStream(mDownloadRecordPath);
 	LLSDSerialize::toPrettyXML(mDownloadData, dataStream);
@@ -503,24 +557,49 @@ void LLUpdateDownloader::Implementation::throwOnCurlError(CURLcode code)
 	}
 }
 
-
-bool LLUpdateDownloader::Implementation::validateDownload(void)
+bool LLUpdateDownloader::Implementation::validateOrRemove(const std::string& filePath)
 {
-	std::string filePath = mDownloadData["path"].asString();
+	bool valid = validateDownload(filePath);
+	if (! valid)
+	{
+		LL_INFOS("UpdaterService") << "removing " << filePath << LL_ENDL;
+		LLFile::remove(filePath);
+	}
+	return valid;
+}
+
+bool LLUpdateDownloader::Implementation::validateDownload(const std::string& filePath)
+{
 	llifstream fileStream(filePath, std::ios_base::in | std::ios_base::binary);
-	if(!fileStream) return false;
+	if(!fileStream)
+	{
+		LL_INFOS("UpdaterService") << "can't open " << filePath << ", invalid" << LL_ENDL;
+		return false;
+	}
 
 	std::string hash = mDownloadData["hash"].asString();
-	if(hash.size() != 0) {
-		LL_INFOS("UpdateDownload") << "checking hash..." << LL_ENDL;
+	if (! hash.empty())
+	{
 		char digest[33];
 		LLMD5(fileStream).hex_digest(digest);
-		if(hash != digest) {
-			LL_WARNS("UpdateDownload") << "download hash mismatch; expeted " << hash <<
-				" but download is " << digest << LL_ENDL;
+		if (hash == digest)
+		{
+			LL_INFOS("UpdaterService") << "verified hash " << hash
+									   << " for downloaded " << filePath << LL_ENDL;
+			return true;
 		}
-		return hash == digest;
-	} else {
+		else
+		{
+			LL_WARNS("UpdaterService") << "download hash mismatch for "
+									   << filePath << ": expected " << hash
+									   << " but computed " << digest << LL_ENDL;
+			return false;
+		}
+	}
+	else
+	{
+		LL_INFOS("UpdaterService") << "no hash specified for " << filePath
+								   << ", unverified" << LL_ENDL;
 		return true; // No hash check provided.
 	}
 }

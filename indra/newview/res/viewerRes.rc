@@ -135,8 +135,8 @@ TOOLNO                  CURSOR                  "llno.cur"
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,1,1,0
- PRODUCTVERSION 2,1,1,0
+ FILEVERSION ${VIEWER_VERSION_MAJOR},${VIEWER_VERSION_MINOR},${VIEWER_VERSION_PATCH},${VIEWER_VERSION_REVISION}
+ PRODUCTVERSION ${VIEWER_VERSION_MAJOR},${VIEWER_VERSION_MINOR},${VIEWER_VERSION_PATCH},${VIEWER_VERSION_REVISION}
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -153,12 +153,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Linden Lab"
             VALUE "FileDescription", "Second Life"
-            VALUE "FileVersion", "2.1.1.0"
+            VALUE "FileVersion", "${VIEWER_VERSION_MAJOR}.${VIEWER_VERSION_MINOR}.${VIEWER_VERSION_PATCH}.${VIEWER_VERSION_REVISION}"
             VALUE "InternalName", "Second Life"
-            VALUE "LegalCopyright", "Copyright � 2001-2010, Linden Research, Inc."
+            VALUE "LegalCopyright", "Copyright � 2001, Linden Research, Inc."
             VALUE "OriginalFilename", "SecondLife.exe"
             VALUE "ProductName", "Second Life"
-            VALUE "ProductVersion", "2.1.1.0"
+            VALUE "ProductVersion", "${VIEWER_VERSION_MAJOR}.${VIEWER_VERSION_MINOR}.${VIEWER_VERSION_PATCH}.${VIEWER_VERSION_REVISION}"
         END
     END
     BLOCK "VarFileInfo"

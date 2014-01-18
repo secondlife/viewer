@@ -34,6 +34,7 @@
 			<menu_item_call label="Выделить все" name="Select All"/>
 			<menu_item_call label="Снять выделение" name="Deselect"/>
 			<menu_item_call label="Поиск и замена..." name="Search / Replace..."/>
+			<menu_item_call label="Перейти на строку..." name="Go to line..."/>
 		</menu>
 		<menu label="Справка" name="Help">
 			<menu_item_call label="Справка..." name="Help..."/>

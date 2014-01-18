@@ -56,7 +56,8 @@ class LLVoiceCallCapResponder : public LLHTTPClient::Responder
 public:
 	LLVoiceCallCapResponder(const LLUUID& session_id) : mSessionID(session_id) {};
 
-	virtual void error(U32 status, const std::string& reason);	// called with bad status codes
+	// called with bad status codes
+	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
 	virtual void result(const LLSD& content);
 
 private:
@@ -64,11 +65,10 @@ private:
 };
 
 
-void LLVoiceCallCapResponder::error(U32 status, const std::string& reason)
+void LLVoiceCallCapResponder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 {
-	LL_WARNS("Voice") << "LLVoiceCallCapResponder::error("
-		<< status << ": " << reason << ")"
-		<< LL_ENDL;
+	LL_WARNS("Voice") << "LLVoiceCallCapResponder error [status:"
+		<< status << "]: " << content << LL_ENDL;
 	LLVoiceChannel* channelp = LLVoiceChannel::getChannelByID(mSessionID);
 	if ( channelp )
 	{
@@ -414,7 +414,7 @@ void LLVoiceChannel::doSetState(const EState& new_state)
 	mState = new_state;
 
 	if (!mStateChangedCallback.empty())
-		mStateChangedCallback(old_state, mState, mCallDirection, mCallEndedByAgent);
+		mStateChangedCallback(old_state, mState, mCallDirection, mCallEndedByAgent, mSessionID);
 }
 
 //static

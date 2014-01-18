@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="Conversation Gear Menu">
+	<menu_item_call label="察看檔案" name="View Profile"/>
+	<menu_item_call label="加為朋友" name="Add Friend"/>
+	<menu_item_call label="移除朋友" name="remove_friend"/>
+	<menu_item_call label="發出瞬間傳送邀請" name="offer_teleport"/>
+	<menu_item_call label="邀請加入群組……" name="invite_to_group"/>
+	<menu_item_call label="聊天歷史……" name="chat_history"/>
+	<menu_item_call label="放大" name="zoom_in"/>
+	<menu_item_call label="地圖" name="map"/>
+	<menu_item_call label="分享" name="Share"/>
+	<menu_item_call label="支付" name="Pay"/>
+	<menu_item_check label="禁止語音" name="Block/Unblock"/>
+	<menu_item_check label="禁止文字" name="MuteText"/>
+</toggleable_menu>

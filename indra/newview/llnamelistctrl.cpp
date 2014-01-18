@@ -64,7 +64,8 @@ LLNameListCtrl::LLNameListCtrl(const LLNameListCtrl::Params& p)
 	mNameColumnIndex(p.name_column.column_index),
 	mNameColumn(p.name_column.column_name),
 	mAllowCallingCardDrop(p.allow_calling_card_drop),
-	mShortNames(p.short_names)
+	mShortNames(p.short_names),
+	mAvatarNameCacheConnection()
 {}
 
 // public
@@ -320,16 +321,20 @@ LLScrollListItem* LLNameListCtrl::addNameItemRow(
 			else if (LLAvatarNameCache::get(id, &av_name))
 			{
 				if (mShortNames)
-					fullname = av_name.mDisplayName;
+					fullname = av_name.getDisplayName();
 				else
 					fullname = av_name.getCompleteName();
 			}
 			else
 			{
 				// ...schedule a callback
-				LLAvatarNameCache::get(id,
-					boost::bind(&LLNameListCtrl::onAvatarNameCache,
-						this, _1, _2, item->getHandle()));
+				// This is not correct and will likely lead to partially populated lists in cases where avatar names are not cached.
+				// *TODO : Change this to have 2 callbacks : one callback per list item and one for the whole list.
+				if (mAvatarNameCacheConnection.connected())
+				{
+					mAvatarNameCacheConnection.disconnect();
+				}
+				mAvatarNameCacheConnection = LLAvatarNameCache::get(id,boost::bind(&LLNameListCtrl::onAvatarNameCache,this, _1, _2, item->getHandle()));
 			}
 			break;
 		}
@@ -388,9 +393,11 @@ void LLNameListCtrl::onAvatarNameCache(const LLUUID& agent_id,
 									   const LLAvatarName& av_name,
 									   LLHandle<LLNameListItem> item)
 {
+	mAvatarNameCacheConnection.disconnect();
+
 	std::string name;
 	if (mShortNames)
-		name = av_name.mDisplayName;
+		name = av_name.getDisplayName();
 	else
 		name = av_name.getCompleteName();
 
@@ -409,9 +416,9 @@ void LLNameListCtrl::onAvatarNameCache(const LLUUID& agent_id,
 }
 
 
-void LLNameListCtrl::updateColumns()
+void LLNameListCtrl::updateColumns(bool force_update)
 {
-	LLScrollListCtrl::updateColumns();
+	LLScrollListCtrl::updateColumns(force_update);
 
 	if (!mNameColumn.empty())
 	{

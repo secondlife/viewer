@@ -34,6 +34,7 @@
 #include "llvoavatarself.h"
 #include "llbufferstream.h"
 #include "llfile.h"
+#include "llmenugl.h"
 #ifdef LL_STANDALONE
 # include "expat.h"
 #else
@@ -69,6 +70,9 @@
 #include "apr_base64.h"
 
 #define USE_SESSION_GROUPS 0
+
+extern LLMenuBarGL* gMenuBarView;
+extern void handle_voice_morphing_subscribe();
 
 const F32 VOLUME_SCALE_VIVOX = 0.01f;
 
@@ -126,17 +130,18 @@ public:
 		mRetries = retries;
 	}
 
-	virtual void error(U32 status, const std::string& reason)
+	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 	{
+		LL_WARNS("Voice") << "ProvisionVoiceAccountRequest returned an error, "
+			<<  ( (mRetries > 0) ? "retrying" : "too many retries (giving up)" )
+			<< status << "]: " << content << LL_ENDL;
+
 		if ( mRetries > 0 )
 		{
-			LL_WARNS("Voice") << "ProvisionVoiceAccountRequest returned an error, retrying.  status = " << status << ", reason = \"" << reason << "\"" << LL_ENDL;
-			LLVivoxVoiceClient::getInstance()->requestVoiceAccountProvision(
-				mRetries - 1);
+			LLVivoxVoiceClient::getInstance()->requestVoiceAccountProvision(mRetries - 1);
 		}
 		else
 		{
-			LL_WARNS("Voice") << "ProvisionVoiceAccountRequest returned an error, too many retries (giving up).  status = " << status << ", reason = \"" << reason << "\"" << LL_ENDL;
 			LLVivoxVoiceClient::getInstance()->giveUp();
 		}
 	}
@@ -177,16 +182,9 @@ class LLVivoxVoiceClientMuteListObserver : public LLMuteListObserver
 	/* virtual */ void onChange()  { LLVivoxVoiceClient::getInstance()->muteListChanged();}
 };
 
-class LLVivoxVoiceClientFriendsObserver : public LLFriendObserver
-{
-public:
-	/* virtual */ void changed(U32 mask) { LLVivoxVoiceClient::getInstance()->updateFriends(mask);}
-};
 
 static LLVivoxVoiceClientMuteListObserver mutelist_listener;
 static bool sMuteListListener_listening = false;
-
-static LLVivoxVoiceClientFriendsObserver *friendslist_listener = NULL;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -195,18 +193,18 @@ class LLVivoxVoiceClientCapResponder : public LLHTTPClient::Responder
 public:
 	LLVivoxVoiceClientCapResponder(LLVivoxVoiceClient::state requesting_state) : mRequestingState(requesting_state) {};
 
-	virtual void error(U32 status, const std::string& reason);	// called with bad status codes
+	// called with bad status codes
+	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
 	virtual void result(const LLSD& content);
 
 private:
 	LLVivoxVoiceClient::state mRequestingState;  // state 
 };
 
-void LLVivoxVoiceClientCapResponder::error(U32 status, const std::string& reason)
+void LLVivoxVoiceClientCapResponder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 {
-	LL_WARNS("Voice") << "LLVivoxVoiceClientCapResponder::error("
-		<< status << ": " << reason << ")"
-		<< LL_ENDL;
+	LL_WARNS("Voice") << "LLVivoxVoiceClientCapResponder error [status:"
+		<< status << "]: " << content << LL_ENDL;
 	LLVivoxVoiceClient::getInstance()->sessionTerminate();
 }
 
@@ -291,6 +289,7 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 	mCaptureDeviceDirty(false),
 	mRenderDeviceDirty(false),
 	mSpatialCoordsDirty(false),
+	mIsInitialized(false),
 
 	mMuteMic(false),
 	mMuteMicDirty(false),
@@ -315,7 +314,9 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 	mCaptureBufferRecording(false),
 	mCaptureBufferRecorded(false),
 	mCaptureBufferPlaying(false),
-	mPlayRequestCount(0)
+	mPlayRequestCount(0),
+
+	mAvatarNameCacheConnection()
 {	
 	mSpeakerVolume = scale_speaker_volume(0);
 
@@ -348,6 +349,10 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 
 LLVivoxVoiceClient::~LLVivoxVoiceClient()
 {
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
 }
 
 //---------------------------------------------------
@@ -378,7 +383,6 @@ void LLVivoxVoiceClient::terminate()
 void LLVivoxVoiceClient::cleanUp()
 {
 	deleteAllSessions();
-	deleteAllBuddies();
 	deleteAllVoiceFonts();
 	deleteVoiceFontTemplates();
 }
@@ -464,10 +468,10 @@ void LLVivoxVoiceClient::connectorCreate()
 
 	std::string savedLogLevel = gSavedSettings.getString("VivoxDebugLevel");
 		
-	if(savedLogLevel != "-1")
+	if(savedLogLevel != "-0")
 	{
 		LL_DEBUGS("Voice") << "creating connector with logging enabled" << LL_ENDL;
-		loglevel = "10";
+		loglevel = "0";
 	}
 	
 	stream 
@@ -520,25 +524,25 @@ void LLVivoxVoiceClient::requestVoiceAccountProvision(S32 retries)
 {
 	LLViewerRegion *region = gAgent.getRegion();
 	
-	if ( region && mVoiceEnabled )
+	// If we've not received the capability yet, return.
+	// the password will remain empty, so we'll remain in
+	// stateIdle
+	if ( region && 
+		 region->capabilitiesReceived() &&
+		 (mVoiceEnabled || !mIsInitialized))
 	{
 		std::string url = 
 		region->getCapability("ProvisionVoiceAccountRequest");
 		
-		if ( url.empty() ) 
+		if ( !url.empty() ) 
 		{
-			// we've not received the capability yet, so return.
-			// the password will remain empty, so we'll remain in
-			// stateIdle
-			return;
+			LLHTTPClient::post(
+							   url,
+							   LLSD(),
+							   new LLVivoxVoiceAccountProvisionResponder(retries));
+		
+			setState(stateConnectorStart);		
 		}
-		
-		LLHTTPClient::post(
-						   url,
-						   LLSD(),
-						   new LLVivoxVoiceAccountProvisionResponder(retries));
-		
-		setState(stateConnectorStart);		
 	}
 }
 
@@ -691,7 +695,7 @@ void LLVivoxVoiceClient::stateMachine()
 		setVoiceEnabled(false);
 	}
 	
-	if(mVoiceEnabled)
+	if(mVoiceEnabled || !mIsInitialized)
 	{
 		updatePosition();
 	}
@@ -736,7 +740,7 @@ void LLVivoxVoiceClient::stateMachine()
 		
 		//MARK: stateDisabled
 		case stateDisabled:
-			if(mTuningMode || (mVoiceEnabled && !mAccountName.empty()))
+			if(mTuningMode || ((mVoiceEnabled || !mIsInitialized) && !mAccountName.empty()))
 			{
 				setState(stateStart);
 			}
@@ -780,9 +784,8 @@ void LLVivoxVoiceClient::stateMachine()
 						std::string loglevel = gSavedSettings.getString("VivoxDebugLevel");
 						if(loglevel.empty())
 						{
-							loglevel = "-1";	// turn logging off completely
+							loglevel = "0";	// turn logging off completely
 						}
-
 						params.args.add("-ll");
 						params.args.add(loglevel);
 						params.cwd = gDirUtilp->getAppRODataDir();
@@ -891,7 +894,7 @@ void LLVivoxVoiceClient::stateMachine()
 				mTuningExitState = stateIdle;
 				setState(stateMicTuningStart);
 			}
-			else if(!mVoiceEnabled)
+			else if(!mVoiceEnabled && mIsInitialized)
 			{
 				// We never started up the connector.  This will shut down the daemon.
 				setState(stateConnectorStopped);
@@ -1085,7 +1088,7 @@ void LLVivoxVoiceClient::stateMachine()
 
 			//MARK: stateConnectorStart
 		case stateConnectorStart:
-			if(!mVoiceEnabled)
+			if(!mVoiceEnabled && mIsInitialized)
 			{
 				// We were never logged in.  This will shut down the connector.
 				setState(stateLoggedOut);
@@ -1103,7 +1106,7 @@ void LLVivoxVoiceClient::stateMachine()
 		
 		//MARK: stateConnectorStarted
 		case stateConnectorStarted:		// connector handle received
-			if(!mVoiceEnabled)
+			if(!mVoiceEnabled && mIsInitialized)
 			{
 				// We were never logged in.  This will shut down the connector.
 				setState(stateLoggedOut);
@@ -1190,24 +1193,11 @@ void LLVivoxVoiceClient::stateMachine()
 				setState(stateVoiceFontsReceived);
 			}
 
-			// request the current set of block rules (we'll need them when updating the friends list)
-			accountListBlockRulesSendMessage();
-			
-			// request the current set of auto-accept rules
-			accountListAutoAcceptRulesSendMessage();
-			
 			// Set up the mute list observer if it hasn't been set up already.
 			if((!sMuteListListener_listening))
 			{
 				LLMuteList::getInstance()->addObserver(&mutelist_listener);
 				sMuteListListener_listening = true;
-			}
-
-			// Set up the friends list observer if it hasn't been set up already.
-			if(friendslist_listener == NULL)
-			{
-				friendslist_listener = new LLVivoxVoiceClientFriendsObserver;
-				LLAvatarTracker::instance().addObserver(friendslist_listener);
 			}
 			
 			// Set the initial state of mic mute, local speaker volume, etc.
@@ -1247,7 +1237,7 @@ void LLVivoxVoiceClient::stateMachine()
 		
 		//MARK: stateCreatingSessionGroup
 		case stateCreatingSessionGroup:
-			if(mSessionTerminateRequested || !mVoiceEnabled)
+			if(mSessionTerminateRequested || (!mVoiceEnabled && mIsInitialized))
 			{
 				// *TODO: Question: is this the right way out of this state
 				setState(stateSessionTerminated);
@@ -1263,7 +1253,7 @@ void LLVivoxVoiceClient::stateMachine()
 		//MARK: stateRetrievingParcelVoiceInfo
 		case stateRetrievingParcelVoiceInfo: 
 			// wait until parcel voice info is received.
-			if(mSessionTerminateRequested || !mVoiceEnabled)
+			if(mSessionTerminateRequested || (!mVoiceEnabled && mIsInitialized))
 			{
 				// if a terminate request has been received,
 				// bail and go to the stateSessionTerminated
@@ -1279,11 +1269,9 @@ void LLVivoxVoiceClient::stateMachine()
 		case stateNoChannel:
 			LL_DEBUGS("Voice") << "State No Channel" << LL_ENDL;
 			mSpatialJoiningNum = 0;
-			// Do this here as well as inside sendPositionalUpdate().  
-			// Otherwise, if you log in but don't join a proximal channel (such as when your login location has voice disabled), your friends list won't sync.
-			sendFriendsListUpdates();
+
 			
-			if(mSessionTerminateRequested || !mVoiceEnabled)
+			if(mSessionTerminateRequested || (!mVoiceEnabled && mIsInitialized))
 			{
 				// TODO: Question: Is this the right way out of this state?
 				setState(stateSessionTerminated);
@@ -1364,7 +1352,7 @@ void LLVivoxVoiceClient::stateMachine()
 		    }
 			
 			// joinedAudioSession() will transition from here to stateSessionJoined.
-			if(!mVoiceEnabled)
+			if(!mVoiceEnabled && mIsInitialized)
 			{
 				// User bailed out during connect -- jump straight to teardown.
 				setState(stateSessionTerminated);
@@ -1411,7 +1399,7 @@ void LLVivoxVoiceClient::stateMachine()
 				notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_JOINED);
 
 			}
-			else if(!mVoiceEnabled)
+			else if(!mVoiceEnabled && mIsInitialized)
 			{
 				// User bailed out during connect -- jump straight to teardown.
 				setState(stateSessionTerminated);
@@ -1431,7 +1419,7 @@ void LLVivoxVoiceClient::stateMachine()
 		//MARK: stateRunning
 		case stateRunning:				// steady state
 			// Disabling voice or disconnect requested.
-			if(!mVoiceEnabled || mSessionTerminateRequested)
+			if((!mVoiceEnabled && mIsInitialized) || mSessionTerminateRequested)
 			{
 				leaveAudioSession();
 			}
@@ -1478,6 +1466,7 @@ void LLVivoxVoiceClient::stateMachine()
 					mUpdateTimer.setTimerExpirySec(UPDATE_THROTTLE_SECONDS);
 					sendPositionalUpdate();
 				}
+				mIsInitialized = true;
 			}
 		break;
 		
@@ -1511,7 +1500,7 @@ void LLVivoxVoiceClient::stateMachine()
 			// Always reset the terminate request flag when we get here.
 			mSessionTerminateRequested = false;
 
-			if(mVoiceEnabled && !mRelogRequested)
+			if((mVoiceEnabled || !mIsInitialized) && !mRelogRequested)
 			{				
 				// Just leaving a channel, go back to stateNoChannel (the "logged in but have no channel" state).
 				setState(stateNoChannel);
@@ -1539,7 +1528,7 @@ void LLVivoxVoiceClient::stateMachine()
 			mAccountHandle.clear();
 			cleanUp();
 
-			if(mVoiceEnabled && !mRelogRequested)
+			if((mVoiceEnabled || !mIsInitialized) && !mRelogRequested)
 			{
 				// User was logged out, but wants to be logged in.  Send a new login request.
 				setState(stateNeedsLogin);
@@ -1634,7 +1623,7 @@ void LLVivoxVoiceClient::stateMachine()
 void LLVivoxVoiceClient::closeSocket(void)
 {
 	mSocket.reset();
-	mConnected = false;	
+	mConnected = false;
 	mConnectorHandle.clear();
 	mAccountHandle.clear();
 }
@@ -1651,7 +1640,7 @@ void LLVivoxVoiceClient::loginSendMessage()
 		<< "<AccountName>" << mAccountName << "</AccountName>"
 		<< "<AccountPassword>" << mAccountPassword << "</AccountPassword>"
 		<< "<AudioSessionAnswerMode>VerifyAnswer</AudioSessionAnswerMode>"
-		<< "<EnableBuddiesAndPresence>true</EnableBuddiesAndPresence>"
+        << "<EnableBuddiesAndPresence>false</EnableBuddiesAndPresence>"
 		<< "<BuddyManagementMode>Application</BuddyManagementMode>"
 		<< "<ParticipantPropertyFrequency>5</ParticipantPropertyFrequency>"
 		<< (autoPostCrashDumps?"<AutopostCrashDumps>true</AutopostCrashDumps>":"")
@@ -1682,42 +1671,6 @@ void LLVivoxVoiceClient::logoutSendMessage()
 		<< "\n\n\n";
 
 		mAccountHandle.clear();
-
-		writeString(stream.str());
-	}
-}
-
-void LLVivoxVoiceClient::accountListBlockRulesSendMessage()
-{
-	if(!mAccountHandle.empty())
-	{		
-		std::ostringstream stream;
-
-		LL_DEBUGS("Voice") << "requesting block rules" << LL_ENDL;
-
-		stream
-		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Account.ListBlockRules.1\">"
-			<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
-		<< "</Request>"
-		<< "\n\n\n";
-
-		writeString(stream.str());
-	}
-}
-
-void LLVivoxVoiceClient::accountListAutoAcceptRulesSendMessage()
-{
-	if(!mAccountHandle.empty())
-	{		
-		std::ostringstream stream;
-
-		LL_DEBUGS("Voice") << "requesting auto-accept rules" << LL_ENDL;
-
-		stream
-		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Account.ListAutoAcceptRules.1\">"
-			<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
-		<< "</Request>"
-		<< "\n\n\n";
 
 		writeString(stream.str());
 	}
@@ -2236,7 +2189,8 @@ void LLVivoxVoiceClient::giveUp()
 
 static void oldSDKTransform (LLVector3 &left, LLVector3 &up, LLVector3 &at, LLVector3d &pos, LLVector3 &vel)
 {
-	F32 nat[3], nup[3], nl[3], nvel[3]; // the new at, up, left vectors and the  new position and velocity
+	F32 nat[3], nup[3], nl[3]; // the new at, up, left vectors and the  new position and velocity
+//	F32 nvel[3]; 
 	F64 npos[3];
 	
 	// The original XML command was sent like this:
@@ -2286,9 +2240,9 @@ static void oldSDKTransform (LLVector3 &left, LLVector3 &up, LLVector3 &at, LLVe
 	npos[1] = pos.mdV[VZ];
 	npos[2] = pos.mdV[VY];
 
-	nvel[0] = vel.mV[VX];
-	nvel[1] = vel.mV[VZ];
-	nvel[2] = vel.mV[VY];
+//	nvel[0] = vel.mV[VX];
+//	nvel[1] = vel.mV[VZ];
+//	nvel[2] = vel.mV[VY];
 
 	for(int i=0;i<3;++i) {
 		at.mV[i] = nat[i];
@@ -2553,10 +2507,7 @@ void LLVivoxVoiceClient::sendPositionalUpdate(void)
 	{
 		writeString(stream.str());
 	}
-	
-	// Friends list updates can be huge, especially on the first voice login of an account with lots of friends.
-	// Batching them all together can choke SLVoice, so send them in separate writes.
-	sendFriendsListUpdates();
+
 }
 
 void LLVivoxVoiceClient::buildSetCaptureDevice(std::ostringstream &stream)
@@ -2652,291 +2603,6 @@ void LLVivoxVoiceClient::buildLocalAudioUpdates(std::ostringstream &stream)
 	}
 
 	
-}
-
-void LLVivoxVoiceClient::checkFriend(const LLUUID& id)
-{
-	buddyListEntry *buddy = findBuddy(id);
-
-	// Make sure we don't add a name before it's been looked up.
-	LLAvatarName av_name;
-	if(LLAvatarNameCache::get(id, &av_name))
-	{
-		// *NOTE: For now, we feed legacy names to Vivox because I don't know
-		// if their service can support a mix of new and old clients with
-		// different sorts of names.
-		std::string name = av_name.getLegacyName();
-
-		const LLRelationship* relationInfo = LLAvatarTracker::instance().getBuddyInfo(id);
-		bool canSeeMeOnline = false;
-		if(relationInfo && relationInfo->isRightGrantedTo(LLRelationship::GRANT_ONLINE_STATUS))
-			canSeeMeOnline = true;
-		
-		// When we get here, mNeedsSend is true and mInSLFriends is false.  Change them as necessary.
-		
-		if(buddy)
-		{
-			// This buddy is already in both lists.
-
-			if(name != buddy->mDisplayName)
-			{
-				// The buddy is in the list with the wrong name.  Update it with the correct name.
-				LL_WARNS("Voice") << "Buddy " << id << " has wrong name (\"" << buddy->mDisplayName << "\" should be \"" << name << "\"), updating."<< LL_ENDL;
-				buddy->mDisplayName = name;
-				buddy->mNeedsNameUpdate = true;		// This will cause the buddy to be resent.
-			}
-		}
-		else
-		{
-			// This buddy was not in the vivox list, needs to be added.
-			buddy = addBuddy(sipURIFromID(id), name);
-			buddy->mUUID = id;
-		}
-		
-		// In all the above cases, the buddy is in the SL friends list (which is how we got here).
-		buddy->mInSLFriends = true;
-		buddy->mCanSeeMeOnline = canSeeMeOnline;
-		buddy->mNameResolved = true;
-		
-	}
-	else
-	{
-		// This name hasn't been looked up yet.  Don't do anything with this buddy list entry until it has.
-		if(buddy)
-		{
-			buddy->mNameResolved = false;
-		}
-		
-		// Initiate a lookup.
-		// The "lookup completed" callback will ensure that the friends list is rechecked after it completes.
-		lookupName(id);
-	}
-}
-
-void LLVivoxVoiceClient::clearAllLists()
-{
-	// FOR TESTING ONLY
-	
-	// This will send the necessary commands to delete ALL buddies, autoaccept rules, and block rules SLVoice tells us about.
-	buddyListMap::iterator buddy_it;
-	for(buddy_it = mBuddyListMap.begin(); buddy_it != mBuddyListMap.end();)
-	{
-		buddyListEntry *buddy = buddy_it->second;
-		buddy_it++;
-		
-		std::ostringstream stream;
-
-		if(buddy->mInVivoxBuddies)
-		{
-			// delete this entry from the vivox buddy list
-			buddy->mInVivoxBuddies = false;
-			LL_DEBUGS("Voice") << "delete " << buddy->mURI << " (" << buddy->mDisplayName << ")" << LL_ENDL;
-			stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Account.BuddyDelete.1\">"
-				<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
-				<< "<BuddyURI>" << buddy->mURI << "</BuddyURI>"
-				<< "</Request>\n\n\n";		
-		}
-
-		if(buddy->mHasBlockListEntry)
-		{
-			// Delete the associated block list entry (so the block list doesn't fill up with junk)
-			buddy->mHasBlockListEntry = false;
-			stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Account.DeleteBlockRule.1\">"
-				<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
-				<< "<BlockMask>" << buddy->mURI << "</BlockMask>"
-				<< "</Request>\n\n\n";								
-		}
-		if(buddy->mHasAutoAcceptListEntry)
-		{
-			// Delete the associated auto-accept list entry (so the auto-accept list doesn't fill up with junk)
-			buddy->mHasAutoAcceptListEntry = false;
-			stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Account.DeleteAutoAcceptRule.1\">"
-				<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
-				<< "<AutoAcceptMask>" << buddy->mURI << "</AutoAcceptMask>"
-				<< "</Request>\n\n\n";
-		}
-
-		writeString(stream.str());
-
-	}
-}
-
-void LLVivoxVoiceClient::sendFriendsListUpdates()
-{
-	if(mBuddyListMapPopulated && mBlockRulesListReceived && mAutoAcceptRulesListReceived && mFriendsListDirty)
-	{
-		mFriendsListDirty = false;
-		
-		if(0)
-		{
-			// FOR TESTING ONLY -- clear all buddy list, block list, and auto-accept list entries.
-			clearAllLists();
-			return;
-		}
-		
-		LL_INFOS("Voice") << "Checking vivox buddy list against friends list..." << LL_ENDL;
-		
-		buddyListMap::iterator buddy_it;
-		for(buddy_it = mBuddyListMap.begin(); buddy_it != mBuddyListMap.end(); buddy_it++)
-		{
-			// reset the temp flags in the local buddy list
-			buddy_it->second->mInSLFriends = false;
-		}
-		
-		// correlate with the friends list
-		{
-			LLCollectAllBuddies collect;
-			LLAvatarTracker::instance().applyFunctor(collect);
-			LLCollectAllBuddies::buddy_map_t::const_iterator it = collect.mOnline.begin();
-			LLCollectAllBuddies::buddy_map_t::const_iterator end = collect.mOnline.end();
-			
-			for ( ; it != end; ++it)
-			{
-				checkFriend(it->second);
-			}
-			it = collect.mOffline.begin();
-			end = collect.mOffline.end();
-			for ( ; it != end; ++it)
-			{
-				checkFriend(it->second);
-			}
-		}
-				
-		LL_INFOS("Voice") << "Sending friend list updates..." << LL_ENDL;
-
-		for(buddy_it = mBuddyListMap.begin(); buddy_it != mBuddyListMap.end();)
-		{
-			buddyListEntry *buddy = buddy_it->second;
-			buddy_it++;
-			
-			// Ignore entries that aren't resolved yet.
-			if(buddy->mNameResolved)
-			{
-				std::ostringstream stream;
-
-				if(buddy->mInSLFriends && (!buddy->mInVivoxBuddies || buddy->mNeedsNameUpdate))
-				{					
-					if(mNumberOfAliases > 0)
-					{
-						// Add (or update) this entry in the vivox buddy list
-						buddy->mInVivoxBuddies = true;
-						buddy->mNeedsNameUpdate = false;
-						LL_DEBUGS("Voice") << "add/update " << buddy->mURI << " (" << buddy->mDisplayName << ")" << LL_ENDL;
-						stream 
-							<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Account.BuddySet.1\">"
-								<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
-								<< "<BuddyURI>" << buddy->mURI << "</BuddyURI>"
-								<< "<DisplayName>" << buddy->mDisplayName << "</DisplayName>"
-								<< "<BuddyData></BuddyData>"	// Without this, SLVoice doesn't seem to parse the command.
-								<< "<GroupID>0</GroupID>"
-							<< "</Request>\n\n\n";	
-					}
-				}
-				else if(!buddy->mInSLFriends)
-				{
-					// This entry no longer exists in your SL friends list.  Remove all traces of it from the Vivox buddy list.
- 					if(buddy->mInVivoxBuddies)
-					{
-						// delete this entry from the vivox buddy list
-						buddy->mInVivoxBuddies = false;
-						LL_DEBUGS("Voice") << "delete " << buddy->mURI << " (" << buddy->mDisplayName << ")" << LL_ENDL;
-						stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Account.BuddyDelete.1\">"
-							<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
-							<< "<BuddyURI>" << buddy->mURI << "</BuddyURI>"
-							<< "</Request>\n\n\n";		
-					}
-
-					if(buddy->mHasBlockListEntry)
-					{
-						// Delete the associated block list entry, if any
-						buddy->mHasBlockListEntry = false;
-						stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Account.DeleteBlockRule.1\">"
-							<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
-							<< "<BlockMask>" << buddy->mURI << "</BlockMask>"
-							<< "</Request>\n\n\n";								
-					}
-					if(buddy->mHasAutoAcceptListEntry)
-					{
-						// Delete the associated auto-accept list entry, if any
-						buddy->mHasAutoAcceptListEntry = false;
-						stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Account.DeleteAutoAcceptRule.1\">"
-							<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
-							<< "<AutoAcceptMask>" << buddy->mURI << "</AutoAcceptMask>"
-							<< "</Request>\n\n\n";
-					}
-				}
-				
-				if(buddy->mInSLFriends)
-				{
-
-					if(buddy->mCanSeeMeOnline)
-					{
-						// Buddy should not be blocked.
-
-						// If this buddy doesn't already have either a block or autoaccept list entry, we'll update their status when we receive a SubscriptionEvent.
-						
-						// If the buddy has a block list entry, delete it.
-						if(buddy->mHasBlockListEntry)
-						{
-							buddy->mHasBlockListEntry = false;
-							stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Account.DeleteBlockRule.1\">"
-								<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
-								<< "<BlockMask>" << buddy->mURI << "</BlockMask>"
-								<< "</Request>\n\n\n";		
-							
-							
-							// If we just deleted a block list entry, add an auto-accept entry.
-							if(!buddy->mHasAutoAcceptListEntry)
-							{
-								buddy->mHasAutoAcceptListEntry = true;								
-								stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Account.CreateAutoAcceptRule.1\">"
-									<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
-									<< "<AutoAcceptMask>" << buddy->mURI << "</AutoAcceptMask>"
-									<< "<AutoAddAsBuddy>0</AutoAddAsBuddy>"
-									<< "</Request>\n\n\n";
-							}
-						}
-					}
-					else
-					{
-						// Buddy should be blocked.
-						
-						// If this buddy doesn't already have either a block or autoaccept list entry, we'll update their status when we receive a SubscriptionEvent.
-
-						// If this buddy has an autoaccept entry, delete it
-						if(buddy->mHasAutoAcceptListEntry)
-						{
-							buddy->mHasAutoAcceptListEntry = false;
-							stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Account.DeleteAutoAcceptRule.1\">"
-								<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
-								<< "<AutoAcceptMask>" << buddy->mURI << "</AutoAcceptMask>"
-								<< "</Request>\n\n\n";
-						
-							// If we just deleted an auto-accept entry, add a block list entry.
-							if(!buddy->mHasBlockListEntry)
-							{
-								buddy->mHasBlockListEntry = true;
-								stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Account.CreateBlockRule.1\">"
-									<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
-									<< "<BlockMask>" << buddy->mURI << "</BlockMask>"
-									<< "<PresenceOnly>1</PresenceOnly>"
-									<< "</Request>\n\n\n";								
-							}
-						}
-					}
-
-					if(!buddy->mInSLFriends && !buddy->mInVivoxBuddies)
-					{
-						// Delete this entry from the local buddy list.  This should NOT invalidate the iterator,
-						// since it has already been incremented to the next entry.
-						deleteBuddy(buddy->mURI);
-					}
-
-				}
-				writeString(stream.str());
-			}
-		}
-	}
 }
 
 /////////////////////////////
@@ -3712,8 +3378,7 @@ void LLVivoxVoiceClient::participantUpdatedEvent(
 			 voice participant mIsModeratorMuted is changed after speakers are updated in Speaker Manager                                          
 			 and event is not fired.                                                                                                               
 			 
-			 So, we have to call LLSpeakerMgr::update() here. In any case it is better than call it                                                
-			 in LLCallFloater::draw()                                                                                                              
+			 So, we have to call LLSpeakerMgr::update() here. 
 			 */
 			LLVoiceChannel* voice_cnl = LLVoiceChannel::getCurrentVoiceChannel();
 			
@@ -3743,83 +3408,6 @@ void LLVivoxVoiceClient::participantUpdatedEvent(
 	{
 		LL_INFOS("Voice") << "unknown session " << sessionHandle << LL_ENDL;
 	}
-}
-
-void LLVivoxVoiceClient::buddyPresenceEvent(
-		std::string &uriString, 
-		std::string &alias, 
-		std::string &statusString,
-		std::string &applicationString)
-{
-	buddyListEntry *buddy = findBuddy(uriString);
-	
-	if(buddy)
-	{
-		LL_DEBUGS("Voice") << "Presence event for " << buddy->mDisplayName << " status \"" << statusString << "\", application \"" << applicationString << "\""<< LL_ENDL;
-		LL_DEBUGS("Voice") << "before: mOnlineSL = " << (buddy->mOnlineSL?"true":"false") << ", mOnlineSLim = " << (buddy->mOnlineSLim?"true":"false") << LL_ENDL;
-
-		if(applicationString.empty())
-		{
-			// This presence event is from a client that doesn't set up the Application string.  Do things the old-skool way.
-			// NOTE: this will be needed to support people who aren't on the 3010-class SDK yet.
-
-			if ( stricmp("Unknown", statusString.c_str())== 0) 
-			{
-				// User went offline with a non-SLim-enabled viewer.
-				buddy->mOnlineSL = false;
-			}
-			else if ( stricmp("Online", statusString.c_str())== 0) 
-			{
-				// User came online with a non-SLim-enabled viewer.
-				buddy->mOnlineSL = true;
-			}
-			else
-			{
-				// If the user is online through SLim, their status will be "Online-slc", "Away", or something else.
-				// NOTE: we should never see this unless someone is running an OLD version of SLim -- the versions that should be in use now all set the application string.
-				buddy->mOnlineSLim = true;
-			} 
-		}
-		else if(applicationString.find("SecondLifeViewer") != std::string::npos)
-		{
-			// This presence event is from a viewer that sets the application string
-			if ( stricmp("Unknown", statusString.c_str())== 0) 
-			{
-				// Viewer says they're offline
-				buddy->mOnlineSL = false;
-			}
-			else
-			{
-				// Viewer says they're online
-				buddy->mOnlineSL = true;
-			}
-		}
-		else
-		{
-			// This presence event is from something which is NOT the SL viewer (assume it's SLim).
-			if ( stricmp("Unknown", statusString.c_str())== 0) 
-			{
-				// SLim says they're offline
-				buddy->mOnlineSLim = false;
-			}
-			else
-			{
-				// SLim says they're online
-				buddy->mOnlineSLim = true;
-			}
-		} 
-
-		LL_DEBUGS("Voice") << "after: mOnlineSL = " << (buddy->mOnlineSL?"true":"false") << ", mOnlineSLim = " << (buddy->mOnlineSLim?"true":"false") << LL_ENDL;
-		
-		// HACK -- increment the internal change serial number in the LLRelationship (without changing the actual status), so the UI notices the change.
-		LLAvatarTracker::instance().setBuddyOnline(buddy->mUUID,LLAvatarTracker::instance().isBuddyOnline(buddy->mUUID));
-
-		notifyFriendObservers();
-	}
-	else
-	{
-		LL_DEBUGS("Voice") << "Presence for unknown buddy " << uriString << LL_ENDL;
-	}	
 }
 
 void LLVivoxVoiceClient::messageEvent(
@@ -3939,10 +3527,9 @@ void LLVivoxVoiceClient::messageEvent(
 		sessionState *session = findSession(sessionHandle);
 		if(session)
 		{
-			bool is_busy = gAgent.getBusy();
+			bool is_do_not_disturb = gAgent.isDoNotDisturb();
 			bool is_muted = LLMuteList::getInstance()->isMuted(session->mCallerID, session->mName, LLMute::flagTextChat);
 			bool is_linden = LLMuteList::getInstance()->isLinden(session->mName);
-			bool quiet_chat = false;
 			LLChat chat;
 
 			chat.mMuted = is_muted && !is_linden;
@@ -3953,10 +3540,9 @@ void LLVivoxVoiceClient::messageEvent(
 				chat.mFromName = session->mName;
 				chat.mSourceType = CHAT_SOURCE_AGENT;
 
-				if(is_busy && !is_linden)
+				if(is_do_not_disturb && !is_linden)
 				{
-					quiet_chat = true;
-					// TODO: Question: Return busy mode response here?  Or maybe when session is started instead?
+					// TODO: Question: Return do not disturb mode response here?  Or maybe when session is started instead?
 				}
 				
 				LL_DEBUGS("Voice") << "adding message, name " << session->mName << " session " << session->mIMSessionID << ", target " << session->mCallerID << LL_ENDL;
@@ -3964,6 +3550,7 @@ void LLVivoxVoiceClient::messageEvent(
 						session->mCallerID,
 						session->mName.c_str(),
 						message.c_str(),
+						false,
 						LLStringUtil::null,		// default arg
 						IM_NOTHING_SPECIAL,		// default arg
 						0,						// default arg
@@ -4013,68 +3600,10 @@ void LLVivoxVoiceClient::sessionNotificationEvent(std::string &sessionHandle, st
 	}
 }
 
-void LLVivoxVoiceClient::subscriptionEvent(std::string &buddyURI, std::string &subscriptionHandle, std::string &alias, std::string &displayName, std::string &applicationString, std::string &subscriptionType)
-{
-	buddyListEntry *buddy = findBuddy(buddyURI);
-	
-	if(!buddy)
-	{
-		// Couldn't find buddy by URI, try converting the alias...
-		if(!alias.empty())
-		{
-			LLUUID id;
-			if(IDFromName(alias, id))
-			{
-				buddy = findBuddy(id);
-			}
-		}
-	}
-	
-	if(buddy)
-	{
-		std::ostringstream stream;
-		
-		if(buddy->mCanSeeMeOnline)
-		{
-			// Sending the response will create an auto-accept rule
-			buddy->mHasAutoAcceptListEntry = true;
-		}
-		else
-		{
-			// Sending the response will create a block rule
-			buddy->mHasBlockListEntry = true;
-		}
-		
-		if(buddy->mInSLFriends)
-		{
-			buddy->mInVivoxBuddies = true;
-		}
-		
-		stream
-			<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Account.SendSubscriptionReply.1\">"
-				<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
-				<< "<BuddyURI>" << buddy->mURI << "</BuddyURI>"
-				<< "<RuleType>" << (buddy->mCanSeeMeOnline?"Allow":"Hide") << "</RuleType>"
-				<< "<AutoAccept>"<< (buddy->mInSLFriends?"1":"0")<< "</AutoAccept>"
-				<< "<SubscriptionHandle>" << subscriptionHandle << "</SubscriptionHandle>"
-			<< "</Request>"
-			<< "\n\n\n";
-			
-		writeString(stream.str());
-	}
-}
-
 void LLVivoxVoiceClient::auxAudioPropertiesEvent(F32 energy)
 {
 	LL_DEBUGS("Voice") << "got energy " << energy << LL_ENDL;
 	mTuningEnergy = energy;
-}
-
-void LLVivoxVoiceClient::buddyListChanged()
-{
-	// This is called after we receive a BuddyAndGroupListChangedEvent.
-	mBuddyListMapPopulated = true;
-	mFriendsListDirty = true;
 }
 
 void LLVivoxVoiceClient::muteListChanged()
@@ -4092,15 +3621,6 @@ void LLVivoxVoiceClient::muteListChanged()
 			if(p->updateMuteState())
 				mAudioSession->mVolumeDirty = true;
 		}
-	}
-}
-
-void LLVivoxVoiceClient::updateFriends(U32 mask)
-{
-	if(mask & (LLFriendObserver::ADD | LLFriendObserver::REMOVE | LLFriendObserver::POWERS))
-	{
-		// Just resend the whole friend list to the daemon
-		mFriendsListDirty = true;
 	}
 }
 
@@ -4702,34 +4222,6 @@ bool LLVivoxVoiceClient::answerInvite(std::string &sessionHandle)
 	return false;
 }
 
-BOOL LLVivoxVoiceClient::isOnlineSIP(const LLUUID &id)
-{
-	bool result = false;
-	buddyListEntry *buddy = findBuddy(id);
-	if(buddy)
-	{
-		result = buddy->mOnlineSLim;
-		LL_DEBUGS("Voice") << "Buddy " << buddy->mDisplayName << " is SIP " << (result?"online":"offline") << LL_ENDL;
-	}
-
-	if(!result)
-	{
-		// This user isn't on the buddy list or doesn't show online status through the buddy list, but could be a participant in an existing session if they initiated a text IM.
-		sessionState *session = findSession(id);
-		if(session && !session->mHandle.empty())
-		{
-			if((session->mTextStreamState != streamStateUnknown) || (session->mMediaStreamState > streamStateIdle))
-			{
-				LL_DEBUGS("Voice") << "Open session with " << id << " found, returning SIP online state" << LL_ENDL;
-				// we have a p2p text session open with this user, so by definition they're online.
-				result = true;
-			}
-		}
-	}
-	
-	return result;
-}
-
 bool LLVivoxVoiceClient::isVoiceWorking() const
 {
   //Added stateSessionTerminated state to avoid problems with call in parcels with disabled voice (EXT-4758)
@@ -4786,7 +4278,7 @@ BOOL LLVivoxVoiceClient::isSessionCallBackPossible(const LLUUID &session_id)
 // Currently this will be false only for PSTN P2P calls.
 BOOL LLVivoxVoiceClient::isSessionTextIMPossible(const LLUUID &session_id)
 {
-	bool result = TRUE; 
+	bool result = TRUE;
 	sessionState *session = findSession(session_id);
 	
 	if(session != NULL)
@@ -5835,229 +5327,6 @@ void LLVivoxVoiceClient::verifySessionState(void)
 	}
 }
 
-LLVivoxVoiceClient::buddyListEntry::buddyListEntry(const std::string &uri) :
-	mURI(uri)
-{
-	mOnlineSL = false;
-	mOnlineSLim = false;
-	mCanSeeMeOnline = true;
-	mHasBlockListEntry = false;
-	mHasAutoAcceptListEntry = false;
-	mNameResolved = false;
-	mInVivoxBuddies = false;
-	mInSLFriends = false;
-	mNeedsNameUpdate = false;
-}
-
-void LLVivoxVoiceClient::processBuddyListEntry(const std::string &uri, const std::string &displayName)
-{
-	buddyListEntry *buddy = addBuddy(uri, displayName);
-	buddy->mInVivoxBuddies = true;	
-}
-
-LLVivoxVoiceClient::buddyListEntry *LLVivoxVoiceClient::addBuddy(const std::string &uri)
-{
-	std::string empty;
-	buddyListEntry *buddy = addBuddy(uri, empty);
-	if(buddy->mDisplayName.empty())
-	{
-		buddy->mNameResolved = false;
-	}
-	return buddy;
-}
-
-LLVivoxVoiceClient::buddyListEntry *LLVivoxVoiceClient::addBuddy(const std::string &uri, const std::string &displayName)
-{
-	buddyListEntry *result = NULL;
-	buddyListMap::iterator iter = mBuddyListMap.find(uri);
-	
-	if(iter != mBuddyListMap.end())
-	{
-		// Found a matching buddy already in the map.
-		LL_DEBUGS("Voice") << "adding existing buddy " << uri << LL_ENDL;
-		result = iter->second;
-	}
-
-	if(!result)
-	{
-		// participant isn't already in one list or the other.
-		LL_DEBUGS("Voice") << "adding new buddy " << uri << LL_ENDL;
-		result = new buddyListEntry(uri);
-		result->mDisplayName = displayName;
-
-		if(IDFromName(uri, result->mUUID)) 
-		{
-			// Extracted UUID from name successfully.
-		}
-		else
-		{
-			LL_DEBUGS("Voice") << "Couldn't find ID for buddy " << uri << " (\"" << displayName << "\")" << LL_ENDL;
-		}
-
-		mBuddyListMap.insert(buddyListMap::value_type(result->mURI, result));
-	}
-	
-	return result;
-}
-
-LLVivoxVoiceClient::buddyListEntry *LLVivoxVoiceClient::findBuddy(const std::string &uri)
-{
-	buddyListEntry *result = NULL;
-	buddyListMap::iterator iter = mBuddyListMap.find(uri);
-	if(iter != mBuddyListMap.end())
-	{
-		result = iter->second;
-	}
-	
-	return result;
-}
-
-LLVivoxVoiceClient::buddyListEntry *LLVivoxVoiceClient::findBuddy(const LLUUID &id)
-{
-	buddyListEntry *result = NULL;
-	buddyListMap::iterator iter;
-
-	for(iter = mBuddyListMap.begin(); iter != mBuddyListMap.end(); iter++)
-	{
-		if(iter->second->mUUID == id)
-		{
-			result = iter->second;
-			break;
-		}
-	}
-	
-	return result;
-}
-
-LLVivoxVoiceClient::buddyListEntry *LLVivoxVoiceClient::findBuddyByDisplayName(const std::string &name)
-{
-	buddyListEntry *result = NULL;
-	buddyListMap::iterator iter;
-
-	for(iter = mBuddyListMap.begin(); iter != mBuddyListMap.end(); iter++)
-	{
-		if(iter->second->mDisplayName == name)
-		{
-			result = iter->second;
-			break;
-		}
-	}
-	
-	return result;
-}
-
-void LLVivoxVoiceClient::deleteBuddy(const std::string &uri)
-{
-	buddyListMap::iterator iter = mBuddyListMap.find(uri);
-	if(iter != mBuddyListMap.end())
-	{
-		LL_DEBUGS("Voice") << "deleting buddy " << uri << LL_ENDL;
-		buddyListEntry *buddy = iter->second;
-		mBuddyListMap.erase(iter);
-		delete buddy;
-	}
-	else
-	{
-		LL_DEBUGS("Voice") << "attempt to delete nonexistent buddy " << uri << LL_ENDL;
-	}
-	
-}
-
-void LLVivoxVoiceClient::deleteAllBuddies(void)
-{
-	while(!mBuddyListMap.empty())
-	{
-		deleteBuddy(mBuddyListMap.begin()->first);
-	}
-	
-	// Don't want to correlate with friends list when we've emptied the buddy list.
-	mBuddyListMapPopulated = false;
-	
-	// Don't want to correlate with friends list when we've reset the block rules.
-	mBlockRulesListReceived = false;
-	mAutoAcceptRulesListReceived = false;
-}
-
-void LLVivoxVoiceClient::deleteAllBlockRules(void)
-{
-	// Clear the block list entry flags from all local buddy list entries
-	buddyListMap::iterator buddy_it;
-	for(buddy_it = mBuddyListMap.begin(); buddy_it != mBuddyListMap.end(); buddy_it++)
-	{
-		buddy_it->second->mHasBlockListEntry = false;
-	}
-}
-
-void LLVivoxVoiceClient::deleteAllAutoAcceptRules(void)
-{
-	// Clear the auto-accept list entry flags from all local buddy list entries
-	buddyListMap::iterator buddy_it;
-	for(buddy_it = mBuddyListMap.begin(); buddy_it != mBuddyListMap.end(); buddy_it++)
-	{
-		buddy_it->second->mHasAutoAcceptListEntry = false;
-	}
-}
-
-void LLVivoxVoiceClient::addBlockRule(const std::string &blockMask, const std::string &presenceOnly)
-{
-	buddyListEntry *buddy = NULL;
-
-	// blockMask is the SIP URI of a friends list entry
-	buddyListMap::iterator iter = mBuddyListMap.find(blockMask);
-	if(iter != mBuddyListMap.end())
-	{
-		LL_DEBUGS("Voice") << "block list entry for " << blockMask << LL_ENDL;
-		buddy = iter->second;
-	}
-
-	if(buddy == NULL)
-	{
-		LL_DEBUGS("Voice") << "block list entry for unknown buddy " << blockMask << LL_ENDL;
-		buddy = addBuddy(blockMask);
-	}
-	
-	if(buddy != NULL)
-	{
-		buddy->mHasBlockListEntry = true;
-	}
-}
-
-void LLVivoxVoiceClient::addAutoAcceptRule(const std::string &autoAcceptMask, const std::string &autoAddAsBuddy)
-{
-	buddyListEntry *buddy = NULL;
-
-	// blockMask is the SIP URI of a friends list entry
-	buddyListMap::iterator iter = mBuddyListMap.find(autoAcceptMask);
-	if(iter != mBuddyListMap.end())
-	{
-		LL_DEBUGS("Voice") << "auto-accept list entry for " << autoAcceptMask << LL_ENDL;
-		buddy = iter->second;
-	}
-
-	if(buddy == NULL)
-	{
-		LL_DEBUGS("Voice") << "auto-accept list entry for unknown buddy " << autoAcceptMask << LL_ENDL;
-		buddy = addBuddy(autoAcceptMask);
-	}
-
-	if(buddy != NULL)
-	{
-		buddy->mHasAutoAcceptListEntry = true;
-	}
-}
-
-void LLVivoxVoiceClient::accountListBlockRulesResponse(int statusCode, const std::string &statusString)
-{
-	// Block list entries were updated via addBlockRule() during parsing.  Just flag that we're done.
-	mBlockRulesListReceived = true;
-}
-
-void LLVivoxVoiceClient::accountListAutoAcceptRulesResponse(int statusCode, const std::string &statusString)
-{
-	// Block list entries were updated via addBlockRule() during parsing.  Just flag that we're done.
-	mAutoAcceptRulesListReceived = true;
-}
-
 void LLVivoxVoiceClient::addObserver(LLVoiceClientParticipantObserver* observer)
 {
 	mParticipantObservers.insert(observer);
@@ -6189,27 +5458,23 @@ void LLVivoxVoiceClient::notifyFriendObservers()
 
 void LLVivoxVoiceClient::lookupName(const LLUUID &id)
 {
-	LLAvatarNameCache::get(id,
-		boost::bind(&LLVivoxVoiceClient::onAvatarNameCache,
-			this, _1, _2));
+	if (mAvatarNameCacheConnection.connected())
+	{
+		mAvatarNameCacheConnection.disconnect();
+	}
+	mAvatarNameCacheConnection = LLAvatarNameCache::get(id, boost::bind(&LLVivoxVoiceClient::onAvatarNameCache, this, _1, _2));
 }
 
 void LLVivoxVoiceClient::onAvatarNameCache(const LLUUID& agent_id,
 										   const LLAvatarName& av_name)
 {
-	// For Vivox, we use the legacy name because I'm uncertain whether or
-	// not their service can tolerate switching to Username or Display Name
-	std::string legacy_name = av_name.getLegacyName();
-	avatarNameResolved(agent_id, legacy_name);	
+	mAvatarNameCacheConnection.disconnect();
+	std::string display_name = av_name.getDisplayName();
+	avatarNameResolved(agent_id, display_name);
 }
 
 void LLVivoxVoiceClient::avatarNameResolved(const LLUUID &id, const std::string &name)
 {
-	// If the avatar whose name just resolved is on our friends list, resync the friends list.
-	if(LLAvatarTracker::instance().getBuddyInfo(id) != NULL)
-	{
-		mFriendsListDirty = true;
-	}
 	// Iterate over all sessions.
 	for(sessionIterator iter = sessionsBegin(); iter != sessionsEnd(); iter++)
 	{
@@ -6729,9 +5994,104 @@ void LLVivoxVoiceClient::removeObserver(LLVoiceEffectObserver* observer)
 	mVoiceFontObservers.erase(observer);
 }
 
+// method checks the item in VoiceMorphing menu for appropriate current voice font
+bool LLVivoxVoiceClient::onCheckVoiceEffect(const std::string& voice_effect_name)
+{
+	LLVoiceEffectInterface * effect_interfacep = LLVoiceClient::instance().getVoiceEffectInterface();
+	if (NULL != effect_interfacep)
+	{
+		const LLUUID& currect_voice_effect_id = effect_interfacep->getVoiceEffect();
+
+		if (currect_voice_effect_id.isNull())
+		{
+			if (voice_effect_name == "NoVoiceMorphing")
+			{
+				return true;
+			}
+		}
+		else
+		{
+			const LLSD& voice_effect_props = effect_interfacep->getVoiceEffectProperties(currect_voice_effect_id);
+			if (voice_effect_props["name"].asString() == voice_effect_name)
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+// method changes voice font for selected VoiceMorphing menu item
+void LLVivoxVoiceClient::onClickVoiceEffect(const std::string& voice_effect_name)
+{
+	LLVoiceEffectInterface * effect_interfacep = LLVoiceClient::instance().getVoiceEffectInterface();
+	if (NULL != effect_interfacep)
+	{
+		if (voice_effect_name == "NoVoiceMorphing")
+		{
+			effect_interfacep->setVoiceEffect(LLUUID());
+			return;
+		}
+		const voice_effect_list_t& effect_list = effect_interfacep->getVoiceEffectList();
+		if (!effect_list.empty())
+		{
+			for (voice_effect_list_t::const_iterator it = effect_list.begin(); it != effect_list.end(); ++it)
+			{
+				if (voice_effect_name == it->first)
+				{
+					effect_interfacep->setVoiceEffect(it->second);
+					return;
+				}
+			}
+		}
+	}
+}
+
+// it updates VoiceMorphing menu items in accordance with purchased properties 
+void LLVivoxVoiceClient::updateVoiceMorphingMenu()
+{
+	if (mVoiceFontListDirty)
+	{
+		LLVoiceEffectInterface * effect_interfacep = LLVoiceClient::instance().getVoiceEffectInterface();
+		if (effect_interfacep)
+		{
+			const voice_effect_list_t& effect_list = effect_interfacep->getVoiceEffectList();
+			if (!effect_list.empty())
+			{
+				LLMenuGL * voice_morphing_menup = gMenuBarView->findChildMenuByName("VoiceMorphing", TRUE);
+
+				if (NULL != voice_morphing_menup)
+				{
+					S32 items = voice_morphing_menup->getItemCount();
+					if (items > 0)
+					{
+						voice_morphing_menup->erase(1, items - 3, false);
+
+						S32 pos = 1;
+						for (voice_effect_list_t::const_iterator it = effect_list.begin(); it != effect_list.end(); ++it)
+						{
+							LLMenuItemCheckGL::Params p;
+							p.name = it->first;
+							p.label = it->first;
+							p.on_check.function(boost::bind(&LLVivoxVoiceClient::onCheckVoiceEffect, this, it->first));
+							p.on_click.function(boost::bind(&LLVivoxVoiceClient::onClickVoiceEffect, this, it->first));
+							LLMenuItemCheckGL * voice_effect_itemp = LLUICtrlFactory::create<LLMenuItemCheckGL>(p);
+							voice_morphing_menup->insert(pos++, voice_effect_itemp, false);
+						}
+
+						voice_morphing_menup->needsArrange();
+					}
+				}
+			}
+		}
+	}
+}
 void LLVivoxVoiceClient::notifyVoiceFontObservers()
 {
 	LL_DEBUGS("Voice") << "Notifying voice effect observers. Lists changed: " << mVoiceFontListDirty << LL_ENDL;
+
+	updateVoiceMorphingMenu();
 
 	for (voice_font_observer_set_t::iterator it = mVoiceFontObservers.begin();
 		 it != mVoiceFontObservers.end();
@@ -7116,18 +6476,6 @@ void LLVivoxProtocolParser::StartTag(const char *tag, const char **attr)
 			{
 				deviceString.clear();
 			}			
-			else if (!stricmp("Buddies", tag))
-			{
-				LLVivoxVoiceClient::getInstance()->deleteAllBuddies();
-			}
-			else if (!stricmp("BlockRules", tag))
-			{
-				LLVivoxVoiceClient::getInstance()->deleteAllBlockRules();
-			}
-			else if (!stricmp("AutoAcceptRules", tag))
-			{
-				LLVivoxVoiceClient::getInstance()->deleteAllAutoAcceptRules();
-			}
 			else if (!stricmp("SessionFont", tag))
 			{
 				id = 0;
@@ -7259,22 +6607,10 @@ void LLVivoxProtocolParser::EndTag(const char *tag)
 		{
 			LLVivoxVoiceClient::getInstance()->addRenderDevice(deviceString);
 		}
-		else if (!stricmp("Buddy", tag))
-		{
-			LLVivoxVoiceClient::getInstance()->processBuddyListEntry(uriString, displayNameString);
-		}
-		else if (!stricmp("BlockRule", tag))
-		{
-			LLVivoxVoiceClient::getInstance()->addBlockRule(blockMask, presenceOnly);
-		}
 		else if (!stricmp("BlockMask", tag))
 			blockMask = string;
 		else if (!stricmp("PresenceOnly", tag))
 			presenceOnly = string;
-		else if (!stricmp("AutoAcceptRule", tag))
-		{
-			LLVivoxVoiceClient::getInstance()->addAutoAcceptRule(autoAcceptMask, autoAddAsBuddy);
-		}
 		else if (!stricmp("AutoAcceptMask", tag))
 			autoAcceptMask = string;
 		else if (!stricmp("AutoAddAsBuddy", tag))
@@ -7506,16 +6842,6 @@ void LLVivoxProtocolParser::processResponse(std::string tag)
 
 			LLVivoxVoiceClient::getInstance()->auxAudioPropertiesEvent(energy);
 		}
-		else if (!stricmp(eventTypeCstr, "BuddyPresenceEvent"))
-		{
-			LLVivoxVoiceClient::getInstance()->buddyPresenceEvent(uriString, alias, statusString, applicationString);
-		}
-		else if (!stricmp(eventTypeCstr, "BuddyAndGroupListChangedEvent"))
-		{
-			// The buddy list was updated during parsing.
-			// Need to recheck against the friends list.
-			LLVivoxVoiceClient::getInstance()->buddyListChanged();
-		}
 		else if (!stricmp(eventTypeCstr, "BuddyChangedEvent"))
 		{
 			/*
@@ -7538,11 +6864,7 @@ void LLVivoxProtocolParser::processResponse(std::string tag)
 		{
 			LLVivoxVoiceClient::getInstance()->sessionNotificationEvent(sessionHandle, uriString, notificationType);
 		}
-		else if (!stricmp(eventTypeCstr, "SubscriptionEvent"))  
-		{
-			LLVivoxVoiceClient::getInstance()->subscriptionEvent(uriString, subscriptionHandle, alias, displayNameString, applicationString, subscriptionType);
-		}
-		else if (!stricmp(eventTypeCstr, "SessionUpdatedEvent"))  
+		else if (!stricmp(eventTypeCstr, "SessionUpdatedEvent"))
 		{
 			/*
 			 <Event type="SessionUpdatedEvent">
@@ -7568,6 +6890,9 @@ void LLVivoxProtocolParser::processResponse(std::string tag)
 			 </Event>
 			 */
 			// We don't need to process this, but we also shouldn't warn on it, since that confuses people.
+		}
+		else if (!stricmp(eventTypeCstr, "VoiceServiceConnectionStateChangedEvent"))  
+		{	// Yet another ignored event
 		}
 		else
 		{
@@ -7604,14 +6929,6 @@ void LLVivoxProtocolParser::processResponse(std::string tag)
 		else if (!stricmp(actionCstr, "Connector.InitiateShutdown.1"))
 		{
 			LLVivoxVoiceClient::getInstance()->connectorShutdownResponse(statusCode, statusString);			
-		}
-		else if (!stricmp(actionCstr, "Account.ListBlockRules.1"))
-		{
-			LLVivoxVoiceClient::getInstance()->accountListBlockRulesResponse(statusCode, statusString);						
-		}
-		else if (!stricmp(actionCstr, "Account.ListAutoAcceptRules.1"))
-		{
-			LLVivoxVoiceClient::getInstance()->accountListAutoAcceptRulesResponse(statusCode, statusString);						
 		}
 		else if (!stricmp(actionCstr, "Session.Set3DPosition.1"))
 		{

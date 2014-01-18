@@ -44,7 +44,7 @@ class LLFloaterDisplayName : public LLFloater
 {
 public:
 	LLFloaterDisplayName(const LLSD& key);
-	virtual ~LLFloaterDisplayName() {};
+	virtual ~LLFloaterDisplayName() { }
 	/*virtual*/	BOOL	postBuild();
 	void onSave();
 	void onReset();
@@ -58,8 +58,8 @@ private:
 										  const LLSD& content);
 };
 
-LLFloaterDisplayName::LLFloaterDisplayName(const LLSD& key)
-	: LLFloater(key)
+LLFloaterDisplayName::LLFloaterDisplayName(const LLSD& key) :
+	LLFloater(key)
 {
 }
 
@@ -122,10 +122,6 @@ void LLFloaterDisplayName::onCacheSetName(bool success,
 		LLSD args;
 		args["DISPLAY_NAME"] = content["display_name"];
 		LLNotificationsUtil::add("SetDisplayNameSuccess", args);
-
-		// Re-fetch my name, as it may have been sanitized by the service
-		//LLAvatarNameCache::get(getAvatarId(),
-		//	boost::bind(&LLPanelMyProfileEdit::onNameCache, this, _1, _2));
 		return;
 	}
 
@@ -164,10 +160,9 @@ void LLFloaterDisplayName::onCancel()
 
 void LLFloaterDisplayName::onReset()
 {
-	if (LLAvatarNameCache::useDisplayNames())
+	if (LLAvatarNameCache::hasNameLookupURL())
 	{
-		LLViewerDisplayName::set("",
-			boost::bind(&LLFloaterDisplayName::onCacheSetName, this, _1, _2, _3));
+		LLViewerDisplayName::set("",boost::bind(&LLFloaterDisplayName::onCacheSetName, this, _1, _2, _3));
 	}	
 	else
 	{
@@ -199,10 +194,9 @@ void LLFloaterDisplayName::onSave()
 		return;
 	}
 	
-	if (LLAvatarNameCache::useDisplayNames())
+	if (LLAvatarNameCache::hasNameLookupURL())
 	{
-		LLViewerDisplayName::set(display_name_utf8,
-			boost::bind(&LLFloaterDisplayName::onCacheSetName, this, _1, _2, _3));	
+		LLViewerDisplayName::set(display_name_utf8,boost::bind(&LLFloaterDisplayName::onCacheSetName, this, _1, _2, _3));	
 	}
 	else
 	{

@@ -37,6 +37,7 @@
 
 class LLToolBar;
 class LLToolBarButton;
+class LLIconCtrl;
 
 typedef boost::function<void (S32 x, S32 y, LLToolBarButton* button)> tool_startdrag_callback_t;
 typedef boost::function<BOOL (S32 x, S32 y, const LLUUID& uuid, LLAssetType::EType type)> tool_handledrag_callback_t;
@@ -191,7 +192,7 @@ public:
 	bool hasCommand(const LLCommandId& commandId) const;	// is this command bound to a button in this toolbar
 	bool enableCommand(const LLCommandId& commandId, bool enabled);	// enable/disable button bound to the specified command, if it exists in this toolbar
 	bool stopCommandInProgress(const LLCommandId& commandId);	// stop command if it is currently active
-	bool flashCommand(const LLCommandId& commandId, bool flash); // flash button associated with given command, if in this toolbar
+	bool flashCommand(const LLCommandId& commandId, bool flash, bool force_flashing = false); // flash button associated with given command, if in this toolbar
 
 	void setStartDragCallback(tool_startdrag_callback_t cb)   { mStartDragItemCallback  = cb; } // connects drag and drop behavior to external logic
 	void setHandleDragCallback(tool_handledrag_callback_t cb) { mHandleDragItemCallback = cb; }
@@ -284,6 +285,8 @@ private:
 	button_signal_t*				mButtonRemoveSignal;
 
 	std::string						mButtonTooltipSuffix;
+
+	LLIconCtrl*						mCaretIcon; 
 };
 
 

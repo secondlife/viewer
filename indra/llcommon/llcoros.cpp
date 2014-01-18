@@ -39,7 +39,12 @@
 #include "llerror.h"
 #include "stringize.h"
 
-LLCoros::LLCoros()
+LLCoros::LLCoros():
+    // MAINT-2724: default coroutine stack size too small on Windows.
+    // Previously we used
+    // boost::context::guarded_stack_allocator::default_stacksize();
+    // empirically this is 64KB on Windows and Linux. Try quadrupling.
+    mStackSize(256*1024)
 {
     // Register our cleanup() method for "mainloop" ticks
     LLEventPumps::instance().obtain("mainloop").listen(
@@ -55,7 +60,7 @@ bool LLCoros::cleanup(const LLSD&)
         // since last tick?
         if (mi->second->exited())
         {
-            LL_INFOS("LLCoros") << "LLCoros: cleaning up coroutine " << mi->first << LL_ENDL;
+			   LL_INFOS("LLCoros") << "LLCoros: cleaning up coroutine " << mi->first << LL_ENDL;
             // The erase() call will invalidate its passed iterator value --
             // so increment mi FIRST -- but pass its original value to
             // erase(). This is what postincrement is all about.
@@ -89,7 +94,7 @@ std::string LLCoros::generateDistinctName(const std::string& prefix) const
     {
         if (mCoros.find(name) == mCoros.end())
         {
-            LL_INFOS("LLCoros") << "LLCoros: launching coroutine " << name << LL_ENDL;
+			   LL_INFOS("LLCoros") << "LLCoros: launching coroutine " << name << LL_ENDL;
             return name;
         }
     }
@@ -115,7 +120,7 @@ std::string LLCoros::getNameByID(const void* self_id) const
     // passed to us comes.
     for (CoroMap::const_iterator mi(mCoros.begin()), mend(mCoros.end()); mi != mend; ++mi)
     {
-        namespace coro_private = boost::coroutines::detail;
+        namespace coro_private = boost::dcoroutines::detail;
         if (static_cast<void*>(coro_private::coroutine_accessor::get_impl(const_cast<coro&>(*mi->second)).get())
             == self_id)
         {
@@ -123,6 +128,12 @@ std::string LLCoros::getNameByID(const void* self_id) const
         }
     }
     return "";
+}
+
+void LLCoros::setStackSize(S32 stacksize)
+{
+    LL_INFOS("LLCoros") << "Setting coroutine stack size to " << stacksize << LL_ENDL;
+    mStackSize = stacksize;
 }
 
 /*****************************************************************************

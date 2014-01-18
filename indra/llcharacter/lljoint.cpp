@@ -40,7 +40,9 @@ S32 LLJoint::sNumTouches = 0;
 // LLJoint()
 // Class Constructor
 //-----------------------------------------------------------------------------
-LLJoint::LLJoint()
+
+
+void LLJoint::init()
 {
 	mName = "unnamed";
 	mParent = NULL;
@@ -48,7 +50,20 @@ LLJoint::LLJoint()
 	mXform.setScale(LLVector3(1.0f, 1.0f, 1.0f));
 	mDirtyFlags = MATRIX_DIRTY | ROTATION_DIRTY | POSITION_DIRTY;
 	mUpdateXform = TRUE;
-	mJointNum = -1;
+}
+
+LLJoint::LLJoint() :
+	mJointNum(-1)
+{
+	init();
+	touch();
+	mResetAfterRestoreOldXform = false;
+}
+
+LLJoint::LLJoint(S32 joint_num) :
+	mJointNum(joint_num)
+{
+	init();
 	touch();
 	mResetAfterRestoreOldXform = false;
 }
@@ -58,15 +73,12 @@ LLJoint::LLJoint()
 // LLJoint()
 // Class Constructor
 //-----------------------------------------------------------------------------
-LLJoint::LLJoint(const std::string &name, LLJoint *parent)
+LLJoint::LLJoint(const std::string &name, LLJoint *parent) :
+	mJointNum(0)
 {
-	mName = "unnamed";
-	mParent = NULL;
-	mXform.setScaleChildOffset(TRUE);
-	mXform.setScale(LLVector3(1.0f, 1.0f, 1.0f));
-	mDirtyFlags = MATRIX_DIRTY | ROTATION_DIRTY | POSITION_DIRTY;
+	init();
 	mUpdateXform = FALSE;
-	mJointNum = 0;
+	// *TODO: mResetAfterRestoreOldXform is not initialized!!!
 
 	setName(name);
 	if (parent)

@@ -35,15 +35,18 @@
 #include "llagentlistener.h"
 #include "llagentwearables.h"
 #include "llagentui.h"
+#include "llappearancemgr.h"
 #include "llanimationstates.h"
 #include "llcallingcard.h"
 #include "llcapabilitylistener.h"
 #include "llchannelmanager.h"
 #include "llchicletbar.h"
 #include "llconsole.h"
+#include "lldonotdisturbnotificationstorage.h"
 #include "llenvmanager.h"
 #include "llfirstuse.h"
 #include "llfloatercamera.h"
+#include "llfloaterimcontainer.h"
 #include "llfloaterreg.h"
 #include "llfloatertools.h"
 #include "llgroupactions.h"
@@ -54,7 +57,7 @@
 #include "llmorphview.h"
 #include "llmoveview.h"
 #include "llnavigationbar.h" // to show/hide navigation bar when changing mouse look state
-#include "llnearbychatbar.h"
+#include "llfloaterimnearbychat.h"
 #include "llnotificationsutil.h"
 #include "llpaneltopinfobar.h"
 #include "llparcel.h"
@@ -88,9 +91,11 @@
 #include "llwindow.h"
 #include "llworld.h"
 #include "llworldmap.h"
+#include "lscript_byteformat.h"
 #include "stringize.h"
+#include "boost/foreach.hpp"
 
-using namespace LLVOAvatarDefines;
+using namespace LLAvatarAppearanceDefines;
 
 extern LLMenuBarGL* gMenuBarView;
 
@@ -375,7 +380,7 @@ LLAgent::LLAgent() :
 	mShowAvatar(TRUE),
 	mFrameAgent(),
 
-	mIsBusy(FALSE),
+	mIsDoNotDisturb(false),
 
 	mControlFlags(0x00000000),
 	mbFlagsDirty(FALSE),
@@ -431,7 +436,7 @@ void LLAgent::init()
 {
 	mMoveTimer.start();
 
-	gSavedSettings.declareBOOL("SlowMotionAnimation", FALSE, "Declared in code", FALSE);
+	gSavedSettings.declareBOOL("SlowMotionAnimation", FALSE, "Declared in code", LLControlVariable::PERSIST_NO);
 	gSavedSettings.getControl("SlowMotionAnimation")->getSignal()->connect(boost::bind(&handleSlowMotionAnimation, _2));
 	
 	// *Note: this is where LLViewerCamera::getInstance() used to be constructed.
@@ -807,6 +812,29 @@ void LLAgent::standUp()
 }
 
 
+void LLAgent::handleServerBakeRegionTransition(const LLUUID& region_id)
+{
+	llinfos << "called" << llendl;
+
+
+	// Old-style appearance entering a server-bake region.
+	if (isAgentAvatarValid() &&
+		!gAgentAvatarp->isUsingServerBakes() &&
+		(mRegionp->getCentralBakeVersion()>0))
+	{
+		llinfos << "update requested due to region transition" << llendl;
+		LLAppearanceMgr::instance().requestServerAppearanceUpdate();
+	}
+	// new-style appearance entering a non-bake region,
+	// need to check for existence of the baking service.
+	else if (isAgentAvatarValid() &&
+			 gAgentAvatarp->isUsingServerBakes() &&
+			 mRegionp->getCentralBakeVersion()==0)
+	{
+		gAgentAvatarp->checkForUnsupportedServerBakeAppearance();
+	}
+}
+
 //-----------------------------------------------------------------------------
 // setRegion()
 //-----------------------------------------------------------------------------
@@ -901,6 +929,19 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 	else
 	{
 		LLEnvManagerNew::instance().onRegionCrossing();
+	}
+
+	// If the newly entered region is using server bakes, and our
+	// current appearance is non-baked, request appearance update from
+	// server.
+	if (mRegionp->capabilitiesReceived())
+	{
+		handleServerBakeRegionTransition(mRegionp->getRegionID());
+	}
+	else
+	{
+		// Need to handle via callback after caps arrive.
+		mRegionp->setCapabilitiesReceivedCallback(boost::bind(&LLAgent::handleServerBakeRegionTransition,this,_1));
 	}
 }
 
@@ -1051,10 +1092,18 @@ const LLVector3d &LLAgent::getPositionGlobal() const
 //-----------------------------------------------------------------------------
 const LLVector3 &LLAgent::getPositionAgent()
 {
-	if (isAgentAvatarValid() && !gAgentAvatarp->mDrawable.isNull())
+	if (isAgentAvatarValid())
+	{
+		if(gAgentAvatarp->mDrawable.isNull())
+		{
+			mFrameAgent.setOrigin(gAgentAvatarp->getPositionAgent());
+		}
+		else
 	{
 		mFrameAgent.setOrigin(gAgentAvatarp->getRenderPosition());	
 	}
+	}
+
 
 	return mFrameAgent.getOrigin();
 }
@@ -1355,12 +1404,7 @@ void LLAgent::setAFK()
 	{
 		sendAnimationRequest(ANIM_AGENT_AWAY, ANIM_REQUEST_START);
 		setControlFlags(AGENT_CONTROL_AWAY | AGENT_CONTROL_STOP);
-		LL_INFOS("AFK") << "Setting Away" << LL_ENDL;
 		gAwayTimer.start();
-		if (gAFKMenu)
-		{
-			gAFKMenu->setLabel(LLTrans::getString("AvatarSetNotAway"));
-		}
 	}
 }
 
@@ -1379,11 +1423,6 @@ void LLAgent::clearAFK()
 	{
 		sendAnimationRequest(ANIM_AGENT_AWAY, ANIM_REQUEST_STOP);
 		clearControlFlags(AGENT_CONTROL_AWAY);
-		LL_INFOS("AFK") << "Clearing Away" << LL_ENDL;
-		if (gAFKMenu)
-		{
-			gAFKMenu->setLabel(LLTrans::getString("AvatarSetAway"));
-		}
 	}
 }
 
@@ -1396,39 +1435,26 @@ BOOL LLAgent::getAFK() const
 }
 
 //-----------------------------------------------------------------------------
-// setBusy()
+// setDoNotDisturb()
 //-----------------------------------------------------------------------------
-void LLAgent::setBusy()
+void LLAgent::setDoNotDisturb(bool pIsDoNotDisturb)
 {
-	sendAnimationRequest(ANIM_AGENT_BUSY, ANIM_REQUEST_START);
-	mIsBusy = TRUE;
-	if (gBusyMenu)
+	bool isDoNotDisturbSwitchedOff = (mIsDoNotDisturb && !pIsDoNotDisturb);
+	mIsDoNotDisturb = pIsDoNotDisturb;
+	sendAnimationRequest(ANIM_AGENT_DO_NOT_DISTURB, (pIsDoNotDisturb ? ANIM_REQUEST_START : ANIM_REQUEST_STOP));
+	LLNotificationsUI::LLChannelManager::getInstance()->muteAllChannels(pIsDoNotDisturb);
+	if (isDoNotDisturbSwitchedOff)
 	{
-		gBusyMenu->setLabel(LLTrans::getString("AvatarSetNotBusy"));
+		LLDoNotDisturbNotificationStorage::getInstance()->updateNotifications();
 	}
-	LLNotificationsUI::LLChannelManager::getInstance()->muteAllChannels(true);
 }
 
 //-----------------------------------------------------------------------------
-// clearBusy()
+// isDoNotDisturb()
 //-----------------------------------------------------------------------------
-void LLAgent::clearBusy()
+bool LLAgent::isDoNotDisturb() const
 {
-	mIsBusy = FALSE;
-	sendAnimationRequest(ANIM_AGENT_BUSY, ANIM_REQUEST_STOP);
-	if (gBusyMenu)
-	{
-		gBusyMenu->setLabel(LLTrans::getString("AvatarSetBusy"));
-	}
-	LLNotificationsUI::LLChannelManager::getInstance()->muteAllChannels(false);
-}
-
-//-----------------------------------------------------------------------------
-// getBusy()
-//-----------------------------------------------------------------------------
-BOOL LLAgent::getBusy() const
-{
-	return mIsBusy;
+	return mIsDoNotDisturb;
 }
 
 
@@ -1707,13 +1733,11 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 
 		*delta_yaw = yaw;
 
-		// Compute when to start slowing down and when to stop
-		F32 stop_distance = mAutoPilotStopDistance;
+		// Compute when to start slowing down
 		F32 slow_distance;
 		if (getFlying())
 		{
 			slow_distance = llmax(6.f, mAutoPilotStopDistance + 5.f);
-			stop_distance = llmax(2.f, mAutoPilotStopDistance);
 		}
 		else
 		{
@@ -1910,7 +1934,8 @@ void LLAgent::startTyping()
 	{
 		sendAnimationRequest(ANIM_AGENT_TYPE, ANIM_REQUEST_START);
 	}
-	LLNearbyChatBar::getInstance()->sendChatFromViewer("", CHAT_TYPE_START, FALSE);
+	(LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat"))->
+			sendChatFromViewer("", CHAT_TYPE_START, FALSE);
 }
 
 //-----------------------------------------------------------------------------
@@ -1922,7 +1947,8 @@ void LLAgent::stopTyping()
 	{
 		clearRenderState(AGENT_STATE_TYPING);
 		sendAnimationRequest(ANIM_AGENT_TYPE, ANIM_REQUEST_STOP);
-		LLNearbyChatBar::getInstance()->sendChatFromViewer("", CHAT_TYPE_STOP, FALSE);
+		(LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat"))->
+				sendChatFromViewer("", CHAT_TYPE_STOP, FALSE);
 	}
 }
 
@@ -2022,7 +2048,16 @@ void LLAgent::endAnimationUpdateUI()
 			{
 				skip_list.insert(LLFloaterReg::findInstance("mini_map"));
 			}
-		
+
+			LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
+			LLFloaterIMContainer::floater_list_t conversations;
+			im_box->getDetachedConversationFloaters(conversations);
+			BOOST_FOREACH(LLFloater* conversation, conversations)
+			{
+				llinfos << "skip_list.insert(session_floater): " << conversation->getTitle() << llendl;
+				skip_list.insert(conversation);
+			}
+
 			gFloaterView->popVisibleAll(skip_list);
 #endif
 			mViewsPushed = FALSE;
@@ -2297,7 +2332,7 @@ void LLAgent::setStartPosition( U32 location_id )
     if (isAgentAvatarValid())
     {
         // the z height is at the agent's feet
-        agent_pos.mV[VZ] -= 0.5f * gAgentAvatarp->mBodySize.mV[VZ];
+        agent_pos.mV[VZ] -= 0.5f * (gAgentAvatarp->mBodySize.mV[VZ] + gAgentAvatarp->mAvatarOffset.mV[VZ]);
     }
 
     agent_pos.mV[VX] = llclamp( agent_pos.mV[VX], INSET, REGION_WIDTH - INSET );
@@ -2516,7 +2551,7 @@ public:
 	virtual ~LLMaturityPreferencesResponder();
 
 	virtual void result(const LLSD &pContent);
-	virtual void error(U32 pStatus, const std::string& pReason);
+	virtual void errorWithContent(U32 pStatus, const std::string& pReason, const LLSD& pContent);
 
 protected:
 
@@ -2554,61 +2589,31 @@ void LLMaturityPreferencesResponder::result(const LLSD &pContent)
 	mAgent->handlePreferredMaturityResult(actualMaturity);
 }
 
-void LLMaturityPreferencesResponder::error(U32 pStatus, const std::string& pReason)
+void LLMaturityPreferencesResponder::errorWithContent(U32 pStatus, const std::string& pReason, const LLSD& pContent)
 {
 	llwarns << "while attempting to change maturity preference from '" << LLViewerRegion::accessToString(mPreviousMaturity)
-		<< "' to '" << LLViewerRegion::accessToString(mPreferredMaturity) << "', we got an error because '"
-		<< pReason << "' [status:" << pStatus << "]" << llendl;
+		<< "' to '" << LLViewerRegion::accessToString(mPreferredMaturity) << "', we got an error with [status:"
+		<< pStatus << "]: " << (pContent.isDefined() ? pContent : LLSD(pReason)) << llendl;
 	mAgent->handlePreferredMaturityError();
 }
 
 U8 LLMaturityPreferencesResponder::parseMaturityFromServerResponse(const LLSD &pContent)
 {
-	// stinson 05/24/2012 Pathfinding regions have re-defined the response behavior.  In the old server code,
-	// if you attempted to change the preferred maturity to the same value, the response content would be an
-	// undefined LLSD block.  In the new server code with pathfinding, the response content should always be
-	// defined.  Thus, the check for isUndefined() can be replaced with an assert after pathfinding is merged
-	// into server trunk and fully deployed.
 	U8 maturity = SIM_ACCESS_MIN;
-	if (pContent.isUndefined())
+
+	llassert(!pContent.isUndefined());
+	llassert(pContent.isMap());
+	llassert(pContent.has("access_prefs"));
+	llassert(pContent.get("access_prefs").isMap());
+	llassert(pContent.get("access_prefs").has("max"));
+	llassert(pContent.get("access_prefs").get("max").isString());
+	if (!pContent.isUndefined() && pContent.isMap() && pContent.has("access_prefs")
+		&& pContent.get("access_prefs").isMap() && pContent.get("access_prefs").has("max")
+		&& pContent.get("access_prefs").get("max").isString())
 	{
-		maturity = mPreferredMaturity;
-	}
-	else
-	{
-		llassert(!pContent.isUndefined());
-		llassert(pContent.isMap());
-	
-		if (!pContent.isUndefined() && pContent.isMap())
-		{
-			// stinson 05/24/2012 Pathfinding regions have re-defined the response syntax.  The if statement catches
-			// the new syntax, and the else statement catches the old syntax.  After pathfinding is merged into
-			// server trunk and fully deployed, we can remove the else statement.
-			if (pContent.has("access_prefs"))
-			{
-				llassert(pContent.has("access_prefs"));
-				llassert(pContent.get("access_prefs").isMap());
-				llassert(pContent.get("access_prefs").has("max"));
-				llassert(pContent.get("access_prefs").get("max").isString());
-				if (pContent.get("access_prefs").isMap() && pContent.get("access_prefs").has("max") &&
-					pContent.get("access_prefs").get("max").isString())
-				{
-					LLSD::String actualPreference = pContent.get("access_prefs").get("max").asString();
-					LLStringUtil::trim(actualPreference);
-					maturity = LLViewerRegion::shortStringToAccess(actualPreference);
-				}
-			}
-			else if (pContent.has("max"))
-			{
-				llassert(pContent.get("max").isString());
-				if (pContent.get("max").isString())
-				{
-					LLSD::String actualPreference = pContent.get("max").asString();
-					LLStringUtil::trim(actualPreference);
-					maturity = LLViewerRegion::shortStringToAccess(actualPreference);
-				}
-			}
-		}
+		LLSD::String actualPreference = pContent.get("access_prefs").get("max").asString();
+		LLStringUtil::trim(actualPreference);
+		maturity = LLViewerRegion::shortStringToAccess(actualPreference);
 	}
 
 	return maturity;
@@ -2748,7 +2753,7 @@ void LLAgent::sendMaturityPreferenceToServer(U8 pPreferredMaturity)
 		// If we don't have a region, report it as an error
 		if (getRegion() == NULL)
 		{
-			responderPtr->error(0U, "region is not defined");
+			responderPtr->errorWithContent(0U, "region is not defined", LLSD());
 		}
 		else
 		{
@@ -2758,7 +2763,8 @@ void LLAgent::sendMaturityPreferenceToServer(U8 pPreferredMaturity)
 			// If the capability is not defined, report it as an error
 			if (url.empty())
 			{
-				responderPtr->error(0U, "capability 'UpdateAgentInformation' is not defined for region");
+				responderPtr->errorWithContent(0U, 
+							"capability 'UpdateAgentInformation' is not defined for region", LLSD());
 			}
 			else
 			{
@@ -3060,6 +3066,55 @@ void LLAgent::sendAnimationRequest(const LLUUID &anim_id, EAnimRequest request)
 	msg->nextBlockFast(_PREHASH_PhysicalAvatarEventList);
 	msg->addBinaryDataFast(_PREHASH_TypeData, NULL, 0);
 	sendReliableMessage();
+}
+
+// Send a message to the region to stop the NULL animation state
+// This will reset animation state overrides for the agent.
+void LLAgent::sendAnimationStateReset()
+{
+	if (gAgentID.isNull() || !mRegionp)
+	{
+		return;
+	}
+
+	LLMessageSystem* msg = gMessageSystem;
+	msg->newMessageFast(_PREHASH_AgentAnimation);
+	msg->nextBlockFast(_PREHASH_AgentData);
+	msg->addUUIDFast(_PREHASH_AgentID, getID());
+	msg->addUUIDFast(_PREHASH_SessionID, getSessionID());
+
+	msg->nextBlockFast(_PREHASH_AnimationList);
+	msg->addUUIDFast(_PREHASH_AnimID, LLUUID::null );
+	msg->addBOOLFast(_PREHASH_StartAnim, FALSE);
+
+	msg->nextBlockFast(_PREHASH_PhysicalAvatarEventList);
+	msg->addBinaryDataFast(_PREHASH_TypeData, NULL, 0);
+	sendReliableMessage();
+}
+
+
+// Send a message to the region to revoke sepecified permissions on ALL scripts in the region
+// If the target is an object in the region, permissions in scripts on that object are cleared.
+// If it is the region ID, all scripts clear the permissions for this agent
+void LLAgent::sendRevokePermissions(const LLUUID & target, U32 permissions)
+{
+	// Currently only the bits for SCRIPT_PERMISSION_TRIGGER_ANIMATION and SCRIPT_PERMISSION_OVERRIDE_ANIMATIONS
+	// are supported by the server.  Sending any other bits will cause the message to be dropped without changing permissions
+
+	if (gAgentID.notNull() && gMessageSystem)
+	{
+		LLMessageSystem* msg = gMessageSystem;
+		msg->newMessageFast(_PREHASH_RevokePermissions);
+		msg->nextBlockFast(_PREHASH_AgentData);
+		msg->addUUIDFast(_PREHASH_AgentID, getID());		// Must be our ID
+		msg->addUUIDFast(_PREHASH_SessionID, getSessionID());
+
+		msg->nextBlockFast(_PREHASH_Data);
+		msg->addUUIDFast(_PREHASH_ObjectID, target);		// Must be in the region
+		msg->addS32Fast(_PREHASH_ObjectPermissions, (S32) permissions);
+
+		sendReliableMessage();
+	}
 }
 
 void LLAgent::sendWalkRun(bool running)
@@ -3626,7 +3681,7 @@ void LLAgent::processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void *
 		return;
 	}
 
-	if (isAgentAvatarValid() && !gAgentAvatarp->isUsingBakedTextures())
+	if (isAgentAvatarValid() && gAgentAvatarp->isEditingAppearance())
 	{
 		// ignore baked textures when in customize mode
 		return;
@@ -3650,7 +3705,7 @@ void LLAgent::processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void *
 
 		if ((S32)texture_index < TEX_NUM_INDICES )
 		{	
-			const LLVOAvatarDictionary::TextureEntry *texture_entry = LLVOAvatarDictionary::instance().getTexture((ETextureIndex)texture_index);
+			const LLAvatarAppearanceDictionary::TextureEntry *texture_entry = LLAvatarAppearanceDictionary::instance().getTexture((ETextureIndex)texture_index);
 			if (texture_entry)
 			{
 				EBakedTextureIndex baked_index = texture_entry->mBakedTextureIndex;
@@ -4140,6 +4195,8 @@ void LLAgent::stopCurrentAnimations()
 	// avatar, propagating this change back to the server.
 	if (isAgentAvatarValid())
 	{
+		LLDynamicArray<LLUUID> anim_ids;
+
 		for ( LLVOAvatar::AnimIterator anim_it =
 			      gAgentAvatarp->mPlayingAnimations.begin();
 		      anim_it != gAgentAvatarp->mPlayingAnimations.end();
@@ -4157,7 +4214,24 @@ void LLAgent::stopCurrentAnimations()
 				// stop this animation locally
 				gAgentAvatarp->stopMotion(anim_it->first, TRUE);
 				// ...and tell the server to tell everyone.
-				sendAnimationRequest(anim_it->first, ANIM_REQUEST_STOP);
+				anim_ids.push_back(anim_it->first);
+			}
+		}
+
+		sendAnimationRequests(anim_ids, ANIM_REQUEST_STOP);
+
+		// Tell the region to clear any animation state overrides
+		sendAnimationStateReset();
+
+		// Revoke all animation permissions
+		if (mRegionp &&
+			gSavedSettings.getBOOL("RevokePermsOnStopAnimation"))
+		{
+			U32 permissions = LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_TRIGGER_ANIMATION] | LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_OVERRIDE_ANIMATIONS];
+			sendRevokePermissions(mRegionp->getRegionID(), permissions);
+			if (gAgentAvatarp->isSitting())
+			{	// Also stand up, since auto-granted sit animation permission has been revoked
+				gAgent.standUp();
 			}
 		}
 
@@ -4257,27 +4331,82 @@ void LLAgent::requestLeaveGodMode()
 	sendReliableMessage();
 }
 
+// For debugging, trace agent state at times appearance message are sent out.
+void LLAgent::dumpSentAppearance(const std::string& dump_prefix)
+{
+	std::string outfilename = get_sequential_numbered_file_name(dump_prefix,".xml");
+
+	LLAPRFile outfile;
+	std::string fullpath = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,outfilename);
+	outfile.open(fullpath, LL_APR_WB );
+	apr_file_t* file = outfile.getFileHandle();
+	if (!file)
+	{
+		return;
+	}
+	else
+	{
+		LL_DEBUGS("Avatar") << "dumping sent appearance message to " << fullpath << llendl;
+	}
+
+	LLVisualParam* appearance_version_param = gAgentAvatarp->getVisualParam(11000);
+	if (appearance_version_param)
+	{
+		F32 value = appearance_version_param->getWeight();
+		dump_visual_param(file, appearance_version_param, value);
+	}
+	for (LLAvatarAppearanceDictionary::Textures::const_iterator iter = LLAvatarAppearanceDictionary::getInstance()->getTextures().begin();
+		 iter != LLAvatarAppearanceDictionary::getInstance()->getTextures().end();
+		 ++iter)
+	{
+		const ETextureIndex index = iter->first;
+		const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = iter->second;
+		if (texture_dict->mIsBakedTexture)
+		{
+			LLTextureEntry* entry = gAgentAvatarp->getTE((U8) index);
+			const LLUUID& uuid = entry->getID();
+			apr_file_printf( file, "\t\t<texture te=\"%i\" uuid=\"%s\"/>\n", index, uuid.asString().c_str());
+		}
+	}
+}
+
 //-----------------------------------------------------------------------------
 // sendAgentSetAppearance()
 //-----------------------------------------------------------------------------
 void LLAgent::sendAgentSetAppearance()
 {
-	if (!isAgentAvatarValid()) return;
-
-	if (gAgentQueryManager.mNumPendingQueries > 0 && (isAgentAvatarValid() && gAgentAvatarp->isUsingBakedTextures())) 
+	if (gAgentQueryManager.mNumPendingQueries > 0) 
 	{
 		return;
 	}
 
-	if (!gAgentWearables.changeInProgress())
+	if (!isAgentAvatarValid() || (getRegion() && getRegion()->getCentralBakeVersion())) return;
+
+	// At this point we have a complete appearance to send and are in a non-baking region.
+	// DRANO FIXME
+	//gAgentAvatarp->setIsUsingServerBakes(FALSE);
+	S32 sb_count, host_count, both_count, neither_count;
+	gAgentAvatarp->bakedTextureOriginCounts(sb_count, host_count, both_count, neither_count);
+	if (both_count != 0 || neither_count != 0)
 	{
-		// Change is fully resolved, can close some open phases.
-		gAgentAvatarp->getPhases().stopPhase("process_initial_wearables_update");
-		gAgentAvatarp->getPhases().stopPhase("wear_inventory_category");
+		llwarns << "bad bake texture state " << sb_count << "," << host_count << "," << both_count << "," << neither_count << llendl;
+	}
+	if (sb_count != 0 && host_count == 0)
+	{
+		gAgentAvatarp->setIsUsingServerBakes(true);
+	}
+	else if (sb_count == 0 && host_count != 0)
+	{
+		gAgentAvatarp->setIsUsingServerBakes(false);
+	}
+	else if (sb_count + host_count > 0)
+	{
+		llwarns << "unclear baked texture state, not sending appearance" << llendl;
+		return;
 	}
 	
-	gAgentAvatarp->sendAppearanceChangeMetrics();
-	LL_INFOS("Avatar") << gAgentAvatarp->avString() << "TAT: Sent AgentSetAppearance: " << gAgentAvatarp->getBakedStatusForPrintout() << LL_ENDL;
+	
+	LL_DEBUGS("Avatar") << gAgentAvatarp->avString() << "TAT: Sent AgentSetAppearance: " << gAgentAvatarp->getBakedStatusForPrintout() << LL_ENDL;
 	//dumpAvatarTEs( "sendAgentSetAppearance()" );
 
 	LLMessageSystem* msg = gMessageSystem;
@@ -4291,7 +4420,7 @@ void LLAgent::sendAgentSetAppearance()
 	// NOTE -- when we start correcting all of the other Havok geometry 
 	// to compensate for the COLLISION_TOLERANCE ugliness we will have 
 	// to tweak this number again
-	const LLVector3 body_size = gAgentAvatarp->mBodySize;
+	const LLVector3 body_size = gAgentAvatarp->mBodySize + gAgentAvatarp->mAvatarOffset;
 	msg->addVector3Fast(_PREHASH_Size, body_size);	
 
 	// To guard against out of order packets
@@ -4305,7 +4434,7 @@ void LLAgent::sendAgentSetAppearance()
 
 	for(U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++ )
 	{
-		const ETextureIndex texture_index = LLVOAvatarDictionary::bakedToLocalTextureIndex((EBakedTextureIndex)baked_index);
+		const ETextureIndex texture_index = LLAvatarAppearanceDictionary::bakedToLocalTextureIndex((EBakedTextureIndex)baked_index);
 
 		// if we're not wearing a skirt, we don't need the texture to be baked
 		if (texture_index == TEX_SKIRT_BAKED && !gAgentAvatarp->isWearingWearableType(LLWearableType::WT_SKIRT))
@@ -4316,19 +4445,30 @@ void LLAgent::sendAgentSetAppearance()
 		// IMG_DEFAULT_AVATAR means not baked. 0 index should be ignored for baked textures
 		if (!gAgentAvatarp->isTextureDefined(texture_index, 0))
 		{
+			LL_DEBUGS("Avatar") << "texture not current for baked " << (S32)baked_index << " local " << (S32)texture_index << llendl;
 			textures_current = FALSE;
 			break;
 		}
 	}
 
 	// only update cache entries if we have all our baked textures
+
+	// FIXME DRANO need additional check for not in appearance editing
+	// mode, if still using local composites need to set using local
+	// composites to false, and update mesh textures.
 	if (textures_current)
 	{
-		LL_INFOS("Avatar") << gAgentAvatarp->avString() << "TAT: Sending cached texture data" << LL_ENDL;
+		bool enable_verbose_dumps = gSavedSettings.getBOOL("DebugAvatarAppearanceMessage");
+		std::string dump_prefix = gAgentAvatarp->getFullname() + "_sent_appearance";
+		if (enable_verbose_dumps)
+		{
+			dumpSentAppearance(dump_prefix);
+		}
+		LL_DEBUGS("Avatar") << gAgentAvatarp->avString() << "TAT: Sending cached texture data" << LL_ENDL;
 		for (U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++)
 		{
 			BOOL generate_valid_hash = TRUE;
-			if (isAgentAvatarValid() && !gAgentAvatarp->isBakedTextureFinal((LLVOAvatarDefines::EBakedTextureIndex)baked_index))
+			if (isAgentAvatarValid() && !gAgentAvatarp->isBakedTextureFinal((LLAvatarAppearanceDefines::EBakedTextureIndex)baked_index))
 			{
 				generate_valid_hash = FALSE;
 				LL_DEBUGS("Avatar") << gAgentAvatarp->avString() << "Not caching baked texture upload for " << (U32)baked_index << " due to being uploaded at low resolution." << LL_ENDL;
@@ -4337,7 +4477,7 @@ void LLAgent::sendAgentSetAppearance()
 			const LLUUID hash = gAgentWearables.computeBakedTextureHash((EBakedTextureIndex) baked_index, generate_valid_hash);
 			if (hash.notNull())
 			{
-				ETextureIndex texture_index = LLVOAvatarDictionary::bakedToLocalTextureIndex((EBakedTextureIndex) baked_index);
+				ETextureIndex texture_index = LLAvatarAppearanceDictionary::bakedToLocalTextureIndex((EBakedTextureIndex) baked_index);
 				msg->nextBlockFast(_PREHASH_WearableData);
 				msg->addUUIDFast(_PREHASH_CacheID, hash);
 				msg->addU8Fast(_PREHASH_TextureIndex, (U8)texture_index);

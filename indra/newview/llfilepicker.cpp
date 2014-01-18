@@ -62,6 +62,11 @@ LLFilePicker LLFilePicker::sInstance;
 #define DICTIONARY_FILTER L"Dictionary files (*.dic; *.xcu)\0*.dic;*.xcu\0"
 #endif
 
+#ifdef LL_DARWIN
+#include "llfilepicker_mac.h"
+//#include <boost/algorithm/string/predicate.hpp>
+#endif
+
 //
 // Implementation
 //
@@ -94,14 +99,6 @@ LLFilePicker::LLFilePicker()
 	mFilesW[0] = '\0';
 #endif
 
-#if LL_DARWIN
-	memset(&mNavOptions, 0, sizeof(mNavOptions));
-	OSStatus	error = NavGetDefaultDialogCreationOptions(&mNavOptions);
-	if (error == noErr)
-	{
-		mNavOptions.modality = kWindowModalityAppModal;
-	}
-#endif
 }
 
 LLFilePicker::~LLFilePicker()
@@ -425,6 +422,19 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename)
 			L"PNG Images (*.png)\0*.png\0" \
 			L"\0";
 		break;
+	case FFSAVE_TGAPNG:
+		if (filename.empty())
+		{
+			wcsncpy( mFilesW,L"untitled.png", FILENAME_BUFFER_SIZE);	/*Flawfinder: ignore*/
+			//PNG by default
+		}
+		mOFN.lpstrDefExt = L"png";
+		mOFN.lpstrFilter =
+			L"PNG Images (*.png)\0*.png\0" \
+			L"Targa Images (*.tga)\0*.tga\0" \
+			L"\0";
+		break;
+		
 	case FFSAVE_JPEG:
 		if (filename.empty())
 		{
@@ -546,369 +556,200 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename)
 
 #elif LL_DARWIN
 
-Boolean LLFilePicker::navOpenFilterProc(AEDesc *theItem, void *info, void *callBackUD, NavFilterModes filterMode)
+std::vector<std::string>* LLFilePicker::navOpenFilterProc(ELoadFilter filter) //(AEDesc *theItem, void *info, void *callBackUD, NavFilterModes filterMode)
 {
-	Boolean		result = true;
-	ELoadFilter filter = *((ELoadFilter*) callBackUD);
-	OSStatus	error = noErr;
-	
-	if (filterMode == kNavFilteringBrowserList && filter != FFLOAD_ALL && (theItem->descriptorType == typeFSRef || theItem->descriptorType == typeFSS))
-	{
-		// navInfo is only valid for typeFSRef and typeFSS
-		NavFileOrFolderInfo	*navInfo = (NavFileOrFolderInfo*) info;
-		if (!navInfo->isFolder)
-		{
-			AEDesc	desc;
-			error = AECoerceDesc(theItem, typeFSRef, &desc);
-			if (error == noErr)
-			{
-				FSRef	fileRef;
-				error = AEGetDescData(&desc, &fileRef, sizeof(fileRef));
-				if (error == noErr)
-				{
-					LSItemInfoRecord	fileInfo;
-					error = LSCopyItemInfoForRef(&fileRef, kLSRequestExtension | kLSRequestTypeCreator, &fileInfo);
-					if (error == noErr)
-					{
-						if (filter == FFLOAD_IMAGE)
-						{
-							if (fileInfo.filetype != 'JPEG' && fileInfo.filetype != 'JPG ' && 
-								fileInfo.filetype != 'BMP ' && fileInfo.filetype != 'TGA ' &&
-								fileInfo.filetype != 'BMPf' && fileInfo.filetype != 'TPIC' &&
-								fileInfo.filetype != 'PNG ' &&
-								(fileInfo.extension && (CFStringCompare(fileInfo.extension, CFSTR("jpeg"), kCFCompareCaseInsensitive) != kCFCompareEqualTo &&
-								CFStringCompare(fileInfo.extension, CFSTR("jpg"), kCFCompareCaseInsensitive) != kCFCompareEqualTo &&
-								CFStringCompare(fileInfo.extension, CFSTR("bmp"), kCFCompareCaseInsensitive) != kCFCompareEqualTo &&
-								CFStringCompare(fileInfo.extension, CFSTR("tga"), kCFCompareCaseInsensitive) != kCFCompareEqualTo &&
-								CFStringCompare(fileInfo.extension, CFSTR("png"), kCFCompareCaseInsensitive) != kCFCompareEqualTo))
-								)
-							{
-								result = false;
-							}
-						}
-						else if (filter == FFLOAD_WAV)
-						{
-							if (fileInfo.filetype != 'WAVE' && fileInfo.filetype != 'WAV ' && 
-								(fileInfo.extension && (CFStringCompare(fileInfo.extension, CFSTR("wave"), kCFCompareCaseInsensitive) != kCFCompareEqualTo && 
-								CFStringCompare(fileInfo.extension, CFSTR("wav"), kCFCompareCaseInsensitive) != kCFCompareEqualTo))
-							)
-							{
-								result = false;
-							}
-						}
-						else if (filter == FFLOAD_ANIM)
-						{
-							if (fileInfo.filetype != 'BVH ' &&
-								fileInfo.filetype != 'ANIM' &&
-								(fileInfo.extension && (CFStringCompare(fileInfo.extension, CFSTR("bvh"), kCFCompareCaseInsensitive) != kCFCompareEqualTo) &&
-								fileInfo.extension && (CFStringCompare(fileInfo.extension, CFSTR("anim"), kCFCompareCaseInsensitive) != kCFCompareEqualTo))
-							)
-							{
-								result = false;
-							}
-						}
-						else if (filter == FFLOAD_COLLADA)
-						{
-							if (fileInfo.filetype != 'DAE ' && 
-								(fileInfo.extension && (CFStringCompare(fileInfo.extension, CFSTR("dae"), kCFCompareCaseInsensitive) != kCFCompareEqualTo))
-							)
-							{
-								result = false;
-							}
-						}
+    std::vector<std::string> *allowedv = new std::vector< std::string >;
+    switch(filter)
+    {
+        case FFLOAD_ALL:
+            allowedv->push_back("wav");
+            allowedv->push_back("bvh");
+            allowedv->push_back("anim");
+            allowedv->push_back("dae");
+            allowedv->push_back("raw");
+            allowedv->push_back("lsl");
+            allowedv->push_back("dic");
+            allowedv->push_back("xcu");
+        case FFLOAD_IMAGE:
+            allowedv->push_back("jpg");
+            allowedv->push_back("jpeg");
+            allowedv->push_back("bmp");
+            allowedv->push_back("tga");
+            allowedv->push_back("bmpf");
+            allowedv->push_back("tpic");
+            allowedv->push_back("png");
+            break;
+        case FFLOAD_WAV:
+            allowedv->push_back("wav");
+            break;
+        case FFLOAD_ANIM:
+            allowedv->push_back("bvh");
+            allowedv->push_back("anim");
+            break;
+        case FFLOAD_COLLADA:
+            allowedv->push_back("dae");
+            break;
 #ifdef _CORY_TESTING
-						else if (filter == FFLOAD_GEOMETRY)
-						{
-							if (fileInfo.filetype != 'SLG ' && 
-								(fileInfo.extension && (CFStringCompare(fileInfo.extension, CFSTR("slg"), kCFCompareCaseInsensitive) != kCFCompareEqualTo))
-							)
-							{
-								result = false;
-							}
-						}
+        case FFLOAD_GEOMETRY:
+            allowedv->push_back("slg");
+            break;
 #endif
-						else if (filter == FFLOAD_SLOBJECT)
-						{
-							llwarns << "*** navOpenFilterProc: FFLOAD_SLOBJECT NOT IMPLEMENTED ***" << llendl;
-						}
-						else if (filter == FFLOAD_RAW)
-						{
-							if (fileInfo.filetype != '\?\?\?\?' && 
-								(fileInfo.extension && (CFStringCompare(fileInfo.extension, CFSTR("raw"), kCFCompareCaseInsensitive) != kCFCompareEqualTo))
-							)
-							{
-								result = false;
-							}
-						}
-						else if (filter == FFLOAD_SCRIPT)
-						{
-							if (fileInfo.filetype != 'LSL ' &&
-								(fileInfo.extension && (CFStringCompare(fileInfo.extension, CFSTR("lsl"), kCFCompareCaseInsensitive) != kCFCompareEqualTo)) )
-							{
-								result = false;
-							}
-						}
-						else if (filter == FFLOAD_DICTIONARY)
-						{
-							if (fileInfo.filetype != 'DIC ' &&
-								fileInfo.filetype != 'XCU ' &&
-								(fileInfo.extension && (CFStringCompare(fileInfo.extension, CFSTR("dic"), kCFCompareCaseInsensitive) != kCFCompareEqualTo) &&
-								 fileInfo.extension && (CFStringCompare(fileInfo.extension, CFSTR("xcu"), kCFCompareCaseInsensitive) != kCFCompareEqualTo)))
-							{
-								result = false;
-							}
-						}
-						
-						if (fileInfo.extension)
-						{
-							CFRelease(fileInfo.extension);
-						}
-					}
-				}
-				AEDisposeDesc(&desc);
-			}
-		}
-	}
-	return result;
+        case FFLOAD_RAW:
+            allowedv->push_back("raw");
+            break;
+        case FFLOAD_SCRIPT:
+            allowedv->push_back("lsl");
+            break;
+        case FFLOAD_DICTIONARY:
+            allowedv->push_back("dic");
+            allowedv->push_back("xcu");
+            break;
+        case FFLOAD_DIRECTORY:
+            break;
+        default:
+            llwarns << "Unsupported format." << llendl;
+    }
+
+	return allowedv;
 }
 
-OSStatus	LLFilePicker::doNavChooseDialog(ELoadFilter filter)
+bool	LLFilePicker::doNavChooseDialog(ELoadFilter filter)
 {
-	OSStatus		error = noErr;
-	NavDialogRef	navRef = NULL;
-	NavReplyRecord	navReply;
-
 	// if local file browsing is turned off, return without opening dialog
 	if ( check_local_file_access_enabled() == false )
 	{
-		return FALSE;
+		return false;
 	}
-
-	memset(&navReply, 0, sizeof(navReply));
-	
-	// NOTE: we are passing the address of a local variable here.  
-	//   This is fine, because the object this call creates will exist for less than the lifetime of this function.
-	//   (It is destroyed by NavDialogDispose() below.)
-	error = NavCreateChooseFileDialog(&mNavOptions, NULL, NULL, NULL, navOpenFilterProc, (void*)(&filter), &navRef);
-
+    
 	gViewerWindow->getWindow()->beforeDialog();
-
-	if (error == noErr)
-		error = NavDialogRun(navRef);
+    
+    std::vector<std::string> *allowed_types=navOpenFilterProc(filter);
+    
+    std::vector<std::string> *filev  = doLoadDialog(allowed_types, 
+                                                    mPickOptions);
 
 	gViewerWindow->getWindow()->afterDialog();
 
-	if (error == noErr)
-		error = NavDialogGetReply(navRef, &navReply);
 
-	if (navRef)
-		NavDialogDispose(navRef);
-
-	if (error == noErr && navReply.validRecord)
-	{
-		SInt32	count = 0;
-		SInt32	index;
-		
-		// AE indexes are 1 based...
-		error = AECountItems(&navReply.selection, &count);
-		for (index = 1; index <= count; index++)
-		{
-			FSRef		fsRef;
-			AEKeyword	theAEKeyword;
-			DescType	typeCode;
-			Size		actualSize = 0;
-			char		path[MAX_PATH];	/*Flawfinder: ignore*/
-			
-			memset(&fsRef, 0, sizeof(fsRef));
-			error = AEGetNthPtr(&navReply.selection, index, typeFSRef, &theAEKeyword, &typeCode, &fsRef, sizeof(fsRef), &actualSize);
-			
-			if (error == noErr)
-				error = FSRefMakePath(&fsRef, (UInt8*) path, sizeof(path));
-			
-			if (error == noErr)
-				mFiles.push_back(std::string(path));
-		}
-	}
+    if (filev && filev->size() > 0)
+    {
+        mFiles.insert(mFiles.end(), filev->begin(), filev->end());
+        return true;
+    }
 	
-	return error;
+	return false;
 }
 
-OSStatus	LLFilePicker::doNavSaveDialog(ESaveFilter filter, const std::string& filename)
+bool	LLFilePicker::doNavSaveDialog(ESaveFilter filter, const std::string& filename)
 {
-	OSStatus		error = noErr;
-	NavDialogRef	navRef = NULL;
-	NavReplyRecord	navReply;
-	
-	memset(&navReply, 0, sizeof(navReply));
 	
 	// Setup the type, creator, and extension
-	OSType		type, creator;
-	CFStringRef	extension = NULL;
+    std::string		extension, type, creator;
+    
 	switch (filter)
 	{
 		case FFSAVE_WAV:
-			type = 'WAVE';
-			creator = 'TVOD';
-			extension = CFSTR(".wav");
+			type = "WAVE";
+			creator = "TVOD";
+			extension = "wav";
 			break;
-		
 		case FFSAVE_TGA:
-			type = 'TPIC';
-			creator = 'prvw';
-			extension = CFSTR(".tga");
+			type = "TPIC";
+			creator = "prvw";
+			extension = "tga";
 			break;
-		
+		case FFSAVE_TGAPNG:
+			type = "PNG";
+			creator = "prvw";
+			extension = "png";
+			break;
 		case FFSAVE_BMP:
-			type = 'BMPf';
-			creator = 'prvw';
-			extension = CFSTR(".bmp");
+			type = "BMPf";
+			creator = "prvw";
+			extension = "bmp";
 			break;
 		case FFSAVE_JPEG:
-			type = 'JPEG';
-			creator = 'prvw';
-			extension = CFSTR(".jpeg");
+			type = "JPEG";
+			creator = "prvw";
+			extension = "jpeg";
 			break;
 		case FFSAVE_PNG:
-			type = 'PNG ';
-			creator = 'prvw';
-			extension = CFSTR(".png");
+			type = "PNG ";
+			creator = "prvw";
+			extension = "png";
 			break;
 		case FFSAVE_AVI:
-			type = '\?\?\?\?';
-			creator = '\?\?\?\?';
-			extension = CFSTR(".mov");
+			type = "\?\?\?\?";
+			creator = "\?\?\?\?";
+			extension = "mov";
 			break;
 
 		case FFSAVE_ANIM:
-			type = '\?\?\?\?';
-			creator = '\?\?\?\?';
-			extension = CFSTR(".xaf");
+			type = "\?\?\?\?";
+			creator = "\?\?\?\?";
+			extension = "xaf";
 			break;
 
 #ifdef _CORY_TESTING
 		case FFSAVE_GEOMETRY:
-			type = '\?\?\?\?';
-			creator = '\?\?\?\?';
-			extension = CFSTR(".slg");
+			type = "\?\?\?\?";
+			creator = "\?\?\?\?";
+			extension = "slg";
 			break;
 #endif		
 		case FFSAVE_RAW:
-			type = '\?\?\?\?';
-			creator = '\?\?\?\?';
-			extension = CFSTR(".raw");
+			type = "\?\?\?\?";
+			creator = "\?\?\?\?";
+			extension = "raw";
 			break;
 
 		case FFSAVE_J2C:
-			type = '\?\?\?\?';
-			creator = 'prvw';
-			extension = CFSTR(".j2c");
+			type = "\?\?\?\?";
+			creator = "prvw";
+			extension = "j2c";
 			break;
 		
 		case FFSAVE_SCRIPT:
-			type = 'LSL ';
-			creator = '\?\?\?\?';
-			extension = CFSTR(".lsl");
+			type = "LSL ";
+			creator = "\?\?\?\?";
+			extension = "lsl";
 			break;
 		
 		case FFSAVE_ALL:
 		default:
-			type = '\?\?\?\?';
-			creator = '\?\?\?\?';
-			extension = CFSTR("");
+			type = "\?\?\?\?";
+			creator = "\?\?\?\?";
+			extension = "";
 			break;
 	}
 	
-	// Create the dialog
-	error = NavCreatePutFileDialog(&mNavOptions, type, creator, NULL, NULL, &navRef);
-	if (error == noErr)
-	{
-		CFStringRef	nameString = NULL;
-		bool		hasExtension = true;
-		
-		// Create a CFString of the initial file name
-		if (!filename.empty())
-			nameString = CFStringCreateWithCString(NULL, filename.c_str(), kCFStringEncodingUTF8);
-		else
-			nameString = CFSTR("Untitled");
-			
-		// Add the extension if one was not provided
-		if (nameString && !CFStringHasSuffix(nameString, extension))
-		{
-			CFStringRef	tempString = nameString;
-			hasExtension = false;
-			nameString = CFStringCreateWithFormat(NULL, NULL, CFSTR("%@%@"), tempString, extension);
-			CFRelease(tempString);
-		}
-		
-		// Set the name in the dialog
-		if (nameString)
-		{
-			error = NavDialogSetSaveFileName(navRef, nameString);
-			CFRelease(nameString);
-		}
-		else
-		{
-			error = paramErr;
-		}
-	}
-	
+    std::string namestring = filename;
+    if (namestring.empty()) namestring="Untitled";
+    
+//    if (! boost::algorithm::ends_with(namestring, extension) )
+//    {
+//        namestring = namestring + "." + extension;
+//        
+//    }
+    
 	gViewerWindow->getWindow()->beforeDialog();
 
 	// Run the dialog
-	if (error == noErr)
-		error = NavDialogRun(navRef);
+    std::string* filev = doSaveDialog(&namestring, 
+                 &type,
+                 &creator,
+                 &extension,
+                 mPickOptions);
 
 	gViewerWindow->getWindow()->afterDialog();
 
-	if (error == noErr)
-		error = NavDialogGetReply(navRef, &navReply);
-	
-	if (navRef)
-		NavDialogDispose(navRef);
-
-	if (error == noErr && navReply.validRecord)
+	if ( filev && !filev->empty() )
 	{
-		SInt32	count = 0;
-		
-		// AE indexes are 1 based...
-		error = AECountItems(&navReply.selection, &count);
-		if (count > 0)
-		{
-			// Get the FSRef to the containing folder
-			FSRef		fsRef;
-			AEKeyword	theAEKeyword;
-			DescType	typeCode;
-			Size		actualSize = 0;
-			
-			memset(&fsRef, 0, sizeof(fsRef));
-			error = AEGetNthPtr(&navReply.selection, 1, typeFSRef, &theAEKeyword, &typeCode, &fsRef, sizeof(fsRef), &actualSize);
-			
-			if (error == noErr)
-			{
-				char	path[PATH_MAX];		/*Flawfinder: ignore*/
-				char	newFileName[SINGLE_FILENAME_BUFFER_SIZE];	/*Flawfinder: ignore*/
-				
-				error = FSRefMakePath(&fsRef, (UInt8*)path, PATH_MAX);
-				if (error == noErr)
-				{
-					if (CFStringGetCString(navReply.saveFileName, newFileName, sizeof(newFileName), kCFStringEncodingUTF8))
-					{
-						mFiles.push_back(std::string(path) + "/" +  std::string(newFileName));
-					}
-					else
-					{
-						error = paramErr;
-					}
-				}
-				else
-				{
-					error = paramErr;
-				}
-			}
-		}
-	}
+        mFiles.push_back(*filev);
+		return true;
+    }
 	
-	return error;
+	return false;
 }
 
 BOOL LLFilePicker::getOpenFile(ELoadFilter filter, bool blocking)
@@ -924,16 +765,21 @@ BOOL LLFilePicker::getOpenFile(ELoadFilter filter, bool blocking)
 		return FALSE;
 	}
 
-	OSStatus	error = noErr;
-	
 	reset();
 	
-	mNavOptions.optionFlags &= ~kNavAllowMultipleFiles;
+    mPickOptions &= ~F_MULTIPLE;
+    mPickOptions |= F_FILE;
+ 
+    if (filter == FFLOAD_DIRECTORY) //This should only be called from lldirpicker. 
+    {
+
+        mPickOptions |= ( F_NAV_SUPPORT | F_DIRECTORY );
+        mPickOptions &= ~F_FILE;
+    }
 
 	if(filter == FFLOAD_ALL)	// allow application bundles etc. to be traversed; important for DEV-16869, but generally useful
 	{
-		// mNavOptions.optionFlags |= kNavAllowOpenPackages;
-		mNavOptions.optionFlags |= kNavSupportPackages;
+        mPickOptions &= F_NAV_SUPPORT;
 	}
 	
 	if (blocking)
@@ -942,14 +788,13 @@ BOOL LLFilePicker::getOpenFile(ELoadFilter filter, bool blocking)
 		send_agent_pause();
 	}
 
+
+	success = doNavChooseDialog(filter);
+		
+	if (success)
 	{
-		error = doNavChooseDialog(filter);
-	}
-	
-	if (error == noErr)
-	{
-		if (getFileCount())
-			success = true;
+		if (!getFileCount())
+			success = false;
 	}
 
 	if (blocking)
@@ -975,21 +820,22 @@ BOOL LLFilePicker::getMultipleOpenFiles(ELoadFilter filter)
 		return FALSE;
 	}
 
-	OSStatus	error = noErr;
-
 	reset();
-	
-	mNavOptions.optionFlags |= kNavAllowMultipleFiles;
+    
+    mPickOptions |= F_FILE;
+
+    mPickOptions |= F_MULTIPLE;
 	// Modal, so pause agent
 	send_agent_pause();
+    
+	success = doNavChooseDialog(filter);
+    
+    send_agent_resume();
+    
+	if (success)
 	{
-		error = doNavChooseDialog(filter);
-	}
-	send_agent_resume();
-	if (error == noErr)
-	{
-		if (getFileCount())
-			success = true;
+		if (!getFileCount())
+			success = false;
 		if (getFileCount() > 1)
 			mLocked = true;
 	}
@@ -1001,37 +847,39 @@ BOOL LLFilePicker::getMultipleOpenFiles(ELoadFilter filter)
 
 BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename)
 {
+
 	if( mLocked )
-		return FALSE;
-	BOOL success = FALSE;
-	OSStatus	error = noErr;
+		return false;
+	BOOL success = false;
 
 	// if local file browsing is turned off, return without opening dialog
 	if ( check_local_file_access_enabled() == false )
 	{
-		return FALSE;
+		return false;
 	}
 
 	reset();
 	
-	mNavOptions.optionFlags &= ~kNavAllowMultipleFiles;
+    mPickOptions &= ~F_MULTIPLE;
 
 	// Modal, so pause agent
 	send_agent_pause();
+
+    success = doNavSaveDialog(filter, filename);
+
+    if (success)
 	{
-		error = doNavSaveDialog(filter, filename);
+		if (!getFileCount())
+			success = false;
 	}
+
 	send_agent_resume();
-	if (error == noErr)
-	{
-		if (getFileCount())
-			success = true;
-	}
 
 	// Account for the fact that the app has been stalled.
 	LLFrameTimer::updateFrameTime();
 	return success;
 }
+//END LL_DARWIN
 
 #elif LL_LINUX || LL_SOLARIS
 
@@ -1089,6 +937,22 @@ void LLFilePicker::chooser_responder(GtkWidget *widget, gint response, gpointer 
 		g_slist_free (file_list);
 	}
 
+	// let's save the extension of the last added file(considering current filter)
+	GtkFileFilter *gfilter = gtk_file_chooser_get_filter(GTK_FILE_CHOOSER(widget));
+	if(gfilter)
+	{
+		std::string filter = gtk_file_filter_get_name(gfilter);
+
+		if(filter == LLTrans::getString("png_image_files"))
+		{
+			picker->mCurrentExtension = ".png";
+		}
+		else if(filter == LLTrans::getString("targa_image_files"))
+		{
+			picker->mCurrentExtension = ".tga";
+		}
+	}
+
 	// set the default path for this usage context.
 	const char* cur_folder = gtk_file_chooser_get_current_folder(GTK_FILE_CHOOSER(widget));
 	if (cur_folder != NULL)
@@ -1103,6 +967,7 @@ void LLFilePicker::chooser_responder(GtkWidget *widget, gint response, gpointer 
 
 GtkWindow* LLFilePicker::buildFilePicker(bool is_save, bool is_folder, std::string context)
 {
+#ifndef LL_MESA_HEADLESS
 	if (LLWindowSDL::ll_try_gtk_init())
 	{
 		GtkWidget *win = NULL;
@@ -1174,6 +1039,9 @@ GtkWindow* LLFilePicker::buildFilePicker(bool is_save, bool is_folder, std::stri
 	{
 		return NULL;
 	}
+#else
+	return NULL;
+#endif //LL_MESA_HEADLESS
 }
 
 static void add_common_filters_to_gtkchooser(GtkFileFilter *gfilter,
@@ -1256,6 +1124,24 @@ static std::string add_dictionary_filter_to_gtkchooser(GtkWindow *picker)
 							LLTrans::getString("dictionary_files") + " (*.dic; *.xcu)");
 }
 
+static std::string add_save_texture_filter_to_gtkchooser(GtkWindow *picker)
+{
+	GtkFileFilter *gfilter_tga = gtk_file_filter_new();
+	GtkFileFilter *gfilter_png = gtk_file_filter_new();
+
+	gtk_file_filter_add_pattern(gfilter_tga, "*.tga");
+	gtk_file_filter_add_mime_type(gfilter_png, "image/png");
+	std::string caption = LLTrans::getString("save_texture_image_files") + " (*.tga; *.png)";
+	gtk_file_filter_set_name(gfilter_tga, LLTrans::getString("targa_image_files").c_str());
+	gtk_file_filter_set_name(gfilter_png, LLTrans::getString("png_image_files").c_str());
+
+	gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(picker),
+					gfilter_png);
+	gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(picker),
+					gfilter_tga);
+	return caption;
+}
+
 BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename )
 {
 	BOOL rtn = FALSE;
@@ -1292,6 +1178,15 @@ BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename 
 			caption += add_simple_mime_filter_to_gtkchooser
 				(picker, "image/bmp", LLTrans::getString("bitmap_image_files") + " (*.bmp)");
 			suggest_ext = ".bmp";
+			break;
+		case FFSAVE_PNG:
+			caption += add_simple_mime_filter_to_gtkchooser
+				(picker, "image/png", LLTrans::getString("png_image_files") + " (*.png)");
+			suggest_ext = ".png";
+			break;
+		case FFSAVE_TGAPNG:
+			caption += add_save_texture_filter_to_gtkchooser(picker);
+			suggest_ext = ".png";
 			break;
 		case FFSAVE_AVI:
 			caption += add_simple_mime_filter_to_gtkchooser
@@ -1345,9 +1240,17 @@ BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename 
 		}
 
 		gtk_widget_show_all(GTK_WIDGET(picker));
+
 		gtk_main();
 
 		rtn = (getFileCount() == 1);
+
+		if(rtn && filter == FFSAVE_TGAPNG)
+		{
+			std::string selected_file = mFiles.back();
+			mFiles.pop_back();
+			mFiles.push_back(selected_file + mCurrentExtension);
+		}
 	}
 
 	gViewerWindow->getWindow()->afterDialog();
@@ -1473,7 +1376,7 @@ BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename 
 	return FALSE;
 }
 
-BOOL LLFilePicker::getOpenFile( ELoadFilter filter )
+BOOL LLFilePicker::getOpenFile( ELoadFilter filter, bool blocking )
 {
 	// if local file browsing is turned off, return without opening dialog
 	// (Even though this is a stub, I think we still should not return anything at all)
@@ -1494,7 +1397,7 @@ BOOL LLFilePicker::getOpenFile( ELoadFilter filter )
 	default: break;
 	}
 	mFiles.push_back(filename);
-	llinfos << "getOpenFile: Will try to open file: " << hackyfilename << llendl;
+	llinfos << "getOpenFile: Will try to open file: " << filename << llendl;
 	return TRUE;
 }
 
@@ -1533,4 +1436,4 @@ BOOL LLFilePicker::getMultipleOpenFiles( ELoadFilter filter )
 	return FALSE;
 }
 
-#endif
+#endif // LL_LINUX || LL_SOLARIS

@@ -113,6 +113,7 @@ private:
 	LLButton*					mPayBtn;
 	LLButton*					mBuyBtn;
 	LLButton*					mDetailsBtn;
+	LLButton*					mDeedBtn;
 
 protected:
 	LLViewerObject*				getObject();

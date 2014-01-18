@@ -28,14 +28,53 @@
 
 #include "llresizebar.h"
 
+#include "lllocalcliprect.h"
 #include "llmath.h"
 #include "llui.h"
 #include "llmenugl.h"
 #include "llfocusmgr.h"
 #include "llwindow.h"
 
+class LLImagePanel : public LLPanel
+{
+public:
+	struct Params :	public LLInitParam::Block<Params, LLPanel::Params>
+	{
+		Optional<bool> horizontal;
+		Params() : horizontal("horizontal", false) {}
+	};
+	LLImagePanel(const Params& p) : LLPanel(p), mHorizontal(p.horizontal) {}
+	virtual ~LLImagePanel() {}
+
+	void draw()
+	{
+		const LLRect& parent_rect = getParent()->getRect();
+		const LLRect& rect = getRect();
+		LLRect clip_rect( -rect.mLeft, parent_rect.getHeight() - rect.mBottom - 2
+						 , parent_rect.getWidth() - rect.mLeft - (mHorizontal ? 2 : 0), -rect.mBottom);
+		LLLocalClipRect clip(clip_rect);
+		LLPanel::draw();
+	}
+
+private:
+	bool mHorizontal;
+};
+
+static LLDefaultChildRegistry::Register<LLImagePanel> t1("resize_bar_image_panel");
+
+LLResizeBar::Params::Params()
+:	max_size("max_size", S32_MAX),
+	snapping_enabled("snapping_enabled", true),
+	resizing_view("resizing_view"),
+	side("side"),
+	allow_double_click_snapping("allow_double_click_snapping", true),
+	show_drag_handle("show_drag_handle", false)
+{
+	name = "resize_bar";
+}
+
 LLResizeBar::LLResizeBar(const LLResizeBar::Params& p)
-:	LLView(p),
+:	LLPanel(p),
 	mDragLastScreenX( 0 ),
 	mDragLastScreenY( 0 ),
 	mLastMouseScreenX( 0 ),
@@ -45,7 +84,10 @@ LLResizeBar::LLResizeBar(const LLResizeBar::Params& p)
 	mSide( p.side ),
 	mSnappingEnabled(p.snapping_enabled),
 	mAllowDoubleClickSnapping(p.allow_double_click_snapping),
-	mResizingView(p.resizing_view)
+	mResizingView(p.resizing_view),
+	mResizeListener(NULL),
+	mShowDragHandle(p.show_drag_handle),
+	mImagePanel(NULL)
 {
 	setFollowsNone();
 	// set up some generically good follow code.
@@ -74,8 +116,37 @@ LLResizeBar::LLResizeBar(const LLResizeBar::Params& p)
 	default:
 		break;
 	}
+
+	if (mShowDragHandle)
+	{
+		LLViewBorder::Params border_params;
+		border_params.border_thickness = 1;
+		border_params.highlight_light_color = LLUIColorTable::instance().getColor("ResizebarBorderLight");
+		border_params.shadow_dark_color = LLUIColorTable::instance().getColor("ResizebarBorderDark");
+
+		addBorder(border_params);
+		setBorderVisible(TRUE);
+
+		LLImagePanel::Params image_panel;
+		mDragHandleImage = LLUI::getUIImage(LLResizeBar::RIGHT == mSide ? "Vertical Drag Handle" : "Horizontal Drag Handle");
+		image_panel.bg_alpha_image = mDragHandleImage;
+		image_panel.background_visible = true;
+		image_panel.horizontal = (LLResizeBar::BOTTOM == mSide);
+		mImagePanel = LLUICtrlFactory::create<LLImagePanel>(image_panel);
+		setImagePanel(mImagePanel);
+	}
 }
 
+BOOL LLResizeBar::postBuild()
+{
+	if (mShowDragHandle)
+	{
+		setBackgroundVisible(TRUE);
+		setTransparentColor(LLUIColorTable::instance().getColor("ResizebarBody"));
+	}
+
+	return LLPanel::postBuild();
+}
 
 BOOL LLResizeBar::handleMouseDown(S32 x, S32 y, MASK mask)
 {
@@ -139,13 +210,6 @@ BOOL LLResizeBar::handleHover(S32 x, S32 y, MASK mask)
 		
 		if( valid_rect.localPointInRect( screen_x, screen_y ) && mResizingView )
 		{
-			// undock floater when user resize it
-			LLFloater* parent = dynamic_cast<LLFloater*>( getParent());
-			if (parent && parent->isDocked())
-			{
-				parent->setDocked( false, false);
-			}
-
 			// Resize the parent
 			LLRect orig_rect = mResizingView->getRect();
 			LLRect scaled_rect = orig_rect;
@@ -219,20 +283,66 @@ BOOL LLResizeBar::handleHover(S32 x, S32 y, MASK mask)
 
 			// update last valid mouse cursor position based on resized view's actual size
 			LLRect new_rect = mResizingView->getRect();
+
 			switch(mSide)
 			{
 			case LEFT:
-				mDragLastScreenX += new_rect.mLeft - orig_rect.mLeft;
+			{
+				S32 actual_delta_x = new_rect.mLeft - orig_rect.mLeft;
+				if (actual_delta_x != delta_x)
+				{
+					// restore everything by left
+					new_rect.mBottom = orig_rect.mBottom;
+					new_rect.mTop = orig_rect.mTop;
+					new_rect.mRight = orig_rect.mRight;
+					mResizingView->setShape(new_rect, true);
+				}
+				mDragLastScreenX += actual_delta_x;
+
 				break;
+			}
 			case RIGHT:
+			{
+				S32 actual_delta_x = new_rect.mRight - orig_rect.mRight;
+				if (actual_delta_x != delta_x)
+				{
+					// restore everything by left
+					new_rect.mBottom = orig_rect.mBottom;
+					new_rect.mTop = orig_rect.mTop;
+					new_rect.mLeft = orig_rect.mLeft;
+					mResizingView->setShape(new_rect, true);
+				}
 				mDragLastScreenX += new_rect.mRight - orig_rect.mRight;
 				break;
+			}
 			case TOP:
+			{
+				S32 actual_delta_y = new_rect.mTop - orig_rect.mTop;
+				if (actual_delta_y != delta_y)
+				{
+					// restore everything by left
+					new_rect.mBottom = orig_rect.mBottom;
+					new_rect.mLeft = orig_rect.mLeft;
+					new_rect.mRight = orig_rect.mRight;
+					mResizingView->setShape(new_rect, true);
+				}
 				mDragLastScreenY += new_rect.mTop - orig_rect.mTop;
 				break;
+			}
 			case BOTTOM:
+			{
+				S32 actual_delta_y = new_rect.mBottom - orig_rect.mBottom;
+				if (actual_delta_y != delta_y)
+				{
+					// restore everything by left
+					new_rect.mTop = orig_rect.mTop;
+					new_rect.mLeft = orig_rect.mLeft;
+					new_rect.mRight = orig_rect.mRight;
+					mResizingView->setShape(new_rect, true);
+				}
 				mDragLastScreenY += new_rect.mBottom- orig_rect.mBottom;
 				break;
+			}
 			default:
 				break;
 			}
@@ -259,6 +369,11 @@ BOOL LLResizeBar::handleHover(S32 x, S32 y, MASK mask)
 			getWindow()->setCursor(UI_CURSOR_SIZENS);
 			break;
 		}
+	}
+
+	if (mResizeListener)
+	{
+		mResizeListener(NULL);
 	}
 
 	return handled;
@@ -297,3 +412,39 @@ BOOL LLResizeBar::handleDoubleClick(S32 x, S32 y, MASK mask)
 	return TRUE;
 }
 
+void LLResizeBar::setImagePanel(LLPanel * panelp)
+{
+	const LLView::child_list_t * children = getChildList();
+	if (getChildCount() == 2)
+	{
+		LLPanel * image_panelp = dynamic_cast<LLPanel*>(children->back());
+		if (image_panelp)
+		{
+			removeChild(image_panelp);
+			delete image_panelp;
+		}
+	}
+
+	addChild(panelp);
+	sendChildToBack(panelp);
+}
+
+LLPanel * LLResizeBar::getImagePanel() const
+{
+	return getChildCount() > 0 ? (LLPanel *)getChildList()->back() : NULL;
+}
+
+void LLResizeBar::draw()
+{
+	if (mShowDragHandle)
+	{
+		S32 image_width = mDragHandleImage->getTextureWidth();
+		S32 image_height = mDragHandleImage->getTextureHeight();
+		const LLRect& panel_rect = getRect();
+		S32 image_left = (panel_rect.getWidth() - image_width) / 2 - 1;
+		S32 image_bottom = (panel_rect.getHeight() - image_height) / 2;
+		mImagePanel->setRect(LLRect(image_left, image_bottom + image_height, image_left + image_width, image_bottom));
+	}
+
+	LLPanel::draw();
+}

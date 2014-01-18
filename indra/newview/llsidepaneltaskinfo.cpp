@@ -101,6 +101,8 @@ BOOL LLSidepanelTaskInfo::postBuild()
 	mDetailsBtn = getChild<LLButton>("details_btn");
 	mDetailsBtn->setClickedCallback(boost::bind(&LLSidepanelTaskInfo::onDetailsButtonClicked, this));
 
+	mDeedBtn = getChild<LLButton>("button deed");
+
 	mLabelGroupName = getChild<LLNameBox>("Group Name Proxy");
 
 	childSetCommitCallback("Object Name",						LLSidepanelTaskInfo::onCommitName,this);
@@ -263,7 +265,7 @@ void LLSidepanelTaskInfo::disableAll()
 
 void LLSidepanelTaskInfo::refresh()
 {
-	LLButton* btn_deed_to_group = getChild<LLButton>("button deed");
+	LLButton* btn_deed_to_group = mDeedBtn; 
 	if (btn_deed_to_group)
 	{	
 		std::string deedText;
@@ -368,10 +370,8 @@ void LLSidepanelTaskInfo::refresh()
 	
 	// Update creator text field
 	getChildView("Creator:")->setEnabled(TRUE);
-	BOOL creators_identical;
 	std::string creator_name;
-	creators_identical = LLSelectMgr::getInstance()->selectGetCreator(mCreatorID,
-																	  creator_name);
+	LLSelectMgr::getInstance()->selectGetCreator(mCreatorID, creator_name);
 
 	getChild<LLUICtrl>("Creator Name")->setValue(creator_name);
 	getChildView("Creator Name")->setEnabled(TRUE);
@@ -1169,6 +1169,10 @@ void LLSidepanelTaskInfo::doClickAction(U8 click_action)
 		{
 			// Warn, but do it anyway.
 			LLNotificationsUtil::add("ClickActionNotPayable");
+		}
+		else
+		{
+			handle_give_money_dialog();
 		}
 	}
 	LLSelectMgr::getInstance()->selectionSetClickAction(click_action);

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="menu_group_plus">
+	<menu_item_check label="Ordina in base a intervenuti recenti" name="sort_by_recent_speakers"/>
+	<menu_item_check label="Ordina in base al nome" name="sort_name"/>
+	<menu_item_check label="Ordina in base alla distanza" name="sort_distance"/>
+	<menu_item_check label="Mostra le icone delle persone" name="view_icons"/>
+	<menu_item_check label="Mostra mappa" name="view_map"/>
+</toggleable_menu>

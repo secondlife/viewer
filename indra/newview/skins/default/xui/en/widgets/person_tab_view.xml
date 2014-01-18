@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<person_tab_view
+  folder_arrow_image="Folder_Arrow"
+  folder_indentation="5"
+  item_height="24" 
+  item_top_pad="3"
+  mouse_opaque="true"
+  follows="left|top|right"
+  text_pad="6"
+  text_pad_left="4"
+  text_pad_right="4"
+  arrow_size="10"
+  max_folder_item_overlap="2"/>

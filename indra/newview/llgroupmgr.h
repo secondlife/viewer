@@ -236,6 +236,8 @@ public:
 	F32 getAccessTime() const { return mAccessTime; }
 	void setAccessed();
 
+	const LLUUID& getMemberVersion() const { return mMemberVersion; }
+
 public:
 	typedef	std::map<LLUUID,LLGroupMemberData*> member_list_t;
 	typedef	std::map<LLUUID,LLGroupRoleData*> role_list_t;
@@ -284,6 +286,9 @@ private:
 
 	BOOL				mPendingRoleMemberRequest;
 	F32					mAccessTime;
+
+	// Generate a new ID every time mMembers
+	LLUUID				mMemberVersion;
 };
 
 struct LLRoleAction

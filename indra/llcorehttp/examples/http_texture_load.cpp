@@ -153,6 +153,7 @@ public:
 //
 int main(int argc, char** argv)
 {
+	LLCore::HttpStatus status;
 	bool do_random(false);
 	bool do_verbose(false);
 	
@@ -215,6 +216,9 @@ int main(int argc, char** argv)
 	// Initialization
 	init_curl();
 	LLCore::HttpRequest::createService();
+	LLCore::HttpRequest::setPolicyClassOption(LLCore::HttpRequest::DEFAULT_POLICY_ID,
+											  LLCore::HttpRequest::CP_CONNECTION_LIMIT,
+											  concurrency_limit);
 	LLCore::HttpRequest::startThread();
 	
 	// Get service point
@@ -228,7 +232,7 @@ int main(int argc, char** argv)
 	ws.loadTextureUuids(uuids);
 	ws.mRandomRange = do_random;
 	ws.mVerbose = do_verbose;
-	ws.mMaxConcurrency = concurrency_limit;
+	ws.mMaxConcurrency = 100;
 	
 	if (! ws.mTextures.size())
 	{

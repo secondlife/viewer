@@ -27,33 +27,20 @@
 #ifndef LL_LLNOTIFICATIONHANDLER_H
 #define LL_LLNOTIFICATIONHANDLER_H
 
+#include <boost/intrusive_ptr.hpp>
 
 #include "llwindow.h"
 
-//#include "llnotificationsutil.h"
+#include "llnotifications.h"
 #include "llchannelmanager.h"
 #include "llchat.h"
 #include "llinstantmessage.h"
 #include "llnotificationptr.h"
 
-class LLIMFloater;
+class LLFloaterIMSession;
 
 namespace LLNotificationsUI
 {
-// ENotificationType enumerates all possible types of notifications that could be met
-// 
-typedef enum e_notification_type
-{
-	NT_NOTIFY, 
-	NT_NOTIFYTIP,
-	NT_GROUPNOTIFY,
-	NT_IMCHAT, 
-	NT_GROUPCHAT, 
-	NT_NEARBYCHAT, 
-	NT_ALERT,
-	NT_ALERTMODAL,
-	NT_OFFER
-} ENotificationType;
 
 /**
  * Handler of notification events.
@@ -81,21 +68,8 @@ class LLEventHandler
 public:
 	virtual ~LLEventHandler() {};
 
-	// callbacks for counters
-	typedef boost::function<void (void)> notification_callback_t;
-	typedef boost::signals2::signal<void (void)> notification_signal_t;
-	notification_signal_t mNewNotificationSignal;
-	notification_signal_t mDelNotificationSignal;
-	boost::signals2::connection setNewNotificationCallback(notification_callback_t cb) { return mNewNotificationSignal.connect(cb); }
-	boost::signals2::connection setDelNotification(notification_callback_t cb) { return mDelNotificationSignal.connect(cb); }
-	// callback for notification/toast
-	typedef boost::function<void (const LLUUID id)> notification_id_callback_t;
-	typedef boost::signals2::signal<void (const LLUUID id)> notification_id_signal_t;
-	notification_id_signal_t mNotificationIDSignal;
-	boost::signals2::connection setNotificationIDCallback(notification_id_callback_t cb) { return mNotificationIDSignal.connect(cb); }
-
 protected:
-	virtual void onDeleteToast(LLToast* toast)=0;
+	virtual void onDeleteToast(LLToast* toast) {}
 
 	// arrange handler's channel on a screen
 	// is necessary to unbind a moment of creation of a channel and a moment of positioning of it
@@ -104,8 +78,6 @@ protected:
 	virtual void initChannel()=0;
 
 	LLHandle<LLScreenChannelBase>	mChannel;
-	e_notification_type				mType;
-
 };
 
 // LLSysHandler and LLChatHandler are more specific base classes
@@ -115,24 +87,37 @@ protected:
 /**
  * Handler for system notifications.
  */
-class LLSysHandler : public LLEventHandler
+class LLNotificationHandler : public LLEventHandler, public LLNotificationChannel
 {
 public:
-	LLSysHandler();
-	virtual ~LLSysHandler() {};
+	LLNotificationHandler(const std::string& name, const std::string& notification_type, const std::string& parentName);
+	virtual ~LLNotificationHandler() {};
 
-	virtual bool processNotification(const LLSD& notify)=0;
+	// base interface functions
+	virtual void onAdd(LLNotificationPtr p) { processNotification(p); }
+	virtual void onChange(LLNotificationPtr p) { processNotification(p); }
+	virtual void onLoad(LLNotificationPtr p) { processNotification(p); }
+	virtual void onDelete(LLNotificationPtr p) { if (mChannel.get()) mChannel.get()->removeToastByNotificationID(p->getID());}
 
-protected :
-	static void init();
-	void removeExclusiveNotifications(const LLNotificationPtr& notif);
+	virtual bool processNotification(const LLNotificationPtr& notify) = 0;
+};
 
-	typedef std::list< std::set<std::string> > exclusive_notif_sets;
-	static exclusive_notif_sets sExclusiveNotificationGroups;
+class LLSystemNotificationHandler : public LLNotificationHandler
+{
+public:
+	LLSystemNotificationHandler(const std::string& name, const std::string& notification_type);
+	virtual ~LLSystemNotificationHandler() {};
+};
+
+class LLCommunicationNotificationHandler : public LLNotificationHandler
+{
+public:
+	LLCommunicationNotificationHandler(const std::string& name, const std::string& notification_type);
+	virtual ~LLCommunicationNotificationHandler() {};
 };
 
 /**
- * Handler for chat message notifications.
+ * Handler for chat message notifications. 
  */
 class LLChatHandler : public LLEventHandler
 {
@@ -146,17 +131,14 @@ public:
  * Handler for IM notifications.
  * It manages life time of IMs, group messages.
  */
-class LLIMHandler : public LLSysHandler
+class LLIMHandler : public LLCommunicationNotificationHandler
 {
 public:
-	LLIMHandler(e_notification_type type, const LLSD& id);
+	LLIMHandler();
 	virtual ~LLIMHandler();
-
-	// base interface functions
-	virtual bool processNotification(const LLSD& notify);
+	bool processNotification(const LLNotificationPtr& p);
 
 protected:
-	virtual void onDeleteToast(LLToast* toast);
 	virtual void initChannel();
 };
 
@@ -164,18 +146,15 @@ protected:
  * Handler for system informational notices.
  * It manages life time of tip notices.
  */
-class LLTipHandler : public LLSysHandler
+class LLTipHandler : public LLSystemNotificationHandler
 {
 public:
-	LLTipHandler(e_notification_type type, const LLSD& id);
+	LLTipHandler();
 	virtual ~LLTipHandler();
 
-	// base interface functions
-	virtual bool processNotification(const LLSD& notify);
+	virtual bool processNotification(const LLNotificationPtr& p);
 
 protected:
-	virtual void onDeleteToast(LLToast* toast);
-	virtual void onRejectToast(const LLUUID& id);
 	virtual void initChannel();
 };
 
@@ -183,166 +162,142 @@ protected:
  * Handler for system informational notices.
  * It manages life time of script notices.
  */
-class LLScriptHandler : public LLSysHandler
+class LLScriptHandler : public LLSystemNotificationHandler
 {
 public:
-	LLScriptHandler(e_notification_type type, const LLSD& id);
+	LLScriptHandler();
 	virtual ~LLScriptHandler();
 
-	// base interface functions
-	virtual bool processNotification(const LLSD& notify);
+	virtual void onDelete(LLNotificationPtr p);
+	virtual bool processNotification(const LLNotificationPtr& p);
 
 protected:
 	virtual void onDeleteToast(LLToast* toast);
 	virtual void initChannel();
-
-	// own handlers
-	void onRejectToast(LLUUID& id);
 };
 
 
 /**
  * Handler for group system notices.
  */
-class LLGroupHandler : public LLSysHandler
+class LLGroupHandler : public LLCommunicationNotificationHandler
 {
 public:
-	LLGroupHandler(e_notification_type type, const LLSD& id);
+	LLGroupHandler();
 	virtual ~LLGroupHandler();
 	
-	// base interface functions
-	virtual bool processNotification(const LLSD& notify);
+	virtual bool processNotification(const LLNotificationPtr& p);
 
 protected:
-	virtual void onDeleteToast(LLToast* toast);
 	virtual void initChannel();
-
-	// own handlers
-	void onRejectToast(LLUUID& id);
 };
 
 /**
  * Handler for alert system notices.
  */
-class LLAlertHandler : public LLSysHandler
+class LLAlertHandler : public LLSystemNotificationHandler
 {
 public:
-	LLAlertHandler(e_notification_type type, const LLSD& id);
+	LLAlertHandler(const std::string& name, const std::string& notification_type, bool is_modal);
 	virtual ~LLAlertHandler();
 
-	void setAlertMode(bool is_modal) { mIsModal = is_modal; }
-
-	// base interface functions
-	virtual bool processNotification(const LLSD& notify);
+	virtual void onChange(LLNotificationPtr p);
+	virtual bool processNotification(const LLNotificationPtr& p);
 
 protected:
-	virtual void onDeleteToast(LLToast* toast);
 	virtual void initChannel();
 
 	bool	mIsModal;
+};
+
+class LLViewerAlertHandler  : public LLSystemNotificationHandler
+{
+	LOG_CLASS(LLViewerAlertHandler);
+public:
+	LLViewerAlertHandler(const std::string& name, const std::string& notification_type);
+	virtual ~LLViewerAlertHandler() {};
+
+	virtual void onDelete(LLNotificationPtr p) {};
+	virtual bool processNotification(const LLNotificationPtr& p);
+
+protected:
+	virtual void initChannel() {};
 };
 
 /**
  * Handler for offers notices.
  * It manages life time of offer notices.
  */
-class LLOfferHandler : public LLSysHandler
+class LLOfferHandler : public LLCommunicationNotificationHandler
 {
 public:
-	LLOfferHandler(e_notification_type type, const LLSD& id);
+	LLOfferHandler();
 	virtual ~LLOfferHandler();
 
-	// base interface functions
-	virtual bool processNotification(const LLSD& notify);
+	virtual void onChange(LLNotificationPtr p);
+	virtual void onDelete(LLNotificationPtr notification);
+	virtual bool processNotification(const LLNotificationPtr& p);
 
 protected:
-	virtual void onDeleteToast(LLToast* toast);
 	virtual void initChannel();
-
-	// own handlers
-	void onRejectToast(LLUUID& id);
 };
 
 /**
  * Handler for UI hints.
  */
-class LLHintHandler : public LLSingleton<LLHintHandler>
+class LLHintHandler : public LLSystemNotificationHandler
 {
 public:
 	LLHintHandler();
-	virtual ~LLHintHandler();
+	virtual ~LLHintHandler() {}
 
-	// base interface functions
-	virtual bool processNotification(const LLSD& notify);
+	virtual void onAdd(LLNotificationPtr p);
+	virtual void onLoad(LLNotificationPtr p);
+	virtual void onDelete(LLNotificationPtr p);
+	virtual bool processNotification(const LLNotificationPtr& p);
+
+protected:
+	virtual void initChannel() {};
 };
 
 /**
  * Handler for browser notifications
  */
-class LLBrowserNotification : public LLSingleton<LLBrowserNotification>
+class LLBrowserNotification : public LLSystemNotificationHandler
 {
 public:
-	virtual bool processNotification(const LLSD& notify);
+	LLBrowserNotification();
+	virtual ~LLBrowserNotification() {}
+
+	virtual bool processNotification(const LLNotificationPtr& p);
+
+protected:
+	virtual void initChannel() {};
 };
 	
 /**
  * Handler for outbox notifications
  */
-class LLOutboxNotification : public LLSingleton<LLOutboxNotification>
+class LLOutboxNotification : public LLSystemNotificationHandler
 {
 public:
-	virtual bool processNotification(const LLSD& notify);
+	LLOutboxNotification();
+	virtual ~LLOutboxNotification() {};
+	virtual void onChange(LLNotificationPtr p) { }
+	virtual void onDelete(LLNotificationPtr p);
+	virtual bool processNotification(const LLNotificationPtr& p);
+
+protected:
+	virtual void initChannel() {};
 };
 	
 class LLHandlerUtil
 {
 public:
 	/**
-	 * Checks sufficient conditions to log notification message to IM session.
-	 */
-	static bool canLogToIM(const LLNotificationPtr& notification);
-
-	/**
-	 * Checks sufficient conditions to log notification message to nearby chat session.
-	 */
-	static bool canLogToNearbyChat(const LLNotificationPtr& notification);
-
-	/**
-	 * Checks sufficient conditions to spawn IM session.
-	 */
-	static bool canSpawnIMSession(const LLNotificationPtr& notification);
-
-	/**
-	 * Checks sufficient conditions to add notification toast panel IM floater.
-	 */
-	static bool canAddNotifPanelToIM(const LLNotificationPtr& notification);
-
-	/**
-	 * Checks whether notification can be used multiple times or not.
-	 */
-	static bool isNotificationReusable(const LLNotificationPtr& notification);
-
-	/**
-	 * Checks if passed notification can create IM session and be written into it.
-	 *
-	 * This method uses canLogToIM() & canSpawnIMSession().
-	 */
-	static bool canSpawnSessionAndLogToIM(const LLNotificationPtr& notification);
-
-	/**
-	 * Checks if passed notification can create toast.
-	 */
-	static bool canSpawnToast(const LLNotificationPtr& notification);
-
-	/**
 	 * Determines whether IM floater is opened.
 	 */
 	static bool isIMFloaterOpened(const LLNotificationPtr& notification);
-
-	/**
-	* Determines whether IM floater is focused.
-	*/
-	static bool isIMFloaterFocused(const LLNotificationPtr& notification);
 
 	/**
 	 * Writes notification message to IM session.
@@ -355,12 +310,7 @@ public:
 	/**
 	 * Writes notification message to IM  p2p session.
 	 */
-	static void logToIMP2P(const LLNotificationPtr& notification);
-
-	/**
-	 * Writes notification message to IM  p2p session.
-	 */
-	static void logToIMP2P(const LLNotificationPtr& notification, bool to_file_only);
+	static void logToIMP2P(const LLNotificationPtr& notification, bool to_file_only = false);
 
 	/**
 	 * Writes group notice notification message to IM  group session.
@@ -405,13 +355,6 @@ public:
 	 * Decrements counter of IM messages.
 	 */
 	static void decIMMesageCounter(const LLNotificationPtr& notification);
-
-private:
-
-	/**
-	 * Find IM floater based on "from_id"
-	 */
-	static LLIMFloater* findIMFloater(const LLNotificationPtr& notification);
 
 };
 

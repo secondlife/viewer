@@ -35,7 +35,9 @@
 
 #include "llfloater.h"
 #include "llavatarpropertiesprocessor.h"
+#include "llconversationlog.h"
 
+class LLConversationLogObserver;
 class LLPanelPreference;
 class LLPanelLCD;
 class LLPanelDebug;
@@ -44,6 +46,8 @@ class LLScrollListCtrl;
 class LLSliderCtrl;
 class LLSD;
 class LLTextBox;
+
+typedef std::map<std::string, std::string> notifications_map;
 
 typedef enum
 	{
@@ -56,7 +60,7 @@ typedef enum
 
 
 // Floater to control preferences (display, audio, bandwidth, general.
-class LLFloaterPreference : public LLFloater, public LLAvatarPropertiesObserver
+class LLFloaterPreference : public LLFloater, public LLAvatarPropertiesObserver, public LLConversationLogObserver
 {
 public: 
 	LLFloaterPreference(const LLSD& key);
@@ -68,20 +72,24 @@ public:
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/	void onClose(bool app_quitting);
+	/*virtual*/ void changed();
+	/*virtual*/ void changed(const LLUUID& session_id, U32 mask) {};
 
 	// static data update, called from message handler
-	static void updateUserInfo(const std::string& visibility, bool im_via_email, const std::string& email);
+	static void updateUserInfo(const std::string& visibility, bool im_via_email);
 
 	// refresh all the graphics preferences menus
 	static void refreshEnabledGraphics();
 	
-	// translate user's busy response message according to current locale if message is default, otherwise do nothing
-	static void initBusyResponse();
+	// translate user's do not disturb response message according to current locale if message is default, otherwise do nothing
+	static void initDoNotDisturbResponse();
 
 	void processProperties( void* pData, EAvatarProcessorType type );
 	void processProfileProperties(const LLAvatarData* pAvatarData );
 	void storeAvatarProperties( const LLAvatarData* pAvatarData );
 	void saveAvatarProperties( void );
+	void selectPrivacyPanel();
+	void selectChatPanel();
 
 protected:	
 	void		onBtnOK();
@@ -91,11 +99,12 @@ protected:
 	void		onClickClearCache();			// Clear viewer texture cache, vfs, and VO cache on next startup
 	void		onClickBrowserClearCache();		// Clear web history and caches as well as viewer caches above
 	void		onLanguageChange();
+	void		onNotificationsChange(const std::string& OptionName);
 	void		onNameTagOpacityChange(const LLSD& newvalue);
 
-	// set value of "BusyResponseChanged" in account settings depending on whether busy response
+	// set value of "DoNotDisturbResponseChanged" in account settings depending on whether do not disturb response
 	// string differs from default after user changes.
-	void onBusyResponseChanged();
+	void onDoNotDisturbResponseChanged();
 	// if the custom settings box is clicked
 	void onChangeCustom();
 	void updateMeterText(LLUICtrl* ctrl);
@@ -129,15 +138,14 @@ public:
 	void setKey(KEY key);
 	void onClickSetMiddleMouse();
 	void onClickSetSounds();
-//	void onClickSkipDialogs();
-//	void onClickResetDialogs();
 	void onClickEnablePopup();
 	void onClickDisablePopup();	
 	void resetAllIgnored();
 	void setAllIgnored();
-	void onClickLogPath();	
+	void onClickLogPath();
+	bool moveTranscriptsAndLog();
 	void enableHistory();
-	void setPersonalInfo(const std::string& visibility, bool im_via_email, const std::string& email);
+	void setPersonalInfo(const std::string& visibility, bool im_via_email);
 	void refreshEnabledState();
 	void disableUnavailableSettings();
 	void onCommitWindowedMode();
@@ -146,8 +154,7 @@ public:
 	void onChangeQuality(const LLSD& data);
 	
 	void updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box);
-	void onUpdateSliderText(LLUICtrl* ctrl, const LLSD& name);
-//	void fractionFromDecimal(F32 decimal_val, S32& numerator, S32& denominator);
+	void refreshUI();
 
 	void onCommitParcelMediaAutoPlayEnable();
 	void onCommitMediaEnabled();
@@ -161,16 +168,25 @@ public:
 	void onClickSpellChecker();
 	void applyUIColor(LLUICtrl* ctrl, const LLSD& param);
 	void getUIColor(LLUICtrl* ctrl, const LLSD& param);
-	
+	void onLogChatHistorySaved();	
 	void buildPopupLists();
 	static void refreshSkin(void* data);
+	void selectPanel(const LLSD& name);
+
 private:
+
+	void onDeleteTranscripts();
+	void onDeleteTranscriptsResponse(const LLSD& notification, const LLSD& response);
+	void updateDeleteTranscriptsButton();
+
 	static std::string sSkin;
+	notifications_map mNotificationOptions;
 	bool mClickActionDirty; ///< Set to true when the click/double-click options get changed by user.
 	bool mGotPersonalInfo;
 	bool mOriginalIMViaEmail;
 	bool mLanguageChanged;
 	bool mAvatarDataInitialized;
+	std::string mPriorInstantMessageLogPath;
 	
 	bool mOriginalHideOnlineStatus;
 	std::string mDirectoryVisibility;

@@ -58,7 +58,7 @@
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
 #include "llworld.h"
-#include "llclipboard.h"
+#include "llpanelface.h"
 
 // syntactic sugar
 #define callMemberFunction(object,ptrToMember)  ((object).*(ptrToMember))
@@ -355,7 +355,7 @@ void LLToolDragAndDrop::setDragStart(S32 x, S32 y)
 
 BOOL LLToolDragAndDrop::isOverThreshold(S32 x,S32 y)
 {
-	static LLCachedControl<S32> drag_and_drop_threshold(gSavedSettings,"DragAndDropDistanceThreshold");
+	static LLCachedControl<S32> drag_and_drop_threshold(gSavedSettings,"DragAndDropDistanceThreshold", 3);
 	
 	S32 mouse_delta_x = x - mDragStartX;
 	S32 mouse_delta_y = y - mDragStartY;
@@ -654,33 +654,41 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, BOOL drop,
 		sOperationId++;
 	}
 
+	// For people drag and drop we don't need an actual inventory object,
+	// instead we need the current cargo id, which should be a person id.
+	bool is_uuid_dragged = (mSource == SOURCE_PEOPLE);
+
 	if (top_view)
 	{
 		handled = TRUE;
 
 		for (mCurItemIndex = 0; mCurItemIndex < (S32)mCargoIDs.size(); mCurItemIndex++)
 		{
-			LLInventoryObject* cargo = locateInventory(item, cat);
+			S32 local_x, local_y;
+			top_view->screenPointToLocal( x, y, &local_x, &local_y );
+			EAcceptance item_acceptance = ACCEPT_NO;
 
+			LLInventoryObject* cargo = locateInventory(item, cat);
 			if (cargo)
 			{
-				S32 local_x, local_y;
-				top_view->screenPointToLocal( x, y, &local_x, &local_y );
-				EAcceptance item_acceptance = ACCEPT_NO;
 				handled = handled && top_view->handleDragAndDrop(local_x, local_y, mask, FALSE,
 													mCargoTypes[mCurItemIndex],
 													(void*)cargo,
 													&item_acceptance,
 													mToolTipMsg);
-				if (handled)
-				{
-					// use sort order to determine priority of acceptance
-					*acceptance = (EAcceptance)llmin((U32)item_acceptance, (U32)*acceptance);
-				}
 			}
-			else
+			else if (is_uuid_dragged)
 			{
-				return;		
+				handled = handled && top_view->handleDragAndDrop(local_x, local_y, mask, FALSE,
+													mCargoTypes[mCurItemIndex],
+													(void*)&mCargoIDs[mCurItemIndex],
+													&item_acceptance,
+													mToolTipMsg);
+			}
+			if (handled)
+			{
+				// use sort order to determine priority of acceptance
+				*acceptance = (EAcceptance)llmin((U32)item_acceptance, (U32)*acceptance);
 			}
 		}
 
@@ -697,17 +705,24 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, BOOL drop,
 
 			for (mCurItemIndex = 0; mCurItemIndex < (S32)mCargoIDs.size(); mCurItemIndex++)
 			{
-				LLInventoryObject* cargo = locateInventory(item, cat);
+				S32 local_x, local_y;
+				EAcceptance item_acceptance;
+				top_view->screenPointToLocal( x, y, &local_x, &local_y );
 
+				LLInventoryObject* cargo = locateInventory(item, cat);
 				if (cargo)
 				{
-					S32 local_x, local_y;
-
-					EAcceptance item_acceptance;
-					top_view->screenPointToLocal( x, y, &local_x, &local_y );
 					handled = handled && top_view->handleDragAndDrop(local_x, local_y, mask, TRUE,
 														mCargoTypes[mCurItemIndex],
 														(void*)cargo,
+														&item_acceptance,
+														mToolTipMsg);
+				}
+				else if (is_uuid_dragged)
+				{
+					handled = handled && top_view->handleDragAndDrop(local_x, local_y, mask, FALSE,
+														mCargoTypes[mCurItemIndex],
+														(void*)&mCargoIDs[mCurItemIndex],
 														&item_acceptance,
 														mToolTipMsg);
 				}
@@ -727,17 +742,27 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, BOOL drop,
 
 		for (mCurItemIndex = 0; mCurItemIndex < (S32)mCargoIDs.size(); mCurItemIndex++)
 		{
+			EAcceptance item_acceptance = ACCEPT_NO;
+
 			LLInventoryObject* cargo = locateInventory(item, cat);
 
 			// fix for EXT-3191
-			if (NULL == cargo) return;
-
-			EAcceptance item_acceptance = ACCEPT_NO;
-			handled = handled && root_view->handleDragAndDrop(x, y, mask, FALSE,
-												mCargoTypes[mCurItemIndex],
-												(void*)cargo,
-												&item_acceptance,
-												mToolTipMsg);
+			if (cargo)
+			{
+				handled = handled && root_view->handleDragAndDrop(x, y, mask, FALSE,
+													mCargoTypes[mCurItemIndex],
+													(void*)cargo,
+													&item_acceptance,
+													mToolTipMsg);
+			}
+			else if (is_uuid_dragged)
+			{
+				handled = handled && root_view->handleDragAndDrop(x, y, mask, FALSE,
+													mCargoTypes[mCurItemIndex],
+													(void*)&mCargoIDs[mCurItemIndex],
+													&item_acceptance,
+													mToolTipMsg);
+			}
 			if (handled)
 			{
 				// use sort order to determine priority of acceptance
@@ -757,14 +782,22 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, BOOL drop,
 
 			for (mCurItemIndex = 0; mCurItemIndex < (S32)mCargoIDs.size(); mCurItemIndex++)
 			{
-				LLInventoryObject* cargo = locateInventory(item, cat);
+				EAcceptance item_acceptance;
 
+				LLInventoryObject* cargo = locateInventory(item, cat);
 				if (cargo)
 				{
-					EAcceptance item_acceptance;
 					handled = handled && root_view->handleDragAndDrop(x, y, mask, TRUE,
 											  mCargoTypes[mCurItemIndex],
 											  (void*)cargo,
+											  &item_acceptance,
+											  mToolTipMsg);
+				}
+				else if (is_uuid_dragged)
+				{
+					handled = handled && root_view->handleDragAndDrop(x, y, mask, TRUE,
+											  mCargoTypes[mCurItemIndex],
+											  (void*)&mCargoIDs[mCurItemIndex],
 											  &item_acceptance,
 											  mToolTipMsg);
 				}
@@ -780,7 +813,7 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, BOOL drop,
 	if (!handled)
 	{
 		// Disallow drag and drop to 3D from the outbox
-		const LLUUID outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false, false);
+		const LLUUID outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
 		if (outbox_id.notNull())
 		{
 			for (S32 item_index = 0; item_index < (S32)mCargoIDs.size(); item_index++)
@@ -1131,7 +1164,51 @@ void LLToolDragAndDrop::dropTextureOneFace(LLViewerObject* hit_obj,
 	// update viewer side image in anticipation of update from simulator
 	LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture(asset_id);
 	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_EDIT_TEXTURE_COUNT );
-	hit_obj->setTEImage(hit_face, image);
+
+	LLTextureEntry* tep = hit_obj ? (hit_obj->getTE(hit_face)) : NULL;
+
+	LLPanelFace* panel_face = gFloaterTools->getPanelFace();
+
+	if (gFloaterTools->getVisible() && panel_face)
+	{
+		switch (LLSelectMgr::getInstance()->getTextureChannel())
+		{
+
+		case 0:
+		default:
+			{
+				hit_obj->setTEImage(hit_face, image);
+			}
+			break;
+
+		case 1:
+			{
+				LLMaterialPtr old_mat = tep->getMaterialParams();
+				LLMaterialPtr new_mat = panel_face->createDefaultMaterial(old_mat);
+				new_mat->setNormalID(asset_id);
+				tep->setMaterialParams(new_mat);
+				hit_obj->setTENormalMap(hit_face, asset_id);
+				LLMaterialMgr::getInstance()->put(hit_obj->getID(), hit_face, *new_mat);
+			}
+			break;
+
+		case 2:
+			{
+				LLMaterialPtr old_mat = tep->getMaterialParams();
+				LLMaterialPtr new_mat = panel_face->createDefaultMaterial(old_mat);
+				new_mat->setSpecularID(asset_id);
+				tep->setMaterialParams(new_mat);
+				hit_obj->setTESpecularMap(hit_face, asset_id);
+				LLMaterialMgr::getInstance()->put(hit_obj->getID(), hit_face, *new_mat);
+			}
+			break;
+		}
+	}
+	else
+	{
+		hit_obj->setTEImage(hit_face, image);
+	}
+	
 	dialog_refresh_all();
 
 	// send the update to the simulator
@@ -1215,7 +1292,7 @@ void LLToolDragAndDrop::dropObject(LLViewerObject* raycast_target,
 	if (!item || !item->isFinished()) return;
 	
 	//if (regionp
-	//	&& (regionp->getRegionFlags() & REGION_FLAGS_SANDBOX))
+	//	&& (regionp->getRegionFlag(REGION_FLAGS_SANDBOX)))
 	//{
 	//	LLFirstUse::useSandbox();
 	//}
@@ -1709,7 +1786,7 @@ EAcceptance LLToolDragAndDrop::dad3dRezAttachmentFromInv(
 	{
 		if(mSource == SOURCE_LIBRARY)
 		{
-			LLPointer<LLInventoryCallback> cb = new RezAttachmentCallback(0);
+			LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(rez_attachment_cb, _1, (LLViewerJointAttachment*)0));
 			copy_inventory_item(
 				gAgent.getID(),
 				item->getPermissions().getOwner(),
@@ -2062,7 +2139,7 @@ EAcceptance LLToolDragAndDrop::dad3dActivateGesture(
 			{
 				// create item based on that one, and put it on if that
 				// was a success.
-				LLPointer<LLInventoryCallback> cb = new ActivateGestureCallback();
+				LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(activate_gesture_cb);
 				copy_inventory_item(
 					gAgent.getID(),
 					item->getPermissions().getOwner(),
@@ -2509,7 +2586,13 @@ LLInventoryObject* LLToolDragAndDrop::locateInventory(
 {
 	item = NULL;
 	cat = NULL;
-	if(mCargoIDs.empty()) return NULL;
+
+	if (mCargoIDs.empty()
+		|| (mSource == SOURCE_PEOPLE)) ///< There is no inventory item for people drag and drop.
+	{
+		return NULL;
+	}
+
 	if((mSource == SOURCE_AGENT) || (mSource == SOURCE_LIBRARY))
 	{
 		// The object should be in user inventory.
@@ -2545,6 +2628,7 @@ LLInventoryObject* LLToolDragAndDrop::locateInventory(
 	{
 		item = (LLViewerInventoryItem*)gToolBarView->getDragItem();
 	}
+
 	if(item) return item;
 	if(cat) return cat;
 	return NULL;

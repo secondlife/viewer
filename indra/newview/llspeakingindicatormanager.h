@@ -78,6 +78,11 @@ namespace LLSpeakingIndicatorManager
 	 * @param speaking_indicator instance of the speaker indicator to be unregistered.
 	 */
 	void unregisterSpeakingIndicator(const LLUUID& speaker_id, const LLSpeakingIndicator* const speaking_indicator);
+
+	/**
+	 * Switch on/off registered speaking indicator according to the most current voice client status
+	 */
+	 void updateSpeakingIndicators();
 }
 
 #endif // LL_LLSPEAKINGINDICATORMANAGER_H

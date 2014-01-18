@@ -55,8 +55,6 @@ public:
 	void onClickOwnerProfile();
 	void onSelectObject();
 
-	static void onGetAvNameCallback(const LLUUID& idCreator, const LLAvatarName& av_name, void* FloaterPtr);
-
 	LLScrollListCtrl* mObjectList;
 protected:
 	// protected members
@@ -64,13 +62,15 @@ protected:
 	bool mDirty;
 
 private:
+	void onGetOwnerNameCallback();
+	void onGetCreatorNameCallback();
 	
 	LLFloaterInspect(const LLSD& key);
 	virtual ~LLFloaterInspect(void);
-	// static data
-//	static LLFloaterInspect* sInstance;
 
 	LLSafeHandle<LLObjectSelection> mObjectSelection;
+	boost::signals2::connection mOwnerNameCacheConnection;
+	boost::signals2::connection mCreatorNameCacheConnection;
 };
 
 #endif //LL_LLFLOATERINSPECT_H

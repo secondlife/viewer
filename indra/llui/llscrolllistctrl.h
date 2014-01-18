@@ -241,7 +241,7 @@ public:
 	// one of which can be selected at a time.
 	virtual LLScrollListItem* addSimpleElement(const std::string& value, EAddPosition pos = ADD_BOTTOM, const LLSD& id = LLSD());
 
-	BOOL			selectItemByLabel( const std::string& item, BOOL case_sensitive = TRUE );		// FALSE if item not found
+	BOOL			selectItemByLabel( const std::string& item, BOOL case_sensitive = TRUE, S32 column = 0 );		// FALSE if item not found
 	BOOL			selectItemByPrefix(const std::string& target, BOOL case_sensitive = TRUE);
 	BOOL			selectItemByPrefix(const LLWString& target, BOOL case_sensitive = TRUE);
 	LLScrollListItem*  getItemByLabel( const std::string& item, BOOL case_sensitive = TRUE, S32 column = 0 );
@@ -342,7 +342,7 @@ public:
 
 	static void onClickColumn(void *userdata);
 
-	virtual void updateColumns();
+	virtual void updateColumns(bool force_update = false);
 	S32 calcMaxContentWidth();
 	bool updateColumnWidths();
 
@@ -430,6 +430,9 @@ private:
 	BOOL			setSort(S32 column, BOOL ascending);
 	S32				getLinesPerPage();
 
+	static void		showProfile(std::string id, bool is_group);
+	static void		sendIM(std::string id);
+	static void		addFriend(std::string id);
 	static void		showNameDetails(std::string id, bool is_group);
 	static void		copyNameToClipboard(std::string id, bool is_group);
 	static void		copySLURLToClipboard(std::string id, bool is_group);

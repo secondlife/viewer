@@ -6,7 +6,7 @@
      enabled="false"
      label="Add Friends"
      layout="topleft"
-     name="Add Friends">
+     name="add_friends">
         <on_click
          function="Avatar.AddFriends" />
         <on_enable
@@ -16,7 +16,7 @@
     <menu_item_call
      label="Remove Friends"
      layout="topleft"
-     name="Remove Friend">
+     name="remove_friends">
         <menu_item_call.on_click
          function="Avatar.RemoveFriend" />
         <menu_item_call.on_enable
@@ -26,7 +26,7 @@
     <menu_item_call
      label="IM"
      layout="topleft"
-     name="IM">
+     name="im">
         <on_click
          function="Avatar.IM" />
     </menu_item_call>
@@ -34,7 +34,7 @@
      enabled="false"
      label="Call"
      layout="topleft"
-     name="Call">
+     name="call">
         <on_click
          function="Avatar.Call" />
         <on_enable
@@ -45,7 +45,7 @@
      enabled="false"
      label="Share"
      layout="topleft"
-     name="Share">
+     name="share">
         <on_click
          function="Avatar.Share" />
     </menu_item_call>
@@ -53,13 +53,13 @@
      enabled="false"
      label="Pay"
      layout="topleft"
-     name="Pay">
+     name="pay">
         <on_click
          function="Avatar.Pay" />
     </menu_item_call>
     <menu_item_call
     label="Offer Teleport"
-    name="teleport">
+    name="offer_teleport">
       <menu_item_call.on_click
        function="Avatar.OfferTeleport"/>
       <menu_item_call.on_enable

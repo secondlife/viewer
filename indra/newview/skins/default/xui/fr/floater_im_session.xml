@@ -1,8 +1,57 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="panel_im">
-	<layout_stack name="im_panels">
-		<layout_panel>
-			<line_editor label="À" name="chat_editor"/>
-		</layout_panel>
-	</layout_stack>
+	<floater.string name="call_btn_start">
+		Conv_toolbar_open_call
+	</floater.string>
+	<floater.string name="call_btn_stop">
+		Conv_toolbar_hang_up
+	</floater.string>
+	<floater.string name="collapseline_icon" value="Conv_collapse_to_one_line"/>
+	<floater.string name="expandline_icon" value="Conv_expand_one_line"/>
+	<floater.string name="collapse_icon" value="Conv_toolbar_collapse"/>
+	<floater.string name="expand_icon" value="Conv_toolbar_expand"/>
+	<floater.string name="tear_off_icon" value="Conv_toolbar_arrow_ne"/>
+	<floater.string name="return_icon" value="Conv_toolbar_arrow_sw"/>
+	<floater.string name="participant_added" value="[NAME] a été invité à la conversation."/>
+	<floater.string name="multiple_participants_added" value="[NAME] ont été invités à la conversation."/>
+	<floater.string name="tooltip_to_separate_window" value="Déplacer cette conversation dans une fenêtre distincte"/>
+	<floater.string name="tooltip_to_main_window" value="Replacer cette conversation dans la fenêtre principale"/>
+	<floater.string name="start_call_button_tooltip" value="Ouvrir une connexion vocale"/>
+	<floater.string name="end_call_button_tooltip" value="Fermer la connexion vocale"/>
+	<floater.string name="expcol_button_not_tearoff_tooltip" value="Réduire ce panneau"/>
+	<floater.string name="expcol_button_tearoff_and_expanded_tooltip" value="Réduire la liste des participants"/>
+	<floater.string name="expcol_button_tearoff_and_collapsed_tooltip" value="Développer la liste des participants"/>
+	<view name="contents_view">
+		<layout_stack name="main_stack">
+			<layout_panel name="toolbar_panel">
+				<menu_button name="view_options_btn" tool_tip="Options d&apos;affichage/de tri"/>
+				<menu_button name="gear_btn" tool_tip="Actions sur la personne sélectionnée"/>
+				<button name="add_btn" tool_tip="Ajouter un participant à cette conversation"/>
+				<button name="voice_call_btn" tool_tip="Ouvrir une connexion vocale"/>
+				<button name="close_btn" tool_tip="Mettre fin à cette conversation"/>
+				<button name="expand_collapse_btn" tool_tip="Réduire/Développer ce panneau"/>
+			</layout_panel>
+			<layout_panel name="body_panel">
+				<layout_stack name="im_panels">
+					<layout_panel name="right_part_holder">
+						<layout_stack name="translate_and_chat_stack">
+							<layout_panel name="translate_chat_checkbox_lp">
+								<check_box label="Traduire le chat" name="translate_chat_checkbox"/>
+							</layout_panel>
+						</layout_stack>
+					</layout_panel>
+				</layout_stack>
+			</layout_panel>
+			<layout_panel name="chat_layout_panel">
+				<layout_stack name="input_panels">
+					<layout_panel name="input_editor_layout_panel">
+						<chat_editor label="À" name="chat_editor"/>
+					</layout_panel>
+					<layout_panel name="input_button_layout_panel">
+						<button name="minz_btn" tool_tip="Affiche/Masque le panneau des messages"/>
+					</layout_panel>
+				</layout_stack>
+			</layout_panel>
+		</layout_stack>
+	</view>
 </floater>

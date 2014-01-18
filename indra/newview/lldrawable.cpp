@@ -132,10 +132,16 @@ void LLDrawable::destroy()
 		sNumZombieDrawables--;
 	}
 
+	// Attempt to catch violations of this in debug,
+	// knowing that some false alarms may result
+	//
+	llassert(!LLSpatialGroup::sNoDelete);
+
+	/* cannot be guaranteed and causes crashes on false alarms
 	if (LLSpatialGroup::sNoDelete)
 	{
 		llerrs << "Illegal deletion of LLDrawable!" << llendl;
-	}
+	}*/
 
 	std::for_each(mFaces.begin(), mFaces.end(), DeletePointer());
 	mFaces.clear();
@@ -254,11 +260,17 @@ S32 LLDrawable::findReferences(LLDrawable *drawablep)
 	return count;
 }
 
+static LLFastTimer::DeclareTimer FTM_ALLOCATE_FACE("Allocate Face", true);
+
 LLFace*	LLDrawable::addFace(LLFacePool *poolp, LLViewerTexture *texturep)
 {
-	LLMemType mt(LLMemType::MTYPE_DRAWABLE);
 	
-	LLFace *face = new LLFace(this, mVObjp);
+	LLFace *face;
+	{
+		LLFastTimer t(FTM_ALLOCATE_FACE);
+		face = new LLFace(this, mVObjp);
+	}
+
 	if (!face) llerrs << "Allocating new Face: " << mFaces.size() << llendl;
 	
 	if (face)
@@ -280,10 +292,12 @@ LLFace*	LLDrawable::addFace(LLFacePool *poolp, LLViewerTexture *texturep)
 
 LLFace*	LLDrawable::addFace(const LLTextureEntry *te, LLViewerTexture *texturep)
 {
-	LLMemType mt(LLMemType::MTYPE_DRAWABLE);
-	
 	LLFace *face;
-	face = new LLFace(this, mVObjp);
+
+	{
+		LLFastTimer t(FTM_ALLOCATE_FACE);
+		face = new LLFace(this, mVObjp);
+	}
 
 	face->setTEOffset(mFaces.size());
 	face->setTexture(texturep);
@@ -298,6 +312,49 @@ LLFace*	LLDrawable::addFace(const LLTextureEntry *te, LLViewerTexture *texturep)
 
 	return face;
 
+}
+
+LLFace*	LLDrawable::addFace(const LLTextureEntry *te, LLViewerTexture *texturep, LLViewerTexture *normalp)
+{
+	LLFace *face;
+	face = new LLFace(this, mVObjp);
+	
+	face->setTEOffset(mFaces.size());
+	face->setTexture(texturep);
+	face->setNormalMap(normalp);
+	face->setPoolType(gPipeline.getPoolTypeFromTE(te, texturep));
+	
+	mFaces.push_back(face);
+	
+	if (isState(UNLIT))
+	{
+		face->setState(LLFace::FULLBRIGHT);
+	}
+	
+	return face;
+	
+}
+
+LLFace*	LLDrawable::addFace(const LLTextureEntry *te, LLViewerTexture *texturep, LLViewerTexture *normalp, LLViewerTexture *specularp)
+{
+	LLFace *face;
+	face = new LLFace(this, mVObjp);
+	
+	face->setTEOffset(mFaces.size());
+	face->setTexture(texturep);
+	face->setNormalMap(normalp);
+	face->setSpecularMap(specularp);
+	face->setPoolType(gPipeline.getPoolTypeFromTE(te, texturep));
+	
+	mFaces.push_back(face);
+	
+	if (isState(UNLIT))
+	{
+		face->setState(LLFace::FULLBRIGHT);
+	}
+	
+	return face;
+	
 }
 
 void LLDrawable::setNumFaces(const S32 newFaces, LLFacePool *poolp, LLViewerTexture *texturep)
@@ -447,7 +504,7 @@ void LLDrawable::makeStatic(BOOL warning_enabled)
 
 		//drawable became static with active parent, not acceptable
 		llassert(mParent.isNull() || !mParent->isActive() || !warning_enabled);
-		
+
 		LLViewerObject::const_child_list_t& child_list = mVObjp->getChildren();
 		for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
 			 iter != child_list.end(); iter++)
@@ -476,6 +533,8 @@ void LLDrawable::makeStatic(BOOL warning_enabled)
 		}
 		updatePartition();
 	}
+
+	llassert(isAvatar() || isRoot() || mParent->isStatic());
 }
 
 // Returns "distance" between target destination and resulting xfrom
@@ -503,7 +562,6 @@ F32 LLDrawable::updateXform(BOOL undamped)
 	//scaling
 	LLVector3 target_scale = mVObjp->getScale();
 	LLVector3 old_scale = mCurrentScale;
-	LLVector3 dest_scale = target_scale;
 	
 	// Damping
 	F32 dist_squared = 0.f;
@@ -516,6 +574,7 @@ F32 LLDrawable::updateXform(BOOL undamped)
 		dist_squared = dist_vec_squared(new_pos, target_pos);
 
 		LLQuaternion new_rot = nlerp(lerp_amt, old_rot, target_rot);
+		// FIXME: This can be negative! It is be possible for some rots to 'cancel out' pos or size changes.
 		dist_squared += (1.f - dot(new_rot, target_rot)) * 10.f;
 
 		LLVector3 new_scale = lerp(old_scale, target_scale, lerp_amt);
@@ -539,6 +598,15 @@ F32 LLDrawable::updateXform(BOOL undamped)
 			}
 		}
 	}
+	else
+	{
+		// The following fixes MAINT-1742 but breaks vehicles similar to MAINT-2275
+		// dist_squared = dist_vec_squared(old_pos, target_pos);
+
+		// The following fixes MAINT-2247 but causes MAINT-2275
+		//dist_squared += (1.f - dot(old_rot, target_rot)) * 10.f;
+		//dist_squared += dist_vec_squared(old_scale, target_scale);
+	}
 
 	LLVector3 vec = mCurrentScale-target_scale;
 	
@@ -558,6 +626,12 @@ F32 LLDrawable::updateXform(BOOL undamped)
 			gPipeline.markRebuild(this, LLDrawable::REBUILD_ALL, TRUE);
 			mVObjp->dirtySpatialGroup();
 		}
+	}
+	else if (!isRoot() &&
+			((dist_vec_squared(old_pos, target_pos) > 0.f)
+			|| (1.f - dot(old_rot, target_rot)) > 0.f))
+	{ //fix for BUG-840, MAINT-2275, MAINT-1742, MAINT-2247
+			gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
 	}
 	else if (!getVOVolume() && !isAvatar())
 	{
@@ -624,20 +698,10 @@ BOOL LLDrawable::updateMove()
 	{
 		return FALSE;
 	}
-
+	
 	makeActive();
 
-	BOOL done;
-
-	if (isState(MOVE_UNDAMPED))
-	{
-		done = updateMoveUndamped();
-	}
-	else
-	{
-		done = updateMoveDamped();
-	}
-	return done;
+	return isState(MOVE_UNDAMPED) ? updateMoveUndamped() : updateMoveDamped();
 }
 
 BOOL LLDrawable::updateMoveUndamped()
@@ -764,8 +828,6 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 
 void LLDrawable::updateTexture()
 {
-	LLMemType mt(LLMemType::MTYPE_DRAWABLE);
-	
 	if (isDead())
 	{
 		llwarns << "Dead drawable updating texture!" << llendl;
@@ -1225,7 +1287,6 @@ LLCamera LLSpatialBridge::transformCamera(LLCamera& camera)
 	LLCamera ret = camera;
 	LLXformMatrix* mat = mDrawable->getXform();
 	LLVector3 center = LLVector3(0,0,0) * mat->getWorldMatrix();
-	LLQuaternion rotation = LLQuaternion(mat->getWorldMatrix());
 
 	LLVector3 delta = ret.getOrigin() - center;
 	LLQuaternion rot = ~mat->getRotation();

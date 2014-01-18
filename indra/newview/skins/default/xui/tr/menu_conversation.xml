@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="menu_conversation_participant">
+	<menu_item_call label="Sohbeti kapat" name="close_conversation"/>
+	<menu_item_call label="Ses sohbetini aç" name="open_voice_conversation"/>
+	<menu_item_call label="Ses bağlantısını kes" name="disconnect_from_voice"/>
+	<menu_item_call label="Seçileni Kapat" name="close_selected_conversations"/>
+	<menu_item_call label="Profili Göster" name="view_profile"/>
+	<menu_item_call label="Aİ" name="im"/>
+	<menu_item_call label="Işınlama teklif et" name="offer_teleport"/>
+	<menu_item_call label="Sesli arama" name="voice_call"/>
+	<menu_item_call label="Sohbet geçmişi..." name="chat_history"/>
+	<menu_item_call label="Arkadaş ekle" name="add_friend"/>
+	<menu_item_call label="Arkadaşı çıkar" name="remove_friend"/>
+	<menu_item_call label="Arkadaşları çıkar" name="remove_friends"/>
+	<menu_item_call label="Gruba davet et..." name="invite_to_group"/>
+	<menu_item_call label="Yakınlaştır" name="zoom_in"/>
+	<menu_item_call label="Harita" name="map"/>
+	<menu_item_call label="Paylaş" name="share"/>
+	<menu_item_call label="Öde" name="pay"/>
+	<menu_item_check label="Sesi Engelle" name="block_unblock"/>
+	<menu_item_check label="Metni Engelle" name="MuteText"/>
+	<menu_item_call label="Grup Profili" name="group_profile"/>
+	<menu_item_call label="Grubu Etkinleştir" name="activate_group"/>
+	<menu_item_call label="Gruptan Ayrıl" name="leave_group"/>
+	<context_menu label="Moderatör Seçenekleri" name="Moderator Options">
+		<menu_item_check label="Metin sohbetine izin ver" name="AllowTextChat"/>
+		<menu_item_call label="Bu katılımcıyı engelle" name="ModerateVoiceMuteSelected"/>
+		<menu_item_call label="Bu katılımcının engellemesini kaldır" name="ModerateVoiceUnMuteSelected"/>
+		<menu_item_call label="Herkesi engelle" name="ModerateVoiceMute"/>
+		<menu_item_call label="Herkesin engellemesini kaldır" name="ModerateVoiceUnmute"/>
+	</context_menu>
+</toggleable_menu>

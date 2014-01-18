@@ -37,6 +37,12 @@ VARYING vec2 vary_texcoord0;
 
 uniform float minimum_alpha;
 
+vec2 encode_normal(vec3 n)
+{
+	float f = sqrt(8 * n.z + 8);
+	return n.xy / f + 0.5;
+}
+
 void main() 
 {
 	vec4 col = texture2D(diffuseMap, vary_texcoord0.xy);
@@ -48,5 +54,5 @@ void main()
 	frag_data[0] = vec4(vertex_color.rgb*col.rgb, 0.0);
 	frag_data[1] = vec4(0,0,0,0);
 	vec3 nvn = normalize(vary_normal);
-	frag_data[2] = vec4(nvn.xyz * 0.5 + 0.5, 0.0);
+	frag_data[2] = vec4(encode_normal(nvn.xyz), 0.0, 0.0);
 }

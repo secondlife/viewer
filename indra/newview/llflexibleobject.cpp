@@ -48,7 +48,7 @@ std::vector<LLVolumeImplFlexible*> LLVolumeImplFlexible::sInstanceList;
 std::vector<S32> LLVolumeImplFlexible::sUpdateDelay;
 
 static LLFastTimer::DeclareTimer FTM_FLEXIBLE_REBUILD("Rebuild");
-static LLFastTimer::DeclareTimer FTM_DO_FLEXIBLE_UPDATE("Update");
+static LLFastTimer::DeclareTimer FTM_DO_FLEXIBLE_UPDATE("Flexible Update");
 
 // LLFlexibleObjectData::pack/unpack now in llprimitive.cpp
 
@@ -66,7 +66,7 @@ LLVolumeImplFlexible::LLVolumeImplFlexible(LLViewerObject* vo, LLFlexibleObjectD
 	mSimulateRes = 0;
 	mFrameNum = 0;
 	mCollisionSphereRadius = 0.f;
-	mRenderRes = 1;
+	mRenderRes = -1;
 	
 	if(mVO->mDrawable.notNull())
 	{
@@ -270,9 +270,6 @@ void LLVolumeImplFlexible::setAttributesOfAllSections(LLVector3* inScale)
 	mSection[0].mVelocity.setVec(0,0,0);
 	mSection[0].mAxisRotation.setQuat(begin_rot,0,0,1);
 
-	LLVector3 parentSectionPosition = mSection[0].mPosition;
-	LLVector3 last_direction = mSection[0].mDirection;
-
 	remapSections(mSection, mInitializedRes, mSection, mSimulateRes);
 	mInitializedRes = mSimulateRes;
 
@@ -297,6 +294,9 @@ void LLVolumeImplFlexible::onSetVolume(const LLVolumeParams &volume_params, cons
 
 void LLVolumeImplFlexible::updateRenderRes()
 {
+	if (!mAttributes)
+		return;
+
 	LLDrawable* drawablep = mVO->mDrawable;
 
 	S32 new_res = mAttributes->getSimulateLOD();
@@ -342,31 +342,32 @@ void LLVolumeImplFlexible::doIdleUpdate()
 	if (drawablep)
 	{
 		//LLFastTimer ftm(FTM_FLEXIBLE_UPDATE);
-		
+
 		//ensure drawable is active
 		drawablep->makeActive();
-			
+
 		if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_FLEXIBLE))
 		{
 			bool visible = drawablep->isVisible();
 
-			if ((mSimulateRes == 0) && visible)
+			if (mRenderRes == -1)
 			{
 				updateRenderRes();
 				gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_POSITION, FALSE);
+				sUpdateDelay[mInstanceIndex] = 0;
 			}
 			else
 			{
 				F32 pixel_area = mVO->getPixelArea();
 
-				U32 update_period = (U32) (LLViewerCamera::getInstance()->getScreenPixelArea()*0.01f/(pixel_area*(sUpdateFactor+1.f)))+1;
+				U32 update_period = (U32) (llmax((S32) (LLViewerCamera::getInstance()->getScreenPixelArea()*0.01f/(pixel_area*(sUpdateFactor+1.f))),0)+1);
 				// MAINT-1890 Clamp the update period to ensure that the update_period is no greater than 32 frames
 				update_period = llclamp(update_period, 0U, 32U);
 
 				if	(visible)
 				{
 					if (!drawablep->isState(LLDrawable::IN_REBUILD_Q1) &&
-					mVO->getPixelArea() > 256.f)
+						pixel_area > 256.f)
 					{
 						U32 id;
 				
@@ -380,21 +381,31 @@ void LLVolumeImplFlexible::doIdleUpdate()
 							id = parent->getVolumeInterfaceID();
 						}
 
-						if ((LLDrawable::getCurrentFrame()+id)%update_period == 0)
-						{
-							sUpdateDelay[mInstanceIndex] = (S32) update_period-1;
-
-							updateRenderRes();
-
-							gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_POSITION, FALSE);
-						}
-					}
+				if (mVO->isRootEdit())
+				{
+					id = mID;
 				}
 				else
 				{
-					sUpdateDelay[mInstanceIndex] = (S32) update_period;
+					LLVOVolume* parent = (LLVOVolume*) mVO->getParent();
+					id = parent->getVolumeInterfaceID();
+				}
+
+				if ((LLDrawable::getCurrentFrame()+id)%update_period == 0)
+				{
+							sUpdateDelay[mInstanceIndex] = (S32) update_period-1;
+
+					updateRenderRes();
+
+					gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_POSITION, FALSE);
 				}
 			}
+		}
+				else
+				{
+					sUpdateDelay[mInstanceIndex] = (S32) update_period;
+	}
+}
 
 		}
 	}
@@ -419,7 +430,6 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 	if ((mSimulateRes == 0 || !mInitialized) && mVO->mDrawable->isVisible()) 
 	{
 		BOOL force_update = mSimulateRes == 0 ? TRUE : FALSE;
-
 		doIdleUpdate();
 
 		if (!force_update || !gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_FLEXIBLE))
@@ -428,13 +438,13 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 		}
 	}
 
-	if(!mInitialized)
+	if(!mInitialized || !mAttributes)
 	{
 		//the object is not visible
 		return ;
 	}
 
-	// stinson 11/12/2012: Need to check with davep on the following.
+	// Fix for MAINT-1894
 	// Skipping the flexible update if render res is negative.  If we were to continue with a negative value,
 	// the subsequent S32 num_render_sections = 1<<mRenderRes; code will specify a really large number of
 	// render sections which will then create a length exception in the std::vector::resize() method.
@@ -650,6 +660,7 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 	mSection[i].mdPosition = (mSection[i].mPosition - mSection[i-1].mPosition) * inv_section_length;
 
 	// Create points
+	llassert(mRenderRes > -1)
 	S32 num_render_sections = 1<<mRenderRes;
 	if (path->getPathLength() != num_render_sections+1)
 	{
@@ -681,30 +692,36 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 								LLVector4(z_axis, 0.f),
 								LLVector4(delta_pos, 1.f));
 			
+	LL_CHECK_MEMORY
 	for (i=0; i<=num_render_sections; ++i)
 	{
 		new_point = &path->mPath[i];
 		LLVector3 pos = newSection[i].mPosition * rel_xform;
 		LLQuaternion rot = mSection[i].mAxisRotation * newSection[i].mRotation * delta_rot;
-		
-		if (!mUpdated || (new_point->mPos-pos).magVec()/mVO->mDrawable->mDistanceWRTCamera > 0.001f)
+	
+		LLVector3 np(new_point->mPos.getF32ptr());
+
+		if (!mUpdated || (np-pos).magVec()/mVO->mDrawable->mDistanceWRTCamera > 0.001f)
 		{
-			new_point->mPos = newSection[i].mPosition * rel_xform;
+			new_point->mPos.load3((newSection[i].mPosition * rel_xform).mV);
 			mUpdated = FALSE;
 		}
 
-		new_point->mRot = rot;
-		new_point->mScale = newSection[i].mScale;
+		new_point->mRot.loadu(LLMatrix3(rot));
+		new_point->mScale.set(newSection[i].mScale.mV[0], newSection[i].mScale.mV[1], 0,1);
 		new_point->mTexT = ((F32)i)/(num_render_sections);
 	}
-
+	LL_CHECK_MEMORY
 	mLastSegmentRotation = parentSegmentRotation;
 }
+
+static LLFastTimer::DeclareTimer FTM_FLEXI_PREBUILD("Flexi Prebuild");
 
 void LLVolumeImplFlexible::preRebuild()
 {
 	if (!mUpdated)
 	{
+		LLFastTimer t(FTM_FLEXI_PREBUILD);
 		doFlexibleRebuild();
 	}
 }

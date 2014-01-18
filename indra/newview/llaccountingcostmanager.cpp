@@ -56,9 +56,9 @@ public:
 		}
 	}
 	
-	void error( U32 statusNum, const std::string& reason )
+	void errorWithContent( U32 statusNum, const std::string& reason, const LLSD& content )
 	{
-		llwarns	<< "Transport error "<<reason<<llendl;	
+		llwarns << "Transport error [status:" << statusNum << "]: " << content <<llendl;
 		clearPendingRequests();
 
 		LLAccountingCostObserver* observer = mObserverHandle.get();

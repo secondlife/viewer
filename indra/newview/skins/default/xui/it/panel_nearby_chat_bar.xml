@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="chat_bar">
+<panel name="nearby_chat">
 	<string name="min_width">
 		192
 	</string>

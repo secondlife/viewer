@@ -29,6 +29,7 @@
 		<combo_box.item label="Automatisch installieren" name="Install_automatically"/>
 		<combo_box.item label="Updates manuell herunterladen und installieren" name="Install_manual"/>
 	</combo_box>
+	<check_box label="Bereit, Release-Kandidaten zu verwenden" name="update_willing_to_test"/>
 	<text name="Proxy Settings:">
 		Proxy-Einstellungen:
 	</text>

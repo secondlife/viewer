@@ -24,7 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTEXTURECACHE_
+#ifndef LL_LLTEXTURECACHE_H
 #define LL_LLTEXTURECACHE_H
 
 #include "lldir.h"

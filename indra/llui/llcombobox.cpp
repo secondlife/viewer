@@ -534,6 +534,13 @@ void LLComboBox::createLineEditor(const LLComboBox::Params& p)
 	}
 }
 
+void LLComboBox::setLeftTextPadding(S32 pad)
+{
+	S32 left_pad, right_pad;
+	mTextEntry->getTextPadding(&left_pad, &right_pad);
+	mTextEntry->setTextPadding(pad, right_pad);
+}
+
 void* LLComboBox::getCurrentUserdata()
 {
 	LLScrollListItem* item = mList->getFirstSelected();
@@ -551,7 +558,7 @@ void LLComboBox::showList()
 	LLCoordWindow window_size;
 	getWindow()->getSize(&window_size);
 	//HACK: shouldn't have to know about scale here
-	mList->fitContents( 192, llfloor((F32)window_size.mY / LLUI::sGLScaleFactor.mV[VY]) - 50 );
+	mList->fitContents( 192, llfloor((F32)window_size.mY / LLUI::getScaleFactor().mV[VY]) - 50 );
 
 	// Make sure that we can see the whole list
 	LLRect root_view_local;

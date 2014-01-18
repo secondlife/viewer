@@ -67,12 +67,18 @@ using namespace llsd;
 #	include <sys/sysctl.h>
 #	include <sys/utsname.h>
 #	include <stdint.h>
-#	include <Carbon/Carbon.h>
+#	include <CoreServices/CoreServices.h>
 #   include <stdexcept>
 #	include <mach/host_info.h>
 #	include <mach/mach_host.h>
 #	include <mach/task.h>
 #	include <mach/task_info.h>
+
+// disable warnings about Gestalt calls being deprecated
+// until Apple get's on the ball and provides an alternative
+//
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 #elif LL_LINUX
 #	include <errno.h>
 #	include <sys/utsname.h>
@@ -80,6 +86,7 @@ using namespace llsd;
 #	include <sys/sysinfo.h>
 #   include <stdexcept>
 const char MEMINFO_FILE[] = "/proc/meminfo";
+#   include <gnu/libc-version.h>
 #elif LL_SOLARIS
 #	include <stdio.h>
 #	include <unistd.h>
@@ -107,6 +114,9 @@ static const F32 MEM_INFO_THROTTLE = 20;
 static const F32 MEM_INFO_WINDOW = 10*60;
 
 #if LL_WINDOWS
+// We cannot trust GetVersionEx function on Win8.1 , we should check this value when creating OS string
+static const U32 WINNT_WINBLUE = 0x0603;
+
 #ifndef DLLVERSIONINFO
 typedef struct _DllVersionInfo
 {
@@ -175,13 +185,67 @@ bool get_shell32_dll_version(DWORD& major, DWORD& minor, DWORD& build_number)
 }
 #endif // LL_WINDOWS
 
+// Wrap boost::regex_match() with a function that doesn't throw.
+template <typename S, typename M, typename R>
+static bool regex_match_no_exc(const S& string, M& match, const R& regex)
+{
+    try
+    {
+        return boost::regex_match(string, match, regex);
+    }
+    catch (const std::runtime_error& e)
+    {
+        LL_WARNS("LLMemoryInfo") << "error matching with '" << regex.str() << "': "
+                                 << e.what() << ":\n'" << string << "'" << LL_ENDL;
+        return false;
+    }
+}
+
+// Wrap boost::regex_search() with a function that doesn't throw.
+template <typename S, typename M, typename R>
+static bool regex_search_no_exc(const S& string, M& match, const R& regex)
+{
+    try
+    {
+        return boost::regex_search(string, match, regex);
+    }
+    catch (const std::runtime_error& e)
+    {
+        LL_WARNS("LLMemoryInfo") << "error searching with '" << regex.str() << "': "
+                                 << e.what() << ":\n'" << string << "'" << LL_ENDL;
+        return false;
+    }
+}
+
+#if LL_WINDOWS
+// GetVersionEx should not works correct with Windows 8.1 and the later version. We need to check this case 
+static bool	check_for_version(WORD wMajorVersion, WORD wMinorVersion, WORD wServicePackMajor)
+{
+    OSVERSIONINFOEXW osvi = { sizeof(osvi), 0, 0, 0, 0, {0}, 0, 0 };
+    DWORDLONG        const dwlConditionMask = VerSetConditionMask(
+        VerSetConditionMask(
+        VerSetConditionMask(
+            0, VER_MAJORVERSION, VER_GREATER_EQUAL),
+               VER_MINORVERSION, VER_GREATER_EQUAL),
+               VER_SERVICEPACKMAJOR, VER_GREATER_EQUAL);
+
+    osvi.dwMajorVersion = wMajorVersion;
+    osvi.dwMinorVersion = wMinorVersion;
+    osvi.wServicePackMajor = wServicePackMajor;
+
+    return VerifyVersionInfoW(&osvi, VER_MAJORVERSION | VER_MINORVERSION | VER_SERVICEPACKMAJOR, dwlConditionMask) != FALSE;
+}
+#endif
+
+
 LLOSInfo::LLOSInfo() :
-	mMajorVer(0), mMinorVer(0), mBuild(0)
+	mMajorVer(0), mMinorVer(0), mBuild(0), mOSVersionString("")	 
 {
 
 #if LL_WINDOWS
 	OSVERSIONINFOEX osvi;
 	BOOL bOsVersionInfoEx;
+	BOOL bShouldUseShellVersion = false;
 
 	// Try calling GetVersionEx using the OSVERSIONINFOEX structure.
 	ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
@@ -244,10 +308,18 @@ LLOSInfo::LLOSInfo() :
 				}
 				else if(osvi.dwMinorVersion == 2)
 				{
+					if (check_for_version(HIBYTE(WINNT_WINBLUE), LOBYTE(WINNT_WINBLUE), 0))
+					{
+						mOSStringSimple = "Microsoft Windows 8.1 ";
+						bShouldUseShellVersion = true; // GetVersionEx failed, going to use shell version
+					}
+					else
+					{
 					if(osvi.wProductType == VER_NT_WORKSTATION)
 						mOSStringSimple = "Microsoft Windows 8 ";
 					else
 						mOSStringSimple = "Windows Server 2012 ";
+				}
 				}
 
 				///get native system info if available..
@@ -314,9 +386,8 @@ LLOSInfo::LLOSInfo() :
 			}
 			else
 			{
-				tmpstr = llformat("%s (Build %d)",
-								  csdversion.c_str(),
-								  (osvi.dwBuildNumber & 0xffff));
+				tmpstr = !bShouldUseShellVersion ?  llformat("%s (Build %d)", csdversion.c_str(), (osvi.dwBuildNumber & 0xffff)):
+					llformat("%s (Build %d)", csdversion.c_str(), shell32_build);
 			}
 
 			mOSString = mOSStringSimple + tmpstr;
@@ -352,7 +423,7 @@ LLOSInfo::LLOSInfo() :
 	std::string compatibility_mode;
 	if(got_shell32_version)
 	{
-		if(osvi.dwMajorVersion != shell32_major || osvi.dwMinorVersion != shell32_minor)
+		if((osvi.dwMajorVersion != shell32_major || osvi.dwMinorVersion != shell32_minor) && !bShouldUseShellVersion)
 		{
 			compatibility_mode = llformat(" compatibility mode. real ver: %d.%d (Build %d)", 
 											shell32_major,
@@ -412,6 +483,102 @@ LLOSInfo::LLOSInfo() :
 		mOSString = mOSStringSimple;
 	}
 	
+#elif LL_LINUX
+	
+	struct utsname un;
+	if(uname(&un) != -1)
+	{
+		mOSStringSimple.append(un.sysname);
+		mOSStringSimple.append(" ");
+		mOSStringSimple.append(un.release);
+
+		mOSString = mOSStringSimple;
+		mOSString.append(" ");
+		mOSString.append(un.version);
+		mOSString.append(" ");
+		mOSString.append(un.machine);
+
+		// Simplify 'Simple'
+		std::string ostype = mOSStringSimple.substr(0, mOSStringSimple.find_first_of(" ", 0));
+		if (ostype == "Linux")
+		{
+			// Only care about major and minor Linux versions, truncate at second '.'
+			std::string::size_type idx1 = mOSStringSimple.find_first_of(".", 0);
+			std::string::size_type idx2 = (idx1 != std::string::npos) ? mOSStringSimple.find_first_of(".", idx1+1) : std::string::npos;
+			std::string simple = mOSStringSimple.substr(0, idx2);
+			if (simple.length() > 0)
+				mOSStringSimple = simple;
+		}
+	}
+	else
+	{
+		mOSStringSimple.append("Unable to collect OS info");
+		mOSString = mOSStringSimple;
+	}
+
+	const char OS_VERSION_MATCH_EXPRESSION[] = "([0-9]+)\\.([0-9]+)(\\.([0-9]+))?";
+	boost::regex os_version_parse(OS_VERSION_MATCH_EXPRESSION);
+	boost::smatch matched;
+
+	std::string glibc_version(gnu_get_libc_version());
+	if ( regex_match_no_exc(glibc_version, matched, os_version_parse) )
+	{
+		LL_INFOS("AppInit") << "Using glibc version '" << glibc_version << "' as OS version" << LL_ENDL;
+	
+		std::string version_value;
+
+		if ( matched[1].matched ) // Major version
+		{
+			version_value.assign(matched[1].first, matched[1].second);
+			if (sscanf(version_value.c_str(), "%d", &mMajorVer) != 1)
+			{
+			  LL_WARNS("AppInit") << "failed to parse major version '" << version_value << "' as a number" << LL_ENDL;
+			}
+		}
+		else
+		{
+			LL_ERRS("AppInit")
+				<< "OS version regex '" << OS_VERSION_MATCH_EXPRESSION 
+				<< "' returned true, but major version [1] did not match"
+				<< LL_ENDL;
+		}
+
+		if ( matched[2].matched ) // Minor version
+		{
+			version_value.assign(matched[2].first, matched[2].second);
+			if (sscanf(version_value.c_str(), "%d", &mMinorVer) != 1)
+			{
+			  LL_ERRS("AppInit") << "failed to parse minor version '" << version_value << "' as a number" << LL_ENDL;
+			}
+		}
+		else
+		{
+			LL_ERRS("AppInit")
+				<< "OS version regex '" << OS_VERSION_MATCH_EXPRESSION 
+				<< "' returned true, but minor version [1] did not match"
+				<< LL_ENDL;
+		}
+
+		if ( matched[4].matched ) // Build version (optional) - note that [3] includes the '.'
+		{
+			version_value.assign(matched[4].first, matched[4].second);
+			if (sscanf(version_value.c_str(), "%d", &mBuild) != 1)
+			{
+			  LL_ERRS("AppInit") << "failed to parse build version '" << version_value << "' as a number" << LL_ENDL;
+			}
+		}
+		else
+		{
+			LL_INFOS("AppInit")
+				<< "OS build version not provided; using zero"
+				<< LL_ENDL;
+		}
+	}
+	else
+	{
+		LL_WARNS("AppInit") << "glibc version '" << glibc_version << "' cannot be parsed to three numbers; using all zeros" << LL_ENDL;
+	}
+
 #else
 	
 	struct utsname un;
@@ -444,7 +611,12 @@ LLOSInfo::LLOSInfo() :
 		mOSStringSimple.append("Unable to collect OS info");
 		mOSString = mOSStringSimple;
 	}
+
 #endif
+
+	std::stringstream dotted_version_string;
+	dotted_version_string << mMajorVer << "." << mMinorVer << "." << mBuild;
+	mOSVersionString.append(dotted_version_string.str());
 
 }
 
@@ -494,6 +666,11 @@ const std::string& LLOSInfo::getOSString() const
 const std::string& LLOSInfo::getOSStringSimple() const
 {
 	return mOSStringSimple;
+}
+
+const std::string& LLOSInfo::getOSVersionString() const
+{
+	return mOSVersionString;
 }
 
 const S32 STATUS_SIZE = 8192;
@@ -686,38 +863,6 @@ public:
 private:
 	LLSD mStats;
 };
-
-// Wrap boost::regex_match() with a function that doesn't throw.
-template <typename S, typename M, typename R>
-static bool regex_match_no_exc(const S& string, M& match, const R& regex)
-{
-    try
-    {
-        return boost::regex_match(string, match, regex);
-    }
-    catch (const std::runtime_error& e)
-    {
-        LL_WARNS("LLMemoryInfo") << "error matching with '" << regex.str() << "': "
-                                 << e.what() << ":\n'" << string << "'" << LL_ENDL;
-        return false;
-    }
-}
-
-// Wrap boost::regex_search() with a function that doesn't throw.
-template <typename S, typename M, typename R>
-static bool regex_search_no_exc(const S& string, M& match, const R& regex)
-{
-    try
-    {
-        return boost::regex_search(string, match, regex);
-    }
-    catch (const std::runtime_error& e)
-    {
-        LL_WARNS("LLMemoryInfo") << "error searching with '" << regex.str() << "': "
-                                 << e.what() << ":\n'" << string << "'" << LL_ENDL;
-        return false;
-    }
-}
 
 LLMemoryInfo::LLMemoryInfo()
 {
@@ -1394,3 +1539,10 @@ BOOL gzip_file(const std::string& srcfile, const std::string& dstfile)
 	if (dst != NULL) gzclose(dst);
 	return retval;
 }
+
+#if LL_DARWIN
+// disable warnings about Gestalt calls being deprecated
+// until Apple get's on the ball and provides an alternative
+//
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif

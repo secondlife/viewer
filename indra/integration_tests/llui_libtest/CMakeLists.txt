@@ -34,6 +34,10 @@ include_directories(
     ${LLXML_INCLUDE_DIRS}
     ${LIBS_PREBUILD_DIR}/include/hunspell
     )
+include_directories(SYSTEM
+    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
+    ${LLXML_SYSTEM_INCLUDE_DIRS}
+    )
 
 set(llui_libtest_SOURCE_FILES
     llui_libtest.cpp
@@ -56,7 +60,8 @@ add_executable(llui_libtest ${llui_libtest_SOURCE_FILES})
 # Link with OS-specific libraries for LLWindow dependency
 if (DARWIN)
   find_library(COCOA_LIBRARY Cocoa)
-  set(OS_LIBRARIES ${COCOA_LIBRARY})
+  find_library(IOKIT_LIBRARY IOKit)
+  set(OS_LIBRARIES ${COCOA_LIBRARY} ${IOKIT_LIBRARY})
 elseif (WINDOWS)
   #ll_stack_trace needs this now...
   list(APPEND WINDOWS_LIBRARIES dbghelp)

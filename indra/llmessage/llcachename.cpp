@@ -36,7 +36,6 @@
 #include "llsdserialize.h"
 #include "lluuid.h"
 #include "message.h"
-#include "llmemtype.h"
 
 #include <boost/regex.hpp>
 
@@ -309,8 +308,10 @@ boost::signals2::connection LLCacheName::addObserver(const LLCacheNameCallback& 
 bool LLCacheName::importFile(std::istream& istr)
 {
 	LLSD data;
-	if(LLSDSerialize::fromXMLDocument(data, istr) < 1)
+	if(LLSDParser::PARSE_FAILURE == LLSDSerialize::fromXMLDocument(data, istr))
+	{
 		return false;
+	}
 
 	// We'll expire entries more than a week old
 	U32 now = (U32)time(NULL);
@@ -524,6 +525,7 @@ std::string LLCacheName::cleanFullName(const std::string& full_name)
 }
 
 //static 
+// Transform hard-coded name provided by server to a more legible username
 std::string LLCacheName::buildUsername(const std::string& full_name)
 {
 	// rare, but handle hard-coded error names returned from server
@@ -549,8 +551,9 @@ std::string LLCacheName::buildUsername(const std::string& full_name)
 		return username;
 	}
 
-	// if the input wasn't a correctly formatted legacy name just return it unchanged
-	return full_name;
+	// if the input wasn't a correctly formatted legacy name, just return it  
+	// cleaned up from a potential terminal "Resident"
+	return cleanFullName(full_name);
 }
 
 //static 
@@ -663,7 +666,6 @@ boost::signals2::connection LLCacheName::get(const LLUUID& id, bool is_group, ol
 
 void LLCacheName::processPending()
 {
-	LLMemType mt_pp(LLMemType::MTYPE_CACHE_PROCESS_PENDING);
 	const F32 SECS_BETWEEN_PROCESS = 0.1f;
 	if(!impl.mProcessTimer.checkExpirationAndReset(SECS_BETWEEN_PROCESS))
 	{
@@ -769,7 +771,6 @@ std::string LLCacheName::getDefaultLastName()
 
 void LLCacheName::Impl::processPendingAsks()
 {
-	LLMemType mt_ppa(LLMemType::MTYPE_CACHE_PROCESS_PENDING_ASKS);
 	sendRequest(_PREHASH_UUIDNameRequest, mAskNameQueue);
 	sendRequest(_PREHASH_UUIDGroupNameRequest, mAskGroupQueue);
 	mAskNameQueue.clear();
@@ -778,7 +779,6 @@ void LLCacheName::Impl::processPendingAsks()
 
 void LLCacheName::Impl::processPendingReplies()
 {
-	LLMemType mt_ppr(LLMemType::MTYPE_CACHE_PROCESS_PENDING_REPLIES);
 	// First call all the callbacks, because they might send messages.
 	for(ReplyQueue::iterator it = mReplyQueue.begin(); it != mReplyQueue.end(); ++it)
 	{

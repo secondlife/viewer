@@ -12,7 +12,7 @@ include(LLWindow)
 include(Linking)
 include(PluginAPI)
 include(MediaPluginBase)
-include(FindOpenGL)
+include(OpenGL)
 include(QuickTimePlugin)
 
 include_directories(
@@ -24,6 +24,9 @@ include_directories(
     ${LLRENDER_INCLUDE_DIRS}
     ${LLWINDOW_INCLUDE_DIRS}
 )
+include_directories(SYSTEM
+    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
+    )
 
 if (DARWIN)
     include(CMakeFindFrameworks)

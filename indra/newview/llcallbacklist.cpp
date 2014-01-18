@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llcallbacklist.h"
+#include "lleventtimer.h"
 
 // Library includes
 #include "llerror.h"
@@ -178,6 +179,54 @@ void doOnIdleRepeating(bool_func_t callable)
 {
 	OnIdleCallbackRepeating* cb_functor = new OnIdleCallbackRepeating(callable);
 	gIdleCallbacks.addFunction(&OnIdleCallbackRepeating::onIdle,cb_functor);
+}
+
+class NullaryFuncEventTimer: public LLEventTimer
+{
+public:
+	NullaryFuncEventTimer(nullary_func_t callable, F32 seconds):
+		LLEventTimer(seconds),
+		mCallable(callable)
+	{
+	}
+
+private:
+	BOOL tick()
+	{
+		mCallable();
+		return TRUE;
+	}
+
+	nullary_func_t mCallable;
+};
+
+// Call a given callable once after specified interval.
+void doAfterInterval(nullary_func_t callable, F32 seconds)
+{
+	new NullaryFuncEventTimer(callable, seconds);
+}
+
+class BoolFuncEventTimer: public LLEventTimer
+{
+public:
+	BoolFuncEventTimer(bool_func_t callable, F32 seconds):
+		LLEventTimer(seconds),
+		mCallable(callable)
+	{
+	}
+private:
+	BOOL tick()
+	{
+		return mCallable();
+	}
+
+	bool_func_t mCallable;
+};
+
+// Call a given callable every specified number of seconds, until it returns true.
+void doPeriodically(bool_func_t callable, F32 seconds)
+{
+	new BoolFuncEventTimer(callable, seconds);
 }
 
 #ifdef _DEBUG

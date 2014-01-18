@@ -99,8 +99,7 @@ void LLAres::QueryResponder::queryError(int code)
 
 LLAres::LLAres() :
     chan_(NULL),
-    mInitSuccess(false),
-    mListener(new LLAresListener(this))
+    mInitSuccess(false)
 {
 	if (ares_library_init( ARES_LIB_INIT_ALL ) != ARES_SUCCESS ||
 		ares_init(&chan_) != ARES_SUCCESS)
@@ -108,6 +107,8 @@ LLAres::LLAres() :
 		llwarns << "Could not succesfully initialize ares!" << llendl;
 		return;
 	}
+
+	mListener = boost::shared_ptr< LLAresListener >(new LLAresListener(this));
 
 	mInitSuccess = true;
 }
@@ -161,12 +162,26 @@ void LLAres::getSrvRecords(const std::string &name, SrvResponder *resp)
 }
 	
 void LLAres::rewriteURI(const std::string &uri, UriRewriteResponder *resp)
-{
-	llinfos << "Rewriting " << uri << llendl;
+{	
+	if (resp && uri.size())
+	{
+		LLURI* pURI = new LLURI(uri);
 
-	resp->mUri = LLURI(uri);
-	search("_" + resp->mUri.scheme() + "._tcp." + resp->mUri.hostName(),
-		   RES_SRV, resp);
+		resp->mUri = *pURI;
+
+		delete pURI;
+
+		if (!resp->mUri.scheme().size() || !resp->mUri.hostName().size())
+		{
+			return;
+		}
+
+		//llinfos << "LLAres::rewriteURI (" << uri << ") search: '" << "_" + resp->mUri.scheme() + "._tcp." + resp->mUri.hostName() << "'" << llendl;
+
+		search("_" + resp->mUri.scheme() + "._tcp." + resp->mUri.hostName(), RES_SRV, resp);
+
+		
+	}
 }
 
 LLQueryResponder::LLQueryResponder()

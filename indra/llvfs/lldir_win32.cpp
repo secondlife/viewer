@@ -131,7 +131,7 @@ LLDir_Win32::LLDir_Win32()
 		mAppRODataDir = mExecutableDir;
 	}
 
-	llinfos << "mAppRODataDir = " << mAppRODataDir << llendl;
+//	llinfos << "mAppRODataDir = " << mAppRODataDir << llendl;
 
 	mSkinBaseDir = mAppRODataDir + mDirDelimiter + "skins";
 
@@ -249,7 +249,7 @@ std::string LLDir_Win32::getCurPath()
 }
 
 
-BOOL LLDir_Win32::fileExists(const std::string &filename) const
+bool LLDir_Win32::fileExists(const std::string &filename) const
 {
 	llstat stat_data;
 	// Check the age of the file

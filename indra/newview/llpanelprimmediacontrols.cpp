@@ -94,7 +94,8 @@ LLPanelPrimMediaControls::LLPanelPrimMediaControls() :
 	mZoomObjectFace(0),
 	mVolumeSliderVisible(0),
 	mWindowShade(NULL),
-	mHideImmediately(false)
+	mHideImmediately(false),
+    mSecureURL(false)
 {
 	mCommitCallbackRegistrar.add("MediaCtrl.Close",		boost::bind(&LLPanelPrimMediaControls::onClickClose, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.Back",		boost::bind(&LLPanelPrimMediaControls::onClickBack, this));
@@ -345,7 +346,7 @@ void LLPanelPrimMediaControls::updateShape()
 		// Disable zoom if HUD
 		mZoomCtrl->setEnabled(!is_hud);
 		mUnzoomCtrl->setEnabled(!is_hud);
-		mSecureLockIcon->setVisible(false);
+        mSecureURL = false;
 		mCurrentURL = media_impl->getCurrentMediaURL();
 		
 		mBackCtrl->setEnabled((media_impl != NULL) && media_impl->canNavigateBack() && can_navigate);
@@ -382,7 +383,7 @@ void LLPanelPrimMediaControls::updateShape()
 			mVolumeSliderCtrl->setVisible(has_focus && shouldVolumeSliderBeVisible());
 			
 			mWhitelistIcon->setVisible(false);
-			mSecureLockIcon->setVisible(false);
+            mSecureURL = false;
 			if (mMediaPanelScroll)
 			{
 				mMediaPanelScroll->setVisible(false);
@@ -416,7 +417,7 @@ void LLPanelPrimMediaControls::updateShape()
 				mMediaPlaySliderCtrl->setEnabled(true);
 			}
 			
-			// video vloume
+			// video volume
 			if(volume <= 0.0)
 			{
 				mMuteBtn->setToggleState(true);
@@ -492,10 +493,8 @@ void LLPanelPrimMediaControls::updateShape()
 			std::string prefix =  std::string("https://");
 			std::string test_prefix = mCurrentURL.substr(0, prefix.length());
 			LLStringUtil::toLower(test_prefix);
-			if(test_prefix == prefix)
-			{
-				mSecureLockIcon->setVisible(has_focus);
-			}
+            mSecureURL = has_focus && (test_prefix == prefix);
+            mCurrentURL = (mSecureURL ? "      " + mCurrentURL : mCurrentURL);
 			
 			if(mCurrentURL!=mPreviousURL)
 			{
@@ -746,6 +745,9 @@ void LLPanelPrimMediaControls::draw()
 			clearFaceOnFade();
 		}
 	}
+
+    // Show/hide the lock icon for secure browsing
+    mSecureLockIcon->setVisible(mSecureURL && !mMediaAddress->hasFocus());
 	
 	// Build rect for icon area in coord system of this panel
 	// Assumes layout_stack is a direct child of this panel

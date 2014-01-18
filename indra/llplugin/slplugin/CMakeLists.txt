@@ -12,10 +12,12 @@ include_directories(
     ${LLMESSAGE_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
 )
+include_directories(SYSTEM
+    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
+    )
 
 if (DARWIN)
     include(CMakeFindFrameworks)
-    find_library(CARBON_LIBRARY Carbon)
     find_library(COCOA_LIBRARY Cocoa)
 endif (DARWIN)
 
@@ -48,10 +50,17 @@ add_executable(SLPlugin
     ${SLPlugin_SOURCE_FILES}
 )
 
+if (WINDOWS)
+set_target_properties(SLPlugin
+  PROPERTIES
+  LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMTD\""
+  )
+else ()
 set_target_properties(SLPlugin
   PROPERTIES
   MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/slplugin_info.plist
   )
+endif ()
 
 target_link_libraries(SLPlugin
   ${LLPLUGIN_LIBRARIES}
@@ -68,7 +77,7 @@ add_dependencies(SLPlugin
 
 if (DARWIN)
   # Mac version needs to link against Carbon
-  target_link_libraries(SLPlugin ${CARBON_LIBRARY} ${COCOA_LIBRARY})
+  target_link_libraries(SLPlugin ${COCOA_LIBRARY})
   # Make sure the app bundle has a Resources directory (it will get populated by viewer-manifest.py later)
   add_custom_command(
     TARGET SLPlugin POST_BUILD

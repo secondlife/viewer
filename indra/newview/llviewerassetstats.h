@@ -256,10 +256,6 @@ protected:
 
 	// Time of last reset
 	duration_t mResetTimestamp;
-
-	// Nearby avatar stats
-	std::vector<S32> mAvatarRezStates;
-	LLViewerStats::phase_stats_t mPhaseStats;
 };
 
 
@@ -317,8 +313,6 @@ void record_response_main(LLViewerAssetType::EType at, bool with_http, bool is_t
 						  LLViewerAssetStats::duration_t duration);
 
 void record_fps_main(F32 fps);
-
-void record_avatar_stats();
 
 /**
  * Region context, event and duration loggers for Thread 1.

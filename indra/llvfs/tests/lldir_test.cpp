@@ -134,7 +134,7 @@ struct LLDir_Dummy: public LLDir
         return 0;
     }
 
-    virtual BOOL fileExists(const std::string& pathname) const
+    virtual bool fileExists(const std::string& pathname) const
     {
         // Record fileExists() calls so we can check whether caching is
         // working right. Certain LLDir calls should be able to make decisions

@@ -46,6 +46,7 @@ private:
 	static LLSD analyzePerformanceLogDefault(std::istream& is) ;
 	static void exportCharts(const std::string& base, const std::string& target);
 	void onPause();
+	LLFastTimer::NamedTimer& getFrameTimer();
 
 public:
 
@@ -62,7 +63,7 @@ public:
 	F64 getTime(const std::string& name);
 
 protected:
-	virtual	void	onClickCloseBtn();
+	virtual	void	onClickCloseBtn(bool app_quitting = false);
 private:	
 	typedef std::vector<std::vector<S32> > bar_positions_t;
 	bar_positions_t mBarStart;
@@ -90,7 +91,6 @@ private:
 	S32 mHoverBarIndex;
 	LLFrameTimer mHighlightTimer;
 	S32 mPrintStats;
-	S32 mAverageCyclesPerTimer;
 	LLRect mGraphRect;
 };
 

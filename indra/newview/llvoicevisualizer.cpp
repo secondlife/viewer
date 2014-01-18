@@ -73,17 +73,6 @@ const F32 DEFAULT_MAXIMUM_GESTICULATION_AMPLITUDE	= 1.0f;
 const F32 ONE_HALF = 1.0f; // to clarify intent and reduce magic numbers in the code. 
 const LLVector3 WORLD_UPWARD_DIRECTION = LLVector3( 0.0f, 0.0f, 1.0f ); // Z is up in SL
 
-
-//------------------------------------------------------------------
-// handles parameter updates
-//------------------------------------------------------------------
-static bool handleVoiceVisualizerPrefsChanged(const LLSD& newvalue)
-{
-	// Note: Ignore the specific event value, we look up the ones we want
-	LLVoiceVisualizer::setPreferences();
-	return true;
-}
-
 //------------------------------------------------------------------
 // Initialize the statics
 //------------------------------------------------------------------
@@ -106,7 +95,7 @@ F32	 LLVoiceVisualizer::sAahPowerTransfersf = 0.0f;
 // constructor
 //-----------------------------------------------
 LLVoiceVisualizer::LLVoiceVisualizer( const U8 type )
-:LLHUDEffect( type )
+	: LLHUDEffect(type)
 {
 	mCurrentTime					= mTimer.getTotalSeconds();
 	mPreviousTime					= mCurrentTime;
@@ -136,7 +125,7 @@ LLVoiceVisualizer::LLVoiceVisualizer( const U8 type )
 	for (int i=0; i<NUM_VOICE_SYMBOL_WAVES; i++)
 	{
 		mSoundSymbol.mWaveFadeOutStartTime	[i] = mCurrentTime;
-		mSoundSymbol.mTexture				[i] = LLViewerTextureManager::getFetchedTextureFromFile(sound_level_img[i], FALSE, LLViewerTexture::BOOST_UI);
+		mSoundSymbol.mTexture				[i] = LLViewerTextureManager::getFetchedTextureFromFile(sound_level_img[i], FTT_LOCAL_FILE, FALSE, LLGLTexture::BOOST_UI);
 		mSoundSymbol.mWaveActive			[i] = false;
 		mSoundSymbol.mWaveOpacity			[i] = 1.0f;
 		mSoundSymbol.mWaveExpansion			[i] = 1.0f;
@@ -150,12 +139,12 @@ LLVoiceVisualizer::LLVoiceVisualizer( const U8 type )
 		setPreferences();
        
 		// Set up our listener to get updates on all prefs values we care about.
-		gSavedSettings.getControl("LipSyncEnabled")->getSignal()->connect(boost::bind(&handleVoiceVisualizerPrefsChanged, _2));
-		gSavedSettings.getControl("LipSyncOohAahRate")->getSignal()->connect(boost::bind(&handleVoiceVisualizerPrefsChanged, _2));
-		gSavedSettings.getControl("LipSyncOoh")->getSignal()->connect(boost::bind(&handleVoiceVisualizerPrefsChanged, _2));
-		gSavedSettings.getControl("LipSyncAah")->getSignal()->connect(boost::bind(&handleVoiceVisualizerPrefsChanged, _2));
-		gSavedSettings.getControl("LipSyncOohPowerTransfer")->getSignal()->connect(boost::bind(&handleVoiceVisualizerPrefsChanged, _2));
-		gSavedSettings.getControl("LipSyncAahPowerTransfer")->getSignal()->connect(boost::bind(&handleVoiceVisualizerPrefsChanged, _2));
+		gSavedSettings.getControl("LipSyncEnabled")->getSignal()->connect(boost::bind(&LLVoiceVisualizer::handleVoiceVisualizerPrefsChanged, _2));
+		gSavedSettings.getControl("LipSyncOohAahRate")->getSignal()->connect(boost::bind(&LLVoiceVisualizer::handleVoiceVisualizerPrefsChanged, _2));
+		gSavedSettings.getControl("LipSyncOoh")->getSignal()->connect(boost::bind(&LLVoiceVisualizer::handleVoiceVisualizerPrefsChanged, _2));
+		gSavedSettings.getControl("LipSyncAah")->getSignal()->connect(boost::bind(&LLVoiceVisualizer::handleVoiceVisualizerPrefsChanged, _2));
+		gSavedSettings.getControl("LipSyncOohPowerTransfer")->getSignal()->connect(boost::bind(&LLVoiceVisualizer::handleVoiceVisualizerPrefsChanged, _2));
+		gSavedSettings.getControl("LipSyncAahPowerTransfer")->getSignal()->connect(boost::bind(&LLVoiceVisualizer::handleVoiceVisualizerPrefsChanged, _2));
 		
 		sPrefsInitialized = true;
 	}
@@ -217,6 +206,15 @@ void LLVoiceVisualizer::setSpeakingAmplitude( F32 a )
 	
 }//---------------------------------------------------
 
+//------------------------------------------------------------------
+// handles parameter updates
+//------------------------------------------------------------------
+bool LLVoiceVisualizer::handleVoiceVisualizerPrefsChanged(const LLSD& newvalue)
+{
+	// Note: Ignore the specific event value, we look up the ones we want
+	LLVoiceVisualizer::setPreferences();
+	return true;
+}
 
 //---------------------------------------------------
 void LLVoiceVisualizer::setPreferences( )
@@ -526,10 +524,6 @@ void LLVoiceVisualizer::render()
 
 }//---------------------------------------------------
 
-
-
-
-
 //---------------------------------------------------
 void LLVoiceVisualizer::setVoiceSourceWorldPosition( const LLVector3 &p )
 {
@@ -615,11 +609,3 @@ void LLVoiceVisualizer::markDead()
 
 	LLHUDEffect::markDead();
 }//------------------------------------------------------------------
-
-
-
-
-
-
-
-

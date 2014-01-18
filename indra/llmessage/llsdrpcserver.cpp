@@ -31,7 +31,6 @@
 
 #include "llbuffer.h"
 #include "llbufferstream.h"
-#include "llmemtype.h"
 #include "llpumpio.h"
 #include "llsdserialize.h"
 #include "llstl.h"
@@ -58,12 +57,10 @@ LLSDRPCServer::LLSDRPCServer() :
 	mPump(NULL),
 	mLock(0)
 {
-	LLMemType m1(LLMemType::MTYPE_IO_SD_SERVER);
 }
 
 LLSDRPCServer::~LLSDRPCServer()
 {
-	LLMemType m1(LLMemType::MTYPE_IO_SD_SERVER);
 	std::for_each(
 		mMethods.begin(),
 		mMethods.end(),
@@ -109,7 +106,6 @@ LLIOPipe::EStatus LLSDRPCServer::process_impl(
 {
 	LLFastTimer t(FTM_PROCESS_SDRPC_SERVER);
 	PUMP_DEBUG;
-	LLMemType m1(LLMemType::MTYPE_IO_SD_SERVER);
 //	lldebugs << "LLSDRPCServer::process_impl" << llendl;
 	// Once we have all the data, We need to read the sd on
 	// the the in channel, and respond on  the out channel
@@ -253,7 +249,6 @@ ESDRPCSStatus LLSDRPCServer::callMethod(
 	const LLChannelDescriptors& channels,
 	LLBufferArray* response)
 {
-	LLMemType m1(LLMemType::MTYPE_IO_SD_SERVER);
 	// Try to find the method in the method table.
 	ESDRPCSStatus rv = ESDRPCS_DONE;
 	method_map_t::iterator it = mMethods.find(method);
@@ -292,7 +287,6 @@ ESDRPCSStatus LLSDRPCServer::callbackMethod(
 	const LLChannelDescriptors& channels,
 	LLBufferArray* response)
 {
-	LLMemType m1(LLMemType::MTYPE_IO_SD_SERVER);
 	// Try to find the method in the callback method table.
 	ESDRPCSStatus rv = ESDRPCS_DONE;
 	method_map_t::iterator it = mCallbackMethods.find(method);
@@ -320,7 +314,6 @@ void LLSDRPCServer::buildFault(
 	S32 code,
 	const std::string& msg)
 {
-	LLMemType m1(LLMemType::MTYPE_IO_SD_SERVER);
 	LLBufferStream ostr(channels, data);
 	ostr << FAULT_PART_1 << code << FAULT_PART_2 << msg << FAULT_PART_3;
 	llinfos << "LLSDRPCServer::buildFault: " << code << ", " << msg << llendl;
@@ -332,7 +325,6 @@ void LLSDRPCServer::buildResponse(
 	LLBufferArray* data,
 	const LLSD& response)
 {
-	LLMemType m1(LLMemType::MTYPE_IO_SD_SERVER);
 	LLBufferStream ostr(channels, data);
 	ostr << RESPONSE_PART_1;
 	LLSDSerialize::toNotation(response, ostr);

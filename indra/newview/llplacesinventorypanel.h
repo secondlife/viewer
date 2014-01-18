@@ -29,9 +29,9 @@
 
 #include "llfloaterinventory.h"
 #include "llinventorypanel.h"
-#include "llfolderview.h"
 
 class LLLandmarksPanel;
+class LLFolderView;
 
 class LLPlacesInventoryPanel : public LLInventoryPanel
 {
@@ -46,8 +46,7 @@ public:
 	LLPlacesInventoryPanel(const Params& p);
 	~LLPlacesInventoryPanel();
 
-	/*virtual*/ void buildFolderView(const LLInventoryPanel::Params& params);
-
+    LLFolderView * createFolderRoot(LLUUID root_id );
 	void saveFolderState();
 	void restoreFolderState();
 
@@ -55,38 +54,6 @@ public:
 
 private:
 	LLSaveFolderState*			mSavedFolderState;
-};
-
-
-class LLPlacesFolderView : public LLFolderView
-{
-public:
-	LLPlacesFolderView(const LLFolderView::Params& p);
-	/**
-	 *	Handles right mouse down
-	 *
-	 * Contains workaround for EXT-2786: sets current selected list for landmark
-	 * panel using @c mParentLandmarksPanel which is set in @c LLLandmarksPanel::initLandmarksPanel
-	 */
-	/*virtual*/ BOOL handleRightMouseDown( S32 x, S32 y, MASK mask );
-
-	void setupMenuHandle(LLInventoryType::EType asset_type, LLHandle<LLView> menu_handle);
-
-	void setParentLandmarksPanel(LLLandmarksPanel* panel)
-	{
-		mParentLandmarksPanel = panel;
-	}
-
-	S32 getSelectedCount() { return (S32)mSelectedItems.size(); }
-
-private:
-	/**
-	 * holds pointer to landmark panel. This pointer is used in @c LLPlacesFolderView::handleRightMouseDown
-	 */
-	LLLandmarksPanel* mParentLandmarksPanel;
-	typedef std::map<LLInventoryType::EType, LLHandle<LLView> > inventory_type_menu_handle_t;
-	inventory_type_menu_handle_t mMenuHandlesByInventoryType;
-
 };
 
 #endif //LL_LLINVENTORYSUBTREEPANEL_H

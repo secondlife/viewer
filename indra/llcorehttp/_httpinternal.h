@@ -111,7 +111,15 @@ const int HTTP_TRACE_MIN = HTTP_TRACE_OFF;
 const int HTTP_TRACE_MAX = HTTP_TRACE_CURL_BODIES;
 
 // Request retry limits
-const int HTTP_RETRY_COUNT_DEFAULT = 5;
+//
+// At a minimum, retries need to extend past any throttling
+// window we're expecting from central services.  In the case
+// of Linden services running through the caps routers, there's
+// a five-second or so window for throttling with some spillover.
+// We want to span a few windows to allow transport to slow
+// after onset of the throttles and then recover without a final
+// failure.  Other systems may need other constants.
+const int HTTP_RETRY_COUNT_DEFAULT = 8;
 const int HTTP_RETRY_COUNT_MIN = 0;
 const int HTTP_RETRY_COUNT_MAX = 100;
 
@@ -137,9 +145,6 @@ const int HTTP_SERVICE_LOOP_SLEEP_NORMAL_MS = 2;
 
 // Block allocation size (a tuning parameter) is found
 // in bufferarray.h.
-
-// Compatibility controls
-const bool HTTP_ENABLE_LINKSYS_WRT54G_V5_DNS_FIX = true;
 
 }  // end namespace LLCore
 

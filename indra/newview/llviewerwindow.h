@@ -41,8 +41,8 @@
 #include "llcursortypes.h"
 #include "llwindowcallbacks.h"
 #include "lltimer.h"
-#include "llstat.h"
 #include "llmousehandler.h"
+#include "llnotifications.h"
 #include "llhandle.h"
 #include "llinitparam.h"
 
@@ -50,7 +50,7 @@
 #include <boost/signals2.hpp>
 #include <boost/scoped_ptr.hpp>
 
-
+class LLStat;
 class LLView;
 class LLViewerObject;
 class LLUUID;
@@ -65,6 +65,7 @@ class LLWindow;
 class LLRootView;
 class LLWindowListener;
 class LLViewerWindowListener;
+class LLVOPartGroup;
 class LLPopupView;
 
 #define PICK_HALF_WIDTH 5
@@ -87,7 +88,8 @@ public:
 	LLPickInfo();
 	LLPickInfo(const LLCoordGL& mouse_pos, 
 		MASK keyboard_mask, 
-		BOOL pick_transparent, 
+		BOOL pick_transparent,
+		BOOL pick_particle,
 		BOOL pick_surface_info,
 		void (*pick_callback)(const LLPickInfo& pick_info));
 
@@ -108,6 +110,8 @@ public:
 	LLVector3d		mPosGlobal;
 	LLVector3		mObjectOffset;
 	LLUUID			mObjectID;
+	LLUUID			mParticleOwnerID;
+	LLUUID			mParticleSourceID;
 	S32				mObjectFace;
 	LLHUDIcon*		mHUDIcon;
 	LLVector3       mIntersection;
@@ -115,8 +119,10 @@ public:
 	LLVector2       mSTCoords;
 	LLCoordScreen	mXYCoords;
 	LLVector3		mNormal;
+	LLVector4		mTangent;
 	LLVector3		mBinormal;
 	BOOL			mPickTransparent;
+	BOOL			mPickParticle;
 	void		    getSurfaceInfo();
 
 private:
@@ -251,7 +257,7 @@ public:
 	S32				getCurrentMouseDX()		const	{ return mCurrentMouseDelta.mX; }
 	S32				getCurrentMouseDY()		const	{ return mCurrentMouseDelta.mY; }
 	LLCoordGL		getCurrentMouseDelta()	const	{ return mCurrentMouseDelta; }
-	LLStat *		getMouseVelocityStat()		{ return &mMouseVelocityStat; }
+	LLStat*			getMouseVelocityStat()		{ return mMouseVelocityStat; }
 	BOOL			getLeftMouseDown()	const	{ return mLeftMouseDown; }
 	BOOL			getMiddleMouseDown()	const	{ return mMiddleMouseDown; }
 	BOOL			getRightMouseDown()	const	{ return mRightMouseDown; }
@@ -355,21 +361,21 @@ public:
 	void			returnEmptyPicks();
 
 	void			pickAsync(S32 x, S32 y_from_bot, MASK mask, void (*callback)(const LLPickInfo& pick_info), BOOL pick_transparent = FALSE);
-	LLPickInfo		pickImmediate(S32 x, S32 y, BOOL pick_transparent);
+	LLPickInfo		pickImmediate(S32 x, S32 y, BOOL pick_transparent, BOOL pick_particle = FALSE);
 	LLHUDIcon* cursorIntersectIcon(S32 mouse_x, S32 mouse_y, F32 depth,
-										   LLVector3* intersection);
+										   LLVector4a* intersection);
 
 	LLViewerObject* cursorIntersect(S32 mouse_x = -1, S32 mouse_y = -1, F32 depth = 512.f,
 									LLViewerObject *this_object = NULL,
 									S32 this_face = -1,
 									BOOL pick_transparent = FALSE,
 									S32* face_hit = NULL,
-									LLVector3 *intersection = NULL,
+									LLVector4a *intersection = NULL,
 									LLVector2 *uv = NULL,
-									LLVector3 *normal = NULL,
-									LLVector3 *binormal = NULL,
-									LLVector3* start = NULL,
-									LLVector3* end = NULL);
+									LLVector4a *normal = NULL,
+									LLVector4a *tangent = NULL,
+									LLVector4a* start = NULL,
+									LLVector4a* end = NULL);
 	
 	
 	// Returns a pointer to the last object hit
@@ -401,7 +407,6 @@ public:
 
 private:
 	bool                    shouldShowToolTipFor(LLMouseHandler *mh);
-	static bool onAlert(const LLSD& notify);
 
 	void			switchToolByMask(MASK mask);
 	void			destroyWindow();
@@ -418,6 +423,11 @@ private:
 	bool			mActive;
 	bool			mUIVisible;
 
+	LLNotificationChannelPtr mSystemChannel;
+	LLNotificationChannelPtr mCommunicationChannel;
+	LLNotificationChannelPtr mAlertsChannel;
+	LLNotificationChannelPtr mModalAlertsChannel;
+
 	LLRect			mWindowRectRaw;				// whole window, including UI
 	LLRect			mWindowRectScaled;			// whole window, scaled by UI size
 	LLRect			mWorldViewRectRaw;			// area of screen for 3D world
@@ -428,7 +438,7 @@ private:
 	LLCoordGL		mCurrentMousePoint;			// last mouse position in GL coords
 	LLCoordGL		mLastMousePoint;		// Mouse point at last frame.
 	LLCoordGL		mCurrentMouseDelta;		//amount mouse moved this frame
-	LLStat			mMouseVelocityStat;
+	LLStat*			mMouseVelocityStat;
 	BOOL			mLeftMouseDown;
 	BOOL			mMiddleMouseDown;
 	BOOL			mRightMouseDown;
@@ -495,13 +505,15 @@ extern LLFrameTimer		gAwayTimer;				// tracks time before setting the avatar awa
 extern LLFrameTimer		gAwayTriggerTimer;		// how long the avatar has been away
 
 extern LLViewerObject*  gDebugRaycastObject;
-extern LLVector3        gDebugRaycastIntersection;
+extern LLVector4a       gDebugRaycastIntersection;
+extern LLVOPartGroup*	gDebugRaycastParticle;
+extern LLVector4a		gDebugRaycastParticleIntersection;
 extern LLVector2        gDebugRaycastTexCoord;
-extern LLVector3        gDebugRaycastNormal;
-extern LLVector3        gDebugRaycastBinormal;
+extern LLVector4a       gDebugRaycastNormal;
+extern LLVector4a       gDebugRaycastTangent;
 extern S32				gDebugRaycastFaceHit;
-extern LLVector3		gDebugRaycastStart;
-extern LLVector3		gDebugRaycastEnd;
+extern LLVector4a		gDebugRaycastStart;
+extern LLVector4a		gDebugRaycastEnd;
 
 extern BOOL			gDisplayCameraPos;
 extern BOOL			gDisplayWindInfo;

@@ -13,6 +13,9 @@ include_directories(
     ${LLMATH_INCLUDE_DIRS}
     ${LLVFS_INCLUDE_DIRS}
     )
+include_directories(
+    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
+    )
 
 set(llxml_SOURCE_FILES
     llcontrol.cpp
@@ -40,8 +43,9 @@ add_library (llxml ${llxml_SOURCE_FILES})
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
 target_link_libraries( llxml
-    llvfs
-    llmath
+    ${LLVFS_LIBRARIES}
+    ${LLMATH_LIBRARIES}
+    ${LLCOMMON_LIBRARIES}
     ${EXPAT_LIBRARIES}
     )
 

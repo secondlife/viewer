@@ -9,5 +9,5 @@
     <menu
      label="New Body Parts"
      layout="topleft"
-     name="COF.Geear.New_Body_Parts" />
+     name="COF.Gear.New_Body_Parts" />
 </toggleable_menu>

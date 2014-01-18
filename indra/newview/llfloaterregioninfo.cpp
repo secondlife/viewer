@@ -318,7 +318,7 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	// extract message
 	std::string sim_name;
 	std::string sim_type = LLTrans::getString("land_type_unknown");
-	U32 region_flags;
+	U64 region_flags;
 	U8 agent_limit;
 	F32 object_bonus_factor;
 	U8 sim_access;
@@ -328,7 +328,6 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	BOOL use_estate_sun;
 	F32 sun_hour;
 	msg->getString("RegionInfo", "SimName", sim_name);
-	msg->getU32("RegionInfo", "RegionFlags", region_flags);
 	msg->getU8("RegionInfo", "MaxAgents", agent_limit);
 	msg->getF32("RegionInfo", "ObjectBonusFactor", object_bonus_factor);
 	msg->getU8("RegionInfo", "SimAccess", sim_access);
@@ -345,6 +344,17 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	{
 		msg->getString("RegionInfo2", "ProductName", sim_type);
 		LLTrans::findString(sim_type, sim_type); // try localizing sim product name
+	}
+
+	if (msg->has(_PREHASH_RegionInfo3))
+	{
+		msg->getU64("RegionInfo3", "RegionFlagsExtended", region_flags);
+	}
+	else
+	{
+		U32 flags = 0;
+		msg->getU32("RegionInfo", "RegionFlags", flags);
+		region_flags = flags;
 	}
 
 	// GENERAL PANEL
@@ -378,9 +388,9 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	panel = tab->getChild<LLPanel>("Debug");
 
 	panel->getChild<LLUICtrl>("region_text")->setValue(LLSD(sim_name) );
-	panel->getChild<LLUICtrl>("disable_scripts_check")->setValue(LLSD((BOOL)(region_flags & REGION_FLAGS_SKIP_SCRIPTS)) );
-	panel->getChild<LLUICtrl>("disable_collisions_check")->setValue(LLSD((BOOL)(region_flags & REGION_FLAGS_SKIP_COLLISIONS)) );
-	panel->getChild<LLUICtrl>("disable_physics_check")->setValue(LLSD((BOOL)(region_flags & REGION_FLAGS_SKIP_PHYSICS)) );
+	panel->getChild<LLUICtrl>("disable_scripts_check")->setValue(LLSD((BOOL)((region_flags & REGION_FLAGS_SKIP_SCRIPTS) ? TRUE : FALSE )) );
+	panel->getChild<LLUICtrl>("disable_collisions_check")->setValue(LLSD((BOOL)((region_flags & REGION_FLAGS_SKIP_COLLISIONS) ? TRUE : FALSE )) );
+	panel->getChild<LLUICtrl>("disable_physics_check")->setValue(LLSD((BOOL)((region_flags & REGION_FLAGS_SKIP_PHYSICS) ? TRUE : FALSE )) );
 	panel->setCtrlsEnabled(allow_modify);
 
 	// TERRAIN PANEL
@@ -647,8 +657,10 @@ void LLPanelRegionGeneralInfo::onClickKick()
 
 	// this depends on the grandparent view being a floater
 	// in order to set up floater dependency
+    LLView * button = findChild<LLButton>("kick_btn");
 	LLFloater* parent_floater = gFloaterView->getParentFloater(this);
-	LLFloater* child_floater = LLFloaterAvatarPicker::show(boost::bind(&LLPanelRegionGeneralInfo::onKickCommit, this, _1), FALSE, TRUE);
+	LLFloater* child_floater = LLFloaterAvatarPicker::show(boost::bind(&LLPanelRegionGeneralInfo::onKickCommit, this, _1), 
+                                                                                FALSE, TRUE, FALSE, parent_floater->getName(), button);
 	if (child_floater)
 	{
 		parent_floater->addDependentFloater(child_floater);
@@ -746,9 +758,10 @@ class ConsoleRequestResponder : public LLHTTPClient::Responder
 {
 public:
 	/*virtual*/
-	void error(U32 status, const std::string& reason)
+	void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 	{
-		llwarns << "requesting mesh_rez_enabled failed" << llendl;
+		llwarns << "ConsoleRequestResponder error requesting mesh_rez_enabled [status:"
+				<< status << "]: " << content << llendl;
 	}
 };
 
@@ -758,9 +771,10 @@ class ConsoleUpdateResponder : public LLHTTPClient::Responder
 {
 public:
 	/* virtual */
-	void error(U32 status, const std::string& reason)
+	void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 	{
-		llwarns << "Updating mesh enabled region setting failed" << llendl;
+		llwarns << "ConsoleRequestResponder error updating mesh enabled region setting [status:"
+				<< status << "]: " << content << llendl;
 	}
 };
 
@@ -924,7 +938,14 @@ BOOL LLPanelRegionDebugInfo::sendUpdate()
 
 void LLPanelRegionDebugInfo::onClickChooseAvatar()
 {
-	LLFloaterAvatarPicker::show(boost::bind(&LLPanelRegionDebugInfo::callbackAvatarID, this, _1, _2), FALSE, TRUE);
+    LLView * button = findChild<LLButton>("choose_avatar_btn");
+    LLFloater* parent_floater = gFloaterView->getParentFloater(this);
+	LLFloater * child_floater = LLFloaterAvatarPicker::show(boost::bind(&LLPanelRegionDebugInfo::callbackAvatarID, this, _1, _2), 
+                                                                                    FALSE, TRUE, FALSE, parent_floater->getName(), button);
+	if (child_floater)
+	{
+		parent_floater->addDependentFloater(child_floater);
+	}
 }
 
 
@@ -1470,8 +1491,10 @@ void LLPanelEstateInfo::onClickKickUser()
 {
 	// this depends on the grandparent view being a floater
 	// in order to set up floater dependency
+    LLView * button = findChild<LLButton>("kick_user_from_estate_btn");
 	LLFloater* parent_floater = gFloaterView->getParentFloater(this);
-	LLFloater* child_floater = LLFloaterAvatarPicker::show(boost::bind(&LLPanelEstateInfo::onKickUserCommit, this, _1), FALSE, TRUE);
+	LLFloater* child_floater = LLFloaterAvatarPicker::show(boost::bind(&LLPanelEstateInfo::onKickUserCommit, this, _1), 
+                                                                        FALSE, TRUE, FALSE, parent_floater->getName(), button);
 	if (child_floater)
 	{
 		parent_floater->addDependentFloater(child_floater);
@@ -1646,8 +1669,39 @@ bool LLPanelEstateInfo::accessAddCore2(const LLSD& notification, const LLSD& res
 	}
 
 	LLEstateAccessChangeInfo* change_info = new LLEstateAccessChangeInfo(notification["payload"]);
+    //Get parent floater name
+    LLPanelEstateInfo* panel = LLFloaterRegionInfo::getPanelEstate();
+    LLFloater* parent_floater = panel ? gFloaterView->getParentFloater(panel) : NULL;
+    const std::string& parent_floater_name = parent_floater ? parent_floater->getName() : "";
+    
+    //Determine the button that triggered opening of the avatar picker 
+    //(so that a shadow frustum from the button to the avatar picker can be created)
+    LLView * button = NULL;
+    switch(change_info->mOperationFlag)
+    {
+        case ESTATE_ACCESS_ALLOWED_AGENT_ADD:
+            button = panel->findChild<LLButton>("add_allowed_avatar_btn");
+            break;
+            
+        case ESTATE_ACCESS_BANNED_AGENT_ADD:
+            button = panel->findChild<LLButton>("add_banned_avatar_btn");
+            break;
+            
+        case ESTATE_ACCESS_MANAGER_ADD:
+            button = panel->findChild<LLButton>("add_estate_manager_btn");
+            break;
+    }
+
 	// avatar picker yes multi-select, yes close-on-select
-	LLFloaterAvatarPicker::show(boost::bind(&LLPanelEstateInfo::accessAddCore3, _1, (void*)change_info), TRUE, TRUE);
+	LLFloater* child_floater = LLFloaterAvatarPicker::show(boost::bind(&LLPanelEstateInfo::accessAddCore3, _1, (void*)change_info), 
+                                                    TRUE, TRUE, FALSE, parent_floater_name, button);
+
+    //Allows the closed parent floater to close the child floater (avatar picker)
+    if (child_floater)
+    {
+        parent_floater->addDependentFloater(child_floater);
+    }
+
 	return false;
 }
 
@@ -1680,7 +1734,7 @@ void LLPanelEstateInfo::accessAddCore3(const uuid_vec_t& ids, void* data)
 			LLSD args;
 			args["NUM_ADDED"] = llformat("%d",ids.size());
 			args["MAX_AGENTS"] = llformat("%d",ESTATE_MAX_ACCESS_IDS);
-			args["LIST_TYPE"] = "Allowed Residents";
+			args["LIST_TYPE"] = LLTrans::getString("RegionInfoListTypeAllowedAgents");
 			args["NUM_EXCESS"] = llformat("%d",(ids.size()+currentCount)-ESTATE_MAX_ACCESS_IDS);
 			LLNotificationsUtil::add("MaxAgentOnRegionBatch", args);
 			delete change_info;
@@ -1696,7 +1750,7 @@ void LLPanelEstateInfo::accessAddCore3(const uuid_vec_t& ids, void* data)
 			LLSD args;
 			args["NUM_ADDED"] = llformat("%d",ids.size());
 			args["MAX_AGENTS"] = llformat("%d",ESTATE_MAX_ACCESS_IDS);
-			args["LIST_TYPE"] = "Banned Residents";
+			args["LIST_TYPE"] = LLTrans::getString("RegionInfoListTypeBannedAgents");
 			args["NUM_EXCESS"] = llformat("%d",(ids.size()+currentCount)-ESTATE_MAX_ACCESS_IDS);
 			LLNotificationsUtil::add("MaxAgentOnRegionBatch", args);
 			delete change_info;
@@ -2197,10 +2251,10 @@ public:
 	}
 	
 	// if we get an error response
-	virtual void error(U32 status, const std::string& reason)
+	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 	{
-		llinfos << "LLEstateChangeInfoResponder::error "
-			<< status << ": " << reason << llendl;
+		llinfos << "LLEstateChangeInfoResponder::error [status:"
+			<< status << "]: " << content << llendl;
 	}
 private:
 	LLHandle<LLPanel> mpPanel;
@@ -2276,7 +2330,7 @@ bool LLPanelEstateCovenant::refreshFromRegion(LLViewerRegion* region)
 	LLTextBox* resellable_clause = getChild<LLTextBox>("resellable_clause");
 	if (resellable_clause)
 	{
-		if (region->getRegionFlags() & REGION_FLAGS_BLOCK_LAND_RESELL)
+		if (region->getRegionFlag(REGION_FLAGS_BLOCK_LAND_RESELL))
 		{
 			resellable_clause->setText(getString("can_not_resell"));
 		}
@@ -2289,7 +2343,7 @@ bool LLPanelEstateCovenant::refreshFromRegion(LLViewerRegion* region)
 	LLTextBox* changeable_clause = getChild<LLTextBox>("changeable_clause");
 	if (changeable_clause)
 	{
-		if (region->getRegionFlags() & REGION_FLAGS_ALLOW_PARCEL_CHANGES)
+		if (region->getRegionFlag(REGION_FLAGS_ALLOW_PARCEL_CHANGES))
 		{
 			changeable_clause->setText(getString("can_change"));
 		}
@@ -2761,9 +2815,10 @@ bool LLDispatchSetEstateAccess::operator()(
 		}
 
 
-		std::string msg = llformat("Banned residents: (%d, max %d)",
-									totalBannedAgents,
-									ESTATE_MAX_ACCESS_IDS);
+		LLStringUtil::format_map_t args;
+		args["[BANNEDAGENTS]"] = llformat("%d", totalBannedAgents);
+		args["[MAXBANNED]"] = llformat("%d", ESTATE_MAX_ACCESS_IDS);
+		std::string msg = LLTrans::getString("RegionInfoBannedResidents", args);
 		panel->getChild<LLUICtrl>("ban_resident_label")->setValue(LLSD(msg));
 
 		if (banned_agent_name_list)
@@ -2783,9 +2838,10 @@ bool LLDispatchSetEstateAccess::operator()(
 
 	if (access_flags & ESTATE_ACCESS_MANAGERS)
 	{
-		std::string msg = llformat("Estate Managers: (%d, max %d)",
-									num_estate_managers,
-									ESTATE_MAX_MANAGERS);
+		LLStringUtil::format_map_t args;
+		args["[ESTATEMANAGERS]"] = llformat("%d", num_estate_managers);
+		args["[MAXMANAGERS]"] = llformat("%d", ESTATE_MAX_MANAGERS);
+		std::string msg = LLTrans::getString("RegionInfoEstateManagers", args);
 		panel->getChild<LLUICtrl>("estate_manager_label")->setValue(LLSD(msg));
 
 		LLNameListCtrl* estate_manager_name_list =

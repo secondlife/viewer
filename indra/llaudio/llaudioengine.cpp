@@ -839,6 +839,10 @@ void LLAudioEngine::triggerSound(const LLUUID &audio_uuid, const LLUUID& owner_i
 	asp->play(audio_uuid);
 }
 
+void LLAudioEngine::triggerSound(SoundData& soundData)
+{
+	triggerSound(soundData.audio_uuid, soundData.owner_id, soundData.gain, soundData.type, soundData.pos_global);
+}
 
 void LLAudioEngine::setListenerPos(LLVector3 aVec)
 {

@@ -62,12 +62,15 @@ public:
 		Optional<LLUIImage*>				tab_top_image_unselected,
 											tab_top_image_selected,
 											tab_top_image_flash,
+											tab_top_image_hovered,
 											tab_bottom_image_unselected,
 											tab_bottom_image_selected,
 											tab_bottom_image_flash,
+											tab_bottom_image_hovered,
 											tab_left_image_unselected,
 											tab_left_image_selected,
-											tab_left_image_flash;		
+											tab_left_image_flash,
+											tab_left_image_hovered;
 		TabParams();
 	};
 
@@ -113,6 +116,11 @@ public:
 		 *  Paddings for LLIconCtrl in case of LLCustomButtonIconCtrl usage(use_custom_icon_ctrl = true)
 		 */
 		Optional<S32>						tab_icon_ctrl_pad;
+
+		/**
+		 *  This variable is used to found out should we highlight tab button on hover
+		*/
+		Optional<bool>						use_highlighting_on_hover;
 
 		Params();
 	};
@@ -188,10 +196,11 @@ public:
 	void		selectFirstTab();
 	void		selectLastTab();
 	void		selectNextTab();
-	 void		selectPrevTab();
+	void		selectPrevTab();
 	BOOL 		selectTabPanel( LLPanel* child );
 	BOOL 		selectTab(S32 which);
 	BOOL 		selectTabByName(const std::string& title);
+    void        setCurrentPanelIndex(S32 index) { mCurrentTabIdx = index; }
 
 	BOOL        getTabPanelFlashing(LLPanel* child);
 	void		setTabPanelFlashing(LLPanel* child, BOOL state);
@@ -242,8 +251,6 @@ private:
 
 	void setTabsHidden(BOOL hidden)		{ mTabsHidden = hidden; }
 	BOOL getTabsHidden() const			{ return mTabsHidden; }
-	
-	void setCurrentPanelIndex(S32 index) { mCurrentTabIdx = index; }
 
 	void scrollPrev() { mScrollPos = llmax(0, mScrollPos-1); } // No wrap
 	void scrollNext() { mScrollPos = llmin(mScrollPos+1, mMaxScrollPos); } // No wrap
@@ -308,6 +315,7 @@ private:
 	bool							mOpenTabsOnDragAndDrop;
 	S32								mTabIconCtrlPad;
 	bool							mUseTabEllipses;
+	bool                            mUseHighlightingOnHover;
 };
 
 #endif  // LL_TABCONTAINER_H

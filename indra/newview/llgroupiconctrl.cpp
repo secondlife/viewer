@@ -29,6 +29,7 @@
 #include "llgroupiconctrl.h"
 
 #include "llagent.h"
+#include "llviewertexture.h"
 /*
 #include "llavatarconstants.h"
 #include "llcallingcard.h" // for LLAvatarTracker
@@ -38,7 +39,7 @@
 
 #include "llcachename.h"
 #include "llagentdata.h"
-#include "llimfloater.h"
+#include "llfloaterimsession.h"
 */
 
 static LLDefaultChildRegistry::Register<LLGroupIconCtrl> g_i("group_icon");

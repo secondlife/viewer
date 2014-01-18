@@ -35,6 +35,7 @@
 #include "lldrawpoolalpha.h"
 #include "lldrawpoolavatar.h"
 #include "lldrawpoolbump.h"
+#include "lldrawpoolmaterials.h"
 #include "lldrawpoolground.h"
 #include "lldrawpoolsimple.h"
 #include "lldrawpoolsky.h"
@@ -47,6 +48,7 @@
 #include "llspatialpartition.h"
 #include "llviewercamera.h"
 #include "lldrawpoolwlsky.h"
+#include "llglslshader.h"
 
 S32 LLDrawPool::sNumDrawPools = 0;
 
@@ -63,6 +65,12 @@ LLDrawPool *LLDrawPool::createPool(const U32 type, LLViewerTexture *tex0)
 		break;
 	case POOL_GRASS:
 		poolp = new LLDrawPoolGrass();
+		break;
+	case POOL_ALPHA_MASK:
+		poolp = new LLDrawPoolAlphaMask();
+		break;
+	case POOL_FULLBRIGHT_ALPHA_MASK:
+		poolp = new LLDrawPoolFullbrightAlphaMask();
 		break;
 	case POOL_FULLBRIGHT:
 		poolp = new LLDrawPoolFullbright();
@@ -97,6 +105,9 @@ LLDrawPool *LLDrawPool::createPool(const U32 type, LLViewerTexture *tex0)
 		break;
 	case POOL_BUMP:
 		poolp = new LLDrawPoolBump();
+		break;
+	case POOL_MATERIALS:
+		poolp = new LLDrawPoolMaterials();
 		break;
 	case POOL_WL_SKY:
 		poolp = new LLDrawPoolWLSky();
@@ -411,6 +422,27 @@ void LLRenderPass::pushBatches(U32 type, U32 mask, BOOL texture, BOOL batch_text
 	}
 }
 
+void LLRenderPass::pushMaskBatches(U32 type, U32 mask, BOOL texture, BOOL batch_textures)
+{
+	for (LLCullResult::drawinfo_iterator i = gPipeline.beginRenderMap(type); i != gPipeline.endRenderMap(type); ++i)	
+	{
+		LLDrawInfo* pparams = *i;
+		if (pparams) 
+		{
+			if (LLGLSLShader::sCurBoundShaderPtr)
+			{
+				LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(pparams->mAlphaMaskCutoff);
+			}
+			else
+			{
+				gGL.setAlphaRejectSettings(LLRender::CF_GREATER, pparams->mAlphaMaskCutoff);
+			}
+			
+			pushBatch(*pparams, mask, texture, batch_textures);
+		}
+	}
+}
+
 void LLRenderPass::applyModelMatrix(LLDrawInfo& params)
 {
 	if (params.mModelMatrix != gGLLastMatrix)
@@ -472,6 +504,7 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL ba
 		{
 			params.mGroup->rebuildMesh();
 		}
+		
 		params.mVertexBuffer->setBuffer(mask);
 		params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
 		gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);

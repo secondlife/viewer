@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+
+<floater
+ legacy_header_height="25"
+ bevel_style="in"
+ bg_opaque_image="Inspector_Background"
+ can_close="false"
+ can_minimize="false"
+ height="90"
+ layout="topleft"
+ name="floater_voice_volume"
+ single_instance="true"
+ sound_flags="0"
+ title="VOICE CHAT VOLUME"
+ visible="true"
+ width="245">
+	<slider
+		control_name="AudioLevelVoice"
+		disabled_control="MuteAudio"
+		follows="left|top"
+		height="16"
+		increment="0.025"
+		initial_value="0.5"
+		label="Voice Chat"
+		label_width="50"
+		layout="topleft"
+		left="15"
+		top="50"
+		name="chat_voice_volume"
+		show_text="false"
+		slider_label.halign="right"
+		volume="true"
+		width="200">
+	</slider>
+	<button
+		control_name="MuteVoice"
+		disabled_control="MuteAudio"
+		follows="top|left"
+		height="16"
+		image_selected="AudioMute_Off"
+		image_unselected="Audio_Off"
+		is_toggle="true"
+		layout="topleft"
+		left_pad="5"
+		name="mute_audio"
+		tab_stop="false"
+		width="16" />
+</floater>

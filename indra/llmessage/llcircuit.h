@@ -40,7 +40,6 @@
 #include "llpacketack.h"
 #include "lluuid.h"
 #include "llthrottle.h"
-#include "llstat.h"
 
 //
 // Constants
@@ -126,8 +125,6 @@ public:
 	S32			getUnackedPacketCount() const	{ return mUnackedPacketCount; }
 	S32			getUnackedPacketBytes() const	{ return mUnackedPacketBytes; }
 	F64         getNextPingSendTime() const { return mNextPingSendTime; }
-    F32         getOutOfOrderRate(LLStatAccum::TimeScale scale = LLStatAccum::SCALE_MINUTE) 
-                    { return mOutOfOrderRate.meanValue(scale); }
     U32         getLastPacketGap() const { return mLastPacketGap; }
     LLHost      getHost() const { return mHost; }
 	F64			getLastPacketInTime() const		{ return mLastPacketInTime;	}
@@ -275,7 +272,6 @@ protected:
 	LLTimer	mExistenceTimer;	    // initialized when circuit created, used to track bandwidth numbers
 
 	S32		mCurrentResendCount;	// Number of resent packets since last spam
-    LLStatRate  mOutOfOrderRate;    // Rate of out of order packets coming in.
     U32     mLastPacketGap;         // Gap in sequence number of last packet.
 
 	const F32 mHeartbeatInterval;

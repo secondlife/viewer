@@ -43,24 +43,10 @@
  * semantics: one instance per process, rather than one instance per module as
  * sometimes happens with data simply declared static.
  */
-class LL_COMMON_API LLInstanceTrackerBase : public boost::noncopyable
+class LL_COMMON_API LLInstanceTrackerBase
 {
 protected:
-	/// Get a process-unique void* pointer slot for the specified type_info
-	static void * & getInstances(std::type_info const & info);
 
-	/// Find or create a STATICDATA instance for the specified TRACKED class.
-	/// STATICDATA must be default-constructible.
-	template<typename STATICDATA, class TRACKED>
-	static STATICDATA& getStatic()
-	{
-		void *& instances = getInstances(typeid(TRACKED));
-		if (! instances)
-		{
-			instances = new STATICDATA;
-		}
-		return *static_cast<STATICDATA*>(instances);
-	}
 
     /// It's not essential to derive your STATICDATA (for use with
     /// getStatic()) from StaticBase; it's just that both known
@@ -74,6 +60,8 @@ protected:
     };
 };
 
+LL_COMMON_API void assert_main_thread();
+
 /// This mix-in class adds support for tracking all instances of the specified class parameter T
 /// The (optional) key associates a value of type KEY with a given instance of T, for quick lookup
 /// If KEY is not provided, then instances are stored in a simple set
@@ -81,14 +69,18 @@ protected:
 template<typename T, typename KEY = T*>
 class LLInstanceTracker : public LLInstanceTrackerBase
 {
-	typedef LLInstanceTracker<T, KEY> MyT;
+	typedef LLInstanceTracker<T, KEY> self_t;
 	typedef typename std::map<KEY, T*> InstanceMap;
 	struct StaticData: public StaticBase
 	{
 		InstanceMap sMap;
 	};
-	static StaticData& getStatic() { return LLInstanceTrackerBase::getStatic<StaticData, MyT>(); }
-	static InstanceMap& getMap_() { return getStatic().sMap; }
+	static StaticData& getStatic() { static StaticData sData; return sData;}
+	static InstanceMap& getMap_() 
+	{
+		// assert_main_thread();   fwiw this class is not thread safe, and it used by multiple threads.  Bad things happen.
+		return getStatic().sMap; 
+	}
 
 public:
 	class instance_iter : public boost::iterator_facade<instance_iter, T, boost::forward_traversal_tag>
@@ -210,6 +202,9 @@ protected:
 	virtual const KEY& getKey() const { return mInstanceKey; }
 
 private:
+	LLInstanceTracker( const LLInstanceTracker& );
+	const LLInstanceTracker& operator=( const LLInstanceTracker& );
+
 	void add_(KEY key) 
 	{ 
 		mInstanceKey = key; 
@@ -217,7 +212,11 @@ private:
 	}
 	void remove_()
 	{
-		getMap_().erase(mInstanceKey);
+		typename InstanceMap::iterator iter = getMap_().find(mInstanceKey);
+		if (iter != getMap_().end())
+		{
+			getMap_().erase(iter);
+		}
 	}
 
 private:
@@ -229,13 +228,13 @@ private:
 template<typename T>
 class LLInstanceTracker<T, T*> : public LLInstanceTrackerBase
 {
-	typedef LLInstanceTracker<T, T*> MyT;
+	typedef LLInstanceTracker<T, T*> self_t;
 	typedef typename std::set<T*> InstanceSet;
 	struct StaticData: public StaticBase
 	{
 		InstanceSet sSet;
 	};
-	static StaticData& getStatic() { return LLInstanceTrackerBase::getStatic<StaticData, MyT>(); }
+	static StaticData& getStatic() { static StaticData sData; return sData; }
 	static InstanceSet& getSet_() { return getStatic().sSet; }
 
 public:

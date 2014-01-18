@@ -272,7 +272,7 @@ std::string LLDir_Solaris::getCurPath()
 }
 
 
-BOOL LLDir_Solaris::fileExists(const std::string &filename) const
+bool LLDir_Solaris::fileExists(const std::string &filename) const
 {
 	struct stat stat_data;
 	// Check the age of the file

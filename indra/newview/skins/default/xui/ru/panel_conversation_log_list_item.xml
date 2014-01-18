@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="conversation_log_list_item">
+	<icon name="voice_session_icon" tool_tip="Включая голосовой чат"/>
+	<icon name="unread_ims_icon" tool_tip="За время вашего отсутствия пришли сообщения"/>
+	<button name="delete_btn" tool_tip="Удалить эту запись"/>
+</panel>

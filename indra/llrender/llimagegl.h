@@ -45,16 +45,9 @@ class LLImageGL : public LLRefCount
 {
 	friend class LLTexUnit;
 public:
-	static U32 sCurTexName;
-
-	//previously used but now available texture names
-	// sDeadTextureList[<usage>][<internal format>]
-	typedef std::map<U32, std::list<U32> > dead_texturelist_t;
-	static dead_texturelist_t sDeadTextureList[LLTexUnit::TT_NONE];
-
 	// These 2 functions replace glGenTextures() and glDeleteTextures()
-	static void generateTextures(LLTexUnit::eTextureType type, U32 format, S32 numTextures, U32 *textures);
-	static void deleteTextures(LLTexUnit::eTextureType type, U32 format, S32 mip_levels, S32 numTextures, U32 *textures, bool immediate = false);
+	static void generateTextures(S32 numTextures, U32 *textures);
+	static void deleteTextures(S32 numTextures, U32 *textures);
 	static void deleteDeadTextures();
 
 	// Size calculation
@@ -142,7 +135,7 @@ public:
 	BOOL getHasGLTexture() const { return mTexName != 0; }
 	LLGLuint getTexName() const { return mTexName; }
 
-	BOOL getIsAlphaMask() const { return mIsMask; }
+	BOOL getIsAlphaMask() const;
 
 	BOOL getIsResident(BOOL test_now = FALSE); // not const
 
@@ -262,11 +255,12 @@ public:
 #endif
 
 public:
-	static void initClass(S32 num_catagories) ;
+	static void initClass(S32 num_catagories, BOOL skip_analyze_alpha = false); 
 	static void cleanupClass() ;
 
 private:
 	static S32 sMaxCategories;
+	static BOOL sSkipAnalyzeAlpha;
 	
 	//the flag to allow to call readBackRaw(...).
 	//can be removed if we do not use that function at all.

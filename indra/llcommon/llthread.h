@@ -30,6 +30,7 @@
 #include "llapp.h"
 #include "llapr.h"
 #include "apr_thread_cond.h"
+#include "boost/intrusive_ptr.hpp"
 
 class LLThread;
 class LLMutex;
@@ -241,49 +242,55 @@ public:
 	LLThreadSafeRefCount(const LLThreadSafeRefCount&);
 	LLThreadSafeRefCount& operator=(const LLThreadSafeRefCount& ref) 
 	{
-		if (sMutex)
-		{
-			sMutex->lock();
-		}
 		mRef = 0;
-		if (sMutex)
-		{
-			sMutex->unlock();
-		}
 		return *this;
 	}
 
-
-	
 	void ref()
 	{
-		if (sMutex) sMutex->lock();
 		mRef++; 
-		if (sMutex) sMutex->unlock();
 	} 
 
-	S32 unref()
+	void unref()
 	{
 		llassert(mRef >= 1);
-		if (sMutex) sMutex->lock();
-		S32 res = --mRef;
-		if (sMutex) sMutex->unlock();
-		if (0 == res) 
-		{
-			delete this; 
-			return 0;
+		if ((--mRef) == 0)		// See note in llapr.h on atomic decrement operator return value.  
+		{	
+			// If we hit zero, the caller should be the only smart pointer owning the object and we can delete it.
+			// It is technically possible for a vanilla pointer to mess this up, or another thread to
+			// jump in, find this object, create another smart pointer and end up dangling, but if
+			// the code is that bad and not thread-safe, it's trouble already.
+			delete this;
 		}
-		return res;
-	}	
+	}
+
 	S32 getNumRefs() const
 	{
-		return mRef;
+		const S32 currentVal = mRef.CurrentValue();
+		return currentVal;
 	}
 
 private: 
-	S32	mRef; 
+	LLAtomic32< S32	> mRef; 
 };
 
+
+/**
+ * intrusive pointer support for LLThreadSafeRefCount
+ * this allows you to use boost::intrusive_ptr with any LLThreadSafeRefCount-derived type
+ */
+namespace boost
+{
+	inline void intrusive_ptr_add_ref(LLThreadSafeRefCount* p) 
+	{
+		p->ref();
+	}
+
+	inline void intrusive_ptr_release(LLThreadSafeRefCount* p) 
+	{
+		p->unref(); 
+	}
+};
 //============================================================================
 
 // Simple responder for self destructing callbacks
@@ -297,5 +304,7 @@ public:
 };
 
 //============================================================================
+
+extern LL_COMMON_API void assert_main_thread();
 
 #endif // LL_LLTHREAD_H

@@ -34,9 +34,15 @@ import tarfile
 import time
 import random
 viewer_dir = os.path.dirname(__file__)
-# add llmanifest library to our path so we don't have to muck with PYTHONPATH
-sys.path.append(os.path.join(viewer_dir, '../lib/python/indra/util'))
-from llmanifest import LLManifest, main, proper_windows_path, path_ancestors
+# Add indra/lib/python to our path so we don't have to muck with PYTHONPATH.
+# Put it FIRST because some of our build hosts have an ancient install of
+# indra.util.llmanifest under their system Python!
+sys.path.insert(0, os.path.join(viewer_dir, os.pardir, "lib", "python"))
+from indra.util.llmanifest import LLManifest, main, proper_windows_path, path_ancestors, CHANNEL_VENDOR_BASE, RELEASE_CHANNEL
+try:
+    from llbase import llsd
+except ImportError:
+    from indra.base import llsd
 
 class ViewerManifest(LLManifest):
     def is_packaging_viewer(self):
@@ -65,13 +71,13 @@ class ViewerManifest(LLManifest):
                 # include the entire shaders directory recursively
                 self.path("shaders")
                 # include the extracted list of contributors
-                contributor_names = self.extract_names("../../doc/contributions.txt")
-                self.put_in_file(contributor_names, "contributors.txt")
-                self.file_list.append(["../../doc/contributions.txt",self.dst_path_of("contributors.txt")])
+                contributions_path = "../../doc/contributions.txt"
+                contributor_names = self.extract_names(contributions_path)
+                self.put_in_file(contributor_names, "contributors.txt", src=contributions_path)
                 # include the extracted list of translators
-                translator_names = self.extract_names("../../doc/translations.txt")
-                self.put_in_file(translator_names, "translators.txt")
-                self.file_list.append(["../../doc/translations.txt",self.dst_path_of("translators.txt")])
+                translations_path = "../../doc/translations.txt"
+                translator_names = self.extract_names(translations_path)
+                self.put_in_file(translator_names, "translators.txt", src=translations_path)
                 # include the list of Lindens (if any)
                 #   see https://wiki.lindenlab.com/wiki/Generated_Linden_Credits
                 linden_names_path = os.getenv("LINDEN_CREDITS")
@@ -85,10 +91,9 @@ class ViewerManifest(LLManifest):
                     else:
                          # all names should be one line, but the join below also converts to a string
                         linden_names = ', '.join(linden_file.readlines())
-                        self.put_in_file(linden_names, "lindens.txt")
+                        self.put_in_file(linden_names, "lindens.txt", src=linden_names_path)
                         linden_file.close()
                         print "Linden names extracted from '%s'" % linden_names_path
-                        self.file_list.append([linden_names_path,self.dst_path_of("lindens.txt")])
 
                 # ... and the entire windlight directory
                 self.path("windlight")
@@ -98,6 +103,44 @@ class ViewerManifest(LLManifest):
                 if self.prefix(src=pkgdir,dst=""):
                     self.path("dictionaries")
                     self.end_prefix(pkgdir)
+
+                # CHOP-955: If we have "sourceid" or "viewer_channel" in the
+                # build process environment, generate it into
+                # settings_install.xml.
+                settings_template = dict(
+                    sourceid=dict(Comment='Identify referring agency to Linden web servers',
+                                  Persist=1,
+                                  Type='String',
+                                  Value=''),
+                    CmdLineGridChoice=dict(Comment='Default grid',
+                                  Persist=0,
+                                  Type='String',
+                                  Value=''),
+                    CmdLineChannel=dict(Comment='Command line specified channel name',
+                                        Persist=0,
+                                        Type='String',
+                                        Value=''))
+                settings_install = {}
+                if 'sourceid' in self.args and self.args['sourceid']:
+                    settings_install['sourceid'] = settings_template['sourceid'].copy()
+                    settings_install['sourceid']['Value'] = self.args['sourceid']
+                    print "Set sourceid in settings_install.xml to '%s'" % self.args['sourceid']
+
+                if 'channel_suffix' in self.args and self.args['channel_suffix']:
+                    settings_install['CmdLineChannel'] = settings_template['CmdLineChannel'].copy()
+                    settings_install['CmdLineChannel']['Value'] = self.channel_with_pkg_suffix()
+                    print "Set CmdLineChannel in settings_install.xml to '%s'" % self.channel_with_pkg_suffix()
+
+                if 'grid' in self.args and self.args['grid']:
+                    settings_install['CmdLineGridChoice'] = settings_template['CmdLineGridChoice'].copy()
+                    settings_install['CmdLineGridChoice']['Value'] = self.grid()
+                    print "Set CmdLineGridChoice in settings_install.xml to '%s'" % self.grid()
+
+                # put_in_file(src=) need not be an actual pathname; it
+                # only needs to be non-empty
+                self.put_in_file(llsd.format_pretty_xml(settings_install),
+                                 "settings_install.xml",
+                                 src="environment")
 
                 self.end_prefix("app_settings")
 
@@ -154,76 +197,78 @@ class ViewerManifest(LLManifest):
 
             # Files in the newview/ directory
             self.path("gpu_table.txt")
-
-            # The summary.json file gets left in the base checkout dir by
-            # build.sh. It's only created for a build.sh build.
-            if not self.path2basename(os.path.join(os.pardir, os.pardir), "summary.json"):
+            # The summary.json file gets left in the build directory by newview/CMakeLists.txt.
+            if not self.path2basename(os.pardir, "summary.json"):
                 print "No summary.json file"
-
-    def login_channel(self):
-        """Channel reported for login and upgrade purposes ONLY;
-        used for A/B testing"""
-        # NOTE: Do not return the normal channel if login_channel
-        # is not specified, as some code may branch depending on
-        # whether or not this is present
-        return self.args.get('login_channel')
 
     def grid(self):
         return self.args['grid']
+
     def channel(self):
         return self.args['channel']
-    def channel_unique(self):
-        return self.channel().replace("Second Life", "").strip()
-    def channel_oneword(self):
-        return "".join(self.channel_unique().split())
-    def channel_lowerword(self):
-        return self.channel_oneword().lower()
 
+    def channel_with_pkg_suffix(self):
+        fullchannel=self.channel()
+        if 'channel_suffix' in self.args and self.args['channel_suffix']:
+            fullchannel+=' '+self.args['channel_suffix']
+        return fullchannel
+
+    def channel_variant(self):
+        global CHANNEL_VENDOR_BASE
+        return self.channel().replace(CHANNEL_VENDOR_BASE, "").strip()
+
+    def channel_type(self): # returns 'release', 'beta', 'project', or 'test'
+        global CHANNEL_VENDOR_BASE
+        channel_qualifier=self.channel().replace(CHANNEL_VENDOR_BASE, "").lower().strip()
+        if channel_qualifier.startswith('release'):
+            channel_type='release'
+        elif channel_qualifier.startswith('beta'):
+            channel_type='beta'
+        elif channel_qualifier.startswith('project'):
+            channel_type='project'
+        else:
+            channel_type='test'
+        return channel_type
+
+    def channel_variant_app_suffix(self):
+        # get any part of the compiled channel name after the CHANNEL_VENDOR_BASE
+        suffix=self.channel_variant()
+        # by ancient convention, we don't use Release in the app name
+        if self.channel_type() == 'release':
+            suffix=suffix.replace('Release', '').strip()
+        # for the base release viewer, suffix will now be null - for any other, append what remains
+        if len(suffix) > 0:
+            suffix = "_"+ ("_".join(suffix.split()))
+        # the additional_packages mechanism adds more to the installer name (but not to the app name itself)
+        if 'channel_suffix' in self.args and self.args['channel_suffix']:
+            suffix+='_'+("_".join(self.args['channel_suffix'].split()))
+        return suffix
+
+    def installer_base_name(self):
+        global CHANNEL_VENDOR_BASE
+        # a standard map of strings for replacing in the templates
+        substitution_strings = {
+            'channel_vendor_base' : '_'.join(CHANNEL_VENDOR_BASE.split()),
+            'channel_variant_underscores':self.channel_variant_app_suffix(),
+            'version_underscores' : '_'.join(self.args['version']),
+            'arch':self.args['arch']
+            }
+        return "%(channel_vendor_base)s%(channel_variant_underscores)s_%(version_underscores)s_%(arch)s" % substitution_strings
+
+    def app_name(self):
+        global CHANNEL_VENDOR_BASE
+        channel_type=self.channel_type()
+        if channel_type == 'release':
+            app_suffix='Viewer'
+        else:
+            app_suffix=self.channel_variant()
+        return CHANNEL_VENDOR_BASE + ' ' + app_suffix
+
+    def app_name_oneword(self):
+        return ''.join(self.app_name().split())
+    
     def icon_path(self):
-        icon_path="icons/"
-        channel_type=self.channel_lowerword()
-        if channel_type == 'release' \
-        or channel_type == 'development' \
-        :
-            icon_path += channel_type
-        elif channel_type == 'betaviewer' :
-            icon_path += 'beta'
-        elif re.match('project.*',channel_type) :
-            icon_path += 'project'
-        else :
-            icon_path += 'test'
-        return icon_path
-
-    def flags_list(self):
-        """ Convenience function that returns the command-line flags
-        for the grid"""
-
-        # Set command line flags relating to the target grid
-        grid_flags = ''
-        if not self.default_grid():
-            grid_flags = "--grid %(grid)s "\
-                         "--helperuri http://preview-%(grid)s.secondlife.com/helpers/" %\
-                           {'grid':self.grid()}
-
-        # set command line flags for channel
-        channel_flags = ''
-        if self.login_channel() and self.login_channel() != self.channel():
-            # Report a special channel during login, but use default
-            channel_flags = '--channel "%s"' % (self.login_channel())
-        elif not self.default_channel():
-            channel_flags = '--channel "%s"' % self.channel()
-
-        # Deal with settings 
-        setting_flags = ''
-        if not self.default_channel() or not self.default_grid():
-            if self.default_grid():
-                setting_flags = '--settings settings_%s.xml'\
-                                % self.channel_lowerword()
-            else:
-                setting_flags = '--settings settings_%s_%s.xml'\
-                                % (self.grid(), self.channel_lowerword())
-                                                
-        return " ".join((channel_flags, grid_flags, setting_flags)).strip()
+        return "icons/" + self.channel_type()
 
     def extract_names(self,src):
         try:
@@ -248,15 +293,9 @@ class ViewerManifest(LLManifest):
         random.shuffle(names)
         return ', '.join(names)
 
-class WindowsManifest(ViewerManifest):
+class Windows_i686_Manifest(ViewerManifest):
     def final_exe(self):
-        if self.default_channel():
-            if self.default_grid():
-                return "SecondLife.exe"
-            else:
-                return "SecondLifePreview.exe"
-        else:
-            return ''.join(self.channel().split()) + '.exe'
+        return self.app_name_oneword()+".exe"
 
     def test_msvcrt_and_copy_action(self, src, dst):
         # This is used to test a dll manifest.
@@ -304,25 +343,8 @@ class WindowsManifest(ViewerManifest):
         else:
             print "Doesn't exist:", src
         
-    ### DISABLED MANIFEST CHECKING for vs2010.  we may need to reenable this
-    # shortly.  If this hasn't been reenabled by the 2.9 viewer release then it
-    # should be deleted -brad
-    #def enable_crt_manifest_check(self):
-    #    if self.is_packaging_viewer():
-    #       WindowsManifest.copy_action = WindowsManifest.test_msvcrt_and_copy_action
-
-    #def enable_no_crt_manifest_check(self):
-    #    if self.is_packaging_viewer():
-    #        WindowsManifest.copy_action = WindowsManifest.test_for_no_msvcrt_manifest_and_copy_action
-
-    #def disable_manifest_check(self):
-    #    if self.is_packaging_viewer():
-    #        del WindowsManifest.copy_action
-
     def construct(self):
-        super(WindowsManifest, self).construct()
-
-        #self.enable_crt_manifest_check()
+        super(Windows_i686_Manifest, self).construct()
 
         if self.is_packaging_viewer():
             # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
@@ -333,15 +355,11 @@ class WindowsManifest(ViewerManifest):
                                         'llplugin', 'slplugin', self.args['configuration']),
                            "slplugin.exe")
         
-        #self.disable_manifest_check()
-
         self.path2basename("../viewer_components/updater/scripts/windows", "update_install.bat")
         # Get shared libs from the shared libs staging directory
         if self.prefix(src=os.path.join(os.pardir, 'sharedlibs', self.args['configuration']),
                        dst=""):
 
-            #self.enable_crt_manifest_check()
-            
             # Get llcommon and deps. If missing assume static linkage and continue.
             try:
                 self.path('llcommon.dll')
@@ -352,8 +370,6 @@ class WindowsManifest(ViewerManifest):
             except RuntimeError, err:
                 print err.message
                 print "Skipping llcommon.dll (assuming llcommon was linked statically)"
-
-            #self.disable_manifest_check()
 
             # Mesh 3rd party libs needed for auto LOD and collada reading
             try:
@@ -367,10 +383,14 @@ class WindowsManifest(ViewerManifest):
                 print err.message
                 print "Skipping COLLADA and GLOD libraries (assumming linked statically)"
 
-
-            # Get fmod dll, continue if missing
-            if not self.path("fmod.dll"):
-                print "Skipping fmod.dll"
+            # Get fmodex dll, continue if missing
+            try:
+                if self.args['configuration'].lower() == 'debug':
+                    self.path("fmodexL.dll")
+                else:
+                    self.path("fmodex.dll")
+            except:
+                print "Skipping fmodex audio library(assuming other audio engine)"
 
             # For textures
             if self.args['configuration'].lower() == 'debug':
@@ -395,6 +415,7 @@ class WindowsManifest(ViewerManifest):
             self.path("zlib1.dll")
             self.path("vivoxplatform.dll")
             self.path("vivoxoal.dll")
+            self.path("ca-bundle.crt")
             
             # Security
             self.path("ssleay32.dll")
@@ -417,8 +438,6 @@ class WindowsManifest(ViewerManifest):
         self.path(src="licenses-win32.txt", dst="licenses.txt")
         self.path("featuretable.txt")
         self.path("featuretable_xp.txt")
-
-        #self.enable_no_crt_manifest_check()
 
         # Media plugins - QuickTime
         if self.prefix(src='../media_plugins/quicktime/%s' % self.args['configuration'], dst="llplugin"):
@@ -499,15 +518,10 @@ class WindowsManifest(ViewerManifest):
 
                 self.end_prefix()
 
-        #self.disable_manifest_check()
-
         # pull in the crash logger and updater from other projects
         # tag:"crash-logger" here as a cue to the exporter
         self.path(src='../win_crash_logger/%s/windows-crash-logger.exe' % self.args['configuration'],
                   dst="win_crash_logger.exe")
-# For CHOP-397, windows updater no longer used.
-#        self.path(src='../win_updater/%s/windows-updater.exe' % self.args['configuration'],
-#                  dst="updater.exe")
 
         if not self.is_packaging_viewer():
             self.package_file = "copied_deps"    
@@ -563,62 +577,33 @@ class WindowsManifest(ViewerManifest):
             'version_short' : '.'.join(self.args['version'][:-1]),
             'version_dashes' : '-'.join(self.args['version']),
             'final_exe' : self.final_exe(),
-            'grid':self.args['grid'],
-            'grid_caps':self.args['grid'].upper(),
-            # escape quotes becase NSIS doesn't handle them well
-            'flags':self.flags_list().replace('"', '$\\"'),
-            'channel':self.channel(),
-            'channel_oneword':self.channel_oneword(),
-            'channel_unique':self.channel_unique(),
+            'flags':'',
+            'app_name':self.app_name(),
+            'app_name_oneword':self.app_name_oneword()
             }
 
+        installer_file = self.installer_base_name() + '_Setup.exe'
+        substitution_strings['installer_file'] = installer_file
+        
         version_vars = """
         !define INSTEXE  "%(final_exe)s"
         !define VERSION "%(version_short)s"
         !define VERSION_LONG "%(version)s"
         !define VERSION_DASHES "%(version_dashes)s"
         """ % substitution_strings
-        if self.default_channel():
-            if self.default_grid():
-                # release viewer
-                installer_file = "Second_Life_%(version_dashes)s_Setup.exe"
-                grid_vars_template = """
-                OutFile "%(installer_file)s"
-                !define INSTFLAGS "%(flags)s"
-                !define INSTNAME   "SecondLifeViewer"
-                !define SHORTCUT   "Second Life Viewer"
-                !define URLNAME   "secondlife"
-                Caption "Second Life"
-                """
-            else:
-                # beta grid viewer
-                installer_file = "Second_Life_%(version_dashes)s_(%(grid_caps)s)_Setup.exe"
-                grid_vars_template = """
-                OutFile "%(installer_file)s"
-                !define INSTFLAGS "%(flags)s"
-                !define INSTNAME   "SecondLife%(grid_caps)s"
-                !define SHORTCUT   "Second Life (%(grid_caps)s)"
-                !define URLNAME   "secondlife%(grid)s"
-                !define UNINSTALL_SETTINGS 1
-                Caption "Second Life %(grid)s ${VERSION}"
-                """
+        
+        if self.channel_type() == 'release':
+            substitution_strings['caption'] = CHANNEL_VENDOR_BASE
         else:
-            # some other channel on some grid
-            installer_file = "Second_Life_%(version_dashes)s_%(channel_oneword)s_Setup.exe"
-            grid_vars_template = """
+            substitution_strings['caption'] = self.app_name() + ' ${VERSION}'
+
+        inst_vars_template = """
             OutFile "%(installer_file)s"
-            !define INSTFLAGS "%(flags)s"
-            !define INSTNAME   "SecondLife%(channel_oneword)s"
-            !define SHORTCUT   "%(channel)s"
+            !define INSTNAME   "%(app_name_oneword)s"
+            !define SHORTCUT   "%(app_name)s"
             !define URLNAME   "secondlife"
-            !define UNINSTALL_SETTINGS 1
-            Caption "%(channel)s ${VERSION}"
+            Caption "%(caption)s"
             """
-        if 'installer_name' in self.args:
-            installer_file = self.args['installer_name']
-        else:
-            installer_file = installer_file % substitution_strings
-        substitution_strings['installer_file'] = installer_file
 
         tempfile = "secondlife_setup_tmp.nsi"
         # the following replaces strings in the nsi template
@@ -626,7 +611,7 @@ class WindowsManifest(ViewerManifest):
         self.replace_in("installers/windows/installer_template.nsi", tempfile, {
                 "%%VERSION%%":version_vars,
                 "%%SOURCE%%":self.get_src_prefix(),
-                "%%GRID_VARS%%":grid_vars_template % substitution_strings,
+                "%%INST_VARS%%":inst_vars_template % substitution_strings,
                 "%%INSTALL_FILES%%":self.nsi_file_commands(True),
                 "%%DELETE_FILES%%":self.nsi_file_commands(False)})
 
@@ -656,7 +641,7 @@ class WindowsManifest(ViewerManifest):
         self.package_file = installer_file
 
 
-class DarwinManifest(ViewerManifest):
+class Darwin_i386_Manifest(ViewerManifest):
     def is_packaging_viewer(self):
         # darwin requires full app bundle packaging even for debugging.
         return True
@@ -666,17 +651,19 @@ class DarwinManifest(ViewerManifest):
         self.path(self.args['configuration'] + "/Second Life.app", dst="")
 
         if self.prefix(src="", dst="Contents"):  # everything goes in Contents
-            self.path("Info-SecondLife.plist", dst="Info.plist")
+            self.path("Info.plist", dst="Info.plist")
 
             # copy additional libs in <bundle>/Contents/MacOS/
             self.path("../packages/lib/release/libndofdev.dylib", dst="Resources/libndofdev.dylib")
             self.path("../packages/lib/release/libhunspell-1.3.0.dylib", dst="Resources/libhunspell-1.3.0.dylib")
 
-            self.path("../viewer_components/updater/scripts/darwin/update_install", "MacOS/update_install")
+            if self.prefix(dst="MacOS"):
+                self.path2basename("../viewer_components/updater/scripts/darwin", "*.py")
+                self.end_prefix()
 
             # most everything goes in the Resources directory
             if self.prefix(src="", dst="Resources"):
-                super(DarwinManifest, self).construct()
+                super(Darwin_i386_Manifest, self).construct()
 
                 if self.prefix("cursors_mac"):
                     self.path("*.tif")
@@ -694,7 +681,11 @@ class DarwinManifest(ViewerManifest):
                 self.path("SecondLife.nib")
                 
                 # Translations
-                self.path("English.lproj")
+                self.path("English.lproj/language.txt")
+                self.replace_in(src="English.lproj/InfoPlist.strings",
+                                dst="English.lproj/InfoPlist.strings",
+                                searchdict={'%%VERSION%%':'.'.join(self.args['version'])}
+                                )
                 self.path("German.lproj")
                 self.path("Japanese.lproj")
                 self.path("Korean.lproj")
@@ -743,6 +734,7 @@ class DarwinManifest(ViewerManifest):
                                 "libcollada14dom.dylib",
                                 "libexpat.1.5.2.dylib",
                                 "libexception_handler.dylib",
+                                "libfmodex.dylib",
                                 "libGLOD.dylib",
                                 ):
                     dylibs += path_optional(os.path.join(libdir, libfile), libfile)
@@ -754,17 +746,13 @@ class DarwinManifest(ViewerManifest):
                                 'libvivoxoal.dylib',
                                 'libvivoxsdk.dylib',
                                 'libvivoxplatform.dylib',
+                                'ca-bundle.crt',
                                 'SLVoice',
                                 ):
                      self.path2basename(libdir, libfile)
                 
-                # FMOD for sound
-                libfile = "libfmodwrapper.dylib"
-                path_optional(os.path.join(self.args['configuration'], libfile), libfile)
-                
                 # our apps
                 for app_bld_dir, app in (("mac_crash_logger", "mac-crash-logger.app"),
-                                         ("mac_updater", "mac-updater.app"),
                                          # plugin launcher
                                          (os.path.join("llplugin", "slplugin"), "SLPlugin.app"),
                                          ):
@@ -790,9 +778,6 @@ class DarwinManifest(ViewerManifest):
 
                     self.end_prefix("llplugin")
 
-                # command line arguments for connecting to the proper grid
-                self.put_in_file(self.flags_list(), 'arguments.txt')
-
                 self.end_prefix("Resources")
 
             self.end_prefix("Contents")
@@ -810,10 +795,11 @@ class DarwinManifest(ViewerManifest):
     def copy_finish(self):
         # Force executable permissions to be set for scripts
         # see CHOP-223 and http://mercurial.selenic.com/bts/issue1802
-        for script in 'Contents/MacOS/update_install',:
+        for script in 'Contents/MacOS/update_install.py',:
             self.run_command("chmod +x %r" % os.path.join(self.get_dst_prefix(), script))
 
     def package_finish(self):
+        global CHANNEL_VENDOR_BASE
         # Sign the app if requested.
         if 'signature' in self.args:
             identity = self.args['signature']
@@ -838,31 +824,21 @@ class DarwinManifest(ViewerManifest):
                                  'bundle': self.get_dst_prefix()
                 })
 
-        channel_standin = 'Second Life Viewer'  # hah, our default channel is not usable on its own
-        if not self.default_channel():
-            channel_standin = self.channel()
-
         imagename="SecondLife_" + '_'.join(self.args['version'])
 
         # MBW -- If the mounted volume name changes, it breaks the .DS_Store's background image and icon positioning.
         #  If we really need differently named volumes, we'll need to create multiple DS_Store file images, or use some other trick.
 
-        volname="Second Life Installer"  # DO NOT CHANGE without understanding comment above
+        volname=CHANNEL_VENDOR_BASE+" Installer"  # DO NOT CHANGE without understanding comment above
 
-        if self.default_channel():
-            if not self.default_grid():
-                # beta case
-                imagename = imagename + '_' + self.args['grid'].upper()
-        else:
-            # first look, etc
-            imagename = imagename + '_' + self.channel_oneword().upper()
+        imagename = self.installer_base_name()
 
         sparsename = imagename + ".sparseimage"
         finalname = imagename + ".dmg"
         # make sure we don't have stale files laying about
         self.remove(sparsename, finalname)
 
-        self.run_command('hdiutil create %(sparse)r -volname %(vol)r -fs HFS+ -type SPARSE -megabytes 700 -layout SPUD' % {
+        self.run_command('hdiutil create %(sparse)r -volname %(vol)r -fs HFS+ -type SPARSE -megabytes 1000 -layout SPUD' % {
                 'sparse':sparsename,
                 'vol':volname})
 
@@ -879,10 +855,7 @@ class DarwinManifest(ViewerManifest):
 
             # Copy everything in to the mounted .dmg
 
-            if self.default_channel() and not self.default_grid():
-                app_name = "Second Life " + self.args['grid']
-            else:
-                app_name = channel_standin.strip()
+            app_name = self.app_name()
 
             # Hack:
             # Because there is no easy way to coerce the Finder into positioning
@@ -892,7 +865,7 @@ class DarwinManifest(ViewerManifest):
             # will use the release .DS_Store, and will look broken.
             # - Ambroff 2008-08-20
             dmg_template = os.path.join(
-                'installers', 'darwin', '%s-dmg' % self.channel_lowerword())
+                'installers', 'darwin', '%s-dmg' % self.channel_type())
 
             if not os.path.exists (self.src_path_of(dmg_template)):
                 dmg_template = os.path.join ('installers', 'darwin', 'release-dmg')
@@ -940,6 +913,7 @@ class DarwinManifest(ViewerManifest):
 
         print "Converting temp disk image to final disk image"
         self.run_command('hdiutil convert %(sparse)r -format UDZO -imagekey zlib-level=9 -o %(final)r' % {'sparse':sparsename, 'final':finalname})
+        self.run_command('hdiutil internet-enable -yes %(final)r' % {'final':finalname})
         # get rid of the temp file
         self.package_file = finalname
         self.remove(sparsename)
@@ -962,13 +936,9 @@ class LinuxManifest(ViewerManifest):
             self.path("install.sh")
             self.end_prefix("linux_tools")
 
-        # Create an appropriate gridargs.dat for this package, denoting required grid.
-        self.put_in_file(self.flags_list(), 'etc/gridargs.dat')
-
         if self.prefix(src="", dst="bin"):
             self.path("secondlife-bin","do-not-directly-run-secondlife-bin")
             self.path("../linux_crash_logger/linux-crash-logger","linux-crash-logger.bin")
-            self.path("../linux_updater/linux-updater", "linux-updater.bin")
             self.path2basename("../llplugin/slplugin", "SLPlugin")
             self.path2basename("../viewer_components/updater/scripts/linux", "update_install")
             self.end_prefix("bin")
@@ -978,8 +948,9 @@ class LinuxManifest(ViewerManifest):
             # recurse
             self.end_prefix("res-sdl")
 
-        # Get the icons based on the channel
+        # Get the icons based on the channel type
         icon_path = self.icon_path()
+        print "DEBUG: icon_path '%s'" % icon_path
         if self.prefix(src=icon_path, dst="") :
             self.path("secondlife_256.png","secondlife_icon.png")
             if self.prefix(src="",dst="res-sdl") :
@@ -1005,21 +976,9 @@ class LinuxManifest(ViewerManifest):
             self.run_command("chmod +x %r" % os.path.join(self.get_dst_prefix(), script))
 
     def package_finish(self):
-        if 'installer_name' in self.args:
-            installer_name = self.args['installer_name']
-        else:
-            installer_name_components = ['SecondLife_', self.args.get('arch')]
-            installer_name_components.extend(self.args['version'])
-            installer_name = "_".join(installer_name_components)
-            if self.default_channel():
-                if not self.default_grid():
-                    installer_name += '_' + self.args['grid'].upper()
-            else:
-                installer_name += '_' + self.channel_oneword().upper()
+        installer_name = self.installer_base_name()
 
-        if self.args['buildtype'].lower() == 'release' and self.is_packaging_viewer():
-            print "* Going strip-crazy on the packaged binaries, since this is a RELEASE build"
-            self.run_command("find %(d)r/bin %(d)r/lib -type f \\! -name update_install | xargs --no-run-if-empty strip -S" % {'d': self.get_dst_prefix()} ) # makes some small assumptions about our packaged dir structure
+        self.strip_binaries()
 
         # Fix access permissions
         self.run_command("""
@@ -1054,9 +1013,14 @@ class LinuxManifest(ViewerManifest):
                 'dst': self.get_dst_prefix(),
                 'inst': self.build_path_of(installer_name)})
 
-class Linux_i686Manifest(LinuxManifest):
+    def strip_binaries(self):
+        if self.args['buildtype'].lower() == 'release' and self.is_packaging_viewer():
+            print "* Going strip-crazy on the packaged binaries, since this is a RELEASE build"
+            self.run_command(r"find %(d)r/bin %(d)r/lib -type f \! -name update_install | xargs --no-run-if-empty strip -S" % {'d': self.get_dst_prefix()} ) # makes some small assumptions about our packaged dir structure
+
+class Linux_i686_Manifest(LinuxManifest):
     def construct(self):
-        super(Linux_i686Manifest, self).construct()
+        super(Linux_i686_Manifest, self).construct()
 
         if self.prefix("../packages/lib/release", dst="lib"):
             self.path("libapr-1.so")
@@ -1065,21 +1029,19 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libaprutil-1.so")
             self.path("libaprutil-1.so.0")
             self.path("libaprutil-1.so.0.4.1")
+            self.path("libboost_context-mt.so.*")
+            self.path("libboost_filesystem-mt.so.*")
             self.path("libboost_program_options-mt.so.*")
             self.path("libboost_regex-mt.so.*")
-            self.path("libboost_thread-mt.so.*")
-            self.path("libboost_filesystem-mt.so.*")
             self.path("libboost_signals-mt.so.*")
             self.path("libboost_system-mt.so.*")
-            self.path("libbreakpad_client.so.0.0.0")
-            self.path("libbreakpad_client.so.0")
-            self.path("libbreakpad_client.so")
+            self.path("libboost_thread-mt.so.*")
             self.path("libcollada14dom.so")
             self.path("libdb*.so")
             self.path("libcrypto.so.*")
             self.path("libexpat.so.*")
             self.path("libssl.so.1.0.0")
-            self.path("libglod.so")
+            self.path("libGLOD.so")
             self.path("libminizip.so")
             self.path("libuuid.so*")
             self.path("libSDL-1.2.so.*")
@@ -1120,11 +1082,13 @@ class Linux_i686Manifest(LinuxManifest):
                 pass
 
             try:
-                    self.path("libfmod-3.75.so")
+                    self.path("libfmodex-*.so")
+                    self.path("libfmodex.so")
                     pass
             except:
-                    print "Skipping libfmod-3.75.so - not found"
+                    print "Skipping libfmodex.so - not found"
                     pass
+
             self.end_prefix("lib")
 
             # Vivox runtimes
@@ -1139,14 +1103,12 @@ class Linux_i686Manifest(LinuxManifest):
                     self.path("libvivoxplatform.so")
                     self.end_prefix("lib")
 
-            if self.args['buildtype'].lower() == 'release' and self.is_packaging_viewer():
-                    print "* Going strip-crazy on the packaged binaries, since this is a RELEASE build"
-                    self.run_command("find %(d)r/bin %(d)r/lib -type f \\! -name update_install | xargs --no-run-if-empty strip -S" % {'d': self.get_dst_prefix()} ) # makes some small assumptions about our packaged dir structure
+            self.strip_binaries()
 
 
-class Linux_x86_64Manifest(LinuxManifest):
+class Linux_x86_64_Manifest(LinuxManifest):
     def construct(self):
-        super(Linux_x86_64Manifest, self).construct()
+        super(Linux_x86_64_Manifest, self).construct()
 
         # support file for valgrind debug tool
         self.path("secondlife-i686.supp")

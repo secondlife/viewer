@@ -175,7 +175,14 @@ Ansariel Hiller
 	STORM-1685
 	STORM-1713
 	STORM-1899
+	STORM-1932
+	STORM-1933
+	MAINT-2368
+	STORM-1931
+	MAINT-2773
 Aralara Rajal
+Arare Chantilly
+	CHUIBUG-191
 Ardy Lay
 	STORM-859
 	VWR-19499
@@ -299,7 +306,14 @@ ChickyBabes Zuzu
 Christopher  Organiser
 Ciaran Laval
 Cinder Roxley
+    BUG-2326
+    OPEN-185
     STORM-1703
+	STORM-1948
+    STORM-1888
+    STORM-1958
+    STORM-1952
+    STORM-1951
 Clara Young
 Coaldust Numbers
     VWR-1095
@@ -311,6 +325,7 @@ Cron Stardust
 	VWR-10579
 	VWR-25120
 	STORM-1075
+	STORM-1919
 Cypren Christenson
 	STORM-417
 Dante Tucker
@@ -321,6 +336,7 @@ Dale Glass
 	VWR-1358
 	VWR-2041
 Darien Caldwell
+	SH-3055
 Dartagan Shepherd
 Debs Regent
 Decro Schmooz
@@ -402,6 +418,8 @@ Ganymedes Costagravas
 Geenz Spad
 	STORM-1823
 	STORM-1900
+	STORM-1905
+	NORSPEC-229
 Gene Frostbite
 GeneJ Composer
 Geneko Nemeth
@@ -476,6 +494,7 @@ Hiro Sommambulist
 Hitomi Tiponi
 	STORM-1741
 	STORM-1862
+	BUG-1067
 Holger Gilruth
 Horatio Freund
 Hoze Menges
@@ -496,6 +515,8 @@ Ima Mechanique
 	STORM-959
 	STORM-1175
 	STORM-1708
+	STORM-1855
+	VWR-20553
 Imnotgoing Sideways
 Inma Rau
 Innula Zenovka
@@ -638,13 +659,21 @@ Jonathan Yap
 	STORM-1809
 	STORM-1793
 	STORM-1810
-	STORM-1877
+	STORM-1838
+	STORM-1892
+	STORM-1894
 	STORM-1860
 	STORM-1852
 	STORM-1870
 	STORM-1872
 	STORM-1858
 	STORM-1862
+	STORM-1918
+	STORM-1929
+	STORM-1953
+	OPEN-161
+	STORM-1953
+	STORM-1957
 Kadah Coba
 	STORM-1060
     STORM-1843
@@ -660,6 +689,10 @@ Kagehi Kohn
 Kaimen Takahe
 Katharine Berry
 	STORM-1900
+    OPEN-149
+	STORM-1940
+    OPEN-149
+	STORM-1941
 Keklily Longfall
 Ken Lavender
 Ken March
@@ -682,6 +715,7 @@ Kitty Barnett
 	STORM-800
 	STORM-1001
 	STORM-1175
+	STORM-1905
     VWR-24217
 	STORM-1804
 Kolor Fall
@@ -691,6 +725,7 @@ Kunnis Basiat
 	VWR-82
 	VWR-102
 Lance Corrimal
+	STORM-1910
 	VWR-25269
 Latif Khalifa
 	VWR-5370
@@ -743,10 +778,14 @@ Marc Claridge
 Marc2 Sands
 Marianne McCann
 Marine Kelley
+    CHUIBUG-134
     STORM-281
+    STORM-1910
 MartinRJ Fayray
     STORM-1844
     STORM-1845
+    STORM-1911
+    STORM-1934
 Matthew Anthony
 Matthew Dowd
 	VWR-1344
@@ -890,8 +929,20 @@ Nicholaz Beresford
 	VWR-2682
 	VWR-2684
 Nick Rhodes
+NickyD
+	MAINT-873
 Nicky Dasmijn
 	VWR-29228
+	MAINT-873
+	SUN-72
+	BUG-2432
+	STORM-1935
+	STORM-1936
+	BUG-3605
+	CHUIBUG-197
+	OPEN-187
+	STORM-1937
+	OPEN-187
 Nicky Perian
 	OPEN-1
 	STORM-1087
@@ -1014,6 +1065,7 @@ Ryozu Kojima
 	VWR-287
 Sachi Vixen
 Sahkolihaa Contepomi
+	MATBUG-102
 Saii Hallard
 SaintLEOlions Zimer
 Salahzar Stenvaag
@@ -1033,6 +1085,7 @@ Satanello Miami
 Satomi Ahn
 	STORM-501
 	STORM-229
+	VWR-20553
 	VWR-24502
 Scrim Pinion
 Scrippy Scofield
@@ -1059,9 +1112,14 @@ Shawn Kaufmat
 	SNOW-240
 Sheet Spotter
 Shnurui Troughton
+Shyotl Kuhr
+	MAINT-1138
+	MAINT-2334
 Siana Gearz
 	STORM-960
 	STORM-1088
+	MAINT-1138
+	MAINT-2334
 sicarius Thorne
 Sicarius Toxx
 SignpostMarv Martin
@@ -1079,6 +1137,9 @@ SLB Wirefly
 Slee Mayo
     SEC-1075
 snowy Sidran
+Sovereign Engineer
+    MAINT-2334
+    OPEN-189
 SpacedOut Frye
 	VWR-34
 	VWR-45
@@ -1124,6 +1185,7 @@ TankMaster Finesmith
 	STORM-1258
 	STORM-1602
 	STORM-1868
+	STORM-1950
     VWR-26622
 	VWR-29224
 Talamasca
@@ -1158,6 +1220,7 @@ Techwolf Lupindo
 	SNOW-746
 	VWR-12385
 	VWR-20893
+	OPEN-161
 Templar Merlin
 tenebrous pau
 	VWR-247
@@ -1195,6 +1258,8 @@ Tofu Buzzard
 	STORM-1684
 	STORM-1819
 Tony Kembia
+Tonya Souther
+	STORM-1905
 Torben Trautman
 TouchaHoney Perhaps
 TraductoresAnonimos Alter
@@ -1225,6 +1290,7 @@ Vadim Bigbear
 	VWR-2681
 Vaalith Jinn
     STORM-64
+    MATBUG-8
 Vector Hastings
 	VWR-8726
 Veritas Raymaker
@@ -1244,6 +1310,9 @@ Westley Streeter
 Whimsy Winx
 Whirly Fizzle
 	STORM-1895
+	VWR-29543
+	MAINT-873
+	STORM-1930
 Whoops Babii
 	VWR-631
 	VWR-1640
@@ -1305,6 +1374,7 @@ YongYong Francois
 Zak Westminster
 Zai Lynch
 	VWR-19505
+    STORM-1902
 Zana Kohime
 Zaren Alexander
 Zarkonnen Decosta
@@ -1327,6 +1397,7 @@ Zipherius Turas
 	VWR-76
 	VWR-77
 Zoex Flanagan
+
 
 
 

@@ -210,6 +210,14 @@
 你仍要新增這項能力給「[ROLE_NAME]」？
 		<usetemplate name="okcancelbuttons" notext="否" yestext="是"/>
 	</notification>
+	<notification name="EjectGroupMemberWarning">
+		你即將把 [AVATAR_NAME] 踢出群組。
+		<usetemplate ignoretext="確定將某人踢出群組" name="okcancelignore" notext="取消" yestext="踢出"/>
+	</notification>
+	<notification name="EjectGroupMembersWarning">
+		你即將把 [COUNT] 個人踢出群組。
+		<usetemplate ignoretext="確定將多人踢出群組" name="okcancelignore" notext="取消" yestext="踢出"/>
+	</notification>
 	<notification name="AttachmentDrop">
 		你即將卸除你的附件。
     你確定你要繼續？
@@ -513,6 +521,24 @@
     前往 [_URL] 察看是否有新版驅動程式？
 		<url name="url">
 			http://www.intel.com/p/en_US/support/detect/graphics
+		</url>
+		<usetemplate ignoretext="我的顯示驅動程式太老舊" name="okcancelignore" notext="否" yestext="是"/>
+	</notification>
+	<notification name="AMDOldDriver">
+		你的顯示卡很可能有新版的驅動程式。  更新顯示驅動程式會大幅改善性能。
+
+    前往 [_URL] 察看是否有新版驅動程式？
+		<url name="url">
+			http://support.amd.com/us/Pages/AMDSupportHub.aspx
+		</url>
+		<usetemplate ignoretext="我的顯示驅動程式太老舊" name="okcancelignore" notext="否" yestext="是"/>
+	</notification>
+	<notification name="NVIDIAOldDriver">
+		你的顯示卡很可能有新版的驅動程式。  更新顯示驅動程式會大幅改善性能。
+
+    前往 [_URL] 察看是否有新版驅動程式？
+		<url name="url">
+			http://www.nvidia.com/Download/index.aspx?lang=tw
 		</url>
 		<usetemplate ignoretext="我的顯示驅動程式太老舊" name="okcancelignore" notext="否" yestext="是"/>
 	</notification>
@@ -1452,13 +1478,43 @@ SHA1 指紋：[MD5_DIGEST]
 	</notification>
 	<notification name="RequiredUpdateDownloadedVerboseDialog">
 		我們已下載了一個必要的軟體更新。
-版本：[VERSION]
+[VERSION] 版本 [[INFO_URL] 關於此更新的資訊]
 
 我門必須重新啟動 [APP_NAME] 以安裝更新。
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 	<notification name="RequiredUpdateDownloadedDialog">
 		我門必須重新啟動 [APP_NAME] 以安裝更新。
+[[INFO_URL] 關於此更新的資訊]
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="OtherChannelDownloadBackgroundTip">
+		我們已為你的 [APP_NAME] 軟體下載了更新。
+版本：[VERSION] 
+原本試驗性質的瀏覽器已被 [NEW_CHANNEL] 瀏覽器取代，
+參見[[INFO_URL] 此更新版的詳情]
+		<usetemplate name="okcancelbuttons" notext="稍候..." yestext="立即安裝並重新啟動 [APP_NAME]"/>
+	</notification>
+	<notification name="OtherChannelDownloadBackgroundDialog">
+		我們已為你的 [APP_NAME] 軟體下載了更新。
+版本：[VERSION]
+原本試驗性質的瀏覽器已被 [NEW_CHANNEL] 瀏覽器取代，
+參見[[INFO_URL] 介紹此更新版的資訊]
+		<usetemplate name="okcancelbuttons" notext="稍候…" yestext="立即安裝並重新啟動 [APP_NAME]"/>
+	</notification>
+	<notification name="OtherChannelRequiredUpdateDownloadedVerboseDialog">
+		我們已下載了一個必要的軟體更新。
+版本：[VERSION]
+原本試驗性質的瀏覽器已被 [NEW_CHANNEL] 瀏覽器取代，
+參見[[INFO_URL] 介紹此更新版的資訊]
+
+我們必須重新啟動 [APP_NAME] 以便安裝更新。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="OtherChannelRequiredUpdateDownloadedDialog">
+		我們必須重新啟動 [APP_NAME] 以便安裝更新。
+原本試驗性質的瀏覽器已被 [NEW_CHANNEL] 瀏覽器取代，
+參見[[INFO_URL] 介紹此更新版的資訊]
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 	<notification name="DeedObjectToGroup">
@@ -1509,6 +1565,10 @@ SHA1 指紋：[MD5_DIGEST]
 是否要離開群組？
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
+	<notification name="OwnerCannotLeaveGroup">
+		無法離開群組。 你是此群組僅存的所有人，不得離開群組。 請先把所有人職銜指派給另一人。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
 	<notification name="ConfirmKick">
 		你確定要踢出這網格內的全部居民？
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="踢出全部居民"/>
@@ -1536,10 +1596,13 @@ SHA1 指紋：[MD5_DIGEST]
 		此時無法發出交友邀請。 請稍候再試。
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
-	<notification name="BusyModeSet">
-		已設為忙碌模式。
-聊天和即時訊息內容將被隱藏。 即時訊息發送者將收到你的「忙碌模式」回應。 所有的瞬間傳送邀請都將被婉拒。 此時起送給你的收納區物項都將丟入垃圾桶。
-		<usetemplate ignoretext="我變更我的狀態為忙碌模式" name="okignore" yestext="確定"/>
+	<notification name="DoNotDisturbModeSet">
+		「請勿打擾」模式目前是開啟狀態。  你將不會收到任何發給你的訊息通知。
+
+- 其他居民將收到你的「請勿打擾」回應（回應內容設於「偏好設定 &gt; 一般設定」）。
+- 所有瞬間傳送的邀請都將被婉拒。
+- 所有語音來電都將拒絕接聽。
+		<usetemplate ignoretext="我變更我的狀態為「請勿打擾」模式" name="okignore" yestext="確定"/>
 	</notification>
 	<notification name="JoinedTooManyGroupsMember">
 		你已達可同時加入的群組數上限。 請先離開另一個群組再加入這一個，或婉拒加入邀請。
@@ -2024,6 +2087,10 @@ SHA1 指紋：[MD5_DIGEST]
 		前往你的[http://secondlife.com/account/ 塗鴉牆]以察看你的帳戶歷史紀錄？
 		<usetemplate ignoretext="啟動我的瀏覽器以察看我的帳戶歷史紀錄" name="okcancelignore" notext="取消" yestext="前往頁面"/>
 	</notification>
+	<notification name="ConfirmAddingChatParticipants">
+		新增一個人到現有的交談，等於建立新的交談。  所有交談者將會收到新交談通知。
+		<usetemplate ignoretext="確認新增聊天者" name="okcancelignore" notext="取消" yestext="確定"/>
+	</notification>
 	<notification name="ConfirmQuit">
 		你確定你要結束退出？
 		<usetemplate ignoretext="當我結束退出時進行確認" name="okcancelignore" notext="不要結束退出" yestext="結束退出"/>
@@ -2098,14 +2165,14 @@ SHA1 指紋：[MD5_DIGEST]
 			<button ignore="絕不取代" name="No" text="取消"/>
 		</form>
 	</notification>
-	<notification label="忙碌模式警告" name="BusyModePay">
-		你現在處於忙碌模式，這意味著你付費後仍將不會收到任何物項。
+	<notification label="「請勿打擾」模式警告" name="DoNotDisturbModePay">
+		你已開啟「請勿打擾」。 你將不會收到任何付款購買的物項。
 
-你是否要先離開忙碌模式，再完成交易？
+是否要在完成交易之前，先關閉「請勿打擾」模式？
 		<form name="form">
-			<ignore name="ignore" text="當我在忙碌模式時，將要支付金錢或給他人物件"/>
-			<button ignore="總是離開忙碌模式" name="Yes" text="確定"/>
-			<button ignore="絕不離開忙碌模式" name="No" text="取消"/>
+			<ignore name="ignore" text="我即將在「請勿打擾」模式下，試圖付錢給他人或給一個物件"/>
+			<button ignore="固定選擇離開「請勿打擾」模式" name="Yes" text="確定"/>
+			<button ignore="永不離開「請勿打擾」模式" name="No" text="取消"/>
 		</form>
 	</notification>
 	<notification name="ConfirmDeleteProtectedCategory">
@@ -2240,11 +2307,8 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="GroupNotice">
 		主旨：[SUBJECT]，訊息：[MESSAGE]
 	</notification>
-	<notification name="FriendOnline">
-		&lt;nolink&gt;[NAME]&lt;/nolink&gt; 目前在線上
-	</notification>
-	<notification name="FriendOffline">
-		&lt;nolink&gt;[NAME]&lt;/nolink&gt; 目前離線
+	<notification name="FriendOnlineOffline">
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; 目前狀態為 [STATUS]
 	</notification>
 	<notification name="AddSelfFriend">
 		雖然你人很好，你還是不能把自己加為朋友。
@@ -2364,9 +2428,7 @@ SHA1 指紋：[MD5_DIGEST]
     （你還可以直接按兩下那個地標，或按滑鼠右鍵，選擇「瞬間傳送」。）
 	</notification>
 	<notification name="TeleportToPerson">
-		要聯絡如「[NAME]」的任何一位居民，請點按「人群」按鈕，從打開的視窗中選擇一位居民，再點按視窗底下的「IM」。
-
-    （你還可以從清單直接按兩下名字，或按滑鼠右鍵，選擇「IM」。）
+		要和某人私下交談，請右鍵點按化身，再點按選單的「IM」。
 	</notification>
 	<notification name="CantSelectLandFromMultipleRegions">
 		無法選擇超出伺服器邊界的土地。
@@ -2471,13 +2533,6 @@ SHA1 指紋：[MD5_DIGEST]
 	</notification>
 	<notification name="DynamicPathfindingDisabled">
 		這地區並未啟用動態尋徑。  使用尋徑 LSL 呼叫的帶腳本物件，在此地區可能無法正常運作。
-	</notification>
-	<notification name="PathfindingRebakeNavmesh">
-		更改本地區的某些物件將導致其他移動物件的運作發生問題。  要使移動物件正常運作，請點按「重新產出地區」按鈕。  欲獲知詳情請選擇「幫助」。
-		<url name="url">
-			http://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer
-		</url>
-		<usetemplate helptext="幫助" ignoretext="更改本地區的某些物件將導致其他移動物件的運作發生問題。" name="okhelpignore" yestext="確定"/>
 	</notification>
 	<notification name="PathfindingCannotRebakeNavmesh">
 		發生錯誤。  問題可能出在網路或伺服器，也可能因為你無權建製物件。  有時，只要登出再登入即能解決這類問題。
@@ -2741,10 +2796,19 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="ScriptQuestionCaution">
 		警告：物件 &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; 要求全權存取你的林登幣帳戶。 你如果允許存取帳戶，它將可在任何時候從你帳戶取走資金，或完全加以清空，或定期取走部分資金，且不會發出警告。
   
-這很可能是種不當的要求。 如果你不完全瞭解它為何要求存取你的帳戶，請勿允准。
+如果你不完全瞭解它為何要求存取你的帳戶，請勿允准。
 		<form name="form">
 			<button name="Grant" text="允許全權存取"/>
 			<button name="Deny" text="拒絕"/>
+		</form>
+	</notification>
+	<notification name="UnknownScriptQuestion">
+		由 &apos;[NAME]&apos; 所擁有的物件 &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; 正請求某項執行時期腳本權限，但本瀏覽器無法辨識該權限，故不允准。
+
+欲准許此權限，請從 [DOWNLOADURL] 下載並更新為最新版瀏覽器。
+		<form name="form">
+			<button name="Deny" text="確定"/>
+			<button name="Mute" text="封鎖"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialog">
@@ -3322,5 +3386,634 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="PathfindingDeleteMultipleItems">
 		你正在刪除 [NUM_ITEMS] 個物項。  你確定你要繼續？
 		<usetemplate ignoretext="確定要刪除多個物項？" name="okcancelignore" notext="否" yestext="是"/>
+	</notification>
+	<notification name="AvatarFrozen">
+		[AV_FREEZER] 凍結了你。 你此時無法移動或與周遭互動。
+	</notification>
+	<notification name="AvatarFrozenDuration">
+		[AV_FREEZER] 凍結了你 [AV_FREEZE_TIME] 秒鐘。 你此時無法移動或與周遭互動。
+	</notification>
+	<notification name="YouFrozeAvatar">
+		化身已凍結。
+	</notification>
+	<notification name="AvatarHasUnFrozenYou">
+		[AV_FREEZER] 解除了對你的凍結。
+	</notification>
+	<notification name="AvatarUnFrozen">
+		化身已解除凍結。
+	</notification>
+	<notification name="AvatarFreezeFailure">
+		凍結失敗，因為你在該地段沒有管理員權限。
+	</notification>
+	<notification name="AvatarFreezeThaw">
+		你遭凍結的時間已過，請恢復正常活動。
+	</notification>
+	<notification name="AvatarCantFreeze">
+		抱歉，無法凍結該用戶。
+	</notification>
+	<notification name="NowOwnObject">
+		你現在是物件 [OBJECT_NAME] 的所有人
+	</notification>
+	<notification name="CantRezOnLand">
+		無法在 [OBJECT_POS] 產生物件，因為這土地的所有人不允許。  請用土地工具察看所有人。
+	</notification>
+	<notification name="RezFailTooManyRequests">
+		無法產生物件，此刻要求數目過多。
+	</notification>
+	<notification name="SitFailCantMove">
+		你無法坐下，因為此刻你不能移動。
+	</notification>
+	<notification name="SitFailNotAllowedOnLand">
+		你不能坐下，因為該土地不允許。
+	</notification>
+	<notification name="SitFailNotSameRegion">
+		請挨近一點。  無法坐在物件上，因為
+它和你不在同一個地區。
+	</notification>
+	<notification name="NoNewObjectRegionFull">
+		無法建立新物件。 地區已滿載。
+	</notification>
+	<notification name="FailedToPlaceObject">
+		無法將物件置於指定地點。  請再試一次。
+	</notification>
+	<notification name="NoOwnNoGardening">
+		你無法在別人的土地上建立樹和草。
+	</notification>
+	<notification name="NoCopyPermsNoObject">
+		複製失敗，你無權複製物件 &apos;[OBJ_NAME]&apos;。
+	</notification>
+	<notification name="NoTransPermsNoObject">
+		複製失敗，因為物件 &apos;[OBJ_NAME]&apos; 無法轉移給你。
+	</notification>
+	<notification name="AddToNavMeshNoCopy">
+		複製失敗，因為物件 &apos;[OBJ_NAME]&apos; 對導航網面有貢獻。
+	</notification>
+	<notification name="DupeWithNoRootsSelected">
+		選取了沒有根的重覆物件。
+	</notification>
+	<notification name="CantDupeCuzRegionIsFull">
+		無法複製物件，因為地區滿載。
+	</notification>
+	<notification name="CantDupeCuzParcelNotFound">
+		無法複製物件，找不到它們所在的地段。
+	</notification>
+	<notification name="CantCreateCuzParcelFull">
+		無法建立物件，因為 
+地段滿載。
+	</notification>
+	<notification name="RezAttemptFailed">
+		試圖產生物件失敗。
+	</notification>
+	<notification name="ToxicInvRezAttemptFailed">
+		無法建立已在此地區造成問題的物件。
+	</notification>
+	<notification name="InvItemIsBlacklisted">
+		該收納區物項已被列入黑名單。
+	</notification>
+	<notification name="NoCanRezObjects">
+		你此時無權建立物件。
+	</notification>
+	<notification name="LandSearchBlocked">
+		土地搜尋遭禁。
+你在短時間內進行了太多次土地搜尋。
+請稍候再試。
+	</notification>
+	<notification name="NotEnoughResourcesToAttach">
+		腳本資源不足，無法附著物件！
+	</notification>
+	<notification name="YouDiedAndGotTPHome">
+		你已經死亡並且被瞬間傳送回你的家的位置
+	</notification>
+	<notification name="EjectComingSoon">
+		你不再允許待在這裡，必須在 [EJECT_TIME] 秒內離開。
+	</notification>
+	<notification name="NoEnterServerFull">
+		你無法進入這地區，因為 
+伺服器滿載。
+	</notification>
+	<notification name="SaveBackToInvDisabled">
+		「儲存回收納區」功能已被停用。
+	</notification>
+	<notification name="NoExistNoSaveToContents">
+		無法將 &apos;[OBJ_NAME]&apos; 儲存到物件內容，因為產生它的來源物件已不存在。
+	</notification>
+	<notification name="NoModNoSaveToContents">
+		無法儲存 [OBJ_NAME] 到物件內容，你無權修改 &apos;[DEST_NAME]&apos; 物件。
+	</notification>
+	<notification name="NoSaveBackToInvDisabled">
+		無法將 &apos;[OBJ_NAME]&apos; 儲存回收納區，此動作已被停用。
+	</notification>
+	<notification name="NoCopyNoSelCopy">
+		無法複製你所選的，因為你無權複製物件 &apos;[OBJ_NAME]&apos;。
+	</notification>
+	<notification name="NoTransNoSelCopy">
+		無法選取複製，因為物件 &apos;[OBJ_NAME]&apos; 不可轉移。
+	</notification>
+	<notification name="NoTransNoCopy">
+		無法選取複製，因為物件 &apos;[OBJ_NAME]&apos; 不可轉移。
+	</notification>
+	<notification name="NoPermsNoRemoval">
+		權限系統不允許從模擬器移除物件 &apos;[OBJ_NAME]&apos;。
+	</notification>
+	<notification name="NoModNoSaveSelection">
+		無法儲存你所選的，因為你無權修改 &apos;[OBJ_NAME]&apos; 物件。
+	</notification>
+	<notification name="NoCopyNoSaveSelection">
+		無法儲存你所選的，因為物件 &apos;[OBJ_NAME]&apos; 不可複製。
+	</notification>
+	<notification name="NoModNoTaking">
+		無法拿取你所選的，因為你無權修改 &apos;[OBJ_NAME]&apos; 物件。
+	</notification>
+	<notification name="RezDestInternalError">
+		內部錯誤：未知的目的地類型。
+	</notification>
+	<notification name="DeleteFailObjNotFound">
+		刪除失敗，因為找不到物件
+	</notification>
+	<notification name="SorryCantEjectUser">
+		抱歉，無法踢出該用戶。
+	</notification>
+	<notification name="RegionSezNotAHome">
+		此地區不許你在此設定「我的家」。
+	</notification>
+	<notification name="HomeLocationLimits">
+		你只能在自己的土地或大陸資訊中心上設定「我的家」。
+	</notification>
+	<notification name="HomePositionSet">
+		我的家位置已定。
+	</notification>
+	<notification name="AvatarEjected">
+		化身已被踢出。
+	</notification>
+	<notification name="AvatarEjectFailed">
+		踢出失敗，因為你在該地段沒有管理員權限。
+	</notification>
+	<notification name="CantMoveObjectParcelFull">
+		無法移動 &apos;[OBJECT_NAME]&apos; 物件到
+地區 [REGION_NAME] 的 [OBJ_POSITION]，因為該目標地段已滿載。
+	</notification>
+	<notification name="CantMoveObjectParcelPerms">
+		無法移動 &apos;[OBJECT_NAME]&apos; 物件到
+地區 [REGION_NAME] 的 [OBJ_POSITION]，因為此地段不允許你的物件。
+	</notification>
+	<notification name="CantMoveObjectParcelResources">
+		無法移動 &apos;[OBJECT_NAME]&apos; 物件到
+ [REGION_NAME] 地區的 [OBJ_POSITION]，因為此地段資源不足容納此物件。
+	</notification>
+	<notification name="CantMoveObjectRegionVersion">
+		無法移動 &apos;[OBJECT_NAME]&apos; 物件到
+ [REGION_NAME] 地區的 [OBJ_POSITION]，因為該地區所執行的軟體版本過舊，不支援跨地區接受這個物件。
+	</notification>
+	<notification name="CantMoveObjectNavMesh">
+		無法移動 &apos;[OBJECT_NAME]&apos; 物件到
+地區 [REGION_NAME] 的 [OBJ_POSITION]，因為你不得修改跨越地區界限的導航網面。
+	</notification>
+	<notification name="CantMoveObjectWTF">
+		無法移動 &apos;[OBJECT_NAME]&apos; 物件到
+地區 [REGION_NAME] 的 [OBJ_POSITION]，原因不明。 （[FAILURE_TYPE]）
+	</notification>
+	<notification name="NoPermModifyObject">
+		你無權變更該物件
+	</notification>
+	<notification name="CantEnablePhysObjContributesToNav">
+		對導航網面有貢獻的物件，無法啟用物理。
+	</notification>
+	<notification name="CantEnablePhysKeyframedObj">
+		鍵格動畫物件無法啟用物理。
+	</notification>
+	<notification name="CantEnablePhysNotEnoughLandResources">
+		無法啟用物件的物理——土地資源不足。
+	</notification>
+	<notification name="CantEnablePhysCostTooGreat">
+		物件的物理資源成本超過 [MAX_OBJECTS]，無法啟用物理
+	</notification>
+	<notification name="PhantomWithConcavePiece">
+		此物件不得有凹面部件，因為物件是幻影物件，對導航網面有貢獻。
+	</notification>
+	<notification name="UnableAddItem">
+		無法新增項目！
+	</notification>
+	<notification name="UnableEditItem">
+		無法編輯這項目！
+	</notification>
+	<notification name="NoPermToEdit">
+		無權編輯這項目。
+	</notification>
+	<notification name="NoPermToCopyInventory">
+		無權複製該收納區。
+	</notification>
+	<notification name="CantSaveItemDoesntExist">
+		無法儲存到物件內容：該項目已不存在。
+	</notification>
+	<notification name="CantSaveItemAlreadyExists">
+		無法儲存到物件內容：收納區已存在同名稱的項目
+	</notification>
+	<notification name="CantSaveModifyAttachment">
+		無法儲存到物件內容：這麼做將修改附件的權限。
+	</notification>
+	<notification name="TooManyScripts">
+		腳本太多。
+	</notification>
+	<notification name="UnableAddScript">
+		無法新增腳本！
+	</notification>
+	<notification name="AssetServerTimeoutObjReturn">
+		資產伺服器未在正常時間內反應。  物件已返交模擬器。
+	</notification>
+	<notification name="RegionDisablePhysicsShapes">
+		本地區未啟用物理形狀。
+	</notification>
+	<notification name="NoModNavmeshAcrossRegions">
+		你無法變更跨越地區界限的導航網面。
+	</notification>
+	<notification name="NoSetPhysicsPropertiesOnObjectType">
+		該物件類型不得設定物理性質。
+	</notification>
+	<notification name="NoSetRootPrimWithNoShape">
+		根幾何元件無法設成無形狀。
+	</notification>
+	<notification name="NoRegionSupportPhysMats">
+		本地區未啟用物理材料。
+	</notification>
+	<notification name="OnlyRootPrimPhysMats">
+		只能調整根幾何元件的物理材料。
+	</notification>
+	<notification name="NoSupportCharacterPhysMats">
+		尚不支援角色設定物理材料。
+	</notification>
+	<notification name="InvalidPhysMatProperty">
+		指定的物理材料屬性中，至少有一個無效。
+	</notification>
+	<notification name="NoPermsAlterStitchingMeshObj">
+		網面物件的縫合類型不得變更。
+	</notification>
+	<notification name="NoPermsAlterShapeMeshObj">
+		網面物件的形狀不得變更。
+	</notification>
+	<notification name="FullRegionCantEnter">
+		你無法進入這地區，\n因為地區滿載。
+	</notification>
+	<notification name="LinkFailedOwnersDiffer">
+		聯結失敗——所有人不同
+	</notification>
+	<notification name="LinkFailedNoModNavmeshAcrossRegions">
+		聯結失敗——無法修改跨越地區界限的導航網面。
+	</notification>
+	<notification name="LinkFailedNoPermToEdit">
+		聯結失敗，你無權編輯。
+	</notification>
+	<notification name="LinkFailedTooManyPrims">
+		聯結失敗——幾何元件太多
+	</notification>
+	<notification name="LinkFailedCantLinkNoCopyNoTrans">
+		聯結失敗——無法將「禁止複製」和「禁止轉移」物件聯結起來
+	</notification>
+	<notification name="LinkFailedNothingLinkable">
+		聯結失敗——沒有可聯結的東西。
+	</notification>
+	<notification name="LinkFailedTooManyPathfindingChars">
+		聯結失敗——尋徑角色太多
+	</notification>
+	<notification name="LinkFailedInsufficientLand">
+		聯結失敗——土地資源不足
+	</notification>
+	<notification name="LinkFailedTooMuchPhysics">
+		物件使用了過多物理資源，其動態特性已被停用。
+	</notification>
+	<notification name="TeleportedHomeByObjectOnParcel">
+		你已被 &apos;[PARCEL_NAME]&apos; 地段的物件 &apos;[OBJECT_NAME]&apos; 成功瞬間傳送回家
+	</notification>
+	<notification name="TeleportedHomeByObject">
+		你已成功被物件 &apos;[OBJECT_NAME]&apos; 瞬間傳送回家
+	</notification>
+	<notification name="TeleportedByAttachment">
+		你已成功被 [ITEM_ID] 上的一個附件瞬間傳送
+	</notification>
+	<notification name="TeleportedByObjectOnParcel">
+		你已成功被 &apos;[PARCEL_NAME]&apos; 地段的物件 &apos;[OBJECT_NAME]&apos; 瞬間傳送
+	</notification>
+	<notification name="TeleportedByObjectOwnedBy">
+		你已成功被 [OWNER_ID] 擁有的物件 &apos;[OBJECT_NAME]&apos; 瞬間傳送
+	</notification>
+	<notification name="TeleportedByObjectUnknownUser">
+		你已成功被某未知用戶擁有的物件 &apos;[OBJECT_NAME]&apos; 瞬間傳送。
+	</notification>
+	<notification name="CantCreateObjectRegionFull">
+		無法建立要求的物件。 地區已滿載。
+	</notification>
+	<notification name="CantAttackMultipleObjOneSpot">
+		你不能將多個物件附著到同一個點。
+	</notification>
+	<notification name="CantCreateMultipleObjAtLoc">
+		你不能在此建立多個物件。
+	</notification>
+	<notification name="UnableToCreateObjTimeOut">
+		無法建立要求的物件。 物件在資料庫中找不到。
+	</notification>
+	<notification name="UnableToCreateObjUnknown">
+		無法建立要求的物件。 要求逾時，無法完成。 請再試一次。
+	</notification>
+	<notification name="UnableToCreateObjMissingFromDB">
+		無法建立要求的物件。 請再試一次。
+	</notification>
+	<notification name="RezFailureTookTooLong">
+		物件產生失敗，要求的物件載入時間太久。
+	</notification>
+	<notification name="FailedToPlaceObjAtLoc">
+		無法將物件置於指定地點。  請再試一次。
+	</notification>
+	<notification name="CantCreatePlantsOnLand">
+		你不得在這土地上建立植物。
+	</notification>
+	<notification name="CantRestoreObjectNoWorldPos">
+		無法恢復物件。 找不到虛擬世界的位置。
+	</notification>
+	<notification name="CantRezObjectInvalidMeshData">
+		無法產生物件，它的網面資料無效。
+	</notification>
+	<notification name="CantRezObjectTooManyScripts">
+		無法產生物件，因為這地區已有太多的腳本。
+	</notification>
+	<notification name="CantCreateObjectNoAccess">
+		你無權在此建立物件。
+	</notification>
+	<notification name="CantCreateObject">
+		你此時無權建立物件。
+	</notification>
+	<notification name="InvalidObjectParams">
+		無效的物件參數
+	</notification>
+	<notification name="CantDuplicateObjectNoAcess">
+		你權限不夠，無法在此複製物件。
+	</notification>
+	<notification name="CantChangeShape">
+		你無權變更這個形狀。
+	</notification>
+	<notification name="NoAccessToClaimObjects">
+		你權限不夠，無法在此收取物件。
+	</notification>
+	<notification name="DeedFailedNoPermToDeedForGroup">
+		讓渡失敗，你無權為你的群組讓渡物件。
+	</notification>
+	<notification name="NoPrivsToBuyObject">
+		你權限不夠，無法在此購買物件。
+	</notification>
+	<notification name="CantAttachObjectAvatarSittingOnIt">
+		無法附著物件，有個化身正坐在物件上。
+	</notification>
+	<notification name="WhyAreYouTryingToWearShrubbery">
+		樹和草不能當附件穿戴。
+	</notification>
+	<notification name="CantAttachGroupOwnedObjs">
+		無法附著群組所擁有的物件。
+	</notification>
+	<notification name="CantAttachObjectsNotOwned">
+		無法附著不是你擁有的物件。
+	</notification>
+	<notification name="CantAttachNavmeshObjects">
+		無法附著對導航網面有貢獻的物件。
+	</notification>
+	<notification name="CantAttachObjectNoMovePermissions">
+		無法附著物件，你無權移動該物件。
+	</notification>
+	<notification name="CantAttachNotEnoughScriptResources">
+		腳本資源不足，無法附著物件！
+	</notification>
+	<notification name="CantDropItemTrialUser">
+		你無法在此卸除物件，請到「自由嘗試」區域再試。
+	</notification>
+	<notification name="CantDropMeshAttachment">
+		你無法在此卸除附件。 請選擇把卸除附件送回收納區，再重新成形。
+	</notification>
+	<notification name="CantDropAttachmentNoPermission">
+		卸除附件失敗：你無權在此處卸除。
+	</notification>
+	<notification name="CantDropAttachmentInsufficientLandResources">
+		卸除附件失敗：可用土地資源不足。
+	</notification>
+	<notification name="CantDropAttachmentInsufficientResources">
+		卸除附件失敗：可用資源不足。
+	</notification>
+	<notification name="CantDropObjectFullParcel">
+		無法在此卸除物件。  地段滿載。
+	</notification>
+	<notification name="CantTouchObjectBannedFromParcel">
+		無法觸摸/抓取此物件，因為你在該土地地段遭禁。
+	</notification>
+	<notification name="PlzNarrowDeleteParams">
+		請將刪除參數範圍調小一點。
+	</notification>
+	<notification name="UnableToUploadAsset">
+		無法上傳資產。
+	</notification>
+	<notification name="CantTeleportCouldNotFindUser">
+		找不到要瞬間傳送到家的用戶
+	</notification>
+	<notification name="GodlikeRequestFailed">
+		要求神的權力失敗
+	</notification>
+	<notification name="GenericRequestFailed">
+		普通請求失敗
+	</notification>
+	<notification name="CantUploadPostcard">
+		無法上傳明信片。  請稍候再試一次。
+	</notification>
+	<notification name="CantFetchInventoryForGroupNotice">
+		無法取得群組通知的收納區細節。
+	</notification>
+	<notification name="CantSendGroupNoticeNotPermitted">
+		無法送出群組通知——未准許。
+	</notification>
+	<notification name="CantSendGroupNoticeCantConstructInventory">
+		無法送出群組通知——收納區建立失敗。
+	</notification>
+	<notification name="CantParceInventoryInNotice">
+		無法剖析通知裡的收納品項。
+	</notification>
+	<notification name="TerrainUploadFailed">
+		地形上傳失敗。
+	</notification>
+	<notification name="TerrainFileWritten">
+		地形檔案已寫入。
+	</notification>
+	<notification name="TerrainFileWrittenStartingDownload">
+		地形檔案已寫入，開始下載……
+	</notification>
+	<notification name="TerrainBaked">
+		地形已定貌。
+	</notification>
+	<notification name="TenObjectsDisabledPlzRefresh">
+		只成功停用前 10 個所選物件。 若有需要，請刷新之後再選取更多的項目。
+	</notification>
+	<notification name="UpdateViewerBuyParcel">
+		你必須先更新瀏覽器後，才可購買這個地段。
+	</notification>
+	<notification name="CantBuyParcelNotForSale">
+		無法購買，此地段不供出售。
+	</notification>
+	<notification name="CantBuySalePriceOrLandAreaChanged">
+		無法購買，售價或土地面積已變。
+	</notification>
+	<notification name="CantBuyParcelNotAuthorized">
+		你不是此地段的獲授權的買主。
+	</notification>
+	<notification name="CantBuyParcelAwaitingPurchaseAuth">
+		你無法購買此地段，該地段已在等候批准購買
+	</notification>
+	<notification name="CantBuildOverflowParcel">
+		你不得在此建立物件，這麼做將導致地段超載。
+	</notification>
+	<notification name="SelectedMultipleOwnedLand">
+		你選擇的土地範圍，為不同人所擁有。 請縮小選擇範圍，再試一次。
+	</notification>
+	<notification name="CantJoinTooFewLeasedParcels">
+		未選取足夠租用地段，無法合併。
+	</notification>
+	<notification name="CantDivideLandMultipleParcelsSelected">
+		無法分割土地，\n因為你選取了多個地段，\n請縮小所選土地。
+	</notification>
+	<notification name="CantDivideLandCantFindParcel">
+		無法分割土地。\n找不到地段。\n請到「幫助 &gt; 回報錯誤……」回報問題
+	</notification>
+	<notification name="CantDivideLandWholeParcelSelected">
+		無法分割土地。 選取了整個地段。\n請試著縮小所選的土地。
+	</notification>
+	<notification name="LandHasBeenDivided">
+		土地分割成功。
+	</notification>
+	<notification name="PassPurchased">
+		你購買了通行權。
+	</notification>
+	<notification name="RegionDisallowsClassifieds">
+		地區不允許分類廣告。
+	</notification>
+	<notification name="LandPassExpireSoon">
+		你在此土地的通行權即將到期失效。
+	</notification>
+	<notification name="CantSitNoSuitableSurface">
+		沒有合適的表面讓你坐下，請試一試別處。
+	</notification>
+	<notification name="CantSitNoRoom">
+		這裡沒有空間讓你坐下，請試試另一處。
+	</notification>
+	<notification name="ClaimObjectFailedNoPermission">
+		收取物件失敗，因為你權限不足。
+	</notification>
+	<notification name="ClaimObjectFailedNoMoney">
+		收取物件失敗，因為你 L$ 金額不足。
+	</notification>
+	<notification name="CantDeedGroupLand">
+		無法讓渡群組所擁有的土地。
+	</notification>
+	<notification name="BuyObjectFailedNoMoney">
+		購買物件失敗，你 L$ 金額不足。
+	</notification>
+	<notification name="BuyInventoryFailedNoMoney">
+		購買收納區失敗，你 L$ 金額不足。
+	</notification>
+	<notification name="BuyPassFailedNoMoney">
+		你的 L$ 不足，無法購買此土地的通行權。
+	</notification>
+	<notification name="CantBuyPassTryAgain">
+		此時無法購買通行權。  請稍候再試一次。
+	</notification>
+	<notification name="CantCreateObjectParcelFull">
+		無法建立物件，\n地段滿載。
+	</notification>
+	<notification name="FailedPlacingObject">
+		無法將物件置於指定地點。  請再試一次。
+	</notification>
+	<notification name="CantCreateLandmarkForEvent">
+		無法為活動建立地標。
+	</notification>
+	<notification name="GodBeatsFreeze">
+		你擁有的神力解除了凍結！
+	</notification>
+	<notification name="SpecialPowersRequestFailedLogged">
+		要求特殊能力失敗。 該要求已載入記錄。
+	</notification>
+	<notification name="ExpireExplanation">
+		系統此時無法處理你的要求。 要求逾時，無法完成。
+	</notification>
+	<notification name="DieExplanation">
+		系統無法處理你的要求。
+	</notification>
+	<notification name="AddPrimitiveFailure">
+		金額不足，無法建立幾何元件。
+	</notification>
+	<notification name="RezObjectFailure">
+		金額不足，無法建立物件。
+	</notification>
+	<notification name="ResetHomePositionNotLegal">
+		已重設「我的家」位置，因為前一個位置不合法。
+	</notification>
+	<notification name="CantInviteRegionFull">
+		此刻你無法邀請任何人到你的位置，因為地區滿載。 請稍候再試一次。
+	</notification>
+	<notification name="CantSetHomeAtRegion">
+		此地區不許你在此設定「我的家」。
+	</notification>
+	<notification name="ListValidHomeLocations">
+		你只能在自己的土地或大陸資訊中心上設定「我的家」。
+	</notification>
+	<notification name="SetHomePosition">
+		我的家位置已定。
+	</notification>
+	<notification name="CantDerezInventoryError">
+		收納區出錯，無法收納物件。
+	</notification>
+	<notification name="CantCreateRequestedInv">
+		無法建立要求的收納區。
+	</notification>
+	<notification name="CantCreateRequestedInvFolder">
+		無法建立要求的收納區資料夾。
+	</notification>
+	<notification name="CantCreateInventory">
+		無法建立該收納區。
+	</notification>
+	<notification name="CantCreateLandmark">
+		無法建立地標。
+	</notification>
+	<notification name="CantCreateOutfit">
+		此時無法建立裝扮。 請過一分鐘後再試。
+	</notification>
+	<notification name="InventoryNotForSale">
+		收納區沒有待售。
+	</notification>
+	<notification name="CantFindInvItem">
+		找不到收納區物項。
+	</notification>
+	<notification name="CantFindObject">
+		找不到物件。
+	</notification>
+	<notification name="CantTransfterMoneyRegionDisabled">
+		此地區目前未啟用轉移金錢給物件的功能。
+	</notification>
+	<notification name="CantPayNoAgent">
+		無法決定付款給誰。
+	</notification>
+	<notification name="CantDonateToPublicObjects">
+		你無法將 L$ 送給公共物件。
+	</notification>
+	<notification name="InventoryCreationInWorldObjectFailed">
+		針對虛擬世界物件建立收納區失敗。
+	</notification>
+	<notification name="UserBalanceOrLandUsageError">
+		發生內部錯誤，我們無法如常更新你的瀏覽器。  你瀏覽器顯示的 L$ 餘額或擁有地段，可能和伺服器上的正確數額不一致。
+	</notification>
+	<notification name="LargePrimAgentIntersect">
+		無法建立和其他參與者發生交截的大型幾何元件。  請等其他參與者移開後再試。
+	</notification>
+	<notification name="PreferenceChatClearLog">
+		這動作將刪除先前交談的記錄，和所有記錄備份。
+		<usetemplate ignoretext="刪除先前交談記錄前，先向我確認。" name="okcancelignore" notext="取消" yestext="確定"/>
+	</notification>
+	<notification name="PreferenceChatDeleteTranscripts">
+		這將刪除所有先前交談的內容記錄。 過去交談歷史清單不受影響。 資料夾 [FOLDER] 所有副檔名 .txt 和 txt.backup 的檔案都將刪除。
+		<usetemplate ignoretext="刪除交談內容記錄前先向我確認。" name="okcancelignore" notext="取消" yestext="確定"/>
+	</notification>
+	<notification name="PreferenceChatPathChanged">
+		無法移動檔案。 已恢復前一個路徑。
+		<usetemplate ignoretext="無法移動檔案。 已恢復前一個路徑。" name="okignore" yestext="確定"/>
 	</notification>
 </notifications>

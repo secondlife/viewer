@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -116,6 +116,7 @@ std::string HttpStatus::toString() const
 			{ 415, "Unsupported Media Type" },
 			{ 416, "Requested range not satisfiable" },
 			{ 417, "Expectation Failed" },
+			{ 499, "Linden Catch-All" },
 			{ 500, "Internal Server Error" },
 			{ 501, "Not Implemented" },
 			{ 502, "Bad Gateway" },
@@ -174,6 +175,37 @@ std::string HttpStatus::toString() const
 	}
 	return std::string("Unknown error");
 }
+
+
+// Pass true on statuses that might actually be cleared by a
+// retry.  Library failures, calling problems, etc. aren't
+// going to be fixed by squirting bits all over the Net.
+bool HttpStatus::isRetryable() const
+{
+	static const HttpStatus cant_connect(HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_CONNECT);
+	static const HttpStatus cant_res_proxy(HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_RESOLVE_PROXY);
+	static const HttpStatus cant_res_host(HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_RESOLVE_HOST);
+	static const HttpStatus send_error(HttpStatus::EXT_CURL_EASY, CURLE_SEND_ERROR);
+	static const HttpStatus recv_error(HttpStatus::EXT_CURL_EASY, CURLE_RECV_ERROR);
+	static const HttpStatus upload_failed(HttpStatus::EXT_CURL_EASY, CURLE_UPLOAD_FAILED);
+	static const HttpStatus op_timedout(HttpStatus::EXT_CURL_EASY, CURLE_OPERATION_TIMEDOUT);
+	static const HttpStatus post_error(HttpStatus::EXT_CURL_EASY, CURLE_HTTP_POST_ERROR);
+	static const HttpStatus partial_file(HttpStatus::EXT_CURL_EASY, CURLE_PARTIAL_FILE);
+	static const HttpStatus inv_cont_range(HttpStatus::LLCORE, HE_INV_CONTENT_RANGE_HDR);
+
+	return ((isHttpStatus() && mType >= 499 && mType <= 599) ||	// Include special 499 in retryables
+			*this == cant_connect ||	// Connection reset/endpoint problems
+			*this == cant_res_proxy ||	// DNS problems
+			*this == cant_res_host ||	// DNS problems
+			*this == send_error ||		// General socket problems 
+			*this == recv_error ||		// General socket problems 
+			*this == upload_failed ||	// Transport problem
+			*this == op_timedout ||		// Timer expired
+			*this == post_error ||		// Transport problem
+			*this == partial_file ||	// Data inconsistency in response
+			*this == inv_cont_range);	// Short data read disagrees with content-range
+}
+
 		
 } // end namespace LLCore
 

@@ -72,7 +72,8 @@
 
 static const U32 EASY_HANDLE_POOL_SIZE		= 5;
 static const S32 MULTI_PERFORM_CALL_REPEAT	= 5;
-static const S32 CURL_REQUEST_TIMEOUT = 30; // seconds per operation
+static const S32 CURL_REQUEST_TIMEOUT = 120; // seconds per operation
+static const S32 CURL_CONNECT_TIMEOUT = 30; //seconds to wait for a connection
 static const S32 MAX_ACTIVE_REQUEST_COUNT = 100;
 
 // DEBUG //
@@ -91,6 +92,7 @@ S32      LLCurl::sTotalHandles = 0 ;
 bool     LLCurl::sNotQuitting = true;
 F32      LLCurl::sCurlRequestTimeOut = 120.f; //seonds
 S32      LLCurl::sMaxHandles = 256; //max number of handles, (multi handles and easy handles combined).
+CURL*	 LLCurl::sCurlTemplateStandardHandle = NULL;
 
 void check_curl_code(CURLcode code)
 {
@@ -175,9 +177,11 @@ void LLCurl::Responder::completedRaw(
 {
 	LLSD content;
 	LLBufferStream istr(channels, buffer.get());
-	if (!LLSDSerialize::fromXML(content, istr))
+	const bool emit_errors = false;
+	if (LLSDParser::PARSE_FAILURE == LLSDSerialize::fromXML(content, istr, emit_errors))
 	{
 		llinfos << "Failed to deserialize LLSD. " << mURL << " [" << status << "]: " << reason << llendl;
+		content["reason"] = reason;
 	}
 
 	completed(status, reason, content);
@@ -515,6 +519,7 @@ void LLCurl::Easy::prepRequest(const std::string& url,
 	//don't verify host name so urls with scrubbed host names will work (improves DNS performance)
 	setopt(CURLOPT_SSL_VERIFYHOST, 0);
 	setopt(CURLOPT_TIMEOUT, llmax(time_out, CURL_REQUEST_TIMEOUT));
+	setopt(CURLOPT_CONNECTTIMEOUT, CURL_CONNECT_TIMEOUT);
 
 	setoptString(CURLOPT_URL, url);
 
@@ -1811,10 +1816,10 @@ CURL*  LLCurl::newEasyHandle()
 	}
 	sTotalHandles++;
 
-	CURL* ret = curl_easy_init() ;
+	CURL* ret = createStandardCurlHandle();
 	if(!ret)
 	{
-		llwarns << "curl_easy_init failed." << llendl ;
+		llwarns << "failed to create curl handle." << llendl ;
 	}
 
 	return ret ;
@@ -1843,4 +1848,48 @@ void LLCurlFF::check_easy_code(CURLcode code)
 void LLCurlFF::check_multi_code(CURLMcode code)
 {
 	check_curl_multi_code(code);
+}
+
+
+// Static
+CURL* LLCurl::createStandardCurlHandle()
+{
+	if (sCurlTemplateStandardHandle == NULL)
+	{	// Late creation of the template curl handle
+		sCurlTemplateStandardHandle = curl_easy_init();
+		if (sCurlTemplateStandardHandle == NULL)
+		{
+			llwarns << "curl error calling curl_easy_init()" << llendl;
+		}
+		else
+		{
+			CURLcode result = curl_easy_setopt(sCurlTemplateStandardHandle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+			check_curl_code(result);
+			result = curl_easy_setopt(sCurlTemplateStandardHandle, CURLOPT_NOSIGNAL, 1);
+			check_curl_code(result);
+			result = curl_easy_setopt(sCurlTemplateStandardHandle, CURLOPT_NOPROGRESS, 1);
+			check_curl_code(result);
+			result = curl_easy_setopt(sCurlTemplateStandardHandle, CURLOPT_ENCODING, "");	
+			check_curl_code(result);
+			result = curl_easy_setopt(sCurlTemplateStandardHandle, CURLOPT_AUTOREFERER, 1);
+			check_curl_code(result);
+			result = curl_easy_setopt(sCurlTemplateStandardHandle, CURLOPT_FOLLOWLOCATION, 1);	
+			check_curl_code(result);
+			result = curl_easy_setopt(sCurlTemplateStandardHandle, CURLOPT_SSL_VERIFYPEER, 1);
+			check_curl_code(result);
+			result = curl_easy_setopt(sCurlTemplateStandardHandle, CURLOPT_SSL_VERIFYHOST, 0);
+			check_curl_code(result);
+
+			// The Linksys WRT54G V5 router has an issue with frequent
+			// DNS lookups from LAN machines.  If they happen too often,
+			// like for every HTTP request, the router gets annoyed after
+			// about 700 or so requests and starts issuing TCP RSTs to
+			// new connections.  Reuse the DNS lookups for even a few
+			// seconds and no RSTs.
+			result = curl_easy_setopt(sCurlTemplateStandardHandle, CURLOPT_DNS_CACHE_TIMEOUT, 15);
+			check_curl_code(result);
+		}
+	}
+
+	return curl_easy_duphandle(sCurlTemplateStandardHandle);
 }

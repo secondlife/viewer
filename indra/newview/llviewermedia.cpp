@@ -316,9 +316,13 @@ public:
 	/* virtual */ void completedHeader(U32 status, const std::string& reason, const LLSD& content)
 	{
 		LL_WARNS("MediaAuth") << "status = " << status << ", reason = " << reason << LL_ENDL;
-		LL_WARNS("MediaAuth") << content << LL_ENDL;
+
+		LLSD stripped_content = content;
+		stripped_content.erase("set-cookie");
+		LL_WARNS("MediaAuth") << stripped_content << LL_ENDL;
 
 		std::string cookie = content["set-cookie"].asString();
+		LL_DEBUGS("MediaAuth") << "cookie = " << cookie << LL_ENDL;
 
 		LLViewerMedia::getCookieStore()->setCookiesFromHost(cookie, mHost);
 
@@ -1996,7 +2000,12 @@ void LLViewerMediaImpl::loadURI()
 										"<>#%"
 										";/?:@&=",
 										false);
-		llinfos << "Asking media source to load URI: " << uri << llendl;
+        {
+            // Do not log the query parts
+            LLURI u(uri);
+            std::string sanitized_uri = (u.query().empty() ? uri : u.scheme() + "://" + u.authority() + u.path());
+            llinfos << "Asking media source to load URI: " << sanitized_uri << llendl;
+        }
 		
 		mMediaSource->loadURI( uri );
 		
@@ -2563,7 +2572,12 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
 	if(mPriority == LLPluginClassMedia::PRIORITY_UNLOADED)
 	{
 		// Helpful to have media urls in log file. Shouldn't be spammy.
-		llinfos << "NOT LOADING media id= " << mTextureId << " url=" << url << " mime_type=" << mime_type << llendl;
+        {
+            // Do not log the query parts
+            LLURI u(url);
+            std::string sanitized_url = (u.query().empty() ? url : u.scheme() + "://" + u.authority() + u.path());
+            llinfos << "NOT LOADING media id= " << mTextureId << " url=" << sanitized_url << ", mime_type=" << mime_type << llendl;
+        }
 
 		// This impl should not be loaded at this time.
 		LL_DEBUGS("PluginPriority") << this << "Not loading (PRIORITY_UNLOADED)" << LL_ENDL;
@@ -2578,7 +2592,12 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
 void LLViewerMediaImpl::navigateInternal()
 {
 	// Helpful to have media urls in log file. Shouldn't be spammy.
-	llinfos << "media id= " << mTextureId << " url=" << mMediaURL << " mime_type=" << mMimeType << llendl;
+    {
+        // Do not log the query parts
+        LLURI u(mMediaURL);
+        std::string sanitized_url = (u.query().empty() ? mMediaURL : u.scheme() + "://" + u.authority() + u.path());
+        llinfos << "media id= " << mTextureId << " url=" << sanitized_url << ", mime_type=" << mMimeType << llendl;
+    }
 
 	if(mNavigateSuspended)
 	{
@@ -3754,18 +3773,18 @@ bool LLViewerMediaImpl::shouldShowBasedOnClass() const
 	// If it is attached to an avatar and the pref is off, we shouldn't show it
 	if (attached_to_another_avatar)
 	{
-		static LLCachedControl<bool> show_media_on_others(gSavedSettings, LLViewerMedia::SHOW_MEDIA_ON_OTHERS_SETTING);
+		static LLCachedControl<bool> show_media_on_others(gSavedSettings, LLViewerMedia::SHOW_MEDIA_ON_OTHERS_SETTING, false);
 		return show_media_on_others;
 	}
 	if (inside_parcel)
 	{
-		static LLCachedControl<bool> show_media_within_parcel(gSavedSettings, LLViewerMedia::SHOW_MEDIA_WITHIN_PARCEL_SETTING);
+		static LLCachedControl<bool> show_media_within_parcel(gSavedSettings, LLViewerMedia::SHOW_MEDIA_WITHIN_PARCEL_SETTING, true);
 
 		return show_media_within_parcel;
 	}
 	else 
 	{
-		static LLCachedControl<bool> show_media_outside_parcel(gSavedSettings, LLViewerMedia::SHOW_MEDIA_OUTSIDE_PARCEL_SETTING);
+		static LLCachedControl<bool> show_media_outside_parcel(gSavedSettings, LLViewerMedia::SHOW_MEDIA_OUTSIDE_PARCEL_SETTING, true);
 
 		return show_media_outside_parcel;
 	}

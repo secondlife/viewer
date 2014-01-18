@@ -173,6 +173,7 @@ void LLPathfindingObject::fetchOwnerName()
 		mHasOwnerName = LLAvatarNameCache::get(mOwnerUUID, &mOwnerName);
 		if (!mHasOwnerName)
 		{
+			disconnectAvatarNameCacheConnection();
 			mAvatarNameCacheConnection = LLAvatarNameCache::get(mOwnerUUID, boost::bind(&LLPathfindingObject::handleAvatarNameFetch, this, _1, _2));
 		}
 	}

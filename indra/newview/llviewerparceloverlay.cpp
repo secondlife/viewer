@@ -828,7 +828,6 @@ void LLViewerParcelOverlay::updateGL()
 
 void LLViewerParcelOverlay::idleUpdate(bool force_update)
 {
-	LLMemType mt_iup(LLMemType::MTYPE_IDLE_UPDATE_PARCEL_OVERLAY);
 	if (gGLManager.mIsDisabled)
 	{
 		return;

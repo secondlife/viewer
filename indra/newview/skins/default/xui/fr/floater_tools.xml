@@ -463,16 +463,11 @@
 				<combo_box.item label="Ventouses" name="suction"/>
 				<combo_box.item label="Tissage" name="weave"/>
 			</combo_box>
-			<check_box initial_value="false" label="Aligner les faces Plan" name="checkbox planar align" tool_tip="Aligner les textures sur toutes les faces sélectionnées avec la dernière face sélectionnée. Application de la texture Plan requise."/>
-			<text name="rpt">
-				Répétitions / Face
-			</text>
 			<spinner label="Horizontal (U)" name="TexScaleU"/>
 			<check_box label="Inverser" name="checkbox flip s"/>
 			<spinner label="Vertical (V)" name="TexScaleV"/>
 			<check_box label="Inverser" name="checkbox flip t"/>
 			<spinner label="Rotation˚" name="TexRot"/>
-			<spinner label="Répétitions / Mètre" name="rptctrl"/>
 			<button label="Appliquer" label_selected="Appliquer" name="button apply"/>
 			<text name="tex offset">
 				Décalage de la texture

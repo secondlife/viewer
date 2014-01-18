@@ -97,6 +97,7 @@ const U32 RT_OTHER	= 0x1 << 3;
 const U32 RT_LIST	= 0x1 << 4;
 const U32 RT_SELL	= 0x1 << 5;
 
+const S32 INVALID_PARCEL_ID = -1;
 
 // Timeouts for parcels
 // default is 21 days * 24h/d * 60m/h * 60s/m *1000000 usec/s = 1814400000000
@@ -525,23 +526,6 @@ public:
 
 	// Can this agent change the shape of the land?
 	BOOL	allowTerraformBy(const LLUUID &agent_id) const;
-
-	// Returns 0 if access is OK, otherwise a BA_ return code above.
-	S32	 blockAccess(const LLUUID& agent_id, 
-			const LLUUID& group_id, 
-			const BOOL is_agent_identified, 
-			const BOOL is_agent_transacted,
-			const BOOL is_agent_ageverified) const;
-
-	// Only checks if the agent is explicitly banned from this parcel
-	BOOL isAgentBanned(const LLUUID& agent_id) const;
-
-	static bool isAgentBlockedFromParcel(LLParcel* parcelp, 
-									const LLUUID& agent_id,
-									const uuid_vec_t& group_ids,
-									const BOOL is_agent_identified,
-									const BOOL is_agent_transacted,
-									const BOOL is_agent_ageverified);
 
 	bool	operator==(const LLParcel &rhs) const;
 

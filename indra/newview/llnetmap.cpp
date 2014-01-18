@@ -150,7 +150,7 @@ void LLNetMap::draw()
 	static LLUIColor map_avatar_color = LLUIColorTable::instance().getColor("MapAvatarColor", LLColor4::white);
 	static LLUIColor map_avatar_friend_color = LLUIColorTable::instance().getColor("MapAvatarFriendColor", LLColor4::white);
 	static LLUIColor map_track_color = LLUIColorTable::instance().getColor("MapTrackColor", LLColor4::white);
-	static LLUIColor map_track_disabled_color = LLUIColorTable::instance().getColor("MapTrackDisabledColor", LLColor4::white);
+	//static LLUIColor map_track_disabled_color = LLUIColorTable::instance().getColor("MapTrackDisabledColor", LLColor4::white);
 	static LLUIColor map_frustum_color = LLUIColorTable::instance().getColor("MapFrustumColor", LLColor4::white);
 	static LLUIColor map_frustum_rotating_color = LLUIColorTable::instance().getColor("MapFrustumRotatingColor", LLColor4::white);
 	
@@ -343,8 +343,11 @@ void LLNetMap::draw()
 		// Draw avatars
 		for (U32 i = 0; i < avatar_ids.size(); i++)
 		{
-			pos_map = globalPosToView(positions[i]);
 			LLUUID uuid = avatar_ids[i];
+			// Skip self, we'll draw it later
+			if (uuid == gAgent.getID()) continue;
+
+			pos_map = globalPosToView(positions[i]);
 
 			bool show_as_friend = (LLAvatarTracker::instance().getBuddyInfo(uuid) != NULL);
 

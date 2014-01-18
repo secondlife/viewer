@@ -209,24 +209,6 @@ void LLPanelLandmarkInfo::processParcelInfo(const LLParcelData& parcel_data)
 		mMaturityRatingText->setText(LLViewerRegion::accessToString(SIM_ACCESS_PG));
 	}
 
-	S32 region_x;
-	S32 region_y;
-	S32 region_z;
-
-	// If the region position is zero, grab position from the global
-	if(mPosRegion.isExactlyZero())
-	{
-		region_x = llround(parcel_data.global_x) % REGION_WIDTH_UNITS;
-		region_y = llround(parcel_data.global_y) % REGION_WIDTH_UNITS;
-		region_z = llround(parcel_data.global_z);
-	}
-	else
-	{
-		region_x = llround(mPosRegion.mV[VX]);
-		region_y = llround(mPosRegion.mV[VY]);
-		region_z = llround(mPosRegion.mV[VZ]);
-	}
-
 	LLSD info;
 	info["update_verbs"] = true;
 	info["global_x"] = parcel_data.global_x;

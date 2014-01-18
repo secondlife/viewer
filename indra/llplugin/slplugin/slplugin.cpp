@@ -37,8 +37,12 @@
 #include "llapr.h"
 #include "llstring.h"
 
+#include <iostream>
+#include <fstream>
+using namespace std;
+
+
 #if LL_DARWIN
-	#include <Carbon/Carbon.h>
 	#include "slplugin-objc.h"
 #endif
 
@@ -176,6 +180,7 @@ int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 int main(int argc, char **argv)
 #endif
 {
+
 	ll_init_apr();
 
 	// Set up llerror logging
@@ -216,26 +221,25 @@ int main(int argc, char **argv)
 
 	// Catch signals that most kinds of crashes will generate, and exit cleanly so the system crash dialog isn't shown.
 	signal(SIGILL, &crash_handler);		// illegal instruction
-# if LL_DARWIN
-	signal(SIGEMT, &crash_handler);		// emulate instruction executed
-# endif // LL_DARWIN
 	signal(SIGFPE, &crash_handler);		// floating-point exception
 	signal(SIGBUS, &crash_handler);		// bus error
 	signal(SIGSEGV, &crash_handler);	// segmentation violation
 	signal(SIGSYS, &crash_handler);		// non-existent system call invoked
 #endif
+# if LL_DARWIN
+	signal(SIGEMT, &crash_handler);		// emulate instruction executed
 
-#if LL_DARWIN
-	setupCocoa();
-	createAutoReleasePool();
-#endif
+    LLCocoaPlugin cocoa_interface;
+	cocoa_interface.setupCocoa();
+	cocoa_interface.createAutoReleasePool();
+#endif //LL_DARWIN
 
 	LLPluginProcessChild *plugin = new LLPluginProcessChild();
 
 	plugin->init(port);
 
 #if LL_DARWIN
-		deleteAutoReleasePool();
+    cocoa_interface.deleteAutoReleasePool();
 #endif
 
 	LLTimer timer;
@@ -246,114 +250,22 @@ int main(int argc, char **argv)
 #endif
 
 #if LL_DARWIN
+    
 	// If the plugin opens a new window (such as the Flash plugin's fullscreen player), we may need to bring this plugin process to the foreground.
 	// Use this to track the current frontmost window and bring this process to the front if it changes.
-	WindowRef front_window = NULL;
-	WindowGroupRef layer_group = NULL;
-	int window_hack_state = 0;
-	CreateWindowGroup(kWindowGroupAttrFixedLevel, &layer_group);
-	if(layer_group)
-	{
-		// Start out with a window layer that's way out in front (fixes the problem with the menubar not getting hidden on first switch to fullscreen youtube)
-		SetWindowGroupName(layer_group, CFSTR("SLPlugin Layer"));
-		SetWindowGroupLevel(layer_group, kCGOverlayWindowLevel);		
-	}
-#endif
-
-#if LL_DARWIN
-	EventTargetRef event_target = GetEventDispatcherTarget();
+ //   cocoa_interface.mEventTarget = GetEventDispatcherTarget();
 #endif
 	while(!plugin->isDone())
 	{
 #if LL_DARWIN
-		createAutoReleasePool();
+		cocoa_interface.createAutoReleasePool();
 #endif
 		timer.reset();
 		plugin->idle();
 #if LL_DARWIN
 		{
-			// Some plugins (webkit at least) will want an event loop.  This qualifies.
-			EventRef event;
-			if(ReceiveNextEvent(0, 0, kEventDurationNoWait, true, &event) == noErr)
-			{
-				SendEventToEventTarget (event, event_target);
-				ReleaseEvent(event);
-			}
-			
-			// Check for a change in this process's frontmost window.
-			if(GetFrontWindowOfClass(kAllWindowClasses, true) != front_window)
-			{
-				ProcessSerialNumber self = { 0, kCurrentProcess };
-				ProcessSerialNumber parent = { 0, kNoProcess };
-				ProcessSerialNumber front = { 0, kNoProcess };
-				Boolean this_is_front_process = false;
-				Boolean parent_is_front_process = false;
-				{
-					// Get this process's parent
-					ProcessInfoRec info;
-					info.processInfoLength = sizeof(ProcessInfoRec);
-					info.processName = NULL;
-					info.processAppSpec = NULL;
-					if(GetProcessInformation( &self, &info ) == noErr)
-					{
-						parent = info.processLauncher;
-					}
-					
-					// and figure out whether this process or its parent are currently frontmost
-					if(GetFrontProcess(&front) == noErr)
-					{
-						(void) SameProcess(&self, &front, &this_is_front_process);
-						(void) SameProcess(&parent, &front, &parent_is_front_process);
-					}
-				}
-								
-				if((GetFrontWindowOfClass(kAllWindowClasses, true) != NULL) && (front_window == NULL))
-				{
-					// Opening the first window
-					
-					if(window_hack_state == 0)
-					{
-						// Next time through the event loop, lower the window group layer
-						window_hack_state = 1;
-					}
-
-					if(layer_group)
-					{
-						SetWindowGroup(GetFrontWindowOfClass(kAllWindowClasses, true), layer_group);
-					}
-					
-					if(parent_is_front_process)
-					{
-						// Bring this process's windows to the front.
-						(void) SetFrontProcess( &self );
-					}
-
-					ActivateWindow(GetFrontWindowOfClass(kAllWindowClasses, true), true);
-				}
-				else if((GetFrontWindowOfClass(kAllWindowClasses, true) == NULL) && (front_window != NULL))
-				{
-					// Closing the last window
-					
-					if(this_is_front_process)
-					{
-						// Try to bring this process's parent to the front
-						(void) SetFrontProcess(&parent);
-					}
-				}
-				else if(window_hack_state == 1)
-				{
-					if(layer_group)
-					{
-						// Set the window group level back to something less extreme
-						SetWindowGroupLevel(layer_group, kCGNormalWindowLevel);
-					}
-					window_hack_state = 2;
-				}
-
-				front_window = GetFrontWindowOfClass(kAllWindowClasses, true);
-
-			}
-		}
+			cocoa_interface.processEvents();
+        }
 #endif
 		F64 elapsed = timer.getElapsedTimeF64();
 		F64 remaining = plugin->getSleepTime() - elapsed;
@@ -377,7 +289,8 @@ int main(int argc, char **argv)
 
 //			LL_INFOS("slplugin") << "slept for "<< timer.getElapsedTimeF64() * 1000.0f << " ms" <<  LL_ENDL;
 		}
-
+        
+        
 #if LL_WINDOWS
 	// More agressive checking of interfering exception handlers.
 	// Doesn't appear to be required so far - even for plugins
@@ -387,13 +300,13 @@ int main(int argc, char **argv)
 #endif
 
 #if LL_DARWIN
-		deleteAutoReleasePool();
+		cocoa_interface.deleteAutoReleasePool();
 #endif
 	}
-
 	delete plugin;
 
 	ll_cleanup_apr();
+
 
 	return 0;
 }

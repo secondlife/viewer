@@ -199,7 +199,7 @@ public:
 
 	void				addTransferSource(LLTransferSource *sourcep);
 	LLTransferSource	*findTransferSource(const LLUUID &transfer_id);
-	BOOL				deleteTransfer(LLTransferSource *tsp);
+	void				deleteTransfer(LLTransferSource *tsp);
 
 	void					setThrottleID(const S32 throttle_id)	{ mThrottleID = throttle_id; }
 
@@ -232,7 +232,7 @@ public:
 						 const F32 priority);
 
 	LLTransferTarget		*findTransferTarget(const LLUUID &transfer_id);
-	BOOL					deleteTransfer(LLTransferTarget *ttp);
+	void					deleteTransfer(LLTransferTarget *ttp);
 
 
 	LLTransferChannelType	getChannelType() const		{ return mChannelType; }
