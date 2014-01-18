@@ -46,9 +46,11 @@ LLImageFilter::LLImageFilter(const std::string& file_path) :
     mHistoGreen(NULL),
     mHistoBlue(NULL),
     mHistoBrightness(NULL),
-    mVignetteMode(VIGNETTE_MODE_NONE),
-    mVignetteGamma(1.0),
-    mVignetteMin(0.0)
+    mStencilBlendMode(STENCIL_BLEND_MODE_BLEND),
+    mStencilShape(STENCIL_SHAPE_UNIFORM),
+    mStencilGamma(1.0),
+    mStencilMin(0.0),
+    mStencilMax(1.0)
 {
     // Load filter description from file
 	llifstream filter_xml(file_path);
@@ -79,23 +81,13 @@ LLImageFilter::~LLImageFilter()
  * Add stencil (min,max) range
  * Suppress alpha from colorcorrect and use uniform alpha instead
  * Refactor stencil composition in the filter primitives
+ * Make filter definition resolution independent (do not use pixel size anywhere)
  
- <array>
- <string>stencil</string>
- <string>shape</string>
- <string>blend_mode</string>
- <real>min</real>
- <real>max</real>
- <real>param1</real>
- <real>param2</real>
- <real>param3</real>
- <real>param4</real>
- </array>
- 
- vignette : center_x, center_y, width, feather
- sine : wavelength, angle
- flat
- gradient : start_x, start_y, end_x, end_y
+ params:
+ * vignette : center_x, center_y, width, feather
+ * scan lines : wavelength, angle
+ * uniform
+ * gradient : start_x, start_y, end_x, end_y
 
  * Document all the admissible names in the wiki
  
@@ -143,17 +135,86 @@ void LLImageFilter::executeFilter(LLPointer<LLImageRaw> raw_image)
         //std::cout << std::endl;
         
         // Execute the filter described on this line
-        if (filter_name == "blend")
+        /*
+        <array>
+        <string>stencil</string> 
+        <string>shape</string> uniform / gradient / vignette / scanlines
+        <string>blend_mode</string> blend /add /dodge / fade
+        <real>min</real> -1.0 to 1.0 (mandatory though ignored for uniform shape)
+        <real>max</real> -1.0 to 1.0 (value for uniform)
+        <real>param1</real>
+        <real>param2</real>
+        <real>param3</real>
+        <real>param4</real>
+        </array>
+         params:
+         * vignette : center_x, center_y, width, feather : positions between in float (0.0 is center, 1.0 is top), width in float in same unit, feather is a float
+         * scan lines : wavelength, angle : wavelength in float assuming (height/2 = 1), angle float in degree
+         * uniform : all parameters ignored
+         * gradient : start_x, start_y, end_x, end_y : position in float (0.0 is center, 1.0 is top)
+         */
+        if (filter_name == "stencil")
         {
-            setVignette(VIGNETTE_MODE_BLEND,VIGNETTE_TYPE_CENTER,(float)(mFilterData[i][1].asReal()),(float)(mFilterData[i][2].asReal()));
+            // Get the shape of the stencil, that is how the procedural alpha is computed geometrically
+            std::string filter_shape = mFilterData[i][1].asString();
+            EStencilShape shape = STENCIL_SHAPE_UNIFORM;
+            if (filter_shape == "uniform")
+            {
+                shape = STENCIL_SHAPE_UNIFORM;
+            }
+            else if (filter_shape == "gradient")
+            {
+                shape = STENCIL_SHAPE_GRADIENT;
+            }
+            else if (filter_shape == "vignette")
+            {
+                shape = STENCIL_SHAPE_VIGNETTE;
+            }
+            else if (filter_shape == "scanlines")
+            {
+                shape = STENCIL_SHAPE_SCAN_LINES;
+            }
+            // Get the blend mode of the stencil, that is how the effect is blended in the background through the alpha
+            std::string filter_mode  = mFilterData[i][2].asString();
+            EStencilBlendMode mode = STENCIL_BLEND_MODE_BLEND;
+            if (filter_mode == "blend")
+            {
+                mode = STENCIL_BLEND_MODE_BLEND;
+            }
+            else if (filter_mode == "add")
+            {
+                mode = STENCIL_BLEND_MODE_ADD;
+            }
+            else if (filter_mode == "dodge")
+            {
+                mode = STENCIL_BLEND_MODE_DODGE;
+            }
+            else if (filter_mode == "fade")
+            {
+                mode = STENCIL_BLEND_MODE_FADE;
+            }
+            // Get the float params: mandatory min, max then the optional parameters (4 max)
+            F32 min = (F32)(mFilterData[i][3].asReal());
+            F32 max = (F32)(mFilterData[i][4].asReal());
+            F32 params[4] = {0.0, 0.0, 0.0, 0.0};
+            for (S32 j = 5; (j < mFilterData[i].size()) && (j < 9); j++)
+            {
+                params[j-5] = (F32)(mFilterData[i][j].asReal());
+            }
+            // Set the stencil
+            setStencil(shape,mode,min,max,params);
+        }
+        else if (filter_name == "blend")
+        {
+            setStencil(STENCIL_BLEND_MODE_BLEND,STENCIL_SHAPE_VIGNETTE,(float)(mFilterData[i][1].asReal()),(float)(mFilterData[i][2].asReal()),1.0);
         }
         else if (filter_name == "fade")
         {
-            setVignette(VIGNETTE_MODE_FADE,VIGNETTE_TYPE_CENTER,(float)(mFilterData[i][1].asReal()),(float)(mFilterData[i][2].asReal()));
+            setStencil(STENCIL_BLEND_MODE_FADE,STENCIL_SHAPE_VIGNETTE,(float)(mFilterData[i][1].asReal()),(float)(mFilterData[i][2].asReal()),1.0);
         }
         else if (filter_name == "lines")
         {
-            setVignette(VIGNETTE_MODE_BLEND,VIGNETTE_TYPE_LINES,(float)(mFilterData[i][1].asReal()),(float)(mFilterData[i][2].asReal()));
+            setStencil(STENCIL_BLEND_MODE_BLEND,STENCIL_SHAPE_SCAN_LINES,(float)(mFilterData[i][1].asReal()),(float)(mFilterData[i][2].asReal()),1.0);
         }
         else if (filter_name == "sepia")
         {
@@ -228,6 +289,38 @@ void LLImageFilter::executeFilter(LLPointer<LLImageRaw> raw_image)
 // Filter Primitives
 //============================================================================
 
+void LLImageFilter::blendStencil(F32 alpha, U8* pixel, U8 red, U8 green, U8 blue)
+{
+    F32 inv_alpha = 1.0 - alpha;
+    switch (mStencilBlendMode)
+    {
+        case STENCIL_BLEND_MODE_BLEND:
+            // Classic blend of incoming color with the background image
+            pixel[VRED]   = inv_alpha * pixel[VRED]   + alpha * red;
+            pixel[VGREEN] = inv_alpha * pixel[VGREEN] + alpha * green;
+            pixel[VBLUE]  = inv_alpha * pixel[VBLUE]  + alpha * blue;
+            break;
+        case STENCIL_BLEND_MODE_ADD:
+            // Add incoming color to the background image
+            pixel[VRED]   = pixel[VRED]   + alpha * red;
+            pixel[VGREEN] = pixel[VGREEN] + alpha * green;
+            pixel[VBLUE]  = pixel[VBLUE]  + alpha * blue;
+            break;
+        case STENCIL_BLEND_MODE_DODGE:
+            // Dodge/burn the incoming color onto the background image
+            pixel[VRED]   = inv_alpha * pixel[VRED]   + red;
+            pixel[VGREEN] = inv_alpha * pixel[VGREEN] + green;
+            pixel[VBLUE]  = inv_alpha * pixel[VBLUE]  + blue;
+            break;
+        case STENCIL_BLEND_MODE_FADE:
+            // Fade incoming color to black
+            pixel[VRED]   = alpha * red;
+            pixel[VGREEN] = alpha * green;
+            pixel[VBLUE]  = alpha * blue;
+            break;
+    }
+}
+
 void LLImageFilter::colorCorrect(const U8* lut_red, const U8* lut_green, const U8* lut_blue)
 {
 	const S32 components = mImage->getComponents();
@@ -241,31 +334,8 @@ void LLImageFilter::colorCorrect(const U8* lut_red, const U8* lut_green, const U
 	{
         for (S32 i = 0; i < width; i++)
         {
-            if (mVignetteMode == VIGNETTE_MODE_NONE)
-            {
-                dst_data[VRED]   = lut_red[dst_data[VRED]];
-                dst_data[VGREEN] = lut_green[dst_data[VGREEN]];
-                dst_data[VBLUE]  = lut_blue[dst_data[VBLUE]];
-            }
-            else
-            {
-                F32 alpha = getVignetteAlpha(i,j);
-                if (mVignetteMode == VIGNETTE_MODE_BLEND)
-                {
-                    // Blends with the source image on the edges
-                    F32 inv_alpha = 1.0 - alpha;
-                    dst_data[VRED]   = inv_alpha * dst_data[VRED]  + alpha * lut_red[dst_data[VRED]];
-                    dst_data[VGREEN] = inv_alpha * dst_data[VGREEN] + alpha * lut_green[dst_data[VGREEN]];
-                    dst_data[VBLUE]  = inv_alpha * dst_data[VBLUE]  + alpha * lut_blue[dst_data[VBLUE]];
-                }
-                else // VIGNETTE_MODE_FADE
-                {
-                    // Fade to black on the edges
-                    dst_data[VRED]   = alpha * lut_red[dst_data[VRED]];
-                    dst_data[VGREEN] = alpha * lut_green[dst_data[VGREEN]];
-                    dst_data[VBLUE]  = alpha * lut_blue[dst_data[VBLUE]];
-                }
-            }
+            // Blend LUT value
+            blendStencil(getStencilAlpha(i,j), dst_data, lut_red[dst_data[VRED]], lut_green[dst_data[VGREEN]], lut_blue[dst_data[VBLUE]]);
             dst_data += components;
         }
 	}
@@ -284,34 +354,13 @@ void LLImageFilter::colorTransform(const LLMatrix3 &transform)
 	{
         for (S32 i = 0; i < width; i++)
         {
+            // Compute transform
             LLVector3 src((F32)(dst_data[VRED]),(F32)(dst_data[VGREEN]),(F32)(dst_data[VBLUE]));
             LLVector3 dst = src * transform;
             dst.clamp(0.0f,255.0f);
-            if (mVignetteMode == VIGNETTE_MODE_NONE)
-            {
-                dst_data[VRED]   = dst.mV[VRED];
-                dst_data[VGREEN] = dst.mV[VGREEN];
-                dst_data[VBLUE]  = dst.mV[VBLUE];
-            }
-            else
-            {
-                F32 alpha = getVignetteAlpha(i,j);
-                if (mVignetteMode == VIGNETTE_MODE_BLEND)
-                {
-                    // Blends with the source image on the edges
-                    F32 inv_alpha = 1.0 - alpha;
-                    dst_data[VRED]   = inv_alpha * src.mV[VRED]   + alpha * dst.mV[VRED];
-                    dst_data[VGREEN] = inv_alpha * src.mV[VGREEN] + alpha * dst.mV[VGREEN];
-                    dst_data[VBLUE]  = inv_alpha * src.mV[VBLUE]  + alpha * dst.mV[VBLUE];
-                }
-                else // VIGNETTE_MODE_FADE
-                {
-                    // Fade to black on the edges
-                    dst_data[VRED]   = alpha * dst.mV[VRED];
-                    dst_data[VGREEN] = alpha * dst.mV[VGREEN];
-                    dst_data[VBLUE]  = alpha * dst.mV[VBLUE];
-                }
-            }
+            
+            // Blend result
+            blendStencil(getStencilAlpha(i,j), dst_data, dst.mV[VRED], dst.mV[VGREEN], dst.mV[VBLUE]);
             dst_data += components;
         }
 	}
@@ -333,6 +382,7 @@ void LLImageFilter::filterScreen(EScreenMode mode, const S32 wave_length, const 
 	{
         for (S32 i = 0; i < width; i++)
         {
+            // Compute screen value
             F32 value = 0.0;
             F32 d = 0.0;
             switch (mode)
@@ -347,31 +397,8 @@ void LLImageFilter::filterScreen(EScreenMode mode, const S32 wave_length, const 
             }
             U8 dst_value = (dst_data[VRED] >= (U8)(value) ? 255 : 0);
             
-            if (mVignetteMode == VIGNETTE_MODE_NONE)
-            {
-                dst_data[VRED]   = dst_value;
-                dst_data[VGREEN] = dst_value;
-                dst_data[VBLUE]  = dst_value;
-            }
-            else
-            {
-                F32 alpha = getVignetteAlpha(i,j);
-                if (mVignetteMode == VIGNETTE_MODE_BLEND)
-                {
-                    // Blends with the source image on the edges
-                    F32 inv_alpha = 1.0 - alpha;
-                    dst_data[VRED]   = inv_alpha * dst_data[VRED]   + alpha * dst_value;
-                    dst_data[VGREEN] = inv_alpha * dst_data[VGREEN] + alpha * dst_value;
-                    dst_data[VBLUE]  = inv_alpha * dst_data[VBLUE]  + alpha * dst_value;
-                }
-                else // VIGNETTE_MODE_FADE
-                {
-                    // Fade to black on the edges
-                    dst_data[VRED]   = alpha * dst_value;
-                    dst_data[VGREEN] = alpha * dst_value;
-                    dst_data[VBLUE]  = alpha * dst_value;
-                }
-            }
+            // Blend result
+            blendStencil(getStencilAlpha(i,j), dst_data, dst_value, dst_value, dst_value);
             dst_data += components;
         }
 	}
@@ -381,36 +408,81 @@ void LLImageFilter::filterScreen(EScreenMode mode, const S32 wave_length, const 
 // Procedural Stencils
 //============================================================================
 
-void LLImageFilter::setVignette(EVignetteMode mode, EVignetteType type, F32 gamma, F32 min)
+void LLImageFilter::setStencil(EStencilBlendMode mode, EStencilShape type, F32 gamma, F32 min, F32 max)
 {
-    mVignetteMode = mode;
-    mVignetteType = type;
-    mVignetteGamma = gamma;
-    mVignetteMin = llclampf(min);
-    // We always center the vignette on the image and fits it in the image smallest dimension
-    mVignetteCenterX = mImage->getWidth()/2;
-    mVignetteCenterY = mImage->getHeight()/2;
-    mVignetteWidth = llmin(mImage->getWidth()/2,mImage->getHeight()/2);
+    mStencilBlendMode = mode;
+    mStencilShape = type;
+    mStencilGamma = gamma;
+    mStencilMin = llmin(llmax(min, -1.0f), 1.0f);
+    mStencilMax = llmin(llmax(max, -1.0f), 1.0f);
+
+    // We center the vignette on the image and fits it in the image smallest dimension
+    mStencilCenterX = mImage->getWidth()/2;
+    mStencilCenterY = mImage->getHeight()/2;
+    mStencilWidth = llmin(mImage->getWidth()/2,mImage->getHeight()/2);
+    
+    mStencilWavelength = gamma;
+    mStencilSine   = 0.0;
+    mStencilCosine = 1.0;
+    
+    mStencilStartX = 0.0;
+    mStencilStartY = 0.0;
+    mStencilGradX  = 0.0;
+    mStencilGradY  = (F32)(mImage->getHeight());
+    mStencilGradN  = (F32)(mImage->getHeight()*mImage->getHeight());
 }
 
-F32 LLImageFilter::getVignetteAlpha(S32 i, S32 j)
+void LLImageFilter::setStencil(EStencilShape shape, EStencilBlendMode mode, F32 min, F32 max, F32* params)
 {
-    F32 alpha = 1.0;
-    if (mVignetteType == VIGNETTE_TYPE_CENTER)
+    mStencilShape = shape;
+    mStencilBlendMode = mode;
+    mStencilMin = llmin(llmax(min, -1.0f), 1.0f);
+    mStencilMax = llmin(llmax(max, -1.0f), 1.0f);
+    
+    // Each shape will interpret the 4 params differenly.
+    // We compute each systematically, though, clearly, values are meaningless when the shape doesn't correspond to the parameters
+    mStencilCenterX = (S32)(mImage->getWidth()  + params[0] * (F32)(mImage->getHeight()))/2;
+    mStencilCenterY = (S32)(mImage->getHeight() + params[1] * (F32)(mImage->getHeight()))/2;
+    mStencilWidth = (S32)(params[2] * (F32)(mImage->getHeight()))/2;
+    mStencilGamma = (params[3] <= 0.0 ? 1.0 : params[3]);
+
+    mStencilWavelength = (params[0] <= 0.0 ? 10.0 : params[0] * (F32)(mImage->getHeight()) / 2.0);
+    mStencilSine   = sinf(params[1]*DEG_TO_RAD);
+    mStencilCosine = cosf(params[1]*DEG_TO_RAD);
+
+    mStencilStartX = ((F32)(mImage->getWidth())  + params[0] * (F32)(mImage->getHeight()))/2.0;
+    mStencilStartY = ((F32)(mImage->getHeight()) + params[1] * (F32)(mImage->getHeight()))/2.0;
+    F32 end_x      = ((F32)(mImage->getWidth())  + params[2] * (F32)(mImage->getHeight()))/2.0;
+    F32 end_y      = ((F32)(mImage->getHeight()) + params[3] * (F32)(mImage->getHeight()))/2.0;
+    mStencilGradX  = end_x - mStencilStartX;
+    mStencilGradY  = end_y - mStencilStartY;
+    mStencilGradN  = mStencilGradX*mStencilGradX + mStencilGradY*mStencilGradY;
+}
+
+F32 LLImageFilter::getStencilAlpha(S32 i, S32 j)
+{
+    F32 alpha = 1.0;    // That init actually takes care of the STENCIL_SHAPE_UNIFORM case...
+    if (mStencilShape == STENCIL_SHAPE_VIGNETTE)
     {
         // alpha is a modified gaussian value, with a center and fading in a circular pattern toward the edges
         // The gamma parameter controls the intensity of the drop down from alpha 1.0 (center) to 0.0
-        F32 d_center_square = (i - mVignetteCenterX)*(i - mVignetteCenterX) + (j - mVignetteCenterY)*(j - mVignetteCenterY);
-        alpha = powf(F_E, -(powf((d_center_square/(mVignetteWidth*mVignetteWidth)),mVignetteGamma)/2.0f));
+        F32 d_center_square = (i - mStencilCenterX)*(i - mStencilCenterX) + (j - mStencilCenterY)*(j - mStencilCenterY);
+        alpha = powf(F_E, -(powf((d_center_square/(mStencilWidth*mStencilWidth)),mStencilGamma)/2.0f));
     }
-    else if (mVignetteType == VIGNETTE_TYPE_LINES)
+    else if (mStencilShape == STENCIL_SHAPE_SCAN_LINES)
     {
-        // alpha varies according to a squared sine function vertically.
-        // gamma is interpreted as the wavelength (in pixels) of the sine in that case.
-        alpha = (sinf(2*F_PI*j/mVignetteGamma) > 0.0 ? 1.0 : 0.0);
+        // alpha varies according to a squared sine function.
+        F32 d = mStencilSine*i - mStencilCosine*j;
+        alpha = (sinf(2*F_PI*d/mStencilWavelength) > 0.0 ? 1.0 : 0.0);
     }
-    // We rescale alpha between min and 1.0 so to avoid complete fading if so desired.
-    return (mVignetteMin + alpha * (1.0 - mVignetteMin));
+    else if (mStencilShape == STENCIL_SHAPE_GRADIENT)
+    {
+        alpha = (((F32)(i) - mStencilStartX)*mStencilGradX + ((F32)(j) - mStencilStartY)*mStencilGradY) / mStencilGradN;
+        alpha = llclampf(alpha);
+    }
+    
+    // We rescale alpha between min and max
+    return (mStencilMin + alpha * (mStencilMax - mStencilMin));
 }
 
 //============================================================================

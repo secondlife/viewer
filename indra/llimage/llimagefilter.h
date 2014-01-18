@@ -34,18 +34,21 @@ class LLColor4U;
 class LLColor3;
 class LLMatrix3;
 
-typedef enum e_vignette_mode
+typedef enum e_stencil_blend_mode
 {
-	VIGNETTE_MODE_NONE  = 0,
-	VIGNETTE_MODE_BLEND = 1,
-	VIGNETTE_MODE_FADE  = 2
-} EVignetteMode;
+	STENCIL_BLEND_MODE_BLEND = 0,
+	STENCIL_BLEND_MODE_ADD   = 1,
+	STENCIL_BLEND_MODE_DODGE = 2,
+	STENCIL_BLEND_MODE_FADE  = 3
+} EStencilBlendMode;
 
-typedef enum e_vignette_type
+typedef enum e_stencil_shape
 {
-	VIGNETTE_TYPE_CENTER = 0,
-	VIGNETTE_TYPE_LINES  = 1
-} EVignetteType;
+	STENCIL_SHAPE_UNIFORM    = 0,
+	STENCIL_SHAPE_GRADIENT   = 1,
+	STENCIL_SHAPE_VIGNETTE   = 2,
+	STENCIL_SHAPE_SCAN_LINES = 3
+} EStencilShape;
 
 typedef enum e_screen_mode
 {
@@ -87,10 +90,12 @@ private:
     void colorTransform(const LLMatrix3 &transform);
     void colorCorrect(const U8* lut_red, const U8* lut_green, const U8* lut_blue);
     void filterScreen(EScreenMode mode, const S32 wave_length, const F32 angle);
+    void blendStencil(F32 alpha, U8* pixel, U8 red, U8 green, U8 blue);
 
     // Procedural Stencils
-    void setVignette(EVignetteMode mode, EVignetteType type, F32 gamma, F32 min);
-    F32 getVignetteAlpha(S32 i, S32 j);
+    void setStencil(EStencilBlendMode mode, EStencilShape type, F32 gamma, F32 min, F32 max);
+    void setStencil(EStencilShape shape, EStencilBlendMode mode, F32 min, F32 max, F32* params);
+    F32 getStencilAlpha(S32 i, S32 j);
 
     // Histograms
     U32* getBrightnessHistogram();
@@ -105,14 +110,26 @@ private:
     U32 *mHistoBlue;
     U32 *mHistoBrightness;
     
-    // Vignette filtering
-    EVignetteMode mVignetteMode;
-    EVignetteType mVignetteType;
-    S32 mVignetteCenterX;
-    S32 mVignetteCenterY;
-    S32 mVignetteWidth;
-    F32 mVignetteGamma;
-    F32 mVignetteMin;
+    // Current Stencil Settings
+    EStencilBlendMode mStencilBlendMode;
+    EStencilShape mStencilShape;
+    F32 mStencilMin;
+    F32 mStencilMax;
+    
+    S32 mStencilCenterX;
+    S32 mStencilCenterY;
+    S32 mStencilWidth;
+    F32 mStencilGamma;
+    
+    F32 mStencilWavelength;
+    F32 mStencilSine;
+    F32 mStencilCosine;
+    
+    F32 mStencilStartX;
+    F32 mStencilStartY;
+    F32 mStencilGradX;
+    F32 mStencilGradY;
+    F32 mStencilGradN;
 };
 
 
