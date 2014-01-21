@@ -74,14 +74,12 @@ LLImageFilter::~LLImageFilter()
 
 /*
  *TODO 
- * Rename vignette to stencil
- * Separate shape from mode
- * Add shapes : uniform and gradients
- * Add modes
- * Add stencil (min,max) range
- * Suppress alpha from colorcorrect and use uniform alpha instead
- * Refactor stencil composition in the filter primitives
+ * Test blend modes
+ * Improve perf: use LUT for alpha blending in uniform case
+ * Improve perf: make sure filter is not called more than necessary in viewer (seems to be called 3 times per change)
  * Make filter definition resolution independent (do not use pixel size anywhere)
+ * Add gradient coloring as a filter
+ * Add convolve3x3
  
  params:
  * vignette : center_x, center_y, width, feather
@@ -96,18 +94,19 @@ LLImageFilter::~LLImageFilter()
  "        - 'sepia' converts to sepia (no param).\n"
  "        - 'saturate' changes color saturation according to <param>: < 1.0 will desaturate, > 1.0 will saturate.\n"
  "        - 'rotate' rotates the color hue according to <param> (in degree, positive value only).\n"
- "        - 'gamma' applies gamma curve <param> to all channels: > 1.0 will darken, < 1.0 will lighten.\n"
- "        - 'colorize' applies a red tint to the image using <param> as an alpha (transparency between 0.0 and 1.0) value.\n"
+ 
+ "        - 'gamma' applies a gamma curve <param> to all channels: > 1.0 will darken, < 1.0 will lighten.\n"
+ "        - 'colorize' applies a colored tint <param1, param2, param3> to the image.\n"
  "        - 'contrast' modifies the contrast according to <param> : > 1.0 will enhance the contrast, <1.0 will flatten it.\n"
  "        - 'brighten' adds <param> light to the image (<param> between 0 and 255).\n"
  "        - 'darken' substracts <param> light to the image (<param> between 0 and 255).\n"
- "        - 'linearize' optimizes the contrast using the brightness histogram. <param> is the fraction (between 0.0 and 1.0) of discarded tail of the histogram.\n"
+ "        - 'linearize' optimizes the contrast using the brightness histogram. <param> is the fraction (between 0.0 and 1.0) of the discarded head and tail of the histogram.\n"
  "        - 'posterize' redistributes the colors between <param> classes per channel (<param> between 2 and 255).\n"
- "        - 'newsscreen' applies a 2D sine screening to the red channel and output to black and white.\n"
- "        - 'horizontalscreen' applies a horizontal screening to the red channel and output to black and white.\n"
- "        - 'verticalscreen' applies a vertical screening to the red channel and output to black and white.\n"
- "        - 'slantedscreen' applies a 45 degrees slanted screening to the red channel and output to black and white.\n"
- "        - Any other value will be interpreted as a file name describing a sequence of filters and parameters to be applied to the input images.\n"
+ 
+ "        - 'screen' applies a screening filter to the red channel and output to black and white. This filter assumes that the input image has been converted to grayscale or that the red channel is somewhat meaningful. It takes 3 parameters: a mode, a wave length and an angle. Modes are:\n"
+ "            - '2Dsine' applies a bidirectional (x,y) sine screen. <angle> has no influence on that mode.\n"
+ "            - 'line' applies a linear sine screen. <angle> is the line generator angle with the horizontal.\n"
+ "         <wave_length> is size between 2 peaks of the sine function in normalized image coordinates."
 
  "        Apply a circular central vignette <name> to the filter using the optional <feather> and <min> values. Admissible names:\n"
  "        - 'blend' : the filter is applied with full intensity in the center and blends with the image to the periphery.\n"
@@ -174,7 +173,7 @@ void LLImageFilter::executeFilter(LLPointer<LLImageRaw> raw_image)
             {
                 shape = STENCIL_SHAPE_SCAN_LINES;
             }
-            // Get the blend mode of the stencil, that is how the effect is blended in the background through the alpha
+            // Get the blend mode of the stencil, that is how the effect is blended in the background through the stencil
             std::string filter_mode  = mFilterData[i][2].asString();
             EStencilBlendMode mode = STENCIL_BLEND_MODE_BLEND;
             if (filter_mode == "blend")
@@ -302,15 +301,15 @@ void LLImageFilter::blendStencil(F32 alpha, U8* pixel, U8 red, U8 green, U8 blue
             break;
         case STENCIL_BLEND_MODE_ADD:
             // Add incoming color to the background image
-            pixel[VRED]   = pixel[VRED]   + alpha * red;
-            pixel[VGREEN] = pixel[VGREEN] + alpha * green;
-            pixel[VBLUE]  = pixel[VBLUE]  + alpha * blue;
+            pixel[VRED]   = llclampb(pixel[VRED]   + alpha * red);
+            pixel[VGREEN] = llclampb(pixel[VGREEN] + alpha * green);
+            pixel[VBLUE]  = llclampb(pixel[VBLUE]  + alpha * blue);
             break;
         case STENCIL_BLEND_MODE_DODGE:
             // Dodge/burn the incoming color onto the background image
-            pixel[VRED]   = inv_alpha * pixel[VRED]   + red;
-            pixel[VGREEN] = inv_alpha * pixel[VGREEN] + green;
-            pixel[VBLUE]  = inv_alpha * pixel[VBLUE]  + blue;
+            pixel[VRED]   = llclampb(inv_alpha * pixel[VRED]   + red);
+            pixel[VGREEN] = llclampb(inv_alpha * pixel[VGREEN] + green);
+            pixel[VBLUE]  = llclampb(inv_alpha * pixel[VBLUE]  + blue);
             break;
         case STENCIL_BLEND_MODE_FADE:
             // Fade incoming color to black
