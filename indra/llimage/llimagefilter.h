@@ -91,6 +91,7 @@ private:
     void colorCorrect(const U8* lut_red, const U8* lut_green, const U8* lut_blue);
     void filterScreen(EScreenMode mode, const S32 wave_length, const F32 angle);
     void blendStencil(F32 alpha, U8* pixel, U8 red, U8 green, U8 blue);
+    void convolve(const LLMatrix3 &kernel, bool normalize, bool abs_value);
 
     // Procedural Stencils
     void setStencil(EStencilBlendMode mode, EStencilShape type, F32 gamma, F32 min, F32 max);

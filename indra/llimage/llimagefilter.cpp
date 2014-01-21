@@ -34,6 +34,7 @@
 #include "m3math.h"
 #include "v3math.h"
 #include "llsdserialize.h"
+#include "llstring.h"
 
 //---------------------------------------------------------------------------
 // LLImageFilter
@@ -281,6 +282,32 @@ void LLImageFilter::executeFilter(LLPointer<LLImageRaw> raw_image)
             }
             filterScreen(mode,(S32)(mFilterData[i][2].asReal()),(F32)(mFilterData[i][3].asReal()));
         }
+        else if (filter_name == "blur")
+        {
+            LLMatrix3 kernel;
+            for (S32 i = 0; i < NUM_VALUES_IN_MAT3; i++)
+                for (S32 j = 0; j < NUM_VALUES_IN_MAT3; j++)
+                    kernel.mMatrix[i][j] = 1.0;
+            convolve(kernel,true,false);
+        }
+        else if (filter_name == "sharpen")
+        {
+            LLMatrix3 kernel;
+            for (S32 i = 0; i < NUM_VALUES_IN_MAT3; i++)
+                for (S32 j = 0; j < NUM_VALUES_IN_MAT3; j++)
+                    kernel.mMatrix[i][j] = -1.0;
+            kernel.mMatrix[1][1] = 9.0;
+            convolve(kernel,false,false);
+        }
+        else if (filter_name == "gradient")
+        {
+            LLMatrix3 kernel;
+            for (S32 i = 0; i < NUM_VALUES_IN_MAT3; i++)
+                for (S32 j = 0; j < NUM_VALUES_IN_MAT3; j++)
+                    kernel.mMatrix[i][j] = -1.0;
+            kernel.mMatrix[1][1] = 8.0;
+            convolve(kernel,false,true);
+        }
     }
 }
 
@@ -363,6 +390,143 @@ void LLImageFilter::colorTransform(const LLMatrix3 &transform)
             dst_data += components;
         }
 	}
+}
+
+void LLImageFilter::convolve(const LLMatrix3 &kernel, bool normalize, bool abs_value)
+{
+	const S32 components = mImage->getComponents();
+	llassert( components >= 1 && components <= 4 );
+    
+    // Compute normalization factors
+    F32 kernel_min = 0.0;
+    F32 kernel_max = 0.0;
+    for (S32 i = 0; i < NUM_VALUES_IN_MAT3; i++)
+    {
+        for (S32 j = 0; j < NUM_VALUES_IN_MAT3; j++)
+        {
+            if (kernel.mMatrix[i][j] >= 0.0)
+                kernel_max += kernel.mMatrix[i][j];
+            else
+                kernel_min += kernel.mMatrix[i][j];
+        }
+    }
+    if (abs_value)
+    {
+        kernel_max = llabs(kernel_max);
+        kernel_min = llabs(kernel_min);
+        kernel_max = llmax(kernel_max,kernel_min);
+        kernel_min = 0.0;
+    }
+    F32 kernel_range = kernel_max - kernel_min;
+    
+    // Allocate temporary buffers and initialize algorithm's data
+	S32 width  = mImage->getWidth();
+    S32 height = mImage->getHeight();
+    
+	U8* dst_data = mImage->getData();
+
+	S32 buffer_size = width * components;
+	llassert_always(buffer_size > 0);
+	std::vector<U8> even_buffer(buffer_size);
+	std::vector<U8> odd_buffer(buffer_size);
+	
+    U8* south_data = dst_data + buffer_size;
+    U8* east_west_data;
+    U8* north_data;
+    
+    // Line 0 : we set the line to 0 (debatable)
+    memcpy( &even_buffer[0], dst_data, buffer_size );	/* Flawfinder: ignore */
+    for (S32 i = 0; i < width; i++)
+    {
+        blendStencil(getStencilAlpha(i,0), dst_data, 0, 0, 0);
+        dst_data += components;
+    }
+    south_data += buffer_size;
+    
+    // All other lines
+    for (S32 j = 1; j < (height-1); j++)
+	{
+        // We need to buffer 2 lines. We flip north and current to avoid moving too much memory around
+        if (j % 2)
+        {
+            memcpy( &odd_buffer[0], dst_data, buffer_size );	/* Flawfinder: ignore */
+            east_west_data = &odd_buffer[0];
+            north_data = &even_buffer[0];
+        }
+        else
+        {
+            memcpy( &even_buffer[0], dst_data, buffer_size );	/* Flawfinder: ignore */
+            east_west_data = &even_buffer[0];
+            north_data = &odd_buffer[0];
+        }
+        // First pixel : set to 0
+        blendStencil(getStencilAlpha(0,j), dst_data, 0, 0, 0);
+        // Set pointers to kernel
+        U8* NW = north_data;
+        U8* N = NW+components;
+        U8* NE = N+components;
+        U8* W = east_west_data;
+        U8* C = W+components;
+        U8* E = C+components;
+        U8* SW = south_data;
+        U8* S = SW+components;
+        U8* SE = S+components;
+        dst_data += components;
+        // All other pixels
+        for (S32 i = 1; i < (width-1); i++)
+        {
+            // Compute convolution
+            LLVector3 dst;
+            dst.mV[VRED] = (kernel.mMatrix[0][0]*NW[VRED] + kernel.mMatrix[0][1]*N[VRED] + kernel.mMatrix[0][2]*NE[VRED] +
+                            kernel.mMatrix[1][0]*W[VRED]  + kernel.mMatrix[1][1]*C[VRED] + kernel.mMatrix[1][2]*E[VRED] +
+                            kernel.mMatrix[2][0]*SW[VRED] + kernel.mMatrix[2][1]*S[VRED] + kernel.mMatrix[2][2]*SE[VRED]);
+            dst.mV[VGREEN] = (kernel.mMatrix[0][0]*NW[VGREEN] + kernel.mMatrix[0][1]*N[VGREEN] + kernel.mMatrix[0][2]*NE[VGREEN] +
+                              kernel.mMatrix[1][0]*W[VGREEN]  + kernel.mMatrix[1][1]*C[VGREEN] + kernel.mMatrix[1][2]*E[VGREEN] +
+                              kernel.mMatrix[2][0]*SW[VGREEN] + kernel.mMatrix[2][1]*S[VGREEN] + kernel.mMatrix[2][2]*SE[VGREEN]);
+            dst.mV[VBLUE] = (kernel.mMatrix[0][0]*NW[VBLUE] + kernel.mMatrix[0][1]*N[VBLUE] + kernel.mMatrix[0][2]*NE[VBLUE] +
+                             kernel.mMatrix[1][0]*W[VBLUE]  + kernel.mMatrix[1][1]*C[VBLUE] + kernel.mMatrix[1][2]*E[VBLUE] +
+                             kernel.mMatrix[2][0]*SW[VBLUE] + kernel.mMatrix[2][1]*S[VBLUE] + kernel.mMatrix[2][2]*SE[VBLUE]);
+            if (abs_value)
+            {
+                dst.mV[VRED]   = llabs(dst.mV[VRED]);
+                dst.mV[VGREEN] = llabs(dst.mV[VGREEN]);
+                dst.mV[VBLUE]  = llabs(dst.mV[VBLUE]);
+            }
+            if (normalize)
+            {
+                dst.mV[VRED]   = (dst.mV[VRED] - kernel_min)/kernel_range;
+                dst.mV[VGREEN] = (dst.mV[VGREEN] - kernel_min)/kernel_range;
+                dst.mV[VBLUE]  = (dst.mV[VBLUE] - kernel_min)/kernel_range;
+            }
+            dst.clamp(0.0f,255.0f);
+            
+            // Blend result
+            blendStencil(getStencilAlpha(i,j), dst_data, dst.mV[VRED], dst.mV[VGREEN], dst.mV[VBLUE]);
+            
+            // Next pixel
+            dst_data += components;
+            NW += components;
+            N += components;
+            NE += components;
+            W += components;
+            C += components;
+            E += components;
+            SW += components;
+            S += components;
+            SE += components;
+        }
+        // Last pixel : set to 0
+        blendStencil(getStencilAlpha(width-1,j), dst_data, 0, 0, 0);
+        dst_data += components;
+        south_data += buffer_size;
+	}
+    
+    // Last line
+    for (S32 i = 0; i < width; i++)
+    {
+        blendStencil(getStencilAlpha(i,0), dst_data, 0, 0, 0);
+        dst_data += components;
+    }
 }
 
 void LLImageFilter::filterScreen(EScreenMode mode, const S32 wave_length, const F32 angle)
