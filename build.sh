@@ -414,6 +414,12 @@ then
           upload_item symbolfile "$build_dir/$symbolfile" binary/octet-stream
         done
 
+        # Upload the actual dependencies used
+        if [ -r "$build_dir/packages/installed-packages.xml" ]
+        then
+            upload_item installer "$build_dir/packages/installed-packages.xml" text/xml
+        fi
+
         # Upload the llphysicsextensions_tpv package, if one was produced
         # *TODO: Make this an upload-extension
         if [ -r "$build_dir/llphysicsextensions_package" ]
