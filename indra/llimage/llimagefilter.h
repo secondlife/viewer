@@ -84,7 +84,7 @@ private:
     void filterEqualize(S32 nb_classes, const LLColor3& alpha); // Use histogram to equalize constrast between nb_classes throughout the image
     void filterColorize(const LLColor3& color, const LLColor3& alpha);  // Colorize with color and alpha per channel
     void filterContrast(F32 slope, const LLColor3& alpha);      // Change contrast according to slope: > 1.0 more contrast, < 1.0 less contrast
-    void filterBrightness(S32 add, const LLColor3& alpha);      // Change brightness according to add: > 0 brighter, < 0 darker
+    void filterBrightness(F32 add, const LLColor3& alpha);      // Change brightness according to add: > 0 brighter, < 0 darker
     
     // Filter Primitives
     void colorTransform(const LLMatrix3 &transform);

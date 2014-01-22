@@ -1,20 +1,24 @@
 <llsd>
     <array>
         <array>
-            <string>linearize</string>
+            <string>stencil</string>
+            <string>vignette</string>
+            <string>blend</string>
             <real>0.0</real>
             <real>1.0</real>
+            <real>0.0</real>
+            <real>0.0</real>
             <real>1.0</real>
-            <real>1.0</real>
+            <real>10.0</real>
         </array>
         <array>
             <string>colorize</string>
             <real>1.0</real>
-            <real>1.0</real>
-            <real>1.0</real>
-            <real>0.2</real>
             <real>0.0</real>
-            <real>0.2</real>
+            <real>0.0</real>
+            <real>0.5</real>
+            <real>0.5</real>
+            <real>0.0</real>
         </array>
     </array>
 </llsd>

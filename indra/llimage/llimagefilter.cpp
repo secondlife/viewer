@@ -80,7 +80,6 @@ LLImageFilter::~LLImageFilter()
  * Improve perf: make sure filter is not called more than necessary in viewer (seems to be called 3 times per change)
  * Make filter definition resolution independent (do not use pixel size anywhere)
  * Add gradient coloring as a filter
- * Add convolve3x3
  
  params:
  * vignette : center_x, center_y, width, feather
@@ -251,12 +250,12 @@ void LLImageFilter::executeFilter(LLPointer<LLImageRaw> raw_image)
         else if (filter_name == "brighten")
         {
             LLColor3 color((float)(mFilterData[i][2].asReal()),(float)(mFilterData[i][3].asReal()),(float)(mFilterData[i][4].asReal()));
-            filterBrightness((S32)(mFilterData[i][1].asReal()),color);
+            filterBrightness((float)(mFilterData[i][1].asReal()),color);
         }
         else if (filter_name == "darken")
         {
             LLColor3 color((float)(mFilterData[i][2].asReal()),(float)(mFilterData[i][3].asReal()),(float)(mFilterData[i][4].asReal()));
-            filterBrightness((S32)(-mFilterData[i][1].asReal()),color);
+            filterBrightness((float)(-mFilterData[i][1].asReal()),color);
         }
         else if (filter_name == "linearize")
         {
@@ -807,7 +806,7 @@ void LLImageFilter::filterGamma(F32 gamma, const LLColor3& alpha)
     
     for (S32 i = 0; i < 256; i++)
     {
-        F32 gamma_i = llclampf((float)(powf((float)(i)/255.0,gamma)));
+        F32 gamma_i = llclampf((float)(powf((float)(i)/255.0,1.0/gamma)));
         // Blend in with alpha values
         gamma_red_lut[i]   = (U8)((1.0 - alpha.mV[0]) * (float)(i) + alpha.mV[0] * 255.0 * gamma_i);
         gamma_green_lut[i] = (U8)((1.0 - alpha.mV[1]) * (float)(i) + alpha.mV[1] * 255.0 * gamma_i);
@@ -969,15 +968,17 @@ void LLImageFilter::filterContrast(F32 slope, const LLColor3& alpha)
     colorCorrect(contrast_red_lut,contrast_green_lut,contrast_blue_lut);
 }
 
-void LLImageFilter::filterBrightness(S32 add, const LLColor3& alpha)
+void LLImageFilter::filterBrightness(F32 add, const LLColor3& alpha)
 {
     U8 brightness_red_lut[256];
     U8 brightness_green_lut[256];
     U8 brightness_blue_lut[256];
     
+    S32 add_value = (S32)(add * 255.0);
+    
     for (S32 i = 0; i < 256; i++)
     {
-        U8 value_i = (U8)(llclampb((S32)((S32)(i) + add)));
+        U8 value_i = (U8)(llclampb(i + add_value));
         // Blend in with alpha values
         brightness_red_lut[i]   = (U8)((1.0 - alpha.mV[0]) * (float)(i) + alpha.mV[0] * value_i);
         brightness_green_lut[i] = (U8)((1.0 - alpha.mV[1]) * (float)(i) + alpha.mV[1] * value_i);
