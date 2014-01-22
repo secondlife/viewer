@@ -2554,6 +2554,16 @@
            parameter="lights" />
         </menu_item_check>
         <menu_item_check
+         label="Particles"
+         name="Particles">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="particles" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="particles" />
+        </menu_item_check>
+        <menu_item_check
          label="Collision Skeleton"
          name="Collision Skeleton">
           <menu_item_check.on_check
