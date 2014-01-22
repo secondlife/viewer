@@ -354,7 +354,7 @@ void LLApp::setupErrorHandling()
 														0,
 														google_breakpad::ExceptionHandler::HANDLER_ALL,
 														MiniDumpNormal, //Generate a 'normal' minidump.
-														pipe_name.c_str(),
+														wpipe_name.c_str(),
 														NULL);  //No custom client info.
 			if (mExceptionHandler)
 			{

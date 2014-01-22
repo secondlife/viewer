@@ -31,7 +31,7 @@
 #include "llrun.h"
 #include "llsd.h"
 #include "lloptioninterface.h"
-
+#define LL_SEND_CRASH_REPORTS 1
 // Forward declarations
 template <typename Type> class LLAtomic32;
 typedef LLAtomic32<U32> LLAtomicU32;
