@@ -9,19 +9,23 @@
         </array>
         <array>
             <string>darken</string>
-            <real>15.0</real>
+            <real>0.1</real>
             <real>1.0</real>
             <real>1.0</real>
             <real>1.0</real>
         </array>
         <array>
-            <string>lines</string>
-            <real>10.0</real>
+            <string>stencil</string>
+            <string>scanlines</string>
+            <string>blend</string>
+            <real>0.0</real>
+            <real>1.0</real>
+            <real>0.01</real>
             <real>0.0</real>
         </array>
         <array>
             <string>brighten</string>
-            <real>30.0</real>
+            <real>0.1</real>
             <real>1.0</real>
             <real>1.0</real>
             <real>1.0</real>

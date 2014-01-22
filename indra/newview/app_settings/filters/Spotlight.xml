@@ -19,9 +19,15 @@
             <real>1.5</real>
         </array>
         <array>
+            <string>stencil</string>
+            <string>vignette</string>
             <string>fade</string>
+            <real>0.75</real>
             <real>1.0</real>
-            <real>0.25</real>
+            <real>0.0</real>
+            <real>0.0</real>
+            <real>1.0</real>
+            <real>5.0</real>
         </array>
         <array>
             <string>saturate</string>
@@ -36,7 +42,7 @@
         </array>
         <array>
             <string>brighten</string>
-            <real>30</real>
+            <real>0.1</real>
             <real>1.0</real>
             <real>1.0</real>
             <real>1.0</real>

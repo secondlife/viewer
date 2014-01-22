@@ -15,9 +15,15 @@
             <real>1.0</real>
         </array>
         <array>
+            <string>stencil</string>
+            <string>vignette</string>
             <string>fade</string>
-            <real>4.0</real>
             <real>0.5</real>
+            <real>1.0</real>
+            <real>0.0</real>
+            <real>0.0</real>
+            <real>1.0</real>
+            <real>4.0</real>
         </array>
         <array>
             <string>colorize</string>
