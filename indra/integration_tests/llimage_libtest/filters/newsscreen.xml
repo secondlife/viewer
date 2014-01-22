@@ -2,7 +2,7 @@
     <array>
         <array>
             <string>linearize</string>
-            <real>0.1</real>
+            <real>0.0</real>
             <real>1.0</real>
             <real>1.0</real>
             <real>1.0</real>
@@ -11,14 +11,9 @@
             <string>grayscale</string>
         </array>
         <array>
-            <string>blend</string>
-            <real>0.0</real>
-            <real>0.0</real>
-        </array>
-        <array>
             <string>screen</string>
             <string>2Dsine</string>
-            <real>5.0</real>
+            <real>0.015</real>
             <real>0.0</real>
         </array>
     </array>

@@ -1,6 +1,6 @@
 /** 
  * @file llimagefilter.cpp
- * @brief Simple Image Filtering.
+ * @brief Simple Image Filtering. See https://wiki.lindenlab.com/wiki/SL_Viewer_Image_Filters for complete documentation.
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -75,42 +75,12 @@ LLImageFilter::~LLImageFilter()
 
 /*
  *TODO 
- * Test blend modes
+ * Rename stencil to mask
+ * Test blend modes and name them correctly
+ * Suppress old "blend", "fade" and "lines" stencil definition. Change all xml accordingly.
  * Improve perf: use LUT for alpha blending in uniform case
  * Improve perf: make sure filter is not called more than necessary in viewer (seems to be called 3 times per change)
- * Make filter definition resolution independent (do not use pixel size anywhere)
  * Add gradient coloring as a filter
- 
- params:
- * vignette : center_x, center_y, width, feather
- * scan lines : wavelength, angle
- * uniform
- * gradient : start_x, start_y, end_x, end_y
-
- * Document all the admissible names in the wiki
- 
- "        Apply the filter <name> to the input images using the optional <param> value. Admissible names:\n"
- "        - 'grayscale' converts to grayscale (no param).\n"
- "        - 'sepia' converts to sepia (no param).\n"
- "        - 'saturate' changes color saturation according to <param>: < 1.0 will desaturate, > 1.0 will saturate.\n"
- "        - 'rotate' rotates the color hue according to <param> (in degree, positive value only).\n"
- 
- "        - 'gamma' applies a gamma curve <param> to all channels: > 1.0 will darken, < 1.0 will lighten.\n"
- "        - 'colorize' applies a colored tint <param1, param2, param3> to the image.\n"
- "        - 'contrast' modifies the contrast according to <param> : > 1.0 will enhance the contrast, <1.0 will flatten it.\n"
- "        - 'brighten' adds <param> light to the image (<param> between 0 and 255).\n"
- "        - 'darken' substracts <param> light to the image (<param> between 0 and 255).\n"
- "        - 'linearize' optimizes the contrast using the brightness histogram. <param> is the fraction (between 0.0 and 1.0) of the discarded head and tail of the histogram.\n"
- "        - 'posterize' redistributes the colors between <param> classes per channel (<param> between 2 and 255).\n"
- 
- "        - 'screen' applies a screening filter to the red channel and output to black and white. This filter assumes that the input image has been converted to grayscale or that the red channel is somewhat meaningful. It takes 3 parameters: a mode, a wave length and an angle. Modes are:\n"
- "            - '2Dsine' applies a bidirectional (x,y) sine screen. <angle> has no influence on that mode.\n"
- "            - 'line' applies a linear sine screen. <angle> is the line generator angle with the horizontal.\n"
- "         <wave_length> is size between 2 peaks of the sine function in normalized image coordinates."
-
- "        Apply a circular central vignette <name> to the filter using the optional <feather> and <min> values. Admissible names:\n"
- "        - 'blend' : the filter is applied with full intensity in the center and blends with the image to the periphery.\n"
- "        - 'fade' : the filter is applied with full intensity in the center and fades to black to the periphery.\n"
  */
 
 //============================================================================
@@ -133,25 +103,6 @@ void LLImageFilter::executeFilter(LLPointer<LLImageRaw> raw_image)
         //}
         //std::cout << std::endl;
         
-        // Execute the filter described on this line
-        /*
-        <array>
-        <string>stencil</string> 
-        <string>shape</string> uniform / gradient / vignette / scanlines
-        <string>blend_mode</string> blend /add /dodge / fade
-        <real>min</real> -1.0 to 1.0 (mandatory though ignored for uniform shape)
-        <real>max</real> -1.0 to 1.0 (value for uniform)
-        <real>param1</real>
-        <real>param2</real>
-        <real>param3</real>
-        <real>param4</real>
-        </array>
-         params:
-         * vignette : center_x, center_y, width, feather : positions between in float (0.0 is center, 1.0 is top), width in float in same unit, feather is a float
-         * scan lines : wavelength, angle : wavelength in float assuming (height/2 = 1), angle float in degree
-         * uniform : all parameters ignored
-         * gradient : start_x, start_y, end_x, end_y : position in float (0.0 is center, 1.0 is top)
-         */
         if (filter_name == "stencil")
         {
             // Get the shape of the stencil, that is how the procedural alpha is computed geometrically
@@ -279,7 +230,7 @@ void LLImageFilter::executeFilter(LLPointer<LLImageRaw> raw_image)
             {
                 mode = SCREEN_MODE_LINE;
             }
-            filterScreen(mode,(S32)(mFilterData[i][2].asReal()),(F32)(mFilterData[i][3].asReal()));
+            filterScreen(mode,(F32)(mFilterData[i][2].asReal()),(F32)(mFilterData[i][3].asReal()));
         }
         else if (filter_name == "blur")
         {
@@ -445,7 +396,7 @@ void LLImageFilter::convolve(const LLMatrix3 &kernel, bool normalize, bool abs_v
     // All other lines
     for (S32 j = 1; j < (height-1); j++)
 	{
-        // We need to buffer 2 lines. We flip north and current to avoid moving too much memory around
+        // We need to buffer 2 lines. We flip north and east-west (current) to avoid moving too much memory around
         if (j % 2)
         {
             memcpy( &odd_buffer[0], dst_data, buffer_size );	/* Flawfinder: ignore */
@@ -460,6 +411,7 @@ void LLImageFilter::convolve(const LLMatrix3 &kernel, bool normalize, bool abs_v
         }
         // First pixel : set to 0
         blendStencil(getStencilAlpha(0,j), dst_data, 0, 0, 0);
+        dst_data += components;
         // Set pointers to kernel
         U8* NW = north_data;
         U8* N = NW+components;
@@ -470,7 +422,6 @@ void LLImageFilter::convolve(const LLMatrix3 &kernel, bool normalize, bool abs_v
         U8* SW = south_data;
         U8* S = SW+components;
         U8* SE = S+components;
-        dst_data += components;
         // All other pixels
         for (S32 i = 1; i < (width-1); i++)
         {
@@ -528,7 +479,7 @@ void LLImageFilter::convolve(const LLMatrix3 &kernel, bool normalize, bool abs_v
     }
 }
 
-void LLImageFilter::filterScreen(EScreenMode mode, const S32 wave_length, const F32 angle)
+void LLImageFilter::filterScreen(EScreenMode mode, const F32 wave_length, const F32 angle)
 {
 	const S32 components = mImage->getComponents();
 	llassert( components >= 1 && components <= 4 );
@@ -536,6 +487,7 @@ void LLImageFilter::filterScreen(EScreenMode mode, const S32 wave_length, const 
 	S32 width  = mImage->getWidth();
     S32 height = mImage->getHeight();
     
+    F32 wave_length_pixels = wave_length * (F32)(height) / 2.0;
     F32 sin = sinf(angle*DEG_TO_RAD);
     F32 cos = cosf(angle*DEG_TO_RAD);
     
@@ -550,11 +502,11 @@ void LLImageFilter::filterScreen(EScreenMode mode, const S32 wave_length, const 
             switch (mode)
             {
                 case SCREEN_MODE_2DSINE:
-                    value = (sinf(2*F_PI*i/wave_length)*sinf(2*F_PI*j/wave_length)+1.0)*255.0/2.0;
+                    value = (sinf(2*F_PI*i/wave_length_pixels)*sinf(2*F_PI*j/wave_length_pixels)+1.0)*255.0/2.0;
                     break;
                 case SCREEN_MODE_LINE:
                     d = sin*i - cos*j;
-                    value = (sinf(2*F_PI*d/wave_length)+1.0)*255.0/2.0;
+                    value = (sinf(2*F_PI*d/wave_length_pixels)+1.0)*255.0/2.0;
                     break;
             }
             U8 dst_value = (dst_data[VRED] >= (U8)(value) ? 255 : 0);
