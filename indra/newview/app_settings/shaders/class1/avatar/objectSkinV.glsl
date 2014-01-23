@@ -22,17 +22,14 @@
  * $/LicenseInfo$
  */
 
-
-
 ATTRIBUTE vec4 weight4;  
 
-uniform mat3 matrixPalette[64];
-uniform vec3 translationPalette[64];
-
+uniform mat3 matrixPalette[52];
+uniform vec3 translationPalette[52];
 
 mat4 getObjectSkinnedTransform()
 {
-	int i; 
+	int i;
 	
 	vec4 w = fract(weight4);
 	vec4 index = floor(weight4);

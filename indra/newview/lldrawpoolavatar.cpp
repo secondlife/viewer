@@ -55,6 +55,7 @@ static U32 sDataMask = LLDrawPoolAvatar::VERTEX_DATA_MASK;
 static U32 sBufferUsage = GL_STREAM_DRAW_ARB;
 static U32 sShaderLevel = 0;
 
+#define JOINT_COUNT 52
 
 LLGLSLShader* LLDrawPoolAvatar::sVertexProgram = NULL;
 BOOL	LLDrawPoolAvatar::sSkipOpaque = FALSE;
@@ -1582,7 +1583,7 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* 
 		LLVector4a* norm = has_normal ? (LLVector4a*) normal.get() : NULL;
 		
 		//build matrix palette
-		LLMatrix4a mp[64];
+		LLMatrix4a mp[JOINT_COUNT];
 		LLMatrix4* mat = (LLMatrix4*) mp;
 
 		for (U32 j = 0; j < skin->mJointNames.size(); ++j)
@@ -1642,6 +1643,7 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* 
 				LLVector4a& n = vol_face.mNormals[j];
 				bind_shape_matrix.rotate(n, t);
 				final_mat.rotate(t, dst);
+				dst.normalize3fast();
 				norm[j] = dst;
 			}
 		}
@@ -1708,9 +1710,9 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 		{
 			if (sShaderLevel > 0)
 			{ //upload matrix palette to shader
-				LLMatrix4 mat[64];
+				LLMatrix4 mat[JOINT_COUNT];
 
-				U32 count = llmin((U32) skin->mJointNames.size(), (U32) 64);
+				U32 count = llmin((U32) skin->mJointNames.size(), (U32) JOINT_COUNT);
 
 				for (U32 i = 0; i < count; ++i)
 				{
@@ -1724,9 +1726,9 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 				
 				stop_glerror();
 
-				F32 mp[64*9];
+				F32 mp[JOINT_COUNT*9];
 
-				F32 transp[64*3];
+				F32 transp[JOINT_COUNT*3];
 
 				for (U32 i = 0; i < count; ++i)
 				{
