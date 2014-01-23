@@ -206,10 +206,10 @@ void LLBlockList::refresh()
 			if(selected == mute.mID)
 			{
 				// we are going to remove currently selected item, so select next item and save the selection to restore it
-				if (!selectNextItemPair(false, true))
-				{
-					selectNextItemPair(true, true);
-				}
+	if (!selectNextItemPair(false, true))
+	{
+		selectNextItemPair(true, true);
+	}
 				next_selected = getSelectedUUID();
 			}
 			removeListItem(&mute);
@@ -229,7 +229,7 @@ void LLBlockList::refresh()
 		{
 			LLBlockedListItem * curItem = dynamic_cast<LLBlockedListItem *> (*it);
 			if(curItem)
-			{
+	{
 				hideListItem(curItem, findInsensitive(curItem->getName(), mNameFilter));
 			}
 		}
