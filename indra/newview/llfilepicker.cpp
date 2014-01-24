@@ -662,7 +662,7 @@ bool	LLFilePicker::doNavSaveDialog(ESaveFilter filter, const std::string& filena
 		case FFSAVE_TGAPNG:
 			type = "PNG";
 			creator = "prvw";
-			extension = "png";
+			extension = "png,tga";
 			break;
 		case FFSAVE_BMP:
 			type = "BMPf";
