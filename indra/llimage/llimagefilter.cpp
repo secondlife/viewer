@@ -77,7 +77,6 @@ LLImageFilter::~LLImageFilter()
  *TODO 
  * Rename stencil to mask
  * Test blend modes and name them correctly
- * Suppress old "blend", "fade" and "lines" stencil definition. Change all xml accordingly.
  * Improve perf: use LUT for alpha blending in uniform case
  * Improve perf: make sure filter is not called more than necessary in viewer (seems to be called 3 times per change)
  * Add gradient coloring as a filter
@@ -153,18 +152,6 @@ void LLImageFilter::executeFilter(LLPointer<LLImageRaw> raw_image)
             }
             // Set the stencil
             setStencil(shape,mode,min,max,params);
-        }
-        else if (filter_name == "blend")
-        {
-            setStencil(STENCIL_BLEND_MODE_BLEND,STENCIL_SHAPE_VIGNETTE,(float)(mFilterData[i][1].asReal()),(float)(mFilterData[i][2].asReal()),1.0);
-        }
-        else if (filter_name == "fade")
-        {
-            setStencil(STENCIL_BLEND_MODE_FADE,STENCIL_SHAPE_VIGNETTE,(float)(mFilterData[i][1].asReal()),(float)(mFilterData[i][2].asReal()),1.0);
-        }
-        else if (filter_name == "lines")
-        {
-            setStencil(STENCIL_BLEND_MODE_BLEND,STENCIL_SHAPE_SCAN_LINES,(float)(mFilterData[i][1].asReal()),(float)(mFilterData[i][2].asReal()),1.0);
         }
         else if (filter_name == "sepia")
         {
@@ -257,6 +244,10 @@ void LLImageFilter::executeFilter(LLPointer<LLImageRaw> raw_image)
                     kernel.mMatrix[i][j] = -1.0;
             kernel.mMatrix[1][1] = 8.0;
             convolve(kernel,false,true);
+        }
+        else
+        {
+            llwarns << "Filter unknown, cannot execute filter command : " << filter_name << llendl;
         }
     }
 }
