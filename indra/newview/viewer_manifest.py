@@ -833,7 +833,7 @@ class Darwin_i386_Manifest(ViewerManifest):
                         signed=True # if no exception was raised, the codesign worked
                     except ManifestError, err:
                         if sign_attempts:
-                            print >> sys.stderr, "codesign failed, waiting %d seconds before retrying"
+                            print >> sys.stderr, "codesign failed, waiting %d seconds before retrying" % sign_retry_wait
                             time.sleep(sign_retry_wait)
                             sign_retry_wait*=2
                         else:
