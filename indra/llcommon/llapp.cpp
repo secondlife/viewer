@@ -339,16 +339,17 @@ void LLApp::setupErrorHandling()
 	{
 		llwarns << "adding breakpad exception handler" << llendl;
 
-		const std::wstring wpipe_name(wstringize(getPid()));
-		const std::string pipe_name(stringize(wpipe_name));
+		std::wstring wpipe_name;
+		wpipe_name =  mCrashReportPipeStr + wstringize(getPid());
 
 		::Sleep(3000);  //HACK hopefully a static wait won't blow up in my face before google fixes their implementation.
+		const std::wstring wdump_path(wstringize(mDumpPath));
 
 		//HACK this for loop is ueless.  Breakpad dumbly returns success when the OOP handler isn't initialized.
 		for (int retries=0;retries<5;++retries)
 		{
 			mExceptionHandler = new google_breakpad::ExceptionHandler(
-														wstringize(mDumpPath),		
+														wdump_path,		
 														NULL,		//No filter
 														windows_post_minidump_callback,
 														0,

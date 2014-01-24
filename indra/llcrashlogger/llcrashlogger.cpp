@@ -456,9 +456,6 @@ bool LLCrashLogger::sendCrashLogs()
         rec["pid"]=opts["pid"];
         rec["dumpdir"]=opts["dumpdir"];
         rec["procname"]=opts["procname"];
-#if LL_WINDOWS
-        locks.append(rec);
-#endif
     }
 	
     if (locks.isArray())
@@ -499,12 +496,11 @@ bool LLCrashLogger::sendCrashLogs()
             }
         }
     }
-#if !LL_WINDOWS
+
     if (rec)
     {
         newlocks.append(rec);
     }
-#endif
     
     mKeyMaster.putProcessList(newlocks);
     return true;

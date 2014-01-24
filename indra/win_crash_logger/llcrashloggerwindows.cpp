@@ -329,6 +329,7 @@ void LLCrashLoggerWindows::OnClientExited(void* context,
 		const google_breakpad::ClientInfo* client_info) 
 {
 	llinfos << "client end. pid = " << client_info->pid() << llendl;
+
 	sInstance->mClientsConnected--;
 }
 
@@ -391,7 +392,7 @@ bool LLCrashLoggerWindows::initCrashServer()
 	wpipe_name = mCrashReportPipeStr + std::wstring(wstringize(mPID));
 
 	std::wstring wdump_path( wstringize(dump_path) );
-
+		
 	//Pipe naming conventions:  http://msdn.microsoft.com/en-us/library/aa365783%28v=vs.85%29.aspx
 	mCrashHandler = new CrashGenerationServer( wpipe_name,
 		NULL, 
