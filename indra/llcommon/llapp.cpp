@@ -349,7 +349,7 @@ void LLApp::setupErrorHandling()
 		for (int retries=0;retries<5;++retries)
 		{
 			mExceptionHandler = new google_breakpad::ExceptionHandler(
-														L"", //wdump_path,		
+														/wdump_path,		
 														NULL,		//No filter
 														windows_post_minidump_callback,
 														0,
