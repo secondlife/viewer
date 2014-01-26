@@ -3376,7 +3376,7 @@ void getFileList()
 	for(vec::const_iterator iter=file_vec.begin(); iter!=file_vec.end(); ++iter)
 	{
 		filenames << *iter << " ";
-		if ( ( iter->length() > 30 ) && (iter->rfind(".log") != (iter->length()-4) ) )
+		if ( ( iter->length() > 30 ) && (iter->rfind(".dmp") == (iter->length()-4) ) )
 		{
 			std::string fullname = pathname + *iter;
 			std::ifstream fdat( fullname.c_str(), std::ifstream::binary);
@@ -3388,6 +3388,7 @@ void getFileList()
 				if (!strncmp(buf,"MDMP",4))
 				{
 					gDebugInfo["Dynamic"]["MinidumpPath"] = fullname;
+					break;
 				}
 			}
 		}
@@ -3504,15 +3505,21 @@ void LLAppViewer::handleViewerCrash()
 		LL_WARNS("MarkerFile") << "No gDirUtilp with which to create error marker file name" << LL_ENDL;
 	}		
 	
+#ifdef LL_WINDOWS //SPATTERS Wild guess that filename for Breakpad is not being returned due to sleep cycle in Crash Reporter.
+	Sleep(2000);
+#endif 
 
 	char *minidump_file = pApp->getMiniDumpFilename();
 
 	if(minidump_file && minidump_file[0] != 0)
 	{
 		gDebugInfo["Dynamic"]["MinidumpPath"] = minidump_file;
+		//SPATTERS another possibility is that when using OOP it must be initiated by a wrapping program so that when the
+		//viewer crashes, we are from a sibling thread than as a child.   Might be able to request minidump at this point
+		//as a work-around.
 	}
 #ifdef LL_WINDOWS
-	else
+	else  //SPATTERS there is no else here in the older code
 	{
 		getFileList();
 	}

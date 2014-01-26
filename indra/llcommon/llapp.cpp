@@ -900,21 +900,26 @@ bool unix_minidump_callback(const google_breakpad::MinidumpDescriptor& minidump_
 	// heap allocations in a crash handler.
 	
 	// path format: <dump_dir>/<minidump_id>.dmp
-	int dirPathLength = strlen(minidump_desc.path());
+	
+	//HACK:  *path points to the buffer in getMiniDumpFilename which has already allocated space
+	//to avoid doing allocation during crash.
+	char * path = LLApp::instance()->getMiniDumpFilename();
+	int dir_path_len = strlen(path);
 	
 	// The path must not be truncated.
-	llassert((dirPathLength + 5) <= LLApp::MAX_MINDUMP_PATH_LENGTH);
+	S32 remaining =  LLApp::MAX_MINDUMP_PATH_LENGTH - dir_path_len;
+
+	llassert( (remaining - strlen(minidump_desc.path())) > 5);
 	
-	char * path = LLApp::instance()->getMiniDumpFilename();
-	S32 remaining = LLApp::MAX_MINDUMP_PATH_LENGTH;
-	strncpy(path, minidump_desc.path(), remaining);
-	remaining -= dirPathLength;
-	path += dirPathLength;
-	if (remaining > 0 && dirPathLength > 0 && path[-1] != '/')
+	path += dir_path_len;
+
+	if (dir_path_len > 0 && path[-1] != '/')
 	{
 		*path++ = '/';
 		--remaining;
 	}
+
+	strncpy(path, minidump_desc.path(), remaining);
 	
 	llinfos << "generated minidump: " << LLApp::instance()->getMiniDumpFilename() << llendl;
 	LLApp::runErrorHandler();

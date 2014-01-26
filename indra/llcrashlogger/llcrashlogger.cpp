@@ -312,7 +312,7 @@ void LLCrashLogger::gatherFiles()
         vec file_vec = gDirUtilp->getFilesInDir(pathname);
         for(vec::const_iterator iter=file_vec.begin(); iter!=file_vec.end(); ++iter)
         {
-            if ( ( iter->length() > 30 ) && (iter->rfind(".log") != (iter->length()-4) ) )
+            if ( ( iter->length() > 30 ) && (iter->rfind(".dmp") == (iter->length()-4) ) )
             {
                 std::string fullname = pathname + *iter;
                 std::ifstream fdat( fullname.c_str(), std::ifstream::binary);
@@ -320,12 +320,16 @@ void LLCrashLogger::gatherFiles()
                 {
                     char buf[5];
                     fdat.read(buf,4);
-                    fdat.close();
+                    fdat.close();  
                     if (!strncmp(buf,"MDMP",4))
                     {
                         minidump_path = *iter;
-                        has_minidump = readMinidump(minidump_path);
+                        has_minidump = readMinidump(fullname);
 						mDebugLog["MinidumpPath"] = fullname;
+						if (has_minidump) 
+						{
+							break;
+						}
                     }
                 }
             }

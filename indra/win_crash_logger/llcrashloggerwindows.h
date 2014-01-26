@@ -68,10 +68,10 @@ private:
 	static void OnClientConnected(void* context,
  					const google_breakpad::ClientInfo* client_info);
  	
- 	/*static void OnClientDumpRequest(
+ 	static void OnClientDumpRequest(
  					void* context,
  					const google_breakpad::ClientInfo* client_info,
- 					const std::wstring* file_path);*/
+ 					const std::wstring* file_path);
  	
  	static void OnClientExited(void* context,
 		 			const google_breakpad::ClientInfo* client_info);

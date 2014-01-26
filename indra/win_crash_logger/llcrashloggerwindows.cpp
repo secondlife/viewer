@@ -333,13 +333,11 @@ void LLCrashLoggerWindows::OnClientExited(void* context,
 	sInstance->mClientsConnected--;
 }
 
-/*
+
 void LLCrashLoggerWindows::OnClientDumpRequest(void* context,
 	const google_breakpad::ClientInfo* client_info,
 	const std::wstring* file_path) 
 {
-	ProcessingLock lock;
-
 	if (!file_path) 
 	{
 		llwarns << "dump with no file path" << llendl;
@@ -359,18 +357,8 @@ void LLCrashLoggerWindows::OnClientDumpRequest(void* context,
 	}
 
 	DWORD pid = client_info->pid();
-
-
-// Send the crash dump using a worker thread. This operation has retry
-// logic in case there is no internet connection at the time.
-DumpJobInfo* dump_job = new DumpJobInfo(pid, self, map,
-dump_location.value());
-if (!::QueueUserWorkItem(&CrashService::AsyncSendDump,
-dump_job, WT_EXECUTELONGFUNCTION)) {
-LOG(ERROR) << "could not queue job";
 }
-}
-*/
+
 
 bool LLCrashLoggerWindows::initCrashServer()
 {
@@ -397,7 +385,7 @@ bool LLCrashLoggerWindows::initCrashServer()
 	mCrashHandler = new CrashGenerationServer( wpipe_name,
 		NULL, 
  		&LLCrashLoggerWindows::OnClientConnected, this,
-		NULL, NULL,	// 	&LLCrashLoggerWindows::OnClientDumpRequest, this,
+		/*NULL, NULL,    */ &LLCrashLoggerWindows::OnClientDumpRequest, this,
  		&LLCrashLoggerWindows::OnClientExited, this,
  		NULL, NULL,
  		true, &wdump_path);
