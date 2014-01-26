@@ -356,7 +356,7 @@ void LLCrashLoggerWindows::OnClientDumpRequest(void* context,
 		return;
 	}
 
-	DWORD pid = client_info->pid();
+	//DWORD pid = client_info->pid();
 }
 
 
