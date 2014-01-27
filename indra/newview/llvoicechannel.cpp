@@ -790,7 +790,6 @@ void LLVoiceChannelP2P::handleStatusChange(EStatusType type)
 			{
 				// other user declined call
 				LLNotificationsUtil::add("P2PCallDeclined", mNotifyArgs);
-				setState(STATE_ERROR);
 			}
 			else
 			{
