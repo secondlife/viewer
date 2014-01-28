@@ -60,6 +60,7 @@
 #include "llfloaterenvironmentsettings.h"
 #include "llfloaterexperienceprofile.h"
 #include "llfloaterexperiences.h"
+#include "llfloaterexperiencepicker.h"
 #include "llfloaterevent.h"
 #include "llfloaterdestinations.h"
 #include "llfloaterfonttest.h"
@@ -211,7 +212,8 @@ void LLViewerFloaterReg::registerFloaters()
 
     LLFloaterReg::add("event", "floater_event.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEvent>);
     LLFloaterReg::add("experiences", "floater_experiences.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterExperiences>);
-    LLFloaterReg::add("experience_profile", "floater_experienceprofile.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterExperienceProfile>);
+	LLFloaterReg::add("experience_profile", "floater_experienceprofile.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterExperienceProfile>);
+	LLFloaterReg::add("experience_search", "floater_experience_search.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterExperiencePicker>);
 
 	LLFloaterReg::add("font_test", "floater_font_test.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterFontTest>);
 
