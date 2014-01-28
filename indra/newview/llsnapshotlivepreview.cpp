@@ -458,7 +458,7 @@ void LLSnapshotLivePreview::reshape(S32 width, S32 height, BOOL called_from_pare
 
 BOOL LLSnapshotLivePreview::setThumbnailImageSize()
 {
-	if(getWidth() < 10 || getHeight() < 10)
+	if (getWidth() < 10 || getHeight() < 10)
 	{
 		return FALSE ;
 	}
@@ -468,8 +468,6 @@ BOOL LLSnapshotLivePreview::setThumbnailImageSize()
 	F32 aspect_ratio = ((F32)width) / ((F32)height);
 
 	// UI size for thumbnail
-	// *FIXME: the rect does not change, so maybe there's no need to recalculate max w/h.
-	//const LLRect& thumbnail_rect = mThumbnailPlaceholderRect;
 	S32 max_width  = mThumbnailPlaceholderRect.getWidth();
 	S32 max_height = mThumbnailPlaceholderRect.getHeight();
 
@@ -485,14 +483,14 @@ BOOL LLSnapshotLivePreview::setThumbnailImageSize()
 		mThumbnailHeight = max_height;
 		mThumbnailWidth = llround((F32)max_height * aspect_ratio);
 	}
-
+    
 	if (mThumbnailWidth > width || mThumbnailHeight > height)
 	{
 		return FALSE ;//if the window is too small, ignore thumbnail updating.
 	}
 
 	S32 left = 0 , top = mThumbnailHeight, right = mThumbnailWidth, bottom = 0 ;
-	if(!mKeepAspectRatio && !mThumbnailSubsampled)
+	if (!mKeepAspectRatio)
 	{
 		F32 ratio_x = (F32)getWidth()  / width ;
 		F32 ratio_y = (F32)getHeight() / height ;
@@ -643,10 +641,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 	}
 
 	// time to produce a snapshot
-    //previewp->setThumbnailImageSize();
-
 	lldebugs << "producing snapshot" << llendl;
-	llinfos << "Merov : producing snapshot" << llendl;
 	if (!previewp->mPreviewImage)
 	{
 		previewp->mPreviewImage = new LLImageRaw;
@@ -732,7 +727,6 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 		previewp->generateThumbnailImage() ;
 	}
 	lldebugs << "done creating snapshot" << llendl;
-	llinfos << "Merov : Done creating snapshot" << llendl;
 	LLFloaterSnapshot::postUpdate();
 	LLFloaterFacebook::postUpdate();
 	LLFloaterFlickr::postUpdate();
