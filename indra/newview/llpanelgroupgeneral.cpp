@@ -79,18 +79,21 @@ LLPanelGroupGeneral::LLPanelGroupGeneral()
 	mCtrlReceiveNotices(NULL),
 	mCtrlListGroup(NULL),
 	mActiveTitleLabel(NULL),
-	mComboActiveTitle(NULL),
-	mAvatarNameCacheConnection()
+	mComboActiveTitle(NULL)
 {
 
 }
 
 LLPanelGroupGeneral::~LLPanelGroupGeneral()
 {
-	if (mAvatarNameCacheConnection.connected())
+	for (avatar_name_cache_connection_map_t::iterator it = mAvatarNameCacheConnections.begin(); it != mAvatarNameCacheConnections.end(); ++it)
 	{
-		mAvatarNameCacheConnection.disconnect();
+		if (it->second.connected())
+		{
+			it->second.disconnect();
+		}
 	}
+	mAvatarNameCacheConnections.clear();
 }
 
 BOOL LLPanelGroupGeneral::postBuild()
@@ -732,12 +735,16 @@ void LLPanelGroupGeneral::updateMembers()
 		else
 		{
 			// If name is not cached, onNameCache() should be called when it is cached and add this member to list.
-			// *TODO : Use a callback per member, not for the panel group.
-			if (mAvatarNameCacheConnection.connected())
+			avatar_name_cache_connection_map_t::iterator it = mAvatarNameCacheConnections.find(mMemberProgress->first);
+			if (it != mAvatarNameCacheConnections.end())
 			{
-				mAvatarNameCacheConnection.disconnect();
+				if (it->second.connected())
+				{
+					it->second.disconnect();
+				}
+				mAvatarNameCacheConnections.erase(it);
 			}
-			mAvatarNameCacheConnection = LLAvatarNameCache::get(mMemberProgress->first, boost::bind(&LLPanelGroupGeneral::onNameCache, this, gdatap->getMemberVersion(), member, _2));
+			mAvatarNameCacheConnections[mMemberProgress->first] = LLAvatarNameCache::get(mMemberProgress->first, boost::bind(&LLPanelGroupGeneral::onNameCache, this, gdatap->getMemberVersion(), member, _2, _1));
 		}
 	}
 
@@ -775,9 +782,17 @@ void LLPanelGroupGeneral::addMember(LLGroupMemberData* member)
 	}
 }
 
-void LLPanelGroupGeneral::onNameCache(const LLUUID& update_id, LLGroupMemberData* member, const LLAvatarName& av_name)
+void LLPanelGroupGeneral::onNameCache(const LLUUID& update_id, LLGroupMemberData* member, const LLAvatarName& av_name, const LLUUID& av_id)
 {
-	mAvatarNameCacheConnection.disconnect();
+	avatar_name_cache_connection_map_t::iterator it = mAvatarNameCacheConnections.find(av_id);
+	if (it != mAvatarNameCacheConnections.end())
+	{
+		if (it->second.connected())
+		{
+			it->second.disconnect();
+		}
+		mAvatarNameCacheConnections.erase(it);
+	}
 
 	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 
