@@ -257,8 +257,6 @@ void LLFacebookPhotoPanel::draw()
 		gl_draw_scaled_image(offset_x, offset_y, 
 			thumbnail_w, thumbnail_h,
 			previewp->getThumbnailImage(), color % alpha);
-
-		previewp->drawPreviewRect(offset_x, offset_y) ;
 	}
 
     // Update the visibility of the working (computing preview) label
@@ -303,6 +301,7 @@ void LLFacebookPhotoPanel::onVisibilityChange(const LLSD& new_visibility)
 			previewp->setSnapshotType(previewp->SNAPSHOT_WEB);
 			previewp->setSnapshotFormat(LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG);
 			previewp->setSnapshotQuality(mQuality, false);
+            previewp->setThumbnailSubsampled(TRUE);     // We want the preview to reflect the *saved* image
 			previewp->setThumbnailPlaceholderRect(mThumbnailPlaceholder->getRect());
 
 			updateControls();

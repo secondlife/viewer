@@ -70,6 +70,9 @@ public:
 	void getSize(S32& w, S32& h) const;
 	S32 getWidth() const { return mWidth[mCurImageIndex]; }
 	S32 getHeight() const { return mHeight[mCurImageIndex]; }
+    S32 getEncodedImageWidth() const;
+    S32 getEncodedImageHeight() const;
+    void estimateDataSize();
 	S32 getDataSize() const { return mDataSize; }
 	void setMaxImageSize(S32 size) ;
 	S32  getMaxImageSize() {return mMaxImageSize ;}
@@ -83,9 +86,10 @@ public:
 	S32  getThumbnailHeight() const { return mThumbnailHeight ; }
 	BOOL getThumbnailLock() const { return mThumbnailUpdateLock ; }
 	BOOL getThumbnailUpToDate() const { return mThumbnailUpToDate ;}
+    void setThumbnailSubsampled(BOOL subsampled) { mThumbnailSubsampled = subsampled; }
+
 	LLViewerTexture* getCurrentImage();
 	F32 getImageAspect();
-	F32 getAspect() ;
 	const LLRect& getImageRect() const { return mImageRect[mCurImageIndex]; }
 	BOOL isImageScaled() const { return mImageScaled[mCurImageIndex]; }
 	void setImageScaled(BOOL scaled) { mImageScaled[mCurImageIndex] = scaled; }
@@ -96,14 +100,14 @@ public:
 	bool setSnapshotQuality(S32 quality, bool set_by_user = true);
 	void setSnapshotBufferType(LLViewerWindow::ESnapshotType type) { mSnapshotBufferType = type; }
     void setFilter(std::string filter_name) { mFilterName = filter_name; }
-    std::string  getFilter() { return mFilterName; }
+    std::string  getFilter() const { return mFilterName; }
 	void updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail = FALSE, F32 delay = 0.f);
 	void saveWeb();
 	void saveTexture();
 	BOOL saveLocal();
 
-	LLPointer<LLImageFormatted>	getFormattedImage() const { return mFormattedImage; }
-	LLPointer<LLImageRaw>		getEncodedImage() const { return mPreviewImageEncoded; }
+	LLPointer<LLImageFormatted>	getFormattedImage();
+	LLPointer<LLImageRaw>		getEncodedImage();
 
 	/// Sets size of preview thumbnail image and thhe surrounding rect.
 	void setThumbnailPlaceholderRect(const LLRect& rect) {mThumbnailPlaceholderRect = rect; }
@@ -135,8 +139,10 @@ private:
 	BOOL                        mThumbnailUpdateLock ;
 	BOOL                        mThumbnailUpToDate ;
 	LLRect                      mThumbnailPlaceholderRect;
+    BOOL                        mThumbnailSubsampled; // TRUE is the thumbnail is a subsampled version of the mPreviewImage
 
 	S32							mCurImageIndex;
+    // The logic is mPreviewImage (raw frame) -> mFormattedImage (formatted / filtered) -> mPreviewImageEncoded (decoded back, to show artifacts)
 	LLPointer<LLImageRaw>		mPreviewImage;
 	LLPointer<LLImageRaw>		mPreviewImageEncoded;
 	LLPointer<LLImageFormatted>	mFormattedImage;

@@ -205,6 +205,9 @@ public:
 
 	void verticalFlip();
 
+    static S32 biasedDimToPowerOfTwo(S32 curr_dim, S32 max_dim = MAX_IMAGE_SIZE);
+    static S32 expandDimToPowerOfTwo(S32 curr_dim, S32 max_dim = MAX_IMAGE_SIZE);
+    static S32 contractDimToPowerOfTwo(S32 curr_dim, S32 min_dim = MIN_IMAGE_SIZE);
 	void expandToPowerOfTwo(S32 max_dim = MAX_IMAGE_SIZE, BOOL scale_image = TRUE);
 	void contractToPowerOfTwo(S32 max_dim = MAX_IMAGE_SIZE, BOOL scale_image = TRUE);
 	void biasedScaleToPowerOfTwo(S32 max_dim = MAX_IMAGE_SIZE);

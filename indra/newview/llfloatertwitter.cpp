@@ -150,8 +150,6 @@ void LLTwitterPhotoPanel::draw()
 		gl_draw_scaled_image(offset_x, offset_y, 
 			thumbnail_w, thumbnail_h,
 			previewp->getThumbnailImage(), color % alpha);
-
-		previewp->drawPreviewRect(offset_x, offset_y) ;
 	}
 
     // Update the visibility of the working (computing preview) label
@@ -190,11 +188,11 @@ void LLTwitterPhotoPanel::onVisibilityChange(const LLSD& new_visibility)
 			LLSnapshotLivePreview::Params p;
 			p.rect(full_screen_rect);
 			LLSnapshotLivePreview* previewp = new LLSnapshotLivePreview(p);
-			mPreviewHandle = previewp->getHandle();	
+			mPreviewHandle = previewp->getHandle();
 
 			previewp->setSnapshotType(previewp->SNAPSHOT_WEB);
 			previewp->setSnapshotFormat(LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG);
-			//previewp->setSnapshotQuality(98);
+            previewp->setThumbnailSubsampled(TRUE);     // We want the preview to reflect the *saved* image
 			previewp->setThumbnailPlaceholderRect(mThumbnailPlaceholder->getRect());
 
 			updateControls();

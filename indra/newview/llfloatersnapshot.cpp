@@ -436,9 +436,8 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 	image_res_tb->setVisible(got_snap);
 	if (got_snap)
 	{
-		LLPointer<LLImageRaw> img = previewp->getEncodedImage();
-		image_res_tb->setTextArg("[WIDTH]", llformat("%d", img->getWidth()));
-		image_res_tb->setTextArg("[HEIGHT]", llformat("%d", img->getHeight()));
+		image_res_tb->setTextArg("[WIDTH]", llformat("%d", previewp->getEncodedImageWidth()));
+		image_res_tb->setTextArg("[HEIGHT]", llformat("%d", previewp->getEncodedImageHeight()));
 	}
 
 	floater->getChild<LLUICtrl>("file_size_label")->setTextArg("[SIZE]", got_snap ? bytes_string : floater->getString("unknown"));

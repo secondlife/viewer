@@ -78,6 +78,7 @@ LLSnapshotLivePreview::LLSnapshotLivePreview (const LLSnapshotLivePreview::Param
 	mThumbnailImage(NULL) ,
 	mThumbnailWidth(0),
 	mThumbnailHeight(0),
+    mThumbnailSubsampled(FALSE),
 	mPreviewImageEncoded(NULL),
 	mFormattedImage(NULL),
 	mShineCountdown(0),
@@ -126,34 +127,12 @@ LLSnapshotLivePreview::~LLSnapshotLivePreview()
 
 void LLSnapshotLivePreview::setMaxImageSize(S32 size) 
 {
-	if(size < MAX_SNAPSHOT_IMAGE_SIZE)
-	{
-		mMaxImageSize = size;
-	}
-	else
-	{
-		mMaxImageSize = MAX_SNAPSHOT_IMAGE_SIZE ;
-	}
+    mMaxImageSize = llmin(size,(S32)(MAX_SNAPSHOT_IMAGE_SIZE));
 }
 
 LLViewerTexture* LLSnapshotLivePreview::getCurrentImage()
 {
 	return mViewerImage[mCurImageIndex];
-}
-
-F32 LLSnapshotLivePreview::getAspect()
-{
-	F32 image_aspect_ratio = ((F32)getWidth()) / ((F32)getHeight());
-	F32 window_aspect_ratio = ((F32)getRect().getWidth()) / ((F32)getRect().getHeight());
-
-	if (!mKeepAspectRatio)//gSavedSettings.getBOOL("KeepAspectForSnapshot"))
-	{
-		return image_aspect_ratio;
-	}
-	else
-	{
-		return window_aspect_ratio;
-	}
 }
 
 F32 LLSnapshotLivePreview::getImageAspect()
@@ -162,11 +141,11 @@ F32 LLSnapshotLivePreview::getImageAspect()
 	{
 		return 0.f;
 	}
-
-	return getAspect() ;	
+	// mKeepAspectRatio) == gSavedSettings.getBOOL("KeepAspectForSnapshot"))
+    return (mKeepAspectRatio ? ((F32)getRect().getWidth()) / ((F32)getRect().getHeight()) : ((F32)getWidth()) / ((F32)getHeight()));
 }
 
-void LLSnapshotLivePreview::updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail, F32 delay) 
+void LLSnapshotLivePreview::updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail, F32 delay)
 {
 	// Invalidate current image.
 	lldebugs << "updateSnapshot: mSnapshotUpToDate = " << getSnapshotUpToDate() << llendl;
@@ -483,58 +462,49 @@ BOOL LLSnapshotLivePreview::setThumbnailImageSize()
 	{
 		return FALSE ;
 	}
-	S32 window_width = gViewerWindow->getWindowWidthRaw() ;
-	S32 window_height = gViewerWindow->getWindowHeightRaw() ;
+	S32 width  = (mThumbnailSubsampled ? mPreviewImage->getWidth()  : gViewerWindow->getWindowWidthRaw());
+	S32 height = (mThumbnailSubsampled ? mPreviewImage->getHeight() : gViewerWindow->getWindowHeightRaw()) ;
 
-	F32 window_aspect_ratio = ((F32)window_width) / ((F32)window_height);
+	F32 aspect_ratio = ((F32)width) / ((F32)height);
 
 	// UI size for thumbnail
 	// *FIXME: the rect does not change, so maybe there's no need to recalculate max w/h.
-	const LLRect& thumbnail_rect = mThumbnailPlaceholderRect;
-	S32 max_width = thumbnail_rect.getWidth();
-	S32 max_height = thumbnail_rect.getHeight();
+	//const LLRect& thumbnail_rect = mThumbnailPlaceholderRect;
+	S32 max_width  = mThumbnailPlaceholderRect.getWidth();
+	S32 max_height = mThumbnailPlaceholderRect.getHeight();
 
-	if (window_aspect_ratio > (F32)max_width / max_height)
+	if (aspect_ratio > (F32)max_width / (F32)max_height)
 	{
 		// image too wide, shrink to width
 		mThumbnailWidth = max_width;
-		mThumbnailHeight = llround((F32)max_width / window_aspect_ratio);
+		mThumbnailHeight = llround((F32)max_width / aspect_ratio);
 	}
 	else
 	{
 		// image too tall, shrink to height
 		mThumbnailHeight = max_height;
-		mThumbnailWidth = llround((F32)max_height * window_aspect_ratio);
+		mThumbnailWidth = llround((F32)max_height * aspect_ratio);
 	}
 
-	if(mThumbnailWidth > window_width || mThumbnailHeight > window_height)
+	if (mThumbnailWidth > width || mThumbnailHeight > height)
 	{
 		return FALSE ;//if the window is too small, ignore thumbnail updating.
 	}
 
 	S32 left = 0 , top = mThumbnailHeight, right = mThumbnailWidth, bottom = 0 ;
-	if(!mKeepAspectRatio)
+	if(!mKeepAspectRatio && !mThumbnailSubsampled)
 	{
-		F32 ratio_x = (F32)getWidth() / window_width ;
-		F32 ratio_y = (F32)getHeight() / window_height ;
+		F32 ratio_x = (F32)getWidth()  / width ;
+		F32 ratio_y = (F32)getHeight() / height ;
 
-		//if(getWidth() > window_width ||
-		//	getHeight() > window_height )
-		{
-			if(ratio_x > ratio_y)
-			{
-				top = (S32)(top * ratio_y / ratio_x) ;
-			}
-			else
-			{
-				right = (S32)(right * ratio_x / ratio_y) ;
-			}			
-		}
-		//else
-		//{
-		//	right = (S32)(right * ratio_x) ;
-		//	top = (S32)(top * ratio_y) ;
-		//}
+        if (ratio_x > ratio_y)
+        {
+            top = (S32)(top * ratio_y / ratio_x) ;
+        }
+        else
+        {
+            right = (S32)(right * ratio_x / ratio_y) ;
+        }
 		left = (S32)((mThumbnailWidth - right) * 0.5f) ;
 		bottom = (S32)((mThumbnailHeight - top) * 0.5f) ;
 		top += bottom ;
@@ -576,18 +546,41 @@ void LLSnapshotLivePreview::generateThumbnailImage(BOOL force_update)
 	}		
 
 	LLPointer<LLImageRaw> raw = new LLImageRaw;
-	if(!gViewerWindow->thumbnailSnapshot(raw,
-		mThumbnailWidth, mThumbnailHeight,
-		gSavedSettings.getBOOL("RenderUIInSnapshot"),
-		FALSE,
-		mSnapshotBufferType) )								
+    
+    if (mThumbnailSubsampled)
+    {
+        // The thumbnail is be a subsampled version of the preview (used in SL Share previews, i.e. Flickr, Twitter, Facebook)
+		raw->resize( mPreviewImage->getWidth(),
+                     mPreviewImage->getHeight(),
+                     mPreviewImage->getComponents());
+        raw->copy(mPreviewImage);
+        // Scale to the thumbnal size modulo a power of 2
+        S32 width  = LLImageRaw::expandDimToPowerOfTwo(mThumbnailWidth,MAX_IMAGE_SIZE);
+        S32 height = LLImageRaw::expandDimToPowerOfTwo(mThumbnailHeight,MAX_IMAGE_SIZE);
+        if (!raw->scale(width, height))
+        {
+            raw = NULL ;
+        }
+    }
+    else
+    {
+        // The thumbnail is a screen view with screen grab positioning preview
+        if(!gViewerWindow->thumbnailSnapshot(raw,
+                                         mThumbnailWidth, mThumbnailHeight,
+                                         gSavedSettings.getBOOL("RenderUIInSnapshot"),
+                                         FALSE,
+                                         mSnapshotBufferType) )
+        {
+            raw = NULL ;
+        }
+        else
+        {
+            raw->expandToPowerOfTwo();
+        }
+    }
+    
+	if (raw)
 	{
-		raw = NULL ;
-	}
-
-	if(raw)
-	{
-		raw->expandToPowerOfTwo();
         // Filter the thumbnail
         if (getFilter() != "")
         {
@@ -650,17 +643,13 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 	}
 
 	// time to produce a snapshot
-	previewp->setThumbnailImageSize();
+    //previewp->setThumbnailImageSize();
 
 	lldebugs << "producing snapshot" << llendl;
+	llinfos << "Merov : producing snapshot" << llendl;
 	if (!previewp->mPreviewImage)
 	{
 		previewp->mPreviewImage = new LLImageRaw;
-	}
-
-	if (!previewp->mPreviewImageEncoded)
-	{
-		previewp->mPreviewImageEncoded = new LLImageRaw;
 	}
 
 	previewp->setVisible(FALSE);
@@ -669,7 +658,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 	previewp->getWindow()->incBusyCount();
 	previewp->setImageScaled(FALSE);
 
-	// grab the raw image and encode it into desired format
+	// grab the raw image
 	if(gViewerWindow->rawSnapshot(
 		previewp->mPreviewImage,
 		previewp->getWidth(),
@@ -681,123 +670,60 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 		previewp->mSnapshotBufferType,
 		previewp->getMaxImageSize()))
 	{
-		previewp->mPreviewImageEncoded->resize(
-			previewp->mPreviewImage->getWidth(), 
-			previewp->mPreviewImage->getHeight(), 
-			previewp->mPreviewImage->getComponents());
+        // Invalidate/delete any existing encoded image
+        previewp->mPreviewImageEncoded = NULL;
+        // Invalidate/delete any existing formatted image
+        previewp->mFormattedImage = NULL;
+        // Update the data size
+        previewp->estimateDataSize();
 
-		if(previewp->getSnapshotType() == SNAPSHOT_TEXTURE)
-		{
-			lldebugs << "Encoding new image of format J2C" << llendl;
-			LLPointer<LLImageJ2C> formatted = new LLImageJ2C;
-			LLPointer<LLImageRaw> scaled = new LLImageRaw(
-				previewp->mPreviewImage->getData(),
-				previewp->mPreviewImage->getWidth(),
-				previewp->mPreviewImage->getHeight(),
-				previewp->mPreviewImage->getComponents());
+        // Full size preview is set: get the decoded image result and save it for animation
+        if (gSavedSettings.getBOOL("UseFreezeFrame"))
+        {
+            // Get the decoded version of the formatted image
+            previewp->getEncodedImage();
+            
+            // We need to scale that a bit for display...
+            LLPointer<LLImageRaw> scaled = new LLImageRaw(
+                previewp->mPreviewImageEncoded->getData(),
+                previewp->mPreviewImageEncoded->getWidth(),
+			    previewp->mPreviewImageEncoded->getHeight(),
+			    previewp->mPreviewImageEncoded->getComponents());
 
-			scaled->biasedScaleToPowerOfTwo(MAX_TEXTURE_SIZE);
-			previewp->setImageScaled(TRUE);
-			if (formatted->encode(scaled, 0.f))
-			{
-				previewp->mDataSize = formatted->getDataSize();
-				formatted->decode(previewp->mPreviewImageEncoded, 0);
-			}
-		}
-		else
-		{
-            // Apply the filter to mPreviewImage
-            if (previewp->getFilter() != "")
+            if (!scaled->isBufferInvalid())
             {
-                std::string filter_path = LLImageFiltersManager::getInstance()->getFilterPath(previewp->getFilter());
-                if (filter_path != "")
+                // leave original image dimensions, just scale up texture buffer
+                if (previewp->mPreviewImageEncoded->getWidth() > 1024 || previewp->mPreviewImageEncoded->getHeight() > 1024)
                 {
-                    LLImageFilter filter(filter_path);
-                    filter.executeFilter(previewp->mPreviewImage);
+                    // go ahead and shrink image to appropriate power of 2 for display
+                    scaled->biasedScaleToPowerOfTwo(1024);
+                    previewp->setImageScaled(TRUE);
                 }
                 else
                 {
-                    llwarns << "Couldn't find a path to the following filter : " << previewp->getFilter() << llendl;
+                    // expand image but keep original image data intact
+                    scaled->expandToPowerOfTwo(1024, FALSE);
                 }
+
+                previewp->mViewerImage[previewp->mCurImageIndex] = LLViewerTextureManager::getLocalTexture(scaled.get(), FALSE);
+                LLPointer<LLViewerTexture> curr_preview_image = previewp->mViewerImage[previewp->mCurImageIndex];
+                gGL.getTexUnit(0)->bind(curr_preview_image);
+                curr_preview_image->setFilteringOption(previewp->getSnapshotType() == SNAPSHOT_TEXTURE ? LLTexUnit::TFO_ANISOTROPIC : LLTexUnit::TFO_POINT);
+                curr_preview_image->setAddressMode(LLTexUnit::TAM_CLAMP);
+
+                previewp->mPosTakenGlobal = gAgentCamera.getCameraPositionGlobal();
+                previewp->mShineCountdown = 4; // wait a few frames to avoid animation glitch due to readback this frame
             }
-            
-			// delete any existing image
-			previewp->mFormattedImage = NULL;
-			// now create the new one of the appropriate format.
-			LLFloaterSnapshot::ESnapshotFormat format = previewp->getSnapshotFormat();
-			lldebugs << "Encoding new image of format " << format << llendl;
-
-			switch(format)
-			{
-			case LLFloaterSnapshot::SNAPSHOT_FORMAT_PNG:
-				previewp->mFormattedImage = new LLImagePNG(); 
-				break;
-			case LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG:
-				previewp->mFormattedImage = new LLImageJPEG(previewp->mSnapshotQuality); 
-				break;
-			case LLFloaterSnapshot::SNAPSHOT_FORMAT_BMP:
-				previewp->mFormattedImage = new LLImageBMP(); 
-				break;
-			}
-			if (previewp->mFormattedImage->encode(previewp->mPreviewImage, 0))
-			{
-				previewp->mDataSize = previewp->mFormattedImage->getDataSize();
-				// special case BMP to copy instead of decode otherwise decode will crash.
-				if(format == LLFloaterSnapshot::SNAPSHOT_FORMAT_BMP)
-				{
-					previewp->mPreviewImageEncoded->copy(previewp->mPreviewImage);
-				}
-				else
-				{
-					previewp->mFormattedImage->decode(previewp->mPreviewImageEncoded, 0);
-				}
-			}
-		}
-
-		LLPointer<LLImageRaw> scaled = new LLImageRaw(
-			previewp->mPreviewImageEncoded->getData(),
-			previewp->mPreviewImageEncoded->getWidth(),
-			previewp->mPreviewImageEncoded->getHeight(),
-			previewp->mPreviewImageEncoded->getComponents());
-
-		if(!scaled->isBufferInvalid())
-		{
-			// leave original image dimensions, just scale up texture buffer
-			if (previewp->mPreviewImageEncoded->getWidth() > 1024 || previewp->mPreviewImageEncoded->getHeight() > 1024)
-			{
-				// go ahead and shrink image to appropriate power of 2 for display
-				scaled->biasedScaleToPowerOfTwo(1024);
-				previewp->setImageScaled(TRUE);
-			}
-			else
-			{
-				// expand image but keep original image data intact
-				scaled->expandToPowerOfTwo(1024, FALSE);
-			}
-
-			previewp->mViewerImage[previewp->mCurImageIndex] = LLViewerTextureManager::getLocalTexture(scaled.get(), FALSE);
-			LLPointer<LLViewerTexture> curr_preview_image = previewp->mViewerImage[previewp->mCurImageIndex];
-			gGL.getTexUnit(0)->bind(curr_preview_image);
-			if (previewp->getSnapshotType() != SNAPSHOT_TEXTURE)
-			{
-				curr_preview_image->setFilteringOption(LLTexUnit::TFO_POINT);
-			}
-			else
-			{
-				curr_preview_image->setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
-			}
-			curr_preview_image->setAddressMode(LLTexUnit::TAM_CLAMP);
-
-			previewp->mSnapshotUpToDate = TRUE;
-			previewp->generateThumbnailImage(TRUE) ;
-
-			previewp->mPosTakenGlobal = gAgentCamera.getCameraPositionGlobal();
-			previewp->mShineCountdown = 4; // wait a few frames to avoid animation glitch due to readback this frame
-		}
+        }
+        // K, the snapshot is updated...
+        previewp->mSnapshotUpToDate = TRUE;
+        
+        // We need to update the thumbnail though
+        previewp->setThumbnailImageSize();
+        previewp->generateThumbnailImage(TRUE) ;
 	}
 	previewp->getWindow()->decBusyCount();
-	// only show fullscreen preview when in freeze frame mode
-	previewp->setVisible(gSavedSettings.getBOOL("UseFreezeFrame"));
+	previewp->setVisible(gSavedSettings.getBOOL("UseFreezeFrame")); // only show fullscreen preview when in freeze frame mode
 	previewp->mSnapshotDelayTimer.stop();
 	previewp->mSnapshotActive = FALSE;
 
@@ -806,12 +732,160 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 		previewp->generateThumbnailImage() ;
 	}
 	lldebugs << "done creating snapshot" << llendl;
+	llinfos << "Merov : Done creating snapshot" << llendl;
 	LLFloaterSnapshot::postUpdate();
 	LLFloaterFacebook::postUpdate();
 	LLFloaterFlickr::postUpdate();
 	LLFloaterTwitter::postUpdate();
 
 	return TRUE;
+}
+
+S32 LLSnapshotLivePreview::getEncodedImageWidth() const
+{
+    S32 width = getWidth();
+    if (getSnapshotType() == SNAPSHOT_TEXTURE)
+    {
+        width = LLImageRaw::biasedDimToPowerOfTwo(width,MAX_TEXTURE_SIZE);
+    }
+    return width;
+}
+S32 LLSnapshotLivePreview::getEncodedImageHeight() const
+{
+    S32 height = getHeight();
+    if (getSnapshotType() == SNAPSHOT_TEXTURE)
+    {
+        height = LLImageRaw::biasedDimToPowerOfTwo(height,MAX_TEXTURE_SIZE);
+    }
+    return height;
+}
+
+LLPointer<LLImageRaw> LLSnapshotLivePreview::getEncodedImage()
+{
+	if (!mPreviewImageEncoded)
+	{
+		mPreviewImageEncoded = new LLImageRaw;
+    
+		mPreviewImageEncoded->resize(
+            mPreviewImage->getWidth(),
+            mPreviewImage->getHeight(),
+            mPreviewImage->getComponents());
+        
+		if (getSnapshotType() == SNAPSHOT_TEXTURE)
+		{
+            // We don't store the intermediate formatted image in mFormattedImage in the J2C case 
+			lldebugs << "Encoding new image of format J2C" << llendl;
+			LLPointer<LLImageJ2C> formatted = new LLImageJ2C;
+            // Copy the preview
+			LLPointer<LLImageRaw> scaled = new LLImageRaw(
+                                                          mPreviewImage->getData(),
+                                                          mPreviewImage->getWidth(),
+                                                          mPreviewImage->getHeight(),
+                                                          mPreviewImage->getComponents());
+            // Scale it as required by J2C
+			scaled->biasedScaleToPowerOfTwo(MAX_TEXTURE_SIZE);
+			setImageScaled(TRUE);
+            // Compress to J2C
+			if (formatted->encode(scaled, 0.f))
+			{
+                // We can update the data size precisely at that point
+				mDataSize = formatted->getDataSize();
+                // Decompress back
+				formatted->decode(mPreviewImageEncoded, 0);
+			}
+		}
+		else
+		{
+            // Update mFormattedImage if necessary
+            getFormattedImage();
+            if (getSnapshotFormat() == LLFloaterSnapshot::SNAPSHOT_FORMAT_BMP)
+            {
+                // BMP hack : copy instead of decode otherwise decode will crash.
+                mPreviewImageEncoded->copy(mPreviewImage);
+            }
+            else
+            {
+                // Decode back
+                mFormattedImage->decode(mPreviewImageEncoded, 0);
+            }
+		}
+	}
+    return mPreviewImageEncoded;
+}
+
+// We actually estimate the data size so that we do not require actual compression when showing the preview
+// Note : whenever formatted image is computed, mDataSize will be updated to reflect the true size
+void LLSnapshotLivePreview::estimateDataSize()
+{
+    // Compression ratio
+    F32 ratio = 1.0;
+    
+    if (getSnapshotType() == SNAPSHOT_TEXTURE)
+    {
+        ratio = 8.0;    // This is what we shoot for when compressing to J2C
+    }
+    else
+    {
+        LLFloaterSnapshot::ESnapshotFormat format = getSnapshotFormat();
+        switch (format)
+        {
+            case LLFloaterSnapshot::SNAPSHOT_FORMAT_PNG:
+                ratio = 3.0;    // Average observed PNG compression ratio
+                break;
+            case LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG:
+                // Observed from JPG compression tests
+                ratio = (110 - mSnapshotQuality) / 2;
+                break;
+            case LLFloaterSnapshot::SNAPSHOT_FORMAT_BMP:
+                ratio = 1.0;    // No compression with BMP
+                break;
+        }
+    }
+    mDataSize = (S32)((F32)mPreviewImage->getDataSize() / ratio);
+}
+
+LLPointer<LLImageFormatted>	LLSnapshotLivePreview::getFormattedImage()
+{
+    if (!mFormattedImage)
+    {
+        // Apply the filter to mPreviewImage
+        if (getFilter() != "")
+        {
+            std::string filter_path = LLImageFiltersManager::getInstance()->getFilterPath(getFilter());
+            if (filter_path != "")
+            {
+                LLImageFilter filter(filter_path);
+                filter.executeFilter(mPreviewImage);
+            }
+            else
+            {
+                llwarns << "Couldn't find a path to the following filter : " << getFilter() << llendl;
+            }
+        }
+        
+        // Create the new formatted image of the appropriate format.
+        LLFloaterSnapshot::ESnapshotFormat format = getSnapshotFormat();
+        lldebugs << "Encoding new image of format " << format << llendl;
+            
+        switch (format)
+        {
+            case LLFloaterSnapshot::SNAPSHOT_FORMAT_PNG:
+                mFormattedImage = new LLImagePNG();
+                break;
+            case LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG:
+                mFormattedImage = new LLImageJPEG(mSnapshotQuality);
+                break;
+            case LLFloaterSnapshot::SNAPSHOT_FORMAT_BMP:
+                mFormattedImage = new LLImageBMP();
+                break;
+        }
+        if (mFormattedImage->encode(mPreviewImage, 0))
+        {
+            // We can update the data size precisely at that point
+            mDataSize = mFormattedImage->getDataSize();
+        }
+    }
+    return mFormattedImage;
 }
 
 void LLSnapshotLivePreview::setSize(S32 w, S32 h)
@@ -875,12 +949,14 @@ void LLSnapshotLivePreview::saveTexture()
 	}
 
 	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_SNAPSHOT_COUNT );
-
-	mDataSize = 0;
 }
 
 BOOL LLSnapshotLivePreview::saveLocal()
 {
+    // Update mFormattedImage if necessary
+    getFormattedImage();
+    
+    // Save the formatted image
 	BOOL success = gViewerWindow->saveImageNumbered(mFormattedImage);
 
 	if(success)
@@ -892,6 +968,9 @@ BOOL LLSnapshotLivePreview::saveLocal()
 
 void LLSnapshotLivePreview::saveWeb()
 {
+    // Update mFormattedImage if necessary
+    getFormattedImage();
+    
 	// *FIX: Will break if the window closes because of CloseSnapshotOnKeep!
 	// Needs to pass on ownership of the image.
 	LLImageJPEG* jpg = dynamic_cast<LLImageJPEG*>(mFormattedImage.get());
