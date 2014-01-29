@@ -622,9 +622,9 @@ void LLFloaterSnapshot::Impl::applyKeepAspectCheck(LLFloaterSnapshot* view, BOOL
 			previewp->getSize(w, h) ;
 			updateSpinners(view, previewp, w, h, TRUE); // may change w and h
 
-			lldebugs << "updating thumbnail" << llendl;
+			lldebugs << "updating snapshot" << llendl;
 			previewp->setSize(w, h) ;
-			previewp->updateSnapshot(FALSE, TRUE);
+			previewp->updateSnapshot(TRUE);
 			checkAutoSnapshot(previewp, TRUE);
 		}
 	}
@@ -821,8 +821,8 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 
 			// hide old preview as the aspect ratio could be wrong
 			checkAutoSnapshot(previewp, FALSE);
-			lldebugs << "updating thumbnail" << llendl;
-			getPreviewView(view)->updateSnapshot(FALSE, TRUE);
+			lldebugs << "updating snapshot" << llendl;
+			getPreviewView(view)->updateSnapshot(TRUE);
 			if(do_update)
 			{
 				lldebugs << "Will update controls" << llendl;
@@ -859,7 +859,6 @@ void LLFloaterSnapshot::Impl::onImageQualityChange(LLFloaterSnapshot* view, S32 
 	{
 		previewp->setSnapshotQuality(quality_val);
 	}
-	checkAutoSnapshot(previewp, TRUE);
 }
 
 // static
@@ -868,8 +867,6 @@ void LLFloaterSnapshot::Impl::onImageFormatChange(LLFloaterSnapshot* view)
 	if (view)
 	{
 		gSavedSettings.setS32("SnapshotFormat", getImageFormat(view));
-		lldebugs << "image format changed, updating snapshot" << llendl;
-		getPreviewView(view)->updateSnapshot(TRUE);
 		updateControls(view);
 		setNeedRefresh(view, false); // we're refreshing
 	}
@@ -969,8 +966,8 @@ void LLFloaterSnapshot::Impl::applyCustomResolution(LLFloaterSnapshot* view, S32
 
 			previewp->setSize(w,h);
 			checkAutoSnapshot(previewp, FALSE);
-			lldebugs << "applied custom resolution, updating thumbnail" << llendl;
-			previewp->updateSnapshot(FALSE, TRUE);
+			lldebugs << "applied custom resolution, updating snapshot" << llendl;
+			previewp->updateSnapshot(TRUE);
 			comboSetCustom(view, "profile_size_combo");
 			comboSetCustom(view, "postcard_size_combo");
 			comboSetCustom(view, "texture_size_combo");

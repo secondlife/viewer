@@ -217,8 +217,6 @@ void LLTwitterPhotoPanel::onClickNewSnapshot()
 	LLSnapshotLivePreview* previewp = getPreviewView();
 	if (previewp)
 	{
-		//setStatus(Impl::STATUS_READY);
-		lldebugs << "updating snapshot" << llendl;
 		previewp->updateSnapshot(TRUE);
 	}
 }
@@ -417,22 +415,15 @@ void LLTwitterPhotoPanel::updateResolution(BOOL do_update)
 
 		previewp->getSize(width, height);
 		
-		if(original_width != width || original_height != height)
+		if (original_width != width || original_height != height)
 		{
 			previewp->setSize(width, height);
-
-			// hide old preview as the aspect ratio could be wrong
-			lldebugs << "updating thumbnail" << llendl;
-			
-			previewp->updateSnapshot(FALSE, TRUE);
-			if(do_update)
+			if (do_update)
 			{
-				lldebugs << "Will update controls" << llendl;
+                previewp->updateSnapshot(TRUE);
 				updateControls();
-                LLTwitterPhotoPanel::onClickNewSnapshot();
 			}
 		}
-		
 	}
 }
 

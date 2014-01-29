@@ -96,7 +96,7 @@ public:
 	const LLVector3d& getPosTakenGlobal() const { return mPosTakenGlobal; }
 
 	void setSnapshotType(ESnapshotType type) { mSnapshotType = type; }
-	void setSnapshotFormat(LLFloaterSnapshot::ESnapshotFormat type) { mSnapshotFormat = type; }
+	void setSnapshotFormat(LLFloaterSnapshot::ESnapshotFormat format);
 	bool setSnapshotQuality(S32 quality, bool set_by_user = true);
 	void setSnapshotBufferType(LLViewerWindow::ESnapshotType type) { mSnapshotBufferType = type; }
     void setFilter(std::string filter_name) { mFilterName = filter_name; }

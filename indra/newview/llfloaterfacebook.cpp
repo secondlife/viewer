@@ -314,8 +314,6 @@ void LLFacebookPhotoPanel::onClickNewSnapshot()
 	LLSnapshotLivePreview* previewp = getPreviewView();
 	if (previewp)
 	{
-		//setStatus(Impl::STATUS_READY);
-		lldebugs << "updating snapshot" << llendl;
 		previewp->updateSnapshot(TRUE);
 	}
 }
@@ -461,24 +459,17 @@ void LLFacebookPhotoPanel::updateResolution(BOOL do_update)
         
         // Recompute quality setting
         mQuality = compute_jpeg_quality(width, height);
-        bool quality_reset = previewp->setSnapshotQuality(mQuality, false);
+        previewp->setSnapshotQuality(mQuality, false);
 		
-		if (original_width != width || original_height != height || quality_reset)
+		if (original_width != width || original_height != height)
 		{
 			previewp->setSize(width, height);
-
-			// hide old preview as the aspect ratio could be wrong
-			lldebugs << "updating thumbnail" << llendl;
-			
-			previewp->updateSnapshot(FALSE, TRUE);
-			if (do_update || quality_reset)
+			if (do_update)
 			{
-				lldebugs << "Will update controls" << llendl;
+                previewp->updateSnapshot(TRUE);
 				updateControls();
-                LLFacebookPhotoPanel::onClickNewSnapshot();
 			}
 		}
-		
 	}
 }
 

@@ -215,8 +215,6 @@ void LLFlickrPhotoPanel::onClickNewSnapshot()
 	LLSnapshotLivePreview* previewp = getPreviewView();
 	if (previewp)
 	{
-		//setStatus(Impl::STATUS_READY);
-		lldebugs << "updating snapshot" << llendl;
 		previewp->updateSnapshot(TRUE);
 	}
 }
@@ -355,27 +353,26 @@ void LLFlickrPhotoPanel::updateResolution(BOOL do_update)
 		checkAspectRatio(width);
 
 		previewp->getSize(width, height);
-        // Get the old filter, compare to the current one "filter_name" and set if changed
-        // If changed, also force the updateSnapshot() here under
-        std::string original_filter = previewp->getFilter();
-		
-		if ((original_width != width) || (original_height != height) || (original_filter != filter_name))
+		if ((original_width != width) || (original_height != height))
 		{
 			previewp->setSize(width, height);
-            previewp->setFilter(filter_name);
-
-			// hide old preview as the aspect ratio could be wrong
-			lldebugs << "updating thumbnail" << llendl;
-			
-			previewp->updateSnapshot(FALSE, TRUE);
-			if(do_update)
+			if (do_update)
 			{
-				lldebugs << "Will update controls" << llendl;
+                previewp->updateSnapshot(TRUE);
 				updateControls();
-                LLFlickrPhotoPanel::onClickNewSnapshot();
 			}
 		}
-		
+        // Get the old filter, compare to the current one "filter_name" and set if changed
+        std::string original_filter = previewp->getFilter();
+		if (original_filter != filter_name)
+		{
+            previewp->setFilter(filter_name);
+			if (do_update)
+			{
+                previewp->updateSnapshot(FALSE, TRUE);
+				updateControls();
+			}
+		}
 	}
 }
 
