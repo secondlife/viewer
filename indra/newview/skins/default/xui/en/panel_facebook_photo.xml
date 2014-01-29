@@ -44,19 +44,20 @@
                name="1200x630"
                value="[i1200,i630]" />
             </combo_box>
-            <text
-             follows="left|top"
-             font="SansSerifSmall"
-             height="14"
-             left="208"
-             length="1"
-             halign="right"
-             name="file_size_label"
-             top="9"
-             type="string"
-             width="50">
-              [SIZE] KB
-            </text>
+            <combo_box
+                control_name="SocialPhotoFilters"
+                follows="right|top"
+                name="filters_combobox"
+                tool_tip="Image filters"
+                top="6"
+                left="165"
+                height="21"
+                width="135">
+                <combo_box.item
+                label="No Filter"
+                name="NoFilter"
+                value="NoFilter" />
+            </combo_box>
             <panel
                 height="150"
                 width="250"

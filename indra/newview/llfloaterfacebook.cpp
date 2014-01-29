@@ -36,6 +36,7 @@
 #include "llfacebookconnect.h"
 #include "llfloaterreg.h"
 #include "lliconctrl.h"
+#include "llimagefiltersmanager.h"
 #include "llresmgr.h"		// LLLocale
 #include "llsdserialize.h"
 #include "llloadingindicator.h"
@@ -207,6 +208,8 @@ BOOL LLFacebookPhotoPanel::postBuild()
 	mSnapshotPanel = getChild<LLUICtrl>("snapshot_panel");
 	mResolutionComboBox = getChild<LLUICtrl>("resolution_combobox");
 	mResolutionComboBox->setCommitCallback(boost::bind(&LLFacebookPhotoPanel::updateResolution, this, TRUE));
+	mFilterComboBox = getChild<LLUICtrl>("filters_combobox");
+	mFilterComboBox->setCommitCallback(boost::bind(&LLFacebookPhotoPanel::updateResolution, this, TRUE));
 	mRefreshBtn = getChild<LLUICtrl>("new_snapshot_btn");
     mWorkingLabel = getChild<LLUICtrl>("working_lbl");
 	mThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");
@@ -214,6 +217,14 @@ BOOL LLFacebookPhotoPanel::postBuild()
 	mLocationCheckbox = getChild<LLUICtrl>("add_location_cb");
 	mPostButton = getChild<LLUICtrl>("post_photo_btn");
 	mCancelButton = getChild<LLUICtrl>("cancel_photo_btn");
+
+	// Update filter list
+    std::vector<std::string> filter_list = LLImageFiltersManager::getInstance()->getFiltersList();
+	LLComboBox* filterbox = static_cast<LLComboBox *>(mFilterComboBox);
+    for (U32 i = 0; i < filter_list.size(); i++)
+	{
+        filterbox->add(filter_list[i]);
+    }
 
 	return LLPanel::postBuild();
 }
@@ -398,33 +409,18 @@ void LLFacebookPhotoPanel::clearAndClose()
 void LLFacebookPhotoPanel::updateControls()
 {
 	LLSnapshotLivePreview* previewp = getPreviewView();
-	BOOL got_bytes = previewp && previewp->getDataSize() > 0;
 	BOOL got_snap = previewp && previewp->getSnapshotUpToDate();
-	LLSnapshotLivePreview::ESnapshotType shot_type = (previewp ? previewp->getSnapshotType() : LLSnapshotLivePreview::SNAPSHOT_POSTCARD);
-
+    
 	// *TODO: Separate maximum size for Web images from postcards
 	lldebugs << "Is snapshot up-to-date? " << got_snap << llendl;
-
-	LLLocale locale(LLLocale::USER_LOCALE);
-	std::string bytes_string;
-	if (got_snap)
-	{
-		LLResMgr::getInstance()->getIntegerString(bytes_string, (previewp->getDataSize()) >> 10 );
-	}
-
-	//getChild<LLUICtrl>("file_size_label")->setTextArg("[SIZE]", got_snap ? bytes_string : getString("unknown")); <---uses localized string
-	getChild<LLUICtrl>("file_size_label")->setTextArg("[SIZE]", got_snap ? bytes_string : "unknown");
-	getChild<LLUICtrl>("file_size_label")->setColor(
-		shot_type == LLSnapshotLivePreview::SNAPSHOT_POSTCARD 
-		&& got_bytes
-		&& previewp->getDataSize() > MAX_POSTCARD_DATASIZE ? LLUIColor(LLColor4::red) : LLUIColorTable::instance().getColor( "LabelTextColor" ));
-
+    
 	updateResolution(FALSE);
 }
 
 void LLFacebookPhotoPanel::updateResolution(BOOL do_update)
 {
 	LLComboBox* combobox = static_cast<LLComboBox *>(mResolutionComboBox);
+	LLComboBox* filterbox = static_cast<LLComboBox *>(mFilterComboBox);
 
 	std::string sdstring = combobox->getSelectedValue();
 	LLSD sdres;
@@ -433,6 +429,8 @@ void LLFacebookPhotoPanel::updateResolution(BOOL do_update)
 
 	S32 width = sdres[0];
 	S32 height = sdres[1];
+
+    const std::string& filter_name = filterbox->getSimple();
 
 	LLSnapshotLivePreview * previewp = static_cast<LLSnapshotLivePreview *>(mPreviewHandle.get());
 	if (previewp && combobox->getCurrentIndex() >= 0)
@@ -467,6 +465,17 @@ void LLFacebookPhotoPanel::updateResolution(BOOL do_update)
 			if (do_update)
 			{
                 previewp->updateSnapshot(TRUE);
+				updateControls();
+			}
+		}
+        // Get the old filter, compare to the current one "filter_name" and set if changed
+        std::string original_filter = previewp->getFilter();
+		if (original_filter != filter_name)
+		{
+            previewp->setFilter(filter_name);
+			if (do_update)
+			{
+                previewp->updateSnapshot(FALSE, TRUE);
 				updateControls();
 			}
 		}

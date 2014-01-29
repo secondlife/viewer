@@ -81,6 +81,7 @@ private:
 
 	LLUICtrl * mSnapshotPanel;
 	LLUICtrl * mResolutionComboBox;
+	LLUICtrl * mFilterComboBox;
 	LLUICtrl * mRefreshBtn;
 	LLUICtrl * mWorkingLabel;
 	LLUICtrl * mThumbnailPlaceholder;
