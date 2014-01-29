@@ -698,7 +698,7 @@ void LLDrawPoolAvatar::beginDeferredImpostor()
 	specular_channel = sVertexProgram->enableTexture(LLViewerShaderMgr::SPECULAR_MAP);
 	normal_channel = sVertexProgram->enableTexture(LLViewerShaderMgr::DEFERRED_NORMAL);
 	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
-	sVertexProgram->bind();
+	U1573sVertexProgram->bind();
 	sVertexProgram->setMinimumAlpha(0.01f);
 }
 
@@ -1586,7 +1586,8 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* 
 		LLMatrix4a mp[JOINT_COUNT];
 		LLMatrix4* mat = (LLMatrix4*) mp;
 
-		for (U32 j = 0; j < skin->mJointNames.size(); ++j)
+		U32 count = llmin((U32) skin->mJointNames.size(), (U32) JOINT_COUNT);
+		for (U32 j = 0; j < count; ++j)
 		{
 			LLJoint* joint = avatar->getJoint(skin->mJointNames[j]);
 			if (joint)
