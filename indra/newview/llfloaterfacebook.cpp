@@ -238,6 +238,7 @@ void LLFacebookPhotoPanel::draw()
     mCancelButton->setEnabled(no_ongoing_connection);
     mCaptionTextBox->setEnabled(no_ongoing_connection);
     mResolutionComboBox->setEnabled(no_ongoing_connection);
+    mFilterComboBox->setEnabled(no_ongoing_connection);
     mRefreshBtn->setEnabled(no_ongoing_connection);
     mLocationCheckbox->setEnabled(no_ongoing_connection);
     

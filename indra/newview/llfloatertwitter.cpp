@@ -123,10 +123,12 @@ void LLTwitterPhotoPanel::draw()
 
     // Enable interaction only if no transaction with the service is on-going (prevent duplicated posts)
     bool no_ongoing_connection = !(LLTwitterConnect::instance().isTransactionOngoing());
+    bool photo_checked = mPhotoCheckbox->getValue().asBoolean();
     mCancelButton->setEnabled(no_ongoing_connection);
     mStatusTextBox->setEnabled(no_ongoing_connection);
-    mResolutionComboBox->setEnabled(no_ongoing_connection && mPhotoCheckbox->getValue().asBoolean());
-    mRefreshBtn->setEnabled(no_ongoing_connection && mPhotoCheckbox->getValue().asBoolean());
+    mResolutionComboBox->setEnabled(no_ongoing_connection && photo_checked);
+    mFilterComboBox->setEnabled(no_ongoing_connection && photo_checked);
+    mRefreshBtn->setEnabled(no_ongoing_connection && photo_checked);
     mLocationCheckbox->setEnabled(no_ongoing_connection);
     mPhotoCheckbox->setEnabled(no_ongoing_connection);
 

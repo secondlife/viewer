@@ -130,6 +130,7 @@ void LLFlickrPhotoPanel::draw()
     mTagsTextBox->setEnabled(no_ongoing_connection);
     mRatingComboBox->setEnabled(no_ongoing_connection);
     mResolutionComboBox->setEnabled(no_ongoing_connection);
+    mFilterComboBox->setEnabled(no_ongoing_connection);
     mRefreshBtn->setEnabled(no_ongoing_connection);
     mLocationCheckbox->setEnabled(no_ongoing_connection);
     
