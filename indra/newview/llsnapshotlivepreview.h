@@ -99,6 +99,7 @@ public:
 	void setSnapshotFormat(LLFloaterSnapshot::ESnapshotFormat format);
 	bool setSnapshotQuality(S32 quality, bool set_by_user = true);
 	void setSnapshotBufferType(LLViewerWindow::ESnapshotType type) { mSnapshotBufferType = type; }
+    void setAllowRenderUI(BOOL allow) { mAllowRenderUI = allow; }
     void setFilter(std::string filter_name) { mFilterName = filter_name; }
     std::string  getFilter() const { return mFilterName; }
 	void updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail = FALSE, F32 delay = 0.f);
@@ -146,6 +147,7 @@ private:
 	LLPointer<LLImageRaw>		mPreviewImage;
 	LLPointer<LLImageRaw>		mPreviewImageEncoded;
 	LLPointer<LLImageFormatted>	mFormattedImage;
+    BOOL                        mAllowRenderUI;
 	LLFrameTimer				mSnapshotDelayTimer;
 	S32							mShineCountdown;
 	LLFrameTimer				mShineAnimTimer;

@@ -204,6 +204,7 @@ void LLTwitterPhotoPanel::onVisibilityChange(const LLSD& new_visibility)
 			previewp->setSnapshotType(previewp->SNAPSHOT_WEB);
 			previewp->setSnapshotFormat(LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG);
             previewp->setThumbnailSubsampled(TRUE);     // We want the preview to reflect the *saved* image
+            previewp->setAllowRenderUI(FALSE);          // We do not want the rendered UI in our snapshots
 			previewp->setThumbnailPlaceholderRect(mThumbnailPlaceholder->getRect());
 
 			updateControls();

@@ -93,7 +93,8 @@ LLSnapshotLivePreview::LLSnapshotLivePreview (const LLSnapshotLivePreview::Param
 	mCameraRot(LLViewerCamera::getInstance()->getQuaternion()),
 	mSnapshotActive(FALSE),
 	mSnapshotBufferType(LLViewerWindow::SNAPSHOT_TYPE_COLOR),
-    mFilterName("")
+    mFilterName(""),
+    mAllowRenderUI(TRUE)
 {
 	setSnapshotQuality(gSavedSettings.getS32("SnapshotQuality"));
 	mSnapshotDelayTimer.setTimerExpirySec(0.0f);
@@ -565,7 +566,7 @@ void LLSnapshotLivePreview::generateThumbnailImage(BOOL force_update)
         // The thumbnail is a screen view with screen grab positioning preview
         if(!gViewerWindow->thumbnailSnapshot(raw,
                                          mThumbnailWidth, mThumbnailHeight,
-                                         gSavedSettings.getBOOL("RenderUIInSnapshot"),
+                                         mAllowRenderUI && gSavedSettings.getBOOL("RenderUIInSnapshot"),
                                          FALSE,
                                          mSnapshotBufferType) )
         {
@@ -662,7 +663,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
                 previewp->getHeight(),
                 previewp->mKeepAspectRatio,//gSavedSettings.getBOOL("KeepAspectForSnapshot"),
                 previewp->getSnapshotType() == LLSnapshotLivePreview::SNAPSHOT_TEXTURE,
-                gSavedSettings.getBOOL("RenderUIInSnapshot"),
+                previewp->mAllowRenderUI && gSavedSettings.getBOOL("RenderUIInSnapshot"),
                 FALSE,
                 previewp->mSnapshotBufferType,
                 previewp->getMaxImageSize()))
