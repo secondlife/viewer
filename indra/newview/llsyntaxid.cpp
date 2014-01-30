@@ -248,12 +248,12 @@ void LLSyntaxIdLSL::initialise()
 				LL_INFOS("SyntaxLSL")
 						<< "File is cached, no need to download!"
 						<< LL_ENDL;
-				loadKeywordsIntoLLSD();
+				sLoaded = loadKeywordsIntoLLSD();
 			}
 		}
 		else
 		{ // Need to open the default
-			loadDefaultKeywordsIntoLLSD("LSLSyntaxId is null so we will use the default file!");
+			loadDefaultKeywordsIntoLLSD();
 		}
 	}
 	else if (sKeywordsXml.isDefined())
@@ -264,7 +264,7 @@ void LLSyntaxIdLSL::initialise()
 	}
 	else
 	{ // Need to open the default
-		loadDefaultKeywordsIntoLLSD("LSLSyntaxId is null so we will use the default file!");
+		loadDefaultKeywordsIntoLLSD();
 	}
 
 	mFileNameCurrent = mFileNameNew;
@@ -305,12 +305,13 @@ bool LLSyntaxIdLSL::isSupportedVersion(const LLSD& content)
 //-----------------------------------------------------------------------------
 // loadDefaultKeywordsIntoLLSD()
 //-----------------------------------------------------------------------------
-void LLSyntaxIdLSL::loadDefaultKeywordsIntoLLSD(const std::string message)
+void LLSyntaxIdLSL::loadDefaultKeywordsIntoLLSD()
 {
-	LL_INFOS("SyntaxLSL") << message << LL_ENDL;
+	LL_INFOS("SyntaxLSL")
+			<< "LSLSyntaxId is null so we will use the default file!" << LL_ENDL;
 	mSyntaxIdNew = LLUUID();
 	buildFullFileSpec();
-	loadKeywordsIntoLLSD();
+	sLoaded = loadKeywordsIntoLLSD();
 }
 
 //-----------------------------------------------------------------------------

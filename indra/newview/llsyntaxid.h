@@ -89,7 +89,7 @@ protected:
 	std::string		buildFileNameNew();
 	std::string		buildFullFileSpec();
 	void			fetchKeywordsFile();
-	void			loadDefaultKeywordsIntoLLSD(const std::string message);
+	void			loadDefaultKeywordsIntoLLSD();
 	bool			loadKeywordsIntoLLSD();
 	void			setSyntaxId(LLUUID SyntaxId) { mSyntaxIdCurrent = SyntaxId; }
 	void			setFileNameCurrent(std::string& name) { mFileNameCurrent = name; }
