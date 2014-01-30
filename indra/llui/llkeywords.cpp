@@ -76,8 +76,6 @@ LLKeywords::~LLKeywords()
 	std::for_each(mDelimiterTokenList.begin(), mDelimiterTokenList.end(), DeletePointer());
 }
 
-
-
 void LLKeywords::addColorGroup(const std::string key_in, const LLColor4 color)
 {
 	WStringMapIndex key ( utf8str_to_wstring(key_in) );
@@ -94,7 +92,7 @@ void LLKeywords::addToken(LLKeywordToken::TOKEN_TYPE type,
 	std::string tip_text = tool_tip_in;
 	LLStringUtil::replaceString(tip_text, "\\n", "\n" );
 	LLStringUtil::replaceString(tip_text, "\t", " " );
-	if (tip_text =="")
+	if (tip_text == "")
 	{
 		tip_text = "[no info]";
 	}
