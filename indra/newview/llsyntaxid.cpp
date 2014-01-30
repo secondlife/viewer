@@ -34,7 +34,6 @@
 #include "llsdserialize.h"
 #include "llsyntaxid.h"
 
-
 //-----------------------------------------------------------------------------
 // fetchKeywordsFileResponder
 //-----------------------------------------------------------------------------
@@ -58,21 +57,44 @@ void fetchKeywordsFileResponder::errorWithContent(U32 status,
 
 void fetchKeywordsFileResponder::result(const LLSD& content_ref)
 {
-	// TODO check for llsd-lsl-syntax-version key and return if not present or not 1.
+	// Continue only if a valid LLSD object was returned.
+	if (content_ref.isMap())
+	{
+		LL_DEBUGS("SyntaxLSL")
+				<< "content_ref isMap so assuming valid XML." << LL_ENDL;
 
-	LLSyntaxIdLSL::setKeywordsXml(content_ref);
+		if (LLSyntaxIdLSL::isSupportedVersion(content_ref))
+		{
+			LL_INFOS("SyntaxLSL")
+					<< "Is a supported verson of syntax file." << LL_ENDL;
 
-	std::stringstream str;
-	LLSDSerialize::toPrettyXML(content_ref, str);
-	const std::string xml = str.str();
+			LLSyntaxIdLSL::setKeywordsXml(content_ref);
+			LLSyntaxIdLSL::sLoaded = true;
 
-	// save the str to disc, usually to the cache.
-	llofstream file(mFileSpec, std::ios_base::out);
-	file.write(xml.c_str(), str.str().size());
-	file.close();
+			std::stringstream str;
+			LLSDSerialize::toPrettyXML(content_ref, str);
+			const std::string xml = str.str();
 
-	LL_INFOS("SyntaxLSL")
-		<< "Syntax file received, saving as: '" << mFileSpec << "'" << LL_ENDL;
+			// save the str to disc, usually to the cache.
+			llofstream file(mFileSpec, std::ios_base::out);
+			file.write(xml.c_str(), str.str().size());
+			file.close();
+
+			LL_INFOS("SyntaxLSL")
+					<< "Syntax file received, saving as: '" << mFileSpec << "'" << LL_ENDL;
+		}
+		else
+		{
+			LL_WARNS("SyntaxLSL")
+					<< "Unknown or unsupported version of syntax file." << LL_ENDL;
+		}
+	}
+	else
+	{
+		LLSyntaxIdLSL::sLoaded = false;
+		LL_ERRS("SyntaxLSL")
+				<< "Syntax file '" << mFileSpec << "' contains invalid LLSD!" << LL_ENDL;
+	}
 }
 
 
@@ -95,6 +117,7 @@ LLSyntaxIdLSL::LLSyntaxIdLSL() :
 }
 
 LLSD LLSyntaxIdLSL::sKeywordsXml;
+bool LLSyntaxIdLSL::sLoaded;
 
 std::string LLSyntaxIdLSL::buildFileNameNew()
 {
@@ -179,6 +202,7 @@ void LLSyntaxIdLSL::fetchKeywordsFile()
 {
 	if ( !mCapabilityURL.empty() )
 	{
+		//LLSyntaxIdLSL::sLoaded = false;
 		LLHTTPClient::get(mCapabilityURL,
 						  new fetchKeywordsFileResponder(mFullFileSpec),
 						  LLSD(), 30.f
@@ -195,6 +219,9 @@ void LLSyntaxIdLSL::fetchKeywordsFile()
 	}
 }
 
+//-----------------------------------------------------------------------------
+// initialise
+//-----------------------------------------------------------------------------
 void LLSyntaxIdLSL::initialise()
 {
 	mFileNameNew = mFileNameCurrent;
@@ -211,10 +238,10 @@ void LLSyntaxIdLSL::initialise()
 		{
 			if ( !gDirUtilp->fileExists(mFullFileSpec) )
 			{ // Does not exist, so fetch it from the capability
-				fetchKeywordsFile();
 				LL_INFOS("SyntaxLSL")
 						<< "File is not cached, we will try to download it!"
 						<< LL_ENDL;
+				fetchKeywordsFile();
 			}
 			else
 			{
@@ -242,6 +269,37 @@ void LLSyntaxIdLSL::initialise()
 
 	mFileNameCurrent = mFileNameNew;
 	mSyntaxIdCurrent = mSyntaxIdNew;
+}
+
+//-----------------------------------------------------------------------------
+// isSupportedVersion
+//-----------------------------------------------------------------------------
+bool LLSyntaxIdLSL::isSupportedVersion(const LLSD& content)
+{
+	bool isValid = false;
+	/*
+	 * If the schema used to store lsl keywords and hints changes, this value is incremented
+	 * Note that it should _not_ be changed if the keywords and hints _content_ changes.
+	 */
+	const U32         LLSD_SYNTAX_LSL_VERSION_EXPECTED = 2;
+	const std::string LLSD_SYNTAX_LSL_VERSION_KEY("llsd-lsl-syntax-version");
+
+	if (content.has(LLSD_SYNTAX_LSL_VERSION_KEY))
+	{
+		LL_INFOS("SyntaxLSL")
+				<< "Syntax file version: " << content[LLSD_SYNTAX_LSL_VERSION_KEY].asString() << LL_ENDL;
+
+		if (content[LLSD_SYNTAX_LSL_VERSION_KEY].asInteger() == LLSD_SYNTAX_LSL_VERSION_EXPECTED)
+		{
+			isValid = true;
+		}
+	}
+	else
+	{
+		LL_WARNS("SyntaxLSL") << "No version key available!" << LL_ENDL;
+	}
+
+	return isValid;
 }
 
 //-----------------------------------------------------------------------------
