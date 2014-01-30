@@ -381,5 +381,19 @@
          top_pad="8"
          width="180"
          name="auto_snapshot_check" />
+        <combo_box
+            control_name="PhotoFilters"
+            follows="left|right|top"
+            name="filters_combobox"
+            tool_tip="Image filters"
+            top_pad="8"
+            left="30"
+            height="21"
+            width="135">
+            <combo_box.item
+            label="No Filter"
+            name="NoFilter"
+            value="NoFilter" />
+        </combo_box>
     </panel>
 </floater>
