@@ -698,7 +698,7 @@ void LLDrawPoolAvatar::beginDeferredImpostor()
 	specular_channel = sVertexProgram->enableTexture(LLViewerShaderMgr::SPECULAR_MAP);
 	normal_channel = sVertexProgram->enableTexture(LLViewerShaderMgr::DEFERRED_NORMAL);
 	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
-	U1573sVertexProgram->bind();
+	sVertexProgram->bind();
 	sVertexProgram->setMinimumAlpha(0.01f);
 }
 
