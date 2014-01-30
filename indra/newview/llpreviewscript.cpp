@@ -395,7 +395,7 @@ BOOL LLScriptEdCore::postBuild()
 {
 	mErrorList = getChild<LLScrollListCtrl>("lsl errors");
 
-	mFunctions = getChild<LLComboBox>( "Insert...");
+	mFunctions = getChild<LLComboBox>("Insert...");
 
 	childSetCommitCallback("Insert...", &LLScriptEdCore::onBtnInsertFunction, this);
 
@@ -419,37 +419,42 @@ void LLScriptEdCore::onRegionChangeInitialiseKeywords()
 {
 	mEditor->mKeywords.clearLoaded();
 	mSyntaxIdLSL.initialise();
-	mEditor->mKeywords.initialise(mSyntaxIdLSL.getKeywordsXML());
 
-	mEditor->loadKeywords();
 
-	std::vector<std::string> primary_keywords;
-	std::vector<std::string> secondary_keywords;
-	LLKeywordToken *token;
-	LLKeywords::keyword_iterator_t token_it;
-	for (token_it = mEditor->keywordsBegin(); token_it != mEditor->keywordsEnd(); ++token_it)
+	if (mSyntaxIdLSL.isLoaded())
 	{
-		token = token_it->second;
-		if (token->getType() == LLKeywordToken::TT_FUNCTION)
+		mEditor->mKeywords.initialise(mSyntaxIdLSL.getKeywordsXML());
+
+		mEditor->loadKeywords();
+
+		std::vector<std::string> primary_keywords;
+		std::vector<std::string> secondary_keywords;
+		LLKeywordToken *token;
+		LLKeywords::keyword_iterator_t token_it;
+		for (token_it = mEditor->keywordsBegin(); token_it != mEditor->keywordsEnd(); ++token_it)
 		{
-			primary_keywords.push_back( wstring_to_utf8str(token->getToken()) );
+			token = token_it->second;
+			if (token->getType() == LLKeywordToken::TT_FUNCTION)
+			{
+				primary_keywords.push_back( wstring_to_utf8str(token->getToken()) );
+			}
+			else
+			{
+				secondary_keywords.push_back( wstring_to_utf8str(token->getToken()) );
+			}
 		}
-		else
+
+		for (std::vector<std::string>::const_iterator iter= primary_keywords.begin();
+				iter!= primary_keywords.end(); ++iter)
 		{
-			secondary_keywords.push_back( wstring_to_utf8str(token->getToken()) );
+			mFunctions->add(*iter);
 		}
-	}
 
-	for (std::vector<std::string>::const_iterator iter= primary_keywords.begin();
-			iter!= primary_keywords.end(); ++iter)
-	{
-		mFunctions->add(*iter);
-	}
-
-	for (std::vector<std::string>::const_iterator iter= secondary_keywords.begin();
-			iter!= secondary_keywords.end(); ++iter)
-	{
-		mFunctions->add(*iter);
+		for (std::vector<std::string>::const_iterator iter= secondary_keywords.begin();
+				iter!= secondary_keywords.end(); ++iter)
+		{
+			mFunctions->add(*iter);
+		}
 	}
 }
 
