@@ -479,8 +479,8 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 		previewp->setSnapshotFormat(shot_format);
 		previewp->setSnapshotBufferType(layer_type);
         // Filters
-        const std::string& filter_name = floater->getChild<LLComboBox>("filters_combobox")->getSimple();
-        previewp->setFilter(filter_name);
+        //const std::string& filter_name = floater->getChild<LLComboBox>("filters_combobox")->getSimple();
+        //previewp->setFilter(filter_name);
 	}
 
 	LLPanelSnapshot* current_panel = Impl::getActivePanel(floater);
@@ -1079,13 +1079,13 @@ BOOL LLFloaterSnapshot::postBuild()
 	childSetCommitCallback("auto_snapshot_check", Impl::onClickAutoSnap, this);
     
 	// Update filter list
-    std::vector<std::string> filter_list = LLImageFiltersManager::getInstance()->getFiltersList();
-	LLComboBox* filterbox = getChild<LLComboBox>("filters_combobox");
-    for (U32 i = 0; i < filter_list.size(); i++)
-	{
-        filterbox->add(filter_list[i]);
-    }
-	childSetCommitCallback("filters_combobox", Impl::onClickFilter, this);
+    //std::vector<std::string> filter_list = LLImageFiltersManager::getInstance()->getFiltersList();
+	//LLComboBox* filterbox = getChild<LLComboBox>("filters_combobox");
+    //for (U32 i = 0; i < filter_list.size(); i++)
+	//{
+    //    filterbox->add(filter_list[i]);
+    //}
+	//childSetCommitCallback("filters_combobox", Impl::onClickFilter, this);
     
 	
 	LLWebProfile::setImageUploadResultCallback(boost::bind(&LLFloaterSnapshot::Impl::onSnapshotUploadFinished, _1));

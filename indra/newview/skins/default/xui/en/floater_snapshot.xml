@@ -381,6 +381,19 @@
          top_pad="8"
          width="180"
          name="auto_snapshot_check" />
+        <!-- If we ever want to add filters to the snapshot panel...
+        <text
+         type="string"
+         length="1"
+         follows="left|top"
+         height="13"
+         layout="topleft"
+         left="10"
+         name="layer_type_label"
+         top_pad="10"
+         width="50">
+            Filter:
+        </text>
         <combo_box
             control_name="PhotoFilters"
             follows="left|right|top"
@@ -395,5 +408,6 @@
             name="NoFilter"
             value="NoFilter" />
         </combo_box>
+         -->
     </panel>
 </floater>
