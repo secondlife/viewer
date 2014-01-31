@@ -143,11 +143,12 @@ void *APR_THREAD_FUNC LLThread::staticRun(apr_thread_t *apr_threadp, void *datap
 
 	//LL_INFOS() << "LLThread::staticRun() Exiting: " << threadp->mName << LL_ENDL;
 	
-	// We're done with the run function, this thread is done executing now.
-	threadp->mStatus = STOPPED;
-
 	delete threadp->mRecorder;
 	threadp->mRecorder = NULL;
+
+	// We're done with the run function, this thread is done executing now.
+	//NB: we are using this flag to sync across threads...we really need memory barriers here
+	threadp->mStatus = STOPPED;
 
 	return NULL;
 }
