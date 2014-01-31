@@ -47,9 +47,17 @@ class LLSyntaxIdLSL
 friend class fetchKeywordsFileResponder;
 public:
 
+static const std::string	CAPABILITY_NAME;
+static const std::string	FILENAME_DEFAULT;
+static const std::string	SIMULATOR_FEATURE;
 
 protected:
-	LLViewerRegion*	region;
+	//LLViewerRegion*	region;
+
+	static LLSD		sKeywordsXml;
+	static bool		sLoaded;
+	static bool		sLoadFailed;
+	static bool		sVersionChanged;
 
 
 private:
@@ -64,19 +72,19 @@ private:
 	LLUUID			mSyntaxIdCurrent;
 	LLUUID			mSyntaxIdNew;
 
-	static LLSD		sKeywordsXml;
-	static bool		sLoaded;
-
 
 public:
 	LLSyntaxIdLSL();
+	LLSyntaxIdLSL(std::string filenameDefault, std::string simulatorFeature, std::string capabilityName);
 
 	bool			checkSyntaxIdChanged();
+	bool			fetching();
 	std::string		getFileNameCurrent()	const { return mFileNameCurrent; }
 	ELLPath			getFilePath()			const { return mFilePath; }
 	std::string		getFileSpec()			const { return mFullFileSpec; }
 	LLSD			getKeywordsXML()		const { return sKeywordsXml; }
 	LLUUID			getSyntaxId()			const { return mSyntaxIdCurrent; }
+	bool			isDifferentVersion()	const { return sVersionChanged; }
 
 	void			initialise();
 	bool			isLoaded() { return sLoaded; }
@@ -90,7 +98,7 @@ protected:
 	std::string		buildFullFileSpec();
 	void			fetchKeywordsFile();
 	void			loadDefaultKeywordsIntoLLSD();
-	bool			loadKeywordsIntoLLSD();
+	void			loadKeywordsIntoLLSD();
 	void			setSyntaxId(LLUUID SyntaxId) { mSyntaxIdCurrent = SyntaxId; }
 	void			setFileNameCurrent(std::string& name) { mFileNameCurrent = name; }
 	void			setFileNameDefault(std::string& name) { mFileNameDefault = name; }
@@ -119,8 +127,16 @@ public:
 						const LLSD& content);
 
 	/**
-	 * @brief Saves the returned file to the location provided at instantiation.
-	 * @param content_ref	The LSL syntax file for the sim.
+	 * @brief Checks the returned LLSD for version and stores it in the LLSyntaxIdLSL object.
+	 * @param content_ref The returned LLSD.
 	 */
 	void result(const LLSD& content_ref);
+
+	/**
+	 * @brief Saves the returned file to the location provided at instantiation.
+	 *			Could be extended to manage cached entries.
+	 * @param content_ref	The LSL syntax file for the sim.
+	 */
+	void cacheFile(const LLSD& content_ref);
+
 };
