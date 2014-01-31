@@ -50,6 +50,7 @@ public:
 	void onAddPhotoToggled();
 	void onClickNewSnapshot();
 	void onSend();
+	S32 notify(const LLSD& info);
 	bool onTwitterConnectStateChange(const LLSD& data);
 
 	void sendPhoto();
@@ -75,7 +76,7 @@ private:
 	LLUICtrl * mLocationCheckbox;
 	LLUICtrl * mPhotoCheckbox;
 	LLUICtrl * mPostButton;
-	LLUICtrl* mCancelButton;
+	LLUICtrl * mCancelButton;
 
 	std::string mOldStatusText;
 };
@@ -117,9 +118,6 @@ public:
 	void onCancel();
 
 	void showPhotoPanel();
-
-	static void preUpdate();
-	static void postUpdate();
 
 private:
 	LLTwitterPhotoPanel* mTwitterPhotoPanel;

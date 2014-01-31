@@ -118,6 +118,34 @@ BOOL LLFlickrPhotoPanel::postBuild()
 	return LLPanel::postBuild();
 }
 
+// virtual
+S32 LLFlickrPhotoPanel::notify(const LLSD& info)
+{
+	if (info.has("snapshot-updating"))
+	{
+        // Disable the Post button and whatever else while the snapshot is not updated
+        // updateControls();
+		return 1;
+	}
+    
+	if (info.has("snapshot-updated"))
+	{
+        // Enable the send/post/save buttons.
+        updateControls();
+        
+		// The refresh button is initially hidden. We show it after the first update,
+		// i.e. after snapshot is taken
+		LLUICtrl * refresh_button = getRefreshBtn();
+		if (!refresh_button->getVisible())
+		{
+			refresh_button->setVisible(true);
+		}
+		return 1;
+	}
+    
+	return 0;
+}
+
 void LLFlickrPhotoPanel::draw()
 { 
 	LLSnapshotLivePreview * previewp = static_cast<LLSnapshotLivePreview *>(mPreviewHandle.get());
@@ -201,6 +229,7 @@ void LLFlickrPhotoPanel::onVisibilityChange(const LLSD& new_visibility)
 			LLSnapshotLivePreview* previewp = new LLSnapshotLivePreview(p);
 			mPreviewHandle = previewp->getHandle();	
 
+            previewp->setContainer(this);
 			previewp->setSnapshotType(previewp->SNAPSHOT_WEB);
 			previewp->setSnapshotFormat(LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG);
             previewp->setThumbnailSubsampled(TRUE);     // We want the preview to reflect the *saved* image
@@ -603,38 +632,6 @@ void LLFloaterFlickr::showPhotoPanel()
 	}
 
 	parent->selectTabPanel(mFlickrPhotoPanel);
-}
-
-// static
-void LLFloaterFlickr::preUpdate()
-{
-	LLFloaterFlickr* instance = LLFloaterReg::findTypedInstance<LLFloaterFlickr>("flickr");
-	if (instance)
-	{
-		//Will set file size text to 'unknown'
-		instance->mFlickrPhotoPanel->updateControls();
-	}
-}
-
-// static
-void LLFloaterFlickr::postUpdate()
-{
-	LLFloaterFlickr* instance = LLFloaterReg::findTypedInstance<LLFloaterFlickr>("flickr");
-	if (instance)
-	{
-		//Will set the file size text
-		instance->mFlickrPhotoPanel->updateControls();
-
-		// The refresh button is initially hidden. We show it after the first update,
-		// i.e. after snapshot is taken
-		LLUICtrl * refresh_button = instance->mFlickrPhotoPanel->getRefreshBtn();
-
-		if (!refresh_button->getVisible())
-		{
-			refresh_button->setVisible(true);
-		}
-		
-	}
 }
 
 void LLFloaterFlickr::draw()

@@ -61,6 +61,8 @@ public:
 	LLSnapshotLivePreview(const LLSnapshotLivePreview::Params& p);
 	~LLSnapshotLivePreview();
 
+    void setContainer(LLView* container) { mViewContainer = container; }
+
 	/*virtual*/ void draw();
 	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent);
 
@@ -124,6 +126,8 @@ public:
 	void regionNameCallback(LLImageJPEG* snapshot, LLSD& metadata, const std::string& name, S32 x, S32 y, S32 z);
 
 private:
+    LLView*                     mViewContainer;
+    
 	LLColor4					mColor;
 	LLPointer<LLViewerTexture>	mViewerImage[2]; //used to represent the scene when the frame is frozen.
 	LLRect						mImageRect[2];

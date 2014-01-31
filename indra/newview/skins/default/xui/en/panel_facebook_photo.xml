@@ -15,7 +15,7 @@
          name="snapshot_panel"
          height="367">
             <combo_box
-             control_name="SocialPhotoResolution"
+             control_name="FacebookPhotoResolution"
              follows="left|top"
              top="6"
              left="9"
@@ -45,7 +45,7 @@
                value="[i1200,i630]" />
             </combo_box>
             <combo_box
-                control_name="SocialPhotoFilters"
+                control_name="FacebookPhotoFilters"
                 follows="right|top"
                 name="filters_combobox"
                 tool_tip="Image filters"

@@ -229,6 +229,34 @@ BOOL LLFacebookPhotoPanel::postBuild()
 	return LLPanel::postBuild();
 }
 
+// virtual
+S32 LLFacebookPhotoPanel::notify(const LLSD& info)
+{
+	if (info.has("snapshot-updating"))
+	{
+        // Disable the Post button and whatever else while the snapshot is not updated
+        // updateControls();
+		return 1;
+	}
+    
+	if (info.has("snapshot-updated"))
+	{
+        // Enable the send/post/save buttons.
+        updateControls();
+        
+		// The refresh button is initially hidden. We show it after the first update,
+		// i.e. after snapshot is taken
+		LLUICtrl * refresh_button = getRefreshBtn();
+		if (!refresh_button->getVisible())
+		{
+			refresh_button->setVisible(true);
+		}
+		return 1;
+	}
+    
+	return 0;
+}
+
 void LLFacebookPhotoPanel::draw()
 { 
 	LLSnapshotLivePreview * previewp = static_cast<LLSnapshotLivePreview *>(mPreviewHandle.get());
@@ -310,6 +338,7 @@ void LLFacebookPhotoPanel::onVisibilityChange(const LLSD& new_visibility)
 			mPreviewHandle = previewp->getHandle();	
             mQuality = MAX_QUALITY;
 
+            previewp->setContainer(this);
 			previewp->setSnapshotType(previewp->SNAPSHOT_WEB);
 			previewp->setSnapshotFormat(LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG);
 			previewp->setSnapshotQuality(mQuality, false);
@@ -859,38 +888,6 @@ void LLFloaterFacebook::showPhotoPanel()
 	}
 
 	parent->selectTabPanel(mFacebookPhotoPanel);
-}
-
-// static
-void LLFloaterFacebook::preUpdate()
-{
-	LLFloaterFacebook* instance = LLFloaterReg::findTypedInstance<LLFloaterFacebook>("facebook");
-	if (instance)
-	{
-		//Will set file size text to 'unknown'
-		instance->mFacebookPhotoPanel->updateControls();
-	}
-}
-
-// static
-void LLFloaterFacebook::postUpdate()
-{
-	LLFloaterFacebook* instance = LLFloaterReg::findTypedInstance<LLFloaterFacebook>("facebook");
-	if (instance)
-	{
-		//Will set the file size text
-		instance->mFacebookPhotoPanel->updateControls();
-
-		// The refresh button is initially hidden. We show it after the first update,
-		// i.e. after snapshot is taken
-		LLUICtrl * refresh_button = instance->mFacebookPhotoPanel->getRefreshBtn();
-
-		if (!refresh_button->getVisible())
-		{
-			refresh_button->setVisible(true);
-		}
-		
-	}
 }
 
 void LLFloaterFacebook::draw()

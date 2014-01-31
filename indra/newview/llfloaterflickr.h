@@ -42,6 +42,7 @@ public:
 	~LLFlickrPhotoPanel();
 
 	BOOL postBuild();
+	S32 notify(const LLSD& info);
 	void draw();
 
 	LLSnapshotLivePreview* getPreviewView();
@@ -73,7 +74,7 @@ private:
 	LLUICtrl * mTagsTextBox;
 	LLUICtrl * mRatingComboBox;
 	LLUICtrl * mPostButton;
-	LLUICtrl* mCancelButton;
+	LLUICtrl * mCancelButton;
 };
 
 class LLFlickrAccountPanel : public LLPanel
@@ -113,9 +114,6 @@ public:
 	void onCancel();
 	
 	void showPhotoPanel();
-
-	static void preUpdate();
-	static void postUpdate();
 
 private:
 	LLFlickrPhotoPanel* mFlickrPhotoPanel;

@@ -71,7 +71,7 @@
            name="snapshot_panel"
            height="227">
             <combo_box
-             control_name="SocialPhotoResolution"
+             control_name="TwitterPhotoResolution"
              follows="left|top"
              top="6"
              left="9"
@@ -97,7 +97,7 @@
                value="[i1024,i768]" />
             </combo_box>
               <combo_box
-                  control_name="SocialPhotoFilters"
+                  control_name="TwitterPhotoFilters"
                   follows="right|top"
                   name="filters_combobox"
                   tool_tip="Image filters"

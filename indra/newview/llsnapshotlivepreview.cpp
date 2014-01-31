@@ -94,7 +94,8 @@ LLSnapshotLivePreview::LLSnapshotLivePreview (const LLSnapshotLivePreview::Param
 	mSnapshotActive(FALSE),
 	mSnapshotBufferType(LLViewerWindow::SNAPSHOT_TYPE_COLOR),
     mFilterName(""),
-    mAllowRenderUI(TRUE)
+    mAllowRenderUI(TRUE),
+    mViewContainer(NULL)
 {
 	setSnapshotQuality(gSavedSettings.getS32("SnapshotQuality"));
 	mSnapshotDelayTimer.setTimerExpirySec(0.0f);
@@ -189,13 +190,14 @@ void LLSnapshotLivePreview::updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail
 
         // Stop shining animation.
         mShineAnimTimer.stop();
-
 		mSnapshotDelayTimer.start();
 		mSnapshotDelayTimer.setTimerExpirySec(delay);
-		LLFloaterSnapshot::preUpdate();
-		LLFloaterFacebook::preUpdate();
-		LLFloaterFlickr::preUpdate();
-		LLFloaterTwitter::preUpdate();
+        
+        // Tell the floater container that the snapshot is in the process of updating itself
+        if (mViewContainer)
+        {
+            mViewContainer->notify(LLSD().with("snapshot-updating", true));
+        }
 	}
 
 	// Update thumbnail if requested.
@@ -731,10 +733,12 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 	{
 		previewp->generateThumbnailImage() ;
 	}
-	LLFloaterSnapshot::postUpdate();
-	LLFloaterFacebook::postUpdate();
-	LLFloaterFlickr::postUpdate();
-	LLFloaterTwitter::postUpdate();
+    
+    // Tell the floater container that the snapshot is updated now
+    if (previewp->mViewContainer)
+    {
+        previewp->mViewContainer->notify(LLSD().with("snapshot-updated", true));
+    }
 
 	return TRUE;
 }

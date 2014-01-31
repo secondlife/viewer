@@ -66,6 +66,7 @@ public:
 	void onVisibilityChange(const LLSD& new_visibility);
 	void onClickNewSnapshot();
 	void onSend();
+	S32 notify(const LLSD& info);
 	bool onFacebookConnectStateChange(const LLSD& data);
 
 	void sendPhoto();
@@ -155,9 +156,6 @@ public:
 	void onCancel();
 	
 	void showPhotoPanel();
-
-	static void preUpdate();
-	static void postUpdate();
 
 private:
 	LLFacebookPhotoPanel* mFacebookPhotoPanel;

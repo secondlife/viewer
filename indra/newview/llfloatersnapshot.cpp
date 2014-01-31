@@ -1091,6 +1091,7 @@ BOOL LLFloaterSnapshot::postBuild()
 	getChild<LLComboBox>("local_format_combo")->selectNthItem(0);
 
 	impl.mPreviewHandle = previewp->getHandle();
+    previewp->setContainer(this);
 	impl.updateControls(this);
 	impl.updateLayout(this);
 	
@@ -1255,6 +1256,32 @@ S32 LLFloaterSnapshot::notify(const LLSD& info)
 		impl.setStatus(Impl::STATUS_FINISHED, data["ok"].asBoolean(), data["msg"].asString());
 		return 1;
 	}
+    
+	if (info.has("snapshot-updating"))
+	{
+        // Disable the send/post/save buttons until snapshot is ready.
+        impl.updateControls(this);
+        // Force hiding the "Refresh to save" hint because we know we've just started refresh.
+        impl.setNeedRefresh(this, false);
+		return 1;
+	}
+
+	if (info.has("snapshot-updated"))
+	{
+        // Enable the send/post/save buttons.
+        impl.updateControls(this);
+        // We've just done refresh.
+        impl.setNeedRefresh(this, false);
+            
+        // The refresh button is initially hidden. We show it after the first update,
+        // i.e. when preview appears.
+        if (!mRefreshBtn->getVisible())
+        {
+            mRefreshBtn->setVisible(true);
+        }
+		return 1;
+	}    
+    
 	return 0;
 }
 
@@ -1331,43 +1358,6 @@ BOOL LLFloaterSnapshot::saveLocal()
 	}
 
 	return previewp->saveLocal();
-}
-
-// static
-void LLFloaterSnapshot::preUpdate()
-{
-	// FIXME: duplicated code
-	LLFloaterSnapshot* instance = LLFloaterReg::findTypedInstance<LLFloaterSnapshot>("snapshot");
-	if (instance)
-	{
-		// Disable the send/post/save buttons until snapshot is ready.
-		Impl::updateControls(instance);
-
-		// Force hiding the "Refresh to save" hint because we know we've just started refresh.
-		Impl::setNeedRefresh(instance, false);
-	}
-}
-
-// static
-void LLFloaterSnapshot::postUpdate()
-{
-	// FIXME: duplicated code
-	LLFloaterSnapshot* instance = LLFloaterReg::findTypedInstance<LLFloaterSnapshot>("snapshot");
-	if (instance)
-	{
-		// Enable the send/post/save buttons.
-		Impl::updateControls(instance);
-
-		// We've just done refresh.
-		Impl::setNeedRefresh(instance, false);
-
-		// The refresh button is initially hidden. We show it after the first update,
-		// i.e. when preview appears.
-		if (!instance->mRefreshBtn->getVisible())
-		{
-			instance->mRefreshBtn->setVisible(true);
-		}
-	}
 }
 
 // static

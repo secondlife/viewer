@@ -58,8 +58,6 @@ public:
 	static LLFloaterSnapshot* getInstance();
 	static void saveTexture();
 	static BOOL saveLocal();
-	static void preUpdate();
-	static void postUpdate();
 	static void postSave();
 	static void postPanelSwitch();
 	static LLPointer<LLImageFormatted> getImageData();
