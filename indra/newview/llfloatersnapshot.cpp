@@ -34,6 +34,7 @@
 #include "llfloaterfacebook.h"
 #include "llfloaterflickr.h"
 #include "llfloatertwitter.h"
+#include "llimagefiltersmanager.h"
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "llpostcard.h"
@@ -94,6 +95,7 @@ public:
 	}
 	static void onClickNewSnapshot(void* data);
 	static void onClickAutoSnap(LLUICtrl *ctrl, void* data);
+	static void onClickFilter(LLUICtrl *ctrl, void* data);
 	//static void onClickAdvanceSnap(LLUICtrl *ctrl, void* data);
 	static void onClickMore(void* data) ;
 	static void onClickUICheck(LLUICtrl *ctrl, void* data);
@@ -470,12 +472,15 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 	  default:
 		break;
 	}
-
-	if (previewp)
+    
+    if (previewp)
 	{
 		previewp->setSnapshotType(shot_type);
 		previewp->setSnapshotFormat(shot_format);
 		previewp->setSnapshotBufferType(layer_type);
+        // Filters
+        const std::string& filter_name = floater->getChild<LLComboBox>("filters_combobox")->getSimple();
+        previewp->setFilter(filter_name);
 	}
 
 	LLPanelSnapshot* current_panel = Impl::getActivePanel(floater);
@@ -557,6 +562,17 @@ void LLFloaterSnapshot::Impl::onClickAutoSnap(LLUICtrl *ctrl, void* data)
 	gSavedSettings.setBOOL( "AutoSnapshot", check->get() );
 	
 	LLFloaterSnapshot *view = (LLFloaterSnapshot *)data;		
+	if (view)
+	{
+		checkAutoSnapshot(getPreviewView(view));
+		updateControls(view);
+	}
+}
+
+// static
+void LLFloaterSnapshot::Impl::onClickFilter(LLUICtrl *ctrl, void* data)
+{
+	LLFloaterSnapshot *view = (LLFloaterSnapshot *)data;
 	if (view)
 	{
 		checkAutoSnapshot(getPreviewView(view));
@@ -1061,6 +1077,16 @@ BOOL LLFloaterSnapshot::postBuild()
 
 	getChild<LLUICtrl>("auto_snapshot_check")->setValue(gSavedSettings.getBOOL("AutoSnapshot"));
 	childSetCommitCallback("auto_snapshot_check", Impl::onClickAutoSnap, this);
+    
+	// Update filter list
+    std::vector<std::string> filter_list = LLImageFiltersManager::getInstance()->getFiltersList();
+	LLComboBox* filterbox = getChild<LLComboBox>("filters_combobox");
+    for (U32 i = 0; i < filter_list.size(); i++)
+	{
+        filterbox->add(filter_list[i]);
+    }
+	childSetCommitCallback("filters_combobox", Impl::onClickFilter, this);
+    
 	
 	LLWebProfile::setImageUploadResultCallback(boost::bind(&LLFloaterSnapshot::Impl::onSnapshotUploadFinished, _1));
 	LLPostCard::setPostResultCallback(boost::bind(&LLFloaterSnapshot::Impl::onSendingPostcardFinished, _1));
