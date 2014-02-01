@@ -1580,7 +1580,8 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 			// Let interesting parties know about agent parcel change.
 			LLViewerParcelMgr* instance = LLViewerParcelMgr::getInstance();
 
-			instance->mAgentParcelChangedSignal();
+			// Notify anything that wants to know when the agent changes parcels
+			gAgent.changeParcels();
 
 			if (instance->mTeleportInProgress)
 			{
@@ -2458,10 +2459,6 @@ LLViewerTexture* LLViewerParcelMgr::getPassImage() const
 	return sPassImage;
 }
 
-boost::signals2::connection LLViewerParcelMgr::addAgentParcelChangedCallback(parcel_changed_callback_t cb)
-{
-	return mAgentParcelChangedSignal.connect(cb);
-}
 /*
  * Set finish teleport callback. You can use it to observe all  teleport events.
  * NOTE:
@@ -2475,7 +2472,7 @@ boost::signals2::connection LLViewerParcelMgr::setTeleportFinishedCallback(telep
 	return mTeleportFinishedSignal.connect(cb);
 }
 
-boost::signals2::connection LLViewerParcelMgr::setTeleportFailedCallback(parcel_changed_callback_t cb)
+boost::signals2::connection LLViewerParcelMgr::setTeleportFailedCallback(teleport_failed_callback_t cb)
 {
 	return mTeleportFailedSignal.connect(cb);
 }
