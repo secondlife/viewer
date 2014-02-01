@@ -1035,7 +1035,7 @@ void LLViewerRegion::addVisibleChildCacheEntry(LLVOCacheEntry* parent, LLVOCache
 		child = parent->getChild();
 		while(child != NULL)
 		{
-			addVisibleCacheEntry(NULL, child);
+			addVisibleChildCacheEntry(NULL, child);
 			child = parent->getChild();
 		}
 	}
@@ -2123,7 +2123,7 @@ void LLViewerRegion::decodeBoundingInfo(LLVOCacheEntry* entry)
 			if(!parent->isState(LLVOCacheEntry::INACTIVE)) 
 			{
 				//parent is visible, so is the child.
-				addVisibleCacheEntry(parent, entry);
+				addVisibleChildCacheEntry(parent, entry);
 			}
 			else
 			{

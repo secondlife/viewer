@@ -212,7 +212,7 @@ void LLVOCacheEntry::removeAllChildren()
 
 	for(vocache_entry_set_t::iterator iter = mChildrenList.begin(); iter != mChildrenList.end(); ++iter)
  	{
-		*iter->setParentID(0);
+		(*iter)->setParentID(0);
  	}
 	mChildrenList.clear();
 
