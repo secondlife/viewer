@@ -113,11 +113,13 @@ public:
 	
 	/*virtual*/ void setOctreeEntry(LLViewerOctreeEntry* entry);
 
-	void setParentID(U32 id) {mParentID = id;}
+	void setParentID(U32 id);
 	U32  getParentID() const {return mParentID;}
+	bool isChild() const {return mParentID > 0;}
 
 	void addChild(LLVOCacheEntry* entry);
 	void removeChild(LLVOCacheEntry* entry);
+	void removeAllChildren();
 	LLVOCacheEntry* getChild(); //remove the first child, and return it.
 	S32  getNumOfChildren() const  {return mChildrenList.size();}
 	

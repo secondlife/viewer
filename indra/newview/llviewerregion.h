@@ -232,7 +232,7 @@ public:
 	void idleUpdate(F32 max_update_time);
 	void lightIdleUpdate();
 	bool addVisibleGroup(LLViewerOctreeGroup* group);
-	void addVisibleCacheEntry(LLVOCacheEntry* entry);
+	void addVisibleChildCacheEntry(LLVOCacheEntry* parent, LLVOCacheEntry* child);
 	void addActiveCacheEntry(LLVOCacheEntry* entry);
 	void removeActiveCacheEntry(LLVOCacheEntry* entry, LLDrawable* drawablep);	
 	void killCacheEntry(U32 local_id); //physically delete the cache entry	

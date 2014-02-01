@@ -194,6 +194,31 @@ void LLVOCacheEntry::updateEntry(U32 crc, LLDataPackerBinaryBuffer &dp)
 	mDP = dp;
 }
 
+void LLVOCacheEntry::setParentID(U32 id) 
+{
+	if(mParentID != id)
+	{
+		removeAllChildren();
+		mParentID = id;
+	}
+}
+
+void LLVOCacheEntry::removeAllChildren()
+{
+	if(mChildrenList.empty())
+	{
+		return;
+	}
+
+	for(vocache_entry_set_t::iterator iter = mChildrenList.begin(); iter != mChildrenList.end(); ++iter)
+ 	{
+		*iter->setParentID(0);
+ 	}
+	mChildrenList.clear();
+
+	return;
+}
+
 //virtual 
 void LLVOCacheEntry::setOctreeEntry(LLViewerOctreeEntry* entry)
 {
