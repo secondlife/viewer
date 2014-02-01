@@ -1007,37 +1007,36 @@ void LLViewerRegion::removeFromVOCacheTree(LLVOCacheEntry* entry)
 	mImpl->mVOCachePartition->removeEntry(entry->getEntry());	
 }
 
-//add the visible entries
-void LLViewerRegion::addVisibleCacheEntry(LLVOCacheEntry* entry)
+//add child objects as visible entries
+void LLViewerRegion::addVisibleChildCacheEntry(LLVOCacheEntry* parent, LLVOCacheEntry* child)
 {
-	if(mDead || !entry || !entry->getEntry() || !entry->isValid())
-	{
-		return; 
-	}
-
-	if(entry->isState(LLVOCacheEntry::IN_QUEUE))
+	if(mDead)
 	{
 		return;
 	}
 
-	if(entry->isState(LLVOCacheEntry::INACTIVE))
+	if(parent && (!parent->isValid() || !parent->isState(LLVOCacheEntry::ACTIVE)))
 	{
-		entry->setState(LLVOCacheEntry::IN_QUEUE);
+		return; //parent must be valid and in rendering pipeline
 	}
 
-	if(!entry->isState(LLVOCacheEntry::ACTIVE))
+	if(child && (!child->getEntry() || !child->isValid() || !child->isState(LLVOCacheEntry::INACTIVE)))
 	{
-		mImpl->mVisibleEntries.insert(entry);
+		return; //child must be valid and not in the rendering pipeline
 	}
 
-	//add all children
-	if(entry->getNumOfChildren() > 0)
+	if(child)
 	{
-		LLVOCacheEntry* child = entry->getChild();
+		child->setState(LLVOCacheEntry::IN_QUEUE);
+		mImpl->mVisibleEntries.insert(child);
+	}	
+	else if(parent && parent->getNumOfChildren() > 0) //add all children
+	{
+		child = parent->getChild();
 		while(child != NULL)
 		{
-			addVisibleCacheEntry(child);
-			child = entry->getChild();
+			addVisibleCacheEntry(NULL, child);
+			child = parent->getChild();
 		}
 	}
 }
@@ -2002,7 +2001,7 @@ void LLViewerRegion::findOrphans(U32 parent_id)
 		for(S32 i = 0; i < children->size(); i++)
 		{
 			//parent is visible, so is the child.
-			addVisibleCacheEntry(getCacheEntry((*children)[i]));
+			addVisibleChildCacheEntry(NULL, getCacheEntry((*children)[i]));
 		}
 		children->clear();
 		mOrphanMap.erase(parent_id);
@@ -2106,7 +2105,7 @@ void LLViewerRegion::decodeBoundingInfo(LLVOCacheEntry* entry)
 				if(isNonCacheableObjectCreated(parent_id))
 				{
 					//parent is visible, so is the child.
-					addVisibleCacheEntry(entry);
+					addVisibleChildCacheEntry(NULL, entry);
 				}
 				else
 				{
@@ -2124,7 +2123,7 @@ void LLViewerRegion::decodeBoundingInfo(LLVOCacheEntry* entry)
 			if(!parent->isState(LLVOCacheEntry::INACTIVE)) 
 			{
 				//parent is visible, so is the child.
-				addVisibleCacheEntry(entry);
+				addVisibleCacheEntry(parent, entry);
 			}
 			else
 			{

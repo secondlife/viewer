@@ -128,12 +128,13 @@ void LLDrawable::init(bool new_entry)
 		{
 			vo_entry->setOctreeEntry(mEntry);
 		}
-		else if(vo_entry->getNumOfChildren() > 0)
-		{
-			getRegion()->addVisibleCacheEntry(vo_entry); //to load all children.
-		}
-	
+		
 		getRegion()->addActiveCacheEntry(vo_entry);
+
+		if(vo_entry->getNumOfChildren() > 0)
+		{
+			getRegion()->addVisibleChildCacheEntry(vo_entry, NULL); //to load all children.
+		}		
 
 		llassert(!vo_entry->getGroup()); //not in the object cache octree.
 	}
