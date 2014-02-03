@@ -95,6 +95,7 @@ LLSnapshotLivePreview::LLSnapshotLivePreview (const LLSnapshotLivePreview::Param
 	mSnapshotBufferType(LLViewerWindow::SNAPSHOT_TYPE_COLOR),
     mFilterName(""),
     mAllowRenderUI(TRUE),
+    mAllowFullScreenPreview(TRUE),
     mViewContainer(NULL)
 {
 	setSnapshotQuality(gSavedSettings.getS32("SnapshotQuality"));
@@ -620,7 +621,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 	// If we're in freeze-frame mode and camera has moved, update snapshot.
 	LLVector3 new_camera_pos = LLViewerCamera::getInstance()->getOrigin();
 	LLQuaternion new_camera_rot = LLViewerCamera::getInstance()->getQuaternion();
-	if (gSavedSettings.getBOOL("FreezeTime") && 
+	if (gSavedSettings.getBOOL("FreezeTime") && previewp->mAllowFullScreenPreview &&
 		(new_camera_pos != previewp->mCameraPos || dot(new_camera_rot, previewp->mCameraRot) < 0.995f))
 	{
 		previewp->mCameraPos = new_camera_pos;
@@ -678,7 +679,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
             previewp->estimateDataSize();
 
             // Full size preview is set: get the decoded image result and save it for animation
-            if (gSavedSettings.getBOOL("UseFreezeFrame"))
+            if (gSavedSettings.getBOOL("UseFreezeFrame") && previewp->mAllowFullScreenPreview)
             {
                 // Get the decoded version of the formatted image
                 previewp->getEncodedImage();
@@ -723,7 +724,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
             previewp->generateThumbnailImage(TRUE) ;
         }
         previewp->getWindow()->decBusyCount();
-        previewp->setVisible(gSavedSettings.getBOOL("UseFreezeFrame")); // only show fullscreen preview when in freeze frame mode
+        previewp->setVisible(gSavedSettings.getBOOL("UseFreezeFrame") && previewp->mAllowFullScreenPreview); // only show fullscreen preview when in freeze frame mode
         previewp->mSnapshotDelayTimer.stop();
         previewp->mSnapshotActive = FALSE;
         lldebugs << "done creating snapshot" << llendl;
