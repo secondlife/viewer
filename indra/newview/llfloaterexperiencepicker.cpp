@@ -40,6 +40,8 @@
 #include "llavatarnamecache.h"
 #include "llfloaterexperienceprofile.h"
 #include "llcombobox.h"
+#include "llviewercontrol.h"
+#include "lldraghandle.h"
 
 #define BTN_FIND		"find"
 #define BTN_OK			"ok_btn"
@@ -80,7 +82,7 @@ public:
 		}
 	}
 };
-LLFloaterExperiencePicker* LLFloaterExperiencePicker::show( select_callback_t callback, const LLUUID& key, BOOL allow_multiple, BOOL closeOnSelect )
+LLFloaterExperiencePicker* LLFloaterExperiencePicker::show( select_callback_t callback, const LLUUID& key, BOOL allow_multiple, BOOL closeOnSelect, LLView * frustumOrigin )
 {
 	LLFloaterExperiencePicker* floater =
 		LLFloaterReg::showTypedInstance<LLFloaterExperiencePicker>("experience_search", key);
@@ -93,14 +95,91 @@ LLFloaterExperiencePicker* LLFloaterExperiencePicker::show( select_callback_t ca
 	floater->mSelectionCallback = callback;
 	floater->mCloseOnSelect = closeOnSelect;
 	floater->setAllowMultiple(allow_multiple);
+
+	if(frustumOrigin)
+	{
+		floater->mFrustumOrigin = frustumOrigin->getHandle();
+	}
+
 	return floater;
 }
 
 
+void LLFloaterExperiencePicker::drawFrustum()
+{
+	if(mFrustumOrigin.get())
+	{
+		LLView * frustumOrigin = mFrustumOrigin.get();
+		LLRect origin_rect;
+		frustumOrigin->localRectToOtherView(frustumOrigin->getLocalRect(), &origin_rect, this);
+		// draw context cone connecting color picker with color swatch in parent floater
+		LLRect local_rect = getLocalRect();
+		if (hasFocus() && frustumOrigin->isInVisibleChain() && mContextConeOpacity > 0.001f)
+		{
+			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+			LLGLEnable(GL_CULL_FACE);
+			gGL.begin(LLRender::QUADS);
+			{
+				gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
+				gGL.vertex2i(origin_rect.mLeft, origin_rect.mTop);
+				gGL.vertex2i(origin_rect.mRight, origin_rect.mTop);
+				gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
+				gGL.vertex2i(local_rect.mRight, local_rect.mTop);
+				gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
+
+				gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
+				gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
+				gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
+				gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
+				gGL.vertex2i(origin_rect.mLeft, origin_rect.mBottom);
+				gGL.vertex2i(origin_rect.mLeft, origin_rect.mTop);
+
+				gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
+				gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
+				gGL.vertex2i(local_rect.mRight, local_rect.mTop);
+				gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
+				gGL.vertex2i(origin_rect.mRight, origin_rect.mTop);
+				gGL.vertex2i(origin_rect.mRight, origin_rect.mBottom);
+
+				gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
+				gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
+				gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
+				gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
+				gGL.vertex2i(origin_rect.mRight, origin_rect.mBottom);
+				gGL.vertex2i(origin_rect.mLeft, origin_rect.mBottom);
+			}
+			gGL.end();
+		}
+
+		if (gFocusMgr.childHasMouseCapture(getDragHandle()))
+		{
+			mContextConeOpacity = lerp(mContextConeOpacity, gSavedSettings.getF32("PickerContextOpacity"), LLCriticalDamp::getInterpolant(mContextConeFadeTime));
+		}
+		else
+		{
+			mContextConeOpacity = lerp(mContextConeOpacity, 0.f, LLCriticalDamp::getInterpolant(mContextConeFadeTime));
+		}
+	}
+}
+
+void LLFloaterExperiencePicker::draw()
+{
+	drawFrustum();
+	LLFloater::draw();
+}
+
 LLFloaterExperiencePicker::LLFloaterExperiencePicker( const LLSD& key )
 	:LLFloater(key)
+	,mContextConeOpacity	(0.f)
+	,mContextConeInAlpha(0.f)
+	,mContextConeOutAlpha(0.f)
+	,mContextConeFadeTime(0.f)
 {
+	setDefaultFilters();
 
+	mContextConeInAlpha = gSavedSettings.getF32("ContextConeInAlpha");
+	mContextConeOutAlpha = gSavedSettings.getF32("ContextConeOutAlpha");
+	mContextConeFadeTime = gSavedSettings.getF32("ContextConeFadeTime");
 }
 
 LLFloaterExperiencePicker::~LLFloaterExperiencePicker()
@@ -219,7 +298,8 @@ void LLFloaterExperiencePicker::find()
 
 bool LLFloaterExperiencePicker::isSelectButtonEnabled()
 {
-	return getChild<LLScrollListCtrl>(LIST_RESULTS)->getFirstSelectedIndex() >=0;
+	LLScrollListCtrl* list=getChild<LLScrollListCtrl>(LIST_RESULTS);
+	return list->getFirstSelectedIndex() >=0;
 }
 
 void LLFloaterExperiencePicker::getSelectedExperienceIds( const LLScrollListCtrl* results, uuid_vec_t &experience_ids )
@@ -306,16 +386,14 @@ void LLFloaterExperiencePicker::filterContent()
 
 	search_results->deleteAllItems();
 
-	int maturity = getChild<LLComboBox>(TEXT_MATURITY)->getSelectedValue().asInteger();
 	LLSD item;
 	LLSD::array_const_iterator it = experiences.beginArray();
 	for ( ; it != experiences.endArray(); ++it)
 	{
 		const LLSD& experience = *it;
 
-		if(experience[LLExperienceCache::MATURITY].asInteger() > maturity)
+		if(isExperienceHidden(experience))
 			continue;
-
 
 		item["id"]=experience[LLExperienceCache::EXPERIENCE_ID];
 		LLSD& columns = item["columns"];
@@ -335,11 +413,7 @@ void LLFloaterExperiencePicker::filterContent()
 	{
 		LLStringUtil::format_map_t map;
 		map["[TEXT]"] = childGetText(TEXT_EDIT);
-		LLSD item;
-		item["id"] = LLUUID::null;
-		item["columns"][1]["column"] = "name";
-		item["columns"][1]["value"] = columnSpace+getString("not_found", map);
-		search_results->addElement(item);
+		getChild<LLScrollListCtrl>(LIST_RESULTS)->setCommentText(getString("not_found", map));
 		search_results->setEnabled(false);
 		getChildView(BTN_OK)->setEnabled(false);
 		getChildView(BTN_PROFILE)->setEnabled(false);
@@ -363,6 +437,41 @@ void LLFloaterExperiencePicker::onMaturity()
 {
 	filterContent();
 }
+
+bool LLFloaterExperiencePicker::isExperienceHidden( const LLSD& experience) const
+{
+	bool hide=false;
+	filter_list::const_iterator it = mFilters.begin();
+	for(/**/;it != mFilters.end(); ++it)
+	{
+		if((*it)(experience)){
+			return true;
+		}
+	}
+
+	return hide;
+}
+
+bool LLFloaterExperiencePicker::FilterOverRating( const LLSD& experience )
+{
+	int maturity = getChild<LLComboBox>(TEXT_MATURITY)->getSelectedValue().asInteger();
+	return experience[LLExperienceCache::MATURITY].asInteger() > maturity;
+}
+
+bool LLFloaterExperiencePicker::FilterWithProperty( const LLSD& experience, S32 prop )
+{
+	return (experience[LLExperienceCache::PROPERTIES].asInteger() & prop) != 0;
+}
+
+void LLFloaterExperiencePicker::setDefaultFilters()
+{
+	mFilters.clear();
+	addFilter(boost::bind(&LLFloaterExperiencePicker::FilterOverRating, this, _1));
+}
+
+
+
+
 
 
 

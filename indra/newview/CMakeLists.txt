@@ -403,6 +403,7 @@ set(viewer_SOURCE_FILES
     llpanelclassified.cpp
     llpanelcontents.cpp
     llpaneleditwearable.cpp
+    llpanelexperiencelisteditor.cpp
     llpanelexperiences.cpp
     llpanelface.cpp
     llpanelgenerictip.cpp
@@ -989,6 +990,7 @@ set(viewer_HEADER_FILES
     llpanelclassified.h
     llpanelcontents.h
     llpaneleditwearable.h
+    llpanelexperiencelisteditor.h
     llpanelexperiences.h
     llpanelface.h
     llpanelgenerictip.h

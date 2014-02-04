@@ -91,6 +91,10 @@
 #include "lltrans.h"
 #include "llagentui.h"
 #include "llmeshrepository.h"
+#include "llpanelexperiencelisteditor.h"
+#include <boost/function.hpp>
+#include "llfloaterexperiencepicker.h"
+#include "llexperiencecache.h"
 
 const S32 TERRAIN_TEXTURE_COUNT = 4;
 const S32 CORNER_COUNT = 4;
@@ -214,6 +218,14 @@ BOOL LLFloaterRegionInfo::postBuild()
 	panel->buildFromFile("panel_region_debug.xml");
 	mTab->addTabPanel(panel);
 
+	if(!gAgent.getRegion()->getCapability("RegionExperiences").empty())
+	{
+		panel = new LLPanelRegionExperiences;
+		mInfoPanels.push_back(panel);
+		panel->buildFromFile("panel_region_experiences.xml");
+		mTab->addTabPanel(panel);
+	}
+	
 	gMessageSystem->setHandlerFunc(
 		"EstateOwnerMessage", 
 		&processEstateOwnerRequest);
@@ -3462,4 +3474,154 @@ void LLPanelEnvironmentInfo::onRegionSettingsApplied(bool ok)
 		// does not work, try leaving and returning to the region."
 		LLEnvManagerNew::instance().requestRegionSettings();
 	}
+}
+
+BOOL LLPanelRegionExperiences::postBuild()
+{
+	mAllowed = setupList("panel_allowed");
+	mTrusted = setupList("panel_trusted");
+	mBlocked = setupList("panel_blocked");
+	return LLPanelRegionInfo::postBuild();
+}
+
+LLPanelExperienceListEditor* LLPanelRegionExperiences::setupList( const char* control_name )
+{
+	LLPanelExperienceListEditor* child = findChild<LLPanelExperienceListEditor>(control_name);
+	child->getChild<LLTextBox>("text_name")->setText(getString(control_name));
+
+	return child;
+}
+
+
+
+
+boost::signals2::connection LLPanelRegionExperiences::processResponse( LLPanelExperienceListEditor* panel, boost::signals2::connection& conn, const LLSD& content )
+{
+	if(conn.connected())
+	{
+		conn.disconnect();
+	}
+	panel->setExperienceIds(content);
+	
+	return panel->setChangedCallback(boost::bind(&LLPanelRegionExperiences::listChanged, this));
+}
+
+
+
+void LLPanelRegionExperiences::processResponse( const LLSD& content )
+{
+	mAllowedConnection=processResponse(mAllowed, mAllowedConnection, content["allowed"]);
+	mBlockedConnection=processResponse(mBlocked, mBlockedConnection, content["blocked"]);
+	mTrustedConnection=processResponse(mTrusted, mTrustedConnection, content["trusted"]);
+	disableButton("apply_btn");
+}
+
+
+class LLRegionExperienceResponder : public LLHTTPClient::Responder
+{
+public:
+	typedef boost::function<void (const LLSD&)> callback_t;
+
+	callback_t mCallback;
+
+	LLRegionExperienceResponder(callback_t callback) : mCallback(callback) { }
+
+	void completed(U32 status, const std::string& reason, const LLSD& content)
+	{
+		if (isGoodStatus(status))
+		{
+			mCallback(content);
+		}
+		else
+		{
+			llwarns << "experience responder failed [status:" << status << "]: " << content << llendl;
+		}
+	}
+};
+
+
+void LLPanelRegionExperiences::infoCallback(LLHandle<LLPanelRegionExperiences> handle, const LLSD& content)
+{
+	
+	if(handle.isDead())
+		return;
+
+	LLPanelRegionExperiences* floater = handle.get();
+	if (floater)
+	{
+		floater->processResponse(content);
+	}
+}
+
+
+bool LLPanelRegionExperiences::FilterExisting(const LLSD& experience)
+{
+	LLUUID id = experience[LLExperienceCache::EXPERIENCE_ID].asUUID();
+	return mAllowed->getExperienceIds().find(id) != mAllowed->getExperienceIds().end() ||
+		mBlocked->getExperienceIds().find(id) != mBlocked->getExperienceIds().end() ||
+		mTrusted->getExperienceIds().find(id) != mTrusted->getExperienceIds().end() ;
+}
+
+
+bool LLPanelRegionExperiences::refreshFromRegion(LLViewerRegion* region)
+{
+	BOOL allow_modify = gAgent.isGodlike() || (region && region->canManageEstate());
+
+	mAllowed->loading();
+	mAllowed->setReadonly(!allow_modify);
+	mAllowed->addFilter(boost::bind(LLFloaterExperiencePicker::FilterWithProperty, _1, LLExperienceCache::PROPERTY_GRID));
+	mAllowed->addFilter(boost::bind(&LLPanelRegionExperiences::FilterExisting, this, _1));
+
+	mBlocked->loading();
+	mBlocked->setReadonly(!allow_modify);
+	mBlocked->addFilter(boost::bind(LLFloaterExperiencePicker::FilterWithProperty, _1, LLExperienceCache::PROPERTY_PRIVILEGED));
+	mBlocked->addFilter(boost::bind(&LLPanelRegionExperiences::FilterExisting, this, _1));
+
+	mTrusted->loading();
+	mTrusted->setReadonly(!allow_modify);
+	mTrusted->addFilter(boost::bind(&LLPanelRegionExperiences::FilterExisting, this, _1));
+
+	std::string url = region->getCapability("RegionExperiences");
+	if (!url.empty())
+	{
+		LLHTTPClient::get(url, new LLRegionExperienceResponder(boost::bind(&LLPanelRegionExperiences::infoCallback, 
+			getDerivedHandle<LLPanelRegionExperiences>(), _1)));
+	}
+	return LLPanelRegionInfo::refreshFromRegion(region);
+}
+
+LLSD LLPanelRegionExperiences::addIds(LLPanelExperienceListEditor* panel)
+{
+	LLSD ids;
+	const uuid_list_t& id_list = panel->getExperienceIds();
+	for(uuid_list_t::const_iterator it = id_list.begin(); it != id_list.end(); ++it)
+	{
+		ids.append(*it);
+	}
+	return ids;
+}
+
+
+BOOL LLPanelRegionExperiences::sendUpdate()
+{
+	LLViewerRegion* region = gAgent.getRegion();
+	std::string url = region->getCapability("RegionExperiences");
+	if (!url.empty())
+	{
+		LLSD content;
+
+		content["allowed"]=addIds(mAllowed);
+		content["blocked"]=addIds(mBlocked);
+		content["trusted"]=addIds(mTrusted);
+
+		LLHTTPClient::post(url, content, new LLRegionExperienceResponder(boost::bind(&LLPanelRegionExperiences::infoCallback, 
+			getDerivedHandle<LLPanelRegionExperiences>(), _1)));
+	}
+
+	return TRUE;
+}
+
+void LLPanelRegionExperiences::listChanged()
+{
+	onChangeAnything();
 }

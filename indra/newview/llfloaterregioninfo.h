@@ -60,6 +60,7 @@ class LLPanelRegionDebugInfo;
 class LLPanelRegionTerrainInfo;
 class LLPanelEstateInfo;
 class LLPanelEstateCovenant;
+class LLPanelExperienceListEditor;
 
 class LLEventTimer;
 class LLEnvironmentSettings;
@@ -448,6 +449,36 @@ private:
 	LLComboBox*		mWaterPresetCombo;
 	LLComboBox*		mSkyPresetCombo;
 	LLComboBox*		mDayCyclePresetCombo;
+};
+
+class LLPanelRegionExperiences : public LLPanelRegionInfo
+{
+	LOG_CLASS(LLPanelEnvironmentInfo);
+
+public:
+	LLPanelRegionExperiences(){}
+	/*virtual*/ BOOL postBuild();
+	virtual BOOL sendUpdate();
+
+	static void infoCallback(LLHandle<LLPanelRegionExperiences> handle, const LLSD& content);
+
+	void listChanged();
+	bool refreshFromRegion(LLViewerRegion* region);
+private:
+	void processResponse( const LLSD& content );
+	boost::signals2::connection processResponse( LLPanelExperienceListEditor* panel, boost::signals2::connection& connection, const LLSD& content);
+	void refreshRegionExperiences();
+
+	LLPanelExperienceListEditor* setupList(const char* control_name);
+	static LLSD addIds( LLPanelExperienceListEditor* panel );
+	bool FilterExisting(const LLSD& experience );
+
+	LLPanelExperienceListEditor* mTrusted;
+	boost::signals2::connection  mTrustedConnection;
+	LLPanelExperienceListEditor* mAllowed;
+	boost::signals2::connection  mAllowedConnection;
+	LLPanelExperienceListEditor* mBlocked;
+	boost::signals2::connection  mBlockedConnection;
 };
 
 #endif

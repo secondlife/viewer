@@ -2,14 +2,78 @@
 <panel
   border="true"
   follows="top|left"
-  height="510"
+  height="320"
   help_topic="panel_region_experience_tab"
-  label="Experience"
+  label="Experiences"
+  name="Experiences"
   layout="topleft"
   left="0"
-  name="Experience"
   top="320"
-  width="530">
+  width="480">
+  <panel.string
+    name="panel_allowed">
+    Allowed Experiences
+  </panel.string>
+  <panel.string
+    name="panel_blocked">
+    Blocked Experiences
+  </panel.string>
+  <panel.string
+    name="panel_trusted">
+    Trusted Experiences
+  </panel.string>
 
-
+  <layout_stack
+    left="5"
+    layout="topleft"
+    follows="all"
+    top="100"
+    right="-5"
+    height="140"
+    min_height="140"
+    orientation="vertical">
+    <layout_panel
+      height="100"
+      min_height="100"
+      width="530">
+      <panel follows="all"
+             width="530"
+             name="panel_trusted"
+             class="panel_experience_list_editor"
+             filename="panel_experience_list_editor.xml" />
+    </layout_panel>
+    <layout_panel
+      height="100"
+      min_height="100"
+      width="530">
+      <panel
+        label="SOME LABEL"
+        width="530"
+        name="panel_allowed"
+        class="panel_experience_list_editor"
+        filename="panel_experience_list_editor.xml"/>
+    </layout_panel>
+    <layout_panel
+      height="100"
+      min_height="100"
+      width="530">
+      <panel
+        width="530"
+        name="panel_blocked"
+        class="panel_experience_list_editor"
+        filename="panel_experience_list_editor.xml"/>
+    </layout_panel>
+    <layout_panel
+      height="30"
+      min_height="30"
+      max_height="30"
+      width="530">
+      <button
+        layout="topleft"
+        width="85"
+        left="3"
+        label="Apply"
+        name="apply_btn"/>
+    </layout_panel>
+  </layout_stack>
 </panel>

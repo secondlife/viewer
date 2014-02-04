@@ -1609,6 +1609,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("UpdateExperience");
 	capabilityNames.append("IsExperienceAdmin");
 	capabilityNames.append("IsExperienceContributor");
+	capabilityNames.append("RegionExperiences");
 	capabilityNames.append("GetMesh");
 	capabilityNames.append("GetMetadata");
 	capabilityNames.append("GetObjectCost");

@@ -40,15 +40,26 @@ public:
 
 	// The callback function will be called with an avatar name and UUID.
 	typedef boost::function<void (const uuid_vec_t&)> select_callback_t;
+	// filter function for experiences, return true if the experience should be hidden.
+	typedef boost::function<bool (const LLSD&)> filter_function;
+	typedef std::vector<filter_function> filter_list;
 
-	static LLFloaterExperiencePicker* show( select_callback_t callback, const LLUUID& key, BOOL allow_multiple, BOOL closeOnSelect );
+	static LLFloaterExperiencePicker* show( select_callback_t callback, const LLUUID& key, BOOL allow_multiple, BOOL closeOnSelect, LLView * frustumOrigin);
 
 	LLFloaterExperiencePicker(const LLSD& key);
 	virtual ~LLFloaterExperiencePicker();
 
 	BOOL postBuild();
 
+	void addFilter(filter_function func){mFilters.push_back(func);}
+	template <class IT>
+	void addFilters(IT begin, IT end){mFilters.insert(mFilters.end(), begin, end);}
+	void setDefaultFilters();
 
+	static bool FilterWithProperty(const LLSD& experience, S32 prop);
+	bool FilterOverRating(const LLSD& experience);
+
+	virtual void	draw();
 private:
 	void editKeystroke(LLLineEditor* caller, void* user_data);
 
@@ -68,13 +79,23 @@ private:
 	void processResponse( const LLUUID& query_id, const LLSD& content );
 
 	void filterContent();
+	bool isExperienceHidden(const LLSD& experience) const ;
 	std::string getMaturityString(int maturity);
 
 
 	select_callback_t	mSelectionCallback;
-	bool				mCloseOnSelect;
+	filter_list			mFilters;
 	LLUUID				mQueryID;
 	LLSD				mResponse;
+	bool				mCloseOnSelect;
+
+
+	void drawFrustum();
+	LLHandle <LLView>   mFrustumOrigin;
+	F32		            mContextConeOpacity;
+	F32                 mContextConeInAlpha;
+	F32                 mContextConeOutAlpha;
+	F32                 mContextConeFadeTime;
 };
 
 #endif // LL_LLFLOATEREXPERIENCEPICKER_H
