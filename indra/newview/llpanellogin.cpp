@@ -881,8 +881,7 @@ void LLPanelLogin::loadLoginPage()
 	if (web_browser->getCurrentNavUrl() != login_uri.asString())
 	{
 		LL_DEBUGS("AppInit") << "loading:    " << login_uri << LL_ENDL;
-		//web_browser->navigateTo( login_uri.asString(), "text/html" );
-		web_browser->navigateTo("http://127.0.0.1:8000/login.html");
+		web_browser->navigateTo( login_uri.asString(), "text/html" );
 	}
 }
 
