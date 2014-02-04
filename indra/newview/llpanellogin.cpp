@@ -26,6 +26,8 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include <sstream>
+
 #include "llpanellogin.h"
 #include "lllayoutstack.h"
 
@@ -96,6 +98,87 @@ public:
 		return true;
 	}
 };
+
+class LLLoginLocationAutoHandler : public LLCommandHandler
+{
+public:
+	// don't allow from external browsers
+	LLLoginLocationAutoHandler() : LLCommandHandler("location_login", UNTRUSTED_BLOCK) { }
+	bool handle(const LLSD& tokens, const LLSD& query_map, LLMediaCtrl* web)
+	{	
+		if (LLStartUp::getStartupState() < STATE_LOGIN_CLEANUP)
+		{
+			if ( tokens.size() == 0 || tokens.size() > 4 ) 
+				return false;
+
+			// unescape is important - uris with spaces are escaped in this code path
+			// (e.g. space -> %20) and the code to log into a region doesn't support that.
+			const std::string region = LLURI::unescape( tokens[0].asString() );
+
+			// just region name as payload 
+			if ( tokens.size() == 1 )
+			{
+				// region name only - slurl will end up as center of region
+				LLSLURL slurl(region);
+				LLPanelLogin::autologinToLocation(slurl);
+			}
+			else
+			// region name and x coord as payload 
+			if ( tokens.size() == 2 )
+			{
+				// invalid to only specify region and x coordinate
+				// slurl code will revert to same as region only, so do this anyway
+				LLSLURL slurl(region);
+				LLPanelLogin::autologinToLocation(slurl);
+			}
+			else
+			// region name and x/y coord as payload 
+			if ( tokens.size() == 3 )
+			{
+				// region and x/y specified - default z to 0
+				F32 xpos;
+				std::istringstream codec(tokens[1].asString());
+				codec >> xpos;
+
+				F32 ypos;
+				codec.clear();
+				codec.str(tokens[2].asString());
+				codec >> ypos;
+
+				const LLVector3 location(xpos, ypos, 0.0f);
+				LLSLURL slurl(region, location);
+
+				LLPanelLogin::autologinToLocation(slurl);
+			}
+			else
+			// region name and x/y/z coord as payload 
+			if ( tokens.size() == 4 )
+			{
+				// region and x/y/z specified - ok
+				F32 xpos;
+				std::istringstream codec(tokens[1].asString());
+				codec >> xpos;
+
+				F32 ypos;
+				codec.clear();
+				codec.str(tokens[2].asString());
+				codec >> ypos;
+
+				F32 zpos;
+				codec.clear();
+				codec.str(tokens[3].asString());
+				codec >> zpos;
+
+				const LLVector3 location(xpos, ypos, zpos);
+				LLSLURL slurl(region, location);
+
+				LLPanelLogin::autologinToLocation(slurl);
+			};
+		}	
+		return true;
+	}
+};
+LLLoginLocationAutoHandler gLoginLocationAutoHandler;
 
 //---------------------------------------------------------------------------
 // Public methods
@@ -714,6 +797,18 @@ void LLPanelLogin::setLocation(const LLSLURL& slurl)
 	LLStartUp::setStartSLURL(slurl); // calls onUpdateStartSLURL, above
 }
 
+void LLPanelLogin::autologinToLocation(const LLSLURL& slurl)
+{
+	LL_DEBUGS("AppInit")<<"automatically logging into Location "<<slurl.asString()<<LL_ENDL;
+	LLStartUp::setStartSLURL(slurl); // calls onUpdateStartSLURL, above
+
+	if ( LLPanelLogin::sInstance != NULL )
+	{
+		void* unused_paramter = 0;
+		LLPanelLogin::sInstance->onClickConnect(unused_paramter);
+	}
+}
+
 // static
 void LLPanelLogin::closePanel()
 {
@@ -786,7 +881,8 @@ void LLPanelLogin::loadLoginPage()
 	if (web_browser->getCurrentNavUrl() != login_uri.asString())
 	{
 		LL_DEBUGS("AppInit") << "loading:    " << login_uri << LL_ENDL;
-		web_browser->navigateTo( login_uri.asString(), "text/html" );
+		//web_browser->navigateTo( login_uri.asString(), "text/html" );
+		web_browser->navigateTo("http://127.0.0.1:8000/login.html");
 	}
 }
 

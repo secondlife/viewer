@@ -67,6 +67,7 @@ public:
 
 	static BOOL areCredentialFieldsDirty();
 	static void setLocation(const LLSLURL& slurl);
+	static void autologinToLocation(const LLSLURL& slurl);
 	
 	/// Call when preferences that control visibility may have changed
 	static void updateLocationSelectorsVisibility();
