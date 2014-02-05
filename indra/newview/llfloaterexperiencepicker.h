@@ -57,6 +57,7 @@ public:
 	void setDefaultFilters();
 
 	static bool FilterWithProperty(const LLSD& experience, S32 prop);
+	static bool FilterWithoutProperty(const LLSD& experience, S32 prop);
 	bool FilterOverRating(const LLSD& experience);
 
 	virtual void	draw();

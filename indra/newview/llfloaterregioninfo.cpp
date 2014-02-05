@@ -3569,11 +3569,16 @@ bool LLPanelRegionExperiences::refreshFromRegion(LLViewerRegion* region)
 
 	mAllowed->loading();
 	mAllowed->setReadonly(!allow_modify);
+	// remove grid-wide experiences
 	mAllowed->addFilter(boost::bind(LLFloaterExperiencePicker::FilterWithProperty, _1, LLExperienceCache::PROPERTY_GRID));
+	// and stuff only in another list
 	mAllowed->addFilter(boost::bind(&LLPanelRegionExperiences::FilterExisting, this, _1));
 
 	mBlocked->loading();
 	mBlocked->setReadonly(!allow_modify);
+	// only grid-wide experiences
+	mBlocked->addFilter(boost::bind(LLFloaterExperiencePicker::FilterWithoutProperty, _1, LLExperienceCache::PROPERTY_GRID));
+	// but not privileged ones
 	mBlocked->addFilter(boost::bind(LLFloaterExperiencePicker::FilterWithProperty, _1, LLExperienceCache::PROPERTY_PRIVILEGED));
 	mBlocked->addFilter(boost::bind(&LLPanelRegionExperiences::FilterExisting, this, _1));
 

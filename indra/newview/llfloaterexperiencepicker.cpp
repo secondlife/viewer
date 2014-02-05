@@ -458,9 +458,14 @@ bool LLFloaterExperiencePicker::FilterOverRating( const LLSD& experience )
 	return experience[LLExperienceCache::MATURITY].asInteger() > maturity;
 }
 
-bool LLFloaterExperiencePicker::FilterWithProperty( const LLSD& experience, S32 prop )
+bool LLFloaterExperiencePicker::FilterWithProperty( const LLSD& experience, S32 prop)
 {
 	return (experience[LLExperienceCache::PROPERTIES].asInteger() & prop) != 0;
+}
+
+bool LLFloaterExperiencePicker::FilterWithoutProperty( const LLSD& experience, S32 prop )
+{
+	return (experience[LLExperienceCache::PROPERTIES].asInteger() & prop) == 0;
 }
 
 void LLFloaterExperiencePicker::setDefaultFilters()
