@@ -722,13 +722,17 @@ void LLVolumeImplFlexible::preRebuild()
 	if (!mUpdated)
 	{
 		LL_RECORD_BLOCK_TIME(FTM_FLEXI_PREBUILD);
-		doFlexibleRebuild();
+		doFlexibleRebuild(false);
 	}
 }
 
-void LLVolumeImplFlexible::doFlexibleRebuild()
+void LLVolumeImplFlexible::doFlexibleRebuild(bool rebuild_volume)
 {
 	LLVolume* volume = mVO->getVolume();
+	if(rebuild_volume)
+	{
+		volume->setDirty();
+	}
 	volume->regen();
 	
 	mUpdated = TRUE;
@@ -801,7 +805,7 @@ BOOL LLVolumeImplFlexible::doUpdateGeometry(LLDrawable *drawable)
 		volume->dirtySpatialGroup();
 		{
 			LL_RECORD_BLOCK_TIME(FTM_FLEXIBLE_REBUILD);
-			doFlexibleRebuild();
+			doFlexibleRebuild(volume->mVolumeChanged);
 		}
 		volume->genBBoxes(isVolumeGlobal());
 	}
