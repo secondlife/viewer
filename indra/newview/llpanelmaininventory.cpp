@@ -58,7 +58,7 @@
 
 const std::string FILTERS_FILENAME("filters.xml");
 
-static LLRegisterPanelClassWrapper<LLPanelMainInventory> t_inventory("panel_main_inventory");
+static LLPanelInjector<LLPanelMainInventory> t_inventory("panel_main_inventory");
 
 void on_file_loaded_for_save(BOOL success, 
 							 LLViewerFetchedTexture *src_vi,

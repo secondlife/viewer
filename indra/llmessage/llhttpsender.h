@@ -32,7 +32,7 @@
 class LLHost;
 class LLSD;
 
-class LLHTTPSender
+class LLHTTPSender : public LLThreadSafeRefCount
 {
  public:
 
