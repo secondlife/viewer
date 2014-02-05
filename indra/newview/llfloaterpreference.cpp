@@ -1823,7 +1823,7 @@ private:
 	callback_t mCallback;
 };
 //----------------------------------------------------------------------------
-static LLRegisterPanelClassWrapper<LLPanelPreference> t_places("panel_preference");
+static LLPanelInjector<LLPanelPreference> t_places("panel_preference");
 LLPanelPreference::LLPanelPreference()
 : LLPanel(),
   mBandWidthUpdater(NULL)
@@ -2063,8 +2063,8 @@ private:
 	std::list<std::string> mAccountIndependentSettings;
 };
 
-static LLRegisterPanelClassWrapper<LLPanelPreferenceGraphics> t_pref_graph("panel_preference_graphics");
-static LLRegisterPanelClassWrapper<LLPanelPreferencePrivacy> t_pref_privacy("panel_preference_privacy");
+static LLPanelInjector<LLPanelPreferenceGraphics> t_pref_graph("panel_preference_graphics");
+static LLPanelInjector<LLPanelPreferencePrivacy> t_pref_privacy("panel_preference_privacy");
 
 BOOL LLPanelPreferenceGraphics::postBuild()
 {

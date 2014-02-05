@@ -56,7 +56,7 @@
 
 #include "lltrans.h"
 
-static LLRegisterPanelClassWrapper<LLPanelGroup> t_panel_group("panel_group_info_sidetray");
+static LLPanelInjector<LLPanelGroup> t_panel_group("panel_group_info_sidetray");
 
 
 

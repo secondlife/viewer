@@ -229,7 +229,7 @@ private:
 };
 
 
-static LLRegisterPanelClassWrapper<LLPanelPlaces> t_places("panel_places");
+static LLPanelInjector<LLPanelPlaces> t_places("panel_places");
 
 LLPanelPlaces::LLPanelPlaces()
 	:	LLPanel(),

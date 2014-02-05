@@ -60,7 +60,7 @@ private:
 	void onSend();
 };
 
-static LLRegisterPanelClassWrapper<LLPanelSnapshotInventory> panel_class("llpanelsnapshotinventory");
+static LLPanelInjector<LLPanelSnapshotInventory> panel_class("llpanelsnapshotinventory");
 
 LLPanelSnapshotInventory::LLPanelSnapshotInventory()
 {

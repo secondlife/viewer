@@ -49,7 +49,7 @@
 #include "llvoavatarself.h"
 #include "llviewerwearable.h"
 
-static LLRegisterPanelClassWrapper<LLSidepanelAppearance> t_appearance("sidepanel_appearance");
+static LLPanelInjector<LLSidepanelAppearance> t_appearance("sidepanel_appearance");
 
 class LLCurrentlyWornFetchObserver : public LLInventoryFetchItemsObserver
 {
