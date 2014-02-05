@@ -371,6 +371,10 @@ void LLSyntaxIdLSL::loadKeywordsIntoLLSD()
 			<< "Trying to open cached or default keyword file ;-)"
 			<< LL_ENDL;
 
+	// Is this the right thing to do, or should we leave the old content
+	// even if it isn't entirely accurate anymore?
+	sKeywordsXml = LLSD().emptyMap();
+
 	LLSD content;
 	llifstream file;
 	file.open(mFullFileSpec);
@@ -379,16 +383,25 @@ void LLSyntaxIdLSL::loadKeywordsIntoLLSD()
 		sLoaded = (bool)LLSDSerialize::fromXML(content, file);
 		if (!sLoaded)
 		{
-			LL_ERRS("SyntaxLSL") << "Unable to deserialise file: " << mFullFileSpec << LL_ENDL;
-
-			// Is this the right thing to do, or should we leave the old content
-			// even if it isn't entirely accurate anymore?
-			sKeywordsXml = LLSD().emptyMap();
+			LL_ERRS("SyntaxLSL")
+					<< "Unable to deserialise file: "
+					<< mFullFileSpec << LL_ENDL;
 		}
 		else
 		{
-			sKeywordsXml = content;
-			LL_INFOS("SyntaxLSL") << "Deserialised file: " << mFullFileSpec << LL_ENDL;
+			if (isSupportedVersion(content))
+			{
+				sKeywordsXml = content;
+				LL_INFOS("SyntaxLSL")
+						<< "Deserialised file: " << mFullFileSpec << LL_ENDL;
+			}
+			else
+			{
+				LLSyntaxIdLSL::sLoaded = false;
+				LLSyntaxIdLSL::sLoadFailed = true;
+				LL_WARNS("SyntaxLSL")
+					<< "Unknown or unsupported version of syntax file." << LL_ENDL;
+			}
 		}
 	}
 	else
