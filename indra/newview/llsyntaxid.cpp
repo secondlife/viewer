@@ -113,7 +113,7 @@ void fetchKeywordsFileResponder::cacheFile(const LLSD& content_ref)
 //-----------------------------------------------------------------------------
 const std::string LLSyntaxIdLSL::CAPABILITY_NAME = "LSLSyntax";
 const std::string LLSyntaxIdLSL::FILENAME_DEFAULT = "keywords_lsl_default.xml";
-const std::string LLSyntaxIdLSL::SIMULATOR_FEATURE ="LSLSyntaxId";
+const std::string LLSyntaxIdLSL::SIMULATOR_FEATURE = "LSLSyntaxId";
 
 LLSD LLSyntaxIdLSL::sKeywordsXml;
 bool LLSyntaxIdLSL::sLoaded;
@@ -123,21 +123,24 @@ bool LLSyntaxIdLSL::sVersionChanged;
 /**
  * @brief LLSyntaxIdLSL constructor
  */
-LLSyntaxIdLSL::LLSyntaxIdLSL(std::string filenameDefault, std::string simulatorFeature, std::string capabilityName) :
-	// Move these to signature?
-	mCapabilityURL(""),
+LLSyntaxIdLSL::LLSyntaxIdLSL(std::string filenameDefault, std::string simFeatureName, std::string capabilityName) :
 	mFilePath(LL_PATH_APP_SETTINGS)
 {
 	mCapabilityName = capabilityName;
 	mFileNameCurrent = filenameDefault;
 	mFileNameDefault = filenameDefault;
-	mSimulatorFeature = simulatorFeature;
+	mSimulatorFeature = simFeatureName;
 	mSyntaxIdCurrent = LLUUID();
 }
 
-LLSyntaxIdLSL::LLSyntaxIdLSL()
+LLSyntaxIdLSL::LLSyntaxIdLSL() :
+	mFilePath(LL_PATH_APP_SETTINGS)
 {
-	LLSyntaxIdLSL(LLSyntaxIdLSL::FILENAME_DEFAULT, LLSyntaxIdLSL::SIMULATOR_FEATURE, LLSyntaxIdLSL::CAPABILITY_NAME);
+	mCapabilityName = CAPABILITY_NAME;
+	mFileNameCurrent = FILENAME_DEFAULT;
+	mFileNameDefault = FILENAME_DEFAULT;
+	mSimulatorFeature = SIMULATOR_FEATURE;
+	mSyntaxIdCurrent = LLUUID();
 }
 
 std::string LLSyntaxIdLSL::buildFileNameNew()
@@ -166,7 +169,7 @@ bool LLSyntaxIdLSL::checkSyntaxIdChanged()
 	{
 		if (!region->capabilitiesReceived())
 		{   // Shouldn't be possible, but experience shows that it may be needed.
-			LL_WARNS("SyntaxLSL")
+			LL_ERRS("SyntaxLSL")
 				<< "Region '" << region->getName()
 				<< "' has not received capabilities yet! Cannot process SyntaxId."
 				<< LL_ENDL;
@@ -174,15 +177,14 @@ bool LLSyntaxIdLSL::checkSyntaxIdChanged()
 		else
 		{
 			LLSD simFeatures;
-			std::string message;
 			region->getSimulatorFeatures(simFeatures);
 
-			LL_INFOS("SyntaxLSL") << "Region is '" << region->getName() << "' ..." << LL_ENDL;
-
-			// get and check the hash
-			if (simFeatures.has("LSLSyntaxId"))
+			// Does the sim have the required feature
+			if (simFeatures.has(mSimulatorFeature))
 			{
-				mSyntaxIdNew = simFeatures["LSLSyntaxId"].asUUID();
+				// get and check the hash
+				mSyntaxIdNew = simFeatures[mSimulatorFeature].asUUID();
+				mCapabilityURL = region->getCapability(mCapabilityName);
 				if (mSyntaxIdCurrent != mSyntaxIdNew)
 				{
 					LL_INFOS("SyntaxLSL")
@@ -216,8 +218,6 @@ bool LLSyntaxIdLSL::checkSyntaxIdChanged()
 					changed = true;
 				}
 			}
-			LL_INFOS("SyntaxLSL")
-				<< "Region is '" << region->getName() << message << LL_ENDL;
 		}
 	}
 	sVersionChanged = changed;
@@ -260,8 +260,6 @@ void LLSyntaxIdLSL::initialise()
 	{
 		sKeywordsXml = LLSD();
 		sLoaded = sLoadFailed = false;
-		LLViewerRegion* region = gAgent.getRegion();
-		mCapabilityURL = region->getCapability(mCapabilityName);
 		if (!mCapabilityURL.empty())
 		{
 			LL_INFOS("SyntaxLSL")

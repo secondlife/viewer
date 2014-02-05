@@ -75,7 +75,7 @@ private:
 
 public:
 	LLSyntaxIdLSL();
-	LLSyntaxIdLSL(std::string filenameDefault, std::string simulatorFeature, std::string capabilityName);
+	LLSyntaxIdLSL(std::string filenameDefault, std::string simFeatureName, std::string capabilityName);
 
 	bool			checkSyntaxIdChanged();
 	bool			fetching();
@@ -103,7 +103,7 @@ protected:
 	void			setFileNameCurrent(std::string& name) { mFileNameCurrent = name; }
 	void			setFileNameDefault(std::string& name) { mFileNameDefault = name; }
 	void			setFileNameNew(std::string name) { mFileNameNew = name; }
-	void			setSimulatorFeatureName(const std::string& name) { mSimulatorFeature = name; }
+//	void			setSimulatorFeatureName(const std::string& name) { mSimulatorFeature = name; }
 };
 
 
