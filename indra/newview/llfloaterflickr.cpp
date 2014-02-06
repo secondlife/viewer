@@ -328,7 +328,6 @@ void LLFlickrPhotoPanel::clearAndClose()
 {
 	mTitleTextBox->setValue("");
 	mDescriptionTextBox->setValue("");
-	mTagsTextBox->setValue(DEFAULT_TAG_TEXT);
 
 	LLFloater* floater = getParentByType<LLFloater>();
 	if (floater)
