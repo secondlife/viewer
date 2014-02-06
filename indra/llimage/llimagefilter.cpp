@@ -134,9 +134,9 @@ void LLImageFilter::executeFilter(LLPointer<LLImageRaw> raw_image)
             {
                 mode = STENCIL_BLEND_MODE_ADD;
             }
-            else if (filter_mode == "dodge")
+            else if (filter_mode == "add_back")
             {
-                mode = STENCIL_BLEND_MODE_DODGE;
+                mode = STENCIL_BLEND_MODE_ABACK;
             }
             else if (filter_mode == "fade")
             {
@@ -230,20 +230,41 @@ void LLImageFilter::executeFilter(LLPointer<LLImageRaw> raw_image)
         else if (filter_name == "sharpen")
         {
             LLMatrix3 kernel;
-            for (S32 i = 0; i < NUM_VALUES_IN_MAT3; i++)
+            for (S32 k = 0; k < NUM_VALUES_IN_MAT3; k++)
                 for (S32 j = 0; j < NUM_VALUES_IN_MAT3; j++)
-                    kernel.mMatrix[i][j] = -1.0;
+                    kernel.mMatrix[k][j] = -1.0;
             kernel.mMatrix[1][1] = 9.0;
             convolve(kernel,false,false);
         }
         else if (filter_name == "gradient")
         {
             LLMatrix3 kernel;
-            for (S32 i = 0; i < NUM_VALUES_IN_MAT3; i++)
+            for (S32 k = 0; k < NUM_VALUES_IN_MAT3; k++)
                 for (S32 j = 0; j < NUM_VALUES_IN_MAT3; j++)
-                    kernel.mMatrix[i][j] = -1.0;
+                    kernel.mMatrix[k][j] = -1.0;
             kernel.mMatrix[1][1] = 8.0;
             convolve(kernel,false,true);
+        }
+        else if (filter_name == "convolve")
+        {
+            LLMatrix3 kernel;
+            S32 index = 1;
+            bool normalize = (mFilterData[i][index++].asReal() > 0.0);
+            bool abs_value = (mFilterData[i][index++].asReal() > 0.0);
+            for (S32 k = 0; k < NUM_VALUES_IN_MAT3; k++)
+                for (S32 j = 0; j < NUM_VALUES_IN_MAT3; j++)
+                    kernel.mMatrix[k][j] = mFilterData[i][index++].asReal();
+            convolve(kernel,normalize,abs_value);
+        }
+        else if (filter_name == "colortransform")
+        {
+            LLMatrix3 transform;
+            S32 index = 1;
+            for (S32 k = 0; k < NUM_VALUES_IN_MAT3; k++)
+                for (S32 j = 0; j < NUM_VALUES_IN_MAT3; j++)
+                    transform.mMatrix[k][j] = mFilterData[i][index++].asReal();
+            transform.transpose();
+            colorTransform(transform);
         }
         else
         {
@@ -273,8 +294,8 @@ void LLImageFilter::blendStencil(F32 alpha, U8* pixel, U8 red, U8 green, U8 blue
             pixel[VGREEN] = llclampb(pixel[VGREEN] + alpha * green);
             pixel[VBLUE]  = llclampb(pixel[VBLUE]  + alpha * blue);
             break;
-        case STENCIL_BLEND_MODE_DODGE:
-            // Dodge/burn the incoming color onto the background image
+        case STENCIL_BLEND_MODE_ABACK:
+            // Add back background image to the incoming color
             pixel[VRED]   = llclampb(inv_alpha * pixel[VRED]   + red);
             pixel[VGREEN] = llclampb(inv_alpha * pixel[VGREEN] + green);
             pixel[VBLUE]  = llclampb(inv_alpha * pixel[VBLUE]  + blue);
