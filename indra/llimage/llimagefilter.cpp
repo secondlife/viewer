@@ -256,6 +256,16 @@ void LLImageFilter::executeFilter(LLPointer<LLImageRaw> raw_image)
                     kernel.mMatrix[k][j] = mFilterData[i][index++].asReal();
             convolve(kernel,normalize,abs_value);
         }
+        else if (filter_name == "colortransform")
+        {
+            LLMatrix3 transform;
+            S32 index = 1;
+            for (S32 k = 0; k < NUM_VALUES_IN_MAT3; k++)
+                for (S32 j = 0; j < NUM_VALUES_IN_MAT3; j++)
+                    transform.mMatrix[k][j] = mFilterData[i][index++].asReal();
+            transform.transpose();
+            colorTransform(transform);
+        }
         else
         {
             llwarns << "Filter unknown, cannot execute filter command : " << filter_name << llendl;
