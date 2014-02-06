@@ -195,7 +195,7 @@ void LLFlickrPhotoPanel::draw()
     mWorkingLabel->setVisible(!(previewp && previewp->getSnapshotUpToDate()));
     
     // Enable Post if we have a preview to send and no on going connection being processed
-    mPostButton->setEnabled(no_ongoing_connection && (previewp && previewp->getSnapshotUpToDate()) && (mRatingComboBox && mRatingComboBox->getValue().isDefined()));
+    mPostButton->setEnabled(no_ongoing_connection && (previewp && previewp->getSnapshotUpToDate()));
     
     // Draw the rest of the panel on top of it
 	LLPanel::draw();
