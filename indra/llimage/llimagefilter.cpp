@@ -134,9 +134,9 @@ void LLImageFilter::executeFilter(LLPointer<LLImageRaw> raw_image)
             {
                 mode = STENCIL_BLEND_MODE_ADD;
             }
-            else if (filter_mode == "dodge")
+            else if (filter_mode == "add_back")
             {
-                mode = STENCIL_BLEND_MODE_DODGE;
+                mode = STENCIL_BLEND_MODE_ABACK;
             }
             else if (filter_mode == "fade")
             {
@@ -273,8 +273,8 @@ void LLImageFilter::blendStencil(F32 alpha, U8* pixel, U8 red, U8 green, U8 blue
             pixel[VGREEN] = llclampb(pixel[VGREEN] + alpha * green);
             pixel[VBLUE]  = llclampb(pixel[VBLUE]  + alpha * blue);
             break;
-        case STENCIL_BLEND_MODE_DODGE:
-            // Dodge/burn the incoming color onto the background image
+        case STENCIL_BLEND_MODE_ABACK:
+            // Add back background image to the incoming color
             pixel[VRED]   = llclampb(inv_alpha * pixel[VRED]   + red);
             pixel[VGREEN] = llclampb(inv_alpha * pixel[VGREEN] + green);
             pixel[VBLUE]  = llclampb(inv_alpha * pixel[VBLUE]  + blue);

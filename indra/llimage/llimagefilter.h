@@ -38,7 +38,7 @@ typedef enum e_stencil_blend_mode
 {
 	STENCIL_BLEND_MODE_BLEND = 0,
 	STENCIL_BLEND_MODE_ADD   = 1,
-	STENCIL_BLEND_MODE_DODGE = 2,
+	STENCIL_BLEND_MODE_ABACK = 2,
 	STENCIL_BLEND_MODE_FADE  = 3
 } EStencilBlendMode;
 
