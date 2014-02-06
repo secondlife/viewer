@@ -195,7 +195,7 @@ void LLFlickrPhotoPanel::draw()
     mWorkingLabel->setVisible(!(previewp && previewp->getSnapshotUpToDate()));
     
     // Enable Post if we have a preview to send and no on going connection being processed
-    mPostButton->setEnabled(no_ongoing_connection && (previewp && previewp->getSnapshotUpToDate()) && (mRatingComboBox && mRatingComboBox->getValue().isDefined()));
+    mPostButton->setEnabled(no_ongoing_connection && (previewp && previewp->getSnapshotUpToDate()));
     
     // Draw the rest of the panel on top of it
 	LLPanel::draw();
@@ -231,7 +231,7 @@ void LLFlickrPhotoPanel::onVisibilityChange(const LLSD& new_visibility)
 
             previewp->setContainer(this);
 			previewp->setSnapshotType(previewp->SNAPSHOT_WEB);
-			previewp->setSnapshotFormat(LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG);
+			previewp->setSnapshotFormat(LLFloaterSnapshot::SNAPSHOT_FORMAT_PNG);
             previewp->setThumbnailSubsampled(TRUE);     // We want the preview to reflect the *saved* image
             previewp->setAllowRenderUI(FALSE);          // We do not want the rendered UI in our snapshots
             previewp->setAllowFullScreenPreview(FALSE);  // No full screen preview in SL Share mode
@@ -328,7 +328,6 @@ void LLFlickrPhotoPanel::clearAndClose()
 {
 	mTitleTextBox->setValue("");
 	mDescriptionTextBox->setValue("");
-	mTagsTextBox->setValue(DEFAULT_TAG_TEXT);
 
 	LLFloater* floater = getParentByType<LLFloater>();
 	if (floater)

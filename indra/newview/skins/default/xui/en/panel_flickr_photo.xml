@@ -183,21 +183,20 @@ Use "" for multi-word tags
              follows="left|top"
              top_pad="16"
              left="9"
-             label="Choose Flickr rating (required)..."
              name="rating_combobox"
              tool_tip="Flickr content rating"
              height="21"
              width="250">
               <combo_box.item
-               label="Safe content rating"
+               label="Safe Flickr rating"
                name="SafeRating"
                value="1" />
               <combo_box.item
-               label="Moderate content rating"
+               label="Moderate Flickr rating"
                name="ModerateRating"
                value="2" />
               <combo_box.item
-               label="Restricted content rating"
+               label="Restricted Flickr rating"
                name="RestrictedRating"
                value="3" />
             </combo_box>
