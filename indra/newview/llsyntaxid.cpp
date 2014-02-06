@@ -67,9 +67,10 @@ void fetchKeywordsFileResponder::result(const LLSD& content_ref)
 		if (LLSyntaxIdLSL::isSupportedVersion(content_ref))
 		{
 			LL_INFOS("SyntaxLSL")
-					<< "Is a supported verson of syntax file." << LL_ENDL;
+					<< "Supported verson of syntax file." << LL_ENDL;
 
 			LLSyntaxIdLSL::setKeywordsXml(content_ref);
+			LLSyntaxIdLSL::sInitialised = true;
 			LLSyntaxIdLSL::sLoaded = true;
 			LLSyntaxIdLSL::sLoadFailed = false;
 
@@ -115,6 +116,7 @@ const std::string LLSyntaxIdLSL::CAPABILITY_NAME = "LSLSyntax";
 const std::string LLSyntaxIdLSL::FILENAME_DEFAULT = "keywords_lsl_default.xml";
 const std::string LLSyntaxIdLSL::SIMULATOR_FEATURE = "LSLSyntaxId";
 
+bool LLSyntaxIdLSL::sInitialised;
 LLSD LLSyntaxIdLSL::sKeywordsXml;
 bool LLSyntaxIdLSL::sLoaded;
 bool LLSyntaxIdLSL::sLoadFailed;
@@ -162,13 +164,14 @@ std::string LLSyntaxIdLSL::buildFullFileSpec()
 //-----------------------------------------------------------------------------
 bool LLSyntaxIdLSL::checkSyntaxIdChanged()
 {
-	bool changed = false;
+	sVersionChanged = false;
 	LLViewerRegion* region = gAgent.getRegion();
 
 	if (region)
 	{
 		if (!region->capabilitiesReceived())
 		{   // Shouldn't be possible, but experience shows that it may be needed.
+			sLoadFailed = true;
 			LL_ERRS("SyntaxLSL")
 				<< "Region '" << region->getName()
 				<< "' has not received capabilities yet! Cannot process SyntaxId."
@@ -191,7 +194,7 @@ bool LLSyntaxIdLSL::checkSyntaxIdChanged()
 							<< "It has LSLSyntaxId capability, and the new hash is '"
 							<< mSyntaxIdNew.asString() << "'" << LL_ENDL;
 
-					changed = true;
+					sVersionChanged = true;
 				}
 				else
 				{
@@ -202,7 +205,7 @@ bool LLSyntaxIdLSL::checkSyntaxIdChanged()
 			}
 			else
 			{
-				if ( mSyntaxIdCurrent.isNull() )
+				if ( mSyntaxIdCurrent.isNull() && isInitialised())
 				{
 					LL_INFOS("SyntaxLSL")
 							<< "It does not have LSLSyntaxId capability, remaining with default keywords file!"
@@ -215,13 +218,12 @@ bool LLSyntaxIdLSL::checkSyntaxIdChanged()
 					LL_INFOS("SyntaxLSL")
 							<< "It does not have LSLSyntaxId capability, using default keywords file!"
 							<< LL_ENDL;
-					changed = true;
+					sVersionChanged = true;
 				}
 			}
 		}
 	}
-	sVersionChanged = changed;
-	return changed;
+	return sVersionChanged;
 }
 
 /**
@@ -231,7 +233,7 @@ bool LLSyntaxIdLSL::checkSyntaxIdChanged()
  */
 bool LLSyntaxIdLSL::fetching()
 {
-	return (!sLoaded && !sLoadFailed);
+	return !(sLoaded || sLoadFailed);
 }
 
 //-----------------------------------------------------------------------------
@@ -256,11 +258,17 @@ void LLSyntaxIdLSL::initialise()
 {
 	mFileNameNew = mFileNameCurrent;
 	mSyntaxIdNew = mSyntaxIdCurrent;
+
 	if (checkSyntaxIdChanged())
 	{
 		sKeywordsXml = LLSD();
 		sLoaded = sLoadFailed = false;
-		if (!mCapabilityURL.empty())
+
+		if (mSyntaxIdNew.isNull())
+		{ // Need to open the default
+			loadDefaultKeywordsIntoLLSD();
+		}
+		else if (!mCapabilityURL.empty() )
 		{
 			LL_INFOS("SyntaxLSL")
 					<< "LSL version has changed, getting appropriate file."
@@ -268,7 +276,7 @@ void LLSyntaxIdLSL::initialise()
 
 			// Need a full spec regardless of file source, so build it now.
 			buildFullFileSpec();
-			if ( !mSyntaxIdNew.isNull() )
+			if ( !mSyntaxIdNew.isNull())
 			{
 				if ( !gDirUtilp->fileExists(mFullFileSpec) )
 				{ // Does not exist, so fetch it from the capability
@@ -295,17 +303,11 @@ void LLSyntaxIdLSL::initialise()
 			sLoadFailed = true;
 			LL_ERRS("SyntaxLSL")
 					<< "LSLSyntaxId capability URL is empty!!" << LL_ENDL;
+			loadDefaultKeywordsIntoLLSD();
 		}
-
 	}
-	else if (sKeywordsXml.isDefined())
+	else if (!isInitialised())
 	{
-		LL_INFOS("SyntaxLSL")
-				<< "No change to Syntax! Nothing to see. Move along now!"
-				<< LL_ENDL;
-	}
-	else
-	{ // Need to open the default
 		loadDefaultKeywordsIntoLLSD();
 	}
 
@@ -320,7 +322,7 @@ bool LLSyntaxIdLSL::isSupportedVersion(const LLSD& content)
 {
 	bool isValid = false;
 	/*
-	 * If the schema used to store lsl keywords and hints changes, this value is incremented
+	 * If the schema used to store LSL keywords and hints changes, this value is incremented
 	 * Note that it should _not_ be changed if the keywords and hints _content_ changes.
 	 */
 	const U32         LLSD_SYNTAX_LSL_VERSION_EXPECTED = 2;
@@ -392,13 +394,14 @@ void LLSyntaxIdLSL::loadKeywordsIntoLLSD()
 			if (isSupportedVersion(content))
 			{
 				sKeywordsXml = content;
+				sLoaded = true;
+				sInitialised = true;
 				LL_INFOS("SyntaxLSL")
 						<< "Deserialised file: " << mFullFileSpec << LL_ENDL;
 			}
 			else
 			{
-				LLSyntaxIdLSL::sLoaded = false;
-				LLSyntaxIdLSL::sLoadFailed = true;
+				sLoaded = false;
 				LL_WARNS("SyntaxLSL")
 					<< "Unknown or unsupported version of syntax file." << LL_ENDL;
 			}

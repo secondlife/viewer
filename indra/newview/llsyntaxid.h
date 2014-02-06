@@ -54,11 +54,11 @@ static const std::string	SIMULATOR_FEATURE;
 protected:
 	//LLViewerRegion*	region;
 
+	static bool		sInitialised;
 	static LLSD		sKeywordsXml;
 	static bool		sLoaded;
 	static bool		sLoadFailed;
 	static bool		sVersionChanged;
-
 
 private:
 	std::string		mCapabilityName;
@@ -85,6 +85,7 @@ public:
 	LLSD			getKeywordsXML()		const { return sKeywordsXml; }
 	LLUUID			getSyntaxId()			const { return mSyntaxIdCurrent; }
 	bool			isDifferentVersion()	const { return sVersionChanged; }
+	bool			isInitialised()			const { return sInitialised; }
 
 	void			initialise();
 	bool			isLoaded() { return sLoaded; }
