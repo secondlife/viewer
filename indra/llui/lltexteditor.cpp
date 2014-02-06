@@ -2529,6 +2529,14 @@ void LLTextEditor::loadKeywords()
 	}
 }
 
+void LLTextEditor::clearSegments()
+{
+	if (!mSegments.empty())
+	{
+		mSegments.clear();
+	}
+}
+
 void LLTextEditor::updateSegments()
 {
 	if (mReflowIndex < S32_MAX && mKeywords.isLoaded() && mParseOnTheFly)

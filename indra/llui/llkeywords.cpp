@@ -128,6 +128,16 @@ void LLKeywords::addToken(LLKeywordToken::TOKEN_TYPE type,
 	}
 }
 
+void LLKeywords::clear()
+{
+	clearLoaded();
+	mSyntax = LLSD();
+
+	std::for_each(mWordTokenMap.begin(), mWordTokenMap.end(), DeletePairedPointer());
+	std::for_each(mLineTokenList.begin(), mLineTokenList.end(), DeletePointer());
+	std::for_each(mDelimiterTokenList.begin(), mDelimiterTokenList.end(), DeletePointer());
+}
+
 std::string LLKeywords::getArguments(LLSD& arguments)
 {
 	std::string argString = "";
@@ -326,7 +336,6 @@ void LLKeywords::processTokensGroup(LLSD& Tokens, const std::string Group)
 			{
 				Color = ColorGroup;
 				mAttributes.clear();
-				bool deprecated = false;
 				LLSD arguments = LLSD ();
 				LLSD::map_iterator innerIt = outerIt->second.beginMap();
 				for ( ; innerIt != outerIt->second.endMap(); ++innerIt)
