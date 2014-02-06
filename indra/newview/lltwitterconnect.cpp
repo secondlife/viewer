@@ -459,12 +459,13 @@ void LLTwitterConnect::setConnectionState(LLTwitterConnect::EConnectionState con
 
 	if (mConnectionState != connection_state)
 	{
+		// set the connection state before notifying watchers
+		mConnectionState = connection_state;
+
 		LLSD state_info;
 		state_info["enum"] = connection_state;
 		sStateWatcher->post(state_info);
 	}
-	
-	mConnectionState = connection_state;
 }
 
 void LLTwitterConnect::setConnected(bool connected)
