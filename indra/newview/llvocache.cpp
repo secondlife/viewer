@@ -589,14 +589,10 @@ void LLVOCacheEntry::updateParentBoundingInfo(const LLVOCacheEntry* child)
 //-------------------------------------------------------------------
 LLVOCacheGroup::~LLVOCacheGroup()
 {
-	//for(S32 i = 0; i < LLViewerCamera::NUM_CAMERAS; i++)
-	//{
-	//	if(mOcclusionState[i] & ACTIVE_OCCLUSION)
-	//	{
-	//		((LLVOCachePartition*)mSpatialPartition)->removeOccluder(this);
-	//		break;
-	//	}
-	//}
+	if(mOcclusionState[LLViewerCamera::CAMERA_WORLD] & ACTIVE_OCCLUSION)
+	{
+		((LLVOCachePartition*)mSpatialPartition)->removeOccluder(this);
+	}
 }
 
 //virtual
