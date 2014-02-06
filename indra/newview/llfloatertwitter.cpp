@@ -91,6 +91,7 @@ BOOL LLTwitterPhotoPanel::postBuild()
 	
 	mSnapshotPanel = getChild<LLUICtrl>("snapshot_panel");
 	mResolutionComboBox = getChild<LLUICtrl>("resolution_combobox");
+	mResolutionComboBox->setValue("[i800,i600]"); // hardcoded defaults ftw!
 	mResolutionComboBox->setCommitCallback(boost::bind(&LLTwitterPhotoPanel::updateResolution, this, TRUE));
 	mFilterComboBox = getChild<LLUICtrl>("filters_combobox");
 	mFilterComboBox->setCommitCallback(boost::bind(&LLTwitterPhotoPanel::updateResolution, this, TRUE));
