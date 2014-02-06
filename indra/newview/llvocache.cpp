@@ -589,13 +589,9 @@ void LLVOCacheEntry::updateParentBoundingInfo(const LLVOCacheEntry* child)
 //-------------------------------------------------------------------
 LLVOCacheGroup::~LLVOCacheGroup()
 {
-	for(S32 i = 0; i < LLViewerCamera::NUM_CAMERAS; i++)
+	if(mOcclusionState[LLViewerCamera::CAMERA_WORLD] & ACTIVE_OCCLUSION)
 	{
-		if(mOcclusionState[i] & ACTIVE_OCCLUSION)
-		{
-			((LLVOCachePartition*)mSpatialPartition)->removeOccluder(this);
-			break;
-		}
+		((LLVOCachePartition*)mSpatialPartition)->removeOccluder(this);
 	}
 }
 
@@ -979,7 +975,11 @@ void LLVOCachePartition::processOccluders(LLCamera* camera)
 			group->doOcclusion(camera, &shift);
 			group->clearOcclusionState(LLOcclusionCullingGroup::ACTIVE_OCCLUSION);
 		}
-	}	
+	}
+
+	//safe to clear mOccludedGroups here because only the world camera accesses it.
+	mOccludedGroups.clear();
+	sNeedsOcclusionCheck = FALSE;
 }
 
 void LLVOCachePartition::resetOccluders()

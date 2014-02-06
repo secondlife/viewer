@@ -2086,6 +2086,7 @@ void LLVolume::resizePath(S32 length)
 {
 	mPathp->resizePath(length);
 	mVolumeFaces.clear();
+	setDirty();
 }
 
 void LLVolume::regen()
