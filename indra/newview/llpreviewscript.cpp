@@ -417,44 +417,65 @@ BOOL LLScriptEdCore::postBuild()
 
 void LLScriptEdCore::onRegionChangeInitialiseKeywords()
 {
-	mEditor->mKeywords.clearLoaded();
+	LL_DEBUGS("SyntaxLSL") << "Pre Initialise!" << LL_ENDL;
 	mSyntaxIdLSL.initialise();
+	LL_DEBUGS("SyntaxLSL") << "Post Initialise!" << LL_ENDL;
 
-
-	if (mSyntaxIdLSL.isLoaded())
+	// Nasty Hack to get started, needs to replaced with a callback or similar.
+	if (mSyntaxIdLSL.fetching())
 	{
-		mEditor->mKeywords.initialise(mSyntaxIdLSL.getKeywordsXML());
+		LL_WARNS("SyntaxLSL") << "No Response in Time, still fetching!" << LL_ENDL;
+	}
 
-		mEditor->loadKeywords();
+	if (mSyntaxIdLSL.isDifferentVersion())
+	{
+		LL_INFOS("SyntaxLSL")
+				<< "Hashes are different, updating highlighter." << LL_ENDL;
 
-		std::vector<std::string> primary_keywords;
-		std::vector<std::string> secondary_keywords;
-		LLKeywordToken *token;
-		LLKeywords::keyword_iterator_t token_it;
-		for (token_it = mEditor->keywordsBegin(); token_it != mEditor->keywordsEnd(); ++token_it)
+		mEditor->mKeywords.clearLoaded();
+		mEditor->clearSegments();
+		mEditor->mKeywords.clear();
+
+		if (mSyntaxIdLSL.isLoaded())
 		{
-			token = token_it->second;
-			if (token->getType() == LLKeywordToken::TT_FUNCTION)
+			mEditor->mKeywords.initialise(mSyntaxIdLSL.getKeywordsXML());
+
+			mEditor->loadKeywords();
+
+			std::vector<std::string> primary_keywords;
+			std::vector<std::string> secondary_keywords;
+			LLKeywordToken *token;
+			LLKeywords::keyword_iterator_t token_it;
+			for (token_it = mEditor->keywordsBegin(); token_it != mEditor->keywordsEnd(); ++token_it)
 			{
-				primary_keywords.push_back( wstring_to_utf8str(token->getToken()) );
+				token = token_it->second;
+				if (token->getType() == LLKeywordToken::TT_FUNCTION)
+				{
+					primary_keywords.push_back( wstring_to_utf8str(token->getToken()) );
+				}
+				else
+				{
+					secondary_keywords.push_back( wstring_to_utf8str(token->getToken()) );
+				}
 			}
-			else
+
+			for (std::vector<std::string>::const_iterator iter= primary_keywords.begin();
+				 iter!= primary_keywords.end(); ++iter)
 			{
-				secondary_keywords.push_back( wstring_to_utf8str(token->getToken()) );
+				mFunctions->add(*iter);
+			}
+
+			for (std::vector<std::string>::const_iterator iter= secondary_keywords.begin();
+				 iter!= secondary_keywords.end(); ++iter)
+			{
+				mFunctions->add(*iter);
 			}
 		}
-
-		for (std::vector<std::string>::const_iterator iter= primary_keywords.begin();
-				iter!= primary_keywords.end(); ++iter)
-		{
-			mFunctions->add(*iter);
-		}
-
-		for (std::vector<std::string>::const_iterator iter= secondary_keywords.begin();
-				iter!= secondary_keywords.end(); ++iter)
-		{
-			mFunctions->add(*iter);
-		}
+	}
+	else
+	{
+		LL_INFOS("SyntaxLSL")
+				<< "Hashes are the same, no need to update highlighter." << LL_ENDL;
 	}
 }
 
