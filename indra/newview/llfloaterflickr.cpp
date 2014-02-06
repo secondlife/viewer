@@ -231,7 +231,7 @@ void LLFlickrPhotoPanel::onVisibilityChange(const LLSD& new_visibility)
 
             previewp->setContainer(this);
 			previewp->setSnapshotType(previewp->SNAPSHOT_WEB);
-			previewp->setSnapshotFormat(LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG);
+			previewp->setSnapshotFormat(LLFloaterSnapshot::SNAPSHOT_FORMAT_PNG);
             previewp->setThumbnailSubsampled(TRUE);     // We want the preview to reflect the *saved* image
             previewp->setAllowRenderUI(FALSE);          // We do not want the rendered UI in our snapshots
             previewp->setAllowFullScreenPreview(FALSE);  // No full screen preview in SL Share mode
