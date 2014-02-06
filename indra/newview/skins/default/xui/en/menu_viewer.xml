@@ -1542,7 +1542,8 @@
             <menu_item_check
              label="Highlight Transparent"
              name="Highlight Transparent"
-             shortcut="control|alt|T">
+             shortcut="control|alt|T"
+             use_mac_ctrl="true">
                 <menu_item_check.on_check
                  function="View.CheckHighlightTransparent" />
                 <menu_item_check.on_click
