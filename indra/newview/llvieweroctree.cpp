@@ -300,9 +300,9 @@ void LLViewerOctreeEntry::setGroup(LLViewerOctreeGroup* group)
 
 	if(mGroup)
 	{
-		LLViewerOctreeGroup* group = mGroup;
+		LLViewerOctreeGroup* old_group = mGroup;
 		mGroup = NULL;
-		group->removeFromGroup(this);
+		old_group->removeFromGroup(this);
 
 		llassert(mBinIndex == -1);
 	}

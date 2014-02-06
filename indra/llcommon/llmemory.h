@@ -37,7 +37,7 @@ class LLMutex ;
 #if LL_WINDOWS && LL_DEBUG
 #define LL_CHECK_MEMORY llassert(_CrtCheckMemory());
 #else
-#define LL_CHECK_MEMORY
+#define LL_CHECK_MEMORY _CrtCheckMemory();
 #endif
 
 

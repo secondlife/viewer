@@ -47,6 +47,7 @@ ThreadRecorder::ThreadRecorder()
 
 void ThreadRecorder::init()
 {
+#if LL_TRACE_ENABLED
 	LLThreadLocalSingletonPointer<BlockTimerStackRecord>::setInstance(&mBlockTimerStackRecord);
 	//NB: the ordering of initialization in this function is very fragile due to a large number of implicit dependencies
 	set_thread_recorder(this);
@@ -83,6 +84,7 @@ void ThreadRecorder::init()
 	claim_alloc(gTraceMemStat, this);
 	claim_alloc(gTraceMemStat, mRootTimer);
 	claim_alloc(gTraceMemStat, sizeof(TimeBlockTreeNode) * mNumTimeBlockTreeNodes);
+#endif
 }
 
 
@@ -96,6 +98,7 @@ ThreadRecorder::ThreadRecorder( ThreadRecorder& parent )
 
 ThreadRecorder::~ThreadRecorder()
 {
+#if LL_TRACE_ENABLED
 	LLThreadLocalSingletonPointer<BlockTimerStackRecord>::setInstance(NULL);
 
 	disclaim_alloc(gTraceMemStat, this);
@@ -119,19 +122,23 @@ ThreadRecorder::~ThreadRecorder()
 	{
 		mParentRecorder->removeChildRecorder(this);
 	}
+#endif
 }
 
 TimeBlockTreeNode* ThreadRecorder::getTimeBlockTreeNode( S32 index )
 {
+#if LL_TRACE_ENABLED
 	if (0 <= index && index < mNumTimeBlockTreeNodes)
 	{
 		return &mTimeBlockTreeNodes[index];
 	}
+#endif
 	return NULL;
 }
 
 AccumulatorBufferGroup* ThreadRecorder::activate( AccumulatorBufferGroup* recording)
 {
+#if LL_TRACE_ENABLED
 	ActiveRecording* active_recording = new ActiveRecording(recording);
 	if (!mActiveRecordings.empty())
 	{
@@ -144,10 +151,14 @@ AccumulatorBufferGroup* ThreadRecorder::activate( AccumulatorBufferGroup* record
 
 	mActiveRecordings.back()->mPartialRecording.makeCurrent();
 	return &active_recording->mPartialRecording;
+#else
+	return NULL;
+#endif
 }
 
 ThreadRecorder::active_recording_list_t::iterator ThreadRecorder::bringUpToDate( AccumulatorBufferGroup* recording )
 {
+#if LL_TRACE_ENABLED
 	if (mActiveRecordings.empty()) return mActiveRecordings.end();
 
 	mActiveRecordings.back()->mPartialRecording.sync();
@@ -186,10 +197,14 @@ ThreadRecorder::active_recording_list_t::iterator ThreadRecorder::bringUpToDate(
 	}
 
 	return (++it).base();
+#else
+	return ThreadRecorder::active_recording_list_t::iterator();
+#endif
 }
 
 void ThreadRecorder::deactivate( AccumulatorBufferGroup* recording )
 {
+#if LL_TRACE_ENABLED
 	active_recording_list_t::iterator recording_it = bringUpToDate(recording);
 	// this method should only be called on a thread where the recorder is active
 	llassert_always(recording_it != mActiveRecordings.end());
@@ -210,6 +225,7 @@ void ThreadRecorder::deactivate( AccumulatorBufferGroup* recording )
 		}
 	}
 	delete recording_to_remove;
+#endif
 }
 
 ThreadRecorder::ActiveRecording::ActiveRecording( AccumulatorBufferGroup* target ) 
@@ -218,35 +234,43 @@ ThreadRecorder::ActiveRecording::ActiveRecording( AccumulatorBufferGroup* target
 
 void ThreadRecorder::ActiveRecording::movePartialToTarget()
 {
+#if LL_TRACE_ENABLED
 	mTargetRecording->append(mPartialRecording);
 	// reset based on self to keep history
 	mPartialRecording.reset(&mPartialRecording);
+#endif
 }
 
 
 // called by child thread
 void ThreadRecorder::addChildRecorder( class ThreadRecorder* child )
 {
+#if LL_TRACE_ENABLED
 	{ LLMutexLock lock(&mChildListMutex);
 		mChildThreadRecorders.push_back(child);
 	}
+#endif
 }
 
 // called by child thread
 void ThreadRecorder::removeChildRecorder( class ThreadRecorder* child )
 {	
+#if LL_TRACE_ENABLED
 	{ LLMutexLock lock(&mChildListMutex);
 		mChildThreadRecorders.remove(child);
 	}
+#endif
 }
 
 void ThreadRecorder::pushToParent()
 {
+#if LL_TRACE_ENABLED
 	{ LLMutexLock lock(&mSharedRecordingMutex);	
 		LLTrace::get_thread_recorder()->bringUpToDate(&mThreadRecordingBuffers);
 		mSharedRecordingBuffers.append(mThreadRecordingBuffers);
 		mThreadRecordingBuffers.reset();
 	}
+#endif
 }
 
 
@@ -254,6 +278,7 @@ static LLTrace::BlockTimerStatHandle FTM_PULL_TRACE_DATA_FROM_CHILDREN("Pull chi
 
 void ThreadRecorder::pullFromChildren()
 {
+#if LL_TRACE_ENABLED
 	LL_RECORD_BLOCK_TIME(FTM_PULL_TRACE_DATA_FROM_CHILDREN);
 	if (mActiveRecordings.empty()) return;
 
@@ -270,6 +295,7 @@ void ThreadRecorder::pullFromChildren()
 			(*it)->mSharedRecordingBuffers.reset();
 		}
 	}
+#endif
 }
 
 

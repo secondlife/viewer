@@ -294,6 +294,7 @@ static LLTrace::BlockTimerStatHandle FTM_PROCESS_TIMES("Process FastTimer Times"
 //static
 void BlockTimer::processTimes()
 {
+#if LL_TRACE_ENABLED
 	LL_RECORD_BLOCK_TIME(FTM_PROCESS_TIMES);
 	get_clock_count(); // good place to calculate clock frequency
 
@@ -316,6 +317,7 @@ void BlockTimer::processTimes()
 		accumulator.mLastCaller = NULL;
 		accumulator.mMoveUpTree = false;
 	}
+#endif
 }
 
 std::vector<BlockTimerStatHandle*>::iterator BlockTimerStatHandle::beginChildren()
@@ -449,6 +451,7 @@ TimeBlockAccumulator::TimeBlockAccumulator()
 
 void TimeBlockAccumulator::addSamples( const TimeBlockAccumulator& other, EBufferAppendType append_type )
 {
+#if LL_TRACE_ENABLED
 	// we can't merge two unrelated time block samples, as that will screw with the nested timings
 	// due to the call hierarchy of each thread
 	llassert(append_type == SEQUENTIAL);
@@ -459,6 +462,7 @@ void TimeBlockAccumulator::addSamples( const TimeBlockAccumulator& other, EBuffe
 	mActiveCount = other.mActiveCount;
 	mMoveUpTree = other.mMoveUpTree;
 	mParent = other.mParent;
+#endif
 }
 
 void TimeBlockAccumulator::reset( const TimeBlockAccumulator* other )

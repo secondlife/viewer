@@ -100,6 +100,7 @@ Recording::~Recording()
 // brings recording to front of recorder stack, with up to date info
 void Recording::update()
 {
+#if LL_TRACE_ENABLED
 	if (isStarted())
 	{
 		mElapsedSeconds += mSamplingTimer.getElapsedTimeF64();
@@ -117,46 +118,57 @@ void Recording::update()
 
 		mSamplingTimer.reset();
 	}
+#endif
 }
 
 void Recording::handleReset()
 {
+#if LL_TRACE_ENABLED
 	mBuffers.write()->reset();
 
 	mElapsedSeconds = F64Seconds(0.0);
 	mSamplingTimer.reset();
+#endif
 }
 
 void Recording::handleStart()
 {
+#if LL_TRACE_ENABLED
 	mSamplingTimer.reset();
 	mBuffers.setStayUnique(true);
 	// must have thread recorder running on this thread
 	llassert(LLTrace::get_thread_recorder().notNull());
 	mActiveBuffers = LLTrace::get_thread_recorder()->activate(mBuffers.write());
+#endif
 }
 
 void Recording::handleStop()
 {
+#if LL_TRACE_ENABLED
 	mElapsedSeconds += mSamplingTimer.getElapsedTimeF64();
 	// must have thread recorder running on this thread
 	llassert(LLTrace::get_thread_recorder().notNull());
 	LLTrace::get_thread_recorder()->deactivate(mBuffers.write());
 	mActiveBuffers = NULL;
 	mBuffers.setStayUnique(false);
+#endif
 }
 
 void Recording::handleSplitTo(Recording& other)
 {
+#if LL_TRACE_ENABLED
 	mBuffers.write()->handOffTo(*other.mBuffers.write());
+#endif
 }
 
 void Recording::appendRecording( Recording& other )
 {
+#if LL_TRACE_ENABLED
 	update();
 	other.update();
 	mBuffers.write()->append(*other.mBuffers);
 	mElapsedSeconds += other.mElapsedSeconds;
+#endif
 }
 
 bool Recording::hasValue(const StatType<TimeBlockAccumulator>& stat)
