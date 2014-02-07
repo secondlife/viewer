@@ -207,6 +207,7 @@ BOOL LLFacebookPhotoPanel::postBuild()
 	
 	mSnapshotPanel = getChild<LLUICtrl>("snapshot_panel");
 	mResolutionComboBox = getChild<LLUICtrl>("resolution_combobox");
+	mResolutionComboBox->setValue("[i1200,i630]"); // hardcoded defaults ftw!
 	mResolutionComboBox->setCommitCallback(boost::bind(&LLFacebookPhotoPanel::updateResolution, this, TRUE));
 	mFilterComboBox = getChild<LLUICtrl>("filters_combobox");
 	mFilterComboBox->setCommitCallback(boost::bind(&LLFacebookPhotoPanel::updateResolution, this, TRUE));
