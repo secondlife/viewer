@@ -74,10 +74,14 @@ void LLImageFiltersManager::loadFiltersFromDir(const std::string& dir)
 		}
 		
 		// Get the ".xml" out of the file name to get the filter name. That's the one known in strings.xml
-		std::string filter_name = file_name.substr(0,file_name.length()-4);
-        // Get the localized name for the filter
-		filter_name = LLTrans::getString(filter_name);
+		std::string filter_name_untranslated = file_name.substr(0,file_name.length()-4);
         
+        // Get the localized name for the filter
+        std::string	filter_name_translated;
+        bool translated = LLTrans::findString(filter_name_translated, filter_name_untranslated);
+        std::string	filter_name = (translated ? filter_name_translated: filter_name_untranslated);
+        
+        // Store the filter in the list with its associated file name
         mFiltersList[filter_name] = file_name;
 	}
 }
