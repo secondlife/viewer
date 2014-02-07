@@ -76,9 +76,7 @@ LLImageFilter::~LLImageFilter()
 /*
  *TODO 
  * Rename stencil to mask
- * Test blend modes and name them correctly
  * Improve perf: use LUT for alpha blending in uniform case
- * Improve perf: make sure filter is not called more than necessary in viewer (seems to be called 3 times per change)
  * Add gradient coloring as a filter
  */
 
