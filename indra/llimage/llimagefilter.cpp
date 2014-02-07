@@ -510,15 +510,18 @@ void LLImageFilter::filterScreen(EScreenMode mode, const F32 wave_length, const 
         {
             // Compute screen value
             F32 value = 0.0;
-            F32 d = 0.0;
+            F32 di = 0.0;
+            F32 dj = 0.0;
             switch (mode)
             {
                 case SCREEN_MODE_2DSINE:
-                    value = (sinf(2*F_PI*i/wave_length_pixels)*sinf(2*F_PI*j/wave_length_pixels)+1.0)*255.0/2.0;
+                    di =  cos*i + sin*j;
+                    dj = -sin*i + cos*j;
+                    value = (sinf(2*F_PI*di/wave_length_pixels)*sinf(2*F_PI*dj/wave_length_pixels)+1.0)*255.0/2.0;
                     break;
                 case SCREEN_MODE_LINE:
-                    d = sin*i - cos*j;
-                    value = (sinf(2*F_PI*d/wave_length_pixels)+1.0)*255.0/2.0;
+                    dj = sin*i - cos*j;
+                    value = (sinf(2*F_PI*dj/wave_length_pixels)+1.0)*255.0/2.0;
                     break;
             }
             U8 dst_value = (dst_data[VRED] >= (U8)(value) ? 255 : 0);
