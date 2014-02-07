@@ -60,7 +60,7 @@ enum LLRoleChangeType
 // bit 0x1 << 46 (GP_PROPOSAL_VIEW)
 
 const U64 GP_NO_POWERS = 0x0;
-const U64 GP_ALL_POWERS = 0xFFFFFFFFFFFFFFFFLL;
+const U64 GP_ALL_POWERS = 0xFFFFffffFFFFffffLL;
 
 // Membership
 const U64 GP_MEMBER_INVITE				= 0x1LL << 1;	// Invite member

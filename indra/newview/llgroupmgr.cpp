@@ -1895,7 +1895,7 @@ void LLGroupMgr::sendGroupBanRequest(	EBanRequestType request_type,
 	}
 
 	// Get our capability
-	std::string cap_url =  currentRegion->getCapability("GroupBan");
+	std::string cap_url =  currentRegion->getCapability("GroupAPIv1");
 	if(cap_url.empty())
 	{
 		return;

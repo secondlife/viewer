@@ -142,7 +142,10 @@ protected:
 	icon_map_t	mActionIcons;
 
 	bool mActivated;
-
+	
+	bool mHasGroupBanPower; // Used to communicate between action sets due to the dependency between
+							// GP_GROUP_BAN_ACCESS and GP_EJECT_MEMBER and GP_ROLE_REMOVE_MEMBER
+	
 	void setOthersVisible(BOOL b);
 };
 
@@ -246,7 +249,7 @@ public:
 
 	static void onActionCheck(LLUICtrl*, void*);
 	bool addActionCB(const LLSD& notification, const LLSD& response, LLCheckBoxCtrl* check);
-
+	
 	static void onPropertiesKey(LLLineEditor*, void*);
 
 	void onDescriptionKeyStroke(LLTextEditor* caller);

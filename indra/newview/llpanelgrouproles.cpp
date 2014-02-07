@@ -438,6 +438,7 @@ LLPanelGroupSubTab::LLPanelGroupSubTab()
 	mHeader(NULL),
 	mFooter(NULL),
 	mActivated(false),
+	mHasGroupBanPower(false),
 	mSearchEditor(NULL)
 {
 }
@@ -559,9 +560,10 @@ void LLPanelGroupSubTab::buildActionsList(LLScrollListCtrl* ctrl,
 		return;
 	}
 
+	mHasGroupBanPower = false;
+
 	std::vector<LLRoleActionSet*>::iterator ras_it = LLGroupMgr::getInstance()->mRoleActionSets.begin();
 	std::vector<LLRoleActionSet*>::iterator ras_end = LLGroupMgr::getInstance()->mRoleActionSets.end();
-
 	for ( ; ras_it != ras_end; ++ras_it)
 	{
 		buildActionCategory(ctrl,
@@ -691,6 +693,31 @@ void LLPanelGroupSubTab::buildActionCategory(LLScrollListCtrl* ctrl,
 			row["columns"][column_index]["value"] = (*ra_it)->mDescription;
 			row["columns"][column_index]["font"] = "SANSSERIF_SMALL";
 
+			if(mHasGroupBanPower)
+			{
+				// The ban ability is being set. Prevent these abilities from being manipulated
+				if((*ra_it)->mPowerBit == GP_MEMBER_EJECT)
+				{
+					row["enabled"] = false;
+				}
+				else if((*ra_it)->mPowerBit == GP_ROLE_REMOVE_MEMBER)
+				{
+					row["enabled"] = false;
+				}
+			}
+			else
+			{
+				// The ban ability is not set. Allow these abilities to be manipulated
+				if((*ra_it)->mPowerBit == GP_MEMBER_EJECT)
+				{
+					row["enabled"] = true;
+				}
+				else if((*ra_it)->mPowerBit == GP_ROLE_REMOVE_MEMBER)
+				{
+					row["enabled"] = true;
+				}
+			}
+
 			LLScrollListItem* item = ctrl->addElement(row, ADD_BOTTOM, (*ra_it));
 
 			if (-1 != check_box_index)
@@ -725,6 +752,15 @@ void LLPanelGroupSubTab::buildActionCategory(LLScrollListCtrl* ctrl,
 					{
 						check->setTentative(TRUE);
 					}
+				}
+
+				// Regardless of whether or not this ability is allowed by all or some, we want to prevent
+				// the group managers from accidentally disabling either of the two additional abilities
+				// tied with GP_GROUP_BAN_ACCESS.
+				if(	(allowed_by_all & GP_GROUP_BAN_ACCESS) == GP_GROUP_BAN_ACCESS ||
+					(allowed_by_some & GP_GROUP_BAN_ACCESS) == GP_GROUP_BAN_ACCESS)
+				{
+					mHasGroupBanPower = true;
 				}
 			}
 		}
@@ -1989,7 +2025,7 @@ void LLPanelGroupRolesSubTab::update(LLGroupChange gc)
 		mRolesList->sortByColumn(std::string("name"), TRUE);
 
 		if ( (gdatap->mRoles.size() < (U32)MAX_ROLES)
-			&& gAgent.hasPowerInGroup(mGroupID, GP_GROUP_BAN_ACCESS) )
+			&& gAgent.hasPowerInGroup(mGroupID, GP_ROLE_CREATE) )
 		{
 			mCreateRoleButton->setEnabled(TRUE);
 		}
@@ -2219,40 +2255,115 @@ void LLPanelGroupRolesSubTab::handleActionCheck(LLUICtrl* ctrl, bool force)
 	LLRoleAction* rap = (LLRoleAction*)action_item->getUserdata();
 	U64 power = rap->mPowerBit;
 
-	if (check->get())
+	bool isEnablingAbility = check->get();
+	LLRoleData rd;
+	LLSD args;
+
+	if (isEnablingAbility &&
+		!force && 
+		((GP_ROLE_ASSIGN_MEMBER == power) || (GP_ROLE_CHANGE_ACTIONS == power) ))
 	{
-		if (!force && (    (GP_ROLE_ASSIGN_MEMBER == power)
-						|| (GP_ROLE_CHANGE_ACTIONS == power) ))
+		// Uncheck the item, for now.  It will be
+		// checked if they click 'Yes', below.
+		check->set(FALSE);
+
+		LLRoleData rd;
+		LLSD args;
+
+		if ( gdatap->getRoleData(role_id, rd) )
 		{
-			// Uncheck the item, for now.  It will be
-			// checked if they click 'Yes', below.
-			check->set(FALSE);
-
-			LLRoleData rd;
-			LLSD args;
-
-			if ( gdatap->getRoleData(role_id, rd) )
+			args["ACTION_NAME"] = rap->mDescription;
+			args["ROLE_NAME"] = rd.mRoleName;
+			mHasModal = TRUE;
+			std::string warning = "AssignDangerousActionWarning";
+			if (GP_ROLE_CHANGE_ACTIONS == power)
 			{
-				args["ACTION_NAME"] = rap->mDescription;
-				args["ROLE_NAME"] = rd.mRoleName;
-				mHasModal = TRUE;
-				std::string warning = "AssignDangerousActionWarning";
-				if (GP_ROLE_CHANGE_ACTIONS == power)
-				{
-					warning = "AssignDangerousAbilityWarning";
-				}
-				LLNotificationsUtil::add(warning, args, LLSD(), boost::bind(&LLPanelGroupRolesSubTab::addActionCB, this, _1, _2, check));
+				warning = "AssignDangerousAbilityWarning";
 			}
-			else
-			{
-				llwarns << "Unable to look up role information for role id: "
-						<< role_id << llendl;
-			}
+			LLNotificationsUtil::add(warning, args, LLSD(), boost::bind(&LLPanelGroupRolesSubTab::addActionCB, this, _1, _2, check));
 		}
 		else
 		{
-			gdatap->addRolePower(role_id,power);
+			llwarns << "Unable to look up role information for role id: "
+				<< role_id << llendl;
 		}
+	}
+
+	if(GP_GROUP_BAN_ACCESS == power)
+	{
+		std::string warning = isEnablingAbility ? "AssignBanAbilityWarning" : "RemoveBanAbilityWarning";
+
+		//////////////////////////////////////////////////////////////////////////
+		// Get role data for both GP_ROLE_REMOVE_MEMBER and GP_MEMBER_EJECT
+		// Add description and role name to LLSD
+		// Pop up dialog saying "Yo, you also granted these other abilities when you did this!"
+		if ( gdatap->getRoleData(role_id, rd) )
+		{
+			args["ACTION_NAME"] = rap->mDescription;
+			args["ROLE_NAME"] = rd.mRoleName;
+			mHasModal = TRUE;
+			
+			std::vector<LLScrollListItem*> all_data = mAllowedActionsList->getAllData();
+			std::vector<LLScrollListItem*>::iterator ad_it = all_data.begin();
+			std::vector<LLScrollListItem*>::iterator ad_end = all_data.end();
+			LLRoleAction* adp;
+			for( ; ad_it != ad_end; ++ad_it)
+			{
+				adp = (LLRoleAction*)(*ad_it)->getUserdata();
+				if(adp->mPowerBit == GP_MEMBER_EJECT)
+				{
+					args["ACTION_NAME_2"] = adp->mDescription;
+				}
+				else if(adp->mPowerBit == GP_ROLE_REMOVE_MEMBER)
+				{
+					args["ACTION_NAME_3"] = adp->mDescription;
+				}
+			}
+		
+			LLNotificationsUtil::add(warning, args);
+		}
+		else
+		{
+			llwarns << "Unable to look up role information for role id: "
+				<< role_id << llendl;
+		}
+		
+		//////////////////////////////////////////////////////////////////////////
+
+		LLGroupMgrGroupData::role_list_t::iterator rit = gdatap->mRoles.find(role_id);
+		U64 current_role_powers = GP_NO_POWERS;
+		if (rit != gdatap->mRoles.end())
+		{
+			current_role_powers = ((*rit).second->getRoleData().mRolePowers);
+		}
+
+		if(isEnablingAbility)
+		{
+			power |= (GP_ROLE_REMOVE_MEMBER | GP_MEMBER_EJECT);
+			current_role_powers |= power;
+		}
+		else
+		{
+			current_role_powers |= (GP_ROLE_REMOVE_MEMBER | GP_MEMBER_EJECT);
+		}
+
+		mAllowedActionsList->deleteAllItems();
+		buildActionsList(	mAllowedActionsList,
+			current_role_powers,
+			current_role_powers,				
+			boost::bind(&LLPanelGroupRolesSubTab::handleActionCheck, this, _1, false),
+			TRUE,
+			FALSE,
+			FALSE);
+
+	}
+	
+	//////////////////////////////////////////////////////////////////////////
+	// Adding non-specific ability to role
+	//////////////////////////////////////////////////////////////////////////
+	if(isEnablingAbility)
+	{
+		gdatap->addRolePower(role_id, power);
 	}
 	else
 	{
@@ -2261,6 +2372,7 @@ void LLPanelGroupRolesSubTab::handleActionCheck(LLUICtrl* ctrl, bool force)
 
 	mHasRoleChange = TRUE;
 	notifyObservers();
+
 }
 
 bool LLPanelGroupRolesSubTab::addActionCB(const LLSD& notification, const LLSD& response, LLCheckBoxCtrl* check)
