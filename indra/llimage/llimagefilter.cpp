@@ -500,6 +500,14 @@ void LLImageFilter::filterScreen(EScreenMode mode, const F32 wave_length, const 
     F32 wave_length_pixels = wave_length * (F32)(height) / 2.0;
     F32 sin = sinf(angle*DEG_TO_RAD);
     F32 cos = cosf(angle*DEG_TO_RAD);
+
+    // Precompute the gamma table : gives us the gray level to use when cutting outside the screen (prevents strong aliasing on the screen)
+    U8 gamma[256];
+    for (S32 i = 0; i < 256; i++)
+    {
+        F32 gamma_i = llclampf((float)(powf((float)(i)/255.0,1.0/4.0)));
+        gamma[i] = (U8)(255.0 * gamma_i);
+    }
     
 	U8* dst_data = mImage->getData();
 	for (S32 j = 0; j < height; j++)
@@ -522,7 +530,7 @@ void LLImageFilter::filterScreen(EScreenMode mode, const F32 wave_length, const 
                     value = (sinf(2*F_PI*dj/wave_length_pixels)+1.0)*255.0/2.0;
                     break;
             }
-            U8 dst_value = (dst_data[VRED] >= (U8)(value) ? 255 : 0);
+            U8 dst_value = (dst_data[VRED] >= (U8)(value) ? gamma[dst_data[VRED] - (U8)(value)] : 0);
             
             // Blend result
             blendStencil(getStencilAlpha(i,j), dst_data, dst_value, dst_value, dst_value);
