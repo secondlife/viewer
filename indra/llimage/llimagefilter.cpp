@@ -542,31 +542,6 @@ void LLImageFilter::filterScreen(EScreenMode mode, const F32 wave_length, const 
 //============================================================================
 // Procedural Stencils
 //============================================================================
-
-void LLImageFilter::setStencil(EStencilBlendMode mode, EStencilShape type, F32 gamma, F32 min, F32 max)
-{
-    mStencilBlendMode = mode;
-    mStencilShape = type;
-    mStencilGamma = gamma;
-    mStencilMin = llmin(llmax(min, -1.0f), 1.0f);
-    mStencilMax = llmin(llmax(max, -1.0f), 1.0f);
-
-    // We center the vignette on the image and fits it in the image smallest dimension
-    mStencilCenterX = mImage->getWidth()/2;
-    mStencilCenterY = mImage->getHeight()/2;
-    mStencilWidth = llmin(mImage->getWidth()/2,mImage->getHeight()/2);
-    
-    mStencilWavelength = gamma;
-    mStencilSine   = 0.0;
-    mStencilCosine = 1.0;
-    
-    mStencilStartX = 0.0;
-    mStencilStartY = 0.0;
-    mStencilGradX  = 0.0;
-    mStencilGradY  = (F32)(mImage->getHeight());
-    mStencilGradN  = (F32)(mImage->getHeight()*mImage->getHeight());
-}
-
 void LLImageFilter::setStencil(EStencilShape shape, EStencilBlendMode mode, F32 min, F32 max, F32* params)
 {
     mStencilShape = shape;

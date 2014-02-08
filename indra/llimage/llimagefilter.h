@@ -94,7 +94,6 @@ private:
     void convolve(const LLMatrix3 &kernel, bool normalize, bool abs_value);
 
     // Procedural Stencils
-    void setStencil(EStencilBlendMode mode, EStencilShape type, F32 gamma, F32 min, F32 max);
     void setStencil(EStencilShape shape, EStencilBlendMode mode, F32 min, F32 max, F32* params);
     F32 getStencilAlpha(S32 i, S32 j);
 

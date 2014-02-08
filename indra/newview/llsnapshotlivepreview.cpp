@@ -556,10 +556,8 @@ void LLSnapshotLivePreview::generateThumbnailImage(BOOL force_update)
                      mPreviewImage->getHeight(),
                      mPreviewImage->getComponents());
         raw->copy(mPreviewImage);
-        // Scale to the thumbnal size modulo a power of 2
-        S32 width  = LLImageRaw::expandDimToPowerOfTwo(mThumbnailWidth,MAX_IMAGE_SIZE);
-        S32 height = LLImageRaw::expandDimToPowerOfTwo(mThumbnailHeight,MAX_IMAGE_SIZE);
-        if (!raw->scale(width, height))
+        // Scale to the thumbnail size
+        if (!raw->scale(mThumbnailWidth, mThumbnailHeight))
         {
             raw = NULL ;
         }
@@ -575,15 +573,12 @@ void LLSnapshotLivePreview::generateThumbnailImage(BOOL force_update)
         {
             raw = NULL ;
         }
-        else
-        {
-            raw->expandToPowerOfTwo();
-        }
     }
     
 	if (raw)
 	{
         // Filter the thumbnail
+        // Note: filtering needs to be done *before* the scaling to power of 2 or the effect is distorted
         if (getFilter() != "")
         {
             std::string filter_path = LLImageFiltersManager::getInstance()->getFilterPath(getFilter());
@@ -597,6 +592,8 @@ void LLSnapshotLivePreview::generateThumbnailImage(BOOL force_update)
                 llwarns << "Couldn't find a path to the following filter : " << getFilter() << llendl;
             }
         }
+        // Scale to a power of 2 so it can be mapped to a texture
+        raw->expandToPowerOfTwo();
 		mThumbnailImage = LLViewerTextureManager::getLocalTexture(raw.get(), FALSE);
 		mThumbnailUpToDate = TRUE ;
 	}
