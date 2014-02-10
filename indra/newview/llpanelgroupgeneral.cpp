@@ -63,14 +63,12 @@ const S32 DECLINE_TO_STATE = 0;
 
 LLPanelGroupGeneral::LLPanelGroupGeneral()
 :	LLPanelGroupTab(),
-	mPendingMemberUpdate(FALSE),
 	mChanged(FALSE),
 	mFirstUse(TRUE),
 	mGroupNameEditor(NULL),
 	mFounderName(NULL),
 	mInsignia(NULL),
 	mEditCharter(NULL),
-	mListVisibleMembers(NULL),
 	mCtrlShowInGroupList(NULL),
 	mComboMature(NULL),
 	mCtrlOpenEnrollment(NULL),
@@ -79,18 +77,13 @@ LLPanelGroupGeneral::LLPanelGroupGeneral()
 	mCtrlReceiveNotices(NULL),
 	mCtrlListGroup(NULL),
 	mActiveTitleLabel(NULL),
-	mComboActiveTitle(NULL),
-	mAvatarNameCacheConnection()
+	mComboActiveTitle(NULL)
 {
 
 }
 
 LLPanelGroupGeneral::~LLPanelGroupGeneral()
 {
-	if (mAvatarNameCacheConnection.connected())
-	{
-		mAvatarNameCacheConnection.disconnect();
-	}
 }
 
 BOOL LLPanelGroupGeneral::postBuild()
@@ -103,17 +96,6 @@ BOOL LLPanelGroupGeneral::postBuild()
 		mEditCharter->setCommitCallback(onCommitAny, this);
 		mEditCharter->setFocusReceivedCallback(boost::bind(onFocusEdit, _1, this));
 		mEditCharter->setFocusChangedCallback(boost::bind(onFocusEdit, _1, this));
-	}
-
-
-
-	mListVisibleMembers = getChild<LLNameListCtrl>("visible_members", recurse);
-	if (mListVisibleMembers)
-	{
-		mListVisibleMembers->setDoubleClickCallback(openProfile, this);
-		mListVisibleMembers->setContextMenu(LLScrollListCtrl::MENU_AVATAR);
-		
-		mListVisibleMembers->setSortCallback(boost::bind(&LLPanelGroupGeneral::sortMembersList,this,_1,_2,_3));
 	}
 
 	// Options
@@ -290,21 +272,6 @@ void LLPanelGroupGeneral::onClickInfo(void *userdata)
 
 }
 
-// static
-void LLPanelGroupGeneral::openProfile(void* data)
-{
-	LLPanelGroupGeneral* self = (LLPanelGroupGeneral*)data;
-
-	if (self && self->mListVisibleMembers)
-	{
-		LLScrollListItem* selected = self->mListVisibleMembers->getFirstSelected();
-		if (selected)
-		{
-			LLAvatarActions::showProfile(selected->getUUID());
-		}
-	}
-}
-
 bool LLPanelGroupGeneral::needsApply(std::string& mesg)
 { 
 	updateChanged();
@@ -336,11 +303,6 @@ void LLPanelGroupGeneral::activate()
 void LLPanelGroupGeneral::draw()
 {
 	LLPanelGroupTab::draw();
-
-	if (mPendingMemberUpdate)
-	{
-		updateMembers();
-	}
 }
 
 bool LLPanelGroupGeneral::apply(std::string& mesg)
@@ -522,10 +484,6 @@ bool LLPanelGroupGeneral::createGroupCallback(const LLSD& notification, const LL
 	return false;
 }
 
-static F32 sSDTime = 0.0f;
-static F32 sElementTime = 0.0f;
-static F32 sAllTime = 0.0f;
-
 // virtual
 void LLPanelGroupGeneral::update(LLGroupChange gc)
 {
@@ -666,130 +624,8 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 	{
 		mEditCharter->setText(gdatap->mCharter);
 	}
-	
-	if (mListVisibleMembers)
-	{
-		mListVisibleMembers->deleteAllItems();
-
-		if (gdatap->isMemberDataComplete())
-		{
-			mMemberProgress = gdatap->mMembers.begin();
-			mPendingMemberUpdate = TRUE;
-
-			sSDTime = 0.0f;
-			sElementTime = 0.0f;
-			sAllTime = 0.0f;
-		}
-		else
-		{
-			std::stringstream pending;
-			pending << "Retrieving member list (" << gdatap->mMembers.size() << "\\" << gdatap->mMemberCount  << ")";
-
-			LLSD row;
-			row["columns"][0]["value"] = pending.str();
-			row["columns"][0]["column"] = "name";
-
-			mListVisibleMembers->setEnabled(FALSE);
-			mListVisibleMembers->addElement(row);
-		}
-	}
 
 	resetDirty();
-}
-
-void LLPanelGroupGeneral::updateMembers()
-{
-	mPendingMemberUpdate = FALSE;
-
-	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
-
-	if (!mListVisibleMembers 
-		|| !gdatap 
-		|| !gdatap->isMemberDataComplete()
-		|| gdatap->mMembers.empty())
-	{
-		return;
-	}
-
-	LLTimer update_time;
-	update_time.setTimerExpirySec(UPDATE_MEMBERS_SECONDS_PER_FRAME);
-
-	LLAvatarName av_name;
-
-	for( ; mMemberProgress != gdatap->mMembers.end() && !update_time.hasExpired(); 
-			++mMemberProgress)
-	{
-		LLGroupMemberData* member = mMemberProgress->second;
-		if (!member)
-		{
-			continue;
-		}
-
-		if (LLAvatarNameCache::get(mMemberProgress->first, &av_name))
-		{
-			addMember(mMemberProgress->second);
-		}
-		else
-		{
-			// If name is not cached, onNameCache() should be called when it is cached and add this member to list.
-			// *TODO : Use a callback per member, not for the panel group.
-			if (mAvatarNameCacheConnection.connected())
-			{
-				mAvatarNameCacheConnection.disconnect();
-			}
-			mAvatarNameCacheConnection = LLAvatarNameCache::get(mMemberProgress->first, boost::bind(&LLPanelGroupGeneral::onNameCache, this, gdatap->getMemberVersion(), member, _2));
-		}
-	}
-
-	if (mMemberProgress == gdatap->mMembers.end())
-	{
-		lldebugs << "   member list completed." << llendl;
-		mListVisibleMembers->setEnabled(TRUE);
-	}
-	else
-	{
-		mPendingMemberUpdate = TRUE;
-		mListVisibleMembers->setEnabled(FALSE);
-	}
-}
-
-void LLPanelGroupGeneral::addMember(LLGroupMemberData* member)
-{
-	LLNameListCtrl::NameItem item_params;
-	item_params.value = member->getID();
-
-	LLScrollListCell::Params column;
-	item_params.columns.add().column("name").font.name("SANSSERIF_SMALL");
-
-	item_params.columns.add().column("title").value(member->getTitle()).font.name("SANSSERIF_SMALL");
-
-	item_params.columns.add().column("status").value(member->getOnlineStatus()).font.name("SANSSERIF_SMALL");
-
-	LLScrollListItem* member_row = mListVisibleMembers->addNameItemRow(item_params);
-
-	if ( member->isOwner() )
-	{
-		LLScrollListText* name_textp = dynamic_cast<LLScrollListText*>(member_row->getColumn(0));
-		if (name_textp)
-			name_textp->setFontStyle(LLFontGL::BOLD);
-	}
-}
-
-void LLPanelGroupGeneral::onNameCache(const LLUUID& update_id, LLGroupMemberData* member, const LLAvatarName& av_name)
-{
-	mAvatarNameCacheConnection.disconnect();
-
-	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
-
-	if (!gdatap
-		|| !gdatap->isMemberDataComplete()
-		|| gdatap->getMemberVersion() != update_id)
-	{
-		// Stale data
-		return;
-	}
-
-	addMember(member);
 }
 
 void LLPanelGroupGeneral::updateChanged()
@@ -867,17 +703,6 @@ void LLPanelGroupGeneral::reset()
 		mEditCharter->setText(empty_str);
 		mGroupNameEditor->setText(empty_str);
 	}
-	
-	{
-		LLSD row;
-		row["columns"][0]["value"] = "no members yet";
-		row["columns"][0]["column"] = "name";
-
-		mListVisibleMembers->deleteAllItems();
-		mListVisibleMembers->setEnabled(FALSE);
-		mListVisibleMembers->addElement(row);
-	}
-
 
 	{
 		mComboMature->setEnabled(true);
@@ -963,19 +788,4 @@ void LLPanelGroupGeneral::setGroupID(const LLUUID& id)
 	resetDirty();
 
 	activate();
-}
-S32 LLPanelGroupGeneral::sortMembersList(S32 col_idx,const LLScrollListItem* i1,const LLScrollListItem* i2)
-{
-	const LLScrollListCell *cell1 = i1->getColumn(col_idx);
-	const LLScrollListCell *cell2 = i2->getColumn(col_idx);
-
-	if(col_idx == 2)
-	{
-		if(LLStringUtil::compareDict(cell1->getValue().asString(),"Online") == 0 )
-			return 1;
-		if(LLStringUtil::compareDict(cell2->getValue().asString(),"Online") == 0 )
-			return -1;
-	}
-
-	return LLStringUtil::compareDict(cell1->getValue().asString(), cell2->getValue().asString());
 }
