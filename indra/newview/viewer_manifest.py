@@ -38,7 +38,7 @@ viewer_dir = os.path.dirname(__file__)
 # Put it FIRST because some of our build hosts have an ancient install of
 # indra.util.llmanifest under their system Python!
 sys.path.insert(0, os.path.join(viewer_dir, os.pardir, "lib", "python"))
-from indra.util.llmanifest import LLManifest, main, proper_windows_path, path_ancestors, CHANNEL_VENDOR_BASE, RELEASE_CHANNEL
+from indra.util.llmanifest import LLManifest, main, proper_windows_path, path_ancestors, CHANNEL_VENDOR_BASE, RELEASE_CHANNEL, ManifestError
 try:
     from llbase import llsd
 except ImportError:
@@ -818,11 +818,27 @@ class Darwin_i386_Manifest(ViewerManifest):
                 keychain_pwd = open(keychain_pwd_path).read().rstrip()
 
                 self.run_command('security unlock-keychain -p "%s" "%s/Library/Keychains/viewer.keychain"' % ( keychain_pwd, home_path ) )
-                self.run_command('codesign --verbose --force --keychain "%(home_path)s/Library/Keychains/viewer.keychain" --sign %(identity)r %(bundle)r' % {
-                                 'home_path' : home_path,
-                                 'identity': identity,
-                                 'bundle': self.get_dst_prefix()
-                })
+                signed=False
+                sign_attempts=3
+                sign_retry_wait=15
+                while (not signed) and (sign_attempts > 0):
+                    try:
+                        sign_attempts-=1;
+                        self.run_command(
+                           'codesign --verbose --force --keychain "%(home_path)s/Library/Keychains/viewer.keychain" --sign %(identity)r %(bundle)r' % {
+                               'home_path' : home_path,
+                               'identity': identity,
+                               'bundle': self.get_dst_prefix()
+                               })
+                        signed=True # if no exception was raised, the codesign worked
+                    except ManifestError, err:
+                        if sign_attempts:
+                            print >> sys.stderr, "codesign failed, waiting %d seconds before retrying" % sign_retry_wait
+                            time.sleep(sign_retry_wait)
+                            sign_retry_wait*=2
+                        else:
+                            print >> sys.stderr, "Maximum codesign attempts exceeded; giving up"
+                            raise
 
         imagename="SecondLife_" + '_'.join(self.args['version'])
 

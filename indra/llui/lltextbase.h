@@ -291,11 +291,9 @@ public:
 								parse_urls,
 								parse_highlights,
 								clip,
-								clip_partial;
-								// MAINT-535 reversion test
-								// clip_partial,
-								// trusted_content;
-
+								clip_partial,
+								trusted_content;
+								
 		Optional<S32>			v_pad,
 								h_pad;
 
@@ -364,8 +362,7 @@ public:
 	bool					getWordWrap() { return mWordWrap; }
 	bool					getUseEllipses() { return mUseEllipses; }
 	bool					truncate(); // returns true of truncation occurred
-	// MAINT-535 reversion test
-	//bool					isContentTrusted() {return mTrustedContent;}
+	bool					isContentTrusted() {return mTrustedContent;}
 
 	// TODO: move into LLTextSegment?
 	void					createUrlContextMenu(S32 x, S32 y, const std::string &url); // create a popup context menu for the given Url
@@ -639,8 +636,7 @@ protected:
 	bool						mBGVisible;			// render background?
 	bool						mClip;				// clip text to widget rect
 	bool						mClipPartial;		// false if we show lines that are partially inside bounding rect
-	// MAINT-535 reversion test
-	//bool						mTrustedContent;	// if false, does not allow to execute SURL links from this editor
+	bool						mTrustedContent;	// if false, does not allow to execute SURL links from this editor
 	bool						mPlainText;			// didn't use Image or Icon segments
 	bool						mAutoIndent;
 	S32							mMaxTextByteLength;	// Maximum length mText is allowed to be in bytes

@@ -53,9 +53,7 @@ public:
 
 	static bool dispatchRightClick(const std::string& slurl);
 
-	static bool dispatchFromTextEditor(const std::string& slurl);
-	// MAINT-535 reversion test
-	//static bool dispatchFromTextEditor(const std::string& slurl, bool trusted_content);
+	static bool dispatchFromTextEditor(const std::string& slurl, bool trusted_content);
 };
 
 #endif

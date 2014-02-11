@@ -87,20 +87,14 @@ void LLUrlAction::executeSLURL(std::string url)
 {
 	if (sExecuteSLURLCallback)
 	{
-		sExecuteSLURLCallback(url);
-		// MAINT-535 reversion test
-		//sExecuteSLURLCallback(url ,true);
+		sExecuteSLURLCallback(url ,true);
 	}
 }
 
-// MAINT-535 reversion test
-//void LLUrlAction::clickAction(std::string url, bool trusted_content)
-void LLUrlAction::clickAction(std::string url)
+void LLUrlAction::clickAction(std::string url, bool trusted_content)
 {
 	// Try to handle as SLURL first, then http Url
-	// MAINT-535 reversion test
-	// if ( (sExecuteSLURLCallback) && !sExecuteSLURLCallback(url, trusted_content) )
-	if ( (sExecuteSLURLCallback) && !sExecuteSLURLCallback(url) )
+	if ( (sExecuteSLURLCallback) && !sExecuteSLURLCallback(url, trusted_content) )
 	{
 		if (sOpenURLCallback)
 		{

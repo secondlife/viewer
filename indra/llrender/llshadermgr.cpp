@@ -505,9 +505,25 @@ static std::string get_object_log(GLhandleARB ret)
 	return res;
 }
 
-void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns) 
+void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns, const std::string& filename) 
 {
 	std::string log = get_object_log(ret);
+
+	if (log.length() > 0 || warns)
+	{
+		if (!filename.empty())
+		{
+			if (warns)
+			{
+				LL_WARNS("ShaderLoading") << "From " << filename << ":" << LL_ENDL;
+			}
+			else
+			{
+				LL_INFOS("ShaderLoading") << "From " << filename << ":" << LL_ENDL;
+			}
+		}
+	}
+
 	if ( log.length() > 0 )
 	{
 		if (warns)
@@ -558,7 +574,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		file = LLFile::fopen(fname.str(), "r");		/* Flawfinder: ignore */
 		if (file)
 		{
-			LL_INFOS("ShaderLoading") << "Loading file: shaders/class" << gpu_class << "/" << filename << " (Want class " << gpu_class << ")" << LL_ENDL;
+			LL_DEBUGS("ShaderLoading") << "Loading file: shaders/class" << gpu_class << "/" << filename << " (Want class " << gpu_class << ")" << LL_ENDL;
 			break; // done
 		}
 	}
@@ -812,8 +828,8 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 			if (error != GL_NO_ERROR || success == GL_FALSE) 
 			{
 				//an error occured, print log
-				LL_WARNS("ShaderLoading") << "GLSL Compilation Error: (" << error << ") in " << filename << LL_ENDL;
-				dumpObjectLog(ret);
+				LL_WARNS("ShaderLoading") << "GLSL Compilation Error:" << LL_ENDL;
+				dumpObjectLog(ret, TRUE, filename);
 #if LL_WINDOWS
 				std::stringstream ostr;
 				//dump shader source for debugging
@@ -938,11 +954,6 @@ BOOL LLShaderMgr::linkProgramObject(GLhandleARB obj, BOOL suppress_errors)
 		suppress_errors = FALSE;
 	}
 #endif
-	if (!suppress_errors)
-	{
-        dumpObjectLog(obj, !success);
-	}
-
 	return success;
 }
 
@@ -1146,6 +1157,7 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("env_intensity");
 
 	mReservedUniforms.push_back("matrixPalette");
+	mReservedUniforms.push_back("translationPalette");
 	
 	mReservedUniforms.push_back("screenTex");
 	mReservedUniforms.push_back("screenDepth");

@@ -1855,9 +1855,7 @@ void LLScrollListCtrl::showNameDetails(std::string id, bool is_group)
 	// open the resident's details or the group details
 	std::string sltype = is_group ? "group" : "agent";
 	std::string slurl = "secondlife:///app/" + sltype + "/" + id + "/about";
-	LLUrlAction::clickAction(slurl);
-	// MAINT-535 reversion test
-	//LLUrlAction::clickAction(slurl, true);
+	LLUrlAction::clickAction(slurl, true);
 }
 
 void LLScrollListCtrl::copyNameToClipboard(std::string id, bool is_group)
