@@ -72,7 +72,7 @@ class UUID(object):
     ip = ''
     try:
         ip = socket.gethostbyname(socket.gethostname())
-    except(socket.gaierror):
+    except(socket.gaierror, socket.error):
         # no ip address, so just default to somewhere in 10.x.x.x
         ip = '10'
         for i in range(3):

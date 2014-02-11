@@ -145,7 +145,7 @@ void LLFloaterEditDayCycle::initCallbacks(void)
 	// Connect to env manager events.
 	LLEnvManagerNew& env_mgr = LLEnvManagerNew::instance();
 	env_mgr.setRegionSettingsChangeCallback(boost::bind(&LLFloaterEditDayCycle::onRegionSettingsChange, this));
-	env_mgr.setRegionChangeCallback(boost::bind(&LLFloaterEditDayCycle::onRegionChange, this));
+	gAgent.addRegionChangedCallback(boost::bind(&LLFloaterEditDayCycle::onRegionChange, this));
 	env_mgr.setRegionSettingsAppliedCallback(boost::bind(&LLFloaterEditDayCycle::onRegionSettingsApplied, this, _1));
 
 	// Connect to day cycle manager events.
