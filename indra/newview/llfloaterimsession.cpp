@@ -61,6 +61,9 @@
 #include "llnotificationmanager.h"
 #include "llautoreplace.h"
 
+const F32 ME_TYPING_TIMEOUT = 4.0f;
+const F32 OTHER_TYPING_TIMEOUT = 9.0f;
+
 floater_showed_signal_t LLFloaterIMSession::sIMFloaterShowedSignal;
 
 LLFloaterIMSession::LLFloaterIMSession(const LLUUID& session_id)
@@ -75,7 +78,10 @@ LLFloaterIMSession::LLFloaterIMSession(const LLUUID& session_id)
 	mTypingTimer(),
 	mTypingTimeoutTimer(),
 	mPositioned(false),
-	mSessionInitialized(false)
+	mSessionInitialized(false),
+	mMeTypingTimer(),
+	mOtherTypingTimer(),
+	mImInfo()
 {
 	mIsNearbyChat = false;
 
@@ -96,13 +102,31 @@ LLFloaterIMSession::LLFloaterIMSession(const LLUUID& session_id)
 void LLFloaterIMSession::refresh()
 {
 	if (mMeTyping)
-{
+	{
+		// Send an additional Start Typing packet every ME_TYPING_TIMEOUT seconds
+		if (mMeTypingTimer.getElapsedTimeF32() > ME_TYPING_TIMEOUT && false == mShouldSendTypingState)
+		{
+			LL_DEBUGS("TypingMsgs") << "Send additional Start Typing packet" << LL_ENDL;
+			LLIMModel::instance().sendTypingState(mSessionID, mOtherParticipantUUID, TRUE);
+			mMeTypingTimer.reset();
+		}
+
 		// Time out if user hasn't typed for a while.
 		if (mTypingTimeoutTimer.getElapsedTimeF32() > LLAgent::TYPING_TIMEOUT_SECS)
 		{
-	setTyping(false);
+			setTyping(false);
+			LL_DEBUGS("TypingMsgs") << "Send stop typing due to timeout" << LL_ENDL;
 		}
 	}
+
+	// Clear <name is typing> message if no data received for OTHER_TYPING_TIMEOUT seconds
+	if (mOtherTyping && mOtherTypingTimer.getElapsedTimeF32() > OTHER_TYPING_TIMEOUT)
+	{
+		LL_DEBUGS("TypingMsgs") << "Received: is typing cleared due to timeout" << LL_ENDL;
+		removeTypingIndicator(mImInfo);
+		mOtherTyping = false;
+	}
+
 }
 
 // virtual
@@ -953,13 +977,21 @@ void LLFloaterIMSession::setTyping(bool typing)
 	// much network traffic. Only send in person-to-person IMs.
 	if ( mShouldSendTypingState && mDialog == IM_NOTHING_SPECIAL )
 	{
-		// Still typing, send 'start typing' notification or
-		// send 'stop typing' notification immediately
-		if (!mMeTyping || mTypingTimer.getElapsedTimeF32() > 1.f)
+		if ( mMeTyping )
 		{
-			LLIMModel::instance().sendTypingState(mSessionID,
-					mOtherParticipantUUID, mMeTyping);
-					mShouldSendTypingState = false;
+			if ( mTypingTimer.getElapsedTimeF32() > 1.f )
+			{
+				// Still typing, send 'start typing' notification
+				LLIMModel::instance().sendTypingState(mSessionID, mOtherParticipantUUID, TRUE);
+				mShouldSendTypingState = false;
+				mMeTypingTimer.reset();
+			}
+		}
+		else
+		{
+			// Send 'stop typing' notification immediately
+			LLIMModel::instance().sendTypingState(mSessionID, mOtherParticipantUUID, FALSE);
+			mShouldSendTypingState = false;
 		}
 	}
 
@@ -975,10 +1007,12 @@ void LLFloaterIMSession::setTyping(bool typing)
 
 void LLFloaterIMSession::processIMTyping(const LLIMInfo* im_info, BOOL typing)
 {
+	LL_DEBUGS("TypingMsgs") << "typing=" << typing << LL_ENDL;
 	if ( typing )
 	{
 		// other user started typing
 		addTypingIndicator(im_info);
+		mOtherTypingTimer.reset();
 	}
 	else
 	{
@@ -1203,10 +1237,40 @@ BOOL LLFloaterIMSession::inviteToSession(const uuid_vec_t& ids)
 
 void LLFloaterIMSession::addTypingIndicator(const LLIMInfo* im_info)
 {
+/* Operation of "<name> is typing" state machine:
+Not Typing state:
+
+    User types in P2P IM chat ... Send Start Typing, save Started time,
+    start Idle Timer (N seconds) go to Typing state
+
+Typing State:
+
+    User enters a non-return character: if Now - Started > ME_TYPING_TIMEOUT, send
+    Start Typing, restart Idle Timer
+    User enters a return character: stop Idle Timer, send IM and Stop
+    Typing, go to Not Typing state
+    Idle Timer expires: send Stop Typing, go to Not Typing state
+
+The recipient has a complementary state machine in which a Start Typing
+that is not followed by either an IM or another Start Typing within OTHER_TYPING_TIMEOUT
+seconds switches the sender out of typing state.
+
+This has the nice quality of being self-healing for lost start/stop
+messages while adding messages only for the (relatively rare) case of a
+user who types a very long message (one that takes more than ME_TYPING_TIMEOUT seconds
+to type).
+
+Note: OTHER_TYPING_TIMEOUT must be > ME_TYPING_TIMEOUT for proper operation of the state machine
+
+*/
+
 	// We may have lost a "stop-typing" packet, don't add it twice
 	if (im_info && !mOtherTyping)
 	{
 		mOtherTyping = true;
+		mOtherTypingTimer.reset();
+		// Save im_info so that removeTypingIndicator can be properly called because a timeout has occurred
+		mImInfo = im_info;
 
 		// Update speaker
 		LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
