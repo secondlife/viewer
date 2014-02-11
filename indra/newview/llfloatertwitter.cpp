@@ -56,6 +56,7 @@ static LLRegisterPanelClassWrapper<LLTwitterAccountPanel> t_panel_account("lltwi
 const S32 MAX_POSTCARD_DATASIZE = 1024 * 1024; // one megabyte
 const std::string DEFAULT_PHOTO_LOCATION_URL = "http://maps.secondlife.com/";
 const std::string DEFAULT_PHOTO_QUERY_PARAMETERS = "?sourceid=slshare_photo&utm_source=twitter&utm_medium=photo&utm_campaign=slshare";
+const std::string DEFAULT_STATUS_TEXT = " #SecondLife";
 
 ///////////////////////////
 //LLTwitterPhotoPanel///////
@@ -100,6 +101,7 @@ BOOL LLTwitterPhotoPanel::postBuild()
 	mThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");
 	mStatusCounterLabel = getChild<LLUICtrl>("status_counter_label");
 	mStatusTextBox = getChild<LLUICtrl>("photo_status");
+	mStatusTextBox->setValue(DEFAULT_STATUS_TEXT);
 	mLocationCheckbox = getChild<LLUICtrl>("add_location_cb");
 	mLocationCheckbox->setCommitCallback(boost::bind(&LLTwitterPhotoPanel::onAddLocationToggled, this));
 	mPhotoCheckbox = getChild<LLUICtrl>("add_photo_cb");
@@ -351,7 +353,7 @@ void LLTwitterPhotoPanel::sendPhoto()
 
 void LLTwitterPhotoPanel::clearAndClose()
 {
-	mStatusTextBox->setValue("");
+	mStatusTextBox->setValue(DEFAULT_STATUS_TEXT);
 
 	LLFloater* floater = getParentByType<LLFloater>();
 	if (floater)
