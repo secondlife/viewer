@@ -1252,7 +1252,7 @@ S32 LLFloaterSnapshot::notify(const LLSD& info)
 //static 
 void LLFloaterSnapshot::update()
 {
-	LLFloaterSnapshot* inst = LLFloaterReg::findTypedInstance<LLFloaterSnapshot>("snapshot");
+	LLFloaterSnapshot* inst = findInstance();
 	LLFloaterSocial* floater_social  = LLFloaterReg::findTypedInstance<LLFloaterSocial>("social"); 
 
 	if (!inst && !floater_social)
@@ -1280,12 +1280,18 @@ LLFloaterSnapshot* LLFloaterSnapshot::getInstance()
 }
 
 // static
+LLFloaterSnapshot* LLFloaterSnapshot::findInstance()
+{
+	return LLFloaterReg::findTypedInstance<LLFloaterSnapshot>("snapshot");
+}
+
+// static
 void LLFloaterSnapshot::saveTexture()
 {
 	lldebugs << "saveTexture" << llendl;
 
 	// FIXME: duplicated code
-	LLFloaterSnapshot* instance = LLFloaterReg::findTypedInstance<LLFloaterSnapshot>("snapshot");
+	LLFloaterSnapshot* instance = findInstance();
 	if (!instance)
 	{
 		llassert(instance != NULL);
@@ -1306,7 +1312,7 @@ BOOL LLFloaterSnapshot::saveLocal()
 {
 	lldebugs << "saveLocal" << llendl;
 	// FIXME: duplicated code
-	LLFloaterSnapshot* instance = LLFloaterReg::findTypedInstance<LLFloaterSnapshot>("snapshot");
+	LLFloaterSnapshot* instance = findInstance();
 	if (!instance)
 	{
 		llassert(instance != NULL);
@@ -1326,7 +1332,7 @@ BOOL LLFloaterSnapshot::saveLocal()
 void LLFloaterSnapshot::preUpdate()
 {
 	// FIXME: duplicated code
-	LLFloaterSnapshot* instance = LLFloaterReg::findTypedInstance<LLFloaterSnapshot>("snapshot");
+	LLFloaterSnapshot* instance = findInstance();
 	if (instance)
 	{
 		// Disable the send/post/save buttons until snapshot is ready.
@@ -1341,7 +1347,7 @@ void LLFloaterSnapshot::preUpdate()
 void LLFloaterSnapshot::postUpdate()
 {
 	// FIXME: duplicated code
-	LLFloaterSnapshot* instance = LLFloaterReg::findTypedInstance<LLFloaterSnapshot>("snapshot");
+	LLFloaterSnapshot* instance = findInstance();
 	if (instance)
 	{
 		// Enable the send/post/save buttons.
@@ -1362,7 +1368,7 @@ void LLFloaterSnapshot::postUpdate()
 // static
 void LLFloaterSnapshot::postSave()
 {
-	LLFloaterSnapshot* instance = LLFloaterReg::findTypedInstance<LLFloaterSnapshot>("snapshot");
+	LLFloaterSnapshot* instance = findInstance();
 	if (!instance)
 	{
 		llassert(instance != NULL);
@@ -1388,7 +1394,7 @@ LLPointer<LLImageFormatted> LLFloaterSnapshot::getImageData()
 {
 	// FIXME: May not work for textures.
 
-	LLFloaterSnapshot* instance = LLFloaterReg::findTypedInstance<LLFloaterSnapshot>("snapshot");
+	LLFloaterSnapshot* instance = findInstance();
 	if (!instance)
 	{
 		llassert(instance != NULL);
@@ -1415,7 +1421,7 @@ LLPointer<LLImageFormatted> LLFloaterSnapshot::getImageData()
 // static
 const LLVector3d& LLFloaterSnapshot::getPosTakenGlobal()
 {
-	LLFloaterSnapshot* instance = LLFloaterReg::findTypedInstance<LLFloaterSnapshot>("snapshot");
+	LLFloaterSnapshot* instance = findInstance();
 	if (!instance)
 	{
 		llassert(instance != NULL);
@@ -1435,7 +1441,7 @@ const LLVector3d& LLFloaterSnapshot::getPosTakenGlobal()
 // static
 void LLFloaterSnapshot::setAgentEmail(const std::string& email)
 {
-	LLFloaterSnapshot* instance = LLFloaterReg::findTypedInstance<LLFloaterSnapshot>("snapshot");
+	LLFloaterSnapshot* instance = findInstance();
 	if (instance)
 	{
 		LLSideTrayPanelContainer* panel_container = instance->getChild<LLSideTrayPanelContainer>("panel_container");
