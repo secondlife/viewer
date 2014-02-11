@@ -424,7 +424,8 @@ void LLTwitterPhotoPanel::updateResolution(BOOL do_update)
 	S32 width = sdres[0];
 	S32 height = sdres[1];
 
-    const std::string& filter_name = filterbox->getSimple();
+    // Note : index 0 of the filter drop down is assumed to be "No filter" in whichever locale
+    std::string filter_name = (filterbox->getCurrentIndex() ? filterbox->getSimple() : "");
 
 	LLSnapshotLivePreview * previewp = static_cast<LLSnapshotLivePreview *>(mPreviewHandle.get());
 	if (previewp && combobox->getCurrentIndex() >= 0)
