@@ -5941,7 +5941,6 @@ bool process_exceptions(std::string notificationID, LLSD& llsdBlock)
 
 
         sStandardExceptions["HomePositionSet"] = handle_home_position_set;
-        sStandardExceptions["ExperienceMaturityExceeded"] = handle_experience_maturity_exceeded;
     }
 
     standard_exception_map_t::iterator it = sStandardExceptions.find(notificationID);

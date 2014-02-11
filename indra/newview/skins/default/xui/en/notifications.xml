@@ -6987,14 +6987,13 @@ Is this OK?
   </notification>
   <notification
     icon="notify.tga"
-    name="ExperienceMaturityExceeded"
-    persist="false"
+    name="TeleportedHomeExperienceRemoved"
+    persist="true"
     type="notify">
-You have declined participation in the following experience which exceeds your content ratings preferences:
-[EXPERIENCE_SLURL]
+    You have been teleported from the [region_name] for removing the experience secondlife:///app/experience/[public_id]/profile and are no longer permitted in the region.
     <form name="form">
       <ignore name="ignore"
-              text="Experience declined due to content ratings"/>
+              text="Kicked from region for removing an experience"/>
     </form>
   </notification>
   <notification
