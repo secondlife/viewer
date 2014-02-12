@@ -111,6 +111,7 @@
 #include "llpanelblockedlist.h"
 #include "llpanelplaceprofile.h"
 #include "llviewerregion.h"
+#include "llfloaterregionrestarting.h"
 
 #include <boost/algorithm/string/split.hpp> //
 #include <boost/regex.hpp>
@@ -5742,7 +5743,6 @@ bool handle_special_notification(std::string notificationID, LLSD& llsdBlock)
 	std::string regionMaturity = LLViewerRegion::accessToString(regionAccess);
 	LLStringUtil::toLower(regionMaturity);
 	llsdBlock["REGIONMATURITY"] = regionMaturity;
-	
 	bool returnValue = false;
 	LLNotificationPtr maturityLevelNotification;
 	std::string notifySuffix = "_Notify";
@@ -5882,79 +5882,6 @@ bool handle_teleport_access_blocked(LLSD& llsdBlock)
 	return returnValue;
 }
 
-bool handle_home_position_set(std::string notificationID, LLSD& llsdBlock)
-{
-    std::string snap_filename = gDirUtilp->getLindenUserDir();
-    snap_filename += gDirUtilp->getDirDelimiter();
-    snap_filename += SCREEN_HOME_FILENAME;
-    gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw(), FALSE, FALSE);
-
-    return false;
-}
-
-bool handle_experience_maturity_exceeded(std::string notificationID, LLSD& llsdBlock)
-{
-    if(llsdBlock.has("experience_id"))
-    {
-        llsdBlock["EXPERIENCE_SLURL"]=LLSLURL("experience", llsdBlock["experience_id"].asUUID(), "profile").getSLURLString();
-    }
-    return false;
-}
-
-typedef boost::function<bool (std::string&, LLSD&)> standard_exception_function_t;
-typedef std::map<std::string, standard_exception_function_t> standard_exception_map_t;
-
-standard_exception_map_t sStandardExceptions;
-
-bool process_exceptions(std::string notificationID, LLSD& llsdBlock)
-{
-    if(sStandardExceptions.empty())
-    {
-        sStandardExceptions["RegionEntryAccessBlocked"] = handle_special_notification;
-        sStandardExceptions["LandClaimAccessBlocked"] = handle_special_notification;
-        sStandardExceptions["LandBuyAccessBlocked"] = handle_special_notification;
-        /*---------------------------------------------------------------------
-			 (Commented so a grep will find the notification strings, since
-			 we construct them on the fly; if you add additional notifications,
-			 please update the comment.)
-			 
-			 Could throw any of the following notifications:
-			 
-				RegionEntryAccessBlocked
-				RegionEntryAccessBlocked_Notify
-				RegionEntryAccessBlocked_NotifyAdultsOnly
-				RegionEntryAccessBlocked_Change
-				RegionEntryAccessBlocked_AdultsOnlyContent
-				RegionEntryAccessBlocked_ChangeAndReTeleport
-				LandClaimAccessBlocked 
-				LandClaimAccessBlocked_Notify 
-				LandClaimAccessBlocked_NotifyAdultsOnly
-				LandClaimAccessBlocked_Change 
-				LandClaimAccessBlocked_AdultsOnlyContent 
-				LandBuyAccessBlocked
-				LandBuyAccessBlocked_Notify
-				LandBuyAccessBlocked_NotifyAdultsOnly
-				LandBuyAccessBlocked_Change
-				LandBuyAccessBlocked_AdultsOnlyContent
-			 
-			-----------------------------------------------------------------------*/ 
-
-
-        sStandardExceptions["HomePositionSet"] = handle_home_position_set;
-    }
-
-    standard_exception_map_t::iterator it = sStandardExceptions.find(notificationID);
-
-    if(it == sStandardExceptions.end())
-    {
-        return false;
-    }
-
-    return it->second(notificationID, llsdBlock);
-}
-
-
-
 bool attempt_standard_notification(LLMessageSystem* msgsystem)
 {
 	// if we have additional alert data
@@ -5980,12 +5907,88 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 				llwarns << "attempt_standard_notification: Attempted to read notification parameter data into LLSD but failed:" << llsdRaw << llendl;
 			}
 		}
+		
+		if (
+			(notificationID == "RegionEntryAccessBlocked") ||
+			(notificationID == "LandClaimAccessBlocked") ||
+			(notificationID == "LandBuyAccessBlocked")
 
-        if(process_exceptions(notificationID, llsdBlock))
-        {
-            return true;
-        }
-			
+		   )
+		{
+			/*---------------------------------------------------------------------
+			 (Commented so a grep will find the notification strings, since
+			 we construct them on the fly; if you add additional notifications,
+			 please update the comment.)
+			 
+			 Could throw any of the following notifications:
+			 
+				RegionEntryAccessBlocked
+				RegionEntryAccessBlocked_Notify
+				RegionEntryAccessBlocked_NotifyAdultsOnly
+				RegionEntryAccessBlocked_Change
+				RegionEntryAccessBlocked_AdultsOnlyContent
+				RegionEntryAccessBlocked_ChangeAndReTeleport
+				LandClaimAccessBlocked 
+				LandClaimAccessBlocked_Notify 
+				LandClaimAccessBlocked_NotifyAdultsOnly
+				LandClaimAccessBlocked_Change 
+				LandClaimAccessBlocked_AdultsOnlyContent 
+				LandBuyAccessBlocked
+				LandBuyAccessBlocked_Notify
+				LandBuyAccessBlocked_NotifyAdultsOnly
+				LandBuyAccessBlocked_Change
+				LandBuyAccessBlocked_AdultsOnlyContent
+			 
+			-----------------------------------------------------------------------*/ 
+			if (handle_special_notification(notificationID, llsdBlock))
+			{
+				return true;
+			}
+		}
+		// HACK -- handle callbacks for specific alerts.
+		if( notificationID == "HomePositionSet" )
+		{
+			// save the home location image to disk
+			std::string snap_filename = gDirUtilp->getLindenUserDir();
+			snap_filename += gDirUtilp->getDirDelimiter();
+			snap_filename += SCREEN_HOME_FILENAME;
+			gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw(), FALSE, FALSE);
+		}
+
+		if (notificationID == "RegionRestartMinutes" ||
+			notificationID == "RegionRestartSeconds")
+		{
+			S32 seconds;
+			if (notificationID == "RegionRestartMinutes")
+			{
+				seconds = 60 * static_cast<S32>(llsdBlock["MINUTES"].asInteger());
+			}
+			else
+			{
+				seconds = static_cast<S32>(llsdBlock["SECONDS"].asInteger());
+			}
+
+			LLFloaterRegionRestarting* floaterp = LLFloaterReg::findTypedInstance<LLFloaterRegionRestarting>("region_restarting");
+
+			if (floaterp)
+			{
+				LLFloaterRegionRestarting::updateTime(seconds);
+			}
+			else
+			{
+				LLSD params;
+				params["NAME"] = llsdBlock["NAME"];
+				params["SECONDS"] = (LLSD::Integer)seconds;
+				LLFloaterRegionRestarting* restarting_floater = dynamic_cast<LLFloaterRegionRestarting*>(LLFloaterReg::showInstance("region_restarting", params));
+				if(restarting_floater)
+				{
+					restarting_floater->center();
+				}
+			}
+
+			send_sound_trigger(LLUUID(gSavedSettings.getString("UISndRestart")), 1.0f);
+		}
+
 		LLNotificationsUtil::add(notificationID, llsdBlock);
 		return true;
 	}	
@@ -6045,7 +6048,6 @@ void process_alert_message(LLMessageSystem *msgsystem, void **user_data)
 		
 	std::string message;
 	msgsystem->getStringFast(_PREHASH_AlertData, _PREHASH_Message, message);
-
 	process_special_alert_messages(message);
 
 	if (!attempt_standard_notification(msgsystem))
@@ -6069,7 +6071,6 @@ bool handle_not_age_verified_alert(const std::string &pAlertName)
 bool handle_special_alerts(const std::string &pAlertName)
 {
 	bool isHandled = false;
-
 	if (LLStringUtil::compareStrings(pAlertName, "NotAgeVerified") == 0)
 	{
 		
@@ -6105,26 +6106,17 @@ void process_alert_core(const std::string& message, BOOL modal)
 		// System message is important, show in upper-right box not tip
 		std::string text(message.substr(1));
 		LLSD args;
-		if (text.substr(0,17) == "RESTART_X_MINUTES")
+
+		// *NOTE: If the text from the server ever changes this line will need to be adjusted.
+		std::string restart_cancelled = "Region restart cancelled.";
+		if (text.substr(0, restart_cancelled.length()) == restart_cancelled)
 		{
-			S32 mins = 0;
-			LLStringUtil::convertToS32(text.substr(18), mins);
-			args["MINUTES"] = llformat("%d",mins);
-			LLNotificationsUtil::add("RegionRestartMinutes", args);
+			LLFloaterRegionRestarting::close();
 		}
-		else if (text.substr(0,17) == "RESTART_X_SECONDS")
-		{
-			S32 secs = 0;
-			LLStringUtil::convertToS32(text.substr(18), secs);
-			args["SECONDS"] = llformat("%d",secs);
-			LLNotificationsUtil::add("RegionRestartSeconds", args);
-		}
-		else
-		{
-			std::string new_msg =LLNotifications::instance().getGlobalString(text);
-			args["MESSAGE"] = new_msg;
-			LLNotificationsUtil::add("SystemMessage", args);
-		}
+
+		std::string new_msg =LLNotifications::instance().getGlobalString(text);
+		args["MESSAGE"] = new_msg;
+		LLNotificationsUtil::add("SystemMessage", args);
 	}
 	else if (modal)
 	{
@@ -6380,11 +6372,11 @@ bool script_question_cb(const LLSD& notification, const LLSD& response)
 		return false;
 	}
 
-    LLUUID experience;
-    if(notification["payload"].has("experience"))
-    {
-        experience = notification["payload"]["experience"].asUUID();
-    }
+	LLUUID experience;
+	if(notification["payload"].has("experience"))
+	{
+		experience = notification["payload"]["experience"].asUUID();
+	}
 
 	// check whether permissions were granted or denied
 	BOOL allowed = TRUE;
@@ -6395,16 +6387,16 @@ bool script_question_cb(const LLSD& notification, const LLSD& response)
 		new_questions = 0;
 		allowed = FALSE;
 	}
-    else if(experience.notNull())
-    {
-        LLSD permission;
-        LLSD data;
-        permission["permission"]="Allow";
+	else if(experience.notNull())
+	{
+		LLSD permission;
+		LLSD data;
+		permission["permission"]="Allow";
 
-        data[experience.asString()]=permission;
-        data["experience"]=experience;
-        LLEventPumps::instance().obtain("experience_permission").post(data);
-    }
+		data[experience.asString()]=permission;
+		data["experience"]=experience;
+		LLEventPumps::instance().obtain("experience_permission").post(data);
+	}
 
 	LLUUID task_id = notification["payload"]["task_id"].asUUID();
 	LLUUID item_id = notification["payload"]["item_id"].asUUID();
@@ -6430,31 +6422,28 @@ bool script_question_cb(const LLSD& notification, const LLSD& response)
 	if ( response["Mute"] ) // mute
 	{
 		script_question_mute(task_id,notification["payload"]["object_name"].asString());
-    }
-
-    if ( response["BlockExperience"] )
-    {
-        if(experience.notNull())
-        {
-            LLViewerRegion* region = gAgent.getRegion();
-            if (!region)
-                return false;
-
-            std::string lookup_url=region->getCapability("ExperiencePreferences"); 
-            if(lookup_url.empty())
-                return false;
-            LLSD permission;
-            LLSD data;
-            permission["permission"]="Block";
-
-            data[experience.asString()]=permission;
-            LLHTTPClient::put(lookup_url, data, NULL);
-
-            data["experience"]=experience;
-            LLEventPumps::instance().obtain("experience_permission").post(data);
-        }
 	}
+	if ( response["BlockExperience"] )
+	{
+		if(experience.notNull())
+		{
+			LLViewerRegion* region = gAgent.getRegion();
+			if (!region)
+			    return false;
+			
+			std::string lookup_url=region->getCapability("ExperiencePreferences"); 
+			if(lookup_url.empty())
+			    return false;
+			LLSD permission;
+			LLSD data;
+			permission["permission"]="Block";
 
+			data[experience.asString()]=permission;
+			LLHTTPClient::put(lookup_url, data, NULL);
+			data["experience"]=experience;
+			LLEventPumps::instance().obtain("experience_permission").post(data);
+		}
+	}
 	return false;
 }
 
@@ -6490,22 +6479,20 @@ static LLNotificationFunctorRegistration script_question_cb_reg_2("ScriptQuestio
 static LLNotificationFunctorRegistration script_question_cb_reg_3("ScriptQuestionExperience", script_question_cb);
 static LLNotificationFunctorRegistration unknown_script_question_cb_reg("UnknownScriptQuestion", unknown_script_question_cb);
 
-
 void process_script_experience_details(const LLSD& experience_details, LLSD args, LLSD payload)
 {
-    if(experience_details[LLExperienceCache::PROPERTIES].asInteger() & LLExperienceCache::PROPERTY_GRID)
-    {
-        args["GRID_WIDE"] = LLTrans::getString("GRID_WIDE")+ " ";
-    }
-    else
-    {
-        args["GRID_WIDE"] = "";
-    }
-    args["EXPERIENCE"] = LLSLURL("experience", experience_details[LLExperienceCache::EXPERIENCE_ID].asUUID(), "profile").getSLURLString();
+	if(experience_details[LLExperienceCache::PROPERTIES].asInteger() & LLExperienceCache::PROPERTY_GRID)
+	{
+		args["GRID_WIDE"] = LLTrans::getString("GRID_WIDE")+ " ";
+	}
+	else
+	{
+		args["GRID_WIDE"] = "";
+	}
+	args["EXPERIENCE"] = LLSLURL("experience", experience_details[LLExperienceCache::EXPERIENCE_ID].asUUID(), "profile").getSLURLString();
 
-    LLNotificationsUtil::add("ScriptQuestionExperience", args, payload);
+	LLNotificationsUtil::add("ScriptQuestionExperience", args, payload);
 }
-
 
 void process_script_question(LLMessageSystem *msg, void **user_data)
 {
@@ -6518,9 +6505,7 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 	S32		questions;
 	std::string object_name;
 	std::string owner_name;
-    LLUUID experienceid;
-
-
+	LLUUID experienceid;
 
 	// taskid -> object key of object requesting permissions
 	msg->getUUIDFast(_PREHASH_Data, _PREHASH_TaskID, taskid );
@@ -6530,10 +6515,10 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 	msg->getStringFast(_PREHASH_Data, _PREHASH_ObjectOwner, owner_name);
 	msg->getS32Fast(_PREHASH_Data, _PREHASH_Questions, questions );
 
-    if(msg->has(_PREHASH_Experience))
-    {
-        msg->getUUIDFast(_PREHASH_Experience, _PREHASH_ExperienceID, experienceid);
-    }
+	if(msg->has(_PREHASH_Experience))
+	{
+		msg->getUUIDFast(_PREHASH_Experience, _PREHASH_ExperienceID, experienceid);
+	}
 
 	// Special case. If the objects are owned by this agent, throttle per-object instead
 	// of per-owner. It's common for residents to reset a ton of scripts that re-request
@@ -6620,26 +6605,24 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 			payload["object_name"] = object_name;
 			payload["owner_name"] = owner_name;
 
+			const char* notification = "ScriptQuestion";
 
-            const char* notification = "ScriptQuestion";
+			if(caution && gSavedSettings.getBOOL("PermissionsCautionEnabled"))
+			{
+				args["FOOTERTEXT"] = (count > 1) ? LLTrans::getString("AdditionalPermissionsRequestHeader") + "\n\n" + script_question : "";
+				notification = "ScriptQuestionCaution";
+			}
+			else if(experienceid.notNull())
+			{
+				payload["experience"]=experienceid;
+				LLExperienceCache::get(experienceid, boost::bind(process_script_experience_details, _1, args, payload));
+				return;
+			}
 
-            if(caution && gSavedSettings.getBOOL("PermissionsCautionEnabled"))
-            {
-                args["FOOTERTEXT"] = (count > 1) ? LLTrans::getString("AdditionalPermissionsRequestHeader") + "\n\n" + script_question : "";
-                notification = "ScriptQuestionCaution";
-            }
-            else if(experienceid.notNull())
-            {
-                payload["experience"]=experienceid;
-                LLExperienceCache::get(experienceid, boost::bind(process_script_experience_details, _1, args, payload));
-                return;
-            }
-
-            LLNotificationsUtil::add(notification, args, payload);
+			LLNotificationsUtil::add(notification, args, payload);
 		}
 	}
 }
-
 
 
 void process_derez_container(LLMessageSystem *msg, void**)

@@ -91,6 +91,7 @@
 #include "lltrans.h"
 #include "llagentui.h"
 #include "llmeshrepository.h"
+#include "llfloaterregionrestarting.h"
 #include "llpanelexperiencelisteditor.h"
 #include <boost/function.hpp>
 #include "llfloaterexperiencepicker.h"
@@ -231,7 +232,7 @@ BOOL LLFloaterRegionInfo::postBuild()
 		&processEstateOwnerRequest);
 
 	// Request region info when agent region changes.
-	LLEnvManagerNew::instance().setRegionChangeCallback(boost::bind(&LLFloaterRegionInfo::requestRegionInfo, this));
+	gAgent.addRegionChangedCallback(boost::bind(&LLFloaterRegionInfo::requestRegionInfo, this));
 
 	return TRUE;
 }
