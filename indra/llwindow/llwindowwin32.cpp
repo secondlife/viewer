@@ -38,6 +38,7 @@
 
 // Linden library includes
 #include "llerror.h"
+#include "llfasttimer.h"
 #include "llgl.h"
 #include "llstring.h"
 #include "lldir.h"
@@ -202,7 +203,7 @@ LLWinImm::LLWinImm() : mHImmDll(NULL)
 			// the case, since it is very unusual; these APIs are available from 
 			// the beginning, and all versions of IMM32.DLL should have them all.  
 			// Unfortunately, this code may be executed before initialization of 
-			// the logging channel (llwarns), and we can't do it here...  Yes, this 
+			// the logging channel (LL_WARNS()), and we can't do it here...  Yes, this 
 			// is one of disadvantages to use static constraction to DLL loading. 
 			FreeLibrary(mHImmDll);
 			mHImmDll = NULL;
@@ -1056,7 +1057,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 		mhInstance,
 		NULL);
 
-	LL_INFOS("Window") << "window is created." << llendl ;
+	LL_INFOS("Window") << "window is created." << LL_ENDL ;
 
 	//-----------------------------------------------------------------------
 	// Create GL drawing context
@@ -1089,7 +1090,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 		return FALSE;
 	}
 
-	LL_INFOS("Window") << "Device context retrieved." << llendl ;
+	LL_INFOS("Window") << "Device context retrieved." << LL_ENDL ;
 
 	if (!(pixel_format = ChoosePixelFormat(mhDC, &pfd)))
 	{
@@ -1099,7 +1100,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 		return FALSE;
 	}
 
-	LL_INFOS("Window") << "Pixel format chosen." << llendl ;
+	LL_INFOS("Window") << "Pixel format chosen." << LL_ENDL ;
 
 	// Verify what pixel format we actually received.
 	if (!DescribePixelFormat(mhDC, pixel_format, sizeof(PIXELFORMATDESCRIPTOR),
@@ -1112,35 +1113,35 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 	}
 
 	// (EXP-1765) dump pixel data to see if there is a pattern that leads to unreproducible crash
-	LL_INFOS("Window") << "--- begin pixel format dump ---" << llendl ;
-	LL_INFOS("Window") << "pixel_format is " << pixel_format << llendl ;
-	LL_INFOS("Window") << "pfd.nSize:            " << pfd.nSize << llendl ;
-	LL_INFOS("Window") << "pfd.nVersion:         " << pfd.nVersion << llendl ;
-	LL_INFOS("Window") << "pfd.dwFlags:          0x" << std::hex << pfd.dwFlags << std::dec << llendl ;
-	LL_INFOS("Window") << "pfd.iPixelType:       " << (int)pfd.iPixelType << llendl ;
-	LL_INFOS("Window") << "pfd.cColorBits:       " << (int)pfd.cColorBits << llendl ;
-	LL_INFOS("Window") << "pfd.cRedBits:         " << (int)pfd.cRedBits << llendl ;
-	LL_INFOS("Window") << "pfd.cRedShift:        " << (int)pfd.cRedShift << llendl ;
-	LL_INFOS("Window") << "pfd.cGreenBits:       " << (int)pfd.cGreenBits << llendl ;
-	LL_INFOS("Window") << "pfd.cGreenShift:      " << (int)pfd.cGreenShift << llendl ;
-	LL_INFOS("Window") << "pfd.cBlueBits:        " << (int)pfd.cBlueBits << llendl ;
-	LL_INFOS("Window") << "pfd.cBlueShift:       " << (int)pfd.cBlueShift << llendl ;
-	LL_INFOS("Window") << "pfd.cAlphaBits:       " << (int)pfd.cAlphaBits << llendl ;
-	LL_INFOS("Window") << "pfd.cAlphaShift:      " << (int)pfd.cAlphaShift << llendl ;
-	LL_INFOS("Window") << "pfd.cAccumBits:       " << (int)pfd.cAccumBits << llendl ;
-	LL_INFOS("Window") << "pfd.cAccumRedBits:    " << (int)pfd.cAccumRedBits << llendl ;
-	LL_INFOS("Window") << "pfd.cAccumGreenBits:  " << (int)pfd.cAccumGreenBits << llendl ;
-	LL_INFOS("Window") << "pfd.cAccumBlueBits:   " << (int)pfd.cAccumBlueBits << llendl ;
-	LL_INFOS("Window") << "pfd.cAccumAlphaBits:  " << (int)pfd.cAccumAlphaBits << llendl ;
-	LL_INFOS("Window") << "pfd.cDepthBits:       " << (int)pfd.cDepthBits << llendl ;
-	LL_INFOS("Window") << "pfd.cStencilBits:     " << (int)pfd.cStencilBits << llendl ;
-	LL_INFOS("Window") << "pfd.cAuxBuffers:      " << (int)pfd.cAuxBuffers << llendl ;
-	LL_INFOS("Window") << "pfd.iLayerType:       " << (int)pfd.iLayerType << llendl ;
-	LL_INFOS("Window") << "pfd.bReserved:        " << (int)pfd.bReserved << llendl ;
-	LL_INFOS("Window") << "pfd.dwLayerMask:      " << pfd.dwLayerMask << llendl ;
-	LL_INFOS("Window") << "pfd.dwVisibleMask:    " << pfd.dwVisibleMask << llendl ;
-	LL_INFOS("Window") << "pfd.dwDamageMask:     " << pfd.dwDamageMask << llendl ;
-	LL_INFOS("Window") << "--- end pixel format dump ---" << llendl ;
+	LL_INFOS("Window") << "--- begin pixel format dump ---" << LL_ENDL ;
+	LL_INFOS("Window") << "pixel_format is " << pixel_format << LL_ENDL ;
+	LL_INFOS("Window") << "pfd.nSize:            " << pfd.nSize << LL_ENDL ;
+	LL_INFOS("Window") << "pfd.nVersion:         " << pfd.nVersion << LL_ENDL ;
+	LL_INFOS("Window") << "pfd.dwFlags:          0x" << std::hex << pfd.dwFlags << std::dec << LL_ENDL ;
+	LL_INFOS("Window") << "pfd.iPixelType:       " << (int)pfd.iPixelType << LL_ENDL ;
+	LL_INFOS("Window") << "pfd.cColorBits:       " << (int)pfd.cColorBits << LL_ENDL ;
+	LL_INFOS("Window") << "pfd.cRedBits:         " << (int)pfd.cRedBits << LL_ENDL ;
+	LL_INFOS("Window") << "pfd.cRedShift:        " << (int)pfd.cRedShift << LL_ENDL ;
+	LL_INFOS("Window") << "pfd.cGreenBits:       " << (int)pfd.cGreenBits << LL_ENDL ;
+	LL_INFOS("Window") << "pfd.cGreenShift:      " << (int)pfd.cGreenShift << LL_ENDL ;
+	LL_INFOS("Window") << "pfd.cBlueBits:        " << (int)pfd.cBlueBits << LL_ENDL ;
+	LL_INFOS("Window") << "pfd.cBlueShift:       " << (int)pfd.cBlueShift << LL_ENDL ;
+	LL_INFOS("Window") << "pfd.cAlphaBits:       " << (int)pfd.cAlphaBits << LL_ENDL ;
+	LL_INFOS("Window") << "pfd.cAlphaShift:      " << (int)pfd.cAlphaShift << LL_ENDL ;
+	LL_INFOS("Window") << "pfd.cAccumBits:       " << (int)pfd.cAccumBits << LL_ENDL ;
+	LL_INFOS("Window") << "pfd.cAccumRedBits:    " << (int)pfd.cAccumRedBits << LL_ENDL ;
+	LL_INFOS("Window") << "pfd.cAccumGreenBits:  " << (int)pfd.cAccumGreenBits << LL_ENDL ;
+	LL_INFOS("Window") << "pfd.cAccumBlueBits:   " << (int)pfd.cAccumBlueBits << LL_ENDL ;
+	LL_INFOS("Window") << "pfd.cAccumAlphaBits:  " << (int)pfd.cAccumAlphaBits << LL_ENDL ;
+	LL_INFOS("Window") << "pfd.cDepthBits:       " << (int)pfd.cDepthBits << LL_ENDL ;
+	LL_INFOS("Window") << "pfd.cStencilBits:     " << (int)pfd.cStencilBits << LL_ENDL ;
+	LL_INFOS("Window") << "pfd.cAuxBuffers:      " << (int)pfd.cAuxBuffers << LL_ENDL ;
+	LL_INFOS("Window") << "pfd.iLayerType:       " << (int)pfd.iLayerType << LL_ENDL ;
+	LL_INFOS("Window") << "pfd.bReserved:        " << (int)pfd.bReserved << LL_ENDL ;
+	LL_INFOS("Window") << "pfd.dwLayerMask:      " << pfd.dwLayerMask << LL_ENDL ;
+	LL_INFOS("Window") << "pfd.dwVisibleMask:    " << pfd.dwVisibleMask << LL_ENDL ;
+	LL_INFOS("Window") << "pfd.dwDamageMask:     " << pfd.dwDamageMask << LL_ENDL ;
+	LL_INFOS("Window") << "--- end pixel format dump ---" << LL_ENDL ;
 
 	if (pfd.cColorBits < 32)
 	{
@@ -1182,7 +1183,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 		return FALSE;
 	}
 
-	LL_INFOS("Window") << "Drawing context is created." << llendl ;
+	LL_INFOS("Window") << "Drawing context is created." << LL_ENDL ;
 
 	gGLManager.initWGL();
 	
@@ -1239,7 +1240,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 		
 		while(!result && mFSAASamples > 0) 
 		{
-			llwarns << "FSAASamples: " << mFSAASamples << " not supported." << llendl ;
+			LL_WARNS() << "FSAASamples: " << mFSAASamples << " not supported." << LL_ENDL ;
 
 			mFSAASamples /= 2 ; //try to decrease sample pixel number until to disable anti-aliasing
 			if(mFSAASamples < 2)
@@ -1261,13 +1262,13 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 
 			if(result)
 			{
-				llwarns << "Only support FSAASamples: " << mFSAASamples << llendl ;
+				LL_WARNS() << "Only support FSAASamples: " << mFSAASamples << LL_ENDL ;
 			}
 		}
 
 		if (!result)
 		{
-			llwarns << "mFSAASamples: " << mFSAASamples << llendl ;
+			LL_WARNS() << "mFSAASamples: " << mFSAASamples << LL_ENDL ;
 
 			close();
 			show_window_creation_error("Error after wglChoosePixelFormatARB 32-bit");
@@ -1320,7 +1321,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 			LL_INFOS("Window") << "Choosing pixel formats: " << num_formats << " pixel formats returned" << LL_ENDL;
 		}
 
-		LL_INFOS("Window") << "pixel formats done." << llendl ;
+		LL_INFOS("Window") << "pixel formats done." << LL_ENDL ;
 
 		S32 swap_method = 0;
 		S32 cur_format = num_formats-1;
@@ -1370,7 +1371,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 			mhInstance,
 			NULL);
 
-		LL_INFOS("Window") << "recreate window done." << llendl ;
+		LL_INFOS("Window") << "recreate window done." << LL_ENDL ;
 
 		if (!(mhDC = GetDC(mWindowHandle)))
 		{
@@ -1479,8 +1480,8 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 			}
 			else
 			{
-				llinfos << "Created OpenGL " << llformat("%d.%d", attribs[1], attribs[3]) << 
-					(LLRender::sGLCoreProfile ? " core" : " compatibility") << " context." << llendl;
+				LL_INFOS() << "Created OpenGL " << llformat("%d.%d", attribs[1], attribs[3]) << 
+					(LLRender::sGLCoreProfile ? " core" : " compatibility") << " context." << LL_ENDL;
 				done = true;
 
 				if (LLRender::sGLCoreProfile)
@@ -1822,8 +1823,8 @@ void LLWindowWin32::gatherInput()
 	mMousePositionModified = FALSE;
 }
 
-static LLFastTimer::DeclareTimer FTM_KEYHANDLER("Handle Keyboard");
-static LLFastTimer::DeclareTimer FTM_MOUSEHANDLER("Handle Mouse");
+static LLTrace::BlockTimerStatHandle FTM_KEYHANDLER("Handle Keyboard");
+static LLTrace::BlockTimerStatHandle FTM_MOUSEHANDLER("Handle Mouse");
 
 LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_param, LPARAM l_param)
 {
@@ -1877,8 +1878,8 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_DEVICECHANGE");
 			if (gDebugWindowProc)
 			{
-				llinfos << "  WM_DEVICECHANGE: wParam=" << w_param 
-						<< "; lParam=" << l_param << llendl;
+				LL_INFOS() << "  WM_DEVICECHANGE: wParam=" << w_param 
+						<< "; lParam=" << l_param << LL_ENDL;
 			}
 			if (w_param == DBT_DEVNODES_CHANGED || w_param == DBT_DEVICEARRIVAL)
 			{
@@ -2069,7 +2070,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			window_imp->mKeyVirtualKey = w_param;
 
 			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_KEYUP");
-			LLFastTimer t2(FTM_KEYHANDLER);
+			LL_RECORD_BLOCK_TIME(FTM_KEYHANDLER);
 
 			if (gDebugWindowProc)
 			{
@@ -2089,7 +2090,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_IME_SETCONTEXT");
 			if (gDebugWindowProc)
 			{
-				llinfos << "WM_IME_SETCONTEXT" << llendl;
+				LL_INFOS() << "WM_IME_SETCONTEXT" << LL_ENDL;
 			}
 			if (LLWinImm::isAvailable() && window_imp->mPreeditor)
 			{
@@ -2102,7 +2103,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_IME_STARTCOMPOSITION");
 			if (gDebugWindowProc)
 			{
-				llinfos << "WM_IME_STARTCOMPOSITION" << llendl;
+				LL_INFOS() << "WM_IME_STARTCOMPOSITION" << LL_ENDL;
 			}
 			if (LLWinImm::isAvailable() && window_imp->mPreeditor)
 			{
@@ -2115,7 +2116,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_IME_ENDCOMPOSITION");
 			if (gDebugWindowProc)
 			{
-				llinfos << "WM_IME_ENDCOMPOSITION" << llendl;
+				LL_INFOS() << "WM_IME_ENDCOMPOSITION" << LL_ENDL;
 			}
 			if (LLWinImm::isAvailable() && window_imp->mPreeditor)
 			{
@@ -2127,7 +2128,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_IME_COMPOSITION");
 			if (gDebugWindowProc)
 			{
-				llinfos << "WM_IME_COMPOSITION" << llendl;
+				LL_INFOS() << "WM_IME_COMPOSITION" << LL_ENDL;
 			}
 			if (LLWinImm::isAvailable() && window_imp->mPreeditor)
 			{
@@ -2140,7 +2141,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_IME_REQUEST");
 			if (gDebugWindowProc)
 			{
-				llinfos << "WM_IME_REQUEST" << llendl;
+				LL_INFOS() << "WM_IME_REQUEST" << LL_ENDL;
 			}
 			if (LLWinImm::isAvailable() && window_imp->mPreeditor)
 			{
@@ -2188,7 +2189,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 		case WM_LBUTTONDOWN:
 			{
 				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_LBUTTONDOWN");
-				LLFastTimer t2(FTM_MOUSEHANDLER);
+				LL_RECORD_BLOCK_TIME(FTM_MOUSEHANDLER);
 				sHandleLeftMouseUp = true;
 
 				if (LLWinImm::isAvailable() && window_imp->mPreeditor)
@@ -2254,7 +2255,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 		case WM_LBUTTONUP:
 			{
 				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_LBUTTONUP");
-				LLFastTimer t2(FTM_MOUSEHANDLER);
+				LL_RECORD_BLOCK_TIME(FTM_MOUSEHANDLER);
 
 				if (!sHandleLeftMouseUp)
 				{
@@ -2295,7 +2296,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 		case WM_RBUTTONDOWN:
 			{
 				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_RBUTTONDOWN");
-				LLFastTimer t2(FTM_MOUSEHANDLER);
+				LL_RECORD_BLOCK_TIME(FTM_MOUSEHANDLER);
 				if (LLWinImm::isAvailable() && window_imp->mPreeditor)
 				{
 					window_imp->interruptLanguageTextInput();
@@ -2329,7 +2330,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 		case WM_RBUTTONUP:
 			{
 				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_RBUTTONUP");
-				LLFastTimer t2(FTM_MOUSEHANDLER);
+				LL_RECORD_BLOCK_TIME(FTM_MOUSEHANDLER);
 				// Because we move the cursor position in the app, we need to query
 				// to find out where the cursor at the time the event is handled.
 				// If we don't do this, many clicks could get buffered up, and if the
@@ -2359,7 +2360,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 //		case WM_MBUTTONDBLCLK:
 			{
 				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_MBUTTONDOWN");
-				LLFastTimer t2(FTM_MOUSEHANDLER);
+				LL_RECORD_BLOCK_TIME(FTM_MOUSEHANDLER);
 				if (LLWinImm::isAvailable() && window_imp->mPreeditor)
 				{
 					window_imp->interruptLanguageTextInput();
@@ -2393,7 +2394,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 		case WM_MBUTTONUP:
 			{
 				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_MBUTTONUP");
-				LLFastTimer t2(FTM_MOUSEHANDLER);
+				LL_RECORD_BLOCK_TIME(FTM_MOUSEHANDLER);
 				// Because we move the cursor position in the llviewer app, we need to query
 				// to find out where the cursor at the time the event is handled.
 				// If we don't do this, many clicks could get buffered up, and if the

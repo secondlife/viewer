@@ -27,7 +27,6 @@
 #ifndef LL_LLVIEWERPARTSIM_H
 #define LL_LLVIEWERPARTSIM_H
 
-#include "lldarrayptr.h"
 #include "llframetimer.h"
 #include "llpointer.h"
 #include "llpartdata.h"
@@ -36,7 +35,6 @@
 class LLViewerTexture;
 class LLViewerPart;
 class LLViewerRegion;
-class LLViewerTexture;
 class LLVOPartGroup;
 
 #define LL_MAX_PARTICLE_COUNT 8192
@@ -144,6 +142,8 @@ public:
 
 	typedef std::vector<LLViewerPartGroup *> group_list_t;
 	typedef std::vector<LLPointer<LLViewerPartSource> > source_list_t;
+
+	void enable(bool enabled);
 
 	void shift(const LLVector3 &offset);
 

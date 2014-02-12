@@ -31,7 +31,7 @@
 #include "v3math.h"
 #include "patch_dct.h"
 #include "patch_code.h"
-#include "bitpack.h"
+#include "llbitpack.h"
 
 U32 gPatchSize, gWordBits;
 
@@ -88,7 +88,7 @@ void	code_patch_header(LLBitPack &bitpack, LLPatchHeader *ph, S32 *patch)
 	if (  (wbits > 17)
 		||(wbits < 2))
 	{
-		llerrs << "Bits needed per word in code_patch_header out of legal range.  Adjust compression quatization." << llendl;
+		LL_ERRS() << "Bits needed per word in code_patch_header out of legal range.  Adjust compression quatization." << LL_ENDL;
 	}
 
 	ph->quant_wbits |= (wbits - 2);
@@ -135,7 +135,7 @@ void code_patch(LLBitPack &bitpack, S32 *patch, S32 postquant)
 	if (  (postquant > patch_size*patch_size)
 		||(postquant < 0))
 	{
-		llerrs << "Bad postquant in code_patch!"  << llendl;
+		LL_ERRS() << "Bad postquant in code_patch!"  << LL_ENDL;
 	}
 
 	if (postquant)

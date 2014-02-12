@@ -48,8 +48,8 @@ const F32 MIN_FRACTIONAL = 0.2f;
 const F32 MIN_BANDWIDTH = 50.f;
 const F32 MAX_BANDWIDTH = 3000.f;
 const F32 STEP_FRACTIONAL = 0.1f;
-const F32 TIGHTEN_THROTTLE_THRESHOLD = 3.0f; // packet loss % per s
-const F32 EASE_THROTTLE_THRESHOLD = 0.5f; // packet loss % per s
+const LLUnit<F32, LLUnits::Percent> TIGHTEN_THROTTLE_THRESHOLD(3.0f); // packet loss % per s
+const LLUnit<F32, LLUnits::Percent> EASE_THROTTLE_THRESHOLD(0.5f); // packet loss % per s
 const F32 DYNAMIC_UPDATE_DURATION = 5.0f; // seconds
 
 LLViewerThrottle gViewerThrottle;
@@ -146,7 +146,7 @@ LLViewerThrottleGroup LLViewerThrottleGroup::operator-(const LLViewerThrottleGro
 
 void LLViewerThrottleGroup::sendToSim() const
 {
-	llinfos << "Sending throttle settings, total BW " << mThrottleTotal << llendl;
+	LL_INFOS() << "Sending throttle settings, total BW " << mThrottleTotal << LL_ENDL;
 	LLMessageSystem* msg = gMessageSystem;
 
 	msg->newMessageFast(_PREHASH_AgentThrottle);
@@ -304,7 +304,8 @@ void LLViewerThrottle::updateDynamicThrottle()
 	}
 	mUpdateTimer.reset();
 
-	if (LLViewerStats::getInstance()->mPacketsLostPercentStat.getMean() > TIGHTEN_THROTTLE_THRESHOLD)
+	LLUnit<F32, LLUnits::Percent> mean_packets_lost = LLViewerStats::instance().getRecording().getMean(LLStatViewer::PACKETS_LOST_PERCENT);
+	if (mean_packets_lost > TIGHTEN_THROTTLE_THRESHOLD)
 	{
 		if (mThrottleFrac <= MIN_FRACTIONAL || mCurrentBandwidth / 1024.0f <= MIN_BANDWIDTH)
 		{
@@ -315,9 +316,9 @@ void LLViewerThrottle::updateDynamicThrottle()
 		mCurrentBandwidth = mMaxBandwidth * mThrottleFrac;
 		mCurrent = getThrottleGroup(mCurrentBandwidth / 1024.0f);
 		mCurrent.sendToSim();
-		llinfos << "Tightening network throttle to " << mCurrentBandwidth << llendl;
+		LL_INFOS() << "Tightening network throttle to " << mCurrentBandwidth << LL_ENDL;
 	}
-	else if (LLViewerStats::getInstance()->mPacketsLostPercentStat.getMean() <= EASE_THROTTLE_THRESHOLD)
+	else if (mean_packets_lost <= EASE_THROTTLE_THRESHOLD)
 	{
 		if (mThrottleFrac >= MAX_FRACTIONAL || mCurrentBandwidth / 1024.0f >= MAX_BANDWIDTH)
 		{
@@ -328,6 +329,6 @@ void LLViewerThrottle::updateDynamicThrottle()
 		mCurrentBandwidth = mMaxBandwidth * mThrottleFrac;
 		mCurrent = getThrottleGroup(mCurrentBandwidth/1024.0f);
 		mCurrent.sendToSim();
-		llinfos << "Easing network throttle to " << mCurrentBandwidth << llendl;
+		LL_INFOS() << "Easing network throttle to " << mCurrentBandwidth << LL_ENDL;
 	}
 }

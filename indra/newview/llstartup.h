@@ -45,6 +45,18 @@ bool login_alert_done(const LLSD& notification, const LLSD& response);
 extern std::string SCREEN_HOME_FILENAME;
 extern std::string SCREEN_LAST_FILENAME;
 
+// start location constants
+enum EStartLocation
+{
+	START_LOCATION_ID_LAST,
+	START_LOCATION_ID_HOME,
+	START_LOCATION_ID_DIRECT,
+	START_LOCATION_ID_PARCEL,
+	START_LOCATION_ID_TELEHUB,
+	START_LOCATION_ID_URL,
+	START_LOCATION_ID_COUNT
+};
+
 typedef enum {
 	STATE_FIRST,					// Initial startup
 	STATE_BROWSER_INIT,             // Initialize web browser for login screen

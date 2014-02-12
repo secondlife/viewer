@@ -10,7 +10,7 @@
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *  
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -104,6 +104,9 @@ const F32 SILHOUETTE_UPDATE_THRESHOLD_SQUARED = 0.02f;
 const S32 MAX_ACTION_QUEUE_SIZE = 20;
 const S32 MAX_SILS_PER_FRAME = 50;
 const S32 MAX_OBJECTS_PER_PACKET = 254;
+// For linked sets
+const S32 MAX_CHILDREN_PER_TASK = 255;
+const S32 MAX_CHILDREN_PER_PHYSICAL_TASK = 32;
 
 //
 // Globals
@@ -323,7 +326,7 @@ LLObjectSelectionHandle LLSelectMgr::selectObjectOnly(LLViewerObject* object, S3
 		return NULL;
 	}
 
-	// llinfos << "Adding object to selected object list" << llendl;
+	// LL_INFOS() << "Adding object to selected object list" << LL_ENDL;
 
 	// Place it in the list and tag it.
 	// This will refresh dialogs.
@@ -889,7 +892,7 @@ void LLSelectMgr::addAsIndividual(LLViewerObject *objectp, S32 face, BOOL undoab
 	}
 	else
 	{
-		llerrs << "LLSelectMgr::add face " << face << " out-of-range" << llendl;
+		LL_ERRS() << "LLSelectMgr::add face " << face << " out-of-range" << LL_ENDL;
 		return;
 	}
 
@@ -940,6 +943,10 @@ LLObjectSelectionHandle LLSelectMgr::setHoverObject(LLViewerObject *objectp, S32
 			 iter != objects.end(); ++iter)
 		{
 			LLViewerObject* cur_objectp = *iter;
+			if(!cur_objectp || cur_objectp->isDead())
+			{
+				continue;
+			}
 			LLSelectNode* nodep = new LLSelectNode(cur_objectp, FALSE);
 			nodep->selectTE(face, TRUE);
 			mHoverObjects->addNodeAtEnd(nodep);
@@ -1333,7 +1340,7 @@ void LLSelectMgr::remove(LLViewerObject *objectp, S32 te, BOOL undoable)
 		}
 		else
 		{
-			llerrs << "LLSelectMgr::remove - tried to remove TE " << te << " that wasn't selected" << llendl;
+			LL_ERRS() << "LLSelectMgr::remove - tried to remove TE " << te << " that wasn't selected" << LL_ENDL;
 			return;
 		}
 
@@ -1356,7 +1363,7 @@ void LLSelectMgr::remove(LLViewerObject *objectp, S32 te, BOOL undoable)
 	else
 	{
 		// ...out of range face
-		llerrs << "LLSelectMgr::remove - TE " << te << " out of range" << llendl;
+		LL_ERRS() << "LLSelectMgr::remove - TE " << te << " out of range" << LL_ENDL;
 	}
 
 	updateSelectionCenter();
@@ -1455,26 +1462,26 @@ void LLSelectMgr::demoteSelectionToIndividuals()
 //-----------------------------------------------------------------------------
 void LLSelectMgr::dump()
 {
-	llinfos << "Selection Manager: " << mSelectedObjects->getNumNodes() << " items" << llendl;
+	LL_INFOS() << "Selection Manager: " << mSelectedObjects->getNumNodes() << " items" << LL_ENDL;
 
-	llinfos << "TE mode " << mTEMode << llendl;
+	LL_INFOS() << "TE mode " << mTEMode << LL_ENDL;
 
 	S32 count = 0;
 	for (LLObjectSelection::iterator iter = getSelection()->begin();
 		 iter != getSelection()->end(); iter++ )
 	{
 		LLViewerObject* objectp = (*iter)->getObject();
-		llinfos << "Object " << count << " type " << LLPrimitive::pCodeToString(objectp->getPCode()) << llendl;
-		llinfos << "  hasLSL " << objectp->flagScripted() << llendl;
-		llinfos << "  hasTouch " << objectp->flagHandleTouch() << llendl;
-		llinfos << "  hasMoney " << objectp->flagTakesMoney() << llendl;
-		llinfos << "  getposition " << objectp->getPosition() << llendl;
-		llinfos << "  getpositionAgent " << objectp->getPositionAgent() << llendl;
-		llinfos << "  getpositionRegion " << objectp->getPositionRegion() << llendl;
-		llinfos << "  getpositionGlobal " << objectp->getPositionGlobal() << llendl;
+		LL_INFOS() << "Object " << count << " type " << LLPrimitive::pCodeToString(objectp->getPCode()) << LL_ENDL;
+		LL_INFOS() << "  hasLSL " << objectp->flagScripted() << LL_ENDL;
+		LL_INFOS() << "  hasTouch " << objectp->flagHandleTouch() << LL_ENDL;
+		LL_INFOS() << "  hasMoney " << objectp->flagTakesMoney() << LL_ENDL;
+		LL_INFOS() << "  getposition " << objectp->getPosition() << LL_ENDL;
+		LL_INFOS() << "  getpositionAgent " << objectp->getPositionAgent() << LL_ENDL;
+		LL_INFOS() << "  getpositionRegion " << objectp->getPositionRegion() << LL_ENDL;
+		LL_INFOS() << "  getpositionGlobal " << objectp->getPositionGlobal() << LL_ENDL;
 		LLDrawable* drawablep = objectp->mDrawable;
-		llinfos << "  " << (drawablep&& drawablep->isVisible() ? "visible" : "invisible") << llendl;
-		llinfos << "  " << (drawablep&& drawablep->isState(LLDrawable::FORCE_INVISIBLE) ? "force_invisible" : "") << llendl;
+		LL_INFOS() << "  " << (drawablep&& drawablep->isVisible() ? "visible" : "invisible") << LL_ENDL;
+		LL_INFOS() << "  " << (drawablep&& drawablep->isState(LLDrawable::FORCE_INVISIBLE) ? "force_invisible" : "") << LL_ENDL;
 		count++;
 	}
 
@@ -1490,14 +1497,14 @@ void LLSelectMgr::dump()
 		{
 			if (node->isTESelected(te))
 			{
-				llinfos << "Object " << objectp << " te " << te << llendl;
+				LL_INFOS() << "Object " << objectp << " te " << te << LL_ENDL;
 			}
 		}
 	}
 
-	llinfos << mHighlightedObjects->getNumNodes() << " objects currently highlighted." << llendl;
+	LL_INFOS() << mHighlightedObjects->getNumNodes() << " objects currently highlighted." << LL_ENDL;
 
-	llinfos << "Center global " << mSelectionCenterGlobal << llendl;
+	LL_INFOS() << "Center global " << mSelectionCenterGlobal << LL_ENDL;
 }
 
 //-----------------------------------------------------------------------------
@@ -1557,7 +1564,7 @@ void LLObjectSelection::applyNoCopyTextureToTEs(LLViewerInventoryItem* item)
 				}
 
 				// apply texture for the selected faces
-				LLViewerStats::getInstance()->incStat(LLViewerStats::ST_EDIT_TEXTURE_COUNT );
+				add(LLStatViewer::EDIT_TEXTURE, 1);
 				object->setTEImage(te, image);
 				dialog_refresh_all();
 
@@ -1580,8 +1587,8 @@ void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 		&& !item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID())
 		&& (mSelectedObjects->getNumNodes() > 1) )
 	{
-		llwarns << "Attempted to apply no-copy texture to multiple objects"
-				<< llendl;
+		LL_WARNS() << "Attempted to apply no-copy texture to multiple objects"
+				<< LL_ENDL;
 		return;
 	}
 
@@ -3510,7 +3517,7 @@ bool LLSelectMgr::confirmDelete(const LLSD& notification, const LLSD& response, 
 	S32 option = LLNotification::getSelectedOption(notification, response);
 	if (!handle->getObjectCount())
 	{
-		llwarns << "Nothing to delete!" << llendl;
+		LL_WARNS() << "Nothing to delete!" << LL_ENDL;
 		return false;
 	}
 
@@ -3541,9 +3548,7 @@ bool LLSelectMgr::confirmDelete(const LLSD& notification, const LLSD& response, 
 			gAgentCamera.setLookAt(LOOKAT_TARGET_CLEAR);
 
 			// Keep track of how many objects have been deleted.
-			F64 obj_delete_count = LLViewerStats::getInstance()->getStat(LLViewerStats::ST_OBJECT_DELETE_COUNT);
-			obj_delete_count += LLSelectMgr::getInstance()->mSelectedObjects->getObjectCount();
-			LLViewerStats::getInstance()->setStat(LLViewerStats::ST_OBJECT_DELETE_COUNT, obj_delete_count );
+			add(LLStatViewer::DELETE_OBJECT, LLSelectMgr::getInstance()->mSelectedObjects->getObjectCount());
 		}
 		break;
 	case 1:
@@ -3950,7 +3955,7 @@ void LLSelectMgr::packMultipleUpdate(LLSelectNode* node, void *user_data)
 	}
 	if (type & UPD_SCALE)
 	{
-		//llinfos << "Sending object scale " << object->getScale() << llendl;
+		//LL_INFOS() << "Sending object scale " << object->getScale() << LL_ENDL;
 		htonmemcpy(&data[offset], &(object->getScale().mV), MVT_LLVector3, 12); 
 		offset += 12;
 	}
@@ -4088,7 +4093,7 @@ void LLSelectMgr::packPermissionsHead(void* user_data)
 /*
 void LLSelectMgr::sendSelect()
 {
-	llerrs << "Not implemented" << llendl;
+	LL_ERRS() << "Not implemented" << LL_ENDL;
 }
 */
 
@@ -4202,9 +4207,9 @@ void LLSelectMgr::deselectAllIfTooFar()
 		{
 			if (mDebugSelectMgr)
 			{
-				llinfos << "Selection manager: auto-deselecting, select_dist = " << (F32) sqrt(select_dist_sq) << llendl;
-				llinfos << "agent pos global = " << gAgent.getPositionGlobal() << llendl;
-				llinfos << "selection pos global = " << selectionCenter << llendl;
+				LL_INFOS() << "Selection manager: auto-deselecting, select_dist = " << (F32) sqrt(select_dist_sq) << LL_ENDL;
+				LL_INFOS() << "agent pos global = " << gAgent.getPositionGlobal() << LL_ENDL;
+				LL_INFOS() << "selection pos global = " << selectionCenter << LL_ENDL;
 			}
 
 			deselectAll();
@@ -4916,7 +4921,7 @@ void LLSelectMgr::sendListToRegions(const std::string& message_name,
 		break;
 
 	default:
-		llerrs << "Bad send type " << send_type << " passed to SendListToRegions()" << llendl;
+		LL_ERRS() << "Bad send type " << send_type << " passed to SendListToRegions()" << LL_ENDL;
 	}
 
 	// bail if nothing selected
@@ -4990,7 +4995,7 @@ void LLSelectMgr::sendListToRegions(const std::string& message_name,
 		gMessageSystem->clearMessage();
 	}
 
-	// llinfos << "sendListToRegions " << message_name << " obj " << objects_sent << " pkt " << packets_sent << llendl;
+	// LL_INFOS() << "sendListToRegions " << message_name << " obj " << objects_sent << " pkt " << packets_sent << LL_ENDL;
 }
 
 
@@ -5107,7 +5112,7 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
 
 		if (!node)
 		{
-			llwarns << "Couldn't find object " << id << " selected." << llendl;
+			LL_WARNS() << "Couldn't find object " << id << " selected." << LL_ENDL;
 		}
 		else
 		{
@@ -5913,7 +5918,7 @@ void LLSelectNode::saveTextureScaleRatios(LLRender::eTexIndex index_to_query)
 			LLPrimitive::getTESTAxes(i, &s_axis, &t_axis);
 
 			tep->getScale(&diffuse_s,&diffuse_t);
-			
+
 			if (tep->getTexGen() == LLTextureEntry::TEX_GEN_PLANAR)
 			{
 				v.mV[s_axis] = diffuse_s*scale.mV[s_axis];
@@ -5925,7 +5930,7 @@ void LLSelectNode::saveTextureScaleRatios(LLRender::eTexIndex index_to_query)
 				v.mV[s_axis] = diffuse_s/scale.mV[s_axis];
 				v.mV[t_axis] = diffuse_t/scale.mV[t_axis];
 				mTextureScaleRatios.push_back(v);
-			}			
+			}
 		}
 	}
 }
@@ -6368,7 +6373,7 @@ S32 get_family_count(LLViewerObject *parent)
 {
 	if (!parent)
 	{
-		llwarns << "Trying to get_family_count on null parent!" << llendl;
+		LL_WARNS() << "Trying to get_family_count on null parent!" << LL_ENDL;
 	}
 	S32 count = 1;	// for this object
 	LLViewerObject::const_child_list_t& child_list = parent->getChildren();
@@ -6379,11 +6384,11 @@ S32 get_family_count(LLViewerObject *parent)
 
 		if (!child)
 		{
-			llwarns << "Family object has NULL child!  Show Doug." << llendl;
+			LL_WARNS() << "Family object has NULL child!  Show Doug." << LL_ENDL;
 		}
 		else if (child->isDead())
 		{
-			llwarns << "Family object has dead child object.  Show Doug." << llendl;
+			LL_WARNS() << "Family object has dead child object.  Show Doug." << LL_ENDL;
 		}
 		else
 		{

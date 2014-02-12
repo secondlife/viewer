@@ -257,7 +257,7 @@ bool LLCrashLoggerWindows::init(void)
 	swprintf(gProductName, L"Second Life");
 	*/
 
-	llinfos << "Loading dialogs" << llendl;
+	LL_INFOS() << "Loading dialogs" << LL_ENDL;
 
 	// Initialize global strings
 	LoadString(mhInst, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
@@ -296,7 +296,7 @@ void LLCrashLoggerWindows::gatherPlatformSpecificFiles()
 
 bool LLCrashLoggerWindows::mainLoop()
 {	
-	llinfos << "CrashSubmitBehavior is " << mCrashBehavior << llendl;
+	LL_INFOS() << "CrashSubmitBehavior is " << mCrashBehavior << LL_ENDL;
 
 	// Note: parent hwnd is 0 (the desktop).  No dlg proc.  See Petzold (5th ed) HexCalc example, Chapter 11, p529
 	// win_crash_logger.rc has been edited by hand.
@@ -309,7 +309,7 @@ bool LLCrashLoggerWindows::mainLoop()
 
 	if (mCrashBehavior == CRASH_BEHAVIOR_ALWAYS_SEND)
 	{
-		llinfos << "Showing crash report submit progress window." << llendl;
+		LL_INFOS() << "Showing crash report submit progress window." << LL_ENDL;
 		ShowWindow(gHwndProgress, SW_SHOW );
 		sendCrashLogs();
 	}
@@ -348,7 +348,7 @@ bool LLCrashLoggerWindows::mainLoop()
 	}
 	else
 	{
-		llwarns << "Unknown crash behavior " << mCrashBehavior << llendl;
+		LL_WARNS() << "Unknown crash behavior " << mCrashBehavior << LL_ENDL;
 		return 1;
 	}
 	return 0;

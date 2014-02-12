@@ -382,14 +382,14 @@ void LLCOFWearables::refresh()
 	const LLUUID cof_id = LLAppearanceMgr::instance().getCOF();
 	if (cof_id.isNull())
 	{
-		llwarns << "COF ID cannot be NULL" << llendl;
+		LL_WARNS() << "COF ID cannot be NULL" << LL_ENDL;
 		return;
 	}
 
 	LLViewerInventoryCategory* catp = gInventory.getCategory(cof_id);
 	if (!catp)
 	{
-		llwarns << "COF category cannot be NULL" << llendl;
+		LL_WARNS() << "COF category cannot be NULL" << LL_ENDL;
 		return;
 	}
 
@@ -477,7 +477,7 @@ void LLCOFWearables::populateAttachmentsAndBodypartsLists(const LLInventoryModel
 {
 	for (U32 i = 0; i < cof_items.size(); ++i)
 	{
-		LLViewerInventoryItem* item = cof_items.get(i);
+		LLViewerInventoryItem* item = cof_items.at(i);
 		if (!item) continue;
 
 		const LLAssetType::EType item_type = item->getType();

@@ -37,15 +37,15 @@
 #include "lltextureinfo.h"
 #include "llapr.h"
 #include "llimageworker.h"
-#include "llstat.h"
 #include "llcurl.h"
-#include "llstat.h"
 #include "httprequest.h"
 #include "httpoptions.h"
 #include "httpheaders.h"
 #include "httphandler.h"
+#include "lltrace.h"
 #include "llviewertexture.h"
 
+class LLViewerTexture;
 class LLTextureFetchWorker;
 class LLImageDecodeThread;
 class LLHost;
@@ -234,7 +234,7 @@ protected:
 
 	// XXX possible delete
     // Threads:  T*
-	void removeFromHTTPQueue(const LLUUID& id, S32 received_size);
+	void removeFromHTTPQueue(const LLUUID& id, S32Bytes received_size);
 
 	// Identical to @deleteRequest but with different arguments
 	// (caller already has the worker pointer).
@@ -309,8 +309,8 @@ private:
 	LLMutex mQueueMutex;        //to protect mRequestMap and mCommands only
 	LLMutex mNetworkQueueMutex; //to protect mNetworkQueue, mHTTPTextureQueue and mCancelQueue.
 
-	static LLStat sCacheHitRate;
-	static LLStat sCacheReadLatency;
+	static LLTrace::EventStatHandle<LLUnit<F32, LLUnits::Percent> > sCacheHitRate;
+	static LLTrace::EventStatHandle<F64Milliseconds > sCacheReadLatency;
 
 	LLTextureCache* mTextureCache;
 	LLImageDecodeThread* mImageDecodeThread;
@@ -325,12 +325,12 @@ private:
 	queue_t mHTTPTextureQueue;											// Mfnq
 	typedef std::map<LLHost,std::set<LLUUID> > cancel_queue_t;
 	cancel_queue_t mCancelQueue;										// Mfnq
-	F32 mTextureBandwidth;												// <none>
-	F32 mMaxBandwidth;													// Mfnq
+	F32 mTextureBandwidth;					// <none>
+	F32 mMaxBandwidth;						// Mfnq
 	LLTextureInfo mTextureInfo;
 
 	// XXX possible delete
-	U32 mHTTPTextureBits;												// Mfnq
+	U32Bits mHTTPTextureBits;												// Mfnq
 
 	// XXX possible delete
 	//debug use

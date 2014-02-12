@@ -40,6 +40,8 @@
 
 #include "vorbis/codec.h"
 #include "vorbis/vorbisfile.h"
+#include <iterator>
+#include <deque>
 
 extern LLAudioEngine *gAudiop;
 
@@ -113,7 +115,7 @@ size_t vfs_read(void *ptr, size_t size, size_t nmemb, void *datasource)
 	}
 }
 
-int vfs_seek(void *datasource, ogg_int64_t offset, int whence)
+S32 vfs_seek(void *datasource, ogg_int64_t offset, S32 whence)
 {
 	LLVFile *file = (LLVFile *)datasource;
 
@@ -149,7 +151,7 @@ int vfs_seek(void *datasource, ogg_int64_t offset, int whence)
 	}
 }
 
-int vfs_close (void *datasource)
+S32 vfs_close (void *datasource)
 {
 	LLVFile *file = (LLVFile *)datasource;
 	delete file;
@@ -208,7 +210,7 @@ BOOL LLVorbisDecodeState::initDecode()
 		return FALSE;
 	}
 
-	int r = ov_open_callbacks(mInFilep, &mVF, NULL, 0, vfs_callbacks);
+	S32 r = ov_open_callbacks(mInFilep, &mVF, NULL, 0, vfs_callbacks);
 	if(r < 0) 
 	{
 		LL_WARNS("AudioEngine") << r << " Input to vorbis decode does not appear to be an Ogg bitstream: " << mUUID << LL_ENDL;
@@ -541,7 +543,7 @@ public:
 	void processQueue(const F32 num_secs = 0.005);
 
 protected:
-	LLLinkedQueue<LLUUID> mDecodeQueue;
+	std::deque<LLUUID> mDecodeQueue;
 	LLPointer<LLVorbisDecodeState> mCurrentDecodep;
 };
 
@@ -616,7 +618,7 @@ void LLAudioDecodeMgr::Impl::processQueue(const F32 num_secs)
 
 		if (!done)
 		{
-			if (!mDecodeQueue.getLength())
+			if (mDecodeQueue.empty())
 			{
 				// Nothing else on the queue.
 				done = TRUE;
@@ -624,14 +626,15 @@ void LLAudioDecodeMgr::Impl::processQueue(const F32 num_secs)
 			else
 			{
 				LLUUID uuid;
-				mDecodeQueue.pop(uuid);
+				uuid = mDecodeQueue.front();
+				mDecodeQueue.pop_front();
 				if (gAudiop->hasDecodedFile(uuid))
 				{
 					// This file has already been decoded, don't decode it again.
 					continue;
 				}
 
-				lldebugs << "Decoding " << uuid << " from audio queue!" << LL_ENDL;
+				LL_DEBUGS() << "Decoding " << uuid << " from audio queue!" << LL_ENDL;
 
 				std::string uuid_str;
 				std::string d_path;
@@ -682,7 +685,7 @@ BOOL LLAudioDecodeMgr::addDecodeRequest(const LLUUID &uuid)
 	{
 		// Just put it on the decode queue.
 		LL_DEBUGS("AudioEngine") << "addDecodeRequest for " << uuid << " has local asset file already" << LL_ENDL;
-		mImpl->mDecodeQueue.push(uuid);
+		mImpl->mDecodeQueue.push_back(uuid);
 		return TRUE;
 	}
 

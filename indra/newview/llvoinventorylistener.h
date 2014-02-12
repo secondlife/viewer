@@ -30,7 +30,9 @@
 #ifndef LL_LLVOINVENTORYLISTENER_H
 #define LL_LLVOINVENTORYLISTENER_H
 
-#include "llviewerobject.h"
+#include "llinventory.h"
+
+class LLViewerObject;
 
 class LLVOInventoryListener
 {

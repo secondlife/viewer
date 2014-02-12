@@ -60,7 +60,7 @@ LLAlignedArray<T, alignment>::LLAlignedArray()
 template <class T, U32 alignment>
 LLAlignedArray<T, alignment>::~LLAlignedArray()
 {
-	ll_aligned_free(mArray);
+	ll_aligned_free<alignment>(mArray);
 	mArray = NULL;
 	mElementCount = 0;
 	mCapacity = 0;
@@ -74,7 +74,7 @@ void LLAlignedArray<T, alignment>::push_back(const T& elem)
 	{
 		mCapacity++;
 		mCapacity *= 2;
-		T* new_buf = (T*) ll_aligned_malloc(mCapacity*sizeof(T), alignment);
+		T* new_buf = (T*) ll_aligned_malloc<alignment>(mCapacity*sizeof(T));
 		if (mArray)
 		{
 			ll_memcpy_nonaliased_aligned_16((char*)new_buf, (char*)mArray, sizeof(T)*mElementCount);
@@ -86,7 +86,7 @@ void LLAlignedArray<T, alignment>::push_back(const T& elem)
 	mArray[mElementCount++] = elem;
 
 	//delete old array here to prevent error on a.push_back(a[0])
-	ll_aligned_free(old_buf);
+	ll_aligned_free<alignment>(old_buf);
 }
 
 template <class T, U32 alignment>
@@ -95,11 +95,11 @@ void LLAlignedArray<T, alignment>::resize(U32 size)
 	if (mCapacity < size)
 	{
 		mCapacity = size+mCapacity*2;
-		T* new_buf = mCapacity > 0 ? (T*) ll_aligned_malloc(mCapacity*sizeof(T), alignment) : NULL;
+		T* new_buf = mCapacity > 0 ? (T*) ll_aligned_malloc<alignment>(mCapacity*sizeof(T)) : NULL;
 		if (mArray)
 		{
 			ll_memcpy_nonaliased_aligned_16((char*) new_buf, (char*) mArray, sizeof(T)*mElementCount);
-			ll_aligned_free(mArray);
+			ll_aligned_free<alignment>(mArray);
 		}
 
 		/*for (U32 i = mElementCount; i < mCapacity; ++i)

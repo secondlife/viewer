@@ -93,14 +93,14 @@ const LLGesture &LLGesture::operator =(const LLGesture &rhs)
 
 BOOL LLGesture::trigger(KEY key, MASK mask)
 {
-	llwarns << "Parent class trigger called: you probably didn't mean this." << llendl;
+	LL_WARNS() << "Parent class trigger called: you probably didn't mean this." << LL_ENDL;
 	return FALSE;
 }
 
 
 BOOL LLGesture::trigger(const std::string& trigger_string)
 {
-	llwarns << "Parent class trigger called: you probably didn't mean this." << llendl;
+	LL_WARNS() << "Parent class trigger called: you probably didn't mean this." << LL_ENDL;
 	return FALSE;
 }
 
@@ -130,7 +130,7 @@ U8 *LLGesture::deserialize(U8 *buffer, S32 max_size)
 
 	if (tmp + sizeof(mKey) + sizeof(mMask) + 16 > buffer + max_size)
 	{
-		llwarns << "Attempt to read past end of buffer, bad data!!!!" << llendl;
+		LL_WARNS() << "Attempt to read past end of buffer, bad data!!!!" << LL_ENDL;
 		return buffer;
 	}
 
@@ -155,7 +155,7 @@ U8 *LLGesture::deserialize(U8 *buffer, S32 max_size)
 
 	if (tmp > buffer + max_size)
 	{
-		llwarns << "Read past end of buffer, bad data!!!!" << llendl;
+		LL_WARNS() << "Read past end of buffer, bad data!!!!" << LL_ENDL;
 		return tmp;
 	}
 
@@ -173,27 +173,7 @@ S32 LLGesture::getMaxSerialSize()
 
 LLGestureList::LLGestureList()
 :	mList(0)
-{
-	// add some gestures for debugging
-//	LLGesture *gesture = NULL;
-/*
-	gesture = new LLGesture(KEY_F2, MASK_NONE, ":-)", 
-		SND_CHIRP, "dance2", ":-)" );
-	mList.put(gesture);
-
-	gesture = new LLGesture(KEY_F3, MASK_NONE, "/dance", 
-		SND_OBJECT_CREATE, "dance3", "(dances)" );
-	mList.put(gesture);
-
-	gesture = new LLGesture(KEY_F4, MASK_NONE, "/boogie", 
-		LLUUID::null, "dance4", LLStringUtil::null );
-	mList.put(gesture);
-
-	gesture = new LLGesture(KEY_F5, MASK_SHIFT, "/tongue", 
-		LLUUID::null, "Express_Tongue_Out", LLStringUtil::null );
-	mList.put(gesture);
-	*/
-}
+{}
 
 LLGestureList::~LLGestureList()
 {
@@ -203,12 +183,7 @@ LLGestureList::~LLGestureList()
 
 void LLGestureList::deleteAll()
 {
-	S32 count = mList.count();
-	for (S32 i = 0; i < count; i++)
-	{
-		delete mList.get(i);
-	}
-	mList.reset();
+	delete_and_clear(mList);
 }
 
 // Iterates through space delimited tokens in string, triggering any gestures found.
@@ -235,9 +210,9 @@ BOOL LLGestureList::triggerAndReviseString(const std::string &string, std::strin
 			std::string cur_token_lower = *token_iter;
 			LLStringUtil::toLower(cur_token_lower);
 
-			for (S32 i = 0; i < mList.count(); i++)
+			for (U32 i = 0; i < mList.size(); i++)
 			{
-				gesture = mList.get(i);
+				gesture = mList.at(i);
 				if (gesture->trigger(cur_token_lower))
 				{
 					if( !gesture->getOutputString().empty() )
@@ -286,9 +261,9 @@ BOOL LLGestureList::triggerAndReviseString(const std::string &string, std::strin
 
 BOOL LLGestureList::trigger(KEY key, MASK mask)
 {
-	for (S32 i = 0; i < mList.count(); i++)
+	for (U32 i = 0; i < mList.size(); i++)
 	{
-		LLGesture* gesture = mList.get(i);
+		LLGesture* gesture = mList.at(i);
 		if( gesture )
 		{
 			if (gesture->trigger(key, mask))
@@ -298,7 +273,7 @@ BOOL LLGestureList::trigger(KEY key, MASK mask)
 		}
 		else
 		{
-			llwarns << "NULL gesture in gesture list (" << i << ")" << llendl;
+			LL_WARNS() << "NULL gesture in gesture list (" << i << ")" << LL_ENDL;
 		}
 	}
 	return FALSE;
@@ -308,7 +283,7 @@ BOOL LLGestureList::trigger(KEY key, MASK mask)
 U8 *LLGestureList::serialize(U8 *buffer) const
 {
 	// a single S32 serves as the header that tells us how many to read
-	S32 count = mList.count();
+	U32 count = mList.size();
 	htonmemcpy(buffer, &count, MVT_S32, 4);
 	buffer += sizeof(count);
 
@@ -331,7 +306,7 @@ U8 *LLGestureList::deserialize(U8 *buffer, S32 max_size)
 
 	if (tmp + sizeof(count) > buffer + max_size)
 	{
-		llwarns << "Invalid max_size" << llendl;
+		LL_WARNS() << "Invalid max_size" << LL_ENDL;
 		return buffer;
 	}
 
@@ -339,20 +314,20 @@ U8 *LLGestureList::deserialize(U8 *buffer, S32 max_size)
 
 	if (count > MAX_GESTURES)
 	{
-		llwarns << "Unreasonably large gesture list count in deserialize: " << count << llendl;
+		LL_WARNS() << "Unreasonably large gesture list count in deserialize: " << count << LL_ENDL;
 		return tmp;
 	}
 
 	tmp += sizeof(count);
 
-	mList.reserve_block(count);
+	mList.resize(count);
 
 	for (S32 i = 0; i < count; i++)
 	{
 		mList[i] = create_gesture(&tmp, max_size - (S32)(tmp - buffer));
 		if (tmp - buffer > max_size)
 		{
-			llwarns << "Deserialization read past end of buffer, bad data!!!!" << llendl;
+			LL_WARNS() << "Deserialization read past end of buffer, bad data!!!!" << LL_ENDL;
 			return tmp;
 		}
 	}

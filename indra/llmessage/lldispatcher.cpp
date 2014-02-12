@@ -29,6 +29,7 @@
 #include "lldispatcher.h"
 
 #include <algorithm>
+#include <iterator>
 #include "llstl.h"
 #include "message.h"
 
@@ -75,7 +76,7 @@ bool LLDispatcher::dispatch(
 		LLDispatchHandler* func = (*it).second;
 		return (*func)(this, name, invoice, strings);
 	}
-	llwarns << "Unable to find handler for Generic message: " << name << llendl;
+	LL_WARNS() << "Unable to find handler for Generic message: " << name << LL_ENDL;
 	return false;
 }
 

@@ -29,7 +29,6 @@
 #define LL_LLINVENTORYPANEL_H
 
 #include "llassetstorage.h"
-#include "lldarray.h"
 #include "llfolderviewitem.h"
 #include "llfolderviewmodelinventory.h"
 #include "llfloater.h"

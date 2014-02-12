@@ -57,13 +57,15 @@ LLProxy::LLProxy():
 		mAuthMethodSelected(METHOD_NOAUTH),
 		mSocksUsername(),
 		mSocksPassword()
-{
-}
+{}
 
 LLProxy::~LLProxy()
 {
-	stopSOCKSProxy();
-	disableHTTPProxy();
+	if (ll_apr_is_initialized())
+	{
+		stopSOCKSProxy();
+		disableHTTPProxy();
+	}
 }
 
 /**

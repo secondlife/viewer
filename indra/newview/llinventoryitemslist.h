@@ -29,8 +29,6 @@
 #ifndef LL_LLINVENTORYITEMSLIST_H
 #define LL_LLINVENTORYITEMSLIST_H
 
-#include "lldarray.h"
-
 // newview
 #include "llflatlistview.h"
 
@@ -46,7 +44,7 @@ public:
 
 	virtual ~LLInventoryItemsList();
 
-	void refreshList(const LLDynamicArray<LLPointer<LLViewerInventoryItem> > item_array);
+	void refreshList(const std::vector<LLPointer<LLViewerInventoryItem> > item_array);
 
 	boost::signals2::connection setRefreshCompleteCallback(const commit_signal_t::slot_type& cb);
 

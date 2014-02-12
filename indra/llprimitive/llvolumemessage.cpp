@@ -109,8 +109,8 @@ bool LLVolumeMessage::unpackProfileParams(
 	temp_f32 = temp_u16 * CUT_QUANTA;
 	if (temp_f32 > 1.f)
 	{
-		llwarns << "Profile begin out of range: " << temp_f32
-			<< ". Clamping to 0.0." << llendl;
+		LL_WARNS() << "Profile begin out of range: " << temp_f32
+			<< ". Clamping to 0.0." << LL_ENDL;
 		temp_f32 = 0.f;
 		ok = false;
 	}
@@ -120,8 +120,8 @@ bool LLVolumeMessage::unpackProfileParams(
 	temp_f32 = temp_u16 * CUT_QUANTA;
 	if (temp_f32 > 1.f)
 	{
-		llwarns << "Profile end out of range: " << 1.f - temp_f32
-			<< ". Clamping to 1.0." << llendl;
+		LL_WARNS() << "Profile end out of range: " << 1.f - temp_f32
+			<< ". Clamping to 1.0." << LL_ENDL;
 		temp_f32 = 1.f;
 		ok = false;
 	}
@@ -131,19 +131,19 @@ bool LLVolumeMessage::unpackProfileParams(
 	temp_f32 = temp_u16 * HOLLOW_QUANTA;
 	if (temp_f32 > 1.f)
 	{
-		llwarns << "Profile hollow out of range: " << temp_f32
-			<< ". Clamping to 0.0." << llendl;
+		LL_WARNS() << "Profile hollow out of range: " << temp_f32
+			<< ". Clamping to 0.0." << LL_ENDL;
 		temp_f32 = 0.f;
 		ok = false;
 	}
 	params->setHollow(temp_f32);
 
 	/*
-	llinfos << "Unpacking Profile Block " << block_num << llendl;
-	llinfos << "Curve:     " << (U32)getCurve() << llendl;
-	llinfos << "Begin:     " << getBegin() << llendl;
-	llinfos << "End:     " << getEnd() << llendl;
-	llinfos << "Hollow:     " << getHollow() << llendl;
+	LL_INFOS() << "Unpacking Profile Block " << block_num << LL_ENDL;
+	LL_INFOS() << "Curve:     " << (U32)getCurve() << LL_ENDL;
+	LL_INFOS() << "Begin:     " << getBegin() << LL_ENDL;
+	LL_INFOS() << "End:     " << getEnd() << LL_ENDL;
+	LL_INFOS() << "Hollow:     " << getHollow() << LL_ENDL;
 	*/
 	return ok;
 
@@ -165,8 +165,8 @@ bool LLVolumeMessage::unpackProfileParams(
 	temp_f32 = temp_u16 * CUT_QUANTA;
 	if (temp_f32 > 1.f)
 	{
-		llwarns << "Profile begin out of range: " << temp_f32 << llendl;
-		llwarns << "Clamping to 0.0" << llendl;
+		LL_WARNS() << "Profile begin out of range: " << temp_f32 << LL_ENDL;
+		LL_WARNS() << "Clamping to 0.0" << LL_ENDL;
 		temp_f32 = 0.f;
 		ok = false;
 	}
@@ -176,8 +176,8 @@ bool LLVolumeMessage::unpackProfileParams(
 	temp_f32 = temp_u16 * CUT_QUANTA;
 	if (temp_f32 > 1.f)
 	{
-		llwarns << "Profile end out of range: " << 1.f - temp_f32 << llendl;
-		llwarns << "Clamping to 1.0" << llendl;
+		LL_WARNS() << "Profile end out of range: " << 1.f - temp_f32 << LL_ENDL;
+		LL_WARNS() << "Clamping to 1.0" << LL_ENDL;
 		temp_f32 = 1.f;
 		ok = false;
 	}
@@ -187,8 +187,8 @@ bool LLVolumeMessage::unpackProfileParams(
 	temp_f32 = temp_u16 * HOLLOW_QUANTA;
 	if (temp_f32 > 1.f)
 	{
-		llwarns << "Profile hollow out of range: " << temp_f32 << llendl;
-		llwarns << "Clamping to 0.0" << llendl;
+		LL_WARNS() << "Profile hollow out of range: " << temp_f32 << LL_ENDL;
+		LL_WARNS() << "Clamping to 0.0" << LL_ENDL;
 		temp_f32 = 0.f;
 		ok = false;
 	}
@@ -379,12 +379,12 @@ bool LLVolumeMessage::unpackPathParams(
 	params->setSkew((F32)(skew * SCALE_QUANTA));
 
 /*
-	llinfos << "Unpacking Path Block " << block_num << llendl;
-	llinfos << "Curve:     " << (U32)params->getCurve() << llendl;
-	llinfos << "Begin:     " << params->getBegin() << llendl;
-	llinfos << "End:     " << params->getEnd() << llendl;
-	llinfos << "Scale:     " << params->getScale() << llendl;
-	llinfos << "Twist:     " << params->getTwist() << llendl;
+	LL_INFOS() << "Unpacking Path Block " << block_num << LL_ENDL;
+	LL_INFOS() << "Curve:     " << (U32)params->getCurve() << LL_ENDL;
+	LL_INFOS() << "Begin:     " << params->getBegin() << LL_ENDL;
+	LL_INFOS() << "End:     " << params->getEnd() << LL_ENDL;
+	LL_INFOS() << "Scale:     " << params->getScale() << LL_ENDL;
+	LL_INFOS() << "Twist:     " << params->getTwist() << LL_ENDL;
 */
 
 	return true;
@@ -480,16 +480,16 @@ bool LLVolumeMessage::constrainVolumeParams(LLVolumeParams& params)
 	bad |= params.setSkew(params.getPathParams().getSkew()) ? 0 : 0x800;
 	if(bad)
 	{
-		llwarns << "LLVolumeMessage::constrainVolumeParams() - "
+		LL_WARNS() << "LLVolumeMessage::constrainVolumeParams() - "
 				<< "forced to constrain incoming volume params: "
-				<< llformat("0x%04x",bad) << llendl;
+				<< llformat("0x%04x",bad) << LL_ENDL;
 	}
 	return bad ? false : true;
 }
 
 bool LLVolumeMessage::packVolumeParams(const LLVolumeParams* params, LLMessageSystem *mesgsys)
 {
-	// llinfos << "pack volume" << llendl;
+	// LL_INFOS() << "pack volume" << LL_ENDL;
 	if (params)
 	{
 		packPathParams(&params->getPathParams(), mesgsys);
@@ -505,7 +505,7 @@ bool LLVolumeMessage::packVolumeParams(const LLVolumeParams* params, LLMessageSy
 
 bool LLVolumeMessage::packVolumeParams(const LLVolumeParams* params, LLDataPacker &dp)
 {
-	// llinfos << "pack volume" << llendl;
+	// LL_INFOS() << "pack volume" << LL_ENDL;
 	if (params)
 	{
 		packPathParams(&params->getPathParams(), dp);

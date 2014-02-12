@@ -731,7 +731,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-
     <key>BackgroundYieldTime</key>
     <map>
       <key>Comment</key>
@@ -1433,6 +1432,17 @@
         <real>0.0</real>
         <real>0.0</real>
       </array>
+    </map>
+    <key>RestoreCameraPosOnLogin</key>
+    <map>
+      <key>Comment</key>
+      <string>Reset camera position to location at logout</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+			<integer>0</integer>
     </map>
     <key>CameraPositionSmoothing</key>
     <map>
@@ -2971,6 +2981,17 @@
 	  <string>String</string>
 	  <key>Value</key>
 	  <string>Female Shape &amp; Outfit</string>
+	</map>
+	<key>DefaultLoginLocation</key>
+	<map>
+		<key>Comment</key>
+		<string>Startup destination default (if not specified on command line)</string>
+		<key>Persist</key>
+		<integer>0</integer>
+		<key>Type</key>
+		<string>String</string>
+		<key>Value</key>
+		<string/>
 	</map>
 	<key>DefaultMaleAvatar</key>
 	<map>
@@ -6426,6 +6447,28 @@
       <key>Value</key>
       <integer>130</integer>
     </map>
+    <key>NewObjectCreationThrottle</key>
+    <map>
+      <key>Comment</key>
+      <string>maximum number of new objects created per frame, -1 to disable this throttle</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>200</integer>
+    </map>
+    <key>NewObjectCreationThrottleDelayTime</key>
+    <map>
+      <key>Comment</key>
+      <string>time in seconds NewObjectCreationThrottle to take effect after the progress screen is lifted</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>2.0</real>
+    </map>
     <key>NextOwnerCopy</key>
     <map>
       <key>Comment</key>
@@ -6524,6 +6567,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>NonvisibleObjectsInMemoryTime</key>
+    <map>
+      <key>Comment</key>
+      <string>Number of frames non-visible objects stay in memory before being removed. 0 means never to remove.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+			<integer>300</integer>
     </map>
     <key>NoPreload</key>
     <map>
@@ -6845,6 +6899,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>RequestFullRegionCache</key>
+    <map>
+      <key>Comment</key>
+      <string>If set, ask sim to send full region object cache. Needs to restart viewer.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>OpenDebugStatAdvanced</key>
     <map>
       <key>Comment</key>
@@ -7047,7 +7112,6 @@
       <real>0.75</real>
     </array>
   </map>
-  
     <key>ParcelMediaAutoPlayEnable</key>
     <map>
       <key>Comment</key>
@@ -7413,6 +7477,17 @@
       <string>F32</string>
       <key>Value</key>
       <real>6.0</real>
+    </map>
+    <key>ClothingLoadingDelay</key>
+    <map>
+      <key>Comment</key>
+      <string>Time to wait for avatar appearance to resolve before showing world (seconds)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>10.0</real>
     </map>
 	<key>PreferredMaturity</key>
     <map>
@@ -7969,7 +8044,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-
   <key>OctreeMaxNodeCapacity</key>
   <map>
     <key>Comment</key>
@@ -10146,6 +10220,83 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>SceneLoadFrontPixelThreshold</key>
+    <map>
+      <key>Comment</key>
+      <string>in pixels, all objects in view frustum whose screen area is greater than this threshold will be loaded</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>100.0</real>
+    </map>
+    <key>SceneLoadMinRadius</key>
+    <map>
+      <key>Comment</key>
+      <string>in meters, all objects (visible or invisible) within this radius will remain loaded in memory</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>32.0</real>
+    </map>
+  <key>SceneLoadRearMaxRadiusFraction</key>
+  <map>
+    <key>Comment</key>
+    <string>a percentage of draw distance beyond which all objects outside of view frustum will be unloaded, regardless of pixel threshold</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>75.0</real>
+  </map>
+    <key>SceneLoadRearPixelThreshold</key>
+    <map>
+      <key>Comment</key>
+      <string>in pixels, all objects out of view frustum whose screen area is greater than this threshold will remain loaded</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>400.0</real>
+    </map>
+	<key>SceneLoadingMonitorEnabled</key>
+	<map>
+		<key>Comment</key>
+		<string>Enabled scene loading monitor if set</string>
+		<key>Persist</key>
+		<integer>0</integer>
+		<key>Type</key>
+		<string>Boolean</string>
+		<key>Value</key>
+		<integer>0</integer>
+	</map>
+	<key>SceneLoadingMonitorSampleTime</key>
+	<map>
+		<key>Comment</key>
+		<string>Time between screen samples when monitor scene load (seconds)</string>
+		<key>Persist</key>
+		<integer>1</integer>
+		<key>Type</key>
+		<string>F32</string>
+		<key>Value</key>
+		<real>0.25</real>
+	</map>
+	<key>SceneLoadingMonitorPixelDiffThreshold</key>
+	<map>
+		<key>Comment</key>
+		<string>Amount of pixels changed required to consider the scene as still loading (square root of fraction of pixels on screen)</string>
+		<key>Persist</key>
+		<integer>1</integer>
+		<key>Type</key>
+		<string>F32</string>
+		<key>Value</key>
+		<real>0.02</real>
+	</map>
     <key>ScriptHelpFollowsCursor</key>
     <map>
       <key>Comment</key>
@@ -11884,50 +12035,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>UIAvatariconctrlSymbolHPad</key>
-    <map>
-      <key>Comment</key>
-      <string>UI Avatar Icon Control Symbol Horizontal Pad</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <real>2</real>
-    </map>    
-    <key>UIAvatariconctrlSymbolVPad</key>
-    <map>
-      <key>Comment</key>
-      <string>UI Avatar Icon Control Symbol Vertical Pad</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <real>2</real>
-    </map>    
-    <key>UIAvatariconctrlSymbolSize</key>
-    <map>
-      <key>Comment</key>
-      <string>UI Avatar Icon Control Symbol Size</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <real>5</real>
-    </map>    
-    <key>UIAvatariconctrlSymbolPosition</key>
-    <map>
-      <key>Comment</key>
-      <string>UI Avatar Icon Control Symbol Position (TopLeft|TopRight|BottomLeft|BottomRight)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>BottomRight</string>
-    </map>
     <key>UIButtonOrigHPad</key>
     <map>
       <key>Comment</key>
@@ -13105,6 +13212,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+  <key>UseObjectCacheOcclusion</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable object cache level object culling based on occlusion (coverage) by other objects</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
   <key>RenderSynchronousOcclusion</key>
   <map>
     <key>Comment</key>
@@ -14881,6 +14999,28 @@
     <string>Boolean</string>
     <key>Value</key>
     <integer>0</integer>
+  </map>
+  <key>TeleportArrivalDelay</key>
+  <map>
+    <key>Comment</key>
+    <string>Time to wait before displaying world during teleport (seconds)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>2</real>
+  </map>
+  <key>TeleportLocalDelay</key>
+  <map>
+    <key>Comment</key>
+    <string>Delay to prevent teleports after starting an in-sim teleport. (seconds)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>1</real>
   </map>
   <key>FMODExProfilerEnable</key>
   <map>

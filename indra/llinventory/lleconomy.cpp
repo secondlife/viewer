@@ -101,7 +101,7 @@ void LLGlobalEconomy::processEconomyData(LLMessageSystem *msg, LLGlobalEconomy* 
 	if (fakeprice_str)
 	{
 		S32 fakeprice = (S32)atoi(fakeprice_str);
-		llwarns << "LL_FAKE_UPLOAD_PRICE: Faking upload price as L$" << fakeprice << llendl;
+		LL_WARNS() << "LL_FAKE_UPLOAD_PRICE: Faking upload price as L$" << fakeprice << LL_ENDL;
 		econ_data->setPriceUpload(fakeprice);
 	}
 #endif
@@ -143,19 +143,19 @@ S32	LLGlobalEconomy::calculateLightRent(const LLVector3& object_size) const
 
 void LLGlobalEconomy::print()
 {
-	llinfos << "Global Economy Settings: " << llendl;
-	llinfos << "Object Capacity: " << mObjectCapacity << llendl;
-	llinfos << "Object Count: " << mObjectCount << llendl;
-	llinfos << "Claim Price Per Object: " << mPriceObjectClaim << llendl;
-	llinfos << "Claim Price Per Public Object: " << mPricePublicObjectDecay << llendl;
-	llinfos << "Delete Price Per Public Object: " << mPricePublicObjectDelete << llendl;
-	llinfos << "Release Price Per Public Object: " << getPricePublicObjectRelease() << llendl;
-	llinfos << "Price Per Energy Unit: " << mPriceEnergyUnit << llendl;
-	llinfos << "Price Per Upload: " << mPriceUpload << llendl;
-	llinfos << "Light Base Price: " << mPriceRentLight << llendl;
-	llinfos << "Teleport Min Price: " << mTeleportMinPrice << llendl;
-	llinfos << "Teleport Price Exponent: " << mTeleportPriceExponent << llendl;
-	llinfos << "Price for group creation: " << mPriceGroupCreate << llendl;
+	LL_INFOS() << "Global Economy Settings: " << LL_ENDL;
+	LL_INFOS() << "Object Capacity: " << mObjectCapacity << LL_ENDL;
+	LL_INFOS() << "Object Count: " << mObjectCount << LL_ENDL;
+	LL_INFOS() << "Claim Price Per Object: " << mPriceObjectClaim << LL_ENDL;
+	LL_INFOS() << "Claim Price Per Public Object: " << mPricePublicObjectDecay << LL_ENDL;
+	LL_INFOS() << "Delete Price Per Public Object: " << mPricePublicObjectDelete << LL_ENDL;
+	LL_INFOS() << "Release Price Per Public Object: " << getPricePublicObjectRelease() << LL_ENDL;
+	LL_INFOS() << "Price Per Energy Unit: " << mPriceEnergyUnit << LL_ENDL;
+	LL_INFOS() << "Price Per Upload: " << mPriceUpload << LL_ENDL;
+	LL_INFOS() << "Light Base Price: " << mPriceRentLight << LL_ENDL;
+	LL_INFOS() << "Teleport Min Price: " << mTeleportMinPrice << LL_ENDL;
+	LL_INFOS() << "Teleport Price Exponent: " << mTeleportPriceExponent << LL_ENDL;
+	LL_INFOS() << "Price for group creation: " << mPriceGroupCreate << LL_ENDL;
 }
 
 LLRegionEconomy::LLRegionEconomy()
@@ -209,8 +209,8 @@ void LLRegionEconomy::processEconomyDataRequest(LLMessageSystem *msg, void **use
 	LLRegionEconomy *this_ptr = (LLRegionEconomy*)user_data;
 	if (!this_ptr->hasData())
 	{
-		llwarns << "Dropping EconomyDataRequest, because EconomyData message "
-				<< "has not been processed" << llendl;
+		LL_WARNS() << "Dropping EconomyDataRequest, because EconomyData message "
+				<< "has not been processed" << LL_ENDL;
 	}
 
 	msg->newMessageFast(_PREHASH_EconomyData);
@@ -254,12 +254,12 @@ void LLRegionEconomy::print()
 {
 	this->LLGlobalEconomy::print();
 
-	llinfos << "Region Economy Settings: " << llendl;
-	llinfos << "Land (square meters): " << mAreaTotal << llendl;
-	llinfos << "Owned Land (square meters): " << mAreaOwned << llendl;
-	llinfos << "Daily Object Rent: " << mPriceObjectRent << llendl;
-	llinfos << "Daily Land Rent (per meter): " << getPriceParcelRent() << llendl;
-	llinfos << "Energey Efficiency: " << mEnergyEfficiency << llendl;
+	LL_INFOS() << "Region Economy Settings: " << LL_ENDL;
+	LL_INFOS() << "Land (square meters): " << mAreaTotal << LL_ENDL;
+	LL_INFOS() << "Owned Land (square meters): " << mAreaOwned << LL_ENDL;
+	LL_INFOS() << "Daily Object Rent: " << mPriceObjectRent << LL_ENDL;
+	LL_INFOS() << "Daily Land Rent (per meter): " << getPriceParcelRent() << LL_ENDL;
+	LL_INFOS() << "Energey Efficiency: " << mEnergyEfficiency << LL_ENDL;
 }
 
 
