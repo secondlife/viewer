@@ -78,7 +78,6 @@
 
 #include "llsdserialize.h"
 
-const S32 BLACK_BORDER_HEIGHT = 160;
 const S32 MAX_PASSWORD = 16;
 
 LLPanelLogin *LLPanelLogin::sInstance = NULL;
@@ -192,7 +191,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	mCallbackData(cb_data),
 	mListener(new LLPanelLoginListener(this))
 {
-	setBackgroundVisible(FALSE);
+	setBackgroundVisible(TRUE);
 	setBackgroundOpaque(TRUE);
 
 	// instance management
@@ -207,19 +206,15 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	mPasswordModified = FALSE;
 	LLPanelLogin::sInstance = this;
+	buildFromFile( "panel_login_first.xml");
 
 	LLView* login_holder = gViewerWindow->getLoginPanelHolder();
 	if (login_holder)
 	{
+		setOrigin(0,0);
+		reshape(rect.getWidth(), rect.getHeight());
 		login_holder->addChild(this);
 	}
-
-	// Logo
-	mLogoImage = LLUI::getUIImage("startup_logo");
-
-	buildFromFile( "panel_login.xml");
-
-	reshape(rect.getWidth(), rect.getHeight());
 
 	LLLineEditor* password_edit(getChild<LLLineEditor>("password_edit"));
 	password_edit->setKeystrokeCallback(onPassKey, this);
@@ -408,31 +403,6 @@ LLPanelLogin::~LLPanelLogin()
 // virtual
 void LLPanelLogin::draw()
 {
-	gGL.pushMatrix();
-	{
-		F32 image_aspect = 1.333333f;
-		F32 view_aspect = (F32)getRect().getWidth() / (F32)getRect().getHeight();
-		// stretch image to maintain aspect ratio
-		if (image_aspect > view_aspect)
-		{
-			gGL.translatef(-0.5f * (image_aspect / view_aspect - 1.f) * getRect().getWidth(), 0.f, 0.f);
-			gGL.scalef(image_aspect / view_aspect, 1.f, 1.f);
-		}
-
-		S32 width = getRect().getWidth();
-		S32 height = getRect().getHeight();
-
-		if (getChild<LLView>("login_widgets")->getVisible())
-		{
-			// draw a background box in black
-			gl_rect_2d( 0, height - 264, width, 264, LLColor4::black );
-			// draw the bottom part of the background image
-			// just the blue background to the native client UI
-			mLogoImage->draw(0, -264, width + 8, mLogoImage->getHeight());
-		};
-	}
-	gGL.popMatrix();
-
 	LLPanel::draw();
 }
 

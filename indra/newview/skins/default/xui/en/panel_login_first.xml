@@ -1,0 +1,249 @@
+<panel
+  follows="all"
+  height="768"
+  layout="topleft"
+  name="panel_login"
+  focus_root="true"
+  bg_opaque_color="Red"
+  background_opaque="true"
+  width="1024">
+  <layout_stack
+    follows="left|right|top|bottom"
+    width="1024"
+    height="768"
+    left="0"
+    name="logo_stack"
+    orientation="vertical"
+    top="0">
+    <layout_panel
+      height="400"
+      min_height="10"
+      auto_resize="true"
+      name="page_top"
+      width="1024" />
+    <!-- start of logo stack -->
+    <layout_panel
+      height="150"
+      min_height="10"
+      auto_resize="false"
+      name="parent_panel"
+      width="1024">
+      <layout_stack
+        follows="left|right|top|bottom"
+        height="400"
+        left="0"
+        name="logo_stack"
+        orientation="horizontal"
+        top="0"
+        width="1024">
+        <layout_panel
+          height="400"
+          min_height="10"
+          auto_resize="true"
+          name="logo_left"
+          width="300" />
+        <layout_panel
+          auto_resize="false"
+          follows="left|right|top"
+          name="logo_container"
+          width="315"
+          left="0"
+          top="0"
+          height="215">
+          <icon
+            height="128"
+            image_name="login_sl_logo"
+            left="0"
+            name="sl_logo"
+            top="15" />
+        </layout_panel>
+        <layout_panel
+          height="400"
+          name="logo_right"
+          auto_resize="true"
+          width="300" />
+      </layout_stack>
+    </layout_panel>
+    <!-- end of logo stack -->
+    <!-- start of widget stack -->
+    <layout_panel
+      height="100"
+      min_height="10"
+      auto_resize="false"
+      name="parent_panel2"
+      width="1024">
+      <layout_stack
+        follows="left|right|top|bottom"
+        height="80"
+        left="0"
+        name="widget_stack"
+        orientation="horizontal"
+        top="0"
+        width="1024">
+        <layout_panel
+          height="80"
+          min_height="10"
+          auto_resize="true"
+          name="widget_left"
+          width="200" />
+        <layout_panel
+          auto_resize="false"
+          follows="left|right|top"
+          name="widget_container"
+          width="532"
+          left="0"
+          top="0"
+          height="80">
+          <line_editor
+            follows="left|top"
+            height="32"
+            left="0"
+            max_length_bytes="16"
+            name="username_edit"
+            label="Username"
+            is_password="false"
+            font="SansSerifLarge"
+            select_on_focus="true"
+            commit_on_focus_lost="false"
+            top="0"
+            width="200" />
+          <line_editor
+            follows="left|top"
+            width="200"
+            height="32"
+            left="216"
+            max_length_bytes="16"
+            name="password_edit"
+            label="Password"
+            font="SansSerifLarge"
+            is_password="true"
+            select_on_focus="true"
+            commit_on_focus_lost="false"
+            top="0" />
+          <button
+            follows="left|top"
+            image_unselected="PushButton_On"
+            image_selected="PushButton_On_Selected"
+            label="Log In"
+            label_color="White"
+            font="SansSerifLarge"
+            name="connect_btn"
+            left="432"
+            width="100"
+            height="32"
+            top="0" />
+          <check_box
+            control_name="RememberMe"
+            follows="left|top"
+            font="SansSerifLarge"
+            left="0"
+            top="32"
+            height="24"
+            label="Remember me"
+            check_button.bottom="3"
+            name="remember_me"
+            width="145" />
+          <text
+            follows="left|top"
+            font="SansSerifLarge"
+            text_color="EmphasisColor"
+            height="16"
+            name="forgot_password_text"
+            left="216"
+            top="34"
+            width="200">
+            Forgotten password?
+          </text>
+        </layout_panel>
+        <layout_panel
+          height="100"
+          name="widget_right"
+          auto_resize="true"
+          width="200" />
+      </layout_stack>
+    </layout_panel>
+    <!-- end of widget stack -->
+    <!-- start of images stack -->
+    <layout_panel
+      height="500"
+      min_height="10"
+      auto_resize="false"
+      name="parent_panel3"
+      width="1024">
+      <layout_stack
+        follows="left|right|top|bottom"
+        height="500"
+        left="0"
+        name="images_stack"
+        orientation="horizontal"
+        top="0"
+        width="1024">
+        <layout_panel
+          height="500"
+          min_height="10"
+          auto_resize="true"
+          name="images_left"
+          width="96" />
+        <layout_panel
+          auto_resize="false"
+          follows="left|right|top"
+          name="images_container"
+          width="832"
+          left="0"
+          top="0"
+          height="500">
+          <icon
+            height="400"
+            width="400"
+            image_name="first_login_image_left"
+            left="0"
+            name="image_left"
+            top="0" />
+          <icon
+            height="400"
+            width="400"
+            image_name="first_login_image_right"
+            left_pad="32"
+            name="image_right"
+            top="0" />
+          <text
+            follows="left|top"
+            font="SansSerifMedium"
+            text_color="White"
+            height="16"
+            name="image_caption_left"
+            left="0"
+            halign="center"
+            top="408"
+            width="400">
+            Your first step is Learning Island. Find the exit portal!
+          </text>
+          <text
+            follows="left|top"
+            font="SansSerifMedium"
+            text_color="White"
+            height="16"
+            name="image_caption_left"
+            left="432"
+            halign="center"
+            top="408"
+            width="400">
+            Then explore Social Island and meet other new residents!
+          </text>
+        </layout_panel>
+        <layout_panel
+          height="100"
+          name="images_right"
+          auto_resize="true"
+          width="96" />
+      </layout_stack>
+    </layout_panel>
+    <!-- end of images stack -->
+    <layout_panel
+      height="400"
+      min_height="10"
+      auto_resize="true"
+      name="page_bottom"
+      width="1024" />
+  </layout_stack>
+</panel>
