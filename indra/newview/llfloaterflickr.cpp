@@ -48,13 +48,13 @@
 #include "llviewercontrol.h"
 #include "llviewermedia.h"
 #include "lltabcontainer.h"
+#include "llviewerparcelmgr.h"
 
 static LLRegisterPanelClassWrapper<LLFlickrPhotoPanel> t_panel_photo("llflickrphotopanel");
 static LLRegisterPanelClassWrapper<LLFlickrAccountPanel> t_panel_account("llflickraccountpanel");
 
 const S32 MAX_POSTCARD_DATASIZE = 1024 * 1024; // one megabyte
 const std::string DEFAULT_PHOTO_QUERY_PARAMETERS = "?sourceid=slshare_photo&utm_source=flickr&utm_medium=photo&utm_campaign=slshare";
-const std::string DEFAULT_PHOTO_LINK_TEXT = "Visit this location now";
 const std::string DEFAULT_TAG_TEXT = "secondlife ";
 
 ///////////////////////////
@@ -303,7 +303,15 @@ void LLFlickrPhotoPanel::sendPhoto()
 		// Add query parameters so Google Analytics can track incoming clicks!
 		slurl_string += DEFAULT_PHOTO_QUERY_PARAMETERS;
 
-		slurl_string = "<a href=\"" + slurl_string + "\">" + DEFAULT_PHOTO_LINK_TEXT + "</a>";
+		std::string photo_link_text = "Visit this location";// at [] in Second Life";
+		std::string parcel_name = LLViewerParcelMgr::getInstance()->getAgentParcelName();
+		if (!parcel_name.empty())
+		{
+			photo_link_text += " at " + parcel_name;
+		}
+		photo_link_text += " in Second Life";
+
+		slurl_string = "<a href=\"" + slurl_string + "\">" + photo_link_text + "</a>";
 
 		// Add it to the description (pretty crude, but we don't have a better option with photos)
 		if (description.empty())
