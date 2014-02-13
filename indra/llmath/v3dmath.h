@@ -101,25 +101,25 @@ class LLVector3d
 		F64 operator[](int idx) const { return mdV[idx]; }
 		F64 &operator[](int idx) { return mdV[idx]; }
 
-		friend LLVector3d operator+(const LLVector3d &a, const LLVector3d &b);	// Return vector a + b
-		friend LLVector3d operator-(const LLVector3d &a, const LLVector3d &b);	// Return vector a minus b
-		friend F64 operator*(const LLVector3d &a, const LLVector3d &b);		// Return a dot b
-		friend LLVector3d operator%(const LLVector3d &a, const LLVector3d &b);	// Return a cross b
-		friend LLVector3d operator*(const LLVector3d &a, const F64 k);				// Return a times scaler k
-		friend LLVector3d operator/(const LLVector3d &a, const F64 k);				// Return a divided by scaler k
-		friend LLVector3d operator*(const F64 k, const LLVector3d &a);				// Return a times scaler k
-		friend bool operator==(const LLVector3d &a, const LLVector3d &b);		// Return a == b
-		friend bool operator!=(const LLVector3d &a, const LLVector3d &b);		// Return a != b
+		friend LLVector3d operator+(const LLVector3d& a, const LLVector3d& b);	// Return vector a + b
+		friend LLVector3d operator-(const LLVector3d& a, const LLVector3d& b);	// Return vector a minus b
+		friend F64 operator*(const LLVector3d& a, const LLVector3d& b);		// Return a dot b
+		friend LLVector3d operator%(const LLVector3d& a, const LLVector3d& b);	// Return a cross b
+		friend LLVector3d operator*(const LLVector3d& a, const F64 k);				// Return a times scaler k
+		friend LLVector3d operator/(const LLVector3d& a, const F64 k);				// Return a divided by scaler k
+		friend LLVector3d operator*(const F64 k, const LLVector3d& a);				// Return a times scaler k
+		friend bool operator==(const LLVector3d& a, const LLVector3d& b);		// Return a == b
+		friend bool operator!=(const LLVector3d& a, const LLVector3d& b);		// Return a != b
 
-		friend const LLVector3d& operator+=(LLVector3d &a, const LLVector3d &b);	// Return vector a + b
-		friend const LLVector3d& operator-=(LLVector3d &a, const LLVector3d &b);	// Return vector a minus b
-		friend const LLVector3d& operator%=(LLVector3d &a, const LLVector3d &b);	// Return a cross b
-		friend const LLVector3d& operator*=(LLVector3d &a, const F64 k);				// Return a times scaler k
-		friend const LLVector3d& operator/=(LLVector3d &a, const F64 k);				// Return a divided by scaler k
+		friend const LLVector3d& operator+=(LLVector3d& a, const LLVector3d& b);	// Return vector a + b
+		friend const LLVector3d& operator-=(LLVector3d& a, const LLVector3d& b);	// Return vector a minus b
+		friend const LLVector3d& operator%=(LLVector3d& a, const LLVector3d& b);	// Return a cross b
+		friend const LLVector3d& operator*=(LLVector3d& a, const F64 k);				// Return a times scaler k
+		friend const LLVector3d& operator/=(LLVector3d& a, const F64 k);				// Return a divided by scaler k
 
-		friend LLVector3d operator-(const LLVector3d &a);					// Return vector -a
+		friend LLVector3d operator-(const LLVector3d& a);					// Return vector -a
 
-		friend std::ostream&	 operator<<(std::ostream& s, const LLVector3d &a);		// Stream a
+		friend std::ostream&	 operator<<(std::ostream& s, const LLVector3d& a);		// Stream a
 
 		static BOOL parseVector3d(const std::string& buf, LLVector3d* value);
 
@@ -298,59 +298,59 @@ inline F64	LLVector3d::lengthSquared(void) const
 	return mdV[0]*mdV[0] + mdV[1]*mdV[1] + mdV[2]*mdV[2];
 }
 
-inline LLVector3d operator+(const LLVector3d &a, const LLVector3d &b)
+inline LLVector3d operator+(const LLVector3d& a, const LLVector3d& b)
 {
 	LLVector3d c(a);
 	return c += b;
 }
 
-inline LLVector3d operator-(const LLVector3d &a, const LLVector3d &b)
+inline LLVector3d operator-(const LLVector3d& a, const LLVector3d& b)
 {
 	LLVector3d c(a);
 	return c -= b;
 }
 
-inline F64  operator*(const LLVector3d &a, const LLVector3d &b)
+inline F64  operator*(const LLVector3d& a, const LLVector3d& b)
 {
 	return (a.mdV[0]*b.mdV[0] + a.mdV[1]*b.mdV[1] + a.mdV[2]*b.mdV[2]);
 }
 
-inline LLVector3d operator%(const LLVector3d &a, const LLVector3d &b)
+inline LLVector3d operator%(const LLVector3d& a, const LLVector3d& b)
 {
 	return LLVector3d( a.mdV[1]*b.mdV[2] - b.mdV[1]*a.mdV[2], a.mdV[2]*b.mdV[0] - b.mdV[2]*a.mdV[0], a.mdV[0]*b.mdV[1] - b.mdV[0]*a.mdV[1] );
 }
 
-inline LLVector3d operator/(const LLVector3d &a, const F64 k)
+inline LLVector3d operator/(const LLVector3d& a, const F64 k)
 {
 	F64 t = 1.f / k;
 	return LLVector3d( a.mdV[0] * t, a.mdV[1] * t, a.mdV[2] * t );
 }
 
-inline LLVector3d operator*(const LLVector3d &a, const F64 k)
+inline LLVector3d operator*(const LLVector3d& a, const F64 k)
 {
 	return LLVector3d( a.mdV[0] * k, a.mdV[1] * k, a.mdV[2] * k );
 }
 
-inline LLVector3d operator*(F64 k, const LLVector3d &a)
+inline LLVector3d operator*(F64 k, const LLVector3d& a)
 {
 	return LLVector3d( a.mdV[0] * k, a.mdV[1] * k, a.mdV[2] * k );
 }
 
-inline bool operator==(const LLVector3d &a, const LLVector3d &b)
+inline bool operator==(const LLVector3d& a, const LLVector3d& b)
 {
 	return (  (a.mdV[0] == b.mdV[0])
 			&&(a.mdV[1] == b.mdV[1])
 			&&(a.mdV[2] == b.mdV[2]));
 }
 
-inline bool operator!=(const LLVector3d &a, const LLVector3d &b)
+inline bool operator!=(const LLVector3d& a, const LLVector3d& b)
 {
 	return (  (a.mdV[0] != b.mdV[0])
 			||(a.mdV[1] != b.mdV[1])
 			||(a.mdV[2] != b.mdV[2]));
 }
 
-inline const LLVector3d& operator+=(LLVector3d &a, const LLVector3d &b)
+inline const LLVector3d& operator+=(LLVector3d& a, const LLVector3d& b)
 {
 	a.mdV[0] += b.mdV[0];
 	a.mdV[1] += b.mdV[1];
@@ -358,7 +358,7 @@ inline const LLVector3d& operator+=(LLVector3d &a, const LLVector3d &b)
 	return a;
 }
 
-inline const LLVector3d& operator-=(LLVector3d &a, const LLVector3d &b)
+inline const LLVector3d& operator-=(LLVector3d& a, const LLVector3d& b)
 {
 	a.mdV[0] -= b.mdV[0];
 	a.mdV[1] -= b.mdV[1];
@@ -366,14 +366,14 @@ inline const LLVector3d& operator-=(LLVector3d &a, const LLVector3d &b)
 	return a;
 }
 
-inline const LLVector3d& operator%=(LLVector3d &a, const LLVector3d &b)
+inline const LLVector3d& operator%=(LLVector3d& a, const LLVector3d& b)
 {
 	LLVector3d ret( a.mdV[1]*b.mdV[2] - b.mdV[1]*a.mdV[2], a.mdV[2]*b.mdV[0] - b.mdV[2]*a.mdV[0], a.mdV[0]*b.mdV[1] - b.mdV[0]*a.mdV[1]);
 	a = ret;
 	return a;
 }
 
-inline const LLVector3d& operator*=(LLVector3d &a, const F64 k)
+inline const LLVector3d& operator*=(LLVector3d& a, const F64 k)
 {
 	a.mdV[0] *= k;
 	a.mdV[1] *= k;
@@ -381,7 +381,7 @@ inline const LLVector3d& operator*=(LLVector3d &a, const F64 k)
 	return a;
 }
 
-inline const LLVector3d& operator/=(LLVector3d &a, const F64 k)
+inline const LLVector3d& operator/=(LLVector3d& a, const F64 k)
 {
 	F64 t = 1.f / k;
 	a.mdV[0] *= t;
@@ -390,12 +390,12 @@ inline const LLVector3d& operator/=(LLVector3d &a, const F64 k)
 	return a;
 }
 
-inline LLVector3d operator-(const LLVector3d &a)
+inline LLVector3d operator-(const LLVector3d& a)
 {
 	return LLVector3d( -a.mdV[0], -a.mdV[1], -a.mdV[2] );
 }
 
-inline F64	dist_vec(const LLVector3d &a, const LLVector3d &b)
+inline F64	dist_vec(const LLVector3d& a, const LLVector3d& b)
 {
 	F64 x = a.mdV[0] - b.mdV[0];
 	F64 y = a.mdV[1] - b.mdV[1];
@@ -403,7 +403,7 @@ inline F64	dist_vec(const LLVector3d &a, const LLVector3d &b)
 	return (F32) sqrt( x*x + y*y + z*z );
 }
 
-inline F64	dist_vec_squared(const LLVector3d &a, const LLVector3d &b)
+inline F64	dist_vec_squared(const LLVector3d& a, const LLVector3d& b)
 {
 	F64 x = a.mdV[0] - b.mdV[0];
 	F64 y = a.mdV[1] - b.mdV[1];
@@ -411,14 +411,14 @@ inline F64	dist_vec_squared(const LLVector3d &a, const LLVector3d &b)
 	return x*x + y*y + z*z;
 }
 
-inline F64	dist_vec_squared2D(const LLVector3d &a, const LLVector3d &b)
+inline F64	dist_vec_squared2D(const LLVector3d& a, const LLVector3d& b)
 {
 	F64 x = a.mdV[0] - b.mdV[0];
 	F64 y = a.mdV[1] - b.mdV[1];
 	return x*x + y*y;
 }
 
-inline LLVector3d lerp(const LLVector3d &a, const LLVector3d &b, const F64 u)
+inline LLVector3d lerp(const LLVector3d& a, const LLVector3d& b, const F64 u)
 {
 	return LLVector3d(
 		a.mdV[VX] + (b.mdV[VX] - a.mdV[VX]) * u,
@@ -450,7 +450,7 @@ inline F64 angle_between(const LLVector3d& a, const LLVector3d& b)
 	return angle;
 }
 
-inline BOOL are_parallel(const LLVector3d &a, const LLVector3d &b, const F64 epsilon)
+inline BOOL are_parallel(const LLVector3d& a, const LLVector3d& b, const F64 epsilon)
 {
 	LLVector3d an = a;
 	LLVector3d bn = b;
@@ -465,11 +465,22 @@ inline BOOL are_parallel(const LLVector3d &a, const LLVector3d &b, const F64 eps
 
 }
 
-inline LLVector3d projected_vec(const LLVector3d &a, const LLVector3d &b)
+inline LLVector3d projected_vec(const LLVector3d& a, const LLVector3d& b)
 {
 	LLVector3d project_axis = b;
 	project_axis.normalize();
 	return project_axis * (a * project_axis);
+}
+
+inline LLVector3d inverse_projected_vec(const LLVector3d& a, const LLVector3d& b)
+{
+	LLVector3d normalized_a = a;
+	normalized_a.normalize();
+	LLVector3d normalized_b = b;
+	F64 b_length = normalized_b.normalize();
+
+	F64 dot_product = normalized_a * normalized_b;
+	return normalized_a * (b_length / dot_product);
 }
 
 #endif // LL_V3DMATH_H
