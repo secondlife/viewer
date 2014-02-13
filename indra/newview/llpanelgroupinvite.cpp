@@ -251,6 +251,10 @@ void LLPanelGroupInvite::submit()
 void LLPanelGroupInvite::addRoleNames()
 {
 	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mImplementation->mGroupID);
+	if(!gdatap)
+	{
+		return;
+	}
 
 	LLGroupMgrGroupData::member_list_t::iterator agent_iter = gdatap->mMembers.find(gAgent.getID());
 
