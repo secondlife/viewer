@@ -478,9 +478,6 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 		previewp->setSnapshotType(shot_type);
 		previewp->setSnapshotFormat(shot_format);
 		previewp->setSnapshotBufferType(layer_type);
-        // Filters
-        //const std::string& filter_name = floater->getChild<LLComboBox>("filters_combobox")->getSimple();
-        //previewp->setFilter(filter_name);
 	}
 
 	LLPanelSnapshot* current_panel = Impl::getActivePanel(floater);
@@ -575,8 +572,17 @@ void LLFloaterSnapshot::Impl::onClickFilter(LLUICtrl *ctrl, void* data)
 	LLFloaterSnapshot *view = (LLFloaterSnapshot *)data;
 	if (view)
 	{
-		checkAutoSnapshot(getPreviewView(view));
 		updateControls(view);
+        LLSnapshotLivePreview* previewp = getPreviewView(view);
+        if (previewp)
+        {
+            checkAutoSnapshot(previewp);
+            // Note : index 0 of the filter drop down is assumed to be "No filter" in whichever locale
+            LLComboBox* filterbox = static_cast<LLComboBox *>(view->getChild<LLComboBox>("filters_combobox"));
+            std::string filter_name = (filterbox->getCurrentIndex() ? filterbox->getSimple() : "");
+            previewp->setFilter(filter_name);
+            previewp->updateSnapshot(FALSE, TRUE);
+        }
 	}
 }
 
@@ -1078,16 +1084,25 @@ BOOL LLFloaterSnapshot::postBuild()
 	getChild<LLUICtrl>("auto_snapshot_check")->setValue(gSavedSettings.getBOOL("AutoSnapshot"));
 	childSetCommitCallback("auto_snapshot_check", Impl::onClickAutoSnap, this);
     
-	// Update filter list
-    //std::vector<std::string> filter_list = LLImageFiltersManager::getInstance()->getFiltersList();
-	//LLComboBox* filterbox = getChild<LLComboBox>("filters_combobox");
-    //for (U32 i = 0; i < filter_list.size(); i++)
-	//{
-    //    filterbox->add(filter_list[i]);
-    //}
-	//childSetCommitCallback("filters_combobox", Impl::onClickFilter, this);
+	// Filters
+	LLComboBox* filterbox = getChild<LLComboBox>("filters_combobox");
+    if (gSavedSettings.getBOOL("SnapshotFiltersEnabled"))
+    {
+        // Update filter list if setting is on (experimental)
+        std::vector<std::string> filter_list = LLImageFiltersManager::getInstance()->getFiltersList();
+        for (U32 i = 0; i < filter_list.size(); i++)
+        {
+            filterbox->add(filter_list[i]);
+        }
+        childSetCommitCallback("filters_combobox", Impl::onClickFilter, this);
+    }
+    else
+    {
+        // Hide Filter UI if setting is off (default)
+        getChild<LLUICtrl>("filter_list_label")->setVisible(FALSE);
+        filterbox->setVisible(FALSE);
+    }
     
-	
 	LLWebProfile::setImageUploadResultCallback(boost::bind(&LLFloaterSnapshot::Impl::onSnapshotUploadFinished, _1));
 	LLPostCard::setPostResultCallback(boost::bind(&LLFloaterSnapshot::Impl::onSendingPostcardFinished, _1));
 

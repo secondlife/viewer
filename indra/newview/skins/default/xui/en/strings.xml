@@ -171,16 +171,17 @@ Please try logging in again in a minute.</string>
 	<!-- SLShare: User Friendly Filter Names Translation -->
     <string name="BlackAndWhite">Black &amp; White</string>
     <string name="Colors1970">1970&apos;s Colors</string>
-    <string name="Heatwave">Heat Wave</string>
     <string name="Intense">Intense</string>
-    <string name="JulesVerne">Jules Verne</string>
-    <string name="Newspaper">Newspaper</string>
-    <string name="Overcast">Overcast</string>
+    <string name="Newspaper">Newsprint</string>
     <string name="Sepia">Sepia</string>
     <string name="Spotlight">Spotlight</string>
     <string name="Video">Video</string>
-    
-	<!-- Tooltip -->
+    <string name="Autocontrast">Autocontrast</string>
+    <string name="LensFlare">Lens Flare</string>
+    <string name="Miniature">Miniature</string>
+    <string name="Toycamera">Toy Camera</string>
+	
+    <!-- Tooltip -->
 	<string name="TooltipPerson">Person</string><!-- Object under mouse pointer is an avatar -->
 	<string name="TooltipNoName">(no name)</string> <!-- No name on an object -->
 	<string name="TooltipOwner">Owner:</string> <!-- Owner name follows -->
