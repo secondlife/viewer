@@ -34,6 +34,7 @@
 #include "llviewerregion.h"
 #include "pipeline.h"
 #include "llagentcamera.h"
+#include "llmemory.h"
 
 //static variables
 U32 LLVOCacheEntry::sMinFrameRange = 0;
@@ -381,6 +382,13 @@ BOOL LLVOCacheEntry::writeToFile(LLAPRFile* apr_file) const
 //static 
 void LLVOCacheEntry::updateDebugSettings()
 {
+	static LLFrameTimer timer;
+	if(timer.getElapsedTimeF32() < 1.0f) //update frequency once per second.
+	{
+		return;
+	}
+	timer.reset();
+
 	//the number of frames invisible objects stay in memory
 	static LLCachedControl<U32> inv_obj_time(gSavedSettings,"NonvisibleObjectsInMemoryTime");
 	sMinFrameRange = inv_obj_time - 1; //make 0 to be the maximum 
@@ -404,6 +412,23 @@ void LLVOCacheEntry::updateDebugSettings()
 	sRearFarRadius = llmax(rear_max_radius_frac * gAgentCamera.mDrawDistance / 100.f, 1.0f); //minimum value is 1.0m
 	sRearFarRadius = llmax(sRearFarRadius, (F32)min_radius); //can not be less than "SceneLoadMinRadius".
 	sRearFarRadius = llmin(sRearFarRadius, gAgentCamera.mDrawDistance); //can not be more than the draw distance.
+
+	//make the above parameters adaptive to memory usage
+	//starts to put restrictions from 750MB, apply tightest restrictions when hits 1GB
+	const U32 low_bound = 750 * 1024; //KB
+	const U32 high_bound = 1024 * 1024; //KB
+
+	LLMemory::updateMemoryInfo() ;
+	U32 allocated_mem = LLMemory::getAllocatedMemKB().value();
+	if(allocated_mem < low_bound)
+	{
+		return; 
+	}
+	F32 adjust_factor = llmax(0.f, (F32)(high_bound - allocated_mem) / (high_bound - low_bound));
+
+	sRearFarRadius = llmin(adjust_factor * sRearFarRadius, 96.f);  //[0.f, 96.f]
+	sMinFrameRange = (U32)llclamp(adjust_factor * sMinFrameRange, 10.f, 64.f);  //[10, 64]
+	sNearRadius    = llmax(adjust_factor * sNearRadius, 1.0f);
 }
 
 //static 
