@@ -10231,6 +10231,28 @@
       <key>Value</key>
       <real>100.0</real>
     </map>
+    <key>SceneLoadHighMemoryBound</key>
+    <map>
+      <key>Comment</key>
+      <string>in MB, when total memory usage above this threshold, minimum invisible objects are kept in memory </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <real>1024</real>
+    </map>
+    <key>SceneLoadLowMemoryBound</key>
+    <map>
+      <key>Comment</key>
+      <string>in MB, when total memory usage above this threshold, start to reduce invisible objects kept in memory </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <real>750</real>
+    </map>
     <key>SceneLoadMinRadius</key>
     <map>
       <key>Comment</key>

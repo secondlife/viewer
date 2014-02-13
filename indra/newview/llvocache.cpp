@@ -414,17 +414,18 @@ void LLVOCacheEntry::updateDebugSettings()
 	sRearFarRadius = llmin(sRearFarRadius, gAgentCamera.mDrawDistance); //can not be more than the draw distance.
 
 	//make the above parameters adaptive to memory usage
-	//starts to put restrictions from 750MB, apply tightest restrictions when hits 1GB
-	const U32 low_bound = 750 * 1024; //KB
-	const U32 high_bound = 1024 * 1024; //KB
-
+	//starts to put restrictions from low_mem_bound_MB, apply tightest restrictions when hits high_mem_bound_MB
+	static LLCachedControl<U32> low_mem_bound_MB(gSavedSettings,"SceneLoadLowMemoryBound");
+	static LLCachedControl<U32> high_mem_bound_MB(gSavedSettings,"SceneLoadHighMemoryBound");
+	
 	LLMemory::updateMemoryInfo() ;
 	U32 allocated_mem = LLMemory::getAllocatedMemKB().value();
-	if(allocated_mem < low_bound)
+	allocated_mem /= 1024; //convert to MB.
+	if(allocated_mem < low_mem_bound_MB)
 	{
 		return; 
 	}
-	F32 adjust_factor = llmax(0.f, (F32)(high_bound - allocated_mem) / (high_bound - low_bound));
+	F32 adjust_factor = llmax(0.f, (F32)(high_mem_bound_MB - allocated_mem) / (high_mem_bound_MB - low_mem_bound_MB));
 
 	sRearFarRadius = llmin(adjust_factor * sRearFarRadius, 96.f);  //[0.f, 96.f]
 	sMinFrameRange = (U32)llclamp(adjust_factor * sMinFrameRange, 10.f, 64.f);  //[10, 64]
