@@ -2,22 +2,43 @@
     <array>
         <array>
             <string>linearize</string>
-            <real>0.01</real>
+            <real>0.0</real>
             <real>1.0</real>
             <real>1.0</real>
             <real>1.0</real>
         </array>
         <array>
-            <string>lines</string>
-            <real>10.0</real>
+            <string>darken</string>
+            <real>0.15</real>
+            <real>1.0</real>
+            <real>1.0</real>
+            <real>1.0</real>
+        </array>
+        <array>
+            <string>stencil</string>
+            <string>uniform</string>
+            <string>add</string>
+            <real>0.0</real>
+            <real>0.5</real>
+        </array>
+        <array>
+            <string>screen</string>
+            <string>line</string>
+            <real>0.02</real>
             <real>0.0</real>
         </array>
         <array>
-            <string>brighten</string>
-            <real>100.0</real>
+            <string>gamma</string>
+            <real>0.25</real>
             <real>1.0</real>
             <real>1.0</real>
             <real>1.0</real>
+        </array>
+        <array>
+            <string>blur</string>
+        </array>
+        <array>
+            <string>blur</string>
         </array>
     </array>
 </llsd>
