@@ -11,7 +11,7 @@
             <string>stencil</string>
             <string>gradient</string>
             <string>add</string>
-            <real>1.0</real>
+            <real>0.5</real>
             <real>0.0</real>
             <real>-1.0</real>
             <real>1.0</real>
@@ -32,7 +32,7 @@
             <string>vignette</string>
             <string>add</string>
             <real>0.0</real>
-            <real>1.0</real>
+            <real>0.5</real>
             <real>-1.0</real>
             <real>1.0</real>
             <real>1.5</real>
@@ -52,7 +52,7 @@
             <string>vignette</string>
             <string>add</string>
             <real>0.0</real>
-            <real>1.0</real>
+            <real>0.5</real>
             <real>-1.0</real>
             <real>1.0</real>
             <real>1.0</real>
