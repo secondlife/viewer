@@ -269,6 +269,7 @@ void LLVOTree::initClass()
 void LLVOTree::cleanupClass()
 {
 	std::for_each(sSpeciesTable.begin(), sSpeciesTable.end(), DeletePairedPointer());
+	sSpeciesTable.clear();
 }
 
 U32 LLVOTree::processUpdateMessage(LLMessageSystem *mesgsys,

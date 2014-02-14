@@ -117,6 +117,7 @@ LLAvatarTracker::~LLAvatarTracker()
 	std::for_each(mObservers.begin(), mObservers.end(), DeletePointer());
 	mObservers.clear();
 	std::for_each(mBuddyInfo.begin(), mBuddyInfo.end(), DeletePairedPointer());
+	mBuddyInfo.clear();
 }
 
 void LLAvatarTracker::track(const LLUUID& avatar_id, const std::string& name)

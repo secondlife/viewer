@@ -322,6 +322,7 @@ LLScrollListCtrl::~LLScrollListCtrl()
 	std::for_each(mItemList.begin(), mItemList.end(), DeletePointer());
 	mItemList.clear();
 	std::for_each(mColumns.begin(), mColumns.end(), DeletePairedPointer());
+	mColumns.clear();
 }
 
 

@@ -241,6 +241,7 @@ void LLVOGrass::initClass()
 void LLVOGrass::cleanupClass()
 {
 	for_each(sSpeciesTable.begin(), sSpeciesTable.end(), DeletePairedPointer());
+	sSpeciesTable.clear();
 }
 
 U32 LLVOGrass::processUpdateMessage(LLMessageSystem *mesgsys,

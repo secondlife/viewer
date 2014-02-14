@@ -578,6 +578,7 @@ LLVFS::~LLVFS()
 	mFreeBlocksByLength.clear();
 
 	for_each(mFreeBlocksByLocation.begin(), mFreeBlocksByLocation.end(), DeletePairedPointer());
+	mFreeBlocksByLocation.clear();
     
 	unlockAndClose(mDataFP);
 	mDataFP = NULL;
