@@ -195,6 +195,7 @@ LLTexLayerSetInfo::LLTexLayerSetInfo() :
 LLTexLayerSetInfo::~LLTexLayerSetInfo( )
 {
 	std::for_each(mLayerInfoList.begin(), mLayerInfoList.end(), DeletePointer());
+	mLayerInfoList.clear();
 }
 
 BOOL LLTexLayerSetInfo::parseXml(LLXmlTreeNode* node)
@@ -282,7 +283,10 @@ LLTexLayerSet::~LLTexLayerSet()
 {
 	deleteCaches();
 	std::for_each(mLayerList.begin(), mLayerList.end(), DeletePointer());
+	mLayerList.clear();
+
 	std::for_each(mMaskLayerList.begin(), mMaskLayerList.end(), DeletePointer());
+	mMaskLayerList.clear();
 }
 
 //-----------------------------------------------------------------------------
@@ -652,7 +656,9 @@ LLTexLayerInfo::LLTexLayerInfo() :
 LLTexLayerInfo::~LLTexLayerInfo( )
 {
 	std::for_each(mParamColorInfoList.begin(), mParamColorInfoList.end(), DeletePointer());
+	mParamColorInfoList.clear();
 	std::for_each(mParamAlphaInfoList.begin(), mParamAlphaInfoList.end(), DeletePointer());
+	mParamAlphaInfoList.clear();
 }
 
 BOOL LLTexLayerInfo::parseXml(LLXmlTreeNode* node)

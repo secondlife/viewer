@@ -279,6 +279,7 @@ LLCacheName::Impl::~Impl()
 {
 	for_each(mCache.begin(), mCache.end(), DeletePairedPointer());
 	for_each(mReplyQueue.begin(), mReplyQueue.end(), DeletePointer());
+	mReplyQueue.clear();
 }
 
 boost::signals2::connection LLCacheName::Impl::addPending(const LLUUID& id, const LLCacheNameCallback& callback)

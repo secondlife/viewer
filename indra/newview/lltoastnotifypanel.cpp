@@ -131,6 +131,7 @@ LLToastNotifyPanel::~LLToastNotifyPanel()
 	mButtonClickConnection.disconnect();
 
 	std::for_each(mBtnCallbackData.begin(), mBtnCallbackData.end(), DeletePointer());
+	mBtnCallbackData.clear();
 	if (mIsTip)
 		{
 			LLNotifications::getInstance()->cancel(mNotification);

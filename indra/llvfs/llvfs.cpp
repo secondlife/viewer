@@ -1835,6 +1835,7 @@ void LLVFS::audit()
 	}
 
 	for_each(audit_blocks.begin(), audit_blocks.end(), DeletePointer());
+	audit_blocks.clear();
 }
     
     
