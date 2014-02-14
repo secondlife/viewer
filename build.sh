@@ -401,6 +401,7 @@ then
         if [ x"$package" != x ]
         then
           upload_item installer "$package" binary/octet-stream
+          upload_item quicklink "$package" binary/octet-stream
         else
           record_failure "Failed to find additional package for '$package_id'."
         fi
@@ -413,6 +414,12 @@ then
         do
           upload_item symbolfile "$build_dir/$symbolfile" binary/octet-stream
         done
+
+        # Upload the actual dependencies used
+        if [ -r "$build_dir/packages/installed-packages.xml" ]
+        then
+            upload_item installer "$build_dir/packages/installed-packages.xml" text/xml
+        fi
 
         # Upload the llphysicsextensions_tpv package, if one was produced
         # *TODO: Make this an upload-extension
