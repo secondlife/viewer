@@ -634,8 +634,7 @@ void LLPanelLogin::updateLocationSelectorsVisibility()
 		sInstance->getChild<LLLayoutPanel>("start_location_panel")->setVisible(show_start);
 
 		BOOL show_server = gSavedSettings.getBOOL("ForceShowGrid");
-		//sInstance->getChild<LLLayoutPanel>("grid_panel")->setVisible(show_server);
-		sInstance->getChild<LLComboBox>("server_combo")->setVisible(show_server);
+		sInstance->getChild<LLLayoutPanel>("grid_panel")->setVisible(show_server);
 	}	
 }
 

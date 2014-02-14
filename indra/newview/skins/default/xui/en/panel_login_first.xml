@@ -17,27 +17,27 @@
     orientation="vertical"
     top="0">
     <layout_panel
-      height="48"
+      height="18"
       auto_resize="false"
       name="page_top"
       width="1024" />
     <!-- start of logo stack -->
     <layout_panel
-      height="150"
+      height="130"
       min_height="10"
       auto_resize="false"
       name="parent_panel"
       width="1024">
       <layout_stack
         follows="left|right|top|bottom"
-        height="400"
+        height="100"
         left="0"
         name="logo_stack"
         orientation="horizontal"
         top="0"
         width="1024">
         <layout_panel
-          height="400"
+          height="110"
           min_height="10"
           auto_resize="true"
           name="logo_left"
@@ -46,19 +46,19 @@
           auto_resize="false"
           follows="left|right|top"
           name="logo_container"
-          width="315"
+          width="225"
           left="0"
           top="0"
-          height="215">
+          height="105">
           <icon
-            height="128"
+            height="94"
             image_name="login_sl_logo"
             left="0"
             name="sl_logo"
-            top="15" />
+            top="0" />
         </layout_panel>
         <layout_panel
-          height="400"
+          height="100"
           name="logo_right"
           auto_resize="true"
           width="300" />
@@ -128,8 +128,8 @@
             top="0" />
           <button
             follows="left|top"
-            image_unselected="PushButton_On"
-            image_selected="PushButton_On_Selected"
+            image_unselected="PushButton_Login_On"
+            image_selected="PushButton_Login_On_Selected"
             label="Log In"
             label_color="White"
             font="SansSerifLarge"
