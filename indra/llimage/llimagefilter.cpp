@@ -55,7 +55,6 @@ LLImageFilter::LLImageFilter(const std::string& file_path) :
 {
     // Load filter description from file
 	llifstream filter_xml(file_path);
-    llinfos << "Merov : load filter : " << file_path << llendl;
 	if (filter_xml.is_open())
 	{
 		// Load and parse the file
@@ -89,7 +88,6 @@ void LLImageFilter::executeFilter(LLPointer<LLImageRaw> raw_image)
 {
     mImage = raw_image;
     
-    llinfos << "Merov : execute filter on image size " << mImage->getWidth() << "x" << mImage->getHeight() << llendl;
 	//std::cout << "Filter : size = " << mFilterData.size() << std::endl;
 	for (S32 i = 0; i < mFilterData.size(); ++i)
 	{
