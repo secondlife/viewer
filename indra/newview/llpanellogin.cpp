@@ -26,8 +26,6 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include <sstream>
-
 #include "llpanellogin.h"
 #include "lllayoutstack.h"
 
@@ -78,25 +76,11 @@
 
 #include "llsdserialize.h"
 
+const S32 BLACK_BORDER_HEIGHT = 160;
 const S32 MAX_PASSWORD = 16;
 
 LLPanelLogin *LLPanelLogin::sInstance = NULL;
 BOOL LLPanelLogin::sCapslockDidNotification = FALSE;
-
-class LLLoginRefreshHandler : public LLCommandHandler
-{
-public:
-	// don't allow from external browsers
-	LLLoginRefreshHandler() : LLCommandHandler("login_refresh", UNTRUSTED_BLOCK) { }
-	bool handle(const LLSD& tokens, const LLSD& query_map, LLMediaCtrl* web)
-	{	
-		if (LLStartUp::getStartupState() < STATE_LOGIN_CLEANUP)
-		{
-			LLPanelLogin::loadLoginPage();
-		}	
-		return true;
-	}
-};
 
 class LLLoginLocationAutoHandler : public LLCommandHandler
 {
@@ -104,7 +88,7 @@ public:
 	// don't allow from external browsers
 	LLLoginLocationAutoHandler() : LLCommandHandler("location_login", UNTRUSTED_BLOCK) { }
 	bool handle(const LLSD& tokens, const LLSD& query_map, LLMediaCtrl* web)
-	{	
+	{   
 		if (LLStartUp::getStartupState() < STATE_LOGIN_CLEANUP)
 		{
 			if ( tokens.size() == 0 || tokens.size() > 4 ) 
@@ -173,7 +157,7 @@ public:
 
 				LLPanelLogin::autologinToLocation(slurl);
 			};
-		}	
+		}   
 		return true;
 	}
 };
@@ -191,7 +175,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	mCallbackData(cb_data),
 	mListener(new LLPanelLoginListener(this))
 {
-	setBackgroundVisible(TRUE);
+	setBackgroundVisible(FALSE);
 	setBackgroundOpaque(TRUE);
 
 	// instance management
@@ -206,15 +190,26 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	mPasswordModified = FALSE;
 	LLPanelLogin::sInstance = this;
-	buildFromFile( "panel_login_first.xml");
 
 	LLView* login_holder = gViewerWindow->getLoginPanelHolder();
 	if (login_holder)
 	{
-		setOrigin(0,0);
-		reshape(rect.getWidth(), rect.getHeight());
 		login_holder->addChild(this);
 	}
+
+	// Logo
+	mLogoImage = LLUI::getUIImage("startup_logo");
+
+	if (gSavedSettings.getBOOL("FirstLoginThisInstall"))
+	{
+		buildFromFile( "panel_login_first.xml");
+	}
+	else
+	{
+		buildFromFile( "panel_login.xml");
+	}
+
+	reshape(rect.getWidth(), rect.getHeight());
 
 	LLLineEditor* password_edit(getChild<LLLineEditor>("password_edit"));
 	password_edit->setKeystrokeCallback(onPassKey, this);
@@ -298,8 +293,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("login_html");
 	web_browser->addObserver(this);
 
-	reshapeBrowser();
-
 	loadLoginPage();
 
 	// Show last logged in user favorites in "Start at" combo.
@@ -376,21 +369,6 @@ void LLPanelLogin::addFavoritesToStartLocation()
 	}
 }
 
-// force the size to be correct (XML doesn't seem to be sufficient to do this)
-// (with some padding so the other login screen doesn't show through)
-void LLPanelLogin::reshapeBrowser()
-{
-	LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("login_html");
-	LLRect rect = gViewerWindow->getWindowRectScaled();
-	LLRect html_rect;
-	html_rect.setCenterAndSize(
-		rect.getCenterX() - 2, rect.getCenterY() + 40,
-		rect.getWidth() + 6, rect.getHeight() - 78 );
-	web_browser->setRect( html_rect );
-	web_browser->reshape( html_rect.getWidth(), html_rect.getHeight(), TRUE );
-	reshape( rect.getWidth(), rect.getHeight(), 1 );
-}
-
 LLPanelLogin::~LLPanelLogin()
 {
 	LLPanelLogin::sInstance = NULL;
@@ -398,25 +376,6 @@ LLPanelLogin::~LLPanelLogin()
 	// Controls having keyboard focus by default
 	// must reset it on destroy. (EXT-2748)
 	gFocusMgr.setDefaultKeyboardFocus(NULL);
-}
-
-// virtual
-void LLPanelLogin::draw()
-{
-	LLPanel::draw();
-}
-
-// virtual
-BOOL LLPanelLogin::handleKeyHere(KEY key, MASK mask)
-{
-	if ( KEY_F1 == key )
-	{
-		LLViewerHelp* vhelp = LLViewerHelp::getInstance();
-		vhelp->showTopic(vhelp->f1HelpTopic());
-		return TRUE;
-	}
-
-	return LLPanel::handleKeyHere(key, mask);
 }
 
 // virtual 
@@ -470,24 +429,6 @@ void LLPanelLogin::giveFocus()
 		{
 			combo->setFocus(TRUE);
 		}
-	}
-}
-
-// static
-void LLPanelLogin::showLoginWidgets()
-{
-	if (sInstance)
-	{
-		// *NOTE: Mani - This may or may not be obselete code.
-		// It seems to be part of the defunct? reg-in-client project.
-		sInstance->getChildView("login_widgets")->setVisible( true);
-		LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
-		sInstance->reshapeBrowser();
-		// *TODO: Append all the usual login parameters, like first_login=Y etc.
-		std::string splash_screen_url = LLGridManager::getInstance()->getLoginPage();
-		web_browser->navigateTo( splash_screen_url, "text/html" );
-		LLUICtrl* username_combo = sInstance->getChild<LLUICtrl>("username_combo");
-		username_combo->setFocus(TRUE);
 	}
 }
 
@@ -693,7 +634,8 @@ void LLPanelLogin::updateLocationSelectorsVisibility()
 		sInstance->getChild<LLLayoutPanel>("start_location_panel")->setVisible(show_start);
 
 		BOOL show_server = gSavedSettings.getBOOL("ForceShowGrid");
-		sInstance->getChild<LLLayoutPanel>("grid_panel")->setVisible(show_server);
+		//sInstance->getChild<LLLayoutPanel>("grid_panel")->setVisible(show_server);
+		sInstance->getChild<LLComboBox>("server_combo")->setVisible(show_server);
 	}	
 }
 
@@ -778,6 +720,7 @@ void LLPanelLogin::autologinToLocation(const LLSLURL& slurl)
 		LLPanelLogin::sInstance->onClickConnect(unused_paramter);
 	}
 }
+
 
 // static
 void LLPanelLogin::closePanel()

@@ -67,7 +67,7 @@
       <panel top="0"
              left="0"
              follows="all"
-             height="768"
+             height="500"
              layout="topleft"
              mouse_opaque="false"
              name="login_panel_holder"

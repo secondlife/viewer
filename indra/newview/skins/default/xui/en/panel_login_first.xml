@@ -4,7 +4,8 @@
   layout="topleft"
   name="panel_login"
   focus_root="true"
-  bg_opaque_color="Red"
+  background_visible="true"
+  bg_opaque_color="0.16 0.16 0.16 1"
   background_opaque="true"
   width="1024">
   <layout_stack
@@ -16,9 +17,8 @@
     orientation="vertical"
     top="0">
     <layout_panel
-      height="400"
-      min_height="10"
-      auto_resize="true"
+      height="48"
+      auto_resize="false"
       name="page_top"
       width="1024" />
     <!-- start of logo stack -->
@@ -94,24 +94,30 @@
           left="0"
           top="0"
           height="80">
-          <line_editor
-            follows="left|top"
+          <combo_box
+            allow_text_entry="true"
+            follows="left|bottom"
             height="32"
             left="0"
-            max_length_bytes="16"
-            name="username_edit"
             label="Username"
-            is_password="false"
-            font="SansSerifLarge"
-            select_on_focus="true"
-            commit_on_focus_lost="false"
+            combo_editor.font="SansSerifLarge"
+            max_chars="128"
             top="0"
-            width="200" />
+            commit_on_focus_lost="false"
+            combo_editor.prevalidate_callback="ascii"
+            tool_tip="The username you chose when you registered, like bobsmith12 or Steller Sunshine"
+            name="username_combo"
+            width="232">
+              <combo_box.combo_button
+                visible ="false"/>
+              <combo_box.drop_down_button
+                visible ="false"/>
+          </combo_box>          
           <line_editor
             follows="left|top"
             width="200"
             height="32"
-            left="216"
+            left="220"
             max_length_bytes="16"
             name="password_edit"
             label="Password"
@@ -133,7 +139,7 @@
             height="32"
             top="0" />
           <check_box
-            control_name="RememberMe"
+            control_name="RememberPassword"
             follows="left|top"
             font="SansSerifLarge"
             left="0"
@@ -141,7 +147,7 @@
             height="24"
             label="Remember me"
             check_button.bottom="3"
-            name="remember_me"
+            name="remember_check"
             width="145" />
           <text
             follows="left|top"
@@ -152,7 +158,7 @@
             left="216"
             top="34"
             width="200">
-            Forgotten password?
+            Forgotten password
           </text>
         </layout_panel>
         <layout_panel

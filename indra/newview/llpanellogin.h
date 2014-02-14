@@ -49,13 +49,7 @@ public:
 				void *callback_data);
 	~LLPanelLogin();
 
-	virtual BOOL handleKeyHere(KEY key, MASK mask);
-	virtual void draw();
 	virtual void setFocus( BOOL b );
-
-	// Show the XUI first name, last name, and password widgets.  They are
-	// hidden on startup for reg-in-client
-	static void showLoginWidgets();
 
 	static void show(const LLRect &rect,
 		void (*callback)(S32 option, void* user_data), 
@@ -89,7 +83,6 @@ public:
 
 private:
 	friend class LLPanelLoginListener;
-	void reshapeBrowser();
 	void addFavoritesToStartLocation();
 	void addUsersWithFavoritesToUsername();
 	void onSelectServer();
@@ -114,6 +107,7 @@ private:
 
 	static LLPanelLogin* sInstance;
 	static BOOL		sCapslockDidNotification;
+	bool			mFirstLoginThisInstall;
 };
 
 #endif
