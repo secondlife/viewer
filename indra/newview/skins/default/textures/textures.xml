@@ -242,7 +242,7 @@ with the same filename but different name
   <texture name="Icon_Dock_Foreground" file_name="windows/Icon_Dock_Foreground.png" preload="true" />
   <texture name="Icon_Dock_Press" file_name="windows/Icon_Dock_Press.png" preload="true" />
 
-  <texture name="Icon_For_Sale" file_name="icons/Icon_For_sale.png" preload="false" />
+  <texture name="Icon_For_Sale" file_name="icons/Icon_For_Sale.png" preload="false" />
 
   <texture name="Icon_Gear_Background" file_name="windows/Icon_Gear_Background.png" preload="false" />
   <texture name="Icon_Gear_Foreground" file_name="windows/Icon_Gear_Foreground.png" preload="false" />
@@ -343,8 +343,8 @@ with the same filename but different name
   <texture name="ModelImport_Status_Warning" file_name="lag_status_warning.tga" preload="false"/>
   <texture name="ModelImport_Status_Error" file_name="red_x.png" preload="false"/>
   
-  <texture name="MouseLook_View_Off" file_name="bottomtray/MouseLook_view_off.png" preload="false" />
-  <texture name="MouseLook_View_On" file_name="bottomtray/MouseLook_view_on.png" preload="false" />
+  <texture name="MouseLook_View_Off" file_name="bottomtray/Mouselook_View_Off.png" preload="false" />
+  <texture name="MouseLook_View_On" file_name="bottomtray/Mouselook_View_On.png" preload="false" />
 
   <texture name="Move_Fly_Off" file_name="bottomtray/Move_Fly_Off.png" preload="false" />
   <texture name="Move_Run_Off" file_name="bottomtray/Move_Run_Off.png" preload="false" />
