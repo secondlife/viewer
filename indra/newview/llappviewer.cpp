@@ -3194,7 +3194,8 @@ bool LLAppViewer::initWindow()
 #ifdef LL_DARWIN
     //Satisfy both MAINT-3135 (OSX 10.6 and earlier) MAINT-3288 (OSX 10.7 and later)
    if (getOSInfo().mMajorVer == 10 && getOSInfo().mMinorVer < 7)
-       gViewerWindow->getWindow()->setOldResize(true);
+		if ( getOSInfo().mMinorVer == 6 && getOSInfo().mBuild < 8 )
+       		gViewerWindow->getWindow()->setOldResize(true);
 #endif
     
 	if (gSavedSettings.getBOOL("WindowMaximized"))
