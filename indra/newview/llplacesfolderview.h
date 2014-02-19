@@ -51,6 +51,8 @@ public:
 	 */
 	/*virtual*/ BOOL handleRightMouseDown( S32 x, S32 y, MASK mask );
 
+	/*virtual*/ void updateMenu();
+
 	void setupMenuHandle(LLInventoryType::EType asset_type, LLHandle<LLView> menu_handle);
 
 	void setParentLandmarksPanel(LLLandmarksPanel* panel)

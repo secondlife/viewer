@@ -386,26 +386,35 @@ template <typename SORT_TYPE, typename ITEM_TYPE, typename FOLDER_TYPE, typename
 class LLFolderViewModel : public LLFolderViewModelCommon
 {
 public:
-	LLFolderViewModel(){}
-	virtual ~LLFolderViewModel() {}
-
 	typedef SORT_TYPE		SortType;
 	typedef ITEM_TYPE		ItemType;
 	typedef FOLDER_TYPE		FolderType;
 	typedef FILTER_TYPE		FilterType;
 
-	virtual SortType& getSorter()					 { return mSorter; }
-	virtual const SortType& getSorter() const 		 { return mSorter; }
-	virtual void setSorter(const SortType& sorter) 	 { mSorter = sorter; requestSortAll(); }
+	LLFolderViewModel(SortType* sorter, FilterType* filter) 
+	:	mSorter(sorter),
+		mFilter(filter)
+	{}
 
-	virtual FilterType& getFilter() 				 { return mFilter; }
-	virtual const FilterType& getFilter() const		 { return mFilter; }
-	virtual void setFilter(const FilterType& filter) { mFilter = filter; }
+	virtual ~LLFolderViewModel() 
+	{
+		delete mSorter;
+		mSorter = NULL;
+		delete mFilter;
+		mFilter = NULL;
+	}
+
+	virtual SortType& getSorter()					 { return *mSorter; }
+	virtual const SortType& getSorter() const 		 { return *mSorter; }
+	virtual void setSorter(const SortType& sorter) 	 { mSorter = new SortType(sorter); requestSortAll(); }
+
+	virtual FilterType& getFilter() 				 { return *mFilter; }
+	virtual const FilterType& getFilter() const		 { return *mFilter; }
+	virtual void setFilter(const FilterType& filter) { mFilter = new FilterType(filter); }
 
 	// By default, we assume the content is available. If a network fetch mechanism is implemented for the model,
 	// this method needs to be overloaded and return the relevant fetch status.
 	virtual bool contentsReady()					{ return true; }
-
 
 	struct ViewModelCompare
 	{
@@ -438,8 +447,8 @@ public:
 	}
 
 protected:
-	SortType		mSorter;
-	FilterType		mFilter;
+	SortType*		mSorter;
+	FilterType*		mFilter;
 };
 
 #endif // LLFOLDERVIEWMODEL_H

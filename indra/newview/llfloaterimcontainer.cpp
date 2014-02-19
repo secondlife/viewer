@@ -1320,7 +1320,12 @@ bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_v
 	// Extract the single select info
 	bool is_single_select = (uuids.size() == 1);
 	const LLUUID& single_id = uuids.front();
-	
+
+	if ("can_chat_history" == item && is_single_select)
+	{
+		return LLLogChat::isTranscriptExist(uuids.front(),false);
+	}
+
 	// Handle options that are applicable to all including the user agent
     if ("can_view_profile" == item)
     {

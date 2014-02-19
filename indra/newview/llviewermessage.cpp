@@ -3522,6 +3522,12 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 	}
 	else
 	{
+		// make sure that we don't have an empty or all-whitespace name
+		LLStringUtil::trim(from_name);
+		if (from_name.empty())
+		{
+			from_name = LLTrans::getString("Unnamed");
+		}
 		chat.mFromName = from_name;
 	}
 

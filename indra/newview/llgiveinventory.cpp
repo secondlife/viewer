@@ -139,7 +139,7 @@ bool LLGiveInventory::isInventoryGiveAcceptable(const LLInventoryItem* item)
 			BOOL copyable = false;
 			if (item->getPermissions().allowCopyBy(gAgentID)) copyable = true;
 
-			if (!copyable && get_is_item_worn(item->getUUID()))
+			if (!copyable || get_is_item_worn(item->getUUID()))
 			{
 				acceptable = false;
 			}
