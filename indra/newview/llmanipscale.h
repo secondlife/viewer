@@ -148,10 +148,10 @@ private:
 	typedef std::set<ManipulatorHandle*, compare_manipulators> minpulator_list_t;
 	minpulator_list_t mProjectedManipulators;
 	LLVector4		mManipulatorVertices[14];
-	F32				mScaleSnapUnit1;  // size of snap multiples for axis 1
-	F32				mScaleSnapUnit2;  // size of snap multiples for axis 2
-	LLVector3		mScalePlaneNormal1; // normal of plane in which scale occurs that most faces camera
-	LLVector3		mScalePlaneNormal2; // normal of plane in which scale occurs that most faces camera
+	F32				mScaleSnapUnit1;  //!< Size of snap multiples for axis 1.
+	F32				mScaleSnapUnit2;  //!< Size of snap multiples for axis 2.
+	LLVector3		mScalePlaneNormal1; //!< Normal of plane in which scale occurs that most faces camera.
+	LLVector3		mScalePlaneNormal2; //!< Normal of plane in which scale occurs that most faces camera.
 	LLVector3		mSnapGuideDir1;
 	LLVector3		mSnapGuideDir2;
 	LLVector3		mSnapDir1;
@@ -159,8 +159,8 @@ private:
 	F32				mSnapRegimeOffset;
 	F32				mSnapGuideLength;
 	LLVector3		mScaleCenter;
-	LLVector3		mScaleDir;
-	F32				mScaleSnapValue;
+	LLVector3		mScaleDir; //!< The direction of the scaling action.  In face-dragging this is aligned with one of the cardinal axis relative to the prim, but in corner-dragging this is along the diagonal.
+	F32				mScaleSnapValue; //!< The distance of the current position nearest the mouse location, measured along mScaleDir.  Is measured either from the center or from the far face/corner depending upon whether uniform scaling is true or false respectively.
 	BOOL			mInSnapRegime;
 	F32*			mManipulatorScales;
 };

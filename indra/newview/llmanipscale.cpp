@@ -870,7 +870,7 @@ void LLManipScale::dragCorner( S32 x, S32 y )
 	}
 	mDragPointGlobal = lerp(mDragStartCenterGlobal, mDragStartPointGlobal, t);
 
-	LLBBox bbox	     = LLSelectMgr::getInstance()->getBBoxOfSelection();
+	LLBBox bbox      = LLSelectMgr::getInstance()->getBBoxOfSelection();
 	F32 scale_factor = 1.f;
 	F32 max_scale    = partToMaxScale(mManipPart, bbox);
 	F32 min_scale    = partToMinScale(mManipPart, bbox);
@@ -887,9 +887,6 @@ void LLManipScale::dragCorner( S32 x, S32 y )
 
 	LLVector3 projected_drag_pos1 = inverse_projected_vec(mScaleDir, orthogonal_component(mouse_on_plane1, mSnapGuideDir1));
 	LLVector3 projected_drag_pos2 = inverse_projected_vec(mScaleDir, orthogonal_component(mouse_on_plane2, mSnapGuideDir2));
-
-	LLVector3 mouse_offset_from_scale_line_1 = orthogonal_component(mouse_on_plane1, mScaleDir);
-	LLVector3 mouse_offset_from_scale_line_2 = orthogonal_component(mouse_on_plane2, mScaleDir);
 
 	BOOL snap_enabled = gSavedSettings.getBOOL("SnapEnabled");
 	if (snap_enabled && (mouse_on_plane1 - projected_drag_pos1) * mSnapGuideDir1 > mSnapRegimeOffset)
@@ -1729,7 +1726,9 @@ void LLManipScale::renderSnapGuides(const LLBBox& bbox)
 
 				F32 text_highlight = 0.8f;
 
-				if (is_approx_equal(tick_val, mScaleSnapValue) && mInSnapRegime)
+				F32 measured_distance = -(mSnapGuideDir2 * (mScaleDir * mScaleSnapValue)); // The other snap guide points down the vector we are measuring against, which when the snapvalue along the scale direction is projected against gives the distance along the relevant axis of measurement.
+
+				if (is_approx_equal(tick_val, measured_distance) && mInSnapRegime)
 				{
 					text_highlight = 1.f;
 				}
@@ -1781,7 +1780,9 @@ void LLManipScale::renderSnapGuides(const LLBBox& bbox)
 
 					F32 text_highlight = 0.8f;
 
-					if (is_approx_equal(tick_val, mScaleSnapValue) && mInSnapRegime)
+					F32 measured_distance = -(mSnapGuideDir1 * (mScaleDir * mScaleSnapValue)); // The other snap guide points down the vector we are measuring against, which when the snapvalue along the scale direction is projected against gives the distance along the relevant axis of measurement.
+
+					if (is_approx_equal(tick_val, measured_distance) && mInSnapRegime)
 					{
 						text_highlight = 1.f;
 					}
