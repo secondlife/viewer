@@ -622,7 +622,22 @@ class Windows_i686_Manifest(ViewerManifest):
         NSIS_path = os.path.expandvars('${ProgramFiles}\\NSIS\\Unicode\\makensis.exe')
         if not os.path.exists(NSIS_path):
             NSIS_path = os.path.expandvars('${ProgramFiles(x86)}\\NSIS\\Unicode\\makensis.exe')
-        self.run_command('"' + proper_windows_path(NSIS_path) + '" ' + self.dst_path_of(tempfile))
+        signed=False
+        sign_attempts=3
+        sign_retry_wait=15
+        while (not signed) and (sign_attempts > 0):
+            try:
+                sign_attempts-=1;
+                self.run_command('"' + proper_windows_path(NSIS_path) + '" ' + self.dst_path_of(tempfile))
+                signed=True # if no exception was raised, the codesign worked
+            except ManifestError, err:
+                if sign_attempts:
+                    print >> sys.stderr, "codesign failed, waiting %d seconds before retrying" % sign_retry_wait
+                    time.sleep(sign_retry_wait)
+                    sign_retry_wait*=2
+                else:
+                    print >> sys.stderr, "Maximum codesign attempts exceeded; giving up"
+                    raise
         # self.remove(self.dst_path_of(tempfile))
         # If we're on a build machine, sign the code using our Authenticode certificate. JC
         sign_py = os.path.expandvars("${SIGN}")
