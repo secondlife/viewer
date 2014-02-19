@@ -35,7 +35,6 @@
 #include "llagent.h"
 #include "llagentui.h"
 #include "llappviewer.h" 
-#include "llsecondlifeurls.h"
 #include "llslurl.h"
 #include "llvoiceclient.h"
 #include "lluictrlfactory.h"
@@ -266,7 +265,7 @@ LLSD LLFloaterAbout::getInfo()
 
 	// CPU
 	info["CPU"] = gSysCPU.getCPUString();
-	info["MEMORY_MB"] = LLSD::Integer(gSysMemory.getPhysicalMemoryKB() / 1024);
+	info["MEMORY_MB"] = LLSD::Integer(gSysMemory.getPhysicalMemoryKB().valueInUnits<LLUnits::Megabytes>());
 	// Moved hack adjustment to Windows memory size into llsys.cpp
 	info["OS_VERSION"] = LLAppViewer::instance()->getOSInfo().getOSString();
 	info["GRAPHICS_CARD_VENDOR"] = (const char*)(glGetString(GL_VENDOR));
@@ -302,7 +301,8 @@ LLSD LLFloaterAbout::getInfo()
 
 	if (gPacketsIn > 0)
 	{
-		info["PACKETS_LOST"] = LLViewerStats::getInstance()->mPacketsLostStat.getCurrent();
+		LLTrace::Recording cur_frame = LLTrace::get_frame_recording().snapshotCurRecording();
+		info["PACKETS_LOST"] = cur_frame.getSum(LLStatViewer::PACKETS_LOST);
 		info["PACKETS_IN"] = F32(gPacketsIn);
 		info["PACKETS_PCT"] = 100.f*info["PACKETS_LOST"].asReal() / info["PACKETS_IN"].asReal();
 	}
@@ -479,9 +479,9 @@ void LLServerReleaseNotesURLFetcher::startFetch()
 // virtual
 void LLServerReleaseNotesURLFetcher::completedHeader(U32 status, const std::string& reason, const LLSD& content)
 {
-	lldebugs << "Status: " << status << llendl;
-	lldebugs << "Reason: " << reason << llendl;
-	lldebugs << "Headers: " << content << llendl;
+	LL_DEBUGS() << "Status: " << status << LL_ENDL;
+	LL_DEBUGS() << "Reason: " << reason << LL_ENDL;
+	LL_DEBUGS() << "Headers: " << content << LL_ENDL;
 
 	LLFloaterAbout* floater_about = LLFloaterReg::getTypedInstance<LLFloaterAbout>("sl_about");
 	if (floater_about)

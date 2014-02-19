@@ -49,7 +49,6 @@ LLContainerView::LLContainerView(const LLContainerView::Params& p)
 	mLabel(p.label),
 	mDisplayChildren(p.display_children)
 {
-	mCollapsible = TRUE;
 	mScrollContainer = NULL;
 }
 
@@ -75,6 +74,11 @@ bool LLContainerView::addChild(LLView* child, S32 tab_group)
 	return res;
 }
 
+BOOL LLContainerView::handleDoubleClick(S32 x, S32 y, MASK mask)
+{
+	return handleMouseDown(x, y, mask);
+}
+
 BOOL LLContainerView::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	BOOL handled = FALSE;
@@ -84,7 +88,7 @@ BOOL LLContainerView::handleMouseDown(S32 x, S32 y, MASK mask)
 	}
 	if (!handled)
 	{
-		if( mCollapsible && mShowLabel && (y >= getRect().getHeight() - 10) )
+		if( mShowLabel && (y >= getRect().getHeight() - 10) )
 		{
 			setDisplayChildren(!mDisplayChildren);
 			reshape(getRect().getWidth(), getRect().getHeight(), FALSE);
@@ -163,7 +167,7 @@ void LLContainerView::arrange(S32 width, S32 height, BOOL called_from_parent)
 	//LLView *childp;
 
 	// These will be used for the children
-	left = 4;
+	left = 10;
 	top = getRect().getHeight() - 4;
 	right = width - 2;
 	bottom = top;
@@ -184,7 +188,7 @@ void LLContainerView::arrange(S32 width, S32 height, BOOL called_from_parent)
 			LLView *childp = *child_iter;
 			if (!childp->getVisible())
 			{
-				llwarns << "Incorrect visibility!" << llendl;
+				LL_WARNS() << "Incorrect visibility!" << LL_ENDL;
 			}
 			LLRect child_rect = childp->getRequiredRect();
 			child_height += child_rect.getHeight();

@@ -109,6 +109,6 @@ LLIOPipe::EStatus LLIOBuffer::process_impl(
 	LLPumpIO* pump)
 {
 	// no-op (I think)
-	llwarns << "You are using an LLIOBuffer which is deprecated." << llendl;
+	LL_WARNS() << "You are using an LLIOBuffer which is deprecated." << LL_ENDL;
 	return STATUS_OK;
 }

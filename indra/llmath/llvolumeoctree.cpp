@@ -237,7 +237,7 @@ void LLVolumeOctreeValidate::visit(const LLOctreeNode<LLVolumeTriangle>* branch)
 	if (!test_min.equals3(min, 0.001f) ||
 		!test_max.equals3(max, 0.001f))
 	{
-		llerrs << "Bad bounding box data found." << llendl;
+		LL_ERRS() << "Bad bounding box data found." << LL_ENDL;
 	}
 
 	test_min.sub(LLVector4a(0.001f));
@@ -251,7 +251,7 @@ void LLVolumeOctreeValidate::visit(const LLOctreeNode<LLVolumeTriangle>* branch)
 		if (child->mExtents[0].lessThan(test_min).areAnySet(LLVector4Logical::MASK_XYZ) ||
 			child->mExtents[1].greaterThan(test_max).areAnySet(LLVector4Logical::MASK_XYZ))
 		{
-			llerrs << "Child protrudes from bounding box." << llendl;
+			LL_ERRS() << "Child protrudes from bounding box." << LL_ENDL;
 		}
 	}
 
@@ -267,7 +267,7 @@ void LLVolumeOctreeValidate::visit(const LLOctreeNode<LLVolumeTriangle>* branch)
 			if (tri->mV[i]->greaterThan(test_max).areAnySet(LLVector4Logical::MASK_XYZ) ||
 				tri->mV[i]->lessThan(test_min).areAnySet(LLVector4Logical::MASK_XYZ))
 			{
-				llerrs << "Triangle protrudes from node." << llendl;
+				LL_ERRS() << "Triangle protrudes from node." << LL_ENDL;
 			}
 		}
 	}

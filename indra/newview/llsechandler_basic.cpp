@@ -1220,7 +1220,7 @@ void LLSecAPIBasicHandler::init()
 		// grab the application CA.pem file that contains the well-known certs shipped
 		// with the product
 		std::string ca_file_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "CA.pem");
-		llinfos << "app path " << ca_file_path << llendl;
+		LL_INFOS() << "app path " << ca_file_path << LL_ENDL;
 		LLPointer<LLBasicCertificateStore> app_ca_store = new LLBasicCertificateStore(ca_file_path);
 		
 		// push the applicate CA files into the store, therefore adding any new CA certs that 
@@ -1372,7 +1372,7 @@ void LLSecAPIBasicHandler::_writeProtectedData()
 		// EXP-1825 crash in LLSecAPIBasicHandler::_writeProtectedData()
 		// Decided throwing an exception here was overkill until we figure out why this happens
 		//throw LLProtectedDataException("Error writing Protected Data Store");
-		llinfos << "LLProtectedDataException(Error writing Protected Data Store)" << llendl;
+		LL_INFOS() << "LLProtectedDataException(Error writing Protected Data Store)" << LL_ENDL;
 	}
 
 	// move the temporary file to the specified file location.
@@ -1385,7 +1385,7 @@ void LLSecAPIBasicHandler::_writeProtectedData()
 		// EXP-1825 crash in LLSecAPIBasicHandler::_writeProtectedData()
 		// Decided throwing an exception here was overkill until we figure out why this happens
 		//throw LLProtectedDataException("Could not overwrite protected data store");
-		llinfos << "LLProtectedDataException(Could not overwrite protected data store)" << llendl;
+		LL_INFOS() << "LLProtectedDataException(Could not overwrite protected data store)" << LL_ENDL;
 	}
 }
 		

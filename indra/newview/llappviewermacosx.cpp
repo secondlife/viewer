@@ -79,9 +79,9 @@ bool initViewer()
 	// Set the working dir to <bundle>/Contents/Resources
 	if (chdir(gDirUtilp->getAppRODataDir().c_str()) == -1)
 	{
-		llwarns << "Could not change directory to "
-		<< gDirUtilp->getAppRODataDir() << ": " << strerror(errno)
-		<< llendl;
+		LL_WARNS() << "Could not change directory to "
+				<< gDirUtilp->getAppRODataDir() << ": " << strerror(errno)
+				<< LL_ENDL;
 	}
 	
 	gViewerAppPtr = new LLAppViewerMacOSX();
@@ -93,7 +93,7 @@ bool initViewer()
 	bool ok = gViewerAppPtr->init();
 	if(!ok)
 	{
-		llwarns << "Application init failed." << llendl;
+		LL_WARNS() << "Application init failed." << LL_ENDL;
 	}
 	
 	return ok;

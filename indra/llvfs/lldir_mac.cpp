@@ -100,8 +100,8 @@ LLDir_Mac::LLDir_Mac()
 			// ...we're in a dev checkout
 			mSkinBaseDir = mExecutableDir.substr(0, build_dir_pos)
 				+ "/indra/newview/skins";
-			llinfos << "Running in dev checkout with mSkinBaseDir "
-				<< mSkinBaseDir << llendl;
+			LL_INFOS() << "Running in dev checkout with mSkinBaseDir "
+				<< mSkinBaseDir << LL_ENDL;
 		}
 		else
 		{

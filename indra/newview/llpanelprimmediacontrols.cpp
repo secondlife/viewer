@@ -830,7 +830,7 @@ bool LLPanelPrimMediaControls::isMouseOver()
 			if(hit_child && hit_child->getVisible())
 			{
 				// This was useful for debugging both coordinate translation and view hieararchy problems...
-				// llinfos << "mouse coords: " << x << ", " << y << " hit child " << hit_child->getName() << llendl;
+				// LL_INFOS() << "mouse coords: " << x << ", " << y << " hit child " << hit_child->getName() << LL_ENDL;
 
 				// This will be a direct child of the LLLayoutStack, which should be a layout_panel.
 				// These may not shown/hidden by the logic in updateShape(), so we need to do another hit test on the children of the layout panel,
@@ -841,7 +841,7 @@ bool LLPanelPrimMediaControls::isMouseOver()
 				if(hit_child_2 && hit_child_2->getVisible())
 				{
 					// This was useful for debugging both coordinate translation and view hieararchy problems...
-					// llinfos << "    mouse coords: " << x << ", " << y << " hit child 2 " << hit_child_2->getName() << llendl;
+					// LL_INFOS() << "    mouse coords: " << x << ", " << y << " hit child 2 " << hit_child_2->getName() << LL_ENDL;
 					result = true;
 				}
 			}

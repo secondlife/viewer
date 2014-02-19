@@ -33,9 +33,8 @@
 #include <string>
 #include <vector>
 
-#include <boost/signals2.hpp>
+#include <boost/signals2/trackable.hpp>
 
-#include "imageids.h"			// IMG_INVISIBLE
 #include "llavatarappearance.h"
 #include "llchat.h"
 #include "lldrawpoolalpha.h"
@@ -74,6 +73,7 @@ struct LLVOAvatarChildJoint;
 //class LLViewerJoint;
 struct LLAppearanceMessageContents;
 struct LLVOAvatarSkeletonInfo;
+class LLViewerJointMesh;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // LLVOAvatar
@@ -97,12 +97,12 @@ public:
 public:
 	void* operator new(size_t size)
 	{
-		return ll_aligned_malloc_16(size);
+		return LLTrace::MemTrackable<LLViewerObject>::aligned_new<16>(size);
 	}
 
-	void operator delete(void* ptr)
+	void operator delete(void* ptr, size_t size)
 	{
-		ll_aligned_free_16(ptr);
+		LLTrace::MemTrackable<LLViewerObject>::aligned_delete<16>(ptr, size);
 	}
 
 	LLVOAvatar(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
@@ -138,7 +138,7 @@ public:
 	BOOL  	 	 	 	 	updateJointLODs();
 	void					updateLODRiggedAttachments( void );
 	/*virtual*/ BOOL   	 	 	isActive() const; // Whether this object needs to do an idleUpdate.
-	S32 						totalTextureMemForUUIDS(std::set<LLUUID>& ids);
+	S32Bytes				totalTextureMemForUUIDS(std::set<LLUUID>& ids);
 	bool 						allTexturesCompletelyDownloaded(std::set<LLUUID>& ids) const;
 	bool 						allLocalTexturesCompletelyDownloaded() const;
 	bool 						allBakedTexturesCompletelyDownloaded() const;
@@ -402,7 +402,7 @@ public:
 	VisualMuteSettings  getVisualMuteSettings()						{ return mVisuallyMuteSetting;	};
 
 	U32 		renderRigid();
-	U32 		renderSkinned(EAvatarRenderPass pass);
+	U32 		renderSkinned();
 	F32			getLastSkinTime() { return mLastSkinTime; }
 	U32 		renderTransparent(BOOL first_pass);
 	void 		renderCollisionVolumes();
@@ -892,8 +892,8 @@ public:
 	std::string		getFullname() const; // Returns "FirstName LastName"
 	std::string		avString() const; // Frequently used string in log messages "Avatar '<full name'"
 protected:
-	static void		getAnimLabels(LLDynamicArray<std::string>* labels);
-	static void		getAnimNames(LLDynamicArray<std::string>* names);	
+	static void		getAnimLabels(std::vector<std::string>* labels);
+	static void		getAnimNames(std::vector<std::string>* names);	
 private:
     bool            mNameIsSet;
 	std::string  	mTitle;

@@ -39,7 +39,10 @@ BOOL APIENTRY DllMain( HMODULE hModule,
                        LPVOID lpReserved
 					 )
 {
-	InitializeCriticalSection(&sCriticalSection);
+	if (ul_reason_for_call == DLL_PROCESS_ATTACH)
+	{
+		InitializeCriticalSection(&sCriticalSection);
+	}
 	return TRUE;
 }
 

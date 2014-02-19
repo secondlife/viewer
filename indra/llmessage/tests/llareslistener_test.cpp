@@ -135,7 +135,7 @@ namespace tut
     void object::test<2>()
     {
         set_test_name("bad op");
-        WrapLL_ERRS capture;
+        WrapLLErrs capture;
         LLSD request;
         request["op"] = "foo";
         std::string threw;
@@ -143,7 +143,7 @@ namespace tut
         {
             LLEventPumps::instance().obtain("LLAres").post(request);
         }
-        catch (const WrapLL_ERRS::FatalException& e)
+        catch (const WrapLLErrs::FatalException& e)
         {
             threw = e.what();
         }
@@ -154,7 +154,7 @@ namespace tut
     void object::test<3>()
     {
         set_test_name("bad rewriteURI request");
-        WrapLL_ERRS capture;
+        WrapLLErrs capture;
         LLSD request;
         request["op"] = "rewriteURI";
         std::string threw;
@@ -162,7 +162,7 @@ namespace tut
         {
             LLEventPumps::instance().obtain("LLAres").post(request);
         }
-        catch (const WrapLL_ERRS::FatalException& e)
+        catch (const WrapLLErrs::FatalException& e)
         {
             threw = e.what();
         }
@@ -175,7 +175,7 @@ namespace tut
     void object::test<4>()
     {
         set_test_name("bad rewriteURI request");
-        WrapLL_ERRS capture;
+        WrapLLErrs capture;
         LLSD request;
         request["op"] = "rewriteURI";
         request["reply"] = "nonexistent";
@@ -184,7 +184,7 @@ namespace tut
         {
             LLEventPumps::instance().obtain("LLAres").post(request);
         }
-        catch (const WrapLL_ERRS::FatalException& e)
+        catch (const WrapLLErrs::FatalException& e)
         {
             threw = e.what();
         }
@@ -197,7 +197,7 @@ namespace tut
     void object::test<5>()
     {
         set_test_name("bad rewriteURI request");
-        WrapLL_ERRS capture;
+        WrapLLErrs capture;
         LLSD request;
         request["op"] = "rewriteURI";
         request["uri"] = "foo.bar.com";
@@ -206,7 +206,7 @@ namespace tut
         {
             LLEventPumps::instance().obtain("LLAres").post(request);
         }
-        catch (const WrapLL_ERRS::FatalException& e)
+        catch (const WrapLLErrs::FatalException& e)
         {
             threw = e.what();
         }

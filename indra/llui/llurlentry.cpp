@@ -789,7 +789,7 @@ std::string LLUrlEntryParcel::getLabel(const std::string &url, const LLUrlLabelC
 
 	if (path_parts < 3) // no parcel id
 	{
-		llwarns << "Failed to parse url [" << url << "]" << llendl;
+		LL_WARNS() << "Failed to parse url [" << url << "]" << LL_ENDL;
 		return url;
 	}
 
@@ -929,7 +929,7 @@ std::string LLUrlEntryRegion::getLabel(const std::string &url, const LLUrlLabelC
 
 	if (path_parts < 3) // no region name
 	{
-		llwarns << "Failed to parse url [" << url << "]" << llendl;
+		LL_WARNS() << "Failed to parse url [" << url << "]" << LL_ENDL;
 		return url;
 	}
 

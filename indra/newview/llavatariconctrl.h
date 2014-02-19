@@ -29,7 +29,7 @@
 
 #include <boost/signals2.hpp>
 
-#include "../llui/lliconctrl.h"
+#include "lliconctrl.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llviewermenu.h"
 
@@ -41,14 +41,14 @@ public:
 	struct LLAvatarIconIDCacheItem
 	{
 		LLUUID icon_id;
-		LLDate cached_time;	
+		LLDate cached_time;
 
 		bool expired();
 	};
 
-	LLAvatarIconIDCache():mFilename("avatar_icons_cache.txt")
-	{
-	}
+	LLAvatarIconIDCache()
+	:	mFilename("avatar_icons_cache.txt")
+	{}
 
 	void				load	();
 	void				save	();
@@ -64,15 +64,41 @@ protected:
 	std::map<LLUUID,LLAvatarIconIDCacheItem> mCache;//we cache only LLUID and time
 };
 
+namespace LLAvatarIconCtrlEnums
+{
+	enum ESymbolPos
+	{
+		BOTTOM_LEFT,
+		BOTTOM_RIGHT,
+		TOP_LEFT,
+		TOP_RIGHT
+	};
+}
+
+
+namespace LLInitParam
+{
+	template<>
+	struct TypeValues<LLAvatarIconCtrlEnums::ESymbolPos> : public TypeValuesHelper<LLAvatarIconCtrlEnums::ESymbolPos>
+	{
+		static void declareValues();
+	};
+}
+
 class LLAvatarIconCtrl
 : public LLIconCtrl, public LLAvatarPropertiesObserver
 {
 public:
 	struct Params : public LLInitParam::Block<Params, LLIconCtrl::Params>
 	{
-		Optional <LLUUID> avatar_id;
-		Optional <bool> draw_tooltip;
-		Optional <std::string> default_icon_name;
+		Optional<LLUUID>		avatar_id;
+		Optional<bool>			draw_tooltip;
+		Optional<std::string>	default_icon_name;
+		Optional<S32>			symbol_hpad,
+								symbol_vpad,
+								symbol_size;
+		Optional<LLAvatarIconCtrlEnums::ESymbolPos>	symbol_pos;
+
 		Params();
 	};
 	
@@ -98,6 +124,10 @@ protected:
 	std::string                 mFullName;
 	bool                        mDrawTooltip;
 	std::string                 mDefaultIconName;
+	S32							mSymbolHpad,
+								mSymbolVpad,
+								mSymbolSize;
+	LLAvatarIconCtrlEnums::ESymbolPos	mSymbolPos;
 
 	bool updateFromCache();
 

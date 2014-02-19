@@ -302,13 +302,13 @@ bool LLCommandLineParser::parseAndStoreResults(po::command_line_parser& clp)
     }
     catch(po::error& e)
     {
-        llwarns << "Caught Error:" << e.what() << llendl;
+        LL_WARNS() << "Caught Error:" << e.what() << LL_ENDL;
 		mErrorMsg = e.what();
         return false;
     }
     catch(LLCLPError& e)
     {
-        llwarns << "Caught Error:" << e.what() << llendl;
+        LL_WARNS() << "Caught Error:" << e.what() << LL_ENDL;
 		mErrorMsg = e.what();
         return false;
     }
@@ -348,7 +348,7 @@ bool LLCommandLineParser::parseAndStoreResults(po::command_line_parser& clp)
 			<< last_option << " "
 			<< last_value;
 
-        llwarns << msg.str() << llendl;
+        LL_WARNS() << msg.str() << LL_ENDL;
 		mErrorMsg = msg.str();
         return false;
     } 
@@ -412,7 +412,7 @@ bool LLCommandLineParser::notify()
     }
     catch (const LLCLPError& e)
     {
-        llwarns << "Caught Error: " << e.what() << llendl;
+        LL_WARNS() << "Caught Error: " << e.what() << LL_ENDL;
         mErrorMsg = e.what();
         return false;
     }
@@ -430,7 +430,7 @@ void LLCommandLineParser::printOptions() const
         {
             oss << t_itr->c_str() << " ";
         }
-        llinfos << oss.str() << llendl;
+        LL_INFOS() << oss.str() << LL_ENDL;
     }
 }
 
@@ -470,8 +470,8 @@ onevalue(const std::string& option,
     }
     else if (value.size() > 1)
     {
-        llwarns << "Ignoring extra tokens specified for --"
-                << option << "." << llendl; 
+        LL_WARNS() << "Ignoring extra tokens specified for --"
+                << option << "." << LL_ENDL; 
     }
     return value[0];
 }
@@ -609,8 +609,8 @@ void setControlValueCB(const LLCommandLineParser::token_vector_t& value,
         // This isn't anything a user can affect -- it's a misconfiguration on
         // the part of the coder. Rub the coder's nose in the problem right
         // away so even preliminary testing will surface it.
-        llerrs << "Command Line option --" << option
-               << " maps to unknown setting!" << llendl;
+        LL_ERRS() << "Command Line option --" << option
+               << " maps to unknown setting!" << LL_ENDL;
     }
 }
 } // anonymous namespace
@@ -681,8 +681,8 @@ void LLControlGroupCLP::configure(const std::string& config_filename, LLControlG
                 std::set<std::string>::const_iterator found = unmapped_options.find(long_name);
                 if (found == unmapped_options.end())
                 {
-                    llerrs << "New command-line option " << long_name
-                           << " should map-to a variable in settings.xml" << llendl;
+                    LL_ERRS() << "New command-line option " << long_name
+                           << " should map-to a variable in settings.xml" << LL_ENDL;
                 }
             }
             else                    // option specifies map-to
@@ -690,15 +690,15 @@ void LLControlGroupCLP::configure(const std::string& config_filename, LLControlG
                 std::string controlName = option_params["map-to"].asString();
                 if (! controlGroup)
                 {
-                    llerrs << "Must pass gSavedSettings to LLControlGroupCLP::configure() for "
-                           << long_name << " (map-to " << controlName << ")" << llendl;
+                    LL_ERRS() << "Must pass gSavedSettings to LLControlGroupCLP::configure() for "
+                           << long_name << " (map-to " << controlName << ")" << LL_ENDL;
                 }
 
                 LLControlVariable* ctrl = controlGroup->getControl(controlName);
                 if (! ctrl)
                 {
-                    llerrs << "Option " << long_name << " specifies map-to " << controlName
-                           << " which does not exist" << llendl;
+                    LL_ERRS() << "Option " << long_name << " specifies map-to " << controlName
+                           << " which does not exist" << LL_ENDL;
                 }
 
                 callback = boost::bind(setControlValueCB, _1, long_name, ctrl);

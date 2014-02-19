@@ -46,7 +46,7 @@ LLWLDayCycle::~LLWLDayCycle()
 
 void LLWLDayCycle::loadDayCycle(const LLSD& day_data, LLWLParamKey::EScope scope)
 {
-	lldebugs << "Loading day cycle (day_data.size() = " << day_data.size() << ", scope = " << scope << ")" << llendl;
+	LL_DEBUGS() << "Loading day cycle (day_data.size() = " << day_data.size() << ", scope = " << scope << ")" << LL_ENDL;
 	mTimeMap.clear();
 
 	// add each key frame
@@ -128,7 +128,7 @@ LLSD LLWLDayCycle::loadDayCycleFromPath(const std::string& file_path)
 void LLWLDayCycle::saveDayCycle(const std::string & fileName)
 {
 	std::string pathName(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight/days", fileName));
-	//llinfos << "Saving WindLight settings to " << pathName << llendl;
+	//LL_INFOS() << "Saving WindLight settings to " << pathName << LL_ENDL;
 
 	save(pathName);
 }
@@ -154,7 +154,7 @@ LLSD LLWLDayCycle::asLLSD()
 		day_data.append(key);
 	}
 
-	lldebugs << "Dumping day cycle (" << mTimeMap.size() << ") to LLSD: " << day_data << llendl;
+	LL_DEBUGS() << "Dumping day cycle (" << mTimeMap.size() << ") to LLSD: " << day_data << LL_ENDL;
 	return day_data;
 }
 
@@ -169,7 +169,7 @@ bool LLWLDayCycle::getSkyRefs(std::map<LLWLParamKey, LLWLParamSet>& refs) const
 		const LLWLParamKey& key = iter->second;
 		if (!wl_mgr.getParamSet(key, refs[key]))
 		{
-			llwarns << "Cannot find sky [" << key.name << "] referenced by a day cycle" << llendl;
+			LL_WARNS() << "Cannot find sky [" << key.name << "] referenced by a day cycle" << LL_ENDL;
 			result = false;
 		}
 	}
@@ -192,7 +192,7 @@ bool LLWLDayCycle::getSkyMap(LLSD& sky_map) const
 
 void LLWLDayCycle::clearKeyframes()
 {
-	lldebugs << "Clearing key frames" << llendl;
+	LL_DEBUGS() << "Clearing key frames" << LL_ENDL;
 	mTimeMap.clear();
 }
 
@@ -209,18 +209,18 @@ bool LLWLDayCycle::addKeyframe(F32 newTime, LLWLParamKey frame)
 	if(mTimeMap.find(newTime) == mTimeMap.end()) 
 	{
 		mTimeMap.insert(std::pair<F32, LLWLParamKey>(newTime, frame));
-		lldebugs << "Adding key frame (" << newTime << ", " << frame.toLLSD() << ")" << llendl;
+		LL_DEBUGS() << "Adding key frame (" << newTime << ", " << frame.toLLSD() << ")" << LL_ENDL;
 		return true;
 	}
 
 	// otherwise, don't add, and return error
-	llwarns << "Error adding key frame (" << newTime << ", " << frame.toLLSD() << ")" << llendl;
+	LL_WARNS() << "Error adding key frame (" << newTime << ", " << frame.toLLSD() << ")" << LL_ENDL;
 	return false;
 }
 
 bool LLWLDayCycle::changeKeyframeTime(F32 oldTime, F32 newTime)
 {
-	lldebugs << "Changing key frame time (" << oldTime << " => " << newTime << ")" << llendl;
+	LL_DEBUGS() << "Changing key frame time (" << oldTime << " => " << newTime << ")" << LL_ENDL;
 
 	// just remove and add back
 	LLWLParamKey frame = mTimeMap[oldTime];
@@ -228,7 +228,7 @@ bool LLWLDayCycle::changeKeyframeTime(F32 oldTime, F32 newTime)
 	bool stat = removeKeyframe(oldTime);
 	if(stat == false) 
 	{
-		lldebugs << "Failed to change key frame time (" << oldTime << " => " << newTime << ")" << llendl;
+		LL_DEBUGS() << "Failed to change key frame time (" << oldTime << " => " << newTime << ")" << LL_ENDL;
 		return stat;
 	}
 
@@ -237,7 +237,7 @@ bool LLWLDayCycle::changeKeyframeTime(F32 oldTime, F32 newTime)
 
 bool LLWLDayCycle::changeKeyframeParam(F32 time, LLWLParamKey key)
 {
-	lldebugs << "Changing key frame param (" << time << ", " << key.toLLSD() << ")" << llendl;
+	LL_DEBUGS() << "Changing key frame param (" << time << ", " << key.toLLSD() << ")" << LL_ENDL;
 
 	// just remove and add back
 	// make sure param exists
@@ -245,7 +245,7 @@ bool LLWLDayCycle::changeKeyframeParam(F32 time, LLWLParamKey key)
 	bool stat = LLWLParamManager::getInstance()->getParamSet(key, tmp);
 	if(stat == false) 
 	{
-		lldebugs << "Failed to change key frame param (" << time << ", " << key.toLLSD() << ")" << llendl;
+		LL_DEBUGS() << "Failed to change key frame param (" << time << ", " << key.toLLSD() << ")" << LL_ENDL;
 		return stat;
 	}
 
@@ -256,7 +256,7 @@ bool LLWLDayCycle::changeKeyframeParam(F32 time, LLWLParamKey key)
 
 bool LLWLDayCycle::removeKeyframe(F32 time)
 {
-	lldebugs << "Removing key frame (" << time << ")" << llendl;
+	LL_DEBUGS() << "Removing key frame (" << time << ")" << LL_ENDL;
 
 	// look for the time.  If there, erase it
 	std::map<F32, LLWLParamKey>::iterator mIt = mTimeMap.find(time);
@@ -295,7 +295,7 @@ bool LLWLDayCycle::getKeyedParam(F32 time, LLWLParamSet& param)
 	}
 
 	// return error if not found
-	lldebugs << "Key " << time << " not found" << llendl;
+	LL_DEBUGS() << "Key " << time << " not found" << LL_ENDL;
 	return false;
 }
 
@@ -310,7 +310,7 @@ bool LLWLDayCycle::getKeyedParamName(F32 time, std::string & name)
 	}
 
 	// return error if not found
-	lldebugs << "Key " << time << " not found" << llendl;
+	LL_DEBUGS() << "Key " << time << " not found" << LL_ENDL;
 	return false;
 }
 
@@ -322,7 +322,7 @@ bool LLWLDayCycle::hasReferencesTo(const LLWLParamKey& keyframe) const
 
 void LLWLDayCycle::removeReferencesTo(const LLWLParamKey& keyframe)
 {
-	lldebugs << "Removing references to key frame " << keyframe.toLLSD() << llendl;
+	LL_DEBUGS() << "Removing references to key frame " << keyframe.toLLSD() << LL_ENDL;
 	F32 keytime;
 	bool might_exist;
 	do 

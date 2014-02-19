@@ -41,7 +41,7 @@
 //    crc.update(fgetc(fp));
 //  }
 //  fclose(fp);
-//  llinfos << "File crc: " << crc.getCRC() << llendl;
+//  LL_INFOS() << "File crc: " << crc.getCRC() << LL_ENDL;
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 class LL_COMMON_API LLCRC

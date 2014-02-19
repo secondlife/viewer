@@ -432,9 +432,12 @@ void LLViewerParcelOverlay::updatePropertyLines()
 	const LLColor4U auction_coloru = LLUIColorTable::instance().getColor("PropertyColorAuction").get();
 
 	// Build into dynamic arrays, then copy into static arrays.
-	LLDynamicArray<LLVector3, 256> new_vertex_array;
-	LLDynamicArray<LLColor4U, 256> new_color_array;
-	LLDynamicArray<LLVector2, 256> new_coord_array;
+	std::vector<LLVector3> new_vertex_array;
+	new_vertex_array.reserve(256);
+	std::vector<LLColor4U> new_color_array;
+	new_color_array.reserve(256);
+	std::vector<LLVector2> new_coord_array;
+	new_coord_array.reserve(256);
 
 	U8 overlay = 0;
 	BOOL add_edge = FALSE;
@@ -599,7 +602,7 @@ void LLViewerParcelOverlay::updatePropertyLines()
 	// Now copy into static arrays for faster rendering.
 	// Attempt to recycle old arrays if possible to avoid memory
 	// shuffling.
-	S32 new_vertex_count = new_vertex_array.count();
+	S32 new_vertex_count = new_vertex_array.size();
 	
 	if (!(mVertexArray && mColorArray && new_vertex_count == mVertexCount))
 	{
@@ -623,7 +626,7 @@ void LLViewerParcelOverlay::updatePropertyLines()
 	F32* vertex = mVertexArray;
 	for (i = 0; i < mVertexCount; i++)
 	{
-		const LLVector3& point = new_vertex_array.get(i);
+		const LLVector3& point = new_vertex_array.at(i);
 		*vertex = point.mV[VX];
 		vertex++;
 		*vertex = point.mV[VY];
@@ -635,7 +638,7 @@ void LLViewerParcelOverlay::updatePropertyLines()
 	U8* colorp = mColorArray;
 	for (i = 0; i < mVertexCount; i++)
 	{
-		const LLColor4U& color = new_color_array.get(i);
+		const LLColor4U& color = new_color_array.at(i);
 		*colorp = color.mV[VRED];
 		colorp++;
 		*colorp = color.mV[VGREEN];
@@ -652,15 +655,19 @@ void LLViewerParcelOverlay::updatePropertyLines()
 
 
 void LLViewerParcelOverlay::addPropertyLine(
-				LLDynamicArray<LLVector3, 256>& vertex_array,
-				LLDynamicArray<LLColor4U, 256>& color_array,
-				LLDynamicArray<LLVector2, 256>& coord_array,
+				std::vector<LLVector3>& vertex_array,
+				std::vector<LLColor4U>& color_array,
+				std::vector<LLVector2>& coord_array,
 				const F32 start_x, const F32 start_y, 
 				const U32 edge,
 				const LLColor4U& color)
 {
 	LLColor4U underwater( color );
 	underwater.mV[VALPHA] /= 2;
+
+	vertex_array.reserve(16);
+	color_array.reserve(16);
+	coord_array.reserve(16);
 
 	LLSurface& land = mRegion->getLand();
 
@@ -702,7 +709,7 @@ void LLViewerParcelOverlay::addPropertyLine(
 		break;
 
 	default:
-		llerrs << "Invalid edge in addPropertyLine" << llendl;
+		LL_ERRS() << "Invalid edge in addPropertyLine" << LL_ENDL;
 		return;
 	}
 
@@ -716,11 +723,11 @@ void LLViewerParcelOverlay::addPropertyLine(
 	// First part, only one vertex
 	outside_z = land.resolveHeightRegion( outside_x, outside_y );
 
-	if (outside_z > 20.f) color_array.put( color );
-	else color_array.put( underwater );
+	if (outside_z > 20.f) color_array.push_back( color );
+	else color_array.push_back( underwater );
 
-	vertex_array.put( LLVector3(outside_x, outside_y, outside_z) );
-	coord_array.put(  LLVector2(outside_x - start_x, 0.f) );
+	vertex_array.push_back( LLVector3(outside_x, outside_y, outside_z) );
+	coord_array.push_back(  LLVector2(outside_x - start_x, 0.f) );
 
 	inside_x += dx * LINE_WIDTH;
 	inside_y += dy * LINE_WIDTH;
@@ -732,17 +739,17 @@ void LLViewerParcelOverlay::addPropertyLine(
 	inside_z = land.resolveHeightRegion( inside_x, inside_y );
 	outside_z = land.resolveHeightRegion( outside_x, outside_y );
 
-	if (inside_z > 20.f) color_array.put( color );
-	else color_array.put( underwater );
+	if (inside_z > 20.f) color_array.push_back( color );
+	else color_array.push_back( underwater );
 
-	if (outside_z > 20.f) color_array.put( color );
-	else color_array.put( underwater );
+	if (outside_z > 20.f) color_array.push_back( color );
+	else color_array.push_back( underwater );
 
-	vertex_array.put( LLVector3(inside_x, inside_y, inside_z) );
-	vertex_array.put( LLVector3(outside_x, outside_y, outside_z) );
+	vertex_array.push_back( LLVector3(inside_x, inside_y, inside_z) );
+	vertex_array.push_back( LLVector3(outside_x, outside_y, outside_z) );
 
-	coord_array.put(  LLVector2(outside_x - start_x, 1.f) );
-	coord_array.put(  LLVector2(outside_x - start_x, 0.f) );
+	coord_array.push_back(  LLVector2(outside_x - start_x, 1.f) );
+	coord_array.push_back(  LLVector2(outside_x - start_x, 0.f) );
 
 	inside_x += dx * (dx - LINE_WIDTH);
 	inside_y += dy * (dy - LINE_WIDTH);
@@ -758,17 +765,17 @@ void LLViewerParcelOverlay::addPropertyLine(
 		inside_z = land.resolveHeightRegion( inside_x, inside_y );
 		outside_z = land.resolveHeightRegion( outside_x, outside_y );
 
-		if (inside_z > 20.f) color_array.put( color );
-		else color_array.put( underwater );
+		if (inside_z > 20.f) color_array.push_back( color );
+		else color_array.push_back( underwater );
 
-		if (outside_z > 20.f) color_array.put( color );
-		else color_array.put( underwater );
+		if (outside_z > 20.f) color_array.push_back( color );
+		else color_array.push_back( underwater );
 
-		vertex_array.put( LLVector3(inside_x, inside_y, inside_z) );
-		vertex_array.put( LLVector3(outside_x, outside_y, outside_z) );
+		vertex_array.push_back( LLVector3(inside_x, inside_y, inside_z) );
+		vertex_array.push_back( LLVector3(outside_x, outside_y, outside_z) );
 
-		coord_array.put(  LLVector2(outside_x - start_x, 1.f) );
-		coord_array.put(  LLVector2(outside_x - start_x, 0.f) );
+		coord_array.push_back(  LLVector2(outside_x - start_x, 1.f) );
+		coord_array.push_back(  LLVector2(outside_x - start_x, 0.f) );
 
 		inside_x += dx;
 		inside_y += dy;
@@ -787,17 +794,17 @@ void LLViewerParcelOverlay::addPropertyLine(
 	inside_z = land.resolveHeightRegion( inside_x, inside_y );
 	outside_z = land.resolveHeightRegion( outside_x, outside_y );
 
-	if (inside_z > 20.f) color_array.put( color );
-	else color_array.put( underwater );
+	if (inside_z > 20.f) color_array.push_back( color );
+	else color_array.push_back( underwater );
 
-	if (outside_z > 20.f) color_array.put( color );
-	else color_array.put( underwater );
+	if (outside_z > 20.f) color_array.push_back( color );
+	else color_array.push_back( underwater );
 
-	vertex_array.put( LLVector3(inside_x, inside_y, inside_z) );
-	vertex_array.put( LLVector3(outside_x, outside_y, outside_z) );
+	vertex_array.push_back( LLVector3(inside_x, inside_y, inside_z) );
+	vertex_array.push_back( LLVector3(outside_x, outside_y, outside_z) );
 
-	coord_array.put(  LLVector2(outside_x - start_x, 1.f) );
-	coord_array.put(  LLVector2(outside_x - start_x, 0.f) );
+	coord_array.push_back(  LLVector2(outside_x - start_x, 1.f) );
+	coord_array.push_back(  LLVector2(outside_x - start_x, 0.f) );
 
 	inside_x += dx * LINE_WIDTH;
 	inside_y += dy * LINE_WIDTH;
@@ -808,11 +815,11 @@ void LLViewerParcelOverlay::addPropertyLine(
 	// Last edge is not drawn to the edge
 	outside_z = land.resolveHeightRegion( outside_x, outside_y );
 
-	if (outside_z > 20.f) color_array.put( color );
-	else color_array.put( underwater );
+	if (outside_z > 20.f) color_array.push_back( color );
+	else color_array.push_back( underwater );
 
-	vertex_array.put( LLVector3(outside_x, outside_y, outside_z) );
-	coord_array.put(  LLVector2(outside_x - start_x, 0.f) );
+	vertex_array.push_back( LLVector3(outside_x, outside_y, outside_z) );
+	coord_array.push_back(  LLVector2(outside_x - start_x, 0.f) );
 }
 
 

@@ -76,7 +76,6 @@ documentation and/or software.
 
 #include "llmd5.h"
 
-#include <cassert>
 #include <iostream>		// cerr
 
 // how many bytes to grab at a time when checking files

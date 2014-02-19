@@ -27,10 +27,10 @@
 #include "linden_common.h"
 
 #include "llmaterialtable.h"
+#include "indra_constants.h"
 #include "llstl.h"
 #include "material_codes.h"
 #include "sound_ids.h"
-#include "imageids.h"
 
 LLMaterialTable LLMaterialTable::basic(1);
 
@@ -547,14 +547,14 @@ LLUUID LLMaterialTable::getCollisionSoundUUID(U8 mcode, U8 mcode2)
 	mcode &= LL_MCODE_MASK;
 	mcode2 &= LL_MCODE_MASK;
 	
-	//llinfos << "code 1: " << ((U32) mcode) << " code 2:" << ((U32) mcode2) << llendl;
+	//LL_INFOS() << "code 1: " << ((U32) mcode) << " code 2:" << ((U32) mcode2) << LL_ENDL;
 	if (mCollisionSoundMatrix && (mcode < LL_MCODE_END) && (mcode2 < LL_MCODE_END))
 	{
 		return(mCollisionSoundMatrix[mcode * LL_MCODE_END + mcode2]);
 	}
 	else
 	{
-		//llinfos << "Null Sound" << llendl;
+		//LL_INFOS() << "Null Sound" << LL_ENDL;
 		return(SND_NULL);
 	}
 }

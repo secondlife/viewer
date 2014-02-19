@@ -35,7 +35,6 @@ set(llprimitive_SOURCE_FILES
     lltextureentry.cpp
     lltreeparams.cpp
     llvolumemessage.cpp
-    llvolumexml.cpp
     material_codes.cpp
     )
 
@@ -43,6 +42,7 @@ set(llprimitive_HEADER_FILES
     CMakeLists.txt
 
     legacy_object_types.h
+    lllslconstants.h
     llmaterial.h
     llmaterialid.h
     llmaterialtable.h
@@ -55,7 +55,6 @@ set(llprimitive_HEADER_FILES
     lltreeparams.h
     lltree_common.h
     llvolumemessage.h
-    llvolumexml.h
     material_codes.h
     object_flags.h
     )

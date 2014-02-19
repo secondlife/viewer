@@ -1340,7 +1340,7 @@ void LLVivoxVoiceClient::stateMachine()
 		    {
 				// Notify observers to let them know there is problem with voice
 				notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_VOICE_DISABLED);
-				llwarns << "There seems to be problem with connection to voice server. Disabling voice chat abilities." << llendl;
+				LL_WARNS() << "There seems to be problem with connection to voice server. Disabling voice chat abilities." << LL_ENDL;
 		    }
 			
 			// Increase mSpatialJoiningNum only for spatial sessions- it's normal to reach this case for
@@ -5819,8 +5819,8 @@ void LLVivoxVoiceClient::expireVoiceFonts()
 	// Give a warning notification if any voice fonts are due to expire.
 	if (will_expire)
 	{
-		S32 seconds = gSavedSettings.getS32("VoiceEffectExpiryWarningTime");
-		args["INTERVAL"] = llformat("%d", seconds / SEC_PER_DAY);
+		S32Seconds seconds(gSavedSettings.getS32("VoiceEffectExpiryWarningTime"));
+		args["INTERVAL"] = llformat("%d", LLUnit<S32, LLUnits::Days>(seconds).value());
 
 		LLNotificationsUtil::add("VoiceEffectsWillExpire", args);
 	}
@@ -6313,7 +6313,7 @@ LLVivoxProtocolParser::~LLVivoxProtocolParser()
 		XML_ParserFree(parser);
 }
 
-static LLFastTimer::DeclareTimer FTM_VIVOX_PROCESS("Vivox Process");
+static LLTrace::BlockTimerStatHandle FTM_VIVOX_PROCESS("Vivox Process");
 
 // virtual
 LLIOPipe::EStatus LLVivoxProtocolParser::process_impl(
@@ -6323,7 +6323,7 @@ LLIOPipe::EStatus LLVivoxProtocolParser::process_impl(
 													  LLSD& context,
 													  LLPumpIO* pump)
 {
-	LLFastTimer t(FTM_VIVOX_PROCESS);
+	LL_RECORD_BLOCK_TIME(FTM_VIVOX_PROCESS);
 	LLBufferStream istr(channels, buffer.get());
 	std::ostringstream ostr;
 	while (istr.good())

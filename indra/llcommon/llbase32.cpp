@@ -231,8 +231,8 @@ std::string LLBase32::encode(const U8* input, size_t input_size)
 
 		size_t encoded = base32_encode(&output[0], output_size, input, input_size);
 
-		llinfos << "encoded " << encoded << " into buffer of size "
-			<< output_size << llendl;
+		LL_INFOS() << "encoded " << encoded << " into buffer of size "
+			<< output_size << LL_ENDL;
 	}
 	return output;
 }

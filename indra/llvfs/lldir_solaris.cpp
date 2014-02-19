@@ -52,7 +52,7 @@ static std::string getCurrentUserHome(char* fallback)
 	}
 	else
 	{
-		llinfos << "Couldn't detect home directory from passwd - trying $HOME" << llendl;
+		LL_INFOS() << "Couldn't detect home directory from passwd - trying $HOME" << LL_ENDL;
 		const char *const home_env = getenv("HOME");	/* Flawfinder: ignore */ 
 		if (home_env)
 		{
@@ -60,7 +60,7 @@ static std::string getCurrentUserHome(char* fallback)
 		}
 		else
 		{
-			llwarns << "Couldn't detect home directory!  Falling back to " << fallback << llendl;
+			LL_WARNS() << "Couldn't detect home directory!  Falling back to " << fallback << LL_ENDL;
 		}
 	}
 	
@@ -79,11 +79,11 @@ LLDir_Solaris::LLDir_Solaris()
 	if (getcwd(tmp_str, LL_MAX_PATH) == NULL)
 	{
 		strcpy(tmp_str, "/tmp");
-		llwarns << "Could not get current directory; changing to "
-				<< tmp_str << llendl;
+		LL_WARNS() << "Could not get current directory; changing to "
+				<< tmp_str << LL_ENDL;
 		if (chdir(tmp_str) == -1)
 		{
-			llerrs << "Could not change directory to " << tmp_str << llendl;
+			LL_ERRS() << "Could not change directory to " << tmp_str << LL_ENDL;
 		}
 	}
 
@@ -101,12 +101,12 @@ LLDir_Solaris::LLDir_Solaris()
 	sprintf(path, "/proc/%d/psinfo", (int)getpid());
 	int proc_fd = -1;
 	if((proc_fd = open(path, O_RDONLY)) == -1){
-		llwarns << "unable to open " << path << llendl;
+		LL_WARNS() << "unable to open " << path << LL_ENDL;
 		return;
 	}
 	psinfo_t proc_psinfo;
 	if(read(proc_fd, &proc_psinfo, sizeof(psinfo_t)) != sizeof(psinfo_t)){
-		llwarns << "Unable to read " << path << llendl;
+		LL_WARNS() << "Unable to read " << path << LL_ENDL;
 		close(proc_fd);
 		return;
 	}
@@ -114,13 +114,13 @@ LLDir_Solaris::LLDir_Solaris()
 	close(proc_fd);
 
 	mExecutableFilename = strdup(proc_psinfo.pr_fname);
-	llinfos << "mExecutableFilename = [" << mExecutableFilename << "]" << llendl;
+	LL_INFOS() << "mExecutableFilename = [" << mExecutableFilename << "]" << LL_ENDL;
 
 	sprintf(path, "/proc/%d/path/a.out", (int)getpid());
 
 	char execpath[LL_MAX_PATH];
 	if(readlink(path, execpath, LL_MAX_PATH) == -1){
-		llwarns << "Unable to read link from " << path << llendl;
+		LL_WARNS() << "Unable to read link from " << path << LL_ENDL;
 		return;
 	}
 
@@ -130,7 +130,7 @@ LLDir_Solaris::LLDir_Solaris()
 	*p = NULL;
 
 	mExecutablePathAndName = strdup(execpath);
-	llinfos << "mExecutablePathAndName = [" << mExecutablePathAndName << "]" << llendl;
+	LL_INFOS() << "mExecutablePathAndName = [" << mExecutablePathAndName << "]" << LL_ENDL;
 
 	//NOTE: Why force people to cd into the package directory?
 	//      Look for SECONDLIFE env variable and use it, if set.
@@ -151,7 +151,7 @@ LLDir_Solaris::LLDir_Solaris()
 			*s = (char)NULL;
 	
 			mExecutableDir = strdup(execpath);
-			llinfos << "mExecutableDir = [" << mExecutableDir << "]" << llendl;
+			LL_INFOS() << "mExecutableDir = [" << mExecutableDir << "]" << LL_ENDL;
 		}
 	}
 	
@@ -205,8 +205,8 @@ void LLDir_Solaris::initAppDirs(const std::string &app_name,
 	{
 		if (errno != EEXIST)
 		{
-			llwarns << "Couldn't create app user dir " << mOSUserAppDir << llendl;
-			llwarns << "Default to base dir" << mOSUserDir << llendl;
+			LL_WARNS() << "Couldn't create app user dir " << mOSUserAppDir << LL_ENDL;
+			LL_WARNS() << "Default to base dir" << mOSUserDir << LL_ENDL;
 			mOSUserAppDir = mOSUserDir;
 		}
 	}
@@ -216,7 +216,7 @@ void LLDir_Solaris::initAppDirs(const std::string &app_name,
 	{
 		if (errno != EEXIST)
 		{
-			llwarns << "Couldn't create LL_PATH_LOGS dir " << getExpandedFilename(LL_PATH_LOGS,"") << llendl;
+			LL_WARNS() << "Couldn't create LL_PATH_LOGS dir " << getExpandedFilename(LL_PATH_LOGS,"") << LL_ENDL;
 		}
 	}
 	
@@ -225,7 +225,7 @@ void LLDir_Solaris::initAppDirs(const std::string &app_name,
 	{
 		if (errno != EEXIST)
 		{
-			llwarns << "Couldn't create LL_PATH_USER_SETTINGS dir " << getExpandedFilename(LL_PATH_USER_SETTINGS,"") << llendl;
+			LL_WARNS() << "Couldn't create LL_PATH_USER_SETTINGS dir " << getExpandedFilename(LL_PATH_USER_SETTINGS,"") << LL_ENDL;
 		}
 	}
 	
@@ -234,7 +234,7 @@ void LLDir_Solaris::initAppDirs(const std::string &app_name,
 	{
 		if (errno != EEXIST)
 		{
-			llwarns << "Couldn't create LL_PATH_CACHE dir " << getExpandedFilename(LL_PATH_CACHE,"") << llendl;
+			LL_WARNS() << "Couldn't create LL_PATH_CACHE dir " << getExpandedFilename(LL_PATH_CACHE,"") << LL_ENDL;
 		}
 	}
 	
@@ -265,7 +265,7 @@ std::string LLDir_Solaris::getCurPath()
 	char tmp_str[LL_MAX_PATH];	/* Flawfinder: ignore */ 
 	if (getcwd(tmp_str, LL_MAX_PATH) == NULL)
 	{
-		llwarns << "Could not get current directory" << llendl;
+		LL_WARNS() << "Could not get current directory" << LL_ENDL;
 		tmp_str[0] = '\0';
 	}
 	return tmp_str;

@@ -28,7 +28,7 @@
  */
 
 #if LL_WINDOWS
-#include <windows.h>
+#include "llwin32headerslean.h"
 #include <stdlib.h>                 // Windows errno
 #else
 #include <errno.h>
@@ -438,7 +438,7 @@ llstdio_filebuf::int_type llstdio_filebuf::overflow(llstdio_filebuf::int_type __
 				_M_set_buffer(0);
 				__ret = traits_type::not_eof(__c);
 			}
-	}
+		}
 		else if (_M_buf_size > 1)
 		{
 			// Overflow in 'uncommitted' mode: set _M_writing, set
@@ -496,11 +496,11 @@ bool llstdio_filebuf::_convert_to_external(char_type* __ibuf,
 		if (__r == codecvt_base::ok || __r == codecvt_base::partial)
 			__blen = __bend - __buf;
 		else if (__r == codecvt_base::noconv)
-	{
+		{
 			// Same as the always_noconv case above.
 			__buf = reinterpret_cast<char*>(__ibuf);
 			__blen = __ilen;
-	}
+		}
 		else
 			__throw_ios_failure(__N("llstdio_filebuf::_convert_to_external "
 									"conversion error"));
@@ -643,9 +643,9 @@ llstdio_filebuf::int_type llstdio_filebuf::underflow()
 							_M_ext_end, _M_ext_next,
 							this->eback(),
 							this->eback() + __buflen, __iend);
-}
+				}
 				if (__r == codecvt_base::noconv)
-{
+				{
 					size_t __avail = _M_ext_end - _M_ext_buf;
 					__ilen = std::min(__avail, __buflen);
 					traits_type::copy(this->eback(),
@@ -806,15 +806,15 @@ std::streamsize llstdio_filebuf::xsputn(char_type* __s, std::streamsize __n)
 				__ret = fwrite(__buf, 1, __buffill, _M_file.file());
 			}
 			if (__ret == __buffill)
-	{
+			{
 				__ret += fwrite(reinterpret_cast<const char*>(__s), 1,
 								__n, _M_file.file());
-	}
+			}
 			if (__ret == __buffill + __n)
 			{
 				_M_set_buffer(0);
 				_M_writing = true;
-}
+			}
 			if (__ret > __buffill)
 				__ret -= __buffill;
 			else
@@ -848,7 +848,7 @@ llifstream::llifstream() : _M_filebuf(),
 #endif
 
 // explicit
-llifstream::llifstream(const std::string& _Filename,
+llifstream::llifstream(const std::string& _Filename, 
 		ios_base::openmode _Mode) : _M_filebuf(),
 #if LL_WINDOWS
 	std::istream(&_M_filebuf)
@@ -877,7 +877,7 @@ llifstream::llifstream(const char* _Filename,
 	if (_M_filebuf.open(wideName.c_str(), _Mode | ios_base::in) == 0)
 	{
 		_Myios::setstate(ios_base::failbit);
-}
+	}
 }
 #else
 	std::istream()
@@ -951,8 +951,8 @@ void llifstream::close()
 #else
 		this->setstate(ios_base::failbit);
 #endif
-		}
 	}
+}
 
 
 /************** output file stream ********************************/
@@ -1042,7 +1042,7 @@ void llofstream::open(const char* _Filename, ios_base::openmode _Mode)
 #if LL_WINDOWS
 	llutf16string wideName = utf8str_to_utf16str( _Filename );
 	if (_M_filebuf.open( wideName.c_str(), _Mode | ios_base::out) == 0)
-{
+	{
 		_Myios::setstate(ios_base::failbit);
 	}
 	else

@@ -28,7 +28,6 @@
 #define LL_LSCRIPT_READLSO_H
 
 #include "lscript_byteconvert.h"
-#include "linked_lists.h"
 
 // list of op code print functions
 void print_noop(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs);
