@@ -207,10 +207,6 @@ namespace {
 #endif
 }
 
-namespace LLError
-{
-	void clean();
-}
 
 namespace
 {
@@ -356,11 +352,7 @@ namespace
 		Globals()
 			:	messageStreamInUse(false)
 			{ }
-
-		~Globals()
-		{
-			LLError::clean();
-		}
+		
 	};
 
 	void Globals::addCallSite(LLError::CallSite& site)
@@ -388,9 +380,8 @@ namespace
 		   is.
 		   See C++ FAQ Lite, sections 10.12 through 10.14
 		*/
-
-		static Globals globals;
-		return globals;
+		static Globals* globals = new Globals;		
+		return *globals;
 	}
 }
 
@@ -424,7 +415,6 @@ namespace LLError
 		static void reset();
 		static Settings* saveAndReset();
 		static void restore(Settings*);
-		static void clean();
 		
 	private:
 		Settings()
@@ -455,15 +445,6 @@ namespace LLError
 			p = getPtr();
 		}
 		return *p;
-	}
-
-	void Settings::clean()
-	{
-		Globals::get().invalidateCallSites();
-
-		Settings*& p = getPtr();
-		delete p;
-		p = NULL;
 	}
 	
 	void Settings::reset()
@@ -499,7 +480,10 @@ namespace LLError
 		static Settings* currentSettings = NULL;
 		return currentSettings;
 	}
+}
 
+namespace LLError
+{
 	CallSite::CallSite(ELevel level,
 					const char* file,
 					int line,
@@ -737,7 +721,11 @@ namespace LLError
 			setLevels(s.tagLevelMap,		entry["tags"],		level);
 		}
 	}
+}
 
+
+namespace LLError
+{
 	Recorder::~Recorder()
 		{ }
 
@@ -768,26 +756,18 @@ namespace LLError
 			std::remove(s.recorders.begin(), s.recorders.end(), recorder),
 			s.recorders.end());
 	}
+}
 
-	void deleteRecorder(LLError::Settings& settings)
-	{
-		removeRecorder(settings.fileRecorder);
-		delete settings.fileRecorder;
-		settings.fileRecorder = NULL;
-		settings.fileRecorderFileName.clear();
-	}
-
-	void clean()
-	{
-		deleteRecorder(LLError::Settings::get());
-		LLError::Settings::clean();
-	}
-
+namespace LLError
+{
 	void logToFile(const std::string& file_name)
 	{
 		LLError::Settings& s = LLError::Settings::get();
 
-		deleteRecorder(s);
+		removeRecorder(s.fileRecorder);
+		delete s.fileRecorder;
+		s.fileRecorder = NULL;
+		s.fileRecorderFileName.clear();
 		
 		if (file_name.empty())
 		{
@@ -859,6 +839,8 @@ namespace
 			}
 		}
 	}
+}
+
 
 /*
 Recorder formats:
@@ -888,6 +870,7 @@ You get:
 	
 */
 
+namespace {
 	bool checkLevelMap(const LevelMap& map, const std::string& key,
 						LLError::ELevel& level)
 	{
@@ -1144,7 +1127,13 @@ namespace LLError
 			s.crashFunction(message);
 		}
 	}
+}
 
+
+
+
+namespace LLError
+{
 	Settings* saveAndResetSettings()
 	{
 		return Settings::saveAndReset();
@@ -1237,7 +1226,10 @@ namespace LLError
 
 		return chars ? time_str : "time error";
 	}
-     
+}
+
+namespace LLError
+{     
 	char** LLCallStacks::sBuffer = NULL ;
 	S32    LLCallStacks::sIndex  = 0 ;
 
