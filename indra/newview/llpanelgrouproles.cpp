@@ -2344,7 +2344,7 @@ void LLPanelGroupRolesSubTab::handleActionCheck(LLUICtrl* ctrl, bool force)
 		}
 		else
 		{
-			current_role_powers |= (GP_ROLE_REMOVE_MEMBER | GP_MEMBER_EJECT);
+			current_role_powers &= ~GP_GROUP_BAN_ACCESS;
 		}
 
 		mAllowedActionsList->deleteAllItems();
