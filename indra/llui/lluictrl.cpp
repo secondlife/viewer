@@ -207,23 +207,47 @@ void LLUICtrl::initFromParams(const Params& p)
 
 LLUICtrl::~LLUICtrl()
 {
+	LL_INFOS("Baker") << "[3555] ~LLUICtrl() -------------------------------------------------" << LL_ENDL;
+	
 	gFocusMgr.releaseFocusIfNeeded( this ); // calls onCommit()
+
+	LL_INFOS("Baker") << "[3555] ~LLUICtrl() - Released focus if needed." << LL_ENDL;
 
 	if( gFocusMgr.getTopCtrl() == this )
 	{
+		llinfos << "[3555] ~LLUICtrl() - UI Control holding top ctrl deleted: " << getName() << ".  Top view removed." << llendl;
 		llwarns << "UI Control holding top ctrl deleted: " << getName() << ".  Top view removed." << llendl;
 		gFocusMgr.removeTopCtrlWithoutCallback( this );
 	}
 
+	LL_INFOS("Baker") << "[3555] ~LLUICtrl() - deleting mCommitSignal" << LL_ENDL;
 	delete mCommitSignal;
+
+	LL_INFOS("Baker") << "[3555] ~LLUICtrl() - deleting mValidateSignal" << LL_ENDL;
 	delete mValidateSignal;
+
+	LL_INFOS("Baker") << "[3555] ~LLUICtrl() - deleting mMouseEnterSignal" << LL_ENDL;
 	delete mMouseEnterSignal;
+
+	LL_INFOS("Baker") << "[3555] ~LLUICtrl() - deleting mMouseLeaveSignal" << LL_ENDL;
 	delete mMouseLeaveSignal;
+
+	LL_INFOS("Baker") << "[3555] ~LLUICtrl() - deleting mMouseDownSignal" << LL_ENDL;
 	delete mMouseDownSignal;
+
+	LL_INFOS("Baker") << "[3555] ~LLUICtrl() - deleting mMouseUpSignal" << LL_ENDL;
 	delete mMouseUpSignal;
+
+	LL_INFOS("Baker") << "[3555] ~LLUICtrl() - deleting mRightMouseDownSignal" << LL_ENDL;
 	delete mRightMouseDownSignal;
+
+	LL_INFOS("Baker") << "[3555] ~LLUICtrl() - deleting mRightMouseUpSignal" << LL_ENDL;
 	delete mRightMouseUpSignal;
+
+	LL_INFOS("Baker") << "[3555] ~LLUICtrl() - deleting mDoubleClickSignal" << LL_ENDL;
 	delete mDoubleClickSignal;
+
+	LL_INFOS("Baker") << "[3555] Exiting ~LLUICtrl()" << LL_ENDL;
 }
 
 void default_commit_handler(LLUICtrl* ctrl, const LLSD& param)
