@@ -63,7 +63,7 @@ private:
 	void onSaveFlyoutCommit(LLUICtrl* ctrl);
 };
 
-static LLRegisterPanelClassWrapper<LLPanelSnapshotLocal> panel_class("llpanelsnapshotlocal");
+static LLPanelInjector<LLPanelSnapshotLocal> panel_class("llpanelsnapshotlocal");
 
 LLPanelSnapshotLocal::LLPanelSnapshotLocal()
 {

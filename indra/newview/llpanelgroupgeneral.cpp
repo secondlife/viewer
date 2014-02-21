@@ -53,7 +53,7 @@
 #include "lltrans.h"
 #include "llviewerwindow.h"
 
-static LLRegisterPanelClassWrapper<LLPanelGroupGeneral> t_panel_group_general("panel_group_general");
+static LLPanelInjector<LLPanelGroupGeneral> t_panel_group_general("panel_group_general");
 
 // consts
 const S32 MATURE_CONTENT = 1;

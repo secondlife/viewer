@@ -280,7 +280,16 @@ LLTabContainer::LLTabContainer(const LLTabContainer::Params& p)
 
 LLTabContainer::~LLTabContainer()
 {
+	LL_INFOS("Baker") << "[3555] ~LLTabContainer() -------------------------------------------------" << LL_ENDL;
+	LL_INFOS("Baker") << "[3555] ~LLTabContainer() - Deleting mTabList contents..." << LL_ENDL;
+	
 	std::for_each(mTabList.begin(), mTabList.end(), DeletePointer());
+	
+	LL_INFOS("Baker") << "[3555] ~LLTabContainer() - Clearing mTabList" << LL_ENDL;
+	mTabList.clear();
+	
+	LL_INFOS("Baker") << "[3555] ~LLTabContainer() - done." << LL_ENDL;
+	LL_INFOS("Baker") << "[3555] Exiting ~LLTabContainer()" << LL_ENDL;
 }
 
 //virtual

@@ -50,6 +50,7 @@ LLScrollListItem::LLScrollListItem( const Params& p )
 LLScrollListItem::~LLScrollListItem()
 {
 	std::for_each(mColumns.begin(), mColumns.end(), DeletePointer());
+	mColumns.clear();
 }
 
 void LLScrollListItem::addColumn(const LLScrollListCell::Params& p)
