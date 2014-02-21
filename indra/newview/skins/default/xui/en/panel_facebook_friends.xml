@@ -1,0 +1,35 @@
+<panel
+	 height="400"
+	 width="304"
+	 layout="topleft"
+   name="panel_facebook_friends">
+  <accordion
+ background_visible="true"
+ bg_alpha_color="DkGray2"
+ bg_opaque_color="DkGray2"
+   follows="all"
+   height="408"
+   layout="topleft"
+   left="3"
+   name="friends_accordion"
+   right="-2"
+   top_pad="2">
+    <accordion_tab
+     layout="topleft"
+     height="173"
+     name="tab_suggested_friends"
+     title="People you may want to friend">
+      <avatar_list
+       ignore_online_status="true"
+       allow_select="true"
+       follows="all"
+       height="173"
+       layout="topleft"
+       left="0"
+       name="suggested_friends"
+       show_permissions_granted="true"
+       top="0"
+       width="307" />
+    </accordion_tab>
+  </accordion>
+</panel>

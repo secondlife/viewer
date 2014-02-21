@@ -34,6 +34,7 @@
 class LLIconCtrl;
 class LLCheckBoxCtrl;
 class LLSnapshotLivePreview;
+class LLAvatarList;
 
 class LLFacebookStatusPanel : public LLPanel
 {
@@ -119,6 +120,20 @@ private:
     bool mReloadingMapTexture;
 };
 
+class LLFacebookFriendsPanel : public LLPanel
+{
+public:
+	LLFacebookFriendsPanel();
+	BOOL postBuild();
+
+private:
+	bool updateSuggestedFriendList();
+	void updateFacebookList(bool visible);
+	bool onConnectedToFacebook(const LLSD& data);
+	
+	LLAvatarList* mSuggestedFriends;
+};
+
 class LLFacebookAccountPanel : public LLPanel
 {
 public:
@@ -145,7 +160,6 @@ private:
 	LLUICtrl * mConnectButton;
 	LLUICtrl * mDisconnectButton;
 };
-
 
 class LLFloaterFacebook : public LLFloater
 {

@@ -49,12 +49,18 @@
        label="CHECK IN"
        name="panel_facebook_place"/>
      <panel
+       filename="panel_facebook_friends.xml"
+       class="llfacebookfriendspanel"
+       follows="all"
+       label="FRIENDS"
+       name="panel_facebook_friends"/>
+     <panel
        filename="panel_facebook_account.xml"
        class="llfacebookaccountpanel"
        follows="all"
        label="ACCOUNT"
-       name="panel_facebook_account"/>     
-    </tab_container>
+       name="panel_facebook_account"/>
+   </tab_container>
     <panel
      name="connection_status_panel"
      follows="left|bottom|right"

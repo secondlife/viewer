@@ -48,10 +48,13 @@
 #include "llviewercontrol.h"
 #include "llviewermedia.h"
 #include "lltabcontainer.h"
+#include "llavatarlist.h"
+#include "llpanelpeoplemenus.h"
 
 static LLRegisterPanelClassWrapper<LLFacebookStatusPanel> t_panel_status("llfacebookstatuspanel");
 static LLRegisterPanelClassWrapper<LLFacebookPhotoPanel> t_panel_photo("llfacebookphotopanel");
 static LLRegisterPanelClassWrapper<LLFacebookCheckinPanel> t_panel_checkin("llfacebookcheckinpanel");
+static LLRegisterPanelClassWrapper<LLFacebookFriendsPanel> t_panel_friends("llfacebookfriendspanel");
 static LLRegisterPanelClassWrapper<LLFacebookAccountPanel> t_panel_account("llfacebookaccountpanel");
 
 const S32 MAX_POSTCARD_DATASIZE = 1024 * 1024; // one megabyte
@@ -690,6 +693,102 @@ void LLFacebookCheckinPanel::clearAndClose()
 	{
 		floater->closeFloater();
 	}
+}
+
+///////////////////////////
+//LLFacebookFriendsPanel//////
+///////////////////////////
+
+LLFacebookFriendsPanel::LLFacebookFriendsPanel() : 
+mSuggestedFriends(NULL)
+{
+}
+
+BOOL LLFacebookFriendsPanel::postBuild()
+{
+	mSuggestedFriends = getChild<LLAvatarList>("suggested_friends");
+	mSuggestedFriends->setContextMenu(&LLPanelPeopleMenus::gSuggestedFriendsContextMenu);
+	
+	setVisibleCallback(boost::bind(&LLFacebookFriendsPanel::updateFacebookList, this, _2));
+
+	return LLPanel::postBuild();
+}
+
+bool LLFacebookFriendsPanel::updateSuggestedFriendList()
+{
+	const LLAvatarTracker& av_tracker = LLAvatarTracker::instance();
+	uuid_vec_t& suggested_friends = mSuggestedFriends->getIDs();
+	suggested_friends.clear();
+
+	//Add suggested friends
+	LLSD friends = LLFacebookConnect::instance().getContent();
+	for (LLSD::array_const_iterator i = friends.beginArray(); i != friends.endArray(); ++i)
+	{
+		LLUUID agent_id = (*i).asUUID();
+		bool second_life_buddy = agent_id.notNull() ? av_tracker.isBuddy(agent_id) : false;
+
+		if(!second_life_buddy)
+		{
+			//FB+SL but not SL friend
+			if (agent_id.notNull())
+			{
+				suggested_friends.push_back(agent_id);
+			}
+		}
+	}
+
+	//Force a refresh when there aren't any filter matches (prevent displaying content that shouldn't display)
+	mSuggestedFriends->setDirty(true, !mSuggestedFriends->filterHasMatches());
+	//showFriendsAccordionsIfNeeded();
+
+	return false;
+}
+
+void LLFacebookFriendsPanel::updateFacebookList(bool visible)
+{
+	if (visible)
+	{
+		LLEventPumps::instance().obtain("FacebookConnectContent").stopListening("LLPanelPeople"); // just in case it is already listening
+		LLEventPumps::instance().obtain("FacebookConnectContent").listen("LLPanelPeople", boost::bind(&LLFacebookFriendsPanel::updateSuggestedFriendList, this));
+
+		LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLPanelPeople"); // just in case it is already listening
+		LLEventPumps::instance().obtain("FacebookConnectState").listen("LLPanelPeople", boost::bind(&LLFacebookFriendsPanel::onConnectedToFacebook, this, _1));
+
+		//Connected
+		if (LLFacebookConnect::instance().isConnected())
+		{
+			LLFacebookConnect::instance().loadFacebookFriends();
+		}
+		//Check if connected
+        if ((LLFacebookConnect::instance().getConnectionState() == LLFacebookConnect::FB_NOT_CONNECTED) ||
+            (LLFacebookConnect::instance().getConnectionState() == LLFacebookConnect::FB_CONNECTION_FAILED))
+        {
+            LLFacebookConnect::instance().checkConnectionToFacebook();
+        }
+
+		updateSuggestedFriendList();
+	}
+	else
+	{
+		LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLPanelPeople");
+		LLEventPumps::instance().obtain("FacebookConnectContent").stopListening("LLPanelPeople");
+	}
+}
+
+bool LLFacebookFriendsPanel::onConnectedToFacebook(const LLSD& data)
+{
+	LLSD::Integer connection_state = data.get("enum").asInteger();
+
+	if (connection_state == LLFacebookConnect::FB_CONNECTED)
+	{
+		LLFacebookConnect::instance().loadFacebookFriends();
+	}
+	else if(connection_state == LLFacebookConnect::FB_NOT_CONNECTED)
+	{
+		updateSuggestedFriendList();
+	};
+
+	return false;
 }
 
 ///////////////////////////
