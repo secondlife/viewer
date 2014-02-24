@@ -36,24 +36,59 @@ build_dir_CYGWIN()
   echo build-vc100
 }
 
+viewer_channel_suffix()
+{
+    local package_name="$1"
+    local suffix_var="${package_name}_viewer_channel_suffix"
+    local suffix=$(eval "echo \$${suffix_var}")
+    if [ "$suffix"x = ""x ]
+    then
+        echo ""
+    else
+        echo "_$suffix"
+    fi
+}
+
 installer_Darwin()
 {
-  ls -1tr "$(build_dir_Darwin ${last_built_variant:-Release})/newview/"*"$additional_package_name"*.dmg 2>/dev/null | sed 1q
+  local package_name="$1"
+  local package_dir="$(build_dir_Darwin ${last_built_variant:-Release})/newview/"
+  local pattern=".*$(viewer_channel_suffix ${package_name})_[0-9]+_[0-9]+_[0-9]+_[0-9]+_i386\\.dmg\$"
+  # since the additional packages are built after the base package,
+  # sorting oldest first ensures that the unqualified package is returned
+  # even if someone makes a qualified name that duplicates the last word of the base name
+  local package=$(ls -1tr "$package_dir" 2>/dev/null | grep -E "$pattern" | head -n 1)
+  test "$package"x != ""x && echo "$package_dir/$package"
 }
 
 installer_Linux()
 {
-  ls -1tr "$(build_dir_Linux ${last_built_variant:-Release})/newview/"*"$additional_package_name"*.tar.bz2 2>/dev/null | grep -v symbols | sed 1q
+  local package_name="$1"
+  local package_dir="$(build_dir_Linux ${last_built_variant:-Release})/newview/"
+  local pattern=".*$(viewer_channel_suffix ${package_name})_[0-9]+_[0-9]+_[0-9]+_[0-9]+_i686\\.tar\\.bz2\$"
+  # since the additional packages are built after the base package,
+  # sorting oldest first ensures that the unqualified package is returned
+  # even if someone makes a qualified name that duplicates the last word of the base name
+  package=$(ls -1tr "$package_dir" 2>/dev/null | grep -E "$pattern" | head -n 1)
+  test "$package"x != ""x && echo "$package_dir/$package"
 }
 
 installer_CYGWIN()
 {
-  v=${last_built_variant:-Release}
-  d=$(build_dir_CYGWIN $v)
-  if [ -r "$d/newview/$additional_package_name$v/touched.bat" ]
+  local package_name="$1"
+  local variant=${last_built_variant:-Release}
+  local build_dir=$(build_dir_CYGWIN ${variant})
+  local package_dir
+  if [ "$package_name"x = ""x ]
   then
-    p=$(sed 's:.*=::' "$d/newview/$additional_package_name$v/touched.bat")
-    echo "$d/newview/$additional_package_name$v/$p"
+      package_dir="${build_dir}/newview/${variant}"
+  else
+      package_dir="${build_dir}/newview/${package_name}/${variant}"
+  fi
+  if [ -r "${package_dir}/touched.bat" ]
+  then
+    local package_file=$(sed 's:.*=::' "${package_dir}/touched.bat")
+    echo "${package_dir}/${package_file}"
   fi
 }
 
@@ -275,7 +310,7 @@ then
     if $build_viewer_deb && [ "$last_built_variant" == "Release" ]
     then
       begin_section "Build Viewer Debian Package"
-      local have_private_repo=false
+      have_private_repo=false
       # mangle the changelog
       dch --force-bad-version \
           --distribution unstable \
@@ -362,19 +397,15 @@ then
       # Upload additional packages.
       for package_id in $additional_packages
       do
-        case $arch in
-        CYGWIN) export additional_package_name="$package_id/" ;;
-        *) export additional_package_name=$package_id ;;
-        esac
-        package=$(installer_$arch)
+        package=$(installer_$arch "$package_id")
         if [ x"$package" != x ]
         then
           upload_item installer "$package" binary/octet-stream
+          upload_item quicklink "$package" binary/octet-stream
         else
-          record_failure "Failed to upload $package_id package ($package::$additional_package_name)."
+          record_failure "Failed to find additional package for '$package_id'."
         fi
       done
-      export additional_package_name=""
 
       case "$last_built_variant" in
       Release)
@@ -383,6 +414,12 @@ then
         do
           upload_item symbolfile "$build_dir/$symbolfile" binary/octet-stream
         done
+
+        # Upload the actual dependencies used
+        if [ -r "$build_dir/packages/installed-packages.xml" ]
+        then
+            upload_item installer "$build_dir/packages/installed-packages.xml" text/xml
+        fi
 
         # Upload the llphysicsextensions_tpv package, if one was produced
         # *TODO: Make this an upload-extension

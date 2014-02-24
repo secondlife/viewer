@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2010-2013, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -32,6 +32,12 @@
 #include "lluuid.h"
 #include "llviewertexture.h"
 #include "llvolume.h"
+#include "lldeadmantimer.h"
+#include "httpcommon.h"
+#include "httprequest.h"
+#include "httpoptions.h"
+#include "httpheaders.h"
+#include "httphandler.h"
 
 #define LLCONVEXDECOMPINTER_STATIC 1
 
@@ -39,8 +45,6 @@
 #include "lluploadfloaterobservers.h"
 
 class LLVOVolume;
-class LLMeshResponder;
-class LLCurlRequest;
 class LLMutex;
 class LLCondition;
 class LLVFS;
@@ -215,16 +219,16 @@ class LLMeshRepoThread : public LLThread
 {
 public:
 
-	static S32 sActiveHeaderRequests;
-	static S32 sActiveLODRequests;
+	volatile static S32 sActiveHeaderRequests;
+	volatile static S32 sActiveLODRequests;
 	static U32 sMaxConcurrentRequests;
+	static S32 sRequestLowWater;
+	static S32 sRequestHighWater;
+	static S32 sRequestWaterLevel;			// Stats-use only, may read outside of thread
 
-	LLCurlRequest* mCurlRequest;
 	LLMutex*	mMutex;
 	LLMutex*	mHeaderMutex;
 	LLCondition* mSignal;
-
-	bool mWaiting;
 
 	//map of known mesh headers
 	typedef std::map<LLUUID, LLSD> mesh_header_map;
@@ -287,8 +291,8 @@ public:
 	//set of requested skin info
 	std::set<LLUUID> mSkinRequests;
 	
-	//queue of completed skin info requests
-	std::queue<LLMeshSkinInfo> mSkinInfoQ;
+	// list of completed skin info requests
+	std::list<LLMeshSkinInfo> mSkinInfoQ;
 
 	//set of requested decompositions
 	std::set<LLUUID> mDecompositionRequests;
@@ -296,8 +300,8 @@ public:
 	//set of requested physics shapes
 	std::set<LLUUID> mPhysicsShapeRequests;
 
-	//queue of completed Decomposition info requests
-	std::queue<LLModel::Decomposition*> mDecompositionQ;
+	// list of completed Decomposition info requests
+	std::list<LLModel::Decomposition*> mDecompositionQ;
 
 	//queue of requested headers
 	std::queue<HeaderRequest> mHeaderReqQ;
@@ -315,7 +319,23 @@ public:
 	typedef std::map<LLVolumeParams, std::vector<S32> > pending_lod_map;
 	pending_lod_map mPendingLOD;
 
-	static std::string constructUrl(LLUUID mesh_id);
+	// llcorehttp library interface objects.
+	LLCore::HttpStatus					mHttpStatus;
+	LLCore::HttpRequest *				mHttpRequest;
+	LLCore::HttpOptions *				mHttpOptions;
+	LLCore::HttpOptions *				mHttpLargeOptions;
+	LLCore::HttpHeaders *				mHttpHeaders;
+	LLCore::HttpRequest::policy_t		mHttpPolicyClass;
+	LLCore::HttpRequest::policy_t		mHttpLegacyPolicyClass;
+	LLCore::HttpRequest::policy_t		mHttpLargePolicyClass;
+	LLCore::HttpRequest::priority_t		mHttpPriority;
+
+	typedef std::set<LLCore::HttpHandler *> http_request_set;
+	http_request_set					mHttpRequestSet;			// Outstanding HTTP requests
+
+	std::string mGetMeshCapability;
+	std::string mGetMesh2Capability;
+	int mGetMeshVersion;
 
 	LLMeshRepoThread();
 	~LLMeshRepoThread();
@@ -325,8 +345,8 @@ public:
 	void lockAndLoadMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
 	void loadMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
 
-	bool fetchMeshHeader(const LLVolumeParams& mesh_params, U32& count);
-	bool fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, U32& count);
+	bool fetchMeshHeader(const LLVolumeParams& mesh_params);
+	bool fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
 	bool headerReceived(const LLVolumeParams& mesh_params, U8* data, S32 data_size);
 	bool lodReceived(const LLVolumeParams& mesh_params, S32 lod, U8* data, S32 data_size);
 	bool skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 data_size);
@@ -358,9 +378,37 @@ public:
 	static void incActiveHeaderRequests();
 	static void decActiveHeaderRequests();
 
+	// Set the caps strings and preferred version for constructing
+	// mesh fetch URLs.
+	//
+	// Mutex:  must be holding mMutex when called
+	void setGetMeshCaps(const std::string & get_mesh1,
+						const std::string & get_mesh2,
+						int pref_version);
+
+	// Mutex:  acquires mMutex
+	void constructUrl(LLUUID mesh_id, std::string * url, int * version);
+
+private:
+	// Issue a GET request to a URL with 'Range' header using
+	// the correct policy class and other attributes.  If an invalid
+	// handle is returned, the request failed and caller must retry
+	// or dispose of handler.
+	//
+	// Threads:  Repo thread only
+	LLCore::HttpHandle getByteRange(const std::string & url, int cap_version,
+									size_t offset, size_t len, 
+									LLCore::HttpHandler * handler);
 };
 
-class LLMeshUploadThread : public LLThread 
+
+// Class whose instances represent a single upload-type request for
+// meshes:  one fee query or one actual upload attempt.  Yes, it creates
+// a unique thread for that single request.  As it is 1:1, it can also
+// trivially serve as the HttpHandler object for request completion
+// notifications.
+
+class LLMeshUploadThread : public LLThread, public LLCore::HttpHandler 
 {
 private:
 	S32 mMeshUploadTimeOut ; //maximum time in seconds to execute an uploading request.
@@ -381,44 +429,41 @@ public:
 	};
 
 	LLPointer<DecompRequest> mFinalDecomp;
-	bool mPhysicsComplete;
+	volatile bool	mPhysicsComplete;
 
 	typedef std::map<LLPointer<LLModel>, std::vector<LLVector3> > hull_map;
-	hull_map mHullMap;
+	hull_map		mHullMap;
 
 	typedef std::vector<LLModelInstance> instance_list;
-	instance_list mInstanceList;
+	instance_list	mInstanceList;
 
 	typedef std::map<LLPointer<LLModel>, instance_list> instance_map;
-	instance_map mInstance;
+	instance_map	mInstance;
 
-	LLMutex*					mMutex;
-	LLCurlRequest* mCurlRequest;
+	LLMutex*		mMutex;
 	S32				mPendingUploads;
 	LLVector3		mOrigin;
 	bool			mFinished;	
 	bool			mUploadTextures;
 	bool			mUploadSkin;
 	bool			mUploadJoints;
-	BOOL            mDiscarded ;
+	volatile bool	mDiscarded;
 
 	LLHost			mHost;
 	std::string		mWholeModelFeeCapability;
 	std::string		mWholeModelUploadURL;
 
 	LLMeshUploadThread(instance_list& data, LLVector3& scale, bool upload_textures,
-			bool upload_skin, bool upload_joints, std::string upload_url, bool do_upload = true,
-					   LLHandle<LLWholeModelFeeObserver> fee_observer= (LLHandle<LLWholeModelFeeObserver>()), LLHandle<LLWholeModelUploadObserver> upload_observer = (LLHandle<LLWholeModelUploadObserver>()));
+					   bool upload_skin, bool upload_joints, const std::string & upload_url, bool do_upload = true,
+					   LLHandle<LLWholeModelFeeObserver> fee_observer = (LLHandle<LLWholeModelFeeObserver>()),
+					   LLHandle<LLWholeModelUploadObserver> upload_observer = (LLHandle<LLWholeModelUploadObserver>()));
 	~LLMeshUploadThread();
 
-	void startRequest() { ++mPendingUploads; }
-	void stopRequest() { --mPendingUploads; }
-
-	bool finished() { return mFinished; }
+	bool finished() const { return mFinished; }
 	virtual void run();
 	void preStart();
 	void discard() ;
-	BOOL isDiscarded();
+	bool isDiscarded() const;
 
 	void generateHulls();
 
@@ -435,11 +480,23 @@ public:
 	void setFeeObserverHandle(LLHandle<LLWholeModelFeeObserver> observer_handle) { mFeeObserverHandle = observer_handle; }
 	void setUploadObserverHandle(LLHandle<LLWholeModelUploadObserver> observer_handle) { mUploadObserverHandle = observer_handle; }
 
+	// Inherited from LLCore::HttpHandler
+	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
+
 private:
 	LLHandle<LLWholeModelFeeObserver> mFeeObserverHandle;
 	LLHandle<LLWholeModelUploadObserver> mUploadObserverHandle;
 
 	bool mDoUpload; // if FALSE only model data will be requested, otherwise the model will be uploaded
+	LLSD mModelData;
+	
+	// llcorehttp library interface objects.
+	LLCore::HttpStatus					mHttpStatus;
+	LLCore::HttpRequest *				mHttpRequest;
+	LLCore::HttpOptions *				mHttpOptions;
+	LLCore::HttpHeaders *				mHttpHeaders;
+	LLCore::HttpRequest::policy_t		mHttpPolicyClass;
+	LLCore::HttpRequest::priority_t		mHttpPriority;
 };
 
 class LLMeshRepository
@@ -448,21 +505,28 @@ public:
 
 	//metrics
 	static U32 sBytesReceived;
-	static U32 sHTTPRequestCount;
-	static U32 sHTTPRetryCount;
+	static U32 sMeshRequestCount;				// Total request count, http or cached, all component types
+	static U32 sHTTPRequestCount;				// Http GETs issued (not large)
+	static U32 sHTTPLargeRequestCount;			// Http GETs issued for large requests
+	static U32 sHTTPRetryCount;					// Total request retries whether successful or failed
+	static U32 sHTTPErrorCount;					// Requests ending in error
 	static U32 sLODPending;
 	static U32 sLODProcessing;
 	static U32 sCacheBytesRead;
 	static U32 sCacheBytesWritten;
-	static U32 sPeakKbps;
+	static U32 sCacheReads;						
+	static U32 sCacheWrites;
+	static U32 sMaxLockHoldoffs;				// Maximum sequential locking failures
 	
+	static LLDeadmanTimer sQuiescentTimer;		// Time-to-complete-mesh-downloads after significant events
+
 	static F32 getStreamingCost(LLSD& header, F32 radius, S32* bytes = NULL, S32* visible_bytes = NULL, S32 detail = -1, F32 *unscaled_value = NULL);
 
 	LLMeshRepository();
 
 	void init();
 	void shutdown();
-	S32 update() ;
+	S32 update();
 
 	//mesh management functions
 	S32 loadMesh(LLVOVolume* volume, const LLVolumeParams& mesh_params, S32 detail = 0, S32 last_lod = -1);
@@ -495,6 +559,12 @@ public:
 
 	S32 getMeshSize(const LLUUID& mesh_id, S32 lod);
 
+	// Quiescent timer management, main thread only.
+	static void metricsStart();
+	static void metricsStop();
+	static void metricsProgress(unsigned int count);
+	static void metricsUpdate();
+	
 	typedef std::map<LLVolumeParams, std::set<LLUUID> > mesh_load_map;
 	mesh_load_map mLoadingMeshes[4];
 	
@@ -556,8 +626,7 @@ public:
 	void uploadError(LLSD& args);
 	void updateInventory(inventory_data data);
 
-	std::string mGetMeshCapability;
-
+	int mGetMeshVersion;		// Shadows value in LLMeshRepoThread
 };
 
 extern LLMeshRepository gMeshRepo;

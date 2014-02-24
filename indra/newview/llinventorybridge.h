@@ -36,6 +36,7 @@
 #include "llviewercontrol.h"
 #include "llviewerwearable.h"
 #include "lltooldraganddrop.h"
+#include "lllandmarklist.h"
 
 class LLInventoryFilter;
 class LLInventoryPanel;
@@ -239,7 +240,10 @@ protected:
 	BOOL confirmRemoveItem(const LLSD& notification, const LLSD& response);
 	virtual BOOL isItemPermissive() const;
 	virtual void buildDisplayName() const;
+	void doActionOnCurSelectedLandmark(LLLandmarkList::loaded_callback_t cb);
 
+private:
+	void doShowOnMap(LLLandmark* landmark);
 };
 
 class LLFolderBridge : public LLInvFVBridge
