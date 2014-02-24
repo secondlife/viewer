@@ -373,7 +373,10 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 	}
 	else if(event == MEDIA_EVENT_GEOMETRY_CHANGE)
 	{
-		geometryChanged(self->getGeometryX(), self->getGeometryY(), self->getGeometryWidth(), self->getGeometryHeight());
+		if (mCurrentURL.find("facebook.com/dialog/oauth") == std::string::npos) // HACK to fix ACME-1317 - Cho
+		{
+			geometryChanged(self->getGeometryX(), self->getGeometryY(), self->getGeometryWidth(), self->getGeometryHeight());
+		}
 	}
 	else if(event == MEDIA_EVENT_STATUS_TEXT_CHANGED )
 	{
