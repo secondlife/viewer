@@ -94,6 +94,9 @@ protected:
 	void removeItemID(const LLUUID& id);
 	void clearItemIDs();
 
+	BOOL			handleKeyHere( KEY key, MASK mask );
+	BOOL			isSelectionRemovable();
+
 private:
 	std::map<LLUUID, LLFolderViewItem*> mItemMap;
 
