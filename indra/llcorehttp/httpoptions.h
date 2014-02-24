@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -68,36 +68,55 @@ protected:
 	void operator=(const HttpOptions &);		// Not defined
 
 public:
+	// Default:   false
 	void				setWantHeaders(bool wanted);
 	bool				getWantHeaders() const
 		{
 			return mWantHeaders;
 		}
-	
+
+	// Default:  0
 	void				setTrace(int long);
 	int					getTrace() const
 		{
 			return mTracing;
 		}
 
+	// Default:  30
 	void				setTimeout(unsigned int timeout);
 	unsigned int		getTimeout() const
 		{
 			return mTimeout;
 		}
 
+	// Default:  0
+	void				setTransferTimeout(unsigned int timeout);
+	unsigned int		getTransferTimeout() const
+		{
+			return mTransferTimeout;
+		}
+
+	// Default:  8
 	void				setRetries(unsigned int retries);
 	unsigned int		getRetries() const
 		{
 			return mRetries;
+		}
+
+	// Default:  true
+	void				setUseRetryAfter(bool use_retry);
+	bool				getUseRetryAfter() const
+		{
+			return mUseRetryAfter;
 		}
 	
 protected:
 	bool				mWantHeaders;
 	int					mTracing;
 	unsigned int		mTimeout;
+	unsigned int		mTransferTimeout;
 	unsigned int		mRetries;
-	
+	bool				mUseRetryAfter;
 }; // end class HttpOptions
 
 
