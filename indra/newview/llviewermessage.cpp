@@ -5985,7 +5985,7 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 				}
 			}
 
-			send_sound_trigger(LLUUID(gSavedSettings.getString("UISndRestart")), 1.0f);
+			make_ui_sound("UISndRestart");
 		}
 
 		LLNotificationsUtil::add(notificationID, llsdBlock);
