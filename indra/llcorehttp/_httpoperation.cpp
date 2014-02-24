@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -53,7 +53,7 @@ HttpOperation::HttpOperation()
 	  mUserHandler(NULL),
 	  mReqPolicy(HttpRequest::DEFAULT_POLICY_ID),
 	  mReqPriority(0U),
-	  mTracing(0)
+	  mTracing(HTTP_TRACE_OFF)
 {
 	mMetricCreated = totalTime();
 }
@@ -94,7 +94,7 @@ void HttpOperation::stageFromRequest(HttpService *)
 	// Default implementation should never be called.  This
 	// indicates an operation making a transition that isn't
 	// defined.
-	LL_ERRS("HttpCore") << "Default stageFromRequest method may not be called."
+	LL_ERRS("CoreHttp") << "Default stageFromRequest method may not be called."
 						<< LL_ENDL;
 }
 
@@ -104,7 +104,7 @@ void HttpOperation::stageFromReady(HttpService *)
 	// Default implementation should never be called.  This
 	// indicates an operation making a transition that isn't
 	// defined.
-	LL_ERRS("HttpCore") << "Default stageFromReady method may not be called."
+	LL_ERRS("CoreHttp") << "Default stageFromReady method may not be called."
 						<< LL_ENDL;
 }
 
@@ -114,7 +114,7 @@ void HttpOperation::stageFromActive(HttpService *)
 	// Default implementation should never be called.  This
 	// indicates an operation making a transition that isn't
 	// defined.
-	LL_ERRS("HttpCore") << "Default stageFromActive method may not be called."
+	LL_ERRS("CoreHttp") << "Default stageFromActive method may not be called."
 						<< LL_ENDL;
 }
 

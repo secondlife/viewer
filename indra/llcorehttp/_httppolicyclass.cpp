@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -34,10 +34,10 @@ namespace LLCore
 
 
 HttpPolicyClass::HttpPolicyClass()
-	: mSetMask(0UL),
-	  mConnectionLimit(HTTP_CONNECTION_LIMIT_DEFAULT),
+	: mConnectionLimit(HTTP_CONNECTION_LIMIT_DEFAULT),
 	  mPerHostConnectionLimit(HTTP_CONNECTION_LIMIT_DEFAULT),
-	  mPipelining(0)
+	  mPipelining(HTTP_PIPELINING_DEFAULT),
+	  mThrottleRate(HTTP_THROTTLE_RATE_DEFAULT)
 {}
 
 
@@ -49,75 +49,75 @@ HttpPolicyClass & HttpPolicyClass::operator=(const HttpPolicyClass & other)
 {
 	if (this != &other)
 	{
-		mSetMask = other.mSetMask;
 		mConnectionLimit = other.mConnectionLimit;
 		mPerHostConnectionLimit = other.mPerHostConnectionLimit;
 		mPipelining = other.mPipelining;
+		mThrottleRate = other.mThrottleRate;
 	}
 	return *this;
 }
 
 
 HttpPolicyClass::HttpPolicyClass(const HttpPolicyClass & other)
-	: mSetMask(other.mSetMask),
-	  mConnectionLimit(other.mConnectionLimit),
+	: mConnectionLimit(other.mConnectionLimit),
 	  mPerHostConnectionLimit(other.mPerHostConnectionLimit),
-	  mPipelining(other.mPipelining)
+	  mPipelining(other.mPipelining),
+	  mThrottleRate(other.mThrottleRate)
 {}
 
 
-HttpStatus HttpPolicyClass::set(HttpRequest::EClassPolicy opt, long value)
+HttpStatus HttpPolicyClass::set(HttpRequest::EPolicyOption opt, long value)
 {
 	switch (opt)
 	{
-	case HttpRequest::CP_CONNECTION_LIMIT:
+	case HttpRequest::PO_CONNECTION_LIMIT:
 		mConnectionLimit = llclamp(value, long(HTTP_CONNECTION_LIMIT_MIN), long(HTTP_CONNECTION_LIMIT_MAX));
 		break;
 
-	case HttpRequest::CP_PER_HOST_CONNECTION_LIMIT:
+	case HttpRequest::PO_PER_HOST_CONNECTION_LIMIT:
 		mPerHostConnectionLimit = llclamp(value, long(HTTP_CONNECTION_LIMIT_MIN), mConnectionLimit);
 		break;
 
-	case HttpRequest::CP_ENABLE_PIPELINING:
+	case HttpRequest::PO_ENABLE_PIPELINING:
 		mPipelining = llclamp(value, 0L, 1L);
+		break;
+
+	case HttpRequest::PO_THROTTLE_RATE:
+		mThrottleRate = llclamp(value, 0L, 1000000L);
 		break;
 
 	default:
 		return HttpStatus(HttpStatus::LLCORE, HE_INVALID_ARG);
 	}
 
-	mSetMask |= 1UL << int(opt);
 	return HttpStatus();
 }
 
 
-HttpStatus HttpPolicyClass::get(HttpRequest::EClassPolicy opt, long * value)
+HttpStatus HttpPolicyClass::get(HttpRequest::EPolicyOption opt, long * value) const
 {
-	static const HttpStatus not_set(HttpStatus::LLCORE, HE_OPT_NOT_SET);
-	long * src(NULL);
-	
 	switch (opt)
 	{
-	case HttpRequest::CP_CONNECTION_LIMIT:
-		src = &mConnectionLimit;
+	case HttpRequest::PO_CONNECTION_LIMIT:
+		*value = mConnectionLimit;
 		break;
 
-	case HttpRequest::CP_PER_HOST_CONNECTION_LIMIT:
-		src = &mPerHostConnectionLimit;
+	case HttpRequest::PO_PER_HOST_CONNECTION_LIMIT:
+		*value = mPerHostConnectionLimit;
 		break;
 
-	case HttpRequest::CP_ENABLE_PIPELINING:
-		src = &mPipelining;
+	case HttpRequest::PO_ENABLE_PIPELINING:
+		*value = mPipelining;
+		break;
+
+	case HttpRequest::PO_THROTTLE_RATE:
+		*value = mThrottleRate;
 		break;
 
 	default:
 		return HttpStatus(HttpStatus::LLCORE, HE_INVALID_ARG);
 	}
 
-	if (! (mSetMask & (1UL << int(opt))))
-		return not_set;
-
-	*value = *src;
 	return HttpStatus();
 }
 
