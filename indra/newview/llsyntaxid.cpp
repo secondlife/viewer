@@ -147,7 +147,7 @@ LLSyntaxIdLSL::LLSyntaxIdLSL() :
 
 std::string LLSyntaxIdLSL::buildFileNameNew()
 {
-	mFileNameNew = mSyntaxIdNew.isNull() ? mFileNameDefault : "keywords_lsl_" + "_" + mSyntaxIdNew.asString() + ".llsd.xml";
+	mFileNameNew = mSyntaxIdNew.isNull() ? mFileNameDefault : "keywords_lsl_" + mSyntaxIdNew.asString() + ".llsd.xml";
 	return mFileNameNew;
 }
 
