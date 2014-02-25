@@ -128,7 +128,7 @@ void LLSDMessage::EventResponder::errorWithContent(U32 status, const std::string
     }
     else                        // default error handling
     {
-        // convention seems to be to use llinfos, but that seems a bit casual?
+        // convention seems to be to use LL_INFOS(), but that seems a bit casual?
         LL_WARNS("LLSDMessage::EventResponder")
             << "'" << mMessage << "' to '" << mTarget
             << "' failed with code " << status << ": " << reason << '\n'

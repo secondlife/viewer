@@ -28,10 +28,11 @@
 #define LL_LLFONTBITMAPCACHE_H
 
 #include <vector>
+#include "lltrace.h"
 
 // Maintain a collection of bitmaps containing rendered glyphs.
 // Generalizes the single-bitmap logic from LLFontFreetype and LLFontGL.
-class LLFontBitmapCache: public LLRefCount
+class LLFontBitmapCache : public LLTrace::MemTrackable<LLFontBitmapCache>
 {
 public:
 	LLFontBitmapCache();

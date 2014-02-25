@@ -30,16 +30,13 @@
 #include "lluictrl.h"
 #include "v4color.h"
 #include "llfloater.h"
-#include "llviewertexture.h"
 #include "lltextbox.h"
 
 //
 // Classes
 //
 class LLColor4;
-class LLTextBox;
 class LLFloaterColorPicker;
-class LLViewerTexture;
 
 class LLColorSwatchCtrl
 : public LLUICtrl
@@ -87,7 +84,7 @@ public:
 	void			setCanApplyImmediately(BOOL apply) { mCanApplyImmediately = apply; }
 	void			setOnCancelCallback(commit_callback_t cb) { mOnCancelCallback = cb; }
 	void			setOnSelectCallback(commit_callback_t cb) { mOnSelectCallback = cb; }
-	void			setFallbackImageName(const std::string& name) { mFallbackImageName = name; }
+	void			setFallbackImage(LLPointer<LLUIImage> image) { mFallbackImage = image; }
 
 	void			showPicker(BOOL take_focus);
 
@@ -103,20 +100,20 @@ public:
 	void			closeFloaterColorPicker();
 
 protected:
-	BOOL			mValid;
-	LLColor4		mColor;
-	LLUIColor		mBorderColor;
-	LLTextBox*		mCaption;
-	LLHandle<LLFloater> mPickerHandle;
-	LLViewBorder*	mBorder;
-	BOOL			mCanApplyImmediately;
-	commit_callback_t mOnCancelCallback;
-	commit_callback_t mOnSelectCallback;
-	S32             mLabelWidth;
-	S32             mLabelHeight;
+	bool					mValid;
+	LLColor4				mColor;
+	LLUIColor				mBorderColor;
+	LLTextBox*				mCaption;
+	LLHandle<LLFloater>		mPickerHandle;
+	class LLViewBorder*		mBorder;
+	bool					mCanApplyImmediately;
+	commit_callback_t		mOnCancelCallback,
+							mOnSelectCallback;
+	S32						mLabelWidth,
+							mLabelHeight;
 
 	LLPointer<LLUIImage> mAlphaGradientImage;
-	std::string		mFallbackImageName;
+	LLPointer<LLUIImage> mFallbackImage;
 };
 
 #endif  // LL_LLBUTTON_H

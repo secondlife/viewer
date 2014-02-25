@@ -89,7 +89,7 @@ void LLWaterParamManager::loadAllPresets()
 
 void LLWaterParamManager::loadPresetsFromDir(const std::string& dir)
 {
-	LL_INFOS2("AppInit", "Shaders") << "Loading water presets from " << dir << LL_ENDL;
+	LL_INFOS("AppInit", "Shaders") << "Loading water presets from " << dir << LL_ENDL;
 
 	LLDirIterator dir_iter(dir, "*.xml");
 	while (1)
@@ -103,7 +103,7 @@ void LLWaterParamManager::loadPresetsFromDir(const std::string& dir)
 		std::string path = gDirUtilp->add(dir, file);
 		if (!loadPreset(path))
 		{
-			llwarns << "Error loading water preset from " << path << llendl;
+			LL_WARNS() << "Error loading water preset from " << path << LL_ENDL;
 		}
 	}
 }
@@ -119,7 +119,7 @@ bool LLWaterParamManager::loadPreset(const std::string& path)
 		return false;
 	}
 
-	LL_DEBUGS2("AppInit", "Shaders") << "Loading water " << name << LL_ENDL;
+	LL_DEBUGS("AppInit", "Shaders") << "Loading water " << name << LL_ENDL;
 
 	LLSD params_data;
 	LLPointer<LLSDParser> parser = new LLSDXMLParser();
@@ -201,7 +201,7 @@ void LLWaterParamManager::applyParams(const LLSD& params, bool interpolate)
 {
 	if (params.size() == 0)
 	{
-		llwarns << "Undefined water params" << llendl;
+		LL_WARNS() << "Undefined water params" << LL_ENDL;
 		return;
 	}
 
@@ -215,11 +215,11 @@ void LLWaterParamManager::applyParams(const LLSD& params, bool interpolate)
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_UPDATE_WATERPARAM("Update Water Params");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_WATERPARAM("Update Water Params");
 
 void LLWaterParamManager::update(LLViewerCamera * cam)
 {
-	LLFastTimer ftm(FTM_UPDATE_WATERPARAM);
+	LL_RECORD_BLOCK_TIME(FTM_UPDATE_WATERPARAM);
 	
 	// update the shaders and the menu
 	propagateParameters();

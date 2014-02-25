@@ -36,7 +36,6 @@
 class LLButton;
 class LLStatusPanel;
 class LLFastTimerView;
-class LLMemoryView;
 class LLConsole;
 class LLTextureView;
 class LLFloaterStats;
@@ -61,7 +60,6 @@ public:
 	void setStatsVisible(BOOL visible);
 	
 	LLFastTimerView* mFastTimerView;
-	LLMemoryView*	 mMemoryView;
 	LLConsole*		 mDebugConsolep;
 	LLView*			 mFloaterSnapRegion;
 };

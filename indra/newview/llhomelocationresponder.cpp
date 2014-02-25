@@ -90,7 +90,7 @@ void LLHomeLocationResponder::result( const LLSD& content )
 	
   if( ! error )
   {
-    llinfos << "setting home position" << llendl;
+    LL_INFOS() << "setting home position" << LL_ENDL;
 		
     LLViewerRegion *viewer_region = gAgent.getRegion();
     gAgent.setHomePosRegion( viewer_region->getHandle(), agent_pos );
@@ -99,5 +99,5 @@ void LLHomeLocationResponder::result( const LLSD& content )
 
 void LLHomeLocationResponder::errorWithContent( U32 status, const std::string& reason, const LLSD& content )
 {
-	llwarns << "LLHomeLocationResponder error [status:" << status << "]: " << content << llendl;
+	LL_WARNS() << "LLHomeLocationResponder error [status:" << status << "]: " << content << LL_ENDL;
 }

@@ -101,12 +101,12 @@ void LLGestureListener::isGesturePlaying(const LLSD& event_data) const
 		}
 		else
 		{
-			llwarns << "isGesturePlaying did not find a gesture object for " << gesture_id << llendl;
+			LL_WARNS() << "isGesturePlaying did not find a gesture object for " << gesture_id << LL_ENDL;
 		}
 	}
 	else
 	{
-		llwarns << "isGesturePlaying didn't have 'id' value passed in" << llendl;
+		LL_WARNS() << "isGesturePlaying didn't have 'id' value passed in" << LL_ENDL;
 	}
 
 	LLSD reply = LLSD::emptyMap();
@@ -148,12 +148,12 @@ void LLGestureListener::startOrStopGesture(LLSD const & event_data, bool start) 
 		}
 		else
 		{
-			llwarns << "startOrStopGesture did not find a gesture object for " << gesture_id << llendl;
+			LL_WARNS() << "startOrStopGesture did not find a gesture object for " << gesture_id << LL_ENDL;
 		}
 	}
 	else
 	{
-		llwarns << "startOrStopGesture didn't have 'id' value passed in" << llendl;
+		LL_WARNS() << "startOrStopGesture didn't have 'id' value passed in" << LL_ENDL;
 	}
 }
 

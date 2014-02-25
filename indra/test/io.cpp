@@ -44,6 +44,7 @@
 #include "llsdrpcclient.h"
 #include "llsdrpcserver.h"
 #include "llsdserialize.h"
+#include "llcommon.h"
 #include "lluuid.h"
 #include "llinstantmessage.h"
 
@@ -876,11 +877,11 @@ namespace tut
 	public:
 		double_construct()
 		{
-			llinfos << "constructed" << llendl;
+			LL_INFOS() << "constructed" << LL_ENDL;
 		}
 		~double_construct()
 		{
-			llinfos << "destroyed" << llendl;
+			LL_INFOS() << "destroyed" << LL_ENDL;
 		}
 	};
 	typedef test_group<double_construct> double_construct_test_group;
@@ -937,11 +938,11 @@ namespace tut
 	template<> template<>
 	void fitness_test_object::test<1>()
 	{
-		lldebugs << "fitness_test_object::test<1>()" << llendl;
+		LL_DEBUGS() << "fitness_test_object::test<1>()" << LL_ENDL;
 
 		// Set up the server
-		//lldebugs << "fitness_test_object::test<1> - setting up server."
-		//	 << llendl;
+		//LL_DEBUGS() << "fitness_test_object::test<1> - setting up server."
+		//	 << LL_ENDL;
 		LLPumpIO::chain_t chain;
 		typedef LLCloneIOFactory<LLPipeStringInjector> emitter_t;
 		emitter_t* emitter = new emitter_t(
@@ -956,18 +957,18 @@ namespace tut
 		mPump->addChain(chain, NEVER_CHAIN_EXPIRY_SECS);
 
 		// We need to tickle the pump a little to set up the listen()
-		//lldebugs << "fitness_test_object::test<1> - initializing server."
-		//	 << llendl;
+		//LL_DEBUGS() << "fitness_test_object::test<1> - initializing server."
+		//	 << LL_ENDL;
 		pump_loop(mPump, 0.1f);
 
 		// Set up the client
-		//lldebugs << "fitness_test_object::test<1> - connecting client."
-		//	 << llendl;
+		//LL_DEBUGS() << "fitness_test_object::test<1> - connecting client."
+		//	 << LL_ENDL;
 		LLSocket::ptr_t client = LLSocket::create(mPool, LLSocket::STREAM_TCP);
 		LLHost server_host("127.0.0.1", SERVER_LISTEN_PORT);
 		bool connected = client->blockingConnect(server_host);
 		ensure("Connected to server", connected);
-		lldebugs << "connected" << llendl;
+		LL_DEBUGS() << "connected" << LL_ENDL;
 
 		// We have connected, since the socket reader does not block,
 		// the first call to read data will return EAGAIN, so we need
@@ -987,7 +988,7 @@ namespace tut
 	template<> template<>
 	void fitness_test_object::test<2>()
 	{
-		lldebugs << "fitness_test_object::test<2>()" << llendl;
+		LL_DEBUGS() << "fitness_test_object::test<2>()" << LL_ENDL;
 
 		// Set up the server
 		LLPumpIO::chain_t chain;
@@ -1010,7 +1011,7 @@ namespace tut
 		LLHost server_host("127.0.0.1", SERVER_LISTEN_PORT);
 		bool connected = client->blockingConnect(server_host);
 		ensure("Connected to server", connected);
-		lldebugs << "connected" << llendl;
+		LL_DEBUGS() << "connected" << LL_ENDL;
 
 		// We have connected, since the socket reader does not block,
 		// the first call to read data will return EAGAIN, so we need
@@ -1030,7 +1031,7 @@ namespace tut
 	template<> template<>
 	void fitness_test_object::test<3>()
 	{
-		lldebugs << "fitness_test_object::test<3>()" << llendl;
+		LL_DEBUGS() << "fitness_test_object::test<3>()" << LL_ENDL;
 
 		// Set up the server
 		LLPumpIO::chain_t chain;
@@ -1053,7 +1054,7 @@ namespace tut
 		LLHost server_host("127.0.0.1", SERVER_LISTEN_PORT);
 		bool connected = client->blockingConnect(server_host);
 		ensure("Connected to server", connected);
-		lldebugs << "connected" << llendl;
+		LL_DEBUGS() << "connected" << LL_ENDL;
 
 		// We have connected, since the socket reader does not block,
 		// the first call to read data will return EAGAIN, so we need
@@ -1073,7 +1074,7 @@ namespace tut
 	template<> template<>
 	void fitness_test_object::test<4>()
 	{
-		lldebugs << "fitness_test_object::test<4>()" << llendl;
+		LL_DEBUGS() << "fitness_test_object::test<4>()" << LL_ENDL;
 
 		// Set up the server
 		LLPumpIO::chain_t chain;
@@ -1096,7 +1097,7 @@ namespace tut
 		LLHost server_host("127.0.0.1", SERVER_LISTEN_PORT);
 		bool connected = client->blockingConnect(server_host);
 		ensure("Connected to server", connected);
-		lldebugs << "connected" << llendl;
+		LL_DEBUGS() << "connected" << LL_ENDL;
 
 		// We have connected, since the socket reader does not block,
 		// the first call to read data will return EAGAIN, so we need
@@ -1132,18 +1133,18 @@ namespace tut
 		pump_loop(mPump, 0.1f);
 		U32 count = mPump->runningChains();
 		ensure_equals("server chain onboard", count, 1);
-		lldebugs << "** Server is up." << llendl;
+		LL_DEBUGS() << "** Server is up." << LL_ENDL;
 
 		// Set up the client
 		LLSocket::ptr_t client = LLSocket::create(mPool, LLSocket::STREAM_TCP);
 		LLHost server_host("127.0.0.1", SERVER_LISTEN_PORT);
 		bool connected = client->blockingConnect(server_host);
 		ensure("Connected to server", connected);
-		lldebugs << "connected" << llendl;
+		LL_DEBUGS() << "connected" << LL_ENDL;
 		pump_loop(mPump,0.1f);
 		count = mPump->runningChains();
 		ensure_equals("server chain onboard", count, 2);
-		lldebugs << "** Client is connected." << llendl;
+		LL_DEBUGS() << "** Client is connected." << LL_ENDL;
 
 		// We have connected, since the socket reader does not block,
 		// the first call to read data will return EAGAIN, so we need
@@ -1159,20 +1160,20 @@ namespace tut
 		pump_loop(mPump,0.1f);
 		count = mPump->runningChains();
 		// ensure_equals("client chain onboard", count, 3); commented out because it fails frequently - appears to be timing sensitive
-		lldebugs << "** request should have been sent." << llendl;
+		LL_DEBUGS() << "** request should have been sent." << LL_ENDL;
 
 		// pump for long enough the the client socket closes, and the
 		// server socket should not be closed yet.
 		pump_loop(mPump,0.2f);
 		count = mPump->runningChains();
 		ensure_equals("client chain timed out ", count, 2);
-		lldebugs << "** client chain should be closed." << llendl;
+		LL_DEBUGS() << "** client chain should be closed." << LL_ENDL;
 
 		// At this point, the socket should be closed by the timeout
 		pump_loop(mPump,1.0f);
 		count = mPump->runningChains();
 		ensure_equals("accepted socked close", count, 1);
-		lldebugs << "** Sleeper should have timed out.." << llendl;
+		LL_DEBUGS() << "** Sleeper should have timed out.." << LL_ENDL;
 	}
 }
 
@@ -1187,7 +1188,9 @@ namespace tut
 				mResponsePtr(response)
 			{
 			}
-			~LLSimpleRPCResponse() {}
+			~LLSimpleRPCResponse() 
+			{
+			}
 			virtual bool response(LLPumpIO* pump)
 			{
 				*mResponsePtr = mReturnValue;
@@ -1302,8 +1305,8 @@ namespace tut
 		LLSD request;
 		request = 1;
 		pump_loop(request);
-		//llinfos << "request: " << *request << llendl;
-		//llinfos << "response: " << *mResponse << llendl;
+		//LL_INFOS() << "request: " << *request << LL_ENDL;
+		//LL_INFOS() << "response: " << *mResponse << LL_ENDL;
 		ensure_equals("integer request response", mResponse.asInteger(), 1);
 	}
 
@@ -1556,7 +1559,7 @@ namespace tut
 		mResponse->getString(actual);
 		if(actual != expected)
 		{
-			//llwarns << "iteration " << i << llendl;
+			//LL_WARNS() << "iteration " << i << LL_ENDL;
 			std::ostringstream e_str;
 			std::string::iterator iter = expected.begin();
 			std::string::iterator end = expected.end();
@@ -1566,8 +1569,8 @@ namespace tut
 			}
 			e_str << std::endl;
 			llsd_serialize_string(e_str, expected);
-			llwarns << "expected size: " << expected.size() << llendl;
-			llwarns << "expected:	  " << e_str.str() << llendl;
+			LL_WARNS() << "expected size: " << expected.size() << LL_ENDL;
+			LL_WARNS() << "expected:	  " << e_str.str() << LL_ENDL;
 
 			std::ostringstream a_str;
 			iter = actual.begin();
@@ -1578,8 +1581,8 @@ namespace tut
 			}
 			a_str << std::endl;
 			llsd_serialize_string(a_str, actual);
-			llwarns << "actual size:	  " << actual.size() << llendl;
-			llwarns << "actual:		" << a_str.str() << llendl;
+			LL_WARNS() << "actual size:	  " << actual.size() << LL_ENDL;
+			LL_WARNS() << "actual:		" << a_str.str() << LL_ENDL;
 		}
 		ensure_equals("binary string request response", actual, expected);
 		delete request;

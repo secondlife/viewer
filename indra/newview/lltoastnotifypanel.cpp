@@ -57,7 +57,7 @@ LLToastNotifyPanel::button_click_signal_t LLToastNotifyPanel::sButtonClickSignal
 
 LLToastNotifyPanel::LLToastNotifyPanel(const LLNotificationPtr& notification, const LLRect& rect, bool show_images) 
 :	LLToastPanel(notification),
-	LLInstanceTracker<LLToastNotifyPanel, LLUUID>(notification->getID())
+	LLInstanceTracker<LLToastNotifyPanel, LLUUID, LLInstanceTrackerReplaceOnCollision>(notification->getID())
 {
 	init(rect, show_images);
 }

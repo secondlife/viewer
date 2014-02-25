@@ -99,7 +99,7 @@ void LLViewerDynamicTexture::generateGLTexture(LLGLint internal_format, LLGLenum
 {
 	if (mComponents < 1 || mComponents > 4)
 	{
-		llerrs << "Bad number of components in dynamic texture: " << mComponents << llendl;
+		LL_ERRS() << "Bad number of components in dynamic texture: " << mComponents << LL_ENDL;
 	}
 	
 	LLPointer<LLImageRaw> raw_image = new LLImageRaw(mFullWidth, mFullHeight, mComponents);

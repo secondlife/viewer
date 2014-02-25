@@ -34,9 +34,7 @@
 class LLTextureStatsUploader
 {
 public:
-	LLTextureStatsUploader();
-	~LLTextureStatsUploader();
-	void uploadStatsToSimulator(const std::string texture_cap_url, const LLSD &texture_stats);
+	static void uploadStatsToSimulator(const std::string texture_cap_url, const LLSD &texture_stats);
 };
 
 #endif // LL_LLTEXTURESTATSUPLOADER_H

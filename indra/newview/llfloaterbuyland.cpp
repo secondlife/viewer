@@ -202,7 +202,7 @@ public:
 	virtual void draw();
 	virtual BOOL canClose();
 
-	void onVisibilityChange ( const LLSD& new_visibility );
+	void onVisibilityChanged ( const LLSD& new_visibility );
 	
 };
 
@@ -877,7 +877,7 @@ void LLFloaterBuyLandUI::startTransaction(TransactionType type, const LLXMLRPCVa
 			method = "buyLandPrep";
 			break;
 		default:
-			llwarns << "LLFloaterBuyLandUI: Unknown transaction type!" << llendl;
+			LL_WARNS() << "LLFloaterBuyLandUI: Unknown transaction type!" << LL_ENDL;
 			return;
 	}
 
@@ -934,7 +934,7 @@ void LLFloaterBuyLandUI::tellUserError(
 // virtual
 BOOL LLFloaterBuyLandUI::postBuild()
 {
-	setVisibleCallback(boost::bind(&LLFloaterBuyLandUI::onVisibilityChange, this, _2));
+	setVisibleCallback(boost::bind(&LLFloaterBuyLandUI::onVisibilityChanged, this, _2));
 	
 	mCurrency.prepare();
 	
@@ -1008,7 +1008,7 @@ BOOL LLFloaterBuyLandUI::canClose()
 	return can_close;
 }
 
-void LLFloaterBuyLandUI::onVisibilityChange ( const LLSD& new_visibility )
+void LLFloaterBuyLandUI::onVisibilityChanged ( const LLSD& new_visibility )
 {
 	if (new_visibility.asBoolean())
 	{

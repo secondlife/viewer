@@ -25,7 +25,6 @@ FS			(f|F)
 #include "indra.y.hpp"
 #include "lltimer.h"
 #include "indra_constants.h"
-#include "llagentconstants.h"
 #include "lllslconstants.h"
 #include "lluuid.h"
 #include "llassetstorage.h"

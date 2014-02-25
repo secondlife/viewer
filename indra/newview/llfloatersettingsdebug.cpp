@@ -194,8 +194,8 @@ void LLFloaterSettingsDebug::updateControl(LLControlVariable* controlp)
 
 	if (!spinner1 || !spinner2 || !spinner3 || !spinner4 || !color_swatch)
 	{
-		llwarns << "Could not find all desired controls by name"
-			<< llendl;
+		LL_WARNS() << "Could not find all desired controls by name"
+			<< LL_ENDL;
 		return;
 	}
 

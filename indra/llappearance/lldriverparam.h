@@ -29,6 +29,7 @@
 
 #include "llviewervisualparam.h"
 #include "llwearabletype.h"
+#include <deque>
 
 class LLAvatarAppearance;
 class LLDriverParam;
