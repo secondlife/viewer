@@ -64,7 +64,7 @@ public:
 
 		ManipulatorHandle(LLVector3 pos, EManipPart id, EScaleManipulatorType type):mPosition(pos), mManipID(id), mType(type){}
 	};
-
+	static const S32 NUM_MANIPULATORS = 14;
 
 	LLManipScale( LLToolComposite* composite );
 	~LLManipScale();
@@ -91,7 +91,7 @@ private:
 	void			renderFaces( const LLBBox& local_bbox );
 	void			renderEdges( const LLBBox& local_bbox );
 	void			renderBoxHandle( F32 x, F32 y, F32 z );
-	void			renderAxisHandle( const LLVector3& start, const LLVector3& end );
+	void			renderAxisHandle( U32 part, const LLVector3& start, const LLVector3& end );
 	void			renderGuidelinesPart( const LLBBox& local_bbox );
 	void			renderSnapGuides( const LLBBox& local_bbox );
 
@@ -135,7 +135,6 @@ private:
 	};
 
 
-	F32				mBoxHandleSize;		// The size of the handles at the corners of the bounding box
 	F32				mScaledBoxHandleSize; // handle size after scaling for selection feedback
 	LLVector3d		mDragStartPointGlobal;
 	LLVector3d		mDragStartCenterGlobal;	// The center of the bounding box of all selected objects at time of drag start
@@ -157,12 +156,15 @@ private:
 	LLVector3		mSnapDir1;
 	LLVector3		mSnapDir2;
 	F32				mSnapRegimeOffset;
+	F32				mTickPixelSpacing1,
+					mTickPixelSpacing2;
 	F32				mSnapGuideLength;
 	LLVector3		mScaleCenter;
 	LLVector3		mScaleDir;
-	F32				mScaleSnapValue;
+	F32				mScaleSnappedValue;
 	BOOL			mInSnapRegime;
-	F32*			mManipulatorScales;
+	F32				mManipulatorScales[NUM_MANIPULATORS];
+	F32				mBoxHandleSize[NUM_MANIPULATORS];		// The size of the handles at the corners of the bounding box
 };
 
 #endif  // LL_MANIPSCALE_H
