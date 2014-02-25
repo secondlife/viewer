@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -53,6 +53,7 @@ namespace LLCore
 class HttpRequestQueue;
 class HttpPolicy;
 class HttpLibcurl;
+class HttpOpSetGet;
 
 
 /// The HttpService class does the work behind the request queue.  It
@@ -106,7 +107,7 @@ public:
 		NORMAL,					///< continuous polling of request, ready, active queues
 		REQUEST_SLEEP			///< can sleep indefinitely waiting for request queue write
 	};
-		
+
 	static void init(HttpRequestQueue *);
 	static void term();
 
@@ -136,7 +137,7 @@ public:
 	/// acquires its weaknesses.
 	static bool isStopped();
 
-	/// Threading:  callable by consumer thread *once*.
+	/// Threading:  callable by init thread *once*.
 	void startThread();
 
 	/// Threading:  callable by worker thread.
@@ -181,27 +182,38 @@ public:
 		}
 
 	/// Threading:  callable by consumer thread.
-	HttpPolicyGlobal & getGlobalOptions()
-		{
-			return mPolicyGlobal;
-		}
-
-	/// Threading:  callable by consumer thread.
 	HttpRequest::policy_t createPolicyClass();
-	
-	/// Threading:  callable by consumer thread.
-	HttpPolicyClass & getClassOptions(HttpRequest::policy_t policy_class)
-		{
-			llassert(policy_class >= 0 && policy_class < mPolicyClasses.size());
-			return mPolicyClasses[policy_class];
-		}
 	
 protected:
 	void threadRun(LLCoreInt::HttpThread * thread);
 	
 	ELoopSpeed processRequestQueue(ELoopSpeed loop);
+
+protected:
+	friend class HttpOpSetGet;
+	friend class HttpRequest;
+	
+	// Used internally to describe what operations are allowed
+	// on each policy option.
+	struct OptionDescriptor
+	{
+		bool		mIsLong;
+		bool		mIsDynamic;
+		bool		mIsGlobal;
+		bool		mIsClass;
+	};
+		
+	HttpStatus getPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t,
+							   long * ret_value);
+	HttpStatus getPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t,
+							   std::string * ret_value);
+	HttpStatus setPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t,
+							   long value, long * ret_value);
+	HttpStatus setPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t,
+							   const std::string & value, std::string * ret_value);
 	
 protected:
+	static const OptionDescriptor		sOptionDesc[HttpRequest::PO_LAST];
 	static HttpService *				sInstance;
 	
 	// === shared data ===
@@ -210,13 +222,13 @@ protected:
 	LLAtomicU32							mExitRequested;
 	LLCoreInt::HttpThread *				mThread;
 	
-	// === consumer-thread-only data ===
-	HttpPolicyGlobal					mPolicyGlobal;
-	std::vector<HttpPolicyClass>		mPolicyClasses;
-	
 	// === working-thread-only data ===
 	HttpPolicy *						mPolicy;		// Simple pointer, has ownership
 	HttpLibcurl *						mTransport;		// Simple pointer, has ownership
+	
+	// === main-thread-only data ===
+	HttpRequest::policy_t				mLastPolicy;
+	
 };  // end class HttpService
 
 }  // end namespace LLCore

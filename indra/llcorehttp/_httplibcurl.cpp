@@ -41,7 +41,8 @@ namespace LLCore
 HttpLibcurl::HttpLibcurl(HttpService * service)
 	: mService(service),
 	  mPolicyCount(0),
-	  mMultiHandles(NULL)
+	  mMultiHandles(NULL),
+	  mActiveHandles(NULL)
 {}
 
 
@@ -77,6 +78,9 @@ void HttpLibcurl::shutdown()
 
 		delete [] mMultiHandles;
 		mMultiHandles = NULL;
+
+		delete [] mActiveHandles;
+		mActiveHandles = NULL;
 	}
 
 	mPolicyCount = 0;
@@ -90,9 +94,12 @@ void HttpLibcurl::start(int policy_count)
 	
 	mPolicyCount = policy_count;
 	mMultiHandles = new CURLM * [mPolicyCount];
+	mActiveHandles = new int [mPolicyCount];
+	
 	for (int policy_class(0); policy_class < mPolicyCount; ++policy_class)
 	{
 		mMultiHandles[policy_class] = curl_multi_init();
+		mActiveHandles[policy_class] = 0;
 	}
 }
 
@@ -110,8 +117,10 @@ HttpService::ELoopSpeed HttpLibcurl::processTransport()
 	// Give libcurl some cycles to do I/O & callbacks
 	for (int policy_class(0); policy_class < mPolicyCount; ++policy_class)
 	{
-		if (! mMultiHandles[policy_class])
+		if (! mActiveHandles[policy_class] || ! mMultiHandles[policy_class])
+		{
 			continue;
+		}
 		
 		int running(0);
 		CURLMcode status(CURLM_CALL_MULTI_PERFORM);
@@ -132,12 +141,10 @@ HttpService::ELoopSpeed HttpLibcurl::processTransport()
 				CURL * handle(msg->easy_handle);
 				CURLcode result(msg->data.result);
 
-				if (completeRequest(mMultiHandles[policy_class], handle, result))
-				{
-					// Request is still active, don't get too sleepy
-					ret = HttpService::NORMAL;
-				}
-				handle = NULL;			// No longer valid on return
+				completeRequest(mMultiHandles[policy_class], handle, result);
+				handle = NULL;					// No longer valid on return
+				ret = HttpService::NORMAL;		// If anything completes, we may have a free slot.
+												// Turning around quickly reduces connection gap by 7-10mS.
 			}
 			else if (CURLMSG_NONE == msg->msg)
 			{
@@ -193,6 +200,7 @@ void HttpLibcurl::addOp(HttpOpRequest * op)
 	
 	// On success, make operation active
 	mActiveOps.insert(op);
+	++mActiveHandles[op->mReqPolicy];
 }
 
 
@@ -214,6 +222,7 @@ bool HttpLibcurl::cancel(HttpHandle handle)
 
 	// Drop references
 	mActiveOps.erase(it);
+	--mActiveHandles[op->mReqPolicy];
 	op->release();
 
 	return true;
@@ -240,7 +249,7 @@ void HttpLibcurl::cancelRequest(HttpOpRequest * op)
 	{
 		LL_INFOS("CoreHttp") << "TRACE, RequestCanceled, Handle:  "
 							 << static_cast<HttpHandle>(op)
-							 << ", Status:  " << op->mStatus.toHex()
+							 << ", Status:  " << op->mStatus.toTerseString()
 							 << LL_ENDL;
 	}
 
@@ -275,6 +284,7 @@ bool HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode 
 
 	// Deactivate request
 	mActiveOps.erase(it);
+	--mActiveHandles[op->mReqPolicy];
 	op->mCurlActive = false;
 
 	// Set final status of request if it hasn't failed by other mechanisms yet
@@ -316,7 +326,7 @@ bool HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode 
 	{
 		LL_INFOS("CoreHttp") << "TRACE, RequestComplete, Handle:  "
 							 << static_cast<HttpHandle>(op)
-							 << ", Status:  " << op->mStatus.toHex()
+							 << ", Status:  " << op->mStatus.toTerseString()
 							 << LL_ENDL;
 	}
 
@@ -336,19 +346,9 @@ int HttpLibcurl::getActiveCount() const
 
 int HttpLibcurl::getActiveCountInClass(int policy_class) const
 {
-	int count(0);
-	
-	for (active_set_t::const_iterator iter(mActiveOps.begin());
-		 mActiveOps.end() != iter;
-		 ++iter)
-	{
-		if ((*iter)->mReqPolicy == policy_class)
-		{
-			++count;
-		}
-	}
-	
-	return count;
+	llassert_always(policy_class < mPolicyCount);
+
+	return mActiveHandles ? mActiveHandles[policy_class] : 0;
 }
 
 

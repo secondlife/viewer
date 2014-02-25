@@ -1222,7 +1222,7 @@ void HttpRequestTestObjectType::test<12>()
 		HttpRequest::createService();
 
 		// Enable tracing
-		HttpRequest::setPolicyGlobalOption(LLCore::HttpRequest::GP_TRACE, 2);
+		HttpRequest::setStaticPolicyOption(HttpRequest::PO_TRACE, HttpRequest::DEFAULT_POLICY_ID, 2, NULL);
 
 		// Start threading early so that thread memory is invariant
 		// over the test.
@@ -1340,7 +1340,7 @@ void HttpRequestTestObjectType::test<13>()
 		HttpRequest::createService();
 
 		// Enable tracing
-		HttpRequest::setPolicyGlobalOption(LLCore::HttpRequest::GP_TRACE, 2);
+		HttpRequest::setStaticPolicyOption(HttpRequest::PO_TRACE, HttpRequest::DEFAULT_POLICY_ID, 2, NULL);
 
 		// Start threading early so that thread memory is invariant
 		// over the test.
@@ -3174,6 +3174,142 @@ void HttpRequestTestObjectType::test<22>()
 		throw;
 	}
 }
+
+template <> template <>
+void HttpRequestTestObjectType::test<23>()
+{
+	ScopedCurlInit ready;
+
+	set_test_name("HttpRequest GET 503s with 'Retry-After'");
+
+	// This tests mainly that the code doesn't fall over if
+	// various well- and mis-formed Retry-After headers are
+	// sent along with the response.  Direct inspection of
+	// the parsing result isn't supported.
+	
+	// Handler can be stack-allocated *if* there are no dangling
+	// references to it after completion of this method.
+	// Create before memory record as the string copy will bump numbers.
+	TestHandler2 handler(this, "handler");
+	std::string url_base(get_base_url() + "/503/");	// path to 503 generators
+		
+	// record the total amount of dynamically allocated memory
+	mMemTotal = GetMemTotal();
+	mHandlerCalls = 0;
+
+	HttpRequest * req = NULL;
+	HttpOptions * opts = NULL;
+	
+	try
+	{
+		// Get singletons created
+		HttpRequest::createService();
+		
+		// Start threading early so that thread memory is invariant
+		// over the test.
+		HttpRequest::startThread();
+
+		// create a new ref counted object with an implicit reference
+		req = new HttpRequest();
+		ensure("Memory allocated on construction", mMemTotal < GetMemTotal());
+
+		opts = new HttpOptions();
+		opts->setRetries(1);			// Retry once only
+		opts->setUseRetryAfter(true);	// Try to parse the retry-after header
+		
+		// Issue a GET that 503s with valid retry-after
+		mStatus = HttpStatus(503);
+		int url_limit(6);
+		for (int i(0); i < url_limit; ++i)
+		{
+			std::ostringstream url;
+			url << url_base << i << "/";
+			HttpHandle handle = req->requestGetByteRange(HttpRequest::DEFAULT_POLICY_ID,
+														 0U,
+														 url.str(),
+														 0,
+														 0,
+														 opts,
+														 NULL,
+														 &handler);
+
+			std::ostringstream testtag;
+			testtag << "Valid handle returned for 503 request #" << i;
+			ensure(testtag.str(), handle != LLCORE_HTTP_HANDLE_INVALID);
+		}
+		
+
+		// Run the notification pump.
+		int count(0);
+		int limit(LOOP_COUNT_LONG);
+		while (count++ < limit && mHandlerCalls < url_limit)
+		{
+			req->update(0);
+			usleep(LOOP_SLEEP_INTERVAL);
+		}
+		ensure("Request executed in reasonable time", count < limit);
+		ensure("One handler invocation for request", mHandlerCalls == url_limit);
+
+		// Okay, request a shutdown of the servicing thread
+		mStatus = HttpStatus();
+		mHandlerCalls = 0;
+		HttpHandle handle = req->requestStopThread(&handler);
+		ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
+	
+		// Run the notification pump again
+		count = 0;
+		limit = LOOP_COUNT_LONG;
+		while (count++ < limit && mHandlerCalls < 1)
+		{
+			req->update(1000000);
+			usleep(LOOP_SLEEP_INTERVAL);
+		}
+		ensure("Second request executed in reasonable time", count < limit);
+		ensure("Second handler invocation", mHandlerCalls == 1);
+
+		// See that we actually shutdown the thread
+		count = 0;
+		limit = LOOP_COUNT_SHORT;
+		while (count++ < limit && ! HttpService::isStopped())
+		{
+			usleep(LOOP_SLEEP_INTERVAL);
+		}
+		ensure("Thread actually stopped running", HttpService::isStopped());
+
+		// release options
+		opts->release();
+		opts = NULL;
+		
+		// release the request object
+		delete req;
+		req = NULL;
+
+		// Shut down service
+		HttpRequest::destroyService();
+	
+#if defined(WIN32)
+		// Can only do this memory test on Windows.  On other platforms,
+		// the LL logging system holds on to memory and produces what looks
+		// like memory leaks...
+	
+		// printf("Old mem:  %d, New mem:  %d\n", mMemTotal, GetMemTotal());
+		ensure("Memory usage back to that at entry", mMemTotal == GetMemTotal());
+#endif
+	}
+	catch (...)
+	{
+		stop_thread(req);
+		if (opts)
+		{
+			opts->release();
+			opts = NULL;
+		}
+		delete req;
+		HttpRequest::destroyService();
+		throw;
+	}
+}
+
 
 }  // end namespace tut
 

@@ -39,6 +39,7 @@
 #include "httprequest.h"
 #include "httphandler.h"
 #include "httpresponse.h"
+#include "httpoptions.h"
 #include "httpheaders.h"
 #include "bufferarray.h"
 #include "_mutex.h"
@@ -57,6 +58,7 @@ void usage(std::ostream & out);
 
 // Default command line settings
 static int concurrency_limit(40);
+static int highwater(100);
 static char url_format[1024] = "http://example.com/some/path?texture_id=%s.texture";
 
 #if defined(WIN32)
@@ -79,11 +81,11 @@ public:
 	WorkingSet();
 	~WorkingSet();
 
-	bool reload(LLCore::HttpRequest *);
+	bool reload(LLCore::HttpRequest *, LLCore::HttpOptions *);
 	
 	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
 
-	void loadTextureUuids(FILE * in);
+	void loadAssetUuids(FILE * in);
 	
 public:
 	struct Spec
@@ -93,24 +95,27 @@ public:
 		int				mLength;
 	};
 	typedef std::set<LLCore::HttpHandle> handle_set_t;
-	typedef std::vector<Spec> texture_list_t;
+	typedef std::vector<Spec> asset_list_t;
 	
 public:
 	bool						mVerbose;
 	bool						mRandomRange;
-	int							mMaxConcurrency;
+	int							mRequestLowWater;
+	int							mRequestHighWater;
 	handle_set_t				mHandles;
 	int							mRemaining;
 	int							mLimit;
 	int							mAt;
 	std::string					mUrl;
-	texture_list_t				mTextures;
+	asset_list_t				mAssets;
 	int							mErrorsApi;
 	int							mErrorsHttp;
 	int							mErrorsHttp404;
 	int							mErrorsHttp416;
 	int							mErrorsHttp500;
 	int							mErrorsHttp503;
+	int							mRetries;
+	int							mRetriesHttp503;
 	int							mSuccesses;
 	long						mByteCount;
 	LLCore::HttpHeaders *		mHeaders;
@@ -158,7 +163,7 @@ int main(int argc, char** argv)
 	bool do_verbose(false);
 	
 	int option(-1);
-	while (-1 != (option = getopt(argc, argv, "u:c:h?Rv")))
+	while (-1 != (option = getopt(argc, argv, "u:c:h?RvH:")))
 	{
 		switch (option)
 		{
@@ -179,6 +184,21 @@ int main(int argc, char** argv)
 					return 1;
 				}
 				concurrency_limit = value;
+			}
+			break;
+
+		case 'H':
+		    {
+				unsigned long value;
+				char * end;
+
+				value = strtoul(optarg, &end, 10);
+				if (value < 1 || value > 100 || *end != '\0')
+				{
+					usage(std::cerr);
+					return 1;
+				}
+				highwater = value;
 			}
 			break;
 
@@ -216,25 +236,32 @@ int main(int argc, char** argv)
 	// Initialization
 	init_curl();
 	LLCore::HttpRequest::createService();
-	LLCore::HttpRequest::setPolicyClassOption(LLCore::HttpRequest::DEFAULT_POLICY_ID,
-											  LLCore::HttpRequest::CP_CONNECTION_LIMIT,
-											  concurrency_limit);
+	LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_CONNECTION_LIMIT,
+											   LLCore::HttpRequest::DEFAULT_POLICY_ID,
+											   concurrency_limit,
+											   NULL);
 	LLCore::HttpRequest::startThread();
 	
 	// Get service point
 	LLCore::HttpRequest * hr = new LLCore::HttpRequest();
 
+	// Get request options
+	LLCore::HttpOptions * opt = new LLCore::HttpOptions();
+	opt->setRetries(12);
+	opt->setUseRetryAfter(true);
+	
 	// Get a handler/working set
 	WorkingSet ws;
 
 	// Fill the working set with work
 	ws.mUrl = url_format;
-	ws.loadTextureUuids(uuids);
+	ws.loadAssetUuids(uuids);
 	ws.mRandomRange = do_random;
 	ws.mVerbose = do_verbose;
-	ws.mMaxConcurrency = 100;
+	ws.mRequestHighWater = highwater;
+	ws.mRequestLowWater = ws.mRequestHighWater / 2;
 	
-	if (! ws.mTextures.size())
+	if (! ws.mAssets.size())
 	{
 		std::cerr << "No UUIDs found in file '" << argv[optind] << "'." << std::endl;
 		return 1;
@@ -246,9 +273,9 @@ int main(int argc, char** argv)
 	
 	// Run it
 	int passes(0);
-	while (! ws.reload(hr))
+	while (! ws.reload(hr, opt))
 	{
-		hr->update(5000000);
+		hr->update(0);
 		ms_sleep(2);
 		if (0 == (++passes % 200))
 		{
@@ -265,6 +292,8 @@ int main(int argc, char** argv)
 	std::cout << "HTTP 404 errors: " << ws.mErrorsHttp404 << "  HTTP 416 errors: " << ws.mErrorsHttp416
 			  << "  HTTP 500 errors:  " << ws.mErrorsHttp500 << "  HTTP 503 errors: " << ws.mErrorsHttp503 
 			  << std::endl;
+	std::cout << "Retries: " << ws.mRetries << "  Retries on 503: " << ws.mRetriesHttp503
+			  << std::endl;
 	std::cout << "User CPU: " << (metrics.mEndUTime - metrics.mStartUTime)
 			  << " uS  System CPU: " << (metrics.mEndSTime - metrics.mStartSTime)
 			  << " uS  Wall Time: "  << (metrics.mEndWallTime - metrics.mStartWallTime)
@@ -275,6 +304,8 @@ int main(int argc, char** argv)
 	// Clean up
 	hr->requestStopThread(NULL);
 	ms_sleep(1000);
+	opt->release();
+	opt = NULL;
 	delete hr;
 	LLCore::HttpRequest::destroyService();
 	term_curl();
@@ -300,8 +331,10 @@ void usage(std::ostream & out)
 		" -u <url_format>       printf-style format string for URL generation\n"
 		"                       Default:  " << url_format << "\n"
 		" -R                    Issue GETs with random Range: headers\n"
-		" -c <limit>            Maximum request concurrency.  Range:  [1..100]\n"
+		" -c <limit>            Maximum connection concurrency.  Range:  [1..100]\n"
 		"                       Default:  " << concurrency_limit << "\n"
+		" -H <limit>            HTTP request highwater (requests fed to llcorehttp).\n"
+		"                       Range:  [1..100]  Default:  " << highwater << "\n"
 		" -v                    Verbose mode.  Issue some chatter while running\n"
 		" -h                    print this help\n"
 		"\n"
@@ -322,10 +355,12 @@ WorkingSet::WorkingSet()
 	  mErrorsHttp416(0),
 	  mErrorsHttp500(0),
 	  mErrorsHttp503(0),
+	  mRetries(0),
+	  mRetriesHttp503(0),
 	  mSuccesses(0),
 	  mByteCount(0L)
 {
-	mTextures.reserve(30000);
+	mAssets.reserve(30000);
 
 	mHeaders = new LLCore::HttpHeaders;
 	mHeaders->append("Accept", "image/x-j2c");
@@ -342,29 +377,35 @@ WorkingSet::~WorkingSet()
 }
 
 
-bool WorkingSet::reload(LLCore::HttpRequest * hr)
+bool WorkingSet::reload(LLCore::HttpRequest * hr, LLCore::HttpOptions * opt)
 {
-	int to_do((std::min)(mRemaining, mMaxConcurrency - int(mHandles.size())));
+	if (mRequestLowWater <= mHandles.size())
+	{
+		// Haven't fallen below low-water level yet.
+		return false;
+	}
+	
+	int to_do((std::min)(mRemaining, mRequestHighWater - int(mHandles.size())));
 
 	for (int i(0); i < to_do; ++i)
 	{
 		char buffer[1024];
 #if	defined(WIN32)
-		_snprintf_s(buffer, sizeof(buffer), sizeof(buffer) - 1, mUrl.c_str(), mTextures[mAt].mUuid.c_str());
+		_snprintf_s(buffer, sizeof(buffer), sizeof(buffer) - 1, mUrl.c_str(), mAssets[mAt].mUuid.c_str());
 #else
-		snprintf(buffer, sizeof(buffer), mUrl.c_str(), mTextures[mAt].mUuid.c_str());
+		snprintf(buffer, sizeof(buffer), mUrl.c_str(), mAssets[mAt].mUuid.c_str());
 #endif
-		int offset(mRandomRange ? ((unsigned long) rand()) % 1000000UL : mTextures[mAt].mOffset);
-		int length(mRandomRange ? ((unsigned long) rand()) % 1000000UL : mTextures[mAt].mLength);
+		int offset(mRandomRange ? ((unsigned long) rand()) % 1000000UL : mAssets[mAt].mOffset);
+		int length(mRandomRange ? ((unsigned long) rand()) % 1000000UL : mAssets[mAt].mLength);
 
 		LLCore::HttpHandle handle;
 		if (offset || length)
 		{
-			handle = hr->requestGetByteRange(0, 0, buffer, offset, length, NULL, mHeaders, this);
+			handle = hr->requestGetByteRange(0, 0, buffer, offset, length, opt, mHeaders, this);
 		}
 		else
 		{
-			handle = hr->requestGet(0, 0, buffer, NULL, mHeaders, this);
+			handle = hr->requestGet(0, 0, buffer, opt, mHeaders, this);
 		}
 		if (! handle)
 		{
@@ -410,7 +451,7 @@ void WorkingSet::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * r
 		{
 			// More success
 			LLCore::BufferArray * data(response->getBody());
-			mByteCount += data->size();
+			mByteCount += data ? data->size() : 0;
 			++mSuccesses;
 		}
 		else
@@ -446,6 +487,10 @@ void WorkingSet::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * r
 				++mErrorsApi;
 			}
 		}
+		unsigned int retry(0U), retry_503(0U);
+		response->getRetries(&retry, &retry_503);
+		mRetries += int(retry);
+		mRetriesHttp503 += int(retry_503);
 		mHandles.erase(it);
 	}
 
@@ -459,21 +504,21 @@ void WorkingSet::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * r
 }
 
 
-void WorkingSet::loadTextureUuids(FILE * in)
+void WorkingSet::loadAssetUuids(FILE * in)
 {
 	char buffer[1024];
 
 	while (fgets(buffer, sizeof(buffer), in))
 	{
-		WorkingSet::Spec texture;
+		WorkingSet::Spec asset;
 		char * state(NULL);
 		char * token = strtok_r(buffer, " \t\n,", &state);
 		if (token && 36 == strlen(token))
 		{
 			// Close enough for this function
-			texture.mUuid = token;
-			texture.mOffset = 0;
-			texture.mLength = 0;
+			asset.mUuid = token;
+			asset.mOffset = 0;
+			asset.mLength = 0;
 			token = strtok_r(buffer, " \t\n,", &state);
 			if (token)
 			{
@@ -482,14 +527,14 @@ void WorkingSet::loadTextureUuids(FILE * in)
 				if (token)
 				{
 					int length(atoi(token));
-					texture.mOffset = offset;
-					texture.mLength = length;
+					asset.mOffset = offset;
+					asset.mLength = length;
 				}
 			}
-			mTextures.push_back(texture);
+			mAssets.push_back(asset);
 		}
 	}
-	mRemaining = mLimit = mTextures.size();
+	mRemaining = mLimit = mAssets.size();
 }
 
 

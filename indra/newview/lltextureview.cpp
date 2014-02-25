@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -49,6 +49,7 @@
 #include "llviewertexturelist.h"
 #include "llvovolume.h"
 #include "llviewerstats.h"
+#include "llmeshrepository.h"
 
 // For avatar texture view
 #include "llvoavatarself.h"
@@ -509,6 +510,8 @@ void LLGLTexMemBar::draw()
 	F32 total_texture_downloaded = (F32)gTotalTextureBytes / (1024 * 1024);
 	F32 total_object_downloaded = (F32)gTotalObjectBytes / (1024 * 1024);
 	U32 total_http_requests = LLAppViewer::getTextureFetch()->getTotalNumHTTPRequests();
+	F32 x_right = 0.0;
+	
 	//----------------------------------------------------------------------------
 	LLGLSUIDefault gls_ui;
 	LLColor4 text_color(1.f, 1.f, 1.f, 0.75f);
@@ -535,7 +538,7 @@ void LLGLTexMemBar::draw()
 					cache_max_usage);
 	//, cache_entries, cache_max_entries
 
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*4,
+	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*5,
 											 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
 	U32 cache_read(0U), cache_write(0U), res_wait(0U);
@@ -549,13 +552,12 @@ void LLGLTexMemBar::draw()
 					cache_write,
 					res_wait);
 
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*3,
+	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*4,
 											 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
-	S32 left = 0 ;
 	//----------------------------------------------------------------------------
 
-	text = llformat("Textures: %d Fetch: %d(%d) Pkts:%d(%d) Cache R/W: %d/%d LFS:%d RAW:%d HTP:%d DEC:%d CRE:%d",
+	text = llformat("Textures: %d Fetch: %d(%d) Pkts:%d(%d) Cache R/W: %d/%d LFS:%d RAW:%d HTP:%d DEC:%d CRE:%d ",
 					gTextureList.getNumImages(),
 					LLAppViewer::getTextureFetch()->getNumRequests(), LLAppViewer::getTextureFetch()->getNumDeletes(),
 					LLAppViewer::getTextureFetch()->mPacketCount, LLAppViewer::getTextureFetch()->mBadPacketCount, 
@@ -566,19 +568,30 @@ void LLGLTexMemBar::draw()
 					LLAppViewer::getImageDecodeThread()->getPending(), 
 					gTextureList.mCreateTextureList.size());
 
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*2,
-									 text_color, LLFontGL::LEFT, LLFontGL::TOP);
+	x_right = 550.0;
+	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*3,
+											 text_color, LLFontGL::LEFT, LLFontGL::TOP,
+											 LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX,
+											 &x_right, FALSE);
 
-
-	left = 550;
 	F32 bandwidth = LLAppViewer::getTextureFetch()->getTextureBandwidth();
 	F32 max_bandwidth = gSavedSettings.getF32("ThrottleBandwidthKBPS");
-	color = bandwidth > max_bandwidth ? LLColor4::red : bandwidth > max_bandwidth*.75f ? LLColor4::yellow : text_color;
+	color = bandwidth > max_bandwidth ? LLColor4::red : bandwidth > max_bandwidth * .75f ? LLColor4::yellow : text_color;
 	color[VALPHA] = text_color[VALPHA];
-	text = llformat("BW:%.0f/%.0f",bandwidth, max_bandwidth);
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, left, v_offset + line_height*2,
+	text = llformat("BW:%.0f/%.0f", bandwidth, max_bandwidth);
+	LLFontGL::getFontMonospace()->renderUTF8(text, 0, x_right, v_offset + line_height*3,
 											 color, LLFontGL::LEFT, LLFontGL::TOP);
-	
+
+	// Mesh status line
+	text = llformat("Mesh: Reqs(Tot/Htp/Big): %u/%u/%u Rtr/Err: %u/%u Cread/Cwrite: %u/%u Low/At/High: %d/%d/%d",
+					LLMeshRepository::sMeshRequestCount, LLMeshRepository::sHTTPRequestCount, LLMeshRepository::sHTTPLargeRequestCount,
+					LLMeshRepository::sHTTPRetryCount, LLMeshRepository::sHTTPErrorCount,
+					LLMeshRepository::sCacheReads, LLMeshRepository::sCacheWrites,
+					LLMeshRepoThread::sRequestLowWater, LLMeshRepoThread::sRequestWaterLevel, LLMeshRepoThread::sRequestHighWater);
+	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*2,
+											 text_color, LLFontGL::LEFT, LLFontGL::TOP);
+
+	// Header for texture table columns
 	S32 dx1 = 0;
 	if (LLAppViewer::getTextureFetch()->mDebugPause)
 	{
@@ -621,7 +634,7 @@ BOOL LLGLTexMemBar::handleMouseDown(S32 x, S32 y, MASK mask)
 LLRect LLGLTexMemBar::getRequiredRect()
 {
 	LLRect rect;
-	rect.mTop = 50; //LLFontGL::getFontMonospace()->getLineHeight() * 6;
+	rect.mTop = 68; //LLFontGL::getFontMonospace()->getLineHeight() * 6;
 	return rect;
 }
 

@@ -1606,8 +1606,8 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				}
 				else
 				{
-					llinfos << "other: HTTP GET failed for: " << mUrl
-							<< " Status: " << mGetStatus.toHex()
+					llinfos << "HTTP GET failed for: " << mUrl
+							<< " Status: " << mGetStatus.toTerseString()
 							<< " Reason: '" << mGetReason << "'"
 							<< llendl;
 				}
@@ -1987,7 +1987,7 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 	}
 	
 	LL_DEBUGS("Texture") << "HTTP COMPLETE: " << mID
-						 << " status: " << status.toHex()
+						 << " status: " << status.toTerseString()
 						 << " '" << status.toString() << "'"
 						 << llendl;
 
@@ -2006,7 +2006,9 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 		success = false;
 		if (mFTType != FTT_MAP_TILE) // missing map tiles are normal, don't complain about them.
 		{
-			llwarns << mID << " CURL GET FAILED, status: " << status.toHex()
+			std::string reason(status.toString());
+			setGetStatus(status, reason);
+			llwarns << "CURL GET FAILED, status: " << status.toTerseString()
 					<< " reason: " << reason << llendl;
 		}
 	}
@@ -2505,11 +2507,10 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	mHttpOptionsWithHeaders = new LLCore::HttpOptions;
 	mHttpOptionsWithHeaders->setWantHeaders(true);
 	mHttpHeaders = new LLCore::HttpHeaders;
-	// *TODO: Should this be 'image/j2c' instead of 'image/x-j2c' ?
-	mHttpHeaders->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_IMAGE_X_J2C);
+	mHttpHeaders->append("Accept", "image/x-j2c");
 	mHttpMetricsHeaders = new LLCore::HttpHeaders;
-	mHttpMetricsHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_LLSD_XML);
-	mHttpPolicyClass = LLAppViewer::instance()->getAppCoreHttp().getPolicyDefault();
+	mHttpMetricsHeaders->append("Content-Type", "application/llsd+xml");
+	mHttpPolicyClass = LLAppViewer::instance()->getAppCoreHttp().getPolicy(LLAppCoreHttp::AP_TEXTURE);
 }
 
 LLTextureFetch::~LLTextureFetch()
@@ -3884,7 +3885,7 @@ public:
 		else
 		{
 			LL_WARNS("Texture") << "Error delivering asset metrics to grid.  Status:  "
-								<< status.toHex()
+								<< status.toTerseString()
 								<< ", Reason:  " << status.toString() << LL_ENDL;
 		}
 	}
@@ -4153,8 +4154,7 @@ void LLTextureFetchDebugger::init()
 	if (! mHttpHeaders)
 	{
 		mHttpHeaders = new LLCore::HttpHeaders;
-		// *TODO: Should this be 'image/j2c' instead of 'image/x-j2c' ?
-		mHttpHeaders->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_IMAGE_X_J2C);
+		mHttpHeaders->append("Accept", "image/x-j2c");
 	}
 }
 
@@ -4574,7 +4574,7 @@ S32 LLTextureFetchDebugger::fillCurlQueue()
 
 			LL_WARNS("Texture") << "Couldn't issue HTTP request in debugger for texture "
 								<< mFetchingHistory[i].mID
-								<< ", status: " << status.toHex()
+								<< ", status: " << status.toTerseString()
 								<< " reason:  " << status.toString()
 								<< LL_ENDL;
 			mFetchingHistory[i].mCurlState = FetchEntry::CURL_DONE;
@@ -4967,7 +4967,7 @@ void LLTextureFetchDebugger::callbackHTTP(FetchEntry & fetch, LLCore::HttpRespon
 	else //failed
 	{
 		llinfos << "Fetch Debugger : CURL GET FAILED,  ID = " << fetch.mID
-				<< ", status: " << status.toHex()
+				<< ", status: " << status.toTerseString()
 				<< " reason:  " << status.toString() << llendl;
 	}
 }

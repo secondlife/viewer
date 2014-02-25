@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2000&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2010-2013, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -1653,6 +1653,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 
 	capabilityNames.append("GetDisplayNames");
 	capabilityNames.append("GetMesh");
+	capabilityNames.append("GetMesh2");
 	capabilityNames.append("GetObjectCost");
 	capabilityNames.append("GetObjectPhysicsData");
 	capabilityNames.append("GetTexture");
