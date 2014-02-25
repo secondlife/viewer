@@ -122,6 +122,9 @@
   <color
       name="Blue_80"
       value="0 0 1 0.8" />
+  <color
+      name="Orange"
+      value="1 .82 .46 1" />
 
   <!-- This color name makes potentially unused colors show up bright purple.
   Leave this here until all Unused? are removed below, otherwise
@@ -510,6 +513,9 @@
     <color
      name="MapTrackColor"
      reference="Red" />
+    <color
+     name="MapTrackColorUnder"
+     reference="Blue" />
     <color
      name="MapTrackDisabledColor"
      value="0.5 0 0 1" />

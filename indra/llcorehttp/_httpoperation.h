@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -72,7 +72,7 @@ class HttpService;
 class HttpOperation : public LLCoreInt::RefCounted
 {
 public:
-	/// Threading:  called by a consumer/application thread.
+	/// Threading:  called by consumer thread.
 	HttpOperation();
 
 protected:
@@ -108,7 +108,7 @@ public:
 	///							by the worker thread.  This is passible data
 	///							until notification is performed.
 	///
-	/// Threading:  called by application thread.
+	/// Threading:  called by consumer thread.
 	///
 	void setReplyPath(HttpReplyQueue * reply_queue,
 					  HttpHandler * handler);
@@ -141,7 +141,7 @@ public:
 	/// call to HttpRequest::update().  This method does the necessary
 	/// dispatching.
 	///
-	/// Threading:  called by application thread.
+	/// Threading:  called by consumer thread.
 	///
 	virtual void visitNotifier(HttpRequest *);
 
