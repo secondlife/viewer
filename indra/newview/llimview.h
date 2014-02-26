@@ -93,7 +93,7 @@ public:
 		bool isGroupSessionType() const { return mSessionType == GROUP_SESSION;}
 		bool isAvalineSessionType() const { return mSessionType == AVALINE_SESSION;}
 
-		LLUUID generateOutgouigAdHocHash() const;
+		LLUUID generateOutgoingAdHocHash() const;
 
 		//*TODO make private
 		/** ad-hoc sessions involve sophisticated chat history file naming schemes */

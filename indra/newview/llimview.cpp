@@ -785,7 +785,7 @@ bool LLIMModel::LLIMSession::isOtherParticipantAvaline()
 	return !mOtherParticipantIsAvatar;
 }
 
-LLUUID LLIMModel::LLIMSession::generateOutgouigAdHocHash() const
+LLUUID LLIMModel::LLIMSession::generateOutgoingAdHocHash() const
 {
 	LLUUID hash = LLUUID::null;
 

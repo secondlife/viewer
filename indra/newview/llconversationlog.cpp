@@ -72,7 +72,7 @@ LLConversation::LLConversation(const LLIMModel::LLIMSession& session)
 	mConversationType(session.mSessionType),
 	mConversationName(session.mName),
 	mHistoryFileName(session.mHistoryFileName),
-	mSessionID(session.isOutgoingAdHoc() ? session.generateOutgouigAdHocHash() : session.mSessionID),
+	mSessionID(session.isOutgoingAdHoc() ? session.generateOutgoingAdHocHash() : session.mSessionID),
 	mParticipantID(session.mOtherParticipantID),
 	mHasOfflineIMs(session.mHasOfflineMessage)
 {
@@ -313,7 +313,7 @@ LLConversation* LLConversationLog::findConversation(const LLIMModel::LLIMSession
 {
 	if (session)
 	{
-		const LLUUID session_id = session->isOutgoingAdHoc() ? session->generateOutgouigAdHocHash() : session->mSessionID;
+		const LLUUID session_id = session->isOutgoingAdHoc() ? session->generateOutgoingAdHocHash() : session->mSessionID;
 
 		conversations_vec_t::iterator conv_it = mConversations.begin();
 		for(; conv_it != mConversations.end(); ++conv_it)
