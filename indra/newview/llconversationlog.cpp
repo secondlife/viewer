@@ -55,7 +55,7 @@ struct ConversationParams : public LLInitParam::Block<ConversationParams>
 
 LLConversation::LLConversation(const ConversationParams& params)
 :	mTime(params.time),
-	mTimestamp(params.timestamp),
+	mTimestamp(params.timestamp.isProvided() ? params.timestamp : createTimestamp(params.time)),
 	mConversationType(params.conversation_type),
 	mConversationName(params.conversation_name),
 	mHistoryFileName(params.history_filename),
