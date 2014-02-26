@@ -113,7 +113,7 @@ public:
 	LLPointer<LLImageFormatted>	getFormattedImage();
 	LLPointer<LLImageRaw>		getEncodedImage();
 
-	/// Sets size of preview thumbnail image and thhe surrounding rect.
+	/// Sets size of preview thumbnail image and the surrounding rect.
 	void setThumbnailPlaceholderRect(const LLRect& rect) {mThumbnailPlaceholderRect = rect; }
 	BOOL setThumbnailImageSize() ;
 	void generateThumbnailImage(BOOL force_update = FALSE) ;

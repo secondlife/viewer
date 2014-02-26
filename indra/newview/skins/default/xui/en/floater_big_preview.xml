@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<floater
+  positioning="cascading"
+  can_close="true"
+  can_resize="false"
+  can_minimize="false"
+  help_topic="floater_big_preview"
+  layout="topleft"
+  name="floater_big_preview"
+  save_rect="true"
+  single_instance="true"
+  reuse_instance="true"
+  title="PREVIEW"
+  height="465"
+  width="770">
+  <panel
+   height="450"
+   width="750"
+   visible="true"
+   name="big_preview_placeholder"
+   top="5"
+   follows="all"
+   left="10">
+  </panel>
+</floater>

@@ -44,6 +44,7 @@
 #include "llslurl.h"
 #include "lltrans.h"
 #include "llsnapshotlivepreview.h"
+#include "llfloaterbigpreview.h"
 #include "llviewerregion.h"
 #include "llviewercontrol.h"
 #include "llviewermedia.h"
@@ -76,6 +77,7 @@ mPostButton(NULL)
 {
 	mCommitCallbackRegistrar.add("SocialSharing.SendPhoto", boost::bind(&LLFlickrPhotoPanel::onSend, this));
 	mCommitCallbackRegistrar.add("SocialSharing.RefreshPhoto", boost::bind(&LLFlickrPhotoPanel::onClickNewSnapshot, this));
+	mCommitCallbackRegistrar.add("SocialSharing.BigPreview", boost::bind(&LLFlickrPhotoPanel::onClickBigPreview, this));
 }
 
 LLFlickrPhotoPanel::~LLFlickrPhotoPanel()
@@ -227,7 +229,7 @@ void LLFlickrPhotoPanel::onVisibilityChange(const LLSD& new_visibility)
 			LLSnapshotLivePreview::Params p;
 			p.rect(full_screen_rect);
 			LLSnapshotLivePreview* previewp = new LLSnapshotLivePreview(p);
-			mPreviewHandle = previewp->getHandle();	
+			mPreviewHandle = previewp->getHandle();
 
             previewp->setContainer(this);
 			previewp->setSnapshotType(previewp->SNAPSHOT_WEB);
@@ -249,6 +251,18 @@ void LLFlickrPhotoPanel::onClickNewSnapshot()
 	{
 		previewp->updateSnapshot(TRUE);
 	}
+}
+
+void LLFlickrPhotoPanel::onClickBigPreview()
+{
+	LLFloaterBigPreview* big_preview_floater = dynamic_cast<LLFloaterBigPreview*>(LLFloaterReg::getInstance("big_preview"));
+	if (big_preview_floater)
+	{
+        LLSnapshotLivePreview* previewp = getPreviewView();
+		big_preview_floater->setPreview(previewp);
+        big_preview_floater->setFloaterOwner(getParentByType<LLFloater>());
+	}
+	LLFloaterReg::showInstance("big_preview");
 }
 
 void LLFlickrPhotoPanel::onSend()
@@ -340,6 +354,11 @@ void LLFlickrPhotoPanel::clearAndClose()
 	LLFloater* floater = getParentByType<LLFloater>();
 	if (floater)
 	{
+        LLFloaterBigPreview* big_preview_floater = dynamic_cast<LLFloaterBigPreview*>(LLFloaterReg::getInstance("big_preview"));
+        if (big_preview_floater)
+        {
+            big_preview_floater->closeOnFloaterOwnerClosing(floater);
+        }
 		floater->closeFloater();
 	}
 }
@@ -615,8 +634,23 @@ LLFloaterFlickr::LLFloaterFlickr(const LLSD& key) : LLFloater(key),
 	mCommitCallbackRegistrar.add("SocialSharing.Cancel", boost::bind(&LLFloaterFlickr::onCancel, this));
 }
 
+void LLFloaterFlickr::onClose(bool app_quitting)
+{
+    LLFloaterBigPreview* big_preview_floater = dynamic_cast<LLFloaterBigPreview*>(LLFloaterReg::getInstance("big_preview"));
+    if (big_preview_floater)
+    {
+        big_preview_floater->closeOnFloaterOwnerClosing(this);
+    }
+	LLFloater::onClose(app_quitting);
+}
+
 void LLFloaterFlickr::onCancel()
 {
+    LLFloaterBigPreview* big_preview_floater = dynamic_cast<LLFloaterBigPreview*>(LLFloaterReg::getInstance("big_preview"));
+    if (big_preview_floater)
+    {
+        big_preview_floater->closeOnFloaterOwnerClosing(this);
+    }
     closeFloater();
 }
 

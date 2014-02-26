@@ -38,6 +38,7 @@
 #include "llfloateravatar.h"
 #include "llfloateravatarpicker.h"
 #include "llfloateravatartextures.h"
+#include "llfloaterbigpreview.h"
 #include "llfloaterbeacons.h"
 #include "llfloaterbuildoptions.h"
 #include "llfloaterbuy.h"
@@ -324,6 +325,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("facebook", "floater_facebook.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterFacebook>);
 	LLFloaterReg::add("flickr", "floater_flickr.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterFlickr>);
 	LLFloaterReg::add("twitter", "floater_twitter.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterTwitter>);
+	LLFloaterReg::add("big_preview", "floater_big_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterBigPreview>);
 	
 	LLFloaterUIPreviewUtil::registerFloater();
 	LLFloaterReg::add("upload_anim_bvh", "floater_animation_bvh_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterBvhPreview>, "upload");

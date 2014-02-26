@@ -48,6 +48,7 @@ public:
 	LLSnapshotLivePreview* getPreviewView();
 	void onVisibilityChange(const LLSD& new_visibility);
 	void onClickNewSnapshot();
+    void onClickBigPreview();
 	void onSend();
 	bool onFlickrConnectStateChange(const LLSD& data);
 
@@ -111,6 +112,7 @@ public:
 	LLFloaterFlickr(const LLSD& key);
 	BOOL postBuild();
 	void draw();
+	void onClose(bool app_quitting);
 	void onCancel();
 	
 	void showPhotoPanel();
