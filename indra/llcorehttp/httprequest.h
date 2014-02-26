@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -56,6 +56,9 @@ class BufferArray;
 /// The class supports the current HTTP request operations:
 ///
 /// - requestGetByteRange:  GET with Range header for a single range of bytes
+/// - requestGet:
+/// - requestPost:
+/// - requestPut:
 ///
 /// Policy Classes
 ///
@@ -100,9 +103,26 @@ public:
 
 	/// Represents a default, catch-all policy class that guarantees
 	/// eventual service for any HTTP request.
-	static const int DEFAULT_POLICY_ID = 0;
+	static const policy_t DEFAULT_POLICY_ID = 0;
+	static const policy_t INVALID_POLICY_ID = 0xFFFFFFFFU;
+	static const policy_t GLOBAL_POLICY_ID = 0xFFFFFFFEU;
 
-	enum EGlobalPolicy
+	/// Create a new policy class into which requests can be made.
+	///
+	/// All class creation must occur before threads are started and
+	/// transport begins.  Policy classes are limited to a small value.
+	/// Currently that limit is the default class + 1.
+	///
+	/// @return			If positive, the policy_id used to reference
+	///					the class in other methods.  If 0, requests
+	///					for classes have exceeded internal limits
+	///					or caller has tried to create a class after
+	///					threads have been started.  Caller must fallback
+	///					and recover.
+	///
+	static policy_t createPolicyClass();
+
+	enum EPolicyOption
 	{
 		/// Maximum number of connections the library will use to
 		/// perform operations.  This is somewhat soft as the underlying
@@ -113,24 +133,40 @@ public:
 		/// a somewhat soft value.  There may be an additional five
 		/// connections per policy class depending upon runtime
 		/// behavior.
-		GP_CONNECTION_LIMIT,
+		///
+		/// Both global and per-class
+		PO_CONNECTION_LIMIT,
+
+		/// Limits the number of connections used for a single
+		/// literal address/port pair within the class.
+		///
+		/// Per-class only
+		PO_PER_HOST_CONNECTION_LIMIT,
 
 		/// String containing a system-appropriate directory name
 		/// where SSL certs are stored.
-		GP_CA_PATH,
+		///
+		/// Global only
+		PO_CA_PATH,
 
 		/// String giving a full path to a file containing SSL certs.
-		GP_CA_FILE,
+		///
+		/// Global only
+		PO_CA_FILE,
 
 		/// String of host/port to use as simple HTTP proxy.  This is
 		/// going to change in the future into something more elaborate
 		/// that may support richer schemes.
-		GP_HTTP_PROXY,
+		///
+		/// Global only
+		PO_HTTP_PROXY,
 
 		/// Long value that if non-zero enables the use of the
 		/// traditional LLProxy code for http/socks5 support.  If
-		/// enabled, has priority over GP_HTTP_PROXY.
-		GP_LLPROXY,
+		// enabled, has priority over GP_HTTP_PROXY.
+		///
+		/// Global only
+		PO_LLPROXY,
 
 		/// Long value setting the logging trace level for the
 		/// library.  Possible values are:
@@ -143,50 +179,59 @@ public:
 		/// These values are also used in the trace modes for
 		/// individual requests in HttpOptions.  Also be aware that
 		/// tracing tends to impact performance of the viewer.
-		GP_TRACE
-	};
-
-	/// Set a parameter on a global policy option.  Calls
-	/// made after the start of the servicing thread are
-	/// not honored and return an error status.
-	///
-	/// @param opt		Enum of option to be set.
-	/// @param value	Desired value of option.
-	/// @return			Standard status code.
-	static HttpStatus setPolicyGlobalOption(EGlobalPolicy opt, long value);
-	static HttpStatus setPolicyGlobalOption(EGlobalPolicy opt, const std::string & value);
-
-	/// Create a new policy class into which requests can be made.
-	///
-	/// @return			If positive, the policy_id used to reference
-	///					the class in other methods.  If 0, an error
-	///					occurred and @see getStatus() may provide more
-	///					detail on the reason.
-	static policy_t createPolicyClass();
-
-	enum EClassPolicy
-	{
-		/// Limits the number of connections used for the class.
-		CP_CONNECTION_LIMIT,
-
-		/// Limits the number of connections used for a single
-		/// literal address/port pair within the class.
-		CP_PER_HOST_CONNECTION_LIMIT,
+		///
+		/// Global only
+		PO_TRACE,
 
 		/// Suitable requests are allowed to pipeline on their
 		/// connections when they ask for it.
-		CP_ENABLE_PIPELINING
+		///
+		/// Per-class only
+		PO_ENABLE_PIPELINING,
+
+		/// Controls whether client-side throttling should be
+		/// performed on this policy class.  Positive values
+		/// enable throttling and specify the request rate
+		/// (requests per second) that should be targetted.
+		/// A value of zero, the default, specifies no throttling.
+		///
+		/// Per-class only
+		PO_THROTTLE_RATE,
+		
+		PO_LAST  // Always at end
 	};
-	
+
+	/// Set a policy option for a global or class parameter at
+	/// startup time (prior to thread start).
+	///
+	/// @param opt			Enum of option to be set.
+	/// @param pclass		For class-based options, the policy class ID to
+	///					    be changed.  For globals, specify GLOBAL_POLICY_ID.
+	/// @param value		Desired value of option.
+	/// @param ret_value	Pointer to receive effective set value
+	///						if successful.  May be NULL if effective
+	///						value not wanted.
+	/// @return				Standard status code.
+	static HttpStatus setStaticPolicyOption(EPolicyOption opt, policy_t pclass,
+											long value, long * ret_value);
+	static HttpStatus setStaticPolicyOption(EPolicyOption opt, policy_t pclass,
+											const std::string & value, std::string * ret_value);
+
 	/// Set a parameter on a class-based policy option.  Calls
 	/// made after the start of the servicing thread are
 	/// not honored and return an error status.
 	///
-	/// @param policy_id		ID of class as returned by @see createPolicyClass().
-	/// @param opt				Enum of option to be set.
-	/// @param value			Desired value of option.
-	/// @return					Standard status code.
-	static HttpStatus setPolicyClassOption(policy_t policy_id, EClassPolicy opt, long value);
+	/// @param opt			Enum of option to be set.
+	/// @param pclass		For class-based options, the policy class ID to
+	///					    be changed.  Ignored for globals but recommend
+	///					    using INVALID_POLICY_ID in this case.
+	/// @param value		Desired value of option.
+	/// @return				Handle of dynamic request.  Use @see getStatus() if
+	///						the returned handle is invalid.
+	HttpHandle setPolicyOption(EPolicyOption opt, policy_t pclass, long value,
+							   HttpHandler * handler);
+	HttpHandle setPolicyOption(EPolicyOption opt, policy_t pclass, const std::string & value,
+							   HttpHandler * handler);
 
 	/// @}
 
@@ -488,16 +533,6 @@ public:
 
 	/// @}
 	
-	/// @name DynamicPolicyMethods
-	///
-	/// @{
-
-	/// Request that a running transport pick up a new proxy setting.
-	/// An empty string will indicate no proxy is to be used.
-	HttpHandle requestSetHttpProxy(const std::string & proxy, HttpHandler * handler);
-
-    /// @}
-
 protected:
 	void generateNotification(HttpOperation * op);
 
@@ -519,7 +554,6 @@ private:
 	/// Must be established before any threading is allowed to
 	/// start.
 	///
-	static policy_t		sNextPolicyID;
 	
 	/// @}
 	// End Global State
