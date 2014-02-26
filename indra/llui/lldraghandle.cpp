@@ -315,14 +315,15 @@ BOOL LLDragHandle::handleHover(S32 x, S32 y, MASK mask)
 		S32 delta_y = screen_y - mDragLastScreenY;
 
 		// if dragging a docked floater we want to undock
-		if (((LLFloater*)getParent())->isDocked())
+		LLFloater * parent = dynamic_cast<LLFloater *>(getParent());
+		if (parent && parent->isDocked())
 		{
 			const S32 SLOP = 12;
 
 			if (delta_y <= -SLOP || 
 				delta_y >= SLOP)
 			{
-				((LLFloater*)getParent())->setDocked(false, false);
+				parent->setDocked(false, false);
 				return TRUE;
 			}
 			else

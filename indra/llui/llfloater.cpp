@@ -1146,7 +1146,11 @@ void LLFloater::handleReshape(const LLRect& new_rect, bool by_user)
 
 	if (by_user && !getHost())
 	{
-		static_cast<LLFloaterView*>(getParent())->adjustToFitScreen(this, !isMinimized());
+		LLFloaterView * floaterVp = dynamic_cast<LLFloaterView*>(getParent());
+		if (floaterVp)
+		{
+			floaterVp->adjustToFitScreen(this, !isMinimized());
+		}
 	}
 
 	// if not minimized, adjust all snapped dependents to new shape
@@ -1357,7 +1361,8 @@ void LLFloater::setFocus( BOOL b )
 	if (b)
 	{
 		// only push focused floaters to front of stack if not in midst of ctrl-tab cycle
-		if (!getHost() && !((LLFloaterView*)getParent())->getCycleMode())
+		LLFloaterView * parent = dynamic_cast<LLFloaterView *>(getParent());
+		if (!getHost() && parent && !parent->getCycleMode())
 		{
 			if (!isFrontmost())
 			{
@@ -1627,7 +1632,7 @@ void LLFloater::bringToFront( S32 x, S32 y )
 		}
 		else
 		{
-			LLFloaterView* parent = (LLFloaterView*) getParent();
+			LLFloaterView* parent = dynamic_cast<LLFloaterView*>( getParent() );
 			if (parent)
 			{
 				parent->bringToFront( this );
@@ -1666,7 +1671,11 @@ void LLFloater::setFrontmost(BOOL take_focus)
 	{
 		// there are more than one floater view
 		// so we need to query our parent directly
-		((LLFloaterView*)getParent())->bringToFront(this, take_focus);
+		LLFloaterView * parent = dynamic_cast<LLFloaterView*>( getParent() );
+		if (parent)
+		{
+			parent->bringToFront(this, take_focus);
+		}
 
 		// Make sure to set the appropriate transparency type (STORM-732).
 		updateTransparency(hasFocus() || getIsChrome() ? TT_ACTIVE : TT_INACTIVE);
@@ -2396,6 +2405,9 @@ LLRect LLFloaterView::findNeighboringPosition( LLFloater* reference_floater, LLF
 
 void LLFloaterView::bringToFront(LLFloater* child, BOOL give_focus)
 {
+	if (!child)
+		return;
+
 	if (mFrontChild == child)
 	{
 		if (give_focus && !gFocusMgr.childHasKeyboardFocus(child))
@@ -2874,10 +2886,13 @@ LLFloater *LLFloaterView::getFocusedFloater() const
 {
 	for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
 	{
-		LLUICtrl* ctrlp = (*child_it)->isCtrl() ? static_cast<LLUICtrl*>(*child_it) : NULL;
-		if ( ctrlp && ctrlp->hasFocus() )
+		if ((*child_it)->isCtrl())
 		{
-			return static_cast<LLFloater *>(ctrlp);
+			LLFloater* ctrlp = dynamic_cast<LLFloater*>(*child_it);
+			if ( ctrlp && ctrlp->hasFocus() )
+			{
+				return ctrlp;
+			}
 		}
 	}
 	return NULL;
