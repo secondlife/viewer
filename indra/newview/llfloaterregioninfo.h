@@ -61,6 +61,7 @@ class LLPanelRegionTerrainInfo;
 class LLPanelEstateInfo;
 class LLPanelEstateCovenant;
 class LLPanelExperienceListEditor;
+class LLPanelExperiences;
 
 class LLEventTimer;
 class LLEnvironmentSettings;
@@ -461,10 +462,12 @@ public:
 	virtual BOOL sendUpdate();
 
 	static void infoCallback(LLHandle<LLPanelRegionExperiences> handle, const LLSD& content);
-
 	void listChanged();
 	bool refreshFromRegion(LLViewerRegion* region);
+	void sendPurchaseRequest()const;
 private:
+	static void ownedCallback(LLHandle<LLPanelRegionExperiences> handle, const LLSD& content);
+	void setOwnedExperiences(const LLSD& experiences);
 	void processResponse( const LLSD& content );
 	boost::signals2::connection processResponse( LLPanelExperienceListEditor* panel, boost::signals2::connection& connection, const LLSD& content);
 	void refreshRegionExperiences();
@@ -473,6 +476,8 @@ private:
 	static LLSD addIds( LLPanelExperienceListEditor* panel );
 	bool FilterExisting(const LLSD& experience );
 
+
+	LLPanelExperiences*		     mOwned;
 	LLPanelExperienceListEditor* mTrusted;
 	boost::signals2::connection  mTrustedConnection;
 	LLPanelExperienceListEditor* mAllowed;

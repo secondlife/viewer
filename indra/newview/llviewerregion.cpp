@@ -1601,6 +1601,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 
 	capabilityNames.append("GetDisplayNames");
 	capabilityNames.append("GetExperiences");
+	capabilityNames.append("AgentExperiences");
 	capabilityNames.append("FindExperienceByName");
 	capabilityNames.append("GetExperienceInfo");
 	capabilityNames.append("GetAdminExperiences");

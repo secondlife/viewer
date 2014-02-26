@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
   border="true"
-  follows="top|left"
+  follows="all"
   height="320"
   help_topic="panel_region_experience_tab"
   label="Experiences"
@@ -27,11 +27,44 @@
     left="5"
     layout="topleft"
     follows="all"
-    top="100"
+    top="0"
     right="-5"
-    height="140"
+    height="320"
     min_height="140"
     orientation="vertical">
+    <layout_panel
+      layout="topleft"
+      height="100"
+      min_height="100"
+      width="530">
+      <text
+        layout="topleft"
+        follows="left|top"
+        height="18"
+        left="0"
+        top="4"
+        value="Your Experiences"
+        width="460"/>
+      <button
+        layout="topleft"
+        left="464"
+        top="4"
+        follows="top|right"
+        width="64"
+        name="btn_buy"
+        label="Buy"
+        enabled="false"/>
+      <panel
+        layout="topleft"
+        border="true"
+        left="0"
+        top="22"
+        height="74"
+        follows="all"
+        width="460"
+        name="panel_owned">        
+      </panel>      
+    </layout_panel>
     <layout_panel
       height="100"
       min_height="100"
