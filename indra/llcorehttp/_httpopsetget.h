@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -46,7 +46,10 @@ namespace LLCore
 /// configuration settings.
 ///
 /// *NOTE:  Expect this to change.  Don't really like it yet.
-
+///
+/// *TODO:  Can't return values to caller yet.  Need to do
+/// something better with HttpResponse and visitNotifier().
+///
 class HttpOpSetGet : public HttpOperation
 {
 public:
@@ -61,19 +64,23 @@ private:
 
 public:
 	/// Threading:  called by application thread
-	void setupGet(HttpRequest::EGlobalPolicy setting);
-	void setupSet(HttpRequest::EGlobalPolicy setting, const std::string & value);
+	HttpStatus setupGet(HttpRequest::EPolicyOption opt, HttpRequest::policy_t pclass);
+	HttpStatus setupSet(HttpRequest::EPolicyOption opt, HttpRequest::policy_t pclass, long value);
+	HttpStatus setupSet(HttpRequest::EPolicyOption opt, HttpRequest::policy_t pclass, const std::string & value);
 
 	virtual void stageFromRequest(HttpService *);
 
 public:
 	// Request data
-	bool				mIsGlobal;
-	bool				mDoSet;
-	int					mSetting;
-	long				mLongValue;
-	std::string			mStrValue;
+	HttpRequest::EPolicyOption	mReqOption;
+	HttpRequest::policy_t		mReqClass;
+	bool						mReqDoSet;
+	long						mReqLongValue;
+	std::string					mReqStrValue;
 
+	// Reply Data
+	long						mReplyLongValue;
+	std::string					mReplyStrValue;
 };  // end class HttpOpSetGet
 
 

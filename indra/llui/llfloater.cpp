@@ -505,36 +505,29 @@ void LLFloater::destroy()
 // virtual
 LLFloater::~LLFloater()
 {
-	LL_INFOS("Baker") << "[3555] ~LLFloater() -------------------------------------------------" << LL_ENDL;
+	LL_INFOS("Baker") << "[3555] ~LLFloater() -- " << getTitle() << ":" << (void*) this << " ----------------------" << LL_ENDL;
 	
 	LLFloaterReg::removeInstance(mInstanceName, mKey);
 	
-	LL_INFOS("Baker") << "[3555] ~LLFloater() - Does child have keyboard focus?" << LL_ENDL;
 	if( gFocusMgr.childHasKeyboardFocus(this))
 	{
-		LL_INFOS("Baker") << "[3555] ~LLFloater() - Yes, release the focus." << LL_ENDL;
+		LL_INFOS("Baker") << "[3555] ~LLFloater() - Release keybaord focus." << LL_ENDL;
 		// Just in case we might still have focus here, release it.
 		releaseFocus();
 	}
 
-	LL_INFOS("Baker") << "[3555] ~LLFloater() - Setting minimized to false" << LL_ENDL;
 	// This is important so that floaters with persistent rects (i.e., those
 	// created with rect control rather than an LLRect) are restored in their
 	// correct, non-minimized positions.
 	setMinimized( FALSE );
 
-	LL_INFOS("Baker") << "[3555] ~LLFloater() - Deleting the drag handle." << LL_ENDL;
 	delete mDragHandle;
 	for (S32 i = 0; i < 4; i++) 
 	{
-		LL_INFOS("Baker") << "[3555] ~LLFloater() - Deleting mResizeBar[" << i << "]" << LL_ENDL;
 		delete mResizeBar[i];
-
-		LL_INFOS("Baker") << "[3555] ~LLFloater() - Deleting mResizeHandle[" << i << "]" << LL_ENDL;
 		delete mResizeHandle[i];
 	}
 
-	LL_INFOS("Baker") << "[3555] ~LLFloater() - Setting visibility (false)" << LL_ENDL;
 	setVisible(false); // We're not visible if we're destroyed
 	
 	LL_INFOS("Baker") << "[3555] ~LLFloater() - Storing visibility control" << LL_ENDL;
@@ -542,11 +535,9 @@ LLFloater::~LLFloater()
 	
 	LL_INFOS("Baker") << "[3555] ~LLFloater() - Storing dock state control" << LL_ENDL;
 	storeDockStateControl();
-
-	LL_INFOS("Baker") << "[3555] ~LLFloater() - Delete mMinimizeSignal" << LL_ENDL;
 	delete mMinimizeSignal;
 
-	LL_INFOS("Baker") << "[3555] Exiting ~LLFloater()" << LL_ENDL;
+	LL_INFOS("Baker") << "[3555] Exiting ~LLFloater() " << (void*) this << LL_ENDL;
 }
 
 void LLFloater::storeRectControl()
