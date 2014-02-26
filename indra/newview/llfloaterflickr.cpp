@@ -49,6 +49,7 @@
 #include "llviewermedia.h"
 #include "lltabcontainer.h"
 #include "llviewerparcelmgr.h"
+#include "llviewerregion.h"
 
 static LLRegisterPanelClassWrapper<LLFlickrPhotoPanel> t_panel_photo("llflickrphotopanel");
 static LLRegisterPanelClassWrapper<LLFlickrAccountPanel> t_panel_account("llflickraccountpanel");
@@ -56,6 +57,7 @@ static LLRegisterPanelClassWrapper<LLFlickrAccountPanel> t_panel_account("llflic
 const S32 MAX_POSTCARD_DATASIZE = 1024 * 1024; // one megabyte
 const std::string DEFAULT_PHOTO_QUERY_PARAMETERS = "?sourceid=slshare_photo&utm_source=flickr&utm_medium=photo&utm_campaign=slshare";
 const std::string DEFAULT_TAG_TEXT = "secondlife ";
+const std::string FLICKR_MACHINE_TAGS_NAMESPACE = "secondlife";
 
 ///////////////////////////
 //LLFlickrPhotoPanel///////
@@ -318,6 +320,26 @@ void LLFlickrPhotoPanel::sendPhoto()
 			description = slurl_string;
 		else
 			description = description + "\n\n" + slurl_string;
+
+		// Also add special "machine tags" with location metadata
+		const LLVector3& agent_pos_region = gAgent.getPositionAgent();
+		LLViewerRegion* region = gAgent.getRegion();
+		LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+		if (region && parcel)
+		{
+			S32 pos_x = S32(agent_pos_region.mV[VX]);
+			S32 pos_y = S32(agent_pos_region.mV[VY]);
+			S32 pos_z = S32(agent_pos_region.mV[VZ]);
+			
+			std::string parcel_name = LLViewerParcelMgr::getInstance()->getAgentParcelName();
+			std::string region_name = region->getName();
+			
+			tags += llformat(" \"%s:region=%s\"", FLICKR_MACHINE_TAGS_NAMESPACE.c_str(), region_name.c_str());
+			tags += llformat(" \"%s:parcel=%s\"", FLICKR_MACHINE_TAGS_NAMESPACE.c_str(), parcel_name.c_str());
+			tags += llformat(" \"%s:x=%d\"", FLICKR_MACHINE_TAGS_NAMESPACE.c_str(), pos_x);
+			tags += llformat(" \"%s:y=%d\"", FLICKR_MACHINE_TAGS_NAMESPACE.c_str(), pos_y);
+			tags += llformat(" \"%s:z=%d\"", FLICKR_MACHINE_TAGS_NAMESPACE.c_str(), pos_z);
+		}
 	}
 
 	// Get the content rating
