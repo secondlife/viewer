@@ -75,7 +75,8 @@ LLSnapshotLivePreview::LLSnapshotLivePreview (const LLSnapshotLivePreview::Param
 	mColor(1.f, 0.f, 0.f, 0.5f), 
 	mCurImageIndex(0),
 	mPreviewImage(NULL),
-	mThumbnailImage(NULL) ,
+    mThumbnailImage(NULL) ,
+    mBigThumbnailImage(NULL) ,
 	mThumbnailWidth(0),
 	mThumbnailHeight(0),
     mThumbnailSubsampled(FALSE),
@@ -115,6 +116,7 @@ LLSnapshotLivePreview::LLSnapshotLivePreview (const LLSnapshotLivePreview::Param
 	mKeepAspectRatio = gSavedSettings.getBOOL("KeepAspectForSnapshot") ;
 	mThumbnailUpdateLock = FALSE ;
 	mThumbnailUpToDate   = FALSE ;
+	mBigThumbnailUpToDate = FALSE ;
 }
 
 LLSnapshotLivePreview::~LLSnapshotLivePreview()
@@ -205,6 +207,7 @@ void LLSnapshotLivePreview::updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail
 	if (new_thumbnail)
 	{
 		mThumbnailUpToDate = FALSE ;
+        mBigThumbnailUpToDate = FALSE;
 	}
 }
 
@@ -602,6 +605,55 @@ void LLSnapshotLivePreview::generateThumbnailImage(BOOL force_update)
 	mThumbnailUpdateLock = FALSE ;		
 }
 
+LLViewerTexture* LLSnapshotLivePreview::getBigThumbnailImage()
+{
+	if (mThumbnailUpdateLock) //in the process of updating
+	{
+		return NULL;
+	}
+	if (mBigThumbnailUpToDate && mBigThumbnailImage)//already updated
+	{
+		return mBigThumbnailImage;
+	}
+    
+	LLPointer<LLImageRaw> raw = new LLImageRaw;
+    
+    // The big thumbnail is be a subsampled version of the preview (used in SL Share previews, i.e. Flickr, Twitter, Facebook)
+    raw->resize( mPreviewImage->getWidth(),
+                mPreviewImage->getHeight(),
+                mPreviewImage->getComponents());
+    raw->copy(mPreviewImage);
+    // Scale to the big thumbnail size
+    if (!raw->scale(getBigThumbnailWidth(), getBigThumbnailHeight()))
+    {
+        raw = NULL ;
+    }
+    
+	if (raw)
+	{
+        // Filter
+        // Note: filtering needs to be done *before* the scaling to power of 2 or the effect is distorted
+        if (getFilter() != "")
+        {
+            std::string filter_path = LLImageFiltersManager::getInstance()->getFilterPath(getFilter());
+            if (filter_path != "")
+            {
+                LLImageFilter filter(filter_path);
+                filter.executeFilter(raw);
+            }
+            else
+            {
+                llwarns << "Couldn't find a path to the following filter : " << getFilter() << llendl;
+            }
+        }
+        // Scale to a power of 2 so it can be mapped to a texture
+        raw->expandToPowerOfTwo();
+		mBigThumbnailImage = LLViewerTextureManager::getLocalTexture(raw.get(), FALSE);
+		mBigThumbnailUpToDate = TRUE ;
+	}
+    
+    return mBigThumbnailImage ;
+}
 
 // Called often. Checks whether it's time to grab a new snapshot and if so, does it.
 // Returns TRUE if new snapshot generated, FALSE otherwise.

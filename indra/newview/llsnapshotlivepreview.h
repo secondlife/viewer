@@ -120,6 +120,11 @@ public:
 	void resetThumbnailImage() { mThumbnailImage = NULL ; }
 	void drawPreviewRect(S32 offset_x, S32 offset_y) ;
 
+    
+	LLViewerTexture* getBigThumbnailImage();
+	S32  getBigThumbnailWidth() const { return 3*mThumbnailWidth ; }
+	S32  getBigThumbnailHeight() const { return 3*mThumbnailHeight ; }
+
 	// Returns TRUE when snapshot generated, FALSE otherwise.
 	static BOOL onIdle( void* snapshot_preview );
 
@@ -145,7 +150,10 @@ private:
 	BOOL                        mThumbnailUpdateLock ;
 	BOOL                        mThumbnailUpToDate ;
 	LLRect                      mThumbnailPlaceholderRect;
-    BOOL                        mThumbnailSubsampled; // TRUE is the thumbnail is a subsampled version of the mPreviewImage
+    BOOL                        mThumbnailSubsampled; // TRUE if the thumbnail is a subsampled version of the mPreviewImage
+    
+	LLPointer<LLViewerTexture>	mBigThumbnailImage ;
+    BOOL                        mBigThumbnailUpToDate;
 
 	S32							mCurImageIndex;
     // The logic is mPreviewImage (raw frame) -> mFormattedImage (formatted / filtered) -> mPreviewImageEncoded (decoded back, to show artifacts)

@@ -78,7 +78,7 @@ void LLFloaterBigPreview::draw()
     // Display the preview if one is available
     // HACK!!! We use the puny thumbnail image for the moment
     // *TODO : Use the real large preview
-	if (previewp && previewp->getThumbnailImage())
+	if (previewp && previewp->getBigThumbnailImage())
 	{
 		const LLRect& preview_rect = mPreviewPlaceholder->getRect();
 //		const S32 thumbnail_w = previewp->getThumbnailWidth();
@@ -93,9 +93,7 @@ void LLFloaterBigPreview::draw()
 		// calc preview offset within the floater rect
 		S32 offset_x = preview_rect.mLeft   + local_offset_x;
 		S32 offset_y = preview_rect.mBottom + local_offset_y;
-        
-        //llinfos << "Merov : draw, offset x = " << offset_x  << ", y = " <<  offset_y << ", thumbnail w = " <<  thumbnail_w << ", h = " <<  thumbnail_h << ", rect w = " << preview_rect.getWidth() << ", h = " << preview_rect.getHeight() << llendl;
-        
+                
 		gGL.matrixMode(LLRender::MM_MODELVIEW);
 		// Apply floater transparency to the texture unless the floater is focused.
 		F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
@@ -103,7 +101,7 @@ void LLFloaterBigPreview::draw()
 		gl_draw_scaled_image(offset_x, offset_y,
                              //thumbnail_w, thumbnail_h,
                              preview_rect.getWidth(), preview_rect.getHeight(),
-                             previewp->getThumbnailImage(), color % alpha);
+                             previewp->getBigThumbnailImage(), color % alpha);
 	}
 }
 

@@ -2,7 +2,7 @@
 <floater
   positioning="cascading"
   can_close="true"
-  can_resize="false"
+  can_resize="true"
   can_minimize="false"
   help_topic="floater_big_preview"
   layout="topleft"
