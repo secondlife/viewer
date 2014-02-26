@@ -545,6 +545,9 @@ void LLSnapshotLivePreview::generateThumbnailImage(BOOL force_update)
 		return ;
 	}
 
+    // Invalidate the big thumbnail when we regenerate the small one
+    mBigThumbnailUpToDate = FALSE;
+
 	if(mThumbnailImage)
 	{
 		resetThumbnailImage() ;
