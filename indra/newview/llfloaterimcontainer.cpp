@@ -87,44 +87,30 @@ LLFloaterIMContainer::LLFloaterIMContainer(const LLSD& seed, const Params& param
 
 LLFloaterIMContainer::~LLFloaterIMContainer()
 {
-	LL_INFOS("Baker") << "[3555] ~LLFloaterIMContainer() -------------------------------------------------" << LL_ENDL;
+	LL_INFOS("Baker") << "[3555] ~LLFloaterIMContainer() -- " << mGeneralTitle << ":" << (void*) this << " ----------------------" << LL_ENDL;
 
-	LL_INFOS("Baker") << "[3555] ~LLFloaterIMContainer() - Stop listening to conversation event stream" << LL_ENDL;
 	mConversationsEventStream.stopListening("ConversationsRefresh");
-
-	LL_INFOS("Baker") << "[3555] ~LLFloaterIMContainer() - Delete idle callback function" << LL_ENDL;
 	gIdleCallbacks.deleteFunction(idle, this);
-
-	LL_INFOS("Baker") << "[3555] ~LLFloaterIMContainer() - Disconnect from new message connection" << LL_ENDL;
 	mNewMessageConnection.disconnect();
-	
-	LL_INFOS("Baker") << "[3555] ~LLFloaterIMContainer() - Remove control view" << LL_ENDL;
 	LLTransientFloaterMgr::getInstance()->removeControlView(LLTransientFloaterMgr::IM, this);
-
-	LL_INFOS("Baker") << "[3555] ~LLFloaterIMContainer() - Are we connected to a signal?" << LL_ENDL;
+	
 	if (mMicroChangedSignal.connected())
 	{
-		LL_INFOS("Baker") << "[3555] ~LLFloaterIMContainer() - Disconnect from it" << LL_ENDL;
+		LL_INFOS("Baker") << "[3555] ~LLFloaterIMContainer() - Disconnect from microsignal" << LL_ENDL;
 		mMicroChangedSignal.disconnect();
 	}
 
-	LL_INFOS("Baker") << "[3555] ~LLFloaterIMContainer() - Save off account settings (state of convo pane)" << LL_ENDL;
 	gSavedPerAccountSettings.setBOOL("ConversationsListPaneCollapsed", mConversationsPane->isCollapsed());
-	
-	LL_INFOS("Baker") << "[3555] ~LLFloaterIMContainer() - Safe off account settings (state of message pane)" << LL_ENDL;
 	gSavedPerAccountSettings.setBOOL("ConversationsMessagePaneCollapsed", mMessagesPane->isCollapsed());
-	
-	LL_INFOS("Baker") << "[3555] ~LLFloaterIMContainer() - Safe off account settings (state of participant list)" << LL_ENDL;
 	gSavedPerAccountSettings.setBOOL("ConversationsParticipantListCollapsed", !isParticipantListExpanded());
 
-	LL_INFOS("Baker") << "[3555] ~LLFloaterIMContainer() - Checking if LLIMMgr is destroyed" << LL_ENDL;
 	if (!LLSingleton<LLIMMgr>::destroyed())
 	{
-		LL_INFOS("Baker") << "[3555] ~LLFloaterIMContainer() - It is not, so remove the session observer" << LL_ENDL;
+		LL_INFOS("Baker") << "[3555] ~LLFloaterIMContainer() - LLIMMgr is not destroyed, so remove the session observer" << LL_ENDL;
 		LLIMMgr::getInstance()->removeSessionObserver(this);
 	}
 
-	LL_INFOS("Baker") << "[3555] Exiting ~LLFloaterIMContainer()" << LL_ENDL;
+	LL_INFOS("Baker") << "[3555] Exiting ~LLFloaterIMContainer() " << (void*) this << LL_ENDL;
 }
 
 void LLFloaterIMContainer::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, BOOL has_offline_msg)
