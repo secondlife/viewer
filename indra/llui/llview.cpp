@@ -150,15 +150,13 @@ LLView::LLView(const LLView::Params& p)
 
 LLView::~LLView()
 {
-	LL_DEBUGS("Baker") << "[3555] ~LLView -------------------------------------------------" << LL_ENDL;
-	
-	LL_DEBUGS("Baker") << "[3555] ~LLView() - Dirtying view rect" << LL_ENDL;
+	//LL_INFOS("Baker") << "[3555] ~LLView -- " << mName << ":" << (void*) this << " ----------------------" << LL_ENDL;
+
 	dirtyRect();
 	//llinfos << "Deleting view " << mName << ":" << (void*) this << llendl;
-	LL_DEBUGS("Baker") << "[3555] ~LLView() - Deleting view " << mName << ":" << (void*) this << LL_ENDL;
 	if (LLView::sIsDrawing)
 	{
-		LL_DEBUGS("Baker") << "[3555] ~LLView() - Deleting view " << mName << " during UI draw() phase" << LL_ENDL;
+		LL_INFOS("Baker") << "[3555] ~LLView() - Deleting view " << mName << " during UI draw() phase" << LL_ENDL;
 	
 		lldebugs << "Deleting view " << mName << " during UI draw() phase" << llendl;
 	}
@@ -173,26 +171,21 @@ LLView::~LLView()
 		gFocusMgr.removeMouseCaptureWithoutCallback( this );
 	}
 
-	LL_DEBUGS("Baker") << "[3555] ~LLView() - Deleting all children..." << LL_ENDL;
 	deleteAllChildren();
-
-	LL_DEBUGS("Baker") << "[3555] ~LLView() - done." << LL_ENDL;
 
 	if (mParentView != NULL)
 	{
-		LL_DEBUGS("Baker") << "[3555] ~LLView() - Removing this child view" << LL_ENDL;
+	//	LL_INFOS("Baker") << "[3555] ~LLView() - Removing this child view" << LL_ENDL;
 		mParentView->removeChild(this);
 	}
 
 	if (mDefaultWidgets)
 	{
-		LL_DEBUGS("Baker") << "[3555] ~LLView() - Deleting default widgets" << LL_ENDL;
-
 		delete mDefaultWidgets;
 		mDefaultWidgets = NULL;
 	}
 
-	LL_DEBUGS("Baker") << "[3555] Exiting ~LLView()" << LL_ENDL;
+	//LL_INFOS("Baker") << "[3555] Exiting ~LLView() " << (void*) this << LL_ENDL;
 }
 
 // virtual
