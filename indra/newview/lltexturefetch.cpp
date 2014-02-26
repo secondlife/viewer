@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2000&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -1552,7 +1552,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				else
 				{
 					llinfos << "HTTP GET failed for: " << mUrl
-							<< " Status: " << mGetStatus.toHex()
+							<< " Status: " << mGetStatus.toTerseString()
 							<< " Reason: '" << mGetReason << "'"
 							<< llendl;
 				}
@@ -1896,7 +1896,7 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 	LLCore::HttpStatus status(response->getStatus());
 	
 	LL_DEBUGS("Texture") << "HTTP COMPLETE: " << mID
-			 << " status: " << status.toHex()
+			 << " status: " << status.toTerseString()
 			 << " '" << status.toString() << "'"
 			 << llendl;
 //	unsigned int offset(0), length(0), full_length(0);
@@ -1912,7 +1912,7 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 		success = false;
 		std::string reason(status.toString());
 		setGetStatus(status, reason);
-		llwarns << "CURL GET FAILED, status: " << status.toHex()
+		llwarns << "CURL GET FAILED, status: " << status.toTerseString()
 				<< " reason: " << reason << llendl;
 	}
 	else
@@ -2376,6 +2376,7 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	  mQAMode(qa_mode),
 	  mHttpRequest(NULL),
 	  mHttpOptions(NULL),
+	  mHttpOptionsWithHeaders(NULL),
 	  mHttpHeaders(NULL),
 	  mHttpMetricsHeaders(NULL),
 	  mHttpPolicyClass(LLCore::HttpRequest::DEFAULT_POLICY_ID),
@@ -2406,11 +2407,13 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	
 	mHttpRequest = new LLCore::HttpRequest;
 	mHttpOptions = new LLCore::HttpOptions;
+	mHttpOptionsWithHeaders = new LLCore::HttpOptions;
+	mHttpOptionsWithHeaders->setWantHeaders(true);
 	mHttpHeaders = new LLCore::HttpHeaders;
-	mHttpHeaders->mHeaders.push_back("Accept: image/x-j2c");
+	mHttpHeaders->append("Accept", "image/x-j2c");
 	mHttpMetricsHeaders = new LLCore::HttpHeaders;
-	mHttpMetricsHeaders->mHeaders.push_back("Content-Type: application/llsd+xml");
-	mHttpPolicyClass = LLAppViewer::instance()->getAppCoreHttp().getPolicyDefault();
+	mHttpMetricsHeaders->append("Content-Type", "application/llsd+xml");
+	mHttpPolicyClass = LLAppViewer::instance()->getAppCoreHttp().getPolicy(LLAppCoreHttp::AP_TEXTURE);
 }
 
 LLTextureFetch::~LLTextureFetch()
@@ -2428,6 +2431,12 @@ LLTextureFetch::~LLTextureFetch()
 	{
 		mHttpOptions->release();
 		mHttpOptions = NULL;
+	}
+
+	if (mHttpOptionsWithHeaders)
+	{
+		mHttpOptionsWithHeaders->release();
+		mHttpOptionsWithHeaders = NULL;
 	}
 
 	if (mHttpHeaders)
@@ -3772,7 +3781,7 @@ public:
 		else
 		{
 			LL_WARNS("Texture") << "Error delivering asset metrics to grid.  Status:  "
-								<< status.toHex()
+								<< status.toTerseString()
 								<< ", Reason:  " << status.toString() << LL_ENDL;
 		}
 	}
@@ -4041,7 +4050,7 @@ void LLTextureFetchDebugger::init()
 	if (! mHttpHeaders)
 	{
 		mHttpHeaders = new LLCore::HttpHeaders;
-		mHttpHeaders->mHeaders.push_back("Accept: image/x-j2c");
+		mHttpHeaders->append("Accept", "image/x-j2c");
 	}
 }
 
@@ -4461,7 +4470,7 @@ S32 LLTextureFetchDebugger::fillCurlQueue()
 
 			LL_WARNS("Texture") << "Couldn't issue HTTP request in debugger for texture "
 								<< mFetchingHistory[i].mID
-								<< ", status: " << status.toHex()
+								<< ", status: " << status.toTerseString()
 								<< " reason:  " << status.toString()
 								<< LL_ENDL;
 			mFetchingHistory[i].mCurlState = FetchEntry::CURL_DONE;
@@ -4854,7 +4863,7 @@ void LLTextureFetchDebugger::callbackHTTP(FetchEntry & fetch, LLCore::HttpRespon
 	else //failed
 	{
 		llinfos << "Fetch Debugger : CURL GET FAILED,  ID = " << fetch.mID
-				<< ", status: " << status.toHex()
+				<< ", status: " << status.toTerseString()
 				<< " reason:  " << status.toString() << llendl;
 	}
 }

@@ -1,0 +1,671 @@
+
+
+
+1.  HTTP Fetching in 15 Minutes
+
+    Let's start with a trivial working example.  You'll need a throwaway
+    build of the viewer.  And we'll use indra/newview/llappviewer.cpp as
+    the host module for these hacks.
+
+    First, add some headers:
+
+
+        #include "httpcommon.h"
+        #include "httprequest.h"
+        #include "httphandler.h"
+
+
+    You'll need to derive a class from HttpHandler (not HttpHandle).
+    This is used to deliver notifications of HTTP completion to your
+    code.  Place it near the top, before LLDeferredTaskList, say:
+
+
+        class MyHandler : public LLCore::HttpHandler
+        {
+        public:
+            MyHandler()
+            : LLCore::HttpHandler()
+            {}
+
+            virtual void onCompleted(LLCore::HttpHandle /* handle */,
+                                     LLCore::HttpResponse * /* response */)
+            {
+                LL_INFOS("Hack") << "It is happening again." << LL_ENDL;
+
+                delete this;    // Last statement
+            }
+        };
+
+
+    Add some statics up there as well:
+
+
+        // Our request object.  Allocate during initialiation.
+        static LLCore::HttpRequest * my_request(NULL);
+
+        // The policy class for HTTP traffic.
+        // Use HttpRequest::DEFAULT_POLICY_ID, but DO NOT SHIP WITH THIS VALUE!!
+        static LLCore::HttpRequest::policy_t my_policy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+
+        // Priority for HTTP requests.  Use 0U.
+        static LLCore::HttpRequest::priority_t my_priority(0U);
+
+
+    In LLAppViewer::init() after mAppCoreHttp.init(), create a request object:
+
+
+        my_request = new LLCore::HttpRequest();
+
+
+    In LLAppViewer::mainLoop(), just before entering the while loop,
+    we'll kick off one HTTP request:
+
+
+        // Construct a handler object (we'll use the heap this time):
+        MyHandler * my_handler = new MyHandler;
+
+        // Issue a GET request to 'http://www.example.com/' kicking off
+        // all the I/O, retry logic, etc.
+        LLCore::HttpHandle handle;
+        handle = my_request->requestGet(my_policy,
+                                        my_priority,
+                                        "http://www.example.com/",
+                                        NULL,
+                                        NULL,
+                                        my_handler);
+        if (LLCORE_HTTP_HANDLE_INVALID == handle)
+        {
+            LL_WARNS("Hack") << "Failed to launch HTTP request.  Try again."
+                             << LL_ENDL;
+        }
+
+
+    Finally, arrange to periodically call update() on the request object
+    to find out when the request completes.  This will be done by
+    calling the onCompleted() method with status information and
+    response data from the HTTP operation.  Add this to the
+    LLAppViewer::idle() method after the ping:
+
+
+        my_request->update(0);
+
+
+    That's it.  Build it, run it and watch the log file.  You should get
+    the "It is happening again." message indicating that the HTTP
+    operation completed in some manner.
+
+
+2.  What Does All That Mean
+
+    MyHandler/HttpHandler.  This class replaces the Responder-style in
+    legacy code.  One method is currently defined.  It is used for all
+    request completions, successful or failed:
+
+
+        void onCompleted(LLCore::HttpHandle /* handle */,
+                         LLCore::HttpResponse * /* response */);
+
+
+    The onCompleted() method is invoked as a callback during calls to
+    HttpRequest::update().  All I/O is completed asynchronously in
+    another thread.  But notifications are polled by calling update()
+    and invoking a handler for completed requests.
+
+    In this example, the invocation also deletes the handler (which is
+    never referenced by the llcorehttp code again).  But other
+    allocation models are possible including handlers shared by many
+    requests, stack-based handlers and handlers mixed in with other,
+    unrelated classes.
+
+    LLCore::HttpRequest().  Instances of this class are used to request
+    all major functions of the library.  Initialization, starting
+    requests, delivering final notification of completion and various
+    utility operations are all done via instances.  There is one very
+    important rule for instances:
+
+        Request objects may NOT be shared between threads.
+
+    my_priority.  The APIs support the idea of priority ordering of
+    requests but it hasn't been implemented and the hope is that this
+    will become useless and removed from the interface.  Use 0U except
+    as noted.
+
+    my_policy.  This is an important one.  This library attempts to
+    manage TCP connection usage more rigorously than in the past.  This
+    is done by issuing requests to a queue that has various settable
+    properties.  These establish connection usage for the queue as well
+    as how queues compete with one another.  (This is patterned after
+    class-based queueing used in various networking stacks.)  Several
+    classes are pre-defined.  Deciding when to use an existing class and
+    when to create a new one will determine what kind of experience
+    users have.  We'll pick up this question in detail below.
+
+    requestGet().  Issues an ordinary HTTP GET request to a given URL
+    and associating the request with a policy class, a priority and an
+    response handler.  Two additional arguments, not used here, allow
+    for additional headers on the request and for per-request options.
+    If successful, the call returns a handle whose value is other than
+    LLCORE_HTTP_HANDLE_INVALID.  The HTTP operation is then performed
+    asynchronously by another thread without any additional work by the
+    caller.  If the handle returned is invalid, you can get the status
+    code by calling my_request->getStatus().
+
+    update().  To get notification that the request has completed, a
+    call to update() will invoke onCompleted() methods.
+
+
+3.  Refinements, Necessary and Otherwise
+
+    MyHandler::onCompleted().  You'll want to do something useful with
+    your response.  Distinguish errors from successes and getting the
+    response body back in some form.
+
+    Add a new header:
+
+
+        #include "bufferarray.h"
+
+
+    Replace the existing MyHandler::onCompleted() definition with:
+
+
+        virtual void onCompleted(LLCore::HttpHandle /* handle */,
+                                 LLCore::HttpResponse * response)
+        {
+            LLCore::HttpStatus status = response->getStatus();
+            if (status)
+            {
+                // Successful request.  Try to fetch the data
+                LLCore::BufferArray * data = response->getBody();
+
+                if (data && data->size())
+                {
+                    // There's some data.  A BufferArray is a linked list
+                    // of buckets.  We'll create a linear buffer and copy
+                    // the data into it.
+                    size_t data_len = data->size();
+                    char * data_blob = new char [data_len + 1];
+                    data->read(0, data_blob, data_len);
+                    data_blob[data_len] = '\0';
+
+                    // Process the data now in NUL-terminated string.
+                    // Needs more scrubbing but this will do.
+                    LL_INFOS("Hack") << "Received:  " << data_blob << LL_ENDL;
+
+                    // Free the temporary data
+                    delete [] data_blob;
+                }
+            }
+            else
+            {
+                // Something went wrong.  Translate the status to
+                // a meaningful message.
+                LL_WARNS("Hack") << "HTTP GET failed.  Status:  "
+                                 << status.toTerseString()
+                                 << ", Reason:  " << status.toString()
+                                 << LL_ENDL;
+            }           
+
+            delete this;    // Last statement
+        }
+
+
+    HttpHeaders.  The header file "httprequest.h" documents the expected
+    important headers that will go out with the request.  You can add to
+    these by including an HttpHeaders object with the requestGet() call.
+    These are typically setup once as part of init rather than
+    dynamically created.
+
+    Add another header:
+
+
+        #include "httpheaders.h"
+
+
+    In LLAppViewer::mainLoop(), add this alongside the allocation of
+    my_handler:
+
+
+        // Additional headers for all requests
+        LLCore::HttpHeaders * my_headers = new LLCore::HttpHeaders();
+        my_headers->append("Accept", "text/html, application/llsd+xml");
+
+
+    HttpOptions.  Options are similar and include a mix of value types.
+    One interesting per-request option is the trace setting.  This
+    enables various debug-type messages in the log file that show the
+    progress of the request through the library.  It takes values from
+    zero to three with higher values giving more verbose logging.  We'll
+    use '2' and this will also give us a chance to verify that
+    HttpHeaders works as expected.
+
+    Same as above, a new header:
+
+
+        #include "httpoptions.h"
+
+
+    And in LLAppView::mainLoop():
+
+
+        // Special options for requests
+        LLCore::HttpOptions * my_options = new LLCore::HttpOptions();
+        my_options->setTrace(2);
+
+
+    Now let's put that all together into a more complete requesting
+    sequence.  Replace the existing invocation of requestGet() with this
+    slightly more elaborate block:
+
+
+        LLCore::HttpHandle handle;
+        handle = my_request->requestGet(my_policy,
+                                        my_priority,
+                                        "http://www.example.com/",
+                                        my_options,
+                                        my_headers,
+                                        my_handler);
+        if (LLCORE_HTTP_HANDLE_INVALID == handle)
+        {
+             LLCore::HttpStatus status = my_request->getStatus();
+
+             LL_WARNS("Hack") << "Failed to request HTTP GET.  Status:  "
+                              << status.toTerseString()
+                              << ", Reason:  " << status.toString()
+                              << LL_ENDL;
+
+             delete my_handler;    // No longer needed.
+             my_handler = NULL;
+        }
+
+
+    Build, run and examine the log file.  You'll get some new data with
+    this run.  First, you should get the www.example.com home page
+    content:
+
+
+----------------------------------------------------------------------------
+2013-09-17T20:26:51Z INFO: MyHandler::onCompleted: Received:  <!doctype html>
+<html>
+<head>
+    <title>Example Domain</title>
+
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style type="text/css">
+    body {
+        background-color: #f0f0f2;
+        margin: 0;
+        padding: 0;
+        font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        
+    }
+    div {
+        width: 600px;
+        margin: 5em auto;
+        padding: 50px;
+        background-color: #fff;
+        border-radius: 1em;
+    }
+    a:link, a:visited {
+        color: #38488f;
+        text-decoration: none;
+    }
+    @media (max-width: 700px) {
+        body {
+            background-color: #fff;
+        }
+        div {
+            width: auto;
+            margin: 0 auto;
+            border-radius: 0;
+            padding: 1em;
+        }
+    }
+    </style>    
+</head>
+
+<body>
+<div>
+    <h1>Example Domain</h1>
+    <p>This domain is established to be used for illustrative examples in documents. You may use this
+    domain in examples without prior coordination or asking for permission.</p>
+    <p><a href="http://www.iana.org/domains/example">More information...</a></p>
+</div>
+</body>
+</html>
+----------------------------------------------------------------------------
+
+
+    You'll also get a detailed trace of the HTTP operation itself.  Note
+    the HEADEROUT line which shows the additional header added to the
+    request.
+
+
+----------------------------------------------------------------------------
+HttpService::processRequestQueue: TRACE, FromRequestQueue, Handle:  086D3148
+HttpLibcurl::addOp: TRACE, ToActiveQueue, Handle:  086D3148, Actives:  0, Readies:  0
+HttpOpRequest::debugCallback: TRACE, LibcurlDebug, Handle:  086D3148, Type:  TEXT, Data:  About to connect() to www.example.com port 80 (#0) 
+HttpOpRequest::debugCallback: TRACE, LibcurlDebug, Handle:  086D3148, Type:  TEXT, Data:    Trying 93.184.216.119... 
+HttpOpRequest::debugCallback: TRACE, LibcurlDebug, Handle:  086D3148, Type:  TEXT, Data:  Connected to www.example.com (93.184.216.119) port 80 (#0) 
+HttpOpRequest::debugCallback: TRACE, LibcurlDebug, Handle:  086D3148, Type:  TEXT, Data:  Connected to www.example.com (93.184.216.119) port 80 (#0) 
+HttpOpRequest::debugCallback: TRACE, LibcurlDebug, Handle:  086D3148, Type:  HEADEROUT, Data:  GET / HTTP/1.1  Host: www.example.com  Accept-Encoding: deflate, gzip  Connection: keep-alive  Keep-alive: 300  Accept: text/html, application/llsd+xml
+HttpOpRequest::debugCallback: TRACE, LibcurlDebug, Handle:  086D3148, Type:  HEADERIN, Data:  HTTP/1.1 200 OK  
+HttpOpRequest::debugCallback: TRACE, LibcurlDebug, Handle:  086D3148, Type:  HEADERIN, Data:  Accept-Ranges: bytes  
+HttpOpRequest::debugCallback: TRACE, LibcurlDebug, Handle:  086D3148, Type:  HEADERIN, Data:  Cache-Control: max-age=604800  
+HttpOpRequest::debugCallback: TRACE, LibcurlDebug, Handle:  086D3148, Type:  HEADERIN, Data:  Content-Type: text/html  
+HttpOpRequest::debugCallback: TRACE, LibcurlDebug, Handle:  086D3148, Type:  HEADERIN, Data:  Date: Tue, 17 Sep 2013 20:26:56 GMT  
+HttpOpRequest::debugCallback: TRACE, LibcurlDebug, Handle:  086D3148, Type:  HEADERIN, Data:  Etag: "3012602696"  
+HttpOpRequest::debugCallback: TRACE, LibcurlDebug, Handle:  086D3148, Type:  HEADERIN, Data:  Expires: Tue, 24 Sep 2013 20:26:56 GMT  
+HttpOpRequest::debugCallback: TRACE, LibcurlDebug, Handle:  086D3148, Type:  HEADERIN, Data:  Last-Modified: Fri, 09 Aug 2013 23:54:35 GMT  
+HttpOpRequest::debugCallback: TRACE, LibcurlDebug, Handle:  086D3148, Type:  HEADERIN, Data:  Server: ECS (ewr/1590)  
+HttpOpRequest::debugCallback: TRACE, LibcurlDebug, Handle:  086D3148, Type:  HEADERIN, Data:  X-Cache: HIT  
+HttpOpRequest::debugCallback: TRACE, LibcurlDebug, Handle:  086D3148, Type:  HEADERIN, Data:  x-ec-custom-error: 1  
+HttpOpRequest::debugCallback: TRACE, LibcurlDebug, Handle:  086D3148, Type:  HEADERIN, Data:  Content-Length: 1270  
+HttpOpRequest::debugCallback: TRACE, LibcurlDebug, Handle:  086D3148, Type:  HEADERIN, Data:    
+HttpOpRequest::debugCallback: TRACE, LibcurlDebug, Handle:  086D3148, Type:  DATAIN, Data:  256 Bytes
+HttpOpRequest::debugCallback: TRACE, LibcurlDebug, Handle:  086D3148, Type:  TEXT, Data:  Connection #0 to host www.example.com left intact 
+HttpLibcurl::completeRequest: TRACE, RequestComplete, Handle:  086D3148, Status:  Http_200
+HttpOperation::addAsReply: TRACE, ToReplyQueue, Handle:  086D3148
+----------------------------------------------------------------------------
+
+
+4.  What Does All That Mean, Part 2
+
+    HttpStatus.  The HttpStatus object encodes errors from libcurl, the
+    library itself and HTTP status values.  It does this to avoid
+    collapsing all non-HTTP error into a single '499' HTTP status and to
+    make errors distinct.
+
+    To aid programming, the usual bool conversions are available so that
+    you can write 'if (status)' and the expected thing will happen
+    whether it's an HTTP, libcurl or library error.  There's also
+    provision to override the treatment of HTTP errors (making 404 a
+    success, say).
+
+    Share data, don't copy it.  The library was started with the goal of
+    avoiding data copies as much as possible.  Instead, read-only data
+    sharing across threads with atomic reference counts is used for a
+    number of data types.  These currently are:
+
+        * BufferArray.  Linked list of data blocks/HTTP bodies.
+        * HttpHeaders.  Shared headers for both requests and responses.
+        * HttpOptions.  Request-only data modifying HTTP behavior.
+        * HttpResponse.  HTTP response description given to onCompleted.
+
+    Using objects of these types requires a few rules:
+
+        * Constructor always gives a reference to caller.
+        * References are dropped with release() not delete.
+        * Additional references may be taken out with addRef().
+        * Unless otherwise stated, once an object is shared with another
+          thread it should be treated as read-only.  There's no
+          synchronization on the objects themselves.
+
+    HttpResponse.  You'll encounter this mainly in onCompleted() methods.
+    Commonly-used interfaces on this object:
+
+        * getStatus() to return the final status of the request.
+        * getBody() to retrieve the response body which may be NULL or
+          zero-length.
+        * getContentType() to return the value of the 'Content-Type'
+          header or an empty string if none was sent.
+
+    This is a reference-counted object so you can call addRef() on it
+    and hold onto the response for an arbitrary time.  But you'll
+    usually just call a few methods and return from onCompleted() whose
+    caller will release the object.
+
+    BufferArray.  The core data representation for request and response
+    bodies.  In HTTP responses, it's fetched with the getBody() method
+    and may be NULL or non-NULL with zero length.  All successful data
+    handling should check both conditions before attempting to fetch
+    data from the object.  Data access model uses simple read/write
+    semantics:
+
+        * append()
+        * size()
+        * read()
+        * write()
+
+    (There is a more sophisticated stream adapter that extends these
+    methods and will be covered below.)  So, one way to retrieve data
+    from a request is as follows:
+
+
+        LLCore::BufferArray * data = response->getBody();
+        if (data && data->size())
+        {
+            size_t data_len = data->size();
+            char * data_blob = new char [data_len + 1];
+            data->read(0, data_blob, data_len);
+
+
+    HttpOptions and HttpResponse.  Really just simple containers of POD
+    and std::string pairs.  But reference counted and the rule about not
+    modifying after sharing must be followed.  You'll have the urge to
+    change options dynamically at some point.  And you'll try to do that
+    by just writing new values to the shared object.  And in tests
+    everything will appear to work.  Then you ship and people in the
+    real world start hitting read/write races in strings and then crash.
+    Don't be lazy.
+
+    HttpHandle.  Uniquely identifies a request and can be used to
+    identify it in an onCompleted() method or cancel it if it's still
+    queued.  But as soon as a request's onCompleted() invocation
+    returns, the handle becomes invalid and may be reused immediately
+    for new requests.  Don't hold on to handles after notification.
+
+
+5.  And Still More Refinements
+
+    (Note: The following refinements are just code fragments.  They
+    don't directly fit into the working example above.  But they
+    demonstrate several idioms you'll want to copy.)
+
+    LLSD, std::streambuf, std::iostream.  The read(), write() and
+    append() methods may be adequate for your purposes.  But we use a
+    lot of LLSD.  Its interfaces aren't particularly compatible with
+    BufferArray.  And so two adapters are available to give
+    stream-like behaviors:  BufferArrayStreamBuf and BufferArrayStream,
+    which implement the std::streambuf and std::iostream interfaces,
+    respectively.
+
+    A std::streambuf interface isn't something you'll want to use
+    directly.  Instead, you'll use the much friendlier std::iostream
+    interface found in BufferArrayStream.  This adapter gives you all
+    the '>>' and '<<' operators you'll want as well as working
+    directly with the LLSD conversion operators.
+
+    Some new headers:
+
+
+        #include "bufferstream.h"
+        #include "llsdserialize.h"
+
+
+    And an updated fragment based on onCompleted() above:
+
+
+                // Successful request.  Try to fetch the data
+                LLCore::BufferArray * data = response->getBody();
+                LLSD resp_llsd;
+
+                if (data && data->size())
+                {
+                    // There's some data and we expect this to be
+                    // LLSD.  Checking of content type and validation
+                    // during parsing would be admirable additions.
+                    // But we'll forgo that now.
+                    LLCore::BufferArrayStream data_stream(data);
+                    LLSDSerialize::fromXML(resp_llsd, data_stream);
+                }
+                LL_INFOS("Hack") << "LLSD Received:  " << resp_llsd << LL_ENDL;
+            }
+            else
+            {
+
+
+    Converting an LLSD object into an XML stream stored in a
+    BufferArray is just the reverse of the above:
+
+
+        BufferArray * data = new BufferArray();
+        LLCore::BufferArrayStream data_stream(data);
+
+        LLSD src_llsd;
+        src_llsd["foo"] = "bar";
+
+        LLSDSerialize::toXML(src_llsd, data_stream);
+
+        // 'data' now contains an XML payload and can be sent
+        // to a web service using the requestPut() or requestPost()
+        //  methods.
+        ...  requestPost(...);
+
+        // And don't forget to release the BufferArray.
+        data->release();
+        data = NULL;
+
+
+    LLSD will often go hand-in-hand with BufferArray and data
+    transport.  But you can also do all the streaming I/O you'd expect
+    of a std::iostream object:
+
+
+        BufferArray * data = new BufferArray();
+        LLCore::BufferArrayStream data_stream(data);
+
+        data_stream << "Hello, World!" << 29.4 << '\n';
+        std::string str;
+        data_stream >> str;
+        std::cout << str << std::endl;
+
+        data->release();
+        // Actual delete will occur when 'data_stream'
+        // falls out of scope and is destructed.
+
+
+    Scoping objects and cleaning up.  The examples haven't bothered
+    with cleanup of objects that are no longer needed.  Instead, most
+    objects have been allocated as if they were global and eternal.
+    You'll put the objects in more appropriate feature objects and
+    clean them up as a group.  Here's a checklist for actions you may
+    need to take on cleanup:
+
+    * Call delete on:
+      o HttpHandlers created on the heap
+      o HttpRequest objects
+    * Call release() on:
+      o BufferArray objects
+      o HttpHeaders objects
+      o HttpOptions objects
+      o HttpResponse objects
+
+    On program exit, as threads wind down, the library continues to
+    operate safely.  Threads don't interact via the library and even
+    dangling references to HttpHandler objects are safe.  If you don't
+    call HttpRequest::update(), handler references are never
+    dereferenced.
+
+    You can take a more thorough approach to wind-down.  Keep a list
+    of HttpHandles (not HttpHandlers) of outstanding requests.  For
+    each of these, call HttpRequest::requestCancel() to cancel the
+    operation.  (Don't add the cancel requests' handled to the list.)
+    This will cancel the outstanding requests that haven't completed.
+    Canceled or completed, all requests will queue notifications.  You
+    can now cycle calling update() discarding responses.  Continue
+    until all requests notify or a few seconds have passed.
+
+    Global startup and shutdown is handled in the viewer.  But you can
+    learn about it in the code or in the documentation in the headers.
+
+
+6.  Choosing a Policy Class
+
+    Now it's time to get rid of the default policy class.  Take a look
+    at the policy class definitions in newview/llappcorehttp.h.
+    Ideally, you'll find one that's compatible with what you're doing.
+    Some of the compatibility guidelines are:
+
+    * Destination: Pair of host and port.  Mixing requests with
+      different destinations may cause more connection setup and tear
+      down.
+
+    * Method: http or https.  Usually moot given destination.  But
+      mixing these may also cause connection churn.
+
+    * Transfer size: If you're moving 100MB at a time and you make your
+      requests to the same policy class as a lot of small, fast event
+      information that fast traffic is going to get stuck behind you
+      and someone's experience is going to be miserable.
+
+    * Long poll requests: These are long-lived, must- do operations.
+      They have a special home called AP_LONG_POLL.
+
+    * Concurrency: High concurrency (5 or more) and large transfer
+      sizes are incompatible.  Another head-of-the-line problem.  High
+      concurrency is tolerated when it's desired to get maximal
+      throughput.  Mesh and texture downloads, for example.
+
+    * Pipelined: If your requests are not idempotent, stay away from
+      anything marked 'soon' or 'yes'.  Hidden retries may be a
+      problem for you.  For now, would also recommend keeping PUT and
+      POST requests out of classes that may be pipelined.  Support for
+      that is still a bit new.
+
+    If you haven't found a compatible match, you can either create a
+    new class (llappcorehttp.*) or just use AP_DEFAULT, the catchall
+    class when all else fails.  Inventory query operations might be a
+    candidate for a new class that supported pipelining on https:.
+    Same with display name lookups and other bursty-at-login
+    operations.  For other things, AP_DEFAULT will do what it can and
+    will, in some way or another, tolerate any usage.  Whether the
+    users' experiences are good are for you to determine.
+
+    
+7.  FAQ
+
+    Q1.  What do these policy classes achieve?
+
+    A1.  Previously, HTTP-using code in the viewer was written as if
+    it were some isolated, local operation that didn't have to
+    consider resources, contention or impact on services and the
+    larger environment.  The result was an application with on the
+    order of 100 HTTP launch points in its codebase that could create
+    dozens or even 100's of TCP connections zeroing in on grid
+    services and disrupting networking equipment, web services and
+    innocent users.  The use of policy classes (modeled on
+    http://en.wikipedia.org/wiki/Class-based_queueing) is a means to
+    restrict connection concurrency, good and necessary in itself.  In
+    turn, that reduces demands on an expensive resource (connection
+    setup and concurrency) which relieves strain on network points.
+    That enables connection keepalive and opportunites for true
+    improvements in throughput and user experience.
+
+    Another aspect of the classes is that they give some control over
+    how competing demands for the network will be apportioned.  If
+    mesh fetches, texture fetches and inventory queries are all being
+    made at once, the relative weights of their classes' concurrency
+    limits established that apportioning.  We now have an opportunity
+    to balance the entire viewer system.
+
+    Q2.  How's that data sharing with refcounts working for you?
+
+    A2.  Meh.  It does reduce memory churn and the frequency at which
+    free blocks must be moved between threads.  But it's also a design
+    for static configuration and dynamic reconfiguration (not
+    requiring a restart) is favored.  Creating new options for every
+    request isn't too bad, it a sequence of "new, fill, request,
+    release" for each requested operation.  That in contrast to doing
+    the "new, fill, release" at startup.  The bad comes in getting at
+    the source data.  One rule in this work was "no new thread
+    problems."  And one source for those is pulling setting values out
+    of gSettings in threads.  None of that is thread safe though we
+    tend to get away with it.
+
+    Q3.  What needs to be done?
+
+    A3.  There's a To-Do list in _httpinternal.h.  It has both large
+    and small projects here if someone would like to try changes.
