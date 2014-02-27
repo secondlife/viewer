@@ -34,6 +34,7 @@
 class LLIconCtrl;
 class LLCheckBoxCtrl;
 class LLSnapshotLivePreview;
+class LLFloaterBigPreview;
 
 class LLFlickrPhotoPanel : public LLPanel
 {
@@ -61,6 +62,9 @@ public:
 	LLUICtrl* getRefreshBtn();
 
 private:
+    bool isPreviewVisible();
+    void attachPreview();
+
 	LLHandle<LLView> mPreviewHandle;
 
 	LLUICtrl * mSnapshotPanel;
@@ -77,6 +81,8 @@ private:
 	LLUICtrl * mPostButton;
 	LLUICtrl * mCancelButton;
 	LLButton * mBtnPreview;
+
+    LLFloaterBigPreview * mBigPreviewFloater;
 };
 
 class LLFlickrAccountPanel : public LLPanel

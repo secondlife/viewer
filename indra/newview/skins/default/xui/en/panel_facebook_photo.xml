@@ -86,7 +86,7 @@
                 text_color="EmphasisColor"
                 height="14"
                 top_pad="-19"
-                left_pad="-20"
+                left_pad="-30"
                 length="1"
                 halign="center"
                 name="working_lbl"
@@ -96,6 +96,20 @@
                 width="150">
                 Refreshing...
             </text>
+            <button
+                follows="right|top"
+                height="23"
+                label="Preview"
+                left="200"
+                top_pad="-19"
+                name="big_preview_btn"
+                tool_tip="Click to toggle preview"
+                is_toggle="true"
+                visible="true"
+                width="100" >
+                <button.commit_callback
+                function="SocialSharing.BigPreview" />
+            </button>
             <text
              length="1"
              follows="top|left|right"

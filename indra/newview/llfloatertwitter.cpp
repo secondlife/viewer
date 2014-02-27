@@ -34,6 +34,7 @@
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "lltwitterconnect.h"
+#include "llfloaterbigpreview.h"
 #include "llfloaterreg.h"
 #include "lliconctrl.h"
 #include "llimagefiltersmanager.h"
@@ -66,16 +67,19 @@ LLTwitterPhotoPanel::LLTwitterPhotoPanel() :
 mSnapshotPanel(NULL),
 mResolutionComboBox(NULL),
 mRefreshBtn(NULL),
+mBtnPreview(NULL),
 mWorkingLabel(NULL),
 mThumbnailPlaceholder(NULL),
 mStatusCounterLabel(NULL),
 mStatusTextBox(NULL),
 mLocationCheckbox(NULL),
 mPhotoCheckbox(NULL),
+mBigPreviewFloater(NULL),
 mPostButton(NULL)
 {
 	mCommitCallbackRegistrar.add("SocialSharing.SendPhoto", boost::bind(&LLTwitterPhotoPanel::onSend, this));
 	mCommitCallbackRegistrar.add("SocialSharing.RefreshPhoto", boost::bind(&LLTwitterPhotoPanel::onClickNewSnapshot, this));
+	mCommitCallbackRegistrar.add("SocialSharing.BigPreview", boost::bind(&LLTwitterPhotoPanel::onClickBigPreview, this));
 }
 
 LLTwitterPhotoPanel::~LLTwitterPhotoPanel()
@@ -97,6 +101,7 @@ BOOL LLTwitterPhotoPanel::postBuild()
 	mFilterComboBox = getChild<LLUICtrl>("filters_combobox");
 	mFilterComboBox->setCommitCallback(boost::bind(&LLTwitterPhotoPanel::updateResolution, this, TRUE));
 	mRefreshBtn = getChild<LLUICtrl>("new_snapshot_btn");
+	mBtnPreview = getChild<LLButton>("big_preview_btn");
     mWorkingLabel = getChild<LLUICtrl>("working_lbl");
 	mThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");
 	mStatusCounterLabel = getChild<LLUICtrl>("status_counter_label");
@@ -108,6 +113,7 @@ BOOL LLTwitterPhotoPanel::postBuild()
 	mPhotoCheckbox->setCommitCallback(boost::bind(&LLTwitterPhotoPanel::onAddPhotoToggled, this));
 	mPostButton = getChild<LLUICtrl>("post_photo_btn");
 	mCancelButton = getChild<LLUICtrl>("cancel_photo_btn");
+	mBigPreviewFloater = dynamic_cast<LLFloaterBigPreview*>(LLFloaterReg::getInstance("big_preview"));
 
 	// Update filter list
     std::vector<std::string> filter_list = LLImageFiltersManager::getInstance()->getFiltersList();
@@ -160,6 +166,7 @@ void LLTwitterPhotoPanel::draw()
     mResolutionComboBox->setEnabled(no_ongoing_connection && photo_checked);
     mFilterComboBox->setEnabled(no_ongoing_connection && photo_checked);
     mRefreshBtn->setEnabled(no_ongoing_connection && photo_checked);
+    mBtnPreview->setEnabled(no_ongoing_connection);
     mLocationCheckbox->setEnabled(no_ongoing_connection);
     mPhotoCheckbox->setEnabled(no_ongoing_connection);
 
@@ -167,6 +174,16 @@ void LLTwitterPhotoPanel::draw()
 	bool add_photo = mPhotoCheckbox->getValue().asBoolean();
 	updateStatusTextLength(false);
 
+    // Reassign the preview floater if we have the focus and the preview exists
+    if (hasFocus() && isPreviewVisible())
+    {
+        attachPreview();
+    }
+    
+    // Toggle the button state as appropriate
+    bool preview_active = (isPreviewVisible() && mBigPreviewFloater->isFloaterOwner(getParentByType<LLFloater>()));
+	mBtnPreview->setToggleState(preview_active);
+    
     // Display the preview if one is available
 	if (previewp && previewp->getThumbnailImage())
 	{
@@ -268,6 +285,35 @@ void LLTwitterPhotoPanel::onClickNewSnapshot()
 	}
 }
 
+void LLTwitterPhotoPanel::onClickBigPreview()
+{
+    // Toggle the preview
+    if (isPreviewVisible())
+    {
+        LLFloaterReg::hideInstance("big_preview");
+    }
+    else
+    {
+        attachPreview();
+        LLFloaterReg::showInstance("big_preview");
+    }
+}
+
+bool LLTwitterPhotoPanel::isPreviewVisible()
+{
+    return (mBigPreviewFloater && mBigPreviewFloater->getVisible());
+}
+
+void LLTwitterPhotoPanel::attachPreview()
+{
+    if (mBigPreviewFloater)
+    {
+        LLSnapshotLivePreview* previewp = getPreviewView();
+        mBigPreviewFloater->setPreview(previewp);
+        mBigPreviewFloater->setFloaterOwner(getParentByType<LLFloater>());
+    }
+}
+
 void LLTwitterPhotoPanel::onSend()
 {
 	LLEventPumps::instance().obtain("TwitterConnectState").stopListening("LLTwitterPhotoPanel"); // just in case it is already listening
@@ -359,6 +405,10 @@ void LLTwitterPhotoPanel::clearAndClose()
 	if (floater)
 	{
 		floater->closeFloater();
+        if (mBigPreviewFloater)
+        {
+            mBigPreviewFloater->closeOnFloaterOwnerClosing(floater);
+        }
 	}
 }
 
@@ -672,8 +722,23 @@ LLFloaterTwitter::LLFloaterTwitter(const LLSD& key) : LLFloater(key),
 	mCommitCallbackRegistrar.add("SocialSharing.Cancel", boost::bind(&LLFloaterTwitter::onCancel, this));
 }
 
+void LLFloaterTwitter::onClose(bool app_quitting)
+{
+    LLFloaterBigPreview* big_preview_floater = dynamic_cast<LLFloaterBigPreview*>(LLFloaterReg::getInstance("big_preview"));
+    if (big_preview_floater)
+    {
+        big_preview_floater->closeOnFloaterOwnerClosing(this);
+    }
+	LLFloater::onClose(app_quitting);
+}
+
 void LLFloaterTwitter::onCancel()
 {
+    LLFloaterBigPreview* big_preview_floater = dynamic_cast<LLFloaterBigPreview*>(LLFloaterReg::getInstance("big_preview"));
+    if (big_preview_floater)
+    {
+        big_preview_floater->closeOnFloaterOwnerClosing(this);
+    }
     closeFloater();
 }
 

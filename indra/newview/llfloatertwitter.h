@@ -34,6 +34,7 @@
 class LLIconCtrl;
 class LLCheckBoxCtrl;
 class LLSnapshotLivePreview;
+class LLFloaterBigPreview;
 
 class LLTwitterPhotoPanel : public LLPanel
 {
@@ -48,6 +49,7 @@ public:
 	void onVisibilityChange(const LLSD& new_visibility);
 	void onAddLocationToggled();
 	void onAddPhotoToggled();
+    void onClickBigPreview();
 	void onClickNewSnapshot();
 	void onSend();
 	S32 notify(const LLSD& info);
@@ -63,6 +65,9 @@ public:
 	LLUICtrl* getRefreshBtn();
 
 private:
+    bool isPreviewVisible();
+    void attachPreview();
+
 	LLHandle<LLView> mPreviewHandle;
 
 	LLUICtrl * mSnapshotPanel;
@@ -77,7 +82,10 @@ private:
 	LLUICtrl * mPhotoCheckbox;
 	LLUICtrl * mPostButton;
 	LLUICtrl * mCancelButton;
+	LLButton * mBtnPreview;
 
+    LLFloaterBigPreview * mBigPreviewFloater;
+    
 	std::string mOldStatusText;
 };
 
@@ -115,6 +123,7 @@ public:
 	LLFloaterTwitter(const LLSD& key);
 	BOOL postBuild();
 	void draw();
+	void onClose(bool app_quitting);
 	void onCancel();
 
 	void showPhotoPanel();

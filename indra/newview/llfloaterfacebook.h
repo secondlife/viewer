@@ -35,6 +35,7 @@ class LLIconCtrl;
 class LLCheckBoxCtrl;
 class LLSnapshotLivePreview;
 class LLAvatarList;
+class LLFloaterBigPreview;
 
 class LLFacebookStatusPanel : public LLPanel
 {
@@ -65,6 +66,7 @@ public:
 
 	LLSnapshotLivePreview* getPreviewView();
 	void onVisibilityChange(const LLSD& new_visibility);
+    void onClickBigPreview();
 	void onClickNewSnapshot();
 	void onSend();
 	S32 notify(const LLSD& info);
@@ -79,6 +81,9 @@ public:
 	LLUICtrl* getRefreshBtn();
 
 private:
+    bool isPreviewVisible();
+    void attachPreview();
+    
 	LLHandle<LLView> mPreviewHandle;
 
 	LLUICtrl * mSnapshotPanel;
@@ -90,7 +95,10 @@ private:
 	LLUICtrl * mCaptionTextBox;
 	LLUICtrl * mLocationCheckbox;
 	LLUICtrl * mPostButton;
-	LLUICtrl* mCancelButton;
+	LLUICtrl * mCancelButton;
+	LLButton * mBtnPreview;
+    
+    LLFloaterBigPreview * mBigPreviewFloater;
     
     S32 mQuality;       // Compression quality
 };
@@ -167,6 +175,7 @@ public:
 	LLFloaterFacebook(const LLSD& key);
 	BOOL postBuild();
 	void draw();
+	void onClose(bool app_quitting);
 	void onCancel();
 	
 	void showPhotoPanel();

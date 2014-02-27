@@ -74,6 +74,7 @@ mDescriptionTextBox(NULL),
 mLocationCheckbox(NULL),
 mTagsTextBox(NULL),
 mRatingComboBox(NULL),
+mBigPreviewFloater(NULL),
 mPostButton(NULL)
 {
 	mCommitCallbackRegistrar.add("SocialSharing.SendPhoto", boost::bind(&LLFlickrPhotoPanel::onSend, this));
@@ -110,6 +111,7 @@ BOOL LLFlickrPhotoPanel::postBuild()
 	mRatingComboBox = getChild<LLUICtrl>("rating_combobox");
 	mPostButton = getChild<LLUICtrl>("post_photo_btn");
 	mCancelButton = getChild<LLUICtrl>("cancel_photo_btn");
+	mBigPreviewFloater = dynamic_cast<LLFloaterBigPreview*>(LLFloaterReg::getInstance("big_preview"));
 
 	// Update filter list
     std::vector<std::string> filter_list = LLImageFiltersManager::getInstance()->getFiltersList();
@@ -167,9 +169,14 @@ void LLFlickrPhotoPanel::draw()
     mBtnPreview->setEnabled(no_ongoing_connection);
     mLocationCheckbox->setEnabled(no_ongoing_connection);
     
+    // Reassign the preview floater if we have the focus and the preview exists
+    if (hasFocus() && isPreviewVisible())
+    {
+        attachPreview();
+    }
+    
     // Toggle the button state as appropriate
-	LLFloaterBigPreview* big_preview_floater = dynamic_cast<LLFloaterBigPreview*>(LLFloaterReg::getInstance("big_preview"));
-    bool preview_active = (big_preview_floater && big_preview_floater->getVisible() && big_preview_floater->isFloaterOwner(getParentByType<LLFloater>()));
+    bool preview_active = (isPreviewVisible() && mBigPreviewFloater->isFloaterOwner(getParentByType<LLFloater>()));
 	mBtnPreview->setToggleState(preview_active);
     
     // Display the preview if one is available
@@ -263,22 +270,30 @@ void LLFlickrPhotoPanel::onClickNewSnapshot()
 
 void LLFlickrPhotoPanel::onClickBigPreview()
 {
-	LLFloaterBigPreview* big_preview_floater = dynamic_cast<LLFloaterBigPreview*>(LLFloaterReg::getInstance("big_preview"));
-    bool preview_active = (big_preview_floater && big_preview_floater->getVisible() && big_preview_floater->isFloaterOwner(getParentByType<LLFloater>()));
     // Toggle the preview
-    if (preview_active)
+    if (isPreviewVisible())
     {
         LLFloaterReg::hideInstance("big_preview");
     }
     else
     {
-        if (big_preview_floater)
-        {
-            LLSnapshotLivePreview* previewp = getPreviewView();
-            big_preview_floater->setPreview(previewp);
-            big_preview_floater->setFloaterOwner(getParentByType<LLFloater>());
-        }
+        attachPreview();
         LLFloaterReg::showInstance("big_preview");
+    }
+}
+
+bool LLFlickrPhotoPanel::isPreviewVisible()
+{
+    return (mBigPreviewFloater && mBigPreviewFloater->getVisible());
+}
+
+void LLFlickrPhotoPanel::attachPreview()
+{
+    if (mBigPreviewFloater)
+    {
+        LLSnapshotLivePreview* previewp = getPreviewView();
+        mBigPreviewFloater->setPreview(previewp);
+        mBigPreviewFloater->setFloaterOwner(getParentByType<LLFloater>());
     }
 }
 
@@ -371,12 +386,11 @@ void LLFlickrPhotoPanel::clearAndClose()
 	LLFloater* floater = getParentByType<LLFloater>();
 	if (floater)
 	{
-        LLFloaterBigPreview* big_preview_floater = dynamic_cast<LLFloaterBigPreview*>(LLFloaterReg::getInstance("big_preview"));
-        if (big_preview_floater)
-        {
-            big_preview_floater->closeOnFloaterOwnerClosing(floater);
-        }
 		floater->closeFloater();
+        if (mBigPreviewFloater)
+        {
+            mBigPreviewFloater->closeOnFloaterOwnerClosing(floater);
+        }
 	}
 }
 

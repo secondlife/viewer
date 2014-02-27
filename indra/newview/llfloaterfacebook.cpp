@@ -34,6 +34,7 @@
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "llfacebookconnect.h"
+#include "llfloaterbigpreview.h"
 #include "llfloaterreg.h"
 #include "lliconctrl.h"
 #include "llimagefiltersmanager.h"
@@ -185,15 +186,18 @@ LLFacebookPhotoPanel::LLFacebookPhotoPanel() :
 mSnapshotPanel(NULL),
 mResolutionComboBox(NULL),
 mRefreshBtn(NULL),
+mBtnPreview(NULL),
 mWorkingLabel(NULL),
 mThumbnailPlaceholder(NULL),
 mCaptionTextBox(NULL),
 mLocationCheckbox(NULL),
 mPostButton(NULL),
+mBigPreviewFloater(NULL),
 mQuality(MAX_QUALITY)
 {
 	mCommitCallbackRegistrar.add("SocialSharing.SendPhoto", boost::bind(&LLFacebookPhotoPanel::onSend, this));
 	mCommitCallbackRegistrar.add("SocialSharing.RefreshPhoto", boost::bind(&LLFacebookPhotoPanel::onClickNewSnapshot, this));
+	mCommitCallbackRegistrar.add("SocialSharing.BigPreview", boost::bind(&LLFacebookPhotoPanel::onClickBigPreview, this));
 }
 
 LLFacebookPhotoPanel::~LLFacebookPhotoPanel()
@@ -215,12 +219,14 @@ BOOL LLFacebookPhotoPanel::postBuild()
 	mFilterComboBox = getChild<LLUICtrl>("filters_combobox");
 	mFilterComboBox->setCommitCallback(boost::bind(&LLFacebookPhotoPanel::updateResolution, this, TRUE));
 	mRefreshBtn = getChild<LLUICtrl>("new_snapshot_btn");
+	mBtnPreview = getChild<LLButton>("big_preview_btn");
     mWorkingLabel = getChild<LLUICtrl>("working_lbl");
 	mThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");
 	mCaptionTextBox = getChild<LLUICtrl>("photo_caption");
 	mLocationCheckbox = getChild<LLUICtrl>("add_location_cb");
 	mPostButton = getChild<LLUICtrl>("post_photo_btn");
 	mCancelButton = getChild<LLUICtrl>("cancel_photo_btn");
+	mBigPreviewFloater = dynamic_cast<LLFloaterBigPreview*>(LLFloaterReg::getInstance("big_preview"));
 
 	// Update filter list
     std::vector<std::string> filter_list = LLImageFiltersManager::getInstance()->getFiltersList();
@@ -272,9 +278,20 @@ void LLFacebookPhotoPanel::draw()
     mResolutionComboBox->setEnabled(no_ongoing_connection);
     mFilterComboBox->setEnabled(no_ongoing_connection);
     mRefreshBtn->setEnabled(no_ongoing_connection);
+    mBtnPreview->setEnabled(no_ongoing_connection);
     mLocationCheckbox->setEnabled(no_ongoing_connection);
+        
+    // Reassign the preview floater if we have the focus and the preview exists
+    if (hasFocus() && isPreviewVisible())
+    {
+        attachPreview();
+    }
     
-    // Display the preview if one is available
+    // Toggle the button state as appropriate
+    bool preview_active = (isPreviewVisible() && mBigPreviewFloater->isFloaterOwner(getParentByType<LLFloater>()));
+	mBtnPreview->setToggleState(preview_active);
+    
+    // Display the thumbnail if one is available
 	if (previewp && previewp->getThumbnailImage())
 	{
 		const LLRect& thumbnail_rect = mThumbnailPlaceholder->getRect();
@@ -365,6 +382,35 @@ void LLFacebookPhotoPanel::onClickNewSnapshot()
 	}
 }
 
+void LLFacebookPhotoPanel::onClickBigPreview()
+{
+    // Toggle the preview
+    if (isPreviewVisible())
+    {
+        LLFloaterReg::hideInstance("big_preview");
+    }
+    else
+    {
+        attachPreview();
+        LLFloaterReg::showInstance("big_preview");
+    }
+}
+
+bool LLFacebookPhotoPanel::isPreviewVisible()
+{
+    return (mBigPreviewFloater && mBigPreviewFloater->getVisible());
+}
+
+void LLFacebookPhotoPanel::attachPreview()
+{
+    if (mBigPreviewFloater)
+    {
+        LLSnapshotLivePreview* previewp = getPreviewView();
+        mBigPreviewFloater->setPreview(previewp);
+        mBigPreviewFloater->setFloaterOwner(getParentByType<LLFloater>());
+    }
+}
+
 void LLFacebookPhotoPanel::onSend()
 {
 	LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLFacebookPhotoPanel"); // just in case it is already listening
@@ -439,6 +485,10 @@ void LLFacebookPhotoPanel::clearAndClose()
 	if (floater)
 	{
 		floater->closeFloater();
+        if (mBigPreviewFloater)
+        {
+            mBigPreviewFloater->closeOnFloaterOwnerClosing(floater);
+        }
 	}
 }
 
@@ -964,8 +1014,23 @@ LLFloaterFacebook::LLFloaterFacebook(const LLSD& key) : LLFloater(key),
 	mCommitCallbackRegistrar.add("SocialSharing.Cancel", boost::bind(&LLFloaterFacebook::onCancel, this));
 }
 
+void LLFloaterFacebook::onClose(bool app_quitting)
+{
+    LLFloaterBigPreview* big_preview_floater = dynamic_cast<LLFloaterBigPreview*>(LLFloaterReg::getInstance("big_preview"));
+    if (big_preview_floater)
+    {
+        big_preview_floater->closeOnFloaterOwnerClosing(this);
+    }
+	LLFloater::onClose(app_quitting);
+}
+
 void LLFloaterFacebook::onCancel()
 {
+    LLFloaterBigPreview* big_preview_floater = dynamic_cast<LLFloaterBigPreview*>(LLFloaterReg::getInstance("big_preview"));
+    if (big_preview_floater)
+    {
+        big_preview_floater->closeOnFloaterOwnerClosing(this);
+    }
     closeFloater();
 }
 
