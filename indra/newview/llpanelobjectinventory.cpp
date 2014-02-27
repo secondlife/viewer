@@ -2011,3 +2011,46 @@ void LLPanelObjectInventory::clearItemIDs()
 	mItemMap.clear();
 }
 
+BOOL LLPanelObjectInventory::handleKeyHere( KEY key, MASK mask )
+{
+	BOOL handled = FALSE;
+	switch (key)
+	{
+	case KEY_DELETE:
+	case KEY_BACKSPACE:
+		// Delete selected items if delete or backspace key hit on the inventory panel
+		// Note: on Mac laptop keyboards, backspace and delete are one and the same
+		if (isSelectionRemovable() && mask == MASK_NONE)
+		{
+			LLInventoryAction::doToSelected(&gInventory, mFolders, "delete");
+			handled = TRUE;
+		}
+		break;
+	}
+	return handled;
+}
+
+BOOL LLPanelObjectInventory::isSelectionRemovable()
+{
+	if (!mFolders || !mFolders->getRoot())
+	{
+		return FALSE;
+	}
+	std::set<LLFolderViewItem*> selection_set = mFolders->getRoot()->getSelectionList();
+	if (selection_set.empty())
+	{
+		return FALSE;
+	}
+	for (std::set<LLFolderViewItem*>::iterator iter = selection_set.begin();
+		iter != selection_set.end();
+		++iter)
+	{
+		LLFolderViewItem *item = *iter;
+		const LLFolderViewModelItemInventory *listener = dynamic_cast<const LLFolderViewModelItemInventory*>(item->getViewModelItem());
+		if (!listener || !listener->isItemRemovable() || listener->isItemInTrash())
+		{
+			return FALSE;
+		}
+	}
+	return TRUE;
+}

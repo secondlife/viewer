@@ -581,7 +581,9 @@ private:
 	void hiddenFloaterClosed(LLFloater* floater);
 
 	LLRect				mLastSnapRect;
-	LLRect				mToolbarRects[LLToolBarEnums::TOOLBAR_COUNT];
+	LLRect				mToolbarLeftRect;
+	LLRect				mToolbarBottomRect;
+	LLRect				mToolbarRightRect;
 	LLHandle<LLView>	mSnapView;
 	BOOL			mFocusCycleMode;
 	S32				mSnapOffsetBottom;
