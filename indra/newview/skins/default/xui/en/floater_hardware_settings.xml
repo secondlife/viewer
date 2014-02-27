@@ -155,13 +155,12 @@
      tool_tip="Compresses textures in video memory, allowing for higher resolution textures to be loaded at the cost of some color quality."
      width="315" />
     <slider
-     control_name="TextureMemory"
      decimal_digits="0"
      follows="left|top"
      height="20"
      increment="16"
      initial_value="32"
-     label="Texture Memory (MB):"
+     label="Video Memory (MB):"
      label_width="195"
      layout="topleft"
      left="10"

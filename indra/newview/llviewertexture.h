@@ -40,7 +40,7 @@
 #include <list>
 
 #define MIN_VIDEO_RAM_IN_MEGA_BYTES    32
-#define MAX_VIDEO_RAM_IN_MEGA_BYTES    512 // 512MB max for performance reasons.
+#define MAX_VIDEO_RAM_IN_MEGA_BYTES    4096
 
 class LLImageGL ;
 class LLImageRaw;

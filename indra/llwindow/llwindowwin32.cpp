@@ -85,6 +85,18 @@ void show_window_creation_error(const std::string& title)
 	LL_WARNS("Window") << title << LL_ENDL;
 }
 
+HGLRC SafeCreateContext(HDC hdc)
+{
+	__try 
+	{
+		return wglCreateContext(hdc);
+	}
+	__except(EXCEPTION_EXECUTE_HANDLER)
+	{ 
+		return NULL;
+	}
+}
+
 //static
 BOOL LLWindowWin32::sIsClassRegistered = FALSE;
 
@@ -1166,14 +1178,15 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 		return FALSE;
 	}
 
-	if (!(mhRC = wglCreateContext(mhDC)))
+
+	if (!(mhRC = SafeCreateContext(mhDC)))
 	{
 		close();
 		OSMessageBox(mCallbacks->translateString("MBGLContextErr"),
 			mCallbacks->translateString("MBError"), OSMB_OK);
 		return FALSE;
 	}
-
+		
 	if (!wglMakeCurrent(mhDC, mhRC))
 	{
 		close();
