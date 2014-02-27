@@ -29,6 +29,8 @@
 
 #include "llfloater.h"
 
+class LLPanelExperiences;
+
 class LLFloaterExperiences :
 	public LLFloater
 {
@@ -43,9 +45,10 @@ protected:
 	/*virtual*/ BOOL	postBuild();
     void refreshContents();
     void setupRecentTabs();
-    void addTab(const std::string& name, bool select);
+    LLPanelExperiences* addTab(const std::string& name, bool select);
 
     bool updatePermissions(const LLSD& permission);
+	void sendPurchaseRequest() const;
 
 private:
 

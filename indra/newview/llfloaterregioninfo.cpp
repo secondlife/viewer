@@ -3483,10 +3483,6 @@ BOOL LLPanelRegionExperiences::postBuild()
 	mAllowed = setupList("panel_allowed");
 	mTrusted = setupList("panel_trusted");
 	mBlocked = setupList("panel_blocked");
-	mOwned = LLPanelExperiences::create("owned");
-	LLPanel* pOwned = findChild<LLPanel>("panel_owned");
-	pOwned->addChild(mOwned);
-	mOwned->setShape(pOwned->getRect());
 	return LLPanelRegionInfo::postBuild();
 }
 
@@ -3550,8 +3546,7 @@ public:
 
 
 void LLPanelRegionExperiences::infoCallback(LLHandle<LLPanelRegionExperiences> handle, const LLSD& content)
-{
-	
+{	
 	if(handle.isDead())
 		return;
 
@@ -3560,25 +3555,7 @@ void LLPanelRegionExperiences::infoCallback(LLHandle<LLPanelRegionExperiences> h
 	{
 		floater->processResponse(content);
 	}
-
 }
-
-
-void LLPanelRegionExperiences::ownedCallback( LLHandle<LLPanelRegionExperiences> handle, const LLSD& content )
-{
-	if(handle.isDead())
-		return;
-
-	LLPanelRegionExperiences* floater = handle.get();
-	if (floater && content.has("experience_ids"))
-	{
-		const LLSD& ids = content["experience_ids"];
-		floater->getChild<LLButton>("btn_buy")->setEnabled(ids.beginArray() == ids.endArray());
-
-		floater->setOwnedExperiences(content["experience_ids"]);
-	}
-}
-
 
 bool LLPanelRegionExperiences::FilterExisting(const LLSD& experience)
 {
@@ -3612,18 +3589,7 @@ bool LLPanelRegionExperiences::refreshFromRegion(LLViewerRegion* region)
 	mTrusted->setReadonly(!allow_modify);
 	mTrusted->addFilter(boost::bind(&LLPanelRegionExperiences::FilterExisting, this, _1));
 
-	std::string url = region->getCapability("AgentExperiences");
-	mOwned->getParent()->setVisible(!url.empty() && region && region->canManageEstate());
-
-	if(!url.empty())
-	{
-		LLHTTPClient::get(url, new LLRegionExperienceResponder(boost::bind(&LLPanelRegionExperiences::ownedCallback, 
-			getDerivedHandle<LLPanelRegionExperiences>(), _1)));
-
-		getChild<LLButton>("btn_buy")->setCommitCallback(boost::bind(&LLPanelRegionExperiences::sendPurchaseRequest, this));
-	}
-
-	url = region->getCapability("RegionExperiences");
+	std::string url = region->getCapability("RegionExperiences");
 	if (!url.empty())
 	{
 		LLHTTPClient::get(url, new LLRegionExperienceResponder(boost::bind(&LLPanelRegionExperiences::infoCallback, 
@@ -3666,22 +3632,4 @@ BOOL LLPanelRegionExperiences::sendUpdate()
 void LLPanelRegionExperiences::listChanged()
 {
 	onChangeAnything();
-}
-
-void LLPanelRegionExperiences::setOwnedExperiences( const LLSD& experiences )
-{
-	mOwned->setExperienceList(experiences);
-}
-
-void LLPanelRegionExperiences::sendPurchaseRequest() const
-{
-	LLViewerRegion* region = gAgent.getRegion();
-	std::string url = region->getCapability("AgentExperiences");
-	if(!url.empty())
-	{
-		LLSD content;
-
-		LLHTTPClient::post(url, content, new LLRegionExperienceResponder(boost::bind(&LLPanelRegionExperiences::ownedCallback, 
-			getDerivedHandle<LLPanelRegionExperiences>(), _1)));
-	}
 }

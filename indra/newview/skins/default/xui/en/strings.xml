@@ -3949,6 +3949,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Contrib_Experiences_Tab">CONTRIBUTOR</string>
   <string name="Admin_Experiences_Tab">ADMIN</string>
   <string name="Recent_Experiences_Tab">RECENT</string>
+  <string name="Owned_Experiences_Tab">OWNED</string>
 
   <!-- Conversation log messages -->
   <string name="logging_calls_disabled_log_empty">

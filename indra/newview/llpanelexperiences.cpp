@@ -35,6 +35,7 @@
 
 #include "llpanelexperiences.h"
 #include "llslurl.h"
+#include "lllayoutstack.h"
 
 
 static LLRegisterPanelClassWrapper<LLPanelExperiences> register_experiences_panel("experiences_panel");
@@ -114,7 +115,25 @@ void LLPanelExperiences::addExperience( const LLUUID& id )
     }
 }
 
+void LLPanelExperiences::setButtonAction(const std::string& label, const commit_signal_t::slot_type& cb )
+{
+	if(label.empty())
+	{
+		getChild<LLLayoutPanel>("button_panel")->setVisible(false);
+	}
+	else
+	{
+		getChild<LLLayoutPanel>("button_panel")->setVisible(true);
+		LLButton* child = getChild<LLButton>("btn_action");
+		child->setCommitCallback(cb);
+		child->setLabel(getString(label));
+	}
+}
 
+void LLPanelExperiences::enableButton( bool enable )
+{
+	getChild<LLButton>("btn_action")->setEnabled(enable);
+}
 
 
 LLExperienceItem::LLExperienceItem()
@@ -142,7 +161,6 @@ LLPanelSearchExperiences* LLPanelSearchExperiences::create( const std::string& n
 {
     LLPanelSearchExperiences* panel= new LLPanelSearchExperiences();
     panel->getChild<LLPanel>("results")->addChild(LLPanelExperiences::create(name));
-    ///XXXif(
     return panel;
 }
 

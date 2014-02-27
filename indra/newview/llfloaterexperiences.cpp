@@ -34,20 +34,21 @@
 #include "lltrans.h"
 #include "llexperiencecache.h"
 #include "llevents.h"
+#include "llnotificationsutil.h"
 
 
 class LLExperienceListResponder : public LLHTTPClient::Responder
 {
 public:
     typedef std::map<std::string, std::string> NameMap;
-    LLExperienceListResponder(const LLHandle<LLFloaterExperiences>& parent, NameMap& nameMap):mParent(parent)
+    LLExperienceListResponder(const LLHandle<LLFloaterExperiences>& parent, NameMap& nameMap, const std::string& errorMessage="ErrorMessage"):mParent(parent),mErrorMessage(errorMessage)
     {
         mNameMap.swap(nameMap);
     }
 
     LLHandle<LLFloaterExperiences> mParent;
     NameMap mNameMap;
-
+	const std::string mErrorMessage;
     virtual void result(const LLSD& content)
     {
         if(mParent.isDead())
@@ -66,12 +67,19 @@ public:
                 {
                     const LLSD& ids = content[it->first];
                     tab->setExperienceList(ids);
-                    //parent->clearFromRecent(ids);
+					tab->enableButton(ids.beginArray() == ids.endArray());
                 }
             }
             ++it;
         }
     }
+
+	virtual void error(U32 status, const std::string& reason)
+	{
+		LLSD subs;
+		subs["ERROR_MESSAGE"] = reason;
+		LLNotificationsUtil::add(mErrorMessage, subs);
+	}
 };
 
 
@@ -81,12 +89,15 @@ LLFloaterExperiences::LLFloaterExperiences(const LLSD& data)
 {
 }
 
-void LLFloaterExperiences::addTab(const std::string& name, bool select)
+LLPanelExperiences* LLFloaterExperiences::addTab(const std::string& name, bool select)
 {
+	LLPanelExperiences* newPanel = LLPanelExperiences::create(name);
     getChild<LLTabContainer>("xp_tabs")->addTabPanel(LLTabContainer::TabPanelParams().
-        panel(LLPanelExperiences::create(name)).
+        panel(newPanel).
         label(LLTrans::getString(name)).
         select_tab(select));
+
+	return newPanel;
 }
 
 BOOL LLFloaterExperiences::postBuild()
@@ -96,6 +107,8 @@ BOOL LLFloaterExperiences::postBuild()
     addTab("Admin_Experiences_Tab", false);
     addTab("Contrib_Experiences_Tab", false);
     addTab("Recent_Experiences_Tab", false);
+	LLPanelExperiences* owned = addTab("Owned_Experiences_Tab", false);
+	owned->setButtonAction("acquire", boost::bind(&LLFloaterExperiences::sendPurchaseRequest, this));
     resizeToTabs();
 
    
@@ -184,6 +197,13 @@ void LLFloaterExperiences::refreshContents()
             nameMap["experience_ids"]="Contrib_Experiences_Tab";
             LLHTTPClient::get(lookup_url, new LLExperienceListResponder(getDerivedHandle<LLFloaterExperiences>(), nameMap));
         }
+
+		lookup_url = region->getCapability("AgentExperiences"); 
+		if(!lookup_url.empty())
+		{
+			nameMap["experience_ids"]="Owned_Experiences_Tab";
+			LLHTTPClient::get(lookup_url, new LLExperienceListResponder(getDerivedHandle<LLFloaterExperiences>(), nameMap));
+		}
     }
 }
 
@@ -259,4 +279,18 @@ void LLFloaterExperiences::onClose( bool app_quitting )
 {
     LLEventPumps::instance().obtain("experience_permission").stopListening("LLFloaterExperiences");
     LLFloater::onClose(app_quitting);
+}
+
+void LLFloaterExperiences::sendPurchaseRequest() const
+{
+	LLViewerRegion* region = gAgent.getRegion();
+	std::string url = region->getCapability("AgentExperiences");
+	if(!url.empty())
+	{
+		LLSD content;
+
+		LLExperienceListResponder::NameMap nameMap;
+		nameMap["experience_ids"]="Owned_Experiences_Tab";
+		LLHTTPClient::post(url, content, new LLExperienceListResponder(getDerivedHandle<LLFloaterExperiences>(), nameMap, "ExperienceAcquireFailed"));
+	}
 }

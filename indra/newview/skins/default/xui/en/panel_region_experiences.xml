@@ -33,39 +33,6 @@
     min_height="140"
     orientation="vertical">
     <layout_panel
-      layout="topleft"
-      height="100"
-      min_height="100"
-      width="530">
-      <text
-        layout="topleft"
-        follows="left|top"
-        height="18"
-        left="0"
-        top="4"
-        value="Your Experiences"
-        width="460"/>
-      <button
-        layout="topleft"
-        left="464"
-        top="4"
-        follows="top|right"
-        width="64"
-        name="btn_buy"
-        label="Buy"
-        enabled="false"/>
-      <panel
-        layout="topleft"
-        border="true"
-        left="0"
-        top="22"
-        height="74"
-        follows="all"
-        width="460"
-        name="panel_owned">        
-      </panel>      
-    </layout_panel>
-    <layout_panel
       height="100"
       min_height="100"
       width="530">

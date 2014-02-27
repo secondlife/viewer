@@ -6985,6 +6985,21 @@ Is this OK?
        text="Block"/>
     </form>
   </notification>
+
+  <notification
+    icon="alertmodal.tga"
+    name="ExperienceAcquireFailed"
+    type="alertmodal">
+Unable to acquire a new experience:
+    [ERROR_MESSAGE]
+    <tag>fail</tag>
+    <usetemplate
+      name="okbutton"
+      yestext="OK"/>
+  </notification>
+  
+  
+  
   <notification
     icon="notify.tga"
     name="TeleportedHomeExperienceRemoved"
