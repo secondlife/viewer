@@ -401,7 +401,7 @@ void LLFlickrConnect::uploadPhoto(LLPointer<LLImageFormatted> image, const std::
 			<< safety_level << "\r\n";
 
 	body	<< "--" << boundary << "\r\n"
-			<< "Content-Disposition: form-data; name=\"image\"; filename=\"snapshot." << imageFormat << "\"\r\n"
+			<< "Content-Disposition: form-data; name=\"image\"; filename=\"Untitled." << imageFormat << "\"\r\n"
 			<< "Content-Type: image/" << imageFormat << "\r\n\r\n";
 
 	// Insert the image data.
