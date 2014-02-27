@@ -1808,9 +1808,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2994f1e028fb200c454c12b5f7ca9108</string>
+              <string>88181b9f66b7db650e0d571bbb632bdc</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-slvoice/rev/270464/arch/Darwin/installer/slvoice-4.5.0009.17865-darwin-20130215.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-slvoice/rev/287264/arch/Darwin/installer/slvoice-4.6.0009.20030-darwin-20140226.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1832,9 +1832,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>24710eda136bfd42d6333e5609c2c74f</string>
+              <string>ce89b881ee24977641d1ecbf8aff6dc7</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-slvoice/rev/270464/arch/CYGWIN/installer/slvoice-4.5.0009.17865-windows-20130214.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-slvoice/rev/287264/arch/CYGWIN/installer/slvoice-4.6.0009.20030-windows-20140227.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
