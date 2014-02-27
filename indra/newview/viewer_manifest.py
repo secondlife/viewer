@@ -625,7 +625,22 @@ class Windows_i686_Manifest(ViewerManifest):
         NSIS_path = os.path.expandvars('${ProgramFiles}\\NSIS\\Unicode\\makensis.exe')
         if not os.path.exists(NSIS_path):
             NSIS_path = os.path.expandvars('${ProgramFiles(x86)}\\NSIS\\Unicode\\makensis.exe')
-        self.run_command('"' + proper_windows_path(NSIS_path) + '" ' + self.dst_path_of(tempfile))
+        installer_created=False
+        nsis_attempts=3
+        nsis_retry_wait=15
+        while (not installer_created) and (nsis_attempts > 0):
+            try:
+                nsis_attempts-=1;
+                self.run_command('"' + proper_windows_path(NSIS_path) + '" ' + self.dst_path_of(tempfile))
+                installer_created=True # if no exception was raised, the codesign worked
+            except ManifestError, err:
+                if nsis_attempts:
+                    print >> sys.stderr, "nsis failed, waiting %d seconds before retrying" % nsis_retry_wait
+                    time.sleep(nsis_retry_wait)
+                    nsis_retry_wait*=2
+                else:
+                    print >> sys.stderr, "Maximum nsis attempts exceeded; giving up"
+                    raise
         # self.remove(self.dst_path_of(tempfile))
         # If we're on a build machine, sign the code using our Authenticode certificate. JC
         sign_py = os.path.expandvars("${SIGN}")
