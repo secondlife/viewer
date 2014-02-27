@@ -76,6 +76,7 @@ private:
 	LLUICtrl * mRatingComboBox;
 	LLUICtrl * mPostButton;
 	LLUICtrl * mCancelButton;
+	LLButton * mBtnPreview;
 };
 
 class LLFlickrAccountPanel : public LLPanel

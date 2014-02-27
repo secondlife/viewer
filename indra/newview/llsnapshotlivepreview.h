@@ -28,6 +28,7 @@
 #define LL_LLSNAPSHOTLIVEPREVIEW_H
 
 #include "llpanelsnapshot.h"
+#include "llviewertexture.h"
 #include "llviewerwindow.h"
 
 class LLImageJPEG;

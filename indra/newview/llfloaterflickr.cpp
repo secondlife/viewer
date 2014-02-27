@@ -66,6 +66,7 @@ LLFlickrPhotoPanel::LLFlickrPhotoPanel() :
 mSnapshotPanel(NULL),
 mResolutionComboBox(NULL),
 mRefreshBtn(NULL),
+mBtnPreview(NULL),
 mWorkingLabel(NULL),
 mThumbnailPlaceholder(NULL),
 mTitleTextBox(NULL),
@@ -98,6 +99,7 @@ BOOL LLFlickrPhotoPanel::postBuild()
 	mFilterComboBox = getChild<LLUICtrl>("filters_combobox");
 	mFilterComboBox->setCommitCallback(boost::bind(&LLFlickrPhotoPanel::updateResolution, this, TRUE));
 	mRefreshBtn = getChild<LLUICtrl>("new_snapshot_btn");
+	mBtnPreview = getChild<LLButton>("big_preview_btn");
     mWorkingLabel = getChild<LLUICtrl>("working_lbl");
 	mThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");
 	mTitleTextBox = getChild<LLUICtrl>("photo_title");
@@ -162,7 +164,13 @@ void LLFlickrPhotoPanel::draw()
     mResolutionComboBox->setEnabled(no_ongoing_connection);
     mFilterComboBox->setEnabled(no_ongoing_connection);
     mRefreshBtn->setEnabled(no_ongoing_connection);
+    mBtnPreview->setEnabled(no_ongoing_connection);
     mLocationCheckbox->setEnabled(no_ongoing_connection);
+    
+    // Toggle the button state as appropriate
+	LLFloaterBigPreview* big_preview_floater = dynamic_cast<LLFloaterBigPreview*>(LLFloaterReg::getInstance("big_preview"));
+    bool preview_active = (big_preview_floater && big_preview_floater->getVisible() && big_preview_floater->isFloaterOwner(getParentByType<LLFloater>()));
+	mBtnPreview->setToggleState(preview_active);
     
     // Display the preview if one is available
 	if (previewp && previewp->getThumbnailImage())
@@ -256,13 +264,22 @@ void LLFlickrPhotoPanel::onClickNewSnapshot()
 void LLFlickrPhotoPanel::onClickBigPreview()
 {
 	LLFloaterBigPreview* big_preview_floater = dynamic_cast<LLFloaterBigPreview*>(LLFloaterReg::getInstance("big_preview"));
-	if (big_preview_floater)
-	{
-        LLSnapshotLivePreview* previewp = getPreviewView();
-		big_preview_floater->setPreview(previewp);
-        big_preview_floater->setFloaterOwner(getParentByType<LLFloater>());
-	}
-	LLFloaterReg::showInstance("big_preview");
+    bool preview_active = (big_preview_floater && big_preview_floater->getVisible() && big_preview_floater->isFloaterOwner(getParentByType<LLFloater>()));
+    // Toggle the preview
+    if (preview_active)
+    {
+        LLFloaterReg::hideInstance("big_preview");
+    }
+    else
+    {
+        if (big_preview_floater)
+        {
+            LLSnapshotLivePreview* previewp = getPreviewView();
+            big_preview_floater->setPreview(previewp);
+            big_preview_floater->setFloaterOwner(getParentByType<LLFloater>());
+        }
+        LLFloaterReg::showInstance("big_preview");
+    }
 }
 
 void LLFlickrPhotoPanel::onSend()

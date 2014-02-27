@@ -28,9 +28,6 @@
 #define LL_LLFLOATERBIGPREVIEW_H
 
 #include "llfloater.h"
-#include "llviewertexture.h"
-
-//class LLSnapshotLivePreview;
 
 class LLFloaterBigPreview : public LLFloater
 {
@@ -44,6 +41,7 @@ public:
 
     void setPreview(LLView* previewp) { mPreviewHandle = previewp->getHandle(); }
     void setFloaterOwner(LLFloater* floaterp) { mFloaterOwner = floaterp; }
+    bool isFloaterOwner(LLFloater* floaterp) const { return (mFloaterOwner == floaterp); }
     void closeOnFloaterOwnerClosing(LLFloater* floaterp);
 	
 private:
