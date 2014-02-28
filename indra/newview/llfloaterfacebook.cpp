@@ -750,12 +750,16 @@ void LLFacebookCheckinPanel::clearAndClose()
 ///////////////////////////
 
 LLFacebookFriendsPanel::LLFacebookFriendsPanel() : 
+mSecondLifeFriends(NULL),
 mSuggestedFriends(NULL)
 {
 }
 
 BOOL LLFacebookFriendsPanel::postBuild()
 {
+	mSecondLifeFriends = getChild<LLAvatarList>("second_life_friends");
+	mSecondLifeFriends->setContextMenu(&LLPanelPeopleMenus::gPeopleContextMenu);
+	
 	mSuggestedFriends = getChild<LLAvatarList>("suggested_friends");
 	mSuggestedFriends->setContextMenu(&LLPanelPeopleMenus::gSuggestedFriendsContextMenu);
 	
@@ -767,6 +771,8 @@ BOOL LLFacebookFriendsPanel::postBuild()
 bool LLFacebookFriendsPanel::updateSuggestedFriendList()
 {
 	const LLAvatarTracker& av_tracker = LLAvatarTracker::instance();
+	uuid_vec_t& second_life_friends = mSecondLifeFriends->getIDs();
+	second_life_friends.clear();
 	uuid_vec_t& suggested_friends = mSuggestedFriends->getIDs();
 	suggested_friends.clear();
 
@@ -775,19 +781,23 @@ bool LLFacebookFriendsPanel::updateSuggestedFriendList()
 	for (LLSD::array_const_iterator i = friends.beginArray(); i != friends.endArray(); ++i)
 	{
 		LLUUID agent_id = (*i).asUUID();
-		bool second_life_buddy = agent_id.notNull() ? av_tracker.isBuddy(agent_id) : false;
-
-		if(!second_life_buddy)
+		if (agent_id.notNull())
 		{
-			//FB+SL but not SL friend
-			if (agent_id.notNull())
+			bool second_life_buddy = av_tracker.isBuddy(agent_id);
+			if (second_life_buddy)
 			{
+				second_life_friends.push_back(agent_id);
+			}
+			else
+			{
+				//FB+SL but not SL friend
 				suggested_friends.push_back(agent_id);
 			}
 		}
 	}
 
 	//Force a refresh when there aren't any filter matches (prevent displaying content that shouldn't display)
+	mSecondLifeFriends->setDirty(true, !mSecondLifeFriends->filterHasMatches());
 	mSuggestedFriends->setDirty(true, !mSuggestedFriends->filterHasMatches());
 	//showFriendsAccordionsIfNeeded();
 

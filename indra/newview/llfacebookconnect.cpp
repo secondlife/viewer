@@ -388,7 +388,7 @@ std::string LLFacebookConnect::getFacebookConnectURL(const std::string& route, b
     if (regionp)
     {
 		//url = "http://pdp15.lindenlab.com/fbc/agent/" + gAgentID.asString(); // TEMPORARY FOR TESTING - CHO
-        url = regionp->getCapability("FacebookConnect");
+		url = regionp->getCapability("FacebookConnect");
         url += route;
     
         if (include_read_from_master && mReadFromMaster)

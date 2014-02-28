@@ -18,8 +18,25 @@
     <accordion_tab
      layout="topleft"
      height="173"
+     name="tab_second_life_friends"
+     title="SL friends">
+      <avatar_list
+       ignore_online_status="true"
+       allow_select="true"
+       follows="all"
+       height="173"
+       layout="topleft"
+       left="0"
+       name="second_life_friends"
+       show_permissions_granted="true"
+       top="0"
+       width="307" />
+    </accordion_tab>
+    <accordion_tab
+     layout="topleft"
+     height="173"
      name="tab_suggested_friends"
-     title="People you may want to friend">
+     title="Add these people as SL friends">
       <avatar_list
        ignore_online_status="true"
        allow_select="true"
