@@ -88,6 +88,9 @@ private:
 	void onSelectServer();
 	void onLocationSLURL();
 
+	static void onClickConnectLast(void*);
+	static void onClickConnectFavorite(void*);
+	static void onClickConnectLocation(void*);
 	static void onClickConnect(void*);
 	static void onClickNewAccount(void*);
 	static void onClickVersion(void*);
@@ -97,7 +100,6 @@ private:
 	static void updateServerCombo();
 
 private:
-	LLPointer<LLUIImage> mLogoImage;
 	boost::scoped_ptr<LLPanelLoginListener> mListener;
 
 	void			(*mCallback)(S32 option, void *userdata);

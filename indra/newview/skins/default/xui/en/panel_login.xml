@@ -111,6 +111,8 @@
               tool_tip="The username you chose when you registered, like bobsmith12 or Steller Sunshine"
               name="username_combo"
               width="232">
+            <combo_box.combo_editor
+                text_pad_left="8" />
             <combo_box.combo_button
                 visible="false" />
             <combo_box.drop_down_button
@@ -147,6 +149,7 @@
               height="32"
               left="0"
               max_length_bytes="16"
+              text_pad_left="8"
               name="password_edit"
               label="Password"
               font="SansSerifLarge"
@@ -287,6 +290,7 @@
               width="170"
               height="30"
               left="590"
+              text_pad_left="8"
               name="location_edit"
               label="Type a location"
               font="SansSerifMedium"

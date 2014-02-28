@@ -108,7 +108,9 @@
             tool_tip="The username you chose when you registered, like bobsmith12 or Steller Sunshine"
             name="username_combo"
             width="232">
-              <combo_box.combo_button
+            <combo_box.combo_editor
+                text_pad_left="8" />
+            <combo_box.combo_button
                 visible ="false"/>
               <combo_box.drop_down_button
                 visible ="false"/>
@@ -121,6 +123,7 @@
             max_length_bytes="16"
             name="password_edit"
             label="Password"
+            text_pad_left="8"
             font="SansSerifLarge"
             is_password="true"
             select_on_focus="true"

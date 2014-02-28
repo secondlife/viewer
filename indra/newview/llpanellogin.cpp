@@ -170,7 +170,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 						 void (*callback)(S32 option, void* user_data),
 						 void *cb_data)
 :	LLPanel(),
-	mLogoImage(),
 	mCallback(callback),
 	mCallbackData(cb_data),
 	mListener(new LLPanelLoginListener(this))
@@ -197,9 +196,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 		login_holder->addChild(this);
 	}
 
-	// Logo
-	mLogoImage = LLUI::getUIImage("startup_logo");
-
 	if (gSavedSettings.getBOOL("FirstLoginThisInstall"))
 	{
 		buildFromFile( "panel_login_first.xml");
@@ -214,7 +210,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	LLLineEditor* password_edit(getChild<LLLineEditor>("password_edit"));
 	password_edit->setKeystrokeCallback(onPassKey, this);
 	// STEAM-14: When user presses Enter with this field in focus, initiate login
-	password_edit->setCommitCallback(boost::bind(&LLPanelLogin::onClickConnect, this));
+	password_edit->setCommitCallback(boost::bind(&LLPanelLogin::onClickConnectLast, this));
 
 	// change z sort of clickable text to be behind buttons
 	sendChildToBack(getChildView("forgot_password_text"));
@@ -272,7 +268,9 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 		LLPanelLogin::onUpdateStartSLURL(start_slurl); // updates grid if needed
 	}
 	
-	childSetAction("connect_btn", onClickConnect, this);
+	childSetAction("connect_btn", onClickConnectLast, this);
+	childSetAction("connect_favorite_btn", onClickConnectFavorite, this);
+	childSetAction("connect_location_btn", onClickConnectLocation, this);
 
 	getChild<LLPanel>("links_login_panel")->setDefaultBtn("connect_btn");
 
@@ -283,8 +281,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	
 	LLTextBox* forgot_password_text = getChild<LLTextBox>("forgot_password_text");
 	forgot_password_text->setClickedCallback(onClickForgotPassword, NULL);
-
-	childSetAction("create_new_account_btn", onClickNewAccount, NULL);
 
 	LLTextBox* need_help_text = getChild<LLTextBox>("login_help");
 	need_help_text->setClickedCallback(onClickHelp, NULL);
@@ -715,8 +711,8 @@ void LLPanelLogin::autologinToLocation(const LLSLURL& slurl)
 
 	if ( LLPanelLogin::sInstance != NULL )
 	{
-		void* unused_paramter = 0;
-		LLPanelLogin::sInstance->onClickConnect(unused_paramter);
+		void* unused_parameter = 0;
+		LLPanelLogin::sInstance->onClickConnect(unused_parameter);
 	}
 }
 
@@ -804,6 +800,27 @@ void LLPanelLogin::handleMediaEvent(LLPluginClassMedia* /*self*/, EMediaEvent ev
 //---------------------------------------------------------------------------
 // Protected methods
 //---------------------------------------------------------------------------
+// static
+void LLPanelLogin::onClickConnectLast(void *)
+{
+	std::string location = LLSLURL::SIM_LOCATION_LAST;
+	LLStartUp::setStartSLURL(location);
+
+	void* unused_parameter = 0;
+	LLPanelLogin::sInstance->onClickConnect(unused_parameter);
+}
+
+void LLPanelLogin::onClickConnectFavorite(void *)
+{
+	LLPanelLogin::sInstance->onLocationSLURL();
+
+	void* unused_parameter = 0;
+	LLPanelLogin::sInstance->onClickConnect(unused_parameter);
+}
+
+void LLPanelLogin::onClickConnectLocation(void *)
+{
+}
 
 // static
 void LLPanelLogin::onClickConnect(void *)
@@ -871,16 +888,6 @@ void LLPanelLogin::onClickConnect(void *)
 		}
 	}
 }
-
-// static
-void LLPanelLogin::onClickNewAccount(void*)
-{
-	if (sInstance)
-	{
-		LLWeb::loadURLExternal(LLTrans::getString("create_account_url"));
-	}
-}
-
 
 // static
 void LLPanelLogin::onClickVersion(void*)
