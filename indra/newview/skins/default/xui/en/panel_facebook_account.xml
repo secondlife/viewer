@@ -2,6 +2,7 @@
 	 height="400"
 	 width="304"
 	 layout="topleft"
+    follows="all"
    name="panel_facebook_account">
   <string
       name="facebook_connected"
@@ -34,6 +35,7 @@
    type="string"/>
   <panel
     layout="topleft"
+    follows="left|top"
     name="panel_buttons"
     height="345"
     left="9">

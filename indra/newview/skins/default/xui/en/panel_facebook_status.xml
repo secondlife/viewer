@@ -1,6 +1,7 @@
     <panel
 	 height="400"
 	 width="304"
+     follows="all"
 	 layout="topleft"
      name="panel_facebook_status">
      <layout_stack
@@ -26,7 +27,7 @@
         What's on your mind?
        </text>
        <text_editor
-        follows="left|top"
+        follows="left|top|right"
         height="150"
         width="250"
         left="9"
@@ -41,7 +42,7 @@
        name="status_button_panel"
        height="25">
        <button
-        follows="left|top"
+        follows="left|bottom"
         top="0"
         left="9"
         height="23"
@@ -52,7 +53,7 @@
           function="SocialSharing.SendStatus" />
        </button>
        <button
-        follows="left|top"
+        follows="left|bottom"
         height="23"
         label="Cancel"
         name="cancel_status_btn"

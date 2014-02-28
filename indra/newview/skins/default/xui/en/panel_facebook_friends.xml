@@ -2,6 +2,7 @@
 	 height="400"
 	 width="304"
 	 layout="topleft"
+    follows="all"
    name="panel_facebook_friends">
   <accordion
  background_visible="true"
