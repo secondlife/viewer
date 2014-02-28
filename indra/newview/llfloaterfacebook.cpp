@@ -51,6 +51,8 @@
 #include "lltabcontainer.h"
 #include "llavatarlist.h"
 #include "llpanelpeoplemenus.h"
+#include "llaccordionctrl.h"
+#include "llaccordionctrltab.h"
 
 static LLRegisterPanelClassWrapper<LLFacebookStatusPanel> t_panel_status("llfacebookstatuspanel");
 static LLRegisterPanelClassWrapper<LLFacebookPhotoPanel> t_panel_photo("llfacebookphotopanel");
@@ -799,9 +801,25 @@ bool LLFacebookFriendsPanel::updateSuggestedFriendList()
 	//Force a refresh when there aren't any filter matches (prevent displaying content that shouldn't display)
 	mSecondLifeFriends->setDirty(true, !mSecondLifeFriends->filterHasMatches());
 	mSuggestedFriends->setDirty(true, !mSuggestedFriends->filterHasMatches());
-	//showFriendsAccordionsIfNeeded();
+	showFriendsAccordionsIfNeeded();
 
 	return false;
+}
+
+void LLFacebookFriendsPanel::showFriendsAccordionsIfNeeded()
+{
+	// Expand and show accordions if needed, else - hide them
+	getChild<LLAccordionCtrlTab>("tab_second_life_friends")->setVisible(mSecondLifeFriends->filterHasMatches());
+	getChild<LLAccordionCtrlTab>("tab_suggested_friends")->setVisible(mSuggestedFriends->filterHasMatches());
+
+	// Rearrange accordions
+	LLAccordionCtrl* accordion = getChild<LLAccordionCtrl>("friends_accordion");
+	accordion->arrange();
+
+	// *TODO: new no_matched_tabs_text attribute was implemented in accordion (EXT-7368).
+	// this code should be refactored to use it
+	// keep help text in a synchronization with accordions visibility.
+	//updateFriendListHelpText();
 }
 
 void LLFacebookFriendsPanel::updateFacebookList(bool visible)

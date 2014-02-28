@@ -136,6 +136,7 @@ public:
 
 private:
 	bool updateSuggestedFriendList();
+	void showFriendsAccordionsIfNeeded();
 	void updateFacebookList(bool visible);
 	bool onConnectedToFacebook(const LLSD& data);
 	
