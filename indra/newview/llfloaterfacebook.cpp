@@ -757,6 +757,11 @@ mSuggestedFriends(NULL)
 {
 }
 
+LLFacebookFriendsPanel::~LLFacebookFriendsPanel()
+{
+    LLAvatarTracker::instance().removeObserver(this);
+}
+
 BOOL LLFacebookFriendsPanel::postBuild()
 {
 	mSecondLifeFriends = getChild<LLAvatarList>("second_life_friends");
@@ -767,6 +772,8 @@ BOOL LLFacebookFriendsPanel::postBuild()
 	
 	setVisibleCallback(boost::bind(&LLFacebookFriendsPanel::updateFacebookList, this, _2));
 
+    LLAvatarTracker::instance().addObserver(this);
+    
 	return LLPanel::postBuild();
 }
 
@@ -815,41 +822,34 @@ void LLFacebookFriendsPanel::showFriendsAccordionsIfNeeded()
 	// Rearrange accordions
 	LLAccordionCtrl* accordion = getChild<LLAccordionCtrl>("friends_accordion");
 	accordion->arrange();
-
-	// *TODO: new no_matched_tabs_text attribute was implemented in accordion (EXT-7368).
-	// this code should be refactored to use it
-	// keep help text in a synchronization with accordions visibility.
-	//updateFriendListHelpText();
 }
+
+void LLFacebookFriendsPanel::changed(U32 mask)
+{
+	if (mask & (LLFriendObserver::ADD | LLFriendObserver::REMOVE))
+	{
+		updateFacebookList(true);
+	}
+}
+
 
 void LLFacebookFriendsPanel::updateFacebookList(bool visible)
 {
 	if (visible)
 	{
-		LLEventPumps::instance().obtain("FacebookConnectContent").stopListening("LLPanelPeople"); // just in case it is already listening
-		LLEventPumps::instance().obtain("FacebookConnectContent").listen("LLPanelPeople", boost::bind(&LLFacebookFriendsPanel::updateSuggestedFriendList, this));
-
-		LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLPanelPeople"); // just in case it is already listening
-		LLEventPumps::instance().obtain("FacebookConnectState").listen("LLPanelPeople", boost::bind(&LLFacebookFriendsPanel::onConnectedToFacebook, this, _1));
-
-		//Connected
-		if (LLFacebookConnect::instance().isConnected())
-		{
-			LLFacebookConnect::instance().loadFacebookFriends();
-		}
-		//Check if connected
+		// Try to connect to Facebook
         if ((LLFacebookConnect::instance().getConnectionState() == LLFacebookConnect::FB_NOT_CONNECTED) ||
             (LLFacebookConnect::instance().getConnectionState() == LLFacebookConnect::FB_CONNECTION_FAILED))
         {
             LLFacebookConnect::instance().checkConnectionToFacebook();
         }
-
+		// Loads FB friends
+		if (LLFacebookConnect::instance().isConnected())
+		{
+			LLFacebookConnect::instance().loadFacebookFriends();
+		}
+        // Sort the FB friends and update the lists
 		updateSuggestedFriendList();
-	}
-	else
-	{
-		LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLPanelPeople");
-		LLEventPumps::instance().obtain("FacebookConnectContent").stopListening("LLPanelPeople");
 	}
 }
 
@@ -861,10 +861,10 @@ bool LLFacebookFriendsPanel::onConnectedToFacebook(const LLSD& data)
 	{
 		LLFacebookConnect::instance().loadFacebookFriends();
 	}
-	else if(connection_state == LLFacebookConnect::FB_NOT_CONNECTED)
+	else if (connection_state == LLFacebookConnect::FB_NOT_CONNECTED)
 	{
 		updateSuggestedFriendList();
-	};
+	}
 
 	return false;
 }

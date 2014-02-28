@@ -27,6 +27,7 @@
 #ifndef LL_LLFLOATERFACEBOOK_H
 #define LL_LLFLOATERFACEBOOK_H
 
+#include "llcallingcard.h"
 #include "llfloater.h"
 #include "lltextbox.h"
 #include "llviewertexture.h"
@@ -128,11 +129,13 @@ private:
     bool mReloadingMapTexture;
 };
 
-class LLFacebookFriendsPanel : public LLPanel
+class LLFacebookFriendsPanel : public LLPanel, public LLFriendObserver
 {
 public:
 	LLFacebookFriendsPanel();
+	~LLFacebookFriendsPanel();
 	BOOL postBuild();
+	virtual void changed(U32 mask);
 
 private:
 	bool updateSuggestedFriendList();
