@@ -1270,7 +1270,7 @@ S32 LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended, float mem_m
 		//  - it's going to be swapping constantly regardless
 		S32 max_vram = gGLManager.mVRAM;
 
-		if(gGLManager.mIsATI)
+		if(!get_recommended && gGLManager.mIsATI)
 		{
 			//shrink the availabe vram for ATI cards because some of them do not handel texture swapping well.
 			max_vram = (S32)(max_vram * 0.75f);  
@@ -1285,15 +1285,15 @@ S32 LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended, float mem_m
 	{
 		if (!get_recommended)
 		{
-			max_texmem = 512;
+			max_texmem = 2048;
 		}
 		else if (gSavedSettings.getBOOL("NoHardwareProbe")) //did not do hardware detection at startup
 		{
-			max_texmem = 512;
+			max_texmem = 2048;
 		}
 		else
 		{
-			max_texmem = 128;
+			max_texmem = 512;
 		}
 
 		llwarns << "VRAM amount not detected, defaulting to " << max_texmem << " MB" << llendl;
@@ -1301,10 +1301,7 @@ S32 LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended, float mem_m
 
 	S32 system_ram = (S32)BYTES_TO_MEGA_BYTES(gSysMemory.getPhysicalMemoryClamped()); // In MB
 	//llinfos << "*** DETECTED " << system_ram << " MB of system memory." << llendl;
-	if (get_recommended)
-		max_texmem = llmin(max_texmem, (S32)(system_ram/2));
-	else
-		max_texmem = llmin(max_texmem, (S32)(system_ram));
+	max_texmem = llmin(max_texmem, (S32)(system_ram));
     
     // limit the texture memory to a multiple of the default if we've found some cards to behave poorly otherwise
 	max_texmem = llmin(max_texmem, (S32) (mem_multiplier * (F32) max_texmem));
@@ -1334,7 +1331,7 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32 mem)
 	mem = llclamp(mem, getMinVideoRamSetting(), getMaxVideoRamSetting(false, mem_multiplier));
 	if (mem != cur_mem)
 	{
-		gSavedSettings.setS32("TextureMemory", mem);
+		gSavedSettings.setS32("TextureMemory", mem/3);
 		return; //listener will re-enter this function
 	}
 
