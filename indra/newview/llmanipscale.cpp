@@ -1615,10 +1615,10 @@ void LLManipScale::renderSnapGuides(const LLBBox& bbox)
 	{
 		LLGLDepthTest gls_depth(GL_FALSE);
 
-		F32 dist_grid_axis = (drag_point - mScaleCenter) * mScaleDir;
+		F32 dist_grid_axis = llmax(0.f, (drag_point - mScaleCenter) * mScaleDir);
 		// find distance to nearest smallest grid unit
-		F32 grid_multiple1 = llfloor(llmax(0.f, dist_grid_axis) / (mScaleSnapUnit1 / max_subdivisions));
-		F32 grid_multiple2 = llfloor(llmax(0.f, dist_grid_axis) / (mScaleSnapUnit2 / max_subdivisions));
+		F32 grid_multiple1 = llfloor(dist_grid_axis / (mScaleSnapUnit1 / max_subdivisions));
+		F32 grid_multiple2 = llfloor(dist_grid_axis / (mScaleSnapUnit2 / max_subdivisions));
 		F32 grid_offset1 = fmodf(dist_grid_axis, mScaleSnapUnit1 / max_subdivisions);
 		F32 grid_offset2 = fmodf(dist_grid_axis, mScaleSnapUnit2 / max_subdivisions);
 
@@ -1641,7 +1641,6 @@ void LLManipScale::renderSnapGuides(const LLBBox& bbox)
 		{
 			// draw snap guide line
 			gGL.begin(LLRender::LINES);
-			//LLVector3 snap_line_center = mScaleCenter + (mScaleSnappedValue * mScaleDir);
 			LLVector3 snap_line_center = bbox.localToAgent(unitVectorToLocalBBoxExtent( partToUnitVector( mManipPart ), bbox ));
 
 			LLVector3 snap_line_start = snap_line_center + (mSnapGuideDir1 * mSnapRegimeOffset);
@@ -1768,8 +1767,6 @@ void LLManipScale::renderSnapGuides(const LLBBox& bbox)
 		{
 			F32 tick_scale = 1.f;
 			F32 alpha = grid_alpha * (1.f - (0.5f *  ((F32)llabs(i) / (F32)num_ticks_per_side1)));
-			F32 distance = (drag_point - mScaleCenter) * mScaleDir;
-			(void) distance;
 			LLVector3 tick_pos = mScaleCenter + (mScaleDir * (grid_multiple1 + i) * (mScaleSnapUnit1 / max_subdivisions));
 
 			for (F32 division_level = max_subdivisions; division_level >= sGridMinSubdivisionLevel; division_level /= 2.f)
