@@ -143,6 +143,7 @@ private:
 	void updateFacebookList(bool visible);
 	bool onConnectedToFacebook(const LLSD& data);
 	
+	LLTextBox * mFriendsStatusCaption;
 	LLAvatarList* mSecondLifeFriends;
 	LLAvatarList* mSuggestedFriends;
 };

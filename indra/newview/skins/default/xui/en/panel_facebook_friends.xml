@@ -4,6 +4,12 @@
 	 layout="topleft"
     follows="all"
    name="panel_facebook_friends">
+  <string
+   name="facebook_friends_empty"
+   value="You do not have any Facebook friend who are also Second Life resident. You can go to the Status panel and let them know you're in Second Life!" />
+  <string
+   name="facebook_friends_no_connected"
+   value="You're currently not connected to Facebook. Please go to the Account tab to connect and enable this feature." />
   <accordion
  background_visible="true"
  bg_alpha_color="DkGray2"
@@ -50,4 +56,17 @@
        width="307" />
     </accordion_tab>
   </accordion>
+    <text
+        layout="topleft"
+        word_wrap="true"
+        height="64"
+        width="290"
+        follows="top|left|right"
+        font="SansSerif"
+        left="9"
+        name="facebook_friends_status"
+        top="21"
+        type="string">
+        Not connected to Facebook.
+    </text>
 </panel>

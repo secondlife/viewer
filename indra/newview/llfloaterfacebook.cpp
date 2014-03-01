@@ -752,6 +752,7 @@ void LLFacebookCheckinPanel::clearAndClose()
 ///////////////////////////
 
 LLFacebookFriendsPanel::LLFacebookFriendsPanel() : 
+mFriendsStatusCaption(NULL),
 mSecondLifeFriends(NULL),
 mSuggestedFriends(NULL)
 {
@@ -764,6 +765,8 @@ LLFacebookFriendsPanel::~LLFacebookFriendsPanel()
 
 BOOL LLFacebookFriendsPanel::postBuild()
 {
+	mFriendsStatusCaption = getChild<LLTextBox>("facebook_friends_status");
+
 	mSecondLifeFriends = getChild<LLAvatarList>("second_life_friends");
 	mSecondLifeFriends->setContextMenu(&LLPanelPeopleMenus::gPeopleContextMenu);
 	
@@ -815,13 +818,42 @@ bool LLFacebookFriendsPanel::updateSuggestedFriendList()
 
 void LLFacebookFriendsPanel::showFriendsAccordionsIfNeeded()
 {
-	// Expand and show accordions if needed, else - hide them
-	getChild<LLAccordionCtrlTab>("tab_second_life_friends")->setVisible(mSecondLifeFriends->filterHasMatches());
-	getChild<LLAccordionCtrlTab>("tab_suggested_friends")->setVisible(mSuggestedFriends->filterHasMatches());
-
-	// Rearrange accordions
-	LLAccordionCtrl* accordion = getChild<LLAccordionCtrl>("friends_accordion");
-	accordion->arrange();
+    // Show / hide the status text : needs to be done *before* showing / hidding the accordions
+    if (!mSecondLifeFriends->filterHasMatches() && !mSuggestedFriends->filterHasMatches())
+    {
+        // Show some explanation text if the lists are empty...
+        mFriendsStatusCaption->setVisible(true);
+        if (LLFacebookConnect::instance().isConnected())
+        {
+            //...you're connected to FB but have no friends :(
+            mFriendsStatusCaption->setText(getString("facebook_friends_empty"));
+        }
+        else
+        {
+            //...you're not connected to FB
+            mFriendsStatusCaption->setText(getString("facebook_friends_no_connected"));
+        }
+        // Hide the lists
+        getChild<LLAccordionCtrlTab>("friends_accordion")->setVisible(false);
+        getChild<LLAccordionCtrlTab>("tab_second_life_friends")->setVisible(false);
+        getChild<LLAccordionCtrlTab>("tab_suggested_friends")->setVisible(false);
+    }
+    else
+    {
+        // We have something in the lists, hide that
+        mFriendsStatusCaption->setVisible(false);
+        
+        // Show the lists
+        LLAccordionCtrl* accordion = getChild<LLAccordionCtrl>("friends_accordion");
+        accordion->setVisible(true);
+        
+        // Expand and show accordions if needed, else - hide them
+        getChild<LLAccordionCtrlTab>("tab_second_life_friends")->setVisible(mSecondLifeFriends->filterHasMatches());
+        getChild<LLAccordionCtrlTab>("tab_suggested_friends")->setVisible(mSuggestedFriends->filterHasMatches());
+        
+        // Rearrange accordions
+        accordion->arrange();
+    }
 }
 
 void LLFacebookFriendsPanel::changed(U32 mask)
