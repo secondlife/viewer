@@ -1658,7 +1658,7 @@ void LLManipScale::renderSnapGuides(const LLBBox& bbox)
 			F32 arrow_size;
 			if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 			{
-				arrow_size = 0.1f;
+				arrow_size = 0.02f;
 			}
 			else
 			{
