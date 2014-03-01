@@ -68,8 +68,11 @@ protected:
     void onClickCancel();
     void onClickSave();
     void onClickLocation();
-    void onClickClear();
+	void onClickClear();
+	void onPickGroup();
     void onFieldChanged();
+
+	void setEditGroup(LLUUID group_id);
 
     void changeToView();
 

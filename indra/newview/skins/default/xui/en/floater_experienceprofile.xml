@@ -72,17 +72,16 @@
         <panel
           bg_alpha_color="DkGray2"
           follows="top|left|right"
-          height="480"
+          height="510"
           layout="topleft"
           left="0"
-          min_height="480"
           name="scrolling_panel"
           top="0"
           width="315"
           min_width="315">
           <layout_stack
             follows="all"
-            height="480"
+            height="510"
             layout="topleft"
             left="0"
             top="0"
@@ -421,7 +420,7 @@
       <scroll_container
         color="DkGray2"
         follows="all"
-        height="525"
+        height="520"
         layout="topleft"
         left="9"
         name="edit_xp_scroll"
@@ -431,7 +430,7 @@
         <panel
           bg_alpha_color="DkGray2"
           follows="top|left|right"
-          height="525"
+          height="590"
           layout="topleft"
           left="0"
           name="edit_scrolling_panel"
@@ -485,6 +484,25 @@
             text_color="black"
             right="-11"
             word_wrap="true"/>
+          <button
+            top_pad="10"
+            left="10"
+            width="125"
+            height="23"
+            name="Group_btn"
+            label="Group"
+            />
+          <text
+            type="string"
+            length="1"
+            follows="left|top|right"
+            height="14"
+            layout="topleft"
+            left_pad="10"
+            top_pad="-18"
+            use_ellipses="true"
+            name="edit_GroupText"
+            right="-10" />
           <text
             top_pad="10"
             type="string"
@@ -565,10 +583,10 @@
             top_pad="-14"
             use_ellipses="true"
             name="edit_LocationTextText"
-            right="-10"></text>
+            right="-10" />
           <button
             left="10"
-            width="150"
+            width="125"
             height="23"
             name="location_btn"
             label="Set to Current"
@@ -577,9 +595,9 @@
             top_pad="-23"
             follows="top|right"
             right="-10"
-            width="80"
+            width="125"
             name="clear_btn"
-            label="Clear"/>
+            label="Clear Location"/>
           <text
             type="string"
             length="1"
@@ -610,10 +628,11 @@
                      tool_tip=""
                      label="Enable Experience"
                      name="edit_enable_btn"/>
-          <check_box width="130"
+          <check_box width="125"
                      height="21"
                      top_pad="-21"
                      right="-10"
+                     visible="false"
                      layout="topleft"
                      follows="top|left|right"
                      label="Hide In Search"
@@ -624,7 +643,7 @@
             label="Back"
             layout="topleft"
             name="cancel_btn"
-            width="120"
+            width="125"
             top_pad="15"
             left="10"
             visible="true"/>
@@ -635,12 +654,12 @@
             layout="topleft"
             name="save_btn"
             top_pad="-23"
-            width="120"
+            width="125"
             right="-10"
             visible="true"/>
           <text
             follows="left|top|right"
-            height="50"
+            height="25"
             layout="topleft"
             left="10"
             top_pad="10"

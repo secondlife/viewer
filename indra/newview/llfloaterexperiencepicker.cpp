@@ -245,12 +245,16 @@ void LLFloaterExperiencePicker::onBtnSelect()
 		
 		getSelectedExperienceIds(results, experience_ids);
 		mSelectionCallback(experience_ids);
+		getChild<LLScrollListCtrl>(LIST_RESULTS)->deselectAllItems(TRUE);
+		if(mCloseOnSelect)
+		{
+			mCloseOnSelect = FALSE;
+			closeFloater();
+		}
 	}
-	getChild<LLScrollListCtrl>(LIST_RESULTS)->deselectAllItems(TRUE);
-	if(mCloseOnSelect)
+	else 
 	{
-		mCloseOnSelect = FALSE;
-		closeFloater();
+		onBtnProfile();
 	}
 }
 

@@ -6997,20 +6997,33 @@ Unable to acquire a new experience:
       name="okbutton"
       yestext="OK"/>
   </notification>
-  
-  
-  
+
+
+
   <notification
     icon="notify.tga"
     name="TeleportedHomeExperienceRemoved"
     persist="true"
     type="notify">
-    You have been teleported from the [region_name] for removing the experience secondlife:///app/experience/[public_id]/profile and are no longer permitted in the region.
+    You have been teleported from the region [region_name] for removing the experience secondlife:///app/experience/[public_id]/profile and are no longer permitted in the region.
     <form name="form">
       <ignore name="ignore"
               text="Kicked from region for removing an experience"/>
     </form>
   </notification>
+
+  <notification
+    icon="notify.tga"
+    name="TrustedExperienceEntry"
+    persist="true"
+    type="notify">
+    You have been allowed into the region [region_name] by participating in the trusted experience secondlife:///app/experience/[public_id]/profile removing this experience may kick you from the region.
+    <form name="form">
+      <ignore name="ignore"
+              text="Allowed into a region by an experience"/>
+    </form>
+  </notification>
+  
   <notification
    icon="notify.tga"
    name="ScriptQuestionExperience"

@@ -37,6 +37,9 @@
 #include "llnotificationsutil.h"
 
 
+
+#define SHOW_RECENT_TAB (0)
+
 class LLExperienceListResponder : public LLHTTPClient::Responder
 {
 public:
@@ -106,9 +109,11 @@ BOOL LLFloaterExperiences::postBuild()
     addTab("Blocked_Experiences_Tab", false);
     addTab("Admin_Experiences_Tab", false);
     addTab("Contrib_Experiences_Tab", false);
-    addTab("Recent_Experiences_Tab", false);
 	LLPanelExperiences* owned = addTab("Owned_Experiences_Tab", false);
 	owned->setButtonAction("acquire", boost::bind(&LLFloaterExperiences::sendPurchaseRequest, this));
+#if SHOW_RECENT_TAB
+	addTab("Recent_Experiences_Tab", false);
+#endif //SHOW_RECENT_TAB
     resizeToTabs();
 
    
@@ -118,8 +123,10 @@ BOOL LLFloaterExperiences::postBuild()
    	return TRUE;
 }
 
+
 void LLFloaterExperiences::clearFromRecent(const LLSD& ids)
 {
+#if SHOW_RECENT_TAB
     LLTabContainer* tabs = getChild<LLTabContainer>("xp_tabs");
 
     LLPanelExperiences* tab = (LLPanelExperiences*)tabs->getPanelByName("Recent_Experiences_Tab");
@@ -127,10 +134,12 @@ void LLFloaterExperiences::clearFromRecent(const LLSD& ids)
         return;
 
     tab->removeExperiences(ids);
+#endif // SHOW_RECENT_TAB
 }
 
 void LLFloaterExperiences::setupRecentTabs()
 {
+#if SHOW_RECENT_TAB
     LLTabContainer* tabs = getChild<LLTabContainer>("xp_tabs");
 
     LLPanelExperiences* tab = (LLPanelExperiences*)tabs->getPanelByName("Recent_Experiences_Tab");
@@ -152,7 +161,9 @@ void LLFloaterExperiences::setupRecentTabs()
     }
 
     tab->setExperienceList(recent);
+#endif // SHOW_RECENT_TAB
 }
+
 
 void LLFloaterExperiences::resizeToTabs()
 {

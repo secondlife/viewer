@@ -48,6 +48,7 @@
 #include "lltrans.h"
 #include "llviewerregion.h"
 #include "llevents.h"
+#include "llfloatergroups.h"
 
 #define XML_PANEL_EXPERIENCE_PROFILE "floater_experienceprofile.xml"
 #define TF_NAME "experience_title"
@@ -81,6 +82,7 @@
 #define BTN_PRIVATE "private_btn"
 #define BTN_SET_LOCATION "location_btn"
 #define BTN_CLEAR_LOCATION "clear_btn"
+#define BTN_SET_GROUP "Group_btn"
 
 
 
@@ -304,10 +306,10 @@ BOOL LLFloaterExperienceProfile::postBuild()
     childSetAction(BTN_FORGET, boost::bind(&LLFloaterExperienceProfile::onClickForget, this));
     childSetAction(BTN_BLOCK, boost::bind(&LLFloaterExperienceProfile::onClickPermission, this, "Block"));
     childSetAction(BTN_CANCEL, boost::bind(&LLFloaterExperienceProfile::onClickCancel, this));
-    childSetAction(BTN_SAVE, boost::bind(&LLFloaterExperienceProfile::onClickSave, this));
-    childSetAction(BTN_SET_LOCATION, boost::bind(&LLFloaterExperienceProfile::onClickLocation, this));
-    childSetAction(BTN_CLEAR_LOCATION, boost::bind(&LLFloaterExperienceProfile::onClickClear, this));
-
+	childSetAction(BTN_SAVE, boost::bind(&LLFloaterExperienceProfile::onClickSave, this));
+	childSetAction(BTN_SET_LOCATION, boost::bind(&LLFloaterExperienceProfile::onClickLocation, this));
+	childSetAction(BTN_CLEAR_LOCATION, boost::bind(&LLFloaterExperienceProfile::onClickClear, this));
+	childSetAction(BTN_SET_GROUP, boost::bind(&LLFloaterExperienceProfile::onPickGroup, this));
 
     getChild<LLTextEditor>(EDIT TF_DESC)->setKeystrokeCallback(boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this));
     getChild<LLUICtrl>(EDIT TF_MATURITY)->setCommitCallback(boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this));
@@ -498,10 +500,15 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
 
 
     id = experience[LLExperienceCache::GROUP_ID].asUUID();
+	bool id_null = id.isNull();
     child = getChild<LLTextBox>(TF_GROUP);
     value = LLSLURL("group", id, "inspect").getSLURLString();
     child->setText(value);
-    getChild<LLLayoutPanel>(PNL_GROUP)->setVisible(id.notNull());
+    getChild<LLLayoutPanel>(PNL_GROUP)->setVisible(!id_null);
+
+	setEditGroup(id);
+
+	getChild<LLButton>(BTN_SET_GROUP)->setEnabled(experience[LLExperienceCache::AGENT_ID].asUUID() == gAgent->getID());
     
     LLCheckBoxCtrl* enable = getChild<LLCheckBoxCtrl>(EDIT BTN_ENABLE);
     S32 properties = mExperienceDetails[LLExperienceCache::PROPERTIES].asInteger();
@@ -915,4 +922,29 @@ void LLFloaterExperienceProfile::updatePackage()
     }
 
     mPackage[LLExperienceCache::PROPERTIES] = properties;
+}
+
+void LLFloaterExperienceProfile::onPickGroup()
+{
+	LLFloater* parent_floater = gFloaterView->getParentFloater(this);
+
+	LLFloaterGroupPicker* widget = LLFloaterReg::showTypedInstance<LLFloaterGroupPicker>("group_picker", LLSD(gAgent.getID()));
+	if (widget)
+	{
+		widget->setSelectGroupCallback(boost::bind(&LLFloaterExperienceProfile::setEditGroup, this, _1));
+		if (parent_floater)
+		{
+			LLRect new_rect = gFloaterView->findNeighboringPosition(parent_floater, widget);
+			widget->setOrigin(new_rect.mLeft, new_rect.mBottom);
+			parent_floater->addDependentFloater(widget);
+		}
+	}
+}
+
+void LLFloaterExperienceProfile::setEditGroup( LLUUID group_id )
+{
+	LLTextBox* child = getChild<LLTextBox>(EDIT TF_GROUP);
+	std::string value = LLSLURL("group", group_id, "inspect").getSLURLString();
+	child->setText(value);
+	mPackage[LLExperienceCache::GROUP_ID] = group_id;
 }
