@@ -1612,14 +1612,14 @@ void LLManipScale::renderSnapGuides(const LLBBox& bbox)
 	{
 		LLGLDepthTest gls_depth(GL_FALSE);
 
-		F32 dist_grid_axis = (drag_point - mScaleCenter) * mScaleDir;
+		F32 dist_grid_axis = llmax(0.f, (drag_point - mScaleCenter) * mScaleDir);
 
 		F32 smallest_subdivision1 = mScaleSnapUnit1 / sGridMaxSubdivisionLevel;
 		F32 smallest_subdivision2 = mScaleSnapUnit2 / sGridMaxSubdivisionLevel;
 
 		// find distance to nearest smallest grid unit
-		F32 grid_multiple1 = llfloor(llmax(0.f, dist_grid_axis) / smallest_subdivision1);
-		F32 grid_multiple2 = llfloor(llmax(0.f, dist_grid_axis) / smallest_subdivision2);
+		F32 grid_multiple1 = llfloor(dist_grid_axis / smallest_subdivision1);
+		F32 grid_multiple2 = llfloor(dist_grid_axis / smallest_subdivision2);
 		F32 grid_offset1 = fmodf(dist_grid_axis, smallest_subdivision1);
 		F32 grid_offset2 = fmodf(dist_grid_axis, smallest_subdivision2);
 
