@@ -157,10 +157,12 @@ private:
 	LLVector3		mSnapDir1;
 	LLVector3		mSnapDir2;
 	F32				mSnapRegimeOffset;
+	F32				mTickPixelSpacing1;
+	F32				mTickPixelSpacing2;
 	F32				mSnapGuideLength;
 	LLVector3		mScaleCenter;
 	LLVector3		mScaleDir;
-	F32				mScaleSnapValue;
+	F32				mScaleSnappedValue;
 	BOOL			mInSnapRegime;
 	F32*			mManipulatorScales;
 };
