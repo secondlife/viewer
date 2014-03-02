@@ -157,10 +157,12 @@ private:
 	LLVector3		mSnapDir1;
 	LLVector3		mSnapDir2;
 	F32				mSnapRegimeOffset;
+	F32				mTickPixelSpacing1;
+	F32				mTickPixelSpacing2;
 	F32				mSnapGuideLength;
 	LLVector3		mScaleCenter;
 	LLVector3		mScaleDir; //!< The direction of the scaling action.  In face-dragging this is aligned with one of the cardinal axis relative to the prim, but in corner-dragging this is along the diagonal.
-	F32				mScaleSnapValue; //!< The distance of the current position nearest the mouse location, measured along mScaleDir.  Is measured either from the center or from the far face/corner depending upon whether uniform scaling is true or false respectively.
+	F32				mScaleSnappedValue; //!< The distance of the current position nearest the mouse location, measured along mScaleDir.  Is measured either from the center or from the far face/corner depending upon whether uniform scaling is true or false respectively.
 	BOOL			mInSnapRegime;
 	F32*			mManipulatorScales;
 };
