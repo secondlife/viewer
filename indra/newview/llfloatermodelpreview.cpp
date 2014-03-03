@@ -535,9 +535,16 @@ BOOL LLFloaterModelPreview::postBuild()
 	mUploadBtn = getChild<LLButton>("ok_btn");
 	mCalculateBtn = getChild<LLButton>("calculate_btn");
 
-	mCalculateBtn->setClickedCallback(boost::bind(&LLFloaterModelPreview::onClickCalculateBtn, this));
+	if (LLConvexDecomposition::getInstance() != NULL)
+	{
+		mCalculateBtn->setClickedCallback(boost::bind(&LLFloaterModelPreview::onClickCalculateBtn, this));
 
-	toggleCalculateButton(true);
+		toggleCalculateButton(true);
+	}
+	else
+	{
+		mCalculateBtn->setEnabled(false);
+	}
 
 	return TRUE;
 }
