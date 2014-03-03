@@ -807,7 +807,7 @@ void LLManipScale::renderAxisHandle( const LLVector3& start, const LLVector3& en
 	}
 }
 
-
+// General scale call
 void LLManipScale::drag( S32 x, S32 y )
 {
 	if( (LL_FACE_MIN <= (S32)mManipPart)
@@ -815,8 +815,7 @@ void LLManipScale::drag( S32 x, S32 y )
 	{
 		dragFace( x, y );
 	}
-	else
-	if( (LL_CORNER_MIN <= (S32)mManipPart)
+	else if( (LL_CORNER_MIN <= (S32)mManipPart)
 		&& ((S32)mManipPart <= LL_CORNER_MAX) )
 	{
 		dragCorner( x, y );
@@ -842,7 +841,7 @@ void LLManipScale::drag( S32 x, S32 y )
 	gAgentCamera.clearFocusObject();
 }
 
-// Scale around the
+// Scale on three axis simultaneously
 void LLManipScale::dragCorner( S32 x, S32 y )
 {
 	// Suppress scale if mouse hasn't moved.
@@ -850,6 +849,7 @@ void LLManipScale::dragCorner( S32 x, S32 y )
 	{
 		return;
 	}
+
 	mLastMouseX = x;
 	mLastMouseY = y;
 
@@ -861,6 +861,7 @@ void LLManipScale::dragCorner( S32 x, S32 y )
 
 	F32 s = 0;
 	F32 t = 0;
+
 	nearestPointOnLineFromMouse(x, y,
 								drag_start_center_agent,
 								drag_start_point_agent,
@@ -1041,7 +1042,7 @@ void LLManipScale::dragCorner( S32 x, S32 y )
 	}
 }
 
-
+// Scale on a single axis
 void LLManipScale::dragFace( S32 x, S32 y )
 {
 	// Suppress scale if mouse hasn't moved.
@@ -1755,7 +1756,7 @@ void LLManipScale::renderSnapGuides(const LLBBox& bbox)
 			gGL.end();
 		}
 
-		// render tick labels
+		// render upper tick labels
 		start_tick = -(llmin(ticks_from_scale_center_1, num_ticks_per_side1));
 		stop_tick = llmin(max_ticks1, num_ticks_per_side1);
 
@@ -1805,7 +1806,7 @@ void LLManipScale::renderSnapGuides(const LLBBox& bbox)
 			}
 		}
 
-		// label ticks on opposite side
+		// label ticks on opposite side, only can happen in scaling modes that effect more than one axis and when the object's axis don't have the same scale.  A differing scale indicates both conditions.
 		if (mScaleSnapUnit2 != mScaleSnapUnit1)
 		{
 			start_tick = -(llmin(ticks_from_scale_center_2, num_ticks_per_side2));
