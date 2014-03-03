@@ -508,7 +508,7 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
 
 	setEditGroup(id);
 
-	getChild<LLButton>(BTN_SET_GROUP)->setEnabled(experience[LLExperienceCache::AGENT_ID].asUUID() == gAgent->getID());
+	getChild<LLButton>(BTN_SET_GROUP)->setEnabled(experience[LLExperienceCache::AGENT_ID].asUUID() == gAgent.getID());
     
     LLCheckBoxCtrl* enable = getChild<LLCheckBoxCtrl>(EDIT BTN_ENABLE);
     S32 properties = mExperienceDetails[LLExperienceCache::PROPERTIES].asInteger();
@@ -947,4 +947,5 @@ void LLFloaterExperienceProfile::setEditGroup( LLUUID group_id )
 	std::string value = LLSLURL("group", group_id, "inspect").getSLURLString();
 	child->setText(value);
 	mPackage[LLExperienceCache::GROUP_ID] = group_id;
+	onFieldChanged();
 }

@@ -111,6 +111,7 @@ BOOL LLFloaterExperiences::postBuild()
     addTab("Contrib_Experiences_Tab", false);
 	LLPanelExperiences* owned = addTab("Owned_Experiences_Tab", false);
 	owned->setButtonAction("acquire", boost::bind(&LLFloaterExperiences::sendPurchaseRequest, this));
+	owned->enableButton(false);
 #if SHOW_RECENT_TAB
 	addTab("Recent_Experiences_Tab", false);
 #endif //SHOW_RECENT_TAB
