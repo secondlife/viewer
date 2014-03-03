@@ -1106,7 +1106,7 @@ void LLManipScale::dragFace( S32 x, S32 y )
 
 	if (snap_enabled && dist_from_scale_line > mSnapRegimeOffset)
 	{
-		mSnapRegime = SNAP_REGIME_UPPER | SNAP_REGIME_LOWER; // A face drag doesn't have split regimes.
+		mSnapRegime = static_cast<ESnapRegimes>(SNAP_REGIME_UPPER | SNAP_REGIME_LOWER); // A face drag doesn't have split regimes.
 
 		if (dist_along_scale_line > max_drag_dist)
 		{
