@@ -840,7 +840,7 @@ void LLFacebookFriendsPanel::showFriendsAccordionsIfNeeded()
     }
     else
     {
-        // We have something in the lists, hide that
+        // We have something in the lists, hide the explanatory text
         mFriendsStatusCaption->setVisible(false);
         
         // Show the lists
@@ -860,6 +860,7 @@ void LLFacebookFriendsPanel::changed(U32 mask)
 {
 	if (mask & (LLFriendObserver::ADD | LLFriendObserver::REMOVE))
 	{
+        LLFacebookConnect::instance().loadFacebookFriends();
 		updateFacebookList(true);
 	}
 }
@@ -869,6 +870,14 @@ void LLFacebookFriendsPanel::updateFacebookList(bool visible)
 {
 	if (visible)
 	{
+        // We want this to be called to fetch the friends list once a connection is established
+		LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLFacebookFriendsPanel");
+		LLEventPumps::instance().obtain("FacebookConnectState").listen("LLFacebookFriendsPanel", boost::bind(&LLFacebookFriendsPanel::onConnectedToFacebook, this, _1));
+        
+        // We then want this to be called to update the displayed lists once the list of friends is received
+		LLEventPumps::instance().obtain("FacebookConnectContent").stopListening("LLFacebookFriendsPanel"); // just in case it is already listening
+		LLEventPumps::instance().obtain("FacebookConnectContent").listen("LLFacebookFriendsPanel", boost::bind(&LLFacebookFriendsPanel::updateSuggestedFriendList, this));
+        
 		// Try to connect to Facebook
         if ((LLFacebookConnect::instance().getConnectionState() == LLFacebookConnect::FB_NOT_CONNECTED) ||
             (LLFacebookConnect::instance().getConnectionState() == LLFacebookConnect::FB_CONNECTION_FAILED))
