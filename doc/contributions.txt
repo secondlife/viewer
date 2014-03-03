@@ -182,6 +182,9 @@ Ansariel Hiller
 	MAINT-2773
 	STORM-2011
 	MAINT-3187
+	BUG-3764
+	STORM-1984
+	STORM-1979
 Aralara Rajal
 Arare Chantilly
 	CHUIBUG-191
@@ -309,6 +312,7 @@ Christopher  Organiser
 Ciaran Laval
 Cinder Roxley
     BUG-2326
+    BUG-3863
     OPEN-185
     STORM-1703
 	STORM-1948
@@ -676,6 +680,19 @@ Jonathan Yap
 	OPEN-161
 	STORM-1953
 	STORM-1957
+	STORM-1993
+	STORM-1980
+	OPEN-113
+	STORM-1975
+	STORM-1982
+	STORM-1975
+	STORM-1987
+	STORM-1982
+	STORM-1992
+	STORM-1989
+	STORM-1987
+	STORM-1986
+	STORM-1981
 Kadah Coba
 	STORM-1060
     STORM-1843
@@ -1143,6 +1160,7 @@ Sovereign Engineer
     MAINT-2334
     OPEN-189
     STORM-1972
+    OPEN-195
 SpacedOut Frye
 	VWR-34
 	VWR-45
@@ -1262,6 +1280,8 @@ Tofu Buzzard
 Tony Kembia
 Tonya Souther
 	STORM-1905
+	BUG-3875
+	BUG-3968
 Torben Trautman
 TouchaHoney Perhaps
 TraductoresAnonimos Alter
