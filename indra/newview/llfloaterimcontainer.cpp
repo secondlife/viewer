@@ -87,8 +87,6 @@ LLFloaterIMContainer::LLFloaterIMContainer(const LLSD& seed, const Params& param
 
 LLFloaterIMContainer::~LLFloaterIMContainer()
 {
-	LL_INFOS("Baker") << "[3555] ~LLFloaterIMContainer() -- " << mGeneralTitle << ":" << (void*) this << " ----------------------" << LL_ENDL;
-
 	mConversationsEventStream.stopListening("ConversationsRefresh");
 	gIdleCallbacks.deleteFunction(idle, this);
 	mNewMessageConnection.disconnect();
@@ -96,7 +94,6 @@ LLFloaterIMContainer::~LLFloaterIMContainer()
 	
 	if (mMicroChangedSignal.connected())
 	{
-		LL_INFOS("Baker") << "[3555] ~LLFloaterIMContainer() - Disconnect from microsignal" << LL_ENDL;
 		mMicroChangedSignal.disconnect();
 	}
 
@@ -106,11 +103,8 @@ LLFloaterIMContainer::~LLFloaterIMContainer()
 
 	if (!LLSingleton<LLIMMgr>::destroyed())
 	{
-		LL_INFOS("Baker") << "[3555] ~LLFloaterIMContainer() - LLIMMgr is not destroyed, so remove the session observer" << LL_ENDL;
 		LLIMMgr::getInstance()->removeSessionObserver(this);
 	}
-
-	LL_INFOS("Baker") << "[3555] Exiting ~LLFloaterIMContainer() " << (void*) this << LL_ENDL;
 }
 
 void LLFloaterIMContainer::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, BOOL has_offline_msg)
