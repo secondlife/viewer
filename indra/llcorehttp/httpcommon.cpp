@@ -70,7 +70,8 @@ std::string HttpStatus::toString() const
 			"Invalid datatype for argument or option",
 			"Option has not been explicitly set",
 			"Option is not dynamic and must be set early",
-			"Invalid HTTP status code received from server"
+			"Invalid HTTP status code received from server",
+			"Could not allocate required resource"
 		};
 	static const int llcore_errors_count(sizeof(llcore_errors) / sizeof(llcore_errors[0]));
 
@@ -177,6 +178,44 @@ std::string HttpStatus::toString() const
 }
 
 
+std::string HttpStatus::toTerseString() const
+{
+	std::ostringstream result;
+
+	unsigned int error_value((unsigned short) mStatus);
+	
+	switch (mType)
+	{
+	case EXT_CURL_EASY:
+		result << "Easy_";
+		break;
+		
+	case EXT_CURL_MULTI:
+		result << "Multi_";
+		break;
+		
+	case LLCORE:
+		result << "Core_";
+		break;
+
+	default:
+		if (isHttpStatus())
+		{
+			result << "Http_";
+			error_value = mType;
+		}
+		else
+		{
+			result << "Unknown_";
+		}
+		break;
+	}
+	
+	result << error_value;
+	return result.str();
+}
+
+
 // Pass true on statuses that might actually be cleared by a
 // retry.  Library failures, calling problems, etc. aren't
 // going to be fixed by squirting bits all over the Net.
@@ -206,6 +245,5 @@ bool HttpStatus::isRetryable() const
 			*this == inv_cont_range);	// Short data read disagrees with content-range
 }
 
-		
 } // end namespace LLCore
 
