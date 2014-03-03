@@ -6,7 +6,7 @@
    name="panel_facebook_friends">
   <string
    name="facebook_friends_empty"
-   value="You do not have any Facebook friend who are also Second Life resident. You can go to the Status panel and let them know you're in Second Life!" />
+   value="You currently do not have any Facebook friends who are also Second Life residents. Ask your Facebook friends to join Second Life today!" />
   <string
    name="facebook_friends_no_connected"
    value="You're currently not connected to Facebook. Please go to the Account tab to connect and enable this feature." />
