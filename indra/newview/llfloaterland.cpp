@@ -1791,10 +1791,15 @@ void LLPanelLandObjects::onCommitClean(LLUICtrl *caller, void* user_data)
 	LLParcel* parcel = lop->mParcel->getParcel();
 	if (parcel)
 	{
-		lop->mOtherTime = atoi(lop->mCleanOtherObjectsTime->getText().c_str());
+		S32 return_time = atoi(lop->mCleanOtherObjectsTime->getText().c_str());
+		// Only send return time if it has changed
+		if (return_time != lop->mOtherTime)
+		{
+			lop->mOtherTime = return_time;
 
-		parcel->setCleanOtherTime(lop->mOtherTime);
-		send_other_clean_time_message(parcel->getLocalID(), lop->mOtherTime);
+			parcel->setCleanOtherTime(lop->mOtherTime);
+			send_other_clean_time_message(parcel->getLocalID(), lop->mOtherTime);
+		}
 	}
 }
 

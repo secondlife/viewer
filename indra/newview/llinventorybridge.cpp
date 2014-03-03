@@ -74,6 +74,7 @@
 #include "llvoavatarself.h"
 #include "llwearablelist.h"
 #include "lllandmarkactions.h"
+#include "llpanellandmarks.h"
 
 void copy_slurl_to_clipboard_callback_inv(const std::string& slurl);
 
@@ -1447,6 +1448,38 @@ void LLItemBridge::performAction(LLInventoryModel* model, std::string action)
 				landmark->getGlobalPos(global_pos);
 				LLLandmarkActions::getSLURLfromPosGlobal(global_pos, &copy_slurl_to_clipboard_callback_inv, true);
 			}
+		}
+	}
+	else if ("show_on_map" == action)
+	{
+		doActionOnCurSelectedLandmark(boost::bind(&LLItemBridge::doShowOnMap, this, _1));
+	}
+}
+
+void LLItemBridge::doActionOnCurSelectedLandmark(LLLandmarkList::loaded_callback_t cb)
+{
+	LLViewerInventoryItem* cur_item = getItem();
+	if(cur_item && cur_item->getInventoryType() == LLInventoryType::IT_LANDMARK)
+	{ 
+		LLLandmark* landmark = LLLandmarkActions::getLandmark(cur_item->getUUID(), cb);
+		if (landmark)
+		{
+			cb(landmark);
+		}
+	}
+}
+
+void LLItemBridge::doShowOnMap(LLLandmark* landmark)
+{
+	LLVector3d landmark_global_pos;
+	// landmark has already been tested for NULL by calling routine
+	if (landmark->getGlobalPos(landmark_global_pos))
+	{
+		LLFloaterWorldMap* worldmap_instance = LLFloaterWorldMap::getInstance();
+		if (!landmark_global_pos.isExactlyZero() && worldmap_instance)
+		{
+			worldmap_instance->trackLocation(landmark_global_pos);
+			LLFloaterReg::showInstance("world_map", "center");
 		}
 	}
 }
@@ -4580,6 +4613,7 @@ void LLLandmarkBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		items.push_back(std::string("Landmark Separator"));
 		items.push_back(std::string("url_copy"));
 		items.push_back(std::string("About Landmark"));
+		items.push_back(std::string("show_on_map"));
 	}
 
 	// Disable "About Landmark" menu item for
