@@ -166,7 +166,7 @@ BOOL LLPanelTopInfoBar::postBuild()
 		mShowCoordsCtrlConnection = ctrl->getSignal()->connect(boost::bind(&LLPanelTopInfoBar::onNavBarShowParcelPropertiesCtrlChanged, this));
 	}
 
-	mParcelMgrConnection = LLViewerParcelMgr::getInstance()->addAgentParcelChangedCallback(
+	mParcelMgrConnection = gAgent.addParcelChangedCallback(
 			boost::bind(&LLPanelTopInfoBar::onAgentParcelChange, this));
 
 	setVisibleCallback(boost::bind(&LLPanelTopInfoBar::onVisibilityChange, this, _2));

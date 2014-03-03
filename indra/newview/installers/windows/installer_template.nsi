@@ -311,6 +311,23 @@ Function CheckNetworkConnection
     Return
 FunctionEnd
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Function CheckOldExeName
+; Viewer versions < 3.6.12 used the name 'SecondLife.exe'
+; If that name is found in the install folder, delete it to invalidate any
+; old shortcuts to it that may be in non-standard locations, so that the user
+; does not end up running the old version (potentially getting caught in an 
+; infinite update loop). See MAINT-3575
+; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+Function CheckOldExeName
+  IfFileExists "$INSTDIR\SecondLife.exe" CHECKOLDEXE_FOUND CHECKOLDEXE_DONE
+
+CHECKOLDEXE_FOUND:
+  Delete "$INSTDIR\SecondLife.exe"
+CHECKOLDEXE_DONE:
+FunctionEnd
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Function CheckWillUninstallV2               
@@ -683,6 +700,9 @@ Delete "$INSTDIR\*.glsl"
 Delete "$INSTDIR\motions\*.lla"
 Delete "$INSTDIR\trial\*.html"
 Delete "$INSTDIR\newview.exe"
+Delete "$INSTDIR\SecondLife.exe"
+;; MAINT-3099 workaround - prevent these log files, if present, from causing a user alert
+Delete "$INSTDIR\VivoxVoiceService-*.log"
 ;; Remove entire help directory
 Delete "$INSTDIR\help\Advanced\*"
 RMDir  "$INSTDIR\help\Advanced"
@@ -839,6 +859,7 @@ Call CheckIfAlreadyCurrent		; Make sure that we haven't already installed this v
 Call CloseSecondLife			; Make sure we're not running
 Call CheckNetworkConnection		; ping secondlife.com
 Call CheckWillUninstallV2		; See if a V2 install exists and will be removed.
+Call CheckOldExeName                    ; Clean up a previous version of the exe
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 StrCmp $DO_UNINSTALL_V2 "" PRESERVE_DONE

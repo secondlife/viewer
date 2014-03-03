@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -54,12 +54,8 @@ namespace LLCore
 // ====================================
 
 
-HttpRequest::policy_t HttpRequest::sNextPolicyID(1);
-
-
 HttpRequest::HttpRequest()
-	: //HttpHandler(),
-	  mReplyQueue(NULL),
+	: mReplyQueue(NULL),
 	  mRequestQueue(NULL)
 {
 	mRequestQueue = HttpRequestQueue::instanceOf();
@@ -90,26 +86,6 @@ HttpRequest::~HttpRequest()
 // ====================================
 
 
-HttpStatus HttpRequest::setPolicyGlobalOption(EGlobalPolicy opt, long value)
-{
-	if (HttpService::RUNNING == HttpService::instanceOf()->getState())
-	{
-		return HttpStatus(HttpStatus::LLCORE, HE_OPT_NOT_DYNAMIC);
-	}
-	return HttpService::instanceOf()->getGlobalOptions().set(opt, value);
-}
-
-
-HttpStatus HttpRequest::setPolicyGlobalOption(EGlobalPolicy opt, const std::string & value)
-{
-	if (HttpService::RUNNING == HttpService::instanceOf()->getState())
-	{
-		return HttpStatus(HttpStatus::LLCORE, HE_OPT_NOT_DYNAMIC);
-	}
-	return HttpService::instanceOf()->getGlobalOptions().set(opt, value);
-}
-
-
 HttpRequest::policy_t HttpRequest::createPolicyClass()
 {
 	if (HttpService::RUNNING == HttpService::instanceOf()->getState())
@@ -120,15 +96,81 @@ HttpRequest::policy_t HttpRequest::createPolicyClass()
 }
 
 
-HttpStatus HttpRequest::setPolicyClassOption(policy_t policy_id,
-											 EClassPolicy opt,
-											 long value)
+HttpStatus HttpRequest::setStaticPolicyOption(EPolicyOption opt, policy_t pclass,
+											  long value, long * ret_value)
 {
 	if (HttpService::RUNNING == HttpService::instanceOf()->getState())
 	{
 		return HttpStatus(HttpStatus::LLCORE, HE_OPT_NOT_DYNAMIC);
 	}
-	return HttpService::instanceOf()->getClassOptions(policy_id).set(opt, value);
+	return HttpService::instanceOf()->setPolicyOption(opt, pclass, value, ret_value);
+}
+
+
+HttpStatus HttpRequest::setStaticPolicyOption(EPolicyOption opt, policy_t pclass,
+											  const std::string & value, std::string * ret_value)
+{
+	if (HttpService::RUNNING == HttpService::instanceOf()->getState())
+	{
+		return HttpStatus(HttpStatus::LLCORE, HE_OPT_NOT_DYNAMIC);
+	}
+	return HttpService::instanceOf()->setPolicyOption(opt, pclass, value, ret_value);
+}
+
+
+HttpHandle HttpRequest::setPolicyOption(EPolicyOption opt, policy_t pclass,
+										long value, HttpHandler * handler)
+{
+	HttpStatus status;
+	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
+
+	HttpOpSetGet * op = new HttpOpSetGet();
+	if (! (status = op->setupSet(opt, pclass, value)))
+	{
+		op->release();
+		mLastReqStatus = status;
+		return handle;
+	}
+	op->setReplyPath(mReplyQueue, handler);
+	if (! (status = mRequestQueue->addOp(op)))			// transfers refcount
+	{
+		op->release();
+		mLastReqStatus = status;
+		return handle;
+	}
+	
+	mLastReqStatus = status;
+	handle = static_cast<HttpHandle>(op);
+	
+	return handle;
+}
+
+
+HttpHandle HttpRequest::setPolicyOption(EPolicyOption opt, policy_t pclass,
+										const std::string & value, HttpHandler * handler)
+{
+	HttpStatus status;
+	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
+
+	HttpOpSetGet * op = new HttpOpSetGet();
+	if (! (status = op->setupSet(opt, pclass, value)))
+	{
+		op->release();
+		mLastReqStatus = status;
+		return handle;
+	}
+	op->setReplyPath(mReplyQueue, handler);
+	if (! (status = mRequestQueue->addOp(op)))			// transfers refcount
+	{
+		op->release();
+		mLastReqStatus = status;
+		return handle;
+	}
+	
+	mLastReqStatus = status;
+	handle = static_cast<HttpHandle>(op);
+	
+	return handle;
 }
 
 
@@ -461,31 +503,6 @@ HttpHandle HttpRequest::requestSpin(int mode)
 
 	HttpOpSpin * op = new HttpOpSpin(mode);
 	op->setReplyPath(mReplyQueue, NULL);
-	if (! (status = mRequestQueue->addOp(op)))			// transfers refcount
-	{
-		op->release();
-		mLastReqStatus = status;
-		return handle;
-	}
-
-	mLastReqStatus = status;
-	handle = static_cast<HttpHandle>(op);
-
-	return handle;
-}
-
-// ====================================
-// Dynamic Policy Methods
-// ====================================
-
-HttpHandle HttpRequest::requestSetHttpProxy(const std::string & proxy, HttpHandler * handler)
-{
-	HttpStatus status;
-	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
-
-	HttpOpSetGet * op = new HttpOpSetGet();
-	op->setupSet(GP_HTTP_PROXY, proxy);
-	op->setReplyPath(mReplyQueue, handler);
 	if (! (status = mRequestQueue->addOp(op)))			// transfers refcount
 	{
 		op->release();
