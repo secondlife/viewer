@@ -552,6 +552,14 @@
          function="Inventory.DoToSelected"
          parameter="about" />
     </menu_item_call>
+   <menu_item_call
+     label="Show on Map"
+     layout="topleft"
+     name="show_on_map">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="show_on_map" />
+    </menu_item_call>
     <menu_item_separator
      layout="topleft" 
      name="Animation Separator" />
@@ -589,6 +597,14 @@
         <menu_item_call.on_click
          function="Inventory.DoToSelected"
          parameter="lure" />
+    </menu_item_call>
+    <menu_item_call
+     label="Request Teleport..."
+     layout="topleft"
+     name="Request Teleport...">
+        <menu_item_call.on_click
+        function="Inventory.DoToSelected"
+        parameter="request_lure" />
     </menu_item_call>
     <menu_item_call
      label="Start Conference Chat"

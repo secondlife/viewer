@@ -130,10 +130,10 @@ void process_dnd_im(const LLSD& notification)
             fromID, 
             false, 
             false); //will need slight refactor to retrieve whether offline message or not (assume online for now)
-	}
+		}
 
 	notify_of_message(data, true);
-}
+    }
 
 
 
@@ -155,22 +155,22 @@ static void on_avatar_name_cache_toast(const LLUUID& agent_id,
 
 void notify_of_message(const LLSD& msg, bool is_dnd_msg)
 {
-	std::string user_preferences;
+    std::string user_preferences;
 	LLUUID participant_id = msg[is_dnd_msg ? "FROM_ID" : "from_id"].asUUID();
 	LLUUID session_id = msg[is_dnd_msg ? "SESSION_ID" : "session_id"].asUUID();
-	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(session_id);
+    LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(session_id);
 
-	// do not show notification which goes from agent
-	if (gAgent.getID() == participant_id)
-	{
-		return;
-	}
+    // do not show notification which goes from agent
+    if (gAgent.getID() == participant_id)
+    {
+        return;
+    }
 
-	// determine state of conversations floater
-	enum {CLOSED, NOT_ON_TOP, ON_TOP, ON_TOP_AND_ITEM_IS_SELECTED} conversations_floater_status;
+    // determine state of conversations floater
+    enum {CLOSED, NOT_ON_TOP, ON_TOP, ON_TOP_AND_ITEM_IS_SELECTED} conversations_floater_status;
 
 
-	LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
+    LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
 	LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(session_id);
 	bool store_dnd_message = false; // flag storage of a dnd message
 	bool is_session_focused = session_floater->isTornOff() && session_floater->hasFocus();
@@ -179,23 +179,23 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
 		conversations_floater_status = CLOSED;
 	}
 	else if (!im_box->hasFocus() &&
-		!(session_floater && LLFloater::isVisible(session_floater)
-		&& !session_floater->isMinimized() && session_floater->hasFocus()))
+			    !(session_floater && LLFloater::isVisible(session_floater)
+	            && !session_floater->isMinimized() && session_floater->hasFocus()))
 	{
 		conversations_floater_status = NOT_ON_TOP;
 	}
 	else if (im_box->getSelectedSession() != session_id)
 	{
 		conversations_floater_status = ON_TOP;
-	}
+    }
 	else
 	{
 		conversations_floater_status = ON_TOP_AND_ITEM_IS_SELECTED;
 	}
 
-	//  determine user prefs for this session
-	if (session_id.isNull())
-	{
+    //  determine user prefs for this session
+    if (session_id.isNull())
+    {
 		if (msg["source_type"].asInteger() == CHAT_SOURCE_OBJECT)
 		{
 			user_preferences = gSavedSettings.getString("NotificationObjectIMOptions");
@@ -206,50 +206,50 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
 		}
 		else
 		{
-			user_preferences = gSavedSettings.getString("NotificationNearbyChatOptions");
+    	user_preferences = gSavedSettings.getString("NotificationNearbyChatOptions");
 			if (!gAgent.isDoNotDisturb() && (gSavedSettings.getBOOL("PlaySoundNearbyChatIM") == TRUE))
 			{
 				make_ui_sound("UISndNewIncomingIMSession");
-			}
+    }
 		}
 	}
-	else if(session->isP2PSessionType())
-	{
-		if (LLAvatarTracker::instance().isBuddy(participant_id))
-		{
-			user_preferences = gSavedSettings.getString("NotificationFriendIMOptions");
+    else if(session->isP2PSessionType())
+    {
+        if (LLAvatarTracker::instance().isBuddy(participant_id))
+        {
+        	user_preferences = gSavedSettings.getString("NotificationFriendIMOptions");
 			if (!gAgent.isDoNotDisturb() && (gSavedSettings.getBOOL("PlaySoundFriendIM") == TRUE))
 			{
 				make_ui_sound("UISndNewIncomingIMSession");
 			}
-		}
-		else
-		{
-			user_preferences = gSavedSettings.getString("NotificationNonFriendIMOptions");
+        }
+        else
+        {
+        	user_preferences = gSavedSettings.getString("NotificationNonFriendIMOptions");
 			if (!gAgent.isDoNotDisturb() && (gSavedSettings.getBOOL("PlaySoundNonFriendIM") == TRUE))
 			{
 				make_ui_sound("UISndNewIncomingIMSession");
-			}
-		}
+        }
+    }
 	}
-	else if(session->isAdHocSessionType())
-	{
-		user_preferences = gSavedSettings.getString("NotificationConferenceIMOptions");
+    else if(session->isAdHocSessionType())
+    {
+    	user_preferences = gSavedSettings.getString("NotificationConferenceIMOptions");
 		if (!gAgent.isDoNotDisturb() && (gSavedSettings.getBOOL("PlaySoundConferenceIM") == TRUE))
 		{
 			make_ui_sound("UISndNewIncomingIMSession");
-		}
+    }
 	}
-	else if(session->isGroupSessionType())
-	{
-		user_preferences = gSavedSettings.getString("NotificationGroupChatOptions");
+    else if(session->isGroupSessionType())
+    {
+    	user_preferences = gSavedSettings.getString("NotificationGroupChatOptions");
 		if (!gAgent.isDoNotDisturb() && (gSavedSettings.getBOOL("PlaySoundGroupChatIM") == TRUE))
 		{
 			make_ui_sound("UISndNewIncomingIMSession");
 		}
-	}
+    }
 
-	// actions:
+    // actions:
 
     // 0. nothing - exit
     if (("noaction" == user_preferences ||
@@ -287,23 +287,23 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
 				}
 			}
 		}
-		else
-		{
+        else
+        {
 			store_dnd_message = true;
-		}
+	        }
 
-	}
+    }
 
-	// 2. Flash line item
-	if ("openconversations" == user_preferences
-		|| ON_TOP == conversations_floater_status
-		|| ("toast" == user_preferences && ON_TOP != conversations_floater_status)
+    // 2. Flash line item
+    if ("openconversations" == user_preferences
+    		|| ON_TOP == conversations_floater_status
+    		|| ("toast" == user_preferences && ON_TOP != conversations_floater_status)
 		|| ("flash" == user_preferences && (CLOSED == conversations_floater_status
 				 	 	 	 	 	 	|| NOT_ON_TOP == conversations_floater_status))
 		|| is_dnd_msg)
-	{
-		if(!LLMuteList::getInstance()->isMuted(participant_id))
-		{
+    {
+    	if(!LLMuteList::getInstance()->isMuted(participant_id))
+    	{
 			if(gAgent.isDoNotDisturb())
 			{
 				store_dnd_message = true;
@@ -318,43 +318,43 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
 				}
 				else
 				{
-					im_box->flashConversationItemWidget(session_id, true);
-				}
-			}
+    		im_box->flashConversationItemWidget(session_id, true);
+    	}
+    }
 		}
 	}
 
-	// 3. Flash FUI button
-	if (("toast" == user_preferences || "flash" == user_preferences) &&
-		(CLOSED == conversations_floater_status
+    // 3. Flash FUI button
+    if (("toast" == user_preferences || "flash" == user_preferences) &&
+    		(CLOSED == conversations_floater_status
 		|| NOT_ON_TOP == conversations_floater_status)
 		&& !is_session_focused
 		&& !is_dnd_msg) //prevent flashing FUI button because the conversation floater will have already opened
 	{
 		if(!LLMuteList::getInstance()->isMuted(participant_id))
-		{
+    {
 			if(!gAgent.isDoNotDisturb())
-			{
+    	{
 				gToolBarView->flashCommand(LLCommandId("chat"), true, im_box->isMinimized());
-			}
+    	}
 			else
 			{
 				store_dnd_message = true;
 			}
-		}
+    }
 	}
 
-	// 4. Toast
-	if ((("toast" == user_preferences) &&
+    // 4. Toast
+    if ((("toast" == user_preferences) &&
 		(ON_TOP_AND_ITEM_IS_SELECTED != conversations_floater_status) &&
 		(!session_floater->isTornOff() || !LLFloater::isVisible(session_floater)))
-		|| !session_floater->isMessagePaneExpanded())
+    		    || !session_floater->isMessagePaneExpanded())
 
-	{
-		//Show IM toasts (upper right toasts)
-		// Skip toasting for system messages and for nearby chat
-		if(session_id.notNull() && participant_id.notNull())
-		{
+    {
+        //Show IM toasts (upper right toasts)
+        // Skip toasting for system messages and for nearby chat
+        if(session_id.notNull() && participant_id.notNull())
+        {
 			if(!is_dnd_msg)
 			{
 				if(gAgent.isDoNotDisturb())
@@ -363,10 +363,10 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
 				}
 				else
 				{
-					LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
-				}
-			}
-		}
+            LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
+        }
+    }
+}
 	}
 	if (store_dnd_message)
 	{
@@ -2670,7 +2670,8 @@ void LLIMMgr::addMessage(
 		name_is_setted = true;
 	}
 	bool skip_message = false;
-	if (gSavedSettings.getBOOL("VoiceCallsFriendsOnly"))
+	bool from_linden = LLMuteList::getInstance()->isLinden(from);
+	if (gSavedSettings.getBOOL("VoiceCallsFriendsOnly") && !from_linden)
 	{
 		// Evaluate if we need to skip this message when that setting is true (default is false)
 		skip_message = (LLAvatarTracker::instance().getBuddyInfo(other_participant_id) == NULL);	// Skip non friends...
@@ -2716,7 +2717,7 @@ void LLIMMgr::addMessage(
 
 		// Logically it would make more sense to reject the session sooner, in another area of the
 		// code, but the session has to be established inside the server before it can be left.
-		if (LLMuteList::getInstance()->isMuted(other_participant_id) && !LLMuteList::getInstance()->isLinden(from))
+		if (LLMuteList::getInstance()->isMuted(other_participant_id) && !from_linden)
 		{
 			llwarns << "Leaving IM session from initiating muted resident " << from << llendl;
 			if(!gIMMgr->leaveSession(new_session_id))

@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llavatarnamecache.h"
+#include "llerror.h"
 #include "llimview.h"
 #include "llfloaterimcontainer.h"
 #include "llparticipantlist.h"
@@ -400,6 +401,8 @@ void LLParticipantList::addAvatarIDExceptAgent(const LLUUID& avatar_id)
 
 	adjustParticipant(avatar_id);
 }
+
+static LLFastTimer::DeclareTimer FTM_FOLDERVIEW_TEST("add test avatar agents");
 
 void LLParticipantList::adjustParticipant(const LLUUID& speaker_id)
 {

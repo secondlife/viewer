@@ -25,6 +25,9 @@
  * $/LicenseInfo$
  */
 
+#ifndef LL_LLWINDOWMACOSX_OBJC_H
+#define LL_LLWINDOWMACOSX_OBJC_H
+
 #include <map>
 #include <vector>
 
@@ -49,6 +52,7 @@ void handleQuit();
 bool runMainLoop();
 void initMainLoop();
 void cleanupViewer();
+void handleUrl(const char* url);
 
 /* Defined in llwindowmacosx-objc.mm: */
 int createNSApp(int argc, const char **argv);
@@ -143,3 +147,5 @@ NSWindowRef getMainAppWindow();
 GLViewRef getGLView();
 
 unsigned int getModifiers();
+
+#endif // LL_LLWINDOWMACOSX_OBJC_H

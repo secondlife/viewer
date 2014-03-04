@@ -1,10 +1,9 @@
 /** 
- * @file llversionviewer.h
- * @brief
+ * @file srgb.glsl
  *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2007, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,18 +23,24 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVERSIONVIEWER_H
-#define LL_LLVERSIONVIEWER_H
+vec3 srgb_to_linear(vec3 cs)
+{
+	vec3 low_range = cs / vec3(12.92);
+	vec3 high_range = pow((cs+vec3(0.055))/vec3(1.055), vec3(2.4));
 
-const S32 LL_VERSION_MAJOR = 3;
-const S32 LL_VERSION_MINOR = 4;
-const S32 LL_VERSION_PATCH = 6;
-const S32 LL_VERSION_BUILD = 0;
+	bvec3 lte = lessThanEqual(cs,vec3(0.04045));
+	return mix(high_range, low_range, lte);
 
-const char * const LL_CHANNEL = "Second Life Developer";
+}
 
-#if LL_DARWIN
-const char * const LL_VERSION_BUNDLE_ID = "com.secondlife.indra.viewer";
-#endif
+vec3 linear_to_srgb(vec3 cl)
+{
+	cl = clamp(cl, vec3(0), vec3(1));
+	vec3 low_range  = cl * 12.92;
+	vec3 high_range = 1.055 * pow(cl, vec3(0.41666)) - 0.055;
 
-#endif
+	bvec3 lt = lessThan(cl,vec3(0.0031308));
+	return mix(high_range, low_range, lt);
+
+}
+

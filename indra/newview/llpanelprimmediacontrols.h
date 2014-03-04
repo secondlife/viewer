@@ -191,6 +191,7 @@ private:
 	bool mUpdateSlider;
 	bool mClearFaceOnFade;
 	bool mHideImmediately;
+    bool mSecureURL;
 
 	LLMatrix4 mLastCameraMat;
 	EZoomLevel mCurrentZoom;

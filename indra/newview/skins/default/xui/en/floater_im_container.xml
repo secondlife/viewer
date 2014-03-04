@@ -41,8 +41,8 @@
          auto_resize="false"
          user_resize="true"        
          name="conversations_layout_panel"
-         min_dim="38"
-         expanded_min_dim="136">
+         min_dim="43"
+         expanded_min_dim="140">
             <layout_stack
              animate="false" 
              follows="left|top|right"
@@ -100,7 +100,7 @@
                 <layout_panel
                  auto_resize="false"
                  name="conversations_pane_buttons_collapsed"
-                 width="31">
+                 width="35">
                     <button
                      follows="right|top"
                      height="25"
@@ -110,10 +110,10 @@
                      image_unselected="Toolbar_Middle_Off"
                      layout="topleft"
                      top="1"
-                     left="0"
+                     left="4"
                      name="expand_collapse_btn"
                      tool_tip="Collapse/Expand this list"
-                     width="31" />
+                     width="35" />
                 </layout_panel>
             </layout_stack>
             <panel

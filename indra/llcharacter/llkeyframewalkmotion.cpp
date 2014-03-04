@@ -390,3 +390,4 @@ BOOL LLFlyAdjustMotion::onUpdate(F32 time, U8* joint_mask)
 
 	return TRUE;
 }
+

@@ -1791,10 +1791,15 @@ void LLPanelLandObjects::onCommitClean(LLUICtrl *caller, void* user_data)
 	LLParcel* parcel = lop->mParcel->getParcel();
 	if (parcel)
 	{
-		lop->mOtherTime = atoi(lop->mCleanOtherObjectsTime->getText().c_str());
+		S32 return_time = atoi(lop->mCleanOtherObjectsTime->getText().c_str());
+		// Only send return time if it has changed
+		if (return_time != lop->mOtherTime)
+		{
+			lop->mOtherTime = return_time;
 
-		parcel->setCleanOtherTime(lop->mOtherTime);
-		send_other_clean_time_message(parcel->getLocalID(), lop->mOtherTime);
+			parcel->setCleanOtherTime(lop->mOtherTime);
+			send_other_clean_time_message(parcel->getLocalID(), lop->mOtherTime);
+		}
 	}
 }
 
@@ -2027,6 +2032,10 @@ void LLPanelLandOptions::refresh()
 		mSnapshotCtrl->setImageAssetID(parcel->getSnapshotID());
 		mSnapshotCtrl->setEnabled( can_change_identity );
 
+		// find out where we're looking and convert that to an angle in degrees on a regular compass (not the internal representation)
+		LLVector3 user_look_at = parcel->getUserLookAt();
+		U32 user_look_at_angle = ( (U32)( ( atan2(user_look_at[1], -user_look_at[0]) + F_PI * 2 ) * RAD_TO_DEG + 0.5) - 90) % 360;
+
 		LLVector3 pos = parcel->getUserLocation();
 		if (pos.isExactlyZero())
 		{
@@ -2034,10 +2043,11 @@ void LLPanelLandOptions::refresh()
 		}
 		else
 		{
-			mLocationText->setTextArg("[LANDING]",llformat("%d, %d, %d",
+			mLocationText->setTextArg("[LANDING]",llformat("%d, %d, %d (%d\xC2\xB0)",
 														   llround(pos.mV[VX]),
 														   llround(pos.mV[VY]),
-														   llround(pos.mV[VZ])));
+		   												   llround(pos.mV[VZ]),
+														   user_look_at_angle));
 		}
 
 		mSetBtn->setEnabled( can_change_landing_point );
@@ -2092,7 +2102,6 @@ void LLPanelLandOptions::refresh()
 // virtual
 void LLPanelLandOptions::draw()
 {
-	refreshSearch();	// Is this necessary?  JC
 	LLPanel::draw();
 }
 
@@ -2106,9 +2115,8 @@ void LLPanelLandOptions::refreshSearch()
 		mCheckShowDirectory->set(FALSE);
 		mCheckShowDirectory->setEnabled(FALSE);
 
-		// *TODO:Translate
-		const std::string& none_string = LLParcel::getCategoryUIString(LLParcel::C_NONE);
-		mCategoryCombo->setSimple(none_string);
+		const std::string& none_string = LLParcel::getCategoryString(LLParcel::C_NONE);
+		mCategoryCombo->setValue(none_string);
 		mCategoryCombo->setEnabled(FALSE);
 		return;
 	}
@@ -2135,10 +2143,9 @@ void LLPanelLandOptions::refreshSearch()
 	mCheckShowDirectory	->set(show_directory);
 
 	// Set by string in case the order in UI doesn't match the order by index.
-	// *TODO:Translate
 	LLParcel::ECategory cat = parcel->getCategory();
-	const std::string& category_string = LLParcel::getCategoryUIString(cat);
-	mCategoryCombo->setSimple(category_string);
+	const std::string& category_string = LLParcel::getCategoryString(cat);
+	mCategoryCombo->setValue(category_string);
 
 	std::string tooltip;
 	bool enable_show_directory = false;
@@ -2372,7 +2379,7 @@ void LLPanelLandAccess::refresh()
 	{
 		BOOL use_access_list = parcel->getParcelFlag(PF_USE_ACCESS_LIST);
 		BOOL use_group = parcel->getParcelFlag(PF_USE_ACCESS_GROUP);
-		BOOL public_access = !use_access_list && !use_group;
+		BOOL public_access = !use_access_list;
 		
 		getChild<LLUICtrl>("public_access")->setValue(public_access );
 		getChild<LLUICtrl>("GroupCheck")->setValue(use_group );
@@ -2539,6 +2546,10 @@ void LLPanelLandAccess::refresh_ui()
 	getChildView("HoursSpin")->setEnabled(FALSE);
 	getChildView("AccessList")->setEnabled(FALSE);
 	getChildView("BannedList")->setEnabled(FALSE);
+	getChildView("add_allowed")->setEnabled(FALSE);
+	getChildView("remove_allowed")->setEnabled(FALSE);
+	getChildView("add_banned")->setEnabled(FALSE);
+	getChildView("remove_banned")->setEnabled(FALSE);
 	
 	LLParcel *parcel = mParcel->getParcel();
 	if (parcel)
@@ -2577,7 +2588,6 @@ void LLPanelLandAccess::refresh_ui()
 			{
 				getChildView("Only Allow")->setToolTip(std::string());
 			}
-			getChildView("GroupCheck")->setEnabled(FALSE);
 			getChildView("PassCheck")->setEnabled(FALSE);
 			getChildView("pass_combo")->setEnabled(FALSE);
 			getChildView("AccessList")->setEnabled(FALSE);
@@ -2587,11 +2597,7 @@ void LLPanelLandAccess::refresh_ui()
 			getChildView("limit_payment")->setEnabled(FALSE);
 			getChildView("limit_age_verified")->setEnabled(FALSE);
 
-			std::string group_name;
-			if (gCacheName->getGroupName(parcel->getGroupID(), group_name))
-			{			
-				getChildView("GroupCheck")->setEnabled(can_manage_allowed);
-			}
+
 			BOOL group_access = getChild<LLUICtrl>("GroupCheck")->getValue().asBoolean();
 			BOOL sell_passes = getChild<LLUICtrl>("PassCheck")->getValue().asBoolean();
 			getChildView("PassCheck")->setEnabled(can_manage_allowed);
@@ -2601,6 +2607,11 @@ void LLPanelLandAccess::refresh_ui()
 				getChildView("PriceSpin")->setEnabled(can_manage_allowed);
 				getChildView("HoursSpin")->setEnabled(can_manage_allowed);
 			}
+		}
+		std::string group_name;
+		if (gCacheName->getGroupName(parcel->getGroupID(), group_name))
+		{
+			getChildView("GroupCheck")->setEnabled(can_manage_allowed);
 		}
 		getChildView("AccessList")->setEnabled(can_manage_allowed);
 		S32 allowed_list_count = parcel->mAccessList.size();
@@ -2648,17 +2659,6 @@ void LLPanelLandAccess::onCommitPublicAccess(LLUICtrl *ctrl, void *userdata)
 		return;
 	}
 
-	// If we disabled public access, enable group access by default (if applicable)
-	BOOL public_access = self->getChild<LLUICtrl>("public_access")->getValue().asBoolean();
-	if (public_access == FALSE)
-	{
-		std::string group_name;
-		if (gCacheName->getGroupName(parcel->getGroupID(), group_name))
-		{
-			self->getChild<LLUICtrl>("GroupCheck")->setValue(public_access ? FALSE : TRUE);
-		}
-	}
-	
 	onCommitAny(ctrl, userdata);
 }
 
@@ -2692,7 +2692,6 @@ void LLPanelLandAccess::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	if (public_access)
 	{
 		use_access_list = FALSE;
-		use_access_group = FALSE;
 		limit_payment = self->getChild<LLUICtrl>("limit_payment")->getValue().asBoolean();
 		limit_age_verified = self->getChild<LLUICtrl>("limit_age_verified")->getValue().asBoolean();
 	}

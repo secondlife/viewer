@@ -16,6 +16,14 @@
          parameter="agent" />
       </menu_item_call>
       <menu_item_call
+        label="Post to Facebook..."
+        name="PostToFacebook">
+        <menu_item_call.on_click
+          function="Floater.Toggle"
+          parameter="social"/>
+      </menu_item_call>      
+      <menu_item_separator/>
+      <menu_item_call
        label="Appearance..."
        name="ChangeOutfit">
         <menu_item_call.on_click
@@ -93,7 +101,7 @@
         <menu_item_check
          label="Fly"
          name="Fly"
-         shortcut="Home">
+         shortcut="HOME">
           <menu_item_check.on_check
            function="Agent.getFlying" />
           <menu_item_check.on_click
@@ -101,6 +109,15 @@
           <menu_item_check.on_enable
            function="Agent.enableFlying" />
         </menu_item_check>
+        <menu_item_call
+         label="Stop flying"
+         name="Stop flying"
+         shortcut="HOME">
+          <menu_item_call.on_click
+           function="Agent.toggleFlying" />
+          <menu_item_call.on_enable
+           function="Agent.getFlying" />
+        </menu_item_call>	
         <menu_item_check
          label="Always Run"
          name="Always Run"
@@ -180,7 +197,7 @@
          name="Preferences"
          shortcut="control|P">
             <menu_item_call.on_click
-             function="Floater.Show"
+             function="Floater.Toggle"
              parameter="preferences" />
         </menu_item_call>
          <menu_item_call
@@ -1288,18 +1305,18 @@
      tear_off="true">
         <menu_item_call
          label="How to..."
-         name="How To">
+         name="How To"
+         shortcut="F1">
             <menu_item_call.on_click
              function="Help.ToggleHowTo"
              parameter="" />
         </menu_item_call>
         <menu_item_call
-         label="[SECOND_LIFE] Help"
-         name="Second Life Help"
-         shortcut="F1">
+           label="Quickstart"
+           name="Quickstart">
             <menu_item_call.on_click
-             function="ShowHelp"
-             parameter="f1_help" />
+            function="Advanced.ShowURL"
+            parameter="http://community.secondlife.com/t5/English-Knowledge-Base/Second-Life-Quickstart/ta-p/1087919"/>
         </menu_item_call>
 <!--        <menu_item_call
          label="Tutorial"
@@ -1309,20 +1326,12 @@
              parameter="hud" />
         </menu_item_call>-->
 		<menu_item_separator/>
-		
-		<menu_item_call
-             label="User’s guide"
-             name="User’s guide">
-             <menu_item_call.on_click
-                 function="Advanced.ShowURL"
-                 parameter="http://community.secondlife.com/t5/English-Knowledge-Base/Second-Life-User-s-Guide/ta-p/1244857"/>
-        </menu_item_call>
         <menu_item_call
              label="Knowledge Base"
              name="Knowledge Base">
              <menu_item_call.on_click
                  function="Advanced.ShowURL"
-                 parameter="http://community.secondlife.com/t5/tkb/communitypage"/>
+            parameter="http://community.secondlife.com/t5/English-Knowledge-Base/Second-Life-User-s-Guide/ta-p/1244857"/>
         </menu_item_call>
         <menu_item_call
              label="Wiki"
@@ -2206,6 +2215,16 @@
                  function="ToggleControl"
                  parameter="DebugShowRenderInfo" />
             </menu_item_check>
+            <menu_item_check
+             label="Show Avatar Render Info"
+             name="Show Avatar Render Info">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="DebugShowAvatarRenderInfo" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="DebugShowAvatarRenderInfo" />
+            </menu_item_check>
 			  <menu_item_check
              label="Show Texture Info"
              name="Show Texture Info">
@@ -2543,6 +2562,16 @@
           <menu_item_check.on_click
            function="Advanced.ToggleInfoDisplay"
            parameter="collision skeleton" />
+        </menu_item_check>
+        <menu_item_check
+         label="Joints"
+         name="Joints">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="joints" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="joints" />
         </menu_item_check>
         <menu_item_check
          label="Raycast"
@@ -2928,6 +2957,34 @@
          label="Recorder"
          name="Recorder"
          tear_off="true">
+            <menu_item_call visible="false"
+             label="Start event recording"
+             name="Start event recording">
+	      <menu_item_call.on_visible
+		 function="displayViewerEventRecorderMenuItems" />
+                <menu_item_call.on_click
+                 function="Advanced.EventRecorder"
+                 parameter="start recording" />
+            </menu_item_call>
+            <menu_item_call visible="false"
+             label="Stop event recording"
+             name="Stop event recording">
+	      <menu_item_call.on_visible
+		 function="displayViewerEventRecorderMenuItems" />
+                <menu_item_call.on_click
+                 function="Advanced.EventRecorder"
+                 parameter="stop recording" />
+            </menu_item_call>
+            <menu_item_call visible="false"
+             label="Playback event recording"
+             name="Playback event recording">
+	      <menu_item_call.on_visible
+		 function="displayViewerEventRecorderMenuItems" />
+                <menu_item_call.on_click
+                 function="Advanced.EventRecorder"
+                 parameter="start playback" />
+            </menu_item_call>
+
             <menu_item_call
              label="Start Playback"
              name="Start Playback">
@@ -3028,6 +3085,13 @@
             <menu_item_call.on_click
              function="Advanced.WebContentTest"
              parameter="http://google.com"/>
+          </menu_item_call>
+          <menu_item_call
+           label="FB Connect Test"
+           name="FB Connect Test">
+            <menu_item_call.on_click
+             function="Advanced.WebContentTest"
+             parameter="https://cryptic-ridge-1632.herokuapp.com/"/>
           </menu_item_call>
           <menu_item_call
              label="Dump SelectMgr"

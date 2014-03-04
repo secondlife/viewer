@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -36,7 +36,8 @@
 // General library to-do list
 //
 // - Implement policy classes.  Structure is mostly there just didn't
-//   need it for the first consumer.
+//   need it for the first consumer.  [Classes are there.  More
+//   advanced features, like borrowing, aren't there yet.]
 // - Consider Removing 'priority' from the request interface.  Its use
 //   in an always active class can lead to starvation of low-priority
 //   requests.  Requires coodination of priority values across all
@@ -46,6 +47,7 @@
 //   may not really need it.
 // - Set/get for global policy and policy classes is clumsy.  Rework
 //   it heading in a direction that allows for more dynamic behavior.
+//   [Mostly fixed]
 // - Move HttpOpRequest::prepareRequest() to HttpLibcurl for the
 //   pedantic.
 // - Update downloader and other long-duration services are going to
@@ -64,6 +66,12 @@
 //   This won't help in the face of the router problems we've looked
 //   at, however.  Detect starvation due to UDP activity and provide
 //   feedback to it.
+// - Change the transfer timeout scheme.  We're less interested in
+//   absolute time, in most cases, than in continuous progress.
+// - Many of the policy class settings are currently applied to the
+//   entire class.  Some, like connection limits, would be better
+//   applied to each destination target making multiple targets
+//   independent.
 //
 // Integration to-do list
 // - LLTextureFetch still needs a major refactor.  The use of
@@ -73,7 +81,6 @@
 //   the main source file.
 // - Expand areas of usage eventually leading to the removal of LLCurl.
 //   Rough order of expansion:
-//   .  Mesh fetch
 //   .  Avatar names
 //   .  Group membership lists
 //   .  Caps access in general
@@ -97,8 +104,8 @@ namespace LLCore
 {
 
 // Maxium number of policy classes that can be defined.
-// *TODO:  Currently limited to the default class, extend.
-const int HTTP_POLICY_CLASS_LIMIT = 1;
+// *TODO:  Currently limited to the default class + 1, extend.
+const int HTTP_POLICY_CLASS_LIMIT = 8;
 
 // Debug/informational tracing.  Used both
 // as a global option and in per-request traces.
@@ -129,6 +136,7 @@ const int HTTP_REDIRECTS_DEFAULT = 10;
 // Retries and time-on-queue are not included and aren't
 // accounted for.
 const long HTTP_REQUEST_TIMEOUT_DEFAULT = 30L;
+const long HTTP_REQUEST_XFER_TIMEOUT_DEFAULT = 0L;
 const long HTTP_REQUEST_TIMEOUT_MIN = 0L;
 const long HTTP_REQUEST_TIMEOUT_MAX = 3600L;
 
@@ -136,6 +144,11 @@ const long HTTP_REQUEST_TIMEOUT_MAX = 3600L;
 const int HTTP_CONNECTION_LIMIT_DEFAULT = 8;
 const int HTTP_CONNECTION_LIMIT_MIN = 1;
 const int HTTP_CONNECTION_LIMIT_MAX = 256;
+
+// Miscellaneous defaults
+const long HTTP_PIPELINING_DEFAULT = 0L;
+const bool HTTP_USE_RETRY_AFTER_DEFAULT = true;
+const long HTTP_THROTTLE_RATE_DEFAULT = 0L;
 
 // Tuning parameters
 
@@ -145,9 +158,6 @@ const int HTTP_SERVICE_LOOP_SLEEP_NORMAL_MS = 2;
 
 // Block allocation size (a tuning parameter) is found
 // in bufferarray.h.
-
-// Compatibility controls
-const bool HTTP_ENABLE_LINKSYS_WRT54G_V5_DNS_FIX = true;
 
 }  // end namespace LLCore
 

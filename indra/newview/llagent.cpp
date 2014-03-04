@@ -91,6 +91,7 @@
 #include "llwindow.h"
 #include "llworld.h"
 #include "llworldmap.h"
+#include "lscript_byteformat.h"
 #include "stringize.h"
 #include "boost/foreach.hpp"
 
@@ -258,11 +259,9 @@ bool handleSlowMotionAnimation(const LLSD& newvalue)
 	return true;
 }
 
-// static
-void LLAgent::parcelChangedCallback()
+void LLAgent::setCanEditParcel() // called via mParcelChangedSignal
 {
 	bool can_edit = LLToolMgr::getInstance()->canEdit();
-
 	gAgent.mCanEditParcel = can_edit;
 }
 
@@ -424,6 +423,8 @@ LLAgent::LLAgent() :
 
 	mListener.reset(new LLAgentListener(*this));
 
+	addParcelChangedCallback(&setCanEditParcel);
+
 	mMoveTimer.stop();
 }
 
@@ -449,8 +450,6 @@ void LLAgent::init()
 	mLastKnownResponseMaturity = static_cast<U8>(gSavedSettings.getU32("PreferredMaturity"));
 	mLastKnownRequestMaturity = mLastKnownResponseMaturity;
 	mIsDoSendMaturityPreferenceToServer = true;
-
-	LLViewerParcelMgr::getInstance()->addAgentParcelChangedCallback(boost::bind(&LLAgent::parcelChangedCallback));
 
 	if (!mTeleportFinishedSlot.connected())
 	{
@@ -834,22 +833,33 @@ void LLAgent::handleServerBakeRegionTransition(const LLUUID& region_id)
 	}
 }
 
+void LLAgent::changeParcels()
+{
+	LL_DEBUGS("AgentLocation") << "Calling ParcelChanged callbacks" << LL_ENDL;
+	// Notify anything that wants to know about parcel changes
+	mParcelChangedSignal();
+}
+
+boost::signals2::connection LLAgent::addParcelChangedCallback(parcel_changed_callback_t cb)
+{
+	return mParcelChangedSignal.connect(cb);
+}
+
 //-----------------------------------------------------------------------------
 // setRegion()
 //-----------------------------------------------------------------------------
 void LLAgent::setRegion(LLViewerRegion *regionp)
 {
-	bool teleport = true;
-
+	bool notifyRegionChange;
+	
 	llassert(regionp);
 	if (mRegionp != regionp)
 	{
-		// std::string host_name;
-		// host_name = regionp->getHost().getHostName();
-
+		notifyRegionChange = true;
+		
 		std::string ip = regionp->getHost().getString();
-		llinfos << "Moving agent into region: " << regionp->getName()
-				<< " located at " << ip << llendl;
+		LL_INFOS("AgentLocation") << "Moving agent into region: " << regionp->getName()
+				<< " located at " << ip << LL_ENDL;
 		if (mRegionp)
 		{
 			// We've changed regions, we're now going to change our agent coordinate frame.
@@ -877,9 +887,6 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 			{
 				gSky.mVOGroundp->setRegion(regionp);
 			}
-
-			// Notify windlight managers
-			teleport = (gAgent.getTeleportState() != LLAgent::TELEPORT_NONE);
 		}
 		else
 		{
@@ -901,7 +908,13 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 		// Pass new region along to metrics components that care about this level of detail.
 		LLAppViewer::metricsUpdateRegion(regionp->getHandle());
 	}
+	else
+	{
+		notifyRegionChange = false;
+	}
 	mRegionp = regionp;
+
+	// TODO - most of what follows probably should be moved into callbacks
 
 	// Pass the region host to LLUrlEntryParcel to resolve parcel name
 	// with a server request.
@@ -921,15 +934,6 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 
 	LLFloaterMove::sUpdateFlyingStatus();
 
-	if (teleport)
-	{
-		LLEnvManagerNew::instance().onTeleport();
-	}
-	else
-	{
-		LLEnvManagerNew::instance().onRegionCrossing();
-	}
-
 	// If the newly entered region is using server bakes, and our
 	// current appearance is non-baked, request appearance update from
 	// server.
@@ -941,6 +945,12 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 	{
 		// Need to handle via callback after caps arrive.
 		mRegionp->setCapabilitiesReceivedCallback(boost::bind(&LLAgent::handleServerBakeRegionTransition,this,_1));
+	}
+
+	if (notifyRegionChange)
+	{
+		LL_DEBUGS("AgentLocation") << "Calling RegionChanged callbacks" << LL_ENDL;
+		mRegionChangedSignal();
 	}
 }
 
@@ -964,6 +974,16 @@ LLHost LLAgent::getRegionHost() const
 	{
 		return LLHost::invalid;
 	}
+}
+
+boost::signals2::connection LLAgent::addRegionChangedCallback(const region_changed_signal_t::slot_type& cb)
+{
+	return mRegionChangedSignal.connect(cb);
+}
+
+void LLAgent::removeRegionChangedCallback(boost::signals2::connection callback)
+{
+	mRegionChangedSignal.disconnect(callback);
 }
 
 //-----------------------------------------------------------------------------
@@ -1091,10 +1111,18 @@ const LLVector3d &LLAgent::getPositionGlobal() const
 //-----------------------------------------------------------------------------
 const LLVector3 &LLAgent::getPositionAgent()
 {
-	if (isAgentAvatarValid() && !gAgentAvatarp->mDrawable.isNull())
+	if (isAgentAvatarValid())
+	{
+		if(gAgentAvatarp->mDrawable.isNull())
+		{
+			mFrameAgent.setOrigin(gAgentAvatarp->getPositionAgent());
+		}
+		else
 	{
 		mFrameAgent.setOrigin(gAgentAvatarp->getRenderPosition());	
 	}
+	}
+
 
 	return mFrameAgent.getOrigin();
 }
@@ -3059,6 +3087,55 @@ void LLAgent::sendAnimationRequest(const LLUUID &anim_id, EAnimRequest request)
 	sendReliableMessage();
 }
 
+// Send a message to the region to stop the NULL animation state
+// This will reset animation state overrides for the agent.
+void LLAgent::sendAnimationStateReset()
+{
+	if (gAgentID.isNull() || !mRegionp)
+	{
+		return;
+	}
+
+	LLMessageSystem* msg = gMessageSystem;
+	msg->newMessageFast(_PREHASH_AgentAnimation);
+	msg->nextBlockFast(_PREHASH_AgentData);
+	msg->addUUIDFast(_PREHASH_AgentID, getID());
+	msg->addUUIDFast(_PREHASH_SessionID, getSessionID());
+
+	msg->nextBlockFast(_PREHASH_AnimationList);
+	msg->addUUIDFast(_PREHASH_AnimID, LLUUID::null );
+	msg->addBOOLFast(_PREHASH_StartAnim, FALSE);
+
+	msg->nextBlockFast(_PREHASH_PhysicalAvatarEventList);
+	msg->addBinaryDataFast(_PREHASH_TypeData, NULL, 0);
+	sendReliableMessage();
+}
+
+
+// Send a message to the region to revoke sepecified permissions on ALL scripts in the region
+// If the target is an object in the region, permissions in scripts on that object are cleared.
+// If it is the region ID, all scripts clear the permissions for this agent
+void LLAgent::sendRevokePermissions(const LLUUID & target, U32 permissions)
+{
+	// Currently only the bits for SCRIPT_PERMISSION_TRIGGER_ANIMATION and SCRIPT_PERMISSION_OVERRIDE_ANIMATIONS
+	// are supported by the server.  Sending any other bits will cause the message to be dropped without changing permissions
+
+	if (gAgentID.notNull() && gMessageSystem)
+	{
+		LLMessageSystem* msg = gMessageSystem;
+		msg->newMessageFast(_PREHASH_RevokePermissions);
+		msg->nextBlockFast(_PREHASH_AgentData);
+		msg->addUUIDFast(_PREHASH_AgentID, getID());		// Must be our ID
+		msg->addUUIDFast(_PREHASH_SessionID, getSessionID());
+
+		msg->nextBlockFast(_PREHASH_Data);
+		msg->addUUIDFast(_PREHASH_ObjectID, target);		// Must be in the region
+		msg->addS32Fast(_PREHASH_ObjectPermissions, (S32) permissions);
+
+		sendReliableMessage();
+	}
+}
+
 void LLAgent::sendWalkRun(bool running)
 {
 	LLMessageSystem* msgsys = gMessageSystem;
@@ -4137,6 +4214,8 @@ void LLAgent::stopCurrentAnimations()
 	// avatar, propagating this change back to the server.
 	if (isAgentAvatarValid())
 	{
+		LLDynamicArray<LLUUID> anim_ids;
+
 		for ( LLVOAvatar::AnimIterator anim_it =
 			      gAgentAvatarp->mPlayingAnimations.begin();
 		      anim_it != gAgentAvatarp->mPlayingAnimations.end();
@@ -4154,7 +4233,24 @@ void LLAgent::stopCurrentAnimations()
 				// stop this animation locally
 				gAgentAvatarp->stopMotion(anim_it->first, TRUE);
 				// ...and tell the server to tell everyone.
-				sendAnimationRequest(anim_it->first, ANIM_REQUEST_STOP);
+				anim_ids.push_back(anim_it->first);
+			}
+		}
+
+		sendAnimationRequests(anim_ids, ANIM_REQUEST_STOP);
+
+		// Tell the region to clear any animation state overrides
+		sendAnimationStateReset();
+
+		// Revoke all animation permissions
+		if (mRegionp &&
+			gSavedSettings.getBOOL("RevokePermsOnStopAnimation"))
+		{
+			U32 permissions = LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_TRIGGER_ANIMATION] | LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_OVERRIDE_ANIMATIONS];
+			sendRevokePermissions(mRegionp->getRegionID(), permissions);
+			if (gAgentAvatarp->isSitting())
+			{	// Also stand up, since auto-granted sit animation permission has been revoked
+				gAgent.standUp();
 			}
 		}
 

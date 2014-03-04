@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2000&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -1270,7 +1270,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 	if (mState == LOAD_FROM_NETWORK)
 	{
-		static LLCachedControl<bool> use_http(gSavedSettings,"ImagePipelineUseHTTP");
+		static LLCachedControl<bool> use_http(gSavedSettings,"ImagePipelineUseHTTP", true);
 
 // 		if (mHost != LLHost::invalid) get_url = false;
 		if ( use_http && mCanUseHTTP && mUrl.empty())//get http url.
@@ -1552,7 +1552,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				else
 				{
 					llinfos << "HTTP GET failed for: " << mUrl
-							<< " Status: " << mGetStatus.toHex()
+							<< " Status: " << mGetStatus.toTerseString()
 							<< " Reason: '" << mGetReason << "'"
 							<< llendl;
 				}
@@ -1697,7 +1697,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	
 	if (mState == DECODE_IMAGE)
 	{
-		static LLCachedControl<bool> textures_decode_disabled(gSavedSettings,"TextureDecodeDisabled");
+		static LLCachedControl<bool> textures_decode_disabled(gSavedSettings,"TextureDecodeDisabled", false);
 
 		setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority); // Set priority first since Responder may change it
 		if (textures_decode_disabled)
@@ -1873,9 +1873,9 @@ bool LLTextureFetchWorker::doWork(S32 param)
 // virtual
 void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response)
 {
-	static LLCachedControl<bool> log_to_viewer_log(gSavedSettings, "LogTextureDownloadsToViewerLog");
-	static LLCachedControl<bool> log_to_sim(gSavedSettings, "LogTextureDownloadsToSimulator");
-	static LLCachedControl<bool> log_texture_traffic(gSavedSettings, "LogTextureNetworkTraffic") ;
+	static LLCachedControl<bool> log_to_viewer_log(gSavedSettings, "LogTextureDownloadsToViewerLog", false);
+	static LLCachedControl<bool> log_to_sim(gSavedSettings, "LogTextureDownloadsToSimulator", false);
+	static LLCachedControl<bool> log_texture_traffic(gSavedSettings, "LogTextureNetworkTraffic", false) ;
 
 	LLMutexLock lock(&mWorkMutex);										// +Mw
 
@@ -1896,7 +1896,7 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 	LLCore::HttpStatus status(response->getStatus());
 	
 	LL_DEBUGS("Texture") << "HTTP COMPLETE: " << mID
-			 << " status: " << status.toHex()
+			 << " status: " << status.toTerseString()
 			 << " '" << status.toString() << "'"
 			 << llendl;
 //	unsigned int offset(0), length(0), full_length(0);
@@ -1912,7 +1912,7 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 		success = false;
 		std::string reason(status.toString());
 		setGetStatus(status, reason);
-		llwarns << "CURL GET FAILED, status: " << status.toHex()
+		llwarns << "CURL GET FAILED, status: " << status.toTerseString()
 				<< " reason: " << reason << llendl;
 	}
 	else
@@ -2376,6 +2376,7 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	  mQAMode(qa_mode),
 	  mHttpRequest(NULL),
 	  mHttpOptions(NULL),
+	  mHttpOptionsWithHeaders(NULL),
 	  mHttpHeaders(NULL),
 	  mHttpMetricsHeaders(NULL),
 	  mHttpPolicyClass(LLCore::HttpRequest::DEFAULT_POLICY_ID),
@@ -2406,11 +2407,13 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	
 	mHttpRequest = new LLCore::HttpRequest;
 	mHttpOptions = new LLCore::HttpOptions;
+	mHttpOptionsWithHeaders = new LLCore::HttpOptions;
+	mHttpOptionsWithHeaders->setWantHeaders(true);
 	mHttpHeaders = new LLCore::HttpHeaders;
-	mHttpHeaders->mHeaders.push_back("Accept: image/x-j2c");
+	mHttpHeaders->append("Accept", "image/x-j2c");
 	mHttpMetricsHeaders = new LLCore::HttpHeaders;
-	mHttpMetricsHeaders->mHeaders.push_back("Content-Type: application/llsd+xml");
-	mHttpPolicyClass = LLAppViewer::instance()->getAppCoreHttp().getPolicyDefault();
+	mHttpMetricsHeaders->append("Content-Type", "application/llsd+xml");
+	mHttpPolicyClass = LLAppViewer::instance()->getAppCoreHttp().getPolicy(LLAppCoreHttp::AP_TEXTURE);
 }
 
 LLTextureFetch::~LLTextureFetch()
@@ -2428,6 +2431,12 @@ LLTextureFetch::~LLTextureFetch()
 	{
 		mHttpOptions->release();
 		mHttpOptions = NULL;
+	}
+
+	if (mHttpOptionsWithHeaders)
+	{
+		mHttpOptionsWithHeaders->release();
+		mHttpOptionsWithHeaders = NULL;
 	}
 
 	if (mHttpHeaders)
@@ -2876,7 +2885,7 @@ void LLTextureFetch::commonUpdate()
 //virtual
 S32 LLTextureFetch::update(F32 max_time_ms)
 {
-	static LLCachedControl<F32> band_width(gSavedSettings,"ThrottleBandwidthKBPS");
+	static LLCachedControl<F32> band_width(gSavedSettings,"ThrottleBandwidthKBPS", 500.0);
 
 	{
 		mNetworkQueueMutex.lock();										// +Mfnq
@@ -3099,8 +3108,8 @@ void LLTextureFetch::sendRequestListToSimulators()
 // 				llinfos << "IMAGE REQUEST: " << req->mID << " Discard: " << req->mDesiredDiscard
 // 						<< " Packet: " << packet << " Priority: " << req->mImagePriority << llendl;
 
-				static LLCachedControl<bool> log_to_viewer_log(gSavedSettings,"LogTextureDownloadsToViewerLog");
-				static LLCachedControl<bool> log_to_sim(gSavedSettings,"LogTextureDownloadsToSimulator");
+				static LLCachedControl<bool> log_to_viewer_log(gSavedSettings,"LogTextureDownloadsToViewerLog", false);
+				static LLCachedControl<bool> log_to_sim(gSavedSettings,"LogTextureDownloadsToSimulator", false);
 				if (log_to_viewer_log || log_to_sim)
 				{
 					mTextureInfo.setRequestStartTime(req->mID, LLTimer::getTotalTime());
@@ -3359,8 +3368,8 @@ bool LLTextureFetch::receiveImagePacket(const LLHost& host, const LLUUID& id, U1
 
 	if (packet_num >= (worker->mTotalPackets - 1))
 	{
-		static LLCachedControl<bool> log_to_viewer_log(gSavedSettings,"LogTextureDownloadsToViewerLog");
-		static LLCachedControl<bool> log_to_sim(gSavedSettings,"LogTextureDownloadsToSimulator");
+		static LLCachedControl<bool> log_to_viewer_log(gSavedSettings,"LogTextureDownloadsToViewerLog", false);
+		static LLCachedControl<bool> log_to_sim(gSavedSettings,"LogTextureDownloadsToSimulator", false);
 
 		if (log_to_viewer_log || log_to_sim)
 		{
@@ -3772,7 +3781,7 @@ public:
 		else
 		{
 			LL_WARNS("Texture") << "Error delivering asset metrics to grid.  Status:  "
-								<< status.toHex()
+								<< status.toTerseString()
 								<< ", Reason:  " << status.toString() << LL_ENDL;
 		}
 	}
@@ -4041,7 +4050,7 @@ void LLTextureFetchDebugger::init()
 	if (! mHttpHeaders)
 	{
 		mHttpHeaders = new LLCore::HttpHeaders;
-		mHttpHeaders->mHeaders.push_back("Accept: image/x-j2c");
+		mHttpHeaders->append("Accept", "image/x-j2c");
 	}
 }
 
@@ -4461,7 +4470,7 @@ S32 LLTextureFetchDebugger::fillCurlQueue()
 
 			LL_WARNS("Texture") << "Couldn't issue HTTP request in debugger for texture "
 								<< mFetchingHistory[i].mID
-								<< ", status: " << status.toHex()
+								<< ", status: " << status.toTerseString()
 								<< " reason:  " << status.toString()
 								<< LL_ENDL;
 			mFetchingHistory[i].mCurlState = FetchEntry::CURL_DONE;
@@ -4854,7 +4863,7 @@ void LLTextureFetchDebugger::callbackHTTP(FetchEntry & fetch, LLCore::HttpRespon
 	else //failed
 	{
 		llinfos << "Fetch Debugger : CURL GET FAILED,  ID = " << fetch.mID
-				<< ", status: " << status.toHex()
+				<< ", status: " << status.toTerseString()
 				<< " reason:  " << status.toString() << llendl;
 	}
 }

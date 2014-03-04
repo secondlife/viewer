@@ -91,6 +91,13 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 @implementation LLOpenGLView
 
+// Force a high quality update after live resizing
+- (void) viewDidEndLiveResize
+{
+    NSSize size = [self frame].size;
+    callResize(size.width, size.height);
+}
+
 - (unsigned long)getVramSize
 {
     CGLRendererInfoObj info = 0;
@@ -119,9 +126,8 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void)windowResized:(NSNotification *)notification;
 {
-	NSSize size = [self frame].size;
-	
-	callResize(size.width, size.height);
+	//NSSize size = [self frame].size;
+	//callResize(size.width, size.height);
 }
 
 - (void)dealloc
@@ -367,13 +373,6 @@ attributedStringInfo getSegments(NSAttributedString *str)
         [(LLAppDelegate*)[NSApp delegate] showInputWindow:true withEvent:theEvent];
     } else
     {
-        [[self inputContext] handleEvent:theEvent];
-    }
-    
-    if ([[theEvent charactersIgnoringModifiers] characterAtIndex:0] == NSCarriageReturnCharacter ||
-        [[theEvent charactersIgnoringModifiers] characterAtIndex:0] == NSEnterCharacter)
-    {
-        // callKeyDown won't return the value we expect for enter or return.  Handle them as a separate case.
         [[self inputContext] handleEvent:theEvent];
     }
     

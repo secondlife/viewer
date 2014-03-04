@@ -9,7 +9,7 @@
 
 $LicenseInfo:firstyear=2008&license=viewerlgpl$
 Second Life Viewer Source Code
-Copyright (C) 2012, Linden Research, Inc.
+Copyright (C) 2012-2013, Linden Research, Inc.
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -35,6 +35,10 @@ import time
 import select
 import getopt
 from threading import Thread
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from StringIO import StringIO
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from SocketServer import ThreadingMixIn
 
@@ -47,7 +51,39 @@ from testrunner import freeport, run, debug, VERBOSE
 class TestHTTPRequestHandler(BaseHTTPRequestHandler):
     """This subclass of BaseHTTPRequestHandler is to receive and echo
     LLSD-flavored messages sent by the C++ LLHTTPClient.
+
+    Target URLs are fairly free-form and are assembled by 
+    concatinating fragments.  Currently defined fragments
+    are:
+    - '/reflect/'       Request headers are bounced back to caller
+                        after prefixing with 'X-Reflect-'
+    - '/fail/'          Body of request can contain LLSD with 
+                        'reason' string and 'status' integer
+                        which will become response header.
+    - '/bug2295/'       206 response, no data in body:
+    -- '/bug2295/0/'       "Content-Range: bytes 0-75/2983"
+    -- '/bug2295/1/'       "Content-Range: bytes 0-75/*"
+    -- '/bug2295/2/'       "Content-Range: bytes 0-75/2983",
+                           "Content-Length: 0"
+    -- '/bug2295/00000018/0/'  Generates PARTIAL_FILE (18) error in libcurl.
+                           "Content-Range: bytes 0-75/2983",
+                           "Content-Length: 76"
+    -- '/bug2295/inv_cont_range/0/'  Generates HE_INVALID_CONTENT_RANGE error in llcorehttp.
+    - '/503/'           Generate 503 responses with various kinds
+                        of 'retry-after' headers
+    -- '/503/0/'            "Retry-After: 2"   
+    -- '/503/1/'            "Retry-After: Thu, 31 Dec 2043 23:59:59 GMT"
+    -- '/503/2/'            "Retry-After: Fri, 31 Dec 1999 23:59:59 GMT"
+    -- '/503/3/'            "Retry-After: "
+    -- '/503/4/'            "Retry-After: (*#*(@*(@(")"
+    -- '/503/5/'            "Retry-After: aklsjflajfaklsfaklfasfklasdfklasdgahsdhgasdiogaioshdgo"
+    -- '/503/6/'            "Retry-After: 1 2 3 4 5 6 7 8 9 10"
+
+    Some combinations make no sense, there's no effort to protect
+    you from that.
     """
+    ignore_exceptions = (Exception,)
+
     def read(self):
         # The following logic is adapted from the library module
         # SimpleXMLRPCServer.py.
@@ -87,27 +123,105 @@ class TestHTTPRequestHandler(BaseHTTPRequestHandler):
 
     def do_GET(self, withdata=True):
         # Of course, don't attempt to read data.
-        self.answer(dict(reply="success", status=200,
-                         reason="Your GET operation worked"))
+        try:
+            self.answer(dict(reply="success", status=200,
+                             reason="Your GET operation worked"))
+        except self.ignore_exceptions, e:
+            print >> sys.stderr, "Exception during GET (ignoring): %s" % str(e)
 
     def do_POST(self):
         # Read the provided POST data.
         # self.answer(self.read())
-        self.answer(dict(reply="success", status=200,
-                         reason=self.read()))
+        try:
+            self.answer(dict(reply="success", status=200,
+                             reason=self.read()))
+        except self.ignore_exceptions, e:
+            print >> sys.stderr, "Exception during POST (ignoring): %s" % str(e)
 
     def do_PUT(self):
         # Read the provided PUT data.
         # self.answer(self.read())
-        self.answer(dict(reply="success", status=200,
-                         reason=self.read()))
+        try:
+            self.answer(dict(reply="success", status=200,
+                             reason=self.read()))
+        except self.ignore_exceptions, e:
+            print >> sys.stderr, "Exception during PUT (ignoring): %s" % str(e)
 
     def answer(self, data, withdata=True):
         debug("%s.answer(%s): self.path = %r", self.__class__.__name__, data, self.path)
         if "/sleep/" in self.path:
             time.sleep(30)
 
-        if "fail" not in self.path:
+        if "/503/" in self.path:
+            # Tests for various kinds of 'Retry-After' header parsing
+            body = None
+            if "/503/0/" in self.path:
+                self.send_response(503)
+                self.send_header("retry-after", "2")
+            elif "/503/1/" in self.path:
+                self.send_response(503)
+                self.send_header("retry-after", "Thu, 31 Dec 2043 23:59:59 GMT")
+            elif "/503/2/" in self.path:
+                self.send_response(503)
+                self.send_header("retry-after", "Fri, 31 Dec 1999 23:59:59 GMT")
+            elif "/503/3/" in self.path:
+                self.send_response(503)
+                self.send_header("retry-after", "")
+            elif "/503/4/" in self.path:
+                self.send_response(503)
+                self.send_header("retry-after", "(*#*(@*(@(")
+            elif "/503/5/" in self.path:
+                self.send_response(503)
+                self.send_header("retry-after", "aklsjflajfaklsfaklfasfklasdfklasdgahsdhgasdiogaioshdgo")
+            elif "/503/6/" in self.path:
+                self.send_response(503)
+                self.send_header("retry-after", "1 2 3 4 5 6 7 8 9 10")
+            else:
+                # Unknown request
+                self.send_response(400)
+                body = "Unknown /503/ path in server"
+            if "/reflect/" in self.path:
+                self.reflect_headers()
+            self.send_header("Content-type", "text/plain")
+            self.end_headers()
+            if body:
+                self.wfile.write(body)
+        elif "/bug2295/" in self.path:
+            # Test for https://jira.secondlife.com/browse/BUG-2295
+            #
+            # Client can receive a header indicating data should
+            # appear in the body without actually getting the body.
+            # Library needs to defend against this case.
+            #
+            body = None
+            if "/bug2295/0/" in self.path:
+                self.send_response(206)
+                self.send_header("Content-Range", "bytes 0-75/2983")
+            elif "/bug2295/1/" in self.path:
+                self.send_response(206)
+                self.send_header("Content-Range", "bytes 0-75/*")
+            elif "/bug2295/2/" in self.path:
+                self.send_response(206)
+                self.send_header("Content-Range", "bytes 0-75/2983")
+                self.send_header("Content-Length", "0")
+            elif "/bug2295/00000012/0/" in self.path:
+                self.send_response(206)
+                self.send_header("Content-Range", "bytes 0-75/2983")
+                self.send_header("Content-Length", "76")
+            elif "/bug2295/inv_cont_range/0/" in self.path:
+                self.send_response(206)
+                self.send_header("Content-Range", "bytes 0-75/2983")
+                body = "Some text, but not enough."
+            else:
+                # Unknown request
+                self.send_response(400)
+            if "/reflect/" in self.path:
+                self.reflect_headers()
+            self.send_header("Content-type", "text/plain")
+            self.end_headers()
+            if body:
+                self.wfile.write(body)
+        elif "fail" not in self.path:
             data = data.copy()          # we're going to modify
             # Ensure there's a "reply" key in data, even if there wasn't before
             data["reply"] = data.get("reply", llsd.LLSD("success"))
@@ -162,6 +276,17 @@ class Server(ThreadingMixIn, HTTPServer):
     # operation of freeport() absolutely depends on it being off.
     allow_reuse_address = False
 
+    # Override of BaseServer.handle_error().  Not too interested
+    # in errors and the default handler emits a scary traceback
+    # to stderr which annoys some.  Disable this override to get
+    # default behavior which *shouldn't* cause the program to return
+    # a failure status.
+    def handle_error(self, request, client_address):
+        print '-'*40
+        print 'Ignoring exception during processing of request from',
+        print client_address
+        print '-'*40
+
 if __name__ == "__main__":
     do_valgrind = False
     path_search = False
@@ -188,3 +313,4 @@ if __name__ == "__main__":
         args = ["valgrind", "--log-file=./valgrind.log"] + args
         path_search = True
     sys.exit(run(server=Thread(name="httpd", target=httpd.serve_forever), use_path=path_search, *args))
+

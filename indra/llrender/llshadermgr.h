@@ -47,6 +47,8 @@ public:
 		TEXTURE_MATRIX1,
 		TEXTURE_MATRIX2,
 		TEXTURE_MATRIX3,
+		OBJECT_PLANE_S,
+		OBJECT_PLANE_T,
 		VIEWPORT,
 		LIGHT_POSITION,
 		LIGHT_DIRECTION,
@@ -165,13 +167,55 @@ public:
 		DEFERRED_LIGHT,
 		DEFERRED_BLOOM,
 		DEFERRED_PROJECTION,
-		
+		DEFERRED_NORM_MATRIX,
+
 		GLOBAL_GAMMA,
 		TEXTURE_GAMMA,
 		
 		SPECULAR_COLOR,
 		ENVIRONMENT_INTENSITY,
 		
+		AVATAR_MATRIX,
+		AVATAR_TRANSLATION,
+
+		WATER_SCREENTEX,
+		WATER_SCREENDEPTH,
+		WATER_REFTEX,
+		WATER_EYEVEC,
+		WATER_TIME,
+		WATER_WAVE_DIR1,
+		WATER_WAVE_DIR2,
+		WATER_LIGHT_DIR,
+		WATER_SPECULAR,
+		WATER_SPECULAR_EXP,
+		WATER_FOGCOLOR,
+		WATER_FOGDENSITY,
+		WATER_FOGKS,
+		WATER_REFSCALE,
+		WATER_WATERHEIGHT,
+		WATER_WATERPLANE,
+		WATER_NORM_SCALE,
+		WATER_FRESNEL_SCALE,
+		WATER_FRESNEL_OFFSET,
+		WATER_BLUR_MULTIPLIER,
+		WATER_SUN_ANGLE,
+		WATER_SCALED_ANGLE,
+		WATER_SUN_ANGLE2,
+		
+		WL_CAMPOSLOCAL,
+
+		AVATAR_WIND,
+		AVATAR_SINWAVE,
+		AVATAR_GRAVITY,
+
+		TERRAIN_DETAIL0,
+		TERRAIN_DETAIL1,
+		TERRAIN_DETAIL2,
+		TERRAIN_DETAIL3,
+		TERRAIN_ALPHARAMP,
+		
+		SHINY_ORIGIN,
+DISPLAY_GAMMA,
 		END_RESERVED_UNIFORMS
 	} eGLSLReservedUniforms;
 
@@ -181,7 +225,7 @@ public:
 	virtual void initAttribsAndUniforms(void);
 
 	BOOL attachShaderFeatures(LLGLSLShader * shader);
-	void dumpObjectLog(GLhandleARB ret, BOOL warns = TRUE);
+	void dumpObjectLog(GLhandleARB ret, BOOL warns = TRUE, const std::string& filename = "");
 	BOOL	linkProgramObject(GLhandleARB obj, BOOL suppress_errors = FALSE);
 	BOOL	validateProgramObject(GLhandleARB obj);
 	GLhandleARB loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type, boost::unordered_map<std::string, std::string>* defines = NULL, S32 texture_index_channels = -1);

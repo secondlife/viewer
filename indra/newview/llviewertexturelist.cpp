@@ -500,7 +500,7 @@ LLViewerFetchedTexture* LLViewerTextureList::createImage(const LLUUID &image_id,
 												   LLGLenum primary_format,
 												   LLHost request_from_host)
 {
-	static LLCachedControl<bool> fast_cache_fetching_enabled(gSavedSettings, "FastCacheFetchEnabled");
+	static LLCachedControl<bool> fast_cache_fetching_enabled(gSavedSettings, "FastCacheFetchEnabled", true);
 
 	LLPointer<LLViewerFetchedTexture> imagep ;
 	switch(texture_type)
@@ -561,15 +561,17 @@ void LLViewerTextureList::addImageToList(LLViewerFetchedTexture *image)
 	llassert_always(mInitialized) ;
 	llassert(image);
 	if (image->isInImageList())
-	{
-		llerrs << "LLViewerTextureList::addImageToList - Image already in list" << llendl;
+	{	// Flag is already set?
+		llwarns << "LLViewerTextureList::addImageToList - image " << image->getID()  << " already in list" << llendl;
 	}
+	else
+	{
 	if((mImageList.insert(image)).second != true) 
 	{
-		llerrs << "Error happens when insert image to mImageList!" << llendl ;
+			llwarns << "Error happens when insert image " << image->getID()  << " into mImageList!" << llendl ;
 	}
-	
 	image->setInImageList(TRUE) ;
+}
 }
 
 void LLViewerTextureList::removeImageFromList(LLViewerFetchedTexture *image)
@@ -577,22 +579,44 @@ void LLViewerTextureList::removeImageFromList(LLViewerFetchedTexture *image)
 	assert_main_thread();
 	llassert_always(mInitialized) ;
 	llassert(image);
-	if (!image->isInImageList())
-	{
-		llinfos << "RefCount: " << image->getNumRefs() << llendl ;
-		uuid_map_t::iterator iter = mUUIDMap.find(image->getID());
-		if(iter == mUUIDMap.end() || iter->second != image)
-		{
-			llinfos << "Image is not in mUUIDMap!" << llendl ;
-		}
-		llerrs << "LLViewerTextureList::removeImageFromList - Image not in list" << llendl;
-	}
 
-	S32 count = mImageList.erase(image) ;
-	if(count != 1) 
+	S32 count = 0;
+	if (image->isInImageList())
 	{
-		llinfos << image->getID() << llendl ;
-		llerrs << "Error happens when remove image from mImageList: " << count << llendl ;
+		count = mImageList.erase(image) ;
+		if(count != 1) 
+	{
+			llinfos << "Image  " << image->getID() 
+				<< " had mInImageList set but mImageList.erase() returned " << count
+				<< llendl;
+		}
+	}
+	else
+	{	// Something is wrong, image is expected in list or callers should check first
+		llinfos << "Calling removeImageFromList() for " << image->getID() 
+			<< " but doesn't have mInImageList set"
+			<< " ref count is " << image->getNumRefs()
+			<< llendl;
+		uuid_map_t::iterator iter = mUUIDMap.find(image->getID());
+		if(iter == mUUIDMap.end())
+		{
+			llinfos << "Image  " << image->getID() << " is also not in mUUIDMap!" << llendl ;
+		}
+		else if (iter->second != image)
+		{
+			llinfos << "Image  " << image->getID() << " was in mUUIDMap but with different pointer" << llendl ;
+	}
+		else
+	{
+			llinfos << "Image  " << image->getID() << " was in mUUIDMap with same pointer" << llendl ;
+		}
+		count = mImageList.erase(image) ;
+		if(count != 0) 
+		{	// it was in the list already?
+			llwarns << "Image  " << image->getID() 
+				<< " had mInImageList false but mImageList.erase() returned " << count
+				<< llendl;
+		}
 	}
       
 	image->setInImageList(FALSE) ;
@@ -602,15 +626,15 @@ void LLViewerTextureList::addImage(LLViewerFetchedTexture *new_image)
 {
 	if (!new_image)
 	{
-		llwarning("No image to add to image list", 0);
 		return;
 	}
+	llassert(new_image);
 	LLUUID image_id = new_image->getID();
 	
 	LLViewerFetchedTexture *image = findImage(image_id);
 	if (image)
 	{
-		llwarns << "Image with ID " << image_id << " already in list" << llendl;
+		llinfos << "Image with ID " << image_id << " already in list" << llendl;
 	}
 	sNumImages++;
 	
@@ -1349,7 +1373,7 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32 mem)
 // static
 void LLViewerTextureList::receiveImageHeader(LLMessageSystem *msg, void **user_data)
 {
-	static LLCachedControl<bool> log_texture_traffic(gSavedSettings,"LogTextureNetworkTraffic") ;
+	static LLCachedControl<bool> log_texture_traffic(gSavedSettings,"LogTextureNetworkTraffic", false) ;
 
 	LLFastTimer t(FTM_PROCESS_IMAGES);
 	
@@ -1421,7 +1445,7 @@ void LLViewerTextureList::receiveImageHeader(LLMessageSystem *msg, void **user_d
 // static
 void LLViewerTextureList::receiveImagePacket(LLMessageSystem *msg, void **user_data)
 {
-	static LLCachedControl<bool> log_texture_traffic(gSavedSettings,"LogTextureNetworkTraffic") ;
+	static LLCachedControl<bool> log_texture_traffic(gSavedSettings,"LogTextureNetworkTraffic", false) ;
 
 	LLFastTimer t(FTM_PROCESS_IMAGES);
 	

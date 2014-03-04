@@ -343,8 +343,11 @@ void LLNetMap::draw()
 		// Draw avatars
 		for (U32 i = 0; i < avatar_ids.size(); i++)
 		{
-			pos_map = globalPosToView(positions[i]);
 			LLUUID uuid = avatar_ids[i];
+			// Skip self, we'll draw it later
+			if (uuid == gAgent.getID()) continue;
+
+			pos_map = globalPosToView(positions[i]);
 
 			bool show_as_friend = (LLAvatarTracker::instance().getBuddyInfo(uuid) != NULL);
 

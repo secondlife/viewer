@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -64,6 +64,15 @@ int parse_content_range_header(char * buffer,
 							   unsigned int * last,
 							   unsigned int * length);
 
+// Similar for Retry-After headers.  Only parses the delta form
+// of the header, HTTP time formats aren't interesting for client
+// purposes.
+//
+// @return		0 if successfully parsed and seconds time delta
+//				returned in time argument.
+//
+int parse_retry_after_header(char * buffer, int * time);
+
 
 // Take data from libcurl's CURLOPT_DEBUGFUNCTION callback and
 // escape and format it for a tracing line in logging.  Absolutely
@@ -74,14 +83,16 @@ void escape_libcurl_debug_data(char * buffer, size_t len, bool scrub,
 							   std::string & safe_line);
 
 
-// OS-neutral string comparisons of various types
-int os_strncasecmp(const char *s1, const char *s2, size_t n);
-int os_strcasecmp(const char *s1, const char *s2);
-char * os_strtok_r(char *str, const char *delim, char **saveptr);
+// OS-neutral string comparisons of various types.
+int os_strcasecmp(const char * s1, const char * s2);
+char * os_strtok_r(char * str, const char * delim, char ** saveptr);
+char * os_strtrim(char * str);
+char * os_strltrim(char * str);
+void os_strlower(char * str);
 
-
-static const char * const hdr_whitespace(" \t");
-static const char * const hdr_separator(": \t");
+// Error testing and reporting for libcurl status codes
+void check_curl_easy_code(CURLcode code);
+void check_curl_easy_code(CURLcode code, int curl_setopt_option);
 
 } // end anonymous namespace
 
@@ -104,12 +115,15 @@ HttpOpRequest::HttpOpRequest()
 	  mCurlService(NULL),
 	  mCurlHeaders(NULL),
 	  mCurlBodyPos(0),
+	  mCurlTemp(NULL),
+	  mCurlTempLen(0),
 	  mReplyBody(NULL),
 	  mReplyOffset(0),
 	  mReplyLength(0),
 	  mReplyFullLength(0),
 	  mReplyHeaders(NULL),
 	  mPolicyRetries(0),
+	  mPolicy503Retries(0),
 	  mPolicyRetryAt(HttpTime(0)),
 	  mPolicyRetryLimit(HTTP_RETRY_COUNT_DEFAULT)
 {
@@ -153,6 +167,10 @@ HttpOpRequest::~HttpOpRequest()
 		mCurlHeaders = NULL;
 	}
 
+	delete [] mCurlTemp;
+	mCurlTemp = NULL;
+	mCurlTempLen = 0;
+	
 	if (mReplyBody)
 	{
 		mReplyBody->release();
@@ -186,9 +204,11 @@ void HttpOpRequest::stageFromActive(HttpService * service)
 	if (mReplyLength)
 	{
 		// If non-zero, we received and processed a Content-Range
-		// header with the response.  Verify that what it says
-		// is consistent with the received data.
-		if (mReplyLength != mReplyBody->size())
+		// header with the response.  If there is received data
+		// (and there may not be due to protocol violations,
+		// HEAD requests, etc., see BUG-2295) Verify that what it
+		// says is consistent with the received data.
+		if (mReplyBody && mReplyBody->size() && mReplyLength != mReplyBody->size())
 		{
 			// Not as expected, fail the request
 			mStatus = HttpStatus(HttpStatus::LLCORE, HE_INV_CONTENT_RANGE_HDR);
@@ -206,6 +226,11 @@ void HttpOpRequest::stageFromActive(HttpService * service)
 		mCurlHeaders = NULL;
 	}
 
+	// Also not needed on the other side
+	delete [] mCurlTemp;
+	mCurlTemp = NULL;
+	mCurlTempLen = 0;
+	
 	addAsReply();
 }
 
@@ -224,6 +249,7 @@ void HttpOpRequest::visitNotifier(HttpRequest * request)
 			response->setRange(mReplyOffset, mReplyLength, mReplyFullLength);
 		}
 		response->setContentType(mReplyConType);
+		response->setRetries(mPolicyRetries, mPolicy503Retries);
 		
 		mUserHandler->onCompleted(static_cast<HttpHandle>(this), response);
 
@@ -333,12 +359,15 @@ void HttpOpRequest::setupCommon(HttpRequest::policy_t policy_id,
 		{
 			mProcFlags |= PF_SAVE_HEADERS;
 		}
+		if (options->getUseRetryAfter())
+		{
+			mProcFlags |= PF_USE_RETRY_AFTER;
+		}
 		mPolicyRetryLimit = options->getRetries();
 		mPolicyRetryLimit = llclamp(mPolicyRetryLimit, HTTP_RETRY_COUNT_MIN, HTTP_RETRY_COUNT_MAX);
 		mTracing = (std::max)(mTracing, llclamp(options->getTrace(), HTTP_TRACE_MIN, HTTP_TRACE_MAX));
 	}
 }
-
 
 // Sets all libcurl options and data for a request.
 //
@@ -349,6 +378,8 @@ void HttpOpRequest::setupCommon(HttpRequest::policy_t policy_id,
 //
 HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 {
+	CURLcode code;
+	
 	// Scrub transport and result data for retried op case
 	mCurlActive = false;
 	mCurlHandle = NULL;
@@ -378,90 +409,108 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	// *FIXME:  better error handling later
 	HttpStatus status;
 
-	// Get policy options
+	// Get global policy options
 	HttpPolicyGlobal & policy(service->getPolicy().getGlobalOptions());
 	
-	mCurlHandle = curl_easy_init();
-	curl_easy_setopt(mCurlHandle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-	curl_easy_setopt(mCurlHandle, CURLOPT_NOSIGNAL, 1);
-	curl_easy_setopt(mCurlHandle, CURLOPT_NOPROGRESS, 1);
-	curl_easy_setopt(mCurlHandle, CURLOPT_URL, mReqURL.c_str());
-	curl_easy_setopt(mCurlHandle, CURLOPT_PRIVATE, this);
-	curl_easy_setopt(mCurlHandle, CURLOPT_ENCODING, "");
-
-	if (HTTP_ENABLE_LINKSYS_WRT54G_V5_DNS_FIX)
+	mCurlHandle = LLCurl::createStandardCurlHandle();
+	if (! mCurlHandle)
 	{
-		// The Linksys WRT54G V5 router has an issue with frequent
-		// DNS lookups from LAN machines.  If they happen too often,
-		// like for every HTTP request, the router gets annoyed after
-		// about 700 or so requests and starts issuing TCP RSTs to
-		// new connections.  Reuse the DNS lookups for even a few
-		// seconds and no RSTs.
-		curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, 15);
+		// We're in trouble.  We'll continue but it won't go well.
+		LL_WARNS("CoreHttp") << "Failed to allocate libcurl easy handle.  Continuing."
+							 << LL_ENDL;
+		return HttpStatus(HttpStatus::LLCORE, HE_BAD_ALLOC);
 	}
-	else
-	{
-		// *TODO:  Revisit this old DNS timeout setting - may no longer be valid
-		// I don't think this is valid anymore, the Multi shared DNS
-		// cache is working well.  For the case of naked easy handles,
-		// consider using a shared DNS object.
-		curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, 0);
-	}
-	curl_easy_setopt(mCurlHandle, CURLOPT_AUTOREFERER, 1);
-	curl_easy_setopt(mCurlHandle, CURLOPT_FOLLOWLOCATION, 1);
-	curl_easy_setopt(mCurlHandle, CURLOPT_MAXREDIRS, HTTP_REDIRECTS_DEFAULT);
-	curl_easy_setopt(mCurlHandle, CURLOPT_WRITEFUNCTION, writeCallback);
-	curl_easy_setopt(mCurlHandle, CURLOPT_WRITEDATA, this);
-	curl_easy_setopt(mCurlHandle, CURLOPT_READFUNCTION, readCallback);
-	curl_easy_setopt(mCurlHandle, CURLOPT_READDATA, this);
-	curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYPEER, 1);
-	curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYHOST, 0);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+	check_curl_easy_code(code, CURLOPT_IPRESOLVE);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_NOSIGNAL, 1);
+	check_curl_easy_code(code, CURLOPT_NOSIGNAL);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_NOPROGRESS, 1);
+	check_curl_easy_code(code, CURLOPT_NOPROGRESS);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_URL, mReqURL.c_str());
+	check_curl_easy_code(code, CURLOPT_URL);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_PRIVATE, this);
+	check_curl_easy_code(code, CURLOPT_PRIVATE);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_ENCODING, "");
+	check_curl_easy_code(code, CURLOPT_ENCODING);
 
-	const std::string * opt_value(NULL);
-	long opt_long(0L);
-	policy.get(HttpRequest::GP_LLPROXY, &opt_long);
-	if (opt_long)
+	// The Linksys WRT54G V5 router has an issue with frequent
+	// DNS lookups from LAN machines.  If they happen too often,
+	// like for every HTTP request, the router gets annoyed after
+	// about 700 or so requests and starts issuing TCP RSTs to
+	// new connections.  Reuse the DNS lookups for even a few
+	// seconds and no RSTs.
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, 15);
+	check_curl_easy_code(code, CURLOPT_DNS_CACHE_TIMEOUT);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_AUTOREFERER, 1);
+	check_curl_easy_code(code, CURLOPT_AUTOREFERER);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_FOLLOWLOCATION, 1);
+	check_curl_easy_code(code, CURLOPT_FOLLOWLOCATION);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_MAXREDIRS, HTTP_REDIRECTS_DEFAULT);
+	check_curl_easy_code(code, CURLOPT_MAXREDIRS);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_WRITEFUNCTION, writeCallback);
+	check_curl_easy_code(code, CURLOPT_WRITEFUNCTION);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_WRITEDATA, this);
+	check_curl_easy_code(code, CURLOPT_WRITEDATA);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_READFUNCTION, readCallback);
+	check_curl_easy_code(code, CURLOPT_READFUNCTION);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_READDATA, this);
+	check_curl_easy_code(code, CURLOPT_READDATA);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYPEER, 1);
+	check_curl_easy_code(code, CURLOPT_SSL_VERIFYPEER);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYHOST, 0);
+	check_curl_easy_code(code, CURLOPT_SSL_VERIFYHOST);
+
+	if (policy.mUseLLProxy)
 	{
 		// Use the viewer-based thread-safe API which has a
 		// fast/safe check for proxy enable.  Would like to
 		// encapsulate this someway...
 		LLProxy::getInstance()->applyProxySettings(mCurlHandle);
 	}
-	else if (policy.get(HttpRequest::GP_HTTP_PROXY, &opt_value))
+	else if (policy.mHttpProxy.size())
 	{
 		// *TODO:  This is fine for now but get fuller socks5/
 		// authentication thing going later....
-		curl_easy_setopt(mCurlHandle, CURLOPT_PROXY, opt_value->c_str());
-		curl_easy_setopt(mCurlHandle, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
+		code = curl_easy_setopt(mCurlHandle, CURLOPT_PROXY, policy.mHttpProxy.c_str());
+		check_curl_easy_code(code, CURLOPT_PROXY);
+		code = curl_easy_setopt(mCurlHandle, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
+		check_curl_easy_code(code, CURLOPT_PROXYTYPE);
 	}
-	if (policy.get(HttpRequest::GP_CA_PATH, &opt_value))
+	if (policy.mCAPath.size())
 	{
-		curl_easy_setopt(mCurlHandle, CURLOPT_CAPATH, opt_value->c_str());
+		code = curl_easy_setopt(mCurlHandle, CURLOPT_CAPATH, policy.mCAPath.c_str());
+		check_curl_easy_code(code, CURLOPT_CAPATH);
 	}
-	if (policy.get(HttpRequest::GP_CA_FILE, &opt_value))
+	if (policy.mCAFile.size())
 	{
-		curl_easy_setopt(mCurlHandle, CURLOPT_CAINFO, opt_value->c_str());
+		code = curl_easy_setopt(mCurlHandle, CURLOPT_CAINFO, policy.mCAFile.c_str());
+		check_curl_easy_code(code, CURLOPT_CAINFO);
 	}
 	
 	switch (mReqMethod)
 	{
 	case HOR_GET:
-		curl_easy_setopt(mCurlHandle, CURLOPT_HTTPGET, 1);
+		code = curl_easy_setopt(mCurlHandle, CURLOPT_HTTPGET, 1);
+		check_curl_easy_code(code, CURLOPT_HTTPGET);
 		mCurlHeaders = curl_slist_append(mCurlHeaders, "Connection: keep-alive");
 		mCurlHeaders = curl_slist_append(mCurlHeaders, "Keep-alive: 300");
 		break;
 		
 	case HOR_POST:
 		{
-			curl_easy_setopt(mCurlHandle, CURLOPT_POST, 1);
-			curl_easy_setopt(mCurlHandle, CURLOPT_ENCODING, "");
+			code = curl_easy_setopt(mCurlHandle, CURLOPT_POST, 1);
+			check_curl_easy_code(code, CURLOPT_POST);
+			code = curl_easy_setopt(mCurlHandle, CURLOPT_ENCODING, "");
+			check_curl_easy_code(code, CURLOPT_ENCODING);
 			long data_size(0);
 			if (mReqBody)
 			{
 				data_size = mReqBody->size();
 			}
-			curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDS, static_cast<void *>(NULL));
-			curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDSIZE, data_size);
+			code = curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDS, static_cast<void *>(NULL));
+			check_curl_easy_code(code, CURLOPT_POSTFIELDS);
+			code = curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDSIZE, data_size);
+			check_curl_easy_code(code, CURLOPT_POSTFIELDSIZE);
 			mCurlHeaders = curl_slist_append(mCurlHeaders, "Expect:");
 			mCurlHeaders = curl_slist_append(mCurlHeaders, "Connection: keep-alive");
 			mCurlHeaders = curl_slist_append(mCurlHeaders, "Keep-alive: 300");
@@ -470,14 +519,17 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 		
 	case HOR_PUT:
 		{
-			curl_easy_setopt(mCurlHandle, CURLOPT_UPLOAD, 1);
+			code = curl_easy_setopt(mCurlHandle, CURLOPT_UPLOAD, 1);
+			check_curl_easy_code(code, CURLOPT_UPLOAD);
 			long data_size(0);
 			if (mReqBody)
 			{
 				data_size = mReqBody->size();
 			}
-			curl_easy_setopt(mCurlHandle, CURLOPT_INFILESIZE, data_size);
-			curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDS, (void *) NULL);
+			code = curl_easy_setopt(mCurlHandle, CURLOPT_INFILESIZE, data_size);
+			check_curl_easy_code(code, CURLOPT_INFILESIZE);
+			code = curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDS, (void *) NULL);
+			check_curl_easy_code(code, CURLOPT_POSTFIELDS);
 			mCurlHeaders = curl_slist_append(mCurlHeaders, "Expect:");
 			mCurlHeaders = curl_slist_append(mCurlHeaders, "Connection: keep-alive");
 			mCurlHeaders = curl_slist_append(mCurlHeaders, "Keep-alive: 300");
@@ -494,9 +546,12 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	// Tracing
 	if (mTracing >= HTTP_TRACE_CURL_HEADERS)
 	{
-		curl_easy_setopt(mCurlHandle, CURLOPT_VERBOSE, 1);
-		curl_easy_setopt(mCurlHandle, CURLOPT_DEBUGDATA, this);
-		curl_easy_setopt(mCurlHandle, CURLOPT_DEBUGFUNCTION, debugCallback);
+		code = curl_easy_setopt(mCurlHandle, CURLOPT_VERBOSE, 1);
+		check_curl_easy_code(code, CURLOPT_VERBOSE);
+		code = curl_easy_setopt(mCurlHandle, CURLOPT_DEBUGDATA, this);
+		check_curl_easy_code(code, CURLOPT_DEBUGDATA);
+		code = curl_easy_setopt(mCurlHandle, CURLOPT_DEBUGFUNCTION, debugCallback);
+		check_curl_easy_code(code, CURLOPT_DEBUGFUNCTION);
 	}
 	
 	// There's a CURLOPT for this now...
@@ -524,13 +579,22 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 
 	// Request options
 	long timeout(HTTP_REQUEST_TIMEOUT_DEFAULT);
+	long xfer_timeout(HTTP_REQUEST_XFER_TIMEOUT_DEFAULT);
 	if (mReqOptions)
-	{
+ 	{
 		timeout = mReqOptions->getTimeout();
 		timeout = llclamp(timeout, HTTP_REQUEST_TIMEOUT_MIN, HTTP_REQUEST_TIMEOUT_MAX);
+		xfer_timeout = mReqOptions->getTransferTimeout();
+		xfer_timeout = llclamp(xfer_timeout, HTTP_REQUEST_TIMEOUT_MIN, HTTP_REQUEST_TIMEOUT_MAX);
 	}
-	curl_easy_setopt(mCurlHandle, CURLOPT_TIMEOUT, timeout);
-	curl_easy_setopt(mCurlHandle, CURLOPT_CONNECTTIMEOUT, timeout);
+	if (xfer_timeout == 0L)
+	{
+		xfer_timeout = timeout;
+	}
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_TIMEOUT, xfer_timeout);
+	check_curl_easy_code(code, CURLOPT_TIMEOUT);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_CONNECTTIMEOUT, timeout);
+	check_curl_easy_code(code, CURLOPT_CONNECTTIMEOUT);
 
 	// Request headers
 	if (mReqHeaders)
@@ -538,12 +602,15 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 		// Caller's headers last to override
 		mCurlHeaders = append_headers_to_slist(mReqHeaders, mCurlHeaders);
 	}
-	curl_easy_setopt(mCurlHandle, CURLOPT_HTTPHEADER, mCurlHeaders);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_HTTPHEADER, mCurlHeaders);
+	check_curl_easy_code(code, CURLOPT_HTTPHEADER);
 
-	if (mProcFlags & (PF_SCAN_RANGE_HEADER | PF_SAVE_HEADERS))
+	if (mProcFlags & (PF_SCAN_RANGE_HEADER | PF_SAVE_HEADERS | PF_USE_RETRY_AFTER))
 	{
-		curl_easy_setopt(mCurlHandle, CURLOPT_HEADERFUNCTION, headerCallback);
-		curl_easy_setopt(mCurlHandle, CURLOPT_HEADERDATA, this);
+		code = curl_easy_setopt(mCurlHandle, CURLOPT_HEADERFUNCTION, headerCallback);
+		check_curl_easy_code(code, CURLOPT_HEADERFUNCTION);
+		code = curl_easy_setopt(mCurlHandle, CURLOPT_HEADERDATA, this);
+		check_curl_easy_code(code, CURLOPT_HEADERDATA);
 	}
 	
 	if (status)
@@ -584,7 +651,7 @@ size_t HttpOpRequest::readCallback(void * data, size_t size, size_t nmemb, void 
 		{
 			// Warn but continue if the read position moves beyond end-of-body
 			// for some reason.
-			LL_WARNS("HttpCore") << "Request body position beyond body size.  Truncating request body."
+			LL_WARNS("CoreHttp") << "Request body position beyond body size.  Truncating request body."
 								 << LL_ENDL;
 		}
 		return 0;
@@ -601,15 +668,15 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 {
 	static const char status_line[] = "HTTP/";
 	static const size_t status_line_len = sizeof(status_line) - 1;
-
-	static const char con_ran_line[] = "content-range:";
-	static const size_t con_ran_line_len = sizeof(con_ran_line) - 1;
-
+	static const char con_ran_line[] = "content-range";
+	static const char con_retry_line[] = "retry-after";
+	
 	HttpOpRequest * op(static_cast<HttpOpRequest *>(userdata));
 
 	const size_t hdr_size(size * nmemb);
 	const char * hdr_data(static_cast<const char *>(data));		// Not null terminated
-
+	bool is_header(true);
+	
 	if (hdr_size >= status_line_len && ! strncmp(status_line, hdr_data, status_line_len))
 	{
 		// One of possibly several status lines.  Reset what we know and start over
@@ -617,11 +684,13 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 		op->mReplyOffset = 0;
 		op->mReplyLength = 0;
 		op->mReplyFullLength = 0;
+		op->mReplyRetryAfter = 0;
 		op->mStatus = HttpStatus();
 		if (op->mReplyHeaders)
 		{
-			op->mReplyHeaders->mHeaders.clear();
+			op->mReplyHeaders->clear();
 		}
+		is_header = false;
 	}
 
 	// Nothing in here wants a final CR/LF combination.  Remove
@@ -634,52 +703,109 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 			--wanted_hdr_size;
 		}
 	}
+
+	// Copy and normalize header fragments for the following
+	// stages.  Would like to modify the data in-place but that
+	// may not be allowed and we need one byte extra for NUL.
+	// At the end of this we will have:
+	//
+	// If ':' present in header:
+	//   1.  name points to text to left of colon which
+	//       will be ascii lower-cased and left and right
+	//       trimmed of whitespace.
+	//   2.  value points to text to right of colon which
+	//       will be left trimmed of whitespace.
+	// Otherwise:
+	//   1.  name points to header which will be left
+	//       trimmed of whitespace.
+	//   2.  value is NULL
+	// Any non-NULL pointer may point to a zero-length string.
+	//
+	if (wanted_hdr_size >= op->mCurlTempLen)
+	{
+		delete [] op->mCurlTemp;
+		op->mCurlTempLen = 2 * wanted_hdr_size + 1;
+		op->mCurlTemp = new char [op->mCurlTempLen];
+	}
+	memcpy(op->mCurlTemp, hdr_data, wanted_hdr_size);
+	op->mCurlTemp[wanted_hdr_size] = '\0';
+	char * name(op->mCurlTemp);
+	char * value(strchr(name, ':'));
+	if (value)
+	{
+		*value++ = '\0';
+		os_strlower(name);
+		name = os_strtrim(name);
+		value = os_strltrim(value);
+	}
+	else
+	{
+		// Doesn't look well-formed, do minimal normalization on it
+		name = os_strltrim(name);
+	}
+
+	// Normalized, now reject headers with empty names.
+	if (! *name)
+	{
+		// No use continuing
+		return hdr_size;
+	}
 	
 	// Save header if caller wants them in the response
-	if (op->mProcFlags & PF_SAVE_HEADERS)
+	if (is_header && op->mProcFlags & PF_SAVE_HEADERS)
 	{
 		// Save headers in response
 		if (! op->mReplyHeaders)
 		{
 			op->mReplyHeaders = new HttpHeaders;
 		}
-		op->mReplyHeaders->mHeaders.push_back(std::string(hdr_data, wanted_hdr_size));
+		op->mReplyHeaders->append(name, value ? value : "");
 	}
 
+	// From this point, header-specific processors are free to
+	// modify the header value.
+	
 	// Detect and parse 'Content-Range' headers
-	if (op->mProcFlags & PF_SCAN_RANGE_HEADER)
+	if (is_header
+		&& op->mProcFlags & PF_SCAN_RANGE_HEADER
+		&& value && *value
+		&& ! strcmp(name, con_ran_line))
 	{
-		char hdr_buffer[128];			// Enough for a reasonable header
-		size_t frag_size((std::min)(wanted_hdr_size, sizeof(hdr_buffer) - 1));
-		
-		memcpy(hdr_buffer, hdr_data, frag_size);
-		hdr_buffer[frag_size] = '\0';
-		if (frag_size > con_ran_line_len &&
-			! os_strncasecmp(hdr_buffer, con_ran_line, con_ran_line_len))
-		{
-			unsigned int first(0), last(0), length(0);
-			int status;
+		unsigned int first(0), last(0), length(0);
+		int status;
 
-			if (! (status = parse_content_range_header(hdr_buffer, &first, &last, &length)))
-			{
-				// Success, record the fragment position
-				op->mReplyOffset = first;
-				op->mReplyLength = last - first + 1;
-				op->mReplyFullLength = length;
-			}
-			else if (-1 == status)
-			{
-				// Response is badly formed and shouldn't be accepted
-				op->mStatus = HttpStatus(HttpStatus::LLCORE, HE_INV_CONTENT_RANGE_HDR);
-			}
-			else
-			{
-				// Ignore the unparsable.
-				LL_INFOS_ONCE("CoreHttp") << "Problem parsing odd Content-Range header:  '"
-										  << std::string(hdr_data, frag_size)
-										  << "'.  Ignoring."
-										  << LL_ENDL;
-			}
+		if (! (status = parse_content_range_header(value, &first, &last, &length)))
+		{
+			// Success, record the fragment position
+			op->mReplyOffset = first;
+			op->mReplyLength = last - first + 1;
+			op->mReplyFullLength = length;
+		}
+		else if (-1 == status)
+		{
+			// Response is badly formed and shouldn't be accepted
+			op->mStatus = HttpStatus(HttpStatus::LLCORE, HE_INV_CONTENT_RANGE_HDR);
+		}
+		else
+		{
+			// Ignore the unparsable.
+			LL_INFOS_ONCE("CoreHttp") << "Problem parsing odd Content-Range header:  '"
+									  << std::string(hdr_data, wanted_hdr_size)
+									  << "'.  Ignoring."
+									  << LL_ENDL;
+		}
+	}
+
+	// Detect and parse 'Retry-After' headers
+	if (is_header
+		&& op->mProcFlags & PF_USE_RETRY_AFTER
+		&& value && *value
+		&& ! strcmp(name, con_retry_line))
+	{
+		int time(0);
+		if (! parse_retry_after_header(value, &time))
+		{
+			op->mReplyRetryAfter = time;
 		}
 	}
 
@@ -694,7 +820,7 @@ int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffe
 	std::string safe_line;
 	std::string tag;
 	bool logit(false);
-	len = (std::min)(len, size_t(256));					// Keep things reasonable in all cases
+	const size_t log_len((std::min)(len, size_t(256)));		// Keep things reasonable in all cases
 	
 	switch (info)
 	{
@@ -702,7 +828,7 @@ int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffe
 		if (op->mTracing >= HTTP_TRACE_CURL_HEADERS)
 		{
 			tag = "TEXT";
-			escape_libcurl_debug_data(buffer, len, true, safe_line);
+			escape_libcurl_debug_data(buffer, log_len, true, safe_line);
 			logit = true;
 		}
 		break;
@@ -711,7 +837,7 @@ int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffe
 		if (op->mTracing >= HTTP_TRACE_CURL_HEADERS)
 		{
 			tag = "HEADERIN";
-			escape_libcurl_debug_data(buffer, len, true, safe_line);
+			escape_libcurl_debug_data(buffer, log_len, true, safe_line);
 			logit = true;
 		}
 		break;
@@ -720,7 +846,7 @@ int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffe
 		if (op->mTracing >= HTTP_TRACE_CURL_HEADERS)
 		{
 			tag = "HEADEROUT";
-			escape_libcurl_debug_data(buffer, 2 * len, true, safe_line);		// Goes out as one line
+			escape_libcurl_debug_data(buffer, log_len, true, safe_line);	// Goes out as one line unlike header_in
 			logit = true;
 		}
 		break;
@@ -732,7 +858,7 @@ int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffe
 			logit = true;
 			if (op->mTracing >= HTTP_TRACE_CURL_BODIES)
 			{
-				escape_libcurl_debug_data(buffer, len, false, safe_line);
+				escape_libcurl_debug_data(buffer, log_len, false, safe_line);
 			}
 			else
 			{
@@ -750,7 +876,7 @@ int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffe
 			logit = true;
 			if (op->mTracing >= HTTP_TRACE_CURL_BODIES)
 			{
-				escape_libcurl_debug_data(buffer, len, false, safe_line);
+				escape_libcurl_debug_data(buffer, log_len, false, safe_line);
 			}
 			else
 			{
@@ -794,14 +920,16 @@ int parse_content_range_header(char * buffer,
 							   unsigned int * last,
 							   unsigned int * length)
 {
+	static const char * const hdr_whitespace(" \t");
+
 	char * tok_state(NULL), * tok(NULL);
 	bool match(true);
 			
-	if (! os_strtok_r(buffer, hdr_separator, &tok_state))
+	if (! (tok = os_strtok_r(buffer, hdr_whitespace, &tok_state)))
 		match = false;
-	if (match && (tok = os_strtok_r(NULL, hdr_whitespace, &tok_state)))
-		match = 0 == os_strcasecmp("bytes", tok);
-	if (match && ! (tok = os_strtok_r(NULL, " \t", &tok_state)))
+	else
+		match = (0 == os_strcasecmp("bytes", tok));
+	if (match && ! (tok = os_strtok_r(NULL, hdr_whitespace, &tok_state)))
 		match = false;
 	if (match)
 	{
@@ -835,6 +963,25 @@ int parse_content_range_header(char * buffer,
 		}
 	}
 
+	// Header is there but badly/unexpectedly formed, try to ignore it.
+	return 1;
+}
+
+
+int parse_retry_after_header(char * buffer, int * time)
+{
+	char * endptr(buffer);
+	long lcl_time(strtol(buffer, &endptr, 10));
+	if (*endptr == '\0' && endptr != buffer && lcl_time > 0)
+	{
+		*time = lcl_time;
+		return 0;
+	}
+
+	// Could attempt to parse HTTP time here but we're not really
+	// interested in it.  Scheduling based on wallclock time on
+	// user hardware will lead to tears.
+	
 	// Header is there but badly/unexpectedly formed, try to ignore it.
 	return 1;
 }
@@ -876,15 +1023,6 @@ void escape_libcurl_debug_data(char * buffer, size_t len, bool scrub, std::strin
 }
 
 
-int os_strncasecmp(const char *s1, const char *s2, size_t n)
-{
-#if LL_WINDOWS
-	return _strnicmp(s1, s2, n);
-#else
-	return strncasecmp(s1, s2, n);
-#endif	// LL_WINDOWS
-}
-
 
 int os_strcasecmp(const char *s1, const char *s2)
 {
@@ -906,6 +1044,73 @@ char * os_strtok_r(char *str, const char *delim, char ** savestate)
 }
 
 
-}  // end anonymous namespace
+void os_strlower(char * str)
+{
+	for (char c(0); (c = *str); ++str)
+	{
+		*str = tolower(c);
+	}
+}
 
-		
+
+char * os_strtrim(char * lstr)
+{
+	while (' ' == *lstr || '\t' == *lstr)
+	{
+		++lstr;
+	}
+	if (*lstr)
+	{
+		char * rstr(lstr + strlen(lstr));
+		while (lstr < rstr && *--rstr)
+		{
+			if (' ' == *rstr || '\t' == *rstr)
+			{
+				*rstr = '\0';
+			}
+		}
+		llassert(lstr <= rstr);
+	}
+	return lstr;
+}
+
+
+char * os_strltrim(char * lstr)
+{
+	while (' ' == *lstr || '\t' == *lstr)
+	{
+		++lstr;
+	}
+	return lstr;
+}
+
+
+void check_curl_easy_code(CURLcode code, int curl_setopt_option)
+{
+	if (CURLE_OK != code)
+	{
+		// Comment from old llcurl code which may no longer apply:
+		//
+		// linux appears to throw a curl error once per session for a bad initialization
+		// at a pretty random time (when enabling cookies).
+		LL_WARNS("CoreHttp") << "libcurl error detected:  " << curl_easy_strerror(code)
+							 << ", curl_easy_setopt option:  " << curl_setopt_option
+							 << LL_ENDL;
+	}
+}
+
+
+void check_curl_easy_code(CURLcode code)
+{
+	if (CURLE_OK != code)
+	{
+		// Comment from old llcurl code which may no longer apply:
+		//
+		// linux appears to throw a curl error once per session for a bad initialization
+		// at a pretty random time (when enabling cookies).
+		LL_WARNS("CoreHttp") << "libcurl error detected:  " << curl_easy_strerror(code)
+							 << LL_ENDL;
+	}
+}
+
+}  // end anonymous namespace

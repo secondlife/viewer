@@ -290,6 +290,22 @@ bool ll_is_degenerate(const LLVector4a& a, const LLVector4a& b, const LLVector4a
 
 bool validate_face(const LLVolumeFace& face)
 {
+
+	for (U32 v = 0; v < face.mNumVertices; v++)
+	{
+		if(face.mPositions && !face.mPositions[v].isFinite3())
+		{
+			llwarns << "NaN position data in face found!" << llendl;
+			return false;
+		}
+
+		if(face.mNormals && !face.mNormals[v].isFinite3())
+		{
+			llwarns << "NaN normal data in face found!" << llendl;
+			return false;
+		}
+	}
+
 	for (U32 i = 0; i < face.mNumIndices; ++i)
 	{
 		if (face.mIndices[i] >= face.mNumVertices)
@@ -305,7 +321,9 @@ bool validate_face(const LLVolumeFace& face)
 		return false;
 	}
 
+
 	/*const LLVector4a scale(0.5f);
+
 
 	for (U32 i = 0; i < face.mNumIndices; i+=3)
 	{
@@ -323,7 +341,6 @@ bool validate_face(const LLVolumeFace& face)
 			return false;
 		}
 	}*/
-
 	return true;
 }
 
@@ -518,9 +535,16 @@ BOOL LLFloaterModelPreview::postBuild()
 	mUploadBtn = getChild<LLButton>("ok_btn");
 	mCalculateBtn = getChild<LLButton>("calculate_btn");
 
-	mCalculateBtn->setClickedCallback(boost::bind(&LLFloaterModelPreview::onClickCalculateBtn, this));
+	if (LLConvexDecomposition::getInstance() != NULL)
+	{
+		mCalculateBtn->setClickedCallback(boost::bind(&LLFloaterModelPreview::onClickCalculateBtn, this));
 
-	toggleCalculateButton(true);
+		toggleCalculateButton(true);
+	}
+	else
+	{
+		mCalculateBtn->setEnabled(false);
+	}
 
 	return TRUE;
 }
@@ -5921,3 +5945,5 @@ void LLFloaterModelPreview::setPermissonsErrorStatus(U32 status, const std::stri
 
 	LLNotificationsUtil::add("MeshUploadPermError");
 }
+
+

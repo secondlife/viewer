@@ -130,6 +130,9 @@
 	<string name="create_account_url">
 		http://join.secondlife.com/?sourceid=[sourceid]
 	</string>
+	<string name="ViewerDownloadURL">
+		http://secondlife.com/download.
+	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		Ya no puedes acceder a Second Life con el visor que estás utilizando. Visita la siguiente página para descargar un nuevo visor:
 http://secondlife.com/download.
@@ -438,6 +441,9 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	</string>
 	<string name="SLappAgentRequestFriend">
 		Petición de amistad
+	</string>
+	<string name="SLappAgentRemoveFriend">
+		Eliminación de amigos
 	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
 		Cerrar (⌘W)
@@ -823,6 +829,9 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="anim_yes_head">
 		Sí
 	</string>
+	<string name="use_texture">
+		Usar textura
+	</string>
 	<string name="texture_loading">
 		Cargando...
 	</string>
@@ -918,6 +927,21 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	</string>
 	<string name="TeleportYourAgent">
 		Teleportarte
+	</string>
+	<string name="JoinAnExperience">
+		Únete a una experiencia
+	</string>
+	<string name="SilentlyManageEstateAccess">
+		Suprimir alertas al gestionar las listas de acceso a un estado
+	</string>
+	<string name="OverrideYourAnimations">
+		Reemplazar tus animaciones predeterminadas
+	</string>
+	<string name="ScriptReturnObjects">
+		Devolver objetos en tu nombre
+	</string>
+	<string name="UnknownScriptPermission">
+		(desconocido)
 	</string>
 	<string name="SIM_ACCESS_PG">
 		General
@@ -1232,7 +1256,7 @@ Intenta iniciar sesión de nuevo en unos instantes.
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
 	</string>
 	<string name="MarketplaceURL_CreateStore">
-		http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.4
+		http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.3
 	</string>
 	<string name="MarketplaceURL_Dashboard">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/dashboard
@@ -1943,6 +1967,12 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	</string>
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		HUD: abajo der.
+	</string>
+	<string name="ATTACH_NECK">
+		Cuello
+	</string>
+	<string name="ATTACH_AVATAR_CENTER">
+		Centro del avatar
 	</string>
 	<string name="CursorPos">
 		Línea [LINE], Columna [COLUMN]
@@ -2930,6 +2960,9 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	</string>
 	<string name="Hip Width">
 		Cadera: ancho
+	</string>
+	<string name="Hover">
+		Pasa el cursor
 	</string>
 	<string name="In">
 		Pegadas
@@ -4990,5 +5023,8 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 	</string>
 	<string name="logging_calls_enabled_log_empty">
 		No hay conversaciones grabadas. Después de contactar con una persona, o de que alguien contacte contigo, aquí se mostrará una entrada de registro.
+	</string>
+	<string name="loading_chat_logs">
+		Cargando...
 	</string>
 </strings>

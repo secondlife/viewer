@@ -91,6 +91,7 @@
 #include "lltrans.h"
 #include "llagentui.h"
 #include "llmeshrepository.h"
+#include "llfloaterregionrestarting.h"
 
 const S32 TERRAIN_TEXTURE_COUNT = 4;
 const S32 CORNER_COUNT = 4;
@@ -219,7 +220,7 @@ BOOL LLFloaterRegionInfo::postBuild()
 		&processEstateOwnerRequest);
 
 	// Request region info when agent region changes.
-	LLEnvManagerNew::instance().setRegionChangeCallback(boost::bind(&LLFloaterRegionInfo::requestRegionInfo, this));
+	gAgent.addRegionChangedCallback(boost::bind(&LLFloaterRegionInfo::requestRegionInfo, this));
 
 	return TRUE;
 }
@@ -1734,7 +1735,7 @@ void LLPanelEstateInfo::accessAddCore3(const uuid_vec_t& ids, void* data)
 			LLSD args;
 			args["NUM_ADDED"] = llformat("%d",ids.size());
 			args["MAX_AGENTS"] = llformat("%d",ESTATE_MAX_ACCESS_IDS);
-			args["LIST_TYPE"] = "Allowed Residents";
+			args["LIST_TYPE"] = LLTrans::getString("RegionInfoListTypeAllowedAgents");
 			args["NUM_EXCESS"] = llformat("%d",(ids.size()+currentCount)-ESTATE_MAX_ACCESS_IDS);
 			LLNotificationsUtil::add("MaxAgentOnRegionBatch", args);
 			delete change_info;
@@ -1750,7 +1751,7 @@ void LLPanelEstateInfo::accessAddCore3(const uuid_vec_t& ids, void* data)
 			LLSD args;
 			args["NUM_ADDED"] = llformat("%d",ids.size());
 			args["MAX_AGENTS"] = llformat("%d",ESTATE_MAX_ACCESS_IDS);
-			args["LIST_TYPE"] = "Banned Residents";
+			args["LIST_TYPE"] = LLTrans::getString("RegionInfoListTypeBannedAgents");
 			args["NUM_EXCESS"] = llformat("%d",(ids.size()+currentCount)-ESTATE_MAX_ACCESS_IDS);
 			LLNotificationsUtil::add("MaxAgentOnRegionBatch", args);
 			delete change_info;
@@ -2815,9 +2816,10 @@ bool LLDispatchSetEstateAccess::operator()(
 		}
 
 
-		std::string msg = llformat("Banned residents: (%d, max %d)",
-									totalBannedAgents,
-									ESTATE_MAX_ACCESS_IDS);
+		LLStringUtil::format_map_t args;
+		args["[BANNEDAGENTS]"] = llformat("%d", totalBannedAgents);
+		args["[MAXBANNED]"] = llformat("%d", ESTATE_MAX_ACCESS_IDS);
+		std::string msg = LLTrans::getString("RegionInfoBannedResidents", args);
 		panel->getChild<LLUICtrl>("ban_resident_label")->setValue(LLSD(msg));
 
 		if (banned_agent_name_list)
@@ -2837,9 +2839,10 @@ bool LLDispatchSetEstateAccess::operator()(
 
 	if (access_flags & ESTATE_ACCESS_MANAGERS)
 	{
-		std::string msg = llformat("Estate Managers: (%d, max %d)",
-									num_estate_managers,
-									ESTATE_MAX_MANAGERS);
+		LLStringUtil::format_map_t args;
+		args["[ESTATEMANAGERS]"] = llformat("%d", num_estate_managers);
+		args["[MAXMANAGERS]"] = llformat("%d", ESTATE_MAX_MANAGERS);
+		std::string msg = LLTrans::getString("RegionInfoEstateManagers", args);
 		panel->getChild<LLUICtrl>("estate_manager_label")->setValue(LLSD(msg));
 
 		LLNameListCtrl* estate_manager_name_list =

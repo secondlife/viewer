@@ -505,9 +505,25 @@ static std::string get_object_log(GLhandleARB ret)
 	return res;
 }
 
-void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns) 
+void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns, const std::string& filename) 
 {
 	std::string log = get_object_log(ret);
+
+	if (log.length() > 0 || warns)
+	{
+		if (!filename.empty())
+		{
+			if (warns)
+			{
+				LL_WARNS("ShaderLoading") << "From " << filename << ":" << LL_ENDL;
+			}
+			else
+			{
+				LL_INFOS("ShaderLoading") << "From " << filename << ":" << LL_ENDL;
+			}
+		}
+	}
+
 	if ( log.length() > 0 )
 	{
 		if (warns)
@@ -558,7 +574,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		file = LLFile::fopen(fname.str(), "r");		/* Flawfinder: ignore */
 		if (file)
 		{
-			LL_INFOS("ShaderLoading") << "Loading file: shaders/class" << gpu_class << "/" << filename << " (Want class " << gpu_class << ")" << LL_ENDL;
+			LL_DEBUGS("ShaderLoading") << "Loading file: shaders/class" << gpu_class << "/" << filename << " (Want class " << gpu_class << ")" << LL_ENDL;
 			break; // done
 		}
 	}
@@ -812,8 +828,8 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 			if (error != GL_NO_ERROR || success == GL_FALSE) 
 			{
 				//an error occured, print log
-				LL_WARNS("ShaderLoading") << "GLSL Compilation Error: (" << error << ") in " << filename << LL_ENDL;
-				dumpObjectLog(ret);
+				LL_WARNS("ShaderLoading") << "GLSL Compilation Error:" << LL_ENDL;
+				dumpObjectLog(ret, TRUE, filename);
 #if LL_WINDOWS
 				std::stringstream ostr;
 				//dump shader source for debugging
@@ -938,11 +954,6 @@ BOOL LLShaderMgr::linkProgramObject(GLhandleARB obj, BOOL suppress_errors)
 		suppress_errors = FALSE;
 	}
 #endif
-	if (!suppress_errors)
-	{
-        dumpObjectLog(obj, !success);
-	}
-
 	return success;
 }
 
@@ -993,7 +1004,9 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("texture_matrix1");
 	mReservedUniforms.push_back("texture_matrix2");
 	mReservedUniforms.push_back("texture_matrix3");
-	llassert(mReservedUniforms.size() == LLShaderMgr::TEXTURE_MATRIX3+1);
+	mReservedUniforms.push_back("object_plane_s");
+	mReservedUniforms.push_back("object_plane_t");
+	llassert(mReservedUniforms.size() == LLShaderMgr::OBJECT_PLANE_T+1);
 
 	mReservedUniforms.push_back("viewport");
 
@@ -1135,13 +1148,55 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("lightMap");
 	mReservedUniforms.push_back("bloomMap");
 	mReservedUniforms.push_back("projectionMap");
-	
+	mReservedUniforms.push_back("norm_mat");
+
 	mReservedUniforms.push_back("global_gamma");
 	mReservedUniforms.push_back("texture_gamma");
 	
 	mReservedUniforms.push_back("specular_color");
 	mReservedUniforms.push_back("env_intensity");
 
+	mReservedUniforms.push_back("matrixPalette");
+	mReservedUniforms.push_back("translationPalette");
+	
+	mReservedUniforms.push_back("screenTex");
+	mReservedUniforms.push_back("screenDepth");
+	mReservedUniforms.push_back("refTex");
+	mReservedUniforms.push_back("eyeVec");
+	mReservedUniforms.push_back("time");
+	mReservedUniforms.push_back("d1");
+	mReservedUniforms.push_back("d2");
+	mReservedUniforms.push_back("lightDir");
+	mReservedUniforms.push_back("specular");
+	mReservedUniforms.push_back("lightExp");
+	mReservedUniforms.push_back("waterFogColor");
+	mReservedUniforms.push_back("waterFogDensity");
+	mReservedUniforms.push_back("waterFogKS");
+	mReservedUniforms.push_back("refScale");
+	mReservedUniforms.push_back("waterHeight");
+	mReservedUniforms.push_back("waterPlane");
+	mReservedUniforms.push_back("normScale");
+	mReservedUniforms.push_back("fresnelScale");
+	mReservedUniforms.push_back("fresnelOffset");
+	mReservedUniforms.push_back("blurMultiplier");
+	mReservedUniforms.push_back("sunAngle");
+	mReservedUniforms.push_back("scaledAngle");
+	mReservedUniforms.push_back("sunAngle2");
+	
+	mReservedUniforms.push_back("camPosLocal");
+
+	mReservedUniforms.push_back("gWindDir");
+	mReservedUniforms.push_back("gSinWaveParams");
+	mReservedUniforms.push_back("gGravity");
+
+	mReservedUniforms.push_back("detail_0");
+	mReservedUniforms.push_back("detail_1");
+	mReservedUniforms.push_back("detail_2");
+	mReservedUniforms.push_back("detail_3");
+	mReservedUniforms.push_back("alpha_ramp");
+
+	mReservedUniforms.push_back("origin");
+	mReservedUniforms.push_back("display_gamma");
 	llassert(mReservedUniforms.size() == END_RESERVED_UNIFORMS);
 
 	std::set<std::string> dupe_check;

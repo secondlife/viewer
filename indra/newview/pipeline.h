@@ -295,6 +295,7 @@ public:
 
 	void unbindDeferredShader(LLGLSLShader& shader);
 	void renderDeferredLighting();
+	void renderDeferredLightingToRT(LLRenderTarget* target);
 	
 	void generateWaterReflection(LLCamera& camera);
 	void generateSunShadow(LLCamera& camera);
@@ -534,15 +535,16 @@ public:
 		RENDER_DEBUG_SHADOW_FRUSTA		= 0x00040000,
 		RENDER_DEBUG_SCULPTED           = 0x00080000,
 		RENDER_DEBUG_AVATAR_VOLUME      = 0x00100000,
-		RENDER_DEBUG_BUILD_QUEUE		= 0x00200000,
-		RENDER_DEBUG_AGENT_TARGET       = 0x00400000,
-		RENDER_DEBUG_UPDATE_TYPE		= 0x00800000,
-		RENDER_DEBUG_PHYSICS_SHAPES     = 0x01000000,
-		RENDER_DEBUG_NORMALS	        = 0x02000000,
-		RENDER_DEBUG_LOD_INFO	        = 0x04000000,
-		RENDER_DEBUG_RENDER_COMPLEXITY  = 0x08000000,
-		RENDER_DEBUG_ATTACHMENT_BYTES	= 0x10000000,
-		RENDER_DEBUG_TEXEL_DENSITY		= 0x20000000
+		RENDER_DEBUG_AVATAR_JOINTS      = 0x00200000,
+		RENDER_DEBUG_BUILD_QUEUE		= 0x00400000,
+		RENDER_DEBUG_AGENT_TARGET       = 0x00800000,
+		RENDER_DEBUG_UPDATE_TYPE		= 0x01000000,
+		RENDER_DEBUG_PHYSICS_SHAPES     = 0x02000000,
+		RENDER_DEBUG_NORMALS	        = 0x04000000,
+		RENDER_DEBUG_LOD_INFO	        = 0x08000000,
+		RENDER_DEBUG_RENDER_COMPLEXITY  = 0x10000000,
+		RENDER_DEBUG_ATTACHMENT_BYTES	= 0x20000000,
+		RENDER_DEBUG_TEXEL_DENSITY		= 0x40000000
 	};
 
 public:
@@ -594,6 +596,7 @@ public:
 	static BOOL				sPickAvatar;
 	static BOOL				sReflectionRender;
 	static BOOL				sImpostorRender;
+	static BOOL				sImpostorRenderAlphaDepthPass;
 	static BOOL				sUnderWaterRender;
 	static BOOL				sRenderGlow;
 	static BOOL				sTextureBindTest;

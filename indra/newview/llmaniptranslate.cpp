@@ -1681,7 +1681,8 @@ void LLManipTranslate::highlightIntersection(LLVector3 normal,
 
 		gGL.getModelviewMatrix().inverse().mult_vec_matrix(plane);
 
-		gClipProgram.uniform4fv("clip_plane", 1, plane.v);
+		static LLStaticHashedString sClipPlane("clip_plane");
+		gClipProgram.uniform4fv(sClipPlane, 1, plane.v);
 		
 		BOOL particles = gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_PARTICLES);
 		BOOL clouds = gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS);

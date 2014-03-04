@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -29,9 +29,9 @@
 
 /// @package LLCore::HTTP
 ///
-/// This library implements a high-level, Indra-code-free client interface to
-/// HTTP services based on actual patterns found in the viewer and simulator.
-/// Interfaces are similar to those supplied by the legacy classes
+/// This library implements a high-level, Indra-code-free (somewhat) client
+/// interface to HTTP services based on actual patterns found in the viewer
+/// and simulator.  Interfaces are similar to those supplied by the legacy classes
 /// LLCurlRequest and LLHTTPClient.  To that is added a policy scheme that
 /// allows an application to specify connection behaviors:  limits on
 /// connections, HTTP keepalive, HTTP pipelining, retry-on-error limits, etc.
@@ -52,7 +52,7 @@
 /// - "llcorehttp/httprequest.h"
 /// - "llcorehttp/httpresponse.h"
 ///
-/// The library is still under early development and particular users
+/// The library is still under development and particular users
 /// may need access to internal implementation details that are found
 /// in the _*.h header files.  But this is a crutch to be avoided if at
 /// all possible and probably indicates some interface work is neeeded.
@@ -66,6 +66,8 @@
 ///   .  CRYPTO_set_id_callback(...)
 /// - HttpRequest::createService() called to instantiate singletons
 ///   and support objects.
+/// - HttpRequest::startThread() to kick off the worker thread and
+///   begin servicing requests.
 ///
 /// An HTTP consumer in an application, and an application may have many
 /// consumers, does a few things:
@@ -91,10 +93,12 @@
 ///   objects.
 /// - Do completion processing in your onCompletion() method.
 ///
-/// Code fragments:
-/// Rather than a poorly-maintained example in comments, look in the
-/// example subdirectory which is a minimal yet functional tool to do
-/// GET request performance testing.  With four calls:
+/// Code fragments.
+///
+/// Initialization.  Rather than a poorly-maintained example in
+/// comments, look in the example subdirectory which is a minimal
+/// yet functional tool to do GET request performance testing.
+/// With four calls:
 ///
 ///   	init_curl();
 ///     LLCore::HttpRequest::createService();
@@ -103,7 +107,85 @@
 ///
 /// the program is basically ready to issue requests.
 ///
-
+/// HttpHandler.  Having started life as a non-indra library,
+/// this code broke away from the classic Responder model and
+/// introduced a handler class to represent an interface for
+/// request responses.  This is a non-reference-counted entity
+/// which can be used as a base class or a mixin.  An instance
+/// of a handler can be used for each request or can be shared
+/// among any number of requests.  Your choice but expect to
+/// code something like the following:
+///
+///     class AppHandler : public LLCore::HttpHandler
+///     {
+///     public:
+///         virtual void onCompleted(HttpHandle handle,
+///                                  HttpResponse * response)
+///         {
+///             ...
+///         }
+///         ...
+///     };
+///     ...
+///     handler = new handler(...);
+///
+///
+/// Issuing requests.  Using 'hr' above,
+///
+///     hr->requestGet(HttpRequest::DEFAULT_POLICY_ID,
+///                    0,				// Priority, not used yet
+///                    url,
+///                    NULL,			// options
+///                    NULL,            // additional headers
+///                    handler);
+///
+/// If that returns a value other than LLCORE_HTTP_HANDLE_INVALID,
+/// the request was successfully issued and there will eventally
+/// be a status delivered to the handler.  If invalid is returnedd,
+/// the actual status can be retrieved by calling hr->getStatus().
+///
+/// Completing requests and delivering notifications.  Operations
+/// are all performed by the worker thread and will be driven to
+/// completion regardless of caller actions.  Notification of
+/// completion (success or failure) is done by calls to
+/// HttpRequest::update() which will invoke handlers for completed
+/// requests:
+///
+///     hr->update(0);
+///       // Callbacks into handler->onCompleted()
+///
+///
+/// Threads.
+///
+/// Threads are supported and used by this library.  The various
+/// classes, methods and members are documented with thread
+/// constraints which programmers must follow and which are
+/// defined as follows:
+///
+/// consumer	Any thread that has instanced HttpRequest and is
+///             issuing requests.  A particular instance can only
+///             be used by one consumer thread but a consumer may
+///             have many instances available to it.
+/// init		Special consumer thread, usually the main thread,
+///             involved in setting up the library at startup.
+/// worker      Thread used internally by the library to perform
+///             HTTP operations.  Consumers will not have to deal
+///             with this thread directly but some APIs are reserved
+///             to it.
+/// any         Consumer or worker thread.
+///
+/// For the most part, API users will not have to do much in the
+/// way of ensuring thread safely.  However, there is a tremendous
+/// amount of sharing between threads of read-only data.  So when
+/// documentation declares that an option or header instance
+/// becomes shared between consumer and worker, the consumer must
+/// not modify the shared object.
+///
+/// Internally, there is almost no thread synchronization.  During
+/// normal operations (non-init, non-term), only the request queue
+/// and the multiple reply queues are shared between threads and
+/// only here are mutexes used.
+///
 
 #include "linden_common.h"		// Modifies curl/curl.h interfaces
 
@@ -164,7 +246,10 @@ enum HttpError
 	HE_OPT_NOT_DYNAMIC = 8,
 	
 	// Invalid HTTP status code returned by server
-	HE_INVALID_HTTP_STATUS = 9
+	HE_INVALID_HTTP_STATUS = 9,
+	
+	// Couldn't allocate resource, typically libcurl handle
+	HE_BAD_ALLOC = 10
 	
 }; // end enum HttpError
 
@@ -239,9 +324,10 @@ struct HttpStatus
 			return *this;
 		}
 	
-	static const type_enum_t EXT_CURL_EASY = 0;
-	static const type_enum_t EXT_CURL_MULTI = 1;
-	static const type_enum_t LLCORE = 2;
+	static const type_enum_t EXT_CURL_EASY = 0;			///< mStatus is an error from a curl_easy_*() call
+	static const type_enum_t EXT_CURL_MULTI = 1;		///< mStatus is an error from a curl_multi_*() call
+	static const type_enum_t LLCORE = 2;				///< mStatus is an HE_* error code
+														///< 100-999 directly represent HTTP status codes
 	
 	type_enum_t			mType;
 	short				mStatus;
@@ -297,12 +383,26 @@ struct HttpStatus
 	/// LLCore itself).
 	std::string toString() const;
 
+	/// Convert status to a compact string representation
+	/// of the form:  "<type>_<value>".  The <type> will be
+	/// one of:  Core, Http, Easy, Multi, Unknown.  And
+	/// <value> will be an unsigned integer.  More easily
+	/// interpreted than the hex representation, it's still
+	/// compact and easily searched.
+	std::string toTerseString() const;
+
 	/// Returns true if the status value represents an
 	/// HTTP response status (100 - 999).
 	bool isHttpStatus() const
 	{
 		return 	mType >= type_enum_t(100) && mType <= type_enum_t(999);
 	}
+
+	/// Returns true if the status is one that will be retried
+	/// internally.  Provided for external consumption for cases
+	/// where that logic needs to be replicated.  Only applies
+	/// to failed statuses, successful statuses will return false.
+	bool isRetryable() const;
 	
 }; // end struct HttpStatus
 

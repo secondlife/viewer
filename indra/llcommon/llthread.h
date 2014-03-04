@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2004&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2010-2013, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -156,7 +156,8 @@ public:
 	virtual ~LLMutex();
 	
 	void lock();		// blocks
-	void unlock();
+	bool trylock();		// non-blocking, returns true if lock held.
+	void unlock();		// undefined behavior when called on mutex not being held
 	bool isLocked(); 	// non-blocking, but does do a lock/unlock so not free
 	bool isSelfLocked(); //return true if locked in a same thread
 	U32 lockingThread() const; //get ID of locking thread
@@ -174,6 +175,8 @@ protected:
 #endif
 };
 
+//============================================================================
+
 // Actually a condition/mutex pair (since each condition needs to be associated with a mutex).
 class LL_COMMON_API LLCondition : public LLMutex
 {
@@ -188,6 +191,8 @@ public:
 protected:
 	apr_thread_cond_t *mAPRCondp;
 };
+
+//============================================================================
 
 class LLMutexLock
 {
@@ -206,6 +211,43 @@ public:
 	}
 private:
 	LLMutex* mMutex;
+};
+
+//============================================================================
+
+// Scoped locking class similar in function to LLMutexLock but uses
+// the trylock() method to conditionally acquire lock without
+// blocking.  Caller resolves the resulting condition by calling
+// the isLocked() method and either punts or continues as indicated.
+//
+// Mostly of interest to callers needing to avoid stalls who can
+// guarantee another attempt at a later time.
+
+class LLMutexTrylock
+{
+public:
+	LLMutexTrylock(LLMutex* mutex)
+		: mMutex(mutex),
+		  mLocked(false)
+	{
+		if (mMutex)
+			mLocked = mMutex->trylock();
+	}
+
+	~LLMutexTrylock()
+	{
+		if (mMutex && mLocked)
+			mMutex->unlock();
+	}
+
+	bool isLocked() const
+	{
+		return mLocked;
+	}
+	
+private:
+	LLMutex*	mMutex;
+	bool		mLocked;
 };
 
 //============================================================================
@@ -242,48 +284,38 @@ public:
 	LLThreadSafeRefCount(const LLThreadSafeRefCount&);
 	LLThreadSafeRefCount& operator=(const LLThreadSafeRefCount& ref) 
 	{
-		if (sMutex)
-		{
-			sMutex->lock();
-		}
 		mRef = 0;
-		if (sMutex)
-		{
-			sMutex->unlock();
-		}
 		return *this;
 	}
 
-
-	
 	void ref()
 	{
-		if (sMutex) sMutex->lock();
 		mRef++; 
-		if (sMutex) sMutex->unlock();
 	} 
 
-	S32 unref()
+	void unref()
 	{
 		llassert(mRef >= 1);
-		if (sMutex) sMutex->lock();
-		S32 res = --mRef;
-		if (sMutex) sMutex->unlock();
-		if (0 == res) 
-		{
-			delete this; 
-			return 0;
+		if ((--mRef) == 0)		// See note in llapr.h on atomic decrement operator return value.  
+		{	
+			// If we hit zero, the caller should be the only smart pointer owning the object and we can delete it.
+			// It is technically possible for a vanilla pointer to mess this up, or another thread to
+			// jump in, find this object, create another smart pointer and end up dangling, but if
+			// the code is that bad and not thread-safe, it's trouble already.
+			delete this;
 		}
-		return res;
-	}	
+	}
+
 	S32 getNumRefs() const
 	{
-		return mRef;
+		const S32 currentVal = mRef.CurrentValue();
+		return currentVal;
 	}
 
 private: 
-	S32	mRef; 
+	LLAtomic32< S32	> mRef; 
 };
+
 
 /**
  * intrusive pointer support for LLThreadSafeRefCount
@@ -314,5 +346,7 @@ public:
 };
 
 //============================================================================
+
+extern LL_COMMON_API void assert_main_thread();
 
 #endif // LL_LLTHREAD_H

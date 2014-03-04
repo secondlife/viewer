@@ -98,6 +98,8 @@
 #include "llrefcount.h"
 #include "llsdparam.h"
 
+#include "llnotificationslistener.h"
+
 class LLAvatarName;
 typedef enum e_notification_priority
 {
@@ -138,6 +140,7 @@ typedef LLFunctorRegistration<LLNotificationResponder> LLNotificationFunctorRegi
 class LLNotificationContext : public LLInstanceTracker<LLNotificationContext, LLUUID>
 {
 public:
+
 	LLNotificationContext() : LLInstanceTracker<LLNotificationContext, LLUUID>(LLUUID::generateNewID())
 	{
 	}
@@ -873,6 +876,13 @@ class LLNotifications :
 
 	friend class LLSingleton<LLNotifications>;
 public:
+
+    // Needed to clear up RefCounted things prior to actual destruction
+    // as the singleton nature of the class makes them do "bad things"
+    // on at least Mac, if not all 3 platforms
+    //
+    void clear();
+
 	// load all notification descriptions from file
 	// calling more than once will overwrite existing templates
 	// but never delete a template
@@ -969,6 +979,8 @@ private:
 	GlobalStringMap mGlobalStrings;
 
 	bool mIgnoreAllNotifications;
+
+	boost::scoped_ptr<LLNotificationsListener> mListener;
 
 	std::vector<LLNotificationChannelPtr> mDefaultChannels;
 };

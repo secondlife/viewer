@@ -124,6 +124,7 @@ set(viewer_SOURCE_FILES
     llavatariconctrl.cpp
     llavatarlist.cpp
     llavatarlistitem.cpp
+    llavatarrenderinfoaccountant.cpp
     llavatarpropertiesprocessor.cpp
     llblockedlistitem.cpp
     llblocklist.cpp
@@ -190,6 +191,7 @@ set(viewer_SOURCE_FILES
     llexpandabletextbox.cpp
     llexternaleditor.cpp
     llface.cpp
+    llfacebookconnect.cpp
     llfasttimerview.cpp
     llfavoritesbar.cpp
     llfeaturemanager.cpp
@@ -265,6 +267,7 @@ set(viewer_SOURCE_FILES
     llfloaterregiondebugconsole.cpp
     llfloaterregioninfo.cpp
     llfloaterreporter.cpp
+    llfloaterregionrestarting.cpp
     llfloaterscriptdebug.cpp
     llfloaterscriptlimits.cpp
     llfloatersearch.cpp
@@ -272,6 +275,7 @@ set(viewer_SOURCE_FILES
     llfloatersettingsdebug.cpp
     llfloatersidepanelcontainer.cpp
     llfloatersnapshot.cpp
+    llfloatersocial.cpp
     llfloatersounddevices.cpp
     llfloaterspellchecksettings.cpp
     llfloatertelehub.cpp
@@ -507,6 +511,7 @@ set(viewer_SOURCE_FILES
     llsidetraypanelcontainer.cpp
     llsky.cpp
     llslurl.cpp
+    llsnapshotlivepreview.cpp
     llspatialpartition.cpp
     llspeakers.cpp
     llspeakingindicatormanager.cpp
@@ -709,6 +714,7 @@ set(viewer_HEADER_FILES
     llavatarlist.h
     llavatarlistitem.h
     llavatarpropertiesprocessor.h
+    llavatarrenderinfoaccountant.h
     llblockedlistitem.h
     llblocklist.h
     llbox.h
@@ -774,6 +780,7 @@ set(viewer_HEADER_FILES
     llexpandabletextbox.h
     llexternaleditor.h
     llface.h
+    llfacebookconnect.h
     llfasttimerview.h
     llfavoritesbar.h
     llfeaturemanager.h
@@ -849,6 +856,7 @@ set(viewer_HEADER_FILES
     llfloaterregiondebugconsole.h
     llfloaterregioninfo.h
     llfloaterreporter.h
+    llfloaterregionrestarting.h
     llfloaterscriptdebug.h
     llfloaterscriptlimits.h
     llfloatersearch.h
@@ -856,6 +864,7 @@ set(viewer_HEADER_FILES
     llfloatersettingsdebug.h
     llfloatersidepanelcontainer.h
     llfloatersnapshot.h
+    llfloatersocial.h
     llfloatersounddevices.h
     llfloaterspellchecksettings.h
     llfloatertelehub.h
@@ -1080,6 +1089,7 @@ set(viewer_HEADER_FILES
     llsidetraypanelcontainer.h
     llsky.h
     llslurl.h
+    llsnapshotlivepreview.h
     llspatialpartition.h
     llspeakers.h
     llspeakingindicatormanager.h
@@ -1740,6 +1750,7 @@ if (WINDOWS)
       ARGS
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
         --actions=copy
+        --arch=${ARCH}
         --artwork=${ARTWORK_DIR}
         --build=${CMAKE_CURRENT_BINARY_DIR}
         --buildtype=${CMAKE_BUILD_TYPE}
@@ -1807,6 +1818,7 @@ if (WINDOWS)
         COMMAND ${PYTHON_EXECUTABLE}
         ARGS
           ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+          --arch=${ARCH}
           --artwork=${ARTWORK_DIR}
           --build=${CMAKE_CURRENT_BINARY_DIR}
           --buildtype=${CMAKE_BUILD_TYPE}
@@ -1931,7 +1943,6 @@ if (LINUX)
         --configuration=${CMAKE_CFG_INTDIR}
         --dest=${CMAKE_CURRENT_BINARY_DIR}/packaged
         --grid=${GRID}
-        --installer_name=${product}
         --source=${CMAKE_CURRENT_SOURCE_DIR}
         --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.touched
       DEPENDS
@@ -2009,6 +2020,7 @@ if (DARWIN)
     ARGS
       ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
       --actions=copy
+      --arch=${ARCH}
       --artwork=${ARTWORK_DIR}
       --build=${CMAKE_CURRENT_BINARY_DIR}
       --buildtype=${CMAKE_BUILD_TYPE}
@@ -2041,6 +2053,7 @@ if (DARWIN)
         COMMAND ${PYTHON_EXECUTABLE}
         ARGS
           ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+          --arch=${ARCH}
           --artwork=${ARTWORK_DIR}
           --build=${CMAKE_CURRENT_BINARY_DIR}
           --buildtype=${CMAKE_BUILD_TYPE}
