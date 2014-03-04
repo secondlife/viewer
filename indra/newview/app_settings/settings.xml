@@ -5293,6 +5293,18 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+  <key>LoginContentVersion</key>
+  <map>
+    <key>Comment</key>
+    <string>Version of login page web based content to display</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>2</string>
+  </map>
+
   <key>LoginSRVTimeout</key>
   <map>
     <key>Comment</key>

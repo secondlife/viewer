@@ -778,6 +778,9 @@ void LLPanelLogin::loadLoginPage()
 	// sourceid
 	params["sourceid"] = gSavedSettings.getString("sourceid");
 
+	// login page (web) content version
+	params["login_content_version"] = gSavedSettings.getString("LoginContentVersion");
+
 	// Make an LLURI with this augmented info
 	LLURI login_uri(LLURI::buildHTTP(login_page.authority(),
 									 login_page.path(),

@@ -579,6 +579,7 @@ with the same filename but different name
   <texture name="startup_logo"  file_name="windows/startup_logo.png" preload="true" />
 
   <texture name="login_sl_logo"  file_name="windows/login_sl_logo.png" preload="true" />
+  <texture name="login_sl_logo_small"  file_name="windows/login_sl_logo_small.png" preload="true" />
   <texture name="first_login_image_left"  file_name="windows/first_login_image_left.png" preload="true" />
   <texture name="first_login_image_right"  file_name="windows/first_login_image_right.png" preload="true" />
 

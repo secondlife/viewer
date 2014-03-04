@@ -12,361 +12,194 @@
       name="forgot_password_url">
     http://secondlife.com/account/request.php
   </panel.string>
-  <layout_stack
-      follows="left|right|top|bottom"
-      width="1024"
-      height="768"
+
+  <icon
+      height="73"
+      width="165"
+      bottom="112"
+      image_name="login_sl_logo"
+      left="32"
+      name="sl_logo_small" />
+
+  <combo_box
+    left_pad="22"
+    bottom_delta="-7"
+    allow_text_entry="true"
+    follows="left|top"
+    height="32"
+    label="Username"
+    combo_editor.font="SansSerifLarge"
+    max_chars="128"
+    commit_on_focus_lost="false"
+    combo_editor.prevalidate_callback="ascii"
+    tool_tip="The username you chose when you registered, like bobsmith12 or Steller Sunshine"
+    name="username_combo"
+    width="232">
+    <combo_box.combo_editor
+        text_pad_left="8" />
+    <combo_box.combo_button
+        visible="false" />
+    <combo_box.drop_down_button
+        visible="false" />
+  </combo_box>
+
+  <line_editor
+      follows="left|top"
+      height="32"
+      left_pad="0"
+      max_length_bytes="16"
+      text_pad_left="8"
+      name="password_edit"
+      label="Password"
+      font="SansSerifLarge"
+      is_password="true"
+      select_on_focus="true"
+      commit_on_focus_lost="false"
+      bottom_delta="0"
+      width="200" />
+
+  <check_box
+      control_name="RememberPassword"
+      follows="left|top"
+      font="SansSerifLarge"
+      left_pad="20"
+      bottom_delta="-16"
+      height="24"
+      label="Remember me"
+      check_button.bottom="3"
+      name="remember_check"
+      width="145" />
+
+  <text
+    follows="left|top"
+    font="SansSerifLarge"
+    text_color="EmphasisColor"
+    height="16"
+    name="forgot_password_text"
+    left_delta="0"
+    bottom_delta="16"
+    width="200">
+    Forgotten password
+  </text>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <button
+      follows="left|top"
+      image_unselected="PushButton_Login_On"
+      image_selected="PushButton_Login_On_Selected"
+      label="Log In"
+      label_color="White"
+      font="SansSerifMedium"
+      name="connect_btn"
+      left="32"
+      width="80"
+      height="26"
+      bottom_delta="56" />
+
+  <text
+      follows="left|top"
+      font="SansSerifLarge"
+      height="24"
+      name="At_My_Last_Location_Label"
+      left_pad="8"
+      bottom_delta="1"
+      width="120">
+    at last location
+  </text>
+
+  <combo_box
+      control_name="NextLoginLocation"
+      follows="left|top"
+      label="My favorite places"
+      height="26"
+      max_chars="128"
+      combo_editor.font="SansSerifMedium"
+      left_pad="20"
+      bottom_delta="0"
+      name="start_location_combo"
+      width="175"
+      combo_button.scale_image="true">
+    <combo_box.item
+        label="My home"
+        name="MyHome"
+        value="home" />
+  </combo_box>
+  
+  <button
+      follows="left|top"
+      image_unselected="PushButton_Login_On"
+      image_selected="PushButton_Login_On_Selected"
+      label="Log In"
+      label_color="White"
+      font="SansSerifMedium"
+      name="connect_favorite_btn"
+      left_pad="8"
+      width="80"
+      height="26"
+      bottom_delta="0" />
+
+  <line_editor
+      follows="left|top"
+      width="170"
+      height="26"
+      left_pad="40"
+      text_pad_left="8"
+      name="location_edit"
+      label="Type a location"
+      font="SansSerifMedium"
+      select_on_focus="true"
+      commit_on_focus_lost="false"
+      bottom_delta="0" />
+  <button
+      follows="left|top"
+      image_unselected="PushButton_Login_On"
+      image_selected="PushButton_Login_On_Selected"
+      label="Log In"
+      label_color="White"
+      font="SansSerifMedium"
+      name="connect_location_btn"
+      left_pad="8"
+      width="80"
+      height="26"
+      bottom_delta="0" />
+
+  <combo_box
+      allow_text_entry="false"
+      font="SansSerifTiny"
+      follows="left|top"
+      height="26"
+      max_chars="128"
+      label="Select grid"
+      left_pad="40"
+      bottom_delta="0"
+      layout="topleft"
+      top_pad="2"
+      name="server_combo"
+      width="128" />
+
+  <!--
+  <web_browser
+      tab_stop="false"
+      trusted_content="true"
+      bg_opaque_color="Black"
+      border_visible="false"
+      follows="left|right|bottom"
       left="0"
-      name="logo_stack"
-      orientation="vertical"
-      top="0">
-    <layout_panel
-        height="30"
-        auto_resize="false"
-        name="page_top"
-        width="1024" />
-    <!-- start of logo stack -->
-    <layout_panel
-        height="110"
-        min_height="10"
-        auto_resize="false"
-        name="parent_panel"
-        width="1024">
-      <layout_stack
-          follows="left|right|top|bottom"
-          height="100"
-          left="0"
-          name="logo_stack"
-          orientation="horizontal"
-          top="0"
-          width="1024">
-        <layout_panel
-            height="100"
-            min_height="0"
-            auto_resize="true"
-            name="logo_left"
-            width="300" />
-        <layout_panel
-            auto_resize="false"
-            follows="left|right|top"
-            name="logo_container"
-            width="225"
-            left="0"
-            top="0"
-            height="94">
-          <icon
-              height="94"
-              image_name="login_sl_logo"
-              left="0"
-              name="sl_logo"
-              top="0" />
-        </layout_panel>
-        <layout_panel
-            height="100"
-            name="logo_right"
-            auto_resize="true"
-            width="300" />
-      </layout_stack>
-    </layout_panel>
-    <!-- end of logo stack -->
-    <!-- start of widget1 stack -->
-    <layout_panel
-        height="80"
-        min_height="10"
-        auto_resize="false"
-        name="parent_panel2"
-        width="1024">
-      <layout_stack
-          follows="left|right|top|bottom"
-          height="80"
-          left="0"
-          name="widget_stack"
-          orientation="horizontal"
-          top="0"
-          width="1024">
-        <layout_panel
-            height="100"
-            min_height="10"
-            auto_resize="true"
-            name="widget_left"
-            width="100" />
-        <layout_panel
-            auto_resize="false"
-            follows="left|top"
-            name="username_panel"
-            width="204"
-            top="0"
-            height="80">
-          <combo_box
-              allow_text_entry="true"
-              follows="left|bottom"
-              height="32"
-              left="0"
-              label="Username"
-              combo_editor.font="SansSerifLarge"
-              max_chars="128"
-              top="0"
-              commit_on_focus_lost="false"
-              combo_editor.prevalidate_callback="ascii"
-              tool_tip="The username you chose when you registered, like bobsmith12 or Steller Sunshine"
-              name="username_combo"
-              width="232">
-            <combo_box.combo_editor
-                text_pad_left="8" />
-            <combo_box.combo_button
-                visible="false" />
-            <combo_box.drop_down_button
-                visible="false" />
-          </combo_box>
-          <check_box
-              control_name="RememberPassword"
-              follows="left|top"
-              font="SansSerifLarge"
-              left="0"
-              top="32"
-              height="24"
-              label="Remember me"
-              check_button.bottom="3"
-              name="remember_check"
-              width="145" />
-        </layout_panel>
-        <layout_panel
-            auto_resize="false"
-            follows="left|top"
-            name="panel_spacer_1"
-            width="16"
-            top="0"
-            height="80" />
-        <layout_panel
-            auto_resize="false"
-            follows="left|top"
-            name="password_panel"
-            width="200"
-            top="0"
-            height="80">
-          <line_editor
-              follows="left|top"
-              height="32"
-              left="0"
-              max_length_bytes="16"
-              text_pad_left="8"
-              name="password_edit"
-              label="Password"
-              font="SansSerifLarge"
-              is_password="true"
-              select_on_focus="true"
-              commit_on_focus_lost="false"
-              top="0"
-              width="200" />
-          <text
-              follows="left|top"
-              font="SansSerifLarge"
-              text_color="EmphasisColor"
-              height="16"
-              name="forgot_password_text"
-              left="0"
-              top="34"
-              width="200">
-            Forgotten password
-          </text>
-        </layout_panel>
-        <layout_panel
-            auto_resize="false"
-            follows="left|top"
-            name="panel_spacer_1"
-            width="16"
-            top="0"
-            height="80" />
-        <layout_panel
-            auto_resize="false"
-            follows="left|top"
-            name="grid_panel"
-            width="128"
-            top="0"
-            height="80">
-          <combo_box
-              allow_text_entry="false"
-              font="SansSerifTiny"
-              follows="left|top"
-              height="32"
-              max_chars="128"
-              left="0"
-              top="0"
-              layout="topleft"
-              top_pad="2"
-              name="server_combo"
-              width="128" />
-        </layout_panel>
-        <layout_panel
-            height="20"
-            name="widget_right"
-            auto_resize="true"
-            width="100" />
-      </layout_stack>
-    </layout_panel>
-    <!-- end of widget1 stack -->
-    <!-- start of widget2 stack -->
-    <layout_panel
-        height="58"
-        min_height="10"
-        auto_resize="false"
-        name="parent_panel3"
-        width="1024">
-      <layout_stack
-          follows="left|right|top|bottom"
-          height="50"
-          left="0"
-          name="widget_stack"
-          orientation="horizontal"
-          top="0"
-          width="1024">
-        <layout_panel
-            height="50"
-            min_height="10"
-            auto_resize="true"
-            name="widget_left"
-            width="200" />
-        <layout_panel
-            auto_resize="false"
-            follows="left|right|top"
-            name="widget_container"
-            width="832"
-            left="0"
-            top="0"
-            height="50">
-          <button
-              follows="left|top"
-              image_unselected="PushButton_Login_On"
-              image_selected="PushButton_Login_On_Selected"
-              label="Log In"
-              label_color="White"
-              font="SansSerifMedium"
-              name="connect_btn"
-              left="0"
-              width="64"
-              height="30"
-              top="0" />
-          <text
-              follows="left|top"
-              font="SansSerifMedium"
-              height="24"
-              name="At_My_Last_Location_Label"
-              left="72"
-              top="8"
-              width="200">
-            At my last location
-          </text>
-          <combo_box
-              control_name="NextLoginLocation"
-              follows="left|bottom"
-              label="My favorites"
-              height="30"
-              max_chars="128"
-              combo_editor.font="SansSerifMedium"
-              left="290"
-              top="0"
-              name="start_location_combo"
-              width="175"
-              combo_button.scale_image="true">
-            <combo_box.item
-                label="My home"
-                name="MyHome"
-                value="home" />
-          </combo_box>
-          <button
-              follows="left|top"
-              image_unselected="PushButton_Login_On"
-              image_selected="PushButton_Login_On_Selected"
-              label="Log In"
-              label_color="White"
-              font="SansSerifMedium"
-              name="connect_favorite_btn"
-              left="470"
-              width="64"
-              height="30"
-              top="0" />
-          <line_editor
-              follows="left|top"
-              width="170"
-              height="30"
-              left="590"
-              text_pad_left="8"
-              name="location_edit"
-              label="Type a location"
-              font="SansSerifMedium"
-              select_on_focus="true"
-              commit_on_focus_lost="false"
-              top="0" />
-          <button
-              follows="left|top"
-              image_unselected="PushButton_Login_On"
-              image_selected="PushButton_Login_On_Selected"
-              label="Log In"
-              label_color="White"
-              font="SansSerifMedium"
-              name="connect_location_btn"
-              left="768"
-              width="64"
-              height="30"
-              top="0" />
-        </layout_panel>
-        <layout_panel
-            height="100"
-            name="widget_right"
-            auto_resize="true"
-            width="200" />
-      </layout_stack>
-    </layout_panel>
-    <!-- end of widget2 stack -->
-    <!-- start of browser stack -->
-    <layout_panel
-        height="400"
-        min_height="10"
-        auto_resize="false"
-        name="parent_pane4"
-        width="1024">
-      <layout_stack
-          follows="left|right|top|bottom"
-          height="400"
-          left="0"
-          name="browser_stack"
-          orientation="horizontal"
-          top="0"
-          width="1024">
-        <layout_panel
-            height="400"
-            min_height="0"
-            auto_resize="true"
-            name="browser_left"
-            width="300" />
-        <layout_panel
-            auto_resize="false"
-            follows="left|right|top"
-            name="browser_container"
-            width="850"
-            left="0"
-            top="0"
-            height="400">
-          <web_browser
-              tab_stop="false"
-              trusted_content="true"
-              bg_opaque_color="Black"
-              border_visible="false"
-              follows="all"
-              left="0"
-              name="login_html"
-              start_url=""
-              top="0"
-              height="400"
-              width="850" />
-        </layout_panel>
-        <layout_panel
-            height="400"
-            name="browser_right"
-            auto_resize="true"
-            width="300" />
-      </layout_stack>
-    </layout_panel>
-    <!-- end of browser stack -->
-  </layout_stack>
+      name="login_html"
+      start_url=""
+      bottom_delta="64" />
+ -->
 </panel>
