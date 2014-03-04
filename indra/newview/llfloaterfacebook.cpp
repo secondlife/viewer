@@ -834,7 +834,7 @@ void LLFacebookFriendsPanel::showFriendsAccordionsIfNeeded()
             mFriendsStatusCaption->setText(getString("facebook_friends_no_connected"));
         }
         // Hide the lists
-        getChild<LLAccordionCtrlTab>("friends_accordion")->setVisible(false);
+        getChild<LLAccordionCtrl>("friends_accordion")->setVisible(false);
         getChild<LLAccordionCtrlTab>("tab_second_life_friends")->setVisible(false);
         getChild<LLAccordionCtrlTab>("tab_suggested_friends")->setVisible(false);
     }
