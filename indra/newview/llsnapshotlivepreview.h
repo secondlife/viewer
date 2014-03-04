@@ -123,8 +123,8 @@ public:
 
     
 	LLViewerTexture* getBigThumbnailImage();
-	S32  getBigThumbnailWidth() const { return 3*mThumbnailWidth ; }
-	S32  getBigThumbnailHeight() const { return 3*mThumbnailHeight ; }
+	S32  getBigThumbnailWidth() const { return mBigThumbnailWidth ; }
+	S32  getBigThumbnailHeight() const { return mBigThumbnailHeight ; }
 
 	// Returns TRUE when snapshot generated, FALSE otherwise.
 	static BOOL onIdle( void* snapshot_preview );
@@ -154,6 +154,8 @@ private:
     BOOL                        mThumbnailSubsampled; // TRUE if the thumbnail is a subsampled version of the mPreviewImage
     
 	LLPointer<LLViewerTexture>	mBigThumbnailImage ;
+    S32                         mBigThumbnailWidth;
+    S32                         mBigThumbnailHeight;
     BOOL                        mBigThumbnailUpToDate;
 
 	S32							mCurImageIndex;

@@ -621,19 +621,16 @@ LLViewerTexture* LLSnapshotLivePreview::getBigThumbnailImage()
     
 	LLPointer<LLImageRaw> raw = new LLImageRaw;
     
-    // The big thumbnail is be a subsampled version of the preview (used in SL Share previews, i.e. Flickr, Twitter, Facebook)
-    raw->resize( mPreviewImage->getWidth(),
-                mPreviewImage->getHeight(),
-                mPreviewImage->getComponents());
-    raw->copy(mPreviewImage);
-    // Scale to the big thumbnail size
-    if (!raw->scale(getBigThumbnailWidth(), getBigThumbnailHeight()))
-    {
-        raw = NULL ;
-    }
-    
 	if (raw)
 	{
+        // The big thumbnail is a new filtered version of the preview (used in SL Share previews, i.e. Flickr, Twitter, Facebook)
+        mBigThumbnailWidth = mPreviewImage->getWidth();
+        mBigThumbnailHeight = mPreviewImage->getHeight();
+        raw->resize( mBigThumbnailWidth,
+                     mBigThumbnailHeight,
+                     mPreviewImage->getComponents());
+        raw->copy(mPreviewImage);
+    
         // Filter
         // Note: filtering needs to be done *before* the scaling to power of 2 or the effect is distorted
         if (getFilter() != "")
