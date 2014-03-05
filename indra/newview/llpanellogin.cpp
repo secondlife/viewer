@@ -272,7 +272,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	childSetAction("connect_favorite_btn", onClickConnectFavorite, this);
 	childSetAction("connect_location_btn", onClickConnectLocation, this);
 
-	getChild<LLPanel>("links_login_panel")->setDefaultBtn("connect_btn");
+	setDefaultBtn("connect_btn");
 
 	std::string channel = LLVersionInfo::getChannel();
 	std::string version = llformat("%s (%d)",
@@ -626,11 +626,12 @@ void LLPanelLogin::updateLocationSelectorsVisibility()
 {
 	if (sInstance) 
 	{
-		BOOL show_start = gSavedSettings.getBOOL("ShowStartLocation");
-		sInstance->getChild<LLLayoutPanel>("start_location_panel")->setVisible(show_start);
-
 		BOOL show_server = gSavedSettings.getBOOL("ForceShowGrid");
-		sInstance->getChild<LLLayoutPanel>("grid_panel")->setVisible(show_server);
+		LLComboBox* server_combo = sInstance->getChild<LLComboBox>("server_combo");
+		if ( server_combo ) 
+		{
+			server_combo->setVisible(show_server);
+		}
 	}	
 }
 
@@ -754,6 +755,13 @@ void LLPanelLogin::loadLoginPage()
 
 	LL_DEBUGS("AppInit") << "login_page: " << login_page << LL_ENDL;
 
+	// allow users (testers really) to specify a different login content URL
+	std::string force_login_url = gSavedSettings.getString("ForceLoginURL");
+	if ( force_login_url.length() )
+	{
+		login_page = LLURI(force_login_url);
+	}
+
 	// Language
 	params["lang"] = LLUI::getLanguage();
 
@@ -791,7 +799,7 @@ void LLPanelLogin::loadLoginPage()
 	LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
 	if (web_browser->getCurrentNavUrl() != login_uri.asString())
 	{
-		LL_DEBUGS("AppInit") << "loading:    " << login_uri << LL_ENDL;
+		llinfos << "login page loading: " << login_uri << llendl;
 		web_browser->navigateTo( login_uri.asString(), "text/html" );
 	}
 }
@@ -823,6 +831,11 @@ void LLPanelLogin::onClickConnectFavorite(void *)
 
 void LLPanelLogin::onClickConnectLocation(void *)
 {
+	std::string location = sInstance->getChild<LLUICtrl>("location_edit")->getValue().asString();
+	LLStartUp::setStartSLURL(location);
+
+	void* unused_parameter = 0;
+	LLPanelLogin::sInstance->onClickConnect(unused_parameter);
 }
 
 // static

@@ -4171,6 +4171,17 @@
       <key>Value</key>
       <integer>255</integer>
     </map>
+    <key>ForceLoginURL</key>
+    <map>
+      <key>Comment</key>
+      <string>Force a specified URL for login page content - used if exists</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <integer></integer>
+    </map>
     <key>ForceShowGrid</key>
     <map>
       <key>Comment</key>
