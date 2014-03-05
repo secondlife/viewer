@@ -4180,7 +4180,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <integer></integer>
+      <string></string>
     </map>
     <key>ForceShowGrid</key>
     <map>

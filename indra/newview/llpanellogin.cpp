@@ -272,7 +272,8 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	childSetAction("connect_favorite_btn", onClickConnectFavorite, this);
 	childSetAction("connect_location_btn", onClickConnectLocation, this);
 
-	setDefaultBtn("connect_btn");
+	LLButton* def_btn = getChild<LLButton>("connect_btn");
+	setDefaultBtn(def_btn);
 
 	std::string channel = LLVersionInfo::getChannel();
 	std::string version = llformat("%s (%d)",
@@ -643,6 +644,7 @@ void LLPanelLogin::onUpdateStartSLURL(const LLSLURL& new_start_slurl)
 	LL_DEBUGS("AppInit")<<new_start_slurl.asString()<<LL_ENDL;
 
 	LLComboBox* location_combo = sInstance->getChild<LLComboBox>("start_location_combo");
+	LLLineEditor* location_edit = sInstance->getChild<LLLineEditor>("location_edit");
 	/*
 	 * Determine whether or not the new_start_slurl modifies the grid.
 	 *
@@ -672,7 +674,8 @@ void LLPanelLogin::onUpdateStartSLURL(const LLSLURL& new_start_slurl)
 
 				updateServer(); // to change the links and splash screen
 			}
-			location_combo->setTextEntry(new_start_slurl.getLocationString());
+			//location_combo->setTextEntry(new_start_slurl.getLocationString());
+			location_edit->setValue(new_start_slurl.getLocationString());
 		}
 		else
 		{
@@ -757,7 +760,7 @@ void LLPanelLogin::loadLoginPage()
 
 	// allow users (testers really) to specify a different login content URL
 	std::string force_login_url = gSavedSettings.getString("ForceLoginURL");
-	if ( force_login_url.length() )
+	if ( force_login_url.length() > 0 )
 	{
 		login_page = LLURI(force_login_url);
 	}
