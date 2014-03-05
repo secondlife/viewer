@@ -1192,7 +1192,7 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 			LLFolderViewItem* last_selected = mSelectedItems.back();
 			BOOL shift_select = mask & MASK_SHIFT;
 			// don't shift select down to children of folders (they are implicitly selected through parent)
-			LLFolderViewItem* prev = prev = last_selected->getPreviousOpenNode(!shift_select);
+			LLFolderViewItem* prev = last_selected->getPreviousOpenNode(!shift_select);
 
 			if (!mKeyboardSelection || (!shift_select && prev == this))
 			{
