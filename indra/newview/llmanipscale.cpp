@@ -1139,7 +1139,7 @@ void LLManipScale::dragFace( S32 x, S32 y )
 										 drag_dist - max_drag_dist,
 										 drag_dist - min_drag_dist);
 
-			mScaleSnappedValue = drag_dist - relative_snap_dist;
+			mScaleSnappedValue = (drag_dist - relative_snap_dist) / (mScaleSnapUnit1 * 2.f);
 
 			if (llabs(relative_snap_dist) < snap_dist)
 			{
