@@ -131,8 +131,9 @@
             top="0" />
           <button
             follows="left|top"
-            image_unselected="PushButton_Login_On"
-            image_selected="PushButton_Login_On_Selected"
+            image_unselected="PushButton_Login"
+            image_pressed="PushButton_Login_Pressed"
+            image_hover="PushButton_Login_Over"
             label="Log In"
             label_color="White"
             font="SansSerifLarge"

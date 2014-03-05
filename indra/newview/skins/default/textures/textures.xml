@@ -486,8 +486,9 @@ with the same filename but different name
   <texture name="PushButton_Selected_Press" file_name="widgets/PushButton_Selected_Press.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
   <texture name="PushButton_Selected_Disabled" file_name="widgets/PushButton_Selected_Disabled.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
 
-  <texture name="PushButton_Login_On" file_name="widgets/PushButton_Login_On.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
-  <texture name="PushButton_Login_On_Selected" file_name="widgets/PushButton_Login_On_Selected.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
+  <texture name="PushButton_Login" file_name="widgets/PushButton_Login.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
+  <texture name="PushButton_Login_Over" file_name="widgets/PushButton_Login_Over.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
+  <texture name="PushButton_Login_Pressed" file_name="widgets/PushButton_Login_Pressed.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
 
 
   <texture name="RadioButton_Press" file_name="widgets/RadioButton_Press.png" preload="true" />
