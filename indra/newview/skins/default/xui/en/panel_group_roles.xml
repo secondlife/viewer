@@ -300,16 +300,6 @@
        name="help_text">
         Any resident on the ban list will be unable to join the group.
       </panel.string>
-      <filter_editor
-      layout="topleft"
-      top="5"
-      left="5"
-      right="-5"
-      height="22"
-      search_button_visible="false"
-      follows="left|top|right"
-      label="Filter Bans"
-      name="filter_bans" />
       <name_list
            column_padding="0"
            draw_heading="true"
