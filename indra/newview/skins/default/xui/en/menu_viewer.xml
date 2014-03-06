@@ -1077,13 +1077,6 @@
          label="Options"
          name="Options"
          tear_off="true">
-        <menu_item_call
-         label="Set Default Permissions..."
-         name="Set default permissions">
-          <menu_item_call.on_click
-           function="Floater.ToggleOrBringToFront"
-           parameter="perms_default" />
-        </menu_item_call>
 	   <menu_item_check
 	       label="Show Advanced Permissions"
 	       name="DebugPermissions">
@@ -1194,8 +1187,9 @@
                     <menu_item_call.on_enable
                      function="SomethingSelected" />
                 </menu_item_call>
+                <menu_item_separator/>
                 <menu_item_call
-                 label="Grid Options"
+                 label="Grid Options..."
                  name="Grid Options"
                  shortcut="control|shift|B">
                     <menu_item_call.on_click
@@ -1203,6 +1197,13 @@
                      parameter="build_options" />
                     <menu_item_call.on_enable
                      function="Tools.EnableToolNotPie" />
+                </menu_item_call>
+                <menu_item_call
+                 label="Set Default Permissions..."
+                 name="Set default permissions">
+                    <menu_item_call.on_click
+                     function="Floater.ToggleOrBringToFront"
+                     parameter="perms_default" />
                 </menu_item_call>
         </menu>
         <menu
