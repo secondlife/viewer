@@ -407,27 +407,45 @@ BOOL LLScriptEdCore::postBuild()
 
 	initMenu();
 
-	// Intialise keyword highlighting for the current simulator's version of LSL
+	mSyntaxIdLSL.addFileFetchedCallback(boost::bind(&LLScriptEdCore::onFileFetchedInitialiseKeywords, this));
+
 	onRegionChangeInitialiseKeywords();
+
 	// Set up a callback for region changes, so that highlighting is updated to the new region's version of LSL
-	gAgent.addRegionChangedCallback(boost::bind(&LLScriptEdCore::onRegionChangeInitialiseKeywords, this));
+	//gAgent.addRegionChangedCallback(boost::bind(&LLScriptEdCore::onRegionChangeInitialiseKeywords, this));
 
 	return TRUE;
 }
 
 void LLScriptEdCore::onRegionChangeInitialiseKeywords()
 {
+	// Intialise keyword highlighting for the current simulator's version of LSL
 	LL_DEBUGS("SyntaxLSL") << "Pre Initialise!" << LL_ENDL;
 	mSyntaxIdLSL.initialise();
 	LL_DEBUGS("SyntaxLSL") << "Post Initialise!" << LL_ENDL;
 
-	// Nasty Hack to get started, needs to replaced with a callback or similar.
-	if (mSyntaxIdLSL.fetching())
-	{
-		LL_WARNS("SyntaxLSL") << "No Response in Time, still fetching!" << LL_ENDL;
-	}
-
 	if (mSyntaxIdLSL.isDifferentVersion())
+	{
+		if (mSyntaxIdLSL.isLoaded())
+		{
+			onFileFetchedInitialiseKeywords();
+		}
+		else
+		{
+			LL_INFOS("SyntaxLSL")
+					<< "Hashes are the different, waiting for the syntax file to be retrieved." << LL_ENDL;
+		}
+	}
+	else
+	{
+		LL_INFOS("SyntaxLSL")
+				<< "Hashes are the same, no need to update highlighter." << LL_ENDL;
+	}
+}
+
+void LLScriptEdCore::onFileFetchedInitialiseKeywords()
+{
+	if (mSyntaxIdLSL.isLoaded())
 	{
 		LL_INFOS("SyntaxLSL")
 				<< "Hashes are different, updating highlighter." << LL_ENDL;
@@ -471,11 +489,6 @@ void LLScriptEdCore::onRegionChangeInitialiseKeywords()
 				mFunctions->add(*iter);
 			}
 		}
-	}
-	else
-	{
-		LL_INFOS("SyntaxLSL")
-				<< "Hashes are the same, no need to update highlighter." << LL_ENDL;
 	}
 }
 

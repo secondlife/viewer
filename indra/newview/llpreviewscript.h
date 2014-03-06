@@ -79,6 +79,7 @@ public:
 	
 	void			initMenu();
 	void			onRegionChangeInitialiseKeywords();
+	void			onFileFetchedInitialiseKeywords();
 
 	virtual void	draw();
 	/*virtual*/	BOOL	postBuild();
