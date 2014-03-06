@@ -3,7 +3,7 @@
  *
  * $LicenseInfo:firstyear=2004&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2010-2013, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -371,6 +371,36 @@ void LLMutex::lock()
 #else
 	mLockingThread = sThreadID;
 #endif
+}
+
+bool LLMutex::trylock()
+{
+	if(isSelfLocked())
+	{ //redundant lock
+		mCount++;
+		return true;
+	}
+	
+	apr_status_t status(apr_thread_mutex_trylock(mAPRMutexp));
+	if (APR_STATUS_IS_EBUSY(status))
+	{
+		return false;
+	}
+	
+#if MUTEX_DEBUG
+	// Have to have the lock before we can access the debug info
+	U32 id = LLThread::currentID();
+	if (mIsLocked[id] != FALSE)
+		llerrs << "Already locked in Thread: " << id << llendl;
+	mIsLocked[id] = TRUE;
+#endif
+
+#if LL_DARWIN
+	mLockingThread = LLThread::currentID();
+#else
+	mLockingThread = sThreadID;
+#endif
+	return true;
 }
 
 void LLMutex::unlock()
