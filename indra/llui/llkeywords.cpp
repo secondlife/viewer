@@ -197,7 +197,7 @@ LLColor4 LLKeywords::getColorGroup(const std::string key_in)
 	{
 		ColourGroup = "SyntaxLslConstantKey";
 	}
-	else if (key_in == "constants-string")
+	else if (key_in == "constants-rotation")
 	{
 		ColourGroup = "SyntaxLslConstantRotation";
 	}
@@ -248,6 +248,10 @@ LLColor4 LLKeywords::getColorGroup(const std::string key_in)
 	else if (key_in == "misc-comments_2_sided")
 	{
 		ColourGroup = "SyntaxLslComment2Sided";	
+	}
+	else
+	{
+		LL_WARNS("SyntaxLSL") << "Color key '" << key_in << "' not recognised!" << LL_ENDL;
 	}
 
 	return LLUIColorTable::instance().getColor(ColourGroup);
@@ -334,7 +338,6 @@ void LLKeywords::processTokensGroup(LLSD& Tokens, const std::string Group)
 		{
 			if (outerIt->second.isMap())
 			{
-				Color = ColorGroup;
 				mAttributes.clear();
 				LLSD arguments = LLSD ();
 				LLSD::map_iterator innerIt = outerIt->second.beginMap();
@@ -360,7 +363,7 @@ void LLKeywords::processTokensGroup(LLSD& Tokens, const std::string Group)
 				std::string tooltip = "";
 				if (token_type == LLKeywordToken::TT_CONSTANT)
 				{
-					Color = getColorGroup(Group + "-" + getAttribute("type"));
+					ColorGroup = getColorGroup(Group + "-" + getAttribute("type"));
 					tooltip = "Type: " + getAttribute("type") + ", Value: " + getAttribute("value");
 				}
 				else if (token_type == LLKeywordToken::TT_EVENT)
