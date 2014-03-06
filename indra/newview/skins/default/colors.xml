@@ -919,9 +919,6 @@
     name="SyntaxLslConstantInteger"
     value=".1 .1 .5 1.0" />
   <color
-    name="ResizebarBody"
-    value="0.208 0.208 0.208 1"/>
- <color
     name="SyntaxLslConstantKey"
     value=".1 .3 .5 1.0" />
   <color
