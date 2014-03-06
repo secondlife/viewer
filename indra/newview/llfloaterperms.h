@@ -1,7 +1,7 @@
 /** 
  * @file llfloaterperms.h
  * @brief Asset creation permission preferences.
- * @author Coco 
+ * @author Jonathan Yap
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -36,26 +36,57 @@ class LLFloaterPerms : public LLFloater
 	
 public:
 	/*virtual*/ BOOL postBuild();
-	void ok();
-	void cancel();
-	void onClickOK();
-	void onClickCancel();
-	void onCommitCopy();
+
 	// Convenience methods to get current permission preference bitfields from saved settings:
 	static U32 getEveryonePerms(std::string prefix=""); // prefix + "EveryoneCopy"
 	static U32 getGroupPerms(std::string prefix=""); // prefix + "ShareWithGroup"
 	static U32 getNextOwnerPerms(std::string prefix=""); // bitfield for prefix + "NextOwner" + "Copy", "Modify", and "Transfer"
+	static U32 getNextOwnerPermsInverted(std::string prefix="");
 
 private:
 	LLFloaterPerms(const LLSD& seed);
+
+};
+
+class LLFloaterPermsDefault : public LLFloater
+{
+	friend class LLFloaterReg;
+
+public:
+	/*virtual*/ BOOL postBuild();
+	void ok();
+	void cancel();
+	void onClickOK();
+	void onClickCancel();
+	void onCommitCopy(const LLSD& user_data);
+	static void sendInitialPerms();
+	static void updateCap();
+	static void setCapSent(bool cap_sent);
+
+// Update instantiation of sCategoryNames in the .cpp file to match if you change this!
+enum Categories
+{
+	CAT_OBJECTS,
+	CAT_UPLOADS,
+	CAT_SCRIPTS,
+	CAT_NOTECARDS,
+	CAT_GESTURES,
+	CAT_WEARABLES,
+	CAT_LAST
+};
+
+private:
+	LLFloaterPermsDefault(const LLSD& seed);
 	void refresh();
 
-	BOOL // cached values only for implementing cancel.
-		mShareWithGroup,
-		mEveryoneCopy,
-		mNextOwnerCopy,
-		mNextOwnerModify,
-		mNextOwnerTransfer;
+	static const std::string sCategoryNames[CAT_LAST]; 
+
+	// cached values only for implementing cancel.
+	bool mShareWithGroup[CAT_LAST];
+	bool mEveryoneCopy[CAT_LAST];
+	bool mNextOwnerCopy[CAT_LAST];
+	bool mNextOwnerModify[CAT_LAST];
+	bool mNextOwnerTransfer[CAT_LAST];
 };
 
 #endif

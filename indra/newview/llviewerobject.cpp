@@ -100,6 +100,7 @@
 #include "lltrans.h"
 #include "llsdutil.h"
 #include "llmediaentry.h"
+#include "llfloaterperms.h"
 
 //#define DEBUG_UPDATE_TYPE
 
@@ -2503,6 +2504,7 @@ void LLViewerObject::saveScript(
 	 * interaction with doUpdateInventory() called below.
 	 */
 	lldebugs << "LLViewerObject::saveScript() " << item->getUUID() << " " << item->getAssetUUID() << llendl;
+
 	LLPointer<LLViewerInventoryItem> task_item =
 		new LLViewerInventoryItem(item->getUUID(), mID, item->getPermissions(),
 								  item->getAssetUUID(), item->getType(),
