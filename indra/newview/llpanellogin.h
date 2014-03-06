@@ -85,6 +85,8 @@ private:
 	friend class LLPanelLoginListener;
 	void addFavoritesToStartLocation();
 	void addUsersWithFavoritesToUsername();
+	void onLocationEditChanged(LLUICtrl* ctrl);
+	void onSelectFavorite();
 	void onSelectServer();
 	void onLocationSLURL();
 

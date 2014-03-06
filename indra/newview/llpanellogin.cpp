@@ -222,6 +222,12 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	LLComboBox* server_choice_combo = getChild<LLComboBox>("server_combo");
 	server_choice_combo->setCommitCallback(boost::bind(&LLPanelLogin::onSelectServer, this));
 
+	LLComboBox* favorites_combo = getChild<LLComboBox>("start_location_combo");
+	favorites_combo->setCommitCallback(boost::bind(&LLPanelLogin::onSelectFavorite, this));
+
+	LLLineEditor* location_edit = sInstance->getChild<LLLineEditor>("location_edit");
+	location_edit->setKeystrokeCallback(boost::bind(&LLPanelLogin::onLocationEditChanged, this, _1), NULL);
+
 	// Load all of the grids, sorted, and then add a bar and the current grid at the top
 	server_choice_combo->removeall();
 
@@ -674,8 +680,12 @@ void LLPanelLogin::onUpdateStartSLURL(const LLSLURL& new_start_slurl)
 
 				updateServer(); // to change the links and splash screen
 			}
-			//location_combo->setTextEntry(new_start_slurl.getLocationString());
-			location_edit->setValue(new_start_slurl.getLocationString());
+			if ( new_start_slurl.getLocationString().length() )
+			{
+				location_edit->setValue(new_start_slurl.getLocationString());
+				LLButton* loc_btn = sInstance->getChild<LLButton>("connect_location_btn");
+				loc_btn->setEnabled(true);
+			}
 		}
 		else
 		{
@@ -979,12 +989,40 @@ void LLPanelLogin::updateServer()
 	}
 }
 
+void LLPanelLogin::onLocationEditChanged(LLUICtrl* ctrl)
+{
+	LLLineEditor* self = (LLLineEditor*)ctrl;
+
+	if (self )
+	{
+		LLButton* loc_btn = getChild<LLButton>("connect_location_btn");
+
+		unsigned int field_length = self->getText().length();
+		if ( field_length == 0 )
+		{
+			loc_btn->setEnabled(false);
+		}
+		else
+		{
+			loc_btn->setEnabled(true);
+		}
+	}
+}
+
+
+void LLPanelLogin::onSelectFavorite()
+{
+	// enable button when item selected from combo
+	LLButton* fav_btn = getChild<LLButton>("connect_favorite_btn");
+	fav_btn->setEnabled(true);
+}
+
 void LLPanelLogin::onSelectServer()
 {
 	// The user twiddled with the grid choice ui.
 	// apply the selection to the grid setting.
 	LLPointer<LLCredential> credential;
-	
+
 	LLComboBox* server_combo = getChild<LLComboBox>("server_combo");
 	LLSD server_combo_val = server_combo->getSelectedValue();
 	LL_INFOS("AppInit") << "grid "<<server_combo_val.asString()<< LL_ENDL;

@@ -127,6 +127,7 @@
     name="connect_favorite_btn"
     left_pad="8"
     width="80"
+    enabled="false"
     height="26"
     bottom_delta="0" />
   <line_editor
@@ -147,6 +148,7 @@
     image_pressed="PushButton_Login_Pressed"
     image_hover="PushButton_Login_Over"
     label="Log In"
+    enabled="false"
     label_color="White"
     font="SansSerifMedium"
     name="connect_location_btn"
