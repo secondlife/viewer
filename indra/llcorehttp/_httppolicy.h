@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2012-2013, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -60,6 +60,9 @@ private:
 	void operator=(const HttpPolicy &);			// Not defined
 
 public:
+	/// Threading:  called by init thread.
+	HttpRequest::policy_t createPolicyClass();
+	
 	/// Cancel all ready and retry requests sending them to
 	/// their notification queues.  Release state resources
 	/// making further request handling impossible.
@@ -71,9 +74,8 @@ public:
 	/// requests.  One-time call invoked before starting
 	/// the worker thread.
 	///
-	/// Threading:  called by application thread
-	void start(const HttpPolicyGlobal & global,
-			   const std::vector<HttpPolicyClass> & classes);
+	/// Threading:  called by init thread
+	void start();
 
 	/// Give the policy layer some cycles to scan the ready
 	/// queue promoting higher-priority requests to active
@@ -93,7 +95,7 @@ public:
 	/// and should not be modified by anyone until retrieved
 	/// from queue.
 	///
-	/// Threading:  called by any thread
+	/// Threading:  called by worker thread
 	void addOp(HttpOpRequest *);
 
 	/// Similar to addOp, used when a caller wants to retry a
@@ -130,30 +132,39 @@ public:
 	/// Threading:  called by worker thread
 	bool stageAfterCompletion(HttpOpRequest * op);
 	
-	// Get pointer to global policy options.  Caller is expected
-	// to do context checks like no setting once running.
+	/// Get a reference to global policy options.  Caller is expected
+	/// to do context checks like no setting once running.  These
+	/// are done, for example, in @see HttpService interfaces.
 	///
 	/// Threading:  called by any thread *but* the object may
 	/// only be modified by the worker thread once running.
-	///
 	HttpPolicyGlobal & getGlobalOptions()
 		{
 			return mGlobalOptions;
 		}
 
+	/// Get a reference to class policy options.  Caller is expected
+	/// to do context checks like no setting once running.  These
+	/// are done, for example, in @see HttpService interfaces.
+	///
+	/// Threading:  called by any thread *but* the object may
+	/// only be modified by the worker thread once running and
+	/// read accesses by other threads are exposed to races at
+	/// that point.
+	HttpPolicyClass & getClassOptions(HttpRequest::policy_t pclass);
+	
 	/// Get ready counts for a particular policy class
 	///
 	/// Threading:  called by worker thread
 	int getReadyCount(HttpRequest::policy_t policy_class) const;
 	
 protected:
-	struct State;
-
-	int									mActiveClasses;
-	State *								mState;
-	HttpService *						mService;				// Naked pointer, not refcounted, not owner
-	HttpPolicyGlobal					mGlobalOptions;
+	struct ClassState;
+	typedef std::vector<ClassState *>	class_list_t;
 	
+	HttpPolicyGlobal					mGlobalOptions;
+	class_list_t						mClasses;
+	HttpService *						mService;				// Naked pointer, not refcounted, not owner
 };  // end class HttpPolicy
 
 }  // end namespace LLCore
