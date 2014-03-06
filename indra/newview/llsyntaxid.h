@@ -35,6 +35,7 @@
 #include "llagent.h"
 #include "llenvmanager.h"
 #include "llhttpclient.h"
+#include "llsingleton.h"
 #include "llviewerregion.h"
 
 
@@ -42,14 +43,15 @@
  * @file llsyntaxid.h
  * @brief Tracks the file needed to decorate the current sim's version of LSL.
  */
-class LLSyntaxIdLSL
+class LLSyntaxIdLSL: public LLSingleton<LLSyntaxIdLSL>
 {
 friend class fetchKeywordsFileResponder;
 public:
+	typedef boost::signals2::signal<void()> file_fetched_signal_t;
 
-static const std::string	CAPABILITY_NAME;
-static const std::string	FILENAME_DEFAULT;
-static const std::string	SIMULATOR_FEATURE;
+	static const std::string	CAPABILITY_NAME;
+	static const std::string	FILENAME_DEFAULT;
+	static const std::string	SIMULATOR_FEATURE;
 
 protected:
 	//LLViewerRegion*	region;
@@ -59,6 +61,7 @@ protected:
 	static bool		sLoaded;
 	static bool		sLoadFailed;
 	static bool		sVersionChanged;
+	static file_fetched_signal_t	sFileFetchedSignal;
 
 private:
 	std::string		mCapabilityName;
@@ -71,6 +74,7 @@ private:
 	std::string		mSimulatorFeature;
 	LLUUID			mSyntaxIdCurrent;
 	LLUUID			mSyntaxIdNew;
+
 
 
 public:
@@ -92,6 +96,9 @@ public:
 
 	static bool		isSupportedVersion(const LLSD& content);
 	static void		setKeywordsXml(const LLSD& content) { sKeywordsXml = content; }
+
+	boost::signals2::connection		addFileFetchedCallback(const file_fetched_signal_t::slot_type& cb);
+	void							removeFileFetchedCallback(boost::signals2::connection callback);
 
 
 protected:
@@ -139,5 +146,4 @@ public:
 	 * @param content_ref	The LSL syntax file for the sim.
 	 */
 	void cacheFile(const LLSD& content_ref);
-
 };

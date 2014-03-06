@@ -91,6 +91,8 @@ void fetchKeywordsFileResponder::result(const LLSD& content_ref)
 		LL_ERRS("SyntaxLSL")
 				<< "Syntax file '" << mFileSpec << "' contains invalid LLSD!" << LL_ENDL;
 	}
+
+	LLSyntaxIdLSL::sFileFetchedSignal();
 }
 
 void fetchKeywordsFileResponder::cacheFile(const LLSD& content_ref)
@@ -108,7 +110,6 @@ void fetchKeywordsFileResponder::cacheFile(const LLSD& content_ref)
 			<< "Syntax file received, saving as: '" << mFileSpec << "'" << LL_ENDL;
 }
 
-
 //-----------------------------------------------------------------------------
 // LLSyntaxIdLSL
 //-----------------------------------------------------------------------------
@@ -121,6 +122,7 @@ LLSD LLSyntaxIdLSL::sKeywordsXml;
 bool LLSyntaxIdLSL::sLoaded;
 bool LLSyntaxIdLSL::sLoadFailed;
 bool LLSyntaxIdLSL::sVersionChanged;
+LLSyntaxIdLSL::file_fetched_signal_t	LLSyntaxIdLSL::sFileFetchedSignal;
 
 /**
  * @brief LLSyntaxIdLSL constructor
@@ -250,6 +252,7 @@ void LLSyntaxIdLSL::fetchKeywordsFile()
 			<< ". Filename to use is: '" << mFullFileSpec << "'."
 			<< LL_ENDL;
 }
+
 
 //-----------------------------------------------------------------------------
 // initialise
@@ -412,4 +415,14 @@ void LLSyntaxIdLSL::loadKeywordsIntoLLSD()
 		LL_ERRS("SyntaxLSL") << "Unable to open file: " << mFullFileSpec << LL_ENDL;
 	}
 	sLoadFailed = !sLoaded;
+}
+
+boost::signals2::connection LLSyntaxIdLSL::addFileFetchedCallback(const file_fetched_signal_t::slot_type& cb)
+{
+	return sFileFetchedSignal.connect(cb);
+}
+
+void LLSyntaxIdLSL::removeFileFetchedCallback(boost::signals2::connection callback)
+{
+	sFileFetchedSignal.disconnect(callback);
 }
