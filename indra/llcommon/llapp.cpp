@@ -342,12 +342,13 @@ void LLApp::setupErrorHandling()
 		std::wstring wpipe_name;
 		wpipe_name =  mCrashReportPipeStr + wstringize(getPid());
 
-		::Sleep(3000);  //HACK hopefully a static wait won't blow up in my face before google fixes their implementation.
 		const std::wstring wdump_path(wstringize(mDumpPath));
 
-		//HACK this for loop is ueless.  Breakpad dumbly returns success when the OOP handler isn't initialized.
-		for (int retries=0;retries<5;++retries)
+		int retries = 30;
+		for (; retries > 0; --retries)
 		{
+			if (mExceptionHandler != 0) delete mExceptionHandler;
+
 			mExceptionHandler = new google_breakpad::ExceptionHandler(
 														wdump_path,		
 														NULL,		//No filter
@@ -357,25 +358,20 @@ void LLApp::setupErrorHandling()
 														MiniDumpNormal, //Generate a 'normal' minidump.
 														wpipe_name.c_str(),
 														NULL);  //No custom client info.
-			if (mExceptionHandler)
+			if (mExceptionHandler->IsOutOfProcess())
 			{
+				LL_INFOS("CRASHREPORT") << "Successfully attached to Out of Process exception handler." << LL_ENDL;
 				break;
 			}
 			else
 			{
+				LL_WARNS("CRASHREPORT") << "Unable to attach to Out of Process exception handler.  " << retries << " retries remaining." << LL_ENDL; 
 				::Sleep(100);  //Wait a tick and try again.
 			}
 		}
-		if (!mExceptionHandler)
-		{
-				llwarns << "Failed to initialize OOP exception handler.  Defaulting to In Process handling" << llendl;
-				mExceptionHandler = new google_breakpad::ExceptionHandler(
-																  wstringize(mDumpPath),		
-																  0,		//dump filename	
-																  windows_post_minidump_callback, 
-																  0, 
-																  google_breakpad::ExceptionHandler::HANDLER_ALL);
-		}
+
+		if (retries == 0) LL_WARNS("CRASHREPORT") << "Unable to attach to Out of Process exception handler." << LL_ENDL;
+
 		if (mExceptionHandler)
 		{
 			mExceptionHandler->set_handle_debug_exceptions(true);
@@ -991,6 +987,7 @@ bool windows_post_minidump_callback(const wchar_t* dump_path,
 	S32 remaining = LLApp::MAX_MINDUMP_PATH_LENGTH;
 	size_t bytesUsed;
 
+	LL_INFOS("MINIDUMPCALLBACK") << "Dump file was generated." << LL_ENDL;
 	bytesUsed = wcstombs(path, dump_path, static_cast<size_t>(remaining));
 	remaining -= bytesUsed;
 	path += bytesUsed;

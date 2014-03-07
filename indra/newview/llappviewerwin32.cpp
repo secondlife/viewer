@@ -276,7 +276,7 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 	viewer_app_ptr->setErrorHandler(LLAppViewer::handleViewerCrash);
 
 #if LL_SEND_CRASH_REPORTS 
-	::SetUnhandledExceptionFilter(catchallCrashHandler);
+	// ::SetUnhandledExceptionFilter(catchallCrashHandler); 
 #endif
 
 	// Set a debug info flag to indicate if multiple instances are running.
@@ -698,8 +698,35 @@ void LLAppViewerWin32::initCrashReporting(bool reportFreeze)
 	{
 		logdir = logdir.substr(0,end+1);
 	}
-	std::string arg_str = "\"" + exe_path + "\" -dumpdir \"" + logdir + "\" -procname \"" + appname + "\" -pid " + stringize(LLApp::getPid());
-	_spawnl(_P_NOWAIT, exe_path.c_str(), arg_str.c_str(), NULL);
+	//std::string arg_str = "\"" + exe_path + "\" -dumpdir \"" + logdir + "\" -procname \"" + appname + "\" -pid " + stringize(LLApp::getPid());
+	//_spawnl(_P_NOWAIT, exe_path.c_str(), arg_str.c_str(), NULL);
+	std::string arg_str =  "\"" + exe_path + "\" -dumpdir \"" + logdir + "\" -procname \"" + appname + "\" -pid " + stringize(LLApp::getPid()); 
+
+	STARTUPINFO startInfo={sizeof(startInfo)};
+	PROCESS_INFORMATION processInfo;
+
+	std::wstring exe_wstr;
+	exe_wstr=wstringize(exe_path);
+
+	std::wstring arg_wstr;
+	arg_wstr=wstringize(arg_str);
+
+	LL_INFOS("CrashReport") << "Creating crash reporter process " << exe_path << " with params: " << arg_str << LL_ENDL;
+    if(CreateProcess(exe_wstr.c_str(),     
+                     &arg_wstr[0],                 // Application arguments
+                     0,
+                     0,
+                     FALSE,
+                     CREATE_DEFAULT_ERROR_MODE,
+                     0,
+                     0,                              // Working directory
+                     &startInfo,
+                     &processInfo) == FALSE)
+      // Could not start application -> call 'GetLastError()'
+	{
+        LL_WARNS("CrashReport Launch") << "CreateProcess failed " << GetLastError() << LL_ENDL;
+        return;
+    }
 }
 
 //virtual

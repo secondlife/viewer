@@ -218,19 +218,8 @@ void LLCrashLogger::gatherFiles()
 	{
 		// Figure out the filename of the second life log
 		LLCurl::setCAFile(gDirUtilp->getCAFile());
-		mFileMap["SecondLifeLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.log");
+		mFileMap["SecondLifeLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"SecondLife.log");
 		mFileMap["SettingsXml"] = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,"settings.xml");
-	}
-
-	if(mCrashInPreviousExec)
-	{
-		// Restarting after freeze.
-		// Replace the log file ext with .old, since the 
-		// instance that launched this process has overwritten
-		// SecondLife.log
-		std::string log_filename = mFileMap["SecondLifeLog"];
-		log_filename.replace(log_filename.size() - 4, 4, ".old");
-		mFileMap["SecondLifeLog"] = log_filename;
 	}
 
 	gatherPlatformSpecificFiles();
@@ -271,7 +260,7 @@ void LLCrashLogger::gatherFiles()
 		std::ifstream f((*itr).second.c_str());
 		if(!f.is_open())
 		{
-			std::cout << "Can't find file " << (*itr).second << std::endl;
+			LL_INFOS("CRASHREPORT") << "Can't find file " << (*itr).second << LL_ENDL;
 			continue;
 		}
 		std::stringstream s;
@@ -488,6 +477,12 @@ bool LLCrashLogger::sendCrashLogs()
                         else
                         {
                             //mCrashInfo["DebugLog"].erase("MinidumpPath");
+                            //To preserve logfile on clean shutdown move to regular log dir.
+                            std::string curr_log = (*lock)["dumpdir"].asString() + "SecondLife.log";
+                            std::string last_log = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.log");
+
+                            LLFile::remove(last_log);
+                            LLFile::rename(curr_log, last_log); //Before we blow away the directory, perserve log of previous run.
 
                             mKeyMaster.cleanupProcess((*lock)["dumpdir"].asString());
                         }
@@ -529,26 +524,7 @@ bool LLCrashLogger::init()
 	// Default to the product name "Second Life" (this is overridden by the -name argument)
 	mProductName = "Second Life";
 
-    // Handle locking
-    bool locked = mKeyMaster.requestMaster();  //Request maser locking file.  wait time is defaulted to 300S
-    
-    while (!locked && mKeyMaster.isWaiting())
-    {
-#if LL_WINDOWS
-		Sleep(1000);
-#else
-        sleep(1);
-#endif 
-        locked = mKeyMaster.checkMaster();
-    }
-    
-    if (!locked)
-    {
-        llwarns << "Unable to get master lock.  Another crash reporter may be hung." << llendl;
-        return false;
-    }
-    
-    // Rename current log file to ".old"
+	// Rename current log file to ".old"
 	std::string old_log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "crashreport.log.old");
 	std::string log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "crashreport.log");
 
@@ -559,7 +535,27 @@ bool LLCrashLogger::init()
 	LLFile::rename(log_file.c_str(), old_log_file.c_str());
     
 	// Set the log file to crashreport.log
-	LLError::logToFile(log_file);
+	LLError::logToFile(log_file);  //NOTE:  Until this line, LL_INFOS LL_WARNS, etc are blown to the ether. 
+
+    // Handle locking
+    bool locked = mKeyMaster.requestMaster();  //Request master locking file.  wait time is defaulted to 300S
+    
+    while (!locked && mKeyMaster.isWaiting())
+    {
+		LL_INFOS("CRASHREPORT") << "Waiting for lock." << LL_ENDL;
+#if LL_WINDOWS
+		Sleep(1000);
+#else
+        sleep(1);
+#endif 
+        locked = mKeyMaster.checkMaster();
+    }
+    
+    if (!locked)
+    {
+        LL_WARNS("CRASHREPORT") << "Unable to get master lock.  Another crash reporter may be hung." << LL_ENDL;
+        return false;
+    }
 
     mCrashSettings.declareS32("CrashSubmitBehavior", CRASH_BEHAVIOR_ALWAYS_SEND,
 							  "Controls behavior when viewer crashes "
@@ -587,5 +583,6 @@ bool LLCrashLogger::init()
 // For cleanup code common to all platforms.
 void LLCrashLogger::commonCleanup()
 {
+	LLError::logToFile("");   //close crashreport.log
 	LLProxy::cleanupClass();
 }

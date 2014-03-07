@@ -260,8 +260,7 @@ LLCrashLoggerWindows::~LLCrashLoggerWindows(void)
 bool LLCrashLoggerWindows::getMessageWithTimeout(MSG *msg, UINT to)
 {
     bool res;
-	const int timerID=37;
-    SetTimer(NULL, timerID, to, NULL);
+	UINT_PTR timerID = SetTimer(NULL, NULL, to, NULL);
     res = GetMessage(msg, NULL, 0, 0);
     KillTimer(NULL, timerID);
     if (!res)
@@ -273,7 +272,10 @@ bool LLCrashLoggerWindows::getMessageWithTimeout(MSG *msg, UINT to)
 
 int LLCrashLoggerWindows::processingLoop() {
 	const int millisecs=1000;
-	static int first_connect = 1;
+	int retries = 0;
+	const int max_retries = 60;
+
+	LL_DEBUGS("CRASHREPORT") << "Entering processing loop for OOP server" << LL_ENDL;
 
 	LLSD options = getOptionData( LLApp::PRIORITY_COMMAND_LINE );
 
@@ -290,11 +292,17 @@ int LLCrashLoggerWindows::processingLoop() {
 			DispatchMessage(&msg);
 		}
 
-		if (first_connect )
+		if ( retries < max_retries )  //Wait up to 1 minute for the viewer to say hello.
 		{
-			if ( mClientsConnected > 0) 
+			if (mClientsConnected == 0) 
 			{
-				first_connect = 0;
+				LL_DEBUGS("CRASHREPORT") << "Waiting for client to connect." << LL_ENDL;
+				++retries;
+			}
+			else
+			{
+				LL_INFOS("CRASHREPORT") << "Client has connected!" << LL_ENDL;
+				retries = max_retries;
 			}
 		} 
 		else 
@@ -311,9 +319,7 @@ int LLCrashLoggerWindows::processingLoop() {
     }
     
     llinfos << "session ending.." << llendl;
-    
-    llinfos << "clients connected :" << mClientsConnected << llendl;
-    
+        
 	return 0;
 }
 
@@ -321,16 +327,15 @@ int LLCrashLoggerWindows::processingLoop() {
 void LLCrashLoggerWindows::OnClientConnected(void* context,
 				const google_breakpad::ClientInfo* client_info) 
 {
-	llinfos << "client start. pid = " << client_info->pid() << llendl;
 	sInstance->mClientsConnected++;
+	LL_INFOS("CRASHREPORT") << "Client connected. pid = " << client_info->pid() << " total clients " << sInstance->mClientsConnected << LL_ENDL;
 }
 
 void LLCrashLoggerWindows::OnClientExited(void* context,
 		const google_breakpad::ClientInfo* client_info) 
 {
-	llinfos << "client end. pid = " << client_info->pid() << llendl;
-
 	sInstance->mClientsConnected--;
+	LL_INFOS("CRASHREPORT") << "Client disconnected. pid = " << client_info->pid() << " total clients " << sInstance->mClientsConnected << LL_ENDL;
 }
 
 
@@ -402,19 +407,21 @@ bool LLCrashLoggerWindows::initCrashServer()
 		return false;
 	}
 
+	LL_INFOS("CRASHREPORT") << "Initialized OOP server with pipe named " << stringize(wpipe_name) << LL_ENDL;
 	return true;
 }
 
 bool LLCrashLoggerWindows::init(void)
 {	
-	initCrashServer();
 	bool ok = LLCrashLogger::init();
 	if(!ok) return false;
+
+	initCrashServer();
 
 	/*
 	mbstowcs( gProductName, mProductName.c_str(), LL_ARRAY_SIZE(gProductName) );
 	gProductName[ LL_ARRY_SIZE(gProductName) - 1 ] = 0;
-	swprintf(gProductName, L"Second Life");
+	swprintf(gProductName, L"Second Life"); 
 	*/
 
 	llinfos << "Loading dialogs" << llendl;

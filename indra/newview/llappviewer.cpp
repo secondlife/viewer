@@ -1940,7 +1940,6 @@ bool LLAppViewer::cleanup()
 		gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE,""), "*.*");
 	}
 	
-	removeDumpDir();   
 	writeDebugInfo();
 
 	LLLocationHistory::getInstance()->save();
@@ -2102,6 +2101,14 @@ bool LLAppViewer::cleanup()
 
     llinfos << "Goodbye!" << llendflush;
 
+    //To preserve logfile on clean shutdown move to regular log dir.
+    std::string curr_log = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"SecondLife.log");
+    std::string last_log = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.log");
+	LLError::logToFile(""); //Close Secondlife.log
+    LLFile::remove(last_log);
+    LLFile::copy(curr_log, last_log); 
+    removeDumpDir();
+
 	// return 0;
 	return true;
 }
@@ -2191,7 +2198,7 @@ void LLAppViewer::initLoggingAndGetLastDuration()
 	// Get name of the log file
 	std::string log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
 							     "SecondLife.log");
-	/*
+ 	/*
 	 * Before touching any log files, compute the duration of the last run
 	 * by comparing the ctime of the previous start marker file with the ctime
 	 * of the last log file.
@@ -2237,6 +2244,8 @@ void LLAppViewer::initLoggingAndGetLastDuration()
 	// Rename current log file to ".old"
 	LLFile::rename(log_file, old_log_file);
 
+	log_file = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,
+							     "SecondLife.log");
 	// Set the log file to SecondLife.log
 	LLError::logToFile(log_file);
 	if (!duration_log_msg.empty())
@@ -3505,7 +3514,7 @@ void LLAppViewer::handleViewerCrash()
 		LL_WARNS("MarkerFile") << "No gDirUtilp with which to create error marker file name" << LL_ENDL;
 	}		
 	
-#ifdef LL_WINDOWS //SPATTERS Wild guess that filename for Breakpad is not being returned due to sleep cycle in Crash Reporter.
+#ifdef LL_WINDOWS
 	Sleep(2000);
 #endif 
 
@@ -3514,12 +3523,9 @@ void LLAppViewer::handleViewerCrash()
 	if(minidump_file && minidump_file[0] != 0)
 	{
 		gDebugInfo["Dynamic"]["MinidumpPath"] = minidump_file;
-		//SPATTERS another possibility is that when using OOP it must be initiated by a wrapping program so that when the
-		//viewer crashes, we are from a sibling thread than as a child.   Might be able to request minidump at this point
-		//as a work-around.
 	}
 #ifdef LL_WINDOWS
-	else  //SPATTERS there is no else here in the older code
+	else
 	{
 		getFileList();
 	}

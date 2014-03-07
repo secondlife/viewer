@@ -187,8 +187,30 @@ S32 LLDir::deleteFilesInDir(const std::string &dirname, const std::string &mask)
 
 U32 LLDir::deleteDirAndContents(const std::string& dir_name)
 {
-    //Removes the directory and its contents.  Returns number of files removed.
-    return boost::filesystem::remove_all(dir_name);
+    //Removes the directory and its contents.  Returns number of files deleted.
+	
+	U32 num_deleted = 0;
+
+	try
+	{
+	   boost::filesystem::path dir_path(dir_name);
+	   if (boost::filesystem::exists (dir_path))
+	   {
+	      if (!boost::filesystem::is_empty (dir_path))
+		  {   // Directory has content
+		     num_deleted = boost::filesystem::remove_all (dir_path);
+		  }
+		  else
+		  {   // Directory is empty
+		     boost::filesystem::remove (dir_path);
+		  }
+	   }
+	}
+	catch (boost::filesystem::filesystem_error &er)
+	{ 
+		llwarns << "Failed to delete " << dir_name << " with error " << er.code().message() << llendl;
+	} 
+	return num_deleted;
 }
 
 const std::string LLDir::findFile(const std::string &filename, 
