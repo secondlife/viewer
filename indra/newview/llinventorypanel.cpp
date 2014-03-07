@@ -529,6 +529,14 @@ void LLInventoryPanel::modelChanged(U32 mask)
 							// Item is to be moved and we found its new parent in the panel's directory, so move the item's UI.
 							view_item->addToFolder(new_parent);
 							addItemID(viewmodel_item->getUUID(), view_item);
+							if (mInventory)
+							{
+								const LLUUID trash_id = mInventory->findCategoryUUIDForType(LLFolderType::FT_TRASH);
+								if (trash_id != model_item->getParentUUID() && (mask & LLInventoryObserver::INTERNAL) && new_parent->isOpen())
+								{
+									setSelection(item_id, FALSE);
+								}
+							}
 						}
 						else 
 						{
