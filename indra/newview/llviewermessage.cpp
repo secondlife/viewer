@@ -667,8 +667,7 @@ bool join_group_response(const LLSD& notification, const LLSD& response)
 		sSavedGroupInvite[id] = notification;
 		sSavedResponse[id] = response;
 	}
-
-	if ("JoinedTooManyGroupsMember" == action)
+	else if ("JoinedTooManyGroupsMember" == action)
 	{
 		S32 opt = LLNotificationsUtil::getSelectedOption(notification, response);
 		if (0 == opt) // Join button pressed
