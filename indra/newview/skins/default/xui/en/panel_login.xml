@@ -85,6 +85,7 @@
     label_color="White"
     font="SansSerifMedium"
     name="connect_btn"
+    enabled="true"
     left="32"
     width="80"
     height="26"

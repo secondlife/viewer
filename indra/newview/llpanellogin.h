@@ -104,6 +104,8 @@ private:
 private:
 	boost::scoped_ptr<LLPanelLoginListener> mListener;
 
+	void updateLoginButtons();
+
 	void			(*mCallback)(S32 option, void *userdata);
 	void*			mCallbackData;
 
@@ -112,6 +114,10 @@ private:
 	static LLPanelLogin* sInstance;
 	static BOOL		sCapslockDidNotification;
 	bool			mFirstLoginThisInstall;
+	bool mFavoriteSelected;
+	unsigned int mUsernameLength;
+	unsigned int mPasswordLength;
+	unsigned int mLocationLength;
 };
 
 #endif

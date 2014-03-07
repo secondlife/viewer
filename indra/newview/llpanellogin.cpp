@@ -172,7 +172,11 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 :	LLPanel(),
 	mCallback(callback),
 	mCallbackData(cb_data),
-	mListener(new LLPanelLoginListener(this))
+	mListener(new LLPanelLoginListener(this)),
+	mUsernameLength(0),
+	mPasswordLength(0),
+	mLocationLength(0),
+	mFavoriteSelected(false)
 {
 	setBackgroundVisible(FALSE);
 	setBackgroundOpaque(TRUE);
@@ -215,15 +219,13 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	// change z sort of clickable text to be behind buttons
 	sendChildToBack(getChildView("forgot_password_text"));
 
-	LLComboBox* location_combo = getChild<LLComboBox>("start_location_combo");
+	LLComboBox* favorites_combo = getChild<LLComboBox>("start_location_combo");
 	updateLocationSelectorsVisibility(); // separate so that it can be called from preferences
-	location_combo->setFocusLostCallback(boost::bind(&LLPanelLogin::onLocationSLURL, this));
+	favorites_combo->setFocusLostCallback(boost::bind(&LLPanelLogin::onLocationSLURL, this));
+	favorites_combo->setCommitCallback(boost::bind(&LLPanelLogin::onSelectFavorite, this));
 	
 	LLComboBox* server_choice_combo = getChild<LLComboBox>("server_combo");
 	server_choice_combo->setCommitCallback(boost::bind(&LLPanelLogin::onSelectServer, this));
-
-	LLComboBox* favorites_combo = getChild<LLComboBox>("start_location_combo");
-	favorites_combo->setCommitCallback(boost::bind(&LLPanelLogin::onSelectFavorite, this));
 
 	LLLineEditor* location_edit = sInstance->getChild<LLLineEditor>("location_edit");
 	location_edit->setKeystrokeCallback(boost::bind(&LLPanelLogin::onLocationEditChanged, this, _1), NULL);
@@ -320,6 +322,8 @@ void LLPanelLogin::addUsersWithFavoritesToUsername()
 		iter != fav_llsd.endMap(); ++iter)
 	{
 		combo->add(iter->first);
+		mUsernameLength = iter->first.length();
+		updateLoginButtons();
 	}
 }
 
@@ -336,6 +340,9 @@ void LLPanelLogin::addFavoritesToStartLocation()
 
 	// Load favorites into the combo.
 	std::string user_defined_name = getChild<LLComboBox>("username_combo")->getSimple();
+	mUsernameLength = user_defined_name.length();
+	updateLoginButtons();
+
 	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites.xml");
 	LLSD fav_llsd;
 	llifstream file;
@@ -498,9 +505,11 @@ void LLPanelLogin::setFields(LLPointer<LLCredential> credential,
 		// This is a MD5 hex digest of a password.
 		// We don't actually use the password input field, 
 		// fill it with MAX_PASSWORD characters so we get a 
-		// nice row of asterixes.
+		// nice row of asterisks.
 		const std::string filler("123456789!123456");
-		sInstance->getChild<LLUICtrl>("password_edit")->setValue(std::string("123456789!123456"));
+		sInstance->getChild<LLUICtrl>("password_edit")->setValue(filler);
+		sInstance->mPasswordLength = filler.length();
+		sInstance->updateLoginButtons();
 	}
 	else
 	{
@@ -683,8 +692,8 @@ void LLPanelLogin::onUpdateStartSLURL(const LLSLURL& new_start_slurl)
 			if ( new_start_slurl.getLocationString().length() )
 			{
 				location_edit->setValue(new_start_slurl.getLocationString());
-				LLButton* loc_btn = sInstance->getChild<LLButton>("connect_location_btn");
-				loc_btn->setEnabled(true);
+				sInstance->mLocationLength = new_start_slurl.getLocationString().length();
+				sInstance->updateLoginButtons();
 			}
 		}
 		else
@@ -942,13 +951,17 @@ void LLPanelLogin::onClickHelp(void*)
 // static
 void LLPanelLogin::onPassKey(LLLineEditor* caller, void* user_data)
 {
-	LLPanelLogin *This = (LLPanelLogin *) user_data;
-	This->mPasswordModified = TRUE;
+	LLPanelLogin *self = (LLPanelLogin *)user_data;
+	self->mPasswordModified = TRUE;
 	if (gKeyboard->getKeyDown(KEY_CAPSLOCK) && sCapslockDidNotification == FALSE)
 	{
 		// *TODO: use another way to notify user about enabled caps lock, see EXT-6858
 		sCapslockDidNotification = TRUE;
 	}
+
+	LLLineEditor* password_edit(self->getChild<LLLineEditor>("password_edit"));
+	self->mPasswordLength = password_edit->getText().length();
+	self->updateLoginButtons();
 }
 
 
@@ -989,32 +1002,53 @@ void LLPanelLogin::updateServer()
 	}
 }
 
-void LLPanelLogin::onLocationEditChanged(LLUICtrl* ctrl)
+void LLPanelLogin::updateLoginButtons()
 {
-	LLLineEditor* self = (LLLineEditor*)ctrl;
+	LLButton* last_login_btn = getChild<LLButton>("connect_btn");
+	LLButton* loc_btn = getChild<LLButton>("connect_location_btn");
+	LLButton* fav_btn = getChild<LLButton>("connect_favorite_btn");
 
-	if (self )
+	// no username or no password - turn all buttons off
+	if ( mUsernameLength == 0 || mPasswordLength == 0 )
 	{
-		LLButton* loc_btn = getChild<LLButton>("connect_location_btn");
+		last_login_btn->setEnabled(false);
+		loc_btn->setEnabled(false);
+		fav_btn->setEnabled(false);
+	};
 
-		unsigned int field_length = self->getText().length();
-		if ( field_length == 0 )
-		{
-			loc_btn->setEnabled(false);
-		}
-		else
-		{
+	// we have a username and a password
+	if ( mUsernameLength != 0 && mPasswordLength != 0 )
+	{
+		// last login button always enabled for this case
+		last_login_btn->setEnabled(true);
+
+		// only turn on favorites login button if one is selected
+		fav_btn->setEnabled( mFavoriteSelected );
+
+		// only enable location login if there is content there
+		if ( mLocationLength > 0 )
 			loc_btn->setEnabled(true);
-		}
+		else
+			loc_btn->setEnabled(false);
 	}
 }
 
+void LLPanelLogin::onLocationEditChanged(LLUICtrl* ctrl)
+{
+	LLLineEditor* self = (LLLineEditor*)ctrl;
+	if (self )
+	{
+		mLocationLength = self->getText().length();
+		updateLoginButtons();
+	}
+}
 
 void LLPanelLogin::onSelectFavorite()
 {
-	// enable button when item selected from combo
-	LLButton* fav_btn = getChild<LLButton>("connect_favorite_btn");
-	fav_btn->setEnabled(true);
+	// no way to unselect a favorite once it's selected (i think)
+	mFavoriteSelected = true;
+
+	updateLoginButtons();
 }
 
 void LLPanelLogin::onSelectServer()
