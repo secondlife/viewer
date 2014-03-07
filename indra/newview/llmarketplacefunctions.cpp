@@ -528,3 +528,113 @@ void LLMarketplaceInventoryImporter::updateImport()
 	}
 }
 
+//
+// Direct Delivery : Marketplace tuples and data
+//
+
+// Tuple == Item
+LLMarketplaceTuple::LLMarketplaceTuple() :
+    mFolderListingId(),
+    mListingId(""),
+    mActiveVersionFolderId(),
+    mIsActive(false)
+{
+}
+
+LLMarketplaceTuple::LLMarketplaceTuple(const LLUUID& folder_id) :
+    mFolderListingId(folder_id),
+    mListingId(""),
+    mActiveVersionFolderId(),
+    mIsActive(false)
+{
+}
+
+LLMarketplaceTuple::LLMarketplaceTuple(const LLUUID& folder_id, std::string listing_id, const LLUUID& version_id, bool is_listed) :
+    mFolderListingId(folder_id),
+    mListingId(listing_id),
+    mActiveVersionFolderId(version_id),
+    mIsActive(is_listed)
+{
+}
+
+
+// Data map
+LLMarketplaceData::LLMarketplaceData()
+{
+}
+
+// Accessors
+bool LLMarketplaceData::getActivationState(const LLUUID& folder_id)
+{
+    marketplace_items_list_t::iterator it = mMarketplaceItems.find(folder_id);
+    return (it == mMarketplaceItems.end() ? false : (it->second).mIsActive);
+}
+std::string LLMarketplaceData::getListingID(const LLUUID& folder_id)
+{
+    marketplace_items_list_t::iterator it = mMarketplaceItems.find(folder_id);
+    return (it == mMarketplaceItems.end() ? "" : (it->second).mListingId);
+}
+LLUUID LLMarketplaceData::getVersionFolderID(const LLUUID& folder_id)
+{
+    marketplace_items_list_t::iterator it = mMarketplaceItems.find(folder_id);
+    return (it == mMarketplaceItems.end() ? LLUUID::null : (it->second).mActiveVersionFolderId);
+}
+bool LLMarketplaceData::isListed(const LLUUID& folder_id)
+{
+    marketplace_items_list_t::iterator it = mMarketplaceItems.find(folder_id);
+    return (it != mMarketplaceItems.end());
+}
+
+// Modifiers
+bool LLMarketplaceData::setListingID(const LLUUID& folder_id, std::string listing_id)
+{
+    marketplace_items_list_t::iterator it = mMarketplaceItems.find(folder_id);
+    if (it == mMarketplaceItems.end())
+    {
+        return false;
+    }
+    else
+    {
+        (it->second).mListingId = listing_id;
+        return true;
+    }
+}
+bool LLMarketplaceData::setVersionFolderID(const LLUUID& folder_id, const LLUUID& version_id)
+{
+    marketplace_items_list_t::iterator it = mMarketplaceItems.find(folder_id);
+    if (it == mMarketplaceItems.end())
+    {
+        return false;
+    }
+    else
+    {
+        (it->second).mActiveVersionFolderId = version_id;
+        return true;
+    }
+}
+bool LLMarketplaceData::setActivation(const LLUUID& folder_id, bool activate)
+{
+    marketplace_items_list_t::iterator it = mMarketplaceItems.find(folder_id);
+    if (it == mMarketplaceItems.end())
+    {
+        return false;
+    }
+    else
+    {
+        (it->second).mIsActive = activate;
+        return true;
+    }
+}
+
+// Test methods
+void LLMarketplaceData::addTestItem(const LLUUID& folder_id)
+{
+	mMarketplaceItems[folder_id] = LLMarketplaceTuple(folder_id);
+}
+void LLMarketplaceData::addTestItem(const LLUUID& folder_id, const LLUUID& version_id)
+{
+	mMarketplaceItems[folder_id] = LLMarketplaceTuple(folder_id);
+    setVersionFolderID(folder_id, version_id);
+}
+
+
