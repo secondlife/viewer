@@ -140,6 +140,8 @@ LLViewerFolderDictionary::LLViewerFolderDictionary()
 	addEntry(LLFolderType::FT_OUTBOX, 				new ViewerFolderEntry("Merchant Outbox",		"Inv_SysOpen",			"Inv_SysClosed",		FALSE,     boxes_invisible));
 
 	addEntry(LLFolderType::FT_BASIC_ROOT, 			new ViewerFolderEntry("Basic Root",				"Inv_SysOpen",			"Inv_SysClosed",		FALSE,     true));
+
+	addEntry(LLFolderType::FT_MERCHANT_ITEMS, 		new ViewerFolderEntry("Merchant items",         "Inv_SysOpen",			"Inv_SysClosed",		FALSE,     boxes_invisible));
 		 
 	addEntry(LLFolderType::FT_NONE, 				new ViewerFolderEntry("New Folder",				"Inv_FolderOpen",		"Inv_FolderClosed",		FALSE,     false, "default"));
 

@@ -288,6 +288,7 @@ void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 	{
 		getFilter().setFilterCategoryTypes(getFilter().getFilterCategoryTypes() & ~(1ULL << LLFolderType::FT_INBOX));
 		getFilter().setFilterCategoryTypes(getFilter().getFilterCategoryTypes() & ~(1ULL << LLFolderType::FT_OUTBOX));
+		getFilter().setFilterCategoryTypes(getFilter().getFilterCategoryTypes() & ~(1ULL << LLFolderType::FT_MERCHANT_ITEMS));
 	}
 
 	// set the filter for the empty folder if the debug setting is on
@@ -1489,5 +1490,6 @@ namespace LLInitParam
 		declare(LLFolderType::lookup(LLFolderType::FT_INBOX)            , LLFolderType::FT_INBOX);
 		declare(LLFolderType::lookup(LLFolderType::FT_OUTBOX)           , LLFolderType::FT_OUTBOX);
 		declare(LLFolderType::lookup(LLFolderType::FT_BASIC_ROOT)       , LLFolderType::FT_BASIC_ROOT);
+		declare(LLFolderType::lookup(LLFolderType::FT_MERCHANT_ITEMS)   , LLFolderType::FT_MERCHANT_ITEMS);
 	}
 }

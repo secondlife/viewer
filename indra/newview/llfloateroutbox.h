@@ -1,7 +1,8 @@
 /** 
  * @file llfloateroutbox.h
- * @brief LLFloaterOutbox
- * class definition
+ * @brief Implementation of the merchant outbox window and of the merchant items window
+ *
+ * *TODO : Eventually, take out all the merchant outbox stuff and rename that file to llfloatermerchantitems
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -111,6 +112,60 @@ private:
 	LLPanel *			mOutboxTopLevelDropZone;
 	
 	LLWindowShade *	mWindowShade;
+};
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLFloaterMerchantItems
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+class LLFloaterMerchantItems : public LLFloater
+{
+public:
+	LLFloaterMerchantItems(const LLSD& key);
+	~LLFloaterMerchantItems();
+	
+	void initializeMarketPlace();
+    
+	// virtuals
+	BOOL postBuild();
+	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+						   EDragAndDropType cargo_type,
+						   void* cargo_data,
+						   EAcceptance* accept,
+						   std::string& tooltip_msg);
+	
+	void showNotification(const LLNotificationPtr& notification);
+    
+	BOOL handleHover(S32 x, S32 y, MASK mask);
+	void onMouseLeave(S32 x, S32 y, MASK mask);
+    
+protected:
+	void setup();
+    void clean();
+	void fetchContents();
+    
+	void onClose(bool app_quitting);
+	void onOpen(const LLSD& key);
+	void onFocusReceived();
+	void onChanged();
+    
+    bool isAccepted(EAcceptance accept);
+	
+	void updateView();
+    
+private:
+    S32 getFolderCount();
+
+	LLInventoryCategoriesObserver *		mCategoriesObserver;
+	LLInventoryCategoryAddedObserver *	mCategoryAddedObserver;
+		
+	LLView *		mInventoryPlaceholder;
+	LLTextBox *		mInventoryText;
+	LLTextBox *		mInventoryTitle;
+
+	LLUUID				mRootFolderId;
+	LLHandle<LLInventoryPanel> mInventoryPanel;
+	LLPanel *			mTopLevelDropZone;
 };
 
 #endif // LL_LLFLOATEROUTBOX_H

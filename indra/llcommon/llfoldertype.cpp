@@ -96,6 +96,8 @@ LLFolderDictionary::LLFolderDictionary()
 	addEntry(LLFolderType::FT_OUTBOX, 				new FolderEntry("outbox",	FALSE));
 	
 	addEntry(LLFolderType::FT_BASIC_ROOT,			new FolderEntry("basic_rt", TRUE));
+
+	addEntry(LLFolderType::FT_MERCHANT_ITEMS, 		new FolderEntry("merchant", FALSE));
 		 
 	addEntry(LLFolderType::FT_NONE, 				new FolderEntry("-1",		FALSE));
 };

@@ -181,6 +181,13 @@
          function="Floater.ToggleOrBringToFront"
          parameter="outbox" />
       </menu_item_call>
+        <menu_item_call
+            label="Merchant Items..."
+            name="MerchantItems">
+            <menu_item_call.on_click
+            function="Floater.ToggleOrBringToFront"
+            parameter="merchant_items" />
+        </menu_item_call>
       <menu_item_call
            label="Account dashboard..."
            name="Manage My Account">

@@ -2219,6 +2219,11 @@ We are accessing your account on the [[MARKETPLACE_CREATE_STORE_URL] Marketplace
 	<string name="InventoryOutboxError">
 The [[MARKETPLACE_CREATE_STORE_URL] Marketplace store] is returning errors.
 	</string>
+	<string name="InventoryMerchantItemsNoItemsTitle">Your Merchant Items folder is empty.</string>
+	<string name="InventoryMerchantItemsNoItemsTooltip"></string>
+	<string name="InventoryMerchantItemsNoItems">
+        Drag folders to this area to list them for sale on the [[MARKETPLACE_DASHBOARD_URL] Marketplace].
+	</string>
 
 	<string name="Marketplace Error None">No errors</string>
 	<string name="Marketplace Error Not Merchant">Error: Before sending items to the Marketplace you will need to set yourself up as a merchant (free of charge).</string>

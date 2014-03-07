@@ -1,6 +1,8 @@
 /** 
  * @file llfloateroutbox.cpp
- * @brief Implementation of the merchant outbox window
+ * @brief Implementation of the merchant outbox window and of the merchant items window
+ *
+ * *TODO : Eventually, take out all the merchant outbox stuff and rename that file to llfloatermerchantitems
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -103,6 +105,39 @@ public:
 private:
 	LLFloaterOutbox *	mOutboxFloater;
 };
+
+///----------------------------------------------------------------------------
+/// LLMerchantItemsAddedObserver helper class
+///----------------------------------------------------------------------------
+
+class LLMerchantItemsAddedObserver : public LLInventoryCategoryAddedObserver
+{
+public:
+	LLMerchantItemsAddedObserver(LLFloaterMerchantItems * merchant_items_floater)
+    : LLInventoryCategoryAddedObserver()
+    , mMerchantItemsFloater(merchant_items_floater)
+	{
+	}
+	
+	void done()
+	{
+		for (cat_vec_t::iterator it = mAddedCategories.begin(); it != mAddedCategories.end(); ++it)
+		{
+			LLViewerInventoryCategory* added_category = *it;
+			
+			LLFolderType::EType added_category_type = added_category->getPreferredType();
+			
+			if (added_category_type == LLFolderType::FT_MERCHANT_ITEMS)
+			{
+				mMerchantItemsFloater->initializeMarketPlace();
+			}
+		}
+	}
+	
+private:
+	LLFloaterMerchantItems *	mMerchantItemsFloater;
+};
+
 
 ///----------------------------------------------------------------------------
 /// LLFloaterOutbox
@@ -617,3 +652,361 @@ void LLFloaterOutbox::showNotification(const LLNotificationPtr& notification)
 	notification_handler->processNotification(notification);
 }
 
+///----------------------------------------------------------------------------
+/// LLFloaterMerchantItems
+///----------------------------------------------------------------------------
+
+LLFloaterMerchantItems::LLFloaterMerchantItems(const LLSD& key)
+: LLFloater(key)
+, mCategoriesObserver(NULL)
+, mCategoryAddedObserver(NULL)
+, mRootFolderId(LLUUID::null)
+, mInventoryPlaceholder(NULL)
+, mInventoryText(NULL)
+, mInventoryTitle(NULL)
+, mTopLevelDropZone(NULL)
+{
+}
+
+LLFloaterMerchantItems::~LLFloaterMerchantItems()
+{
+	if (mCategoriesObserver && gInventory.containsObserver(mCategoriesObserver))
+	{
+		gInventory.removeObserver(mCategoriesObserver);
+	}
+	delete mCategoriesObserver;
+	
+	if (mCategoryAddedObserver && gInventory.containsObserver(mCategoryAddedObserver))
+	{
+		gInventory.removeObserver(mCategoryAddedObserver);
+	}
+	delete mCategoryAddedObserver;
+}
+
+BOOL LLFloaterMerchantItems::postBuild()
+{
+	mInventoryPlaceholder = getChild<LLView>("merchant_items_inventory_placeholder_panel");
+	mInventoryText = mInventoryPlaceholder->getChild<LLTextBox>("merchant_items_inventory_placeholder_text");
+	mInventoryTitle = mInventoryPlaceholder->getChild<LLTextBox>("merchant_items_inventory_placeholder_title");
+
+	mTopLevelDropZone = getChild<LLPanel>("merchant_items_generic_drag_target");
+    
+	LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLFloaterMerchantItems::onFocusReceived, this));
+    
+	// Observe category creation to catch merchant items creation (moot if already existing)
+	mCategoryAddedObserver = new LLMerchantItemsAddedObserver(this);
+	gInventory.addObserver(mCategoryAddedObserver);
+	
+	return TRUE;
+}
+
+void LLFloaterMerchantItems::clean()
+{
+    // Note: we cannot delete the mOutboxInventoryPanel as that point
+    // as this is called through callback observers of the panel itself.
+    // Doing so would crash rapidly.
+	
+	// Invalidate the outbox data
+    mRootFolderId.setNull();
+}
+
+void LLFloaterMerchantItems::onClose(bool app_quitting)
+{
+}
+
+void LLFloaterMerchantItems::onOpen(const LLSD& key)
+{
+	//
+	// Initialize the Market Place or go update the outbox
+	//
+	if (LLMarketplaceInventoryImporter::getInstance()->getMarketPlaceStatus() == MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED)
+	{
+		initializeMarketPlace();
+	}
+	else
+	{
+		setup();
+	}
+	
+	//
+	// Update the floater view
+	//
+	updateView();
+	
+	//
+	// Trigger fetch of the contents
+	//
+	fetchContents();
+}
+
+void LLFloaterMerchantItems::onFocusReceived()
+{
+	fetchContents();
+}
+
+void LLFloaterMerchantItems::fetchContents()
+{
+	if (mRootFolderId.notNull())
+	{
+		LLInventoryModelBackgroundFetch::instance().start(mRootFolderId);
+	}
+}
+
+void LLFloaterMerchantItems::setup()
+{
+	if (LLMarketplaceInventoryImporter::getInstance()->getMarketPlaceStatus() != MarketplaceStatusCodes::MARKET_PLACE_MERCHANT)
+	{
+		// If we are *not* a merchant or we have no market place connection established yet, do nothing
+		return;
+	}
+    
+	// We are a merchant. Get the Merchant items folder, create it if needs be.
+	LLUUID outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MERCHANT_ITEMS, true);
+	if (outbox_id.isNull())
+	{
+		// We should never get there unless the inventory fails badly
+		llinfos << "Merov : Inventory problem: failure to create the merchant items folder for a merchant!" << llendl;
+		llerrs << "Inventory problem: failure to create the merchant items folder for a merchant!" << llendl;
+		return;
+	}
+    
+    // Consolidate Merchant items
+    // We shouldn't have to do that but with a client/server system relying on a "well known folder" convention, things get messy and conventions get broken down eventually
+    gInventory.consolidateForType(outbox_id, LLFolderType::FT_MERCHANT_ITEMS);
+    
+    if (outbox_id == mRootFolderId)
+    {
+        llinfos << "Merov : Inventory warning: Merchant items folder already set" << llendl;
+        llwarns << "Inventory warning: Merchant items folder already set" << llendl;
+        return;
+    }
+    mRootFolderId = outbox_id;
+    
+	// No longer need to observe new category creation
+	if (mCategoryAddedObserver && gInventory.containsObserver(mCategoryAddedObserver))
+	{
+		gInventory.removeObserver(mCategoryAddedObserver);
+		delete mCategoryAddedObserver;
+		mCategoryAddedObserver = NULL;
+	}
+	llassert(!mCategoryAddedObserver);
+	
+	// Create observer for merchant items modifications : clear the old one and create a new one
+	if (mCategoriesObserver && gInventory.containsObserver(mCategoriesObserver))
+	{
+		gInventory.removeObserver(mCategoriesObserver);
+		delete mCategoriesObserver;
+	}
+    mCategoriesObserver = new LLInventoryCategoriesObserver();
+    gInventory.addObserver(mCategoriesObserver);
+    mCategoriesObserver->addCategory(mRootFolderId, boost::bind(&LLFloaterMerchantItems::onChanged, this));
+	llassert(mCategoriesObserver);
+	
+	// Set up the merchant items inventory view
+	LLInventoryPanel* inventory_panel = mInventoryPanel.get();
+    if (inventory_panel)
+    {
+        delete inventory_panel;
+    }
+    inventory_panel = LLUICtrlFactory::createFromFile<LLInventoryPanel>("panel_merchant_items_inventory.xml", mInventoryPlaceholder->getParent(), LLInventoryPanel::child_registry_t::instance());
+    mInventoryPanel = inventory_panel->getInventoryPanelHandle();
+	llassert(mInventoryPanel.get() != NULL);
+	
+	// Reshape the inventory to the proper size
+	LLRect inventory_placeholder_rect = mInventoryPlaceholder->getRect();
+	inventory_panel->setShape(inventory_placeholder_rect);
+	
+	// Set the sort order newest to oldest
+	inventory_panel->getFolderViewModel()->setSorter(LLInventoryFilter::SO_FOLDERS_BY_NAME);
+	inventory_panel->getFilter().markDefault();
+    
+	// Get the content of the merchant items folder
+	fetchContents();
+}
+
+void LLFloaterMerchantItems::initializeMarketPlace()
+{
+    // *TODO : What do we need to do really once the merchant items folder has been created?
+	//
+	// Initialize the marketplace import API
+	//
+	//LLMarketplaceInventoryImporter& importer = LLMarketplaceInventoryImporter::instance();
+	
+    //if (!importer.isInitialized())
+    //{
+        //importer.setInitializationErrorCallback(boost::bind(&LLFloaterOutbox::initializationReportError, this, _1, _2));
+        //importer.setStatusChangedCallback(boost::bind(&LLFloaterOutbox::importStatusChanged, this, _1));
+        //importer.setStatusReportCallback(boost::bind(&LLFloaterOutbox::importReportResults, this, _1, _2));
+        //importer.initialize();
+    //}
+}
+
+S32 LLFloaterMerchantItems::getFolderCount()
+{
+	if (mInventoryPanel.get() && mRootFolderId.notNull())
+	{
+        LLInventoryModel::cat_array_t * cats;
+        LLInventoryModel::item_array_t * items;
+        gInventory.getDirectDescendentsOf(mRootFolderId, cats, items);
+            
+        return (cats->count() + items->count());
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+void LLFloaterMerchantItems::updateView()
+{
+	LLInventoryPanel* panel = mInventoryPanel.get();
+    
+	if (getFolderCount() > 0)
+	{
+		panel->setVisible(TRUE);
+		mInventoryPlaceholder->setVisible(FALSE);
+		mTopLevelDropZone->setVisible(TRUE);
+	}
+	else
+	{
+        if (panel)
+        {
+            panel->setVisible(FALSE);
+        }
+		
+        // Show the drop zone if there is an outbox folder
+        mTopLevelDropZone->setVisible(mRootFolderId.notNull());
+        
+        std::string text;
+        std::string title;
+        std::string tooltip;
+    
+        const LLSD& subs = getMarketplaceStringSubstitutions();
+        U32 mkt_status = LLMarketplaceInventoryImporter::getInstance()->getMarketPlaceStatus();
+    
+        // *TODO : check those messages and create better appropriate ones in strings.xml
+        if (mRootFolderId.notNull())
+        {
+            // Does the outbox needs recreation?
+            if ((panel == NULL) || !gInventory.getCategory(mRootFolderId))
+            {
+                setup();
+            }
+            // "Merchant items is empty!" message strings
+            text = LLTrans::getString("InventoryMerchantItemsNoItems", subs);
+            title = LLTrans::getString("InventoryMerchantItemsNoItemsTitle");
+            tooltip = LLTrans::getString("InventoryMerchantItemsNoItemsTooltip");
+        }
+        else if (mkt_status <= MarketplaceStatusCodes::MARKET_PLACE_INITIALIZING)
+        {
+            // "Initializing!" message strings
+            text = LLTrans::getString("InventoryOutboxInitializing", subs);
+            title = LLTrans::getString("InventoryOutboxInitializingTitle");
+            tooltip = LLTrans::getString("InventoryOutboxInitializingTooltip");
+        }
+        else if (mkt_status == MarketplaceStatusCodes::MARKET_PLACE_NOT_MERCHANT)
+        {
+            // "Not a merchant!" message strings
+            text = LLTrans::getString("InventoryOutboxNotMerchant", subs);
+            title = LLTrans::getString("InventoryOutboxNotMerchantTitle");
+            tooltip = LLTrans::getString("InventoryOutboxNotMerchantTooltip");
+        }
+        else
+        {
+            // "Errors!" message strings
+            text = LLTrans::getString("InventoryOutboxError", subs);
+            title = LLTrans::getString("InventoryOutboxErrorTitle");
+            tooltip = LLTrans::getString("InventoryOutboxErrorTooltip");
+        }
+    
+        mInventoryText->setValue(text);
+        mInventoryTitle->setValue(title);
+        mInventoryPlaceholder->getParent()->setToolTip(tooltip);
+    }
+}
+
+bool LLFloaterMerchantItems::isAccepted(EAcceptance accept)
+{
+    // *TODO : Need a bit more test on what we accept: depends of what and where...
+	return (accept >= ACCEPT_YES_COPY_SINGLE);
+}
+
+
+BOOL LLFloaterMerchantItems::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+										EDragAndDropType cargo_type,
+										void* cargo_data,
+										EAcceptance* accept,
+										std::string& tooltip_msg)
+{
+	if ((mInventoryPanel.get() == NULL) ||
+        mRootFolderId.isNull())
+	{
+		return FALSE;
+	}
+	
+	LLView * handled_view = childrenHandleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+	BOOL handled = (handled_view != NULL);
+    
+	// Determine if the mouse is inside the inventory panel itself or just within the floater
+	bool pointInInventoryPanel = false;
+	bool pointInInventoryPanelChild = false;
+	LLInventoryPanel* panel = mInventoryPanel.get();
+	LLFolderView* root_folder = panel->getRootFolder();
+	if (panel->getVisible())
+	{
+		S32 inv_x, inv_y;
+		localPointToOtherView(x, y, &inv_x, &inv_y, panel);
+        
+		pointInInventoryPanel = panel->getRect().pointInRect(inv_x, inv_y);
+        
+		LLView * inventory_panel_child_at_point = panel->childFromPoint(inv_x, inv_y, true);
+		pointInInventoryPanelChild = (inventory_panel_child_at_point != root_folder);
+	}
+	
+	// Pass all drag and drop for this floater to the outbox inventory control
+	if (!handled || !isAccepted(*accept))
+	{
+		// Handle the drag and drop directly to the root of the outbox if we're not in the inventory panel
+		// (otherwise the inventory panel itself will handle the drag and drop operation, without any override)
+		if (!pointInInventoryPanel)
+		{
+			handled = root_folder->handleDragAndDropToThisFolder(mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+		}
+        
+		mTopLevelDropZone->setBackgroundVisible(handled && !drop && isAccepted(*accept));
+	}
+	else
+	{
+		mTopLevelDropZone->setBackgroundVisible(!pointInInventoryPanelChild);
+	}
+	
+	return handled;
+}
+
+BOOL LLFloaterMerchantItems::handleHover(S32 x, S32 y, MASK mask)
+{
+	mTopLevelDropZone->setBackgroundVisible(FALSE);
+    
+	return LLFloater::handleHover(x, y, mask);
+}
+
+void LLFloaterMerchantItems::onMouseLeave(S32 x, S32 y, MASK mask)
+{
+	mTopLevelDropZone->setBackgroundVisible(FALSE);
+    
+	LLFloater::onMouseLeave(x, y, mask);
+}
+
+void LLFloaterMerchantItems::onChanged()
+{
+    LLViewerInventoryCategory* category = gInventory.getCategory(mRootFolderId);
+	if (mRootFolderId.notNull() && category)
+    {
+        fetchContents();
+        updateView();
+    }
+    else
+    {
+        clean();
+    }
+}

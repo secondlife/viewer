@@ -87,6 +87,8 @@ public:
 
 		FT_BASIC_ROOT = 52,
 
+		FT_MERCHANT_ITEMS = 53,
+
 		FT_COUNT,
 
 		FT_NONE = -1

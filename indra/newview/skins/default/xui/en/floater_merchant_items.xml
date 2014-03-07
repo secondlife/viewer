@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<floater
+    positioning="cascading"
+    can_close="true"
+    can_resize="true"
+    height="440"
+    help_topic="floater_merchant_items"
+    min_width="300"
+    min_height="200"
+    name="floater_merchant_items"
+    save_rect="true"
+    save_visibility="false"
+    reuse_instance="true"
+    title="MERCHANT ITEMS"
+    width="333">
+  <panel
+      follows="all"
+      layout="topleft"
+      left="0"
+      top="0"
+      label=""
+      height="440"
+      width="333">
+    <panel
+        follows="all"
+        left="10"
+        bottom="370"
+        width="313"
+        top="0"
+        bg_opaque_color="InventoryBackgroundColor">
+        <panel
+            name="merchant_items_inventory_placeholder_panel"
+            follows="all"
+            layout="topleft"
+            top="0"
+            left="0"
+            width="308"
+            height="370"
+            bg_opaque_color="InventoryBackgroundColor">
+            <text
+                name="merchant_items_inventory_placeholder_title"
+                type="string"
+                follows="top|left|right"
+                layout="topleft"
+                top="10"
+                left="0"
+                width="308"
+                height="25"
+                wrap="true"
+                halign="center"
+                font="SansSerifBold">
+                Loading...
+            </text>
+            <text
+            name="merchant_items_inventory_placeholder_text"
+            type="string"
+            follows="top|left|right"
+            layout="topleft"
+            top="35"
+            left="0"
+            width="308"
+            height="130"
+            wrap="true"
+            halign="left" />
+        </panel>
+    </panel>
+    <panel
+        follows="bottom|left|right"
+        left="10"
+        bottom="435"
+        width="313"
+        top="370">
+      <panel
+          name="merchant_items_generic_drag_target"
+          mouse_opaque="false"
+          follows="all"
+          top="5"
+          left="5"
+          width="303"
+          height="25"
+          background_visible="false"
+          bg_alpha_color="EmphasisColor_35"
+          border="true"
+          bevel_style="in"
+          visible="true">
+        <text
+            type="string"
+            follows="all"
+            layout="topleft"
+            top="6"
+            height="20"
+            left="5"
+            width="293"
+            halign="center"
+            font="SansSerifMedium"
+            font_shadow="hard"
+            valign="top">
+          Drag items you want to sell
+        </text>
+      </panel>
+    </panel>
+    <layout_stack name="import_progress_indicator" orientation="vertical" left="0" height="440" top="0" width="333" follows="all" visible="false">
+      <layout_panel />
+      <layout_panel height="24" auto_resize="false">
+        <layout_stack orientation="horizontal" left="0" height="24" top="0" width="333" follows="all">
+          <layout_panel width="0" />
+          <layout_panel width="24" auto_resize="false">
+            <loading_indicator
+                height="24"
+                layout="topleft"
+                left="0"
+                top="0"
+                width="24" />
+          </layout_panel>
+          <layout_panel width="0" />
+        </layout_stack>
+      </layout_panel>
+      <layout_panel />
+    </layout_stack>
+  </panel>
+</floater>
