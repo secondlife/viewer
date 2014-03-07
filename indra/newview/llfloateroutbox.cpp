@@ -826,19 +826,18 @@ void LLFloaterMerchantItems::setup()
 
 void LLFloaterMerchantItems::initializeMarketPlace()
 {
-    // *TODO : What do we need to do really once the merchant items folder has been created?
 	//
 	// Initialize the marketplace import API
 	//
-	//LLMarketplaceInventoryImporter& importer = LLMarketplaceInventoryImporter::instance();
+	LLMarketplaceInventoryImporter& importer = LLMarketplaceInventoryImporter::instance();
 	
-    //if (!importer.isInitialized())
-    //{
-        //importer.setInitializationErrorCallback(boost::bind(&LLFloaterOutbox::initializationReportError, this, _1, _2));
-        //importer.setStatusChangedCallback(boost::bind(&LLFloaterOutbox::importStatusChanged, this, _1));
-        //importer.setStatusReportCallback(boost::bind(&LLFloaterOutbox::importReportResults, this, _1, _2));
-        //importer.initialize();
-    //}
+    if (!importer.isInitialized())
+    {
+        importer.setInitializationErrorCallback(boost::bind(&LLFloaterMerchantItems::initializationReportError, this, _1, _2));
+        importer.setStatusChangedCallback(boost::bind(&LLFloaterMerchantItems::importStatusChanged, this, _1));
+        importer.setStatusReportCallback(boost::bind(&LLFloaterMerchantItems::importReportResults, this, _1, _2));
+        importer.initialize();
+    }
 }
 
 S32 LLFloaterMerchantItems::getFolderCount()
@@ -1010,3 +1009,47 @@ void LLFloaterMerchantItems::onChanged()
         clean();
     }
 }
+
+void LLFloaterMerchantItems::initializationReportError(U32 status, const LLSD& content)
+{
+	updateView();
+}
+
+void LLFloaterMerchantItems::importStatusChanged(bool inProgress)
+{
+	if (mRootFolderId.isNull() && (LLMarketplaceInventoryImporter::getInstance()->getMarketPlaceStatus() == MarketplaceStatusCodes::MARKET_PLACE_MERCHANT))
+	{
+		setup();
+	}
+	/*
+	if (inProgress)
+	{
+		if (mImportBusy)
+		{
+			setStatusString(getString("OutboxImporting"));
+		}
+		else
+		{
+			setStatusString(getString("OutboxInitializing"));
+		}
+		
+		mImportBusy = true;
+		mInventoryImportInProgress->setVisible(true);
+	}
+	else
+	{
+		setStatusString("");
+		mImportBusy = false;
+		mInventoryImportInProgress->setVisible(false);
+	}
+    */
+	
+	updateView();
+}
+
+void LLFloaterMerchantItems::importReportResults(U32 status, const LLSD& content)
+{	
+	updateView();
+}
+
+

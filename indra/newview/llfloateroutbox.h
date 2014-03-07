@@ -144,6 +144,10 @@ protected:
     void clean();
 	void fetchContents();
     
+	void importReportResults(U32 status, const LLSD& content);
+	void importStatusChanged(bool inProgress);
+	void initializationReportError(U32 status, const LLSD& content);
+
 	void onClose(bool app_quitting);
 	void onOpen(const LLSD& key);
 	void onFocusReceived();
