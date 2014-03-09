@@ -77,9 +77,12 @@ protected:
 public:
 	~LLScriptEdCore();
 	
+	void			clearHighlights();
+	void			initialiseKeywords();
 	void			initMenu();
-	void			onRegionChangeInitialiseKeywords();
-	void			onFileFetchedInitialiseKeywords();
+	void			processKeywords();
+	void			processLoaded();
+	void			updateKeywords();
 
 	virtual void	draw();
 	/*virtual*/	BOOL	postBuild();
@@ -133,6 +136,8 @@ protected:
 	void addHelpItemToHistory(const std::string& help_string);
 	static void onErrorList(LLUICtrl*, void* user_data);
 
+	bool			mLive;
+
 private:
 	std::string		mSampleText;
 	LLTextEditor*	mEditor;
@@ -155,6 +160,10 @@ private:
 	LLSyntaxIdLSL	mSyntaxIdLSL;
 
 	LLScriptEdContainer* mContainer; // parent view
+
+public:
+	boost::signals2::connection mRegionChangedCallback;
+
 };
 
 class LLScriptEdContainer : public LLPreview
@@ -163,6 +172,7 @@ class LLScriptEdContainer : public LLPreview
 
 public:
 	LLScriptEdContainer(const LLSD& key);
+	LLScriptEdContainer(const LLSD& key, const bool live);
 
 protected:
 	std::string		getTmpFileName();
@@ -172,7 +182,7 @@ protected:
 	LLScriptEdCore*		mScriptEd;
 };
 
-// Used to view and edit a LSL from your inventory.
+// Used to view and edit an LSL script from your inventory.
 class LLPreviewLSL : public LLScriptEdContainer
 {
 public:
@@ -217,7 +227,7 @@ protected:
 };
 
 
-// Used to view and edit an LSL that is attached to an object.
+// Used to view and edit an LSL script that is attached to an object.
 class LLLiveLSLEditor : public LLScriptEdContainer
 {
 	friend class LLLiveLSLFile;

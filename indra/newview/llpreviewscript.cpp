@@ -407,52 +407,70 @@ BOOL LLScriptEdCore::postBuild()
 
 	initMenu();
 
-	mSyntaxIdLSL.addFileFetchedCallback(boost::bind(&LLScriptEdCore::onFileFetchedInitialiseKeywords, this));
+	mSyntaxIdLSL.addFileFetchedCallback(boost::bind(&LLScriptEdCore::processKeywords, this));
 
-	onRegionChangeInitialiseKeywords();
-
-	// Set up a callback for region changes, so that highlighting is updated to the new region's version of LSL
-	//gAgent.addRegionChangedCallback(boost::bind(&LLScriptEdCore::onRegionChangeInitialiseKeywords, this));
-
-	return TRUE;
-}
-
-void LLScriptEdCore::onRegionChangeInitialiseKeywords()
-{
 	// Intialise keyword highlighting for the current simulator's version of LSL
-	LL_DEBUGS("SyntaxLSL") << "Pre Initialise!" << LL_ENDL;
 	mSyntaxIdLSL.initialise();
-	LL_DEBUGS("SyntaxLSL") << "Post Initialise!" << LL_ENDL;
 
 	if (mSyntaxIdLSL.isDifferentVersion())
 	{
-		if (mSyntaxIdLSL.isLoaded())
-		{
-			onFileFetchedInitialiseKeywords();
-		}
-		else
-		{
-			LL_INFOS("SyntaxLSL")
-					<< "Hashes are the different, waiting for the syntax file to be retrieved." << LL_ENDL;
-		}
+		processLoaded();
 	}
 	else
 	{
 		LL_INFOS("SyntaxLSL")
 				<< "Hashes are the same, no need to update highlighter." << LL_ENDL;
 	}
+
+
+	// Set up a callback for region changes
+	mRegionChangedCallback = gAgent.addRegionChangedCallback(boost::bind(&LLScriptEdCore::updateKeywords, this));
+
+	return TRUE;
 }
 
-void LLScriptEdCore::onFileFetchedInitialiseKeywords()
+void LLScriptEdCore::updateKeywords()
+{
+	if (mLive)
+	{
+		clearHighlights();
+		gAgent.removeRegionChangedCallback(mRegionChangedCallback);
+	}
+	else
+	{
+		processLoaded();
+	}
+}
+
+void LLScriptEdCore::processLoaded()
+{
+	mSyntaxIdLSL.initialise();
+	if (mSyntaxIdLSL.isLoaded())
+	{
+		processKeywords();
+	}
+	else
+	{
+		LL_INFOS("SyntaxLSL")
+				<< "Hashes are different, waiting for the syntax file to be retrieved." << LL_ENDL;
+	}
+}
+
+void LLScriptEdCore::clearHighlights()
+{
+	mEditor->mKeywords.clearLoaded();
+	mEditor->clearSegments();
+	mEditor->mKeywords.clear();
+}
+
+void LLScriptEdCore::processKeywords()
 {
 	if (mSyntaxIdLSL.isLoaded())
 	{
 		LL_INFOS("SyntaxLSL")
 				<< "Hashes are different, updating highlighter." << LL_ENDL;
 
-		mEditor->mKeywords.clearLoaded();
-		mEditor->clearSegments();
-		mEditor->mKeywords.clear();
+		clearHighlights();
 
 		if (mSyntaxIdLSL.isLoaded())
 		{
@@ -1227,8 +1245,8 @@ bool LLScriptEdCore::enableLoadFromFileMenu(void* userdata)
 /// LLScriptEdContainer
 /// ---------------------------------------------------------------------------
 
-LLScriptEdContainer::LLScriptEdContainer(const LLSD& key)
-:	LLPreview(key)
+LLScriptEdContainer::LLScriptEdContainer(const LLSD& key) :
+	LLPreview(key)
 ,	mScriptEd(NULL)
 {
 }
@@ -1750,7 +1768,7 @@ void* LLLiveLSLEditor::createScriptEdPanel(void* userdata)
 								   &LLLiveLSLEditor::onSearchReplace,
 								   self,
 								   0);
-
+	self->mScriptEd->mLive = true;
 	return self->mScriptEd;
 }
 

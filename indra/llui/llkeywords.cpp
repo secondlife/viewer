@@ -209,7 +209,7 @@ LLColor4 LLKeywords::getColorGroup(const std::string key_in)
 	{
 		ColourGroup = "SyntaxLslConstantVector";
 	}
-	else if (key_in == "controls")
+	else if (key_in == "misc-flow-label")
 	{
 		ColourGroup = "SyntaxLslControlFlow";
 	}
