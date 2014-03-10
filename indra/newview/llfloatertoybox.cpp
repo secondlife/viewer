@@ -107,7 +107,7 @@ void LLFloaterToybox::draw()
 	{
 		const LLCommandId& id = *it;
 
-		const bool command_not_present = (gToolBarView->hasCommand(id) == LLToolBarView::TOOLBAR_NONE);
+		const bool command_not_present = (gToolBarView->hasCommand(id) == LLToolBarEnums::TOOLBAR_NONE);
 		mToolBar->enableCommand(id, command_not_present);
 	}
 
@@ -175,9 +175,9 @@ void LLFloaterToybox::onToolBarButtonEnter(LLView* button)
 
 		switch(command_loc)
 		{
-		case LLToolBarView::TOOLBAR_BOTTOM:	suffix = LLTrans::getString("Toolbar_Bottom_Tooltip");	break;
-		case LLToolBarView::TOOLBAR_LEFT:	suffix = LLTrans::getString("Toolbar_Left_Tooltip");	break;
-		case LLToolBarView::TOOLBAR_RIGHT:	suffix = LLTrans::getString("Toolbar_Right_Tooltip");	break;
+		case LLToolBarEnums::TOOLBAR_BOTTOM:	suffix = LLTrans::getString("Toolbar_Bottom_Tooltip");	break;
+		case LLToolBarEnums::TOOLBAR_LEFT:	suffix = LLTrans::getString("Toolbar_Left_Tooltip");	break;
+		case LLToolBarEnums::TOOLBAR_RIGHT:	suffix = LLTrans::getString("Toolbar_Right_Tooltip");	break;
 
 		default:
 			break;

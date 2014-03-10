@@ -171,6 +171,7 @@ std::string LLDXDriverFile::dump()
 LLDXDevice::~LLDXDevice()
 {
 	for_each(mDriverFiles.begin(), mDriverFiles.end(), DeletePairedPointer());
+	mDriverFiles.clear();
 }
 
 std::string LLDXDevice::dump()
@@ -230,6 +231,7 @@ LLDXHardware::LLDXHardware()
 void LLDXHardware::cleanup()
 {
   // for_each(mDevices.begin(), mDevices.end(), DeletePairedPointer());
+  // mDevices.clear();
 }
 
 /*

@@ -825,6 +825,7 @@ void LLFloaterIMSessionTab::updateCallBtnState(bool callIsActive)
 void LLFloaterIMSessionTab::onSlide(LLFloaterIMSessionTab* self)
 {
 	LLFloaterIMContainer* host_floater = dynamic_cast<LLFloaterIMContainer*>(self->getHost());
+	bool should_be_expanded = false;
 	if (host_floater)
 	{
 		// Hide the messages pane if a floater is hosted in the Conversations
@@ -835,7 +836,7 @@ void LLFloaterIMSessionTab::onSlide(LLFloaterIMSessionTab* self)
 		if (!self->mIsP2PChat)
 		{
             // The state must toggle the collapsed state of the panel
-            bool should_be_expanded = self->mParticipantListPanel->isCollapsed();
+           should_be_expanded = self->mParticipantListPanel->isCollapsed();
 
 			// Update the expand/collapse flag of the participant list panel and save it
             gSavedSettings.setBOOL("IMShowControlPanel", should_be_expanded);
@@ -847,6 +848,10 @@ void LLFloaterIMSessionTab::onSlide(LLFloaterIMSessionTab* self)
 	}
 
 	self->assignResizeLimits();
+	if (should_be_expanded)
+	{
+		self->forceReshape();
+	}
 }
 
 void LLFloaterIMSessionTab::onCollapseToLine(LLFloaterIMSessionTab* self)

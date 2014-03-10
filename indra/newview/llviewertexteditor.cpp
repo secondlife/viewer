@@ -689,6 +689,11 @@ void LLViewerTextEditor::makePristine()
 	LLTextEditor::makePristine();
 }
 
+void LLViewerTextEditor::handleVisibilityChange( BOOL new_visibility )
+{
+	LLUICtrl::handleVisibilityChange(new_visibility);
+}
+
 BOOL LLViewerTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	BOOL	handled = FALSE;

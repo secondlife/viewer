@@ -53,7 +53,7 @@ typedef std::pair<LLUUID, std::string> folder_pair_t;
 static bool cmp_folders(const folder_pair_t& left, const folder_pair_t& right);
 static void collectLandmarkFolders(LLInventoryModel::cat_array_t& cats);
 
-static LLRegisterPanelClassWrapper<LLPanelLandmarkInfo> t_landmark_info("panel_landmark_info");
+static LLPanelInjector<LLPanelLandmarkInfo> t_landmark_info("panel_landmark_info");
 
 // Statics for textures filenames
 static std::string icon_pg;

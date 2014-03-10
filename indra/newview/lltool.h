@@ -39,7 +39,7 @@ class LLView;
 class LLPanel;
 
 class LLTool
-:	public LLMouseHandler
+:	public LLMouseHandler, public LLThreadSafeRefCount
 {
 public:
 	LLTool( const std::string& name, LLToolComposite* composite = NULL );
