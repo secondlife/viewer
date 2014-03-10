@@ -116,7 +116,8 @@ Var DO_UNINSTALL_V2     ; If non-null, path to a previous Viewer 2 installation 
 !include "FileFunc.nsh"     ; For GetParameters, GetOptions
 !insertmacro GetParameters
 !insertmacro GetOptions
-!include WinVer.nsh			; for OS and SP detection
+!include WinVer.nsh			; For OS and SP detection
+!include x64.nsh			; For 64bit OS detection
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; After install completes, launch app
@@ -154,14 +155,31 @@ Function dirPre
 FunctionEnd    
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Make sure we are not on a verion of windows older than XP SP2
+; Make sure this computer meets the minimum system requirements.
+; Currently: Windows 32bit XP SP3, 64bit XP SP2 and Server 2003 SP2
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function CheckWindowsVersion
-  ${IfNot} ${AtLeastWin2000}
-  ${OrIf} ${IsWinXP}
-  ${AndIfNot} ${AtLeastServicePack} 1
-  ${OrIf} ${IsWin2003}
-  ${AndIfNot} ${AtLeastServicePack} 1
+  ${If} ${AtMostWin2000}
+    MessageBox MB_OK $(CheckWindowsVersionMB)
+    Quit
+  ${EndIf}
+
+  ${If} ${IsWinXP}
+  ${AndIfNot} ${RunningX64}
+  ${AndIfNot} ${IsServicePack} 3
+    MessageBox MB_OK $(CheckWindowsVersionMB)
+    Quit
+  ${EndIf}
+
+  ${If} ${IsWinXP}
+  ${AndIf} ${RunningX64}
+  ${AndIfNot} ${IsServicePack} 2
+    MessageBox MB_OK $(CheckWindowsVersionMB)
+    Quit
+  ${EndIf}
+
+  ${If} ${IsWin2003}
+  ${AndIfNot} ${IsServicePack} 2
     MessageBox MB_OK $(CheckWindowsVersionMB)
     Quit
   ${EndIf}
@@ -784,7 +802,7 @@ SectionEnd 				; end of uninstall section
 ;;  entry to the language ID selector below
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function .onInit
-Call CheckWindowsVersion		; Don't install if on Windows XP SP1 or older (do to XP x64 only having SP2 and no SP3)
+Call CheckWindowsVersion		; Don't install On unsupported systems
     Push $0
     ${GetParameters} $COMMANDLINE              ; get our command line
 
