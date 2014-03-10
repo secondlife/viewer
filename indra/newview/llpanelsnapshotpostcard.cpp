@@ -79,7 +79,7 @@ private:
 	std::string mAgentEmail;
 };
 
-static LLRegisterPanelClassWrapper<LLPanelSnapshotPostcard> panel_class("llpanelsnapshotpostcard");
+static LLPanelInjector<LLPanelSnapshotPostcard> panel_class("llpanelsnapshotpostcard");
 
 LLPanelSnapshotPostcard::LLPanelSnapshotPostcard()
 :	mHasFirstMsgFocus(false)

@@ -71,7 +71,7 @@
 
 LLSidepanelTaskInfo* LLSidepanelTaskInfo::sActivePanel = NULL;
 
-static LLRegisterPanelClassWrapper<LLSidepanelTaskInfo> t_task_info("sidepanel_task_info");
+static LLPanelInjector<LLSidepanelTaskInfo> t_task_info("sidepanel_task_info");
 
 // Default constructor
 LLSidepanelTaskInfo::LLSidepanelTaskInfo()
