@@ -1959,11 +1959,11 @@ LLDockControl::DocAt LLCallDialog::getDockControlPos(const std::string& toolbarB
 	
 	switch (toolbar_loc)
 	{
-		case LLToolBarView::TOOLBAR_LEFT:
+		case LLToolBarEnums::TOOLBAR_LEFT:
 			doc_at = LLDockControl::RIGHT;
 			break;
 			
-		case LLToolBarView::TOOLBAR_RIGHT:
+		case LLToolBarEnums::TOOLBAR_RIGHT:
 			doc_at = LLDockControl::LEFT;
 			break;
 	}

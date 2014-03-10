@@ -59,7 +59,7 @@ S32 gStartImageWidth = 1;
 S32 gStartImageHeight = 1;
 const F32 FADE_TO_WORLD_TIME = 1.0f;
 
-static LLRegisterPanelClassWrapper<LLProgressView> r("progress_view");
+static LLPanelInjector<LLProgressView> r("progress_view");
 
 // XUI: Translate
 LLProgressView::LLProgressView() 

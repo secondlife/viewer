@@ -44,7 +44,7 @@
 #include "llsdserialize.h"
 #include "llproxy.h"
 
-LLPumpIO* gServicePump;
+LLPumpIO* gServicePump = NULL;
 BOOL gBreak = false;
 BOOL gSent = false;
 
@@ -80,7 +80,8 @@ LLCrashLogger::LLCrashLogger() :
 
 LLCrashLogger::~LLCrashLogger()
 {
-
+	delete gServicePump;
+	gServicePump = NULL;
 }
 
 // TRIM_SIZE must remain larger than LINE_SEARCH_SIZE.

@@ -36,7 +36,7 @@
 #include "lltransientfloatermgr.h"
 #include "llvoiceclient.h"
 
-static LLRegisterPanelClassWrapper<LLPanelVoiceEffect> t_panel_voice_effect("panel_voice_effect");
+static LLPanelInjector<LLPanelVoiceEffect> t_panel_voice_effect("panel_voice_effect");
 
 LLPanelVoiceEffect::LLPanelVoiceEffect()
 	: mVoiceEffectCombo(NULL)

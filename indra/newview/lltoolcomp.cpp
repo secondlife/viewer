@@ -61,7 +61,7 @@ extern LLControlGroup gSavedSettings;
 
 
 // we use this in various places instead of NULL
-static LLTool* sNullTool = new LLTool(std::string("null"), NULL); 
+static LLPointer<LLTool> sNullTool(new LLTool(std::string("null"), NULL)); 
 
 //-----------------------------------------------------------------------
 // LLToolComposite

@@ -2410,14 +2410,10 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 					&& from_id.notNull() //not a system message
 					&& to_id.notNull()) //not global message
 		{
-			// return a standard "do not disturb" message, but only do it to online IM 
+			// return a standard "do not disturb" message, but only do it to online IM
 			// (i.e. not other auto responses and not store-and-forward IM)
-			if (!gIMMgr->hasSession(session_id))
-			{
-				// if there is not a panel for this conversation (i.e. it is a new IM conversation
-				// initiated by the other party) then...
-				send_do_not_disturb_message(msg, from_id, session_id);
-			}
+
+			send_do_not_disturb_message(msg, from_id, session_id);
 
 			// now store incoming IM in chat history
 

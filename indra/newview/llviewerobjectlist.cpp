@@ -400,10 +400,10 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 
 			if (update_type != OUT_TERSE_IMPROVED) // OUT_FULL_COMPRESSED only?
 			{
-				compressed_dp.unpackUUID(fullid, "ID");
-				compressed_dp.unpackU32(local_id, "LocalID");
-				compressed_dp.unpackU8(pcode, "PCode");
-			}
+					compressed_dp.unpackUUID(fullid, "ID");
+					compressed_dp.unpackU32(local_id, "LocalID");
+					compressed_dp.unpackU8(pcode, "PCode");
+				}
 			else
 			{
 				compressed_dp.unpackU32(local_id, "LocalID");
@@ -562,7 +562,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			processUpdateCore(objectp, user_data, i, update_type, NULL, justCreated);
 		}
 		recorder.objectUpdateEvent(local_id, update_type, objectp, msg_size);
-		objectp->setLastUpdateType(update_type);
+		objectp->setLastUpdateType(update_type);		
 		objectp->setLastUpdateCached(bCached);
 	}
 
@@ -853,7 +853,7 @@ private:
 	LLSD mObjectIDs;
 };
 
-void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
+void LLViewerObjectList::update(LLAgent &agent)
 {
 	// Update globals
 	LLViewerObject::setVelocityInterpolate( gSavedSettings.getBOOL("VelocityInterpolate") );
@@ -943,7 +943,7 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 			objectp = *iter;
 			if (objectp->isAvatar())
 			{
-				objectp->idleUpdate(agent, world, frame_time);
+				objectp->idleUpdate(agent, frame_time);
 			}
 		}
 	}
@@ -954,7 +954,7 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 		{
 			objectp = *idle_iter;
 			llassert(objectp->isActive());
-			objectp->idleUpdate(agent, world, frame_time);
+			objectp->idleUpdate(agent, frame_time);
 		}
 
 		//update flexible objects
