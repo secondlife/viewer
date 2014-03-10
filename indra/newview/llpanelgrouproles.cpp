@@ -743,20 +743,17 @@ LLPanelGroupMembersSubTab::LLPanelGroupMembersSubTab()
 	mChanged(FALSE),
 	mPendingMemberUpdate(FALSE),
 	mHasMatch(FALSE),
-	mNumOwnerAdditions(0)
+	mNumOwnerAdditions(0),
+	mAvatarNameCacheConnection()
 {
 }
 
 LLPanelGroupMembersSubTab::~LLPanelGroupMembersSubTab()
 {
-	for (avatar_name_cache_connection_map_t::iterator it = mAvatarNameCacheConnections.begin(); it != mAvatarNameCacheConnections.end(); ++it)
+	if (mAvatarNameCacheConnection.connected())
 	{
-		if (it->second.connected())
-		{
-			it->second.disconnect();
-		}
+		mAvatarNameCacheConnection.disconnect();
 	}
-	mAvatarNameCacheConnections.clear();
 	if (mMembersList)
 	{
 		gSavedSettings.setString("GroupMembersSortOrder", mMembersList->getSortColumnName());
@@ -1644,17 +1641,9 @@ void LLPanelGroupMembersSubTab::addMemberToList(LLGroupMemberData* data)
 	mHasMatch = TRUE;
 }
 
-void LLPanelGroupMembersSubTab::onNameCache(const LLUUID& update_id, LLGroupMemberData* member, const LLAvatarName& av_name, const LLUUID& av_id)
+void LLPanelGroupMembersSubTab::onNameCache(const LLUUID& update_id, LLGroupMemberData* member, const LLAvatarName& av_name)
 {
-	avatar_name_cache_connection_map_t::iterator it = mAvatarNameCacheConnections.find(av_id);
-	if (it != mAvatarNameCacheConnections.end())
-	{
-		if (it->second.connected())
-		{
-			it->second.disconnect();
-		}
-		mAvatarNameCacheConnections.erase(it);
-	}
+	mAvatarNameCacheConnection.disconnect();
 
 	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 	if (!gdatap
@@ -1727,16 +1716,12 @@ void LLPanelGroupMembersSubTab::updateMembers()
 		else
 		{
 			// If name is not cached, onNameCache() should be called when it is cached and add this member to list.
-			avatar_name_cache_connection_map_t::iterator it = mAvatarNameCacheConnections.find(mMemberProgress->first);
-			if (it != mAvatarNameCacheConnections.end())
+			// *TODO : Add one callback per fetched avatar name
+			if (mAvatarNameCacheConnection.connected())
 			{
-				if (it->second.connected())
-				{
-					it->second.disconnect();
-				}
-				mAvatarNameCacheConnections.erase(it);
+				mAvatarNameCacheConnection.disconnect();
 			}
-			mAvatarNameCacheConnections[mMemberProgress->first] = LLAvatarNameCache::get(mMemberProgress->first, boost::bind(&LLPanelGroupMembersSubTab::onNameCache, this, gdatap->getMemberVersion(), mMemberProgress->second, _2, _1));
+			mAvatarNameCacheConnection = LLAvatarNameCache::get(mMemberProgress->first, boost::bind(&LLPanelGroupMembersSubTab::onNameCache, this, gdatap->getMemberVersion(), mMemberProgress->second, _2));
 		}
 	}
 
