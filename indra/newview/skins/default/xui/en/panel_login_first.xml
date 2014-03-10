@@ -8,6 +8,10 @@
   bg_opaque_color="0.16 0.16 0.16 1"
   background_opaque="true"
   width="1024">
+  <panel.string
+    name="forgot_password_url">
+    http://secondlife.com/account/request.php
+  </panel.string>
   <layout_stack
     follows="left|right|top|bottom"
     width="1024"
