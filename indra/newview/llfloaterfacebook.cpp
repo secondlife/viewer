@@ -54,11 +54,11 @@
 #include "llaccordionctrl.h"
 #include "llaccordionctrltab.h"
 
-static LLRegisterPanelClassWrapper<LLFacebookStatusPanel> t_panel_status("llfacebookstatuspanel");
-static LLRegisterPanelClassWrapper<LLFacebookPhotoPanel> t_panel_photo("llfacebookphotopanel");
-static LLRegisterPanelClassWrapper<LLFacebookCheckinPanel> t_panel_checkin("llfacebookcheckinpanel");
-static LLRegisterPanelClassWrapper<LLFacebookFriendsPanel> t_panel_friends("llfacebookfriendspanel");
-static LLRegisterPanelClassWrapper<LLFacebookAccountPanel> t_panel_account("llfacebookaccountpanel");
+static LLPanelInjector<LLFacebookStatusPanel> t_panel_status("llfacebookstatuspanel");
+static LLPanelInjector<LLFacebookPhotoPanel> t_panel_photo("llfacebookphotopanel");
+static LLPanelInjector<LLFacebookCheckinPanel> t_panel_checkin("llfacebookcheckinpanel");
+static LLPanelInjector<LLFacebookFriendsPanel> t_panel_friends("llfacebookfriendspanel");
+static LLPanelInjector<LLFacebookAccountPanel> t_panel_account("llfacebookaccountpanel");
 
 const S32 MAX_POSTCARD_DATASIZE = 1024 * 1024; // one megabyte
 const std::string DEFAULT_CHECKIN_LOCATION_URL = "http://maps.secondlife.com/";

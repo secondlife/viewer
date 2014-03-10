@@ -51,8 +51,8 @@
 #include "lltabcontainer.h"
 #include "lltexteditor.h"
 
-static LLRegisterPanelClassWrapper<LLTwitterPhotoPanel> t_panel_photo("lltwitterphotopanel");
-static LLRegisterPanelClassWrapper<LLTwitterAccountPanel> t_panel_account("lltwitteraccountpanel");
+static LLPanelInjector<LLTwitterPhotoPanel> t_panel_photo("lltwitterphotopanel");
+static LLPanelInjector<LLTwitterAccountPanel> t_panel_account("lltwitteraccountpanel");
 
 const S32 MAX_POSTCARD_DATASIZE = 1024 * 1024; // one megabyte
 const std::string DEFAULT_PHOTO_LOCATION_URL = "http://maps.secondlife.com/";
