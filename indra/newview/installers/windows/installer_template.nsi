@@ -154,12 +154,14 @@ Function dirPre
 FunctionEnd    
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Make sure we are not on a verion of Windows older than Vista, except for 32bit XP SP3
+; Make sure we are not on a verion of windows older than XP SP2
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function CheckWindowsVersion
-  ${IfNot} ${AtLeastWinVista}
+  ${IfNot} ${AtLeastWin2000}
   ${OrIf} ${IsWinXP}
-  ${AndIfNot} ${IsServicePack} 3
+  ${AndIfNot} ${AtLeastServicePack} 1
+  ${OrIf} ${IsWin2003}
+  ${AndIfNot} ${AtLeastServicePack} 1
     MessageBox MB_OK $(CheckWindowsVersionMB)
     Quit
   ${EndIf}
@@ -169,7 +171,11 @@ FunctionEnd
 ;Recommend Upgrading Service Pack
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function CheckWindowsServPack
-  ${If} ${IsWinVista}
+  ${If} ${IsWinXP}
+  ${AndIfNot} ${IsServicePack} 3
+  ${OrIf} ${IsWin2003}
+  ${AndIfNot} ${IsServicePack} 2
+  ${OrIf} ${IsWinVista}
   ${AndIfNot} ${IsServicePack} 2
   ${OrIf} ${IsWin2008}
   ${AndIfNot} ${IsServicePack} 2
@@ -778,7 +784,7 @@ SectionEnd 				; end of uninstall section
 ;;  entry to the language ID selector below
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function .onInit
-Call CheckWindowsVersion		; Check the version of windows we are installing on
+Call CheckWindowsVersion		; Don't install if on Windows XP SP1 or older (do to XP x64 only having SP2 and no SP3)
     Push $0
     ${GetParameters} $COMMANDLINE              ; get our command line
 

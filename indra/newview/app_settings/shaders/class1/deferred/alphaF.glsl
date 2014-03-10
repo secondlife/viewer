@@ -534,6 +534,7 @@ void main()
 #ifdef FOR_IMPOSTOR
 	vec4 color;
 	color.rgb = diff.rgb;
+	color.a = 1.0;
 
 #ifdef USE_VERTEX_COLOR
 	float final_alpha = diff.a * vertex_color.a;

@@ -251,7 +251,7 @@ LLPanelPlaces::LLPanelPlaces()
 
 	gInventory.addObserver(mInventoryObserver);
 
-	mAgentParcelChangedConnection = LLViewerParcelMgr::getInstance()->addAgentParcelChangedCallback(
+	mAgentParcelChangedConnection = gAgent.addParcelChangedCallback(
 			boost::bind(&LLPanelPlaces::updateVerbs, this));
 
 	//buildFromFile( "panel_places.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
