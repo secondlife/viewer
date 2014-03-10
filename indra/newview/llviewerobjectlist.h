@@ -83,7 +83,7 @@ public:
 	void processCompressedObjectUpdate(LLMessageSystem *mesgsys, void **user_data, EObjectUpdateType update_type);
 	void processCachedObjectUpdate(LLMessageSystem *mesgsys, void **user_data, EObjectUpdateType update_type);
 	void updateApparentAngles(LLAgent &agent);
-	void update(LLAgent &agent, LLWorld &world);
+	void update(LLAgent &agent);
 
 	void fetchObjectCosts();
 	void fetchPhysicsFlags();

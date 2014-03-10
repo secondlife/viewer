@@ -281,6 +281,7 @@ LLTabContainer::LLTabContainer(const LLTabContainer::Params& p)
 LLTabContainer::~LLTabContainer()
 {
 	std::for_each(mTabList.begin(), mTabList.end(), DeletePointer());
+	mTabList.clear();
 }
 
 //virtual

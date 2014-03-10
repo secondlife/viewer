@@ -130,7 +130,7 @@ void LLObjectInventoryObserver::inventoryChanged(LLViewerObject* object,
 /// Class LLSidepanelItemInfo
 ///----------------------------------------------------------------------------
 
-static LLRegisterPanelClassWrapper<LLSidepanelItemInfo> t_item_info("sidepanel_item_info");
+static LLPanelInjector<LLSidepanelItemInfo> t_item_info("sidepanel_item_info");
 
 // Default constructor
 LLSidepanelItemInfo::LLSidepanelItemInfo(const LLPanel::Params& p)
