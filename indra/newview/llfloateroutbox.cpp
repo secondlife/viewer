@@ -697,6 +697,10 @@ BOOL LLFloaterMerchantItems::postBuild()
 	mCategoryAddedObserver = new LLMerchantItemsAddedObserver(this);
 	gInventory.addObserver(mCategoryAddedObserver);
 	
+    // Merov : Debug : fetch aggressively so we can create test data right onOpen()
+    llinfos << "Merov : postBuild, do fetchContent() ahead of time" << llendl;
+	fetchContents();
+
 	return TRUE;
 }
 
@@ -737,6 +741,26 @@ void LLFloaterMerchantItems::onOpen(const LLSD& key)
 	// Trigger fetch of the contents
 	//
 	fetchContents();
+    
+    // Merov : Debug : Create fake Marketplace data if none is present
+	if (LLMarketplaceData::instance().isEmpty() && (getFolderCount() > 0))
+	{
+        LLInventoryModel::cat_array_t* cats;
+        LLInventoryModel::item_array_t* items;
+        gInventory.getDirectDescendentsOf(mRootFolderId, cats, items);
+
+        int index = 0;
+        for (LLInventoryModel::cat_array_t::iterator iter = cats->begin(); iter != cats->end(); iter++, index++)
+        {
+            LLViewerInventoryCategory* category = *iter;
+            LLMarketplaceData::instance().addTestItem(category->getUUID());
+            if (index%2)
+            {
+                LLMarketplaceData::instance().setListingID(category->getUUID(),"TestingID1234");
+            }
+            LLMarketplaceData::instance().setActivation(category->getUUID(),(index%3 == 0));
+        }
+    }
 }
 
 void LLFloaterMerchantItems::onFocusReceived()

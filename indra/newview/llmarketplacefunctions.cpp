@@ -629,10 +629,12 @@ bool LLMarketplaceData::setActivation(const LLUUID& folder_id, bool activate)
 // Test methods
 void LLMarketplaceData::addTestItem(const LLUUID& folder_id)
 {
+    llinfos << "Merov : addTestItem, id = " << folder_id << llendl;
 	mMarketplaceItems[folder_id] = LLMarketplaceTuple(folder_id);
 }
 void LLMarketplaceData::addTestItem(const LLUUID& folder_id, const LLUUID& version_id)
 {
+    llinfos << "Merov : addTestItem, id = " << folder_id << ", version = " << version_id << llendl;
 	mMarketplaceItems[folder_id] = LLMarketplaceTuple(folder_id);
     setVersionFolderID(folder_id, version_id);
 }

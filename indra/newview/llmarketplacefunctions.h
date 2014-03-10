@@ -142,6 +142,8 @@ class LLMarketplaceData
 public:
 	LLMarketplaceData();
     
+    bool isEmpty() { return (mMarketplaceItems.size() == 0); }
+    
     // Access Marketplace Data : methods return default value if the folder_id can't be found
     bool getActivationState(const LLUUID& folder_id);
     std::string getListingID(const LLUUID& folder_id);
