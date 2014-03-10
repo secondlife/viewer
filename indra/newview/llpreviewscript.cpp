@@ -1298,8 +1298,6 @@ void LLLiveLSLEditor::setExperienceIds( const LLSD& experience_ids )
 
 void LLLiveLSLEditor::updateExperiencePanel()
 {
-    BOOL editable = getIsModifiable();
-
     if(mScriptEd->getAssociatedExperience().isNull())
     {
         mExperienceEnabled->set(FALSE);
@@ -1317,24 +1315,11 @@ void LLLiveLSLEditor::updateExperiencePanel()
         getChild<LLButton>("view_profile")->setVisible(FALSE);
     }
     else
-    {
-        mExperienceEnabled->setToolTip(getString("experience_enabled"));
-        mExperienceEnabled->setEnabled(editable);
-        mExperienceEnabled->set(TRUE);
-        mExperiences->setVisible(TRUE);
-        getChild<LLButton>("view_profile")->setVisible(TRUE);
+	{
+		mExperienceEnabled->setToolTip(getString("experience_enabled"));
+		mExperienceEnabled->setEnabled(getIsModifiable());
+		mExperiences->setVisible(TRUE);
         buildExperienceList();
-    }
-}
-
-void LLLiveLSLEditor::addExperienceInfo(const LLSD& experience, BOOL enabled)
-{  
-    LLUUID id = experience[LLExperienceCache::EXPERIENCE_ID].asUUID();
-    EAddPosition position = (id == mScriptEd->getAssociatedExperience())?ADD_TOP:ADD_BOTTOM;
-    LLScrollListItem* item=mExperiences->add(experience[LLExperienceCache::NAME], id, position );
-    if(!enabled)
-    {
-        item->setEnabled(FALSE);
     }
 }
 
@@ -1342,18 +1327,55 @@ void LLLiveLSLEditor::buildExperienceList()
 {
     mExperiences->clearRows();
     bool foundAssociated=false;
+	const LLUUID& associated = mScriptEd->getAssociatedExperience();
+	LLSD experience;
+	LLUUID last;
+	LLScrollListItem* item;
     for(LLSD::array_const_iterator it = mExperienceIds.beginArray(); it != mExperienceIds.endArray(); ++it)
     {
         LLUUID id = it->asUUID();
-        foundAssociated |= (id == mScriptEd->getAssociatedExperience());
-        LLExperienceCache::get(id, boost::bind(&LLLiveLSLEditor::addExperienceInfo, this, _1, TRUE));  
+		EAddPosition position = ADD_BOTTOM;
+		if(id == associated)
+		{
+			foundAssociated = true;
+			position = ADD_TOP;
+		}
+		if(LLExperienceCache::get(id, experience))
+		{
+			mExperiences->add(experience[LLExperienceCache::NAME].asString(), id, position);
+		} 
+		else
+		{
+			mExperiences->add(getString("loading"), id, position);
+			last = id;
+		}
+
     }
 
     if(!foundAssociated )
     {
-        LLExperienceCache::get(mScriptEd->getAssociatedExperience(), boost::bind(&LLLiveLSLEditor::addExperienceInfo, this, _1, FALSE));  
+		if(LLExperienceCache::get(associated, experience))
+		{
+			item=mExperiences->add(experience[LLExperienceCache::NAME].asString(), associated, ADD_TOP);
+		} 
+		else
+		{
+			item=mExperiences->add(getString("loading"), associated, ADD_TOP);
+			last = associated;
+		}
+		item->setEnabled(FALSE);
     }
 
+	if(last.notNull())
+	{
+		mExperiences->setEnabled(FALSE);
+		LLExperienceCache::get(last, boost::bind(&LLLiveLSLEditor::buildExperienceList, this));  
+	}
+	else
+	{
+		mExperiences->setEnabled(TRUE);
+		getChild<LLButton>("view_profile")->setVisible(TRUE);
+	}
 }
 
 

@@ -240,7 +240,6 @@ public:
     static void onToggleExperience(LLUICtrl *ui, void* userdata);
     static void onViewProfile(LLUICtrl *ui, void* userdata);
     
-    void addExperienceInfo( const LLSD& experience, BOOL enabled );
     void setExperienceIds(const LLSD& experience_ids);
     void buildExperienceList();
     void updateExperiencePanel();

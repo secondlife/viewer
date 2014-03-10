@@ -439,7 +439,10 @@ void LLFloaterExperiencePicker::filterContent()
 
 void LLFloaterExperiencePicker::onMaturity()
 {
-	filterContent();
+	if(mResponse.has("experience_keys") && mResponse["experience_keys"].beginArray() != mResponse["experience_keys"].endArray())
+	{
+		filterContent();
+	}
 }
 
 bool LLFloaterExperiencePicker::isExperienceHidden( const LLSD& experience) const

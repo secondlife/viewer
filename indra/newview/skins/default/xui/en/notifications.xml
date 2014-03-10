@@ -7003,7 +7003,7 @@ Unable to acquire a new experience:
   <notification
     icon="notify.tga"
     name="TeleportedHomeExperienceRemoved"
-    persist="true"
+    persist="false"
     type="notify">
     You have been teleported from the region [region_name] for removing the experience secondlife:///app/experience/[public_id]/profile and are no longer permitted in the region.
     <form name="form">
@@ -7015,7 +7015,7 @@ Unable to acquire a new experience:
   <notification
     icon="notify.tga"
     name="TrustedExperienceEntry"
-    persist="true"
+    persist="false"
     type="notify">
     You have been allowed into the region [region_name] by participating in the trusted experience secondlife:///app/experience/[public_id]/profile removing this experience may kick you from the region.
     <form name="form">

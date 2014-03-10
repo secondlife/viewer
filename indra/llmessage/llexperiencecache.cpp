@@ -415,40 +415,39 @@ namespace LLExperienceCache
 		F64 now = LLFrameTimer::getTotalSeconds();
 
 		const U32 EXP_URL_SEND_THRESHOLD = 3000;
-
+		const U32 PAGE_SIZE = EXP_URL_SEND_THRESHOLD/UUID_STR_LENGTH;
 
 		std::ostringstream ostr;
 
 		ask_queue_t keys;
 
-		ostr << sLookupURL;
+		ostr << sLookupURL << "?page_size=" << PAGE_SIZE;
 
-		char arg='?';
 
 		int request_count = 0;
-		for(ask_queue_t::const_iterator it = sAskQueue.begin() ; it != sAskQueue.end() && request_count < sMaximumLookups; ++it)
+		while(!sAskQueue.empty() && request_count < sMaximumLookups)
 		{
+			ask_queue_t::const_iterator it = sAskQueue.begin();
 			const LLUUID& key = it->first;
 			const std::string& key_type = it->second;
 
-			ostr << arg << key_type << '=' << key.asString() ;
+			ostr << '&' << key_type << '=' << key.asString() ;
 		
 			keys[key]=key_type;
 			request_count++;
 
 			sPendingQueue[key] = now;
-
-			arg='&';
-
+			
 			if(ostr.tellp() > EXP_URL_SEND_THRESHOLD)
 			{
 				LL_DEBUGS("ExperienceCache") <<  "requestExperiences() query: " << ostr.str() << LL_ENDL;
 				LLHTTPClient::get(ostr.str(), new LLExperienceResponder(keys));
 				ostr.clear();
 				ostr.str(sLookupURL);
-				arg='?';
+				ostr << "?page_size=" << PAGE_SIZE;
 				keys.clear();
 			}
+			sAskQueue.erase(it);
 		}
 
 		if(ostr.tellp() > sLookupURL.size())
@@ -456,8 +455,6 @@ namespace LLExperienceCache
 			LL_DEBUGS("ExperienceCache") <<  "requestExperiences() query 2: " << ostr.str() << LL_ENDL;
 			LLHTTPClient::get(ostr.str(), new LLExperienceResponder(keys));
 		}
-
-		sAskQueue.clear();
 	}
 
 	bool isRequestPending(const LLUUID& public_key)

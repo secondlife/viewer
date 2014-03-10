@@ -10,7 +10,7 @@
   min_width="325"
   min_height="325"
   width="358"
-  height="580">
+  height="660">
   <floater.string
     name="empty_slurl">
     (none)
@@ -42,7 +42,7 @@
   <tab_container
     hide_tabs="true"
     follows="all"
-    height="540"
+    height="620"
     layout="topleft"
     left="5"
     min_height="250"

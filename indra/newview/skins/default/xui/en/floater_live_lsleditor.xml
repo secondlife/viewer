@@ -37,6 +37,10 @@
     name="add_experiences">
     Select to add an experience
   </floater.string>
+  <floater.string
+    name="loading">
+    Loading...
+  </floater.string>
   <panel
     bevel_style="none"
      
