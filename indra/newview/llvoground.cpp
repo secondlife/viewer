@@ -49,7 +49,7 @@ LLVOGround::~LLVOGround()
 {
 }
 
-void LLVOGround::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
+void LLVOGround::idleUpdate(LLAgent &agent, const F64 &time)
 {
 }
 

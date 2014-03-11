@@ -1,4 +1,4 @@
-version 35
+version 36
 // The version number above should be implemented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -627,4 +627,7 @@ list NVIDIA_GeForce_Go_7300
 Disregard128DefaultDrawDistance	1	0
 list NVIDIA_GeForce_Go_7400
 Disregard128DefaultDrawDistance	1	0
+
+list OSX_10_6_8
+RenderDeferred 0 0
 

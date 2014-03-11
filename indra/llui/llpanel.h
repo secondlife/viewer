@@ -330,17 +330,16 @@ private:
 
 // local static instance for registering a particular panel class
 template<typename T>
-class LLRegisterPanelClassWrapper
-:	public LLRegisterPanelClass
+	class LLPanelInjector
 {
 public:
-	// reigister with either the provided builder, or the generic templated builder
-	LLRegisterPanelClassWrapper(const std::string& tag);
+	// register with either the provided builder, or the generic templated builder
+	LLPanelInjector(const std::string& tag);
 };
 
 
 template<typename T>
-LLRegisterPanelClassWrapper<T>::LLRegisterPanelClassWrapper(const std::string& tag) 
+	LLPanelInjector<T>::LLPanelInjector(const std::string& tag) 
 {
 	LLRegisterPanelClass::instance().addPanelClass(tag,&LLRegisterPanelClass::defaultPanelClassBuilder<T>);
 }

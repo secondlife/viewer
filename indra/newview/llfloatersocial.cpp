@@ -47,10 +47,10 @@
 #include "llviewercontrol.h"
 #include "llviewermedia.h"
 
-static LLRegisterPanelClassWrapper<LLSocialStatusPanel> t_panel_status("llsocialstatuspanel");
-static LLRegisterPanelClassWrapper<LLSocialPhotoPanel> t_panel_photo("llsocialphotopanel");
-static LLRegisterPanelClassWrapper<LLSocialCheckinPanel> t_panel_checkin("llsocialcheckinpanel");
-static LLRegisterPanelClassWrapper<LLSocialAccountPanel> t_panel_account("llsocialaccountpanel");
+static LLPanelInjector<LLSocialStatusPanel> t_panel_status("llsocialstatuspanel");
+static LLPanelInjector<LLSocialPhotoPanel> t_panel_photo("llsocialphotopanel");
+static LLPanelInjector<LLSocialCheckinPanel> t_panel_checkin("llsocialcheckinpanel");
+static LLPanelInjector<LLSocialAccountPanel> t_panel_account("llsocialaccountpanel");
 
 const S32 MAX_POSTCARD_DATASIZE = 1024 * 1024; // one megabyte
 const std::string DEFAULT_CHECKIN_LOCATION_URL = "http://maps.secondlife.com/";

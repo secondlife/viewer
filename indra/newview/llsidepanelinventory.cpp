@@ -59,7 +59,7 @@
 #include "llviewernetwork.h"
 #include "llweb.h"
 
-static LLRegisterPanelClassWrapper<LLSidepanelInventory> t_inventory("sidepanel_inventory");
+static LLPanelInjector<LLSidepanelInventory> t_inventory("sidepanel_inventory");
 
 //
 // Constants

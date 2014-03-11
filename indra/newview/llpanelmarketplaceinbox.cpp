@@ -38,7 +38,7 @@
 #include "llviewercontrol.h"
 
 
-static LLRegisterPanelClassWrapper<LLPanelMarketplaceInbox> t_panel_marketplace_inbox("panel_marketplace_inbox");
+static LLPanelInjector<LLPanelMarketplaceInbox> t_panel_marketplace_inbox("panel_marketplace_inbox");
 
 const LLPanelMarketplaceInbox::Params& LLPanelMarketplaceInbox::getDefaultParams() 
 { 
