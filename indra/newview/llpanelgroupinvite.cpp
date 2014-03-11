@@ -184,6 +184,11 @@ void LLPanelGroupInvite::submit()
 	std::map<LLUUID, LLUUID> role_member_pairs;
 
 	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mImplementation->mGroupID);
+	if(!gdatap)
+	{
+		LL_WARNS("Groups") << "Unable to get group data for group " << mImplementation->mGroupID << LL_ENDL;
+		return;
+	}
 
 	// Default to everyone role.
 	LLUUID role_id = LLUUID::null;

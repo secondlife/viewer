@@ -1903,6 +1903,12 @@ bool LLPanelGroupRolesSubTab::needsApply(std::string& mesg)
 	lldebugs << "LLPanelGroupRolesSubTab::needsApply()" << llendl;
 
 	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
+	if(!gdatap)
+	{
+		llwarns << "Unable to get group data for group " << mGroupID << llendl;
+		return;
+	}
+
 
 	return (mHasRoleChange								// Text changed in current role
 			|| (gdatap && gdatap->pendingRoleChanges()));	// Pending role changes in the group
