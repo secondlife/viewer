@@ -280,12 +280,8 @@ LLTabContainer::LLTabContainer(const LLTabContainer::Params& p)
 
 LLTabContainer::~LLTabContainer()
 {
-	LL_INFOS("Baker") << "[3555] ~LLTabContainer() -- " << getPanelTitle(mCurrentTabIdx) << ":" << (void*) this << " ----------------------" << LL_ENDL;
-	
 	std::for_each(mTabList.begin(), mTabList.end(), DeletePointer());
 	mTabList.clear();
-	
-	LL_INFOS("Baker") << "[3555] Exiting ~LLTabContainer() " << (void*) this << LL_ENDL;
 }
 
 //virtual

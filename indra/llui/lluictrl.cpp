@@ -207,13 +207,10 @@ void LLUICtrl::initFromParams(const Params& p)
 
 LLUICtrl::~LLUICtrl()
 {
-	//LL_INFOS("Baker") << "[3555] ~LLUICtrl() -- " << getName() << ":" << (void*) this << " ----------------------" << LL_ENDL;
-	
 	gFocusMgr.releaseFocusIfNeeded( this ); // calls onCommit()
 
 	if( gFocusMgr.getTopCtrl() == this )
 	{
-		//llinfos << "[3555] ~LLUICtrl() - UI Control holding top ctrl deleted: " << getName() << ".  Top view removed." << llendl;
 		llwarns << "UI Control holding top ctrl deleted: " << getName() << ".  Top view removed." << llendl;
 		gFocusMgr.removeTopCtrlWithoutCallback( this );
 	}
@@ -227,8 +224,6 @@ LLUICtrl::~LLUICtrl()
 	delete mRightMouseDownSignal;
 	delete mRightMouseUpSignal;
 	delete mDoubleClickSignal;
-
-	//LL_INFOS("Baker") << "[3555] Exiting ~LLUICtrl()" << LL_ENDL;
 }
 
 void default_commit_handler(LLUICtrl* ctrl, const LLSD& param)

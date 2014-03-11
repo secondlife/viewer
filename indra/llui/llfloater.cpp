@@ -505,13 +505,10 @@ void LLFloater::destroy()
 // virtual
 LLFloater::~LLFloater()
 {
-	LL_INFOS("Baker") << "[3555] ~LLFloater() -- " << getTitle() << ":" << (void*) this << " ----------------------" << LL_ENDL;
-	
 	LLFloaterReg::removeInstance(mInstanceName, mKey);
 	
 	if( gFocusMgr.childHasKeyboardFocus(this))
 	{
-		LL_INFOS("Baker") << "[3555] ~LLFloater() - Release keybaord focus." << LL_ENDL;
 		// Just in case we might still have focus here, release it.
 		releaseFocus();
 	}
@@ -529,13 +526,9 @@ LLFloater::~LLFloater()
 	}
 
 	setVisible(false); // We're not visible if we're destroyed
-	
 	storeVisibilityControl();
-	
 	storeDockStateControl();
 	delete mMinimizeSignal;
-
-	LL_INFOS("Baker") << "[3555] Exiting ~LLFloater() " << (void*) this << LL_ENDL;
 }
 
 void LLFloater::storeRectControl()
