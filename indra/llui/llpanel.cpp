@@ -126,11 +126,7 @@ LLPanel::LLPanel(const LLPanel::Params& p)
 
 LLPanel::~LLPanel()
 {
-	LL_INFOS("Baker") << "[3555] ~LLPanel() -- " << getName() << ":" << (void*) this << " ----------------------" << LL_ENDL;
-
 	delete mVisibleSignal;
-
-	LL_INFOS("Baker") << "[3555] Exiting ~LLPanel() " << (void*) this << LL_ENDL;
 }
 
 // virtual

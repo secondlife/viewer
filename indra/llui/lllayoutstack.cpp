@@ -245,13 +245,9 @@ LLLayoutStack::LLLayoutStack(const LLLayoutStack::Params& p)
 
 LLLayoutStack::~LLLayoutStack()
 {
-	LL_INFOS("Baker") << "[3555] ~LLLayoutStack() -- " << getName() << ":" << (void*) this << " ----------------------" << LL_ENDL;
-	
 	e_panel_list_t panels = mPanels; // copy list of panel pointers
 	mPanels.clear(); // clear so that removeChild() calls don't cause trouble
 	std::for_each(panels.begin(), panels.end(), DeletePointer());
-
-	LL_INFOS("Baker") << "[3555] Exiting ~LLLayoutStack() " << (void*) this << LL_ENDL;
 }
 
 void LLLayoutStack::draw()
