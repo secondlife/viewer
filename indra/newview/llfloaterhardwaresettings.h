@@ -64,6 +64,8 @@ public:
 	/// don't apply the changed values
 	void cancel();
 
+	void onSetVRAM();
+
 	/// refresh the enabled values
 	void refreshEnabledState();
 
