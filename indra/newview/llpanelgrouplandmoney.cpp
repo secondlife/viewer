@@ -55,7 +55,7 @@
 #include "llfloaterworldmap.h"
 #include "llviewermessage.h"
 
-static LLRegisterPanelClassWrapper<LLPanelGroupLandMoney> t_panel_group_money("panel_group_land_money");
+static LLPanelInjector<LLPanelGroupLandMoney> t_panel_group_money("panel_group_land_money");
 
 
 

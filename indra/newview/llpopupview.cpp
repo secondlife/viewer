@@ -27,7 +27,7 @@
 
 #include "llpopupview.h"
 
-static LLRegisterPanelClassWrapper<LLPopupView> r("popup_holder");
+static LLPanelInjector<LLPopupView> r("popup_holder");
 
 bool view_visible_and_enabled(LLView* viewp)
 {

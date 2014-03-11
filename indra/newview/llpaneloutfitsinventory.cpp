@@ -46,7 +46,7 @@
 static const std::string OUTFITS_TAB_NAME = "outfitslist_tab";
 static const std::string COF_TAB_NAME = "cof_tab";
 
-static LLRegisterPanelClassWrapper<LLPanelOutfitsInventory> t_inventory("panel_outfits_inventory");
+static LLPanelInjector<LLPanelOutfitsInventory> t_inventory("panel_outfits_inventory");
 
 LLPanelOutfitsInventory::LLPanelOutfitsInventory() :
 	mMyOutfitsPanel(NULL),

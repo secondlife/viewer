@@ -7,132 +7,129 @@
  top="0"
  name="roles_tab"
  width="304">
-  <panel.string
-   name="default_needs_apply_text">
-    There are unsaved changes
-  </panel.string>
-  <panel.string
-   name="want_apply_text">
-    Do you want to save your changes?
-  </panel.string>
-  <panel.string
-   name="help_text" />
-  <tab_container
-  border="false"
-   follows="left|top|right"
-   height="552"
-   halign="center"
-   layout="topleft"
-   left="0"
-   right="-1"
-   name="roles_tab_container"
-   tab_position="top"
-   tab_height="22"
-   tab_min_width="90"
-   top="0"
-   width="304">
-    <panel
-     border="false"
-     follows="all"
-     height="303"
-     label="MEMBERS"
+    <panel.string
+     name="default_needs_apply_text">
+        There are unsaved changes
+    </panel.string>
+    <panel.string
+     name="want_apply_text">
+        Do you want to save your changes?
+    </panel.string>
+    <panel.string
+     name="help_text" />
+    <tab_container
+    border="false"
+     follows="left|top|right"
+     height="552"
+     halign="center"
      layout="topleft"
      left="0"
      right="-1"
-     help_topic="roles_members_tab"
-     name="members_sub_tab"
-     tool_tip="Members"
-     class="panel_group_members_subtab">
-      <panel.string
-       name="help_text">
-        You can add or remove Roles assigned to Members.
-        Select multiple Members by holding the Ctrl key and
-        clicking on their names.
-      </panel.string>
-      <panel.string
-       name="donation_area">
-        [AREA] m²
-      </panel.string>
-      <panel.string
-       name="power_folder_icon" translate="false">
-        Inv_FolderClosed
-      </panel.string>
-      <panel.string
-       name="power_all_have_icon" translate="false">
-        Checkbox_On
-      </panel.string>
-      <panel.string
-       name="power_partial_icon" translate="false">
-        Checkbox_Off
-      </panel.string>
-      <filter_editor
-      layout="topleft"
-      top="5"
-      left="5"
-      right="-5"
-      height="22"
-      search_button_visible="false"
-      follows="left|top|right"
-      label="Filter Members"
-      name="filter_input" />
-      <name_list
-       column_padding="2"
-       draw_heading="true"
-       height="240"
-       follows="left|top|right"
-       layout="topleft"
-       left="0"
-       right="-1"
-       multi_select="true"
-       name="member_list"
-       short_names="false"
-       top_pad="5">
-        <name_list.columns
-         label="Member"
-         name="name"
-       relative_width="0.44" />
-        <name_list.columns
-         label="Donation"
-         name="donated"
- relative_width="0.25" />
-        <name_list.columns
-         label="Status"
-         name="online"
-         relative_width="0.14" />
-      </name_list>
-      <button
-       height="23"
-       follows="top|left"
-       label="Invite"
-       left="5"
-       name="member_invite"
-       width="100" />
-      <button
-       height="23"
-       label="Eject"
-       follows="top|left"
-       left_pad="10"
-       name="member_eject"
-       width="100" />
-      <button
-       height="23"
-       label="Ban Member(s)"
-       follows="top|left"
-       left_pad="10"
-       name="member_ban"
-       width="100" />
-    </panel>
-    <panel
-     border="false"
-     height="303"
-     label="ROLES"
-     layout="topleft"
-     left="0"
-     right="-1"
-     help_topic="roles_roles_tab"
-     name="roles_sub_tab"
-     class="panel_group_roles_subtab">
-      <!-- <button
+     name="roles_tab_container"
+     tab_position="top"
+     tab_height="22"
+     tab_min_width="90"
+     top="0"
+     width="304">
+        <panel
+         border="false"
+         follows="all"
+         height="303"
+         label="MEMBERS"
+         layout="topleft"
+         left="0"
+         right="-1"
+         help_topic="roles_members_tab"
+         name="members_sub_tab"
+         tool_tip="Members"
+         class="panel_group_members_subtab">
+            <panel.string
+             name="help_text">
+                You can add or remove Roles assigned to Members.
+Select multiple Members by holding the Ctrl key and
+clicking on their names.
+            </panel.string>
+            <panel.string
+             name="donation_area">
+                [AREA] m²
+            </panel.string>
+            <panel.string
+             name="power_folder_icon" translate="false">
+                Inv_FolderClosed
+            </panel.string>
+            <panel.string
+             name="power_all_have_icon" translate="false">
+                Checkbox_On
+            </panel.string>
+            <panel.string
+             name="power_partial_icon" translate="false">
+                Checkbox_Off
+            </panel.string>
+         <filter_editor
+         layout="topleft"
+         top="5"
+         left="5"
+         right="-5"
+         height="22"
+         search_button_visible="false"
+         follows="left|top|right"
+         label="Filter Members"
+         name="filter_input" />
+            <name_list
+             column_padding="2"
+             draw_heading="true"
+             height="240"
+             follows="left|top|right"
+             layout="topleft"
+             left="0"
+             right="-1"
+             multi_select="true"
+             name="member_list"
+             short_names="false" 
+             top_pad="5">
+                <name_list.columns
+                 label="Member"
+                 name="name"
+               relative_width="0.44" />
+                <name_list.columns
+                 label="Donation"
+                 name="donated"
+         		 relative_width="0.2" />
+                <name_list.columns
+                 label="Status"
+                 name="online"
+                 relative_width="0.18" />
+                <name_list.columns
+                 label="Title"
+                 name="title"
+                 relative_width="0.18" />
+            </name_list>
+            <button
+             height="23"
+             follows="top|left"
+             label="Invite"
+             left="5"
+             name="member_invite"
+             width="100" />
+            <button
+             height="23"
+             label="Eject"
+             follows="top|left"
+             left_pad="10"
+             name="member_eject"
+             width="100" />
+        </panel>
+        <panel
+         border="false"
+         height="303"
+         label="ROLES"
+         layout="topleft"
+         left="0"
+         right="-1"
+         help_topic="roles_roles_tab"
+         name="roles_sub_tab"
+         class="panel_group_roles_subtab">
+           <!-- <button
              enabled="false"
              height="20"
              label="Show All"

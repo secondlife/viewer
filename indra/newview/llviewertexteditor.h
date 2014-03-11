@@ -46,6 +46,8 @@ public:
 	virtual ~LLViewerTextEditor();
 
 	virtual void makePristine();
+
+	/*virtual*/ void handleVisibilityChange( BOOL new_visibility );
 	
 	// mousehandler overrides
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);

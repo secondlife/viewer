@@ -56,7 +56,7 @@
 
 #include "roles_constants.h"
 
-static LLRegisterPanelClassWrapper<LLPanelGroupRoles> t_panel_group_roles("panel_group_roles");
+static LLPanelInjector<LLPanelGroupRoles> t_panel_group_roles("panel_group_roles");
 
 bool agentCanRemoveFromRole(const LLUUID& group_id,
 							const LLUUID& role_id)
@@ -783,7 +783,7 @@ void LLPanelGroupSubTab::setFooterEnabled(BOOL enable)
 
 
 // LLPanelGroupMembersSubTab /////////////////////////////////////////////
-static LLRegisterPanelClassWrapper<LLPanelGroupMembersSubTab> t_panel_group_members_subtab("panel_group_members_subtab");
+static LLPanelInjector<LLPanelGroupMembersSubTab> t_panel_group_members_subtab("panel_group_members_subtab");
 
 LLPanelGroupMembersSubTab::LLPanelGroupMembersSubTab()
 : 	LLPanelGroupSubTab(),
@@ -1631,9 +1631,11 @@ void LLPanelGroupMembersSubTab::addMemberToList(LLGroupMemberData* data)
 	item_params.columns.add().column("donated").value(donated.getString())
 			.font.name("SANSSERIF_SMALL").style("NORMAL");
 
- 	item_params.columns.add().column("online").value(data->getOnlineStatus())
- 			.font.name("SANSSERIF_SMALL").style("NORMAL");
-	
+	item_params.columns.add().column("online").value(data->getOnlineStatus())
+			.font.name("SANSSERIF_SMALL").style("NORMAL");
+
+	item_params.columns.add().column("title").value(data->getTitle()).font.name("SANSSERIF_SMALL").style("NORMAL");;
+
 	mMembersList->addNameItemRow(item_params);
 
 	mHasMatch = TRUE;
@@ -1781,7 +1783,7 @@ void LLPanelGroupMembersSubTab::handleBanMember()
 
 
 // LLPanelGroupRolesSubTab ///////////////////////////////////////////////
-static LLRegisterPanelClassWrapper<LLPanelGroupRolesSubTab> t_panel_group_roles_subtab("panel_group_roles_subtab");
+static LLPanelInjector<LLPanelGroupRolesSubTab> t_panel_group_roles_subtab("panel_group_roles_subtab");
 
 LLPanelGroupRolesSubTab::LLPanelGroupRolesSubTab()
   : LLPanelGroupSubTab(),
@@ -2595,7 +2597,7 @@ void LLPanelGroupRolesSubTab::setGroupID(const LLUUID& id)
 
 
 // LLPanelGroupActionsSubTab /////////////////////////////////////////////
-static LLRegisterPanelClassWrapper<LLPanelGroupActionsSubTab> t_panel_group_actions_subtab("panel_group_actions_subtab");
+static LLPanelInjector<LLPanelGroupActionsSubTab> t_panel_group_actions_subtab("panel_group_actions_subtab");
 
 LLPanelGroupActionsSubTab::LLPanelGroupActionsSubTab()
 : LLPanelGroupSubTab()
@@ -2782,7 +2784,7 @@ void LLPanelGroupActionsSubTab::setGroupID(const LLUUID& id)
 
 
 // LLPanelGroupBanListSubTab /////////////////////////////////////////////
-static LLRegisterPanelClassWrapper<LLPanelGroupBanListSubTab> t_panel_group_ban_subtab("panel_group_banlist_subtab");
+static LLPanelInjector<LLPanelGroupBanListSubTab> t_panel_group_members_subtab("panel_group_banlist_subtab");
 
 LLPanelGroupBanListSubTab::LLPanelGroupBanListSubTab()
 	: LLPanelGroupSubTab(),

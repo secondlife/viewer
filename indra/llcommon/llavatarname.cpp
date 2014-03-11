@@ -44,6 +44,7 @@ static const std::string DISPLAY_NAME_EXPIRES("display_name_expires");
 static const std::string DISPLAY_NAME_NEXT_UPDATE("display_name_next_update");
 
 bool LLAvatarName::sUseDisplayNames = true;
+bool LLAvatarName::sUseUsernames = true;
 
 // Minimum time-to-live (in seconds) for a name entry.
 // Avatar name should always guarantee to expire reasonably soon by default
@@ -79,6 +80,16 @@ void LLAvatarName::setUseDisplayNames(bool use)
 bool LLAvatarName::useDisplayNames() 
 { 
 	return sUseDisplayNames; 
+}
+
+void LLAvatarName::setUseUsernames(bool use)
+{
+	sUseUsernames = use;
+}
+
+bool LLAvatarName::useUsernames()
+{
+	return sUseUsernames;
 }
 
 LLSD LLAvatarName::asLLSD() const
@@ -168,7 +179,11 @@ std::string LLAvatarName::getCompleteName() const
 		}
 		else
 		{
-			name = mDisplayName + " (" + mUsername + ")";
+			name = mDisplayName;
+			if(sUseUsernames)
+			{
+				name += " (" + mUsername + ")";
+			}
 		}
 	}
 	else

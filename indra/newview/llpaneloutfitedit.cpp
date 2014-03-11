@@ -74,7 +74,7 @@
 #include "llwearabletype.h"
 #include "llweb.h"
 
-static LLRegisterPanelClassWrapper<LLPanelOutfitEdit> t_outfit_edit("panel_outfit_edit");
+static LLPanelInjector<LLPanelOutfitEdit> t_outfit_edit("panel_outfit_edit");
 
 const U64 WEARABLE_MASK = (1LL << LLInventoryType::IT_WEARABLE);
 const U64 ATTACHMENT_MASK = (1LL << LLInventoryType::IT_ATTACHMENT) | (1LL << LLInventoryType::IT_OBJECT);

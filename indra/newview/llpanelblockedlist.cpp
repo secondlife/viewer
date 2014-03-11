@@ -48,7 +48,7 @@
 #include "llsidetraypanelcontainer.h"
 #include "llviewercontrol.h"
 
-static LLRegisterPanelClassWrapper<LLPanelBlockedList> t_panel_blocked_list("panel_block_list_sidetray");
+static LLPanelInjector<LLPanelBlockedList> t_panel_blocked_list("panel_block_list_sidetray");
 
 //
 // Constants
