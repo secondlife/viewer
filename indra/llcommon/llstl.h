@@ -98,6 +98,7 @@ struct DeletePointerArray
 // The general form is:
 //
 //  std::for_each(somemap.begin(), somemap.end(), DeletePairedPointer());
+//  somemap.clear();		// Don't leave dangling pointers around
 
 struct DeletePairedPointer
 {

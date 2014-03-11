@@ -151,7 +151,7 @@ void LLPanelCameraItem::setValue(const LLSD& value)
 	getChildView("selected_picture")->setVisible( value["selected"]);
 }
 
-static LLRegisterPanelClassWrapper<LLPanelCameraZoom> t_camera_zoom_panel("camera_zoom_panel");
+static LLPanelInjector<LLPanelCameraZoom> t_camera_zoom_panel("camera_zoom_panel");
 
 //-------------------------------------------------------------------------------
 // LLPanelCameraZoom

@@ -87,14 +87,14 @@ void LLUrlAction::executeSLURL(std::string url)
 {
 	if (sExecuteSLURLCallback)
 	{
-		sExecuteSLURLCallback(url);
+		sExecuteSLURLCallback(url ,true);
 	}
 }
 
-void LLUrlAction::clickAction(std::string url)
+void LLUrlAction::clickAction(std::string url, bool trusted_content)
 {
 	// Try to handle as SLURL first, then http Url
-	if ( (sExecuteSLURLCallback) && !sExecuteSLURLCallback(url) )
+	if ( (sExecuteSLURLCallback) && !sExecuteSLURLCallback(url, trusted_content) )
 	{
 		if (sOpenURLCallback)
 		{

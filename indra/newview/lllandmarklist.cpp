@@ -46,6 +46,7 @@ LLLandmarkList gLandmarkList;
 LLLandmarkList::~LLLandmarkList()
 {
 	std::for_each(mList.begin(), mList.end(), DeletePairedPointer());
+	mList.clear();
 }
 
 LLLandmark* LLLandmarkList::getAsset(const LLUUID& asset_uuid, loaded_callback_t cb)

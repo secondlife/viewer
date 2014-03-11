@@ -94,11 +94,15 @@ clicking on their names.
                 <name_list.columns
                  label="Donation"
                  name="donated"
-         relative_width="0.25" />
+         		 relative_width="0.2" />
                 <name_list.columns
                  label="Status"
                  name="online"
-                 relative_width="0.14" />
+                 relative_width="0.18" />
+                <name_list.columns
+                 label="Title"
+                 name="title"
+                 relative_width="0.18" />
             </name_list>
             <button
              height="23"
