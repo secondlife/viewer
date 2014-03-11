@@ -1831,6 +1831,10 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 	// This helps prevent avatar walking after maximizing the window by double-clicking the title bar.
 	static bool sHandleLeftMouseUp = true;
 
+	// Ignore the double click received right after activating app.
+	// This is to avoid triggering double click teleport after returning focus (see MAINT-3786).
+	static bool sHandleDoubleClick = true;
+
 	LLWindowWin32 *window_imp = (LLWindowWin32 *)GetWindowLong(h_wnd, GWL_USERDATA);
 
 
@@ -1956,6 +1960,11 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 						window_imp->minimize();
 						window_imp->resetDisplayResolution();
 					}
+				}
+
+				if (!activating)
+				{
+					sHandleDoubleClick = false;
 				}
 
 				window_imp->mCallbacks->handleActivateApp(window_imp, activating);
@@ -2182,6 +2191,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_NCLBUTTONDOWN");
 				// A click in a non-client area, e.g. title bar or window border.
 				sHandleLeftMouseUp = false;
+				sHandleDoubleClick = true;
 			}
 			break;
 
@@ -2226,6 +2236,13 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 		//case WM_RBUTTONDBLCLK:
 			{
 				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_LBUTTONDBLCLK");
+
+				if (!sHandleDoubleClick)
+				{
+					sHandleDoubleClick = true;
+					break;
+				}
+
 				// Because we move the cursor position in the app, we need to query
 				// to find out where the cursor at the time the event is handled.
 				// If we don't do this, many clicks could get buffered up, and if the
