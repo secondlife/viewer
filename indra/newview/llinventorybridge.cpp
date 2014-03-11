@@ -959,6 +959,18 @@ BOOL LLInvFVBridge::isInboxFolder() const
 	return gInventory.isObjectDescendentOf(mUUID, inbox_id);
 }
 
+BOOL LLInvFVBridge::isMerchantItemsFolder() const
+{
+	const LLUUID folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MERCHANT_ITEMS, false);
+	
+	if (folder_id.isNull())
+	{
+		return FALSE;
+	}
+	
+	return gInventory.isObjectDescendentOf(mUUID, folder_id);
+}
+
 BOOL LLInvFVBridge::isOutboxFolder() const
 {
 	const LLUUID outbox_id = getOutboxFolder();
@@ -1929,6 +1941,38 @@ void LLFolderBridge::buildDisplayName() const
     {
         mParent->requestSort();
     }
+}
+
+std::string LLFolderBridge::getLabelSuffix() const
+{
+    /*
+     
+     LLInventoryCategory* cat = gInventory.getCategory(getUUID());
+     if(cat)
+     {
+     const LLUUID& parent_folder_id = cat->getParentUUID();
+     accessories = (parent_folder_id == gInventory.getLibraryRootFolderID());
+     }
+     */
+    if (isMerchantItemsFolder())
+    {
+        if (LLMarketplaceData::instance().isListed(getUUID()))
+        {
+            llinfos << "Merov : in merchant folder and listed : id = " << getUUID() << llendl;
+            std::string suffix = " (" + LLMarketplaceData::instance().getListingID(getUUID()) + ")";
+            return LLInvFVBridge::getLabelSuffix() + suffix;
+        }
+        else
+        {
+            llinfos << "Merov : in merchant folder but not listed : id = " << getUUID() << llendl;
+            return LLInvFVBridge::getLabelSuffix();
+        }
+	}
+	else
+	{
+        llinfos << "Merov : not in merchant folder : id = " << getUUID() << llendl;
+		return LLInvFVBridge::getLabelSuffix();
+	}
 }
 
 

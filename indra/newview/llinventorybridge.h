@@ -160,6 +160,7 @@ protected:
 	BOOL isInboxFolder() const;     // true if COF or descendant of   marketplace inbox
 	BOOL isOutboxFolder() const;    // true if COF or descendant of   marketplace outbox
 	BOOL isOutboxFolderDirectParent() const;
+	BOOL isMerchantItemsFolder() const;     // true if descendant of Merchant items folder
 	const LLUUID getOutboxFolder() const;
 
 	virtual BOOL isItemPermissive() const;
@@ -274,7 +275,7 @@ public:
 	virtual LLUIImagePtr getIcon() const;
 	virtual LLUIImagePtr getIconOpen() const;
 	virtual LLUIImagePtr getIconOverlay() const;
-
+	virtual std::string getLabelSuffix() const;
 	static LLUIImagePtr getIcon(LLFolderType::EType preferred_type);
 
 	virtual BOOL renameItem(const std::string& new_name);
