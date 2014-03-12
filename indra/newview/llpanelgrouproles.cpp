@@ -1908,7 +1908,7 @@ bool LLPanelGroupRolesSubTab::needsApply(std::string& mesg)
 	if(!gdatap)
 	{
 		llwarns << "Unable to get group data for group " << mGroupID << llendl;
-		return;
+		return false;
 	}
 
 
@@ -2784,7 +2784,7 @@ void LLPanelGroupActionsSubTab::setGroupID(const LLUUID& id)
 
 
 // LLPanelGroupBanListSubTab /////////////////////////////////////////////
-static LLPanelInjector<LLPanelGroupBanListSubTab> t_panel_group_members_subtab("panel_group_banlist_subtab");
+static LLPanelInjector<LLPanelGroupBanListSubTab> t_panel_group_ban_subtab("panel_group_banlist_subtab");
 
 LLPanelGroupBanListSubTab::LLPanelGroupBanListSubTab()
 	: LLPanelGroupSubTab(),
