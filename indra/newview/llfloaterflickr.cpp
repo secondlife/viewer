@@ -380,8 +380,14 @@ void LLFlickrPhotoPanel::sendPhoto()
 			std::string parcel_name = LLViewerParcelMgr::getInstance()->getAgentParcelName();
 			std::string region_name = region->getName();
 			
-			tags += llformat(" \"%s:region=%s\"", FLICKR_MACHINE_TAGS_NAMESPACE.c_str(), region_name.c_str());
-			tags += llformat(" \"%s:parcel=%s\"", FLICKR_MACHINE_TAGS_NAMESPACE.c_str(), parcel_name.c_str());
+			if (!region_name.empty())
+			{
+				tags += llformat(" \"%s:region=%s\"", FLICKR_MACHINE_TAGS_NAMESPACE.c_str(), region_name.c_str());
+			}
+			if (!parcel_name.empty())
+			{
+				tags += llformat(" \"%s:parcel=%s\"", FLICKR_MACHINE_TAGS_NAMESPACE.c_str(), parcel_name.c_str());
+			}
 			tags += llformat(" \"%s:x=%d\"", FLICKR_MACHINE_TAGS_NAMESPACE.c_str(), pos_x);
 			tags += llformat(" \"%s:y=%d\"", FLICKR_MACHINE_TAGS_NAMESPACE.c_str(), pos_y);
 			tags += llformat(" \"%s:z=%d\"", FLICKR_MACHINE_TAGS_NAMESPACE.c_str(), pos_z);
