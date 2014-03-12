@@ -84,23 +84,6 @@ namespace LLExperienceCache
 			sPendingQueue.erase(row[EXPERIENCE_ID].asUUID());
 		}
 
-		if(row.has(OWNER_ID))
-		{
-			sPendingQueue.erase(row[OWNER_ID].asUUID());
-		}
-
-        if(!row.has(OWNER_ID))
-        {
-            if(row.has(AGENT_ID) && row[AGENT_ID].asUUID().notNull())
-            {
-                row[OWNER_ID]=row[AGENT_ID];
-            }
-            else
-            {
-                row[OWNER_ID]=row[GROUP_ID];
-            }
-        }
-			
 		//signal
 		signal_map_t::iterator sig_it =	sSignalMap.find(public_key);
 		if (sig_it != sSignalMap.end())
@@ -427,7 +410,7 @@ namespace LLExperienceCache
 		int request_count = 0;
 		while(!sAskQueue.empty() && request_count < sMaximumLookups)
 		{
-			ask_queue_t::const_iterator it = sAskQueue.begin();
+			ask_queue_t::iterator it = sAskQueue.begin();
 			const LLUUID& key = it->first;
 			const std::string& key_type = it->second;
 
