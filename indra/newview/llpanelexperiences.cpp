@@ -38,7 +38,7 @@
 #include "lllayoutstack.h"
 
 
-static LLRegisterPanelClassWrapper<LLPanelExperiences> register_experiences_panel("experiences_panel");
+static LLPanelInjector<LLPanelExperiences> register_experiences_panel("experiences_panel");
 
 
 LLPanelExperiences::LLPanelExperiences(  )

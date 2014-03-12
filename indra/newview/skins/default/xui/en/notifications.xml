@@ -7006,8 +7006,46 @@ Unable to acquire a new experience:
       yestext="OK"/>
   </notification>
 
+  <notification
+    icon="notify.tga"
+    name="NotInGroupExperienceProfileMessage"
+    persist="false"
+    type="notify">
+    A change to the experience group was ignored because the owner is not a member of the selected group.
+  </notification>
 
+  <notification
+    icon="notify.tga"
+    name="UneditableExperienceProfileMessage"
+    persist="false"
+    type="notify">
+    The uneditable field '[field]' was ignored when updating the experience profile.
+  </notification>
 
+  <notification
+    icon="notify.tga"
+    name="RestrictedToOwnerExperienceProfileMessage"
+    persist="false"
+    type="notify">
+    Ignored changes to the field '[field]' which can only be set by the experience owner.
+  </notification>
+
+  <notification
+    icon="notify.tga"
+    name="MaturityRatingExceedsOwnerExperienceProfileMessage"
+    persist="false"
+    type="notify">
+    You may not set the maturity rating of an experience higher than that of the owner.
+  </notification>
+
+  <notification
+    icon="notify.tga"
+    name="RestrictedTermExperienceProfileMessage"
+    persist="false"
+    type="notify">
+    The following terms prevented the update of the experience profile name and/or description: [extra_info]
+  </notification>
+  
   <notification
     icon="notify.tga"
     name="TeleportedHomeExperienceRemoved"

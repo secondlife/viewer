@@ -49,6 +49,7 @@
 #include "llviewerregion.h"
 #include "llevents.h"
 #include "llfloatergroups.h"
+#include "llnotifications.h"
 
 #define XML_PANEL_EXPERIENCE_PROFILE "floater_experienceprofile.xml"
 #define TF_NAME "experience_title"
@@ -83,7 +84,6 @@
 #define BTN_SET_LOCATION "location_btn"
 #define BTN_CLEAR_LOCATION "clear_btn"
 #define BTN_SET_GROUP "Group_btn"
-
 
 
 class LLExperienceHandler : public LLCommandHandler
@@ -722,6 +722,10 @@ void LLFloaterExperienceProfile::doSave( int success_action )
     std::string url=region->getCapability("UpdateExperience"); 
     if(url.empty())
         return;
+
+	mPackage.erase(LLExperienceCache::QUOTA);
+	mPackage.erase(LLExperienceCache::EXPIRES);
+	mPackage.erase(LLExperienceCache::AGENT_ID);
     
     LLHTTPClient::post(url, mPackage, new ExperienceUpdateResponder(getDerivedHandle<LLFloaterExperienceProfile>()));
 }
@@ -729,6 +733,35 @@ void LLFloaterExperienceProfile::doSave( int success_action )
 void LLFloaterExperienceProfile::onSaveComplete( const LLSD& content )
 {
     LLUUID id = getExperienceId();
+
+	if(content.has("removed"))
+	{
+		const LLSD& removed = content["removed"];
+		LLSD::map_const_iterator it = removed.beginMap();
+		for(/**/; it != removed.endMap(); ++it)
+		{
+			const std::string& field = it->first;
+			if(field == LLExperienceCache::EXPERIENCE_ID)
+			{
+				//this message should be removed by the experience api
+				continue;
+			}
+			const LLSD& data = it->second;
+			std::string error_tag = data["error_tag"].asString()+ "ExperienceProfileMessage";
+			LLSD fields;
+			if( LLNotifications::instance().getTemplate(error_tag))
+			{
+				fields["field"] = field;
+				fields["extra_info"] = data["extra_info"];
+				LLNotificationsUtil::add(error_tag, fields);
+			}
+			else
+			{
+				fields["MESSAGE"]=data["en"];
+				LLNotificationsUtil::add("GenericAlert", fields);
+			}
+		}		
+	}
 
     if(!content.has("experience_keys"))
     {

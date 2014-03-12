@@ -38,7 +38,7 @@
 #include "llagent.h"
 
 
-static LLRegisterPanelClassWrapper<LLPanelExperienceListEditor> t_panel_experience_list_editor("panel_experience_list_editor");
+static LLPanelInjector<LLPanelExperienceListEditor> t_panel_experience_list_editor("panel_experience_list_editor");
 
 
 LLPanelExperienceListEditor::LLPanelExperienceListEditor()
