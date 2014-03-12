@@ -107,7 +107,7 @@ public:
 	// called when docked floater's position has been set by chiclet
 	void setPositioned(bool b) { mPositioned = b; };
 
-	void onVisibilityChange(const LLSD& new_visibility);
+	void onVisibilityChanged(const LLSD& new_visibility);
 	bool enableGearMenuItem(const LLSD& userdata);
 	void GearDoToSelected(const LLSD& userdata);
 	bool checkGearMenuItem(const LLSD& userdata);

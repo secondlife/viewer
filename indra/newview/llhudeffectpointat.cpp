@@ -159,7 +159,7 @@ void LLHUDEffectPointAt::unpackData(LLMessageSystem *mesgsys, S32 blocknum)
 	S32 size = mesgsys->getSizeFast(_PREHASH_Effect, blocknum, _PREHASH_TypeData);
 	if (size != PKT_SIZE)
 	{
-		llwarns << "PointAt effect with bad size " << size << llendl;
+		LL_WARNS() << "PointAt effect with bad size " << size << LL_ENDL;
 		return;
 	}
 	mesgsys->getBinaryDataFast(_PREHASH_Effect, _PREHASH_TypeData, packed_data, PKT_SIZE, blocknum);
@@ -176,7 +176,7 @@ void LLHUDEffectPointAt::unpackData(LLMessageSystem *mesgsys, S32 blocknum)
 	}
 	else
 	{
-		//llwarns << "Could not find source avatar for pointat effect" << llendl;
+		//LL_WARNS() << "Could not find source avatar for pointat effect" << LL_ENDL;
 		return;
 	}
 
@@ -228,7 +228,7 @@ BOOL LLHUDEffectPointAt::setPointAt(EPointAtType target_type, LLViewerObject *ob
 	
 	if (target_type >= POINTAT_NUM_TARGETS)
 	{
-		llwarns << "Bad target_type " << (int)target_type << " - ignoring." << llendl;
+		LL_WARNS() << "Bad target_type " << (int)target_type << " - ignoring." << LL_ENDL;
 		return FALSE;
 	}
 
@@ -252,7 +252,7 @@ BOOL LLHUDEffectPointAt::setPointAt(EPointAtType target_type, LLViewerObject *ob
 		mLastSentOffsetGlobal = position;
 		setDuration(POINTAT_TIMEOUTS[target_type]);
 		setNeedsSendToSim(TRUE);
-//		llinfos << "Sending pointat data" << llendl;
+//		LL_INFOS() << "Sending pointat data" << LL_ENDL;
 	}
 
 	if (target_type == POINTAT_TARGET_CLEAR)

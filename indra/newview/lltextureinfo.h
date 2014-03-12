@@ -29,6 +29,7 @@
 
 #include "lluuid.h"
 #include "lltextureinfodetails.h"
+#include "lltracerecording.h"
 #include <map>
 
 class LLTextureInfo
@@ -37,18 +38,18 @@ public:
 	LLTextureInfo();
 	~LLTextureInfo();
 
-	void setUpLogging(bool writeToViewerLog, bool sendToSim, U32 textureLogThreshold);
+	void setUpLogging(bool writeToViewerLog, bool sendToSim, U32Bytes textureLogThreshold);
 	bool has(const LLUUID& id);
 	void setRequestStartTime(const LLUUID& id, U64 startTime);
 	void setRequestSize(const LLUUID& id, U32 size);
 	void setRequestOffset(const LLUUID& id, U32 offset);
 	void setRequestType(const LLUUID& id, LLTextureInfoDetails::LLRequestType type);
-	void setRequestCompleteTimeAndLog(const LLUUID& id, U64 completeTime);
-	U32 getRequestStartTime(const LLUUID& id);
-	U32 getRequestSize(const LLUUID& id);
+	void setRequestCompleteTimeAndLog(const LLUUID& id, U64Microseconds completeTime);
+	U32Microseconds getRequestStartTime(const LLUUID& id);
+	U32Bytes getRequestSize(const LLUUID& id);
 	U32 getRequestOffset(const LLUUID& id);
 	LLTextureInfoDetails::LLRequestType getRequestType(const LLUUID& id);
-	U32 getRequestCompleteTime(const LLUUID& id);
+	U32Microseconds getRequestCompleteTime(const LLUUID& id);
 	void resetTextureStatistics();
 	U32 getTextureInfoMapSize();
 	LLSD getAverages();
@@ -56,19 +57,14 @@ public:
 private:
 	void addRequest(const LLUUID& id);
 
-	std::map<LLUUID, LLTextureInfoDetails *> mTextures;
-
-	LLSD mAverages;
-
-	bool mLogTextureDownloadsToViewerLog;
-	bool mLogTextureDownloadsToSimulator;
-	S32 mTotalBytes;
-	S32 mTotalMilliseconds;
-	S32 mTextureDownloadsStarted;
-	S32 mTextureDownloadsCompleted;
-	std::string mTextureDownloadProtocol;
-	U32 mTextureLogThreshold; // in bytes
-	U64 mCurrentStatsBundleStartTime;
+	std::map<LLUUID, LLTextureInfoDetails *>	mTextures;
+	LLSD										mAverages;
+	bool										mLogTextureDownloadsToViewerLog,
+												mLogTextureDownloadsToSimulator;
+	std::string									mTextureDownloadProtocol;
+	U32Bytes					mTextureLogThreshold; 
+	U64Microseconds			mCurrentStatsBundleStartTime;
+	LLTrace::Recording							mRecording;
 };
 
 #endif // LL_LLTEXTUREINFO_H

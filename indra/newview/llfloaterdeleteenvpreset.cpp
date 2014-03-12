@@ -144,7 +144,7 @@ void LLFloaterDeleteEnvPreset::onBtnDelete()
 	}
 	else
 	{
-		llwarns << "Unrecognized key" << llendl;
+		LL_WARNS() << "Unrecognized key" << LL_ENDL;
 	}
 
 	LLSD args;
@@ -176,7 +176,7 @@ void LLFloaterDeleteEnvPreset::populatePresetsList()
 	}
 	else
 	{
-		llwarns << "Unrecognized key" << llendl;
+		LL_WARNS() << "Unrecognized key" << LL_ENDL;
 	}
 }
 

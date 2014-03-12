@@ -179,14 +179,14 @@ BOOL LLSaleInfo::importFile(LLFILE* fp, BOOL& has_perm_mask, U32& perm_mask)
 		}
 		else if (!strcmp("perm_mask", keyword))
 		{
-			//llinfos << "found deprecated keyword perm_mask" << llendl;
+			//LL_INFOS() << "found deprecated keyword perm_mask" << LL_ENDL;
 			has_perm_mask = TRUE;
 			sscanf(valuestr, "%x", &perm_mask);
 		}
 		else
 		{
-			llwarns << "unknown keyword '" << keyword
-					<< "' in sale info import" << llendl;
+			LL_WARNS() << "unknown keyword '" << keyword
+					<< "' in sale info import" << LL_ENDL;
 		}
 	}
 	return success;
@@ -235,14 +235,14 @@ BOOL LLSaleInfo::importLegacyStream(std::istream& input_stream, BOOL& has_perm_m
 		}
 		else if (!strcmp("perm_mask", keyword))
 		{
-			//llinfos << "found deprecated keyword perm_mask" << llendl;
+			//LL_INFOS() << "found deprecated keyword perm_mask" << LL_ENDL;
 			has_perm_mask = TRUE;
 			sscanf(valuestr, "%x", &perm_mask);
 		}
 		else
 		{
-			llwarns << "unknown keyword '" << keyword
-					<< "' in sale info import" << llendl;
+			LL_WARNS() << "unknown keyword '" << keyword
+					<< "' in sale info import" << LL_ENDL;
 		}
 	}
 	return success;

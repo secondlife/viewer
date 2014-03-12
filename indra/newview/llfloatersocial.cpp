@@ -187,7 +187,7 @@ LLSocialPhotoPanel::~LLSocialPhotoPanel()
 
 BOOL LLSocialPhotoPanel::postBuild()
 {
-	setVisibleCallback(boost::bind(&LLSocialPhotoPanel::onVisibilityChange, this, _2));
+	setVisibleCallback(boost::bind(&LLSocialPhotoPanel::onVisibilityChanged, this, _2));
 	
 	mSnapshotPanel = getChild<LLUICtrl>("snapshot_panel");
 	mResolutionComboBox = getChild<LLUICtrl>("resolution_combobox");
@@ -262,7 +262,7 @@ LLSnapshotLivePreview* LLSocialPhotoPanel::getPreviewView()
 	return previewp;
 }
 
-void LLSocialPhotoPanel::onVisibilityChange(const LLSD& new_visibility)
+void LLSocialPhotoPanel::onVisibilityChanged(const LLSD& new_visibility)
 {
 	bool visible = new_visibility.asBoolean();
 	if (visible)
@@ -272,7 +272,7 @@ void LLSocialPhotoPanel::onVisibilityChange(const LLSD& new_visibility)
 			LLSnapshotLivePreview* preview = getPreviewView();
 			if(preview)
 			{
-				lldebugs << "opened, updating snapshot" << llendl;
+				LL_DEBUGS() << "opened, updating snapshot" << LL_ENDL;
 				preview->updateSnapshot(TRUE);
 			}
 		}
@@ -300,7 +300,7 @@ void LLSocialPhotoPanel::onClickNewSnapshot()
 	if (previewp)
 	{
 		//setStatus(Impl::STATUS_READY);
-		lldebugs << "updating snapshot" << llendl;
+		LL_DEBUGS() << "updating snapshot" << LL_ENDL;
 		previewp->updateSnapshot(TRUE);
 	}
 }
@@ -390,7 +390,7 @@ void LLSocialPhotoPanel::updateControls()
 	LLSnapshotLivePreview::ESnapshotType shot_type = (previewp ? previewp->getSnapshotType() : LLSnapshotLivePreview::SNAPSHOT_POSTCARD);
 
 	// *TODO: Separate maximum size for Web images from postcards
-	lldebugs << "Is snapshot up-to-date? " << got_snap << llendl;
+	LL_DEBUGS() << "Is snapshot up-to-date? " << got_snap << LL_ENDL;
 
 	LLLocale locale(LLLocale::USER_LOCALE);
 	std::string bytes_string;
@@ -430,13 +430,13 @@ void LLSocialPhotoPanel::updateResolution(BOOL do_update)
 		if (width == 0 || height == 0)
 		{
 			// take resolution from current window size
-			lldebugs << "Setting preview res from window: " << gViewerWindow->getWindowWidthRaw() << "x" << gViewerWindow->getWindowHeightRaw() << llendl;
+			LL_DEBUGS() << "Setting preview res from window: " << gViewerWindow->getWindowWidthRaw() << "x" << gViewerWindow->getWindowHeightRaw() << LL_ENDL;
 			previewp->setSize(gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw());
 		}
 		else
 		{
 			// use the resolution from the selected pre-canned drop-down choice
-			lldebugs << "Setting preview res selected from combo: " << width << "x" << height << llendl;
+			LL_DEBUGS() << "Setting preview res selected from combo: " << width << "x" << height << LL_ENDL;
 			previewp->setSize(width, height);
 		}
 
@@ -449,12 +449,12 @@ void LLSocialPhotoPanel::updateResolution(BOOL do_update)
 			previewp->setSize(width, height);
 
 			// hide old preview as the aspect ratio could be wrong
-			lldebugs << "updating thumbnail" << llendl;
+			LL_DEBUGS() << "updating thumbnail" << LL_ENDL;
 			
 			previewp->updateSnapshot(FALSE, TRUE);
 			if(do_update)
 			{
-				lldebugs << "Will update controls" << llendl;
+				LL_DEBUGS() << "Will update controls" << LL_ENDL;
 				updateControls();
                 LLSocialPhotoPanel::onClickNewSnapshot();
 			}
@@ -648,7 +648,7 @@ mDisconnectButton(NULL)
 	mCommitCallbackRegistrar.add("SocialSharing.Connect", boost::bind(&LLSocialAccountPanel::onConnect, this));
 	mCommitCallbackRegistrar.add("SocialSharing.Disconnect", boost::bind(&LLSocialAccountPanel::onDisconnect, this));
 
-	setVisibleCallback(boost::bind(&LLSocialAccountPanel::onVisibilityChange, this, _2));
+	setVisibleCallback(boost::bind(&LLSocialAccountPanel::onVisibilityChanged, this, _2));
 }
 
 BOOL LLSocialAccountPanel::postBuild()
@@ -677,7 +677,7 @@ void LLSocialAccountPanel::draw()
 	LLPanel::draw();
 }
 
-void LLSocialAccountPanel::onVisibilityChange(const LLSD& new_visibility)
+void LLSocialAccountPanel::onVisibilityChanged(const LLSD& new_visibility)
 {
 	bool visible = new_visibility.asBoolean();
 

@@ -607,7 +607,7 @@ void LLFloaterUIPreview::onClose(bool app_quitting)
 // *TODO: this is currently unlocalized.  Add to alerts/notifications.xml, someday, maybe.
 void LLFloaterUIPreview::popupAndPrintWarning(const std::string& warning)
 {
-	llwarns << warning << llendl;
+	LL_WARNS() << warning << LL_ENDL;
 	LLSD args;
 	args["MESSAGE"] = warning;
 	LLNotificationsUtil::add("GenericAlert", args);
@@ -960,7 +960,7 @@ void LLFloaterUIPreview::onClickEditFloater()
 		std::string file_name = mFileList->getSelectedItemLabel(1);	// get the file name of the currently-selected floater
 		if (file_name.empty())					// if no item is selected
 		{
-			llwarns << "No file selected" << llendl;
+			LL_WARNS() << "No file selected" << LL_ENDL;
 			return;															// ignore click
 		}
 		file_path = getLocalizedDirectory() + file_name;
@@ -1268,8 +1268,8 @@ void LLFloaterUIPreview::highlightChangedElements()
 			// if we still didn't find it...
 			if(NULL == element)												
 			{
-				llinfos << "Unable to find element in XuiDelta file named \"" << *iter << "\" in file \"" << mLiveFile->mFileName <<
-							"\". The element may no longer exist, the path may be incorrect, or it may not be a non-displayable element (not an LLView) such as a \"string\" type." << llendl;
+				LL_INFOS() << "Unable to find element in XuiDelta file named \"" << *iter << "\" in file \"" << mLiveFile->mFileName <<
+							"\". The element may no longer exist, the path may be incorrect, or it may not be a non-displayable element (not an LLView) such as a \"string\" type." << LL_ENDL;
 				failed = TRUE;
 				break;
 			}

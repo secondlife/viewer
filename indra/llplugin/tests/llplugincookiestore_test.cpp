@@ -27,6 +27,7 @@
  */
 
 #include "linden_common.h"
+#include <list>
 #include "../test/lltut.h"
 
 #include "../llplugincookiestore.h"

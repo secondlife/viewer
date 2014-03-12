@@ -38,7 +38,7 @@ public:
 	LLMetrics();
 	virtual ~LLMetrics();
 
-	// Adds this event to aggregate totals and records details to syslog (llinfos)
+	// Adds this event to aggregate totals and records details to syslog (LL_INFOS())
 	virtual void recordEventDetails(const std::string& location, 
 						const std::string& mesg, 
 						bool success, 

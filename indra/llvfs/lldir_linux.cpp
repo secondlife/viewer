@@ -49,7 +49,7 @@ static std::string getCurrentUserHome(char* fallback)
 	}
 	else
 	{
-		llinfos << "Couldn't detect home directory from passwd - trying $HOME" << llendl;
+		LL_INFOS() << "Couldn't detect home directory from passwd - trying $HOME" << LL_ENDL;
 		const char *const home_env = getenv("HOME");	/* Flawfinder: ignore */ 
 		if (home_env)
 		{
@@ -57,7 +57,7 @@ static std::string getCurrentUserHome(char* fallback)
 		}
 		else
 		{
-			llwarns << "Couldn't detect home directory!  Falling back to " << fallback << llendl;
+			LL_WARNS() << "Couldn't detect home directory!  Falling back to " << fallback << LL_ENDL;
 		}
 	}
 	
@@ -76,11 +76,11 @@ LLDir_Linux::LLDir_Linux()
 	if (getcwd(tmp_str, LL_MAX_PATH) == NULL)
 	{
 		strcpy(tmp_str, "/tmp");
-		llwarns << "Could not get current directory; changing to "
-				<< tmp_str << llendl;
+		LL_WARNS() << "Could not get current directory; changing to "
+				<< tmp_str << LL_ENDL;
 		if (chdir(tmp_str) == -1)
 		{
-			llerrs << "Could not change directory to " << tmp_str << llendl;
+			LL_ERRS() << "Could not change directory to " << tmp_str << LL_ENDL;
 		}
 	}
 
@@ -98,8 +98,8 @@ LLDir_Linux::LLDir_Linux()
     {
 		// ...we're in a dev checkout
 		mSkinBaseDir = mExecutableDir.substr(0, build_dir_pos) + "/indra/newview/skins";
-		llinfos << "Running in dev checkout with mSkinBaseDir "
-		 << mSkinBaseDir << llendl;
+		LL_INFOS() << "Running in dev checkout with mSkinBaseDir "
+		 << mSkinBaseDir << LL_ENDL;
     }
     else
     {
@@ -187,8 +187,8 @@ void LLDir_Linux::initAppDirs(const std::string &app_name,
 	{
 		if (errno != EEXIST)
 		{
-			llwarns << "Couldn't create app user dir " << mOSUserAppDir << llendl;
-			llwarns << "Default to base dir" << mOSUserDir << llendl;
+			LL_WARNS() << "Couldn't create app user dir " << mOSUserAppDir << LL_ENDL;
+			LL_WARNS() << "Default to base dir" << mOSUserDir << LL_ENDL;
 			mOSUserAppDir = mOSUserDir;
 		}
 	}
@@ -198,7 +198,7 @@ void LLDir_Linux::initAppDirs(const std::string &app_name,
 	{
 		if (errno != EEXIST)
 		{
-			llwarns << "Couldn't create LL_PATH_LOGS dir " << getExpandedFilename(LL_PATH_LOGS,"") << llendl;
+			LL_WARNS() << "Couldn't create LL_PATH_LOGS dir " << getExpandedFilename(LL_PATH_LOGS,"") << LL_ENDL;
 		}
 	}
 	
@@ -207,7 +207,7 @@ void LLDir_Linux::initAppDirs(const std::string &app_name,
 	{
 		if (errno != EEXIST)
 		{
-			llwarns << "Couldn't create LL_PATH_USER_SETTINGS dir " << getExpandedFilename(LL_PATH_USER_SETTINGS,"") << llendl;
+			LL_WARNS() << "Couldn't create LL_PATH_USER_SETTINGS dir " << getExpandedFilename(LL_PATH_USER_SETTINGS,"") << LL_ENDL;
 		}
 	}
 	
@@ -216,7 +216,7 @@ void LLDir_Linux::initAppDirs(const std::string &app_name,
 	{
 		if (errno != EEXIST)
 		{
-			llwarns << "Couldn't create LL_PATH_CACHE dir " << getExpandedFilename(LL_PATH_CACHE,"") << llendl;
+			LL_WARNS() << "Couldn't create LL_PATH_CACHE dir " << getExpandedFilename(LL_PATH_CACHE,"") << LL_ENDL;
 		}
 	}
 	
@@ -247,7 +247,7 @@ std::string LLDir_Linux::getCurPath()
 	char tmp_str[LL_MAX_PATH];	/* Flawfinder: ignore */ 
 	if (getcwd(tmp_str, LL_MAX_PATH) == NULL)
 	{
-		llwarns << "Could not get current directory" << llendl;
+		LL_WARNS() << "Could not get current directory" << LL_ENDL;
 		tmp_str[0] = '\0';
 	}
 	return tmp_str;

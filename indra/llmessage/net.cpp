@@ -26,15 +26,13 @@
 
 #include "linden_common.h"
 
-#include "net.h"
+//#include "net.h"
 
 // system library includes
 #include <stdexcept>
 
 #if LL_WINDOWS
-	#define WIN32_LEAN_AND_MEAN
-	#include <winsock2.h>
-	#include <windows.h>
+#include "llwin32headerslean.h"
 #else
 	#include <sys/types.h>
 	#include <sys/socket.h>
@@ -175,7 +173,7 @@ U32 ip_string_to_u32(const char* ip_string)
 	if (ip == INADDR_NONE 
 			&& strncmp(ip_string, BROADCAST_ADDRESS_STRING, MAXADDRSTR) != 0)
 	{
-		llwarns << "ip_string_to_u32() failed, Error: Invalid IP string '" << ip_string << "'" << llendl;
+		LL_WARNS() << "ip_string_to_u32() failed, Error: Invalid IP string '" << ip_string << "'" << LL_ENDL;
 		return INVALID_HOST_IP_ADDRESS;
 	}
 	return ip;
@@ -334,7 +332,7 @@ S32 receive_packet(int hSocket, char * receiveBuffer)
 			return 0;
 		if (WSAECONNRESET == WSAGetLastError())
 			return 0;
-		llinfos << "receivePacket() failed, Error: " << WSAGetLastError() << llendl;
+		LL_INFOS() << "receivePacket() failed, Error: " << WSAGetLastError() << LL_ENDL;
 	}
 	
 	return nRet;
@@ -368,8 +366,8 @@ BOOL send_packet(int hSocket, const char *sendBuffer, int size, U32 recipient, i
 				{
 					return TRUE;
 				}
-				llinfos << "sendto() failed to " << u32_to_ip_string(recipient) << ":" << nPort 
-					<< ", Error " << last_error << llendl;
+				LL_INFOS() << "sendto() failed to " << u32_to_ip_string(recipient) << ":" << nPort 
+					<< ", Error " << last_error << LL_ENDL;
 			}
 		}
 	} while (  (nRet == SOCKET_ERROR)
@@ -397,7 +395,7 @@ S32 start_net(S32& socket_out, int& nPort)
 	hSocket = socket(AF_INET, SOCK_DGRAM, 0);
 	if (hSocket < 0)
 	{
-		llwarns << "socket() failed" << llendl;
+		LL_WARNS() << "socket() failed" << LL_ENDL;
 		return 1;
 	}
 
@@ -408,21 +406,21 @@ S32 start_net(S32& socket_out, int& nPort)
 		stLclAddr.sin_family      = AF_INET;
 		stLclAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 		stLclAddr.sin_port        = htons(0);
-		llinfos << "attempting to connect on OS assigned port" << llendl;
+		LL_INFOS() << "attempting to connect on OS assigned port" << LL_ENDL;
 		nRet = bind(hSocket, (struct sockaddr*) &stLclAddr, sizeof(stLclAddr));
 		if (nRet < 0)
 		{
-			llwarns << "Failed to bind on an OS assigned port error: "
-					<< nRet << llendl;
+			LL_WARNS() << "Failed to bind on an OS assigned port error: "
+					<< nRet << LL_ENDL;
 		}
 		else
 		{
 			sockaddr_in socket_info;
 			socklen_t len = sizeof(sockaddr_in);
 			int err = getsockname(hSocket, (sockaddr*)&socket_info, &len);
-			llinfos << "Get socket returned: " << err << " length " << len << llendl;
+			LL_INFOS() << "Get socket returned: " << err << " length " << len << LL_ENDL;
 			nPort = ntohs(socket_info.sin_port);
-			llinfos << "Assigned port: " << nPort << llendl;
+			LL_INFOS() << "Assigned port: " << nPort << LL_ENDL;
 			
 		}
 	}
@@ -433,7 +431,7 @@ S32 start_net(S32& socket_out, int& nPort)
 		stLclAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 		stLclAddr.sin_port        = htons(nPort);
 		U32 attempt_port = nPort;
-		llinfos << "attempting to connect on port " << attempt_port << llendl;
+		LL_INFOS() << "attempting to connect on port " << attempt_port << LL_ENDL;
 
 		nRet = bind(hSocket, (struct sockaddr*) &stLclAddr, sizeof(stLclAddr));
 		if (nRet < 0)
@@ -447,7 +445,7 @@ S32 start_net(S32& socket_out, int& nPort)
 					attempt_port++)
 				{
 					stLclAddr.sin_port = htons(attempt_port);
-					llinfos << "trying port " << attempt_port << llendl;
+					LL_INFOS() << "trying port " << attempt_port << LL_ENDL;
 					nRet = bind(hSocket, (struct sockaddr*) &stLclAddr, sizeof(stLclAddr));
 					if (!((nRet < 0) && (errno == EADDRINUSE)))
 					{
@@ -456,7 +454,7 @@ S32 start_net(S32& socket_out, int& nPort)
 				}
 				if (nRet < 0)
 				{
-					llwarns << "startNet() : Couldn't find available network port." << llendl;
+					LL_WARNS() << "startNet() : Couldn't find available network port." << LL_ENDL;
 					// Fail gracefully in release.
 					return 3;
 				}
@@ -464,12 +462,12 @@ S32 start_net(S32& socket_out, int& nPort)
 			// Some other socket error
 			else
 			{
-				llwarns << llformat ("bind() port: %d failed, Err: %s\n", nPort, strerror(errno)) << llendl;
+				LL_WARNS() << llformat ("bind() port: %d failed, Err: %s\n", nPort, strerror(errno)) << LL_ENDL;
 				// Fail gracefully in release.
 				return 4;
 			}
 		}
-		llinfos << "connected on port " << attempt_port << llendl;
+		LL_INFOS() << "connected on port " << attempt_port << LL_ENDL;
 		nPort = attempt_port;
 	}
 	// Set socket to be non-blocking
@@ -478,18 +476,18 @@ S32 start_net(S32& socket_out, int& nPort)
 	nRet = setsockopt(hSocket, SOL_SOCKET, SO_RCVBUF, (char *)&rec_size, buff_size);
 	if (nRet)
 	{
-		llinfos << "Can't set receive size!" << llendl;
+		LL_INFOS() << "Can't set receive size!" << LL_ENDL;
 	}
 	nRet = setsockopt(hSocket, SOL_SOCKET, SO_SNDBUF, (char *)&snd_size, buff_size);
 	if (nRet)
 	{
-		llinfos << "Can't set send size!" << llendl;
+		LL_INFOS() << "Can't set send size!" << LL_ENDL;
 	}
 	getsockopt(hSocket, SOL_SOCKET, SO_RCVBUF, (char *)&rec_size, &buff_size);
 	getsockopt(hSocket, SOL_SOCKET, SO_SNDBUF, (char *)&snd_size, &buff_size);
 
-	llinfos << "startNet - receive buffer size : " << rec_size << llendl;
-	llinfos << "startNet - send buffer size    : " << snd_size << llendl;
+	LL_INFOS() << "startNet - receive buffer size : " << rec_size << LL_ENDL;
+	LL_INFOS() << "startNet - send buffer size    : " << snd_size << LL_ENDL;
 
 #if LL_LINUX
 	// Turn on recipient address tracking
@@ -497,11 +495,11 @@ S32 start_net(S32& socket_out, int& nPort)
 		int use_pktinfo = 1;
 		if( setsockopt( hSocket, SOL_IP, IP_PKTINFO, &use_pktinfo, sizeof(use_pktinfo) ) == -1 )
 		{
-			llwarns << "No IP_PKTINFO available" << llendl;
+			LL_WARNS() << "No IP_PKTINFO available" << LL_ENDL;
 		}
 		else
 		{
-			llinfos << "IP_PKKTINFO enabled" << llendl;
+			LL_INFOS() << "IP_PKKTINFO enabled" << LL_ENDL;
 		}
 	}
 #endif
@@ -595,7 +593,7 @@ int receive_packet(int hSocket, char * receiveBuffer)
 	}
 
 	// Uncomment for testing if/when implementing for Mac or Windows:
-	// llinfos << "Received datagram to in addr " << u32_to_ip_string(get_receiving_interface_ip()) << llendl;
+	// LL_INFOS() << "Received datagram to in addr " << u32_to_ip_string(get_receiving_interface_ip()) << LL_ENDL;
 
 	return nRet;
 }
@@ -629,22 +627,22 @@ BOOL send_packet(int hSocket, const char * sendBuffer, int size, U32 recipient, 
 			if (errno == EAGAIN)
 			{
 				// say nothing, just repeat send
-				llinfos << "sendto() reported buffer full, resending (attempt " << send_attempts << ")" << llendl;
-				llinfos << inet_ntoa(stDstAddr.sin_addr) << ":" << nPort << llendl;
+				LL_INFOS() << "sendto() reported buffer full, resending (attempt " << send_attempts << ")" << LL_ENDL;
+				LL_INFOS() << inet_ntoa(stDstAddr.sin_addr) << ":" << nPort << LL_ENDL;
 				resend = TRUE;
 			}
 			else if (errno == ECONNREFUSED)
 			{
 				// response to ICMP connection refused message on earlier send
-				llinfos << "sendto() reported connection refused, resending (attempt " << send_attempts << ")" << llendl;
-				llinfos << inet_ntoa(stDstAddr.sin_addr) << ":" << nPort << llendl;
+				LL_INFOS() << "sendto() reported connection refused, resending (attempt " << send_attempts << ")" << LL_ENDL;
+				LL_INFOS() << inet_ntoa(stDstAddr.sin_addr) << ":" << nPort << LL_ENDL;
 				resend = TRUE;
 			}
 			else
 			{
 				// some other error
-				llinfos << "sendto() failed: " << errno << ", " << strerror(errno) << llendl;
-				llinfos << inet_ntoa(stDstAddr.sin_addr) << ":" << nPort << llendl;
+				LL_INFOS() << "sendto() failed: " << errno << ", " << strerror(errno) << LL_ENDL;
+				LL_INFOS() << inet_ntoa(stDstAddr.sin_addr) << ":" << nPort << LL_ENDL;
 				resend = FALSE;
 			}
 		}
@@ -653,7 +651,7 @@ BOOL send_packet(int hSocket, const char * sendBuffer, int size, U32 recipient, 
 
 	if (send_attempts >= 3)
 	{
-		llinfos << "sendPacket() bailed out of send!" << llendl;
+		LL_INFOS() << "sendPacket() bailed out of send!" << LL_ENDL;
 		return FALSE;
 	}
 

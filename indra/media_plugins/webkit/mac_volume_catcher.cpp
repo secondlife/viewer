@@ -37,6 +37,7 @@
 
 #include <QuickTime/QuickTime.h>
 #include <AudioUnit/AudioUnit.h>
+#include <list>
 
 #if LL_DARWIN
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"

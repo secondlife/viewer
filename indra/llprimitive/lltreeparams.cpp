@@ -40,7 +40,7 @@
 LLTreeParams::LLTreeParams()
 {
 
-//	llinfos << "TREE PARAMS INITIALIZED" << llendl;
+//	LL_INFOS() << "TREE PARAMS INITIALIZED" << LL_ENDL;
 	// init to basic something or other...
 	mShape = SR_TEND_FLAME;
 	mLevels = 1;

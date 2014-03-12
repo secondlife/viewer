@@ -36,7 +36,7 @@ U64 str_to_U64(const std::string& str)
 
 	if (!aptr)
 	{
-		llwarns << "str_to_U64: Bad string to U64 conversion attempt: format\n" << llendl;
+		LL_WARNS() << "str_to_U64: Bad string to U64 conversion attempt: format\n" << LL_ENDL;
 	}
 	else
 	{

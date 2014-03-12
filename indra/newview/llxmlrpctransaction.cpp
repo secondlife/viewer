@@ -25,6 +25,8 @@
  */
 
 #include "llviewerprecompiledheaders.h"
+// include this to get winsock2 because openssl attempts to include winsock1
+#include "llwin32headerslean.h"
 #include <openssl/x509_vfy.h>
 #include <openssl/ssl.h>
 #include "llsecapi.h"
@@ -307,7 +309,7 @@ void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip)
 	}
 	if(!mCurlRequest->isValid())
 	{
-		llwarns << "mCurlRequest is invalid." << llendl ;
+		LL_WARNS() << "mCurlRequest is invalid." << LL_ENDL ;
 
 		delete mCurlRequest ;
 		mCurlRequest = NULL ;
@@ -373,7 +375,7 @@ bool LLXMLRPCTransaction::Impl::process()
 {
 	if(!mCurlRequest || !mCurlRequest->isValid())
 	{
-		llwarns << "transaction failed." << llendl ;
+		LL_WARNS() << "transaction failed." << LL_ENDL ;
 
 		delete mCurlRequest ;
 		mCurlRequest = NULL ;
@@ -423,10 +425,10 @@ bool LLXMLRPCTransaction::Impl::process()
 					// appropriate
 					setCurlStatus(result);
 				
-					llwarns << "LLXMLRPCTransaction CURL error "
-					<< mCurlCode << ": " << mCurlRequest->getErrorString() << llendl;
-					llwarns << "LLXMLRPCTransaction request URI: "
-					<< mURI << llendl;
+					LL_WARNS() << "LLXMLRPCTransaction CURL error "
+					<< mCurlCode << ": " << mCurlRequest->getErrorString() << LL_ENDL;
+					LL_WARNS() << "LLXMLRPCTransaction request URI: "
+					<< mURI << LL_ENDL;
 				}
 					
 				return true;
@@ -460,12 +462,12 @@ bool LLXMLRPCTransaction::Impl::process()
 			{
 				setStatus(LLXMLRPCTransaction::StatusXMLRPCError);
 				
-				llwarns << "LLXMLRPCTransaction XMLRPC "
+				LL_WARNS() << "LLXMLRPCTransaction XMLRPC "
 						<< (hasError ? "error " : "fault ")
 						<< faultCode << ": "
-						<< faultString << llendl;
-				llwarns << "LLXMLRPCTransaction request URI: "
-						<< mURI << llendl;
+						<< faultString << LL_ENDL;
+				LL_WARNS() << "LLXMLRPCTransaction request URI: "
+						<< mURI << LL_ENDL;
 			}
 			
 			return true;

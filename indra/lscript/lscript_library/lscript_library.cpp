@@ -498,7 +498,7 @@ void LLScriptLibrary::assignExec(const char *name, void (*exec_func)(LLScriptLib
 		}
 	}
 	
-	llerrs << "Unknown LSL function in assignExec: " << name << llendl;
+	LL_ERRS() << "Unknown LSL function in assignExec: " << name << LL_ENDL;
 }
 
 void LLScriptLibData::print(std::ostream &s, BOOL b_prepend_comma)

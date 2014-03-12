@@ -551,9 +551,7 @@ extern PFNGLBINDBUFFERBASEPROC glBindBufferBase;
 // LL_WINDOWS
 
 // windows gl headers depend on things like APIENTRY, so include windows.
-#define WIN32_LEAN_AND_MEAN
-#include <winsock2.h>
-#include <windows.h>
+#include "llwin32headerslean.h"
 
 //----------------------------------------------------------------------------
 #include <GL/gl.h>

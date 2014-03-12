@@ -98,7 +98,7 @@ LLHeartbeat::rawSendWithTimeout(F32 timeout_sec)
 	mTimeoutTimer.setTimerExpirySec(timeout_sec);
 	do {
 		result = rawSend();
-		//llinfos << " HEARTSENDc=" << result << llendl;
+		//LL_INFOS() << " HEARTSENDc=" << result << LL_ENDL;
 	} while (result==1 && !mTimeoutTimer.hasExpired());
 
 	return result;
@@ -118,7 +118,7 @@ LLHeartbeat::send(F32 timeout_sec)
 			// zero-timeout; we don't care too much whether our
 			// heartbeat was digested.
 			result = rawSend();
-			//llinfos << " HEARTSENDb=" << result << llendl;
+			//LL_INFOS() << " HEARTSENDb=" << result << LL_ENDL;
 		}
 	}
 
@@ -146,14 +146,14 @@ LLHeartbeat::send(F32 timeout_sec)
 		// It's been ages since we successfully had a heartbeat
 		// digested by the watchdog.  Sit here and spin a while
 		// in the hope that we can force it through.
-		llwarns << "Unable to deliver heartbeat to launcher for " << mPanicTimer.getElapsedTimeF32() << " seconds.  Going to try very hard for up to " << mAggressiveHeartbeatMaxBlockingSecs << " seconds." << llendl;
+		LL_WARNS() << "Unable to deliver heartbeat to launcher for " << mPanicTimer.getElapsedTimeF32() << " seconds.  Going to try very hard for up to " << mAggressiveHeartbeatMaxBlockingSecs << " seconds." << LL_ENDL;
 		result = rawSendWithTimeout(mAggressiveHeartbeatMaxBlockingSecs);
 		if (result == 0) {
 			total_success = true;
 		} else {
 			// we couldn't even force it through.  That's bad,
 			// but we'll try again in a while.
-			llwarns << "Could not deliver heartbeat to launcher even after trying very hard for " << mAggressiveHeartbeatMaxBlockingSecs << " seconds." << llendl;
+			LL_WARNS() << "Could not deliver heartbeat to launcher even after trying very hard for " << mAggressiveHeartbeatMaxBlockingSecs << " seconds." << LL_ENDL;
 		}
 		
 		// in any case, reset the panic timer.
