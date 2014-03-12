@@ -80,6 +80,8 @@ namespace LLAvatarNameCache
 	// Set display name: flips the switch and triggers the callbacks.
 	void setUseDisplayNames(bool use);
 	
+	void setUseUsernames(bool use);
+
 	void insert(const LLUUID& agent_id, const LLAvatarName& av_name);
 	void erase(const LLUUID& agent_id);
 

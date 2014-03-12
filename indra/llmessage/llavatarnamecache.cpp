@@ -677,6 +677,15 @@ void LLAvatarNameCache::setUseDisplayNames(bool use)
 	}
 }
 
+void LLAvatarNameCache::setUseUsernames(bool use)
+{
+	if (use != LLAvatarName::useUsernames())
+	{
+		LLAvatarName::setUseUsernames(use);
+		mUseDisplayNamesSignal();
+	}
+}
+
 void LLAvatarNameCache::erase(const LLUUID& agent_id)
 {
 	sCache.erase(agent_id);

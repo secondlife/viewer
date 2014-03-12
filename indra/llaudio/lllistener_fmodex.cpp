@@ -94,6 +94,11 @@ void LLListener_FMODEX::orient(LLVector3 up, LLVector3 at)
 //-----------------------------------------------------------------------
 void LLListener_FMODEX::commitDeferredChanges()
 {
+	if(!mSystem)
+	{
+		return;
+	}
+
 	mSystem->update();
 }
 

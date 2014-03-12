@@ -3032,12 +3032,23 @@ void LLMessageSystem::setExceptionFunc(EMessageException e,
 BOOL LLMessageSystem::callExceptionFunc(EMessageException exception)
 {
 	callbacks_t::iterator it = mExceptionCallbacks.find(exception);
-	if(it != mExceptionCallbacks.end())
+	if(it == mExceptionCallbacks.end())
 	{
-		((*it).second.first)(this, (*it).second.second,exception);
-		return TRUE;
+		return FALSE;
 	}
-	return FALSE;
+
+	exception_t& ex = it->second;
+	msg_exception_callback ex_cb = ex.first;
+
+	if (!ex_cb)
+	{
+		LL_WARNS("Messaging") << "LLMessageSystem::callExceptionFunc: bad message exception callback." << llendl;
+		return FALSE;
+	}
+
+	(ex_cb)(this, ex.second, exception);
+
+	return TRUE;
 }
 
 void LLMessageSystem::setTimingFunc(msg_timing_callback func, void* data)

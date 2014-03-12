@@ -461,6 +461,7 @@ LLPoseBlender::LLPoseBlender()
 LLPoseBlender::~LLPoseBlender()
 {
 	for_each(mJointStateBlenderPool.begin(), mJointStateBlenderPool.end(), DeletePairedPointer());
+	mJointStateBlenderPool.clear();
 }
 
 //-----------------------------------------------------------------------------

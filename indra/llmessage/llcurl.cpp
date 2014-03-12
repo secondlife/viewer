@@ -1853,6 +1853,7 @@ void LLCurl::cleanupClass()
 #if SAFE_SSL
 	CRYPTO_set_locking_callback(NULL);
 	for_each(sSSLMutex.begin(), sSSLMutex.end(), DeletePointer());
+	sSSLMutex.clear();
 #endif
 	
 	LL_CHECK_MEMORY

@@ -640,11 +640,11 @@ BOOL LLVOAvatarSelf::isValid() const
 }
 
 // virtual
-void LLVOAvatarSelf::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
+void LLVOAvatarSelf::idleUpdate(LLAgent &agent, const F64 &time)
 {
 	if (isValid())
 	{
-		LLVOAvatar::idleUpdate(agent, world, time);
+		LLVOAvatar::idleUpdate(agent, time);
 		idleUpdateTractorBeam();
 	}
 }
@@ -801,7 +801,7 @@ void LLVOAvatarSelf::removeMissingBakedTextures()
 		if (!tex || tex->isMissingAsset())
 		{
 			LLViewerTexture *imagep = LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT_AVATAR);
-			if (imagep)
+			if (imagep && imagep != tex)
 			{
 				setTEImage(te, imagep);
 				removed = TRUE;
