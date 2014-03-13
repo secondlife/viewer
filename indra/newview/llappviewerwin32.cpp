@@ -227,14 +227,6 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
                      LPSTR     lpCmdLine,
                      int       nCmdShow)
 {
-#ifdef INCLUDE_VLD
-	// only works for debug builds (hard coded into vld.h)
-	#ifdef _DEBUG
-		// start with Visual Leak Detector turned off
-		VLDGlobalDisable();
-	#endif // _DEBUG
-#endif // INCLUDE_VLD
-
 	const S32 MAX_HEAPS = 255;
 	DWORD heap_enable_lfh_error[MAX_HEAPS];
 	S32 num_heaps = 0;

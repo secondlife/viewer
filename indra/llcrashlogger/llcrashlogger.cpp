@@ -46,7 +46,7 @@
 #include "llsdserialize.h"
 #include "llproxy.h"
  
-LLPumpIO* gServicePump;
+LLPumpIO* gServicePump = NULL;
 BOOL gBreak = false;
 BOOL gSent = false;
 

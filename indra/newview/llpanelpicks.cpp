@@ -69,7 +69,7 @@ static const std::string CLASSIFIED_ID("classified_id");
 static const std::string CLASSIFIED_NAME("classified_name");
 
 
-static LLRegisterPanelClassWrapper<LLPanelPicks> t_panel_picks("panel_picks");
+static LLPanelInjector<LLPanelPicks> t_panel_picks("panel_picks");
 
 
 class LLPickHandler : public LLCommandHandler,

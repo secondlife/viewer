@@ -57,7 +57,7 @@
 #include "llnotificationsutil.h"
 #include "llgiveinventory.h"
 
-static LLRegisterPanelClassWrapper<LLPanelGroupNotices> t_panel_group_notices("panel_group_notices");
+static LLPanelInjector<LLPanelGroupNotices> t_panel_group_notices("panel_group_notices");
 
 
 /////////////////////////

@@ -38,7 +38,7 @@ namespace
 {
 	typedef std::map<LLHost, LLHTTPSender*> SenderMap;
 	static SenderMap senderMap;
-	static LLHTTPSender* defaultSender = new LLHTTPSender();
+	static LLPointer<LLHTTPSender> defaultSender(new LLHTTPSender());
 }
 
 //virtual 
@@ -90,6 +90,5 @@ void LLHTTPSender::clearSender(const LLHost& host)
 //static 
 void LLHTTPSender::setDefaultSender(LLHTTPSender* sender)
 {
-	delete defaultSender;
 	defaultSender = sender;
 }
