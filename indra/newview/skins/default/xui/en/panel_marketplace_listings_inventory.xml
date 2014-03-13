@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <inventory_panel
-    name="inventory_merchant_items"
-    start_folder.name="Merchant items"
+    name="inventory_marketplace_listings"
+    start_folder.name="Marketplace listings"
     show_empty_message="false"
     show_load_status="false"
     start_folder.type="merchant"

@@ -959,9 +959,9 @@ BOOL LLInvFVBridge::isInboxFolder() const
 	return gInventory.isObjectDescendentOf(mUUID, inbox_id);
 }
 
-BOOL LLInvFVBridge::isMerchantItemsFolder() const
+BOOL LLInvFVBridge::isMarketplaceListingsFolder() const
 {
-	const LLUUID folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MERCHANT_ITEMS, false);
+	const LLUUID folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
 	
 	if (folder_id.isNull())
 	{
@@ -1954,7 +1954,7 @@ std::string LLFolderBridge::getLabelSuffix() const
      accessories = (parent_folder_id == gInventory.getLibraryRootFolderID());
      }
      */
-    if (isMerchantItemsFolder())
+    if (isMarketplaceListingsFolder())
     {
         if (LLMarketplaceData::instance().isListed(getUUID()))
         {

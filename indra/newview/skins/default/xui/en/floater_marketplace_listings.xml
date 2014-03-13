@@ -4,14 +4,14 @@
     can_close="true"
     can_resize="true"
     height="440"
-    help_topic="floater_merchant_items"
+    help_topic="floater_marketplace_listings"
     min_width="300"
     min_height="200"
-    name="floater_merchant_items"
+    name="floater_marketplace_listings"
     save_rect="true"
     save_visibility="false"
     reuse_instance="true"
-    title="MERCHANT ITEMS"
+    title="MARKETPLACE LISTINGS"
     width="333">
   <panel
       follows="all"
@@ -29,7 +29,7 @@
         top="0"
         bg_opaque_color="InventoryBackgroundColor">
         <panel
-            name="merchant_items_inventory_placeholder_panel"
+            name="marketplace_listings_inventory_placeholder_panel"
             follows="all"
             layout="topleft"
             top="0"
@@ -38,7 +38,7 @@
             height="370"
             bg_opaque_color="InventoryBackgroundColor">
             <text
-                name="merchant_items_inventory_placeholder_title"
+                name="marketplace_listings_inventory_placeholder_title"
                 type="string"
                 follows="top|left|right"
                 layout="topleft"
@@ -52,7 +52,7 @@
                 Loading...
             </text>
             <text
-            name="merchant_items_inventory_placeholder_text"
+            name="marketplace_listings_inventory_placeholder_text"
             type="string"
             follows="top|left|right"
             layout="topleft"
@@ -71,7 +71,7 @@
         width="313"
         top="370">
       <panel
-          name="merchant_items_generic_drag_target"
+          name="marketplace_listings_generic_drag_target"
           mouse_opaque="false"
           follows="all"
           top="5"

@@ -1,8 +1,8 @@
 /** 
  * @file llfloateroutbox.cpp
- * @brief Implementation of the merchant outbox window and of the merchant items window
+ * @brief Implementation of the merchant outbox window and of the marketplace listings window
  *
- * *TODO : Eventually, take out all the merchant outbox stuff and rename that file to llfloatermerchantitems
+ * *TODO : Eventually, take out all the merchant outbox stuff and rename that file to llfloatermarketplacelistings
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -107,15 +107,15 @@ private:
 };
 
 ///----------------------------------------------------------------------------
-/// LLMerchantItemsAddedObserver helper class
+/// LLMarketplaceListingsAddedObserver helper class
 ///----------------------------------------------------------------------------
 
-class LLMerchantItemsAddedObserver : public LLInventoryCategoryAddedObserver
+class LLMarketplaceListingsAddedObserver : public LLInventoryCategoryAddedObserver
 {
 public:
-	LLMerchantItemsAddedObserver(LLFloaterMerchantItems * merchant_items_floater)
+	LLMarketplaceListingsAddedObserver(LLFloaterMarketplaceListings * marketplace_listings_floater)
     : LLInventoryCategoryAddedObserver()
-    , mMerchantItemsFloater(merchant_items_floater)
+    , mMarketplaceListingsFloater(marketplace_listings_floater)
 	{
 	}
 	
@@ -127,15 +127,15 @@ public:
 			
 			LLFolderType::EType added_category_type = added_category->getPreferredType();
 			
-			if (added_category_type == LLFolderType::FT_MERCHANT_ITEMS)
+			if (added_category_type == LLFolderType::FT_MARKETPLACE_LISTINGS)
 			{
-				mMerchantItemsFloater->initializeMarketPlace();
+				mMarketplaceListingsFloater->initializeMarketPlace();
 			}
 		}
 	}
 	
 private:
-	LLFloaterMerchantItems *	mMerchantItemsFloater;
+	LLFloaterMarketplaceListings *	mMarketplaceListingsFloater;
 };
 
 
@@ -653,10 +653,10 @@ void LLFloaterOutbox::showNotification(const LLNotificationPtr& notification)
 }
 
 ///----------------------------------------------------------------------------
-/// LLFloaterMerchantItems
+/// LLFloaterMarketplaceListings
 ///----------------------------------------------------------------------------
 
-LLFloaterMerchantItems::LLFloaterMerchantItems(const LLSD& key)
+LLFloaterMarketplaceListings::LLFloaterMarketplaceListings(const LLSD& key)
 : LLFloater(key)
 , mCategoriesObserver(NULL)
 , mCategoryAddedObserver(NULL)
@@ -668,7 +668,7 @@ LLFloaterMerchantItems::LLFloaterMerchantItems(const LLSD& key)
 {
 }
 
-LLFloaterMerchantItems::~LLFloaterMerchantItems()
+LLFloaterMarketplaceListings::~LLFloaterMarketplaceListings()
 {
 	if (mCategoriesObserver && gInventory.containsObserver(mCategoriesObserver))
 	{
@@ -683,18 +683,18 @@ LLFloaterMerchantItems::~LLFloaterMerchantItems()
 	delete mCategoryAddedObserver;
 }
 
-BOOL LLFloaterMerchantItems::postBuild()
+BOOL LLFloaterMarketplaceListings::postBuild()
 {
-	mInventoryPlaceholder = getChild<LLView>("merchant_items_inventory_placeholder_panel");
-	mInventoryText = mInventoryPlaceholder->getChild<LLTextBox>("merchant_items_inventory_placeholder_text");
-	mInventoryTitle = mInventoryPlaceholder->getChild<LLTextBox>("merchant_items_inventory_placeholder_title");
+	mInventoryPlaceholder = getChild<LLView>("marketplace_listings_inventory_placeholder_panel");
+	mInventoryText = mInventoryPlaceholder->getChild<LLTextBox>("marketplace_listings_inventory_placeholder_text");
+	mInventoryTitle = mInventoryPlaceholder->getChild<LLTextBox>("marketplace_listings_inventory_placeholder_title");
 
-	mTopLevelDropZone = getChild<LLPanel>("merchant_items_generic_drag_target");
+	mTopLevelDropZone = getChild<LLPanel>("marketplace_listings_generic_drag_target");
     
-	LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLFloaterMerchantItems::onFocusReceived, this));
+	LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLFloaterMarketplaceListings::onFocusReceived, this));
     
-	// Observe category creation to catch merchant items creation (moot if already existing)
-	mCategoryAddedObserver = new LLMerchantItemsAddedObserver(this);
+	// Observe category creation to catch marketplace listings creation (moot if already existing)
+	mCategoryAddedObserver = new LLMarketplaceListingsAddedObserver(this);
 	gInventory.addObserver(mCategoryAddedObserver);
 	
     // Merov : Debug : fetch aggressively so we can create test data right onOpen()
@@ -704,7 +704,7 @@ BOOL LLFloaterMerchantItems::postBuild()
 	return TRUE;
 }
 
-void LLFloaterMerchantItems::clean()
+void LLFloaterMarketplaceListings::clean()
 {
     // Note: we cannot delete the mOutboxInventoryPanel as that point
     // as this is called through callback observers of the panel itself.
@@ -714,11 +714,11 @@ void LLFloaterMerchantItems::clean()
     mRootFolderId.setNull();
 }
 
-void LLFloaterMerchantItems::onClose(bool app_quitting)
+void LLFloaterMarketplaceListings::onClose(bool app_quitting)
 {
 }
 
-void LLFloaterMerchantItems::onOpen(const LLSD& key)
+void LLFloaterMarketplaceListings::onOpen(const LLSD& key)
 {
 	//
 	// Initialize the Market Place or go update the outbox
@@ -763,12 +763,12 @@ void LLFloaterMerchantItems::onOpen(const LLSD& key)
 	fetchContents();
 }
 
-void LLFloaterMerchantItems::onFocusReceived()
+void LLFloaterMarketplaceListings::onFocusReceived()
 {
 	fetchContents();
 }
 
-void LLFloaterMerchantItems::fetchContents()
+void LLFloaterMarketplaceListings::fetchContents()
 {
 	if (mRootFolderId.notNull())
 	{
@@ -776,7 +776,7 @@ void LLFloaterMerchantItems::fetchContents()
 	}
 }
 
-void LLFloaterMerchantItems::setup()
+void LLFloaterMarketplaceListings::setup()
 {
 	if (LLMarketplaceInventoryImporter::getInstance()->getMarketPlaceStatus() != MarketplaceStatusCodes::MARKET_PLACE_MERCHANT)
 	{
@@ -784,24 +784,24 @@ void LLFloaterMerchantItems::setup()
 		return;
 	}
     
-	// We are a merchant. Get the Merchant items folder, create it if needs be.
-	LLUUID outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MERCHANT_ITEMS, true);
+	// We are a merchant. Get the Marketplace listings folder, create it if needs be.
+	LLUUID outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, true);
 	if (outbox_id.isNull())
 	{
 		// We should never get there unless the inventory fails badly
-		llinfos << "Merov : Inventory problem: failure to create the merchant items folder for a merchant!" << llendl;
-		llerrs << "Inventory problem: failure to create the merchant items folder for a merchant!" << llendl;
+		llinfos << "Merov : Inventory problem: failure to create the marketplace listings folder for a merchant!" << llendl;
+		llerrs << "Inventory problem: failure to create the marketplace listings folder for a merchant!" << llendl;
 		return;
 	}
     
-    // Consolidate Merchant items
+    // Consolidate Marketplace listings
     // We shouldn't have to do that but with a client/server system relying on a "well known folder" convention, things get messy and conventions get broken down eventually
-    gInventory.consolidateForType(outbox_id, LLFolderType::FT_MERCHANT_ITEMS);
+    gInventory.consolidateForType(outbox_id, LLFolderType::FT_MARKETPLACE_LISTINGS);
     
     if (outbox_id == mRootFolderId)
     {
-        llinfos << "Merov : Inventory warning: Merchant items folder already set" << llendl;
-        llwarns << "Inventory warning: Merchant items folder already set" << llendl;
+        llinfos << "Merov : Inventory warning: Marketplace listings folder already set" << llendl;
+        llwarns << "Inventory warning: Marketplace listings folder already set" << llendl;
         return;
     }
     mRootFolderId = outbox_id;
@@ -815,7 +815,7 @@ void LLFloaterMerchantItems::setup()
 	}
 	llassert(!mCategoryAddedObserver);
 	
-	// Create observer for merchant items modifications : clear the old one and create a new one
+	// Create observer for marketplace listings modifications : clear the old one and create a new one
 	if (mCategoriesObserver && gInventory.containsObserver(mCategoriesObserver))
 	{
 		gInventory.removeObserver(mCategoriesObserver);
@@ -823,16 +823,16 @@ void LLFloaterMerchantItems::setup()
 	}
     mCategoriesObserver = new LLInventoryCategoriesObserver();
     gInventory.addObserver(mCategoriesObserver);
-    mCategoriesObserver->addCategory(mRootFolderId, boost::bind(&LLFloaterMerchantItems::onChanged, this));
+    mCategoriesObserver->addCategory(mRootFolderId, boost::bind(&LLFloaterMarketplaceListings::onChanged, this));
 	llassert(mCategoriesObserver);
 	
-	// Set up the merchant items inventory view
+	// Set up the marketplace listings inventory view
 	LLInventoryPanel* inventory_panel = mInventoryPanel.get();
     if (inventory_panel)
     {
         delete inventory_panel;
     }
-    inventory_panel = LLUICtrlFactory::createFromFile<LLInventoryPanel>("panel_merchant_items_inventory.xml", mInventoryPlaceholder->getParent(), LLInventoryPanel::child_registry_t::instance());
+    inventory_panel = LLUICtrlFactory::createFromFile<LLInventoryPanel>("panel_marketplace_listings_inventory.xml", mInventoryPlaceholder->getParent(), LLInventoryPanel::child_registry_t::instance());
     mInventoryPanel = inventory_panel->getInventoryPanelHandle();
 	llassert(mInventoryPanel.get() != NULL);
 	
@@ -844,11 +844,11 @@ void LLFloaterMerchantItems::setup()
 	inventory_panel->getFolderViewModel()->setSorter(LLInventoryFilter::SO_FOLDERS_BY_NAME);
 	inventory_panel->getFilter().markDefault();
     
-	// Get the content of the merchant items folder
+	// Get the content of the marketplace listings folder
 	fetchContents();
 }
 
-void LLFloaterMerchantItems::initializeMarketPlace()
+void LLFloaterMarketplaceListings::initializeMarketPlace()
 {
 	//
 	// Initialize the marketplace import API
@@ -857,14 +857,14 @@ void LLFloaterMerchantItems::initializeMarketPlace()
 	
     if (!importer.isInitialized())
     {
-        importer.setInitializationErrorCallback(boost::bind(&LLFloaterMerchantItems::initializationReportError, this, _1, _2));
-        importer.setStatusChangedCallback(boost::bind(&LLFloaterMerchantItems::importStatusChanged, this, _1));
-        importer.setStatusReportCallback(boost::bind(&LLFloaterMerchantItems::importReportResults, this, _1, _2));
+        importer.setInitializationErrorCallback(boost::bind(&LLFloaterMarketplaceListings::initializationReportError, this, _1, _2));
+        importer.setStatusChangedCallback(boost::bind(&LLFloaterMarketplaceListings::importStatusChanged, this, _1));
+        importer.setStatusReportCallback(boost::bind(&LLFloaterMarketplaceListings::importReportResults, this, _1, _2));
         importer.initialize();
     }
 }
 
-S32 LLFloaterMerchantItems::getFolderCount()
+S32 LLFloaterMarketplaceListings::getFolderCount()
 {
 	if (mInventoryPanel.get() && mRootFolderId.notNull())
 	{
@@ -880,7 +880,7 @@ S32 LLFloaterMerchantItems::getFolderCount()
     }
 }
 
-void LLFloaterMerchantItems::updateView()
+void LLFloaterMarketplaceListings::updateView()
 {
 	LLInventoryPanel* panel = mInventoryPanel.get();
     
@@ -915,10 +915,10 @@ void LLFloaterMerchantItems::updateView()
             {
                 setup();
             }
-            // "Merchant items is empty!" message strings
-            text = LLTrans::getString("InventoryMerchantItemsNoItems", subs);
-            title = LLTrans::getString("InventoryMerchantItemsNoItemsTitle");
-            tooltip = LLTrans::getString("InventoryMerchantItemsNoItemsTooltip");
+            // "Marketplace listings is empty!" message strings
+            text = LLTrans::getString("InventoryMarketplaceListingsNoItems", subs);
+            title = LLTrans::getString("InventoryMarketplaceListingsNoItemsTitle");
+            tooltip = LLTrans::getString("InventoryMarketplaceListingsNoItemsTooltip");
         }
         else if (mkt_status <= MarketplaceStatusCodes::MARKET_PLACE_INITIALIZING)
         {
@@ -948,14 +948,14 @@ void LLFloaterMerchantItems::updateView()
     }
 }
 
-bool LLFloaterMerchantItems::isAccepted(EAcceptance accept)
+bool LLFloaterMarketplaceListings::isAccepted(EAcceptance accept)
 {
     // *TODO : Need a bit more test on what we accept: depends of what and where...
 	return (accept >= ACCEPT_YES_COPY_SINGLE);
 }
 
 
-BOOL LLFloaterMerchantItems::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+BOOL LLFloaterMarketplaceListings::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 										EDragAndDropType cargo_type,
 										void* cargo_data,
 										EAcceptance* accept,
@@ -1006,21 +1006,21 @@ BOOL LLFloaterMerchantItems::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL dro
 	return handled;
 }
 
-BOOL LLFloaterMerchantItems::handleHover(S32 x, S32 y, MASK mask)
+BOOL LLFloaterMarketplaceListings::handleHover(S32 x, S32 y, MASK mask)
 {
 	mTopLevelDropZone->setBackgroundVisible(FALSE);
     
 	return LLFloater::handleHover(x, y, mask);
 }
 
-void LLFloaterMerchantItems::onMouseLeave(S32 x, S32 y, MASK mask)
+void LLFloaterMarketplaceListings::onMouseLeave(S32 x, S32 y, MASK mask)
 {
 	mTopLevelDropZone->setBackgroundVisible(FALSE);
     
 	LLFloater::onMouseLeave(x, y, mask);
 }
 
-void LLFloaterMerchantItems::onChanged()
+void LLFloaterMarketplaceListings::onChanged()
 {
     LLViewerInventoryCategory* category = gInventory.getCategory(mRootFolderId);
 	if (mRootFolderId.notNull() && category)
@@ -1034,12 +1034,12 @@ void LLFloaterMerchantItems::onChanged()
     }
 }
 
-void LLFloaterMerchantItems::initializationReportError(U32 status, const LLSD& content)
+void LLFloaterMarketplaceListings::initializationReportError(U32 status, const LLSD& content)
 {
 	updateView();
 }
 
-void LLFloaterMerchantItems::importStatusChanged(bool inProgress)
+void LLFloaterMarketplaceListings::importStatusChanged(bool inProgress)
 {
 	if (mRootFolderId.isNull() && (LLMarketplaceInventoryImporter::getInstance()->getMarketPlaceStatus() == MarketplaceStatusCodes::MARKET_PLACE_MERCHANT))
 	{
@@ -1071,7 +1071,7 @@ void LLFloaterMerchantItems::importStatusChanged(bool inProgress)
 	updateView();
 }
 
-void LLFloaterMerchantItems::importReportResults(U32 status, const LLSD& content)
+void LLFloaterMarketplaceListings::importReportResults(U32 status, const LLSD& content)
 {	
 	updateView();
 }

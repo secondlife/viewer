@@ -1,8 +1,8 @@
 /** 
  * @file llfloateroutbox.h
- * @brief Implementation of the merchant outbox window and of the merchant items window
+ * @brief Implementation of the merchant outbox window and of the marketplace listings window
  *
- * *TODO : Eventually, take out all the merchant outbox stuff and rename that file to llfloatermerchantitems
+ * *TODO : Eventually, take out all the merchant outbox stuff and rename that file to llfloatermarketplacelistings
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -115,14 +115,14 @@ private:
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Class LLFloaterMerchantItems
+// Class LLFloaterMarketplaceListings
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class LLFloaterMerchantItems : public LLFloater
+class LLFloaterMarketplaceListings : public LLFloater
 {
 public:
-	LLFloaterMerchantItems(const LLSD& key);
-	~LLFloaterMerchantItems();
+	LLFloaterMarketplaceListings(const LLSD& key);
+	~LLFloaterMarketplaceListings();
 	
 	void initializeMarketPlace();
     

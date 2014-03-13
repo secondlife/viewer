@@ -160,7 +160,7 @@ protected:
 	BOOL isInboxFolder() const;     // true if COF or descendant of   marketplace inbox
 	BOOL isOutboxFolder() const;    // true if COF or descendant of   marketplace outbox
 	BOOL isOutboxFolderDirectParent() const;
-	BOOL isMerchantItemsFolder() const;     // true if descendant of Merchant items folder
+	BOOL isMarketplaceListingsFolder() const;     // true if descendant of Marketplace listings folder
 	const LLUUID getOutboxFolder() const;
 
 	virtual BOOL isItemPermissive() const;

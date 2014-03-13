@@ -182,11 +182,11 @@
          parameter="outbox" />
       </menu_item_call>
         <menu_item_call
-            label="Merchant Items..."
-            name="MerchantItems">
+            label="Marketplace listings..."
+            name="MarketplaceListings">
             <menu_item_call.on_click
             function="Floater.ToggleOrBringToFront"
-            parameter="merchant_items" />
+            parameter="marketplace_listings" />
         </menu_item_call>
       <menu_item_call
            label="Account dashboard..."
