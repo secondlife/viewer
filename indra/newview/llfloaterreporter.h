@@ -90,6 +90,7 @@ public:
 
 	static void showFromObject(const LLUUID& object_id);
 	static void showFromAvatar(const LLUUID& avatar_id, const std::string avatar_name);
+	static void showFromExperience(const LLUUID& experience_id);
 
 	static void onClickSend			(void *userdata);
 	static void onClickCancel		(void *userdata);
@@ -118,6 +119,7 @@ private:
 	void sendReportViaCaps(std::string url, std::string sshot_url, const LLSD & report);
 	void setPosBox(const LLVector3d &pos);
 	void enableControls(BOOL own_avatar);
+	void getExperienceInfo(const LLUUID& object_id);
 	void getObjectInfo(const LLUUID& object_id);
 	void callbackAvatarID(const uuid_vec_t& ids, const std::vector<LLAvatarName> names);
 	void setFromAvatarID(const LLUUID& avatar_id);
@@ -128,6 +130,7 @@ private:
 	LLUUID 			mObjectID;
 	LLUUID			mScreenID;
 	LLUUID			mAbuserID;
+	LLUUID			mExperienceID;
 	// Store the real name, not the link, for upstream reporting
 	std::string		mOwnerName;
 	BOOL			mDeselectOnClose;

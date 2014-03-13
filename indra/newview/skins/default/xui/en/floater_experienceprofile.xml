@@ -10,7 +10,7 @@
   min_width="325"
   min_height="325"
   width="358"
-  height="660">
+  height="650">
   <floater.string
     name="empty_slurl">
     (none)
@@ -42,7 +42,7 @@
   <tab_container
     hide_tabs="true"
     follows="all"
-    height="620"
+    height="615"
     layout="topleft"
     left="5"
     min_height="250"
@@ -52,7 +52,7 @@
     <panel
       background_visible="true"
       follows="all"
-      height="550"
+      height="540"
       layout="topleft"
       left="0"
       min_height="250"
@@ -62,7 +62,7 @@
       <scroll_container
         color="DkGray2"
         follows="all"
-        height="532"
+        height="520"
         layout="topleft"
         left="9"
         name="xp_scroll"
@@ -72,7 +72,7 @@
         <panel
           bg_alpha_color="DkGray2"
           follows="top|left|right"
-          height="510"
+          height="550"
           layout="topleft"
           left="0"
           name="scrolling_panel"
@@ -81,9 +81,10 @@
           min_width="315">
           <layout_stack
             follows="all"
-            height="510"
+            height="550"
             layout="topleft"
             left="0"
+            animate="false"
             top="0"
             orientation="vertical"
             width="315">
@@ -352,7 +353,7 @@
             </layout_panel>
             <layout_panel
               follows="all"
-              height="49"
+              height="75"
               layout="topleft"
               left="0"
               top="5"
@@ -366,7 +367,7 @@
                 label="Allow"
                 layout="topleft"
                 name="allow_btn"
-                width="80"
+                width="94"
                 top_pad="3"
                 left="10"
                 enabled="false"/>
@@ -376,7 +377,7 @@
                 label="Forget"
                 layout="topleft"
                 name="forget_btn"
-                width="80"
+                width="94"
                 top_pad="-23"
                 left_pad="3"
                 enabled="false"/>
@@ -386,23 +387,33 @@
                 label="Block"
                 layout="topleft"
                 name="block_btn"
-                width="80"
+                width="94"
                 top_pad="-23"
                 left_pad="3"
                 enabled="false"/>
               <text
                 type="string"
+                halign="center"
                 length="1"
                 follows="left|top|right"
                 height="16"
                 layout="topleft"
                 left="10"
                 name="privileged"
-                use_ellipses="true"
                 visible="false"
-                right ="-10">
+                width="288">
                 This experience is enabled for all residents.
               </text>
+              <button
+                follows="bottom|left"
+                height="23"
+                label="Report Abuse"
+                layout="topleft"
+                name="report_btn"
+                width="288"
+                top_pad="3"
+                left="10"
+                enabled="true"/>
             </layout_panel>
           </layout_stack>
         </panel>

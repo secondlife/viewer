@@ -70,7 +70,8 @@ protected:
     void onClickLocation();
 	void onClickClear();
 	void onPickGroup();
-    void onFieldChanged();
+	void onFieldChanged();
+	void onReportExperience();
 
 	void setEditGroup(LLUUID group_id);
 

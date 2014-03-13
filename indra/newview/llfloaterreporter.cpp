@@ -81,6 +81,7 @@
 #include "llagentui.h"
 
 #include "lltrans.h"
+#include "llexperiencecache.h"
 
 const U32 INCLUDE_SCREENSHOT  = 0x01 << 0;
 
@@ -225,6 +226,28 @@ void LLFloaterReporter::enableControls(BOOL enable)
 	getChildView("details_edit")->setEnabled(enable);
 	getChildView("send_btn")->setEnabled(enable);
 	getChildView("cancel_btn")->setEnabled(enable);
+}
+
+void LLFloaterReporter::getExperienceInfo(const LLUUID& experience_id)
+{
+	mExperienceID = experience_id;
+
+	if (LLUUID::null != mExperienceID)
+	{
+		LLSD experience;
+		stringstream desc;
+		if(LLExperienceCache::get(mExperienceID, experience)){
+			setFromAvatarID(experience[LLExperienceCache::AGENT_ID]);
+			desc << "\nExperience id: " << mExperienceID;
+		}
+		else
+		{
+			desc << "Unable to retrieve details for id: "<< mExperienceID;
+		}
+		
+		LLUICtrl* details = getChild<LLUICtrl>("details_edit");
+		details->setValue(desc.str());
+	}
 }
 
 void LLFloaterReporter::getObjectInfo(const LLUUID& object_id)
@@ -485,6 +508,19 @@ void LLFloaterReporter::show(const LLUUID& object_id, const std::string& avatar_
 	{
 		f->setFromAvatarID(object_id);
 	}
+
+	// Need to deselect on close
+	f->mDeselectOnClose = TRUE;
+
+	f->openFloater();
+}
+
+
+
+void LLFloaterReporter::showFromExperience( const LLUUID& experience_id )
+{
+	LLFloaterReporter* f = LLFloaterReg::showTypedInstance<LLFloaterReporter>("reporter");
+	f->getExperienceInfo(experience_id);
 
 	// Need to deselect on close
 	f->mDeselectOnClose = TRUE;
@@ -853,6 +889,7 @@ void LLFloaterReporter::setPosBox(const LLVector3d &pos)
 		mPosition.mV[VZ]);
 	getChild<LLUICtrl>("pos_field")->setValue(pos_string);
 }
+
 
 // void LLFloaterReporter::setDescription(const std::string& description, LLMeanCollisionData *mcd)
 // {

@@ -50,6 +50,7 @@
 #include "llevents.h"
 #include "llfloatergroups.h"
 #include "llnotifications.h"
+#include "llfloaterreporter.h"
 
 #define XML_PANEL_EXPERIENCE_PROFILE "floater_experienceprofile.xml"
 #define TF_NAME "experience_title"
@@ -73,17 +74,18 @@
 #define PNL_GROUP "group_panel"
 #define PNL_PERMS "perm panel"
 
-#define BTN_EDIT "edit_btn"
 #define BTN_ALLOW "allow_btn"
-#define BTN_FORGET "forget_btn"
 #define BTN_BLOCK "block_btn"
 #define BTN_CANCEL "cancel_btn"
-#define BTN_SAVE "save_btn"
-#define BTN_ENABLE "enable_btn"
-#define BTN_PRIVATE "private_btn"
-#define BTN_SET_LOCATION "location_btn"
 #define BTN_CLEAR_LOCATION "clear_btn"
+#define BTN_EDIT "edit_btn"
+#define BTN_ENABLE "enable_btn"
+#define BTN_FORGET "forget_btn"
+#define BTN_PRIVATE "private_btn"
+#define BTN_REPORT "report_btn"
+#define BTN_SAVE "save_btn"
 #define BTN_SET_GROUP "Group_btn"
+#define BTN_SET_LOCATION "location_btn"
 
 
 class LLExperienceHandler : public LLCommandHandler
@@ -310,6 +312,7 @@ BOOL LLFloaterExperienceProfile::postBuild()
 	childSetAction(BTN_SET_LOCATION, boost::bind(&LLFloaterExperienceProfile::onClickLocation, this));
 	childSetAction(BTN_CLEAR_LOCATION, boost::bind(&LLFloaterExperienceProfile::onClickClear, this));
 	childSetAction(BTN_SET_GROUP, boost::bind(&LLFloaterExperienceProfile::onPickGroup, this));
+	childSetAction(BTN_REPORT, boost::bind(&LLFloaterExperienceProfile::onReportExperience, this));
 
     getChild<LLTextEditor>(EDIT TF_DESC)->setKeystrokeCallback(boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this));
     getChild<LLUICtrl>(EDIT TF_MATURITY)->setCommitCallback(boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this));
@@ -981,4 +984,9 @@ void LLFloaterExperienceProfile::setEditGroup( LLUUID group_id )
 	child->setText(value);
 	mPackage[LLExperienceCache::GROUP_ID] = group_id;
 	onFieldChanged();
+}
+
+void LLFloaterExperienceProfile::onReportExperience()
+{
+	LLFloaterReporter::showFromExperience(mExperienceId);
 }
