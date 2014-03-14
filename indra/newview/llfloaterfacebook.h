@@ -78,6 +78,7 @@ public:
 
 	void updateControls();
 	void updateResolution(BOOL do_update);
+	void updateLocationCheckbox();
 	void checkAspectRatio(S32 index);
 	LLUICtrl* getRefreshBtn();
 
@@ -102,6 +103,7 @@ private:
     LLFloaterBigPreview * mBigPreviewFloater;
     
     S32 mQuality;       // Compression quality
+	bool mIncludeLocation;
 };
 
 class LLFacebookCheckinPanel : public LLPanel

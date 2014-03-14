@@ -195,7 +195,8 @@ mCaptionTextBox(NULL),
 mLocationCheckbox(NULL),
 mPostButton(NULL),
 mBigPreviewFloater(NULL),
-mQuality(MAX_QUALITY)
+mQuality(MAX_QUALITY),
+mIncludeLocation(TRUE)
 {
 	mCommitCallbackRegistrar.add("SocialSharing.SendPhoto", boost::bind(&LLFacebookPhotoPanel::onSend, this));
 	mCommitCallbackRegistrar.add("SocialSharing.RefreshPhoto", boost::bind(&LLFacebookPhotoPanel::onClickNewSnapshot, this));
@@ -226,6 +227,7 @@ BOOL LLFacebookPhotoPanel::postBuild()
 	mThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");
 	mCaptionTextBox = getChild<LLUICtrl>("photo_caption");
 	mLocationCheckbox = getChild<LLUICtrl>("add_location_cb");
+	mLocationCheckbox->setCommitCallback(boost::bind(&LLFacebookPhotoPanel::updateLocationCheckbox, this));
 	mPostButton = getChild<LLUICtrl>("post_photo_btn");
 	mCancelButton = getChild<LLUICtrl>("cancel_photo_btn");
 	mBigPreviewFloater = dynamic_cast<LLFloaterBigPreview*>(LLFloaterReg::getInstance("big_preview"));
@@ -282,7 +284,16 @@ void LLFacebookPhotoPanel::draw()
     mRefreshBtn->setEnabled(no_ongoing_connection);
     mBtnPreview->setEnabled(no_ongoing_connection);
     mLocationCheckbox->setEnabled(no_ongoing_connection && !mCaptionTextBox->getValue().asString().empty());
-    
+	
+	if (mCaptionTextBox->getValue().asString().empty())
+	{
+		mLocationCheckbox->setValue(FALSE);
+	}
+	else
+	{
+		mLocationCheckbox->setValue(mIncludeLocation);
+	}
+	
     // Reassign the preview floater if we have the focus and the preview exists
     if (hasFocus() && isPreviewVisible())
     {
@@ -452,7 +463,7 @@ void LLFacebookPhotoPanel::sendPhoto()
 	std::string caption = mCaptionTextBox->getValue().asString();
 
 	// Add the location if required
-	bool add_location = (mLocationCheckbox->getEnabled() && mLocationCheckbox->getValue().asBoolean());
+	bool add_location = mLocationCheckbox->getValue().asBoolean();
 	if (add_location)
 	{
 		// Get the SLURL for the location
@@ -569,6 +580,11 @@ void LLFacebookPhotoPanel::updateResolution(BOOL do_update)
 			}
 		}
 	}
+}
+
+void LLFacebookPhotoPanel::updateLocationCheckbox()
+{
+	mIncludeLocation = mLocationCheckbox->getValue().asBoolean();
 }
 
 void LLFacebookPhotoPanel::checkAspectRatio(S32 index)
