@@ -113,6 +113,7 @@ private:
 // * implement the Marketplace API (TBD)
 // * cache the current Marketplace data (tuples)
 // * provide methods to get Marketplace data on any inventory item
+// * signal marketplace updates to inventory
 class LLMarketplaceData;
 
 // A Marketplace item is known by its tuple
@@ -132,7 +133,7 @@ private:
     LLUUID mActiveVersionFolderId;
     bool mIsActive;
 };
-// The folder UUID is used as a key to this map. It could therefore be taken off the object themselves
+// Note: the folder UUID is used as a key to this map. It could therefore be taken off the object themselves
 typedef std::map<LLUUID, LLMarketplaceTuple> marketplace_items_list_t;
 
 // There's one and only one possible set of Marketplace data per agent and per session
@@ -144,14 +145,14 @@ public:
     
     bool isEmpty() { return (mMarketplaceItems.size() == 0); }
     
-    // Access Marketplace Data : methods return default value if the folder_id can't be found
+    // Access Marketplace Data : each method returns a default value if the folder_id can't be found
     bool getActivationState(const LLUUID& folder_id);
     std::string getListingID(const LLUUID& folder_id);
     LLUUID getVersionFolderID(const LLUUID& folder_id);
     
     bool isListed(const LLUUID& folder_id); // returns true if folder_id is in the items map
     
-    // Modify Marketplace Data : methods return true is function succeeded, false if error
+    // Modify Marketplace Data : each method returns true if the function succeeds, false if error
     bool setListingID(const LLUUID& folder_id, std::string listing_id);
     bool setVersionFolderID(const LLUUID& folder_id, const LLUUID& version_id);
     bool setActivation(const LLUUID& folder_id, bool activate);
