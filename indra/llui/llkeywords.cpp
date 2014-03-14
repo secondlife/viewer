@@ -67,7 +67,10 @@ inline bool LLKeywordToken::isTail(const llwchar* s) const
 	return res;
 }
 
-LLKeywords::LLKeywords() { }
+LLKeywords::LLKeywords() :
+	mLoaded(false)
+{
+}
 
 LLKeywords::~LLKeywords()
 {
