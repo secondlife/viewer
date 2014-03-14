@@ -571,7 +571,8 @@ void LLTextBase::drawText()
 	if ( (getSpellCheck()) && (getWText().length() > 2) )
 	{
 		// Calculate start and end indices for the spell checking range
-		S32 start = line_start, end = getLineEnd(last_line);
+		S32 start = line_start;
+		S32 end   = getLineEnd(last_line);
 
 		if ( (mSpellCheckStart != start) || (mSpellCheckEnd != end) )
 		{

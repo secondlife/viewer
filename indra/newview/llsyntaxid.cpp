@@ -50,7 +50,7 @@ void fetchKeywordsFileResponder::errorWithContent(U32 status,
 												  const LLSD& content)
 {
 	LLSyntaxIdLSL::sLoadFailed = true;
-	LL_ERRS("SyntaxLSL")
+	LL_WARNS("SyntaxLSL")
 			<< "fetchKeywordsFileResponder error [status:"
 			<< status << "]: " << content
 			<< LL_ENDL;
@@ -88,7 +88,7 @@ void fetchKeywordsFileResponder::result(const LLSD& content_ref)
 	{
 		LLSyntaxIdLSL::sLoaded = false;
 		LLSyntaxIdLSL::sLoadFailed = true;
-		LL_ERRS("SyntaxLSL")
+		LL_WARNS("SyntaxLSL")
 				<< "Syntax file '" << mFileSpec << "' contains invalid LLSD!" << LL_ENDL;
 	}
 
@@ -174,7 +174,7 @@ bool LLSyntaxIdLSL::checkSyntaxIdChanged()
 		if (!region->capabilitiesReceived())
 		{   // Shouldn't be possible, but experience shows that it may be needed.
 			sLoadFailed = true;
-			LL_ERRS("SyntaxLSL")
+			LL_WARNS("SyntaxLSL")
 				<< "Region '" << region->getName()
 				<< "' has not received capabilities yet! Cannot process SyntaxId."
 				<< LL_ENDL;
@@ -304,7 +304,7 @@ void LLSyntaxIdLSL::initialise()
 		else
 		{
 			sLoadFailed = true;
-			LL_ERRS("SyntaxLSL")
+			LL_WARNS("SyntaxLSL")
 					<< "LSLSyntaxId capability URL is empty!!" << LL_ENDL;
 			loadDefaultKeywordsIntoLLSD();
 		}
@@ -388,7 +388,7 @@ void LLSyntaxIdLSL::loadKeywordsIntoLLSD()
 		sLoaded = (bool)LLSDSerialize::fromXML(content, file);
 		if (!sLoaded)
 		{
-			LL_ERRS("SyntaxLSL")
+			LL_WARNS("SyntaxLSL")
 					<< "Unable to deserialise file: "
 					<< mFullFileSpec << LL_ENDL;
 		}

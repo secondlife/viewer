@@ -163,15 +163,14 @@ std::string LLKeywords::getArguments(LLSD& arguments)
 			}
 			else
 			{
-				LL_INFOS("SyntaxLSL")
-						<< "Argument array does not comtain a map element!" << LL_ENDL;
+				LL_WARNS("SyntaxLSL")
+						<< "Argument array comtains a non-map element!" << LL_ENDL;
 			}
 		}
 	}
 	else if (!arguments.isUndefined())
 	{
-		LL_WARNS("SyntaxLSL")
-				<< "Not an array! Invalid arguments LLSD passed to function." << arguments << LL_ENDL;
+		LL_WARNS("SyntaxLSL") << "Not an array! Invalid arguments LLSD passed to function." << arguments << LL_ENDL;
 	}
 	return argString == "" ? "" : argString;
 }
@@ -251,7 +250,7 @@ LLColor4 LLKeywords::getColorGroup(const std::string key_in)
 	}
 	else
 	{
-		LL_WARNS("SyntaxLSL") << "Color key '" << key_in << "' not recognised!" << LL_ENDL;
+		LL_WARNS("SyntaxLSL") << "Color key '" << key_in << "' not recognized!" << LL_ENDL;
 	}
 
 	return LLUIColorTable::instance().getColor(ColourGroup);
@@ -287,7 +286,7 @@ void LLKeywords::processTokens()
 			}
 			else
 			{
-				LL_ERRS("LSL-Tokens-Processing") << "Map for " + outerIt->first + " entries is missing! Ignoring." << LL_ENDL;
+				LL_WARNS("LSL-Tokens-Processing") << "Map for " + outerIt->first + " entries is missing! Ignoring." << LL_ENDL;
 			}
 		}
 	}
@@ -356,7 +355,7 @@ void LLKeywords::processTokensGroup(LLSD& Tokens, const std::string Group)
 					}
 					else
 					{
-						LL_ERRS("SyntaxLSL") << "Not a valid attribute" << LL_ENDL;
+						LL_WARNS("SyntaxLSL") << "Not a valid attribute" << LL_ENDL;
 					}
 				}
 
@@ -403,7 +402,7 @@ void LLKeywords::processTokensGroup(LLSD& Tokens, const std::string Group)
 	}
 	else if (Tokens.isArray())	// Currently nothing should need this, but it's here for completeness
 	{
-		LL_INFOS("SyntaxLSL") << "Curious, shouldn't be an array here" << LL_ENDL;
+		LL_WARNS("SyntaxLSL") << "Curious, shouldn't be an array here; adding all using color " << Color << LL_ENDL;
 		for (int count = 0; count < Tokens.size(); ++count)
 		{
 			addToken(token_type, Tokens[count], Color, "");
@@ -411,7 +410,7 @@ void LLKeywords::processTokensGroup(LLSD& Tokens, const std::string Group)
 	}
 	else
 	{
-		LL_INFOS("Tokens") << "Invalid map/array passed: '" << Tokens << "'" << LL_ENDL;
+		LL_WARNS("Tokens") << "Invalid map/array passed: '" << Tokens << "'" << LL_ENDL;
 	}
 }
 
