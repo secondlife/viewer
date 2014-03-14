@@ -13,7 +13,7 @@
     http://secondlife.com/account/request.php
   </panel.string>
   <layout_stack
-  follows="left|right|top|bottom"
+  follows="left|right|top"
   height="172"
   min_height="172"
   left="0"
@@ -25,14 +25,12 @@
       height="172"
       auto_resize="true"
       name="ui_elastic_pad_left"
-      min_height="172"
       width="32" />
     <layout_panel
       auto_resize="false"
       follows="left|right|top"
       name="ui_container"
       width="960"
-      min_height="172"
       left="0"
       top="0"
       height="172">
@@ -199,7 +197,6 @@
       height="172"
       auto_resize="true"
       name="ui_elastic_pad_right"
-      min_height="172"
       width="32" />
   </layout_stack>
   <web_browser
