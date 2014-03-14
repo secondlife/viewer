@@ -238,7 +238,7 @@ LLAgentWearables::sendAgentWearablesUpdateCallback::~sendAgentWearablesUpdateCal
  *
  * Would like to pass the agent in here, but we can't safely
  * count on it being around later.  Just use gAgent directly.
- * @param cb callback to execute on completion (??? unused ???)
+ * @param cb callback to execute on completion (? unused ?)
  * @param type Type for the wearable in the agent
  * @param wearable The wearable data.
  * @param todo Bitmask of actions to take on completion.
