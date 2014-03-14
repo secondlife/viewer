@@ -203,6 +203,7 @@ LLBVHLoader::LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &error
 LLBVHLoader::~LLBVHLoader()
 {
 	std::for_each(mJoints.begin(),mJoints.end(),DeletePointer());
+	mJoints.clear();
 }
 
 //------------------------------------------------------------------------

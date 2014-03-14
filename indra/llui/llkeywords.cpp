@@ -75,8 +75,11 @@ LLKeywords::LLKeywords() :
 LLKeywords::~LLKeywords()
 {
 	std::for_each(mWordTokenMap.begin(), mWordTokenMap.end(), DeletePairedPointer());
+	mWordTokenMap.clear();
 	std::for_each(mLineTokenList.begin(), mLineTokenList.end(), DeletePointer());
+	mLineTokenList.clear();
 	std::for_each(mDelimiterTokenList.begin(), mDelimiterTokenList.end(), DeletePointer());
+	mDelimiterTokenList.clear();
 }
 
 void LLKeywords::addColorGroup(const std::string key_in, const LLColor4 color)

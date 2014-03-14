@@ -56,7 +56,7 @@ private:
 	void onSaveToComputer();
 };
 
-static LLRegisterPanelClassWrapper<LLPanelSnapshotOptions> panel_class("llpanelsnapshotoptions");
+static LLPanelInjector<LLPanelSnapshotOptions> panel_class("llpanelsnapshotoptions");
 
 LLPanelSnapshotOptions::LLPanelSnapshotOptions()
 {

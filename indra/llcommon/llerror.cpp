@@ -429,8 +429,8 @@ namespace LLError
 		
 		~Settings()
 		{
-			for_each(recorders.begin(), recorders.end(),
-					 DeletePointer());
+			for_each(recorders.begin(), recorders.end(), DeletePointer());
+			recorders.clear();
 		}
 		
 		static Settings*& getPtr();

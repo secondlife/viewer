@@ -48,7 +48,7 @@
 #include "lltabcontainer.h"
 #include "lltexturectrl.h"
 
-static LLRegisterPanelClassWrapper<LLPanelMe> t_panel_me_profile("panel_me");
+static LLPanelInjector<LLPanelMe> t_panel_me_profile("panel_me");
 
 LLPanelMe::LLPanelMe(void) 
  : LLPanelProfile()

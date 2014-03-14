@@ -310,7 +310,7 @@ LLTextEditor::~LLTextEditor()
 
 	// Scrollbar is deleted by LLView
 	std::for_each(mUndoStack.begin(), mUndoStack.end(), DeletePointer());
-
+	mUndoStack.clear();
 	// context menu is owned by menu holder, not us
 	//delete mContextMenu;
 }
@@ -1620,7 +1620,7 @@ BOOL LLTextEditor::handleControlKey(const KEY key, const MASK mask)
 		}
 	}
 
-	if (handled)
+	if (handled && !gFocusMgr.getMouseCapture())
 	{
 		updatePrimary();
 	}

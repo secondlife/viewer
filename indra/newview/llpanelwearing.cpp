@@ -151,7 +151,7 @@ protected:
 
 std::string LLPanelAppearanceTab::sFilterSubString = LLStringUtil::null;
 
-static LLRegisterPanelClassWrapper<LLPanelWearing> t_panel_wearing("panel_wearing");
+static LLPanelInjector<LLPanelWearing> t_panel_wearing("panel_wearing");
 
 LLPanelWearing::LLPanelWearing()
 	:	LLPanelAppearanceTab()
