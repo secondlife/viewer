@@ -189,20 +189,32 @@ FunctionEnd
 ;Recommend Upgrading Service Pack
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function CheckWindowsServPack
-  ${If} ${IsWinXP}
-  ${AndIfNot} ${IsServicePack} 3
-  ${OrIf} ${IsWin2003}
+  ${If} ${IsWinVista}
   ${AndIfNot} ${IsServicePack} 2
-  ${OrIf} ${IsWinVista}
+    MessageBox MB_OK $(CheckWindowsServPackMB)
+    DetailPrint $(UseLatestServPackDP)
+    Return
+  ${EndIf}
+
+  ${If} ${IsWin2008}
   ${AndIfNot} ${IsServicePack} 2
-  ${OrIf} ${IsWin2008}
-  ${AndIfNot} ${IsServicePack} 2
-  ${OrIf} ${IsWin7}
-  ${AndIfNot} ${IsServicePack} 1
-  ${OrIf} ${IsWin2008R2}
+    MessageBox MB_OK $(CheckWindowsServPackMB)
+    DetailPrint $(UseLatestServPackDP)
+    Return
+  ${EndIf}
+
+  ${If} ${IsWin7}
   ${AndIfNot} ${IsServicePack} 1
     MessageBox MB_OK $(CheckWindowsServPackMB)
     DetailPrint $(UseLatestServPackDP)
+    Return
+  ${EndIf}
+
+  ${If} ${IsWin2008R2}
+  ${AndIfNot} ${IsServicePack} 1
+    MessageBox MB_OK $(CheckWindowsServPackMB)
+    DetailPrint $(UseLatestServPackDP)
+    Return
   ${EndIf}
 FunctionEnd
 
