@@ -111,6 +111,16 @@ void append_path(const LLUUID& id, std::string& path)
 	path.append(temp);
 }
 
+void update_marketplace_category(const LLUUID& cat_id)
+{
+    // When changing the marketplace status of a folder, the only thing that needs to happen is
+    // for all observers of the folder to, possibly, change the display label of said folder.
+    // At least that's the status for the moment so, even if that function seems small, we
+    // prefer to encapsulate that behavior here.
+    gInventory.addChangedMask(LLInventoryObserver::LABEL, cat_id);
+	gInventory.notifyObservers();
+}
+
 void rename_category(LLInventoryModel* model, const LLUUID& cat_id, const std::string& new_name)
 {
 	LLViewerInventoryCategory* cat;
