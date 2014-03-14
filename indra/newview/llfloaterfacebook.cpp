@@ -281,8 +281,8 @@ void LLFacebookPhotoPanel::draw()
     mFilterComboBox->setEnabled(no_ongoing_connection);
     mRefreshBtn->setEnabled(no_ongoing_connection);
     mBtnPreview->setEnabled(no_ongoing_connection);
-    mLocationCheckbox->setEnabled(no_ongoing_connection);
-        
+    mLocationCheckbox->setEnabled(no_ongoing_connection && !mCaptionTextBox->getValue().asString().empty());
+    
     // Reassign the preview floater if we have the focus and the preview exists
     if (hasFocus() && isPreviewVisible())
     {
@@ -452,7 +452,7 @@ void LLFacebookPhotoPanel::sendPhoto()
 	std::string caption = mCaptionTextBox->getValue().asString();
 
 	// Add the location if required
-	bool add_location = mLocationCheckbox->getValue().asBoolean();
+	bool add_location = (mLocationCheckbox->getEnabled() && mLocationCheckbox->getValue().asBoolean());
 	if (add_location)
 	{
 		// Get the SLURL for the location
