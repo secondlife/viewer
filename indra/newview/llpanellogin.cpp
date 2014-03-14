@@ -1092,6 +1092,7 @@ void LLPanelLogin::onSelectServer()
 				// the grid specified by the location is not this one, so clear the combo
 				location_combo->setCurrentByIndex(0); // last location on the new grid
 				location_combo->setTextEntry(LLStringUtil::null);
+				mFavoriteSelected = true;
 			}
 		}			
 		break;

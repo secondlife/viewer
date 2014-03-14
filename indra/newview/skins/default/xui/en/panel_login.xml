@@ -12,12 +12,36 @@
     name="forgot_password_url">
     http://secondlife.com/account/request.php
   </panel.string>
+  <layout_stack
+  follows="left|right|top|bottom"
+  height="172"
+  min_height="172"
+  left="0"
+  name="ui_stack"
+  orientation="horizontal"
+  top="0"
+  width="1024">
+    <layout_panel
+      height="172"
+      auto_resize="true"
+      name="ui_elastic_pad_left"
+      min_height="172"
+      width="32" />
+    <layout_panel
+      auto_resize="false"
+      follows="left|right|top"
+      name="ui_container"
+      width="960"
+      min_height="172"
+      left="0"
+      top="0"
+      height="172">
   <icon
     height="73"
     width="165"
     bottom="112"
     image_name="login_sl_logo"
-    left="32"
+    left="0"
     name="sl_logo_small" />
   <combo_box
     left_pad="22"
@@ -86,7 +110,7 @@
     font="SansSerifMedium"
     name="connect_btn"
     enabled="true"
-    left="32"
+    left="0"
     width="80"
     height="26"
     bottom_delta="56" />
@@ -170,6 +194,14 @@
     top_pad="2"
     name="server_combo"
     width="128" />
+    </layout_panel>
+    <layout_panel
+      height="172"
+      auto_resize="true"
+      name="ui_elastic_pad_right"
+      min_height="172"
+      width="32" />
+  </layout_stack>
   <web_browser
     tab_stop="false"
     trusted_content="true"
@@ -179,7 +211,7 @@
     left="0"
     name="login_html"
     start_url=""
-    top_delta="64"
+    top="188"
     height="600"
     width="1024" />
 </panel>
