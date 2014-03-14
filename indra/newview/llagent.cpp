@@ -1466,6 +1466,7 @@ void LLAgent::setDoNotDisturb(bool pIsDoNotDisturb)
 	{
 		LLDoNotDisturbNotificationStorage::getInstance()->updateNotifications();
 	}
+	gIMMgr->updateDNDMessageStatus();
 }
 
 //-----------------------------------------------------------------------------
