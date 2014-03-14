@@ -629,7 +629,7 @@ bool idle_startup()
 
 #ifdef LL_FMODEX		
 #if !LL_WINDOWS
-			if (NULL == getenv("LL_BAD_FMODEX_DRIVER")
+			if (NULL == getenv("LL_BAD_FMODEX_DRIVER"))
 #endif // !LL_WINDOWS
 			{
 				gAudiop = (LLAudioEngine *) new LLAudioEngine_FMODEX(gSavedSettings.getBOOL("FMODExProfilerEnable"));
@@ -638,7 +638,7 @@ bool idle_startup()
 
 #ifdef LL_OPENAL
 #if !LL_WINDOWS
-			if (NULL == getenv("LL_BAD_OPENAL_DRIVER")
+			if (NULL == getenv("LL_BAD_OPENAL_DRIVER"))
 #endif // !LL_WINDOWS
 			{
 				gAudiop = (LLAudioEngine *) new LLAudioEngine_OpenAL();
