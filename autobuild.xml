@@ -498,9 +498,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>179f3fa55920f0702b5721d52426fe02</string>
+              <string>862b9244ed8a27bec16b62883fe3580a</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/288119/arch/Darwin/installer/fmodex-4.44.31-darwin-20140314.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/288122/arch/Darwin/installer/fmodex-4.44.31-darwin-20140314.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -510,9 +510,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>65073109c821db1517860480e570994e</string>
+              <string>180f4d703deec104469e6a9044243110</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/288120/arch/Linux/installer/fmodex-4.44.31-linux-20140314.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/288122/arch/Linux/installer/fmodex-4.44.31-linux-20140315.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -524,7 +524,7 @@
               <key>hash</key>
               <string>6c859cd17fb8c9cdd96b188c2a2c2838</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/288120/arch/CYGWIN/installer/fmodex-4.44.31-windows-20140314.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/288122/arch/CYGWIN/installer/fmodex-4.44.31-windows-20140314.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
