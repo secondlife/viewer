@@ -1959,7 +1959,16 @@ std::string LLFolderBridge::getLabelSuffix() const
         if (LLMarketplaceData::instance().isListed(getUUID()))
         {
             llinfos << "Merov : in merchant folder and listed : id = " << getUUID() << llendl;
-            std::string suffix = " (" + LLMarketplaceData::instance().getListingID(getUUID()) + ")";
+            std::string suffix = LLMarketplaceData::instance().getListingID(getUUID());
+            if (suffix.empty())
+            {
+                suffix = LLTrans::getString("MarketplaceNoID");
+            }
+            suffix = " (" +  suffix + ")";
+            if (LLMarketplaceData::instance().getActivationState(getUUID()))
+            {
+                suffix += " (" +  LLTrans::getString("MarketplaceActive") + ")";
+            }
             return LLInvFVBridge::getLabelSuffix() + suffix;
         }
         else
@@ -1970,7 +1979,6 @@ std::string LLFolderBridge::getLabelSuffix() const
 	}
 	else
 	{
-        llinfos << "Merov : not in merchant folder : id = " << getUUID() << llendl;
 		return LLInvFVBridge::getLabelSuffix();
 	}
 }

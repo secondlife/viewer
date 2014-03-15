@@ -743,12 +743,15 @@ void LLFloaterMarketplaceListings::onOpen(const LLSD& key)
         for (LLInventoryModel::cat_array_t::iterator iter = cats->begin(); iter != cats->end(); iter++, index++)
         {
             LLViewerInventoryCategory* category = *iter;
-            LLMarketplaceData::instance().addTestItem(category->getUUID());
-            if (index%2)
+            if (index%3)
             {
-                LLMarketplaceData::instance().setListingID(category->getUUID(),"TestingID1234");
+                LLMarketplaceData::instance().addTestItem(category->getUUID());
+                if (index%3 == 1)
+                {
+                    LLMarketplaceData::instance().setListingID(category->getUUID(),"TestingID1234");
+                }
+                LLMarketplaceData::instance().setActivation(category->getUUID(),(index%2));
             }
-            LLMarketplaceData::instance().setActivation(category->getUUID(),(index%3 == 0));
         }
     }
 
