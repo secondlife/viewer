@@ -41,6 +41,7 @@ namespace FMOD
 	class Sound;
 	class DSP;
 }
+typedef struct FMOD_DSP_DESCRIPTION FMOD_DSP_DESCRIPTION;
 
 //Interfaces
 class LLAudioEngine_FMODEX : public LLAudioEngine 
@@ -74,7 +75,7 @@ protected:
 
 	LLWindGen<MIXBUFFERFORMAT> *mWindGen;
 
-	FMOD_DSP_DESCRIPTION mWindDSPDesc;
+	FMOD_DSP_DESCRIPTION *mWindDSPDesc;
 	FMOD::DSP *mWindDSP;
 	FMOD::System *mSystem;
 	bool mEnableProfiler;

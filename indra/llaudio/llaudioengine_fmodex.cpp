@@ -55,11 +55,13 @@ LLAudioEngine_FMODEX::LLAudioEngine_FMODEX(bool enable_profiler)
 	mWindDSP = NULL;
 	mSystem = NULL;
 	mEnableProfiler = enable_profiler;
+	mWindDSPDesc = new FMOD_DSP_DESCRIPTION();
 }
 
 
 LLAudioEngine_FMODEX::~LLAudioEngine_FMODEX()
 {
+	delete mWindDSPDesc;
 }
 
 
@@ -347,11 +349,11 @@ bool LLAudioEngine_FMODEX::initWind()
 
 	if (!mWindDSP)
 	{
-		memset(&mWindDSPDesc, 0, sizeof(mWindDSPDesc));	//Set everything to zero
-		strncpy(mWindDSPDesc.name, "Wind Unit", sizeof(mWindDSPDesc.name));
-		mWindDSPDesc.channels = 2;
-		mWindDSPDesc.read = &windCallback; // Assign callback - may be called from arbitrary threads
-		if (Check_FMOD_Error(mSystem->createDSP(&mWindDSPDesc, &mWindDSP), "FMOD::createDSP"))
+		memset(mWindDSPDesc, 0, sizeof(*mWindDSPDesc));	//Set everything to zero
+		strncpy(mWindDSPDesc->name, "Wind Unit", sizeof(mWindDSPDesc->name));
+		mWindDSPDesc->channels = 2;
+		mWindDSPDesc->read = &windCallback; // Assign callback - may be called from arbitrary threads
+		if (Check_FMOD_Error(mSystem->createDSP(mWindDSPDesc, &mWindDSP), "FMOD::createDSP"))
 			return false;
 
 		if (mWindGen)
