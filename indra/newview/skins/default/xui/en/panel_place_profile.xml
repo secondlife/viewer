@@ -762,11 +762,19 @@
                          top_pad="5"
                          value="Rating:"
                          width="80" />
+                        <icon
+                         follows="top|left"
+                         height="16"
+                         image_name="Parcel_PG_Dark"
+                         layout="topleft"
+                         left_pad="0"
+                         name="estate_rating_icon"
+                         width="18" />
                         <text
                          follows="left|top|right"
                          height="15"
                          layout="topleft"
-                         left_pad="0"
+                         left_pad="10"
                          name="estate_rating"
                          top_delta="0"
                          width="187" />
