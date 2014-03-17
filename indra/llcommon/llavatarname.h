@@ -54,6 +54,9 @@ public:
 	static void setUseDisplayNames(bool use);
 	static bool useDisplayNames();
 	
+	static void setUseUsernames(bool use);
+	static bool useUsernames();
+
 	// A name object is valid if not temporary and not yet expired (default is expiration not checked)
 	bool isValidName(F64 max_unrefreshed = 0.0f) const { return !mIsTemporaryName && (mExpires >= max_unrefreshed); }
 	
@@ -128,6 +131,9 @@ private:
 	// Global flag indicating if display name should be used or not
 	// This will affect the output of the high level "get" methods
 	static bool sUseDisplayNames;
+
+	// Flag indicating if username should be shown after display name or not
+	static bool sUseUsernames;
 };
 
 #endif

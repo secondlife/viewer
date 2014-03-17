@@ -62,6 +62,7 @@
 #include "llresmgr.h"
 #include "pipeline.h"
 #include "llspatialpartition.h"
+#include "llviewershadermgr.h"
 
 // Height of the yellow selection highlight posts for land
 const F32 PARCEL_POST_HEIGHT = 0.666f;
@@ -767,7 +768,6 @@ void draw_line_cube(F32 width, const LLVector3& center)
 	gGL.vertex3f(center.mV[VX] + width ,center.mV[VY] - width,center.mV[VZ] - width);
 }
 
-
 void LLViewerObjectList::renderObjectBeacons()
 {
 	if (mDebugBeacons.empty())
@@ -877,4 +877,135 @@ void LLViewerObjectList::renderObjectBeacons()
 	}
 }
 
+
+void gpu_benchmark()
+{
+	if (!LLGLSLShader::sNoFixedFunction)
+	{ //don't bother benchmarking the fixed function
+		return;
+	}
+
+	//measure memory bandwidth by:
+	// - allocating a batch of textures and render targets
+	// - rendering those textures to those render targets
+	// - recording time taken
+	// - taking the median time for a given number of samples
+	
+	//resolution of textures/render targets
+	const U32 res = 1024;
+	
+	//number of textures
+	const U32 count = 32;
+
+	//number of samples to take
+	const S32 samples = 64;
+
+	LLGLSLShader::initProfile();
+
+	LLRenderTarget dest[count];
+	U32 source[count];
+	LLImageGL::generateTextures(count, source);
+	std::vector<F32> results;
+
+	//build a random texture
+	U8 pixels[res*res*4];
+
+	for (U32 i = 0; i < res*res*4; ++i)
+	{
+		pixels[i] = (U8) ll_rand(255);
+	}
+	
+
+	gGL.setColorMask(true, true);
+	LLGLDepthTest depth(GL_FALSE);
+
+	for (U32 i = 0; i < count; ++i)
+	{ //allocate render targets and textures
+		dest[i].allocate(res,res,GL_RGBA,false, false, LLTexUnit::TT_TEXTURE, true);
+		dest[i].bindTarget();
+		dest[i].clear();
+		dest[i].flush();
+
+		gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, source[i]);
+		LLImageGL::setManualImage(GL_TEXTURE_2D, 0, GL_RGBA, res,res,GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+	}
+
+	//make a dummy triangle to draw with
+	LLPointer<LLVertexBuffer> buff = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, GL_STATIC_DRAW_ARB);
+	buff->allocateBuffer(3, 0, true);
+
+	LLStrider<LLVector3> v;
+	LLStrider<LLVector2> tc;
+
+	buff->getVertexStrider(v);
+	
+	v[0].set(-1,1,0);
+	v[1].set(-1,-3,0);
+	v[2].set(3,1,0);
+	buff->flush();
+
+	gBenchmarkProgram.bind();
+	buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
+
+	//wait for any previoius GL commands to finish
+	glFinish();
+	
+	for (S32 c = -1; c < samples; ++c)
+	{
+		LLTimer timer;
+		timer.start();
+
+		for (U32 i = 0; i < count; ++i)
+		{
+			dest[i].bindTarget();
+			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, source[i]);
+			buff->drawArrays(LLRender::TRIANGLES, 0, 3);
+			dest[i].flush();
+		}
+		
+		//wait for current batch of copies to finish
+		glFinish();
+
+		F32 time = timer.getElapsedTimeF32();
+
+		if (c >= 0) // <-- ignore the first sample as it tends to be artificially slow
+		{ 
+			//store result in gigabytes per second
+			F32 gb = (F32) ((F64) (res*res*8*count))/(1000000000);
+
+			F32 gbps = gb/time;
+
+			results.push_back(gbps);
+		}
+	}
+
+	gBenchmarkProgram.unbind();
+
+	LLGLSLShader::finishProfile();
+	
+	LLImageGL::deleteTextures(count, source);
+
+
+	std::sort(results.begin(), results.end());
+
+	F32 gbps = results[results.size()/2];
+
+	llinfos << "Memory bandwidth is " << llformat("%.3f", gbps) << "GB/sec according to CPU timers" << llendl;
+	
+	F32 ms = gBenchmarkProgram.mTimeElapsed/1000000.f;
+	F32 seconds = ms/1000.f;
+
+	F64 samples_drawn = res*res*count*samples;
+	F32 samples_sec = (samples_drawn/1000000000.0)/seconds;
+	gbps = samples_sec*8;
+
+	if (gGLManager.mHasTimerQuery)
+	{
+		llinfos << "Memory bandwidth is " << llformat("%.3f", gbps) << "GB/sec according to ARB_timer_query" << llendl;
+	}
+	else
+	{
+		llinfos << "ARB_timer_query unavailable." << llendl;
+	}
+}
 

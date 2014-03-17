@@ -200,7 +200,7 @@ void LLVOPartGroup::updateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 	mDrawable->setPositionGroup(p);
 }
 
-void LLVOPartGroup::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
+void LLVOPartGroup::idleUpdate(LLAgent &agent, const F64 &time)
 {
 }
 

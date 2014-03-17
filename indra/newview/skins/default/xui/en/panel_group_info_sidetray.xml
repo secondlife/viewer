@@ -131,7 +131,7 @@ background_visible="true"
             expanded="false"
             layout="topleft"
             name="group_roles_tab"
-            title="Roles"
+            title="Roles &amp; Members"
             fit_panel="false">
                 <panel
                    border="false"

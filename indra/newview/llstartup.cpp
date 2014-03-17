@@ -786,6 +786,9 @@ bool idle_startup()
 			display_startup();
 			LLPanelLogin::giveFocus();
 
+			// MAINT-3231 Show first run dialog only for Desura viewer
+			if (gSavedSettings.getString("sourceid") == "1208_desura")
+			{
 			if (gSavedSettings.getBOOL("FirstLoginThisInstall"))
 			{
 				LL_INFOS("AppInit") << "FirstLoginThisInstall, calling show_first_run_dialog()" << LL_ENDL;
@@ -794,6 +797,7 @@ bool idle_startup()
 			else
 			{
 				LL_DEBUGS("AppInit") << "FirstLoginThisInstall off" << LL_ENDL;
+			}
 			}
 
 			LLStartUp::setStartupState( STATE_LOGIN_WAIT );		// Wait for user input

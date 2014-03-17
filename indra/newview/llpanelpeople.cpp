@@ -216,7 +216,7 @@ static const LLAvatarItemStatusComparator STATUS_COMPARATOR;
 static LLAvatarItemDistanceComparator DISTANCE_COMPARATOR;
 static const LLAvatarItemRecentSpeakerComparator RECENT_SPEAKER_COMPARATOR;
 
-static LLRegisterPanelClassWrapper<LLPanelPeople> t_people("panel_people");
+static LLPanelInjector<LLPanelPeople> t_people("panel_people");
 
 //=============================================================================
 

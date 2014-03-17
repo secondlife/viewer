@@ -422,7 +422,9 @@ void LLViewerTextureManager::cleanup()
 	LLViewerFetchedTexture::sDefaultImagep = NULL;	
 	LLViewerFetchedTexture::sSmokeImagep = NULL;
 	LLViewerFetchedTexture::sMissingAssetImagep = NULL;
+	LLTexUnit::sWhiteTexture = 0;
 	LLViewerFetchedTexture::sWhiteImagep = NULL;
+	
 	LLViewerFetchedTexture::sFlatNormalImagep = NULL;
 
 	LLViewerMediaTexture::cleanUpClass() ;	
