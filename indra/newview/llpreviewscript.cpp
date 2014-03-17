@@ -1319,6 +1319,7 @@ void LLLiveLSLEditor::updateExperiencePanel()
 		mExperienceEnabled->setToolTip(getString("experience_enabled"));
 		mExperienceEnabled->setEnabled(getIsModifiable());
 		mExperiences->setVisible(TRUE);
+		mExperienceEnabled->set(TRUE);
         buildExperienceList();
     }
 }
@@ -1328,7 +1329,6 @@ void LLLiveLSLEditor::buildExperienceList()
     mExperiences->clearRows();
     bool foundAssociated=false;
 	const LLUUID& associated = mScriptEd->getAssociatedExperience();
-	LLSD experience;
 	LLUUID last;
 	LLScrollListItem* item;
     for(LLSD::array_const_iterator it = mExperienceIds.beginArray(); it != mExperienceIds.endArray(); ++it)
@@ -1340,21 +1340,23 @@ void LLLiveLSLEditor::buildExperienceList()
 			foundAssociated = true;
 			position = ADD_TOP;
 		}
-		if(LLExperienceCache::get(id, experience))
-		{
-			mExperiences->add(experience[LLExperienceCache::NAME].asString(), id, position);
-		} 
-		else
+		
+		const LLSD& experience = LLExperienceCache::get(id);
+		if(experience.isUndefined())
 		{
 			mExperiences->add(getString("loading"), id, position);
 			last = id;
 		}
-
+		else
+		{
+			mExperiences->add(experience[LLExperienceCache::NAME].asString(), id, position);
+		} 
     }
 
     if(!foundAssociated )
-    {
-		if(LLExperienceCache::get(associated, experience))
+	{
+		const LLSD& experience = LLExperienceCache::get(associated);
+		if(experience.isDefined())
 		{
 			item=mExperiences->add(experience[LLExperienceCache::NAME].asString(), associated, ADD_TOP);
 		} 

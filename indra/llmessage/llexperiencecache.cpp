@@ -320,9 +320,9 @@ namespace LLExperienceCache
  			for ( ; it != mKeys.end(); ++it)
 			{
 
-				LLSD exp;
+				LLSD exp = get(it->first);
                 //leave the properties alone if we already have a cache entry for this xp
-                if(!get(it->first, exp))
+                if(exp.isUndefined())
                 {
                     exp[PROPERTIES]=PROPERTY_INVALID;
                 }
@@ -563,24 +563,21 @@ namespace LLExperienceCache
 			LL_WARNS("ExperienceCache") << ": Ignoring cache insert of experience which is missing " << EXPERIENCE_ID << LL_ENDL;
 		}
 	}
-
-	bool get( const LLUUID& key, LLSD& experience_data )
+	static LLSD empty;
+	const LLSD& get(const LLUUID& key)
 	{
-		if(key.isNull()) return false;
+		if(key.isNull()) return empty;
 		cache_t::const_iterator it = sCache.find(key);
-	
+
 		if (it != sCache.end())
 		{
-			experience_data = it->second;
-			return true;
+			return it->second;
 		}
-		
+
 		fetch(key);
 
-		return false;
+		return empty;
 	}
-
-
 	void get( const LLUUID& key, callback_slot_t slot )
 	{
 		if(key.isNull()) return;

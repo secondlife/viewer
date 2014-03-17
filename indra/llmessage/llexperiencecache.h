@@ -89,7 +89,7 @@ namespace LLExperienceCache
 	void erase(const LLUUID& key);
 	bool fetch(const LLUUID& key, bool refresh=false);
 	void insert(const LLSD& experience_data);
-	bool get(const LLUUID& key, LLSD& experience_data);
+	const LLSD& get(const LLUUID& key);
 
 	// If name information is in cache, callback will be called immediately.
 	void get(const LLUUID& key, callback_slot_t slot);
