@@ -37,9 +37,9 @@
   <icon
     height="73"
     width="165"
-    bottom="112"
     image_name="login_sl_logo"
     left="0"
+    top="25"
     name="sl_logo_small" />
   <combo_box
     left_pad="22"
@@ -79,9 +79,9 @@
   <check_box
     control_name="RememberPassword"
     follows="left|top"
-    font="SansSerifLarge"
+    font="SansSerifMedium"
     left_pad="20"
-    bottom_delta="-16"
+    bottom_delta="-14"
     height="24"
     label="Remember me"
     check_button.bottom="3"
@@ -89,7 +89,7 @@
     width="145" />
   <text
     follows="left|top"
-    font="SansSerifLarge"
+    font="SansSerifMedium"
     text_color="EmphasisColor"
     height="16"
     name="forgot_password_text"
@@ -111,7 +111,7 @@
     left="0"
     width="80"
     height="26"
-    bottom_delta="56" />
+    bottom_delta="44" />
   <text
     follows="left|top"
     font="SansSerifLarge"
@@ -208,7 +208,7 @@
     left="0"
     name="login_html"
     start_url=""
-    top="188"
+    top="154"
     height="600"
     width="1024" />
 </panel>
