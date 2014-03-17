@@ -234,9 +234,11 @@ void LLFloaterReporter::getExperienceInfo(const LLUUID& experience_id)
 
 	if (LLUUID::null != mExperienceID)
 	{
-		LLSD experience;
-		stringstream desc;
-		if(LLExperienceCache::get(mExperienceID, experience)){
+		const LLSD& experience = LLExperienceCache::get(mExperienceID);
+		std::stringstream desc;
+
+		if(experience.isDefined())
+		{
 			setFromAvatarID(experience[LLExperienceCache::AGENT_ID]);
 			desc << "\nExperience id: " << mExperienceID;
 		}
