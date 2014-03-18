@@ -66,40 +66,12 @@
         </panel>
     </panel>
     <panel
-        follows="bottom|left|right"
-        left="10"
-        bottom="435"
-        width="313"
-        top="370">
-      <panel
-          name="marketplace_listings_generic_drag_target"
-          mouse_opaque="false"
-          follows="all"
-          top="5"
-          left="5"
-          width="303"
-          height="25"
-          background_visible="false"
-          bg_alpha_color="EmphasisColor_35"
-          border="true"
-          bevel_style="in"
-          visible="true">
-        <text
-            type="string"
-            follows="all"
-            layout="topleft"
-            top="6"
-            height="20"
-            left="5"
-            width="293"
-            halign="center"
-            font="SansSerifMedium"
-            font_shadow="hard"
-            valign="top">
-          Drag items you want to sell
-        </text>
-      </panel>
-        <text
+      follows="bottom|left|right"
+      left="10"
+      bottom="435"
+      width="313"
+      top="370">
+      <text
         name="marketplace_status"
         type="string"
         follows="all"

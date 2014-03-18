@@ -172,7 +172,6 @@ private:
 
 	LLUUID				mRootFolderId;
 	LLHandle<LLInventoryPanel> mInventoryPanel;
-	LLPanel *			mTopLevelDropZone;
 };
 
 #endif // LL_LLFLOATEROUTBOX_H

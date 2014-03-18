@@ -666,7 +666,6 @@ LLFloaterMarketplaceListings::LLFloaterMarketplaceListings(const LLSD& key)
 , mInventoryPlaceholder(NULL)
 , mInventoryText(NULL)
 , mInventoryTitle(NULL)
-, mTopLevelDropZone(NULL)
 {
 }
 
@@ -693,8 +692,6 @@ BOOL LLFloaterMarketplaceListings::postBuild()
 	mInventoryText = mInventoryPlaceholder->getChild<LLTextBox>("marketplace_listings_inventory_placeholder_text");
 	mInventoryTitle = mInventoryPlaceholder->getChild<LLTextBox>("marketplace_listings_inventory_placeholder_title");
 
-	mTopLevelDropZone = getChild<LLPanel>("marketplace_listings_generic_drag_target");
-    
 	LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLFloaterMarketplaceListings::onFocusReceived, this));
     
 	// Observe category creation to catch marketplace listings creation (moot if already existing)
@@ -900,7 +897,6 @@ void LLFloaterMarketplaceListings::updateView()
 	{
 		panel->setVisible(TRUE);
 		mInventoryPlaceholder->setVisible(FALSE);
-		mTopLevelDropZone->setVisible(TRUE);
 	}
 	else
 	{
@@ -909,9 +905,6 @@ void LLFloaterMarketplaceListings::updateView()
             panel->setVisible(FALSE);
         }
 		
-        // Show the drop zone if there is an outbox folder
-        mTopLevelDropZone->setVisible(mRootFolderId.notNull());
-        
         std::string text;
         std::string title;
         std::string tooltip;
@@ -1007,12 +1000,6 @@ BOOL LLFloaterMarketplaceListings::handleDragAndDrop(S32 x, S32 y, MASK mask, BO
 		{
 			handled = root_folder->handleDragAndDropToThisFolder(mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
 		}
-        
-		mTopLevelDropZone->setBackgroundVisible(handled && !drop && isAccepted(*accept));
-	}
-	else
-	{
-		mTopLevelDropZone->setBackgroundVisible(!pointInInventoryPanelChild);
 	}
 	
 	return handled;
@@ -1020,15 +1007,11 @@ BOOL LLFloaterMarketplaceListings::handleDragAndDrop(S32 x, S32 y, MASK mask, BO
 
 BOOL LLFloaterMarketplaceListings::handleHover(S32 x, S32 y, MASK mask)
 {
-	mTopLevelDropZone->setBackgroundVisible(FALSE);
-    
 	return LLFloater::handleHover(x, y, mask);
 }
 
 void LLFloaterMarketplaceListings::onMouseLeave(S32 x, S32 y, MASK mask)
 {
-	mTopLevelDropZone->setBackgroundVisible(FALSE);
-    
 	LLFloater::onMouseLeave(x, y, mask);
 }
 
