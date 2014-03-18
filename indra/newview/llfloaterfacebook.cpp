@@ -192,11 +192,9 @@ mBtnPreview(NULL),
 mWorkingLabel(NULL),
 mThumbnailPlaceholder(NULL),
 mCaptionTextBox(NULL),
-mLocationCheckbox(NULL),
 mPostButton(NULL),
 mBigPreviewFloater(NULL),
-mQuality(MAX_QUALITY),
-mIncludeLocation(TRUE)
+mQuality(MAX_QUALITY)
 {
 	mCommitCallbackRegistrar.add("SocialSharing.SendPhoto", boost::bind(&LLFacebookPhotoPanel::onSend, this));
 	mCommitCallbackRegistrar.add("SocialSharing.RefreshPhoto", boost::bind(&LLFacebookPhotoPanel::onClickNewSnapshot, this));
@@ -226,8 +224,6 @@ BOOL LLFacebookPhotoPanel::postBuild()
     mWorkingLabel = getChild<LLUICtrl>("working_lbl");
 	mThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");
 	mCaptionTextBox = getChild<LLUICtrl>("photo_caption");
-	mLocationCheckbox = getChild<LLUICtrl>("add_location_cb");
-	mLocationCheckbox->setCommitCallback(boost::bind(&LLFacebookPhotoPanel::updateLocationCheckbox, this));
 	mPostButton = getChild<LLUICtrl>("post_photo_btn");
 	mCancelButton = getChild<LLUICtrl>("cancel_photo_btn");
 	mBigPreviewFloater = dynamic_cast<LLFloaterBigPreview*>(LLFloaterReg::getInstance("big_preview"));
@@ -283,16 +279,6 @@ void LLFacebookPhotoPanel::draw()
     mFilterComboBox->setEnabled(no_ongoing_connection);
     mRefreshBtn->setEnabled(no_ongoing_connection);
     mBtnPreview->setEnabled(no_ongoing_connection);
-    mLocationCheckbox->setEnabled(no_ongoing_connection && !mCaptionTextBox->getValue().asString().empty());
-	
-	if (mCaptionTextBox->getValue().asString().empty())
-	{
-		mLocationCheckbox->setValue(FALSE);
-	}
-	else
-	{
-		mLocationCheckbox->setValue(mIncludeLocation);
-	}
 	
     // Reassign the preview floater if we have the focus and the preview exists
     if (hasFocus() && isPreviewVisible())
@@ -462,25 +448,6 @@ void LLFacebookPhotoPanel::sendPhoto()
 	// Get the caption
 	std::string caption = mCaptionTextBox->getValue().asString();
 
-	// Add the location if required
-	bool add_location = mLocationCheckbox->getValue().asBoolean();
-	if (add_location)
-	{
-		// Get the SLURL for the location
-		LLSLURL slurl;
-		LLAgentUI::buildSLURL(slurl);
-		std::string slurl_string = slurl.getSLURLString();
-
-		// Add query parameters so Google Analytics can track incoming clicks!
-		slurl_string += DEFAULT_PHOTO_QUERY_PARAMETERS;
-
-		// Add it to the caption (pretty crude, but we don't have a better option with photos)
-		if (caption.empty())
-			caption = slurl_string;
-		else
-			caption = caption + " " + slurl_string;
-	}
-
 	// Get the image
 	LLSnapshotLivePreview* previewp = getPreviewView();
 	
@@ -580,11 +547,6 @@ void LLFacebookPhotoPanel::updateResolution(BOOL do_update)
 			}
 		}
 	}
-}
-
-void LLFacebookPhotoPanel::updateLocationCheckbox()
-{
-	mIncludeLocation = mLocationCheckbox->getValue().asBoolean();
 }
 
 void LLFacebookPhotoPanel::checkAspectRatio(S32 index)
