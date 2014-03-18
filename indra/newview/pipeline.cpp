@@ -1362,11 +1362,11 @@ void LLPipeline::createLUTBuffers()
 	{
 		if (!mLightFunc)
 		{
-			/*U32 lightResX = gSavedSettings.getU32("RenderSpecularResX");
+			U32 lightResX = gSavedSettings.getU32("RenderSpecularResX");
 			U32 lightResY = gSavedSettings.getU32("RenderSpecularResY");
-			U8* ls = new U8[lightResX*lightResY];
+			F32* ls = new F32[lightResX*lightResY];
 			F32 specExp = gSavedSettings.getF32("RenderSpecularExponent");
-            // Calculate the (normalized) Blinn-Phong specular lookup texture.
+            // Calculate the (normalized) blinn-phong specular lookup texture. (with a few tweaks)
 			for (U32 y = 0; y < lightResY; ++y)
 			{
 				for (U32 x = 0; x < lightResX; ++x)
@@ -1382,67 +1382,11 @@ void LLPipeline::createLUTBuffers()
 					// Apply our normalization function.
 					// Note: This is the full equation that applies the full normalization curve, not an approximation.
 					// This is fine, given we only need to create our LUT once per buffer initialization.
-					// The only trade off is we have a really low dynamic range.
-					// This means we have to account for things not being able to exceed 0 to 1 in our shaders.
-					spec *= (((n + 2) * (n + 4)) / (8 * F_PI * (powf(2, -n/2) + n)));
-					
-					// Always sample at a 1.0/2.2 curve.
-					// This "Gamma corrects" our specular term, boosting our lower exponent reflections.
-					spec = powf(spec, 1.f/2.2f);
-					
-					// Easy fix for our dynamic range problem: divide by 6 here, multiply by 6 in our shaders.
-					// This allows for our specular term to exceed a value of 1 in our shaders.
-					// This is something that can be important for energy conserving specular models where higher exponents can result in highlights that exceed a range of 0 to 1.
-					// Technically, we could just use an R16F texture, but driver support for R16F textures can be somewhat spotty at times.
-					// This works remarkably well for higher specular exponents, though banding can sometimes be seen on lower exponents.
-					// Combined with a bit of noise and trilinear filtering, the banding is hardly noticable.
-					ls[y*lightResX+x] = (U8)(llclamp(spec * (1.f / 6), 0.f, 1.f) * 255);
-				}
-			}*/
-		
-
-			U32 lightResX = gSavedSettings.getU32("RenderSpecularResX");
-			U32 lightResY = gSavedSettings.getU32("RenderSpecularResY");
-			F32* ls = new F32[lightResX*lightResY];
-			//F32 specExp = gSavedSettings.getF32("RenderSpecularExponent"); // Note: only use this when creating new specular lighting functions.
-            // Calculate the (normalized) blinn-phong specular lookup texture. (with a few tweaks)
-			for (U32 y = 0; y < lightResY; ++y)
-			{
-				for (U32 x = 0; x < lightResX; ++x)
-				{
-					ls[y*lightResX+x] = 0;
-					F32 sa = (F32) x/(lightResX-1);
-					F32 spec = (F32) y/(lightResY-1);
-					F32 n = spec * spec * 368;
-					
-					// Nothing special here.  Just your typical blinn-phong term.
-					spec = powf(sa, n);
-					
-					// Apply our normalization function.
-					// Note: This is the full equation that applies the full normalization curve, not an approximation.
-					// This is fine, given we only need to create our LUT once per buffer initialization.
 					spec *= (((n + 2) * (n + 4)) / (8 * F_PI * (powf(2, -n/2) + n)));
 
 					// Since we use R16F, we no longer have a dynamic range issue we need to work around here.
 					// Though some older drivers may not like this, newer drivers shouldn't have this problem.
 					ls[y*lightResX+x] = spec;
-
-					
-					//beckmann distribution
-					/*F32 alpha = acosf((F32) x/(lightResX-1));
-					F32 m = 1.f - (F32) y/(lightResY-1);
-
-					F32 cos4_alpha = cosf(alpha);
-					cos4_alpha *= cos4_alpha;
-					cos4_alpha *= cos4_alpha;
-
-					F32 tan_alpha = tanf(alpha);
-					F32 tan2_alpha = tan_alpha*tan_alpha;
-
-					F32 k = expf(-(tan2_alpha)/(m*m)) /
-						(3.14159f*m*m*cos4_alpha);
-
-					ls[y*lightResX+x] = k;*/
 				}
 			}
 			
@@ -1455,7 +1399,6 @@ void LLPipeline::createLUTBuffers()
 			LLImageGL::generateTextures(1, &mLightFunc);
 			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mLightFunc);
 			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, pix_format, lightResX, lightResY, GL_RED, GL_FLOAT, ls, false);
-			//LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_UNSIGNED_BYTE, lightResX, lightResY, GL_RED, GL_UNSIGNED_BYTE, ls, false);
 			gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_TRILINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
