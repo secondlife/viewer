@@ -190,6 +190,7 @@ set(viewer_SOURCE_FILES
     lleventpoll.cpp
     llexpandabletextbox.cpp
     llexperienceassociationresponder.cpp
+    llexperiencelog.cpp
     llexternaleditor.cpp
     llface.cpp
     llfacebookconnect.cpp
@@ -405,6 +406,7 @@ set(viewer_SOURCE_FILES
     llpanelcontents.cpp
     llpaneleditwearable.cpp
     llpanelexperiencelisteditor.cpp
+    llpanelexperiencelog.cpp
     llpanelexperiences.cpp
     llpanelface.cpp
     llpanelgenerictip.cpp
@@ -785,6 +787,7 @@ set(viewer_HEADER_FILES
     lleventpoll.h
     llexpandabletextbox.h
     llexperienceassociationresponder.h
+    llexperiencelog.h
     llexternaleditor.h
     llface.h
     llfacebookconnect.h
@@ -993,6 +996,7 @@ set(viewer_HEADER_FILES
     llpanelcontents.h
     llpaneleditwearable.h
     llpanelexperiencelisteditor.h
+    llpanelexperiencelog.h
     llpanelexperiences.h
     llpanelface.h
     llpanelgenerictip.h

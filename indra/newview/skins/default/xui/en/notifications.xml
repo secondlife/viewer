@@ -7069,6 +7069,26 @@ Unable to acquire a new experience:
               text="Allowed into a region by an experience"/>
     </form>
   </notification>
+
+  <notification
+    icon="notify.tga"
+    name="ExperienceEvent"
+    persist="false"
+    type="notify">
+    An object was allowed to [EventType] by the secondlife:///app/experience/[public_id]/profile experience.
+    Owner: secondlife:///app/agent/[OwnerID]/inspect
+    Object Name: [ObjectName]
+    Parcel Name: [ParcelName]
+  </notification>
+
+  <notification
+    icon="notify.tga"
+    name="ExperienceEventAttachment"
+    persist="false"
+    type="notify">
+    An attachment was allowed to [EventType] by the secondlife:///app/experience/[public_id]/profile experience.
+    Owner: secondlife:///app/agent/[OwnerID]/inspect
+  </notification>
   
   <notification
    icon="notify.tga"

@@ -3985,7 +3985,15 @@ Try enclosing path to the editor with double quotes.
   <string name="Admin_Experiences_Tab">ADMIN</string>
   <string name="Recent_Experiences_Tab">RECENT</string>
   <string name="Owned_Experiences_Tab">OWNED</string>
-
+  <string name="ExperiencePermission1">take over your controls</string>
+  <string name="ExperiencePermission3">override animations on your avatar</string>
+  <string name="ExperiencePermission4">attach to your avatar</string>
+  <string name="ExperiencePermission9">track your camera</string>
+  <string name="ExperiencePermission10">control your camera</string>
+  <string name="ExperiencePermission11">teleport you</string>
+  <string name="ExperiencePermission12">automatically accept experience permissions</string>
+  <string name="ExperiencePermissionUnknown">perform an unknown operation: [Permission]</string>
+  
   <!-- Conversation log messages -->
   <string name="logging_calls_disabled_log_empty">
     Conversations are not being logged. To begin keeping a log, choose "Save: Log only" or "Save: Log and transcripts" under Preferences > Chat.

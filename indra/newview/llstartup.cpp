@@ -198,6 +198,7 @@
 #include "llevents.h"
 #include "llstartuplistener.h"
 #include "lltoolbarview.h"
+#include "llpanelexperiencelog.h"
 
 #if LL_WINDOWS
 #include "lldxhardware.h"
@@ -1412,7 +1413,7 @@ bool idle_startup()
 		LLStartUp::initNameCache();
 		display_startup();
 
-		LLStartUp::initExperienceCache();
+		LLStartUp::initExperiences();
 		display_startup();
 
 		// update the voice settings *after* gCacheName initialization
@@ -2829,10 +2830,11 @@ void LLStartUp::initNameCache()
 }
 
 
-void LLStartUp::initExperienceCache()
+void LLStartUp::initExperiences()
 {
 	LLAppViewer::instance()->loadExperienceCache();
 	LLExperienceCache::initClass();
+	LLExperienceLog::instance().initialize();
 }
 
 void LLStartUp::cleanupNameCache()

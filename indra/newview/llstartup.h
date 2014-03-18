@@ -91,7 +91,7 @@ public:
 	static void fontInit();
 
 	static void initNameCache();
-	static void initExperienceCache();
+	static void initExperiences();
 	
 	static void cleanupNameCache();
 
