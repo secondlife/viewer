@@ -795,7 +795,7 @@ bool LLFloaterAvatarPicker::isSelectBtnEnabled()
 {
 	bool ret_val = visibleItemsSelected();
 
-	if ( ret_val && mOkButtonValidateSignal.num_slots() )
+	if ( ret_val )
 	{
 		std::string acvtive_panel_name;
 		LLScrollListCtrl* list =  NULL;
@@ -826,7 +826,7 @@ bool LLFloaterAvatarPicker::isSelectBtnEnabled()
 			getSelectedAvatarData(list, avatar_ids, avatar_names);
 			if (avatar_ids.size() >= 1) 
 			{
-				ret_val = mOkButtonValidateSignal(avatar_ids);
+				ret_val = mOkButtonValidateSignal.num_slots()?mOkButtonValidateSignal(avatar_ids):true;
 			}
 			else
 			{
