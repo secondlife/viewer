@@ -1945,8 +1945,8 @@ void LLFolderBridge::buildDisplayName() const
 
 std::string LLFolderBridge::getLabelSuffix() const
 {
+    // *TODO : We need to display some suffix also for the version folder!
     /*
-     
      LLInventoryCategory* cat = gInventory.getCategory(getUUID());
      if(cat)
      {
@@ -1980,6 +1980,18 @@ std::string LLFolderBridge::getLabelSuffix() const
 	else
 	{
 		return LLInvFVBridge::getLabelSuffix();
+	}
+}
+
+LLFontGL::StyleFlags LLFolderBridge::getLabelStyle() const
+{
+	if (isMarketplaceListingsFolder() && LLMarketplaceData::instance().getActivationState(getUUID()))
+	{
+		return LLFontGL::BOLD;
+	}
+	else
+	{
+		return LLFontGL::NORMAL;
 	}
 }
 

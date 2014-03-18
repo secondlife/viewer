@@ -661,6 +661,8 @@ LLFloaterMarketplaceListings::LLFloaterMarketplaceListings(const LLSD& key)
 , mCategoriesObserver(NULL)
 , mCategoryAddedObserver(NULL)
 , mRootFolderId(LLUUID::null)
+, mInventoryStatus(NULL)
+, mInventoryInitializationInProgress(NULL)
 , mInventoryPlaceholder(NULL)
 , mInventoryText(NULL)
 , mInventoryTitle(NULL)
@@ -685,6 +687,8 @@ LLFloaterMarketplaceListings::~LLFloaterMarketplaceListings()
 
 BOOL LLFloaterMarketplaceListings::postBuild()
 {
+	mInventoryStatus = getChild<LLTextBox>("marketplace_status");
+	mInventoryInitializationInProgress = getChild<LLView>("initialization_progress_indicator");
 	mInventoryPlaceholder = getChild<LLView>("marketplace_listings_inventory_placeholder_panel");
 	mInventoryText = mInventoryPlaceholder->getChild<LLTextBox>("marketplace_listings_inventory_placeholder_text");
 	mInventoryTitle = mInventoryPlaceholder->getChild<LLTextBox>("marketplace_listings_inventory_placeholder_title");
@@ -883,6 +887,11 @@ S32 LLFloaterMarketplaceListings::getFolderCount()
     }
 }
 
+void LLFloaterMarketplaceListings::setStatusString(const std::string& statusString)
+{
+	mInventoryStatus->setText(statusString);
+}
+
 void LLFloaterMarketplaceListings::updateView()
 {
 	LLInventoryPanel* panel = mInventoryPanel.get();
@@ -1048,28 +1057,17 @@ void LLFloaterMarketplaceListings::importStatusChanged(bool inProgress)
 	{
 		setup();
 	}
-	/*
+
 	if (inProgress)
 	{
-		if (mImportBusy)
-		{
-			setStatusString(getString("OutboxImporting"));
-		}
-		else
-		{
-			setStatusString(getString("OutboxInitializing"));
-		}
-		
-		mImportBusy = true;
-		mInventoryImportInProgress->setVisible(true);
+        setStatusString(getString("MarketplaceListingsInitializing"));
+		mInventoryInitializationInProgress->setVisible(true);
 	}
 	else
 	{
 		setStatusString("");
-		mImportBusy = false;
-		mInventoryImportInProgress->setVisible(false);
+		mInventoryInitializationInProgress->setVisible(false);
 	}
-    */
 	
 	updateView();
 }

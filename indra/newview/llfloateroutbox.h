@@ -147,6 +147,7 @@ protected:
 	void importReportResults(U32 status, const LLSD& content);
 	void importStatusChanged(bool inProgress);
 	void initializationReportError(U32 status, const LLSD& content);
+	void setStatusString(const std::string& statusString);
 
 	void onClose(bool app_quitting);
 	void onOpen(const LLSD& key);
@@ -163,6 +164,8 @@ private:
 	LLInventoryCategoriesObserver *		mCategoriesObserver;
 	LLInventoryCategoryAddedObserver *	mCategoryAddedObserver;
 		
+	LLTextBox *		mInventoryStatus;
+	LLView *		mInventoryInitializationInProgress;
 	LLView *		mInventoryPlaceholder;
 	LLTextBox *		mInventoryText;
 	LLTextBox *		mInventoryTitle;

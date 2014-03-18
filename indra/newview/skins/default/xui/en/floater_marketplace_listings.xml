@@ -13,6 +13,7 @@
     reuse_instance="true"
     title="MARKETPLACE LISTINGS"
     width="333">
+    <string name="MarketplaceListingsInitializing">Initializing...</string>
   <panel
       follows="all"
       layout="topleft"
@@ -98,8 +99,21 @@
           Drag items you want to sell
         </text>
       </panel>
+        <text
+        name="marketplace_status"
+        type="string"
+        follows="all"
+        layout="topleft"
+        top="40"
+        left="5"
+        width="150"
+        height="20"
+        wrap="true"
+        halign="left"
+        valign="center"
+        font="SansSerif"/>
     </panel>
-    <layout_stack name="import_progress_indicator" orientation="vertical" left="0" height="440" top="0" width="333" follows="all" visible="false">
+    <layout_stack name="initialization_progress_indicator" orientation="vertical" left="0" height="440" top="0" width="333" follows="all" visible="false">
       <layout_panel />
       <layout_panel height="24" auto_resize="false">
         <layout_stack orientation="horizontal" left="0" height="24" top="0" width="333" follows="all">
