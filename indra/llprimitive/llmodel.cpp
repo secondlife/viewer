@@ -44,7 +44,7 @@
 #pragma warning (default : 4264)
 #endif
 
-#ifdef LL_STANDALONE
+#ifdef LL_USESYSTEMLIBS
 # include <zlib.h>
 #else
 # include "zlib/zlib.h"

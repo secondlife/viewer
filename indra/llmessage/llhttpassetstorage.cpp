@@ -37,7 +37,7 @@
 #include "llvfile.h"
 #include "llvfs.h"
 
-#ifdef LL_STANDALONE
+#ifdef LL_USESYSTEMLIBS
 # include <zlib.h>
 #else
 # include "zlib/zlib.h"

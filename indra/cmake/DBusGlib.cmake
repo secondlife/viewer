@@ -1,7 +1,7 @@
 # -*- cmake -*-
 include(Prebuilt)
 
-if (STANDALONE)
+if (USESYSTEMLIBS)
   include(FindPkgConfig)
 
   pkg_check_modules(DBUSGLIB REQUIRED dbus-glib-1)
@@ -18,7 +18,7 @@ elseif (LINUX)
       gobject-2.0
       glib-2.0
       )
-endif (STANDALONE)
+endif (USESYSTEMLIBS)
 
 if (DBUSGLIB_FOUND)
   set(DBUSGLIB ON CACHE BOOL "Build with dbus-glib message bus support.")
