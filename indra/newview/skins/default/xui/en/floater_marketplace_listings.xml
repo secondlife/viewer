@@ -1,82 +1,82 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <floater
-    positioning="cascading"
-    can_close="true"
-    can_resize="true"
-    height="440"
-    help_topic="floater_marketplace_listings"
-    min_width="300"
-    min_height="200"
-    name="floater_marketplace_listings"
-    save_rect="true"
-    save_visibility="false"
-    reuse_instance="true"
-    title="MARKETPLACE LISTINGS"
-    width="333">
-    <string name="MarketplaceListingsInitializing">Initializing...</string>
+  title="MARKETPLACE LISTINGS"
+  name="floater_marketplace_listings"
+  help_topic="floater_marketplace_listings"
+  positioning="cascading"
+  width="333"
+  height="445"
+  min_width="200"
+  min_height="300"
+  can_close="true"
+  can_resize="true"
+  save_rect="true"
+  save_visibility="false"
+  reuse_instance="true">
+  <string name="MarketplaceListingsInitializing">Initializing...</string>
   <panel
-      follows="all"
-      layout="topleft"
-      left="0"
-      top="0"
-      label=""
-      height="440"
-      width="333">
+    follows="all"
+    layout="topleft"
+    left="0"
+    top="0"
+    label=""
+    height="440"
+    width="333">
     <panel
+      follows="all"
+      left="10"
+      height="420"
+      width="313"
+      top="0"
+      bg_opaque_color="InventoryBackgroundColor">
+      <panel
+        name="marketplace_listings_inventory_placeholder_panel"
         follows="all"
-        left="10"
-        bottom="370"
-        width="313"
+        layout="topleft"
         top="0"
+        left="0"
+        width="313"
+        height="420"
         bg_opaque_color="InventoryBackgroundColor">
-        <panel
-            name="marketplace_listings_inventory_placeholder_panel"
-            follows="all"
-            layout="topleft"
-            top="0"
-            left="0"
-            width="308"
-            height="370"
-            bg_opaque_color="InventoryBackgroundColor">
-            <text
-                name="marketplace_listings_inventory_placeholder_title"
-                type="string"
-                follows="top|left|right"
-                layout="topleft"
-                top="10"
-                left="0"
-                width="308"
-                height="25"
-                wrap="true"
-                halign="center"
-                font="SansSerifBold">
-                Loading...
-            </text>
-            <text
-            name="marketplace_listings_inventory_placeholder_text"
-            type="string"
-            follows="top|left|right"
-            layout="topleft"
-            top="35"
-            left="0"
-            width="308"
-            height="130"
-            wrap="true"
-            halign="left" />
-        </panel>
+        <text
+          name="marketplace_listings_inventory_placeholder_title"
+          type="string"
+          follows="top|left|right"
+          layout="topleft"
+          top="10"
+          left="0"
+          width="313"
+          height="25"
+          wrap="true"
+          halign="center"
+          font="SansSerifBold">
+            Loading...
+        </text>
+        <text
+          name="marketplace_listings_inventory_placeholder_text"
+          type="string"
+          follows="top|left|right"
+          layout="topleft"
+          top="35"
+          left="0"
+          width="313"
+          height="130"
+          wrap="true"
+          halign="left" />
+      </panel>
     </panel>
     <panel
       follows="bottom|left|right"
+      layout="topleft"
       left="10"
-      bottom="435"
       width="313"
-      top="370">
+      height="20">
       <text
         name="marketplace_status"
         type="string"
-        follows="all"
+        follows="bottom|left|right"
         layout="topleft"
-        top="40"
+        top="0"
         left="5"
         width="150"
         height="20"

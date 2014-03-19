@@ -18,7 +18,7 @@
         tab_height="30"
         tab_group="1"
         tab_position="top"
-        tab_min_width="100"
+        tab_min_width="50"
         top_pad="0"
         width="308">
         <inventory_panel
