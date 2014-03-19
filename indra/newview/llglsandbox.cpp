@@ -878,13 +878,32 @@ void LLViewerObjectList::renderObjectBeacons()
 }
 
 
-void gpu_benchmark()
+F32 gpu_benchmark()
 {
-	if (!LLGLSLShader::sNoFixedFunction)
-	{ //don't bother benchmarking the fixed function
-		return;
+	if (!gGLManager.mHasShaderObjects || !gGLManager.mHasTimerQuery)
+	{ //don't bother benchmarking the fixed function or using CPU timers
+		return -1.f;
 	}
 
+	
+	if (gBenchmarkProgram.mProgramObject == 0)
+	{
+		LLViewerShaderMgr::instance()->initAttribsAndUniforms();
+
+		gBenchmarkProgram.mName = "Benchmark Shader";
+		gBenchmarkProgram.mFeatures.attachNothing = true;
+		gBenchmarkProgram.mShaderFiles.clear();
+		gBenchmarkProgram.mShaderFiles.push_back(std::make_pair("interface/benchmarkV.glsl", GL_VERTEX_SHADER_ARB));
+		gBenchmarkProgram.mShaderFiles.push_back(std::make_pair("interface/benchmarkF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gBenchmarkProgram.mShaderLevel = 1;
+		if (!gBenchmarkProgram.createShader(NULL, NULL))
+		{
+			return -1.f;
+		}
+	}
+
+	LLGLDisable blend(GL_BLEND);
+	
 	//measure memory bandwidth by:
 	// - allocating a batch of textures and render targets
 	// - rendering those textures to those render targets
@@ -981,7 +1000,7 @@ void gpu_benchmark()
 
 	gBenchmarkProgram.unbind();
 
-	LLGLSLShader::finishProfile();
+	LLGLSLShader::finishProfile(false);
 	
 	LLImageGL::deleteTextures(count, source);
 
@@ -1007,5 +1026,7 @@ void gpu_benchmark()
 	{
 		llinfos << "ARB_timer_query unavailable." << llendl;
 	}
+
+	return gbps;
 }
 

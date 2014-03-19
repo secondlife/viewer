@@ -51,6 +51,7 @@ public:
 	S32 mIndexedTextureChannels;
 	bool disableTextureIndex;
 	bool hasAlphaMask;
+	bool attachNothing;
 
 	// char numLights;
 	
@@ -80,7 +81,7 @@ public:
 	static bool sNoFixedFunction;
 
 	static void initProfile();
-	static void finishProfile();
+	static void finishProfile(bool emit_report = true);
 
 	static void startProfile();
 	static void stopProfile(U32 count, U32 mode);
@@ -184,6 +185,7 @@ public:
 
 	//statistcis for profiling shader performance
 	U32 mTimerQuery;
+	U32 mSamplesQuery;
 	U64 mTimeElapsed;
 	static U64 sTotalTimeElapsed;
 	U32 mTrianglesDrawn;
