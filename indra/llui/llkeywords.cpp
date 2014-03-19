@@ -169,8 +169,7 @@ std::string LLKeywords::getArguments(LLSD& arguments)
 			}
 			else
 			{
-				LL_WARNS("SyntaxLSL")
-						<< "Argument array comtains a non-map element!" << LL_ENDL;
+				LL_WARNS("SyntaxLSL") << "Argument array comtains a non-map element!" << LL_ENDL;
 			}
 		}
 	}
@@ -265,11 +264,16 @@ LLColor4 LLKeywords::getColorGroup(const std::string key_in)
 void LLKeywords::initialise(LLSD SyntaxXML)
 {
 	mSyntax = SyntaxXML;
-	mLoaded = TRUE;
+	mLoaded = true;
 }
 
 void LLKeywords::processTokens()
 {
+	if (!mLoaded)
+	{
+		return;
+	}
+
 	// Add 'standard' stuff: Quotes, Comments, Strings, Labels, etc. before processing the LLSD
 	std::string delimiter;
 	addToken(LLKeywordToken::TT_LABEL, "@", getColorGroup("misc-flow-label"), "Label\nTarget for jump statement", delimiter );
@@ -282,7 +286,7 @@ void LLKeywords::processTokens()
 	{
 		if (outerIt->first == "llsd-lsl-syntax-version")
 		{
-			LL_INFOS("SyntaxLSL") << "Skipping over version key." << LL_ENDL;
+			// Skip over version key.
 		}
 		else
 		{
@@ -361,7 +365,7 @@ void LLKeywords::processTokensGroup(LLSD& Tokens, const std::string Group)
 					}
 					else
 					{
-						LL_WARNS("SyntaxLSL") << "Not a valid attribute" << LL_ENDL;
+						LL_WARNS("SyntaxLSL") << "Not a valid attribute: " << innerIt->first << LL_ENDL;
 					}
 				}
 
@@ -408,7 +412,7 @@ void LLKeywords::processTokensGroup(LLSD& Tokens, const std::string Group)
 	}
 	else if (Tokens.isArray())	// Currently nothing should need this, but it's here for completeness
 	{
-		LL_WARNS("SyntaxLSL") << "Curious, shouldn't be an array here; adding all using color " << Color << LL_ENDL;
+		LL_INFOS("SyntaxLSL") << "Curious, shouldn't be an array here; adding all using color " << Color << LL_ENDL;
 		for (int count = 0; count < Tokens.size(); ++count)
 		{
 			addToken(token_type, Tokens[count], Color, "");
