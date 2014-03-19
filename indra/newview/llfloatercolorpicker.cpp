@@ -347,6 +347,11 @@ void LLFloaterColorPicker::setCurRgb ( F32 curRIn, F32 curGIn, F32 curBIn )
 	curG = curGIn;
 	curB = curBIn;
 
+	if (mApplyImmediateCheck->get())
+	{
+		LLColorSwatchCtrl::onColorChanged ( getSwatch (), LLColorSwatchCtrl::COLOR_CHANGE );
+	}
+
 	// update corresponding HSL values and
 	LLColor3(curRIn, curGIn, curBIn).calcHSL(&curH, &curS, &curL);
 
@@ -374,6 +379,11 @@ void LLFloaterColorPicker::setCurHsl ( F32 curHIn, F32 curSIn, F32 curLIn )
 
 	// update corresponding RGB values and
 	hslToRgb ( curH, curS, curL, curR, curG, curB );
+
+	if (mApplyImmediateCheck->get())
+	{
+		LLColorSwatchCtrl::onColorChanged ( getSwatch (), LLColorSwatchCtrl::COLOR_CHANGE );
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -463,10 +473,6 @@ void LLFloaterColorPicker::onImmediateCheck( LLUICtrl* ctrl, void* data)
 void LLFloaterColorPicker::onColorSelect( const LLTextureEntry& te )
 {
 	setCurRgb(te.getColor().mV[VRED], te.getColor().mV[VGREEN], te.getColor().mV[VBLUE]);
-	if (mApplyImmediateCheck->get())
-	{
-		LLColorSwatchCtrl::onColorChanged ( getSwatch (), LLColorSwatchCtrl::COLOR_CHANGE );
-	}
 }
 
 void LLFloaterColorPicker::onMouseCaptureLost()

@@ -624,7 +624,8 @@ void LLViewerParcelMgr::renderCollisionSegments(U8* segments, BOOL use_pass, LLV
 	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
 	LLGLDisable cull(GL_CULL_FACE);
 	
-	if (mCollisionBanned == BA_BANNED)
+	if (mCollisionBanned == BA_BANNED ||
+		regionp->getRegionFlag(REGION_FLAGS_BLOCK_FLYOVER))
 	{
 		collision_height = BAN_HEIGHT;
 	}

@@ -1267,7 +1267,8 @@ support@secondlife.com.
 	<string name="InventoryInboxNoItems">
 		Здесь будут показаны ваши покупки из торгового центра. Их можно будет перетащить в ваш инвентарь для использования.
 	</string>
-	<string name="MarketplaceURL">
+  <string name="Unconstrained">Без ограничения</string>
+  <string name="MarketplaceURL">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
 	</string>
 	<string name="MarketplaceURL_CreateStore">

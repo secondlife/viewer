@@ -36,6 +36,8 @@
 
 
 extern U32 gOctreeMaxCapacity;
+extern float gOctreeMinSize;
+
 /*#define LL_OCTREE_PARANOIA_CHECK 0
 #if LL_DARWIN
 #define LL_OCTREE_MAX_CAPACITY 32
@@ -106,6 +108,7 @@ public:
 	:	mParent((oct_node*)parent), 
 		mOctant(octant) 
 	{ 
+		llassert(size[0] >= gOctreeMinSize*0.5f);
 		//always keep a NULL terminated list to avoid out of bounds exceptions in debug builds
 		mData.push_back(NULL);
 		mDataEnd = &mData[0];
@@ -213,7 +216,7 @@ public:
 		F32 size = mSize[0];
 		F32 p_size = size * 2.f;
 
-		return (radius <= 0.001f && size <= 0.001f) ||
+		return (radius <= gOctreeMinSize && size <= gOctreeMinSize) ||
 				(radius <= p_size && radius > size);
 	}
 
@@ -319,7 +322,7 @@ public:
 		//is it here?
 		if (isInside(data->getPositionGroup()))
 		{
-			if ((getElementCount() < gOctreeMaxCapacity && contains(data->getBinRadius()) ||
+			if (((getElementCount() < gOctreeMaxCapacity || getSize()[0] <= gOctreeMinSize) && contains(data->getBinRadius()) ||
 				(data->getBinRadius() > getSize()[0] &&	parent && parent->getElementCount() >= gOctreeMaxCapacity))) 
 			{ //it belongs here
 				mData.push_back(NULL);
@@ -356,8 +359,9 @@ public:
 				LLVector4a val;
 				val.setSub(center, getCenter());
 				val.setAbs(val);
-								
-				S32 lt = val.lessThan(LLVector4a::getEpsilon()).getGatheredBits() & 0x7;
+				LLVector4a min_diff(gOctreeMinSize);
+
+				S32 lt = val.lessThan(min_diff).getGatheredBits() & 0x7;
 
 				if( lt == 0x7 )
 				{
@@ -389,6 +393,7 @@ public:
 				}
 #endif
 
+				llassert(size[0] >= gOctreeMinSize*0.5f);
 				//make the new kid
 				child = new LLOctreeNode<T>(center, size, this);
 				addChild(child);
@@ -795,6 +800,8 @@ public:
 				size2.mul(2.f);
 				this->setSize(size2);
 				this->updateMinMax();
+
+				llassert(size[0] >= gOctreeMinSize);
 
 				//copy our children to a new branch
 				LLOctreeNode<T>* newnode = new LLOctreeNode<T>(center, size, this);

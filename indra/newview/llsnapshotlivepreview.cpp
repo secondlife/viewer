@@ -50,7 +50,6 @@
 #include "llviewerstats.h"
 #include "llvfile.h"
 #include "llvfs.h"
-#include "llwebsharing.h"
 #include "llwindow.h"
 #include "llworld.h"
 
@@ -844,31 +843,4 @@ BOOL LLSnapshotLivePreview::saveLocal()
 		gViewerWindow->playSnapshotAnimAndSound();
 	}
 	return success;
-}
-
-void LLSnapshotLivePreview::saveWeb()
-{
-	// *FIX: Will break if the window closes because of CloseSnapshotOnKeep!
-	// Needs to pass on ownership of the image.
-	LLImageJPEG* jpg = dynamic_cast<LLImageJPEG*>(mFormattedImage.get());
-	if(!jpg)
-	{
-		llwarns << "Formatted image not a JPEG" << llendl;
-		return;
-	}
-
-	LLSD metadata;
-	metadata["description"] = getChild<LLLineEditor>("description")->getText();
-
-	LLLandmarkActions::getRegionNameAndCoordsFromPosGlobal(gAgentCamera.getCameraPositionGlobal(),
-		boost::bind(&LLSnapshotLivePreview::regionNameCallback, this, jpg, metadata, _1, _2, _3, _4));
-
-	gViewerWindow->playSnapshotAnimAndSound();
-}
-
-void LLSnapshotLivePreview::regionNameCallback(LLImageJPEG* snapshot, LLSD& metadata, const std::string& name, S32 x, S32 y, S32 z)
-{
-	metadata["slurl"] = LLSLURL(name, LLVector3d(x, y, z)).getSLURLString();
-
-	LLWebSharing::instance().shareSnapshot(snapshot, metadata);
 }
