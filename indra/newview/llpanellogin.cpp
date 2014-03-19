@@ -1022,11 +1022,14 @@ void LLPanelLogin::updateLoginButtons()
 		// last login button always enabled for this case
 		last_login_btn->setEnabled(true);
 
-		// double check status of favorites combo
+		// double check status of favorites combo (must be items there and one must be selected to enable button)
 		LLComboBox* favorites_combo = getChild<LLComboBox>("start_location_combo");
-		unsigned int num_items = favorites_combo->getItemCount();
-		if ( num_items > 0 )
+		int num_items = favorites_combo->getItemCount();
+		int selected_index = favorites_combo->getCurrentIndex();
+		if ( num_items > 0 && selected_index >=0 )
 			mFavoriteSelected = true;
+		else
+			mFavoriteSelected = false;
 
 		// only turn on favorites login button if one is selected
 		fav_btn->setEnabled( mFavoriteSelected );
