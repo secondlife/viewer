@@ -7825,7 +7825,7 @@ void handle_report_bug(const LLSD& param)
 	replace["[ENVIRONMENT]"] = LLURI::escape(LLAppViewer::instance()->getViewerInfoString());
 	LLSLURL location_url;
 	LLAgentUI::buildSLURL(location_url);
-	replace["[LOCATION]"] = location_url.getSLURLString();
+	replace["[LOCATION]"] = LLURI::escape(location_url.getSLURLString());
 
 	LLUIString file_bug_url = gSavedSettings.getString("ReportBugURL");
 	file_bug_url.setArgs(replace);
