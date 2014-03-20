@@ -2103,12 +2103,6 @@ bool LLAppViewer::cleanup()
 
     llinfos << "Goodbye!" << llendflush;
 
-    //To preserve logfile on clean shutdown move to regular log dir.
-    std::string curr_log = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"SecondLife.log");
-    std::string last_log = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.log");
-	LLError::logToFile(""); //Close Secondlife.log
-    LLFile::remove(last_log);
-    LLFile::copy(curr_log, last_log); 
     removeDumpDir();
 
 	// return 0;
@@ -2246,8 +2240,6 @@ void LLAppViewer::initLoggingAndGetLastDuration()
 	// Rename current log file to ".old"
 	LLFile::rename(log_file, old_log_file);
 
-	log_file = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,
-							     "SecondLife.log");
 	// Set the log file to SecondLife.log
 	LLError::logToFile(log_file);
 	if (!duration_log_msg.empty())
@@ -3733,9 +3725,6 @@ void LLAppViewer::handleViewerCrash()
 
 	// Close the debug file
 	pApp->writeDebugInfo(false);  //false answers the isStatic question with the least overhead.
-
-	LLError::logToFile("");
-	pApp->removeMarkerFiles();
 }
 
 // static

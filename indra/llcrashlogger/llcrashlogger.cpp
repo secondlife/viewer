@@ -218,7 +218,7 @@ void LLCrashLogger::gatherFiles()
 	{
 		// Figure out the filename of the second life log
 		LLCurl::setCAFile(gDirUtilp->getCAFile());
-		mFileMap["SecondLifeLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"SecondLife.log");
+		mFileMap["SecondLifeLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.old");  //We want the log of the last run now.
 		mFileMap["SettingsXml"] = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,"settings.xml");
 	}
 
@@ -477,12 +477,6 @@ bool LLCrashLogger::sendCrashLogs()
                         else
                         {
                             //mCrashInfo["DebugLog"].erase("MinidumpPath");
-                            //To preserve logfile on clean shutdown move to regular log dir.
-                            std::string curr_log = (*lock)["dumpdir"].asString() + "SecondLife.log";
-                            std::string last_log = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.log");
-
-                            LLFile::remove(last_log);
-                            LLFile::rename(curr_log, last_log); //Before we blow away the directory, perserve log of previous run.
 
                             mKeyMaster.cleanupProcess((*lock)["dumpdir"].asString());
                         }
