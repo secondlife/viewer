@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu
+ name="menu_group_plus"
+ left="0" bottom="0" visible="false"
+ mouse_opaque="false">
+    <menu_item_check
+       label="Sort by stock amount (low to high)"
+       name="sort_by_stock_amount">
+      <menu_item_check.on_click
+         function="Marketplace.ViewSort.Action"
+       parameter="sort_by_stock_amount"/>
+      <menu_item_check.on_check
+         function="Marketplace.ViewSort.CheckItem"
+         parameter="sort_by_stock_amount"/>
+    </menu_item_check>
+    <menu_item_separator layout="topleft" />
+    <menu_item_check name="show_low_stock" label="Show Low Stock Listings Only">
+        <menu_item_check.on_click
+         function="Marketplace.ViewSort.Action"
+         parameter="show_low_stock" />
+        <menu_item_check.on_check
+         function="Marketplace.ViewSort.CheckItem"
+         parameter="show_low_stock" />
+    </menu_item_check>
+    <menu_item_check name="show_associated_listings" label="Show Associated Listings Only">
+        <menu_item_check.on_click
+        function="Marketplace.ViewSort.Action"
+        parameter="show_associated_listings" />
+        <menu_item_check.on_check
+        function="Marketplace.ViewSort.CheckItem"
+        parameter="show_associated_listings" />
+    </menu_item_check>
+    <menu_item_check name="show_non_associated_listings" label="Show Non Associated Listings Only">
+        <menu_item_check.on_click
+        function="Marketplace.ViewSort.Action"
+        parameter="show_non_associated_listings" />
+        <menu_item_check.on_check
+        function="Marketplace.ViewSort.CheckItem"
+        parameter="show_non_associated_listings" />
+    </menu_item_check>
+    <menu_item_check name="show_active" label="Show Active Listings and Folders Only">
+        <menu_item_check.on_click
+        function="Marketplace.ViewSort.Action"
+        parameter="show_active" />
+        <menu_item_check.on_check
+        function="Marketplace.ViewSort.CheckItem"
+        parameter="show_active" />
+    </menu_item_check>
+</toggleable_menu>

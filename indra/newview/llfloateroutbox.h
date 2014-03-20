@@ -160,6 +160,9 @@ protected:
     
 private:
     S32 getFolderCount();
+    // UI callbacks
+	void onViewSortMenuItemClicked(const LLSD& userdata);
+	bool onViewSortMenuItemCheck(const LLSD& userdata);
 
 	LLInventoryCategoriesObserver *		mCategoriesObserver;
 	LLInventoryCategoryAddedObserver *	mCategoryAddedObserver;

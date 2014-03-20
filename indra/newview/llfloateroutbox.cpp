@@ -667,6 +667,8 @@ LLFloaterMarketplaceListings::LLFloaterMarketplaceListings(const LLSD& key)
 , mInventoryText(NULL)
 , mInventoryTitle(NULL)
 {
+	mCommitCallbackRegistrar.add("Marketplace.ViewSort.Action",  boost::bind(&LLFloaterMarketplaceListings::onViewSortMenuItemClicked,  this, _2));
+	mEnableCallbackRegistrar.add("Marketplace.ViewSort.CheckItem",	boost::bind(&LLFloaterMarketplaceListings::onViewSortMenuItemCheck,	this, _2));
 }
 
 LLFloaterMarketplaceListings::~LLFloaterMarketplaceListings()
@@ -771,6 +773,40 @@ void LLFloaterMarketplaceListings::onFocusReceived()
 {
 	fetchContents();
 }
+
+
+void LLFloaterMarketplaceListings::onViewSortMenuItemClicked(const LLSD& userdata)
+{
+    /*
+	std::string chosen_item = userdata.asString();
+    
+	if (chosen_item == "sort_by_stock_amount")
+	{
+		setSortOrder(mNearbyList, E_SORT_BY_RECENT_SPEAKERS);
+	}
+	else if (chosen_item == "show_low_stock")
+	{
+		mNearbyList->toggleIcons();
+	}
+     */
+}
+
+bool LLFloaterMarketplaceListings::onViewSortMenuItemCheck(const LLSD& userdata)
+{
+    /*
+	std::string item = userdata.asString();
+	U32 sort_order = gSavedSettings.getU32("NearbyPeopleSortOrder");
+    
+	if (item == "sort_by_recent_speakers")
+		return sort_order == E_SORT_BY_RECENT_SPEAKERS;
+	if (item == "sort_name")
+		return sort_order == E_SORT_BY_NAME;
+	if (item == "sort_distance")
+		return sort_order == E_SORT_BY_DISTANCE;
+    */
+	return false;
+}
+
 
 void LLFloaterMarketplaceListings::fetchContents()
 {
