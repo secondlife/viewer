@@ -26,3 +26,212 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llexperiencelog.h"
+
+#include "lldispatcher.h"
+#include "llsdserialize.h"
+#include "llviewergenericmessage.h"
+#include "llnotificationsutil.h"
+#include "lltrans.h"
+#include "llerror.h"
+#include "lldate.h"
+
+
+class LLExperienceLogDispatchHandler : public LLDispatchHandler
+{
+public:
+	virtual bool operator()(
+		const LLDispatcher* dispatcher,
+		const std::string& key,
+		const LLUUID& invoice,
+		const sparam_t& strings)
+	{
+		LLSD message;
+
+		sparam_t::const_iterator it = strings.begin();
+		if(it != strings.end()){
+			const std::string& llsdRaw = *it++;
+			std::istringstream llsdData(llsdRaw);
+			if (!LLSDSerialize::deserialize(message, llsdData, llsdRaw.length()))
+			{
+				llwarns << "LLExperienceLogDispatchHandler: Attempted to read parameter data into LLSD but failed:" << llsdRaw << llendl;
+			}
+		}
+		message["public_id"] = invoice;
+
+		// Object Name
+		if(it != strings.end())
+		{
+			message["ObjectName"] = *it++;
+		}
+
+		// parcel Name
+		if(it != strings.end())
+		{
+			message["ParcelName"] = *it++;
+		}
+
+		LLExperienceLog::instance().handleExperienceMessage(message);
+		return true;
+	}
+};
+
+static LLExperienceLogDispatchHandler experience_log_dispatch_handler;
+
+void LLExperienceLog::handleExperienceMessage(LLSD& message)
+{
+	time_t now;
+	time(&now);
+	char day[16];/* Flawfinder: ignore */
+	char time_of_day[16];/* Flawfinder: ignore */
+	strftime(day, 16, "%Y-%m-%d", localtime(&now));
+	strftime(time_of_day, 16, " %H:%M:%S", localtime(&now));
+	message["Time"] = time_of_day;
+
+	if(mNotifyNewEvent)
+	{
+		notify(message);
+	}
+	if(!mEvents.has(day)){
+		mEvents[day] = LLSD::emptyArray();
+	}
+	mEvents[day].append(message);
+}
+
+LLExperienceLog::LLExperienceLog()
+	: mMaxDays(7)
+	, mPageSize(25)
+	, mNotifyNewEvent(false)
+{
+}
+
+void LLExperienceLog::initialize()
+{
+	loadEvents();
+	if(!gGenericDispatcher.isHandlerPresent("ExperienceEvent"))
+	{
+		gGenericDispatcher.addHandler("ExperienceEvent", &experience_log_dispatch_handler);
+	}
+}
+
+std::string LLExperienceLog::getFilename()
+{
+	return gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "experience_events.xml");
+}
+
+
+std::string LLExperienceLog::getPermissionString( const LLSD& message, const std::string& base )
+{
+	std::ostringstream buf;
+	if(message.has("Permission"))
+	{
+		buf << base << message["Permission"].asInteger();
+		std::string entry;
+		if(LLTrans::findString(entry, buf.str()))
+		{
+			buf.str(entry);
+		}
+		else
+		{
+			buf.str();
+		}
+	}
+
+	if(buf.str().empty())
+	{
+		buf << base << "Unknown";
+
+		buf.str(LLTrans::getString(buf.str(), message));
+	}
+
+	return buf.str();
+}
+
+void LLExperienceLog::notify( LLSD& message )
+{
+	message["EventType"] = getPermissionString(message, "ExperiencePermission");
+	if(message.has("IsAttachment") && message["IsAttachment"].asBoolean())
+	{
+		LLNotificationsUtil::add("ExperienceEventAttachment", message);
+	}
+	else
+	{
+		LLNotificationsUtil::add("ExperienceEvent", message);
+	}
+	message.erase("EventType");
+}
+
+void LLExperienceLog::saveEvents()
+{
+	eraseExpired();
+	std::string filename = getFilename();
+	LLSD settings = LLSD::emptyMap().with("Events", mEvents);
+
+	settings["MaxDays"] = (int)mMaxDays;
+	settings["Notify"] = mNotifyNewEvent;
+	settings["PageSize"] = (int)mPageSize;
+
+	llofstream stream(filename);
+	LLSDSerialize::toPrettyXML(settings, stream);
+}
+
+
+void LLExperienceLog::loadEvents()
+{
+	LLSD settings = LLSD::emptyMap();
+
+	std::string filename = getFilename();
+	llifstream stream(filename);
+	LLSDSerialize::fromXMLDocument(settings, stream);
+
+	if(settings.has("MaxDays"))
+	{
+		mMaxDays = (U32)settings["MaxDays"].asInteger();
+	}
+	if(settings.has("Notify"))
+	{
+		mNotifyNewEvent = settings["Notify"].asBoolean();
+	}
+	if(settings.has("PageSize"))
+	{
+		mPageSize = (U32)settings["PageSize"].asInteger();
+	}
+	mEvents.clear();
+	if(mMaxDays > 0 && settings.has("Events"))
+	{
+		mEvents = settings["Events"];
+	}
+
+	eraseExpired();
+}
+
+LLExperienceLog::~LLExperienceLog()
+{
+	saveEvents();
+}
+
+void LLExperienceLog::eraseExpired()
+{
+	while(mEvents.size() > mMaxDays && mMaxDays > 0)
+	{
+		mEvents.erase(mEvents.beginMap()->first);
+	}
+}
+
+const LLSD& LLExperienceLog::getEvents() const
+{
+	return mEvents;
+}
+
+void LLExperienceLog::clear()
+{
+	mEvents.clear();
+}
+
+void LLExperienceLog::setMaxDays( U32 val )
+{
+	mMaxDays = val;
+	if(mMaxDays > 0)
+	{
+		eraseExpired();
+	}
+}

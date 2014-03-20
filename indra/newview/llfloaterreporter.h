@@ -88,7 +88,7 @@ public:
 	// Enables all buttons
 	static void showFromMenu(EReportType report_type);
 
-	static void showFromObject(const LLUUID& object_id);
+	static void showFromObject(const LLUUID& object_id, const LLUUID& experience_id = LLUUID::null);
 	static void showFromAvatar(const LLUUID& avatar_id, const std::string avatar_name);
 	static void showFromExperience(const LLUUID& experience_id);
 
@@ -107,7 +107,7 @@ public:
 	void setPickedObjectProperties(const std::string& object_name, const std::string& owner_name, const LLUUID owner_id);
 
 private:
-	static void show(const LLUUID& object_id, const std::string& avatar_name = LLStringUtil::null);
+	static void show(const LLUUID& object_id, const std::string& avatar_name = LLStringUtil::null, const LLUUID& experience_id = LLUUID::null);
 
 	void takeScreenshot();
 	void sendReportViaCaps(std::string url);

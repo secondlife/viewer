@@ -248,7 +248,7 @@ void LLFloaterReporter::getExperienceInfo(const LLUUID& experience_id)
 		}
 		
 		LLUICtrl* details = getChild<LLUICtrl>("details_edit");
-		details->setValue(desc.str());
+		details->setValue(details->getValue().asString()+desc.str());
 	}
 }
 
@@ -497,7 +497,7 @@ void LLFloaterReporter::showFromMenu(EReportType report_type)
 }
 
 // static
-void LLFloaterReporter::show(const LLUUID& object_id, const std::string& avatar_name)
+void LLFloaterReporter::show(const LLUUID& object_id, const std::string& avatar_name, const LLUUID& experience_id)
 {
 	LLFloaterReporter* f = LLFloaterReg::showTypedInstance<LLFloaterReporter>("reporter");
 
@@ -509,6 +509,10 @@ void LLFloaterReporter::show(const LLUUID& object_id, const std::string& avatar_
 	else
 	{
 		f->setFromAvatarID(object_id);
+	}
+	if(experience_id.notNull())
+	{
+		f->getExperienceInfo(experience_id);
 	}
 
 	// Need to deselect on close
@@ -532,9 +536,9 @@ void LLFloaterReporter::showFromExperience( const LLUUID& experience_id )
 
 
 // static
-void LLFloaterReporter::showFromObject(const LLUUID& object_id)
+void LLFloaterReporter::showFromObject(const LLUUID& object_id, const LLUUID& experience_id)
 {
-	show(object_id);
+	show(object_id, LLStringUtil::null, experience_id);
 }
 
 // static

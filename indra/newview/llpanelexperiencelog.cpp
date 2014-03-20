@@ -27,92 +27,224 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llpanelexperiencelog.h"
-#include "lldispatcher.h"
-#include "llsdserialize.h"
-#include "llviewergenericmessage.h"
-#include "llnotificationsutil.h"
-#include "lltrans.h"
+
+#include "llexperiencelog.h"
+#include "llexperiencecache.h"
+#include "llbutton.h"
+#include "llscrolllistctrl.h"
+#include "llcombobox.h"
+#include "llspinctrl.h"
+#include "llcheckboxctrl.h"
+#include "llfloaterreg.h"
+#include "llfloaterreporter.h"
+#include "llinventoryfunctions.h"
 
 
-class LLExperienceLogDispatchHandler : public LLDispatchHandler
+#define BTN_PROFILE_XP "btn_profile_xp"
+#define BTN_REPORT_XP "btn_report_xp"
+
+static LLPanelInjector<LLPanelExperienceLog> register_experiences_panel("experience_log");
+
+
+LLPanelExperienceLog::LLPanelExperienceLog(  )
+	: mEventList(NULL)
+	, mPageSize(25)
+	, mCurrentPage(0)
 {
-public:
-	virtual bool operator()(
-		const LLDispatcher* dispatcher,
-		const std::string& key,
-		const LLUUID& invoice,
-		const sparam_t& strings)
-	{
-		LLSD message;
+	buildFromFile("panel_experience_log.xml");
+}
 
-		sparam_t::const_iterator it = strings.begin();
-		if(it != strings.end()){
-			const std::string& llsdRaw = *it++;
-			std::istringstream llsdData(llsdRaw);
-			if (!LLSDSerialize::deserialize(message, llsdData, llsdRaw.length()))
+BOOL LLPanelExperienceLog::postBuild( void )
+{
+	LLExperienceLog* log = LLExperienceLog::getInstance();
+	mEventList = getChild<LLScrollListCtrl>("experience_log_list");
+	mEventList->setCommitCallback(boost::bind(&LLPanelExperienceLog::onSelectionChanged, this));
+
+	getChild<LLButton>("btn_clear")->setCommitCallback(boost::bind(&LLExperienceLog::clear, log));
+	getChild<LLButton>("btn_clear")->setCommitCallback(boost::bind(&LLPanelExperienceLog::refresh, this));
+
+	getChild<LLButton>(BTN_PROFILE_XP)->setCommitCallback(boost::bind(&LLPanelExperienceLog::onProfileExperience, this));
+	getChild<LLButton>(BTN_REPORT_XP)->setCommitCallback(boost::bind(&LLPanelExperienceLog::onReportExperience, this));
+	getChild<LLButton>("btn_notify")->setCommitCallback(boost::bind(&LLPanelExperienceLog::onNotify, this));
+	getChild<LLButton>("btn_next")->setCommitCallback(boost::bind(&LLPanelExperienceLog::onNext, this));
+	getChild<LLButton>("btn_prev")->setCommitCallback(boost::bind(&LLPanelExperienceLog::onPrev, this));
+
+	LLCheckBoxCtrl* check = getChild<LLCheckBoxCtrl>("notify_all");
+	check->set(log->getNotifyNewEvent());
+	check->setCommitCallback(boost::bind(&LLPanelExperienceLog::notifyChanged, this));
+
+
+	LLSpinCtrl* spin = getChild<LLSpinCtrl>("logsizespinner");
+	spin->set(log->getMaxDays());
+	spin->setCommitCallback(boost::bind(&LLPanelExperienceLog::logSizeChanged, this));
+
+	mPageSize = log->getPageSize();
+	refresh();
+	return TRUE;
+}
+
+LLPanelExperienceLog* LLPanelExperienceLog::create()
+{
+	return new LLPanelExperienceLog();
+}
+
+void LLPanelExperienceLog::refresh()
+{
+	mEventList->deleteAllItems();
+	const LLSD& events = LLExperienceLog::instance().getEvents();
+
+	if(events.size() == 0)
+	{
+		mEventList->setCommentText(getString("no_events"));
+		return;
+	}
+
+	setAllChildrenEnabled(FALSE);
+
+	LLSD item;
+	bool waiting = false;
+	LLUUID waiting_id;
+
+	int itemsToSkip = mPageSize*mCurrentPage;
+	int items = 0;
+	bool moreItems = false;
+
+	for(LLSD::map_const_iterator day = events.beginMap(); day != events.endMap() ; ++day)
+	{
+		const LLSD& dayArray = day->second;
+		int size = dayArray.size();
+		if(itemsToSkip > size)
+		{
+			itemsToSkip -= size;
+			continue;
+		}
+		if(items >= mPageSize && size > 0)
+		{
+			moreItems = true;
+			break;
+		}
+		for(int i = itemsToSkip ; i < dayArray.size(); i++)
+		{
+			if(items >= mPageSize)
 			{
-				llwarns << "LLExperienceLogDispatchHandler: Attempted to read parameter data into LLSD but failed:" << llsdRaw << llendl;
+				moreItems = true;
+				break;
 			}
-		}
-		message["public_id"] = invoice;
+			const LLSD& event = dayArray[i];
+			LLUUID id = event[LLExperienceCache::EXPERIENCE_ID].asUUID();
+			const LLSD& experience = LLExperienceCache::get(id);
+			if(experience.isUndefined()){
+				waiting = true;
+				waiting_id = id;
+			}
+			if(!waiting)
+			{
+				item["id"] = event;
 
-		// Object Name
-		if(it != strings.end())
-		{
-			message["ObjectName"] = *it++;
-		}
-
-		// parcel Name
-		if(it != strings.end())
-		{
-			message["ParcelName"] = *it++;
-		}
-
-		LLExperienceLog::instance().handleExperienceMessage(message);
-		return true;
-	}
-};
-
-static LLExperienceLogDispatchHandler experience_log_dispatch_handler;
-
-void LLExperienceLog::handleExperienceMessage(LLSD& message)
-{
-	std::ostringstream str;
-	if(message.has("Permission"))
-	{
-		str << "ExperiencePermission" << message["Permission"].asInteger();
-		std::string entry;
-		if(LLTrans::findString(entry, str.str()))
-		{
-			str.str(entry);
-		}
-		else
-		{
-			str.str();
+				LLSD& columns = item["columns"];
+				columns[0]["column"] = "time";
+				columns[0]["value"] = day->first+event["Time"].asString();
+				columns[1]["column"] = "event";
+				columns[1]["value"] = LLExperienceLog::getPermissionString(event, "ExperiencePermissionShort");
+				columns[2]["column"] = "experience_name";
+				columns[2]["value"] = experience[LLExperienceCache::NAME].asString();
+				columns[3]["column"] = "object_name";
+				columns[3]["value"] = event["ObjectName"].asString();
+				mEventList->addElement(item);
+			}
+			++items;
 		}
 	}
-
-	if(str.str().empty())
+	if(waiting)
 	{
-		str.str(LLTrans::getString("ExperiencePermissionUnknown", message));
-	}
-
-	message["EventType"] = str.str();
-	if(message.has("IsAttachment") && message["IsAttachment"].asBoolean())
-	{
-		LLNotificationsUtil::add("ExperienceEventAttachment", message);
+		mEventList->deleteAllItems();
+		mEventList->setCommentText(getString("loading"));
+		LLExperienceCache::get(waiting_id, boost::bind(&LLPanelExperienceLog::refresh, this));
 	}
 	else
 	{
-		LLNotificationsUtil::add("ExperienceEvent", message);
+		setAllChildrenEnabled(TRUE);
+
+		mEventList->setEnabled(TRUE);
+		getChild<LLButton>("btn_next")->setEnabled(moreItems);
+		getChild<LLButton>("btn_prev")->setEnabled(mCurrentPage>0);
+		getChild<LLButton>("btn_clear")->setEnabled(mEventList->getItemCount()>0);
+		onSelectionChanged();
 	}
 }
 
-LLExperienceLog::LLExperienceLog()
+void LLPanelExperienceLog::onProfileExperience()
 {
+	LLSD& event = getSelectedEvent();
+	if(event.isDefined())
+	{
+		LLFloaterReg::showInstance("experience_profile", event[LLExperienceCache::EXPERIENCE_ID].asUUID(), true);
+	}
 }
 
-void LLExperienceLog::initialize()
+void LLPanelExperienceLog::onReportExperience()
 {
-	gGenericDispatcher.addHandler("ExperienceEvent", &experience_log_dispatch_handler);
+	LLSD& event = getSelectedEvent();
+	if(event.isDefined())
+	{
+		LLFloaterReporter::showFromExperience(event[LLExperienceCache::EXPERIENCE_ID].asUUID());
+	}
+}
+
+void LLPanelExperienceLog::onNotify()
+{
+	LLSD& event = getSelectedEvent();
+	if(event.isDefined())
+	{
+		LLExperienceLog::instance().notify(event);
+	}
+}
+
+void LLPanelExperienceLog::onNext()
+{
+	mCurrentPage++;
+	refresh();
+}
+
+void LLPanelExperienceLog::onPrev()
+{
+	if(mCurrentPage>0)
+	{
+		mCurrentPage--;
+		refresh();
+	}
+}
+
+void LLPanelExperienceLog::notifyChanged()
+{
+	LLExperienceLog::instance().setNotifyNewEvent(getChild<LLCheckBoxCtrl>("notify_all")->get());
+}
+
+void LLPanelExperienceLog::logSizeChanged()
+{
+	int value = (int)(getChild<LLSpinCtrl>("logsizespinner")->get());
+	bool dirty = value > 0 && value < LLExperienceLog::instance().getMaxDays();
+	LLExperienceLog::instance().setMaxDays(value);
+	if(dirty)
+	{
+		refresh();
+	}
+}
+
+void LLPanelExperienceLog::onSelectionChanged()
+{
+	bool enabled = (1 == mEventList->getNumSelected());
+	getChild<LLButton>(BTN_REPORT_XP)->setEnabled(enabled);
+	getChild<LLButton>(BTN_PROFILE_XP)->setEnabled(enabled);
+	getChild<LLButton>("btn_notify")->setEnabled(enabled);
+}
+
+LLSD LLPanelExperienceLog::getSelectedEvent()
+{
+	LLScrollListItem* item = mEventList->getFirstSelected();
+	if(item)
+	{
+		return item->getValue();
+	}
+	return LLSD();
 }

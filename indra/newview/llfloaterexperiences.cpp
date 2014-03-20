@@ -35,6 +35,7 @@
 #include "llexperiencecache.h"
 #include "llevents.h"
 #include "llnotificationsutil.h"
+#include "llpanelexperiencelog.h"
 
 
 
@@ -115,6 +116,7 @@ BOOL LLFloaterExperiences::postBuild()
 #if SHOW_RECENT_TAB
 	addTab("Recent_Experiences_Tab", false);
 #endif //SHOW_RECENT_TAB
+	getChild<LLTabContainer>("xp_tabs")->addTabPanel(new LLPanelExperienceLog());
     resizeToTabs();
 
    

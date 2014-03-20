@@ -410,9 +410,9 @@
                 label="Report Abuse"
                 layout="topleft"
                 name="report_btn"
-                width="288"
+                width="94"
                 top_pad="3"
-                left="10"
+                left="107"
                 enabled="true"/>
             </layout_panel>
           </layout_stack>

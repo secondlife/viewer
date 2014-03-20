@@ -198,7 +198,7 @@
 #include "llevents.h"
 #include "llstartuplistener.h"
 #include "lltoolbarview.h"
-#include "llpanelexperiencelog.h"
+#include "llexperiencelog.h"
 
 #if LL_WINDOWS
 #include "lldxhardware.h"
@@ -1304,6 +1304,9 @@ bool idle_startup()
 		gAgent.setPositionAgent(agent_start_position_region);
 
 		display_startup();
+		LLStartUp::initExperiences();
+
+		display_startup();
 		LLStartUp::setStartupState( STATE_MULTIMEDIA_INIT );
 		
 		LLConversationLog::getInstance();
@@ -1411,9 +1414,6 @@ bool idle_startup()
 		display_startup();
 
 		LLStartUp::initNameCache();
-		display_startup();
-
-		LLStartUp::initExperiences();
 		display_startup();
 
 		// update the voice settings *after* gCacheName initialization

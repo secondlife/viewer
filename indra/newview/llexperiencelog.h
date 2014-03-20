@@ -29,5 +29,49 @@
 #ifndef LL_LLEXPERIENCELOG_H
 #define LL_LLEXPERIENCELOG_H
 
+#include "llsingleton.h"
+
+class LLExperienceLog : public LLSingleton<LLExperienceLog>
+{
+public:
+	void initialize();
+
+	U32 getMaxDays() const { return mMaxDays; }
+	void setMaxDays(U32 val);
+
+	bool getNotifyNewEvent() const { return mNotifyNewEvent; }
+	void setNotifyNewEvent(bool val) { mNotifyNewEvent = val; }
+
+	U32 getPageSize() const { return mPageSize; }
+	void setPageSize(U32 val) { mPageSize = val; }
+
+	const LLSD& getEvents()const;
+	void clear();
+
+	virtual ~LLExperienceLog();
+
+	static void notify(LLSD& message);
+	static std::string getFilename();
+	static std::string getPermissionString(const LLSD& message, const std::string& base);
+protected:
+	LLExperienceLog();
+	void handleExperienceMessage(LLSD& message);
+
+
+	void loadEvents();
+	void saveEvents();
+	void eraseExpired();
+
+	LLSD mEvents;
+	U32 mMaxDays;
+	U32 mPageSize;
+	bool mNotifyNewEvent;
+
+	friend class LLExperienceLogDispatchHandler;
+	friend class LLSingleton<LLExperienceLog>;
+};
+
+
+
 
 #endif // LL_LLEXPERIENCELOG_H

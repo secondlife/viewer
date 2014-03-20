@@ -25,24 +25,38 @@
  */
 
 
-
 #ifndef LL_LLPANELEXPERIENCELOG_H
 #define LL_LLPANELEXPERIENCELOG_H
 
-#include "llsingleton.h"
+#include "llpanel.h"
+class LLScrollListCtrl;
 
-
-
-class LLExperienceLog : public LLSingleton<LLExperienceLog>
+class LLPanelExperienceLog
+	: public LLPanel 
 {
-	friend class LLSingleton<LLExperienceLog>;
-protected:
-	LLExperienceLog();
-	
 public:
-	void initialize();
-	void handleExperienceMessage(LLSD& message);
-};
+	LLPanelExperienceLog();
 
+	static LLPanelExperienceLog* create();
+
+	/*virtual*/ BOOL postBuild(void);
+
+	void refresh();
+protected:
+	void logSizeChanged();
+	void notifyChanged();
+	void onNext();
+	void onNotify();
+	void onPrev();
+	void onProfileExperience();
+	void onReportExperience();
+	void onSelectionChanged();
+
+	LLSD getSelectedEvent();
+private:
+	LLScrollListCtrl* mEventList;
+	U32 mPageSize;
+	U32 mCurrentPage;
+};
 
 #endif // LL_LLPANELEXPERIENCELOG_H
