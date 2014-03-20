@@ -798,7 +798,10 @@ void LLNetMap::createObjectImage()
 	{
 		mObjectRawImagep = new LLImageRaw(img_size, img_size, 4);
 		U8* data = mObjectRawImagep->getData();
-		memset( data, 0, img_size * img_size * 4 );
+		if (data)
+		{
+			memset( data, 0, img_size * img_size * 4 );
+		}
 		mObjectImagep = LLViewerTextureManager::getLocalTexture( mObjectRawImagep.get(), FALSE);
 	}
 	setScale(mScale);

@@ -337,6 +337,11 @@ void LLViewerTextureManager::init()
 	const S32 dim = 128;
 	LLPointer<LLImageRaw> image_raw = new LLImageRaw(dim,dim,3);
 	U8* data = image_raw->getData();
+
+	if (!data)
+	{
+		return;
+	}
 	
 	memset(data, 0, dim * dim * 3) ;
 	LLViewerTexture::sBlackImagep = LLViewerTextureManager::getLocalTexture(image_raw.get(), TRUE) ;
@@ -373,8 +378,12 @@ void LLViewerTextureManager::init()
 #else
  	LLViewerFetchedTexture::sDefaultImagep = LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
 #endif
-	LLViewerFetchedTexture::sDefaultImagep->dontDiscard();
-	LLViewerFetchedTexture::sDefaultImagep->setCategory(LLGLTexture::OTHER) ;
+
+	if (LLViewerFetchedTexture::sDefaultImagep)
+	{
+		LLViewerFetchedTexture::sDefaultImagep->dontDiscard();
+		LLViewerFetchedTexture::sDefaultImagep->setCategory(LLGLTexture::OTHER) ;
+	}
 
  	LLViewerFetchedTexture::sSmokeImagep = LLViewerTextureManager::getFetchedTexture(IMG_SMOKE, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
 	LLViewerFetchedTexture::sSmokeImagep->setNoDelete() ;
@@ -690,7 +699,7 @@ bool LLViewerTexture::bindDefaultImage(S32 stage)
 	if (stage < 0) return false;
 
 	bool res = true;
-	if (LLViewerFetchedTexture::sDefaultImagep.notNull() && (this != LLViewerFetchedTexture::sDefaultImagep.get()))
+	if (LLViewerFetchedTexture::sDefaultImagep && LLViewerFetchedTexture::sDefaultImagep.notNull() && (this != LLViewerFetchedTexture::sDefaultImagep.get()))
 	{
 		// use default if we've got it
 		res = gGL.getTexUnit(stage)->bind(LLViewerFetchedTexture::sDefaultImagep);

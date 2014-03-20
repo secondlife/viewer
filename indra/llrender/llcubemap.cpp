@@ -116,6 +116,11 @@ void LLCubeMap::initRawData(const std::vector<LLPointer<LLImageRaw> >& rawimages
 		const U8 *sd = rawimages[i]->getData();
 		U8 *td = mRawImages[i]->getData();
 
+		if (!sd || !td)
+		{
+			continue;
+		}
+
 		S32 offset = 0;
 		S32 sx, sy, so;
 		for (int y = 0; y < 64; y++)

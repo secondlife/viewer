@@ -448,7 +448,11 @@ LLFontGlyphInfo* LLFontFreetype::addGlyphFromFont(const LLFontFreetype *fontp, l
 	
 	LLImageGL *image_gl = mFontBitmapCachep->getImageGL(bitmap_num);
 	LLImageRaw *image_raw = mFontBitmapCachep->getImageRaw(bitmap_num);
-	image_gl->setSubImage(image_raw, 0, 0, image_gl->getWidth(), image_gl->getHeight());
+	
+	if (image_gl)
+	{
+		image_gl->setSubImage(image_raw, 0, 0, image_gl->getWidth(), image_gl->getHeight());
+	}
 
 	return gi;
 }
@@ -560,13 +564,18 @@ void LLFontFreetype::setSubImageLuminanceAlpha(U32 x, U32 y, U32 bitmap_num, U32
 {
 	LLImageRaw *image_raw = mFontBitmapCachep->getImageRaw(bitmap_num);
 
+	if (!image_raw)
+	{
+		return;
+	}
+
 	llassert(!mIsFallback);
-	llassert(image_raw && (image_raw->getComponents() == 2));
+	llassert(image_raw->getComponents() == 2);
 
 	
 	U8 *target = image_raw->getData();
 
-	if (!data)
+	if (!data || !target)
 	{
 		return;
 	}

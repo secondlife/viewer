@@ -2684,7 +2684,7 @@ void init_start_screen(S32 location_id)
 		}
 	}
 
-	if(gStartTexture.isNull())
+	if(gStartTexture && gStartTexture.isNull())
 	{
 		gStartTexture = LLViewerTexture::sBlackImagep ;
 		gStartImageWidth = gStartTexture->getWidth() ;

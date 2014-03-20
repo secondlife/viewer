@@ -233,6 +233,12 @@ void LLSurface::createSTexture()
 		// GL NOT ACTIVE HERE
 		LLPointer<LLImageRaw> raw = new LLImageRaw(sTextureSize, sTextureSize, 3);
 		U8 *default_texture = raw->getData();
+
+		if (!default_texture)
+		{
+			return;
+		}
+
 		for (S32 i = 0; i < sTextureSize; i++)
 		{
 			for (S32 j = 0; j < sTextureSize; j++)
@@ -257,6 +263,12 @@ void LLSurface::createWaterTexture()
 		// Create the water texture
 		LLPointer<LLImageRaw> raw = new LLImageRaw(sTextureSize/2, sTextureSize/2, 4);
 		U8 *default_texture = raw->getData();
+
+		if (!default_texture)
+		{
+			return;
+		}
+
 		for (S32 i = 0; i < sTextureSize/2; i++)
 		{
 			for (S32 j = 0; j < sTextureSize/2; j++)
