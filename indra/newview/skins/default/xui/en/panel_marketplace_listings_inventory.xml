@@ -37,7 +37,7 @@
     width="308"
     height="340">
   <tab_container
-    name="inventory filter tabs"
+    name="marketplace filter tabs"
     follows="all"
     layout="topleft"
     top="0"

@@ -33,6 +33,7 @@
 #include "llfolderviewitem.h"
 #include "llinventorymodel.h"
 #include "llinventorymodelbackgroundfetch.h"
+#include "llmarketplacefunctions.h"
 #include "llviewercontrol.h"
 #include "llfolderview.h"
 #include "llinventorybridge.h"
@@ -239,6 +240,48 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLFolderViewModelItemInvent
 			{
 				// Force the fetching of those folders so they are hidden iff they really are empty...
 				gInventory.fetchDescendentsOf(object_id);
+				return FALSE;
+			}
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////
+	// FILTERTYPE_MARKETPLACE_ACTIVE
+	// Pass if this item is a folder and is active
+	if (filterTypes & FILTERTYPE_MARKETPLACE_ACTIVE)
+	{
+		if (object_type == LLInventoryType::IT_CATEGORY)
+		{
+			if (LLMarketplaceData::instance().getActivationState(object_id))
+			{
+				return FALSE;
+			}
+		}
+	}
+	
+	////////////////////////////////////////////////////////////////////////////////
+	// FILTERTYPE_MARKETPLACE_INACTIVE
+	// Pass if this item is a folder and is not active
+	if (filterTypes & FILTERTYPE_MARKETPLACE_INACTIVE)
+	{
+		if (object_type == LLInventoryType::IT_CATEGORY)
+		{
+			if (!LLMarketplaceData::instance().getActivationState(object_id))
+			{
+				return FALSE;
+			}
+		}
+	}
+	
+	////////////////////////////////////////////////////////////////////////////////
+	// FILTERTYPE_MARKETPLACE_UNASSOCIATED
+	// Pass if this item is a folder and is active
+	if (filterTypes & FILTERTYPE_MARKETPLACE_UNASSOCIATED)
+	{
+		if (object_type == LLInventoryType::IT_CATEGORY)
+		{
+			if (LLMarketplaceData::instance().getListingID(object_id).empty())
+			{
 				return FALSE;
 			}
 		}
@@ -466,6 +509,21 @@ void LLInventoryFilter::setFilterWearableTypes(U64 types)
 void LLInventoryFilter::setFilterEmptySystemFolders()
 {
 	mFilterOps.mFilterTypes |= FILTERTYPE_EMPTYFOLDERS;
+}
+
+void LLInventoryFilter::setFilterMarketplaceActiveFolders()
+{
+	mFilterOps.mFilterTypes |= FILTERTYPE_MARKETPLACE_ACTIVE;
+}
+
+void LLInventoryFilter::setFilterMarketplaceInactiveFolders()
+{
+	mFilterOps.mFilterTypes |= FILTERTYPE_MARKETPLACE_INACTIVE;
+}
+
+void LLInventoryFilter::setFilterMarketplaceUnassociatedFolders()
+{
+	mFilterOps.mFilterTypes |= FILTERTYPE_MARKETPLACE_UNASSOCIATED;
 }
 
 void LLInventoryFilter::setFilterUUID(const LLUUID& object_id)

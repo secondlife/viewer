@@ -831,16 +831,9 @@ void LLFloaterMarketplaceListings::setup()
 	llassert(mCategoriesObserver);
 	
 	// Set up the marketplace listings inventory view
-//	LLInventoryPanel* inventory_panel = mInventoryPanel.get();
-//    if (inventory_panel)
-//    {
-//        delete inventory_panel;
-//    }
-//    inventory_panel = LLUICtrlFactory::createFromFile<LLInventoryPanel>("panel_marketplace_listings_inventory.xml", mInventoryPlaceholder->getParent(), LLInventoryPanel::child_registry_t::instance());
-//    mInventoryPanel = inventory_panel->getInventoryPanelHandle();
     LLPanel* inventory_panel = LLUICtrlFactory::createFromFile<LLPanel>("panel_marketplace_listings_inventory.xml", mInventoryPlaceholder->getParent(), LLInventoryPanel::child_registry_t::instance());
-	LLInventoryPanel* all_items_panel = inventory_panel->getChild<LLInventoryPanel>("All Items");
-    mInventoryPanel = all_items_panel->getInventoryPanelHandle();
+	LLInventoryPanel* items_panel = inventory_panel->getChild<LLInventoryPanel>("All Items");
+    mInventoryPanel = items_panel->getInventoryPanelHandle();
 	llassert(mInventoryPanel.get() != NULL);
 	
 	// Reshape the inventory to the proper size
@@ -848,9 +841,23 @@ void LLFloaterMarketplaceListings::setup()
 	inventory_panel->setShape(inventory_placeholder_rect);
 	
 	// Set the sort order newest to oldest
-	all_items_panel->getFolderViewModel()->setSorter(LLInventoryFilter::SO_FOLDERS_BY_NAME);
-	all_items_panel->getFilter().markDefault();
+	items_panel->getFolderViewModel()->setSorter(LLInventoryFilter::SO_FOLDERS_BY_NAME);
+	items_panel->getFilter().markDefault();
     
+    // Set filters on the 3 prefiltered panels
+	items_panel = inventory_panel->getChild<LLInventoryPanel>("Active Items");
+	items_panel->getFolderViewModel()->setSorter(LLInventoryFilter::SO_FOLDERS_BY_NAME);
+	items_panel->getFilter().setFilterMarketplaceActiveFolders();
+	items_panel->getFilter().markDefault();
+	items_panel = inventory_panel->getChild<LLInventoryPanel>("Inactive Items");
+	items_panel->getFolderViewModel()->setSorter(LLInventoryFilter::SO_FOLDERS_BY_NAME);
+	items_panel->getFilter().setFilterMarketplaceInactiveFolders();
+	items_panel->getFilter().markDefault();
+	items_panel = inventory_panel->getChild<LLInventoryPanel>("Unassociated Items");
+	items_panel->getFolderViewModel()->setSorter(LLInventoryFilter::SO_FOLDERS_BY_NAME);
+	items_panel->getFilter().setFilterMarketplaceUnassociatedFolders();
+	items_panel->getFilter().markDefault();
+
 	// Get the content of the marketplace listings folder
 	fetchContents();
 }
@@ -969,8 +976,7 @@ BOOL LLFloaterMarketplaceListings::handleDragAndDrop(S32 x, S32 y, MASK mask, BO
 										EAcceptance* accept,
 										std::string& tooltip_msg)
 {
-	if ((mInventoryPanel.get() == NULL) ||
-        mRootFolderId.isNull())
+	if ((mInventoryPanel.get() == NULL) || mRootFolderId.isNull())
 	{
 		return FALSE;
 	}
