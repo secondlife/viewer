@@ -132,6 +132,30 @@ bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
 		LLInventoryModelBackgroundFetch::instance().start(folder_id);
 	}
 
+	// Marketplace folder filtering
+	const U32 filterTypes = mFilterOps.mFilterTypes;
+	if (filterTypes & FILTERTYPE_MARKETPLACE_ACTIVE)
+	{
+        if (!LLMarketplaceData::instance().getActivationState(folder_id))
+        {
+            return false;
+        }
+	}
+	if (filterTypes & FILTERTYPE_MARKETPLACE_INACTIVE)
+	{
+        if (LLMarketplaceData::instance().getActivationState(folder_id))
+        {
+            return false;
+        }
+	}
+	if (filterTypes & FILTERTYPE_MARKETPLACE_UNASSOCIATED)
+	{
+        if (!LLMarketplaceData::instance().getListingID(folder_id).empty())
+        {
+            return false;
+        }
+	}
+	
 	// Always check against the clipboard
 	const BOOL passed_clipboard = checkAgainstClipboard(folder_id);
 	
@@ -245,48 +269,6 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLFolderViewModelItemInvent
 		}
 	}
 
-	////////////////////////////////////////////////////////////////////////////////
-	// FILTERTYPE_MARKETPLACE_ACTIVE
-	// Pass if this item is a folder and is active
-	if (filterTypes & FILTERTYPE_MARKETPLACE_ACTIVE)
-	{
-		if (object_type == LLInventoryType::IT_CATEGORY)
-		{
-			if (LLMarketplaceData::instance().getActivationState(object_id))
-			{
-				return FALSE;
-			}
-		}
-	}
-	
-	////////////////////////////////////////////////////////////////////////////////
-	// FILTERTYPE_MARKETPLACE_INACTIVE
-	// Pass if this item is a folder and is not active
-	if (filterTypes & FILTERTYPE_MARKETPLACE_INACTIVE)
-	{
-		if (object_type == LLInventoryType::IT_CATEGORY)
-		{
-			if (!LLMarketplaceData::instance().getActivationState(object_id))
-			{
-				return FALSE;
-			}
-		}
-	}
-	
-	////////////////////////////////////////////////////////////////////////////////
-	// FILTERTYPE_MARKETPLACE_UNASSOCIATED
-	// Pass if this item is a folder and is active
-	if (filterTypes & FILTERTYPE_MARKETPLACE_UNASSOCIATED)
-	{
-		if (object_type == LLInventoryType::IT_CATEGORY)
-		{
-			if (LLMarketplaceData::instance().getListingID(object_id).empty())
-			{
-				return FALSE;
-			}
-		}
-	}
-	
 	return TRUE;
 }
 
