@@ -39,9 +39,10 @@
 
 namespace LLExperienceCache
 {
-    bool get( const LLUUID& key, LLSD& experience_data )
+    const LLSD& get( const LLUUID& key)
     {
-        return false;
+		static LLSD boo;
+        return boo;
     }
 
     void get( const LLUUID& key, callback_slot_t slot ){}
