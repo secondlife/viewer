@@ -424,7 +424,7 @@ bool LLFeatureManager::loadGPUClass()
 	//get memory bandwidth from benchmark
 	F32 gbps = gpu_benchmark();
 
-	if (gbps < -1.f)
+	if (gbps < 0.f)
 	{ //couldn't bench, use GLVersion
 
 		if (gGLManager.mGLVersion < 2.f)
