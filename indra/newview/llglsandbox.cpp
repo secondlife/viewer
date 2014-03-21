@@ -880,8 +880,8 @@ void LLViewerObjectList::renderObjectBeacons()
 
 F32 gpu_benchmark()
 {
-	if (!gGLManager.mHasShaderObjects || !gGLManager.mHasTimerQuery)
-	{ //don't bother benchmarking the fixed function or using CPU timers
+	if (!gGLManager.mHasShaderObjects)
+	{ //don't bother benchmarking the fixed function
 		return -1.f;
 	}
 
@@ -1011,15 +1011,15 @@ F32 gpu_benchmark()
 
 	llinfos << "Memory bandwidth is " << llformat("%.3f", gbps) << "GB/sec according to CPU timers" << llendl;
 	
-	F32 ms = gBenchmarkProgram.mTimeElapsed/1000000.f;
-	F32 seconds = ms/1000.f;
-
-	F64 samples_drawn = res*res*count*samples;
-	F32 samples_sec = (samples_drawn/1000000000.0)/seconds;
-	gbps = samples_sec*8;
-
 	if (gGLManager.mHasTimerQuery)
 	{
+		F32 ms = gBenchmarkProgram.mTimeElapsed/1000000.f;
+		F32 seconds = ms/1000.f;
+
+		F64 samples_drawn = res*res*count*samples;
+		F32 samples_sec = (samples_drawn/1000000000.0)/seconds;
+		gbps = samples_sec*8;
+
 		llinfos << "Memory bandwidth is " << llformat("%.3f", gbps) << "GB/sec according to ARB_timer_query" << llendl;
 	}
 	else
