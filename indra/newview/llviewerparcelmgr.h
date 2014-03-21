@@ -336,6 +336,7 @@ private:
 	LLDynamicArray<LLParcelObserver*> mObservers;
 
 	BOOL						mTeleportInProgress;
+	LLVector3d					mTeleportInProgressPosition;
 	teleport_finished_signal_t	mTeleportFinishedSignal;
 	teleport_failed_signal_t	mTeleportFailedSignal;
 
