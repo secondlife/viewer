@@ -859,10 +859,8 @@ void LLPanelEditWearable::draw()
 
 void LLPanelEditWearable::onClose()
 {
-	if ( isDirty() )
-	{
-		revertChanges();
-	}
+	// any unsaved changes should be reverted at this point
+	revertChanges();
 }
 
 void LLPanelEditWearable::setVisible(BOOL visible)
