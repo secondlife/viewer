@@ -31,6 +31,7 @@
 
 #include "llfloater.h"
 #include "llfoldertype.h"
+#include "llinventoryfilter.h"
 #include "llnotificationptr.h"
 
 
@@ -175,6 +176,8 @@ private:
 
 	LLUUID				mRootFolderId;
 	LLHandle<LLInventoryPanel> mInventoryPanel;
+    LLInventoryFilter::ESortOrderType mSortOrder;
+    LLInventoryFilter::EFilterType mFilterType;
 };
 
 #endif // LL_LLFLOATEROUTBOX_H

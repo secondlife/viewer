@@ -70,7 +70,8 @@ public:
 		SO_NAME = 0,						// Sort inventory by name
 		SO_DATE = 0x1,						// Sort inventory by date
 		SO_FOLDERS_BY_NAME = 0x1 << 1,		// Force folder sort by name
-		SO_SYSTEM_FOLDERS_TO_TOP = 0x1 << 2	// Force system folders to be on top
+		SO_SYSTEM_FOLDERS_TO_TOP = 0x1 << 2,// Force system folders to be on top
+		SO_FOLDERS_BY_WEIGHT = 0x1 << 3,    // Force folder sort by weight, usually, amount of some elements in their descendents
 	};
 
 	struct FilterOps

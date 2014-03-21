@@ -666,6 +666,8 @@ LLFloaterMarketplaceListings::LLFloaterMarketplaceListings(const LLSD& key)
 , mInventoryPlaceholder(NULL)
 , mInventoryText(NULL)
 , mInventoryTitle(NULL)
+, mSortOrder(LLInventoryFilter::SO_FOLDERS_BY_NAME)
+, mFilterType(LLInventoryFilter::FILTERTYPE_NONE)
 {
 	mCommitCallbackRegistrar.add("Marketplace.ViewSort.Action",  boost::bind(&LLFloaterMarketplaceListings::onViewSortMenuItemClicked,  this, _2));
 	mEnableCallbackRegistrar.add("Marketplace.ViewSort.CheckItem",	boost::bind(&LLFloaterMarketplaceListings::onViewSortMenuItemCheck,	this, _2));
@@ -777,33 +779,64 @@ void LLFloaterMarketplaceListings::onFocusReceived()
 
 void LLFloaterMarketplaceListings::onViewSortMenuItemClicked(const LLSD& userdata)
 {
-    /*
 	std::string chosen_item = userdata.asString();
     
+	LLInventoryPanel* panel = mInventoryPanel.get();
+    
+    llinfos << "Merov : MenuItemClicked, item = " << chosen_item << ", panel on = " << panel->hasFocus() << llendl;
+    
+    // Sort options
 	if (chosen_item == "sort_by_stock_amount")
 	{
-		setSortOrder(mNearbyList, E_SORT_BY_RECENT_SPEAKERS);
+        mSortOrder = (mSortOrder == LLInventoryFilter::SO_FOLDERS_BY_NAME ? LLInventoryFilter::SO_FOLDERS_BY_WEIGHT : LLInventoryFilter::SO_FOLDERS_BY_NAME);
+        panel->getFolderViewModel()->setSorter(mSortOrder);
 	}
-	else if (chosen_item == "show_low_stock")
+    // View/filter options
+	else if (chosen_item == "show_all")
 	{
-		mNearbyList->toggleIcons();
+        mFilterType = LLInventoryFilter::FILTERTYPE_NONE;
+        panel->getFilter().resetDefault();
 	}
-     */
+	else if (chosen_item == "show_non_associated_listings")
+	{
+        mFilterType = LLInventoryFilter::FILTERTYPE_MARKETPLACE_UNASSOCIATED;
+        panel->getFilter().setFilterMarketplaceUnassociatedFolders();
+	}
+	else if (chosen_item == "show_active")
+	{
+        mFilterType = LLInventoryFilter::FILTERTYPE_MARKETPLACE_ACTIVE;
+        panel->getFilter().setFilterMarketplaceActiveFolders();
+	}
+	else if (chosen_item == "show_inactive_listings")
+	{
+        mFilterType = LLInventoryFilter::FILTERTYPE_MARKETPLACE_INACTIVE;
+        panel->getFilter().setFilterMarketplaceInactiveFolders();
+	}
 }
 
 bool LLFloaterMarketplaceListings::onViewSortMenuItemCheck(const LLSD& userdata)
 {
-    /*
-	std::string item = userdata.asString();
-	U32 sort_order = gSavedSettings.getU32("NearbyPeopleSortOrder");
+	std::string chosen_item = userdata.asString();
     
-	if (item == "sort_by_recent_speakers")
-		return sort_order == E_SORT_BY_RECENT_SPEAKERS;
-	if (item == "sort_name")
-		return sort_order == E_SORT_BY_NAME;
-	if (item == "sort_distance")
-		return sort_order == E_SORT_BY_DISTANCE;
-    */
+	LLInventoryPanel* panel = mInventoryPanel.get();
+    
+    llinfos << "Merov : MenuItemCheck, item = " << chosen_item << ", panel on = " << panel->hasFocus() << llendl;
+
+    if (!panel->hasFocus())
+    {
+        return false;
+    }
+    
+	if (chosen_item == "sort_by_stock_amount")
+		return mSortOrder == LLInventoryFilter::SO_FOLDERS_BY_WEIGHT;
+	if (chosen_item == "show_all")
+		return mFilterType == LLInventoryFilter::FILTERTYPE_NONE;
+	if (chosen_item == "show_non_associated_listings")
+		return mFilterType == LLInventoryFilter::FILTERTYPE_MARKETPLACE_UNASSOCIATED;
+	if (chosen_item == "show_active")
+		return mFilterType == LLInventoryFilter::FILTERTYPE_MARKETPLACE_ACTIVE;
+	if (chosen_item == "show_inactive_listings")
+		return mFilterType == LLInventoryFilter::FILTERTYPE_MARKETPLACE_INACTIVE;
 	return false;
 }
 
