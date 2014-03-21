@@ -54,20 +54,22 @@ LLPanelExperienceLog::LLPanelExperienceLog(  )
 	buildFromFile("panel_experience_log.xml");
 }
 
+
 BOOL LLPanelExperienceLog::postBuild( void )
 {
 	LLExperienceLog* log = LLExperienceLog::getInstance();
 	mEventList = getChild<LLScrollListCtrl>("experience_log_list");
 	mEventList->setCommitCallback(boost::bind(&LLPanelExperienceLog::onSelectionChanged, this));
+	mEventList->setDoubleClickCallback( boost::bind(&LLPanelExperienceLog::onProfileExperience, this));
 
 	getChild<LLButton>("btn_clear")->setCommitCallback(boost::bind(&LLExperienceLog::clear, log));
 	getChild<LLButton>("btn_clear")->setCommitCallback(boost::bind(&LLPanelExperienceLog::refresh, this));
 
 	getChild<LLButton>(BTN_PROFILE_XP)->setCommitCallback(boost::bind(&LLPanelExperienceLog::onProfileExperience, this));
-	getChild<LLButton>(BTN_REPORT_XP)->setCommitCallback(boost::bind(&LLPanelExperienceLog::onReportExperience, this));
-	getChild<LLButton>("btn_notify")->setCommitCallback(boost::bind(&LLPanelExperienceLog::onNotify, this));
-	getChild<LLButton>("btn_next")->setCommitCallback(boost::bind(&LLPanelExperienceLog::onNext, this));
-	getChild<LLButton>("btn_prev")->setCommitCallback(boost::bind(&LLPanelExperienceLog::onPrev, this));
+	getChild<LLButton>(BTN_REPORT_XP )->setCommitCallback(boost::bind(&LLPanelExperienceLog::onReportExperience, this));
+	getChild<LLButton>("btn_notify"  )->setCommitCallback(boost::bind(&LLPanelExperienceLog::onNotify, this));
+	getChild<LLButton>("btn_next"    )->setCommitCallback(boost::bind(&LLPanelExperienceLog::onNext, this));
+	getChild<LLButton>("btn_prev"    )->setCommitCallback(boost::bind(&LLPanelExperienceLog::onPrev, this));
 
 	LLCheckBoxCtrl* check = getChild<LLCheckBoxCtrl>("notify_all");
 	check->set(log->getNotifyNewEvent());
@@ -80,6 +82,7 @@ BOOL LLPanelExperienceLog::postBuild( void )
 
 	mPageSize = log->getPageSize();
 	refresh();
+	mNewEvent = LLExperienceLog::instance().addUpdateSignal(boost::bind(&LLPanelExperienceLog::refresh, this));
 	return TRUE;
 }
 
@@ -90,6 +93,7 @@ LLPanelExperienceLog* LLPanelExperienceLog::create()
 
 void LLPanelExperienceLog::refresh()
 {
+	S32 selected = mEventList->getFirstSelectedIndex();
 	mEventList->deleteAllItems();
 	const LLSD& events = LLExperienceLog::instance().getEvents();
 
@@ -169,6 +173,11 @@ void LLPanelExperienceLog::refresh()
 		getChild<LLButton>("btn_next")->setEnabled(moreItems);
 		getChild<LLButton>("btn_prev")->setEnabled(mCurrentPage>0);
 		getChild<LLButton>("btn_clear")->setEnabled(mEventList->getItemCount()>0);
+		if(selected<0)
+		{
+			selected = 0;
+		}
+		mEventList->selectNthItem(selected);
 		onSelectionChanged();
 	}
 }

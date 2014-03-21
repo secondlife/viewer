@@ -35,6 +35,7 @@ class LLPanelExperienceLog
 	: public LLPanel 
 {
 public:
+
 	LLPanelExperienceLog();
 
 	static LLPanelExperienceLog* create();
@@ -57,6 +58,7 @@ private:
 	LLScrollListCtrl* mEventList;
 	U32 mPageSize;
 	U32 mCurrentPage;
+	boost::signals2::scoped_connection mNewEvent;
 };
 
 #endif // LL_LLPANELEXPERIENCELOG_H

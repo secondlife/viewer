@@ -34,13 +34,19 @@
 class LLExperienceLog : public LLSingleton<LLExperienceLog>
 {
 public:
+	typedef boost::signals2::signal<void(LLSD&)> 
+		callback_signal_t;
+	typedef callback_signal_t::slot_type callback_slot_t;
+	typedef boost::signals2::connection callback_connection_t;
+	callback_connection_t addUpdateSignal(callback_slot_t cb);
+
 	void initialize();
 
 	U32 getMaxDays() const { return mMaxDays; }
 	void setMaxDays(U32 val);
 
 	bool getNotifyNewEvent() const { return mNotifyNewEvent; }
-	void setNotifyNewEvent(bool val) { mNotifyNewEvent = val; }
+	void setNotifyNewEvent(bool val);
 
 	U32 getPageSize() const { return mPageSize; }
 	void setPageSize(U32 val) { mPageSize = val; }
@@ -63,6 +69,8 @@ protected:
 	void eraseExpired();
 
 	LLSD mEvents;
+	callback_signal_t mSignals;
+	callback_connection_t mNotifyConnection;
 	U32 mMaxDays;
 	U32 mPageSize;
 	bool mNotifyNewEvent;

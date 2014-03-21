@@ -69,6 +69,7 @@ public:
 		{
 			message["ParcelName"] = *it++;
 		}
+		message["Count"] = 1;
 
 		LLExperienceLog::instance().handleExperienceMessage(message);
 		return true;
@@ -81,20 +82,37 @@ void LLExperienceLog::handleExperienceMessage(LLSD& message)
 {
 	time_t now;
 	time(&now);
-	char day[16];/* Flawfinder: ignore */
+	char daybuf[16];/* Flawfinder: ignore */
 	char time_of_day[16];/* Flawfinder: ignore */
-	strftime(day, 16, "%Y-%m-%d", localtime(&now));
+	strftime(daybuf, 16, "%Y-%m-%d", localtime(&now));
 	strftime(time_of_day, 16, " %H:%M:%S", localtime(&now));
 	message["Time"] = time_of_day;
 
-	if(mNotifyNewEvent)
+	std::string day = daybuf;
+
+	if(!mEvents.has(day))
 	{
-		notify(message);
-	}
-	if(!mEvents.has(day)){
 		mEvents[day] = LLSD::emptyArray();
 	}
+	LLSD& dayEvents = mEvents[day];
+	if(dayEvents.size() > 0)
+	{
+		LLSD& last = *(dayEvents.rbeginArray());
+		if( last["public_id"].asUUID() == message["public_id"].asUUID() 
+			&& last["ObjectName"].asString() == message["ObjectName"].asString() 
+			&& last["OwnerID"].asUUID() == message["OwnerID"].asUUID()
+			&& last["ParcelName"].asString() == message["ParcelName"].asString()
+			&& last["Permission"].asInteger() == message["Permission"].asInteger())
+		{
+			last["Count"] = last["Count"].asInteger() + 1;
+			last["Time"] = time_of_day;
+			mSignals(last);
+			return;
+		}
+	}
+	message["Time"] = time_of_day;
 	mEvents[day].append(message);
+	mSignals(message);
 }
 
 LLExperienceLog::LLExperienceLog()
@@ -185,15 +203,15 @@ void LLExperienceLog::loadEvents()
 
 	if(settings.has("MaxDays"))
 	{
-		mMaxDays = (U32)settings["MaxDays"].asInteger();
+		setMaxDays((U32)settings["MaxDays"].asInteger());
 	}
 	if(settings.has("Notify"))
 	{
-		mNotifyNewEvent = settings["Notify"].asBoolean();
+		setNotifyNewEvent(settings["Notify"].asBoolean());
 	}
 	if(settings.has("PageSize"))
 	{
-		mPageSize = (U32)settings["PageSize"].asInteger();
+		setPageSize((U32)settings["PageSize"].asInteger());
 	}
 	mEvents.clear();
 	if(mMaxDays > 0 && settings.has("Events"))
@@ -233,5 +251,23 @@ void LLExperienceLog::setMaxDays( U32 val )
 	if(mMaxDays > 0)
 	{
 		eraseExpired();
+	}
+}
+
+LLExperienceLog::callback_connection_t LLExperienceLog::addUpdateSignal( callback_slot_t cb )
+{
+	return mSignals.connect(cb);
+}
+
+void LLExperienceLog::setNotifyNewEvent( bool val )
+{
+	mNotifyNewEvent = val;
+	if(!val && mNotifyConnection.connected())
+	{
+		mNotifyConnection.disconnect();
+	}
+	else if( val && !mNotifyConnection.connected())
+	{
+		mNotifyConnection = addUpdateSignal(notify);
 	}
 }
