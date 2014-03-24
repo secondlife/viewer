@@ -5,7 +5,7 @@
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2014, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -41,6 +41,7 @@ namespace FMOD
 	class Sound;
 	class DSP;
 }
+typedef struct FMOD_DSP_DESCRIPTION FMOD_DSP_DESCRIPTION;
 
 //Interfaces
 class LLAudioEngine_FMODEX : public LLAudioEngine 
@@ -74,6 +75,7 @@ protected:
 
 	LLWindGen<MIXBUFFERFORMAT> *mWindGen;
 
+	FMOD_DSP_DESCRIPTION *mWindDSPDesc;
 	FMOD::DSP *mWindDSP;
 	FMOD::System *mSystem;
 	bool mEnableProfiler;
