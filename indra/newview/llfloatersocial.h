@@ -85,7 +85,6 @@ private:
 	LLUICtrl * mWorkingLabel;
 	LLUICtrl * mThumbnailPlaceholder;
 	LLUICtrl * mCaptionTextBox;
-	LLUICtrl * mLocationCheckbox;
 	LLUICtrl * mPostButton;
 	LLUICtrl* mCancelButton;
 };
