@@ -113,14 +113,6 @@
              type="string"
              word_wrap="true">
             </text_editor>
-            <check_box
-             follows="left|top"
-             initial_value="true"
-             label="Include location in posting"
-             name="add_location_cb"
-              left="9"
-              height="16"
-             top_pad="8"/>
         </layout_panel>
         <layout_panel
           name="photo_button_panel"
