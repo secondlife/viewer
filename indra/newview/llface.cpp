@@ -1638,7 +1638,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 					do_xform = false;
 				}
 				
-				if (getVirtualSize() >= MIN_TEX_ANIM_SIZE)
+				if (getVirtualSize() >= MIN_TEX_ANIM_SIZE || isState(LLFace::RIGGED))
 				{ //don't override texture transform during tc bake
 					tex_mode = 0;
 				}
