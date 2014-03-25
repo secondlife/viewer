@@ -170,7 +170,6 @@ mRefreshBtn(NULL),
 mWorkingLabel(NULL),
 mThumbnailPlaceholder(NULL),
 mCaptionTextBox(NULL),
-mLocationCheckbox(NULL),
 mPostButton(NULL)
 {
 	mCommitCallbackRegistrar.add("SocialSharing.SendPhoto", boost::bind(&LLSocialPhotoPanel::onSend, this));
@@ -196,7 +195,6 @@ BOOL LLSocialPhotoPanel::postBuild()
     mWorkingLabel = getChild<LLUICtrl>("working_lbl");
 	mThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");
 	mCaptionTextBox = getChild<LLUICtrl>("photo_caption");
-	mLocationCheckbox = getChild<LLUICtrl>("add_location_cb");
 	mPostButton = getChild<LLUICtrl>("post_photo_btn");
 	mCancelButton = getChild<LLUICtrl>("cancel_photo_btn");
 
@@ -213,7 +211,6 @@ void LLSocialPhotoPanel::draw()
     mCaptionTextBox->setEnabled(no_ongoing_connection);
     mResolutionComboBox->setEnabled(no_ongoing_connection);
     mRefreshBtn->setEnabled(no_ongoing_connection);
-    mLocationCheckbox->setEnabled(no_ongoing_connection);
     
     // Display the preview if one is available
 	if (previewp && previewp->getThumbnailImage())
@@ -342,25 +339,6 @@ void LLSocialPhotoPanel::sendPhoto()
 {
 	// Get the caption
 	std::string caption = mCaptionTextBox->getValue().asString();
-
-	// Add the location if required
-	bool add_location = mLocationCheckbox->getValue().asBoolean();
-	if (add_location)
-	{
-		// Get the SLURL for the location
-		LLSLURL slurl;
-		LLAgentUI::buildSLURL(slurl);
-		std::string slurl_string = slurl.getSLURLString();
-
-		// Add query parameters so Google Analytics can track incoming clicks!
-		slurl_string += DEFAULT_PHOTO_QUERY_PARAMETERS;
-
-		// Add it to the caption (pretty crude, but we don't have a better option with photos)
-		if (caption.empty())
-			caption = slurl_string;
-		else
-			caption = caption + " " + slurl_string;
-	}
 
 	// Get the image
 	LLSnapshotLivePreview* previewp = getPreviewView();
