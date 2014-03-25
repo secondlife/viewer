@@ -254,7 +254,7 @@ void LLExperienceLog::setMaxDays( U32 val )
 	}
 }
 
-LLExperienceLog::callback_connection_t LLExperienceLog::addUpdateSignal( callback_slot_t cb )
+LLExperienceLog::callback_connection_t LLExperienceLog::addUpdateSignal( const callback_slot_t& cb )
 {
 	return mSignals.connect(cb);
 }
@@ -268,6 +268,6 @@ void LLExperienceLog::setNotifyNewEvent( bool val )
 	}
 	else if( val && !mNotifyConnection.connected())
 	{
-		mNotifyConnection = addUpdateSignal(notify);
+		mNotifyConnection = addUpdateSignal((callback_slot_t)notify);
 	}
 }

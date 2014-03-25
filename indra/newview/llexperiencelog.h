@@ -38,7 +38,7 @@ public:
 		callback_signal_t;
 	typedef callback_signal_t::slot_type callback_slot_t;
 	typedef boost::signals2::connection callback_connection_t;
-	callback_connection_t addUpdateSignal(callback_slot_t cb);
+	callback_connection_t addUpdateSignal(const callback_slot_t& cb);
 
 	void initialize();
 
