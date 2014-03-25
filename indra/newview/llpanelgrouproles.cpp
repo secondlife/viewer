@@ -1012,15 +1012,15 @@ void LLPanelGroupMembersSubTab::handleMemberSelect()
 			}
 			
 			// If anyone selected is in any role besides 'Everyone' then they can't be ejected.
-			if (role_id.notNull() && (count > 0))
-			{
+ 			if (role_id.notNull() && (count > 0))
+ 			{
 				can_eject_members = FALSE;
-				can_ban_members = FALSE;
-				if (role_id == gdatap->mOwnerRole)
-				{
-					member_is_owner = TRUE;
-				}
-			}
+ 				can_ban_members = FALSE;
+ 				if (role_id == gdatap->mOwnerRole)
+ 				{
+ 					member_is_owner = TRUE;
+ 				}
+ 			}
 
 			LLRoleData rd;
 			if (gdatap->getRoleData(role_id,rd))
@@ -1095,6 +1095,35 @@ void LLPanelGroupMembersSubTab::handleMemberSelect()
 				can_eject_members = TRUE;
 				can_ban_members = TRUE;
 			}
+		}
+
+	}
+
+	// ... or we can eject them because we have all the requisite powers...
+	if(	gAgent.hasPowerInGroup(mGroupID, GP_ROLE_REMOVE_MEMBER) &&
+		!member_is_owner)
+	{
+		if( gAgent.hasPowerInGroup(mGroupID, GP_MEMBER_EJECT))
+		{
+			can_eject_members = TRUE;
+		}
+		
+		if( gAgent.hasPowerInGroup(mGroupID, GP_GROUP_BAN_ACCESS))
+		{
+			can_ban_members = TRUE;
+		}
+	}
+
+
+	uuid_vec_t::const_iterator member_iter = selected_members.begin();
+	uuid_vec_t::const_iterator member_end = selected_members.end();
+	for ( ; member_iter != member_end; ++member_iter)
+	{
+		// Don't count the agent.
+		if ((*member_iter) == gAgent.getID())
+		{
+			can_eject_members = FALSE;
+			can_ban_members = FALSE;
 		}
 	}
 

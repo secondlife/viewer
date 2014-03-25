@@ -118,6 +118,13 @@ clicking on their names.
              left_pad="10"
              name="member_eject"
              width="100" />
+      <button
+       height="23"
+       label="Ban Member(s)"
+       follows="top|left"
+       left_pad="10"
+       name="member_ban"
+       width="100" />
         </panel>
         <panel
          border="false"
