@@ -79,6 +79,7 @@
 #include "llfloaterland.h"
 #include "llfloaterlandholdings.h"
 #include "llfloatermap.h"
+#include "llfloatermarketplacelistings.h"
 #include "llfloatermemleak.h"
 #include "llfloaternamedesc.h"
 #include "llfloaternotificationsconsole.h"

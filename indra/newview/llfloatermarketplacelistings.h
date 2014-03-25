@@ -1,6 +1,6 @@
 /** 
- * @file llfloateroutbox.h
- * @brief Implementation of the merchant outbox window
+ * @file llfloatermarketplacelistings.h
+ * @brief Implementation of the marketplace listings floater and panels
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -24,14 +24,13 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATEROUTBOX_H
-#define LL_LLFLOATEROUTBOX_H
+#ifndef LL_LLFLOATERMARKETPLACELISTINGS_H
+#define LL_LLFLOATERMARKETPLACELISTINGS_H
 
 #include "llfloater.h"
 #include "llfoldertype.h"
 #include "llinventoryfilter.h"
 #include "llnotificationptr.h"
-
 
 class LLButton;
 class LLInventoryCategoriesObserver;
@@ -43,19 +42,18 @@ class LLTextBox;
 class LLView;
 class LLWindowShade;
 
-
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Class LLFloaterOutbox
+// Class LLFloaterMarketplaceListings
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class LLFloaterOutbox : public LLFloater
+class LLFloaterMarketplaceListings : public LLFloater
 {
 public:
-	LLFloaterOutbox(const LLSD& key);
-	~LLFloaterOutbox();
+	LLFloaterMarketplaceListings(const LLSD& key);
+	~LLFloaterMarketplaceListings();
 	
 	void initializeMarketPlace();
-
+    
 	// virtuals
 	BOOL postBuild();
 	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
@@ -65,52 +63,48 @@ public:
 						   std::string& tooltip_msg);
 	
 	void showNotification(const LLNotificationPtr& notification);
-
+    
 	BOOL handleHover(S32 x, S32 y, MASK mask);
 	void onMouseLeave(S32 x, S32 y, MASK mask);
-
+    
 protected:
-	void setupOutbox();
-    void cleanOutbox();
-	void fetchOutboxContents();
-
+	void setup();
+    void clean();
+	void fetchContents();
+    
 	void importReportResults(U32 status, const LLSD& content);
 	void importStatusChanged(bool inProgress);
 	void initializationReportError(U32 status, const LLSD& content);
-	
+	void setStatusString(const std::string& statusString);
+
 	void onClose(bool app_quitting);
 	void onOpen(const LLSD& key);
-
 	void onFocusReceived();
-
-	void onImportButtonClicked();
-	void onOutboxChanged();
+	void onChanged();
+    
+    bool isAccepted(EAcceptance accept);
 	
-	void setStatusString(const std::string& statusString);
-	
-	void updateFolderCount();
-	void updateFolderCountStatus();
 	void updateView();
-
+    
 private:
+    S32 getFolderCount();
+    // UI callbacks
+	void onViewSortMenuItemClicked(const LLSD& userdata);
+	bool onViewSortMenuItemCheck(const LLSD& userdata);
+
 	LLInventoryCategoriesObserver *		mCategoriesObserver;
 	LLInventoryCategoryAddedObserver *	mCategoryAddedObserver;
-	
-	bool			mImportBusy;
-	LLButton *		mImportButton;
-	
-	LLTextBox *		mInventoryFolderCountText;
-	LLView *		mInventoryImportInProgress;
+		
+	LLTextBox *		mInventoryStatus;
+	LLView *		mInventoryInitializationInProgress;
 	LLView *		mInventoryPlaceholder;
 	LLTextBox *		mInventoryText;
 	LLTextBox *		mInventoryTitle;
-	
-	LLUUID				mOutboxId;
-	LLHandle<LLInventoryPanel> mOutboxInventoryPanel;
-	U32					mOutboxItemCount;
-	LLPanel *			mOutboxTopLevelDropZone;
-	
-	LLWindowShade *	mWindowShade;
+
+	LLUUID				mRootFolderId;
+	LLHandle<LLInventoryPanel> mInventoryPanel;
+    LLInventoryFilter::ESortOrderType mSortOrder;
+    LLInventoryFilter::EFilterType mFilterType;
 };
 
-#endif // LL_LLFLOATEROUTBOX_H
+#endif // LL_LLFLOATERMARKETPLACELISTINGS_H
