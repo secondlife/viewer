@@ -343,7 +343,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-static LLRegisterPanelClassWrapper<LLOutfitsList> t_outfits_list("outfits_list");
+static LLPanelInjector<LLOutfitsList> t_outfits_list("outfits_list");
 
 LLOutfitsList::LLOutfitsList()
 	:	LLPanelAppearanceTab()

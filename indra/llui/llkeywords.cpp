@@ -76,8 +76,11 @@ inline BOOL LLKeywordToken::isTail(const llwchar* s) const
 LLKeywords::~LLKeywords()
 {
 	std::for_each(mWordTokenMap.begin(), mWordTokenMap.end(), DeletePairedPointer());
+	mWordTokenMap.clear();
 	std::for_each(mLineTokenList.begin(), mLineTokenList.end(), DeletePointer());
+	mLineTokenList.clear();
 	std::for_each(mDelimiterTokenList.begin(), mDelimiterTokenList.end(), DeletePointer());
+	mDelimiterTokenList.clear();
 }
 
 BOOL LLKeywords::loadFromFile( const std::string& filename )

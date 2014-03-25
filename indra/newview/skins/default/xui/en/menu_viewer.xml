@@ -1388,8 +1388,7 @@
              label="Report Bug"
              name="Report Bug">
                 <menu_item_call.on_click
-                 function="ShowHelp"
-                 parameter="report_bug" />
+                 function="Advanced.ReportBug"/>
             </menu_item_call>
 
         <menu_item_separator/>
@@ -2403,6 +2402,12 @@
              name="Frame Profile">
             <menu_item_call.on_click
              function="Advanced.ClickRenderProfile" />
+          </menu_item_call>
+            <menu_item_call
+             label="Benchmark"
+             name="Benchmark">
+              <menu_item_call.on_click
+               function="Advanced.ClickRenderBenchmark" />
           </menu_item_call>
         </menu>
       <menu

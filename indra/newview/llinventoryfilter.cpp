@@ -164,7 +164,14 @@ bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
 	{
 		return passed_clipboard;
 	}
-	
+
+	// show folder links
+	LLViewerInventoryItem* item = gInventory.getItem(folder_id);
+	if (item && item->getActualType() == LLAssetType::AT_LINK_FOLDER)
+	{
+		return passed_clipboard;
+	}
+
 	if (mFilterOps.mFilterTypes & FILTERTYPE_CATEGORY)
 	{
 		// Can only filter categories for items in your inventory

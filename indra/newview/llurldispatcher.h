@@ -53,7 +53,7 @@ public:
 
 	static bool dispatchRightClick(const std::string& slurl);
 
-	static bool dispatchFromTextEditor(const std::string& slurl);
+	static bool dispatchFromTextEditor(const std::string& slurl, bool trusted_content);
 };
 
 #endif

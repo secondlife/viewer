@@ -31,7 +31,7 @@
 #include "llmediactrl.h"
 #include "llviewerhome.h"
 
-static LLRegisterPanelClassWrapper<LLPanelHome> t_home("panel_sidetray_home");
+static LLPanelInjector<LLPanelHome> t_home("panel_sidetray_home");
 
 LLPanelHome::LLPanelHome() :
 	LLPanel(),
