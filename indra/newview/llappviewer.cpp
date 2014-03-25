@@ -725,6 +725,13 @@ LLAppViewer::~LLAppViewer()
 	
 	destroyMainloopTimeout();
 
+#if !LL_WINDOWS
+    //Last thing, let's copy SL.log into the per-run directory.   We don't care if this operation fails.
+    std::string per_run_log = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"SecondLife.log");
+    std::string current_log = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.log");
+    LLFile::copy(per_run_log, current_log);
+#endif
+    
 	// If we got to this destructor somehow, the app didn't hang.
 	removeMarkerFiles();
 }
