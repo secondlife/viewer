@@ -320,7 +320,6 @@ int LLCrashLoggerWindows::processingLoop() {
     
     llinfos << "session ending.." << llendl;
     
-    LLSD options = getOptionData( LLApp::PRIORITY_COMMAND_LINE );
     std::string per_run_file = options["dumpdir"].asString() + "SecondLife.log";
     std::string log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.log");
     LLFile::copy(per_run_file, log_file);
