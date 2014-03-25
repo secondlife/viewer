@@ -95,7 +95,7 @@ void LLPanelExperienceLog::refresh()
 {
 	S32 selected = mEventList->getFirstSelectedIndex();
 	mEventList->deleteAllItems();
-	const LLSD& events = LLExperienceLog::instance().getEvents();
+	const LLSD events = LLExperienceLog::instance().getEvents();
 
 	if(events.size() == 0)
 	{
@@ -134,7 +134,7 @@ void LLPanelExperienceLog::refresh()
 				moreItems = true;
 				break;
 			}
-			const LLSD& event = dayArray[i];
+			const LLSD event = dayArray[i];
 			LLUUID id = event[LLExperienceCache::EXPERIENCE_ID].asUUID();
 			const LLSD& experience = LLExperienceCache::get(id);
 			if(experience.isUndefined()){
@@ -184,7 +184,7 @@ void LLPanelExperienceLog::refresh()
 
 void LLPanelExperienceLog::onProfileExperience()
 {
-	LLSD& event = getSelectedEvent();
+	LLSD event = getSelectedEvent();
 	if(event.isDefined())
 	{
 		LLFloaterReg::showInstance("experience_profile", event[LLExperienceCache::EXPERIENCE_ID].asUUID(), true);
@@ -193,7 +193,7 @@ void LLPanelExperienceLog::onProfileExperience()
 
 void LLPanelExperienceLog::onReportExperience()
 {
-	LLSD& event = getSelectedEvent();
+	LLSD event = getSelectedEvent();
 	if(event.isDefined())
 	{
 		LLFloaterReporter::showFromExperience(event[LLExperienceCache::EXPERIENCE_ID].asUUID());
@@ -202,7 +202,7 @@ void LLPanelExperienceLog::onReportExperience()
 
 void LLPanelExperienceLog::onNotify()
 {
-	LLSD& event = getSelectedEvent();
+	LLSD event = getSelectedEvent();
 	if(event.isDefined())
 	{
 		LLExperienceLog::instance().notify(event);
