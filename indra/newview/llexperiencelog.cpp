@@ -268,6 +268,6 @@ void LLExperienceLog::setNotifyNewEvent( bool val )
 	}
 	else if( val && !mNotifyConnection.connected())
 	{
-		mNotifyConnection = addUpdateSignal((callback_slot_t)notify);
+		mNotifyConnection = addUpdateSignal(boost::function<void(LLSD&)>(LLExperienceLog::notify));
 	}
 }
