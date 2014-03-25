@@ -2,7 +2,6 @@
 <floater
  legacy_header_height="18"
  can_resize="true"
- default_tab_group="1"
  help_topic="conversation_preview"
  height="391"
  layout="topleft"

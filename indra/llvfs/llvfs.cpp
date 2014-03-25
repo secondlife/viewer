@@ -638,7 +638,7 @@ void LLVFS::presizeDataFile(const U32 size)
 {
 	if (!mDataFP)
 	{
-		llerrs << "LLVFS::presizeDataFile() with no data file open" << llendl;
+		LL_ERRS() << "LLVFS::presizeDataFile() with no data file open" << LL_ENDL;
 		return;
 	}
 
@@ -653,11 +653,11 @@ void LLVFS::presizeDataFile(const U32 size)
 
 	if (tmp)
 	{
-		llinfos << "Pre-sized VFS data file to " << ftell(mDataFP) << " bytes" << llendl;
+		LL_INFOS() << "Pre-sized VFS data file to " << ftell(mDataFP) << " bytes" << LL_ENDL;
 	}
 	else
 	{
-		llwarns << "Failed to pre-size VFS data file" << llendl;
+		LL_WARNS() << "Failed to pre-size VFS data file" << LL_ENDL;
 	}
 }
 
@@ -667,7 +667,7 @@ BOOL LLVFS::getExists(const LLUUID &file_id, const LLAssetType::EType file_type)
 		
 	if (!isValid())
 	{
-		llerrs << "Attempting to use invalid VFS!" << llendl;
+		LL_ERRS() << "Attempting to use invalid VFS!" << LL_ENDL;
 	}
 
 	lockData();
@@ -693,7 +693,7 @@ S32	 LLVFS::getSize(const LLUUID &file_id, const LLAssetType::EType file_type)
 	
 	if (!isValid())
 	{
-		llerrs << "Attempting to use invalid VFS!" << llendl;
+		LL_ERRS() << "Attempting to use invalid VFS!" << LL_ENDL;
 
 	}
 
@@ -720,7 +720,7 @@ S32  LLVFS::getMaxSize(const LLUUID &file_id, const LLAssetType::EType file_type
 	
 	if (!isValid())
 	{
-		llerrs << "Attempting to use invalid VFS!" << llendl;
+		LL_ERRS() << "Attempting to use invalid VFS!" << LL_ENDL;
 	}
 
 	lockData();
@@ -756,15 +756,15 @@ BOOL LLVFS::setMaxSize(const LLUUID &file_id, const LLAssetType::EType file_type
 {
 	if (!isValid())
 	{
-		llerrs << "Attempting to use invalid VFS!" << llendl;
+		LL_ERRS() << "Attempting to use invalid VFS!" << LL_ENDL;
 	}
 	if (mReadOnly)
 	{
-		llerrs << "Attempt to write to read-only VFS" << llendl;
+		LL_ERRS() << "Attempt to write to read-only VFS" << LL_ENDL;
 	}
 	if (max_size <= 0)
 	{
-		llwarns << "VFS: Attempt to assign size " << max_size << " to vfile " << file_id << llendl;
+		LL_WARNS() << "VFS: Attempt to assign size " << max_size << " to vfile " << file_id << LL_ENDL;
 		return FALSE;
 	}
 
@@ -811,7 +811,7 @@ BOOL LLVFS::setMaxSize(const LLUUID &file_id, const LLAssetType::EType file_type
 			if (block->mLength < block->mSize)
 			{
 				// JC: Was a warning, but Ian says it's bad.
-				llerrs << "Truncating virtual file " << file_id << " to " << block->mLength << " bytes" << llendl;
+				LL_ERRS() << "Truncating virtual file " << file_id << " to " << block->mLength << " bytes" << LL_ENDL;
 				block->mSize = block->mLength;
 			}
     
@@ -879,10 +879,10 @@ BOOL LLVFS::setMaxSize(const LLUUID &file_id, const LLAssetType::EType file_type
 							fseek(mDataFP, new_data_location, SEEK_SET);
 							if (fwrite(&buffer[0], block->mSize, 1, mDataFP) != 1)
 							{
-								llwarns << "Short write" << llendl;
+								LL_WARNS() << "Short write" << LL_ENDL;
 							}
 						} else {
-							llwarns << "Short read" << llendl;
+							LL_WARNS() << "Short read" << LL_ENDL;
 						}
 					}
 				}
@@ -899,7 +899,7 @@ BOOL LLVFS::setMaxSize(const LLUUID &file_id, const LLAssetType::EType file_type
 			}
 			else
 			{
-				llwarns << "VFS: No space (" << max_size << ") to resize existing vfile " << file_id << llendl;
+				LL_WARNS() << "VFS: No space (" << max_size << ") to resize existing vfile " << file_id << LL_ENDL;
 				//dumpMap();
 				unlockData();
 				dumpStatistics();
@@ -935,7 +935,7 @@ BOOL LLVFS::setMaxSize(const LLUUID &file_id, const LLAssetType::EType file_type
 		}
 		else
 		{
-			llwarns << "VFS: No space (" << max_size << ") for new virtual file " << file_id << llendl;
+			LL_WARNS() << "VFS: No space (" << max_size << ") for new virtual file " << file_id << LL_ENDL;
 			//dumpMap();
 			unlockData();
 			dumpStatistics();
@@ -954,11 +954,11 @@ void LLVFS::renameFile(const LLUUID &file_id, const LLAssetType::EType file_type
 {
 	if (!isValid())
 	{
-		llerrs << "Attempting to use invalid VFS!" << llendl;
+		LL_ERRS() << "Attempting to use invalid VFS!" << LL_ENDL;
 	}
 	if (mReadOnly)
 	{
-		llerrs << "Attempt to write to read-only VFS" << llendl;
+		LL_ERRS() << "Attempt to write to read-only VFS" << LL_ENDL;
 	}
 
 	lockData();
@@ -990,7 +990,7 @@ void LLVFS::renameFile(const LLUUID &file_id, const LLAssetType::EType file_type
 			{
 				if(dest_block->mLocks[i])
 				{
-					llerrs << "Renaming VFS block to a locked file." << llendl;
+					LL_ERRS() << "Renaming VFS block to a locked file." << LL_ENDL;
 				}
 				dest_block->mLocks[i] = src_block->mLocks[i];
 			}
@@ -1010,7 +1010,7 @@ void LLVFS::renameFile(const LLUUID &file_id, const LLAssetType::EType file_type
 	}
 	else
 	{
-		llwarns << "VFS: Attempt to rename nonexistent vfile " << file_id << ":" << file_type << llendl;
+		LL_WARNS() << "VFS: Attempt to rename nonexistent vfile " << file_id << ":" << file_type << LL_ENDL;
 	}
 	unlockData();
 }
@@ -1042,11 +1042,11 @@ void LLVFS::removeFile(const LLUUID &file_id, const LLAssetType::EType file_type
 {
 	if (!isValid())
 	{
-		llerrs << "Attempting to use invalid VFS!" << llendl;
+		LL_ERRS() << "Attempting to use invalid VFS!" << LL_ENDL;
 	}
 	if (mReadOnly)
 	{
-		llerrs << "Attempt to write to read-only VFS" << llendl;
+		LL_ERRS() << "Attempt to write to read-only VFS" << LL_ENDL;
 	}
 
     lockData();
@@ -1060,7 +1060,7 @@ void LLVFS::removeFile(const LLUUID &file_id, const LLAssetType::EType file_type
 	}
 	else
 	{
-		llwarns << "VFS: attempting to remove nonexistent file " << file_id << " type " << file_type << llendl;
+		LL_WARNS() << "VFS: attempting to remove nonexistent file " << file_id << " type " << file_type << LL_ENDL;
 	}
 
 	unlockData();
@@ -1073,7 +1073,7 @@ S32 LLVFS::getData(const LLUUID &file_id, const LLAssetType::EType file_type, U8
 	
 	if (!isValid())
 	{
-		llerrs << "Attempting to use invalid VFS!" << llendl;
+		LL_ERRS() << "Attempting to use invalid VFS!" << LL_ENDL;
 	}
 	llassert(location >= 0);
 	llassert(length >= 0);
@@ -1092,7 +1092,7 @@ S32 LLVFS::getData(const LLUUID &file_id, const LLAssetType::EType file_type, U8
     
 		if (location > block->mSize)
 		{
-			llwarns << "VFS: Attempt to read location " << location << " in file " << file_id << " of length " << block->mSize << llendl;
+			LL_WARNS() << "VFS: Attempt to read location " << location << " in file " << file_id << " of length " << block->mSize << LL_ENDL;
 		}
 		else
 		{
@@ -1120,11 +1120,11 @@ S32 LLVFS::storeData(const LLUUID &file_id, const LLAssetType::EType file_type, 
 {
 	if (!isValid())
 	{
-		llerrs << "Attempting to use invalid VFS!" << llendl;
+		LL_ERRS() << "Attempting to use invalid VFS!" << LL_ENDL;
 	}
 	if (mReadOnly)
 	{
-		llerrs << "Attempt to write to read-only VFS" << llendl;
+		LL_ERRS() << "Attempt to write to read-only VFS" << LL_ENDL;
 	}
     
 	llassert(length > 0);
@@ -1149,22 +1149,22 @@ S32 LLVFS::storeData(const LLUUID &file_id, const LLAssetType::EType file_type, 
 		if (block->mLength == BLOCK_LENGTH_INVALID)
 		{
 			// Block was removed, ignore write
-			llwarns << "VFS: Attempt to write to invalid block"
+			LL_WARNS() << "VFS: Attempt to write to invalid block"
 					<< " in file " << file_id 
 					<< " location: " << in_loc
 					<< " bytes: " << length
-					<< llendl;
+					<< LL_ENDL;
 			unlockData();
 			return length;
 		}
 		else if (location > block->mLength)
 		{
-			llwarns << "VFS: Attempt to write to location " << location 
+			LL_WARNS() << "VFS: Attempt to write to location " << location 
 					<< " in file " << file_id 
 					<< " type " << S32(file_type)
 					<< " of size " << block->mSize
 					<< " block length " << block->mLength
-					<< llendl;
+					<< LL_ENDL;
 			unlockData();
 			return length;
 		}
@@ -1172,7 +1172,7 @@ S32 LLVFS::storeData(const LLUUID &file_id, const LLAssetType::EType file_type, 
 		{
 			if (length > block->mLength - location )
 			{
-				llwarns << "VFS: Truncating write to virtual file " << file_id << " type " << S32(file_type) << llendl;
+				LL_WARNS() << "VFS: Truncating write to virtual file " << file_id << " type " << S32(file_type) << LL_ENDL;
 				length = block->mLength - location;
 			}
 			U32 file_location = location + block->mLocation;
@@ -1181,7 +1181,7 @@ S32 LLVFS::storeData(const LLUUID &file_id, const LLAssetType::EType file_type, 
 			S32 write_len = (S32)fwrite(buffer, 1, length, mDataFP);
 			if (write_len != length)
 			{
-				llwarns << llformat("VFS Write Error: %d != %d",write_len,length) << llendl;
+				LL_WARNS() << llformat("VFS Write Error: %d != %d",write_len,length) << LL_ENDL;
 			}
 			// fflush(mDataFP);
 			
@@ -1244,7 +1244,7 @@ void LLVFS::decLock(const LLUUID &file_id, const LLAssetType::EType file_type, E
 		}
 		else
 		{
-			llwarns << "VFS: Decrementing zero-value lock " << lock << llendl;
+			LL_WARNS() << "VFS: Decrementing zero-value lock " << lock << LL_ENDL;
 		}
 		mLockCounts[lock]--;
 	}
@@ -1296,7 +1296,7 @@ void LLVFS::eraseBlockLength(LLVFSBlock *block)
 	}
 	if(!found_block)
 	{
-		llerrs << "eraseBlock could not find block" << llendl;
+		LL_ERRS() << "eraseBlock could not find block" << LL_ENDL;
 	}
 }
 
@@ -1319,7 +1319,7 @@ void LLVFS::addFreeBlock(LLVFSBlock *block)
 	size_t dbgcount = mFreeBlocksByLocation.count(block->mLocation);
 	if(dbgcount > 0)
 	{
-		llerrs << "addFreeBlock called with block already in list" << llendl;
+		LL_ERRS() << "addFreeBlock called with block already in list" << LL_ENDL;
 	}
 #endif
 
@@ -1348,7 +1348,7 @@ void LLVFS::addFreeBlock(LLVFSBlock *block)
 
 	if (merge_prev && merge_next)
 	{
-		// llinfos << "VFS merge BOTH" << llendl;
+		// LL_INFOS() << "VFS merge BOTH" << LL_ENDL;
 		// Previous block is changing length (a lot), so only need to update length map.
 		// Next block is going away completely. JC
 		eraseBlockLength(prev_block);
@@ -1362,7 +1362,7 @@ void LLVFS::addFreeBlock(LLVFSBlock *block)
 	}
 	else if (merge_prev)
 	{
-		// llinfos << "VFS merge previous" << llendl;
+		// LL_INFOS() << "VFS merge previous" << LL_ENDL;
 		// Previous block is maintaining location, only changing length,
 		// therefore only need to update the length map. JC
 		eraseBlockLength(prev_block);
@@ -1373,7 +1373,7 @@ void LLVFS::addFreeBlock(LLVFSBlock *block)
 	}
 	else if (merge_next)
 	{
-		// llinfos << "VFS merge next" << llendl;
+		// LL_INFOS() << "VFS merge next" << LL_ENDL;
 		// Next block is changing both location and length,
 		// so both free lists must update. JC
 		eraseBlock(next_block);
@@ -1400,7 +1400,7 @@ void LLVFS::addFreeBlock(LLVFSBlock *block)
 //{
 // 	if (!isValid())
 // 	{
-// 		llerrs << "Attempting to use invalid VFS!" << llendl;
+// 		LL_ERRS() << "Attempting to use invalid VFS!" << LL_ENDL;
 // 	}
 // 	// TODO: could we optimize this with hints from the calling code?
 // 	blocks_location_map_t::iterator iter = mFreeBlocksByLocation.begin();	
@@ -1459,11 +1459,11 @@ void LLVFS::sync(LLVFSFileBlock *block, BOOL remove)
 {
 	if (!isValid())
 	{
-		llerrs << "Attempting to use invalid VFS!" << llendl;
+		LL_ERRS() << "Attempting to use invalid VFS!" << LL_ENDL;
 	}
 	if (mReadOnly)
 	{
-		llwarns << "Attempt to sync read-only VFS" << llendl;
+		LL_WARNS() << "Attempt to sync read-only VFS" << LL_ENDL;
 		return;
 	}
 	if (block->mLength == BLOCK_LENGTH_INVALID)
@@ -1473,7 +1473,7 @@ void LLVFS::sync(LLVFSFileBlock *block, BOOL remove)
 	}
 	if (block->mLength == 0)
 	{
-		llerrs << "VFS syncing zero-length block" << llendl;
+		LL_ERRS() << "VFS syncing zero-length block" << LL_ENDL;
 	}
 
     BOOL set_index_to_end = FALSE;
@@ -1525,7 +1525,7 @@ void LLVFS::sync(LLVFSFileBlock *block, BOOL remove)
 
 	if (fwrite(buffer, LLVFSFileBlock::SERIAL_SIZE, 1, mIndexFP) != 1)
 	{
-		llwarns << "Short write" << llendl;
+		LL_WARNS() << "Short write" << LL_ENDL;
 	}
 
 	// *NOTE:  Why was this commented out?
@@ -1541,7 +1541,7 @@ LLVFSBlock *LLVFS::findFreeBlock(S32 size, LLVFSFileBlock *immune)
 {
 	if (!isValid())
 	{
-		llerrs << "Attempting to use invalid VFS!" << llendl;
+		LL_ERRS() << "Attempting to use invalid VFS!" << LL_ENDL;
 	}
 
 	LLVFSBlock *block = NULL;
@@ -1586,7 +1586,7 @@ LLVFSBlock *LLVFS::findFreeBlock(S32 size, LLVFSFileBlock *immune)
 			if (lru_list.size() == 0)
 			{
 				// No more files to delete, and still not enough room!
-				llwarns << "VFS: Can't make " << size << " bytes of free space in VFS, giving up" << llendl;
+				LL_WARNS() << "VFS: Can't make " << size << " bytes of free space in VFS, giving up" << LL_ENDL;
 				break;
 			}
 
@@ -1597,7 +1597,7 @@ LLVFSBlock *LLVFS::findFreeBlock(S32 size, LLVFSFileBlock *immune)
 			{
 				// ditch this file and look again for a free block - should find it
 				// TODO: it'll be faster just to assign the free block and break
-				llinfos << "LRU: Removing " << file_block->mFileID << ":" << file_block->mFileType << llendl;
+				LL_INFOS() << "LRU: Removing " << file_block->mFileID << ":" << file_block->mFileType << LL_ENDL;
 				lru_list.erase(it);
 				removeFileBlock(file_block);
 				file_block = NULL;
@@ -1605,7 +1605,7 @@ LLVFSBlock *LLVFS::findFreeBlock(S32 size, LLVFSFileBlock *immune)
 			}
 
 			
-			llinfos << "VFS: LRU: Aggressive: " << (S32)lru_list.size() << " files remain" << llendl;
+			LL_INFOS() << "VFS: LRU: Aggressive: " << (S32)lru_list.size() << " files remain" << LL_ENDL;
 			dumpLockCounts();
 			
 			// Now it's time to aggressively make more space
@@ -1620,7 +1620,7 @@ LLVFSBlock *LLVFS::findFreeBlock(S32 size, LLVFSFileBlock *immune)
 				file_block = *it;
 				
 				// TODO: it would be great to be able to batch all these sync() calls
-				// llinfos << "LRU2: Removing " << file_block->mFileID << ":" << file_block->mFileType << " last accessed" << file_block->mAccessTime << llendl;
+				// LL_INFOS() << "LRU2: Removing " << file_block->mFileID << ":" << file_block->mFileType << " last accessed" << file_block->mAccessTime << LL_ENDL;
 
 				cleaned_up += file_block->mLength;
 				lru_list.erase(it++);
@@ -1634,7 +1634,7 @@ LLVFSBlock *LLVFS::findFreeBlock(S32 size, LLVFSFileBlock *immune)
 	F32 time = timer.getElapsedTimeF32();
 	if (time > 0.5f)
 	{
-		llwarns << "VFS: Spent " << time << " seconds in findFreeBlock!" << llendl;
+		LL_WARNS() << "VFS: Spent " << time << " seconds in findFreeBlock!" << LL_ENDL;
 	}
 
 	return block;
@@ -1648,7 +1648,7 @@ void LLVFS::pokeFiles()
 {
 	if (!isValid())
 	{
-		llerrs << "Attempting to use invalid VFS!" << llendl;
+		LL_ERRS() << "Attempting to use invalid VFS!" << LL_ENDL;
 	}
 	U32 word;
 	
@@ -1660,7 +1660,7 @@ void LLVFS::pokeFiles()
 		fseek(mDataFP, 0, SEEK_SET);
 		if (fwrite(&word, sizeof(word), 1, mDataFP) != 1)
 		{
-			llwarns << "Could not write to data file" << llendl;
+			LL_WARNS() << "Could not write to data file" << LL_ENDL;
 		}
 		fflush(mDataFP);
 	}
@@ -1671,7 +1671,7 @@ void LLVFS::pokeFiles()
 		fseek(mIndexFP, 0, SEEK_SET);
 		if (fwrite(&word, sizeof(word), 1, mIndexFP) != 1)
 		{
-			llwarns << "Could not write to index file" << llendl;
+			LL_WARNS() << "Could not write to index file" << LL_ENDL;
 		}
 		fflush(mIndexFP);
 	}
@@ -1680,20 +1680,20 @@ void LLVFS::pokeFiles()
     
 void LLVFS::dumpMap()
 {
-	llinfos << "Files:" << llendl;
+	LL_INFOS() << "Files:" << LL_ENDL;
 	for (fileblock_map::iterator it = mFileBlocks.begin(); it != mFileBlocks.end(); ++it)
 	{
 		LLVFSFileBlock *file_block = (*it).second;
-		llinfos << "Location: " << file_block->mLocation << "\tLength: " << file_block->mLength << "\t" << file_block->mFileID << "\t" << file_block->mFileType << llendl;
+		LL_INFOS() << "Location: " << file_block->mLocation << "\tLength: " << file_block->mLength << "\t" << file_block->mFileID << "\t" << file_block->mFileType << LL_ENDL;
 	}
     
-	llinfos << "Free Blocks:" << llendl;
+	LL_INFOS() << "Free Blocks:" << LL_ENDL;
 	for (blocks_location_map_t::iterator iter = mFreeBlocksByLocation.begin(),
 			 end = mFreeBlocksByLocation.end();
 		 iter != end; iter++)
 	{
 		LLVFSBlock *free_block = iter->second;
-		llinfos << "Location: " << free_block->mLocation << "\tLength: " << free_block->mLength << llendl;
+		LL_INFOS() << "Location: " << free_block->mLocation << "\tLength: " << free_block->mLength << LL_ENDL;
 	}
 }
     
@@ -1717,7 +1717,7 @@ void LLVFS::audit()
 
 	if (fread(&buffer[0], 1, index_size, mIndexFP) != index_size)
 	{
-		llwarns << "Index truncated" << llendl;
+		LL_WARNS() << "Index truncated" << LL_ENDL;
 		vfs_corrupt = TRUE;
 	}
     
@@ -1746,7 +1746,7 @@ void LLVFS::audit()
 		{
 			if (mFileBlocks.find(*block) == mFileBlocks.end())
 			{
-				llwarns << "VFile " << block->mFileID << ":" << block->mFileType << " on disk, not in memory, loc " << block->mIndexLocation << llendl;
+				LL_WARNS() << "VFile " << block->mFileID << ":" << block->mFileType << " on disk, not in memory, loc " << block->mIndexLocation << LL_ENDL;
 			}
 			else if (found_files.find(*block) != found_files.end())
 			{
@@ -1758,22 +1758,22 @@ void LLVFS::audit()
 				mIndexFP = NULL;
 				unlockAndClose(mDataFP);
 				mDataFP = NULL;
-				llwarns << "VFS: Original block index " << block->mIndexLocation
+				LL_WARNS() << "VFS: Original block index " << block->mIndexLocation
 					<< " location " << block->mLocation 
 					<< " length " << block->mLength 
 					<< " size " << block->mSize 
 					<< " id " << block->mFileID
 					<< " type " << block->mFileType
-					<< llendl;
-				llwarns << "VFS: Duplicate block index " << dupe->mIndexLocation
+					<< LL_ENDL;
+				LL_WARNS() << "VFS: Duplicate block index " << dupe->mIndexLocation
 					<< " location " << dupe->mLocation 
 					<< " length " << dupe->mLength 
 					<< " size " << dupe->mSize 
 					<< " id " << dupe->mFileID
 					<< " type " << dupe->mFileType
-					<< llendl;
-				llwarns << "VFS: Index size " << index_size << llendl;
-				llwarns << "VFS: INDEX CORRUPT" << llendl;
+					<< LL_ENDL;
+				LL_WARNS() << "VFS: Index size " << index_size << LL_ENDL;
+				LL_WARNS() << "VFS: INDEX CORRUPT" << LL_ENDL;
 				vfs_corrupt = TRUE;
 				break;
 			}
@@ -1786,7 +1786,7 @@ void LLVFS::audit()
 		{
 			if (block->mLength)
 			{
-				llwarns << "VFile " << block->mFileID << ":" << block->mFileType << " corrupt on disk" << llendl;
+				LL_WARNS() << "VFile " << block->mFileID << ":" << block->mFileType << " corrupt on disk" << LL_ENDL;
 			}
 			// else this is just a hole
 		}
@@ -1802,19 +1802,19 @@ void LLVFS::audit()
 			{
 				if (! found_files.count(*block))
 				{
-					llwarns << "VFile " << block->mFileID << ":" << block->mFileType << " in memory, not on disk, loc " << block->mIndexLocation<< llendl;
+					LL_WARNS() << "VFile " << block->mFileID << ":" << block->mFileType << " in memory, not on disk, loc " << block->mIndexLocation<< LL_ENDL;
 					fseek(mIndexFP, block->mIndexLocation, SEEK_SET);
 					U8 buf[LLVFSFileBlock::SERIAL_SIZE];
 					if (fread(buf, LLVFSFileBlock::SERIAL_SIZE, 1, mIndexFP) != 1)
 					{
-						llwarns << "VFile " << block->mFileID
-								<< " gave short read" << llendl;
+						LL_WARNS() << "VFile " << block->mFileID
+								<< " gave short read" << LL_ENDL;
 					}
     			
 					LLVFSFileBlock disk_block;
 					disk_block.deserialize(buf, block->mIndexLocation);
 				
-					llwarns << "Instead found " << disk_block.mFileID << ":" << block->mFileType << llendl;
+					LL_WARNS() << "Instead found " << disk_block.mFileID << ":" << block->mFileType << LL_ENDL;
 				}
 				else
 				{
@@ -1828,10 +1828,10 @@ void LLVFS::audit()
 			 iter != found_files.end(); iter++)
 		{
 			LLVFSFileBlock* block = iter->second;
-			llwarns << "VFile " << block->mFileID << ":" << block->mFileType << " szie:" << block->mSize << " leftover" << llendl;
+			LL_WARNS() << "VFile " << block->mFileID << ":" << block->mFileType << " szie:" << block->mSize << " leftover" << LL_ENDL;
 		}
     
-		llinfos << "VFS: audit OK" << llendl;
+		LL_INFOS() << "VFS: audit OK" << LL_ENDL;
 		// mutex released by LLMutexLock() destructor.
 	}
 
@@ -1859,12 +1859,12 @@ void LLVFS::checkMem()
 			S32 index_loc = *iter;
 			if (index_loc == block->mIndexLocation)
 			{
-				llwarns << "VFile block " << block->mFileID << ":" << block->mFileType << " is marked as a hole" << llendl;
+				LL_WARNS() << "VFile block " << block->mFileID << ":" << block->mFileType << " is marked as a hole" << LL_ENDL;
 			}
 		}
 	}
     
-	llinfos << "VFS: mem check OK" << llendl;
+	LL_INFOS() << "VFS: mem check OK" << LL_ENDL;
 
 	unlockData();
 }
@@ -1874,7 +1874,7 @@ void LLVFS::dumpLockCounts()
 	S32 i;
 	for (i = 0; i < VFSLOCK_COUNT; i++)
 	{
-		llinfos << "LockType: " << i << ": " << mLockCounts[i] << llendl;
+		LL_INFOS() << "LockType: " << i << ": " << mLockCounts[i] << LL_ENDL;
 	}
 }
 
@@ -1899,7 +1899,7 @@ void LLVFS::dumpStatistics()
 		}
 		else if (file_block->mLength <= 0)
 		{
-			llinfos << "Bad file block at: " << file_block->mLocation << "\tLength: " << file_block->mLength << "\t" << file_block->mFileID << "\t" << file_block->mFileType << llendl;
+			LL_INFOS() << "Bad file block at: " << file_block->mLocation << "\tLength: " << file_block->mLength << "\t" << file_block->mFileID << "\t" << file_block->mFileType << LL_ENDL;
 			size_counts[file_block->mLength]++;
 			location_counts[file_block->mLocation]++;
 		}
@@ -1921,13 +1921,13 @@ void LLVFS::dumpStatistics()
 	{
 		S32 size = it->first;
 		S32 size_count = it->second;
-		llinfos << "Bad files size " << size << " count " << size_count << llendl;
+		LL_INFOS() << "Bad files size " << size << " count " << size_count << LL_ENDL;
 	}
 	for (std::map<U32,S32>::iterator it = location_counts.begin(); it != location_counts.end(); ++it)
 	{
 		U32 location = it->first;
 		S32 location_count = it->second;
-		llinfos << "Bad files location " << location << " count " << location_count << llendl;
+		LL_INFOS() << "Bad files location " << location << " count " << location_count << LL_ENDL;
 	}
 
 	// Investigate free list.
@@ -1941,14 +1941,14 @@ void LLVFS::dumpStatistics()
 		LLVFSBlock *free_block = iter->second;
 		if (free_block->mLength <= 0)
 		{
-			llinfos << "Bad free block at: " << free_block->mLocation << "\tLength: " << free_block->mLength << llendl;
+			LL_INFOS() << "Bad free block at: " << free_block->mLocation << "\tLength: " << free_block->mLength << LL_ENDL;
 		}
 		else
 		{
-			llinfos << "Block: " << free_block->mLocation
+			LL_INFOS() << "Block: " << free_block->mLocation
 					<< "\tLength: " << free_block->mLength
 					<< "\tEnd: " << free_block->mLocation + free_block->mLength
-					<< llendl;
+					<< LL_ENDL;
 			total_free_size += free_block->mLength;
 		}
 
@@ -1963,38 +1963,38 @@ void LLVFS::dumpStatistics()
 	// Dump histogram of free block sizes
 	for (std::map<S32,S32>::iterator it = free_length_counts.begin(); it != free_length_counts.end(); ++it)
 	{
-		llinfos << "Free length " << it->first << " count " << it->second << llendl;
+		LL_INFOS() << "Free length " << it->first << " count " << it->second << LL_ENDL;
 	}
 
-	llinfos << "Invalid blocks: " << invalid_file_count << llendl;
-	llinfos << "File blocks:    " << mFileBlocks.size() << llendl;
+	LL_INFOS() << "Invalid blocks: " << invalid_file_count << LL_ENDL;
+	LL_INFOS() << "File blocks:    " << mFileBlocks.size() << LL_ENDL;
 
 	S32 length_list_count = (S32)mFreeBlocksByLength.size();
 	S32 location_list_count = (S32)mFreeBlocksByLocation.size();
 	if (length_list_count == location_list_count)
 	{
-		llinfos << "Free list lengths match, free blocks: " << location_list_count << llendl;
+		LL_INFOS() << "Free list lengths match, free blocks: " << location_list_count << LL_ENDL;
 	}
 	else
 	{
-		llwarns << "Free list lengths do not match!" << llendl;
-		llwarns << "By length: " << length_list_count << llendl;
-		llwarns << "By location: " << location_list_count << llendl;
+		LL_WARNS() << "Free list lengths do not match!" << LL_ENDL;
+		LL_WARNS() << "By length: " << length_list_count << LL_ENDL;
+		LL_WARNS() << "By location: " << location_list_count << LL_ENDL;
 	}
-	llinfos << "Max file: " << max_file_size/1024 << "K" << llendl;
-	llinfos << "Max free: " << max_free_size/1024 << "K" << llendl;
-	llinfos << "Total file size: " << total_file_size/1024 << "K" << llendl;
-	llinfos << "Total free size: " << total_free_size/1024 << "K" << llendl;
-	llinfos << "Sum: " << (total_file_size + total_free_size) << " bytes" << llendl;
-	llinfos << llformat("%.0f%% full",((F32)(total_file_size)/(F32)(total_file_size+total_free_size))*100.f) << llendl;
+	LL_INFOS() << "Max file: " << max_file_size/1024 << "K" << LL_ENDL;
+	LL_INFOS() << "Max free: " << max_free_size/1024 << "K" << LL_ENDL;
+	LL_INFOS() << "Total file size: " << total_file_size/1024 << "K" << LL_ENDL;
+	LL_INFOS() << "Total free size: " << total_free_size/1024 << "K" << LL_ENDL;
+	LL_INFOS() << "Sum: " << (total_file_size + total_free_size) << " bytes" << LL_ENDL;
+	LL_INFOS() << llformat("%.0f%% full",((F32)(total_file_size)/(F32)(total_file_size+total_free_size))*100.f) << LL_ENDL;
 
-	llinfos << " " << llendl;
+	LL_INFOS() << " " << LL_ENDL;
 	for (std::map<LLAssetType::EType, std::pair<S32,S32> >::iterator iter = filetype_counts.begin();
 		 iter != filetype_counts.end(); ++iter)
 	{
-		llinfos << "Type: " << LLAssetType::getDesc(iter->first)
+		LL_INFOS() << "Type: " << LLAssetType::getDesc(iter->first)
 				<< " Count: " << iter->second.first
-				<< " Bytes: " << (iter->second.second>>20) << " MB" << llendl;
+				<< " Bytes: " << (iter->second.second>>20) << " MB" << LL_ENDL;
 	}
 	
 	// Look for potential merges 
@@ -2009,7 +2009,7 @@ void LLVFS::dumpStatistics()
  			LLVFSBlock *second_block = iter->second;
  			if (first_block->mLocation + first_block->mLength == second_block->mLocation)
  			{
-				llinfos << "Potential merge at " << first_block->mLocation << llendl;
+				LL_INFOS() << "Potential merge at " << first_block->mLocation << LL_ENDL;
  			}
  			first_block = second_block;
  		}
@@ -2064,10 +2064,10 @@ void LLVFS::listFiles()
 		{
 			LLUUID id = file_spec.mFileID;
 			std::string extension = get_extension(file_spec.mFileType);
-			llinfos << " File: " << id
+			LL_INFOS() << " File: " << id
 					<< " Type: " << LLAssetType::getDesc(file_spec.mFileType)
 					<< " Size: " << size
-					<< llendl;
+					<< LL_ENDL;
 		}
 	}
 	
@@ -2098,7 +2098,7 @@ void LLVFS::dumpFiles()
 			
 			std::string extension = get_extension(type);
 			std::string filename = id.asString() + extension;
-			llinfos << " Writing " << filename << llendl;
+			LL_INFOS() << " Writing " << filename << LL_ENDL;
 			
 			LLAPRFile outfile;
 			outfile.open(filename, LL_APR_WB);
@@ -2111,7 +2111,7 @@ void LLVFS::dumpFiles()
 	
 	unlockData();
 
-	llinfos << "Extracted " << files_extracted << " files out of " << mFileBlocks.size() << llendl;
+	LL_INFOS() << "Extracted " << files_extracted << " files out of " << mFileBlocks.size() << LL_ENDL;
 }
 
 //============================================================================

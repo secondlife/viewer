@@ -28,6 +28,7 @@
 
 #include "llstl.h"
 #include "lltimer.h"	// ms_sleep()
+#include "lltracethreadrecorder.h"
 
 //============================================================================
 
@@ -80,7 +81,7 @@ void LLQueuedThread::shutdown()
 		}
 		if (timeout == 0)
 		{
-			llwarns << "~LLQueuedThread (" << mName << ") timed out!" << llendl;
+			LL_WARNS() << "~LLQueuedThread (" << mName << ") timed out!" << LL_ENDL;
 		}
 	}
 	else
@@ -101,7 +102,7 @@ void LLQueuedThread::shutdown()
 	}
 	if (active_count)
 	{
-		llwarns << "~LLQueuedThread() called with active requests: " << active_count << llendl;
+		LL_WARNS() << "~LLQueuedThread() called with active requests: " << active_count << LL_ENDL;
 	}
 }
 
@@ -134,8 +135,8 @@ S32 LLQueuedThread::updateQueue(F32 max_time_ms)
 		pending = getPending();
 		if(pending > 0)
 		{
-			unpause();
-		}
+		unpause();
+	}
 	}
 	else
 	{
@@ -198,11 +199,11 @@ void LLQueuedThread::printQueueStats()
 	if (!mRequestQueue.empty())
 	{
 		QueuedRequest *req = *mRequestQueue.begin();
-		llinfos << llformat("Pending Requests:%d Current status:%d", mRequestQueue.size(), req->getStatus()) << llendl;
+		LL_INFOS() << llformat("Pending Requests:%d Current status:%d", mRequestQueue.size(), req->getStatus()) << LL_ENDL;
 	}
 	else
 	{
-		llinfos << "Queued Thread Idle" << llendl;
+		LL_INFOS() << "Queued Thread Idle" << LL_ENDL;
 	}
 	unlockData();
 }
@@ -233,7 +234,7 @@ bool LLQueuedThread::addRequest(QueuedRequest* req)
 	mRequestQueue.insert(req);
 	mRequestHash.insert(req);
 #if _DEBUG
-// 	llinfos << llformat("LLQueuedThread::Added req [%08d]",handle) << llendl;
+// 	LL_INFOS() << llformat("LLQueuedThread::Added req [%08d]",handle) << LL_ENDL;
 #endif
 	unlockData();
 
@@ -245,7 +246,7 @@ bool LLQueuedThread::addRequest(QueuedRequest* req)
 // MAIN thread
 bool LLQueuedThread::waitForResult(LLQueuedThread::handle_t handle, bool auto_complete)
 {
-	llassert (handle != nullHandle())
+	llassert (handle != nullHandle());
 	bool res = false;
 	bool waspaused = isPaused();
 	bool done = false;
@@ -364,7 +365,7 @@ bool LLQueuedThread::completeRequest(handle_t handle)
 		llassert_always(req->getStatus() != STATUS_QUEUED);
 		llassert_always(req->getStatus() != STATUS_INPROGRESS);
 #if _DEBUG
-// 		llinfos << llformat("LLQueuedThread::Completed req [%08d]",handle) << llendl;
+// 		LL_INFOS() << llformat("LLQueuedThread::Completed req [%08d]",handle) << LL_ENDL;
 #endif
 		mRequestHash.erase(handle);
 		req->deleteRequest();
@@ -385,7 +386,7 @@ bool LLQueuedThread::check()
 		{
 			if (entry->getHashKey() > mNextHandle)
 			{
-				llerrs << "Hash Error" << llendl;
+				LL_ERRS() << "Hash Error" << LL_ENDL;
 				return false;
 			}
 			entry = entry->getNextEntry();
@@ -403,6 +404,7 @@ S32 LLQueuedThread::processNextRequest()
 	QueuedRequest *req;
 	// Get next request from pool
 	lockData();
+	
 	while(1)
 	{
 		req = NULL;
@@ -467,10 +469,11 @@ S32 LLQueuedThread::processNextRequest()
 				ms_sleep(1); // sleep the thread a little
 			}
 		}
+		
+		LLTrace::get_thread_recorder()->pushToParent();
 	}
 
 	S32 pending = getPending();
-
 	return pending;
 }
 
@@ -499,6 +502,7 @@ void LLQueuedThread::run()
 		
 		if (isQuitting())
 		{
+			LLTrace::get_thread_recorder()->pushToParent();
 			endThread();
 			break;
 		}
@@ -507,15 +511,16 @@ void LLQueuedThread::run()
 
 		threadedUpdate();
 		
-		int res = processNextRequest();
-		if (res == 0)
+		int pending_work = processNextRequest();
+
+		if (pending_work == 0)
 		{
 			mIdleThread = TRUE;
 			ms_sleep(1);
 		}
 		//LLThread::yield(); // thread should yield after each request		
 	}
-	llinfos << "LLQueuedThread " << mName << " EXITING." << llendl;
+	LL_INFOS() << "LLQueuedThread " << mName << " EXITING." << LL_ENDL;
 }
 
 // virtual

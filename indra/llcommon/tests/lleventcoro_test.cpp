@@ -346,13 +346,13 @@ namespace tut
                 LLCoroEventPumps waiter;
                 replyName = waiter.getName0();
                 errorName = waiter.getName1();
-                WrapLL_ERRS capture;
+                WrapLLErrs capture;
                 try
                 {
                     result = waiter.waitWithLog(self);
                     debug("no exception");
                 }
-                catch (const WrapLL_ERRS::FatalException& e)
+                catch (const WrapLLErrs::FatalException& e)
                 {
                     debug(STRINGIZE("exception " << e.what()));
                     threw = e.what();
@@ -436,7 +436,7 @@ namespace tut
             BEGIN
             {
                 LLCoroEventPumps waiter;
-                WrapLL_ERRS capture;
+                WrapLLErrs capture;
                 try
                 {
                     result = waiter.postAndWaitWithLog(self,
@@ -444,7 +444,7 @@ namespace tut
                         immediateAPI.getPump(), "reply", "error");
                     debug("no exception");
                 }
-                catch (const WrapLL_ERRS::FatalException& e)
+                catch (const WrapLLErrs::FatalException& e)
                 {
                     debug(STRINGIZE("exception " << e.what()));
                     threw = e.what();

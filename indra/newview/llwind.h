@@ -35,6 +35,8 @@ class LLVector3;
 class LLBitPack;
 class LLGroupHeader;
 
+const F32 WIND_SCALE_HACK		= 2.0f;	// hack to make wind speeds more realistic
+
 
 class LLWind  
 {

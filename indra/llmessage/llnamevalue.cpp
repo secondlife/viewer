@@ -33,7 +33,7 @@
 
 #include "u64.h"
 #include "llstring.h"
-#include "string_table.h"
+#include "llstringtable.h"
 
 // Anonymous enumeration to provide constants in this file.
 // *NOTE: These values may be used in sscanf statements below as their
@@ -209,7 +209,7 @@ void LLNameValue::init(const char *name, const char *data, const char *type, con
 	}
 	else
 	{
-		llwarns << "Unknown name value type string " << mStringType << " for " << mName << llendl;
+		LL_WARNS() << "Unknown name value type string " << mStringType << " for " << mName << LL_ENDL;
 		mType = NVT_NULL;
 	}
 
@@ -261,8 +261,8 @@ void LLNameValue::init(const char *name, const char *data, const char *type, con
 	}
 	else
 	{
-		llwarns << "LLNameValue::init() - unknown sendto field " 
-				<< nvsendto << " for NV " << mName << llendl;
+		LL_WARNS() << "LLNameValue::init() - unknown sendto field " 
+				<< nvsendto << " for NV " << mName << LL_ENDL;
 		mSendto = NVS_NULL;
 		mStringSendto = mNVNameTable->addString("S");
 	}
@@ -332,7 +332,7 @@ LLNameValue::LLNameValue(const char *name, const char *type, const char *nvclass
 	else
 	{
 		mType = NVT_NULL;
-		llinfos << "Unknown name-value type " << mStringType << llendl;
+		LL_INFOS() << "Unknown name-value type " << mStringType << LL_ENDL;
 	}
 
 	// Nota Bene: Whatever global structure manages this should have these in the name table already!
@@ -580,7 +580,7 @@ char	*LLNameValue::getString()
 	}
 	else
 	{
-		llerrs << mName << " not a string!" << llendl;
+		LL_ERRS() << mName << " not a string!" << LL_ENDL;
 		return NULL;
 	}
 }
@@ -593,7 +593,7 @@ const char *LLNameValue::getAsset() const
 	}
 	else
 	{
-		llerrs << mName << " not an asset!" << llendl;
+		LL_ERRS() << mName << " not an asset!" << LL_ENDL;
 		return NULL;
 	}
 }
@@ -606,7 +606,7 @@ F32		*LLNameValue::getF32()
 	}
 	else
 	{
-		llerrs << mName << " not a F32!" << llendl;
+		LL_ERRS() << mName << " not a F32!" << LL_ENDL;
 		return NULL;
 	}
 }
@@ -619,7 +619,7 @@ S32		*LLNameValue::getS32()
 	}
 	else
 	{
-		llerrs << mName << " not a S32!" << llendl;
+		LL_ERRS() << mName << " not a S32!" << LL_ENDL;
 		return NULL;
 	}
 }
@@ -632,7 +632,7 @@ U32		*LLNameValue::getU32()
 	}
 	else
 	{
-		llerrs << mName << " not a U32!" << llendl;
+		LL_ERRS() << mName << " not a U32!" << LL_ENDL;
 		return NULL;
 	}
 }
@@ -645,7 +645,7 @@ U64		*LLNameValue::getU64()
 	}
 	else
 	{
-		llerrs << mName << " not a U64!" << llendl;
+		LL_ERRS() << mName << " not a U64!" << LL_ENDL;
 		return NULL;
 	}
 }
@@ -658,7 +658,7 @@ void	LLNameValue::getVec3(LLVector3 &vec)
 	}
 	else
 	{
-		llerrs << mName << " not a Vec3!" << llendl;
+		LL_ERRS() << mName << " not a Vec3!" << LL_ENDL;
 	}
 }
 
@@ -670,7 +670,7 @@ LLVector3	*LLNameValue::getVec3()
 	}
 	else
 	{
-		llerrs << mName << " not a Vec3!" << llendl;
+		LL_ERRS() << mName << " not a Vec3!" << LL_ENDL;
 		return NULL;
 	}
 }
@@ -726,7 +726,7 @@ LLNameValue &LLNameValue::operator=(const LLNameValue &a)
 		*mNameValueReference.u64 = *a.mNameValueReference.u64;
 		break;
 	default:
-		llerrs << "Unknown Name value type " << (U32)a.mType << llendl;
+		LL_ERRS() << "Unknown Name value type " << (U32)a.mType << LL_ENDL;
 		break;
 	}
 
@@ -865,7 +865,7 @@ void LLNameValue::setU32(const U32 a)
 		*mNameValueReference.f32 = (F32)a;
 		break;
 	default:
-		llerrs << "NameValue: Trying to set U32 into a " << mStringType << ", unknown conversion" << llendl;
+		LL_ERRS() << "NameValue: Trying to set U32 into a " << mStringType << ", unknown conversion" << LL_ENDL;
 		break;
 	}
 	return;
@@ -883,7 +883,7 @@ void LLNameValue::setVec3(const LLVector3 &a)
 		*mNameValueReference.vec3 = a;
 		break;
 	default:
-		llerrs << "NameValue: Trying to set LLVector3 into a " << mStringType << ", unknown conversion" << llendl;
+		LL_ERRS() << "NameValue: Trying to set LLVector3 into a " << mStringType << ", unknown conversion" << LL_ENDL;
 		break;
 	}
 	return;
@@ -895,7 +895,7 @@ std::string LLNameValue::printNameValue() const
 	std::string buffer;
 	buffer = llformat("%s %s %s %s ", mName, mStringType, mStringClass, mStringSendto);
 	buffer += printData();
-//	llinfos << "Name Value Length: " << buffer.size() + 1 << llendl;
+//	LL_INFOS() << "Name Value Length: " << buffer.size() + 1 << LL_ENDL;
 	return buffer;
 }
 
@@ -928,7 +928,7 @@ std::string LLNameValue::printData() const
 	  	buffer = llformat( "%f, %f, %f", mNameValueReference.vec3->mV[VX], mNameValueReference.vec3->mV[VY], mNameValueReference.vec3->mV[VZ]);
 		break;
 	default:
-		llerrs << "Trying to print unknown NameValue type " << mStringType << llendl;
+		LL_ERRS() << "Trying to print unknown NameValue type " << mStringType << LL_ENDL;
 		break;
 	}
 	return buffer;
@@ -962,7 +962,7 @@ std::ostream&		operator<<(std::ostream& s, const LLNameValue &a)
 		s << *(a.mNameValueReference.vec3);
 		break;
 	default:
-		llerrs << "Trying to print unknown NameValue type " << a.mStringType << llendl;
+		LL_ERRS() << "Trying to print unknown NameValue type " << a.mStringType << LL_ENDL;
 		break;
 	}
 	return s;

@@ -29,26 +29,28 @@
 #include "lltextureinfo.h"
 #include "lltexturestats.h"
 #include "llviewercontrol.h"
+#include "lltrace.h"
+
+static LLTrace::CountStatHandle<S32> sTextureDownloadsStarted("texture_downloads_started", "number of texture downloads initiated");
+static LLTrace::CountStatHandle<S32> sTextureDownloadsCompleted("texture_downloads_completed", "number of texture downloads completed");
+static LLTrace::CountStatHandle<S32Bytes > sTextureDataDownloaded("texture_data_downloaded", "amount of texture data downloaded");
+static LLTrace::CountStatHandle<U32Milliseconds > sTexureDownloadTime("texture_download_time", "amount of time spent fetching textures");
 
 LLTextureInfo::LLTextureInfo() : 
 	mLogTextureDownloadsToViewerLog(false),
 	mLogTextureDownloadsToSimulator(false),
-	mTotalBytes(0),
-	mTotalMilliseconds(0),
-	mTextureDownloadsStarted(0),
-	mTextureDownloadsCompleted(0),
 	mTextureDownloadProtocol("NONE"),
-	mTextureLogThreshold(100 * 1024),
-	mCurrentStatsBundleStartTime(0)
+	mTextureLogThreshold(LLUnits::Kilobytes::fromValue(100))
 {
 	mTextures.clear();
+	mRecording.start();
 }
 
-void LLTextureInfo::setUpLogging(bool writeToViewerLog, bool sendToSim, U32 textureLogThreshold)
+void LLTextureInfo::setUpLogging(bool writeToViewerLog, bool sendToSim, U32Bytes textureLogThreshold)
 {
 	mLogTextureDownloadsToViewerLog = writeToViewerLog;
 	mLogTextureDownloadsToSimulator = sendToSim;
-	mTextureLogThreshold = textureLogThreshold;
+	mTextureLogThreshold = U32Bytes(textureLogThreshold);
 }
 
 LLTextureInfo::~LLTextureInfo()
@@ -93,8 +95,8 @@ void LLTextureInfo::setRequestStartTime(const LLUUID& id, U64 startTime)
 	{
 		addRequest(id);
 	}
-	mTextures[id]->mStartTime = startTime;
-	mTextureDownloadsStarted++;
+	mTextures[id]->mStartTime = (U64Microseconds)startTime;
+	add(sTextureDownloadsStarted, 1);
 }
 
 void LLTextureInfo::setRequestSize(const LLUUID& id, U32 size)
@@ -103,7 +105,7 @@ void LLTextureInfo::setRequestSize(const LLUUID& id, U32 size)
 	{
 		addRequest(id);
 	}
-	mTextures[id]->mSize = size;
+	mTextures[id]->mSize = (U32Bytes)size;
 }
 
 void LLTextureInfo::setRequestOffset(const LLUUID& id, U32 offset)
@@ -124,16 +126,19 @@ void LLTextureInfo::setRequestType(const LLUUID& id, LLTextureInfoDetails::LLReq
 	mTextures[id]->mType = type;
 }
 
-void LLTextureInfo::setRequestCompleteTimeAndLog(const LLUUID& id, U64 completeTime)
+void LLTextureInfo::setRequestCompleteTimeAndLog(const LLUUID& id, U64Microseconds completeTime)
 {
 	if (!has(id))
 	{
 		addRequest(id);
 	}
-	mTextures[id]->mCompleteTime = completeTime;
+	
+	LLTextureInfoDetails& details = *mTextures[id];
+
+	details.mCompleteTime = completeTime;
 
 	std::string protocol = "NONE";
-	switch(mTextures[id]->mType)
+	switch(details.mType)
 	{
 	case LLTextureInfoDetails::REQUEST_TYPE_HTTP:
 		protocol = "HTTP";
@@ -150,24 +155,23 @@ void LLTextureInfo::setRequestCompleteTimeAndLog(const LLUUID& id, U64 completeT
 
 	if (mLogTextureDownloadsToViewerLog)
 	{
-		llinfos << "texture=" << id 
-			<< " start=" << mTextures[id]->mStartTime 
-			<< " end=" << mTextures[id]->mCompleteTime
-			<< " size=" << mTextures[id]->mSize
-			<< " offset=" << mTextures[id]->mOffset
-			<< " length_in_ms=" << (mTextures[id]->mCompleteTime - mTextures[id]->mStartTime) / 1000
-			<< " protocol=" << protocol
-			<< llendl;
+		LL_INFOS() << "texture="   << id 
+			    << " start="    << details.mStartTime 
+			    << " end="      << details.mCompleteTime
+			    << " size="     << details.mSize
+			    << " offset="   << details.mOffset
+			    << " length="   << U32Milliseconds(details.mCompleteTime - details.mStartTime)
+			    << " protocol=" << protocol
+			    << LL_ENDL;
 	}
 
 	if(mLogTextureDownloadsToSimulator)
 	{
-		S32 texture_stats_upload_threshold = mTextureLogThreshold;
-		mTotalBytes += mTextures[id]->mSize;
-		mTotalMilliseconds += mTextures[id]->mCompleteTime - mTextures[id]->mStartTime;
-		mTextureDownloadsCompleted++;
+		add(sTextureDataDownloaded, details.mSize);
+		add(sTexureDownloadTime, details.mCompleteTime - details.mStartTime);
+		add(sTextureDownloadsCompleted, 1);
 		mTextureDownloadProtocol = protocol;
-		if (mTotalBytes >= texture_stats_upload_threshold)
+		if (mRecording.getSum(sTextureDataDownloaded) >= mTextureLogThreshold)
 		{
 			LLSD texture_data;
 			std::stringstream startTime;
@@ -189,39 +193,37 @@ LLSD LLTextureInfo::getAverages()
 {
 	LLSD averagedTextureData;
 	S32 averageDownloadRate;
-	if(mTotalMilliseconds == 0)
+	U32Milliseconds download_time = mRecording.getSum(sTexureDownloadTime);
+	if(download_time == (U32Milliseconds)0)
 	{
 		averageDownloadRate = 0;
 	}
 	else
 	{
-		averageDownloadRate = (mTotalBytes * 8) / mTotalMilliseconds;
+		averageDownloadRate = mRecording.getSum(sTextureDataDownloaded).valueInUnits<LLUnits::Bits>() / download_time.valueInUnits<LLUnits::Seconds>();
 	}
 
-	averagedTextureData["bits_per_second"] = averageDownloadRate;
-	averagedTextureData["bytes_downloaded"] = mTotalBytes;
-	averagedTextureData["texture_downloads_started"] = mTextureDownloadsStarted;
-	averagedTextureData["texture_downloads_completed"] = mTextureDownloadsCompleted;
-	averagedTextureData["transport"] = mTextureDownloadProtocol;
+	averagedTextureData["bits_per_second"]             = averageDownloadRate;
+	averagedTextureData["bytes_downloaded"]            = mRecording.getSum(sTextureDataDownloaded).valueInUnits<LLUnits::Bytes>();
+	averagedTextureData["texture_downloads_started"]   = mRecording.getSum(sTextureDownloadsStarted);
+	averagedTextureData["texture_downloads_completed"] = mRecording.getSum(sTextureDownloadsCompleted);
+	averagedTextureData["transport"]                   = mTextureDownloadProtocol;
 
 	return averagedTextureData;
 }
 
 void LLTextureInfo::resetTextureStatistics()
 {
-	mTotalMilliseconds = 0;
-	mTotalBytes = 0;
-	mTextureDownloadsStarted = 0;
-	mTextureDownloadsCompleted = 0;
+	mRecording.restart();
 	mTextureDownloadProtocol = "NONE";
 	mCurrentStatsBundleStartTime = LLTimer::getTotalTime();
 }
 
-U32 LLTextureInfo::getRequestStartTime(const LLUUID& id)
+U32Microseconds LLTextureInfo::getRequestStartTime(const LLUUID& id)
 {
 	if (!has(id))
 	{
-		return 0;
+		return U32Microseconds(0);
 	}
 	else
 	{
@@ -230,11 +232,11 @@ U32 LLTextureInfo::getRequestStartTime(const LLUUID& id)
 	}
 }
 
-U32 LLTextureInfo::getRequestSize(const LLUUID& id)
+U32Bytes LLTextureInfo::getRequestSize(const LLUUID& id)
 {
 	if (!has(id))
 	{
-		return 0;
+		return U32Bytes(0);
 	}
 	else
 	{
@@ -269,11 +271,11 @@ LLTextureInfoDetails::LLRequestType LLTextureInfo::getRequestType(const LLUUID& 
 	}
 }
 
-U32 LLTextureInfo::getRequestCompleteTime(const LLUUID& id)
+U32Microseconds LLTextureInfo::getRequestCompleteTime(const LLUUID& id)
 {
 	if (!has(id))
 	{
-		return 0;
+		return U32Microseconds(0);
 	}
 	else
 	{

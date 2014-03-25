@@ -56,11 +56,8 @@ namespace lambda = boost::lambda;
 #include "../llformat.h"
 
 #include "../test/lltut.h"
-#include "../test/manageapr.h"
 #include "../test/namedtempfile.h"
 #include "stringize.h"
-
-static ManageAPR manager;
 
 std::vector<U8> string_to_vector(const std::string& str)
 {
@@ -268,7 +265,7 @@ namespace tut
 	{
 		std::stringstream stream;	
 		mFormatter->format(v, stream);
-		//llinfos << "checkRoundTrip: length " << stream.str().length() << llendl;
+		//LL_INFOS() << "checkRoundTrip: length " << stream.str().length() << LL_ENDL;
 		LLSD w;
 		mParser->reset();	// reset() call is needed since test code re-uses mParser
 		mParser->parse(stream, w, stream.str().size());
@@ -1723,5 +1720,6 @@ namespace tut
                       "This string\n"
                       "has several\n"
                       "lines.");
+        
     }
 }

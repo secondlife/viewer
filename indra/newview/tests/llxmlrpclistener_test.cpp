@@ -85,7 +85,7 @@ namespace tut
     void object::test<1>()
     {
         set_test_name("request validation");
-        WrapLL_ERRS capture;
+        WrapLLErrs capture;
         LLSD request;
         request["uri"] = uri;
         std::string threw;
@@ -93,7 +93,7 @@ namespace tut
         {
             pumps.obtain("LLXMLRPCTransaction").post(request);
         }
-        catch (const WrapLL_ERRS::FatalException& e)
+        catch (const WrapLLErrs::FatalException& e)
         {
             threw = e.what();
         }
@@ -106,7 +106,7 @@ namespace tut
     void object::test<2>()
     {
         set_test_name("param types validation");
-        WrapLL_ERRS capture;
+        WrapLLErrs capture;
         LLSD request;
         request["uri"] = uri;
         request["method"] = "hello";
@@ -118,7 +118,7 @@ namespace tut
         {
             pumps.obtain("LLXMLRPCTransaction").post(request);
         }
-        catch (const WrapLL_ERRS::FatalException& e)
+        catch (const WrapLLErrs::FatalException& e)
         {
             threw = e.what();
         }

@@ -146,9 +146,11 @@ void agent_push_forward( EKeystate s )
 	if (LLFloaterCamera::inFreeCameraMode())
 	{
 		camera_move_forward(s);
-		return;
 	}
-	agent_push_forwardbackward(s, 1, LLAgent::DOUBLETAP_FORWARD);
+	else
+	{
+		agent_push_forwardbackward(s, 1, LLAgent::DOUBLETAP_FORWARD);
+	}
 }
 
 void camera_move_backward( EKeystate s );
@@ -159,9 +161,15 @@ void agent_push_backward( EKeystate s )
 	if (LLFloaterCamera::inFreeCameraMode())
 	{
 		camera_move_backward(s);
-		return;
 	}
-	agent_push_forwardbackward(s, -1, LLAgent::DOUBLETAP_BACKWARD);
+	else if (!gAgent.backwardGrabbed() && gAgentAvatarp->isSitting())
+	{
+		gAgentCamera.changeCameraToThirdPerson();
+	}
+	else
+	{
+		agent_push_forwardbackward(s, -1, LLAgent::DOUBLETAP_BACKWARD);
+	}
 }
 
 static void agent_slide_leftright( EKeystate s, S32 direction, LLAgent::EDoubleTapRunMode mode )
@@ -269,7 +277,7 @@ F32 get_orbit_rate()
 	if( time < NUDGE_TIME )
 	{
 		F32 rate = ORBIT_NUDGE_RATE + time * (1 - ORBIT_NUDGE_RATE)/ NUDGE_TIME;
-		//llinfos << rate << llendl;
+		//LL_INFOS() << rate << LL_ENDL;
 		return rate;
 	}
 	else
@@ -676,7 +684,7 @@ BOOL LLViewerKeyboard::handleKey(KEY translated_key,  MASK translated_mask, BOOL
 		return FALSE;
 	}
 
-	lldebugst(LLERR_USER_INPUT) << "keydown -" << translated_key << "-" << llendl;
+	LL_DEBUGS("UserInput") << "keydown -" << translated_key << "-" << LL_ENDL;
 	// skip skipped keys
 	if(mKeysSkippedByUI.find(translated_key) != mKeysSkippedByUI.end()) 
 	{
@@ -733,7 +741,7 @@ BOOL LLViewerKeyboard::bindKey(const S32 mode, const KEY key, const MASK mask, c
 
 	if (!function)
 	{
-		llerrs << "Can't bind key to function " << function_name << ", no function with this name found" << llendl;
+		LL_ERRS() << "Can't bind key to function " << function_name << ", no function with this name found" << LL_ENDL;
 		return FALSE;
 	}
 
@@ -746,13 +754,13 @@ BOOL LLViewerKeyboard::bindKey(const S32 mode, const KEY key, const MASK mask, c
 
 	if (index >= MAX_KEY_BINDINGS)
 	{
-		llerrs << "LLKeyboard::bindKey() - too many keys for mode " << mode << llendl;
+		LL_ERRS() << "LLKeyboard::bindKey() - too many keys for mode " << mode << LL_ENDL;
 		return FALSE;
 	}
 
 	if (mode >= MODE_COUNT)
 	{
-		llerror("LLKeyboard::bindKey() - unknown mode passed", mode);
+		LL_ERRS() << "LLKeyboard::bindKey() - unknown mode passed" << mode << LL_ENDL;
 		return FALSE;
 	}
 
@@ -841,7 +849,7 @@ S32 LLViewerKeyboard::loadBindings(const std::string& filename)
 
 	if(filename.empty())
 	{
-		llerrs << " No filename specified" << llendl;
+		LL_ERRS() << " No filename specified" << LL_ENDL;
 		return 0;
 	}
 
@@ -873,35 +881,35 @@ S32 LLViewerKeyboard::loadBindings(const std::string& filename)
 
 		if (tokens_read == EOF)
 		{
-			llinfos << "Unexpected end-of-file at line " << line_count << " of key binding file " << filename << llendl;
+			LL_INFOS() << "Unexpected end-of-file at line " << line_count << " of key binding file " << filename << LL_ENDL;
 			fclose(fp);
 			return 0;
 		}
 		else if (tokens_read < 4)
 		{
-			llinfos << "Can't read line " << line_count << " of key binding file " << filename << llendl;
+			LL_INFOS() << "Can't read line " << line_count << " of key binding file " << filename << LL_ENDL;
 			continue;
 		}
 
 		// convert mode
 		if (!modeFromString(mode_string, &mode))
 		{
-			llinfos << "Unknown mode on line " << line_count << " of key binding file " << filename << llendl;
-			llinfos << "Mode must be one of FIRST_PERSON, THIRD_PERSON, EDIT, EDIT_AVATAR" << llendl;
+			LL_INFOS() << "Unknown mode on line " << line_count << " of key binding file " << filename << LL_ENDL;
+			LL_INFOS() << "Mode must be one of FIRST_PERSON, THIRD_PERSON, EDIT, EDIT_AVATAR" << LL_ENDL;
 			continue;
 		}
 
 		// convert key
 		if (!LLKeyboard::keyFromString(key_string, &key))
 		{
-			llinfos << "Can't interpret key on line " << line_count << " of key binding file " << filename << llendl;
+			LL_INFOS() << "Can't interpret key on line " << line_count << " of key binding file " << filename << LL_ENDL;
 			continue;
 		}
 
 		// convert mask
 		if (!LLKeyboard::maskFromString(mask_string, &mask))
 		{
-			llinfos << "Can't interpret mask on line " << line_count << " of key binding file " << filename << llendl;
+			LL_INFOS() << "Can't interpret mask on line " << line_count << " of key binding file " << filename << LL_ENDL;
 			continue;
 		}
 

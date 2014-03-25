@@ -165,13 +165,13 @@ BOOL	b_check_token(const char *token, const char *regexp)
 
 	if (current_checker == -1)
 	{
-		llerrs << "Invalid regular expression value!" << llendl;
+		LL_ERRS() << "Invalid regular expression value!" << LL_ENDL;
 		return FALSE;
 	}
 
 	if (current_checker == 9999)
 	{
-		llerrs << "Regular expression can't start with *!" << llendl;
+		LL_ERRS() << "Regular expression can't start with *!" << LL_ENDL;
 		return FALSE;
 	}
 
@@ -179,7 +179,7 @@ BOOL	b_check_token(const char *token, const char *regexp)
 	{
 		if (current_checker == -1)
 		{
-			llerrs << "Input exceeds regular expression!\nDid you forget a *?" << llendl;
+			LL_ERRS() << "Input exceeds regular expression!\nDid you forget a *?" << LL_ENDL;
 			return FALSE;
 		}
 
@@ -204,7 +204,7 @@ BOOL	b_variable_ok(const char *token)
 {
 	if (!b_check_token(token, "fv*"))
 	{
-		llwarns << "Token '" << token << "' isn't a variable!" << llendl;
+		LL_WARNS() << "Token '" << token << "' isn't a variable!" << LL_ENDL;
 		return FALSE;
 	}
 	return TRUE;
@@ -215,7 +215,7 @@ BOOL	b_integer_ok(const char *token)
 {
 	if (!b_check_token(token, "sd*"))
 	{
-		llwarns << "Token isn't an integer!" << llendl;
+		LL_WARNS() << "Token isn't an integer!" << LL_ENDL;
 		return FALSE;
 	}
 	return TRUE;
@@ -226,7 +226,7 @@ BOOL	b_positive_integer_ok(const char *token)
 {
 	if (!b_check_token(token, "d*"))
 	{
-		llwarns << "Token isn't an integer!" << llendl;
+		LL_WARNS() << "Token isn't an integer!" << LL_ENDL;
 		return FALSE;
 	}
 	return TRUE;
@@ -359,13 +359,13 @@ void LLTemplateTokenizer::error(std::string message) const
 {
 	if(atEOF())
 	{
-		llerrs << "Unexpected end of file: " << message << llendl;
+		LL_ERRS() << "Unexpected end of file: " << message << LL_ENDL;
 	}
 	else
 	{
-		llerrs << "Problem parsing message template at line "
+		LL_ERRS() << "Problem parsing message template at line "
 			   << line() << ", with token '" << get() << "' : "
-			   << message << llendl;
+			   << message << LL_ENDL;
 	}
 }
 
@@ -383,12 +383,12 @@ LLTemplateParser::LLTemplateParser(LLTemplateTokenizer & tokens):
 		std::string vers_string = tokens.next();
 		mVersion = (F32)atof(vers_string.c_str());
 		
-		llinfos << "### Message template version " << mVersion << "  ###" << llendl;
+		LL_INFOS() << "### Message template version " << mVersion << "  ###" << LL_ENDL;
 	}
 	else
 	{
-		llerrs << "Version must be first in the message template, found "
-			   << tokens.next() << llendl;
+		LL_ERRS() << "Version must be first in the message template, found "
+			   << tokens.next() << LL_ENDL;
 	}
 
 	while(LLMessageTemplate * templatep = parseMessage(tokens))
@@ -405,8 +405,8 @@ LLTemplateParser::LLTemplateParser(LLTemplateTokenizer & tokens):
 
 	if(!tokens.wantEOF())
 	{
-		llerrs << "Expected end of template or a message, instead found: "
-			   << tokens.next() << " at " << tokens.line() << llendl;
+		LL_ERRS() << "Expected end of template or a message, instead found: "
+			   << tokens.next() << " at " << tokens.line() << LL_ENDL;
 	}
 }
 
@@ -441,7 +441,7 @@ LLMessageTemplate * LLTemplateParser::parseMessage(LLTemplateTokenizer & tokens)
 	// is name a legit C variable name
 	if (!b_variable_ok(template_name.c_str()))
 	{
-		llerrs << "Not legit variable name: " << template_name << " at " << tokens.line() << llendl;
+		LL_ERRS() << "Not legit variable name: " << template_name << " at " << tokens.line() << LL_ENDL;
 	}
 
 	// ok, now get Frequency ("High", "Medium", or "Low")
@@ -461,7 +461,7 @@ LLMessageTemplate * LLTemplateParser::parseMessage(LLTemplateTokenizer & tokens)
 	}
 	else
 	{
-		llerrs << "Expected frequency, got " << freq_string << " at " << tokens.line() << llendl;
+		LL_ERRS() << "Expected frequency, got " << freq_string << " at " << tokens.line() << LL_ENDL;
 	}
 
 	// TODO more explicit checking here pls
@@ -477,7 +477,7 @@ LLMessageTemplate * LLTemplateParser::parseMessage(LLTemplateTokenizer & tokens)
 		message_number = (255 << 24) | (255 << 16) | message_number;
 		break;
 	default:
-		llerrs << "Unknown frequency enum: " << frequency << llendl;
+		LL_ERRS() << "Unknown frequency enum: " << frequency << LL_ENDL;
 	}
    
 	templatep = new LLMessageTemplate(
@@ -497,7 +497,7 @@ LLMessageTemplate * LLTemplateParser::parseMessage(LLTemplateTokenizer & tokens)
 	}
 	else
 	{
-		llerrs << "Bad trust " << trust << " at " << tokens.line() << llendl;
+		LL_ERRS() << "Bad trust " << trust << " at " << tokens.line() << LL_ENDL;
 	}
 	
 	// get encoding
@@ -512,7 +512,7 @@ LLMessageTemplate * LLTemplateParser::parseMessage(LLTemplateTokenizer & tokens)
 	}
 	else
 	{
-		llerrs << "Bad encoding " << encoding << " at " << tokens.line() << llendl;
+		LL_ERRS() << "Bad encoding " << encoding << " at " << tokens.line() << LL_ENDL;
 	}
 
 	// get deprecation
@@ -544,8 +544,8 @@ LLMessageTemplate * LLTemplateParser::parseMessage(LLTemplateTokenizer & tokens)
 	
 	if(!tokens.want("}"))
 	{
-		llerrs << "Expecting closing } for message " << template_name
-			   << " at " << tokens.line() << llendl;
+		LL_ERRS() << "Expecting closing } for message " << template_name
+			   << " at " << tokens.line() << LL_ENDL;
 	}
 	return templatep;
 }
@@ -566,8 +566,8 @@ LLMessageBlock * LLTemplateParser::parseBlock(LLTemplateTokenizer & tokens)
 	// is name a legit C variable name
 	if (!b_variable_ok(block_name.c_str()))
 	{
-		llerrs << "not a legal block name: " << block_name
-			   << " at " << tokens.line() << llendl;
+		LL_ERRS() << "not a legal block name: " << block_name
+			   << " at " << tokens.line() << LL_ENDL;
 	}
 
 	// now, block type ("Single", "Multiple", or "Variable")
@@ -586,8 +586,8 @@ LLMessageBlock * LLTemplateParser::parseBlock(LLTemplateTokenizer & tokens)
 		// is it a legal integer
 		if (!b_positive_integer_ok(repeats.c_str()))
 		{
-			llerrs << "not a legal integer for block multiple count: "
-				   << repeats << " at " << tokens.line() << llendl;
+			LL_ERRS() << "not a legal integer for block multiple count: "
+				   << repeats << " at " << tokens.line() << LL_ENDL;
 		}
 		
 		// ok, we can create a block
@@ -602,8 +602,8 @@ LLMessageBlock * LLTemplateParser::parseBlock(LLTemplateTokenizer & tokens)
 	}
 	else
 	{
-		llerrs << "bad block type: " << block_type
-			   << " at " << tokens.line() << llendl;
+		LL_ERRS() << "bad block type: " << block_type
+			   << " at " << tokens.line() << LL_ENDL;
 	}
 
 
@@ -617,8 +617,8 @@ LLMessageBlock * LLTemplateParser::parseBlock(LLTemplateTokenizer & tokens)
 
 	if(!tokens.want("}"))
 	{
-		llerrs << "Expecting closing } for block " << block_name
-			   << " at " << tokens.line() << llendl;
+		LL_ERRS() << "Expecting closing } for block " << block_name
+			   << " at " << tokens.line() << LL_ENDL;
 	}
 	return blockp;
    
@@ -637,8 +637,8 @@ LLMessageVariable * LLTemplateParser::parseVariable(LLTemplateTokenizer & tokens
 
 	if (!b_variable_ok(var_name.c_str()))
 	{
-		llerrs << "Not a legit variable name: " << var_name
-			   << " at " << tokens.line() << llendl;
+		LL_ERRS() << "Not a legit variable name: " << var_name
+			   << " at " << tokens.line() << LL_ENDL;
 	}
 
 	std::string var_type = tokens.next();
@@ -721,8 +721,8 @@ LLMessageVariable * LLTemplateParser::parseVariable(LLTemplateTokenizer & tokens
 		
 		if (!b_positive_integer_ok(variable_size.c_str()))
 		{
-			llerrs << "not a legal integer variable size: " << variable_size
-				   << " at " << tokens.line() << llendl;
+			LL_ERRS() << "not a legal integer variable size: " << variable_size
+				   << " at " << tokens.line() << LL_ENDL;
 		}
 
 		EMsgVariableType type_enum;
@@ -737,8 +737,8 @@ LLMessageVariable * LLTemplateParser::parseVariable(LLTemplateTokenizer & tokens
 		else
 		{
 			type_enum = MVT_FIXED; // removes a warning
-			llerrs << "bad variable type: " << var_type
-				   << " at " << tokens.line() << llendl;
+			LL_ERRS() << "bad variable type: " << var_type
+				   << " at " << tokens.line() << LL_ENDL;
 		}
 
 		varp = new LLMessageVariable(
@@ -748,14 +748,14 @@ LLMessageVariable * LLTemplateParser::parseVariable(LLTemplateTokenizer & tokens
 	}
 	else
 	{
-		llerrs << "bad variable type:" << var_type
-			   << " at " << tokens.line() << llendl;
+		LL_ERRS() << "bad variable type:" << var_type
+			   << " at " << tokens.line() << LL_ENDL;
 	}
 
 	if(!tokens.want("}"))
 	{
-		llerrs << "Expecting closing } for variable " << var_name
-			   << " at " << tokens.line() << llendl;
+		LL_ERRS() << "Expecting closing } for variable " << var_name
+			   << " at " << tokens.line() << LL_ENDL;
 	}
 	return varp;
 }

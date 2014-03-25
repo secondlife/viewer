@@ -41,7 +41,6 @@
 #include <algorithm>
 // std headers
 #include <typeinfo>
-#include <cassert>
 #include <cmath>
 #include <cctype>
 // external library headers

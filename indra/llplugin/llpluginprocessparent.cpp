@@ -185,7 +185,7 @@ bool LLPluginProcessParent::accept()
 	
 	if(status == APR_SUCCESS)
 	{
-//		llinfos << "SUCCESS" << llendl;
+//		LL_INFOS() << "SUCCESS" << LL_ENDL;
 		// Success.  Create a message pipe on the new socket
 
 		// we MUST create a new pool for the LLSocket, since it will take ownership of it and delete it in its destructor!
@@ -199,14 +199,14 @@ bool LLPluginProcessParent::accept()
 	}
 	else if(APR_STATUS_IS_EAGAIN(status))
 	{
-//		llinfos << "EAGAIN" << llendl;
+//		LL_INFOS() << "EAGAIN" << LL_ENDL;
 
 		// No incoming connections.  This is not an error.
 		status = APR_SUCCESS;
 	}
 	else
 	{
-//		llinfos << "Error:" << llendl;
+//		LL_INFOS() << "Error:" << LL_ENDL;
 		ll_apr_warn_status(status);
 		
 		// Some other error.

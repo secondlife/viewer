@@ -45,11 +45,6 @@
 
 #endif
 
-// Need commdlg.h for OPENDIRNAMEA
-#ifdef LL_WINDOWS
-#include <commdlg.h>
-#endif
-
 class LLFilePicker;
 
 class LLDirPicker

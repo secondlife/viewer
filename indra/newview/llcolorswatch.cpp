@@ -37,13 +37,11 @@
 #include "llui.h"
 #include "llrender.h"
 #include "lluiconstants.h"
-#include "llviewercontrol.h"
 #include "llbutton.h"
-#include "lltextbox.h"
 #include "llfloatercolorpicker.h"
 #include "llviewborder.h"
-#include "llviewertexturelist.h"
 #include "llfocusmgr.h"
+#include "lltextbox.h"
 
 static LLDefaultChildRegistry::Register<LLColorSwatchCtrl> r("color_swatch");
 
@@ -239,16 +237,9 @@ void LLColorSwatchCtrl::draw()
 	}
 	else
 	{
-		if (!mFallbackImageName.empty())
+		if (mFallbackImage.notNull())
 		{
-			LLPointer<LLViewerFetchedTexture> fallback_image = LLViewerTextureManager::getFetchedTextureFromFile(mFallbackImageName, FTT_LOCAL_FILE, TRUE, 
-				LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
-			if( fallback_image->getComponents() == 4 )
-			{	
-				gl_rect_2d_checkerboard( interior );
-			}	
-			gl_draw_scaled_image( interior.mLeft, interior.mBottom, interior.getWidth(), interior.getHeight(), fallback_image, LLColor4::white % alpha);
-			fallback_image->addTextureStats( (F32)(interior.getWidth() * interior.getHeight()) );
+			mFallbackImage->draw(interior.mLeft, interior.mBottom, interior.getWidth(), interior.getHeight(), LLColor4::white % alpha);
 		}
 		else
 		{
