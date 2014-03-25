@@ -32,10 +32,10 @@
     </menu_item_check>
     <menu_item_check name="show_active" label="Show Active Listings and Folders Only">
         <menu_item_check.on_click
-        function="People.Nearby.ViewSort.Action"
+        function="Marketplace.ViewSort.Action"
         parameter="show_active" />
         <menu_item_check.on_check
-        function="People.Nearby.ViewSort.CheckItem"
+        function="Marketplace.ViewSort.CheckItem"
         parameter="show_active" />
     </menu_item_check>
     <menu_item_check name="show_inactive_listings" label="Show Inactive Listings Only">

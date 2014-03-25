@@ -900,7 +900,7 @@ void LLFloaterMarketplaceListings::setup()
 	llassert(mCategoriesObserver);
 	
 	// Set up the marketplace listings inventory view
-    LLPanel* inventory_panel = LLUICtrlFactory::createFromFile<LLPanel>("panel_marketplace_listings_inventory.xml", mInventoryPlaceholder->getParent(), LLInventoryPanel::child_registry_t::instance());
+    LLPanel* inventory_panel = LLUICtrlFactory::createFromFile<LLPanel>("panel_marketplace_listings.xml", mInventoryPlaceholder->getParent(), LLInventoryPanel::child_registry_t::instance());
 	LLInventoryPanel* items_panel = inventory_panel->getChild<LLInventoryPanel>("All Items");
     mInventoryPanel = items_panel->getInventoryPanelHandle();
 	llassert(mInventoryPanel.get() != NULL);
