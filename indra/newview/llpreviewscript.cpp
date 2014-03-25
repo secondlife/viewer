@@ -1191,7 +1191,7 @@ void LLScriptEdCore::onBtnSaveToFile( void* userdata )
 	if( self->mSaveCallback )
 	{
 		LLFilePicker& file_picker = LLFilePicker::instance();
-		if( file_picker.getSaveFile( LLFilePicker::FFSAVE_SCRIPT ) )
+		if( file_picker.getSaveFile( LLFilePicker::FFSAVE_SCRIPT, self->mScriptName ) )
 		{
 			std::string filename = file_picker.getFirstFile();
 			std::string scriptText=self->mEditor->getText();
@@ -1978,6 +1978,7 @@ void LLLiveLSLEditor::loadScriptText(LLVFS *vfs, const LLUUID &uuid, LLAssetType
 
 	mScriptEd->setScriptText(LLStringExplicit(&buffer[0]), TRUE);
 	mScriptEd->mEditor->makePristine();
+	mScriptEd->setScriptName(getItem()->getName());
 }
 
 
