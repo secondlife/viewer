@@ -4411,9 +4411,11 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 		sUnderWaterRender = FALSE;
 	}
 
-	gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sDefaultImagep);
-	LLViewerFetchedTexture::sDefaultImagep->setAddressMode(LLTexUnit::TAM_WRAP);
-	
+	if (LLViewerFetchedTexture::sDefaultImagep)
+	{
+		gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sDefaultImagep);
+		LLViewerFetchedTexture::sDefaultImagep->setAddressMode(LLTexUnit::TAM_WRAP);
+	}
 
 	//////////////////////////////////////////////
 	//

@@ -570,9 +570,14 @@ void LLAudioDecodeMgr::Impl::processQueue(const F32 num_secs)
 				// We had an error when decoding, abort.
 				LL_WARNS("AudioEngine") << mCurrentDecodep->getUUID() << " has invalid vorbis data, aborting decode" << LL_ENDL;
 				mCurrentDecodep->flushBadFile();
-				LLAudioData *adp = gAudiop->getAudioData(mCurrentDecodep->getUUID());
-				adp->setHasValidData(false);
-				adp->setHasCompletedDecode(true);
+
+				if (gAudiop)
+				{
+					LLAudioData *adp = gAudiop->getAudioData(mCurrentDecodep->getUUID());
+					adp->setHasValidData(false);
+					adp->setHasCompletedDecode(true);
+				}
+
 				mCurrentDecodep = NULL;
 				done = TRUE;
 			}
@@ -584,7 +589,7 @@ void LLAudioDecodeMgr::Impl::processQueue(const F32 num_secs)
 			}
 			else if (mCurrentDecodep)
 			{
-				if (mCurrentDecodep->finishDecode())
+				if (gAudiop && mCurrentDecodep->finishDecode())
 				{
 					// We finished!
 					LLAudioData *adp = gAudiop->getAudioData(mCurrentDecodep->getUUID());
@@ -625,7 +630,7 @@ void LLAudioDecodeMgr::Impl::processQueue(const F32 num_secs)
 			{
 				LLUUID uuid;
 				mDecodeQueue.pop(uuid);
-				if (gAudiop->hasDecodedFile(uuid))
+				if (!gAudiop || gAudiop->hasDecodedFile(uuid))
 				{
 					// This file has already been decoded, don't decode it again.
 					continue;
@@ -671,7 +676,7 @@ void LLAudioDecodeMgr::processQueue(const F32 num_secs)
 
 BOOL LLAudioDecodeMgr::addDecodeRequest(const LLUUID &uuid)
 {
-	if (gAudiop->hasDecodedFile(uuid))
+	if (gAudiop && gAudiop->hasDecodedFile(uuid))
 	{
 		// Already have a decoded version, don't need to decode it.
 		LL_DEBUGS("AudioEngine") << "addDecodeRequest for " << uuid << " has decoded file already" << LL_ENDL;

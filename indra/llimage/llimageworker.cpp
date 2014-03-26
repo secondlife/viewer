@@ -142,8 +142,12 @@ bool LLImageDecodeThread::ImageRequest::processRequest()
 											  mFormattedImage->getHeight(),
 											  mFormattedImage->getComponents());
 		}
-		done = mFormattedImage->decode(mDecodedImageRaw, decode_time_slice); // 1ms
-		mDecodedRaw = done;
+
+		//if (mDecodedImageRaw->getData()))
+		{
+			done = mFormattedImage->decode(mDecodedImageRaw, decode_time_slice); // 1ms
+			mDecodedRaw = done;
+		}
 	}
 	if (done && mNeedsAux && !mDecodedAux && mFormattedImage.notNull())
 	{
@@ -154,8 +158,12 @@ bool LLImageDecodeThread::ImageRequest::processRequest()
 											  mFormattedImage->getHeight(),
 											  1);
 		}
-		done = mFormattedImage->decodeChannels(mDecodedImageAux, decode_time_slice, 4, 4); // 1ms
-		mDecodedAux = done;
+
+		//if (mDecodedImageAux->getData())
+		{
+			done = mFormattedImage->decodeChannels(mDecodedImageAux, decode_time_slice, 4, 4); // 1ms
+			mDecodedAux = done;
+		}
 	}
 
 	return done;

@@ -624,25 +624,22 @@ bool idle_startup()
 
 		if (FALSE == gSavedSettings.getBOOL("NoAudio"))
 		{
+			delete gAudiop;
 			gAudiop = NULL;
 
 #ifdef LL_FMODEX		
-			if (!gAudiop
 #if !LL_WINDOWS
-			    && NULL == getenv("LL_BAD_FMODEX_DRIVER")
+			if (NULL == getenv("LL_BAD_FMODEX_DRIVER"))
 #endif // !LL_WINDOWS
-			    )
 			{
 				gAudiop = (LLAudioEngine *) new LLAudioEngine_FMODEX(gSavedSettings.getBOOL("FMODExProfilerEnable"));
 			}
 #endif
 
 #ifdef LL_OPENAL
-			if (!gAudiop
 #if !LL_WINDOWS
-			    && NULL == getenv("LL_BAD_OPENAL_DRIVER")
+			if (NULL == getenv("LL_BAD_OPENAL_DRIVER"))
 #endif // !LL_WINDOWS
-			    )
 			{
 				gAudiop = (LLAudioEngine *) new LLAudioEngine_OpenAL();
 			}
@@ -2687,7 +2684,7 @@ void init_start_screen(S32 location_id)
 		}
 	}
 
-	if(gStartTexture.isNull())
+	if(gStartTexture && gStartTexture.isNull())
 	{
 		gStartTexture = LLViewerTexture::sBlackImagep ;
 		gStartImageWidth = gStartTexture->getWidth() ;

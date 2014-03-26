@@ -818,7 +818,8 @@ void LLVOAvatarSelf::setLocalTextureTE(U8 te, LLViewerTexture* image, U32 index)
 		return;
 	}
 
-	if (getTEImage(te)->getID() == image->getID())
+	LLViewerTexture * tx = getTEImage(te);
+	if (!tx || tx->getID() == image->getID())
 	{
 		return;
 	}
@@ -1698,6 +1699,7 @@ S32 LLVOAvatarSelf::getLocalDiscardLevel(ETextureIndex type, U32 wearable_index)
 		const LLViewerFetchedTexture* image = dynamic_cast<LLViewerFetchedTexture*>( local_tex_obj->getImage() );
 		if (type >= 0
 			&& local_tex_obj->getID() != IMG_DEFAULT_AVATAR
+			&& image
 			&& !image->isMissingAsset())
 		{
 			return image->getDiscardLevel();
@@ -2036,7 +2038,10 @@ BOOL LLVOAvatarSelf::getIsCloud() const
 /*static*/
 void LLVOAvatarSelf::debugOnTimingLocalTexLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
 {
-	gAgentAvatarp->debugTimingLocalTexLoaded(success, src_vi, src, aux_src, discard_level, final, userdata);
+	if (gAgentAvatarp)
+	{
+		gAgentAvatarp->debugTimingLocalTexLoaded(success, src_vi, src, aux_src, discard_level, final, userdata);
+	}
 }
 
 void LLVOAvatarSelf::debugTimingLocalTexLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)

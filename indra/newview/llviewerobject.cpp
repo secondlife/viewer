@@ -4950,6 +4950,7 @@ void LLViewerObject::setAttachedSound(const LLUUID &audio_uuid, const LLUUID& ow
 {
 	if (!gAudiop)
 	{
+		LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
 		return;
 	}
 	
@@ -5032,7 +5033,10 @@ LLAudioSource *LLViewerObject::getAudioSource(const LLUUID& owner_id)
 		LLAudioSourceVO *asvop = new LLAudioSourceVO(mID, owner_id, 0.01f, this);
 
 		mAudioSourcep = asvop;
-		if(gAudiop) gAudiop->addAudioSource(asvop);
+		if(gAudiop)
+		{
+			gAudiop->addAudioSource(asvop);
+		}
 	}
 
 	return mAudioSourcep;
@@ -5040,10 +5044,6 @@ LLAudioSource *LLViewerObject::getAudioSource(const LLUUID& owner_id)
 
 void LLViewerObject::adjustAudioGain(const F32 gain)
 {
-	if (!gAudiop)
-	{
-		return;
-	}
 	if (mAudioSourcep)
 	{
 		mAudioGain = gain;

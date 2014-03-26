@@ -4657,7 +4657,11 @@ void process_time_synch(LLMessageSystem *mesgsys, void **user_data)
 
 void process_sound_trigger(LLMessageSystem *msg, void **)
 {
-	if (!gAudiop) return;
+	if (!gAudiop)
+	{
+		LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
+		return;
+	}
 
 	U64		region_handle = 0;
 	F32		gain = 0;
@@ -4717,6 +4721,7 @@ void process_preload_sound(LLMessageSystem *msg, void **user_data)
 {
 	if (!gAudiop)
 	{
+		LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
 		return;
 	}
 
@@ -4747,9 +4752,9 @@ void process_preload_sound(LLMessageSystem *msg, void **user_data)
 	LLVector3d pos_global = objectp->getPositionGlobal();
 	if (gAgent.canAccessMaturityAtGlobal(pos_global))
 	{
-	// Add audioData starts a transfer internally.
-	sourcep->addAudioData(datap, FALSE);
-}
+		// Add audioData starts a transfer internally.
+		sourcep->addAudioData(datap, FALSE);
+	}
 }
 
 void process_attached_sound(LLMessageSystem *msg, void **user_data)
