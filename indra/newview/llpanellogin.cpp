@@ -229,7 +229,8 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	LLLineEditor* location_edit = sInstance->getChild<LLLineEditor>("location_edit");
 	location_edit->setKeystrokeCallback(boost::bind(&LLPanelLogin::onLocationEditChanged, this, _1), NULL);
-
+	location_edit->setCommitCallback(boost::bind(&LLPanelLogin::onClickConnectLocation, this));
+	
 	// Load all of the grids, sorted, and then add a bar and the current grid at the top
 	server_choice_combo->removeall();
 
