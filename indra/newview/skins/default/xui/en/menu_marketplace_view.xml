@@ -22,13 +22,13 @@
         function="Marketplace.ViewSort.CheckItem"
         parameter="show_all" />
     </menu_item_check>
-    <menu_item_check name="show_associated_listings" label="Show Associated Listings Only">
+    <menu_item_check name="show_unassociated" label="Show Unassociated Listings Only">
         <menu_item_check.on_click
         function="Marketplace.ViewSort.Action"
-        parameter="show_associated_listings" />
+        parameter="show_unassociated" />
         <menu_item_check.on_check
         function="Marketplace.ViewSort.CheckItem"
-        parameter="show_associated_listings" />
+        parameter="show_unassociated" />
     </menu_item_check>
     <menu_item_check name="show_active" label="Show Active Listings and Folders Only">
         <menu_item_check.on_click
@@ -38,12 +38,12 @@
         function="Marketplace.ViewSort.CheckItem"
         parameter="show_active" />
     </menu_item_check>
-    <menu_item_check name="show_inactive_listings" label="Show Inactive Listings Only">
+    <menu_item_check name="show_inactive" label="Show Inactive Listings Only">
         <menu_item_check.on_click
         function="Marketplace.ViewSort.Action"
-        parameter="show_inactive_listings" />
+        parameter="show_inactive" />
         <menu_item_check.on_check
         function="Marketplace.ViewSort.CheckItem"
-        parameter="show_inactive_listings" />
+        parameter="show_inactive" />
     </menu_item_check>
 </toggleable_menu>

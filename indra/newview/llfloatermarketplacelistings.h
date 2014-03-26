@@ -29,18 +29,41 @@
 
 #include "llfloater.h"
 #include "llfoldertype.h"
+#include "llfolderview.h"
 #include "llinventoryfilter.h"
+#include "llinventorypanel.h"
 #include "llnotificationptr.h"
 
 class LLButton;
 class LLInventoryCategoriesObserver;
 class LLInventoryCategoryAddedObserver;
-class LLInventoryPanel;
 class LLLoadingIndicator;
 class LLNotification;
 class LLTextBox;
 class LLView;
 class LLWindowShade;
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLPanelMarketplaceListings
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+class LLPanelMarketplaceListings : public LLPanel
+{
+public:
+    LLPanelMarketplaceListings();
+	BOOL postBuild();
+	void draw();
+	LLFolderView* getRootFolder() { return mAllPanel->getRootFolder(); }    // *TODO : Suppress and get DnD in here instead...
+    
+private:
+    // UI callbacks
+	void onViewSortMenuItemClicked(const LLSD& userdata);
+	bool onViewSortMenuItemCheck(const LLSD& userdata);
+    
+    LLInventoryPanel* mAllPanel;
+    LLInventoryFilter::ESortOrderType mSortOrder;
+    LLInventoryFilter::EFilterType mFilterType;
+};
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLFloaterMarketplaceListings
@@ -69,7 +92,6 @@ public:
     
 protected:
 	void setup();
-    void clean();
 	void fetchContents();
     
 	void importReportResults(U32 status, const LLSD& content);
@@ -88,9 +110,6 @@ protected:
     
 private:
     S32 getFolderCount();
-    // UI callbacks
-	void onViewSortMenuItemClicked(const LLSD& userdata);
-	bool onViewSortMenuItemCheck(const LLSD& userdata);
 
 	LLInventoryCategoriesObserver *		mCategoriesObserver;
 	LLInventoryCategoryAddedObserver *	mCategoryAddedObserver;
@@ -102,9 +121,7 @@ private:
 	LLTextBox *		mInventoryTitle;
 
 	LLUUID				mRootFolderId;
-	LLHandle<LLInventoryPanel> mInventoryPanel;
-    LLInventoryFilter::ESortOrderType mSortOrder;
-    LLInventoryFilter::EFilterType mFilterType;
+	LLPanelMarketplaceListings * mPanelListings;
 };
 
 #endif // LL_LLFLOATERMARKETPLACELISTINGS_H

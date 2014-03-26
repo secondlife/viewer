@@ -64,7 +64,13 @@
           wrap="true"
           halign="left" />
       </panel>
-    </panel>
+      <panel
+        name="panel_marketplace_listing"
+        filename="panel_marketplace_listings.xml"
+        class="llpanelmarketplacelistings"
+        top="0"
+        follows="all"/>
+      </panel>
     <panel
       follows="bottom|left|right"
       layout="topleft"
