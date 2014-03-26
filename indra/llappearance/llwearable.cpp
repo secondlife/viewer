@@ -420,6 +420,12 @@ LLWearable::EImportResult LLWearable::importStream( std::istream& input_stream, 
 				return LLWearable::FAILURE;
 		}
 		LLUUID id = LLUUID(uuid_buffer);
+
+		if (!gTextureManagerBridgep)
+		{
+			continue;
+		}
+
 		LLGLTexture* image = gTextureManagerBridgep->getFetchedTexture( id );
 		if( mTEMap.find(te) != mTEMap.end() )
 		{
@@ -592,7 +598,10 @@ void LLWearable::syncImages(te_map_t &src, te_map_t &dst)
 			{
 				// there is no Local Texture Object in the source image map. Get defaults values for populating the destination image map.
 				image_id = getDefaultTextureImageID((ETextureIndex) te);
-				image = gTextureManagerBridgep->getFetchedTexture( image_id );
+				if (gTextureManagerBridgep)
+				{
+					image = gTextureManagerBridgep->getFetchedTexture( image_id );
+				}
 			}
 
 			if( dst.find(te) != dst.end() )

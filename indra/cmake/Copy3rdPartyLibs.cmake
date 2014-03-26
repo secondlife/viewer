@@ -64,6 +64,7 @@ if(WINDOWS)
     endif(USE_TCMALLOC)
 
     if (FMODEX)
+      set(debug_files ${debug_files} fmodexL.dll)
       set(release_files ${release_files} fmodex.dll)
     endif (FMODEX)
 
@@ -294,7 +295,8 @@ elseif(LINUX)
     endif (USE_TCMALLOC)
 
     if (FMODEX)
-      set(release_file ${release_files} "libfmodex.so")
+      set(debug_files ${debug_files} "libfmodexL.so")
+      set(release_files ${release_files} "libfmodex.so")
     endif (FMODEX)
 
 else(WINDOWS)

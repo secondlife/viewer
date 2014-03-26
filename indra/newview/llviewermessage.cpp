@@ -2409,10 +2409,6 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 					&& from_id.notNull() //not a system message
 					&& to_id.notNull()) //not global message
 		{
-			// return a standard "do not disturb" message, but only do it to online IM
-			// (i.e. not other auto responses and not store-and-forward IM)
-
-			send_do_not_disturb_message(msg, from_id, session_id);
 
 			// now store incoming IM in chat history
 
@@ -2433,6 +2429,15 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				region_id,
 				position,
 				true);
+
+			if (!gIMMgr->isDNDMessageSend(session_id))
+			{
+				// return a standard "do not disturb" message, but only do it to online IM
+				// (i.e. not other auto responses and not store-and-forward IM)
+				send_do_not_disturb_message(msg, from_id, session_id);
+				gIMMgr->setDNDMessageSent(session_id, true);
+			}
+
 		}
 		else if (from_id.isNull())
 		{
@@ -4652,7 +4657,11 @@ void process_time_synch(LLMessageSystem *mesgsys, void **user_data)
 
 void process_sound_trigger(LLMessageSystem *msg, void **)
 {
-	if (!gAudiop) return;
+	if (!gAudiop)
+	{
+		LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
+		return;
+	}
 
 	U64		region_handle = 0;
 	F32		gain = 0;
@@ -4712,6 +4721,7 @@ void process_preload_sound(LLMessageSystem *msg, void **user_data)
 {
 	if (!gAudiop)
 	{
+		LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
 		return;
 	}
 
@@ -4742,9 +4752,9 @@ void process_preload_sound(LLMessageSystem *msg, void **user_data)
 	LLVector3d pos_global = objectp->getPositionGlobal();
 	if (gAgent.canAccessMaturityAtGlobal(pos_global))
 	{
-	// Add audioData starts a transfer internally.
-	sourcep->addAudioData(datap, FALSE);
-}
+		// Add audioData starts a transfer internally.
+		sourcep->addAudioData(datap, FALSE);
+	}
 }
 
 void process_attached_sound(LLMessageSystem *msg, void **user_data)

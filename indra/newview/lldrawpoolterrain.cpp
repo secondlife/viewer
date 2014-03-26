@@ -88,8 +88,11 @@ LLDrawPoolTerrain::LLDrawPoolTerrain(LLViewerTexture *texturep) :
 	//gGL.getTexUnit(0)->bind(m2DAlphaRampImagep.get());
 	m2DAlphaRampImagep->setAddressMode(LLTexUnit::TAM_CLAMP);
 	
-	mTexturep->setBoostLevel(LLGLTexture::BOOST_TERRAIN);
-	
+	if (mTexturep)
+	{
+		mTexturep->setBoostLevel(LLGLTexture::BOOST_TERRAIN);
+	}
+
 	//gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 }
 
@@ -851,11 +854,18 @@ void LLDrawPoolTerrain::renderSimple()
 	// Pass 1/1
 
 	// Stage 0: Base terrain texture pass
-	mTexturep->addTextureStats(1024.f*1024.f);
+	if (mTexturep)
+	{
+		mTexturep->addTextureStats(1024.f*1024.f);
+	}
 
 	gGL.getTexUnit(0)->activate();
 	gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(0)->bind(mTexturep);
+
+	if (mTexturep)
+	{
+		gGL.getTexUnit(0)->bind(mTexturep);
+	}
 	
 	LLVector3 origin_agent = mDrawFace[0]->getDrawable()->getVObj()->getRegion()->getOriginAgent();
 	F32 tscale = 1.f/256.f;

@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2010&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2010-2014, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -30,8 +30,8 @@
 
 using std::wstring;
 
-static float sVolumeLevel = 1.f;
-static bool sMute = false;
+static float sVolumeLevel = 1.f;		// Could be covered by critical section,
+static bool sMute = false;				// not needed with atomicity and alignment.
 static CRITICAL_SECTION sCriticalSection;
 
 BOOL APIENTRY DllMain( HMODULE hModule,
@@ -39,37 +39,44 @@ BOOL APIENTRY DllMain( HMODULE hModule,
                        LPVOID lpReserved
 					 )
 {
-	InitializeCriticalSection(&sCriticalSection);
+	if (DLL_PROCESS_ATTACH == ul_reason_for_call)
+	{
+		InitializeCriticalSection(&sCriticalSection);
+	}
 	return TRUE;
 }
 
 void ll_winmm_shim_initialize(){
-	static bool initialized = false;
-	// do this only once
-	EnterCriticalSection(&sCriticalSection);
+	static volatile bool initialized = false;
+
+	// do this only once using double-check locking
 	if (!initialized)
-	{	// bind to original winmm.dll
-		TCHAR system_path[MAX_PATH];
-		TCHAR dll_path[MAX_PATH];
-		::GetSystemDirectory(system_path, MAX_PATH);
+	{
+		EnterCriticalSection(&sCriticalSection);
+		if (!initialized)
+		{	// bind to original winmm.dll
+			TCHAR system_path[MAX_PATH];
+			TCHAR dll_path[MAX_PATH];
+			::GetSystemDirectory(system_path, MAX_PATH);
 
-		// grab winmm.dll from system path, where it should live
-		wsprintf(dll_path, "%s\\winmm.dll", system_path);
-		HMODULE winmm_handle = ::LoadLibrary(dll_path);
+			// grab winmm.dll from system path, where it should live
+			wsprintf(dll_path, "%s\\winmm.dll", system_path);
+			HMODULE winmm_handle = ::LoadLibrary(dll_path);
 
-		if (winmm_handle != NULL)
-		{	// we have a dll, let's get out pointers!
-			initialized = true;
-			init_function_pointers(winmm_handle);
-			::OutputDebugStringA("WINMM_SHIM.DLL: real winmm.dll initialized successfully\n");
+			if (winmm_handle != NULL)
+			{	// we have a dll, let's get out pointers!
+				init_function_pointers(winmm_handle);
+				::OutputDebugStringA("WINMM_SHIM.DLL: real winmm.dll initialized successfully\n");
+				initialized = true;		// Last thing after completing setup
+			}
+			else
+			{
+				// failed to initialize real winmm.dll
+				::OutputDebugStringA("WINMM_SHIM.DLL: Failed to initialize real winmm.dll\n");
+			}
 		}
-		else
-		{
-			// failed to initialize real winmm.dll
-			::OutputDebugStringA("WINMM_SHIM.DLL: Failed to initialize real winmm.dll\n");
-		}
+		LeaveCriticalSection(&sCriticalSection);
 	}
-	LeaveCriticalSection(&sCriticalSection);
 }
 
 
@@ -84,7 +91,7 @@ extern "C"
 		int	mBitsPerSample;
 	};
 	typedef std::map<HWAVEOUT, WaveOutFormat*> wave_out_map_t;
-	static wave_out_map_t sWaveOuts;
+	static wave_out_map_t sWaveOuts;						// Covered by sCriticalSection
 
 	MMRESULT WINAPI waveOutOpen( LPHWAVEOUT phwo, UINT uDeviceID, LPCWAVEFORMATEX pwfx, DWORD_PTR dwCallback, DWORD_PTR dwInstance, DWORD fdwOpen)
 	{
@@ -100,7 +107,9 @@ extern "C"
 			&& ((fdwOpen & WAVE_FORMAT_QUERY) == 0)) // not just querying for format support
 		{	// remember the requested bits per sample, and associate with the given handle
 			WaveOutFormat* wave_outp = new WaveOutFormat(pwfx->wBitsPerSample);
+			EnterCriticalSection(&sCriticalSection);
 			sWaveOuts.insert(std::make_pair(*phwo, wave_outp));
+			LeaveCriticalSection(&sCriticalSection);
 		}
 		return result;
 	}
@@ -108,13 +117,15 @@ extern "C"
 	MMRESULT WINAPI waveOutClose( HWAVEOUT hwo)
 	{
 		ll_winmm_shim_initialize();
+		EnterCriticalSection(&sCriticalSection);
 		wave_out_map_t::iterator found_it = sWaveOuts.find(hwo);
 		if (found_it != sWaveOuts.end())
 		{	// forget what we know about this handle
 			delete found_it->second;
 			sWaveOuts.erase(found_it);
 		}
-		return waveOutClose_orig( hwo);
+		LeaveCriticalSection(&sCriticalSection);
+		return waveOutClose_orig(hwo);
 	}
 
 	MMRESULT WINAPI waveOutWrite( HWAVEOUT hwo, LPWAVEHDR pwh, UINT cbwh)
@@ -128,11 +139,19 @@ extern "C"
 		}
 		else if (sVolumeLevel != 1.f) 
 		{ // need to apply volume level
+			int bits_per_sample(0);
+			
+			EnterCriticalSection(&sCriticalSection);
 			wave_out_map_t::iterator found_it = sWaveOuts.find(hwo);
 			if (found_it != sWaveOuts.end())
 			{
-				WaveOutFormat* formatp = found_it->second;
-				switch (formatp->mBitsPerSample){
+				bits_per_sample = found_it->second->mBitsPerSample;
+			}
+			LeaveCriticalSection(&sCriticalSection);
+			if (bits_per_sample)
+			{
+				switch (bits_per_sample)
+				{
 				case 8:
 					{
 						char volume = (char)(sVolumeLevel * 127.f);

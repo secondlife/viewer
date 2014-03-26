@@ -55,7 +55,9 @@ BOOL	LLPreviewSound::postBuild()
 	{
 		getChild<LLUICtrl>("desc")->setValue(item->getDescription());
 		if (gAudiop)
+		{
 			gAudiop->preloadSound(item->getAssetUUID()); // preload the sound
+		}
 	}
 	
 	childSetAction("Sound play btn",&LLPreviewSound::playSound,this);
