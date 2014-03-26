@@ -766,7 +766,7 @@ bool LLAppViewer::init()
 	// this allows simple skinned file lookups to work
 	gDirUtilp->setSkinFolder("default", "en");
 
-	initLoggingAndGetLastDuration();
+//	initLoggingAndGetLastDuration();
 	
 	//
 	// OK to write stuff to logs now, we've now crash reported if necessary
