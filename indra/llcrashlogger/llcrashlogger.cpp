@@ -218,9 +218,15 @@ void LLCrashLogger::gatherFiles()
 	{
 		// Figure out the filename of the second life log
 		LLCurl::setCAFile(gDirUtilp->getCAFile());
+        
 		mFileMap["SecondLifeLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"SecondLife.log");
-		mFileMap["SettingsXml"] = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,"settings.xml");
+        mFileMap["SettingsXml"] = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,"settings.xml");
 	}
+
+    if (!gDirUtilp->fileExists(mFileMap["SecondLifeLog"]) ) //We would prefer to get this from the per-run but here's our fallback.
+    {
+        mFileMap["SecondLifeLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.old");
+    }
 
 	gatherPlatformSpecificFiles();
 

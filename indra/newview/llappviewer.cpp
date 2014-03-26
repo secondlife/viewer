@@ -724,20 +724,6 @@ LLAppViewer::~LLAppViewer()
 	LLLoginInstance::instance().setUpdaterService(0);
 	
 	destroyMainloopTimeout();
-
-#if !LL_WINDOWS
-    //Last thing, let's copy SL.log into the per-run directory.   We don't care if this operation fails.
-	std::string per_run_dir = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"");
-	std::string per_run_file = per_run_dir + "SecondLife.log";
-    std::string log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.log");
-
-	if (gDirUtilp->fileExists(per_run_dir))  
-	{
-		LL_INFOS ("CrashReporting") << "Copying " << log_file << " to " << per_run_file << llendl;
-	    LLFile::copy(log_file, per_run_file);
-	}
-
-#endif
     
 	// If we got to this destructor somehow, the app didn't hang.
 	removeMarkerFiles();
@@ -3478,7 +3464,12 @@ void LLAppViewer::writeSystemInfo()
     if (! gDebugInfo.has("Dynamic") )
         gDebugInfo["Dynamic"] = LLSD::emptyMap();
     
-	gDebugInfo["SLLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"SecondLife.log"); //LLError::logFileName();
+#if LL_WINDOWS
+	gDebugInfo["SLLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"SecondLife.log");
+#else
+    //Not ideal but sufficient for good reporting.
+    gDebugInfo["SLLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.old");  //LLError::logFileName();
+#endif
 
 	gDebugInfo["ClientInfo"]["Name"] = LLVersionInfo::getChannel();
 	gDebugInfo["ClientInfo"]["MajorVersion"] = LLVersionInfo::getMajor();
