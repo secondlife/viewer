@@ -727,9 +727,16 @@ LLAppViewer::~LLAppViewer()
 
 #if !LL_WINDOWS
     //Last thing, let's copy SL.log into the per-run directory.   We don't care if this operation fails.
-    std::string per_run_log = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"SecondLife.log");
-    std::string current_log = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.log");
-    LLFile::copy(per_run_log, current_log);
+	std::string per_run_dir = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"");
+	std::string per_run_file = per_run_dir + "SecondLife.log";
+    std::string log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.log");
+
+	if (gDirUtilp->fileExists(per_run_dir))  
+	{
+		LL_INFOS ("CrashReporting") << "Copying " << log_file << " to " << per_run_file << llendl;
+	    LLFile::copy(log_file, per_run_file);
+	}
+
 #endif
     
 	// If we got to this destructor somehow, the app didn't hang.
@@ -3471,7 +3478,7 @@ void LLAppViewer::writeSystemInfo()
     if (! gDebugInfo.has("Dynamic") )
         gDebugInfo["Dynamic"] = LLSD::emptyMap();
     
-	gDebugInfo["SLLog"] = LLError::logFileName();
+	gDebugInfo["SLLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"SecondLife.log"); //LLError::logFileName();
 
 	gDebugInfo["ClientInfo"]["Name"] = LLVersionInfo::getChannel();
 	gDebugInfo["ClientInfo"]["MajorVersion"] = LLVersionInfo::getMajor();
