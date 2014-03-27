@@ -236,7 +236,6 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mOnMap(FALSE),
 	mStatic(FALSE),
 	mNumFaces(0),
-	mTimeDilation(1.f),
 	mRotTime(0.f),
 	mAngularVelocityRot(),
 	mPreviousRotation(),
@@ -943,7 +942,6 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 	U16 time_dilation16;
 	mesgsys->getU16Fast(_PREHASH_RegionData, _PREHASH_TimeDilation, time_dilation16);
 	F32 time_dilation = ((F32) time_dilation16) / 65535.f;
-	mTimeDilation = time_dilation;
 	mRegionp->setTimeDilation(time_dilation);
 
 	// this will be used to determine if we've really changed position
@@ -1986,7 +1984,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		LLCircuitData *cdp = gMessageSystem->mCircuitInfo.findCircuit(mesgsys->getSender());
 		if (cdp)
 		{
-			F32 ping_delay = 0.5f * mTimeDilation * ( ((F32)cdp->getPingDelay()) * 0.001f + gFrameDTClamped);
+			F32 ping_delay = 0.5f * time_dilation * ( ((F32)cdp->getPingDelay()) * 0.001f + gFrameDTClamped);
 			LLVector3 diff = getVelocity() * ping_delay; 
 			new_pos_parent += diff;
 		}
@@ -2185,35 +2183,33 @@ BOOL LLViewerObject::isActive() const
 
 
 
-void LLViewerObject::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
+void LLViewerObject::idleUpdate(LLAgent &agent, const F64 &time)
 {
 	//static LLFastTimer::DeclareTimer ftm("Viewer Object");
 	//LLFastTimer t(ftm);
 
 	if (!mDead)
 	{
-	// CRO - don't velocity interp linked objects!
-	// Leviathan - but DO velocity interp joints
-	if (!mStatic && sVelocityInterpolate && !isSelected())
-	{
-		// calculate dt from last update
-		F32 dt_raw = (F32)(time - mLastInterpUpdateSecs);
-		F32 dt = mTimeDilation * dt_raw;
+		if (!mStatic && sVelocityInterpolate && !isSelected())
+		{
+			// calculate dt from last update
+			F32 time_dilation = mRegionp ? mRegionp->getTimeDilation() : 1.0f;
+			F32 dt = time_dilation * (F32)(time - mLastInterpUpdateSecs);
 
 			applyAngularVelocity(dt);
 
 			if (isAttachment())
-				{
-					mLastInterpUpdateSecs = time;
+			{
+				mLastInterpUpdateSecs = time;
 				return;
+			}
+			else
+			{	// Move object based on it's velocity and rotation
+				interpolateLinearMotion(time, dt);
+			}
 		}
-		else
-		{	// Move object based on it's velocity and rotation
-			interpolateLinearMotion(time, dt);
-		}
-	}
 
-	updateDrawable(FALSE);
+		updateDrawable(FALSE);
 	}
 }
 
@@ -4063,7 +4059,7 @@ void LLViewerObject::setTE(const U8 te, const LLTextureEntry &texture_entry)
 {
 	LLPrimitive::setTE(te, texture_entry);
 
-	const LLUUID& image_id = getTE(te)->getID();
+		const LLUUID& image_id = getTE(te)->getID();
 		mTEImages[te] = LLViewerTextureManager::getFetchedTexture(image_id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
 	
 	if (getTE(te)->getMaterialParams().notNull())

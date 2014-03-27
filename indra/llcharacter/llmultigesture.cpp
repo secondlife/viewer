@@ -59,6 +59,7 @@ LLMultiGesture::LLMultiGesture()
 LLMultiGesture::~LLMultiGesture()
 {
 	std::for_each(mSteps.begin(), mSteps.end(), DeletePointer());
+	mSteps.clear();
 }
 
 void LLMultiGesture::reset()

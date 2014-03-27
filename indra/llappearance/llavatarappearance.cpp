@@ -81,6 +81,7 @@ public:
 	~LLAvatarBoneInfo()
 	{
 		std::for_each(mChildList.begin(), mChildList.end(), DeletePointer());
+		mChildList.clear();
 	}
 	BOOL parseXml(LLXmlTreeNode* node);
 	
@@ -108,6 +109,7 @@ public:
 	~LLAvatarSkeletonInfo()
 	{
 		std::for_each(mBoneInfoList.begin(), mBoneInfoList.end(), DeletePointer());
+		mBoneInfoList.clear();
 	}
 	BOOL parseXml(LLXmlTreeNode* node);
 	S32 getNumBones() const { return mNumBones; }
@@ -132,14 +134,26 @@ LLAvatarAppearance::LLAvatarXmlInfo::LLAvatarXmlInfo()
 LLAvatarAppearance::LLAvatarXmlInfo::~LLAvatarXmlInfo()
 {
 	std::for_each(mMeshInfoList.begin(), mMeshInfoList.end(), DeletePointer());
+	mMeshInfoList.clear();
+
 	std::for_each(mSkeletalDistortionInfoList.begin(), mSkeletalDistortionInfoList.end(), DeletePointer());		
+	mSkeletalDistortionInfoList.clear();
+
 	std::for_each(mAttachmentInfoList.begin(), mAttachmentInfoList.end(), DeletePointer());
+	mAttachmentInfoList.clear();
+
 	deleteAndClear(mTexSkinColorInfo);
 	deleteAndClear(mTexHairColorInfo);
 	deleteAndClear(mTexEyeColorInfo);
+
 	std::for_each(mLayerInfoList.begin(), mLayerInfoList.end(), DeletePointer());		
+	mLayerInfoList.clear();
+
 	std::for_each(mDriverInfoList.begin(), mDriverInfoList.end(), DeletePointer());
+	mDriverInfoList.clear();
+
 	std::for_each(mMorphMaskInfoList.begin(), mMorphMaskInfoList.end(), DeletePointer());
+	mMorphMaskInfoList.clear();
 }
 
 
@@ -290,10 +304,6 @@ LLAvatarAppearance::~LLAvatarAppearance()
 
 	clearSkeleton();
 	deleteAndClearArray(mCollisionVolumes);
-
-	deleteAndClear(mTexSkinColor);
-	deleteAndClear(mTexHairColor);
-	deleteAndClear(mTexEyeColor);
 
 	std::for_each(mPolyMeshes.begin(), mPolyMeshes.end(), DeletePairedPointer());
 	mPolyMeshes.clear();

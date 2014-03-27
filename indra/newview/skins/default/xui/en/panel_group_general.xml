@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  label="General"
- height="604"
+ height="420"
  width="304"
  class="panel_group_general"
  name="general_tab">
@@ -101,31 +101,7 @@ Hover your mouse over the options for more help.
     text_readonly_color="White"
      word_wrap="true">
      Group Charter
-    </text_editor>
-    <name_list
-     column_padding="0"
-     draw_heading="true"
-     follows="left|top|right"
-     heading_height="23"
-     height="160"
-     layout="topleft"
-     left="0"
-     name="visible_members"
-     short_names="false" 
-     top_pad="2">
-        <name_list.columns
-         label="Member"
-         name="name"
-         relative_width="0.4" />
-        <name_list.columns
-         label="Title"
-         name="title"
-         relative_width="0.4" />
-        <name_list.columns
-         label="Status"
-         name="status"
-         relative_width="0.2" />
-      </name_list>
+    </text_editor>   
          <text
          follows="left|top|right"
          type="string"

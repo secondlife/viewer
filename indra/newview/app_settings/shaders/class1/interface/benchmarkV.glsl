@@ -1,10 +1,9 @@
 /** 
- * @file llvoground.h
- * @brief LLVOGround class header file
+ * @file benchmarkV.glsl
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2011, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,32 +23,16 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVOGROUND_H
-#define LL_LLVOGROUND_H
+uniform mat4 modelview_projection_matrix;
 
-#include "stdtypes.h"
-#include "v3color.h"
-#include "v4coloru.h"
-#include "llviewertexture.h"
-#include "llviewerobject.h"
+ATTRIBUTE vec3 position;
 
-class LLVOGround : public LLStaticViewerObject
+VARYING vec2 tc0;
+
+void main()
 {
-protected:
-	~LLVOGround();
-
-public:
-	LLVOGround(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
-
-	/*virtual*/ void idleUpdate(LLAgent &agent, const F64 &time);
+	gl_Position = vec4(position, 1.0); 
 	
-	// Graphical stuff for objects - maybe broken out into render class
-	// later?
-	/*virtual*/ void updateTextures();
-	/*virtual*/ LLDrawable* createDrawable(LLPipeline *pipeline);
-	/*virtual*/ BOOL		updateGeometry(LLDrawable *drawable);
+	tc0 = (position.xy*0.5+0.5);
+}
 
-	void cleanupGL();
-};
-
-#endif // LL_LLVOGROUND_H
