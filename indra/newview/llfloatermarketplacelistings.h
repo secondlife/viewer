@@ -1,6 +1,7 @@
 /** 
  * @file llfloatermarketplacelistings.h
  * @brief Implementation of the marketplace listings floater and panels
+ * @author merov@lindenlab.com
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -28,20 +29,14 @@
 #define LL_LLFLOATERMARKETPLACELISTINGS_H
 
 #include "llfloater.h"
-#include "llfoldertype.h"
-#include "llfolderview.h"
 #include "llinventoryfilter.h"
 #include "llinventorypanel.h"
 #include "llnotificationptr.h"
 
-class LLButton;
 class LLInventoryCategoriesObserver;
 class LLInventoryCategoryAddedObserver;
-class LLLoadingIndicator;
-class LLNotification;
 class LLTextBox;
 class LLView;
-class LLWindowShade;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLPanelMarketplaceListings

@@ -1,8 +1,7 @@
 /** 
  * @file llfloatermarketplacelistings.cpp
  * @brief Implementation of the marketplace listings floater and panels
- *
- * *TODO : Eventually, take out all the merchant outbox stuff and rename that file to llfloatermarketplacelistings
+ * @author merov@lindenlab.com
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -40,10 +39,7 @@
 #include "llnotificationmanager.h"
 #include "llnotificationsutil.h"
 #include "lltextbox.h"
-#include "lltransientfloatermgr.h"
 #include "lltrans.h"
-#include "llviewernetwork.h"
-#include "llwindowshade.h"
 
 ///----------------------------------------------------------------------------
 /// LLPanelMarketplaceListings
@@ -243,7 +239,7 @@ void LLFloaterMarketplaceListings::onClose(bool app_quitting)
 void LLFloaterMarketplaceListings::onOpen(const LLSD& key)
 {
 	//
-	// Initialize the Market Place or go update the outbox
+	// Initialize the Market Place or go update the marketplace listings
 	//
 	if (LLMarketplaceInventoryImporter::getInstance()->getMarketPlaceStatus() == MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED)
 	{
@@ -310,8 +306,8 @@ void LLFloaterMarketplaceListings::setup()
 	}
     
 	// We are a merchant. Get the Marketplace listings folder, create it if needs be.
-	LLUUID outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, true);
-	if (outbox_id.isNull())
+	LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, true);
+	if (marketplacelistings_id.isNull())
 	{
 		// We should never get there unless the inventory fails badly
 		llinfos << "Merov : Inventory problem: failure to create the marketplace listings folder for a merchant!" << llendl;
@@ -321,15 +317,15 @@ void LLFloaterMarketplaceListings::setup()
     
     // Consolidate Marketplace listings
     // We shouldn't have to do that but with a client/server system relying on a "well known folder" convention, things get messy and conventions get broken down eventually
-    gInventory.consolidateForType(outbox_id, LLFolderType::FT_MARKETPLACE_LISTINGS);
+    gInventory.consolidateForType(marketplacelistings_id, LLFolderType::FT_MARKETPLACE_LISTINGS);
     
-    if (outbox_id == mRootFolderId)
+    if (marketplacelistings_id == mRootFolderId)
     {
         llinfos << "Merov : Inventory warning: Marketplace listings folder already set" << llendl;
         llwarns << "Inventory warning: Marketplace listings folder already set" << llendl;
         return;
     }
-    mRootFolderId = outbox_id;
+    mRootFolderId = marketplacelistings_id;
     
 	// No longer need to observe new category creation
 	if (mCategoryAddedObserver && gInventory.containsObserver(mCategoryAddedObserver))
@@ -350,15 +346,6 @@ void LLFloaterMarketplaceListings::setup()
     gInventory.addObserver(mCategoriesObserver);
     mCategoriesObserver->addCategory(mRootFolderId, boost::bind(&LLFloaterMarketplaceListings::onChanged, this));
 	llassert(mCategoriesObserver);
-	
-	// Set up the marketplace listings panel view
-    //LLPanel* inventory_panel = LLUICtrlFactory::createFromFile<LLPanel>("panel_marketplace_listings.xml", mInventoryPlaceholder->getParent(), LLInventoryPanel::child_registry_t::instance());
-    //LLPanelMarketplaceListings* panel = LLUICtrlFactory::createFromFile<LLPanelMarketplaceListings>("panel_marketplace_listings.xml", mInventoryPlaceholder->getParent(), LLPanel::child_registry_t::instance());
-    //mPanelListings = panel;
-	
-	// Reshape the inventory to the proper size
-	//LLRect inventory_placeholder_rect = mInventoryPlaceholder->getRect();
-	//panel->setShape(inventory_placeholder_rect);
 	
 	// Get the content of the marketplace listings folder
 	fetchContents();
@@ -425,7 +412,7 @@ void LLFloaterMarketplaceListings::updateView()
         // *TODO : check those messages and create better appropriate ones in strings.xml
         if (mRootFolderId.notNull())
         {
-            // Does the outbox needs recreation?
+            // Does the marketplace listings folder needs recreation?
             if (!mPanelListings || !gInventory.getCategory(mRootFolderId))
             {
                 setup();
@@ -484,30 +471,11 @@ BOOL LLFloaterMarketplaceListings::handleDragAndDrop(S32 x, S32 y, MASK mask, BO
 	LLView * handled_view = childrenHandleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
 	BOOL handled = (handled_view != NULL);
     
-	// Determine if the mouse is inside the inventory panel itself or just within the floater
-	bool pointInInventoryPanel = false;
-	bool pointInInventoryPanelChild = false;
-	LLFolderView* root_folder = mPanelListings->getRootFolder();
-	if (mPanelListings->getVisible())
-	{
-		S32 inv_x, inv_y;
-		localPointToOtherView(x, y, &inv_x, &inv_y, mPanelListings);
-        
-		pointInInventoryPanel = mPanelListings->getRect().pointInRect(inv_x, inv_y);
-        
-		LLView * inventory_panel_child_at_point = mPanelListings->childFromPoint(inv_x, inv_y, true);
-		pointInInventoryPanelChild = (inventory_panel_child_at_point != root_folder);
-	}
-	
-	// Pass all drag and drop for this floater to the outbox inventory control
+	// Pass all drag and drop for this floater to the marketplace listings inventory control
 	if (!handled || !isAccepted(*accept))
 	{
-		// Handle the drag and drop directly to the root of the outbox if we're not in the inventory panel
-		// (otherwise the inventory panel itself will handle the drag and drop operation, without any override)
-		if (!pointInInventoryPanel)
-		{
-			handled = root_folder->handleDragAndDropToThisFolder(mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
-		}
+        LLFolderView* root_folder = mPanelListings->getRootFolder();
+        handled = root_folder->handleDragAndDropToThisFolder(mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
 	}
 	
 	return handled;
@@ -533,7 +501,7 @@ void LLFloaterMarketplaceListings::onChanged()
     }
     else
     {
-        // Invalidate the outbox data
+        // Invalidate the marketplace listings data
         mRootFolderId.setNull();
     }
 }
