@@ -91,8 +91,6 @@ void LLPanelMarketplaceListings::onViewSortMenuItemClicked(const LLSD& userdata)
 {
 	std::string chosen_item = userdata.asString();
     
-    llinfos << "Merov : MenuItemClicked, item = " << chosen_item << llendl;
-    
     // Sort options
 	if (chosen_item == "sort_by_stock_amount")
 	{
@@ -128,8 +126,6 @@ void LLPanelMarketplaceListings::onViewSortMenuItemClicked(const LLSD& userdata)
 bool LLPanelMarketplaceListings::onViewSortMenuItemCheck(const LLSD& userdata)
 {
 	std::string chosen_item = userdata.asString();
-    
-    llinfos << "Merov : MenuItemCheck, item = " << chosen_item << ", filter type = " << mFilterType << llendl;
     
 	if (chosen_item == "sort_by_stock_amount")
 		return mSortOrder == LLInventoryFilter::SO_FOLDERS_BY_WEIGHT;
@@ -397,10 +393,8 @@ void LLFloaterMarketplaceListings::updateView()
 	}
 	else
 	{
-        if (mPanelListings)
-        {
-            mPanelListings->setVisible(FALSE);
-        }
+        mPanelListings->setVisible(FALSE);
+		mInventoryPlaceholder->setVisible(TRUE);
 		
         std::string text;
         std::string title;
