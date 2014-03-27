@@ -58,6 +58,7 @@ void LLImageBase::sanityCheck() { }
 void LLImageBase::deleteData() { }
 U8* LLImageBase::allocateData(S32 size) { return NULL; }
 U8* LLImageBase::reallocateData(S32 size) { return NULL; }
+U8* LLImageBase::getData() { return NULL; }
 
 LLImageRaw::LLImageRaw(U16 width, U16 height, S8 components) { }
 LLImageRaw::~LLImageRaw() { }
