@@ -686,6 +686,155 @@ void copy_folder_to_outbox(LLInventoryCategory* inv_cat, const LLUUID& dest_fold
 	open_outbox();
 }
 
+void move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_folder)
+{
+    // Collapse links into items/folders
+	LLViewerInventoryItem * viewer_inv_item = (LLViewerInventoryItem *) inv_item;
+	LLViewerInventoryCategory * linked_category = viewer_inv_item->getLinkedCategory();
+    
+	if (linked_category != NULL)
+	{
+        // Move the linked folder directly
+		move_folder_to_marketplacelistings(linked_category, dest_folder);
+	}
+	else
+	{
+        // Grab the linked item if any
+		LLViewerInventoryItem * linked_item = viewer_inv_item->getLinkedItem();
+        viewer_inv_item = (linked_item != NULL ? linked_item : viewer_inv_item);
+    
+        // Check that the agent has copy permission on the item: this is required as a resident cannot
+        // put on sale items she has no right about. Proceed with move if we have permission.
+        // *TODO : Check that this is adequate (copied from the Merchant Outbox permission check so should be OK...)
+        if (viewer_inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()))
+        {
+            // When moving an isolated item directly under the marketplace listings root, we create a new folder with that name
+            if (dest_folder == gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false))
+            {
+                // *TODO : This method is not specific to the outbox folder so make it more generic
+                dest_folder = create_folder_in_outbox_for_item(inv_item, dest_folder, 0);
+            }
+	
+            // Reparent the item
+            gInventory.changeItemParent(viewer_inv_item, dest_folder, false);
+        
+            // Check the item for no copy permission and promote the destination folder if necessary
+            if (!(viewer_inv_item->getPermissions().getMaskEveryone() & PERM_COPY))
+            {
+                llinfos << "Merov : item is no copy -> change the destination folder type!" << llendl;
+                LLViewerInventoryCategory * viewer_cat = (LLViewerInventoryCategory *) (gInventory.getCategory(dest_folder));
+                viewer_cat->changeType(LLFolderType::FT_MARKETPLACE_STOCK);
+            }
+        }
+        else
+        {
+            // *TODO : signal an error to the user (UI for this TBD)
+            llinfos << "Merov : user doesn't have the correct permission to put this item on sale -> move aborted!" << llendl;
+        }
+    }
+}
+
+void move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUUID& dest_folder)
+{
+    // Check that we have adequate permission on all items being moved. Proceed if we do.
+    if (has_correct_permissions_for_sale(inv_cat))
+    {
+    
+        // Reparent the folder
+        LLViewerInventoryCategory * viewer_inv_cat = (LLViewerInventoryCategory *) inv_cat;
+        gInventory.changeCategoryParent(viewer_inv_cat, dest_folder, false);
+
+        // Check the destination folder recursively for no copy items and promote the including folders if any
+        validate_marketplacelistings(inv_cat);
+    }
+}
+
+// Returns true if all items within the argument folder are fit for sale, false otherwise
+bool has_correct_permissions_for_sale(LLInventoryCategory* cat)
+{
+	LLInventoryModel::cat_array_t* cat_array;
+	LLInventoryModel::item_array_t* item_array;
+	gInventory.getDirectDescendentsOf(cat->getUUID(),cat_array,item_array);
+    
+	LLInventoryModel::item_array_t item_array_copy = *item_array;
+
+	for (LLInventoryModel::item_array_t::iterator iter = item_array_copy.begin(); iter != item_array_copy.end(); iter++)
+	{
+		LLInventoryItem* item = *iter;
+        LLViewerInventoryItem * viewer_inv_item = (LLViewerInventoryItem *) item;
+        LLViewerInventoryCategory * linked_category = viewer_inv_item->getLinkedCategory();
+		LLViewerInventoryItem * linked_item = viewer_inv_item->getLinkedItem();
+        // Linked items and folders cannot be put for sale
+        if (linked_category || linked_item)
+        {
+            llinfos << "Merov : linked items in this folder -> not allowed to sell!" << llendl;
+            return false;
+        }
+        // *TODO : Check that this is adequate (copied from the Merchant Outbox permission check so should be OK...)
+        if (!viewer_inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()))
+        {
+            llinfos << "Merov : wrong permissions on items in this folder -> not allowed to sell!" << llendl;
+            return false;
+        }
+	}
+    
+	LLInventoryModel::cat_array_t cat_array_copy = *cat_array;
+    
+	for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
+	{
+		LLInventoryCategory* category = *iter;
+		if (!has_correct_permissions_for_sale(category))
+        {
+            return false;
+        }
+	}
+    return true;
+}
+
+// Make all relevant business logic checks on the marketplace listings starting with the folder as argument
+// This function does no deletion or move but a mere audit and raises issues to the user
+// The only thing that's done is to modify the type of folders containing no-copy items to stock folders
+// *TODO : Signal the errors to the user somewhat (UI still TBD)
+// *TODO : Add the rest of the SLM/AIS business logic (limit of nesting depth, stock folder consistency, overall limit on listings, etc...)
+void validate_marketplacelistings(LLInventoryCategory* cat)
+{
+	LLInventoryModel::cat_array_t* cat_array;
+	LLInventoryModel::item_array_t* item_array;
+	gInventory.getDirectDescendentsOf(cat->getUUID(),cat_array,item_array);
+    
+	LLInventoryModel::item_array_t item_array_copy = *item_array;
+    
+	for (LLInventoryModel::item_array_t::iterator iter = item_array_copy.begin(); iter != item_array_copy.end(); iter++)
+	{
+		LLInventoryItem* item = *iter;
+        LLViewerInventoryItem * viewer_inv_item = (LLViewerInventoryItem *) item;
+        LLViewerInventoryCategory * linked_category = viewer_inv_item->getLinkedCategory();
+		LLViewerInventoryItem * linked_item = viewer_inv_item->getLinkedItem();
+        if (linked_category || linked_item)
+        {
+            llinfos << "Merov : Validation error: there are linked items in this listing!" << llendl;
+        }
+        if (!viewer_inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()))
+        {
+            llinfos << "Merov : Validation error: there are items with incorrect permissions in this listing!" << llendl;
+        }
+        if (!(viewer_inv_item->getPermissions().getMaskEveryone() & PERM_COPY))
+        {
+            llinfos << "Merov : Validation warning : item is no copy -> change the folder type to stock!" << llendl;
+            LLViewerInventoryCategory * viewer_cat = (LLViewerInventoryCategory *) (cat);
+            viewer_cat->changeType(LLFolderType::FT_MARKETPLACE_STOCK);
+        }
+	}
+    
+	LLInventoryModel::cat_array_t cat_array_copy = *cat_array;
+    
+	for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
+	{
+		LLInventoryCategory* category = *iter;
+		validate_marketplacelistings(category);
+	}
+}
+
 ///----------------------------------------------------------------------------
 /// LLInventoryCollectFunctor implementations
 ///----------------------------------------------------------------------------

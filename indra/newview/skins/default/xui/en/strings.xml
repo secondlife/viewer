@@ -2273,6 +2273,7 @@ The [[MARKETPLACE_CREATE_STORE_URL] Marketplace store] is returning errors.
 
 	<string name="MarketplaceNoID">no Mkt ID</string>
 	<string name="MarketplaceActive">live</string>
+	<string name="MarketplaceStock">stock</string>
 
 	<string name="Open landmarks">Open landmarks</string>
 

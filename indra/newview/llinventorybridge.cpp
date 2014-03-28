@@ -1958,7 +1958,7 @@ std::string LLFolderBridge::getLabelSuffix() const
     {
         if (LLMarketplaceData::instance().isListed(getUUID()))
         {
-            llinfos << "Merov : in merchant folder and listed : id = " << getUUID() << llendl;
+            //llinfos << "Merov : in merchant folder and listed : id = " << getUUID() << llendl;
             std::string suffix = LLMarketplaceData::instance().getListingID(getUUID());
             if (suffix.empty())
             {
@@ -1971,9 +1971,15 @@ std::string LLFolderBridge::getLabelSuffix() const
             }
             return LLInvFVBridge::getLabelSuffix() + suffix;
         }
+        else if (getCategory()->getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
+        {
+            //llinfos << "Merov : in merchant folder and is a stock folder : id = " << getUUID() << llendl;
+            std::string suffix = " (" +  LLTrans::getString("MarketplaceStock") + ")";
+            return LLInvFVBridge::getLabelSuffix() + suffix;
+        }
         else
         {
-            llinfos << "Merov : in merchant folder but not listed : id = " << getUUID() << llendl;
+            //llinfos << "Merov : in merchant folder but not listed : id = " << getUUID() << llendl;
             return LLInvFVBridge::getLabelSuffix();
         }
 	}
@@ -2316,10 +2322,13 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 	const LLUUID &cat_id = inv_cat->getUUID();
 	const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, false);
 	const LLUUID &outbox_id = model->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
+	const LLUUID &marketplacelistings_id = model->findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
 	
 	const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
 	const BOOL move_is_into_outbox = model->isObjectDescendentOf(mUUID, outbox_id); 
 	const BOOL move_is_from_outbox = model->isObjectDescendentOf(cat_id, outbox_id);
+	const BOOL move_is_into_marketplacelistings = model->isObjectDescendentOf(mUUID, marketplacelistings_id);
+	const BOOL move_is_from_marketplacelistings = model->isObjectDescendentOf(cat_id, marketplacelistings_id);
 
 	// check to make sure source is agent inventory, and is represented there.
 	LLToolDragAndDrop::ESource source = LLToolDragAndDrop::getInstance()->getSource();
@@ -2499,6 +2508,12 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 				}
 			}
 		}
+		if (is_movable && move_is_into_marketplacelistings)
+		{
+            // *TODO : Merov : Add here the logic to prevent huge nesting in marketplace listings
+            // For the moment, we just take in anything
+            is_movable = TRUE;
+        }
 
 		if (is_movable)
 		{
@@ -2601,6 +2616,10 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 			{
 				copy_folder_to_outbox(inv_cat, mUUID, cat_id, LLToolDragAndDrop::getOperationId());
 			}
+			else if (move_is_into_marketplacelistings && !move_is_from_marketplacelistings)
+			{
+				move_folder_to_marketplacelistings(inv_cat, mUUID);
+			}
 			else
 			{
 				if (model->isObjectDescendentOf(cat_id, model->findCategoryUUIDForType(LLFolderType::FT_INBOX, false)))
@@ -2620,7 +2639,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 	}
 	else if (LLToolDragAndDrop::SOURCE_WORLD == source)
 	{
-		if (move_is_into_outbox)
+		if (move_is_into_outbox || move_is_into_marketplacelistings)
 		{
 			tooltip_msg = LLTrans::getString("TooltipOutboxNotInInventory");
 			accept = FALSE;
@@ -2632,7 +2651,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 	}
 	else if (LLToolDragAndDrop::SOURCE_LIBRARY == source)
 	{
-		if (move_is_into_outbox)
+		if (move_is_into_outbox || move_is_into_marketplacelistings)
 		{
 			tooltip_msg = LLTrans::getString("TooltipOutboxNotInInventory");
 			accept = FALSE;
@@ -3248,6 +3267,9 @@ void LLFolderBridge::pasteFromClipboard()
 		const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
 		const BOOL move_is_into_outfit = (getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_OUTFIT);
 		const BOOL move_is_into_outbox = model->isObjectDescendentOf(mUUID, outbox_id);
+        // *TODO : Add marketplace listings case
+        //const LLUUID &marketplacelistings_id = model->findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+        //const BOOL move_is_into_marketplacelistings = model->isObjectDescendentOf(mUUID, marketplacelistings_id);
 
 		LLDynamicArray<LLUUID> objects;
 		LLClipboard::instance().pasteFromClipboard(objects);
@@ -3372,12 +3394,14 @@ void LLFolderBridge::pasteLinkFromClipboard()
 	{
 		const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, false);
 		const LLUUID &outbox_id = model->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
+        const LLUUID &marketplacelistings_id = model->findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
 
 		const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
 		const BOOL move_is_into_outfit = (getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_OUTFIT);
 		const BOOL move_is_into_outbox = model->isObjectDescendentOf(mUUID, outbox_id);
+        const BOOL move_is_into_marketplacelistings = model->isObjectDescendentOf(mUUID, marketplacelistings_id);
 
-		if (move_is_into_outbox)
+		if (move_is_into_outbox || move_is_into_marketplacelistings)
 		{
 			// Notify user of failure somehow -- play error sound?  modal dialog?
 			return;
@@ -4047,6 +4071,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 	const LLUUID &favorites_id = model->findCategoryUUIDForType(LLFolderType::FT_FAVORITE, false);
 	const LLUUID &landmarks_id = model->findCategoryUUIDForType(LLFolderType::FT_LANDMARK, false);
 	const LLUUID &outbox_id = model->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
+	const LLUUID &marketplacelistings_id = model->findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
 
 	const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
 	const BOOL move_is_into_favorites = (mUUID == favorites_id);
@@ -4054,6 +4079,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 	const BOOL move_is_into_landmarks = (mUUID == landmarks_id) || model->isObjectDescendentOf(mUUID, landmarks_id);
 	const BOOL move_is_into_outbox = model->isObjectDescendentOf(mUUID, outbox_id);
 	const BOOL move_is_from_outbox = model->isObjectDescendentOf(inv_item->getUUID(), outbox_id);
+    const BOOL move_is_into_marketplacelistings = model->isObjectDescendentOf(mUUID, marketplacelistings_id);
 
 	LLToolDragAndDrop::ESource source = LLToolDragAndDrop::getInstance()->getSource();
 	BOOL accept = FALSE;
@@ -4150,6 +4176,12 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 				}
 			}
 		}
+        else if (move_is_into_marketplacelistings)
+        {
+            // *TODO : Add here any logic that may prevent an item to be copied into the marketplace listings
+            // For the moment, we let anything go
+            accept = TRUE;
+        }
 
 		LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
 
@@ -4208,6 +4240,8 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			{
 				dropToOutfit(inv_item, move_is_into_current_outfit);
 			}
+            // MERCHANT OUTBOX folder
+            // Move the item
 			else if (move_is_into_outbox)
 			{
 				if (move_is_from_outbox)
@@ -4219,6 +4253,12 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 					copy_item_to_outbox(inv_item, mUUID, LLUUID::null, LLToolDragAndDrop::getOperationId());
 				}
 			}
+            // MARKETPLACE LISTINGS folder
+            // Move the item
+            else if (move_is_into_marketplacelistings)
+            {
+                move_item_to_marketplacelistings(inv_item, mUUID);
+            }
 			// NORMAL or TRASH folder
 			// (move the item, restamp if into trash)
 			else
@@ -4285,7 +4325,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		{
 			accept = FALSE;
 		}
-		else if (move_is_into_outbox)
+		else if (move_is_into_outbox || move_is_into_marketplacelistings)
 		{
 			tooltip_msg = LLTrans::getString("TooltipOutboxNotInInventory");
 			accept = FALSE;
@@ -4323,7 +4363,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 	}
 	else if(LLToolDragAndDrop::SOURCE_NOTECARD == source)
 	{
-		if (move_is_into_outbox)
+		if (move_is_into_outbox || move_is_into_marketplacelistings)
 		{
 			tooltip_msg = LLTrans::getString("TooltipOutboxNotInInventory");
 			accept = FALSE;
@@ -4357,7 +4397,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		{
 			accept = TRUE;
 
-			if (move_is_into_outbox)
+			if (move_is_into_outbox || move_is_into_marketplacelistings)
 			{
 				tooltip_msg = LLTrans::getString("TooltipOutboxNotInInventory");
 				accept = FALSE;

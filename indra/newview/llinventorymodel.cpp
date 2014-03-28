@@ -2160,12 +2160,12 @@ void LLInventoryModel::buildParentChildMap()
 			// implement it, we would need a set or map of uuid pairs
 			// which would be (folder_id, new_parent_id) to be sent up
 			// to the server.
-			llinfos << "Lost categroy: " << cat->getUUID() << " - "
+			llinfos << "Lost category: " << cat->getUUID() << " - "
 					<< cat->getName() << llendl;
 			++lost;
 			// plop it into the lost & found.
 			LLFolderType::EType pref = cat->getPreferredType();
-			if(LLFolderType::FT_NONE == pref)
+			if ((LLFolderType::FT_NONE == pref) || (LLFolderType::FT_MARKETPLACE_STOCK == pref))
 			{
 				cat->setParent(findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND));
 			}
