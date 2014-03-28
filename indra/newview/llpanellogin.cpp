@@ -176,7 +176,8 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	mUsernameLength(0),
 	mPasswordLength(0),
 	mLocationLength(0),
-	mFavoriteSelected(false)
+	mFavoriteSelected(false),
+	mShowFavorites(false)
 {
 	setBackgroundVisible(FALSE);
 	setBackgroundOpaque(TRUE);
@@ -317,7 +318,8 @@ void LLPanelLogin::addUsersWithFavoritesToUsername()
 	LLSD fav_llsd;
 	llifstream file;
 	file.open(filename);
-	if (!file.is_open()) return;
+	if (!file.is_open()) 
+		return;
 	LLSDSerialize::fromXML(fav_llsd, file);
 	for (LLSD::map_const_iterator iter = fav_llsd.beginMap();
 		iter != fav_llsd.endMap(); ++iter)
@@ -350,6 +352,7 @@ void LLPanelLogin::addFavoritesToStartLocation()
 	file.open(filename);
 	if (!file.is_open()) return;
 	LLSDSerialize::fromXML(fav_llsd, file);
+
 	for (LLSD::map_const_iterator iter = fav_llsd.beginMap();
 		iter != fav_llsd.endMap(); ++iter)
 	{
@@ -373,6 +376,7 @@ void LLPanelLogin::addFavoritesToStartLocation()
 			std::string value = (*iter1)["slurl"].asString();
 			if(label != "" && value != "")
 			{
+				mShowFavorites = true;
 				combo->add(label, value);
 			}
 		}
@@ -1118,4 +1122,10 @@ void LLPanelLogin::onLocationSLURL()
 	LL_DEBUGS("AppInit")<<location<<LL_ENDL;
 
 	LLStartUp::setStartSLURL(location); // calls onUpdateStartSLURL, above 
+}
+
+// static
+bool LLPanelLogin::getShowFavorites()
+{
+	return sInstance->mShowFavorites;
 }

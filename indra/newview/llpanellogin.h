@@ -81,6 +81,9 @@ public:
 	/// to be called from LLStartUp::setStartSLURL
 	static void onUpdateStartSLURL(const LLSLURL& new_start_slurl);
 
+	// called from prefs when initializing panel
+	static bool getShowFavorites();
+
 private:
 	friend class LLPanelLoginListener;
 	void addFavoritesToStartLocation();
@@ -110,6 +113,7 @@ private:
 	void*			mCallbackData;
 
 	BOOL            mPasswordModified;
+	bool			mShowFavorites;
 
 	static LLPanelLogin* sInstance;
 	static BOOL		sCapslockDidNotification;
