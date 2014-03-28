@@ -438,8 +438,12 @@ ECursorType LLToolPie::cursorFromObject(LLViewerObject* object)
 		break;
 	case CLICK_ACTION_BUY:
 		if ( mClickActionBuyEnabled )
-		{
-			cursor = UI_CURSOR_TOOLBUY;
+		{ 
+			LLSelectNode* node = LLSelectMgr::getInstance()->getHoverNode();
+			if (!node || node->mSaleInfo.isForSale())
+			{
+				cursor = UI_CURSOR_TOOLBUY;
+			}
 		}
 		break;
 	case CLICK_ACTION_OPEN:
@@ -543,6 +547,7 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 	mHoverPick = gViewerWindow->pickImmediate(x, y, FALSE);
 	LLViewerObject *parent = NULL;
 	LLViewerObject *object = mHoverPick.getObject();
+	LLSelectMgr::getInstance()->setHoverObject(object, mHoverPick.mObjectFace);
 	if (object)
 	{
 		parent = object->getRootEdit();
