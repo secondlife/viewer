@@ -110,7 +110,6 @@ public:
 	~LLKeywords();
 
 	void		addColorGroup(const std::string key_in, const LLColor4 color);
-	void		clear();
 	void		clearLoaded() { mLoaded = false; }
 	LLColor4	getColorGroup(const std::string key_in);
 	bool		isLoaded() const	{ return mLoaded; }
