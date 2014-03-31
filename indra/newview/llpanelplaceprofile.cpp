@@ -483,8 +483,9 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 				gCacheName->getGroup(parcel->getGroupID(),
 								boost::bind(&LLPanelPlaceInfo::onNameCache, mRegionGroupText, _2));
 
-				gCacheName->getGroup(parcel->getGroupID(),
-								boost::bind(&LLPanelPlaceInfo::onNameCache, mParcelOwner, _2));
+				std::string owner =
+					LLSLURL("group", parcel->getGroupID(), "inspect").getSLURLString();
+				mParcelOwner->setText(owner);
 			}
 			else
 			{
