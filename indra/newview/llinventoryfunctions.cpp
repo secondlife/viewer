@@ -521,14 +521,17 @@ void open_outbox()
 	LLFloaterReg::showInstance("outbox");
 }
 
-LLUUID create_folder_in_outbox_for_item(LLInventoryItem* item, const LLUUID& destFolderId, S32 operation_id)
+// Create a new folder in destFolderId with the same name as the item name and return the uuid of the new folder
+// Note: this is used locally in various situation where we need to wrap an item into a special folder
+LLUUID create_folder_for_item(LLInventoryItem* item, const LLUUID& destFolderId)
 {
 	llassert(item);
 	llassert(destFolderId.notNull());
 
 	LLUUID created_folder_id = gInventory.createNewCategory(destFolderId, LLFolderType::FT_NONE, item->getName());
 	gInventory.notifyObservers();
-
+    
+    // *TODO : Create different notifications for the various cases
 	LLNotificationsUtil::add("OutboxFolderCreated");
 
 	return created_folder_id;
@@ -544,8 +547,7 @@ void move_to_outbox_cb_action(const LLSD& payload)
 		// when moving item directly into outbox create folder with that name
 		if (dest_folder_id == gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false))
 		{
-			S32 operation_id = payload["operation_id"].asInteger();
-			dest_folder_id = create_folder_in_outbox_for_item(viitem, dest_folder_id, operation_id);
+			dest_folder_id = create_folder_for_item(viitem, dest_folder_id);
 		}
 
 		LLUUID parent = viitem->getParentUUID();
@@ -616,7 +618,7 @@ void copy_item_to_outbox(LLInventoryItem* inv_item, LLUUID dest_folder, const LL
 			// when moving item directly into outbox create folder with that name
 			if (dest_folder == gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false))
 			{
-				dest_folder = create_folder_in_outbox_for_item(inv_item, dest_folder, operation_id);
+				dest_folder = create_folder_for_item(inv_item, dest_folder);
 			}
 			
 			copy_inventory_item(gAgent.getID(),
@@ -646,7 +648,7 @@ void move_item_within_outbox(LLInventoryItem* inv_item, LLUUID dest_folder, S32 
 	// when moving item directly into outbox create folder with that name
 	if (dest_folder == gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false))
 	{
-		dest_folder = create_folder_in_outbox_for_item(inv_item, dest_folder, operation_id);
+		dest_folder = create_folder_for_item(inv_item, dest_folder);
 	}
 	
 	LLViewerInventoryItem * viewer_inv_item = (LLViewerInventoryItem *) inv_item;
@@ -688,7 +690,15 @@ void copy_folder_to_outbox(LLInventoryCategory* inv_cat, const LLUUID& dest_fold
 
 void move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_folder)
 {
-    // Collapse links into items/folders
+    // Get the marketplace listings, exit with error if none
+    const LLUUID marketplace_listings_uuid = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+    if (marketplace_listings_uuid.isNull())
+    {
+        llinfos << "Merov : Marketplace error : There is no marketplace listings folder -> move aborted!" << llendl;
+        return;
+    }
+
+    // We will collapse links into items/folders
 	LLViewerInventoryItem * viewer_inv_item = (LLViewerInventoryItem *) inv_item;
 	LLViewerInventoryCategory * linked_category = viewer_inv_item->getLinkedCategory();
     
@@ -709,27 +719,28 @@ void move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
         if (viewer_inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()))
         {
             // When moving an isolated item directly under the marketplace listings root, we create a new folder with that name
-            if (dest_folder == gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false))
+            if (dest_folder == marketplace_listings_uuid)
             {
-                // *TODO : This method is not specific to the outbox folder so make it more generic
-                dest_folder = create_folder_in_outbox_for_item(inv_item, dest_folder, 0);
+                dest_folder = create_folder_for_item(inv_item, dest_folder);
+            }
+			LLViewerInventoryCategory* category = gInventory.getCategory(dest_folder);
+            
+            // When moving a no copy item into a first level listing folder, we create a stock folder for it
+            if (!(viewer_inv_item->getPermissions().getMaskEveryone() & PERM_COPY) && (category->getParentUUID() == marketplace_listings_uuid))
+            {
+                dest_folder = create_folder_for_item(inv_item, dest_folder);
             }
 	
             // Reparent the item
             gInventory.changeItemParent(viewer_inv_item, dest_folder, false);
         
-            // Check the item for no copy permission and promote the destination folder if necessary
-            if (!(viewer_inv_item->getPermissions().getMaskEveryone() & PERM_COPY))
-            {
-                llinfos << "Merov : item is no copy -> change the destination folder type!" << llendl;
-                LLViewerInventoryCategory * viewer_cat = (LLViewerInventoryCategory *) (gInventory.getCategory(dest_folder));
-                viewer_cat->changeType(LLFolderType::FT_MARKETPLACE_STOCK);
-            }
+            // Validate the destination : note that this will run the validation code only on one listing folder at most...
+            validate_marketplacelistings(category);
         }
         else
         {
             // *TODO : signal an error to the user (UI for this TBD)
-            llinfos << "Merov : user doesn't have the correct permission to put this item on sale -> move aborted!" << llendl;
+            llinfos << "Merov : Marketplace error : User doesn't have the correct permission to put this item on sale -> move aborted!" << llendl;
         }
     }
 }
@@ -802,6 +813,10 @@ void validate_marketplacelistings(LLInventoryCategory* cat)
 	LLInventoryModel::item_array_t* item_array;
 	gInventory.getDirectDescendentsOf(cat->getUUID(),cat_array,item_array);
     
+    LLViewerInventoryCategory * viewer_cat = (LLViewerInventoryCategory *) (cat);
+	const LLFolderType::EType folder_type = cat->getPreferredType();
+    LLUUID stock_folder;
+
 	LLInventoryModel::item_array_t item_array_copy = *item_array;
     
 	for (LLInventoryModel::item_array_t::iterator iter = item_array_copy.begin(); iter != item_array_copy.end(); iter++)
@@ -818,13 +833,24 @@ void validate_marketplacelistings(LLInventoryCategory* cat)
         {
             llinfos << "Merov : Validation error: there are items with incorrect permissions in this listing!" << llendl;
         }
-        if (!(viewer_inv_item->getPermissions().getMaskEveryone() & PERM_COPY))
+        if (!(viewer_inv_item->getPermissions().getMaskEveryone() & PERM_COPY) && (folder_type != LLFolderType::FT_MARKETPLACE_STOCK))
         {
-            llinfos << "Merov : Validation warning : item is no copy -> change the folder type to stock!" << llendl;
-            LLViewerInventoryCategory * viewer_cat = (LLViewerInventoryCategory *) (cat);
-            viewer_cat->changeType(LLFolderType::FT_MARKETPLACE_STOCK);
+            llinfos << "Merov : Validation warning : no copy item found in non stock folder -> reparent to relevant stock folder!" << llendl;
+            if (stock_folder.isNull())
+            {
+                llinfos << "Merov : Validation warning : no appropriate existing stock folder -> create a new stock folder!" << llendl;
+                stock_folder = gInventory.createNewCategory(viewer_cat->getParentUUID(), LLFolderType::FT_MARKETPLACE_STOCK, viewer_cat->getName());
+            }
+            gInventory.changeItemParent(viewer_inv_item, stock_folder, false);
         }
 	}
+    
+    if (stock_folder.notNull() && (viewer_cat->getDescendentCount() == 0))
+    {
+        llinfos << "Merov : Validation warning : folder content completely moved to stock folder -> remove empty folder!" << llendl;
+        gInventory.removeCategory(cat->getUUID());
+        return;
+    }
     
 	LLInventoryModel::cat_array_t cat_array_copy = *cat_array;
     
