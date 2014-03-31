@@ -4137,6 +4137,19 @@ Are you sure you want to teleport to &lt;nolink&gt;[LOCATION]&lt;/nolink&gt;?
      notext="Cancel"
      yestext="Teleport"/>
   </notification>
+  
+  <notification
+   icon="alertmodal.tga"
+   name="TeleportViaSLAPP"
+   type="alertmodal">
+Are you sure you want to teleport to &lt;nolink&gt;[LOCATION]&lt;/nolink&gt;?
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Confirm that I want to teleport via SLAPP"
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="Teleport"/>
+  </notification>	
 
   <notification
    icon="alertmodal.tga"
