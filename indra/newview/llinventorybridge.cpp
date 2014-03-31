@@ -1973,8 +1973,9 @@ std::string LLFolderBridge::getLabelSuffix() const
         }
         else if (getCategory()->getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
         {
-            //llinfos << "Merov : in merchant folder and is a stock folder : id = " << getUUID() << llendl;
-            std::string suffix = " (" +  LLTrans::getString("MarketplaceStock") + ")";
+            llinfos << "Merov : in merchant folder and is a stock folder : name = " << getCategory()->getName() << ", stock = " << getCategory()->getDescendentCount() << llendl;
+            std::string stock = llformat("%d", getCategory()->getDescendentCount());
+            std::string suffix = " (" +  LLTrans::getString("MarketplaceStock") + ") (" + stock + ")";
             return LLInvFVBridge::getLabelSuffix() + suffix;
         }
         else

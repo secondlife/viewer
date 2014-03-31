@@ -733,6 +733,8 @@ void move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
 	
             // Reparent the item
             gInventory.changeItemParent(viewer_inv_item, dest_folder, false);
+            gInventory.updateCategory(category);
+            gInventory.notifyObservers();
         
             // Validate the destination : note that this will run the validation code only on one listing folder at most...
             validate_marketplacelistings(category);
@@ -754,6 +756,8 @@ void move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUU
         // Reparent the folder
         LLViewerInventoryCategory * viewer_inv_cat = (LLViewerInventoryCategory *) inv_cat;
         gInventory.changeCategoryParent(viewer_inv_cat, dest_folder, false);
+        gInventory.updateCategory(viewer_inv_cat);
+        gInventory.notifyObservers();
 
         // Check the destination folder recursively for no copy items and promote the including folders if any
         validate_marketplacelistings(inv_cat);
@@ -815,7 +819,8 @@ void validate_marketplacelistings(LLInventoryCategory* cat)
     
     LLViewerInventoryCategory * viewer_cat = (LLViewerInventoryCategory *) (cat);
 	const LLFolderType::EType folder_type = cat->getPreferredType();
-    LLUUID stock_folder;
+    LLUUID stock_folder_uuid;
+    LLViewerInventoryCategory* stock_folder_cat = NULL;
 
 	LLInventoryModel::item_array_t item_array_copy = *item_array;
     
@@ -836,19 +841,24 @@ void validate_marketplacelistings(LLInventoryCategory* cat)
         if (!(viewer_inv_item->getPermissions().getMaskEveryone() & PERM_COPY) && (folder_type != LLFolderType::FT_MARKETPLACE_STOCK))
         {
             llinfos << "Merov : Validation warning : no copy item found in non stock folder -> reparent to relevant stock folder!" << llendl;
-            if (stock_folder.isNull())
+            if (stock_folder_uuid.isNull())
             {
                 llinfos << "Merov : Validation warning : no appropriate existing stock folder -> create a new stock folder!" << llendl;
-                stock_folder = gInventory.createNewCategory(viewer_cat->getParentUUID(), LLFolderType::FT_MARKETPLACE_STOCK, viewer_cat->getName());
+                stock_folder_uuid = gInventory.createNewCategory(viewer_cat->getParentUUID(), LLFolderType::FT_MARKETPLACE_STOCK, viewer_cat->getName());
+                stock_folder_cat = gInventory.getCategory(stock_folder_uuid);
             }
-            gInventory.changeItemParent(viewer_inv_item, stock_folder, false);
+            gInventory.changeItemParent(viewer_inv_item, stock_folder_uuid, false);
+            gInventory.updateCategory(viewer_cat);
+            gInventory.updateCategory(stock_folder_cat);
+            gInventory.notifyObservers();
         }
 	}
     
-    if (stock_folder.notNull() && (viewer_cat->getDescendentCount() == 0))
+    if (stock_folder_uuid.notNull() && (viewer_cat->getDescendentCount() == 0))
     {
         llinfos << "Merov : Validation warning : folder content completely moved to stock folder -> remove empty folder!" << llendl;
         gInventory.removeCategory(cat->getUUID());
+        gInventory.notifyObservers();
         return;
     }
     
