@@ -5,7 +5,7 @@
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2014, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -55,11 +55,13 @@ LLAudioEngine_FMODEX::LLAudioEngine_FMODEX(bool enable_profiler)
 	mWindDSP = NULL;
 	mSystem = NULL;
 	mEnableProfiler = enable_profiler;
+	mWindDSPDesc = new FMOD_DSP_DESCRIPTION();
 }
 
 
 LLAudioEngine_FMODEX::~LLAudioEngine_FMODEX()
 {
+	delete mWindDSPDesc;
 }
 
 
@@ -320,8 +322,8 @@ void LLAudioEngine_FMODEX::shutdown()
 	llinfos << "LLAudioEngine_FMODEX::shutdown() closing FMOD Ex" << llendl;
 	if ( mSystem ) // speculative fix for MAINT-2657
 	{
-	mSystem->close();
-	mSystem->release();
+		mSystem->close();
+		mSystem->release();
 	}
 	llinfos << "LLAudioEngine_FMODEX::shutdown() done closing FMOD Ex" << llendl;
 
@@ -347,15 +349,14 @@ bool LLAudioEngine_FMODEX::initWind()
 
 	if (!mWindDSP)
 	{
-		FMOD_DSP_DESCRIPTION dspdesc;
-		memset(&dspdesc, 0, sizeof(FMOD_DSP_DESCRIPTION));	//Set everything to zero
-		strncpy(dspdesc.name,"Wind Unit", sizeof(dspdesc.name));	//Set name to "Wind Unit"
-		dspdesc.channels=2;
-		dspdesc.read = &windCallback; //Assign callback.
-		if(Check_FMOD_Error(mSystem->createDSP(&dspdesc, &mWindDSP), "FMOD::createDSP"))
+		memset(mWindDSPDesc, 0, sizeof(*mWindDSPDesc));	//Set everything to zero
+		strncpy(mWindDSPDesc->name, "Wind Unit", sizeof(mWindDSPDesc->name));
+		mWindDSPDesc->channels = 2;
+		mWindDSPDesc->read = &windCallback; // Assign callback - may be called from arbitrary threads
+		if (Check_FMOD_Error(mSystem->createDSP(mWindDSPDesc, &mWindDSP), "FMOD::createDSP"))
 			return false;
 
-		if(mWindGen)
+		if (mWindGen)
 			delete mWindGen;
 	
 		float frequency = 44100;
@@ -364,6 +365,7 @@ bool LLAudioEngine_FMODEX::initWind()
 		mWindDSP->setUserData((void*)mWindGen);
 	}
 
+	// *TODO:  Should this guard against multiple plays?
 	if (mWindDSP)
 	{
 		mSystem->playDSP(FMOD_CHANNEL_FREE, mWindDSP, false, 0);
@@ -741,6 +743,9 @@ void LLAudioChannelFMODEX::set3DMode(bool use3d)
 	}
 }
 
+// *NOTE:  This is almost certainly being called on the mixer thread,
+// not the main thread.  May have implications for callees or audio
+// engine shutdown.
 
 FMOD_RESULT F_CALLBACK windCallback(FMOD_DSP_STATE *dsp_state, float *originalbuffer, float *newbuffer, unsigned int length, int inchannels, int outchannels)
 {
