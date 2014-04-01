@@ -1027,7 +1027,7 @@ void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat)
 	LLViewerInventoryCategory* old_cat = getCategory(cat->getUUID());
 	if(old_cat)
 	{
-		// We already have an old category, modify it's values
+		// We already have an old category, modify its values
 		U32 mask = LLInventoryObserver::NONE;
 		LLUUID old_parent_id = old_cat->getParentUUID();
 		LLUUID new_parent_id = cat->getParentUUID();
@@ -1052,7 +1052,13 @@ void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat)
 		{
 			mask |= LLInventoryObserver::LABEL;
 		}
-		old_cat->copyViewerCategory(cat);
+        // Under marketplace, category labels are quite complex and need extra upate
+        const LLUUID marketplace_id = findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+        if (marketplace_id.notNull() && isObjectDescendentOf(cat->getUUID(), marketplace_id))
+        {
+			mask |= LLInventoryObserver::LABEL;
+        }
+        old_cat->copyViewerCategory(cat);
 		addChangedMask(mask, cat->getUUID());
 	}
 	else

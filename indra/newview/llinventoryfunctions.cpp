@@ -723,21 +723,28 @@ void move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
             {
                 dest_folder = create_folder_for_item(inv_item, dest_folder);
             }
-			LLViewerInventoryCategory* category = gInventory.getCategory(dest_folder);
+			LLViewerInventoryCategory* dest_cat = gInventory.getCategory(dest_folder);
             
             // When moving a no copy item into a first level listing folder, we create a stock folder for it
-            if (!(viewer_inv_item->getPermissions().getMaskEveryone() & PERM_COPY) && (category->getParentUUID() == marketplace_listings_uuid))
+            if (!(viewer_inv_item->getPermissions().getMaskEveryone() & PERM_COPY) && (dest_cat->getParentUUID() == marketplace_listings_uuid))
             {
                 dest_folder = create_folder_for_item(inv_item, dest_folder);
             }
 	
+            // Get the parent folder of the moved item : we may have to update it
+            LLUUID src_folder = viewer_inv_item->getParentUUID();
+			LLViewerInventoryCategory* src_cat = gInventory.getCategory(src_folder);
+
             // Reparent the item
             gInventory.changeItemParent(viewer_inv_item, dest_folder, false);
-            gInventory.updateCategory(category);
+            
+            // Update the modified folders
+            gInventory.updateCategory(src_cat);
+            gInventory.updateCategory(dest_cat);
             gInventory.notifyObservers();
         
             // Validate the destination : note that this will run the validation code only on one listing folder at most...
-            validate_marketplacelistings(category);
+            validate_marketplacelistings(dest_cat);
         }
         else
         {
@@ -752,15 +759,25 @@ void move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUU
     // Check that we have adequate permission on all items being moved. Proceed if we do.
     if (has_correct_permissions_for_sale(inv_cat))
     {
-    
+        // Get the destination folder
+        // *TODO : check that this folder is not full of no-copy items under its root...
+        LLViewerInventoryCategory* dest_cat = gInventory.getCategory(dest_folder);
+
+        // Get the parent folder of the moved item : we may have to update it
+        LLUUID src_folder = inv_cat->getParentUUID();
+        LLViewerInventoryCategory* src_cat = gInventory.getCategory(src_folder);
+
         // Reparent the folder
         LLViewerInventoryCategory * viewer_inv_cat = (LLViewerInventoryCategory *) inv_cat;
         gInventory.changeCategoryParent(viewer_inv_cat, dest_folder, false);
-        gInventory.updateCategory(viewer_inv_cat);
+
+        // Update the modified folders
+        gInventory.updateCategory(src_cat);
+        gInventory.updateCategory(dest_cat);
         gInventory.notifyObservers();
 
         // Check the destination folder recursively for no copy items and promote the including folders if any
-        validate_marketplacelistings(inv_cat);
+        validate_marketplacelistings(dest_cat);
     }
 }
 
