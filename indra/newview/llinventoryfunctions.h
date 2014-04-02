@@ -72,8 +72,8 @@ void copy_item_to_outbox(LLInventoryItem* inv_item, LLUUID dest_folder, const LL
 void move_item_within_outbox(LLInventoryItem* inv_item, LLUUID dest_folder, S32 operation_id);
 void copy_folder_to_outbox(LLInventoryCategory* inv_cat, const LLUUID& dest_folder, const LLUUID& top_level_folder, S32 operation_id);
 
-void move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_folder);
-void move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUUID& dest_folder);
+void move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_folder, bool copy = false);
+void move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUUID& dest_folder, bool copy = false);
 bool has_correct_permissions_for_sale(LLInventoryCategory* cat);
 void validate_marketplacelistings(LLInventoryCategory* inv_cat);
 

@@ -688,7 +688,15 @@ void copy_folder_to_outbox(LLInventoryCategory* inv_cat, const LLUUID& dest_fold
 	open_outbox();
 }
 
-void move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_folder)
+///----------------------------------------------------------------------------
+// Marketplace functions
+//
+// Handles Copy and Move to or within the Marketplace listings folder.
+// Handles creation of stock folders, nesting of listings and version folders,
+// permission checking and listings validation.
+///----------------------------------------------------------------------------
+
+void move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_folder, bool copy)
 {
     // Get the marketplace listings, exit with error if none
     const LLUUID marketplace_listings_uuid = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
@@ -705,7 +713,7 @@ void move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
 	if (linked_category != NULL)
 	{
         // Move the linked folder directly
-		move_folder_to_marketplacelistings(linked_category, dest_folder);
+		move_folder_to_marketplacelistings(linked_category, dest_folder, copy);
 	}
 	else
 	{
@@ -733,10 +741,25 @@ void move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
 	
             // Get the parent folder of the moved item : we may have to update it
             LLUUID src_folder = viewer_inv_item->getParentUUID();
-			LLViewerInventoryCategory* src_cat = gInventory.getCategory(src_folder);
+            LLViewerInventoryCategory* src_cat = gInventory.getCategory(src_folder);
 
-            // Reparent the item
-            gInventory.changeItemParent(viewer_inv_item, dest_folder, false);
+            if (copy)
+            {
+                // Copy the item
+                copy_inventory_item(
+                                    gAgent.getID(),
+                                    viewer_inv_item->getPermissions().getOwner(),
+                                    viewer_inv_item->getUUID(),
+                                    dest_folder,
+                                    std::string(),
+                                    LLPointer<LLInventoryCallback>(NULL));
+                
+            }
+            else
+            {
+                // Reparent the item
+                gInventory.changeItemParent(viewer_inv_item, dest_folder, false);
+            }
             
             // Update the modified folders
             gInventory.updateCategory(src_cat);
@@ -754,7 +777,7 @@ void move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
     }
 }
 
-void move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUUID& dest_folder)
+void move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUUID& dest_folder, bool copy)
 {
     // Check that we have adequate permission on all items being moved. Proceed if we do.
     if (has_correct_permissions_for_sale(inv_cat))
@@ -767,9 +790,17 @@ void move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUU
         LLUUID src_folder = inv_cat->getParentUUID();
         LLViewerInventoryCategory* src_cat = gInventory.getCategory(src_folder);
 
-        // Reparent the folder
         LLViewerInventoryCategory * viewer_inv_cat = (LLViewerInventoryCategory *) inv_cat;
-        gInventory.changeCategoryParent(viewer_inv_cat, dest_folder, false);
+        if (copy)
+        {
+            // Copy the folder
+            copy_inventory_category(&gInventory, viewer_inv_cat, dest_folder);
+        }
+        else
+        {
+            // Reparent the folder
+            gInventory.changeCategoryParent(viewer_inv_cat, dest_folder, false);
+        }
 
         // Update the modified folders
         gInventory.updateCategory(src_cat);

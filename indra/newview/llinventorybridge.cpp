@@ -3264,13 +3264,12 @@ void LLFolderBridge::pasteFromClipboard()
 	{
 		const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, false);
 		const LLUUID &outbox_id = model->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
+        const LLUUID &marketplacelistings_id = model->findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
 
 		const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
 		const BOOL move_is_into_outfit = (getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_OUTFIT);
 		const BOOL move_is_into_outbox = model->isObjectDescendentOf(mUUID, outbox_id);
-        // *TODO : Add marketplace listings case
-        //const LLUUID &marketplacelistings_id = model->findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
-        //const BOOL move_is_into_marketplacelistings = model->isObjectDescendentOf(mUUID, marketplacelistings_id);
+        const BOOL move_is_into_marketplacelistings = model->isObjectDescendentOf(mUUID, marketplacelistings_id);
 
 		LLDynamicArray<LLUUID> objects;
 		LLClipboard::instance().pasteFromClipboard(objects);
@@ -3342,21 +3341,35 @@ void LLFolderBridge::pasteFromClipboard()
 						LLViewerInventoryCategory* vicat = (LLViewerInventoryCategory *) model->getCategory(item_id);
 						llassert(vicat);
 						if (vicat)
-						{       
-                            //changeCategoryParent() implicity calls dirtyFilter
-							changeCategoryParent(model, vicat, parent_id, FALSE);
+						{
+                            if (move_is_into_marketplacelistings)
+                            {
+                                move_folder_to_marketplacelistings(vicat, parent_id);
+                            }
+                            else
+                            {
+                                //changeCategoryParent() implicity calls dirtyFilter
+                                changeCategoryParent(model, vicat, parent_id, FALSE);
+                            }
 						}
 					}
 					else
-				{
-					LLViewerInventoryItem* viitem = dynamic_cast<LLViewerInventoryItem*>(item);
-					llassert(viitem);
-					if (viitem)
-					{
-                        //changeItemParent() implicity calls dirtyFilter
-						changeItemParent(model, viitem, parent_id, FALSE);
-					}
-				}
+                    {
+                        LLViewerInventoryItem* viitem = dynamic_cast<LLViewerInventoryItem*>(item);
+                        llassert(viitem);
+                        if (viitem)
+                        {
+                            if (move_is_into_marketplacelistings)
+                            {
+                                move_item_to_marketplacelistings(viitem, parent_id);
+                            }
+                            else
+                            {
+                                //changeItemParent() implicity calls dirtyFilter
+                                changeItemParent(model, viitem, parent_id, FALSE);
+                            }
+                        }
+                    }
 				}
 				else
 				{
@@ -3367,22 +3380,41 @@ void LLFolderBridge::pasteFromClipboard()
 						llassert(vicat);
 						if (vicat)
 						{
-							copy_inventory_category(model, vicat, parent_id);
+                            if (move_is_into_marketplacelistings)
+                            {
+                                move_folder_to_marketplacelistings(vicat, parent_id, true);
+                            }
+                            else
+                            {
+                                copy_inventory_category(model, vicat, parent_id);
+                            }
 						}
 					}
-				else
-				{
-					copy_inventory_item(
-						gAgent.getID(),
-						item->getPermissions().getOwner(),
-						item->getUUID(),
-						parent_id,
-						std::string(),
-						LLPointer<LLInventoryCallback>(NULL));
-				}
-			}
-		}
-	}
+                    else
+                    {
+                        LLViewerInventoryItem* viitem = dynamic_cast<LLViewerInventoryItem*>(item);
+                        llassert(viitem);
+                        if (viitem)
+                        {
+                            if (move_is_into_marketplacelistings)
+                            {
+                                move_item_to_marketplacelistings(viitem, parent_id, true);
+                            }
+                            else
+                            {
+                                copy_inventory_item(
+                                    gAgent.getID(),
+                                    item->getPermissions().getOwner(),
+                                    item->getUUID(),
+                                    parent_id,
+                                    std::string(),
+                                    LLPointer<LLInventoryCallback>(NULL));
+                            }
+                        }
+                    }
+                }
+            }
+        }
 		// Change mode to paste for next paste
 		LLClipboard::instance().setCutMode(false);
 	}

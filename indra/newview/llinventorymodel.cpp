@@ -1056,7 +1056,10 @@ void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat)
         const LLUUID marketplace_id = findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
         if (marketplace_id.notNull() && isObjectDescendentOf(cat->getUUID(), marketplace_id))
         {
+            // *TODO : Need some internal analysis to be less brutal with updates
 			mask |= LLInventoryObserver::LABEL;
+			mask |= LLInventoryObserver::STRUCTURE;
+            mask |= LLInventoryObserver::INTERNAL;
         }
         old_cat->copyViewerCategory(cat);
 		addChangedMask(mask, cat->getUUID());
