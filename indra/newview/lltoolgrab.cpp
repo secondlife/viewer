@@ -83,6 +83,7 @@ LLToolGrab::LLToolGrab( LLToolComposite* composite )
 	mLastFace(0),
 	mSpinGrabbing( FALSE ),
 	mSpinRotation(),
+	mClickedInMouselook( FALSE ),
 	mHideBuildHighlight(FALSE)
 { }
 
@@ -136,6 +137,7 @@ BOOL LLToolGrab::handleMouseDown(S32 x, S32 y, MASK mask)
 		// can grab transparent objects (how touch event propagates, scripters rely on this)
 		gViewerWindow->pickAsync(x, y, mask, pickCallback, TRUE);
 	}
+	mClickedInMouselook = gAgentCamera.cameraMouselook();
 	return TRUE;
 }
 
@@ -926,13 +928,21 @@ BOOL LLToolGrab::handleMouseUp(S32 x, S32 y, MASK mask)
 	{
 		setMouseCapture( FALSE );
 	}
+
 	mMode = GRAB_INACTIVE;
 
-	// HACK: Make some grabs temporary
-	if (gGrabTransientTool)
+	if(mClickedInMouselook && !gAgentCamera.cameraMouselook())
 	{
-		gBasicToolset->selectTool( gGrabTransientTool );
-		gGrabTransientTool = NULL;
+		mClickedInMouselook = FALSE;
+	}
+	else
+	{
+		// HACK: Make some grabs temporary
+		if (gGrabTransientTool)
+		{
+			gBasicToolset->selectTool( gGrabTransientTool );
+			gGrabTransientTool = NULL;
+		}
 	}
 
 	//gAgent.setObjectTracking(gSavedSettings.getBOOL("TrackFocusObject"));

@@ -133,6 +133,8 @@ private:
 	LLQuaternion	mSpinRotation;
 
 	BOOL			mHideBuildHighlight;
+
+	BOOL			mClickedInMouselook;
 };
 
 extern BOOL gGrabBtnVertical;
