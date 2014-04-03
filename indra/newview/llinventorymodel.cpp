@@ -1058,7 +1058,6 @@ void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat)
         {
 			mask |= LLInventoryObserver::LABEL;
         }
-        llinfos << "Merov : updateCategory : " << cat->getName() << llendl;
         old_cat->copyViewerCategory(cat);
 		addChangedMask(mask, cat->getUUID());
 	}

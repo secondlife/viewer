@@ -2345,7 +2345,6 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 	const BOOL move_is_into_outbox = model->isObjectDescendentOf(mUUID, outbox_id); 
 	const BOOL move_is_from_outbox = model->isObjectDescendentOf(cat_id, outbox_id);
 	const BOOL move_is_into_marketplacelistings = model->isObjectDescendentOf(mUUID, marketplacelistings_id);
-	const BOOL move_is_from_marketplacelistings = model->isObjectDescendentOf(cat_id, marketplacelistings_id);
 
 	// check to make sure source is agent inventory, and is represented there.
 	LLToolDragAndDrop::ESource source = LLToolDragAndDrop::getInstance()->getSource();
@@ -2633,7 +2632,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 			{
 				copy_folder_to_outbox(inv_cat, mUUID, cat_id, LLToolDragAndDrop::getOperationId());
 			}
-			else if (move_is_into_marketplacelistings && !move_is_from_marketplacelistings)
+			else if (move_is_into_marketplacelistings)
 			{
 				move_folder_to_marketplacelistings(inv_cat, mUUID);
 			}

@@ -466,7 +466,7 @@ BOOL LLFloaterMarketplaceListings::handleDragAndDrop(S32 x, S32 y, MASK mask, BO
 	BOOL handled = (handled_view != NULL);
     
 	// Pass all drag and drop for this floater to the marketplace listings inventory control
-	if (!handled || !isAccepted(*accept))
+	if (!handled && isAccepted(*accept) && !mPanelListings->getVisible() && mRootFolderId.notNull())
 	{
         LLFolderView* root_folder = mPanelListings->getRootFolder();
         handled = root_folder->handleDragAndDropToThisFolder(mask, drop, cargo_type, cargo_data, accept, tooltip_msg);

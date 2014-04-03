@@ -568,7 +568,8 @@ void LLInventoryPanel::modelChanged(U32 mask)
 			else if (!model_item && view_item && viewmodel_item)
 			{
 				// Remove the item's UI.
-                removeItemID(viewmodel_item->getUUID());
+				const LLUUID& idp = viewmodel_item->getUUID();
+                removeItemID(idp);
 				view_item->destroyView();
 			}
 		}
