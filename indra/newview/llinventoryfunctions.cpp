@@ -730,10 +730,9 @@ void move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
 		LLViewerInventoryItem * linked_item = viewer_inv_item->getLinkedItem();
         viewer_inv_item = (linked_item != NULL ? linked_item : viewer_inv_item);
     
-        // Check that the agent has copy permission on the item: this is required as a resident cannot
-        // put on sale items she has no right about. Proceed with move if we have permission.
-        // *TODO : Check that this is adequate (copied from the Merchant Outbox permission check so should be OK...)
-        if (viewer_inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()))
+        // Check that the agent has transfer permission on the item: this is required as a resident cannot
+        // put on sale items she cannot transfer. Proceed with move if we have permission.
+        if (viewer_inv_item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID(), gAgent.getGroupID()))
         {
             // When moving an isolated item directly under the marketplace listings root, we create a new folder with that name
             if (dest_folder == marketplace_listings_uuid)
@@ -743,7 +742,7 @@ void move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
 			LLViewerInventoryCategory* dest_cat = gInventory.getCategory(dest_folder);
             
             // When moving a no copy item into a first level listing folder, we create a stock folder for it
-            if (!(viewer_inv_item->getPermissions().getMaskEveryone() & PERM_COPY) && (dest_cat->getParentUUID() == marketplace_listings_uuid))
+            if (!viewer_inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()) && (dest_cat->getParentUUID() == marketplace_listings_uuid))
             {
                 dest_folder = create_folder_for_item(inv_item, dest_folder);
             }
@@ -842,8 +841,9 @@ bool has_correct_permissions_for_sale(LLInventoryCategory* cat)
             llinfos << "Merov : linked items in this folder -> not allowed to sell!" << llendl;
             return false;
         }
-        // *TODO : Check that this is adequate (copied from the Merchant Outbox permission check so should be OK...)
-        if (!viewer_inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()))
+        // Check that the agent has transfer permission on the item: this is required as a resident cannot
+        // put on sale items she cannot transfer. Proceed with move if we have permission.
+        if (!viewer_inv_item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID(), gAgent.getGroupID()))
         {
             llinfos << "Merov : wrong permissions on items in this folder -> not allowed to sell!" << llendl;
             return false;
@@ -891,11 +891,11 @@ void validate_marketplacelistings(LLInventoryCategory* cat)
         {
             llinfos << "Merov : Validation error: there are linked items in this listing!" << llendl;
         }
-        if (!viewer_inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()))
+        if (!viewer_inv_item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID(), gAgent.getGroupID()))
         {
             llinfos << "Merov : Validation error: there are items with incorrect permissions in this listing!" << llendl;
         }
-        if (!(viewer_inv_item->getPermissions().getMaskEveryone() & PERM_COPY) && (folder_type != LLFolderType::FT_MARKETPLACE_STOCK))
+        if (!viewer_inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()) && (folder_type != LLFolderType::FT_MARKETPLACE_STOCK))
         {
             llinfos << "Merov : Validation warning : no copy item found in non stock folder -> reparent to relevant stock folder!" << llendl;
             if (stock_folder_uuid.isNull())
