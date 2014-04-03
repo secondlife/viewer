@@ -90,6 +90,14 @@
 BOOL LLInventoryState::sWearNewClothing = FALSE;
 LLUUID LLInventoryState::sWearNewClothingTransactionID;
 
+// Helper function : callback to update a folder after inventory action happened in the background
+void update_folder_cb(const LLUUID& dest_folder)
+{
+    LLViewerInventoryCategory* dest_cat = gInventory.getCategory(dest_folder);
+    gInventory.updateCategory(dest_cat);
+    gInventory.notifyObservers();
+}
+
 // Generates a string containing the path to the item specified by
 // item_id.
 void append_path(const LLUUID& id, std::string& path)
@@ -163,13 +171,14 @@ void copy_inventory_category(LLInventoryModel* model,
 	for (LLInventoryModel::item_array_t::iterator iter = item_array_copy.begin(); iter != item_array_copy.end(); iter++)
 	{
 		LLInventoryItem* item = *iter;
+        LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(update_folder_cb, new_cat_uuid));
 		copy_inventory_item(
 							gAgent.getID(),
 							item->getPermissions().getOwner(),
 							item->getUUID(),
 							new_cat_uuid,
 							std::string(),
-							LLPointer<LLInventoryCallback>(NULL));
+							cb);
 	}
 	
 	// Copy all the folders
@@ -746,14 +755,14 @@ void move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
             if (copy)
             {
                 // Copy the item
+                LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(update_folder_cb, dest_folder));
                 copy_inventory_item(
                                     gAgent.getID(),
                                     viewer_inv_item->getPermissions().getOwner(),
                                     viewer_inv_item->getUUID(),
                                     dest_folder,
                                     std::string(),
-                                    LLPointer<LLInventoryCallback>(NULL));
-                
+                                    cb);
             }
             else
             {

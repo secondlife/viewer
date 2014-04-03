@@ -1186,6 +1186,22 @@ void LLInvFVBridge::purgeItem(LLInventoryModel *model, const LLUUID &uuid)
 	}
 }
 
+void LLInvFVBridge::removeObject(LLInventoryModel *model, const LLUUID &uuid)
+{
+    // Keep track of the parent
+    LLInventoryItem* itemp = model->getItem(uuid);
+    LLUUID parent_id = (itemp ? itemp->getParentUUID() : LLUUID::null);
+    // Remove the object
+    model->removeObject(uuid);
+    // Get the parent updated
+    if (parent_id.notNull())
+    {
+        LLViewerInventoryCategory* parent_cat = model->getCategory(parent_id);
+        model->updateCategory(parent_cat);
+        model->notifyObservers();
+    }
+}
+
 bool LLInvFVBridge::canShare() const
 {
 	bool can_share = false;
@@ -1406,7 +1422,7 @@ void LLItemBridge::performAction(LLInventoryModel* model, std::string action)
 	else if ("cut" == action)
 	{
 		cutToClipboard();
-		gInventory.removeObject(mUUID);
+        removeObject(model, mUUID);
 		return;
 	}
 	else if ("copy" == action)
@@ -1973,7 +1989,7 @@ std::string LLFolderBridge::getLabelSuffix() const
         }
         else if (getCategory()->getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
         {
-            llinfos << "Merov : in merchant folder and is a stock folder : name = " << getCategory()->getName() << ", stock = " << getCategory()->getDescendentCount() << llendl;
+            //llinfos << "Merov : getLabelSuffix : stock folder : name = " << getCategory()->getName() << ", stock = " << getCategory()->getDescendentCount() << llendl;
             std::string stock = llformat("%d", getCategory()->getDescendentCount());
             std::string suffix = " (" +  LLTrans::getString("MarketplaceStock") + ") (" + stock + ")";
             return LLInvFVBridge::getLabelSuffix() + suffix;
@@ -3026,7 +3042,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 	else if ("cut" == action)
 	{
 		cutToClipboard();
-		gInventory.removeObject(mUUID);
+        removeObject(model, mUUID);
 		return;
 	}
 	else if ("copy" == action)

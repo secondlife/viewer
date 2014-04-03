@@ -184,6 +184,7 @@ protected:
 	mutable std::string			mSearchableName;
 
 	void purgeItem(LLInventoryModel *model, const LLUUID &uuid);
+	void removeObject(LLInventoryModel *model, const LLUUID &uuid);
 	virtual void buildDisplayName() const {}
 };
 
