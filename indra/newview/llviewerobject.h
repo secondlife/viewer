@@ -143,7 +143,7 @@ public:
 	LLNameValue*	getNVPair(const std::string& name) const;			// null if no name value pair by that name
 
 	// Object create and update functions
-	virtual void	idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
+	virtual void	idleUpdate(LLAgent &agent, const F64 &time);
 
 	// Types of media we can associate
 	enum { MEDIA_NONE = 0, MEDIA_SET = 1 };
@@ -171,6 +171,8 @@ public:
 	virtual BOOL	isAttachment() const { return FALSE; }
 	virtual LLVOAvatar* getAvatar() const;  //get the avatar this object is attached to, or NULL if object is not an attachment
 	virtual BOOL	isHUDAttachment() const { return FALSE; }
+	virtual BOOL	isTempAttachment() const;
+
 	virtual void 	updateRadius() {};
 	virtual F32 	getVObjRadius() const; // default implemenation is mDrawable->getRadius()
 	
@@ -303,7 +305,7 @@ public:
 	/*virtual*/ S32		setTETexture(const U8 te, const LLUUID &uuid);
 	/*virtual*/ S32		setTENormalMap(const U8 te, const LLUUID &uuid);
 	/*virtual*/ S32		setTESpecularMap(const U8 te, const LLUUID &uuid);
-	S32 setTETextureCore(const U8 te, LLViewerTexture *image);
+	S32 				setTETextureCore(const U8 te, LLViewerTexture *image);
 	S32 setTENormalMapCore(const U8 te, LLViewerTexture *image);
 	S32 setTESpecularMapCore(const U8 te, LLViewerTexture *image);
 	/*virtual*/ S32		setTEColor(const U8 te, const LLColor3 &color);
@@ -741,7 +743,6 @@ protected:
 	BOOL			mStatic;					// Object doesn't move.
 	S32				mNumFaces;
 
-	F32				mTimeDilation;				// Time dilation sent with the object.
 	F32				mRotTime;					// Amount (in seconds) that object has rotated according to angular velocity (llSetTargetOmega)
 	LLQuaternion	mAngularVelocityRot;		// accumulated rotation from the angular velocity computations
 	LLQuaternion	mPreviousRotation;

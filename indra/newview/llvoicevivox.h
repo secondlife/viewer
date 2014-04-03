@@ -659,6 +659,8 @@ private:
 	LLSocket::ptr_t mSocket;
 	bool mConnected;
 	
+	// We should kill the voice daemon in case of connection alert 
+	bool mTerminateDaemon;
 	
 	LLPumpIO *mPump;
 	friend class LLVivoxProtocolParser;

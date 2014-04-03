@@ -296,7 +296,7 @@ LLCurl::Easy* LLCurl::Easy::getEasy()
 	
 	// Enable a brief cache period for now.  This was zero for the longest time
 	// which caused some routers grief and generated unneeded traffic.  For the
-	// threded resolver, we're using system resolution libraries and non-zero values
+	// threaded resolver, we're using system resolution libraries and non-zero values
 	// are preferred.  The c-ares resolver is another matter and it might not
 	// track server changes as well.
 	CURLcode result = curl_easy_setopt(easy->mCurlEasyHandle, CURLOPT_DNS_CACHE_TIMEOUT, 15);
@@ -1741,6 +1741,7 @@ void LLCurl::cleanupClass()
 #if SAFE_SSL
 	CRYPTO_set_locking_callback(NULL);
 	for_each(sSSLMutex.begin(), sSSLMutex.end(), DeletePointer());
+	sSSLMutex.clear();
 #endif
 	
 	LL_CHECK_MEMORY

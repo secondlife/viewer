@@ -90,6 +90,8 @@ public:
 	static void onCurrentChannelChanged(const LLUUID& session_id);
 
 	void collapseMessagesPane(bool collapse);
+	bool isMessagesPaneCollapsed();
+	bool isConversationsPaneCollapsed();
 	
 	// Callbacks
 	static void idle(void* user_data);
@@ -134,7 +136,7 @@ private:
 	void onStubCollapseButtonClicked();
 	void processParticipantsStyleUpdate();
 	void onSpeakButtonClicked();
-	/*virtual*/ void onClickCloseBtn();
+	/*virtual*/ void onClickCloseBtn(bool app_quitting = false);
 	/*virtual*/ void closeHostedFloater();
 
 	void collapseConversationsPane(bool collapse, bool save_is_allowed=true);
@@ -172,6 +174,7 @@ private:
 	void toggleAllowTextChat(const LLUUID& participant_uuid);
 	void toggleMute(const LLUUID& participant_id, U32 flags);
 	void openNearbyChat();
+	bool isParticipantListExpanded();
 
 	LLButton* mExpandCollapseBtn;
 	LLButton* mStubCollapseBtn;

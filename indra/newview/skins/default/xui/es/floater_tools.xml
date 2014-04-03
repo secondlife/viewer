@@ -443,16 +443,11 @@
 				<combo_box.item label="succión" name="suction"/>
 				<combo_box.item label="tejido" name="weave"/>
 			</combo_box>
-			<check_box initial_value="falso" label="Alinear caras del plano" name="checkbox planar align" tool_tip="Alinear texturas en todas las caras seleccionadas con la última cara seleccionada. Requiere la representación de texturas en el plano."/>
-			<text name="rpt">
-				Repeticiones por cara
-			</text>
 			<spinner label="Horizontal (U)" name="TexScaleU"/>
 			<check_box label="Voltear" name="checkbox flip s"/>
 			<spinner label="Vertical (V)" name="TexScaleV"/>
 			<check_box label="Voltear" name="checkbox flip t"/>
 			<spinner label="Rotación" name="TexRot"/>
-			<spinner label="Repeticiones / Metro" name="rptctrl"/>
 			<button label="Aplicar" label_selected="Aplicar" name="button apply"/>
 			<text name="tex offset">
 				Desplazar

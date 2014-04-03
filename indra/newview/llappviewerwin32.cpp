@@ -172,20 +172,19 @@ void ll_nvapi_init(NvDRSSessionHandle hSession)
 			nvapi_error(status);
 			return;
 		}
+
+        // (5) Now we apply (or save) our changes to the system
+        status = NvAPI_DRS_SaveSettings(hSession);
+        if (status != NVAPI_OK) 
+        {
+            nvapi_error(status);
+            return;
+        }
 	}
 	else if (status != NVAPI_OK)
 	{
 		nvapi_error(status);
 		return;
-	}
-
-	
-
-	// (5) Now we apply (or save) our changes to the system
-	status = NvAPI_DRS_SaveSettings(hSession);
-	if (status != NVAPI_OK) 
-	{
-		nvapi_error(status);
 	}
 }
 
@@ -201,14 +200,6 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
                      LPSTR     lpCmdLine,
                      int       nCmdShow)
 {
-#ifdef INCLUDE_VLD
-	// only works for debug builds (hard coded into vld.h)
-	#ifdef _DEBUG
-		// start with Visual Leak Detector turned off
-		VLDGlobalDisable();
-	#endif // _DEBUG
-#endif // INCLUDE_VLD
-
 	const S32 MAX_HEAPS = 255;
 	DWORD heap_enable_lfh_error[MAX_HEAPS];
 	S32 num_heaps = 0;

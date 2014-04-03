@@ -225,7 +225,7 @@ LLBufferArray::LLBufferArray() :
 LLBufferArray::~LLBufferArray()
 {
 	std::for_each(mBuffers.begin(), mBuffers.end(), DeletePointer());
-
+	mBuffers.clear();
 	delete mMutexp;
 }
 

@@ -140,30 +140,39 @@ LLViewerRegion* LLWorld::addRegion(const U64 &region_handle, const LLHost &host)
 {
 	llinfos << "Add region with handle: " << region_handle << " on host " << host << llendl;
 	LLViewerRegion *regionp = getRegionFromHandle(region_handle);
+	std::string seedUrl;
 	if (regionp)
 	{
-		llinfos << "Region exists, removing it " << llendl;
 		LLHost old_host = regionp->getHost();
 		// region already exists!
 		if (host == old_host && regionp->isAlive())
 		{
 			// This is a duplicate for the same host and it's alive, don't bother.
+			llinfos << "Region already exists and is alive, using existing region" << llendl;
 			return regionp;
 		}
 
 		if (host != old_host)
 		{
 			llwarns << "LLWorld::addRegion exists, but old host " << old_host
-					<< " does not match new host " << host << llendl;
+					<< " does not match new host " << host 
+					<< ", removing old region and creating new" << llendl;
 		}
 		if (!regionp->isAlive())
 		{
-			llwarns << "LLWorld::addRegion exists, but isn't alive" << llendl;
+			llwarns << "LLWorld::addRegion exists, but isn't alive. Removing old region and creating new" << llendl;
 		}
+
+		// Save capabilities seed URL
+		seedUrl = regionp->getCapability("Seed");
 
 		// Kill the old host, and then we can continue on and add the new host.  We have to kill even if the host
 		// matches, because all the agent state for the new camera is completely different.
 		removeRegion(old_host);
+	}
+	else
+	{
+		llinfos << "Region does not exist, creating new one" << llendl;
 	}
 
 	U32 iindex = 0;
@@ -171,8 +180,8 @@ LLViewerRegion* LLWorld::addRegion(const U64 &region_handle, const LLHost &host)
 	from_region_handle(region_handle, &iindex, &jindex);
 	S32 x = (S32)(iindex/mWidth);
 	S32 y = (S32)(jindex/mWidth);
-	llinfos << "Adding new region (" << x << ":" << y << ")" << llendl;
-	llinfos << "Host: " << host << llendl;
+	llinfos << "Adding new region (" << x << ":" << y << ")" 
+		<< " on host: " << host << llendl;
 
 	LLVector3d origin_global;
 
@@ -186,6 +195,11 @@ LLViewerRegion* LLWorld::addRegion(const U64 &region_handle, const LLHost &host)
 	if (!regionp)
 	{
 		llerrs << "Unable to create new region!" << llendl;
+	}
+
+	if ( !seedUrl.empty() )
+	{
+		regionp->setCapability("Seed", seedUrl);
 	}
 
 	mRegionList.push_back(regionp);

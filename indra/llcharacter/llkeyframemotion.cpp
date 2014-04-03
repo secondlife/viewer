@@ -81,7 +81,9 @@ LLKeyframeMotion::JointMotionList::JointMotionList()
 LLKeyframeMotion::JointMotionList::~JointMotionList()
 {
 	for_each(mConstraints.begin(), mConstraints.end(), DeletePointer());
+	mConstraints.clear();
 	for_each(mJointMotionArray.begin(), mJointMotionArray.end(), DeletePointer());
+	mJointMotionArray.clear();
 }
 
 U32 LLKeyframeMotion::JointMotionList::dumpDiagInfo()
@@ -447,6 +449,7 @@ LLKeyframeMotion::LLKeyframeMotion(const LLUUID &id)
 LLKeyframeMotion::~LLKeyframeMotion()
 {
 	for_each(mConstraints.begin(), mConstraints.end(), DeletePointer());
+	mConstraints.clear();
 }
 
 //-----------------------------------------------------------------------------

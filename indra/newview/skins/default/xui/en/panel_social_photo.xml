@@ -1,0 +1,144 @@
+    <panel
+      height="400"
+      width="304"
+      layout="topleft"
+      name="panel_social_photo">
+      <layout_stack
+	   layout="topleft"
+       border_size="0"
+       height="392"
+       follows="all"
+       orientation="vertical"
+       name="stack_photo"
+       top="8">
+        <layout_panel	
+         name="snapshot_panel"
+         height="367">
+            <combo_box
+             control_name="SocialPhotoResolution"
+             follows="left|top"
+             top="6"
+             left="9"
+             name="resolution_combobox"
+             tool_tip="Image resolution"
+             height="21"
+             width="135">
+              <combo_box.item
+               label="Current Window"
+               name="CurrentWindow"
+               value="[i0,i0]" />
+              <combo_box.item
+               label="640x480"
+               name="640x480"
+               value="[i640,i480]" />
+              <combo_box.item
+               label="800x600"
+               name="800x600"
+               value="[i800,i600]" />
+              <combo_box.item
+               label="1024x768"
+               name="1024x768"
+               value="[i1024,i768]" />
+            </combo_box>
+            <text
+             follows="left|top"
+             font="SansSerifSmall"
+             height="14"
+             left="208"
+             length="1"
+             halign="right"
+             name="file_size_label"
+             top="9"
+             type="string"
+             width="50">
+              [SIZE] KB
+            </text>
+            <panel
+                height="150"
+                width="250"
+                visible="true"
+                name="thumbnail_placeholder"
+                top="33"
+                follows="left|top"
+                left="9">
+            </panel>
+            <button
+             follows="left|top"
+             height="23"
+             label="Refresh"
+             left="9"
+             top_pad="5"
+             name="new_snapshot_btn"
+             tool_tip="Click to refresh"
+             visible="true"
+             width="100" >
+             <button.commit_callback
+               function="SocialSharing.RefreshPhoto" />
+            </button>
+            <text
+                follows="left|top"
+                font="SansSerif"
+                text_color="EmphasisColor"
+                height="14"
+                top_pad="-19"
+                left_pad="-20"
+                length="1"
+                halign="center"
+                name="working_lbl"
+                translate="false"
+                type="string"
+                visible="true"
+                width="150">
+                Refreshing...
+            </text>
+            <text
+             length="1"
+             follows="top|left|right"
+             font="SansSerif"
+             height="16"
+             left="9"
+             name="caption_label"
+             top_pad="20"
+             type="string">
+              Comment (optional):
+            </text>
+            <text_editor
+             follows="left|top"
+             height="87"
+             width="250"
+             left="9"
+             length="1"
+             max_length="700"
+             name="photo_caption"
+             type="string"
+             word_wrap="true">
+            </text_editor>
+        </layout_panel>
+        <layout_panel
+          name="photo_button_panel"
+          height="25">
+          <button
+           follows="left|top"
+           top="0"
+           left="9"
+           height="23"
+           label="Post"
+           name="post_photo_btn"
+           width="100">
+            <button.commit_callback
+             function="SocialSharing.SendPhoto" />
+          </button>
+          <button
+               follows="left|top"
+               height="23"
+               label="Cancel"
+               name="cancel_photo_btn"
+               left_pad="15"
+               top_delta="0"
+               width="100">
+            <button.commit_callback
+             function="SocialSharing.Cancel" />
+          </button>          
+        </layout_panel>        
+      </layout_stack>
+    </panel>

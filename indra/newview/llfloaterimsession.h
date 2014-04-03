@@ -141,7 +141,7 @@ private:
 	/*virtual*/ void refresh();
 
     /*virtual*/ void onTearOffClicked();
-	/*virtual*/ void onClickCloseBtn();
+	/*virtual*/ void onClickCloseBtn(bool app_qutting);
 
 	// Update the window title and input field help text
 	/*virtual*/ void updateSessionName(const std::string& name);
@@ -187,6 +187,8 @@ private:
 	LLFrameTimer mTypingTimer;
 	LLFrameTimer mTypingTimeoutTimer;
 	bool mSessionNameUpdatedForTyping;
+	LLFrameTimer mMeTypingTimer;
+	LLFrameTimer mOtherTypingTimer;
 
 	bool mSessionInitialized;
 	LLSD mQueuedMsgsForInit;
@@ -196,6 +198,8 @@ private:
 
 	// connection to voice channel state change signal
 	boost::signals2::connection mVoiceChannelStateChangeConnection;
+
+	const LLIMInfo* mImInfo;
 };
 
 #endif  // LL_FLOATERIMSESSION_H

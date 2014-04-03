@@ -129,28 +129,28 @@ public:
 	/*virtual*/ void			updateGL();
 	/*virtual*/ LLVOAvatar*		asAvatar();
 	virtual U32    	 	 	processUpdateMessage(LLMessageSystem *mesgsys,
-													 void **user_data,
-													 U32 block_num,
-													 const EObjectUpdateType update_type,
-													 LLDataPacker *dp);
-	virtual void   	 	 	idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
+												void **user_data,
+												U32 block_num,
+												const EObjectUpdateType update_type,
+												LLDataPacker *dp);
+	virtual void   	 	 	idleUpdate(LLAgent &agent, const F64 &time);
 	/*virtual*/ BOOL   	 	 	updateLOD();
 	BOOL  	 	 	 	 	updateJointLODs();
 	void					updateLODRiggedAttachments( void );
 	/*virtual*/ BOOL   	 	 	isActive() const; // Whether this object needs to do an idleUpdate.
 	S32 						totalTextureMemForUUIDS(std::set<LLUUID>& ids);
-	bool 						allTexturesCompletelyDownloaded(std::set<LLUUID>& ids) const;
-	bool 						allLocalTexturesCompletelyDownloaded() const;
-	bool 						allBakedTexturesCompletelyDownloaded() const;
-	void 						bakedTextureOriginCounts(S32 &sb_count, S32 &host_count,
-														 S32 &both_count, S32 &neither_count);
-	std::string 				bakedTextureOriginInfo();
-	void 						collectLocalTextureUUIDs(std::set<LLUUID>& ids) const;
-	void 						collectBakedTextureUUIDs(std::set<LLUUID>& ids) const;
-	void 						collectTextureUUIDs(std::set<LLUUID>& ids);
-	void						releaseOldTextures();
+	bool 					allTexturesCompletelyDownloaded(std::set<LLUUID>& ids) const;
+	bool 					allLocalTexturesCompletelyDownloaded() const;
+	bool 					allBakedTexturesCompletelyDownloaded() const;
+	void 					bakedTextureOriginCounts(S32 &sb_count, S32 &host_count,
+													 S32 &both_count, S32 &neither_count);
+	std::string 			bakedTextureOriginInfo();
+	void 					collectLocalTextureUUIDs(std::set<LLUUID>& ids) const;
+	void 					collectBakedTextureUUIDs(std::set<LLUUID>& ids) const;
+	void 					collectTextureUUIDs(std::set<LLUUID>& ids);
+	void					releaseOldTextures();
 	/*virtual*/ void   	 	 	updateTextures();
-	LLViewerFetchedTexture*		getBakedTextureImage(const U8 te, const LLUUID& uuid);
+	LLViewerFetchedTexture*	getBakedTextureImage(const U8 te, const LLUUID& uuid);
 	/*virtual*/ S32    	 	 	setTETexture(const U8 te, const LLUUID& uuid); // If setting a baked texture, need to request it from a non-local sim.
 	/*virtual*/ void   	 	 	onShift(const LLVector4a& shift_vector);
 	/*virtual*/ U32    	 	 	getPartitionType() const;
@@ -406,6 +406,7 @@ public:
 	F32			getLastSkinTime() { return mLastSkinTime; }
 	U32 		renderTransparent(BOOL first_pass);
 	void 		renderCollisionVolumes();
+	void		renderJoints();
 	static void	deleteCachedImages(bool clearAll=true);
 	static void	destroyGL();
 	static void	restoreGL();
@@ -731,6 +732,8 @@ public:
 	void				cleanupAttachedMesh( LLViewerObject* pVO );
 	static LLVOAvatar*  findAvatarFromAttachment(LLViewerObject* obj);
 	/*virtual*/ BOOL	isWearingWearableType(LLWearableType::EType type ) const;
+	LLViewerObject *	findAttachmentByID( const LLUUID & target_id ) const;
+
 protected:
 	LLViewerJointAttachment* getTargetAttachmentPoint(LLViewerObject* viewer_object);
 	void 				lazyAttach();

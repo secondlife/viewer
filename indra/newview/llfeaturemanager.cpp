@@ -350,7 +350,7 @@ bool LLFeatureManager::parseFeatureTable(std::string filename)
 	}
 
 	mTableVersion = version;
-	
+
 	LLFeatureList *flp = NULL;
 	bool parse_ok = true;
 	while (file >> name && parse_ok)
@@ -381,11 +381,11 @@ bool LLFeatureManager::parseFeatureTable(std::string filename)
 			file >> name;
 			if (!mMaskList.count(name))
 			{
-				flp = new LLFeatureList(name);
-				mMaskList[name] = flp;
-			}
-			else
-			{
+			flp = new LLFeatureList(name);
+			mMaskList[name] = flp;
+		}
+		else
+		{
 				LL_WARNS("RenderInit") << "Overriding mask " << name << ", this is invalid!" << LL_ENDL;
 				parse_ok = false;
 			}
@@ -394,11 +394,11 @@ bool LLFeatureManager::parseFeatureTable(std::string filename)
 		{
 			if (flp)
 			{
-				S32 available;
-				F32 recommended;
-				file >> available >> recommended;
-				flp->addFeature(name, available, recommended);
-			}
+			S32 available;
+			F32 recommended;
+			file >> available >> recommended;
+			flp->addFeature(name, available, recommended);
+		}
 			else
 			{
 				LL_WARNS("RenderInit") << "Specified parameter before <list> keyword!" << LL_ENDL;
@@ -444,7 +444,7 @@ bool LLFeatureManager::loadGPUClass()
 			// the HTTP table failed to parse, so delete it
 			LLFile::remove(http_path);
 			LL_WARNS("RenderInit") << "Removed invalid gpu table '" << http_path << "'" << LL_ENDL;
-		}
+	}
 	}
 
 	if (!parse_ok)
@@ -459,7 +459,7 @@ bool LLFeatureManager::loadGPUClass()
 bool LLFeatureManager::parseGPUTable(std::string filename)
 {
 	llifstream file;
-	
+		
 	LL_INFOS("RenderInit") << "Attempting to parse GPU table from " << filename << LL_ENDL;
 	file.open(filename);
 
@@ -924,6 +924,14 @@ void LLFeatureManager::applyBaseMasks()
 	{
 		maskFeatures("VRAMGT512");
 	}
+
+#if LL_DARWIN
+	const LLOSInfo& osInfo = LLAppViewer::instance()->getOSInfo();
+	if (osInfo.mMajorVer == 10 && osInfo.mMinorVer < 7)
+	{
+		maskFeatures("OSX_10_6_8");
+        }
+#endif
 
 	// now mask by gpu string
 	// Replaces ' ' with '_' in mGPUString to deal with inability for parser to handle spaces

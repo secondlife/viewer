@@ -71,7 +71,7 @@
 
 LLSidepanelTaskInfo* LLSidepanelTaskInfo::sActivePanel = NULL;
 
-static LLRegisterPanelClassWrapper<LLSidepanelTaskInfo> t_task_info("sidepanel_task_info");
+static LLPanelInjector<LLSidepanelTaskInfo> t_task_info("sidepanel_task_info");
 
 // Default constructor
 LLSidepanelTaskInfo::LLSidepanelTaskInfo()
@@ -1169,6 +1169,10 @@ void LLSidepanelTaskInfo::doClickAction(U8 click_action)
 		{
 			// Warn, but do it anyway.
 			LLNotificationsUtil::add("ClickActionNotPayable");
+		}
+		else
+		{
+			handle_give_money_dialog();
 		}
 	}
 	LLSelectMgr::getInstance()->selectionSetClickAction(click_action);

@@ -191,6 +191,8 @@ public:
 
 	//========================================================================
 	
+	void			setLeftTextPadding(S32 pad);
+	
 	void*			getCurrentUserdata();
 
 	void			setPrearrangeCallback( commit_callback_t cb ) { mPrearrangeCallback = cb; }

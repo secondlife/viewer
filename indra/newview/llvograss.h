@@ -74,7 +74,7 @@ public:
 	void plantBlades();
 
 	/*virtual*/ BOOL    isActive() const; // Whether this object needs to do an idleUpdate.
-	/*virtual*/ void idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
+	/*virtual*/ void idleUpdate(LLAgent &agent, const F64 &time);
 
 	/*virtual*/ BOOL lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, 
 										  S32 face = -1,                        // which face to check, -1 = ALL_SIDES

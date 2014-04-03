@@ -27,9 +27,6 @@ Linux.distcc_version =
 Linux.gcc_version = /usr/bin/gcc-4.6
 Linux.cxx_version = /usr/bin/g++-4.6
 
-# Setup default sourceid so Windows can pick up the TeamCity override
-sourceid = ""
-
 ################################################################
 ####      Examples of how to set the viewer_channel         ####
 #
@@ -49,6 +46,14 @@ sourceid = ""
 # should use a viewer_channel that begins with "Second Life"
 ################################################################
 viewer_channel = "Second Life Test"
+
+# Setup default packaging parameters.
+sourceid = ""
+additional_packages = "Amazon Desura"
+Amazon_sourceid = "1207v_Amazon"
+Amazon_viewer_channel_suffix = "Amazon"
+Desura_sourceid = "1208_desura"
+Desura_viewer_channel_suffix = "Desura"
 
 # Report changes since...
 viewer-development.show_changes_since = last_sprint

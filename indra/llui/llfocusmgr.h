@@ -97,7 +97,7 @@ public:
 	void			triggerFocusFlash();
 	BOOL			getAppHasFocus() const { return mAppHasFocus; }
 	void			setAppHasFocus(BOOL focus);
-	LLUICtrl*		getLastFocusForGroup(LLView* subtree_root) const;
+	LLView*		getLastFocusForGroup(LLView* subtree_root) const;
 	void			clearLastFocusForGroup(LLView* subtree_root);
 
 	// If setKeyboardFocus(NULL) is called, and there is a non-NULL default

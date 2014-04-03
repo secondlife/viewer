@@ -261,6 +261,7 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 	mSessionTerminateRequested(false),
 	mRelogRequested(false),
 	mConnected(false),
+	mTerminateDaemon(false),
 	mPump(NULL),
 	mSpatialJoiningNum(0),
 
@@ -695,7 +696,7 @@ void LLVivoxVoiceClient::stateMachine()
 		setVoiceEnabled(false);
 	}
 	
-	if(mVoiceEnabled || !mIsInitialized)
+	if(mVoiceEnabled || (!mIsInitialized &&!mTerminateDaemon) )
 	{
 		updatePosition();
 	}
@@ -708,11 +709,12 @@ void LLVivoxVoiceClient::stateMachine()
 		if((getState() != stateDisabled) && (getState() != stateDisableCleanup))
 		{
 			// User turned off voice support.  Send the cleanup messages, close the socket, and reset.
-			if(!mConnected)
+			if(!mConnected || mTerminateDaemon)
 			{
 				// if voice was turned off after the daemon was launched but before we could connect to it, we may need to issue a kill.
 				LL_INFOS("Voice") << "Disabling voice before connection to daemon, terminating." << LL_ENDL;
 				killGateway();
+				mTerminateDaemon = false;
 			}
 			
 			logout();
@@ -753,7 +755,7 @@ void LLVivoxVoiceClient::stateMachine()
 				// Voice is locked out, we must not launch the vivox daemon.
 				setState(stateJail);
 			}
-			else if(!isGatewayRunning())
+			else if(!isGatewayRunning() && gSavedSettings.getBOOL("EnableVoiceChat"))
 			{
 				if (true)           // production build, not test
 				{
@@ -786,7 +788,6 @@ void LLVivoxVoiceClient::stateMachine()
 						{
 							loglevel = "0";	// turn logging off completely
 						}
-						loglevel = "0";	// turn logging off completely
 						params.args.add("-ll");
 						params.args.add(loglevel);
 						params.cwd = gDirUtilp->getAppRODataDir();
@@ -1137,6 +1138,7 @@ void LLVivoxVoiceClient::stateMachine()
 				std::stringstream errs;
 				errs << mVoiceAccountServerURI << "\n:UDP: 3478, 3479, 5060, 5062, 12000-17000";
 				args["HOSTID"] = errs.str();
+				mTerminateDaemon = true;
 				if (LLGridManager::getInstance()->isSystemGrid())
 				{
 					LLNotificationsUtil::add("NoVoiceConnect", args);	
@@ -2619,6 +2621,7 @@ void LLVivoxVoiceClient::connectorCreateResponse(int statusCode, std::string &st
 		std::stringstream errs;
 		errs << mVoiceAccountServerURI << "\n:UDP: 3478, 3479, 5060, 5062, 12000-17000";
 		args["HOSTID"] = errs.str();
+		mTerminateDaemon = true;
 		if (LLGridManager::getInstance()->isSystemGrid())
 		{
 			LLNotificationsUtil::add("NoVoiceConnect", args);	
@@ -2634,6 +2637,7 @@ void LLVivoxVoiceClient::connectorCreateResponse(int statusCode, std::string &st
 		LL_INFOS("Voice") << "Connector.Create succeeded, Vivox SDK version is " << versionID << LL_ENDL;
 		mVoiceVersion.serverVersion = versionID;
 		mConnectorHandle = connectorHandle;
+		mTerminateDaemon = false;
 		if(getState() == stateConnectorStarting)
 		{
 			setState(stateConnectorStarted);

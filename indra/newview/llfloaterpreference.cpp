@@ -238,6 +238,7 @@ bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response
 
 void handleNameTagOptionChanged(const LLSD& newvalue)
 {
+	LLAvatarNameCache::setUseUsernames(gSavedSettings.getBOOL("NameTagShowUsernames"));
 	LLVOAvatar::invalidateNameTags();
 }
 
@@ -618,8 +619,11 @@ void LLFloaterPreference::cancel()
 	// hide translation settings floater
 	LLFloaterReg::hideInstance("prefs_translation");
 	
-	// hide translation settings floater
+	// hide autoreplace settings floater
 	LLFloaterReg::hideInstance("prefs_autoreplace");
+	
+	// hide spellchecker settings folder
+	LLFloaterReg::hideInstance("prefs_spellchecker");
 	
 	// cancel hardware menu
 	LLFloaterHardwareSettings* hardware_settings = LLFloaterReg::getTypedInstance<LLFloaterHardwareSettings>("prefs_hardware_settings");
@@ -1819,7 +1823,7 @@ private:
 	callback_t mCallback;
 };
 //----------------------------------------------------------------------------
-static LLRegisterPanelClassWrapper<LLPanelPreference> t_places("panel_preference");
+static LLPanelInjector<LLPanelPreference> t_places("panel_preference");
 LLPanelPreference::LLPanelPreference()
 : LLPanel(),
   mBandWidthUpdater(NULL)
@@ -2059,8 +2063,8 @@ private:
 	std::list<std::string> mAccountIndependentSettings;
 };
 
-static LLRegisterPanelClassWrapper<LLPanelPreferenceGraphics> t_pref_graph("panel_preference_graphics");
-static LLRegisterPanelClassWrapper<LLPanelPreferencePrivacy> t_pref_privacy("panel_preference_privacy");
+static LLPanelInjector<LLPanelPreferenceGraphics> t_pref_graph("panel_preference_graphics");
+static LLPanelInjector<LLPanelPreferencePrivacy> t_pref_privacy("panel_preference_privacy");
 
 BOOL LLPanelPreferenceGraphics::postBuild()
 {

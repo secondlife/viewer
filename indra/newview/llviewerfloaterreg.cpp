@@ -95,6 +95,7 @@
 #include "llfloaterproperties.h"
 #include "llfloaterregiondebugconsole.h"
 #include "llfloaterregioninfo.h"
+#include "llfloaterregionrestarting.h"
 #include "llfloaterreporter.h"
 #include "llfloaterscriptdebug.h"
 #include "llfloaterscriptlimits.h"
@@ -103,6 +104,7 @@
 #include "llfloatersettingsdebug.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfloatersnapshot.h"
+#include "llfloatersocial.h"
 #include "llfloatersounddevices.h"
 #include "llfloaterspellchecksettings.h"
 #include "llfloatertelehub.h"
@@ -295,6 +297,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("reset_queue", "floater_script_queue.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterResetQueue>);
 	LLFloaterReg::add("region_debug_console", "floater_region_debug_console.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterRegionDebugConsole>);
 	LLFloaterReg::add("region_info", "floater_region_info.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterRegionInfo>);
+	LLFloaterReg::add("region_restarting", "floater_region_restarting.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterRegionRestarting>);
 	
 	LLFloaterReg::add("script_debug", "floater_script_debug.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterScriptDebug>);
 	LLFloaterReg::add("script_debug_output", "floater_script_debug_panel.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterScriptDebugOutput>);
@@ -303,6 +306,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("sell_land", "floater_sell_land.xml", &LLFloaterSellLand::buildFloater);
 	LLFloaterReg::add("settings_debug", "floater_settings_debug.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSettingsDebug>);
 	LLFloaterReg::add("sound_devices", "floater_sound_devices.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSoundDevices>);
+	LLFloaterReg::add("social", "floater_social.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSocial>);
 	LLFloaterReg::add("stats", "floater_stats.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloater>);
 	LLFloaterReg::add("start_queue", "floater_script_queue.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterRunQueue>);
 	LLFloaterReg::add("stop_queue", "floater_script_queue.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterNotRunQueue>);
@@ -311,7 +315,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("my_profile", "floater_my_web_profile.xml", (LLFloaterBuildFunc)&LLFloaterWebProfile::create);
 	LLFloaterReg::add("profile", "floater_web_profile.xml", (LLFloaterBuildFunc)&LLFloaterWebProfile::create);
 	LLFloaterReg::add("how_to", "floater_how_to.xml", (LLFloaterBuildFunc)&LLFloaterWebContent::create);	
-
+	LLFloaterReg::add("fbc_web", "floater_fbc_web.xml", (LLFloaterBuildFunc)&LLFloaterWebContent::create);
 	
 	LLFloaterUIPreviewUtil::registerFloater();
 	LLFloaterReg::add("upload_anim_bvh", "floater_animation_bvh_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterBvhPreview>, "upload");

@@ -167,6 +167,7 @@ LLTextBase::Params::Params()
 	max_text_length("max_length", 255),
 	font_shadow("font_shadow"),
 	wrap("wrap"),
+	trusted_content("trusted_content", true),
 	use_ellipses("use_ellipses", false),
 	parse_urls("parse_urls", false),
 	parse_highlights("parse_highlights", false)
@@ -211,6 +212,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mLineSpacingPixels(p.line_spacing.pixels),
 	mClip(p.clip),
 	mClipPartial(p.clip_partial && !p.allow_scroll),
+	mTrustedContent(p.trusted_content),
 	mTrackEnd( p.track_end ),
 	mScrollIndex(-1),
 	mSelectionStart( 0 ),
@@ -1029,7 +1031,7 @@ BOOL LLTextBase::handleMouseDown(S32 x, S32 y, MASK mask)
 BOOL LLTextBase::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
-	if (cur_segment && cur_segment->handleMouseUp(x, y, mask))
+	if (hasMouseCapture() && cur_segment && cur_segment->handleMouseUp(x, y, mask))
 	{
 		// Did we just click on a link?
 		if (mURLClickSignal
@@ -3164,7 +3166,7 @@ BOOL LLNormalTextSegment::handleMouseUp(S32 x, S32 y, MASK mask)
 		// Only process the click if it's actually in this segment, not to the right of the end-of-line.
 		if(mEditor.getSegmentAtLocalPos(x, y, false) == this)
 		{
-			LLUrlAction::clickAction(getStyle()->getLinkHREF());
+			LLUrlAction::clickAction(getStyle()->getLinkHREF(), mEditor.isContentTrusted());
 			return TRUE;
 		}
 	}

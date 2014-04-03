@@ -269,6 +269,7 @@ void LLVOTree::initClass()
 void LLVOTree::cleanupClass()
 {
 	std::for_each(sSpeciesTable.begin(), sSpeciesTable.end(), DeletePairedPointer());
+	sSpeciesTable.clear();
 }
 
 U32 LLVOTree::processUpdateMessage(LLMessageSystem *mesgsys,
@@ -339,7 +340,7 @@ U32 LLVOTree::processUpdateMessage(LLMessageSystem *mesgsys,
 	return retval;
 }
 
-void LLVOTree::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
+void LLVOTree::idleUpdate(LLAgent &agent, const F64 &time)
 {
  	if (mDead || !(gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_TREE)))
 	{

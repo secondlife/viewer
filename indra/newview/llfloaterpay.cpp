@@ -135,6 +135,7 @@ LLFloaterPay::LLFloaterPay(const LLSD& key)
 LLFloaterPay::~LLFloaterPay()
 {
 	std::for_each(mCallbackData.begin(), mCallbackData.end(), DeletePointer());
+	mCallbackData.clear();
 	// Name callbacks will be automatically disconnected since LLFloater is trackable
 	
 	// In case this floater is currently waiting for a reply.

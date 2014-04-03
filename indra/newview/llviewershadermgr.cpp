@@ -87,6 +87,8 @@ LLGLSLShader	gClipProgram;
 LLGLSLShader	gDownsampleDepthProgram;
 LLGLSLShader	gDownsampleDepthRectProgram;
 LLGLSLShader	gAlphaMaskProgram;
+LLGLSLShader	gBenchmarkProgram;
+
 
 //object shaders
 LLGLSLShader		gObjectSimpleProgram;
@@ -461,7 +463,7 @@ void LLViewerShaderMgr::setShaders()
 		S32 deferred_class = 0;
 		S32 transform_class = gGLManager.mHasTransformFeedback ? 1 : 0;
 
-		static LLCachedControl<bool> use_transform_feedback(gSavedSettings, "RenderUseTransformFeedback");
+		static LLCachedControl<bool> use_transform_feedback(gSavedSettings, "RenderUseTransformFeedback", false);
 		if (!use_transform_feedback)
 		{
 			transform_class = 0;
@@ -681,6 +683,7 @@ void LLViewerShaderMgr::unloadShaders()
 	gClipProgram.unload();
 	gDownsampleDepthProgram.unload();
 	gDownsampleDepthRectProgram.unload();
+	gBenchmarkProgram.unload();
 	gAlphaMaskProgram.unload();
 	gUIProgram.unload();
 	gPathfindingProgram.unload();
@@ -3186,6 +3189,26 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 		gDownsampleDepthProgram.mShaderFiles.push_back(make_pair("interface/downsampleDepthF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDownsampleDepthProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];
 		success = gDownsampleDepthProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
+		gBenchmarkProgram.mName = "Benchmark Shader";
+		gBenchmarkProgram.mShaderFiles.clear();
+		gBenchmarkProgram.mShaderFiles.push_back(make_pair("interface/benchmarkV.glsl", GL_VERTEX_SHADER_ARB));
+		gBenchmarkProgram.mShaderFiles.push_back(make_pair("interface/benchmarkF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gBenchmarkProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];
+		success = gBenchmarkProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
+		gDownsampleDepthRectProgram.mName = "DownsampleDepthRect Shader";
+		gDownsampleDepthRectProgram.mShaderFiles.clear();
+		gDownsampleDepthRectProgram.mShaderFiles.push_back(make_pair("interface/downsampleDepthV.glsl", GL_VERTEX_SHADER_ARB));
+		gDownsampleDepthRectProgram.mShaderFiles.push_back(make_pair("interface/downsampleDepthRectF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDownsampleDepthRectProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];
+		success = gDownsampleDepthRectProgram.createShader(NULL, NULL);
 	}
 
 	if (success)

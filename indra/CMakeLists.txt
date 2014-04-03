@@ -63,10 +63,11 @@ add_subdirectory(${VIEWER_PREFIX}test)
 # viewer media plugins
 add_subdirectory(${LIBS_OPEN_PREFIX}media_plugins)
 
-# llplugin testbed code (is this the right way to include it?)
-if (LL_TESTS AND NOT LINUX)
-  add_subdirectory(${VIEWER_PREFIX}test_apps/llplugintest)
-endif (LL_TESTS AND NOT LINUX)
+  # llplugin testbed code (is this the right way to include it?)
+  if (LL_TESTS AND NOT LINUX)
+    add_subdirectory(${VIEWER_PREFIX}test_apps/llplugintest)
+    add_subdirectory(${VIEWER_PREFIX}test_apps/llfbconnecttest)
+  endif (LL_TESTS AND NOT LINUX)
 
 if (LINUX)
   add_subdirectory(${VIEWER_PREFIX}linux_crash_logger)

@@ -62,7 +62,7 @@
 #include "llappearancemgr.h"
 
 // register panel with appropriate XML
-static LLRegisterPanelClassWrapper<LLPanelEditWearable> t_edit_wearable("panel_edit_wearable");
+static LLPanelInjector<LLPanelEditWearable> t_edit_wearable("panel_edit_wearable");
 
 // subparts of the UI for focus, camera position, etc.
 enum ESubpart {

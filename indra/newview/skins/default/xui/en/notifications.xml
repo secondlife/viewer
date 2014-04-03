@@ -3481,7 +3481,7 @@ or you can install it now.
    name="DownloadBackgroundTip"
    type="notify">
 We have downloaded an update to your [APP_NAME] installation.
-Version [VERSION] [[RELEASE_NOTES_FULL_URL] Information about this update]
+Version [VERSION] [[INFO_URL] Information about this update]
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -3494,7 +3494,7 @@ Version [VERSION] [[RELEASE_NOTES_FULL_URL] Information about this update]
  name="DownloadBackgroundDialog"
  type="alertmodal">
 We have downloaded an update to your [APP_NAME] installation.
-Version [VERSION] [[RELEASE_NOTES_FULL_URL] Information about this update]
+    Version [VERSION] [[INFO_URL] Information about this update]
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -4069,6 +4069,27 @@ Join me in [REGION]
     </form>
   </notification>
 
+  <notification
+   icon="alertmodal.tga"
+   name="TeleportRequestPrompt"
+   type="alertmodal">
+Request a teleport to [NAME] with the following message
+    <tag>confirm</tag>
+    <form name="form">
+      <input name="message" type="text">
+
+      </input>
+      <button
+       default="true"
+       index="0"
+       name="OK"
+       text="OK"/>
+      <button
+       index="1"
+       name="Cancel"
+       text="Cancel"/>
+    </form>
+  </notification>
   <notification
    icon="alertmodal.tga"
    name="TooManyTeleportOffers"
@@ -4733,6 +4754,14 @@ Problem importing estate covenant.
    type="alertmodal">
 Problems adding a new estate manager.  One or more estates may have a full manager list.
   <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ProblemAddingEstateBanManager"
+   type="alertmodal">
+Unable to add estate owner or manager to ban list.
+    <tag>fail</tag>
   </notification>
 
   <notification
@@ -6017,6 +6046,13 @@ Please select at least one type of content to search (General, Moderate, or Adul
 [MESSAGE]
   </notification>
 
+ <notification
+  icon="notify.tga"
+  name="FacebookConnect"
+  type="notifytip">
+[MESSAGE]
+ </notification>
+    
   <notification
    icon="notify.tga"
    name="PaymentReceived"
@@ -6309,12 +6345,21 @@ You can only claim public land in the Region you&apos;re in.
   <notification
    icon="notify.tga"
    name="RegionTPAccessBlocked"
-   persist="true"
+   persist="false"
    type="notify">
    <tag>fail</tag>
     The region you're trying to visit contains content exceeding your current preferences.  You can change your preferences using Me &gt; Preferences &gt; General.
   </notification>
 
+  <notification
+	icon="notify.tga"
+   name="RegionAboutToShutdown"
+   persist="false"
+   type="notify">
+    <tag>fail</tag>
+    The region you're trying to enter is about to shut down.
+  </notification>
+  
   <notification
 	icon="notify.tga"
 	name="URBannedFromRegion"
@@ -6637,7 +6682,7 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
    sound="UISndNewIncomingIMSession">
 [NAME_SLURL] has offered to teleport you to their location:
 
-“[MESSAGE]”
+"[MESSAGE]”
 &lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt; - [MATURITY_STR]
     <tag>confirm</tag>
     <form name="form">
@@ -6702,6 +6747,27 @@ However, this region contains content accessible to adults only.
 	Teleport offer sent to [TO_NAME]
   </notification>
 
+  <notification
+   icon="notify.tga"
+   name="TeleportRequest"
+   log_to_im="true"
+   type="offer">
+[NAME_SLURL] is requesting to be teleported to your location.
+[MESSAGE]
+
+Offer a teleport?
+    <tag>confirm</tag>
+    <form name="form">
+      <button
+       index="0"
+       name="Yes"
+       text="Yes"/>
+      <button
+       index="1"
+       name="No"
+       text="No"/>
+    </form>
+  </notification>
 
   <notification
    icon="notify.tga"
@@ -6750,7 +6816,6 @@ However, this region contains content accessible to adults only.
    icon="notify.tga"
    name="FriendshipOffered"
    log_to_im="true"   
-   show_toast="false"   
    type="notify">
     <tag>friendship</tag>
 	You have offered friendship to [TO_NAME]
@@ -6800,7 +6865,6 @@ However, this region contains content accessible to adults only.
    icon="notify.tga"
    name="FriendshipAcceptedByMe"
    log_to_im="true"   
-   show_toast="false"
    type="notify">
     <tag>friendship</tag>
 Friendship offer accepted.
@@ -6810,7 +6874,6 @@ Friendship offer accepted.
    icon="notify.tga"
    name="FriendshipDeclinedByMe"
    log_to_im="true"   
-   show_toast="false"   
    type="notify">
     <tag>friendship</tag>
 Friendship offer declined.
@@ -6838,20 +6901,20 @@ This will add a bookmark in your inventory so you can quickly IM this Resident.
   <notification
    icon="notify.tga"
    name="RegionRestartMinutes"
+   show_toast="false"
    priority="high"
-   sound="UISndAlert"
    type="notify">
-This region will restart in [MINUTES] minutes.
+The region "[NAME]" will restart in [MINUTES] minutes.
 If you stay in this region you will be logged out.
   </notification>
 
   <notification
    icon="notify.tga"
    name="RegionRestartSeconds"
+   show_toast="false"
    priority="high"
-   sound="UISndAlert"
    type="notify">
-This region will restart in [SECONDS] seconds.
+The region "[NAME]" will restart in [SECONDS] seconds.
 If you stay in this region you will be logged out.
   </notification>
 
@@ -8734,11 +8797,11 @@ You are no longer allowed here and have [EJECT_TIME] seconds to leave.
 
   <notification
    icon="alertmodal.tga"
-   name="NoEnterServerFull"
+   name="NoEnterRegionMaybeFull"
    type="notify">
    <tag>fail</tag>
-You can't enter this region because 
-the server is full.
+You can't enter region "[NAME]".
+It may be full or restarting soon.
   </notification>
 
   <notification
@@ -9238,8 +9301,17 @@ Object uses too many physics resources -- its dynamics have been disabled.
 
   <notification
    icon="alertmodal.tga"
+   name="EstateManagerFailedllTeleportHome"
+   persist="false"
+   type="notify">
+    <tag>fail</tag>
+The object '[OBJECT_NAME]' at [SLURL] cannot teleport estate managers home.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="TeleportedHomeByObjectOnParcel"
-   persist="true"
+   persist="false"
    type="notify">
    <tag>fail</tag>
 You have been teleported home by the object '[OBJECT_NAME]' on the parcel '[PARCEL_NAME]'
@@ -9248,7 +9320,7 @@ You have been teleported home by the object '[OBJECT_NAME]' on the parcel '[PARC
   <notification
    icon="alertmodal.tga"
    name="TeleportedHomeByObject"
-   persist="true"
+   persist="false"
    type="notify">
    <tag>fail</tag>
 You have been teleported home by the object '[OBJECT_NAME]'
@@ -9504,6 +9576,14 @@ Not enough script resources available to attach object!
 
   <notification
    icon="alertmodal.tga"
+   name="CantAttachObjectBeingRemoved"
+   type="notify">
+    <tag>fail</tag>
+    Cannot attach object because it is already being removed.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="CantDropItemTrialUser"
    type="notify">
    <tag>fail</tag>
@@ -9684,15 +9764,7 @@ Only the first 10 selected objects have been disabled. Refresh and make addition
    type="notify">
    <tag>fail</tag>
 You need to update your viewer to buy this parcel.
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="LandBuyAccessBlocked"
-   type="notify">
-   <tag>fail</tag>
-You can't buy this land due to your maturity Rating. You may need to validate your age and/or install the latest Viewer. Please go to the Knowledge Base for details on accessing areas with this maturity Rating.
-  </notification>
+  </notification>  
 
   <notification
    icon="alertmodal.tga"
@@ -9755,7 +9827,9 @@ Not enough leased parcels in selection to join.
    name="CantDivideLandMultipleParcelsSelected"
    type="notify">
    <tag>fail</tag>
-Can't divide land.\nThere is more than one parcel selected.\nTry selecting a smaller piece of land.
+Can't divide land.
+There is more than one parcel selected.
+Try selecting a smaller piece of land.
   </notification>
 
   <notification
@@ -9763,7 +9837,9 @@ Can't divide land.\nThere is more than one parcel selected.\nTry selecting a sma
    name="CantDivideLandCantFindParcel"
    type="notify">
    <tag>fail</tag>
-Can't divide land.\nCan't find the parcel.\nPlease report with Help -> Reprt Bug...
+Can't divide land.
+Can't find the parcel.
+Please report with Help -> Report Bug...
   </notification>
 
   <notification
@@ -9771,7 +9847,8 @@ Can't divide land.\nCan't find the parcel.\nPlease report with Help -> Reprt Bug
    name="CantDivideLandWholeParcelSelected"
    type="notify">
    <tag>fail</tag>
-Can't divide land. Whole parcel is selected.\nTry selecting a smaller piece of land.
+Can't divide land. Whole parcel is selected.
+Try selecting a smaller piece of land.
   </notification>
 
   <notification

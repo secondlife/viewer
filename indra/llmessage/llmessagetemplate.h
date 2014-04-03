@@ -118,6 +118,7 @@ public:
 	~LLMsgData()
 	{
 		for_each(mMemberBlocks.begin(), mMemberBlocks.end(), DeletePairedPointer());
+		mMemberBlocks.clear();
 	}
 
 	void addBlock(LLMsgBlkData *blockp)

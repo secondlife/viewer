@@ -1,10 +1,9 @@
 /** 
- * @file llversionviewer.h
- * @brief
+ * @file benchmarkF.glsl
  *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2011, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,18 +23,17 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVERSIONVIEWER_H
-#define LL_LLVERSIONVIEWER_H
-
-const S32 LL_VERSION_MAJOR = 3;
-const S32 LL_VERSION_MINOR = 4;
-const S32 LL_VERSION_PATCH = 6;
-const S32 LL_VERSION_BUILD = 0;
-
-const char * const LL_CHANNEL = "Second Life Developer";
-
-#if LL_DARWIN
-const char * const LL_VERSION_BUNDLE_ID = "com.secondlife.indra.viewer";
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 frag_color;
+#else
+#define frag_color gl_FragColor
 #endif
 
-#endif
+uniform sampler2D diffuseMap;
+
+VARYING vec2 tc0;
+
+void main() 
+{
+	frag_color = texture2D(diffuseMap, tc0);
+}
