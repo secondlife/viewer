@@ -18,7 +18,7 @@ if (STANDALONE)
 else (STANDALONE)
   use_prebuilt_binary(boost)
   set(Boost_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include)
-  set(BOOST_VERSION "1.52")
+  set(BOOST_VERSION "1.55")
 
   if (WINDOWS)
     if(MSVC80)
