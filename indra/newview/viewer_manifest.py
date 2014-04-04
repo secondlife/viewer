@@ -1022,6 +1022,10 @@ class LinuxManifest(ViewerManifest):
     def package_finish(self):
         installer_name = self.installer_base_name()
 
+        # Some .so's are packaged without write permissions and fail during strip.  So this...
+        self.run_command(r"find %(dst)r/lib -type f -perm 0555 | xargs --no-run-if-empty chmod 0755; true"
+                         % {'dst' : self.get_dst_prefix()} )
+
         self.strip_binaries()
 
         # Fix access permissions
