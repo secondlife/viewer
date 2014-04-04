@@ -260,6 +260,7 @@ elseif(LINUX)
         libaprutil-1.so.0
         libatk-1.0.so
         libboost_context-mt.so.${BOOST_VERSION}.0
+        libboost_coroutine-mt.so.${BOOST_VERSION}.0
         libboost_filesystem-mt.so.${BOOST_VERSION}.0
         libboost_program_options-mt.so.${BOOST_VERSION}.0
         libboost_regex-mt.so.${BOOST_VERSION}.0

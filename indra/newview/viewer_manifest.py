@@ -1074,6 +1074,7 @@ class Linux_i686_Manifest(LinuxManifest):
             self.path("libaprutil-1.so.0")
             self.path("libaprutil-1.so.0.4.1")
             self.path("libboost_context-mt.so.*")
+            self.path("libboost_coroutine-mt.so.*")
             self.path("libboost_filesystem-mt.so.*")
             self.path("libboost_program_options-mt.so.*")
             self.path("libboost_regex-mt.so.*")
