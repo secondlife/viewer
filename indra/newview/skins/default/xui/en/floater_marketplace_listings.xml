@@ -15,11 +15,11 @@
   reuse_instance="true">
   <string name="MarketplaceListingsInitializing">Initializing...</string>
   <panel
+    name="marketplace_listings_panel"
     follows="all"
     layout="topleft"
     left="0"
     top="0"
-    label=""
     height="440"
     width="333">
     <panel
@@ -72,6 +72,7 @@
         follows="all"/>
       </panel>
     <panel
+      name="marketplace_panel_status"
       follows="bottom|left|right"
       layout="topleft"
       left="10"

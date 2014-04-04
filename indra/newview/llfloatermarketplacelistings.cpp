@@ -446,10 +446,8 @@ void LLFloaterMarketplaceListings::updateView()
 
 bool LLFloaterMarketplaceListings::isAccepted(EAcceptance accept)
 {
-    // *TODO : Need a bit more test on what we accept: depends of what and where...
-	return (accept >= ACCEPT_YES_COPY_SINGLE);
+    return (accept >= ACCEPT_YES_COPY_SINGLE);
 }
-
 
 BOOL LLFloaterMarketplaceListings::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 										EDragAndDropType cargo_type,
@@ -457,20 +455,26 @@ BOOL LLFloaterMarketplaceListings::handleDragAndDrop(S32 x, S32 y, MASK mask, BO
 										EAcceptance* accept,
 										std::string& tooltip_msg)
 {
+    // If there's no panel to accept drops or no existing marketplace listings folder, we refuse all drop
 	if (!mPanelListings || mRootFolderId.isNull())
 	{
 		return FALSE;
 	}
 	
+    // Pass to the children
 	LLView * handled_view = childrenHandleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
 	BOOL handled = (handled_view != NULL);
     
-	// Pass all drag and drop for this floater to the marketplace listings inventory control
-	if (!handled && isAccepted(*accept) && !mPanelListings->getVisible() && mRootFolderId.notNull())
-	{
-        LLFolderView* root_folder = mPanelListings->getRootFolder();
-        handled = root_folder->handleDragAndDropToThisFolder(mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
-	}
+	// If no one handled it or it was not accepted, we try to accept it at the floater level as if it was dropped on the
+    // marketplace listings root folder
+    if (!handled || !isAccepted(*accept))
+    {
+        if (!mPanelListings->getVisible() && mRootFolderId.notNull())
+        {
+            LLFolderView* root_folder = mPanelListings->getRootFolder();
+            handled = root_folder->handleDragAndDropToThisFolder(mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+        }
+    }
 	
 	return handled;
 }
