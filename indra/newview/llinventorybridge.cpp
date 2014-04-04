@@ -744,10 +744,6 @@ void LLInvFVBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	{
 		addOutboxContextMenuOptions(flags, items, disabled_items);
 	}
-    else if (isMarketplaceListingsFolder())
-    {
-		addMarketplaceContextMenuOptions(flags, items, disabled_items);
-    }
 	else
 	{
 		items.push_back(std::string("Share"));
@@ -853,8 +849,49 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
 												menuentry_vec_t &items,
 												menuentry_vec_t &disabled_items)
 {
-    items.push_back(std::string("Marketplace Separator"));
-	items.push_back(std::string("Marketplace Activate"));
+    S32 depth = depth_nesting_in_marketplace(mUUID);
+    llinfos << "Merov : adding marketplace menu at depth = " << depth << llendl;
+    if (depth <= 1)
+    {
+        // Options available at the Listing Folder level only
+        items.push_back(std::string("Marketplace Add Listing"));
+        items.push_back(std::string("Marketplace Attach Listing"));
+        if (LLMarketplaceData::instance().isListed(mUUID))
+        {
+			disabled_items.push_back(std::string("Marketplace Add Listing"));
+			disabled_items.push_back(std::string("Marketplace Attach Listing"));
+        }
+    }
+    if (depth <= 2)
+    {
+        // Options available at the Listing Folder and Version Folder levels
+        items.push_back(std::string("Marketplace Activate"));
+        items.push_back(std::string("Marketplace Deactivate"));
+        if (LLMarketplaceData::instance().isListed(mUUID))
+        {
+            if (LLMarketplaceData::instance().getActivationState(mUUID))
+            {
+                disabled_items.push_back(std::string("Marketplace Activate"));
+            }
+            else
+            {
+                disabled_items.push_back(std::string("Marketplace Deactivate"));
+            }
+        }
+        else
+        {
+			disabled_items.push_back(std::string("Marketplace Activate"));
+			disabled_items.push_back(std::string("Marketplace Deactivate"));
+        }
+    }
+    // Options available at all levels on all items
+    items.push_back(std::string("Marketplace Show Listing"));
+    if (!LLMarketplaceData::instance().isListed(mUUID))
+    {
+        disabled_items.push_back(std::string("Marketplace Show Listing"));
+    }
+    // Separator
+    items.push_back(std::string("Marketplace Listings Separator"));
 }
 
 
@@ -3084,11 +3121,31 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 	}
 	else if ("marketplace_activate" == action)
 	{
-        if (!LLMarketplaceData::instance().isListed(mUUID))
-        {
-            LLMarketplaceData::instance().addTestItem(mUUID);
-        }
         LLMarketplaceData::instance().setActivation(mUUID,true);
+		return;
+	}
+	else if ("marketplace_deactivate" == action)
+	{
+        LLMarketplaceData::instance().setActivation(mUUID,false);
+		return;
+	}
+	else if ("marketplace_add_listing" == action)
+	{
+        // *TODO : Do something a bit smarter...
+        LLMarketplaceData::instance().addTestItem(mUUID);
+		return;
+	}
+	else if ("marketplace_attach_listing" == action)
+	{
+        // *TODO : Get a list of listing IDs and let the user choose one, delist the old one and relist the new one
+        LLMarketplaceData::instance().addTestItem(mUUID);
+		return;
+	}
+	else if ("marketplace_show_listing" == action)
+	{
+        // *TODO : Need to show a browser window with the info for the listing
+        // Get the listing id (i.e. go up the hierarchy to find the listing folder
+        // Show the listing folder in a browser window
 		return;
 	}
 #ifndef LL_RELEASE_FOR_DOWNLOAD
@@ -4644,6 +4701,10 @@ void LLTextureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	{
 		addOutboxContextMenuOptions(flags, items, disabled_items);
 	}
+    else if (isMarketplaceListingsFolder())
+    {
+		addMarketplaceContextMenuOptions(flags, items, disabled_items);
+    }
 	else
 	{
 		items.push_back(std::string("Share"));
@@ -4711,6 +4772,10 @@ void LLSoundBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	{
 		addOutboxContextMenuOptions(flags, items, disabled_items);
 	}
+    else if (isMarketplaceListingsFolder())
+    {
+		addMarketplaceContextMenuOptions(flags, items, disabled_items);
+    }
 	else
 	{
 		if (isItemInTrash())
@@ -4769,6 +4834,10 @@ void LLLandmarkBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	{
 		addOutboxContextMenuOptions(flags, items, disabled_items);
 	}
+    else if (isMarketplaceListingsFolder())
+    {
+		addMarketplaceContextMenuOptions(flags, items, disabled_items);
+    }
 	else
 	{
 		if(isItemInTrash())
@@ -5019,6 +5088,10 @@ void LLCallingCardBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	{
 		items.push_back(std::string("Delete"));
 	}
+    else if (isMarketplaceListingsFolder())
+    {
+		addMarketplaceContextMenuOptions(flags, items, disabled_items);
+    }
 	else
 	{
 		items.push_back(std::string("Share"));
@@ -5286,6 +5359,10 @@ void LLGestureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	{
 		items.push_back(std::string("Delete"));
 	}
+    else if (isMarketplaceListingsFolder())
+    {
+		addMarketplaceContextMenuOptions(flags, items, disabled_items);
+    }
 	else
 	{
 		items.push_back(std::string("Share"));
@@ -5340,6 +5417,10 @@ void LLAnimationBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	{
 		items.push_back(std::string("Delete"));
 	}
+    else if (isMarketplaceListingsFolder())
+    {
+		addMarketplaceContextMenuOptions(flags, items, disabled_items);
+    }
 	else
 	{
 		if(isItemInTrash())
@@ -5619,6 +5700,10 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	{
 		items.push_back(std::string("Delete"));
 	}
+    else if (isMarketplaceListingsFolder())
+    {
+		addMarketplaceContextMenuOptions(flags, items, disabled_items);
+    }
 	else
 	{
 		items.push_back(std::string("Share"));
@@ -5841,6 +5926,10 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	{
 		items.push_back(std::string("Delete"));
 	}
+    else if (isMarketplaceListingsFolder())
+    {
+		addMarketplaceContextMenuOptions(flags, items, disabled_items);
+    }
 	else
 	{	// FWIW, it looks like SUPPRESS_OPEN_ITEM is not set anywhere
 		BOOL can_open = ((flags & SUPPRESS_OPEN_ITEM) != SUPPRESS_OPEN_ITEM);
@@ -6141,6 +6230,10 @@ void LLMeshBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	{
 		addOutboxContextMenuOptions(flags, items, disabled_items);
 	}
+    else if (isMarketplaceListingsFolder())
+    {
+		addMarketplaceContextMenuOptions(flags, items, disabled_items);
+    }
 	else
 	{
 		items.push_back(std::string("Properties"));

@@ -4,6 +4,49 @@
  layout="topleft"
  name="Popup"
  visible="false">
+	<menu_item_call
+        label="Add Listing"
+        layout="topleft"
+        name="Marketplace Add Listing">
+		<menu_item_call.on_click
+        function="Inventory.DoToSelected"
+        parameter="marketplace_add_listing" />
+	</menu_item_call>
+	<menu_item_call
+        label="Attach Listing"
+        layout="topleft"
+        name="Marketplace Attach Listing">
+		<menu_item_call.on_click
+        function="Inventory.DoToSelected"
+        parameter="marketplace_attach_listing" />
+	</menu_item_call>
+	<menu_item_call
+        label="Show Listing"
+        layout="topleft"
+        name="Marketplace Show Listing">
+		<menu_item_call.on_click
+        function="Inventory.DoToSelected"
+        parameter="marketplace_show_listing" />
+	</menu_item_call>
+	<menu_item_call
+        label="Activate"
+        layout="topleft"
+        name="Marketplace Activate">
+		<menu_item_call.on_click
+        function="Inventory.DoToSelected"
+        parameter="marketplace_activate" />
+	</menu_item_call>
+	<menu_item_call
+        label="Deactivate"
+        layout="topleft"
+        name="Marketplace Deactivate">
+		<menu_item_call.on_click
+        function="Inventory.DoToSelected"
+        parameter="marketplace_deactivate" />
+	</menu_item_call>
+	<menu_item_separator
+    layout="topleft"
+    name="Marketplace Listings Separator" />
     <menu_item_call
      label="Share"
      layout="topleft"
@@ -724,14 +767,6 @@
 		<menu_item_call.on_click
 		 function="Inventory.DoToSelected"
 		 parameter="send_to_marketplace" />
-	</menu_item_call>
-	<menu_item_call
-        label="Activate"
-        layout="topleft"
-        name="Marketplace Activate">
-		<menu_item_call.on_click
-        function="Inventory.DoToSelected"
-        parameter="marketplace_activate" />
 	</menu_item_call>
 	<menu_item_call
      label="--no options--"

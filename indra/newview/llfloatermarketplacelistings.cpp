@@ -246,29 +246,6 @@ void LLFloaterMarketplaceListings::onOpen(const LLSD& key)
 		setup();
 	}
 	
-    // Merov : Debug : Create fake Marketplace data if none is present
-	if (LLMarketplaceData::instance().isEmpty() && (getFolderCount() > 0))
-	{
-        LLInventoryModel::cat_array_t* cats;
-        LLInventoryModel::item_array_t* items;
-        gInventory.getDirectDescendentsOf(mRootFolderId, cats, items);
-        
-        int index = 0;
-        for (LLInventoryModel::cat_array_t::iterator iter = cats->begin(); iter != cats->end(); iter++, index++)
-        {
-            LLViewerInventoryCategory* category = *iter;
-            if (index%3)
-            {
-                LLMarketplaceData::instance().addTestItem(category->getUUID());
-                if (index%3 == 1)
-                {
-                    LLMarketplaceData::instance().setListingID(category->getUUID(),"TestingID1234");
-                }
-                LLMarketplaceData::instance().setActivation(category->getUUID(),(index%2));
-            }
-        }
-    }
-
 	//
 	// Update the floater view
 	//

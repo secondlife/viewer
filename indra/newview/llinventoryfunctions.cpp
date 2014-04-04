@@ -705,6 +705,33 @@ void copy_folder_to_outbox(LLInventoryCategory* inv_cat, const LLUUID& dest_fold
 // permission checking and listings validation.
 ///----------------------------------------------------------------------------
 
+S32 depth_nesting_in_marketplace(LLUUID cur_uuid)
+{
+    // Get the marketplace listings root, exit with -1 (i.e. not under the marketplace listings root) if none
+    const LLUUID marketplace_listings_uuid = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+    if (marketplace_listings_uuid.isNull())
+    {
+        return -1;
+    }
+    // If not a descendent of the marketplace listings root, then the nesting depth is -1 by definition
+    if (!gInventory.isObjectDescendentOf(cur_uuid, marketplace_listings_uuid))
+    {
+        return -1;
+    }
+    
+    // Iterate through the parents till we hit the marketplace listings root
+    // Note that the marketplace listings root itself will return 0
+    S32 depth = 0;
+    LLInventoryObject* cur_object = gInventory.getObject(cur_uuid);
+    while (cur_uuid != marketplace_listings_uuid)
+    {
+        depth++;
+        cur_uuid = cur_object->getParentUUID();
+        cur_object = gInventory.getCategory(cur_uuid);
+    }
+    return depth;
+}
+
 void move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_folder, bool copy)
 {
     // Get the marketplace listings, exit with error if none

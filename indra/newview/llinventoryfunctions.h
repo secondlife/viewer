@@ -76,6 +76,7 @@ void move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
 void move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUUID& dest_folder, bool copy = false);
 bool has_correct_permissions_for_sale(LLInventoryCategory* cat);
 void validate_marketplacelistings(LLInventoryCategory* inv_cat);
+S32  depth_nesting_in_marketplace(LLUUID cur_uuid);
 
 /**                    Miscellaneous global functions
  **                                                                            **
