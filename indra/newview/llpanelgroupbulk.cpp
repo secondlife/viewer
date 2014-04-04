@@ -299,14 +299,10 @@ void LLPanelGroupBulk::updateGroupName()
 void LLPanelGroupBulk::updateGroupData()
 {
 	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mImplementation->mGroupID);
-	if(!gdatap)
+	if(gdatap && gdatap->isGroupPropertiesDataComplete())
 	{
-		LL_WARNS("Groups") << "Unable to get group data for group " << mImplementation->mGroupID << LL_ENDL;
-		return;
-	}
-
-	if(gdatap->isGroupPropertiesDataComplete())
 		mPendingGroupPropertiesUpdate = false;
+	}
 	else
 	{
 		if(!mPendingGroupPropertiesUpdate)
@@ -316,8 +312,10 @@ void LLPanelGroupBulk::updateGroupData()
 		}
 	}
 
-	if(gdatap->isRoleDataComplete())
+	if(gdatap && gdatap->isRoleDataComplete())
+	{
 		mPendingRoleDataUpdate = false;
+	}
 	else
 	{
 		if(!mPendingRoleDataUpdate)
@@ -327,8 +325,10 @@ void LLPanelGroupBulk::updateGroupData()
 		}
 	}
 
-	if(gdatap->isMemberDataComplete())
+	if(gdatap && gdatap->isMemberDataComplete())
+	{
 		mPendingMemberDataUpdate = false;
+	}
 	else
 	{
 		if(!mPendingMemberDataUpdate)

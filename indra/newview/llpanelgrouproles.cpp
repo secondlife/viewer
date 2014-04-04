@@ -1015,7 +1015,6 @@ void LLPanelGroupMembersSubTab::handleMemberSelect()
  			if (role_id.notNull() && (count > 0))
  			{
 				can_eject_members = FALSE;
- 				can_ban_members = FALSE;
  				if (role_id == gdatap->mOwnerRole)
  				{
  					member_is_owner = TRUE;
