@@ -131,6 +131,18 @@ public:
 		const sparam_t& strings);
 };
 
+class LLDispatchSetEstateExperience : public LLDispatchHandler
+{
+public:
+	virtual bool operator()(
+		const LLDispatcher* dispatcher,
+		const std::string& key,
+		const LLUUID& invoice,
+		const sparam_t& strings);
+
+	LLSD getIDs( sparam_t::const_iterator it, sparam_t::const_iterator end, S32 count );
+};
+
 
 /*
 void unpack_request_params(
@@ -456,6 +468,16 @@ LLPanelRegionTerrainInfo* LLFloaterRegionInfo::getPanelRegionTerrain()
 	llassert(panel);
 	return panel;
 }
+
+LLPanelRegionExperiences* LLFloaterRegionInfo::getPanelExperiences()
+{
+	LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
+	if (!floater) return NULL;
+	LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
+	return (LLPanelRegionExperiences*)tab->getChild<LLPanel>("Experiences");
+}
+
+
 
 void LLFloaterRegionInfo::onTabSelected(const LLSD& param)
 {
@@ -1375,6 +1397,11 @@ void LLPanelEstateInfo::initDispatch(LLDispatcher& dispatch)
 	name.assign("setaccess");
 	static LLDispatchSetEstateAccess set_access;
 	dispatch.addHandler(name, &set_access);
+
+
+	name.assign("setexperiences");
+	static LLDispatchSetEstateExperience set_experience;
+	dispatch.addHandler(name, &set_experience);
 
 	estate_dispatch_initialized = true;
 }
@@ -2886,6 +2913,56 @@ bool LLDispatchSetEstateAccess::operator()(
 	return true;
 }
 
+LLSD LLDispatchSetEstateExperience::getIDs( sparam_t::const_iterator it, sparam_t::const_iterator end, S32 count )
+{
+	LLSD idList = LLSD::emptyArray();
+	LLUUID id;
+	while(count--> 0)
+	{
+		memcpy(id.mData, (*(++it)).data(), UUID_BYTES);
+		idList.append(id);
+	}
+	return idList;
+}
+
+// key = "setexperience"
+// strings[0] = str(estate_id)
+// strings[1] = str(send_to_agent_only)
+// strings[2] = str(num blocked)
+// strings[3] = str(num trusted)
+// strings[4] = str(num allowed)
+// strings[8] = bin(uuid) ...
+// ...
+bool LLDispatchSetEstateExperience::operator()(
+	const LLDispatcher* dispatcher,
+	const std::string& key,
+	const LLUUID& invoice,
+	const sparam_t& strings)
+{
+	LLPanelRegionExperiences* panel = LLFloaterRegionInfo::getPanelExperiences();
+	if (!panel) return true;
+
+	sparam_t::const_iterator it = strings.begin();
+	++it; // U32 estate_id = strtol((*it).c_str(), NULL, 10);
+	++it; // U32 send_to_agent_only = strtoul((*(++it)).c_str(), NULL, 10);
+
+	LLUUID id;
+	S32 num_blocked = strtol((*(++it)).c_str(), NULL, 10);
+	S32 num_trusted = strtol((*(++it)).c_str(), NULL, 10);
+	S32 num_allowed = strtol((*(++it)).c_str(), NULL, 10);
+
+	LLSD ids = LLSD::emptyMap()
+		.with("blocked", getIDs(it, strings.end(), num_blocked))
+		.with("trusted", getIDs(it, strings.end(), num_trusted))
+		.with("allowed", getIDs(it, strings.end(), num_allowed));
+
+	panel->processResponse(ids);			
+
+	return true;
+}
+
+
+
 LLPanelEnvironmentInfo::LLPanelEnvironmentInfo()
 :	mEnableEditing(false),
 	mRegionSettingsRadioGroup(NULL),
@@ -3483,6 +3560,14 @@ BOOL LLPanelRegionExperiences::postBuild()
 	mAllowed = setupList("panel_allowed");
 	mTrusted = setupList("panel_trusted");
 	mBlocked = setupList("panel_blocked");
+
+	mAllowed->setAddedCallback(		boost::bind(&LLPanelRegionExperiences::itemChanged, this, ESTATE_EXPERIENCE_ALLOWED_ADD, _1));
+	mAllowed->setRemovedCallback(	boost::bind(&LLPanelRegionExperiences::itemChanged, this, ESTATE_EXPERIENCE_ALLOWED_REMOVE, _1));
+	mBlocked->setAddedCallback(		boost::bind(&LLPanelRegionExperiences::itemChanged, this, ESTATE_EXPERIENCE_BLOCKED_ADD, _1));
+	mBlocked->setRemovedCallback(	boost::bind(&LLPanelRegionExperiences::itemChanged, this, ESTATE_EXPERIENCE_BLOCKED_REMOVE, _1));
+	mTrusted->setAddedCallback(		boost::bind(&LLPanelRegionExperiences::itemChanged, this, ESTATE_EXPERIENCE_TRUSTED_ADD, _1));
+	mTrusted->setRemovedCallback(	boost::bind(&LLPanelRegionExperiences::itemChanged, this, ESTATE_EXPERIENCE_TRUSTED_REMOVE, _1));
+
 	return LLPanelRegionInfo::postBuild();
 }
 
@@ -3498,27 +3583,11 @@ LLPanelExperienceListEditor* LLPanelRegionExperiences::setupList( const char* co
 }
 
 
-
-
-boost::signals2::connection LLPanelRegionExperiences::processResponse( LLPanelExperienceListEditor* panel, boost::signals2::connection& conn, const LLSD& content )
-{
-	if(conn.connected())
-	{
-		conn.disconnect();
-	}
-	panel->setExperienceIds(content);
-	
-	return panel->setChangedCallback(boost::bind(&LLPanelRegionExperiences::listChanged, this));
-}
-
-
-
 void LLPanelRegionExperiences::processResponse( const LLSD& content )
 {
-	mAllowedConnection=processResponse(mAllowed, mAllowedConnection, content["allowed"]);
-	mBlockedConnection=processResponse(mBlocked, mBlockedConnection, content["blocked"]);
-	mTrustedConnection=processResponse(mTrusted, mTrustedConnection, content["trusted"]);
-	disableButton("apply_btn");
+	mAllowed->setExperienceIds(content["allowed"]);
+	mBlocked->setExperienceIds(content["blocked"]);
+	mTrusted->setExperienceIds(content["trusted"]);
 }
 
 
@@ -3629,7 +3698,14 @@ BOOL LLPanelRegionExperiences::sendUpdate()
 	return TRUE;
 }
 
-void LLPanelRegionExperiences::listChanged()
+void LLPanelRegionExperiences::itemChanged( U32 event_type, const LLUUID& id )
 {
+	strings_t str(3, std::string());
+	gAgent.getID().toString(str[0]);
+	str[1].swap(llformat("%u", event_type));
+	id.toString(str[2]);
+
+	why does this happen twice
+	sendEstateOwnerMessage(gMessageSystem, "estateexperiencedelta", LLFloaterRegionInfo::getLastInvoice(), str);
 	onChangeAnything();
 }

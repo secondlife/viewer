@@ -62,6 +62,7 @@ class LLPanelEstateInfo;
 class LLPanelEstateCovenant;
 class LLPanelExperienceListEditor;
 class LLPanelExperiences;
+class LLPanelRegionExperiences;
 
 class LLEventTimer;
 class LLEnvironmentSettings;
@@ -92,6 +93,7 @@ public:
 	static LLPanelEstateInfo* getPanelEstate();
 	static LLPanelEstateCovenant* getPanelCovenant();
 	static LLPanelRegionTerrainInfo* getPanelRegionTerrain();
+	static LLPanelRegionExperiences* getPanelExperiences();
 
 	// from LLPanel
 	virtual void refresh();
@@ -462,25 +464,21 @@ public:
 	virtual BOOL sendUpdate();
 
 	static void infoCallback(LLHandle<LLPanelRegionExperiences> handle, const LLSD& content);
-	void listChanged();
 	bool refreshFromRegion(LLViewerRegion* region);
 	void sendPurchaseRequest()const;
-private:
 	void processResponse( const LLSD& content );
-	boost::signals2::connection processResponse( LLPanelExperienceListEditor* panel, boost::signals2::connection& connection, const LLSD& content);
+private:
 	void refreshRegionExperiences();
 
 	LLPanelExperienceListEditor* setupList(const char* control_name);
 	static LLSD addIds( LLPanelExperienceListEditor* panel );
 	bool FilterExisting(const LLSD& experience );
 
+	void itemChanged(U32 event_type, const LLUUID& id);
 
 	LLPanelExperienceListEditor* mTrusted;
-	boost::signals2::connection  mTrustedConnection;
 	LLPanelExperienceListEditor* mAllowed;
-	boost::signals2::connection  mAllowedConnection;
 	LLPanelExperienceListEditor* mBlocked;
-	boost::signals2::connection  mBlockedConnection;
 };
 
 #endif

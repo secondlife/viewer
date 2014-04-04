@@ -45,7 +45,6 @@ LLPanelExperienceListEditor::LLPanelExperienceListEditor()
 	:mItems(NULL)
 	,mProfile(NULL)
 	,mRemove(NULL)
-	,mChangedCallback(NULL)
 	,mReadonly(false)
 {
 }
@@ -76,6 +75,13 @@ void LLPanelExperienceListEditor::addExperienceIds( const uuid_vec_t& experience
 {
 	mExperienceIds.insert(experience_ids.begin(), experience_ids.end());
 	onItems();
+	if(!mAddedCallback.empty())
+	{
+		for(uuid_vec_t::const_iterator it = experience_ids.begin(); it != experience_ids.end(); ++it)
+		{
+			mAddedCallback(*it);
+		}
+	}
 }
 
 
@@ -118,6 +124,7 @@ void LLPanelExperienceListEditor::onRemove()
 		if((*it) != NULL)
 		{
 			mExperienceIds.erase((*it)->getValue());
+			mRemovedCallback((*it)->getValue());
 		}
 	}
 	onItems();
@@ -167,10 +174,6 @@ void LLPanelExperienceListEditor::onItems()
 
 
 	checkButtonsEnabled();
-	if(mChangedCallback)
-	{
-		(*mChangedCallback)();
-	}
 }
 
 void LLPanelExperienceListEditor::experienceDetailsCallback( LLHandle<LLPanelExperienceListEditor> panel, const LLSD& experience )
@@ -196,7 +199,6 @@ LLPanelExperienceListEditor::~LLPanelExperienceListEditor()
 	{
 		mPicker.get()->closeFloater();
 	}
-	delete mChangedCallback;
 }
 
 void LLPanelExperienceListEditor::loading()
@@ -210,4 +212,14 @@ void LLPanelExperienceListEditor::setReadonly( bool val )
 	mReadonly = val;
 	setCtrlsEnabled(!mReadonly);
 	checkButtonsEnabled();
+}
+
+boost::signals2::connection LLPanelExperienceListEditor::setAddedCallback( list_changed_signal_t::slot_type cb )
+{
+	return mAddedCallback.connect(cb);
+}
+
+boost::signals2::connection LLPanelExperienceListEditor::setRemovedCallback( list_changed_signal_t::slot_type cb )
+{
+	return mRemovedCallback.connect(cb);
 }

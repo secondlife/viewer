@@ -39,7 +39,7 @@ class LLPanelExperienceListEditor : public LLPanel
 {
 public:
 
-	typedef boost::signals2::signal<void () > list_changed_signal_t;
+	typedef boost::signals2::signal<void (const LLUUID&) > list_changed_signal_t;
 	// filter function for experiences, return true if the experience should be hidden.
 	typedef boost::function<bool (const LLSD&)> filter_function;
 	typedef std::vector<filter_function> filter_list;
@@ -55,12 +55,9 @@ public:
 	void addExperienceIds(const uuid_vec_t& experience_ids);
 
 	void addExperience(const LLUUID& id);
-	
-	boost::signals2::connection setChangedCallback(list_changed_signal_t::slot_type cb )
-	{
-		if (!mChangedCallback) mChangedCallback = new list_changed_signal_t();
-		return mChangedCallback->connect(cb);
-	}
+
+	boost::signals2::connection setAddedCallback(list_changed_signal_t::slot_type cb );
+	boost::signals2::connection setRemovedCallback(list_changed_signal_t::slot_type cb );
 
 	bool getReadonly() const { return mReadonly; }
 	void setReadonly(bool val);
@@ -87,7 +84,8 @@ private:
 	LLButton*					mRemove;
 	LLButton*					mProfile;
 	PickerHandle				mPicker;
-	list_changed_signal_t*		mChangedCallback;
+	list_changed_signal_t		mAddedCallback;
+	list_changed_signal_t		mRemovedCallback;
 	LLUUID						mKey;
 	bool						mReadonly;
 

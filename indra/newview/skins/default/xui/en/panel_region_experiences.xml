@@ -63,17 +63,5 @@
         class="panel_experience_list_editor"
         filename="panel_experience_list_editor.xml"/>
     </layout_panel>
-    <layout_panel
-      height="30"
-      min_height="30"
-      max_height="30"
-      width="530">
-      <button
-        layout="topleft"
-        width="85"
-        left="3"
-        label="Apply"
-        name="apply_btn"/>
-    </layout_panel>
   </layout_stack>
 </panel>
