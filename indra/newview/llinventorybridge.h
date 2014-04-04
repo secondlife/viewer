@@ -146,6 +146,9 @@ protected:
 	virtual void addOutboxContextMenuOptions(U32 flags,
 											 menuentry_vec_t &items,
 											 menuentry_vec_t &disabled_items);
+	virtual void addMarketplaceContextMenuOptions(U32 flags,
+											 menuentry_vec_t &items,
+											 menuentry_vec_t &disabled_items);
 protected:
 	LLInvFVBridge(LLInventoryPanel* inventory, LLFolderView* root, const LLUUID& uuid);
 

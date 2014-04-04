@@ -726,6 +726,14 @@
 		 parameter="send_to_marketplace" />
 	</menu_item_call>
 	<menu_item_call
+        label="Activate"
+        layout="topleft"
+        name="Marketplace Activate">
+		<menu_item_call.on_click
+        function="Inventory.DoToSelected"
+        parameter="marketplace_activate" />
+	</menu_item_call>
+	<menu_item_call
      label="--no options--"
      layout="topleft"
      name="--no options--" />

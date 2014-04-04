@@ -744,6 +744,10 @@ void LLInvFVBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	{
 		addOutboxContextMenuOptions(flags, items, disabled_items);
 	}
+    else if (isMarketplaceListingsFolder())
+    {
+		addMarketplaceContextMenuOptions(flags, items, disabled_items);
+    }
 	else
 	{
 		items.push_back(std::string("Share"));
@@ -844,6 +848,15 @@ void LLInvFVBridge::addOutboxContextMenuOptions(U32 flags,
 	}
 #endif // ENABLE_MERCHANT_SEND_TO_MARKETPLACE_CONTEXT_MENU
 }
+
+void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
+												menuentry_vec_t &items,
+												menuentry_vec_t &disabled_items)
+{
+    items.push_back(std::string("Marketplace Separator"));
+	items.push_back(std::string("Marketplace Activate"));
+}
+
 
 // *TODO: remove this
 BOOL LLInvFVBridge::startDrag(EDragAndDropType* type, LLUUID* id) const
@@ -3069,6 +3082,15 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 		restoreItem();
 		return;
 	}
+	else if ("marketplace_activate" == action)
+	{
+        if (!LLMarketplaceData::instance().isListed(mUUID))
+        {
+            LLMarketplaceData::instance().addTestItem(mUUID);
+        }
+        LLMarketplaceData::instance().setActivation(mUUID,true);
+		return;
+	}
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 	else if ("delete_system_folder" == action)
 	{
@@ -3563,6 +3585,10 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 	{
 		addOutboxContextMenuOptions(flags, items, disabled_items);
 	}
+    else if (isMarketplaceListingsFolder())
+    {
+		addMarketplaceContextMenuOptions(flags, items, disabled_items);
+    }
 	else if(isAgentInventory()) // do not allow creating in library
 	{
 		LLViewerInventoryCategory *cat = getCategory();
