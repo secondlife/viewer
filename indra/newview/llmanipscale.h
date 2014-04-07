@@ -92,7 +92,7 @@ private:
 	void			renderEdges( const LLBBox& local_bbox );
 	void			renderBoxHandle( F32 x, F32 y, F32 z );
 	void			renderAxisHandle( U32 part, const LLVector3& start, const LLVector3& end );
-	void			renderGuidelinesPart( const LLBBox& local_bbox );
+	void			renderGuideline( const LLBBox& local_bbox );
 	void			renderSnapGuides( const LLBBox& local_bbox );
 
 	void			revert();
@@ -149,6 +149,8 @@ private:
 	LLVector4		mManipulatorVertices[14];
 	F32				mScaleSnapUnit1;  // size of snap multiples for axis 1
 	F32				mScaleSnapUnit2;  // size of snap multiples for axis 2
+	F32				mGridScale1;
+	F32				mGridScale2;
 	LLVector3		mScalePlaneNormal1; // normal of plane in which scale occurs that most faces camera
 	LLVector3		mScalePlaneNormal2; // normal of plane in which scale occurs that most faces camera
 	LLVector3		mSnapGuideDir1;
@@ -161,7 +163,8 @@ private:
 	F32				mSnapGuideLength;
 	LLVector3		mScaleCenter;
 	LLVector3		mScaleDir;
-	F32				mScaleSnappedValue;
+	F32				mScaleSnappedValue1,
+					mScaleSnappedValue2;
 	BOOL			mInSnapRegime;
 	F32				mManipulatorScales[NUM_MANIPULATORS];
 	F32				mBoxHandleSize[NUM_MANIPULATORS];		// The size of the handles at the corners of the bounding box

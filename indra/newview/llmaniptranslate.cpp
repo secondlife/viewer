@@ -375,7 +375,7 @@ BOOL LLManipTranslate::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
 	//LLVector3 select_center_agent = gAgent.getPosAgentFromGlobal(LLSelectMgr::getInstance()->getSelectionCenterGlobal());
 	// TomY: The above should (?) be identical to the below
 	LLVector3 select_center_agent = getPivotPoint();
-	mSubdivisions = llclamp(getSubdivisionLevel(select_center_agent, axis_exists ? axis : LLVector3::z_axis, getMinGridScale()), sGridMinSubdivisionLevel, sGridMaxSubdivisionLevel);
+	mSubdivisions = getSubdivisionLevel(select_center_agent, axis_exists ? axis : LLVector3::z_axis, getMinGridScale());
 
 	// if we clicked on a planar manipulator, recenter mouse cursor
 	if (mManipPart >= LL_YZ_PLANE && mManipPart <= LL_XY_PLANE)
@@ -517,7 +517,7 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 	LLSelectMgr::getInstance()->updateSelectionCenter();
 	LLVector3d current_pos_global = gAgent.getPosGlobalFromAgent(getPivotPoint());
 
-	mSubdivisions = llclamp(getSubdivisionLevel(getPivotPoint(), axis_f, getMinGridScale()), sGridMinSubdivisionLevel, sGridMaxSubdivisionLevel);
+	mSubdivisions = getSubdivisionLevel(getPivotPoint(), axis_f, getMinGridScale());
 
 	// Project the cursor onto that plane
 	LLVector3d relative_move;
@@ -607,7 +607,7 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 				max_grid_scale = mGridScale.mV[VZ];
 			}
 
-			F32 num_subdivisions = llclamp(getSubdivisionLevel(getPivotPoint(), camera_projected_dir, max_grid_scale), sGridMinSubdivisionLevel, sGridMaxSubdivisionLevel);
+			F32 num_subdivisions = getSubdivisionLevel(getPivotPoint(), camera_projected_dir, max_grid_scale);
 
 			F32 grid_scale_a;
 			F32 grid_scale_b;
@@ -1255,6 +1255,7 @@ void LLManipTranslate::renderSnapGuides()
 		for (S32 pass = 0; pass < 3; pass++)
 		{
 			LLColor4 line_color = setupSnapGuideRenderPass(pass);
+			LLGLDepthTest gls_depth(pass != 1);
 
 			gGL.begin(LLRender::LINES);
 			{
@@ -1286,7 +1287,7 @@ void LLManipTranslate::renderSnapGuides()
 				{
 					tick_start = selection_center + (translate_axis * (smallest_grid_unit_scale * (F32)i - offset_nearest_grid_unit));
 
-					F32 cur_subdivisions = llclamp(getSubdivisionLevel(tick_start, translate_axis, getMinGridScale()), sGridMinSubdivisionLevel, sGridMaxSubdivisionLevel);
+					F32 cur_subdivisions = getSubdivisionLevel(tick_start, translate_axis, getMinGridScale());
 
 					if (fmodf((F32)(i + sub_div_offset), (max_subdivisions / cur_subdivisions)) != 0.f)
 					{
@@ -1384,7 +1385,7 @@ void LLManipTranslate::renderSnapGuides()
 				tick_scale *= 0.7f;
 			}
 
-			if (fmodf((F32)(i + sub_div_offset), (max_subdivisions / llmin(sGridMaxSubdivisionLevel, getSubdivisionLevel(tick_pos, translate_axis, getMinGridScale(), tick_label_spacing)))) == 0.f)
+			if (fmodf((F32)(i + sub_div_offset), (max_subdivisions / getSubdivisionLevel(tick_pos, translate_axis, getMinGridScale(), tick_label_spacing))) == 0.f)
 			{
 				F32 snap_offset_meters;
 
