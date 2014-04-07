@@ -125,8 +125,11 @@ void update_marketplace_category(const LLUUID& cat_id)
     // for all observers of the folder to, possibly, change the display label of said folder.
     // At least that's the status for the moment so, even if that function seems small, we
     // prefer to encapsulate that behavior here.
-    gInventory.addChangedMask(LLInventoryObserver::LABEL, cat_id);
-	gInventory.notifyObservers();
+    if (cat_id.notNull())
+    {
+        gInventory.addChangedMask(LLInventoryObserver::LABEL, cat_id);
+        gInventory.notifyObservers();
+    }
 }
 
 void rename_category(LLInventoryModel* model, const LLUUID& cat_id, const std::string& new_name)
@@ -730,6 +733,19 @@ S32 depth_nesting_in_marketplace(LLUUID cur_uuid)
         cur_object = gInventory.getCategory(cur_uuid);
     }
     return depth;
+}
+
+LLUUID nested_parent_id(LLUUID cur_uuid, S32 depth)
+{
+    LLInventoryObject* cur_object = gInventory.getObject(cur_uuid);
+    cur_uuid = (depth < 1 ? LLUUID::null : cur_uuid);
+    while (depth > 1)
+    {
+        depth--;
+        cur_uuid = cur_object->getParentUUID();
+        cur_object = gInventory.getCategory(cur_uuid);
+    }
+    return cur_uuid;
 }
 
 void move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_folder, bool copy)

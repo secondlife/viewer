@@ -77,6 +77,7 @@ void move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUU
 bool has_correct_permissions_for_sale(LLInventoryCategory* cat);
 void validate_marketplacelistings(LLInventoryCategory* inv_cat);
 S32  depth_nesting_in_marketplace(LLUUID cur_uuid);
+LLUUID nested_parent_id(LLUUID cur_uuid, S32 depth);
 
 /**                    Miscellaneous global functions
  **                                                                            **

@@ -851,24 +851,17 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
 {
     S32 depth = depth_nesting_in_marketplace(mUUID);
     llinfos << "Merov : adding marketplace menu at depth = " << depth << llendl;
-    if (depth <= 1)
+    if (depth == 1)
     {
-        // Options available at the Listing Folder level only
+        // Options available at the Listing Folder level
         items.push_back(std::string("Marketplace Add Listing"));
         items.push_back(std::string("Marketplace Attach Listing"));
-        if (LLMarketplaceData::instance().isListed(mUUID))
-        {
-			disabled_items.push_back(std::string("Marketplace Add Listing"));
-			disabled_items.push_back(std::string("Marketplace Attach Listing"));
-        }
-    }
-    if (depth <= 2)
-    {
-        // Options available at the Listing Folder and Version Folder levels
         items.push_back(std::string("Marketplace Activate"));
         items.push_back(std::string("Marketplace Deactivate"));
         if (LLMarketplaceData::instance().isListed(mUUID))
         {
+			disabled_items.push_back(std::string("Marketplace Add Listing"));
+			disabled_items.push_back(std::string("Marketplace Attach Listing"));
             if (LLMarketplaceData::instance().getActivationState(mUUID))
             {
                 disabled_items.push_back(std::string("Marketplace Activate"));
@@ -884,9 +877,28 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
 			disabled_items.push_back(std::string("Marketplace Deactivate"));
         }
     }
+    if (depth == 2)
+    {
+        // Options available at the Version Folder levels
+        LLInventoryObject* object = gInventory.getObject(mUUID);
+        if (LLMarketplaceData::instance().isListed(object->getParentUUID()))
+        {
+            items.push_back(std::string("Marketplace Activate"));
+            items.push_back(std::string("Marketplace Deactivate"));
+            if (LLMarketplaceData::instance().getActivationState(mUUID))
+            {
+                disabled_items.push_back(std::string("Marketplace Activate"));
+            }
+            else
+            {
+                disabled_items.push_back(std::string("Marketplace Deactivate"));
+            }
+        }
+    }
     // Options available at all levels on all items
     items.push_back(std::string("Marketplace Show Listing"));
-    if (!LLMarketplaceData::instance().isListed(mUUID))
+    LLUUID listing_folder_id = nested_parent_id(mUUID,depth);
+    if (!LLMarketplaceData::instance().isListed(listing_folder_id))
     {
         disabled_items.push_back(std::string("Marketplace Show Listing"));
     }
@@ -2011,17 +2023,9 @@ void LLFolderBridge::buildDisplayName() const
 
 std::string LLFolderBridge::getLabelSuffix() const
 {
-    // *TODO : We need to display some suffix also for the version folder!
-    /*
-     LLInventoryCategory* cat = gInventory.getCategory(getUUID());
-     if(cat)
-     {
-     const LLUUID& parent_folder_id = cat->getParentUUID();
-     accessories = (parent_folder_id == gInventory.getLibraryRootFolderID());
-     }
-     */
     if (isMarketplaceListingsFolder())
     {
+        // Listing folder case
         if (LLMarketplaceData::instance().isListed(getUUID()))
         {
             //llinfos << "Merov : in merchant folder and listed : id = " << getUUID() << llendl;
@@ -2037,6 +2041,17 @@ std::string LLFolderBridge::getLabelSuffix() const
             }
             return LLInvFVBridge::getLabelSuffix() + suffix;
         }
+        // Version folder case
+        else if (LLMarketplaceData::instance().isVersionFolder(getUUID()))
+        {
+            std::string suffix;
+            if (LLMarketplaceData::instance().getActivationState(getUUID()))
+            {
+                suffix += " (" +  LLTrans::getString("MarketplaceActive") + ")";
+            }
+            return LLInvFVBridge::getLabelSuffix() + suffix;
+        }
+        // Stock folder case
         else if (getCategory()->getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
         {
             //llinfos << "Merov : getLabelSuffix : stock folder : name = " << getCategory()->getName() << ", stock = " << getCategory()->getDescendentCount() << llendl;
@@ -3121,7 +3136,17 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 	}
 	else if ("marketplace_activate" == action)
 	{
-        LLMarketplaceData::instance().setActivation(mUUID,true);
+        S32 depth = depth_nesting_in_marketplace(mUUID);
+        if (depth == 2)
+        {
+			LLInventoryCategory* category = gInventory.getCategory(mUUID);
+            LLMarketplaceData::instance().setVersionFolderID(category->getParentUUID(), mUUID);
+            LLMarketplaceData::instance().setActivation(mUUID,true);
+        }
+        else if (depth == 1)
+        {
+            LLMarketplaceData::instance().setActivation(mUUID,true);
+        }
 		return;
 	}
 	else if ("marketplace_deactivate" == action)
@@ -3131,14 +3156,13 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 	}
 	else if ("marketplace_add_listing" == action)
 	{
-        // *TODO : Do something a bit smarter...
-        LLMarketplaceData::instance().addTestItem(mUUID);
+        LLMarketplaceData::instance().addListing(mUUID);
 		return;
 	}
 	else if ("marketplace_attach_listing" == action)
 	{
         // *TODO : Get a list of listing IDs and let the user choose one, delist the old one and relist the new one
-        LLMarketplaceData::instance().addTestItem(mUUID);
+        LLMarketplaceData::instance().addListing(mUUID);
 		return;
 	}
 	else if ("marketplace_show_listing" == action)

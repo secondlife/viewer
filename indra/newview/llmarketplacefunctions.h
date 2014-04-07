@@ -113,7 +113,8 @@ private:
 // * implement the Marketplace API (TBD)
 // * cache the current Marketplace data (tuples)
 // * provide methods to get Marketplace data on any inventory item
-// * signal marketplace updates to inventory
+// * set Marketplace data
+// * signal Marketplace updates to inventory
 class LLMarketplaceData;
 
 // A Marketplace item is known by its tuple
@@ -128,15 +129,16 @@ public:
     
 private:
     // Representation of a marketplace item in the Marketplace DB (well, what we know of it...)
-    LLUUID mFolderListingId;
+    LLUUID mListingFolderId;
     std::string mListingId;
-    LLUUID mActiveVersionFolderId;
+    LLUUID mVersionFolderId;
     bool mIsActive;
 };
-// Note: the folder UUID is used as a key to this map. It could therefore be taken off the object themselves
+// Note: The listing folder UUID is used as a key to this map. It could therefore be taken off the LLMarketplaceTuple objects themselves
 typedef std::map<LLUUID, LLMarketplaceTuple> marketplace_items_list_t;
 
-// There's one and only one possible set of Marketplace data per agent and per session
+// Session cache of Marketplace tuples
+// Note: There's one and only one possible set of Marketplace dataset per agent and per session
 class LLMarketplaceData
     : public LLSingleton<LLMarketplaceData>
 {
@@ -145,14 +147,20 @@ public:
     
     bool isEmpty() { return (mMarketplaceItems.size() == 0); }
     
-    // Access Marketplace Data : each method returns a default value if the folder_id can't be found
+    // Probe the Marketplace data set to identify folders
+    bool isListed(const LLUUID& folder_id); // returns true if folder_id is a Listing folder
+    bool isVersionFolder(const LLUUID& folder_id); // returns true if folder_id is a Version folder
+    
+    // Create/Delete Marketplace data set  : each method returns true if the function succeeds, false if error
+    bool addListing(const LLUUID& folder_id);
+    bool deleteListing(const LLUUID& folder_id);
+
+    // Access Marketplace data set  : each method returns a default value if the folder_id can't be found
     bool getActivationState(const LLUUID& folder_id);
     std::string getListingID(const LLUUID& folder_id);
     LLUUID getVersionFolderID(const LLUUID& folder_id);
     
-    bool isListed(const LLUUID& folder_id); // returns true if folder_id is in the items map
-    
-    // Modify Marketplace Data : each method returns true if the function succeeds, false if error
+    // Modify Marketplace data set  : each method returns true if the function succeeds, false if error
     bool setListingID(const LLUUID& folder_id, std::string listing_id);
     bool setVersionFolderID(const LLUUID& folder_id, const LLUUID& version_id);
     bool setActivation(const LLUUID& folder_id, bool activate);
