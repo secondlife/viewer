@@ -206,6 +206,10 @@ elseif(DARWIN)
        )
     set(debug_src_dir "${ARCH_PREBUILT_DIRS_DEBUG}")
     set(debug_files
+        libcrypto.dylib
+        libcrypto.1.0.0.dylib
+        libssl.dylib
+        libssl.1.0.0.dylib
        )
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
@@ -213,15 +217,19 @@ elseif(DARWIN)
         libapr-1.dylib
         libaprutil-1.0.dylib
         libaprutil-1.dylib
+        libcollada14dom.dylib
+        libcrypto.dylib
+        libcrypto.1.0.0.dylib
+        libexception_handler.dylib
         libexpat.1.5.2.dylib
         libexpat.dylib
         libGLOD.dylib
+        libhunspell-1.3.0.dylib
         libllqtwebkit.dylib
         libminizip.a
         libndofdev.dylib
-        libhunspell-1.3.0.dylib
-        libexception_handler.dylib
-        libcollada14dom.dylib
+        libssl.dylib
+        libssl.1.0.0.dylib
        )
 
     if (FMODEX)

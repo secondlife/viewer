@@ -768,13 +768,21 @@ class Darwin_i386_Manifest(ViewerManifest):
                 # dylibs that vary based on configuration
                 if self.args['configuration'].lower() == 'debug':
                     for libfile in (
+                                "libcrypto.1.0.0.dylib",
+                                "libcrypto.dylib",
                                 "libfmodexL.dylib",
+                                "libssl.1.0.0.dylib",
+                                "libssl.dylib",
                                 ):
                         dylibs += path_optional(os.path.join("../packages/lib/debug",
                                                              libfile), libfile)
                 else:
                     for libfile in (
+                                "libcrypto.1.0.0.dylib",
+                                "libcrypto.dylib",
                                 "libfmodex.dylib",
+                                "libssl.1.0.0.dylib",
+                                "libssl.dylib",
                                 ):
                         dylibs += path_optional(os.path.join("../packages/lib/release",
                                                              libfile), libfile)
@@ -1021,10 +1029,6 @@ class LinuxManifest(ViewerManifest):
 
     def package_finish(self):
         installer_name = self.installer_base_name()
-
-        # Some .so's are packaged without write permissions and fail during strip.  So this...
-        self.run_command(r"find %(dst)r/lib -type f -perm 0555 | xargs --no-run-if-empty chmod 0755; true"
-                         % {'dst' : self.get_dst_prefix()} )
 
         self.strip_binaries()
 

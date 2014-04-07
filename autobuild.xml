@@ -1612,9 +1612,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>dc868c770e27f1c726eec60d8262d7a9</string>
+              <string>c98c1581a1ac1db72408fcce5f7409f1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openssl-update/rev/285401/arch/Darwin/installer/openssl-1.0.1e-darwin-20140116.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-openssl-update/rev/288774/arch/Darwin/installer/openssl-1.0.1e-darwin-20140407.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1624,9 +1624,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8f5c220537799f81ee3f0e6da061b6b1</string>
+              <string>4caff54a0d8ea461b6f8ff32df8e0c1a</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openssl-update/rev/285401/arch/Linux/installer/openssl-1.0.1e-linux-20140117.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-openssl-update/rev/288774/arch/Linux/installer/openssl-1.0.1e-linux-20140407.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1636,9 +1636,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>30f73c2cddf8192de6275a0ce52a23f5</string>
+              <string>da974a34c2964abf36d2817722196dc9</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-openssl-update/rev/285401/arch/CYGWIN/installer/openssl-1.0.1e-windows-20140117.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-openssl-update/rev/288774/arch/CYGWIN/installer/openssl-1.0.1e-windows-20140407.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
