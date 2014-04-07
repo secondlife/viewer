@@ -35,6 +35,7 @@
 #include "llmanip.h"
 #include "llmenugl.h"
 #include "llselectmgr.h"
+#include "llviewermediafocus.h"
 #include "lltoolmgr.h"
 #include "llfloaterscriptdebug.h"
 #include "llviewercamera.h"
@@ -108,6 +109,21 @@ LLObjectSelectionHandle LLToolSelect::handleObjectSelection(const LLPickInfo& pi
 	else
 	{
 		BOOL already_selected = object->isSelected();
+
+		if (already_selected &&
+			object->getNumTEs() > 0 &&
+			!LLSelectMgr::getInstance()->getSelection()->contains(object,SELECT_ALL_TES))
+		{
+			const LLTextureEntry* tep = object->getTE(pick.mObjectFace);
+			if (tep && !tep->isSelected() && !LLViewerMediaFocus::getInstance()->getFocusedObjectID().isNull())
+			{
+				// we were interacting with media and clicked on non selected face, drop media focus
+				LLViewerMediaFocus::getInstance()->clearFocus();
+				// selection was removed and zoom preserved by clearFocus(), continue with regular selection
+				already_selected = false;
+				extend_select = true;
+			}
+		}
 
 		if ( extend_select )
 		{
