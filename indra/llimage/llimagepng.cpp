@@ -94,13 +94,6 @@ BOOL LLImagePNG::decode(LLImageRaw* raw_image, F32 decode_time)
         return FALSE;
     }
 
-	// Check to make sure that this instance has been initialized with data
-	if (!raw_image->getData())
-	{
-		setLastError("LLImagePNG trying to decode an image into unallocated LLImageRaw!");
-		return FALSE;
-	}
-
 	// Decode the PNG data into the raw image
 	LLPngWrapper pngWrapper;
 	if (!pngWrapper.isValidPng(getData()))

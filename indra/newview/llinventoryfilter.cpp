@@ -951,7 +951,10 @@ void LLInventoryFilter::toParams(Params& params) const
 {
 	params.filter_ops.types = getFilterObjectTypes();
 	params.filter_ops.category_types = getFilterCategoryTypes();
-	params.filter_ops.wearable_types = getFilterWearableTypes();
+	if (getFilterObjectTypes() & FILTERTYPE_WEARABLE)
+	{
+		params.filter_ops.wearable_types = getFilterWearableTypes();
+	}
 	params.filter_ops.date_range.min_date = getMinDate();
 	params.filter_ops.date_range.max_date = getMaxDate();
 	params.filter_ops.hours_ago = getHoursAgo();
@@ -970,7 +973,10 @@ void LLInventoryFilter::fromParams(const Params& params)
 
 	setFilterObjectTypes(params.filter_ops.types);
 	setFilterCategoryTypes(params.filter_ops.category_types);
-	setFilterWearableTypes(params.filter_ops.wearable_types);
+	if (params.filter_ops.wearable_types.isProvided())
+	{
+		setFilterWearableTypes(params.filter_ops.wearable_types);
+	}
 	setDateRange(params.filter_ops.date_range.min_date,   params.filter_ops.date_range.max_date);
 	setHoursAgo(params.filter_ops.hours_ago);
 	setShowFolderState(params.filter_ops.show_folder_state);

@@ -31,18 +31,61 @@
 
 #include <sstream>
 #include <boost/lambda/lambda.hpp>
+#include <llstring.h>
 
 /**
- * stringize(item) encapsulates an idiom we use constantly, using
+ * gstringize(item) encapsulates an idiom we use constantly, using
  * operator<<(std::ostringstream&, TYPE) followed by std::ostringstream::str()
+ * or their wstring equivalents
  * to render a string expressing some item.
+ */
+template <typename CHARTYPE, typename T>
+std::basic_string<CHARTYPE> gstringize(const T& item)
+{
+    std::basic_ostringstream<CHARTYPE> out;
+    out << item;
+    return out.str();
+}
+
+/**
+ *partial specialization of stringize for handling wstring
+ *TODO: we should have similar specializations for wchar_t[] but not until it is needed.
+ */
+inline std::string stringize(const std::wstring& item)
+{
+    llwarns << "WARNING:  Possible narrowing" << llendl;
+    
+    std::string s;
+    
+    s = wstring_to_utf8str(item);
+    return gstringize<char>(s);
+}
+
+/**
+ * Specialization of gstringize for std::string return types
  */
 template <typename T>
 std::string stringize(const T& item)
 {
-    std::ostringstream out;
-    out << item;
-    return out.str();
+    return gstringize<char>(item);
+}
+
+/**
+ * Specialization for generating wstring from string.
+ * Both a convenience function and saves a miniscule amount of overhead.
+ */
+inline std::wstring wstringize(const std::string& item)
+{
+    return gstringize<wchar_t>(item.c_str());
+}
+
+/**
+ * Specialization of gstringize for std::wstring return types
+ */
+template <typename T>
+std::wstring wstringize(const T& item)
+{
+    return gstringize<wchar_t>(item);
 }
 
 /**
