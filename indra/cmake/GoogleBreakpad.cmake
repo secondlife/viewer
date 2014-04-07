@@ -13,7 +13,7 @@ else (STANDALONE)
     set(BREAKPAD_EXCEPTION_HANDLER_LIBRARIES breakpad_client)
   endif (LINUX)
   if (WINDOWS)
-    set(BREAKPAD_EXCEPTION_HANDLER_LIBRARIES exception_handler crash_generation_client common)
+    set(BREAKPAD_EXCEPTION_HANDLER_LIBRARIES exception_handler crash_generation_client crash_generation_server common)
   endif (WINDOWS)
   # yes, this does look dumb, no, it's not incorrect
   #
