@@ -282,9 +282,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d4da2ac13da2e055f86191dcc0f01900</string>
+              <string>066dbf554282b0ba77ffb3f5b0d72c15</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl-update/rev/285446/arch/Darwin/installer/curl-7.34.0-darwin-20140117.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-curl-update/rev/288784/arch/Darwin/installer/curl-7.34.0-darwin-20140407.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -294,9 +294,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1f953a75dfe4aad9f4b29e464548d1d2</string>
+              <string>e924ec9545fc09ce955f8105862d4671</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl-update/rev/285446/arch/Linux/installer/curl-7.34.0-linux-20140117.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-curl-update/rev/288784/arch/Linux/installer/curl-7.34.0-linux-20140407.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -306,9 +306,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ca411002d423c8a4ce960041dc7abd90</string>
+              <string>27b28e1aeef1516230492ec4d102e00f</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl-update/rev/285446/arch/CYGWIN/installer/curl-7.34.0-windows-20140117.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-curl-update/rev/288784/arch/CYGWIN/installer/curl-7.34.0-windows-20140407.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1420,9 +1420,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>dfc9fe6529b612e5486c3f3e7f36d1bb</string>
+              <string>2990f36c8bbd0f7a7870737628fa98d1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-llqtwebkit2/rev/288720/arch/Darwin/installer/llqtwebkit-4.7.1-darwin-20140403.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-llqtwebkit2/rev/288783/arch/Darwin/installer/llqtwebkit-4.7.1-darwin-20140407.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1432,9 +1432,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>13ec644df02642f14647050e1d0ad67c</string>
+              <string>5d02c1cdbe67e6fff8ab75b95e912647</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-llqtwebkit2/rev/288720/arch/Linux/installer/llqtwebkit-4.7.1-linux-20140403.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-llqtwebkit2/rev/288783/arch/Linux/installer/llqtwebkit-4.7.1-linux-20140407.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1444,9 +1444,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5cd674fda707447fe5f23d64fe0c1634</string>
+              <string>4ffbf804aaae77a0af321a3340a4cad0</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-llqtwebkit2/rev/288720/arch/CYGWIN/installer/llqtwebkit-4.7.1-windows-20140403.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-llqtwebkit2/rev/288783/arch/CYGWIN/installer/llqtwebkit-4.7.1-windows-20140407.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
