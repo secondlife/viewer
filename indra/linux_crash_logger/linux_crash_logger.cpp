@@ -26,6 +26,7 @@
 
 #include "linden_common.h"
 #include "llcrashloggerlinux.h"
+#include "llsdutil.h"
 
 int main(int argc, char **argv)
 {
@@ -33,6 +34,16 @@ int main(int argc, char **argv)
 
 	LLCrashLoggerLinux app;
 	app.parseCommandOptions(argc, argv);
+
+    LLSD options = LLApp::instance()->getOptionData(
+                        LLApp::PRIORITY_COMMAND_LINE);
+                        //LLApp::PRIORITY_RUNTIME_OVERRIDE);
+
+    
+    if (!(options.has("pid") && options.has("dumpdir")))
+    {
+        llwarns << "Insufficient parameters to crash report." << llendl;
+    }
 
 	if (! app.init())
 	{

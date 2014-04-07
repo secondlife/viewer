@@ -42,6 +42,7 @@
 
 #include "lldiriterator.h"
 #include "stringize.h"
+#include <boost/filesystem.hpp>
 #include <boost/foreach.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
@@ -76,6 +77,7 @@ const char
 	*LLDir::SKINBASE = "";
 
 static const char* const empty = "";
+std::string LLDir::sDumpDir = "";
 
 LLDir::LLDir()
 :	mAppName(""),
@@ -99,7 +101,32 @@ LLDir::~LLDir()
 {
 }
 
-
+std::vector<std::string> LLDir::getFilesInDir(const std::string &dirname)
+{
+    //Returns a vector of fullpath filenames.
+    
+    boost::filesystem::path p (dirname);
+    std::vector<std::string> v;
+    
+    if (exists(p))
+    {
+        if (is_directory(p))
+        {
+            boost::filesystem::directory_iterator end_iter;
+            for (boost::filesystem::directory_iterator dir_itr(p);
+                 dir_itr != end_iter;
+                 ++dir_itr)
+            {
+                if (boost::filesystem::is_regular_file(dir_itr->status()))
+                {
+                    v.push_back(dir_itr->path().filename().string());
+                }
+            }
+        }
+    }
+    return v;
+}   
+            
 S32 LLDir::deleteFilesInDir(const std::string &dirname, const std::string &mask)
 {
 	S32 count = 0;
@@ -156,6 +183,34 @@ S32 LLDir::deleteFilesInDir(const std::string &dirname, const std::string &mask)
 		count++;
 	}
 	return count;
+}
+
+U32 LLDir::deleteDirAndContents(const std::string& dir_name)
+{
+    //Removes the directory and its contents.  Returns number of files deleted.
+	
+	U32 num_deleted = 0;
+
+	try
+	{
+	   boost::filesystem::path dir_path(dir_name);
+	   if (boost::filesystem::exists (dir_path))
+	   {
+	      if (!boost::filesystem::is_empty (dir_path))
+		  {   // Directory has content
+		     num_deleted = boost::filesystem::remove_all (dir_path);
+		  }
+		  else
+		  {   // Directory is empty
+		     boost::filesystem::remove (dir_path);
+		  }
+	   }
+	}
+	catch (boost::filesystem::filesystem_error &er)
+	{ 
+		llwarns << "Failed to delete " << dir_name << " with error " << er.code().message() << llendl;
+	} 
+	return num_deleted;
 }
 
 const std::string LLDir::findFile(const std::string &filename, 
@@ -244,9 +299,34 @@ const std::string &LLDir::getLindenUserDir() const
 	return mLindenUserDir;
 }
 
-const std::string &LLDir::getChatLogsDir() const
+const std::string& LLDir::getChatLogsDir() const
 {
 	return mChatLogsDir;
+}
+
+void LLDir::setDumpDir( const std::string& path )
+{
+    LLDir::sDumpDir = path;
+    if (! sDumpDir.empty() && sDumpDir.rbegin() == mDirDelimiter.rbegin() )
+    {
+        sDumpDir.erase(sDumpDir.size() -1);
+    }
+}
+
+const std::string &LLDir::getDumpDir() const
+{
+    if (sDumpDir.empty() )
+    {
+        LLUUID uid;
+        uid.generate();
+        
+        sDumpDir = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "")
+                    + "dump-" + uid.asString();
+
+        dir_exists_or_crash(sDumpDir);  
+    }
+
+	return LLDir::sDumpDir;
 }
 
 const std::string &LLDir::getPerAccountChatLogsDir() const
@@ -420,6 +500,10 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
 		prefix = getCacheDir();
 		break;
 		
+    case LL_PATH_DUMP:
+        prefix=getDumpDir();
+        break;
+            
 	case LL_PATH_USER_SETTINGS:
 		prefix = add(getOSUserAppDir(), "user_settings");
 		break;
