@@ -29,6 +29,7 @@
 #include "llrngwriter.h"
 #include "lluicolor.h"
 #include "lluictrlfactory.h"
+#include "boost/bind.hpp"
 
 static 	LLInitParam::Parser::parser_read_func_map_t sReadFuncs;
 static 	LLInitParam::Parser::parser_write_func_map_t sWriteFuncs;

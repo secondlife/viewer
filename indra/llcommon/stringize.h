@@ -53,7 +53,7 @@ std::basic_string<CHARTYPE> gstringize(const T& item)
  */
 inline std::string stringize(const std::wstring& item)
 {
-    llwarns << "WARNING:  Possible narrowing" << llendl;
+    LL_WARNS() << "WARNING:  Possible narrowing" << LL_ENDL;
     
     std::string s;
     

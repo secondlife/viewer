@@ -127,7 +127,7 @@ S32 check_for_invalid_wav_formats(const std::string& in_fname, std::string& erro
 			return(LLVORBISENC_CHUNK_SIZE_ERR);
 		}
 
-//		llinfos << "chunk found: '" << wav_header[0] << wav_header[1] << wav_header[2] << wav_header[3] << "'" << llendl;
+//		LL_INFOS() << "chunk found: '" << wav_header[0] << wav_header[1] << wav_header[2] << wav_header[3] << "'" << LL_ENDL;
 
 		if (!(strncmp((char *)&(wav_header[0]),"fmt ",4)))
 		{
@@ -224,7 +224,7 @@ S32 encode_vorbis_file(const std::string& in_fname, const std::string& out_fname
 	std::string error_msg;
 	if ((format_error = check_for_invalid_wav_formats(in_fname, error_msg)))
 	{
-		llwarns << error_msg << ": " << in_fname << llendl;
+		LL_WARNS() << error_msg << ": " << in_fname << LL_ENDL;
 		return(format_error);
 	}
 
@@ -237,8 +237,8 @@ S32 encode_vorbis_file(const std::string& in_fname, const std::string& out_fname
 	infile.open(in_fname,LL_APR_RB);
 	if (!infile.getFileHandle())
 	{
-		llwarns << "Couldn't open temporary ogg file for writing: " << in_fname
-			<< llendl;
+		LL_WARNS() << "Couldn't open temporary ogg file for writing: " << in_fname
+			<< LL_ENDL;
 		return(LLVORBISENC_SOURCE_OPEN_ERR);
 	}
 
@@ -246,8 +246,8 @@ S32 encode_vorbis_file(const std::string& in_fname, const std::string& out_fname
 	outfile.open(out_fname,LL_APR_WPB);
 	if (!outfile.getFileHandle())
 	{
-		llwarns << "Couldn't open upload sound file for reading: " << in_fname
-			<< llendl;
+		LL_WARNS() << "Couldn't open upload sound file for reading: " << in_fname
+			<< LL_ENDL;
 		return(LLVORBISENC_DEST_OPEN_ERR);
 	}
 	
@@ -265,7 +265,7 @@ S32 encode_vorbis_file(const std::string& in_fname, const std::string& out_fname
 			 + ((U32) wav_header[5] << 8) 
 			 + wav_header[4];
 		 
-//		 llinfos << "chunk found: '" << wav_header[0] << wav_header[1] << wav_header[2] << wav_header[3] << "'" << llendl;
+//		 LL_INFOS() << "chunk found: '" << wav_header[0] << wav_header[1] << wav_header[2] << wav_header[3] << "'" << LL_ENDL;
 		 
 		 if (!(strncmp((char *)&(wav_header[0]),"fmt ",4)))
 		 {
@@ -308,8 +308,8 @@ S32 encode_vorbis_file(const std::string& in_fname, const std::string& out_fname
 //		vorbis_encode_ctl(&vi,OV_ECTL_RATEMANAGE_AVG,NULL) ||
 //		vorbis_encode_setup_init(&vi))
 	{
-		llwarns << "unable to initialize vorbis codec at quality " << quality << llendl;
-		//		llwarns << "unable to initialize vorbis codec at bitrate " << bitrate << llendl;
+		LL_WARNS() << "unable to initialize vorbis codec at quality " << quality << LL_ENDL;
+		//		LL_WARNS() << "unable to initialize vorbis codec at bitrate " << bitrate << LL_ENDL;
 		return(LLVORBISENC_DEST_OPEN_ERR);
 	}
 	 
@@ -498,7 +498,7 @@ S32 encode_vorbis_file(const std::string& in_fname, const std::string& out_fname
 		libvorbis.  They're never freed or manipulated directly */
 	 
 //	 fprintf(stderr,"Vorbis encoding: Done.\n");
-	 llinfos << "Vorbis encoding: Done." << llendl;
+	 LL_INFOS() << "Vorbis encoding: Done." << LL_ENDL;
 	 
 #endif
 	 return(LLVORBISENC_NOERR);

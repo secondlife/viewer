@@ -145,9 +145,9 @@ void LLMessageConfigFile::loadMessages(const LLSD& data)
 	std::ostringstream out;
 	LLSDXMLFormatter *formatter = new LLSDXMLFormatter;
 	formatter->format(mMessages, out);
-	llinfos << "loading ... " << out.str()
+	LL_INFOS() << "loading ... " << out.str()
 			<< " LLMessageConfigFile::loadMessages loaded "
-			<< mMessages.size() << " messages" << llendl;
+			<< mMessages.size() << " messages" << LL_ENDL;
 #endif
 }
 
@@ -182,7 +182,7 @@ void LLMessageConfigFile::loadMessageBans(const LLSD& data)
 
 bool LLMessageConfigFile::isCapBanned(const std::string& cap_name) const
 {
-	lldebugs << "mCapBans is " << LLSDNotationStreamer(mCapBans) << llendl;
+	LL_DEBUGS() << "mCapBans is " << LLSDNotationStreamer(mCapBans) << LL_ENDL;
     return mCapBans[cap_name];
 }
 
@@ -268,7 +268,7 @@ bool LLMessageConfig::isValidMessage(const std::string& msg_name)
 {
 	if (sServerName.empty())
 	{
-		llerrs << "LLMessageConfig::initClass() not called" << llendl;
+		LL_ERRS() << "LLMessageConfig::initClass() not called" << LL_ENDL;
 	}
 	LLMessageConfigFile& file = LLMessageConfigFile::instance();
 	return file.mMessages.has(msg_name);
@@ -294,8 +294,8 @@ LLSD LLMessageConfig::getConfigForMessage(const std::string& msg_name)
 {
 	if (sServerName.empty())
 	{
-		llerrs << "LLMessageConfig::isMessageTrusted(name) before"
-				<< " LLMessageConfig::initClass()" << llendl;
+		LL_ERRS() << "LLMessageConfig::isMessageTrusted(name) before"
+				<< " LLMessageConfig::initClass()" << LL_ENDL;
 	}
 	LLMessageConfigFile& file = LLMessageConfigFile::instance();
 	// LLSD for the CamelCase message name

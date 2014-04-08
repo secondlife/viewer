@@ -121,7 +121,7 @@ exit_label:
 
 	if( !success )
 	{
-		llwarns << mAuxErrorString << llendl;
+		LL_WARNS() << mAuxErrorString << LL_ENDL;
 	}
 
 	return success;

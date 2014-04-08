@@ -318,7 +318,7 @@ int LLCrashLoggerWindows::processingLoop() {
 		} 
     }
     
-    llinfos << "session ending.." << llendl;
+    LL_INFOS() << "session ending.." << LL_ENDL;
     
     std::string per_run_dir = options["dumpdir"].asString();
 	std::string per_run_file = per_run_dir + "\\SecondLife.log";
@@ -326,7 +326,7 @@ int LLCrashLoggerWindows::processingLoop() {
 
 	if (gDirUtilp->fileExists(per_run_dir))  
 	{
-		LL_INFOS ("CRASHREPORT") << "Copying " << log_file << " to " << per_run_file << llendl;
+		LL_INFOS ("CRASHREPORT") << "Copying " << log_file << " to " << per_run_file << LL_ENDL;
 	    LLFile::copy(log_file, per_run_file);
 	}
 	return 0;
@@ -354,19 +354,19 @@ void LLCrashLoggerWindows::OnClientDumpRequest(void* context,
 {
 	if (!file_path) 
 	{
-		llwarns << "dump with no file path" << llendl;
+		LL_WARNS() << "dump with no file path" << LL_ENDL;
 		return;
 	}
 	if (!client_info) 
 	{
-		llwarns << "dump with no client info" << llendl;
+		LL_WARNS() << "dump with no client info" << LL_ENDL;
 		return;
 	}
 
 	LLCrashLoggerWindows* self = static_cast<LLCrashLoggerWindows*>(context);
 	if (!self) 
 	{
-		llwarns << "dump with no context" << llendl;
+		LL_WARNS() << "dump with no context" << LL_ENDL;
 		return;
 	}
 
@@ -406,13 +406,13 @@ bool LLCrashLoggerWindows::initCrashServer()
 	
  	if (!mCrashHandler) {
 		//Failed to start the crash server.
- 		llwarns << "Failed to init crash server." << llendl;
+ 		LL_WARNS() << "Failed to init crash server." << LL_ENDL;
 		return false; 
  	}
 
 	// Start servicing clients.
     if (!mCrashHandler->Start()) {
-		llwarns << "Failed to start crash server." << llendl;
+		LL_WARNS() << "Failed to start crash server." << LL_ENDL;
 		return false;
 	}
 
@@ -433,7 +433,7 @@ bool LLCrashLoggerWindows::init(void)
 	swprintf(gProductName, L"Second Life"); 
 	*/
 
-	llinfos << "Loading dialogs" << llendl;
+	LL_INFOS() << "Loading dialogs" << LL_ENDL;
 
 	// Initialize global strings
 	LoadString(mhInst, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
@@ -472,7 +472,8 @@ void LLCrashLoggerWindows::gatherPlatformSpecificFiles()
 
 bool LLCrashLoggerWindows::mainLoop()
 {	
-	llinfos << "CrashSubmitBehavior is " << mCrashBehavior << llendl;
+	LL_INFOS() << "CrashSubmitBehavior is " << mCrashBehavior << LL_ENDL;
+
 	// Note: parent hwnd is 0 (the desktop).  No dlg proc.  See Petzold (5th ed) HexCalc example, Chapter 11, p529
 	// win_crash_logger.rc has been edited by hand.
 	// Dialogs defined with CLASS "WIN_CRASH_LOGGER" (must be same as szWindowClass)
@@ -483,7 +484,7 @@ bool LLCrashLoggerWindows::mainLoop()
 
 	if (mCrashBehavior == CRASH_BEHAVIOR_ALWAYS_SEND)
 	{
-		llinfos << "Showing crash report submit progress window." << llendl;
+		LL_INFOS() << "Showing crash report submit progress window." << LL_ENDL;
 		ShowWindow(gHwndProgress, SW_SHOW );
 		sendCrashLogs();
 	}
@@ -522,7 +523,7 @@ bool LLCrashLoggerWindows::mainLoop()
 	}
 	else
 	{
-		llwarns << "Unknown crash behavior " << mCrashBehavior << llendl;
+		LL_WARNS() << "Unknown crash behavior " << mCrashBehavior << LL_ENDL;
 		return 1;
 	}
 	return 0;

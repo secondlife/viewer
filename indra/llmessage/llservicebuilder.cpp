@@ -50,11 +50,11 @@ void LLServiceBuilder::loadServiceDefinitionsFromFile(
 			std::string service_name = (*array_itr)["name"].asString();
 			createServiceDefinition(service_name, service_llsd);
 		}
-		llinfos << "loaded config file: " << service_filename << llendl;
+		LL_INFOS() << "loaded config file: " << service_filename << LL_ENDL;
 	}
 	else
 	{
-		llwarns << "unable to find config file: " << service_filename << llendl;
+		LL_WARNS() << "unable to find config file: " << service_filename << LL_ENDL;
 	}
 }
 
@@ -119,7 +119,7 @@ std::string LLServiceBuilder::buildServiceURI(const std::string& service_name) c
 	}
 	else
 	{
-		llwarns << "Cannot find service " << service_name << llendl;
+		LL_WARNS() << "Cannot find service " << service_name << LL_ENDL;
 	}
 	return service_url.str();
 }
@@ -204,9 +204,9 @@ std::string russ_format(const std::string& format_str, const LLSD& context)
 				}
 				else
 				{
-					llwarns << "Unknown key: " << key << " in option map: "
+					LL_WARNS() << "Unknown key: " << key << " in option map: "
 						<< LLSDOStreamer<LLSDNotationFormatter>(context)
-						<< llendl;
+						<< LL_ENDL;
 					keep_looping = false;
 				}
 				break;
@@ -220,8 +220,8 @@ std::string russ_format(const std::string& format_str, const LLSD& context)
 				}
 				break;
 			default:
-				llinfos << "Unknown directive: " << *(deepest_node + 1)
-					<< llendl;
+				LL_INFOS() << "Unknown directive: " << *(deepest_node + 1)
+					<< LL_ENDL;
 				keep_looping = false;
 				break;
 			}
@@ -229,8 +229,8 @@ std::string russ_format(const std::string& format_str, const LLSD& context)
 	}
 	if (service_url.find('{') != std::string::npos)
 	{
-		llwarns << "Constructed a likely bogus service URL: " << service_url
-			<< llendl;
+		LL_WARNS() << "Constructed a likely bogus service URL: " << service_url
+			<< LL_ENDL;
 	}
 	return service_url;
 }

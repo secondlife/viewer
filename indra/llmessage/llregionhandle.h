@@ -68,7 +68,7 @@ inline BOOL to_region_handle(const F32 x_pos, const F32 y_pos, U64 *region_handl
 	U32 x_int, y_int;
 	if (x_pos < 0.f)
 	{
-//		llwarns << "to_region_handle:Clamping negative x position " << x_pos << " to zero!" << llendl;
+//		LL_WARNS() << "to_region_handle:Clamping negative x position " << x_pos << " to zero!" << LL_ENDL;
 		return FALSE;
 	}
 	else
@@ -77,7 +77,7 @@ inline BOOL to_region_handle(const F32 x_pos, const F32 y_pos, U64 *region_handl
 	}
 	if (y_pos < 0.f)
 	{
-//		llwarns << "to_region_handle:Clamping negative y position " << y_pos << " to zero!" << llendl;
+//		LL_WARNS() << "to_region_handle:Clamping negative y position " << y_pos << " to zero!" << LL_ENDL;
 		return FALSE;
 	}
 	else

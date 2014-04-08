@@ -323,7 +323,7 @@ class LLSDRPCServerFactory : public LLChainIOFactory
 public:
 	virtual bool build(LLPumpIO::chain_t& chain, LLSD context) const
 	{
-		lldebugs << "LLXMLSDRPCServerFactory::build" << llendl;
+		LL_DEBUGS() << "LLXMLSDRPCServerFactory::build" << LL_ENDL;
 		chain.push_back(LLIOPipe::ptr_t(new Server));
 		return true;
 	}
@@ -341,7 +341,7 @@ class LLXMLRPCServerFactory : public LLChainIOFactory
 public:
 	virtual bool build(LLPumpIO::chain_t& chain, LLSD context) const
 	{
-		lldebugs << "LLXMLSDRPCServerFactory::build" << llendl;
+		LL_DEBUGS() << "LLXMLSDRPCServerFactory::build" << LL_ENDL;
 		chain.push_back(LLIOPipe::ptr_t(new LLFilterXMLRPCRequest2LLSD));
 		chain.push_back(LLIOPipe::ptr_t(new Server));
 		chain.push_back(LLIOPipe::ptr_t(new LLFilterSD2XMLRPCResponse));

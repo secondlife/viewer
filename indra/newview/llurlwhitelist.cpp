@@ -117,7 +117,7 @@ bool LLUrlWhiteList::save ()
 
 	if (resolvedFilename.empty())
 	{
-		llinfos << "No per-user dir for saving URL whitelist - presumably not logged in yet.  Skipping." << llendl;
+		LL_INFOS() << "No per-user dir for saving URL whitelist - presumably not logged in yet.  Skipping." << LL_ENDL;
 		return false;
 	}
 

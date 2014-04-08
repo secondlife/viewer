@@ -27,14 +27,34 @@
 #define LLMEMORY_H
 
 #include "linden_common.h"
+#include "llunits.h"
+#if !LL_WINDOWS
+#include <stdint.h>
+#endif
 
 class LLMutex ;
 
 #if LL_WINDOWS && LL_DEBUG
 #define LL_CHECK_MEMORY llassert(_CrtCheckMemory());
 #else
-#define LL_CHECK_MEMORY
+#define LL_CHECK_MEMORY 
 #endif
+
+
+#if LL_WINDOWS
+#define LL_ALIGN_OF __alignof
+#else
+#define LL_ALIGN_OF __align_of__
+#endif
+
+#if LL_WINDOWS
+#define LL_DEFAULT_HEAP_ALIGN 8
+#elif LL_DARWIN
+#define LL_DEFAULT_HEAP_ALIGN 16
+#elif LL_LINUX
+#define LL_DEFAULT_HEAP_ALIGN 8
+#endif
+
 
 LL_COMMON_API void ll_assert_aligned_func(uintptr_t ptr,U32 alignment);
 
@@ -74,7 +94,8 @@ template <typename T> T* LL_NEXT_ALIGNED_ADDRESS_64(T* address)
 
 #define LL_ALIGN_16(var) LL_ALIGN_PREFIX(16) var LL_ALIGN_POSTFIX(16)
 
-inline void* ll_aligned_malloc( size_t size, int align )
+
+inline void* ll_aligned_malloc_fallback( size_t size, int align )
 {
 #if defined(LL_WINDOWS)
 	return _aligned_malloc(size, align);
@@ -88,7 +109,7 @@ inline void* ll_aligned_malloc( size_t size, int align )
 #endif
 }
 
-inline void ll_aligned_free( void* ptr )
+inline void ll_aligned_free_fallback( void* ptr )
 {
 #if defined(LL_WINDOWS)
 	_aligned_free(ptr);
@@ -161,7 +182,7 @@ inline void* ll_aligned_malloc_32(size_t size) // returned hunk MUST be freed wi
 #if defined(LL_WINDOWS)
 	return _aligned_malloc(size, 32);
 #elif defined(LL_DARWIN)
-	return ll_aligned_malloc( size, 32 );
+	return ll_aligned_malloc_fallback( size, 32 );
 #else
 	void *rtn;
 	if (LL_LIKELY(0 == posix_memalign(&rtn, 32, size)))
@@ -176,12 +197,54 @@ inline void ll_aligned_free_32(void *p)
 #if defined(LL_WINDOWS)
 	_aligned_free(p);
 #elif defined(LL_DARWIN)
-	ll_aligned_free( p );
+	ll_aligned_free_fallback( p );
 #else
 	free(p); // posix_memalign() is compatible with heap deallocator
 #endif
 }
 
+// general purpose dispatch functions that are forced inline so they can compile down to a single call
+template<size_t ALIGNMENT>
+LL_FORCE_INLINE void* ll_aligned_malloc(size_t size)
+{
+	if (LL_DEFAULT_HEAP_ALIGN % ALIGNMENT == 0)
+	{
+		return malloc(size);
+	}
+	else if (ALIGNMENT == 16)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+	else if (ALIGNMENT == 32)
+	{
+		return ll_aligned_malloc_32(size);
+	}
+	else
+	{
+		return ll_aligned_malloc_fallback(size, ALIGNMENT);
+	}
+}
+
+template<size_t ALIGNMENT>
+LL_FORCE_INLINE void ll_aligned_free(void* ptr)
+{
+	if (ALIGNMENT == LL_DEFAULT_HEAP_ALIGN)
+	{
+		free(ptr);
+	}
+	else if (ALIGNMENT == 16)
+	{
+		ll_aligned_free_16(ptr);
+	}
+	else if (ALIGNMENT == 32)
+	{
+		return ll_aligned_free_32(ptr);
+	}
+	else
+	{
+		return ll_aligned_free_fallback(ptr);
+	}
+}
 
 // Copy words 16-byte blocks from src to dst. Source and destination MUST NOT OVERLAP. 
 // Source and dest must be 16-byte aligned and size must be multiple of 16.
@@ -269,69 +332,24 @@ public:
 	static U64 getCurrentRSS();
 	static U32 getWorkingSetSize();
 	static void* tryToAlloc(void* address, U32 size);
-	static void initMaxHeapSizeGB(F32 max_heap_size_gb, BOOL prevent_heap_failure);
+	static void initMaxHeapSizeGB(F32Gigabytes max_heap_size, BOOL prevent_heap_failure);
 	static void updateMemoryInfo() ;
 	static void logMemoryInfo(BOOL update = FALSE);
 	static bool isMemoryPoolLow();
 
-	static U32 getAvailableMemKB() ;
-	static U32 getMaxMemKB() ;
-	static U32 getAllocatedMemKB() ;
+	static U32Kilobytes getAvailableMemKB() ;
+	static U32Kilobytes getMaxMemKB() ;
+	static U32Kilobytes getAllocatedMemKB() ;
 private:
 	static char* reserveMem;
-	static U32 sAvailPhysicalMemInKB ;
-	static U32 sMaxPhysicalMemInKB ;
-	static U32 sAllocatedMemInKB;
-	static U32 sAllocatedPageSizeInKB ;
+	static U32Kilobytes sAvailPhysicalMemInKB ;
+	static U32Kilobytes sMaxPhysicalMemInKB ;
+	static U32Kilobytes sAllocatedMemInKB;
+	static U32Kilobytes sAllocatedPageSizeInKB ;
 
-	static U32 sMaxHeapSizeInKB;
+	static U32Kilobytes sMaxHeapSizeInKB;
 	static BOOL sEnableMemoryFailurePrevention;
 };
-
-//----------------------------------------------------------------------------
-#if MEM_TRACK_MEM
-class LLMutex ;
-class LL_COMMON_API LLMemTracker
-{
-private:
-	LLMemTracker() ;
-	~LLMemTracker() ;
-
-public:
-	static void release() ;
-	static LLMemTracker* getInstance() ;
-
-	void track(const char* function, const int line) ;
-	void preDraw(BOOL pause) ;
-	void postDraw() ;
-	const char* getNextLine() ;
-
-private:
-	static LLMemTracker* sInstance ;
-	
-	char**     mStringBuffer ;
-	S32        mCapacity ;
-	U32        mLastAllocatedMem ;
-	S32        mCurIndex ;
-	S32        mCounter;
-	S32        mDrawnIndex;
-	S32        mNumOfDrawn;
-	BOOL       mPaused;
-	LLMutex*   mMutexp ;
-};
-
-#define MEM_TRACK_RELEASE LLMemTracker::release() ;
-#define MEM_TRACK         LLMemTracker::getInstance()->track(__FUNCTION__, __LINE__) ;
-
-#else // MEM_TRACK_MEM
-
-#define MEM_TRACK_RELEASE
-#define MEM_TRACK
-
-#endif // MEM_TRACK_MEM
-
-//----------------------------------------------------------------------------
-
 
 //
 //class LLPrivateMemoryPool defines a private memory pool for an application to use, so the application does not
