@@ -27,6 +27,7 @@
 #include "linden_common.h"
 #include "llcrashloggermac.h"
 #include "indra_constants.h"
+#include "llpidlock.h"
 
 #include <iostream>
     
@@ -35,6 +36,14 @@ int main(int argc, char **argv)
 	LLCrashLoggerMac app;
 	app.parseCommandOptions(argc, argv);
 
+    LLSD options = LLApp::instance()->getOptionData(
+                        LLApp::PRIORITY_COMMAND_LINE);
+    
+    if (!(options.has("pid") && options.has("dumpdir")))
+    {
+        llwarns << "Insufficient parameters to crash report." << llendl;
+    }
+    
 	if (! app.init())
 	{
 		llwarns << "Unable to initialize application." << llendl;
@@ -44,9 +53,7 @@ int main(int argc, char **argv)
     {
 //        return NSApplicationMain(argc, (const char **)argv);
     }
-
 	app.mainLoop();
-
 	app.cleanup();
 
 	llinfos << "Crash reporter finished normally." << llendl;

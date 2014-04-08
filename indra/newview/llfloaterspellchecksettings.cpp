@@ -307,12 +307,12 @@ void LLFloaterSpellCheckerImport::onBtnOK()
 	else
 	{
 		std::string settings_dic = LLSpellChecker::getDictionaryUserPath() + mDictionaryBasename + ".dic";
-		if ( copyFile( dict_dic, settings_dic ) )
+		if ( LLFile::copy( dict_dic, settings_dic ) )
 		{
 			if (gDirUtilp->fileExists(dict_aff))
 			{
 				std::string settings_aff = LLSpellChecker::getDictionaryUserPath() + mDictionaryBasename + ".aff";
-				if (copyFile( dict_aff, settings_aff ))
+				if ( LLFile::copy( dict_aff, settings_aff ))
 				{
 					imported = true;
 				}
@@ -383,37 +383,6 @@ void LLFloaterSpellCheckerImport::onBtnOK()
 	}
 
 	closeFloater(false);
-}
-
-bool LLFloaterSpellCheckerImport::copyFile(const std::string from, const std::string to)
-{
-	bool copied = false;
-	LLFILE* in = LLFile::fopen(from, "rb");		/* Flawfinder: ignore */	 	
-	if (in)	 	
-	{	 	
-		LLFILE* out = LLFile::fopen(to, "wb");		/* Flawfinder: ignore */
-		if (out)
-		{
-			char buf[16384];		/* Flawfinder: ignore */ 	
-			size_t readbytes;
-			bool write_ok = true;
-			while(write_ok && (readbytes = fread(buf, 1, 16384, in))) /* Flawfinder: ignore */
-			{
-				if (fwrite(buf, 1, readbytes, out) != readbytes)
-				{
-					LL_WARNS("SpellCheck") << "Short write" << LL_ENDL; 
-					write_ok = false;
-				}
-			}
-			if ( write_ok )
-			{
-				copied = true;
-			}
-			fclose(out);
-		}
-	}
-	fclose(in);
-	return copied;
 }
 
 std::string LLFloaterSpellCheckerImport::parseXcuFile(const std::string& file_path) const
