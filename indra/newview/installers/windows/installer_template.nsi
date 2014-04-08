@@ -105,8 +105,8 @@ Var INSTEXE
 Var INSTSHORTCUT
 Var COMMANDLINE         # Command line passed to this installer, set in .onInit
 Var SHORTCUT_LANG_PARAM # "--set InstallLanguage de", Passes language to viewer
-Var SKIP_DIALOGS        # Set from command line in  .onInit. autoinstall 
-                        # GUI and the defaults.
+Var SKIP_DIALOGS        # Set from command line in  .onInit. autoinstall GUI and the defaults.
+Var SKIP_AUTORUN		# Skip automatic launch of the viewer after install
 Var DO_UNINSTALL_V2     # If non-null, path to a previous Viewer 2 installation that will be uninstalled.
 
 # Function definitions should go before file includes, because calls to
@@ -144,6 +144,10 @@ Call CheckWindowsVersion					# Don't install On unsupported systems
     ${GetOptions} $COMMANDLINE "/SKIP_DIALOGS" $0   
     IfErrors +2 0	# If error jump past setting SKIP_DIALOGS
         StrCpy $SKIP_DIALOGS "true"
+
+	${GetOptions} $COMMANDLINE "/SKIP_AUTORUN" $0
+	IfErrors +2 0 ; If error jump past setting SKIP_AUTORUN
+		StrCpy $SKIP_AUTORUN "true"
 
     ${GetOptions} $COMMANDLINE "/LANGID=" $0	# /LANGID=1033 implies US English
 
@@ -675,8 +679,8 @@ FunctionEnd
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function .onInstSuccess
 Call CheckWindowsServPack		# Warn if not on the latest SP before asking to launch.
-    Push $R0					# Option value, unused
-        
+	Push $R0					# Option value, unused
+	StrCmp $SKIP_AUTORUN "true" +2;
 # Assumes SetOutPath $INSTDIR
 	Exec '"$WINDIR\explorer.exe" "$INSTDIR\$INSTEXE"'
 	Pop $R0
