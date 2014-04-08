@@ -291,14 +291,14 @@ clicking on their names.
     <panel
      border="false"
      height="303"
-     label="BANNED AGENTS"
+     label="BANNED RESIDENTS"
      layout="topleft"
      left="0"
      right="-1"
      help_topic="roles_banlist_tab"
      name="banlist_sub_tab"
      class="panel_group_banlist_subtab"
-     tool_tip="View the banned agents from this group."
+     tool_tip="View the banned residents from this group."
      width="310">
       <panel.string
        name="help_text">
