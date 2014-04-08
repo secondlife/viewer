@@ -42,12 +42,6 @@
 #include <llwin32headers.h>
 #include <TlHelp32.h>
 
-namespace {
-	inline DWORD getpid() {
-		return GetCurrentProcessId();
-	}
-}
-
 bool LLCrashLock::isProcessAlive(U32 pid, const std::string& pname)
 {
 	std::wstring wpname;
