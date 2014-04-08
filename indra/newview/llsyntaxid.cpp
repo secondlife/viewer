@@ -412,7 +412,7 @@ void LLSyntaxIdLSL::loadKeywordsIntoLLSD()
 	}
 	else
 	{
-		LL_ERRS("SyntaxLSL") << "Unable to open file: " << mFullFileSpec << LL_ENDL;
+		LL_WARNS("SyntaxLSL") << "Unable to open file: " << mFullFileSpec << LL_ENDL;
 	}
 	sLoadFailed = !sLoaded;
 }

@@ -54,8 +54,6 @@ public:
 	static const std::string	SIMULATOR_FEATURE;
 
 protected:
-	//LLViewerRegion*	region;
-
 	static bool		sInitialised;
 	static LLSD		sKeywordsXml;
 	static bool		sLoaded;
@@ -111,7 +109,6 @@ protected:
 	void			setFileNameCurrent(std::string& name) { mFileNameCurrent = name; }
 	void			setFileNameDefault(std::string& name) { mFileNameDefault = name; }
 	void			setFileNameNew(std::string name) { mFileNameNew = name; }
-//	void			setSimulatorFeatureName(const std::string& name) { mSimulatorFeature = name; }
 };
 
 

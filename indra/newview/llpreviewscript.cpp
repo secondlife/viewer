@@ -434,7 +434,7 @@ void LLScriptEdCore::updateKeywords()
 	if (mLive)
 	{
 		clearHighlights();
-		gAgent.removeRegionChangedCallback(mRegionChangedCallback);
+		mRegionChangedCallback.disconnect();
 	}
 	else
 	{
@@ -458,9 +458,7 @@ void LLScriptEdCore::processLoaded()
 
 void LLScriptEdCore::clearHighlights()
 {
-	mEditor->mKeywords.clearLoaded();
 	mEditor->clearSegments();
-	mEditor->mKeywords.clear();
 }
 
 void LLScriptEdCore::processKeywords()
@@ -1309,7 +1307,7 @@ void* LLPreviewLSL::createScriptEdPanel(void* userdata)
 								   LLPreviewLSL::onSearchReplace,
 								   self,
 								   0);
-
+	self->mScriptEd->mLive = false;
 	return self->mScriptEd;
 }
 
@@ -1324,7 +1322,7 @@ LLPreviewLSL::LLPreviewLSL(const LLSD& key )
 // virtual
 BOOL LLPreviewLSL::postBuild()
 {
-	const LLInventoryItem* item = getItem();	
+	const LLInventoryItem* item = getItem();
 
 	llassert(item);
 	if (item)
@@ -1756,7 +1754,6 @@ void LLPreviewLSL::onLoadComplete( LLVFS *vfs, const LLUUID& asset_uuid, LLAsset
 //static 
 void* LLLiveLSLEditor::createScriptEdPanel(void* userdata)
 {
-	
 	LLLiveLSLEditor *self = (LLLiveLSLEditor*)userdata;
 
 	self->mScriptEd =  new LLScriptEdCore(

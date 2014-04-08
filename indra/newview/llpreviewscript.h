@@ -162,6 +162,7 @@ private:
 	LLScriptEdContainer* mContainer; // parent view
 
 public:
+	boost::signals2::connection mFileFetchedCallback;
 	boost::signals2::connection mRegionChangedCallback;
 
 };
