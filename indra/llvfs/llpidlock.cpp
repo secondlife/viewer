@@ -274,3 +274,8 @@ void LLPidLock::setSaveName(std::string savename)
 { 
 	LLPidLockFile::instance().mSaveName=savename; 
 }
+
+S32 LLPidLock::getPID()
+{
+    return (S32)getpid();
+}
