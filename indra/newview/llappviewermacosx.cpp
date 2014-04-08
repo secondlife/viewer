@@ -32,6 +32,9 @@
 
 #define LL_CARBON_CRASH_HANDLER 1
 
+#include "llwindowmacosx.h"
+#include "llappviewermacosx-objc.h"
+
 #include "llappviewermacosx.h"
 #include "llwindowmacosx-objc.h"
 #include "llcommandlineparser.h"
@@ -45,6 +48,9 @@
 #ifdef LL_CARBON_CRASH_HANDLER
 #include <Carbon/Carbon.h>
 #endif
+#include <vector>
+#include <exception>
+
 #include "lldir.h"
 #include <signal.h>
 #include <CoreAudio/CoreAudio.h>	// for systemwide mute
@@ -56,7 +62,6 @@ namespace
 	// They are not used immediately by the app.
 	int gArgC;
 	char** gArgV;
-	bool sCrashReporterIsRunning = false;
 	LLAppViewerMacOSX* gViewerAppPtr;
 #ifdef LL_CARBON_CRASH_HANDLER
 	OSErr AEQuitHandler(const AppleEvent *messagein, AppleEvent *reply, long refIn)
@@ -68,6 +73,20 @@ namespace
 		return(result);
 	}
 #endif
+    void (*gOldTerminateHandler)() = NULL;
+}
+
+static void exceptionTerminateHandler()
+{
+	// reinstall default terminate() handler in case we re-terminate.
+	if (gOldTerminateHandler) std::set_terminate(gOldTerminateHandler);
+	// treat this like a regular viewer crash, with nice stacktrace etc.
+    long *null_ptr;
+    null_ptr = 0;
+    *null_ptr = 0xDEADBEEF; //Force an exception that will trigger breakpad.
+	//LLAppViewer::handleViewerCrash();
+	// we've probably been killed-off before now, but...
+	gOldTerminateHandler(); // call old terminate() handler
 }
 
 bool initViewer()
@@ -83,19 +102,21 @@ bool initViewer()
 		<< gDirUtilp->getAppRODataDir() << ": " << strerror(errno)
 		<< llendl;
 	}
-	
+
 	gViewerAppPtr = new LLAppViewerMacOSX();
-	
+
+    // install unexpected exception handler
+	gOldTerminateHandler = std::set_terminate(exceptionTerminateHandler);
+
 	gViewerAppPtr->setErrorHandler(LLAppViewer::handleViewerCrash);
-	
-	
+
 	
 	bool ok = gViewerAppPtr->init();
 	if(!ok)
 	{
 		llwarns << "Application init failed." << llendl;
 	}
-	
+
 	return ok;
 }
 
@@ -121,7 +142,8 @@ void cleanupViewer()
 {
 	if(!LLApp::isError())
 	{
-		gViewerAppPtr->cleanup();
+        if (gViewerAppPtr)
+            gViewerAppPtr->cleanup();
 	}
 	
 	delete gViewerAppPtr;
@@ -146,7 +168,17 @@ LLAppViewerMacOSX::~LLAppViewerMacOSX()
 
 bool LLAppViewerMacOSX::init()
 {
-	return LLAppViewer::init();
+	bool success = LLAppViewer::init();
+    
+#if LL_SEND_CRASH_REPORTS
+    if (success)
+    {
+        LLAppViewer* pApp = LLAppViewer::instance();
+        pApp->initCrashReporting();
+    }
+#endif
+    
+    return success;
 }
 
 // MacOSX may add and addition command line arguement for the process serial number.
@@ -263,132 +295,17 @@ bool LLAppViewerMacOSX::restoreErrorTrap()
 	return reset_count == 0;
 }
 
-#ifdef LL_CARBON_CRASH_HANDLER
-static OSStatus CarbonEventHandler(EventHandlerCallRef inHandlerCallRef,
-								   EventRef inEvent,
-								   void* inUserData)
+void LLAppViewerMacOSX::initCrashReporting(bool reportFreeze)
 {
-    ProcessSerialNumber psn;
-	
-    GetEventParameter(inEvent,
-					  kEventParamProcessID,
-					  typeProcessSerialNumber,
-					  NULL,
-					  sizeof(psn),
-					  NULL,
-					  &psn);
-	
-    if( GetEventKind(inEvent) == kEventAppTerminated )
-	{
-		Boolean matching_psn = FALSE;
-		OSErr os_result = SameProcess(&psn, (ProcessSerialNumber*)inUserData, &matching_psn);
-		if(os_result >= 0 && matching_psn)
-		{
-			sCrashReporterIsRunning = false;
-			QuitApplicationEventLoop();
-		}
-    }
-    return noErr;
-}
-#endif
-
-void LLAppViewerMacOSX::handleCrashReporting(bool reportFreeze)
-{
-#ifdef LL_CARBON_CRASH_HANDLER
-	// This used to use fork&exec, but is switched to LSOpenApplication to
-	// Make sure the crash reporter launches in front of the SL window.
-	
-	std::string command_str;
-	//command_str = "open Second Life.app/Contents/Resources/mac-crash-logger.app";
-	command_str = "mac-crash-logger.app/Contents/MacOS/mac-crash-logger";
-	
-	CFURLRef urlRef = CFURLCreateFromFileSystemRepresentation(NULL, (UInt8*)command_str.c_str(), strlen(command_str.c_str()), FALSE);
-	
-	// FSRef apparently isn't deprecated.
-	// There's other funcitonality that depends on it existing as well that isn't deprecated.
-	// There doesn't seem to be much to directly verify what the status of FSRef is, outside of some documentation pointing at FSRef being valid, and other documentation pointing to everything in Files.h being deprecated.
-	// We'll assume it isn't for now, since all non-deprecated functions that use it seem to assume similar.
-	
-	FSRef appRef;
-	Boolean pathstatus = CFURLGetFSRef(urlRef, &appRef);
-	
-	OSStatus os_result = noErr;
-	
-	if(pathstatus == true)
-	{
-		LSApplicationParameters appParams;
-		memset(&appParams, 0, sizeof(appParams));
-	 	appParams.version = 0;
-		appParams.flags = kLSLaunchNoParams | kLSLaunchStartClassic;
-		
-		appParams.application = &appRef;
-		
-		if(reportFreeze)
-		{
-			// Make sure freeze reporting launches the crash logger synchronously, lest
-			// Log files get changed by SL while the logger is running.
-			
-			// *NOTE:Mani A better way - make a copy of the data that the crash reporter will send
-			// and let SL go about its business. This way makes the mac work like windows and linux
-			// and is the smallest patch for the issue.
-			sCrashReporterIsRunning = false;
-			ProcessSerialNumber o_psn;
-			
-			static EventHandlerRef sCarbonEventsRef = NULL;
-			static const EventTypeSpec kEvents[] =
-			{
-				{ kEventClassApplication, kEventAppTerminated }
-			};
-			
-			// Install the handler to detect crash logger termination
-			InstallEventHandler(GetApplicationEventTarget(),
-								(EventHandlerUPP) CarbonEventHandler,
-								GetEventTypeCount(kEvents),
-								kEvents,
-								&o_psn,
-								&sCarbonEventsRef
-								);
-			
-			// Remove, temporarily the quit handler - which has *crash* behavior before
-			// the mainloop gets running!
-			AERemoveEventHandler(kCoreEventClass,
-								 kAEQuitApplication,
-								 NewAEEventHandlerUPP(AEQuitHandler),
-								 false);
-			
-			// Launch the crash reporter.
-			os_result = LSOpenApplication(&appParams, &o_psn);
-			
-			if(os_result >= 0)
-			{
-				sCrashReporterIsRunning = true;
-			}
-			
-			while(sCrashReporterIsRunning)
-			{
-				RunApplicationEventLoop();
-			}
-			
-			// Re-install the apps quit handler.
-			AEInstallEventHandler(kCoreEventClass,
-								  kAEQuitApplication,
-								  NewAEEventHandlerUPP(AEQuitHandler),
-								  0,
-								  false);
-			
-			// Remove the crash reporter quit handler.
-			RemoveEventHandler(sCarbonEventsRef);
-		}
-		else
-		{
-			appParams.flags |= kLSLaunchAsync;
-			clear_signals();
-			
-			ProcessSerialNumber o_psn;
-			os_result = LSOpenApplication(&appParams, &o_psn);
-		}
-	}
-#endif
+	std::string command_str = "mac-crash-logger.app";
+    
+    std::stringstream pid_str;
+    pid_str <<  LLApp::getPid();
+    std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_DUMP, "");
+    std::string appname = gDirUtilp->getExecutableFilename();
+    std::string str[] = { "-pid", pid_str.str(), "-dumpdir", logdir, "-procname", appname.c_str() };
+    std::vector< std::string > args( str, str + ( sizeof ( str ) /  sizeof ( std::string ) ) );
+    launchApplication(&command_str, &args);
 }
 
 std::string LLAppViewerMacOSX::generateSerialNumber()
