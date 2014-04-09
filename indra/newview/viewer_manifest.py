@@ -1016,6 +1016,7 @@ class LinuxManifest(ViewerManifest):
             self.path("../media_plugins/gstreamer010/libmedia_plugin_gstreamer010.so", "libmedia_plugin_gstreamer.so")
             self.end_prefix("bin/llplugin")
 
+        # llcommon
         if not self.path("../llcommon/libllcommon.so", "lib/libllcommon.so"):
             print "Skipping llcommon.so (assuming llcommon was linked statically)"
 
@@ -1135,26 +1136,53 @@ class Linux_i686_Manifest(LinuxManifest):
                 pass
 
             try:
-                    self.path("libfmodex-*.so")
-                    self.path("libfmodex.so")
-                    pass
+                self.path("libfmodex-*.so")
+                self.path("libfmodex.so")
+                pass
             except:
-                    print "Skipping libfmodex.so - not found"
-                    pass
+                print "Skipping libfmodex.so - not found"
+                pass
 
             self.end_prefix("lib")
 
             # Vivox runtimes
             if self.prefix(src="../packages/lib/release", dst="bin"):
-                    self.path("SLVoice")
-                    self.end_prefix()
+                self.path("SLVoice")
+                self.end_prefix()
             if self.prefix(src="../packages/lib/release", dst="lib"):
-                    self.path("libortp.so")
-                    self.path("libsndfile.so.1")
-                    #self.path("libvivoxoal.so.1") # no - we'll re-use the viewer's own OpenAL lib
-                    self.path("libvivoxsdk.so")
-                    self.path("libvivoxplatform.so")
-                    self.end_prefix("lib")
+                self.path("libortp.so")
+                self.path("libsndfile.so.1")
+                #self.path("libvivoxoal.so.1") # no - we'll re-use the viewer's own OpenAL lib
+                self.path("libvivoxsdk.so")
+                self.path("libvivoxplatform.so")
+                self.end_prefix("lib")
+
+            # plugin runtime
+            if self.prefix(src="../packages/lib/release", dst="lib"):
+                self.path("libQtCore.so*")
+                self.path("libQtGui.so*")
+                self.path("libQtNetwork.so*")
+                self.path("libQtOpenGL.so*")
+                self.path("libQtWebKit.so*")
+                self.end_prefix("lib")
+
+            # For WebKit/Qt plugin runtimes (image format plugins)
+            if self.prefix(src="../packages/plugins/imageformats", dst="bin/llplugin/imageformats"):
+                self.path("libqgif.so")
+                self.path("libqico.so")
+                self.path("libqjpeg.so")
+                self.path("libqmng.so")
+                self.path("libqsvg.so")
+                self.path("libqtiff.so")
+                self.end_prefix("bin/llplugin/imageformats")
+
+            # For WebKit/Qt plugin runtimes (codec/character encoding plugins)
+            if self.prefix(src="../packages/plugins/codecs", dst="bin/llplugin/codecs"):
+                self.path("libqcncodecs.so")
+                self.path("libqjpcodecs.so")
+                self.path("libqkrcodecs.so")
+                self.path("libqtwcodecs.so")
+                self.end_prefix("bin/llplugin/codecs")
 
             self.strip_binaries()
 

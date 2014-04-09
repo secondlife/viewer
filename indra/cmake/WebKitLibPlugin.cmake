@@ -53,8 +53,18 @@ if (WINDOWS)
     )
 elseif (DARWIN)
     set(WEBKIT_PLUGIN_LIBRARIES
-        optimized ${ARCH_PREBUILT_DIRS_RELEASE}/libllqtwebkit.dylib
-        debug ${ARCH_PREBUILT_DIRS_RELEASE}/libllqtwebkit.dylib
+        optimized ${ARCH_PREBUILT_DIRS_RELEASE}/libllqtwebkit.a
+        optimized ${ARCH_PREBUILT_DIRS_RELEASE}/libQtWebKit.4.dylib
+        optimized ${ARCH_PREBUILT_DIRS_RELEASE}/libQtOpenGL.4.dylib
+        optimized ${ARCH_PREBUILT_DIRS_RELEASE}/libQtNetwork.4.dylib
+        optimized ${ARCH_PREBUILT_DIRS_RELEASE}/libQtGui.4.dylib
+        optimized ${ARCH_PREBUILT_DIRS_RELEASE}/libQtCore.4.dylib
+        debug ${ARCH_PREBUILT_DIRS_RELEASE}/libllqtwebkit.a
+        debug ${ARCH_PREBUILT_DIRS_RELEASE}/libQtWebKit.4.dylib
+        debug ${ARCH_PREBUILT_DIRS_RELEASE}/libQtOpenGL.4.dylib
+        debug ${ARCH_PREBUILT_DIRS_RELEASE}/libQtNetwork.4.dylib
+        debug ${ARCH_PREBUILT_DIRS_RELEASE}/libQtGui.4.dylib
+        debug ${ARCH_PREBUILT_DIRS_RELEASE}/libQtCore.4.dylib
         )
 elseif (LINUX)
     set(WEBKIT_PLUGIN_LIBRARIES ${LLQTWEBKIT_LIBRARY} ${QT_LIBRARIES} ${QT_PLUGIN_LIBRARIES})
@@ -70,7 +80,7 @@ elseif (LINUX)
         QtNetwork
         QtGui
         QtCore
-        jscore
+#        jscore
 #        qgif
 #        qjpeg
 #        jpeg
