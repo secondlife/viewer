@@ -652,7 +652,6 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 				items.push_back(std::string("Rename"));
 				if (!isItemRenameable() || ((flags & FIRST_SELECTED_ITEM) == 0))
 				{
-                    llinfos << "Merov : rename disable, renameable = " << isItemRenameable() << ", flags = " << flags <<  llendl;
 					disabled_items.push_back(std::string("Rename"));
 				}
 			}
@@ -851,7 +850,6 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
 												menuentry_vec_t &disabled_items)
 {
     S32 depth = depth_nesting_in_marketplace(mUUID);
-    llinfos << "Merov : adding marketplace menu at depth = " << depth << llendl;
     if (depth == 1)
     {
         // Options available at the Listing Folder level
@@ -2026,11 +2024,11 @@ std::string LLFolderBridge::getLabelSuffix() const
 {
     if (isMarketplaceListingsFolder())
     {
+        std::string suffix = "";
         // Listing folder case
         if (LLMarketplaceData::instance().isListed(getUUID()))
         {
-            //llinfos << "Merov : in merchant folder and listed : id = " << getUUID() << llendl;
-            std::string suffix = LLMarketplaceData::instance().getListingID(getUUID());
+            suffix = LLMarketplaceData::instance().getListingID(getUUID());
             if (suffix.empty())
             {
                 suffix = LLTrans::getString("MarketplaceNoID");
@@ -2040,31 +2038,25 @@ std::string LLFolderBridge::getLabelSuffix() const
             {
                 suffix += " (" +  LLTrans::getString("MarketplaceActive") + ")";
             }
-            return LLInvFVBridge::getLabelSuffix() + suffix;
         }
         // Version folder case
         else if (LLMarketplaceData::instance().isVersionFolder(getUUID()))
         {
-            std::string suffix;
             if (LLMarketplaceData::instance().getActivationState(getUUID()))
             {
                 suffix += " (" +  LLTrans::getString("MarketplaceActive") + ")";
             }
-            return LLInvFVBridge::getLabelSuffix() + suffix;
         }
-        // Stock folder case
-        else if (getCategory()->getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
+        S32 stock_count = compute_stock_count(getUUID());
+        if (stock_count == 0)
         {
-            //llinfos << "Merov : getLabelSuffix : stock folder : name = " << getCategory()->getName() << ", stock = " << getCategory()->getDescendentCount() << llendl;
-            std::string stock = llformat("%d", getCategory()->getDescendentCount());
-            std::string suffix = " (" +  LLTrans::getString("MarketplaceStock") + ") (" + stock + ")";
-            return LLInvFVBridge::getLabelSuffix() + suffix;
+            suffix += " (" +  LLTrans::getString("MarketplaceNoStock") + ")";
         }
-        else
+        else if (stock_count != -1)
         {
-            //llinfos << "Merov : in merchant folder but not listed : id = " << getUUID() << llendl;
-            return LLInvFVBridge::getLabelSuffix();
+            suffix += " (" +  LLTrans::getString("MarketplaceStock") + "=" + llformat("%d", stock_count) + ")";
         }
+        return LLInvFVBridge::getLabelSuffix() + suffix;
 	}
 	else
 	{

@@ -122,14 +122,31 @@ void append_path(const LLUUID& id, std::string& path)
 void update_marketplace_category(const LLUUID& cat_id)
 {
     // When changing the marketplace status of a folder, the only thing that needs to happen is
-    // for all observers of the folder to, possibly, change the display label of said folder.
-    // At least that's the status for the moment so, even if that function seems small, we
-    // prefer to encapsulate that behavior here.
-    if (cat_id.notNull())
+    // for all observers of the folder to, possibly, change the display label of the folder
+    // as well as, potentially, change the display label of all parent folders up to the marketplace root.
+
+    const LLUUID marketplace_listings_uuid = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+    // No marketplace, likely called in error then...
+    // Or not a descendent of the marketplace listings root, then just do the regular category update
+    if (marketplace_listings_uuid.isNull() || !gInventory.isObjectDescendentOf(cat_id, marketplace_listings_uuid))
     {
-        gInventory.addChangedMask(LLInventoryObserver::LABEL, cat_id);
+        LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
+        gInventory.updateCategory(cat);
         gInventory.notifyObservers();
+        return;
     }
+    // Explore all the hierarchy of folders up to the root to get them to update
+    // Note: this is not supposed to be deeper than 4
+    LLUUID cur_id = cat_id;
+    LLInventoryCategory* cur_cat = gInventory.getCategory(cur_id);
+    while (cur_id != marketplace_listings_uuid)
+    {
+        gInventory.addChangedMask(LLInventoryObserver::LABEL, cur_id);
+        gInventory.notifyObservers();
+        cur_id = cur_cat->getParentUUID();
+        cur_cat = gInventory.getCategory(cur_id);
+    }
+    return;
 }
 
 void rename_category(LLInventoryModel* model, const LLUUID& cat_id, const std::string& new_name)
@@ -748,6 +765,41 @@ LLUUID nested_parent_id(LLUUID cur_uuid, S32 depth)
     return cur_uuid;
 }
 
+S32 compute_stock_count(LLUUID cat_uuid)
+{
+	LLInventoryModel::cat_array_t* cat_array;
+	LLInventoryModel::item_array_t* item_array;
+	gInventory.getDirectDescendentsOf(cat_uuid,cat_array,item_array);
+    
+    // "-1" denotes a folder that doesn't countain any stock folders in its descendents
+    S32 curr_count = -1;
+
+    LLInventoryCategory* cat = gInventory.getCategory(cat_uuid);
+    
+    if (cat->getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
+    {
+        // Note: stock folders are *not* supposed to have nested subfolders so we stop recursion here
+        LLViewerInventoryCategory * viewer_cat = (LLViewerInventoryCategory *) (cat);
+        curr_count = viewer_cat->getDescendentCount();
+    }
+    else
+    {
+        // Note: marketplace listings have a maximum depth nesting of 4
+        LLInventoryModel::cat_array_t cat_array_copy = *cat_array;
+        for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
+        {
+            LLInventoryCategory* category = *iter;
+            S32 count = compute_stock_count(category->getUUID());
+            if ((curr_count == -1) || ((count != -1) && (count < curr_count)))
+            {
+                curr_count = count;
+            }
+        }
+    }
+    
+    return curr_count;
+}
+
 void move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_folder, bool copy)
 {
     // Get the marketplace listings, exit with error if none
@@ -792,7 +844,6 @@ void move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
 	
             // Get the parent folder of the moved item : we may have to update it
             LLUUID src_folder = viewer_inv_item->getParentUUID();
-            LLViewerInventoryCategory* src_cat = gInventory.getCategory(src_folder);
 
             if (copy)
             {
@@ -812,13 +863,12 @@ void move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
                 gInventory.changeItemParent(viewer_inv_item, dest_folder, false);
             }
             
-            // Update the modified folders
-            gInventory.updateCategory(src_cat);
-            gInventory.updateCategory(dest_cat);
-            gInventory.notifyObservers();
-        
             // Validate the destination : note that this will run the validation code only on one listing folder at most...
             validate_marketplacelistings(dest_cat);
+
+            // Update the modified folders
+            update_marketplace_category(src_folder);
+            update_marketplace_category(dest_folder);
         }
         else
         {
@@ -839,7 +889,6 @@ void move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUU
 
         // Get the parent folder of the moved item : we may have to update it
         LLUUID src_folder = inv_cat->getParentUUID();
-        LLViewerInventoryCategory* src_cat = gInventory.getCategory(src_folder);
 
         LLViewerInventoryCategory * viewer_inv_cat = (LLViewerInventoryCategory *) inv_cat;
         if (copy)
@@ -853,13 +902,12 @@ void move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUU
             gInventory.changeCategoryParent(viewer_inv_cat, dest_folder, false);
         }
 
-        // Update the modified folders
-        gInventory.updateCategory(src_cat);
-        gInventory.updateCategory(dest_cat);
-        gInventory.notifyObservers();
-
         // Check the destination folder recursively for no copy items and promote the including folders if any
         validate_marketplacelistings(dest_cat);
+
+        // Update the modified folders
+        update_marketplace_category(src_folder);
+        update_marketplace_category(dest_folder);
     }
 }
 
@@ -948,9 +996,8 @@ void validate_marketplacelistings(LLInventoryCategory* cat)
                 stock_folder_cat = gInventory.getCategory(stock_folder_uuid);
             }
             gInventory.changeItemParent(viewer_inv_item, stock_folder_uuid, false);
-            gInventory.updateCategory(viewer_cat);
-            gInventory.updateCategory(stock_folder_cat);
-            gInventory.notifyObservers();
+            update_marketplace_category(viewer_cat->getUUID());
+            update_marketplace_category(stock_folder_uuid);
         }
 	}
     

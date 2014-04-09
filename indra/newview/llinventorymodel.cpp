@@ -1013,7 +1013,7 @@ LLInventoryModel::item_array_t* LLInventoryModel::getUnlockedItemArray(const LLU
 // an existing item with the matching id, or it will add the category.
 void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat)
 {
-	if(cat->getUUID().isNull())
+	if(!cat || cat->getUUID().isNull())
 	{
 		return;
 	}
