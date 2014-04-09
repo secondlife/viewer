@@ -30,7 +30,7 @@
         function="Marketplace.ViewSort.CheckItem"
         parameter="show_unassociated" />
     </menu_item_check>
-    <menu_item_check name="show_active" label="Show Active Listings and Folders Only">
+    <menu_item_check name="show_active" label="Show Active Listings Only">
         <menu_item_check.on_click
         function="Marketplace.ViewSort.Action"
         parameter="show_active" />
