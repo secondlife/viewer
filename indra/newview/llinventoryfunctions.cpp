@@ -59,6 +59,7 @@
 #include "llinventorypanel.h"
 #include "lllineeditor.h"
 #include "llmarketplacenotifications.h"
+#include "llmarketplacefunctions.h"
 #include "llmenugl.h"
 #include "llnotificationsutil.h"
 #include "llpanelmaininventory.h"
@@ -752,6 +753,7 @@ S32 depth_nesting_in_marketplace(LLUUID cur_uuid)
     return depth;
 }
 
+// Returns the UUID of the marketplace listing this object is in
 LLUUID nested_parent_id(LLUUID cur_uuid, S32 depth)
 {
     LLInventoryObject* cur_object = gInventory.getObject(cur_uuid);
@@ -767,6 +769,45 @@ LLUUID nested_parent_id(LLUUID cur_uuid, S32 depth)
 
 S32 compute_stock_count(LLUUID cat_uuid)
 {
+    // Handle the case of the folder being a stock folder immediately
+    LLViewerInventoryCategory* cat = gInventory.getCategory(cat_uuid);
+    if (cat->getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
+    {
+        // Note: stock folders are *not* supposed to have nested subfolders so we stop recursion here
+        // Note: we *always* give a stock count for stock folders, it's useful even if the listing is unassociated
+        //LLViewerInventoryCategory * viewer_cat = (LLViewerInventoryCategory *) (cat);
+        return cat->getDescendentCount();
+    }
+
+    // Grab marketplace data for this folder
+    S32 depth = depth_nesting_in_marketplace(cat_uuid);
+    LLUUID listing_uuid = nested_parent_id(cat_uuid, depth);
+    if (!LLMarketplaceData::instance().isListed(listing_uuid))
+    {
+        // If not listed, the notion of stock is meaningless so it won't be computed for any level
+        return -1;
+    }
+
+    LLUUID version_folder_uuid = LLMarketplaceData::instance().getVersionFolderID(listing_uuid);
+    // Handle the case of the first 2 levels : listing and version folders
+    if (depth == 1)
+    {
+        if (version_folder_uuid.notNull())
+        {
+            // If there is a version folder, the stock value for the listing is the version folder stock
+            return compute_stock_count(version_folder_uuid);
+        }
+    }
+    else if (depth == 2)
+    {
+        if (version_folder_uuid.notNull() && (version_folder_uuid != cat_uuid))
+        {
+            // If there is a version folder but we're not it, our stock count is meaningless
+            return -1;
+        }
+    }
+    
+    // In all other cases, the stock count is the min of stock folders count found in the descendents
 	LLInventoryModel::cat_array_t* cat_array;
 	LLInventoryModel::item_array_t* item_array;
 	gInventory.getDirectDescendentsOf(cat_uuid,cat_array,item_array);
@@ -774,26 +815,15 @@ S32 compute_stock_count(LLUUID cat_uuid)
     // "-1" denotes a folder that doesn't countain any stock folders in its descendents
     S32 curr_count = -1;
 
-    LLInventoryCategory* cat = gInventory.getCategory(cat_uuid);
-    
-    if (cat->getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
+    // Note: marketplace listings have a maximum depth nesting of 4
+    LLInventoryModel::cat_array_t cat_array_copy = *cat_array;
+    for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
     {
-        // Note: stock folders are *not* supposed to have nested subfolders so we stop recursion here
-        LLViewerInventoryCategory * viewer_cat = (LLViewerInventoryCategory *) (cat);
-        curr_count = viewer_cat->getDescendentCount();
-    }
-    else
-    {
-        // Note: marketplace listings have a maximum depth nesting of 4
-        LLInventoryModel::cat_array_t cat_array_copy = *cat_array;
-        for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
+        LLInventoryCategory* category = *iter;
+        S32 count = compute_stock_count(category->getUUID());
+        if ((curr_count == -1) || ((count != -1) && (count < curr_count)))
         {
-            LLInventoryCategory* category = *iter;
-            S32 count = compute_stock_count(category->getUUID());
-            if ((curr_count == -1) || ((count != -1) && (count < curr_count)))
-            {
-                curr_count = count;
-            }
+            curr_count = count;
         }
     }
     
