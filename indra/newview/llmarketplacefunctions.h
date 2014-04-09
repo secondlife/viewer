@@ -165,11 +165,6 @@ public:
     bool setVersionFolderID(const LLUUID& folder_id, const LLUUID& version_id);
     bool setActivation(const LLUUID& folder_id, bool activate);
     
-    // Merov : DD Development : methods to populate the items list with something usefull using
-    // inventory IDs and some pseudo random code so we can play with the UI...
-    void addTestItem(const LLUUID& folder_id);
-    void addTestItem(const LLUUID& folder_id, const LLUUID& version_id);
-    
 private:
     marketplace_items_list_t mMarketplaceItems;
 };

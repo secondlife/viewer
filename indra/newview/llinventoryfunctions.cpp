@@ -120,33 +120,58 @@ void append_path(const LLUUID& id, std::string& path)
 	path.append(temp);
 }
 
-void update_marketplace_category(const LLUUID& cat_id)
+void update_marketplace_folder_hierarchy(const LLUUID cat_id)
 {
     // When changing the marketplace status of a folder, the only thing that needs to happen is
     // for all observers of the folder to, possibly, change the display label of the folder
-    // as well as, potentially, change the display label of all parent folders up to the marketplace root.
+    // so that's the only thing we change on the update mask.
+    gInventory.addChangedMask(LLInventoryObserver::LABEL, cat_id);
+    gInventory.notifyObservers();
+
+    // Update all descendent folders down
+	LLInventoryModel::cat_array_t* cat_array;
+	LLInventoryModel::item_array_t* item_array;
+	gInventory.getDirectDescendentsOf(cat_id,cat_array,item_array);
+    
+    LLInventoryModel::cat_array_t cat_array_copy = *cat_array;
+    for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
+    {
+        LLInventoryCategory* category = *iter;
+        update_marketplace_folder_hierarchy(category->getUUID());
+    }
+    return;
+}
+
+void update_marketplace_category(const LLUUID& cat_id)
+{
+    // When changing the marketplace status of a folder, we usually have to change the status of all
+    // folders in the same listing. This is because the display of each folder is affected by the
+    // overall status of the whole listing.
+    // Consequently, the only way to correctly update a folder anywhere in the marketplace is to 
+    // update the whole listing from its listing root.
+    // This is not as bad as it seems as we only update folders, not items, and the folder nesting depth 
+    // is limited to 4.
+    // We also take care of degenerated cases so we don't update all folders in the inventory by mistake.
 
     const LLUUID marketplace_listings_uuid = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
-    // No marketplace, likely called in error then...
-    // Or not a descendent of the marketplace listings root, then just do the regular category update
+    // No marketplace -> likely called too early... or
+    // Not a descendent of the marketplace listings root -> likely called in error then...
     if (marketplace_listings_uuid.isNull() || !gInventory.isObjectDescendentOf(cat_id, marketplace_listings_uuid))
     {
+        // In those cases, just do the regular category update
         LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
         gInventory.updateCategory(cat);
         gInventory.notifyObservers();
         return;
     }
-    // Explore all the hierarchy of folders up to the root to get them to update
-    // Note: this is not supposed to be deeper than 4
-    LLUUID cur_id = cat_id;
-    LLInventoryCategory* cur_cat = gInventory.getCategory(cur_id);
-    while (cur_id != marketplace_listings_uuid)
-    {
-        gInventory.addChangedMask(LLInventoryObserver::LABEL, cur_id);
-        gInventory.notifyObservers();
-        cur_id = cur_cat->getParentUUID();
-        cur_cat = gInventory.getCategory(cur_id);
-    }
+    
+    // Grab marketplace listing data for this folder
+    S32 depth = depth_nesting_in_marketplace(cat_id);
+    LLUUID listing_uuid = nested_parent_id(cat_id, depth);
+    
+    // Update all descendents starting from the listing root
+    update_marketplace_folder_hierarchy(listing_uuid);
+
     return;
 }
 

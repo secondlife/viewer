@@ -5,12 +5,12 @@
  name="Popup"
  visible="false">
 	<menu_item_call
-        label="Add Listing"
+        label="Associate Listing"
         layout="topleft"
-        name="Marketplace Add Listing">
+        name="Marketplace Associate Listing">
 		<menu_item_call.on_click
         function="Inventory.DoToSelected"
-        parameter="marketplace_add_listing" />
+        parameter="marketplace_associate_listing" />
 	</menu_item_call>
 	<menu_item_call
         label="Attach Listing"
@@ -19,6 +19,14 @@
 		<menu_item_call.on_click
         function="Inventory.DoToSelected"
         parameter="marketplace_attach_listing" />
+	</menu_item_call>
+	<menu_item_call
+        label="Disassociate Listing"
+        layout="topleft"
+        name="Marketplace Disassociate Listing">
+		<menu_item_call.on_click
+        function="Inventory.DoToSelected"
+        parameter="marketplace_disassociate_listing" />
 	</menu_item_call>
 	<menu_item_call
         label="Show Listing"

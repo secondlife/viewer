@@ -687,7 +687,6 @@ bool LLMarketplaceData::setActivation(const LLUUID& folder_id, bool activate)
         marketplace_items_list_t::iterator it = mMarketplaceItems.find(folder_id);
         (it->second).mIsActive = activate;
         update_marketplace_category((it->second).mListingFolderId);
-        update_marketplace_category((it->second).mVersionFolderId);
         return true;
     }
     // We need to iterate through the list to check it's not a version folder
@@ -698,28 +697,11 @@ bool LLMarketplaceData::setActivation(const LLUUID& folder_id, bool activate)
         {
             (it->second).mIsActive = activate;
             update_marketplace_category((it->second).mListingFolderId);
-            update_marketplace_category((it->second).mVersionFolderId);
             return true;
         }
         it++;
     }
     return false;
-}
-
-// Test methods
-void LLMarketplaceData::addTestItem(const LLUUID& folder_id)
-{
-    llinfos << "Merov : addTestItem, id = " << folder_id << llendl;
-	mMarketplaceItems[folder_id] = LLMarketplaceTuple(folder_id);
-    update_marketplace_category(folder_id);
-}
-void LLMarketplaceData::addTestItem(const LLUUID& folder_id, const LLUUID& version_id)
-{
-    llinfos << "Merov : addTestItem, id = " << folder_id << ", version = " << version_id << llendl;
-	mMarketplaceItems[folder_id] = LLMarketplaceTuple(folder_id);
-    setVersionFolderID(folder_id, version_id);
-    update_marketplace_category(folder_id);
-    update_marketplace_category(version_id);
 }
 
 

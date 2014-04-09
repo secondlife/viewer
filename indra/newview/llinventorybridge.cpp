@@ -65,6 +65,7 @@
 #include "llsidepanelappearance.h"
 #include "lltooldraganddrop.h"
 #include "lltrans.h"
+#include "llurlaction.h"
 #include "llviewerassettype.h"
 #include "llviewerfoldertype.h"
 #include "llviewermenu.h"
@@ -853,13 +854,14 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
     if (depth == 1)
     {
         // Options available at the Listing Folder level
-        items.push_back(std::string("Marketplace Add Listing"));
+        items.push_back(std::string("Marketplace Associate Listing"));
         items.push_back(std::string("Marketplace Attach Listing"));
+        items.push_back(std::string("Marketplace Disassociate Listing"));
         items.push_back(std::string("Marketplace Activate"));
         items.push_back(std::string("Marketplace Deactivate"));
         if (LLMarketplaceData::instance().isListed(mUUID))
         {
-			disabled_items.push_back(std::string("Marketplace Add Listing"));
+			disabled_items.push_back(std::string("Marketplace Associate Listing"));
 			disabled_items.push_back(std::string("Marketplace Attach Listing"));
             if (LLMarketplaceData::instance().getActivationState(mUUID))
             {
@@ -872,6 +874,7 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
         }
         else
         {
+			disabled_items.push_back(std::string("Marketplace Disassociate Listing"));
 			disabled_items.push_back(std::string("Marketplace Activate"));
 			disabled_items.push_back(std::string("Marketplace Deactivate"));
         }
@@ -3147,11 +3150,16 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
         LLMarketplaceData::instance().setActivation(mUUID,false);
 		return;
 	}
-	else if ("marketplace_add_listing" == action)
+	else if ("marketplace_associate_listing" == action)
 	{
         LLMarketplaceData::instance().addListing(mUUID);
 		return;
 	}
+    else if ("marketplace_disassociate_listing" == action)
+    {
+        LLMarketplaceData::instance().deleteListing(mUUID);
+		return;
+    }
 	else if ("marketplace_attach_listing" == action)
 	{
         // *TODO : Get a list of listing IDs and let the user choose one, delist the old one and relist the new one
@@ -3163,6 +3171,11 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
         // *TODO : Need to show a browser window with the info for the listing
         // Get the listing id (i.e. go up the hierarchy to find the listing folder
         // Show the listing folder in a browser window
+        // https://marketplace.secondlife.com/p/Nounours/4438852
+        // https://marketplace.secondlife.com/p/Un-autre-nounours/4447997?preview=true
+        // https://marketplace.secondlife.com/p/<listing_name>/<listing_id>?preview=true
+        std::string url("https://marketplace.secondlife.com/p/Un-autre-nounours/4447997?preview=true");
+        LLUrlAction::openURL(url);
 		return;
 	}
 #ifndef LL_RELEASE_FOR_DOWNLOAD
