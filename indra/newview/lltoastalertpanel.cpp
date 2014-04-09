@@ -267,6 +267,11 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 			mLineEditor->setMaxTextChars(edit_text_max_chars);
 			mLineEditor->setText(edit_text_contents);
 
+			if("SaveOutfitAs"  == mNotification->getName())
+			{
+				mLineEditor->setPrevalidate(&LLTextValidate::validateASCII);
+			}
+
 			// decrease limit of line editor of teleport offer dialog to avoid truncation of
 			// location URL in invitation message, see EXT-6891
 			if ("OfferTeleport" == mNotification->getName())
