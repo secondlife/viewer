@@ -1420,9 +1420,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1ae810af805a93184bbd3aeaf0a4a617</string>
+              <string>89b46227fa477735163f7272be1a4fdc</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-llqtwebkit2/rev/288841/arch/Darwin/installer/llqtwebkit-4.7.1-darwin-20140408.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-llqtwebkit2/rev/288966/arch/Darwin/installer/llqtwebkit-4.7.1-darwin-20140411.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1432,9 +1432,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ca7be91df38c0cf97ca21def939f010f</string>
+              <string>77750a0a921c78cc6344156b1c935623</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-llqtwebkit2/rev/288841/arch/Linux/installer/llqtwebkit-4.7.1-linux-20140408.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-llqtwebkit2/rev/288966/arch/Linux/installer/llqtwebkit-4.7.1-linux-20140411.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1444,9 +1444,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>22a3737d53f2cc46897ec1801ab6f271</string>
+              <string>9ef4ec6355ee5c3dd528da6c4c3a309d</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-llqtwebkit2/rev/288841/arch/CYGWIN/installer/llqtwebkit-4.7.1-windows-20140408.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-llqtwebkit2/rev/288966/arch/CYGWIN/installer/llqtwebkit-4.7.1-windows-20140411.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>

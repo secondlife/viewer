@@ -122,34 +122,26 @@ add_custom_command(TARGET llfbconnecttest POST_BUILD
 )
 
 
-if (DARWIN OR WINDOWS)
-  get_target_property(BUILT_WEBKIT_PLUGIN media_plugin_webkit LOCATION)
-  add_custom_command(TARGET llfbconnecttest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${BUILT_WEBKIT_PLUGIN}  ${PLUGINS_DESTINATION_DIR}
-    DEPENDS ${BUILT_WEBKIT_PLUGIN}
-  )
+get_target_property(BUILT_WEBKIT_PLUGIN media_plugin_webkit LOCATION)
+add_custom_command(TARGET llfbconnecttest POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy ${BUILT_WEBKIT_PLUGIN}  ${PLUGINS_DESTINATION_DIR}
+  DEPENDS ${BUILT_WEBKIT_PLUGIN}
+)
   
-  # copy over bookmarks file if llfbconnecttest gets built
-  get_target_property(BUILT_LLFBCONNECTTEST llfbconnecttest LOCATION)
-  add_custom_command(TARGET llfbconnecttest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bookmarks.txt ${CMAKE_CURRENT_BINARY_DIR}/
-    DEPENDS ${BUILT_LLFBCONNECTTEST}
-  )
-  # also copy it to the same place as SLPlugin, which is what the mac wants...
-  add_custom_command(TARGET llfbconnecttest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bookmarks.txt ${PLUGINS_DESTINATION_DIR}
-    DEPENDS ${BUILT_LLFBCONNECTTEST}
-  )
-endif (DARWIN OR WINDOWS)
+# copy over bookmarks file if llfbconnecttest gets built
+get_target_property(BUILT_LLFBCONNECTTEST llfbconnecttest LOCATION)
+add_custom_command(TARGET llfbconnecttest POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bookmarks.txt ${CMAKE_CURRENT_BINARY_DIR}/
+  DEPENDS ${BUILT_LLFBCONNECTTEST}
+)
 
-if (DARWIN)
-  add_custom_command(TARGET llfbconnecttest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${ARCH_PREBUILT_DIRS_RELEASE}/libllqtwebkit.dylib ${PLUGINS_DESTINATION_DIR}
-    DEPENDS ${ARCH_PREBUILT_DIRS_RELEASE}/libllqtwebkit.dylib
-  )
-endif (DARWIN)
+# also copy it to the same place as SLPlugin, which is what the mac wants...
+add_custom_command(TARGET llfbconnecttest POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bookmarks.txt ${PLUGINS_DESTINATION_DIR}
+  DEPENDS ${BUILT_LLFBCONNECTTEST}
+)
 
-if(WINDOWS)
+if (WINDOWS)
   #********************
   # Plugin test library deploy
   #
@@ -300,5 +292,84 @@ if(WINDOWS)
   add_dependencies(llfbconnecttest copy_fbconnecttest_libs)
 
 endif(WINDOWS)
+
+if (DARWIN)
+  set(fbconnecttest_release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
+  set(fbconnecttest_release_files
+    libexception_handler.dylib
+    libaprutil-1.0.dylib
+    libapr-1.0.dylib
+    libexpat.1.5.2.dylib
+    libz.1.dylib
+    libssl.1.0.0.dylib
+    libcrypto.1.0.0.dylib
+    libQtCore.4.7.1.dylib
+    libQtCore.4.dylib
+    libQtGui.4.7.1.dylib
+    libQtGui.4.dylib
+    libQtNetwork.4.7.1.dylib
+    libQtNetwork.4.dylib
+    libQtOpenGL.4.7.1.dylib
+    libQtOpenGL.4.dylib
+    libQtWebKit.4.7.1.dylib
+    libQtWebKit.4.dylib
+    libQtSvg.4.7.1.dylib
+    libQtSvg.4.dylib
+    libQtXml.4.7.1.dylib
+    libQtXml.4.dylib
+    )
+  copy_if_different(
+    ${fbconnecttest_release_src_dir}
+    "${PLUGINS_DESTINATION_DIR}"
+    out_targets
+    ${fbconnecttest_release_files}
+    )
+  set(fbconnect_test_targets ${fbconnect_test_targets} ${out_targets})
+
+  # Release & ReleaseDebInfo config runtime files required for the FB connect test (Qt image format plugins)
+  set(fbconnecttest_release_src_dir "${ARCH_PREBUILT_DIRS_PLUGINS}/imageformats")
+  set(fbconnecttest_release_files
+    libqgif.dylib
+    libqico.dylib
+    libqjpeg.dylib
+    libqmng.dylib
+    libqsvg.dylib
+    libqtiff.dylib
+    )
+  copy_if_different(
+    ${fbconnecttest_release_src_dir}
+    "${PLUGINS_DESTINATION_DIR}/imageformats"
+    out_targets
+    ${fbconnecttest_release_files}
+    )
+  set(fbconnect_test_targets ${fbconnect_test_targets} ${out_targets})
+
+  # Release & ReleaseDebInfo config runtime files required for the FB connect test (Qt codec plugins)
+  set(fbconnecttest_release_src_dir "${ARCH_PREBUILT_DIRS_PLUGINS}/codecs")
+  set(fbconnecttest_release_files
+    libqcncodecs.dylib
+    libqjpcodecs.dylib
+    libqkrcodecs.dylib
+    libqtwcodecs.dylib
+    )
+  copy_if_different(
+    ${fbconnecttest_release_src_dir}
+    "${PLUGINS_DESTINATION_DIR}/codecs"
+    out_targets
+    ${fbconnecttest_release_files}
+    )
+  set(fbconnect_test_targets ${fbconnect_test_targets} ${out_targets})
+
+  add_custom_target(copy_fbconnecttest_libs ALL
+    DEPENDS 
+    ${fbconnect_test_targets}
+    )
+
+  add_dependencies(llfbconnecttest copy_fbconnecttest_libs)
+endif (DARWIN)
+
+if (LINUX)
+
+endif (LINUX)
 
 ll_deploy_sharedlibs_command(llfbconnecttest) 

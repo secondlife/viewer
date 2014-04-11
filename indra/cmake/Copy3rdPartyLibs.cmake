@@ -225,7 +225,6 @@ elseif(DARWIN)
         libexpat.dylib
         libGLOD.dylib
         libhunspell-1.3.0.dylib
-        libllqtwebkit.dylib
         libminizip.a
         libndofdev.dylib
         libssl.dylib

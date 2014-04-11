@@ -346,44 +346,44 @@ add_custom_command(TARGET llmediaplugintest POST_BUILD
   DEPENDS ${BUILT_LLCOMMON}
 )
 
+get_target_property(BUILT_WEBKIT_PLUGIN media_plugin_webkit LOCATION)
+add_custom_command(TARGET llmediaplugintest POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy ${BUILT_WEBKIT_PLUGIN}  ${PLUGINS_DESTINATION_DIR}
+  DEPENDS ${BUILT_WEBKIT_PLUGIN}
+)
 
 if (DARWIN OR WINDOWS)
-  get_target_property(BUILT_WEBKIT_PLUGIN media_plugin_webkit LOCATION)
-  add_custom_command(TARGET llmediaplugintest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${BUILT_WEBKIT_PLUGIN}  ${PLUGINS_DESTINATION_DIR}
-    DEPENDS ${BUILT_WEBKIT_PLUGIN}
-  )
-
   get_target_property(BUILT_QUICKTIME_PLUGIN media_plugin_quicktime LOCATION)
   add_custom_command(TARGET llmediaplugintest POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy ${BUILT_QUICKTIME_PLUGIN}  ${PLUGINS_DESTINATION_DIR}
     DEPENDS ${BUILT_QUICKTIME_PLUGIN}
   )
-  
-  get_target_property(BUILT_EXAMPLE_PLUGIN media_plugin_example LOCATION)
-  add_custom_command(TARGET llmediaplugintest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${BUILT_EXAMPLE_PLUGIN}  ${PLUGINS_DESTINATION_DIR}
-    DEPENDS ${BUILT_EXAMPLE_PLUGIN}
-  )
-  
-  # copy over bookmarks file if llmediaplugintest gets built
-  get_target_property(BUILT_LLMEDIAPLUGINTEST llmediaplugintest LOCATION)
-  add_custom_command(TARGET llmediaplugintest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bookmarks.txt ${CMAKE_CURRENT_BINARY_DIR}/
-    DEPENDS ${BUILT_LLMEDIAPLUGINTEST}
-  )
-  # also copy it to the same place as SLPlugin, which is what the mac wants...
-  add_custom_command(TARGET llmediaplugintest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bookmarks.txt ${PLUGINS_DESTINATION_DIR}
-    DEPENDS ${BUILT_LLMEDIAPLUGINTEST}
-  )
 endif (DARWIN OR WINDOWS)
+  
+get_target_property(BUILT_EXAMPLE_PLUGIN media_plugin_example LOCATION)
+add_custom_command(TARGET llmediaplugintest POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy ${BUILT_EXAMPLE_PLUGIN}  ${PLUGINS_DESTINATION_DIR}
+  DEPENDS ${BUILT_EXAMPLE_PLUGIN}
+)
+  
+# copy over bookmarks file if llmediaplugintest gets built
+get_target_property(BUILT_LLMEDIAPLUGINTEST llmediaplugintest LOCATION)
+add_custom_command(TARGET llmediaplugintest POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bookmarks.txt ${CMAKE_CURRENT_BINARY_DIR}/
+  DEPENDS ${BUILT_LLMEDIAPLUGINTEST}
+)
+
+# also copy it to the same place as SLPlugin, which is what the mac wants...
+add_custom_command(TARGET llmediaplugintest POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bookmarks.txt ${PLUGINS_DESTINATION_DIR}
+  DEPENDS ${BUILT_LLMEDIAPLUGINTEST}
+)
 
 if (DARWIN)
-  add_custom_command(TARGET llmediaplugintest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${ARCH_PREBUILT_DIRS_RELEASE}/libllqtwebkit.dylib ${PLUGINS_DESTINATION_DIR}
-    DEPENDS ${ARCH_PREBUILT_DIRS_RELEASE}/libllqtwebkit.dylib
-  )
+#   add_custom_command(TARGET llmediaplugintest POST_BUILD
+#     COMMAND ${CMAKE_COMMAND} -E copy ${ARCH_PREBUILT_DIRS_RELEASE}/libllqtwebkit.dylib ${PLUGINS_DESTINATION_DIR}
+#     DEPENDS ${ARCH_PREBUILT_DIRS_RELEASE}/libllqtwebkit.dylib
+#   )
 endif (DARWIN)
 
 if(WINDOWS)
@@ -537,5 +537,80 @@ if(WINDOWS)
   add_dependencies(llmediaplugintest copy_plugintest_libs)
 
 endif(WINDOWS)
+
+if (DARWIN)
+  set(plugintest_release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
+  set(plugintest_release_files
+    libexception_handler.dylib
+    libaprutil-1.0.dylib
+    libapr-1.0.dylib
+    libexpat.1.5.2.dylib
+    libz.1.dylib
+    libssl.1.0.0.dylib
+    libcrypto.1.0.0.dylib
+    libQtCore.4.7.1.dylib
+    libQtCore.4.dylib
+    libQtGui.4.7.1.dylib
+    libQtGui.4.dylib
+    libQtNetwork.4.7.1.dylib
+    libQtNetwork.4.dylib
+    libQtOpenGL.4.7.1.dylib
+    libQtOpenGL.4.dylib
+    libQtWebKit.4.7.1.dylib
+    libQtWebKit.4.dylib
+    libQtSvg.4.7.1.dylib
+    libQtSvg.4.dylib
+    libQtXml.4.7.1.dylib
+    libQtXml.4.dylib
+    )
+  copy_if_different(
+    ${plugintest_release_src_dir}
+    "${PLUGINS_DESTINATION_DIR}"
+    out_targets
+    ${plugintest_release_files}
+    )
+  set(plugin_test_targets ${plugin_test_targets} ${out_targets})
+
+  # Release & ReleaseDebInfo config runtime files required for the FB connect test (Qt image format plugins)
+  set(plugintest_release_src_dir "${ARCH_PREBUILT_DIRS_PLUGINS}/imageformats")
+  set(plugintest_release_files
+    libqgif.dylib
+    libqico.dylib
+    libqjpeg.dylib
+    libqmng.dylib
+    libqsvg.dylib
+    libqtiff.dylib
+    )
+  copy_if_different(
+    ${plugintest_release_src_dir}
+    "${PLUGINS_DESTINATION_DIR}/imageformats"
+    out_targets
+    ${plugintest_release_files}
+    )
+  set(plugin_test_targets ${plugin_test_targets} ${out_targets})
+
+  # Release & ReleaseDebInfo config runtime files required for the FB connect test (Qt codec plugins)
+  set(plugintest_release_src_dir "${ARCH_PREBUILT_DIRS_PLUGINS}/codecs")
+  set(plugintest_release_files
+    libqcncodecs.dylib
+    libqjpcodecs.dylib
+    libqkrcodecs.dylib
+    libqtwcodecs.dylib
+    )
+  copy_if_different(
+    ${plugintest_release_src_dir}
+    "${PLUGINS_DESTINATION_DIR}/codecs"
+    out_targets
+    ${plugintest_release_files}
+    )
+  set(plugin_test_targets ${plugin_test_targets} ${out_targets})
+
+  add_custom_target(copy_plugintest_libs ALL
+    DEPENDS 
+    ${plugin_test_targets}
+    )
+
+  add_dependencies(llmediaplugintest copy_plugintest_libs)
+endif (DARWIN)
 
 ll_deploy_sharedlibs_command(llmediaplugintest) 
