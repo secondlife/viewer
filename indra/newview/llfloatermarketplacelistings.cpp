@@ -95,7 +95,7 @@ void LLPanelMarketplaceListings::onViewSortMenuItemClicked(const LLSD& userdata)
 	if (chosen_item == "sort_by_stock_amount")
 	{
         mSortOrder = (mSortOrder == LLInventoryFilter::SO_FOLDERS_BY_NAME ? LLInventoryFilter::SO_FOLDERS_BY_WEIGHT : LLInventoryFilter::SO_FOLDERS_BY_NAME);
-        mAllPanel->getFolderViewModel()->setSorter(mSortOrder);
+        mAllPanel->setSortOrder(mSortOrder);
 	}
     // View/filter options
 	else if (chosen_item == "show_all")

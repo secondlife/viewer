@@ -796,6 +796,11 @@ S32 compute_stock_count(LLUUID cat_uuid)
 {
     // Handle the case of the folder being a stock folder immediately
     LLViewerInventoryCategory* cat = gInventory.getCategory(cat_uuid);
+    if (!cat)
+    {
+        // Not a category so no stock count to speak of
+        return -1;
+    }
     if (cat->getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
     {
         // Note: stock folders are *not* supposed to have nested subfolders so we stop recursion here
