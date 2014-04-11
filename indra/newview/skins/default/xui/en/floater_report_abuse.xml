@@ -241,7 +241,7 @@
          name="Indecency__Inappropriate_avatar_name"
          value="59" />
         <combo_box.item
-         label="Indecency &gt; Inappropriate content for conduct or Region Rating"
+         label="Indecency &gt; Inappropriate content or conduct for Region Rating"
          name="Indecency__Mature_content_in_PG_region"
          value="60" />       
         <combo_box.item
