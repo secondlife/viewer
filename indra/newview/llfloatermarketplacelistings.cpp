@@ -59,6 +59,7 @@ LLPanelMarketplaceListings::LLPanelMarketplaceListings()
 BOOL LLPanelMarketplaceListings::postBuild()
 {
 	mAllPanel = getChild<LLInventoryPanel>("All Items");
+	childSetAction("add_btn", boost::bind(&LLPanelMarketplaceListings::onAddButtonClicked, this));
 
 	// Set the sort order newest to oldest
 	LLInventoryPanel* panel = getChild<LLInventoryPanel>("All Items");
@@ -85,6 +86,16 @@ BOOL LLPanelMarketplaceListings::postBuild()
 void LLPanelMarketplaceListings::draw()
 {
 	LLPanel::draw();
+}
+
+void LLPanelMarketplaceListings::onAddButtonClicked()
+{
+	LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, true);
+	llassert(marketplacelistings_id.notNull());
+    LLFolderType::EType preferred_type = LLFolderType::lookup("category");
+    LLUUID category = gInventory.createNewCategory(marketplacelistings_id, preferred_type, LLStringUtil::null);
+    gInventory.notifyObservers();
+    mAllPanel->setSelectionByID(category, TRUE);
 }
 
 void LLPanelMarketplaceListings::onViewSortMenuItemClicked(const LLSD& userdata)
