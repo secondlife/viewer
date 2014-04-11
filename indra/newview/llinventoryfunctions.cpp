@@ -805,7 +805,6 @@ S32 compute_stock_count(LLUUID cat_uuid)
     {
         // Note: stock folders are *not* supposed to have nested subfolders so we stop recursion here
         // Note: we *always* give a stock count for stock folders, it's useful even if the listing is unassociated
-        //LLViewerInventoryCategory * viewer_cat = (LLViewerInventoryCategory *) (cat);
         return cat->getDescendentCount();
     }
 
