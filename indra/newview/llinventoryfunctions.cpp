@@ -155,8 +155,8 @@ void update_marketplace_category(const LLUUID& cat_id)
 
     const LLUUID marketplace_listings_uuid = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
     // No marketplace -> likely called too early... or
-    // Not a descendent of the marketplace listings root -> likely called in error then...
-    if (marketplace_listings_uuid.isNull() || !gInventory.isObjectDescendentOf(cat_id, marketplace_listings_uuid))
+    // Not a descendent of the marketplace listings root and not part of marketplace -> likely called in error then...
+    if (marketplace_listings_uuid.isNull() || (!gInventory.isObjectDescendentOf(cat_id, marketplace_listings_uuid) && !LLMarketplaceData::instance().isListed(cat_id) && !LLMarketplaceData::instance().isVersionFolder(cat_id)))
     {
         // In those cases, just do the regular category update
         LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
@@ -168,6 +168,24 @@ void update_marketplace_category(const LLUUID& cat_id)
     // Grab marketplace listing data for this folder
     S32 depth = depth_nesting_in_marketplace(cat_id);
     LLUUID listing_uuid = nested_parent_id(cat_id, depth);
+    
+    // Verify marketplace data consistency for this listing
+    if (LLMarketplaceData::instance().isListed(listing_uuid))
+    {
+        LLUUID version_folder_uuid = LLMarketplaceData::instance().getVersionFolderID(listing_uuid);
+        if (!gInventory.isObjectDescendentOf(version_folder_uuid, listing_uuid))
+        {
+            // *TODO : Confirm with Producer that this is what we want to happen in that case!
+            llinfos << "Merov : Delisting as the version folder is not under the listing folder anymore!!" << llendl;
+            LLMarketplaceData::instance().deleteListing(listing_uuid);
+        }
+        if (!gInventory.isObjectDescendentOf(listing_uuid, marketplace_listings_uuid))
+        {
+            // *TODO : Confirm with Producer that this is what we want to happen in that case!
+            llinfos << "Merov : Delisting as the listing folder is not under the marketplace folder anymore!!" << llendl;
+            LLMarketplaceData::instance().deleteListing(listing_uuid);
+        }
+    }
     
     // Update all descendents starting from the listing root
     update_marketplace_folder_hierarchy(listing_uuid);
