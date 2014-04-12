@@ -173,7 +173,7 @@ void update_marketplace_category(const LLUUID& cat_id)
     if (LLMarketplaceData::instance().isListed(listing_uuid))
     {
         LLUUID version_folder_uuid = LLMarketplaceData::instance().getVersionFolderID(listing_uuid);
-        if (!gInventory.isObjectDescendentOf(version_folder_uuid, listing_uuid))
+        if (version_folder_uuid.notNull() && !gInventory.isObjectDescendentOf(version_folder_uuid, listing_uuid))
         {
             // *TODO : Confirm with Producer that this is what we want to happen in that case!
             llinfos << "Merov : Delisting as the version folder is not under the listing folder anymore!!" << llendl;
