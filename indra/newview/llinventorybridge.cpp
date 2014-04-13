@@ -897,7 +897,7 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
             }
         }
     }
-    // Options available at all levels on all items
+    // Options available at all levels on items and categories
     items.push_back(std::string("Marketplace Show Listing"));
     LLUUID listing_folder_id = nested_parent_id(mUUID,depth);
     if (!LLMarketplaceData::instance().isListed(listing_folder_id))
@@ -3663,6 +3663,10 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 	{
 		disabled_items.push_back(std::string("New Folder"));
 	}
+    if (isMarketplaceListingsFolder())
+    {
+		addMarketplaceContextMenuOptions(flags, items, disabled_items);
+    }
 	if(trash_id == mUUID)
 	{
 		// This is the trash.
@@ -3678,11 +3682,6 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 	{
 		addOutboxContextMenuOptions(flags, items, disabled_items);
 	}
-    else if (isMarketplaceListingsFolder())
-    {
-		addMarketplaceContextMenuOptions(flags, items, disabled_items);
-        getClipboardEntries(false, items, disabled_items, flags);
-    }
 	else if(isAgentInventory()) // do not allow creating in library
 	{
 		LLViewerInventoryCategory *cat = getCategory();
@@ -3697,12 +3696,14 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 				{
 					items.push_back(std::string("New Folder"));
 				}
-
-				items.push_back(std::string("New Script"));
-				items.push_back(std::string("New Note"));
-				items.push_back(std::string("New Gesture"));
-				items.push_back(std::string("New Clothes"));
-				items.push_back(std::string("New Body Parts"));
+                if (!isMarketplaceListingsFolder())
+                {
+                    items.push_back(std::string("New Script"));
+                    items.push_back(std::string("New Note"));
+                    items.push_back(std::string("New Gesture"));
+                    items.push_back(std::string("New Clothes"));
+                    items.push_back(std::string("New Body Parts"));
+                }
 			}
 #if SUPPORT_ENSEMBLES
 			// Changing folder types is an unfinished unsupported feature
@@ -3746,9 +3747,9 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 		LLIsType is_object( LLAssetType::AT_OBJECT );
 		LLIsType is_gesture( LLAssetType::AT_GESTURE );
 
-		if (checkFolderForContentsOfType(model, is_wearable)  ||
-			checkFolderForContentsOfType(model, is_object) ||
-			checkFolderForContentsOfType(model, is_gesture) )
+		if (checkFolderForContentsOfType(model, is_wearable) ||
+            checkFolderForContentsOfType(model, is_object)   ||
+            checkFolderForContentsOfType(model, is_gesture)    )
 		{
 			mWearables=TRUE;
 		}
@@ -3770,7 +3771,7 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 	}
 	// Add menu items that are dependent on the contents of the folder.
 	LLViewerInventoryCategory* category = (LLViewerInventoryCategory *) model->getCategory(mUUID);
-	if (category && !isMarketplaceListingsFolder())
+	if (category)
 	{
 		uuid_vec_t folders;
 		folders.push_back(category->getUUID());
@@ -3789,8 +3790,8 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 		{
 			// it's all on its way - add an observer, and the inventory will call done for us when everything is here.
 			gInventory.addObserver(fetch);
-	}
-}
+        }
+    }
 }
 
 void LLFolderBridge::buildContextMenuFolderOptions(U32 flags,   menuentry_vec_t& items, menuentry_vec_t& disabled_items)
@@ -3807,6 +3808,12 @@ void LLFolderBridge::buildContextMenuFolderOptions(U32 flags,   menuentry_vec_t&
 	if (isItemInTrash()) return;
 	if (!isAgentInventory()) return;
 	if (isOutboxFolder()) return;
+    
+	if (!isItemRemovable())
+	{
+		disabled_items.push_back(std::string("Delete"));
+	}
+    if (isMarketplaceListingsFolder()) return;
 
 	LLFolderType::EType type = category->getPreferredType();
 	const bool is_system_folder = LLFolderType::lookupIsProtectedType(type);
@@ -3824,11 +3831,6 @@ void LLFolderBridge::buildContextMenuFolderOptions(U32 flags,   menuentry_vec_t&
 			items.push_back(std::string("Conference Chat Folder"));
 			items.push_back(std::string("IM All Contacts In Folder"));
 		}
-	}
-
-	if (!isItemRemovable())
-	{
-		disabled_items.push_back(std::string("Delete"));
 	}
 
 #ifndef LL_RELEASE_FOR_DOWNLOAD

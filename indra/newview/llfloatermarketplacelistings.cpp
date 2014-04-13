@@ -65,20 +65,24 @@ BOOL LLPanelMarketplaceListings::postBuild()
 	LLInventoryPanel* panel = getChild<LLInventoryPanel>("All Items");
 	panel->getFolderViewModel()->setSorter(LLInventoryFilter::SO_FOLDERS_BY_NAME);
 	panel->getFilter().markDefault();
-    
+    panel->setSelectCallback(boost::bind(&LLPanelMarketplaceListings::onSelectionChange, this, panel, _1, _2));
+
     // Set filters on the 3 prefiltered panels
 	panel = getChild<LLInventoryPanel>("Active Items");
 	panel->getFolderViewModel()->setSorter(LLInventoryFilter::SO_FOLDERS_BY_NAME);
 	panel->getFilter().setFilterMarketplaceActiveFolders();
 	panel->getFilter().markDefault();
+    panel->setSelectCallback(boost::bind(&LLPanelMarketplaceListings::onSelectionChange, this, panel, _1, _2));
 	panel = getChild<LLInventoryPanel>("Inactive Items");
 	panel->getFolderViewModel()->setSorter(LLInventoryFilter::SO_FOLDERS_BY_NAME);
 	panel->getFilter().setFilterMarketplaceInactiveFolders();
 	panel->getFilter().markDefault();
+    panel->setSelectCallback(boost::bind(&LLPanelMarketplaceListings::onSelectionChange, this, panel, _1, _2));
 	panel = getChild<LLInventoryPanel>("Unassociated Items");
 	panel->getFolderViewModel()->setSorter(LLInventoryFilter::SO_FOLDERS_BY_NAME);
 	panel->getFilter().setFilterMarketplaceUnassociatedFolders();
 	panel->getFilter().markDefault();
+    panel->setSelectCallback(boost::bind(&LLPanelMarketplaceListings::onSelectionChange, this, panel, _1, _2));
 	
     return LLPanel::postBuild();
 }
@@ -86,6 +90,11 @@ BOOL LLPanelMarketplaceListings::postBuild()
 void LLPanelMarketplaceListings::draw()
 {
 	LLPanel::draw();
+}
+
+void LLPanelMarketplaceListings::onSelectionChange(LLInventoryPanel *panel, const std::deque<LLFolderViewItem*>& items, BOOL user_action)
+{
+	panel->onSelectionChange(items, user_action);
 }
 
 void LLPanelMarketplaceListings::onAddButtonClicked()
