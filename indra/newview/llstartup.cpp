@@ -789,15 +789,15 @@ bool idle_startup()
 			// MAINT-3231 Show first run dialog only for Desura viewer
 			if (gSavedSettings.getString("sourceid") == "1208_desura")
 			{
-			if (gSavedSettings.getBOOL("FirstLoginThisInstall"))
-			{
-				LL_INFOS("AppInit") << "FirstLoginThisInstall, calling show_first_run_dialog()" << LL_ENDL;
-				show_first_run_dialog();
-			}
-			else
-			{
-				LL_DEBUGS("AppInit") << "FirstLoginThisInstall off" << LL_ENDL;
-			}
+				if (gSavedSettings.getBOOL("FirstLoginThisInstall"))
+				{
+					LL_INFOS("AppInit") << "FirstLoginThisInstall, calling show_first_run_dialog()" << LL_ENDL;
+					show_first_run_dialog();
+				}
+				else
+				{
+					LL_DEBUGS("AppInit") << "FirstLoginThisInstall off" << LL_ENDL;
+				}
 			}
 
 			LLStartUp::setStartupState( STATE_LOGIN_WAIT );		// Wait for user input
@@ -3497,7 +3497,8 @@ bool process_login_success_response()
 	{
 		success = true;
 	}
-
+    LLAppViewer* pApp = LLAppViewer::instance();
+	pApp->writeDebugInfo();     //Write our static data now that we have username, session_id, etc.
 	return success;
 }
 
