@@ -46,7 +46,6 @@ class LLViewerJoystick;
 
 extern LLFastTimer::DeclareTimer FTM_FRAME;
 
-
 class LLAppViewer : public LLApp
 {
 public:
@@ -82,7 +81,7 @@ public:
     bool quitRequested() { return mQuitRequested; }
     bool logoutRequestSent() { return mLogoutRequestSent; }
 
-	void writeDebugInfo();
+	void writeDebugInfo(bool isStatic=true);
 
 	const LLOSInfo& getOSInfo() const { return mSysOSInfo; }
 
@@ -95,7 +94,7 @@ public:
 
 	virtual bool restoreErrorTrap() = 0; // Require platform specific override to reset error handling mechanism.
 	                                     // return false if the error trap needed restoration.
-	virtual void handleCrashReporting(bool reportFreeze = false) = 0; // What to do with crash report?
+	virtual void initCrashReporting(bool reportFreeze = false) = 0; // What to do with crash report?
 	static void handleViewerCrash(); // Hey! The viewer crashed. Do this, soon.
     void checkForCrash();
     
@@ -126,9 +125,9 @@ public:
 	void loadExperienceCache();
 	void saveExperienceCache();
 
-
-	void removeMarkerFile(bool leave_logout_marker = false);
+	void removeMarkerFiles();
 	
+	void removeDumpDir();
     // LLAppViewer testing helpers.
     // *NOTE: These will potentially crash the viewer. Only for debugging.
     virtual void forceErrorLLError();

@@ -89,5 +89,6 @@ bool LLCrashLoggerMac::mainLoop()
 bool LLCrashLoggerMac::cleanup()
 {
 	commonCleanup();
+    mKeyMaster.releaseMaster();
 	return true;
 }

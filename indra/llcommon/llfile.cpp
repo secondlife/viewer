@@ -265,6 +265,37 @@ int	LLFile::rename(const std::string& filename, const std::string& newname)
 	return warnif(STRINGIZE("rename to '" << newname << "' from"), filename, rc);
 }
 
+bool LLFile::copy(const std::string from, const std::string to)
+{
+	bool copied = false;
+	LLFILE* in = LLFile::fopen(from, "rb");		/* Flawfinder: ignore */	 	
+	if (in)	 	
+	{	 	
+		LLFILE* out = LLFile::fopen(to, "wb");		/* Flawfinder: ignore */
+		if (out)
+		{
+			char buf[16384];		/* Flawfinder: ignore */ 	
+			size_t readbytes;
+			bool write_ok = true;
+			while(write_ok && (readbytes = fread(buf, 1, 16384, in))) /* Flawfinder: ignore */
+			{
+				if (fwrite(buf, 1, readbytes, out) != readbytes)
+				{
+					LL_WARNS("LLFile") << "Short write" << LL_ENDL; 
+					write_ok = false;
+				}
+			}
+			if ( write_ok )
+			{
+				copied = true;
+			}
+			fclose(out);
+		}
+		fclose(in);
+	}
+	return copied;
+}
+
 int	LLFile::stat(const std::string& filename, llstat* filestatus)
 {
 #if LL_WINDOWS
