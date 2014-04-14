@@ -1038,14 +1038,25 @@ bool has_correct_permissions_for_sale(LLInventoryCategory* cat)
 // *TODO : Add the rest of the SLM/AIS business logic (limit of nesting depth, stock folder consistency, overall limit on listings, etc...)
 void validate_marketplacelistings(LLInventoryCategory* cat)
 {
+    // Special case a stock folder depth issue
+    LLViewerInventoryCategory * viewer_cat = (LLViewerInventoryCategory *) (cat);
+	const LLFolderType::EType folder_type = cat->getPreferredType();
+    S32 depth = depth_nesting_in_marketplace(cat->getUUID());
+    if ((folder_type == LLFolderType::FT_MARKETPLACE_STOCK) && (depth == 1))
+    {
+        // Nest the stock folder one level deeper in a normal folder and restart from there
+        LLUUID parent_uuid = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+        LLUUID folder_uuid = gInventory.createNewCategory(parent_uuid, LLFolderType::FT_NONE, cat->getName());
+        LLInventoryCategory* new_cat = gInventory.getCategory(folder_uuid);
+        gInventory.changeCategoryParent(viewer_cat, folder_uuid, false);
+        validate_marketplacelistings(new_cat);
+        return;
+    }
+    
 	LLInventoryModel::cat_array_t* cat_array;
 	LLInventoryModel::item_array_t* item_array;
 	gInventory.getDirectDescendentsOf(cat->getUUID(),cat_array,item_array);
     
-    LLViewerInventoryCategory * viewer_cat = (LLViewerInventoryCategory *) (cat);
-	const LLFolderType::EType folder_type = cat->getPreferredType();
-    S32 depth = depth_nesting_in_marketplace(cat->getUUID());
-
     // Stock items : sorting and moving the various stock items is complicated as the set of constraints is high
     // For each folder, we need to:
     // * separate non stock items, stock items per types in different folders
