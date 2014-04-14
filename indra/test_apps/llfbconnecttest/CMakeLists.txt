@@ -300,9 +300,6 @@ if (DARWIN)
     libaprutil-1.0.dylib
     libapr-1.0.dylib
     libexpat.1.5.2.dylib
-    libz.1.dylib
-    libssl.1.0.0.dylib
-    libcrypto.1.0.0.dylib
     libQtCore.4.7.1.dylib
     libQtCore.4.dylib
     libQtGui.4.7.1.dylib

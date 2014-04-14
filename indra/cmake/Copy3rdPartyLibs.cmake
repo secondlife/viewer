@@ -206,10 +206,6 @@ elseif(DARWIN)
        )
     set(debug_src_dir "${ARCH_PREBUILT_DIRS_DEBUG}")
     set(debug_files
-        libcrypto.dylib
-        libcrypto.1.0.0.dylib
-        libssl.dylib
-        libssl.1.0.0.dylib
        )
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
@@ -218,8 +214,6 @@ elseif(DARWIN)
         libaprutil-1.0.dylib
         libaprutil-1.dylib
         libcollada14dom.dylib
-        libcrypto.dylib
-        libcrypto.1.0.0.dylib
         libexception_handler.dylib
         libexpat.1.5.2.dylib
         libexpat.dylib
@@ -227,8 +221,6 @@ elseif(DARWIN)
         libhunspell-1.3.0.dylib
         libminizip.a
         libndofdev.dylib
-        libssl.dylib
-        libssl.1.0.0.dylib
        )
 
     if (FMODEX)
@@ -275,7 +267,6 @@ elseif(LINUX)
         libboost_system-mt.so.${BOOST_VERSION}.0
         libboost_thread-mt.so.${BOOST_VERSION}.0
         libcollada14dom.so
-        libcrypto.so.1.0.0
         libdb-5.1.so
         libexpat.so
         libexpat.so.1
@@ -291,10 +282,8 @@ elseif(LINUX)
         libminizip.so
         libopenal.so
         libopenjpeg.so
-        libssl.so
         libuuid.so.16
         libuuid.so.16.0.22
-        libssl.so.1.0.0
         libfontconfig.so.1.8.0
        )
 

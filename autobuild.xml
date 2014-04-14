@@ -66,9 +66,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>596dd051e81e4d12cee9160c0c142f00</string>
+              <string>7beeb31c3996bb27cd6964a50fd70d4d</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-sdl-update/rev/285405/arch/Linux/installer/SDL-1.2.15-linux-20140117.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-sdl-update/rev/288993/arch/Linux/installer/SDL-1.2.15-linux-20140412.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -138,9 +138,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b95739be8d79cc30de4b101eff032134</string>
+              <string>a53abee08e4068852d65426dec445271</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-ares-update/rev/285360/arch/Darwin/installer/ares-1.10.0-darwin-20140115.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-ares-update/rev/288988/arch/Darwin/installer/ares-1.10.0-darwin-20140411.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -150,9 +150,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2c97cba1f5c4ca29999fe0190da5c570</string>
+              <string>ea125c52a2a3bf4c2d90a80ab95a480e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-ares-update/rev/285360/arch/Linux/installer/ares-1.10.0-linux-20140115.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-ares-update/rev/288988/arch/Linux/installer/ares-1.10.0-linux-20140412.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -162,9 +162,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0ffb9b4dbafd7464031278ea834e80ad</string>
+              <string>895a014dde535fb418b894b4ebd9a5ca</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-ares-update/rev/285360/arch/CYGWIN/installer/ares-1.10.0-windows-20140115.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-ares-update/rev/288988/arch/CYGWIN/installer/ares-1.10.0-windows-20140411.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -186,9 +186,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4260904e0ecf73c275e734df92e81749</string>
+              <string>e52cf8be6f7e285eff8f8671810b77df</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-boost-update/rev/288731/arch/Darwin/installer/boost-1.55.0-darwin-20140404.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-boost-update/rev/289003/arch/Darwin/installer/boost-1.55.0-darwin-20140414.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -198,9 +198,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f54475c08a2a807e930c9d8f71007ffb</string>
+              <string>6bea4b8528439f37381a807b9be87756</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-boost-update/rev/288731/arch/Linux/installer/boost-1.55.0-linux-20140404.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-boost-update/rev/289003/arch/Linux/installer/boost-1.55.0-linux-20140414.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -210,9 +210,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>dd080a25f15da652cf41f8aed9b552e7</string>
+              <string>5de094775997e47ea55eff5a348c585e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-boost-update/rev/288731/arch/CYGWIN/installer/boost-1.55.0-windows-20140404.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-boost-update/rev/289003/arch/CYGWIN/installer/boost-1.55.0-windows-20140414.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -282,9 +282,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>066dbf554282b0ba77ffb3f5b0d72c15</string>
+              <string>4f680e07945749267ac987a1dd6586cf</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-curl-update/rev/288784/arch/Darwin/installer/curl-7.34.0-darwin-20140407.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-curl-update/rev/289005/arch/Darwin/installer/curl-7.34.0-darwin-20140414.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -294,9 +294,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e924ec9545fc09ce955f8105862d4671</string>
+              <string>ca7277fd16177f56a88a698c289585cd</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-curl-update/rev/288784/arch/Linux/installer/curl-7.34.0-linux-20140407.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-curl-update/rev/289005/arch/Linux/installer/curl-7.34.0-linux-20140414.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -306,9 +306,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>27b28e1aeef1516230492ec4d102e00f</string>
+              <string>396bc5bf0bd31a5e396ca0d11ce1a85f</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-curl-update/rev/288784/arch/CYGWIN/installer/curl-7.34.0-windows-20140407.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-curl-update/rev/289005/arch/CYGWIN/installer/curl-7.34.0-windows-20140414.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1194,9 +1194,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>dc212b201dc4259558dbccd663d2c252</string>
+              <string>2d8595c7cee28646ac5f2e1bc6735eb2</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-libpng-update/rev/285380/arch/Darwin/installer/libpng-1.6.8-darwin-20140116.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-libpng-update/rev/288992/arch/Darwin/installer/libpng-1.6.8-darwin-20140411.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1206,9 +1206,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6740f7215dee4f77224eea26309cc3f7</string>
+              <string>324e8a9109147bb1a1637afb34106b5f</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-libpng-update/rev/285380/arch/Linux/installer/libpng-1.6.8-linux-20140116.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-libpng-update/rev/288992/arch/Linux/installer/libpng-1.6.8-linux-20140412.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1218,9 +1218,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>09ffcfc2d76f531516856a24d10d2791</string>
+              <string>cb7cebc4589fb4988343224acc5ebd31</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-libpng-update/rev/285380/arch/CYGWIN/installer/libpng-1.6.8-windows-20140116.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-libpng-update/rev/288992/arch/CYGWIN/installer/libpng-1.6.8-windows-20140411.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1420,9 +1420,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>89b46227fa477735163f7272be1a4fdc</string>
+              <string>8c55280761991226b8acbf1f05fcc292</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-llqtwebkit2/rev/288966/arch/Darwin/installer/llqtwebkit-4.7.1-darwin-20140411.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-llqtwebkit2/rev/289008/arch/Darwin/installer/llqtwebkit-4.7.1-darwin-20140414.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1432,9 +1432,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>77750a0a921c78cc6344156b1c935623</string>
+              <string>07ad70f0420c68d93d2c00f9137e26ab</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-llqtwebkit2/rev/288966/arch/Linux/installer/llqtwebkit-4.7.1-linux-20140411.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-llqtwebkit2/rev/289008/arch/Linux/installer/llqtwebkit-4.7.1-linux-20140414.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1444,9 +1444,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9ef4ec6355ee5c3dd528da6c4c3a309d</string>
+              <string>25c4f5c992125b97a21fdb73d328fa7c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-llqtwebkit2/rev/288966/arch/CYGWIN/installer/llqtwebkit-4.7.1-windows-20140411.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-llqtwebkit2/rev/289008/arch/CYGWIN/installer/llqtwebkit-4.7.1-windows-20140414.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1612,9 +1612,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c98c1581a1ac1db72408fcce5f7409f1</string>
+              <string>c29ab6c1c3fa125a53d3da28ed549c03</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-openssl-update/rev/288774/arch/Darwin/installer/openssl-1.0.1e-darwin-20140407.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-openssl-update/rev/288991/arch/Darwin/installer/openssl-1.0.1g-darwin-20140411.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1624,9 +1624,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4caff54a0d8ea461b6f8ff32df8e0c1a</string>
+              <string>cfbe3efd2e274edba8f3ee39e6925994</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-openssl-update/rev/288774/arch/Linux/installer/openssl-1.0.1e-linux-20140407.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-openssl-update/rev/288991/arch/Linux/installer/openssl-1.0.1g-linux-20140412.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1636,9 +1636,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>da974a34c2964abf36d2817722196dc9</string>
+              <string>035716f4a1120585b4340db23d92be1f</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-openssl-update/rev/288774/arch/CYGWIN/installer/openssl-1.0.1e-windows-20140407.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-openssl-update/rev/288991/arch/CYGWIN/installer/openssl-1.0.1g-windows-20140411.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1928,9 +1928,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3f0a6ce335f390e3e74bf26d29a07070</string>
+              <string>c6666f9231da49dac7388a306beca450</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-zlib-update/rev/285355/arch/Darwin/installer/zlib-1.2.8-darwin-20140115.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-zlib-update/rev/288987/arch/Darwin/installer/zlib-1.2.8-darwin-20140411.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1940,9 +1940,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9c8db7295eca1f357d07e0dd27bf8668</string>
+              <string>585880fa78da054739e3c60d3bd29bd2</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-zlib-update/rev/285355/arch/Linux/installer/zlib-1.2.8-linux-20140115.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-zlib-update/rev/288987/arch/Linux/installer/zlib-1.2.8-linux-20140412.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1952,9 +1952,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>923d08f7a713b1f0f8b855657b074828</string>
+              <string>5f23fb919a365b19a3d5e1ba2f57436a</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-zlib-update/rev/285355/arch/CYGWIN/installer/zlib-1.2.8-windows-20140115.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-zlib-update/rev/288987/arch/CYGWIN/installer/zlib-1.2.8-windows-20140411.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
