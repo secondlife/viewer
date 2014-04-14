@@ -1032,8 +1032,8 @@ bool has_correct_permissions_for_sale(LLInventoryCategory* cat)
 }
 
 // Make all relevant business logic checks on the marketplace listings starting with the folder as argument
-// This function does no deletion or move but a mere audit and raises issues to the user
-// The only thing that's done is to modify the type of folders containing no-copy items to stock folders
+// This function does no deletion of listings but a mere audit and raises issues to the user
+// The only thing that's done is to move and sort folders containing no-copy items to stock folders
 // *TODO : Signal the errors to the user somewhat (UI still TBD)
 // *TODO : Add the rest of the SLM/AIS business logic (limit of nesting depth, stock folder consistency, overall limit on listings, etc...)
 void validate_marketplacelistings(LLInventoryCategory* cat)
@@ -1044,48 +1044,102 @@ void validate_marketplacelistings(LLInventoryCategory* cat)
     
     LLViewerInventoryCategory * viewer_cat = (LLViewerInventoryCategory *) (cat);
 	const LLFolderType::EType folder_type = cat->getPreferredType();
-    LLUUID stock_folder_uuid;
-    LLViewerInventoryCategory* stock_folder_cat = NULL;
+    S32 depth = depth_nesting_in_marketplace(cat->getUUID());
 
-	LLInventoryModel::item_array_t item_array_copy = *item_array;
+    // Stock items : sorting and moving the various stock items is complicated as the set of constraints is high
+    // For each folder, we need to:
+    // * separate non stock items, stock items per types in different folders
+    // * have stock items nested at depth 2 at least
+    // * never ever move the non-stock items
     
+    std::vector<std::vector<LLViewerInventoryItem*> > items_vector;
+    items_vector.resize(LLInventoryType::IT_COUNT+1);
+
+    // Parse the items and create vectors of items to sort copyable items and stock items of various types
+	LLInventoryModel::item_array_t item_array_copy = *item_array;
 	for (LLInventoryModel::item_array_t::iterator iter = item_array_copy.begin(); iter != item_array_copy.end(); iter++)
 	{
 		LLInventoryItem* item = *iter;
         LLViewerInventoryItem * viewer_inv_item = (LLViewerInventoryItem *) item;
         LLViewerInventoryCategory * linked_category = viewer_inv_item->getLinkedCategory();
 		LLViewerInventoryItem * linked_item = viewer_inv_item->getLinkedItem();
+        // Skip items that shouldn't be there to start with, raise an error message for those
         if (linked_category || linked_item)
         {
-            llinfos << "Merov : Validation error: there are linked items in this listing!" << llendl;
+            llinfos << "Merov : Validation error: skipping linked item : " << viewer_inv_item->getName() << llendl;
+            continue;
         }
         if (!viewer_inv_item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID(), gAgent.getGroupID()))
         {
-            llinfos << "Merov : Validation error: there are items with incorrect permissions in this listing!" << llendl;
+            llinfos << "Merov : Validation error: skipping item with incorrect permissions : " << viewer_inv_item->getName() << llendl;
+            continue;
         }
-        if (!viewer_inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()) && (folder_type != LLFolderType::FT_MARKETPLACE_STOCK))
+        // Update the appropriate vector item for that type
+        LLInventoryType::EType type = LLInventoryType::IT_COUNT;    // Default value for non stock items
+        if (!viewer_inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()))
         {
-            llinfos << "Merov : Validation warning : no copy item found in non stock folder -> reparent to relevant stock folder!" << llendl;
-            if (stock_folder_uuid.isNull())
-            {
-                llinfos << "Merov : Validation warning : no appropriate existing stock folder -> create a new stock folder!" << llendl;
-                stock_folder_uuid = gInventory.createNewCategory(viewer_cat->getParentUUID(), LLFolderType::FT_MARKETPLACE_STOCK, viewer_cat->getName());
-                stock_folder_cat = gInventory.getCategory(stock_folder_uuid);
-            }
-            gInventory.changeItemParent(viewer_inv_item, stock_folder_uuid, false);
-            update_marketplace_category(viewer_cat->getUUID());
-            update_marketplace_category(stock_folder_uuid);
+            // Get the item type for stock items
+            type = viewer_inv_item->getInventoryType();
         }
+        items_vector[type].push_back(viewer_inv_item);
 	}
-    
-    if (stock_folder_uuid.notNull() && (viewer_cat->getDescendentCount() == 0))
+    // How many types of folders? Which type is it if only one?
+    S32 count = 0;
+    LLInventoryType::EType type = LLInventoryType::IT_COUNT;
+    for (S32 i = 0; i <= LLInventoryType::IT_COUNT; i++)
     {
-        llinfos << "Merov : Validation warning : folder content completely moved to stock folder -> remove empty folder!" << llendl;
-        gInventory.removeCategory(cat->getUUID());
-        gInventory.notifyObservers();
-        return;
+        if (!items_vector[i].empty())
+        {
+            count++;
+            type = (LLInventoryType::EType)(i);
+        }
     }
-    
+    // If we have one kind only, in the correct folder type at the right depth -> all OK
+    if ((count <= 1) && ((type == LLInventoryType::IT_COUNT) || ((folder_type == LLFolderType::FT_MARKETPLACE_STOCK) && (depth >= 2))))
+    {
+        // Done with that folder!
+        llinfos << "Merov : Validation log: folder validates : " << viewer_cat->getName() << llendl;
+    }
+    else
+    {
+        // Create one folder per vector of the stock kind at the right depth
+        // Note: we *intentionally* skip the non stock items at the end, those should not be moved around
+        for (S32 i = 0; i < LLInventoryType::IT_COUNT; i++)
+        {
+            if (!items_vector[i].empty())
+            {
+                // Create a new folder
+                llinfos << "Merov : Validation log: creating stock folder : " << viewer_cat->getName() << ", type = " << i << llendl;
+                LLUUID parent_uuid = (depth >=2 ? viewer_cat->getParentUUID() : viewer_cat->getUUID());
+                LLUUID folder_uuid = gInventory.createNewCategory(parent_uuid, LLFolderType::FT_MARKETPLACE_STOCK, viewer_cat->getName());
+                // Move each item to the new folder
+                while (!items_vector[i].empty())
+                {
+                    LLViewerInventoryItem* viewer_inv_item = items_vector[i].back();
+                    llinfos << "Merov : Validation log: moving item : " << viewer_inv_item->getName() << llendl;
+                    gInventory.changeItemParent(viewer_inv_item, folder_uuid, false);
+                    items_vector[i].pop_back();
+                }
+                update_marketplace_category(folder_uuid);
+            }
+        }
+        // Clean up
+        if (viewer_cat->getDescendentCount() == 0)
+        {
+            // Remove the current folder if it ends up empty
+            llinfos << "Merov : Validation warning : folder content completely moved to stock folder -> remove empty folder!" << llendl;
+            gInventory.removeCategory(cat->getUUID());
+            gInventory.notifyObservers();
+            return;
+        }
+        else
+        {
+            // Update the current folder
+            update_marketplace_category(cat->getUUID());
+        }
+    }
+
+    // Recursion : Perform the same validation on each nested folder
 	LLInventoryModel::cat_array_t cat_array_copy = *cat_array;
     
 	for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
