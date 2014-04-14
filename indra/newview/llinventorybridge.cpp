@@ -2589,9 +2589,9 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 		}
 		if (is_movable && move_is_into_marketplacelistings)
 		{
-            // *TODO : Merov : Add here the logic to prevent huge nesting in marketplace listings
-            // For the moment, we just take in anything
-            is_movable = TRUE;
+            // One cannot move a folder into a stock folder
+            is_movable = (getPreferredType() != LLFolderType::FT_MARKETPLACE_STOCK);
+            // *TODO : Merov : Add case if (nesting depth source + depth destination) > marketplace limit -> FALSE
         }
 
 		if (is_movable)
@@ -4350,9 +4350,23 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		}
         else if (move_is_into_marketplacelistings)
         {
-            // *TODO : Add here any logic that may prevent an item to be copied into the marketplace listings
-            // For the moment, we let anything go
-            accept = TRUE;
+            // If destination folder type is stock, check perm and type of item, if not compatible -> FALSE
+            if (getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
+            {
+                // If the item is copyable (i.e. non stock) do not accept the drop in a stock folder
+                if (inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()))
+                {
+					accept = FALSE;
+                }
+                else
+                {
+                    LLInventoryModel::cat_array_t* cat_array;
+                    LLInventoryModel::item_array_t* item_array;
+                    gInventory.getDirectDescendentsOf(mUUID,cat_array,item_array);
+                    // Destination stock folder must be empty OR types must be identical
+                    accept = (!item_array->count() || (item_array->get(0)->getInventoryType() == inv_item->getInventoryType()));
+                }
+            }
         }
 
 		LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
