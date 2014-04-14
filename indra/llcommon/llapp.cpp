@@ -320,7 +320,7 @@ void EnableCrashingOnCrashes()
 }
 #endif
 
-void LLApp::setupErrorHandling()
+void LLApp::setupErrorHandling(bool second_instance)
 {
 	// Error handling is done by starting up an error handling thread, which just sleeps and
 	// occasionally checks to see if the app is in an error state, and sees if it needs to be run.
@@ -337,40 +337,52 @@ void LLApp::setupErrorHandling()
 	// Install the Google Breakpad crash handler for Windows
 	if(mExceptionHandler == 0)
 	{
-		llwarns << "adding breakpad exception handler" << llendl;
-
-		std::wstring wpipe_name;
-		wpipe_name =  mCrashReportPipeStr + wstringize(getPid());
-
-		const std::wstring wdump_path(wstringize(mDumpPath));
-
-		int retries = 30;
-		for (; retries > 0; --retries)
+		if ( second_instance )  //BUG-5707 Firing teleport from a web browser causes second 
 		{
-			if (mExceptionHandler != 0) delete mExceptionHandler;
-
 			mExceptionHandler = new google_breakpad::ExceptionHandler(
-														wdump_path,		
-														NULL,		//No filter
-														windows_post_minidump_callback,
-														0,
-														google_breakpad::ExceptionHandler::HANDLER_ALL,
-														MiniDumpNormal, //Generate a 'normal' minidump.
-														wpipe_name.c_str(),
-														NULL);  //No custom client info.
-			if (mExceptionHandler->IsOutOfProcess())
-			{
-				LL_INFOS("CRASHREPORT") << "Successfully attached to Out of Process exception handler." << LL_ENDL;
-				break;
-			}
-			else
-			{
-				LL_WARNS("CRASHREPORT") << "Unable to attach to Out of Process exception handler.  " << retries << " retries remaining." << LL_ENDL; 
-				::Sleep(100);  //Wait a tick and try again.
-			}
+															L"C:\\Temp\\",		
+															0,		//No filter
+															windows_post_minidump_callback,
+															0,
+															google_breakpad::ExceptionHandler::HANDLER_ALL);  //No custom client info.
 		}
+		else
+		{
+			llwarns << "adding breakpad exception handler" << llendl;
 
-		if (retries == 0) LL_WARNS("CRASHREPORT") << "Unable to attach to Out of Process exception handler." << LL_ENDL;
+			std::wstring wpipe_name;
+			wpipe_name =  mCrashReportPipeStr + wstringize(getPid());
+
+			const std::wstring wdump_path(wstringize(mDumpPath));
+
+			int retries = 30;
+			for (; retries > 0; --retries)
+			{
+				if (mExceptionHandler != 0) delete mExceptionHandler;
+
+				mExceptionHandler = new google_breakpad::ExceptionHandler(
+															wdump_path,		
+															NULL,		//No filter
+															windows_post_minidump_callback,
+															0,
+															google_breakpad::ExceptionHandler::HANDLER_ALL,
+															MiniDumpNormal, //Generate a 'normal' minidump.
+															wpipe_name.c_str(),
+															NULL);  //No custom client info.
+				if (mExceptionHandler->IsOutOfProcess())
+				{
+					LL_INFOS("CRASHREPORT") << "Successfully attached to Out of Process exception handler." << LL_ENDL;
+					break;
+				}
+				else
+				{
+					LL_WARNS("CRASHREPORT") << "Unable to attach to Out of Process exception handler.  " << retries << " retries remaining." << LL_ENDL; 
+					::Sleep(100);  //Wait a tick and try again.
+				}
+			}
+
+			if (retries == 0) LL_WARNS("CRASHREPORT") << "Unable to attach to Out of Process exception handler." << LL_ENDL;
+		}
 
 		if (mExceptionHandler)
 		{
