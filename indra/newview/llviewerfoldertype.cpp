@@ -142,7 +142,7 @@ LLViewerFolderDictionary::LLViewerFolderDictionary()
 	addEntry(LLFolderType::FT_BASIC_ROOT, 			new ViewerFolderEntry("Basic Root",				"Inv_SysOpen",			"Inv_SysClosed",		FALSE,     true));
 
 	addEntry(LLFolderType::FT_MARKETPLACE_LISTINGS, new ViewerFolderEntry("Marketplace listings",   "Inv_SysOpen",			"Inv_SysClosed",		FALSE,     boxes_invisible));
-	addEntry(LLFolderType::FT_MARKETPLACE_STOCK,    new ViewerFolderEntry("New Stock",              "Inv_FolderOpen",		"Inv_FolderClosed",		FALSE,     false, "default"));
+	addEntry(LLFolderType::FT_MARKETPLACE_STOCK,    new ViewerFolderEntry("New Stock",              "Inv_StockFolderOpen",		"Inv_StockFolderClosed",		FALSE,     false, "default"));
 
 	addEntry(LLFolderType::FT_NONE, 				new ViewerFolderEntry("New Folder",				"Inv_FolderOpen",		"Inv_FolderClosed",		FALSE,     false, "default"));
 

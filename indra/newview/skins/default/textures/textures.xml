@@ -300,6 +300,8 @@ with the same filename but different name
   <texture name="Inv_Snapshot" file_name="icons/Inv_Snapshot.png" preload="false" />
   <texture name="Inv_Socks" file_name="icons/Inv_Socks.png" preload="false" />
   <texture name="Inv_Sound" file_name="icons/Inv_Sound.png" preload="false" />
+  <texture name="Inv_StockFolderClosed" file_name="icons/Inv_StockFolderClosed.png" preload="false" />
+  <texture name="Inv_StockFolderOpen" file_name="icons/Inv_StockFolderOpen.png" preload="false" />
   <texture name="Inv_SysClosed" file_name="icons/Inv_SysClosed.png" preload="false" />
   <texture name="Inv_SysOpen" file_name="icons/Inv_SysOpen.png" preload="false" />
   <texture name="Inv_Tattoo" file_name="icons/Inv_Tattoo.png" preload="false" />
