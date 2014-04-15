@@ -205,6 +205,10 @@ void LLFloaterURLEntry::onBtnOK( void* userdata )
 		LLURLHistory::addURL("parcel", media_url);
 	}
 
+	// show progress bar here?
+	getWindow()->incBusyCount();
+	self->getChildView("loading_label")->setVisible( true);
+
 	// leading whitespace causes problems with the MIME-type detection so strip it
 	LLStringUtil::trim( media_url );
 
@@ -234,10 +238,6 @@ void LLFloaterURLEntry::onBtnOK( void* userdata )
 	self->getChildView("ok_btn")->setEnabled(false);
 	self->getChildView("cancel_btn")->setEnabled(false);
 	self->getChildView("media_entry")->setEnabled(false);
-
-	// show progress bar here?
-	getWindow()->incBusyCount();
-	self->getChildView("loading_label")->setVisible( true);
 }
 
 // static
