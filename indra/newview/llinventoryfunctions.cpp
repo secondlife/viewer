@@ -155,8 +155,8 @@ void update_marketplace_category(const LLUUID& cat_id)
 
     const LLUUID marketplace_listings_uuid = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
     // No marketplace -> likely called too early... or
-    // Not a descendent of the marketplace listings root and not part of marketplace -> likely called in error then...
-    if (marketplace_listings_uuid.isNull() || (!gInventory.isObjectDescendentOf(cat_id, marketplace_listings_uuid) && !LLMarketplaceData::instance().isListed(cat_id) && !LLMarketplaceData::instance().isVersionFolder(cat_id)))
+    // Not a descendent of the marketplace listings root -> likely called in error then...
+    if (marketplace_listings_uuid.isNull() || !gInventory.isObjectDescendentOf(cat_id, marketplace_listings_uuid))
     {
         // In those cases, just do the regular category update
         LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);

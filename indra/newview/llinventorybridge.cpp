@@ -887,7 +887,7 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
         {
             items.push_back(std::string("Marketplace Activate"));
             items.push_back(std::string("Marketplace Deactivate"));
-            if (LLMarketplaceData::instance().getActivationState(mUUID))
+            if (LLMarketplaceData::instance().isVersionFolder(mUUID))
             {
                 disabled_items.push_back(std::string("Marketplace Activate"));
             }
@@ -2039,17 +2039,15 @@ std::string LLFolderBridge::getLabelSuffix() const
             suffix = " (" +  suffix + ")";
             if (LLMarketplaceData::instance().getActivationState(getUUID()))
             {
-                suffix += " (" +  LLTrans::getString("MarketplaceActive") + ")";
+                suffix += " (" +  LLTrans::getString("MarketplaceLive") + ")";
             }
         }
         // Version folder case
         else if (LLMarketplaceData::instance().isVersionFolder(getUUID()))
         {
-            if (LLMarketplaceData::instance().getActivationState(getUUID()))
-            {
-                suffix += " (" +  LLTrans::getString("MarketplaceActive") + ")";
-            }
+            suffix += " (" +  LLTrans::getString("MarketplaceActive") + ")";
         }
+        // Add stock amount
         S32 stock_count = compute_stock_count(getUUID());
         if (stock_count == 0)
         {
@@ -2057,7 +2055,14 @@ std::string LLFolderBridge::getLabelSuffix() const
         }
         else if (stock_count != -1)
         {
-            suffix += " (" +  LLTrans::getString("MarketplaceStock") + "=" + llformat("%d", stock_count) + ")";
+            if (getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
+            {
+                suffix += " (" +  LLTrans::getString("MarketplaceStock") + "=" + llformat("%d", stock_count) + ")";
+            }
+            else
+            {
+                suffix += " (" +  LLTrans::getString("MarketplaceMax") + "=" + llformat("%d", stock_count) + ")";
+            }
         }
         return LLInvFVBridge::getLabelSuffix() + suffix;
 	}
@@ -3141,19 +3146,31 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
         S32 depth = depth_nesting_in_marketplace(mUUID);
         if (depth == 2)
         {
+            // At the version folder level, "activate" means "set this as the version folder"
 			LLInventoryCategory* category = gInventory.getCategory(mUUID);
             LLMarketplaceData::instance().setVersionFolderID(category->getParentUUID(), mUUID);
-            LLMarketplaceData::instance().setActivation(mUUID,true);
         }
         else if (depth == 1)
         {
+            // At the listing folder level, "activate" means "put it for sale on the marketplace"
             LLMarketplaceData::instance().setActivation(mUUID,true);
         }
 		return;
 	}
 	else if ("marketplace_deactivate" == action)
 	{
-        LLMarketplaceData::instance().setActivation(mUUID,false);
+        S32 depth = depth_nesting_in_marketplace(mUUID);
+        if (depth == 2)
+        {
+            // At the version folder level, "deactivate" means "zap the version folder"
+			LLInventoryCategory* category = gInventory.getCategory(mUUID);
+            LLMarketplaceData::instance().setVersionFolderID(category->getParentUUID(), LLUUID::null);
+        }
+        else if (depth == 1)
+        {
+            // At the listing folder level, "deactivate" means "take this out of the marketplace"
+            LLMarketplaceData::instance().setActivation(mUUID,false);
+        }
 		return;
 	}
 	else if ("marketplace_associate_listing" == action)
