@@ -22,5 +22,6 @@
     <command name="voice"/>
     <command name="minimap"/>
     <command name="snapshot"/>
+    <command name="marketplacelistings"/>
   </left_toolbar>
 </toolbars>
