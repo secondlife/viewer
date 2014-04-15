@@ -8242,9 +8242,9 @@ class LLWorldEnableEnvSettings : public view_listener_t
 		bool result = false;
 		std::string tod = userdata.asString();
 
-		if (tod == "region")
+		if (LLEnvManagerNew::instance().getUseRegionSettings())
 		{
-			return LLEnvManagerNew::instance().getUseRegionSettings();
+			return (tod == "region");
 		}
 
 		if (LLEnvManagerNew::instance().getUseFixedSky())
