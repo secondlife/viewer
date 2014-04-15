@@ -816,6 +816,29 @@ bool LLViewerInventoryCategory::exportFileLocal(LLFILE* fp) const
 	return true;
 }
 
+bool LLViewerInventoryCategory::acceptItem(LLInventoryItem* inv_item)
+{
+    bool accept = true;
+    // Only stock folders have limitation on which item they will accept
+    if (getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
+    {
+        // If the item is copyable (i.e. non stock) do not accept the drop in a stock folder
+        if (inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()))
+        {
+            accept = false;
+        }
+        else
+        {
+            LLInventoryModel::cat_array_t* cat_array;
+            LLInventoryModel::item_array_t* item_array;
+            gInventory.getDirectDescendentsOf(getUUID(),cat_array,item_array);
+            // Destination stock folder must be empty OR types of incoming and existing items must be identical
+            accept = (!item_array->count() || (item_array->get(0)->getInventoryType() == inv_item->getInventoryType()));
+        }
+    }
+    return accept;
+}
+
 void LLViewerInventoryCategory::determineFolderType()
 {
 	/* Do NOT uncomment this code.  This is for future 2.1 support of ensembles.

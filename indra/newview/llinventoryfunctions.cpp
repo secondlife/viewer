@@ -913,6 +913,13 @@ void move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
             }
 			LLViewerInventoryCategory* dest_cat = gInventory.getCategory(dest_folder);
             
+            // Verify we can have this item in that destination category
+            if (!dest_cat->acceptItem(viewer_inv_item))
+            {
+                llinfos << "Merov : Marketplace error : Cannot move item in that stock folder -> move aborted!" << llendl;
+                return;
+            }
+            
             // When moving a no copy item into a first level listing folder, we create a stock folder for it
             if (!viewer_inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()) && (dest_cat->getParentUUID() == marketplace_listings_uuid))
             {
@@ -961,9 +968,15 @@ void move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUU
     if (has_correct_permissions_for_sale(inv_cat))
     {
         // Get the destination folder
-        // *TODO : check that this folder is not full of no-copy items under its root...
         LLViewerInventoryCategory* dest_cat = gInventory.getCategory(dest_folder);
 
+        // Check it's not a stock folder
+        if (dest_cat->getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
+        {
+            llinfos << "Merov : Marketplace error : Cannot move folder in stock folder -> move aborted!" << llendl;
+            return;
+        }
+        
         // Get the parent folder of the moved item : we may have to update it
         LLUUID src_folder = inv_cat->getParentUUID();
 

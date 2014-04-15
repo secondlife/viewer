@@ -225,6 +225,9 @@ public:
 	bool importFileLocal(LLFILE* fp);
 	void determineFolderType();
 	void changeType(LLFolderType::EType new_folder_type);
+    
+    // returns true if the category object will accept the incoming item
+    bool acceptItem(LLInventoryItem* inv_item);
 
 private:
 	friend class LLInventoryModel;
