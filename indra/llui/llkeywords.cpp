@@ -37,14 +37,14 @@
 inline bool LLKeywordToken::isHead(const llwchar* s) const
 {
 	// strncmp is much faster than string compare
-	bool res = TRUE;
+	bool res = true;
 	const llwchar* t = mToken.c_str();
 	S32 len = mToken.size();
 	for (S32 i=0; i<len; i++)
 	{
 		if (s[i] != t[i])
 		{
-			res = FALSE;
+			res = false;
 			break;
 		}
 	}
@@ -53,14 +53,14 @@ inline bool LLKeywordToken::isHead(const llwchar* s) const
 
 inline bool LLKeywordToken::isTail(const llwchar* s) const
 {
-	bool res = TRUE;
+	bool res = true;
 	const llwchar* t = mDelimiter.c_str();
 	S32 len = mDelimiter.size();
 	for (S32 i=0; i<len; i++)
 	{
 		if (s[i] != t[i])
 		{
-			res = FALSE;
+			res = false;
 			break;
 		}
 	}
