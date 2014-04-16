@@ -143,7 +143,7 @@ bool LLImageDecodeThread::ImageRequest::processRequest()
 											  mFormattedImage->getComponents());
 		}
 
-		if (mDecodedImageRaw->getData())
+		//if (mDecodedImageRaw->getData()))
 		{
 			done = mFormattedImage->decode(mDecodedImageRaw, decode_time_slice); // 1ms
 			mDecodedRaw = done;
@@ -159,7 +159,7 @@ bool LLImageDecodeThread::ImageRequest::processRequest()
 											  1);
 		}
 
-		if (mDecodedImageAux->getData())
+		//if (mDecodedImageAux->getData())
 		{
 			done = mFormattedImage->decodeChannels(mDecodedImageAux, decode_time_slice, 4, 4); // 1ms
 			mDecodedAux = done;
