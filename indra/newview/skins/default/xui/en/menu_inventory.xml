@@ -29,7 +29,7 @@
         parameter="marketplace_disassociate_listing" />
 	</menu_item_call>
 	<menu_item_call
-        label="Show Listing"
+        label="Edit Listing"
         layout="topleft"
         name="Marketplace Show Listing">
 		<menu_item_call.on_click

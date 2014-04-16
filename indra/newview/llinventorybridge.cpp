@@ -1546,6 +1546,11 @@ void LLItemBridge::performAction(LLInventoryModel* model, std::string action)
 	{
 		doActionOnCurSelectedLandmark(boost::bind(&LLItemBridge::doShowOnMap, this, _1));
 	}
+	else if ("marketplace_show_listing" == action)
+	{
+        std::string url = LLMarketplaceData::instance().getListingURL(mUUID);
+        LLUrlAction::openURL(url);
+	}
 }
 
 void LLItemBridge::doActionOnCurSelectedLandmark(LLLandmarkList::loaded_callback_t cb)
@@ -3191,13 +3196,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 	}
 	else if ("marketplace_show_listing" == action)
 	{
-        // *TODO : Need to show a browser window with the info for the listing
-        // Get the listing id (i.e. go up the hierarchy to find the listing folder
-        // Show the listing folder in a browser window
-        // https://marketplace.secondlife.com/p/Nounours/4438852
-        // https://marketplace.secondlife.com/p/Un-autre-nounours/4447997?preview=true
-        // https://marketplace.secondlife.com/p/<listing_name>/<listing_id>?preview=true
-        std::string url("https://marketplace.secondlife.com/p/Un-autre-nounours/4447997?preview=true");
+        std::string url = LLMarketplaceData::instance().getListingURL(mUUID);
         LLUrlAction::openURL(url);
 		return;
 	}
