@@ -172,7 +172,6 @@ protected:
 	LLColor4	readColor(LLSD& sd);
 	void		insertSegment(std::vector<LLTextSegmentPtr>& seg_list, LLTextSegmentPtr new_segment, S32 text_len, const LLColor4 &defaultColor, class LLTextEditor& editor);
 	void		insertSegments(const LLWString& wtext, std::vector<LLTextSegmentPtr>& seg_list, LLKeywordToken* token, S32 text_len, S32 seg_start, S32 seg_end, const LLColor4 &defaultColor, LLTextEditor& editor);
-	BOOL		loadIntoLLSD( const std::string& filename, LLSD& data );
 
 	LLSD		mColors;
 	bool		mLoaded;
