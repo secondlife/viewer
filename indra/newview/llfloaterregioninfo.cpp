@@ -1399,7 +1399,7 @@ void LLPanelEstateInfo::initDispatch(LLDispatcher& dispatch)
 	dispatch.addHandler(name, &set_access);
 
 
-	name.assign("setexperiences");
+	name.assign("setexperience");
 	static LLDispatchSetEstateExperience set_experience;
 	dispatch.addHandler(name, &set_experience);
 
@@ -2919,7 +2919,7 @@ LLSD LLDispatchSetEstateExperience::getIDs( sparam_t::const_iterator it, sparam_
 	LLUUID id;
 	while(count--> 0)
 	{
-		memcpy(id.mData, (*(++it)).data(), UUID_BYTES);
+		memcpy(id.mData, (*(it++)).data(), UUID_BYTES);
 		idList.append(id);
 	}
 	return idList;
@@ -2947,14 +2947,14 @@ bool LLDispatchSetEstateExperience::operator()(
 	++it; // U32 send_to_agent_only = strtoul((*(++it)).c_str(), NULL, 10);
 
 	LLUUID id;
-	S32 num_blocked = strtol((*(++it)).c_str(), NULL, 10);
-	S32 num_trusted = strtol((*(++it)).c_str(), NULL, 10);
-	S32 num_allowed = strtol((*(++it)).c_str(), NULL, 10);
+	S32 num_blocked = strtol((*(it++)).c_str(), NULL, 10);
+	S32 num_trusted = strtol((*(it++)).c_str(), NULL, 10);
+	S32 num_allowed = strtol((*(it++)).c_str(), NULL, 10);
 
 	LLSD ids = LLSD::emptyMap()
-		.with("blocked", getIDs(it, strings.end(), num_blocked))
-		.with("trusted", getIDs(it, strings.end(), num_trusted))
-		.with("allowed", getIDs(it, strings.end(), num_allowed));
+		.with("blocked", getIDs(it,								strings.end(), num_blocked))
+		.with("trusted", getIDs(it + (num_blocked),				strings.end(), num_trusted))
+		.with("allowed", getIDs(it + (num_blocked+num_trusted),	strings.end(), num_allowed));
 
 	panel->processResponse(ids);			
 
@@ -3626,14 +3626,6 @@ void LLPanelRegionExperiences::infoCallback(LLHandle<LLPanelRegionExperiences> h
 	}
 }
 
-bool LLPanelRegionExperiences::FilterExisting(const LLSD& experience)
-{
-	LLUUID id = experience[LLExperienceCache::EXPERIENCE_ID].asUUID();
-	return mAllowed->getExperienceIds().find(id) != mAllowed->getExperienceIds().end() ||
-		mBlocked->getExperienceIds().find(id) != mBlocked->getExperienceIds().end() ||
-		mTrusted->getExperienceIds().find(id) != mTrusted->getExperienceIds().end() ;
-}
-
 
 bool LLPanelRegionExperiences::refreshFromRegion(LLViewerRegion* region)
 {
@@ -3643,8 +3635,6 @@ bool LLPanelRegionExperiences::refreshFromRegion(LLViewerRegion* region)
 	mAllowed->setReadonly(!allow_modify);
 	// remove grid-wide experiences
 	mAllowed->addFilter(boost::bind(LLFloaterExperiencePicker::FilterWithProperty, _1, LLExperienceCache::PROPERTY_GRID));
-	// and stuff only in another list
-	mAllowed->addFilter(boost::bind(&LLPanelRegionExperiences::FilterExisting, this, _1));
 
 	mBlocked->loading();
 	mBlocked->setReadonly(!allow_modify);
@@ -3652,11 +3642,9 @@ bool LLPanelRegionExperiences::refreshFromRegion(LLViewerRegion* region)
 	mBlocked->addFilter(boost::bind(LLFloaterExperiencePicker::FilterWithoutProperty, _1, LLExperienceCache::PROPERTY_GRID));
 	// but not privileged ones
 	mBlocked->addFilter(boost::bind(LLFloaterExperiencePicker::FilterWithProperty, _1, LLExperienceCache::PROPERTY_PRIVILEGED));
-	mBlocked->addFilter(boost::bind(&LLPanelRegionExperiences::FilterExisting, this, _1));
 
 	mTrusted->loading();
 	mTrusted->setReadonly(!allow_modify);
-	mTrusted->addFilter(boost::bind(&LLPanelRegionExperiences::FilterExisting, this, _1));
 
 	std::string url = region->getCapability("RegionExperiences");
 	if (!url.empty())
@@ -3705,7 +3693,6 @@ void LLPanelRegionExperiences::itemChanged( U32 event_type, const LLUUID& id )
 	str[1].swap(llformat("%u", event_type));
 	id.toString(str[2]);
 
-	why does this happen twice
 	sendEstateOwnerMessage(gMessageSystem, "estateexperiencedelta", LLFloaterRegionInfo::getLastInvoice(), str);
 	onChangeAnything();
 }

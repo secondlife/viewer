@@ -472,7 +472,6 @@ private:
 
 	LLPanelExperienceListEditor* setupList(const char* control_name);
 	static LLSD addIds( LLPanelExperienceListEditor* panel );
-	bool FilterExisting(const LLSD& experience );
 
 	void itemChanged(U32 event_type, const LLUUID& id);
 
