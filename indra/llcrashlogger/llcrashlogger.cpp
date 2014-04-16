@@ -389,12 +389,11 @@ bool LLCrashLogger::runCrashLogPost(std::string host, LLSD data, std::string msg
 	gBreak = false;
 	for(int i = 0; i < retries; ++i)
 	{
-		//updateApplication lines removed because user doesn't really need to see these messages on their screen. 
-		//updateApplication(llformat("%s, try %d...", msg.c_str(), i+1));
+		updateApplication(llformat("%s, try %d...", msg.c_str(), i+1));
 		LLHTTPClient::post(host, data, new LLCrashLoggerResponder(), timeout);
 		while(!gBreak)
 		{
-			//updateApplication(); // No new message, just pump the IO
+			updateApplication(); // No new message, just pump the IO
 		}
 		if(gSent)
 		{
