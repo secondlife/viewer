@@ -1251,11 +1251,6 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
 		return FALSE;
 	}
 
-	if (!imageraw->getData())
-	{
-		return FALSE;
-	}
-
 	mGLTextureCreated = false ;
 	llassert(gGLManager.mInited);
 	stop_glerror();

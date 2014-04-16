@@ -101,21 +101,15 @@ LLWorld::LLWorld() :
 
 	LLPointer<LLImageRaw> raw = new LLImageRaw(1,1,4);
 	U8 *default_texture = raw->getData();
+	*(default_texture++) = MAX_WATER_COLOR.mV[0];
+	*(default_texture++) = MAX_WATER_COLOR.mV[1];
+	*(default_texture++) = MAX_WATER_COLOR.mV[2];
+	*(default_texture++) = MAX_WATER_COLOR.mV[3];
+	
+	mDefaultWaterTexturep = LLViewerTextureManager::getLocalTexture(raw.get(), FALSE);
+	gGL.getTexUnit(0)->bind(mDefaultWaterTexturep);
+	mDefaultWaterTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
 
-	if (default_texture)
-	{
-		*(default_texture++) = MAX_WATER_COLOR.mV[0];
-		*(default_texture++) = MAX_WATER_COLOR.mV[1];
-		*(default_texture++) = MAX_WATER_COLOR.mV[2];
-		*(default_texture++) = MAX_WATER_COLOR.mV[3];
-	}
-
-	if (mDefaultWaterTexturep)
-	{
-		mDefaultWaterTexturep = LLViewerTextureManager::getLocalTexture(raw.get(), FALSE);
-		gGL.getTexUnit(0)->bind(mDefaultWaterTexturep);
-		mDefaultWaterTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
-	}
 }
 
 

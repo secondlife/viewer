@@ -230,7 +230,7 @@ const U8* LLImageBase::getData() const
 { 
 	if(mBadBufferAllocation)
 	{
-		llwarns << "Bad memory allocation for the image buffer!" << llendl ;
+		llerrs << "Bad memory allocation for the image buffer!" << llendl ;
 	}
 
 	return mData; 
@@ -240,7 +240,7 @@ U8* LLImageBase::getData()
 { 
 	if(mBadBufferAllocation)
 	{
-		llwarns << "Bad memory allocation for the image buffer!" << llendl ;
+		llerrs << "Bad memory allocation for the image buffer!" << llendl ;
 	}
 
 	return mData; 
@@ -293,7 +293,7 @@ LLImageRaw::LLImageRaw(U8 *data, U16 width, U16 height, S8 components, bool no_c
 	{
 		setDataAndSize(data, width, height, components);
 	}
-	else if(allocateDataSize(width, height, components) && getData())
+	else if(allocateDataSize(width, height, components))
 	{
 		memcpy(getData(), data, width*height*components);
 	}
@@ -431,11 +431,6 @@ void LLImageRaw::clear(U8 r, U8 g, U8 b, U8 a)
 // Reverses the order of the rows in the image
 void LLImageRaw::verticalFlip()
 {
-	if (!getData())
-	{
-		return;
-	}
-
 	S32 row_bytes = getWidth() * getComponents();
 	llassert(row_bytes > 0);
 	std::vector<U8> line_buffer(row_bytes);
@@ -671,11 +666,6 @@ void LLImageRaw::copyUnscaledAlphaMask( LLImageRaw* src, const LLColor4U& fill)
 // Fill the buffer with a constant color
 void LLImageRaw::fill( const LLColor4U& color )
 {
-	if (!getData())
-	{
-		return;
-	}
-
 	S32 pixels = getWidth() * getHeight();
 	if( 4 == getComponents() )
 	{
@@ -877,11 +867,6 @@ void LLImageRaw::copyScaled( LLImageRaw* src )
 
 BOOL LLImageRaw::scale( S32 new_width, S32 new_height, BOOL scale_image_data )
 {
-	if (!getData())
-	{
-		return FALSE;
-	}
-
 	llassert((1 == getComponents()) || (3 == getComponents()) || (4 == getComponents()) );
 
 	S32 old_width = getWidth();
@@ -916,7 +901,7 @@ BOOL LLImageRaw::scale( S32 new_width, S32 new_height, BOOL scale_image_data )
 			copyLineScaled( &temp_buffer[0] + (getComponents() * old_width * row), new_buffer + (getComponents() * new_width * row), old_width, new_width, 1, 1 );
 		}
 	}
-	else if (getData())
+	else
 	{
 		// copy	out	existing image data
 		S32	temp_data_size = old_width * old_height	* getComponents();
@@ -1579,11 +1564,6 @@ BOOL LLImageFormatted::load(const std::string &filename, int load_size)
 
 BOOL LLImageFormatted::save(const std::string &filename)
 {
-	if (!getData())
-	{
-		return FALSE;
-	}
-
 	resetLastError();
 
 	LLAPRFile outfile ;

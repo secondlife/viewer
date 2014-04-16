@@ -76,13 +76,10 @@ LLViewerParcelOverlay::LLViewerParcelOverlay(LLViewerRegion* region, F32 region_
 	//
 	// Create the base texture.
 	U8 *raw = mImageRaw->getData();
-	if (raw)
+	const S32 COUNT = mParcelGridsPerEdge * mParcelGridsPerEdge * OVERLAY_IMG_COMPONENTS;
+	for (S32 i = 0; i < COUNT; i++)
 	{
-		const S32 COUNT = mParcelGridsPerEdge * mParcelGridsPerEdge * OVERLAY_IMG_COMPONENTS;
-		for (S32 i = 0; i < COUNT; i++)
-		{
-			raw[i] = 0;
-		}
+		raw[i] = 0;
 	}
 	//mTexture->setSubImage(mImageRaw, 0, 0, mParcelGridsPerEdge, mParcelGridsPerEdge);
 
@@ -383,13 +380,10 @@ void LLViewerParcelOverlay::updateOverlayTexture()
 			break;
 		}
 
-		if (raw)
-		{
-			raw[pixel_index + 0] = (U8)r;
-			raw[pixel_index + 1] = (U8)g;
-			raw[pixel_index + 2] = (U8)b;
-			raw[pixel_index + 3] = (U8)a;
-		}
+		raw[pixel_index + 0] = (U8)r;
+		raw[pixel_index + 1] = (U8)g;
+		raw[pixel_index + 2] = (U8)b;
+		raw[pixel_index + 3] = (U8)a;
 
 		pixel_index += OVERLAY_IMG_COMPONENTS;
 	}
