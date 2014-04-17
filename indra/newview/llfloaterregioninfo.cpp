@@ -3690,7 +3690,7 @@ void LLPanelRegionExperiences::itemChanged( U32 event_type, const LLUUID& id )
 {
 	strings_t str(3, std::string());
 	gAgent.getID().toString(str[0]);
-	str[1].swap(llformat("%u", event_type));
+	str[1] = llformat("%u", event_type);
 	id.toString(str[2]);
 
 	sendEstateOwnerMessage(gMessageSystem, "estateexperiencedelta", LLFloaterRegionInfo::getLastInvoice(), str);
