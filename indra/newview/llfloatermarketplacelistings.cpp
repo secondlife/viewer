@@ -117,30 +117,6 @@ void LLPanelMarketplaceListings::onViewSortMenuItemClicked(const LLSD& userdata)
         mSortOrder = (mSortOrder == LLInventoryFilter::SO_FOLDERS_BY_NAME ? LLInventoryFilter::SO_FOLDERS_BY_WEIGHT : LLInventoryFilter::SO_FOLDERS_BY_NAME);
         mAllPanel->setSortOrder(mSortOrder);
 	}
-    // View/filter options
-	else if (chosen_item == "show_all")
-	{
-        mFilterType = LLInventoryFilter::FILTERTYPE_NONE;
-        mAllPanel->getFilter().resetDefault();
-	}
-	else if (chosen_item == "show_unassociated")
-	{
-        mFilterType = LLInventoryFilter::FILTERTYPE_MARKETPLACE_UNASSOCIATED;
-        mAllPanel->getFilter().resetDefault();
-        mAllPanel->getFilter().setFilterMarketplaceUnassociatedFolders();
-	}
-	else if (chosen_item == "show_active")
-	{
-        mFilterType = LLInventoryFilter::FILTERTYPE_MARKETPLACE_ACTIVE;
-        mAllPanel->getFilter().resetDefault();
-        mAllPanel->getFilter().setFilterMarketplaceActiveFolders();
-	}
-	else if (chosen_item == "show_inactive")
-	{
-        mFilterType = LLInventoryFilter::FILTERTYPE_MARKETPLACE_INACTIVE;
-        mAllPanel->getFilter().resetDefault();
-        mAllPanel->getFilter().setFilterMarketplaceInactiveFolders();
-	}
 }
 
 bool LLPanelMarketplaceListings::onViewSortMenuItemCheck(const LLSD& userdata)
@@ -149,14 +125,6 @@ bool LLPanelMarketplaceListings::onViewSortMenuItemCheck(const LLSD& userdata)
     
 	if (chosen_item == "sort_by_stock_amount")
 		return mSortOrder == LLInventoryFilter::SO_FOLDERS_BY_WEIGHT;
-	if (chosen_item == "show_all")
-		return mFilterType == LLInventoryFilter::FILTERTYPE_NONE;
-	if (chosen_item == "show_unassociated")
-		return mFilterType == LLInventoryFilter::FILTERTYPE_MARKETPLACE_UNASSOCIATED;
-	if (chosen_item == "show_active")
-		return mFilterType == LLInventoryFilter::FILTERTYPE_MARKETPLACE_ACTIVE;
-	if (chosen_item == "show_inactive")
-		return mFilterType == LLInventoryFilter::FILTERTYPE_MARKETPLACE_INACTIVE;
 	return false;
 }
 

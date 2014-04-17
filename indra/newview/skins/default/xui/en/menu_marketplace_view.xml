@@ -13,37 +13,4 @@
          function="Marketplace.ViewSort.CheckItem"
          parameter="sort_by_stock_amount"/>
     </menu_item_check>
-    <menu_item_separator layout="topleft" />
-    <menu_item_check name="show_all" label="Show All">
-        <menu_item_check.on_click
-        function="Marketplace.ViewSort.Action"
-        parameter="show_all" />
-        <menu_item_check.on_check
-        function="Marketplace.ViewSort.CheckItem"
-        parameter="show_all" />
-    </menu_item_check>
-    <menu_item_check name="show_unassociated" label="Show Unassociated Listings Only">
-        <menu_item_check.on_click
-        function="Marketplace.ViewSort.Action"
-        parameter="show_unassociated" />
-        <menu_item_check.on_check
-        function="Marketplace.ViewSort.CheckItem"
-        parameter="show_unassociated" />
-    </menu_item_check>
-    <menu_item_check name="show_active" label="Show Active Listings Only">
-        <menu_item_check.on_click
-        function="Marketplace.ViewSort.Action"
-        parameter="show_active" />
-        <menu_item_check.on_check
-        function="Marketplace.ViewSort.CheckItem"
-        parameter="show_active" />
-    </menu_item_check>
-    <menu_item_check name="show_inactive" label="Show Inactive Listings Only">
-        <menu_item_check.on_click
-        function="Marketplace.ViewSort.Action"
-        parameter="show_inactive" />
-        <menu_item_check.on_check
-        function="Marketplace.ViewSort.CheckItem"
-        parameter="show_inactive" />
-    </menu_item_check>
 </toggleable_menu>
