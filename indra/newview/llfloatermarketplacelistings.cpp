@@ -34,6 +34,7 @@
 #include "llinventorybridge.h"
 #include "llinventorymodelbackgroundfetch.h"
 #include "llinventoryobserver.h"
+#include "llinventoryfunctions.h"
 #include "llmarketplacefunctions.h"
 #include "llnotificationhandler.h"
 #include "llnotificationmanager.h"
@@ -60,6 +61,7 @@ BOOL LLPanelMarketplaceListings::postBuild()
 {
 	mAllPanel = getChild<LLInventoryPanel>("All Items");
 	childSetAction("add_btn", boost::bind(&LLPanelMarketplaceListings::onAddButtonClicked, this));
+	childSetAction("audit_btn", boost::bind(&LLPanelMarketplaceListings::onAuditButtonClicked, this));
 
 	// Set the sort order newest to oldest
 	LLInventoryPanel* panel = getChild<LLInventoryPanel>("All Items");
@@ -99,12 +101,20 @@ void LLPanelMarketplaceListings::onSelectionChange(LLInventoryPanel *panel, cons
 
 void LLPanelMarketplaceListings::onAddButtonClicked()
 {
-	LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, true);
+	LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
 	llassert(marketplacelistings_id.notNull());
     LLFolderType::EType preferred_type = LLFolderType::lookup("category");
     LLUUID category = gInventory.createNewCategory(marketplacelistings_id, preferred_type, LLStringUtil::null);
     gInventory.notifyObservers();
     mAllPanel->setSelectionByID(category, TRUE);
+}
+
+void LLPanelMarketplaceListings::onAuditButtonClicked()
+{
+	LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, true);
+	llassert(marketplacelistings_id.notNull());
+    LLViewerInventoryCategory* cat = gInventory.getCategory(marketplacelistings_id);
+    validate_marketplacelistings(cat);
 }
 
 void LLPanelMarketplaceListings::onViewSortMenuItemClicked(const LLSD& userdata)

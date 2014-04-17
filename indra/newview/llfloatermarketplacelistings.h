@@ -55,6 +55,7 @@ private:
 	void onViewSortMenuItemClicked(const LLSD& userdata);
 	bool onViewSortMenuItemCheck(const LLSD& userdata);
 	void onAddButtonClicked();
+    void onAuditButtonClicked();
 	void onSelectionChange(LLInventoryPanel *panel, const std::deque<LLFolderViewItem*>& items, BOOL user_action);
     
     LLInventoryPanel* mAllPanel;

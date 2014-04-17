@@ -1051,15 +1051,18 @@ bool has_correct_permissions_for_sale(LLInventoryCategory* cat)
 // *TODO : Add the rest of the SLM/AIS business logic (limit of nesting depth, stock folder consistency, overall limit on listings, etc...)
 void validate_marketplacelistings(LLInventoryCategory* cat)
 {
-    // Special case a stock folder depth issue
+    llinfos << "Merov : Validation log: validating folder : " << cat->getName() << llendl;
+   // Special case a stock folder depth issue
     LLViewerInventoryCategory * viewer_cat = (LLViewerInventoryCategory *) (cat);
 	const LLFolderType::EType folder_type = cat->getPreferredType();
     S32 depth = depth_nesting_in_marketplace(cat->getUUID());
-    if ((folder_type == LLFolderType::FT_MARKETPLACE_STOCK) && (depth == 1))
+    if ((folder_type == LLFolderType::FT_MARKETPLACE_STOCK) && (depth <= 2))
     {
         // Nest the stock folder one level deeper in a normal folder and restart from there
-        LLUUID parent_uuid = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+        //LLUUID parent_uuid = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+        LLUUID parent_uuid = cat->getParentUUID();
         LLUUID folder_uuid = gInventory.createNewCategory(parent_uuid, LLFolderType::FT_NONE, cat->getName());
+        llinfos << "Merov : Validation warning: creating wrapping folder for stock folder : " << cat->getName() << llendl;
         LLInventoryCategory* new_cat = gInventory.getCategory(folder_uuid);
         gInventory.changeCategoryParent(viewer_cat, folder_uuid, false);
         validate_marketplacelistings(new_cat);
@@ -1090,12 +1093,12 @@ void validate_marketplacelistings(LLInventoryCategory* cat)
         // Skip items that shouldn't be there to start with, raise an error message for those
         if (linked_category || linked_item)
         {
-            llinfos << "Merov : Validation error: skipping linked item : " << viewer_inv_item->getName() << llendl;
+            llinfos << "Merov : Validation error: linked item are not allowed in listings : " << viewer_inv_item->getName() << llendl;
             continue;
         }
         if (!viewer_inv_item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID(), gAgent.getGroupID()))
         {
-            llinfos << "Merov : Validation error: skipping item with incorrect permissions : " << viewer_inv_item->getName() << llendl;
+            llinfos << "Merov : Validation error: item with incorrect permissions in listing : " << viewer_inv_item->getName() << llendl;
             continue;
         }
         // Update the appropriate vector item for that type
@@ -1118,29 +1121,34 @@ void validate_marketplacelistings(LLInventoryCategory* cat)
             type = (LLInventoryType::EType)(i);
         }
     }
+    // If we have no items in there (only folders) -> all OK
+    if (count == 0)
+    {
+        llinfos << "Merov : Validation log: folder validates: doesn't contain any item" << llendl;
+    }
     // If we have one kind only, in the correct folder type at the right depth -> all OK
-    if ((count <= 1) && ((type == LLInventoryType::IT_COUNT) || ((folder_type == LLFolderType::FT_MARKETPLACE_STOCK) && (depth >= 2))))
+    else if ((count == 1) && (((type == LLInventoryType::IT_COUNT) && (depth > 1)) || ((folder_type == LLFolderType::FT_MARKETPLACE_STOCK) && (depth > 2))))
     {
         // Done with that folder!
-        llinfos << "Merov : Validation log: folder validates : " << viewer_cat->getName() << llendl;
+        llinfos << "Merov : Validation log: folder validates: all items of type : " << type << llendl;
     }
     else
     {
-        // Create one folder per vector of the stock kind at the right depth
-        // Note: we *intentionally* skip the non stock items at the end, those should not be moved around
-        for (S32 i = 0; i < LLInventoryType::IT_COUNT; i++)
+        // Create one folder per vector at the right depth and of the right type
+        for (S32 i = 0; i <= LLInventoryType::IT_COUNT; i++)
         {
             if (!items_vector[i].empty())
             {
                 // Create a new folder
-                llinfos << "Merov : Validation log: creating stock folder : " << viewer_cat->getName() << ", type = " << i << llendl;
-                LLUUID parent_uuid = (depth >=2 ? viewer_cat->getParentUUID() : viewer_cat->getUUID());
-                LLUUID folder_uuid = gInventory.createNewCategory(parent_uuid, LLFolderType::FT_MARKETPLACE_STOCK, viewer_cat->getName());
+                llinfos << "Merov : Validation warning: creating stock folder : " << viewer_cat->getName() << ", type = " << i << llendl;
+                LLUUID parent_uuid = (depth > 2 ? viewer_cat->getParentUUID() : viewer_cat->getUUID());
+                LLFolderType::EType new_folder_type = (i == LLInventoryType::IT_COUNT ? LLFolderType::FT_NONE : LLFolderType::FT_MARKETPLACE_STOCK);
+                LLUUID folder_uuid = gInventory.createNewCategory(parent_uuid, new_folder_type, viewer_cat->getName());
                 // Move each item to the new folder
                 while (!items_vector[i].empty())
                 {
                     LLViewerInventoryItem* viewer_inv_item = items_vector[i].back();
-                    llinfos << "Merov : Validation log: moving item : " << viewer_inv_item->getName() << llendl;
+                    llinfos << "Merov : Validation warning: moving item : " << viewer_inv_item->getName() << llendl;
                     gInventory.changeItemParent(viewer_inv_item, folder_uuid, false);
                     items_vector[i].pop_back();
                 }
@@ -1151,7 +1159,7 @@ void validate_marketplacelistings(LLInventoryCategory* cat)
         if (viewer_cat->getDescendentCount() == 0)
         {
             // Remove the current folder if it ends up empty
-            llinfos << "Merov : Validation warning : folder content completely moved to stock folder -> remove empty folder!" << llendl;
+            llinfos << "Merov : Validation warning : folder content completely moved to stock folder -> removing empty folder" << llendl;
             gInventory.removeCategory(cat->getUUID());
             gInventory.notifyObservers();
             return;

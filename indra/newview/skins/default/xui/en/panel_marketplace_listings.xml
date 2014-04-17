@@ -94,7 +94,6 @@
       background_visible="true"
       border="false"
       bevel_style="none"
-      sort_order_setting="InventorySortOrder"
       show_item_link_overlays="true">
     </inventory_panel>
     <inventory_panel
