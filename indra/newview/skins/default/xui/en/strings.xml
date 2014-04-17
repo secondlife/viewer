@@ -2272,7 +2272,7 @@ The [[MARKETPLACE_CREATE_STORE_URL] Marketplace store] is returning errors.
 	<string name="Marketplace Error Internal Import">Error: There was a problem with this item.  Try again later.</string>
 
 	<string name="MarketplaceNoID">no Mkt ID</string>
-	<string name="MarketplaceLive">live</string>
+	<string name="MarketplaceLive">listed</string>
 	<string name="MarketplaceActive">active</string>
 	<string name="MarketplaceMax">max</string>
 	<string name="MarketplaceStock">stock</string>

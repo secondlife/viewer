@@ -167,8 +167,13 @@ public:
     bool setVersionFolderID(const LLUUID& folder_id, const LLUUID& version_id);
     bool setActivation(const LLUUID& folder_id, bool activate);
     
+    // Merov : Test method while waiting for SLM API
+    S32 getTestMarketplaceID() { return mTestCurrentMarketplaceID++; }
+    
 private:
     marketplace_items_list_t mMarketplaceItems;
+    // Merov : This is for test only, waiting for SLM API
+    S32 mTestCurrentMarketplaceID;
 };
 
 

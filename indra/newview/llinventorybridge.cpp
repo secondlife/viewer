@@ -854,29 +854,29 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
     if (depth == 1)
     {
         // Options available at the Listing Folder level
+        items.push_back(std::string("Marketplace Create Listing"));
         items.push_back(std::string("Marketplace Associate Listing"));
-        items.push_back(std::string("Marketplace Attach Listing"));
         items.push_back(std::string("Marketplace Disassociate Listing"));
-        items.push_back(std::string("Marketplace Activate"));
-        items.push_back(std::string("Marketplace Deactivate"));
+        items.push_back(std::string("Marketplace List"));
+        items.push_back(std::string("Marketplace Unlist"));
         if (LLMarketplaceData::instance().isListed(mUUID))
         {
+			disabled_items.push_back(std::string("Marketplace Create Listing"));
 			disabled_items.push_back(std::string("Marketplace Associate Listing"));
-			disabled_items.push_back(std::string("Marketplace Attach Listing"));
             if (LLMarketplaceData::instance().getActivationState(mUUID))
             {
-                disabled_items.push_back(std::string("Marketplace Activate"));
+                disabled_items.push_back(std::string("Marketplace List"));
             }
             else
             {
-                disabled_items.push_back(std::string("Marketplace Deactivate"));
+                disabled_items.push_back(std::string("Marketplace Unlist"));
             }
         }
         else
         {
 			disabled_items.push_back(std::string("Marketplace Disassociate Listing"));
-			disabled_items.push_back(std::string("Marketplace Activate"));
-			disabled_items.push_back(std::string("Marketplace Deactivate"));
+			disabled_items.push_back(std::string("Marketplace List"));
+			disabled_items.push_back(std::string("Marketplace Unlist"));
         }
     }
     if (depth == 2)
@@ -898,11 +898,11 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
         }
     }
     // Options available at all levels on items and categories
-    items.push_back(std::string("Marketplace Show Listing"));
+    items.push_back(std::string("Marketplace Edit Listing"));
     LLUUID listing_folder_id = nested_parent_id(mUUID,depth);
     if (!LLMarketplaceData::instance().isListed(listing_folder_id))
     {
-        disabled_items.push_back(std::string("Marketplace Show Listing"));
+        disabled_items.push_back(std::string("Marketplace Edit Listing"));
     }
     // Separator
     items.push_back(std::string("Marketplace Listings Separator"));
@@ -1546,7 +1546,7 @@ void LLItemBridge::performAction(LLInventoryModel* model, std::string action)
 	{
 		doActionOnCurSelectedLandmark(boost::bind(&LLItemBridge::doShowOnMap, this, _1));
 	}
-	else if ("marketplace_show_listing" == action)
+	else if ("marketplace_edit_listing" == action)
 	{
         std::string url = LLMarketplaceData::instance().getListingURL(mUUID);
         LLUrlAction::openURL(url);
@@ -3146,39 +3146,41 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 		restoreItem();
 		return;
 	}
+	else if ("marketplace_list" == action)
+	{
+        if (depth_nesting_in_marketplace(mUUID) == 1)
+        {
+            LLMarketplaceData::instance().setActivation(mUUID,true);
+        }
+		return;
+	}
 	else if ("marketplace_activate" == action)
 	{
-        S32 depth = depth_nesting_in_marketplace(mUUID);
-        if (depth == 2)
+        if (depth_nesting_in_marketplace(mUUID) == 2)
         {
-            // At the version folder level, "activate" means "set this as the version folder"
 			LLInventoryCategory* category = gInventory.getCategory(mUUID);
             LLMarketplaceData::instance().setVersionFolderID(category->getParentUUID(), mUUID);
         }
-        else if (depth == 1)
+		return;
+	}
+	else if ("marketplace_unlist" == action)
+	{
+        if (depth_nesting_in_marketplace(mUUID) == 1)
         {
-            // At the listing folder level, "activate" means "put it for sale on the marketplace"
-            LLMarketplaceData::instance().setActivation(mUUID,true);
+            LLMarketplaceData::instance().setActivation(mUUID,false);
         }
 		return;
 	}
 	else if ("marketplace_deactivate" == action)
 	{
-        S32 depth = depth_nesting_in_marketplace(mUUID);
-        if (depth == 2)
+        if (depth_nesting_in_marketplace(mUUID) == 2)
         {
-            // At the version folder level, "deactivate" means "zap the version folder"
 			LLInventoryCategory* category = gInventory.getCategory(mUUID);
             LLMarketplaceData::instance().setVersionFolderID(category->getParentUUID(), LLUUID::null);
         }
-        else if (depth == 1)
-        {
-            // At the listing folder level, "deactivate" means "take this out of the marketplace"
-            LLMarketplaceData::instance().setActivation(mUUID,false);
-        }
 		return;
 	}
-	else if ("marketplace_associate_listing" == action)
+	else if ("marketplace_create_listing" == action)
 	{
         LLMarketplaceData::instance().addListing(mUUID);
 		return;
@@ -3188,13 +3190,13 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
         LLMarketplaceData::instance().deleteListing(mUUID);
 		return;
     }
-	else if ("marketplace_attach_listing" == action)
+	else if ("marketplace_associate_listing" == action)
 	{
         // *TODO : Get a list of listing IDs and let the user choose one, delist the old one and relist the new one
         LLMarketplaceData::instance().addListing(mUUID);
 		return;
 	}
-	else if ("marketplace_show_listing" == action)
+	else if ("marketplace_edit_listing" == action)
 	{
         std::string url = LLMarketplaceData::instance().getListingURL(mUUID);
         LLUrlAction::openURL(url);

@@ -562,6 +562,7 @@ LLMarketplaceTuple::LLMarketplaceTuple(const LLUUID& folder_id, std::string list
 // Data map
 LLMarketplaceData::LLMarketplaceData()
 {
+    mTestCurrentMarketplaceID = 1234567;
 }
 
 // Creation / Deletion
@@ -573,6 +574,12 @@ bool LLMarketplaceData::addListing(const LLUUID& folder_id)
         return false;
     }
 	mMarketplaceItems[folder_id] = LLMarketplaceTuple(folder_id);
+    
+    // *TODO : Create the listing on SLM and get the ID (blocking?)
+    // For the moment, we use that wonky test ID generator...
+    std::string listing_id = llformat ("%d", LLMarketplaceData::instance().getTestMarketplaceID());
+    
+    setListingID(folder_id,listing_id);
     update_marketplace_category(folder_id);
     return true;
 }

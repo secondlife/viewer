@@ -5,7 +5,7 @@
   follows="all"
   layout="topleft"
   width="308"
-  height="375">
+  height="440">
   <panel
     name="tool_panel"
     follows="left|top|right"
@@ -59,7 +59,7 @@
     layout="topleft"
     default_tab_group="1"
     width="308"
-    height="340">
+    height="400">
   <tab_container
     name="marketplace_filter_tabs"
     follows="all"
@@ -68,7 +68,7 @@
     left="0"
     top_pad="0"
     width="308"
-    height="340"
+    height="400"
     halign="center"
     tab_height="30"
     tab_group="1"
@@ -81,7 +81,7 @@
       layout="topleft"
       follows="all"
       width="308"
-      height="310"
+      height="370"
       top="16"
       left="0"
       start_folder.name="Marketplace listings"
@@ -98,13 +98,13 @@
       show_item_link_overlays="true">
     </inventory_panel>
     <inventory_panel
-      label="ACTIVE"
+      label="LISTED"
       name="Active Items"
       help_topic="marketplace_tab"
       layout="topleft"
       follows="all"
       width="308"
-      height="310"
+      height="370"
       left_delta="0"
       start_folder.name="Marketplace listings"
       show_empty_message="false"
@@ -118,13 +118,13 @@
       show_item_link_overlays="true">
     </inventory_panel>
     <inventory_panel
-      label="INACTIVE"
+      label="UNLISTED"
       name="Inactive Items"
       help_topic="marketplace_tab"
       layout="topleft"
       follows="all"
       width="308"
-      height="310"
+      height="370"
       left_delta="0"
       start_folder.name="Marketplace listings"
       show_empty_message="false"
@@ -144,7 +144,7 @@
       layout="topleft"
       follows="all"
       width="308"
-      height="310"
+      height="370"
       left_delta="0"
       start_folder.name="Marketplace listings"
       show_empty_message="false"
