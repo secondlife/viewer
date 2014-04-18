@@ -153,6 +153,7 @@ public:
     
     // Create/Delete Marketplace data set  : each method returns true if the function succeeds, false if error
     bool addListing(const LLUUID& folder_id);
+    bool associateListing(const LLUUID& folder_id, std::string listing_id);
     bool deleteListing(const LLUUID& folder_id);
 
     // Access Marketplace data set  : each method returns a default value if the folder_id can't be found
@@ -160,6 +161,7 @@ public:
     std::string getListingID(const LLUUID& folder_id);
     LLUUID getVersionFolderID(const LLUUID& folder_id);
     std::string getListingURL(const LLUUID& folder_id);
+    LLUUID getListingFolder(std::string listing_id);
     
     // Modify Marketplace data set  : each method returns true if the function succeeds, false if error
     bool setListingID(const LLUUID& folder_id, std::string listing_id);

@@ -40,6 +40,7 @@
 #include "llfavoritesbar.h" // management of favorites folder
 #include "llfloateropenobject.h"
 #include "llfloaterreg.h"
+#include "llfloatermarketplacelistings.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfloaterworldmap.h"
 #include "llfolderview.h"
@@ -3209,8 +3210,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
     }
 	else if ("marketplace_associate_listing" == action)
 	{
-        // *TODO : Get a list of listing IDs and let the user choose one, delist the old one and relist the new one
-        LLMarketplaceData::instance().addListing(mUUID);
+        LLFloaterAssociateListing::show(mUUID);
 		return;
 	}
 	else if ("marketplace_edit_listing" == action)

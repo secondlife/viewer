@@ -510,4 +510,69 @@ void LLFloaterMarketplaceListings::importReportResults(U32 status, const LLSD& c
 	updateView();
 }
 
+//-----------------------------------------------------------------------------
+// LLFloaterAssociateListing()
+//-----------------------------------------------------------------------------
+
+LLFloaterAssociateListing::LLFloaterAssociateListing(const LLSD& key)
+: LLFloater(key)
+, mUUID()
+{
+}
+
+LLFloaterAssociateListing::~LLFloaterAssociateListing()
+{
+	gFocusMgr.releaseFocusIfNeeded( this );
+}
+
+BOOL LLFloaterAssociateListing::postBuild()
+{
+	getChild<LLButton>("OK")->setCommitCallback(boost::bind(&LLFloaterAssociateListing::apply, this));
+	getChild<LLButton>("Cancel")->setCommitCallback(boost::bind(&LLFloaterAssociateListing::cancel, this));
+	center();
+    
+	return LLFloater::postBuild();
+}
+
+BOOL LLFloaterAssociateListing::handleKeyHere(KEY key, MASK mask)
+{
+	if (key == KEY_RETURN && mask == MASK_NONE)
+	{
+		apply();
+		return TRUE;
+	}
+	else if (key == KEY_ESCAPE && mask == MASK_NONE)
+	{
+		cancel();
+		return TRUE;
+	}
+    
+	return LLFloater::handleKeyHere(key, mask);
+}
+
+// static
+LLFloaterAssociateListing* LLFloaterAssociateListing::show(const LLUUID& folder_id)
+{
+	LLFloaterAssociateListing* floater = LLFloaterReg::showTypedInstance<LLFloaterAssociateListing>("associate_listing");
+    
+	floater->mUUID = folder_id;
+        
+	return floater;
+}
+
+void LLFloaterAssociateListing::apply()
+{
+	if (mUUID.notNull())
+	{
+		const std::string& id = getChild<LLUICtrl>("listing_id")->getValue().asString();
+        LLMarketplaceData::instance().associateListing(mUUID,id);
+	}
+	closeFloater();
+}
+
+void LLFloaterAssociateListing::cancel()
+{
+	closeFloater();
+}
+
 

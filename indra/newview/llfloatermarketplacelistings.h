@@ -122,4 +122,28 @@ private:
 	LLPanelMarketplaceListings * mPanelListings;
 };
 
+
+//-----------------------------------------------------------------------------
+// LLFloaterAssociateListing()
+//-----------------------------------------------------------------------------
+class LLFloaterAssociateListing : public LLFloater
+{
+	friend class LLFloaterReg;
+public:
+	virtual BOOL postBuild();
+	virtual BOOL handleKeyHere(KEY key, MASK mask);
+    
+	static LLFloaterAssociateListing* show(const LLUUID& folder_id);
+    
+private:
+	LLFloaterAssociateListing(const LLSD& key);
+	virtual ~LLFloaterAssociateListing();
+    
+	// UI Callbacks
+	void apply();
+	void cancel();
+    
+	LLUUID mUUID;
+};
+
 #endif // LL_LLFLOATERMARKETPLACELISTINGS_H

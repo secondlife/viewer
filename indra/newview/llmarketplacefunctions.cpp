@@ -584,6 +584,28 @@ bool LLMarketplaceData::addListing(const LLUUID& folder_id)
     return true;
 }
 
+bool LLMarketplaceData::associateListing(const LLUUID& folder_id, std::string listing_id)
+{
+    if (isListed(folder_id))
+    {
+        // Listing already exists -> exit with error
+        return false;
+    }
+	mMarketplaceItems[folder_id] = LLMarketplaceTuple(folder_id);
+    
+    // Check that the listing ID is not already associated to some other record
+    LLUUID old_listing = getListingFolder(listing_id);
+    if (old_listing.notNull())
+    {
+        // If it is already used, unlist the old record (we can't have 2 listings with the same listing ID)
+        deleteListing(old_listing);
+    }
+    
+    setListingID(folder_id,listing_id);
+    update_marketplace_category(folder_id);
+    return true;
+}
+
 bool LLMarketplaceData::deleteListing(const LLUUID& folder_id)
 {
     if (!isListed(folder_id))
@@ -628,6 +650,21 @@ LLUUID LLMarketplaceData::getVersionFolderID(const LLUUID& folder_id)
 {
     marketplace_items_list_t::iterator it = mMarketplaceItems.find(folder_id);
     return (it == mMarketplaceItems.end() ? LLUUID::null : (it->second).mVersionFolderId);
+}
+
+// Reverse lookup : find the listing folder id from the listing id
+LLUUID LLMarketplaceData::getListingFolder(std::string listing_id)
+{
+    marketplace_items_list_t::iterator it = mMarketplaceItems.begin();
+    while (it != mMarketplaceItems.end())
+    {
+        if ((it->second).mListingId == listing_id)
+        {
+            return (it->second).mListingFolderId;
+        }
+        it++;
+    }
+    return LLUUID::null;
 }
 
 bool LLMarketplaceData::isListed(const LLUUID& folder_id)
