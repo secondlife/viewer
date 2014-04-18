@@ -863,13 +863,21 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
         {
 			disabled_items.push_back(std::string("Marketplace Create Listing"));
 			disabled_items.push_back(std::string("Marketplace Associate Listing"));
-            if (LLMarketplaceData::instance().getActivationState(mUUID))
+            if (LLMarketplaceData::instance().getVersionFolderID(mUUID).isNull())
             {
                 disabled_items.push_back(std::string("Marketplace List"));
+                disabled_items.push_back(std::string("Marketplace Unlist"));
             }
             else
             {
-                disabled_items.push_back(std::string("Marketplace Unlist"));
+                if (LLMarketplaceData::instance().getActivationState(mUUID))
+                {
+                    disabled_items.push_back(std::string("Marketplace List"));
+                }
+                else
+                {
+                    disabled_items.push_back(std::string("Marketplace Unlist"));
+                }
             }
         }
         else
@@ -890,6 +898,10 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
             if (LLMarketplaceData::instance().isVersionFolder(mUUID))
             {
                 disabled_items.push_back(std::string("Marketplace Activate"));
+                if (LLMarketplaceData::instance().getActivationState(mUUID))
+                {
+                    disabled_items.push_back(std::string("Marketplace Deactivate"));
+                }
             }
             else
             {
@@ -2175,6 +2187,11 @@ BOOL LLFolderBridge::isItemRemovable() const
 			return FALSE;
 		}
 	}
+    
+    if (isMarketplaceListingsFolder() && LLMarketplaceData::instance().getActivationState(mUUID))
+    {
+        return FALSE;
+    }
 
 	return TRUE;
 }
