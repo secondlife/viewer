@@ -39,6 +39,7 @@
 #include "indra_constants.h"
 
 #include <OpenGL/OpenGL.h>
+#include <Carbon/Carbon.h>
 #include <CoreServices/CoreServices.h>
 
 extern BOOL gDebugWindowProc;
@@ -1743,15 +1744,39 @@ LLSD LLWindowMacOSX::getNativeKeyData()
 	return result;
 }
 
-
 BOOL LLWindowMacOSX::dialogColorPicker( F32 *r, F32 *g, F32 *b)
 {
-	// Is this even used anywhere?  Do we really need an OS color picker?
 	BOOL	retval = FALSE;
-	//S32		error = 0;
+	OSErr	error = noErr;
+	NColorPickerInfo	info;
+	
+	memset(&info, 0, sizeof(info));
+	info.theColor.color.rgb.red = (UInt16)(*r * 65535.f);
+	info.theColor.color.rgb.green = (UInt16)(*g * 65535.f);
+	info.theColor.color.rgb.blue = (UInt16)(*b * 65535.f);
+	info.placeWhere = kCenterOnMainScreen;
+	
+	if(gWindowImplementation != NULL)
+		gWindowImplementation->beforeDialog();
+	
+	error = NPickColor(&info);
+	
+	if(gWindowImplementation != NULL)
+		gWindowImplementation->afterDialog();
+	
+	if (error == noErr)
+	{
+		retval = info.newColorChosen;
+		if (info.newColorChosen)
+		{
+			*r = ((float) info.theColor.color.rgb.red) / 65535.0;
+			*g = ((float) info.theColor.color.rgb.green) / 65535.0;
+			*b = ((float) info.theColor.color.rgb.blue) / 65535.0;
+		}
+	}
+
 	return (retval);
 }
-
 
 void *LLWindowMacOSX::getPlatformWindow()
 {
