@@ -176,13 +176,14 @@ void update_marketplace_category(const LLUUID& cat_id)
         if (version_folder_uuid.notNull() && !gInventory.isObjectDescendentOf(version_folder_uuid, listing_uuid))
         {
             // *TODO : Confirm with Producer that this is what we want to happen in that case!
-            llinfos << "Merov : Delisting as the version folder is not under the listing folder anymore!!" << llendl;
-            LLMarketplaceData::instance().deleteListing(listing_uuid);
+            llinfos << "Merov : Unlist as the version folder is not under the listing folder anymore!!" << llendl;
+            LLMarketplaceData::instance().setVersionFolderID(listing_uuid, LLUUID::null);
+            LLMarketplaceData::instance().setActivation(listing_uuid, false);
         }
         if (!gInventory.isObjectDescendentOf(listing_uuid, marketplace_listings_uuid))
         {
             // *TODO : Confirm with Producer that this is what we want to happen in that case!
-            llinfos << "Merov : Delisting as the listing folder is not under the marketplace folder anymore!!" << llendl;
+            llinfos << "Merov : Disassociate as the listing folder is not under the marketplace folder anymore!!" << llendl;
             LLMarketplaceData::instance().deleteListing(listing_uuid);
         }
     }
