@@ -1755,14 +1755,8 @@ BOOL LLWindowMacOSX::dialogColorPicker( F32 *r, F32 *g, F32 *b)
 	info.theColor.color.rgb.green = (UInt16)(*g * 65535.f);
 	info.theColor.color.rgb.blue = (UInt16)(*b * 65535.f);
 	info.placeWhere = kCenterOnMainScreen;
-	
-	if(gWindowImplementation != NULL)
-		gWindowImplementation->beforeDialog();
-	
+
 	error = NPickColor(&info);
-	
-	if(gWindowImplementation != NULL)
-		gWindowImplementation->afterDialog();
 	
 	if (error == noErr)
 	{
