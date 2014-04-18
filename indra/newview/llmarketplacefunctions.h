@@ -158,7 +158,6 @@ public:
     // Access Marketplace data set  : each method returns a default value if the folder_id can't be found
     bool getActivationState(const LLUUID& folder_id);
     std::string getListingID(const LLUUID& folder_id);
-    std::string getListingName(const LLUUID& folder_id);
     LLUUID getVersionFolderID(const LLUUID& folder_id);
     std::string getListingURL(const LLUUID& folder_id);
     

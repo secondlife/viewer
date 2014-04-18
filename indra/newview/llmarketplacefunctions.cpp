@@ -624,18 +624,6 @@ std::string LLMarketplaceData::getListingID(const LLUUID& folder_id)
     return (it == mMarketplaceItems.end() ? "" : (it->second).mListingId);
 }
 
-std::string LLMarketplaceData::getListingName(const LLUUID& folder_id)
-{
-    std::string listing_name = "";
-    marketplace_items_list_t::iterator it = mMarketplaceItems.find(folder_id);
-    if (it != mMarketplaceItems.end())
-    {
-        // *TODO : Call the MKT API to get the name of a listing
-        llinfos << "Merov : Marketplace warning : No API to get Listing name for : " << folder_id << llendl;
-    }
-    return listing_name;
-}
-
 LLUUID LLMarketplaceData::getVersionFolderID(const LLUUID& folder_id)
 {
     marketplace_items_list_t::iterator it = mMarketplaceItems.find(folder_id);
@@ -665,17 +653,16 @@ bool LLMarketplaceData::isVersionFolder(const LLUUID& folder_id)
 std::string LLMarketplaceData::getListingURL(const LLUUID& folder_id)
 {
     // Get the listing id (i.e. go up the hierarchy to find the listing folder
-    // URL format will be something like : https://marketplace.secondlife.com/p/<listing_name>/<listing_id>
+    // URL format will be something like : https://marketplace.secondlife.com/p/listing/<listing_id>
 	std::string marketplace_url = getMarketplaceURL("MarketplaceURL");
     
     S32 depth = depth_nesting_in_marketplace(folder_id);
     LLUUID listing_uuid = nested_parent_id(folder_id, depth);
-    std::string listing_name = getListingName(listing_uuid);
     std::string listing_id = getListingID(listing_uuid);
     
-    if (!listing_name.empty() && !listing_id.empty())
+    if (!listing_id.empty())
     {
-        marketplace_url += "p/" + listing_name + "/" + listing_id;
+        marketplace_url += "p/listing/" + listing_id;
     }
     return marketplace_url;
 }
