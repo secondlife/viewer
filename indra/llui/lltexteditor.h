@@ -208,7 +208,6 @@ public:
 
 	const LLTextSegmentPtr	getPreviousSegment() const;
 	void			getSelectedSegments(segment_vec_t& segments) const;
-	void			clearSegments();
 
 	void			setShowContextMenu(bool show) { mShowContextMenu = show; }
 	bool			getShowContextMenu() const { return mShowContextMenu; }

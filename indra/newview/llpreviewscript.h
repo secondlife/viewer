@@ -39,7 +39,7 @@
 
 class LLLiveLSLFile;
 class LLMessageSystem;
-class LLTextEditor;
+class LLScriptEditor;
 class LLButton;
 class LLCheckBoxCtrl;
 class LLScrollListCtrl;
@@ -140,7 +140,7 @@ protected:
 
 private:
 	std::string		mSampleText;
-	LLTextEditor*	mEditor;
+	LLScriptEditor*	mEditor;
 	void			(*mLoadCallback)(void* userdata);
 	void			(*mSaveCallback)(void* userdata, BOOL close_after_save);
 	void			(*mSearchReplaceCallback) (void* userdata);

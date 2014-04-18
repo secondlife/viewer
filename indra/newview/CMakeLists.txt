@@ -494,6 +494,7 @@ set(viewer_SOURCE_FILES
     llsaveoutfitcombobtn.cpp
     llsceneview.cpp
     llscreenchannel.cpp
+    llscripteditor.cpp
     llscriptfloater.cpp
     llscrollingpanelparam.cpp
     llscrollingpanelparambase.cpp
@@ -1074,6 +1075,7 @@ set(viewer_HEADER_FILES
     llsaveoutfitcombobtn.h
     llsceneview.h
     llscreenchannel.h
+    llscripteditor.h
     llscriptfloater.h
     llscrollingpanelparam.h
     llscrollingpanelparambase.h

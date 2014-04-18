@@ -69,6 +69,7 @@
 #include "llkeyboard.h"
 #include "llscrollcontainer.h"
 #include "llcheckboxctrl.h"
+#include "llscripteditor.h"
 #include "llselectmgr.h"
 #include "lltooldraganddrop.h"
 #include "llscrolllistctrl.h"
@@ -77,7 +78,6 @@
 #include "lldir.h"
 #include "llcombobox.h"
 #include "llviewerstats.h"
-#include "llviewertexteditor.h"
 #include "llviewerwindow.h"
 #include "lluictrlfactory.h"
 #include "llmediactrl.h"
@@ -399,7 +399,7 @@ BOOL LLScriptEdCore::postBuild()
 
 	childSetCommitCallback("Insert...", &LLScriptEdCore::onBtnInsertFunction, this);
 
-	mEditor = getChild<LLViewerTextEditor>("Script Editor");
+	mEditor = getChild<LLScriptEditor>("Script Editor");
 
 	childSetCommitCallback("lsl errors", &LLScriptEdCore::onErrorList, this);
 	childSetAction("Save_btn", boost::bind(&LLScriptEdCore::doSave,this,FALSE));

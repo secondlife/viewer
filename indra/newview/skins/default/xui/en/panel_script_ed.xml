@@ -148,7 +148,7 @@
              name="Keyword Help..." />
         </menu>
     </menu_bar>
-    <text_editor
+    <script_editor
     left="0"
      type="string"
      length="1"
@@ -165,7 +165,7 @@
      enable_tooltip_paste="true"
      word_wrap="true">
         Loading...
-    </text_editor>
+    </script_editor>
     <scroll_list
     top_pad="10"
     left="0"

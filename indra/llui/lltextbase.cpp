@@ -923,7 +923,6 @@ void LLTextBase::createDefaultSegment()
 	// ensures that there is always at least one segment
 	if (mSegments.empty())
 	{
-		
 		LLStyleConstSP sp(new LLStyle(getStyleParams()));
 		LLTextSegmentPtr default_segment = new LLNormalTextSegment( sp, 0, getLength() + 1, *this);
 		mSegments.insert(default_segment);
