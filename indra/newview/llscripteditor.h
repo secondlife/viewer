@@ -1,5 +1,5 @@
 /**
- * @file llecripteditor.h
+ * @file llscripteditor.h
  * @author Cinder Roxley
  * @brief Text editor widget used for viewing and editing scripts
  *
