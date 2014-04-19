@@ -32,6 +32,8 @@
 #include "llinventoryfilter.h"
 #include "llinventorypanel.h"
 #include "llnotificationptr.h"
+#include "llmodaldialog.h"
+#include "lltexteditor.h"
 
 class LLInventoryCategoriesObserver;
 class LLInventoryCategoryAddedObserver;
@@ -122,9 +124,8 @@ private:
 	LLPanelMarketplaceListings * mPanelListings;
 };
 
-
 //-----------------------------------------------------------------------------
-// LLFloaterAssociateListing()
+// LLFloaterAssociateListing
 //-----------------------------------------------------------------------------
 class LLFloaterAssociateListing : public LLFloater
 {
@@ -144,6 +145,30 @@ private:
 	void cancel();
     
 	LLUUID mUUID;
+};
+
+//-----------------------------------------------------------------------------
+// LLFloaterMarketplaceValidation
+//-----------------------------------------------------------------------------
+// Note: For the moment, we just display the validation text. Eventually, we should
+// get the validation triggered on the server and display the html report.
+// *TODO : morph into an html/text window using the pattern in llfloatertos
+
+class LLFloaterMarketplaceValidation : public LLModalDialog
+{
+public:
+	LLFloaterMarketplaceValidation(const LLSD& data);
+	virtual ~LLFloaterMarketplaceValidation();
+    
+	BOOL postBuild();
+	
+	virtual void draw();
+    
+	static void		onContinue( void* userdata );
+        
+private:
+	std::string		mMessage;
+    LLTextEditor*	mEditor;
 };
 
 #endif // LL_LLFLOATERMARKETPLACELISTINGS_H

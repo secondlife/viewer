@@ -115,6 +115,8 @@ void LLPanelMarketplaceListings::onAuditButtonClicked()
 	llassert(marketplacelistings_id.notNull());
     LLViewerInventoryCategory* cat = gInventory.getCategory(marketplacelistings_id);
     validate_marketplacelistings(cat);
+    LLSD data(LLSD::emptyMap());
+    LLFloaterReg::showInstance("marketplace_validation", data);
 }
 
 void LLPanelMarketplaceListings::onViewSortMenuItemClicked(const LLSD& userdata)
@@ -511,7 +513,7 @@ void LLFloaterMarketplaceListings::importReportResults(U32 status, const LLSD& c
 }
 
 //-----------------------------------------------------------------------------
-// LLFloaterAssociateListing()
+// LLFloaterAssociateListing
 //-----------------------------------------------------------------------------
 
 LLFloaterAssociateListing::LLFloaterAssociateListing(const LLSD& key)
@@ -574,5 +576,52 @@ void LLFloaterAssociateListing::cancel()
 {
 	closeFloater();
 }
+
+//-----------------------------------------------------------------------------
+// LLFloaterMarketplaceValidation
+//-----------------------------------------------------------------------------
+
+LLFloaterMarketplaceValidation::LLFloaterMarketplaceValidation(const LLSD& data)
+:	LLModalDialog( data["message"].asString() ),
+mMessage(data["message"].asString()),
+mEditor(NULL)
+{
+}
+
+BOOL LLFloaterMarketplaceValidation::postBuild()
+{
+	childSetAction("Continue", onContinue, this);
+	
+    // this displays the message
+    mEditor = getChild<LLTextEditor>("tos_text");
+    mEditor->setEnabled( FALSE );
+    mEditor->setFocus(TRUE);
+    mEditor->setValue(LLSD(mMessage));
+        
+	return TRUE;
+}
+
+LLFloaterMarketplaceValidation::~LLFloaterMarketplaceValidation()
+{
+}
+
+// virtual
+void LLFloaterMarketplaceValidation::draw()
+{
+	// draw children
+	LLModalDialog::draw();
+}
+
+// static
+void LLFloaterMarketplaceValidation::onContinue( void* userdata )
+{
+	LLFloaterMarketplaceValidation* self = (LLFloaterMarketplaceValidation*) userdata;
+    
+	// destroys this object
+	self->closeFloater();
+}
+
+
+
 
 
