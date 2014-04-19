@@ -416,8 +416,16 @@ void LLFloaterExperiencePicker::filterContent()
 	if (search_results->isEmpty())
 	{
 		LLStringUtil::format_map_t map;
-		map["[TEXT]"] = childGetText(TEXT_EDIT);
-		getChild<LLScrollListCtrl>(LIST_RESULTS)->setCommentText(getString("not_found", map));
+		std::string search_text = childGetText(TEXT_EDIT);
+		map["[TEXT]"] = search_text;
+		if (search_text.empty())
+		{
+			getChild<LLScrollListCtrl>(LIST_RESULTS)->setCommentText(getString("no_results"));
+		}
+		else
+		{
+			getChild<LLScrollListCtrl>(LIST_RESULTS)->setCommentText(getString("not_found", map));
+		}
 		search_results->setEnabled(false);
 		getChildView(BTN_OK)->setEnabled(false);
 		getChildView(BTN_PROFILE)->setEnabled(false);
