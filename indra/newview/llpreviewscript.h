@@ -77,7 +77,6 @@ protected:
 public:
 	~LLScriptEdCore();
 	
-	void			clearHighlights();
 	void			initialiseKeywords();
 	void			initMenu();
 	void			processKeywords();

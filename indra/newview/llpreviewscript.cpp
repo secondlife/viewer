@@ -433,7 +433,7 @@ void LLScriptEdCore::updateKeywords()
 {
 	if (mLive)
 	{
-		clearHighlights();
+		mEditor->clearSegments();
 		mRegionChangedCallback.disconnect();
 	}
 	else
@@ -456,11 +456,6 @@ void LLScriptEdCore::processLoaded()
 	}
 }
 
-void LLScriptEdCore::clearHighlights()
-{
-	mEditor->clearSegments();
-}
-
 void LLScriptEdCore::processKeywords()
 {
 	if (mSyntaxIdLSL.isLoaded())
@@ -468,7 +463,7 @@ void LLScriptEdCore::processKeywords()
 		LL_INFOS("SyntaxLSL")
 				<< "Hashes are different, updating highlighter." << LL_ENDL;
 
-		clearHighlights();
+		mEditor->clearSegments();
 
 		if (mSyntaxIdLSL.isLoaded())
 		{
