@@ -25,10 +25,8 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef LLSYSNTAXIDLSL_H
-#define LLSYSNTAXIDLSL_H
-
-#endif // LLSYSNTAXIDLSL_H
+#ifndef LL_SYNTAXID_H
+#define LL_SYNTAXID_H
 
 #include "llviewerprecompiledheaders.h"
 
@@ -144,3 +142,5 @@ public:
 	 */
 	void cacheFile(const LLSD& content_ref);
 };
+
+#endif // LLSYNTAXID_H
