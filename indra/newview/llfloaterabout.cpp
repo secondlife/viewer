@@ -270,14 +270,9 @@ void LLFloaterAbout::setSupportText(const std::string& server_release_notes_url)
 		getChild<LLViewerTextEditor>("support_editor", true);
 
 	LLUIColor about_color = LLUIColorTable::instance().getColor("TextFgReadOnlyColor");
-#   if 0
 	support_widget->clear();
 	support_widget->appendText(LLAppViewer::instance()->getViewerInfoString(),
 							   FALSE, LLStyle::Params() .color(about_color));
-#   else
-	support_widget->setText(LLAppViewer::instance()->getViewerInfoString(),
-							LLStyle::Params() .color(about_color));
-#   endif
 }
 
 ///----------------------------------------------------------------------------
