@@ -53,7 +53,7 @@ public:
 	 * - TT_TWO_SIDED_DELIMITER are for delimiters that end with a different delimiter than they open with.
 	 * - TT_DOUBLE_QUOTATION_MARKS are for delimiting areas using the same delimiter to open and close.
 	 */
-	enum TOKEN_TYPE
+	typedef enum e_token_type
 	{
 		TT_UNKNOWN,
 		TT_WORD,
@@ -69,9 +69,9 @@ public:
 		TT_LABEL,							// LINE
 		TT_SECTION,							// WORD
 		TT_TYPE								// WORD
-	};
+	} ETokenType;
 
-	LLKeywordToken( TOKEN_TYPE type, const LLColor4& color, const LLWString& token, const LLWString& tool_tip, const LLWString& delimiter  )
+	LLKeywordToken( ETokenType type, const LLColor4& color, const LLWString& token, const LLWString& tool_tip, const LLWString& delimiter  )
 		:
 		mType( type ),
 		mToken( token ),
@@ -87,7 +87,7 @@ public:
 	bool				isTail(const llwchar* s) const;
 	const LLWString&	getToken() const		{ return mToken; }
 	const LLColor4&		getColor() const		{ return mColor; }
-	TOKEN_TYPE			getType()  const		{ return mType; }
+	ETokenType			getType()  const		{ return mType; }
 	const LLWString&	getToolTip() const		{ return mToolTip; }
 	const LLWString&	getDelimiter() const	{ return mDelimiter; }
 
@@ -96,7 +96,7 @@ public:
 #endif
 
 private:
-	TOKEN_TYPE	mType;
+	ETokenType	mType;
 	LLWString	mToken;
 	LLColor4	mColor;
 	LLWString	mToolTip;
@@ -119,7 +119,7 @@ public:
 	void		processTokens();
 
 	// Add the token as described
-	void addToken(LLKeywordToken::TOKEN_TYPE type,
+	void addToken(LLKeywordToken::ETokenType type,
 					const std::string& key,
 					const LLColor4& color,
 					const std::string& tool_tip = LLStringUtil::null,

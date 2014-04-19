@@ -30,7 +30,6 @@
 #define LL_LLTEXTEDITOR_H
 
 #include "llrect.h"
-#include "llkeywords.h"
 #include "llframetimer.h"
 #include "lldarray.h"
 #include "llstyle.h"
@@ -45,7 +44,6 @@
 
 class LLFontGL;
 class LLScrollbar;
-class LLKeywordToken;
 class TextCmd;
 class LLUICtrlFactory;
 class LLScrollContainer;
@@ -188,14 +186,6 @@ public:
 
 	void			getCurrentLineAndColumn( S32* line, S32* col, BOOL include_wordwrap );
 
-	LLKeywords		mKeywords;
-	void			loadKeywords();
-	LLKeywords::keyword_iterator_t keywordsBegin()	{ return mKeywords.begin(); }
-	LLKeywords::keyword_iterator_t keywordsEnd()	{ return mKeywords.end(); }
-
-	void			loadKeywords(const std::string& filename_keywords,
-								const std::string& filename_colors);
-
 	// Hacky methods to make it into a word-wrapping, potentially scrolling,
 	// read-only text box.
 	void			setCommitOnFocusLost(BOOL b)			{ mCommitOnFocusLost = b; }
@@ -293,8 +283,8 @@ protected:
 
 	BOOL				mShowLineNumbers;
 	bool				mAutoIndent;
+	bool				mParseOnTheFly;
 
-	/*virtual*/ void	updateSegments();
 	void				updateLinkSegments();
 
 private:
@@ -331,7 +321,6 @@ private:
 
 	BOOL			mAllowEmbeddedItems;
 	bool			mShowContextMenu;
-	bool			mParseOnTheFly;
 	bool			mEnableTooltipPaste;
 	bool			mPassDelete;
 
@@ -351,4 +340,4 @@ extern template class LLTextEditor* LLView::getChild<class LLTextEditor>(
 	const std::string& name, BOOL recurse) const;
 #endif
 
-#endif  // LL_TEXTEDITOR_
+#endif  // LL_TEXTEDITOR_H

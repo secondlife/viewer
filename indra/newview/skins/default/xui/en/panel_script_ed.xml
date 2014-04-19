@@ -161,7 +161,6 @@
      name="Script Editor"
      text_readonly_color="DkGray"
      width="487"
-     show_line_numbers="true" 
      enable_tooltip_paste="true"
      word_wrap="true">
         Loading...

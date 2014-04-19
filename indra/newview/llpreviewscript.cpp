@@ -472,8 +472,7 @@ void LLScriptEdCore::processKeywords()
 
 		if (mSyntaxIdLSL.isLoaded())
 		{
-			mEditor->mKeywords.initialise(mSyntaxIdLSL.getKeywordsXML());
-
+			mEditor->initKeywords();
 			mEditor->loadKeywords();
 
 			std::vector<std::string> primary_keywords;

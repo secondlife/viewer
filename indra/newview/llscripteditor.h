@@ -41,11 +41,21 @@ public:
 	};
 	
 	virtual ~LLScriptEditor() {};
-	void clearSegments();
+	void	initKeywords();
+	void	loadKeywords();
+	void	clearSegments();
+	LLKeywords::keyword_iterator_t keywordsBegin()	{ return mKeywords.begin(); }
+	LLKeywords::keyword_iterator_t keywordsEnd()	{ return mKeywords.end(); }
 	
 protected:
 	LLScriptEditor(const Params& p);
-
+	
+private:
+	void	updateSegments();
+	void	loadKeywords(const std::string& filename_keywords,
+						 const std::string& filename_colors);
+	
+	LLKeywords	mKeywords;
 };
 
 #endif // LL_SCRIPTEDITOR_H

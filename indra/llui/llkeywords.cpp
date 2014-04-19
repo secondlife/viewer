@@ -89,7 +89,7 @@ void LLKeywords::addColorGroup(const std::string key_in, const LLColor4 color)
 }
 
 // Add the token as described
-void LLKeywords::addToken(LLKeywordToken::TOKEN_TYPE type,
+void LLKeywords::addToken(LLKeywordToken::ETokenType type,
 						  const std::string& key_in,
 						  const LLColor4& color,
 						  const std::string& tool_tip_in,
@@ -300,7 +300,7 @@ void LLKeywords::processTokensGroup(LLSD& Tokens, const std::string Group)
 	LLColor4 ColorDeprecated = getColorGroup("deprecated");
 	LLColor4 ColorGM = getColorGroup("god-mode");
 
-	LLKeywordToken::TOKEN_TYPE token_type = LLKeywordToken::TT_UNKNOWN;
+	LLKeywordToken::ETokenType token_type = LLKeywordToken::TT_UNKNOWN;
 	// If a new token type is added here, it must also be added to the 'addToken' method
 	if (Group == "constants")
 	{
@@ -633,7 +633,7 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
 					seg_start = cur - base;
 					cur += cur_delimiter->getLengthHead();
 
-					LLKeywordToken::TOKEN_TYPE type = cur_delimiter->getType();
+					LLKeywordToken::ETokenType type = cur_delimiter->getType();
 					if( type == LLKeywordToken::TT_TWO_SIDED_DELIMITER || type == LLKeywordToken::TT_DOUBLE_QUOTATION_MARKS )
 					{
 						while( *cur && !cur_delimiter->isTail(cur))

@@ -28,6 +28,8 @@
 #include "linden_common.h"
 #include "llscripteditor.h"
 
+#include "llsyntaxid.h"
+
 static LLDefaultChildRegistry::Register<LLScriptEditor> r("script_editor");
 
 LLScriptEditor::LLScriptEditor::Params::Params()
@@ -40,6 +42,48 @@ LLScriptEditor::LLScriptEditor(const Params& p)
 :	LLTextEditor(p)
 {
 	
+}
+
+void LLScriptEditor::initKeywords()
+{
+	mKeywords.initialise(LLSyntaxIdLSL::getInstance()->getKeywordsXML());
+}
+
+static LLFastTimer::DeclareTimer FTM_SYNTAX_HIGHLIGHTING("Syntax Highlighting");
+
+void LLScriptEditor::loadKeywords()
+{
+	LLFastTimer ft(FTM_SYNTAX_HIGHLIGHTING);
+	mKeywords.processTokens();
+	
+	segment_vec_t segment_list;
+	mKeywords.findSegments(&segment_list, getWText(), mDefaultColor.get(), *this);
+	
+	mSegments.clear();
+	segment_set_t::iterator insert_it = mSegments.begin();
+	for (segment_vec_t::iterator list_it = segment_list.begin(); list_it != segment_list.end(); ++list_it)
+	{
+		insert_it = mSegments.insert(insert_it, *list_it);
+	}
+}
+
+void LLScriptEditor::updateSegments()
+{
+	if (mReflowIndex < S32_MAX && mKeywords.isLoaded() && mParseOnTheFly)
+	{
+		LLFastTimer ft(FTM_SYNTAX_HIGHLIGHTING);
+		// HACK:  No non-ascii keywords for now
+		segment_vec_t segment_list;
+		mKeywords.findSegments(&segment_list, getWText(), mDefaultColor.get(), *this);
+		
+		clearSegments();
+		for (segment_vec_t::iterator list_it = segment_list.begin(); list_it != segment_list.end(); ++list_it)
+		{
+			insertSegment(*list_it);
+		}
+	}
+	
+	LLTextBase::updateSegments();
 }
 
 void LLScriptEditor::clearSegments()
