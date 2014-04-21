@@ -54,7 +54,7 @@ public:
 	LLFloaterOutbox(const LLSD& key);
 	~LLFloaterOutbox();
 	
-	void setupOutbox(const LLUUID& outboxId);
+	void initializeMarketPlace();
 
 	// virtuals
 	BOOL postBuild();
@@ -70,6 +70,8 @@ public:
 	void onMouseLeave(S32 x, S32 y, MASK mask);
 
 protected:
+	void setupOutbox();
+    void cleanOutbox();
 	void fetchOutboxContents();
 
 	void importReportResults(U32 status, const LLSD& content);
@@ -104,7 +106,7 @@ private:
 	LLTextBox *		mInventoryTitle;
 	
 	LLUUID				mOutboxId;
-	LLInventoryPanel *	mOutboxInventoryPanel;
+	LLHandle<LLInventoryPanel> mOutboxInventoryPanel;
 	U32					mOutboxItemCount;
 	LLPanel *			mOutboxTopLevelDropZone;
 	
