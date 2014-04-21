@@ -3317,10 +3317,15 @@ LLUIImagePtr LLFolderBridge::getIcon() const
 {
 	LLFolderType::EType preferred_type = LLFolderType::FT_NONE;
 	LLViewerInventoryCategory* cat = getCategory();
-	if(cat)
+	if (cat)
 	{
 		preferred_type = cat->getPreferredType();
 	}
+    if ((preferred_type == LLFolderType::FT_NONE) && (depth_nesting_in_marketplace(mUUID) == 2))
+    {
+        // We override the type when in the marketplace listings folder and only for version folder
+        preferred_type = LLFolderType::FT_MARKETPLACE_VERSION;
+    }
 	return getIcon(preferred_type);
 }
 
@@ -3332,7 +3337,13 @@ LLUIImagePtr LLFolderBridge::getIcon(LLFolderType::EType preferred_type)
 
 LLUIImagePtr LLFolderBridge::getIconOpen() const
 {
-	return LLUI::getUIImage(LLViewerFolderType::lookupIconName(getPreferredType(), TRUE));
+	LLFolderType::EType preferred_type = getPreferredType();
+    if ((preferred_type == LLFolderType::FT_NONE) && (depth_nesting_in_marketplace(mUUID) == 2))
+    {
+        // We override the type when in the marketplace listings folder and only for version folder
+        preferred_type = LLFolderType::FT_MARKETPLACE_VERSION;
+    }
+	return LLUI::getUIImage(LLViewerFolderType::lookupIconName(preferred_type, TRUE));
 
 }
 

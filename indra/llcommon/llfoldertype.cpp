@@ -99,6 +99,7 @@ LLFolderDictionary::LLFolderDictionary()
 
 	addEntry(LLFolderType::FT_MARKETPLACE_LISTINGS, new FolderEntry("merchant", FALSE));
 	addEntry(LLFolderType::FT_MARKETPLACE_STOCK,    new FolderEntry("stock",    FALSE));
+	addEntry(LLFolderType::FT_MARKETPLACE_VERSION,  new FolderEntry("version",    FALSE));
 		 
 	addEntry(LLFolderType::FT_NONE, 				new FolderEntry("-1",		FALSE));
 };
