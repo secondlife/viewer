@@ -112,10 +112,19 @@ void LLPanelExperienceLog::refresh()
 	int itemsToSkip = mPageSize*mCurrentPage;
 	int items = 0;
 	bool moreItems = false;
-
+	
+	LLSD daysArray = LLSD::emptyArray();
 	for(LLSD::map_const_iterator day = events.beginMap(); day != events.endMap() ; ++day)
 	{
-		const LLSD& dayArray = day->second;
+		LLSD dayMap = LLSD::emptyMap();
+		dayMap["day"] = day->first;
+		dayMap["data"] = day->second;
+		daysArray.append(dayMap);
+	}
+
+	for(LLSD::reverse_array_iterator day = daysArray.rbeginArray(); day != daysArray.rendArray() ; ++day)
+	{
+		const LLSD& dayArray = day->get("data");
 		int size = dayArray.size();
 		if(itemsToSkip > size)
 		{
@@ -127,7 +136,7 @@ void LLPanelExperienceLog::refresh()
 			moreItems = true;
 			break;
 		}
-		for(int i = itemsToSkip ; i < dayArray.size(); i++)
+		for(int i = dayArray.size() - itemsToSkip - 1; i >= 0; i--)
 		{
 			if(items >= mPageSize)
 			{
@@ -147,7 +156,7 @@ void LLPanelExperienceLog::refresh()
 
 				LLSD& columns = item["columns"];
 				columns[0]["column"] = "time";
-				columns[0]["value"] = day->first+event["Time"].asString();
+				columns[0]["value"] = day->get("day").asString()+event["Time"].asString();
 				columns[1]["column"] = "event";
 				columns[1]["value"] = LLExperienceLog::getPermissionString(event, "ExperiencePermissionShort");
 				columns[2]["column"] = "experience_name";
