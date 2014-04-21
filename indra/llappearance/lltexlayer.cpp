@@ -1973,10 +1973,7 @@ LLGLTexture* LLTexLayerStaticImageList::getTexture(const std::string& file_name,
 	}
 	else
 	{
-		if (!gTextureManagerBridgep)
-		{
-			return LLPointer<LLGLTexture>();
-		}
+		llassert(gTextureManagerBridgep);
 		tex = gTextureManagerBridgep->getLocalTexture( FALSE );
 		LLPointer<LLImageRaw> image_raw = new LLImageRaw;
 		if( loadImageRaw( file_name, image_raw ) )

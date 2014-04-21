@@ -868,6 +868,10 @@ bool LLAvatarActions::canShareSelectedItems(LLInventoryPanel* inv_panel /* = NUL
 
 	// check selection in the panel
 	LLFolderView* root_folder = inv_panel->getRootFolder();
+    if (!root_folder)
+    {
+        return false;
+    }
 	const std::set<LLFolderViewItem*> inventory_selected = root_folder->getSelectionList();
 	if (inventory_selected.empty()) return false; // nothing selected
 

@@ -232,16 +232,16 @@ bool LLFolderViewModelItemInventory::filter( LLFolderViewFilter& filter)
     return continue_filtering;
 }
 
-LLFolderViewModelInventory* LLInventoryPanel::getFolderViewModel()
-{
-	return &mInventoryViewModel;
-}
-
-
-const LLFolderViewModelInventory* LLInventoryPanel::getFolderViewModel() const
-{
-	return &mInventoryViewModel;
-}
+//LLFolderViewModelInventory* LLInventoryPanel::getFolderViewModel()
+//{
+//	return &mInventoryViewModel;
+//}
+//
+//
+//const LLFolderViewModelInventory* LLInventoryPanel::getFolderViewModel() const
+//{
+//	return &mInventoryViewModel;
+//}
 
 bool LLInventorySort::operator()(const LLFolderViewModelItemInventory* const& a, const LLFolderViewModelItemInventory* const& b) const
 {
