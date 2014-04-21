@@ -39,6 +39,7 @@
 #include "llnotificationhandler.h"
 #include "llnotificationmanager.h"
 #include "llnotificationsutil.h"
+#include "llsidepaneliteminfo.h"
 #include "lltextbox.h"
 #include "lltrans.h"
 
@@ -629,7 +630,33 @@ void LLFloaterMarketplaceValidation::appendMessage(std::string& message)
     }
 }
 
+//-----------------------------------------------------------------------------
+// LLFloaterItemProperties
+//-----------------------------------------------------------------------------
 
+LLFloaterItemProperties::LLFloaterItemProperties(const LLSD& key)
+:	LLFloater(key)
+{
+}
 
+LLFloaterItemProperties::~LLFloaterItemProperties()
+{
+}
 
+BOOL LLFloaterItemProperties::postBuild()
+{
+    // On the standalone properties floater, we have no need for a back button...
+    LLSidepanelItemInfo* panel = getChild<LLSidepanelItemInfo>("item_panel");
+    LLButton* back_btn = panel->getChild<LLButton>("back_btn");
+    back_btn->setVisible(FALSE);
+    
+	return LLFloater::postBuild();
+}
+
+void LLFloaterItemProperties::onOpen(const LLSD& key)
+{
+    // Tell the panel which item it needs to visualize
+    LLSidepanelItemInfo* panel = getChild<LLSidepanelItemInfo>("item_panel");
+    panel->setItemID(key["id"].asUUID());
+}
 

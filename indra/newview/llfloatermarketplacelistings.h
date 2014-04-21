@@ -171,4 +171,20 @@ private:
     LLTextEditor*	mEditor;
 };
 
+//-----------------------------------------------------------------------------
+// LLFloaterItemProperties
+//-----------------------------------------------------------------------------
+
+class LLFloaterItemProperties : public LLFloater
+{
+public:
+	LLFloaterItemProperties(const LLSD& key);
+	virtual ~LLFloaterItemProperties();
+    
+	BOOL postBuild();
+	virtual void onOpen(const LLSD& key);
+    
+private:
+};
+
 #endif // LL_LLFLOATERMARKETPLACELISTINGS_H
