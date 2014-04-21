@@ -32,7 +32,7 @@
 
 static LLDefaultChildRegistry::Register<LLScriptEditor> r("script_editor");
 
-LLScriptEditor::LLScriptEditor::Params::Params()
+LLScriptEditor::Params::Params()
 {
 
 }
