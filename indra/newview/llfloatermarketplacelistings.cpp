@@ -111,10 +111,6 @@ void LLPanelMarketplaceListings::onAddButtonClicked()
 
 void LLPanelMarketplaceListings::onAuditButtonClicked()
 {
-	LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, true);
-	llassert(marketplacelistings_id.notNull());
-    LLViewerInventoryCategory* cat = gInventory.getCategory(marketplacelistings_id);
-    validate_marketplacelistings(cat);
     LLSD data(LLSD::emptyMap());
     LLFloaterReg::showInstance("marketplace_validation", data);
 }
@@ -583,21 +579,26 @@ void LLFloaterAssociateListing::cancel()
 
 LLFloaterMarketplaceValidation::LLFloaterMarketplaceValidation(const LLSD& data)
 :	LLModalDialog( data["message"].asString() ),
-mMessage(data["message"].asString()),
 mEditor(NULL)
 {
 }
 
 BOOL LLFloaterMarketplaceValidation::postBuild()
 {
-	childSetAction("Continue", onContinue, this);
+	childSetAction("OK", onOK, this);
 	
-    // this displays the message
-    mEditor = getChild<LLTextEditor>("tos_text");
-    mEditor->setEnabled( FALSE );
+    // This widget displays the validation messages
+    mEditor = getChild<LLTextEditor>("validation_text");
+    mEditor->setEnabled(FALSE);
     mEditor->setFocus(TRUE);
-    mEditor->setValue(LLSD(mMessage));
-        
+    mEditor->setValue(LLSD());
+    
+    // Validates the marketplace
+	LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, true);
+	llassert(marketplacelistings_id.notNull());
+    LLViewerInventoryCategory* cat = gInventory.getCategory(marketplacelistings_id);
+    validate_marketplacelistings(cat,boost::bind(&LLFloaterMarketplaceValidation::appendMessage, this, _1));
+
 	return TRUE;
 }
 
@@ -613,12 +614,19 @@ void LLFloaterMarketplaceValidation::draw()
 }
 
 // static
-void LLFloaterMarketplaceValidation::onContinue( void* userdata )
+void LLFloaterMarketplaceValidation::onOK( void* userdata )
 {
-	LLFloaterMarketplaceValidation* self = (LLFloaterMarketplaceValidation*) userdata;
-    
 	// destroys this object
+	LLFloaterMarketplaceValidation* self = (LLFloaterMarketplaceValidation*) userdata;
 	self->closeFloater();
+}
+
+void LLFloaterMarketplaceValidation::appendMessage(std::string& message)
+{
+    if (mEditor)
+    {
+        mEditor->appendText(message, true);
+    }
 }
 
 

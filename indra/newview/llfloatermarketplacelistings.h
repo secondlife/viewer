@@ -164,10 +164,10 @@ public:
 	
 	virtual void draw();
     
-	static void		onContinue( void* userdata );
-        
+    void appendMessage(std::string& message);
+	static void	onOK( void* userdata );
+    
 private:
-	std::string		mMessage;
     LLTextEditor*	mEditor;
 };
 

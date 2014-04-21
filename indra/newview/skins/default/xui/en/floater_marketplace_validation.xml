@@ -10,11 +10,11 @@
  width="600">
     <button
      height="20"
-     label="Continue"
-     label_selected="Continue"
+     label="OK"
+     label_selected="OK"
      layout="topleft"
      left="484"
-     name="Continue"
+     name="OK"
      top="465"
      width="100" />
     <text
@@ -40,11 +40,11 @@
      layout="topleft"
      left="20"
      max_length="65536"
-     name="tos_text"
+     name="validation_text"
      right="-20"
      text_readonly_color="0 0 0 1"
      top="45"
      word_wrap="true">
-        TOS_TEXT
+        MARKETPLACE_VALIDATION_TEXT
     </text_editor>
 </floater>

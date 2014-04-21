@@ -72,10 +72,12 @@ void copy_item_to_outbox(LLInventoryItem* inv_item, LLUUID dest_folder, const LL
 void move_item_within_outbox(LLInventoryItem* inv_item, LLUUID dest_folder, S32 operation_id);
 void copy_folder_to_outbox(LLInventoryCategory* inv_cat, const LLUUID& dest_folder, const LLUUID& top_level_folder, S32 operation_id);
 
+typedef boost::function<void(std::string& validation_message)> validation_callback_t;
+
 void move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_folder, bool copy = false);
 void move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUUID& dest_folder, bool copy = false);
 bool has_correct_permissions_for_sale(LLInventoryCategory* cat);
-void validate_marketplacelistings(LLInventoryCategory* inv_cat);
+void validate_marketplacelistings(LLInventoryCategory* inv_cat, validation_callback_t cb = NULL);
 S32  depth_nesting_in_marketplace(LLUUID cur_uuid);
 LLUUID nested_parent_id(LLUUID cur_uuid, S32 depth);
 S32 compute_stock_count(LLUUID cat_uuid);
