@@ -257,21 +257,18 @@ LLSkyTex::~LLSkyTex()
 void LLSkyTex::initEmpty(const S32 tex)
 {
 	U8* data = mImageRaw[tex]->getData();
-	if (data)
+	for (S32 i = 0; i < sResolution; ++i)
 	{
-		for (S32 i = 0; i < sResolution; ++i)
+		for (S32 j = 0; j < sResolution; ++j)
 		{
-			for (S32 j = 0; j < sResolution; ++j)
-			{
-				const S32 basic_offset = (i * sResolution + j);
-				S32 offset = basic_offset * sComponents;
-				data[offset] = 0;
-				data[offset+1] = 0;
-				data[offset+2] = 0;
-				data[offset+3] = 255;
+			const S32 basic_offset = (i * sResolution + j);
+			S32 offset = basic_offset * sComponents;
+			data[offset] = 0;
+			data[offset+1] = 0;
+			data[offset+2] = 0;
+			data[offset+3] = 255;
 
-				mSkyData[basic_offset].setToBlack();
-			}
+			mSkyData[basic_offset].setToBlack();
 		}
 	}
 
@@ -282,21 +279,17 @@ void LLSkyTex::create(const F32 brightness)
 {
 	/// Brightness ignored for now.
 	U8* data = mImageRaw[sCurrent]->getData();
-	if (data)
+	for (S32 i = 0; i < sResolution; ++i)
 	{
-		for (S32 i = 0; i < sResolution; ++i)
+		for (S32 j = 0; j < sResolution; ++j)
 		{
-			for (S32 j = 0; j < sResolution; ++j)
-			{
-				const S32 basic_offset = (i * sResolution + j);
-				S32 offset = basic_offset * sComponents;
-				U32* pix = (U32*)(data + offset);
-				LLColor4U temp = LLColor4U(mSkyData[basic_offset]);
-				*pix = temp.mAll;
-			}
+			const S32 basic_offset = (i * sResolution + j);
+			S32 offset = basic_offset * sComponents;
+			U32* pix = (U32*)(data + offset);
+			LLColor4U temp = LLColor4U(mSkyData[basic_offset]);
+			*pix = temp.mAll;
 		}
 	}
-
 	createGLImage(sCurrent);
 }
 
