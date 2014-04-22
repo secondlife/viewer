@@ -741,7 +741,7 @@ public:
 
 bool LLAppViewer::init()
 {	
-	setupErrorHandling();
+	setupErrorHandling(mSecondInstance);
 
 	//
 	// Start of the application
