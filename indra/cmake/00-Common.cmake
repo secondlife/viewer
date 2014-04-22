@@ -226,7 +226,7 @@ endif (LINUX OR DARWIN)
 
 
 if (USESYSTEMLIBS)
-  add_definitions(-DLL_STANDALONE=1)
+  add_definitions(-DLL_USESYSTEMLIBS=1)
 
   if (LINUX AND ${ARCH} STREQUAL "i686")
     add_definitions(-march=pentiumpro)
