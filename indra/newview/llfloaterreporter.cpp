@@ -240,7 +240,7 @@ void LLFloaterReporter::getExperienceInfo(const LLUUID& experience_id)
 		if(experience.isDefined())
 		{
 			setFromAvatarID(experience[LLExperienceCache::AGENT_ID]);
-			desc << "\nExperience id: " << mExperienceID;
+			desc << "Experience id: " << mExperienceID;
 		}
 		else
 		{
@@ -248,7 +248,7 @@ void LLFloaterReporter::getExperienceInfo(const LLUUID& experience_id)
 		}
 		
 		LLUICtrl* details = getChild<LLUICtrl>("details_edit");
-		details->setValue(details->getValue().asString()+desc.str());
+		details->setValue(desc.str());
 	}
 }
 
