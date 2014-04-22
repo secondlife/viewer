@@ -985,6 +985,11 @@ void LLInventoryFilter::fromParams(const Params& params)
 	setDateRangeLastLogoff(params.since_logoff);
 }
 
+U64 LLInventoryFilter::getFilterTypes() const
+{
+	return mFilterOps.mFilterTypes;
+}
+
 U64 LLInventoryFilter::getFilterObjectTypes() const
 {
 	return mFilterOps.mFilterObjectTypes;

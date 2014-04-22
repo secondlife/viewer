@@ -2263,6 +2263,9 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 		&& (LLToolDragAndDrop::SOURCE_AGENT == source);
 
 	BOOL accept = FALSE;
+	U64 filter_types = filter->getFilterTypes();
+	BOOL use_filter = filter_types && (filter_types&LLInventoryFilter::FILTERTYPE_DATE || (filter_types&LLInventoryFilter::FILTERTYPE_OBJECT)==0);
+
 	if (is_agent_inventory)
 	{
 		const LLUUID &trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH, false);
@@ -2461,7 +2464,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 					is_movable = active_folder_view != NULL;
 				}
 
-				if (is_movable)
+				if (is_movable && use_filter)
 				{
 					// Check whether the folder being dragged from active inventory panel
 					// passes the filter of the destination panel.
@@ -2635,6 +2638,12 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 
 	BOOL accept = FALSE;
 	BOOL is_move = FALSE;
+	BOOL use_filter = FALSE;
+	if (filter)
+	{
+		U64 filter_types = filter->getFilterTypes();
+		use_filter = filter_types && (filter_types&LLInventoryFilter::FILTERTYPE_DATE || (filter_types&LLInventoryFilter::FILTERTYPE_OBJECT)==0);
+	}
 
 	// coming from a task. Need to figure out if the person can
 	// move/copy this item.
@@ -2667,7 +2676,7 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 			accept = TRUE;
 		}
 
-		if (filter && accept)
+		if (accept && use_filter)
 		{
 			accept = filter->check(item);
 		}
@@ -3993,6 +4002,10 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 
 	LLToolDragAndDrop::ESource source = LLToolDragAndDrop::getInstance()->getSource();
 	BOOL accept = FALSE;
+	U64 filter_types = filter->getFilterTypes();
+	// We shouldn't allow to drop non recent items into recent tab (or some similar transactions)
+	// while we are allowing to interact with regular filtered inventory
+	BOOL use_filter = filter_types && (filter_types&LLInventoryFilter::FILTERTYPE_DATE || (filter_types&LLInventoryFilter::FILTERTYPE_OBJECT)==0);
 	LLViewerObject* object = NULL;
 	if(LLToolDragAndDrop::SOURCE_AGENT == source)
 	{
@@ -4091,7 +4104,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 
 		// Check whether the item being dragged from active inventory panel
 		// passes the filter of the destination panel.
-		if (accept && active_panel)
+		if (accept && active_panel && use_filter)
 		{
 			LLFolderViewItem* fv_item =   active_panel->getItemByID(inv_item->getUUID());
 			if (!fv_item) return false;
@@ -4229,7 +4242,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		
 		// Check whether the item being dragged from in world
 		// passes the filter of the destination panel.
-		if (accept)
+		if (accept && use_filter)
 		{
 			accept = filter->check(inv_item);
 		}
@@ -4273,7 +4286,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		
 		// Check whether the item being dragged from notecard
 		// passes the filter of the destination panel.
-		if (accept)
+		if (accept && use_filter)
 		{
 			accept = filter->check(inv_item);
 		}
@@ -4313,7 +4326,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 
 			// Check whether the item being dragged from the library
 			// passes the filter of the destination panel.
-			if (accept && active_panel)
+			if (accept && active_panel && use_filter)
 			{
 				LLFolderViewItem* fv_item =   active_panel->getItemByID(inv_item->getUUID());
 				if (!fv_item) return false;
