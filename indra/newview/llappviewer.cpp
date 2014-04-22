@@ -740,7 +740,7 @@ public:
 
 bool LLAppViewer::init()
 {	
-	setupErrorHandling();
+	setupErrorHandling(mSecondInstance);
 
 	//
 	// Start of the application
@@ -4785,7 +4785,7 @@ void LLAppViewer::idle()
 		static LLFrameStatsTimer viewer_stats_timer(SEND_STATS_PERIOD);
 
 		// Update session stats every large chunk of time
-		// *FIX: (???) SAMANTHA
+		// *FIX: (?) SAMANTHA
 		if (viewer_stats_timer.getElapsedTimeF32() >= SEND_STATS_PERIOD && !gDisconnected)
 		{
 			llinfos << "Transmitting sessions stats" << llendl;

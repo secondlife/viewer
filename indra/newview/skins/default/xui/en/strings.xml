@@ -419,6 +419,8 @@ Please try logging in again in a minute.</string>
 	<string name="multiple_textures">Multiple</string>
 
 <string name="use_texture">Use texture</string>
+    <string name="manip_hint1">Move mouse cursor over ruler</string>
+    <string name="manip_hint2">to snap to grid</string>
 
 	<!-- world map -->
 	<string name="texture_loading">Loading...</string>
@@ -2244,6 +2246,16 @@ If you'd like to become a merchant, you'll need to [[MARKETPLACE_CREATE_STORE_UR
 	<string name="InventoryOutboxNoItemsTooltip"></string>
 	<string name="InventoryOutboxNoItems">
 Drag folders to this area and click "Send to Marketplace" to list them for sale on the [[MARKETPLACE_DASHBOARD_URL] Marketplace].
+	</string>
+	<string name="InventoryOutboxInitializingTitle">Initializing Marketplace.</string>
+	<string name="InventoryOutboxInitializingTooltip"></string>
+	<string name="InventoryOutboxInitializing">
+We are accessing your account on the [[MARKETPLACE_CREATE_STORE_URL] Marketplace store].
+	</string>
+	<string name="InventoryOutboxErrorTitle">Marketplace Errors.</string>
+	<string name="InventoryOutboxErrorTooltip"></string>
+	<string name="InventoryOutboxError">
+The [[MARKETPLACE_CREATE_STORE_URL] Marketplace store] is returning errors.
 	</string>
 
 	<string name="Marketplace Error None">No errors</string>

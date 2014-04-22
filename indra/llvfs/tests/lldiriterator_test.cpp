@@ -51,9 +51,9 @@ namespace tut
     void test_chop_662(void)
     {
         //  Check a selection of bad group names from the crash reports 
-        LLDirIterator iter(".","+bad-group-name]+??-??.*");
-        LLDirIterator iter1(".","))--@---bad-group-name2((??-??.*\\.txt");
-        LLDirIterator iter2(".","__^v--x)Cuide d sua vida(x--v^__??-??.*"); 
+        LLDirIterator iter(".","+bad-group-name]+?\?-??.*");
+        LLDirIterator iter1(".","))--@---bad-group-name2((?\?-??.*\\.txt");
+        LLDirIterator iter2(".","__^v--x)Cuide d sua vida(x--v^__?\?-??.*"); 
     }
 
     template<> template<>

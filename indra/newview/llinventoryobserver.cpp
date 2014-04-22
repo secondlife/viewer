@@ -690,15 +690,24 @@ void LLInventoryCategoriesObserver::changed(U32 mask)
 	if (!mCategoryMap.size())
 		return;
 
+	std::vector<LLUUID> deleted_categories_ids;
+
 	for (category_map_t::iterator iter = mCategoryMap.begin();
 		 iter != mCategoryMap.end();
 		 ++iter)
 	{
 		const LLUUID& cat_id = (*iter).first;
-
+		LLCategoryData& cat_data = (*iter).second;
+        
 		LLViewerInventoryCategory* category = gInventory.getCategory(cat_id);
 		if (!category)
+        {
+            llwarns << "Category : Category id = " << cat_id << " disappeared" << llendl;
+			cat_data.mCallback();
+            // Keep track of those deleted categories so we can remove them
+            deleted_categories_ids.push_back(cat_id);
 			continue;
+        }
 
 		const S32 version = category->getVersion();
 		const S32 expected_num_descendents = category->getDescendentCount();
@@ -725,8 +734,6 @@ void LLInventoryCategoriesObserver::changed(U32 mask)
 		}
 		
 		const S32 current_num_known_descendents = cats->count() + items->count();
-
-		LLCategoryData& cat_data = (*iter).second;
 
 		bool cat_changed = false;
 
@@ -757,6 +764,12 @@ void LLInventoryCategoriesObserver::changed(U32 mask)
 		if (cat_changed)
 			cat_data.mCallback();
 	}
+    
+    // Remove deleted categories from the list
+ 	for (std::vector<LLUUID>::iterator deleted_id = deleted_categories_ids.begin(); deleted_id != deleted_categories_ids.end(); ++deleted_id)
+	{
+		removeCategory(*deleted_id);
+    }
 }
 
 bool LLInventoryCategoriesObserver::addCategory(const LLUUID& cat_id, callback_t cb)

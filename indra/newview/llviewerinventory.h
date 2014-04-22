@@ -249,7 +249,9 @@ void rez_attachment_cb(const LLUUID& inv_item, LLViewerJointAttachment *attachme
 
 void activate_gesture_cb(const LLUUID& inv_item);
 
+void create_script_cb(const LLUUID& inv_item);
 void create_gesture_cb(const LLUUID& inv_item);
+void create_notecard_cb(const LLUUID& inv_item);
 
 class AddFavoriteLandmarkCallback : public LLInventoryCallback
 {

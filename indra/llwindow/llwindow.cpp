@@ -72,7 +72,7 @@ S32 OSMessageBox(const std::string& text, const std::string& caption, U32 type)
 	}
 
 	S32 result = 0;
-#if LL_MESA_HEADLESS // !!! *FIX: (???)
+#if LL_MESA_HEADLESS // !!! *FIX: (?)
 	llwarns << "OSMessageBox: " << text << llendl;
 	return OSBTN_OK;
 #elif LL_WINDOWS
@@ -324,7 +324,7 @@ bool LLSplashScreen::isVisible()
 // static
 LLSplashScreen *LLSplashScreen::create()
 {
-#if LL_MESA_HEADLESS || LL_SDL  // !!! *FIX: (???)
+#if LL_MESA_HEADLESS || LL_SDL  // !!! *FIX: (?)
 	return 0;
 #elif LL_WINDOWS
 	return new LLSplashScreenWin32;

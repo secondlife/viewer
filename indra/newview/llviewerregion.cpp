@@ -71,6 +71,7 @@
 #include "stringize.h"
 #include "llviewercontrol.h"
 #include "llsdserialize.h"
+#include "llfloaterperms.h"
 
 #ifdef LL_WINDOWS
 	#pragma warning(disable:4355)
@@ -1584,6 +1585,7 @@ void LLViewerRegion::unpackRegionHandshake()
 
 void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 {
+	capabilityNames.append("AgentPreferences");
 	capabilityNames.append("AgentState");
 	capabilityNames.append("AttachmentResources");
 	capabilityNames.append("AvatarPickerSearch");
@@ -1853,6 +1855,8 @@ void LLViewerRegion::setCapabilitiesReceived(bool received)
 	if (received)
 	{
 		mCapabilitiesReceivedSignal(getRegionID());
+
+		LLFloaterPermsDefault::sendInitialPerms();
 
 		// This is a single-shot signal. Forget callbacks to save resources.
 		mCapabilitiesReceivedSignal.disconnect_all_slots();

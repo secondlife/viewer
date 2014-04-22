@@ -76,6 +76,7 @@
 #include "object_flags.h"
 
 #include "llappviewer.h"
+#include "llfloaterperms.h"
 
 extern F32 gMinObjectDistance;
 extern BOOL gAnimateTextures;
