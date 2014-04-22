@@ -202,9 +202,9 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
   ADD_EXECUTABLE(INTEGRATION_TEST_${testname} ${source_files})
   SET_TARGET_PROPERTIES(INTEGRATION_TEST_${testname} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${EXE_STAGING_DIR}")
 
-  if(STANDALONE)
+  if(USESYSTEMLIBS)
     SET_TARGET_PROPERTIES(INTEGRATION_TEST_${testname} PROPERTIES COMPILE_FLAGS -I"${TUT_INCLUDE_DIR}")
-  endif(STANDALONE)
+  endif(USESYSTEMLIBS)
 
   # The following was copied to llcorehttp/CMakeLists.txt's texture_load target. 
   # Any changes made here should be replicated there.
@@ -275,10 +275,10 @@ MACRO(SET_TEST_PATH LISTVAR)
     set(${LISTVAR} ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/Resources ${SHARED_LIB_STAGING_DIR}/Release/Resources /usr/lib)
   ELSE(WINDOWS)
     # Linux uses a single staging directory anyway.
-    IF (STANDALONE)
+    IF (USESYSTEMLIBS)
       set(${LISTVAR} ${CMAKE_BINARY_DIR}/llcommon /usr/lib /usr/local/lib)
-    ELSE (STANDALONE)
+    ELSE (USESYSTEMLIBS)
       set(${LISTVAR} ${SHARED_LIB_STAGING_DIR} /usr/lib)
-    ENDIF (STANDALONE)
+    ENDIF (USESYSTEMLIBS)
   ENDIF(WINDOWS)
 ENDMACRO(SET_TEST_PATH)

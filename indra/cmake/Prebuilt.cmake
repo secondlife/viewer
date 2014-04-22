@@ -18,7 +18,7 @@ endif(INSTALL_PROPRIETARY)
 # ${CMAKE_BINARY_DIR}/temp/${_binary}_installed)
 macro (use_prebuilt_binary _binary)
   if (NOT DEFINED STANDALONE_${_binary})
-    set(STANDALONE_${_binary} ${STANDALONE})
+    set(STANDALONE_${_binary} ${USESYSTEMLIBS})
   endif (NOT DEFINED STANDALONE_${_binary})
 
   if (NOT STANDALONE_${_binary})

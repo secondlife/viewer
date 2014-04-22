@@ -1457,9 +1457,9 @@ if (WINDOWS)
 
     SOURCE_GROUP("Resource Files" FILES ${viewer_RESOURCE_FILES})
 
-    if (NOT STANDALONE)
+    if (NOT USESYSTEMLIBS)
         list(APPEND viewer_SOURCE_FILES ${viewer_RESOURCE_FILES})
-    endif (NOT STANDALONE)
+    endif (NOT USESYSTEMLIBS)
 
     find_library(DINPUT_LIBRARY dinput8 ${DIRECTX_LIBRARY_DIR})
     find_library(DXGUID_LIBRARY dxguid ${DIRECTX_LIBRARY_DIR})
@@ -1570,9 +1570,9 @@ source_group("Character File" FILES ${viewer_CHARACTER_FILES})
 
 set_source_files_properties(${viewer_CHARACTER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
-if (NOT STANDALONE)
+if (NOT USESYSTEMLIBS)
     list(APPEND viewer_SOURCE_FILES ${viewer_CHARACTER_FILES})
-endif (NOT STANDALONE)
+endif (NOT USESYSTEMLIBS)
 
 if (WINDOWS)
   file(GLOB viewer_INSTALLER_FILES installers/windows/*.nsi)
