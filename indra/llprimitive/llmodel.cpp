@@ -31,26 +31,12 @@
 #include "llconvexdecomposition.h"
 #include "llsdserialize.h"
 #include "llvector4a.h"
-#if LL_MSVC
-#pragma warning (disable : 4263)
-#pragma warning (disable : 4264)
-#endif
-#include "dae.h"
-#include "dae/daeErrorHandler.h"
-#include "dom/domConstants.h"
-#include "dom/domMesh.h"
-#if LL_MSVC
-#pragma warning (default : 4263)
-#pragma warning (default : 4264)
-#endif
 
 #ifdef LL_STANDALONE
 # include <zlib.h>
 #else
 # include "zlib/zlib.h"
 #endif
-
-
 
 std::string model_names[] =
 {
@@ -65,7 +51,7 @@ const int MODEL_NAMES_LENGTH = sizeof(model_names) / sizeof(std::string);
 
 LLModel::LLModel(LLVolumeParams& params, F32 detail)
 	: LLVolume(params, detail), mNormalizedScale(1,1,1), mNormalizedTranslation(0,0,0)
-	, mPelvisOffset( 0.0f ), mStatus(NO_ERRORS)
+	, mPelvisOffset( 0.0f ), mStatus(NO_ERRORS), mSubmodelID(0)
 {
 	mDecompID = -1;
 	mLocalID = -1;
@@ -77,797 +63,6 @@ LLModel::~LLModel()
 	{
 		LLConvexDecomposition::getInstance()->deleteDecomposition(mDecompID);
 	}
-}
-
-
-bool get_dom_sources(const domInputLocalOffset_Array& inputs, S32& pos_offset, S32& tc_offset, S32& norm_offset, S32 &idx_stride,
-					 domSource* &pos_source, domSource* &tc_source, domSource* &norm_source)
-{
-	idx_stride = 0;
-
-	for (U32 j = 0; j < inputs.getCount(); ++j)
-	{
-		idx_stride = llmax((S32) inputs[j]->getOffset(), idx_stride);
-
-		if (strcmp(COMMON_PROFILE_INPUT_VERTEX, inputs[j]->getSemantic()) == 0)
-		{ //found vertex array
-			const domURIFragmentType& uri = inputs[j]->getSource();
-			daeElementRef elem = uri.getElement();
-			domVertices* vertices = (domVertices*) elem.cast();
-			if ( !vertices )
-			{
-				return false;
-			}
-				
-			domInputLocal_Array& v_inp = vertices->getInput_array();
-			
-			
-			for (U32 k = 0; k < v_inp.getCount(); ++k)
-			{
-				if (strcmp(COMMON_PROFILE_INPUT_POSITION, v_inp[k]->getSemantic()) == 0)
-				{
-					pos_offset = inputs[j]->getOffset();
-
-					const domURIFragmentType& uri = v_inp[k]->getSource();
-					daeElementRef elem = uri.getElement();
-					pos_source = (domSource*) elem.cast();
-				}
-				
-				if (strcmp(COMMON_PROFILE_INPUT_NORMAL, v_inp[k]->getSemantic()) == 0)
-				{
-					norm_offset = inputs[j]->getOffset();
-
-					const domURIFragmentType& uri = v_inp[k]->getSource();
-					daeElementRef elem = uri.getElement();
-					norm_source = (domSource*) elem.cast();
-				}
-			}
-		}
-
-		if (strcmp(COMMON_PROFILE_INPUT_NORMAL, inputs[j]->getSemantic()) == 0)
-		{
-			//found normal array for this triangle list
-			norm_offset = inputs[j]->getOffset();
-			const domURIFragmentType& uri = inputs[j]->getSource();
-			daeElementRef elem = uri.getElement();
-			norm_source = (domSource*) elem.cast();
-		}
-		else if (strcmp(COMMON_PROFILE_INPUT_TEXCOORD, inputs[j]->getSemantic()) == 0)
-		{ //found texCoords
-			tc_offset = inputs[j]->getOffset();
-			const domURIFragmentType& uri = inputs[j]->getSource();
-			daeElementRef elem = uri.getElement();
-			tc_source = (domSource*) elem.cast();
-		}
-	}
-
-	idx_stride += 1;
-	
-	return true;
-}
-
-LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& face_list, std::vector<std::string>& materials, domTrianglesRef& tri)
-{
-	LLVolumeFace face;
-	std::vector<LLVolumeFace::VertexData> verts;
-	std::vector<U16> indices;
-	
-	const domInputLocalOffset_Array& inputs = tri->getInput_array();
-
-	S32 pos_offset = -1;
-	S32 tc_offset = -1;
-	S32 norm_offset = -1;
-
-	domSource* pos_source = NULL;
-	domSource* tc_source = NULL;
-	domSource* norm_source = NULL;
-
-	S32 idx_stride = 0;
-
-	if ( !get_dom_sources(inputs, pos_offset, tc_offset, norm_offset, idx_stride, pos_source, tc_source, norm_source) || !pos_source )
-	{
-		llwarns << "Could not find dom sources for basic geo data; invalid model." << llendl;
-		return LLModel::BAD_ELEMENT;
-	}
-
-	
-	domPRef p = tri->getP();
-	domListOfUInts& idx = p->getValue();
-	
-	domListOfFloats  dummy ;
-	domListOfFloats& v = pos_source ? pos_source->getFloat_array()->getValue() : dummy ;
-	domListOfFloats& tc = tc_source ? tc_source->getFloat_array()->getValue() : dummy ;
-	domListOfFloats& n = norm_source ? norm_source->getFloat_array()->getValue() : dummy ;
-
-	if (pos_source)
-	{
-		face.mExtents[0].set(v[0], v[1], v[2]);
-		face.mExtents[1].set(v[0], v[1], v[2]);
-	}
-	
-	LLVolumeFace::VertexMapData::PointMap point_map;
-	
-	U32 index_count  = idx.getCount();
-	U32 vertex_count = pos_source  ? v.getCount()  : 0;
-	U32 tc_count     = tc_source   ? tc.getCount() : 0;
-	U32 norm_count   = norm_source ? n.getCount()  : 0;
-
-	for (U32 i = 0; i < index_count; i += idx_stride)
-	{
-		LLVolumeFace::VertexData cv;
-		if (pos_source)
-		{
-			// guard against model data specifiying out of range indices or verts
-			//
-			if (((i + pos_offset) > index_count)
-			 || ((idx[i+pos_offset]*3+2) > vertex_count))
-			{
-				llwarns << "Out of range index data; invalid model." << llendl;
-				return LLModel::BAD_ELEMENT;
-			}
-
-			cv.setPosition(LLVector4a(v[idx[i+pos_offset]*3+0],
-								v[idx[i+pos_offset]*3+1],
-								v[idx[i+pos_offset]*3+2]));
-
-			if (!cv.getPosition().isFinite3())
-			{
-				llwarns << "Nan positional data, invalid model." << llendl;
-				return LLModel::BAD_ELEMENT;
-			}
-		}
-
-		if (tc_source)
-		{
-			// guard against model data specifiying out of range indices or tcs
-			//
-			
-			if (((i + tc_offset) > index_count)
-			 || ((idx[i+tc_offset]*2+1) > tc_count))
-			{
-				llwarns << "Out of range TC indices." << llendl;
-				return LLModel::BAD_ELEMENT;
-			}
-
-			cv.mTexCoord.setVec(tc[idx[i+tc_offset]*2+0],
-								tc[idx[i+tc_offset]*2+1]);
-
-			if (!cv.mTexCoord.isFinite())
-			{
-				llwarns << "Found NaN while loading tex coords from DAE-Model, invalid model." << llendl;
-				return LLModel::BAD_ELEMENT;
-			}
-		}
-		
-		if (norm_source)
-		{
-			// guard against model data specifiying out of range indices or norms
-			//
-			if (((i + norm_offset) > index_count)
-				|| ((idx[i+norm_offset]*3+2) > norm_count))
-			{
-				llwarns << "Found out of range norm indices, invalid model." << llendl;
-				return LLModel::BAD_ELEMENT;
-			}
-
-			cv.setNormal(LLVector4a(n[idx[i+norm_offset]*3+0],
-								n[idx[i+norm_offset]*3+1],
-								n[idx[i+norm_offset]*3+2]));
-
-			if (!cv.getNormal().isFinite3())
-			{
-				llwarns << "Found NaN while loading normals from DAE-Model, invalid model." << llendl;
-				return LLModel::BAD_ELEMENT;
-			}
-		}
-		
-		BOOL found = FALSE;
-			
-		LLVolumeFace::VertexMapData::PointMap::iterator point_iter;
-		point_iter = point_map.find(LLVector3(cv.getPosition().getF32ptr()));
-		
-		if (point_iter != point_map.end())
-		{
-			for (U32 j = 0; j < point_iter->second.size(); ++j)
-			{
-				if ((point_iter->second)[j] == cv)
-				{
-					found = TRUE;
-					indices.push_back((point_iter->second)[j].mIndex);
-					break;
-				}
-			}
-		}
-
-		if (!found)
-		{
-			update_min_max(face.mExtents[0], face.mExtents[1], cv.getPosition());
-			verts.push_back(cv);
-			if (verts.size() >= 65535)
-			{
-				//llerrs << "Attempted to write model exceeding 16-bit index buffer limitation." << llendl;
-				return LLModel::VERTEX_NUMBER_OVERFLOW ;
-			}
-			U16 index = (U16) (verts.size()-1);
-			indices.push_back(index);
-
-			LLVolumeFace::VertexMapData d;
-			d.setPosition(cv.getPosition());
-			d.mTexCoord = cv.mTexCoord;
-			d.setNormal(cv.getNormal());
-			d.mIndex = index;
-			if (point_iter != point_map.end())
-			{
-				point_iter->second.push_back(d);
-			}
-			else
-			{
-				point_map[LLVector3(d.getPosition().getF32ptr())].push_back(d);
-			}
-		}
-
-		if (indices.size()%3 == 0 && verts.size() >= 65532)
-		{
-			face_list.push_back(face);
-			face_list.rbegin()->fillFromLegacyData(verts, indices);
-			LLVolumeFace& new_face = *face_list.rbegin();
-			if (!norm_source)
-			{
-				//ll_aligned_free_16(new_face.mNormals);
-				new_face.mNormals = NULL;
-			}
-
-			if (!tc_source)
-			{
-				//ll_aligned_free_16(new_face.mTexCoords);
-				new_face.mTexCoords = NULL;
-			}
-
-			face = LLVolumeFace();
-			point_map.clear();
-		}
-	}
-
-	if (!verts.empty())
-	{
-		std::string material;
-
-		if (tri->getMaterial())
-		{
-			material = std::string(tri->getMaterial());
-		}
-		
-		materials.push_back(material);
-		face_list.push_back(face);
-
-		face_list.rbegin()->fillFromLegacyData(verts, indices);
-		LLVolumeFace& new_face = *face_list.rbegin();
-		if (!norm_source)
-		{
-			//ll_aligned_free_16(new_face.mNormals);
-			new_face.mNormals = NULL;
-		}
-
-		if (!tc_source)
-		{
-			//ll_aligned_free_16(new_face.mTexCoords);
-			new_face.mTexCoords = NULL;
-		}
-	}
-
-	return LLModel::NO_ERRORS ;
-}
-
-LLModel::EModelStatus load_face_from_dom_polylist(std::vector<LLVolumeFace>& face_list, std::vector<std::string>& materials, domPolylistRef& poly)
-{
-	domPRef p = poly->getP();
-	domListOfUInts& idx = p->getValue();
-
-	if (idx.getCount() == 0)
-	{
-		return LLModel::NO_ERRORS ;
-	}
-
-	const domInputLocalOffset_Array& inputs = poly->getInput_array();
-
-
-	domListOfUInts& vcount = poly->getVcount()->getValue();
-	
-	S32 pos_offset = -1;
-	S32 tc_offset = -1;
-	S32 norm_offset = -1;
-
-	domSource* pos_source = NULL;
-	domSource* tc_source = NULL;
-	domSource* norm_source = NULL;
-
-	S32 idx_stride = 0;
-
-	if (!get_dom_sources(inputs, pos_offset, tc_offset, norm_offset, idx_stride, pos_source, tc_source, norm_source))
-	{
-		llwarns << "Could not get DOM sources for basic geo data, invalid model." << llendl;
-		return LLModel::BAD_ELEMENT;
-	}
-
-	LLVolumeFace face;
-
-	std::vector<U16> indices;
-	std::vector<LLVolumeFace::VertexData> verts;
-
-	domListOfFloats v;
-	domListOfFloats tc;
-	domListOfFloats n;
-
-	if (pos_source)
-	{
-		v = pos_source->getFloat_array()->getValue();
-		face.mExtents[0].set(v[0], v[1], v[2]);
-		face.mExtents[1].set(v[0], v[1], v[2]);
-	}
-
-	if (tc_source)
-	{
-		tc = tc_source->getFloat_array()->getValue();
-	}
-
-	if (norm_source)
-	{
-		n = norm_source->getFloat_array()->getValue();
-	}
-	
-	LLVolumeFace::VertexMapData::PointMap point_map;
-
-	U32 index_count  = idx.getCount();
-	U32 vertex_count = pos_source  ? v.getCount()  : 0;
-	U32 tc_count     = tc_source   ? tc.getCount() : 0;
-	U32 norm_count   = norm_source ? n.getCount()  : 0;
-
-	U32 cur_idx = 0;
-	for (U32 i = 0; i < vcount.getCount(); ++i)
-	{ //for each polygon
-		U32 first_index = 0;
-		U32 last_index = 0;
-		for (U32 j = 0; j < vcount[i]; ++j)
-		{ //for each vertex
-
-			LLVolumeFace::VertexData cv;
-
-			if (pos_source)
-			{
-				// guard against model data specifiying out of range indices or verts
-				//
-				if (((cur_idx + pos_offset) > index_count)
-				 || ((idx[cur_idx+pos_offset]*3+2) > vertex_count))
-				{
-					llwarns << "Out of range position indices, invalid model." << llendl;
-					return LLModel::BAD_ELEMENT;
-				}
-
-				cv.getPosition().set(v[idx[cur_idx+pos_offset]*3+0],
-									v[idx[cur_idx+pos_offset]*3+1],
-									v[idx[cur_idx+pos_offset]*3+2]);
-
-				if (!cv.getPosition().isFinite3())
-				{
-					llwarns << "Found NaN while loading positions from DAE-Model, invalid model." << llendl;
-					return LLModel::BAD_ELEMENT;
-				}
-
-			}
-
-			if (tc_source)
-			{
-				// guard against model data specifiying out of range indices or tcs
-				//
-				if (((cur_idx + tc_offset) > index_count)
-				 || ((idx[cur_idx+tc_offset]*2+1) > tc_count))
-				{
-					llwarns << "Out of range TC indices, invalid model." << llendl;
-					return LLModel::BAD_ELEMENT;
-				}
-
-				cv.mTexCoord.setVec(tc[idx[cur_idx+tc_offset]*2+0],
-									tc[idx[cur_idx+tc_offset]*2+1]);
-
-				if (!cv.mTexCoord.isFinite())
-				{
-					llwarns << "Found NaN while loading tex coords from DAE-Model, invalid model." << llendl;
-					return LLModel::BAD_ELEMENT;
-				}
-			}
-			
-			if (norm_source)
-			{
-				// guard against model data specifiying out of range indices or norms
-				//
-				if (((cur_idx + norm_offset) > index_count)
-				 || ((idx[cur_idx+norm_offset]*3+2) > norm_count))
-				{
-					llwarns << "Out of range norm indices, invalid model." << llendl;
-					return LLModel::BAD_ELEMENT;
-				}
-
-				cv.getNormal().set(n[idx[cur_idx+norm_offset]*3+0],
-									n[idx[cur_idx+norm_offset]*3+1],
-									n[idx[cur_idx+norm_offset]*3+2]);
-
-				if (!cv.getNormal().isFinite3())
-				{
-					llwarns << "Found NaN while loading normals from DAE-Model, invalid model." << llendl;
-					return LLModel::BAD_ELEMENT;
-				}
-			}
-			
-			cur_idx += idx_stride;
-			
-			BOOL found = FALSE;
-				
-			LLVolumeFace::VertexMapData::PointMap::iterator point_iter;
-			LLVector3 pos3(cv.getPosition().getF32ptr());
-			point_iter = point_map.find(pos3);
-			
-			if (point_iter != point_map.end())
-			{
-				for (U32 k = 0; k < point_iter->second.size(); ++k)
-				{
-					if ((point_iter->second)[k] == cv)
-					{
-						found = TRUE;
-						U32 index = (point_iter->second)[k].mIndex;
-						if (j == 0)
-						{
-							first_index = index;
-						}
-						else if (j == 1)
-						{
-							last_index = index;
-						}
-						else
-						{
-							indices.push_back(first_index);
-							indices.push_back(last_index);
-							indices.push_back(index);
-							last_index = index;
-						}
-
-						break;
-					}
-				}
-			}
-
-			if (!found)
-			{
-				update_min_max(face.mExtents[0], face.mExtents[1], cv.getPosition());
-				verts.push_back(cv);
-				if (verts.size() >= 65535)
-				{
-					//llerrs << "Attempted to write model exceeding 16-bit index buffer limitation." << llendl;
-					return LLModel::VERTEX_NUMBER_OVERFLOW ;
-				}
-				U16 index = (U16) (verts.size()-1);
-			
-				if (j == 0)
-				{
-					first_index = index;
-				}
-				else if (j == 1)
-				{
-					last_index = index;
-				}
-				else
-				{
-					indices.push_back(first_index);
-					indices.push_back(last_index);
-					indices.push_back(index);
-					last_index = index;
-				}	
-
-				LLVolumeFace::VertexMapData d;
-				d.setPosition(cv.getPosition());
-				d.mTexCoord = cv.mTexCoord;
-				d.setNormal(cv.getNormal());
-				d.mIndex = index;
-				if (point_iter != point_map.end())
-				{
-					point_iter->second.push_back(d);
-				}
-				else
-				{
-					point_map[pos3].push_back(d);
-				}
-			}
-
-			if (indices.size()%3 == 0 && indices.size() >= 65532)
-			{
-				face_list.push_back(face);
-				face_list.rbegin()->fillFromLegacyData(verts, indices);
-				LLVolumeFace& new_face = *face_list.rbegin();
-				if (!norm_source)
-				{
-					//ll_aligned_free_16(new_face.mNormals);
-					new_face.mNormals = NULL;
-				}
-
-				if (!tc_source)
-				{
-					//ll_aligned_free_16(new_face.mTexCoords);
-					new_face.mTexCoords = NULL;
-				}
-
-				face = LLVolumeFace();
-				verts.clear();
-				indices.clear();
-				point_map.clear();
-			}
-		}
-	}
-
-	if (!verts.empty())
-	{
-		std::string material;
-
-		if (poly->getMaterial())
-		{
-			material = std::string(poly->getMaterial());
-		}
-	
-		materials.push_back(material);
-		face_list.push_back(face);
-		face_list.rbegin()->fillFromLegacyData(verts, indices);
-
-		LLVolumeFace& new_face = *face_list.rbegin();
-		if (!norm_source)
-		{
-			//ll_aligned_free_16(new_face.mNormals);
-			new_face.mNormals = NULL;
-		}
-
-		if (!tc_source)
-		{
-			//ll_aligned_free_16(new_face.mTexCoords);
-			new_face.mTexCoords = NULL;
-		}
-	}
-
-	return LLModel::NO_ERRORS ;
-}
-
-LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& face_list, std::vector<std::string>& materials, domPolygonsRef& poly)
-{
-	LLVolumeFace face;
-	std::vector<U16> indices;
-	std::vector<LLVolumeFace::VertexData> verts;
-
-	const domInputLocalOffset_Array& inputs = poly->getInput_array();
-
-	S32 v_offset = -1;
-	S32 n_offset = -1;
-	S32 t_offset = -1;
-
-	domListOfFloats* v = NULL;
-	domListOfFloats* n = NULL;
-	domListOfFloats* t = NULL;
-	
-	U32 stride = 0;
-	for (U32 i = 0; i < inputs.getCount(); ++i)
-	{
-		stride = llmax((U32) inputs[i]->getOffset()+1, stride);
-
-		if (strcmp(COMMON_PROFILE_INPUT_VERTEX, inputs[i]->getSemantic()) == 0)
-		{ //found vertex array
-			v_offset = inputs[i]->getOffset();
-
-			const domURIFragmentType& uri = inputs[i]->getSource();
-			daeElementRef elem = uri.getElement();
-			domVertices* vertices = (domVertices*) elem.cast();
-			if (!vertices)
-			{
-				llwarns << "Could not find vertex source, invalid model." << llendl;
-				return LLModel::BAD_ELEMENT;
-			}
-			domInputLocal_Array& v_inp = vertices->getInput_array();
-
-			for (U32 k = 0; k < v_inp.getCount(); ++k)
-			{
-				if (strcmp(COMMON_PROFILE_INPUT_POSITION, v_inp[k]->getSemantic()) == 0)
-				{
-					const domURIFragmentType& uri = v_inp[k]->getSource();
-					daeElementRef elem = uri.getElement();
-					domSource* src = (domSource*) elem.cast();
-					if (!src)
-					{
-						llwarns << "Could not find DOM source, invalid model." << llendl;
-						return LLModel::BAD_ELEMENT;
-					}
-					v = &(src->getFloat_array()->getValue());
-				}
-			}
-		}
-		else if (strcmp(COMMON_PROFILE_INPUT_NORMAL, inputs[i]->getSemantic()) == 0)
-		{
-			n_offset = inputs[i]->getOffset();
-			//found normal array for this triangle list
-			const domURIFragmentType& uri = inputs[i]->getSource();
-			daeElementRef elem = uri.getElement();
-			domSource* src = (domSource*) elem.cast();
-			if (!src)
-			{
-				llwarns << "Could not find DOM source, invalid model." << llendl;
-				return LLModel::BAD_ELEMENT;
-			}
-			n = &(src->getFloat_array()->getValue());
-		}
-		else if (strcmp(COMMON_PROFILE_INPUT_TEXCOORD, inputs[i]->getSemantic()) == 0 && inputs[i]->getSet() == 0)
-		{ //found texCoords
-			t_offset = inputs[i]->getOffset();
-			const domURIFragmentType& uri = inputs[i]->getSource();
-			daeElementRef elem = uri.getElement();
-			domSource* src = (domSource*) elem.cast();
-			if (!src)
-			{
-				llwarns << "Could not find DOM source, invalid model." << llendl;
-				return LLModel::BAD_ELEMENT;
-			}
-			t = &(src->getFloat_array()->getValue());
-		}
-	}
-
-	domP_Array& ps = poly->getP_array();
-
-	//make a triangle list in <verts>
-	for (U32 i = 0; i < ps.getCount(); ++i)
-	{ //for each polygon
-		domListOfUInts& idx = ps[i]->getValue();
-		for (U32 j = 0; j < idx.getCount()/stride; ++j)
-		{ //for each vertex
-			if (j > 2)
-			{
-				U32 size = verts.size();
-				LLVolumeFace::VertexData v0 = verts[size-3];
-				LLVolumeFace::VertexData v1 = verts[size-1];
-
-				verts.push_back(v0);
-				verts.push_back(v1);
-			}
-
-			LLVolumeFace::VertexData vert;
-
-
-			if (v)
-			{
-				U32 v_idx = idx[j*stride+v_offset]*3;
-				v_idx = llclamp(v_idx, (U32) 0, (U32) v->getCount());
-				vert.getPosition().set(v->get(v_idx),
-								v->get(v_idx+1),
-								v->get(v_idx+2));
-
-				if (!vert.getPosition().isFinite3())
-				{
-					llwarns << "Found NaN while loading position data from DAE-Model, invalid model." << llendl;
-					return LLModel::BAD_ELEMENT;
-				}
-			}
-			
-			//bounds check n and t lookups because some FBX to DAE converters
-			//use negative indices and empty arrays to indicate data does not exist
-			//for a particular channel
-			if (n && n->getCount() > 0)
-			{
-				U32 n_idx = idx[j*stride+n_offset]*3;
-				n_idx = llclamp(n_idx, (U32) 0, (U32) n->getCount());
-				vert.getNormal().set(n->get(n_idx),
-								n->get(n_idx+1),
-								n->get(n_idx+2));
-
-				if (!vert.getNormal().isFinite3())
-				{
-					llwarns << "Found NaN while loading normals from DAE-Model, invalid model." << llendl;
-					return LLModel::BAD_ELEMENT;
-				}
-			}
-			else
-			{
-				vert.getNormal().clear();
-			}
-
-			
-			if (t && t->getCount() > 0)
-			{
-				U32 t_idx = idx[j*stride+t_offset]*2;
-				t_idx = llclamp(t_idx, (U32) 0, (U32) t->getCount());
-				vert.mTexCoord.setVec(t->get(t_idx),
-								t->get(t_idx+1));								
-
-				if (!vert.mTexCoord.isFinite())
-				{
-					llwarns << "Found NaN while loading tex coords from DAE-Model, invalid model." << llendl;
-					return LLModel::BAD_ELEMENT;
-				}
-			}
-			else
-			{
-				vert.mTexCoord.clear();
-			}
-
-						
-			verts.push_back(vert);
-		}
-	}
-
-	if (verts.empty())
-	{
-		return LLModel::NO_ERRORS;
-	}
-
-	face.mExtents[0] = verts[0].getPosition();
-	face.mExtents[1] = verts[0].getPosition();
-	
-	//create a map of unique vertices to indices
-	std::map<LLVolumeFace::VertexData, U32> vert_idx;
-
-	U32 cur_idx = 0;
-	for (U32 i = 0; i < verts.size(); ++i)
-	{
-		std::map<LLVolumeFace::VertexData, U32>::iterator iter = vert_idx.find(verts[i]);
-		if (iter == vert_idx.end())
-		{
-			vert_idx[verts[i]] = cur_idx++;
-		}
-	}
-
-	//build vertex array from map
-	std::vector<LLVolumeFace::VertexData> new_verts;
-	new_verts.resize(vert_idx.size());
-
-	for (std::map<LLVolumeFace::VertexData, U32>::iterator iter = vert_idx.begin(); iter != vert_idx.end(); ++iter)
-	{
-		new_verts[iter->second] = iter->first;
-		update_min_max(face.mExtents[0], face.mExtents[1], iter->first.getPosition());
-	}
-
-	//build index array from map
-	indices.resize(verts.size());
-
-	for (U32 i = 0; i < verts.size(); ++i)
-	{
-		indices[i] = vert_idx[verts[i]];
-	}
-
-	// DEBUG just build an expanded triangle list
-	/*for (U32 i = 0; i < verts.size(); ++i)
-	{
-		indices.push_back((U16) i);
-		update_min_max(face.mExtents[0], face.mExtents[1], verts[i].getPosition());
-	}*/
-
-    if (!new_verts.empty())
-	{
-		std::string material;
-
-		if (poly->getMaterial())
-		{
-			material = std::string(poly->getMaterial());
-		}
-
-		materials.push_back(material);
-		face_list.push_back(face);
-		face_list.rbegin()->fillFromLegacyData(new_verts, indices);
-
-		LLVolumeFace& new_face = *face_list.rbegin();
-		if (!n)
-		{
-			//ll_aligned_free_16(new_face.mNormals);
-			new_face.mNormals = NULL;
-		}
-
-		if (!t)
-		{
-			//ll_aligned_free_16(new_face.mTexCoords);
-			new_face.mTexCoords = NULL;
-		}
-	}
-
-	return LLModel::NO_ERRORS ;
 }
 
 //static
@@ -889,82 +84,6 @@ std::string LLModel::getStatusString(U32 status)
 	return std::string() ;
 }
 
-void LLModel::addVolumeFacesFromDomMesh(domMesh* mesh)
-{
-	domTriangles_Array& tris = mesh->getTriangles_array();
-		
-	for (U32 i = 0; i < tris.getCount(); ++i)
-	{
-		domTrianglesRef& tri = tris.get(i);
-
-		mStatus = load_face_from_dom_triangles(mVolumeFaces, mMaterialList, tri);
-		
-		if(mStatus != NO_ERRORS)
-		{
-			mVolumeFaces.clear() ;
-			mMaterialList.clear() ;
-			return ; //abort
-		}
-	}
-
-	domPolylist_Array& polys = mesh->getPolylist_array();
-	for (U32 i = 0; i < polys.getCount(); ++i)
-	{
-		domPolylistRef& poly = polys.get(i);
-		mStatus = load_face_from_dom_polylist(mVolumeFaces, mMaterialList, poly);
-
-		if(mStatus != NO_ERRORS)
-		{
-			mVolumeFaces.clear() ;
-			mMaterialList.clear() ;
-			return ; //abort
-		}
-	}
-	
-	domPolygons_Array& polygons = mesh->getPolygons_array();
-	
-	for (U32 i = 0; i < polygons.getCount(); ++i)
-	{
-		domPolygonsRef& poly = polygons.get(i);
-		mStatus = load_face_from_dom_polygons(mVolumeFaces, mMaterialList, poly);
-
-		if(mStatus != NO_ERRORS)
-		{
-			mVolumeFaces.clear() ;
-			mMaterialList.clear() ;
-			return ; //abort
-		}
-	}
- 
-}
-
-BOOL LLModel::createVolumeFacesFromDomMesh(domMesh* mesh)
-{
-	if (mesh)
-	{
-		mVolumeFaces.clear();
-		mMaterialList.clear();
-
-		addVolumeFacesFromDomMesh(mesh);
-		
-		if (getNumVolumeFaces() > 0)
-		{
-			normalizeVolumeFaces();
-			optimizeVolumeFaces();
-			
-			if (getNumVolumeFaces() > 0)
-			{
-				return TRUE;
-			}
-		}
-	}
-	else
-	{	
-		llwarns << "no mesh found" << llendl;
-	}
-	
-	return FALSE;
-}
 
 void LLModel::offsetMesh( const LLVector3& pivotPoint )
 {
@@ -991,6 +110,63 @@ void LLModel::optimizeVolumeFaces()
 	}
 }
 
+struct MaterialBinding
+{
+	int				index;
+	std::string		matName;
+};
+
+struct MaterialSort
+{
+	bool operator()(const MaterialBinding& lhs, const MaterialBinding& rhs)
+	{
+		return LLStringUtil::compareInsensitive(lhs.matName, rhs.matName) < 0;
+	}
+};
+
+void LLModel::sortVolumeFacesByMaterialName()
+{
+	std::vector<MaterialBinding> bindings;
+	bindings.resize(mVolumeFaces.size());
+	for (int i = 0; i < bindings.size(); i++)
+	{
+		bindings[i].index = i;
+		bindings[i].matName = mMaterialList[i];
+	}
+	std::sort(bindings.begin(), bindings.end(), MaterialSort());
+	std::vector< LLVolumeFace > new_faces;
+
+	// remap the faces to be in the same order the mats now are...
+	//
+	new_faces.resize(bindings.size());
+	for (int i = 0; i < bindings.size(); i++)
+	{
+		new_faces[i] = mVolumeFaces[bindings[i].index];
+		mMaterialList[i] = bindings[i].matName;
+	}
+
+	mVolumeFaces = new_faces;	
+}
+
+void LLModel::trimVolumeFacesToSize(U32 new_count, LLVolume::face_list_t* remainder)
+{
+	llassert(new_count <= LL_SCULPT_MESH_MAX_FACES);
+
+	if (new_count && (getNumVolumeFaces() > new_count))
+	{
+		// Copy out remaining volume faces for alternative handling, if provided
+		//
+		if (remainder)
+		{
+			(*remainder).assign(mVolumeFaces.begin() + new_count, mVolumeFaces.end());
+		}		
+
+		// Trim down to the final set of volume faces (now stuffed to the gills!)
+		//
+		mVolumeFaces.resize(new_count);
+	}
+}
+
 // Shrink the model to fit
 // on a 1x1x1 cube centered at the origin.
 // The positions and extents
@@ -1001,11 +177,6 @@ void LLModel::optimizeVolumeFaces()
 // within the unit cube.
 void LLModel::normalizeVolumeFaces()
 {
-
-	// ensure we don't have too many faces
-	if (mVolumeFaces.size() > LL_SCULPT_MESH_MAX_FACES)
-		mVolumeFaces.resize(LL_SCULPT_MESH_MAX_FACES);
-	
 	if (!mVolumeFaces.empty())
 	{
 		LLVector4a min, max;
@@ -1472,68 +643,10 @@ void LLModel::generateNormals(F32 angle_cutoff)
 	}
 }
 
-//static
-std::string LLModel::getElementLabel(daeElement *element)
-{ // try to get a decent label for this element
-	// if we have a name attribute, use it
-	std::string name = element->getAttribute("name");
-	if (name.length())
-	{
-		return name;
-	}
-
-	// if we have an ID attribute, use it
-	if (element->getID())
-	{
-		return std::string(element->getID());
-	}
-
-	// if we have a parent, use it
-	daeElement* parent = element->getParent();
-	if (parent)
-	{
-		// if parent has a name, use it
-		std::string name = parent->getAttribute("name");
-		if (name.length())
-		{
-			return name;
-		}
-
-		// if parent has an ID, use it
-		if (parent->getID())
-		{
-			return std::string(parent->getID());
-		}
-	}
-
-	// try to use our type
-	daeString element_name = element->getElementName();
-	if (element_name)
-	{
-		return std::string(element_name);
-	}
-
-	// if all else fails, use "object"
-	return std::string("object");
-}
-
-//static 
-LLModel* LLModel::loadModelFromDomMesh(domMesh *mesh)
-{
-	LLVolumeParams volume_params;
-	volume_params.setType(LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE);
-	LLModel* ret = new LLModel(volume_params, 0.f); 
-	ret->createVolumeFacesFromDomMesh(mesh);
-	ret->mLabel = getElementLabel(mesh);
-	return ret;
-}
 
 std::string LLModel::getName() const
 {
-	if (!mRequestedLabel.empty())
-		return mRequestedLabel;
-	else
-		return mLabel;
+    return mRequestedLabel.empty() ? mLabel : mRequestedLabel;
 }
 
 //static
@@ -1548,7 +661,8 @@ LLSD LLModel::writeModel(
 	BOOL upload_skin,
 	BOOL upload_joints,
 	BOOL nowrite,
-	BOOL as_slm)
+	BOOL as_slm,
+	int submodel_id)
 {
 	LLSD mdl;
 
@@ -1577,6 +691,14 @@ LLSD LLModel::writeModel(
 			model[LLModel::LOD_PHYSICS] = NULL;
 		}
 	}
+	else if (submodel_id)
+	{
+		const LLModel::Decomposition fake_decomp;
+		mdl["secondary"] = true;
+        mdl["submodel_id"] = submodel_id;
+		mdl["physics_convex"] = fake_decomp.asLLSD();
+		model[LLModel::LOD_PHYSICS] = NULL;
+	}
 
 	if (as_slm)
 	{ //save material list names
@@ -1588,7 +710,7 @@ LLSD LLModel::writeModel(
 
 	for (U32 idx = 0; idx < MODEL_NAMES_LENGTH; ++idx)
 	{
-		if (model[idx] && model[idx]->getNumVolumeFaces() > 0)
+		if (model[idx] && (model[idx]->getNumVolumeFaces() > 0) && model[idx]->getVolumeFace(0).mPositions != NULL)
 		{
 			LLVector3 min_pos = LLVector3(model[idx]->getVolumeFace(0).mPositions[0].getF32ptr());
 			LLVector3 max_pos = min_pos;
@@ -1821,6 +943,11 @@ LLSD LLModel::writeModelToStream(std::ostream& ostr, LLSD& mdl, BOOL nowrite, BO
 		}
 	}
 
+    if (mdl.has("submodel_id"))
+	{ //write out submodel id
+        header["submodel_id"] = (LLSD::Integer)mdl["submodel_id"];
+	}
+
 	std::string out[MODEL_NAMES_LENGTH];
 
 	for (S32 i = 0; i < MODEL_NAMES_LENGTH; i++)
@@ -2004,7 +1131,9 @@ bool LLModel::loadModel(std::istream& is)
 		}
 	}
 
-	std::string nm[] = 
+	mSubmodelID = header.has("submodel_id") ? header["submodel_id"].asInteger() : false;
+
+	std::string lod_name[] = 
 	{
 		"lowest_lod",
 		"low_lod",
@@ -2017,8 +1146,8 @@ bool LLModel::loadModel(std::istream& is)
 
 	S32 lod = llclamp((S32) mDetail, 0, MODEL_LODS);
 
-	if (header[nm[lod]]["offset"].asInteger() == -1 || 
-		header[nm[lod]]["size"].asInteger() == 0 )
+	if (header[lod_name[lod]]["offset"].asInteger() == -1 || 
+		header[lod_name[lod]]["size"].asInteger() == 0 )
 	{ //cannot load requested LOD
 		llwarns << "LoD data is invalid!" << llendl;
 		return false;
@@ -2027,23 +1156,23 @@ bool LLModel::loadModel(std::istream& is)
 	bool has_skin = header["skin"]["offset"].asInteger() >=0 &&
 					header["skin"]["size"].asInteger() > 0;
 
-	if (lod == LLModel::LOD_HIGH)
+	if ((lod == LLModel::LOD_HIGH) && !mSubmodelID)
 	{ //try to load skin info and decomp info
 		std::ios::pos_type cur_pos = is.tellg();
 		loadSkinInfo(header, is);
 		is.seekg(cur_pos);
 	}
 
-	if (lod == LLModel::LOD_HIGH || lod == LLModel::LOD_PHYSICS)
+	if ((lod == LLModel::LOD_HIGH || lod == LLModel::LOD_PHYSICS) && !mSubmodelID)
 	{
 		std::ios::pos_type cur_pos = is.tellg();
 		loadDecomposition(header, is);
 		is.seekg(cur_pos);
 	}
 
-	is.seekg(header[nm[lod]]["offset"].asInteger(), std::ios_base::cur);
+	is.seekg(header[lod_name[lod]]["offset"].asInteger(), std::ios_base::cur);
 
-	if (unpackVolumeFaces(is, header[nm[lod]]["size"].asInteger()))
+	if (unpackVolumeFaces(is, header[lod_name[lod]]["size"].asInteger()))
 	{
 		if (has_skin)
 		{ 
@@ -2109,8 +1238,10 @@ bool LLModel::isMaterialListSubset( LLModel* ref )
 				break;
 			}										
 		}
+
 		if (!foundRef)
 		{
+            llinfos << "Could not find material " << mMaterialList[src] << " in reference model " << ref->mLabel << llendl;
 			return false;
 		}
 	}
@@ -2161,41 +1292,42 @@ bool LLModel::matchMaterialOrder(LLModel* ref, int& refFaceCnt, int& modelFaceCn
 	for (U32 i = 0; i < mMaterialList.size(); i++)
 	{
 		index_map[ref->mMaterialList[i]] = i;
-		if (!reorder)
-		{ //if any material name does not match reference, we need to reorder
-			reorder = ref->mMaterialList[i] != mMaterialList[i];
-		}
+		//if any material name does not match reference, we need to reorder
+		reorder |= ref->mMaterialList[i] != mMaterialList[i];
 		base_mat.insert(ref->mMaterialList[i]);
 		cur_mat.insert(mMaterialList[i]);
 	}
 
 
-	if (reorder && 
-		base_mat == cur_mat) //don't reorder if material name sets don't match
+	if (reorder &&  (base_mat == cur_mat)) //don't reorder if material name sets don't match
 	{
 		std::vector<LLVolumeFace> new_face_list;
-		new_face_list.resize(mVolumeFaces.size());
+		new_face_list.resize(mMaterialList.size());
 
 		std::vector<std::string> new_material_list;
-		new_material_list.resize(mVolumeFaces.size());
+		new_material_list.resize(mMaterialList.size());
 
 		//rebuild face list so materials have the same order 
 		//as the reference model
 		for (U32 i = 0; i < mMaterialList.size(); ++i)
 		{ 
 			U32 ref_idx = index_map[mMaterialList[i]];
-			new_face_list[ref_idx] = mVolumeFaces[i];
 
+			if (i < mVolumeFaces.size())
+			{
+				new_face_list[ref_idx] = mVolumeFaces[i];
+			}
 			new_material_list[ref_idx] = mMaterialList[i];
 		}
 
 		llassert(new_material_list == ref->mMaterialList);
 		
 		mVolumeFaces = new_face_list;
-	}
 
-	//override material list with reference model ordering
-	mMaterialList = ref->mMaterialList;
+		//override material list with reference model ordering
+		mMaterialList = ref->mMaterialList;
+	}
+	
 	return true;
 }
 
@@ -2226,7 +1358,7 @@ bool LLModel::loadDecomposition(LLSD& header, std::istream& is)
 	S32 offset = header["physics_convex"]["offset"].asInteger();
 	S32 size = header["physics_convex"]["size"].asInteger();
 
-	if (offset >= 0 && size > 0)
+	if (offset >= 0 && size > 0 && !mSubmodelID)
 	{
 		is.seekg(offset, std::ios_base::cur);
 
@@ -2632,5 +1764,229 @@ void LLModel::Decomposition::merge(const LLModel::Decomposition* rhs)
 	{ //take physics shape mesh from rhs
 		mPhysicsShapeMesh = rhs->mPhysicsShapeMesh;
 	}
+}
+
+bool ll_is_degenerate(const LLVector4a& a, const LLVector4a& b, const LLVector4a& c, F32 tolerance)
+{
+	// small area check
+	{
+		LLVector4a edge1; edge1.setSub( a, b );
+		LLVector4a edge2; edge2.setSub( a, c );
+		//////////////////////////////////////////////////////////////////////////
+		/// Linden Modified
+		//////////////////////////////////////////////////////////////////////////
+
+		// If no one edge is more than 10x longer than any other edge, we weaken
+		// the tolerance by a factor of 1e-4f.
+
+		LLVector4a edge3; edge3.setSub( c, b );
+		const F32 len1sq = edge1.dot3(edge1).getF32();
+		const F32 len2sq = edge2.dot3(edge2).getF32();
+		const F32 len3sq = edge3.dot3(edge3).getF32();
+		bool abOK = (len1sq <= 100.f * len2sq) && (len1sq <= 100.f * len3sq);
+		bool acOK = (len2sq <= 100.f * len1sq) && (len1sq <= 100.f * len3sq);
+		bool cbOK = (len3sq <= 100.f * len1sq) && (len1sq <= 100.f * len2sq);
+		if ( abOK && acOK && cbOK )
+		{
+			tolerance *= 1e-4f;
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		/// End Modified
+		//////////////////////////////////////////////////////////////////////////
+
+		LLVector4a cross; cross.setCross3( edge1, edge2 );
+
+		LLVector4a edge1b; edge1b.setSub( b, a );
+		LLVector4a edge2b; edge2b.setSub( b, c );
+		LLVector4a crossb; crossb.setCross3( edge1b, edge2b );
+
+		if ( ( cross.dot3(cross).getF32() < tolerance ) || ( crossb.dot3(crossb).getF32() < tolerance ))
+		{
+			return true;
+		}
+	}
+
+	// point triangle distance check
+	{
+		LLVector4a Q; Q.setSub(a, b);
+		LLVector4a R; R.setSub(c, b);
+
+		const F32 QQ = dot3fpu(Q, Q);
+		const F32 RR = dot3fpu(R, R);
+		const F32 QR = dot3fpu(R, Q);
+
+		volatile F32 QQRR = QQ * RR;
+		volatile F32 QRQR = QR * QR;
+		F32 Det = (QQRR - QRQR);
+
+		if( Det == 0.0f )
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool validate_face(const LLVolumeFace& face)
+{
+	for (U32 i = 0; i < face.mNumIndices; ++i)
+	{
+		if (face.mIndices[i] >= face.mNumVertices)
+		{
+			llwarns << "Face has invalid index." << llendl;
+			return false;
+		}
+	}
+
+	if (face.mNumIndices % 3 != 0 || face.mNumIndices == 0)
+	{
+		llwarns << "Face has invalid number of indices." << llendl;
+		return false;
+	}
+
+	/*const LLVector4a scale(0.5f);
+
+	for (U32 i = 0; i < face.mNumIndices; i+=3)
+	{
+		U16 idx1 = face.mIndices[i];
+		U16 idx2 = face.mIndices[i+1];
+		U16 idx3 = face.mIndices[i+2];
+
+		LLVector4a v1; v1.setMul(face.mPositions[idx1], scale);
+		LLVector4a v2; v2.setMul(face.mPositions[idx2], scale);
+		LLVector4a v3; v3.setMul(face.mPositions[idx3], scale);
+
+		if (ll_is_degenerate(v1,v2,v3))
+		{
+			llwarns << "Degenerate face found!" << llendl;
+			return false;
+		}
+	}*/
+
+	return true;
+}
+
+bool validate_model(const LLModel* mdl)
+{
+	if (mdl->getNumVolumeFaces() == 0)
+	{
+		llwarns << "Model has no faces!" << llendl;
+		return false;
+	}
+
+	for (S32 i = 0; i < mdl->getNumVolumeFaces(); ++i)
+	{
+		if (mdl->getVolumeFace(i).mNumVertices == 0)
+		{
+			llwarns << "Face has no vertices." << llendl;
+			return false;
+		}
+
+		if (mdl->getVolumeFace(i).mNumIndices == 0)
+		{
+			llwarns << "Face has no indices." << llendl;
+			return false;
+		}
+
+		if (!validate_face(mdl->getVolumeFace(i)))
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+LLModelInstance::LLModelInstance(LLSD& data)
+	: LLModelInstanceBase()
+{
+	mLocalMeshID = data["mesh_id"].asInteger();
+	mLabel = data["label"].asString();
+	mTransform.setValue(data["transform"]);
+
+	for (U32 i = 0; i < data["material"].size(); ++i)
+	{
+		LLImportMaterial mat(data["material"][i]);
+		mMaterial[mat.mBinding] = mat;
+	}
+}
+
+
+LLSD LLModelInstance::asLLSD()
+{	
+	LLSD ret;
+
+	ret["mesh_id"] = mModel->mLocalID;
+	ret["label"] = mLabel;
+	ret["transform"] = mTransform.getValue();
+
+	U32 i = 0;
+	for (std::map<std::string, LLImportMaterial>::iterator iter = mMaterial.begin(); iter != mMaterial.end(); ++iter)
+	{
+		ret["material"][i++] = iter->second.asLLSD();
+	}
+
+	return ret;
+}
+
+
+LLImportMaterial::~LLImportMaterial()
+{
+}
+
+LLImportMaterial::LLImportMaterial(LLSD& data)
+{
+	mDiffuseMapFilename = data["diffuse"]["filename"].asString();
+	mDiffuseMapLabel = data["diffuse"]["label"].asString();
+	mDiffuseColor.setValue(data["diffuse"]["color"]);
+	mFullbright = data["fullbright"].asBoolean();
+	mBinding = data["binding"].asString();
+}
+
+
+LLSD LLImportMaterial::asLLSD()
+{
+	LLSD ret;
+
+	ret["diffuse"]["filename"] = mDiffuseMapFilename;
+	ret["diffuse"]["label"] = mDiffuseMapLabel;
+	ret["diffuse"]["color"] = mDiffuseColor.getValue();
+	ret["fullbright"] = mFullbright;
+	ret["binding"] = mBinding;
+
+	return ret;
+}
+
+bool LLImportMaterial::operator<(const LLImportMaterial &rhs) const
+{
+
+	if (mDiffuseMapID != rhs.mDiffuseMapID)
+	{
+		return mDiffuseMapID < rhs.mDiffuseMapID;
+	}
+
+	if (mDiffuseMapFilename != rhs.mDiffuseMapFilename)
+	{
+		return mDiffuseMapFilename < rhs.mDiffuseMapFilename;
+	}
+
+	if (mDiffuseMapLabel != rhs.mDiffuseMapLabel)
+	{
+		return mDiffuseMapLabel < rhs.mDiffuseMapLabel;
+	}
+
+	if (mDiffuseColor != rhs.mDiffuseColor)
+	{
+		return mDiffuseColor < rhs.mDiffuseColor;
+	}
+
+	if (mBinding != rhs.mBinding)
+	{
+		return mBinding < rhs.mBinding;
+	}
+
+	return mFullbright < rhs.mFullbright;
 }
 

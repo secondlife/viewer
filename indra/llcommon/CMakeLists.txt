@@ -36,6 +36,7 @@ set(llcommon_SOURCE_FILES
     llavatarname.cpp
     llbase32.cpp
     llbase64.cpp
+    llcallbacklist.cpp
     llcommon.cpp
     llcommonutils.cpp
     llcoros.cpp
@@ -139,6 +140,7 @@ set(llcommon_HEADER_FILES
     llboost.h
     llchat.h
     llclickaction.h
+    llcallbacklist.h
     llcommon.h
     llcommonutils.h
     llcoros.h

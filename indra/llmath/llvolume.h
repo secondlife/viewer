@@ -969,6 +969,7 @@ protected:
 	~LLVolume(); // use unref
 
 public:
+	typedef std::vector<LLVolumeFace> face_list_t;
 		
 	struct FaceParams
 	{
@@ -1041,6 +1042,10 @@ public:
 																				// conversion if *(LLVolume*) to LLVolume&
 	const LLVolumeFace &getVolumeFace(const S32 f) const {return mVolumeFaces[f];} // DO NOT DELETE VOLUME WHILE USING THIS REFERENCE, OR HOLD A POINTER TO THIS VOLUMEFACE
 	
+	LLVolumeFace &getVolumeFace(const S32 f) {return mVolumeFaces[f];} // DO NOT DELETE VOLUME WHILE USING THIS REFERENCE, OR HOLD A POINTER TO THIS VOLUMEFACE
+
+	face_list_t& getVolumeFaces() { return mVolumeFaces; }
+
 	U32					mFaceMask;			// bit array of which faces exist in this volume
 	LLVector3			mLODScaleBias;		// vector for biasing LOD based on scale
 	

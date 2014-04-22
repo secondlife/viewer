@@ -191,6 +191,13 @@ bool LLTextureEntry::operator==(const LLTextureEntry &rhs) const
 	return(true);
 }
 
+bool LLTextureEntry::operator <(const LLTextureEntry &rhs) const
+{
+	if (mID < rhs.mID) return(true);
+	if (mMaterialID < rhs.mMaterialID) return (true);
+	return(false);
+}
+
 LLSD LLTextureEntry::asLLSD() const
 {
 	LLSD sd;
@@ -545,7 +552,7 @@ S32 LLTextureEntry::setMaterialID(const LLMaterialID& pMaterialID)
 		{
 			mMaterialUpdatePending = true;
 			mMaterialID = pMaterialID;
-			return TEM_CHANGE_TEXTURE;
+			return TEM_CHANGE_NONE;
 		}
 
 		mMaterialUpdatePending = false;

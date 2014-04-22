@@ -27,6 +27,8 @@
 #ifndef LL_LLSTL_H
 #define LL_LLSTL_H
 
+#include "stdtypes.h"
+
 #include <functional>
 #include <algorithm>
 #include <map>
@@ -489,7 +491,7 @@ bool before(const std::type_info* lhs, const std::type_info* rhs)
     return strcmp(lhs->name(), rhs->name()) < 0;
 #else  // not Linux, or gcc 4.4+
     // Just use before(), as we normally would
-    return lhs->before(*rhs);
+    return lhs->before(*rhs) ? true : false;
 #endif
 }
 

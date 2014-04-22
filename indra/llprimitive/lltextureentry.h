@@ -89,6 +89,10 @@ public:
 
 	bool operator==(const LLTextureEntry &rhs) const;
 	bool operator!=(const LLTextureEntry &rhs) const;
+	
+	// Added to allow use with std::map
+	//
+	bool operator <(const LLTextureEntry &rhs) const;
 
 	LLSD asLLSD() const;
 	void asLLSD(LLSD& sd) const;
