@@ -47,10 +47,27 @@ namespace MarketplaceErrorCodes
 		IMPORT_DONE = 200,
 		IMPORT_PROCESSING = 202,
 		IMPORT_REDIRECT = 302,
+		IMPORT_BAD_REQUEST = 400,
 		IMPORT_AUTHENTICATION_ERROR = 401,
+		IMPORT_FORBIDDEN = 403,
+		IMPORT_NOT_FOUND = 404,
 		IMPORT_DONE_WITH_ERRORS = 409,
 		IMPORT_JOB_FAILED = 410,
 		IMPORT_JOB_TIMEOUT = 499,
+		IMPORT_SERVER_SITE_DOWN = 500,
+		IMPORT_SERVER_API_DISABLED = 503,
+	};
+}
+
+namespace MarketplaceStatusCodes
+{
+	enum sCode
+	{
+		MARKET_PLACE_NOT_INITIALIZED = 0,
+		MARKET_PLACE_INITIALIZING = 1,
+		MARKET_PLACE_CONNECTION_FAILURE = 2,
+		MARKET_PLACE_MERCHANT = 3,
+		MARKET_PLACE_NOT_MERCHANT = 4,
 	};
 }
 
@@ -73,6 +90,8 @@ public:
 	void initialize();
 	bool triggerImport();
 	bool isImportInProgress() const { return mImportInProgress; }
+	bool isInitialized() const { return mInitialized; }
+	U32 getMarketPlaceStatus() const { return mMarketPlaceStatus; }
 	
 protected:
 	void reinitializeAndTriggerImport();
@@ -82,6 +101,7 @@ private:
 	bool mAutoTriggerImport;
 	bool mImportInProgress;
 	bool mInitialized;
+	U32  mMarketPlaceStatus;
 	
 	status_report_signal_t *	mErrorInitSignal;
 	status_changed_signal_t *	mStatusChangedSignal;
