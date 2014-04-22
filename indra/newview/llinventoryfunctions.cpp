@@ -845,6 +845,11 @@ S32 compute_stock_count(LLUUID cat_uuid)
             // If there is a version folder, the stock value for the listing is the version folder stock
             return compute_stock_count(version_folder_uuid);
         }
+        else
+        {
+            // If there's no version folder associated, the notion of stock count has no meaning
+            return -1;
+        }
     }
     else if (depth == 2)
     {
