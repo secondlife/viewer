@@ -37,6 +37,7 @@
 #include "llviewercontrol.h"
 #include "llviewermedia.h"
 #include "llviewernetwork.h"
+#include "llviewerregion.h"
 
 
 //
@@ -424,6 +425,18 @@ void LLMarketplaceInventoryImporter::initialize()
     if (mInitialized)
     {
         return;
+    }
+
+    // Test DirectDelivery cap
+	LLViewerRegion* region = gAgent.getRegion();
+	if (region)
+    {
+        std::string url = region->getCapability("DirectDelivery");
+        llinfos << "Merov : Test DirectDelivery cap : url = " << url << llendl;
+    }
+    else
+    {
+        llinfos << "Merov : Test DirectDelivery cap : no region accessible" << llendl;
     }
 
 	if (!LLMarketplaceImport::hasSessionCookie())
