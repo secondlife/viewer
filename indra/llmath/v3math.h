@@ -1,4 +1,4 @@
-/** 
+/**
  * @file v3math.h
  * @brief LLVector3 class header file.
  *
@@ -491,9 +491,15 @@ inline F32	dist_vec_squared2D(const LLVector3 &a, const LLVector3 &b)
 
 inline LLVector3 projected_vec(const LLVector3 &a, const LLVector3 &b)
 {
-	LLVector3 project_axis = b;
-	project_axis.normalize();
-	return project_axis * (a * project_axis);
+	F32 bb = b * b;
+	if (bb > FP_MAG_THRESHOLD * FP_MAG_THRESHOLD)
+	{
+		return ((a * b) / bb) * b;
+	}
+	else
+	{
+		return b.zero;
+	}
 }
 
 inline LLVector3 inverse_projected_vec(const LLVector3& a, const LLVector3& b)
@@ -569,15 +575,13 @@ inline void update_min_max(LLVector3& min, LLVector3& max, const F32* pos)
 
 inline F32 angle_between(const LLVector3& a, const LLVector3& b)
 {
-	LLVector3 an = a;
-	LLVector3 bn = b;
-	an.normalize();
-	bn.normalize();
-	F32 cosine = an * bn;
-	F32 angle = (cosine >= 1.0f) ? 0.0f :
-				(cosine <= -1.0f) ? F_PI :
-				(F32)acos(cosine);
-	return angle;
+	F32 ab = a * b; // dotproduct
+	if (ab == -0.0f)
+	{
+		ab = 0.0f; // get rid of negative zero
+	}
+	LLVector3 c = a % b; // crossproduct
+	return atan2f(sqrtf(c * c), ab); // return the angle
 }
 
 inline BOOL are_parallel(const LLVector3 &a, const LLVector3 &b, F32 epsilon)

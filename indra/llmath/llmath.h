@@ -1,4 +1,4 @@
-/** 
+/**
  * @file llmath.h
  * @brief Useful math constants and macros.
  *
@@ -81,6 +81,9 @@ const F32	OO_LN2		= 1.4426950408889634073599246810019f;
 
 const F32	F_ALMOST_ZERO	= 0.0001f;
 const F32	F_ALMOST_ONE	= 1.0f - F_ALMOST_ZERO;
+
+const F32	GIMBAL_THRESHOLD = 0.000436f; // sets the gimballock threshold 0.025 away from +/-90 degrees
+// formula: GIMBAL_THRESHOLD = sin(DEG_TO_RAD * gimbal_threshold_angle);
 
 // BUG: Eliminate in favor of F_APPROXIMATELY_ZERO above?
 const F32 FP_MAG_THRESHOLD = 0.0000001f;

@@ -1,4 +1,4 @@
-/** 
+/**
  * @file llquaternion.h
  * @brief LLQuaternion class header file.
  *
@@ -304,43 +304,29 @@ inline const LLQuaternion&	LLQuaternion::setQuat(const F32 *q)
 	return (*this);
 }
 
-// There may be a cheaper way that avoids the sqrt.
-// Does sin_a = VX*VX + VY*VY + VZ*VZ?
-// Copied from Matrix and Quaternion FAQ 1.12
 inline void LLQuaternion::getAngleAxis(F32* angle, F32* x, F32* y, F32* z) const
 {
-	F32 cos_a = mQ[VW];
-	if (cos_a > 1.0f) cos_a = 1.0f;
-	if (cos_a < -1.0f) cos_a = -1.0f;
-
-    F32 sin_a = (F32) sqrt( 1.0f - cos_a * cos_a );
-
-    if ( fabs( sin_a ) < 0.0005f )
-		sin_a = 1.0f;
-	else
-		sin_a = 1.f/sin_a;
-
-    F32 temp_angle = 2.0f * (F32) acos( cos_a );
-	if (temp_angle > F_PI)
+	F32 v = sqrtf(mQ[VX] * mQ[VX] + mQ[VY] * mQ[VY] + mQ[VZ] * mQ[VZ]); // length of the vector-component
+	if (v > FP_MAG_THRESHOLD)
 	{
-		// The (angle,axis) pair should never have angles outside [PI, -PI]
-		// since we want the _shortest_ (angle,axis) solution.
-		// Since acos is defined for [0, PI], and we multiply by 2.0, we
-		// can push the angle outside the acceptible range.
-		// When this happens we set the angle to the other portion of a 
-		// full 2PI rotation, and negate the axis, which reverses the 
-		// direction of the rotation (by the right-hand rule).
-		*angle = 2.f * F_PI - temp_angle;
-    	*x = - mQ[VX] * sin_a;
-    	*y = - mQ[VY] * sin_a;
-    	*z = - mQ[VZ] * sin_a;
+		F32 oomag = 1.0f / v;
+		F32 w = mQ[VW];
+		if (w < 0.0f)
+		{
+			w = -w; // make VW positive
+			oomag = -oomag; // invert the axis
+		}
+		*x = mQ[VX] * oomag; // normalize the axis
+		*y = mQ[VY] * oomag;
+		*z = mQ[VZ] * oomag;
+		*angle = 2.0f * atan2f(v, w); // get the angle
 	}
 	else
 	{
-		*angle = temp_angle;
-    	*x = mQ[VX] * sin_a;
-    	*y = mQ[VY] * sin_a;
-    	*z = mQ[VZ] * sin_a;
+		*angle = 0.0f; // no rotation
+		*x = 0.0f; // around some dummy axis
+		*y = 0.0f;
+		*z = 1.0f;
 	}
 }
 
