@@ -79,6 +79,7 @@ public:
 
     bool quitRequested() { return mQuitRequested; }
     bool logoutRequestSent() { return mLogoutRequestSent; }
+	bool isSecondInstance() { return mSecondInstance; }
 
 	void writeDebugInfo(bool isStatic=true);
 

@@ -485,7 +485,7 @@ bool LLCrashLoggerWindows::mainLoop()
 	if (mCrashBehavior == CRASH_BEHAVIOR_ALWAYS_SEND)
 	{
 		LL_INFOS() << "Showing crash report submit progress window." << LL_ENDL;
-		ShowWindow(gHwndProgress, SW_SHOW );
+		//ShowWindow(gHwndProgress, SW_SHOW );   Maint-5707
 		sendCrashLogs();
 	}
 	else if (mCrashBehavior == CRASH_BEHAVIOR_ASK)
