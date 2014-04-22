@@ -278,6 +278,11 @@ public:
 	// Get the inventoryID or item that this item points to, else just return object_id
 	const LLUUID& getLinkedItemID(const LLUUID& object_id) const;
 	LLViewerInventoryItem* getLinkedItem(const LLUUID& object_id) const;
+    
+    // Copy content of all folders of type "type" into folder "id" and delete/purge the empty folders
+    // Note : This method has been designed for FT_OUTBOX (aka Merchant Outbox) but can be used for other categories
+    void consolidateForType(const LLUUID& id, LLFolderType::EType type);
+    
 private:
 	mutable LLPointer<LLViewerInventoryItem> mLastItem; // cache recent lookups	
 
