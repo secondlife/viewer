@@ -113,60 +113,56 @@ void LLPanelExperienceLog::refresh()
 	int items = 0;
 	bool moreItems = false;
 	
-	LLSD daysArray = LLSD::emptyArray();
-	for(LLSD::map_const_iterator day = events.beginMap(); day != events.endMap() ; ++day)
+	if (!events.emptyMap())
 	{
-		LLSD dayMap = LLSD::emptyMap();
-		dayMap["day"] = day->first;
-		dayMap["data"] = day->second;
-		daysArray.append(dayMap);
-	}
-
-	for(LLSD::reverse_array_iterator day = daysArray.rbeginArray(); day != daysArray.rendArray() ; ++day)
-	{
-		const LLSD& dayArray = day->get("data");
-		int size = dayArray.size();
-		if(itemsToSkip > size)
+		LLSD::map_const_iterator day = events.endMap();
+		do
 		{
-			itemsToSkip -= size;
-			continue;
-		}
-		if(items >= mPageSize && size > 0)
-		{
-			moreItems = true;
-			break;
-		}
-		for(int i = dayArray.size() - itemsToSkip - 1; i >= 0; i--)
-		{
-			if(items >= mPageSize)
+			--day;
+			const LLSD& dayArray = day->second;
+			int size = dayArray.size();
+			if(itemsToSkip > size)
+			{
+				itemsToSkip -= size;
+				continue;
+			}
+			if(items >= mPageSize && size > 0)
 			{
 				moreItems = true;
 				break;
 			}
-			const LLSD event = dayArray[i];
-			LLUUID id = event[LLExperienceCache::EXPERIENCE_ID].asUUID();
-			const LLSD& experience = LLExperienceCache::get(id);
-			if(experience.isUndefined()){
-				waiting = true;
-				waiting_id = id;
-			}
-			if(!waiting)
+			for(int i = dayArray.size() - itemsToSkip - 1; i >= 0; i--)
 			{
-				item["id"] = event;
+				if(items >= mPageSize)
+				{
+					moreItems = true;
+					break;
+				}
+				const LLSD event = dayArray[i];
+				LLUUID id = event[LLExperienceCache::EXPERIENCE_ID].asUUID();
+				const LLSD& experience = LLExperienceCache::get(id);
+				if(experience.isUndefined()){
+					waiting = true;
+					waiting_id = id;
+				}
+				if(!waiting)
+				{
+					item["id"] = event;
 
-				LLSD& columns = item["columns"];
-				columns[0]["column"] = "time";
-				columns[0]["value"] = day->get("day").asString()+event["Time"].asString();
-				columns[1]["column"] = "event";
-				columns[1]["value"] = LLExperienceLog::getPermissionString(event, "ExperiencePermissionShort");
-				columns[2]["column"] = "experience_name";
-				columns[2]["value"] = experience[LLExperienceCache::NAME].asString();
-				columns[3]["column"] = "object_name";
-				columns[3]["value"] = event["ObjectName"].asString();
-				mEventList->addElement(item);
+					LLSD& columns = item["columns"];
+					columns[0]["column"] = "time";
+					columns[0]["value"] = day->first+event["Time"].asString();
+					columns[1]["column"] = "event";
+					columns[1]["value"] = LLExperienceLog::getPermissionString(event, "ExperiencePermissionShort");
+					columns[2]["column"] = "experience_name";
+					columns[2]["value"] = experience[LLExperienceCache::NAME].asString();
+					columns[3]["column"] = "object_name";
+					columns[3]["value"] = event["ObjectName"].asString();
+					mEventList->addElement(item);
+				}
+				++items;
 			}
-			++items;
-		}
+		} while (day != events.beginMap());
 	}
 	if(waiting)
 	{
