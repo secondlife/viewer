@@ -269,6 +269,9 @@ private:
 	static std::set<CURL*> sFreeHandles;
 	static std::set<CURL*> sActiveHandles;
 	static LLMutex*        sHandleMutexp ;
+
+	static void deleteAllActiveHandles();
+	static void deleteAllFreeHandles();
 };
 
 class LLCurl::Multi

@@ -274,6 +274,36 @@ void LLCurl::Easy::releaseEasyHandle(CURL* handle)
 	}
 }
 
+//static
+void LLCurl::Easy::deleteAllActiveHandles()
+{
+	LLMutexLock lock(sHandleMutexp) ;
+	LL_CHECK_MEMORY
+	for (std::set<CURL*>::iterator activeHandle = sActiveHandles.begin(); activeHandle != sActiveHandles.end(); ++activeHandle)
+	{
+		CURL* curlHandle = *activeHandle;
+		LLCurl::deleteEasyHandle(curlHandle);
+		LL_CHECK_MEMORY
+	}
+
+	sFreeHandles.clear();
+}
+
+//static
+void LLCurl::Easy::deleteAllFreeHandles()
+{
+	LLMutexLock lock(sHandleMutexp) ;
+	LL_CHECK_MEMORY
+	for (std::set<CURL*>::iterator freeHandle = sFreeHandles.begin(); freeHandle != sFreeHandles.end(); ++freeHandle)
+	{
+		CURL* curlHandle = *freeHandle;
+		LLCurl::deleteEasyHandle(curlHandle);
+		LL_CHECK_MEMORY
+	}
+
+	sFreeHandles.clear();
+}
+
 LLCurl::Easy::Easy()
 	: mHeaders(NULL),
 	  mCurlEasyHandle(NULL)
@@ -1745,17 +1775,14 @@ void LLCurl::cleanupClass()
 #endif
 	
 	LL_CHECK_MEMORY
-
-	for (std::set<CURL*>::iterator iter = Easy::sFreeHandles.begin(); iter != Easy::sFreeHandles.end(); ++iter)
-	{
-		CURL* curl = *iter;
-		LLCurl::deleteEasyHandle(curl);
-	}
-	
+	Easy::deleteAllFreeHandles();
+	LL_CHECK_MEMORY
+	Easy::deleteAllActiveHandles();
 	LL_CHECK_MEMORY
 
-	Easy::sFreeHandles.clear();
-
+	// Free the template easy handle
+	curl_easy_cleanup(sCurlTemplateStandardHandle);
+	sCurlTemplateStandardHandle = NULL;
 	LL_CHECK_MEMORY
 
 	delete Easy::sHandleMutexp ;
