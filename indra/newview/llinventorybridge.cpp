@@ -2753,6 +2753,8 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
             if (move_is_from_marketplacelistings)
             {
                 update_marketplace_category(from_folder_uuid);
+                // Clear the folder from the marketplace in case it was a listing folder (moot if not listed)
+                LLMarketplaceData::instance().deleteListing(cat_id);
             }
 		}
 	}
