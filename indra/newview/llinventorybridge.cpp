@@ -2057,7 +2057,7 @@ std::string LLFolderBridge::getLabelSuffix() const
         // Listing folder case
         if (LLMarketplaceData::instance().isListed(getUUID()))
         {
-            suffix = LLMarketplaceData::instance().getListingID(getUUID());
+            suffix = llformat("%d",LLMarketplaceData::instance().getListingID(getUUID()));
             if (suffix.empty())
             {
                 suffix = LLTrans::getString("MarketplaceNoID");

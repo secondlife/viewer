@@ -563,8 +563,11 @@ void LLFloaterAssociateListing::apply()
 {
 	if (mUUID.notNull())
 	{
-		const std::string& id = getChild<LLUICtrl>("listing_id")->getValue().asString();
-        LLMarketplaceData::instance().associateListing(mUUID,id);
+        S32 id = (S32)getChild<LLUICtrl>("listing_id")->getValue().asInteger();
+        if (id > 0)
+        {
+            LLMarketplaceData::instance().associateListing(mUUID,id);
+        }
 	}
 	closeFloater();
 }

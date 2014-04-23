@@ -549,7 +549,7 @@ void LLMarketplaceInventoryImporter::updateImport()
 // Tuple == Item
 LLMarketplaceTuple::LLMarketplaceTuple() :
     mListingFolderId(),
-    mListingId(""),
+    mListingId(0),
     mVersionFolderId(),
     mIsActive(false)
 {
@@ -557,13 +557,13 @@ LLMarketplaceTuple::LLMarketplaceTuple() :
 
 LLMarketplaceTuple::LLMarketplaceTuple(const LLUUID& folder_id) :
     mListingFolderId(folder_id),
-    mListingId(""),
+    mListingId(0),
     mVersionFolderId(),
     mIsActive(false)
 {
 }
 
-LLMarketplaceTuple::LLMarketplaceTuple(const LLUUID& folder_id, std::string listing_id, const LLUUID& version_id, bool is_listed) :
+LLMarketplaceTuple::LLMarketplaceTuple(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed) :
     mListingFolderId(folder_id),
     mListingId(listing_id),
     mVersionFolderId(version_id),
@@ -590,14 +590,14 @@ bool LLMarketplaceData::addListing(const LLUUID& folder_id)
     
     // *TODO : Create the listing on SLM and get the ID (blocking?)
     // For the moment, we use that wonky test ID generator...
-    std::string listing_id = llformat ("%d", LLMarketplaceData::instance().getTestMarketplaceID());
+    S32 listing_id = LLMarketplaceData::instance().getTestMarketplaceID();
     
     setListingID(folder_id,listing_id);
     update_marketplace_category(folder_id);
     return true;
 }
 
-bool LLMarketplaceData::associateListing(const LLUUID& folder_id, std::string listing_id)
+bool LLMarketplaceData::associateListing(const LLUUID& folder_id, S32 listing_id)
 {
     if (isListed(folder_id))
     {
@@ -653,10 +653,10 @@ bool LLMarketplaceData::getActivationState(const LLUUID& folder_id)
     return false;
 }
 
-std::string LLMarketplaceData::getListingID(const LLUUID& folder_id)
+S32 LLMarketplaceData::getListingID(const LLUUID& folder_id)
 {
     marketplace_items_list_t::iterator it = mMarketplaceItems.find(folder_id);
-    return (it == mMarketplaceItems.end() ? "" : (it->second).mListingId);
+    return (it == mMarketplaceItems.end() ? 0 : (it->second).mListingId);
 }
 
 LLUUID LLMarketplaceData::getVersionFolderID(const LLUUID& folder_id)
@@ -666,7 +666,7 @@ LLUUID LLMarketplaceData::getVersionFolderID(const LLUUID& folder_id)
 }
 
 // Reverse lookup : find the listing folder id from the listing id
-LLUUID LLMarketplaceData::getListingFolder(std::string listing_id)
+LLUUID LLMarketplaceData::getListingFolder(S32 listing_id)
 {
     marketplace_items_list_t::iterator it = mMarketplaceItems.begin();
     while (it != mMarketplaceItems.end())
@@ -708,17 +708,17 @@ std::string LLMarketplaceData::getListingURL(const LLUUID& folder_id)
     
     S32 depth = depth_nesting_in_marketplace(folder_id);
     LLUUID listing_uuid = nested_parent_id(folder_id, depth);
-    std::string listing_id = getListingID(listing_uuid);
+    S32 listing_id = getListingID(listing_uuid);
     
-    if (!listing_id.empty())
+    if (listing_id != 0)
     {
-        marketplace_url += "p/listing/" + listing_id;
+        marketplace_url += llformat("p/listing/%d",listing_id);
     }
     return marketplace_url;
 }
 
 // Modifiers
-bool LLMarketplaceData::setListingID(const LLUUID& folder_id, std::string listing_id)
+bool LLMarketplaceData::setListingID(const LLUUID& folder_id, S32 listing_id)
 {
     marketplace_items_list_t::iterator it = mMarketplaceItems.find(folder_id);
     if (it == mMarketplaceItems.end())

@@ -125,12 +125,12 @@ public:
 
     LLMarketplaceTuple();
     LLMarketplaceTuple(const LLUUID& folder_id);
-    LLMarketplaceTuple(const LLUUID& folder_id, std::string listing_id, const LLUUID& version_id, bool is_listed = false);
+    LLMarketplaceTuple(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed = false);
     
 private:
     // Representation of a marketplace item in the Marketplace DB (well, what we know of it...)
     LLUUID mListingFolderId;
-    std::string mListingId;
+    S32 mListingId;
     LLUUID mVersionFolderId;
     bool mIsActive;
 };
@@ -153,18 +153,18 @@ public:
     
     // Create/Delete Marketplace data set  : each method returns true if the function succeeds, false if error
     bool addListing(const LLUUID& folder_id);
-    bool associateListing(const LLUUID& folder_id, std::string listing_id);
+    bool associateListing(const LLUUID& folder_id, S32 listing_id);
     bool deleteListing(const LLUUID& folder_id);
 
     // Access Marketplace data set  : each method returns a default value if the folder_id can't be found
     bool getActivationState(const LLUUID& folder_id);
-    std::string getListingID(const LLUUID& folder_id);
+    S32 getListingID(const LLUUID& folder_id);
     LLUUID getVersionFolderID(const LLUUID& folder_id);
     std::string getListingURL(const LLUUID& folder_id);
-    LLUUID getListingFolder(std::string listing_id);
+    LLUUID getListingFolder(S32 listing_id);
     
     // Modify Marketplace data set  : each method returns true if the function succeeds, false if error
-    bool setListingID(const LLUUID& folder_id, std::string listing_id);
+    bool setListingID(const LLUUID& folder_id, S32 listing_id);
     bool setVersionFolderID(const LLUUID& folder_id, const LLUUID& version_id);
     bool setActivation(const LLUUID& folder_id, bool activate);
     
