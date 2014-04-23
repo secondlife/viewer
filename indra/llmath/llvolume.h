@@ -1083,7 +1083,6 @@ public:
 	
 	
 	BOOL mGenerateSingleFace;
-	typedef std::vector<LLVolumeFace> face_list_t;
 	face_list_t mVolumeFaces;
 
 public:
