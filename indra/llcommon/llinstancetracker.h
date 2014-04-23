@@ -38,6 +38,8 @@
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/iterator/indirect_iterator.hpp>
 
+#include "llerror.h"
+
 /**
  * Base class manages "class-static" data that must actually have singleton
  * semantics: one instance per process, rather than one instance per module as
@@ -305,6 +307,7 @@ protected:
 	virtual ~LLInstanceTracker()
 	{
 		// it's unsafe to delete instances of this type while all instances are being iterated over.
+        llassert_always(getStatic().sIterationNestDepth == 0);
 		getSet_().erase(static_cast<T*>(this));
 	}
 
