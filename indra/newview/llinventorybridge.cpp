@@ -3528,6 +3528,8 @@ void LLFolderBridge::pasteFromClipboard()
 						llassert(vicat);
 						if (vicat)
 						{
+                            // Clear the cut folder from the marketplace if it was a listing folder (moot if not listed)
+                            LLMarketplaceData::instance().deleteListing(item_id);
                             if (move_is_into_marketplacelistings)
                             {
                                 move_folder_to_marketplacelistings(vicat, parent_id);
