@@ -3337,6 +3337,10 @@ LLSD LLAppViewer::getViewerInfo() const
 		{
 			info["SERVER_RELEASE_NOTES_URL"] = LLTrans::getString("RetrievingData");
 		}
+		else
+		{
+			info["SERVER_RELEASE_NOTES_URL"] = LLTrans::getString("NotConnected");
+		}
 	}
 	else if (LLStringUtil::startsWith(mServerReleaseNotesURL, "http")) // it's an URL
 	{

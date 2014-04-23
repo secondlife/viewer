@@ -315,7 +315,8 @@ Cinder Roxley
     BUG-3863
     OPEN-185
     STORM-1703
-	STORM-1948
+    STORM-1948
+    STORM-1831
     STORM-1888
     STORM-1958
     STORM-1952
@@ -524,8 +525,16 @@ Ima Mechanique
 	STORM-959
 	STORM-1175
 	STORM-1708
+	STORM-1831
+	STORM-1832
 	STORM-1855
+	VWR-10791
 	VWR-20553
+	VWR-19213
+    VWR-22401
+    VWR-23739
+	VWR-24766
+	VWR-28065
 Imnotgoing Sideways
 Inma Rau
 Innula Zenovka
@@ -1431,8 +1440,4 @@ Zipherius Turas
 	VWR-76
 	VWR-77
 Zoex Flanagan
-
-
-
-
 

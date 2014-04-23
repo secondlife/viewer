@@ -1,25 +1,25 @@
-/** 
+/**
  * @file lltexteditor.h
  * @brief LLTextEditor base class
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -30,7 +30,6 @@
 #define LL_LLTEXTEDITOR_H
 
 #include "llrect.h"
-#include "llkeywords.h"
 #include "llframetimer.h"
 #include "lldarray.h"
 #include "llstyle.h"
@@ -45,7 +44,6 @@
 
 class LLFontGL;
 class LLScrollbar;
-class LLKeywordToken;
 class TextCmd;
 class LLUICtrlFactory;
 class LLScrollContainer;
@@ -133,7 +131,7 @@ public:
 	virtual BOOL	canCopy() const;
 	virtual void	paste();
 	virtual BOOL	canPaste() const;
- 
+
 	virtual void	updatePrimary();
 	virtual void	copyPrimary();
 	virtual void	pastePrimary();
@@ -151,7 +149,7 @@ public:
 	void			selectNext(const std::string& search_text_in, BOOL case_insensitive, BOOL wrap = TRUE);
 	BOOL			replaceText(const std::string& search_text, const std::string& replace_text, BOOL case_insensitive, BOOL wrap = TRUE);
 	void			replaceTextAll(const std::string& search_text, const std::string& replace_text, BOOL case_insensitive);
-	
+
 	// Undo/redo stack
 	void			blockUndo();
 
@@ -188,13 +186,6 @@ public:
 
 	void			getCurrentLineAndColumn( S32* line, S32* col, BOOL include_wordwrap );
 
-	void			loadKeywords(const std::string& filename,
-								 const std::vector<std::string>& funcs,
-								 const std::vector<std::string>& tooltips,
-								 const LLColor3& func_color);
-	LLKeywords::keyword_iterator_t keywordsBegin()	{ return mKeywords.begin(); }
-	LLKeywords::keyword_iterator_t keywordsEnd()	{ return mKeywords.end(); }
-
 	// Hacky methods to make it into a word-wrapping, potentially scrolling,
 	// read-only text box.
 	void			setCommitOnFocusLost(BOOL b)			{ mCommitOnFocusLost = b; }
@@ -206,7 +197,7 @@ public:
 	const LLUUID&	getSourceID() const						{ return mSourceID; }
 
 	const LLTextSegmentPtr	getPreviousSegment() const;
-	void getSelectedSegments(segment_vec_t& segments) const;
+	void			getSelectedSegments(segment_vec_t& segments) const;
 
 	void			setShowContextMenu(bool show) { mShowContextMenu = show; }
 	bool			getShowContextMenu() const { return mShowContextMenu; }
@@ -218,7 +209,7 @@ protected:
 	void			drawPreeditMarker();
 
 	void 			assignEmbedded(const std::string &s);
-	
+
 	void			removeCharOrTab();
 
 	void			indentSelectedLines( S32 spaces );
@@ -237,12 +228,12 @@ protected:
 	S32				nextWordPos(S32 cursorPos) const;
 
 	void			autoIndent();
-	
+
 	void			findEmbeddedItemSegments(S32 start, S32 end);
 	void			getSegmentsInRange(segment_vec_t& segments, S32 start, S32 end, bool include_partial) const;
 
 	virtual llwchar	pasteEmbeddedItem(llwchar ext_char) { return ext_char; }
-	
+
 
 	// Here's the method that takes and applies text commands.
 	S32 			execute(TextCmd* cmd);
@@ -256,7 +247,7 @@ protected:
 	S32 			removeChar(S32 pos);
 	S32				insert(S32 pos, const LLWString &wstr, bool group_with_next_op, LLTextSegmentPtr segment);
 	S32				remove(S32 pos, S32 length, bool group_with_next_op);
-	
+
 	void			focusLostHelper();
 	void			updateAllowingLanguageInput();
 	BOOL			hasPreeditString() const;
@@ -274,14 +265,14 @@ protected:
 	//
 	// Protected data
 	//
-	// Probably deserves serious thought to hiding as many of these 
+	// Probably deserves serious thought to hiding as many of these
 	// as possible behind protected accessor methods.
 	//
 
 	// Use these to determine if a click on an embedded item is a drag or not.
 	S32				mMouseDownX;
 	S32				mMouseDownY;
-	
+
 	LLWString			mPreeditWString;
 	LLWString			mPreeditOverwrittenWString;
 	std::vector<S32> 	mPreeditPositions;
@@ -292,8 +283,8 @@ protected:
 
 	BOOL				mShowLineNumbers;
 	bool				mAutoIndent;
+	bool				mParseOnTheFly;
 
-	/*virtual*/ void	updateSegments();
 	void				updateLinkSegments();
 
 private:
@@ -307,11 +298,6 @@ private:
 	void			drawLineNumbers();
 
 	void			onKeyStroke();
-
-	//
-	// Data
-	//
-	LLKeywords		mKeywords;
 
 	// Concrete TextCmd sub-classes used by the LLTextEditor base class
 	class TextCmdInsert;
@@ -335,7 +321,6 @@ private:
 
 	BOOL			mAllowEmbeddedItems;
 	bool			mShowContextMenu;
-	bool			mParseOnTheFly;
 	bool			mEnableTooltipPaste;
 	bool			mPassDelete;
 
@@ -355,4 +340,4 @@ extern template class LLTextEditor* LLView::getChild<class LLTextEditor>(
 	const std::string& name, BOOL recurse) const;
 #endif
 
-#endif  // LL_TEXTEDITOR_
+#endif  // LL_TEXTEDITOR_H

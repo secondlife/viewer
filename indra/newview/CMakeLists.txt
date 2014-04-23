@@ -494,6 +494,7 @@ set(viewer_SOURCE_FILES
     llsaveoutfitcombobtn.cpp
     llsceneview.cpp
     llscreenchannel.cpp
+    llscripteditor.cpp
     llscriptfloater.cpp
     llscrollingpanelparam.cpp
     llscrollingpanelparambase.cpp
@@ -523,6 +524,7 @@ set(viewer_SOURCE_FILES
     llstylemap.cpp
     llsurface.cpp
     llsurfacepatch.cpp
+    llsyntaxid.cpp
     llsyswellitem.cpp
     llsyswellwindow.cpp
     llteleporthistory.cpp
@@ -1073,6 +1075,7 @@ set(viewer_HEADER_FILES
     llsaveoutfitcombobtn.h
     llsceneview.h
     llscreenchannel.h
+    llscripteditor.h
     llscriptfloater.h
     llscrollingpanelparam.h
     llscrollingpanelparambase.h
@@ -1101,6 +1104,7 @@ set(viewer_HEADER_FILES
     llstylemap.h
     llsurface.h
     llsurfacepatch.h
+    llsyntaxid.h
     llsyswellitem.h
     llsyswellwindow.h
     lltable.h
@@ -1534,7 +1538,7 @@ set(viewer_APPSETTINGS_FILES
     app_settings/high_graphics.xml
     app_settings/ignorable_dialogs.xml
     app_settings/keys.xml
-    app_settings/keywords.ini
+    app_settings/keywords_lsl_default.xml
     app_settings/logcontrol.xml
     app_settings/low_graphics.xml
     app_settings/mid_graphics.xml
@@ -1854,7 +1858,7 @@ elseif (DARWIN)
         LINK_FLAGS_RELEASE "${LINK_FLAGS_RELEASE} -Xlinker -dead_strip -Xlinker -map -Xlinker ${CMAKE_CURRENT_BINARY_DIR}/${VIEWER_BINARY_NAME}.MAP"
         )
 else (WINDOWS)
-        # Linux 
+        # Linux
     set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
         LINK_FLAGS_RELEASE "${LINK_FLAGS_RELEASE} -Wl,--Map=${VIEWER_BINARY_NAME}.MAP"
@@ -2039,7 +2043,7 @@ if (DARWIN)
     )
 
   add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_quicktime media_plugin_webkit mac-crash-logger)
-  
+
   if (ENABLE_SIGNING)
       set(SIGNING_SETTING "--signature=${SIGNING_IDENTITY}")
   else (ENABLE_SIGNING)

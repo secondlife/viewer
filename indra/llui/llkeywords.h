@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llkeywords.h
  * @brief Keyword list for LSL
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -28,8 +28,10 @@
 #define LL_LLKEYWORDS_H
 
 
+#include "lldir.h"
 #include "llstring.h"
 #include "v3color.h"
+#include "v4color.h"
 #include <map>
 #include <list>
 #include <deque>
@@ -41,26 +43,35 @@ typedef LLPointer<LLTextSegment> LLTextSegmentPtr;
 class LLKeywordToken
 {
 public:
-	/** 
+	/**
 	 * @brief Types of tokens/delimters being parsed.
 	 *
 	 * @desc Tokens/delimiters that need to be identified/highlighted. All are terminated if an EOF is encountered.
-	 * - WORD are keywords in the normal sense, i.e. constants, events, etc.
-	 * - LINE are for entire lines (currently only flow control labels use this).
-	 * - ONE_SIDED_DELIMITER are for open-ended delimiters which are terminated by EOL.
-	 * - TWO_SIDED_DELIMITER are for delimiters that end with a different delimiter than they open with.
-	 * - DOUBLE_QUOTATION_MARKS are for delimiting areas using the same delimiter to open and close.
+	 * - TT_WORD are keywords in the normal sense, i.e. constants, events, etc.
+	 * - TT_LINE are for entire lines (currently only flow control labels use this).
+	 * - TT_ONE_SIDED_DELIMITER are for open-ended delimiters which are terminated by EOL.
+	 * - TT_TWO_SIDED_DELIMITER are for delimiters that end with a different delimiter than they open with.
+	 * - TT_DOUBLE_QUOTATION_MARKS are for delimiting areas using the same delimiter to open and close.
 	 */
-	enum TOKEN_TYPE
+	typedef enum e_token_type
 	{
-		WORD,
-		LINE,
-		TWO_SIDED_DELIMITER,
-		ONE_SIDED_DELIMITER,
-		DOUBLE_QUOTATION_MARKS
-	};
+		TT_UNKNOWN,
+		TT_WORD,
+		TT_LINE,
+		TT_TWO_SIDED_DELIMITER,
+		TT_ONE_SIDED_DELIMITER,
+		TT_DOUBLE_QUOTATION_MARKS,
+		// Following constants are more specific versions of the preceding ones
+		TT_CONSTANT,						// WORD
+		TT_CONTROL,							// WORD
+		TT_EVENT,							// WORD
+		TT_FUNCTION,						// WORD
+		TT_LABEL,							// LINE
+		TT_SECTION,							// WORD
+		TT_TYPE								// WORD
+	} ETokenType;
 
-	LLKeywordToken( TOKEN_TYPE type, const LLColor3& color, const LLWString& token, const LLWString& tool_tip, const LLWString& delimiter  ) 
+	LLKeywordToken( ETokenType type, const LLColor4& color, const LLWString& token, const LLWString& tool_tip, const LLWString& delimiter  )
 		:
 		mType( type ),
 		mToken( token ),
@@ -72,11 +83,11 @@ public:
 
 	S32					getLengthHead() const	{ return mToken.size(); }
 	S32					getLengthTail() const	{ return mDelimiter.size(); }
-	BOOL				isHead(const llwchar* s) const;
-	BOOL				isTail(const llwchar* s) const;
+	bool				isHead(const llwchar* s) const;
+	bool				isTail(const llwchar* s) const;
 	const LLWString&	getToken() const		{ return mToken; }
-	const LLColor3&		getColor() const		{ return mColor; }
-	TOKEN_TYPE			getType()  const		{ return mType; }
+	const LLColor4&		getColor() const		{ return mColor; }
+	ETokenType			getType()  const		{ return mType; }
 	const LLWString&	getToolTip() const		{ return mToolTip; }
 	const LLWString&	getDelimiter() const	{ return mDelimiter; }
 
@@ -85,9 +96,9 @@ public:
 #endif
 
 private:
-	TOKEN_TYPE	mType;
+	ETokenType	mType;
 	LLWString	mToken;
-	LLColor3	mColor;
+	LLColor4	mColor;
 	LLWString	mToolTip;
 	LLWString	mDelimiter;
 };
@@ -98,18 +109,22 @@ public:
 	LLKeywords();
 	~LLKeywords();
 
-	BOOL		loadFromFile(const std::string& filename);
-	BOOL		isLoaded() const	{ return mLoaded; }
+	void		addColorGroup(const std::string key_in, const LLColor4 color);
+	void		clearLoaded() { mLoaded = false; }
+	LLColor4	getColorGroup(const std::string key_in);
+	bool		isLoaded() const	{ return mLoaded; }
 
 	void		findSegments(std::vector<LLTextSegmentPtr> *seg_list, const LLWString& text, const LLColor4 &defaultColor, class LLTextEditor& editor );
+	void		initialise(LLSD SyntaxXML);
+	void		processTokens();
 
 	// Add the token as described
-	void addToken(LLKeywordToken::TOKEN_TYPE type,
+	void addToken(LLKeywordToken::ETokenType type,
 					const std::string& key,
-					const LLColor3& color,
+					const LLColor4& color,
 					const std::string& tool_tip = LLStringUtil::null,
 					const std::string& delimiter = LLStringUtil::null);
-	
+
 	// This class is here as a performance optimization.
 	// The word token map used to be defined as std::map<LLWString, LLKeywordToken*>.
 	// This worked, but caused a performance bottleneck due to memory allocation and string copies
@@ -133,6 +148,9 @@ public:
 		const llwchar *mData;
 		size_t mLength;
 		bool mOwner;
+
+
+		LLColor4			mColor;
 	};
 
 	typedef std::map<WStringMapIndex, LLKeywordToken*> word_token_map_t;
@@ -140,20 +158,37 @@ public:
 	keyword_iterator_t begin() const { return mWordTokenMap.begin(); }
 	keyword_iterator_t end() const { return mWordTokenMap.end(); }
 
+	typedef std::map<WStringMapIndex, LLColor4> group_color_map_t;
+	typedef group_color_map_t::const_iterator color_iterator_t;
+	group_color_map_t	mColorGroupMap;
+
 #ifdef _DEBUG
 	void		dump();
 #endif
 
-private:
-	LLColor3	readColor(const std::string& s);
+protected:
+	void		processTokensGroup(LLSD& Tokens, const std::string Group);
+	LLColor4	readColor(const std::string& s);
+	LLColor4	readColor(LLSD& sd);
 	void		insertSegment(std::vector<LLTextSegmentPtr>& seg_list, LLTextSegmentPtr new_segment, S32 text_len, const LLColor4 &defaultColor, class LLTextEditor& editor);
 	void		insertSegments(const LLWString& wtext, std::vector<LLTextSegmentPtr>& seg_list, LLKeywordToken* token, S32 text_len, S32 seg_start, S32 seg_end, const LLColor4 &defaultColor, LLTextEditor& editor);
 
-	BOOL		mLoaded;
+	LLSD		mColors;
+	bool		mLoaded;
+	LLSD		mSyntax;
 	word_token_map_t mWordTokenMap;
 	typedef std::deque<LLKeywordToken*> token_list_t;
 	token_list_t mLineTokenList;
 	token_list_t mDelimiterTokenList;
+
+	typedef  std::map<std::string, std::string> element_attributes_t;
+	typedef element_attributes_t::const_iterator attribute_iterator_t;
+	element_attributes_t mAttributes;
+	std::string	getAttribute(const std::string& key);
+
+	std::string	getArguments(LLSD& args);
+
+private:
 };
 
 #endif  // LL_LLKEYWORDS_H

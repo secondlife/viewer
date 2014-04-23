@@ -2511,53 +2511,6 @@ BOOL LLTextEditor::tryToRevertToPristineState()
 	return isPristine(); // TRUE => success
 }
 
-
-static LLFastTimer::DeclareTimer FTM_SYNTAX_HIGHLIGHTING("Syntax Highlighting");
-void LLTextEditor::loadKeywords(const std::string& filename,
-								const std::vector<std::string>& funcs,
-								const std::vector<std::string>& tooltips,
-								const LLColor3& color)
-{
-	LLFastTimer ft(FTM_SYNTAX_HIGHLIGHTING);
-	if(mKeywords.loadFromFile(filename))
-	{
-		S32 count = llmin(funcs.size(), tooltips.size());
-		for(S32 i = 0; i < count; i++)
-		{
-			std::string name = utf8str_trim(funcs[i]);
-			mKeywords.addToken(LLKeywordToken::WORD, name, color, tooltips[i] );
-		}
-		segment_vec_t segment_list;
-		mKeywords.findSegments(&segment_list, getWText(), mDefaultColor.get(), *this);
-
-		mSegments.clear();
-		segment_set_t::iterator insert_it = mSegments.begin();
-		for (segment_vec_t::iterator list_it = segment_list.begin(); list_it != segment_list.end(); ++list_it)
-		{
-			insert_it = mSegments.insert(insert_it, *list_it);
-		}
-	}
-}
-
-void LLTextEditor::updateSegments()
-{
-	if (mReflowIndex < S32_MAX && mKeywords.isLoaded() && mParseOnTheFly)
-	{
-		LLFastTimer ft(FTM_SYNTAX_HIGHLIGHTING);
-		// HACK:  No non-ascii keywords for now
-		segment_vec_t segment_list;
-		mKeywords.findSegments(&segment_list, getWText(), mDefaultColor.get(), *this);
-
-		clearSegments();
-		for (segment_vec_t::iterator list_it = segment_list.begin(); list_it != segment_list.end(); ++list_it)
-		{
-			insertSegment(*list_it);
-		}
-	}
-
-	LLTextBase::updateSegments();
-}
-
 void LLTextEditor::updateLinkSegments()
 {
 	LLWString wtext = getWText();

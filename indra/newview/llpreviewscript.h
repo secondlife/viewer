@@ -35,10 +35,11 @@
 #include "lliconctrl.h"
 #include "llframetimer.h"
 #include "llfloatergotoline.h"
+#include "llsyntaxid.h"
 
 class LLLiveLSLFile;
 class LLMessageSystem;
-class LLTextEditor;
+class LLScriptEditor;
 class LLButton;
 class LLCheckBoxCtrl;
 class LLScrollListCtrl;
@@ -76,7 +77,11 @@ protected:
 public:
 	~LLScriptEdCore();
 	
+	void			initialiseKeywords();
 	void			initMenu();
+	void			processKeywords();
+	void			processLoaded();
+	void			updateKeywords();
 
 	virtual void	draw();
 	/*virtual*/	BOOL	postBuild();
@@ -130,9 +135,11 @@ protected:
 	void addHelpItemToHistory(const std::string& help_string);
 	static void onErrorList(LLUICtrl*, void* user_data);
 
+	bool			mLive;
+
 private:
 	std::string		mSampleText;
-	LLTextEditor*	mEditor;
+	LLScriptEditor*	mEditor;
 	void			(*mLoadCallback)(void* userdata);
 	void			(*mSaveCallback)(void* userdata, BOOL close_after_save);
 	void			(*mSearchReplaceCallback) (void* userdata);
@@ -149,8 +156,14 @@ private:
 	BOOL			mEnableSave;
 	BOOL			mHasScriptData;
 	LLLiveLSLFile*	mLiveFile;
+	LLSyntaxIdLSL	mSyntaxIdLSL;
 
 	LLScriptEdContainer* mContainer; // parent view
+
+public:
+	boost::signals2::connection mFileFetchedCallback;
+	boost::signals2::connection mRegionChangedCallback;
+
 };
 
 class LLScriptEdContainer : public LLPreview
@@ -159,6 +172,7 @@ class LLScriptEdContainer : public LLPreview
 
 public:
 	LLScriptEdContainer(const LLSD& key);
+	LLScriptEdContainer(const LLSD& key, const bool live);
 
 protected:
 	std::string		getTmpFileName();
@@ -168,7 +182,7 @@ protected:
 	LLScriptEdCore*		mScriptEd;
 };
 
-// Used to view and edit a LSL from your inventory.
+// Used to view and edit an LSL script from your inventory.
 class LLPreviewLSL : public LLScriptEdContainer
 {
 public:
@@ -213,7 +227,7 @@ protected:
 };
 
 
-// Used to view and edit an LSL that is attached to an object.
+// Used to view and edit an LSL script that is attached to an object.
 class LLLiveLSLEditor : public LLScriptEdContainer
 {
 	friend class LLLiveLSLFile;

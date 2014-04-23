@@ -34,6 +34,7 @@
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "lldir.h"
+#include "llenvmanager.h"
 #include "llexternaleditor.h"
 #include "llfilepicker.h"
 #include "llfloaterreg.h"
@@ -50,11 +51,9 @@
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
 #include "llscrolllistcell.h"
+#include "llsdserialize.h"
 #include "llslider.h"
 #include "lscript_rt_interface.h"
-#include "lscript_library.h"
-#include "lscript_export.h"
-#include "lltextbox.h"
 #include "lltooldraganddrop.h"
 #include "llvfile.h"
 
@@ -70,6 +69,7 @@
 #include "llkeyboard.h"
 #include "llscrollcontainer.h"
 #include "llcheckboxctrl.h"
+#include "llscripteditor.h"
 #include "llselectmgr.h"
 #include "lltooldraganddrop.h"
 #include "llscrolllistctrl.h"
@@ -78,7 +78,6 @@
 #include "lldir.h"
 #include "llcombobox.h"
 #include "llviewerstats.h"
-#include "llviewertexteditor.h"
 #include "llviewerwindow.h"
 #include "lluictrlfactory.h"
 #include "llmediactrl.h"
@@ -396,11 +395,11 @@ BOOL LLScriptEdCore::postBuild()
 {
 	mErrorList = getChild<LLScrollListCtrl>("lsl errors");
 
-	mFunctions = getChild<LLComboBox>( "Insert...");
+	mFunctions = getChild<LLComboBox>("Insert...");
 
 	childSetCommitCallback("Insert...", &LLScriptEdCore::onBtnInsertFunction, this);
 
-	mEditor = getChild<LLViewerTextEditor>("Script Editor");
+	mEditor = getChild<LLScriptEditor>("Script Editor");
 
 	childSetCommitCallback("lsl errors", &LLScriptEdCore::onErrorList, this);
 	childSetAction("Save_btn", boost::bind(&LLScriptEdCore::doSave,this,FALSE));
@@ -408,77 +407,99 @@ BOOL LLScriptEdCore::postBuild()
 
 	initMenu();
 
+	mSyntaxIdLSL.addFileFetchedCallback(boost::bind(&LLScriptEdCore::processKeywords, this));
 
-	std::vector<std::string> funcs;
-	std::vector<std::string> tooltips;
-	for (std::vector<LLScriptLibraryFunction>::const_iterator i = gScriptLibrary.mFunctions.begin();
-	i != gScriptLibrary.mFunctions.end(); ++i)
+	// Intialise keyword highlighting for the current simulator's version of LSL
+	mSyntaxIdLSL.initialise();
+
+	if (mSyntaxIdLSL.isDifferentVersion())
 	{
-		// Make sure this isn't a god only function, or the agent is a god.
-		if (!i->mGodOnly || gAgent.isGodlike())
-		{
-			std::string name = i->mName;
-			funcs.push_back(name);
-			
-			std::string desc_name = "LSLTipText_";
-			desc_name += name;
-			std::string desc = LLTrans::getString(desc_name);
-			
-			F32 sleep_time = i->mSleepTime;
-			if( sleep_time )
-			{
-				desc += "\n";
-				
-				LLStringUtil::format_map_t args;
-				args["[SLEEP_TIME]"] = llformat("%.1f", sleep_time );
-				desc += LLTrans::getString("LSLTipSleepTime", args);
-			}
-			
-			// A \n linefeed is not part of xml. Let's add one to keep all
-			// the tips one-per-line in strings.xml
-			LLStringUtil::replaceString( desc, "\\n", "\n" );
-			
-			tooltips.push_back(desc);
-		}
+		processLoaded();
 	}
-	
-	LLColor3 color(0.5f, 0.0f, 0.15f);
-	mEditor->loadKeywords(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"keywords.ini"), funcs, tooltips, color);
-
-	std::vector<std::string> primary_keywords;
-	std::vector<std::string> secondary_keywords;
-	LLKeywordToken *token;
-	LLKeywords::keyword_iterator_t token_it;
-	for (token_it = mEditor->keywordsBegin(); token_it != mEditor->keywordsEnd(); ++token_it)
+	else
 	{
-		token = token_it->second;
-		if (token->getColor() == color) // Wow, what a disgusting hack.
-		{
-			primary_keywords.push_back( wstring_to_utf8str(token->getToken()) );
-		}
-		else
-		{
-			secondary_keywords.push_back( wstring_to_utf8str(token->getToken()) );
-		}
+		LL_INFOS("SyntaxLSL")
+				<< "Hashes are the same, no need to update highlighter." << LL_ENDL;
 	}
 
-	// Case-insensitive dictionary sort for primary keywords. We don't sort the secondary
-	// keywords. They're intelligently grouped in keywords.ini.
-	std::stable_sort( primary_keywords.begin(), primary_keywords.end(), LLSECKeywordCompare() );
 
-	for (std::vector<std::string>::const_iterator iter= primary_keywords.begin();
-			iter!= primary_keywords.end(); ++iter)
-	{
-		mFunctions->add(*iter);
-	}
-
-	for (std::vector<std::string>::const_iterator iter= secondary_keywords.begin();
-			iter!= secondary_keywords.end(); ++iter)
-	{
-		mFunctions->add(*iter);
-	}
+	// Set up a callback for region changes
+	mRegionChangedCallback = gAgent.addRegionChangedCallback(boost::bind(&LLScriptEdCore::updateKeywords, this));
 
 	return TRUE;
+}
+
+void LLScriptEdCore::updateKeywords()
+{
+	if (mLive)
+	{
+		mEditor->clearSegments();
+		mRegionChangedCallback.disconnect();
+	}
+	else
+	{
+		processLoaded();
+	}
+}
+
+void LLScriptEdCore::processLoaded()
+{
+	mSyntaxIdLSL.initialise();
+	if (mSyntaxIdLSL.isLoaded())
+	{
+		processKeywords();
+	}
+	else
+	{
+		LL_INFOS("SyntaxLSL")
+				<< "Hashes are different, waiting for the syntax file to be retrieved." << LL_ENDL;
+	}
+}
+
+void LLScriptEdCore::processKeywords()
+{
+	if (mSyntaxIdLSL.isLoaded())
+	{
+		LL_INFOS("SyntaxLSL")
+				<< "Hashes are different, updating highlighter." << LL_ENDL;
+
+		mEditor->clearSegments();
+
+		if (mSyntaxIdLSL.isLoaded())
+		{
+			mEditor->initKeywords();
+			mEditor->loadKeywords();
+
+			std::vector<std::string> primary_keywords;
+			std::vector<std::string> secondary_keywords;
+			LLKeywordToken *token;
+			LLKeywords::keyword_iterator_t token_it;
+			for (token_it = mEditor->keywordsBegin(); token_it != mEditor->keywordsEnd(); ++token_it)
+			{
+				token = token_it->second;
+				if (token->getType() == LLKeywordToken::TT_FUNCTION)
+				{
+					primary_keywords.push_back( wstring_to_utf8str(token->getToken()) );
+				}
+				else
+				{
+					secondary_keywords.push_back( wstring_to_utf8str(token->getToken()) );
+				}
+			}
+
+			for (std::vector<std::string>::const_iterator iter= primary_keywords.begin();
+				 iter!= primary_keywords.end(); ++iter)
+			{
+				mFunctions->add(*iter);
+			}
+
+			for (std::vector<std::string>::const_iterator iter= secondary_keywords.begin();
+				 iter!= secondary_keywords.end(); ++iter)
+			{
+				mFunctions->add(*iter);
+			}
+		}
+	}
 }
 
 void LLScriptEdCore::initMenu()
@@ -680,7 +701,7 @@ void LLScriptEdCore::updateDynamicHelp(BOOL immediate)
 	std::vector<LLTextSegmentPtr>::iterator segment_iter;
 	for (segment_iter = selected_segments.begin(); segment_iter != selected_segments.end(); ++segment_iter)
 	{
-		if((*segment_iter)->getToken() && (*segment_iter)->getToken()->getType() == LLKeywordToken::WORD)
+		if((*segment_iter)->getToken() && (*segment_iter)->getToken()->getType() == LLKeywordToken::TT_WORD)
 		{
 			segment = *segment_iter;
 			break;
@@ -691,7 +712,7 @@ void LLScriptEdCore::updateDynamicHelp(BOOL immediate)
 	if (!segment)
 	{
 		const LLTextSegmentPtr test_segment = mEditor->getPreviousSegment();
-		if(test_segment->getToken() && test_segment->getToken()->getType() == LLKeywordToken::WORD)
+		if(test_segment->getToken() && test_segment->getToken()->getType() == LLKeywordToken::TT_WORD)
 		{
 			segment = test_segment;
 		}
@@ -1216,8 +1237,8 @@ bool LLScriptEdCore::enableLoadFromFileMenu(void* userdata)
 /// LLScriptEdContainer
 /// ---------------------------------------------------------------------------
 
-LLScriptEdContainer::LLScriptEdContainer(const LLSD& key)
-:	LLPreview(key)
+LLScriptEdContainer::LLScriptEdContainer(const LLSD& key) :
+	LLPreview(key)
 ,	mScriptEd(NULL)
 {
 }
@@ -1280,7 +1301,7 @@ void* LLPreviewLSL::createScriptEdPanel(void* userdata)
 								   LLPreviewLSL::onSearchReplace,
 								   self,
 								   0);
-
+	self->mScriptEd->mLive = false;
 	return self->mScriptEd;
 }
 
@@ -1295,7 +1316,7 @@ LLPreviewLSL::LLPreviewLSL(const LLSD& key )
 // virtual
 BOOL LLPreviewLSL::postBuild()
 {
-	const LLInventoryItem* item = getItem();	
+	const LLInventoryItem* item = getItem();
 
 	llassert(item);
 	if (item)
@@ -1727,7 +1748,6 @@ void LLPreviewLSL::onLoadComplete( LLVFS *vfs, const LLUUID& asset_uuid, LLAsset
 //static 
 void* LLLiveLSLEditor::createScriptEdPanel(void* userdata)
 {
-	
 	LLLiveLSLEditor *self = (LLLiveLSLEditor*)userdata;
 
 	self->mScriptEd =  new LLScriptEdCore(
@@ -1739,7 +1759,7 @@ void* LLLiveLSLEditor::createScriptEdPanel(void* userdata)
 								   &LLLiveLSLEditor::onSearchReplace,
 								   self,
 								   0);
-
+	self->mScriptEd->mLive = true;
 	return self->mScriptEd;
 }
 
