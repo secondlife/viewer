@@ -3569,13 +3569,13 @@
     <key>FPSLogFrequency</key>
         <map>
         <key>Comment</key>
-            <string>Seconds between display of FPS in log (0 for never)</string>
+        <string>Seconds between display of FPS in log (0 for never)</string>
         <key>Persist</key>
-            <integer>1</integer>
+        <integer>1</integer>
         <key>Type</key>
-            <string>F32</string>
+        <string>F32</string>
         <key>Value</key>
-            <real>10.0</real>
+        <real>10.0</real>
         </map>
     <key>FilterItemsMaxTimePerFrameVisible</key>
     <map>
@@ -4659,6 +4659,17 @@
 	<map>
 		<key>Comment</key>
 		<string>Enable debug output associated with the Merchant Outbox.</string>
+		<key>Persist</key>
+		<integer>1</integer>
+		<key>Type</key>
+		<string>Boolean</string>
+		<key>Value</key>
+		<integer>0</integer>
+	</map>
+	<key>InventoryOutboxMakeVisible</key>
+	<map>
+		<key>Comment</key>
+		<string>Enable making the Merchant Outbox and Inbox visible in the inventory for debug purposes.</string>
 		<key>Persist</key>
 		<integer>1</integer>
 		<key>Type</key>
@@ -10025,7 +10036,7 @@
 			<key>Value</key>
 			<string>https://jira.secondlife.com/secure/CreateIssueDetails!init.jspa?pid=10610&amp;issuetype=1&amp;environment=[ENVIRONMENT]&amp;customfield_10253=[LOCATION]</string>
 		</map>
-    <key>RevokePermsOnStopAnimation</key>
+	<key>RevokePermsOnStopAnimation</key>
     <map>
       <key>Comment</key>
       <string>Clear animation permssions when choosing "Stop Animating Me"</string>
