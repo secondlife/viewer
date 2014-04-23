@@ -542,6 +542,10 @@ bool LLAppViewerWin32::cleanup()
 
 	gDXHardware.cleanup();
 
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+	LLWinDebug::instance().cleanup();
+#endif
+
 	return result;
 }
 
