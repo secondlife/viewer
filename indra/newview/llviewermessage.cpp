@@ -5797,84 +5797,102 @@ bool handle_special_notification(std::string notificationID, LLSD& llsdBlock)
 // some of the server notifications need special handling. This is where we do that.
 bool handle_teleport_access_blocked(LLSD& llsdBlock)
 {
-	std::string notificationID("TeleportEntryAccessBlocked");
-	U8 regionAccess = static_cast<U8>(llsdBlock["_region_access"].asInteger());
-	std::string regionMaturity = LLViewerRegion::accessToString(regionAccess);
-	LLStringUtil::toLower(regionMaturity);
-	llsdBlock["REGIONMATURITY"] = regionMaturity;
-	
 	bool returnValue = false;
-	LLNotificationPtr maturityLevelNotification;
-	std::string notifySuffix = "_Notify";
-	if (regionAccess == SIM_ACCESS_MATURE)
+	if(llsdBlock.has("_region_access"))
 	{
-		if (gAgent.isTeen())
+		std::string notificationID("TeleportEntryAccessBlocked");
+		U8 regionAccess = static_cast<U8>(llsdBlock["_region_access"].asInteger());
+		std::string regionMaturity = LLViewerRegion::accessToString(regionAccess);
+		LLStringUtil::toLower(regionMaturity);
+		llsdBlock["REGIONMATURITY"] = regionMaturity;
+	
+		LLNotificationPtr maturityLevelNotification;
+		std::string notifySuffix = "_Notify";
+		if (regionAccess == SIM_ACCESS_MATURE)
 		{
-			gAgent.clearTeleportRequest();
-			maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_AdultsOnlyContent", llsdBlock);
-			returnValue = true;
-
-			notifySuffix = "_NotifyAdultsOnly";
-		}
-		else if (gAgent.prefersPG())
-		{
-			if (gAgent.hasRestartableFailedTeleportRequest())
+			if (gAgent.isTeen())
 			{
-				maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_ChangeAndReTeleport", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_and_reteleport_callback);
+				gAgent.clearTeleportRequest();
+				maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_AdultsOnlyContent", llsdBlock);
 				returnValue = true;
+
+				notifySuffix = "_NotifyAdultsOnly";
+			}
+			else if (gAgent.prefersPG())
+			{
+				if (gAgent.hasRestartableFailedTeleportRequest())
+				{
+					maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_ChangeAndReTeleport", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_and_reteleport_callback);
+					returnValue = true;
+				}
+				else
+				{
+					gAgent.clearTeleportRequest();
+					maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_Change", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
+					returnValue = true;
+				}
 			}
 			else
 			{
 				gAgent.clearTeleportRequest();
-				maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_Change", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
+				maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_PreferencesOutOfSync", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
 				returnValue = true;
 			}
 		}
-		else
+		else if (regionAccess == SIM_ACCESS_ADULT)
 		{
-			gAgent.clearTeleportRequest();
-			maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_PreferencesOutOfSync", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
-			returnValue = true;
-		}
-	}
-	else if (regionAccess == SIM_ACCESS_ADULT)
-	{
-		if (!gAgent.isAdult())
-		{
-			gAgent.clearTeleportRequest();
-			maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_AdultsOnlyContent", llsdBlock);
-			returnValue = true;
-
-			notifySuffix = "_NotifyAdultsOnly";
-		}
-		else if (gAgent.prefersPG() || gAgent.prefersMature())
-		{
-			if (gAgent.hasRestartableFailedTeleportRequest())
+			if (!gAgent.isAdult())
 			{
-				maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_ChangeAndReTeleport", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_and_reteleport_callback);
+				gAgent.clearTeleportRequest();
+				maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_AdultsOnlyContent", llsdBlock);
 				returnValue = true;
+
+				notifySuffix = "_NotifyAdultsOnly";
+			}
+			else if (gAgent.prefersPG() || gAgent.prefersMature())
+			{
+				if (gAgent.hasRestartableFailedTeleportRequest())
+				{
+					maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_ChangeAndReTeleport", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_and_reteleport_callback);
+					returnValue = true;
+				}
+				else
+				{
+					gAgent.clearTeleportRequest();
+					maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_Change", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
+					returnValue = true;
+				}
 			}
 			else
 			{
 				gAgent.clearTeleportRequest();
-				maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_Change", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
+				maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_PreferencesOutOfSync", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
 				returnValue = true;
 			}
-		}
-		else
+			}
+
+		if ((maturityLevelNotification == NULL) || maturityLevelNotification->isIgnored())
 		{
-			gAgent.clearTeleportRequest();
-			maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_PreferencesOutOfSync", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
+			// Given a simple notification if no maturityLevelNotification is set or it is ignore
+			LLNotificationsUtil::add(notificationID + notifySuffix, llsdBlock);
+		}
+	}
+	if(llsdBlock.has("trusted_experiences"))
+	{
+		std::ostringstream str;
+		const LLSD& experiences = llsdBlock["trusted_experiences"];
+		LLSD::array_const_iterator it = experiences.beginArray();
+		for(/**/; it != experiences.endArray(); ++it)
+		{
+			str<<LLSLURL("experience", it->asUUID(), "profile").getSLURLString() << "\n";
+		}
+		std::string str_list = str.str();
+		if(!str_list.empty())
+		{
+			LLNotificationsUtil::add("TrustedExperiencesAvailable", LLSD::emptyMap().with("EXPERIENCE_LIST", (LLSD)str_list));
 			returnValue = true;
 		}
-		}
-
-	if ((maturityLevelNotification == NULL) || maturityLevelNotification->isIgnored())
-	{
-		// Given a simple notification if no maturityLevelNotification is set or it is ignore
-		LLNotificationsUtil::add(notificationID + notifySuffix, llsdBlock);
 	}
-
 	return returnValue;
 }
 
