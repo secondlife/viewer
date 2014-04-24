@@ -597,12 +597,6 @@ BOOL LLFloaterMarketplaceValidation::postBuild()
     mEditor->setFocus(TRUE);
     mEditor->setValue(LLSD());
     
-    // Validates the marketplace
-	LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, true);
-	llassert(marketplacelistings_id.notNull());
-    LLViewerInventoryCategory* cat = gInventory.getCategory(marketplacelistings_id);
-    validate_marketplacelistings(cat,boost::bind(&LLFloaterMarketplaceValidation::appendMessage, this, _1));
-
 	return TRUE;
 }
 
@@ -615,6 +609,18 @@ void LLFloaterMarketplaceValidation::draw()
 {
 	// draw children
 	LLFloater::draw();
+}
+
+void LLFloaterMarketplaceValidation::onOpen(const LLSD& key)
+{
+    // Clear the text panel
+    mEditor->setValue(LLSD());
+
+    // Validates the marketplace
+	LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, true);
+	llassert(marketplacelistings_id.notNull());
+    LLViewerInventoryCategory* cat = gInventory.getCategory(marketplacelistings_id);
+    validate_marketplacelistings(cat,boost::bind(&LLFloaterMarketplaceValidation::appendMessage, this, _1));
 }
 
 // static

@@ -162,6 +162,7 @@ public:
     
 	virtual BOOL postBuild();
 	virtual void draw();
+	virtual void onOpen(const LLSD& key);
     
     void appendMessage(std::string& message);
 	static void	onOK( void* userdata );
