@@ -581,8 +581,8 @@ void LLFloaterAssociateListing::cancel()
 // LLFloaterMarketplaceValidation
 //-----------------------------------------------------------------------------
 
-LLFloaterMarketplaceValidation::LLFloaterMarketplaceValidation(const LLSD& data)
-:	LLModalDialog( data["message"].asString() ),
+LLFloaterMarketplaceValidation::LLFloaterMarketplaceValidation(const LLSD& key)
+:	LLFloater(key),
 mEditor(NULL)
 {
 }
@@ -614,7 +614,7 @@ LLFloaterMarketplaceValidation::~LLFloaterMarketplaceValidation()
 void LLFloaterMarketplaceValidation::draw()
 {
 	// draw children
-	LLModalDialog::draw();
+	LLFloater::draw();
 }
 
 // static

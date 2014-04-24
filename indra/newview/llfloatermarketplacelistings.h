@@ -154,14 +154,13 @@ private:
 // get the validation triggered on the server and display the html report.
 // *TODO : morph into an html/text window using the pattern in llfloatertos
 
-class LLFloaterMarketplaceValidation : public LLModalDialog
+class LLFloaterMarketplaceValidation : public LLFloater
 {
 public:
-	LLFloaterMarketplaceValidation(const LLSD& data);
+	LLFloaterMarketplaceValidation(const LLSD& key);
 	virtual ~LLFloaterMarketplaceValidation();
     
-	BOOL postBuild();
-	
+	virtual BOOL postBuild();
 	virtual void draw();
     
     void appendMessage(std::string& message);
