@@ -31,6 +31,7 @@
 
 class LLScrollListCtrl;
 class LLLineEditor;
+class LLPanelExperiencePicker;
 
 
 class LLFloaterExperiencePicker : public LLFloater
@@ -38,7 +39,6 @@ class LLFloaterExperiencePicker : public LLFloater
 public:
 	friend class LLExperiencePickerResponder;
 
-	// The callback function will be called with an avatar name and UUID.
 	typedef boost::function<void (const uuid_vec_t&)> select_callback_t;
 	// filter function for experiences, return true if the experience should be hidden.
 	typedef boost::function<bool (const LLSD&)> filter_function;
@@ -50,46 +50,19 @@ public:
 	virtual ~LLFloaterExperiencePicker();
 
 	BOOL postBuild();
-
-	void addFilter(filter_function func){mFilters.push_back(func);}
+	
 	template <class IT>
 	void addFilters(IT begin, IT end){mFilters.insert(mFilters.end(), begin, end);}
-	void setDefaultFilters();
-
-	static bool FilterWithProperty(const LLSD& experience, S32 prop);
-	static bool FilterWithoutProperty(const LLSD& experience, S32 prop);
-	bool FilterOverRating(const LLSD& experience);
 
 	virtual void	draw();
 private:
-	void editKeystroke(LLLineEditor* caller, void* user_data);
 
-	void onBtnFind();
-	void onBtnSelect();
-	void onBtnProfile();
-	void onBtnClose();
-	void onList();
-	void onMaturity();
-
-	void getSelectedExperienceIds( const LLScrollListCtrl* results, uuid_vec_t &experience_ids );
-	void setAllowMultiple(bool allow_multiple);
-
-
-	void find();
-	bool isSelectButtonEnabled();
-	void processResponse( const LLUUID& query_id, const LLSD& content );
-
-	void filterContent();
-	bool isExperienceHidden(const LLSD& experience) const ;
-	std::string getMaturityString(int maturity);
-
+	LLPanelExperiencePicker* mSearchPanel;
 
 	select_callback_t	mSelectionCallback;
 	filter_list			mFilters;
-	LLUUID				mQueryID;
-	LLSD				mResponse;
+	bool				mAllowMultiple;
 	bool				mCloseOnSelect;
-
 
 	void drawFrustum();
 	LLHandle <LLView>   mFrustumOrigin;

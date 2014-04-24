@@ -38,12 +38,13 @@
 #include "llexperiencecache.h"
 #include "llslurl.h"
 #include "llavatarnamecache.h"
-#include "llfloaterexperienceprofile.h"
 #include "llcombobox.h"
 #include "llviewercontrol.h"
-#include "lldraghandle.h"
+#include "llfloater.h"
 
 #define BTN_FIND		"find"
+#define BTN_OK			"ok_btn"
+#define BTN_CANCEL		"cancel_btn"
 #define BTN_PROFILE		"profile_btn"
 #define TEXT_EDIT		"edit"
 #define TEXT_MATURITY	"maturity"
@@ -51,6 +52,8 @@
 #define PANEL_SEARCH	"search_panel"
 
 const static std::string columnSpace = " ";
+
+static LLPanelInjector<LLPanelExperiencePicker> t_panel_status("llpanelexperiencepicker");
 
 class LLExperienceSearchResponder : public LLHTTPClient::Responder
 {
@@ -75,7 +78,7 @@ public:
 		}
 		else
 		{
-			llwarns << "avatar picker failed [status:" << status << "]: " << content << llendl;
+			llwarns << "experience picker failed [status:" << status << "]: " << content << llendl;
 
 		}
 	}
@@ -90,7 +93,6 @@ LLPanelExperiencePicker::LLPanelExperiencePicker()
 
 LLPanelExperiencePicker::~LLPanelExperiencePicker()
 {
-	gFocusMgr.releaseFocusIfNeeded( this );
 }
 
 BOOL LLPanelExperiencePicker::postBuild()
@@ -101,11 +103,14 @@ BOOL LLPanelExperiencePicker::postBuild()
 	getChildView(BTN_FIND)->setEnabled(FALSE);
 
 	LLScrollListCtrl* searchresults = getChild<LLScrollListCtrl>(LIST_RESULTS);
-	searchresults->setDoubleClickCallback( boost::bind(&LLPanelExperiencePicker::onBtnProfile, this));
+	searchresults->setDoubleClickCallback( boost::bind(&LLPanelExperiencePicker::onBtnSelect, this));
 	searchresults->setCommitCallback(boost::bind(&LLPanelExperiencePicker::onList, this));
 	getChildView(LIST_RESULTS)->setEnabled(FALSE);
 	getChild<LLScrollListCtrl>(LIST_RESULTS)->setCommentText(getString("no_results"));
 
+	childSetAction(BTN_OK, boost::bind(&LLPanelExperiencePicker::onBtnSelect, this));
+	getChildView(BTN_OK)->setEnabled(FALSE);
+	childSetAction(BTN_CANCEL, boost::bind(&LLPanelExperiencePicker::onBtnClose, this));
 	childSetAction(BTN_PROFILE, boost::bind(&LLPanelExperiencePicker::onBtnProfile, this));
 	getChildView(BTN_PROFILE)->setEnabled(FALSE);
 
@@ -135,6 +140,7 @@ void LLPanelExperiencePicker::onBtnFind()
 void LLPanelExperiencePicker::onList()
 {
 	bool enabled = isSelectButtonEnabled();
+	getChildView(BTN_OK)->setEnabled(enabled);
 
 	enabled = enabled && getChild<LLScrollListCtrl>(LIST_RESULTS)->getNumSelected() == 1;
 	getChildView(BTN_PROFILE)->setEnabled(enabled);
@@ -157,10 +163,10 @@ void LLPanelExperiencePicker::find()
 
 	}
 
-
 	getChild<LLScrollListCtrl>(LIST_RESULTS)->deleteAllItems();
 	getChild<LLScrollListCtrl>(LIST_RESULTS)->setCommentText(getString("searching"));
-
+	
+	getChildView(BTN_OK)->setEnabled(FALSE);
 	getChildView(BTN_PROFILE)->setEnabled(FALSE);
 }
 
@@ -225,6 +231,42 @@ void LLPanelExperiencePicker::processResponse( const LLUUID& query_id, const LLS
 
 }
 
+void LLPanelExperiencePicker::onBtnSelect()
+{
+	if(!isSelectButtonEnabled())
+	{
+		return;
+	}
+
+	if(mSelectionCallback)
+	{
+		const LLScrollListCtrl* results = getChild<LLScrollListCtrl>(LIST_RESULTS);
+		uuid_vec_t experience_ids;
+		
+		getSelectedExperienceIds(results, experience_ids);
+		mSelectionCallback(experience_ids);
+		getChild<LLScrollListCtrl>(LIST_RESULTS)->deselectAllItems(TRUE);
+		if(mCloseOnSelect)
+		{
+			mCloseOnSelect = FALSE;
+			onBtnClose();
+		}
+	}
+	else 
+	{
+		onBtnProfile();
+	}
+}
+
+void LLPanelExperiencePicker::onBtnClose()
+{
+	LLFloater* floater = getParentByType<LLFloater>();
+	if (floater)
+	{
+		floater->closeFloater();
+	}
+}
+
 void LLPanelExperiencePicker::onBtnProfile()
 {
 	LLScrollListItem* item = getChild<LLScrollListCtrl>(LIST_RESULTS)->getFirstSelected();
@@ -277,7 +319,7 @@ void LLPanelExperiencePicker::filterContent()
 		search_results->addElement(item);
 		LLAvatarNameCache::get(experience[LLExperienceCache::AGENT_ID], boost::bind(name_callback, getDerivedHandle<LLPanelExperiencePicker>(), experience[LLExperienceCache::EXPERIENCE_ID], _1, _2));
 	}
-
+	
 	if (search_results->isEmpty())
 	{
 		LLStringUtil::format_map_t map;
@@ -292,10 +334,12 @@ void LLPanelExperiencePicker::filterContent()
 			getChild<LLScrollListCtrl>(LIST_RESULTS)->setCommentText(getString("not_found", map));
 		}
 		search_results->setEnabled(false);
+		getChildView(BTN_OK)->setEnabled(false);
 		getChildView(BTN_PROFILE)->setEnabled(false);
 	}
 	else
 	{
+		getChildView(BTN_OK)->setEnabled(true);
 		search_results->setEnabled(true);
 		search_results->sortByColumnIndex(1, TRUE);
 		std::string text = getChild<LLUICtrl>(TEXT_EDIT)->getValue().asString();

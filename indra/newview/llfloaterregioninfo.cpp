@@ -94,7 +94,7 @@
 #include "llfloaterregionrestarting.h"
 #include "llpanelexperiencelisteditor.h"
 #include <boost/function.hpp>
-#include "llfloaterexperiencepicker.h"
+#include "llpanelexperiencepicker.h"
 #include "llexperiencecache.h"
 #include "llpanelexperiences.h"
 
@@ -3634,14 +3634,14 @@ bool LLPanelRegionExperiences::refreshFromRegion(LLViewerRegion* region)
 	mAllowed->loading();
 	mAllowed->setReadonly(!allow_modify);
 	// remove grid-wide experiences
-	mAllowed->addFilter(boost::bind(LLFloaterExperiencePicker::FilterWithProperty, _1, LLExperienceCache::PROPERTY_GRID));
+	mAllowed->addFilter(boost::bind(LLPanelExperiencePicker::FilterWithProperty, _1, LLExperienceCache::PROPERTY_GRID));
 
 	mBlocked->loading();
 	mBlocked->setReadonly(!allow_modify);
 	// only grid-wide experiences
-	mBlocked->addFilter(boost::bind(LLFloaterExperiencePicker::FilterWithoutProperty, _1, LLExperienceCache::PROPERTY_GRID));
+	mBlocked->addFilter(boost::bind(LLPanelExperiencePicker::FilterWithoutProperty, _1, LLExperienceCache::PROPERTY_GRID));
 	// but not privileged ones
-	mBlocked->addFilter(boost::bind(LLFloaterExperiencePicker::FilterWithProperty, _1, LLExperienceCache::PROPERTY_PRIVILEGED));
+	mBlocked->addFilter(boost::bind(LLPanelExperiencePicker::FilterWithProperty, _1, LLExperienceCache::PROPERTY_PRIVILEGED));
 
 	mTrusted->loading();
 	mTrusted->setReadonly(!allow_modify);

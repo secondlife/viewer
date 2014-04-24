@@ -37,8 +37,8 @@ class LLPanelExperiencePicker : public LLPanel
 {
 public:
 	friend class LLExperienceSearchResponder;
+	friend class LLFloaterExperiencePicker;
 
-	// The callback function will be called with an avatar name and UUID.
 	typedef boost::function<void (const uuid_vec_t&)> select_callback_t;
 	// filter function for experiences, return true if the experience should be hidden.
 	typedef boost::function<bool (const LLSD&)> filter_function;
@@ -62,6 +62,8 @@ private:
 	void editKeystroke(LLLineEditor* caller, void* user_data);
 
 	void onBtnFind();
+	void onBtnSelect();
+	void onBtnClose();
 	void onBtnProfile();
 	void onList();
 	void onMaturity();
@@ -83,6 +85,7 @@ private:
 	filter_list			mFilters;
 	LLUUID				mQueryID;
 	LLSD				mResponse;
+	bool				mCloseOnSelect;
 };
 
 #endif // LL_LLPANELEXPERIENCEPICKER_H
