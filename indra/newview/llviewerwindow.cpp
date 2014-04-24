@@ -2153,6 +2153,12 @@ LLViewerWindow::~LLViewerWindow()
 
 	delete mDebugText;
 	mDebugText = NULL;
+
+	if (LLViewerShaderMgr::sInitialized)
+	{
+		LLViewerShaderMgr::releaseInstance();
+		LLViewerShaderMgr::sInitialized = FALSE;
+	}
 }
 
 
