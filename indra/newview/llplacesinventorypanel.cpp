@@ -91,17 +91,17 @@ LLFolderView * LLPlacesInventoryPanel::createFolderRoot(LLUUID root_id )
 void LLPlacesInventoryPanel::saveFolderState()
 {
 	mSavedFolderState->setApply(FALSE);
-	mFolderRoot->applyFunctorRecursively(*mSavedFolderState);
+	mFolderRoot.get()->applyFunctorRecursively(*mSavedFolderState);
 }
 
 // re-open folders which state was saved
 void LLPlacesInventoryPanel::restoreFolderState()
 {
 	mSavedFolderState->setApply(TRUE);
-	mFolderRoot->applyFunctorRecursively(*mSavedFolderState);
+	mFolderRoot.get()->applyFunctorRecursively(*mSavedFolderState);
 	LLOpenFoldersWithSelection opener;
-	mFolderRoot->applyFunctorRecursively(opener);
-	mFolderRoot->scrollToShowSelection();
+	mFolderRoot.get()->applyFunctorRecursively(opener);
+	mFolderRoot.get()->scrollToShowSelection();
 }
 
 S32	LLPlacesInventoryPanel::notify(const LLSD& info) 
@@ -111,11 +111,11 @@ S32	LLPlacesInventoryPanel::notify(const LLSD& info)
 		std::string str_action = info["action"];
 		if(str_action == "select_first")
 		{
-			return mFolderRoot->notify(info);
+			return mFolderRoot.get()->notify(info);
 		}
 		else if(str_action == "select_last")
 		{
-			return mFolderRoot->notify(info);
+			return mFolderRoot.get()->notify(info);
 		}
 	}
 	return 0;

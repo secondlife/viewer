@@ -271,7 +271,7 @@ See the [[MARKETPLACE_IMPORTS_URL] error log] for more information.
    icon="OutboxStatus_Error"
    name="OutboxImportFailed"
    type="outbox">
-Transfer failed
+Transfer failed with error &apos;[ERROR_CODE]&apos;
 
 No folders were sent to the Marketplace because of a system or network error.  Try again later.
 
@@ -284,7 +284,7 @@ No folders were sent to the Marketplace because of a system or network error.  T
    icon="OutboxStatus_Error"
    name="OutboxInitFailed"
    type="outbox">
-Marketplace initialization failed
+Marketplace initialization failed with error &apos;[ERROR_CODE]&apos;
 
 Initialization with the Marketplace failed because of a system or network error.  Try again later.
 
@@ -7069,6 +7069,17 @@ Unable to acquire a new experience:
               text="Allowed into a region by an experience"/>
     </form>
   </notification>
+
+  <notification
+    icon="notify.tga"
+    name="TrustedExperiencesAvailable"
+    persist="false"
+    type="notify">
+You do not have access to this destination. You may be allowed into the region by Accepting an experience below:
+
+[EXPERIENCE_LIST]
+  </notification>
+    
 
   <notification
     icon="notify.tga"
