@@ -124,7 +124,7 @@ namespace
 	{
 	public:
 		RawInjector(const U8* data, S32 size) : mData(data), mSize(size) {}
-		virtual ~RawInjector() {delete mData;}
+		virtual ~RawInjector() {delete [] mData;}
 
 		const char* contentType() { return "application/octet-stream"; }
 
