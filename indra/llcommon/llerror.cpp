@@ -47,6 +47,7 @@
 #include "lllivefile.h"
 #include "llsd.h"
 #include "llsdserialize.h"
+#include "llsingleton.h"
 #include "llstl.h"
 #include "lltimer.h"
 
@@ -359,26 +360,27 @@ namespace
 	typedef std::vector<LLError::Recorder*> Recorders;
 	typedef std::vector<LLError::CallSite*> CallSiteVector;
 
-	class Globals
+	class Globals : public LLSingleton<Globals>
 	{
 	public:
+		Globals();
+
 		std::ostringstream messageStream;
 		bool messageStreamInUse;
 
 		void addCallSite(LLError::CallSite&);
 		void invalidateCallSites();
-		
-		static Globals& get();
-			// return the one instance of the globals
 
 	private:
 		CallSiteVector callSites;
-
-		Globals()
-			:	messageStreamInUse(false)
-			{ }
-		
 	};
+
+	Globals::Globals()
+		: messageStream(),
+		messageStreamInUse(false),
+		callSites()
+	{
+	}
 
 	void Globals::addCallSite(LLError::CallSite& site)
 	{
@@ -395,18 +397,6 @@ namespace
 		}
 		
 		callSites.clear();
-	}
-
-	Globals& Globals::get()
-	{
-		/* This pattern, of returning a reference to a static function
-		   variable, is to ensure that this global is constructed before
-		   it is used, no matter what the global initialization sequence
-		   is.
-		   See C++ FAQ Lite, sections 10.12 through 10.14
-		*/
-		static Globals* globals = new Globals;		
-		return *globals;
 	}
 }
 
@@ -474,7 +464,7 @@ namespace LLError
 	
 	void Settings::reset()
 	{
-		Globals::get().invalidateCallSites();
+		Globals::getInstance()->invalidateCallSites();
 		
 		Settings*& p = getPtr();
 		delete p;
@@ -483,7 +473,7 @@ namespace LLError
 	
 	Settings* Settings::saveAndReset()
 	{
-		Globals::get().invalidateCallSites();
+		Globals::getInstance()->invalidateCallSites();
 		
 		Settings*& p = getPtr();
 		Settings* originalSettings = p;
@@ -493,7 +483,7 @@ namespace LLError
 	
 	void Settings::restore(Settings* originalSettings)
 	{
-		Globals::get().invalidateCallSites();
+		Globals::getInstance()->invalidateCallSites();
 		
 		Settings*& p = getPtr();
 		delete p;
@@ -680,9 +670,8 @@ namespace LLError
 
 	void setDefaultLevel(ELevel level)
 	{
-		Globals& g = Globals::get();
+		Globals::getInstance()->invalidateCallSites();
 		Settings& s = Settings::get();
-		g.invalidateCallSites();
 		s.mDefaultLevel = level;
 	}
 
@@ -694,33 +683,29 @@ namespace LLError
 
 	void setFunctionLevel(const std::string& function_name, ELevel level)
 	{
-		Globals& g = Globals::get();
+		Globals::getInstance()->invalidateCallSites();
 		Settings& s = Settings::get();
-		g.invalidateCallSites();
 		s.mFunctionLevelMap[function_name] = level;
 	}
 
 	void setClassLevel(const std::string& class_name, ELevel level)
 	{
-		Globals& g = Globals::get();
+		Globals::getInstance()->invalidateCallSites();
 		Settings& s = Settings::get();
-		g.invalidateCallSites();
 		s.mClassLevelMap[class_name] = level;
 	}
 
 	void setFileLevel(const std::string& file_name, ELevel level)
 	{
-		Globals& g = Globals::get();
+		Globals::getInstance()->invalidateCallSites();
 		Settings& s = Settings::get();
-		g.invalidateCallSites();
 		s.mFileLevelMap[file_name] = level;
 	}
 
 	void setTagLevel(const std::string& tag_name, ELevel level)
 	{
-		Globals& g = Globals::get();
+		Globals::getInstance()->invalidateCallSites();
 		Settings& s = Settings::get();
-		g.invalidateCallSites();
 		s.mTagLevelMap[tag_name] = level;
 	}
 
@@ -765,10 +750,9 @@ namespace LLError
 {
 	void configure(const LLSD& config)
 	{
-		Globals& g = Globals::get();
+		Globals::getInstance()->invalidateCallSites();
 		Settings& s = Settings::get();
 		
-		g.invalidateCallSites();
 		s.mFunctionLevelMap.clear();
 		s.mClassLevelMap.clear();
 		s.mFileLevelMap.clear();
@@ -1060,7 +1044,6 @@ namespace LLError
 			return false;
 		}
 		
-		Globals& g = Globals::get();
 		Settings& s = Settings::get();
 		
 		s.mShouldLogCallCounter++;
@@ -1091,7 +1074,7 @@ namespace LLError
 			: false);
 
 		site.mCached = true;
-		g.addCallSite(site);
+		Globals::getInstance()->addCallSite(site);
 		return site.mShouldLog = site.mLevel >= compareLevel;
 	}
 
@@ -1101,12 +1084,12 @@ namespace LLError
 		LogLock lock;
 		if (lock.ok())
 		{
-			Globals& g = Globals::get();
+			Globals* g = Globals::getInstance();
 
-			if (!g.messageStreamInUse)
+			if (!g->messageStreamInUse)
 			{
-				g.messageStreamInUse = true;
-				return &g.messageStream;
+				g->messageStreamInUse = true;
+				return &g->messageStream;
 			}
 		}
 		
@@ -1131,13 +1114,12 @@ namespace LLError
 		   message[127] = '\0' ;
 	   }
 	   
-	   Globals& g = Globals::get();
-
-       if (out == &g.messageStream)
+	   Globals* g = Globals::getInstance();
+       if (out == &g->messageStream)
        {
-           g.messageStream.clear();
-           g.messageStream.str("");
-           g.messageStreamInUse = false;
+           g->messageStream.clear();
+           g->messageStream.str("");
+           g->messageStreamInUse = false;
        }
        else
        {
@@ -1154,15 +1136,15 @@ namespace LLError
 			return;
 		}
 		
-		Globals& g = Globals::get();
+		Globals* g = Globals::getInstance();
 		Settings& s = Settings::get();
 
 		std::string message = out->str();
-		if (out == &g.messageStream)
+		if (out == &g->messageStream)
 		{
-			g.messageStream.clear();
-			g.messageStream.str("");
-			g.messageStreamInUse = false;
+			g->messageStream.clear();
+			g->messageStream.str("");
+			g->messageStreamInUse = false;
 		}
 		else
 		{
