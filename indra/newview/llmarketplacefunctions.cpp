@@ -95,6 +95,46 @@ LLSD getMarketplaceStringSubstitutions()
 	return marketplace_sub_map;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// SLM Responder
+class LLSLMMerchantResponder : public LLHTTPClient::Responder
+{
+	LOG_CLASS(LLSLMMerchantResponder);
+public:
+	
+    LLSLMMerchantResponder() {}
+    
+	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
+	{
+		if (isGoodStatus(status))
+		{
+            llinfos << "Merov : completed successful, status = " << status << ", reason = " << reason << ", content = " << content << llendl;
+            LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_MERCHANT);
+		}
+		else
+		{
+            llinfos << "Merov : completed with error, status = " << status << ", reason = " << reason << ", content = " << content << llendl;
+            LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_MERCHANT);
+		}
+	}
+    
+    void completedHeader(U32 status, const std::string& reason, const LLSD& content)
+    {
+		if (isGoodStatus(status))
+		{
+            llinfos << "Merov : completed header successful, status = " << status << ", reason = " << reason << ", content = " << content << llendl;
+            LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_MERCHANT);
+		}
+		else
+		{
+            llinfos << "Merov : completed header with error, status = " << status << ", reason = " << reason << ", content = " << content << llendl;
+            LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_MERCHANT);
+		}
+    }
+};
+// SLM Responder End
+///////////////////////////////////////////////////////////////////////////////
+
 namespace LLMarketplaceImport
 {
 	// Basic interface for this namespace
@@ -427,27 +467,15 @@ void LLMarketplaceInventoryImporter::initialize()
         return;
     }
 
-    // Test DirectDelivery cap
-	LLViewerRegion* region = gAgent.getRegion();
-	if (region)
+    if (!LLMarketplaceImport::hasSessionCookie())
     {
-        std::string url = region->getCapability("DirectDelivery");
-        llinfos << "Merov : Test DirectDelivery cap : url = " << url << llendl;
+        mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_INITIALIZING;
+        LLMarketplaceImport::establishMarketplaceSessionCookie();
     }
     else
     {
-        llinfos << "Merov : Test DirectDelivery cap : no region accessible" << llendl;
+        mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_MERCHANT;
     }
-
-	if (!LLMarketplaceImport::hasSessionCookie())
-	{
-		mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_INITIALIZING;
-		LLMarketplaceImport::establishMarketplaceSessionCookie();
-	}
-	else
-	{
-		mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_MERCHANT;
-	}
 }
 
 void LLMarketplaceInventoryImporter::reinitializeAndTriggerImport()
@@ -573,9 +601,41 @@ LLMarketplaceTuple::LLMarketplaceTuple(const LLUUID& folder_id, S32 listing_id, 
 
 
 // Data map
-LLMarketplaceData::LLMarketplaceData()
+LLMarketplaceData::LLMarketplaceData() : 
+ mMarketPlaceStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED)
 {
     mTestCurrentMarketplaceID = 1234567;
+}
+
+S32 LLMarketplaceData::getTestMarketplaceID()
+{
+    return mTestCurrentMarketplaceID++;
+}
+
+void LLMarketplaceData::initializeSLM()
+{
+    mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_INITIALIZING;
+    
+    // Get DirectDelivery cap
+    std::string url = "";
+	LLViewerRegion* region = gAgent.getRegion();
+	if (region)
+    {
+        url = region->getCapability("DirectDelivery");
+        llinfos << "Merov : Test DirectDelivery cap : url = " << url << llendl;
+    }
+    else
+    {
+        llinfos << "Merov : Test DirectDelivery cap : no region accessible" << llendl;
+    }
+    // *TODO : Take this DirectDelivery cap coping hack out
+    if (url == "")
+    {
+        url = "https://marketplace.secondlife-staging.com/api/1/viewer/" + gAgentID.asString() + "/merchant";
+    }
+    llinfos << "Merov : Testing get : " << url << llendl;
+    
+	LLHTTPClient::get(url, new LLSLMMerchantResponder(), LLSD());
 }
 
 // Creation / Deletion

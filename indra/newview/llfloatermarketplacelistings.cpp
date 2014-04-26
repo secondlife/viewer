@@ -160,7 +160,8 @@ public:
 			
 			if (added_category_type == LLFolderType::FT_MARKETPLACE_LISTINGS)
 			{
-				mMarketplaceListingsFloater->initializeMarketPlace();
+				//mMarketplaceListingsFloater->initializeMarketPlace();
+                LLMarketplaceData::instance().initializeSLM();
 			}
 		}
 	}
@@ -234,9 +235,11 @@ void LLFloaterMarketplaceListings::onOpen(const LLSD& key)
 	//
 	// Initialize the Market Place or go update the marketplace listings
 	//
-	if (LLMarketplaceInventoryImporter::getInstance()->getMarketPlaceStatus() == MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED)
+	//if (LLMarketplaceInventoryImporter::getInstance()->getMarketPlaceStatus() == MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED)
+    if (LLMarketplaceData::instance().getSLMStatus() == MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED)
 	{
-		initializeMarketPlace();
+		//initializeMarketPlace();
+        LLMarketplaceData::instance().initializeSLM();
 	}
 	else
 	{
@@ -269,7 +272,8 @@ void LLFloaterMarketplaceListings::fetchContents()
 
 void LLFloaterMarketplaceListings::setup()
 {
-	if (LLMarketplaceInventoryImporter::getInstance()->getMarketPlaceStatus() != MarketplaceStatusCodes::MARKET_PLACE_MERCHANT)
+	//if (LLMarketplaceInventoryImporter::getInstance()->getMarketPlaceStatus() != MarketplaceStatusCodes::MARKET_PLACE_MERCHANT)
+    if (LLMarketplaceData::instance().getSLMStatus() != MarketplaceStatusCodes::MARKET_PLACE_MERCHANT)
 	{
 		// If we are *not* a merchant or we have no market place connection established yet, do nothing
 		return;
@@ -375,7 +379,8 @@ void LLFloaterMarketplaceListings::updateView()
         std::string tooltip;
     
         const LLSD& subs = getMarketplaceStringSubstitutions();
-        U32 mkt_status = LLMarketplaceInventoryImporter::getInstance()->getMarketPlaceStatus();
+        //U32 mkt_status = LLMarketplaceInventoryImporter::getInstance()->getMarketPlaceStatus();
+        U32 mkt_status = LLMarketplaceData::instance().getSLMStatus();
     
         // *TODO : check those messages and create better appropriate ones in strings.xml
         if (mRootFolderId.notNull())
@@ -485,7 +490,8 @@ void LLFloaterMarketplaceListings::initializationReportError(U32 status, const L
 
 void LLFloaterMarketplaceListings::importStatusChanged(bool inProgress)
 {
-	if (mRootFolderId.isNull() && (LLMarketplaceInventoryImporter::getInstance()->getMarketPlaceStatus() == MarketplaceStatusCodes::MARKET_PLACE_MERCHANT))
+	//if (mRootFolderId.isNull() && (LLMarketplaceInventoryImporter::getInstance()->getMarketPlaceStatus() == MarketplaceStatusCodes::MARKET_PLACE_MERCHANT))
+    if (mRootFolderId.isNull() && (LLMarketplaceData::instance().getSLMStatus() == MarketplaceStatusCodes::MARKET_PLACE_MERCHANT))
 	{
 		setup();
 	}

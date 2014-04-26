@@ -145,6 +145,11 @@ class LLMarketplaceData
 public:
 	LLMarketplaceData();
     
+    // SLM
+	U32  getSLMStatus() const { return mMarketPlaceStatus; }
+	void setSLMStatus(U32 status) { mMarketPlaceStatus = status; }
+    void initializeSLM();
+    
     bool isEmpty() { return (mMarketplaceItems.size() == 0); }
     
     // Probe the Marketplace data set to identify folders
@@ -169,10 +174,11 @@ public:
     bool setActivation(const LLUUID& folder_id, bool activate);
     
     // Merov : Test method while waiting for SLM API
-    S32 getTestMarketplaceID() { return mTestCurrentMarketplaceID++; }
+    S32 getTestMarketplaceID();
     
 private:
     marketplace_items_list_t mMarketplaceItems;
+	U32  mMarketPlaceStatus;
     // Merov : This is for test only, waiting for SLM API
     S32 mTestCurrentMarketplaceID;
 };
