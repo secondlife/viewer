@@ -150,6 +150,12 @@ public:
 	U32  getSLMStatus() const { return mMarketPlaceStatus; }
 	void setSLMStatus(U32 status);
     void initializeSLM(const status_updated_signal_t::slot_type& cb);
+    void getSLMListings();
+    //void getSLMListing();
+    //void postSLMListing();
+    //void modifySLMListing();
+    //void associateSLMListing();
+    std::string getSLMConnectURL(const std::string& route);
     
     bool isEmpty() { return (mMarketplaceItems.size() == 0); }
     

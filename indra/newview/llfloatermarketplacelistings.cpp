@@ -264,6 +264,8 @@ void LLFloaterMarketplaceListings::fetchContents()
 	if (mRootFolderId.notNull())
 	{
 		LLInventoryModelBackgroundFetch::instance().start(mRootFolderId);
+        // Get all the SLM Listings
+        LLMarketplaceData::instance().getSLMListings();
 	}
 }
 

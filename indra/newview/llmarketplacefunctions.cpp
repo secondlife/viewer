@@ -96,7 +96,7 @@ LLSD getMarketplaceStringSubstitutions()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// SLM Responder
+// SLM Responders
 class LLSLMMerchantResponder : public LLHTTPClient::Responder
 {
 	LOG_CLASS(LLSLMMerchantResponder);
@@ -132,7 +132,41 @@ public:
 		}
     }
 };
-// SLM Responder End
+
+class LLSLMListingsResponder : public LLHTTPClient::Responder
+{
+	LOG_CLASS(LLSLMListingsResponder);
+public:
+	
+    LLSLMListingsResponder() {}
+    
+	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
+	{
+		if (isGoodStatus(status))
+		{
+            llinfos << "Merov : completed successful, status = " << status << ", reason = " << reason << ", content = " << content << llendl;
+            // *TODO : Parse the Json body
+            //LLMarketplaceData::instance().parseListings(content);
+		}
+		else
+		{
+            llinfos << "Merov : completed with error, status = " << status << ", reason = " << reason << ", content = " << content << llendl;
+		}
+	}
+    
+    void completedHeader(U32 status, const std::string& reason, const LLSD& content)
+    {
+		if (isGoodStatus(status))
+		{
+            llinfos << "Merov : completed header successful, status = " << status << ", reason = " << reason << ", content = " << content << llendl;
+		}
+		else
+		{
+            llinfos << "Merov : completed header with error, status = " << status << ", reason = " << reason << ", content = " << content << llendl;
+		}
+    }
+};
+// SLM Responders End
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace LLMarketplaceImport
@@ -621,34 +655,36 @@ void LLMarketplaceData::initializeSLM(const status_updated_signal_t::slot_type& 
 		mStatusUpdatedSignal = new status_updated_signal_t();
 	}
 	mStatusUpdatedSignal->connect(cb);
-    
-    // Get DirectDelivery cap
-    std::string url = "";
-	LLViewerRegion* region = gAgent.getRegion();
-	if (region)
+	LLHTTPClient::get(getSLMConnectURL("/merchant"), new LLSLMMerchantResponder(), LLSD());
+}
+
+void LLMarketplaceData::getSLMListings()
+{
+	LLHTTPClient::get(getSLMConnectURL("/listings"), new LLSLMListingsResponder(), LLSD());
+}
+
+std::string LLMarketplaceData::getSLMConnectURL(const std::string& route)
+{
+    std::string url("");
+    LLViewerRegion *regionp = gAgent.getRegion();
+    if (regionp)
     {
-        url = region->getCapability("DirectDelivery");
-        llinfos << "Merov : Test DirectDelivery cap : url = " << url << llendl;
+        // Get DirectDelivery cap
+        url = regionp->getCapability("DirectDelivery");
+        // *TODO : Take this DirectDelivery cap coping mechanism hack out
+        if (url == "")
+        {
+            url = "https://marketplace.secondlife-staging.com/api/1/viewer/" + gAgentID.asString();
+        }
+        url += route;
     }
-    else
-    {
-        llinfos << "Merov : Test DirectDelivery cap : no region accessible" << llendl;
-    }
-    // *TODO : Take this DirectDelivery cap coping hack out
-    if (url == "")
-    {
-        url = "https://marketplace.secondlife-staging.com/api/1/viewer/" + gAgentID.asString() + "/merchant";
-    }
-    llinfos << "Merov : Testing get : " << url << llendl;
-    
-	LLHTTPClient::get(url, new LLSLMMerchantResponder(), LLSD());
+    llinfos << "Merov : Testing getSLMConnectURL : " << url << llendl;
+	return url;
 }
 
 void LLMarketplaceData::setSLMStatus(U32 status)
 {
-    mMarketPlaceStatus = status; /* call cb if status is "done" */
-
-    // Make sure we trigger the status change with the current state
+    mMarketPlaceStatus = status;
     if (mStatusUpdatedSignal)
     {
         (*mStatusUpdatedSignal)();
