@@ -602,7 +602,8 @@ LLMarketplaceTuple::LLMarketplaceTuple(const LLUUID& folder_id, S32 listing_id, 
 
 // Data map
 LLMarketplaceData::LLMarketplaceData() : 
- mMarketPlaceStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED)
+ mMarketPlaceStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED),
+ mStatusUpdatedSignal(NULL)
 {
     mTestCurrentMarketplaceID = 1234567;
 }
@@ -612,9 +613,14 @@ S32 LLMarketplaceData::getTestMarketplaceID()
     return mTestCurrentMarketplaceID++;
 }
 
-void LLMarketplaceData::initializeSLM()
+void LLMarketplaceData::initializeSLM(const status_updated_signal_t::slot_type& cb)
 {
     mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_INITIALIZING;
+	if (mStatusUpdatedSignal == NULL)
+	{
+		mStatusUpdatedSignal = new status_updated_signal_t();
+	}
+	mStatusUpdatedSignal->connect(cb);
     
     // Get DirectDelivery cap
     std::string url = "";
@@ -636,6 +642,17 @@ void LLMarketplaceData::initializeSLM()
     llinfos << "Merov : Testing get : " << url << llendl;
     
 	LLHTTPClient::get(url, new LLSLMMerchantResponder(), LLSD());
+}
+
+void LLMarketplaceData::setSLMStatus(U32 status)
+{
+    mMarketPlaceStatus = status; /* call cb if status is "done" */
+
+    // Make sure we trigger the status change with the current state
+    if (mStatusUpdatedSignal)
+    {
+        (*mStatusUpdatedSignal)();
+    }
 }
 
 // Creation / Deletion

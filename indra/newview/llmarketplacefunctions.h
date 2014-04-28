@@ -146,9 +146,10 @@ public:
 	LLMarketplaceData();
     
     // SLM
+	typedef boost::signals2::signal<void ()> status_updated_signal_t;
 	U32  getSLMStatus() const { return mMarketPlaceStatus; }
-	void setSLMStatus(U32 status) { mMarketPlaceStatus = status; }
-    void initializeSLM();
+	void setSLMStatus(U32 status);
+    void initializeSLM(const status_updated_signal_t::slot_type& cb);
     
     bool isEmpty() { return (mMarketplaceItems.size() == 0); }
     
@@ -179,6 +180,7 @@ public:
 private:
     marketplace_items_list_t mMarketplaceItems;
 	U32  mMarketPlaceStatus;
+	status_updated_signal_t *	mStatusUpdatedSignal;
     // Merov : This is for test only, waiting for SLM API
     S32 mTestCurrentMarketplaceID;
 };

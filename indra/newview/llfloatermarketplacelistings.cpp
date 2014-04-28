@@ -160,8 +160,7 @@ public:
 			
 			if (added_category_type == LLFolderType::FT_MARKETPLACE_LISTINGS)
 			{
-				//mMarketplaceListingsFloater->initializeMarketPlace();
-                LLMarketplaceData::instance().initializeSLM();
+				mMarketplaceListingsFloater->initializeMarketPlace();
 			}
 		}
 	}
@@ -235,11 +234,9 @@ void LLFloaterMarketplaceListings::onOpen(const LLSD& key)
 	//
 	// Initialize the Market Place or go update the marketplace listings
 	//
-	//if (LLMarketplaceInventoryImporter::getInstance()->getMarketPlaceStatus() == MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED)
     if (LLMarketplaceData::instance().getSLMStatus() == MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED)
 	{
-		//initializeMarketPlace();
-        LLMarketplaceData::instance().initializeSLM();
+		initializeMarketPlace();
 	}
 	else
 	{
@@ -272,7 +269,6 @@ void LLFloaterMarketplaceListings::fetchContents()
 
 void LLFloaterMarketplaceListings::setup()
 {
-	//if (LLMarketplaceInventoryImporter::getInstance()->getMarketPlaceStatus() != MarketplaceStatusCodes::MARKET_PLACE_MERCHANT)
     if (LLMarketplaceData::instance().getSLMStatus() != MarketplaceStatusCodes::MARKET_PLACE_MERCHANT)
 	{
 		// If we are *not* a merchant or we have no market place connection established yet, do nothing
@@ -327,18 +323,7 @@ void LLFloaterMarketplaceListings::setup()
 
 void LLFloaterMarketplaceListings::initializeMarketPlace()
 {
-	//
-	// Initialize the marketplace import API
-	//
-	LLMarketplaceInventoryImporter& importer = LLMarketplaceInventoryImporter::instance();
-	
-    if (!importer.isInitialized())
-    {
-        importer.setInitializationErrorCallback(boost::bind(&LLFloaterMarketplaceListings::initializationReportError, this, _1, _2));
-        importer.setStatusChangedCallback(boost::bind(&LLFloaterMarketplaceListings::importStatusChanged, this, _1));
-        importer.setStatusReportCallback(boost::bind(&LLFloaterMarketplaceListings::importReportResults, this, _1, _2));
-        importer.initialize();
-    }
+    LLMarketplaceData::instance().initializeSLM(boost::bind(&LLFloaterMarketplaceListings::updateView, this));
 }
 
 S32 LLFloaterMarketplaceListings::getFolderCount()
@@ -379,9 +364,27 @@ void LLFloaterMarketplaceListings::updateView()
         std::string tooltip;
     
         const LLSD& subs = getMarketplaceStringSubstitutions();
-        //U32 mkt_status = LLMarketplaceInventoryImporter::getInstance()->getMarketPlaceStatus();
         U32 mkt_status = LLMarketplaceData::instance().getSLMStatus();
     
+        // Get or create the root folder if we are a merchant and it hasn't been done already
+        if (mRootFolderId.isNull() && (mkt_status == MarketplaceStatusCodes::MARKET_PLACE_MERCHANT))
+        {
+            setup();
+        }
+
+        // Update the bottom initializing status and progress dial
+        if (mkt_status == MarketplaceStatusCodes::MARKET_PLACE_INITIALIZING)
+        {
+            setStatusString(getString("MarketplaceListingsInitializing"));
+            mInventoryInitializationInProgress->setVisible(true);
+        }
+        else
+        {
+            setStatusString("");
+            mInventoryInitializationInProgress->setVisible(false);
+        }
+        
+        // Update the top message or flip to the tabs and folders view
         // *TODO : check those messages and create better appropriate ones in strings.xml
         if (mRootFolderId.notNull())
         {
@@ -481,38 +484,6 @@ void LLFloaterMarketplaceListings::onChanged()
         // Invalidate the marketplace listings data
         mRootFolderId.setNull();
     }
-}
-
-void LLFloaterMarketplaceListings::initializationReportError(U32 status, const LLSD& content)
-{
-	updateView();
-}
-
-void LLFloaterMarketplaceListings::importStatusChanged(bool inProgress)
-{
-	//if (mRootFolderId.isNull() && (LLMarketplaceInventoryImporter::getInstance()->getMarketPlaceStatus() == MarketplaceStatusCodes::MARKET_PLACE_MERCHANT))
-    if (mRootFolderId.isNull() && (LLMarketplaceData::instance().getSLMStatus() == MarketplaceStatusCodes::MARKET_PLACE_MERCHANT))
-	{
-		setup();
-	}
-
-	if (inProgress)
-	{
-        setStatusString(getString("MarketplaceListingsInitializing"));
-		mInventoryInitializationInProgress->setVisible(true);
-	}
-	else
-	{
-		setStatusString("");
-		mInventoryInitializationInProgress->setVisible(false);
-	}
-	
-	updateView();
-}
-
-void LLFloaterMarketplaceListings::importReportResults(U32 status, const LLSD& content)
-{	
-	updateView();
 }
 
 //-----------------------------------------------------------------------------

@@ -94,9 +94,6 @@ protected:
 	void setup();
 	void fetchContents();
     
-	void importReportResults(U32 status, const LLSD& content);
-	void importStatusChanged(bool inProgress);
-	void initializationReportError(U32 status, const LLSD& content);
 	void setStatusString(const std::string& statusString);
 
 	void onClose(bool app_quitting);
