@@ -1357,15 +1357,9 @@ namespace LLError
 #endif
 
 	//static
-   void LLCallStacks::push(const char* function, const int line)
+   void LLCallStacks::allocateStackBuffer()
    {
-	   CallStacksLogLock lock;
-       if (!lock.ok())
-       {
-           return;
-       }
-
-	   if(!sBuffer)
+	   if(sBuffer == NULL)
 	   {
 		   sBuffer = new char*[512] ;
 		   sBuffer[0] = new char[512 * 128] ;
@@ -1374,6 +1368,31 @@ namespace LLError
 			   sBuffer[i] = sBuffer[i-1] + 128 ;
 		   }
 		   sIndex = 0 ;
+	   }
+   }
+
+   void LLCallStacks::freeStackBuffer()
+   {
+	   if(sBuffer != NULL)
+	   {
+		   delete [] sBuffer[0] ;
+		   delete [] sBuffer ;
+		   sBuffer = NULL ;
+	   }
+   }
+
+   //static
+   void LLCallStacks::push(const char* function, const int line)
+   {
+	   CallStacksLogLock lock;
+       if (!lock.ok())
+       {
+           return;
+       }
+
+	   if(sBuffer == NULL)
+	   {
+		   allocateStackBuffer();
 	   }
 
 	   if(sIndex > 511)
@@ -1406,15 +1425,9 @@ namespace LLError
            return;
        }
 
-	   if(!sBuffer)
+	   if(sBuffer == NULL)
 	   {
-		   sBuffer = new char*[512] ;
-		   sBuffer[0] = new char[512 * 128] ;
-		   for(S32 i = 1 ; i < 512 ; i++)
-		   {
-			   sBuffer[i] = sBuffer[i-1] + 128 ;
-		   }
-		   sIndex = 0 ;
+		   allocateStackBuffer();
 	   }
 
 	   if(sIndex > 511)
@@ -1445,11 +1458,9 @@ namespace LLError
            LL_INFOS() << " *************** END OF LL CALL STACKS *************** " << LL_ENDL;
        }
 
-	   if(sBuffer)
+	   if(sBuffer != NULL)
 	   {
-		   delete[] sBuffer[0] ;
-		   delete[] sBuffer ;
-		   sBuffer = NULL ;
+		   freeStackBuffer();
 	   }
    }
 
@@ -1459,5 +1470,10 @@ namespace LLError
        sIndex = 0 ;
    }
 
+   //static
+   void LLCallStacks::cleanup()
+   {
+	   freeStackBuffer();
+   }
 }
 
