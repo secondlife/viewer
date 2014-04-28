@@ -57,7 +57,7 @@ public:
 	/*virtual*/ void onOpen(const LLSD& key);
 
 	LLInventoryPanel* getActivePanel(); // Returns an active inventory panel, if any.
-	LLInventoryPanel* getInboxPanel() const { return mInventoryPanelInbox; }
+	LLInventoryPanel* getInboxPanel() const { return mInventoryPanelInbox.get(); }
 
 	LLPanelMainInventory* getMainInventoryPanel() const { return mPanelMainInventory; }
 	BOOL isMainInventoryPanelActive() const;
@@ -99,7 +99,7 @@ protected:
 	//
 private:
 	LLPanel*					mInventoryPanel; // Main inventory view
-	LLInventoryPanel*			mInventoryPanelInbox;
+	LLHandle<LLInventoryPanel>	mInventoryPanelInbox;
 	LLSidepanelItemInfo*		mItemPanel; // Individual item view
 	LLSidepanelTaskInfo*		mTaskPanel; // Individual in-world object view
 	LLPanelMainInventory*		mPanelMainInventory;

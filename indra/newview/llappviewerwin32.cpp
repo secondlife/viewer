@@ -674,6 +674,8 @@ bool LLAppViewerWin32::restoreErrorTrap()
 
 void LLAppViewerWin32::initCrashReporting(bool reportFreeze)
 {
+	if (isSecondInstance()) return; //BUG-5707 do not start another crash reporter for second instance.
+
 	const char* logger_name = "win_crash_logger.exe";
 	std::string exe_path = gDirUtilp->getExecutableDir();
 	exe_path += gDirUtilp->getDirDelimiter();
