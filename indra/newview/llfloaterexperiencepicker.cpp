@@ -1,4 +1,4 @@
-﻿/** 
+/** 
 * @file llfloaterexperiencepicker.cpp
 * @brief Implementation of llfloaterexperiencepicker
 * @author dolphin@lindenlab.com
@@ -44,7 +44,7 @@
 #include "lldraghandle.h"
 #include "llpanelexperiencepicker.h"
 
-LLFloaterExperiencePicker* LLFloaterExperiencePicker::show( select_callback_t callback, const LLUUID& key, BOOL allow_multiple, BOOL closeOnSelect, LLView * frustumOrigin )
+LLFloaterExperiencePicker* LLFloaterExperiencePicker::show( select_callback_t callback, const LLUUID& key, BOOL allow_multiple, BOOL close_on_select, filter_list filters, LLView * frustumOrigin )
 {
 	LLFloaterExperiencePicker* floater =
 		LLFloaterReg::showTypedInstance<LLFloaterExperiencePicker>("experience_search", key);
@@ -54,9 +54,13 @@ LLFloaterExperiencePicker* LLFloaterExperiencePicker::show( select_callback_t ca
 		return NULL;
 	}
 
-	floater->mSelectionCallback = callback;
-	floater->mCloseOnSelect = closeOnSelect;
-	floater->mAllowMultiple = allow_multiple;
+	if (floater->mSearchPanel)
+	{
+		floater->mSearchPanel->mSelectionCallback = callback;
+		floater->mSearchPanel->mCloseOnSelect = close_on_select;
+		floater->mSearchPanel->setAllowMultiple(allow_multiple);
+		floater->mSearchPanel->addFilters(filters.begin(), filters.end());
+	}
 
 	if(frustumOrigin)
 	{
@@ -150,11 +154,5 @@ LLFloaterExperiencePicker::~LLFloaterExperiencePicker()
 BOOL LLFloaterExperiencePicker::postBuild()
 {
 	mSearchPanel = static_cast<LLPanelExperiencePicker*>(getChild<LLUICtrl>("panel_experience_search"));
-	
-	mSearchPanel->mSelectionCallback = mSelectionCallback;
-	mSearchPanel->mCloseOnSelect = mCloseOnSelect;
-	mSearchPanel->setAllowMultiple(mAllowMultiple);
-	mSearchPanel->addFilters(mFilters.begin(), mFilters.end());
-
 	return LLFloater::postBuild();
 }
