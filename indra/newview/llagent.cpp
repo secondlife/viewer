@@ -3822,6 +3822,12 @@ bool LLAgent::teleportCore(bool is_local)
 		return false;
 	}
 
+	// force stand up and stop a sitting animation (if any), see MAINT-3969
+	if (isAgentAvatarValid() && gAgentAvatarp->getParent() && gAgentAvatarp->isSitting())
+	{
+		gAgentAvatarp->getOffObject();
+	}
+
 #if 0
 	// This should not exist. It has been added, removed, added, and now removed again.
 	// This change needs to come from the simulator. Otherwise, the agent ends up out of
