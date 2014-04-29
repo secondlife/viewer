@@ -234,7 +234,7 @@ void LLFloaterMarketplaceListings::onOpen(const LLSD& key)
 	//
 	// Initialize the Market Place or go update the marketplace listings
 	//
-    if (LLMarketplaceData::instance().getSLMStatus() == MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED)
+    if (LLMarketplaceData::instance().getSLMStatus() <= MarketplaceStatusCodes::MARKET_PLACE_CONNECTION_FAILURE)
 	{
 		initializeMarketPlace();
 	}
@@ -350,7 +350,28 @@ void LLFloaterMarketplaceListings::setStatusString(const std::string& statusStri
 }
 
 void LLFloaterMarketplaceListings::updateView()
-{    
+{
+    U32 mkt_status = LLMarketplaceData::instance().getSLMStatus();
+    
+    // Get or create the root folder if we are a merchant and it hasn't been done already
+    if (mRootFolderId.isNull() && (mkt_status == MarketplaceStatusCodes::MARKET_PLACE_MERCHANT))
+    {
+        setup();
+    }
+
+    // Update the bottom initializing status and progress dial
+    if (mkt_status == MarketplaceStatusCodes::MARKET_PLACE_INITIALIZING)
+    {
+        setStatusString(getString("MarketplaceListingsInitializing"));
+        mInventoryInitializationInProgress->setVisible(true);
+    }
+    else
+    {
+        setStatusString("");
+        mInventoryInitializationInProgress->setVisible(false);
+    }
+    
+    // Update the middle portion : tabs or messages
 	if (getFolderCount() > 0)
 	{
 		mPanelListings->setVisible(TRUE);
@@ -366,26 +387,7 @@ void LLFloaterMarketplaceListings::updateView()
         std::string tooltip;
     
         const LLSD& subs = getMarketplaceStringSubstitutions();
-        U32 mkt_status = LLMarketplaceData::instance().getSLMStatus();
-    
-        // Get or create the root folder if we are a merchant and it hasn't been done already
-        if (mRootFolderId.isNull() && (mkt_status == MarketplaceStatusCodes::MARKET_PLACE_MERCHANT))
-        {
-            setup();
-        }
 
-        // Update the bottom initializing status and progress dial
-        if (mkt_status == MarketplaceStatusCodes::MARKET_PLACE_INITIALIZING)
-        {
-            setStatusString(getString("MarketplaceListingsInitializing"));
-            mInventoryInitializationInProgress->setVisible(true);
-        }
-        else
-        {
-            setStatusString("");
-            mInventoryInitializationInProgress->setVisible(false);
-        }
-        
         // Update the top message or flip to the tabs and folders view
         // *TODO : check those messages and create better appropriate ones in strings.xml
         if (mRootFolderId.notNull())

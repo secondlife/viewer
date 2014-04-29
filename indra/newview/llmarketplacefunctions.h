@@ -115,6 +115,15 @@ private:
 // * provide methods to get Marketplace data on any inventory item
 // * set Marketplace data
 // * signal Marketplace updates to inventory
+namespace SLMErrorCodes
+{
+	enum eCode
+	{
+		SLM_DONE = 200,
+		SLM_NOT_FOUND = 404,
+	};
+}
+
 class LLMarketplaceData;
 
 // A Marketplace item is known by its tuple
@@ -145,7 +154,7 @@ class LLMarketplaceData
 public:
 	LLMarketplaceData();
     
-    // SLM
+    // SLM Public
 	typedef boost::signals2::signal<void ()> status_updated_signal_t;
 	U32  getSLMStatus() const { return mMarketPlaceStatus; }
 	void setSLMStatus(U32 status);
@@ -155,7 +164,6 @@ public:
     //void postSLMListing();
     //void modifySLMListing();
     //void associateSLMListing();
-    std::string getSLMConnectURL(const std::string& route);
     
     bool isEmpty() { return (mMarketplaceItems.size() == 0); }
     
@@ -184,9 +192,14 @@ public:
     S32 getTestMarketplaceID();
     
 private:
+    // SLM Private
+    std::string getSLMConnectURL(const std::string& route);
+
     marketplace_items_list_t mMarketplaceItems;
+    
 	U32  mMarketPlaceStatus;
 	status_updated_signal_t *	mStatusUpdatedSignal;
+    
     // Merov : This is for test only, waiting for SLM API
     S32 mTestCurrentMarketplaceID;
 };

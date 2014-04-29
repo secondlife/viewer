@@ -97,6 +97,15 @@ LLSD getMarketplaceStringSubstitutions()
 
 ///////////////////////////////////////////////////////////////////////////////
 // SLM Responders
+void log_SLM_error(const std::string& request, U32 status, const std::string& reason, const std::string& code, const std::string& description)
+{
+		LL_WARNS("SLM") << request << " request failed with a " << status << " " << reason << ". Reason: " << code << " (" << description << ")" << LL_ENDL;
+}
+
+// Merov: This is a temporary hack used by dev while secondlife-staging is down...
+// *TODO : Suppress that before shipping!
+static bool sBypassMerchant = false;
+
 class LLSLMMerchantResponder : public LLHTTPClient::Responder
 {
 	LOG_CLASS(LLSLMMerchantResponder);
@@ -104,31 +113,22 @@ public:
 	
     LLSLMMerchantResponder() {}
     
-	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
-	{
-		if (isGoodStatus(status))
-		{
-            llinfos << "Merov : completed successful, status = " << status << ", reason = " << reason << ", content = " << content << llendl;
-            LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_MERCHANT);
-		}
-		else
-		{
-            llinfos << "Merov : completed with error, status = " << status << ", reason = " << reason << ", content = " << content << llendl;
-            LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_MERCHANT);
-		}
-	}
+	virtual void completed(U32 status, const std::string& reason, const LLSD& content) { }
     
     void completedHeader(U32 status, const std::string& reason, const LLSD& content)
     {
-		if (isGoodStatus(status))
+		if (isGoodStatus(status) || sBypassMerchant)
 		{
-            llinfos << "Merov : completed header successful, status = " << status << ", reason = " << reason << ", content = " << content << llendl;
             LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_MERCHANT);
+		}
+		else if (status == SLMErrorCodes::SLM_NOT_FOUND)
+		{
+            LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_MERCHANT);
 		}
 		else
 		{
-            llinfos << "Merov : completed header with error, status = " << status << ", reason = " << reason << ", content = " << content << llendl;
-            LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_MERCHANT);
+            log_SLM_error("Get merchant", status, reason, content.get("error_code"), content.get("error_description"));
+            LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_CONNECTION_FAILURE);
 		}
     }
 };
