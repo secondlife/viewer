@@ -76,7 +76,7 @@
         Choose what Role to assign them to:
     </text>
     <combo_box
-     height="16"
+     height="20"
      layout="topleft"
      left_delta="0"
      name="role_name"
