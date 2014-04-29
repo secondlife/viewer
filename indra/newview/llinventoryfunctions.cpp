@@ -1129,6 +1129,16 @@ void validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
             }
             continue;
         }
+        if (viewer_inv_item->getType() == LLAssetType::AT_CALLINGCARD)
+        {
+            std::string message = "    Error : calling cards are not allowed in listings : " + viewer_inv_item->getName();
+            llinfos << "Merov : Validation error : " << message << llendl;
+            if (cb)
+            {
+                cb(message);
+            }
+            continue;
+        }
         // Update the appropriate vector item for that type
         LLInventoryType::EType type = LLInventoryType::IT_COUNT;    // Default value for non stock items
         if (!viewer_inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()))

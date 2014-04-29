@@ -4408,7 +4408,10 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		}
         else if (move_is_into_marketplacelistings)
         {
+            // Check stock folder type matches item type
             accept = (getCategory() && getCategory()->acceptItem(inv_item));
+            // Do not accept calling cards in marketplace listings
+            accept &= (LLAssetType::AT_CALLINGCARD != inv_item->getType());
         }
 
 		LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
