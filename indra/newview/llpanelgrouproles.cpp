@@ -993,6 +993,7 @@ void LLPanelGroupMembersSubTab::handleMemberSelect()
 					{
 						// Can't remove other owners.
 						cb_enable = FALSE;
+						can_ban_members = FALSE;
 						break;
 					}
 				}
@@ -1078,7 +1079,7 @@ void LLPanelGroupMembersSubTab::handleMemberSelect()
 	if (gAgent.isGodlike())
 	{
 		can_eject_members = TRUE;
-		can_ban_members = TRUE;
+	//	can_ban_members = TRUE;
 	}
 
 	if (!can_eject_members && !member_is_owner)
@@ -1092,7 +1093,7 @@ void LLPanelGroupMembersSubTab::handleMemberSelect()
 			if ( member_data && member_data->isInRole(gdatap->mOwnerRole) )
 			{
 				can_eject_members = TRUE;
-				can_ban_members = TRUE;
+				//can_ban_members = TRUE;
 			}
 		}
 
