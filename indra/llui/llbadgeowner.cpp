@@ -45,6 +45,7 @@ void LLBadgeOwner::initBadgeParams(const LLBadge::Params& p)
 	if (!p.equals(LLUICtrlFactory::getDefaultParams<LLBadge>()))
 	{
 		mBadge = createBadge(p);
+		addBadgeToParentPanel();
 	}
 }
 
@@ -53,7 +54,6 @@ void LLBadgeOwner::setBadgeLabel(const LLStringExplicit& label)
 	if (mBadge == NULL)
 	{
 		mBadge = createBadge(LLUICtrlFactory::getDefaultParams<LLBadge>());
-
 		addBadgeToParentPanel();
 	}
 
