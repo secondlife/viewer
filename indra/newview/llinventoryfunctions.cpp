@@ -885,9 +885,9 @@ S32 compute_stock_count(LLUUID cat_uuid)
 
 void move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_folder, bool copy)
 {
-    // Get the marketplace listings, exit with error if none
-    const LLUUID marketplace_listings_uuid = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
-    if (marketplace_listings_uuid.isNull())
+    // Get the marketplace listings depth of the destination folder, exit with error if not under marketplace
+    S32 depth = depth_nesting_in_marketplace(dest_folder);
+    if (depth < 0)
     {
         llinfos << "Merov : Marketplace error : There is no marketplace listings folder -> move aborted!" << llendl;
         return;
@@ -912,26 +912,36 @@ void move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
         // put on sale items she cannot transfer. Proceed with move if we have permission.
         if (viewer_inv_item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID(), gAgent.getGroupID()))
         {
-            // When moving an isolated item directly under the marketplace listings root, we create a new folder with that name
-            if (dest_folder == marketplace_listings_uuid)
+            // When moving an isolated item, we might need to create the folder structure to support it
+            if (depth == 0)
             {
-                dest_folder = create_folder_for_item(inv_item, dest_folder);
+                // We need a listing folder
+                dest_folder = gInventory.createNewCategory(dest_folder, LLFolderType::FT_NONE, viewer_inv_item->getName());
+                depth++;
+            }
+            if (depth == 1)
+            {
+                // We need a version folder
+                dest_folder = gInventory.createNewCategory(dest_folder, LLFolderType::FT_NONE, viewer_inv_item->getName());
+                depth++;
             }
 			LLViewerInventoryCategory* dest_cat = gInventory.getCategory(dest_folder);
+            if (!viewer_inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()) &&
+                (dest_cat->getPreferredType() != LLFolderType::FT_MARKETPLACE_STOCK))
+            {
+                // We need a stock folder
+                dest_folder = gInventory.createNewCategory(dest_folder, LLFolderType::FT_MARKETPLACE_STOCK, viewer_inv_item->getName());
+                dest_cat = gInventory.getCategory(dest_folder);
+                depth++;
+            }
             
             // Verify we can have this item in that destination category
             if (!dest_cat->acceptItem(viewer_inv_item))
             {
-                llinfos << "Merov : Marketplace error : Cannot move item in that stock folder -> move aborted!" << llendl;
+                llinfos << "Merov : Marketplace error : Cannot move item in that folder -> move aborted!" << llendl;
                 return;
             }
             
-            // When moving a no copy item into a first level listing folder, we create a stock folder for it
-            if (!viewer_inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()) && (dest_cat->getParentUUID() == marketplace_listings_uuid))
-            {
-                dest_folder = create_folder_for_item(inv_item, dest_folder);
-            }
-	
             // Get the parent folder of the moved item : we may have to update it
             LLUUID src_folder = viewer_inv_item->getParentUUID();
 
@@ -950,12 +960,9 @@ void move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
             else
             {
                 // Reparent the item
-                gInventory.changeItemParent(viewer_inv_item, dest_folder, false);
+                gInventory.changeItemParent(viewer_inv_item, dest_folder, true);
             }
             
-            // Validate the destination : note that this will run the validation code only on one listing folder at most...
-            validate_marketplacelistings(dest_cat);
-
             // Update the modified folders
             update_marketplace_category(src_folder);
             update_marketplace_category(dest_folder);
@@ -1188,14 +1195,23 @@ void validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
             if (!items_vector[i].empty())
             {
                 // Create a new folder
-                std::string message = "    Warning : creating stock folder : " + viewer_cat->getName();
+                LLUUID parent_uuid = (depth > 2 ? viewer_cat->getParentUUID() : viewer_cat->getUUID());
+                LLFolderType::EType new_folder_type = (i == LLInventoryType::IT_COUNT ? LLFolderType::FT_NONE : LLFolderType::FT_MARKETPLACE_STOCK);
+                std::string message = "";
+                if (new_folder_type == LLFolderType::FT_MARKETPLACE_STOCK)
+                {
+                    message = "    Warning : creating stock folder : ";
+                }
+                else
+                {
+                    message = "    Warning : creating intermediate folder : ";
+                }
+                message +=  viewer_cat->getName();
                 llinfos << "Merov : Validation warning : " << message << llendl;
                 if (cb)
                 {
                     cb(message);
                 }
-                LLUUID parent_uuid = (depth > 2 ? viewer_cat->getParentUUID() : viewer_cat->getUUID());
-                LLFolderType::EType new_folder_type = (i == LLInventoryType::IT_COUNT ? LLFolderType::FT_NONE : LLFolderType::FT_MARKETPLACE_STOCK);
                 LLUUID folder_uuid = gInventory.createNewCategory(parent_uuid, new_folder_type, viewer_cat->getName());
                 // Move each item to the new folder
                 while (!items_vector[i].empty())
@@ -1207,7 +1223,7 @@ void validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
                     {
                         cb(message);
                     }
-                    gInventory.changeItemParent(viewer_inv_item, folder_uuid, false);
+                    gInventory.changeItemParent(viewer_inv_item, folder_uuid, true);
                     items_vector[i].pop_back();
                 }
                 update_marketplace_category(folder_uuid);
