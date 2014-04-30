@@ -1140,6 +1140,17 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 			addChild( btn, 0 );
 		}
 	}
+	else
+	{
+		if (textbox)
+		{
+			LLUICtrl::addChild(textbox, 0);
+		}
+		if (btn)
+		{
+			LLUICtrl::addChild(btn, 0);
+		}
+	}
 
 	if (child)
 	{
