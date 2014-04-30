@@ -7118,6 +7118,14 @@ Scripts associated with this experience will be able to do the following on regi
   <tag>confirm</tag>
     <form name="form">
       <button
+       index="3"
+       name="BlockExperience"
+       text="Block Experience"/>
+      <button
+        index="2"
+        name="Mute"
+        text="Block Object"/>
+      <button
        index="0"
        name="Yes"
        text="Yes"/>
@@ -7125,14 +7133,6 @@ Scripts associated with this experience will be able to do the following on regi
        index="1"
        name="No"
        text="No"/>
-      <button
-        index="2"
-        name="Mute"
-        text="Block Object"/>
-      <button
-       index="3"
-       name="BlockExperience"
-       text="Block Experience"/>
     </form>
   </notification>
 
