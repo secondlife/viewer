@@ -138,20 +138,6 @@ void LLPanelGroupBulkBan::submit()
 
 	LLGroupMgr::getInstance()->sendGroupBanRequest(LLGroupMgr::REQUEST_POST, mImplementation->mGroupID, LLGroupMgr::BAN_CREATE, banned_agent_list);
 	LLGroupMgr::getInstance()->sendGroupMemberEjects(mImplementation->mGroupID, banned_agent_list);
-
-	// Viewer notification
-	LLGroupMgrGroupData* group_data = LLGroupMgr::getInstance()->getGroupData(mImplementation->mGroupID);
-	if (group_data)
-	{
-		for (uuid_vec_t::const_iterator i = banned_agent_list.begin(); i != banned_agent_list.end(); ++i)
-		{
-			LLSD args;
-			args["AVATAR_NAME"] = LLSLURL("agent", *i, "displayname").getSLURLString();
-			args["GROUP_NAME"] = group_data->mName;
-
-			LLNotifications::instance().add(LLNotification::Params("EjectAvatarFromGroup").substitutions(args));
-		}
-	}
 	
 	//then close
 	(*(mImplementation->mCloseCallback))(mImplementation->mCloseCallbackUserData);
