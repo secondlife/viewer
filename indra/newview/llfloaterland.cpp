@@ -2398,7 +2398,7 @@ void LLPanelLandAccess::refresh()
 			getChild<LLUICtrl>("AccessList")->setToolTipArg(LLStringExplicit("[LISTED]"), llformat("%d",count));
 			getChild<LLUICtrl>("AccessList")->setToolTipArg(LLStringExplicit("[MAX]"), llformat("%d",PARCEL_MAX_ACCESS_LIST));
 
-			for (access_map_const_iterator cit = parcel->mAccessList.begin();
+			for (LLAccessEntry::map::const_iterator cit = parcel->mAccessList.begin();
 				 cit != parcel->mAccessList.end(); ++cit)
 			{
 				const LLAccessEntry& entry = (*cit).second;
@@ -2444,7 +2444,7 @@ void LLPanelLandAccess::refresh()
 			getChild<LLUICtrl>("BannedList")->setToolTipArg(LLStringExplicit("[LISTED]"), llformat("%d",count));
 			getChild<LLUICtrl>("BannedList")->setToolTipArg(LLStringExplicit("[MAX]"), llformat("%d",PARCEL_MAX_ACCESS_LIST));
 
-			for (access_map_const_iterator cit = parcel->mBanList.begin();
+			for (LLAccessEntry::map::const_iterator cit = parcel->mBanList.begin();
 				 cit != parcel->mBanList.end(); ++cit)
 			{
 				const LLAccessEntry& entry = (*cit).second;
@@ -2752,8 +2752,8 @@ void LLPanelLandAccess::callbackAvatarCBAccess(const uuid_vec_t& ids)
 		LLUUID id = ids[0];
 		LLParcel* parcel = mParcel->getParcel();
 		if (parcel)
-		{
-			parcel->addToAccessList(id, 0);
+		{			
+			parcel->addToAccessList(id, 0);		
 			LLViewerParcelMgr::getInstance()->sendParcelAccessListUpdate(AL_ACCESS);
 			refresh();
 		}
