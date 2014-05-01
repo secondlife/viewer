@@ -208,7 +208,6 @@ void LLPanelExperienceListEditor::loading()
 void LLPanelExperienceListEditor::setReadonly( bool val )
 {
 	mReadonly = val;
-	setCtrlsEnabled(!mReadonly);
 	checkButtonsEnabled();
 }
 
