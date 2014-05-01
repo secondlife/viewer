@@ -62,6 +62,7 @@ public:
 	bool getReadonly() const { return mReadonly; }
 	void setReadonly(bool val);
 
+	void refreshExperienceCounter(std::string string_name);
 
 	void addFilter(filter_function func){mFilters.push_back(func);}
 private:
