@@ -3588,6 +3588,19 @@ void LLPanelRegionExperiences::processResponse( const LLSD& content )
 	mAllowed->setExperienceIds(content["allowed"]);
 	mBlocked->setExperienceIds(content["blocked"]);
 	mTrusted->setExperienceIds(content["trusted"]);
+	
+	if (!mAllowed->getReadonly())
+	{
+		mAllowed->refreshExperienceCounter("RegionInfoAllowedExperiences");
+	}
+	if (!mBlocked->getReadonly())
+	{
+		mBlocked->refreshExperienceCounter("RegionInfoBlockedExperiences");
+	}
+	if (!mTrusted->getReadonly())
+	{
+		mTrusted->refreshExperienceCounter("RegionInfoTrustedExperiences");
+	}
 }
 
 

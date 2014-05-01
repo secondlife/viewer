@@ -36,6 +36,8 @@
 #include "llscrolllistctrl.h"
 #include "llviewerregion.h"
 #include "llagent.h"
+#include "lltextbox.h"
+#include "lltrans.h"
 
 
 static LLPanelInjector<LLPanelExperienceListEditor> t_panel_experience_list_editor("panel_experience_list_editor");
@@ -209,6 +211,14 @@ void LLPanelExperienceListEditor::setReadonly( bool val )
 {
 	mReadonly = val;
 	checkButtonsEnabled();
+}
+
+void LLPanelExperienceListEditor::refreshExperienceCounter(std::string string_name)
+{
+	LLStringUtil::format_map_t args;
+	args["[EXPERIENCES]"] = llformat("%d", mItems->getItemCount());
+	args["[MAXEXPERIENCES]"] = llformat("%d", ESTATE_MAX_EXPERIENCE_IDS);
+	getChild<LLTextBox>("text_name")->setText(LLTrans::getString(string_name, args));
 }
 
 boost::signals2::connection LLPanelExperienceListEditor::setAddedCallback( list_changed_signal_t::slot_type cb )
