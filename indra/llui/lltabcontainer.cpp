@@ -1647,15 +1647,25 @@ void LLTabContainer::setTabImage(LLPanel* child, LLIconCtrl* icon)
 {
 	LLTabTuple* tuple = getTabByPanel(child);
 	LLCustomButtonIconCtrl* button;
+	bool hasButton = false;
 
 	if(tuple)
 	{
 		button = dynamic_cast<LLCustomButtonIconCtrl*>(tuple->mButton);
 		if(button)
 		{
+			hasButton = true;
 			button->setIcon(icon);
 			reshapeTuple(tuple);
 		}
+	}
+
+	if (!hasButton && (icon != NULL))
+	{
+		// It was assumed that the tab's button would take ownership of the icon pointer.
+		// But since the tab did not have a button, kill the icon to prevent the memory
+		// leak.
+		icon->die();
 	}
 }
 
