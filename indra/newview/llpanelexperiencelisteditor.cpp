@@ -107,9 +107,7 @@ void LLPanelExperienceListEditor::onAdd()
 	{
 		mKey.generateNewID();
 
-		LLFloaterExperiencePicker* picker=LLFloaterExperiencePicker::show(boost::bind(&LLPanelExperienceListEditor::addExperienceIds, this, _1), mKey, FALSE, TRUE, mAdd);
-		picker->addFilters(mFilters.begin(), mFilters.end());
-
+		LLFloaterExperiencePicker* picker=LLFloaterExperiencePicker::show(boost::bind(&LLPanelExperienceListEditor::addExperienceIds, this, _1), mKey, FALSE, TRUE, mFilters, mAdd);
 		mPicker = picker->getDerivedHandle<LLFloaterExperiencePicker>();
 	}
 }
@@ -210,7 +208,6 @@ void LLPanelExperienceListEditor::loading()
 void LLPanelExperienceListEditor::setReadonly( bool val )
 {
 	mReadonly = val;
-	setCtrlsEnabled(!mReadonly);
 	checkButtonsEnabled();
 }
 

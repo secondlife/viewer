@@ -879,7 +879,7 @@ void LLPanelGroupMembersSubTab::handleMemberSelect()
 
 	// Build a vector of all selected members, and gather allowed actions.
 	uuid_vec_t selected_members;
-	U64 allowed_by_all = 0xffffffffffffLL;
+	U64 allowed_by_all = GP_ALL_POWERS; //0xFFFFffffFFFFffffLL;
 	U64 allowed_by_some = 0;
 
 	std::vector<LLScrollListItem*>::iterator itor;
@@ -1183,7 +1183,7 @@ void LLPanelGroupMembersSubTab::handleRoleCheck(const LLUUID& role_id,
 
 	//add that the user is requesting to change the roles for selected
 	//members
-	U64 powers_all_have  = 0xffffffffffffLL;
+	U64 powers_all_have  = GP_ALL_POWERS;
 	U64 powers_some_have = 0;
 
 	BOOL   is_owner_role = ( gdatap->mOwnerRole == role_id );

@@ -36,7 +36,7 @@
 #include "llevents.h"
 #include "llnotificationsutil.h"
 #include "llpanelexperiencelog.h"
-
+#include "llpanelexperiencepicker.h"
 
 
 #define SHOW_RECENT_TAB (0)
@@ -106,6 +106,7 @@ LLPanelExperiences* LLFloaterExperiences::addTab(const std::string& name, bool s
 
 BOOL LLFloaterExperiences::postBuild()
 {
+	getChild<LLTabContainer>("xp_tabs")->addTabPanel(new LLPanelExperiencePicker());
     addTab("Allowed_Experiences_Tab", true);
     addTab("Blocked_Experiences_Tab", false);
     addTab("Admin_Experiences_Tab", false);
