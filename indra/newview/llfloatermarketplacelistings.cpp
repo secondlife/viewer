@@ -92,6 +92,10 @@ BOOL LLPanelMarketplaceListings::postBuild()
 
 void LLPanelMarketplaceListings::draw()
 {
+    if (LLMarketplaceData::instance().checkDirtyCount())
+    {
+        update_all_marketplace_count();
+    }
 	LLPanel::draw();
 }
 

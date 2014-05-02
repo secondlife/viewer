@@ -125,6 +125,7 @@ namespace SLMErrorCodes
 }
 
 class LLMarketplaceData;
+class LLInventoryObserver;
 
 // A Marketplace item is known by its tuple
 class LLMarketplaceTuple 
@@ -153,6 +154,7 @@ class LLMarketplaceData
 {
 public:
 	LLMarketplaceData();
+    virtual ~LLMarketplaceData();
     
     // SLM Public
 	typedef boost::signals2::signal<void ()> status_updated_signal_t;
@@ -188,6 +190,9 @@ public:
     bool setVersionFolderID(const LLUUID& folder_id, const LLUUID& version_id);
     bool setActivation(const LLUUID& folder_id, bool activate);
     
+    bool checkDirtyCount() { if (mDirtyCount) { mDirtyCount = false; return true; } else { return false; } }
+    void setDirtyCount() { mDirtyCount = true; }
+    
     // Merov : Test method while waiting for SLM API
     S32 getTestMarketplaceID();
     
@@ -199,6 +204,8 @@ private:
     
 	U32  mMarketPlaceStatus;
 	status_updated_signal_t *	mStatusUpdatedSignal;
+	LLInventoryObserver* mInventoryObserver;
+    bool mDirtyCount;
     
     // Merov : This is for test only, waiting for SLM API
     S32 mTestCurrentMarketplaceID;

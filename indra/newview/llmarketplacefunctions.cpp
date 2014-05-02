@@ -31,6 +31,7 @@
 #include "llagent.h"
 #include "llhttpclient.h"
 #include "llinventoryfunctions.h"
+#include "llinventoryobserver.h"
 #include "llsdserialize.h"
 #include "lltimer.h"
 #include "lltrans.h"
@@ -607,6 +608,54 @@ void LLMarketplaceInventoryImporter::updateImport()
 //
 // Direct Delivery : Marketplace tuples and data
 //
+class LLMarketplaceInventoryObserver : public LLInventoryObserver
+{
+public:
+	LLMarketplaceInventoryObserver() {}
+	virtual ~LLMarketplaceInventoryObserver() {}
+	virtual void changed(U32 mask);
+};
+
+void LLMarketplaceInventoryObserver::changed(U32 mask)
+{
+    // When things are changed in the inventory, this can trigger a host of changes in the marketplace listings folder:
+    // * stock counts changing : no copy items coming in and out will change the stock count on folders
+    // * version and listing folders : moving those might invalidate the marketplace data itself
+    // Since we should cannot raise inventory change while in the observer is called (the list will be cleared once observers are called)
+    // we need to raise a flag in the inventory to signal that things have been dirtied.
+
+    // That's the only changes that really do make sense for marketplace to worry about
+	if ((mask & (LLInventoryObserver::INTERNAL | LLInventoryObserver::STRUCTURE)) != 0)
+	{
+        const std::set<LLUUID>& changed_items = gInventory.getChangedIDs();
+    
+        std::set<LLUUID>::const_iterator id_it = changed_items.begin();
+        std::set<LLUUID>::const_iterator id_end = changed_items.end();
+        for (;id_it != id_end; ++id_it)
+        {
+            LLInventoryObject* obj = gInventory.getObject(*id_it);
+            if (LLAssetType::AT_CATEGORY == obj->getType())
+            {
+                // If it's a folder known to the marketplace, let's check it's in proper shape
+                if (LLMarketplaceData::instance().isListed(*id_it) || LLMarketplaceData::instance().isVersionFolder(*id_it))
+                {
+                    LLInventoryCategory* cat = (LLInventoryCategory*)(obj);
+                    validate_marketplacelistings(cat);
+                }
+            }
+            else
+            {
+                // If it's not a category, it's an item...
+                LLInventoryItem* item = (LLInventoryItem*)(obj);
+                // If it's a no copy item, we may need to update the label count of marketplace listings
+                if (!item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()))
+                {
+                    LLMarketplaceData::instance().setDirtyCount();
+                }   
+            }
+        }
+	}
+}
 
 // Tuple == Item
 LLMarketplaceTuple::LLMarketplaceTuple() :
@@ -637,9 +686,17 @@ LLMarketplaceTuple::LLMarketplaceTuple(const LLUUID& folder_id, S32 listing_id, 
 // Data map
 LLMarketplaceData::LLMarketplaceData() : 
  mMarketPlaceStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED),
- mStatusUpdatedSignal(NULL)
+ mStatusUpdatedSignal(NULL),
+ mDirtyCount(false)
 {
     mTestCurrentMarketplaceID = 1234567;
+    mInventoryObserver = new LLMarketplaceInventoryObserver;
+    gInventory.addObserver(mInventoryObserver);
+}
+
+LLMarketplaceData::~LLMarketplaceData()
+{
+	gInventory.removeObserver(mInventoryObserver);
 }
 
 S32 LLMarketplaceData::getTestMarketplaceID()
@@ -707,6 +764,7 @@ bool LLMarketplaceData::addListing(const LLUUID& folder_id)
     
     setListingID(folder_id,listing_id);
     update_marketplace_category(folder_id);
+    gInventory.notifyObservers();
     return true;
 }
 
@@ -729,6 +787,7 @@ bool LLMarketplaceData::associateListing(const LLUUID& folder_id, S32 listing_id
     
     setListingID(folder_id,listing_id);
     update_marketplace_category(folder_id);
+    gInventory.notifyObservers();
     return true;
 }
 
@@ -741,6 +800,7 @@ bool LLMarketplaceData::deleteListing(const LLUUID& folder_id)
     }
 	mMarketplaceItems.erase(folder_id);
     update_marketplace_category(folder_id);
+    gInventory.notifyObservers();
     return true;
 }
 
@@ -842,6 +902,7 @@ bool LLMarketplaceData::setListingID(const LLUUID& folder_id, S32 listing_id)
     {
         (it->second).mListingId = listing_id;
         update_marketplace_category(folder_id);
+        gInventory.notifyObservers();
         return true;
     }
 }
@@ -861,6 +922,7 @@ bool LLMarketplaceData::setVersionFolderID(const LLUUID& folder_id, const LLUUID
             (it->second).mVersionFolderId = version_id;
             update_marketplace_category(old_version_id);
             update_marketplace_category(version_id);
+            gInventory.notifyObservers();
         }
         return true;
     }
@@ -874,6 +936,7 @@ bool LLMarketplaceData::setActivation(const LLUUID& folder_id, bool activate)
         marketplace_items_list_t::iterator it = mMarketplaceItems.find(folder_id);
         (it->second).mIsActive = activate;
         update_marketplace_category((it->second).mListingFolderId);
+        gInventory.notifyObservers();
         return true;
     }
     // We need to iterate through the list to check it's not a version folder
@@ -884,6 +947,7 @@ bool LLMarketplaceData::setActivation(const LLUUID& folder_id, bool activate)
         {
             (it->second).mIsActive = activate;
             update_marketplace_category((it->second).mListingFolderId);
+            gInventory.notifyObservers();
             return true;
         }
         it++;

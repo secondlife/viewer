@@ -126,7 +126,6 @@ void update_marketplace_folder_hierarchy(const LLUUID cat_id)
     // for all observers of the folder to, possibly, change the display label of the folder
     // so that's the only thing we change on the update mask.
     gInventory.addChangedMask(LLInventoryObserver::LABEL, cat_id);
-    gInventory.notifyObservers();
 
     // Update all descendent folders down
 	LLInventoryModel::cat_array_t* cat_array;
@@ -142,55 +141,87 @@ void update_marketplace_folder_hierarchy(const LLUUID cat_id)
     return;
 }
 
-void update_marketplace_category(const LLUUID& cat_id)
+void update_marketplace_category(const LLUUID& cur_uuid)
 {
-    // When changing the marketplace status of a folder, we usually have to change the status of all
+    // When changing the marketplace status of an item, we usually have to change the status of all
     // folders in the same listing. This is because the display of each folder is affected by the
     // overall status of the whole listing.
-    // Consequently, the only way to correctly update a folder anywhere in the marketplace is to 
+    // Consequently, the only way to correctly update an item anywhere in the marketplace is to 
     // update the whole listing from its listing root.
     // This is not as bad as it seems as we only update folders, not items, and the folder nesting depth 
     // is limited to 4.
     // We also take care of degenerated cases so we don't update all folders in the inventory by mistake.
 
-    const LLUUID marketplace_listings_uuid = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
-    // No marketplace -> likely called too early... or
-    // Not a descendent of the marketplace listings root -> likely called in error then...
-    if (marketplace_listings_uuid.isNull() || !gInventory.isObjectDescendentOf(cat_id, marketplace_listings_uuid))
+    // Grab marketplace listing data for this item
+    S32 depth = depth_nesting_in_marketplace(cur_uuid);
+    if (depth > 0)
     {
-        // In those cases, just do the regular category update
-        LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
-        gInventory.updateCategory(cat);
-        gInventory.notifyObservers();
-        return;
-    }
+        // Retrieve the listing uuid this object is in
+        LLUUID listing_uuid = nested_parent_id(cur_uuid, depth);
     
-    // Grab marketplace listing data for this folder
-    S32 depth = depth_nesting_in_marketplace(cat_id);
-    LLUUID listing_uuid = nested_parent_id(cat_id, depth);
-    
-    // Verify marketplace data consistency for this listing
-    if (LLMarketplaceData::instance().isListed(listing_uuid))
-    {
-        LLUUID version_folder_uuid = LLMarketplaceData::instance().getVersionFolderID(listing_uuid);
-        if (version_folder_uuid.notNull() && !gInventory.isObjectDescendentOf(version_folder_uuid, listing_uuid))
+        // Verify marketplace data consistency for this listing
+        if (LLMarketplaceData::instance().isListed(listing_uuid))
         {
-            // *TODO : Confirm with Producer that this is what we want to happen in that case!
-            llinfos << "Merov : Unlist as the version folder is not under the listing folder anymore!!" << llendl;
-            LLMarketplaceData::instance().setVersionFolderID(listing_uuid, LLUUID::null);
-            LLMarketplaceData::instance().setActivation(listing_uuid, false);
+            LLUUID version_folder_uuid = LLMarketplaceData::instance().getVersionFolderID(listing_uuid);
+            if (version_folder_uuid.notNull() && !gInventory.isObjectDescendentOf(version_folder_uuid, listing_uuid))
+            {
+                // *TODO : Confirm with Producer that this is what we want to happen in that case!
+                llinfos << "Merov : Unlist as the version folder is not under the listing folder anymore!!" << llendl;
+                LLMarketplaceData::instance().setVersionFolderID(listing_uuid, LLUUID::null);
+                LLMarketplaceData::instance().setActivation(listing_uuid, false);
+            }
         }
-        if (!gInventory.isObjectDescendentOf(listing_uuid, marketplace_listings_uuid))
+    
+        // Update all descendents starting from the listing root
+        update_marketplace_folder_hierarchy(listing_uuid);
+    }
+    else if (depth < 0)
+    {
+        if (LLMarketplaceData::instance().isListed(cur_uuid))
         {
             // *TODO : Confirm with Producer that this is what we want to happen in that case!
             llinfos << "Merov : Disassociate as the listing folder is not under the marketplace folder anymore!!" << llendl;
-            LLMarketplaceData::instance().deleteListing(listing_uuid);
+            LLMarketplaceData::instance().deleteListing(cur_uuid);
         }
     }
-    
-    // Update all descendents starting from the listing root
-    update_marketplace_folder_hierarchy(listing_uuid);
 
+    return;
+}
+
+// Iterate through the marketplace and flag for label change all categories that countain a stock folder (i.e. stock folders and embedding folders up the hierarchy)
+void update_all_marketplace_count(const LLUUID& cat_id)
+{
+    // Get all descendent folders down
+	LLInventoryModel::cat_array_t* cat_array;
+	LLInventoryModel::item_array_t* item_array;
+	gInventory.getDirectDescendentsOf(cat_id,cat_array,item_array);
+    
+    LLInventoryModel::cat_array_t cat_array_copy = *cat_array;
+    for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
+    {
+        LLInventoryCategory* category = *iter;
+        if (category->getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
+        {
+            // Listing containing stock folders needs to be updated but not others
+            // Note: we take advantage of the fact that stock folder *do not* contain sub folders to avoid a recursive call here
+            update_marketplace_category(category->getUUID());
+        }
+        else
+        {
+            // Explore the contained folders recursively
+            update_all_marketplace_count(category->getUUID());
+        }
+    }
+}
+
+void update_all_marketplace_count()
+{
+    // Get the marketplace root and launch the recursive exploration
+    const LLUUID marketplace_listings_uuid = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+    if (!marketplace_listings_uuid.isNull())
+    {
+        update_all_marketplace_count(marketplace_listings_uuid);
+    }
     return;
 }
 
@@ -966,6 +997,7 @@ void move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
             // Update the modified folders
             update_marketplace_category(src_folder);
             update_marketplace_category(dest_folder);
+            gInventory.notifyObservers();
         }
         else
         {
@@ -1011,6 +1043,7 @@ void move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUU
         // Update the modified folders
         update_marketplace_category(src_folder);
         update_marketplace_category(dest_folder);
+        gInventory.notifyObservers();
     }
 }
 
@@ -1227,6 +1260,7 @@ void validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
                     items_vector[i].pop_back();
                 }
                 update_marketplace_category(folder_uuid);
+                gInventory.notifyObservers();
             }
         }
         // Clean up
@@ -1248,6 +1282,7 @@ void validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
         {
             // Update the current folder
             update_marketplace_category(cat->getUUID());
+            gInventory.notifyObservers();
         }
     }
 

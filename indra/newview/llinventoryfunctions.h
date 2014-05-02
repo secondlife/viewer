@@ -58,8 +58,10 @@ void show_task_item_profile(const LLUUID& item_uuid, const LLUUID& object_id);
 void show_item_original(const LLUUID& item_uuid);
 void reset_inventory_filter();
 
-// Just nudge the category in the global inventory to signal that its marketplace status changed
+// Nudge the listing categories in the inventory to signal that their marketplace status changed
 void update_marketplace_category(const LLUUID& cat_id);
+// Nudge all listing categories to signal that their marketplace status changed
+void update_all_marketplace_count();
 
 void rename_category(LLInventoryModel* model, const LLUUID& cat_id, const std::string& new_name);
 

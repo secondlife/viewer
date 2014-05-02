@@ -1441,16 +1441,17 @@ void LLInventoryModel::addChangedMask(U32 mask, const LLUUID& referent)
 	}
 	
 	mModifyMask |= mask; 
-	if (referent.notNull())
+	if (referent.notNull() && (mChangedItemIDs.find(referent) == mChangedItemIDs.end()))
 	{
 		mChangedItemIDs.insert(referent);
-	}
+        update_marketplace_category(referent);
 	
-	// Update all linked items.  Starting with just LABEL because I'm
-	// not sure what else might need to be accounted for this.
-	if (mModifyMask & LLInventoryObserver::LABEL)
-	{
-		addChangedMaskForLinks(referent, LLInventoryObserver::LABEL);
+        // Update all linked items.  Starting with just LABEL because I'm
+        // not sure what else might need to be accounted for this.
+        if (mModifyMask & LLInventoryObserver::LABEL)
+        {
+            addChangedMaskForLinks(referent, LLInventoryObserver::LABEL);
+        }
 	}
 }
 
