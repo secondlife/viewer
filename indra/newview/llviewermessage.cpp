@@ -124,6 +124,8 @@
 #pragma warning (disable:4702)
 #endif
 
+
+
 extern void on_new_message(const LLSD& msg);
 
 //
@@ -146,6 +148,7 @@ extern bool gShiftFrame;
 bool check_offer_throttle(const std::string& from_name, bool check_only);
 bool check_asset_previewable(const LLAssetType::EType asset_type);
 static void process_money_balance_reply_extended(LLMessageSystem* msg);
+bool handle_trusted_experiences_notification(const LLSD&);
 
 //inventory offer throttle globals
 LLFrameTimer gThrottleTimer;
@@ -5735,63 +5738,87 @@ bool handle_prompt_for_maturity_level_change_and_reteleport_callback(const LLSD&
 // some of the server notifications need special handling. This is where we do that.
 bool handle_special_notification(std::string notificationID, LLSD& llsdBlock)
 {
-	U8 regionAccess = static_cast<U8>(llsdBlock["_region_access"].asInteger());
-	std::string regionMaturity = LLViewerRegion::accessToString(regionAccess);
-	LLStringUtil::toLower(regionMaturity);
-	llsdBlock["REGIONMATURITY"] = regionMaturity;
 	bool returnValue = false;
-	LLNotificationPtr maturityLevelNotification;
-	std::string notifySuffix = "_Notify";
-	if (regionAccess == SIM_ACCESS_MATURE)
+	if(llsdBlock.has("_region_access"))
 	{
-		if (gAgent.isTeen())
+		U8 regionAccess = static_cast<U8>(llsdBlock["_region_access"].asInteger());
+		std::string regionMaturity = LLViewerRegion::accessToString(regionAccess);
+		LLStringUtil::toLower(regionMaturity);
+		llsdBlock["REGIONMATURITY"] = regionMaturity;
+		LLNotificationPtr maturityLevelNotification;
+		std::string notifySuffix = "_Notify";
+		if (regionAccess == SIM_ACCESS_MATURE)
 		{
-			gAgent.clearTeleportRequest();
-			maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_AdultsOnlyContent", llsdBlock);
-			returnValue = true;
+			if (gAgent.isTeen())
+			{
+				gAgent.clearTeleportRequest();
+				maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_AdultsOnlyContent", llsdBlock);
+				returnValue = true;
 
-			notifySuffix = "_NotifyAdultsOnly";
+				notifySuffix = "_NotifyAdultsOnly";
+			}
+			else if (gAgent.prefersPG())
+			{
+				maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_Change", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
+				returnValue = true;
+			}
+			else if (LLStringUtil::compareStrings(notificationID, "RegionEntryAccessBlocked") == 0)
+			{
+				maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_PreferencesOutOfSync", llsdBlock, llsdBlock);
+				returnValue = true;
+			}
 		}
-		else if (gAgent.prefersPG())
+		else if (regionAccess == SIM_ACCESS_ADULT)
 		{
-			maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_Change", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
-			returnValue = true;
+			if (!gAgent.isAdult())
+			{
+				gAgent.clearTeleportRequest();
+				maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_AdultsOnlyContent", llsdBlock);
+				returnValue = true;
+
+				notifySuffix = "_NotifyAdultsOnly";
+			}
+			else if (gAgent.prefersPG() || gAgent.prefersMature())
+			{
+				maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_Change", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
+				returnValue = true;
+			}
+			else if (LLStringUtil::compareStrings(notificationID, "RegionEntryAccessBlocked") == 0)
+			{
+				maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_PreferencesOutOfSync", llsdBlock, llsdBlock);
+				returnValue = true;
+			}
 		}
-		else if (LLStringUtil::compareStrings(notificationID, "RegionEntryAccessBlocked") == 0)
+
+		if ((maturityLevelNotification == NULL) || maturityLevelNotification->isIgnored())
 		{
-			maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_PreferencesOutOfSync", llsdBlock, llsdBlock);
-			returnValue = true;
+			// Given a simple notification if no maturityLevelNotification is set or it is ignore
+			LLNotificationsUtil::add(notificationID + notifySuffix, llsdBlock);
 		}
 	}
-	else if (regionAccess == SIM_ACCESS_ADULT)
-	{
-		if (!gAgent.isAdult())
-		{
-			gAgent.clearTeleportRequest();
-			maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_AdultsOnlyContent", llsdBlock);
-			returnValue = true;
 	
-			notifySuffix = "_NotifyAdultsOnly";
-		}
-		else if (gAgent.prefersPG() || gAgent.prefersMature())
-		{
-			maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_Change", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
-			returnValue = true;
-		}
-		else if (LLStringUtil::compareStrings(notificationID, "RegionEntryAccessBlocked") == 0)
-		{
-			maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_PreferencesOutOfSync", llsdBlock, llsdBlock);
-			returnValue = true;
-		}
-	}
-
-	if ((maturityLevelNotification == NULL) || maturityLevelNotification->isIgnored())
-	{
-		// Given a simple notification if no maturityLevelNotification is set or it is ignore
-		LLNotificationsUtil::add(notificationID + notifySuffix, llsdBlock);
-	}
-
 	return returnValue;
+}
+
+bool handle_trusted_experiences_notification(const LLSD& llsdBlock)
+{
+	if(llsdBlock.has("trusted_experiences"))
+	{
+		std::ostringstream str;
+		const LLSD& experiences = llsdBlock["trusted_experiences"];
+		LLSD::array_const_iterator it = experiences.beginArray();
+		for(/**/; it != experiences.endArray(); ++it)
+		{
+			str<<LLSLURL("experience", it->asUUID(), "profile").getSLURLString() << "\n";
+		}
+		std::string str_list = str.str();
+		if(!str_list.empty())
+		{
+			LLNotificationsUtil::add("TrustedExperiencesAvailable", LLSD::emptyMap().with("EXPERIENCE_LIST", (LLSD)str_list));
+			return true;
+		}
+	}
+	return false;
 }
 
 // some of the server notifications need special handling. This is where we do that.
@@ -5877,22 +5904,7 @@ bool handle_teleport_access_blocked(LLSD& llsdBlock)
 			LLNotificationsUtil::add(notificationID + notifySuffix, llsdBlock);
 		}
 	}
-	if(llsdBlock.has("trusted_experiences"))
-	{
-		std::ostringstream str;
-		const LLSD& experiences = llsdBlock["trusted_experiences"];
-		LLSD::array_const_iterator it = experiences.beginArray();
-		for(/**/; it != experiences.endArray(); ++it)
-		{
-			str<<LLSLURL("experience", it->asUUID(), "profile").getSLURLString() << "\n";
-		}
-		std::string str_list = str.str();
-		if(!str_list.empty())
-		{
-			LLNotificationsUtil::add("TrustedExperiencesAvailable", LLSD::emptyMap().with("EXPERIENCE_LIST", (LLSD)str_list));
-			returnValue = true;
-		}
-	}
+
 	return returnValue;
 }
 
@@ -5921,6 +5933,9 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 				llwarns << "attempt_standard_notification: Attempted to read notification parameter data into LLSD but failed:" << llsdRaw << llendl;
 			}
 		}
+
+
+		handle_trusted_experiences_notification(llsdBlock);
 		
 		if (
 			(notificationID == "RegionEntryAccessBlocked") ||
@@ -6004,6 +6019,7 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 		}
 
 		LLNotificationsUtil::add(notificationID, llsdBlock);
+
 		return true;
 	}	
 	return false;
