@@ -29,6 +29,7 @@
 #include "llmarketplacefunctions.h"
 
 #include "llagent.h"
+#include "llbufferstream.h"
 #include "llhttpclient.h"
 #include "llinventoryfunctions.h"
 #include "llinventoryobserver.h"
@@ -36,10 +37,13 @@
 #include "lltimer.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
+#include "llviewerinventory.h"
 #include "llviewermedia.h"
 #include "llviewernetwork.h"
 #include "llviewerregion.h"
 
+#include "reader.h" // JSON
+#include "writer.h" // JSON
 
 //
 // Helpers
@@ -148,6 +152,84 @@ public:
             llinfos << "Merov : completed successful, status = " << status << ", reason = " << reason << ", content = " << content << llendl;
             // *TODO : Parse the Json body
             //LLMarketplaceData::instance().parseListings(content);
+		}
+		else
+		{
+            llinfos << "Merov : completed with error, status = " << status << ", reason = " << reason << ", content = " << content << llendl;
+		}
+	}
+
+    virtual void completedRaw(U32 status,
+                              const std::string& reason,
+                              const LLChannelDescriptors& channels,
+                              const LLIOPipe::buffer_ptr_t& buffer)
+    {
+        LLBufferStream istr(channels, buffer.get());
+        LLSD content;
+        // Merov : Absolutely godamn aweful parsing : this is to learn the rope
+        /*
+        std::ostringstream ostr;
+        while (istr.good())
+        {
+            char buf[1024];
+            istr.read(buf, sizeof(buf));
+            ostr.write(buf, istr.gcount());
+        }
+        std::string local_string = ostr.str();
+        
+        Json::Value root;
+        Json::Reader reader;
+        if (!reader.parse(local_string,root))
+        {
+            // The message is not a Json string so it's a regular load url request
+            llinfos << "Merov : Failed to parse the json string = " << local_string << llendl;
+        }
+        else
+        {
+            // Extract the info from the Json string : just get the id for the first element in the list
+            const int id = root["listings"][0u]["id"].asInt();
+            //Json::Value listings = root["listings"];
+            llinfos << "Merov : Parsed the json, string = " << local_string << llendl;
+            llinfos << "Merov : Parsed the json, id = " << id << llendl;
+        }
+         */
+        // Merov : end parsing test
+        
+        // This will fail as json is not LLSD... To be deleted once we get the parsing right...
+        const bool emit_errors = false;
+        if (LLSDParser::PARSE_FAILURE == LLSDSerialize::fromXML(content, istr, emit_errors))
+        {
+            content["reason"] = reason;
+        }
+        
+        completed(status, reason, content);
+    }
+    
+    void completedHeader(U32 status, const std::string& reason, const LLSD& content)
+    {
+		if (isGoodStatus(status))
+		{
+            llinfos << "Merov : completed header successful, status = " << status << ", reason = " << reason << ", content = " << content << llendl;
+		}
+		else
+		{
+            llinfos << "Merov : completed header with error, status = " << status << ", reason = " << reason << ", content = " << content << llendl;
+		}
+    }
+};
+
+class LLSLMCreateListingsResponder : public LLHTTPClient::Responder
+{
+	LOG_CLASS(LLSLMCreateListingsResponder);
+public:
+	
+    LLSLMCreateListingsResponder() {}
+    
+	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
+	{
+		if (isGoodStatus(status))
+		{
+            llinfos << "Merov : completed successful, status = " << status << ", reason = " << reason << ", content = " << content << llendl;
 		}
 		else
 		{
@@ -720,6 +802,31 @@ void LLMarketplaceData::getSLMListings()
 	LLHTTPClient::get(getSLMConnectURL("/listings"), new LLSLMListingsResponder(), LLSD());
 }
 
+void LLMarketplaceData::postSLMListing(const LLUUID& folder_id)
+{
+	LLSD headers = LLSD::emptyMap();
+	headers["Accept"] = "application/json";
+	headers["Content-Type"] = "application/json";
+    
+    LLViewerInventoryCategory* category = gInventory.getCategory(folder_id);
+
+	std::ostringstream body;
+	body << "{ \"listing\": { \"name\":\"" << category->getName() << "\","
+         << "\"inventory_info\":{\"listing_folder_id\":\"" << category->getUUID().asString() << "\""
+         << "} } }";
+    
+	// postRaw() takes ownership of the buffer and releases it later.
+	size_t size = body.str().size();
+	U8 *data = new U8[size];
+	memcpy(data, body.str().data(), size);
+    
+    std::string data_str = body.str();
+    llinfos << "Merov : postSLMListing, body = " << data_str << ", header = " << headers << llendl;
+    
+	// Send request
+	LLHTTPClient::postRaw(getSLMConnectURL("/listings"), data, size, new LLSLMCreateListingsResponder(), headers);
+}
+
 std::string LLMarketplaceData::getSLMConnectURL(const std::string& route)
 {
     std::string url("");
@@ -758,7 +865,10 @@ bool LLMarketplaceData::addListing(const LLUUID& folder_id)
     }
 	mMarketplaceItems[folder_id] = LLMarketplaceTuple(folder_id);
     
-    // *TODO : Create the listing on SLM and get the ID (blocking?)
+    // Post the listing to SLM
+    postSLMListing(folder_id);
+    
+    // *TODO : Get the listing id from SLM
     // For the moment, we use that wonky test ID generator...
     S32 listing_id = LLMarketplaceData::instance().getTestMarketplaceID();
     

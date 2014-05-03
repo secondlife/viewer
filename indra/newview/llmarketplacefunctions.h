@@ -163,7 +163,7 @@ public:
     void initializeSLM(const status_updated_signal_t::slot_type& cb);
     void getSLMListings();
     //void getSLMListing();
-    //void postSLMListing();
+    void postSLMListing(const LLUUID& folder_id);
     //void modifySLMListing();
     //void associateSLMListing();
     
