@@ -327,6 +327,7 @@ public:
 
 			gInventory.updateItem(item);
 			gInventory.notifyObservers();
+			LLFavoritesOrderStorage::instance().saveOrder();
 		}
 
 		LLView::getWindow()->setCursor(UI_CURSOR_ARROW);
@@ -1639,6 +1640,16 @@ void LLFavoritesOrderStorage::cleanup()
 
 	//Swap the contents of mSortIndexes and aTempMap
 	mSortIndexes.swap(aTempMap);
+}
+
+void LLFavoritesOrderStorage::saveOrder()
+{
+	LLInventoryModel::cat_array_t cats;
+	LLInventoryModel::item_array_t items;
+	LLIsType is_type(LLAssetType::AT_LANDMARK);
+	LLUUID favorites_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
+	gInventory.collectDescendentsIf(favorites_id, cats, items, LLInventoryModel::EXCLUDE_TRASH, is_type);
+	saveItemsOrder(items);
 }
 
 void LLFavoritesOrderStorage::saveItemsOrder( const LLInventoryModel::item_array_t& items )
