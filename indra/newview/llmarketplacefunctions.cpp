@@ -145,77 +145,38 @@ public:
 	
     LLSLMListingsResponder() {}
     
-	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
-	{
-		if (isGoodStatus(status))
-		{
-            llinfos << "Merov : completed successful, status = " << status << ", reason = " << reason << ", content = " << content << llendl;
-            // *TODO : Parse the Json body
-            //LLMarketplaceData::instance().parseListings(content);
-		}
-		else
-		{
-            llinfos << "Merov : completed with error, status = " << status << ", reason = " << reason << ", content = " << content << llendl;
-		}
-	}
-
     virtual void completedRaw(U32 status,
                               const std::string& reason,
                               const LLChannelDescriptors& channels,
                               const LLIOPipe::buffer_ptr_t& buffer)
     {
         LLBufferStream istr(channels, buffer.get());
-        LLSD content;
-        // Merov : Absolutely godamn aweful parsing : this is to learn the rope
-        /*
-        std::ostringstream ostr;
-        while (istr.good())
-        {
-            char buf[1024];
-            istr.read(buf, sizeof(buf));
-            ostr.write(buf, istr.gcount());
-        }
-        std::string local_string = ostr.str();
+        std::stringstream strstrm;
+        strstrm << istr.rdbuf();
+        const std::string body = strstrm.str();
+        
+		if (!isGoodStatus(status))
+		{
+            std::string error_code = llformat("%d",status);
+            log_SLM_error("Get listings", status, reason, error_code, body);
+            return;
+		}
         
         Json::Value root;
         Json::Reader reader;
-        if (!reader.parse(local_string,root))
+        if (!reader.parse(body,root))
         {
-            // The message is not a Json string so it's a regular load url request
-            llinfos << "Merov : Failed to parse the json string = " << local_string << llendl;
-        }
-        else
-        {
-            // Extract the info from the Json string : just get the id for the first element in the list
-            const int id = root["listings"][0u]["id"].asInt();
-            //Json::Value listings = root["listings"];
-            llinfos << "Merov : Parsed the json, string = " << local_string << llendl;
-            llinfos << "Merov : Parsed the json, id = " << id << llendl;
-        }
-         */
-        // Merov : end parsing test
-        
-        // This will fail as json is not LLSD... To be deleted once we get the parsing right...
-        const bool emit_errors = false;
-        if (LLSDParser::PARSE_FAILURE == LLSDSerialize::fromXML(content, istr, emit_errors))
-        {
-            content["reason"] = reason;
+            log_SLM_error("Get listings", status, "Json parsing failed", reader.getFormatedErrorMessages(), body);
+            return;
         }
         
-        completed(status, reason, content);
+        // Extract the info from the Json string : just get the id for the first element in the list
+        const int id = root["listings"][0u]["id"].asInt();
+        //Json::Value listings = root["listings"];
+        llinfos << "Merov : Parsed the json, string = " << body << llendl;
+        llinfos << "Merov : Parsed the json, id = " << id << llendl;
     }
     
-    void completedHeader(U32 status, const std::string& reason, const LLSD& content)
-    {
-		if (isGoodStatus(status))
-		{
-            llinfos << "Merov : completed header successful, status = " << status << ", reason = " << reason << ", content = " << content << llendl;
-		}
-		else
-		{
-            llinfos << "Merov : completed header with error, status = " << status << ", reason = " << reason << ", content = " << content << llendl;
-		}
-    }
 };
 
 class LLSLMCreateListingsResponder : public LLHTTPClient::Responder
@@ -821,7 +782,17 @@ void LLMarketplaceData::postSLMListing(const LLUUID& folder_id)
 	memcpy(data, body.str().data(), size);
     
     std::string data_str = body.str();
-    llinfos << "Merov : postSLMListing, body = " << data_str << ", header = " << headers << llendl;
+    
+    Json::Value root;
+    Json::StyledWriter writer;
+    
+    root["listing"]["name"] = category->getName();
+    root["listing"]["inventory_info"]["listing_folder_id"] = category->getUUID().asString();
+    
+    std::string json_str = writer.write(root);
+    
+    llinfos << "Merov : postSLMListing, test body = " << data_str << ", size = " << size << llendl;
+    llinfos << "Merov : postSLMListing, json body = " << json_str << ", size = " << json_str.size() << llendl;
     
 	// Send request
 	LLHTTPClient::postRaw(getSLMConnectURL("/listings"), data, size, new LLSLMCreateListingsResponder(), headers);
