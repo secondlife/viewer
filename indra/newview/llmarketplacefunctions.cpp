@@ -906,6 +906,7 @@ bool LLMarketplaceData::deleteListing(const LLUUID& folder_id)
         // Listing doesn't exist -> exit with error
         return false;
     }
+    // *TODO : Implement SLM API for deleting SLM records once it exists there...
 	mMarketplaceItems.erase(folder_id);
     update_marketplace_category(folder_id);
     gInventory.notifyObservers();

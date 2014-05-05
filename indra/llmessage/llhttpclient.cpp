@@ -565,6 +565,17 @@ void LLHTTPClient::put(
 	request(url, LLURLRequest::HTTP_PUT, new LLSDInjector(body), responder, timeout, headers);
 }
 
+void LLHTTPClient::putRaw(
+    const std::string& url,
+    const U8* data,
+    S32 size,
+    ResponderPtr responder,
+    const LLSD& headers,
+    const F32 timeout)
+{
+	request(url, LLURLRequest::HTTP_PUT, new RawInjector(data, size), responder, timeout, headers);
+}
+
 void LLHTTPClient::post(
 	const std::string& url,
 	const LLSD& body,

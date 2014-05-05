@@ -79,6 +79,14 @@ public:
 		ResponderPtr,
 		const LLSD& headers = LLSD(),
 		const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
+	static void putRaw(
+        const std::string& url,
+        const U8* data,
+        S32 size,
+        ResponderPtr responder,
+        const LLSD& headers = LLSD(),
+        const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
+    
 	static void getHeaderOnly(const std::string& url, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS,
 							  bool follow_redirects = true);
 	static void getHeaderOnly(const std::string& url, ResponderPtr, const LLSD& headers,
