@@ -390,6 +390,8 @@ BOOL LLMediaCtrl::postBuild ()
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registar;
 	registar.add("Open.WebInspector", boost::bind(&LLMediaCtrl::onOpenWebInspector, this));
 
+	// stinson 05/05/2014 : cannot assert on the menu container being NULL because it will be during the processing of main_view.xml
+	// llassert(LLMenuGL::sMenuContainer != NULL);
 	mContextMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
 		"menu_media_ctrl.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
 	setVisibleCallback(boost::bind(&LLMediaCtrl::onVisibilityChanged, this, _2));
@@ -1116,4 +1118,9 @@ void LLMediaCtrl::setTrustedContent(bool trusted)
 	{
 		mMediaSource->setTrustedBrowser(trusted);
 	}
+}
+
+void LLMediaCtrl::updateContextMenuParent(LLView* pNewParent)
+{
+	mContextMenu->updateParent(pNewParent);
 }

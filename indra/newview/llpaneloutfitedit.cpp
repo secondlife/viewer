@@ -159,6 +159,7 @@ public:
 
 		registrar.add("Wearable.Create", boost::bind(onCreate, _2));
 
+		llassert(LLMenuGL::sMenuContainer != NULL);
 		LLToggleableMenu* menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
 			"menu_cof_gear.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
 		llassert(menu);
@@ -228,6 +229,7 @@ public:
 		enable_registrar.add("AddWearable.Gear.Check", boost::bind(onCheck, flat_list_handle, inventory_panel_handle, _2));
 		enable_registrar.add("AddWearable.Gear.Visible", boost::bind(onVisible, inventory_panel_handle, _2));
 
+		llassert(LLMenuGL::sMenuContainer != NULL);
 		LLToggleableMenu* menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
 			"menu_add_wearable_gear.xml",
 			LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());

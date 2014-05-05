@@ -231,6 +231,7 @@ LLFolderView::LLFolderView(const Params& p)
 
 
 	// make the popup menu available
+	llassert(LLMenuGL::sMenuContainer != NULL);
 	LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(p.options_menu, LLMenuGL::sMenuContainer, LLMenuHolderGL::child_registry_t::instance());
 	if (!menu)
 	{

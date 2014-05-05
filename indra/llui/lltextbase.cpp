@@ -1955,6 +1955,7 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
 
 	// create and return the context menu from the XUI file
 	delete mPopupMenu;
+	llassert(LLMenuGL::sMenuContainer != NULL);
 	mPopupMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(xui_file, LLMenuGL::sMenuContainer,
 																		 LLMenuHolderGL::child_registry_t::instance());	
 	if (mIsFriendSignal)
