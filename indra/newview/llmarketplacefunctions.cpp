@@ -104,7 +104,7 @@ LLSD getMarketplaceStringSubstitutions()
 // SLM Responders
 void log_SLM_error(const std::string& request, U32 status, const std::string& reason, const std::string& code, const std::string& description)
 {
-		LL_WARNS("SLM") << request << " request failed with a " << status << " " << reason << ". Reason: " << code << " (" << description << ")" << LL_ENDL;
+		LL_WARNS("SLM") << request << " request failed. status : " << status << ". reason : " << reason << ". code : " << code << ". description : " << description << LL_ENDL;
 }
 
 // Merov: This is a temporary hack used by dev while secondlife-staging is down...
@@ -150,17 +150,17 @@ public:
                               const LLChannelDescriptors& channels,
                               const LLIOPipe::buffer_ptr_t& buffer)
     {
+		if (!isGoodStatus(status))
+		{
+            std::string error_code = llformat("%d",status);
+            log_SLM_error("Get listings", status, reason, error_code, "");
+            return;
+		}
+        
         LLBufferStream istr(channels, buffer.get());
         std::stringstream strstrm;
         strstrm << istr.rdbuf();
         const std::string body = strstrm.str();
-        
-		if (!isGoodStatus(status))
-		{
-            std::string error_code = llformat("%d",status);
-            log_SLM_error("Get listings", status, reason, error_code, body);
-            return;
-		}
         
         Json::Value root;
         Json::Reader reader;
@@ -186,6 +186,38 @@ public:
 	
     LLSLMCreateListingsResponder() {}
     
+    virtual void completedRaw(U32 status,
+                              const std::string& reason,
+                              const LLChannelDescriptors& channels,
+                              const LLIOPipe::buffer_ptr_t& buffer)
+    {
+		if (!isGoodStatus(status))
+		{
+            std::string error_code = llformat("%d",status);
+            log_SLM_error("Post listings", status, reason, error_code, "");
+            return;
+		}
+        
+        LLBufferStream istr(channels, buffer.get());
+        std::stringstream strstrm;
+        strstrm << istr.rdbuf();
+        const std::string body = strstrm.str();
+        
+        Json::Value root;
+        Json::Reader reader;
+        if (!reader.parse(body,root))
+        {
+            log_SLM_error("Post listings", status, "Json parsing failed", reader.getFormatedErrorMessages(), body);
+            return;
+        }
+        
+        // Extract the info from the Json string : just get the id for the first element in the list
+        const int id = root["listings"][0u]["id"].asInt();
+        //Json::Value listings = root["listings"];
+        llinfos << "Merov : Parsed the json, string = " << body << llendl;
+        llinfos << "Merov : Parsed the json, id = " << id << llendl;
+    }
+
 	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
 	{
 		if (isGoodStatus(status))
@@ -771,28 +803,20 @@ void LLMarketplaceData::postSLMListing(const LLUUID& folder_id)
     
     LLViewerInventoryCategory* category = gInventory.getCategory(folder_id);
 
-	std::ostringstream body;
-	body << "{ \"listing\": { \"name\":\"" << category->getName() << "\","
-         << "\"inventory_info\":{\"listing_folder_id\":\"" << category->getUUID().asString() << "\""
-         << "} } }";
-    
-	// postRaw() takes ownership of the buffer and releases it later.
-	size_t size = body.str().size();
-	U8 *data = new U8[size];
-	memcpy(data, body.str().data(), size);
-    
-    std::string data_str = body.str();
-    
     Json::Value root;
-    Json::StyledWriter writer;
+    Json::FastWriter writer;
     
     root["listing"]["name"] = category->getName();
     root["listing"]["inventory_info"]["listing_folder_id"] = category->getUUID().asString();
     
     std::string json_str = writer.write(root);
     
-    llinfos << "Merov : postSLMListing, test body = " << data_str << ", size = " << size << llendl;
     llinfos << "Merov : postSLMListing, json body = " << json_str << ", size = " << json_str.size() << llendl;
+    
+	// postRaw() takes ownership of the buffer and releases it later.
+	size_t size = json_str.size();
+	U8 *data = new U8[size];
+	memcpy(data, (U8*)(json_str.c_str()), size);
     
 	// Send request
 	LLHTTPClient::postRaw(getSLMConnectURL("/listings"), data, size, new LLSLMCreateListingsResponder(), headers);
