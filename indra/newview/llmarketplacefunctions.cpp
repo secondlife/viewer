@@ -170,13 +170,24 @@ public:
             return;
         }
         
-        // Extract the info from the Json string : just get the id for the first element in the list
-        const int id = root["listings"][0u]["id"].asInt();
-        //Json::Value listings = root["listings"];
-        llinfos << "Merov : Parsed the json, string = " << body << llendl;
-        llinfos << "Merov : Parsed the json, id = " << id << llendl;
+        // Extract the info from the Json string
+        Json::ValueIterator it = root["listings"].begin();
+        
+        while (it != root["listings"].end())
+        {
+            Json::Value listing = *it;
+            
+            int listing_id = listing["id"].asInt();
+            bool is_listed = listing["is_listed"].asBool();
+            std::string folder_uuid_string = listing["inventory_info"]["listing_folder_id"].asString();
+            std::string version_uuid_string = listing["inventory_info"]["version_folder_id"].asString();
+            
+            LLUUID folder_id(folder_uuid_string);
+            LLUUID version_id(version_uuid_string);
+            LLMarketplaceData::instance().addListing(folder_id,listing_id,version_id,is_listed);
+            it++;
+        }
     }
-    
 };
 
 class LLSLMCreateListingsResponder : public LLHTTPClient::Responder
@@ -211,35 +222,23 @@ public:
             return;
         }
         
-        // Extract the info from the Json string : just get the id for the first element in the list
-        const int id = root["listings"][0u]["id"].asInt();
-        //Json::Value listings = root["listings"];
-        llinfos << "Merov : Parsed the json, string = " << body << llendl;
-        llinfos << "Merov : Parsed the json, id = " << id << llendl;
-    }
-
-	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
-	{
-		if (isGoodStatus(status))
-		{
-            llinfos << "Merov : completed successful, status = " << status << ", reason = " << reason << ", content = " << content << llendl;
-		}
-		else
-		{
-            llinfos << "Merov : completed with error, status = " << status << ", reason = " << reason << ", content = " << content << llendl;
-		}
-	}
-    
-    void completedHeader(U32 status, const std::string& reason, const LLSD& content)
-    {
-		if (isGoodStatus(status))
-		{
-            llinfos << "Merov : completed header successful, status = " << status << ", reason = " << reason << ", content = " << content << llendl;
-		}
-		else
-		{
-            llinfos << "Merov : completed header with error, status = " << status << ", reason = " << reason << ", content = " << content << llendl;
-		}
+        // Extract the info from the Json string
+        Json::ValueIterator it = root["listings"].begin();
+        
+        while (it != root["listings"].end())
+        {
+            Json::Value listing = *it;
+            
+            int listing_id = listing["id"].asInt();
+            bool is_listed = listing["is_listed"].asBool();
+            std::string folder_uuid_string = listing["inventory_info"]["listing_folder_id"].asString();
+            std::string version_uuid_string = listing["inventory_info"]["version_folder_id"].asString();
+            
+            LLUUID folder_id(folder_uuid_string);
+            LLUUID version_id(version_uuid_string);
+            LLMarketplaceData::instance().addListing(folder_id,listing_id,version_id,is_listed);
+            it++;
+        }
     }
 };
 // SLM Responders End
@@ -795,7 +794,7 @@ void LLMarketplaceData::getSLMListings()
 	LLHTTPClient::get(getSLMConnectURL("/listings"), new LLSLMListingsResponder(), LLSD());
 }
 
-void LLMarketplaceData::postSLMListing(const LLUUID& folder_id)
+void LLMarketplaceData::createSLMListing(const LLUUID& folder_id)
 {
 	LLSD headers = LLSD::emptyMap();
 	headers["Accept"] = "application/json";
@@ -810,8 +809,6 @@ void LLMarketplaceData::postSLMListing(const LLUUID& folder_id)
     root["listing"]["inventory_info"]["listing_folder_id"] = category->getUUID().asString();
     
     std::string json_str = writer.write(root);
-    
-    llinfos << "Merov : postSLMListing, json body = " << json_str << ", size = " << json_str.size() << llendl;
     
 	// postRaw() takes ownership of the buffer and releases it later.
 	size_t size = json_str.size();
@@ -851,23 +848,29 @@ void LLMarketplaceData::setSLMStatus(U32 status)
 }
 
 // Creation / Deletion
-bool LLMarketplaceData::addListing(const LLUUID& folder_id)
+bool LLMarketplaceData::createListing(const LLUUID& folder_id)
 {
     if (isListed(folder_id))
     {
         // Listing already exists -> exit with error
         return false;
     }
-	mMarketplaceItems[folder_id] = LLMarketplaceTuple(folder_id);
     
-    // Post the listing to SLM
-    postSLMListing(folder_id);
+    // Post the listing creation request to SLM
+    createSLMListing(folder_id);
     
-    // *TODO : Get the listing id from SLM
-    // For the moment, we use that wonky test ID generator...
-    S32 listing_id = LLMarketplaceData::instance().getTestMarketplaceID();
-    
-    setListingID(folder_id,listing_id);
+    return true;
+}
+
+bool LLMarketplaceData::addListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed)
+{
+    if (isListed(folder_id))
+    {
+        // Listing already exists -> exit with error
+        return false;
+    }
+	mMarketplaceItems[folder_id] = LLMarketplaceTuple(folder_id, listing_id, version_id, is_listed);
+
     update_marketplace_category(folder_id);
     gInventory.notifyObservers();
     return true;

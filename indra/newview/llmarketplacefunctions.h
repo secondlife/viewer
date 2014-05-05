@@ -163,7 +163,7 @@ public:
     void initializeSLM(const status_updated_signal_t::slot_type& cb);
     void getSLMListings();
     //void getSLMListing();
-    void postSLMListing(const LLUUID& folder_id);
+    void createSLMListing(const LLUUID& folder_id);
     //void modifySLMListing();
     //void associateSLMListing();
     
@@ -174,7 +174,8 @@ public:
     bool isVersionFolder(const LLUUID& folder_id); // returns true if folder_id is a Version folder
     
     // Create/Delete Marketplace data set  : each method returns true if the function succeeds, false if error
-    bool addListing(const LLUUID& folder_id);
+    bool createListing(const LLUUID& folder_id);
+    bool addListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed);
     bool associateListing(const LLUUID& folder_id, S32 listing_id);
     bool deleteListing(const LLUUID& folder_id);
 

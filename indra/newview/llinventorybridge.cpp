@@ -3210,7 +3210,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 	}
 	else if ("marketplace_create_listing" == action)
 	{
-        LLMarketplaceData::instance().addListing(mUUID);
+        LLMarketplaceData::instance().createListing(mUUID);
 		return;
 	}
     else if ("marketplace_disassociate_listing" == action)
