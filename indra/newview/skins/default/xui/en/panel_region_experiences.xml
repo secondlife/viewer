@@ -23,13 +23,25 @@
     Trusted Experiences
   </panel.string>
 
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="32"
+   layout="topleft"
+   left="10"
+   name="experiences_help_text"
+   top="14"
+   word_wrap="true">
+    Changes to settings on this tab will affect all regions in the estate.
+  </text>
   <layout_stack
     left="5"
     layout="topleft"
     follows="all"
-    top="0"
+    top="40"
     right="-5"
-    height="320"
+    height="280"
     min_height="140"
     orientation="vertical">
     <layout_panel
@@ -43,9 +55,9 @@
              filename="panel_experience_list_editor.xml" />
       <text
         layout="topleft"
-        name="text_help"
+        name="trusted_text_help"
         length="1"
-        top="20"
+        top="5"
         left_pad="5"
         width="200"
         height="200"
@@ -69,9 +81,9 @@ Any Experience may be Trusted.
         filename="panel_experience_list_editor.xml"/>
       <text
         layout="topleft"
-        name="text_help"
+        name="allowed_text_help"
         length="1"
-        top="20"
+        top="5"
         left_pad="5"
         width="200"
         height="200"
@@ -93,9 +105,9 @@ Only Experiences that are not Grid-Wide may be Allowed.
         filename="panel_experience_list_editor.xml"/>
       <text
         layout="topleft"
-        name="text_help"
+        name="blocked_text_help"
         length="1"
-        top="20"
+        top="5"
         left_pad="5"
         width="200"
         height="200"
