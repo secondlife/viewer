@@ -525,6 +525,14 @@ void LLAvatarActions::share(const LLUUID& id)
 	{
 		// we should always get here, but check to verify anyways
 		LLIMModel::getInstance()->addMessage(session_id, SYSTEM_FROM, LLUUID::null, LLTrans::getString("share_alert"), false);
+
+		LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(session_id);
+		if (session_floater && session_floater->isMinimized())
+		{
+			session_floater->setMinimized(false);
+		}
+		LLFloaterIMContainer *im_container = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
+		im_container->selectConversationPair(session_id, true);
 	}
 }
 
