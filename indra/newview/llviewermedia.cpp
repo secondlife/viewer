@@ -1603,6 +1603,11 @@ void LLViewerMedia::cleanupClass()
 {
 	gIdleCallbacks.deleteFunction(LLViewerMedia::updateMedia, NULL);
 	sTeleportFinishConnection.disconnect();
+	if (sSpareBrowserMediaSource != NULL)
+	{
+		delete sSpareBrowserMediaSource;
+		sSpareBrowserMediaSource = NULL;
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
