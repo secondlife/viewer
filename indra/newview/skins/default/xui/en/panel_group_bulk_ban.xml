@@ -13,7 +13,7 @@
   </panel.string>
   <panel.string
      name="ban_selection_too_large">
-    Group Invitations not sent: too many Residents selected. Group Invitations are limited to 100 per request.
+    Group bans not sent: too many Residents selected. Group bans are limited to 100 per request.
   </panel.string>
   <text
    type="string"

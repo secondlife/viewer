@@ -66,7 +66,8 @@ LLPanelGroupBulkImpl::LLPanelGroupBulkImpl(const LLUUID& group_id) :
 	mRoleNames(NULL),
 	mOwnerWarning(),
 	mAlreadyInGroup(),
-	mConfirmedOwnerInvite(false)
+	mConfirmedOwnerInvite(false),
+	mListFullNotificationSent(false)
 {}
 
 LLPanelGroupBulkImpl::~LLPanelGroupBulkImpl()
@@ -201,17 +202,24 @@ void LLPanelGroupBulkImpl::addUsers(const std::vector<std::string>& names, const
 {
 	std::string name;
 	LLUUID id;
-	
 
-	if(names.size() + mInviteeIDs.size() > MAX_GROUP_INVITES)
+	if(mListFullNotificationSent)
+	{	
+		return;
+	}
+
+	if(	!mListFullNotificationSent &&
+		(names.size() + mInviteeIDs.size() > MAX_GROUP_INVITES))
 	{
+		mListFullNotificationSent = true;
+
 		// Fail! Show a warning and don't add any names.
 		LLSD msg;
 		msg["MESSAGE"] = mTooManySelected;
 		LLNotificationsUtil::add("GenericAlert", msg);
 		return;
 	}
-	
+
 	for (S32 i = 0; i < (S32)names.size(); ++i)
 	{
 		name = names[i];
@@ -407,6 +415,7 @@ void LLPanelGroupBulk::addUsers(uuid_vec_t& agent_ids)
 			}
 		}
 	}
+	mImplementation->mListFullNotificationSent = false;
 	mImplementation->addUsers(names, agent_ids);
 }
 
