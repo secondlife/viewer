@@ -89,7 +89,7 @@
          <key>vector</key>
          <map>
             <key>tooltip</key>
-            <string>A vector is a data type that contains a set of three float values.\nVectors are used to represent colours (RGB), positions, and directions/velocities.</string>
+            <string>A vector is a data type that contains a set of three float values.\nVectors are used to represent colors (RGB), positions, and directions/velocities.</string>
          </map>
       </map>
       <key>constants</key>
@@ -852,7 +852,7 @@
             <key>value</key>
             <string>0x2</string>
             <key>tooltip</key>
-            <string>The object colour has changed.</string>
+            <string>The object color has changed.</string>
          </map>
          <key>CHANGED_INVENTORY</key>
          <map>
@@ -4372,7 +4372,7 @@
             <key>value</key>
             <integer>3</integer>
             <key>tooltip</key>
-            <string>A vector &lt;r, g, b&gt; which determines the ending colour of the object.</string>
+            <string>A vector &lt;r, g, b&gt; which determines the ending color of the object.</string>
          </map>
          <key>PSYS_PART_END_GLOW</key>
          <map>
@@ -4426,7 +4426,7 @@
             <key>value</key>
             <string>0x1</string>
             <key>tooltip</key>
-            <string>Interpolate both the colour and alpha from the start value to the end value.</string>
+            <string>Interpolate both the color and alpha from the start value to the end value.</string>
          </map>
          <key>PSYS_PART_INTERP_SCALE_MASK</key>
          <map>
@@ -4471,7 +4471,7 @@
             <key>value</key>
             <integer>1</integer>
             <key>tooltip</key>
-            <string>A vector &lt;r.r, g.g, b.b&gt; which determines the starting colour of the object.</string>
+            <string>A vector &lt;r.r, g.g, b.b&gt; which determines the starting color of the object.</string>
          </map>
          <key>PSYS_PART_START_GLOW</key>
          <map>
@@ -9032,7 +9032,7 @@
                </map>
             </array>
             <key>tooltip</key>
-            <string>Returns the color on Face.\nReturns the colour of Face as a vector of red, green, and blue values between 0 and 1. If face is ALL_SIDES the colour returned is the mean average of each channel.</string>
+            <string>Returns the color on Face.\nReturns the color of Face as a vector of red, green, and blue values between 0 and 1. If face is ALL_SIDES the color returned is the mean average of each channel.</string>
          </map>
          <key>llGetCreator</key>
          <map>
@@ -15304,7 +15304,7 @@
             <key>arguments</key>
             <array>
                <map>
-                  <key>Colour</key>
+                  <key>Color</key>
                   <map>
                      <key>type</key>
                      <string>vector</string>
@@ -15323,7 +15323,7 @@
                </map>
             </array>
             <key>tooltip</key>
-            <string>Sets the color, for the face.\nSets the colour of the side specified. If Face is ALL_SIDES, sets the colour on all faces.</string>
+            <string>Sets the color, for the face.\nSets the color of the side specified. If Face is ALL_SIDES, sets the color on all faces.</string>
          </map>
          <key>llSetContentType</key>
          <map>
@@ -15671,7 +15671,7 @@
                   </map>
                </map>
                <map>
-                  <key>Colour</key>
+                  <key>Color</key>
                   <map>
                      <key>type</key>
                      <string>vector</string>
@@ -15690,7 +15690,7 @@
                </map>
             </array>
             <key>tooltip</key>
-            <string>If a task exists in the link chain at LinkNumber, set the Face to color.\nSets the colour of the linked child's side, specified by LinkNumber.</string>
+            <string>If a task exists in the link chain at LinkNumber, set the Face to color.\nSets the color of the linked child's side, specified by LinkNumber.</string>
          </map>
          <key>llSetLinkMedia</key>
          <map>

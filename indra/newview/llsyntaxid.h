@@ -75,7 +75,7 @@ private:
 
 public:
 	LLSyntaxIdLSL();
-	LLSyntaxIdLSL(std::string filenameDefault, std::string simFeatureName, std::string capabilityName);
+	LLSyntaxIdLSL(const std::string& filename, const std::string& sim_feature, const std::string& capability);
 
 	bool			checkSyntaxIdChanged();
 	bool			fetching();
@@ -104,9 +104,9 @@ protected:
 	void			loadDefaultKeywordsIntoLLSD();
 	void			loadKeywordsIntoLLSD();
 	void			setSyntaxId(LLUUID SyntaxId) { mSyntaxIdCurrent = SyntaxId; }
-	void			setFileNameCurrent(std::string& name) { mFileNameCurrent = name; }
-	void			setFileNameDefault(std::string& name) { mFileNameDefault = name; }
-	void			setFileNameNew(std::string name) { mFileNameNew = name; }
+	void			setFileNameCurrent(const std::string& name) { mFileNameCurrent = name; }
+	void			setFileNameDefault(const std::string& name) { mFileNameDefault = name; }
+	void			setFileNameNew(const std::string name) { mFileNameNew = name; }
 };
 
 

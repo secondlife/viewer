@@ -374,6 +374,7 @@ LLScriptEdCore::LLScriptEdCore(
 
 	setXMLFilename("panel_script_ed.xml");
 	llassert_always(mContainer != NULL);
+	mRegionChangedCallback = gAgent.addRegionChangedCallback(boost::bind(&LLScriptEdCore::updateKeywords, this));
 }
 
 LLScriptEdCore::~LLScriptEdCore()
@@ -389,6 +390,7 @@ LLScriptEdCore::~LLScriptEdCore()
 	}
 
 	delete mLiveFile;
+	mRegionChangedCallback.disconnect();
 }
 
 BOOL LLScriptEdCore::postBuild()
@@ -407,24 +409,19 @@ BOOL LLScriptEdCore::postBuild()
 
 	initMenu();
 
-	mSyntaxIdLSL.addFileFetchedCallback(boost::bind(&LLScriptEdCore::processKeywords, this));
+	LLSyntaxIdLSL::getInstance()->addFileFetchedCallback(boost::bind(&LLScriptEdCore::processKeywords, this));
 
 	// Intialise keyword highlighting for the current simulator's version of LSL
-	mSyntaxIdLSL.initialise();
+	LLSyntaxIdLSL::getInstance()->initialise();
 
-	if (mSyntaxIdLSL.isDifferentVersion())
+	if (LLSyntaxIdLSL::getInstance()->isDifferentVersion())
 	{
 		processLoaded();
 	}
 	else
 	{
-		LL_INFOS("SyntaxLSL")
-				<< "Hashes are the same, no need to update highlighter." << LL_ENDL;
+		LL_DEBUGS("SyntaxLSL") << "Hashes are the same, no need to update highlighter." << LL_ENDL;
 	}
-
-
-	// Set up a callback for region changes
-	mRegionChangedCallback = gAgent.addRegionChangedCallback(boost::bind(&LLScriptEdCore::updateKeywords, this));
 
 	return TRUE;
 }
@@ -434,7 +431,6 @@ void LLScriptEdCore::updateKeywords()
 	if (mLive)
 	{
 		mEditor->clearSegments();
-		mRegionChangedCallback.disconnect();
 	}
 	else
 	{
@@ -444,60 +440,53 @@ void LLScriptEdCore::updateKeywords()
 
 void LLScriptEdCore::processLoaded()
 {
-	mSyntaxIdLSL.initialise();
-	if (mSyntaxIdLSL.isLoaded())
+	LLSyntaxIdLSL::getInstance()->initialise();
+	if (LLSyntaxIdLSL::getInstance()->isLoaded())
 	{
 		processKeywords();
 	}
 	else
 	{
-		LL_INFOS("SyntaxLSL")
-				<< "Hashes are different, waiting for the syntax file to be retrieved." << LL_ENDL;
+		LL_DEBUGS("SyntaxLSL") << "Hashes are different, waiting for the syntax file to be retrieved." << LL_ENDL;
 	}
 }
 
 void LLScriptEdCore::processKeywords()
 {
-	if (mSyntaxIdLSL.isLoaded())
+	if (LLSyntaxIdLSL::getInstance()->isLoaded())
 	{
-		LL_INFOS("SyntaxLSL")
-				<< "Hashes are different, updating highlighter." << LL_ENDL;
+		LL_DEBUGS("SyntaxLSL") << "Hashes are different, updating highlighter." << LL_ENDL;
 
 		mEditor->clearSegments();
 
-		if (mSyntaxIdLSL.isLoaded())
+		mEditor->initKeywords();
+		mEditor->loadKeywords();
+
+		string_vec_t primary_keywords;
+		string_vec_t secondary_keywords;
+		LLKeywordToken *token;
+		LLKeywords::keyword_iterator_t token_it;
+		for (token_it = mEditor->keywordsBegin(); token_it != mEditor->keywordsEnd(); ++token_it)
 		{
-			mEditor->initKeywords();
-			mEditor->loadKeywords();
-
-			std::vector<std::string> primary_keywords;
-			std::vector<std::string> secondary_keywords;
-			LLKeywordToken *token;
-			LLKeywords::keyword_iterator_t token_it;
-			for (token_it = mEditor->keywordsBegin(); token_it != mEditor->keywordsEnd(); ++token_it)
+			token = token_it->second;
+			if (token->getType() == LLKeywordToken::TT_FUNCTION)
 			{
-				token = token_it->second;
-				if (token->getType() == LLKeywordToken::TT_FUNCTION)
-				{
-					primary_keywords.push_back( wstring_to_utf8str(token->getToken()) );
-				}
-				else
-				{
-					secondary_keywords.push_back( wstring_to_utf8str(token->getToken()) );
-				}
+				primary_keywords.push_back( wstring_to_utf8str(token->getToken()) );
 			}
-
-			for (std::vector<std::string>::const_iterator iter= primary_keywords.begin();
-				 iter!= primary_keywords.end(); ++iter)
+			else
 			{
-				mFunctions->add(*iter);
+				secondary_keywords.push_back( wstring_to_utf8str(token->getToken()) );
 			}
-
-			for (std::vector<std::string>::const_iterator iter= secondary_keywords.begin();
-				 iter!= secondary_keywords.end(); ++iter)
-			{
-				mFunctions->add(*iter);
-			}
+		}
+		for (string_vec_t::const_iterator iter = primary_keywords.begin();
+			 iter!= primary_keywords.end(); ++iter)
+		{
+			mFunctions->add(*iter);
+		}
+		for (string_vec_t::const_iterator iter = secondary_keywords.begin();
+			 iter!= secondary_keywords.end(); ++iter)
+		{
+			mFunctions->add(*iter);
 		}
 	}
 }

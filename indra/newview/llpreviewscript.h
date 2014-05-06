@@ -156,7 +156,6 @@ private:
 	BOOL			mEnableSave;
 	BOOL			mHasScriptData;
 	LLLiveLSLFile*	mLiveFile;
-	LLSyntaxIdLSL	mSyntaxIdLSL;
 
 	LLScriptEdContainer* mContainer; // parent view
 

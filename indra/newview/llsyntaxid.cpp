@@ -127,13 +127,13 @@ LLSyntaxIdLSL::file_fetched_signal_t	LLSyntaxIdLSL::sFileFetchedSignal;
 /**
  * @brief LLSyntaxIdLSL constructor
  */
-LLSyntaxIdLSL::LLSyntaxIdLSL(std::string filenameDefault, std::string simFeatureName, std::string capabilityName) :
-	mFilePath(LL_PATH_APP_SETTINGS)
+LLSyntaxIdLSL::LLSyntaxIdLSL(const std::string& filename, const std::string& sim_feature, const std::string& capability)
+:	mFilePath(LL_PATH_APP_SETTINGS)
 {
-	mCapabilityName = capabilityName;
-	mFileNameCurrent = filenameDefault;
-	mFileNameDefault = filenameDefault;
-	mSimulatorFeature = simFeatureName;
+	mCapabilityName = capability;
+	mFileNameCurrent = filename;
+	mFileNameDefault = filename;
+	mSimulatorFeature = sim_feature;
 	mSyntaxIdCurrent = LLUUID();
 }
 
@@ -321,6 +321,9 @@ void LLSyntaxIdLSL::initialise()
 //-----------------------------------------------------------------------------
 // isSupportedVersion
 //-----------------------------------------------------------------------------
+const U32         LLSD_SYNTAX_LSL_VERSION_EXPECTED = 2;
+const std::string LLSD_SYNTAX_LSL_VERSION_KEY("llsd-lsl-syntax-version");
+
 bool LLSyntaxIdLSL::isSupportedVersion(const LLSD& content)
 {
 	bool isValid = false;
@@ -328,8 +331,6 @@ bool LLSyntaxIdLSL::isSupportedVersion(const LLSD& content)
 	 * If the schema used to store LSL keywords and hints changes, this value is incremented
 	 * Note that it should _not_ be changed if the keywords and hints _content_ changes.
 	 */
-	const U32         LLSD_SYNTAX_LSL_VERSION_EXPECTED = 2;
-	const std::string LLSD_SYNTAX_LSL_VERSION_KEY("llsd-lsl-syntax-version");
 
 	if (content.has(LLSD_SYNTAX_LSL_VERSION_KEY))
 	{
