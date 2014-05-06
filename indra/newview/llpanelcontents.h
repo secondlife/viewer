@@ -49,6 +49,7 @@ public:
 	virtual ~LLPanelContents();
 
 	void			refresh();
+	void			clearContents();
 
 
 	static void		onClickNewScript(void*);
