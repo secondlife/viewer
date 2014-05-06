@@ -1,4 +1,4 @@
-/** 
+/**
  * @file llpanelgrouproles.cpp
  * @brief Panel for roles information about a particular group.
  *
@@ -2858,6 +2858,8 @@ BOOL LLPanelGroupBanListSubTab::postBuildSubTab(LLView* root)
 
 	mBanList->setOnNameListCompleteCallback(boost::bind(&LLPanelGroupBanListSubTab::onBanListCompleted, this, _1));
 	
+	populateBanList();
+
 	setFooterEnabled(FALSE);
 	return TRUE;
 }
@@ -2895,6 +2897,7 @@ void LLPanelGroupBanListSubTab::draw()
 	LLPanelGroupSubTab::draw();
 
 	// BAKER: Might be good to put it here instead of update, maybe.. See how often draw gets hit.
+	//if(
 	//	populateBanList();
 }
 
@@ -2927,7 +2930,7 @@ void LLPanelGroupBanListSubTab::onCreateBanEntry(void* user_data)
 void LLPanelGroupBanListSubTab::handleCreateBanEntry()
 {
 	LLFloaterGroupBulkBan::showForGroup(mGroupID);
-	populateBanList();
+	//populateBanList();
 }
 
 void LLPanelGroupBanListSubTab::onDeleteBanEntry(void* user_data)
@@ -3035,6 +3038,20 @@ void LLPanelGroupBanListSubTab::populateBanList()
 		LLGroupBanData bd = entry->second;
 		
 		ban_entry.columns.add().column("name").font.name("SANSSERIF_SMALL").style("NORMAL");
+
+		// Check out utc_to_pacific_time()
+
+		std::string ban_date_str = bd.mBanDate.toHTTPDateString("%Y/%m/%d");
+		time_t utc_time;
+		utc_time = time_corrected();
+		LLSD substitution;
+		substitution["datetime"] = (S32) utc_time;
+		LLStringUtil::format (ban_date_str, substitution);
+
+		LL_INFOS("BAKER") << "[BAKER] BAN_DATE: " << bd.mBanDate.toHTTPDateString("%Y/%m/%d") << LL_ENDL;
+		LL_INFOS("BAKER") << "[BAKER] BAN_DATE_MODIFIED: " << ban_date_str << LL_ENDL;
+
+		//ban_entry.columns.add().column("ban_date").value(ban_date_str.font.name("SANSSERIF_SMALL").style("NORMAL");
 		ban_entry.columns.add().column("ban_date").value(bd.mBanDate.toHTTPDateString("%Y/%m/%d")).font.name("SANSSERIF_SMALL").style("NORMAL");
 
 		mBanList->addNameItemRow(ban_entry);
@@ -3051,4 +3068,3 @@ void LLPanelGroupBanListSubTab::setGroupID(const LLUUID& id)
 	setFooterEnabled(FALSE);
 	LLPanelGroupSubTab::setGroupID(id); 
 }
-
