@@ -32,6 +32,7 @@
 #include "llnotificationtemplate.h"
 #include "llsd.h"
 #include "llui.h"
+#include <boost/foreach.hpp>
 
 LLNotificationsListener::LLNotificationsListener(LLNotifications & notifications) :
     LLEventAPI("LLNotifications",
@@ -42,11 +43,10 @@ LLNotificationsListener::LLNotificationsListener(LLNotifications & notifications
         "Add a notification with specified [\"name\"], [\"substitutions\"] and [\"payload\"].\n"
         "If optional [\"reply\"] specified, arrange to send user response on that LLEventPump.",
         &LLNotificationsListener::requestAdd);
-    /*    add("listChannels",
+    add("listChannels",
         "Post to [\"reply\"] a map of info on existing channels",
         &LLNotificationsListener::listChannels,
         LLSD().with("reply", LLSD()));
-    */
     add("listChannelNotifications",
         "Post to [\"reply\"] an array of info on notifications in channel [\"channel\"]",
         &LLNotificationsListener::listChannelNotifications,
@@ -117,26 +117,27 @@ void LLNotificationsListener::NotificationResponder(const std::string& reply_pum
 	reponse_event["response"] = response;
 	LLEventPumps::getInstance()->obtain(reply_pump).post(reponse_event);
 }
-/*
+
 void LLNotificationsListener::listChannels(const LLSD& params) const
 {
     LLReqID reqID(params);
     LLSD response(reqID.makeResponse());
-    for (LLNotifications::
-
-
-
-    for (LLNotifications::ChannelMap::const_iterator cmi(mNotifications.mChannels.begin()),
-                                                     cmend(mNotifications.mChannels.end());
+    for (LLNotificationChannel::instance_iter cmi(LLNotificationChannel::beginInstances()),
+                                              cmend(LLNotificationChannel::endInstances());
          cmi != cmend; ++cmi)
     {
-        LLSD channelInfo;
-        channelInfo["parent"] = cmi->second->getParentChannelName();
-        response[cmi->first] = channelInfo;
+        LLSD channelInfo, parents;
+        BOOST_FOREACH(const std::string& parent, cmi->getParents())
+        {
+            parents.append(parent);
+        }
+        channelInfo["parents"] = parents;
+        channelInfo["parent"] = parents.size()? parents[0] : "";
+        response[cmi->getName()] = channelInfo;
     }
     LLEventPumps::instance().obtain(params["reply"]).post(response);
 }
-*/
+
 void LLNotificationsListener::listChannelNotifications(const LLSD& params) const
 {
     LLReqID reqID(params);
