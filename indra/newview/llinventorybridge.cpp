@@ -3226,7 +3226,10 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 	else if ("marketplace_edit_listing" == action)
 	{
         std::string url = LLMarketplaceData::instance().getListingURL(mUUID);
-        LLUrlAction::openURL(url);
+        if (!url.empty())
+        {
+            LLUrlAction::openURL(url);
+        }
 		return;
 	}
 #ifndef LL_RELEASE_FOR_DOWNLOAD

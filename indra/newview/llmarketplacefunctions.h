@@ -143,6 +143,7 @@ private:
     S32 mListingId;
     LLUUID mVersionFolderId;
     bool mIsActive;
+    std::string mEditURL;
 };
 // Note: The listing folder UUID is used as a key to this map. It could therefore be taken off the LLMarketplaceTuple objects themselves
 typedef std::map<LLUUID, LLMarketplaceTuple> marketplace_items_list_t;
@@ -193,6 +194,7 @@ public:
     bool setListingID(const LLUUID& folder_id, S32 listing_id);
     bool setVersionFolderID(const LLUUID& folder_id, const LLUUID& version_id);
     bool setActivation(const LLUUID& folder_id, bool activate);
+    bool setEditURL(const LLUUID& folder_id, const std::string& edit_url);
     
     // Used to flag if count values for Marketplace are likely to have to be updated
     bool checkDirtyCount() { if (mDirtyCount) { mDirtyCount = false; return true; } else { return false; } }

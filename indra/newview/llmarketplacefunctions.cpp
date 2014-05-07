@@ -109,7 +109,7 @@ void log_SLM_error(const std::string& request, U32 status, const std::string& re
 
 // Merov: This is a temporary hack used by dev while secondlife-staging is down...
 // *TODO : Suppress that before shipping!
-static bool sBypassMerchant = true;
+static bool sBypassMerchant = false;
 
 class LLSLMGetMerchantResponder : public LLHTTPClient::Responder
 {
@@ -180,12 +180,14 @@ public:
             
             int listing_id = listing["id"].asInt();
             bool is_listed = listing["is_listed"].asBool();
+            std::string edit_url = listing["edit_url"].asString();
             std::string folder_uuid_string = listing["inventory_info"]["listing_folder_id"].asString();
             std::string version_uuid_string = listing["inventory_info"]["version_folder_id"].asString();
             
             LLUUID folder_id(folder_uuid_string);
             LLUUID version_id(version_uuid_string);
             LLMarketplaceData::instance().addListing(folder_id,listing_id,version_id,is_listed);
+            LLMarketplaceData::instance().setEditURL(folder_id, edit_url);
             it++;
         }
     }
@@ -233,12 +235,14 @@ public:
             
             int listing_id = listing["id"].asInt();
             bool is_listed = listing["is_listed"].asBool();
+            std::string edit_url = listing["edit_url"].asString();
             std::string folder_uuid_string = listing["inventory_info"]["listing_folder_id"].asString();
             std::string version_uuid_string = listing["inventory_info"]["version_folder_id"].asString();
             
             LLUUID folder_id(folder_uuid_string);
             LLUUID version_id(version_uuid_string);
             LLMarketplaceData::instance().addListing(folder_id,listing_id,version_id,is_listed);
+            LLMarketplaceData::instance().setEditURL(folder_id, edit_url);
             it++;
         }
     }
@@ -286,6 +290,7 @@ public:
             
             int listing_id = listing["id"].asInt();
             bool is_listed = listing["is_listed"].asBool();
+            std::string edit_url = listing["edit_url"].asString();
             std::string folder_uuid_string = listing["inventory_info"]["listing_folder_id"].asString();
             std::string version_uuid_string = listing["inventory_info"]["version_folder_id"].asString();
             
@@ -296,6 +301,7 @@ public:
             LLMarketplaceData::instance().setListingID(folder_id, listing_id);
             LLMarketplaceData::instance().setVersionFolderID(folder_id, version_id);
             LLMarketplaceData::instance().setActivation(folder_id, is_listed);
+            LLMarketplaceData::instance().setEditURL(folder_id, edit_url);
             
             it++;
         }
@@ -311,16 +317,61 @@ public:
     
 	virtual void completed(U32 status, const std::string& reason, const LLSD& content) { }
     
-    void completedHeader(U32 status, const std::string& reason, const LLSD& content)
+    virtual void completedRaw(U32 status,
+                              const std::string& reason,
+                              const LLChannelDescriptors& channels,
+                              const LLIOPipe::buffer_ptr_t& buffer)
     {
-		if (isGoodStatus(status))
+		if (!isGoodStatus(status))
 		{
-            LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_MERCHANT);
+            log_SLM_error("Associate listings", status, reason, "", "");
+            return;
 		}
-		else
-		{
-            log_SLM_error("Get merchant", status, reason, content.get("error_code"), content.get("error_description"));
-		}
+        
+        LLBufferStream istr(channels, buffer.get());
+        std::stringstream strstrm;
+        strstrm << istr.rdbuf();
+        const std::string body = strstrm.str();
+        
+        Json::Value root;
+        Json::Reader reader;
+        if (!reader.parse(body,root))
+        {
+            log_SLM_error("Associate listings", status, "Json parsing failed", reader.getFormatedErrorMessages(), body);
+            return;
+        }
+        
+        llinfos << "Merov : Update listing completedRaw : data = " << body << llendl;
+        
+        // Extract the info from the Json string
+        Json::ValueIterator it = root["listings"].begin();
+        
+        while (it != root["listings"].end())
+        {
+            Json::Value listing = *it;
+            
+            int listing_id = listing["id"].asInt();
+            bool is_listed = listing["is_listed"].asBool();
+            std::string edit_url = listing["edit_url"].asString();
+            std::string folder_uuid_string = listing["inventory_info"]["listing_folder_id"].asString();
+            std::string version_uuid_string = listing["inventory_info"]["version_folder_id"].asString();
+            
+            LLUUID folder_id(folder_uuid_string);
+            LLUUID version_id(version_uuid_string);
+            
+            // Check that the listing ID is not already associated to some other record
+            LLUUID old_listing = LLMarketplaceData::instance().getListingFolder(listing_id);
+            if (old_listing.notNull())
+            {
+                // If it is already used, unlist the old record (we can't have 2 listings with the same listing ID)
+                LLMarketplaceData::instance().deleteListing(old_listing);
+            }
+            
+            // Add the new association
+            LLMarketplaceData::instance().addListing(folder_id,listing_id,version_id,is_listed);
+            LLMarketplaceData::instance().setEditURL(folder_id, edit_url);
+            it++;
+        }
     }
 };
 
@@ -819,7 +870,8 @@ LLMarketplaceTuple::LLMarketplaceTuple() :
     mListingFolderId(),
     mListingId(0),
     mVersionFolderId(),
-    mIsActive(false)
+    mIsActive(false),
+    mEditURL("")
 {
 }
 
@@ -827,7 +879,8 @@ LLMarketplaceTuple::LLMarketplaceTuple(const LLUUID& folder_id) :
     mListingFolderId(folder_id),
     mListingId(0),
     mVersionFolderId(),
-    mIsActive(false)
+    mIsActive(false),
+    mEditURL("")
 {
 }
 
@@ -835,7 +888,8 @@ LLMarketplaceTuple::LLMarketplaceTuple(const LLUUID& folder_id, S32 listing_id, 
     mListingFolderId(folder_id),
     mListingId(listing_id),
     mVersionFolderId(version_id),
-    mIsActive(is_listed)
+    mIsActive(is_listed),
+    mEditURL("")
 {
 }
 
@@ -924,23 +978,31 @@ void LLMarketplaceData::updateSLMListing(const LLUUID& folder_id, S32 listing_id
 	LLHTTPClient::putRaw(url, data, size, new LLSLMUpdateListingsResponder(), headers);
 }
 
-// PUT /associate_inventory/:listing_folder_id/:version_folder_id/:listing_id
 void LLMarketplaceData::associateSLMListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id)
 {
 	LLSD headers = LLSD::emptyMap();
 	headers["Accept"] = "application/json";
 	headers["Content-Type"] = "application/json";
     
-    LLSD data = LLSD::emptyMap();
+    Json::Value root;
+    Json::FastWriter writer;
+    
+    // Note : we're assuming that sending unchanged info won't break anything server side...
+    root["listing"]["id"] = listing_id;
+    root["listing"]["inventory_info"]["listing_folder_id"] = folder_id.asString();
+    root["listing"]["inventory_info"]["version_folder_id"] = version_id.asString();
+    
+    std::string json_str = writer.write(root);
+    
+	// postRaw() takes ownership of the buffer and releases it later.
+	size_t size = json_str.size();
+	U8 *data = new U8[size];
+	memcpy(data, (U8*)(json_str.c_str()), size);
     
 	// Send request
-    std::string url = getSLMConnectURL("/associate_inventory/")
-                        + folder_id.asString() + "/"
-                        + version_id.asString() + "/"
-                        + llformat("%d",listing_id);
-    
-    llinfos << "Merov : associate listing : " << url << llendl;
-	LLHTTPClient::put(url, data, new LLSLMAssociateListingsResponder(), headers);
+    std::string url = getSLMConnectURL("/associate_inventory/") + llformat("%d",listing_id);
+    llinfos << "Merov : associate listing : " << url << ", data = " << json_str << llendl;
+	LLHTTPClient::putRaw(url, data, size, new LLSLMAssociateListingsResponder(), headers);
 }
 
 std::string LLMarketplaceData::getSLMConnectURL(const std::string& route)
@@ -1027,6 +1089,21 @@ bool LLMarketplaceData::setVersionFolder(const LLUUID& folder_id, const LLUUID& 
     return true;
 }
 
+bool LLMarketplaceData::associateListing(const LLUUID& folder_id, S32 listing_id)
+{
+    if (isListed(folder_id))
+    {
+        // Listing already exists -> exit with error
+        return false;
+    }
+    
+    // Post the listing update request to SLM
+    LLUUID version_id;
+    associateSLMListing(folder_id, listing_id, version_id);
+    
+    return true;
+}
+
 // Methods privately called or called by SLM responders to perform changes
 bool LLMarketplaceData::addListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed)
 {
@@ -1037,29 +1114,6 @@ bool LLMarketplaceData::addListing(const LLUUID& folder_id, S32 listing_id, cons
     }
 	mMarketplaceItems[folder_id] = LLMarketplaceTuple(folder_id, listing_id, version_id, is_listed);
 
-    update_marketplace_category(folder_id);
-    gInventory.notifyObservers();
-    return true;
-}
-
-bool LLMarketplaceData::associateListing(const LLUUID& folder_id, S32 listing_id)
-{
-    if (isListed(folder_id))
-    {
-        // Listing already exists -> exit with error
-        return false;
-    }
-	mMarketplaceItems[folder_id] = LLMarketplaceTuple(folder_id);
-    
-    // Check that the listing ID is not already associated to some other record
-    LLUUID old_listing = getListingFolder(listing_id);
-    if (old_listing.notNull())
-    {
-        // If it is already used, unlist the old record (we can't have 2 listings with the same listing ID)
-        deleteListing(old_listing);
-    }
-    
-    setListingID(folder_id,listing_id);
     update_marketplace_category(folder_id);
     gInventory.notifyObservers();
     return true;
@@ -1150,19 +1204,11 @@ bool LLMarketplaceData::isVersionFolder(const LLUUID& folder_id)
 
 std::string LLMarketplaceData::getListingURL(const LLUUID& folder_id)
 {
-    // Get the listing id (i.e. go up the hierarchy to find the listing folder
-    // URL format will be something like : https://marketplace.secondlife.com/p/listing/<listing_id>
-	std::string marketplace_url = getMarketplaceURL("MarketplaceURL");
-    
     S32 depth = depth_nesting_in_marketplace(folder_id);
     LLUUID listing_uuid = nested_parent_id(folder_id, depth);
-    S32 listing_id = getListingID(listing_uuid);
     
-    if (listing_id != 0)
-    {
-        marketplace_url += llformat("p/listing/%d",listing_id);
-    }
-    return marketplace_url;
+    marketplace_items_list_t::iterator it = mMarketplaceItems.find(listing_uuid);
+    return (it == mMarketplaceItems.end() ? "" : (it->second).mEditURL);
 }
 
 // Modifiers
@@ -1229,5 +1275,20 @@ bool LLMarketplaceData::setActivation(const LLUUID& folder_id, bool activate)
     }
     return false;
 }
+
+bool LLMarketplaceData::setEditURL(const LLUUID& folder_id, const std::string& edit_url)
+{
+    marketplace_items_list_t::iterator it = mMarketplaceItems.find(folder_id);
+    if (it == mMarketplaceItems.end())
+    {
+        return false;
+    }
+    else
+    {
+        (it->second).mEditURL = edit_url;
+        return true;
+    }
+}
+
 
 
