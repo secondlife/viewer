@@ -91,7 +91,7 @@ void LLSDMessageBuilder::nextBlock(const char* blockname)
 	}
 	else
 	{
-		llerrs << "existing block not array" << llendl;
+		LL_ERRS() << "existing block not array" << LL_ENDL;
 	}
 }
 
@@ -380,7 +380,7 @@ void LLSDMessageBuilder::copyFromMessageData(const LLMsgData& data)
 				break;
 
 			default:
-				llwarns << "Unknown type in conversion of message to LLSD" << llendl;
+				LL_WARNS() << "Unknown type in conversion of message to LLSD" << LL_ENDL;
 				break;
 			}
 		}
@@ -391,7 +391,7 @@ void LLSDMessageBuilder::copyFromMessageData(const LLMsgData& data)
 void LLSDMessageBuilder::copyFromLLSD(const LLSD& msg)
 {
 	mCurrentMessage = msg;
-	lldebugs << LLSDNotationStreamer(mCurrentMessage) << llendl;
+	LL_DEBUGS() << LLSDNotationStreamer(mCurrentMessage) << LL_ENDL;
 }
 
 const LLSD& LLSDMessageBuilder::getMessage() const

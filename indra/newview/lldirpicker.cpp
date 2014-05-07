@@ -27,7 +27,6 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "lldirpicker.h"
-//#include "llviewermessage.h"
 #include "llworld.h"
 #include "llviewerwindow.h"
 #include "llkeyboard.h"
@@ -36,6 +35,7 @@
 #include "lltrans.h"
 #include "llwindow.h"	// beforeDialog()
 #include "llviewercontrol.h"
+#include "llwin32headerslean.h"
 
 #if LL_LINUX || LL_SOLARIS || LL_DARWIN
 # include "llfilepicker.h"

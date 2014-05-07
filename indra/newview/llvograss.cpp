@@ -28,7 +28,6 @@
 
 #include "llvograss.h"
 
-#include "imageids.h"
 #include "llviewercontrol.h"
 
 #include "llagentcamera.h"
@@ -98,7 +97,7 @@ void LLVOGrass::updateSpecies()
 	
 	if (!sSpeciesTable.count(mSpecies))
 	{
-		llinfos << "Unknown grass type, substituting grass type." << llendl;
+		LL_INFOS() << "Unknown grass type, substituting grass type." << LL_ENDL;
 		SpeciesMap::const_iterator it = sSpeciesTable.begin();
 		mSpecies = (*it).first;
 	}
@@ -120,7 +119,7 @@ void LLVOGrass::initClass()
 
 	if (!grass_def_grass.parseFile(xml_filename))
 	{
-		llerrs << "Failed to parse grass file." << llendl;
+		LL_ERRS() << "Failed to parse grass file." << LL_ENDL;
 		return;
 	}
 
@@ -132,7 +131,7 @@ void LLVOGrass::initClass()
 	{
 		if (!grass_def->hasName("grass"))
 		{
-			llwarns << "Invalid grass definition node " << grass_def->getName() << llendl;
+			LL_WARNS() << "Invalid grass definition node " << grass_def->getName() << LL_ENDL;
 			continue;
 		}
 		F32 F32_val;
@@ -144,13 +143,13 @@ void LLVOGrass::initClass()
 		static LLStdStringHandle species_id_string = LLXmlTree::addAttributeString("species_id");
 		if (!grass_def->getFastAttributeS32(species_id_string, species))
 		{
-			llwarns << "No species id defined" << llendl;
+			LL_WARNS() << "No species id defined" << LL_ENDL;
 			continue;
 		}
 
 		if (species < 0)
 		{
-			llwarns << "Invalid species id " << species << llendl;
+			LL_WARNS() << "Invalid species id " << species << LL_ENDL;
 			continue;
 		}
 
@@ -171,7 +170,7 @@ void LLVOGrass::initClass()
 
 		if (sSpeciesTable.count(species))
 		{
-			llinfos << "Grass species " << species << " already defined! Duplicate discarded." << llendl;
+			LL_INFOS() << "Grass species " << species << " already defined! Duplicate discarded." << LL_ENDL;
 			delete newGrass;
 			continue;
 		}
@@ -187,7 +186,7 @@ void LLVOGrass::initClass()
 			std::string name;
 			static LLStdStringHandle name_string = LLXmlTree::addAttributeString("name");
 			grass_def->getFastAttributeString(name_string, name);
-			llwarns << "Incomplete definition of grass " << name << llendl;
+			LL_WARNS() << "Incomplete definition of grass " << name << LL_ENDL;
 		}
 	}
 
@@ -259,7 +258,7 @@ U32 LLVOGrass::processUpdateMessage(LLMessageSystem *mesgsys,
 		||(getAcceleration().lengthSquared() > 0.f)
 		||(getAngularVelocity().lengthSquared() > 0.f))
 	{
-		llinfos << "ACK! Moving grass!" << llendl;
+		LL_INFOS() << "ACK! Moving grass!" << LL_ENDL;
 		setVelocity(LLVector3::zero);
 		setAcceleration(LLVector3::zero);
 		setAngularVelocity(LLVector3::zero);
@@ -414,11 +413,11 @@ LLDrawable* LLVOGrass::createDrawable(LLPipeline *pipeline)
 	return mDrawable;
 }
 
-static LLFastTimer::DeclareTimer FTM_UPDATE_GRASS("Update Grass");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_GRASS("Update Grass");
 
 BOOL LLVOGrass::updateGeometry(LLDrawable *drawable)
 {
-	LLFastTimer ftm(FTM_UPDATE_GRASS);
+	LL_RECORD_BLOCK_TIME(FTM_UPDATE_GRASS);
 
 	dirtySpatialGroup();
 
@@ -446,7 +445,7 @@ void LLVOGrass::plantBlades()
 	// This is bad, but not the end of the world.
 	if (!sSpeciesTable.count(mSpecies))
 	{
-		llinfos << "Unknown grass species " << mSpecies << llendl;
+		LL_INFOS() << "Unknown grass species " << mSpecies << LL_ENDL;
 		return;
 	}
 	
@@ -605,8 +604,8 @@ U32 LLVOGrass::getPartitionType() const
 	return LLViewerRegion::PARTITION_GRASS;
 }
 
-LLGrassPartition::LLGrassPartition()
-: LLSpatialPartition(LLDrawPoolAlpha::VERTEX_DATA_MASK | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, GL_STREAM_DRAW_ARB)
+LLGrassPartition::LLGrassPartition(LLViewerRegion* regionp)
+: LLSpatialPartition(LLDrawPoolAlpha::VERTEX_DATA_MASK | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, GL_STREAM_DRAW_ARB, regionp)
 {
 	mDrawableType = LLPipeline::RENDER_TYPE_GRASS;
 	mPartitionType = LLViewerRegion::PARTITION_GRASS;
@@ -626,9 +625,9 @@ void LLGrassPartition::addGeometryCount(LLSpatialGroup* group, U32& vertex_count
 	LLViewerCamera* camera = LLViewerCamera::getInstance();
 	for (LLSpatialGroup::element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
 	{
-		LLDrawable* drawablep = *i;
+		LLDrawable* drawablep = (LLDrawable*)(*i)->getDrawable();
 		
-		if (drawablep->isDead())
+		if (!drawablep || drawablep->isDead())
 		{
 			continue;
 		}
@@ -673,11 +672,11 @@ void LLGrassPartition::addGeometryCount(LLSpatialGroup* group, U32& vertex_count
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_REBUILD_GRASS_VB("Grass VB");
+static LLTrace::BlockTimerStatHandle FTM_REBUILD_GRASS_VB("Grass VB");
 
 void LLGrassPartition::getGeometry(LLSpatialGroup* group)
 {
-	LLFastTimer ftm(FTM_REBUILD_GRASS_VB);
+	LL_RECORD_BLOCK_TIME(FTM_REBUILD_GRASS_VB);
 
 	std::sort(mFaceList.begin(), mFaceList.end(), LLFace::CompareDistanceGreater());
 
@@ -744,8 +743,10 @@ void LLGrassPartition::getGeometry(LLSpatialGroup* group)
 			LLDrawInfo* info = new LLDrawInfo(start,end,count,offset,facep->getTexture(), 
 				//facep->getTexture(),
 				buffer, fullbright); 
-			info->mExtents[0] = group->mObjectExtents[0];
-			info->mExtents[1] = group->mObjectExtents[1];
+
+			const LLVector4a* exts = group->getObjectExtents();
+			info->mExtents[0] = exts[0];
+			info->mExtents[1] = exts[1];
 			info->mVSize = vsize;
 			draw_vec.push_back(info);
 			//for alpha sorting

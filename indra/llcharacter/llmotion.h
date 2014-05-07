@@ -204,10 +204,10 @@ public:
 	LLMotionBlendType getBlendType() { return NORMAL_BLEND; }
 	F32 getMinPixelArea() { return 0.f; }
 	
-	LLMotionInitStatus onInitialize(LLCharacter*) { llinfos << "LLTestMotion::onInitialize()" << llendl; return STATUS_SUCCESS; }
-	BOOL onActivate() { llinfos << "LLTestMotion::onActivate()" << llendl; return TRUE; }
-	BOOL onUpdate(F32 time, U8* joint_mask) { llinfos << "LLTestMotion::onUpdate(" << time << ")" << llendl; return TRUE; }
-	void onDeactivate() { llinfos << "LLTestMotion::onDeactivate()" << llendl; }
+	LLMotionInitStatus onInitialize(LLCharacter*) { LL_INFOS() << "LLTestMotion::onInitialize()" << LL_ENDL; return STATUS_SUCCESS; }
+	BOOL onActivate() { LL_INFOS() << "LLTestMotion::onActivate()" << LL_ENDL; return TRUE; }
+	BOOL onUpdate(F32 time, U8* joint_mask) { LL_INFOS() << "LLTestMotion::onUpdate(" << time << ")" << LL_ENDL; return TRUE; }
+	void onDeactivate() { LL_INFOS() << "LLTestMotion::onDeactivate()" << LL_ENDL; }
 };
 
 

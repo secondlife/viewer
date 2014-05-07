@@ -33,7 +33,6 @@
 #include "llfloaterreg.h"
 #include "llfontgl.h"
 #include "llmd5.h"
-#include "llsecondlifeurls.h"
 #include "v4color.h"
 
 #include "llappviewer.h"
@@ -88,7 +87,7 @@ public:
 	// don't allow from external browsers
 	LLLoginLocationAutoHandler() : LLCommandHandler("location_login", UNTRUSTED_BLOCK) { }
 	bool handle(const LLSD& tokens, const LLSD& query_map, LLMediaCtrl* web)
-	{   
+	{	
 		if (LLStartUp::getStartupState() < STATE_LOGIN_CLEANUP)
 		{
 			if ( tokens.size() == 0 || tokens.size() > 4 ) 
@@ -157,7 +156,7 @@ public:
 
 				LLPanelLogin::autologinToLocation(slurl);
 			};
-		}   
+		}	
 		return true;
 	}
 };
@@ -182,16 +181,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	setBackgroundVisible(FALSE);
 	setBackgroundOpaque(TRUE);
 
-	// instance management
-	if (LLPanelLogin::sInstance)
-	{
-		LL_WARNS("AppInit") << "Duplicate instance of login view deleted" << LL_ENDL;
-		// Don't leave bad pointer in gFocusMgr
-		gFocusMgr.setDefaultKeyboardFocus(NULL);
-
-		delete LLPanelLogin::sInstance;
-	}
-
 	mPasswordModified = FALSE;
 	LLPanelLogin::sInstance = this;
 
@@ -207,7 +196,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	}
 	else
 	{
-		buildFromFile( "panel_login.xml");
+	buildFromFile( "panel_login.xml");
 	}
 
 	reshape(rect.getWidth(), rect.getHeight());
@@ -362,12 +351,12 @@ void LLPanelLogin::addFavoritesToStartLocation()
 		S32 res = LLStringUtil::compareInsensitive(user_defined_name, iter->first);
 		if (res != 0)
 		{
-			lldebugs << "Skipping favorites for " << iter->first << llendl;
+			LL_DEBUGS() << "Skipping favorites for " << iter->first << LL_ENDL;
 			continue;
 		}
 
 		combo->addSeparator();
-		lldebugs << "Loading favorites for " << iter->first << llendl;
+		LL_DEBUGS() << "Loading favorites for " << iter->first << LL_ENDL;
 		LLSD user_llsd = iter->second;
 		for (LLSD::array_const_iterator iter1 = user_llsd.beginArray();
 			iter1 != user_llsd.endArray(); ++iter1)
@@ -393,7 +382,7 @@ LLPanelLogin::~LLPanelLogin()
 	gFocusMgr.setDefaultKeyboardFocus(NULL);
 }
 
-// virtual 
+// virtual
 void LLPanelLogin::setFocus(BOOL b)
 {
 	if(b != hasFocus())
@@ -452,6 +441,16 @@ void LLPanelLogin::show(const LLRect &rect,
 						void (*callback)(S32 option, void* user_data),
 						void* callback_data)
 {
+	// instance management
+	if (LLPanelLogin::sInstance)
+	{
+		LL_WARNS("AppInit") << "Duplicate instance of login view deleted" << LL_ENDL;
+		// Don't leave bad pointer in gFocusMgr
+		gFocusMgr.setDefaultKeyboardFocus(NULL);
+
+		delete LLPanelLogin::sInstance;
+	}
+
 	new LLPanelLogin(rect, callback, callback_data);
 
 	if( !gFocusMgr.getKeyboardFocus() )
@@ -470,7 +469,7 @@ void LLPanelLogin::setFields(LLPointer<LLCredential> credential,
 {
 	if (!sInstance)
 	{
-		llwarns << "Attempted fillFields with no login view shown" << llendl;
+		LL_WARNS() << "Attempted fillFields with no login view shown" << LL_ENDL;
 		return;
 	}
 	LL_INFOS("Credentials") << "Setting login fields to " << *credential << LL_ENDL;
@@ -530,7 +529,7 @@ void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
 {
 	if (!sInstance)
 	{
-		llwarns << "Attempted getFields with no login view shown" << llendl;
+		LL_WARNS() << "Attempted getFields with no login view shown" << LL_ENDL;
 		return;
 	}
 	
@@ -551,13 +550,13 @@ void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
 	LLStringUtil::trim(username);
 	std::string password = sInstance->getChild<LLUICtrl>("password_edit")->getValue().asString();
 
-	LL_INFOS2("Credentials", "Authentication") << "retrieving username:" << username << LL_ENDL;
+	LL_INFOS("Credentials", "Authentication") << "retrieving username:" << username << LL_ENDL;
 	// determine if the username is a first/last form or not.
 	size_t separator_index = username.find_first_of(' ');
 	if (separator_index == username.npos
 		&& !LLGridManager::getInstance()->isSystemGrid())
 	{
-		LL_INFOS2("Credentials", "Authentication") << "account: " << username << LL_ENDL;
+		LL_INFOS("Credentials", "Authentication") << "account: " << username << LL_ENDL;
 		// single username, so this is a 'clear' identifier
 		identifier["type"] = CRED_IDENTIFIER_TYPE_ACCOUNT;
 		identifier["account_name"] = username;
@@ -592,7 +591,7 @@ void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
 		
 		if (last.find_first_of(' ') == last.npos)
 		{
-			LL_INFOS2("Credentials", "Authentication") << "agent: " << username << LL_ENDL;
+			LL_INFOS("Credentials", "Authentication") << "agent: " << username << LL_ENDL;
 			// traditional firstname / lastname
 			identifier["type"] = CRED_IDENTIFIER_TYPE_AGENT;
 			identifier["first_name"] = first;
@@ -620,7 +619,7 @@ BOOL LLPanelLogin::areCredentialFieldsDirty()
 {
 	if (!sInstance)
 	{
-		llwarns << "Attempted getServer with no login view shown" << llendl;
+		LL_WARNS() << "Attempted getServer with no login view shown" << LL_ENDL;
 	}
 	else
 	{
@@ -1070,7 +1069,7 @@ void LLPanelLogin::onSelectServer()
 	// The user twiddled with the grid choice ui.
 	// apply the selection to the grid setting.
 	LLPointer<LLCredential> credential;
-
+	
 	LLComboBox* server_combo = getChild<LLComboBox>("server_combo");
 	LLSD server_combo_val = server_combo->getSelectedValue();
 	LL_INFOS("AppInit") << "grid "<<server_combo_val.asString()<< LL_ENDL;

@@ -111,7 +111,7 @@ namespace tut
 	void texturestatsuploader_object_t::test<1>()
 	{
 		LLTextureStatsUploader tsu;
-		llinfos << &tsu << llendl;
+		LL_INFOS() << &tsu << LL_ENDL;
 		ensure("have we crashed?", true);
 	}
 

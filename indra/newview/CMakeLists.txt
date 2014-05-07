@@ -239,10 +239,12 @@ set(viewer_SOURCE_FILES
     llfloaterhelpbrowser.cpp
     llfloaterhud.cpp
     llfloaterimagepreview.cpp
+    llfloaterimsessiontab.cpp
+    llfloaterimsession.cpp
+    llfloaterimcontainer.cpp
     llfloaterinspect.cpp
     llfloaterinventory.cpp
     llfloaterjoystick.cpp
-    llfloaterlagmeter.cpp
     llfloaterland.cpp
     llfloaterlandholdings.cpp
     llfloatermap.cpp
@@ -268,6 +270,7 @@ set(viewer_SOURCE_FILES
     llfloaterregioninfo.cpp
     llfloaterreporter.cpp
     llfloaterregionrestarting.cpp
+    llfloatersceneloadstats.cpp
     llfloaterscriptdebug.cpp
     llfloaterscriptlimits.cpp
     llfloatersearch.cpp
@@ -323,9 +326,6 @@ set(viewer_SOURCE_FILES
     llhudrender.cpp
     llhudtext.cpp
     llhudview.cpp
-    llfloaterimsessiontab.cpp
-    llfloaterimsession.cpp
-    llfloaterimcontainer.cpp
     llimhandler.cpp
     llimview.cpp
     llinspect.cpp
@@ -492,6 +492,7 @@ set(viewer_SOURCE_FILES
     llremoteparcelrequest.cpp
     llsavedsettingsglue.cpp
     llsaveoutfitcombobtn.cpp
+    llscenemonitor.cpp
     llsceneview.cpp
     llscreenchannel.cpp
     llscriptfloater.cpp
@@ -614,6 +615,7 @@ set(viewer_SOURCE_FILES
     llviewernetwork.cpp
     llviewerobject.cpp
     llviewerobjectlist.cpp
+    llvieweroctree.cpp
     llviewerparcelmedia.cpp
     llviewerparcelmediaautoplay.cpp
     llviewerparcelmgr.cpp
@@ -686,6 +688,7 @@ set(viewer_HEADER_FILES
     CMakeLists.txt
     ViewerInstall.cmake
     groupchatlistener.h
+    llaccountingcost.h
     llaccountingcostmanager.h
     llagent.h
     llagentaccess.h
@@ -828,10 +831,15 @@ set(viewer_HEADER_FILES
     llfloaterhelpbrowser.h
     llfloaterhud.h
     llfloaterimagepreview.h
+    llfloaterimnearbychat.h
+    llfloaterimnearbychathandler.h
+    llfloaterimnearbychatlistener.h
+    llfloaterimsessiontab.h
+    llfloaterimsession.h
+    llfloaterimcontainer.h
     llfloaterinspect.h
     llfloaterinventory.h
     llfloaterjoystick.h
-    llfloaterlagmeter.h
     llfloaterland.h
     llfloaterlandholdings.h
     llfloatermap.h
@@ -857,6 +865,7 @@ set(viewer_HEADER_FILES
     llfloaterregioninfo.h
     llfloaterreporter.h
     llfloaterregionrestarting.h
+    llfloatersceneloadstats.h
     llfloaterscriptdebug.h
     llfloaterscriptlimits.h
     llfloatersearch.h
@@ -911,9 +920,6 @@ set(viewer_HEADER_FILES
     llhudrender.h
     llhudtext.h
     llhudview.h
-    llfloaterimsessiontab.h
-    llfloaterimsession.h
-    llfloaterimcontainer.h
     llimview.h
     llinspect.h
     llinspectavatar.h
@@ -965,9 +971,6 @@ set(viewer_HEADER_FILES
     llnameeditor.h
     llnamelistctrl.h
     llnavigationbar.h
-    llfloaterimnearbychat.h
-    llfloaterimnearbychathandler.h
-    llfloaterimnearbychatlistener.h
     llnetmap.h
     llnotificationhandler.h
     llnotificationmanager.h
@@ -1071,6 +1074,7 @@ set(viewer_HEADER_FILES
     llrootview.h
     llsavedsettingsglue.h
     llsaveoutfitcombobtn.h
+    llscenemonitor.h
     llsceneview.h
     llscreenchannel.h
     llscriptfloater.h
@@ -1193,6 +1197,7 @@ set(viewer_HEADER_FILES
     llviewernetwork.h
     llviewerobject.h
     llviewerobjectlist.h
+    llvieweroctree.h
     llviewerparcelmedia.h
     llviewerparcelmediaautoplay.h
     llviewerparcelmgr.h
@@ -1229,7 +1234,6 @@ set(viewer_HEADER_FILES
     llvosky.h
     llvosurfacepatch.h
     llvotree.h
-    llvotreenew.h
     llvovolume.h
     llvowater.h
     llvowlsky.h
@@ -1258,6 +1262,7 @@ set(viewer_HEADER_FILES
     macmain.h
     noise.h
     pipeline.h
+    roles_constants.h
     VertexCache.h
     VorbisFramework.h
     )
@@ -2279,11 +2284,6 @@ if (LL_TESTS)
 
   LL_ADD_INTEGRATION_TEST(llviewernetwork
      llviewernetwork.cpp
-    "${test_libs}"
-    )
-
-  LL_ADD_INTEGRATION_TEST(llsimplestat
-    ""
     "${test_libs}"
     )
 

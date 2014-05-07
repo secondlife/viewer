@@ -127,10 +127,11 @@ void LLConversationViewSession::setHighlightState(bool hihglight_state)
 
 void LLConversationViewSession::startFlashing()
 {
-	LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
-
 	// Need to start flashing only when "Conversations" is opened or brought on top
-	if (isInVisibleChain() && !im_box->isMinimized() && mFlashStateOn && !mFlashStarted)
+	if (isInVisibleChain()
+		&& mFlashStateOn
+		&& !mFlashStarted
+		&& ! LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container")->isMinimized() )
 	{
 		mFlashStarted = true;
 		mFlashTimer->startFlashing();

@@ -136,14 +136,24 @@ namespace LLError
 	{
 		// An object that handles the actual output or error messages.
 	public:
+		Recorder();
 		virtual ~Recorder();
 
 		virtual void recordMessage(LLError::ELevel, const std::string& message) = 0;
 			// use the level for better display, not for filtering
 
-		virtual bool wantsTime(); // default returns false
-			// override and return true if the recorder wants the time string
-			// included in the text of the message
+		bool wantsTime();
+		bool wantsTags();
+		bool wantsLevel();
+		bool wantsLocation(); 
+		bool wantsFunctionName();
+
+	protected:
+		bool	mWantsTime,
+				mWantsTags,
+				mWantsLevel,
+				mWantsLocation,
+				mWantsFunctionName;
 	};
 
 	/**

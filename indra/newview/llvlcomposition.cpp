@@ -28,7 +28,6 @@
 
 #include "llvlcomposition.h"
 
-#include "imageids.h"
 #include "llerror.h"
 #include "v3math.h"
 #include "llsurface.h"
@@ -288,7 +287,7 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 				{
 					mDetailTextures[i]->destroyRawImage() ;
 				}
-				lldebugs << "cached raw data for terrain detail texture is not ready yet: " << mDetailTextures[i]->getID() << llendl;
+				LL_DEBUGS() << "cached raw data for terrain detail texture is not ready yet: " << mDetailTextures[i]->getID() << LL_ENDL;
 				return FALSE;
 			}
 
@@ -324,12 +323,12 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 
 	if (x_end > mWidth)
 	{
-		llwarns << "x end > width" << llendl;
+		LL_WARNS() << "x end > width" << LL_ENDL;
 		x_end = mWidth;
 	}
 	if (y_end > mWidth)
 	{
-		llwarns << "y end > width" << llendl;
+		LL_WARNS() << "y end > width" << LL_ENDL;
 		y_end = mWidth;
 	}
 
@@ -359,7 +358,7 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 	
 	if (tex_comps != st_comps)
 	{
-		llwarns << "Base texture comps != input texture comps" << llendl;
+		LL_WARNS() << "Base texture comps != input texture comps" << LL_ENDL;
 		return FALSE;
 	}
 
@@ -417,8 +416,8 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 				if (st_offset >= st_data_size[tex0] || st_offset >= st_data_size[tex1])
 				{
 					// SJB: This shouldn't be happening, but does... Rounding error?
-					//llwarns << "offset 0 [" << tex0 << "] =" << st_offset << " >= size=" << st_data_size[tex0] << llendl;
-					//llwarns << "offset 1 [" << tex1 << "] =" << st_offset << " >= size=" << st_data_size[tex1] << llendl;
+					//LL_WARNS() << "offset 0 [" << tex0 << "] =" << st_offset << " >= size=" << st_data_size[tex0] << LL_ENDL;
+					//LL_WARNS() << "offset 1 [" << tex1 << "] =" << st_offset << " >= size=" << st_data_size[tex1] << LL_ENDL;
 				}
 				else
 				{

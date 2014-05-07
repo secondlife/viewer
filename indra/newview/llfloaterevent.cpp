@@ -45,7 +45,6 @@
 #include "llmediactrl.h"
 #include "llfloaterworldmap.h"
 #include "llinventorymodel.h"
-#include "llsecondlifeurls.h"
 #include "llslurl.h"
 #include "lltextbox.h"
 #include "lltexteditor.h"

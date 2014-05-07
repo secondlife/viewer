@@ -30,6 +30,7 @@
 #include "llrect.h"
 #include "llsd.h"
 
+#include <list>
 #include <boost/function.hpp>
 
 //*******************************************************

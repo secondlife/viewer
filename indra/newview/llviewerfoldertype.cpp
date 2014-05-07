@@ -159,7 +159,7 @@ bool LLViewerFolderDictionary::initEnsemblesFromFile()
 	LLXmlTree folder_def;
 	if (!folder_def.parseFile(xml_filename))
 	{
-		llerrs << "Failed to parse folders file " << xml_filename << llendl;
+		LL_ERRS() << "Failed to parse folders file " << xml_filename << LL_ENDL;
 		return false;
 	}
 
@@ -170,7 +170,7 @@ bool LLViewerFolderDictionary::initEnsemblesFromFile()
 	{
 		if (!ensemble->hasName("ensemble"))
 		{
-			llwarns << "Invalid ensemble definition node " << ensemble->getName() << llendl;
+			LL_WARNS() << "Invalid ensemble definition node " << ensemble->getName() << LL_ENDL;
 			continue;
 		}
 
@@ -178,14 +178,14 @@ bool LLViewerFolderDictionary::initEnsemblesFromFile()
 		static LLStdStringHandle ensemble_num_string = LLXmlTree::addAttributeString("foldertype_num");
 		if (!ensemble->getFastAttributeS32(ensemble_num_string, ensemble_type))
 		{
-			llwarns << "No ensemble type defined" << llendl;
+			LL_WARNS() << "No ensemble type defined" << LL_ENDL;
 			continue;
 		}
 
 
 		if (ensemble_type < S32(LLFolderType::FT_ENSEMBLE_START) || ensemble_type > S32(LLFolderType::FT_ENSEMBLE_END))
 		{
-			llwarns << "Exceeded maximum ensemble index" << LLFolderType::FT_ENSEMBLE_END << llendl;
+			LL_WARNS() << "Exceeded maximum ensemble index" << LLFolderType::FT_ENSEMBLE_END << LL_ENDL;
 			break;
 		}
 
@@ -193,7 +193,7 @@ bool LLViewerFolderDictionary::initEnsemblesFromFile()
 		static LLStdStringHandle xui_name_string = LLXmlTree::addAttributeString("xui_name");
 		if (!ensemble->getFastAttributeString(xui_name_string, xui_name))
 		{
-			llwarns << "No xui name defined" << llendl;
+			LL_WARNS() << "No xui name defined" << LL_ENDL;
 			continue;
 		}
 
@@ -201,7 +201,7 @@ bool LLViewerFolderDictionary::initEnsemblesFromFile()
 		static LLStdStringHandle icon_name_string = LLXmlTree::addAttributeString("icon_name");
 		if (!ensemble->getFastAttributeString(icon_name_string, icon_name))
 		{
-			llwarns << "No ensemble icon name defined" << llendl;
+			LL_WARNS() << "No ensemble icon name defined" << LL_ENDL;
 			continue;
 		}
 

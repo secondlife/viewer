@@ -31,7 +31,6 @@
 #include "lldir.h"
 #include "llsd.h"
 #include "llsdserialize.h"
-#include "llnametable.h"
 #include "llframetimer.h"
 #include <boost/filesystem.hpp>  
 #include <string>
@@ -40,14 +39,8 @@
 
 
 #if LL_WINDOWS   //For windows platform.
-#include <windows.h>
+#include <llwin32headers.h>
 #include <TlHelp32.h>
-
-namespace {
-	inline DWORD getpid() {
-		return GetCurrentProcessId();
-	}
-}
 
 bool LLCrashLock::isProcessAlive(U32 pid, const std::string& pname)
 {

@@ -46,7 +46,7 @@
 
 const F32 MAX_PART_LIFETIME = 120.f;
 
-extern U64 gFrameTime;
+extern U64MicrosecondsImplicit gFrameTime;
 
 LLPointer<LLVertexBuffer> LLVOPartGroup::sVB = NULL;
 S32 LLVOPartGroup::sVBSlotCursor = 0;
@@ -292,10 +292,10 @@ LLVector3 LLVOPartGroup::getCameraPosition() const
 	return gAgentCamera.getCameraPositionAgent();
 }
 
-static LLFastTimer::DeclareTimer FTM_UPDATE_PARTICLES("Update Particles");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_PARTICLES("Update Particles");
 BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 {
-	LLFastTimer ftm(FTM_UPDATE_PARTICLES);
+	LL_RECORD_BLOCK_TIME(FTM_UPDATE_PARTICLES);
 
 	dirtySpatialGroup();
 	
@@ -405,7 +405,7 @@ BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 		facep = drawable->getFace(i);
 		if (!facep)
 		{
-			llwarns << "No face found for index " << i << "!" << llendl;
+			LL_WARNS() << "No face found for index " << i << "!" << LL_ENDL;
 			continue;
 		}
 
@@ -451,7 +451,7 @@ BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 		LLFace* facep = drawable->getFace(i);
 		if (!facep)
 		{
-			llwarns << "No face found for index " << i << "!" << llendl;
+			LL_WARNS() << "No face found for index " << i << "!" << LL_ENDL;
 			continue;
 		}
 		facep->setTEOffset(i);
@@ -722,8 +722,8 @@ U32 LLVOPartGroup::getPartitionType() const
 	return LLViewerRegion::PARTITION_PARTICLE; 
 }
 
-LLParticlePartition::LLParticlePartition()
-: LLSpatialPartition(LLDrawPoolAlpha::VERTEX_DATA_MASK | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, GL_STREAM_DRAW_ARB)
+LLParticlePartition::LLParticlePartition(LLViewerRegion* regionp)
+: LLSpatialPartition(LLDrawPoolAlpha::VERTEX_DATA_MASK | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, GL_STREAM_DRAW_ARB, regionp)
 {
 	mRenderPass = LLRenderPass::PASS_ALPHA;
 	mDrawableType = LLPipeline::RENDER_TYPE_PARTICLES;
@@ -732,18 +732,18 @@ LLParticlePartition::LLParticlePartition()
 	mLODPeriod = 1;
 }
 
-LLHUDParticlePartition::LLHUDParticlePartition() :
-	LLParticlePartition()
+LLHUDParticlePartition::LLHUDParticlePartition(LLViewerRegion* regionp) :
+	LLParticlePartition(regionp)
 {
 	mDrawableType = LLPipeline::RENDER_TYPE_HUD_PARTICLES;
 	mPartitionType = LLViewerRegion::PARTITION_HUD_PARTICLE;
 }
 
-static LLFastTimer::DeclareTimer FTM_REBUILD_PARTICLE_VBO("Particle VBO");
+static LLTrace::BlockTimerStatHandle FTM_REBUILD_PARTICLE_VBO("Particle VBO");
 
 void LLParticlePartition::rebuildGeom(LLSpatialGroup* group)
 {
-	if (group->isDead() || !group->isState(LLSpatialGroup::GEOM_DIRTY))
+	if (group->isDead() || !group->hasState(LLSpatialGroup::GEOM_DIRTY))
 	{
 		return;
 	}
@@ -754,7 +754,7 @@ void LLParticlePartition::rebuildGeom(LLSpatialGroup* group)
 		group->mLastUpdateViewAngle = group->mViewAngle;
 	}
 	
-	LLFastTimer ftm(FTM_REBUILD_PARTICLE_VBO);	
+	LL_RECORD_BLOCK_TIME(FTM_REBUILD_PARTICLE_VBO);	
 
 	group->clearDrawMap();
 	
@@ -791,9 +791,9 @@ void LLParticlePartition::addGeometryCount(LLSpatialGroup* group, U32& vertex_co
 	LLViewerCamera* camera = LLViewerCamera::getInstance();
 	for (LLSpatialGroup::element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
 	{
-		LLDrawable* drawablep = *i;
+		LLDrawable* drawablep = (LLDrawable*)(*i)->getDrawable();
 		
-		if (drawablep->isDead())
+		if (!drawablep || drawablep->isDead())
 		{
 			continue;
 		}
@@ -828,11 +828,11 @@ void LLParticlePartition::addGeometryCount(LLSpatialGroup* group, U32& vertex_co
 }
 
 
-static LLFastTimer::DeclareTimer FTM_REBUILD_PARTICLE_GEOM("Particle Geom");
+static LLTrace::BlockTimerStatHandle FTM_REBUILD_PARTICLE_GEOM("Particle Geom");
 
 void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 {
-	LLFastTimer ftm(FTM_REBUILD_PARTICLE_GEOM);
+	LL_RECORD_BLOCK_TIME(FTM_REBUILD_PARTICLE_GEOM);
 
 	std::sort(mFaceList.begin(), mFaceList.end(), LLFace::CompareDistanceGreater());
 
@@ -958,8 +958,10 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 			LLDrawInfo* info = new LLDrawInfo(start,end,count,offset,facep->getTexture(), 
 				//facep->getTexture(),
 				buffer, fullbright); 
-			info->mExtents[0] = group->mObjectExtents[0];
-			info->mExtents[1] = group->mObjectExtents[1];
+
+			const LLVector4a* exts = group->getObjectExtents();
+			info->mExtents[0] = exts[0];
+			info->mExtents[1] = exts[1];
 			info->mVSize = vsize;
 			info->mBlendFuncDst = bf_dst;
 			info->mBlendFuncSrc = bf_src;
