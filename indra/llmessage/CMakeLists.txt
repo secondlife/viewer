@@ -27,6 +27,7 @@ set(llmessage_SOURCE_FILES
     llares.cpp
     llareslistener.cpp
     llassetstorage.cpp
+    llavatarname.cpp
     llavatarnamecache.cpp
     llblowfishcipher.cpp
     llbuffer.cpp
@@ -115,6 +116,7 @@ set(llmessage_HEADER_FILES
     llares.h
     llareslistener.h
     llassetstorage.h
+    llavatarname.h
     llavatarnamecache.h
     llblowfishcipher.h
     llbuffer.h
@@ -130,6 +132,7 @@ set(llmessage_HEADER_FILES
     lldispatcher.h
     lleventflags.h
     llexperiencecache.h
+    llextendedstatus.h
     llfiltersd2xmlrpc.h
     llfollowcamparams.h
     llhost.h

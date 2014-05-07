@@ -130,7 +130,7 @@ S32 LLXfer_Mem::processEOF()
 
 	mStatus = e_LL_XFER_COMPLETE;
 
-	llinfos << "xfer complete: " << getFileName() << llendl;
+	LL_INFOS() << "xfer complete: " << getFileName() << LL_ENDL;
 
 	if (mCallback)
 	{
@@ -164,7 +164,7 @@ S32 LLXfer_Mem::initializeRequest(U64 xfer_id,
 	mRemotePath = remote_path;
 	mDeleteRemoteOnCompletion = delete_remote_on_completion;
 
-	llinfos << "Requesting file: " << remote_filename << llendl;
+	LL_INFOS() << "Requesting file: " << remote_filename << LL_ENDL;
 
 	delete [] mBuffer;
 	mBuffer = NULL;

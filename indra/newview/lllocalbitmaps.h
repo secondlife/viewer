@@ -30,11 +30,11 @@
 
 #include "llavatarappearancedefines.h"
 #include "lleventtimer.h"
-#include "llimage.h"
 #include "llpointer.h"
 #include "llwearabletype.h"
 
 class LLScrollListCtrl;
+class LLImageRaw;
 class LLViewerObject;
 
 class LLLocalBitmap

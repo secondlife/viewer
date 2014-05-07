@@ -63,7 +63,7 @@ void LLTrustedMessageService::post(LLHTTPNode::ResponsePtr response,
 	{
 		LL_WARNS("Messaging") << "trusted message POST to /trusted-message/" 
 				<< name << " from unknown or untrusted sender "
-				<< sender << llendl;
+				<< sender << LL_ENDL;
 		response->status(403, "Unknown or untrusted sender");
 	}
 	else
@@ -71,13 +71,13 @@ void LLTrustedMessageService::post(LLHTTPNode::ResponsePtr response,
 		gMessageSystem->receivedMessageFromTrustedSender();
 		if (input.has("binary-template-data"))
 		{
-			llinfos << "Dispatching template: " << input << llendl;
+			LL_INFOS() << "Dispatching template: " << input << LL_ENDL;
 			// try and send this message using udp dispatch
 			LLMessageSystem::dispatchTemplate(name, message_data, response);
 		}
 		else
 		{
-			llinfos << "Dispatching without template: " << input << llendl;
+			LL_INFOS() << "Dispatching without template: " << input << LL_ENDL;
 			LLMessageSystem::dispatch(name, message_data, response);
 		}
 	}

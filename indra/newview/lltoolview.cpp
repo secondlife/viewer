@@ -179,7 +179,7 @@ LLToolContainer* LLToolView::findToolContainer( LLTool *tool )
 			return contain;
 		}
 	}
-	llerrs << "LLToolView::findToolContainer - tool not found" << llendl;
+	LL_ERRS() << "LLToolView::findToolContainer - tool not found" << LL_ENDL;
 	return NULL;
 }
 

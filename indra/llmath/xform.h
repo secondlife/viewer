@@ -103,9 +103,9 @@ public:
 	inline void setRotation(const F32 x, const F32 y, const F32 z, const F32 s);
 
 	// Above functions must be inline for speed, but also
-	// need to emit warnings.  llwarns causes inline LLError::CallSite
+	// need to emit warnings.  LL_WARNS() causes inline LLError::CallSite
 	// static objects that make more work for the linker.
-	// Avoid inline llwarns by calling this function.
+	// Avoid inline LL_WARNS() by calling this function.
 	void warn(const char* const msg);
 	
 	void 		setChanged(const U32 bits)					{ mChanged |= bits; }

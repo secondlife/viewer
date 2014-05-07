@@ -37,12 +37,12 @@
 
 static LLDeadmanTimer::time_type float_time_to_u64(F64 delta)
 {
-	return LLDeadmanTimer::time_type(delta * gClockFrequency);
+	return LLDeadmanTimer::time_type(delta * get_timer_info().mClockFrequency);
 }
 
 static F64 u64_time_to_float(LLDeadmanTimer::time_type delta)
 {
-	return delta * gClockFrequencyInv;
+	return delta * get_timer_info().mClockFrequencyInv;
 }
 
 
@@ -54,7 +54,7 @@ struct deadmantimer_test
 	deadmantimer_test()
 		{
 			// LLTimer internals updating
-			update_clock_frequencies();
+			get_timer_info().update();
 		}
 };
 

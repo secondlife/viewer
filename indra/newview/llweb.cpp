@@ -121,7 +121,7 @@ void LLWeb::loadURLExternal(const std::string& url, bool async, const std::strin
 	if(gSavedSettings.getBOOL("DisableExternalBrowser"))
 	{
 		// Don't open an external browser under any circumstances.
-		llwarns << "Blocked attempt to open external browser." << llendl;
+		LL_WARNS() << "Blocked attempt to open external browser." << LL_ENDL;
 		return;
 	}
 	

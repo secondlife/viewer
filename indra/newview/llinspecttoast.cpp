@@ -63,7 +63,7 @@ LLInspectToast::LLInspectToast(const LLSD& notification_id) :
 	mScreenChannel = dynamic_cast<LLScreenChannel*>(channel);
 	if(NULL == mScreenChannel)
 	{
-		llwarns << "Could not get requested screen channel." << llendl;
+		LL_WARNS() << "Could not get requested screen channel." << LL_ENDL;
 		return;
 	}
 
@@ -83,7 +83,7 @@ void LLInspectToast::onOpen(const LLSD& notification_id)
 	LLToast* toast = mScreenChannel->getToastByNotificationID(notification_id);
 	if (toast == NULL)
 	{
-		llwarns << "Could not get requested toast  from screen channel." << llendl;
+		LL_WARNS() << "Could not get requested toast  from screen channel." << LL_ENDL;
 		return;
 	}
 	mConnection = toast->setOnToastDestroyedCallback(boost::bind(&LLInspectToast::onToastDestroy, this, _1));

@@ -133,11 +133,11 @@ void LLInventoryItemsList::idle(void* user_data)
 	}
 }
 
-LLFastTimer::DeclareTimer FTM_INVENTORY_ITEMS_REFRESH("Inventory List Refresh");
+LLTrace::BlockTimerStatHandle FTM_INVENTORY_ITEMS_REFRESH("Inventory List Refresh");
 
 void LLInventoryItemsList::refresh()
 {
-	LLFastTimer _(FTM_INVENTORY_ITEMS_REFRESH);
+	LL_RECORD_BLOCK_TIME(FTM_INVENTORY_ITEMS_REFRESH);
 	static const unsigned ADD_LIMIT = 20;
 
 	uuid_vec_t added_items;
@@ -208,7 +208,7 @@ void LLInventoryItemsList::addNewItem(LLViewerInventoryItem* item, bool rearrang
 {
 	if (!item)
 	{
-		llwarns << "No inventory item. Couldn't create flat list item." << llendl;
+		LL_WARNS() << "No inventory item. Couldn't create flat list item." << LL_ENDL;
 		llassert(item != NULL);
 	}
 
@@ -219,7 +219,7 @@ void LLInventoryItemsList::addNewItem(LLViewerInventoryItem* item, bool rearrang
 	bool is_item_added = addItem(list_item, item->getUUID(), ADD_BOTTOM, rearrange);
 	if (!is_item_added)
 	{
-		llwarns << "Couldn't add flat list item." << llendl;
+		LL_WARNS() << "Couldn't add flat list item." << LL_ENDL;
 		llassert(is_item_added);
 	}
 }

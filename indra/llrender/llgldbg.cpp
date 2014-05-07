@@ -112,112 +112,112 @@ void llgl_dump()
 	F32 fv[16];
 	GLboolean b;
 
-	llinfos << "==========================" << llendl;
-	llinfos << "OpenGL State" << llendl;
-	llinfos << "==========================" << llendl;
+	LL_INFOS() << "==========================" << LL_ENDL;
+	LL_INFOS() << "OpenGL State" << LL_ENDL;
+	LL_INFOS() << "==========================" << LL_ENDL;
 
-	llinfos << "-----------------------------------" << llendl;
-	llinfos << "Current Values" << llendl;
-	llinfos << "-----------------------------------" << llendl;
+	LL_INFOS() << "-----------------------------------" << LL_ENDL;
+	LL_INFOS() << "Current Values" << LL_ENDL;
+	LL_INFOS() << "-----------------------------------" << LL_ENDL;
 
 	glGetFloatv(GL_CURRENT_COLOR, fv);
-	llinfos << "GL_CURRENT_COLOR          : " << fv4(fv) << llendl;
+	LL_INFOS() << "GL_CURRENT_COLOR          : " << fv4(fv) << LL_ENDL;
 
 	glGetFloatv(GL_CURRENT_NORMAL, fv);
-	llinfos << "GL_CURRENT_NORMAL          : " << fv3(fv) << llendl;
+	LL_INFOS() << "GL_CURRENT_NORMAL          : " << fv3(fv) << LL_ENDL;
 
-	llinfos << "-----------------------------------" << llendl;
-	llinfos << "Lighting" << llendl;
-	llinfos << "-----------------------------------" << llendl;
+	LL_INFOS() << "-----------------------------------" << LL_ENDL;
+	LL_INFOS() << "Lighting" << LL_ENDL;
+	LL_INFOS() << "-----------------------------------" << LL_ENDL;
 
-	llinfos << "GL_LIGHTING                : " << boolstr(glIsEnabled(GL_LIGHTING)) << llendl;
+	LL_INFOS() << "GL_LIGHTING                : " << boolstr(glIsEnabled(GL_LIGHTING)) << LL_ENDL;
 
-	llinfos << "GL_COLOR_MATERIAL          : " << boolstr(glIsEnabled(GL_COLOR_MATERIAL)) << llendl;
+	LL_INFOS() << "GL_COLOR_MATERIAL          : " << boolstr(glIsEnabled(GL_COLOR_MATERIAL)) << LL_ENDL;
 
 	glGetIntegerv(GL_COLOR_MATERIAL_PARAMETER, (GLint*)&i);
-	llinfos << "GL_COLOR_MATERIAL_PARAMETER: " << cmstr(i) << llendl;
+	LL_INFOS() << "GL_COLOR_MATERIAL_PARAMETER: " << cmstr(i) << LL_ENDL;
 
 	glGetIntegerv(GL_COLOR_MATERIAL_FACE, (GLint*)&i);
-	llinfos << "GL_COLOR_MATERIAL_FACE     : " << facestr(i) << llendl;
+	LL_INFOS() << "GL_COLOR_MATERIAL_FACE     : " << facestr(i) << LL_ENDL;
 
 	fv[0] = fv[1] = fv[2] = fv[3] = 12345.6789f;
 	glGetMaterialfv(GL_FRONT, GL_AMBIENT, fv);
-	llinfos << "GL_AMBIENT material        : " << fv4(fv) << llendl;
+	LL_INFOS() << "GL_AMBIENT material        : " << fv4(fv) << LL_ENDL;
 
 	fv[0] = fv[1] = fv[2] = fv[3] = 12345.6789f;
 	glGetMaterialfv(GL_FRONT, GL_DIFFUSE, fv);
-	llinfos << "GL_DIFFUSE material        : " << fv4(fv) << llendl;
+	LL_INFOS() << "GL_DIFFUSE material        : " << fv4(fv) << LL_ENDL;
 
 	fv[0] = fv[1] = fv[2] = fv[3] = 12345.6789f;
 	glGetMaterialfv(GL_FRONT, GL_SPECULAR, fv);
-	llinfos << "GL_SPECULAR material       : " << fv4(fv) << llendl;
+	LL_INFOS() << "GL_SPECULAR material       : " << fv4(fv) << LL_ENDL;
 
 	fv[0] = fv[1] = fv[2] = fv[3] = 12345.6789f;
 	glGetMaterialfv(GL_FRONT, GL_EMISSION, fv);
-	llinfos << "GL_EMISSION material       : " << fv4(fv) << llendl;
+	LL_INFOS() << "GL_EMISSION material       : " << fv4(fv) << LL_ENDL;
 
 	fv[0] = fv[1] = fv[2] = fv[3] = 12345.6789f;
 	glGetMaterialfv(GL_FRONT, GL_SHININESS, fv);
-	llinfos << "GL_SHININESS material      : " << fv1(fv) << llendl;
+	LL_INFOS() << "GL_SHININESS material      : " << fv1(fv) << LL_ENDL;
 
 	fv[0] = fv[1] = fv[2] = fv[3] = 12345.6789f;
 	glGetFloatv(GL_LIGHT_MODEL_AMBIENT, fv);
-	llinfos << "GL_LIGHT_MODEL_AMBIENT     : " << fv4(fv) << llendl;
+	LL_INFOS() << "GL_LIGHT_MODEL_AMBIENT     : " << fv4(fv) << LL_ENDL;
 
 	glGetBooleanv(GL_LIGHT_MODEL_LOCAL_VIEWER, &b);
-	llinfos << "GL_LIGHT_MODEL_LOCAL_VIEWER: " << boolstr(b) << llendl;
+	LL_INFOS() << "GL_LIGHT_MODEL_LOCAL_VIEWER: " << boolstr(b) << LL_ENDL;
 
 	glGetBooleanv(GL_LIGHT_MODEL_TWO_SIDE, &b);
-	llinfos << "GL_LIGHT_MODEL_TWO_SIDE    : " << boolstr(b) << llendl;
+	LL_INFOS() << "GL_LIGHT_MODEL_TWO_SIDE    : " << boolstr(b) << LL_ENDL;
 
 	for (int l=0; l<8; l++)
 	{
 	b = glIsEnabled(GL_LIGHT0+l);
-	llinfos << "GL_LIGHT" << l << "                  : " << boolstr(b) << llendl;
+	LL_INFOS() << "GL_LIGHT" << l << "                  : " << boolstr(b) << LL_ENDL;
 
 	if (!b)
 		continue;
 
 	glGetLightfv(GL_LIGHT0+l, GL_AMBIENT, fv);
-	llinfos << "  GL_AMBIENT light         : " << fv4(fv) << llendl;
+	LL_INFOS() << "  GL_AMBIENT light         : " << fv4(fv) << LL_ENDL;
 
 	glGetLightfv(GL_LIGHT0+l, GL_DIFFUSE, fv);
-	llinfos << "  GL_DIFFUSE light         : " << fv4(fv) << llendl;
+	LL_INFOS() << "  GL_DIFFUSE light         : " << fv4(fv) << LL_ENDL;
 
 	glGetLightfv(GL_LIGHT0+l, GL_SPECULAR, fv);
-	llinfos << "  GL_SPECULAR light        : " << fv4(fv) << llendl;
+	LL_INFOS() << "  GL_SPECULAR light        : " << fv4(fv) << LL_ENDL;
 
 	glGetLightfv(GL_LIGHT0+l, GL_POSITION, fv);
-	llinfos << "  GL_POSITION light        : " << fv4(fv) << llendl;
+	LL_INFOS() << "  GL_POSITION light        : " << fv4(fv) << LL_ENDL;
 
 	glGetLightfv(GL_LIGHT0+l, GL_CONSTANT_ATTENUATION, fv);
-	llinfos << "  GL_CONSTANT_ATTENUATION  : " << fv1(fv) << llendl;
+	LL_INFOS() << "  GL_CONSTANT_ATTENUATION  : " << fv1(fv) << LL_ENDL;
 
 	glGetLightfv(GL_LIGHT0+l, GL_QUADRATIC_ATTENUATION, fv);
-	llinfos << "  GL_QUADRATIC_ATTENUATION : " << fv1(fv) << llendl;
+	LL_INFOS() << "  GL_QUADRATIC_ATTENUATION : " << fv1(fv) << LL_ENDL;
 
 	glGetLightfv(GL_LIGHT0+l, GL_SPOT_DIRECTION, fv);
-	llinfos << "  GL_SPOT_DIRECTION        : " << fv4(fv) << llendl;
+	LL_INFOS() << "  GL_SPOT_DIRECTION        : " << fv4(fv) << LL_ENDL;
 
 	glGetLightfv(GL_LIGHT0+l, GL_SPOT_EXPONENT, fv);
-	llinfos << "  GL_SPOT_EXPONENT         : " << fv1(fv) << llendl;
+	LL_INFOS() << "  GL_SPOT_EXPONENT         : " << fv1(fv) << LL_ENDL;
 
 	glGetLightfv(GL_LIGHT0+l, GL_SPOT_CUTOFF, fv);
-	llinfos << "  GL_SPOT_CUTOFF           : " << fv1(fv) << llendl;
+	LL_INFOS() << "  GL_SPOT_CUTOFF           : " << fv1(fv) << LL_ENDL;
 	}
 
-	llinfos << "-----------------------------------" << llendl;
-	llinfos << "Pixel Operations" << llendl;
-	llinfos << "-----------------------------------" << llendl;
+	LL_INFOS() << "-----------------------------------" << LL_ENDL;
+	LL_INFOS() << "Pixel Operations" << LL_ENDL;
+	LL_INFOS() << "-----------------------------------" << LL_ENDL;
 
-	llinfos << "GL_ALPHA_TEST              : " << boolstr(glIsEnabled(GL_ALPHA_TEST)) << llendl;
-	llinfos << "GL_DEPTH_TEST              : " << boolstr(glIsEnabled(GL_DEPTH_TEST)) << llendl;
+	LL_INFOS() << "GL_ALPHA_TEST              : " << boolstr(glIsEnabled(GL_ALPHA_TEST)) << LL_ENDL;
+	LL_INFOS() << "GL_DEPTH_TEST              : " << boolstr(glIsEnabled(GL_DEPTH_TEST)) << LL_ENDL;
 
 	glGetBooleanv(GL_DEPTH_WRITEMASK, &b);
-	llinfos << "GL_DEPTH_WRITEMASK         : " << boolstr(b) << llendl;
+	LL_INFOS() << "GL_DEPTH_WRITEMASK         : " << boolstr(b) << LL_ENDL;
 	
-	llinfos << "GL_BLEND                   : " << boolstr(glIsEnabled(GL_BLEND)) << llendl;
-	llinfos << "GL_DITHER                  : " << boolstr(glIsEnabled(GL_DITHER)) << llendl;
+	LL_INFOS() << "GL_BLEND                   : " << boolstr(glIsEnabled(GL_BLEND)) << LL_ENDL;
+	LL_INFOS() << "GL_DITHER                  : " << boolstr(glIsEnabled(GL_DITHER)) << LL_ENDL;
 }
 
 // End

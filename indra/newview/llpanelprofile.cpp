@@ -38,6 +38,7 @@
 #include "llviewernetwork.h"
 #include "llmutelist.h"
 #include "llpanelblockedlist.h"
+#include "llweb.h"
 
 static const std::string PANEL_PICKS = "panel_picks";
 
@@ -71,7 +72,7 @@ public:
 	{
 		if (params.size() < 1) return false;
 		std::string agent_name = params[0];
-		llinfos << "Profile, agent_name " << agent_name << llendl;
+		LL_INFOS() << "Profile, agent_name " << agent_name << LL_ENDL;
 		std::string url = getProfileURL(agent_name);
 		LLWeb::loadURLInternal(url);
 
@@ -231,7 +232,7 @@ bool LLPanelProfile::ChildStack::pop()
 {
 	if (mStack.size() == 0)
 	{
-		llwarns << "Empty stack" << llendl;
+		LL_WARNS() << "Empty stack" << LL_ENDL;
 		llassert(mStack.size() == 0);
 		return false;
 	}
@@ -270,7 +271,7 @@ void LLPanelProfile::ChildStack::postParentReshape()
 		for (view_list_t::const_iterator list_it = vlist.begin(); list_it != vlist.end(); ++list_it)
 		{
 			LLView* viewp = *list_it;
-			lldebugs << "removing " << viewp->getName() << llendl;
+			LL_DEBUGS() << "removing " << viewp->getName() << LL_ENDL;
 			mParent->removeChild(viewp);
 		}
 	}
@@ -279,7 +280,7 @@ void LLPanelProfile::ChildStack::postParentReshape()
 void LLPanelProfile::ChildStack::dump()
 {
 	unsigned lvl = 0;
-	lldebugs << "child stack dump:" << llendl;
+	LL_DEBUGS() << "child stack dump:" << LL_ENDL;
 	for (stack_t::const_iterator stack_it = mStack.begin(); stack_it != mStack.end(); ++stack_it, ++lvl)
 	{
 		std::ostringstream dbg_line;
@@ -289,7 +290,7 @@ void LLPanelProfile::ChildStack::dump()
 		{
 			dbg_line << " " << (*list_it)->getName();
 		}
-		lldebugs << dbg_line.str() << llendl;
+		LL_DEBUGS() << dbg_line.str() << LL_ENDL;
 	}
 }
 
@@ -434,7 +435,7 @@ void LLPanelProfile::closePanel(LLPanel* panel)
 		}
 		else
 		{
-			llwarns << "No underlying panel to focus." << llendl;
+			LL_WARNS() << "No underlying panel to focus." << LL_ENDL;
 		}
 	}
 }

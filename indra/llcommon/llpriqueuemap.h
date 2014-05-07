@@ -84,7 +84,7 @@ public:
 		pqm_iter iter = mMap.find(LLPQMKey<DATA_TYPE>(priority, data));
 		if (iter != mMap.end())
 		{
-			llerrs << "Pushing already existing data onto queue!" << llendl;
+			LL_ERRS() << "Pushing already existing data onto queue!" << LL_ENDL;
 		}
 #endif
 		mMap.insert(pqm_pair(LLPQMKey<DATA_TYPE>(priority, data), data));
@@ -112,14 +112,14 @@ public:
 		iter = mMap.find(cur_key);
 		if (iter == mMap.end())
 		{
-			llwarns << "Data not on priority queue!" << llendl;
+			LL_WARNS() << "Data not on priority queue!" << LL_ENDL;
 			// OK, try iterating through all of the data and seeing if we just screwed up the priority
 			// somehow.
 			for (iter = mMap.begin(); iter != mMap.end(); iter++)
 			{
 				if ((*(iter)).second == data)
 				{
-					llerrs << "Data on priority queue but priority not matched!" << llendl;
+					LL_ERRS() << "Data on priority queue but priority not matched!" << LL_ENDL;
 				}
 			}
 			return;

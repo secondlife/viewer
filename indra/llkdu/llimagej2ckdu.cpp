@@ -156,22 +156,22 @@ public:
 
 void LLKDUMessageWarning::put_text(const char *s)
 {
-	llinfos << "KDU Warning: " << s << llendl;
+	LL_INFOS() << "KDU Warning: " << s << LL_ENDL;
 }
 
 void LLKDUMessageWarning::put_text(const kdu_uint16 *s)
 {
-	llinfos << "KDU Warning: " << s << llendl;
+	LL_INFOS() << "KDU Warning: " << s << LL_ENDL;
 }
 
 void LLKDUMessageError::put_text(const char *s)
 {
-	llinfos << "KDU Error: " << s << llendl;
+	LL_INFOS() << "KDU Error: " << s << LL_ENDL;
 }
 
 void LLKDUMessageError::put_text(const kdu_uint16 *s)
 {
-	llinfos << "KDU Error: " << s << llendl;
+	LL_INFOS() << "KDU Error: " << s << LL_ENDL;
 }
 
 void LLKDUMessageError::flush(bool end_of_message)
@@ -290,7 +290,7 @@ void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, BOOL keep_codestream, ECod
 		kdu_dims dims2; mCodeStreamp->get_dims(2,dims2);
 		if ((dims1 != dims) || (dims2 != dims))
 		{
-			llerrs << "Components don't have matching dimensions!" << llendl;
+			LL_ERRS() << "Components don't have matching dimensions!" << LL_ENDL;
 		}
 	}
 
@@ -393,7 +393,7 @@ BOOL LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 			region_kdu->size.y = region[3] - region[1];
 		}
 		int discard = (discard_level != -1 ? discard_level : base.getRawDiscardLevel());
-		//llinfos << "Merov debug : initDecode, discard used = " << discard << ", asked = " << discard_level << llendl;
+		//LL_INFOS() << "Merov debug : initDecode, discard used = " << discard << ", asked = " << discard_level << LL_ENDL;
 		// Apply loading restrictions
 		mCodeStreamp->apply_input_restrictions( first_channel, max_channel_count, discard, 0, region_kdu);
 		

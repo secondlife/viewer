@@ -47,24 +47,24 @@
 const F32 REFRESH_INTERVAL = 1.0f;
 
 LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
-  : LLTransientDockableFloater(NULL, true, session_id)
-  ,  mIsP2PChat(false)
-  ,  mExpandCollapseBtn(NULL)
-  ,  mTearOffBtn(NULL)
-  ,  mCloseBtn(NULL)
-  ,  mSessionID(session_id.asUUID())
-  , mConversationsRoot(NULL)
-  , mScroller(NULL)
-  , mChatHistory(NULL)
-  , mInputEditor(NULL)
-  , mInputEditorPad(0)
-  , mRefreshTimer(new LLTimer())
-  , mIsHostAttached(false)
-  , mHasVisibleBeenInitialized(false)
-  , mIsParticipantListExpanded(true)
-  , mChatLayoutPanel(NULL)
-  , mInputPanels(NULL)
-  , mChatLayoutPanelHeight(0)
+:	LLTransientDockableFloater(NULL, true, session_id),
+	mIsP2PChat(false),
+	mExpandCollapseBtn(NULL),
+	mTearOffBtn(NULL),
+	mCloseBtn(NULL),
+	mSessionID(session_id.asUUID()),
+	mConversationsRoot(NULL),
+	mScroller(NULL),
+	mChatHistory(NULL),
+	mInputEditor(NULL),
+	mInputEditorPad(0),
+	mRefreshTimer(new LLTimer()),
+	mIsHostAttached(false),
+	mHasVisibleBeenInitialized(false),
+	mIsParticipantListExpanded(true),
+	mChatLayoutPanel(NULL),
+	mInputPanels(NULL),
+	mChatLayoutPanelHeight(0)
 {
     setAutoFocus(FALSE);
 	mSession = LLIMModel::getInstance()->findIMSession(mSessionID);

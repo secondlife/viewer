@@ -244,7 +244,7 @@ namespace tut
     void filter_object::test<4>()
     {
         set_test_name("LLEventTimeout::errorAfter()");
-        WrapLL_ERRS capture;
+        WrapLLErrs capture;
         LLEventPump& driver(pumps.obtain("driver"));
         TestEventTimeout filter(driver);
         listener0.reset(0);
@@ -274,7 +274,7 @@ namespace tut
         {
             mainloop.post(17);
         }
-        catch (const WrapLL_ERRS::FatalException& e)
+        catch (const WrapLLErrs::FatalException& e)
         {
             threw = e.what();
         }

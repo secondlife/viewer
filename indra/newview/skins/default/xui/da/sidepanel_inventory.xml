@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Ting" name="objects panel">
-	<panel label="" name="sidepanel__inventory_panel">
+	<panel label="" name="sidepanel_inventory_panel">
 		<panel name="button_panel">
 			<layout_stack name="button_panel_ls">
 				<layout_panel name="info_btn_lp">

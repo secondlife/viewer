@@ -56,6 +56,33 @@ class LLColor4;
 class LLVector3;
 class LLSelectNode;
 
+const U8 UPD_NONE      		= 0x00;
+const U8 UPD_POSITION  		= 0x01;
+const U8 UPD_ROTATION  		= 0x02;
+const U8 UPD_SCALE     		= 0x04;
+const U8 UPD_LINKED_SETS 	= 0x08;
+const U8 UPD_UNIFORM 		= 0x10;	// used with UPD_SCALE
+
+// This is used by the DeRezObject message to determine where to put
+// derezed tasks.
+enum EDeRezDestination
+{
+	DRD_SAVE_INTO_AGENT_INVENTORY = 0,
+	DRD_ACQUIRE_TO_AGENT_INVENTORY = 1,		// try to leave copy in world
+	DRD_SAVE_INTO_TASK_INVENTORY = 2,
+	DRD_ATTACHMENT = 3,
+	DRD_TAKE_INTO_AGENT_INVENTORY = 4,		// delete from world
+	DRD_FORCE_TO_GOD_INVENTORY = 5,			// force take copy
+	DRD_TRASH = 6,
+	DRD_ATTACHMENT_TO_INV = 7,
+	DRD_ATTACHMENT_EXISTS = 8,
+	DRD_RETURN_TO_OWNER = 9,				// back to owner's inventory
+	DRD_RETURN_TO_LAST_OWNER = 10,			// deeded object back to last owner's inventory
+
+	DRD_COUNT = 11
+};
+
+
 const S32 SELECT_ALL_TES = -1;
 const S32 SELECT_MAX_TES = 32;
 

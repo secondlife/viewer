@@ -29,7 +29,7 @@
 
 #include <map>
 
-#include "string_table.h"
+#include "llstringtable.h"
 #include "lluuid.h"
 
 //-----------------------------------------------------------------------------

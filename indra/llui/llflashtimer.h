@@ -28,6 +28,7 @@
 #define LL_FLASHTIMER_H
 
 #include "lleventtimer.h"
+#include "boost/function.hpp"
 
 class LLFlashTimer : public LLEventTimer
 {
