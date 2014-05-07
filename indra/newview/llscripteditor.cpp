@@ -49,11 +49,11 @@ void LLScriptEditor::initKeywords()
 	mKeywords.initialise(LLSyntaxIdLSL::getInstance()->getKeywordsXML());
 }
 
-static LLFastTimer::DeclareTimer FTM_SYNTAX_HIGHLIGHTING("Syntax Highlighting");
+LLTrace::BlockTimerStatHandle FTM_SYNTAX_HIGHLIGHTING("Syntax Highlighting");
 
 void LLScriptEditor::loadKeywords()
 {
-	LLFastTimer ft(FTM_SYNTAX_HIGHLIGHTING);
+	LL_RECORD_BLOCK_TIME(FTM_SYNTAX_HIGHLIGHTING);
 	mKeywords.processTokens();
 	
 	segment_vec_t segment_list;
@@ -71,7 +71,7 @@ void LLScriptEditor::updateSegments()
 {
 	if (mReflowIndex < S32_MAX && mKeywords.isLoaded() && mParseOnTheFly)
 	{
-		LLFastTimer ft(FTM_SYNTAX_HIGHLIGHTING);
+		LL_RECORD_BLOCK_TIME(FTM_SYNTAX_HIGHLIGHTING);
 		// HACK:  No non-ascii keywords for now
 		segment_vec_t segment_list;
 		mKeywords.findSegments(&segment_list, getWText(), mDefaultColor.get(), *this);
