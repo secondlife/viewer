@@ -110,7 +110,7 @@ void LLAttachmentsMgr::onIdle()
 		LLViewerInventoryItem* item = gInventory.getItem(attachment.mItemID);
 		if (!item)
 		{
-			llinfos << "Attempted to add non-existant item ID:" << attachment.mItemID << llendl;
+			LL_INFOS() << "Attempted to add non-existant item ID:" << attachment.mItemID << LL_ENDL;
 			continue;
 		}
 		S32 attachment_pt = attachment.mAttachmentPt;

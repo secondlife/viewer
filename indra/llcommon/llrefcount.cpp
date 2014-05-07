@@ -76,7 +76,7 @@ LLRefCount::~LLRefCount()
 { 
 	if (mRef != 0)
 	{
-		llerrs << "deleting non-zero reference" << llendl;
+		LL_ERRS() << "deleting non-zero reference" << LL_ENDL;
 	}
 
 #if LL_REF_COUNT_DEBUG
@@ -95,8 +95,8 @@ void LLRefCount::ref() const
 		if(mMutexp->isLocked()) 
 		{
 			mCrashAtUnlock = TRUE ;
-			llerrs << "the mutex is locked by the thread: " << mLockedThreadID 
-				<< " Current thread: " << LLThread::currentID() << llendl ;
+			LL_ERRS() << "the mutex is locked by the thread: " << mLockedThreadID 
+				<< " Current thread: " << LLThread::currentID() << LL_ENDL ;
 		}
 
 		mMutexp->lock() ;
@@ -123,8 +123,8 @@ S32 LLRefCount::unref() const
 		if(mMutexp->isLocked()) 
 		{
 			mCrashAtUnlock = TRUE ;
-			llerrs << "the mutex is locked by the thread: " << mLockedThreadID 
-				<< " Current thread: " << LLThread::currentID() << llendl ;
+			LL_ERRS() << "the mutex is locked by the thread: " << mLockedThreadID 
+				<< " Current thread: " << LLThread::currentID() << LL_ENDL ;
 		}
 
 		mMutexp->lock() ;

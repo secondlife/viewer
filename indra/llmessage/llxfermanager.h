@@ -41,7 +41,7 @@ class LLVFS;
 #include "message.h"
 #include "llassetstorage.h"
 #include "lldir.h"
-#include "lllinkedqueue.h"
+#include <deque>
 #include "llthrottle.h"
 
 class LLHostStatus
@@ -80,7 +80,7 @@ class LLXferManager
 	S32    mMaxIncomingXfers;
 
 	BOOL	mUseAckThrottling; // Use ack throttling to cap file xfer bandwidth
-	LLLinkedQueue<LLXferAckInfo> mXferAckQueue;
+	std::deque<LLXferAckInfo> mXferAckQueue;
 	LLThrottle mAckThrottle;
  public:
 

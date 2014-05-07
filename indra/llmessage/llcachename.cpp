@@ -343,7 +343,7 @@ bool LLCacheName::importFile(std::istream& istr)
 
 		++count;
 	}
-	llinfos << "LLCacheName loaded " << count << " agent names" << llendl;
+	LL_INFOS() << "LLCacheName loaded " << count << " agent names" << LL_ENDL;
 
 	count = 0;
 	LLSD groups = data[GROUPS];
@@ -364,7 +364,7 @@ bool LLCacheName::importFile(std::istream& istr)
 		impl.mReverseCache[entry->mGroupName] = id;
 		++count;
 	}
-	llinfos << "LLCacheName loaded " << count << " group names" << llendl;
+	LL_INFOS() << "LLCacheName loaded " << count << " group names" << LL_ENDL;
 	return true;
 }
 
@@ -440,7 +440,7 @@ void LLCacheName::localizeCacheName(std::string key, std::string value)
 	if (key!="" && value!= "" )
 		sCacheName[key]=value;
 	else
-		llwarns<< " Error localizing cache key " << key << " To "<< value<<llendl;
+		LL_WARNS()<< " Error localizing cache key " << key << " To "<< value<<LL_ENDL;
 }
 
 BOOL LLCacheName::getFullName(const LLUUID& id, std::string& fullname)
@@ -467,7 +467,7 @@ BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
 		// COUNTER-HACK to combat James' HACK in exportFile()...
 		// this group name was loaded from a name cache that did not
 		// bother to save the group name ==> we must ask for it
-		lldebugs << "LLCacheName queuing HACK group request: " << id << llendl;
+		LL_DEBUGS() << "LLCacheName queuing HACK group request: " << id << LL_ENDL;
 		entry = NULL;
 	}
 
@@ -676,8 +676,8 @@ void LLCacheName::processPending()
 
 	if(!impl.mUpstreamHost.isOk())
 	{
-		lldebugs << "LLCacheName::processPending() - bad upstream host."
-				 << llendl;
+		LL_DEBUGS() << "LLCacheName::processPending() - bad upstream host."
+				 << LL_ENDL;
 		return;
 	}
 
@@ -724,33 +724,33 @@ void LLCacheName::dump()
 		LLCacheNameEntry* entry = iter->second;
 		if (entry->mIsGroup)
 		{
-			llinfos
+			LL_INFOS()
 				<< iter->first << " = (group) "
 				<< entry->mGroupName
 				<< " @ " << entry->mCreateTime
-				<< llendl;
+				<< LL_ENDL;
 		}
 		else
 		{
-			llinfos
+			LL_INFOS()
 				<< iter->first << " = "
 				<< buildFullName(entry->mFirstName, entry->mLastName)
 				<< " @ " << entry->mCreateTime
-				<< llendl;
+				<< LL_ENDL;
 		}
 	}
 }
 
 void LLCacheName::dumpStats()
 {
-	llinfos << "Queue sizes: "
+	LL_INFOS() << "Queue sizes: "
 			<< " Cache=" << impl.mCache.size()
 			<< " AskName=" << impl.mAskNameQueue.size()
 			<< " AskGroup=" << impl.mAskGroupQueue.size()
 			<< " Pending=" << impl.mPendingQueue.size()
 			<< " Reply=" << impl.mReplyQueue.size()
 // 			<< " Observers=" << impl.mSignal.size()
-			<< llendl;
+			<< LL_ENDL;
 }
 
 void LLCacheName::clear()
@@ -886,7 +886,7 @@ void LLCacheName::Impl::processUUIDRequest(LLMessageSystem* msg, bool isGroup)
 	// level, hence having an upstream provider.
 	if (!mUpstreamHost.isOk())
 	{
-		llwarns << "LLCacheName - got UUID name/group request, but no upstream provider!" << llendl;
+		LL_WARNS() << "LLCacheName - got UUID name/group request, but no upstream provider!" << LL_ENDL;
 		return;
 	}
 
@@ -903,11 +903,11 @@ void LLCacheName::Impl::processUUIDRequest(LLMessageSystem* msg, bool isGroup)
 		{
 			if (isGroup != entry->mIsGroup)
 			{
-				llwarns << "LLCacheName - Asked for "
+				LL_WARNS() << "LLCacheName - Asked for "
 						<< (isGroup ? "group" : "user") << " name, "
 						<< "but found "
 						<< (entry->mIsGroup ? "group" : "user")
-						<< ": " << id << llendl;
+						<< ": " << id << LL_ENDL;
 			}
 			else
 			{

@@ -75,7 +75,6 @@
 #include "llsd.h"
 #include "llsdserialize.h"
 #include "llsdutil_math.h"
-#include "llsecondlifeurls.h"
 #include "llstring.h"
 #include "lluserrelations.h"
 #include "llversioninfo.h"
@@ -84,7 +83,6 @@
 #include "llvfs.h"
 #include "llxorcipher.h"	// saved password, MAC address
 #include "llwindow.h"
-#include "imageids.h"
 #include "message.h"
 #include "v3math.h"
 
@@ -133,7 +131,6 @@
 #include "llpreviewscript.h"
 #include "llproxy.h"
 #include "llproductinforequest.h"
-#include "llsecondlifeurls.h"
 #include "llselectmgr.h"
 #include "llsky.h"
 #include "llstatview.h"
@@ -243,6 +240,7 @@ static LLVector3 gAgentStartLookAt(1.0f, 0.f, 0.f);
 static std::string gAgentStartLocation = "safe";
 static bool mLoginStatePastUI = false;
 
+const S32 DEFAULT_MAX_AGENT_GROUPS = 25;
 
 boost::scoped_ptr<LLEventPump> LLStartUp::sStateWatcher(new LLEventStream("StartupState"));
 boost::scoped_ptr<LLStartupListener> LLStartUp::sListener(new LLStartupListener());
@@ -644,7 +642,7 @@ bool idle_startup()
 				gAudiop = (LLAudioEngine *) new LLAudioEngine_OpenAL();
 			}
 #endif
-
+            
 			if (gAudiop)
 			{
 #if LL_WINDOWS
@@ -1192,6 +1190,7 @@ bool idle_startup()
 				// create the default proximal channel
 				LLVoiceChannel::initClass();
 				LLStartUp::setStartupState( STATE_WORLD_INIT);
+				LLTrace::get_frame_recording().reset();
 			}
 			else
 			{
@@ -1437,8 +1436,8 @@ bool idle_startup()
 
 		LL_DEBUGS("AppInit") << "Initializing camera..." << LL_ENDL;
 		gFrameTime    = totalTime();
-		F32 last_time = gFrameTimeSeconds;
-		gFrameTimeSeconds = (S64)(gFrameTime - gStartTime)/SEC_TO_MICROSEC;
+		F32Seconds last_time = gFrameTimeSeconds;
+		gFrameTimeSeconds = (gFrameTime - gStartTime);
 
 		gFrameIntervalSeconds = gFrameTimeSeconds - last_time;
 		if (gFrameIntervalSeconds < 0.f)
@@ -1515,7 +1514,7 @@ bool idle_startup()
 			gFirstSim,
 			gSavedSettings.getS32("UseCircuitCodeMaxRetries"),
 			FALSE,
-			gSavedSettings.getF32("UseCircuitCodeTimeout"),
+			(F32Seconds)gSavedSettings.getF32("UseCircuitCodeTimeout"),
 			use_circuit_callback,
 			NULL);
 
@@ -1683,7 +1682,7 @@ bool idle_startup()
 		LLSD inv_basic = response["inventory-basic"];
  		if(inv_basic.isDefined())
  		{
-			llinfos << "Basic inventory root folder id is " << inv_basic["folder_id"] << llendl;
+			LL_INFOS() << "Basic inventory root folder id is " << inv_basic["folder_id"] << LL_ENDL;
  		}
 
 		LLSD buddy_list = response["buddy-list"];
@@ -1778,30 +1777,30 @@ bool idle_startup()
 		gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE,true);
 
 		// set up callbacks
-		llinfos << "Registering Callbacks" << llendl;
+		LL_INFOS() << "Registering Callbacks" << LL_ENDL;
 		LLMessageSystem* msg = gMessageSystem;
-		llinfos << " Inventory" << llendl;
+		LL_INFOS() << " Inventory" << LL_ENDL;
 		LLInventoryModel::registerCallbacks(msg);
-		llinfos << " AvatarTracker" << llendl;
+		LL_INFOS() << " AvatarTracker" << LL_ENDL;
 		LLAvatarTracker::instance().registerCallbacks(msg);
-		llinfos << " Landmark" << llendl;
+		LL_INFOS() << " Landmark" << LL_ENDL;
 		LLLandmark::registerCallbacks(msg);
 		display_startup();
 
 		// request mute list
-		llinfos << "Requesting Mute List" << llendl;
+		LL_INFOS() << "Requesting Mute List" << LL_ENDL;
 		LLMuteList::getInstance()->requestFromServer(gAgent.getID());
 		display_startup();
 		// Get L$ and ownership credit information
-		llinfos << "Requesting Money Balance" << llendl;
+		LL_INFOS() << "Requesting Money Balance" << LL_ENDL;
 		LLStatusBar::sendMoneyBalanceRequest();
 		display_startup();
 		// request all group information
-		llinfos << "Requesting Agent Data" << llendl;
+		LL_INFOS() << "Requesting Agent Data" << LL_ENDL;
 		gAgent.sendAgentDataUpdateRequest();
 		display_startup();
 		// Create the inventory views
-		llinfos << "Creating Inventory Views" << llendl;
+		LL_INFOS() << "Creating Inventory Views" << LL_ENDL;
 		LLFloaterReg::getInstance("inventory");
 		display_startup();
 		LLStartUp::setStartupState( STATE_MISC );
@@ -1939,6 +1938,7 @@ bool idle_startup()
 
 		LL_DEBUGS("AppInit") << "Initialization complete" << LL_ENDL;
 
+		LL_DEBUGS("SceneLoadTiming", "Start") << "Scene Load Started " << LL_ENDL;
 		gRenderStartTime.reset();
 		gForegroundTime.reset();
 
@@ -1955,7 +1955,7 @@ bool idle_startup()
 		// thus, do not show this alert.
 		if (!gAgent.isFirstLogin())
 		{
-			llinfos << "gAgentStartLocation : " << gAgentStartLocation << llendl;
+			LL_INFOS() << "gAgentStartLocation : " << gAgentStartLocation << LL_ENDL;
 			LLSLURL start_slurl = LLStartUp::getStartSLURL();
 			LL_DEBUGS("AppInit") << "start slurl "<<start_slurl.asString()<<LL_ENDL;
 			
@@ -1963,10 +1963,9 @@ bool idle_startup()
 				((start_slurl.getType() == LLSLURL::LAST_LOCATION) && (gAgentStartLocation == "last")) ||
 				((start_slurl.getType() == LLSLURL::HOME_LOCATION) && (gAgentStartLocation == "home")))
 			{
-				// Start location is OK
-				// Disabled code to restore camera location and focus if logging in to default location
-				static bool samename = false;
-				if (samename)
+				if (start_slurl.getType() == LLSLURL::LAST_LOCATION 
+					&& gAgentStartLocation == "last" 
+					&& gSavedSettings.getBOOL("RestoreCameraPosOnLogin"))
 				{
 					// restore old camera pos
 					gAgentCamera.setFocusOnAvatar(FALSE, FALSE);
@@ -2059,8 +2058,9 @@ bool idle_startup()
 		static LLFrameTimer wearables_timer;
 
 		const F32 wearables_time = wearables_timer.getElapsedTimeF32();
-		const F32 MAX_WEARABLES_TIME = 10.f;
+		static LLCachedControl<F32> max_wearables_time(gSavedSettings, "ClothingLoadingDelay");
 
+		display_startup();
 		if (!gAgent.isGenderChosen() && isAgentAvatarValid())
 		{
 			// No point in waiting for clothing, we don't even
@@ -2074,50 +2074,39 @@ bool idle_startup()
 			LLNotificationsUtil::add("WelcomeChooseSex", LLSD(), LLSD(),
 				callback_choose_gender);
 			LLStartUp::setStartupState( STATE_CLEANUP );
-			return TRUE;
 		}
-		
-		display_startup();
-
-		if (wearables_time > MAX_WEARABLES_TIME)
+		else if (wearables_time >= max_wearables_time())
 		{
 			LLNotificationsUtil::add("ClothingLoading");
-			LLViewerStats::getInstance()->incStat(LLViewerStats::ST_WEARABLES_TOO_LONG);
+			record(LLStatViewer::LOADING_WEARABLES_LONG_DELAY, wearables_time);
 			LLStartUp::setStartupState( STATE_CLEANUP );
-			return TRUE;
 		}
-
-		if (gAgent.isFirstLogin())
+		else if (gAgent.isFirstLogin()
+				&& isAgentAvatarValid()
+				&& gAgentAvatarp->isFullyLoaded())
 		{
 			// wait for avatar to be completely loaded
-			if (isAgentAvatarValid()
-				&& gAgentAvatarp->isFullyLoaded())
-			{
-				//llinfos << "avatar fully loaded" << llendl;
-				LLStartUp::setStartupState( STATE_CLEANUP );
-				return TRUE;
-			}
+			//LL_INFOS() << "avatar fully loaded" << LL_ENDL;
+			LLStartUp::setStartupState( STATE_CLEANUP );
+		}
+		// OK to just get the wearables
+		else if (!gAgent.isFirstLogin() && gAgentWearables.areWearablesLoaded() )
+		{
+			// We have our clothing, proceed.
+			//LL_INFOS() << "wearables loaded" << LL_ENDL;
+			LLStartUp::setStartupState( STATE_CLEANUP );
 		}
 		else
 		{
-			// OK to just get the wearables
-			if ( gAgentWearables.areWearablesLoaded() )
-			{
-				// We have our clothing, proceed.
-				//llinfos << "wearables loaded" << llendl;
-				LLStartUp::setStartupState( STATE_CLEANUP );
-				return TRUE;
-			}
+			display_startup();
+			update_texture_fetch();
+			display_startup();
+			set_startup_status(0.9f + 0.1f * wearables_time / max_wearables_time(),
+				LLTrans::getString("LoginDownloadingClothing").c_str(),
+				gAgent.mMOTD.c_str());
+			display_startup();
 		}
-
-		display_startup();
-		update_texture_fetch();
-		display_startup();
-		set_startup_status(0.9f + 0.1f * wearables_time / MAX_WEARABLES_TIME,
-						 LLTrans::getString("LoginDownloadingClothing").c_str(),
-						 gAgent.mMOTD.c_str());
-		display_startup();
-		return TRUE;
+		//fall through this frame to STATE_CLEANUP
 	}
 
 	if (STATE_CLEANUP == LLStartUp::getStartupState())
@@ -2179,7 +2168,7 @@ bool idle_startup()
 
 		// Unmute audio if desired and setup volumes.
 		// This is a not-uncommon crash site, so surround it with
-		// llinfos output to aid diagnosis.
+		// LL_INFOS() output to aid diagnosis.
 		LL_INFOS("AppInit") << "Doing first audio_update_volume..." << LL_ENDL;
 		audio_update_volume();
 		LL_INFOS("AppInit") << "Done first audio_update_volume." << LL_ENDL;
@@ -2187,14 +2176,7 @@ bool idle_startup()
 		// reset keyboard focus to sane state of pointing at world
 		gFocusMgr.setKeyboardFocus(NULL);
 
-#if 0 // sjb: enable for auto-enabling timer display 
-		gDebugView->mFastTimerView->setVisible(TRUE);
-#endif
-
 		LLAppViewer::instance()->handleLoginComplete();
-
-		// reset timers now that we are running "logged in" logic
-		LLFastTimer::reset();
 
 		LLAgentPicksInfo::getInstance()->requestNumberOfPicks();
 
@@ -2550,7 +2532,7 @@ bool callback_choose_gender(const LLSD& notification, const LLSD& response)
 void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 								   const std::string& gender_name )
 {
-	lldebugs << "starting" << llendl;
+	LL_DEBUGS() << "starting" << LL_ENDL;
 
 	// Not going through the processAgentInitialWearables path, so need to set this here.
 	LLAppearanceMgr::instance().setAttachmentInvLinkEnable(true);
@@ -2560,18 +2542,18 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 	ESex gender;
 	if (gender_name == "male")
 	{
-		lldebugs << "male" << llendl;
+		LL_DEBUGS() << "male" << LL_ENDL;
 		gender = SEX_MALE;
 	}
 	else
 	{
-		lldebugs << "female" << llendl;
+		LL_DEBUGS() << "female" << LL_ENDL;
 		gender = SEX_FEMALE;
 	}
 
 	if (!isAgentAvatarValid())
 	{
-		llwarns << "Trying to load an initial outfit for an invalid agent avatar" << llendl;
+		LL_WARNS() << "Trying to load an initial outfit for an invalid agent avatar" << LL_ENDL;
 		return;
 	}
 
@@ -2584,7 +2566,7 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 		outfit_folder_name);
 	if (cat_id.isNull())
 	{
-		lldebugs << "standard wearables" << llendl;
+		LL_DEBUGS() << "standard wearables" << LL_ENDL;
 		gAgentWearables.createStandardWearables();
 	}
 	else
@@ -2600,7 +2582,7 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 		// Need to fetch cof contents before we can wear.
 		callAfterCategoryFetch(LLAppearanceMgr::instance().getCOF(),
 							   boost::bind(&LLAppearanceMgr::wearInventoryCategory, LLAppearanceMgr::getInstance(), cat, do_copy, do_append));
-		lldebugs << "initial outfit category id: " << cat_id << llendl;
+		LL_DEBUGS() << "initial outfit category id: " << cat_id << LL_ENDL;
 	}
 
 	// This is really misnamed -- it means we have started loading
@@ -2612,16 +2594,16 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 void LLStartUp::saveInitialOutfit()
 {
 	if (sInitialOutfit.empty()) {
-		lldebugs << "sInitialOutfit is empty" << llendl;
+		LL_DEBUGS() << "sInitialOutfit is empty" << LL_ENDL;
 		return;
 	}
 	
 	if (sWearablesLoadedCon.connected())
 	{
-		lldebugs << "sWearablesLoadedCon is connected, disconnecting" << llendl;
+		LL_DEBUGS() << "sWearablesLoadedCon is connected, disconnecting" << LL_ENDL;
 		sWearablesLoadedCon.disconnect();
 	}
-	lldebugs << "calling makeNewOutfitLinks( \"" << sInitialOutfit << "\" )" << llendl;
+	LL_DEBUGS() << "calling makeNewOutfitLinks( \"" << sInitialOutfit << "\" )" << LL_ENDL;
 	LLAppearanceMgr::getInstance()->makeNewOutfitLinks(sInitialOutfit,false);
 }
 
@@ -3160,7 +3142,7 @@ void apply_udp_blacklist(const std::string& csv)
 		}
 		std::string item(csv, start, comma-start);
 
-		lldebugs << "udp_blacklist " << item << llendl;
+		LL_DEBUGS() << "udp_blacklist " << item << LL_ENDL;
 		gMessageSystem->banUdpMessage(item);
 		
 		start = comma + 1;

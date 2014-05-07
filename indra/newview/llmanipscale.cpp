@@ -413,7 +413,7 @@ BOOL LLManipScale::handleHover(S32 x, S32 y, MASK mask)
 		{
 			drag( x, y );
 		}
-		lldebugst(LLERR_USER_INPUT) << "hover handled by LLManipScale (active)" << llendl;		
+		LL_DEBUGS("UserInput") << "hover handled by LLManipScale (active)" << LL_ENDL;		
 	}
 	else
 	{
@@ -524,7 +524,7 @@ void LLManipScale::highlightManipulators(S32 x, S32 y)
 				{
 					mHighlightedPart = manipulator->mManipID;
 
-					//llinfos << "Tried: " << mHighlightedPart << llendl;
+					//LL_INFOS() << "Tried: " << mHighlightedPart << LL_ENDL;
 					break;
 				}
 			}
@@ -535,15 +535,15 @@ void LLManipScale::highlightManipulators(S32 x, S32 y)
 	{
 		if (mHighlightedPart == MANIPULATOR_IDS[i])
 		{
-			mManipulatorScales[i] = lerp(mManipulatorScales[i], SELECTED_MANIPULATOR_SCALE, LLCriticalDamp::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
+			mManipulatorScales[i] = lerp(mManipulatorScales[i], SELECTED_MANIPULATOR_SCALE, LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
 		}
 		else
 		{
-			mManipulatorScales[i] = lerp(mManipulatorScales[i], 1.f, LLCriticalDamp::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
+			mManipulatorScales[i] = lerp(mManipulatorScales[i], 1.f, LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
 		}
 	}
 
-	lldebugst(LLERR_USER_INPUT) << "hover handled by LLManipScale (inactive)" << llendl;
+	LL_DEBUGS("UserInput") << "hover handled by LLManipScale (inactive)" << LL_ENDL;
 }
 
 

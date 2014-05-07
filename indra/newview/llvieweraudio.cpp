@@ -37,6 +37,7 @@
 #include "llviewerwindow.h"
 #include "llvoiceclient.h"
 #include "llviewermedia.h"
+#include "llviewerregion.h"
 #include "llprogressview.h"
 #include "llcallbacklist.h"
 #include "llstartup.h"
@@ -130,7 +131,7 @@ void LLViewerAudio::startInternetStreamWithAutoFade(std::string streamURI)
 		break;
 
 	default:
-		llwarns << "Unknown fading state: " << mFadeState << llendl;
+		LL_WARNS() << "Unknown fading state: " << mFadeState << LL_ENDL;
 		break;
 	}
 }
@@ -306,7 +307,7 @@ void LLViewerAudio::onTeleportFailed()
 		if (parcel)
 		{
 			mNextStreamURI = parcel->getMusicURL();
-			llinfos << "Teleport failed -- setting music stream to " << mNextStreamURI << llendl;
+			LL_INFOS() << "Teleport failed -- setting music stream to " << mNextStreamURI << LL_ENDL;
 		}
 	}
 	mWasPlaying = false;
@@ -324,7 +325,7 @@ void LLViewerAudio::onTeleportFinished(const LLVector3d& pos, const bool& local)
 		if (parcel)
 		{
 			mNextStreamURI = parcel->getMusicURL();
-			llinfos << "Intraparcel teleport -- setting music stream to " << mNextStreamURI << llendl;
+			LL_INFOS() << "Intraparcel teleport -- setting music stream to " << mNextStreamURI << LL_ENDL;
 		}
 	}
 	mWasPlaying = false;
@@ -334,7 +335,7 @@ void init_audio()
 {
 	if (!gAudiop) 
 	{
-		llwarns << "Failed to create an appropriate Audio Engine" << llendl;
+		LL_WARNS() << "Failed to create an appropriate Audio Engine" << LL_ENDL;
 		return;
 	}
 	LLVector3d lpos_global = gAgentCamera.getCameraPositionGlobal();

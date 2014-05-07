@@ -66,18 +66,18 @@ void LLTransferSourceAsset::initTransfer()
 		}
 		else
 		{
-			llwarns << "Attempted to request blocked asset "
+			LL_WARNS() << "Attempted to request blocked asset "
 				<< mParams.getAssetID() << ":"
 				<< LLAssetType::lookupHumanReadable(mParams.getAssetType())
-				<< llendl;
+				<< LL_ENDL;
 			sendTransferStatus(LLTS_ERROR);
 		}
 	}
 	else
 	{
-		llwarns << "Attempted to request asset " << mParams.getAssetID()
+		LL_WARNS() << "Attempted to request asset " << mParams.getAssetID()
 			<< ":" << LLAssetType::lookupHumanReadable(mParams.getAssetType())
-			<< " without an asset system!" << llendl;
+			<< " without an asset system!" << LL_ENDL;
 		sendTransferStatus(LLTS_ERROR);
 	}
 }
@@ -93,7 +93,7 @@ LLTSCode LLTransferSourceAsset::dataCallback(const S32 packet_id,
 											S32 &returned_bytes,
 											BOOL &delete_returned)
 {
-	//llinfos << "LLTransferSourceAsset::dataCallback" << llendl;
+	//LL_INFOS() << "LLTransferSourceAsset::dataCallback" << LL_ENDL;
 	if (!mGotResponse)
 	{
 		return LLTS_SKIP;
@@ -109,14 +109,14 @@ LLTSCode LLTransferSourceAsset::dataCallback(const S32 packet_id,
 
 	if (packet_id != mLastPacketID + 1)
 	{
-		llerrs << "Can't handle out of order file transfer yet!" << llendl;
+		LL_ERRS() << "Can't handle out of order file transfer yet!" << LL_ENDL;
 	}
 
 	// grab a buffer from the right place in the file
 	if (!vf.seek(mCurPos, 0))
 	{
-		llwarns << "LLTransferSourceAsset Can't seek to " << mCurPos << " length " << vf.getSize() << llendl;
-		llwarns << "While sending " << mParams.getAssetID() << llendl;
+		LL_WARNS() << "LLTransferSourceAsset Can't seek to " << mCurPos << " length " << vf.getSize() << LL_ENDL;
+		LL_WARNS() << "While sending " << mParams.getAssetID() << LL_ENDL;
 		return LLTS_ERROR;
 	}
 	
@@ -160,13 +160,13 @@ void LLTransferSourceAsset::completionCallback(const LLTSCode status)
 
 void LLTransferSourceAsset::packParams(LLDataPacker& dp) const
 {
-	//llinfos << "LLTransferSourceAsset::packParams" << llendl;
+	//LL_INFOS() << "LLTransferSourceAsset::packParams" << LL_ENDL;
 	mParams.packParams(dp);
 }
 
 BOOL LLTransferSourceAsset::unpackParams(LLDataPacker &dp)
 {
-	//llinfos << "LLTransferSourceAsset::unpackParams" << llendl;
+	//LL_INFOS() << "LLTransferSourceAsset::unpackParams" << LL_ENDL;
 	return mParams.unpackParams(dp);
 }
 
@@ -183,13 +183,13 @@ void LLTransferSourceAsset::responderCallback(LLVFS *vfs, const LLUUID& uuid, LL
 
 	if (!tsap)
 	{
-		llinfos << "Aborting transfer " << transfer_id << " callback, transfer source went away" << llendl;
+		LL_INFOS() << "Aborting transfer " << transfer_id << " callback, transfer source went away" << LL_ENDL;
 		return;
 	}
 
 	if (result)
 	{
-		llinfos << "AssetStorage: Error " << gAssetStorage->getErrorString(result) << " downloading uuid " << uuid << llendl;
+		LL_INFOS() << "AssetStorage: Error " << gAssetStorage->getErrorString(result) << " downloading uuid " << uuid << LL_ENDL;
 	}
 
 	LLTSCode status;

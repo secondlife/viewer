@@ -40,6 +40,8 @@
 #include "tests/wrapllerrs.h"             // RecorderProxy
 #include "stringize.h"
 #include "namedtempfile.h"
+#include "lltrace.h"
+#include "lltracethreadrecorder.h"
 
 #include "apr_pools.h"
 #include "apr_getopt.h"
@@ -482,6 +484,8 @@ void wouldHaveCrashed(const std::string& message)
 	tut::fail("llerrs message: " + message);
 }
 
+static LLTrace::ThreadRecorder* sMasterThreadRecorder = NULL;
+
 int main(int argc, char **argv)
 {
 	// The following line must be executed to initialize Google Mock
@@ -512,15 +516,15 @@ int main(int argc, char **argv)
 	ctype_workaround();
 #endif
 
-	apr_initialize();
-	apr_pool_t* pool = NULL;
-	if(APR_SUCCESS != apr_pool_create(&pool, NULL))
+	ll_init_apr();
+	
+	if (!sMasterThreadRecorder)
 	{
-		std::cerr << "Unable to initialize pool" << std::endl;
-		return 1;
+		sMasterThreadRecorder = new LLTrace::ThreadRecorder();
+		LLTrace::set_master_thread_recorder(sMasterThreadRecorder);
 	}
 	apr_getopt_t* os = NULL;
-	if(APR_SUCCESS != apr_getopt_init(&os, pool, argc, argv))
+	if(APR_SUCCESS != apr_getopt_init(&os, gAPRPoolp, argc, argv))
 	{
 		std::cerr << "apr_getopt_init() failed" << std::endl;
 		return 1;
@@ -602,7 +606,7 @@ int main(int argc, char **argv)
 	if (LOGFAIL)
 	{
 		LLError::ELevel level = LLError::decodeLevel(LOGFAIL);
-		replayer.reset(new LLReplayLogReal(level, pool));
+		replayer.reset(new LLReplayLogReal(level, gAPRPoolp));
 	}
 	else
 	{
@@ -646,7 +650,7 @@ int main(int argc, char **argv)
 		s.close();
 	}
 
-	apr_terminate();
+	ll_cleanup_apr();
 
 	int retval = (success ? 0 : 1);
 	return retval;

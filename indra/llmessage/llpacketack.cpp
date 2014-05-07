@@ -50,7 +50,7 @@ LLReliablePacket::LLReliablePacket(
 		mHost = params->mHost;
 		mRetries = params->mRetries;
 		mPingBasedRetry = params->mPingBasedRetry;
-		mTimeout = params->mTimeout;
+		mTimeout = F32Seconds(params->mTimeout);
 		mCallback = params->mCallback;
 		mCallbackData = params->mCallbackData;
 		mMessageName = params->mMessageName;
@@ -59,13 +59,13 @@ LLReliablePacket::LLReliablePacket(
 	{
 		mRetries = 0;
 		mPingBasedRetry = TRUE;
-		mTimeout = 0.f;
+		mTimeout = F32Seconds(0.f);
 		mCallback = NULL;
 		mCallbackData = NULL;
 		mMessageName = NULL;
 	}
 
-	mExpirationTime = (F64)((S64)totalTime())/1000000.0 + mTimeout;
+	mExpirationTime = (F64Seconds)totalTime() + mTimeout;
 	mPacketID = ntohl(*((U32*)(&buf_ptr[PHL_PACKET_ID])));
 
 	mSocket = socket;

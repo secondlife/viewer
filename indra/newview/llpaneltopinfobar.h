@@ -57,7 +57,7 @@ public:
 	/**
 	 * Called when the top info bar gets shown or hidden
 	 */
-	void onVisibilityChange(const LLSD& show);
+	void onVisibilityChanged(const LLSD& show);
 
 	boost::signals2::connection setResizeCallback( const resize_signal_t::slot_type& cb );
 

@@ -33,7 +33,7 @@ void LLMachine::setMachinePort(S32 port)
 { 
 	if (port < 0) 
 	{
-		llinfos << "Can't assign a negative number to LLMachine::mPort" << llendl;
+		LL_INFOS() << "Can't assign a negative number to LLMachine::mPort" << LL_ENDL;
 		mHost.setPort(0);
 	}
 	else 
@@ -46,7 +46,7 @@ void LLMachine::setControlPort( S32 port )
 {
 	if (port < 0) 
 	{
-		llinfos << "Can't assign a negative number to LLMachine::mControlPort" << llendl;
+		LL_INFOS() << "Can't assign a negative number to LLMachine::mControlPort" << LL_ENDL;
 		mControlPort = 0;
 	}
 	else 

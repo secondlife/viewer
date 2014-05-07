@@ -117,7 +117,7 @@ void LLUIColorTable::insertFromParams(const Params& p, string_color_map_t& table
 						unresolved_refs.erase(iter->second);
 					}
 
-					llwarns << warning + ending_ref << llendl;
+					LL_WARNS() << warning + ending_ref << LL_ENDL;
 
 					break;
 				}
@@ -156,7 +156,7 @@ void LLUIColorTable::insertFromParams(const Params& p, string_color_map_t& table
 						iter != visited_refs.end();
 						++iter)
 					{
-						llwarns << iter->first << " references a non-existent color" << llendl;
+						LL_WARNS() << iter->first << " references a non-existent color" << LL_ENDL;
 						unresolved_refs.erase(iter->second);
 					}
 
@@ -293,13 +293,13 @@ bool LLUIColorTable::loadFromFilename(const std::string& filename, string_color_
 
 	if(!LLXMLNode::parseFile(filename, root, NULL))
 	{
-		llwarns << "Unable to parse color file " << filename << llendl;
+		LL_WARNS() << "Unable to parse color file " << filename << LL_ENDL;
 		return false;
 	}
 
 	if(!root->hasName("colors"))
 	{
-		llwarns << filename << " is not a valid color definition file" << llendl;
+		LL_WARNS() << filename << " is not a valid color definition file" << LL_ENDL;
 		return false;
 	}
 
@@ -313,7 +313,7 @@ bool LLUIColorTable::loadFromFilename(const std::string& filename, string_color_
 	}
 	else
 	{
-		llwarns << filename << " failed to load" << llendl;
+		LL_WARNS() << filename << " failed to load" << LL_ENDL;
 		return false;
 	}
 

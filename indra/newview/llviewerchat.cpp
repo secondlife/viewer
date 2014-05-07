@@ -241,7 +241,7 @@ std::string LLViewerChat::getSenderSLURL(const LLChat& chat, const LLSD& args)
 		return getObjectImSLURL(chat, args);
 
 	default:
-		llwarns << "Getting SLURL for an unsupported sender type: " << chat.mSourceType << llendl;
+		LL_WARNS() << "Getting SLURL for an unsupported sender type: " << chat.mSourceType << LL_ENDL;
 	}
 
 	return LLStringUtil::null;

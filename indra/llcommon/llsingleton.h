@@ -67,6 +67,11 @@ private:
 		INITIALIZED,
 		DELETED
 	} EInitState;
+    
+    static DERIVED_TYPE* constructSingleton()
+    {
+        return new DERIVED_TYPE();
+    }
 	
 	// stores pointer to singleton instance
 	struct SingletonLifetimeManager
@@ -79,7 +84,7 @@ private:
 		static void construct()
 		{
 			sData.mInitState = CONSTRUCTING;
-			sData.mInstance = new DERIVED_TYPE(); 
+			sData.mInstance = constructSingleton();
 			sData.mInitState = INITIALIZING;
 		}
 
@@ -138,18 +143,21 @@ public:
 			llassert(false);
 			return NULL;
 		case CONSTRUCTING:
-			llerrs << "Tried to access singleton " << typeid(DERIVED_TYPE).name() << " from singleton constructor!" << llendl;
+			LL_ERRS() << "Tried to access singleton " << typeid(DERIVED_TYPE).name() << " from singleton constructor!" << LL_ENDL;
 			return NULL;
 		case INITIALIZING:
 			// go ahead and flag ourselves as initialized so we can be reentrant during initialization
 			sData.mInitState = INITIALIZED;	
+			// initialize singleton after constructing it so that it can reference other singletons which in turn depend on it,
+			// thus breaking cyclic dependencies
 			sData.mInstance->initSingleton(); 
 			return sData.mInstance;
 		case INITIALIZED:
 			return sData.mInstance;
 		case DELETED:
-			llwarns << "Trying to access deleted singleton " << typeid(DERIVED_TYPE).name() << " creating new instance" << llendl;
+			LL_WARNS() << "Trying to access deleted singleton " << typeid(DERIVED_TYPE).name() << " creating new instance" << LL_ENDL;
 			SingletonLifetimeManager::construct();
+			// same as first time construction
 			sData.mInitState = INITIALIZED;	
 			sData.mInstance->initSingleton(); 
 			return sData.mInstance;
@@ -190,6 +198,8 @@ private:
 
 	struct SingletonData
 	{
+		// explicitly has a default constructor so that member variables are zero initialized in BSS
+		// and only changed by singleton logic, not constructor running during startup
 		EInitState		mInitState;
 		DERIVED_TYPE*	mInstance;
 	};

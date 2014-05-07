@@ -115,7 +115,7 @@ void LLTransferTargetVFile::applyParams(const LLTransferTargetParams &params)
 {
 	if (params.getType() != mType)
 	{
-		llwarns << "Target parameter type doesn't match!" << llendl;
+		LL_WARNS() << "Target parameter type doesn't match!" << LL_ENDL;
 		return;
 	}
 	
@@ -125,8 +125,8 @@ void LLTransferTargetVFile::applyParams(const LLTransferTargetParams &params)
 
 LLTSCode LLTransferTargetVFile::dataCallback(const S32 packet_id, U8 *in_datap, const S32 in_size)
 {
-	//llinfos << "LLTransferTargetFile::dataCallback" << llendl;
-	//llinfos << "Packet: " << packet_id << llendl;
+	//LL_INFOS() << "LLTransferTargetFile::dataCallback" << LL_ENDL;
+	//LL_INFOS() << "Packet: " << packet_id << LL_ENDL;
 
 	LLVFile vf(gAssetStorage->mVFS, mTempID, mParams.getAssetType(), LLVFile::APPEND);
 	if (mNeedsCreate)
@@ -142,7 +142,7 @@ LLTSCode LLTransferTargetVFile::dataCallback(const S32 packet_id, U8 *in_datap, 
 
 	if (!vf.write(in_datap, in_size))
 	{
-		llwarns << "Failure in LLTransferTargetVFile::dataCallback!" << llendl;
+		LL_WARNS() << "Failure in LLTransferTargetVFile::dataCallback!" << LL_ENDL;
 		return LLTS_ERROR;
 	}
 	return LLTS_OK;
@@ -151,11 +151,11 @@ LLTSCode LLTransferTargetVFile::dataCallback(const S32 packet_id, U8 *in_datap, 
 
 void LLTransferTargetVFile::completionCallback(const LLTSCode status)
 {
-	//llinfos << "LLTransferTargetVFile::completionCallback" << llendl;
+	//LL_INFOS() << "LLTransferTargetVFile::completionCallback" << LL_ENDL;
 
 	if (!gAssetStorage)
 	{
-		llwarns << "Aborting vfile transfer after asset storage shut down!" << llendl;
+		LL_WARNS() << "Aborting vfile transfer after asset storage shut down!" << LL_ENDL;
 		return;
 	}
 	
@@ -169,14 +169,14 @@ void LLTransferTargetVFile::completionCallback(const LLTSCode status)
 			LLVFile file(gAssetStorage->mVFS, mTempID, mParams.getAssetType(), LLVFile::WRITE);
 			if (!file.rename(mParams.getAssetID(), mParams.getAssetType()))
 			{
-				llerrs << "LLTransferTargetVFile: rename failed" << llendl;
+				LL_ERRS() << "LLTransferTargetVFile: rename failed" << LL_ENDL;
 			}
 		}
 		err_code = LL_ERR_NOERR;
-		lldebugs << "LLTransferTargetVFile::completionCallback for "
+		LL_DEBUGS() << "LLTransferTargetVFile::completionCallback for "
 			 << mParams.getAssetID() << ","
 			 << LLAssetType::lookup(mParams.getAssetType())
-			 << " with temp id " << mTempID << llendl;
+			 << " with temp id " << mTempID << LL_ENDL;
 		break;
 	  case LLTS_ERROR:
 	  case LLTS_ABORT:
@@ -184,7 +184,7 @@ void LLTransferTargetVFile::completionCallback(const LLTSCode status)
 	  default:
 	  {
 		  // We're aborting this transfer, we don't want to keep this file.
-		  llwarns << "Aborting vfile transfer for " << mParams.getAssetID() << llendl;
+		  LL_WARNS() << "Aborting vfile transfer for " << mParams.getAssetID() << LL_ENDL;
 		  LLVFile vf(gAssetStorage->mVFS, mTempID, mParams.getAssetType(), LLVFile::APPEND);
 		  vf.remove();
 	  }

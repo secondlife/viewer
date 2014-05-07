@@ -41,7 +41,7 @@
 // SitObject STRING
 // SitPosition VEC3
 
-#include "string_table.h"
+#include "llstringtable.h"
 #include "llmath.h"
 #include "v3math.h"
 #include "lldbstrings.h"

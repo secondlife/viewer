@@ -337,7 +337,7 @@ void LLAgentCamera::resetView(BOOL reset_camera, BOOL change_camera)
 			LLVector3 agent_at_axis = gAgent.getAtAxis();
 			agent_at_axis -= projected_vec(agent_at_axis, gAgent.getReferenceUpVector());
 			agent_at_axis.normalize();
-			gAgent.resetAxes(lerp(gAgent.getAtAxis(), agent_at_axis, LLCriticalDamp::getInterpolant(0.3f)));
+			gAgent.resetAxes(lerp(gAgent.getAtAxis(), agent_at_axis, LLSmoothInterpolation::getInterpolant(0.3f)));
 		}
 
 		setFocusOnAvatar(TRUE, ANIMATE);
@@ -563,10 +563,10 @@ BOOL LLAgentCamera::calcCameraMinDistance(F32 &obj_min_distance)
 	if (mFocusObject->mDrawable.isNull())
 	{
 #ifdef LL_RELEASE_FOR_DOWNLOAD
-		llwarns << "Focus object with no drawable!" << llendl;
+		LL_WARNS() << "Focus object with no drawable!" << LL_ENDL;
 #else
 		mFocusObject->dump();
-		llerrs << "Focus object with no drawable!" << llendl;
+		LL_ERRS() << "Focus object with no drawable!" << LL_ENDL;
 #endif
 		obj_min_distance = 0.f;
 		return TRUE;
@@ -1070,8 +1070,8 @@ void LLAgentCamera::updateLookAt(const S32 mouse_x, const S32 mouse_y)
 	LLQuaternion av_inv_rot = ~gAgentAvatarp->mRoot->getWorldRotation();
 	LLVector3 root_at = LLVector3::x_axis * gAgentAvatarp->mRoot->getWorldRotation();
 
-	if 	((gViewerWindow->getMouseVelocityStat()->getCurrent() < 0.01f) &&
-		 (root_at * last_at_axis > 0.95f))
+	if 	(LLTrace::get_frame_recording().getLastRecording().getLastValue(*gViewerWindow->getMouseVelocityStat()) < 0.01f
+		&& (root_at * last_at_axis > 0.95f))
 	{
 		LLVector3 vel = gAgentAvatarp->getVelocity();
 		if (vel.magVecSquared() > 4.f)
@@ -1126,13 +1126,14 @@ void LLAgentCamera::updateLookAt(const S32 mouse_x, const S32 mouse_y)
 	}
 }
 
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_CAMERA("Camera");
+
 //-----------------------------------------------------------------------------
 // updateCamera()
 //-----------------------------------------------------------------------------
 void LLAgentCamera::updateCamera()
 {
-	static LLFastTimer::DeclareTimer ftm("Camera");
-	LLFastTimer t(ftm);
+	LL_RECORD_BLOCK_TIME(FTM_UPDATE_CAMERA);
 
 	// - changed camera_skyward to the new global "mCameraUpVector"
 	mCameraUpVector = LLVector3::z_axis;
@@ -1234,7 +1235,7 @@ void LLAgentCamera::updateCamera()
 	gAgentCamera.clearPanKeys();
 
 	// lerp camera focus offset
-	mCameraFocusOffset = lerp(mCameraFocusOffset, mCameraFocusOffsetTarget, LLCriticalDamp::getInterpolant(CAMERA_FOCUS_HALF_LIFE));
+	mCameraFocusOffset = lerp(mCameraFocusOffset, mCameraFocusOffsetTarget, LLSmoothInterpolation::getInterpolant(CAMERA_FOCUS_HALF_LIFE));
 
 	if ( mCameraMode == CAMERA_MODE_FOLLOW )
 	{
@@ -1352,7 +1353,7 @@ void LLAgentCamera::updateCamera()
 		{
 			const F32 SMOOTHING_HALF_LIFE = 0.02f;
 			
-			F32 smoothing = LLCriticalDamp::getInterpolant(gSavedSettings.getF32("CameraPositionSmoothing") * SMOOTHING_HALF_LIFE, FALSE);
+			F32 smoothing = LLSmoothInterpolation::getInterpolant(gSavedSettings.getF32("CameraPositionSmoothing") * SMOOTHING_HALF_LIFE, FALSE);
 					
 			if (!mFocusObject)  // we differentiate on avatar mode 
 			{
@@ -1382,9 +1383,9 @@ void LLAgentCamera::updateCamera()
 	}
 
 	
-	mCameraCurrentFOVZoomFactor = lerp(mCameraCurrentFOVZoomFactor, mCameraFOVZoomFactor, LLCriticalDamp::getInterpolant(FOV_ZOOM_HALF_LIFE));
+	mCameraCurrentFOVZoomFactor = lerp(mCameraCurrentFOVZoomFactor, mCameraFOVZoomFactor, LLSmoothInterpolation::getInterpolant(FOV_ZOOM_HALF_LIFE));
 
-//	llinfos << "Current FOV Zoom: " << mCameraCurrentFOVZoomFactor << " Target FOV Zoom: " << mCameraFOVZoomFactor << " Object penetration: " << mFocusObjectDist << llendl;
+//	LL_INFOS() << "Current FOV Zoom: " << mCameraCurrentFOVZoomFactor << " Target FOV Zoom: " << mCameraFOVZoomFactor << " Object penetration: " << mFocusObjectDist << LL_ENDL;
 
 	LLVector3 focus_agent = gAgent.getPosAgentFromGlobal(mFocusGlobal);
 	
@@ -1688,7 +1689,7 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 	{
 		if (!isAgentAvatarValid() || gAgentAvatarp->mDrawable.isNull())
 		{
-			llwarns << "Null avatar drawable!" << llendl;
+			LL_WARNS() << "Null avatar drawable!" << LL_ENDL;
 			return LLVector3d::zero;
 		}
 		head_offset.clearVec();
@@ -1796,7 +1797,7 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 
 			if (mTargetCameraDistance != mCurrentCameraDistance)
 			{
-				F32 camera_lerp_amt = LLCriticalDamp::getInterpolant(CAMERA_ZOOM_HALF_LIFE);
+				F32 camera_lerp_amt = LLSmoothInterpolation::getInterpolant(CAMERA_ZOOM_HALF_LIFE);
 
 				mCurrentCameraDistance = lerp(mCurrentCameraDistance, mTargetCameraDistance, camera_lerp_amt);
 			}
@@ -1813,7 +1814,7 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 			if (isAgentAvatarValid())
 			{
 				LLVector3d camera_lag_d;
-				F32 lag_interp = LLCriticalDamp::getInterpolant(CAMERA_LAG_HALF_LIFE);
+				F32 lag_interp = LLSmoothInterpolation::getInterpolant(CAMERA_LAG_HALF_LIFE);
 				LLVector3 target_lag;
 				LLVector3 vel = gAgent.getVelocity();
 
@@ -1858,7 +1859,7 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 				}
 				else
 				{
-					mCameraLag = lerp(mCameraLag, LLVector3::zero, LLCriticalDamp::getInterpolant(0.15f));
+					mCameraLag = lerp(mCameraLag, LLVector3::zero, LLSmoothInterpolation::getInterpolant(0.15f));
 				}
 
 				camera_lag_d.setVec(mCameraLag);
@@ -2267,22 +2268,22 @@ void LLAgentCamera::changeCameraToCustomizeAvatar()
 		gFocusMgr.setKeyboardFocus( NULL );
 		gFocusMgr.setMouseCapture( NULL );
 
-			// Remove any pitch or rotation from the avatar
-			LLVector3 at = gAgent.getAtAxis();
-			at.mV[VZ] = 0.f;
-			at.normalize();
-			gAgent.resetAxes(at);
+		// Remove any pitch or rotation from the avatar
+		LLVector3 at = gAgent.getAtAxis();
+		at.mV[VZ] = 0.f;
+		at.normalize();
+		gAgent.resetAxes(at);
 
-			gAgent.sendAnimationRequest(ANIM_AGENT_CUSTOMIZE, ANIM_REQUEST_START);
-			gAgent.setCustomAnim(TRUE);
-			gAgentAvatarp->startMotion(ANIM_AGENT_CUSTOMIZE);
-			LLMotion* turn_motion = gAgentAvatarp->findMotion(ANIM_AGENT_CUSTOMIZE);
+		gAgent.sendAnimationRequest(ANIM_AGENT_CUSTOMIZE, ANIM_REQUEST_START);
+		gAgent.setCustomAnim(TRUE);
+		gAgentAvatarp->startMotion(ANIM_AGENT_CUSTOMIZE);
+		LLMotion* turn_motion = gAgentAvatarp->findMotion(ANIM_AGENT_CUSTOMIZE);
 
-			if (turn_motion)
-			{
-				// delay camera animation long enough to play through turn animation
-				setAnimationDuration(turn_motion->getDuration() + CUSTOMIZE_AVATAR_CAMERA_ANIM_SLOP);
-			}
+		if (turn_motion)
+		{
+			// delay camera animation long enough to play through turn animation
+			setAnimationDuration(turn_motion->getDuration() + CUSTOMIZE_AVATAR_CAMERA_ANIM_SLOP);
+		}
 	}
 
 	LLVector3 agent_at = gAgent.getAtAxis();

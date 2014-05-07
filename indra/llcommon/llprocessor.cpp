@@ -32,9 +32,7 @@
 //#include <memory>
 
 #if LL_WINDOWS
-#	define WIN32_LEAN_AND_MEAN
-#	include <winsock2.h>
-#	include <windows.h>
+#	include "llwin32headerslean.h"
 #	define _interlockedbittestandset _renamed_interlockedbittestandset
 #	define _interlockedbittestandreset _renamed_interlockedbittestandreset
 #	include <intrin.h>
@@ -702,7 +700,7 @@ private:
 		__cpuid(0x1, eax, ebx, ecx, edx);
 		if(feature_infos[0] != (S32)edx)
 		{
-			llerrs << "machdep.cpu.feature_bits doesn't match expected cpuid result!" << llendl;
+			LL_ERRS() << "machdep.cpu.feature_bits doesn't match expected cpuid result!" << LL_ENDL;
 		} 
 #endif // LL_RELEASE_FOR_DOWNLOAD 	
 
@@ -877,7 +875,7 @@ LLProcessorInfo::LLProcessorInfo() : mImpl(NULL)
 
 
 LLProcessorInfo::~LLProcessorInfo() {}
-F64 LLProcessorInfo::getCPUFrequency() const { return mImpl->getCPUFrequency(); }
+F64MegahertzImplicit LLProcessorInfo::getCPUFrequency() const { return mImpl->getCPUFrequency(); }
 bool LLProcessorInfo::hasSSE() const { return mImpl->hasSSE(); }
 bool LLProcessorInfo::hasSSE2() const { return mImpl->hasSSE2(); }
 bool LLProcessorInfo::hasAltivec() const { return mImpl->hasAltivec(); }
