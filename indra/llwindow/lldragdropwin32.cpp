@@ -242,11 +242,11 @@ class LLDragDropWin32Target:
 
 					LLCoordWindow cursor_coord_window( pt_client.x, pt_client.y );
 					LLCoordGL gl_coord(cursor_coord_window.convert());
-					llinfos << "### (Drop) URL is: " << mDropUrl << llendl;
-					llinfos << "###        raw coords are: " << pt.x << " x " << pt.y << llendl;
-					llinfos << "###	    client coords are: " << pt_client.x << " x " << pt_client.y << llendl;
-					llinfos << "###         GL coords are: " << gl_coord.mX << " x " << gl_coord.mY << llendl;
-					llinfos << llendl;
+					LL_INFOS() << "### (Drop) URL is: " << mDropUrl << LL_ENDL;
+					LL_INFOS() << "###        raw coords are: " << pt.x << " x " << pt.y << LL_ENDL;
+					LL_INFOS() << "###	    client coords are: " << pt_client.x << " x " << pt_client.y << LL_ENDL;
+					LL_INFOS() << "###         GL coords are: " << gl_coord.mX << " x " << gl_coord.mY << LL_ENDL;
+					LL_INFOS() << LL_ENDL;
 
 					// no keyboard modifier option yet but we could one day
 					MASK mask = gKeyboard->currentMask( TRUE );

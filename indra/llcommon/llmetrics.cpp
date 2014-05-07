@@ -65,7 +65,7 @@ void LLMetricsImpl::recordEventDetails(const std::string& location,
 	metrics["location"] = location;
 	metrics["stats"]  = stats;
 	
-	llinfos << "LLMETRICS: " << (LLSDNotationStreamer(metrics)) << llendl; 
+	LL_INFOS() << "LLMETRICS: " << (LLSDNotationStreamer(metrics)) << LL_ENDL; 
 }
 
 // Store this:
@@ -128,7 +128,7 @@ void LLMetricsImpl::printTotals(LLSD metadata)
 
 	out_sd["stats"] = stats;
 
-	llinfos << "LLMETRICS: AGGREGATE: " << LLSDOStreamer<LLSDNotationFormatter>(out_sd) << llendl;
+	LL_INFOS() << "LLMETRICS: AGGREGATE: " << LLSDOStreamer<LLSDNotationFormatter>(out_sd) << LL_ENDL;
 }
 
 LLMetrics::LLMetrics()

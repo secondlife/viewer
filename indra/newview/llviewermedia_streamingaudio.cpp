@@ -56,20 +56,20 @@ void LLStreamingAudio_MediaPlugins::start(const std::string& url)
 	if (!mMediaPlugin) // lazy-init the underlying media plugin
 	{
 		mMediaPlugin = initializeMedia("audio/mpeg"); // assumes that whatever media implementation supports mp3 also supports vorbis.
-		llinfos << "streaming audio mMediaPlugin is now " << mMediaPlugin << llendl;
+		LL_INFOS() << "streaming audio mMediaPlugin is now " << mMediaPlugin << LL_ENDL;
 	}
 
 	if(!mMediaPlugin)
 		return;
 
 	if (!url.empty()) {
-		llinfos << "Starting internet stream: " << url << llendl;
+		LL_INFOS() << "Starting internet stream: " << url << LL_ENDL;
 		mURL = url;
 		mMediaPlugin->loadURI ( url );
 		mMediaPlugin->start();
-		llinfos << "Playing stream..." << llendl;		
+		LL_INFOS() << "Playing stream..." << LL_ENDL;		
 	} else {
-		llinfos << "setting stream to NULL"<< llendl;
+		LL_INFOS() << "setting stream to NULL"<< LL_ENDL;
 		mURL.clear();
 		mMediaPlugin->stop();
 	}
@@ -77,7 +77,7 @@ void LLStreamingAudio_MediaPlugins::start(const std::string& url)
 
 void LLStreamingAudio_MediaPlugins::stop()
 {
-	llinfos << "Stopping internet stream." << llendl;
+	LL_INFOS() << "Stopping internet stream." << LL_ENDL;
 	if(mMediaPlugin)
 	{
 		mMediaPlugin->stop();
@@ -93,12 +93,12 @@ void LLStreamingAudio_MediaPlugins::pause(int pause)
 	
 	if(pause)
 	{
-		llinfos << "Pausing internet stream." << llendl;
+		LL_INFOS() << "Pausing internet stream." << LL_ENDL;
 		mMediaPlugin->pause();
 	} 
 	else 
 	{
-		llinfos << "Unpausing internet stream." << llendl;
+		LL_INFOS() << "Unpausing internet stream." << LL_ENDL;
 		mMediaPlugin->start();
 	}
 }

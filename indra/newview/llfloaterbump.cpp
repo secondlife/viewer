@@ -110,8 +110,8 @@ void LLFloaterBump::add(LLScrollListCtrl* list, LLMeanCollisionData* mcd)
 		action = "physical_object_collide";
 		break;
 	default:
-		llinfos << "LLFloaterBump::add unknown mean collision type "
-			<< mcd->mType << llendl;
+		LL_INFOS() << "LLFloaterBump::add unknown mean collision type "
+			<< mcd->mType << LL_ENDL;
 		return;
 	}
 

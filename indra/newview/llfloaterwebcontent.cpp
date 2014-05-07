@@ -59,7 +59,7 @@ LLFloaterWebContent::_Params::_Params()
 
 LLFloaterWebContent::LLFloaterWebContent( const Params& params )
 :	LLFloater( params ),
-	LLInstanceTracker<LLFloaterWebContent, std::string>(params.id()),
+	LLInstanceTracker<LLFloaterWebContent, std::string, LLInstanceTrackerReplaceOnCollision>(params.id()),
 	mWebBrowser(NULL),
 	mAddressCombo(NULL),
 	mSecureLockIcon(NULL),
@@ -195,7 +195,7 @@ void LLFloaterWebContent::geometryChanged(S32 x, S32 y, S32 width, S32 height)
 						width + getRect().getWidth() - browser_rect.getWidth(), 
 						height + getRect().getHeight() - browser_rect.getHeight());
 
-	lldebugs << "geometry change: " << geom << llendl;
+	LL_DEBUGS() << "geometry change: " << geom << LL_ENDL;
 	
 	LLRect new_rect;
 	getParent()->screenRectToLocal(geom, &new_rect);
@@ -205,7 +205,7 @@ void LLFloaterWebContent::geometryChanged(S32 x, S32 y, S32 width, S32 height)
 // static
 void LLFloaterWebContent::preCreate(LLFloaterWebContent::Params& p)
 {
-	lldebugs << "url = " << p.url() << ", target = " << p.target() << ", uuid = " << p.id() << llendl;
+	LL_DEBUGS() << "url = " << p.url() << ", target = " << p.target() << ", uuid = " << p.id() << LL_ENDL;
 
 	if (!p.id.isProvided())
 	{
@@ -224,11 +224,11 @@ void LLFloaterWebContent::preCreate(LLFloaterWebContent::Params& p)
 		// and close the least recently opened one if this will put us over the limit.
 
 		LLFloaterReg::const_instance_list_t &instances = LLFloaterReg::getFloaterList(p.window_class);
-		lldebugs << "total instance count is " << instances.size() << llendl;
+		LL_DEBUGS() << "total instance count is " << instances.size() << LL_ENDL;
 
 		for(LLFloaterReg::const_instance_list_t::const_iterator iter = instances.begin(); iter != instances.end(); iter++)
 		{
-			lldebugs << "    " << (*iter)->getKey()["target"] << llendl;
+			LL_DEBUGS() << "    " << (*iter)->getKey()["target"] << LL_ENDL;
 		}
 
 		if(instances.size() >= (size_t)browser_window_limit)
@@ -389,8 +389,8 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 	{
 		if (mCurrentURL.find("facebook.com/dialog/oauth") == std::string::npos) // HACK to fix ACME-1317 - Cho
 		{
-			geometryChanged(self->getGeometryX(), self->getGeometryY(), self->getGeometryWidth(), self->getGeometryHeight());
-		}
+		geometryChanged(self->getGeometryX(), self->getGeometryY(), self->getGeometryWidth(), self->getGeometryHeight());
+	}
 	}
 	else if(event == MEDIA_EVENT_STATUS_TEXT_CHANGED )
 	{

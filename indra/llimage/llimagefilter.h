@@ -27,6 +27,7 @@
 #ifndef LL_LLIMAGEFILTER_H
 #define LL_LLIMAGEFILTER_H
 
+#include "llsd.h"
 #include "llimage.h"
 
 class LLImageRaw;

@@ -300,7 +300,7 @@ public:
 	{
 		if (isGoodStatus(status))
 		{
-			llinfos << "Facebook: Info received" << llendl;
+			LL_INFOS() << "Facebook: Info received" << LL_ENDL;
 			LL_DEBUGS("FacebookConnect") << "Getting Facebook info successful. info: " << info << LL_ENDL;
 			LLFacebookConnect::instance().storeInfo(info);
 		}
@@ -500,7 +500,7 @@ void LLFacebookConnect::sharePhoto(LLPointer<LLImageFormatted> image, const std:
 	}
 	else
 	{
-		llwarns << "Image to upload is not a PNG or JPEG" << llendl;
+		LL_WARNS() << "Image to upload is not a PNG or JPEG" << LL_ENDL;
 		return;
 	}
 	

@@ -47,11 +47,11 @@ void LLFloaterWebProfile::onOpen(const LLSD& key)
 // virtual
 void LLFloaterWebProfile::handleReshape(const LLRect& new_rect, bool by_user)
 {
-	lldebugs << "handleReshape: " << new_rect << llendl;
+	LL_DEBUGS() << "handleReshape: " << new_rect << LL_ENDL;
 
 	if (by_user && !isMinimized())
 	{
-		lldebugs << "Storing new rect" << llendl;
+		LL_DEBUGS() << "Storing new rect" << LL_ENDL;
 		gSavedSettings.setRect("WebProfileFloaterRect", new_rect);
 	}
 
@@ -68,7 +68,7 @@ LLFloater* LLFloaterWebProfile::create(const LLSD& key)
 void LLFloaterWebProfile::applyPreferredRect()
 {
 	const LLRect preferred_rect = gSavedSettings.getRect("WebProfileFloaterRect");
-	lldebugs << "Applying preferred rect: " << preferred_rect << llendl;
+	LL_DEBUGS() << "Applying preferred rect: " << preferred_rect << LL_ENDL;
 
 	// Don't override position that may have been set by floater stacking code.
 	LLRect new_rect = getRect();

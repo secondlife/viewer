@@ -119,8 +119,8 @@ public:
     
 	virtual bool validate(const std::string& name, LLSD& context) const
 	{
-		//llinfos << "validate: " << name << ", "
-		//	<< LLSDOStreamer<LLSDNotationFormatter>(context) << llendl;
+		//LL_INFOS() << "validate: " << name << ", "
+		//	<< LLSDOStreamer<LLSDNotationFormatter>(context) << LL_ENDL;
 		if((std::string("PUT") == context["request"]["verb"].asString()) && !name.empty())
 		{
 			return true;
@@ -257,8 +257,8 @@ public:
 
 	virtual bool validate(const std::string& name, LLSD& context) const
 	{
-		llinfos << "LLHTTPLiveConfigSingleService::validate(" << name
-			<< ")" << llendl;
+		LL_INFOS() << "LLHTTPLiveConfigSingleService::validate(" << name
+			<< ")" << LL_ENDL;
 		LLSD option = LLApp::instance()->getOption(name);
 		if(option.isDefined()) return true;
 		else return false;

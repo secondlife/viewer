@@ -164,7 +164,7 @@ void LLInboxFolderViewFolder::computeFreshness()
 #if DEBUGGING_FRESHNESS
 		if (mFresh)
 		{
-			llinfos << "Item is fresh! -- creation " << mCreationDate << ", saved_freshness_date " << last_expansion_utc << llendl;
+			LL_INFOS() << "Item is fresh! -- creation " << mCreationDate << ", saved_freshness_date " << last_expansion_utc << LL_ENDL;
 		}
 #endif
 	}
@@ -242,7 +242,7 @@ void LLInboxFolderViewItem::computeFreshness()
 #if DEBUGGING_FRESHNESS
 		if (mFresh)
 		{
-			llinfos << "Item is fresh! -- creation " << mCreationDate << ", saved_freshness_date " << last_expansion_utc << llendl;
+			LL_INFOS() << "Item is fresh! -- creation " << mCreationDate << ", saved_freshness_date " << last_expansion_utc << LL_ENDL;
 		}
 #endif
 	}

@@ -64,8 +64,8 @@ void LLRemoteParcelRequestResponder::result(const LLSD& content)
 //virtual
 void LLRemoteParcelRequestResponder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 {
-	llwarns << "LLRemoteParcelRequest error [status:"
-			<< status << "]: " << content << llendl;
+	LL_WARNS() << "LLRemoteParcelRequest error [status:"
+			<< status << "]: " << content << LL_ENDL;
 
 	// Panel inspecting the information may be closed and destroyed
 	// before this response is received.

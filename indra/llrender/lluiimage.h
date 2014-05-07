@@ -42,6 +42,12 @@ extern const LLColor4 UI_VERTEX_COLOR;
 class LLUIImage : public LLRefCount
 {
 public:
+	enum EScaleStyle
+	{
+		SCALE_INNER,
+		SCALE_OUTER
+	};
+
 	typedef boost::signals2::signal<void (void)> image_loaded_signal_t;
 
 	LLUIImage(const std::string& name, LLPointer<LLTexture> image);
@@ -49,6 +55,7 @@ public:
 
 	void setClipRegion(const LLRectf& region);
 	void setScaleRegion(const LLRectf& region);
+	void setScaleStyle(EScaleStyle style);
 
 	LLPointer<LLTexture> getImage() { return mImage; }
 	const LLPointer<LLTexture>& getImage() const { return mImage; }
@@ -83,12 +90,11 @@ public:
 protected:
 	image_loaded_signal_t* mImageLoaded;
 
-	std::string			mName;
-	LLRectf				mScaleRegion;
-	LLRectf				mClipRegion;
-	LLPointer<LLTexture> mImage;
-	BOOL				mUniformScaling;
-	BOOL				mNoClip;
+	std::string				mName;
+	LLRectf					mScaleRegion;
+	LLRectf					mClipRegion;
+	LLPointer<LLTexture>	mImage;
+	EScaleStyle				mScaleStyle;
 };
 
 namespace LLInitParam

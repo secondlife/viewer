@@ -35,9 +35,9 @@ extern "C" {
 #include "apr_dso.h"
 }
 
-#define DEBUGMSG(...) do { lldebugs << llformat(__VA_ARGS__) << llendl; } while(0)
-#define INFOMSG(...) do { llinfos << llformat(__VA_ARGS__) << llendl; } while(0)
-#define WARNMSG(...) do { llwarns << llformat(__VA_ARGS__) << llendl; } while(0)
+#define DEBUGMSG(...) do { LL_DEBUGS() << llformat(__VA_ARGS__) << LL_ENDL; } while(0)
+#define INFOMSG(...) do { LL_INFOS() << llformat(__VA_ARGS__) << LL_ENDL; } while(0)
+#define WARNMSG(...) do { LL_WARNS() << llformat(__VA_ARGS__) << LL_ENDL; } while(0)
 
 #define LL_DBUS_SYM(REQUIRED, DBUSSYM, RTN, ...) RTN (*ll##DBUSSYM)(__VA_ARGS__) = NULL
 #include "llappviewerlinux_api_dbus_syms_raw.inc"

@@ -101,7 +101,7 @@ public:
 	LLGLTexture(const LLImageRaw* raw, BOOL usemipmaps) ;
 	LLGLTexture(const U32 width, const U32 height, const U8 components, BOOL usemipmaps) ;
 
-	virtual void dump();	// debug info to llinfos
+	virtual void dump();	// debug info to LL_INFOS()
 
 	virtual const LLUUID& getID() const = 0;
 
@@ -138,7 +138,7 @@ public:
 	S32        getDiscardLevel() const;
 	S8         getComponents() const;
 	BOOL       getBoundRecently() const;
-	S32        getTextureMemory() const ;
+	S32Bytes   getTextureMemory() const ;
 	LLGLenum   getPrimaryFormat() const;
 	BOOL       getIsAlphaMask() const ;
 	LLTexUnit::eTextureType getTarget(void) const ;
