@@ -235,7 +235,7 @@ void LLFloaterOutbox::setupOutbox()
 	if (outbox_id.isNull())
 	{
 		// We should never get there unless the inventory fails badly
-		llerrs << "Inventory problem: failure to create the outbox for a merchant!" << llendl;
+		LL_ERRS() << "Inventory problem: failure to create the outbox for a merchant!" << LL_ENDL;
 		return;
 	}
     
@@ -245,7 +245,7 @@ void LLFloaterOutbox::setupOutbox()
     
     if (outbox_id == mOutboxId)
     {
-        llwarns << "Inventory warning: Merchant outbox already set" << llendl;
+        LL_WARNS() << "Inventory warning: Merchant outbox already set" << LL_ENDL;
         return;
     }
     mOutboxId = outbox_id;
@@ -319,7 +319,7 @@ void LLFloaterOutbox::updateFolderCount()
 {
 	if (mOutboxInventoryPanel.get() && mOutboxId.notNull())
 	{
-        S32 item_count = 0;
+        U32 item_count = 0;
 
         if (mOutboxId.notNull())
         {
@@ -327,7 +327,7 @@ void LLFloaterOutbox::updateFolderCount()
             LLInventoryModel::item_array_t * items;
             gInventory.getDirectDescendentsOf(mOutboxId, cats, items);
 
-            item_count = cats->count() + items->count();
+            item_count = cats->size() + items->size();
         }
 	
         mOutboxItemCount = item_count;

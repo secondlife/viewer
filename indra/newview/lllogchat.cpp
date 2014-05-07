@@ -297,7 +297,7 @@ void LLLogChat::saveHistory(const std::string& filename,
 	if (tmp_filename.empty())
 	{
 		std::string warn = "Chat history filename [" + filename + "] is empty!";
-		llwarning(warn, 666);
+		LL_WARNS() << warn << LL_ENDL;
 		llassert(tmp_filename.size());
 		return;
 	}
@@ -305,7 +305,7 @@ void LLLogChat::saveHistory(const std::string& filename,
 	llofstream file (LLLogChat::makeLogFileName(filename), std::ios_base::app);
 	if (!file.is_open())
 	{
-		llwarns << "Couldn't open chat history log! - " + filename << llendl;
+		LL_WARNS() << "Couldn't open chat history log! - " + filename << LL_ENDL;
 		return;
 	}
 
@@ -811,7 +811,7 @@ void LLChatLogFormatter::format(const LLSD& im, std::ostream& ostr) const
 {
 	if (!im.isMap())
 	{
-		llwarning("invalid LLSD type of an instant message", 0);
+		LL_WARNS() << "invalid LLSD type of an instant message" << LL_ENDL;
 		return;
 	}
 
@@ -951,11 +951,9 @@ LLDeleteHistoryThread::LLDeleteHistoryThread(std::list<LLSD>* messages, LLLoadHi
 	mLoadThread(loadThread)
 {
 }
-
 LLDeleteHistoryThread::~LLDeleteHistoryThread()
 {
 }
-
 void LLDeleteHistoryThread::run()
 {
 	if (mLoadThread != NULL)

@@ -142,8 +142,7 @@ void LLLandmarkList::processGetAssetReply(
 	}
 	else
 	{
-		LLViewerStats::getInstance()->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
-		// SJB: No use case for a notification here. Use lldebugs instead
+		// SJB: No use case for a notification here. Use LL_DEBUGS() instead
 		if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status )
 		{
 			LL_WARNS("Landmarks") << "Missing Landmark" << LL_ENDL;
@@ -176,7 +175,7 @@ void LLLandmarkList::onRegionHandle(const LLUUID& landmark_id)
 
 	if (!landmark)
 	{
-		llwarns << "Got region handle but the landmark not found." << llendl;
+		LL_WARNS() << "Got region handle but the landmark not found." << LL_ENDL;
 		return;
 	}
 
@@ -185,7 +184,7 @@ void LLLandmarkList::onRegionHandle(const LLUUID& landmark_id)
 	LLVector3d pos;
 	if (!landmark->getGlobalPos(pos))
 	{
-		llwarns << "Got region handle but the landmark global position is still unknown." << llendl;
+		LL_WARNS() << "Got region handle but the landmark global position is still unknown." << LL_ENDL;
 		return;
 	}
 
@@ -198,7 +197,7 @@ void LLLandmarkList::makeCallbacks(const LLUUID& landmark_id)
 
 	if (!landmark)
 	{
-		llwarns << "Landmark to make callbacks for not found." << llendl;
+		LL_WARNS() << "Landmark to make callbacks for not found." << LL_ENDL;
 	}
 
 	// make all the callbacks here.

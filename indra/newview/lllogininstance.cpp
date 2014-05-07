@@ -202,7 +202,7 @@ MandatoryUpdateMachine::MandatoryUpdateMachine(LLLoginInstance & loginInstance, 
 
 void MandatoryUpdateMachine::start(void)
 {
-	llinfos << "starting mandatory update machine" << llendl;
+	LL_INFOS() << "starting mandatory update machine" << LL_ENDL;
 	
 	if(mUpdaterService.isChecking()) {
 		switch(mUpdaterService.getState()) {
@@ -268,7 +268,7 @@ MandatoryUpdateMachine::CheckingForUpdate::CheckingForUpdate(MandatoryUpdateMach
 
 void MandatoryUpdateMachine::CheckingForUpdate::enter(void)
 {
-	llinfos << "entering checking for update" << llendl;
+	LL_INFOS() << "entering checking for update" << LL_ENDL;
 	
 	mProgressView = gViewerWindow->getProgressView();
 	mProgressView->setMessage("Looking for update...");
@@ -327,7 +327,7 @@ MandatoryUpdateMachine::Error::Error(MandatoryUpdateMachine & machine):
 
 void MandatoryUpdateMachine::Error::enter(void)
 {
-	llinfos << "entering error" << llendl;
+	LL_INFOS() << "entering error" << LL_ENDL;
 	LLNotificationsUtil::add("FailedRequiredUpdateInstall", LLSD(), LLSD(), boost::bind(&MandatoryUpdateMachine::Error::onButtonClicked, this, _1, _2));
 }
 
@@ -358,7 +358,7 @@ MandatoryUpdateMachine::ReadyToInstall::ReadyToInstall(MandatoryUpdateMachine & 
 
 void MandatoryUpdateMachine::ReadyToInstall::enter(void)
 {
-	llinfos << "entering ready to install" << llendl;
+	LL_INFOS() << "entering ready to install" << LL_ENDL;
 	// Open update ready dialog.
 }
 
@@ -383,7 +383,7 @@ MandatoryUpdateMachine::StartingUpdaterService::StartingUpdaterService(Mandatory
 
 void MandatoryUpdateMachine::StartingUpdaterService::enter(void)
 {
-	llinfos << "entering start update service" << llendl;
+	LL_INFOS() << "entering start update service" << LL_ENDL;
 	LLNotificationsUtil::add("UpdaterServiceNotRunning", LLSD(), LLSD(), boost::bind(&MandatoryUpdateMachine::StartingUpdaterService::onButtonClicked, this, _1, _2));
 }
 
@@ -420,7 +420,7 @@ MandatoryUpdateMachine::WaitingForDownload::WaitingForDownload(MandatoryUpdateMa
 
 void MandatoryUpdateMachine::WaitingForDownload::enter(void)
 {
-	llinfos << "entering waiting for download" << llendl;
+	LL_INFOS() << "entering waiting for download" << LL_ENDL;
 	mProgressView = gViewerWindow->getProgressView();
 	mProgressView->setMessage("Downloading update...");
 	std::ostringstream stream;
@@ -589,7 +589,7 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 	unsigned char hashed_unique_id_string[MD5HEX_STR_SIZE];
 	if ( ! llHashedUniqueID(hashed_unique_id_string) )
 	{
-		llwarns << "Not providing a unique id in request params" << llendl;
+		LL_WARNS() << "Not providing a unique id in request params" << LL_ENDL;
 	}
 	request_params["start"] = construct_start_string();
 	request_params["skipoptional"] = mSkipOptionalUpdate;
@@ -621,7 +621,7 @@ bool LLLoginInstance::handleLoginEvent(const LLSD& event)
 
 	if(!(event.has("state") && event.has("change") && event.has("progress")))
 	{
-		llerrs << "Unknown message from LLLogin: " << event << llendl;
+		LL_ERRS() << "Unknown message from LLLogin: " << event << LL_ENDL;
 	}
 
 	mLoginState = event["state"].asString();
@@ -656,7 +656,7 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
 	// to reconnect or to end the attempt in failure.
 	if(reason_response == "tos")
 	{
-		llinfos << "LLLoginInstance::handleLoginFailure ToS" << llendl;
+		LL_INFOS() << "LLLoginInstance::handleLoginFailure ToS" << LL_ENDL;
 
 		LLSD data(LLSD::emptyMap());
 		data["message"] = message_response;
@@ -671,7 +671,7 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
 	}
 	else if(reason_response == "critical")
 	{
-		llinfos << "LLLoginInstance::handleLoginFailure Crit" << llendl;
+		LL_INFOS() << "LLLoginInstance::handleLoginFailure Crit" << LL_ENDL;
 
 		LLSD data(LLSD::emptyMap());
 		data["message"] = message_response;
@@ -696,27 +696,27 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
 	}
 	else if(reason_response == "update" || gSavedSettings.getBOOL("ForceMandatoryUpdate"))
 	{
-		llinfos << "LLLoginInstance::handleLoginFailure update" << llendl;
+		LL_INFOS() << "LLLoginInstance::handleLoginFailure update" << LL_ENDL;
 
 		gSavedSettings.setBOOL("ForceMandatoryUpdate", FALSE);
 		updateApp(true, message_response);
 	}
 	else if(reason_response == "optional")
 	{
-		llinfos << "LLLoginInstance::handleLoginFailure optional" << llendl;
+		LL_INFOS() << "LLLoginInstance::handleLoginFailure optional" << LL_ENDL;
 
 		updateApp(false, message_response);
 	}
 	else
 	{	
-		llinfos << "LLLoginInstance::handleLoginFailure attemptComplete" << llendl;
+		LL_INFOS() << "LLLoginInstance::handleLoginFailure attemptComplete" << LL_ENDL;
 		attemptComplete();
 	}	
 }
 
 void LLLoginInstance::handleLoginSuccess(const LLSD& event)
 {
-	llinfos << "LLLoginInstance::handleLoginSuccess" << llendl;
+	LL_INFOS() << "LLLoginInstance::handleLoginSuccess" << LL_ENDL;
 
 	if(gSavedSettings.getBOOL("ForceMandatoryUpdate"))
 	{
@@ -740,7 +740,7 @@ void LLLoginInstance::handleDisconnect(const LLSD& event)
 {
     // placeholder
 
-	llinfos << "LLLoginInstance::handleDisconnect placeholder " << llendl;
+	LL_INFOS() << "LLLoginInstance::handleDisconnect placeholder " << LL_ENDL;
 }
 
 void LLLoginInstance::handleIndeterminate(const LLSD& event)
@@ -754,7 +754,7 @@ void LLLoginInstance::handleIndeterminate(const LLSD& event)
 	LLSD message = event.get("data").get("message");
 	if(message.isDefined())
 	{
-		llinfos << "LLLoginInstance::handleIndeterminate " << message.asString() << llendl;
+		LL_INFOS() << "LLLoginInstance::handleIndeterminate " << message.asString() << LL_ENDL;
 
 		LLSD progress_update;
 		progress_update["desc"] = message;
@@ -766,7 +766,7 @@ bool LLLoginInstance::handleTOSResponse(bool accepted, const std::string& key)
 {
 	if(accepted)
 	{	
-		llinfos << "LLLoginInstance::handleTOSResponse: accepted" << llendl;
+		LL_INFOS() << "LLLoginInstance::handleTOSResponse: accepted" << LL_ENDL;
 
 		// Set the request data to true and retry login.
 		mRequestData["params"][key] = true; 
@@ -774,7 +774,7 @@ bool LLLoginInstance::handleTOSResponse(bool accepted, const std::string& key)
 	}
 	else
 	{
-		llinfos << "LLLoginInstance::handleTOSResponse: attemptComplete" << llendl;
+		LL_INFOS() << "LLLoginInstance::handleTOSResponse: attemptComplete" << LL_ENDL;
 
 		attemptComplete();
 	}

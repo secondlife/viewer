@@ -187,7 +187,7 @@ void LLPanelLandInfo::refresh()
 		}
 		else
 		{
-			lldebugs << "Invalid selection for joining land" << llendl;
+			LL_DEBUGS() << "Invalid selection for joining land" << LL_ENDL;
 			getChildView("button join land")->setEnabled(FALSE);
 		}
 

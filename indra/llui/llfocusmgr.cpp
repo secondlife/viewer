@@ -358,11 +358,11 @@ void LLFocusMgr::setMouseCapture( LLMouseHandler* new_captor )
 		{
 			if (new_captor)
 			{
-				llinfos << "New mouse captor: " << new_captor->getName() << llendl;
+				LL_INFOS() << "New mouse captor: " << new_captor->getName() << LL_ENDL;
 			}
 			else
 			{
-				llinfos << "New mouse captor: NULL" << llendl;
+				LL_INFOS() << "New mouse captor: NULL" << LL_ENDL;
 			}
 		}
 			

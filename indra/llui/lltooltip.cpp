@@ -476,12 +476,15 @@ void LLToolTipMgr::show(const std::string& msg)
 
 void LLToolTipMgr::show(const LLToolTip::Params& params)
 {
+	if (!params.styled_message.isProvided() 
+		&& (!params.message.isProvided() || params.message().empty())) return;
+
 	// fill in default tooltip params from tool_tip.xml
 	LLToolTip::Params params_with_defaults(params);
 	params_with_defaults.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLToolTip>());
 	if (!params_with_defaults.validateBlock()) 
 	{
-		llwarns << "Could not display tooltip!" << llendl;
+		LL_WARNS() << "Could not display tooltip!" << LL_ENDL;
 		return;
 	}
 	

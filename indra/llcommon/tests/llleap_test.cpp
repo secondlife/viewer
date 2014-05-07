@@ -22,7 +22,6 @@
 // other Linden headers
 #include "../test/lltut.h"
 #include "../test/namedtempfile.h"
-#include "../test/manageapr.h"
 #include "../test/catch_and_store_what_in.h"
 #include "wrapllerrs.h"
 #include "llevents.h"
@@ -32,8 +31,6 @@
 #include <functional>
 
 using boost::assign::list_of;
-
-static ManageAPR manager;
 
 StringVec sv(const StringVec& listof) { return listof; }
 

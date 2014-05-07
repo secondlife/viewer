@@ -234,7 +234,7 @@ void LLScriptFloater::onMouseDown()
 			// Remove new message icon
 			if (NULL == chicletp)
 			{
-				llerror("Dock chiclet for LLScriptFloater doesn't exist", 0);
+				LL_ERRS() << "Dock chiclet for LLScriptFloater doesn't exist" << LL_ENDL;
 			}
 			else
 			{
@@ -306,7 +306,7 @@ void LLScriptFloater::dockToChiclet(bool dock)
 			LLChiclet * chicletp = chiclet_panelp->findChiclet<LLChiclet>(getNotificationId());
 			if (NULL == chicletp)
 			{
-				llwarns << "Dock chiclet for LLScriptFloater doesn't exist" << llendl;
+				LL_WARNS() << "Dock chiclet for LLScriptFloater doesn't exist" << LL_ENDL;
 				return;
 			}
 
@@ -350,7 +350,7 @@ void LLScriptFloaterManager::onAddNotification(const LLUUID& notification_id)
 {
 	if(notification_id.isNull())
 	{
-		llwarns << "Invalid notification ID" << llendl;
+		LL_WARNS() << "Invalid notification ID" << LL_ENDL;
 		return;
 	}
 
@@ -434,7 +434,7 @@ void LLScriptFloaterManager::onRemoveNotification(const LLUUID& notification_id)
 {
 	if(notification_id.isNull())
 	{
-		llwarns << "Invalid notification ID" << llendl;
+		LL_WARNS() << "Invalid notification ID" << LL_ENDL;
 		return;
 	}
 
@@ -505,7 +505,7 @@ LLScriptFloaterManager::EObjectType LLScriptFloaterManager::getObjectType(const 
 {
 	if(notification_id.isNull())
 	{
-		llwarns << "Invalid notification ID" << llendl;
+		LL_WARNS() << "Invalid notification ID" << LL_ENDL;
 		return OBJ_UNKNOWN;
 	}
 
@@ -518,7 +518,7 @@ LLScriptFloaterManager::EObjectType LLScriptFloaterManager::getObjectType(const 
 		return it->second;
 	}
 
-	llwarns << "Unknown object type" << llendl;
+	LL_WARNS() << "Unknown object type" << LL_ENDL;
 	return OBJ_UNKNOWN;
 }
 
@@ -529,7 +529,7 @@ std::string LLScriptFloaterManager::getObjectName(const LLUUID& notification_id)
 	LLNotificationPtr notification = LLNotifications::getInstance()->find(notification_id);
 	if(!notification)
 	{
-		llwarns << "Invalid notification" << llendl;
+		LL_WARNS() << "Invalid notification" << LL_ENDL;
 		return LLStringUtil::null;
 	}
 
@@ -586,7 +586,7 @@ void LLScriptFloaterManager::saveFloaterPosition(const LLUUID& object_id, const 
 	}
 	else
 	{
-		llwarns << "Invalid object id" << llendl;
+		LL_WARNS() << "Invalid object id" << LL_ENDL;
 	}
 }
 

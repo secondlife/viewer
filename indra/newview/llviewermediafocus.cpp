@@ -108,7 +108,7 @@ void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 fac
 		else
 		{
 			// This should never happen.
-			llwarns << "Can't find media entry for focused face" << llendl;
+			LL_WARNS() << "Can't find media entry for focused face" << LL_ENDL;
 		}
 
 		media_impl->focus(true);
@@ -223,7 +223,7 @@ void LLViewerMediaFocus::setCameraZoom(LLViewerObject* object, LLVector3 normal,
 		F32 aspect_ratio = getBBoxAspectRatio(bbox, normal, &height, &width, &depth);
 		F32 camera_aspect = LLViewerCamera::getInstance()->getAspect();
 		
-		lldebugs << "normal = " << normal << ", aspect_ratio = " << aspect_ratio << ", camera_aspect = " << camera_aspect << llendl;
+		LL_DEBUGS() << "normal = " << normal << ", aspect_ratio = " << aspect_ratio << ", camera_aspect = " << camera_aspect << LL_ENDL;
 
 		// We will normally use the side of the volume aligned with the short side of the screen (i.e. the height for 
 		// a screen in a landscape aspect ratio), however there is an edge case where the aspect ratio of the object is 
@@ -241,14 +241,14 @@ void LLViewerMediaFocus::setCameraZoom(LLViewerObject* object, LLVector3 normal,
 			angle_of_view = llmax(0.1f, LLViewerCamera::getInstance()->getView() * LLViewerCamera::getInstance()->getAspect());
 			distance = width * 0.5 * padding_factor / tan(angle_of_view * 0.5f );
 
-			lldebugs << "using width (" << width << "), angle_of_view = " << angle_of_view << ", distance = " << distance << llendl;
+			LL_DEBUGS() << "using width (" << width << "), angle_of_view = " << angle_of_view << ", distance = " << distance << LL_ENDL;
 		}
 		else
 		{
 			angle_of_view = llmax(0.1f, LLViewerCamera::getInstance()->getView());
 			distance = height * 0.5 * padding_factor / tan(angle_of_view * 0.5f );
 
-			lldebugs << "using height (" << height << "), angle_of_view = " << angle_of_view << ", distance = " << distance << llendl;
+			LL_DEBUGS() << "using height (" << height << "), angle_of_view = " << angle_of_view << ", distance = " << distance << LL_ENDL;
 		}
 
 		distance += depth * 0.5;
@@ -452,7 +452,7 @@ F32 LLViewerMediaFocus::getBBoxAspectRatio(const LLBBox& bbox, const LLVector3& 
 	F32 dot1 = 0.f;
 	F32 dot2 = 0.f;
 	
-	lldebugs << "bounding box local size = " << bbox_max << ", local_normal = " << local_normal << llendl;
+	LL_DEBUGS() << "bounding box local size = " << bbox_max << ", local_normal = " << local_normal << LL_ENDL;
 
 	// The largest component of the localized normal vector is the depth component
 	// meaning that the other two are the legs of the rectangle.
@@ -465,21 +465,21 @@ F32 LLViewerMediaFocus::getBBoxAspectRatio(const LLBBox& bbox, const LLVector3& 
 	
 	if(XgtY && XgtZ)
 	{
-		lldebugs << "x component of normal is longest, using y and z" << llendl;
+		LL_DEBUGS() << "x component of normal is longest, using y and z" << LL_ENDL;
 		comp1.mV[VY] = bbox_max.mV[VY];
 		comp2.mV[VZ] = bbox_max.mV[VZ];
 		*depth = bbox_max.mV[VX];
 	}
 	else if(!XgtY && YgtZ)
 	{
-		lldebugs << "y component of normal is longest, using x and z" << llendl;
+		LL_DEBUGS() << "y component of normal is longest, using x and z" << LL_ENDL;
 		comp1.mV[VX] = bbox_max.mV[VX];
 		comp2.mV[VZ] = bbox_max.mV[VZ];
 		*depth = bbox_max.mV[VY];
 	}
 	else
 	{
-		lldebugs << "z component of normal is longest, using x and y" << llendl;
+		LL_DEBUGS() << "z component of normal is longest, using x and y" << LL_ENDL;
 		comp1.mV[VX] = bbox_max.mV[VX];
 		comp2.mV[VY] = bbox_max.mV[VY];
 		*depth = bbox_max.mV[VZ];
@@ -493,19 +493,19 @@ F32 LLViewerMediaFocus::getBBoxAspectRatio(const LLBBox& bbox, const LLVector3& 
 		*height = comp1.length();
 		*width = comp2.length();
 
-		lldebugs << "comp1 = " << comp1 << ", height = " << *height << llendl;
-		lldebugs << "comp2 = " << comp2 << ", width = " << *width << llendl;
+		LL_DEBUGS() << "comp1 = " << comp1 << ", height = " << *height << LL_ENDL;
+		LL_DEBUGS() << "comp2 = " << comp2 << ", width = " << *width << LL_ENDL;
 	}
 	else
 	{
 		*height = comp2.length();
 		*width = comp1.length();
 
-		lldebugs << "comp2 = " << comp2 << ", height = " << *height << llendl;
-		lldebugs << "comp1 = " << comp1 << ", width = " << *width << llendl;
+		LL_DEBUGS() << "comp2 = " << comp2 << ", height = " << *height << LL_ENDL;
+		LL_DEBUGS() << "comp1 = " << comp1 << ", width = " << *width << LL_ENDL;
 	}
 	
-	lldebugs << "returning " << (*width / *height) << llendl;
+	LL_DEBUGS() << "returning " << (*width / *height) << LL_ENDL;
 
 	// Return the aspect ratio.
 	return *width / *height;
@@ -560,7 +560,7 @@ void LLViewerMediaFocus::focusZoomOnMedia(LLUUID media_id)
 			if(normal.isNull())
 			{
 				// If that didn't work, use the inverse of the camera "look at" axis, which should keep the camera pointed in the same direction.
-//				llinfos << "approximate face normal invalid, using camera direction." << llendl;
+//				LL_INFOS() << "approximate face normal invalid, using camera direction." << LL_ENDL;
 				normal = LLViewerCamera::getInstance()->getAtAxis();
 				normal *= (F32)-1.0f;
 			}

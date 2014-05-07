@@ -47,8 +47,8 @@ LLLiveAppConfig::~LLLiveAppConfig()
 // virtual 
 bool LLLiveAppConfig::loadFile()
 {
-	llinfos << "LLLiveAppConfig::loadFile(): reading from "
-		<< filename() << llendl;
+	LL_INFOS() << "LLLiveAppConfig::loadFile(): reading from "
+		<< filename() << LL_ENDL;
     llifstream file(filename());
 	LLSD config;
     if (file.is_open())
@@ -56,15 +56,15 @@ bool LLLiveAppConfig::loadFile()
         LLSDSerialize::fromXML(config, file);
 		if(!config.isMap())
 		{
-			llwarns << "Live app config not an map in " << filename()
-				<< " Ignoring the data." << llendl;
+			LL_WARNS() << "Live app config not an map in " << filename()
+				<< " Ignoring the data." << LL_ENDL;
 			return false;
 		}
 		file.close();
     }
 	else
 	{
-		llinfos << "Live file " << filename() << " does not exit." << llendl;
+		LL_INFOS() << "Live file " << filename() << " does not exit." << LL_ENDL;
 	}
 	// *NOTE: we do not handle the else case here because we would not
 	// have attempted to load the file unless LLLiveFile had

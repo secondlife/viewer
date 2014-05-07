@@ -30,6 +30,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <vector>
+#include <limits>
 #include "lldefs.h"
 //#include "llstl.h" // *TODO: Remove when LLString is gone
 //#include "llstring.h" // *TODO: Remove when LLString is gone
@@ -76,6 +77,8 @@ const F32	OO_SQRT3	= 0.577350269189625764509f;
 const F32	DEG_TO_RAD	= 0.017453292519943295769236907684886f;
 const F32	RAD_TO_DEG	= 57.295779513082320876798154814105f;
 const F32	F_APPROXIMATELY_ZERO = 0.00001f;
+const F32	F_LN10		= 2.3025850929940456840179914546844f;
+const F32	OO_LN10		= 0.43429448190325182765112891891661;
 const F32	F_LN2		= 0.69314718056f;
 const F32	OO_LN2		= 1.4426950408889634073599246810019f;
 
@@ -111,6 +114,12 @@ inline bool is_approx_zero( F32 f ) { return (-F_APPROXIMATELY_ZERO < f) && (f <
 //
 // WARNING: Infinity is comparable with F32_MAX and negative 
 // infinity is comparable with F32_MIN
+
+// handles negative and positive zeros
+inline bool is_zero(F32 x)
+{
+	return (*(U32*)(&x) & 0x7fffffff) == 0;
+}
 
 inline bool is_approx_equal(F32 x, F32 y)
 {

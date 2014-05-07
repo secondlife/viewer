@@ -35,6 +35,11 @@
 #include "llcontrol.h"
 #include "llcrashlock.h"
 
+// Crash reporter behavior
+const S32 CRASH_BEHAVIOR_ASK = 0;
+const S32 CRASH_BEHAVIOR_ALWAYS_SEND = 1;
+const S32 CRASH_BEHAVIOR_NEVER_SEND = 2;
+
 class LLCrashLogger : public LLApp
 {
 public:

@@ -294,7 +294,7 @@ LLTexUnit::eTextureAddressMode LLGLTexture::getAddressMode(void) const
 	return mGLTexturep->getAddressMode() ;
 }
 
-S32 LLGLTexture::getTextureMemory() const
+S32Bytes LLGLTexture::getTextureMemory() const
 {
 	llassert(mGLTexturep.notNull()) ;
 

@@ -41,7 +41,7 @@
 
 S32 LLDrawPoolTree::sDiffTex = 0;
 static LLGLSLShader* shader = NULL;
-static LLFastTimer::DeclareTimer FTM_SHADOW_TREE("Tree Shadow");
+static LLTrace::BlockTimerStatHandle FTM_SHADOW_TREE("Tree Shadow");
 
 LLDrawPoolTree::LLDrawPoolTree(LLViewerTexture *texturep) :
 	LLFacePool(POOL_TREE),
@@ -62,7 +62,7 @@ void LLDrawPoolTree::prerender()
 
 void LLDrawPoolTree::beginRenderPass(S32 pass)
 {
-	LLFastTimer t(FTM_RENDER_TREES);
+	LL_RECORD_BLOCK_TIME(FTM_RENDER_TREES);
 		
 	if (LLPipeline::sUnderWaterRender)
 	{
@@ -88,7 +88,7 @@ void LLDrawPoolTree::beginRenderPass(S32 pass)
 
 void LLDrawPoolTree::render(S32 pass)
 {
-	LLFastTimer t(LLPipeline::sShadowRender ? FTM_SHADOW_TREE : FTM_RENDER_TREES);
+	LL_RECORD_BLOCK_TIME(LLPipeline::sShadowRender ? FTM_SHADOW_TREE : FTM_RENDER_TREES);
 
 	if (mDrawFace.empty())
 	{
@@ -131,7 +131,7 @@ void LLDrawPoolTree::render(S32 pass)
 
 void LLDrawPoolTree::endRenderPass(S32 pass)
 {
-	LLFastTimer t(FTM_RENDER_TREES);
+	LL_RECORD_BLOCK_TIME(FTM_RENDER_TREES);
 		
 	if (gPipeline.canUseWindLightShadersOnObjects())
 	{
@@ -149,7 +149,7 @@ void LLDrawPoolTree::endRenderPass(S32 pass)
 //============================================
 void LLDrawPoolTree::beginDeferredPass(S32 pass)
 {
-	LLFastTimer t(FTM_RENDER_TREES);
+	LL_RECORD_BLOCK_TIME(FTM_RENDER_TREES);
 		
 	shader = &gDeferredTreeProgram;
 	shader->bind();
@@ -163,7 +163,7 @@ void LLDrawPoolTree::renderDeferred(S32 pass)
 
 void LLDrawPoolTree::endDeferredPass(S32 pass)
 {
-	LLFastTimer t(FTM_RENDER_TREES);
+	LL_RECORD_BLOCK_TIME(FTM_RENDER_TREES);
 		
 	shader->unbind();
 }
@@ -173,7 +173,7 @@ void LLDrawPoolTree::endDeferredPass(S32 pass)
 //============================================
 void LLDrawPoolTree::beginShadowPass(S32 pass)
 {
-	LLFastTimer t(FTM_SHADOW_TREE);
+	LL_RECORD_BLOCK_TIME(FTM_SHADOW_TREE);
 	
 	glPolygonOffset(gSavedSettings.getF32("RenderDeferredTreeShadowOffset"),
 					gSavedSettings.getF32("RenderDeferredTreeShadowBias"));
@@ -189,7 +189,7 @@ void LLDrawPoolTree::renderShadow(S32 pass)
 
 void LLDrawPoolTree::endShadowPass(S32 pass)
 {
-	LLFastTimer t(FTM_SHADOW_TREE);
+	LL_RECORD_BLOCK_TIME(FTM_SHADOW_TREE);
 	
 	glPolygonOffset(gSavedSettings.getF32("RenderDeferredSpotShadowOffset"),
 						gSavedSettings.getF32("RenderDeferredSpotShadowBias"));

@@ -26,6 +26,7 @@
 
 #ifndef LL_LLLOGCHAT_H
 #define LL_LLLOGCHAT_H
+#include "llthread.h"
 
 class LLChat;
 

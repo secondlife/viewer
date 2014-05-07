@@ -59,7 +59,7 @@ void LLAllocatorHeapProfile::parse(std::string const & prof_text)
     {
         // *TODO - determine if there should be some better error state than
         // mLines being empty. -brad
-        llwarns << "invalid heap profile data passed into parser." << llendl;
+        LL_WARNS() << "invalid heap profile data passed into parser." << LL_ENDL;
         return;
     }
 

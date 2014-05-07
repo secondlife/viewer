@@ -34,13 +34,12 @@
 #include "llgltypes.h"
 #include "llrender.h"
 #include "llmetricperformancetester.h"
-#include "llface.h"
 
 #include <map>
 #include <list>
 
-#define MIN_VIDEO_RAM_IN_MEGA_BYTES    32
-#define MAX_VIDEO_RAM_IN_MEGA_BYTES    4096
+extern const S32Megabytes gMinVideoRam;
+extern const S32Megabytes gMaxVideoRam;
 
 class LLImageGL ;
 class LLImageRaw;
@@ -101,8 +100,7 @@ public:
 		INVALID_TEXTURE_TYPE
 	};
 
-
-	typedef std::vector<LLFace*> ll_face_list_t;
+	typedef std::vector<class LLFace*> ll_face_list_t;
 	typedef std::vector<LLVOVolume*> ll_volume_list_t;
 
 
@@ -121,10 +119,12 @@ public:
 
 	virtual S8 getType() const;
 	virtual BOOL isMissingAsset()const ;
-	virtual void dump();	// debug info to llinfos
+	virtual void dump();	// debug info to LL_INFOS()
 	
 	/*virtual*/ bool bindDefaultImage(const S32 stage = 0) ;
+	/*virtual*/ bool bindDebugImage(const S32 stage = 0) ;
 	/*virtual*/ void forceImmediateUpdate() ;
+	/*virtual*/ bool isActiveFetching();
 	
 	/*virtual*/ const LLUUID& getID() const { return mID; }
 	void setBoostLevel(S32 level);
@@ -205,11 +205,11 @@ public:
 	static LLFrameTimer sEvaluationTimer;
 	static F32 sDesiredDiscardBias;
 	static F32 sDesiredDiscardScale;
-	static S32 sBoundTextureMemoryInBytes;
-	static S32 sTotalTextureMemoryInBytes;
-	static S32 sMaxBoundTextureMemInMegaBytes;
-	static S32 sMaxTotalTextureMemInMegaBytes;
-	static S32 sMaxDesiredTextureMemInBytes ;
+	static S32Bytes sBoundTextureMemory;
+	static S32Bytes sTotalTextureMemory;
+	static S32Megabytes sMaxBoundTextureMem;
+	static S32Megabytes sMaxTotalTextureMem;
+	static S32Bytes sMaxDesiredTextureMem ;
 	static S8  sCameraMovingDiscardBias;
 	static F32 sCameraMovingBias;
 	static S32 sMaxSculptRez ;
@@ -217,7 +217,7 @@ public:
 	static S32 sMaxSmallImageSize ;
 	static BOOL sFreezeImageScalingDown ;//do not scale down image res if set.
 	static F32  sCurrentTime ;
-	
+
 	enum EDebugTexels
 	{
 		DEBUG_TEXELS_OFF,
@@ -397,12 +397,15 @@ public:
 	void        loadFromFastCache();
 	void        setInFastCacheList(bool in_list) { mInFastCacheList = in_list; }
 	bool        isInFastCacheList() { return mInFastCacheList; }
+
+	/*virtual*/bool  isActiveFetching(); //is actively in fetching by the fetching pipeline.
+
 protected:
 	/*virtual*/ void switchToCachedImage();
 	S32 getCurrentDiscardLevelForFetching() ;
 
 private:
-	void init(bool firstinit) ;
+	void init(bool firstinit) ;	
 	void cleanup() ;
 
 	void saveRawImage() ;
@@ -444,7 +447,7 @@ protected:
 	S8  mHasFetcher;				// We've made a fecth request
 	S8  mIsFetching;				// Fetch request is active
 	bool mCanUseHTTP ;              //This texture can be fetched through http if true.
-	
+
 	FTType mFTType; // What category of image is this - map tile, server bake, etc?
 	mutable S8 mIsMissingAsset;		// True if we know that there is no image asset with this image id in the database.		
 
@@ -687,18 +690,18 @@ private:
 private:
 	BOOL mUsingDefaultTexture;            //if set, some textures are still gray.
 
-	U32 mTotalBytesUsed ;                     //total bytes of textures bound/used for the current frame.
-	U32 mTotalBytesUsedForLargeImage ;        //total bytes of textures bound/used for the current frame for images larger than 256 * 256.
-	U32 mLastTotalBytesUsed ;                 //total bytes of textures bound/used for the previous frame.
-	U32 mLastTotalBytesUsedForLargeImage ;    //total bytes of textures bound/used for the previous frame for images larger than 256 * 256.
+	U32Bytes mTotalBytesUsed ;                     //total bytes of textures bound/used for the current frame.
+	U32Bytes mTotalBytesUsedForLargeImage ;        //total bytes of textures bound/used for the current frame for images larger than 256 * 256.
+	U32Bytes mLastTotalBytesUsed ;                 //total bytes of textures bound/used for the previous frame.
+	U32Bytes mLastTotalBytesUsedForLargeImage ;    //total bytes of textures bound/used for the previous frame for images larger than 256 * 256.
 		
 	//
 	//data size
 	//
-	U32 mTotalBytesLoaded ;               //total bytes fetched by texture pipeline
-	U32 mTotalBytesLoadedFromCache ;      //total bytes fetched by texture pipeline from local cache	
-	U32 mTotalBytesLoadedForLargeImage ;  //total bytes fetched by texture pipeline for images larger than 256 * 256. 
-	U32 mTotalBytesLoadedForSculpties ;   //total bytes fetched by texture pipeline for sculpties
+	U32Bytes mTotalBytesLoaded ;               //total bytes fetched by texture pipeline
+	U32Bytes mTotalBytesLoadedFromCache ;      //total bytes fetched by texture pipeline from local cache	
+	U32Bytes mTotalBytesLoadedForLargeImage ;  //total bytes fetched by texture pipeline for images larger than 256 * 256. 
+	U32Bytes mTotalBytesLoadedForSculpties ;   //total bytes fetched by texture pipeline for sculpties
 
 	//
 	//time

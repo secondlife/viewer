@@ -28,6 +28,8 @@
 #include <unistd.h>
 #include <signal.h>
 #include <errno.h>
+#include <set>
+#include <iostream>
 
 #include "linden_common.h"
 #include "llerrorcontrol.h"
@@ -315,9 +317,9 @@ gpointer worker_thread_cb(gpointer data)
 				("secondlife-update-XXXXXX", &tmp_local_filename, &error);
 			if (error != NULL)
 			{
-				llerrs << "Unable to create temporary file: "
+				LL_ERRS() << "Unable to create temporary file: "
 					   << error->message
-					   << llendl;
+					   << LL_ENDL;
 
 				g_error_free(error);
 				throw 0;
@@ -332,9 +334,9 @@ gpointer worker_thread_cb(gpointer data)
 			package_file = fdopen(fd, "wb");
 			if (package_file == NULL)
 			{
-				llerrs << "Failed to create temporary file: "
+				LL_ERRS() << "Failed to create temporary file: "
 					   << app_state->file.c_str()
-					   << llendl;
+					   << LL_ENDL;
 
 				gdk_threads_enter();
 				display_error(app_state->window,
@@ -345,12 +347,12 @@ gpointer worker_thread_cb(gpointer data)
 			}
 
 			// initialize curl and start downloading the package
-			llinfos << "Downloading package: " << app_state->url << llendl;
+			LL_INFOS() << "Downloading package: " << app_state->url << LL_ENDL;
 
 			curl = curl_easy_init();
 			if (curl == NULL)
 			{
-				llerrs << "Failed to initialize libcurl" << llendl;
+				LL_ERRS() << "Failed to initialize libcurl" << LL_ENDL;
 
 				gdk_threads_enter();
 				display_error(app_state->window,
@@ -375,9 +377,9 @@ gpointer worker_thread_cb(gpointer data)
 
 			if (result)
 			{
-				llerrs << "Failed to download update: "
+				LL_ERRS() << "Failed to download update: "
 					   << app_state->url
-					   << llendl;
+					   << LL_ENDL;
 
 				gdk_threads_enter();
 				display_error(app_state->window,
@@ -403,9 +405,9 @@ gpointer worker_thread_cb(gpointer data)
 		// thread and show file chooser?
 		if (!install_package(app_state->file.c_str(), app_state->dest_dir))
 		{
-			llwarns << "Failed to install package to destination: "
+			LL_WARNS() << "Failed to install package to destination: "
 				<< app_state->dest_dir
-				<< llendl;
+				<< LL_ENDL;
 
 			gdk_threads_enter();
 			display_error(app_state->window,
@@ -419,9 +421,9 @@ gpointer worker_thread_cb(gpointer data)
 		// try to spawn the new viewer
 		if (!spawn_viewer(app_state))
 		{
-			llwarns << "Viewer was not installed properly in : "
+			LL_WARNS() << "Viewer was not installed properly in : "
 				<< app_state->dest_dir
-				<< llendl;
+				<< LL_ENDL;
 
 			gdk_threads_enter();
 			display_error(app_state->window,
@@ -481,10 +483,10 @@ int
 rename_with_sudo_fallback(const std::string& filename, const std::string& newname)
 {
 	int rtncode = ::rename(filename.c_str(), newname.c_str());
-	lldebugs << "rename result is: " << rtncode << " / " << errno << llendl;
+	LL_DEBUGS() << "rename result is: " << rtncode << " / " << errno << LL_ENDL;
 	if (rtncode && (EACCES == errno || EPERM == errno || EXDEV == errno))
 	{
-		llinfos << "Permission problem in rename, or moving between different mount points.  Retrying as a mv under a sudo." << llendl;
+		LL_INFOS() << "Permission problem in rename, or moving between different mount points.  Retrying as a mv under a sudo." << LL_ENDL;
 		// failed due to permissions, try again as a gksudo or kdesu mv wrapper hack
 		char *sudo_cmd = NULL;
 		sudo_cmd = g_find_program_in_path("gksudo");
@@ -515,15 +517,15 @@ rename_with_sudo_fallback(const std::string& filename, const std::string& newnam
 				if (!less_anal_gspawnsync(argv, &stderr_output,
 							  &child_exit_status, &spawn_error))
 				{
-					llwarns << "Failed to spawn child process: "
+					LL_WARNS() << "Failed to spawn child process: "
 						<< spawn_error->message
-						<< llendl;
+						<< LL_ENDL;
 				}
 				else if (child_exit_status)
 				{
-					llwarns << "mv command failed: "
+					LL_WARNS() << "mv command failed: "
 						<< (stderr_output ? stderr_output : "(no reason given)")
-						<< llendl;
+						<< LL_ENDL;
 				}
 				else
 				{
@@ -549,19 +551,19 @@ gboolean install_package(std::string package_file, std::string destination)
 	tar_cmd = g_find_program_in_path("tar");
 	if (!tar_cmd)
 	{
-		llerrs << "`tar' was not found in $PATH" << llendl;
+		LL_ERRS() << "`tar' was not found in $PATH" << LL_ENDL;
 		return FALSE;
 	}
-	llinfos << "Found tar command: " << tar_cmd << llendl;
+	LL_INFOS() << "Found tar command: " << tar_cmd << LL_ENDL;
 
 	// Unpack the tarball in a temporary place first, then move it to
 	// its final destination
 	std::string tmp_dest_dir = gDirUtilp->getTempFilename();
 	if (LLFile::mkdir(tmp_dest_dir, 0744))
 	{
-		llerrs << "Failed to create directory: "
+		LL_ERRS() << "Failed to create directory: "
 		       << destination
-		       << llendl;
+		       << LL_ENDL;
 
 		return FALSE;
 	}
@@ -577,7 +579,7 @@ gboolean install_package(std::string package_file, std::string destination)
 		NULL,
 	};
 
-	llinfos << "Untarring package: " << package_file << llendl;
+	LL_INFOS() << "Untarring package: " << package_file << LL_ENDL;
 
 	// store current SIGCHLD handler if there is one, replace with default
 	// handler to make glib happy
@@ -594,17 +596,17 @@ gboolean install_package(std::string package_file, std::string destination)
 	if (!less_anal_gspawnsync(argv, &stderr_output,
 				  &child_exit_status, &untar_error))
 	{
-		llwarns << "Failed to spawn child process: "
+		LL_WARNS() << "Failed to spawn child process: "
 			<< untar_error->message
-			<< llendl;
+			<< LL_ENDL;
 		return FALSE;
 	}
 
 	if (child_exit_status)
 	{
-	 	llwarns << "Untar command failed: "
+	 	LL_WARNS() << "Untar command failed: "
 			<< (stderr_output ? stderr_output : "(no reason given)")
-			<< llendl;
+			<< LL_ENDL;
 		return FALSE;
 	}
 
@@ -628,9 +630,9 @@ gboolean install_package(std::string package_file, std::string destination)
 
 		if (rename_with_sudo_fallback(destination, backup_dir))
 		{
-			llwarns << "Failed to move directory: '"
+			LL_WARNS() << "Failed to move directory: '"
 				<< destination << "' -> '" << backup_dir
-				<< llendl;
+				<< LL_ENDL;
 			return FALSE;
 		}
 	}
@@ -639,9 +641,9 @@ gboolean install_package(std::string package_file, std::string destination)
 	// need to move it to its destination.
 	if (rename_with_sudo_fallback(tmp_dest_dir, destination))
 	{
-		llwarns << "Failed to move installation to the destination: "
+		LL_WARNS() << "Failed to move installation to the destination: "
 			<< destination
-			<< llendl;
+			<< LL_ENDL;
 		return FALSE;
 	}
 
@@ -736,8 +738,8 @@ BOOL spawn_viewer(UpdaterAppState *app_state)
 
 	if (!success)
 	{
-		llwarns << "Failed to launch viewer: " << error->message
-			<< llendl;
+		LL_WARNS() << "Failed to launch viewer: " << error->message
+			<< LL_ENDL;
 	}
 
 	if (error) g_error_free(error);
@@ -838,7 +840,7 @@ int main(int argc, char **argv)
 	// create UI
 	updater_app_ui_init(app_state);
 
-	//llinfos << "SAMPLE TRANSLATION IS: " << LLTrans::getString("LoginInProgress") << llendl;
+	//LL_INFOS() << "SAMPLE TRANSLATION IS: " << LLTrans::getString("LoginInProgress") << LL_ENDL;
 
 	// create download thread
 	g_thread_create(GThreadFunc(worker_thread_cb), app_state, FALSE, NULL);

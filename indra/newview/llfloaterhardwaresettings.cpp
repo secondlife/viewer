@@ -99,12 +99,11 @@ void LLFloaterHardwareSettings::onSetVRAM()
 
 void LLFloaterHardwareSettings::refreshEnabledState()
 {
-    F32 mem_multiplier = gSavedSettings.getF32("RenderTextureMemoryMultiple");
-    
-	S32 min_tex_mem = LLViewerTextureList::getMinVideoRamSetting();
-	S32 max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting(true, mem_multiplier);
-	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMinValue(min_tex_mem);
-	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMaxValue(max_tex_mem);
+	F32 mem_multiplier = gSavedSettings.getF32("RenderTextureMemoryMultiple");
+	S32Megabytes min_tex_mem = LLViewerTextureList::getMinVideoRamSetting();
+	S32Megabytes max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting(false, mem_multiplier);
+	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMinValue(min_tex_mem.value());
+	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMaxValue(max_tex_mem.value());
 
 	S32 vram = gSavedSettings.getS32("TextureMemory");
 	vram = vram*3;

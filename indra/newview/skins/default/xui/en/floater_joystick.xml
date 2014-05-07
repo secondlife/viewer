@@ -197,18 +197,18 @@
      name="JoystickFlycamEnabled"
      width="60" />
     <stat_view
-     height="250"
+     height="270"
      label="Joystick Monitor"
      layout="topleft"
      left="359"
      name="axis_view"
      show_label="true"
-     top="142"
+     top="135"
      width="200">
         <stat_bar
          bar_max="2"
          bar_min="-2"
-         height="0"
+				 show_bar="true"
          label="Axis 0"
          label_spacing="1"
          layout="topleft"
@@ -220,6 +220,7 @@
         <stat_bar
          bar_max="2"
          bar_min="-2"
+				 show_bar="true"
          label="Axis 1"
          label_spacing="1"
          layout="topleft"
@@ -228,6 +229,7 @@
         <stat_bar
          bar_max="2"
          bar_min="-2"
+				 show_bar="true"
          label="Axis 2"
          label_spacing="1"
          layout="topleft"
@@ -236,6 +238,7 @@
         <stat_bar
          bar_max="2"
          bar_min="-2"
+				 show_bar="true"
          label="Axis 3"
          label_spacing="1"
          layout="topleft"
@@ -244,6 +247,7 @@
         <stat_bar
          bar_max="2"
          bar_min="-2"
+				 show_bar="true"
          label="Axis 4"
          label_spacing="1"
          layout="topleft"
@@ -253,6 +257,7 @@
          bar_max="2"
          bar_min="-2"
          label="Axis 5"
+				 show_bar="true"				 
          label_spacing="1"
          layout="topleft"
          name="axis5"

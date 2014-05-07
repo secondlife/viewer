@@ -56,7 +56,7 @@ void LLCallbackList::addFunction( callback_t func, void *data)
 {
 	if (!func)
 	{
-		llerrs << "LLCallbackList::addFunction - function is NULL" << llendl;
+		LL_ERRS() << "LLCallbackList::addFunction - function is NULL" << LL_ENDL;
 		return;
 	}
 
@@ -234,14 +234,14 @@ void doPeriodically(bool_func_t callable, F32 seconds)
 void test1(void *data)
 {
 	S32 *s32_data = (S32 *)data;
-	llinfos << "testfunc1 " << *s32_data << llendl;
+	LL_INFOS() << "testfunc1 " << *s32_data << LL_ENDL;
 }
 
 
 void test2(void *data)
 {
 	S32 *s32_data = (S32 *)data;
-	llinfos << "testfunc2 " << *s32_data << llendl;
+	LL_INFOS() << "testfunc2 " << *s32_data << LL_ENDL;
 }
 
 
@@ -252,54 +252,54 @@ LLCallbackList::test()
 	S32 b = 2;
 	LLCallbackList *list = new LLCallbackList;
 
-	llinfos << "Testing LLCallbackList" << llendl;
+	LL_INFOS() << "Testing LLCallbackList" << LL_ENDL;
 
 	if (!list->deleteFunction(NULL))
 	{
-		llinfos << "passed 1" << llendl;
+		LL_INFOS() << "passed 1" << LL_ENDL;
 	}
 	else
 	{
-		llinfos << "error, removed function from empty list" << llendl;
+		LL_INFOS() << "error, removed function from empty list" << LL_ENDL;
 	}
 
-	// llinfos << "This should crash" << llendl;
+	// LL_INFOS() << "This should crash" << LL_ENDL;
 	// list->addFunction(NULL);
 
 	list->addFunction(&test1, &a);
 	list->addFunction(&test1, &a);
 
-	llinfos << "Expect: test1 1, test1 1" << llendl;
+	LL_INFOS() << "Expect: test1 1, test1 1" << LL_ENDL;
 	list->callFunctions();
 
 	list->addFunction(&test1, &b);
 	list->addFunction(&test2, &b);
 
-	llinfos << "Expect: test1 1, test1 1, test1 2, test2 2" << llendl;
+	LL_INFOS() << "Expect: test1 1, test1 1, test1 2, test2 2" << LL_ENDL;
 	list->callFunctions();
 
 	if (list->deleteFunction(&test1, &b))
 	{
-		llinfos << "passed 3" << llendl;
+		LL_INFOS() << "passed 3" << LL_ENDL;
 	}
 	else
 	{
-		llinfos << "error removing function" << llendl;
+		LL_INFOS() << "error removing function" << LL_ENDL;
 	}
 
-	llinfos << "Expect: test1 1, test1 1, test2 2" << llendl;
+	LL_INFOS() << "Expect: test1 1, test1 1, test2 2" << LL_ENDL;
 	list->callFunctions();
 
 	list->deleteAllFunctions();
 
-	llinfos << "Expect nothing" << llendl;
+	LL_INFOS() << "Expect nothing" << LL_ENDL;
 	list->callFunctions();
 
-	llinfos << "nothing :-)" << llendl;
+	LL_INFOS() << "nothing :-)" << LL_ENDL;
 
 	delete list;
 
-	llinfos << "test complete" << llendl;
+	LL_INFOS() << "test complete" << LL_ENDL;
 }
 
 #endif  // _DEBUG

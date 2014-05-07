@@ -163,7 +163,7 @@ static bool findInsensitive(std::string haystack, const std::string& needle_uppe
 void LLGroupList::refresh()
 {
 	const LLUUID& 		highlight_id	= gAgent.getGroupID();
-	S32					count			= gAgent.mGroups.count();
+	S32					count			= gAgent.mGroups.size();
 	LLUUID				id;
 	bool				have_filter		= !mNameFilter.empty();
 
@@ -171,8 +171,8 @@ void LLGroupList::refresh()
 
 	for(S32 i = 0; i < count; ++i)
 	{
-		id = gAgent.mGroups.get(i).mID;
-		const LLGroupData& group_data = gAgent.mGroups.get(i);
+		id = gAgent.mGroups.at(i).mID;
+		const LLGroupData& group_data = gAgent.mGroups.at(i);
 		if (have_filter && !findInsensitive(group_data.mName, mNameFilter))
 			continue;
 		addNewItem(id, group_data.mName, group_data.mInsigniaID, ADD_BOTTOM);

@@ -60,7 +60,7 @@ BOOL LLPlacesFolderView::handleRightMouseDown(S32 x, S32 y, MASK mask)
         }
         else
         {
-            llwarns << "Requested menu handle for non-setup inventory type: " << inventory_type << llendl;
+            LL_WARNS() << "Requested menu handle for non-setup inventory type: " << inventory_type << LL_ENDL;
         }
 
     }

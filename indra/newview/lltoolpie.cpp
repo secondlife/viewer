@@ -42,6 +42,7 @@
 #include "llfloaterscriptdebug.h"
 #include "lltooltip.h"
 #include "llhudeffecttrail.h"
+#include "llhudicon.h"
 #include "llhudmanager.h"
 #include "llkeyboard.h"
 #include "llmediaentry.h"
@@ -557,7 +558,7 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 		// could disable it here.
 		show_highlight = true;
 		// cursor set by media object
-		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
+		LL_DEBUGS("UserInput") << "hover handled by LLToolPie (inactive)" << LL_ENDL;
 	}
 	else if (!mMouseOutsideSlop 
 		&& mMouseButtonDown 
@@ -594,7 +595,7 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 			show_highlight = true;
 			ECursorType cursor = cursorFromObject(click_action_object);
 			gViewerWindow->setCursor(cursor);
-			lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
+			LL_DEBUGS("UserInput") << "hover handled by LLToolPie (inactive)" << LL_ENDL;
 		}
 		
 		else if ((object && !object->isAvatar() && object->flagUsePhysics()) 
@@ -602,19 +603,19 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 		{
 			show_highlight = true;
 			gViewerWindow->setCursor(UI_CURSOR_TOOLGRAB);
-			lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
+			LL_DEBUGS("UserInput") << "hover handled by LLToolPie (inactive)" << LL_ENDL;
 		}
 		else if ( (object && object->flagHandleTouch()) 
 				  || (parent && parent->flagHandleTouch()))
 		{
 			show_highlight = true;
 			gViewerWindow->setCursor(UI_CURSOR_HAND);
-			lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
+			LL_DEBUGS("UserInput") << "hover handled by LLToolPie (inactive)" << LL_ENDL;
 		}
 		else
 		{
 			gViewerWindow->setCursor(UI_CURSOR_ARROW);
-			lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
+			LL_DEBUGS("UserInput") << "hover handled by LLToolPie (inactive)" << LL_ENDL;
 		}
 	}
 
@@ -706,7 +707,7 @@ BOOL LLToolPie::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
 	if (gDebugClicks)
 	{
-		llinfos << "LLToolPie handleDoubleClick (becoming mouseDown)" << llendl;
+		LL_INFOS() << "LLToolPie handleDoubleClick (becoming mouseDown)" << LL_ENDL;
 	}
 
 	if (gSavedSettings.getBOOL("DoubleClickAutoPilot"))

@@ -308,7 +308,7 @@ public:
 	virtual BOOL	canClose() { return TRUE; }
 
 	/*virtual*/ void setVisible(BOOL visible); // do not override
-	/*virtual*/ void handleVisibilityChange ( BOOL new_visibility ); // do not override
+	/*virtual*/ void onVisibilityChange ( BOOL new_visibility ); // do not override
 	
 	void			setFrontmost(BOOL take_focus = TRUE);
     virtual void	setVisibleAndFrontmost(BOOL take_focus=TRUE, const LLSD& key = LLSD());    

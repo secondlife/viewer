@@ -293,7 +293,7 @@ void LLPanelGroup::onBtnGroupChatClicked(void* user_data)
 
 void LLPanelGroup::onBtnJoin()
 {
-	lldebugs << "joining group: " << mID << llendl;
+	LL_DEBUGS() << "joining group: " << mID << LL_ENDL;
 	LLGroupActions::join(mID);
 }
 
@@ -331,8 +331,9 @@ void LLPanelGroup::update(LLGroupChange gc)
 	if(gdatap)
 	{
 		std::string group_name =  gdatap->mName.empty() ? LLTrans::getString("LoadingData") : gdatap->mName;
-		childSetValue("group_name", group_name);
-		childSetToolTip("group_name",group_name);
+		LLUICtrl* group_name_ctrl = getChild<LLUICtrl>("group_name");
+		group_name_ctrl->setValue(group_name);
+		group_name_ctrl->setToolTip(group_name);
 		
 		LLGroupData agent_gdatap;
 		bool is_member = gAgent.getGroupData(mID,agent_gdatap) || gAgent.isGodlike();
@@ -378,8 +379,9 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 	if(gdatap)
 	{
 		std::string group_name =  gdatap->mName.empty() ? LLTrans::getString("LoadingData") : gdatap->mName;
-		childSetValue("group_name", group_name);
-		childSetToolTip("group_name",group_name);
+		LLUICtrl* group_name_ctrl = getChild<LLUICtrl>("group_name");
+		group_name_ctrl->setValue(group_name);
+		group_name_ctrl->setToolTip(group_name);
 	}
 
 	LLButton* button_apply = findChild<LLButton>("btn_apply");
