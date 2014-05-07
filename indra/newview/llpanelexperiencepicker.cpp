@@ -78,7 +78,7 @@ public:
 		}
 		else
 		{
-			llwarns << "experience picker failed [status:" << status << "]: " << content << llendl;
+			LL_WARNS() << "experience picker failed [status:" << status << "]: " << content << LL_ENDL;
 
 		}
 	}
@@ -323,7 +323,7 @@ void LLPanelExperiencePicker::filterContent()
 	if (search_results->isEmpty())
 	{
 		LLStringUtil::format_map_t map;
-		std::string search_text = childGetText(TEXT_EDIT);
+		std::string search_text = getChild<LLUICtrl>(TEXT_EDIT)->getValue().asString();
 		map["[TEXT]"] = search_text;
 		if (search_text.empty())
 		{

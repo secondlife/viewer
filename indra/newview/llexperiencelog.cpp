@@ -53,7 +53,7 @@ public:
 			std::istringstream llsdData(llsdRaw);
 			if (!LLSDSerialize::deserialize(message, llsdData, llsdRaw.length()))
 			{
-				llwarns << "LLExperienceLogDispatchHandler: Attempted to read parameter data into LLSD but failed:" << llsdRaw << llendl;
+				LL_WARNS() << "LLExperienceLogDispatchHandler: Attempted to read parameter data into LLSD but failed:" << llsdRaw << LL_ENDL;
 			}
 		}
 		message["public_id"] = invoice;

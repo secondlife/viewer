@@ -50,7 +50,7 @@ LLFloaterExperiencePicker* LLFloaterExperiencePicker::show( select_callback_t ca
 		LLFloaterReg::showTypedInstance<LLFloaterExperiencePicker>("experience_search", key);
 	if (!floater)
 	{
-		llwarns << "Cannot instantiate experience picker" << llendl;
+		LL_WARNS() << "Cannot instantiate experience picker" << LL_ENDL;
 		return NULL;
 	}
 

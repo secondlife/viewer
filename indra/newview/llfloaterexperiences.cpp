@@ -25,18 +25,20 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-
-#include "llpanelexperiences.h"
 #include "llfloaterexperiences.h"
+
 #include "llagent.h"
-#include "llfloaterregioninfo.h"
-#include "lltabcontainer.h"
-#include "lltrans.h"
-#include "llexperiencecache.h"
 #include "llevents.h"
+#include "llexperiencecache.h"
+#include "llfloaterregioninfo.h"
+#include "llhttpclient.h"
 #include "llnotificationsutil.h"
 #include "llpanelexperiencelog.h"
 #include "llpanelexperiencepicker.h"
+#include "llpanelexperiences.h"
+#include "lltabcontainer.h"
+#include "lltrans.h"
+#include "llviewerregion.h"
 
 
 #define SHOW_RECENT_TAB (0)

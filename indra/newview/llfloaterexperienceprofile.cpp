@@ -140,7 +140,7 @@ public:
 
     virtual void error(U32 status, const std::string& reason)
     {
-        llwarns << "HandleResponder failed with code: " << status<< ", reason: " << reason << llendl;
+        LL_WARNS() << "HandleResponder failed with code: " << status<< ", reason: " << reason << LL_ENDL;
     }
 };
 
@@ -768,7 +768,7 @@ void LLFloaterExperienceProfile::onSaveComplete( const LLSD& content )
 
     if(!content.has("experience_keys"))
     {
-        llwarns << "LLFloaterExperienceProfile::onSaveComplete called with bad content" << llendl;
+        LL_WARNS() << "LLFloaterExperienceProfile::onSaveComplete called with bad content" << LL_ENDL;
         return;
     }
 
@@ -777,13 +777,13 @@ void LLFloaterExperienceProfile::onSaveComplete( const LLSD& content )
     LLSD::array_const_iterator it = experiences.beginArray();
     if(it == experiences.endArray())
     {
-        llwarns << "LLFloaterExperienceProfile::onSaveComplete called with empty content" << llendl;
+        LL_WARNS() << "LLFloaterExperienceProfile::onSaveComplete called with empty content" << LL_ENDL;
         return;
     }
 
     if(!it->has(LLExperienceCache::EXPERIENCE_ID) || ((*it)[LLExperienceCache::EXPERIENCE_ID].asUUID() != id))
     {
-        llwarns << "LLFloaterExperienceProfile::onSaveComplete called with unexpected experience id" << llendl;
+        LL_WARNS() << "LLFloaterExperienceProfile::onSaveComplete called with unexpected experience id" << LL_ENDL;
         return;
     }
  

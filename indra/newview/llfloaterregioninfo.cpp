@@ -3619,7 +3619,7 @@ public:
 		}
 		else
 		{
-			llwarns << "experience responder failed [status:" << status << "]: " << content << llendl;
+			LL_WARNS() << "experience responder failed [status:" << status << "]: " << content << LL_ENDL;
 		}
 	}
 };
