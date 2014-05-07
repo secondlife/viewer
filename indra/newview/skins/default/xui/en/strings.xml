@@ -2464,7 +2464,8 @@ The [[MARKETPLACE_CREATE_STORE_URL] Marketplace store] is returning errors.
 	<string name="CompileQueueProblemDownloading">Problem downloading</string>
 	<string name="CompileQueueInsufficientPermDownload">Insufficient permissions to download a script.</string>
 	<string name="CompileQueueInsufficientPermFor">Insufficient permissions for</string>
-	<string name="CompileQueueUnknownFailure">Unknown failure to download</string>
+   <string name="CompileQueueUnknownFailure">Unknown failure to download</string>
+   <string name="CompileNoExperiencePerm">Skipping script [SCRIPT] with Experience [EXPERIENCE].</string>
 	<string name="CompileQueueTitle">Recompilation Progress</string>
 	<string name="CompileQueueStart">recompile</string>
 	<string name="ResetQueueTitle">Reset Progress</string>
