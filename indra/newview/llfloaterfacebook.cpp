@@ -335,9 +335,8 @@ LLSnapshotLivePreview* LLFacebookPhotoPanel::getPreviewView()
 	return previewp;
 }
 
-void LLFacebookPhotoPanel::onVisibilityChange(const LLSD& new_visibility)
+void LLFacebookPhotoPanel::onVisibilityChange(BOOL visible)
 {
-	bool visible = new_visibility.asBoolean();
 	if (visible)
 	{
 		if (mPreviewHandle.get())
@@ -931,10 +930,8 @@ void LLFacebookAccountPanel::draw()
 	LLPanel::draw();
 }
 
-void LLFacebookAccountPanel::onVisibilityChange(const LLSD& new_visibility)
+void LLFacebookAccountPanel::onVisibilityChange(BOOL visible)
 {
-	bool visible = new_visibility.asBoolean();
-
 	if(visible)
 	{
 		LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLFacebookAccountPanel");

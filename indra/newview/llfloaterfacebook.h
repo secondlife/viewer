@@ -66,7 +66,7 @@ public:
 	void draw();
 
 	LLSnapshotLivePreview* getPreviewView();
-	void onVisibilityChange(const LLSD& new_visibility);
+	void onVisibilityChange(BOOL new_visibility);
     void onClickBigPreview();
 	void onClickNewSnapshot();
 	void onSend();
@@ -155,7 +155,7 @@ public:
 	void draw();
 
 private:
-	void onVisibilityChange(const LLSD& new_visibility);
+	void onVisibilityChange(BOOL new_visibility);
 	bool onFacebookConnectStateChange(const LLSD& data);
 	bool onFacebookConnectInfoChange();
 	void onConnect();

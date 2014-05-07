@@ -229,9 +229,8 @@ LLSnapshotLivePreview* LLTwitterPhotoPanel::getPreviewView()
 	return previewp;
 }
 
-void LLTwitterPhotoPanel::onVisibilityChange(const LLSD& new_visibility)
+void LLTwitterPhotoPanel::onVisibilityChange(BOOL visible)
 {
-	bool visible = new_visibility.asBoolean();
 	if (visible)
 	{
 		if (mPreviewHandle.get())
@@ -592,10 +591,8 @@ void LLTwitterAccountPanel::draw()
 	LLPanel::draw();
 }
 
-void LLTwitterAccountPanel::onVisibilityChange(const LLSD& new_visibility)
+void LLTwitterAccountPanel::onVisibilityChange(BOOL visible)
 {
-	bool visible = new_visibility.asBoolean();
-
 	if(visible)
 	{
 		LLEventPumps::instance().obtain("TwitterConnectState").stopListening("LLTwitterAccountPanel");

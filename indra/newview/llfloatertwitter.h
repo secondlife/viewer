@@ -46,7 +46,7 @@ public:
 	void draw();
 
 	LLSnapshotLivePreview* getPreviewView();
-	void onVisibilityChange(const LLSD& new_visibility);
+	void onVisibilityChange(BOOL new_visibility);
 	void onAddLocationToggled();
 	void onAddPhotoToggled();
     void onClickBigPreview();
@@ -97,7 +97,7 @@ public:
 	void draw();
 
 private:
-	void onVisibilityChange(const LLSD& new_visibility);
+	void onVisibilityChange(BOOL new_visibility);
 	bool onTwitterConnectStateChange(const LLSD& data);
 	bool onTwitterConnectInfoChange();
 	void onConnect();

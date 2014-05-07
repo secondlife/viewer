@@ -226,9 +226,8 @@ LLSnapshotLivePreview* LLFlickrPhotoPanel::getPreviewView()
 	return previewp;
 }
 
-void LLFlickrPhotoPanel::onVisibilityChange(const LLSD& new_visibility)
+void LLFlickrPhotoPanel::onVisibilityChange(BOOL visible)
 {
-	bool visible = new_visibility.asBoolean();
 	if (visible)
 	{
 		if (mPreviewHandle.get())
@@ -563,10 +562,8 @@ void LLFlickrAccountPanel::draw()
 	LLPanel::draw();
 }
 
-void LLFlickrAccountPanel::onVisibilityChange(const LLSD& new_visibility)
+void LLFlickrAccountPanel::onVisibilityChange(BOOL visible)
 {
-	bool visible = new_visibility.asBoolean();
-
 	if(visible)
 	{
 		LLEventPumps::instance().obtain("FlickrConnectState").stopListening("LLFlickrAccountPanel");
