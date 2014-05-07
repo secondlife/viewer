@@ -38,11 +38,9 @@ LLUIImage::LLUIImage(const std::string& name, LLPointer<LLTexture> image)
 	mImage(image),
 	mScaleRegion(0.f, 1.f, 1.f, 0.f),
 	mClipRegion(0.f, 1.f, 1.f, 0.f),
-	mUniformScaling(TRUE),
-	mNoClip(TRUE),
-	mImageLoaded(NULL)
-{
-}
+	mImageLoaded(NULL),
+	mScaleStyle(SCALE_INNER)
+{}
 
 LLUIImage::~LLUIImage()
 {
@@ -52,44 +50,35 @@ LLUIImage::~LLUIImage()
 void LLUIImage::setClipRegion(const LLRectf& region) 
 { 
 	mClipRegion = region; 
-	mNoClip = mClipRegion.mLeft == 0.f
-				&& mClipRegion.mRight == 1.f
-				&& mClipRegion.mBottom == 0.f
-				&& mClipRegion.mTop == 1.f;
 }
 
 void LLUIImage::setScaleRegion(const LLRectf& region) 
 { 
 	mScaleRegion = region; 
-	mUniformScaling = mScaleRegion.mLeft == 0.f
-					&& mScaleRegion.mRight == 1.f
-					&& mScaleRegion.mBottom == 0.f
-					&& mScaleRegion.mTop == 1.f;
+}
+
+void LLUIImage::setScaleStyle(LLUIImage::EScaleStyle style)
+{
+	mScaleStyle = style;
 }
 
 //TODO: move drawing implementation inside class
 void LLUIImage::draw(S32 x, S32 y, const LLColor4& color) const
 {
-	gl_draw_scaled_image(x, y, getWidth(), getHeight(), mImage, color, mClipRegion);
+	draw(x, y, getWidth(), getHeight(), color);
 }
 
 void LLUIImage::draw(S32 x, S32 y, S32 width, S32 height, const LLColor4& color) const
 {
-	if (mUniformScaling)
-	{
-		gl_draw_scaled_image(x, y, width, height, mImage, color, mClipRegion);
-	}
-	else
-	{
-		gl_draw_scaled_image_with_border(
-			x, y, 
-			width, height, 
-			mImage, 
-			color,
-			FALSE,
-			mClipRegion,
-			mScaleRegion);
-	}
+	gl_draw_scaled_image_with_border(
+		x, y, 
+		width, height, 
+		mImage, 
+		color,
+		FALSE,
+		mClipRegion,
+		mScaleRegion,
+		mScaleStyle == SCALE_INNER);
 }
 
 void LLUIImage::drawSolid(S32 x, S32 y, S32 width, S32 height, const LLColor4& color) const
@@ -101,7 +90,8 @@ void LLUIImage::drawSolid(S32 x, S32 y, S32 width, S32 height, const LLColor4& c
 		color, 
 		TRUE,
 		mClipRegion,
-		mScaleRegion);
+		mScaleRegion,
+		mScaleStyle == SCALE_INNER);
 }
 
 void LLUIImage::drawBorder(S32 x, S32 y, S32 width, S32 height, const LLColor4& color, S32 border_width) const

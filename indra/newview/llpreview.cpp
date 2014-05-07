@@ -25,7 +25,6 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-#include "stdenums.h"
 
 #include "llpreview.h"
 
@@ -137,10 +136,10 @@ void LLPreview::onCommit()
 		if (!item->isFinished())
 		{
 			// We are attempting to save an item that was never loaded
-			llwarns << "LLPreview::onCommit() called with mIsComplete == FALSE"
+			LL_WARNS() << "LLPreview::onCommit() called with mIsComplete == FALSE"
 					<< " Type: " << item->getType()
 					<< " ID: " << item->getUUID()
-					<< llendl;
+					<< LL_ENDL;
 			return;
 		}
 		

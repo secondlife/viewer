@@ -253,7 +253,7 @@ void LLPreviewGesture::onUpdateSucceeded()
 	refresh();
 }
 
-void LLPreviewGesture::onVisibilityChange ( const LLSD& new_visibility )
+void LLPreviewGesture::onVisibilityChanged ( const LLSD& new_visibility )
 {
 	if (new_visibility.asBoolean())
 	{
@@ -333,7 +333,7 @@ LLPreviewGesture::~LLPreviewGesture()
 
 BOOL LLPreviewGesture::postBuild()
 {
-	setVisibleCallback(boost::bind(&LLPreviewGesture::onVisibilityChange, this, _2));
+	setVisibleCallback(boost::bind(&LLPreviewGesture::onVisibilityChanged, this, _2));
 	
 	LLLineEditor* edit;
 	LLComboBox* combo;
@@ -546,10 +546,10 @@ void LLPreviewGesture::addAnimations()
 	// Copy into something we can sort
 	std::vector<LLInventoryItem*> animations;
 
-	S32 count = items.count();
+	S32 count = items.size();
 	for(i = 0; i < count; ++i)
 	{
-		animations.push_back( items.get(i) );
+		animations.push_back( items.at(i) );
 	}
 
 	// Do the sort
@@ -592,10 +592,10 @@ void LLPreviewGesture::addSounds()
 	std::vector<LLInventoryItem*> sounds;
 
 	S32 i;
-	S32 count = items.count();
+	S32 count = items.size();
 	for(i = 0; i < count; ++i)
 	{
-		sounds.push_back( items.get(i) );
+		sounds.push_back( items.at(i) );
 	}
 
 	// Do the sort
@@ -873,7 +873,7 @@ void LLPreviewGesture::onLoadComplete(LLVFS *vfs,
 			}
 			else
 			{
-				llwarns << "Unable to load gesture" << llendl;
+				LL_WARNS() << "Unable to load gesture" << LL_ENDL;
 			}
 
 			delete gesture;
@@ -883,8 +883,6 @@ void LLPreviewGesture::onLoadComplete(LLVFS *vfs,
 		}
 		else
 		{
-			LLViewerStats::getInstance()->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
-
 			if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status ||
 				LL_ERR_FILE_EMPTY == status)
 			{
@@ -895,7 +893,7 @@ void LLPreviewGesture::onLoadComplete(LLVFS *vfs,
 				LLDelayedGestureError::gestureFailedToLoad( *item_idp );
 			}
 
-			llwarns << "Problem loading gesture: " << status << llendl;
+			LL_WARNS() << "Problem loading gesture: " << status << LL_ENDL;
 			self->mAssetStatus = PREVIEW_ASSET_ERROR;
 		}
 	}
@@ -1021,7 +1019,7 @@ void LLPreviewGesture::saveIfNeeded()
 {
 	if (!gAssetStorage)
 	{
-		llwarns << "Can't save gesture, no asset storage system." << llendl;
+		LL_WARNS() << "Can't save gesture, no asset storage system." << LL_ENDL;
 		return;
 	}
 
@@ -1168,8 +1166,8 @@ void LLPreviewGesture::onSaveComplete(const LLUUID& asset_uuid, void* user_data,
 			}
 			else
 			{
-				llwarns << "Inventory item for gesture " << info->mItemUUID
-						<< " is no longer in agent inventory." << llendl;
+				LL_WARNS() << "Inventory item for gesture " << info->mItemUUID
+						<< " is no longer in agent inventory." << LL_ENDL;
 			}
 		}
 		else
@@ -1204,7 +1202,7 @@ void LLPreviewGesture::onSaveComplete(const LLUUID& asset_uuid, void* user_data,
 	}
 	else
 	{
-		llwarns << "Problem saving gesture: " << status << llendl;
+		LL_WARNS() << "Problem saving gesture: " << status << LL_ENDL;
 		LLSD args;
 		args["REASON"] = std::string(LLAssetStorage::getErrorString(status));
 		LLNotificationsUtil::add("GestureSaveFailedReason", args);
@@ -1535,7 +1533,7 @@ void LLPreviewGesture::onClickAdd(void* data)
 
 	if( library_item_index >= STEP_EOF )
 	{
-		llerrs << "Unknown step type: " << library_text << llendl;
+		LL_ERRS() << "Unknown step type: " << library_text << LL_ENDL;
 		return;
 	}
 
@@ -1565,7 +1563,7 @@ LLScrollListItem* LLPreviewGesture::addStep( const EStepType step_type )
 			step = new LLGestureStepWait();			
 			break;
 		default:
-			llerrs << "Unknown step type: " << (S32)step_type << llendl;
+			LL_ERRS() << "Unknown step type: " << (S32)step_type << LL_ENDL;
 			return NULL;
 	}
 

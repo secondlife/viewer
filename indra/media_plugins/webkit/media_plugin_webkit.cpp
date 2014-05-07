@@ -220,7 +220,7 @@ private:
 		char cwd[ FILENAME_MAX ];	// I *think* this is defined on all platforms we use
 		if (NULL == getcwd( cwd, FILENAME_MAX - 1 ))
 		{
-			llwarns << "Couldn't get cwd - probably too long - failing to init." << llendl;
+			LL_WARNS() << "Couldn't get cwd - probably too long - failing to init." << LL_ENDL;
 			return false;
 		}
 		std::string application_dir = std::string( cwd );
@@ -380,13 +380,13 @@ private:
 		url << std::setfill('0') << std::setw(2) << std::hex << int(mBackgroundB * 255.0f);
 		url << "%22%3E%3C/body%3E%3C/html%3E";
 		
-		//lldebugs << "data url is: " << url.str() << llendl;
+		//LL_DEBUGS() << "data url is: " << url.str() << LL_ENDL;
 
 		// always display loading overlay now
 #if LLQTWEBKIT_API_VERSION >= 16
 		LLQtWebKit::getInstance()->enableLoadingOverlay(mBrowserWindowId, true);
 #else
-		llwarns << "Ignoring enableLoadingOverlay() call (llqtwebkit version is too old)." << llendl;
+		LL_WARNS() << "Ignoring enableLoadingOverlay() call (llqtwebkit version is too old)." << LL_ENDL;
 #endif
 		str.clear();
 		str << "Loading overlay enabled = " << mEnableMediaPluginDebugging << " for mBrowserWindowId = " << mBrowserWindowId;
@@ -426,7 +426,7 @@ private:
 			break;
 			
 			default:
-				llwarns << "Unknown cursor ID: " << (int)llqt_cursor << llendl;
+				LL_WARNS() << "Unknown cursor ID: " << (int)llqt_cursor << LL_ENDL;
 			break;
 		}
 		
@@ -1326,7 +1326,7 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 				F32 factor = (F32)message_in.getValueReal("factor");
 				LLQtWebKit::getInstance()->setPageZoomFactor(factor);
 #else
-				llwarns << "Ignoring setPageZoomFactor message (llqtwebkit version is too old)." << llendl;
+				LL_WARNS() << "Ignoring setPageZoomFactor message (llqtwebkit version is too old)." << LL_ENDL;
 #endif
 			}
 			else if(message_name == "clear_cache")
@@ -1405,7 +1405,7 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 				bool val = message_in.getValueBoolean("show");
 				LLQtWebKit::getInstance()->showWebInspector( val );
 #else
-				llwarns << "Ignoring showWebInspector message (llqtwebkit version is too old)." << llendl;
+				LL_WARNS() << "Ignoring showWebInspector message (llqtwebkit version is too old)." << LL_ENDL;
 #endif
 			}
 			else if(message_name == "ignore_ssl_cert_errors")
@@ -1413,7 +1413,7 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 #if LLQTWEBKIT_API_VERSION >= 3
 				LLQtWebKit::getInstance()->setIgnoreSSLCertErrors( message_in.getValueBoolean("ignore") );
 #else
-				llwarns << "Ignoring ignore_ssl_cert_errors message (llqtwebkit version is too old)." << llendl;
+				LL_WARNS() << "Ignoring ignore_ssl_cert_errors message (llqtwebkit version is too old)." << LL_ENDL;
 #endif
 			}
 			else if(message_name == "add_certificate_file_path")
@@ -1421,7 +1421,7 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 #if LLQTWEBKIT_API_VERSION >= 6
 				LLQtWebKit::getInstance()->setCAFile( message_in.getValue("path") );
 #else
-				llwarns << "Ignoring add_certificate_file_path message (llqtwebkit version is too old)." << llendl;
+				LL_WARNS() << "Ignoring add_certificate_file_path message (llqtwebkit version is too old)." << LL_ENDL;
 #endif
 			}
 			else if(message_name == "init_history")

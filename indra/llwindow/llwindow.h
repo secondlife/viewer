@@ -31,6 +31,7 @@
 #include "llcoord.h"
 #include "llstring.h"
 #include "llcursortypes.h"
+#include "llinstancetracker.h"
 #include "llsd.h"
 
 class LLSplashScreen;

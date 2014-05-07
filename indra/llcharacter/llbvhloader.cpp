@@ -130,14 +130,14 @@ LLQuaternion::Order bvhStringToOrder( char *str )
 
 	if (mStatus == LLBVHLoader::ST_NO_XLT_FILE)
 	{
-		llwarns << "NOTE: No translation table found." << llendl;
+		LL_WARNS() << "NOTE: No translation table found." << LL_ENDL;
 		return;
 	}
 	else
 	{
 		if (mStatus != LLBVHLoader::ST_OK)
 		{
-			llwarns << "ERROR: [line: " << getLineNumber() << "] " << mStatus << llendl;
+			LL_WARNS() << "ERROR: [line: " << getLineNumber() << "] " << mStatus << LL_ENDL;
 			return;
 		}
 	}
@@ -147,7 +147,7 @@ LLQuaternion::Order bvhStringToOrder( char *str )
 	mStatus = loadBVHFile(buffer, error_text, error_line);
 	if (mStatus != LLBVHLoader::ST_OK)
 	{
-		llwarns << "ERROR: [line: " << getLineNumber() << "] " << mStatus << llendl;
+		LL_WARNS() << "ERROR: [line: " << getLineNumber() << "] " << mStatus << LL_ENDL;
 		return;
 	}
 
@@ -163,10 +163,10 @@ LLBVHLoader::LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &error
 	errorLine = 0;
 	mStatus = loadTranslationTable("anim.ini");
 	loadStatus = mStatus;
-	llinfos<<"Load Status 00 : "<< loadStatus << llendl;
+	LL_INFOS()<<"Load Status 00 : "<< loadStatus << LL_ENDL;
 	if (mStatus == E_ST_NO_XLT_FILE)
 	{
-		//llwarns << "NOTE: No translation table found." << llendl;
+		//LL_WARNS() << "NOTE: No translation table found." << LL_ENDL;
 		loadStatus = mStatus;
 		return;
 	}
@@ -174,7 +174,7 @@ LLBVHLoader::LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &error
 	{
 		if (mStatus != E_ST_OK)
 		{
-			//llwarns << "ERROR: [line: " << getLineNumber() << "] " << mStatus << llendl;
+			//LL_WARNS() << "ERROR: [line: " << getLineNumber() << "] " << mStatus << LL_ENDL;
 			errorLine = getLineNumber();
 			loadStatus = mStatus;
 			return;
@@ -187,7 +187,7 @@ LLBVHLoader::LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &error
 	
 	if (mStatus != E_ST_OK)
 	{
-		//llwarns << "ERROR: [line: " << getLineNumber() << "] " << mStatus << llendl;
+		//LL_WARNS() << "ERROR: [line: " << getLineNumber() << "] " << mStatus << LL_ENDL;
 		loadStatus = mStatus;
 		errorLine = getLineNumber();
 		return;
@@ -226,7 +226,7 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
 	if (!fp)
 		return E_ST_NO_XLT_FILE;
 
-	llinfos << "NOTE: Loading translation table: " << fileName << llendl;
+	LL_INFOS() << "NOTE: Loading translation table: " << fileName << LL_ENDL;
 
 	//--------------------------------------------------------------------
 	// register file to be closed on function exit
@@ -290,7 +290,7 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
 				return E_ST_NO_XLT_EMOTE;
 
 			mEmoteName.assign( emote_str );
-//			llinfos << "NOTE: Emote: " << mEmoteName.c_str() << llendl;
+//			LL_INFOS() << "NOTE: Emote: " << mEmoteName.c_str() << LL_ENDL;
 			continue;
 		}
 
@@ -305,7 +305,7 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
 				return E_ST_NO_XLT_PRIORITY;
 
 			mPriority = priority;
-//			llinfos << "NOTE: Priority: " << mPriority << llendl;
+//			LL_INFOS() << "NOTE: Priority: " << mPriority << LL_ENDL;
 			continue;
 		}
 
@@ -698,7 +698,7 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 
 	if ( !strstr(line.c_str(), "HIERARCHY") )
 	{
-//		llinfos << line << llendl;
+//		LL_INFOS() << line << LL_ENDL;
 		return E_ST_NO_HIER;
 	}
 
@@ -1045,7 +1045,7 @@ void LLBVHLoader::applyTranslations()
 		//----------------------------------------------------------------
 		if ( trans.mIgnore )
 		{
-			//llinfos << "NOTE: Ignoring " << joint->mName.c_str() << llendl;
+			//LL_INFOS() << "NOTE: Ignoring " << joint->mName.c_str() << LL_ENDL;
 			joint->mIgnore = TRUE;
 			continue;
 		}
@@ -1055,7 +1055,7 @@ void LLBVHLoader::applyTranslations()
 		//----------------------------------------------------------------
 		if ( ! trans.mOutName.empty() )
 		{
-			//llinfos << "NOTE: Changing " << joint->mName.c_str() << " to " << trans.mOutName.c_str() << llendl;
+			//LL_INFOS() << "NOTE: Changing " << joint->mName.c_str() << " to " << trans.mOutName.c_str() << LL_ENDL;
 			joint->mOutName = trans.mOutName;
 		}
 
@@ -1072,25 +1072,25 @@ void LLBVHLoader::applyTranslations()
 		//----------------------------------------------------------------
 		if ( trans.mRelativePositionKey )
 		{
-//			llinfos << "NOTE: Removing 1st position offset from all keys for " << joint->mOutName.c_str() << llendl;
+//			LL_INFOS() << "NOTE: Removing 1st position offset from all keys for " << joint->mOutName.c_str() << LL_ENDL;
 			joint->mRelativePositionKey = TRUE;
 		}
 
 		if ( trans.mRelativeRotationKey )
 		{
-//			llinfos << "NOTE: Removing 1st rotation from all keys for " << joint->mOutName.c_str() << llendl;
+//			LL_INFOS() << "NOTE: Removing 1st rotation from all keys for " << joint->mOutName.c_str() << LL_ENDL;
 			joint->mRelativeRotationKey = TRUE;
 		}
 		
 		if ( trans.mRelativePosition.magVec() > 0.0f )
 		{
 			joint->mRelativePosition = trans.mRelativePosition;
-//			llinfos << "NOTE: Removing " <<
+//			LL_INFOS() << "NOTE: Removing " <<
 //				joint->mRelativePosition.mV[0] << " " <<
 //				joint->mRelativePosition.mV[1] << " " <<
 //				joint->mRelativePosition.mV[2] <<
 //				" from all position keys in " <<
-//				joint->mOutName.c_str() << llendl;
+//				joint->mOutName.c_str() << LL_ENDL;
 		}
 
 		//----------------------------------------------------------------
@@ -1104,9 +1104,9 @@ void LLBVHLoader::applyTranslations()
 		//----------------------------------------------------------------
 		if ( ! trans.mMergeParentName.empty() )
 		{
-//			llinfos << "NOTE: Merging "  << joint->mOutName.c_str() << 
+//			LL_INFOS() << "NOTE: Merging "  << joint->mOutName.c_str() << 
 //				" with parent " << 
-//				trans.mMergeParentName.c_str() << llendl;
+//				trans.mMergeParentName.c_str() << LL_ENDL;
 			joint->mMergeParentName = trans.mMergeParentName;
 		}
 
@@ -1115,8 +1115,8 @@ void LLBVHLoader::applyTranslations()
 		//----------------------------------------------------------------
 		if ( ! trans.mMergeChildName.empty() )
 		{
-//			llinfos << "NOTE: Merging " << joint->mName.c_str() <<
-//				" with child " << trans.mMergeChildName.c_str() << llendl;
+//			LL_INFOS() << "NOTE: Merging " << joint->mName.c_str() <<
+//				" with child " << trans.mMergeChildName.c_str() << LL_ENDL;
 			joint->mMergeChildName = trans.mMergeChildName;
 		}
 
@@ -1311,7 +1311,7 @@ void LLBVHLoader::optimize()
 		// don't output joints with no motion
 		if (!(pos_changed || rot_changed))
 		{
-			//llinfos << "Ignoring joint " << joint->mName << llendl;
+			//LL_INFOS() << "Ignoring joint " << joint->mName << LL_ENDL;
 			joint->mIgnore = TRUE;
 		}
 	}

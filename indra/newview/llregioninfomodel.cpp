@@ -192,11 +192,11 @@ void LLRegionInfoModel::sendEstateOwnerMessage(
 
 	if (!cur_region)
 	{
-		llwarns << "Agent region not set" << llendl;
+		LL_WARNS() << "Agent region not set" << LL_ENDL;
 		return;
 	}
 
-	llinfos << "Sending estate request '" << request << "'" << llendl;
+	LL_INFOS() << "Sending estate request '" << request << "'" << LL_ENDL;
 	msg->newMessage("EstateOwnerMessage");
 	msg->nextBlockFast(_PREHASH_AgentData);
 	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
@@ -217,7 +217,7 @@ void LLRegionInfoModel::sendEstateOwnerMessage(
 		std::vector<std::string>::const_iterator end = strings.end();
 		for (unsigned i = 0; it != end; ++it, ++i)
 		{
-			lldebugs << "- [" << i << "] " << (*it) << llendl;
+			LL_DEBUGS() << "- [" << i << "] " << (*it) << LL_ENDL;
 			msg->nextBlock("ParamList");
 			msg->addString("Parameter", *it);
 		}

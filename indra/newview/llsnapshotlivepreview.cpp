@@ -163,7 +163,7 @@ F32 LLSnapshotLivePreview::getImageAspect()
 void LLSnapshotLivePreview::updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail, F32 delay) 
 {
 	// Invalidate current image.
-	lldebugs << "updateSnapshot: mSnapshotUpToDate = " << getSnapshotUpToDate() << llendl;
+	LL_DEBUGS() << "updateSnapshot: mSnapshotUpToDate = " << getSnapshotUpToDate() << LL_ENDL;
 	if (getSnapshotUpToDate())
 	{
 		S32 old_image_index = mCurImageIndex;
@@ -337,7 +337,7 @@ void LLSnapshotLivePreview::draw()
 		}
 		else if (mShineAnimTimer.getStarted())
 		{
-			lldebugs << "Drawing shining animation" << llendl;
+			LL_DEBUGS() << "Drawing shining animation" << LL_ENDL;
 			F32 shine_interp = llmin(1.f, mShineAnimTimer.getElapsedTimeF32() / SHINE_TIME);
 
 			// draw "shine" effect
@@ -414,7 +414,7 @@ void LLSnapshotLivePreview::draw()
 		S32 old_image_index = (mCurImageIndex + 1) % 2;
 		if (mViewerImage[old_image_index].notNull() && mFallAnimTimer.getElapsedTimeF32() < FALL_TIME)
 		{
-			lldebugs << "Drawing fall animation" << llendl;
+			LL_DEBUGS() << "Drawing fall animation" << LL_ENDL;
 			F32 fall_interp = mFallAnimTimer.getElapsedTimeF32() / FALL_TIME;
 			F32 alpha = clamp_rescale(fall_interp, 0.f, 1.f, 0.8f, 0.4f);
 			LLColor4 image_color(1.f, 1.f, 1.f, alpha);
@@ -458,7 +458,7 @@ void LLSnapshotLivePreview::reshape(S32 width, S32 height, BOOL called_from_pare
 	LLView::reshape(width, height, called_from_parent);
 	if (old_rect.getWidth() != width || old_rect.getHeight() != height)
 	{
-		lldebugs << "window reshaped, updating thumbnail" << llendl;
+		LL_DEBUGS() << "window reshaped, updating thumbnail" << LL_ENDL;
 		updateSnapshot(FALSE, TRUE);
 	}
 }
@@ -591,7 +591,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 	LLSnapshotLivePreview* previewp = (LLSnapshotLivePreview*)snapshot_preview;
 	if (previewp->getWidth() == 0 || previewp->getHeight() == 0)
 	{
-		llwarns << "Incorrect dimensions: " << previewp->getWidth() << "x" << previewp->getHeight() << llendl;
+		LL_WARNS() << "Incorrect dimensions: " << previewp->getWidth() << "x" << previewp->getHeight() << LL_ENDL;
 		return FALSE;
 	}
 
@@ -605,7 +605,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 		previewp->mCameraRot = new_camera_rot;
 		// request a new snapshot whenever the camera moves, with a time delay
 		BOOL autosnap = gSavedSettings.getBOOL("AutoSnapshot");
-		lldebugs << "camera moved, updating thumbnail" << llendl;
+		LL_DEBUGS() << "camera moved, updating thumbnail" << LL_ENDL;
 		previewp->updateSnapshot(
 			autosnap, // whether a new snapshot is needed or merely invalidate the existing one
 			FALSE, // or if 1st arg is false, whether to produce a new thumbnail image.
@@ -624,7 +624,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 	// time to produce a snapshot
 	previewp->setThumbnailImageSize();
 
-	lldebugs << "producing snapshot" << llendl;
+	LL_DEBUGS() << "producing snapshot" << LL_ENDL;
 	if (!previewp->mPreviewImage)
 	{
 		previewp->mPreviewImage = new LLImageRaw;
@@ -660,7 +660,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 
 		if(previewp->getSnapshotType() == SNAPSHOT_TEXTURE)
 		{
-			lldebugs << "Encoding new image of format J2C" << llendl;
+			LL_DEBUGS() << "Encoding new image of format J2C" << LL_ENDL;
 			LLPointer<LLImageJ2C> formatted = new LLImageJ2C;
 			LLPointer<LLImageRaw> scaled = new LLImageRaw(
 				previewp->mPreviewImage->getData(),
@@ -682,7 +682,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 			previewp->mFormattedImage = NULL;
 			// now create the new one of the appropriate format.
 			LLFloaterSnapshot::ESnapshotFormat format = previewp->getSnapshotFormat();
-			lldebugs << "Encoding new image of format " << format << llendl;
+			LL_DEBUGS() << "Encoding new image of format " << format << LL_ENDL;
 
 			switch(format)
 			{
@@ -762,7 +762,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 	{
 		previewp->generateThumbnailImage() ;
 	}
-	lldebugs << "done creating snapshot" << llendl;
+	LL_DEBUGS() << "done creating snapshot" << LL_ENDL;
 	LLFloaterSnapshot::postUpdate();
 	LLFloaterSocial::postUpdate();
 
@@ -771,7 +771,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 
 void LLSnapshotLivePreview::setSize(S32 w, S32 h)
 {
-	lldebugs << "setSize(" << w << ", " << h << ")" << llendl;
+	LL_DEBUGS() << "setSize(" << w << ", " << h << ")" << LL_ENDL;
 	setWidth(w);
 	setHeight(h);
 }
@@ -784,7 +784,7 @@ void LLSnapshotLivePreview::getSize(S32& w, S32& h) const
 
 void LLSnapshotLivePreview::saveTexture()
 {
-	lldebugs << "saving texture: " << mPreviewImage->getWidth() << "x" << mPreviewImage->getHeight() << llendl;
+	LL_DEBUGS() << "saving texture: " << mPreviewImage->getWidth() << "x" << mPreviewImage->getHeight() << LL_ENDL;
 	// gen a new uuid for this asset
 	LLTransactionID tid;
 	tid.generate();
@@ -797,7 +797,7 @@ void LLSnapshotLivePreview::saveTexture()
 		mPreviewImage->getComponents());
 
 	scaled->biasedScaleToPowerOfTwo(MAX_TEXTURE_SIZE);
-	lldebugs << "scaled texture to " << scaled->getWidth() << "x" << scaled->getHeight() << llendl;
+	LL_DEBUGS() << "scaled texture to " << scaled->getWidth() << "x" << scaled->getHeight() << LL_ENDL;
 
 	if (formatted->encode(scaled, 0.0f))
 	{
@@ -826,10 +826,10 @@ void LLSnapshotLivePreview::saveTexture()
 	else
 	{
 		LLNotificationsUtil::add("ErrorEncodingSnapshot");
-		llwarns << "Error encoding snapshot" << llendl;
+		LL_WARNS() << "Error encoding snapshot" << LL_ENDL;
 	}
 
-	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_SNAPSHOT_COUNT );
+	add(LLStatViewer::SNAPSHOT, 1);
 
 	mDataSize = 0;
 }

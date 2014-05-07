@@ -30,6 +30,7 @@
 #include "llpanel.h"
 #include "llviewerwearable.h"
 #include "lluictrl.h"
+#include "lllocaltextureobject.h"
 #include "llscrollingpanellist.h"
 #include "llvisualparam.h"
 #include "lltoolmorph.h"
@@ -453,7 +454,7 @@ get_pickers_indexes<LLColorSwatchCtrl> (const LLEditWearableDictionary::Wearable
 {
         if (!wearable_entry)
         {
-                llwarns << "could not get LLColorSwatchCtrl indexes for null wearable entry." << llendl;
+                LL_WARNS() << "could not get LLColorSwatchCtrl indexes for null wearable entry." << LL_ENDL;
                 return null_texture_vec;
         }
         return wearable_entry->mColorSwatchCtrls;
@@ -466,7 +467,7 @@ get_pickers_indexes<LLTextureCtrl> (const LLEditWearableDictionary::WearableEntr
 {
         if (!wearable_entry)
         {
-                llwarns << "could not get LLTextureCtrl indexes for null wearable entry." << llendl;
+                LL_WARNS() << "could not get LLTextureCtrl indexes for null wearable entry." << LL_ENDL;
                 return null_texture_vec;
         }
         return wearable_entry->mTextureCtrls;
@@ -496,7 +497,7 @@ find_picker_ctrl_entry_if(LLWearableType::EType type, const Predicate pred)
                 = LLEditWearableDictionary::getInstance()->getWearable(type);
         if (!wearable_entry)
         {
-                llwarns << "could not get wearable dictionary entry for wearable of type: " << type << llendl;
+                LL_WARNS() << "could not get wearable dictionary entry for wearable of type: " << type << LL_ENDL;
                 return NULL;
         }
         const texture_vec_t& indexes = get_pickers_indexes<CtrlType>(wearable_entry);
@@ -510,7 +511,7 @@ find_picker_ctrl_entry_if(LLWearableType::EType type, const Predicate pred)
                         = get_picker_entry<CtrlType>(te);
                 if (!entry)
                 {
-                        llwarns << "could not get picker dictionary entry (" << te << ") for wearable of type: " << type << llendl;
+                        LL_WARNS() << "could not get picker dictionary entry (" << te << ") for wearable of type: " << type << LL_ENDL;
                         continue;
                 }
                 if (pred(entry))
@@ -527,14 +528,14 @@ for_each_picker_ctrl_entry(LLPanel* panel, LLWearableType::EType type, function_
 {
         if (!panel)
         {
-                llwarns << "the panel wasn't passed for wearable of type: " << type << llendl;
+                LL_WARNS() << "the panel wasn't passed for wearable of type: " << type << LL_ENDL;
                 return;
         }
         const LLEditWearableDictionary::WearableEntry *wearable_entry
                 = LLEditWearableDictionary::getInstance()->getWearable(type);
         if (!wearable_entry)
         {
-                llwarns << "could not get wearable dictionary entry for wearable of type: " << type << llendl;
+                LL_WARNS() << "could not get wearable dictionary entry for wearable of type: " << type << LL_ENDL;
                 return;
         }
         const texture_vec_t& indexes = get_pickers_indexes<CtrlType>(wearable_entry);
@@ -548,7 +549,7 @@ for_each_picker_ctrl_entry(LLPanel* panel, LLWearableType::EType type, function_
                         = get_picker_entry<CtrlType>(te);
                 if (!entry)
                 {
-                        llwarns << "could not get picker dictionary entry (" << te << ") for wearable of type: " << type << llendl;
+                        LL_WARNS() << "could not get picker dictionary entry (" << te << ") for wearable of type: " << type << LL_ENDL;
                         continue;
                 }
                 fun (panel, entry);
@@ -700,12 +701,12 @@ void LLPanelEditWearable::setWearablePanelVisibilityChangeCallback(LLPanel* body
                 }
                 else
                 {
-                        llwarns << "accordion_ctrl is NULL" << llendl;
+                        LL_WARNS() << "accordion_ctrl is NULL" << LL_ENDL;
                 }
         }
         else
         {
-                llwarns << "bodypart_panel is NULL" << llendl;
+                LL_WARNS() << "bodypart_panel is NULL" << LL_ENDL;
         }
 }
 
@@ -776,7 +777,7 @@ BOOL LLPanelEditWearable::postBuild()
                 const LLEditWearableDictionary::WearableEntry *wearable_entry = LLEditWearableDictionary::getInstance()->getWearable(type);
                 if (!wearable_entry)
                 {
-                        llwarns << "could not get wearable dictionary entry for wearable of type: " << type << llendl;
+                        LL_WARNS() << "could not get wearable dictionary entry for wearable of type: " << type << LL_ENDL;
                         continue;
                 }
                 U8 num_subparts = wearable_entry->mSubparts.size();
@@ -789,7 +790,7 @@ BOOL LLPanelEditWearable::postBuild()
         
                         if (!subpart_entry)
                         {
-                                llwarns << "could not get wearable subpart dictionary entry for subpart: " << subpart_e << llendl;
+                                LL_WARNS() << "could not get wearable subpart dictionary entry for subpart: " << subpart_e << LL_ENDL;
                                 continue;
                         }
         
@@ -799,7 +800,7 @@ BOOL LLPanelEditWearable::postBuild()
         
                         if (!tab)
                         {
-                                llwarns << "could not get llaccordionctrltab from UI with name: " << accordion_tab << llendl;
+                                LL_WARNS() << "could not get llaccordionctrltab from UI with name: " << accordion_tab << LL_ENDL;
                                 continue;
                         }
         
@@ -957,7 +958,7 @@ void LLPanelEditWearable::onTexturePickerCommit(const LLUICtrl* ctrl)
         const LLTextureCtrl* texture_ctrl = dynamic_cast<const LLTextureCtrl*>(ctrl);
         if (!texture_ctrl)
         {
-                llwarns << "got commit signal from not LLTextureCtrl." << llendl;
+                LL_WARNS() << "got commit signal from not LLTextureCtrl." << LL_ENDL;
                 return;
         }
 
@@ -985,7 +986,7 @@ void LLPanelEditWearable::onTexturePickerCommit(const LLUICtrl* ctrl)
                 }
                 else
                 {
-                        llwarns << "could not get texture picker dictionary entry for wearable of type: " << type << llendl;
+                        LL_WARNS() << "could not get texture picker dictionary entry for wearable of type: " << type << LL_ENDL;
                 }
         }
 }
@@ -1011,7 +1012,7 @@ void LLPanelEditWearable::onColorSwatchCommit(const LLUICtrl* ctrl)
                 }
                 else
                 {
-                        llwarns << "could not get color swatch dictionary entry for wearable of type: " << type << llendl;
+                        LL_WARNS() << "could not get color swatch dictionary entry for wearable of type: " << type << LL_ENDL;
                 }
         }
 }
@@ -1068,7 +1069,7 @@ void LLPanelEditWearable::saveChanges(bool force_save_as)
 			LLAppearanceMgr::instance().findCOFItemLinks(mWearablePtr->getItemID());
 		if (links.size()>0)
 		{
-			link_item = links.get(0).get();
+			link_item = links.at(0).get();
 			if (link_item && link_item->getIsLinkType())
 			{
 				description = link_item->getActualDescription();
@@ -1139,7 +1140,7 @@ void LLPanelEditWearable::showWearable(LLViewerWearable* wearable, BOOL show, BO
         const LLEditWearableDictionary::WearableEntry *wearable_entry = LLEditWearableDictionary::getInstance()->getWearable(type);
         if (!wearable_entry)
         {
-                llwarns << "called LLPanelEditWearable::showWearable with an invalid wearable type! (" << type << ")" << llendl;
+                LL_WARNS() << "called LLPanelEditWearable::showWearable with an invalid wearable type! (" << type << ")" << LL_ENDL;
                 return;
         }
 
@@ -1177,7 +1178,7 @@ void LLPanelEditWearable::showWearable(LLViewerWearable* wearable, BOOL show, BO
         
                         if (!subpart_entry)
                         {
-                                llwarns << "could not get wearable subpart dictionary entry for subpart: " << subpart_e << llendl;
+                                LL_WARNS() << "could not get wearable subpart dictionary entry for subpart: " << subpart_e << LL_ENDL;
                                 continue;
                         }
         
@@ -1189,13 +1190,13 @@ void LLPanelEditWearable::showWearable(LLViewerWearable* wearable, BOOL show, BO
 			
                         if (!panel_list)
                         {
-                                llwarns << "could not get scrolling panel list: " << scrolling_panel << llendl;
+                                LL_WARNS() << "could not get scrolling panel list: " << scrolling_panel << LL_ENDL;
                                 continue;
                         }
         
                         if (!tab)
                         {
-                                llwarns << "could not get llaccordionctrltab from UI with name: " << accordion_tab << llendl;
+                                LL_WARNS() << "could not get llaccordionctrltab from UI with name: " << accordion_tab << LL_ENDL;
                                 continue;
                         }
 
@@ -1269,13 +1270,13 @@ void LLPanelEditWearable::changeCamera(U8 subpart)
         const LLEditWearableDictionary::WearableEntry *wearable_entry = LLEditWearableDictionary::getInstance()->getWearable(mWearablePtr->getType());
         if (!wearable_entry)
         {
-                llinfos << "could not get wearable dictionary entry for wearable type: " << mWearablePtr->getType() << llendl;
+                LL_INFOS() << "could not get wearable dictionary entry for wearable type: " << mWearablePtr->getType() << LL_ENDL;
                 return;
         }
 
         if (subpart >= wearable_entry->mSubparts.size())
         {
-                llinfos << "accordion tab expanded for invalid subpart. Wearable type: " << mWearablePtr->getType() << " subpart num: " << subpart << llendl;
+                LL_INFOS() << "accordion tab expanded for invalid subpart. Wearable type: " << mWearablePtr->getType() << " subpart num: " << subpart << LL_ENDL;
                 return;
         }
 
@@ -1284,7 +1285,7 @@ void LLPanelEditWearable::changeCamera(U8 subpart)
 
         if (!subpart_entry)
         {
-                llwarns << "could not get wearable subpart dictionary entry for subpart: " << subpart_e << llendl;
+                LL_WARNS() << "could not get wearable subpart dictionary entry for subpart: " << subpart_e << LL_ENDL;
                 return;
         }
 
@@ -1373,7 +1374,7 @@ void LLPanelEditWearable::updateScrollingPanelUI()
         
                         if (!panel_list)
                         {
-                                llwarns << "could not get scrolling panel list: " << scrolling_panel << llendl;
+                                LL_WARNS() << "could not get scrolling panel list: " << scrolling_panel << LL_ENDL;
                                 continue;
                         }
                         
@@ -1569,7 +1570,7 @@ void LLPanelEditWearable::onInvisibilityCommit(LLCheckBoxCtrl* checkbox_ctrl, LL
         if (!checkbox_ctrl) return;
         if (!getWearable()) return;
 
-        llinfos << "onInvisibilityCommit, self " << this << " checkbox_ctrl " << checkbox_ctrl << llendl;
+        LL_INFOS() << "onInvisibilityCommit, self " << this << " checkbox_ctrl " << checkbox_ctrl << LL_ENDL;
 
         bool new_invis_state = checkbox_ctrl->get();
         if (new_invis_state)

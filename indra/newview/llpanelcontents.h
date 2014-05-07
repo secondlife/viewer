@@ -31,7 +31,6 @@
 #include "llpanel.h"
 #include "llinventory.h"
 #include "lluuid.h"
-#include "llmap.h"
 #include "llviewerobject.h"
 #include "llvoinventorylistener.h"
 

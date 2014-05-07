@@ -436,7 +436,7 @@ void show_item_original(const LLUUID& item_uuid)
 	LLFloater* floater_inventory = LLFloaterReg::getInstance("inventory");
 	if (!floater_inventory)
 	{
-		llwarns << "Could not find My Inventory floater" << llendl;
+		LL_WARNS() << "Could not find My Inventory floater" << LL_ENDL;
 		return;
 	}
 
@@ -928,7 +928,7 @@ bool LLFindNonRemovableObjects::operator()(LLInventoryCategory* cat, LLInventory
 		return !get_is_category_removable(&gInventory, cat->getUUID());
 	}
 
-	llwarns << "Not a category and not an item?" << llendl;
+	LL_WARNS() << "Not a category and not an item?" << LL_ENDL;
 	return false;
 }
 

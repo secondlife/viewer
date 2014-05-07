@@ -786,7 +786,7 @@ BOOL LLLineEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 
 BOOL LLLineEditor::handleMiddleMouseDown(S32 x, S32 y, MASK mask)
 {
-        // llinfos << "MiddleMouseDown" << llendl;
+        // LL_INFOS() << "MiddleMouseDown" << LL_ENDL;
 	setFocus( TRUE );
 	if( canPastePrimary() )
 	{
@@ -856,14 +856,14 @@ BOOL LLLineEditor::handleHover(S32 x, S32 y, MASK mask)
 		mKeystrokeTimer.reset();
 
 		getWindow()->setCursor(UI_CURSOR_IBEAM);
-		lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (active)" << llendl;		
+		LL_DEBUGS("UserInput") << "hover handled by " << getName() << " (active)" << LL_ENDL;		
 		handled = TRUE;
 	}
 
 	if( !handled  )
 	{
 		getWindow()->setCursor(UI_CURSOR_IBEAM);
-		lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (inactive)" << llendl;		
+		LL_DEBUGS("UserInput") << "hover handled by " << getName() << " (inactive)" << LL_ENDL;		
 		handled = TRUE;
 	}
 
@@ -1348,7 +1348,7 @@ BOOL LLLineEditor::handleSpecialKey(KEY key, MASK mask)
 	case KEY_BACKSPACE:
 		if (!mReadOnly)
 		{
-			//llinfos << "Handling backspace" << llendl;
+			//LL_INFOS() << "Handling backspace" << LL_ENDL;
 			if( hasSelection() )
 			{
 				deleteSelection();
@@ -2380,7 +2380,7 @@ void LLLineEditor::resetPreedit()
 	{
 		if (hasPreeditString())
 		{
-			llwarns << "Preedit and selection!" << llendl;
+			LL_WARNS() << "Preedit and selection!" << LL_ENDL;
 			deselect();
 		}
 		else
@@ -2544,7 +2544,7 @@ void LLLineEditor::markAsPreedit(S32 position, S32 length)
 	setCursor(position);
 	if (hasPreeditString())
 	{
-		llwarns << "markAsPreedit invoked when hasPreeditString is true." << llendl;
+		LL_WARNS() << "markAsPreedit invoked when hasPreeditString is true." << LL_ENDL;
 	}
 	mPreeditWString.assign( LLWString( mText.getWString(), position, length ) );
 	if (length > 0)

@@ -202,7 +202,7 @@ void LLPanelNearByMedia::onTopLost()
 
 
 /*virtual*/ 
-void LLPanelNearByMedia::handleVisibilityChange ( BOOL new_visibility )
+void LLPanelNearByMedia::onVisibilityChange ( BOOL new_visibility )
 {
 	if (new_visibility)	
 	{

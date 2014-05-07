@@ -126,13 +126,13 @@ void LLURL::init(const char * url)
 	strncpy(mPath,leftover_url, LL_MAX_PATH -1);		/* Flawfinder: ignore */
 	mPath[LL_MAX_PATH -1] = '\0';
 
-//	llinfos << url << "  decomposed into: " << llendl;
-//	llinfos << "  URI : <" << mURI << ">" << llendl;
-//	llinfos << "  Auth: <" << mAuthority << ">" << llendl;
-//	llinfos << "  Path: <" << mPath << ">" << llendl;
-//	llinfos << "  File: <" << mFilename << ">" << llendl;
-//	llinfos << "  Ext : <" << mExtension << ">" << llendl;
-//	llinfos << "  Tag : <" << mTag << ">" << llendl;
+//	LL_INFOS() << url << "  decomposed into: " << LL_ENDL;
+//	LL_INFOS() << "  URI : <" << mURI << ">" << LL_ENDL;
+//	LL_INFOS() << "  Auth: <" << mAuthority << ">" << LL_ENDL;
+//	LL_INFOS() << "  Path: <" << mPath << ">" << LL_ENDL;
+//	LL_INFOS() << "  File: <" << mFilename << ">" << LL_ENDL;
+//	LL_INFOS() << "  Ext : <" << mExtension << ">" << LL_ENDL;
+//	LL_INFOS() << "  Tag : <" << mTag << ">" << LL_ENDL;
 }
 
 void LLURL::cleanup()

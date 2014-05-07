@@ -46,9 +46,9 @@
 // replicate, but better to reuse
 extern void wouldHaveCrashed(const std::string& message);
 
-struct WrapLL_ERRS
+struct WrapLLErrs
 {
-    WrapLL_ERRS():
+    WrapLLErrs():
         // Resetting Settings discards the default Recorder that writes to
         // stderr. Otherwise, expected llerrs (LL_ERRS) messages clutter the
         // console output of successful tests, potentially confusing things.
@@ -57,10 +57,10 @@ struct WrapLL_ERRS
         mPriorFatal(LLError::getFatalFunction())
     {
         // Make LL_ERRS call our own operator() method
-        LLError::setFatalFunction(boost::bind(&WrapLL_ERRS::operator(), this, _1));
+        LLError::setFatalFunction(boost::bind(&WrapLLErrs::operator(), this, _1));
     }
 
-    ~WrapLL_ERRS()
+    ~WrapLLErrs()
     {
         LLError::setFatalFunction(mPriorFatal);
         LLError::restoreSettings(mPriorErrorSettings);

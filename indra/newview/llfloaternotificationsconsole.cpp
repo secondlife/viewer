@@ -272,7 +272,7 @@ void LLFloaterNotification::respond()
 	LLComboBox* responses_combo = getChild<LLComboBox>("response");
 	LLCtrlListInterface* response_list = responses_combo->getListInterface();
 	const std::string& trigger = response_list->getSelectedValue().asString();
-	//llinfos << trigger << llendl;
+	//LL_INFOS() << trigger << LL_ENDL;
 
 	LLSD response = mNote->getResponseTemplate();
 	response[trigger] = true;

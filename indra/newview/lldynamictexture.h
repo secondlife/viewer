@@ -38,12 +38,12 @@ class LLViewerDynamicTexture : public LLViewerTexture
 public:
 	void* operator new(size_t size)
 	{
-		return ll_aligned_malloc_16(size);
+		return LLTrace::MemTrackable<LLTexture>::aligned_new<16>(size);
 	}
 
-	void operator delete(void* ptr)
+	void operator delete(void* ptr, size_t size)
 	{
-		ll_aligned_free_16(ptr);
+		LLTrace::MemTrackable<LLTexture>::aligned_delete<16>(ptr, size);
 	}
 
 	enum

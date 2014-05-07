@@ -74,7 +74,7 @@ public:
 		T* panel = dynamic_cast<T*>(getPanel(floater_name, panel_name));
 		if (!panel)
 		{
-			llwarns << "Child named \"" << panel_name << "\" of type " << typeid(T*).name() << " not found" << llendl;
+			LL_WARNS() << "Child named \"" << panel_name << "\" of type " << typeid(T*).name() << " not found" << LL_ENDL;
 		}
 		return panel;
 	}

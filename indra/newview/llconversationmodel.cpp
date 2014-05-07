@@ -361,7 +361,7 @@ void LLConversationItemSession::setDistance(const LLUUID& participant_id, F64 di
 
 void LLConversationItemSession::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
-    lldebugs << "LLConversationItemParticipant::buildContextMenu()" << llendl;
+    LL_DEBUGS() << "LLConversationItemParticipant::buildContextMenu()" << LL_ENDL;
     menuentry_vec_t items;
     menuentry_vec_t disabled_items;
     if((flags & ITEM_IN_MULTI_SELECTION) && (this->getType() != CONV_SESSION_NEARBY))
@@ -439,7 +439,7 @@ const bool LLConversationItemSession::getTime(F64& time) const
 void LLConversationItemSession::dumpDebugData(bool dump_children)
 {
 	// Session info
-	llinfos << "Merov debug : session " << this << ", uuid = " << mUUID << ", name = " << mName << ", is loaded = " << mIsLoaded << llendl;
+	LL_INFOS() << "Merov debug : session " << this << ", uuid = " << mUUID << ", name = " << mName << ", is loaded = " << mIsLoaded << LL_ENDL;
 	// Children info
 	if (dump_children)
 	{
@@ -557,7 +557,7 @@ LLConversationItemSession* LLConversationItemParticipant::getParentSession()
 
 void LLConversationItemParticipant::dumpDebugData()
 {
-	llinfos << "Merov debug : participant, uuid = " << mUUID << ", name = " << mName << ", display name = " << mDisplayName << ", muted = " << isVoiceMuted() << ", moderator = " << mIsModerator << llendl;
+	LL_INFOS() << "Merov debug : participant, uuid = " << mUUID << ", name = " << mName << ", display name = " << mDisplayName << ", muted = " << isVoiceMuted() << ", moderator = " << mIsModerator << LL_ENDL;
 }
 
 void LLConversationItemParticipant::setDisplayModeratorRole(bool displayRole)

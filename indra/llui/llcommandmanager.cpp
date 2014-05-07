@@ -137,7 +137,7 @@ void LLCommandManager::addCommand(LLCommand * command)
 	mCommandIndices[command_id.uuid()] = mCommands.size();
 	mCommands.push_back(command);
 
-	lldebugs << "Successfully added command: " << command->name() << llendl;
+	LL_DEBUGS() << "Successfully added command: " << command->name() << LL_ENDL;
 }
 
 //static
@@ -153,13 +153,13 @@ bool LLCommandManager::load()
 	
 	if (!parser.readXUI(commands_file, commandsParams))
 	{
-		llerrs << "Unable to load xml file: " << commands_file << llendl;
+		LL_ERRS() << "Unable to load xml file: " << commands_file << LL_ENDL;
 		return false;
 	}
 
 	if (!commandsParams.validateBlock())
 	{
-		llerrs << "Invalid commands file: " << commands_file << llendl;
+		LL_ERRS() << "Invalid commands file: " << commands_file << LL_ENDL;
 		return false;
 	}
 

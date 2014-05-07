@@ -721,7 +721,7 @@ void LLFloaterEditSky::saveRegionSky()
 	LLWLParamKey key(getSelectedSkyPreset());
 	llassert(key.scope == LLEnvKey::SCOPE_REGION);
 
-	LL_DEBUGS("Windlight") << "Saving region sky preset: " << key.name  << llendl;
+	LL_DEBUGS("Windlight") << "Saving region sky preset: " << key.name  << LL_ENDL;
 	LLWLParamManager& wl_mgr = LLWLParamManager::instance();
 	wl_mgr.mCurParams.mName = key.name;
 	wl_mgr.setParamSet(key, wl_mgr.mCurParams);
@@ -819,7 +819,7 @@ void LLFloaterEditSky::onSaveConfirmed()
 	// Change preference if requested.
 	if (mMakeDefaultCheckBox->getValue())
 	{
-		LL_DEBUGS("Windlight") << key.name << " is now the new preferred sky preset" << llendl;
+		LL_DEBUGS("Windlight") << key.name << " is now the new preferred sky preset" << LL_ENDL;
 		LLEnvManagerNew::instance().setUseSkyPreset(key.name);
 	}
 
@@ -842,7 +842,7 @@ void LLFloaterEditSky::onBtnSave()
 	if (name.empty())
 	{
 		// *TODO: show an alert
-		llwarns << "Empty sky preset name" << llendl;
+		LL_WARNS() << "Empty sky preset name" << LL_ENDL;
 		return;
 	}
 

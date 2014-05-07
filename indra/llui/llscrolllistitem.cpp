@@ -83,7 +83,7 @@ void LLScrollListItem::setColumn( S32 column, LLScrollListCell *cell )
 	}
 	else
 	{
-		llerrs << "LLScrollListItem::setColumn: bad column: " << column << llendl;
+		LL_ERRS() << "LLScrollListItem::setColumn: bad column: " << column << LL_ENDL;
 	}
 }
 

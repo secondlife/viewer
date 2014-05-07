@@ -227,11 +227,11 @@ BOOL LLManip::handleHover(S32 x, S32 y, MASK mask)
 			setMouseCapture( FALSE );
 		}
 
-		lldebugst(LLERR_USER_INPUT) << "hover handled by LLManip (active)" << llendl;
+		LL_DEBUGS("UserInput") << "hover handled by LLManip (active)" << LL_ENDL;
 	}
 	else
 	{
-		lldebugst(LLERR_USER_INPUT) << "hover handled by LLManip (inactive)" << llendl;
+		LL_DEBUGS("UserInput") << "hover handled by LLManip (inactive)" << LL_ENDL;
 	}
 	gViewerWindow->setCursor(UI_CURSOR_ARROW);
 	return TRUE;

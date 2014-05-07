@@ -162,12 +162,7 @@ void LLFloaterColorPicker::createUI ()
 	// create palette
 	for ( S32 each = 0; each < numPaletteColumns * numPaletteRows; ++each )
 	{
-		std::ostringstream codec;
-		codec << "ColorPaletteEntry" << std::setfill ( '0' ) << std::setw ( 2 ) << each + 1;
-
-		// argh!
-		const std::string s ( codec.str () );
-		mPalette.push_back ( new LLColor4 ( LLUIColorTable::instance().getColor ( s )  ) );
+		mPalette.push_back(new LLColor4(LLUIColorTable::instance().getColor(llformat("ColorPaletteEntry%02d", each + 1))));
 	}
 }
 
@@ -535,11 +530,11 @@ void LLFloaterColorPicker::draw()
 	if (gFocusMgr.childHasMouseCapture(getDragHandle()))
 	{
 		mContextConeOpacity = lerp(mContextConeOpacity, gSavedSettings.getF32("PickerContextOpacity"), 
-                                        LLCriticalDamp::getInterpolant(mContextConeFadeTime));
+                                        LLSmoothInterpolation::getInterpolant(mContextConeFadeTime));
 	}
 	else
 	{
-		mContextConeOpacity = lerp(mContextConeOpacity, 0.f, LLCriticalDamp::getInterpolant(mContextConeFadeTime));
+		mContextConeOpacity = lerp(mContextConeOpacity, 0.f, LLSmoothInterpolation::getInterpolant(mContextConeFadeTime));
 	}
 
 	mPipetteBtn->setToggleState(LLToolMgr::getInstance()->getCurrentTool() == LLToolPipette::getInstance());

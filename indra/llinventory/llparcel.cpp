@@ -136,7 +136,7 @@ LLParcel::LLParcel(const LLUUID &owner_id,
 // virtual
 LLParcel::~LLParcel()
 {
-    // user list cleaned up by LLDynamicArray destructor.
+    // user list cleaned up by std::vector destructor.
 }
 
 void LLParcel::init(const LLUUID &owner_id,
@@ -470,8 +470,8 @@ BOOL LLParcel::importAccessEntry(std::istream& input_stream, LLAccessEntry* entr
         }
         else
         {
-            llwarns << "Unknown keyword in parcel access entry section: <" 
-            << keyword << ">" << llendl;
+            LL_WARNS() << "Unknown keyword in parcel access entry section: <" 
+            << keyword << ">" << LL_ENDL;
         }
     }
     return input_stream.good();
@@ -967,7 +967,7 @@ void LLParcel::startSale(const LLUUID& buyer_id, BOOL is_buyer_group)
 		mGroupID.setNull();
 	}
 	mSaleTimerExpires.start();
-	mSaleTimerExpires.setTimerExpirySec(DEFAULT_USEC_SALE_TIMEOUT / SEC_TO_MICROSEC);
+	mSaleTimerExpires.setTimerExpirySec(U64Microseconds(DEFAULT_USEC_SALE_TIMEOUT));
 	mStatus = OS_LEASE_PENDING;
 	mClaimDate = time(NULL);
 	setAuctionID(0);
@@ -1092,9 +1092,9 @@ void LLParcel::clearParcel()
 
 void LLParcel::dump()
 {
-    llinfos << "parcel " << mLocalID << " area " << mArea << llendl;
-    llinfos << "	 name <" << mName << ">" << llendl;
-    llinfos << "	 desc <" << mDesc << ">" << llendl;
+    LL_INFOS() << "parcel " << mLocalID << " area " << mArea << LL_ENDL;
+    LL_INFOS() << "	 name <" << mName << ">" << LL_ENDL;
+    LL_INFOS() << "	 desc <" << mDesc << ">" << LL_ENDL;
 }
 
 const std::string& ownership_status_to_string(LLParcel::EOwnershipStatus status)
@@ -1174,7 +1174,7 @@ LLParcel::ECategory category_string_to_category(const std::string& s)
             return (LLParcel::ECategory)i;
         }
     }
-    llwarns << "Parcel category outside of possibilities " << s << llendl;
+    LL_WARNS() << "Parcel category outside of possibilities " << s << LL_ENDL;
     return LLParcel::C_NONE;
 }
 

@@ -30,7 +30,6 @@
 #include "stdtypes.h"
 #include "lltimer.h"
 #include "v3dmath.h"
-#include "lldarray.h"
 
 // Class that drives the agent around according to a "script".
 
@@ -113,7 +112,7 @@ private:
 		LLVector3		mCameraZAxis;
 	};
 
-	LLDynamicArray<Action>	mActions;
+	std::vector<Action>	mActions;
 	LLTimer					mTimer;
 
 };

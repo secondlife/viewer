@@ -424,7 +424,7 @@ bool LLFloaterIMContainer::onConversationModelEvent(const LLSD& event)
 	// For debug only
 	//std::ostringstream llsd_value;
 	//llsd_value << LLSDOStreamer<LLSDNotationFormatter>(event) << std::endl;
-	//llinfos << "LLFloaterIMContainer::onConversationModelEvent, event = " << llsd_value.str() << llendl;
+	//LL_INFOS() << "LLFloaterIMContainer::onConversationModelEvent, event = " << llsd_value.str() << LL_ENDL;
 	// end debug
 	
 	// Note: In conversations, the model is not responsible for creating the view, which is a good thing. This means that
@@ -1632,7 +1632,7 @@ LLConversationItem* LLFloaterIMContainer::addConversationListItem(const LLUUID& 
 	}
 	if (!item)
 	{
-		llwarns << "Couldn't create conversation session item : " << display_name << llendl;
+		LL_WARNS() << "Couldn't create conversation session item : " << display_name << LL_ENDL;
 		return NULL;
 	}
 	item->renameItem(display_name);
@@ -1814,7 +1814,7 @@ bool LLFloaterIMContainer::isGroupModerator()
 	LLSpeakerMgr * speaker_manager = getSpeakerMgrForSelectedParticipant();
 	if (NULL == speaker_manager)
 	{
-		llwarns << "Speaker manager is missing" << llendl;
+		LL_WARNS() << "Speaker manager is missing" << LL_ENDL;
 		return false;
 	}
 
@@ -1906,7 +1906,7 @@ LLSpeakerMgr * LLFloaterIMContainer::getSpeakerMgrForSelectedParticipant()
 	LLFolderViewItem *selectedItem = mConversationsRoot->getCurSelectedItem();
 	if (NULL == selectedItem)
 	{
-		llwarns << "Current selected item is null" << llendl;
+		LL_WARNS() << "Current selected item is null" << LL_ENDL;
 		return NULL;
 	}
 
@@ -1924,7 +1924,7 @@ LLSpeakerMgr * LLFloaterIMContainer::getSpeakerMgrForSelectedParticipant()
 	}
 	if (NULL == conversation_uuidp)
 	{
-		llwarns << "Cannot find conversation item widget" << llendl;
+		LL_WARNS() << "Cannot find conversation item widget" << LL_ENDL;
 		return NULL;
 	}
 
@@ -1936,14 +1936,14 @@ LLSpeaker * LLFloaterIMContainer::getSpeakerOfSelectedParticipant(LLSpeakerMgr *
 {
 	if (NULL == speaker_managerp)
 	{
-		llwarns << "Speaker manager is missing" << llendl;
+		LL_WARNS() << "Speaker manager is missing" << LL_ENDL;
 		return NULL;
 	}
 
 	const LLConversationItem * participant_itemp = getCurSelectedViewModelItem();
 	if (NULL == participant_itemp)
 	{
-		llwarns << "Cannot evaluate current selected view model item" << llendl;
+		LL_WARNS() << "Cannot evaluate current selected view model item" << LL_ENDL;
 		return NULL;
 	}
 
@@ -2156,14 +2156,7 @@ BOOL LLFloaterIMContainer::isFrontmost()
 // This is intentional so it doesn't confuse the user. onClickCloseBtn() closes the whole floater.
 void LLFloaterIMContainer::onClickCloseBtn(bool app_quitting/* = false*/)
 {
-	// Always unminimize before trying to close.
-	// Most of the time the user will never see this state.
-	if(isMinimized())
-	{
-		LLMultiFloater::setMinimized(FALSE);
-	}
-
-	LLFloater::closeFloater(app_quitting);
+	LLMultiFloater::closeFloater(app_quitting);
 }
 
 void LLFloaterIMContainer::closeHostedFloater()
@@ -2173,7 +2166,7 @@ void LLFloaterIMContainer::closeHostedFloater()
 
 void LLFloaterIMContainer::closeAllConversations()
 {
-	LLDynamicArray<LLUUID> ids;
+	std::vector<LLUUID> ids;
 	for (conversations_items_map::iterator it_session = mConversationsItems.begin(); it_session != mConversationsItems.end(); it_session++)
 	{
 		LLUUID session_id = it_session->first;
@@ -2183,7 +2176,7 @@ void LLFloaterIMContainer::closeAllConversations()
 		}
 	}
 
-	for (LLDynamicArray<LLUUID>::const_iterator it = ids.begin(); it != ids.end(); 	++it)
+	for (std::vector<LLUUID>::const_iterator it = ids.begin(); it != ids.end(); 	++it)
 	{
 		LLFloaterIMSession *conversationFloater = LLFloaterIMSession::findInstance(*it);
 		LLFloater::onClickClose(conversationFloater);

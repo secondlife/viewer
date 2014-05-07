@@ -189,7 +189,7 @@ void LLToastIMPanel::spawnGroupIconToolTip()
 	LLGroupData g_data;
 	if(!gAgent.getGroupData(mSessionID, g_data))
 	{
-		llwarns << "Error getting group data" << llendl;
+		LL_WARNS() << "Error getting group data" << LL_ENDL;
 	}
 
 	LLInspector::Params params;
@@ -222,7 +222,7 @@ void LLToastIMPanel::initIcon()
 		LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(mSessionID);
 		if(!im_session)
 		{
-			llwarns << "Invalid IM session" << llendl;
+			LL_WARNS() << "Invalid IM session" << LL_ENDL;
 			return;
 		}
 
@@ -242,7 +242,7 @@ void LLToastIMPanel::initIcon()
 			mAdhocIcon->setToolTip(im_session->mName);
 			break;
 		default:
-			llwarns << "Unknown IM session type" << llendl;
+			LL_WARNS() << "Unknown IM session type" << LL_ENDL;
 			break;
 		}
 	}

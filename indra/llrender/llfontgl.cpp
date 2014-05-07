@@ -29,6 +29,7 @@
 #include "llfontgl.h"
 
 // Linden library includes
+#include "llfasttimer.h"
 #include "llfontfreetype.h"
 #include "llfontbitmapcache.h"
 #include "llfontregistry.h"
@@ -97,7 +98,7 @@ BOOL LLFontGL::loadFace(const std::string& filename, F32 point_size, F32 vert_dp
 	return mFontFreetype->loadFace(filename, point_size, vert_dpi, horz_dpi, components, is_fallback);
 }
 
-static LLFastTimer::DeclareTimer FTM_RENDER_FONTS("Fonts");
+static LLTrace::BlockTimerStatHandle FTM_RENDER_FONTS("Fonts");
 
 S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, const LLRect& rect, const LLColor4 &color, HAlign halign, VAlign valign, U8 style, 
 					 ShadowType shadow, S32 max_chars, F32* right_x, BOOL use_ellipses) const
@@ -128,7 +129,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, const LLRect& rect
 S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, const LLColor4 &color, HAlign halign, VAlign valign, U8 style, 
 					 ShadowType shadow, S32 max_chars, S32 max_pixels, F32* right_x, BOOL use_ellipses) const
 {
-	LLFastTimer _(FTM_RENDER_FONTS);
+	LL_RECORD_BLOCK_TIME(FTM_RENDER_FONTS);
 
 	if(!sDisplayFont) //do not display texts
 	{
@@ -275,7 +276,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 		}
 		if (!fgi)
 		{
-			llerrs << "Missing Glyph Info" << llendl;
+			LL_ERRS() << "Missing Glyph Info" << LL_ENDL;
 			break;
 		}
 		// Per-glyph bitmap texture.
@@ -1069,7 +1070,7 @@ std::string LLFontGL::getFontPathSystem()
 	system_root = getenv("SystemRoot");	/* Flawfinder: ignore */
 	if (!system_root)
 	{
-		llwarns << "SystemRoot not found, attempting to load fonts from default path." << llendl;
+		LL_WARNS() << "SystemRoot not found, attempting to load fonts from default path." << LL_ENDL;
 	}
 #endif
 
@@ -1114,12 +1115,12 @@ std::string LLFontGL::getFontPathLocal()
 
 LLFontGL::LLFontGL(const LLFontGL &source)
 {
-	llerrs << "Not implemented!" << llendl;
+	LL_ERRS() << "Not implemented!" << LL_ENDL;
 }
 
 LLFontGL &LLFontGL::operator=(const LLFontGL &source)
 {
-	llerrs << "Not implemented" << llendl;
+	LL_ERRS() << "Not implemented" << LL_ENDL;
 	return *this;
 }
 

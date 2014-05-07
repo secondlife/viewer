@@ -27,8 +27,8 @@
 #ifndef LL_LSCRIPT_SCOPE_H
 #define LL_LSCRIPT_SCOPE_H
 
-#include "string_table.h"
-#include "llmap.h"
+#include <map>
+#include "llstringtable.h"
 #include "lscript_byteformat.h"
 
 typedef enum e_lscript_identifier_type
@@ -301,13 +301,13 @@ public:
 
 	~LLScriptScope()	
 	{
-		mEntryMap.deleteAllData();
+		delete_and_clear(mEntryMap);
 	}
 
 	LLScriptScopeEntry *addEntry(const char *identifier, LSCRIPTIdentifierType idtype, LSCRIPTType type)
 	{
 		const char *name = mSTable->addString(identifier);
-		if (!mEntryMap.checkData(name))
+		if (mEntryMap.find(name) == mEntryMap.end())
 		{
 			if (idtype == LIT_FUNCTION)
 				mEntryMap[name] = new LLScriptScopeEntry(name, idtype, type, mFunctionCount++);
@@ -324,18 +324,10 @@ public:
 		}
 	}
 
-	BOOL checkEntry(const char *identifier)
+	bool checkEntry(const char *identifier)
 	{
 		const char *name = mSTable->addString(identifier);
-		if (mEntryMap.checkData(name))
-		{
-			return TRUE;
-		}
-		else
-		{
-			// identifier already exists at this scope
-			return FALSE;
-		}
+		return mEntryMap.find(name) != mEntryMap.end();
 	}
 
 	LLScriptScopeEntry *findEntry(const char *identifier)
@@ -345,10 +337,11 @@ public:
 
 		while (scope)
 		{
-			if (scope->mEntryMap.checkData(name))
+			entry_map_t::iterator found_it = mEntryMap.find(name);
+			if (found_it != mEntryMap.end())
 			{
 				// cool, we found it at this scope
-				return scope->mEntryMap[name];
+				return found_it->second;
 			}
 			scope = scope->mParentScope;
 		}
@@ -362,24 +355,25 @@ public:
 
 		while (scope)
 		{
-			if (scope->mEntryMap.checkData(name))
+			entry_map_t::iterator found_it = scope->mEntryMap.find(name);
+			if (found_it != scope->mEntryMap.end())
 			{
 				// need to check type, and if type is function we need to check both types
 				if (idtype == LIT_FUNCTION)
 				{
-					if (scope->mEntryMap[name]->mIDType == LIT_FUNCTION)
+					if (found_it->second->mIDType == LIT_FUNCTION)
 					{
-						return scope->mEntryMap[name];
+						return (found_it->second);
 					}
-					else if (scope->mEntryMap[name]->mIDType == LIT_LIBRARY_FUNCTION)
+					else if (found_it->second->mIDType == LIT_LIBRARY_FUNCTION)
 					{
-						return scope->mEntryMap[name];
+						return (found_it->second);
 					}
 				}
-				else if (scope->mEntryMap[name]->mIDType == idtype)
+				else if (found_it->second->mIDType == idtype)
 				{
 					// cool, we found it at this scope
-					return scope->mEntryMap[name];
+					return (found_it->second);
 				}
 			}
 			scope = scope->mParentScope;
@@ -392,11 +386,12 @@ public:
 		mParentScope = scope;
 	}
 
-	LLMap<const char *, LLScriptScopeEntry *>	mEntryMap;
-	LLScriptScope						*mParentScope;
-	LLStringTable						*mSTable;
-	S32									mFunctionCount;
-	S32									mStateCount;
+	typedef std::map<const char *, LLScriptScopeEntry *> entry_map_t;
+	entry_map_t		mEntryMap;
+	LLScriptScope*	mParentScope;
+	LLStringTable*	mSTable;
+	S32				mFunctionCount;
+	S32				mStateCount;
 };
 
 extern LLStringTable *gScopeStringTable;

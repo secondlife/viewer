@@ -133,10 +133,10 @@ namespace LLMarketplaceImport
 
 			if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 			{
-				llinfos << " SLM POST status: " << status << llendl;
-				llinfos << " SLM POST reason: " << reason << llendl;
-				llinfos << " SLM POST content: " << content.asString() << llendl;
-				llinfos << " SLM POST timer: " << slmPostTimer.getElapsedTimeF32() << llendl;
+				LL_INFOS() << " SLM POST status: " << status << LL_ENDL;
+				LL_INFOS() << " SLM POST reason: " << reason << LL_ENDL;
+				LL_INFOS() << " SLM POST content: " << content.asString() << LL_ENDL;
+				LL_INFOS() << " SLM POST timer: " << slmPostTimer.getElapsedTimeF32() << LL_ENDL;
 			}
 
 			// MAINT-2301 : we determined we can safely ignore that error in that context
@@ -144,7 +144,7 @@ namespace LLMarketplaceImport
 			{
 				if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 				{
-					llinfos << " SLM POST : Ignoring time out status and treating it as success" << llendl;
+					LL_INFOS() << " SLM POST : Ignoring time out status and treating it as success" << LL_ENDL;
 				}
 				status = MarketplaceErrorCodes::IMPORT_DONE;
 			}
@@ -153,7 +153,7 @@ namespace LLMarketplaceImport
 			{
 				if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 				{
-					llinfos << " SLM POST clearing marketplace cookie due to client or server error" << llendl;
+					LL_INFOS() << " SLM POST clearing marketplace cookie due to client or server error" << LL_ENDL;
 				}
 				sMarketplaceCookie.clear();
 			}
@@ -186,10 +186,10 @@ namespace LLMarketplaceImport
 
 			if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 			{
-				llinfos << " SLM GET status: " << status << llendl;
-				llinfos << " SLM GET reason: " << reason << llendl;
-				llinfos << " SLM GET content: " << content.asString() << llendl;
-				llinfos << " SLM GET timer: " << slmGetTimer.getElapsedTimeF32() << llendl;
+				LL_INFOS() << " SLM GET status: " << status << LL_ENDL;
+				LL_INFOS() << " SLM GET reason: " << reason << LL_ENDL;
+				LL_INFOS() << " SLM GET content: " << content.asString() << LL_ENDL;
+				LL_INFOS() << " SLM GET timer: " << slmGetTimer.getElapsedTimeF32() << LL_ENDL;
 			}
 			
             // MAINT-2452 : Do not clear the cookie on IMPORT_DONE_WITH_ERRORS : Happens when trying to import objects with wrong permissions
@@ -200,13 +200,13 @@ namespace LLMarketplaceImport
 			{
 				if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 				{
-					llinfos << " SLM GET clearing marketplace cookie due to client or server error" << llendl;
+					LL_INFOS() << " SLM GET clearing marketplace cookie due to client or server error" << LL_ENDL;
 				}
 				sMarketplaceCookie.clear();
 			}
             else if (gSavedSettings.getBOOL("InventoryOutboxLogging") && (status >= MarketplaceErrorCodes::IMPORT_BAD_REQUEST))
             {
-                llinfos << " SLM GET : Got error status = " << status << ", but marketplace cookie not cleared." << llendl;
+                LL_INFOS() << " SLM GET : Got error status = " << status << ", but marketplace cookie not cleared." << LL_ENDL;
             }
 
 			sImportInProgress = (status == MarketplaceErrorCodes::IMPORT_PROCESSING);
@@ -268,12 +268,12 @@ namespace LLMarketplaceImport
 		
 		if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 		{
-            llinfos << " SLM GET: establishMarketplaceSessionCookie, LLHTTPClient::get, url = " << url << llendl;
+            LL_INFOS() << " SLM GET: establishMarketplaceSessionCookie, LLHTTPClient::get, url = " << url << LL_ENDL;
             LLSD headers = LLViewerMedia::getHeaders();
             std::stringstream str;
             LLSDSerialize::toPrettyXML(headers, str);
-            llinfos << " SLM GET: headers " << llendl;
-            llinfos << str.str() << llendl;
+            LL_INFOS() << " SLM GET: headers " << LL_ENDL;
+            LL_INFOS() << str.str() << LL_ENDL;
 		}
 
 		slmGetTimer.start();
@@ -304,11 +304,11 @@ namespace LLMarketplaceImport
 		
 		if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 		{
-            llinfos << " SLM GET: pollStatus, LLHTTPClient::get, url = " << url << llendl;
+            LL_INFOS() << " SLM GET: pollStatus, LLHTTPClient::get, url = " << url << LL_ENDL;
             std::stringstream str;
             LLSDSerialize::toPrettyXML(headers, str);
-            llinfos << " SLM GET: headers " << llendl;
-            llinfos << str.str() << llendl;
+            LL_INFOS() << " SLM GET: headers " << LL_ENDL;
+            LL_INFOS() << str.str() << LL_ENDL;
 		}
 
 		slmGetTimer.start();
@@ -342,11 +342,11 @@ namespace LLMarketplaceImport
 		
 		if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 		{
-            llinfos << " SLM POST: triggerImport, LLHTTPClient::post, url = " << url << llendl;
+            LL_INFOS() << " SLM POST: triggerImport, LLHTTPClient::post, url = " << url << LL_ENDL;
             std::stringstream str;
             LLSDSerialize::toPrettyXML(headers, str);
-            llinfos << " SLM POST: headers " << llendl;
-            llinfos << str.str() << llendl;
+            LL_INFOS() << " SLM POST: headers " << LL_ENDL;
+            LL_INFOS() << str.str() << LL_ENDL;
 		}
 
 		slmPostTimer.start();

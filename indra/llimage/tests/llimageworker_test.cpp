@@ -31,6 +31,8 @@
 #include "../llimageworker.h"
 // For timer class
 #include "../llcommon/lltimer.h"
+// for lltrace class
+#include "../llcommon/lltrace.h"
 // Tut header
 #include "../test/lltut.h"
 
@@ -43,7 +45,8 @@
 // * A simulator for a class can be implemented here. Please comment and document thoroughly.
 
 LLImageBase::LLImageBase() 
-: mData(NULL),
+: LLTrace::MemTrackable<LLImageBase>("LLImageBase"),
+mData(NULL),
 mDataSize(0),
 mWidth(0),
 mHeight(0),
@@ -110,7 +113,6 @@ namespace tut
 	{
 		// Instance to be tested
 		LLImageDecodeThread* mThread;
-
 		// Constructor and destructor of the test wrapper
 		imagedecodethread_test()
 		{
@@ -136,6 +138,7 @@ namespace tut
 		imagerequest_test()
 		{
 			done = false;
+
 			mRequest = new LLImageDecodeThread::ImageRequest(0, 0,
 											 LLQueuedThread::PRIORITY_NORMAL, 0, FALSE,
 											 new responder_test(&done));

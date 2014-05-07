@@ -268,12 +268,12 @@ public:
 
 				if (child->getOctant() != i)
 				{
-					llerrs << "Invalid child map, bad octant data." << llendl;
+					LL_ERRS() << "Invalid child map, bad octant data." << LL_ENDL;
 				}
 
 				if (getOctant(child->getCenter()) != child->getOctant())
 				{
-					llerrs << "Invalid child octant compared to position data." << llendl;
+					LL_ERRS() << "Invalid child octant compared to position data." << LL_ENDL;
 				}
 			}
 		}
@@ -314,7 +314,7 @@ public:
 	{
 		if (data == NULL || data->getBinIndex() != -1)
 		{
-			OCT_ERRS << "!!! INVALID ELEMENT ADDED TO OCTREE BRANCH !!!" << llendl;
+			OCT_ERRS << "!!! INVALID ELEMENT ADDED TO OCTREE BRANCH !!!" << LL_ENDL;
 			return false;
 		}
 		LLOctreeNode<T>* parent = getOctParent();
@@ -378,7 +378,7 @@ public:
 				if (getChildCount() == 8)
 				{
 					//this really isn't possible, something bad has happened
-					OCT_ERRS << "Octree detected floating point error and gave up." << llendl;
+					OCT_ERRS << "Octree detected floating point error and gave up." << LL_ENDL;
 					return false;
 				}
 				
@@ -387,7 +387,7 @@ public:
 				{
 					if (mChild[i]->getCenter().equals3(center))
 					{
-						OCT_ERRS << "Octree detected duplicate child center and gave up." << llendl;
+						OCT_ERRS << "Octree detected duplicate child center and gave up." << LL_ENDL;
 						return false;
 					}
 				}
@@ -404,7 +404,7 @@ public:
 		else 
 		{
 			//it's not in here, give it to the root
-			OCT_ERRS << "Octree insertion failed, starting over from root!" << llendl;
+			OCT_ERRS << "Octree insertion failed, starting over from root!" << LL_ENDL;
 
 			oct_node* node = this;
 
@@ -488,7 +488,7 @@ public:
 		}
 
 		//node is now root
-		llwarns << "!!! OCTREE REMOVING ELEMENT BY ADDRESS, SEVERE PERFORMANCE PENALTY |||" << llendl;
+		LL_WARNS() << "!!! OCTREE REMOVING ELEMENT BY ADDRESS, SEVERE PERFORMANCE PENALTY |||" << LL_ENDL;
 		node->removeByAddress(data);
 		llassert(data->getBinIndex() == -1);
 		return true;
@@ -501,7 +501,7 @@ public:
 			if (mData[i] == data)
 			{ //we have data
 				_remove(data, i);
-				llwarns << "FOUND!" << llendl;
+				LL_WARNS() << "FOUND!" << LL_ENDL;
 				return;
 			}
 		}
@@ -529,7 +529,7 @@ public:
 			mChild[i]->validate();
 			if (mChild[i]->getParent() != this)
 			{
-				llerrs << "Octree child has invalid parent." << llendl;
+				LL_ERRS() << "Octree child has invalid parent." << LL_ENDL;
 			}
 		}
 #endif
@@ -555,24 +555,24 @@ public:
 
 		if (child->getSize().equals3(getSize()))
 		{
-			OCT_ERRS << "Child size is same as parent size!" << llendl;
+			OCT_ERRS << "Child size is same as parent size!" << LL_ENDL;
 		}
 
 		for (U32 i = 0; i < getChildCount(); i++)
 		{
 			if(!mChild[i]->getSize().equals3(child->getSize())) 
 			{
-				OCT_ERRS <<"Invalid octree child size." << llendl;
+				OCT_ERRS <<"Invalid octree child size." << LL_ENDL;
 			}
 			if (mChild[i]->getCenter().equals3(child->getCenter()))
 			{
-				OCT_ERRS <<"Duplicate octree child position." << llendl;
+				OCT_ERRS <<"Duplicate octree child position." << LL_ENDL;
 			}
 		}
 
 		if (mChild.size() >= 8)
 		{
-			OCT_ERRS <<"Octree node has too many children... why?" << llendl;
+			OCT_ERRS <<"Octree node has too many children... why?" << LL_ENDL;
 		}
 #endif
 
@@ -646,7 +646,7 @@ public:
 			}
 		}
 
-		OCT_ERRS << "Octree failed to delete requested child." << llendl;
+		OCT_ERRS << "Octree failed to delete requested child." << LL_ENDL;
 	}
 
 protected:	
@@ -729,13 +729,13 @@ public:
 	{
 		if (data == NULL) 
 		{
-			OCT_ERRS << "!!! INVALID ELEMENT ADDED TO OCTREE ROOT !!!" << llendl;
+			OCT_ERRS << "!!! INVALID ELEMENT ADDED TO OCTREE ROOT !!!" << LL_ENDL;
 			return false;
 		}
 		
 		if (data->getBinRadius() > 4096.0)
 		{
-			OCT_ERRS << "!!! ELEMENT EXCEEDS MAXIMUM SIZE IN OCTREE ROOT !!!" << llendl;
+			OCT_ERRS << "!!! ELEMENT EXCEEDS MAXIMUM SIZE IN OCTREE ROOT !!!" << LL_ENDL;
 			return false;
 		}
 		
@@ -751,7 +751,7 @@ public:
 
 		if (lt != 0x7)
 		{
-			//OCT_ERRS << "!!! ELEMENT EXCEEDS RANGE OF SPATIAL PARTITION !!!" << llendl;
+			//OCT_ERRS << "!!! ELEMENT EXCEEDS RANGE OF SPATIAL PARTITION !!!" << LL_ENDL;
 			return false;
 		}
 
