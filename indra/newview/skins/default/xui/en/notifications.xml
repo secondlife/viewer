@@ -7836,7 +7836,16 @@ You uploaded a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME] second
 ( [EXISTENCE] seconds alive )
 You locally updated a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME] seconds.
   </notification>
-
+	
+  <notification
+   icon="alertmodal.tga"
+   name="CannotUploadTexture"
+   type="alertmodal">
+Unable to upload texture.
+[REASON]   
+  <tag>fail</tag>  
+  </notification>
+  
   <notification
    icon="alertmodal.tga"
    name="LivePreviewUnavailable"

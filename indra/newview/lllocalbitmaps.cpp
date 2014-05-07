@@ -60,7 +60,9 @@
 #include "llnotificationsutil.h"
 #include "pipeline.h"
 #include "llmaterialmgr.h"
-
+#include "llimagedimensionsinfo.h"
+#include "llviewercontrol.h"
+#include "lltrans.h"
 /*=======================================*/
 /*  Formal declarations, constants, etc. */
 /*=======================================*/ 
@@ -835,6 +837,12 @@ bool LLLocalBitmapMgr::addUnit()
 		std::string filename = picker.getFirstFile();
 		while(!filename.empty())
 		{
+			if(!checkTextureDimensions(filename))
+			{
+				filename = picker.getNextFile();
+				continue;
+			}
+
 			LLLocalBitmap* unit = new LLLocalBitmap(filename);
 
 			if (unit->getValid())
@@ -862,6 +870,37 @@ bool LLLocalBitmapMgr::addUnit()
 	}
 
 	return add_successful;
+}
+
+bool LLLocalBitmapMgr::checkTextureDimensions(std::string filename)
+{
+	std::string exten = gDirUtilp->getExtension(filename);
+	U32 codec = LLImageBase::getCodecFromExtension(exten);
+	std::string mImageLoadError;
+	LLImageDimensionsInfo image_info;
+	if (!image_info.load(filename,codec))
+	{
+		return false;
+	}
+
+	S32 max_width = gSavedSettings.getS32("max_texture_dimension_X");
+	S32 max_height = gSavedSettings.getS32("max_texture_dimension_Y");
+
+	if ((image_info.getWidth() > max_width) || (image_info.getHeight() > max_height))
+	{
+		LLStringUtil::format_map_t args;
+		args["WIDTH"] = llformat("%d", max_width);
+		args["HEIGHT"] = llformat("%d", max_height);
+		mImageLoadError = LLTrans::getString("texture_load_dimensions_error", args);
+
+		LLSD notif_args;
+		notif_args["REASON"] = mImageLoadError;
+		LLNotificationsUtil::add("CannotUploadTexture", notif_args);
+
+		return false;
+	}
+
+	return true;
 }
 
 void LLLocalBitmapMgr::delUnit(LLUUID tracking_id)
