@@ -301,6 +301,29 @@ public:
         }
     }
 };
+
+class LLSLMAssociateListingsResponder : public LLHTTPClient::Responder
+{
+	LOG_CLASS(LLSLMAssociateListingsResponder);
+public:
+	
+    LLSLMAssociateListingsResponder() {}
+    
+	virtual void completed(U32 status, const std::string& reason, const LLSD& content) { }
+    
+    void completedHeader(U32 status, const std::string& reason, const LLSD& content)
+    {
+		if (isGoodStatus(status))
+		{
+            LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_MERCHANT);
+		}
+		else
+		{
+            log_SLM_error("Get merchant", status, reason, content.get("error_code"), content.get("error_description"));
+		}
+    }
+};
+
 // SLM Responders End
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -902,6 +925,23 @@ void LLMarketplaceData::updateSLMListing(const LLUUID& folder_id, S32 listing_id
 }
 
 // PUT /associate_inventory/:listing_folder_id/:version_folder_id/:listing_id
+void LLMarketplaceData::associateSLMListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id)
+{
+	LLSD headers = LLSD::emptyMap();
+	headers["Accept"] = "application/json";
+	headers["Content-Type"] = "application/json";
+    
+    LLSD data = LLSD::emptyMap();
+    
+	// Send request
+    std::string url = getSLMConnectURL("/associate_inventory/")
+                        + folder_id.asString() + "/"
+                        + version_id.asString() + "/"
+                        + llformat("%d",listing_id);
+    
+    llinfos << "Merov : associate listing : " << url << llendl;
+	LLHTTPClient::put(url, data, new LLSLMAssociateListingsResponder(), headers);
+}
 
 std::string LLMarketplaceData::getSLMConnectURL(const std::string& route)
 {

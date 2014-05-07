@@ -165,6 +165,7 @@ public:
     //void getSLMListing();
     void createSLMListing(const LLUUID& folder_id);
     void updateSLMListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed);
+    void associateSLMListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id);
     
     bool isEmpty() { return (mMarketplaceItems.size() == 0); }
     
