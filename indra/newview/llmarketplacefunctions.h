@@ -164,8 +164,7 @@ public:
     void getSLMListings();
     //void getSLMListing();
     void createSLMListing(const LLUUID& folder_id);
-    //void modifySLMListing();
-    //void associateSLMListing();
+    void updateSLMListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed);
     
     bool isEmpty() { return (mMarketplaceItems.size() == 0); }
     
@@ -175,6 +174,9 @@ public:
     
     // Create/Delete Marketplace data set  : each method returns true if the function succeeds, false if error
     bool createListing(const LLUUID& folder_id);
+    bool activateListing(const LLUUID& folder_id, bool activate);
+    bool setVersionFolder(const LLUUID& folder_id, const LLUUID& version_id);
+    
     bool addListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed);
     bool associateListing(const LLUUID& folder_id, S32 listing_id);
     bool deleteListing(const LLUUID& folder_id);
@@ -191,25 +193,22 @@ public:
     bool setVersionFolderID(const LLUUID& folder_id, const LLUUID& version_id);
     bool setActivation(const LLUUID& folder_id, bool activate);
     
+    // Used to flag if count values for Marketplace are likely to have to be updated
     bool checkDirtyCount() { if (mDirtyCount) { mDirtyCount = false; return true; } else { return false; } }
     void setDirtyCount() { mDirtyCount = true; }
-    
-    // Merov : Test method while waiting for SLM API
-    S32 getTestMarketplaceID();
     
 private:
     // SLM Private
     std::string getSLMConnectURL(const std::string& route);
 
-    marketplace_items_list_t mMarketplaceItems;
-    
+    // Handling Marketplace connection and inventory connection
 	U32  mMarketPlaceStatus;
 	status_updated_signal_t *	mStatusUpdatedSignal;
 	LLInventoryObserver* mInventoryObserver;
-    bool mDirtyCount;
+    bool mDirtyCount;   // If true, stock count value will be updating at the next check
     
-    // Merov : This is for test only, waiting for SLM API
-    S32 mTestCurrentMarketplaceID;
+    // The cache of SLM data (at last...)
+    marketplace_items_list_t mMarketplaceItems;
 };
 
 

@@ -3178,7 +3178,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 	{
         if (depth_nesting_in_marketplace(mUUID) == 1)
         {
-            LLMarketplaceData::instance().setActivation(mUUID,true);
+            LLMarketplaceData::instance().activateListing(mUUID,true);
         }
 		return;
 	}
@@ -3187,7 +3187,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
         if (depth_nesting_in_marketplace(mUUID) == 2)
         {
 			LLInventoryCategory* category = gInventory.getCategory(mUUID);
-            LLMarketplaceData::instance().setVersionFolderID(category->getParentUUID(), mUUID);
+            LLMarketplaceData::instance().setVersionFolder(category->getParentUUID(), mUUID);
         }
 		return;
 	}
@@ -3195,7 +3195,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 	{
         if (depth_nesting_in_marketplace(mUUID) == 1)
         {
-            LLMarketplaceData::instance().setActivation(mUUID,false);
+            LLMarketplaceData::instance().activateListing(mUUID,false);
         }
 		return;
 	}
@@ -3204,7 +3204,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
         if (depth_nesting_in_marketplace(mUUID) == 2)
         {
 			LLInventoryCategory* category = gInventory.getCategory(mUUID);
-            LLMarketplaceData::instance().setVersionFolderID(category->getParentUUID(), LLUUID::null);
+            LLMarketplaceData::instance().setVersionFolder(category->getParentUUID(), LLUUID::null);
         }
 		return;
 	}

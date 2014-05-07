@@ -104,19 +104,19 @@ LLSD getMarketplaceStringSubstitutions()
 // SLM Responders
 void log_SLM_error(const std::string& request, U32 status, const std::string& reason, const std::string& code, const std::string& description)
 {
-		LL_WARNS("SLM") << request << " request failed. status : " << status << ". reason : " << reason << ". code : " << code << ". description : " << description << LL_ENDL;
+		LL_WARNS("SLM") << "Merov : " << request << " request failed. status : " << status << ", reason : " << reason << ", code : " << code << ", description : " << description << LL_ENDL;
 }
 
 // Merov: This is a temporary hack used by dev while secondlife-staging is down...
 // *TODO : Suppress that before shipping!
-static bool sBypassMerchant = false;
+static bool sBypassMerchant = true;
 
-class LLSLMMerchantResponder : public LLHTTPClient::Responder
+class LLSLMGetMerchantResponder : public LLHTTPClient::Responder
 {
-	LOG_CLASS(LLSLMMerchantResponder);
+	LOG_CLASS(LLSLMGetMerchantResponder);
 public:
 	
-    LLSLMMerchantResponder() {}
+    LLSLMGetMerchantResponder() {}
     
 	virtual void completed(U32 status, const std::string& reason, const LLSD& content) { }
     
@@ -138,12 +138,12 @@ public:
     }
 };
 
-class LLSLMListingsResponder : public LLHTTPClient::Responder
+class LLSLMGetListingsResponder : public LLHTTPClient::Responder
 {
-	LOG_CLASS(LLSLMListingsResponder);
+	LOG_CLASS(LLSLMGetListingsResponder);
 public:
 	
-    LLSLMListingsResponder() {}
+    LLSLMGetListingsResponder() {}
     
     virtual void completedRaw(U32 status,
                               const std::string& reason,
@@ -152,8 +152,7 @@ public:
     {
 		if (!isGoodStatus(status))
 		{
-            std::string error_code = llformat("%d",status);
-            log_SLM_error("Get listings", status, reason, error_code, "");
+            log_SLM_error("Get listings", status, reason, "", "");
             return;
 		}
         
@@ -169,7 +168,9 @@ public:
             log_SLM_error("Get listings", status, "Json parsing failed", reader.getFormatedErrorMessages(), body);
             return;
         }
-        
+
+        llinfos << "Merov : Get listings completedRaw : data = " << body << llendl;
+
         // Extract the info from the Json string
         Json::ValueIterator it = root["listings"].begin();
         
@@ -204,8 +205,7 @@ public:
     {
 		if (!isGoodStatus(status))
 		{
-            std::string error_code = llformat("%d",status);
-            log_SLM_error("Post listings", status, reason, error_code, "");
+            log_SLM_error("Post listings", status, reason, "", "");
             return;
 		}
         
@@ -221,7 +221,9 @@ public:
             log_SLM_error("Post listings", status, "Json parsing failed", reader.getFormatedErrorMessages(), body);
             return;
         }
-        
+
+        llinfos << "Merov : Create listing completedRaw : data = " << body << llendl;
+
         // Extract the info from the Json string
         Json::ValueIterator it = root["listings"].begin();
         
@@ -237,6 +239,64 @@ public:
             LLUUID folder_id(folder_uuid_string);
             LLUUID version_id(version_uuid_string);
             LLMarketplaceData::instance().addListing(folder_id,listing_id,version_id,is_listed);
+            it++;
+        }
+    }
+};
+
+class LLSLMUpdateListingsResponder : public LLHTTPClient::Responder
+{
+	LOG_CLASS(LLSLMUpdateListingsResponder);
+public:
+	
+    LLSLMUpdateListingsResponder() {}
+    
+    virtual void completedRaw(U32 status,
+                              const std::string& reason,
+                              const LLChannelDescriptors& channels,
+                              const LLIOPipe::buffer_ptr_t& buffer)
+    {
+		if (!isGoodStatus(status))
+		{
+            log_SLM_error("Put listings", status, reason, "", "");
+            return;
+		}
+        
+        LLBufferStream istr(channels, buffer.get());
+        std::stringstream strstrm;
+        strstrm << istr.rdbuf();
+        const std::string body = strstrm.str();
+        
+        Json::Value root;
+        Json::Reader reader;
+        if (!reader.parse(body,root))
+        {
+            log_SLM_error("Put listings", status, "Json parsing failed", reader.getFormatedErrorMessages(), body);
+            return;
+        }
+        
+        llinfos << "Merov : Update listing completedRaw : data = " << body << llendl;
+
+        // Extract the info from the Json string
+        Json::ValueIterator it = root["listings"].begin();
+        
+        while (it != root["listings"].end())
+        {
+            Json::Value listing = *it;
+            
+            int listing_id = listing["id"].asInt();
+            bool is_listed = listing["is_listed"].asBool();
+            std::string folder_uuid_string = listing["inventory_info"]["listing_folder_id"].asString();
+            std::string version_uuid_string = listing["inventory_info"]["version_folder_id"].asString();
+            
+            LLUUID folder_id(folder_uuid_string);
+            LLUUID version_id(version_uuid_string);
+            
+            // Update that listing
+            LLMarketplaceData::instance().setListingID(folder_id, listing_id);
+            LLMarketplaceData::instance().setVersionFolderID(folder_id, version_id);
+            LLMarketplaceData::instance().setActivation(folder_id, is_listed);
+            
             it++;
         }
     }
@@ -763,7 +823,6 @@ LLMarketplaceData::LLMarketplaceData() :
  mStatusUpdatedSignal(NULL),
  mDirtyCount(false)
 {
-    mTestCurrentMarketplaceID = 1234567;
     mInventoryObserver = new LLMarketplaceInventoryObserver;
     gInventory.addObserver(mInventoryObserver);
 }
@@ -771,11 +830,6 @@ LLMarketplaceData::LLMarketplaceData() :
 LLMarketplaceData::~LLMarketplaceData()
 {
 	gInventory.removeObserver(mInventoryObserver);
-}
-
-S32 LLMarketplaceData::getTestMarketplaceID()
-{
-    return mTestCurrentMarketplaceID++;
 }
 
 void LLMarketplaceData::initializeSLM(const status_updated_signal_t::slot_type& cb)
@@ -786,12 +840,12 @@ void LLMarketplaceData::initializeSLM(const status_updated_signal_t::slot_type& 
 		mStatusUpdatedSignal = new status_updated_signal_t();
 	}
 	mStatusUpdatedSignal->connect(cb);
-	LLHTTPClient::get(getSLMConnectURL("/merchant"), new LLSLMMerchantResponder(), LLSD());
+	LLHTTPClient::get(getSLMConnectURL("/merchant"), new LLSLMGetMerchantResponder(), LLSD());
 }
 
 void LLMarketplaceData::getSLMListings()
 {
-	LLHTTPClient::get(getSLMConnectURL("/listings"), new LLSLMListingsResponder(), LLSD());
+	LLHTTPClient::get(getSLMConnectURL("/listings"), new LLSLMGetListingsResponder(), LLSD());
 }
 
 void LLMarketplaceData::createSLMListing(const LLUUID& folder_id)
@@ -818,6 +872,36 @@ void LLMarketplaceData::createSLMListing(const LLUUID& folder_id)
 	// Send request
 	LLHTTPClient::postRaw(getSLMConnectURL("/listings"), data, size, new LLSLMCreateListingsResponder(), headers);
 }
+
+void LLMarketplaceData::updateSLMListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed)
+{
+	LLSD headers = LLSD::emptyMap();
+	headers["Accept"] = "application/json";
+	headers["Content-Type"] = "application/json";
+
+    Json::Value root;
+    Json::FastWriter writer;
+    
+    // Note : we're assuming that sending unchanged info won't break anything server side...
+    root["listing"]["id"] = listing_id;
+    root["listing"]["is_listed"] = is_listed;
+    root["listing"]["inventory_info"]["listing_folder_id"] = folder_id.asString();
+    root["listing"]["inventory_info"]["version_folder_id"] = version_id.asString();
+    
+    std::string json_str = writer.write(root);
+    
+	// postRaw() takes ownership of the buffer and releases it later.
+	size_t size = json_str.size();
+	U8 *data = new U8[size];
+	memcpy(data, (U8*)(json_str.c_str()), size);
+    
+	// Send request
+    std::string url = getSLMConnectURL("/listing/") + llformat("%d",listing_id);
+    llinfos << "Merov : updating listing : " << url << ", data = " << json_str << llendl;
+	LLHTTPClient::putRaw(url, data, size, new LLSLMUpdateListingsResponder(), headers);
+}
+
+// PUT /associate_inventory/:listing_folder_id/:version_folder_id/:listing_id
 
 std::string LLMarketplaceData::getSLMConnectURL(const std::string& route)
 {
@@ -847,7 +931,8 @@ void LLMarketplaceData::setSLMStatus(U32 status)
     }
 }
 
-// Creation / Deletion
+// Creation / Deletion / Update
+// Methods publicly called
 bool LLMarketplaceData::createListing(const LLUUID& folder_id)
 {
     if (isListed(folder_id))
@@ -862,6 +947,47 @@ bool LLMarketplaceData::createListing(const LLUUID& folder_id)
     return true;
 }
 
+bool LLMarketplaceData::activateListing(const LLUUID& folder_id, bool activate)
+{
+    // Folder id can be the root of the listing or not so we need to retrieve the root first
+    S32 depth = depth_nesting_in_marketplace(folder_id);
+    LLUUID listing_uuid = nested_parent_id(folder_id, depth);
+    S32 listing_id = getListingID(listing_uuid);
+    if (listing_id == 0)
+    {
+        // Listing doesn't exists -> exit with error
+        return false;
+    }
+    
+    LLUUID version_uuid = getVersionFolderID(listing_uuid);
+
+    // Post the listing update request to SLM
+    updateSLMListing(listing_uuid, listing_id, version_uuid, activate);
+    
+    return true;
+}
+
+bool LLMarketplaceData::setVersionFolder(const LLUUID& folder_id, const LLUUID& version_id)
+{
+    // Folder id can be the root of the listing or not so we need to retrieve the root first
+    S32 depth = depth_nesting_in_marketplace(folder_id);
+    LLUUID listing_uuid = nested_parent_id(folder_id, depth);
+    S32 listing_id = getListingID(listing_uuid);
+    if (listing_id == 0)
+    {
+        // Listing doesn't exists -> exit with error
+        return false;
+    }
+    
+    bool is_listed = getActivationState(listing_uuid);
+    
+    // Post the listing update request to SLM
+    updateSLMListing(listing_uuid, listing_id, version_id, is_listed);
+    
+    return true;
+}
+
+// Methods privately called or called by SLM responders to perform changes
 bool LLMarketplaceData::addListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed)
 {
     if (isListed(folder_id))
