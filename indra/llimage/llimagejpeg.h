@@ -31,6 +31,7 @@
 
 #include "llimage.h"
 
+#include "llwin32headerslean.h"
 extern "C" {
 #ifdef LL_USESYSTEMLIBS
 # include <jpeglib.h>

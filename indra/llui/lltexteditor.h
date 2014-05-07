@@ -31,10 +31,8 @@
 
 #include "llrect.h"
 #include "llframetimer.h"
-#include "lldarray.h"
 #include "llstyle.h"
 #include "lleditmenuhandler.h"
-#include "lldarray.h"
 #include "llviewborder.h" // for params
 #include "lltextbase.h"
 #include "lltextvalidate.h"

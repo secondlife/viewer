@@ -786,7 +786,7 @@ BOOL LLWindowMacOSX::getPosition(LLCoordScreen *position)
 	}
 	else
 	{
-		llerrs << "LLWindowMacOSX::getPosition(): no window and not fullscreen!" << llendl;
+		LL_ERRS() << "LLWindowMacOSX::getPosition(): no window and not fullscreen!" << LL_ENDL;
 	}
 
 	return (err == noErr);
@@ -812,7 +812,7 @@ BOOL LLWindowMacOSX::getSize(LLCoordScreen *size)
 	}
 	else
 	{
-		llerrs << "LLWindowMacOSX::getPosition(): no window and not fullscreen!" << llendl;
+		LL_ERRS() << "LLWindowMacOSX::getPosition(): no window and not fullscreen!" << LL_ENDL;
 	}
 
 	return (err == noErr);
@@ -838,7 +838,7 @@ BOOL LLWindowMacOSX::getSize(LLCoordWindow *size)
 	}
 	else
 	{
-		llerrs << "LLWindowMacOSX::getPosition(): no window and not fullscreen!" << llendl;
+		LL_ERRS() << "LLWindowMacOSX::getPosition(): no window and not fullscreen!" << LL_ENDL;
 	}
 	
 	return (err == noErr);
@@ -999,11 +999,11 @@ void LLWindowMacOSX::setMouseClipping( BOOL b )
 
 	if(b)
 	{
-		//		llinfos << "setMouseClipping(TRUE)" << llendl;
+		//		LL_INFOS() << "setMouseClipping(TRUE)" << LL_ENDL;
 	}
 	else
 	{
-		//		llinfos << "setMouseClipping(FALSE)" << llendl;
+		//		LL_INFOS() << "setMouseClipping(FALSE)" << LL_ENDL;
 	}
 
 	adjustCursorDecouple();
@@ -1021,7 +1021,7 @@ BOOL LLWindowMacOSX::setCursorPosition(const LLCoordWindow position)
 
 	CGPoint newPosition;
 
-	//	llinfos << "setCursorPosition(" << screen_pos.mX << ", " << screen_pos.mY << ")" << llendl;
+	//	LL_INFOS() << "setCursorPosition(" << screen_pos.mX << ", " << screen_pos.mY << ")" << LL_ENDL;
 
 	newPosition.x = screen_pos.mX;
 	newPosition.y = screen_pos.mY;
@@ -1083,7 +1083,7 @@ void LLWindowMacOSX::adjustCursorDecouple(bool warpingMouse)
 			// The cursor should be decoupled.  Make sure it is.
 			if(!mCursorDecoupled)
 			{
-				//			llinfos << "adjustCursorDecouple: decoupling cursor" << llendl;
+				//			LL_INFOS() << "adjustCursorDecouple: decoupling cursor" << LL_ENDL;
 				CGAssociateMouseAndMouseCursorPosition(false);
 				mCursorDecoupled = true;
 				mCursorIgnoreNextDelta = TRUE;
@@ -1095,7 +1095,7 @@ void LLWindowMacOSX::adjustCursorDecouple(bool warpingMouse)
 		// The cursor should not be decoupled.  Make sure it isn't.
 		if(mCursorDecoupled)
 		{
-			//			llinfos << "adjustCursorDecouple: recoupling cursor" << llendl;
+			//			LL_INFOS() << "adjustCursorDecouple: recoupling cursor" << LL_ENDL;
 			CGAssociateMouseAndMouseCursorPosition(true);
 			mCursorDecoupled = false;
 		}
@@ -1360,7 +1360,7 @@ const char* cursorIDToName(int id)
 		case UI_CURSOR_TOOLNO:							return "UI_CURSOR_NO";
 	}
 
-	llerrs << "cursorIDToName: unknown cursor id" << id << llendl;
+	LL_ERRS() << "cursorIDToName: unknown cursor id" << id << LL_ENDL;
 
 	return "UI_CURSOR_ARROW";
 }
@@ -1543,14 +1543,14 @@ void LLWindowMacOSX::hideCursor()
 {
 	if(!mCursorHidden)
 	{
-		//		llinfos << "hideCursor: hiding" << llendl;
+		//		LL_INFOS() << "hideCursor: hiding" << LL_ENDL;
 		mCursorHidden = TRUE;
 		mHideCursorPermanent = TRUE;
 		hideNSCursor();
 	}
 	else
 	{
-		//		llinfos << "hideCursor: already hidden" << llendl;
+		//		LL_INFOS() << "hideCursor: already hidden" << LL_ENDL;
 	}
 
 	adjustCursorDecouple();
@@ -1560,14 +1560,14 @@ void LLWindowMacOSX::showCursor()
 {
 	if(mCursorHidden)
 	{
-		//		llinfos << "showCursor: showing" << llendl;
+		//		LL_INFOS() << "showCursor: showing" << LL_ENDL;
 		mCursorHidden = FALSE;
 		mHideCursorPermanent = FALSE;
 		showNSCursor();
 	}
 	else
 	{
-		//		llinfos << "showCursor: already visible" << llendl;
+		//		LL_INFOS() << "showCursor: already visible" << LL_ENDL;
 	}
 
 	adjustCursorDecouple();
@@ -1652,14 +1652,14 @@ void LLWindowMacOSX::spawnWebBrowser(const std::string& escaped_url, bool async)
 
 	if (!found)
 	{
-		llwarns << "spawn_web_browser called for url with protocol not on whitelist: " << escaped_url << llendl;
+		LL_WARNS() << "spawn_web_browser called for url with protocol not on whitelist: " << escaped_url << LL_ENDL;
 		return;
 	}
 
 	S32 result = 0;
 	CFURLRef urlRef = NULL;
 
-	llinfos << "Opening URL " << escaped_url << llendl;
+	LL_INFOS() << "Opening URL " << escaped_url << LL_ENDL;
 
 	CFStringRef	stringRef = CFStringCreateWithCString(NULL, escaped_url.c_str(), kCFStringEncodingUTF8);
 	if (stringRef)
@@ -1679,14 +1679,14 @@ void LLWindowMacOSX::spawnWebBrowser(const std::string& escaped_url, bool async)
 
 		if (result != noErr)
 		{
-			llinfos << "Error " << result << " on open." << llendl;
+			LL_INFOS() << "Error " << result << " on open." << LL_ENDL;
 		}
 
 		CFRelease(urlRef);
 	}
 	else
 	{
-		llinfos << "Error: couldn't create URL." << llendl;
+		LL_INFOS() << "Error: couldn't create URL." << LL_ENDL;
 	}
 }
 
@@ -1739,7 +1739,7 @@ LLSD LLWindowMacOSX::getNativeKeyData()
 	}
 #endif
 
-	lldebugs << "native key data is: " << result << llendl;
+	LL_DEBUGS() << "native key data is: " << result << LL_ENDL;
 
 	return result;
 }
@@ -1868,7 +1868,7 @@ S16 LLWindowMacOSX::dragTrackingHandler(DragTrackingMessage message, WindowRef t
 	S16 result = 0;
 	LLWindowMacOSX *self = (LLWindowMacOSX*)handlerRefCon;
 
-	lldebugs << "drag tracking handler, message = " << message << llendl;
+	LL_DEBUGS() << "drag tracking handler, message = " << message << LL_ENDL;
 
 	switch(message)
 	{

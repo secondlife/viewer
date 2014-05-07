@@ -35,7 +35,6 @@
 #include "llagent.h"
 #include "llagentui.h"
 #include "llappviewer.h" 
-#include "llsecondlifeurls.h"
 #include "llslurl.h"
 #include "llvoiceclient.h"
 #include "lluictrlfactory.h"

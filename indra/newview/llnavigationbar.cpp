@@ -600,7 +600,7 @@ void LLNavigationBar::onRegionNameResponse(
 		LLVector3d region_pos = from_region_handle(region_handle);
 		LLVector3d global_pos = region_pos + (LLVector3d) local_coords;
 
-		llinfos << "Teleporting to: " << LLSLURL(region_name,	global_pos).getSLURLString()  << llendl;
+		LL_INFOS() << "Teleporting to: " << LLSLURL(region_name,	global_pos).getSLURLString()  << LL_ENDL;
 		gAgent.teleportViaLocation(global_pos);
 	}
 	else if (gSavedSettings.getBOOL("SearchFromAddressBar"))
@@ -614,7 +614,7 @@ void	LLNavigationBar::showTeleportHistoryMenu(LLUICtrl* btn_ctrl)
 	// Don't show the popup if teleport history is empty.
 	if (LLTeleportHistory::getInstance()->isEmpty())
 	{
-		lldebugs << "Teleport history is empty, will not show the menu." << llendl;
+		LL_DEBUGS() << "Teleport history is empty, will not show the menu." << LL_ENDL;
 		return;
 	}
 	

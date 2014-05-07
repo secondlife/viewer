@@ -67,5 +67,8 @@ const S32	ETHERNET_MTU_BYTES = 1500;
 const S32	MTUBITS = MTUBYTES*8;
 const S32	MTUU32S = MTUBITS/32;
 
+// For automatic port discovery when running multiple viewers on one host
+const	U32		PORT_DISCOVERY_RANGE_MIN		= 13000;
+const	U32		PORT_DISCOVERY_RANGE_MAX		= PORT_DISCOVERY_RANGE_MIN + 50;
 
 #endif

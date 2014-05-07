@@ -29,6 +29,8 @@
 #ifndef LL_LLPLUGINPROCESSPARENT_H
 #define LL_LLPLUGINPROCESSPARENT_H
 
+#include <queue>
+
 #include "llapr.h"
 #include "llprocess.h"
 #include "llpluginmessage.h"

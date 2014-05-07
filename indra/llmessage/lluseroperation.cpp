@@ -100,7 +100,7 @@ LLUserOperationMgr::~LLUserOperationMgr()
 {
 	if (mUserOperationList.size() > 0)
 	{
-		llwarns << "Exiting with user operations pending." << llendl;
+		LL_WARNS() << "Exiting with user operations pending." << LL_ENDL;
 	}
 }
 
@@ -109,7 +109,7 @@ void LLUserOperationMgr::addOperation(LLUserOperation* op)
 {
 	if(!op)
 	{
-		llwarns << "Tried to add null op" << llendl;
+		LL_WARNS() << "Tried to add null op" << LL_ENDL;
 		return;
 	}
 	LLUUID id = op->getTransactionID();
@@ -160,7 +160,7 @@ void LLUserOperationMgr::deleteExpiredOperations()
 		op = (*it).second;
 		if(op && op->isExpired())
 		{
-			lldebugs << "expiring: " << (*it).first << llendl;
+			LL_DEBUGS() << "expiring: " << (*it).first << LL_ENDL;
 			op->expire();
 			mUserOperationList.erase(it++);
 			delete op;

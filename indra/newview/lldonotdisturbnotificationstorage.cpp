@@ -97,11 +97,11 @@ void LLDoNotDisturbNotificationStorage::resetDirty()
     mDirty = false;
 }
 
-static LLFastTimer::DeclareTimer FTM_SAVE_DND_NOTIFICATIONS("Save DND Notifications");
+static LLTrace::BlockTimerStatHandle FTM_SAVE_DND_NOTIFICATIONS("Save DND Notifications");
 
 void LLDoNotDisturbNotificationStorage::saveNotifications()
 {
-	LLFastTimer _(FTM_SAVE_DND_NOTIFICATIONS);
+	LL_RECORD_BLOCK_TIME(FTM_SAVE_DND_NOTIFICATIONS);
 
 	LLNotificationChannelPtr channelPtr = getCommunicationChannel();
 	const LLCommunicationChannel *commChannel = dynamic_cast<LLCommunicationChannel*>(channelPtr.get());
@@ -128,11 +128,11 @@ void LLDoNotDisturbNotificationStorage::saveNotifications()
     resetDirty();
 }
 
-static LLFastTimer::DeclareTimer FTM_LOAD_DND_NOTIFICATIONS("Load DND Notifications");
+static LLTrace::BlockTimerStatHandle FTM_LOAD_DND_NOTIFICATIONS("Load DND Notifications");
 
 void LLDoNotDisturbNotificationStorage::loadNotifications()
 {
-	LLFastTimer _(FTM_LOAD_DND_NOTIFICATIONS);
+	LL_RECORD_BLOCK_TIME(FTM_LOAD_DND_NOTIFICATIONS);
 	
 	LL_INFOS("LLDoNotDisturbNotificationStorage") << "start loading notifications" << LL_ENDL;
 

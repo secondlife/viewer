@@ -79,7 +79,7 @@ BOOL LLVisualParamInfo::parseXml(LLXmlTreeNode *node)
 		mDefaultWeight = llclamp( default_weight, mMinWeight, mMaxWeight );
 		if( default_weight != mDefaultWeight )
 		{
-			llwarns << "value_default attribute is out of range in node " << mName << " " << default_weight << llendl;
+			LL_WARNS() << "value_default attribute is out of range in node " << mName << " " << default_weight << LL_ENDL;
 		}
 	}
 	
@@ -101,7 +101,7 @@ BOOL LLVisualParamInfo::parseXml(LLXmlTreeNode *node)
 	}
 	else
 	{
-		llwarns << "Avatar file: <param> has invalid sex attribute: " << sex << llendl;
+		LL_WARNS() << "Avatar file: <param> has invalid sex attribute: " << sex << LL_ENDL;
 		return FALSE;
 	}
 	
@@ -109,7 +109,7 @@ BOOL LLVisualParamInfo::parseXml(LLXmlTreeNode *node)
 	static LLStdStringHandle name_string = LLXmlTree::addAttributeString("name");
 	if( !node->getFastAttributeString( name_string, mName ) )
 	{
-		llwarns << "Avatar file: <param> is missing name attribute" << llendl;
+		LL_WARNS() << "Avatar file: <param> is missing name attribute" << LL_ENDL;
 		return FALSE;
 	}
 
@@ -346,7 +346,7 @@ void LLVisualParam::setParamLocation(EParamLocation loc)
 	}
 	else
 	{
-		lldebugs << "param location is already " << mParamLocation << ", not slamming to " << loc << llendl;
+		LL_DEBUGS() << "param location is already " << mParamLocation << ", not slamming to " << loc << LL_ENDL;
 	}
 }
 

@@ -81,7 +81,7 @@ void LLTemplateMessageBuilder::newMessage(const char *name)
 
 		if (msg_template->getDeprecation() != MD_NOTDEPRECATED)
 		{
-			llwarns << "Sending deprecated message " << namep << llendl;
+			LL_WARNS() << "Sending deprecated message " << namep << LL_ENDL;
 		}
 		
 		LLMessageTemplate::message_block_map_t::const_iterator iter;
@@ -96,7 +96,7 @@ void LLTemplateMessageBuilder::newMessage(const char *name)
 	}
 	else
 	{
-		llerrs << "newMessage - Message " << name << " not registered" << llendl;
+		LL_ERRS() << "newMessage - Message " << name << " not registered" << LL_ENDL;
 	}
 }
 
@@ -125,7 +125,7 @@ void LLTemplateMessageBuilder::nextBlock(const char* blockname)
 
 	if (!mCurrentSMessageTemplate)
 	{
-		llerrs << "newMessage not called prior to setBlock" << llendl;
+		LL_ERRS() << "newMessage not called prior to setBlock" << LL_ENDL;
 		return;
 	}
 
@@ -133,8 +133,8 @@ void LLTemplateMessageBuilder::nextBlock(const char* blockname)
 	const LLMessageBlock* template_data = mCurrentSMessageTemplate->getBlock(bnamep);
 	if (!template_data)
 	{
-		llerrs << "LLTemplateMessageBuilder::nextBlock " << bnamep
-			<< " not a block in " << mCurrentSMessageTemplate->mName << llendl;
+		LL_ERRS() << "LLTemplateMessageBuilder::nextBlock " << bnamep
+			<< " not a block in " << mCurrentSMessageTemplate->mName << LL_ENDL;
 		return;
 	}
 	
@@ -164,8 +164,8 @@ void LLTemplateMessageBuilder::nextBlock(const char* blockname)
 		// if the block is type MBT_SINGLE this is bad!
 		if (template_data->mType == MBT_SINGLE)
 		{
-			llerrs << "LLTemplateMessageBuilder::nextBlock called multiple times"
-				<< " for " << bnamep << " but is type MBT_SINGLE" << llendl;
+			LL_ERRS() << "LLTemplateMessageBuilder::nextBlock called multiple times"
+				<< " for " << bnamep << " but is type MBT_SINGLE" << LL_ENDL;
 			return;
 		}
 
@@ -175,10 +175,10 @@ void LLTemplateMessageBuilder::nextBlock(const char* blockname)
 		if (  (template_data->mType == MBT_MULTIPLE)
 			&&(mCurrentSDataBlock->mBlockNumber == template_data->mNumber))
 		{
-			llerrs << "LLTemplateMessageBuilder::nextBlock called "
+			LL_ERRS() << "LLTemplateMessageBuilder::nextBlock called "
 				<< mCurrentSDataBlock->mBlockNumber << " times for " << bnamep
 				<< " exceeding " << template_data->mNumber
-				<< " specified in type MBT_MULTIPLE." << llendl;
+				<< " specified in type MBT_MULTIPLE." << LL_ENDL;
 			return;
 		}
 
@@ -191,8 +191,8 @@ void LLTemplateMessageBuilder::nextBlock(const char* blockname)
 
 		if (block_data->mBlockNumber > MAX_BLOCKS)
 		{
-			llerrs << "Trying to pack too many blocks into MBT_VARIABLE type "
-				   << "(limited to " << MAX_BLOCKS << ")" << llendl;
+			LL_ERRS() << "Trying to pack too many blocks into MBT_VARIABLE type "
+				   << "(limited to " << MAX_BLOCKS << ")" << LL_ENDL;
 		}
 
 		// create new name
@@ -263,11 +263,11 @@ BOOL LLTemplateMessageBuilder::removeLastBlock()
 				if (num_blocks <= 1)
 				{
 					// we just blew away the last one, so return FALSE
-					llwarns << "not blowing away the only block of message "
+					LL_WARNS() << "not blowing away the only block of message "
 							<< mCurrentSMessageName
 							<< ". Block: " << block_name
 							<< ". Number: " << num_blocks
-							<< llendl;
+							<< LL_ENDL;
 					return FALSE;
 				}
 				else
@@ -290,14 +290,14 @@ void LLTemplateMessageBuilder::addData(const char *varname, const void *data, EM
 	// do we have a current message?
 	if (!mCurrentSMessageTemplate)
 	{
-		llerrs << "newMessage not called prior to addData" << llendl;
+		LL_ERRS() << "newMessage not called prior to addData" << LL_ENDL;
 		return;
 	}
 
 	// do we have a current block?
 	if (!mCurrentSDataBlock)
 	{
-		llerrs << "setBlock not called prior to addData" << llendl;
+		LL_ERRS() << "setBlock not called prior to addData" << LL_ENDL;
 		return;
 	}
 
@@ -305,7 +305,7 @@ void LLTemplateMessageBuilder::addData(const char *varname, const void *data, EM
 	const LLMessageVariable* var_data = mCurrentSMessageTemplate->getBlock(mCurrentSBlockName)->getVariable(vnamep);
 	if (!var_data || !var_data->getName())
 	{
-		llerrs << vnamep << " not a variable in block " << mCurrentSBlockName << " of " << mCurrentSMessageTemplate->mName << llendl;
+		LL_ERRS() << vnamep << " not a variable in block " << mCurrentSBlockName << " of " << mCurrentSMessageTemplate->mName << LL_ENDL;
 		return;
 	}
 
@@ -316,9 +316,9 @@ void LLTemplateMessageBuilder::addData(const char *varname, const void *data, EM
 		if ((var_data->getSize() == 1) &&
 			(size > 255))
 		{
-			llwarns << "Field " << varname << " is a Variable 1 but program "
+			LL_WARNS() << "Field " << varname << " is a Variable 1 but program "
 			       << "attempted to stuff more than 255 bytes in "
-			       << "(" << size << ").  Clamping size and truncating data." << llendl;
+			       << "(" << size << ").  Clamping size and truncating data." << LL_ENDL;
 			size = 255;
 			char *truncate = (char *)data;
 			truncate[254] = 0; // array size is 255 but the last element index is 254
@@ -332,8 +332,8 @@ void LLTemplateMessageBuilder::addData(const char *varname, const void *data, EM
 	{
 		if (size != var_data->getSize())
 		{
-			llerrs << varname << " is type MVT_FIXED but request size " << size << " doesn't match template size "
-				   << var_data->getSize() << llendl;
+			LL_ERRS() << varname << " is type MVT_FIXED but request size " << size << " doesn't match template size "
+				   << var_data->getSize() << LL_ENDL;
 			return;
 		}
 		// alright, smash it in
@@ -350,14 +350,14 @@ void LLTemplateMessageBuilder::addData(const char *varname, const void *data, EM
 	// do we have a current message?
 	if (!mCurrentSMessageTemplate)
 	{
-		llerrs << "newMessage not called prior to addData" << llendl;
+		LL_ERRS() << "newMessage not called prior to addData" << LL_ENDL;
 		return;
 	}
 
 	// do we have a current block?
 	if (!mCurrentSDataBlock)
 	{
-		llerrs << "setBlock not called prior to addData" << llendl;
+		LL_ERRS() << "setBlock not called prior to addData" << LL_ENDL;
 		return;
 	}
 
@@ -365,7 +365,7 @@ void LLTemplateMessageBuilder::addData(const char *varname, const void *data, EM
 	const LLMessageVariable* var_data = mCurrentSMessageTemplate->getBlock(mCurrentSBlockName)->getVariable(vnamep);
 	if (!var_data->getName())
 	{
-		llerrs << vnamep << " not a variable in block " << mCurrentSBlockName << " of " << mCurrentSMessageTemplate->mName << llendl;
+		LL_ERRS() << vnamep << " not a variable in block " << mCurrentSBlockName << " of " << mCurrentSMessageTemplate->mName << LL_ENDL;
 		return;
 	}
 
@@ -373,7 +373,7 @@ void LLTemplateMessageBuilder::addData(const char *varname, const void *data, EM
 	if (var_data->getType() == MVT_VARIABLE)
 	{
 		// nope
-		llerrs << vnamep << " is type MVT_VARIABLE. Call using addData(name, data, size)" << llendl;
+		LL_ERRS() << vnamep << " is type MVT_VARIABLE. Call using addData(name, data, size)" << LL_ENDL;
 		return;
 	}
 	else
@@ -643,8 +643,8 @@ static S32 buildBlock(U8* buffer, S32 buffer_size, const LLMessageBlock* templat
 			// Just reporting error is likely not enough. Need
 			// to check how to abort or error out gracefully
 			// from this function. XXXTBD
-			llerrs << "buildBlock failed. Message excedding "
-					<< "sendBuffersize." << llendl;
+			LL_ERRS() << "buildBlock failed. Message excedding "
+					<< "sendBuffersize." << LL_ENDL;
 		}
 	}
 	else if (template_data->mType == MBT_MULTIPLE)
@@ -652,10 +652,10 @@ static S32 buildBlock(U8* buffer, S32 buffer_size, const LLMessageBlock* templat
 		if (block_count != template_data->mNumber)
 		{
 			// nope!  need to fill it in all the way!
-			llerrs << "Block " << mbci->mName
+			LL_ERRS() << "Block " << mbci->mName
 				<< " is type MBT_MULTIPLE but only has data for "
 				<< block_count << " out of its "
-				<< template_data->mNumber << " blocks" << llendl;
+				<< template_data->mNumber << " blocks" << LL_ENDL;
 		}
 	}
 
@@ -669,10 +669,10 @@ static S32 buildBlock(U8* buffer, S32 buffer_size, const LLMessageBlock* templat
 			if (mvci.getSize() == -1)
 			{
 				// oops, this variable wasn't ever set!
-				llerrs << "The variable " << mvci.getName() << " in block "
+				LL_ERRS() << "The variable " << mvci.getName() << " in block "
 					<< mbci->mName << " of message "
 					<< template_data->mName
-					<< " wasn't set prior to buildMessage call" << llendl;
+					<< " wasn't set prior to buildMessage call" << LL_ENDL;
 			}
 			else
 			{
@@ -699,7 +699,7 @@ static S32 buildBlock(U8* buffer, S32 buffer_size, const LLMessageBlock* templat
 						htonmemcpy(&buffer[result], &size, MVT_S32, 4);
 						break;
 					default:
-						llerrs << "Attempting to build variable field with unknown size of " << size << llendl;
+						LL_ERRS() << "Attempting to build variable field with unknown size of " << size << LL_ENDL;
 						break;
 					}
 					result += mvci.getDataSize();
@@ -721,11 +721,11 @@ static S32 buildBlock(U8* buffer, S32 buffer_size, const LLMessageBlock* templat
 					    // Just reporting error is likely not
 					    // enough. Need to check how to abort or error
 					    // out gracefully from this function. XXXTBD
-						llerrs << "buildBlock failed. "
+						LL_ERRS() << "buildBlock failed. "
 							<< "Attempted to pack "
 							<< (result + mvci.getSize())
 							<< " bytes into a buffer with size "
-							<< buffer_size << "." << llendl;
+							<< buffer_size << "." << LL_ENDL;
 					}						
 				}
 			}
@@ -760,7 +760,7 @@ U32 LLTemplateMessageBuilder::buildMessage(
 	// do we have a current message?
 	if (!mCurrentSMessageTemplate)
 	{
-		llerrs << "newMessage not called prior to buildMessage" << llendl;
+		LL_ERRS() << "newMessage not called prior to buildMessage" << LL_ENDL;
 		return 0;
 	}
 
@@ -809,7 +809,7 @@ U32 LLTemplateMessageBuilder::buildMessage(
 	}
 	else
 	{
-		llerrs << "unexpected message frequency in buildMessage" << llendl;
+		LL_ERRS() << "unexpected message frequency in buildMessage" << LL_ENDL;
 		return 0;
 	}
 

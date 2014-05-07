@@ -81,7 +81,7 @@ void LLSDSerialize::serialize(const LLSD& sd, std::ostream& str, ELLSD_Serialize
 		break;
 
 	default:
-		llwarns << "serialize request for unknown ELLSD_Serialize" << llendl;
+		LL_WARNS() << "serialize request for unknown ELLSD_Serialize" << LL_ENDL;
 	}
 
 	if (f.notNull())
@@ -169,7 +169,7 @@ bool LLSDSerialize::deserialize(LLSD& sd, std::istream& str, S32 max_bytes)
 	}
 	else
 	{
-		llwarns << "deserialize request for unknown ELLSD_Serialize" << llendl;
+		LL_WARNS() << "deserialize request for unknown ELLSD_Serialize" << LL_ENDL;
 	}
 
 	if (p.notNull())
@@ -179,7 +179,7 @@ bool LLSDSerialize::deserialize(LLSD& sd, std::istream& str, S32 max_bytes)
 	}
 
 fail:
-	llwarns << "deserialize LLSD parse failure" << llendl;
+	LL_WARNS() << "deserialize LLSD parse failure" << LL_ENDL;
 	return false;
 }
 
@@ -445,7 +445,7 @@ S32 LLSDNotationParser::doParse(std::istream& istr, LLSD& data) const
 		}
 		if(istr.fail())
 		{
-			llinfos << "STREAM FAILURE reading map." << llendl;
+			LL_INFOS() << "STREAM FAILURE reading map." << LL_ENDL;
 			parse_count = PARSE_FAILURE;
 		}
 		break;
@@ -464,7 +464,7 @@ S32 LLSDNotationParser::doParse(std::istream& istr, LLSD& data) const
 		}
 		if(istr.fail())
 		{
-			llinfos << "STREAM FAILURE reading array." << llendl;
+			LL_INFOS() << "STREAM FAILURE reading array." << LL_ENDL;
 			parse_count = PARSE_FAILURE;
 		}
 		break;
@@ -500,7 +500,7 @@ S32 LLSDNotationParser::doParse(std::istream& istr, LLSD& data) const
 		}
 		if(istr.fail())
 		{
-			llinfos << "STREAM FAILURE reading boolean." << llendl;
+			LL_INFOS() << "STREAM FAILURE reading boolean." << LL_ENDL;
 			parse_count = PARSE_FAILURE;
 		}
 		break;
@@ -526,7 +526,7 @@ S32 LLSDNotationParser::doParse(std::istream& istr, LLSD& data) const
 		}
 		if(istr.fail())
 		{
-			llinfos << "STREAM FAILURE reading boolean." << llendl;
+			LL_INFOS() << "STREAM FAILURE reading boolean." << LL_ENDL;
 			parse_count = PARSE_FAILURE;
 		}
 		break;
@@ -539,7 +539,7 @@ S32 LLSDNotationParser::doParse(std::istream& istr, LLSD& data) const
 		data = integer;
 		if(istr.fail())
 		{
-			llinfos << "STREAM FAILURE reading integer." << llendl;
+			LL_INFOS() << "STREAM FAILURE reading integer." << LL_ENDL;
 			parse_count = PARSE_FAILURE;
 		}
 		break;
@@ -553,7 +553,7 @@ S32 LLSDNotationParser::doParse(std::istream& istr, LLSD& data) const
 		data = real;
 		if(istr.fail())
 		{
-			llinfos << "STREAM FAILURE reading real." << llendl;
+			LL_INFOS() << "STREAM FAILURE reading real." << LL_ENDL;
 			parse_count = PARSE_FAILURE;
 		}
 		break;
@@ -567,7 +567,7 @@ S32 LLSDNotationParser::doParse(std::istream& istr, LLSD& data) const
 		data = id;
 		if(istr.fail())
 		{
-			llinfos << "STREAM FAILURE reading uuid." << llendl;
+			LL_INFOS() << "STREAM FAILURE reading uuid." << LL_ENDL;
 			parse_count = PARSE_FAILURE;
 		}
 		break;
@@ -582,7 +582,7 @@ S32 LLSDNotationParser::doParse(std::istream& istr, LLSD& data) const
 		}
 		if(istr.fail())
 		{
-			llinfos << "STREAM FAILURE reading string." << llendl;
+			LL_INFOS() << "STREAM FAILURE reading string." << LL_ENDL;
 			parse_count = PARSE_FAILURE;
 		}
 		break;
@@ -604,7 +604,7 @@ S32 LLSDNotationParser::doParse(std::istream& istr, LLSD& data) const
 		}
 		if(istr.fail())
 		{
-			llinfos << "STREAM FAILURE reading link." << llendl;
+			LL_INFOS() << "STREAM FAILURE reading link." << LL_ENDL;
 			parse_count = PARSE_FAILURE;
 		}
 		break;
@@ -627,7 +627,7 @@ S32 LLSDNotationParser::doParse(std::istream& istr, LLSD& data) const
 		}
 		if(istr.fail())
 		{
-			llinfos << "STREAM FAILURE reading date." << llendl;
+			LL_INFOS() << "STREAM FAILURE reading date." << LL_ENDL;
 			parse_count = PARSE_FAILURE;
 		}
 		break;
@@ -640,15 +640,15 @@ S32 LLSDNotationParser::doParse(std::istream& istr, LLSD& data) const
 		}
 		if(istr.fail())
 		{
-			llinfos << "STREAM FAILURE reading data." << llendl;
+			LL_INFOS() << "STREAM FAILURE reading data." << LL_ENDL;
 			parse_count = PARSE_FAILURE;
 		}
 		break;
 
 	default:
 		parse_count = PARSE_FAILURE;
-		llinfos << "Unrecognized character while parsing: int(" << (int)c
-			<< ")" << llendl;
+		LL_INFOS() << "Unrecognized character while parsing: int(" << (int)c
+			<< ")" << LL_ENDL;
 		break;
 	}
 	if(PARSE_FAILURE == parse_count)
@@ -909,7 +909,7 @@ S32 LLSDBinaryParser::doParse(std::istream& istr, LLSD& data) const
 		}
 		if(istr.fail())
 		{
-			llinfos << "STREAM FAILURE reading binary map." << llendl;
+			LL_INFOS() << "STREAM FAILURE reading binary map." << LL_ENDL;
 			parse_count = PARSE_FAILURE;
 		}
 		break;
@@ -928,7 +928,7 @@ S32 LLSDBinaryParser::doParse(std::istream& istr, LLSD& data) const
 		}
 		if(istr.fail())
 		{
-			llinfos << "STREAM FAILURE reading binary array." << llendl;
+			LL_INFOS() << "STREAM FAILURE reading binary array." << LL_ENDL;
 			parse_count = PARSE_FAILURE;
 		}
 		break;
@@ -953,7 +953,7 @@ S32 LLSDBinaryParser::doParse(std::istream& istr, LLSD& data) const
 		data = (S32)ntohl(value_nbo);
 		if(istr.fail())
 		{
-			llinfos << "STREAM FAILURE reading binary integer." << llendl;
+			LL_INFOS() << "STREAM FAILURE reading binary integer." << LL_ENDL;
 		}
 		break;
 	}
@@ -965,7 +965,7 @@ S32 LLSDBinaryParser::doParse(std::istream& istr, LLSD& data) const
 		data = ll_ntohd(real_nbo);
 		if(istr.fail())
 		{
-			llinfos << "STREAM FAILURE reading binary real." << llendl;
+			LL_INFOS() << "STREAM FAILURE reading binary real." << LL_ENDL;
 		}
 		break;
 	}
@@ -977,7 +977,7 @@ S32 LLSDBinaryParser::doParse(std::istream& istr, LLSD& data) const
 		data = id;
 		if(istr.fail())
 		{
-			llinfos << "STREAM FAILURE reading binary uuid." << llendl;
+			LL_INFOS() << "STREAM FAILURE reading binary uuid." << LL_ENDL;
 		}
 		break;
 	}
@@ -998,8 +998,8 @@ S32 LLSDBinaryParser::doParse(std::istream& istr, LLSD& data) const
 		}
 		if(istr.fail())
 		{
-			llinfos << "STREAM FAILURE reading binary (notation-style) string."
-				<< llendl;
+			LL_INFOS() << "STREAM FAILURE reading binary (notation-style) string."
+				<< LL_ENDL;
 			parse_count = PARSE_FAILURE;
 		}
 		break;
@@ -1018,7 +1018,7 @@ S32 LLSDBinaryParser::doParse(std::istream& istr, LLSD& data) const
 		}
 		if(istr.fail())
 		{
-			llinfos << "STREAM FAILURE reading binary string." << llendl;
+			LL_INFOS() << "STREAM FAILURE reading binary string." << LL_ENDL;
 			parse_count = PARSE_FAILURE;
 		}
 		break;
@@ -1037,7 +1037,7 @@ S32 LLSDBinaryParser::doParse(std::istream& istr, LLSD& data) const
 		}
 		if(istr.fail())
 		{
-			llinfos << "STREAM FAILURE reading binary link." << llendl;
+			LL_INFOS() << "STREAM FAILURE reading binary link." << LL_ENDL;
 			parse_count = PARSE_FAILURE;
 		}
 		break;
@@ -1050,7 +1050,7 @@ S32 LLSDBinaryParser::doParse(std::istream& istr, LLSD& data) const
 		data = LLDate(real);
 		if(istr.fail())
 		{
-			llinfos << "STREAM FAILURE reading binary date." << llendl;
+			LL_INFOS() << "STREAM FAILURE reading binary date." << LL_ENDL;
 			parse_count = PARSE_FAILURE;
 		}
 		break;
@@ -1079,7 +1079,7 @@ S32 LLSDBinaryParser::doParse(std::istream& istr, LLSD& data) const
 		}
 		if(istr.fail())
 		{
-			llinfos << "STREAM FAILURE reading binary." << llendl;
+			LL_INFOS() << "STREAM FAILURE reading binary." << LL_ENDL;
 			parse_count = PARSE_FAILURE;
 		}
 		break;
@@ -1087,8 +1087,8 @@ S32 LLSDBinaryParser::doParse(std::istream& istr, LLSD& data) const
 
 	default:
 		parse_count = PARSE_FAILURE;
-		llinfos << "Unrecognized character while parsing: int(" << (int)c
-			<< ")" << llendl;
+		LL_INFOS() << "Unrecognized character while parsing: int(" << (int)c
+			<< ")" << LL_ENDL;
 		break;
 	}
 	if(PARSE_FAILURE == parse_count)
@@ -2017,7 +2017,7 @@ std::string zip_llsd(LLSD& data)
 	S32 ret = deflateInit(&strm, Z_BEST_COMPRESSION);
 	if (ret != Z_OK)
 	{
-		llwarns << "Failed to compress LLSD block." << llendl;
+		LL_WARNS() << "Failed to compress LLSD block." << LL_ENDL;
 		return std::string();
 	}
 
@@ -2044,7 +2044,7 @@ std::string zip_llsd(LLSD& data)
 			if (strm.avail_out >= CHUNK)
 			{
 				free(output);
-				llwarns << "Failed to compress LLSD block." << llendl;
+				LL_WARNS() << "Failed to compress LLSD block." << LL_ENDL;
 				return std::string();
 			}
 
@@ -2056,7 +2056,7 @@ std::string zip_llsd(LLSD& data)
 		else 
 		{
 			free(output);
-			llwarns << "Failed to compress LLSD block." << llendl;
+			LL_WARNS() << "Failed to compress LLSD block." << LL_ENDL;
 			return std::string();
 		}
 	}
@@ -2073,7 +2073,7 @@ std::string zip_llsd(LLSD& data)
 	LLSD test_sd;
 	if (!unzip_llsd(test_sd, test, result.size()))
 	{
-		llerrs << "Invalid compression result!" << llendl;
+		LL_ERRS() << "Invalid compression result!" << LL_ENDL;
 	}
 #endif
 
@@ -2163,7 +2163,7 @@ bool unzip_llsd(LLSD& data, std::istream& is, S32 size)
 		
 		if (!LLSDSerialize::fromBinary(data, istr, cur_size))
 		{
-			llwarns << "Failed to unzip LLSD block" << llendl;
+			LL_WARNS() << "Failed to unzip LLSD block" << LL_ENDL;
 			free(result);
 			return false;
 		}		

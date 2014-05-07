@@ -253,7 +253,7 @@ const std::string upload_pick(void* data)
 	LLFilePicker& picker = LLFilePicker::instance();
 	if (!picker.getOpenFile(type))
 	{
-		llinfos << "Couldn't import objects from file" << llendl;
+		LL_INFOS() << "Couldn't import objects from file" << LL_ENDL;
 		return std::string();
 	}
 
@@ -327,7 +327,7 @@ const std::string upload_pick(void* data)
 		std::string error_msg;
 		if (check_for_invalid_wav_formats(filename,error_msg))
 		{
-			llinfos << error_msg << ": " << filename << llendl;
+			LL_INFOS() << error_msg << ": " << filename << LL_ENDL;
 			LLSD args;
 			args["FILE"] = filename;
 			LLNotificationsUtil::add( error_msg, args );
@@ -455,7 +455,7 @@ class LLFileUploadBulk : public view_listener_t
 		}
 		else
 		{
-			llinfos << "Couldn't import objects from file" << llendl;
+			LL_INFOS() << "Couldn't import objects from file" << LL_ENDL;
 		}
 		return true;
 	}
@@ -463,11 +463,11 @@ class LLFileUploadBulk : public view_listener_t
 
 void upload_error(const std::string& error_message, const std::string& label, const std::string& filename, const LLSD& args) 
 {
-	llwarns << error_message << llendl;
+	LL_WARNS() << error_message << LL_ENDL;
 	LLNotificationsUtil::add(label, args);
 	if(LLFile::remove(filename) == -1)
 	{
-		lldebugs << "unable to remove temp file" << llendl;
+		LL_DEBUGS() << "unable to remove temp file" << LL_ENDL;
 	}
 	LLFilePicker::instance().reset();						
 }
@@ -542,7 +542,7 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
 				formatted = new LLImageJPEG(gSavedSettings.getS32("SnapshotQuality"));
 				break;
 			default:
-				llwarns << "Unknown local snapshot format: " << fmt << llendl;
+				LL_WARNS() << "Unknown local snapshot format: " << fmt << LL_ENDL;
 			case LLFloaterSnapshot::SNAPSHOT_FORMAT_PNG:
 				formatted = new LLImagePNG;
 				break;
@@ -579,8 +579,8 @@ void handle_compress_image(void*)
 		{
 			std::string outfile = infile + ".j2c";
 
-			llinfos << "Input:  " << infile << llendl;
-			llinfos << "Output: " << outfile << llendl;
+			LL_INFOS() << "Input:  " << infile << LL_ENDL;
+			LL_INFOS() << "Output: " << outfile << LL_ENDL;
 
 			BOOL success;
 
@@ -588,11 +588,11 @@ void handle_compress_image(void*)
 
 			if (success)
 			{
-				llinfos << "Compression complete" << llendl;
+				LL_INFOS() << "Compression complete" << LL_ENDL;
 			}
 			else
 			{
-				llinfos << "Compression failed: " << LLImage::getLastError() << llendl;
+				LL_INFOS() << "Compression failed: " << LLImage::getLastError() << LL_ENDL;
 			}
 
 			infile = picker.getNextFile();
@@ -660,7 +660,7 @@ LLUUID upload_new_resource(
 		asset_type = LLAssetType::AT_SOUND;  // tag it as audio
 		S32 encode_result = 0;
 
-		llinfos << "Attempting to encode wav as an ogg file" << llendl;
+		LL_INFOS() << "Attempting to encode wav as an ogg file" << LL_ENDL;
 
 		encode_result = encode_vorbis_file(src_filename, filename);
 		
@@ -711,8 +711,8 @@ LLUUID upload_new_resource(
 											 "%254s %254s\n",
 											 label, value);	 	
 
-                                         llinfos << "got: " << label << " = " << value	 	
-                                                         << llendl;	 	
+                                         LL_INFOS() << "got: " << label << " = " << value	 	
+                                                         << LL_ENDL;	 	
 
                                          if (EOF == tokens_read)	 	
                                          {	 	
@@ -765,7 +765,7 @@ LLUUID upload_new_resource(
                          // read in and throw out most of the header except for the type	 	
                          if (fread(buf, header_size, 1, in) != 1)
 						 {
-							 llwarns << "Short read" << llendl;
+							 LL_WARNS() << "Short read" << LL_ENDL;
 						 }
                          memcpy(&type_num, buf + 16, sizeof(S16));		/* Flawfinder: ignore */	 	
                          asset_type = (LLAssetType::EType)type_num;	 	
@@ -779,7 +779,7 @@ LLUUID upload_new_resource(
                          {	 	
 							 if (fwrite(buf, 1, readbytes, out) != readbytes)
 							 {
-								 llwarns << "Short write" << llendl;
+								 LL_WARNS() << "Short write" << LL_ENDL;
 							 }
                          }	 	
                          fclose(out);	 	
@@ -797,7 +797,7 @@ LLUUID upload_new_resource(
          }	 	
          else	 	
          {	 	
-                 llinfos << "Couldn't open .lin file " << src_filename << llendl;	 	
+                 LL_INFOS() << "Couldn't open .lin file " << src_filename << LL_ENDL;	 	
          }	 	
 	}
 	else if (exten == "bvh")
@@ -873,13 +873,13 @@ LLUUID upload_new_resource(
 	}
 	else
 	{
-		llwarns << error_message << llendl;
+		LL_WARNS() << error_message << LL_ENDL;
 		LLSD args;
 		args["ERROR_MESSAGE"] = error_message;
 		LLNotificationsUtil::add("ErrorMessage", args);
 		if(LLFile::remove(filename) == -1)
 		{
-			lldebugs << "unable to remove temp file" << llendl;
+			LL_DEBUGS() << "unable to remove temp file" << LL_ENDL;
 		}
 		LLFilePicker::instance().reset();
 	}
@@ -947,7 +947,7 @@ void upload_done_callback(
 			if(is_balance_sufficient)
 			{
 				// Actually add the upload to inventory
-				llinfos << "Adding " << uuid << " to inventory." << llendl;
+				LL_INFOS() << "Adding " << uuid << " to inventory." << LL_ENDL;
 				const LLUUID folder_id = gInventory.findCategoryUUIDForType(dest_loc);
 				if(folder_id.notNull())
 				{
@@ -964,7 +964,7 @@ void upload_done_callback(
 				}
 				else
 				{
-					llwarns << "Can't find a folder to put it in" << llendl;
+					LL_WARNS() << "Can't find a folder to put it in" << LL_ENDL;
 				}
 			}
 		}
@@ -1096,17 +1096,17 @@ void upload_new_resource(
 	
 	if( LLAssetType::AT_SOUND == asset_type )
 	{
-		LLViewerStats::getInstance()->incStat(LLViewerStats::ST_UPLOAD_SOUND_COUNT );
+		add(LLStatViewer::UPLOAD_SOUND, 1);
 	}
 	else
 	if( LLAssetType::AT_TEXTURE == asset_type )
 	{
-		LLViewerStats::getInstance()->incStat(LLViewerStats::ST_UPLOAD_TEXTURE_COUNT );
+		add(LLStatViewer::UPLOAD_TEXTURE, 1);
 	}
 	else
 	if( LLAssetType::AT_ANIMATION == asset_type)
 	{
-		LLViewerStats::getInstance()->incStat(LLViewerStats::ST_UPLOAD_ANIM_COUNT );
+		add(LLStatViewer::ANIMATION_UPLOADS, 1);
 	}
 
 	if(LLInventoryType::IT_NONE == inv_type)
@@ -1129,21 +1129,21 @@ void upload_new_resource(
 	upload_message.append(display_name);
 	LLUploadDialog::modalUploadDialog(upload_message);
 
-	llinfos << "*** Uploading: " << llendl;
-	llinfos << "Type: " << LLAssetType::lookup(asset_type) << llendl;
-	llinfos << "UUID: " << uuid << llendl;
-	llinfos << "Name: " << name << llendl;
-	llinfos << "Desc: " << desc << llendl;
-	llinfos << "Expected Upload Cost: " << expected_upload_cost << llendl;
-	lldebugs << "Folder: " << gInventory.findCategoryUUIDForType((destination_folder_type == LLFolderType::FT_NONE) ? LLFolderType::assetTypeToFolderType(asset_type) : destination_folder_type) << llendl;
-	lldebugs << "Asset Type: " << LLAssetType::lookup(asset_type) << llendl;
+	LL_INFOS() << "*** Uploading: " << LL_ENDL;
+	LL_INFOS() << "Type: " << LLAssetType::lookup(asset_type) << LL_ENDL;
+	LL_INFOS() << "UUID: " << uuid << LL_ENDL;
+	LL_INFOS() << "Name: " << name << LL_ENDL;
+	LL_INFOS() << "Desc: " << desc << LL_ENDL;
+	LL_INFOS() << "Expected Upload Cost: " << expected_upload_cost << LL_ENDL;
+	LL_DEBUGS() << "Folder: " << gInventory.findCategoryUUIDForType((destination_folder_type == LLFolderType::FT_NONE) ? LLFolderType::assetTypeToFolderType(asset_type) : destination_folder_type) << LL_ENDL;
+	LL_DEBUGS() << "Asset Type: " << LLAssetType::lookup(asset_type) << LL_ENDL;
 
 	std::string url = gAgent.getRegion()->getCapability(
 		"NewFileAgentInventory");
 
 	if ( !url.empty() )
 	{
-		llinfos << "New Agent Inventory via capability" << llendl;
+		LL_INFOS() << "New Agent Inventory via capability" << LL_ENDL;
 
 		LLSD body;
 		body = generate_new_resource_upload_capability_body(
@@ -1166,7 +1166,7 @@ void upload_new_resource(
 	}
 	else
 	{
-		llinfos << "NewAgentInventory capability not found, new agent inventory via asset system." << llendl;
+		LL_INFOS() << "NewAgentInventory capability not found, new agent inventory via asset system." << LL_ENDL;
 		// check for adequate funds
 		// TODO: do this check on the sim
 		if (LLAssetType::AT_SOUND == asset_type ||
@@ -1231,18 +1231,15 @@ void increase_new_upload_stats(LLAssetType::EType asset_type)
 {
 	if ( LLAssetType::AT_SOUND == asset_type )
 	{
-		LLViewerStats::getInstance()->incStat(
-			LLViewerStats::ST_UPLOAD_SOUND_COUNT );
+		add(LLStatViewer::UPLOAD_SOUND, 1);
 	}
 	else if ( LLAssetType::AT_TEXTURE == asset_type )
 	{
-		LLViewerStats::getInstance()->incStat(
-			LLViewerStats::ST_UPLOAD_TEXTURE_COUNT );
+		add(LLStatViewer::UPLOAD_TEXTURE, 1);
 	}
 	else if ( LLAssetType::AT_ANIMATION == asset_type )
 	{
-		LLViewerStats::getInstance()->incStat(
-			LLViewerStats::ST_UPLOAD_ANIM_COUNT );
+		add(LLStatViewer::ANIMATION_UPLOADS, 1);
 	}
 }
 

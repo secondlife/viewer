@@ -35,7 +35,6 @@
 #include "llquaternion.h"
 #include "lltemplatemessagebuilder.h"
 #include "lltemplatemessagereader.h"
-#include "llversionserver.h"
 #include "message_prehash.h"
 #include "u64.h"
 #include "v3dmath.h"
@@ -59,9 +58,9 @@ namespace tut
 				const F32 circuit_timeout=100;
 
 				start_messaging_system("notafile", 13035,
-									   LL_VERSION_MAJOR,
-									   LL_VERSION_MINOR,        
-									   LL_VERSION_PATCH,        
+									   1,
+									   0,        
+									   0,        
 									   FALSE,        
 									   "notasharedsecret",
 									   NULL,

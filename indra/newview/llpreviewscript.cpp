@@ -573,14 +573,14 @@ bool LLScriptEdCore::loadScriptText(const std::string& filename)
 {
 	if (filename.empty())
 	{
-		llwarns << "Empty file name" << llendl;
+		LL_WARNS() << "Empty file name" << LL_ENDL;
 		return false;
 	}
 
 	LLFILE* file = LLFile::fopen(filename, "rb");		/*Flawfinder: ignore*/
 	if (!file)
 	{
-		llwarns << "Error opening " << filename << llendl;
+		LL_WARNS() << "Error opening " << filename << LL_ENDL;
 		return false;
 	}
 
@@ -592,7 +592,7 @@ bool LLScriptEdCore::loadScriptText(const std::string& filename)
 	size_t nread = fread(buffer, 1, file_length, file);
 	if (nread < file_length)
 	{
-		llwarns << "Short read" << llendl;
+		LL_WARNS() << "Short read" << LL_ENDL;
 	}
 	buffer[nread] = '\0';
 	fclose(file);
@@ -608,7 +608,7 @@ bool LLScriptEdCore::writeToFile(const std::string& filename)
 	LLFILE* fp = LLFile::fopen(filename, "wb");
 	if (!fp)
 	{
-		llwarns << "Unable to write to " << filename << llendl;
+		LL_WARNS() << "Unable to write to " << filename << LL_ENDL;
 
 		LLSD row;
 		row["columns"][0]["value"] = "Error writing to local file. Is your hard drive full?";
@@ -988,7 +988,7 @@ void LLScriptEdCore::onBtnInsertFunction(LLUICtrl *ui, void* userdata)
 
 void LLScriptEdCore::doSave( BOOL close_after_save )
 {
-	LLViewerStats::getInstance()->incStat( LLViewerStats::ST_LSL_SAVE_COUNT );
+	add(LLStatViewer::LSL_SAVES, 1);
 
 	if( mSaveCallback )
 	{
@@ -1063,8 +1063,8 @@ void LLScriptEdCore::onErrorList(LLUICtrl*, void* user_data)
 		LLStringUtil::replaceChar(line, ',',' ');
 		LLStringUtil::replaceChar(line, ')',' ');
 		sscanf(line.c_str(), "%d %d", &row, &column);
-		//llinfos << "LLScriptEdCore::onErrorList() - " << row << ", "
-		//<< column << llendl;
+		//LL_INFOS() << "LLScriptEdCore::onErrorList() - " << row << ", "
+		//<< column << LL_ENDL;
 		self->mEditor->setCursor(row, column);
 		self->mEditor->setFocus(TRUE);
 	}
@@ -1111,15 +1111,15 @@ struct LLEntryAndEdCore
 
 void LLScriptEdCore::deleteBridges()
 {
-	S32 count = mBridges.count();
+	S32 count = mBridges.size();
 	LLEntryAndEdCore* eandc;
 	for(S32 i = 0; i < count; i++)
 	{
-		eandc = mBridges.get(i);
+		eandc = mBridges.at(i);
 		delete eandc;
 		mBridges[i] = NULL;
 	}
-	mBridges.reset();
+	mBridges.clear();
 }
 
 // virtual
@@ -1192,8 +1192,7 @@ void LLScriptEdCore::onBtnLoadFromFile( void* data )
 
 void LLScriptEdCore::onBtnSaveToFile( void* userdata )
 {
-
-	LLViewerStats::getInstance()->incStat( LLViewerStats::ST_LSL_SAVE_COUNT );
+	add(LLStatViewer::LSL_SAVES, 1);
 
 	LLScriptEdCore* self = (LLScriptEdCore*) userdata;
 
@@ -1332,7 +1331,7 @@ BOOL LLPreviewLSL::postBuild()
 // virtual
 void LLPreviewLSL::callbackLSLCompileSucceeded()
 {
-	llinfos << "LSL Bytecode saved" << llendl;
+	LL_INFOS() << "LSL Bytecode saved" << LL_ENDL;
 	mScriptEd->mErrorList->setCommentText(LLTrans::getString("CompileSuccessful"));
 	mScriptEd->mErrorList->setCommentText(LLTrans::getString("SaveComplete"));
 	closeIfNeeded();
@@ -1341,7 +1340,7 @@ void LLPreviewLSL::callbackLSLCompileSucceeded()
 // virtual
 void LLPreviewLSL::callbackLSLCompileFailed(const LLSD& compile_errors)
 {
-	llinfos << "Compile failed!" << llendl;
+	LL_INFOS() << "Compile failed!" << LL_ENDL;
 
 	for(LLSD::array_const_iterator line = compile_errors.beginArray();
 		line < compile_errors.endArray();
@@ -1456,7 +1455,7 @@ void LLPreviewLSL::onSave(void* userdata, BOOL close_after_save)
 // fails, go ahead and save the text anyway.
 void LLPreviewLSL::saveIfNeeded(bool sync /*= true*/)
 {
-	// llinfos << "LLPreviewLSL::saveIfNeeded()" << llendl;
+	// LL_INFOS() << "LLPreviewLSL::saveIfNeeded()" << LL_ENDL;
 	if(!mScriptEd->hasChanged())
 	{
 		return;
@@ -1502,7 +1501,7 @@ void LLPreviewLSL::uploadAssetViaCaps(const std::string& url,
 									  const std::string& filename,
 									  const LLUUID& item_id)
 {
-	llinfos << "Update Agent Inventory via capability" << llendl;
+	LL_INFOS() << "Update Agent Inventory via capability" << LL_ENDL;
 	LLSD body;
 	body["item_id"] = item_id;
 	body["target"] = "lsl2";
@@ -1535,7 +1534,7 @@ void LLPreviewLSL::uploadAssetLegacy(const std::string& filename,
 						asset_id.asString().c_str(),
 						gAgent.isGodlike()))
 	{
-		llinfos << "Compile failed!" << llendl;
+		LL_INFOS() << "Compile failed!" << LL_ENDL;
 		//char command[256];
 		//sprintf(command, "type %s\n", err_filename.c_str());
 		//system(command);
@@ -1573,7 +1572,7 @@ void LLPreviewLSL::uploadAssetLegacy(const std::string& filename,
 	}
 	else
 	{
-		llinfos << "Compile worked!" << llendl;
+		LL_INFOS() << "Compile worked!" << LL_ENDL;
 		if(gAssetStorage)
 		{
 			getWindow()->incBusyCount();
@@ -1615,8 +1614,8 @@ void LLPreviewLSL::onSaveComplete(const LLUUID& asset_uuid, void* user_data, S32
 			}
 			else
 			{
-				llwarns << "Inventory item for script " << info->mItemUUID
-					<< " is no longer in agent inventory." << llendl;
+				LL_WARNS() << "Inventory item for script " << info->mItemUUID
+					<< " is no longer in agent inventory." << LL_ENDL;
 			}
 
 			// Find our window and close it if requested.
@@ -1635,7 +1634,7 @@ void LLPreviewLSL::onSaveComplete(const LLUUID& asset_uuid, void* user_data, S32
 	}
 	else
 	{
-		llwarns << "Problem saving script: " << status << llendl;
+		LL_WARNS() << "Problem saving script: " << status << LL_ENDL;
 		LLSD args;
 		args["REASON"] = std::string(LLAssetStorage::getErrorString(status));
 		LLNotificationsUtil::add("SaveScriptFailReason", args);
@@ -1673,7 +1672,7 @@ void LLPreviewLSL::onSaveBytecodeComplete(const LLUUID& asset_uuid, void* user_d
 	}
 	else
 	{
-		llwarns << "Problem saving LSL Bytecode (Preview)" << llendl;
+		LL_WARNS() << "Problem saving LSL Bytecode (Preview)" << LL_ENDL;
 		LLSD args;
 		args["REASON"] = std::string(LLAssetStorage::getErrorString(status));
 		LLNotificationsUtil::add("SaveBytecodeFailReason", args);
@@ -1685,8 +1684,8 @@ void LLPreviewLSL::onSaveBytecodeComplete(const LLUUID& asset_uuid, void* user_d
 void LLPreviewLSL::onLoadComplete( LLVFS *vfs, const LLUUID& asset_uuid, LLAssetType::EType type,
 								   void* user_data, S32 status, LLExtStat ext_status)
 {
-	lldebugs << "LLPreviewLSL::onLoadComplete: got uuid " << asset_uuid
-		 << llendl;
+	LL_DEBUGS() << "LLPreviewLSL::onLoadComplete: got uuid " << asset_uuid
+		 << LL_ENDL;
 	LLUUID* item_uuid = (LLUUID*)user_data;
 	LLPreviewLSL* preview = LLFloaterReg::findTypedInstance<LLPreviewLSL>("preview_script", *item_uuid);
 	if( preview )
@@ -1716,8 +1715,6 @@ void LLPreviewLSL::onLoadComplete( LLVFS *vfs, const LLUUID& asset_uuid, LLAsset
 		}
 		else
 		{
-			LLViewerStats::getInstance()->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
-
 			if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status ||
 				LL_ERR_FILE_EMPTY == status)
 			{
@@ -1733,7 +1730,7 @@ void LLPreviewLSL::onLoadComplete( LLVFS *vfs, const LLUUID& asset_uuid, LLAsset
 			}
 
 			preview->mAssetStatus = PREVIEW_ASSET_ERROR;
-			llwarns << "Problem loading script: " << status << llendl;
+			LL_WARNS() << "Problem loading script: " << status << LL_ENDL;
 		}
 	}
 	delete item_uuid;
@@ -1799,7 +1796,7 @@ void LLLiveLSLEditor::callbackLSLCompileSucceeded(const LLUUID& task_id,
 												  const LLUUID& item_id,
 												  bool is_script_running)
 {
-	lldebugs << "LSL Bytecode saved" << llendl;
+	LL_DEBUGS() << "LSL Bytecode saved" << LL_ENDL;
 	mScriptEd->mErrorList->setCommentText(LLTrans::getString("CompileSuccessful"));
 	mScriptEd->mErrorList->setCommentText(LLTrans::getString("SaveComplete"));
 	closeIfNeeded();
@@ -1808,7 +1805,7 @@ void LLLiveLSLEditor::callbackLSLCompileSucceeded(const LLUUID& task_id,
 // virtual
 void LLLiveLSLEditor::callbackLSLCompileFailed(const LLSD& compile_errors)
 {
-	lldebugs << "Compile failed!" << llendl;
+	LL_DEBUGS() << "Compile failed!" << LL_ENDL;
 	for(LLSD::array_const_iterator line = compile_errors.beginArray();
 		line < compile_errors.endArray();
 		line++)
@@ -1827,7 +1824,7 @@ void LLLiveLSLEditor::callbackLSLCompileFailed(const LLSD& compile_errors)
 
 void LLLiveLSLEditor::loadAsset()
 {
-	//llinfos << "LLLiveLSLEditor::loadAsset()" << llendl;
+	//LL_INFOS() << "LLLiveLSLEditor::loadAsset()" << LL_ENDL;
 	if(!mIsNew)
 	{
 		LLViewerObject* object = gObjectList.findObject(mObjectUUID);
@@ -1839,7 +1836,7 @@ void LLLiveLSLEditor::loadAsset()
 				   || gAgent.isGodlike()))
 			{
 				mItem = new LLViewerInventoryItem(item);
-				//llinfos << "asset id " << mItem->getAssetUUID() << llendl;
+				//LL_INFOS() << "asset id " << mItem->getAssetUUID() << LL_ENDL;
 			}
 
 			if(!gAgent.isGodlike()
@@ -1931,8 +1928,8 @@ void LLLiveLSLEditor::onLoadComplete(LLVFS *vfs, const LLUUID& asset_id,
 									 LLAssetType::EType type,
 									 void* user_data, S32 status, LLExtStat ext_status)
 {
-	lldebugs << "LLLiveLSLEditor::onLoadComplete: got uuid " << asset_id
-		 << llendl;
+	LL_DEBUGS() << "LLLiveLSLEditor::onLoadComplete: got uuid " << asset_id
+		 << LL_ENDL;
 	LLUUID* xored_id = (LLUUID*)user_data;
 	
 	LLLiveLSLEditor* instance = LLFloaterReg::findTypedInstance<LLLiveLSLEditor>("preview_scriptedit", *xored_id);
@@ -1947,8 +1944,6 @@ void LLLiveLSLEditor::onLoadComplete(LLVFS *vfs, const LLUUID& asset_id,
 		}
 		else
 		{
-			LLViewerStats::getInstance()->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
-
 			if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status ||
 				LL_ERR_FILE_EMPTY == status)
 			{
@@ -1979,7 +1974,7 @@ void LLLiveLSLEditor::loadScriptText(LLVFS *vfs, const LLUUID &uuid, LLAssetType
 	if (file.getLastBytesRead() != file_length ||
 		file_length <= 0)
 	{
-		llwarns << "Error reading " << uuid << ":" << type << llendl;
+		LL_WARNS() << "Error reading " << uuid << ":" << type << LL_ENDL;
 	}
 
 	buffer[file_length] = '\0';
@@ -2202,7 +2197,7 @@ void LLLiveLSLEditor::uploadAssetViaCaps(const std::string& url,
 										 const LLUUID& item_id,
 										 BOOL is_running)
 {
-	llinfos << "Update Task Inventory via capability " << url << llendl;
+	LL_INFOS() << "Update Task Inventory via capability " << url << LL_ENDL;
 	LLSD body;
 	body["task_id"] = task_id;
 	body["item_id"] = item_id;
@@ -2241,7 +2236,7 @@ void LLLiveLSLEditor::uploadAssetLegacy(const std::string& filename,
 						gAgent.isGodlike()))
 	{
 		// load the error file into the error scrolllist
-		llinfos << "Compile failed!" << llendl;
+		LL_INFOS() << "Compile failed!" << LL_ENDL;
 		if(NULL != (fp = LLFile::fopen(err_filename, "r")))
 		{
 			char buffer[MAX_STRING];		/*Flawfinder: ignore*/
@@ -2279,12 +2274,12 @@ void LLLiveLSLEditor::uploadAssetLegacy(const std::string& filename,
 	}
 	else
 	{
-		llinfos << "Compile worked!" << llendl;
+		LL_INFOS() << "Compile worked!" << LL_ENDL;
 		mScriptEd->mErrorList->setCommentText(LLTrans::getString("CompileSuccessfulSaving"));
 		if(gAssetStorage)
 		{
-			llinfos << "LLLiveLSLEditor::saveAsset "
-					<< mItem->getAssetUUID() << llendl;
+			LL_INFOS() << "LLLiveLSLEditor::saveAsset "
+					<< mItem->getAssetUUID() << LL_ENDL;
 			getWindow()->incBusyCount();
 			mPendingUploads++;
 			LLLiveLSLSaveData* data = NULL;
@@ -2317,7 +2312,7 @@ void LLLiveLSLEditor::onSaveTextComplete(const LLUUID& asset_uuid, void* user_da
 
 	if (status)
 	{
-		llwarns << "Unable to save text for a script." << llendl;
+		LL_WARNS() << "Unable to save text for a script." << LL_ENDL;
 		LLSD args;
 		args["REASON"] = std::string(LLAssetStorage::getErrorString(status));
 		LLNotificationsUtil::add("CompileQueueSaveText", args);
@@ -2348,7 +2343,7 @@ void LLLiveLSLEditor::onSaveBytecodeComplete(const LLUUID& asset_uuid, void* use
 		return;
 	if(0 ==status)
 	{
-		llinfos << "LSL Bytecode saved" << llendl;
+		LL_INFOS() << "LSL Bytecode saved" << LL_ENDL;
 		LLLiveLSLEditor* self = LLFloaterReg::findTypedInstance<LLLiveLSLEditor>("preview_scriptedit", data->mItem->getUUID()); //  ^ data->mSaveObjectID
 		if (self)
 		{
@@ -2374,8 +2369,8 @@ void LLLiveLSLEditor::onSaveBytecodeComplete(const LLUUID& asset_uuid, void* use
 	}
 	else
 	{
-		llinfos << "Problem saving LSL Bytecode (Live Editor)" << llendl;
-		llwarns << "Unable to save a compiled script." << llendl;
+		LL_INFOS() << "Problem saving LSL Bytecode (Live Editor)" << LL_ENDL;
+		LL_WARNS() << "Unable to save a compiled script." << LL_ENDL;
 
 		LLSD args;
 		args["REASON"] = std::string(LLAssetStorage::getErrorString(status));

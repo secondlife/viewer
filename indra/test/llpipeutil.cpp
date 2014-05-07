@@ -170,13 +170,13 @@ LLIOPipe::EStatus LLIOSleeper::process_impl(
 {
 	if(!mRespond)
 	{
-		lldebugs << "LLIOSleeper::process_impl() sleeping." << llendl;
+		LL_DEBUGS() << "LLIOSleeper::process_impl() sleeping." << LL_ENDL;
 		mRespond = true;
 		static const F64 SLEEP_TIME = 2.0;
 		pump->sleepChain(SLEEP_TIME);
 		return STATUS_BREAK;
 	}
-	lldebugs << "LLIOSleeper::process_impl() responding." << llendl;
+	LL_DEBUGS() << "LLIOSleeper::process_impl() responding." << LL_ENDL;
 	LLBufferStream ostr(channels, buffer.get());
 	ostr << "huh? sorry, I was sleeping." << std::endl;
 	return STATUS_DONE;

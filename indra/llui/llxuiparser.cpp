@@ -29,7 +29,7 @@
 #include "llxuiparser.h"
 
 #include "llxmlnode.h"
-
+#include "llfasttimer.h"
 #ifdef LL_USESYSTEMLIBS
 #include <expat.h>
 #else
@@ -38,6 +38,7 @@
 
 #include <fstream>
 #include <boost/tokenizer.hpp>
+#include <boost/bind.hpp>
 //#include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/classic_core.hpp>
 
@@ -333,6 +334,8 @@ LLXSDWriter::LLXSDWriter()
 	registerInspectFunc<LLUUID>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:string", _1, _2, _3, _4));
 	registerInspectFunc<LLSD>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:string", _1, _2, _3, _4));
 }
+
+LLXSDWriter::~LLXSDWriter() {}
 
 void LLXSDWriter::writeXSD(const std::string& type_name, LLXMLNodePtr node, const LLInitParam::BaseBlock& block, const std::string& xml_namespace)
 {
@@ -674,12 +677,12 @@ LLXUIParser::LLXUIParser()
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_PARSE_XUI("XUI Parsing");
+static LLTrace::BlockTimerStatHandle FTM_PARSE_XUI("XUI Parsing");
 const LLXMLNodePtr DUMMY_NODE = new LLXMLNode();
 
 void LLXUIParser::readXUI(LLXMLNodePtr node, LLInitParam::BaseBlock& block, const std::string& filename, bool silent)
 {
-	LLFastTimer timer(FTM_PARSE_XUI);
+	LL_RECORD_BLOCK_TIME(FTM_PARSE_XUI);
 	mNameStack.clear();
 	mRootNodeName = node->getName()->mString;
 	mCurFileName = filename;
@@ -858,11 +861,11 @@ bool LLXUIParser::readAttributes(LLXMLNodePtr nodep, LLInitParam::BaseBlock& blo
 	return any_parsed;
 }
 
-void LLXUIParser::writeXUI(LLXMLNodePtr node, const LLInitParam::BaseBlock &block, const LLInitParam::BaseBlock* diff_block)
+void LLXUIParser::writeXUIImpl(LLXMLNodePtr node, const LLInitParam::BaseBlock &block, const LLInitParam::predicate_rule_t rules, const LLInitParam::BaseBlock* diff_block)
 {
 	mWriteRootNode = node;
 	name_stack_t name_stack = Parser::name_stack_t();
-	block.serializeBlock(*this, name_stack, diff_block);
+	block.serializeBlock(*this, name_stack, rules, diff_block);
 	mOutNodes.clear();
 }
 
@@ -1310,7 +1313,7 @@ void LLXUIParser::parserWarning(const std::string& message)
 {
 #ifdef LL_WINDOWS
 	// use Visual Studio friendly formatting of output message for easy access to originating xml
-	LL_WINDOWS_OUTPUT_DEBUG(llformat("%s(%d):\t%s", mCurFileName.c_str(), mCurReadNode->getLineNumber(), message.c_str()));
+	LL_INFOS() << llformat("%s(%d):\t%s", mCurFileName.c_str(), mCurReadNode->getLineNumber(), message.c_str()) << LL_ENDL;
 #else
 	Parser::parserWarning(message);
 #endif
@@ -1319,8 +1322,8 @@ void LLXUIParser::parserWarning(const std::string& message)
 void LLXUIParser::parserError(const std::string& message)
 {
 #ifdef LL_WINDOWS
-        // use Visual Studio friendly formatting of output message for easy access to originating xml
-	LL_WINDOWS_OUTPUT_DEBUG(llformat("%s(%d):\t%s", mCurFileName.c_str(), mCurReadNode->getLineNumber(), message.c_str()));
+    // use Visual Studio friendly formatting of output message for easy access to originating xml
+	LL_INFOS() << llformat("%s(%d):\t%s", mCurFileName.c_str(), mCurReadNode->getLineNumber(), message.c_str()) << LL_ENDL;
 #else
 	Parser::parserError(message);
 #endif
@@ -1391,7 +1394,7 @@ LLSimpleXUIParser::~LLSimpleXUIParser()
 
 bool LLSimpleXUIParser::readXUI(const std::string& filename, LLInitParam::BaseBlock& block, bool silent)
 {
-	LLFastTimer timer(FTM_PARSE_XUI);
+	LL_RECORD_BLOCK_TIME(FTM_PARSE_XUI);
 
 	mParser = XML_ParserCreate(NULL);
 	XML_SetUserData(mParser, this);
@@ -1638,7 +1641,7 @@ void LLSimpleXUIParser::parserWarning(const std::string& message)
 {
 #ifdef LL_WINDOWS
 	// use Visual Studio friendly formatting of output message for easy access to originating xml
-	LL_WINDOWS_OUTPUT_DEBUG(llformat("%s(%d):\t%s", mCurFileName.c_str(), LINE_NUMBER_HERE, message.c_str()));
+	LL_INFOS() << llformat("%s(%d):\t%s", mCurFileName.c_str(), LINE_NUMBER_HERE, message.c_str()) << LL_ENDL;
 #else
 	Parser::parserWarning(message);
 #endif
@@ -1648,7 +1651,7 @@ void LLSimpleXUIParser::parserError(const std::string& message)
 {
 #ifdef LL_WINDOWS
         // use Visual Studio friendly formatting of output message for easy access to originating xml
-	LL_WINDOWS_OUTPUT_DEBUG(llformat("%s(%d):\t%s", mCurFileName.c_str(), LINE_NUMBER_HERE, message.c_str()));
+	LL_INFOS() << llformat("%s(%d):\t%s", mCurFileName.c_str(), LINE_NUMBER_HERE, message.c_str()) << LL_ENDL;
 #else
 	Parser::parserError(message);
 #endif

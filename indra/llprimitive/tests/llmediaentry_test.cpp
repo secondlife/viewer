@@ -39,7 +39,7 @@
 #include "llsdserialize.h"
 
 #include "../llmediaentry.h"
-#include "lllslconstants.h"
+#include "indra_constants.h"
 
 #define DEFAULT_MEDIA_ENTRY "<llsd>\n\
  <map>\n\

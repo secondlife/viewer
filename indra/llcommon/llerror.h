@@ -31,8 +31,67 @@
 #include <sstream>
 #include <typeinfo>
 
-#include "llerrorlegacy.h"
 #include "stdtypes.h"
+
+#include "llpreprocessor.h"
+#include <boost/static_assert.hpp>
+
+const int LL_ERR_NOERR = 0;
+
+// Define one of these for different error levels in release...
+// #define RELEASE_SHOW_DEBUG // Define this if you want your release builds to show lldebug output.
+#define RELEASE_SHOW_INFO // Define this if you want your release builds to show llinfo output
+#define RELEASE_SHOW_WARN // Define this if you want your release builds to show llwarn output.
+
+#ifdef _DEBUG
+#define SHOW_DEBUG
+#define SHOW_WARN
+#define SHOW_INFO
+#define SHOW_ASSERT
+#else // _DEBUG
+
+#ifdef LL_RELEASE_WITH_DEBUG_INFO
+#define SHOW_ASSERT
+#endif // LL_RELEASE_WITH_DEBUG_INFO
+
+#ifdef RELEASE_SHOW_DEBUG
+#define SHOW_DEBUG
+#endif
+
+#ifdef RELEASE_SHOW_WARN
+#define SHOW_WARN
+#endif
+
+#ifdef RELEASE_SHOW_INFO
+#define SHOW_INFO
+#endif
+
+#ifdef RELEASE_SHOW_ASSERT
+#define SHOW_ASSERT
+#endif
+
+#endif // !_DEBUG
+
+#define llassert_always_msg(func, msg) if (LL_UNLIKELY(!(func))) LL_ERRS() << "ASSERT (" << msg << ")" << LL_ENDL
+
+#define llassert_always(func)	llassert_always_msg(func, #func)
+
+#ifdef SHOW_ASSERT
+#define llassert(func)			llassert_always_msg(func, #func)
+#define llverify(func)			llassert_always_msg(func, #func)
+#else
+#define llassert(func)
+#define llverify(func)			do {if (func) {}} while(0)
+#endif
+
+#ifdef LL_WINDOWS
+#define LL_STATIC_ASSERT(func, msg) static_assert(func, msg)
+#define LL_BAD_TEMPLATE_INSTANTIATION(type, msg) static_assert(false, msg)
+#else
+#define LL_STATIC_ASSERT(func, msg) BOOST_STATIC_ASSERT(func)
+#define LL_BAD_TEMPLATE_INSTANTIATION(type, msg) BOOST_STATIC_ASSERT(sizeof(type) != 0 && false);
+#endif
+
 
 /** Error Logging Facility
 
@@ -121,50 +180,62 @@ namespace LLError
 		They are not intended for general use.
 	*/
 	
-	class CallSite;
+	struct CallSite;
 	
 	class LL_COMMON_API Log
 	{
 	public:
 		static bool shouldLog(CallSite&);
 		static std::ostringstream* out();
-		static void flush(std::ostringstream* out, char* message)  ;
+		static void flush(std::ostringstream* out, char* message);
 		static void flush(std::ostringstream*, const CallSite&);
 	};
 	
-	class LL_COMMON_API CallSite
+	struct LL_COMMON_API CallSite
 	{
 		// Represents a specific place in the code where a message is logged
 		// This is public because it is used by the macros below.  It is not
 		// intended for public use.
-	public:
-		CallSite(ELevel, const char* file, int line,
-				const std::type_info& class_info, const char* function, const char* broadTag, const char* narrowTag, bool printOnce);
-						
+		CallSite(ELevel level, 
+				const char* file, 
+				int line,
+				const std::type_info& class_info, 
+				const char* function, 
+				bool print_once, 
+				const char** tags, 
+				size_t tag_count);
+
+		~CallSite();
+
 #ifdef LL_LIBRARY_INCLUDE
 		bool shouldLog();
 #else // LL_LIBRARY_INCLUDE
 		bool shouldLog()
-			{ return mCached ? mShouldLog : Log::shouldLog(*this); }
+		{ 
+			return mCached 
+					? mShouldLog 
+					: Log::shouldLog(*this); 
+		}
 			// this member function needs to be in-line for efficiency
 #endif // LL_LIBRARY_INCLUDE
 		
 		void invalidate();
 		
-	private:
 		// these describe the call site and never change
 		const ELevel			mLevel;
 		const char* const		mFile;
-		const int			mLine;
-		const std::type_info&   	mClassInfo;
+		const int				mLine;
+		const std::type_info&   mClassInfo;
 		const char* const		mFunction;
-		const char* const		mBroadTag;
-		const char* const		mNarrowTag;
-		const bool			mPrintOnce;
-		
-		// these implement a cache of the call to shouldLog()
-		bool mCached;
-		bool mShouldLog;
+		const char**			mTags;
+		size_t					mTagCount;
+		const bool				mPrintOnce;
+		const char*				mLevelString;
+		std::string				mLocationString,
+								mFunctionString,
+								mTagString;
+		bool					mCached,
+								mShouldLog;
 		
 		friend class Log;
 	};
@@ -198,32 +269,23 @@ namespace LLError
        static void clear() ;
 	   static void end(std::ostringstream* _out) ;
    }; 
-
-#if LL_WINDOWS
-	void LLOutputDebugUTF8(const std::string& s);
-#endif
-
 }
 
-#if LL_WINDOWS
-	// Macro accepting a std::string for display in windows debugging console
-	#define LL_WINDOWS_OUTPUT_DEBUG(a) LLError::LLOutputDebugUTF8(a)
-#else
-	#define LL_WINDOWS_OUTPUT_DEBUG(a)
-#endif
-
 //this is cheaper than llcallstacks if no need to output other variables to call stacks. 
-#define llpushcallstacks LLError::LLCallStacks::push(__FUNCTION__, __LINE__)
-#define llcallstacks \
-	{\
+#define LL_PUSH_CALLSTACKS() LLError::LLCallStacks::push(__FUNCTION__, __LINE__)
+
+#define llcallstacks                                                                      \
+	{                                                                                     \
        std::ostringstream* _out = LLError::LLCallStacks::insert(__FUNCTION__, __LINE__) ; \
        (*_out)
-#define llcallstacksendl \
-		LLError::End(); \
+
+#define llcallstacksendl                   \
+		LLError::End();                    \
 		LLError::LLCallStacks::end(_out) ; \
 	}
-#define llclearcallstacks LLError::LLCallStacks::clear()
-#define llprintcallstacks LLError::LLCallStacks::print() 
+
+#define LL_CLEAR_CALLSTACKS() LLError::LLCallStacks::clear()
+#define LL_PRINT_CALLSTACKS() LLError::LLCallStacks::print() 
 
 /*
 	Class type information for logging
@@ -237,78 +299,72 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 	// Outside a class declaration, or in class without LOG_CLASS(), this
 	// typedef causes the messages to not be associated with any class.
 
+/////////////////////////////////
+// Error Logging Macros
+// See top of file for common usage.	
+/////////////////////////////////
 
+// this macro uses a one-shot do statement to avoid parsing errors when writing control flow statements
+// without braces:
+// if (condition) LL_INFOS() << "True" << LL_ENDL; else LL_INFOS()() << "False" << LL_ENDL
 
-
-
-/*
-	Error Logging Macros
-	See top of file for common usage.	
-*/
-
-#define lllog(level, broadTag, narrowTag, once) \
-	do { \
-		static LLError::CallSite _site( \
-			level, __FILE__, __LINE__, typeid(_LL_CLASS_TO_LOG), __FUNCTION__, broadTag, narrowTag, once);\
-		if (LL_UNLIKELY(_site.shouldLog()))			\
-		{ \
-			std::ostringstream* _out = LLError::Log::out(); \
+#define lllog(level, once, ...)																	          \
+	do {                                                                                                  \
+		const char* tags[] = {"", ##__VA_ARGS__};													      \
+		::size_t tag_count = LL_ARRAY_SIZE(tags) - 1;													  \
+		static LLError::CallSite _site(                                                                   \
+		    level, __FILE__, __LINE__, typeid(_LL_CLASS_TO_LOG), __FUNCTION__, once, &tags[1], tag_count);\
+		if (LL_UNLIKELY(_site.shouldLog()))			                                                      \
+		{                                                                                                 \
+			std::ostringstream* _out = LLError::Log::out();                                               \
 			(*_out)
 
-// DEPRECATED: Don't call directly, use LL_ENDL instead, which actually looks like a macro
-#define llendl \
-			LLError::End(); \
-			LLError::Log::flush(_out, _site); \
-		} \
-	} while(0)
+//Use this construct if you need to do computation in the middle of a
+//message:
+//	
+//	LL_INFOS("AgentGesture") << "the agent " << agend_id;
+//	switch (f)
+//	{
+//		case FOP_SHRUGS:	LL_CONT << "shrugs";				break;
+//		case FOP_TAPS:		LL_CONT << "points at " << who;	break;
+//		case FOP_SAYS:		LL_CONT << "says " << message;	break;
+//	}
+//	LL_CONT << " for " << t << " seconds" << LL_ENDL;
+//	
+//Such computation is done iff the message will be logged.
+#define LL_CONT	(*_out)
 
-// DEPRECATED: Use the new macros that allow tags and *look* like macros.
-#define lldebugs	lllog(LLError::LEVEL_DEBUG, NULL, NULL, false)
-#define llinfos		lllog(LLError::LEVEL_INFO, NULL, NULL, false)
-#define llwarns		lllog(LLError::LEVEL_WARN, NULL, NULL, false)
-#define llerrs		lllog(LLError::LEVEL_ERROR, NULL, NULL, false)
-#define llcont		(*_out)
+#define LL_NEWLINE '\n'
+
+#define LL_ENDL                               \
+			LLError::End();                   \
+			LLError::Log::flush(_out, _site); \
+		}                                     \
+	} while(0)
 
 // NEW Macros for debugging, allow the passing of a string tag
 
-// One Tag
-#define LL_DEBUGS(broadTag)	lllog(LLError::LEVEL_DEBUG, broadTag, NULL, false)
-#define LL_INFOS(broadTag)	lllog(LLError::LEVEL_INFO, broadTag, NULL, false)
-#define LL_WARNS(broadTag)	lllog(LLError::LEVEL_WARN, broadTag, NULL, false)
-#define LL_ERRS(broadTag)	lllog(LLError::LEVEL_ERROR, broadTag, NULL, false)
-// Two Tags
-#define LL_DEBUGS2(broadTag, narrowTag)	lllog(LLError::LEVEL_DEBUG, broadTag, narrowTag, false)
-#define LL_INFOS2(broadTag, narrowTag)	lllog(LLError::LEVEL_INFO, broadTag, narrowTag, false)
-#define LL_WARNS2(broadTag, narrowTag)	lllog(LLError::LEVEL_WARN, broadTag, narrowTag, false)
-#define LL_ERRS2(broadTag, narrowTag)	lllog(LLError::LEVEL_ERROR, broadTag, narrowTag, false)
+// Pass comma separated list of tags (currently only supports up to 0, 1, or 2)
+#define LL_DEBUGS(...)	lllog(LLError::LEVEL_DEBUG, false, ##__VA_ARGS__)
+#define LL_INFOS(...)	lllog(LLError::LEVEL_INFO, false, ##__VA_ARGS__)
+#define LL_WARNS(...)	lllog(LLError::LEVEL_WARN, false, ##__VA_ARGS__)
+#define LL_ERRS(...)	lllog(LLError::LEVEL_ERROR, false, ##__VA_ARGS__)
+// alternative to llassert_always that prints explanatory message
+#define LL_ERRS_IF(exp, ...)	if (exp) LL_ERRS(##__VA_ARGS__) << "(" #exp ")"
 
 // Only print the log message once (good for warnings or infos that would otherwise
 // spam the log file over and over, such as tighter loops).
-#define LL_DEBUGS_ONCE(broadTag)	lllog(LLError::LEVEL_DEBUG, broadTag, NULL, true)
-#define LL_INFOS_ONCE(broadTag)	lllog(LLError::LEVEL_INFO, broadTag, NULL, true)
-#define LL_WARNS_ONCE(broadTag)	lllog(LLError::LEVEL_WARN, broadTag, NULL, true)
-#define LL_DEBUGS2_ONCE(broadTag, narrowTag)	lllog(LLError::LEVEL_DEBUG, broadTag, narrowTag, true)
-#define LL_INFOS2_ONCE(broadTag, narrowTag)	lllog(LLError::LEVEL_INFO, broadTag, narrowTag, true)
-#define LL_WARNS2_ONCE(broadTag, narrowTag)	lllog(LLError::LEVEL_WARN, broadTag, narrowTag, true)
+#define LL_DEBUGS_ONCE(...)	lllog(LLError::LEVEL_DEBUG, true, ##__VA_ARGS__)
+#define LL_INFOS_ONCE(...)	lllog(LLError::LEVEL_INFO, true, ##__VA_ARGS__)
+#define LL_WARNS_ONCE(...)	lllog(LLError::LEVEL_WARN, true, ##__VA_ARGS__)
 
-#define LL_ENDL llendl
-#define LL_CONT	(*_out)
-
-	/*
-		Use this construct if you need to do computation in the middle of a
-		message:
-		
-			LL_INFOS("AgentGesture") << "the agent " << agend_id;
-			switch (f)
-			{
-				case FOP_SHRUGS:	LL_CONT << "shrugs";				break;
-				case FOP_TAPS:		LL_CONT << "points at " << who;	break;
-				case FOP_SAYS:		LL_CONT << "says " << message;	break;
-			}
-			LL_CONT << " for " << t << " seconds" << LL_ENDL;
-		
-		Such computation is done iff the message will be logged.
-	*/
+// DEPRECATED: Use the new macros that allow tags and *look* like macros.
+#define lldebugs	LL_COMPILE_TIME_MESSAGE("Warning: lldebugs deprecated, use LL_DEBUGS() instead") LL_DEBUGS()
+#define llinfos		LL_COMPILE_TIME_MESSAGE("Warning: llinfos deprecated, use LL_INFOS() instead") LL_INFOS()
+#define llwarns		LL_COMPILE_TIME_MESSAGE("Warning: llwarns deprecated, use LL_WARNS() instead") LL_WARNS()
+#define llerrs		LL_COMPILE_TIME_MESSAGE("Warning: llerrs deprecated, use LL_ERRS() instead") LL_ERRS()
+#define llcont		LL_COMPILE_TIME_MESSAGE("Warning: llcont deprecated, use LL_CONT instead") LL_CONT
+#define llendl		LL_COMPILE_TIME_MESSAGE("Warning: llendl deprecated, use LL_ENDL instead") LL_ENDL
 
 
 #endif // LL_LLERROR_H
