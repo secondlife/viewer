@@ -1930,7 +1930,11 @@ void LLImageGL::updatePickMask(S32 width, S32 height, const U8* data_in)
 		return;
 	}
 
-	U32 pickSize = createPickMask(width, height);
+#ifdef SHOW_ASSERT
+	const U32 pickSize = createPickMask(width, height);
+#else // SHOW_ASSERT
+	createPickMask(width, height);
+#endif // SHOW_ASSERT
 
 	U32 pick_bit = 0;
 	
