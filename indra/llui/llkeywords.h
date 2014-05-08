@@ -115,7 +115,7 @@ public:
 	bool		isLoaded() const	{ return mLoaded; }
 
 	void		findSegments(std::vector<LLTextSegmentPtr> *seg_list, const LLWString& text, const LLColor4 &defaultColor, class LLTextEditor& editor );
-	void		initialise(LLSD SyntaxXML);
+	void		initialize(LLSD SyntaxXML);
 	void		processTokens();
 
 	// Add the token as described

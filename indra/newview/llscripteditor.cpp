@@ -46,7 +46,7 @@ LLScriptEditor::LLScriptEditor(const Params& p)
 
 void LLScriptEditor::initKeywords()
 {
-	mKeywords.initialise(LLSyntaxIdLSL::getInstance()->getKeywordsXML());
+	mKeywords.initialize(LLSyntaxIdLSL::getInstance()->getKeywordsXML());
 }
 
 static LLFastTimer::DeclareTimer FTM_SYNTAX_HIGHLIGHTING("Syntax Highlighting");

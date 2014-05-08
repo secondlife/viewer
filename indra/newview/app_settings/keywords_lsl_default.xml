@@ -21,7 +21,7 @@
          <key>for</key>
          <map>
             <key>tooltip</key>
-            <string>for loop\nfor (&lt;initialiser&gt;; &lt;condition&gt;; &lt;post-iteration-statement&gt;)\n{ ...\n}</string>
+            <string>for loop\nfor (&lt;initializer&gt;; &lt;condition&gt;; &lt;post-iteration-statement&gt;)\n{ ...\n}</string>
          </map>
          <key>if</key>
          <map>

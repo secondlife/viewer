@@ -251,7 +251,7 @@ LLColor4 LLKeywords::getColorGroup(const std::string& key_in)
 	return LLUIColorTable::instance().getColor(color_group);
 }
 
-void LLKeywords::initialise(LLSD SyntaxXML)
+void LLKeywords::initialize(LLSD SyntaxXML)
 {
 	mSyntax = SyntaxXML;
 	mLoaded = true;

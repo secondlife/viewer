@@ -412,7 +412,7 @@ BOOL LLScriptEdCore::postBuild()
 	LLSyntaxIdLSL::getInstance()->addFileFetchedCallback(boost::bind(&LLScriptEdCore::processKeywords, this));
 
 	// Intialise keyword highlighting for the current simulator's version of LSL
-	LLSyntaxIdLSL::getInstance()->initialise();
+	LLSyntaxIdLSL::getInstance()->initialize();
 
 	if (LLSyntaxIdLSL::getInstance()->isDifferentVersion())
 	{
@@ -440,7 +440,7 @@ void LLScriptEdCore::updateKeywords()
 
 void LLScriptEdCore::processLoaded()
 {
-	LLSyntaxIdLSL::getInstance()->initialise();
+	LLSyntaxIdLSL::getInstance()->initialize();
 	if (LLSyntaxIdLSL::getInstance()->isLoaded())
 	{
 		processKeywords();
