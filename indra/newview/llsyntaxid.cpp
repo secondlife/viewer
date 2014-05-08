@@ -70,7 +70,7 @@ void fetchKeywordsFileResponder::result(const LLSD& content_ref)
 					<< "Supported verson of syntax file." << LL_ENDL;
 
 			LLSyntaxIdLSL::setKeywordsXml(content_ref);
-			LLSyntaxIdLSL::sInitialised = true;
+			LLSyntaxIdLSL::sInitialized = true;
 			LLSyntaxIdLSL::sLoaded = true;
 			LLSyntaxIdLSL::sLoadFailed = false;
 
@@ -117,23 +117,23 @@ const std::string LLSyntaxIdLSL::CAPABILITY_NAME = "LSLSyntax";
 const std::string LLSyntaxIdLSL::FILENAME_DEFAULT = "keywords_lsl_default.xml";
 const std::string LLSyntaxIdLSL::SIMULATOR_FEATURE = "LSLSyntaxId";
 
-bool LLSyntaxIdLSL::sInitialised;
+bool LLSyntaxIdLSL::sInitialized;
 LLSD LLSyntaxIdLSL::sKeywordsXml;
 bool LLSyntaxIdLSL::sLoaded;
 bool LLSyntaxIdLSL::sLoadFailed;
 bool LLSyntaxIdLSL::sVersionChanged;
-LLSyntaxIdLSL::file_fetched_signal_t	LLSyntaxIdLSL::sFileFetchedSignal;
+LLSyntaxIdLSL::file_fetched_signal_t LLSyntaxIdLSL::sFileFetchedSignal;
 
 /**
  * @brief LLSyntaxIdLSL constructor
  */
-LLSyntaxIdLSL::LLSyntaxIdLSL(std::string filenameDefault, std::string simFeatureName, std::string capabilityName) :
-	mFilePath(LL_PATH_APP_SETTINGS)
+LLSyntaxIdLSL::LLSyntaxIdLSL(const std::string& filename, const std::string& sim_feature, const std::string& capability)
+:	mFilePath(LL_PATH_APP_SETTINGS)
 {
-	mCapabilityName = capabilityName;
-	mFileNameCurrent = filenameDefault;
-	mFileNameDefault = filenameDefault;
-	mSimulatorFeature = simFeatureName;
+	mCapabilityName = capability;
+	mFileNameCurrent = filename;
+	mFileNameDefault = filename;
+	mSimulatorFeature = sim_feature;
 	mSyntaxIdCurrent = LLUUID();
 }
 
@@ -207,7 +207,7 @@ bool LLSyntaxIdLSL::checkSyntaxIdChanged()
 			}
 			else
 			{
-				if ( mSyntaxIdCurrent.isNull() && isInitialised())
+				if ( mSyntaxIdCurrent.isNull() && isInitialized())
 				{
 					LL_INFOS("SyntaxLSL")
 							<< "It does not have LSLSyntaxId capability, remaining with default keywords file!"
@@ -255,9 +255,9 @@ void LLSyntaxIdLSL::fetchKeywordsFile()
 
 
 //-----------------------------------------------------------------------------
-// initialise
+// initialize
 //-----------------------------------------------------------------------------
-void LLSyntaxIdLSL::initialise()
+void LLSyntaxIdLSL::initialize()
 {
 	mFileNameNew = mFileNameCurrent;
 	mSyntaxIdNew = mSyntaxIdCurrent;
@@ -309,7 +309,7 @@ void LLSyntaxIdLSL::initialise()
 			loadDefaultKeywordsIntoLLSD();
 		}
 	}
-	else if (!isInitialised())
+	else if (!isInitialized())
 	{
 		loadDefaultKeywordsIntoLLSD();
 	}
@@ -321,6 +321,9 @@ void LLSyntaxIdLSL::initialise()
 //-----------------------------------------------------------------------------
 // isSupportedVersion
 //-----------------------------------------------------------------------------
+const U32         LLSD_SYNTAX_LSL_VERSION_EXPECTED = 2;
+const std::string LLSD_SYNTAX_LSL_VERSION_KEY("llsd-lsl-syntax-version");
+
 bool LLSyntaxIdLSL::isSupportedVersion(const LLSD& content)
 {
 	bool isValid = false;
@@ -328,8 +331,6 @@ bool LLSyntaxIdLSL::isSupportedVersion(const LLSD& content)
 	 * If the schema used to store LSL keywords and hints changes, this value is incremented
 	 * Note that it should _not_ be changed if the keywords and hints _content_ changes.
 	 */
-	const U32         LLSD_SYNTAX_LSL_VERSION_EXPECTED = 2;
-	const std::string LLSD_SYNTAX_LSL_VERSION_KEY("llsd-lsl-syntax-version");
 
 	if (content.has(LLSD_SYNTAX_LSL_VERSION_KEY))
 	{
@@ -354,8 +355,7 @@ bool LLSyntaxIdLSL::isSupportedVersion(const LLSD& content)
 //-----------------------------------------------------------------------------
 void LLSyntaxIdLSL::loadDefaultKeywordsIntoLLSD()
 {
-	LL_INFOS("SyntaxLSL")
-			<< "LSLSyntaxId is null so we will use the default file!" << LL_ENDL;
+	LL_INFOS("SyntaxLSL") << "LSLSyntaxId is null so we will use the default file!" << LL_ENDL;
 	mSyntaxIdNew = LLUUID();
 	buildFullFileSpec();
 	loadKeywordsIntoLLSD();
@@ -372,9 +372,7 @@ void LLSyntaxIdLSL::loadDefaultKeywordsIntoLLSD()
  */
 void LLSyntaxIdLSL::loadKeywordsIntoLLSD()
 {
-	LL_INFOS("SyntaxLSL")
-			<< "Trying to open cached or default keyword file ;-)"
-			<< LL_ENDL;
+	LL_INFOS("SyntaxLSL") << "Trying to open cached or default keyword file" << LL_ENDL;
 
 	// Is this the right thing to do, or should we leave the old content
 	// even if it isn't entirely accurate anymore?
@@ -388,9 +386,7 @@ void LLSyntaxIdLSL::loadKeywordsIntoLLSD()
 		sLoaded = (bool)LLSDSerialize::fromXML(content, file);
 		if (!sLoaded)
 		{
-			LL_WARNS("SyntaxLSL")
-					<< "Unable to deserialise file: "
-					<< mFullFileSpec << LL_ENDL;
+			LL_WARNS("SyntaxLSL") << "Unable to deserialise file: " << mFullFileSpec << LL_ENDL;
 		}
 		else
 		{
@@ -398,15 +394,13 @@ void LLSyntaxIdLSL::loadKeywordsIntoLLSD()
 			{
 				sKeywordsXml = content;
 				sLoaded = true;
-				sInitialised = true;
-				LL_INFOS("SyntaxLSL")
-						<< "Deserialised file: " << mFullFileSpec << LL_ENDL;
+				sInitialized = true;
+				LL_INFOS("SyntaxLSL") << "Deserialised file: " << mFullFileSpec << LL_ENDL;
 			}
 			else
 			{
 				sLoaded = false;
-				LL_WARNS("SyntaxLSL")
-					<< "Unknown or unsupported version of syntax file." << LL_ENDL;
+				LL_WARNS("SyntaxLSL") << "Unknown or unsupported version of syntax file." << LL_ENDL;
 			}
 		}
 	}
@@ -420,9 +414,4 @@ void LLSyntaxIdLSL::loadKeywordsIntoLLSD()
 boost::signals2::connection LLSyntaxIdLSL::addFileFetchedCallback(const file_fetched_signal_t::slot_type& cb)
 {
 	return sFileFetchedSignal.connect(cb);
-}
-
-void LLSyntaxIdLSL::removeFileFetchedCallback(boost::signals2::connection callback)
-{
-	sFileFetchedSignal.disconnect(callback);
 }

@@ -36,23 +36,18 @@
 #include "llsingleton.h"
 #include "llviewerregion.h"
 
-
-/**
- * @file llsyntaxid.h
- * @brief Tracks the file needed to decorate the current sim's version of LSL.
- */
-class LLSyntaxIdLSL: public LLSingleton<LLSyntaxIdLSL>
+class LLSyntaxIdLSL : public LLSingleton<LLSyntaxIdLSL>
 {
 friend class fetchKeywordsFileResponder;
 public:
 	typedef boost::signals2::signal<void()> file_fetched_signal_t;
 
-	static const std::string	CAPABILITY_NAME;
-	static const std::string	FILENAME_DEFAULT;
-	static const std::string	SIMULATOR_FEATURE;
+	static const std::string CAPABILITY_NAME;
+	static const std::string FILENAME_DEFAULT;
+	static const std::string SIMULATOR_FEATURE;
 
 protected:
-	static bool		sInitialised;
+	static bool		sInitialized;
 	static LLSD		sKeywordsXml;
 	static bool		sLoaded;
 	static bool		sLoadFailed;
@@ -75,7 +70,7 @@ private:
 
 public:
 	LLSyntaxIdLSL();
-	LLSyntaxIdLSL(std::string filenameDefault, std::string simFeatureName, std::string capabilityName);
+	LLSyntaxIdLSL(const std::string& filename, const std::string& sim_feature, const std::string& capability);
 
 	bool			checkSyntaxIdChanged();
 	bool			fetching();
@@ -85,16 +80,15 @@ public:
 	LLSD			getKeywordsXML()		const { return sKeywordsXml; }
 	LLUUID			getSyntaxId()			const { return mSyntaxIdCurrent; }
 	bool			isDifferentVersion()	const { return sVersionChanged; }
-	bool			isInitialised()			const { return sInitialised; }
+	bool			isInitialized()			const { return sInitialized; }
 
-	void			initialise();
+	void			initialize();
 	bool			isLoaded() { return sLoaded; }
 
 	static bool		isSupportedVersion(const LLSD& content);
 	static void		setKeywordsXml(const LLSD& content) { sKeywordsXml = content; }
 
 	boost::signals2::connection		addFileFetchedCallback(const file_fetched_signal_t::slot_type& cb);
-	void							removeFileFetchedCallback(boost::signals2::connection callback);
 
 
 protected:
@@ -104,16 +98,12 @@ protected:
 	void			loadDefaultKeywordsIntoLLSD();
 	void			loadKeywordsIntoLLSD();
 	void			setSyntaxId(LLUUID SyntaxId) { mSyntaxIdCurrent = SyntaxId; }
-	void			setFileNameCurrent(std::string& name) { mFileNameCurrent = name; }
-	void			setFileNameDefault(std::string& name) { mFileNameDefault = name; }
-	void			setFileNameNew(std::string name) { mFileNameNew = name; }
+	void			setFileNameCurrent(const std::string& name) { mFileNameCurrent = name; }
+	void			setFileNameDefault(const std::string& name) { mFileNameDefault = name; }
+	void			setFileNameNew(const std::string name) { mFileNameNew = name; }
 };
 
 
-/**
- * @file  llsyntaxid.h
- * @brief Handles responses for the LSLSyntax capability's get call. Is a friend of LLSyntaxIdLSL
- */
 class fetchKeywordsFileResponder : public LLHTTPClient::Responder
 {
 public:

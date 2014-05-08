@@ -76,7 +76,7 @@ protected:
 public:
 	~LLScriptEdCore();
 	
-	void			initialiseKeywords();
+	void			initializeKeywords();
 	void			initMenu();
 	void			processKeywords();
 	void			processLoaded();
@@ -155,7 +155,6 @@ private:
 	BOOL			mEnableSave;
 	BOOL			mHasScriptData;
 	LLLiveLSLFile*	mLiveFile;
-	LLSyntaxIdLSL	mSyntaxIdLSL;
 
 	LLScriptEdContainer* mContainer; // parent view
 

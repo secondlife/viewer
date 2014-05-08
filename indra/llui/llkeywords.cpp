@@ -82,7 +82,7 @@ LLKeywords::~LLKeywords()
 	mDelimiterTokenList.clear();
 }
 
-void LLKeywords::addColorGroup(const std::string key_in, const LLColor4 color)
+void LLKeywords::addColorGroup(const std::string& key_in, const LLColor4& color)
 {
 	WStringMapIndex key ( utf8str_to_wstring(key_in) );
 	mColorGroupMap[key] = color;
@@ -176,82 +176,82 @@ std::string LLKeywords::getAttribute(const std::string& key)
 	return (it != mAttributes.end()) ? it->second : "";
 }
 
-LLColor4 LLKeywords::getColorGroup(const std::string key_in)
+LLColor4 LLKeywords::getColorGroup(const std::string& key_in)
 {
-	std::string ColourGroup = "Black";
+	std::string color_group = "Black";
 	if (key_in == "constants-float")
 	{
-		ColourGroup = "SyntaxLslConstantFloat";
+		color_group = "SyntaxLslConstantFloat";
 	}
 	else if (key_in == "constants-integer")
 	{
-		ColourGroup = "SyntaxLslConstantInteger";
+		color_group = "SyntaxLslConstantInteger";
 	}
 	else if (key_in == "constants-key")
 	{
-		ColourGroup = "SyntaxLslConstantKey";
+		color_group = "SyntaxLslConstantKey";
 	}
 	else if (key_in == "constants-rotation")
 	{
-		ColourGroup = "SyntaxLslConstantRotation";
+		color_group = "SyntaxLslConstantRotation";
 	}
 	else if (key_in == "constants-string")
 	{
-		ColourGroup = "SyntaxLslConstantString";
+		color_group = "SyntaxLslConstantString";
 	}
 	else if (key_in == "constants-vector")
 	{
-		ColourGroup = "SyntaxLslConstantVector";
+		color_group = "SyntaxLslConstantVector";
 	}
 	else if (key_in == "misc-flow-label")
 	{
-		ColourGroup = "SyntaxLslControlFlow";
+		color_group = "SyntaxLslControlFlow";
 	}
 	else if (key_in =="deprecated")
 	{
-		ColourGroup = "SyntaxLslDeprecated";
+		color_group = "SyntaxLslDeprecated";
 	}
 	else if (key_in == "events")
 	{
-		ColourGroup = "SyntaxLslEvent";
+		color_group = "SyntaxLslEvent";
 	}
 	else if (key_in == "functions")
 	{
-		ColourGroup = "SyntaxLslFunction";
+		color_group = "SyntaxLslFunction";
 	}
 	else if (key_in =="god-mode")
 	{
-		ColourGroup = "SyntaxLslGodMode";
+		color_group = "SyntaxLslGodMode";
 	}
 	else if (key_in == "types")
 	{
-		ColourGroup = "SyntaxLslDataType";
+		color_group = "SyntaxLslDataType";
 	}
 	else if (key_in == "sections")
 	{
-		ColourGroup = "SyntaxLslSection";
+		color_group = "SyntaxLslSection";
 	}
 	else if (key_in == "misc-double_quotation_marks")
 	{
-		ColourGroup = "SyntaxLslStringLiteral";
+		color_group = "SyntaxLslStringLiteral";
 	}
 	else if (key_in == "misc-comments_1_sided")
 	{
-		ColourGroup = "SyntaxLslComment1Sided";
+		color_group = "SyntaxLslComment1Sided";
 	}
 	else if (key_in == "misc-comments_2_sided")
 	{
-		ColourGroup = "SyntaxLslComment2Sided";	
+		color_group = "SyntaxLslComment2Sided";	
 	}
 	else
 	{
 		LL_WARNS("SyntaxLSL") << "Color key '" << key_in << "' not recognized!" << LL_ENDL;
 	}
 
-	return LLUIColorTable::instance().getColor(ColourGroup);
+	return LLUIColorTable::instance().getColor(color_group);
 }
 
-void LLKeywords::initialise(LLSD SyntaxXML)
+void LLKeywords::initialize(LLSD SyntaxXML)
 {
 	mSyntax = SyntaxXML;
 	mLoaded = true;
@@ -271,107 +271,107 @@ void LLKeywords::processTokens()
 	addToken(LLKeywordToken::TT_TWO_SIDED_DELIMITER, "/*", getColorGroup("misc-comments_2_sided"), "Comment (multi-line)\nNon-functional commentary or disabled code", "*/" );
 	addToken(LLKeywordToken::TT_DOUBLE_QUOTATION_MARKS, "\"", getColorGroup("misc-double_quotation_marks"), "String literal", "\"" );
 
-	LLSD::map_iterator outerIt = mSyntax.beginMap();
-	for ( ; outerIt != mSyntax.endMap(); ++outerIt)
+	LLSD::map_iterator itr = mSyntax.beginMap();
+	for ( ; itr != mSyntax.endMap(); ++itr)
 	{
-		if (outerIt->first == "llsd-lsl-syntax-version")
+		if (itr->first == "llsd-lsl-syntax-version")
 		{
 			// Skip over version key.
 		}
 		else
 		{
-			if (outerIt->second.isMap())
+			if (itr->second.isMap())
 			{
-				processTokensGroup(outerIt->second, outerIt->first);
+				processTokensGroup(itr->second, itr->first);
 			}
 			else
 			{
-				LL_WARNS("LSL-Tokens-Processing") << "Map for " + outerIt->first + " entries is missing! Ignoring." << LL_ENDL;
+				LL_WARNS("LSL-Tokens-Processing") << "Map for " + itr->first + " entries is missing! Ignoring." << LL_ENDL;
 			}
 		}
 	}
 	LL_INFOS("SyntaxLSL") << "Finished processing tokens." << LL_ENDL;
 }
 
-void LLKeywords::processTokensGroup(LLSD& Tokens, const std::string Group)
+void LLKeywords::processTokensGroup(const LLSD& tokens, const std::string& group)
 {
-	LLColor4 Color;
-	LLColor4 ColorGroup;
-	LLColor4 ColorDeprecated = getColorGroup("deprecated");
-	LLColor4 ColorGM = getColorGroup("god-mode");
+	LLColor4 color;
+	LLColor4 color_group;
+	LLColor4 color_deprecated = getColorGroup("deprecated");
+	LLColor4 color_god_mode = getColorGroup("god-mode");
 
 	LLKeywordToken::ETokenType token_type = LLKeywordToken::TT_UNKNOWN;
 	// If a new token type is added here, it must also be added to the 'addToken' method
-	if (Group == "constants")
+	if (group == "constants")
 	{
 		token_type = LLKeywordToken::TT_CONSTANT;
 	}
-	else if (Group == "controls")
+	else if (group == "controls")
 	{
 		token_type = LLKeywordToken::TT_CONTROL;
 	}
-	else if (Group == "events")
+	else if (group == "events")
 	{
 		token_type = LLKeywordToken::TT_EVENT;
 	}
-	else if (Group == "functions")
+	else if (group == "functions")
 	{
 		token_type = LLKeywordToken::TT_FUNCTION;
 	}
-	else if (Group == "label")
+	else if (group == "label")
 	{
 		token_type = LLKeywordToken::TT_LABEL;
 	}
-	else if (Group == "types")
+	else if (group == "types")
 	{
 		token_type = LLKeywordToken::TT_TYPE;
 	}
 
-	ColorGroup = getColorGroup(Group);
-	LL_INFOS("Tokens") << "Group: '" << Group << "', using colour: '" << ColorGroup << "'" << LL_ENDL;
+	color_group = getColorGroup(group);
+	LL_INFOS("Tokens") << "Group: '" << group << "', using color: '" << color_group << "'" << LL_ENDL;
 
-	if (Tokens.isMap())
+	if (tokens.isMap())
 	{
-		LLSD::map_iterator outerIt = Tokens.beginMap();
-		for ( ; outerIt != Tokens.endMap(); ++outerIt)
+		LLSD::map_const_iterator outer_itr = tokens.beginMap();
+		for ( ; outer_itr != tokens.endMap(); ++outer_itr)
 		{
-			if (outerIt->second.isMap())
+			if (outer_itr->second.isMap())
 			{
 				mAttributes.clear();
-				LLSD arguments = LLSD ();
-				LLSD::map_iterator innerIt = outerIt->second.beginMap();
-				for ( ; innerIt != outerIt->second.endMap(); ++innerIt)
+				LLSD arguments = LLSD();
+				LLSD::map_const_iterator inner_itr = outer_itr->second.beginMap();
+				for ( ; inner_itr != outer_itr->second.endMap(); ++inner_itr)
 				{
-					if (innerIt->first == "arguments")
+					if (inner_itr->first == "arguments")
 					{ 
-						if (innerIt->second.isArray())
+						if (inner_itr->second.isArray())
 						{
-							arguments = innerIt->second;
+							arguments = inner_itr->second;
 						}
 					}
-					else if (!innerIt->second.isMap() && !innerIt->second.isArray())
+					else if (!inner_itr->second.isMap() && !inner_itr->second.isArray())
 					{
-						mAttributes[innerIt->first] = innerIt->second.asString();
+						mAttributes[inner_itr->first] = inner_itr->second.asString();
 					}
 					else
 					{
-						LL_WARNS("SyntaxLSL") << "Not a valid attribute: " << innerIt->first << LL_ENDL;
+						LL_WARNS("SyntaxLSL") << "Not a valid attribute: " << inner_itr->first << LL_ENDL;
 					}
 				}
 
 				std::string tooltip = "";
 				if (token_type == LLKeywordToken::TT_CONSTANT)
 				{
-					ColorGroup = getColorGroup(Group + "-" + getAttribute("type"));
+					color_group = getColorGroup(group + "-" + getAttribute("type"));
 					tooltip = "Type: " + getAttribute("type") + ", Value: " + getAttribute("value");
 				}
 				else if (token_type == LLKeywordToken::TT_EVENT)
 				{
-					tooltip = outerIt->first + "(" + getArguments(arguments) + ")";
+					tooltip = outer_itr->first + "(" + getArguments(arguments) + ")";
 				}
 				else if (token_type == LLKeywordToken::TT_FUNCTION)
 				{
-					tooltip = getAttribute("return") + " " + outerIt->first + "(" + getArguments(arguments) + ");";
+					tooltip = getAttribute("return") + " " + outer_itr->first + "(" + getArguments(arguments) + ");";
 					tooltip += "\nEnergy: ";
 					tooltip += getAttribute("energy") == "" ? "0.0" : getAttribute("energy");
 					if (getAttribute("sleep") != "")
@@ -389,28 +389,28 @@ void LLKeywords::processTokensGroup(LLSD& Tokens, const std::string Group)
 					tooltip += getAttribute("tooltip");
 				}
 
-				Color = getAttribute("deprecated") == "true" ? ColorDeprecated : ColorGroup;
+				color = getAttribute("deprecated") == "true" ? color_deprecated : color_group;
 
 				if (getAttribute("god-mode") == "true")
 				{
-					Color = ColorGM;
+					color = color_god_mode;
 				}
 
-				addToken(token_type, outerIt->first, Color, tooltip);
+				addToken(token_type, outer_itr->first, color, tooltip);
 			}
 		}
 	}
-	else if (Tokens.isArray())	// Currently nothing should need this, but it's here for completeness
+	else if (tokens.isArray())	// Currently nothing should need this, but it's here for completeness
 	{
-		LL_INFOS("SyntaxLSL") << "Curious, shouldn't be an array here; adding all using color " << Color << LL_ENDL;
-		for (int count = 0; count < Tokens.size(); ++count)
+		LL_INFOS("SyntaxLSL") << "Curious, shouldn't be an array here; adding all using color " << color << LL_ENDL;
+		for (int count = 0; count < tokens.size(); ++count)
 		{
-			addToken(token_type, Tokens[count], Color, "");
+			addToken(token_type, tokens[count], color, "");
 		}
 	}
 	else
 	{
-		LL_WARNS("Tokens") << "Invalid map/array passed: '" << Tokens << "'" << LL_ENDL;
+		LL_WARNS("Tokens") << "Invalid map/array passed: '" << tokens << "'" << LL_ENDL;
 	}
 }
 
@@ -511,11 +511,11 @@ LLColor4 LLKeywords::readColor(LLSD& sd)
 {
 	if (sd.isArray())
 	{
-		return LLColor4 (sd, 1.f);
+		return LLColor4(sd, 1.f);
 	}
 	else if (sd.isMap())
 	{
-		return LLColor4 ( sd.get("x").asReal(), sd.get("y").asReal(), sd.get("z").asReal(), 1.f );
+		return LLColor4( sd.get("x").asReal(), sd.get("y").asReal(), sd.get("z").asReal(), 1.f );
 	}
 	else
 	{

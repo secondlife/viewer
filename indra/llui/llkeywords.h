@@ -109,13 +109,13 @@ public:
 	LLKeywords();
 	~LLKeywords();
 
-	void		addColorGroup(const std::string key_in, const LLColor4 color);
+	void		addColorGroup(const std::string& key_in, const LLColor4& color);
 	void		clearLoaded() { mLoaded = false; }
-	LLColor4	getColorGroup(const std::string key_in);
+	LLColor4	getColorGroup(const std::string& key_in);
 	bool		isLoaded() const	{ return mLoaded; }
 
 	void		findSegments(std::vector<LLTextSegmentPtr> *seg_list, const LLWString& text, const LLColor4 &defaultColor, class LLTextEditor& editor );
-	void		initialise(LLSD SyntaxXML);
+	void		initialize(LLSD SyntaxXML);
 	void		processTokens();
 
 	// Add the token as described
@@ -167,7 +167,7 @@ public:
 #endif
 
 protected:
-	void		processTokensGroup(LLSD& Tokens, const std::string Group);
+	void		processTokensGroup(const LLSD& Tokens, const std::string& Group);
 	LLColor4	readColor(const std::string& s);
 	LLColor4	readColor(LLSD& sd);
 	void		insertSegment(std::vector<LLTextSegmentPtr>& seg_list, LLTextSegmentPtr new_segment, S32 text_len, const LLColor4 &defaultColor, class LLTextEditor& editor);
