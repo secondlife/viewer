@@ -179,7 +179,7 @@ public:
 
 	/*virtual*/ bool getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const
 	{
-		if (num_chars == 0)
+		if (num_chars == 0 || !mImage)
 		{
 			width = 0;
 			height = 0;
