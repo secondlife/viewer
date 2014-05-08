@@ -2754,7 +2754,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
             {
                 update_marketplace_category(from_folder_uuid);
                 // Clear the folder from the marketplace in case it was a listing folder (moot if not listed)
-                LLMarketplaceData::instance().deleteListing(cat_id);
+                LLMarketplaceData::instance().clearListing(cat_id);
             }
 		}
 	}
@@ -3215,7 +3215,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 	}
     else if ("marketplace_disassociate_listing" == action)
     {
-        LLMarketplaceData::instance().deleteListing(mUUID);
+        LLMarketplaceData::instance().clearListing(mUUID);
 		return;
     }
 	else if ("marketplace_associate_listing" == action)
@@ -3532,7 +3532,7 @@ void LLFolderBridge::pasteFromClipboard()
 						if (vicat)
 						{
                             // Clear the cut folder from the marketplace if it was a listing folder (moot if not listed)
-                            LLMarketplaceData::instance().deleteListing(item_id);
+                            LLMarketplaceData::instance().clearListing(item_id);
                             if (move_is_into_marketplacelistings)
                             {
                                 move_folder_to_marketplacelistings(vicat, parent_id);

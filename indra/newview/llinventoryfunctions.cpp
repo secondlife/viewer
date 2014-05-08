@@ -167,8 +167,8 @@ void update_marketplace_category(const LLUUID& cur_uuid)
             {
                 // *TODO : Confirm with Producer that this is what we want to happen in that case!
                 llinfos << "Merov : Unlist as the version folder is not under the listing folder anymore!!" << llendl;
-                LLMarketplaceData::instance().setVersionFolderID(listing_uuid, LLUUID::null);
-                LLMarketplaceData::instance().setActivation(listing_uuid, false);
+                LLMarketplaceData::instance().setVersionFolder(listing_uuid, LLUUID::null);
+                LLMarketplaceData::instance().activateListing(listing_uuid, false);
             }
         }
     
@@ -181,7 +181,7 @@ void update_marketplace_category(const LLUUID& cur_uuid)
         {
             // *TODO : Confirm with Producer that this is what we want to happen in that case!
             llinfos << "Merov : Disassociate as the listing folder is not under the marketplace folder anymore!!" << llendl;
-            LLMarketplaceData::instance().deleteListing(cur_uuid);
+            LLMarketplaceData::instance().clearListing(cur_uuid);
         }
     }
 

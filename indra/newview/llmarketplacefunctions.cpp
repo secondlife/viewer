@@ -1049,6 +1049,26 @@ bool LLMarketplaceData::createListing(const LLUUID& folder_id)
     return true;
 }
 
+bool LLMarketplaceData::clearListing(const LLUUID& folder_id)
+{
+    // Folder id can be the root of the listing or not so we need to retrieve the root first
+    S32 depth = depth_nesting_in_marketplace(folder_id);
+    LLUUID listing_uuid = nested_parent_id(folder_id, depth);
+    S32 listing_id = getListingID(listing_uuid);
+    if (listing_id == 0)
+    {
+        // Listing doesn't exists -> exit with error
+        return false;
+    }
+    
+    // Update the SLM Server so that this listing is not active anymore
+    // *TODO : use deleteSLMListing()
+    deleteListing(listing_uuid);
+    updateSLMListing(listing_uuid, listing_id, LLUUID::null, false);
+    
+    return true;
+}
+
 bool LLMarketplaceData::activateListing(const LLUUID& folder_id, bool activate)
 {
     // Folder id can be the root of the listing or not so we need to retrieve the root first
@@ -1126,8 +1146,8 @@ bool LLMarketplaceData::deleteListing(const LLUUID& folder_id)
         // Listing doesn't exist -> exit with error
         return false;
     }
-    // *TODO : Implement SLM API for deleting SLM records once it exists there...
 	mMarketplaceItems.erase(folder_id);
+
     update_marketplace_category(folder_id);
     gInventory.notifyObservers();
     return true;
