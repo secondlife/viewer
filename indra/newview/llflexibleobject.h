@@ -100,7 +100,7 @@ private:
 		const LLMatrix4& getWorldMatrix(LLXformMatrix* xform) const;
 		void updateRelativeXform(bool force_identity);
 		void doFlexibleUpdate(); // Called to update the simulation
-		void doFlexibleRebuild(); // Called to rebuild the geometry
+		void doFlexibleRebuild(bool rebuild_volume); // Called to rebuild the geometry
 		void preRebuild();
 
 		//void				setAttributes( LLFlexibleObjectData );

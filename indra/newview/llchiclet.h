@@ -825,13 +825,13 @@ T* LLChicletPanel::createChiclet(const LLUUID& session_id, S32 index)
 	T* chiclet = LLUICtrlFactory::create<T>(params);
 	if(!chiclet)
 	{
-		llwarns << "Could not create chiclet" << llendl;
+		LL_WARNS() << "Could not create chiclet" << LL_ENDL;
 		return NULL;
 	}
 	if(!addChiclet(chiclet, index))
 	{
 		delete chiclet;
-		llwarns << "Could not add chiclet to chiclet panel" << llendl;
+		LL_WARNS() << "Could not add chiclet to chiclet panel" << LL_ENDL;
 		return NULL;
 	}
 
@@ -871,7 +871,7 @@ T* LLChicletPanel::findChiclet(const LLUUID& im_session_id)
 			T* result = dynamic_cast<T*>(chiclet);
 			if(!result)
 			{
-				llwarns << "Found chiclet but of wrong type " << llendl;
+				LL_WARNS() << "Found chiclet but of wrong type " << LL_ENDL;
 				continue;
 			}
 			return result;
@@ -891,7 +891,7 @@ template<class T> T* LLChicletPanel::getChiclet(S32 index)
 	T*result = dynamic_cast<T*>(chiclet);
 	if(!result && chiclet)
 	{
-		llwarns << "Found chiclet but of wrong type " << llendl;
+		LL_WARNS() << "Found chiclet but of wrong type " << LL_ENDL;
 	}
 	return result;
 }

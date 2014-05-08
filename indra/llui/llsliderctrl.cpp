@@ -403,7 +403,7 @@ void LLSliderCtrl::setPrecision(S32 precision)
 {
 	if (precision < 0 || precision > 10)
 	{
-		llerrs << "LLSliderCtrl::setPrecision - precision out of range" << llendl;
+		LL_ERRS() << "LLSliderCtrl::setPrecision - precision out of range" << LL_ENDL;
 		return;
 	}
 

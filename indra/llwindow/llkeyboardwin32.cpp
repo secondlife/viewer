@@ -28,10 +28,7 @@
 
 #include "linden_common.h"
 
-#define WIN32_LEAN_AND_MEAN
-#include <winsock2.h>
-#include <windows.h>
-
+#include "llwin32headerslean.h"
 #include "llkeyboardwin32.h"
 
 #include "llwindowcallbacks.h"
@@ -269,7 +266,7 @@ void LLKeyboardWin32::scanKeyboard()
 				// keydown in highest bit
 				if (!pending_key_events && !(GetAsyncKeyState(virtual_key) & 0x8000))
 				{
- 					//llinfos << "Key up event missed, resetting" << llendl;
+ 					//LL_INFOS() << "Key up event missed, resetting" << LL_ENDL;
 					mKeyLevel[key] = FALSE;
 				}
 			}

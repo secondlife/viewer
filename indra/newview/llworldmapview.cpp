@@ -302,8 +302,8 @@ void LLWorldMapView::draw()
 	mVisibleRegions.clear();
 
 	// animate pan if necessary
-	sPanX = lerp(sPanX, sTargetPanX, LLCriticalDamp::getInterpolant(0.1f));
-	sPanY = lerp(sPanY, sTargetPanY, LLCriticalDamp::getInterpolant(0.1f));
+	sPanX = lerp(sPanX, sTargetPanX, LLSmoothInterpolation::getInterpolant(0.1f));
+	sPanY = lerp(sPanY, sTargetPanY, LLSmoothInterpolation::getInterpolant(0.1f));
 
 	const S32 width = getRect().getWidth();
 	const S32 height = getRect().getHeight();
@@ -1713,7 +1713,7 @@ BOOL LLWorldMapView::handleHover( S32 x, S32 y, MASK mask )
 		{
 			gViewerWindow->setCursor( UI_CURSOR_CROSS );
 		}
-		lldebugst(LLERR_USER_INPUT) << "hover handled by LLWorldMapView" << llendl;		
+		LL_DEBUGS("UserInput") << "hover handled by LLWorldMapView" << LL_ENDL;		
 		return TRUE;
 	}
 }

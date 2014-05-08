@@ -29,20 +29,14 @@
 
 #include "llinitparam.h"
 #include "llregistry.h"
-#include "llpointer.h"
+#include "llxmlnode.h"
 
 #include <boost/function.hpp>
 #include <iosfwd>
 #include <stack>
 #include <set>
 
-
-
 class LLView;
-
-
-typedef LLPointer<class LLXMLNode> LLXMLNodePtr;
-
 
 // lookup widget type by name
 class LLWidgetTypeRegistry
@@ -59,8 +53,6 @@ class LLChildRegistryRegistry
 : public LLRegistrySingleton<const std::type_info*, widget_registry_t, LLChildRegistryRegistry>
 {};
 
-
-
 class LLXSDWriter : public LLInitParam::Parser
 {
 	LOG_CLASS(LLXSDWriter);
@@ -70,6 +62,7 @@ public:
 	/*virtual*/ std::string getCurrentElementName() { return LLStringUtil::null; }
 
 	LLXSDWriter();
+	~LLXSDWriter();
 
 protected:
 	void writeAttribute(const std::string& type, const Parser::name_stack_t&, S32 min_count, S32 max_count, const std::vector<std::string>* possible_values);
@@ -109,9 +102,26 @@ public:
 	/*virtual*/ void parserError(const std::string& message);
 
 	void readXUI(LLXMLNodePtr node, LLInitParam::BaseBlock& block, const std::string& filename = LLStringUtil::null, bool silent=false);
-	void writeXUI(LLXMLNodePtr node, const LLInitParam::BaseBlock& block, const LLInitParam::BaseBlock* diff_block = NULL);
+	template<typename BLOCK>
+	void writeXUI(LLXMLNodePtr node, 
+				const BLOCK& block, 
+				const LLInitParam::predicate_rule_t rules = LLInitParam::default_parse_rules(),
+				const LLInitParam::BaseBlock* diff_block = NULL)
+	{
+		if (!diff_block 
+			&& !rules.isAmbivalent(LLInitParam::HAS_DEFAULT_VALUE))
+		{
+			diff_block = &LLInitParam::defaultValue<BLOCK>();
+		}
+		writeXUIImpl(node, block, rules, diff_block);
+	}
 
 private:
+	LLXUIParser(const LLXUIParser& other); // no-copy
+	void writeXUIImpl(LLXMLNodePtr node, 
+		const LLInitParam::BaseBlock& block, 
+		const LLInitParam::predicate_rule_t rules, 
+		const LLInitParam::BaseBlock* diff_block);
 	bool readXUIImpl(LLXMLNodePtr node, LLInitParam::BaseBlock& block);
 	bool readAttributes(LLXMLNodePtr nodep, LLInitParam::BaseBlock& block);
 

@@ -32,6 +32,7 @@
 #include "lluicolor.h"
 #include "llstyle.h"
 
+#include "llavatarname.h"
 #include "llhost.h" // for resolving parcel name by parcel id
 
 #include <boost/signals2.hpp>

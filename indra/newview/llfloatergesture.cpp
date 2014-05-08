@@ -400,9 +400,9 @@ bool LLFloaterGesture::isActionEnabled(const LLSD& command)
 		if(!LLClipboard::instance().hasContents())
 			return false;
 
-		LLDynamicArray<LLUUID> ids;
+		std::vector<LLUUID> ids;
 		LLClipboard::instance().pasteFromClipboard(ids);
-		for(LLDynamicArray<LLUUID>::iterator it = ids.begin(); it != ids.end(); it++)
+		for(std::vector<LLUUID>::iterator it = ids.begin(); it != ids.end(); it++)
 		{
 			LLInventoryItem* item = gInventory.getItem(*it);
 			
@@ -514,7 +514,7 @@ void LLFloaterGesture::onCopyPasteAction(const LLSD& command)
 	}
 	else if ("paste" == command_name)
 	{
-		LLDynamicArray<LLUUID> ids;
+		std::vector<LLUUID> ids;
 		LLClipboard::instance().pasteFromClipboard(ids);
 		if(ids.empty() || !gInventory.isCategoryComplete(mGestureFolderID))
 			return;
@@ -522,7 +522,7 @@ void LLFloaterGesture::onCopyPasteAction(const LLSD& command)
 		llassert(gesture_dir);
 		LLPointer<GestureCopiedCallback> cb = new GestureCopiedCallback(this);
 
-		for(LLDynamicArray<LLUUID>::iterator it = ids.begin(); it != ids.end(); it++)
+		for(std::vector<LLUUID>::iterator it = ids.begin(); it != ids.end(); it++)
 		{
 			LLInventoryItem* item = gInventory.getItem(*it);
 			if(gesture_dir && item && item->getInventoryType() == LLInventoryType::IT_GESTURE)

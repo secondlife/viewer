@@ -208,7 +208,7 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 :	LLFloater(LLSD()),
 	mOwner( owner ),
 	mImageAssetID( owner->getImageAssetID() ),
-	mFallbackImage( fallback_image ),	
+	mFallbackImage( fallback_image ),
 	mOriginalImageAssetID(owner->getImageAssetID()),
 	mLabel(label),
 	mTentativeLabel(NULL),
@@ -355,7 +355,7 @@ BOOL LLFloaterTexturePicker::handleDragAndDrop(
 	}
 
 	handled = TRUE;
-	lldebugst(LLERR_USER_INPUT) << "dragAndDrop handled by LLFloaterTexturePicker " << getName() << llendl;
+	LL_DEBUGS("UserInput") << "dragAndDrop handled by LLFloaterTexturePicker " << getName() << LL_ENDL;
 
 	return handled;
 }
@@ -549,11 +549,11 @@ void LLFloaterTexturePicker::draw()
 
 	if (gFocusMgr.childHasMouseCapture(getDragHandle()))
 	{
-		mContextConeOpacity = lerp(mContextConeOpacity, gSavedSettings.getF32("PickerContextOpacity"), LLCriticalDamp::getInterpolant(CONTEXT_FADE_TIME));
+		mContextConeOpacity = lerp(mContextConeOpacity, gSavedSettings.getF32("PickerContextOpacity"), LLSmoothInterpolation::getInterpolant(CONTEXT_FADE_TIME));
 	}
 	else
 	{
-		mContextConeOpacity = lerp(mContextConeOpacity, 0.f, LLCriticalDamp::getInterpolant(CONTEXT_FADE_TIME));
+		mContextConeOpacity = lerp(mContextConeOpacity, 0.f, LLSmoothInterpolation::getInterpolant(CONTEXT_FADE_TIME));
 	}
 
 	updateImageStats();
@@ -667,10 +667,10 @@ const LLUUID& LLFloaterTexturePicker::findItemID(const LLUUID& asset_id, BOOL co
 							LLInventoryModel::INCLUDE_TRASH,
 							asset_id_matches);
 
-	if (items.count())
+	if (items.size())
 	{
 		// search for copyable version first
-		for (S32 i = 0; i < items.count(); i++)
+		for (S32 i = 0; i < items.size(); i++)
 		{
 			LLInventoryItem* itemp = items[i];
 			LLPermissions item_permissions = itemp->getPermissions();
@@ -1342,9 +1342,9 @@ void LLTextureCtrl::onFloaterCommit(ETexturePickOp op, LLUUID id)
 			else
 			{
 			mImageItemID = floaterp->findItemID(floaterp->getAssetID(), FALSE);
-			lldebugs << "mImageItemID: " << mImageItemID << llendl;
+			LL_DEBUGS() << "mImageItemID: " << mImageItemID << LL_ENDL;
 			mImageAssetID = floaterp->getAssetID();
-			lldebugs << "mImageAssetID: " << mImageAssetID << llendl;
+			LL_DEBUGS() << "mImageAssetID: " << mImageAssetID << LL_ENDL;
 			}
 
 			if (op == TEXTURE_SELECT && mOnSelectCallback)
@@ -1445,7 +1445,7 @@ BOOL LLTextureCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask,
 	}
 
 	handled = TRUE;
-	lldebugst(LLERR_USER_INPUT) << "dragAndDrop handled by LLTextureCtrl " << getName() << llendl;
+	LL_DEBUGS("UserInput") << "dragAndDrop handled by LLTextureCtrl " << getName() << LL_ENDL;
 
 	return handled;
 }

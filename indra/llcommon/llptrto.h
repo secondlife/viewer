@@ -33,7 +33,6 @@
 
 #include "llpointer.h"
 #include "llrefcount.h"             // LLRefCount
-#include "llthread.h"               // LLThreadSafeRefCount
 #include <boost/type_traits/is_base_of.hpp>
 #include <boost/type_traits/remove_pointer.hpp>
 #include <boost/utility/enable_if.hpp>

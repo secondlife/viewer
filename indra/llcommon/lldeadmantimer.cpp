@@ -43,7 +43,7 @@
 //    true    true   Not allowed
 //
 LLDeadmanTimer::LLDeadmanTimer(F64 horizon, bool inc_cpu)
-	: mHorizon(time_type(llmax(horizon, F64(0.0)) * gClockFrequency)),
+	: mHorizon(time_type(llmax(horizon, F64(0.0)) * get_timer_info().mClockFrequency)),
 	  mActive(false),			// If true, a timer is running.
 	  mDone(false),				// If true, timer has completed and can be read (once)
 	  mStarted(U64L(0)),
@@ -144,8 +144,8 @@ bool LLDeadmanTimer::isExpired(time_type now, F64 & started, F64 & stopped, U64 
 		return false;
 	}
 	
-	started = mStarted * gClockFrequencyInv;
-	stopped = mStopped * gClockFrequencyInv;
+	started = mStarted * get_timer_info().mClockFrequencyInv;
+	stopped = mStopped * get_timer_info().mClockFrequencyInv;
 	count = mCount;
 	mDone = false;
 

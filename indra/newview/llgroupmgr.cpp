@@ -41,6 +41,7 @@
 #include "llui.h"
 #include "message.h"
 #include "roles_constants.h"
+#include "llhttpclient.h"
 #include "lltransactiontypes.h"
 #include "llstatusbar.h"
 #include "lleconomy.h"
@@ -50,6 +51,7 @@
 #include "llnotificationsutil.h"
 #include "lluictrlfactory.h"
 #include "lltrans.h"
+#include "llviewerregion.h"
 #include <boost/regex.hpp>
 
 #if LL_MSVC
@@ -328,7 +330,7 @@ void LLGroupMgrGroupData::setRoleData(const LLUUID& role_id, LLRoleData role_dat
 	}
 	else
 	{
-		llwarns << "Change being made to non-existant role " << role_id << llendl;
+		LL_WARNS() << "Change being made to non-existant role " << role_id << LL_ENDL;
 	}
 }
 
@@ -342,7 +344,7 @@ void LLGroupMgrGroupData::createRole(const LLUUID& role_id, LLRoleData role_data
 {
 	if (mRoleChanges.find(role_id) != mRoleChanges.end())
 	{
-		llwarns << "create role for existing role! " << role_id << llendl;
+		LL_WARNS() << "create role for existing role! " << role_id << LL_ENDL;
 	}
 	else
 	{
@@ -379,7 +381,7 @@ void LLGroupMgrGroupData::addRolePower(const LLUUID &role_id, U64 power)
 	}
 	else
 	{
-		llwarns << "addRolePower: no role data found for " << role_id << llendl;
+		LL_WARNS() << "addRolePower: no role data found for " << role_id << LL_ENDL;
 	}
 }
 
@@ -393,7 +395,7 @@ void LLGroupMgrGroupData::removeRolePower(const LLUUID &role_id, U64 power)
 	}
 	else
 	{
-		llwarns << "removeRolePower: no role data found for " << role_id << llendl;
+		LL_WARNS() << "removeRolePower: no role data found for " << role_id << LL_ENDL;
 	}
 }
 
@@ -406,7 +408,7 @@ U64 LLGroupMgrGroupData::getRolePowers(const LLUUID& role_id)
 	}
 	else
 	{
-		llwarns << "getRolePowers: no role data found for " << role_id << llendl;
+		LL_WARNS() << "getRolePowers: no role data found for " << role_id << LL_ENDL;
 		return GP_NO_POWERS;
 	}
 }
@@ -490,8 +492,8 @@ bool LLGroupMgrGroupData::changeRoleMember(const LLUUID& role_id,
 	if (ri == mRoles.end()
 		|| mi == mMembers.end() )
 	{
-		if (ri == mRoles.end()) llwarns << "LLGroupMgrGroupData::changeRoleMember couldn't find role " << role_id << llendl;
-		if (mi == mMembers.end()) llwarns << "LLGroupMgrGroupData::changeRoleMember couldn't find member " << member_id << llendl;
+		if (ri == mRoles.end()) LL_WARNS() << "LLGroupMgrGroupData::changeRoleMember couldn't find role " << role_id << LL_ENDL;
+		if (mi == mMembers.end()) LL_WARNS() << "LLGroupMgrGroupData::changeRoleMember couldn't find member " << member_id << LL_ENDL;
 		return false;
 	}
 
@@ -500,13 +502,13 @@ bool LLGroupMgrGroupData::changeRoleMember(const LLUUID& role_id,
 
 	if (!grd || !gmd)
 	{
-		llwarns << "LLGroupMgrGroupData::changeRoleMember couldn't get member or role data." << llendl;
+		LL_WARNS() << "LLGroupMgrGroupData::changeRoleMember couldn't get member or role data." << LL_ENDL;
 		return false;
 	}
 
 	if (RMC_ADD == rmc)
 	{
-		llinfos << " adding member to role." << llendl;
+		LL_INFOS() << " adding member to role." << LL_ENDL;
 		grd->addMember(member_id);
 		gmd->addRole(role_id,grd);
 
@@ -516,7 +518,7 @@ bool LLGroupMgrGroupData::changeRoleMember(const LLUUID& role_id,
 	}
 	else if (RMC_REMOVE == rmc)
 	{
-		llinfos << " removing member from role." << llendl;
+		LL_INFOS() << " removing member from role." << LL_ENDL;
 		grd->removeMember(member_id);
 		gmd->removeRole(role_id);
 
@@ -535,9 +537,9 @@ bool LLGroupMgrGroupData::changeRoleMember(const LLUUID& role_id,
 		if (it->second.mChange == rmc)
 		{
 			// Already recorded this change?  Weird.
-			llinfos << "Received duplicate change for "
+			LL_INFOS() << "Received duplicate change for "
 					<< " role: " << role_id << " member " << member_id 
-					<< " change " << (rmc == RMC_ADD ? "ADD" : "REMOVE") << llendl;
+					<< " change " << (rmc == RMC_ADD ? "ADD" : "REMOVE") << LL_ENDL;
 		}
 		else
 		{
@@ -545,7 +547,7 @@ bool LLGroupMgrGroupData::changeRoleMember(const LLUUID& role_id,
 			// If that changes this will need more logic
 			if (rmc == RMC_NONE)
 			{
-				llwarns << "changeRoleMember: existing entry with 'RMC_NONE' change! This shouldn't happen." << llendl;
+				LL_WARNS() << "changeRoleMember: existing entry with 'RMC_NONE' change! This shouldn't happen." << LL_ENDL;
 				LLRoleMemberChange rc(role_id,member_id,rmc);
 				mRoleMemberChanges[role_member] = rc;
 			}
@@ -877,12 +879,12 @@ static void formatDateString(std::string &date_string)
 // static
 void LLGroupMgr::processGroupMembersReply(LLMessageSystem* msg, void** data)
 {
-	lldebugs << "LLGroupMgr::processGroupMembersReply" << llendl;
+	LL_DEBUGS() << "LLGroupMgr::processGroupMembersReply" << LL_ENDL;
 	LLUUID agent_id;
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );
 	if (gAgent.getID() != agent_id)
 	{
-		llwarns << "Got group members reply for another agent!" << llendl;
+		LL_WARNS() << "Got group members reply for another agent!" << LL_ENDL;
 		return;
 	}
 
@@ -895,7 +897,7 @@ void LLGroupMgr::processGroupMembersReply(LLMessageSystem* msg, void** data)
 	LLGroupMgrGroupData* group_datap = LLGroupMgr::getInstance()->getGroupData(group_id);
 	if (!group_datap || (group_datap->mMemberRequestID != request_id))
 	{
-		llwarns << "processGroupMembersReply: Received incorrect (stale?) group or request id" << llendl;
+		LL_WARNS() << "processGroupMembersReply: Received incorrect (stale?) group or request id" << LL_ENDL;
 		return;
 	}
 
@@ -933,7 +935,7 @@ void LLGroupMgr::processGroupMembersReply(LLMessageSystem* msg, void** data)
 					formatDateString(online_status); // reformat for sorting, e.g. 12/25/2008 -> 2008/12/25
 				}
 				
-				//llinfos << "Member " << member_id << " has powers " << std::hex << agent_powers << std::dec << llendl;
+				//LL_INFOS() << "Member " << member_id << " has powers " << std::hex << agent_powers << std::dec << LL_ENDL;
 				LLGroupMemberData* newdata = new LLGroupMemberData(member_id, 
 																	contribution, 
 																	agent_powers, 
@@ -944,14 +946,14 @@ void LLGroupMgr::processGroupMembersReply(LLMessageSystem* msg, void** data)
 				LLGroupMgrGroupData::member_list_t::iterator mit = group_datap->mMembers.find(member_id);
 				if (mit != group_datap->mMembers.end())
 				{
-					llinfos << " *** Received duplicate member data for agent " << member_id << llendl;
+					LL_INFOS() << " *** Received duplicate member data for agent " << member_id << LL_ENDL;
 				}
 #endif
 				group_datap->mMembers[member_id] = newdata;
 			}
 			else
 			{
-				llinfos << "Received null group member data." << llendl;
+				LL_INFOS() << "Received null group member data." << LL_ENDL;
 			}
 		}
 
@@ -983,12 +985,12 @@ void LLGroupMgr::processGroupMembersReply(LLMessageSystem* msg, void** data)
 //static 
 void LLGroupMgr::processGroupPropertiesReply(LLMessageSystem* msg, void** data)
 {
-	lldebugs << "LLGroupMgr::processGroupPropertiesReply" << llendl;
+	LL_DEBUGS() << "LLGroupMgr::processGroupPropertiesReply" << LL_ENDL;
 	LLUUID agent_id;
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );
 	if (gAgent.getID() != agent_id)
 	{
-		llwarns << "Got group properties reply for another agent!" << llendl;
+		LL_WARNS() << "Got group properties reply for another agent!" << LL_ENDL;
 		return;
 	}
 
@@ -1050,12 +1052,12 @@ void LLGroupMgr::processGroupPropertiesReply(LLMessageSystem* msg, void** data)
 // static
 void LLGroupMgr::processGroupRoleDataReply(LLMessageSystem* msg, void** data)
 {
-	lldebugs << "LLGroupMgr::processGroupRoleDataReply" << llendl;
+	LL_DEBUGS() << "LLGroupMgr::processGroupRoleDataReply" << LL_ENDL;
 	LLUUID agent_id;
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );
 	if (gAgent.getID() != agent_id)
 	{
-		llwarns << "Got group role data reply for another agent!" << llendl;
+		LL_WARNS() << "Got group role data reply for another agent!" << LL_ENDL;
 		return;
 	}
 
@@ -1068,7 +1070,7 @@ void LLGroupMgr::processGroupRoleDataReply(LLMessageSystem* msg, void** data)
 	LLGroupMgrGroupData* group_datap = LLGroupMgr::getInstance()->getGroupData(group_id);
 	if (!group_datap || (group_datap->mRoleDataRequestID != request_id))
 	{
-		llwarns << "processGroupPropertiesReply: Received incorrect (stale?) group or request id" << llendl;
+		LL_WARNS() << "processGroupPropertiesReply: Received incorrect (stale?) group or request id" << LL_ENDL;
 		return;
 	}
 
@@ -1111,7 +1113,7 @@ void LLGroupMgr::processGroupRoleDataReply(LLMessageSystem* msg, void** data)
 
 
 
-		lldebugs << "Adding role data: " << name << " {" << role_id << "}" << llendl;
+		LL_DEBUGS() << "Adding role data: " << name << " {" << role_id << "}" << LL_ENDL;
 		LLGroupRoleData* rd = new LLGroupRoleData(role_id,name,title,desc,powers,member_count);
 		group_datap->mRoles[role_id] = rd;
 	}
@@ -1135,12 +1137,12 @@ void LLGroupMgr::processGroupRoleDataReply(LLMessageSystem* msg, void** data)
 // static
 void LLGroupMgr::processGroupRoleMembersReply(LLMessageSystem* msg, void** data)
 {
-	lldebugs << "LLGroupMgr::processGroupRoleMembersReply" << llendl;
+	LL_DEBUGS() << "LLGroupMgr::processGroupRoleMembersReply" << LL_ENDL;
 	LLUUID agent_id;
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );
 	if (gAgent.getID() != agent_id)
 	{
-		llwarns << "Got group role members reply for another agent!" << llendl;
+		LL_WARNS() << "Got group role members reply for another agent!" << LL_ENDL;
 		return;
 	}
 
@@ -1156,7 +1158,7 @@ void LLGroupMgr::processGroupRoleMembersReply(LLMessageSystem* msg, void** data)
 	LLGroupMgrGroupData* group_datap = LLGroupMgr::getInstance()->getGroupData(group_id);
 	if (!group_datap || (group_datap->mRoleMembersRequestID != request_id))
 	{
-		llwarns << "processGroupRoleMembersReply: Received incorrect (stale?) group or request id" << llendl;
+		LL_WARNS() << "processGroupRoleMembersReply: Received incorrect (stale?) group or request id" << LL_ENDL;
 		return;
 	}
 
@@ -1196,14 +1198,14 @@ void LLGroupMgr::processGroupRoleMembersReply(LLMessageSystem* msg, void** data)
 
 				if (rd && md)
 				{
-					lldebugs << "Adding role-member pair: " << role_id << ", " << member_id << llendl;
+					LL_DEBUGS() << "Adding role-member pair: " << role_id << ", " << member_id << LL_ENDL;
 					rd->addMember(member_id);
 					md->addRole(role_id,rd);
 				}
 				else
 				{
-					if (!rd) llwarns << "Received role data for unknown role " << role_id << " in group " << group_id << llendl;
-					if (!md) llwarns << "Received role data for unknown member " << member_id << " in group " << group_id << llendl;
+					if (!rd) LL_WARNS() << "Received role data for unknown role " << role_id << " in group " << group_id << LL_ENDL;
+					if (!md) LL_WARNS() << "Received role data for unknown member " << member_id << " in group " << group_id << LL_ENDL;
 				}
 			}
 		}
@@ -1217,7 +1219,7 @@ void LLGroupMgr::processGroupRoleMembersReply(LLMessageSystem* msg, void** data)
 		LLGroupRoleData* everyone = group_datap->mRoles[LLUUID::null];
 		if (!everyone)
 		{
-			llwarns << "Everyone role not found!" << llendl;
+			LL_WARNS() << "Everyone role not found!" << LL_ENDL;
 		}
 		else
 		{
@@ -1243,12 +1245,12 @@ void LLGroupMgr::processGroupRoleMembersReply(LLMessageSystem* msg, void** data)
 // static
 void LLGroupMgr::processGroupTitlesReply(LLMessageSystem* msg, void** data)
 {
-	lldebugs << "LLGroupMgr::processGroupTitlesReply" << llendl;
+	LL_DEBUGS() << "LLGroupMgr::processGroupTitlesReply" << LL_ENDL;
 	LLUUID agent_id;
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );
 	if (gAgent.getID() != agent_id)
 	{
-		llwarns << "Got group properties reply for another agent!" << llendl;
+		LL_WARNS() << "Got group properties reply for another agent!" << LL_ENDL;
 		return;
 	}
 
@@ -1260,7 +1262,7 @@ void LLGroupMgr::processGroupTitlesReply(LLMessageSystem* msg, void** data)
 	LLGroupMgrGroupData* group_datap = LLGroupMgr::getInstance()->getGroupData(group_id);
 	if (!group_datap || (group_datap->mTitlesRequestID != request_id))
 	{
-		llwarns << "processGroupTitlesReply: Received incorrect (stale?) group" << llendl;
+		LL_WARNS() << "processGroupTitlesReply: Received incorrect (stale?) group" << LL_ENDL;
 		return;
 	}
 
@@ -1276,7 +1278,7 @@ void LLGroupMgr::processGroupTitlesReply(LLMessageSystem* msg, void** data)
 
 		if (!title.mTitle.empty())
 		{
-			lldebugs << "LLGroupMgr adding title: " << title.mTitle << ", " << title.mRoleID << ", " << (title.mSelected ? 'Y' : 'N') << llendl;
+			LL_DEBUGS() << "LLGroupMgr adding title: " << title.mTitle << ", " << title.mRoleID << ", " << (title.mSelected ? 'Y' : 'N') << LL_ENDL;
 			group_datap->mTitles.push_back(title);
 		}
 	}
@@ -1288,7 +1290,7 @@ void LLGroupMgr::processGroupTitlesReply(LLMessageSystem* msg, void** data)
 // static
 void LLGroupMgr::processEjectGroupMemberReply(LLMessageSystem* msg, void ** data)
 {
-	lldebugs << "processEjectGroupMemberReply" << llendl;
+	LL_DEBUGS() << "processEjectGroupMemberReply" << LL_ENDL;
 	LLUUID group_id;
 	msg->getUUIDFast(_PREHASH_GroupData, _PREHASH_GroupID, group_id);
 	BOOL success;
@@ -1304,7 +1306,7 @@ void LLGroupMgr::processEjectGroupMemberReply(LLMessageSystem* msg, void ** data
 // static
 void LLGroupMgr::processJoinGroupReply(LLMessageSystem* msg, void ** data)
 {
-	lldebugs << "processJoinGroupReply" << llendl;
+	LL_DEBUGS() << "processJoinGroupReply" << LL_ENDL;
 	LLUUID group_id;
 	BOOL success;
 	msg->getUUIDFast(_PREHASH_GroupData, _PREHASH_GroupID, group_id);
@@ -1324,7 +1326,7 @@ void LLGroupMgr::processJoinGroupReply(LLMessageSystem* msg, void ** data)
 // static
 void LLGroupMgr::processLeaveGroupReply(LLMessageSystem* msg, void ** data)
 {
-	lldebugs << "processLeaveGroupReply" << llendl;
+	LL_DEBUGS() << "processLeaveGroupReply" << LL_ENDL;
 	LLUUID group_id;
 	BOOL success;
 	msg->getUUIDFast(_PREHASH_GroupData, _PREHASH_GroupID, group_id);
@@ -1486,7 +1488,7 @@ void LLGroupMgr::addGroup(LLGroupMgrGroupData* group_datap)
 
 void LLGroupMgr::sendGroupPropertiesRequest(const LLUUID& group_id)
 {
-	lldebugs << "LLGroupMgr::sendGroupPropertiesRequest" << llendl;
+	LL_DEBUGS() << "LLGroupMgr::sendGroupPropertiesRequest" << LL_ENDL;
 	// This will happen when we get the reply
 	//LLGroupMgrGroupData* group_datap = createGroupData(group_id);
 	
@@ -1502,7 +1504,7 @@ void LLGroupMgr::sendGroupPropertiesRequest(const LLUUID& group_id)
 
 void LLGroupMgr::sendGroupMembersRequest(const LLUUID& group_id)
 {
-	lldebugs << "LLGroupMgr::sendGroupMembersRequest" << llendl;
+	LL_DEBUGS() << "LLGroupMgr::sendGroupMembersRequest" << LL_ENDL;
 	LLGroupMgrGroupData* group_datap = createGroupData(group_id);
 	if (group_datap->mMemberRequestID.isNull())
 	{
@@ -1524,7 +1526,7 @@ void LLGroupMgr::sendGroupMembersRequest(const LLUUID& group_id)
 
 void LLGroupMgr::sendGroupRoleDataRequest(const LLUUID& group_id)
 {
-	lldebugs << "LLGroupMgr::sendGroupRoleDataRequest" << llendl;
+	LL_DEBUGS() << "LLGroupMgr::sendGroupRoleDataRequest" << LL_ENDL;
 	LLGroupMgrGroupData* group_datap = createGroupData(group_id);
 	if (group_datap->mRoleDataRequestID.isNull())
 	{
@@ -1545,7 +1547,7 @@ void LLGroupMgr::sendGroupRoleDataRequest(const LLUUID& group_id)
 
 void LLGroupMgr::sendGroupRoleMembersRequest(const LLUUID& group_id)
 {
-	lldebugs << "LLGroupMgr::sendGroupRoleMembersRequest" << llendl;
+	LL_DEBUGS() << "LLGroupMgr::sendGroupRoleMembersRequest" << LL_ENDL;
 	LLGroupMgrGroupData* group_datap = createGroupData(group_id);
 	
 	if (group_datap->mRoleMembersRequestID.isNull())
@@ -1555,10 +1557,10 @@ void LLGroupMgr::sendGroupRoleMembersRequest(const LLUUID& group_id)
 			|| !group_datap->isRoleDataComplete())
 		{
 			// *TODO: KLW FIXME: Should we start a member or role data request?
-			llinfos << " Pending: " << (group_datap->mPendingRoleMemberRequest ? "Y" : "N")
+			LL_INFOS() << " Pending: " << (group_datap->mPendingRoleMemberRequest ? "Y" : "N")
 				<< " MemberDataComplete: " << (group_datap->mMemberDataComplete ? "Y" : "N")
-				<< " RoleDataComplete: " << (group_datap->mRoleDataComplete ? "Y" : "N") << llendl;
-			group_datap->mPendingRoleMemberRequest = true;
+				<< " RoleDataComplete: " << (group_datap->mRoleDataComplete ? "Y" : "N") << LL_ENDL;
+			group_datap->mPendingRoleMemberRequest = TRUE;
 			return;
 		}
 
@@ -1579,7 +1581,7 @@ void LLGroupMgr::sendGroupRoleMembersRequest(const LLUUID& group_id)
 
 void LLGroupMgr::sendGroupTitlesRequest(const LLUUID& group_id)
 {
-	lldebugs << "LLGroupMgr::sendGroupTitlesRequest" << llendl;
+	LL_DEBUGS() << "LLGroupMgr::sendGroupTitlesRequest" << LL_ENDL;
 	LLGroupMgrGroupData* group_datap = createGroupData(group_id);
 	
 	group_datap->mTitles.clear();
@@ -1598,7 +1600,7 @@ void LLGroupMgr::sendGroupTitlesRequest(const LLUUID& group_id)
 
 void LLGroupMgr::sendGroupTitleUpdate(const LLUUID& group_id, const LLUUID& title_role_id)
 {
-	lldebugs << "LLGroupMgr::sendGroupTitleUpdate" << llendl;
+	LL_DEBUGS() << "LLGroupMgr::sendGroupTitleUpdate" << LL_ENDL;
 
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessage("GroupTitleUpdate");
@@ -1657,7 +1659,7 @@ void LLGroupMgr::sendCreateGroupRequest(const std::string& name,
 
 void LLGroupMgr::sendUpdateGroupInfo(const LLUUID& group_id)
 {
-	lldebugs << "LLGroupMgr::sendUpdateGroupInfo" << llendl;
+	LL_DEBUGS() << "LLGroupMgr::sendUpdateGroupInfo" << LL_ENDL;
 	LLGroupMgrGroupData* group_datap = createGroupData(group_id);
 
 	LLMessageSystem* msg = gMessageSystem;
@@ -1686,7 +1688,7 @@ void LLGroupMgr::sendUpdateGroupInfo(const LLUUID& group_id)
 
 void LLGroupMgr::sendGroupRoleMemberChanges(const LLUUID& group_id)
 {
-	lldebugs << "LLGroupMgr::sendGroupRoleMemberChanges" << llendl;
+	LL_DEBUGS() << "LLGroupMgr::sendGroupRoleMemberChanges" << LL_ENDL;
 	LLGroupMgrGroupData* group_datap = createGroupData(group_id);
 
 	if (group_datap->mRoleMemberChanges.empty()) return;
@@ -2155,7 +2157,7 @@ void LLGroupMgr::processCapGroupMembersRequest(const LLSD& content)
 
 void LLGroupMgr::sendGroupRoleChanges(const LLUUID& group_id)
 {
-	lldebugs << "LLGroupMgr::sendGroupRoleChanges" << llendl;
+	LL_DEBUGS() << "LLGroupMgr::sendGroupRoleChanges" << LL_ENDL;
 	LLGroupMgrGroupData* group_datap = getGroupData(group_id);
 
 	if (group_datap && group_datap->pendingRoleChanges())
@@ -2170,7 +2172,7 @@ void LLGroupMgr::sendGroupRoleChanges(const LLUUID& group_id)
 
 void LLGroupMgr::cancelGroupRoleChanges(const LLUUID& group_id)
 {
-	lldebugs << "LLGroupMgr::cancelGroupRoleChanges" << llendl;
+	LL_DEBUGS() << "LLGroupMgr::cancelGroupRoleChanges" << LL_ENDL;
 	LLGroupMgrGroupData* group_datap = getGroupData(group_id);
 
 	if (group_datap) group_datap->cancelRoleChanges();
@@ -2185,7 +2187,7 @@ bool LLGroupMgr::parseRoleActions(const std::string& xml_filename)
 	
 	if (!success || !root || !root->hasName( "role_actions" ))
 	{
-		llerrs << "Problem reading UI role_actions file: " << xml_filename << llendl;
+		LL_ERRS() << "Problem reading UI role_actions file: " << xml_filename << LL_ENDL;
 		return false;
 	}
 
@@ -2204,12 +2206,12 @@ bool LLGroupMgr::parseRoleActions(const std::string& xml_filename)
 		std::string action_set_name;
 		if (action_set->getAttributeString("name", action_set_name))
 		{
-			lldebugs << "Loading action set " << action_set_name << llendl;
+			LL_DEBUGS() << "Loading action set " << action_set_name << LL_ENDL;
 			role_action_data->mName = action_set_name;
 		}
 		else
 		{
-			llwarns << "Unable to parse action set with no name" << llendl;
+			LL_WARNS() << "Unable to parse action set with no name" << LL_ENDL;
 			delete role_action_set;
 			delete role_action_data;
 			continue;
@@ -2245,12 +2247,12 @@ bool LLGroupMgr::parseRoleActions(const std::string& xml_filename)
 			std::string action_name;
 			if (action->getAttributeString("name", action_name))
 			{
-				lldebugs << "Loading action " << action_name << llendl;
+				LL_DEBUGS() << "Loading action " << action_name << LL_ENDL;
 				role_action->mName = action_name;
 			}
 			else
 			{
-				llwarns << "Unable to parse action with no name" << llendl;
+				LL_WARNS() << "Unable to parse action with no name" << LL_ENDL;
 				delete role_action;
 				continue;
 			}

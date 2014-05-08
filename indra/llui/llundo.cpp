@@ -51,7 +51,7 @@ LLUndoBuffer::LLUndoBuffer( LLUndoAction (*create_func()), S32 initial_count )
 		mActions[i] = create_func();
 		if (!mActions[i])
 		{
-			llerrs << "Unable to create action for undo buffer" << llendl;
+			LL_ERRS() << "Unable to create action for undo buffer" << LL_ENDL;
 		}
 	}
 }

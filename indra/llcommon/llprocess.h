@@ -29,6 +29,7 @@
 
 #include "llinitparam.h"
 #include "llsdparam.h"
+#include "llwin32headerslean.h"
 #include "apr_thread_proc.h"
 #include <boost/shared_ptr.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
@@ -38,8 +39,7 @@
 #include <stdexcept>
 
 #if LL_WINDOWS
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>                // HANDLE (eye roll)
+#include "llwin32headerslean.h"	// for HANDLE
 #elif LL_LINUX
 #if defined(Status)
 #undef Status

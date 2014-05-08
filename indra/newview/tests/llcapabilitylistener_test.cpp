@@ -134,10 +134,10 @@ namespace tut
         std::string threw;
         try
         {
-            WrapLL_ERRS capture;
+            WrapLLErrs capture;
             regionPump.post(request);
         }
-        catch (const WrapLL_ERRS::FatalException& e)
+        catch (const WrapLLErrs::FatalException& e)
         {
             threw = e.what();
         }
@@ -181,10 +181,10 @@ namespace tut
         std::string threw;
         try
         {
-            WrapLL_ERRS capture;
+            WrapLLErrs capture;
             regionPump.post(request);
         }
-        catch (const WrapLL_ERRS::FatalException& e)
+        catch (const WrapLLErrs::FatalException& e)
         {
             threw = e.what();
         }
@@ -243,10 +243,10 @@ namespace tut
         std::string threw;
         try
         {
-            WrapLL_ERRS capture;
+            WrapLLErrs capture;
             regionPump.post(request);
         }
-        catch (const WrapLL_ERRS::FatalException& e)
+        catch (const WrapLLErrs::FatalException& e)
         {
             threw = e.what();
         }

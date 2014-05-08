@@ -43,7 +43,7 @@ LLTransferSourceFile::~LLTransferSourceFile()
 {
 	if (mFP)
 	{
-		llerrs << "Destructor called without the completion callback being called!" << llendl;
+		LL_ERRS() << "Destructor called without the completion callback being called!" << LL_ENDL;
 	}
 }
 
@@ -56,7 +56,7 @@ void LLTransferSourceFile::initTransfer()
 	   || (filename == "..")
 	   || (filename.find(delimiter[0]) != std::string::npos))
 	{
-		llwarns << "Attempting to transfer file " << filename << " with path delimiter, aborting!" << llendl;
+		LL_WARNS() << "Attempting to transfer file " << filename << " with path delimiter, aborting!" << LL_ENDL;
 
 		sendTransferStatus(LLTS_ERROR);
 		return;
@@ -88,17 +88,17 @@ LLTSCode LLTransferSourceFile::dataCallback(const S32 packet_id,
 											S32 &returned_bytes,
 											BOOL &delete_returned)
 {
-	//llinfos << "LLTransferSourceFile::dataCallback" << llendl;
+	//LL_INFOS() << "LLTransferSourceFile::dataCallback" << LL_ENDL;
 
 	if (!mFP)
 	{
-		llerrs << "Data callback without file set!" << llendl;
+		LL_ERRS() << "Data callback without file set!" << LL_ENDL;
 		return LLTS_ERROR;
 	}
 
 	if (packet_id != mLastPacketID + 1)
 	{
-		llerrs << "Can't handle out of order file transfer yet!" << llendl;
+		LL_ERRS() << "Can't handle out of order file transfer yet!" << LL_ENDL;
 	}
 
 	// Grab up until the max number of bytes from the file.
@@ -137,13 +137,13 @@ void LLTransferSourceFile::completionCallback(const LLTSCode status)
 
 void LLTransferSourceFile::packParams(LLDataPacker& dp) const
 {
-	//llinfos << "LLTransferSourceFile::packParams" << llendl;
+	//LL_INFOS() << "LLTransferSourceFile::packParams" << LL_ENDL;
 	mParams.packParams(dp);
 }
 
 BOOL LLTransferSourceFile::unpackParams(LLDataPacker &dp)
 {
-	//llinfos << "LLTransferSourceFile::unpackParams" << llendl;
+	//LL_INFOS() << "LLTransferSourceFile::unpackParams" << LL_ENDL;
 	return mParams.unpackParams(dp);
 }
 
@@ -169,6 +169,6 @@ BOOL LLTransferSourceParamsFile::unpackParams(LLDataPacker &dp)
 	dp.unpackU8(delete_flag, "Delete");
 	mDeleteOnCompletion = delete_flag;
 
-	llinfos << "Unpacked filename: " << mFilename << llendl;
+	LL_INFOS() << "Unpacked filename: " << mFilename << LL_ENDL;
 	return TRUE;
 }

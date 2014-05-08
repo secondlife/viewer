@@ -39,7 +39,7 @@ class LLPanelGroupBulk : public LLPanel
 {
 public:
 	LLPanelGroupBulk(const LLUUID& group_id);
-	~LLPanelGroupBulk();
+	/*virtual*/ ~LLPanelGroupBulk();
 
 public:	
 	static void callbackClickSubmit(void* userdata) {}

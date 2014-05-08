@@ -29,7 +29,6 @@
 //-----------------------------------------------------------------------------
 #include "llviewerprecompiledheaders.h"
 
-#include "imageids.h"
 #include "llfasttimer.h"
 #include "llrender.h"
 
@@ -116,7 +115,7 @@ void LLViewerJointMesh::uploadJointMatrices()
 	BOOL hardware_skinning = (poolp && poolp->getVertexShaderLevel() > 0) ? TRUE : FALSE;
 
 	//calculate joint matrices
-	for (joint_num = 0; joint_num < reference_mesh->mJointRenderData.count(); joint_num++)
+	for (joint_num = 0; joint_num < reference_mesh->mJointRenderData.size(); joint_num++)
 	{
 		LLMatrix4 joint_mat = *reference_mesh->mJointRenderData[joint_num]->mWorldMatrix;
 
@@ -132,7 +131,7 @@ void LLViewerJointMesh::uploadJointMatrices()
 	S32 j = 0;
 
 	//upload joint pivots
-	for (joint_num = 0; joint_num < reference_mesh->mJointRenderData.count(); joint_num++)
+	for (joint_num = 0; joint_num < reference_mesh->mJointRenderData.size(); joint_num++)
 	{
 		LLSkinJoint *sj = reference_mesh->mJointRenderData[joint_num]->mSkinJoint;
 		if (sj)
@@ -172,7 +171,7 @@ void LLViewerJointMesh::uploadJointMatrices()
 		GLfloat mat[45*4];
 		memset(mat, 0, sizeof(GLfloat)*45*4);
 
-		for (joint_num = 0; joint_num < reference_mesh->mJointRenderData.count(); joint_num++)
+		for (joint_num = 0; joint_num < reference_mesh->mJointRenderData.size(); joint_num++)
 		{
 			gJointMatUnaligned[joint_num].transpose();
 
@@ -193,7 +192,7 @@ void LLViewerJointMesh::uploadJointMatrices()
 	else
 	{
 		//load gJointMatUnaligned into gJointMatAligned
-		for (joint_num = 0; joint_num < reference_mesh->mJointRenderData.count(); ++joint_num)
+		for (joint_num = 0; joint_num < reference_mesh->mJointRenderData.size(); ++joint_num)
 		{
 			gJointMatAligned[joint_num].loadu(gJointMatUnaligned[joint_num]);
 		}
@@ -377,7 +376,7 @@ void LLViewerJointMesh::updateFaceSizes(U32 &num_vertices, U32& num_indices, F32
 //-----------------------------------------------------------------------------
 // updateFaceData()
 //-----------------------------------------------------------------------------
-static LLFastTimer::DeclareTimer FTM_AVATAR_FACE("Avatar Face");
+static LLTrace::BlockTimerStatHandle FTM_AVATAR_FACE("Avatar Face");
 
 void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind, bool terse_update)
 {
@@ -400,7 +399,7 @@ void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_w
 	}
 
 
-	LLFastTimer t(FTM_AVATAR_FACE);
+	LL_RECORD_BLOCK_TIME(FTM_AVATAR_FACE);
 
 	LLStrider<LLVector3> verticesp;
 	LLStrider<LLVector3> normalsp;
@@ -552,7 +551,7 @@ void LLViewerJointMesh::dump()
 {
 	if (mValid)
 	{
-		llinfos << "Usable LOD " << mName << llendl;
+		LL_INFOS() << "Usable LOD " << mName << LL_ENDL;
 	}
 }
 

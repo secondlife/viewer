@@ -75,7 +75,7 @@ public:
 		}
 		else
 		{
-			llerrs << "attempt to store duplicate name '" << name << "' in LLFunctorRegistry. NOT ADDED." << llendl;
+			LL_ERRS() << "attempt to store duplicate name '" << name << "' in LLFunctorRegistry. NOT ADDED." << LL_ENDL;
 			retval = false;
 		}
 		
@@ -86,7 +86,7 @@ public:
 	{
 		if (mMap.count(name) == 0)
 		{
-			llwarns << "trying to remove '" << name << "' from LLFunctorRegistry but it's not there." << llendl;
+			LL_WARNS() << "trying to remove '" << name << "' from LLFunctorRegistry but it's not there." << LL_ENDL;
 			return false;
 		}
 		mMap.erase(name);
@@ -101,7 +101,7 @@ public:
 		}
 		else
 		{
-			lldebugs << "tried to find '" << name << "' in LLFunctorRegistry, but it wasn't there." << llendl;
+			LL_DEBUGS() << "tried to find '" << name << "' in LLFunctorRegistry, but it wasn't there." << LL_ENDL;
 			return mMap[LOGFUNCTOR];
 		}
 	}
@@ -113,7 +113,7 @@ private:
 
 	static void log_functor(const LLSD& notification, const LLSD& payload)
 	{
-		lldebugs << "log_functor called with payload: " << payload << llendl;
+		LL_DEBUGS() << "log_functor called with payload: " << payload << LL_ENDL;
 	}
 
 	static void do_nothing(const LLSD& notification, const LLSD& payload)

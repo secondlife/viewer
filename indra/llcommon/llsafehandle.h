@@ -134,7 +134,7 @@ protected:
 			tempp->unref();
 			if (mPointer != NULL)
 			{
-				llwarns << "Unreference did assignment to non-NULL because of destructor" << llendl;
+				LL_WARNS() << "Unreference did assignment to non-NULL because of destructor" << LL_ENDL;
 				unref();
 			}
 		}

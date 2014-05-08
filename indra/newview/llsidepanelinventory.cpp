@@ -160,7 +160,7 @@ BOOL LLSidepanelInventory::postBuild()
 {
 	// UI elements from inventory panel
 	{
-		mInventoryPanel = getChild<LLPanel>("sidepanel__inventory_panel");
+		mInventoryPanel = getChild<LLPanel>("sidepanel_inventory_panel");
 
 		mInfoBtn = mInventoryPanel->getChild<LLButton>("info_btn");
 		mInfoBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onInfoButtonClicked, this));
@@ -309,7 +309,7 @@ void LLSidepanelInventory::observeInboxModifications(const LLUUID& inboxID)
 
 	if (inboxID.isNull())
 	{
-		llwarns << "Attempting to track modifications to non-existent inbox" << llendl;
+		LL_WARNS() << "Attempting to track modifications to non-existent inbox" << LL_ENDL;
 		return;
 	}
 
