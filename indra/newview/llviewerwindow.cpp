@@ -1911,12 +1911,6 @@ void LLViewerWindow::initBase()
 
 	gMenuHolder = getRootView()->getChild<LLViewerMenuHolderGL>("Menu Holder");
 	LLMenuGL::sMenuContainer = gMenuHolder;
-
-	// stinson 05/05/2014 : the panel_progress.xml references a LLMediaCtrl(<web_browser></web_browser>) class
-	// which creates some menu items.  However, because the Menu Holder is not initialized then, we need to
-	// update the parent for the menu items so they will be properly cleaned up.
-	LLMediaCtrl* mediaCtrl = getRootView()->findChild<LLMediaCtrl>("login_media_panel");
-	mediaCtrl->updateContextMenuParent(LLMenuGL::sMenuContainer);
 }
 
 void LLViewerWindow::initWorldUI()

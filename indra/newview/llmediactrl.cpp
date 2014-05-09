@@ -390,10 +390,12 @@ BOOL LLMediaCtrl::postBuild ()
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registar;
 	registar.add("Open.WebInspector", boost::bind(&LLMediaCtrl::onOpenWebInspector, this));
 
-	// stinson 05/05/2014 : cannot assert on the menu container being NULL because it will be during the processing of main_view.xml
-	// llassert(LLMenuGL::sMenuContainer != NULL);
+	// stinson 05/05/2014 : use this as the parent of the context menu if the static menu
+	// container has yet to be created
+	LLPanel* menuParent = (LLMenuGL::sMenuContainer != NULL) ? dynamic_cast<LLPanel*>(LLMenuGL::sMenuContainer) : dynamic_cast<LLPanel*>(this);
+	llassert(menuParent != NULL);
 	mContextMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
-		"menu_media_ctrl.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
+		"menu_media_ctrl.xml", menuParent, LLViewerMenuHolderGL::child_registry_t::instance());
 	setVisibleCallback(boost::bind(&LLMediaCtrl::onVisibilityChanged, this, _2));
 
 	return TRUE;
