@@ -872,7 +872,7 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
         {
 			disabled_items.push_back(std::string("Marketplace Create Listing"));
 			disabled_items.push_back(std::string("Marketplace Associate Listing"));
-            if (LLMarketplaceData::instance().getVersionFolderID(mUUID).isNull())
+            if (LLMarketplaceData::instance().getVersionFolder(mUUID).isNull())
             {
                 disabled_items.push_back(std::string("Marketplace List"));
                 disabled_items.push_back(std::string("Marketplace Unlist"));

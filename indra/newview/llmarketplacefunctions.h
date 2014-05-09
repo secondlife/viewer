@@ -109,8 +109,8 @@ private:
 };
 
 
-// Classes handling the data coming from and going to the Marketplace DB:
-// * implement the Marketplace API (TBD)
+// Classes handling the data coming from and going to the Marketplace SLM Server DB:
+// * implement the Marketplace API
 // * cache the current Marketplace data (tuples)
 // * provide methods to get Marketplace data on any inventory item
 // * set Marketplace data
@@ -119,7 +119,9 @@ namespace SLMErrorCodes
 {
 	enum eCode
 	{
-		SLM_DONE = 200,
+		SLM_SUCCESS = 200,
+		SLM_RECORD_CREATED = 201,
+		SLM_MALFORMED_PAYLOAD = 400,
 		SLM_NOT_FOUND = 404,
 	};
 }
@@ -176,12 +178,12 @@ public:
     
     // Public SLM API : Initialization and status
 	typedef boost::signals2::signal<void ()> status_updated_signal_t;
-	U32  getSLMStatus() const { return mMarketPlaceStatus; }
     void initializeSLM(const status_updated_signal_t::slot_type& cb);
+	U32  getSLMStatus() const { return mMarketPlaceStatus; }
     void getSLMListings();
     bool isEmpty() { return (mMarketplaceItems.size() == 0); }
     
-    // Create/Delete Marketplace data set  : each method returns true if the function succeeds, false if error
+    // High level create/delete/set Marketplace data: each method returns true if the function succeeds, false if error
     bool createListing(const LLUUID& folder_id);
     bool activateListing(const LLUUID& folder_id, bool activate);
     bool clearListing(const LLUUID& folder_id);
@@ -192,14 +194,14 @@ public:
     bool isListed(const LLUUID& folder_id); // returns true if folder_id is a Listing folder
     bool isVersionFolder(const LLUUID& folder_id); // returns true if folder_id is a Version folder
     
-    // Access Marketplace data set  : each method returns a default value if the folder_id can't be found
+    // Access Marketplace data set : each method returns a default value if the argument can't be found
     bool getActivationState(const LLUUID& folder_id);
     S32 getListingID(const LLUUID& folder_id);
-    LLUUID getVersionFolderID(const LLUUID& folder_id);
+    LLUUID getVersionFolder(const LLUUID& folder_id);
     std::string getListingURL(const LLUUID& folder_id);
     LLUUID getListingFolder(S32 listing_id);
     
-    // Used to flag if count values for Marketplace are likely to have to be updated
+    // Used to flag if stock count values for Marketplace have to be updated
     bool checkDirtyCount() { if (mDirtyCount) { mDirtyCount = false; return true; } else { return false; } }
     void setDirtyCount() { mDirtyCount = true; }
     
@@ -210,8 +212,8 @@ private:
     bool deleteListing(const LLUUID& folder_id);
     bool setListingID(const LLUUID& folder_id, S32 listing_id);
     bool setVersionFolderID(const LLUUID& folder_id, const LLUUID& version_id);
-    bool setActivation(const LLUUID& folder_id, bool activate);
-    bool setEditURL(const LLUUID& folder_id, const std::string& edit_url);
+    bool setActivationState(const LLUUID& folder_id, bool activate);
+    bool setListingURL(const LLUUID& folder_id, const std::string& edit_url);
     
     // Private SLM API : package data and get/post/put requests to the SLM Server through the SLM API
 	void setSLMStatus(U32 status);
@@ -222,9 +224,9 @@ private:
 
     // Handling Marketplace connection and inventory connection
 	U32  mMarketPlaceStatus;
-	status_updated_signal_t *	mStatusUpdatedSignal;
+	status_updated_signal_t* mStatusUpdatedSignal;
 	LLInventoryObserver* mInventoryObserver;
-    bool mDirtyCount;   // If true, stock count value will be updating at the next check
+    bool mDirtyCount;   // If true, stock count value need to be updated at the next check
     
     // The cache of SLM data (at last...)
     marketplace_items_list_t mMarketplaceItems;

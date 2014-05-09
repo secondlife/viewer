@@ -162,7 +162,7 @@ void update_marketplace_category(const LLUUID& cur_uuid)
         // Verify marketplace data consistency for this listing
         if (LLMarketplaceData::instance().isListed(listing_uuid))
         {
-            LLUUID version_folder_uuid = LLMarketplaceData::instance().getVersionFolderID(listing_uuid);
+            LLUUID version_folder_uuid = LLMarketplaceData::instance().getVersionFolder(listing_uuid);
             if (version_folder_uuid.notNull() && !gInventory.isObjectDescendentOf(version_folder_uuid, listing_uuid))
             {
                 // *TODO : Confirm with Producer that this is what we want to happen in that case!
@@ -867,7 +867,7 @@ S32 compute_stock_count(LLUUID cat_uuid)
         return -1;
     }
 
-    LLUUID version_folder_uuid = LLMarketplaceData::instance().getVersionFolderID(listing_uuid);
+    LLUUID version_folder_uuid = LLMarketplaceData::instance().getVersionFolder(listing_uuid);
     // Handle the case of the first 2 levels : listing and version folders
     if (depth == 1)
     {
