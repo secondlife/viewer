@@ -186,8 +186,12 @@ public:
             
             LLUUID folder_id(folder_uuid_string);
             LLUUID version_id(version_uuid_string);
-            LLMarketplaceData::instance().addListing(folder_id,listing_id,version_id,is_listed);
-            LLMarketplaceData::instance().setListingURL(folder_id, edit_url);
+            if (folder_id.notNull())
+            {
+                LLMarketplaceData::instance().deleteListing(folder_id,false);
+                LLMarketplaceData::instance().addListing(folder_id,listing_id,version_id,is_listed);
+                LLMarketplaceData::instance().setListingURL(folder_id, edit_url);
+            }
             it++;
         }
     }
@@ -260,16 +264,16 @@ public:
                               const LLChannelDescriptors& channels,
                               const LLIOPipe::buffer_ptr_t& buffer)
     {
-		if (!isGoodStatus(status))
-		{
-            log_SLM_error("Put listings", status, reason, "", "");
-            return;
-		}
-        
         LLBufferStream istr(channels, buffer.get());
         std::stringstream strstrm;
         strstrm << istr.rdbuf();
         const std::string body = strstrm.str();
+        
+		if (!isGoodStatus(status))
+		{
+            log_SLM_error("Put listings", status, reason, "", body);
+            return;
+		}
         
         Json::Value root;
         Json::Reader reader;
@@ -279,7 +283,7 @@ public:
             return;
         }
         
-        llinfos << "Merov : Update listing completedRaw : data = " << body << llendl;
+        llinfos << "Merov : Update listing completedRaw : status = " << status << ", reason = " << reason << ", body = " << body << llendl;
 
         // Extract the info from the Json string
         Json::ValueIterator it = root["listings"].begin();
@@ -341,7 +345,7 @@ public:
             return;
         }
         
-        llinfos << "Merov : Update listing completedRaw : data = " << body << llendl;
+        llinfos << "Merov : Associate listing completedRaw : data = " << body << llendl;
         
         // Extract the info from the Json string
         Json::ValueIterator it = root["listings"].begin();
@@ -370,6 +374,65 @@ public:
             // Add the new association
             LLMarketplaceData::instance().addListing(folder_id,listing_id,version_id,is_listed);
             LLMarketplaceData::instance().setListingURL(folder_id, edit_url);
+            it++;
+        }
+    }
+};
+
+class LLSLMDeleteListingsResponder : public LLHTTPClient::Responder
+{
+	LOG_CLASS(LLSLMDeleteListingsResponder);
+public:
+	
+    LLSLMDeleteListingsResponder() {}
+    
+	virtual void completed(U32 status, const std::string& reason, const LLSD& content) { }
+    
+    virtual void completedRaw(U32 status,
+                              const std::string& reason,
+                              const LLChannelDescriptors& channels,
+                              const LLIOPipe::buffer_ptr_t& buffer)
+    {
+        LLBufferStream istr(channels, buffer.get());
+        std::stringstream strstrm;
+        strstrm << istr.rdbuf();
+        const std::string body = strstrm.str();
+        
+ 		if (!isGoodStatus(status))
+		{
+            log_SLM_error("Delete listings", status, reason, "", body);
+            return;
+		}
+        
+        Json::Value root;
+        Json::Reader reader;
+        if (!reader.parse(body,root))
+        {
+            log_SLM_error("Delete listings", status, "Json parsing failed", reader.getFormatedErrorMessages(), body);
+            return;
+        }
+        
+        llinfos << "Merov : Delete listing completedRaw : data = " << body << llendl;
+        
+        // Extract the info from the Json string
+        Json::ValueIterator it = root["listings"].begin();
+        
+        while (it != root["listings"].end())
+        {
+            Json::Value listing = *it;
+            
+            int listing_id = listing["id"].asInt();
+            std::string folder_uuid_string = listing["inventory_info"]["listing_folder_id"].asString();
+            
+            LLUUID folder_id(folder_uuid_string);
+            
+            // Check that the listing ID is associated to the correct folder
+            LLUUID old_listing = LLMarketplaceData::instance().getListingFolder(listing_id);
+            if (old_listing == folder_id)
+            {
+                LLMarketplaceData::instance().deleteListing(folder_id);
+            }
+            
             it++;
         }
     }
@@ -1006,6 +1069,18 @@ void LLMarketplaceData::associateSLMListing(const LLUUID& folder_id, S32 listing
 	LLHTTPClient::putRaw(url, data, size, new LLSLMAssociateListingsResponder(), headers);
 }
 
+void LLMarketplaceData::deleteSLMListing(S32 listing_id)
+{
+	LLSD headers = LLSD::emptyMap();
+	headers["Accept"] = "application/json";
+	headers["Content-Type"] = "application/json";
+        
+	// Send request
+    std::string url = getSLMConnectURL("/listing/") + llformat("%d",listing_id);
+    llinfos << "Merov : delete listing : " << url << llendl;
+	LLHTTPClient::del(url, new LLSLMDeleteListingsResponder(), headers);
+}
+
 std::string LLMarketplaceData::getSLMConnectURL(const std::string& route)
 {
     std::string url("");
@@ -1051,20 +1126,27 @@ bool LLMarketplaceData::createListing(const LLUUID& folder_id)
 
 bool LLMarketplaceData::clearListing(const LLUUID& folder_id)
 {
+    if (folder_id.isNull())
+    {
+        // Folder doesn't exists -> exit with error
+        return false;
+    }
+
     // Folder id can be the root of the listing or not so we need to retrieve the root first
     S32 depth = depth_nesting_in_marketplace(folder_id);
-    LLUUID listing_uuid = nested_parent_id(folder_id, depth);
+    LLUUID listing_uuid = (isListed(folder_id) ? folder_id : nested_parent_id(folder_id, depth));
     S32 listing_id = getListingID(listing_uuid);
+   
     if (listing_id == 0)
     {
         // Listing doesn't exists -> exit with error
         return false;
     }
     
-    // Update the SLM Server so that this listing is not active anymore
-    // *TODO : use deleteSLMListing()
-    deleteListing(listing_uuid);
-    updateSLMListing(listing_uuid, listing_id, LLUUID::null, false);
+    llinfos << "Merov : clearListing, folder id = " << folder_id << ", listing uuid = " << listing_uuid << ", listing id = " << listing_id << ", depth = " << depth << llendl;
+    
+    // Update the SLM Server so that this listing is deleted (actually, archived...)
+    deleteSLMListing(listing_id);
     
     return true;
 }
@@ -1139,7 +1221,7 @@ bool LLMarketplaceData::addListing(const LLUUID& folder_id, S32 listing_id, cons
     return true;
 }
 
-bool LLMarketplaceData::deleteListing(const LLUUID& folder_id)
+bool LLMarketplaceData::deleteListing(const LLUUID& folder_id, bool update_slm)
 {
     if (!isListed(folder_id))
     {
@@ -1148,8 +1230,11 @@ bool LLMarketplaceData::deleteListing(const LLUUID& folder_id)
     }
 	mMarketplaceItems.erase(folder_id);
 
-    update_marketplace_category(folder_id);
-    gInventory.notifyObservers();
+    if (update_slm)
+    {
+        update_marketplace_category(folder_id);
+        gInventory.notifyObservers();
+    }
     return true;
 }
 

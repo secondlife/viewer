@@ -162,6 +162,7 @@ class LLSLMGetListingsResponder;
 class LLSLMCreateListingsResponder;
 class LLSLMUpdateListingsResponder;
 class LLSLMAssociateListingsResponder;
+class LLSLMDeleteListingsResponder;
 
 class LLMarketplaceData
     : public LLSingleton<LLMarketplaceData>
@@ -172,6 +173,7 @@ public:
     friend class LLSLMCreateListingsResponder;
     friend class LLSLMUpdateListingsResponder;
     friend class LLSLMAssociateListingsResponder;
+    friend class LLSLMDeleteListingsResponder;
 
 	LLMarketplaceData();
     virtual ~LLMarketplaceData();
@@ -209,7 +211,7 @@ private:
     // Modify Marketplace data set  : each method returns true if the function succeeds, false if error
     // Used internally only by SLM Responders when data are received from the SLM Server
     bool addListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed);
-    bool deleteListing(const LLUUID& folder_id);
+    bool deleteListing(const LLUUID& folder_id, bool update_slm = true);
     bool setListingID(const LLUUID& folder_id, S32 listing_id);
     bool setVersionFolderID(const LLUUID& folder_id, const LLUUID& version_id);
     bool setActivationState(const LLUUID& folder_id, bool activate);
@@ -220,6 +222,7 @@ private:
     void createSLMListing(const LLUUID& folder_id);
     void updateSLMListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed);
     void associateSLMListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id);
+    void deleteSLMListing(S32 listing_id);
     std::string getSLMConnectURL(const std::string& route);
 
     // Handling Marketplace connection and inventory connection
