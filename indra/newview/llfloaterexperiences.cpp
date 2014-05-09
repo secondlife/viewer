@@ -47,11 +47,13 @@ class LLExperienceListResponder : public LLHTTPClient::Responder
 {
 public:
     typedef std::map<std::string, std::string> NameMap;
-    LLExperienceListResponder(const LLHandle<LLFloaterExperiences>& parent, NameMap& nameMap, const std::string& errorMessage="ErrorMessage"):mParent(parent),mErrorMessage(errorMessage)
-    {
-        mNameMap.swap(nameMap);
-    }
+	typedef boost::function<void(LLPanelExperiences*, const LLSD&)> Callback;
+	LLExperienceListResponder(const LLHandle<LLFloaterExperiences>& parent, NameMap& nameMap, const std::string& errorMessage="ErrorMessage"):mParent(parent),mErrorMessage(errorMessage)
+	{
+		mNameMap.swap(nameMap);
+	}
 
+	Callback mCallback;
     LLHandle<LLFloaterExperiences> mParent;
     NameMap mNameMap;
 	const std::string mErrorMessage;
@@ -73,7 +75,10 @@ public:
                 {
                     const LLSD& ids = content[it->first];
                     tab->setExperienceList(ids);
-					tab->enableButton(ids.beginArray() == ids.endArray());
+					if(!mCallback.empty())
+					{
+						mCallback(tab, content);
+					}
                 }
             }
             ++it;
@@ -298,6 +303,11 @@ void LLFloaterExperiences::onClose( bool app_quitting )
     LLFloater::onClose(app_quitting);
 }
 
+void LLFloaterExperiences::checkPurchaseInfo(LLPanelExperiences* panel, const LLSD& content) const
+{
+	panel->enableButton(content.has("purchase"));
+}
+
 void LLFloaterExperiences::sendPurchaseRequest() const
 {
 	LLViewerRegion* region = gAgent.getRegion();
@@ -308,6 +318,8 @@ void LLFloaterExperiences::sendPurchaseRequest() const
 
 		LLExperienceListResponder::NameMap nameMap;
 		nameMap["experience_ids"]="Owned_Experiences_Tab";
-		LLHTTPClient::post(url, content, new LLExperienceListResponder(getDerivedHandle<LLFloaterExperiences>(), nameMap, "ExperienceAcquireFailed"));
+		LLExperienceListResponder* responder = new LLExperienceListResponder(getDerivedHandle<LLFloaterExperiences>(), nameMap, "ExperienceAcquireFailed");
+		responder->mCallback = boost::bind(&LLFloaterExperiences::checkPurchaseInfo, this, _1, _2);
+		LLHTTPClient::post(url, content, responder);
 	}
 }

@@ -49,6 +49,7 @@ protected:
 
     bool updatePermissions(const LLSD& permission);
 	void sendPurchaseRequest() const;
+	void checkPurchaseInfo(LLPanelExperiences* panel, const LLSD& content)const;
 
 private:
 
