@@ -42,17 +42,13 @@ friend class fetchKeywordsFileResponder;
 public:
 	typedef boost::signals2::signal<void()> file_fetched_signal_t;
 
-	static const std::string CAPABILITY_NAME;
-	static const std::string FILENAME_DEFAULT;
-	static const std::string SIMULATOR_FEATURE;
-
 protected:
-	static bool		sInitialized;
-	static LLSD		sKeywordsXml;
-	static bool		sLoaded;
-	static bool		sLoadFailed;
-	static bool		sVersionChanged;
-	static file_fetched_signal_t	sFileFetchedSignal;
+	bool		sInitialized;
+	LLSD		sKeywordsXml;
+	bool		sLoaded;
+	bool		sLoadFailed;
+	bool		sVersionChanged;
+	file_fetched_signal_t	sFileFetchedSignal;
 
 private:
 	std::string		mCapabilityName;
@@ -85,8 +81,8 @@ public:
 	void			initialize();
 	bool			isLoaded() { return sLoaded; }
 
-	static bool		isSupportedVersion(const LLSD& content);
-	static void		setKeywordsXml(const LLSD& content) { sKeywordsXml = content; }
+	bool		isSupportedVersion(const LLSD& content);
+	void		setKeywordsXml(const LLSD& content) { sKeywordsXml = content; }
 
 	boost::signals2::connection		addFileFetchedCallback(const file_fetched_signal_t::slot_type& cb);
 

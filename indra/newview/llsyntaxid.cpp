@@ -49,7 +49,7 @@ void fetchKeywordsFileResponder::errorWithContent(U32 status,
 												  const std::string& reason,
 												  const LLSD& content)
 {
-	LLSyntaxIdLSL::sLoadFailed = true;
+	LLSyntaxIdLSL::getInstance()->sLoadFailed = true;
 	LL_WARNS("SyntaxLSL")
 			<< "fetchKeywordsFileResponder error [status:"
 			<< status << "]: " << content
@@ -64,35 +64,35 @@ void fetchKeywordsFileResponder::result(const LLSD& content_ref)
 		LL_DEBUGS("SyntaxLSL")
 				<< "content_ref isMap so assuming valid XML." << LL_ENDL;
 
-		if (LLSyntaxIdLSL::isSupportedVersion(content_ref))
+		if (LLSyntaxIdLSL::getInstance()->isSupportedVersion(content_ref))
 		{
 			LL_INFOS("SyntaxLSL")
 					<< "Supported verson of syntax file." << LL_ENDL;
 
-			LLSyntaxIdLSL::setKeywordsXml(content_ref);
-			LLSyntaxIdLSL::sInitialized = true;
-			LLSyntaxIdLSL::sLoaded = true;
-			LLSyntaxIdLSL::sLoadFailed = false;
+			LLSyntaxIdLSL::getInstance()->setKeywordsXml(content_ref);
+			LLSyntaxIdLSL::getInstance()->sInitialized = true;
+			LLSyntaxIdLSL::getInstance()->sLoaded = true;
+			LLSyntaxIdLSL::getInstance()->sLoadFailed = false;
 
 			cacheFile(content_ref);
 		}
 		else
 		{
-			LLSyntaxIdLSL::sLoaded = false;
-			LLSyntaxIdLSL::sLoadFailed = true;
+			LLSyntaxIdLSL::getInstance()->sLoaded = false;
+			LLSyntaxIdLSL::getInstance()->sLoadFailed = true;
 			LL_WARNS("SyntaxLSL")
 					<< "Unknown or unsupported version of syntax file." << LL_ENDL;
 		}
 	}
 	else
 	{
-		LLSyntaxIdLSL::sLoaded = false;
-		LLSyntaxIdLSL::sLoadFailed = true;
+		LLSyntaxIdLSL::getInstance()->sLoaded = false;
+		LLSyntaxIdLSL::getInstance()->sLoadFailed = true;
 		LL_WARNS("SyntaxLSL")
 				<< "Syntax file '" << mFileSpec << "' contains invalid LLSD!" << LL_ENDL;
 	}
 
-	LLSyntaxIdLSL::sFileFetchedSignal();
+	LLSyntaxIdLSL::getInstance()->sFileFetchedSignal();
 }
 
 void fetchKeywordsFileResponder::cacheFile(const LLSD& content_ref)
@@ -113,16 +113,9 @@ void fetchKeywordsFileResponder::cacheFile(const LLSD& content_ref)
 //-----------------------------------------------------------------------------
 // LLSyntaxIdLSL
 //-----------------------------------------------------------------------------
-const std::string LLSyntaxIdLSL::CAPABILITY_NAME = "LSLSyntax";
-const std::string LLSyntaxIdLSL::FILENAME_DEFAULT = "keywords_lsl_default.xml";
-const std::string LLSyntaxIdLSL::SIMULATOR_FEATURE = "LSLSyntaxId";
-
-bool LLSyntaxIdLSL::sInitialized;
-LLSD LLSyntaxIdLSL::sKeywordsXml;
-bool LLSyntaxIdLSL::sLoaded;
-bool LLSyntaxIdLSL::sLoadFailed;
-bool LLSyntaxIdLSL::sVersionChanged;
-LLSyntaxIdLSL::file_fetched_signal_t LLSyntaxIdLSL::sFileFetchedSignal;
+const std::string CAPABILITY_NAME = "LSLSyntax";
+const std::string FILENAME_DEFAULT = "keywords_lsl_default.xml";
+const std::string SIMULATOR_FEATURE = "LSLSyntaxId";
 
 /**
  * @brief LLSyntaxIdLSL constructor

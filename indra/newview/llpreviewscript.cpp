@@ -374,7 +374,6 @@ LLScriptEdCore::LLScriptEdCore(
 
 	setXMLFilename("panel_script_ed.xml");
 	llassert_always(mContainer != NULL);
-	mRegionChangedCallback = gAgent.addRegionChangedCallback(boost::bind(&LLScriptEdCore::updateKeywords, this));
 }
 
 LLScriptEdCore::~LLScriptEdCore()
@@ -391,6 +390,7 @@ LLScriptEdCore::~LLScriptEdCore()
 
 	delete mLiveFile;
 	mRegionChangedCallback.disconnect();
+	mFileFetchedCallback.disconnect();
 }
 
 BOOL LLScriptEdCore::postBuild()
@@ -409,7 +409,7 @@ BOOL LLScriptEdCore::postBuild()
 
 	initMenu();
 
-	LLSyntaxIdLSL::getInstance()->addFileFetchedCallback(boost::bind(&LLScriptEdCore::processKeywords, this));
+	mFileFetchedCallback = LLSyntaxIdLSL::getInstance()->addFileFetchedCallback(boost::bind(&LLScriptEdCore::processKeywords, this));
 
 	// Intialise keyword highlighting for the current simulator's version of LSL
 	LLSyntaxIdLSL::getInstance()->initialize();
@@ -422,6 +422,7 @@ BOOL LLScriptEdCore::postBuild()
 	{
 		LL_DEBUGS("SyntaxLSL") << "Hashes are the same, no need to update highlighter." << LL_ENDL;
 	}
+	mRegionChangedCallback = gAgent.addRegionChangedCallback(boost::bind(&LLScriptEdCore::updateKeywords, this));
 
 	return TRUE;
 }
