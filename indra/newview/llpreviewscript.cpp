@@ -391,8 +391,14 @@ LLScriptEdCore::~LLScriptEdCore()
 	}
 
 	delete mLiveFile;
-	mRegionChangedCallback.disconnect();
-	mFileFetchedCallback.disconnect();
+	if (mRegionChangedCallback.connected())
+	{
+		mRegionChangedCallback.disconnect();
+	}
+	if (mFileFetchedCallback.connected())
+	{
+		mFileFetchedCallback.disconnect();
+	}
 }
 
 BOOL LLScriptEdCore::postBuild()
@@ -424,21 +430,13 @@ BOOL LLScriptEdCore::postBuild()
 	{
 		processKeywords();
 	}
-	mRegionChangedCallback = gAgent.addRegionChangedCallback(boost::bind(&LLScriptEdCore::updateKeywords, this));
-
-	return TRUE;
-}
-
-void LLScriptEdCore::updateKeywords()
-{
+	
 	if (mLive)
 	{
-		mEditor->clearSegments();
+		mRegionChangedCallback = gAgent.addRegionChangedCallback(boost::bind(&LLScriptEdCore::processLoaded, this));
 	}
-	else
-	{
-		processLoaded();
-	}
+
+	return TRUE;
 }
 
 void LLScriptEdCore::processLoaded()

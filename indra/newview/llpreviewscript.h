@@ -81,7 +81,6 @@ public:
 	void			initMenu();
 	void			processKeywords();
 	void			processLoaded();
-	void			updateKeywords();
 
 	virtual void	draw();
 	/*virtual*/	BOOL	postBuild();
