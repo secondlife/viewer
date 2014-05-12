@@ -352,6 +352,7 @@ LLScriptEdCore::LLScriptEdCore(
 	void (*save_callback)(void*, BOOL),
 	void (*search_replace_callback) (void* userdata),
 	void* userdata,
+	bool live,
 	S32 bottom_pad)
 	:
 	LLPanel(),
@@ -366,6 +367,7 @@ LLScriptEdCore::LLScriptEdCore(
 	mLiveHelpHistorySize(0),
 	mEnableSave(FALSE),
 	mLiveFile(NULL),
+	mLive(live),
 	mContainer(container),
 	mHasScriptData(FALSE)
 {
@@ -420,7 +422,7 @@ BOOL LLScriptEdCore::postBuild()
 	}
 	else
 	{
-		LL_DEBUGS("SyntaxLSL") << "Hashes are the same, no need to update highlighter." << LL_ENDL;
+		processKeywords();
 	}
 	mRegionChangedCallback = gAgent.addRegionChangedCallback(boost::bind(&LLScriptEdCore::updateKeywords, this));
 
@@ -1289,8 +1291,8 @@ void* LLPreviewLSL::createScriptEdPanel(void* userdata)
 								   LLPreviewLSL::onSave,
 								   LLPreviewLSL::onSearchReplace,
 								   self,
+								   false,
 								   0);
-	self->mScriptEd->mLive = false;
 	return self->mScriptEd;
 }
 
@@ -1745,8 +1747,8 @@ void* LLLiveLSLEditor::createScriptEdPanel(void* userdata)
 								   &LLLiveLSLEditor::onSave,
 								   &LLLiveLSLEditor::onSearchReplace,
 								   self,
+								   true,
 								   0);
-	self->mScriptEd->mLive = true;
 	return self->mScriptEd;
 }
 
