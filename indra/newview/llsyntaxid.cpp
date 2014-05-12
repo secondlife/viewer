@@ -40,20 +40,15 @@
 fetchKeywordsFileResponder::fetchKeywordsFileResponder(std::string filespec)
 {
 	mFileSpec = filespec;
-	LL_INFOS("SyntaxLSL")
-			<< "Instantiating with file saving to: '" << filespec << "'"
-			<< LL_ENDL;
+	LL_DEBUGS("SyntaxLSL") << "Instantiating with file saving to: '" << filespec << "'" << LL_ENDL;
 }
 
 void fetchKeywordsFileResponder::errorWithContent(U32 status,
 												  const std::string& reason,
 												  const LLSD& content)
 {
-	LLSyntaxIdLSL::getInstance()->sLoadFailed = true;
-	LL_WARNS("SyntaxLSL")
-			<< "fetchKeywordsFileResponder error [status:"
-			<< status << "]: " << content
-			<< LL_ENDL;
+	LLSyntaxIdLSL::getInstance()->mLoadFailed = true;
+	LL_WARNS("SyntaxLSL") << "fetchKeywordsFileResponder error [status:" << status << "]: " << content << LL_ENDL;
 }
 
 void fetchKeywordsFileResponder::result(const LLSD& content_ref)
@@ -61,38 +56,34 @@ void fetchKeywordsFileResponder::result(const LLSD& content_ref)
 	// Continue only if a valid LLSD object was returned.
 	if (content_ref.isMap())
 	{
-		LL_DEBUGS("SyntaxLSL")
-				<< "content_ref isMap so assuming valid XML." << LL_ENDL;
+		LL_DEBUGS("SyntaxLSL") << "content_ref isMap so assuming valid XML." << LL_ENDL;
 
 		if (LLSyntaxIdLSL::getInstance()->isSupportedVersion(content_ref))
 		{
-			LL_INFOS("SyntaxLSL")
-					<< "Supported verson of syntax file." << LL_ENDL;
+			LL_DEBUGS("SyntaxLSL") << "Supported verson of syntax file." << LL_ENDL;
 
 			LLSyntaxIdLSL::getInstance()->setKeywordsXml(content_ref);
-			LLSyntaxIdLSL::getInstance()->sInitialized = true;
-			LLSyntaxIdLSL::getInstance()->sLoaded = true;
-			LLSyntaxIdLSL::getInstance()->sLoadFailed = false;
+			LLSyntaxIdLSL::getInstance()->mInitialized = true;
+			LLSyntaxIdLSL::getInstance()->mLoaded = true;
+			LLSyntaxIdLSL::getInstance()->mLoadFailed = false;
 
 			cacheFile(content_ref);
 		}
 		else
 		{
-			LLSyntaxIdLSL::getInstance()->sLoaded = false;
-			LLSyntaxIdLSL::getInstance()->sLoadFailed = true;
-			LL_WARNS("SyntaxLSL")
-					<< "Unknown or unsupported version of syntax file." << LL_ENDL;
+			LLSyntaxIdLSL::getInstance()->mLoaded = false;
+			LLSyntaxIdLSL::getInstance()->mLoadFailed = true;
+			LL_WARNS("SyntaxLSL") << "Unknown or unsupported version of syntax file." << LL_ENDL;
 		}
 	}
 	else
 	{
-		LLSyntaxIdLSL::getInstance()->sLoaded = false;
-		LLSyntaxIdLSL::getInstance()->sLoadFailed = true;
-		LL_WARNS("SyntaxLSL")
-				<< "Syntax file '" << mFileSpec << "' contains invalid LLSD!" << LL_ENDL;
+		LLSyntaxIdLSL::getInstance()->mLoaded = false;
+		LLSyntaxIdLSL::getInstance()->mLoadFailed = true;
+		LL_WARNS("SyntaxLSL") << "Syntax file '" << mFileSpec << "' contains invalid LLSD." << LL_ENDL;
 	}
 
-	LLSyntaxIdLSL::getInstance()->sFileFetchedSignal();
+	LLSyntaxIdLSL::getInstance()->mFileFetchedSignal();
 }
 
 void fetchKeywordsFileResponder::cacheFile(const LLSD& content_ref)
@@ -106,8 +97,7 @@ void fetchKeywordsFileResponder::cacheFile(const LLSD& content_ref)
 	file.write(xml.c_str(), str.str().size());
 	file.close();
 
-	LL_INFOS("SyntaxLSL")
-			<< "Syntax file received, saving as: '" << mFileSpec << "'" << LL_ENDL;
+	LL_DEBUGS("SyntaxLSL") << "Syntax file received, saving as: '" << mFileSpec << "'" << LL_ENDL;
 }
 
 //-----------------------------------------------------------------------------
@@ -159,18 +149,15 @@ std::string LLSyntaxIdLSL::buildFullFileSpec()
 //-----------------------------------------------------------------------------
 bool LLSyntaxIdLSL::checkSyntaxIdChanged()
 {
-	sVersionChanged = false;
+	mVersionChanged = false;
 	LLViewerRegion* region = gAgent.getRegion();
 
 	if (region)
 	{
 		if (!region->capabilitiesReceived())
 		{   // Shouldn't be possible, but experience shows that it may be needed.
-			sLoadFailed = true;
-			LL_WARNS("SyntaxLSL")
-				<< "Region '" << region->getName()
-				<< "' has not received capabilities yet! Cannot process SyntaxId."
-				<< LL_ENDL;
+			mLoadFailed = true;
+			LL_INFOS("SyntaxLSL") << "Region '" << region->getName() << "' has not received capabilities yet. Cannot process SyntaxId." << LL_ENDL;
 		}
 		else
 		{
@@ -185,40 +172,32 @@ bool LLSyntaxIdLSL::checkSyntaxIdChanged()
 				mCapabilityURL = region->getCapability(mCapabilityName);
 				if (mSyntaxIdCurrent != mSyntaxIdNew)
 				{
-					LL_INFOS("SyntaxLSL")
-							<< "It has LSLSyntaxId capability, and the new hash is '"
-							<< mSyntaxIdNew.asString() << "'" << LL_ENDL;
+					LL_DEBUGS("SyntaxLSL") << "Region has LSLSyntaxId capability, and the new hash is '" << mSyntaxIdNew.asString() << "'" << LL_ENDL;
 
-					sVersionChanged = true;
+					mVersionChanged = true;
 				}
 				else
 				{
-					LL_INFOS("SyntaxLSL")
-							<< "It has the same LSLSyntaxId! Leaving hash as '"
-							<< mSyntaxIdCurrent.asString() << "'" << LL_ENDL;
+					LL_DEBUGS("SyntaxLSL") << "Region has the same LSLSyntaxId! Leaving hash as '" << mSyntaxIdCurrent.asString() << "'" << LL_ENDL;
 				}
 			}
 			else
 			{
 				if ( mSyntaxIdCurrent.isNull() && isInitialized())
 				{
-					LL_INFOS("SyntaxLSL")
-							<< "It does not have LSLSyntaxId capability, remaining with default keywords file!"
-							<< LL_ENDL;
+					LL_DEBUGS("SyntaxLSL") << "Region does not have LSLSyntaxId capability, remaining with default keywords." << LL_ENDL;
 				}
 				else
 				{
 					// The hash is set to NULL_KEY to indicate use of default keywords file
 					mSyntaxIdNew = LLUUID();
-					LL_INFOS("SyntaxLSL")
-							<< "It does not have LSLSyntaxId capability, using default keywords file!"
-							<< LL_ENDL;
-					sVersionChanged = true;
+					LL_DEBUGS("SyntaxLSL") << "Region does not have LSLSyntaxId capability, using default keywords." << LL_ENDL;
+					mVersionChanged = true;
 				}
 			}
 		}
 	}
-	return sVersionChanged;
+	return mVersionChanged;
 }
 
 /**
@@ -228,7 +207,7 @@ bool LLSyntaxIdLSL::checkSyntaxIdChanged()
  */
 bool LLSyntaxIdLSL::fetching()
 {
-	return !(sLoaded || sLoadFailed);
+	return !(mLoaded || mLoadFailed);
 }
 
 //-----------------------------------------------------------------------------
@@ -240,10 +219,7 @@ void LLSyntaxIdLSL::fetchKeywordsFile()
 					  new fetchKeywordsFileResponder(mFullFileSpec),
 					  LLSD(), 30.f
 					  );
-	LL_INFOS("SyntaxLSL")
-			<< "LSLSyntaxId capability URL is: " << mCapabilityURL
-			<< ". Filename to use is: '" << mFullFileSpec << "'."
-			<< LL_ENDL;
+	LL_DEBUGS("SyntaxLSL") << "LSLSyntaxId capability URL is: " << mCapabilityURL << ". Filename to use is: '" << mFullFileSpec << "'." << LL_ENDL;
 }
 
 
@@ -257,8 +233,8 @@ void LLSyntaxIdLSL::initialize()
 
 	if (checkSyntaxIdChanged())
 	{
-		sKeywordsXml = LLSD();
-		sLoaded = sLoadFailed = false;
+		mKeywordsXml = LLSD();
+		mLoaded = mLoadFailed = false;
 
 		if (mSyntaxIdNew.isNull())
 		{ // Need to open the default
@@ -266,9 +242,7 @@ void LLSyntaxIdLSL::initialize()
 		}
 		else if (!mCapabilityURL.empty() )
 		{
-			LL_INFOS("SyntaxLSL")
-					<< "LSL version has changed, getting appropriate file."
-					<< LL_ENDL;
+			LL_DEBUGS("SyntaxLSL") << "LSL version has changed, getting appropriate file." << LL_ENDL;
 
 			// Need a full spec regardless of file source, so build it now.
 			buildFullFileSpec();
@@ -276,16 +250,11 @@ void LLSyntaxIdLSL::initialize()
 			{
 				if ( !gDirUtilp->fileExists(mFullFileSpec) )
 				{ // Does not exist, so fetch it from the capability
-					LL_INFOS("SyntaxLSL")
-							<< "File is not cached, we will try to download it!"
-							<< LL_ENDL;
+					LL_INFOS("SyntaxLSL") << "LSL syntax not cached, attempting download." << LL_ENDL;
 					fetchKeywordsFile();
 				}
 				else
 				{
-					LL_INFOS("SyntaxLSL")
-							<< "File is cached, no need to download!"
-							<< LL_ENDL;
 					loadKeywordsIntoLLSD();
 				}
 			}
@@ -296,9 +265,8 @@ void LLSyntaxIdLSL::initialize()
 		}
 		else
 		{
-			sLoadFailed = true;
-			LL_WARNS("SyntaxLSL")
-					<< "LSLSyntaxId capability URL is empty!!" << LL_ENDL;
+			mLoadFailed = true;
+			LL_WARNS("SyntaxLSL") << "LSLSyntaxId capability URL is empty." << LL_ENDL;
 			loadDefaultKeywordsIntoLLSD();
 		}
 	}
@@ -327,8 +295,7 @@ bool LLSyntaxIdLSL::isSupportedVersion(const LLSD& content)
 
 	if (content.has(LLSD_SYNTAX_LSL_VERSION_KEY))
 	{
-		LL_INFOS("SyntaxLSL")
-				<< "Syntax file version: " << content[LLSD_SYNTAX_LSL_VERSION_KEY].asString() << LL_ENDL;
+		LL_DEBUGS("SyntaxLSL") << "LSL syntax version: " << content[LLSD_SYNTAX_LSL_VERSION_KEY].asString() << LL_ENDL;
 
 		if (content[LLSD_SYNTAX_LSL_VERSION_KEY].asInteger() == LLSD_SYNTAX_LSL_VERSION_EXPECTED)
 		{
@@ -337,7 +304,7 @@ bool LLSyntaxIdLSL::isSupportedVersion(const LLSD& content)
 	}
 	else
 	{
-		LL_WARNS("SyntaxLSL") << "No version key available!" << LL_ENDL;
+		LL_DEBUGS("SyntaxLSL") << "No LSL syntax version key." << LL_ENDL;
 	}
 
 	return isValid;
@@ -348,7 +315,7 @@ bool LLSyntaxIdLSL::isSupportedVersion(const LLSD& content)
 //-----------------------------------------------------------------------------
 void LLSyntaxIdLSL::loadDefaultKeywordsIntoLLSD()
 {
-	LL_INFOS("SyntaxLSL") << "LSLSyntaxId is null so we will use the default file!" << LL_ENDL;
+	LL_DEBUGS("SyntaxLSL") << "LSLSyntaxId is null so we will use the default file." << LL_ENDL;
 	mSyntaxIdNew = LLUUID();
 	buildFullFileSpec();
 	loadKeywordsIntoLLSD();
@@ -365,46 +332,46 @@ void LLSyntaxIdLSL::loadDefaultKeywordsIntoLLSD()
  */
 void LLSyntaxIdLSL::loadKeywordsIntoLLSD()
 {
-	LL_INFOS("SyntaxLSL") << "Trying to open cached or default keyword file" << LL_ENDL;
+	LL_DEBUGS("SyntaxLSL") << "Trying to open cached or default keyword file" << LL_ENDL;
 
 	// Is this the right thing to do, or should we leave the old content
 	// even if it isn't entirely accurate anymore?
-	sKeywordsXml = LLSD().emptyMap();
+	mKeywordsXml = LLSD().emptyMap();
 
 	LLSD content;
 	llifstream file;
 	file.open(mFullFileSpec);
 	if (file.is_open())
 	{
-		sLoaded = (bool)LLSDSerialize::fromXML(content, file);
-		if (!sLoaded)
+		mLoaded = (bool)LLSDSerialize::fromXML(content, file);
+		if (!mLoaded)
 		{
-			LL_WARNS("SyntaxLSL") << "Unable to deserialise file: " << mFullFileSpec << LL_ENDL;
+			LL_WARNS("SyntaxLSL") << "Unable to deserialise: " << mFullFileSpec << LL_ENDL;
 		}
 		else
 		{
 			if (isSupportedVersion(content))
 			{
-				sKeywordsXml = content;
-				sLoaded = true;
-				sInitialized = true;
-				LL_INFOS("SyntaxLSL") << "Deserialised file: " << mFullFileSpec << LL_ENDL;
+				mKeywordsXml = content;
+				mLoaded = true;
+				mInitialized = true;
+				LL_DEBUGS("SyntaxLSL") << "Deserialised: " << mFullFileSpec << LL_ENDL;
 			}
 			else
 			{
-				sLoaded = false;
+				mLoaded = false;
 				LL_WARNS("SyntaxLSL") << "Unknown or unsupported version of syntax file." << LL_ENDL;
 			}
 		}
 	}
 	else
 	{
-		LL_WARNS("SyntaxLSL") << "Unable to open file: " << mFullFileSpec << LL_ENDL;
+		LL_WARNS("SyntaxLSL") << "Unable to open: " << mFullFileSpec << LL_ENDL;
 	}
-	sLoadFailed = !sLoaded;
+	mLoadFailed = !mLoaded;
 }
 
 boost::signals2::connection LLSyntaxIdLSL::addFileFetchedCallback(const file_fetched_signal_t::slot_type& cb)
 {
-	return sFileFetchedSignal.connect(cb);
+	return mFileFetchedSignal.connect(cb);
 }

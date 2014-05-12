@@ -39,30 +39,6 @@
 class LLSyntaxIdLSL : public LLSingleton<LLSyntaxIdLSL>
 {
 friend class fetchKeywordsFileResponder;
-public:
-	typedef boost::signals2::signal<void()> file_fetched_signal_t;
-
-protected:
-	bool		sInitialized;
-	LLSD		sKeywordsXml;
-	bool		sLoaded;
-	bool		sLoadFailed;
-	bool		sVersionChanged;
-	file_fetched_signal_t	sFileFetchedSignal;
-
-private:
-	std::string		mCapabilityName;
-	std::string		mCapabilityURL;
-	std::string		mFileNameCurrent;
-	std::string		mFileNameDefault;
-	std::string		mFileNameNew;
-	ELLPath			mFilePath;
-	std::string		mFullFileSpec;
-	std::string		mSimulatorFeature;
-	LLUUID			mSyntaxIdCurrent;
-	LLUUID			mSyntaxIdNew;
-
-
 
 public:
 	LLSyntaxIdLSL();
@@ -73,19 +49,18 @@ public:
 	std::string		getFileNameCurrent()	const { return mFileNameCurrent; }
 	ELLPath			getFilePath()			const { return mFilePath; }
 	std::string		getFileSpec()			const { return mFullFileSpec; }
-	LLSD			getKeywordsXML()		const { return sKeywordsXml; }
+	LLSD			getKeywordsXML()		const { return mKeywordsXml; }
 	LLUUID			getSyntaxId()			const { return mSyntaxIdCurrent; }
-	bool			isDifferentVersion()	const { return sVersionChanged; }
-	bool			isInitialized()			const { return sInitialized; }
+	bool			isDifferentVersion()	const { return mVersionChanged; }
+	bool			isInitialized()			const { return mInitialized; }
 
 	void			initialize();
-	bool			isLoaded() { return sLoaded; }
+	bool			isLoaded() { return mLoaded; }
 
-	bool		isSupportedVersion(const LLSD& content);
-	void		setKeywordsXml(const LLSD& content) { sKeywordsXml = content; }
-
+	bool			isSupportedVersion(const LLSD& content);
+	void			setKeywordsXml(const LLSD& content) { mKeywordsXml = content; }
+	typedef			boost::signals2::signal<void()> file_fetched_signal_t;
 	boost::signals2::connection		addFileFetchedCallback(const file_fetched_signal_t::slot_type& cb);
-
 
 protected:
 	std::string		buildFileNameNew();
@@ -97,6 +72,25 @@ protected:
 	void			setFileNameCurrent(const std::string& name) { mFileNameCurrent = name; }
 	void			setFileNameDefault(const std::string& name) { mFileNameDefault = name; }
 	void			setFileNameNew(const std::string name) { mFileNameNew = name; }
+	
+private:
+	bool		mInitialized;
+	LLSD		mKeywordsXml;
+	bool		mLoaded;
+	bool		mLoadFailed;
+	bool		mVersionChanged;
+	file_fetched_signal_t	mFileFetchedSignal;
+	
+	std::string		mCapabilityName;
+	std::string		mCapabilityURL;
+	std::string		mFileNameCurrent;
+	std::string		mFileNameDefault;
+	std::string		mFileNameNew;
+	ELLPath			mFilePath;
+	std::string		mFullFileSpec;
+	std::string		mSimulatorFeature;
+	LLUUID			mSyntaxIdCurrent;
+	LLUUID			mSyntaxIdNew;
 };
 
 
