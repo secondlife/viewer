@@ -504,6 +504,16 @@ void LLMediaCtrl::navigateForward()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+void LLMediaCtrl::navigateStop()
+{
+	if (mMediaSource && mMediaSource->hasMedia())
+	{
+		mMediaSource->getMediaPlugin()->browse_stop();
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
 bool LLMediaCtrl::canNavigateBack()
 {
 	if (mMediaSource)
