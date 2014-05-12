@@ -227,7 +227,7 @@ LLFolderView::LLFolderView(const Params& p)
 	mStatusTextBox = LLUICtrlFactory::create<LLTextBox> (text_p);
 	mStatusTextBox->setFollowsLeft();
 	mStatusTextBox->setFollowsTop();
-	//addChild(mStatusTextBox);
+	addChild(mStatusTextBox);
 
 
 	// make the popup menu available
