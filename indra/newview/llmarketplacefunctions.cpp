@@ -252,6 +252,66 @@ public:
     }
 };
 
+class LLSLMGetListingResponder : public LLHTTPClient::Responder
+{
+	LOG_CLASS(LLSLMGetListingResponder);
+public:
+	
+    LLSLMGetListingResponder() {}
+    
+    virtual void completedRaw(U32 status,
+                              const std::string& reason,
+                              const LLChannelDescriptors& channels,
+                              const LLIOPipe::buffer_ptr_t& buffer)
+    {
+        LLBufferStream istr(channels, buffer.get());
+        std::stringstream strstrm;
+        strstrm << istr.rdbuf();
+        const std::string body = strstrm.str();
+        
+		if (!isGoodStatus(status))
+		{
+            log_SLM_error("Get listing", status, reason, "", body);
+            return;
+		}
+        
+        Json::Value root;
+        Json::Reader reader;
+        if (!reader.parse(body,root))
+        {
+            log_SLM_error("Get listing", status, "Json parsing failed", reader.getFormatedErrorMessages(), body);
+            return;
+        }
+        
+        llinfos << "Merov : Get listing completedRaw : status = " << status << ", reason = " << reason << ", body = " << body << llendl;
+        
+        // Extract the info from the Json string
+        Json::ValueIterator it = root["listings"].begin();
+        
+        while (it != root["listings"].end())
+        {
+            Json::Value listing = *it;
+            
+            int listing_id = listing["id"].asInt();
+            bool is_listed = listing["is_listed"].asBool();
+            std::string edit_url = listing["edit_url"].asString();
+            std::string folder_uuid_string = listing["inventory_info"]["listing_folder_id"].asString();
+            std::string version_uuid_string = listing["inventory_info"]["version_folder_id"].asString();
+            
+            LLUUID folder_id(folder_uuid_string);
+            LLUUID version_id(version_uuid_string);
+            
+            // Update that listing
+            LLMarketplaceData::instance().setListingID(folder_id, listing_id);
+            LLMarketplaceData::instance().setVersionFolderID(folder_id, version_id);
+            LLMarketplaceData::instance().setActivationState(folder_id, is_listed);
+            LLMarketplaceData::instance().setListingURL(folder_id, edit_url);
+            
+            it++;
+        }
+    }
+};
+
 class LLSLMUpdateListingsResponder : public LLHTTPClient::Responder
 {
 	LOG_CLASS(LLSLMUpdateListingsResponder);
@@ -989,6 +1049,18 @@ void LLMarketplaceData::getSLMListings()
 	LLHTTPClient::get(getSLMConnectURL("/listings"), new LLSLMGetListingsResponder(), LLSD());
 }
 
+void LLMarketplaceData::getSLMListing(S32 listing_id)
+{
+	LLSD headers = LLSD::emptyMap();
+	headers["Accept"] = "application/json";
+	headers["Content-Type"] = "application/json";
+    
+	// Send request
+    std::string url = getSLMConnectURL("/listing/") + llformat("%d",listing_id);
+    llinfos << "Merov : get listing : " << url << llendl;
+	LLHTTPClient::get(url, new LLSLMGetListingResponder(), headers);
+}
+
 void LLMarketplaceData::createSLMListing(const LLUUID& folder_id)
 {
 	LLSD headers = LLSD::emptyMap();
@@ -1147,6 +1219,33 @@ bool LLMarketplaceData::clearListing(const LLUUID& folder_id)
     
     // Update the SLM Server so that this listing is deleted (actually, archived...)
     deleteSLMListing(listing_id);
+    
+    return true;
+}
+
+bool LLMarketplaceData::getListing(const LLUUID& folder_id)
+{
+    if (folder_id.isNull())
+    {
+        // Folder doesn't exists -> exit with error
+        return false;
+    }
+    
+    // Folder id can be the root of the listing or not so we need to retrieve the root first
+    S32 depth = depth_nesting_in_marketplace(folder_id);
+    LLUUID listing_uuid = (isListed(folder_id) ? folder_id : nested_parent_id(folder_id, depth));
+    S32 listing_id = getListingID(listing_uuid);
+    
+    if (listing_id == 0)
+    {
+        // Listing doesn't exists -> exit with error
+        return false;
+    }
+    
+    llinfos << "Merov : getListing, listing uuid = " << listing_uuid << ", listing id = " << listing_id << ", depth = " << depth << llendl;
+    
+    // Get listing data from SLM
+    getSLMListing(listing_id);
     
     return true;
 }

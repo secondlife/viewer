@@ -866,6 +866,7 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
         items.push_back(std::string("Marketplace Create Listing"));
         items.push_back(std::string("Marketplace Associate Listing"));
         items.push_back(std::string("Marketplace Disassociate Listing"));
+        items.push_back(std::string("Marketplace Get Listing"));
         items.push_back(std::string("Marketplace List"));
         items.push_back(std::string("Marketplace Unlist"));
         if (LLMarketplaceData::instance().isListed(mUUID))
@@ -892,6 +893,7 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
         else
         {
 			disabled_items.push_back(std::string("Marketplace Disassociate Listing"));
+			disabled_items.push_back(std::string("Marketplace Get Listing"));
 			disabled_items.push_back(std::string("Marketplace List"));
 			disabled_items.push_back(std::string("Marketplace Unlist"));
         }
@@ -3216,6 +3218,12 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
     else if ("marketplace_disassociate_listing" == action)
     {
         LLMarketplaceData::instance().clearListing(mUUID);
+		return;
+    }
+    else if ("marketplace_get_listing" == action)
+    {
+        // This is used only to exercise the SLM API but won't be shown to end users
+        LLMarketplaceData::instance().getListing(mUUID);
 		return;
     }
 	else if ("marketplace_associate_listing" == action)

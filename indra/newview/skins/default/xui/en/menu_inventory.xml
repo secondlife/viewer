@@ -29,6 +29,14 @@
         parameter="marketplace_disassociate_listing" />
 	</menu_item_call>
 	<menu_item_call
+        label="Get (Refresh) Listing"
+        layout="topleft"
+        name="Marketplace Get Listing">
+		<menu_item_call.on_click
+        function="Inventory.DoToSelected"
+        parameter="marketplace_get_listing" />
+	</menu_item_call>
+	<menu_item_call
         label="Edit Listing"
         layout="topleft"
         name="Marketplace Edit Listing">

@@ -160,6 +160,7 @@ typedef std::map<LLUUID, LLMarketplaceTuple> marketplace_items_list_t;
 class LLSLMGetMerchantResponder;
 class LLSLMGetListingsResponder;
 class LLSLMCreateListingsResponder;
+class LLSLMGetListingResponder;
 class LLSLMUpdateListingsResponder;
 class LLSLMAssociateListingsResponder;
 class LLSLMDeleteListingsResponder;
@@ -171,6 +172,7 @@ public:
 	friend class LLSLMGetMerchantResponder;
     friend class LLSLMGetListingsResponder;
     friend class LLSLMCreateListingsResponder;
+    friend class LLSLMGetListingResponder;
     friend class LLSLMUpdateListingsResponder;
     friend class LLSLMAssociateListingsResponder;
     friend class LLSLMDeleteListingsResponder;
@@ -191,6 +193,7 @@ public:
     bool clearListing(const LLUUID& folder_id);
     bool setVersionFolder(const LLUUID& folder_id, const LLUUID& version_id);
     bool associateListing(const LLUUID& folder_id, S32 listing_id);
+    bool getListing(const LLUUID& folder_id);
     
     // Probe the Marketplace data set to identify folders
     bool isListed(const LLUUID& folder_id); // returns true if folder_id is a Listing folder
@@ -220,6 +223,7 @@ private:
     // Private SLM API : package data and get/post/put requests to the SLM Server through the SLM API
 	void setSLMStatus(U32 status);
     void createSLMListing(const LLUUID& folder_id);
+    void getSLMListing(S32 listing_id);
     void updateSLMListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed);
     void associateSLMListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id);
     void deleteSLMListing(S32 listing_id);
