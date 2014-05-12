@@ -480,6 +480,17 @@ void LLFloaterRegionInfo::refresh()
 	}
 }
 
+void LLFloaterRegionInfo::enableTopButtons()
+{
+	getChildView("top_colliders_btn")->setEnabled(true);
+	getChildView("top_scripts_btn")->setEnabled(true);
+}
+
+void LLFloaterRegionInfo::disableTopButtons()
+{
+	getChildView("top_colliders_btn")->setEnabled(false);
+	getChildView("top_scripts_btn")->setEnabled(false);
+}
 
 ///----------------------------------------------------------------------------
 /// Local class implementation
@@ -1028,6 +1039,11 @@ void LLPanelRegionDebugInfo::onClickTopColliders(void* data)
 	if(!instance) return;
 	LLFloaterReg::showInstance("top_objects");
 	instance->clearList();
+	instance->disableRefreshBtn();
+
+	self->getChildView("top_colliders_btn")->setEnabled(false);
+	self->getChildView("top_scripts_btn")->setEnabled(false);
+
 	self->sendEstateOwnerMessage(gMessageSystem, "colliders", invoice, strings);
 }
 
@@ -1042,6 +1058,11 @@ void LLPanelRegionDebugInfo::onClickTopScripts(void* data)
 	if(!instance) return;
 	LLFloaterReg::showInstance("top_objects");
 	instance->clearList();
+	instance->disableRefreshBtn();
+
+	self->getChildView("top_colliders_btn")->setEnabled(false);
+	self->getChildView("top_scripts_btn")->setEnabled(false);
+
 	self->sendEstateOwnerMessage(gMessageSystem, "scripts", invoice, strings);
 }
 
