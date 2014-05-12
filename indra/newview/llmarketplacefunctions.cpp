@@ -102,9 +102,19 @@ LLSD getMarketplaceStringSubstitutions()
 
 ///////////////////////////////////////////////////////////////////////////////
 // SLM Responders
-void log_SLM_error(const std::string& request, U32 status, const std::string& reason, const std::string& code, const std::string& description)
+void log_SLM_warning(const std::string& request, U32 status, const std::string& reason, const std::string& code, const std::string& description)
 {
-		LL_WARNS("SLM") << "Merov : " << request << " request failed. status : " << status << ", reason : " << reason << ", code : " << code << ", description : " << description << LL_ENDL;
+    if (gSavedSettings.getBOOL("MarketplaceListingsLogging"))
+    {
+		LL_WARNS("SLM") << "SLM API : Responder to " << request << ". status : " << status << ", reason : " << reason << ", code : " << code << ", description : " << description << LL_ENDL;
+    }
+}
+void log_SLM_warning(const std::string& request, const std::string& url, const std::string& data)
+{
+    if (gSavedSettings.getBOOL("MarketplaceListingsLogging"))
+    {
+		LL_WARNS("SLM") << "SLM API : Sending " << request << ". url : " << url << ", data : " << data << LL_ENDL;
+    }
 }
 
 // Merov: This is a temporary hack used by dev while secondlife-staging is down...
@@ -124,15 +134,17 @@ public:
     {
 		if (isGoodStatus(status) || sBypassMerchant)
 		{
+            log_SLM_warning("Get /merchant", status, reason, "", "User is a merchant");
             LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_MERCHANT);
 		}
 		else if (status == SLMErrorCodes::SLM_NOT_FOUND)
 		{
+            log_SLM_warning("Get /merchant", status, reason, "", "User is not a merchant");
             LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_MERCHANT);
 		}
 		else
 		{
-            log_SLM_error("Get merchant", status, reason, content.get("error_code"), content.get("error_description"));
+            log_SLM_warning("Get /merchant", status, reason, content.get("error_code"), content.get("error_description"));
             LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_CONNECTION_FAILURE);
 		}
     }
@@ -152,7 +164,7 @@ public:
     {
 		if (!isGoodStatus(status))
 		{
-            log_SLM_error("Get listings", status, reason, "", "");
+            log_SLM_warning("Get /listings", status, reason, "", "");
             return;
 		}
         
@@ -165,11 +177,11 @@ public:
         Json::Reader reader;
         if (!reader.parse(body,root))
         {
-            log_SLM_error("Get listings", status, "Json parsing failed", reader.getFormatedErrorMessages(), body);
+            log_SLM_warning("Get /listings", status, "Json parsing failed", reader.getFormatedErrorMessages(), body);
             return;
         }
 
-        llinfos << "Merov : Get listings completedRaw : data = " << body << llendl;
+        log_SLM_warning("Get /listings", status, reason, "", body);
 
         // Extract the info from the Json string
         Json::ValueIterator it = root["listings"].begin();
@@ -211,7 +223,7 @@ public:
     {
 		if (!isGoodStatus(status))
 		{
-            log_SLM_error("Post listings", status, reason, "", "");
+            log_SLM_warning("Post /listings", status, reason, "", "");
             return;
 		}
         
@@ -224,11 +236,11 @@ public:
         Json::Reader reader;
         if (!reader.parse(body,root))
         {
-            log_SLM_error("Post listings", status, "Json parsing failed", reader.getFormatedErrorMessages(), body);
+            log_SLM_warning("Post /listings", status, "Json parsing failed", reader.getFormatedErrorMessages(), body);
             return;
         }
 
-        llinfos << "Merov : Create listing completedRaw : data = " << body << llendl;
+        log_SLM_warning("Post /listings", status, reason, "", body);
 
         // Extract the info from the Json string
         Json::ValueIterator it = root["listings"].begin();
@@ -271,7 +283,7 @@ public:
         
 		if (!isGoodStatus(status))
 		{
-            log_SLM_error("Get listing", status, reason, "", body);
+            log_SLM_warning("Get /listing", status, reason, "", body);
             return;
 		}
         
@@ -279,11 +291,11 @@ public:
         Json::Reader reader;
         if (!reader.parse(body,root))
         {
-            log_SLM_error("Get listing", status, "Json parsing failed", reader.getFormatedErrorMessages(), body);
+            log_SLM_warning("Get /listing", status, "Json parsing failed", reader.getFormatedErrorMessages(), body);
             return;
         }
         
-        llinfos << "Merov : Get listing completedRaw : status = " << status << ", reason = " << reason << ", body = " << body << llendl;
+        log_SLM_warning("Get /listing", status, reason, "", body);
         
         // Extract the info from the Json string
         Json::ValueIterator it = root["listings"].begin();
@@ -331,7 +343,7 @@ public:
         
 		if (!isGoodStatus(status))
 		{
-            log_SLM_error("Put listings", status, reason, "", body);
+            log_SLM_warning("Put /listing", status, reason, "", body);
             return;
 		}
         
@@ -339,11 +351,11 @@ public:
         Json::Reader reader;
         if (!reader.parse(body,root))
         {
-            log_SLM_error("Put listings", status, "Json parsing failed", reader.getFormatedErrorMessages(), body);
+            log_SLM_warning("Put /listing", status, "Json parsing failed", reader.getFormatedErrorMessages(), body);
             return;
         }
         
-        llinfos << "Merov : Update listing completedRaw : status = " << status << ", reason = " << reason << ", body = " << body << llendl;
+        log_SLM_warning("Put /listing", status, reason, "", body);
 
         // Extract the info from the Json string
         Json::ValueIterator it = root["listings"].begin();
@@ -388,7 +400,7 @@ public:
     {
 		if (!isGoodStatus(status))
 		{
-            log_SLM_error("Associate listings", status, reason, "", "");
+            log_SLM_warning("Put /associate_inventory", status, reason, "", "");
             return;
 		}
         
@@ -401,11 +413,11 @@ public:
         Json::Reader reader;
         if (!reader.parse(body,root))
         {
-            log_SLM_error("Associate listings", status, "Json parsing failed", reader.getFormatedErrorMessages(), body);
+            log_SLM_warning("Put /associate_inventory", status, "Json parsing failed", reader.getFormatedErrorMessages(), body);
             return;
         }
         
-        llinfos << "Merov : Associate listing completedRaw : data = " << body << llendl;
+        log_SLM_warning("Put /associate_inventory", status, reason, "", body);
         
         // Extract the info from the Json string
         Json::ValueIterator it = root["listings"].begin();
@@ -460,7 +472,7 @@ public:
         
  		if (!isGoodStatus(status))
 		{
-            log_SLM_error("Delete listings", status, reason, "", body);
+            log_SLM_warning("Delete /listing", status, reason, "", body);
             return;
 		}
         
@@ -468,11 +480,11 @@ public:
         Json::Reader reader;
         if (!reader.parse(body,root))
         {
-            log_SLM_error("Delete listings", status, "Json parsing failed", reader.getFormatedErrorMessages(), body);
+            log_SLM_warning("Delete /listing", status, "Json parsing failed", reader.getFormatedErrorMessages(), body);
             return;
         }
         
-        llinfos << "Merov : Delete listing completedRaw : data = " << body << llendl;
+        log_SLM_warning("Delete /listing", status, reason, "", body);
         
         // Extract the info from the Json string
         Json::ValueIterator it = root["listings"].begin();
@@ -482,16 +494,8 @@ public:
             Json::Value listing = *it;
             
             int listing_id = listing["id"].asInt();
-            std::string folder_uuid_string = listing["inventory_info"]["listing_folder_id"].asString();
-            
-            LLUUID folder_id(folder_uuid_string);
-            
-            // Check that the listing ID is associated to the correct folder
-            LLUUID old_listing = LLMarketplaceData::instance().getListingFolder(listing_id);
-            if (old_listing == folder_id)
-            {
-                LLMarketplaceData::instance().deleteListing(folder_id);
-            }
+            LLUUID folder_id = LLMarketplaceData::instance().getListingFolder(listing_id);
+            LLMarketplaceData::instance().deleteListing(folder_id);
             
             it++;
         }
@@ -1040,13 +1044,18 @@ void LLMarketplaceData::initializeSLM(const status_updated_signal_t::slot_type& 
 		mStatusUpdatedSignal = new status_updated_signal_t();
 	}
 	mStatusUpdatedSignal->connect(cb);
-	LLHTTPClient::get(getSLMConnectURL("/merchant"), new LLSLMGetMerchantResponder(), LLSD());
+    
+    std::string url = getSLMConnectURL("/merchant");
+    log_SLM_warning("LLHTTPClient::get", url, "");
+	LLHTTPClient::get(url, new LLSLMGetMerchantResponder(), LLSD());
 }
 
 // Get/Post/Put requests to the SLM Server using the SLM API
 void LLMarketplaceData::getSLMListings()
 {
-	LLHTTPClient::get(getSLMConnectURL("/listings"), new LLSLMGetListingsResponder(), LLSD());
+    std::string url = getSLMConnectURL("/listings");
+    log_SLM_warning("LLHTTPClient::get", url, "");
+	LLHTTPClient::get(url, new LLSLMGetListingsResponder(), LLSD());
 }
 
 void LLMarketplaceData::getSLMListing(S32 listing_id)
@@ -1057,7 +1066,7 @@ void LLMarketplaceData::getSLMListing(S32 listing_id)
     
 	// Send request
     std::string url = getSLMConnectURL("/listing/") + llformat("%d",listing_id);
-    llinfos << "Merov : get listing : " << url << llendl;
+    log_SLM_warning("LLHTTPClient::get", url, "");
 	LLHTTPClient::get(url, new LLSLMGetListingResponder(), headers);
 }
 
@@ -1083,7 +1092,9 @@ void LLMarketplaceData::createSLMListing(const LLUUID& folder_id)
 	memcpy(data, (U8*)(json_str.c_str()), size);
     
 	// Send request
-	LLHTTPClient::postRaw(getSLMConnectURL("/listings"), data, size, new LLSLMCreateListingsResponder(), headers);
+    std::string url = getSLMConnectURL("/listings");
+    log_SLM_warning("LLHTTPClient::postRaw", url, json_str);
+	LLHTTPClient::postRaw(url, data, size, new LLSLMCreateListingsResponder(), headers);
 }
 
 void LLMarketplaceData::updateSLMListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed)
@@ -1110,7 +1121,7 @@ void LLMarketplaceData::updateSLMListing(const LLUUID& folder_id, S32 listing_id
     
 	// Send request
     std::string url = getSLMConnectURL("/listing/") + llformat("%d",listing_id);
-    llinfos << "Merov : updating listing : " << url << ", data = " << json_str << llendl;
+    log_SLM_warning("LLHTTPClient::putRaw", url, json_str);
 	LLHTTPClient::putRaw(url, data, size, new LLSLMUpdateListingsResponder(), headers);
 }
 
@@ -1137,7 +1148,7 @@ void LLMarketplaceData::associateSLMListing(const LLUUID& folder_id, S32 listing
     
 	// Send request
     std::string url = getSLMConnectURL("/associate_inventory/") + llformat("%d",listing_id);
-    llinfos << "Merov : associate listing : " << url << ", data = " << json_str << llendl;
+    log_SLM_warning("LLHTTPClient::putRaw", url, json_str);
 	LLHTTPClient::putRaw(url, data, size, new LLSLMAssociateListingsResponder(), headers);
 }
 
@@ -1149,7 +1160,7 @@ void LLMarketplaceData::deleteSLMListing(S32 listing_id)
         
 	// Send request
     std::string url = getSLMConnectURL("/listing/") + llformat("%d",listing_id);
-    llinfos << "Merov : delete listing : " << url << llendl;
+    log_SLM_warning("LLHTTPClient::del", url, "");
 	LLHTTPClient::del(url, new LLSLMDeleteListingsResponder(), headers);
 }
 
@@ -1215,8 +1226,6 @@ bool LLMarketplaceData::clearListing(const LLUUID& folder_id)
         return false;
     }
     
-    llinfos << "Merov : clearListing, folder id = " << folder_id << ", listing uuid = " << listing_uuid << ", listing id = " << listing_id << ", depth = " << depth << llendl;
-    
     // Update the SLM Server so that this listing is deleted (actually, archived...)
     deleteSLMListing(listing_id);
     
@@ -1241,8 +1250,6 @@ bool LLMarketplaceData::getListing(const LLUUID& folder_id)
         // Listing doesn't exists -> exit with error
         return false;
     }
-    
-    llinfos << "Merov : getListing, listing uuid = " << listing_uuid << ", listing id = " << listing_id << ", depth = " << depth << llendl;
     
     // Get listing data from SLM
     getSLMListing(listing_id);

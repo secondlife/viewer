@@ -866,9 +866,12 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
         items.push_back(std::string("Marketplace Create Listing"));
         items.push_back(std::string("Marketplace Associate Listing"));
         items.push_back(std::string("Marketplace Disassociate Listing"));
-        items.push_back(std::string("Marketplace Get Listing"));
         items.push_back(std::string("Marketplace List"));
         items.push_back(std::string("Marketplace Unlist"));
+		if (gSavedSettings.getBOOL("MarketplaceListingsLogging"))
+		{
+            items.push_back(std::string("Marketplace Get Listing"));
+        }
         if (LLMarketplaceData::instance().isListed(mUUID))
         {
 			disabled_items.push_back(std::string("Marketplace Create Listing"));
@@ -893,9 +896,12 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
         else
         {
 			disabled_items.push_back(std::string("Marketplace Disassociate Listing"));
-			disabled_items.push_back(std::string("Marketplace Get Listing"));
 			disabled_items.push_back(std::string("Marketplace List"));
 			disabled_items.push_back(std::string("Marketplace Unlist"));
+            if (gSavedSettings.getBOOL("MarketplaceListingsLogging"))
+            {
+                disabled_items.push_back(std::string("Marketplace Get Listing"));
+            }
         }
     }
     if (depth == 2)
