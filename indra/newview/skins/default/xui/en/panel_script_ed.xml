@@ -149,7 +149,7 @@
         </menu>
     </menu_bar>
     <script_editor
-    left="0"
+     left="0"
      type="string"
      length="1"
      follows="left|top|right|bottom"
@@ -162,7 +162,9 @@
      text_readonly_color="DkGray"
      width="487"
      enable_tooltip_paste="true"
-     word_wrap="true">
+     word_wrap="true"
+     show_context_menu="true"
+     show_line_numbers="true">
         Loading...
     </script_editor>
     <scroll_list

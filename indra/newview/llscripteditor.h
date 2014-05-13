@@ -32,7 +32,6 @@
 
 class LLScriptEditor : public LLTextEditor
 {
-	friend class LLUICtrlFactory;
 public:
 	
 	struct Params : public LLInitParam::Block<Params, LLTextEditor::Params>
@@ -48,6 +47,7 @@ public:
 	LLKeywords::keyword_iterator_t keywordsEnd()	{ return mKeywords.end(); }
 	
 protected:
+	friend class LLUICtrlFactory;
 	LLScriptEditor(const Params& p);
 	
 private:
