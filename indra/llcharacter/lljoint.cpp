@@ -432,7 +432,7 @@ const LLMatrix4 &LLJoint::getWorldMatrix()
 //--------------------------------------------------------------------
 void LLJoint::setWorldMatrix( const LLMatrix4& mat )
 {
-llinfos << "WARNING: LLJoint::setWorldMatrix() not correctly implemented yet" << llendl;
+LL_INFOS() << "WARNING: LLJoint::setWorldMatrix() not correctly implemented yet" << LL_ENDL;
 	// extract global translation
 	LLVector3 trans(	mat.mMatrix[VW][VX],
 						mat.mMatrix[VW][VY],
@@ -554,7 +554,7 @@ void LLJoint::clampRotation(LLQuaternion old_rot, LLQuaternion new_rot)
 //	LLVector3 old_axis = main_axis * old_rot;
 //	LLVector3 new_axis = main_axis * new_rot;
 
-//	for (S32 i = 0; i < mConstraintSilhouette.count() - 1; i++)
+//	for (S32 i = 0; i < mConstraintSilhouette.size() - 1; i++)
 //	{
 //		LLVector3 vert1 = mConstraintSilhouette[i];
 //		LLVector3 vert2 = mConstraintSilhouette[i + 1];

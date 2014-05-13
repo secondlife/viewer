@@ -32,7 +32,6 @@
 #include "llapr.h"
 #include "llmessageconfig.h"
 #include "llsdserialize.h"
-#include "llversionserver.h"
 #include "message.h"
 #include "message_prehash.h"
 
@@ -73,9 +72,9 @@ namespace tut
 
 			// currently test disconnected message system
 			start_messaging_system("notafile", 13035,
-								   LL_VERSION_MAJOR,
-								   LL_VERSION_MINOR,        
-								   LL_VERSION_PATCH,        
+								   1,
+								   0,        
+								   0,        
 								   FALSE,        
 								   "notasharedsecret",
 								   NULL,

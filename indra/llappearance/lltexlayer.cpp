@@ -30,7 +30,6 @@
 
 #include "llavatarappearance.h"
 #include "llcrc.h"
-#include "imageids.h"
 #include "llimagej2c.h"
 #include "llimagetga.h"
 #include "lldir.h"
@@ -38,11 +37,13 @@
 #include "llvfs.h"
 #include "lltexlayerparams.h"
 #include "lltexturemanagerbridge.h"
+#include "lllocaltextureobject.h"
 #include "../llui/llui.h"
 #include "llwearable.h"
 #include "llwearabledata.h"
 #include "llvertexbuffer.h"
 #include "llviewervisualparam.h"
+#include "llfasttimer.h"
 
 //#include "../tools/imdebug/imdebug.h"
 
@@ -210,7 +211,7 @@ BOOL LLTexLayerSetInfo::parseXml(LLXmlTreeNode* node)
 	static LLStdStringHandle body_region_string = LLXmlTree::addAttributeString("body_region");
 	if( !node->getFastAttributeString( body_region_string, mBodyRegion ) )
 	{
-		llwarns << "<layer_set> is missing body_region attribute" << llendl;
+		LL_WARNS() << "<layer_set> is missing body_region attribute" << LL_ENDL;
 		return FALSE;
 	}
 
@@ -521,10 +522,10 @@ const LLTexLayerSetBuffer* LLTexLayerSet::getComposite() const
 	return mComposite;
 }
 
-static LLFastTimer::DeclareTimer FTM_GATHER_MORPH_MASK_ALPHA("gatherMorphMaskAlpha");
+static LLTrace::BlockTimerStatHandle FTM_GATHER_MORPH_MASK_ALPHA("gatherMorphMaskAlpha");
 void LLTexLayerSet::gatherMorphMaskAlpha(U8 *data, S32 origin_x, S32 origin_y, S32 width, S32 height)
 {
-	LLFastTimer t(FTM_GATHER_MORPH_MASK_ALPHA);
+	LL_RECORD_BLOCK_TIME(FTM_GATHER_MORPH_MASK_ALPHA);
 	memset(data, 255, width * height);
 
 	for( layer_list_t::iterator iter = mLayerList.begin(); iter != mLayerList.end(); iter++ )
@@ -537,10 +538,10 @@ void LLTexLayerSet::gatherMorphMaskAlpha(U8 *data, S32 origin_x, S32 origin_y, S
 	renderAlphaMaskTextures(origin_x, origin_y, width, height, true);
 }
 
-static LLFastTimer::DeclareTimer FTM_RENDER_ALPHA_MASK_TEXTURES("renderAlphaMaskTextures");
+static LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA_MASK_TEXTURES("renderAlphaMaskTextures");
 void LLTexLayerSet::renderAlphaMaskTextures(S32 x, S32 y, S32 width, S32 height, bool forceClear)
 {
-	LLFastTimer t(FTM_RENDER_ALPHA_MASK_TEXTURES);
+	LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_MASK_TEXTURES);
 	const LLTexLayerSetInfo *info = getInfo();
 	
 	bool use_shaders = LLGLSLShader::sNoFixedFunction;
@@ -740,13 +741,13 @@ BOOL LLTexLayerInfo::parseXml(LLXmlTreeNode* node)
 			}
 			if (mLocalTexture == TEX_NUM_INDICES)
 			{
-				llwarns << "<texture> element has invalid local_texture attribute: " << mName << " " << local_texture_name << llendl;
+				LL_WARNS() << "<texture> element has invalid local_texture attribute: " << mName << " " << local_texture_name << LL_ENDL;
 				return FALSE;
 			}
 		}
 		else	
 		{
-			llwarns << "<texture> element is missing a required attribute. " << mName << llendl;
+			LL_WARNS() << "<texture> element is missing a required attribute. " << mName << LL_ENDL;
 			return FALSE;
 		}
 	}
@@ -809,7 +810,7 @@ BOOL LLTexLayerInfo::createVisualParams(LLAvatarAppearance *appearance)
 		LLTexLayerParamColor* param_color = new LLTexLayerParamColor(appearance);
 		if (!param_color->setInfo(color_info, TRUE))
 		{
-			llwarns << "NULL TexLayer Color Param could not be added to visual param list. Deleting." << llendl;
+			LL_WARNS() << "NULL TexLayer Color Param could not be added to visual param list. Deleting." << LL_ENDL;
 			delete param_color;
 			success = FALSE;
 		}
@@ -823,7 +824,7 @@ BOOL LLTexLayerInfo::createVisualParams(LLAvatarAppearance *appearance)
 		LLTexLayerParamAlpha* param_alpha = new LLTexLayerParamAlpha(appearance);
 		if (!param_alpha->setInfo(alpha_info, TRUE))
 		{
-			llwarns << "NULL TexLayer Alpha Param could not be added to visual param list. Deleting." << llendl;
+			LL_WARNS() << "NULL TexLayer Alpha Param could not be added to visual param list. Deleting." << LL_ENDL;
 			delete param_alpha;
 			success = FALSE;
 		}
@@ -856,7 +857,7 @@ BOOL LLTexLayerInterface::setInfo(const LLTexLayerInfo *info, LLWearable* wearab
 	// Not a critical warning, but could be useful for debugging later issues. -Nyx
 	if (mInfo != NULL) 
 	{
-			llwarns << "mInfo != NULL" << llendl;
+			LL_WARNS() << "mInfo != NULL" << LL_ENDL;
 	}
 	mInfo = info;
 	//mID = info->mID; // No ID
@@ -1212,7 +1213,7 @@ BOOL LLTexLayer::render(S32 x, S32 y, S32 width, S32 height)
 			}
 			else
 			{
-				llinfos << "lto not defined or image not defined: " << getInfo()->getLocalTexture() << " lto: " << mLocalTextureObject << llendl;
+				LL_INFOS() << "lto not defined or image not defined: " << getInfo()->getLocalTexture() << " lto: " << mLocalTextureObject << LL_ENDL;
 			}
 //			if( mTexLayerSet->getAvatarAppearance()->getLocalTextureGL((ETextureIndex)getInfo()->mLocalTexture, &image_gl ) )
 			{
@@ -1300,7 +1301,7 @@ BOOL LLTexLayer::render(S32 x, S32 y, S32 width, S32 height)
 
 	if( !success )
 	{
-		llinfos << "LLTexLayer::render() partial: " << getInfo()->mName << llendl;
+		LL_INFOS() << "LLTexLayer::render() partial: " << getInfo()->mName << LL_ENDL;
 	}
 	return success;
 }
@@ -1432,15 +1433,15 @@ BOOL LLTexLayer::blendAlphaTexture(S32 x, S32 y, S32 width, S32 height)
 	addAlphaMask(data, originX, originY, width, height);
 }
 
-static LLFastTimer::DeclareTimer FTM_RENDER_MORPH_MASKS("renderMorphMasks");
+static LLTrace::BlockTimerStatHandle FTM_RENDER_MORPH_MASKS("renderMorphMasks");
 void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLColor4 &layer_color, bool force_render)
 {
 	if (!force_render && !hasMorph())
 	{
-		lldebugs << "skipping renderMorphMasks for " << getUUID() << llendl;
+		LL_DEBUGS() << "skipping renderMorphMasks for " << getUUID() << LL_ENDL;
 		return;
 	}
-	LLFastTimer t(FTM_RENDER_MORPH_MASKS);
+	LL_RECORD_BLOCK_TIME(FTM_RENDER_MORPH_MASKS);
 	BOOL success = TRUE;
 
 	llassert( !mParamAlphaList.empty() );
@@ -1478,7 +1479,7 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 		success &= param->render( x, y, width, height );
 		if (!success && !force_render)
 		{
-			lldebugs << "Failed to render param " << param->getID() << " ; skipping morph mask." << llendl;
+			LL_DEBUGS() << "Failed to render param " << param->getID() << " ; skipping morph mask." << LL_ENDL;
 			return;
 		}
 	}
@@ -1520,8 +1521,8 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 			}
 			else
 			{
-				llwarns << "Skipping rendering of " << getInfo()->mStaticImageFileName 
-						<< "; expected 1 or 4 components." << llendl;
+				LL_WARNS() << "Skipping rendering of " << getInfo()->mStaticImageFileName 
+						<< "; expected 1 or 4 components." << LL_ENDL;
 			}
 		}
 	}
@@ -1586,10 +1587,10 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_ADD_ALPHA_MASK("addAlphaMask");
+static LLTrace::BlockTimerStatHandle FTM_ADD_ALPHA_MASK("addAlphaMask");
 void LLTexLayer::addAlphaMask(U8 *data, S32 originX, S32 originY, S32 width, S32 height)
 {
-	LLFastTimer t(FTM_ADD_ALPHA_MASK);
+	LL_RECORD_BLOCK_TIME(FTM_ADD_ALPHA_MASK);
 	S32 size = width * height;
 	const U8* alphaData = getAlphaData();
 	if (!alphaData && hasAlphaParams())
@@ -1901,18 +1902,18 @@ LLTexLayerStaticImageList::~LLTexLayerStaticImageList()
 
 void LLTexLayerStaticImageList::dumpByteCount() const
 {
-	llinfos << "Avatar Static Textures " <<
+	LL_INFOS() << "Avatar Static Textures " <<
 		"KB GL:" << (mGLBytes / 1024) <<
-		"KB TGA:" << (mTGABytes / 1024) << "KB" << llendl;
+		"KB TGA:" << (mTGABytes / 1024) << "KB" << LL_ENDL;
 }
 
 void LLTexLayerStaticImageList::deleteCachedImages()
 {
 	if( mGLBytes || mTGABytes )
 	{
-		llinfos << "Clearing Static Textures " <<
+		LL_INFOS() << "Clearing Static Textures " <<
 			"KB GL:" << (mGLBytes / 1024) <<
-			"KB TGA:" << (mTGABytes / 1024) << "KB" << llendl;
+			"KB TGA:" << (mTGABytes / 1024) << "KB" << LL_ENDL;
 
 		//mStaticImageLists uses LLPointers, clear() will cause deletion
 		
@@ -1930,10 +1931,10 @@ void LLTexLayerStaticImageList::deleteCachedImages()
 
 // Returns an LLImageTGA that contains the encoded data from a tga file named file_name.
 // Caches the result to speed identical subsequent requests.
-static LLFastTimer::DeclareTimer FTM_LOAD_STATIC_TGA("getImageTGA");
+static LLTrace::BlockTimerStatHandle FTM_LOAD_STATIC_TGA("getImageTGA");
 LLImageTGA* LLTexLayerStaticImageList::getImageTGA(const std::string& file_name)
 {
-	LLFastTimer t(FTM_LOAD_STATIC_TGA);
+	LL_RECORD_BLOCK_TIME(FTM_LOAD_STATIC_TGA);
 	const char *namekey = mImageNames.addString(file_name);
 	image_tga_map_t::const_iterator iter = mStaticImageListTGA.find(namekey);
 	if( iter != mStaticImageListTGA.end() )
@@ -1960,10 +1961,10 @@ LLImageTGA* LLTexLayerStaticImageList::getImageTGA(const std::string& file_name)
 
 // Returns a GL Image (without a backing ImageRaw) that contains the decoded data from a tga file named file_name.
 // Caches the result to speed identical subsequent requests.
-static LLFastTimer::DeclareTimer FTM_LOAD_STATIC_TEXTURE("getTexture");
+static LLTrace::BlockTimerStatHandle FTM_LOAD_STATIC_TEXTURE("getTexture");
 LLGLTexture* LLTexLayerStaticImageList::getTexture(const std::string& file_name, BOOL is_mask)
 {
-	LLFastTimer t(FTM_LOAD_STATIC_TEXTURE);
+	LL_RECORD_BLOCK_TIME(FTM_LOAD_STATIC_TEXTURE);
 	LLPointer<LLGLTexture> tex;
 	const char *namekey = mImageNames.addString(file_name);
 
@@ -2010,10 +2011,10 @@ LLGLTexture* LLTexLayerStaticImageList::getTexture(const std::string& file_name,
 
 // Reads a .tga file, decodes it, and puts the decoded data in image_raw.
 // Returns TRUE if successful.
-static LLFastTimer::DeclareTimer FTM_LOAD_IMAGE_RAW("loadImageRaw");
+static LLTrace::BlockTimerStatHandle FTM_LOAD_IMAGE_RAW("loadImageRaw");
 BOOL LLTexLayerStaticImageList::loadImageRaw(const std::string& file_name, LLImageRaw* image_raw)
 {
-	LLFastTimer t(FTM_LOAD_IMAGE_RAW);
+	LL_RECORD_BLOCK_TIME(FTM_LOAD_IMAGE_RAW);
 	BOOL success = FALSE;
 	std::string path;
 	path = gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,file_name);

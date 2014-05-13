@@ -36,12 +36,15 @@
 #include "llproxy.h"
 #include "llvfile.h"
 #include "llvfs.h"
+#include "llxfer.h"
 
 #ifdef LL_STANDALONE
 # include <zlib.h>
 #else
 # include "zlib/zlib.h"
 #endif
+
+const	char* const	LOCAL_ASSET_URL_FORMAT		= "http://%s:12041/asset";
 
 const U32 MAX_RUNNING_REQUESTS = 1;
 const F32 MAX_PROCESSING_TIME = 0.005f;
@@ -266,7 +269,7 @@ void LLHTTPAssetRequest::setupCurlHandle()
 	}
 	else
 	{
-		llerrs << "LLHTTPAssetRequest::setupCurlHandle - No asset storage associated with this request!" << llendl;
+		LL_ERRS() << "LLHTTPAssetRequest::setupCurlHandle - No asset storage associated with this request!" << LL_ENDL;
 	}
 }
 
@@ -280,7 +283,7 @@ void LLHTTPAssetRequest::cleanupCurlHandle()
 	}
 	else
 	{
-		llerrs << "LLHTTPAssetRequest::~LLHTTPAssetRequest - No asset storage associated with this request!" << llendl;
+		LL_ERRS() << "LLHTTPAssetRequest::~LLHTTPAssetRequest - No asset storage associated with this request!" << LL_ENDL;
 	}
 	mCurlHandle = NULL;
 }
@@ -302,7 +305,7 @@ void LLHTTPAssetRequest::prepareCompressedUpload()
 
 	if (r != Z_OK)
 	{
-		llerrs << "LLHTTPAssetRequest::prepareCompressedUpload defalateInit2() failed" << llendl;
+		LL_ERRS() << "LLHTTPAssetRequest::prepareCompressedUpload defalateInit2() failed" << LL_ENDL;
 	}
 
 	mZInitialized = true;
@@ -317,10 +320,10 @@ void LLHTTPAssetRequest::finishCompressedUpload()
 {
 	if (mZInitialized)
 	{
-		llinfos << "LLHTTPAssetRequest::finishCompressedUpload: "
+		LL_INFOS() << "LLHTTPAssetRequest::finishCompressedUpload: "
 			<< "read " << mZStream.total_in << " byte asset file, "
 			<< "uploaded " << mZStream.total_out << " byte compressed asset"
-			<< llendl;
+			<< LL_ENDL;
 
 		deflateEnd(&mZStream);
 		delete[] mZInputBuffer;
@@ -358,8 +361,8 @@ size_t LLHTTPAssetRequest::readCompressedData(void* data, size_t size)
 		{
 			if (r < 0)
 			{
-				llwarns << "LLHTTPAssetRequest::readCompressedData: deflate returned error code " 
-						<< (S32) r << llendl;
+				LL_WARNS() << "LLHTTPAssetRequest::readCompressedData: deflate returned error code " 
+						<< (S32) r << LL_ENDL;
 			}
 			break;
 		}
@@ -446,7 +449,7 @@ void LLHTTPAssetStorage::storeAssetData(
 	bool store_local,
 	const LLUUID& requesting_agent_id,
 	bool user_waiting,
-	F64 timeout)
+	F64Seconds timeout)
 {
 	if (mVFS->getExists(uuid, type)) // VFS treats nonexistant and zero-length identically
 	{
@@ -486,7 +489,7 @@ void LLHTTPAssetStorage::storeAssetData(
 	}
 	else
 	{
-		llwarns << "AssetStorage: attempt to upload non-existent vfile " << uuid << ":" << LLAssetType::lookup(type) << llendl;
+		LL_WARNS() << "AssetStorage: attempt to upload non-existent vfile " << uuid << ":" << LLAssetType::lookup(type) << LL_ENDL;
 		if (callback)
 		{
 			// LLAssetStorage metric: Zero size VFS
@@ -506,9 +509,9 @@ void LLHTTPAssetStorage::storeAssetData(
 	bool temp_file,
 	bool is_priority,
 	bool user_waiting,
-	F64 timeout)
+	F64Seconds timeout)
 {
-	llinfos << "LLAssetStorage::storeAssetData (legacy)" << asset_id << ":" << LLAssetType::lookup(asset_type) << llendl;
+	LL_INFOS() << "LLAssetStorage::storeAssetData (legacy)" << asset_id << ":" << LLAssetType::lookup(asset_type) << LL_ENDL;
 
 	LLLegacyAssetRequest *legacy = new LLLegacyAssetRequest;
 
@@ -678,15 +681,15 @@ bool LLHTTPAssetStorage::deletePendingRequest(LLAssetStorage::ERequestType rt,
 
 					}
 
-					llinfos << "Asset " << getRequestName(rt) << " request for "
+					LL_INFOS() << "Asset " << getRequestName(rt) << " request for "
 							<< asset_id << "." << LLAssetType::lookup(asset_type)
 							<< " removed from curl and placed at the end of the pending queue."
-							<< llendl;
+							<< LL_ENDL;
 				}
 				else
 				{
-					llwarns << "Unable to find pending " << getRequestName(rt) << " request for "
-							<< asset_id << "." << LLAssetType::lookup(asset_type) << llendl;
+					LL_WARNS() << "Unable to find pending " << getRequestName(rt) << " request for "
+							<< asset_id << "." << LLAssetType::lookup(asset_type) << LL_ENDL;
 				}
 			}
 			delete req;
@@ -793,7 +796,7 @@ void LLHTTPAssetStorage::checkForTimeouts()
 		}
 		else
 		{
-			llinfos << "Requesting " << new_req->mURLBuffer << llendl;
+			LL_INFOS() << "Requesting " << new_req->mURLBuffer << LL_ENDL;
 		}
 	}
 
@@ -857,10 +860,10 @@ void LLHTTPAssetStorage::checkForTimeouts()
 			// Get the uncompressed file size.
 			LLVFile file(mVFS,new_req->getUUID(),new_req->getType());
 			S32 size = file.getSize();
-			llinfos << "Requesting PUT " << new_req->mURLBuffer << ", asset size: " << size << " bytes" << llendl;
+			LL_INFOS() << "Requesting PUT " << new_req->mURLBuffer << ", asset size: " << size << " bytes" << LL_ENDL;
 			if (size == 0)
 			{
-				llwarns << "Rejecting zero size PUT request!" << llendl;
+				LL_WARNS() << "Rejecting zero size PUT request!" << LL_ENDL;
 				new_req->cleanupCurlHandle();
 				deletePendingRequest(RT_UPLOAD, new_req->getType(), new_req->getUUID());				
 			}
@@ -906,12 +909,12 @@ void LLHTTPAssetStorage::checkForTimeouts()
 			// Get the uncompressed file size.
 			S32 size = file.getSize();
 
-			llinfos << "TAT: LLHTTPAssetStorage::checkForTimeouts() : pending local!"
-				<< " Requesting PUT " << new_req->mURLBuffer << ", asset size: " << size << " bytes" << llendl;
+			LL_INFOS() << "TAT: LLHTTPAssetStorage::checkForTimeouts() : pending local!"
+				<< " Requesting PUT " << new_req->mURLBuffer << ", asset size: " << size << " bytes" << LL_ENDL;
 			if (size == 0)
 			{
 				
-				llwarns << "Rejecting zero size PUT request!" << llendl;
+				LL_WARNS() << "Rejecting zero size PUT request!" << LL_ENDL;
 				new_req->cleanupCurlHandle();
 				deletePendingRequest(RT_UPLOAD, new_req->getType(), new_req->getUUID());				
 			}
@@ -948,7 +951,7 @@ void LLHTTPAssetStorage::checkForTimeouts()
 					 || curl_result == HTTP_CREATED
 					 || curl_result == HTTP_NO_CONTENT))
 				{
-					llinfos << "Success uploading " << req->getUUID() << " to " << req->mURLBuffer << llendl;
+					LL_INFOS() << "Success uploading " << req->getUUID() << " to " << req->mURLBuffer << LL_ENDL;
 					if (RT_LOCALUPLOAD == req->mRequestType)
 					{
 						addTempAssetData(req->getUUID(), req->mRequestingAgentID, mHostName);
@@ -959,8 +962,8 @@ void LLHTTPAssetStorage::checkForTimeouts()
 						curl_result == HTTP_BAD_GATEWAY ||
 						curl_result == HTTP_SERVICE_UNAVAILABLE)
 				{
-					llwarns << "Re-requesting upload for " << req->getUUID() << ".  Received upload error to " << req->mURLBuffer <<
-						" with result " << curl_easy_strerror(curl_msg->data.result) << ", http result " << curl_result << llendl;
+					LL_WARNS() << "Re-requesting upload for " << req->getUUID() << ".  Received upload error to " << req->mURLBuffer <<
+						" with result " << curl_easy_strerror(curl_msg->data.result) << ", http result " << curl_result << LL_ENDL;
 
 					////HACK (probably) I am sick of this getting requeued and driving me mad.
 					//if (req->mIsUserWaiting)
@@ -970,8 +973,8 @@ void LLHTTPAssetStorage::checkForTimeouts()
 				}
 				else
 				{
-					llwarns << "Failure uploading " << req->getUUID() << " to " << req->mURLBuffer <<
-						" with result " << curl_easy_strerror(curl_msg->data.result) << ", http result " << curl_result << llendl;
+					LL_WARNS() << "Failure uploading " << req->getUUID() << " to " << req->mURLBuffer <<
+						" with result " << curl_easy_strerror(curl_msg->data.result) << ", http result " << curl_result << LL_ENDL;
 
 					xfer_result = LL_ERR_ASSET_REQUEST_FAILED;
 				}
@@ -993,7 +996,7 @@ void LLHTTPAssetStorage::checkForTimeouts()
 				{
 					if (req->mVFile && req->mVFile->getSize() > 0)
 					{					
-						llinfos << "Success downloading " << req->mURLBuffer << ", size " << req->mVFile->getSize() << llendl;
+						LL_INFOS() << "Success downloading " << req->mURLBuffer << ", size " << req->mVFile->getSize() << LL_ENDL;
 
 						req->mVFile->rename(req->getUUID(), req->getType());
 					}
@@ -1001,15 +1004,15 @@ void LLHTTPAssetStorage::checkForTimeouts()
 					{
 						// *TODO: if this actually indicates a bad asset on the server
 						// (not certain at this point), then delete it
-						llwarns << "Found " << req->mURLBuffer << " to be zero size" << llendl;
+						LL_WARNS() << "Found " << req->mURLBuffer << " to be zero size" << LL_ENDL;
 						xfer_result = LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE;
 					}
 				}
 				else
 				{
 					// KLW - TAT See if an avatar owns this texture, and if so request re-upload.
-					llwarns << "Failure downloading " << req->mURLBuffer << 
-						" with result " << curl_easy_strerror(curl_msg->data.result) << ", http result " << curl_result << llendl;
+					LL_WARNS() << "Failure downloading " << req->mURLBuffer << 
+						" with result " << curl_easy_strerror(curl_msg->data.result) << ", http result " << curl_result << LL_ENDL;
 
 					xfer_result = (curl_result == HTTP_NOT_FOUND) ? LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE : LL_ERR_ASSET_REQUEST_FAILED;
 
@@ -1054,7 +1057,7 @@ void LLHTTPAssetStorage::bumpTimedOutUploads()
 {
 	bool user_waiting=FALSE;
 
-	F64 mt_secs = LLMessageSystem::getMessageTimeSeconds();
+	F64Seconds mt_secs = LLMessageSystem::getMessageTimeSeconds();
 
 	if (mPendingUploads.size())
 	{
@@ -1081,10 +1084,10 @@ void LLHTTPAssetStorage::bumpTimedOutUploads()
 
 		if ( req->mTimeout < (mt_secs - req->mTime) )
 		{
-			llwarns << "Asset upload request timed out for "
+			LL_WARNS() << "Asset upload request timed out for "
 					<< req->getUUID() << "."
 					<< LLAssetType::lookup(req->getType()) 
-					<< ", bumping to the back of the line!" << llendl;
+					<< ", bumping to the back of the line!" << LL_ENDL;
 
 			deletePendingRequest(RT_UPLOAD, req->getType(), req->getUUID());
 		}
@@ -1096,7 +1099,7 @@ size_t LLHTTPAssetStorage::curlDownCallback(void *data, size_t size, size_t nmem
 {
 	if (!gAssetStorage)
 	{
-		llwarns << "Missing gAssetStorage, aborting curl download callback!" << llendl;
+		LL_WARNS() << "Missing gAssetStorage, aborting curl download callback!" << LL_ENDL;
 		return 0;
 	}
 	S32 bytes = (S32)(size * nmemb);
@@ -1126,7 +1129,7 @@ size_t LLHTTPAssetStorage::curlUpCallback(void *data, size_t size, size_t nmemb,
 {
 	if (!gAssetStorage)
 	{
-		llwarns << "Missing gAssetStorage, aborting curl download callback!" << llendl;
+		LL_WARNS() << "Missing gAssetStorage, aborting curl download callback!" << LL_ENDL;
 		return 0;
 	}
 	CURL *curl_handle = (CURL *)user_data;
@@ -1161,12 +1164,12 @@ S32 LLHTTPAssetStorage::getURLToFile(const LLUUID& uuid, LLAssetType::EType asse
 {
 	// *NOTE: There is no guarantee that the uuid and the asset_type match
 	// - not that it matters. - Doug
-	lldebugs << "LLHTTPAssetStorage::getURLToFile() - " << url << llendl;
+	LL_DEBUGS() << "LLHTTPAssetStorage::getURLToFile() - " << url << LL_ENDL;
 
 	FILE *fp = LLFile::fopen(filename, "wb"); /*Flawfinder: ignore*/
 	if (! fp)
 	{
-		llwarns << "Failed to open " << filename << " for writing" << llendl;
+		LL_WARNS() << "Failed to open " << filename << " for writing" << LL_ENDL;
 		return LL_ERR_ASSET_REQUEST_FAILED;
 	}
 
@@ -1180,7 +1183,7 @@ S32 LLHTTPAssetStorage::getURLToFile(const LLUUID& uuid, LLAssetType::EType asse
 	curl_easy_setopt(req.mCurlHandle, CURLOPT_WRITEDATA, req.mCurlHandle);
 
 	curl_multi_add_handle(mCurlMultiHandle, req.mCurlHandle);
-	llinfos << "Requesting as file " << req.mURLBuffer << llendl;
+	LL_INFOS() << "Requesting as file " << req.mURLBuffer << LL_ENDL;
 
 	// braindead curl loop
 	int queue_length;
@@ -1205,7 +1208,7 @@ S32 LLHTTPAssetStorage::getURLToFile(const LLUUID& uuid, LLAssetType::EType asse
 		}
 		else if (timeout.hasExpired())
 		{
-			llwarns << "Request for " << url << " has timed out." << llendl;
+			LL_WARNS() << "Request for " << url << " has timed out." << LL_ENDL;
 			success = false;
 			xfer_result = LL_ERR_ASSET_REQUEST_FAILED;
 			break;
@@ -1223,19 +1226,19 @@ S32 LLHTTPAssetStorage::getURLToFile(const LLUUID& uuid, LLAssetType::EType asse
 			if (size > 0)
 			{
 				// everything seems to be in order
-				llinfos << "Success downloading " << req.mURLBuffer << " to file, size " << size << llendl;
+				LL_INFOS() << "Success downloading " << req.mURLBuffer << " to file, size " << size << LL_ENDL;
 			}
 			else
 			{
-				llwarns << "Found " << req.mURLBuffer << " to be zero size" << llendl;
+				LL_WARNS() << "Found " << req.mURLBuffer << " to be zero size" << LL_ENDL;
 				xfer_result = LL_ERR_ASSET_REQUEST_FAILED;
 			}
 		}
 		else
 		{
 			xfer_result = curl_result == HTTP_NOT_FOUND ? LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE : LL_ERR_ASSET_REQUEST_FAILED;
-			llinfos << "Failure downloading " << req.mURLBuffer << 
-				" with result " << curl_easy_strerror(curl_msg->data.result) << ", http result " << curl_result << llendl;
+			LL_INFOS() << "Failure downloading " << req.mURLBuffer << 
+				" with result " << curl_easy_strerror(curl_msg->data.result) << ", http result " << curl_result << LL_ENDL;
 		}
 	}
 
@@ -1257,7 +1260,7 @@ size_t LLHTTPAssetStorage::curlFileDownCallback(void *data, size_t size, size_t 
 
 	if (! req->mFP)
 	{
-		llwarns << "Missing mFP, aborting curl file download callback!" << llendl;
+		LL_WARNS() << "Missing mFP, aborting curl file download callback!" << LL_ENDL;
 		return 0;
 	}
 
@@ -1304,7 +1307,7 @@ void LLHTTPAssetStorage::addRunningRequest(ERequestType rt, LLHTTPAssetRequest* 
 	}
 	else
 	{
-		llerrs << "LLHTTPAssetStorage::addRunningRequest - Request is not an upload OR download, this is bad!" << llendl;
+		LL_ERRS() << "LLHTTPAssetStorage::addRunningRequest - Request is not an upload OR download, this is bad!" << LL_ENDL;
 	}
 }
 
@@ -1317,7 +1320,7 @@ void LLHTTPAssetStorage::removeRunningRequest(ERequestType rt, LLHTTPAssetReques
 	}
 	else
 	{
-		llerrs << "LLHTTPAssetStorage::removeRunningRequest - Destroyed request is not an upload OR download, this is bad!" << llendl;
+		LL_ERRS() << "LLHTTPAssetStorage::removeRunningRequest - Destroyed request is not an upload OR download, this is bad!" << LL_ENDL;
 	}
 }
 
@@ -1326,7 +1329,7 @@ void LLHTTPAssetStorage::addTempAssetData(const LLUUID& asset_id, const LLUUID& 
 {
 	if (agent_id.isNull() || asset_id.isNull())
 	{
-		llwarns << "TAT: addTempAssetData bad id's asset_id: " << asset_id << "  agent_id: " << agent_id << llendl;
+		LL_WARNS() << "TAT: addTempAssetData bad id's asset_id: " << asset_id << "  agent_id: " << agent_id << LL_ENDL;
 		return;
 	}
 
@@ -1427,26 +1430,26 @@ void LLHTTPAssetStorage::dumpTempAssetData(const LLUUID& avatar_id) const
 		if (avatar_id.isNull()
 			|| avatar_id == temp_asset_data.mAgentID)
 		{
-			llinfos << "TAT: dump agent " << temp_asset_data.mAgentID
+			LL_INFOS() << "TAT: dump agent " << temp_asset_data.mAgentID
 				<< " texture " << temp_asset_data.mAssetID
 				<< " host " << temp_asset_data.mHostName
-				<< llendl;
+				<< LL_ENDL;
 			count++;
 		}
 	}
 
 	if (avatar_id.isNull())
 	{
-		llinfos << "TAT: dumped " << count << " entries for all avatars" << llendl;
+		LL_INFOS() << "TAT: dumped " << count << " entries for all avatars" << LL_ENDL;
 	}
 	else
 	{
-		llinfos << "TAT: dumped " << count << " entries for avatar " << avatar_id << llendl;
+		LL_INFOS() << "TAT: dumped " << count << " entries for avatar " << avatar_id << LL_ENDL;
 	}
 }
 
 void LLHTTPAssetStorage::clearTempAssetData()
 {
-	llinfos << "TAT: Clearing temp asset data map" << llendl;
+	LL_INFOS() << "TAT: Clearing temp asset data map" << LL_ENDL;
 	mTempAssets.clear();
 }

@@ -88,6 +88,7 @@ bool LLClipboard::pasteFromClipboard(std::vector<LLUUID>& inv_objects) const
 {
 	bool res = false;
 	S32 count = mObjects.size();
+	inv_objects.reserve(inv_objects.size() + count);
 	if (count > 0)
 	{
 		res = true;

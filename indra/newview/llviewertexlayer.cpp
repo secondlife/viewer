@@ -96,7 +96,7 @@ void LLViewerTexLayerSetBuffer::destroyGLTexture()
 // static
 void LLViewerTexLayerSetBuffer::dumpTotalByteCount()
 {
-	llinfos << "Composite System GL Buffers: " << (LLViewerTexLayerSetBuffer::sGLByteCount/1024) << "KB" << llendl;
+	LL_INFOS() << "Composite System GL Buffers: " << (LLViewerTexLayerSetBuffer::sGLByteCount/1024) << "KB" << LL_ENDL;
 }
 
 void LLViewerTexLayerSetBuffer::requestUpdate()
@@ -309,7 +309,7 @@ void LLViewerTexLayerSet::createComposite()
 		// Composite other avatars at reduced resolution
 		if( !mAvatarAppearance->isSelf() )
 		{
-			llerrs << "composites should not be created for non-self avatars!" << llendl;
+			LL_ERRS() << "composites should not be created for non-self avatars!" << LL_ENDL;
 		}
 		mComposite = new LLViewerTexLayerSetBuffer( this, width, height );
 	}

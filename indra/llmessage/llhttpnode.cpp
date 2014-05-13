@@ -178,7 +178,7 @@ LLSD LLHTTPNode::simpleDel(const LLSD&) const
 // virtual
 void  LLHTTPNode::options(ResponsePtr response, const LLSD& context) const
 {
-	//llinfos << "options context: " << context << llendl;
+	//LL_INFOS() << "options context: " << context << LL_ENDL;
 	LL_DEBUGS("LLHTTPNode") << "context: " << context << LL_ENDL;
 
 	// default implementation constructs an url to the documentation.
@@ -246,10 +246,10 @@ const LLHTTPNode* LLHTTPNode::traverse(
 		LLHTTPNode* child = node->getChild(*iter, context);
 		if(!child) 
 		{
-			lldebugs << "LLHTTPNode::traverse: Couldn't find '" << *iter << "'" << llendl;
+			LL_DEBUGS() << "LLHTTPNode::traverse: Couldn't find '" << *iter << "'" << LL_ENDL;
 			break; 
 		}
-		lldebugs << "LLHTTPNode::traverse: Found '" << *iter << "'" << llendl;
+		LL_DEBUGS() << "LLHTTPNode::traverse: Found '" << *iter << "'" << LL_ENDL;
 
 		node = child;
 	}
@@ -283,8 +283,8 @@ void LLHTTPNode::addNode(const std::string& path, LLHTTPNode* nodeToAdd)
 	
 	if (iter == end)
 	{
-		llwarns << "LLHTTPNode::addNode: already a node that handles "
-			<< path << llendl;
+		LL_WARNS() << "LLHTTPNode::addNode: already a node that handles "
+			<< path << LL_ENDL;
 		return;
 	}
 	

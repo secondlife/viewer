@@ -243,18 +243,12 @@ void LLPanelOutfitsInventory::updateListCommands()
 	bool wear_visible = !isCOFPanelActive();
 	bool make_outfit_enabled = isActionEnabled("save_outfit");
 
+	LLButton* wear_btn = mListCommands->getChild<LLButton>("wear_btn");
 	mMyOutfitsPanel->childSetEnabled("trash_btn", trash_enabled);
-	mListCommands->childSetEnabled("wear_btn", wear_enabled);
-	mListCommands->childSetVisible("wear_btn", wear_visible);
+	wear_btn->setEnabled(wear_enabled);
+	wear_btn->setVisible(wear_visible);
 	mSaveComboBtn->setMenuItemEnabled("save_outfit", make_outfit_enabled);
-	if (mMyOutfitsPanel->hasItemSelected())
-	{
-		mListCommands->childSetToolTip("wear_btn", getString("wear_items_tooltip"));
-	}
-	else
-	{
-		mListCommands->childSetToolTip("wear_btn", getString("wear_outfit_tooltip"));
-	}
+	wear_btn->setToolTip(getString(mMyOutfitsPanel->hasItemSelected() ? "wear_items_tooltip" : "wear_outfit_tooltip"));
 }
 
 void LLPanelOutfitsInventory::onTrashButtonClick()

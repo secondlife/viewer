@@ -35,7 +35,7 @@ LLUploadModelPermissionsResponder::LLUploadModelPermissionsResponder(const LLHan
 
 void LLUploadModelPermissionsResponder::httpFailure()
 {
-	llwarns << dumpResponse() << llendl;
+	LL_WARNS() << dumpResponse() << LL_ENDL;
 
 	LLUploadPermissionsObserver* observer = mObserverHandle.get();
 

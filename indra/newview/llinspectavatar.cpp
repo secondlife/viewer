@@ -293,7 +293,6 @@ void LLInspectAvatar::processAvatarData(LLAvatarData* data)
 	mPropertiesRequest = NULL;
 }
 
-
 void LLInspectAvatar::updateVolumeSlider()
 {
 	bool voice_enabled = LLVoiceClient::getInstance()->getVoiceEnabled(mAvatarID);

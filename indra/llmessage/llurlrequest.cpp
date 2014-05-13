@@ -33,6 +33,7 @@
 #include <openssl/x509_vfy.h>
 #include <openssl/ssl.h>
 #include "llcurl.h"
+#include "llfasttimer.h"
 #include "llioutil.h"
 #include "llproxy.h"
 #include "llpumpio.h"
@@ -160,7 +161,7 @@ void LLURLRequest::setURL(const std::string& url)
 	mDetail->mURL = url;
 	if (url.empty())
 	{
-		llwarns << "empty URL specified" << llendl;
+		LL_WARNS() << "empty URL specified" << LL_ENDL;
 	}
 }
 
@@ -218,7 +219,7 @@ void LLURLRequest::useProxy(bool use_proxy)
     }
 
 
-    lldebugs << "use_proxy = " << (use_proxy?'Y':'N') << ", env_proxy = " << (env_proxy ? env_proxy : "(null)") << llendl;
+    LL_DEBUGS() << "use_proxy = " << (use_proxy?'Y':'N') << ", env_proxy = " << (env_proxy ? env_proxy : "(null)") << LL_ENDL;
 
     if (env_proxy && use_proxy)
     {
@@ -270,9 +271,11 @@ LLIOPipe::EStatus LLURLRequest::handleError(
 	return status;
 }
 
-static LLFastTimer::DeclareTimer FTM_PROCESS_URL_REQUEST("URL Request");
-static LLFastTimer::DeclareTimer FTM_PROCESS_URL_REQUEST_GET_RESULT("Get Result");
-static LLFastTimer::DeclareTimer FTM_URL_PERFORM("Perform");
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_URL_REQUEST("URL Request");
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_URL_REQUEST_GET_RESULT("Get Result");
+static LLTrace::BlockTimerStatHandle FTM_URL_PERFORM("Perform");
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_URL_PUMP_RESPOND("Pump Respond");
+static LLTrace::BlockTimerStatHandle FTM_URL_ADJUST_TIMEOUT("Adjust Timeout");
 
 // virtual
 LLIOPipe::EStatus LLURLRequest::process_impl(
@@ -282,9 +285,9 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
-	LLFastTimer t(FTM_PROCESS_URL_REQUEST);
+	LL_RECORD_BLOCK_TIME(FTM_PROCESS_URL_REQUEST);
 	PUMP_DEBUG;
-	//llinfos << "LLURLRequest::process_impl()" << llendl;
+	//LL_INFOS() << "LLURLRequest::process_impl()" << LL_ENDL;
 	if (!buffer) return STATUS_ERROR;
 	
 	// we're still waiting or prcessing, check how many
@@ -292,8 +295,7 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 	const S32 MIN_ACCUMULATION = 100000;
 	if(pump && (mDetail->mByteAccumulator > MIN_ACCUMULATION))
 	{
-		static LLFastTimer::DeclareTimer FTM_URL_ADJUST_TIMEOUT("Adjust Timeout");
-		LLFastTimer t(FTM_URL_ADJUST_TIMEOUT);
+		LL_RECORD_BLOCK_TIME(FTM_URL_ADJUST_TIMEOUT);
 		 // This is a pretty sloppy calculation, but this
 		 // tries to make the gross assumption that if data
 		 // is coming in at 56kb/s, then this transfer will
@@ -303,11 +305,11 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 		 const F32 TIMEOUT_ADJUSTMENT = 2.0f;
 		 mDetail->mByteAccumulator = 0;
 		 pump->adjustTimeoutSeconds(TIMEOUT_ADJUSTMENT);
-		lldebugs << "LLURLRequest adjustTimeoutSeconds for request: " << mDetail->mURL << llendl;
-		if (mState == STATE_INITIALIZED)
-		{
-			llinfos << "LLURLRequest adjustTimeoutSeconds called during upload" << llendl;
-		}
+		 LL_DEBUGS() << "LLURLRequest adjustTimeoutSeconds for request: " << mDetail->mURL << LL_ENDL;
+		 if (mState == STATE_INITIALIZED)
+		 {
+			  LL_INFOS() << "LLURLRequest adjustTimeoutSeconds called during upload" << LL_ENDL;
+		 }
 	}
 
 	switch(mState)
@@ -342,7 +344,7 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 		PUMP_DEBUG;
 		LLIOPipe::EStatus status = STATUS_BREAK;
 		{
-			LLFastTimer t(FTM_URL_PERFORM);
+			LL_RECORD_BLOCK_TIME(FTM_URL_PERFORM);
 			if(!mDetail->mCurlRequest->wait())
 			{
 				return status ;
@@ -356,7 +358,7 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 
 			bool newmsg = false;
 			{
-				LLFastTimer t(FTM_PROCESS_URL_REQUEST_GET_RESULT);
+				LL_RECORD_BLOCK_TIME(FTM_PROCESS_URL_REQUEST_GET_RESULT);
 				newmsg = mDetail->mCurlRequest->getResult(&result);
 			}
 		
@@ -370,7 +372,7 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 			mState = STATE_HAVE_RESPONSE;
 			context[CONTEXT_REQUEST][CONTEXT_TRANSFERED_BYTES] = mRequestTransferedBytes;
 			context[CONTEXT_RESPONSE][CONTEXT_TRANSFERED_BYTES] = mResponseTransferedBytes;
-			lldebugs << this << "Setting context to " << context << llendl;
+			LL_DEBUGS() << this << "Setting context to " << context << LL_ENDL;
 			switch(result)
 			{
 				case CURLE_OK:
@@ -391,9 +393,8 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 						link.mChannels = LLBufferArray::makeChannelConsumer(
 							channels);
 						chain.push_back(link);
-						static LLFastTimer::DeclareTimer FTM_PROCESS_URL_PUMP_RESPOND("Pump Respond");
 						{
-							LLFastTimer t(FTM_PROCESS_URL_PUMP_RESPOND);
+							LL_RECORD_BLOCK_TIME(FTM_PROCESS_URL_PUMP_RESPOND);
 							pump->respond(chain, buffer, context);
 						}
 						mCompletionCallback = NULL;
@@ -405,12 +406,12 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 					keep_looping = false;
 					break;
 				default:			// CURLE_URL_MALFORMAT
-					llwarns << "URLRequest Error: " << result
+					LL_WARNS() << "URLRequest Error: " << result
 							<< ", "
 							<< LLCurl::strerror(result)
 							<< ", "
 							<< (mDetail->mURL.empty() ? "<EMPTY URL>" : mDetail->mURL)
-							<< llendl;
+							<< LL_ENDL;
 					status = STATUS_ERROR;
 					keep_looping = false;
 					break;
@@ -425,14 +426,14 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 		eos = true;
 		context[CONTEXT_REQUEST][CONTEXT_TRANSFERED_BYTES] = mRequestTransferedBytes;
 		context[CONTEXT_RESPONSE][CONTEXT_TRANSFERED_BYTES] = mResponseTransferedBytes;
-		lldebugs << this << "Setting context to " << context << llendl;
+		LL_DEBUGS() << this << "Setting context to " << context << LL_ENDL;
 		return STATUS_DONE;
 
 	default:
 		PUMP_DEBUG;
 		context[CONTEXT_REQUEST][CONTEXT_TRANSFERED_BYTES] = mRequestTransferedBytes;
 		context[CONTEXT_RESPONSE][CONTEXT_TRANSFERED_BYTES] = mResponseTransferedBytes;
-		lldebugs << this << "Setting context to " << context << llendl;
+		LL_DEBUGS() << this << "Setting context to " << context << LL_ENDL;
 		return STATUS_ERROR;
 	}
 }
@@ -454,10 +455,10 @@ void LLURLRequest::initialize()
 	mResponseTransferedBytes = 0;
 }
 
-static LLFastTimer::DeclareTimer FTM_URL_REQUEST_CONFIGURE("URL Configure");
+static LLTrace::BlockTimerStatHandle FTM_URL_REQUEST_CONFIGURE("URL Configure");
 bool LLURLRequest::configure()
 {
-	LLFastTimer t(FTM_URL_REQUEST_CONFIGURE);
+	LL_RECORD_BLOCK_TIME(FTM_URL_REQUEST_CONFIGURE);
 	
 	bool rv = false;
 	S32 bytes = mDetail->mResponseBuffer->countAfter(
@@ -544,7 +545,7 @@ bool LLURLRequest::configure()
 		break;
 
 	default:
-		llwarns << "Unhandled URLRequest action: " << mAction << llendl;
+		LL_WARNS() << "Unhandled URLRequest action: " << mAction << LL_ENDL;
 		break;
 	}
 	if(rv)
@@ -672,14 +673,14 @@ static size_t headerCallback(void* data, size_t size, size_t nmemb, void* user)
 		LLStringUtil::trim(header);
 		if (!header.empty())
 		{
-			llwarns << "Unable to parse header: " << header << llendl;
+			LL_WARNS() << "Unable to parse header: " << header << LL_ENDL;
 		}
 	}
 
 	return header_len;
 }
 
-static LLFastTimer::DeclareTimer FTM_PROCESS_URL_EXTRACTOR("URL Extractor");
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_URL_EXTRACTOR("URL Extractor");
 /**
  * LLContextURLExtractor
  */
@@ -691,7 +692,7 @@ LLIOPipe::EStatus LLContextURLExtractor::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
-	LLFastTimer t(FTM_PROCESS_URL_EXTRACTOR);
+	LL_RECORD_BLOCK_TIME(FTM_PROCESS_URL_EXTRACTOR);
 	PUMP_DEBUG;
 	// The destination host is in the context.
 	if(context.isUndefined() || !mRequest)
@@ -750,15 +751,15 @@ void LLURLRequestComplete::complete(const LLChannelDescriptors& channels,
 void LLURLRequestComplete::response(const LLChannelDescriptors& channels,
 		const buffer_ptr_t& buffer)
 {
-	llwarns << "LLURLRequestComplete::response default implementation called"
-		<< llendl;
+	LL_WARNS() << "LLURLRequestComplete::response default implementation called"
+		<< LL_ENDL;
 }
 
 //virtual 
 void LLURLRequestComplete::noResponse()
 {
-	llwarns << "LLURLRequestComplete::noResponse default implementation called"
-		<< llendl;
+	LL_WARNS() << "LLURLRequestComplete::noResponse default implementation called"
+		<< LL_ENDL;
 }
 
 void LLURLRequestComplete::responseStatus(LLIOPipe::EStatus status)
@@ -766,7 +767,7 @@ void LLURLRequestComplete::responseStatus(LLIOPipe::EStatus status)
 	mRequestStatus = status;
 }
 
-static LLFastTimer::DeclareTimer FTM_PROCESS_URL_COMPLETE("URL Complete");
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_URL_COMPLETE("URL Complete");
 // virtual
 LLIOPipe::EStatus LLURLRequestComplete::process_impl(
 	const LLChannelDescriptors& channels,
@@ -775,7 +776,7 @@ LLIOPipe::EStatus LLURLRequestComplete::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
-	LLFastTimer t(FTM_PROCESS_URL_COMPLETE);
+	LL_RECORD_BLOCK_TIME(FTM_PROCESS_URL_COMPLETE);
 	PUMP_DEBUG;
 	complete(channels, buffer);
 	return STATUS_OK;

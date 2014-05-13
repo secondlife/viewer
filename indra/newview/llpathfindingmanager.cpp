@@ -725,8 +725,8 @@ std::string LLPathfindingManager::getCapabilityURLForRegion(LLViewerRegion *pReg
 
 	if (capabilityURL.empty())
 	{
-		llwarns << "cannot find capability '" << pCapabilityName << "' for current region '"
-			<< ((pRegion != NULL) ? pRegion->getName() : "<null>") << "'" << llendl;
+		LL_WARNS() << "cannot find capability '" << pCapabilityName << "' for current region '"
+			<< ((pRegion != NULL) ? pRegion->getName() : "<null>") << "'" << LL_ENDL;
 	}
 
 	return capabilityURL;
@@ -792,7 +792,7 @@ void NavMeshStatusResponder::httpSuccess()
 
 void NavMeshStatusResponder::httpFailure()
 {
-	llwarns << dumpResponse() << llendl;
+	LL_WARNS() << dumpResponse() << LL_ENDL;
 	LLPathfindingNavMeshStatus navMeshStatus(mRegionUUID);
 	LLPathfindingManager::getInstance()->handleNavMeshStatusRequest(navMeshStatus, mRegion, mIsGetStatusOnly);
 }
@@ -847,7 +847,7 @@ void AgentStateResponder::httpSuccess()
 
 void AgentStateResponder::httpFailure()
 {
-	llwarns << dumpResponse() << llendl;
+	LL_WARNS() << dumpResponse() << LL_ENDL;
 	LLPathfindingManager::getInstance()->handleAgentState(FALSE);
 }
 
@@ -872,7 +872,7 @@ void NavMeshRebakeResponder::httpSuccess()
 
 void NavMeshRebakeResponder::httpFailure()
 {
-	llwarns << dumpResponse() << llendl;
+	LL_WARNS() << dumpResponse() < LL_ENDL;
 	mRebakeNavMeshCallback(false);
 }
 
@@ -907,6 +907,8 @@ void LinksetsResponder::handleObjectLinksetsResult(const LLSD &pContent)
 
 void LinksetsResponder::handleObjectLinksetsError()
 {
+	LL_WARNS() << "LinksetsResponder object linksets error with request to URL '" << pURL << "' [status:"
+			   << pStatus << "]: " << pContent << LL_ENDL;
 	mObjectMessagingState = kReceivedError;
 	if (mTerrainMessagingState != kWaiting)
 	{
@@ -927,6 +929,8 @@ void LinksetsResponder::handleTerrainLinksetsResult(const LLSD &pContent)
 
 void LinksetsResponder::handleTerrainLinksetsError()
 {
+	LL_WARNS() << "LinksetsResponder terrain linksets error with request to URL '" << pURL << "' [status:"
+			   << pStatus << "]: " << pContent << LL_ENDL;
 	mTerrainMessagingState = kReceivedError;
 	if (mObjectMessagingState != kWaiting)
 	{
@@ -1029,7 +1033,7 @@ void CharactersResponder::httpSuccess()
 
 void CharactersResponder::httpFailure()
 {
-	llwarns << dumpResponse() << llendl;
+	LL_WARNS() << dumpResponse() << LL_ENDL;
 
 	LLPathfindingObjectListPtr characterListPtr =  LLPathfindingObjectListPtr(new LLPathfindingCharacterList());
 	mCharactersCallback(mRequestId, LLPathfindingManager::kRequestError, characterListPtr);

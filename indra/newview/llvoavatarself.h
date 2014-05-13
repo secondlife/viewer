@@ -30,6 +30,7 @@
 
 #include "llviewertexture.h"
 #include "llvoavatar.h"
+#include <map>
 
 struct LocalTextureData;
 class LLInventoryCallback;
@@ -50,16 +51,6 @@ class LLVOAvatarSelf :
  **/
 
 public:
-	void* operator new(size_t size)
-	{
-		return ll_aligned_malloc_16(size);
-	}
-
-	void operator delete(void* ptr)
-	{
-		ll_aligned_free_16(ptr);
-	}
-
 	LLVOAvatarSelf(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
 	virtual 				~LLVOAvatarSelf();
 	virtual void			markDead();
@@ -264,9 +255,8 @@ public:
 public:
 	static void		deleteScratchTextures();
 private:
-	static S32 		sScratchTexBytes;
-	static LLMap< LLGLenum, LLGLuint*> sScratchTexNames;
-	static LLMap< LLGLenum, F32*> sScratchTexLastBindTime;
+	static S32Bytes sScratchTexBytes;
+	static std::map< LLGLenum, LLGLuint*> sScratchTexNames;
 
 /**                    Textures
  **                                                                            **

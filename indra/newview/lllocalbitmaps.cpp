@@ -48,6 +48,7 @@
 /* misc headers */
 #include "llscrolllistctrl.h"
 #include "llfilepicker.h"
+#include "lllocaltextureobject.h"
 #include "llviewertexturelist.h"
 #include "llviewerobjectlist.h"
 #include "llviewerobject.h"
@@ -110,8 +111,8 @@ LLLocalBitmap::LLLocalBitmap(std::string filename)
 	}
 	else
 	{
-		llwarns << "File of no valid extension given, local bitmap creation aborted." << "\n"
-			    << "Filename: " << mFilename << llendl;
+		LL_WARNS() << "File of no valid extension given, local bitmap creation aborted." << "\n"
+			    << "Filename: " << mFilename << LL_ENDL;
 		return; // no valid extension.
 	}
 
@@ -230,10 +231,10 @@ bool LLLocalBitmap::updateSelf(EUpdateType optional_firstupdate)
 					}
 					else
 					{
-						llwarns << "During the update process the following file was found" << "\n"
+						LL_WARNS() << "During the update process the following file was found" << "\n"
 							    << "but could not be opened or decoded for " << LL_LOCAL_UPDATE_RETRIES << " attempts." << "\n"
 								<< "Filename: " << mFilename << "\n"
-								<< "Disabling further update attempts for this file." << llendl;
+								<< "Disabling further update attempts for this file." << LL_ENDL;
 
 						LLSD notif_args;
 						notif_args["FNAME"] = mFilename;
@@ -249,9 +250,9 @@ bool LLLocalBitmap::updateSelf(EUpdateType optional_firstupdate)
 
 		else
 		{
-			llwarns << "During the update process, the following file was not found." << "\n" 
+			LL_WARNS() << "During the update process, the following file was not found." << "\n" 
 			        << "Filename: " << mFilename << "\n"
-				    << "Disabling further update attempts for this file." << llendl;
+				    << "Disabling further update attempts for this file." << LL_ENDL;
 
 			LLSD notif_args;
 			notif_args["FNAME"] = mFilename;
@@ -317,13 +318,13 @@ bool LLLocalBitmap::decodeBitmap(LLPointer<LLImageRaw> rawimg)
 
 		default:
 		{
-			// separating this into -several- llwarns calls because in the extremely unlikely case that this happens
+			// separating this into -several- LL_WARNS() calls because in the extremely unlikely case that this happens
 			// accessing mFilename and any other object properties might very well crash the viewer.
 			// getting here should be impossible, or there's been a pretty serious bug.
 
-			llwarns << "During a decode attempt, the following local bitmap had no properly assigned extension." << llendl;
-			llwarns << "Filename: " << mFilename << llendl;
-		    llwarns << "Disabling further update attempts for this file." << llendl;
+			LL_WARNS() << "During a decode attempt, the following local bitmap had no properly assigned extension." << LL_ENDL;
+			LL_WARNS() << "Filename: " << mFilename << LL_ENDL;
+		    LL_WARNS() << "Disabling further update attempts for this file." << LL_ENDL;
 			mLinkStatus = LS_BROKEN;
 		}
 	}
@@ -336,8 +337,8 @@ void LLLocalBitmap::replaceIDs(LLUUID old_id, LLUUID new_id)
 	// checking for misuse.
 	if (old_id == new_id)
 	{
-		llinfos << "An attempt was made to replace a texture with itself. (matching UUIDs)" << "\n"
-			    << "Texture UUID: " << old_id.asString() << llendl;
+		LL_INFOS() << "An attempt was made to replace a texture with itself. (matching UUIDs)" << "\n"
+			    << "Texture UUID: " << old_id.asString() << LL_ENDL;
 		return;
 	}
 
@@ -378,7 +379,7 @@ std::vector<LLViewerObject*> LLLocalBitmap::prepUpdateObjects(LLUUID old_id, U32
 {
 	std::vector<LLViewerObject*> obj_list;
 	LLViewerFetchedTexture* old_texture = gTextureList.findImage(old_id);
-	
+
 	for(U32 face_iterator = 0; face_iterator < old_texture->getNumFaces(channel); face_iterator++)
 	{
 		// getting an object from a face
@@ -451,7 +452,7 @@ void LLLocalBitmap::updateUserPrims(LLUUID old_id, LLUUID new_id, U32 channel)
 						switch(channel)
 						{
 							case LLRender::DIFFUSE_MAP:
-							{
+					{
                                 object->setTETexture(face_iter, new_id);
                                 update_tex = true;
 								break;
@@ -768,11 +769,11 @@ LLAvatarAppearanceDefines::ETextureIndex LLLocalBitmap::getTexIndex(
 
 		default:
 		{
-			llwarns << "Unknown wearable type: " << (int)type << "\n"
+			LL_WARNS() << "Unknown wearable type: " << (int)type << "\n"
 				    << "Baked Texture Index: " << (int)baked_texind << "\n"
 					<< "Filename: " << mFilename << "\n"
 					<< "TrackingID: " << mTrackingID << "\n"
-					<< "InworldID: " << mWorldID << llendl;
+					<< "InworldID: " << mWorldID << LL_ENDL;
 		}
 
 	}
@@ -844,8 +845,8 @@ bool LLLocalBitmapMgr::addUnit()
 			}
 			else
 			{
-				llwarns << "Attempted to add invalid or unreadable image file, attempt cancelled.\n"
-					    << "Filename: " << filename << llendl;
+				LL_WARNS() << "Attempted to add invalid or unreadable image file, attempt cancelled.\n"
+					    << "Filename: " << filename << LL_ENDL;
 
 				LLSD notif_args;
 				notif_args["FNAME"] = filename;

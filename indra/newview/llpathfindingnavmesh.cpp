@@ -129,7 +129,7 @@ void LLPathfindingNavMesh::handleNavMeshResult(const LLSD &pContent, U32 pNavMes
 		llassert(embeddedNavMeshVersion == pNavMeshVersion); // stinson 03/13/2012 : does this ever occur?
 		if (embeddedNavMeshVersion != pNavMeshVersion)
 		{
-			llwarns << "Mismatch between expected and embedded navmesh versions occurred" << llendl;
+			LL_WARNS() << "Mismatch between expected and embedded navmesh versions occurred" << LL_ENDL;
 			pNavMeshVersion = embeddedNavMeshVersion;
 		}
 	}
@@ -148,7 +148,7 @@ void LLPathfindingNavMesh::handleNavMeshResult(const LLSD &pContent, U32 pNavMes
 			U8* pUncompressedNavMeshContainer = unzip_llsdNavMesh( valid, decompBinSize, streamdecomp, binSize ) ;
 			if ( !valid )
 			{
-				llwarns << "Unable to decompress the navmesh llsd." << llendl;
+				LL_WARNS() << "Unable to decompress the navmesh llsd." << LL_ENDL;
 				status = kNavMeshRequestError;
 			}
 			else
@@ -165,7 +165,7 @@ void LLPathfindingNavMesh::handleNavMeshResult(const LLSD &pContent, U32 pNavMes
 		}
 		else
 		{
-			llwarns << "No mesh data received" << llendl;
+			LL_WARNS() << "No mesh data received" << LL_ENDL;
 			status = kNavMeshRequestError;
 		}
 		setRequestStatus(status);
@@ -186,6 +186,8 @@ void LLPathfindingNavMesh::handleNavMeshError()
 
 void LLPathfindingNavMesh::handleNavMeshError(U32 pNavMeshVersion)
 {
+	LL_WARNS() << "LLPathfindingNavMesh error with request to URL '" << pURL << "' [status:"
+			   << pStatus << "]: " << pContent << LL_ENDL;
 	if (mNavMeshStatus.getVersion() == pNavMeshVersion)
 	{
 		handleNavMeshError();

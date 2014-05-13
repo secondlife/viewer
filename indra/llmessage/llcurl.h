@@ -42,7 +42,6 @@
 #include "llhttpconstants.h"
 #include "lliopipe.h"
 #include "llsd.h"
-#include "llthread.h"
 #include "llqueuedthread.h"
 #include "llframetimer.h"
 #include "llpointer.h"

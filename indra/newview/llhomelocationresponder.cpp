@@ -95,7 +95,7 @@ void LLHomeLocationResponder::httpSuccess()
   }
   else
   {
-    llinfos << "setting home position" << llendl;
+    LL_INFOS() << "setting home position" << LL_ENDL;
 
     LLViewerRegion *viewer_region = gAgent.getRegion();
     gAgent.setHomePosRegion( viewer_region->getHandle(), agent_pos );
@@ -104,5 +104,9 @@ void LLHomeLocationResponder::httpSuccess()
 
 void LLHomeLocationResponder::httpFailure()
 {
+<<<<<<< local
   llwarns << dumpResponse() << llendl;
+=======
+	LL_WARNS() << "LLHomeLocationResponder error [status:" << status << "]: " << content << LL_ENDL;
+>>>>>>> other
 }

@@ -60,7 +60,7 @@ public:
 protected:
 	void httpFailure()
 	{
-		llwarns << dumpResponse() << llendl;
+		LL_WARNS() << dumpResponse() << LL_ENDL;
 		clearPendingRequests();
 
 		LLAccountingCostObserver* observer = mObserverHandle.get();
@@ -152,7 +152,7 @@ void LLAccountingCostManager::fetchCosts( eSelectionType selectionType,
 			}
 			else 
 			{
-				llinfos<<"Invalid selection type "<<llendl;
+				LL_INFOS()<<"Invalid selection type "<<LL_ENDL;
 				mObjectList.clear();
 				mPendingObjectQuota.clear();
 				return;
@@ -167,7 +167,7 @@ void LLAccountingCostManager::fetchCosts( eSelectionType selectionType,
 	else
 	{
 		//url was empty - warn & continue
-		llwarns<<"Supplied url is empty "<<llendl;
+		LL_WARNS()<<"Supplied url is empty "<<LL_ENDL;
 		mObjectList.clear();
 		mPendingObjectQuota.clear();
 	}

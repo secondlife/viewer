@@ -323,7 +323,7 @@ void LLCurl::Easy::releaseEasyHandle(CURL* handle)
 	if (!handle)
 	{
 		return ; //handle allocation failed.
-		//llerrs << "handle cannot be NULL!" << llendl;
+		//LL_ERRS() << "handle cannot be NULL!" << LL_ENDL;
 	}
 
 	LLMutexLock lock(sHandleMutexp) ;
@@ -345,7 +345,7 @@ void LLCurl::Easy::releaseEasyHandle(CURL* handle)
 	}
 	else
 	{
-		llerrs << "Invalid handle." << llendl;
+		LL_ERRS() << "Invalid handle." << LL_ENDL;
 	}
 }
 
@@ -659,7 +659,7 @@ LLCurl::Multi::Multi(F32 idle_time_out)
 	mCurlMultiHandle = LLCurl::newMultiHandle();
 	if (!mCurlMultiHandle)
 	{
-		llwarns << "curl_multi_init() returned NULL! Easy handles: " << gCurlEasyCount << " Multi handles: " << gCurlMultiCount << llendl;
+		LL_WARNS() << "curl_multi_init() returned NULL! Easy handles: " << gCurlEasyCount << " Multi handles: " << gCurlMultiCount << LL_ENDL;
 		mCurlMultiHandle = LLCurl::newMultiHandle();
 	}
 	
@@ -935,7 +935,7 @@ S32 LLCurl::Multi::process()
 			{
 				response = HTTP_INTERNAL_ERROR;
 				//*TODO: change to llwarns
-				llerrs << "cleaned up curl request completed!" << llendl;
+				LL_ERRS() << "cleaned up curl request completed!" << LL_ENDL;
 			}
 			if (response >= 400)
 			{
@@ -980,7 +980,7 @@ bool LLCurl::Multi::addEasy(Easy* easy)
 	check_curl_multi_code(mcode);
 	//if (mcode != CURLM_OK)
 	//{
-	//	llwarns << "Curl Error: " << curl_multi_strerror(mcode) << llendl;
+	//	LL_WARNS() << "Curl Error: " << curl_multi_strerror(mcode) << LL_ENDL;
 	//	return false;
 	//}
 	return true;
@@ -1097,7 +1097,7 @@ void LLCurlThread::addMulti(LLCurl::Multi* multi)
 
 	if (!addRequest(req))
 	{
-		llwarns << "curl request added when the thread is quitted" << llendl;
+		LL_WARNS() << "curl request added when the thread is quitted" << LL_ENDL;
 	}
 }
 	
@@ -1204,7 +1204,7 @@ bool LLCurlRequest::addEasy(LLCurl::Easy* easy)
 	
 	if (mProcessing)
 	{
-		llerrs << "Posting to a LLCurlRequest instance from within a responder is not allowed (causes DNS timeouts)." << llendl;
+		LL_ERRS() << "Posting to a LLCurlRequest instance from within a responder is not allowed (causes DNS timeouts)." << LL_ENDL;
 	}
 	bool res = mActiveMulti->addEasy(easy);
 	return res;
@@ -1268,7 +1268,7 @@ bool LLCurlRequest::post(const std::string& url,
 	easy->slist_append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_LLSD_XML);
 	easy->setHeaders();
 
-	lldebugs << "POSTING: " << bytes << " bytes." << llendl;
+	LL_DEBUGS() << "POSTING: " << bytes << " bytes." << LL_ENDL;
 	bool res = addEasy(easy);
 	return res;
 }
@@ -1296,7 +1296,7 @@ bool LLCurlRequest::post(const std::string& url,
 	easy->slist_append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_OCTET_STREAM);
 	easy->setHeaders();
 
-	lldebugs << "POSTING: " << bytes << " bytes." << llendl;
+	LL_DEBUGS() << "POSTING: " << bytes << " bytes." << LL_ENDL;
 	bool res = addEasy(easy);
 	return res;
 }
@@ -1685,7 +1685,7 @@ void LLCurlEasyRequest::sendRequest(const std::string& url)
 {
 	llassert_always(!mRequestSent);
 	mRequestSent = true;
-	lldebugs << url << llendl;
+	LL_DEBUGS() << url << LL_ENDL;
 	if (isValid() && mEasy)
 	{
 		mEasy->setHeaders();
@@ -1893,7 +1893,7 @@ CURLM* LLCurl::newMultiHandle()
 
 	if(sTotalHandles + 1 > sMaxHandles)
 	{
-		llwarns << "no more handles available." << llendl ;
+		LL_WARNS() << "no more handles available." << LL_ENDL ;
 		return NULL ; //failed
 	}
 	sTotalHandles++;
@@ -1901,7 +1901,7 @@ CURLM* LLCurl::newMultiHandle()
 	CURLM* ret = curl_multi_init() ;
 	if(!ret)
 	{
-		llwarns << "curl_multi_init failed." << llendl ;
+		LL_WARNS() << "curl_multi_init failed." << LL_ENDL ;
 	}
 
 	return ret ;
@@ -1927,7 +1927,7 @@ CURL*  LLCurl::newEasyHandle()
 
 	if(sTotalHandles + 1 > sMaxHandles)
 	{
-		llwarns << "no more handles available." << llendl ;
+		LL_WARNS() << "no more handles available." << LL_ENDL ;
 		return NULL ; //failed
 	}
 	sTotalHandles++;
@@ -1935,7 +1935,7 @@ CURL*  LLCurl::newEasyHandle()
 	CURL* ret = createStandardCurlHandle();
 	if(!ret)
 	{
-		llwarns << "failed to create curl handle." << llendl ;
+		LL_WARNS() << "failed to create curl handle." << LL_ENDL ;
 	}
 
 	return ret ;
@@ -1975,7 +1975,7 @@ CURL* LLCurl::createStandardCurlHandle()
 		sCurlTemplateStandardHandle = curl_easy_init();
 		if (sCurlTemplateStandardHandle == NULL)
 		{
-			llwarns << "curl error calling curl_easy_init()" << llendl;
+			LL_WARNS() << "curl error calling curl_easy_init()" << LL_ENDL;
 		}
 		else
 		{

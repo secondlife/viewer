@@ -27,6 +27,8 @@
 
 #ifndef LLPROCESSOR_H
 #define LLPROCESSOR_H
+#include "llunits.h"
+
 class LLProcessorInfoImpl;
 
 class LL_COMMON_API LLProcessorInfo
@@ -35,7 +37,7 @@ public:
 	LLProcessorInfo(); 
  	~LLProcessorInfo();
 
-	F64 getCPUFrequency() const;
+	F64MegahertzImplicit getCPUFrequency() const;
 	bool hasSSE() const;
 	bool hasSSE2() const;
 	bool hasAltivec() const;

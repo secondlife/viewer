@@ -38,10 +38,8 @@
 #include "message.h"
 
 LLClassifiedStatsResponder::LLClassifiedStatsResponder(LLUUID classified_id)
-:
-mClassifiedID(classified_id)
-{
-}
+:	mClassifiedID(classified_id)
+{}
 
 /*virtual*/
 void LLClassifiedStatsResponder::httpSuccess()
@@ -59,17 +57,16 @@ void LLClassifiedStatsResponder::httpSuccess()
 	S32 search_map = content["search_map_clicks"].asInteger();
 	S32 search_profile = content["search_profile_clicks"].asInteger();
 
-	LLPanelClassifiedInfo::setClickThrough(
-		mClassifiedID, 
-		teleport + search_teleport, 
-		map + search_map,
-		profile + search_profile,
-		true);
+	LLPanelClassifiedInfo::setClickThrough(	mClassifiedID, 
+											teleport + search_teleport, 
+											map + search_map,
+											profile + search_profile,
+											true);
 }
 
 /*virtual*/
 void LLClassifiedStatsResponder::httpFailure()
 {
-	llwarns << dumpResponse() << llendl;
+	LL_WARNS() << dumpResponse() << LL_ENDL;
 }
 

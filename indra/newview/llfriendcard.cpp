@@ -68,10 +68,10 @@ inline const std::string get_friend_all_subfolder_name()
 
 void move_from_to_arrays(LLInventoryModel::cat_array_t& from, LLInventoryModel::cat_array_t& to)
 {
-	while (from.count() > 0)
+	while (from.size() > 0)
 	{
-		to.put(from.get(0));
-		from.remove(0);
+		to.push_back(from.at(0));
+		from.erase(from.begin());
 	}
 }
 
@@ -83,7 +83,7 @@ const LLUUID& get_folder_uuid(const LLUUID& parentFolderUUID, LLInventoryCollect
 	gInventory.collectDescendentsIf(parentFolderUUID, cats, items,
 		LLInventoryModel::EXCLUDE_TRASH, matchFunctor);
 
-	S32 cats_count = cats.count();
+	S32 cats_count = cats.size();
 
 	if (cats_count > 1)
 	{
@@ -93,7 +93,7 @@ const LLUUID& get_folder_uuid(const LLUUID& parentFolderUUID, LLInventoryCollect
 			<< LL_ENDL;
 	}
 
-	return (cats_count >= 1) ? cats.get(0)->getUUID() : LLUUID::null;
+	return (cats_count >= 1) ? cats.at(0)->getUUID() : LLUUID::null;
 }
 
 /**
@@ -173,14 +173,14 @@ LLFriendCardsManager::~LLFriendCardsManager()
 
 void LLFriendCardsManager::putAvatarData(const LLUUID& avatarID)
 {
-	llinfos << "Store avatar data, avatarID: " << avatarID << llendl;
+	LL_INFOS() << "Store avatar data, avatarID: " << avatarID << LL_ENDL;
 	std::pair< avatar_uuid_set_t::iterator, bool > pr;
 	pr = mBuddyIDSet.insert(avatarID);
 	if (pr.second == false)
 	{
-		llwarns << "Trying to add avatar UUID for the stored avatar: " 
+		LL_WARNS() << "Trying to add avatar UUID for the stored avatar: " 
 			<< avatarID
-			<< llendl;
+			<< LL_ENDL;
 	}
 }
 
@@ -190,7 +190,7 @@ const LLUUID LLFriendCardsManager::extractAvatarID(const LLUUID& avatarID)
 	avatar_uuid_set_t::iterator it = mBuddyIDSet.find(avatarID);
 	if (mBuddyIDSet.end() == it)
 	{
-		llwarns << "Call method for non-existent avatar name in the map: " << avatarID << llendl;
+		LL_WARNS() << "Call method for non-existent avatar name in the map: " << avatarID << LL_ENDL;
 	}
 	else
 	{
@@ -208,7 +208,7 @@ bool LLFriendCardsManager::isItemInAnyFriendsList(const LLViewerInventoryItem* i
 	LLInventoryModel::item_array_t items;
 	findMatchedFriendCards(item->getCreatorUUID(), items);
 
-	return items.count() > 0;
+	return items.size() > 0;
 }
 
 
@@ -243,9 +243,9 @@ bool LLFriendCardsManager::isObjDirectDescendentOfCategory(const LLInventoryObje
 			{
 				LLUUID creator_id = item->getCreatorUUID();
 				LLViewerInventoryItem* cur_item = NULL;
-				for ( S32 i = items->count() - 1; i >= 0; --i )
+				for ( S32 i = items->size() - 1; i >= 0; --i )
 				{
-					cur_item = items->get(i);
+					cur_item = items->at(i);
 					if ( creator_id == cur_item->getCreatorUUID() )
 					{
 						result = true;
@@ -260,9 +260,9 @@ bool LLFriendCardsManager::isObjDirectDescendentOfCategory(const LLInventoryObje
 			// Note: UUID's of compared items also may be not equal.
 			std::string obj_name = obj->getName();
 			LLViewerInventoryItem* cur_item = NULL;
-			for ( S32 i = items->count() - 1; i >= 0; --i )
+			for ( S32 i = items->size() - 1; i >= 0; --i )
 			{
-				cur_item = items->get(i);
+				cur_item = items->at(i);
 				if ( obj->getType() != cur_item->getType() )
 					continue;
 				if ( obj_name == cur_item->getName() )
@@ -280,9 +280,9 @@ bool LLFriendCardsManager::isObjDirectDescendentOfCategory(const LLInventoryObje
 		// then return true. Note: UUID's of compared items also may be not equal.
 		std::string obj_name = obj->getName();
 		LLViewerInventoryCategory* cur_cat = NULL;
-		for ( S32 i = cats->count() - 1; i >= 0; --i )
+		for ( S32 i = cats->size() - 1; i >= 0; --i )
 		{
-			cur_cat = cats->get(i);
+			cur_cat = cats->at(i);
 			if ( obj->getType() != cur_cat->getType() )
 				continue;
 			if ( obj_name == cur_cat->getName() )
@@ -382,10 +382,10 @@ void LLFriendCardsManager::findMatchedFriendCards(const LLUUID& avatarID, LLInve
 	LLInventoryModel::cat_array_t subFolders;
 	subFolders.push_back(friendFolder);
 
-	while (subFolders.count() > 0)
+	while (subFolders.size() > 0)
 	{
-		LLViewerInventoryCategory* cat = subFolders.get(0);
-		subFolders.remove(0);
+		LLViewerInventoryCategory* cat = subFolders.at(0);
+		subFolders.erase(subFolders.begin());
 
 		gInventory.collectDescendentsIf(cat->getUUID(), cats, items, 
 			LLInventoryModel::EXCLUDE_TRASH, matchFunctor);
@@ -432,7 +432,7 @@ void LLFriendCardsManager::ensureFriendsFolderExists()
 		{
 			LLViewerInventoryCategory* cat = gInventory.getCategory(calling_cards_folder_ID);
 			std::string cat_name = cat ? cat->getName() : "unknown";
-			llwarns << "Failed to find \"" << cat_name << "\" category descendents in Category Tree." << llendl;
+			LL_WARNS() << "Failed to find \"" << cat_name << "\" category descendents in Category Tree." << LL_ENDL;
 		}
 
 		friends_folder_ID = gInventory.createNewCategory(calling_cards_folder_ID,
@@ -463,7 +463,7 @@ void LLFriendCardsManager::ensureFriendsAllFolderExists()
 		{
 			LLViewerInventoryCategory* cat = gInventory.getCategory(friends_folder_ID);
 			std::string cat_name = cat ? cat->getName() : "unknown";
-			llwarns << "Failed to find \"" << cat_name << "\" category descendents in Category Tree." << llendl;
+			LL_WARNS() << "Failed to find \"" << cat_name << "\" category descendents in Category Tree." << LL_ENDL;
 		}
 
 		friends_all_folder_ID = gInventory.createNewCategory(friends_folder_ID,
@@ -508,7 +508,7 @@ void LLFriendCardsManager::syncFriendsFolder()
 
 	// 2. Add missing Friend Cards for friends
 	LLAvatarTracker::buddy_map_t::const_iterator buddy_it = all_buddies.begin();
-	llinfos << "try to build friends, count: " << all_buddies.size() << llendl;
+	LL_INFOS() << "try to build friends, count: " << all_buddies.size() << LL_ENDL;
 	for(; buddy_it != all_buddies.end(); ++buddy_it)
 	{
 		const LLUUID& buddy_id = (*buddy_it).first;
@@ -536,26 +536,26 @@ void LLFriendCardsManager::addFriendCardToInventory(const LLUUID& avatarID)
 	LLAvatarNameCache::get(avatarID, &av_name);
 	const std::string& name = av_name.getAccountName();
 
-	lldebugs << "Processing buddy name: " << name 
+	LL_DEBUGS() << "Processing buddy name: " << name 
 		<< ", id: " << avatarID
-		<< llendl; 
+		<< LL_ENDL; 
 
 	if (shouldBeAdded && findFriendCardInventoryUUIDImpl(avatarID).notNull())
 	{
 		shouldBeAdded = false;
-		lldebugs << "is found in Inventory: " << name << llendl; 
+		LL_DEBUGS() << "is found in Inventory: " << name << LL_ENDL; 
 	}
 
 	if (shouldBeAdded && isAvatarDataStored(avatarID))
 	{
 		shouldBeAdded = false;
-		lldebugs << "is found in sentRequests: " << name << llendl; 
+		LL_DEBUGS() << "is found in sentRequests: " << name << LL_ENDL; 
 	}
 
 	if (shouldBeAdded)
 	{
 		putAvatarData(avatarID);
-		lldebugs << "Sent create_inventory_item for " << avatarID << ", " << name << llendl;
+		LL_DEBUGS() << "Sent create_inventory_item for " << avatarID << ", " << name << LL_ENDL;
 
 		// TODO: mantipov: Is CreateFriendCardCallback really needed? Probably not
 		LLPointer<LLInventoryCallback> cb = new CreateFriendCardCallback;

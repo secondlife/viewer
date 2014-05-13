@@ -39,17 +39,19 @@
 
 #include "lltooltip.h"
 #include "llappviewer.h"
+#include "llmeshrepository.h"
 #include "llselectmgr.h"
 #include "llviewertexlayer.h"
 #include "lltexturecache.h"
 #include "lltexturefetch.h"
 #include "llviewercontrol.h"
 #include "llviewerobject.h"
+#include "llviewerobjectlist.h"
 #include "llviewertexture.h"
 #include "llviewertexturelist.h"
 #include "llvovolume.h"
 #include "llviewerstats.h"
-#include "llmeshrepository.h"
+#include "llworld.h"
 
 // For avatar texture view
 #include "llvoavatarself.h"
@@ -349,7 +351,7 @@ void LLTextureBar::draw()
 		// draw the image size at the end
 		{
 			std::string num_str = llformat("%3dx%3d (%2d) %7d", mImagep->getWidth(), mImagep->getHeight(),
-				mImagep->getDiscardLevel(), mImagep->hasGLTexture() ? mImagep->getTextureMemory() : 0);
+				mImagep->getDiscardLevel(), mImagep->hasGLTexture() ? mImagep->getTextureMemory().value() : 0);
 			LLFontGL::getFontMonospace()->renderUTF8(num_str, 0, title_x4, getRect().getHeight(), color,
 											LLFontGL::LEFT, LLFontGL::TOP);
 		}
@@ -498,20 +500,22 @@ private:
 
 void LLGLTexMemBar::draw()
 {
-	S32 bound_mem = BYTES_TO_MEGA_BYTES(LLViewerTexture::sBoundTextureMemoryInBytes);
- 	S32 max_bound_mem = LLViewerTexture::sMaxBoundTextureMemInMegaBytes;
-	S32 total_mem = BYTES_TO_MEGA_BYTES(LLViewerTexture::sTotalTextureMemoryInBytes);
-	S32 max_total_mem = LLViewerTexture::sMaxTotalTextureMemInMegaBytes;
+	S32Megabytes bound_mem = LLViewerTexture::sBoundTextureMemory;
+ 	S32Megabytes max_bound_mem = LLViewerTexture::sMaxBoundTextureMem;
+	S32Megabytes total_mem = LLViewerTexture::sTotalTextureMemory;
+	S32Megabytes max_total_mem = LLViewerTexture::sMaxTotalTextureMem;
 	F32 discard_bias = LLViewerTexture::sDesiredDiscardBias;
-	F32 cache_usage = (F32)BYTES_TO_MEGA_BYTES(LLAppViewer::getTextureCache()->getUsage()) ;
-	F32 cache_max_usage = (F32)BYTES_TO_MEGA_BYTES(LLAppViewer::getTextureCache()->getMaxUsage()) ;
+	F32 cache_usage = LLAppViewer::getTextureCache()->getUsage().valueInUnits<LLUnits::Megabytes>();
+	F32 cache_max_usage = LLAppViewer::getTextureCache()->getMaxUsage().valueInUnits<LLUnits::Megabytes>();
 	S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
 	S32 v_offset = 0;//(S32)((texture_bar_height + 2.2f) * mTextureView->mNumTextureBars + 2.0f);
-	F32 total_texture_downloaded = (F32)gTotalTextureBytes / (1024 * 1024);
-	F32 total_object_downloaded = (F32)gTotalObjectBytes / (1024 * 1024);
+	F32Bytes total_texture_downloaded = gTotalTextureData;
+	F32Bytes total_object_downloaded = gTotalObjectData;
 	U32 total_http_requests = LLAppViewer::getTextureFetch()->getTotalNumHTTPRequests();
+	U32 total_active_cached_objects = LLWorld::getInstance()->getNumOfActiveCachedObjects();
+	U32 total_objects = gObjectList.getNumObjects();
 	F32 x_right = 0.0;
-	
+
 	//----------------------------------------------------------------------------
 	LLGLSUIDefault gls_ui;
 	LLColor4 text_color(1.f, 1.f, 1.f, 0.75f);
@@ -527,10 +531,10 @@ void LLGLTexMemBar::draw()
 											 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
 	text = llformat("GL Tot: %d/%d MB Bound: %d/%d MB FBO: %d MB Raw Tot: %d MB Bias: %.2f Cache: %.1f/%.1f MB",
-					total_mem,
-					max_total_mem,
-					bound_mem,
-					max_bound_mem,
+					total_mem.value(),
+					max_total_mem.value(),
+					bound_mem.value(),
+					max_bound_mem.value(),
 					LLRenderTarget::sBytesAllocated/(1024*1024),
 					LLImageRaw::sGlobalRawMemory >> 20,
 					discard_bias,
@@ -544,9 +548,11 @@ void LLGLTexMemBar::draw()
 	U32 cache_read(0U), cache_write(0U), res_wait(0U);
 	LLAppViewer::getTextureFetch()->getStateStats(&cache_read, &cache_write, &res_wait);
 	
-	text = llformat("Net Tot Tex: %.1f MB Tot Obj: %.1f MB Tot Htp: %d Cread: %u Cwrite: %u Rwait: %u",
-					total_texture_downloaded,
-					total_object_downloaded,
+	text = llformat("Net Tot Tex: %.1f MB Tot Obj: %.1f MB #Objs/#Cached: %d/%d Tot Htp: %d Cread: %u Cwrite: %u Rwait: %u",
+					total_texture_downloaded.valueInUnits<LLUnits::Megabytes>(),
+					total_object_downloaded.valueInUnits<LLUnits::Megabytes>(),
+					total_objects, 
+					total_active_cached_objects,
 					total_http_requests,
 					cache_read,
 					cache_write,
@@ -557,7 +563,7 @@ void LLGLTexMemBar::draw()
 
 	//----------------------------------------------------------------------------
 
-	text = llformat("Textures: %d Fetch: %d(%d) Pkts:%d(%d) Cache R/W: %d/%d LFS:%d RAW:%d HTP:%d DEC:%d CRE:%d ",
+	text = llformat("Textures: %d Fetch: %d(%d) Pkts:%d(%d) Cache R/W: %d/%d LFS:%d RAW:%d HTP:%d DEC:%d CRE:%d",
 					gTextureList.getNumImages(),
 					LLAppViewer::getTextureFetch()->getNumRequests(), LLAppViewer::getTextureFetch()->getNumDeletes(),
 					LLAppViewer::getTextureFetch()->mPacketCount, LLAppViewer::getTextureFetch()->mBadPacketCount, 
@@ -574,14 +580,14 @@ void LLGLTexMemBar::draw()
 											 LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX,
 											 &x_right, FALSE);
 
-	F32 bandwidth = LLAppViewer::getTextureFetch()->getTextureBandwidth();
-	F32 max_bandwidth = gSavedSettings.getF32("ThrottleBandwidthKBPS");
-	color = bandwidth > max_bandwidth ? LLColor4::red : bandwidth > max_bandwidth * .75f ? LLColor4::yellow : text_color;
+	F32Kilobits bandwidth(LLAppViewer::getTextureFetch()->getTextureBandwidth());
+	F32Kilobits max_bandwidth(gSavedSettings.getF32("ThrottleBandwidthKBPS"));
+	color = bandwidth > max_bandwidth ? LLColor4::red : bandwidth > max_bandwidth*.75f ? LLColor4::yellow : text_color;
 	color[VALPHA] = text_color[VALPHA];
-	text = llformat("BW:%.0f/%.0f", bandwidth, max_bandwidth);
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, x_right, v_offset + line_height*3,
+	text = llformat("BW:%.0f/%.0f",bandwidth.value(), max_bandwidth.value());
+	LLFontGL::getFontMonospace()->renderUTF8(text, 0, x_right, v_offset + line_height*2,
 											 color, LLFontGL::LEFT, LLFontGL::TOP);
-
+	
 	// Mesh status line
 	text = llformat("Mesh: Reqs(Tot/Htp/Big): %u/%u/%u Rtr/Err: %u/%u Cread/Cwrite: %u/%u Low/At/High: %d/%d/%d",
 					LLMeshRepository::sMeshRequestCount, LLMeshRepository::sHTTPRequestCount, LLMeshRepository::sHTTPLargeRequestCount,
@@ -684,7 +690,7 @@ void LLGLTexSizeBar::draw()
 
 	if(LLImageGL::sCurTexSizeBar == mIndex)
 	{
-		F32 text_color[] = {1.f, 1.f, 1.f, 0.75f};	
+		LLColor4 text_color(1.f, 1.f, 1.f, 0.75f);	
 		std::string text;
 	
 		text = llformat("%d", mTopLoaded) ;
@@ -696,8 +702,8 @@ void LLGLTexSizeBar::draw()
 									 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 	}
 
-	F32 loaded_color[] = {1.0f, 0.0f, 0.0f, 0.75f};
-	F32 bound_color[] = {1.0f, 1.0f, 0.0f, 0.75f};
+	LLColor4 loaded_color(1.0f, 0.0f, 0.0f, 0.75f);
+	LLColor4 bound_color(1.0f, 1.0f, 0.0f, 0.75f);
 	gl_rect_2d(mLeft, mBottom + (S32)(mTopLoaded * mScale), (mLeft + mRight) / 2, mBottom, loaded_color) ;
 	gl_rect_2d((mLeft + mRight) / 2, mBottom + (S32)(mTopBound * mScale), mRight, mBottom, bound_color) ;
 }
@@ -774,7 +780,7 @@ void LLTextureView::draw()
 	
 		if (mPrintList)
 		{
-			llinfos << "ID\tMEM\tBOOST\tPRI\tWIDTH\tHEIGHT\tDISCARD" << llendl;
+			LL_INFOS() << "ID\tMEM\tBOOST\tPRI\tWIDTH\tHEIGHT\tDISCARD" << LL_ENDL;
 		}
 	
 		for (LLViewerTextureList::image_priority_list_t::iterator iter = gTextureList.mImageList.begin();
@@ -791,15 +797,15 @@ void LLTextureView::draw()
 			
 			if (mPrintList)
 			{
-				S32 tex_mem = imagep->hasGLTexture() ? imagep->getTextureMemory() : 0 ;
-				llinfos << imagep->getID()
+				S32 tex_mem = imagep->hasGLTexture() ? imagep->getTextureMemory().value() : 0 ;
+				LL_INFOS() << imagep->getID()
 						<< "\t" << tex_mem
 						<< "\t" << imagep->getBoostLevel()
 						<< "\t" << imagep->getDecodePriority()
 						<< "\t" << imagep->getWidth()
 						<< "\t" << imagep->getHeight()
 						<< "\t" << cur_discard
-						<< llendl;
+						<< LL_ENDL;
 			}
 
 			if (imagep->getID() == LLAppViewer::getTextureFetch()->mDebugID)

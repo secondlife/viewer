@@ -35,6 +35,7 @@
 #include "llxmltree.h"
 #include "llendianswizzle.h"
 #include "llpolymesh.h"
+#include "llfasttimer.h"
 
 //#include "../tools/imdebug/imdebug.h"
 
@@ -112,7 +113,7 @@ BOOL LLPolyMorphData::loadBinary(LLFILE *fp, LLPolyMeshSharedData *mesh)
 	llendianswizzle(&numVertices, sizeof(S32), 1);
 	if (numRead != 1)
 	{
-		llwarns << "Can't read number of morph target vertices" << llendl;
+		LL_WARNS() << "Can't read number of morph target vertices" << LL_ENDL;
 		return FALSE;
 	}
 
@@ -149,13 +150,13 @@ BOOL LLPolyMorphData::loadBinary(LLFILE *fp, LLPolyMeshSharedData *mesh)
 		llendianswizzle(&mVertexIndices[v], sizeof(U32), 1);
 		if (numRead != 1)
 		{
-			llwarns << "Can't read morph target vertex number" << llendl;
+			LL_WARNS() << "Can't read morph target vertex number" << LL_ENDL;
 			return FALSE;
 		}
 
 		if (mVertexIndices[v] > 10000)
 		{
-			llerrs << "Bad morph index: " << mVertexIndices[v] << llendl;
+			LL_ERRS() << "Bad morph index: " << mVertexIndices[v] << LL_ENDL;
 		}
 
 
@@ -163,7 +164,7 @@ BOOL LLPolyMorphData::loadBinary(LLFILE *fp, LLPolyMeshSharedData *mesh)
 		llendianswizzle(&mCoords[v], sizeof(F32), 3);
 		if (numRead != 3)
 		{
-			llwarns << "Can't read morph target vertex coordinates" << llendl;
+			LL_WARNS() << "Can't read morph target vertex coordinates" << LL_ENDL;
 			return FALSE;
 		}
 
@@ -183,7 +184,7 @@ BOOL LLPolyMorphData::loadBinary(LLFILE *fp, LLPolyMeshSharedData *mesh)
 		llendianswizzle(&mNormals[v], sizeof(F32), 3);
 		if (numRead != 3)
 		{
-			llwarns << "Can't read morph target normal" << llendl;
+			LL_WARNS() << "Can't read morph target normal" << LL_ENDL;
 			return FALSE;
 		}
 
@@ -191,7 +192,7 @@ BOOL LLPolyMorphData::loadBinary(LLFILE *fp, LLPolyMeshSharedData *mesh)
 		llendianswizzle(&mBinormals[v], sizeof(F32), 3);
 		if (numRead != 3)
 		{
-			llwarns << "Can't read morph target binormal" << llendl;
+			LL_WARNS() << "Can't read morph target binormal" << LL_ENDL;
 			return FALSE;
 		}
 
@@ -200,7 +201,7 @@ BOOL LLPolyMorphData::loadBinary(LLFILE *fp, LLPolyMeshSharedData *mesh)
 		llendianswizzle(&mTexCoords[v].mV, sizeof(F32), 2);
 		if (numRead != 2)
 		{
-			llwarns << "Can't read morph target uv" << llendl;
+			LL_WARNS() << "Can't read morph target uv" << LL_ENDL;
 			return FALSE;
 		}
 
@@ -268,7 +269,7 @@ BOOL LLPolyMorphTargetInfo::parseXml(LLXmlTreeNode* node)
 	static LLStdStringHandle name_string = LLXmlTree::addAttributeString("name");
 	if( !node->getFastAttributeString( name_string, mMorphName ) )
 	{
-		llwarns << "Avatar file: <param> is missing name attribute" << llendl;
+		LL_WARNS() << "Avatar file: <param> is missing name attribute" << LL_ENDL;
 		return FALSE;  // Continue, ignoring this tag
 	}
 
@@ -279,8 +280,8 @@ BOOL LLPolyMorphTargetInfo::parseXml(LLXmlTreeNode* node)
 
         if (NULL == paramNode)
         {
-                llwarns << "Failed to getChildByName(\"param_morph\")"
-                        << llendl;
+                LL_WARNS() << "Failed to getChildByName(\"param_morph\")"
+                        << LL_ENDL;
                 return FALSE;
         }
 
@@ -376,7 +377,7 @@ BOOL LLPolyMorphTarget::setInfo(LLPolyMorphTargetInfo* info)
 	}
 	if (!mMorphData)
 	{
-		llwarns << "No morph target named " << morph_param_name << " found in mesh." << llendl;
+		LL_WARNS() << "No morph target named " << morph_param_name << " found in mesh." << LL_ENDL;
 		return FALSE;  // Continue, ignoring this tag
 	}
 	return TRUE;
@@ -524,7 +525,7 @@ F32	LLPolyMorphTarget::getMaxDistortion()
 //-----------------------------------------------------------------------------
 // apply()
 //-----------------------------------------------------------------------------
-static LLFastTimer::DeclareTimer FTM_APPLY_MORPH_TARGET("Apply Morph");
+static LLTrace::BlockTimerStatHandle FTM_APPLY_MORPH_TARGET("Apply Morph");
 
 void LLPolyMorphTarget::apply( ESex avatar_sex )
 {
@@ -533,7 +534,7 @@ void LLPolyMorphTarget::apply( ESex avatar_sex )
 		return;
 	}
 
-	LLFastTimer t(FTM_APPLY_MORPH_TARGET);
+	LL_RECORD_BLOCK_TIME(FTM_APPLY_MORPH_TARGET);
 
 	mLastSex = avatar_sex;
 
@@ -619,9 +620,9 @@ void LLPolyMorphTarget::apply( ESex avatar_sex )
 			tangent.setCross3(scaled_binormals[vert_index_mesh], norm);
 			LLVector4a& normalized_binormal = binormals[vert_index_mesh];
 
-			normalized_binormal.setCross3(norm, tangent); 			
+			normalized_binormal.setCross3(norm, tangent); 
 			normalized_binormal.normalize3fast();
-
+			
 			tex_coords[vert_index_mesh] += mMorphData->mTexCoords[vert_index_morph] * delta_weight * maskWeight;
 		}
 

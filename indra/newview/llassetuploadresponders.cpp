@@ -135,7 +135,7 @@ void on_new_single_inventory_upload_complete(
 			inventory_item_flags = (U32) server_response["inventory_flags"].asInteger();
 			if (inventory_item_flags != 0)
 			{
-				llinfos << "inventory_item_flags " << inventory_item_flags << llendl;
+				LL_INFOS() << "inventory_item_flags " << inventory_item_flags << LL_ENDL;
 			}
 		}
 		S32 creation_date_now = time_corrected();
@@ -173,7 +173,7 @@ void on_new_single_inventory_upload_complete(
 	}
 	else
 	{
-		llwarns << "Can't find a folder to put it in" << llendl;
+		LL_WARNS() << "Can't find a folder to put it in" << LL_ENDL;
 	}
 
 	// remove the "Uploading..." message
@@ -197,7 +197,7 @@ LLAssetUploadResponder::LLAssetUploadResponder(const LLSD &post_data,
 {
 	if (!gVFS->getExists(vfile_id, asset_type))
 	{
-		llwarns << "LLAssetUploadResponder called with nonexistant vfile_id" << llendl;
+		LL_WARNS() << "LLAssetUploadResponder called with nonexistant vfile_id" << LL_ENDL;
 		mVFileID.setNull();
 		mAssetType = LLAssetType::AT_NONE;
 		return;
@@ -228,7 +228,7 @@ LLAssetUploadResponder::~LLAssetUploadResponder()
 void LLAssetUploadResponder::httpFailure()
 {
 	// *TODO: Add adaptive retry policy?
-	llwarns << dumpResponse() << llendl;
+	LL_WARNS() << dumpResponse() << LL_ENDL;
 	LLSD args;
 	if (isHttpClientErrorStatus(getStatus()))
 	{
@@ -257,7 +257,7 @@ void LLAssetUploadResponder::httpSuccess()
 		failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
 		return;
 	}
-	lldebugs << "LLAssetUploadResponder::result from capabilities" << llendl;
+	LL_DEBUGS() << "LLAssetUploadResponder::result from capabilities" << LL_ENDL;
 
 	const std::string& state = content["state"].asStringRef();
 
@@ -271,7 +271,7 @@ void LLAssetUploadResponder::httpSuccess()
 		if (mFileName.empty())
 		{
 			// rename the file in the VFS to the actual asset id
-			// llinfos << "Changing uploaded asset UUID to " << content["new_asset"].asUUID() << llendl;
+			// LL_INFOS() << "Changing uploaded asset UUID to " << content["new_asset"].asUUID() << LL_ENDL;
 			gVFS->renameFile(mVFileID, mAssetType, content["new_asset"].asUUID(), mAssetType);
 		}
 		uploadComplete(content);
@@ -363,11 +363,11 @@ void LLNewAgentInventoryResponder::uploadFailure(const LLSD& content)
 //virtual 
 void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 {
-	lldebugs << "LLNewAgentInventoryResponder::result from capabilities" << llendl;
+	LL_DEBUGS() << "LLNewAgentInventoryResponder::result from capabilities" << LL_ENDL;
 	
 	//std::ostringstream llsdxml;
 	//LLSDSerialize::toXML(content, llsdxml);
-	//llinfos << "upload complete content:\n " << llsdxml.str() << llendl;
+	//LL_INFOS() << "upload complete content:\n " << llsdxml.str() << LL_ENDL;
 
 	LLAssetType::EType asset_type = LLAssetType::lookup(mPostData["asset_type"].asString());
 	LLInventoryType::EType inventory_type = LLInventoryType::lookup(mPostData["inventory_type"].asString());
@@ -469,14 +469,14 @@ LLUpdateAgentInventoryResponder::LLUpdateAgentInventoryResponder(
 //virtual 
 void LLUpdateAgentInventoryResponder::uploadComplete(const LLSD& content)
 {
-	llinfos << "LLUpdateAgentInventoryResponder::result from capabilities" << llendl;
+	LL_INFOS() << "LLUpdateAgentInventoryResponder::result from capabilities" << LL_ENDL;
 	LLUUID item_id = mPostData["item_id"];
 
 	LLViewerInventoryItem* item = (LLViewerInventoryItem*)gInventory.getItem(item_id);
 	if(!item)
 	{
-		llwarns << "Inventory item for " << mVFileID
-			<< " is no longer in agent inventory." << llendl;
+		LL_WARNS() << "Inventory item for " << mVFileID
+			<< " is no longer in agent inventory." << LL_ENDL;
 		return;
 	}
 
@@ -486,8 +486,8 @@ void LLUpdateAgentInventoryResponder::uploadComplete(const LLSD& content)
 	gInventory.updateItem(new_item);
 	gInventory.notifyObservers();
 
-	llinfos << "Inventory item " << item->getName() << " saved into "
-		<< content["new_asset"].asString() << llendl;
+	LL_INFOS() << "Inventory item " << item->getName() << " saved into "
+		<< content["new_asset"].asString() << LL_ENDL;
 
 	LLInventoryType::EType inventory_type = new_item->getInventoryType();
 	switch(inventory_type)
@@ -583,7 +583,7 @@ LLUpdateTaskInventoryResponder::LLUpdateTaskInventoryResponder(const LLSD& post_
 //virtual 
 void LLUpdateTaskInventoryResponder::uploadComplete(const LLSD& content)
 {
-	llinfos << "LLUpdateTaskInventoryResponder::result from capabilities" << llendl;
+	LL_INFOS() << "LLUpdateTaskInventoryResponder::result from capabilities" << LL_ENDL;
 	LLUUID item_id = mPostData["item_id"];
 	LLUUID task_id = mPostData["task_id"];
 
@@ -664,9 +664,9 @@ public:
 	{
 		if (!gVFS->getExists(vfile_id, asset_type))
 		{
-			llwarns
+			LL_WARNS()
 				<< "LLAssetUploadResponder called with nonexistant "
-				<< "vfile_id " << vfile_id << llendl;
+				<< "vfile_id " << vfile_id << LL_ENDL;
 			mVFileID.setNull();
 			mAssetType = LLAssetType::AT_NONE;
 		}
@@ -1015,7 +1015,7 @@ void LLNewAgentInventoryVariablePriceResponder::httpSuccess()
 		if (mImpl->getFilename().empty())
 		{
 			// rename the file in the VFS to the actual asset id
-			// llinfos << "Changing uploaded asset UUID to " << content["new_asset"].asUUID() << llendl;
+			// LL_INFOS() << "Changing uploaded asset UUID to " << content["new_asset"].asUUID() << LL_ENDL;
 			gVFS->renameFile(
 				mImpl->getVFileID(),
 				asset_type,

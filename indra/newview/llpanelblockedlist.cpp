@@ -90,7 +90,7 @@ BOOL LLPanelBlockedList::postBuild()
 		mBlockedList->sortByType();
 		break;
 	default:
-		llwarns << "Unrecognized sort order for blocked list" << llendl;
+		LL_WARNS() << "Unrecognized sort order for blocked list" << LL_ENDL;
 		break;
 	}
 

@@ -110,15 +110,15 @@ namespace
 		const std::string& pollURL, const LLHost& sender)
 	{
 		LLHTTPClient::ResponderPtr result = new LLEventPollResponder(pollURL, sender);
-		llinfos	<< "LLEventPollResponder::start <" << sCount << "> "
-				<< pollURL << llendl;
+		LL_INFOS()	<< "LLEventPollResponder::start <" << sCount << "> "
+				<< pollURL << LL_ENDL;
 		return result;
 	}
 
 	void LLEventPollResponder::stop()
 	{
-		llinfos	<< "LLEventPollResponder::stop	<" << mCount <<	"> "
-				<< mPollURL	<< llendl;
+		LL_INFOS()	<< "LLEventPollResponder::stop	<" << mCount <<	"> "
+				<< mPollURL	<< LL_ENDL;
 		// there should	be a way to	stop a LLHTTPClient	request	in progress
 		mDone =	true;
 	}
@@ -135,18 +135,18 @@ namespace
 		LLViewerRegion *regionp = gAgent.getRegion();
 		if (!regionp)
 		{
-			llerrs << "LLEventPoll initialized before region is added." << llendl;
+			LL_ERRS() << "LLEventPoll initialized before region is added." << LL_ENDL;
 		}
 		mSender = sender.getIPandPort();
-		llinfos << "LLEventPoll initialized with sender " << mSender << llendl;
+		LL_INFOS() << "LLEventPoll initialized with sender " << mSender << LL_ENDL;
 		makeRequest();
 	}
 
 	LLEventPollResponder::~LLEventPollResponder()
 	{
 		stop();
-		lldebugs <<	"LLEventPollResponder::~Impl <" <<	mCount << "> "
-				 <<	mPollURL <<	llendl;
+		LL_DEBUGS() <<	"LLEventPollResponder::~Impl <" <<	mCount << "> "
+				 <<	mPollURL <<	LL_ENDL;
 	}
 
 	// virtual 
@@ -171,8 +171,8 @@ namespace
 		request["ack"] = mAcknowledge;
 		request["done"]	= mDone;
 		
-		lldebugs <<	"LLEventPollResponder::makeRequest	<" << mCount <<	"> ack = "
-				 <<	LLSDXMLStreamer(mAcknowledge) << llendl;
+		LL_DEBUGS() <<	"LLEventPollResponder::makeRequest	<" << mCount <<	"> ack = "
+				 <<	LLSDXMLStreamer(mAcknowledge) << LL_ENDL;
 		LLHTTPClient::post(mPollURL, request, this);
 	}
 
@@ -206,13 +206,13 @@ namespace
 										+ mErrorCount * EVENT_POLL_ERROR_RETRY_SECONDS_INC
 									, this);
 
-			llwarns << dumpResponse() << llendl;
+			LL_WARNS() << dumpResponse() << LL_ENDL;
 		}
 		else
 		{
-			llwarns << dumpResponse()
-					<< " [count:" << mCount << "] "
-					<< (mDone ? " -- done" : "") << llendl;
+			LL_WARNS() << dumpResponse()
+					   << " [count:" << mCount << "] "
+					   << (mDone ? " -- done" : "") << LL_ENDL;
 			stop();
 
 			// At this point we have given up and the viewer will not receive HTTP messages from the simulator.
@@ -226,7 +226,7 @@ namespace
 			// continue running.
 			if(gAgent.getRegion() && gAgent.getRegion()->getHost().getIPandPort() == mSender)
 			{
-				llwarns << "Forcing disconnect due to stalled main region event poll."  << llendl;
+				LL_WARNS() << "Forcing disconnect due to stalled main region event poll."  << LL_ENDL;
 				LLAppViewer::instance()->forceDisconnect(LLTrans::getString("AgentLostConnection"));
 			}
 		}
@@ -235,8 +235,8 @@ namespace
 	//virtual
 	void LLEventPollResponder::httpSuccess()
 	{
-		lldebugs <<	"LLEventPollResponder::result <" << mCount	<< ">"
-				 <<	(mDone ? " -- done"	: "") << llendl;
+		LL_DEBUGS() <<	"LLEventPollResponder::result <" << mCount	<< ">"
+				 <<	(mDone ? " -- done"	: "") << LL_ENDL;
 		
 		if (mDone) return;
 
@@ -247,7 +247,7 @@ namespace
 			!content.get("events") ||
 			!content.get("id"))
 		{
-			llwarns << "received event poll with no events or id key: " << dumpResponse() << llendl;
+			LL_WARNS() << "received event poll with no events or id key: " << dumpResponse() << LL_ENDL;
 			makeRequest();
 			return;
 		}
@@ -257,12 +257,12 @@ namespace
 
 		if(mAcknowledge.isUndefined())
 		{
-			llwarns << "LLEventPollResponder: id undefined" << llendl;
+			LL_WARNS() << "LLEventPollResponder: id undefined" << LL_ENDL;
 		}
 		
 		// was llinfos but now that CoarseRegionUpdate is TCP @ 1/second, it'd be too verbose for viewer logs. -MG
-		lldebugs  << "LLEventPollResponder::httpSuccess <" <<	mCount << "> " << events.size() << "events (id "
-				 <<	LLSDXMLStreamer(mAcknowledge) << ")" << llendl;
+		LL_DEBUGS()  << "LLEventPollResponder::httpSuccess <" <<	mCount << "> " << events.size() << "events (id "
+					 <<	LLSDXMLStreamer(mAcknowledge) << ")" << LL_ENDL;
 		
 		LLSD::array_const_iterator i = events.beginArray();
 		LLSD::array_const_iterator end = events.endArray();

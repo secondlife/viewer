@@ -600,7 +600,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		{
 			//should NEVER get here -- if major version is 1 and minor version is less than 10, 
 			// viewer should never attempt to use shaders, continuing will result in undefined behavior
-			llerrs << "Unsupported GLSL Version." << llendl;
+			LL_ERRS() << "Unsupported GLSL Version." << LL_ENDL;
 		}
 
 		if (minor_version <= 19)
@@ -767,7 +767,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		else
 		{ //should never get here.  Indexed texture rendering requires GLSL 1.30 or later 
 			// (for passing integers between vertex and fragment shaders)
-			llerrs << "Indexed texture rendering requires GLSL 1.30 or later." << llendl;
+			LL_ERRS() << "Indexed texture rendering requires GLSL 1.30 or later." << LL_ENDL;
 		}
 	}
 	else
@@ -840,13 +840,13 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 					if (i % 128 == 0)
 					{ //dump every 128 lines
 
-						LL_WARNS("ShaderLoading") << "\n" << ostr.str() << llendl;
+						LL_WARNS("ShaderLoading") << "\n" << ostr.str() << LL_ENDL;
 						ostr = std::stringstream();
 					}
 
 				}
 
-				LL_WARNS("ShaderLoading") << "\n" << ostr.str() << llendl;
+				LL_WARNS("ShaderLoading") << "\n" << ostr.str() << LL_ENDL;
 #else
 				std::string str;
 				
@@ -855,7 +855,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 					
 					if (i % 128 == 0)
 					{
-						LL_WARNS("ShaderLoading") << str << llendl;
+						LL_WARNS("ShaderLoading") << str << LL_ENDL;
 						str = "";
 					}
 				}
@@ -1205,7 +1205,7 @@ void LLShaderMgr::initAttribsAndUniforms()
 	{
 		if (dupe_check.find(mReservedUniforms[i]) != dupe_check.end())
 		{
-			llerrs << "Duplicate reserved uniform name found: " << mReservedUniforms[i] << llendl;
+			LL_ERRS() << "Duplicate reserved uniform name found: " << mReservedUniforms[i] << LL_ENDL;
 		}
 		dupe_check.insert(mReservedUniforms[i]);
 	}

@@ -131,8 +131,8 @@ namespace
 			const LLSD& context,
 			const LLSD& input) const
 		{
-			llinfos << "Received response from the debug console: "
-				<< input << llendl;
+			LL_INFOS() << "Received response from the debug console: "
+				<< input << LL_ENDL;
 			sConsoleReplySignal(input["body"].asString());
 		}
 	};

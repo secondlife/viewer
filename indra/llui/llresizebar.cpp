@@ -35,46 +35,18 @@
 #include "llfocusmgr.h"
 #include "llwindow.h"
 
-class LLImagePanel : public LLPanel
-{
-public:
-	struct Params :	public LLInitParam::Block<Params, LLPanel::Params>
-	{
-		Optional<bool> horizontal;
-		Params() : horizontal("horizontal", false) {}
-	};
-	LLImagePanel(const Params& p) : LLPanel(p), mHorizontal(p.horizontal) {}
-	virtual ~LLImagePanel() {}
-
-	void draw()
-	{
-		const LLRect& parent_rect = getParent()->getRect();
-		const LLRect& rect = getRect();
-		LLRect clip_rect( -rect.mLeft, parent_rect.getHeight() - rect.mBottom - 2
-						 , parent_rect.getWidth() - rect.mLeft - (mHorizontal ? 2 : 0), -rect.mBottom);
-		LLLocalClipRect clip(clip_rect);
-		LLPanel::draw();
-	}
-
-private:
-	bool mHorizontal;
-};
-
-static LLDefaultChildRegistry::Register<LLImagePanel> t1("resize_bar_image_panel");
-
 LLResizeBar::Params::Params()
 :	max_size("max_size", S32_MAX),
 	snapping_enabled("snapping_enabled", true),
 	resizing_view("resizing_view"),
 	side("side"),
-	allow_double_click_snapping("allow_double_click_snapping", true),
-	show_drag_handle("show_drag_handle", false)
+	allow_double_click_snapping("allow_double_click_snapping", true)
 {
 	name = "resize_bar";
 }
 
 LLResizeBar::LLResizeBar(const LLResizeBar::Params& p)
-:	LLPanel(p),
+:	LLView(p),
 	mDragLastScreenX( 0 ),
 	mDragLastScreenY( 0 ),
 	mLastMouseScreenX( 0 ),
@@ -86,7 +58,6 @@ LLResizeBar::LLResizeBar(const LLResizeBar::Params& p)
 	mAllowDoubleClickSnapping(p.allow_double_click_snapping),
 	mResizingView(p.resizing_view),
 	mResizeListener(NULL),
-	mShowDragHandle(p.show_drag_handle),
 	mImagePanel(NULL)
 {
 	setFollowsNone();
@@ -116,36 +87,6 @@ LLResizeBar::LLResizeBar(const LLResizeBar::Params& p)
 	default:
 		break;
 	}
-
-	if (mShowDragHandle)
-	{
-		LLViewBorder::Params border_params;
-		border_params.border_thickness = 1;
-		border_params.highlight_light_color = LLUIColorTable::instance().getColor("ResizebarBorderLight");
-		border_params.shadow_dark_color = LLUIColorTable::instance().getColor("ResizebarBorderDark");
-
-		addBorder(border_params);
-		setBorderVisible(TRUE);
-
-		LLImagePanel::Params image_panel;
-		mDragHandleImage = LLUI::getUIImage(LLResizeBar::RIGHT == mSide ? "Vertical Drag Handle" : "Horizontal Drag Handle");
-		image_panel.bg_alpha_image = mDragHandleImage;
-		image_panel.background_visible = true;
-		image_panel.horizontal = (LLResizeBar::BOTTOM == mSide);
-		mImagePanel = LLUICtrlFactory::create<LLImagePanel>(image_panel);
-		setImagePanel(mImagePanel);
-	}
-}
-
-BOOL LLResizeBar::postBuild()
-{
-	if (mShowDragHandle)
-	{
-		setBackgroundVisible(TRUE);
-		setTransparentColor(LLUIColorTable::instance().getColor("ResizebarBody"));
-	}
-
-	return LLPanel::postBuild();
 }
 
 BOOL LLResizeBar::handleMouseDown(S32 x, S32 y, MASK mask)
@@ -432,19 +373,4 @@ void LLResizeBar::setImagePanel(LLPanel * panelp)
 LLPanel * LLResizeBar::getImagePanel() const
 {
 	return getChildCount() > 0 ? (LLPanel *)getChildList()->back() : NULL;
-}
-
-void LLResizeBar::draw()
-{
-	if (mShowDragHandle)
-	{
-		S32 image_width = mDragHandleImage->getTextureWidth();
-		S32 image_height = mDragHandleImage->getTextureHeight();
-		const LLRect& panel_rect = getRect();
-		S32 image_left = (panel_rect.getWidth() - image_width) / 2 - 1;
-		S32 image_bottom = (panel_rect.getHeight() - image_height) / 2;
-		mImagePanel->setRect(LLRect(image_left, image_bottom + image_height, image_left + image_width, image_bottom));
-	}
-
-	LLPanel::draw();
 }

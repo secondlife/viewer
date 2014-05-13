@@ -29,7 +29,6 @@
 //#include <boost/lambda/bind.hpp>
 // other Linden headers
 #include "../test/lltut.h"
-#include "../test/manageapr.h"
 #include "../test/namedtempfile.h"
 #include "../test/catch_and_store_what_in.h"
 #include "stringize.h"
@@ -46,9 +45,12 @@
 #endif
 
 //namespace lambda = boost::lambda;
-
-// static instance of this manages APR init/cleanup
-static ManageAPR manager;
+ std::string apr_strerror_helper(apr_status_t rv)
+{
+    char errbuf[256];
+    apr_strerror(rv, errbuf, sizeof(errbuf));
+    return errbuf;
+}
 
 /*****************************************************************************
 *   Helpers
@@ -60,7 +62,8 @@ static ManageAPR manager;
 #define aprchk(expr) aprchk_(#expr, (expr))
 static void aprchk_(const char* call, apr_status_t rv, apr_status_t expected=APR_SUCCESS)
 {
-    tut::ensure_equals(STRINGIZE(call << " => " << rv << ": " << manager.strerror(rv)),
+    tut::ensure_equals(STRINGIZE(call << " => " << rv << ": " << apr_strerror_helper
+                                 (rv)),
                        rv, expected);
 }
 

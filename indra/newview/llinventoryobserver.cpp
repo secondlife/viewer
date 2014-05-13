@@ -149,10 +149,10 @@ LLInventoryFetchItemsObserver::LLInventoryFetchItemsObserver(const uuid_vec_t& i
 
 void LLInventoryFetchItemsObserver::changed(U32 mask)
 {
-	lldebugs << this << " remaining incomplete " << mIncomplete.size()
+	LL_DEBUGS() << this << " remaining incomplete " << mIncomplete.size()
 			 << " complete " << mComplete.size()
 			 << " wait period " << mFetchingPeriod.getRemainingTimeF32()
-			 << llendl;
+			 << LL_ENDL;
 
 	// scan through the incomplete items and move or erase them as
 	// appropriate.
@@ -176,7 +176,7 @@ void LLInventoryFetchItemsObserver::changed(U32 mask)
 				if (timeout_expired)
 				{
 					// Just concede that this item hasn't arrived in reasonable time and continue on.
-					llwarns << "Fetcher timed out when fetching inventory item UUID: " << item_id << LL_ENDL;
+					LL_WARNS() << "Fetcher timed out when fetching inventory item UUID: " << item_id << LL_ENDL;
 					it = mIncomplete.erase(it);
 				}
 				else
@@ -191,12 +191,12 @@ void LLInventoryFetchItemsObserver::changed(U32 mask)
 
 	if (mIncomplete.empty())
 	{
-		lldebugs << this << " done at remaining incomplete "
-				 << mIncomplete.size() << " complete " << mComplete.size() << llendl;
+		LL_DEBUGS() << this << " done at remaining incomplete "
+				 << mIncomplete.size() << " complete " << mComplete.size() << LL_ENDL;
 		done();
 	}
-	//llinfos << "LLInventoryFetchItemsObserver::changed() mComplete size " << mComplete.size() << llendl;
-	//llinfos << "LLInventoryFetchItemsObserver::changed() mIncomplete size " << mIncomplete.size() << llendl;
+	//LL_INFOS() << "LLInventoryFetchItemsObserver::changed() mComplete size " << mComplete.size() << LL_ENDL;
+	//LL_INFOS() << "LLInventoryFetchItemsObserver::changed() mIncomplete size " << mIncomplete.size() << LL_ENDL;
 }
 
 void fetch_items_from_llsd(const LLSD& items_llsd)
@@ -224,12 +224,12 @@ void fetch_items_from_llsd(const LLSD& items_llsd)
 	{
 		if (!gAgent.getRegion())
 		{
-			llwarns << "Agent's region is null" << llendl;
+			LL_WARNS() << "Agent's region is null" << LL_ENDL;
 			break;
 		}
 
 		if (0 == body[i]["items"].size()) {
-			lldebugs << "Skipping body with no items to fetch" << llendl;
+			LL_DEBUGS() << "Skipping body with no items to fetch" << LL_ENDL;
 			continue;
 		}
 
@@ -391,14 +391,14 @@ BOOL LLInventoryFetchDescendentsObserver::isCategoryComplete(const LLViewerInven
 	gInventory.getDirectDescendentsOf(cat->getUUID(), cats, items);
 	if (!cats || !items)
 	{
-		llwarns << "Category '" << cat->getName() << "' descendents corrupted, fetch failed." << llendl;
+		LL_WARNS() << "Category '" << cat->getName() << "' descendents corrupted, fetch failed." << LL_ENDL;
 		// NULL means the call failed -- cats/items map doesn't exist (note: this does NOT mean
 		// that the cat just doesn't have any items or subfolders).
 		// Unrecoverable, so just return done so that this observer can be cleared
 		// from memory.
 		return TRUE;
 	}
-	const S32 current_num_known_descendents = cats->count() + items->count();
+	const S32 current_num_known_descendents = cats->size() + items->size();
 	
 	// Got the number of descendents that we were expecting, so we're done.
 	if (current_num_known_descendents == expected_num_descendents)
@@ -411,7 +411,7 @@ BOOL LLInventoryFetchDescendentsObserver::isCategoryComplete(const LLViewerInven
 	// count and thus the category thinks it has fewer descendents than it actually has.
 	if (current_num_known_descendents >= expected_num_descendents)
 	{
-		llwarns << "Category '" << cat->getName() << "' expected descendentcount:" << expected_num_descendents << " descendents but got descendentcount:" << current_num_known_descendents << llendl;
+		LL_WARNS() << "Category '" << cat->getName() << "' expected descendentcount:" << expected_num_descendents << " descendents but got descendentcount:" << current_num_known_descendents << LL_ENDL;
 		const_cast<LLViewerInventoryCategory *>(cat)->setDescendentCount(current_num_known_descendents);
 		return TRUE;
 	}
@@ -622,7 +622,7 @@ void LLInventoryCategoriesObserver::changed(U32 mask)
 		gInventory.getDirectDescendentsOf(cat_id, cats, items);
 		if (!cats || !items)
 		{
-			llwarns << "Category '" << category->getName() << "' descendents corrupted, fetch failed." << llendl;
+			LL_WARNS() << "Category '" << category->getName() << "' descendents corrupted, fetch failed." << LL_ENDL;
 			// NULL means the call failed -- cats/items map doesn't exist (note: this does NOT mean
 			// that the cat just doesn't have any items or subfolders).
 			// Unrecoverable, so just skip this category.
@@ -632,7 +632,7 @@ void LLInventoryCategoriesObserver::changed(U32 mask)
 			continue;
 		}
 		
-		const S32 current_num_known_descendents = cats->count() + items->count();
+		const S32 current_num_known_descendents = cats->size() + items->size();
 
 		bool cat_changed = false;
 
@@ -693,7 +693,7 @@ bool LLInventoryCategoriesObserver::addCategory(const LLUUID& cat_id, callback_t
 		gInventory.getDirectDescendentsOf(cat_id, cats, items);
 		if (!cats || !items)
 		{
-			llwarns << "Category '" << category->getName() << "' descendents corrupted, fetch failed." << llendl;
+			LL_WARNS() << "Category '" << category->getName() << "' descendents corrupted, fetch failed." << LL_ENDL;
 			// NULL means the call failed -- cats/items map doesn't exist (note: this does NOT mean
 			// that the cat just doesn't have any items or subfolders).
 			// Unrecoverable, so just return "false" meaning that the category can't be observed.
@@ -703,7 +703,7 @@ bool LLInventoryCategoriesObserver::addCategory(const LLUUID& cat_id, callback_t
 		}
 		else
 		{
-			current_num_known_descendents = cats->count() + items->count();
+			current_num_known_descendents = cats->size() + items->size();
 		}
 	}
 

@@ -249,7 +249,6 @@ static void request(
 
 	req->setSSLVerifyCallback(LLHTTPClient::getCertVerifyCallback(), (void *)req);
 
-
 	LL_DEBUGS("LLHTTPClient") << httpMethodAsVerb(method) << " " << url << " " << headers << LL_ENDL;
 
 	// Insert custom headers if the caller sent any
@@ -439,7 +438,7 @@ static LLSD blocking_request(
 	const F32 timeout = 5
 )
 {
-	lldebugs << "blockingRequest of " << url << llendl;
+	LL_DEBUGS() << "blockingRequest of " << url << LL_ENDL;
 	char curl_error_buffer[CURL_ERROR_SIZE] = "\0";
 	CURL* curlp = LLCurl::newEasyHandle();
 	llassert_always(curlp != NULL) ;
@@ -470,7 +469,7 @@ static LLSD blocking_request(
 		{
 			std::ostringstream header;
 			header << iter->first << ": " << iter->second.asString() ;
-			lldebugs << "header = " << header.str() << llendl;
+			LL_DEBUGS() << "header = " << header.str() << LL_ENDL;
 			headers_list = curl_slist_append(headers_list, header.str().c_str());
 		}
 	}
@@ -500,13 +499,13 @@ static LLSD blocking_request(
 	}
 	
 	// * Do the action using curl, handle results
-	lldebugs << "HTTP body: " << body_str << llendl;
+	LL_DEBUGS() << "HTTP body: " << body_str << LL_ENDL;
 	headers_list = curl_slist_append(headers_list,
 				llformat("%s: %s", HTTP_OUT_HEADER_ACCEPT.c_str(), HTTP_CONTENT_LLSD_XML.c_str()).c_str());
 	CURLcode curl_result = curl_easy_setopt(curlp, CURLOPT_HTTPHEADER, headers_list);
 	if ( curl_result != CURLE_OK )
 	{
-		llinfos << "Curl is hosed - can't add headers" << llendl;
+		LL_INFOS() << "Curl is hosed - can't add headers" << LL_ENDL;
 	}
 
 	LLSD response = LLSD::emptyMap();
@@ -518,19 +517,19 @@ static LLSD blocking_request(
 	if ( http_status != HTTP_NOT_FOUND && (http_status != HTTP_OK || curl_success != 0) )
 	{
 		// We expect 404s, don't spam for them.
-		llwarns << "CURL REQ URL: " << url << llendl;
-		llwarns << "CURL REQ METHOD TYPE: " << method << llendl;
-		llwarns << "CURL REQ HEADERS: " << headers.asString() << llendl;
-		llwarns << "CURL REQ BODY: " << body_str << llendl;
-		llwarns << "CURL HTTP_STATUS: " << http_status << llendl;
-		llwarns << "CURL ERROR: " << curl_error_buffer << llendl;
-		llwarns << "CURL ERROR BODY: " << http_buffer.asString() << llendl;
+		LL_WARNS() << "CURL REQ URL: " << url << LL_ENDL;
+		LL_WARNS() << "CURL REQ METHOD TYPE: " << method << LL_ENDL;
+		LL_WARNS() << "CURL REQ HEADERS: " << headers.asString() << LL_ENDL;
+		LL_WARNS() << "CURL REQ BODY: " << body_str << LL_ENDL;
+		LL_WARNS() << "CURL HTTP_STATUS: " << http_status << LL_ENDL;
+		LL_WARNS() << "CURL ERROR: " << curl_error_buffer << LL_ENDL;
+		LL_WARNS() << "CURL ERROR BODY: " << http_buffer.asString() << LL_ENDL;
 		response["body"] = http_buffer.asString();
 	}
 	else
 	{
 		response["body"] = http_buffer.asLLSD();
-		lldebugs << "CURL response: " << http_buffer.asString() << llendl;
+		LL_DEBUGS() << "CURL response: " << http_buffer.asString() << LL_ENDL;
 	}
 	
 	if(headers_list)

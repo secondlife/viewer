@@ -29,6 +29,7 @@
 
 #include "llwearable.h"
 #include "llavatarappearancedefines.h"
+#include "llextendedstatus.h"
 
 class LLVOAvatar;
 

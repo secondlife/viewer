@@ -239,11 +239,11 @@ public:
 	LLSDRPCClientFactory(const std::string& fixed_url) : mURL(fixed_url) {}
 	virtual bool build(LLPumpIO::chain_t& chain, LLSD context) const
 	{
-		lldebugs << "LLSDRPCClientFactory::build" << llendl;
-		LLURLRequest* http(new LLURLRequest(HTTP_POST));
+		LL_DEBUGS() << "LLSDRPCClientFactory::build" << LL_ENDL;
+		LLURLRequest* http(new LLURLRequest(LLURLRequest::HTTP_POST));
 		if(!http->isValid())
 		{
-			llwarns << "Creating LLURLRequest failed." << llendl ;
+			LL_WARNS() << "Creating LLURLRequest failed." << LL_ENDL ;
 			delete http;
 			return false;
 		}
@@ -289,12 +289,12 @@ public:
 	LLXMLSDRPCClientFactory(const std::string& fixed_url) : mURL(fixed_url) {}
 	virtual bool build(LLPumpIO::chain_t& chain, LLSD context) const
 	{
-		lldebugs << "LLXMLSDRPCClientFactory::build" << llendl;
+		LL_DEBUGS() << "LLXMLSDRPCClientFactory::build" << LL_ENDL;
 
 		LLURLRequest* http(new LLURLRequest(HTTP_POST));
 		if(!http->isValid())
 		{
-			llwarns << "Creating LLURLRequest failed." << llendl ;
+			LL_WARNS() << "Creating LLURLRequest failed." << LL_ENDL ;
 			delete http;
 			return false ;
 		}

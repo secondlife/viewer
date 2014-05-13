@@ -282,7 +282,7 @@ void LLTranslate::TranslationReceiver::completedRaw(
 			err_msg = LLTrans::getString("TranslationResponseParseError");
 		}
 
-		llwarns << "Translation request failed: " << err_msg << llendl;
+		LL_WARNS() << "Translation request failed: " << err_msg << LL_ENDL;
 		handleFailure(status, err_msg);
 	}
 }

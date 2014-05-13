@@ -306,8 +306,8 @@ LLViewerInventoryItem::LLViewerInventoryItem(const LLViewerInventoryItem* other)
 	copyViewerItem(other);
 	if (!mIsComplete)
 	{
-		llwarns << "LLViewerInventoryItem copy constructor for incomplete item"
-			<< mUUID << llendl;
+		LL_WARNS() << "LLViewerInventoryItem copy constructor for incomplete item"
+			<< mUUID << LL_ENDL;
 	}
 }
 
@@ -354,16 +354,16 @@ void LLViewerInventoryItem::updateServer(BOOL is_new) const
 	{
 		// *FIX: deal with this better.
 		// If we're crashing here then the UI is incorrectly enabled.
-		llerrs << "LLViewerInventoryItem::updateServer() - for incomplete item"
-			   << llendl;
+		LL_ERRS() << "LLViewerInventoryItem::updateServer() - for incomplete item"
+			   << LL_ENDL;
 		return;
 	}
 	if(gAgent.getID() != mPermissions.getOwner())
 	{
 		// *FIX: deal with this better.
-		llwarns << "LLViewerInventoryItem::updateServer() - for unowned item "
-			    << ll_pretty_print_sd(this->asLLSD())
-				<< llendl;
+		LL_WARNS() << "LLViewerInventoryItem::updateServer() - for unowned item "
+				   << ll_pretty_print_sd(this->asLLSD())
+				   << LL_ENDL;
 		return;
 	}
 	LLInventoryModel::LLCategoryUpdate up(mParentUUID, is_new ? 1 : 0);
@@ -402,7 +402,7 @@ void LLViewerInventoryItem::fetchFromServer(void) const
 		}
 		else
 		{
-			llwarns << "Agent Region is absent" << llendl;
+			LL_WARNS() << "Agent Region is absent" << LL_ENDL;
 		}
 
 		if (!url.empty())
@@ -673,7 +673,7 @@ bool LLViewerInventoryCategory::fetch()
 		}
 		else
 		{
-			llwarns << "agent region is null" << llendl;
+			LL_WARNS() << "agent region is null" << LL_ENDL;
 		}
 		if (!url.empty()) //Capability found.  Build up LLSD and use it.
 		{
@@ -681,7 +681,7 @@ bool LLViewerInventoryCategory::fetch()
 		}
 		else
 		{	//Deprecated, but if we don't have a capability, use the old system.
-			llinfos << "FetchInventoryDescendents2 capability not found.  Using deprecated UDP message." << llendl;
+			LL_INFOS() << "FetchInventoryDescendents2 capability not found.  Using deprecated UDP message." << LL_ENDL;
 			LLMessageSystem* msg = gMessageSystem;
 			msg->newMessage("FetchInventoryDescendents");
 			msg->nextBlock("AgentData");
@@ -776,8 +776,8 @@ bool LLViewerInventoryCategory::importFileLocal(LLFILE* fp)
 		}
 		else
 		{
-			llwarns << "unknown keyword '" << keyword
-					<< "' in inventory import category "  << mUUID << llendl;
+			LL_WARNS() << "unknown keyword '" << keyword
+					<< "' in inventory import category "  << mUUID << LL_ENDL;
 		}
 	}
 	return true;
@@ -905,7 +905,7 @@ LLInventoryCallbackManager::LLInventoryCallbackManager() :
 {
 	if( sInstance != NULL )
 	{
-		llwarns << "LLInventoryCallbackManager::LLInventoryCallbackManager: unexpected multiple instances" << llendl;
+		LL_WARNS() << "LLInventoryCallbackManager::LLInventoryCallbackManager: unexpected multiple instances" << LL_ENDL;
 		return;
 	}
 	sInstance = this;
@@ -915,7 +915,7 @@ LLInventoryCallbackManager::~LLInventoryCallbackManager()
 {
 	if( sInstance != this )
 	{
-		llwarns << "LLInventoryCallbackManager::~LLInventoryCallbackManager: unexpected multiple instances" << llendl;
+		LL_WARNS() << "LLInventoryCallbackManager::~LLInventoryCallbackManager: unexpected multiple instances" << LL_ENDL;
 		return;
 	}
 	sInstance = NULL;
@@ -1094,7 +1094,7 @@ void link_inventory_object(const LLUUID& category,
 {
 	if (!baseobj)
 	{
-		llwarns << "Attempt to link to non-existent object" << llendl;
+		LL_WARNS() << "Attempt to link to non-existent object" << LL_ENDL;
 		return;
 	}
 
@@ -1230,8 +1230,6 @@ void link_inventory_array(const LLUUID& category,
 		}
 	}
 }
-
-
 
 void move_inventory_item(
 	const LLUUID& agent_id,
@@ -1855,7 +1853,7 @@ void menu_create_inventory_item(LLInventoryPanel* panel, LLFolderBridge *bridge,
 		}
 		else
 		{
-			llwarns << "Can't create unrecognized type " << type_name << llendl;
+			LL_WARNS() << "Can't create unrecognized type " << type_name << LL_ENDL;
 		}
 	}
 	panel->getRootFolder()->setNeedsAutoRename(TRUE);	
@@ -2090,7 +2088,7 @@ LLViewerInventoryItem *LLViewerInventoryItem::getLinkedItem() const
 		LLViewerInventoryItem *linked_item = gInventory.getItem(mAssetUUID);
 		if (linked_item && linked_item->getIsLinkType())
 		{
-			llwarns << "Warning: Accessing link to link" << llendl;
+			LL_WARNS() << "Warning: Accessing link to link" << LL_ENDL;
 			return NULL;
 		}
 		return linked_item;

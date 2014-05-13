@@ -403,7 +403,7 @@ S32 LLSDXMLParser::Impl::parse(std::istream& input, LLSD& data)
 		}
 		if (mEmitErrors)
 		{
-		llinfos << "LLSDXMLParser::Impl::parse: XML_STATUS_ERROR parsing:" << (char*) buffer << llendl;
+		LL_INFOS() << "LLSDXMLParser::Impl::parse: XML_STATUS_ERROR parsing:" << (char*) buffer << LL_ENDL;
 		}
 		data = LLSD();
 		return LLSDParser::PARSE_FAILURE;
@@ -484,7 +484,7 @@ S32 LLSDXMLParser::Impl::parseLines(std::istream& input, LLSD& data)
 	{
 		if (mEmitErrors)
 		{
-		llinfos << "LLSDXMLParser::Impl::parseLines: XML_STATUS_ERROR" << llendl;
+		LL_INFOS() << "LLSDXMLParser::Impl::parseLines: XML_STATUS_ERROR" << LL_ENDL;
 		}
 		return LLSDParser::PARSE_FAILURE;
 	}
@@ -546,7 +546,7 @@ void LLSDXMLParser::Impl::parsePart(const char* buf, int len)
 		XML_Status status = XML_Parse(mParser, buf, len, false);
 		if (status == XML_STATUS_ERROR)
 		{
-			llinfos << "Unexpected XML parsing error at start" << llendl;
+			LL_INFOS() << "Unexpected XML parsing error at start" << LL_ENDL;
 		}
 	}
 }

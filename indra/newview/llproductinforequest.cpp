@@ -52,7 +52,7 @@ private:
 	//If we get back an error (not found, etc...), handle it here
 	/* virtual */ void httpFailure()
 	{
-		llwarns << dumpResponse() << llendl;
+		LL_WARNS() << dumpResponse() << LL_ENDL;
 	}
 };
 
@@ -82,7 +82,7 @@ std::string LLProductInfoRequestManager::getDescriptionForSku(const std::string&
 		 it != mSkuDescriptions.endArray();
 		 ++it)
 	{
-		//	llwarns <<  (*it)["sku"].asString() << " = " << (*it)["description"].asString() << llendl;
+		//	LL_WARNS() <<  (*it)["sku"].asString() << " = " << (*it)["description"].asString() << LL_ENDL;
 		if ((*it)["sku"].asString() == sku)
 		{
 			return (*it)["description"].asString();

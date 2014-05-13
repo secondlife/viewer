@@ -111,7 +111,7 @@ LLIMInfo::~LLIMInfo()
 
 void LLIMInfo::packInstantMessage(LLMessageSystem* msg) const
 {
-	lldebugs << "LLIMInfo::packInstantMessage()" << llendl;
+	LL_DEBUGS() << "LLIMInfo::packInstantMessage()" << LL_ENDL;
 	msg->newMessageFast(_PREHASH_ImprovedInstantMessage);
 	packMessageBlock(msg);
 }
@@ -161,7 +161,7 @@ void pack_instant_message(
 	const U8* binary_bucket,
 	S32 binary_bucket_size)
 {
-	lldebugs << "pack_instant_message()" << llendl;
+	LL_DEBUGS() << "pack_instant_message()" << LL_ENDL;
 	msg->newMessageFast(_PREHASH_ImprovedInstantMessage);
 	pack_instant_message_block(
 		msg,
@@ -228,7 +228,7 @@ void pack_instant_message_block(
 		if (num_written < 0 || num_written >= MTUBYTES)
 		{
 			num_written = MTUBYTES - 1;
-			llwarns << "pack_instant_message_block: message truncated: " << message << llendl;
+			LL_WARNS() << "pack_instant_message_block: message truncated: " << message << LL_ENDL;
 		}
 
 		bytes_left -= num_written;

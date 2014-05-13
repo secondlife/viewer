@@ -88,7 +88,7 @@ LLVFSThread::handle_t LLVFSThread::read(LLVFS* vfs, const LLUUID &file_id, const
 	bool res = addRequest(req);
 	if (!res)
 	{
-		llerrs << "LLVFSThread::read called after LLVFSThread::cleanupClass()" << llendl;
+		LL_ERRS() << "LLVFSThread::read called after LLVFSThread::cleanupClass()" << LL_ENDL;
 		req->deleteRequest();
 		handle = nullHandle();
 	}
@@ -107,7 +107,7 @@ S32 LLVFSThread::readImmediate(LLVFS* vfs, const LLUUID &file_id, const LLAssetT
 	S32 res = addRequest(req) ? 1 : 0;
 	if (res == 0)
 	{
-		llerrs << "LLVFSThread::read called after LLVFSThread::cleanupClass()" << llendl;
+		LL_ERRS() << "LLVFSThread::read called after LLVFSThread::cleanupClass()" << LL_ENDL;
 		req->deleteRequest();
 	}
 	else
@@ -130,7 +130,7 @@ LLVFSThread::handle_t LLVFSThread::write(LLVFS* vfs, const LLUUID &file_id, cons
 	bool res = addRequest(req);
 	if (!res)
 	{
-		llerrs << "LLVFSThread::read called after LLVFSThread::cleanupClass()" << llendl;
+		LL_ERRS() << "LLVFSThread::read called after LLVFSThread::cleanupClass()" << LL_ENDL;
 		req->deleteRequest();
 		handle = nullHandle();
 	}
@@ -149,7 +149,7 @@ S32 LLVFSThread::writeImmediate(LLVFS* vfs, const LLUUID &file_id, const LLAsset
 	S32 res = addRequest(req) ? 1 : 0;
 	if (res == 0)
 	{
-		llerrs << "LLVFSThread::read called after LLVFSThread::cleanupClass()" << llendl;
+		LL_ERRS() << "LLVFSThread::read called after LLVFSThread::cleanupClass()" << LL_ENDL;
 		req->deleteRequest();
 	}
 	else
@@ -175,7 +175,7 @@ S32 LLVFSThread::writeImmediate(LLVFS* vfs, const LLUUID &file_id, const LLAsset
 // 	bool res = addRequest(req);
 // 	if (!res)
 // 	{
-// 		llerrs << "LLVFSThread::read called after LLVFSThread::cleanupClass()" << llendl;
+// 		LL_ERRS() << "LLVFSThread::read called after LLVFSThread::cleanupClass()" << LL_ENDL;
 // 		req->deleteRequest();
 // 		handle = nullHandle();
 // 	}
@@ -203,17 +203,17 @@ LLVFSThread::Request::Request(handle_t handle, U32 priority, U32 flags,
 
 	if (numbytes <= 0 && mOperation != FILE_RENAME)
 	{
-		llwarns << "LLVFSThread: Request with numbytes = " << numbytes 
+		LL_WARNS() << "LLVFSThread: Request with numbytes = " << numbytes 
 			<< " operation = " << op
 			<< " offset " << offset 
-			<< " file_type " << file_type << llendl;
+			<< " file_type " << file_type << LL_ENDL;
 	}
 	if (mOperation == FILE_WRITE)
 	{
 		S32 blocksize =  mVFS->getMaxSize(mFileID, mFileType);
 		if (blocksize < 0)
 		{
-			llwarns << "VFS write to temporary block (shouldn't happen)" << llendl;
+			LL_WARNS() << "VFS write to temporary block (shouldn't happen)" << LL_ENDL;
 		}
 		mVFS->incLock(mFileID, mFileType, VFSLOCK_APPEND);
 	}
@@ -248,7 +248,7 @@ void LLVFSThread::Request::deleteRequest()
 {
 	if (getStatus() == STATUS_QUEUED)
 	{
-		llerrs << "Attempt to delete a queued LLVFSThread::Request!" << llendl;
+		LL_ERRS() << "Attempt to delete a queued LLVFSThread::Request!" << LL_ENDL;
 	}	
 	if (mOperation == FILE_WRITE)
 	{
@@ -273,13 +273,13 @@ bool LLVFSThread::Request::processRequest()
 		llassert(mOffset >= 0);
 		mBytesRead = mVFS->getData(mFileID, mFileType, mBuffer, mOffset, mBytes);
 		complete = true;
-		//llinfos << llformat("LLVFSThread::READ '%s': %d bytes arg:%d",getFilename(),mBytesRead) << llendl;
+		//LL_INFOS() << llformat("LLVFSThread::READ '%s': %d bytes arg:%d",getFilename(),mBytesRead) << LL_ENDL;
 	}
 	else if (mOperation ==  FILE_WRITE)
 	{
 		mBytesRead = mVFS->storeData(mFileID, mFileType, mBuffer, mOffset, mBytes);
 		complete = true;
-		//llinfos << llformat("LLVFSThread::WRITE '%s': %d bytes arg:%d",getFilename(),mBytesRead) << llendl;
+		//LL_INFOS() << llformat("LLVFSThread::WRITE '%s': %d bytes arg:%d",getFilename(),mBytesRead) << LL_ENDL;
 	}
 	else if (mOperation ==  FILE_RENAME)
 	{
@@ -288,11 +288,11 @@ bool LLVFSThread::Request::processRequest()
 		mVFS->renameFile(mFileID, mFileType, *new_idp, new_type);
 		mFileID = *new_idp;
 		complete = true;
-		//llinfos << llformat("LLVFSThread::RENAME '%s': %d bytes arg:%d",getFilename(),mBytesRead) << llendl;
+		//LL_INFOS() << llformat("LLVFSThread::RENAME '%s': %d bytes arg:%d",getFilename(),mBytesRead) << LL_ENDL;
 	}
 	else
 	{
-		llerrs << llformat("LLVFSThread::unknown operation: %d", mOperation) << llendl;
+		LL_ERRS() << llformat("LLVFSThread::unknown operation: %d", mOperation) << LL_ENDL;
 	}
 	return complete;
 }

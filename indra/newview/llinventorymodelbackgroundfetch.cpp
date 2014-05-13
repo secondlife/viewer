@@ -203,7 +203,7 @@ void LLInventoryModelBackgroundFetch::backgroundFetch()
 		// No more categories to fetch, stop fetch process.
 		if (mFetchQueue.empty())
 		{
-			llinfos << "Inventory fetch completed" << llendl;
+			LL_INFOS() << "Inventory fetch completed" << LL_ENDL;
 
 			setAllFoldersFetched();
 			mBackgroundFetchActive = false;
@@ -219,7 +219,7 @@ void LLInventoryModelBackgroundFetch::backgroundFetch()
 			// Double timeouts on failure.
 			mMinTimeBetweenFetches = llmin(mMinTimeBetweenFetches * 2.f, 10.f);
 			mMaxTimeBetweenFetches = llmin(mMaxTimeBetweenFetches * 2.f, 120.f);
-			lldebugs << "Inventory fetch times grown to (" << mMinTimeBetweenFetches << ", " << mMaxTimeBetweenFetches << ")" << llendl;
+			LL_DEBUGS() << "Inventory fetch times grown to (" << mMinTimeBetweenFetches << ", " << mMaxTimeBetweenFetches << ")" << LL_ENDL;
 			// fetch is no longer considered "timely" although we will wait for full time-out.
 			mTimelyFetchPending = FALSE;
 		}
@@ -292,7 +292,7 @@ void LLInventoryModelBackgroundFetch::backgroundFetch()
 						// Shrink timeouts based on success.
 						mMinTimeBetweenFetches = llmax(mMinTimeBetweenFetches * 0.8f, 0.3f);
 						mMaxTimeBetweenFetches = llmax(mMaxTimeBetweenFetches * 0.8f, 10.f);
-						lldebugs << "Inventory fetch times shrunk to (" << mMinTimeBetweenFetches << ", " << mMaxTimeBetweenFetches << ")" << llendl;
+						LL_DEBUGS() << "Inventory fetch times shrunk to (" << mMinTimeBetweenFetches << ", " << mMaxTimeBetweenFetches << ")" << LL_ENDL;
 					}
 
 					mTimelyFetchPending = FALSE;
@@ -431,8 +431,8 @@ void LLInventoryModelFetchDescendentsResponder::httpSuccess()
 
 			//if(agent_id != gAgent.getID())	//This should never happen.
 			//{
-			//	llwarns << "Got a UpdateInventoryItem for the wrong agent."
-			//			<< llendl;
+			//	LL_WARNS() << "Got a UpdateInventoryItem for the wrong agent."
+			//			<< LL_ENDL;
 			//	break;
 			//}
 
@@ -527,14 +527,14 @@ void LLInventoryModelFetchDescendentsResponder::httpSuccess()
 			LLSD folder_sd = *folder_it;
 			
 			// These folders failed on the dataserver.  We probably don't want to retry them.
-			llwarns << "Folder " << folder_sd["folder_id"].asString() 
-					<< "Error: " << folder_sd["error"].asString() << llendl;
+			LL_WARNS() << "Folder " << folder_sd["folder_id"].asString() 
+					   << "Error: " << folder_sd["error"].asString() << LL_ENDL;
 		}
 	}
 	
 	if (fetcher->isBulkFetchProcessingComplete())
 	{
-		llinfos << "Inventory fetch completed" << llendl;
+		LL_INFOS() << "Inventory fetch completed" << LL_ENDL;
 		fetcher->setAllFoldersFetched();
 	}
 	
@@ -546,6 +546,10 @@ void LLInventoryModelFetchDescendentsResponder::httpFailure()
 {
 	llwarns << dumpResponse() << llendl;
 	LLInventoryModelBackgroundFetch *fetcher = LLInventoryModelBackgroundFetch::getInstance();
+
+	LL_INFOS() << dumpResponse() << LL_ENDL;
+						
+	fetcher->incrFetchCount(-1);
 
 	if (getStatus()==HTTP_INTERNAL_ERROR) // timed out or curl failure
 	{

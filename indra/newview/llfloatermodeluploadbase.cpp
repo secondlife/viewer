@@ -44,7 +44,9 @@ void LLFloaterModelUploadBase::requestAgentUploadPermissions()
 
 	if (!url.empty())
 	{
-		llinfos<< typeid(*this).name() <<"::requestAgentUploadPermissions() requesting for upload model permissions from: "<< url <<llendl;
+		LL_INFOS()<< typeid(*this).name()
+				  << "::requestAgentUploadPermissions() requesting for upload model permissions from: "
+				  << url << LL_ENDL;
 		LLHTTPClient::get(url, new LLUploadModelPermissionsResponder(getPermObserverHandle()));
 	}
 	else

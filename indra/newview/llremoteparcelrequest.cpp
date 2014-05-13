@@ -70,7 +70,7 @@ void LLRemoteParcelRequestResponder::httpSuccess()
 //virtual
 void LLRemoteParcelRequestResponder::httpFailure()
 {
-	llwarns << dumpResponse() << llendl;
+	LL_WARNS() << dumpResponse() << LL_ENDL;
 
 	// Panel inspecting the information may be closed and destroyed
 	// before this response is received.

@@ -128,6 +128,7 @@ void LLSDMessage::EventResponder::httpFailure()
     }
     else                        // default error handling
     {
+        // convention seems to be to use LL_INFOS(), but that seems a bit casual?
         LL_WARNS("LLSDMessage::EventResponder")
             << "'" << mMessage << "' to '" << mTarget
             << "' failed " << dumpResponse() << LL_ENDL;

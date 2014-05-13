@@ -58,7 +58,7 @@
 // debug switches, won't work in release
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 
-// dump responder replies to llinfos for debugging
+// dump responder replies to LL_INFOS() for debugging
 //#define DUMP_REPLIES_TO_LLINFOS
 
 #ifdef DUMP_REPLIES_TO_LLINFOS
@@ -106,7 +106,7 @@ BOOL LLFloaterScriptLimits::postBuild()
 	
 	if(!mTab)
 	{
-		llwarns << "Error! couldn't get scriptlimits_panels, aborting Script Information setup" << llendl;
+		LL_WARNS() << "Error! couldn't get scriptlimits_panels, aborting Script Information setup" << LL_ENDL;
 		return FALSE;
 	}
 
@@ -201,7 +201,7 @@ void fetchScriptLimitsRegionInfoResponder::httpSuccess()
 
 	OSMessageBox(nice_llsd.str(), "main cap response:", 0);
 
-	llinfos << "main cap response:" << content << llendl;
+	LL_INFOS() << "main cap response:" << content << LL_ENDL;
 
 #endif
 
@@ -216,7 +216,7 @@ void fetchScriptLimitsRegionInfoResponder::httpSuccess()
 		LLFloaterScriptLimits* instance = LLFloaterReg::getTypedInstance<LLFloaterScriptLimits>("script_limits");
 		if(!instance)
 		{
-			llwarns << "Failed to get llfloaterscriptlimits instance" << llendl;
+			LL_WARNS() << "Failed to get llfloaterscriptlimits instance" << LL_ENDL;
 		}
 	}
 
@@ -229,7 +229,7 @@ void fetchScriptLimitsRegionInfoResponder::httpSuccess()
 
 void fetchScriptLimitsRegionInfoResponder::httpFailure()
 {
-	llwarns << dumpResponse() << llendl;
+	LL_WARNS() << dumpResponse() << LL_ENDL;
 }
 
 void fetchScriptLimitsRegionSummaryResponder::httpSuccess()
@@ -290,14 +290,14 @@ void fetchScriptLimitsRegionSummaryResponder::httpSuccess()
 
 	OSMessageBox(nice_llsd.str(), "summary response:", 0);
 
-	llwarns << "summary response:" << *content << llendl;
+	LL_WARNS() << "summary response:" << *content << LL_ENDL;
 
 #endif
 
 	LLFloaterScriptLimits* instance = LLFloaterReg::getTypedInstance<LLFloaterScriptLimits>("script_limits");
 	if(!instance)
 	{
-		llwarns << "Failed to get llfloaterscriptlimits instance" << llendl;
+		LL_WARNS() << "Failed to get llfloaterscriptlimits instance" << LL_ENDL;
 	}
 	else
 	{
@@ -323,7 +323,7 @@ void fetchScriptLimitsRegionSummaryResponder::httpSuccess()
 
 void fetchScriptLimitsRegionSummaryResponder::httpFailure()
 {
-	llwarns << dumpResponse() << llendl;
+	LL_WARNS() << dumpResponse() << LL_ENDL;
 }
 
 void fetchScriptLimitsRegionDetailsResponder::httpSuccess()
@@ -405,7 +405,7 @@ result (map)
 
 	OSMessageBox(nice_llsd.str(), "details response:", 0);
 
-	llinfos << "details response:" << content << llendl;
+	LL_INFOS() << "details response:" << content << LL_ENDL;
 
 #endif
 
@@ -413,7 +413,7 @@ result (map)
 
 	if(!instance)
 	{
-		llwarns << "Failed to get llfloaterscriptlimits instance" << llendl;
+		LL_WARNS() << "Failed to get llfloaterscriptlimits instance" << LL_ENDL;
 	}
 	else
 	{
@@ -427,19 +427,19 @@ result (map)
 			}
 			else
 			{
-				llwarns << "Failed to get scriptlimits memory panel" << llendl;
+				LL_WARNS() << "Failed to get scriptlimits memory panel" << LL_ENDL;
 			}
 		}
 		else
 		{
-			llwarns << "Failed to get scriptlimits_panels" << llendl;
+			LL_WARNS() << "Failed to get scriptlimits_panels" << LL_ENDL;
 		}
 	}
 }
 
 void fetchScriptLimitsRegionDetailsResponder::httpFailure()
 {
-	llwarns << dumpResponse() << llendl;
+	LL_WARNS() << dumpResponse() << LL_ENDL;
 }
 
 void fetchScriptLimitsAttachmentInfoResponder::httpSuccess()
@@ -500,7 +500,7 @@ void fetchScriptLimitsAttachmentInfoResponder::httpSuccess()
 
 	OSMessageBox(nice_llsd.str(), "attachment response:", 0);
 	
-	llinfos << "attachment response:" << content << llendl;
+	LL_INFOS() << "attachment response:" << content << LL_ENDL;
 
 #endif
 
@@ -508,7 +508,7 @@ void fetchScriptLimitsAttachmentInfoResponder::httpSuccess()
 
 	if(!instance)
 	{
-		llwarns << "Failed to get llfloaterscriptlimits instance" << llendl;
+		LL_WARNS() << "Failed to get llfloaterscriptlimits instance" << LL_ENDL;
 	}
 	else
 	{
@@ -530,19 +530,19 @@ void fetchScriptLimitsAttachmentInfoResponder::httpSuccess()
 			}
 			else
 			{
-				llwarns << "Failed to get script_limits_my_avatar_panel" << llendl;
+				LL_WARNS() << "Failed to get script_limits_my_avatar_panel" << LL_ENDL;
 			}
 		}
 		else
 		{
-			llwarns << "Failed to get scriptlimits_panels" << llendl;
+			LL_WARNS() << "Failed to get scriptlimits_panels" << LL_ENDL;
 		}
 	}
 }
 
 void fetchScriptLimitsAttachmentInfoResponder::httpFailure()
 {
-	llwarns << dumpResponse() << llendl;
+	LL_WARNS() << dumpResponse() << LL_ENDL;
 }
 
 ///----------------------------------------------------------------------------
@@ -615,7 +615,7 @@ void LLPanelScriptLimitsRegionMemory::setParcelID(const LLUUID& parcel_id)
 // virtual
 void LLPanelScriptLimitsRegionMemory::setErrorStatus(S32 status, const std::string& reason)
 {
-	llwarns << "Can't handle remote parcel request."<< " Http Status: "<< status << ". Reason : "<< reason<<llendl;
+	LL_WARNS() << "Can't handle remote parcel request."<< " Http Status: "<< status << ". Reason : "<< reason<<LL_ENDL;
 }
 
 // callback from the name cache with an owner name to add to the list
@@ -654,7 +654,7 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 	
 	if(!list)
 	{
-		llwarns << "Error getting the scripts_list control" << llendl;
+		LL_WARNS() << "Error getting the scripts_list control" << LL_ENDL;
 		return;
 	}
 
@@ -827,7 +827,7 @@ void LLPanelScriptLimitsRegionMemory::setRegionSummary(LLSD content)
 	}
 	else
 	{
-		llwarns << "summary doesn't contain memory info" << llendl;
+		LL_WARNS() << "summary doesn't contain memory info" << LL_ENDL;
 		return;
 	}
 	
@@ -845,7 +845,7 @@ void LLPanelScriptLimitsRegionMemory::setRegionSummary(LLSD content)
 	}
 	else
 	{
-		llwarns << "summary doesn't contain urls info" << llendl;
+		LL_WARNS() << "summary doesn't contain urls info" << LL_ENDL;
 		return;
 	}
 
@@ -949,9 +949,9 @@ BOOL LLPanelScriptLimitsRegionMemory::StartRequestChain()
 		}
 		else
 		{
-			llwarns << "Can't get parcel info for script information request" << region_id
+			LL_WARNS() << "Can't get parcel info for script information request" << region_id
 					<< ". Region: "	<< region->getName()
-					<< " does not support RemoteParcelRequest" << llendl;
+					<< " does not support RemoteParcelRequest" << LL_ENDL;
 					
 			std::string msg_waiting = LLTrans::getString("ScriptLimitsRequestError");
 			getChild<LLUICtrl>("loading_text")->setValue(LLSD(msg_waiting));
@@ -1017,7 +1017,7 @@ void LLPanelScriptLimitsRegionMemory::onClickRefresh(void* userdata)
 	}
 	else
 	{
-		llwarns << "could not find LLPanelScriptLimitsRegionMemory instance after refresh button clicked" << llendl;
+		LL_WARNS() << "could not find LLPanelScriptLimitsRegionMemory instance after refresh button clicked" << LL_ENDL;
 		return;
 	}
 }
@@ -1063,7 +1063,7 @@ void LLPanelScriptLimitsRegionMemory::onClickHighlight(void* userdata)
 	}
 	else
 	{
-		llwarns << "could not find LLPanelScriptLimitsRegionMemory instance after highlight button clicked" << llendl;
+		LL_WARNS() << "could not find LLPanelScriptLimitsRegionMemory instance after highlight button clicked" << LL_ENDL;
 		return;
 	}
 }
@@ -1168,7 +1168,7 @@ void LLPanelScriptLimitsRegionMemory::onClickReturn(void* userdata)
 	}
 	else
 	{
-		llwarns << "could not find LLPanelScriptLimitsRegionMemory instance after highlight button clicked" << llendl;
+		LL_WARNS() << "could not find LLPanelScriptLimitsRegionMemory instance after highlight button clicked" << LL_ENDL;
 		return;
 	}
 }
@@ -1300,7 +1300,7 @@ void LLPanelScriptLimitsAttachment::setAttachmentSummary(LLSD content)
 	}
 	else
 	{
-		llwarns << "attachment details don't contain memory summary info" << llendl;
+		LL_WARNS() << "attachment details don't contain memory summary info" << LL_ENDL;
 		return;
 	}
 	
@@ -1318,7 +1318,7 @@ void LLPanelScriptLimitsAttachment::setAttachmentSummary(LLSD content)
 	}
 	else
 	{
-		llwarns << "attachment details don't contain urls summary info" << llendl;
+		LL_WARNS() << "attachment details don't contain urls summary info" << LL_ENDL;
 		return;
 	}
 
@@ -1370,7 +1370,7 @@ void LLPanelScriptLimitsAttachment::onClickRefresh(void* userdata)
 	}
 	else
 	{
-		llwarns << "could not find LLPanelScriptLimitsRegionMemory instance after refresh button clicked" << llendl;
+		LL_WARNS() << "could not find LLPanelScriptLimitsRegionMemory instance after refresh button clicked" << LL_ENDL;
 		return;
 	}
 }

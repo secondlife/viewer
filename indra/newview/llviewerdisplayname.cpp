@@ -63,7 +63,7 @@ private:
 	// only care about errors
 	/*virtual*/ void httpFailure()
 	{
-		llwarns << dumpResponse() << llendl;
+		LL_WARNS() << dumpResponse() << LL_ENDL;
 		LLViewerDisplayName::sSetDisplayNameSignal(false, "", LLSD());
 		LLViewerDisplayName::sSetDisplayNameSignal.disconnect_all_slots();
 	}
@@ -103,7 +103,7 @@ void LLViewerDisplayName::set(const std::string& display_name, const set_name_sl
 	change_array.append(av_name.getDisplayName());
 	change_array.append(display_name);
 	
-	llinfos << "Set name POST to " << cap_url << llendl;
+	LL_INFOS() << "Set name POST to " << cap_url << LL_ENDL;
 
 	// Record our caller for when the server sends back a reply
 	sSetDisplayNameSignal.connect(slot);
@@ -132,7 +132,7 @@ public:
 		std::string reason = body["reason"].asString();
 		LLSD content = body["content"];
 
-		llinfos << "status " << status << " reason " << reason << llendl;
+		LL_INFOS() << "status " << status << " reason " << reason << LL_ENDL;
 
 		// If viewer's concept of display name is out-of-date, the set request
 		// will fail with 409 Conflict.  If that happens, fetch up-to-date
@@ -173,9 +173,9 @@ class LLDisplayNameUpdate : public LLHTTPNode
 		LLAvatarName av_name;
 		av_name.fromLLSD( name_data );
 
-		llinfos << "name-update now " << LLDate::now()
+		LL_INFOS() << "name-update now " << LLDate::now()
 			<< " next_update " << LLDate(av_name.mNextUpdate)
-			<< llendl;
+			<< LL_ENDL;
 
 		// Name expiration time may be provided in headers, or we may use a
 		// default value

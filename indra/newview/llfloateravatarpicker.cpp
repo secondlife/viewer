@@ -70,7 +70,7 @@ LLFloaterAvatarPicker* LLFloaterAvatarPicker::show(select_callback_t callback,
 		LLFloaterReg::showTypedInstance<LLFloaterAvatarPicker>("avatar_picker", LLSD(name));
 	if (!floater)
 	{
-		llwarns << "Cannot instantiate avatar picker" << llendl;
+		LL_WARNS() << "Cannot instantiate avatar picker" << LL_ENDL;
 		return NULL;
 	}
 	
@@ -405,11 +405,11 @@ void LLFloaterAvatarPicker::drawFrustum()
 
         if (gFocusMgr.childHasMouseCapture(getDragHandle()))
         {
-            mContextConeOpacity = lerp(mContextConeOpacity, gSavedSettings.getF32("PickerContextOpacity"), LLCriticalDamp::getInterpolant(mContextConeFadeTime));
+            mContextConeOpacity = lerp(mContextConeOpacity, gSavedSettings.getF32("PickerContextOpacity"), LLSmoothInterpolation::getInterpolant(mContextConeFadeTime));
         }
         else
         {
-            mContextConeOpacity = lerp(mContextConeOpacity, 0.f, LLCriticalDamp::getInterpolant(mContextConeFadeTime));
+            mContextConeOpacity = lerp(mContextConeOpacity, 0.f, LLSmoothInterpolation::getInterpolant(mContextConeFadeTime));
         }
     }
 }
@@ -470,7 +470,7 @@ protected:
 	{
 		//std::ostringstream ss;
 		//LLSDSerialize::toPrettyXML(content, ss);
-		//llinfos << ss.str() << llendl;
+		//LL_INFOS() << ss.str() << LL_ENDL;
 
 		// in case of invalid characters, the avatar picker returns a 400
 		// just set it to process so it displays 'not found'
@@ -485,7 +485,7 @@ protected:
 		}
 		else
 		{
-			llwarns << "avatar picker failed " << dumpResponse() << llendl;
+			LL_WARNS() << "avatar picker failed " << dumpResponse() << LL_ENDL;
 		}
 	}
 };
@@ -516,7 +516,7 @@ void LLFloaterAvatarPicker::find()
 		url += "?page_size=100&names=";
 		std::replace(text.begin(), text.end(), '.', ' ');
 		url += LLURI::escape(text);
-		llinfos << "avatar picker " << url << llendl;
+		LL_INFOS() << "avatar picker " << url << LL_ENDL;
 		LLHTTPClient::get(url, new LLAvatarPickerResponder(mQueryID, getKey().asString()));
 	}
 	else
@@ -737,7 +737,7 @@ void LLFloaterAvatarPicker::processResponse(const LLUUID& query_id, const LLSD& 
 		if (search_results->isEmpty())
 		{
 			LLStringUtil::format_map_t map;
-			map["[TEXT]"] = childGetText("Edit");
+			map["[TEXT]"] = getChild<LLUICtrl>("Edit")->getValue().asString();
 			LLSD item;
 			item["id"] = LLUUID::null;
 			item["columns"][0]["column"] = "name";

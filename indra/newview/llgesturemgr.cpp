@@ -257,19 +257,19 @@ void LLGestureMgr::activateGestureWithAsset(const LLUUID& item_id,
 
 	if( !gAssetStorage )
 	{
-		llwarns << "LLGestureMgr::activateGestureWithAsset without valid gAssetStorage" << llendl;
+		LL_WARNS() << "LLGestureMgr::activateGestureWithAsset without valid gAssetStorage" << LL_ENDL;
 		return;
 	}
 	// If gesture is already active, nothing to do.
 	if (isGestureActive(item_id))
 	{
-		llwarns << "Tried to loadGesture twice " << item_id << llendl;
+		LL_WARNS() << "Tried to loadGesture twice " << item_id << LL_ENDL;
 		return;
 	}
 
 //	if (asset_id.isNull())
 //	{
-//		llwarns << "loadGesture() - gesture has no asset" << llendl;
+//		LL_WARNS() << "loadGesture() - gesture has no asset" << LL_ENDL;
 //		return;
 //	}
 
@@ -311,7 +311,7 @@ void LLGestureMgr::deactivateGesture(const LLUUID& item_id)
 	item_map_t::iterator it = mActive.find(base_item_id);
 	if (it == mActive.end())
 	{
-		llwarns << "deactivateGesture for inactive gesture " << item_id << llendl;
+		LL_WARNS() << "deactivateGesture for inactive gesture " << item_id << LL_ENDL;
 		return;
 	}
 
@@ -476,7 +476,7 @@ void LLGestureMgr::replaceGesture(const LLUUID& item_id, LLMultiGesture* new_ges
 	item_map_t::iterator it = mActive.find(base_item_id);
 	if (it == mActive.end())
 	{
-		llwarns << "replaceGesture for inactive gesture " << base_item_id << llendl;
+		LL_WARNS() << "replaceGesture for inactive gesture " << base_item_id << LL_ENDL;
 		return;
 	}
 
@@ -518,7 +518,7 @@ void LLGestureMgr::replaceGesture(const LLUUID& item_id, const LLUUID& new_asset
 	item_map_t::iterator it = LLGestureMgr::instance().mActive.find(base_item_id);
 	if (it == mActive.end())
 	{
-		llwarns << "replaceGesture for inactive gesture " << base_item_id << llendl;
+		LL_WARNS() << "replaceGesture for inactive gesture " << base_item_id << LL_ENDL;
 		return;
 	}
 
@@ -593,7 +593,7 @@ void LLGestureMgr::playGesture(LLMultiGesture* gesture)
 			}
 		default:
 			{
-				llwarns << "Unknown gesture step type: " << step->getType() << llendl;
+				LL_WARNS() << "Unknown gesture step type: " << step->getType() << LL_ENDL;
 			}
 		}
 	}
@@ -914,8 +914,8 @@ void LLGestureMgr::stepGesture(LLMultiGesture* gesture)
 			else if (gesture->mWaitTimer.getElapsedTimeF32() > MAX_WAIT_ANIM_SECS)
 			{
 				// we've waited too long for an animation
-				llinfos << "Waited too long for animations to stop, continuing gesture."
-					<< llendl;
+				LL_INFOS() << "Waited too long for animations to stop, continuing gesture."
+					<< LL_ENDL;
 				gesture->mWaitingAnimations = FALSE;
 				gesture->mCurrentStep++;
 			}
@@ -1136,7 +1136,7 @@ void LLGestureMgr::onLoadComplete(LLVFS *vfs,
 		}
 		else
 		{
-			llwarns << "Unable to load gesture" << llendl;
+			LL_WARNS() << "Unable to load gesture" << LL_ENDL;
 
 			self.mActive.erase(item_id);
 			
@@ -1146,8 +1146,6 @@ void LLGestureMgr::onLoadComplete(LLVFS *vfs,
 	}
 	else
 	{
-		LLViewerStats::getInstance()->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
-
 		if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status ||
 			LL_ERR_FILE_EMPTY == status)
 		{
@@ -1158,7 +1156,7 @@ void LLGestureMgr::onLoadComplete(LLVFS *vfs,
 			LLDelayedGestureError::gestureFailedToLoad( item_id );
 		}
 
-		llwarns << "Problem loading gesture: " << status << llendl;
+		LL_WARNS() << "Problem loading gesture: " << status << LL_ENDL;
 		
 		LLGestureMgr::instance().mActive.erase(item_id);			
 	}
@@ -1194,7 +1192,7 @@ void LLGestureMgr::onAssetLoadComplete(LLVFS *vfs,
 		}
 	default:
 		{
-			llwarns << "Unexpected asset type: " << type << llendl;
+			LL_WARNS() << "Unexpected asset type: " << type << LL_ENDL;
 
 			// We don't want to return from this callback without
 			// an animation or sound callback being fired
@@ -1249,7 +1247,7 @@ bool LLGestureMgr::hasLoadingAssets(LLMultiGesture* gesture)
 			}
 		default:
 			{
-				llwarns << "Unknown gesture step type: " << step->getType() << llendl;
+				LL_WARNS() << "Unknown gesture step type: " << step->getType() << LL_ENDL;
 			}
 		}
 	}
@@ -1331,7 +1329,7 @@ void LLGestureMgr::removeObserver(LLGestureManagerObserver* observer)
 // from the list.
 void LLGestureMgr::notifyObservers()
 {
-	lldebugs << "LLGestureMgr::notifyObservers" << llendl;
+	LL_DEBUGS() << "LLGestureMgr::notifyObservers" << LL_ENDL;
 
 	for(std::vector<LLGestureManagerObserver*>::iterator iter = mObservers.begin(); 
 		iter != mObservers.end(); 

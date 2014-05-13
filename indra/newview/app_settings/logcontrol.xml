@@ -44,6 +44,7 @@
 						<array>
 						<!-- sample entry for debugging specific items	
 						     <string>Inventory</string>
+						     <string>SceneLoadTiming</string>
 						     <string>Avatar</string>
 						     <string>Voice</string>		
 						-->

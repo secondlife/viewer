@@ -158,7 +158,7 @@ BOOL LLPanelMainInventory::postBuild()
 	// Now load the stored settings from disk, if available.
 	std::ostringstream filterSaveName;
 	filterSaveName << gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, FILTERS_FILENAME);
-	llinfos << "LLPanelMainInventory::init: reading from " << filterSaveName.str() << llendl;
+	LL_INFOS() << "LLPanelMainInventory::init: reading from " << filterSaveName.str() << LL_ENDL;
 	llifstream file(filterSaveName.str());
 	LLSD savedFilterState;
 	if (file.is_open())
@@ -244,7 +244,7 @@ LLPanelMainInventory::~LLPanelMainInventory( void )
 	llofstream filtersFile(filterSaveName.str());
 	if(!LLSDSerialize::toPrettyXML(filterRoot, filtersFile))
 	{
-		llwarns << "Could not write to filters save file " << filterSaveName << llendl;
+		LL_WARNS() << "Could not write to filters save file " << filterSaveName << LL_ENDL;
 	}
 	else
 		filtersFile.close();
@@ -609,7 +609,7 @@ void LLPanelMainInventory::onFocusReceived()
 	LLSidepanelInventory *sidepanel_inventory =	LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
 	if (!sidepanel_inventory)
 	{
-		llwarns << "Could not find Inventory Panel in My Inventory floater" << llendl;
+		LL_WARNS() << "Could not find Inventory Panel in My Inventory floater" << LL_ENDL;
 		return;
 	}
 

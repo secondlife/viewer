@@ -35,7 +35,6 @@
 #include "llagent.h"
 #include "llagentui.h"
 #include "llappviewer.h" 
-#include "llsecondlifeurls.h"
 #include "llslurl.h"
 #include "llvoiceclient.h"
 #include "lluictrlfactory.h"
@@ -302,7 +301,7 @@ void LLServerReleaseNotesURLFetcher::startFetch()
 void LLServerReleaseNotesURLFetcher::httpCompleted()
 {
 	LL_DEBUGS("ServerReleaseNotes") << dumpResponse() 
-		<< " [headers:" << getResponseHeaders() << "]" << LL_ENDL;
+									<< " [headers:" << getResponseHeaders() << "]" << LL_ENDL;
 
 	LLFloaterAbout* floater_about = LLFloaterReg::getTypedInstance<LLFloaterAbout>("sl_about");
 	if (floater_about)
