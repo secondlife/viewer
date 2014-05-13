@@ -46,6 +46,8 @@
 #define BTN_OK			"ok_btn"
 #define BTN_CANCEL		"cancel_btn"
 #define BTN_PROFILE		"profile_btn"
+#define BTN_LEFT		"left_btn"
+#define BTN_RIGHT		"right_btn"
 #define TEXT_EDIT		"edit"
 #define TEXT_MATURITY	"maturity"
 #define LIST_RESULTS	"search_results"
@@ -65,11 +67,10 @@ public:
 
 	void completed(U32 status, const std::string& reason, const LLSD& content)
 	{
+		if(mParent.isDead())
+			return;
 		if (isGoodStatus(status))
 		{
-			if(mParent.isDead())
-				return;
-
 			LLPanelExperiencePicker* panel =mParent.get();
 			if (panel)
 			{
@@ -78,6 +79,11 @@ public:
 		}
 		else
 		{
+			LLPanelExperiencePicker* panel =mParent.get();
+			if (panel)
+			{
+				panel->processResponse(mQueryID, LLSD());
+			}
 			LL_WARNS() << "experience picker failed [status:" << status << "]: " << content << LL_ENDL;
 
 		}
@@ -118,6 +124,9 @@ BOOL LLPanelExperiencePicker::postBuild()
 	getChild<LLComboBox>(TEXT_MATURITY)->setCommitCallback(boost::bind(&LLPanelExperiencePicker::onMaturity, this));
 	getChild<LLUICtrl>(TEXT_EDIT)->setFocus(TRUE);
 
+	childSetAction(BTN_LEFT, boost::bind(&LLPanelExperiencePicker::onPage, this, -1));
+	childSetAction(BTN_RIGHT, boost::bind(&LLPanelExperiencePicker::onPage, this, 1));
+
 	LLPanel* search_panel = getChild<LLPanel>(PANEL_SEARCH);
 	if (search_panel)
 	{
@@ -134,6 +143,7 @@ void LLPanelExperiencePicker::editKeystroke( class LLLineEditor* caller, void* u
 
 void LLPanelExperiencePicker::onBtnFind()
 {
+	mCurrentPage=1;
 	find();
 }
 
@@ -150,24 +160,24 @@ void LLPanelExperiencePicker::find()
 {
 	std::string text = getChild<LLUICtrl>(TEXT_EDIT)->getValue().asString();
 	mQueryID.generate();
-	std::string url;
-	url.reserve(128+text.size());
+	std::ostringstream url;
 
 	LLViewerRegion* region = gAgent.getRegion();
-	url = region->getCapability("FindExperienceByName");
-	if (!url.empty())
+	std::string cap = region->getCapability("FindExperienceByName");
+	if (!cap.empty())
 	{
-		url+="?query=";
-		url+=LLURI::escape(text);
-		LLHTTPClient::get(url, new LLExperienceSearchResponder(mQueryID, getDerivedHandle<LLPanelExperiencePicker>()));
+		url << cap << "?page=" << mCurrentPage << "&page_size=30&query=" << LLURI::escape(text);
+		LLHTTPClient::get(url.str(), new LLExperienceSearchResponder(mQueryID, getDerivedHandle<LLPanelExperiencePicker>()));
 
 	}
-
 	getChild<LLScrollListCtrl>(LIST_RESULTS)->deleteAllItems();
 	getChild<LLScrollListCtrl>(LIST_RESULTS)->setCommentText(getString("searching"));
 	
 	getChildView(BTN_OK)->setEnabled(FALSE);
 	getChildView(BTN_PROFILE)->setEnabled(FALSE);
+
+	getChildView(BTN_RIGHT)->setEnabled(FALSE);
+	getChildView(BTN_LEFT)->setEnabled(FALSE);
 }
 
 
@@ -226,6 +236,9 @@ void LLPanelExperiencePicker::processResponse( const LLUUID& query_id, const LLS
 	{
 		LLExperienceCache::insert(*it);
 	}
+
+	getChildView(BTN_RIGHT)->setEnabled(content.has("next_page_url"));
+	getChildView(BTN_LEFT)->setEnabled(content.has("previous_page_url"));
 
 	filterContent();
 
@@ -403,4 +416,14 @@ bool LLPanelExperiencePicker::FilterMatching( const LLSD& experience, const LLUU
 		return experience.asUUID() == id;
 	}
 	return experience[LLExperienceCache::EXPERIENCE_ID].asUUID() == id;
+}
+
+void LLPanelExperiencePicker::onPage( S32 direction )
+{
+	mCurrentPage += direction;
+	if(mCurrentPage < 1)
+	{
+		mCurrentPage = 1;
+	}
+	find();
 }

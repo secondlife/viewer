@@ -147,20 +147,37 @@
       name="ok_btn"
       top_pad="3"
       left="0"
-      width="100" />
+      width="95" />
     <button
       follows="left|bottom"
       height="23"
       label="Cancel"
       name="cancel_btn"
-      width="100"
+      width="95"
       left_pad="3" />
-    <button
-      follows="left|bottom"
-      height="23"
-      label="View Profile"
-      name="profile_btn"
-      width="100"
-      left_pad="3" />
+     <button
+        follows="left|bottom"
+        height="23"
+        label="View Profile"
+        name="profile_btn"
+        width="95"
+        left_pad="3" />
+     <button
+        follows="left|bottom"
+        height="23"
+        label="&lt;"
+        name="left_btn"
+        width="23"
+        left_pad="3"
+        enabled="false"/>
+     <button
+        follows="left|bottom"
+        height="23"
+        label="&gt;"
+        name="right_btn"
+        width="23"
+        left_pad="3"
+        enabled="false" />
+     
   </panel>
 </panel>

@@ -68,6 +68,7 @@ private:
 	void onBtnProfile();
 	void onList();
 	void onMaturity();
+	void onPage(S32 direction);
 
 	void getSelectedExperienceIds( const LLScrollListCtrl* results, uuid_vec_t &experience_ids );
 	void setAllowMultiple(bool allow_multiple);
@@ -87,6 +88,7 @@ private:
 	LLUUID				mQueryID;
 	LLSD				mResponse;
 	bool				mCloseOnSelect;
+	S32					mCurrentPage;
 };
 
 #endif // LL_LLPANELEXPERIENCEPICKER_H
