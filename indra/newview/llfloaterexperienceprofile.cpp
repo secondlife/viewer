@@ -647,6 +647,10 @@ void LLFloaterExperienceProfile::onFieldChanged()
 {
     updatePackage();
 
+	if(!getChild<LLButton>(BTN_EDIT)->getVisible())
+	{
+		return;
+	}
     LLSD::map_const_iterator st = mExperienceDetails.beginMap();
     LLSD::map_const_iterator dt = mPackage.beginMap();
 
