@@ -207,7 +207,7 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 		columns[column_num++]["font"] = "SANSSERIF";
 
 		columns[column_num]["column"] = "location";
-		columns[column_num]["value"] = llformat("<%0.1f,%0.1f,%0.1f>", location_x, location_y, location_z);
+		columns[column_num]["value"] = llformat("<%0.f, %0.f, %0.f>", location_x, location_y, location_z);
 		columns[column_num++]["font"] = "SANSSERIF";
 
 		columns[column_num]["column"] = "parcel";
@@ -257,6 +257,8 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 		format.setArg("[COUNT]", llformat("%d", total_count));
 		format.setArg("[TIME]", llformat("%0.3f", mtotalScore));
 		getChild<LLUICtrl>("title_text")->setValue(LLSD(format));
+		list->setColumnLabel("URLs", getString("URLs"));
+		list->setColumnLabel("memory", getString("memory"));
 	}
 	else
 	{
