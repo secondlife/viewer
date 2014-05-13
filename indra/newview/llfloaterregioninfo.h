@@ -478,6 +478,7 @@ private:
 	LLPanelExperienceListEditor* mTrusted;
 	LLPanelExperienceListEditor* mAllowed;
 	LLPanelExperienceListEditor* mBlocked;
+	LLUUID mDefaultExperience;
 };
 
 #endif

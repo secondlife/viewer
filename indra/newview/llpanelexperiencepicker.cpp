@@ -395,3 +395,12 @@ void LLPanelExperiencePicker::setDefaultFilters()
 	mFilters.clear();
 	addFilter(boost::bind(&LLPanelExperiencePicker::FilterOverRating, this, _1));
 }
+
+bool LLPanelExperiencePicker::FilterMatching( const LLSD& experience, const LLUUID& id )
+{
+	if(experience.isUUID())
+	{
+		return experience.asUUID() == id;
+	}
+	return experience[LLExperienceCache::EXPERIENCE_ID].asUUID() == id;
+}

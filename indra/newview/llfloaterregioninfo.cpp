@@ -3583,9 +3583,22 @@ LLPanelExperienceListEditor* LLPanelRegionExperiences::setupList( const char* co
 
 void LLPanelRegionExperiences::processResponse( const LLSD& content )
 {
+	if(content.has("default"))
+	{
+		mDefaultExperience = content["default"].asUUID();
+	}
+
 	mAllowed->setExperienceIds(content["allowed"]);
 	mBlocked->setExperienceIds(content["blocked"]);
-	mTrusted->setExperienceIds(content["trusted"]);
+
+	LLSD trusted = content["trusted"];
+	if(mDefaultExperience.notNull())
+	{
+		mTrusted->setStickyFunction(boost::bind(LLPanelExperiencePicker::FilterMatching, _1, mDefaultExperience));
+		trusted.append(mDefaultExperience);
+	}
+
+	mTrusted->setExperienceIds(trusted);
 	
 	if (!mAllowed->getReadonly())
 	{
@@ -3646,6 +3659,8 @@ bool LLPanelRegionExperiences::refreshFromRegion(LLViewerRegion* region)
 	mAllowed->setReadonly(!allow_modify);
 	// remove grid-wide experiences
 	mAllowed->addFilter(boost::bind(LLPanelExperiencePicker::FilterWithProperty, _1, LLExperienceCache::PROPERTY_GRID));
+	// remove default experience
+	mAllowed->addFilter(boost::bind(LLPanelExperiencePicker::FilterMatching, _1, mDefaultExperience));
 
 	mBlocked->loading();
 	mBlocked->setReadonly(!allow_modify);
@@ -3653,6 +3668,8 @@ bool LLPanelRegionExperiences::refreshFromRegion(LLViewerRegion* region)
 	mBlocked->addFilter(boost::bind(LLPanelExperiencePicker::FilterWithoutProperty, _1, LLExperienceCache::PROPERTY_GRID));
 	// but not privileged ones
 	mBlocked->addFilter(boost::bind(LLPanelExperiencePicker::FilterWithProperty, _1, LLExperienceCache::PROPERTY_PRIVILEGED));
+	// remove default experience
+	mBlocked->addFilter(boost::bind(LLPanelExperiencePicker::FilterMatching, _1, mDefaultExperience));
 
 	mTrusted->loading();
 	mTrusted->setReadonly(!allow_modify);
@@ -3699,6 +3716,10 @@ BOOL LLPanelRegionExperiences::sendUpdate()
 
 void LLPanelRegionExperiences::itemChanged( U32 event_type, const LLUUID& id )
 {
+	if(id == mDefaultExperience)
+	{
+		return;
+	}
 	strings_t str(3, std::string());
 	gAgent.getID().toString(str[0]);
 	str[1] = llformat("%u", event_type);

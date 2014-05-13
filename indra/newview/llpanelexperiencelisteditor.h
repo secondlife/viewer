@@ -41,8 +41,8 @@ public:
 
 	typedef boost::signals2::signal<void (const LLUUID&) > list_changed_signal_t;
 	// filter function for experiences, return true if the experience should be hidden.
-	typedef boost::function<bool (const LLSD&)> filter_function;
-	typedef std::vector<filter_function> filter_list;
+	typedef boost::function<bool (const LLSD&)> experience_function;
+	typedef std::vector<experience_function> filter_list;
 	typedef LLHandle<LLFloaterExperiencePicker> PickerHandle;
 	LLPanelExperienceListEditor();
 	~LLPanelExperienceListEditor();
@@ -64,7 +64,8 @@ public:
 
 	void refreshExperienceCounter(std::string string_name);
 
-	void addFilter(filter_function func){mFilters.push_back(func);}
+	void addFilter(experience_function func){mFilters.push_back(func);}
+	void setStickyFunction(experience_function func){mSticky = func;}
 private:
 
 	void onItems();
@@ -89,6 +90,7 @@ private:
 	list_changed_signal_t		mRemovedCallback;
 	LLUUID						mKey;
 	bool						mReadonly;
+	experience_function			mSticky;
 
 };
 

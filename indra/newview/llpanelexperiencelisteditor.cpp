@@ -143,7 +143,23 @@ void LLPanelExperienceListEditor::checkButtonsEnabled()
 {
 	mAdd->setEnabled(!mReadonly);
 	int selected = mItems->getNumSelected();
-	mRemove->setEnabled(!mReadonly && selected>0);
+
+	bool remove_enabled = !mReadonly && selected>0;
+	if(remove_enabled && mSticky)
+	{
+		std::vector<LLScrollListItem*> items= mItems->getAllSelected();
+		std::vector<LLScrollListItem*>::iterator it = items.begin();
+		for(/**/; it != items.end() && remove_enabled; ++it)
+		{
+			if((*it) != NULL)
+			{
+				remove_enabled = !mSticky((*it)->getValue());
+			}
+		}
+
+
+	}
+	mRemove->setEnabled(remove_enabled);
 	mProfile->setEnabled(selected==1);
 }
 
