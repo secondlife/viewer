@@ -426,7 +426,7 @@ void LLPanelGroupRoles::setGroupID(const LLUUID& id)
 		button->setEnabled(gAgent.hasPowerInGroup(mGroupID, GP_MEMBER_INVITE));
 
 	if(mSubTabContainer)
-		mSubTabContainer->selectTab(0);
+		mSubTabContainer->selectTab(1);
 
 	activate();
 }
