@@ -3194,6 +3194,8 @@ void LLViewerWindow::updateUI()
 				}
 
 				append_xui_tooltip(tooltip_view, params);
+				params.styled_message.add().text("\n");
+
 				screen_sticky_rect.intersectWith(tooltip_view->calcScreenRect());
 				
 				params.sticky_rect = screen_sticky_rect;
