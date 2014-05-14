@@ -75,8 +75,6 @@ template class LLTextEditor* LLView::getChild<class LLTextEditor>(
 //
 // Constants
 //
-const S32	UI_TEXTEDITOR_LINE_NUMBER_MARGIN = 32;
-const S32	UI_TEXTEDITOR_LINE_NUMBER_DIGITS = 4;
 const S32	SPACES_PER_TAB = 4;
 const F32	SPELLCHECK_DELAY = 0.5f;	// delay between the last keypress and spell checking the word the cursor is on
 
@@ -236,7 +234,6 @@ LLTextEditor::Params::Params()
 	prevalidate_callback("prevalidate_callback"),
 	embedded_items("embedded_items", false),
 	ignore_tab("ignore_tab", true),
-	show_line_numbers("show_line_numbers", false),
 	auto_indent("auto_indent", true),
 	default_color("default_color"),
     commit_on_focus_lost("commit_on_focus_lost", false),
@@ -252,8 +249,7 @@ LLTextEditor::LLTextEditor(const LLTextEditor::Params& p) :
 	mBaseDocIsPristine(TRUE),
 	mPristineCmd( NULL ),
 	mLastCmd( NULL ),
-	mDefaultColor(		p.default_color() ),
-	mShowLineNumbers ( p.show_line_numbers ),
+	mDefaultColor( p.default_color() ),
 	mAutoIndent(p.auto_indent),
 	mCommitOnFocusLost( p.commit_on_focus_lost),
 	mAllowEmbeddedItems( p.embedded_items ),
@@ -277,14 +273,7 @@ LLTextEditor::LLTextEditor(const LLTextEditor::Params& p) :
 	params.visible = p.border_visible;
 	mBorder = LLUICtrlFactory::create<LLViewBorder> (params);
 	addChild( mBorder );
-
 	setText(p.default_text());
-
-	if (mShowLineNumbers)
-	{
-		mHPad += UI_TEXTEDITOR_LINE_NUMBER_MARGIN;
-		updateRects();
-	}
 	
 	mParseOnTheFly = TRUE;
 }
@@ -2196,69 +2185,6 @@ void LLTextEditor::drawPreeditMarker()
 	}
 }
 
-
-void LLTextEditor::drawLineNumbers()
-{
-	LLGLSUIDefault gls_ui;
-	LLRect scrolled_view_rect = getVisibleDocumentRect();
-	LLRect content_rect = getVisibleTextRect();	
-	LLLocalClipRect clip(content_rect);
-	S32 first_line = getFirstVisibleLine();
-	S32 num_lines = getLineCount();
-	if (first_line >= num_lines)
-	{
-		return;
-	}
-	
-	S32 cursor_line = mLineInfoList[getLineNumFromDocIndex(mCursorPos)].mLineNum;
-
-	if (mShowLineNumbers)
-	{
-		S32 left = 0;
-		S32 top = getRect().getHeight();
-		S32 bottom = 0;
-
-		gl_rect_2d(left, top, UI_TEXTEDITOR_LINE_NUMBER_MARGIN, bottom, mReadOnlyBgColor.get() ); // line number area always read-only
-		gl_rect_2d(UI_TEXTEDITOR_LINE_NUMBER_MARGIN, top, UI_TEXTEDITOR_LINE_NUMBER_MARGIN-1, bottom, LLColor4::grey3); // separator
-
-		S32 last_line_num = -1;
-
-		for (S32 cur_line = first_line; cur_line < num_lines; cur_line++)
-		{
-			line_info& line = mLineInfoList[cur_line];
-
-			if ((line.mRect.mTop - scrolled_view_rect.mBottom) < mVisibleTextRect.mBottom) 
-			{
-				break;
-			}
-
-			S32 line_bottom = line.mRect.mBottom - scrolled_view_rect.mBottom + mVisibleTextRect.mBottom;
-			// draw the line numbers
-			if(line.mLineNum != last_line_num && line.mRect.mTop <= scrolled_view_rect.mTop) 
-			{
-				const LLFontGL *num_font = LLFontGL::getFontMonospace();
-				const LLWString ltext = utf8str_to_wstring(llformat("%d", line.mLineNum ));
-				BOOL is_cur_line = cursor_line == line.mLineNum;
-				const U8 style = is_cur_line ? LLFontGL::BOLD : LLFontGL::NORMAL;
-				const LLColor4 fg_color = is_cur_line ? mCursorColor : mReadOnlyFgColor;
-				num_font->render( 
-					ltext, // string to draw
-					0, // begin offset
-					UI_TEXTEDITOR_LINE_NUMBER_MARGIN - 2, // x
-					line_bottom, // y
-					fg_color, 
-					LLFontGL::RIGHT, // horizontal alignment
-					LLFontGL::BOTTOM, // vertical alignment
-					style,
-					LLFontGL::NO_SHADOW,
-					S32_MAX, // max chars
-					UI_TEXTEDITOR_LINE_NUMBER_MARGIN - 2); // max pixels
-				last_line_num = line.mLineNum;
-			}
-		}
-	}
-}
-
 void LLTextEditor::draw()
 {
 	{
@@ -2270,7 +2196,6 @@ void LLTextEditor::draw()
 	}
 
 	LLTextBase::draw();
-	drawLineNumbers();
 
     drawPreeditMarker();
 

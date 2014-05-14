@@ -25,8 +25,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLFLOATERSCRIPTEDPREFS_H
-#define LLFLOATERSCRIPTEDPREFS_H
+#ifndef LL_FLOATERSCRIPTEDPREFS_H
+#define LL_FLOATERSCRIPTEDPREFS_H
 
 #include "llfloater.h"
 

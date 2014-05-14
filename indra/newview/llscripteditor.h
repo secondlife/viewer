@@ -36,10 +36,16 @@ public:
 	
 	struct Params : public LLInitParam::Block<Params, LLTextEditor::Params>
 	{
+		Optional<bool>		show_line_numbers;
+		
 		Params();
 	};
 	
 	virtual ~LLScriptEditor() {};
+	
+	// LLView override
+	virtual void	draw();
+	
 	void	initKeywords();
 	void	loadKeywords();
 	void	clearSegments();
@@ -51,11 +57,13 @@ protected:
 	LLScriptEditor(const Params& p);
 	
 private:
+	void	drawLineNumbers();
 	void	updateSegments();
 	void	loadKeywords(const std::string& filename_keywords,
 						 const std::string& filename_colors);
 	
 	LLKeywords	mKeywords;
+	bool		mShowLineNumbers;
 };
 
 #endif // LL_SCRIPTEDITOR_H

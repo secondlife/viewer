@@ -464,7 +464,6 @@
      bg_readonly_color="ScriptBackground"
      bg_selected_color="ScriptSelectedColor"
      cursor_color="ScriptCursorColor"
-     show_line_numbers="true"
      enable_tooltip_paste="true"
      word_wrap="true">
 default

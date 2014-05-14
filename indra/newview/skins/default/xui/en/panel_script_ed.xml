@@ -172,8 +172,7 @@
      width="487"
      enable_tooltip_paste="true"
      word_wrap="true"
-     show_context_menu="true"
-     show_line_numbers="true">
+     show_context_menu="true">
         Loading...
     </script_editor>
     <scroll_list

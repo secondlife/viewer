@@ -58,7 +58,6 @@ public:
 
 		Optional<bool>			embedded_items,
 								ignore_tab,
-								show_line_numbers,
 								commit_on_focus_lost,
 								show_context_menu,
 								enable_tooltip_paste,
@@ -279,11 +278,11 @@ protected:
 protected:
 	LLUIColor			mDefaultColor;
 
-	BOOL				mShowLineNumbers;
 	bool				mAutoIndent;
 	bool				mParseOnTheFly;
 
 	void				updateLinkSegments();
+	class LLViewBorder*	mBorder;
 
 private:
 	//
@@ -293,8 +292,6 @@ private:
 	void			cleanStringForPaste(LLWString & clean_string);
 	void			pasteTextWithLinebreaks(LLWString & clean_string);
 
-	void			drawLineNumbers();
-
 	void			onKeyStroke();
 
 	// Concrete TextCmd sub-classes used by the LLTextEditor base class
@@ -302,8 +299,6 @@ private:
 	class TextCmdAddChar;
 	class TextCmdOverwriteChar;
 	class TextCmdRemove;
-
-	class LLViewBorder*	mBorder;
 
 	BOOL			mBaseDocIsPristine;
 	TextCmd*		mPristineCmd;
