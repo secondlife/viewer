@@ -104,16 +104,20 @@ LLSD getMarketplaceStringSubstitutions()
 // SLM Responders
 void log_SLM_warning(const std::string& request, U32 status, const std::string& reason, const std::string& code, const std::string& description)
 {
-    if (gSavedSettings.getBOOL("MarketplaceListingsLogging"))
-    {
-		LL_WARNS("SLM") << "SLM API : Responder to " << request << ". status : " << status << ", reason : " << reason << ", code : " << code << ", description : " << description << LL_ENDL;
-    }
+    LL_WARNS("SLM") << "SLM API : Responder to " << request << ". status : " << status << ", reason : " << reason << ", code : " << code << ", description : " << description << LL_ENDL;
 }
-void log_SLM_warning(const std::string& request, const std::string& url, const std::string& data)
+void log_SLM_infos(const std::string& request, U32 status, const std::string& body)
 {
     if (gSavedSettings.getBOOL("MarketplaceListingsLogging"))
     {
-		LL_WARNS("SLM") << "SLM API : Sending " << request << ". url : " << url << ", data : " << data << LL_ENDL;
+        LL_INFOS("SLM") << "SLM API : Responder to " << request << ". status : " << status << ", body or description : " << body << LL_ENDL;
+    }
+}
+void log_SLM_infos(const std::string& request, const std::string& url, const std::string& body)
+{
+    if (gSavedSettings.getBOOL("MarketplaceListingsLogging"))
+    {
+		LL_INFOS("SLM") << "SLM API : Sending " << request << ". url : " << url << ", body : " << body << LL_ENDL;
     }
 }
 
@@ -134,12 +138,12 @@ public:
     {
 		if (isGoodStatus(status) || sBypassMerchant)
 		{
-            log_SLM_warning("Get /merchant", status, reason, "", "User is a merchant");
+            log_SLM_infos("Get /merchant", status, "User is a merchant");
             LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_MERCHANT);
 		}
 		else if (status == SLMErrorCodes::SLM_NOT_FOUND)
 		{
-            log_SLM_warning("Get /merchant", status, reason, "", "User is not a merchant");
+            log_SLM_infos("Get /merchant", status, "User is not a merchant");
             LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_MERCHANT);
 		}
 		else
@@ -181,7 +185,7 @@ public:
             return;
         }
 
-        log_SLM_warning("Get /listings", status, reason, "", body);
+        log_SLM_infos("Get /listings", status, body);
 
         // Extract the info from the Json string
         Json::ValueIterator it = root["listings"].begin();
@@ -240,7 +244,7 @@ public:
             return;
         }
 
-        log_SLM_warning("Post /listings", status, reason, "", body);
+        log_SLM_infos("Post /listings", status, body);
 
         // Extract the info from the Json string
         Json::ValueIterator it = root["listings"].begin();
@@ -295,7 +299,7 @@ public:
             return;
         }
         
-        log_SLM_warning("Get /listing", status, reason, "", body);
+        log_SLM_infos("Get /listing", status, body);
         
         // Extract the info from the Json string
         Json::ValueIterator it = root["listings"].begin();
@@ -355,7 +359,7 @@ public:
             return;
         }
         
-        log_SLM_warning("Put /listing", status, reason, "", body);
+        log_SLM_infos("Put /listing", status, body);
 
         // Extract the info from the Json string
         Json::ValueIterator it = root["listings"].begin();
@@ -417,7 +421,7 @@ public:
             return;
         }
         
-        log_SLM_warning("Put /associate_inventory", status, reason, "", body);
+        log_SLM_infos("Put /associate_inventory", status, body);
         
         // Extract the info from the Json string
         Json::ValueIterator it = root["listings"].begin();
@@ -484,7 +488,7 @@ public:
             return;
         }
         
-        log_SLM_warning("Delete /listing", status, reason, "", body);
+        log_SLM_infos("Delete /listing", status, body);
         
         // Extract the info from the Json string
         Json::ValueIterator it = root["listings"].begin();
@@ -1046,7 +1050,7 @@ void LLMarketplaceData::initializeSLM(const status_updated_signal_t::slot_type& 
 	mStatusUpdatedSignal->connect(cb);
     
     std::string url = getSLMConnectURL("/merchant");
-    log_SLM_warning("LLHTTPClient::get", url, "");
+    log_SLM_infos("LLHTTPClient::get", url, "");
 	LLHTTPClient::get(url, new LLSLMGetMerchantResponder(), LLSD());
 }
 
@@ -1054,7 +1058,7 @@ void LLMarketplaceData::initializeSLM(const status_updated_signal_t::slot_type& 
 void LLMarketplaceData::getSLMListings()
 {
     std::string url = getSLMConnectURL("/listings");
-    log_SLM_warning("LLHTTPClient::get", url, "");
+    log_SLM_infos("LLHTTPClient::get", url, "");
 	LLHTTPClient::get(url, new LLSLMGetListingsResponder(), LLSD());
 }
 
@@ -1066,7 +1070,7 @@ void LLMarketplaceData::getSLMListing(S32 listing_id)
     
 	// Send request
     std::string url = getSLMConnectURL("/listing/") + llformat("%d",listing_id);
-    log_SLM_warning("LLHTTPClient::get", url, "");
+    log_SLM_infos("LLHTTPClient::get", url, "");
 	LLHTTPClient::get(url, new LLSLMGetListingResponder(), headers);
 }
 
@@ -1093,7 +1097,7 @@ void LLMarketplaceData::createSLMListing(const LLUUID& folder_id)
     
 	// Send request
     std::string url = getSLMConnectURL("/listings");
-    log_SLM_warning("LLHTTPClient::postRaw", url, json_str);
+    log_SLM_infos("LLHTTPClient::postRaw", url, json_str);
 	LLHTTPClient::postRaw(url, data, size, new LLSLMCreateListingsResponder(), headers);
 }
 
@@ -1121,7 +1125,7 @@ void LLMarketplaceData::updateSLMListing(const LLUUID& folder_id, S32 listing_id
     
 	// Send request
     std::string url = getSLMConnectURL("/listing/") + llformat("%d",listing_id);
-    log_SLM_warning("LLHTTPClient::putRaw", url, json_str);
+    log_SLM_infos("LLHTTPClient::putRaw", url, json_str);
 	LLHTTPClient::putRaw(url, data, size, new LLSLMUpdateListingsResponder(), headers);
 }
 
@@ -1148,7 +1152,7 @@ void LLMarketplaceData::associateSLMListing(const LLUUID& folder_id, S32 listing
     
 	// Send request
     std::string url = getSLMConnectURL("/associate_inventory/") + llformat("%d",listing_id);
-    log_SLM_warning("LLHTTPClient::putRaw", url, json_str);
+    log_SLM_infos("LLHTTPClient::putRaw", url, json_str);
 	LLHTTPClient::putRaw(url, data, size, new LLSLMAssociateListingsResponder(), headers);
 }
 
@@ -1160,7 +1164,7 @@ void LLMarketplaceData::deleteSLMListing(S32 listing_id)
         
 	// Send request
     std::string url = getSLMConnectURL("/listing/") + llformat("%d",listing_id);
-    log_SLM_warning("LLHTTPClient::del", url, "");
+    log_SLM_infos("LLHTTPClient::del", url, "");
 	LLHTTPClient::del(url, new LLSLMDeleteListingsResponder(), headers);
 }
 
