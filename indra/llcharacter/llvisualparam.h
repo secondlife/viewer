@@ -155,6 +155,7 @@ public:
 
 	LLVisualParam*			getNextParam()		{ return mNext; }
 	void					setNextParam( LLVisualParam *next );
+	void					clearNextParam();
 	
 	virtual void			setAnimating(BOOL is_animating) { mIsAnimating = is_animating && !mIsDummy; }
 	BOOL					getAnimating() const { return mIsAnimating; }

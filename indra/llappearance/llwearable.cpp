@@ -60,6 +60,14 @@ LLWearable::LLWearable()
 // virtual
 LLWearable::~LLWearable()
 {
+	for (visual_param_index_map_t::iterator vpIter = mVisualParamIndexMap.begin(); vpIter != mVisualParamIndexMap.end(); ++vpIter)
+	{
+		LLVisualParam* vp = vpIter->second;
+		vp->clearNextParam();
+		delete vp;
+		vpIter->second = NULL;
+	}
+
 	destroyTextures();
 }
 

@@ -178,7 +178,10 @@ LLVisualParam::LLVisualParam()
 //-----------------------------------------------------------------------------
 LLVisualParam::~LLVisualParam()
 {
-	delete mNext;
+	if (mNext != NULL)
+	{
+		delete mNext;
+	}
 }
 
 /*
@@ -282,6 +285,14 @@ void LLVisualParam::setNextParam( LLVisualParam *next )
 	llassert(!mNext);
 	llassert(getWeight() == getDefaultWeight()); // need to establish mNext before we start changing values on this, else initial value won't get mirrored (we can fix that, but better to forbid this pattern)
 	mNext = next;
+}
+
+//-----------------------------------------------------------------------------
+// clearNextParam()
+//-----------------------------------------------------------------------------
+void LLVisualParam::clearNextParam()
+{
+	mNext = NULL;
 }
 
 //-----------------------------------------------------------------------------
