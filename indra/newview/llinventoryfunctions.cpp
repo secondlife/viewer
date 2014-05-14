@@ -1100,6 +1100,12 @@ void validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
     LLViewerInventoryCategory * viewer_cat = (LLViewerInventoryCategory *) (cat);
 	const LLFolderType::EType folder_type = cat->getPreferredType();
     S32 depth = depth_nesting_in_marketplace(cat->getUUID());
+    if (depth < 0)
+    {
+        // If the folder is not under the marketplace listings root, validation should not be applied
+        // *TODO: Should we call update_marketplace_category(cat->getUUID()) ?
+        return;
+    }
     if (depth == 1)
     {
         std::string message = "Validating listing : " + cat->getName();
