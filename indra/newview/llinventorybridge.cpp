@@ -2344,7 +2344,7 @@ BOOL LLFolderBridge::isClipboardPasteableAsLink() const
 
 }
 
-static BOOL can_move_to_outbox(LLInventoryItem* inv_item, std::string& tooltip_msg)
+static BOOL can_move_to_marketplace(LLInventoryItem* inv_item, std::string& tooltip_msg)
 {
 	// Collapse links directly to items/folders
 	LLViewerInventoryItem * viewer_inv_item = (LLViewerInventoryItem *) inv_item;
@@ -2622,7 +2622,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 					for (S32 i=0; i < descendent_items.count(); ++i)
 					{
 						LLInventoryItem* item = descendent_items[i];
-						if (!can_move_to_outbox(item, tooltip_msg))
+						if (!can_move_to_marketplace(item, tooltip_msg))
 						{
 							is_movable = FALSE;
 							break; 
@@ -2636,6 +2636,18 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
             // One cannot move a folder into a stock folder
             is_movable = (getPreferredType() != LLFolderType::FT_MARKETPLACE_STOCK);
             // *TODO : Merov : Add case if (nesting depth source + depth destination) > marketplace limit -> FALSE
+            if (is_movable)
+            {
+                for (S32 i = 0; i < descendent_items.count(); ++i)
+                {
+                    LLInventoryItem* item = descendent_items[i];
+                    if (!can_move_to_marketplace(item, tooltip_msg))
+                    {
+                        is_movable = FALSE;
+                        break; 
+                    }
+                }
+            }
         }
 
 		if (is_movable)
@@ -4398,7 +4410,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		}
 		else if (move_is_into_outbox)
 		{
-			accept = can_move_to_outbox(inv_item, tooltip_msg);
+			accept = can_move_to_marketplace(inv_item, tooltip_msg);
 			
 			if (accept)
 			{
@@ -4427,8 +4439,8 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
         {
             // Check stock folder type matches item type
             accept = (getCategory() && getCategory()->acceptItem(inv_item));
-            // Do not accept calling cards in marketplace listings
-            accept &= (LLAssetType::AT_CALLINGCARD != inv_item->getType());
+            // Check that the object can move into marketplace listings
+            accept &= can_move_to_marketplace(inv_item, tooltip_msg);
         }
 
 		LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
