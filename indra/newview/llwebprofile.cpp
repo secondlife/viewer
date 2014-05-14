@@ -168,13 +168,13 @@ public:
 			const std::string& redir_url = getResponseHeader(HTTP_IN_HEADER_LOCATION);
 			if (redir_url.empty())
 			{
-				llwarns << "Received empty redirection URL " << dumpResponse() << llendl;
+				LL_WARNS() << "Received empty redirection URL " << dumpResponse() << LL_ENDL;
 				LL_DEBUGS("Snapshots") << "[headers:" << getResponseHeaders() << "]" << LL_ENDL;
 				LLWebProfile::reportImageUploadStatus(false);
 			}
 			else
 			{
-				LL_DEBUGS("Snapshots") << "Got redirection URL: " << redir_url << llendl;
+				LL_DEBUGS("Snapshots") << "Got redirection URL: " << redir_url << LL_ENDL;
 				LLHTTPClient::get(redir_url, new LLWebProfileResponders::PostImageRedirectResponder, headers);
 			}
 		}

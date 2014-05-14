@@ -994,7 +994,7 @@ LLViewerFetchedTexture::LLViewerFetchedTexture(const LLUUID& id, FTType f_type, 
 	mFTType = f_type;
 	if (mFTType == FTT_HOST_BAKE)
 	{
-		llwarns << "Unsupported fetch type " << mFTType << llendl;
+		LL_WARNS() << "Unsupported fetch type " << mFTType << LL_ENDL;
 	}
 	generateGLTexture();
 }
@@ -1930,19 +1930,19 @@ bool LLViewerFetchedTexture::updateFetch()
 				{
 					if (getFTType() != FTT_MAP_TILE)
 					{
-						llwarns << mID
+						LL_WARNS() << mID
 								<< " Fetch failure, setting as missing, decode_priority " << decode_priority
 								<< " mRawDiscardLevel " << mRawDiscardLevel
 								<< " current_discard " << current_discard
 								<< " stats " << mLastHttpGetStatus.toHex()
-								<< llendl;
+								<< LL_ENDL;
 					}
 					setIsMissingAsset();
 					desired_discard = -1;
 				}
 				else
 				{
-					//llwarns << mID << ": Setting min discard to " << current_discard << llendl;
+					//LL_WARNS() << mID << ": Setting min discard to " << current_discard << LL_ENDL;
 					if(current_discard >= 0)
 					{
 						mMinDiscardLevel = current_discard;
@@ -2134,7 +2134,7 @@ void LLViewerFetchedTexture::setIsMissingAsset(BOOL is_missing)
 	{
 		if (mUrl.empty())
 		{
-			llwarns << mID << ": Marking image as missing" << llendl;
+			LL_WARNS() << mID << ": Marking image as missing" << LL_ENDL;
 		}
 		else
 		{
@@ -2143,7 +2143,7 @@ void LLViewerFetchedTexture::setIsMissingAsset(BOOL is_missing)
 			// server bake texture.
 			if (getFTType() != FTT_MAP_TILE)
 			{
-				llwarns << mUrl << ": Marking image as missing" << llendl;
+				LL_WARNS() << mUrl << ": Marking image as missing" << LL_ENDL;
 			}
 		}
 		if (mHasFetcher)
@@ -2158,7 +2158,7 @@ void LLViewerFetchedTexture::setIsMissingAsset(BOOL is_missing)
 	}
 	else
 	{
-		llinfos << mID << ": un-flagging missing asset" << llendl;
+		LL_INFOS() << mID << ": un-flagging missing asset" << LL_ENDL;
 	}
 	mIsMissingAsset = is_missing;
 }
@@ -2211,7 +2211,7 @@ void LLViewerFetchedTexture::setLoadedCallback( loaded_callback_func loaded_call
 		else
 		{
 			// We need aux data, but we've already loaded the image, and it didn't have any
-			llwarns << "No aux data available for callback for image:" << getID() << llendl;
+			LL_WARNS() << "No aux data available for callback for image:" << getID() << LL_ENDL;
 		}
 	}
 	mLastCallBackActiveTime = sCurrentTime ;
@@ -2385,10 +2385,10 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
 		if (mFTType == FTT_SERVER_BAKE)
 		{
 			//output some debug info
-			llinfos << "baked texture: " << mID << "clears all call backs due to inactivity." << llendl;
-			llinfos << mUrl << llendl;
-			llinfos << "current discard: " << getDiscardLevel() << " current discard for fetch: " << getCurrentDiscardLevelForFetching() <<
-				" Desired discard: " << getDesiredDiscardLevel() << "decode Pri: " << getDecodePriority() << llendl;
+			LL_INFOS() << "baked texture: " << mID << "clears all call backs due to inactivity." << LL_ENDL;
+			LL_INFOS() << mUrl << LL_ENDL;
+			LL_INFOS() << "current discard: " << getDiscardLevel() << " current discard for fetch: " << getCurrentDiscardLevelForFetching() <<
+				" Desired discard: " << getDesiredDiscardLevel() << "decode Pri: " << getDecodePriority() << LL_ENDL;
 		}
 
 		clearCallbackEntryList() ; //remove all callbacks.
@@ -2402,8 +2402,8 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
 		if (mFTType == FTT_SERVER_BAKE)
 		{
 			//output some debug info
-			llinfos << "baked texture: " << mID << "is missing." << llendl;
-			llinfos << mUrl << llendl;
+			LL_INFOS() << "baked texture: " << mID << "is missing." << LL_ENDL;
+			LL_INFOS() << mUrl << LL_ENDL;
 		}
 
 		for(callback_list_t::iterator iter = mLoadedCallbackList.begin();

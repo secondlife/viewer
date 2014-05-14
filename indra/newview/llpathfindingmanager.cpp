@@ -819,7 +819,7 @@ void NavMeshResponder::httpSuccess()
 
 void NavMeshResponder::httpFailure()
 {
-	llwarns << dumpResponse() << llendl;
+	LL_WARNS() << dumpResponse() << LL_ENDL;
 	mNavMeshPtr->handleNavMeshError(mNavMeshVersion);
 }
 
@@ -872,7 +872,7 @@ void NavMeshRebakeResponder::httpSuccess()
 
 void NavMeshRebakeResponder::httpFailure()
 {
-	LL_WARNS() << dumpResponse() < LL_ENDL;
+	LL_WARNS() << dumpResponse() << LL_ENDL;
 	mRebakeNavMeshCallback(false);
 }
 
@@ -907,8 +907,7 @@ void LinksetsResponder::handleObjectLinksetsResult(const LLSD &pContent)
 
 void LinksetsResponder::handleObjectLinksetsError()
 {
-	LL_WARNS() << "LinksetsResponder object linksets error with request to URL '" << pURL << "' [status:"
-			   << pStatus << "]: " << pContent << LL_ENDL;
+	LL_WARNS() << "LinksetsResponder object linksets error" << LL_ENDL;
 	mObjectMessagingState = kReceivedError;
 	if (mTerrainMessagingState != kWaiting)
 	{
@@ -929,8 +928,7 @@ void LinksetsResponder::handleTerrainLinksetsResult(const LLSD &pContent)
 
 void LinksetsResponder::handleTerrainLinksetsError()
 {
-	LL_WARNS() << "LinksetsResponder terrain linksets error with request to URL '" << pURL << "' [status:"
-			   << pStatus << "]: " << pContent << LL_ENDL;
+	LL_WARNS() << "LinksetsResponder terrain linksets error" << LL_ENDL;
 	mTerrainMessagingState = kReceivedError;
 	if (mObjectMessagingState != kWaiting)
 	{
@@ -981,7 +979,7 @@ void ObjectLinksetsResponder::httpSuccess()
 
 void ObjectLinksetsResponder::httpFailure()
 {
-	llwarns << dumpResponse() << llendl;
+	LL_WARNS() << dumpResponse() << LL_ENDL;
 	mLinksetsResponsderPtr->handleObjectLinksetsError();
 }
 
@@ -1006,7 +1004,7 @@ void TerrainLinksetsResponder::httpSuccess()
 
 void TerrainLinksetsResponder::httpFailure()
 {
-	llwarns << dumpResponse() << llendl;
+	LL_WARNS() << dumpResponse() << LL_ENDL;
 	mLinksetsResponsderPtr->handleTerrainLinksetsError();
 }
 

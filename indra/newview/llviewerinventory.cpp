@@ -709,7 +709,7 @@ S32 LLViewerInventoryCategory::getViewerDescendentCount() const
 	S32 descendents_actual = 0;
 	if(cats && items)
 	{
-		descendents_actual = cats->count() + items->count();
+		descendents_actual = cats->size() + items->size();
 	}
 	return descendents_actual;
 }
@@ -1128,7 +1128,7 @@ void link_inventory_array(const LLUUID& category,
 		const LLInventoryObject* baseobj = *it;
 		if (!baseobj)
 		{
-			llwarns << "attempt to link to unknown object" << llendl;
+			LL_WARNS() << "attempt to link to unknown object" << LL_ENDL;
 			continue;
 		}
 
@@ -1137,7 +1137,7 @@ void link_inventory_array(const LLUUID& category,
 			// Fail if item can be found but is of a type that can't be linked.
 			// Arguably should fail if the item can't be found too, but that could
 			// be a larger behavioral change.
-			llwarns << "attempt to link an unlinkable object, type = " << baseobj->getActualType() << llendl;
+			LL_WARNS() << "attempt to link an unlinkable object, type = " << baseobj->getActualType() << LL_ENDL;
 			continue;
 		}
 		
@@ -1173,7 +1173,7 @@ void link_inventory_array(const LLUUID& category,
 			}
 			else
 			{
-				llwarns << "could not convert object into an item or category: " << baseobj->getUUID() << llendl;
+				LL_WARNS() << "could not convert object into an item or category: " << baseobj->getUUID() << LL_ENDL;
 				continue;
 			}
 		}
@@ -1281,7 +1281,7 @@ void update_inventory_item(
 	if (!ais_ran)
 	{
 		LLPointer<LLViewerInventoryItem> obj = gInventory.getItem(item_id);
-		LL_DEBUGS("Inventory") << "item_id: [" << item_id << "] name " << (update_item ? update_item->getName() : "(NOT FOUND)") << llendl;
+		LL_DEBUGS("Inventory") << "item_id: [" << item_id << "] name " << (update_item ? update_item->getName() : "(NOT FOUND)") << LL_ENDL;
 		if(obj)
 		{
 			LLMessageSystem* msg = gMessageSystem;
@@ -1323,7 +1323,7 @@ void update_inventory_item(
 	if (!ais_ran)
 	{
 		LLPointer<LLViewerInventoryItem> obj = gInventory.getItem(item_id);
-		LL_DEBUGS("Inventory") << "item_id: [" << item_id << "] name " << (obj ? obj->getName() : "(NOT FOUND)") << llendl;
+		LL_DEBUGS("Inventory") << "item_id: [" << item_id << "] name " << (obj ? obj->getName() : "(NOT FOUND)") << LL_ENDL;
 		if(obj)
 		{
 			LLPointer<LLViewerInventoryItem> new_item(new LLViewerInventoryItem);
@@ -1358,7 +1358,7 @@ void update_inventory_category(
 	LLPointer<LLInventoryCallback> cb)
 {
 	LLPointer<LLViewerInventoryCategory> obj = gInventory.getCategory(cat_id);
-	LL_DEBUGS("Inventory") << "cat_id: [" << cat_id << "] name " << (obj ? obj->getName() : "(NOT FOUND)") << llendl;
+	LL_DEBUGS("Inventory") << "cat_id: [" << cat_id << "] name " << (obj ? obj->getName() : "(NOT FOUND)") << LL_ENDL;
 	if(obj)
 	{
 		if (LLFolderType::lookupIsProtectedType(obj->getPreferredType()))
@@ -1421,7 +1421,7 @@ void remove_inventory_item(
 	}
 	else
 	{
-		LL_DEBUGS("Inventory") << "item_id: [" << item_id << "] name " << "(NOT FOUND)" << llendl;
+		LL_DEBUGS("Inventory") << "item_id: [" << item_id << "] name " << "(NOT FOUND)" << LL_ENDL;
 	}
 }
 
@@ -1432,7 +1432,7 @@ void remove_inventory_item(
 	if(obj)
 	{
 		const LLUUID item_id(obj->getUUID());
-		LL_DEBUGS("Inventory") << "item_id: [" << item_id << "] name " << obj->getName() << llendl;
+		LL_DEBUGS("Inventory") << "item_id: [" << item_id << "] name " << obj->getName() << LL_ENDL;
 		if (AISCommand::isAPIAvailable())
 		{
 			LLPointer<AISCommand> cmd_ptr = new RemoveItemCommand(item_id, cb);
@@ -1461,7 +1461,7 @@ void remove_inventory_item(
 	else
 	{
 		// *TODO: Clean up callback?
-		llwarns << "remove_inventory_item called for invalid or nonexistent item." << llendl;
+		LL_WARNS() << "remove_inventory_item called for invalid or nonexistent item." << LL_ENDL;
 	}
 }
 
@@ -1479,7 +1479,7 @@ public:
 		LLInventoryModel::EHasChildren children = gInventory.categoryHasChildren(mID);
 		if(children != LLInventoryModel::CHILDREN_NO)
 		{
-			llwarns << "remove descendents failed, cannot remove category " << llendl;
+			LL_WARNS() << "remove descendents failed, cannot remove category " << LL_ENDL;
 		}
 		else
 		{
@@ -1495,7 +1495,7 @@ void remove_inventory_category(
 	const LLUUID& cat_id,
 	LLPointer<LLInventoryCallback> cb)
 {
-	LL_DEBUGS("Inventory") << "cat_id: [" << cat_id << "] " << llendl;
+	LL_DEBUGS("Inventory") << "cat_id: [" << cat_id << "] " << LL_ENDL;
 	LLPointer<LLViewerInventoryCategory> obj = gInventory.getCategory(cat_id);
 	if(obj)
 	{
@@ -1516,7 +1516,7 @@ void remove_inventory_category(
 			LLInventoryModel::EHasChildren children = gInventory.categoryHasChildren(cat_id);
 			if(children != LLInventoryModel::CHILDREN_NO)
 			{
-				LL_DEBUGS("Inventory") << "Will purge descendents first before deleting category " << cat_id << llendl;
+				LL_DEBUGS("Inventory") << "Will purge descendents first before deleting category " << cat_id << LL_ENDL;
 				LLPointer<LLInventoryCallback> wrap_cb = new LLRemoveCategoryOnDestroy(cat_id, cb); 
 				purge_descendents_of(cat_id, wrap_cb);
 				return;
@@ -1542,7 +1542,7 @@ void remove_inventory_category(
 	}
 	else
 	{
-		llwarns << "remove_inventory_category called for invalid or nonexistent item " << cat_id << llendl;
+		LL_WARNS() << "remove_inventory_category called for invalid or nonexistent item " << cat_id << LL_ENDL;
 	}
 }
 
@@ -1570,7 +1570,7 @@ void purge_descendents_of(const LLUUID& id, LLPointer<LLInventoryCallback> cb)
 	LLInventoryModel::EHasChildren children = gInventory.categoryHasChildren(id);
 	if(children == LLInventoryModel::CHILDREN_NO)
 	{
-		LL_DEBUGS("Inventory") << "No descendents to purge for " << id << llendl;
+		LL_DEBUGS("Inventory") << "No descendents to purge for " << id << LL_ENDL;
 		return;
 	}
 	LLPointer<LLViewerInventoryCategory> cat = gInventory.getCategory(id);
@@ -1580,7 +1580,7 @@ void purge_descendents_of(const LLUUID& id, LLPointer<LLInventoryCallback> cb)
 		{
 			// Something on the clipboard is in "cut mode" and needs to be preserved
 			LL_DEBUGS("Inventory") << "purge_descendents_of clipboard case " << cat->getName()
-								   << " iterate and purge non hidden items" << llendl;
+								   << " iterate and purge non hidden items" << LL_ENDL;
 			LLInventoryModel::cat_array_t* categories;
 			LLInventoryModel::item_array_t* items;
 			// Get the list of direct descendants in tha categoy passed as argument
@@ -1615,7 +1615,7 @@ void purge_descendents_of(const LLUUID& id, LLPointer<LLInventoryCallback> cb)
 			else // no cap
 			{
 				// Fast purge
-				LL_DEBUGS("Inventory") << "purge_descendents_of fast case " << cat->getName() << llendl;
+				LL_DEBUGS("Inventory") << "purge_descendents_of fast case " << cat->getName() << LL_ENDL;
 
 				// send it upstream
 				LLMessageSystem* msg = gMessageSystem;
@@ -1744,14 +1744,14 @@ void slam_inventory_folder(const LLUUID& folder_id,
 	if (AISCommand::isAPIAvailable())
 	{
 		LL_DEBUGS("Avatar") << "using AISv3 to slam folder, id " << folder_id
-							<< " new contents: " << ll_pretty_print_sd(contents) << llendl;
+							<< " new contents: " << ll_pretty_print_sd(contents) << LL_ENDL;
 		LLPointer<AISCommand> cmd_ptr = new SlamFolderCommand(folder_id, contents, cb);
 		cmd_ptr->run_command();
 	}
 	else // no cap
 	{
 		LL_DEBUGS("Avatar") << "using item-by-item calls to slam folder, id " << folder_id
-							<< " new contents: " << ll_pretty_print_sd(contents) << llendl;
+							<< " new contents: " << ll_pretty_print_sd(contents) << LL_ENDL;
 		for (LLSD::array_const_iterator it = contents.beginArray();
 			 it != contents.endArray();
 			 ++it)
@@ -1772,9 +1772,9 @@ void remove_folder_contents(const LLUUID& category, bool keep_outfit_links,
 	LLInventoryModel::item_array_t items;
 	gInventory.collectDescendents(category, cats, items,
 								  LLInventoryModel::EXCLUDE_TRASH);
-	for (S32 i = 0; i < items.count(); ++i)
+	for (S32 i = 0; i < items.size(); ++i)
 	{
-		LLViewerInventoryItem *item = items.get(i);
+		LLViewerInventoryItem *item = items.at(i);
 		if (keep_outfit_links && (item->getActualType() == LLAssetType::AT_LINK_FOLDER))
 			continue;
 		if (item->getIsLinkType())

@@ -171,7 +171,7 @@ RemoveItemCommand::RemoveItemCommand(const LLUUID& item_id,
 	std::string cap;
 	if (!getInvCap(cap))
 	{
-		llwarns << "No cap found" << llendl;
+		LL_WARNS() << "No cap found" << LL_ENDL;
 		return;
 	}
 	std::string url = cap + std::string("/item/") + item_id.asString();
@@ -190,7 +190,7 @@ RemoveCategoryCommand::RemoveCategoryCommand(const LLUUID& item_id,
 	std::string cap;
 	if (!getInvCap(cap))
 	{
-		llwarns << "No cap found" << llendl;
+		LL_WARNS() << "No cap found" << LL_ENDL;
 		return;
 	}
 	std::string url = cap + std::string("/category/") + item_id.asString();
@@ -209,7 +209,7 @@ PurgeDescendentsCommand::PurgeDescendentsCommand(const LLUUID& item_id,
 	std::string cap;
 	if (!getInvCap(cap))
 	{
-		llwarns << "No cap found" << llendl;
+		LL_WARNS() << "No cap found" << LL_ENDL;
 		return;
 	}
 	std::string url = cap + std::string("/category/") + item_id.asString() + "/children";
@@ -230,7 +230,7 @@ UpdateItemCommand::UpdateItemCommand(const LLUUID& item_id,
 	std::string cap;
 	if (!getInvCap(cap))
 	{
-		llwarns << "No cap found" << llendl;
+		LL_WARNS() << "No cap found" << LL_ENDL;
 		return;
 	}
 	std::string url = cap + std::string("/item/") + item_id.asString();
@@ -253,7 +253,7 @@ UpdateCategoryCommand::UpdateCategoryCommand(const LLUUID& cat_id,
 	std::string cap;
 	if (!getInvCap(cap))
 	{
-		llwarns << "No cap found" << llendl;
+		LL_WARNS() << "No cap found" << LL_ENDL;
 		return;
 	}
 	std::string url = cap + std::string("/category/") + cat_id.asString();
@@ -275,7 +275,7 @@ CreateInventoryCommand::CreateInventoryCommand(const LLUUID& parent_id,
 	std::string cap;
 	if (!getInvCap(cap))
 	{
-		llwarns << "No cap found" << llendl;
+		LL_WARNS() << "No cap found" << LL_ENDL;
 		return;
 	}
 	LLUUID tid;
@@ -297,13 +297,13 @@ SlamFolderCommand::SlamFolderCommand(const LLUUID& folder_id, const LLSD& conten
 	std::string cap;
 	if (!getInvCap(cap))
 	{
-		llwarns << "No cap found" << llendl;
+		LL_WARNS() << "No cap found" << LL_ENDL;
 		return;
 	}
 	LLUUID tid;
 	tid.generate();
 	std::string url = cap + std::string("/category/") + folder_id.asString() + "/links?tid=" + tid.asString();
-	llinfos << url << llendl;
+	LL_INFOS() << url << LL_ENDL;
 	LLCurl::ResponderPtr responder = this;
 	LLSD headers;
 	headers["Content-Type"] = "application/llsd+xml";
@@ -320,14 +320,14 @@ CopyLibraryCategoryCommand::CopyLibraryCategoryCommand(const LLUUID& source_id,
 	std::string cap;
 	if (!getLibCap(cap))
 	{
-		llwarns << "No cap found" << llendl;
+		LL_WARNS() << "No cap found" << LL_ENDL;
 		return;
 	}
 	LL_DEBUGS("Inventory") << "Copying library category: " << source_id << " => " << dest_id << LL_ENDL;
 	LLUUID tid;
 	tid.generate();
 	std::string url = cap + std::string("/category/") + source_id.asString() + "?tid=" + tid.asString();
-	llinfos << url << llendl;
+	LL_INFOS() << url << LL_ENDL;
 	LLCurl::ResponderPtr responder = this;
 	LLSD headers;
 	F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
@@ -482,7 +482,7 @@ void AISUpdate::parseItem(const LLSD& item_map)
 	else
 	{
 		// *TODO: Wow, harsh.  Should we just complain and get out?
-		llerrs << "unpack failed" << llendl;
+		LL_ERRS() << "unpack failed" << LL_ENDL;
 	}
 }
 
@@ -524,7 +524,7 @@ void AISUpdate::parseLink(const LLSD& link_map)
 	else
 	{
 		// *TODO: Wow, harsh.  Should we just complain and get out?
-		llerrs << "unpack failed" << llendl;
+		LL_ERRS() << "unpack failed" << LL_ENDL;
 	}
 }
 
@@ -590,7 +590,7 @@ void AISUpdate::parseCategory(const LLSD& category_map)
 	else
 	{
 		// *TODO: Wow, harsh.  Should we just complain and get out?
-		llerrs << "unpack failed" << llendl;
+		LL_ERRS() << "unpack failed" << LL_ENDL;
 	}
 
 	// Check for more embedded content.
@@ -739,7 +739,7 @@ void AISUpdate::doUpdate()
 	for (std::map<LLUUID,S32>::const_iterator catit = mCatDescendentDeltas.begin();
 		 catit != mCatDescendentDeltas.end(); ++catit)
 	{
-		LL_DEBUGS("Inventory") << "descendent accounting for " << catit->first << llendl;
+		LL_DEBUGS("Inventory") << "descendent accounting for " << catit->first << LL_ENDL;
 
 		const LLUUID cat_id(catit->first);
 		// Don't account for update if we just created this category.
@@ -853,12 +853,12 @@ void AISUpdate::doUpdate()
 		const LLUUID id = ucv_it->first;
 		S32 version = ucv_it->second;
 		LLViewerInventoryCategory *cat = gInventory.getCategory(id);
-		LL_DEBUGS("Inventory") << "cat version update " << cat->getName() << " to version " << cat->getVersion() << llendl;
+		LL_DEBUGS("Inventory") << "cat version update " << cat->getName() << " to version " << cat->getVersion() << LL_ENDL;
 		if (cat->getVersion() != version)
 		{
-			llwarns << "Possible version mismatch for category " << cat->getName()
+			LL_WARNS() << "Possible version mismatch for category " << cat->getName()
 					<< ", viewer version " << cat->getVersion()
-					<< " server version " << version << llendl;
+					<< " server version " << version << LL_ENDL;
 		}
 	}
 

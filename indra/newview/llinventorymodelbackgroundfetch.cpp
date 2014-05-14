@@ -172,7 +172,7 @@ void LLInventoryModelBackgroundFetch::setAllFoldersFetched()
 		mRecursiveLibraryFetchStarted)
 	{
 		mAllFoldersFetched = TRUE;
-		//llinfos << "All folders fetched, validating" << llendl;
+		//LL_INFOS() << "All folders fetched, validating" << LL_ENDL;
 		//gInventory.validate();
 	}
 	mFolderFetchActive = false;
@@ -544,7 +544,7 @@ void LLInventoryModelFetchDescendentsResponder::httpSuccess()
 // If we get back an error (not found, etc...), handle it here.
 void LLInventoryModelFetchDescendentsResponder::httpFailure()
 {
-	llwarns << dumpResponse() << llendl;
+	LL_WARNS() << dumpResponse() << LL_ENDL;
 	LLInventoryModelBackgroundFetch *fetcher = LLInventoryModelBackgroundFetch::getInstance();
 
 	LL_INFOS() << dumpResponse() << LL_ENDL;

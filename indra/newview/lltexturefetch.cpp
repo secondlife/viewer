@@ -1306,11 +1306,11 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		{
 			if (wait_seconds <= 0.0)
 			{
-				llinfos << mID << " retrying now" << llendl;
+				LL_INFOS() << mID << " retrying now" << LL_ENDL;
 			}
 			else
 			{
-				//llinfos << mID << " waiting to retry for " << wait_seconds << " seconds" << llendl;
+				//LL_INFOS() << mID << " waiting to retry for " << wait_seconds << " seconds" << LL_ENDL;
 				return false;
 			}
 		}
@@ -1333,7 +1333,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				{
 					if (mFTType != FTT_DEFAULT)
 					{
-						llwarns << "trying to seek a non-default texture on the sim. Bad!" << llendl;
+						LL_WARNS() << "trying to seek a non-default texture on the sim. Bad!" << LL_ENDL;
 					}
 					setUrl(http_url + "/?texture_id=" + mID.asString().c_str());
 					mWriteToCacheState = CAN_WRITE ; //because this texture has a fixed texture id.
@@ -1570,7 +1570,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				{
 					if (mFTType != FTT_MAP_TILE)
 					{
-						llwarns << "Texture missing from server (404): " << mUrl << llendl;
+						LL_WARNS() << "Texture missing from server (404): " << mUrl << LL_ENDL;
 					}
 
 					if(mWriteToCacheState == NOT_WRITE) //map tiles or server bakes
@@ -1579,7 +1579,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 						releaseHttpSemaphore();
 						if (mFTType != FTT_MAP_TILE)
 						{
-							LL_WARNS("Texture") << mID << " abort: WAIT_HTTP_REQ not found" << llendl;
+							LL_WARNS("Texture") << mID << " abort: WAIT_HTTP_REQ not found" << LL_ENDL;
 						}
 						return true; 
 					}
@@ -1598,10 +1598,10 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				else if (http_service_unavail == mGetStatus)
 				{
 					LL_INFOS_ONCE("Texture") << "Texture server busy (503): " << mUrl << LL_ENDL;
-					llinfos << "503: HTTP GET failed for: " << mUrl
+					LL_INFOS() << "503: HTTP GET failed for: " << mUrl
 							<< " Status: " << mGetStatus.toHex()
 							<< " Reason: '" << mGetReason << "'"
-							<< llendl;
+							<< LL_ENDL;
 				}
 				else if (http_not_sat == mGetStatus)
 				{
@@ -1957,8 +1957,8 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 	F32 rate = fake_failure_rate;
 	if (mFTType == FTT_SERVER_BAKE && (fake_failure_rate > 0.0) && (rand_val < fake_failure_rate))
 	{
-		llwarns << mID << " for debugging, setting fake failure status for texture " << mID
-				<< " (rand was " << rand_val << "/" << rate << ")" << llendl;
+		LL_WARNS() << mID << " for debugging, setting fake failure status for texture " << mID
+				<< " (rand was " << rand_val << "/" << rate << ")" << LL_ENDL;
 		response->setStatus(LLCore::HttpStatus(503));
 	}
 	bool success = true;
@@ -1966,13 +1966,13 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 	LLCore::HttpStatus status(response->getStatus());
 	if (!status && (mFTType == FTT_SERVER_BAKE))
 	{
-		llinfos << mID << " state " << e_state_name[mState] << llendl;
+		LL_INFOS() << mID << " state " << e_state_name[mState] << LL_ENDL;
 		mFetchRetryPolicy.onFailure(response);
 		F32 retry_after;
 		if (mFetchRetryPolicy.shouldRetry(retry_after))
 		{
-			llinfos << mID << " will retry after " << retry_after << " seconds, resetting state to LOAD_FROM_NETWORK" << llendl;
-			mFetcher->removeFromHTTPQueue(mID, 0);
+			LL_INFOS() << mID << " will retry after " << retry_after << " seconds, resetting state to LOAD_FROM_NETWORK" << LL_ENDL;
+			mFetcher->removeFromHTTPQueue(mID, S32Bytes(0));
 			std::string reason(status.toString());
 			setGetStatus(status, reason);
 			releaseHttpSemaphore();
@@ -1981,7 +1981,7 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 		}
 		else
 		{
-			llinfos << mID << " will not retry" << llendl;
+			LL_INFOS() << mID << " will not retry" << LL_ENDL;
 		}
 	}
 	else
@@ -2011,8 +2011,8 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 		{
 			std::string reason(status.toString());
 			setGetStatus(status, reason);
-			llwarns << "CURL GET FAILED, status: " << status.toTerseString()
-					<< " reason: " << reason << llendl;
+			LL_WARNS() << "CURL GET FAILED, status: " << status.toTerseString()
+					<< " reason: " << reason << LL_ENDL;
 		}
 	}
 	else
@@ -2576,7 +2576,7 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 
 	if (f_type == FTT_SERVER_BAKE)
 	{
-		LL_DEBUGS("Avatar") << " requesting " << id << " " << w << "x" << h << " discard " << desired_discard << " type " << f_type << llendl;
+		LL_DEBUGS("Avatar") << " requesting " << id << " " << w << "x" << h << " discard " << desired_discard << " type " << f_type << LL_ENDL;
 	}
 	LLTextureFetchWorker* worker = getWorker(id) ;
 	if (worker)
@@ -2600,7 +2600,7 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 		llassert(!url.empty() && (!exten.empty() && LLImageBase::getCodecFromExtension(exten) != IMG_CODEC_J2C));
 
 		// Do full requests for baked textures to reduce interim blurring.
-		LL_DEBUGS("Texture") << "full request for " << id << " texture is FTT_SERVER_BAKE" << llendl;
+		LL_DEBUGS("Texture") << "full request for " << id << " texture is FTT_SERVER_BAKE" << LL_ENDL;
 		desired_size = MAX_IMAGE_DATA_SIZE;
 		desired_discard = 0;
 	}
@@ -3354,7 +3354,7 @@ void LLTextureFetchWorker::setState(e_state new_state)
 	// blurry images fairly frequently. Presumably this is an
 	// indication of some subtle timing or locking issue.
 
-//		LL_INFOS("Texture") << "id: " << mID << " FTType: " << mFTType << " disc: " << mDesiredDiscard << " sz: " << mDesiredSize << " state: " << e_state_name[mState] << " => " << e_state_name[new_state] << llendl;
+//		LL_INFOS("Texture") << "id: " << mID << " FTType: " << mFTType << " disc: " << mDesiredDiscard << " sz: " << mDesiredSize << " state: " << e_state_name[mState] << " => " << e_state_name[new_state] << LL_ENDL;
 	}
 	mState = new_state;
 }

@@ -651,7 +651,7 @@ public:
 			{
 				mContent["body"] = body;
 			}
-			llwarns << dumpResponse() << llendl;
+			LL_WARNS() << dumpResponse() << LL_ENDL;
 		}
 	}
 	

@@ -74,7 +74,7 @@ protected:
 	virtual void httpFailure()
 	{
 		// Parent class will spam the failure.
-		//llwarns << dumpResponse() << llendl;
+		//LL_WARNS() << dumpResponse() << LL_ENDL;
 		LLUpdateTaskInventoryResponder::httpFailure();
 		LLAssetUploadQueue *queue = mSupplier->get();
 		if (queue)

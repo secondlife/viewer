@@ -232,13 +232,13 @@ bool LLVOAvatarSelf::checkStuckAppearance()
 	
 	if (gAgentWearables.isCOFChangeInProgress())
 	{
-		LL_DEBUGS("Avatar") << "checking for stuck appearance" << llendl;
+		LL_DEBUGS("Avatar") << "checking for stuck appearance" << LL_ENDL;
 		F32 change_time = gAgentWearables.getCOFChangeTime();
-		LL_DEBUGS("Avatar") << "change in progress for " << change_time << " seconds" << llendl;
+		LL_DEBUGS("Avatar") << "change in progress for " << change_time << " seconds" << LL_ENDL;
 		S32 active_hp = LLAppearanceMgr::instance().countActiveHoldingPatterns();
-		LL_DEBUGS("Avatar") << "active holding patterns " << active_hp << " seconds" << llendl;
+		LL_DEBUGS("Avatar") << "active holding patterns " << active_hp << " seconds" << LL_ENDL;
 		S32 active_copies = LLAppearanceMgr::instance().getActiveCopyOperations();
-		LL_DEBUGS("Avatar") << "active copy operations " << active_copies << llendl;
+		LL_DEBUGS("Avatar") << "active copy operations " << active_copies << LL_ENDL;
 
 		if ((change_time > CONDITIONAL_UNSTICK_INTERVAL && active_copies == 0) ||
 			(change_time > UNCONDITIONAL_UNSTICK_INTERVAL))
@@ -2526,7 +2526,6 @@ void LLVOAvatarSelf::forceBakeAllTextures(bool slam_for_debug)
 			}
 
 			invalidateComposite(layer_set);
-			LLViewerStats::getInstance()->incStat(LLViewerStats::ST_TEX_REBAKES);
 		}
 		else
 		{

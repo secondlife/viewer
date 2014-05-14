@@ -297,7 +297,7 @@ void LLAssetUploadResponder::uploadUpload(const LLSD& content)
 
 void LLAssetUploadResponder::uploadFailure(const LLSD& content)
 {
-	llwarns << dumpResponse() << llendl;
+	LL_WARNS() << dumpResponse() << LL_ENDL;
 	// remove the "Uploading..." message
 	LLUploadDialog::modalUploadFinished();
 	LLFloater* floater_snapshot = LLFloaterReg::findInstance("snapshot");

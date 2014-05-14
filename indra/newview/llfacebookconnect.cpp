@@ -303,8 +303,8 @@ public:
 		if ( HTTP_FOUND == getStatus() )
 		{
 			LL_INFOS() << "Facebook: Info received" << LL_ENDL;
-			LL_DEBUGS("FacebookConnect") << "Getting Facebook info successful. info: " << info << LL_ENDL;
-			LLFacebookConnect::instance().storeInfo(info);
+			LL_DEBUGS("FacebookConnect") << "Getting Facebook info successful. info: " << getContent() << LL_ENDL;
+			LLFacebookConnect::instance().storeInfo(getContent());
 		}
 		else
 		{

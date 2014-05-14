@@ -104,9 +104,5 @@ void LLHomeLocationResponder::httpSuccess()
 
 void LLHomeLocationResponder::httpFailure()
 {
-<<<<<<< local
-  llwarns << dumpResponse() << llendl;
-=======
-	LL_WARNS() << "LLHomeLocationResponder error [status:" << status << "]: " << content << LL_ENDL;
->>>>>>> other
+  LL_WARNS() << dumpResponse() << LL_ENDL;
 }

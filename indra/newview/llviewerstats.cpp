@@ -639,7 +639,7 @@ void LLViewerStats::PhaseMap::startPhase(const std::string& phase_name)
 {
 	LLTimer& timer = getPhaseTimer(phase_name);
 	timer.start();
-	//LL_DEBUGS("Avatar") << "startPhase " << phase_name << llendl;
+	//LL_DEBUGS("Avatar") << "startPhase " << phase_name << LL_ENDL;
 }
 
 void LLViewerStats::PhaseMap::clearPhases()
@@ -711,11 +711,11 @@ bool LLViewerStats::PhaseMap::getPhaseValues(const std::string& phase_name, F32&
 		found = true;
 		elapsed =  iter->second.getElapsedTimeF32();
 		completed = !iter->second.getStarted();
-		//LL_DEBUGS("Avatar") << " phase_name " << phase_name << " elapsed " << elapsed << " completed " << completed << " timer addr " << (S32)(&iter->second) << llendl;
+		//LL_DEBUGS("Avatar") << " phase_name " << phase_name << " elapsed " << elapsed << " completed " << completed << " timer addr " << (S32)(&iter->second) << LL_ENDL;
 	}
 	else
 	{
-		//LL_DEBUGS("Avatar") << " phase_name " << phase_name << " NOT FOUND"  << llendl;
+		//LL_DEBUGS("Avatar") << " phase_name " << phase_name << " NOT FOUND"  << LL_ENDL;
 	}
 
 	return found;

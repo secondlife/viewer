@@ -182,14 +182,14 @@ private:
 	{
 		if (!isGoodStatus())
 		{
-			llwarns << dumpResponse()
-					<< " [headers:" << getResponseHeaders() << "]" << llendl;
+			LL_WARNS() << dumpResponse()
+					<< " [headers:" << getResponseHeaders() << "]" << LL_ENDL;
 		}
 		const std::string& media_type = getResponseHeader(HTTP_IN_HEADER_CONTENT_TYPE);
 		std::string::size_type idx1 = media_type.find_first_of(";");
 		std::string mime_type = media_type.substr(0, idx1);
 
-		LL_DEBUGS << "status is " << getStatus() << ", media type \"" << media_type << "\"" << LL_ENDL;
+		LL_DEBUGS() << "status is " << getStatus() << ", media type \"" << media_type << "\"" << LL_ENDL;
 		
 		// 2xx status codes indicate success.
 		// Most 4xx status codes are successful enough for our purposes.
@@ -218,7 +218,7 @@ private:
 		}
 		//else
 		//{
-		//	llwarns << "responder failed with status " << dumpResponse() << llendl;
+		//	LL_WARNS() << "responder failed with status " << dumpResponse() << LL_ENDL;
 		//
 		//	if(mMediaImpl)
 		//	{

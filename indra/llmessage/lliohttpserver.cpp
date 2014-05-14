@@ -352,7 +352,7 @@ void LLHTTPPipe::Response::extendedResult(S32 code, const LLSD& r, const LLSD& h
 {
 	if(! mPipe)
 	{
-		llwarns << "LLHTTPPipe::Response::extendedResult: NULL pipe" << llendl;
+		LL_WARNS() << "LLHTTPPipe::Response::extendedResult: NULL pipe" << LL_ENDL;
 		return;
 	}
 

@@ -2077,8 +2077,8 @@ bool idle_startup()
 			// the gender chooser. This should occur only in very
 			// unusual circumstances, so set the timeout fairly high
 			// to minimize mistaken hits here.
-			llwarns << "Wait for valid avatar state exceeded " 
-					<< timeout.getElapsedTimeF32() << " will invoke gender chooser" << llendl; 
+			LL_WARNS() << "Wait for valid avatar state exceeded " 
+					<< timeout.getElapsedTimeF32() << " will invoke gender chooser" << LL_ENDL; 
 			LLStartUp::setStartupState( STATE_WEARABLES_WAIT );
 		}
 		else
@@ -2131,7 +2131,7 @@ bool idle_startup()
 			if (isAgentAvatarValid()
 				&& gAgentAvatarp->isFullyLoaded())
 			{
-				LL_DEBUGS("Avatar") << "avatar fully loaded" << llendl;
+				LL_DEBUGS("Avatar") << "avatar fully loaded" << LL_ENDL;
 				LLStartUp::setStartupState( STATE_CLEANUP );
 				return TRUE;
 			}
@@ -2142,7 +2142,7 @@ bool idle_startup()
 			if ( gAgentWearables.areWearablesLoaded() )
 			{
 				// We have our clothing, proceed.
-				LL_DEBUGS("Avatar") << "wearables loaded" << llendl;
+				LL_DEBUGS("Avatar") << "wearables loaded" << LL_ENDL;
 				LLStartUp::setStartupState( STATE_CLEANUP );
 				return TRUE;
 			}

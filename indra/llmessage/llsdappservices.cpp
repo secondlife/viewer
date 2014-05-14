@@ -120,7 +120,7 @@ public:
 	virtual bool validate(const std::string& name, LLSD& context) const
 	{
 		//LL_INFOS() << "validate: " << name << ", "
-		//	<< LLSDOStreamer<LLSDNotationFormatter>(context) << llendl;
+		//	<< LLSDOStreamer<LLSDNotationFormatter>(context) << LL_ENDL;
 		if((std::string("PUT") == context[CONTEXT_REQUEST][CONTEXT_VERB].asString()) && !name.empty())
 		{
 			return true;

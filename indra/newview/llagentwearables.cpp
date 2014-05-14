@@ -770,7 +770,7 @@ void LLAgentWearables::createStandardWearables()
 // remove this function once the SH-3455 changesets are universally deployed.
 void LLAgentWearables::sendDummyAgentWearablesUpdate()
 {
-	LL_DEBUGS("Avatar") << "sendAgentWearablesUpdate()" << llendl;
+	LL_DEBUGS("Avatar") << "sendAgentWearablesUpdate()" << LL_ENDL;
 
 	// Send the AgentIsNowWearing 
 	gMessageSystem->newMessageFast(_PREHASH_AgentIsNowWearing);
@@ -936,13 +936,12 @@ void LLAgentWearables::removeWearableFinal(const LLWearableType::EType type, boo
 
 // Assumes existing wearables are not dirty.
 void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& items,
-										 const std::vector< LLViewerWearable* >& wearables,
-										 BOOL remove)
+										 const std::vector< LLViewerWearable* >& wearables)
 {
 	LL_INFOS() << "setWearableOutfit() start" << LL_ENDL;
 
-	S32 count = wearables.count();
-	llassert(items.count() == count);
+	S32 count = wearables.size();
+	llassert(items.size() == count);
 
 	// Check for whether outfit already matches the one requested
 	S32 matched = 0, mismatched = 0;
@@ -957,7 +956,7 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 		const LLWearableType::EType type = new_wearable->getType();
 		if (type < 0 || type>=LLWearableType::WT_COUNT)
 		{
-			llwarns << "invalid type " << type << llendl;
+			LL_WARNS() << "invalid type " << type << LL_ENDL;
 			mismatched++;
 			continue;
 		}
@@ -970,7 +969,7 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 		{
 			LL_DEBUGS("Avatar") << "mismatch, type " << type << " index " << index
 								<< " names " << (curr_wearable ? curr_wearable->getName() : "NONE")  << ","
-								<< " names " << (new_wearable ? new_wearable->getName() : "NONE")  << llendl;
+								<< " names " << (new_wearable ? new_wearable->getName() : "NONE")  << LL_ENDL;
 			mismatched++;
 			continue;
 		}
@@ -981,26 +980,26 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 			LL_DEBUGS("Avatar") << "mismatch on name or inventory id, names "
 								<< curr_wearable->getName() << " vs " << new_item->getName()
 								<< " item ids " << curr_wearable->getItemID() << " vs " << new_item->getUUID()
-								<< llendl;
+								<< LL_ENDL;
 			mismatched++;
 			continue;
 		}
 		// If we got here, everything matches.
 		matched++;
 	}
-	LL_DEBUGS("Avatar") << "matched " << matched << " mismatched " << mismatched << llendl;
+	LL_DEBUGS("Avatar") << "matched " << matched << " mismatched " << mismatched << LL_ENDL;
 	for (S32 j=0; j<LLWearableType::WT_COUNT; j++)
 	{
 		LLWearableType::EType type = (LLWearableType::EType) j;
 		if (getWearableCount(type) != type_counts[j])
 		{
-			LL_DEBUGS("Avatar") << "count mismatch for type " << j << " current " << getWearableCount(j) << " requested " << type_counts[j] << llendl; 
+			LL_DEBUGS("Avatar") << "count mismatch for type " << j << " current " << getWearableCount(j) << " requested " << type_counts[j] << LL_ENDL; 
 			mismatched++;
 		}
 	}
 	if (mismatched == 0)
 	{
-		LL_DEBUGS("Avatar") << "no changes, bailing out" << llendl;
+		LL_DEBUGS("Avatar") << "no changes, bailing out" << LL_ENDL;
 		return;
 	}
 	

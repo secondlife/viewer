@@ -1996,10 +1996,10 @@ LLViewerFetchedTexture *LLVOAvatar::getBakedTextureImage(const U8 te, const LLUU
 
 		if (url.empty())
 		{
-			llwarns << "unable to determine URL for te " << te << " uuid " << uuid << llendl;
+			LL_WARNS() << "unable to determine URL for te " << te << " uuid " << uuid << LL_ENDL;
 			return NULL;
 		}
-		LL_DEBUGS("Avatar") << avString() << "get server-bake image from URL " << url << llendl;
+		LL_DEBUGS("Avatar") << avString() << "get server-bake image from URL " << url << LL_ENDL;
 		result = LLViewerTextureManager::getFetchedTextureFromUrl(
 			url, FTT_SERVER_BAKE, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, uuid);
 		if (result->isMissingAsset())
@@ -4665,7 +4665,7 @@ const std::string LLVOAvatar::getImageURL(const U8 te, const LLUUID &uuid)
 	if (appearance_service_url.empty())
 	{
 		// Probably a server-side issue if we get here:
-		llwarns << "AgentAppearanceServiceURL not set - Baked texture requests will fail" << llendl;
+		LL_WARNS() << "AgentAppearanceServiceURL not set - Baked texture requests will fail" << LL_ENDL;
 		return url;
 	}
 	
@@ -4673,7 +4673,7 @@ const std::string LLVOAvatar::getImageURL(const U8 te, const LLUUID &uuid)
 	if (texture_entry != NULL)
 	{
 		url = appearance_service_url + "texture/" + getID().asString() + "/" + texture_entry->mDefaultImageName + "/" + uuid.asString();
-		//llinfos << "baked texture url: " << url << llendl;
+		//LL_INFOS() << "baked texture url: " << url << LL_ENDL;
 	}
 	return url;
 }
@@ -6055,7 +6055,7 @@ void LLVOAvatar::onGlobalColorChanged(const LLTexGlobalColor* global_color)
 	} 
 	else if (global_color == mTexEyeColor)
 	{
-//		llinfos << "invalidateComposite cause: onGlobalColorChanged( eyecolor )" << llendl; 
+//		LL_INFOS() << "invalidateComposite cause: onGlobalColorChanged( eyecolor )" << LL_ENDL; 
 		invalidateComposite( mBakedTextureDatas[BAKED_EYES].mTexLayerSet);
 	}
 	updateMeshTextures();
@@ -6151,7 +6151,7 @@ void LLVOAvatar::startPhase(const std::string& phase_name)
 	bool completed = false;
 	bool found = getPhases().getPhaseValues(phase_name, elapsed, completed);
 	//LL_DEBUGS("Avatar") << avString() << " phase state " << phase_name
-	//					<< " found " << found << " elapsed " << elapsed << " completed " << completed << llendl;
+	//					<< " found " << found << " elapsed " << elapsed << " completed " << completed << LL_ENDL;
 	if (found)
 	{
 		if (!completed)
@@ -7146,7 +7146,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	llassert(appearance_version > 0);
 	if (appearance_version > 1)
 	{
-		llwarns << "unsupported appearance version " << appearance_version << ", discarding appearance message" << llendl;
+		LL_WARNS() << "unsupported appearance version " << appearance_version << ", discarding appearance message" << LL_ENDL;
 		return;
 	}
 
@@ -7157,7 +7157,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	{
 		LL_DEBUGS("Avatar") << "this_update_cof_version " << this_update_cof_version
 				<< " last_update_request_cof_version " << last_update_request_cof_version
-				<<  " my_cof_version " << LLAppearanceMgr::instance().getCOFVersion() << llendl;
+				<<  " my_cof_version " << LLAppearanceMgr::instance().getCOFVersion() << LL_ENDL;
 	}
 	else
 	{
@@ -7208,14 +7208,14 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 			&& mBakedTextureDatas[baked_index].mLastTextureID != IMG_DEFAULT
 			&& baked_index != BAKED_SKIRT)
 		{
-			LL_DEBUGS("Avatar") << avString() << " baked_index " << (S32) baked_index << " using mLastTextureID " << mBakedTextureDatas[baked_index].mLastTextureID << llendl;
+			LL_DEBUGS("Avatar") << avString() << " baked_index " << (S32) baked_index << " using mLastTextureID " << mBakedTextureDatas[baked_index].mLastTextureID << LL_ENDL;
 			setTEImage(mBakedTextureDatas[baked_index].mTextureIndex, 
 				LLViewerTextureManager::getFetchedTexture(mBakedTextureDatas[baked_index].mLastTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
 		}
 		else
 		{
 			LL_DEBUGS("Avatar") << avString() << " baked_index " << (S32) baked_index << " using texture id "
-								<< getTE(mBakedTextureDatas[baked_index].mTextureIndex)->getID() << llendl;
+								<< getTE(mBakedTextureDatas[baked_index].mTextureIndex)->getID() << LL_ENDL;
 		}
 	}
 
@@ -7256,7 +7256,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 
 				if(is_first_appearance_message)
 				{
-					//LL_DEBUGS("Avatar") << "param slam " << i << " " << newWeight << llendl;
+					//LL_DEBUGS("Avatar") << "param slam " << i << " " << newWeight << LL_ENDL;
 					param->setWeight(newWeight);
 				}
 				else
@@ -7273,7 +7273,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 			LL_DEBUGS("Avatar") << "Number of params in AvatarAppearance msg (" << num_params << ") does not match number of tweakable params in avatar xml file (" << expected_tweakable_count << ").  Processing what we can.  object: " << getID() << LL_ENDL;
 		}
 
-		LL_DEBUGS("Avatar") << "Changed " << params_changed_count << " params" << llendl;
+		LL_DEBUGS("Avatar") << "Changed " << params_changed_count << " params" << LL_ENDL;
 		if (params_changed)
 		{
 			if (interp_params)

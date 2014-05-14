@@ -82,9 +82,9 @@ public:
 		// Only emit a warning if we failed to parse when 'content-type' == 'application/json'
 		if (!parsed && (HTTP_CONTENT_JSON == getResponseHeader(HTTP_IN_HEADER_CONTENT_TYPE)))
 		{
-			llwarns << "Failed to deserialize LLSD from JSON response. " << getURL()
+			LL_WARNS() << "Failed to deserialize LLSD from JSON response. " << getURL()
 				<< " [status:" << mStatus << "] " 
-				<< "(" << mReason << ") body: " << debug_body << llendl;
+				<< "(" << mReason << ") body: " << debug_body << LL_ENDL;
 		}
 
 		if (!parsed)

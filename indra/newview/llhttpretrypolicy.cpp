@@ -94,7 +94,7 @@ void LLAdaptiveRetryPolicy::onFailureCommon(S32 status, bool has_retry_header_ti
 {
 	if (!mShouldRetry)
 	{
-		llinfos << "keep on failing" << llendl;
+		LL_INFOS() << "keep on failing" << LL_ENDL;
 		return;
 	}
 	if (mRetryCount > 0)
@@ -111,17 +111,17 @@ void LLAdaptiveRetryPolicy::onFailureCommon(S32 status, bool has_retry_header_ti
 
 	if (mRetryCount>=mMaxRetries)
 	{
-		llinfos << "Too many retries " << mRetryCount << ", will not retry" << llendl;
+		LL_INFOS() << "Too many retries " << mRetryCount << ", will not retry" << LL_ENDL;
 		mShouldRetry = false;
 	}
 	if (!mRetryOn4xx && !isHttpServerErrorStatus(status))
 	{
-		llinfos << "Non-server error " << status << ", will not retry" << llendl;
+		LL_INFOS() << "Non-server error " << status << ", will not retry" << LL_ENDL;
 		mShouldRetry = false;
 	}
 	if (mShouldRetry)
 	{
-		llinfos << "Retry count " << mRetryCount << " should retry after " << wait_time << llendl;
+		LL_INFOS() << "Retry count " << mRetryCount << " should retry after " << wait_time << LL_ENDL;
 		mRetryTimer.reset();
 		mRetryTimer.setTimerExpirySec(wait_time);
 	}

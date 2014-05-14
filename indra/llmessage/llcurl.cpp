@@ -261,8 +261,8 @@ void LLCurl::Responder::completedRaw(
 	// Only emit a warning if we failed to parse when 'content-type' == 'application/llsd+xml'
 	if (!parsed && (HTTP_CONTENT_LLSD_XML == getResponseHeader(HTTP_IN_HEADER_CONTENT_TYPE)))
 	{
-		llwarns << "Failed to deserialize . " << mURL << " [status:" << mStatus << "] " 
-			<< "(" << mReason << ") body: " << debug_body << llendl;
+		LL_WARNS() << "Failed to deserialize . " << mURL << " [status:" << mStatus << "] " 
+			<< "(" << mReason << ") body: " << debug_body << LL_ENDL;
 	}
 
 	httpCompleted();
@@ -543,7 +543,7 @@ void LLCurl::Easy::slist_append(const char* str)
 		mHeaders = curl_slist_append(mHeaders, str);
 		if (!mHeaders)
 		{
-			llwarns << "curl_slist_append() call returned NULL appending " << str << llendl;
+			LL_WARNS() << "curl_slist_append() call returned NULL appending " << str << LL_ENDL;
 		}
 	}
 }
@@ -934,7 +934,7 @@ S32 LLCurl::Multi::process()
 			else
 			{
 				response = HTTP_INTERNAL_ERROR;
-				//*TODO: change to llwarns
+				//*TODO: change to LL_WARNS()
 				LL_ERRS() << "cleaned up curl request completed!" << LL_ENDL;
 			}
 			if (response >= 400)

@@ -31,7 +31,6 @@
 #include "apr_dso.h"
 #include "llhttpconstants.h"
 #include "llapr.h"
-#include "llhttpstatuscodes.h"
 #include "llmeshrepository.h"
 
 #include "llagent.h"

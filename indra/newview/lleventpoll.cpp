@@ -260,7 +260,7 @@ namespace
 			LL_WARNS() << "LLEventPollResponder: id undefined" << LL_ENDL;
 		}
 		
-		// was llinfos but now that CoarseRegionUpdate is TCP @ 1/second, it'd be too verbose for viewer logs. -MG
+		// was LL_INFOS() but now that CoarseRegionUpdate is TCP @ 1/second, it'd be too verbose for viewer logs. -MG
 		LL_DEBUGS()  << "LLEventPollResponder::httpSuccess <" <<	mCount << "> " << events.size() << "events (id "
 					 <<	LLSDXMLStreamer(mAcknowledge) << ")" << LL_ENDL;
 		

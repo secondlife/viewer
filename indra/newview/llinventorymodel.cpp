@@ -253,7 +253,7 @@ bool LLInventoryModel::getObjectTopmostAncestor(const LLUUID& object_id, LLUUID&
 		LLInventoryObject *parent_object = getObject(object->getParentUUID());
 		if (!parent_object)
 		{
-			llwarns << "unable to trace topmost ancestor, missing item for uuid " << object->getParentUUID() << llendl;
+			LL_WARNS() << "unable to trace topmost ancestor, missing item for uuid " << object->getParentUUID() << LL_ENDL;
 			return false;
 		}
 		object = parent_object;
@@ -522,7 +522,7 @@ protected:
 		}
 		LLUUID category_id = content["folder_id"].asUUID();
 		
-		LL_DEBUGS("Avatar") << ll_pretty_print_sd(content) << llendl;
+		LL_DEBUGS("Avatar") << ll_pretty_print_sd(content) << LL_ENDL;
 		// Add the category to the internal representation
 		LLPointer<LLViewerInventoryCategory> cat =
 		new LLViewerInventoryCategory( category_id, 
@@ -599,7 +599,7 @@ LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 		request["message"] = "CreateInventoryCategory";
 		request["payload"] = body;
 
-		LL_DEBUGS("Avatar") << "create category request: " << ll_pretty_print_sd(request) << llendl;
+		LL_DEBUGS("Avatar") << "create category request: " << ll_pretty_print_sd(request) << LL_ENDL;
 		//		viewer_region->getCapAPI().post(request);
 		LLHTTPClient::post(
 			url,
@@ -791,7 +791,7 @@ LLInventoryModel::item_array_t LLInventoryModel::collectLinksTo(const LLUUID& id
 		LLViewerInventoryItem *item = getItem(it->second);
 		if (item)
 		{
-			items.put(item);
+			items.push_back(item);
 		}
 	}
 
@@ -1171,7 +1171,7 @@ void LLInventoryModel::onAISUpdateReceived(const std::string& context, const LLS
 
 	AISUpdate ais_update(update); // parse update llsd into stuff to do.
 	ais_update.doUpdate(); // execute the updates in the appropriate order.
-	llinfos << "elapsed: " << timer.getElapsedTimeF32() << llendl;
+	LL_INFOS() << "elapsed: " << timer.getElapsedTimeF32() << LL_ENDL;
 }
 
 // Does not appear to be used currently.
@@ -1180,7 +1180,7 @@ void LLInventoryModel::onItemUpdated(const LLUUID& item_id, const LLSD& updates,
 	U32 mask = LLInventoryObserver::NONE;
 
 	LLPointer<LLViewerInventoryItem> item = gInventory.getItem(item_id);
-	LL_DEBUGS("Inventory") << "item_id: [" << item_id << "] name " << (item ? item->getName() : "(NOT FOUND)") << llendl;
+	LL_DEBUGS("Inventory") << "item_id: [" << item_id << "] name " << (item ? item->getName() : "(NOT FOUND)") << LL_ENDL;
 	if(item)
 	{
 		for (LLSD::map_const_iterator it = updates.beginMap();
@@ -1188,19 +1188,19 @@ void LLInventoryModel::onItemUpdated(const LLUUID& item_id, const LLSD& updates,
 		{
 			if (it->first == "name")
 			{
-				llinfos << "Updating name from " << item->getName() << " to " << it->second.asString() << llendl;
+				LL_INFOS() << "Updating name from " << item->getName() << " to " << it->second.asString() << LL_ENDL;
 				item->rename(it->second.asString());
 				mask |= LLInventoryObserver::LABEL;
 			}
 			else if (it->first == "desc")
 			{
-				llinfos << "Updating description from " << item->getActualDescription()
-						<< " to " << it->second.asString() << llendl;
+				LL_INFOS() << "Updating description from " << item->getActualDescription()
+						<< " to " << it->second.asString() << LL_ENDL;
 				item->setDescription(it->second.asString());
 			}
 			else
 			{
-				llerrs << "unhandled updates for field: " << it->first << llendl;
+				LL_ERRS() << "unhandled updates for field: " << it->first << LL_ENDL;
 			}
 		}
 		mask |= LLInventoryObserver::INTERNAL;
@@ -1221,7 +1221,7 @@ void LLInventoryModel::onCategoryUpdated(const LLUUID& cat_id, const LLSD& updat
 	U32 mask = LLInventoryObserver::NONE;
 
 	LLPointer<LLViewerInventoryCategory> cat = gInventory.getCategory(cat_id);
-	LL_DEBUGS("Inventory") << "cat_id: [" << cat_id << "] name " << (cat ? cat->getName() : "(NOT FOUND)") << llendl;
+	LL_DEBUGS("Inventory") << "cat_id: [" << cat_id << "] name " << (cat ? cat->getName() : "(NOT FOUND)") << LL_ENDL;
 	if(cat)
 	{
 		for (LLSD::map_const_iterator it = updates.beginMap();
@@ -1229,13 +1229,13 @@ void LLInventoryModel::onCategoryUpdated(const LLUUID& cat_id, const LLSD& updat
 		{
 			if (it->first == "name")
 			{
-				llinfos << "Updating name from " << cat->getName() << " to " << it->second.asString() << llendl;
+				LL_INFOS() << "Updating name from " << cat->getName() << " to " << it->second.asString() << LL_ENDL;
 				cat->rename(it->second.asString());
 				mask |= LLInventoryObserver::LABEL;
 			}
 			else
 			{
-				llerrs << "unhandled updates for field: " << it->first << llendl;
+				LL_ERRS() << "unhandled updates for field: " << it->first << LL_ENDL;
 			}
 		}
 		mask |= LLInventoryObserver::INTERNAL;
@@ -1270,12 +1270,12 @@ void LLInventoryModel::onDescendentsPurgedFromServer(const LLUUID& object_id, bo
 						   categories,
 						   items,
 						   LLInventoryModel::INCLUDE_TRASH);
-		S32 count = items.count();
+		S32 count = items.size();
 
 		LLUUID uu_id;
 		for(S32 i = 0; i < count; ++i)
 		{
-			uu_id = items.get(i)->getUUID();
+			uu_id = items.at(i)->getUUID();
 
 			// This check prevents the deletion of a previously deleted item.
 			// This is necessary because deletion is not done in a hierarchical
@@ -1287,7 +1287,7 @@ void LLInventoryModel::onDescendentsPurgedFromServer(const LLUUID& object_id, bo
 			}
 		}
 
-		count = categories.count();
+		count = categories.size();
 		// Slightly kludgy way to make sure categories are removed
 		// only after their child categories have gone away.
 
@@ -1301,7 +1301,7 @@ void LLInventoryModel::onDescendentsPurgedFromServer(const LLUUID& object_id, bo
 			deleted_count = 0;
 			for(S32 i = 0; i < count; ++i)
 			{
-				uu_id = categories.get(i)->getUUID();
+				uu_id = categories.at(i)->getUUID();
 				if (getCategory(uu_id))
 				{
 					cat_array_t* cat_list = getUnlockedCatArray(uu_id);
@@ -1317,8 +1317,8 @@ void LLInventoryModel::onDescendentsPurgedFromServer(const LLUUID& object_id, bo
 		while (deleted_count > 0);
 		if (total_deleted_count != count)
 		{
-			llwarns << "Unexpected count of categories deleted, got "
-					<< total_deleted_count << " expected " << count << llendl;
+			LL_WARNS() << "Unexpected count of categories deleted, got "
+					<< total_deleted_count << " expected " << count << LL_ENDL;
 		}
 		//gInventory.validate();
 	}
@@ -1386,7 +1386,7 @@ void LLInventoryModel::deleteObject(const LLUUID& id, bool fix_broken_links, boo
 	{
 		if (item_list->size())
 		{
-			llwarns << "Deleting cat " << id << " while it still has child items" << llendl;
+			LL_WARNS() << "Deleting cat " << id << " while it still has child items" << LL_ENDL;
 		}
 		delete item_list;
 		mParentChildItemTree.erase(id);
@@ -1396,7 +1396,7 @@ void LLInventoryModel::deleteObject(const LLUUID& id, bool fix_broken_links, boo
 	{
 		if (cat_list->size())
 		{
-			llwarns << "Deleting cat " << id << " while it still has child cats" << llendl;
+			LL_WARNS() << "Deleting cat " << id << " while it still has child cats" << LL_ENDL;
 		}
 		delete cat_list;
 		mParentChildCategoryTree.erase(id);
@@ -1513,14 +1513,14 @@ void LLInventoryModel::addChangedMask(U32 mask, const LLUUID& referent)
 		LLViewerInventoryItem *item = getItem(referent);
 		if (item)
 		{
-			llwarns << "Item " << item->getName() << llendl;
+			LL_WARNS() << "Item " << item->getName() << LL_ENDL;
 		}
 		else
 		{
 			LLViewerInventoryCategory *cat = getCategory(referent);
 			if (cat)
 			{
-				llwarns << "Category " << cat->getName() << llendl;
+				LL_WARNS() << "Category " << cat->getName() << LL_ENDL;
 			}
 		}
 	}
@@ -2267,7 +2267,7 @@ void LLInventoryModel::buildParentChildMap()
 			LL_INFOS() << "Lost category: " << cat->getUUID() << " - "
 					   << cat->getName() << LL_ENDL;
 			++lost;
-			lost_cats.put(cat);
+			lost_cats.push_back(cat);
 			// notifyObservers() has been moved to
 			// llstartup/idle_startup() after this func completes.
 			// Allows some system categories to be created before
@@ -2277,7 +2277,7 @@ void LLInventoryModel::buildParentChildMap()
 
 	if (!gInventory.validate())
 	{
-	 	llwarns << "model failed validity check!" << llendl;
+	 	LL_WARNS() << "model failed validity check!" << LL_ENDL;
 	}
 }
 
@@ -3419,20 +3419,20 @@ bool LLInventoryModel::validate() const
 
 	if (getRootFolderID().isNull())
 	{
-		llwarns << "no root folder id" << llendl;
+		LL_WARNS() << "no root folder id" << LL_ENDL;
 		valid = false;
 	}
 	if (getLibraryRootFolderID().isNull())
 	{
-		llwarns << "no root folder id" << llendl;
+		LL_WARNS() << "no root folder id" << LL_ENDL;
 		valid = false;
 	}
 
 	if (mCategoryMap.size() + 1 != mParentChildCategoryTree.size())
 	{
 		// ParentChild should be one larger because of the special entry for null uuid.
-		llinfos << "unexpected sizes: cat map size " << mCategoryMap.size()
-				<< " parent/child " << mParentChildCategoryTree.size() << llendl;
+		LL_INFOS() << "unexpected sizes: cat map size " << mCategoryMap.size()
+				<< " parent/child " << mParentChildCategoryTree.size() << LL_ENDL;
 		valid = false;
 	}
 	S32 cat_lock = 0;
@@ -3445,13 +3445,13 @@ bool LLInventoryModel::validate() const
 		const LLViewerInventoryCategory *cat = cit->second;
 		if (!cat)
 		{
-			llwarns << "invalid cat" << llendl;
+			LL_WARNS() << "invalid cat" << LL_ENDL;
 			valid = false;
 			continue;
 		}
 		if (cat_id != cat->getUUID())
 		{
-			llwarns << "cat id/index mismatch " << cat_id << " " << cat->getUUID() << llendl;
+			LL_WARNS() << "cat id/index mismatch " << cat_id << " " << cat->getUUID() << LL_ENDL;
 			valid = false;
 		}
 
@@ -3459,9 +3459,9 @@ bool LLInventoryModel::validate() const
 		{
 			if (cat_id != getRootFolderID() && cat_id != getLibraryRootFolderID())
 			{
-				llwarns << "cat " << cat_id << " has no parent, but is not root ("
+				LL_WARNS() << "cat " << cat_id << " has no parent, but is not root ("
 						<< getRootFolderID() << ") or library root ("
-						<< getLibraryRootFolderID() << ")" << llendl;
+						<< getLibraryRootFolderID() << ")" << LL_ENDL;
 			}
 		}
 		cat_array_t* cats;
@@ -3469,7 +3469,7 @@ bool LLInventoryModel::validate() const
 		getDirectDescendentsOf(cat_id,cats,items);
 		if (!cats || !items)
 		{
-			llwarns << "invalid direct descendents for " << cat_id << llendl;
+			LL_WARNS() << "invalid direct descendents for " << cat_id << LL_ENDL;
 			valid = false;
 			continue;
 		}
@@ -3479,11 +3479,11 @@ bool LLInventoryModel::validate() const
 		}
 		else if (cats->size() + items->size() != cat->getDescendentCount())
 		{
-			llwarns << "invalid desc count for " << cat_id << " name [" << cat->getName()
+			LL_WARNS() << "invalid desc count for " << cat_id << " name [" << cat->getName()
 					<< "] parent " << cat->getParentUUID()
 					<< " cached " << cat->getDescendentCount()
 					<< " expected " << cats->size() << "+" << items->size()
-					<< "=" << cats->size() +items->size() << llendl;
+					<< "=" << cats->size() +items->size() << LL_ENDL;
 			valid = false;
 		}
 		if (cat->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN)
@@ -3500,11 +3500,11 @@ bool LLInventoryModel::validate() const
 		}
 		for (S32 i = 0; i<items->size(); i++)
 		{
-			LLViewerInventoryItem *item = items->get(i);
+			LLViewerInventoryItem *item = items->at(i);
 
 			if (!item)
 			{
-				llwarns << "null item at index " << i << " for cat " << cat_id << llendl;
+				LL_WARNS() << "null item at index " << i << " for cat " << cat_id << LL_ENDL;
 				valid = false;
 				continue;
 			}
@@ -3513,9 +3513,9 @@ bool LLInventoryModel::validate() const
 			
 			if (item->getParentUUID() != cat_id)
 			{
-				llwarns << "wrong parent for " << item_id << " found "
+				LL_WARNS() << "wrong parent for " << item_id << " found "
 						<< item->getParentUUID() << " expected " << cat_id
-						<< llendl;
+						<< LL_ENDL;
 				valid = false;
 			}
 
@@ -3524,8 +3524,8 @@ bool LLInventoryModel::validate() const
 			item_map_t::const_iterator it = mItemMap.find(item_id);
 			if (it == mItemMap.end())
 			{
-				llwarns << "item " << item_id << " found as child of "
-						<< cat_id << " but not in top level mItemMap" << llendl;
+				LL_WARNS() << "item " << item_id << " found as child of "
+						<< cat_id << " but not in top level mItemMap" << LL_ENDL;
 				valid = false;
 			}
 			else
@@ -3533,8 +3533,8 @@ bool LLInventoryModel::validate() const
 				LLViewerInventoryItem *top_item = it->second;
 				if (top_item != item)
 				{
-					llwarns << "item mismatch, item_id " << item_id
-							<< " top level entry is different, uuid " << top_item->getUUID() << llendl;
+					LL_WARNS() << "item mismatch, item_id " << item_id
+							<< " top level entry is different, uuid " << top_item->getUUID() << LL_ENDL;
 				}
 			}
 
@@ -3543,7 +3543,7 @@ bool LLInventoryModel::validate() const
 			bool found = getObjectTopmostAncestor(item_id, topmost_ancestor_id);
 			if (!found)
 			{
-				llwarns << "unable to find topmost ancestor for " << item_id << llendl;
+				LL_WARNS() << "unable to find topmost ancestor for " << item_id << LL_ENDL;
 				valid = false;
 			}
 			else
@@ -3551,10 +3551,10 @@ bool LLInventoryModel::validate() const
 				if (topmost_ancestor_id != getRootFolderID() &&
 					topmost_ancestor_id != getLibraryRootFolderID())
 				{
-					llwarns << "unrecognized top level ancestor for " << item_id
+					LL_WARNS() << "unrecognized top level ancestor for " << item_id
 							<< " got " << topmost_ancestor_id
 							<< " expected " << getRootFolderID()
-							<< " or " << getLibraryRootFolderID() << llendl;
+							<< " or " << getLibraryRootFolderID() << LL_ENDL;
 					valid = false;
 				}
 			}
@@ -3569,8 +3569,8 @@ bool LLInventoryModel::validate() const
 			getDirectDescendentsOf(parent_id,cats,items);
 			if (!cats)
 			{
-				llwarns << "cat " << cat_id << " name [" << cat->getName()
-						<< "] orphaned - no child cat array for alleged parent " << parent_id << llendl;
+				LL_WARNS() << "cat " << cat_id << " name [" << cat->getName()
+						<< "] orphaned - no child cat array for alleged parent " << parent_id << LL_ENDL;
 				valid = false;
 			}
 			else
@@ -3578,7 +3578,7 @@ bool LLInventoryModel::validate() const
 				bool found = false;
 				for (S32 i = 0; i<cats->size(); i++)
 				{
-					LLViewerInventoryCategory *kid_cat = cats->get(i);
+					LLViewerInventoryCategory *kid_cat = cats->at(i);
 					if (kid_cat == cat)
 					{
 						found = true;
@@ -3587,8 +3587,8 @@ bool LLInventoryModel::validate() const
 				}
 				if (!found)
 				{
-					llwarns << "cat " << cat_id << " name [" << cat->getName()
-							<< "] orphaned - not found in child cat array of alleged parent " << parent_id << llendl;
+					LL_WARNS() << "cat " << cat_id << " name [" << cat->getName()
+							<< "] orphaned - not found in child cat array of alleged parent " << parent_id << LL_ENDL;
 				}
 			}
 		}
@@ -3600,14 +3600,14 @@ bool LLInventoryModel::validate() const
 		LLViewerInventoryItem *item = iit->second;
 		if (item->getUUID() != item_id)
 		{
-			llwarns << "item_id " << item_id << " does not match " << item->getUUID() << llendl;
+			LL_WARNS() << "item_id " << item_id << " does not match " << item->getUUID() << LL_ENDL;
 			valid = false;
 		}
 
 		const LLUUID& parent_id = item->getParentUUID();
 		if (parent_id.isNull())
 		{
-			llwarns << "item " << item_id << " name [" << item->getName() << "] has null parent id!" << llendl;
+			LL_WARNS() << "item " << item_id << " name [" << item->getName() << "] has null parent id!" << LL_ENDL;
 		}
 		else
 		{
@@ -3616,15 +3616,15 @@ bool LLInventoryModel::validate() const
 			getDirectDescendentsOf(parent_id,cats,items);
 			if (!items)
 			{
-				llwarns << "item " << item_id << " name [" << item->getName()
-						<< "] orphaned - alleged parent has no child items list " << parent_id << llendl;
+				LL_WARNS() << "item " << item_id << " name [" << item->getName()
+						<< "] orphaned - alleged parent has no child items list " << parent_id << LL_ENDL;
 			}
 			else
 			{
 				bool found = false;
 				for (S32 i=0; i<items->size(); ++i)
 				{
-					if (items->get(i) == item) 
+					if (items->at(i) == item) 
 					{
 						found = true;
 						break;
@@ -3632,8 +3632,8 @@ bool LLInventoryModel::validate() const
 				}
 				if (!found)
 				{
-					llwarns << "item " << item_id << " name [" << item->getName()
-							<< "] orphaned - not found as child of alleged parent " << parent_id << llendl;
+					LL_WARNS() << "item " << item_id << " name [" << item->getName()
+							<< "] orphaned - not found as child of alleged parent " << parent_id << LL_ENDL;
 				}
 			}
 				
@@ -3648,30 +3648,30 @@ bool LLInventoryModel::validate() const
 			// Linked-to UUID should have back reference to this link.
 			if (!hasBacklinkInfo(link_id, target_id))
 			{
-				llwarns << "link " << item->getUUID() << " type " << item->getActualType()
+				LL_WARNS() << "link " << item->getUUID() << " type " << item->getActualType()
 						<< " missing backlink info at target_id " << target_id
-						<< llendl;
+						<< LL_ENDL;
 			}
 			// Links should have referents.
 			if (item->getActualType() == LLAssetType::AT_LINK && !target_item)
 			{
-				llwarns << "broken item link " << item->getName() << " id " << item->getUUID() << llendl;
+				LL_WARNS() << "broken item link " << item->getName() << " id " << item->getUUID() << LL_ENDL;
 			}
 			else if (item->getActualType() == LLAssetType::AT_LINK_FOLDER && !target_cat)
 			{
-				llwarns << "broken folder link " << item->getName() << " id " << item->getUUID() << llendl;
+				LL_WARNS() << "broken folder link " << item->getName() << " id " << item->getUUID() << LL_ENDL;
 			}
 			if (target_item && target_item->getIsLinkType())
 			{
-				llwarns << "link " << item->getName() << " references a link item "
-						<< target_item->getName() << " " << target_item->getUUID() << llendl;
+				LL_WARNS() << "link " << item->getName() << " references a link item "
+						<< target_item->getName() << " " << target_item->getUUID() << LL_ENDL;
 			}
 
 			// Links should not have backlinks.
 			std::pair<backlink_mmap_t::const_iterator, backlink_mmap_t::const_iterator> range = mBacklinkMMap.equal_range(link_id);
 			if (range.first != range.second)
 			{
-				llwarns << "Link item " << item->getName() << " has backlinks!" << llendl;
+				LL_WARNS() << "Link item " << item->getName() << " has backlinks!" << LL_ENDL;
 			}
 		}
 		else
@@ -3685,7 +3685,7 @@ bool LLInventoryModel::validate() const
 				LLViewerInventoryItem *link_item = getItem(link_id);
 				if (!link_item || !link_item->getIsLinkType())
 				{
-					llwarns << "invalid backlink from target " << item->getName() << " to " << link_id << llendl;
+					LL_WARNS() << "invalid backlink from target " << item->getName() << " to " << link_id << LL_ENDL;
 				}
 			}
 		}
@@ -3693,19 +3693,19 @@ bool LLInventoryModel::validate() const
 	
 	if (cat_lock > 0 || item_lock > 0)
 	{
-		llinfos << "Found locks on some categories: sub-cat arrays "
-				<< cat_lock << ", item arrays " << item_lock << llendl;
+		LL_INFOS() << "Found locks on some categories: sub-cat arrays "
+				<< cat_lock << ", item arrays " << item_lock << LL_ENDL;
 	}
 	if (desc_unknown_count != 0)
 	{
-		llinfos << "Found " << desc_unknown_count << " cats with unknown descendent count" << llendl; 
+		LL_INFOS() << "Found " << desc_unknown_count << " cats with unknown descendent count" << LL_ENDL; 
 	}
 	if (version_unknown_count != 0)
 	{
-		llinfos << "Found " << version_unknown_count << " cats with unknown version" << llendl;
+		LL_INFOS() << "Found " << version_unknown_count << " cats with unknown version" << LL_ENDL;
 	}
 
-	llinfos << "Validate done, valid = " << (U32) valid << llendl;
+	LL_INFOS() << "Validate done, valid = " << (U32) valid << LL_ENDL;
 
 	return valid;
 }
