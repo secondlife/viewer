@@ -237,11 +237,11 @@ LLColor4 LLKeywords::getColorGroup(const std::string& key_in)
 	}
 	else if (key_in == "misc-comments_1_sided")
 	{
-		color_group = "SyntaxLslComment1Sided";
+		color_group = "SyntaxLslComment";
 	}
 	else if (key_in == "misc-comments_2_sided")
 	{
-		color_group = "SyntaxLslComment2Sided";	
+		color_group = "SyntaxLslComment";
 	}
 	else
 	{

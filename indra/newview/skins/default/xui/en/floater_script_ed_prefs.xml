@@ -1,0 +1,478 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_resize="true"
+ height="400"
+ layout="topleft"
+ name="floater_script_colors"
+ help_topic="script_colors"
+ save_rect="true"
+ title="Customize script colors"
+ width="300">
+    <text
+     follows="left|top"
+     height="15"
+     layout="topleft"
+     left="12"
+     name="color_pickers_label"
+     top="30"
+     width="200">
+     Choose desired colors:
+    </text>
+
+    <color_swatch
+    can_apply_immediately="true"
+    follows="left|top"
+    height="24"
+    label_height="0"
+    layout="topleft"
+    left="15"
+    name="text"
+    top="45"
+    width="44" >
+        <color_swatch.init_callback
+         function="ScriptPref.getUIColor"
+         parameter="ScriptText" />
+        <color_swatch.commit_callback
+         function="ScriptPref.applyUIColor"
+         parameter="ScriptText" />
+    </color_swatch>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left_pad="5"
+     mouse_opaque="false"
+     name="text_label"
+     top_delta="5"
+     width="100">
+     Text
+	</text>
+    <color_swatch
+     can_apply_immediately="true"
+     follows="left|top"
+     height="24"
+     label_height="0"
+     layout="topleft"
+     left="15"
+     name="cursor"
+     top_pad="10"
+     width="44" >
+        <color_swatch.init_callback
+         function="ScriptPref.getUIColor"
+         parameter="ScriptCursorColor" />
+        <color_swatch.commit_callback
+         function="ScriptPref.applyUIColor"
+         parameter="ScriptCursorColor" />
+    </color_swatch>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left_pad="5"
+     mouse_opaque="false"
+     name="cursor_label"
+     top_delta="5"
+     width="100">
+     Cursor
+    </text>
+    <color_swatch
+     can_apply_immediately="true"
+     follows="left|top"
+     height="24"
+     label_height="0"
+     layout="topleft"
+     left="15"
+     name="background"
+     top_pad="10"
+     width="44" >
+        <color_swatch.init_callback
+         function="ScriptPref.getUIColor"
+         parameter="ScriptBackground" />
+        <color_swatch.commit_callback
+         function="ScriptPref.applyUIColor"
+         parameter="ScriptBackground" />
+    </color_swatch>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left_pad="5"
+     mouse_opaque="false"
+     name="background_label"
+     top_delta="5"
+     width="100">
+    Background
+    </text>
+    <color_swatch
+     can_apply_immediately="true"
+     follows="left|top"
+     height="24"
+     label_height="0"
+     layout="topleft"
+     left="15"
+     name="section"
+     top_pad="10"
+     width="44" >
+        <color_swatch.init_callback
+         function="ScriptPref.getUIColor"
+         parameter="SyntaxLslSection" />
+        <color_swatch.commit_callback
+         function="ScriptPref.applyUIColor"
+         parameter="SyntaxLslSection" />
+    </color_swatch>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left_pad="5"
+     mouse_opaque="false"
+     name="section_label"
+     top_delta="5"
+     width="100">
+    Sections
+    </text>
+    <color_swatch
+     can_apply_immediately="true"
+     follows="left|top"
+     height="24"
+     label_height="0"
+     layout="topleft"
+     left="15"
+     name="datatype"
+     top_pad="10"
+     width="44" >
+        <color_swatch.init_callback
+         function="ScriptPref.getUIColor"
+         parameter="SyntaxLslDataType" />
+        <color_swatch.commit_callback
+         function="ScriptPref.applyUIColor"
+         parameter="SyntaxLslDataType" />
+    </color_swatch>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left_pad="5"
+     mouse_opaque="false"
+     name="datatype_label"
+     top_delta="5"
+     width="100">
+    Data Types
+    </text>
+    <color_swatch
+     can_apply_immediately="true"
+     follows="left|top"
+     height="24"
+     label_height="0"
+     layout="topleft"
+     left="15"
+     name="event"
+     top_pad="10"
+     width="44" >
+        <color_swatch.init_callback
+         function="ScriptPref.getUIColor"
+         parameter="SyntaxLslEvent" />
+        <color_swatch.commit_callback
+         function="ScriptPref.applyUIColor"
+         parameter="SyntaxLslEvent" />
+    </color_swatch>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left_pad="5"
+     mouse_opaque="false"
+     name="event_label"
+     top_delta="5"
+     width="100">
+    Events
+    </text>
+    <color_swatch
+     can_apply_immediately="true"
+     follows="left|top"
+     height="24"
+     label_height="0"
+     layout="topleft"
+     left="15"
+     name="comment"
+     top_pad="10"
+     width="44" >
+        <color_swatch.init_callback
+         function="ScriptPref.getUIColor"
+         parameter="SyntaxLslComment" />
+        <color_swatch.commit_callback
+         function="ScriptPref.applyUIColor"
+         parameter="SyntaxLslComment" />
+    </color_swatch>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left_pad="5"
+     mouse_opaque="false"
+     name="comment_label"
+     top_delta="5"
+     width="100">
+    Comment
+    </text>
+    <color_swatch
+     can_apply_immediately="true"
+     follows="left|top"
+     height="24"
+     label_height="0"
+     layout="topleft"
+     left="170"
+     name="string_literal"
+     top="45"
+     width="44" >
+        <color_swatch.init_callback
+         function="ScriptPref.getUIColor"
+         parameter="SyntaxLslStringLiteral" />
+        <color_swatch.commit_callback
+         function="ScriptPref.applyUIColor"
+         parameter="SyntaxLslStringLiteral" />
+    </color_swatch>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left_pad="5"
+     mouse_opaque="false"
+     name="string_literal_label"
+     top_delta="5"
+     width="100">
+    String Literals
+    </text>
+
+    <color_swatch
+     can_apply_immediately="true"
+     follows="left|top"
+     height="24"
+     label_height="0"
+     layout="topleft"
+     left="170"
+     name="i_constant"
+     top_pad="10"
+     width="44" >
+        <color_swatch.init_callback
+         function="ScriptPref.getUIColor"
+         parameter="SyntaxLslConstantInteger" />
+        <color_swatch.commit_callback
+         function="ScriptPref.applyUIColor"
+         parameter="SyntaxLslConstantInteger" />
+    </color_swatch>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left_pad="5"
+     mouse_opaque="false"
+     name="i_constant_label"
+     top_delta="5"
+     width="100">
+    Integer Const
+    </text>
+    <color_swatch
+     can_apply_immediately="true"
+     follows="left|top"
+     height="24"
+     label_height="0"
+     layout="topleft"
+     left="170"
+     name="s_constant"
+     top_pad="10"
+     width="44" >
+        <color_swatch.init_callback
+         function="ScriptPref.getUIColor"
+         parameter="SyntaxLslConstantString" />
+        <color_swatch.commit_callback
+         function="ScriptPref.applyUIColor"
+         parameter="SyntaxLslConstantString" />
+    </color_swatch>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left_pad="5"
+     mouse_opaque="false"
+     name="s_constant_label"
+     top_delta="5"
+     width="100">
+    String Const
+    </text>
+    <color_swatch
+     can_apply_immediately="true"
+     follows="left|top"
+     height="24"
+     label_height="0"
+     layout="topleft"
+     left="170"
+     name="f_constant"
+     top_pad="10"
+     width="44" >
+        <color_swatch.init_callback
+         function="ScriptPref.getUIColor"
+         parameter="SyntaxLslConstantFloat" />
+        <color_swatch.commit_callback
+         function="ScriptPref.applyUIColor"
+         parameter="SyntaxLslConstantFloat" />
+    </color_swatch>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left_pad="5"
+     mouse_opaque="false"
+     name="f_constant_label"
+     top_delta="5"
+     width="100">
+    Float Const
+    </text>
+    <color_swatch
+     can_apply_immediately="true"
+     follows="left|top"
+     height="24"
+     label_height="0"
+     layout="topleft"
+     left="170"
+     name="c_constant"
+     top_pad="10"
+     width="44" >
+        <color_swatch.init_callback
+         function="ScriptPref.getUIColor"
+         parameter="SyntaxCompoundConstant" />
+        <color_swatch.commit_callback
+         function="ScriptPref.applyUIColor"
+         parameter="SyntaxCompoundConstant" />
+    </color_swatch>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left_pad="5"
+     mouse_opaque="false"
+     name="c_constant_label"
+     top_delta="5"
+     width="100">
+    Compound
+    </text>
+    <color_swatch
+     can_apply_immediately="true"
+     follows="left|top"
+     height="24"
+     label_height="0"
+     layout="topleft"
+     left="170"
+     name="flow_control"
+     top_pad="10"
+     width="44" >
+        <color_swatch.init_callback
+         function="ScriptPref.getUIColor"
+         parameter="SyntaxLslControlFlow" />
+        <color_swatch.commit_callback
+         function="ScriptPref.applyUIColor"
+         parameter="SyntaxLslControlFlow" />
+    </color_swatch>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left_pad="5"
+     mouse_opaque="false"
+     name="flow_control_label"
+     top_delta="5"
+     width="100">
+    Flow Control
+    </text>
+    <color_swatch
+    can_apply_immediately="true"
+    follows="left|top"
+    height="24"
+    label_height="0"
+    layout="topleft"
+    left="170"
+    name="function"
+    top_pad="10"
+    width="44" >
+        <color_swatch.init_callback
+         function="ScriptPref.getUIColor"
+         parameter="SyntaxLslFunction" />
+        <color_swatch.commit_callback
+         function="ScriptPref.applyUIColor"
+         parameter="SyxtaxLslFunction" />
+    </color_swatch>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left_pad="5"
+     mouse_opaque="false"
+     name="function_label"
+     top_delta="5"
+     width="100">
+    Function
+    </text>
+
+    <script_editor
+     left="8"
+     right="-8"
+     top="250"
+     bottom="-8"
+     type="string"
+     length="1"
+     follows="left|top|right|bottom"
+     font="Monospace"
+     height="100"
+     ignore_tab="false"
+     layout="topleft"
+     max_length="300"
+     name="Script Preview"
+     text_color="ScriptText"
+     default_color="ScriptText"
+     bg_writeable_color="ScriptBackground"
+     bg_focus_color="ScriptBackground"
+     text_readonly_color="ScriptText"
+     bg_readonly_color="ScriptBackground"
+     bg_selected_color="ScriptSelectedColor"
+     cursor_color="ScriptCursorColor"
+     show_line_numbers="true"
+     enable_tooltip_paste="true"
+     word_wrap="true">
+default
+{
+    state_entry()
+    {
+        llSay(0, "Hello!");
+    }
+}
+    </script_editor>
+</floater>

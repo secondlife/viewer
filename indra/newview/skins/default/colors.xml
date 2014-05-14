@@ -907,10 +907,16 @@
 
   <!-- syntax highlighting (LSL Scripts) -->
   <color
-    name="SyntaxLslComment1Sided"
-    value=".8 .3 .15 1.0" />
+    name="ScriptText"
+    reference="Black" />
   <color
-    name="SyntaxLslComment2Sided"
+    name="ScriptBackground"
+    reference="White" />
+  <color
+    name="ScriptCursorColor"
+    reference="Black" />
+  <color
+    name="SyntaxLslComment"
     value=".8 .3 .15 1.0" />
   <color
     name="SyntaxLslConstantFloat"
