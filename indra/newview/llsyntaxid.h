@@ -42,7 +42,6 @@ friend class fetchKeywordsFileResponder;
 
 public:
 	LLSyntaxIdLSL();
-	LLSyntaxIdLSL(const std::string& filename, const std::string& sim_feature, const std::string& capability);
 
 	bool			checkSyntaxIdChanged();
 	bool			fetching();
@@ -74,6 +73,10 @@ protected:
 	void			setFileNameNew(const std::string name) { mFileNameNew = name; }
 	
 private:
+	static const std::string CAPABILITY_NAME;
+	static const std::string FILENAME_DEFAULT;
+	static const std::string SIMULATOR_FEATURE;
+
 	bool		mInitialized;
 	LLSD		mKeywordsXml;
 	bool		mLoaded;

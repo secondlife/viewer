@@ -103,31 +103,29 @@ void fetchKeywordsFileResponder::cacheFile(const LLSD& content_ref)
 //-----------------------------------------------------------------------------
 // LLSyntaxIdLSL
 //-----------------------------------------------------------------------------
-const std::string CAPABILITY_NAME = "LSLSyntax";
-const std::string FILENAME_DEFAULT = "keywords_lsl_default.xml";
-const std::string SIMULATOR_FEATURE = "LSLSyntaxId";
+const std::string LLSyntaxIdLSL::CAPABILITY_NAME = "LSLSyntax";
+const std::string LLSyntaxIdLSL::FILENAME_DEFAULT = "keywords_lsl_default.xml";
+const std::string LLSyntaxIdLSL::SIMULATOR_FEATURE = "LSLSyntaxId";
 
 /**
  * @brief LLSyntaxIdLSL constructor
  */
-LLSyntaxIdLSL::LLSyntaxIdLSL(const std::string& filename, const std::string& sim_feature, const std::string& capability)
-:	mFilePath(LL_PATH_APP_SETTINGS)
-{
-	mCapabilityName = capability;
-	mFileNameCurrent = filename;
-	mFileNameDefault = filename;
-	mSimulatorFeature = sim_feature;
-	mSyntaxIdCurrent = LLUUID();
-}
-
 LLSyntaxIdLSL::LLSyntaxIdLSL() :
-	mFilePath(LL_PATH_APP_SETTINGS)
+	mInitialized(false),
+	mKeywordsXml(LLSD()),
+	mLoaded(false),
+	mLoadFailed(false),
+	mVersionChanged(false),
+	mCapabilityName(CAPABILITY_NAME),
+	mCapabilityURL(""),
+	mFileNameCurrent(FILENAME_DEFAULT),
+	mFileNameDefault(FILENAME_DEFAULT),
+	mFileNameNew(""),
+	mFilePath(LL_PATH_APP_SETTINGS),
+	mSimulatorFeature(SIMULATOR_FEATURE),
+	mSyntaxIdCurrent(LLUUID()),
+	mSyntaxIdNew(LLUUID())
 {
-	mCapabilityName = CAPABILITY_NAME;
-	mFileNameCurrent = FILENAME_DEFAULT;
-	mFileNameDefault = FILENAME_DEFAULT;
-	mSimulatorFeature = SIMULATOR_FEATURE;
-	mSyntaxIdCurrent = LLUUID();
 }
 
 std::string LLSyntaxIdLSL::buildFileNameNew()
