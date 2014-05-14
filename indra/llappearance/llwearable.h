@@ -46,6 +46,7 @@ class LLWearable
 	// Constructors and destructors
 	//--------------------------------------------------------------------
 public:
+	LLWearable();
 	virtual ~LLWearable();
 
 	//--------------------------------------------------------------------
