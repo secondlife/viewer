@@ -29,6 +29,7 @@
 #include "llfloaterscriptedprefs.h"
 
 #include "llcolorswatch.h"
+#include "llscripteditor.h"
 
 
 LLFloaterScriptEdPrefs::LLFloaterScriptEdPrefs(const LLSD& key)
@@ -40,6 +41,12 @@ LLFloaterScriptEdPrefs::LLFloaterScriptEdPrefs(const LLSD& key)
 
 BOOL LLFloaterScriptEdPrefs::postBuild()
 {
+	LLScriptEditor* editor = getChild<LLScriptEditor>("Script Preview");
+	if (editor)
+	{
+		editor->initKeywords();
+		editor->loadKeywords();
+	}
 	return TRUE;
 }
 
