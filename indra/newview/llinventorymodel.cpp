@@ -2268,6 +2268,172 @@ void LLInventoryModel::buildParentChildMap()
 					   << cat->getName() << LL_ENDL;
 			++lost;
 			lost_cats.push_back(cat);
+		}
+	}
+	if(lost)
+	{
+		LL_WARNS() << "Found  " << lost << " lost categories." << LL_ENDL;
+	}
+
+	// Do moves in a separate pass to make sure we've properly filed
+	// the FT_LOST_AND_FOUND category before we try to find its UUID.
+	for(i = 0; i<lost_cats.size(); ++i)
+	{
+		LLViewerInventoryCategory *cat = lost_cats.at(i);
+
+		// plop it into the lost & found.
+		LLFolderType::EType pref = cat->getPreferredType();
+		if(LLFolderType::FT_NONE == pref)
+		{
+			cat->setParent(findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND));
+		}
+		else if(LLFolderType::FT_ROOT_INVENTORY == pref)
+		{
+			// it's the root
+			cat->setParent(LLUUID::null);
+		}
+		else
+		{
+			// it's a protected folder.
+			cat->setParent(gInventory.getRootFolderID());
+		}
+		// FIXME note that updateServer() fails with protected
+		// types, so this will not work as intended in that case.
+		cat->updateServer(TRUE);
+		catsp = getUnlockedCatArray(cat->getParentUUID());
+		if(catsp)
+		{
+			catsp->push_back(cat);
+		}
+		else
+		{		
+			LL_WARNS() << "Lost and found Not there!!" << LL_ENDL;
+		}
+	}
+
+	const BOOL COF_exists = (findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, FALSE) != LLUUID::null);
+	sFirstTimeInViewer2 = !COF_exists || gAgent.isFirstLogin();
+
+
+	// Now the items. We allocated in the last step, so now all we
+	// have to do is iterate over the items and put them in the right
+	// place.
+	item_array_t items;
+	if(!mItemMap.empty())
+	{
+		LLPointer<LLViewerInventoryItem> item;
+		for(item_map_t::iterator iit = mItemMap.begin(); iit != mItemMap.end(); ++iit)
+		{
+			item = (*iit).second;
+			items.push_back(item);
+		}
+	}
+	count = items.size();
+	lost = 0;
+	uuid_vec_t lost_item_ids;
+	for(i = 0; i < count; ++i)
+	{
+		LLPointer<LLViewerInventoryItem> item;
+		item = items.at(i);
+		itemsp = getUnlockedItemArray(item->getParentUUID());
+		if(itemsp)
+		{
+			itemsp->push_back(item);
+		}
+		else
+		{
+			LL_INFOS() << "Lost item: " << item->getUUID() << " - "
+					   << item->getName() << LL_ENDL;
+			++lost;
+			// plop it into the lost & found.
+			//
+			item->setParent(findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND));
+			// move it later using a special message to move items. If
+			// we update server here, the client might crash.
+			//item->updateServer();
+			lost_item_ids.push_back(item->getUUID());
+			itemsp = getUnlockedItemArray(item->getParentUUID());
+			if(itemsp)
+			{
+				itemsp->push_back(item);
+			}
+			else
+			{
+				LL_WARNS() << "Lost and found Not there!!" << LL_ENDL;
+			}
+		}
+	}
+	if(lost)
+	{
+		LL_WARNS() << "Found " << lost << " lost items." << LL_ENDL;
+		LLMessageSystem* msg = gMessageSystem;
+		BOOL start_new_message = TRUE;
+		const LLUUID lnf = findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
+		for(uuid_vec_t::iterator it = lost_item_ids.begin() ; it < lost_item_ids.end(); ++it)
+		{
+			if(start_new_message)
+			{
+				start_new_message = FALSE;
+				msg->newMessageFast(_PREHASH_MoveInventoryItem);
+				msg->nextBlockFast(_PREHASH_AgentData);
+				msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+				msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+				msg->addBOOLFast(_PREHASH_Stamp, FALSE);
+			}
+			msg->nextBlockFast(_PREHASH_InventoryData);
+			msg->addUUIDFast(_PREHASH_ItemID, (*it));
+			msg->addUUIDFast(_PREHASH_FolderID, lnf);
+			msg->addString("NewName", NULL);
+			if(msg->isSendFull(NULL))
+			{
+				start_new_message = TRUE;
+				gAgent.sendReliableMessage();
+			}
+		}
+		if(!start_new_message)
+		{
+			gAgent.sendReliableMessage();
+		}
+	}
+
+	const LLUUID &agent_inv_root_id = gInventory.getRootFolderID();
+	if (agent_inv_root_id.notNull())
+	{
+		cat_array_t* catsp = get_ptr_in_map(mParentChildCategoryTree, agent_inv_root_id);
+		if(catsp)
+		{
+			// *HACK - fix root inventory folder
+			// some accounts has pbroken inventory root folders
+			
+			std::string name = "My Inventory";
+			LLUUID prev_root_id = mRootFolderID;
+			for (parent_cat_map_t::const_iterator it = mParentChildCategoryTree.begin(),
+					 it_end = mParentChildCategoryTree.end(); it != it_end; ++it)
+			{
+				cat_array_t* cat_array = it->second;
+				for (cat_array_t::const_iterator cat_it = cat_array->begin(),
+						 cat_it_end = cat_array->end(); cat_it != cat_it_end; ++cat_it)
+					{
+					LLPointer<LLViewerInventoryCategory> category = *cat_it;
+
+					if(category && category->getPreferredType() != LLFolderType::FT_ROOT_INVENTORY)
+						continue;
+					if ( category && 0 == LLStringUtil::compareInsensitive(name, category->getName()) )
+					{
+						if(category->getUUID()!=mRootFolderID)
+						{
+							LLUUID& new_inv_root_folder_id = const_cast<LLUUID&>(mRootFolderID);
+							new_inv_root_folder_id = category->getUUID();
+						}
+					}
+				}
+			}
+
+			// 'My Inventory',
+			// root of the agent's inv found.
+			// The inv tree is built.
+			mIsAgentInvUsable = true;
+
 			// notifyObservers() has been moved to
 			// llstartup/idle_startup() after this func completes.
 			// Allows some system categories to be created before
