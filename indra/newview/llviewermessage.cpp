@@ -5796,6 +5796,7 @@ bool handle_teleport_access_blocked(LLSD& llsdBlock)
 		}
 	}
 
+	handle_trusted_experiences_notification(llsdBlock);
 	return returnValue;
 }
 
