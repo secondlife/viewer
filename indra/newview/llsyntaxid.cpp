@@ -103,36 +103,17 @@ void fetchKeywordsFileResponder::cacheFile(const LLSD& content_ref)
 //-----------------------------------------------------------------------------
 // LLSyntaxIdLSL
 //-----------------------------------------------------------------------------
-const std::string CAPABILITY_NAME = "LSLSyntax";
 const std::string FILENAME_DEFAULT = "keywords_lsl_default.xml";
-const std::string SIMULATOR_FEATURE = "LSLSyntaxId";
 
-/**
- * @brief LLSyntaxIdLSL constructor
- */
-LLSyntaxIdLSL::LLSyntaxIdLSL(const std::string& filename, const std::string& sim_feature, const std::string& capability)
+LLSyntaxIdLSL::LLSyntaxIdLSL()
 :	mFilePath(LL_PATH_APP_SETTINGS)
-{
-	mCapabilityName = capability;
-	mFileNameCurrent = filename;
-	mFileNameDefault = filename;
-	mSimulatorFeature = sim_feature;
-	mSyntaxIdCurrent = LLUUID();
-}
-
-LLSyntaxIdLSL::LLSyntaxIdLSL() :
-	mFilePath(LL_PATH_APP_SETTINGS)
-{
-	mCapabilityName = CAPABILITY_NAME;
-	mFileNameCurrent = FILENAME_DEFAULT;
-	mFileNameDefault = FILENAME_DEFAULT;
-	mSimulatorFeature = SIMULATOR_FEATURE;
-	mSyntaxIdCurrent = LLUUID();
-}
+,	mFileNameCurrent(FILENAME_DEFAULT)
+,	mSyntaxIdCurrent(LLUUID())
+{}
 
 std::string LLSyntaxIdLSL::buildFileNameNew()
 {
-	mFileNameNew = mSyntaxIdNew.isNull() ? mFileNameDefault : "keywords_lsl_" + mSyntaxIdNew.asString() + ".llsd.xml";
+	mFileNameNew = mSyntaxIdNew.isNull() ? FILENAME_DEFAULT : "keywords_lsl_" + mSyntaxIdNew.asString() + ".llsd.xml";
 	return mFileNameNew;
 }
 
@@ -165,11 +146,11 @@ bool LLSyntaxIdLSL::checkSyntaxIdChanged()
 			region->getSimulatorFeatures(simFeatures);
 
 			// Does the sim have the required feature
-			if (simFeatures.has(mSimulatorFeature))
+			if (simFeatures.has("LSLSyntaxId"))
 			{
 				// get and check the hash
-				mSyntaxIdNew = simFeatures[mSimulatorFeature].asUUID();
-				mCapabilityURL = region->getCapability(mCapabilityName);
+				mSyntaxIdNew = simFeatures["LSLSyntaxId"].asUUID();
+				mCapabilityURL = region->getCapability("LSLSyntax");
 				if (mSyntaxIdCurrent != mSyntaxIdNew)
 				{
 					LL_DEBUGS("SyntaxLSL") << "Region has LSLSyntaxId capability, and the new hash is '" << mSyntaxIdNew.asString() << "'" << LL_ENDL;
