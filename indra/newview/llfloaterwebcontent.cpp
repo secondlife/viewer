@@ -294,7 +294,7 @@ void LLFloaterWebContent::onOpen(const LLSD& key)
 void LLFloaterWebContent::onClose(bool app_quitting)
 {
     // If we close the web browsing window showing the facebook login, we need to signal to this object that the connection will not happen
-    LLFloater* fbc_web = LLFloaterReg::getInstance("fbc_web");
+    LLFloater* fbc_web = LLFloaterReg::findInstance("fbc_web");
     if (fbc_web == this)
     {
         if (!LLFacebookConnect::instance().isConnected())
