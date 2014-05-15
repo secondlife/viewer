@@ -280,7 +280,7 @@ void LLPanelGroupInvite::addRoleNames()
 			//else if they have the limited add to roles power
 			//we add every role the user is in
 			//else we just add to everyone
-			bool is_owner   = member_data->isInRole(gdatap->mOwnerRole);
+			bool is_owner   = member_data->isOwner();
 			bool can_assign_any = gAgent.hasPowerInGroup(mImplementation->mGroupID,
 				GP_ROLE_ASSIGN_MEMBER);
 			bool can_assign_limited = gAgent.hasPowerInGroup(mImplementation->mGroupID,
