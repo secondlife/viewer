@@ -48,6 +48,7 @@ LLPanelExperienceListEditor::LLPanelExperienceListEditor()
 	,mProfile(NULL)
 	,mRemove(NULL)
 	,mReadonly(false)
+	,mMaxExperienceIDs(0)
 {
 }
 
@@ -229,12 +230,15 @@ void LLPanelExperienceListEditor::setReadonly( bool val )
 	checkButtonsEnabled();
 }
 
-void LLPanelExperienceListEditor::refreshExperienceCounter(std::string string_name)
+void LLPanelExperienceListEditor::refreshExperienceCounter()
 {
-	LLStringUtil::format_map_t args;
-	args["[EXPERIENCES]"] = llformat("%d", mItems->getItemCount());
-	args["[MAXEXPERIENCES]"] = llformat("%d", ESTATE_MAX_EXPERIENCE_IDS);
-	getChild<LLTextBox>("text_name")->setText(LLTrans::getString(string_name, args));
+	if(mMaxExperienceIDs > 0)
+	{
+		LLStringUtil::format_map_t args;
+		args["[EXPERIENCES]"] = llformat("%d", mItems->getItemCount());
+		args["[MAXEXPERIENCES]"] = llformat("%d", mMaxExperienceIDs);
+		getChild<LLTextBox>("text_count")->setText(LLTrans::getString("ExperiencesCounter", args));
+	}
 }
 
 boost::signals2::connection LLPanelExperienceListEditor::setAddedCallback( list_changed_signal_t::slot_type cb )

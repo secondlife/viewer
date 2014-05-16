@@ -3997,9 +3997,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Admin_Experiences_Tab">ADMIN</string>
   <string name="Recent_Experiences_Tab">RECENT</string>
   <string name="Owned_Experiences_Tab">OWNED</string>
-  <string name="RegionInfoAllowedExperiences">Allowed Experiences: ([EXPERIENCES], max [MAXEXPERIENCES])</string>
-  <string name="RegionInfoBlockedExperiences">Blocked Experiences: ([EXPERIENCES], max [MAXEXPERIENCES])</string>
-  <string name="RegionInfoTrustedExperiences">Trusted Experiences: ([EXPERIENCES], max [MAXEXPERIENCES])</string>
+  <string name="ExperiencesCounter">([EXPERIENCES], max [MAXEXPERIENCES])</string>
   <string name="ExperiencePermission1">take over your controls</string>
   <string name="ExperiencePermission3">trigger animations on your avatar</string>
   <string name="ExperiencePermission4">attach to your avatar</string>

@@ -194,9 +194,9 @@
             longdescription="Members in a role with this ability can edit the meta-data for an experience."
             name="experience admin"
             value ="49" />
-    <action description="Experience Creator"
-            longdescription="Members in a role with this ability can create scripts for an experience."
-            name="experience creator"
+    <action description="Experience Contributor"
+            longdescription="Members in a role with this ability can contribute scripts for an experience."
+            name="experience contributor"
             value ="50" />
   </action_set>
 </role_actions>
