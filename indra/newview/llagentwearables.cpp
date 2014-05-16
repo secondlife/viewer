@@ -654,7 +654,7 @@ public:
 	/* virtual */ void fire(const LLUUID& inv_item)
 	{
 		LL_INFOS() << "One item created " << inv_item.asString() << LL_ENDL;
-		LLViewerInventoryItem *item = gInventory.getItem(inv_item);
+		LLConstPointer<LLInventoryObject> item = gInventory.getItem(inv_item);
 		mItemsToLink.push_back(item);
 		updatePendingWearable(inv_item);
 	}

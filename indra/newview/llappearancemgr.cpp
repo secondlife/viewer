@@ -926,7 +926,7 @@ void recovered_item_cb(const LLUUID& item_id, LLWearableType::EType type, LLView
 	}
 
 	LL_DEBUGS("Avatar") << self_av_string() << "Recovered item for type " << type << LL_ENDL;
-	LLViewerInventoryItem *itemp = gInventory.getItem(item_id);
+	LLConstPointer<LLInventoryObject> itemp = gInventory.getItem(item_id);
 	wearable->setItemID(item_id);
 	holder->eraseTypeToRecover(type);
 	llassert(itemp);
@@ -2975,12 +2975,6 @@ struct WearablesOrderComparator
 
 	bool operator()(const LLInventoryItem* item1, const LLInventoryItem* item2)
 	{
-		if (!item1 || !item2)
-		{
-			LL_WARNS() << "either item1 or item2 is NULL" << LL_ENDL;
-			return true;
-		}
-		
 		const std::string& desc1 = item1->getActualDescription();
 		const std::string& desc2 = item2->getActualDescription();
 		

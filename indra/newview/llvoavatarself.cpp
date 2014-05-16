@@ -2526,6 +2526,7 @@ void LLVOAvatarSelf::forceBakeAllTextures(bool slam_for_debug)
 			}
 
 			invalidateComposite(layer_set);
+			add(LLStatViewer::TEX_REBAKES, 1);
 		}
 		else
 		{
