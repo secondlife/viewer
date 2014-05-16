@@ -72,6 +72,10 @@ protected:
 	void			setFileNameNew(const std::string name) { mFileNameNew = name; }
 	
 private:
+	static const std::string CAPABILITY_NAME;
+	static const std::string FILENAME_DEFAULT;
+	static const std::string SIMULATOR_FEATURE;
+
 	bool		mInitialized;
 	LLSD		mKeywordsXml;
 	bool		mLoaded;
@@ -79,11 +83,14 @@ private:
 	bool		mVersionChanged;
 	file_fetched_signal_t	mFileFetchedSignal;
 	
+	std::string		mCapabilityName;
 	std::string		mCapabilityURL;
 	std::string		mFileNameCurrent;
+	std::string		mFileNameDefault;
 	std::string		mFileNameNew;
 	ELLPath			mFilePath;
 	std::string		mFullFileSpec;
+	std::string		mSimulatorFeature;
 	LLUUID			mSyntaxIdCurrent;
 	LLUUID			mSyntaxIdNew;
 };
