@@ -56,9 +56,9 @@ namespace tut
 	{
 	public:
 		TestRecorder() { mWantsTime = false; }
-		~TestRecorder() { LLError::removeRecorder(this); }
+		virtual ~TestRecorder() {  }
 
-		void recordMessage(LLError::ELevel level,
+		virtual void recordMessage(LLError::ELevel level,
 						   const std::string& message)
 		{
 			mMessages.push_back(message);
@@ -85,15 +85,11 @@ namespace tut
 
 	struct ErrorTestData
 	{
-		// addRecorder() expects to be able to later delete the passed
-		// Recorder*. Even though removeRecorder() reclaims ownership, passing
-		// a pointer to a data member rather than a heap Recorder subclass
-		// instance would just be Wrong.
-		TestRecorder* mRecorder;
+		LLError::RecorderPtr mRecorder;
 		LLError::Settings* mPriorErrorSettings;
 
 		ErrorTestData():
-			mRecorder(new TestRecorder)
+			mRecorder(new TestRecorder())
 		{
 			fatalWasCalled = false;
 
@@ -106,13 +102,32 @@ namespace tut
 		~ErrorTestData()
 		{
 			LLError::removeRecorder(mRecorder);
-			delete mRecorder;
 			LLError::restoreSettings(mPriorErrorSettings);
+		}
+
+		int countMessages()
+		{
+			return boost::dynamic_pointer_cast<TestRecorder>(mRecorder)->countMessages();
+		}
+
+		void clearMessages()
+		{
+			boost::dynamic_pointer_cast<TestRecorder>(mRecorder)->clearMessages();
+		}
+
+		void setWantsTime(bool t)
+		{
+			boost::dynamic_pointer_cast<TestRecorder>(mRecorder)->setWantsTime(t);
+		}
+
+		std::string message(int n)
+		{
+			return boost::dynamic_pointer_cast<TestRecorder>(mRecorder)->message(n);
 		}
 
 		void ensure_message_count(int expectedCount)
 		{
-			ensure_equals("message count", mRecorder->countMessages(), expectedCount);
+			ensure_equals("message count", countMessages(), expectedCount);
 		}
 
 		void ensure_message_contains(int n, const std::string& expectedText)
@@ -120,7 +135,7 @@ namespace tut
 			std::ostringstream test_name;
 			test_name << "testing message " << n;
 
-			ensure_contains(test_name.str(), mRecorder->message(n), expectedText);
+			ensure_contains(test_name.str(), message(n), expectedText);
 		}
 
 		void ensure_message_does_not_contain(int n, const std::string& expectedText)
@@ -128,7 +143,7 @@ namespace tut
 			std::ostringstream test_name;
 			test_name << "testing message " << n;
 
-			ensure_does_not_contain(test_name.str(), mRecorder->message(n), expectedText);
+			ensure_does_not_contain(test_name.str(), message(n), expectedText);
 		}
 	};
 
@@ -385,15 +400,15 @@ namespace
 	}
 
 	typedef std::string (*LogFromFunction)(bool);
-	void testLogName(tut::TestRecorder* recorder, LogFromFunction f,
+	void testLogName(LLError::RecorderPtr recorder, LogFromFunction f,
 		const std::string& class_name = "")
 	{
-		recorder->clearMessages();
+		boost::dynamic_pointer_cast<tut::TestRecorder>(recorder)->clearMessages();
 		std::string name = f(false);
 		f(true);
 
-		std::string messageWithoutName = recorder->message(0);
-		std::string messageWithName = recorder->message(1);
+		std::string messageWithoutName = boost::dynamic_pointer_cast<tut::TestRecorder>(recorder)->message(0);
+		std::string messageWithName = boost::dynamic_pointer_cast<tut::TestRecorder>(recorder)->message(1);
 
 		ensure_has(name + " logged without name",
 			messageWithoutName, name);
@@ -528,12 +543,12 @@ namespace tut
 	{
 		LLError::setTimeFunction(roswell);
 
-		mRecorder->setWantsTime(false);
+		setWantsTime(false);
 		ufoSighting();
 		ensure_message_contains(0, "ufo");
 		ensure_message_does_not_contain(0, roswell());
 
-		mRecorder->setWantsTime(true);
+		setWantsTime(true);
 		ufoSighting();
 		ensure_message_contains(1, "ufo");
 		ensure_message_contains(1, roswell());
@@ -545,13 +560,13 @@ namespace tut
 	{
 		LLError::setPrintLocation(true);
 		LLError::setTimeFunction(roswell);
-		mRecorder->setWantsTime(true);
+		setWantsTime(true);
 		std::string location,
 					function;
 		writeReturningLocationAndFunction(location, function);
 
 		ensure_equals("order is location time type function message",
-			mRecorder->message(0),
+			message(0),
 			location + roswell() + " INFO: " + function + ": apple");
 	}
 
@@ -559,19 +574,19 @@ namespace tut
 		// multiple recorders
 	void ErrorTestObject::test<11>()
 	{
-		TestRecorder* altRecorder(new TestRecorder);
+		LLError::RecorderPtr altRecorder(new TestRecorder());
 		LLError::addRecorder(altRecorder);
 
 		LL_INFOS() << "boo" << LL_ENDL;
 
 		ensure_message_contains(0, "boo");
-		ensure_equals("alt recorder count", altRecorder->countMessages(), 1);
-		ensure_contains("alt recorder message 0", altRecorder->message(0), "boo");
+		ensure_equals("alt recorder count", boost::dynamic_pointer_cast<TestRecorder>(altRecorder)->countMessages(), 1);
+		ensure_contains("alt recorder message 0", boost::dynamic_pointer_cast<TestRecorder>(altRecorder)->message(0), "boo");
 
 		LLError::setTimeFunction(roswell);
 
-		TestRecorder* anotherRecorder(new TestRecorder);
-		anotherRecorder->setWantsTime(true);
+		LLError::RecorderPtr anotherRecorder(new TestRecorder());
+		boost::dynamic_pointer_cast<TestRecorder>(anotherRecorder)->setWantsTime(true);
 		LLError::addRecorder(anotherRecorder);
 
 		LL_INFOS() << "baz" << LL_ENDL;
@@ -579,10 +594,13 @@ namespace tut
 		std::string when = roswell();
 
 		ensure_message_does_not_contain(1, when);
-		ensure_equals("alt recorder count", altRecorder->countMessages(), 2);
-		ensure_does_not_contain("alt recorder message 1", altRecorder->message(1), when);
-		ensure_equals("another recorder count", anotherRecorder->countMessages(), 1);
-		ensure_contains("another recorder message 0", anotherRecorder->message(0), when);
+		ensure_equals("alt recorder count", boost::dynamic_pointer_cast<TestRecorder>(altRecorder)->countMessages(), 2);
+		ensure_does_not_contain("alt recorder message 1", boost::dynamic_pointer_cast<TestRecorder>(altRecorder)->message(1), when);
+		ensure_equals("another recorder count", boost::dynamic_pointer_cast<TestRecorder>(anotherRecorder)->countMessages(), 1);
+		ensure_contains("another recorder message 0", boost::dynamic_pointer_cast<TestRecorder>(anotherRecorder)->message(0), when);
+
+		LLError::removeRecorder(altRecorder);
+		LLError::removeRecorder(anotherRecorder);
 	}
 }
 

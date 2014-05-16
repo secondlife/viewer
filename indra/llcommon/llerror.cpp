@@ -357,7 +357,7 @@ namespace
 
 
 	typedef std::map<std::string, LLError::ELevel> LevelMap;
-	typedef std::vector<LLError::Recorder*> Recorders;
+	typedef std::vector<LLError::RecorderPtr> Recorders;
 	typedef std::vector<LLError::CallSite*> CallSiteVector;
 
 	class Globals : public LLSingleton<Globals>
@@ -419,8 +419,8 @@ namespace LLError
 		LLError::TimeFunction               mTimeFunction;
 		
 		Recorders                           mRecorders;
-		Recorder*                           mFileRecorder;
-		Recorder*                           mFixedBufferRecorder;
+		RecorderPtr                           mFileRecorder;
+		RecorderPtr                           mFixedBufferRecorder;
 		std::string                         mFileRecorderFileName;
 		
 		int									mShouldLogCallCounter;
@@ -437,14 +437,13 @@ namespace LLError
 			mDefaultLevel(LLError::LEVEL_DEBUG),
 			mCrashFunction(),
 			mTimeFunction(NULL),
-			mFileRecorder(NULL),
-			mFixedBufferRecorder(NULL),
+			mFileRecorder(),
+			mFixedBufferRecorder(),
 			mShouldLogCallCounter(0)
 			{ }
 		
 		~Settings()
 		{
-			for_each(mRecorders.begin(), mRecorders.end(), DeletePointer());
 			mRecorders.clear();
 		}
 		
@@ -603,11 +602,13 @@ namespace
 		// log_to_stderr is only false in the unit and integration tests to keep builds quieter
 		if (log_to_stderr && shouldLogToStderr())
 		{
-			LLError::addRecorder(new RecordToStderr(stderrLogWantsTime()));
+			LLError::RecorderPtr recordToStdErr(new RecordToStderr(stderrLogWantsTime()));
+			LLError::addRecorder(recordToStdErr);
 		}
 		
 #if LL_WINDOWS
-		LLError::addRecorder(new RecordToWinDebug);
+		LLError::RecorderPtr recordToWinDebug(new RecordToWinDebug());
+		LLError::addRecorder(recordToWinDebug);
 #endif
 
 		LogControlFile& e = LogControlFile::fromDirectory(dir);
@@ -635,7 +636,8 @@ namespace LLError
 		}
 		commonInit(dir);
 #if !LL_WINDOWS
-		addRecorder(new RecordToSyslog(identity));
+		LLError::RecorderPtr recordToSyslog(new RecordToSyslog(identity));
+		addRecorder(recordToSyslog);
 #endif
 	}
 
@@ -821,9 +823,9 @@ namespace LLError
 		return mWantsFunctionName;
 	}
 
-	void addRecorder(Recorder* recorder)
+	void addRecorder(RecorderPtr recorder)
 	{
-		if (recorder == NULL)
+		if (!recorder)
 		{
 			return;
 		}
@@ -831,9 +833,9 @@ namespace LLError
 		s.mRecorders.push_back(recorder);
 	}
 
-	void removeRecorder(Recorder* recorder)
+	void removeRecorder(RecorderPtr recorder)
 	{
-		if (recorder == NULL)
+		if (!recorder)
 		{
 			return;
 		}
@@ -850,8 +852,7 @@ namespace LLError
 		LLError::Settings& s = LLError::Settings::get();
 
 		removeRecorder(s.mFileRecorder);
-		delete s.mFileRecorder;
-		s.mFileRecorder = NULL;
+		s.mFileRecorder.reset();
 		s.mFileRecorderFileName.clear();
 		
 		if (file_name.empty())
@@ -859,16 +860,13 @@ namespace LLError
 			return;
 		}
 		
-		RecordToFile* f = new RecordToFile(file_name);
-		if (!f->okay())
+		RecorderPtr recordToFile(new RecordToFile(file_name));
+		if (boost::dynamic_pointer_cast<RecordToFile>(recordToFile)->okay())
 		{
-			delete f;
-			return;
+			s.mFileRecorderFileName = file_name;
+			s.mFileRecorder = recordToFile;
+			addRecorder(recordToFile);
 		}
-
-		s.mFileRecorderFileName = file_name;
-		s.mFileRecorder = f;
-		addRecorder(f);
 	}
 	
 	void logToFixedBuffer(LLLineBuffer* fixedBuffer)
@@ -876,16 +874,16 @@ namespace LLError
 		LLError::Settings& s = LLError::Settings::get();
 
 		removeRecorder(s.mFixedBufferRecorder);
-		delete s.mFixedBufferRecorder;
-		s.mFixedBufferRecorder = NULL;
+		s.mFixedBufferRecorder.reset();
 		
 		if (!fixedBuffer)
 		{
 			return;
 		}
 		
-		s.mFixedBufferRecorder = new RecordToFixedBuffer(fixedBuffer);
-		addRecorder(s.mFixedBufferRecorder);
+		RecorderPtr recordToFixedBuffer(new RecordToFixedBuffer(fixedBuffer));
+		s.mFixedBufferRecorder = recordToFixedBuffer;
+		addRecorder(recordToFixedBuffer);
 	}
 
 	std::string logFileName()
@@ -906,7 +904,7 @@ namespace
 			i != s.mRecorders.end();
 			++i)
 		{
-			LLError::Recorder* r = *i;
+			LLError::RecorderPtr r = *i;
 			
 			std::ostringstream message_stream;
 

@@ -38,6 +38,7 @@
 #include "stringize.h"
 #include <boost/bind.hpp>
 #include <boost/noncopyable.hpp>
+#include <boost/shared_ptr.hpp>
 #include <list>
 #include <string>
 #include <stdexcept>
@@ -86,67 +87,24 @@ struct WrapLLErrs
 };
 
 /**
- * LLError::addRecorder() accepts ownership of the passed Recorder* -- it
- * expects to be able to delete it later. CaptureLog isa Recorder whose
- * pointer we want to be able to pass without any ownership implications.
- * For such cases, instantiate a new RecorderProxy(yourRecorder) and pass
- * that. Your heap RecorderProxy might later be deleted, but not yourRecorder.
- */
-class RecorderProxy: public LLError::Recorder
-{
-public:
-    RecorderProxy(LLError::Recorder* recorder):
-        mRecorder(recorder)
-    {}
-
-    virtual void recordMessage(LLError::ELevel level, const std::string& message)
-    {
-        mRecorder->recordMessage(level, message);
-    }
-
-    virtual bool wantsTime()
-    {
-        return mRecorder->wantsTime();
-    }
-
-private:
-    LLError::Recorder* mRecorder;
-};
-
-/**
  * Capture log messages. This is adapted (simplified) from the one in
  * llerror_test.cpp.
  */
-class CaptureLog : public LLError::Recorder, public boost::noncopyable
+class CaptureLogRecorder : public LLError::Recorder, public boost::noncopyable
 {
 public:
-    CaptureLog(LLError::ELevel level=LLError::LEVEL_DEBUG):
-        // Mostly what we're trying to accomplish by saving and resetting
-        // LLError::Settings is to bypass the default RecordToStderr and
-        // RecordToWinDebug Recorders. As these are visible only inside
-        // llerror.cpp, we can't just call LLError::removeRecorder() with
-        // each. For certain tests we need to produce, capture and examine
-        // DEBUG log messages -- but we don't want to spam the user's console
-        // with that output. If it turns out that saveAndResetSettings() has
-        // some bad effect, give up and just let the DEBUG level log messages
-        // display.
-        mOldSettings(LLError::saveAndResetSettings()),
-        mProxy(new RecorderProxy(this))
+    CaptureLogRecorder()
+		: LLError::Recorder(),
+		boost::noncopyable(),
+		mMessages()
     {
-        LLError::setFatalFunction(wouldHaveCrashed);
-        LLError::setDefaultLevel(level);
-        LLError::addRecorder(mProxy);
     }
 
-    ~CaptureLog()
+    virtual ~CaptureLogRecorder()
     {
-        LLError::removeRecorder(mProxy);
-        delete mProxy;
-        LLError::restoreSettings(mOldSettings);
     }
 
-    void recordMessage(LLError::ELevel level,
-                       const std::string& message)
+    virtual void recordMessage(LLError::ELevel level, const std::string& message)
     {
         mMessages.push_back(message);
     }
@@ -154,7 +112,7 @@ public:
     /// Don't assume the message we want is necessarily the LAST log message
     /// emitted by the underlying code; search backwards through all messages
     /// for the sought string.
-    std::string messageWith(const std::string& search, bool required=true)
+    std::string messageWith(const std::string& search, bool required)
     {
         for (MessageList::const_reverse_iterator rmi(mMessages.rbegin()), rmend(mMessages.rend());
              rmi != rmend; ++rmi)
@@ -187,14 +145,63 @@ public:
         return out;
     }
 
+private:
     typedef std::list<std::string> MessageList;
     MessageList mMessages;
+};
+
+/**
+ * Capture log messages. This is adapted (simplified) from the one in
+ * llerror_test.cpp.
+ */
+class CaptureLog : public boost::noncopyable
+{
+public:
+    CaptureLog(LLError::ELevel level=LLError::LEVEL_DEBUG)
+        // Mostly what we're trying to accomplish by saving and resetting
+        // LLError::Settings is to bypass the default RecordToStderr and
+        // RecordToWinDebug Recorders. As these are visible only inside
+        // llerror.cpp, we can't just call LLError::removeRecorder() with
+        // each. For certain tests we need to produce, capture and examine
+        // DEBUG log messages -- but we don't want to spam the user's console
+        // with that output. If it turns out that saveAndResetSettings() has
+        // some bad effect, give up and just let the DEBUG level log messages
+        // display.
+		: boost::noncopyable(),
+        mOldSettings(LLError::saveAndResetSettings()),
+		mRecorder(new CaptureLogRecorder())
+    {
+        LLError::setFatalFunction(wouldHaveCrashed);
+        LLError::setDefaultLevel(level);
+        LLError::addRecorder(mRecorder);
+    }
+
+    ~CaptureLog()
+    {
+        LLError::removeRecorder(mRecorder);
+        LLError::restoreSettings(mOldSettings);
+    }
+
+    /// Don't assume the message we want is necessarily the LAST log message
+    /// emitted by the underlying code; search backwards through all messages
+    /// for the sought string.
+    std::string messageWith(const std::string& search, bool required=true)
+    {
+		return boost::dynamic_pointer_cast<CaptureLogRecorder>(mRecorder)->messageWith(search, required);
+    }
+
+    std::ostream& streamto(std::ostream& out) const
+    {
+		return boost::dynamic_pointer_cast<CaptureLogRecorder>(mRecorder)->streamto(out);
+    }
+
+private:
     LLError::Settings* mOldSettings;
-    LLError::Recorder* mProxy;
+	LLError::RecorderPtr mRecorder;
 };
 
 inline
-std::ostream& operator<<(std::ostream& out, const CaptureLog& log)
+std::ostream& operator<<(std::ostream& out, const CaptureLogRecorder& log)
 {
     return log.streamto(out);
 }

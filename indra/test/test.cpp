@@ -95,25 +95,20 @@ public:
 	virtual void replay(std::ostream&) {}
 };
 
-class LLReplayLogReal: public LLReplayLog, public LLError::Recorder, public boost::noncopyable
+class RecordToTempFile : public LLError::Recorder, public boost::noncopyable
 {
 public:
-	LLReplayLogReal(LLError::ELevel level, apr_pool_t* pool):
-		mOldSettings(LLError::saveAndResetSettings()),
-		mProxy(new RecorderProxy(this)),
-		mTempFile("log", "", pool),		// create file
-		mFile(mTempFile.getName().c_str()) // open it
+	RecordToTempFile(apr_pool_t* pPool)
+		: LLError::Recorder(),
+		boost::noncopyable(),
+		mTempFile("log", "", pPool),
+		mFile(mTempFile.getName().c_str())
 	{
-		LLError::setFatalFunction(wouldHaveCrashed);
-		LLError::setDefaultLevel(level);
-		LLError::addRecorder(mProxy);
 	}
 
-	virtual ~LLReplayLogReal()
+	virtual ~RecordToTempFile()
 	{
-		LLError::removeRecorder(mProxy);
-		delete mProxy;
-		LLError::restoreSettings(mOldSettings);
+		mFile.close();
 	}
 
 	virtual void recordMessage(LLError::ELevel level, const std::string& message)
@@ -121,13 +116,13 @@ public:
 		mFile << message << std::endl;
 	}
 
-	virtual void reset()
+	void reset()
 	{
 		mFile.close();
 		mFile.open(mTempFile.getName().c_str());
 	}
 
-	virtual void replay(std::ostream& out)
+	void replay(std::ostream& out)
 	{
 		mFile.close();
 		std::ifstream inf(mTempFile.getName().c_str());
@@ -139,10 +134,43 @@ public:
 	}
 
 private:
-	LLError::Settings* mOldSettings;
-	LLError::Recorder* mProxy;
 	NamedTempFile mTempFile;
 	std::ofstream mFile;
+};
+
+class LLReplayLogReal: public LLReplayLog, public boost::noncopyable
+{
+public:
+	LLReplayLogReal(LLError::ELevel level, apr_pool_t* pool)
+		: LLReplayLog(),
+		boost::noncopyable(),
+		mOldSettings(LLError::saveAndResetSettings()),
+		mRecorder(new RecordToTempFile(pool))
+	{
+		LLError::setFatalFunction(wouldHaveCrashed);
+		LLError::setDefaultLevel(level);
+		LLError::addRecorder(mRecorder);
+	}
+
+	virtual ~LLReplayLogReal()
+	{
+		LLError::removeRecorder(mRecorder);
+		LLError::restoreSettings(mOldSettings);
+	}
+
+	virtual void reset()
+	{
+		boost::dynamic_pointer_cast<RecordToTempFile>(mRecorder)->reset();
+	}
+
+	virtual void replay(std::ostream& out)
+	{
+		boost::dynamic_pointer_cast<RecordToTempFile>(mRecorder)->replay(out);
+	}
+
+private:
+	LLError::Settings* mOldSettings;
+	LLError::RecorderPtr mRecorder;
 };
 
 class LLTestCallback : public tut::callback

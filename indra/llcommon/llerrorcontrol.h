@@ -30,6 +30,7 @@
 
 #include "llerror.h"
 #include "boost/function.hpp"
+#include "boost/shared_ptr.hpp"
 #include <string>
 
 class LLSD;
@@ -156,16 +157,14 @@ namespace LLError
 				mWantsFunctionName;
 	};
 
+	typedef boost::shared_ptr<Recorder> RecorderPtr;
+
 	/**
-	 * @NOTE: addRecorder() conveys ownership to the underlying Settings
-	 * object -- when destroyed, it will @em delete the passed Recorder*!
+	 * @NOTE: addRecorder() and removeRecorder() uses the boost::shared_ptr to allow for shared ownership
+	 * while still ensuring that the allocated memory is eventually freed
 	 */
-	LL_COMMON_API void addRecorder(Recorder*);
-	/**
-	 * @NOTE: removeRecorder() reclaims ownership of the Recorder*: its
-	 * lifespan becomes the caller's problem.
-	 */
-	LL_COMMON_API void removeRecorder(Recorder*);
+	LL_COMMON_API void addRecorder(RecorderPtr);
+	LL_COMMON_API void removeRecorder(RecorderPtr);
 		// each error message is passed to each recorder via recordMessage()
 
 	LL_COMMON_API void logToFile(const std::string& filename);
