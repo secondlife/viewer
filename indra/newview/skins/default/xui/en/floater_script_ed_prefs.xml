@@ -426,7 +426,7 @@
          parameter="SyntaxLslFunction" />
         <color_swatch.commit_callback
          function="ScriptPref.applyUIColor"
-         parameter="SyxtaxLslFunction" />
+         parameter="SyntaxLslFunction" />
     </color_swatch>
     <text
      type="string"
