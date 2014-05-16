@@ -82,12 +82,6 @@ LLKeywords::~LLKeywords()
 	mDelimiterTokenList.clear();
 }
 
-void LLKeywords::addColorGroup(const std::string& key_in, const LLColor4& color)
-{
-	WStringMapIndex key ( utf8str_to_wstring(key_in) );
-	mColorGroupMap[key] = color;
-}
-
 // Add the token as described
 void LLKeywords::addToken(LLKeywordToken::ETokenType type,
 						  const std::string& key_in,
@@ -493,34 +487,6 @@ bool LLKeywords::WStringMapIndex::operator<(const LLKeywords::WStringMapIndex &o
 	}
 
 	return result;
-}
-
-LLColor4 LLKeywords::readColor( const std::string& s )
-{
-	F32 r, g, b;
-	r = g = b = 0.0f;
-	S32 values_read = sscanf(s.c_str(), "%f, %f, %f]", &r, &g, &b );
-	if( values_read != 3 )
-	{
-		llinfos << " poorly formed color in keyword file" << llendl;
-	}
-	return LLColor4( r, g, b, 1.f);
-}
-
-LLColor4 LLKeywords::readColor(LLSD& sd)
-{
-	if (sd.isArray())
-	{
-		return LLColor4(sd, 1.f);
-	}
-	else if (sd.isMap())
-	{
-		return LLColor4( sd.get("x").asReal(), sd.get("y").asReal(), sd.get("z").asReal(), 1.f );
-	}
-	else
-	{
-		return LLColor4::black;
-	}
 }
 
 LLTrace::BlockTimerStatHandle FTM_SYNTAX_COLORING("Syntax Coloring");
