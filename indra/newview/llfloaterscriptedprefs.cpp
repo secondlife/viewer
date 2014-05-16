@@ -34,6 +34,7 @@
 
 LLFloaterScriptEdPrefs::LLFloaterScriptEdPrefs(const LLSD& key)
 :	LLFloater(key)
+,	mEditor(NULL)
 {
 	mCommitCallbackRegistrar.add("ScriptPref.applyUIColor",	boost::bind(&LLFloaterScriptEdPrefs::applyUIColor, this ,_1, _2));
 	mCommitCallbackRegistrar.add("ScriptPref.getUIColor",	boost::bind(&LLFloaterScriptEdPrefs::getUIColor, this ,_1, _2));
@@ -41,11 +42,11 @@ LLFloaterScriptEdPrefs::LLFloaterScriptEdPrefs(const LLSD& key)
 
 BOOL LLFloaterScriptEdPrefs::postBuild()
 {
-	LLScriptEditor* editor = getChild<LLScriptEditor>("Script Preview");
-	if (editor)
+	mEditor = getChild<LLScriptEditor>("Script Preview");
+	if (mEditor)
 	{
-		editor->initKeywords();
-		editor->loadKeywords();
+		mEditor->initKeywords();
+		mEditor->loadKeywords();
 	}
 	return TRUE;
 }
@@ -54,6 +55,8 @@ void LLFloaterScriptEdPrefs::applyUIColor(LLUICtrl* ctrl, const LLSD& param)
 {
 	LLUIColorTable::instance().setColor(param.asString(), LLColor4(ctrl->getValue()));
 	// *TODO: Signal all active script editors to change colors on the fly.
+	mEditor->initKeywords();
+	mEditor->loadKeywords();
 }
 
 void LLFloaterScriptEdPrefs::getUIColor(LLUICtrl* ctrl, const LLSD& param)

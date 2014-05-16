@@ -30,6 +30,7 @@
 
 #include "llfloater.h"
 
+class LLScriptEditor;
 class LLUICtrl;
 
 class LLFloaterScriptEdPrefs : public LLFloater
@@ -43,6 +44,8 @@ private:
 	
 	void applyUIColor(LLUICtrl* ctrl, const LLSD& param);
 	void getUIColor(LLUICtrl* ctrl, const LLSD& param);
+	
+	LLScriptEditor* mEditor;
 };
 
 #endif // LL_FLOATERSCRIPTEDPREFS_H
