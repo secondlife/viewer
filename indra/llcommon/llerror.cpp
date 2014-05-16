@@ -402,9 +402,13 @@ namespace
 
 namespace LLError
 {
-	class Settings
+	class SettingsConfig : public LLRefCount
 	{
+		friend class Settings;
+
 	public:
+		virtual ~SettingsConfig();
+
 		bool                                mPrintLocation;
 
 		LLError::ELevel                     mDefaultLevel;
@@ -419,80 +423,86 @@ namespace LLError
 		LLError::TimeFunction               mTimeFunction;
 		
 		Recorders                           mRecorders;
-		RecorderPtr                           mFileRecorder;
-		RecorderPtr                           mFixedBufferRecorder;
+		RecorderPtr                         mFileRecorder;
+		RecorderPtr                         mFixedBufferRecorder;
 		std::string                         mFileRecorderFileName;
 		
 		int									mShouldLogCallCounter;
 		
-		static Settings& get();
+	private:
+		SettingsConfig();
+	};
+
+	typedef LLPointer<SettingsConfig> SettingsConfigPtr;
+
+	class Settings : public LLSingleton<Settings>
+	{
+	public:
+		Settings();
+
+		SettingsConfigPtr getSettingsConfig();
 	
-		static void reset();
-		static Settings* saveAndReset();
-		static void restore(Settings*);
+		void reset();
+		SettingsStoragePtr saveAndReset();
+		void restore(SettingsStoragePtr pSettingsStorage);
 		
 	private:
-		Settings()
-		:	mPrintLocation(false),
-			mDefaultLevel(LLError::LEVEL_DEBUG),
-			mCrashFunction(),
-			mTimeFunction(NULL),
-			mFileRecorder(),
-			mFixedBufferRecorder(),
-			mShouldLogCallCounter(0)
-			{ }
-		
-		~Settings()
-		{
-			mRecorders.clear();
-		}
-		
-		static Settings*& getPtr();
+		SettingsConfigPtr mSettingsConfig;
 	};
 	
-	Settings& Settings::get()
+	SettingsConfig::SettingsConfig()
+		: LLRefCount(),
+		mPrintLocation(false),
+		mDefaultLevel(LLError::LEVEL_DEBUG),
+		mFunctionLevelMap(),
+		mClassLevelMap(),
+		mFileLevelMap(),
+		mTagLevelMap(),
+		mUniqueLogMessages(),
+		mCrashFunction(NULL),
+		mTimeFunction(NULL),
+		mRecorders(),
+		mFileRecorder(),
+		mFixedBufferRecorder(),
+		mFileRecorderFileName(),
+		mShouldLogCallCounter(0)
 	{
-		Settings* p = getPtr();
-		if (!p)
-		{
-			reset();
-			p = getPtr();
-		}
-		return *p;
+	}
+
+	SettingsConfig::~SettingsConfig()
+	{
+		mRecorders.clear();
+	}
+
+	Settings::Settings()
+		: LLSingleton<Settings>(),
+		mSettingsConfig(new SettingsConfig())
+	{
+	}
+
+	SettingsConfigPtr Settings::getSettingsConfig()
+	{
+		return mSettingsConfig;
 	}
 	
 	void Settings::reset()
 	{
 		Globals::getInstance()->invalidateCallSites();
-		
-		Settings*& p = getPtr();
-		delete p;
-		p = new Settings();
+		mSettingsConfig = new SettingsConfig();
 	}
 	
-	Settings* Settings::saveAndReset()
+	SettingsStoragePtr Settings::saveAndReset()
+	{
+		SettingsStoragePtr oldSettingsConfig(mSettingsConfig.get());
+		reset();
+		return oldSettingsConfig;
+	}
+	
+	void Settings::restore(SettingsStoragePtr pSettingsStorage)
 	{
 		Globals::getInstance()->invalidateCallSites();
-		
-		Settings*& p = getPtr();
-		Settings* originalSettings = p;
-		p = new Settings();
-		return originalSettings;
-	}
-	
-	void Settings::restore(Settings* originalSettings)
-	{
-		Globals::getInstance()->invalidateCallSites();
-		
-		Settings*& p = getPtr();
-		delete p;
-		p = originalSettings;
-	}
-	
-	Settings*& Settings::getPtr()
-	{
-		static Settings* currentSettings = NULL;
-		return currentSettings;
+		SettingsConfigPtr newSettingsConfig(dynamic_cast<SettingsConfig *>(pSettingsStorage.get()));
+		mSettingsConfig = newSettingsConfig;
 	}
 }
 
@@ -593,7 +603,7 @@ namespace
 	
 	void commonInit(const std::string& dir, bool log_to_stderr = true)
 	{
-		LLError::Settings::reset();
+		LLError::Settings::getInstance()->reset();
 		
 		LLError::setDefaultLevel(LLError::LEVEL_INFO);
 		LLError::setFatalFunction(LLError::crashAndLoop);
@@ -648,67 +658,67 @@ namespace LLError
 
 	void setPrintLocation(bool print)
 	{
-		Settings& s = Settings::get();
-		s.mPrintLocation = print;
+		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
+		s->mPrintLocation = print;
 	}
 
 	void setFatalFunction(const FatalFunction& f)
 	{
-		Settings& s = Settings::get();
-		s.mCrashFunction = f;
+		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
+		s->mCrashFunction = f;
 	}
 
     FatalFunction getFatalFunction()
     {
-        Settings& s = Settings::get();
-        return s.mCrashFunction;
+		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
+        return s->mCrashFunction;
     }
 
 	void setTimeFunction(TimeFunction f)
 	{
-		Settings& s = Settings::get();
-		s.mTimeFunction = f;
+		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
+		s->mTimeFunction = f;
 	}
 
 	void setDefaultLevel(ELevel level)
 	{
 		Globals::getInstance()->invalidateCallSites();
-		Settings& s = Settings::get();
-		s.mDefaultLevel = level;
+		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
+		s->mDefaultLevel = level;
 	}
 
 	ELevel getDefaultLevel()
 	{
-		Settings& s = Settings::get();
-		return s.mDefaultLevel;
+		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
+		return s->mDefaultLevel;
 	}
 
 	void setFunctionLevel(const std::string& function_name, ELevel level)
 	{
 		Globals::getInstance()->invalidateCallSites();
-		Settings& s = Settings::get();
-		s.mFunctionLevelMap[function_name] = level;
+		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
+		s->mFunctionLevelMap[function_name] = level;
 	}
 
 	void setClassLevel(const std::string& class_name, ELevel level)
 	{
 		Globals::getInstance()->invalidateCallSites();
-		Settings& s = Settings::get();
-		s.mClassLevelMap[class_name] = level;
+		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
+		s->mClassLevelMap[class_name] = level;
 	}
 
 	void setFileLevel(const std::string& file_name, ELevel level)
 	{
 		Globals::getInstance()->invalidateCallSites();
-		Settings& s = Settings::get();
-		s.mFileLevelMap[file_name] = level;
+		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
+		s->mFileLevelMap[file_name] = level;
 	}
 
 	void setTagLevel(const std::string& tag_name, ELevel level)
 	{
 		Globals::getInstance()->invalidateCallSites();
-		Settings& s = Settings::get();
-		s.mTagLevelMap[tag_name] = level;
+		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
+		s->mTagLevelMap[tag_name] = level;
 	}
 
 	LLError::ELevel decodeLevel(std::string name)
@@ -753,13 +763,13 @@ namespace LLError
 	void configure(const LLSD& config)
 	{
 		Globals::getInstance()->invalidateCallSites();
-		Settings& s = Settings::get();
+		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
 		
-		s.mFunctionLevelMap.clear();
-		s.mClassLevelMap.clear();
-		s.mFileLevelMap.clear();
-		s.mTagLevelMap.clear();
-		s.mUniqueLogMessages.clear();
+		s->mFunctionLevelMap.clear();
+		s->mClassLevelMap.clear();
+		s->mFileLevelMap.clear();
+		s->mTagLevelMap.clear();
+		s->mUniqueLogMessages.clear();
 		
 		setPrintLocation(config["print-location"]);
 		setDefaultLevel(decodeLevel(config["default-level"]));
@@ -772,10 +782,10 @@ namespace LLError
 			
 			ELevel level = decodeLevel(entry["level"]);
 			
-			setLevels(s.mFunctionLevelMap,	entry["functions"],	level);
-			setLevels(s.mClassLevelMap,		entry["classes"],	level);
-			setLevels(s.mFileLevelMap,		entry["files"],		level);
-			setLevels(s.mTagLevelMap,		entry["tags"],		level);
+			setLevels(s->mFunctionLevelMap,	entry["functions"],	level);
+			setLevels(s->mClassLevelMap,	entry["classes"],	level);
+			setLevels(s->mFileLevelMap,		entry["files"],		level);
+			setLevels(s->mTagLevelMap,		entry["tags"],		level);
 		}
 	}
 }
@@ -789,10 +799,12 @@ namespace LLError
 		mWantsLevel(true),
 		mWantsLocation(false),
 		mWantsFunctionName(true)
-	{}
+	{
+	}
 
 	Recorder::~Recorder()
-		{ }
+	{
+	}
 
 	bool Recorder::wantsTime()
 	{ 
@@ -829,8 +841,8 @@ namespace LLError
 		{
 			return;
 		}
-		Settings& s = Settings::get();
-		s.mRecorders.push_back(recorder);
+		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
+		s->mRecorders.push_back(recorder);
 	}
 
 	void removeRecorder(RecorderPtr recorder)
@@ -839,9 +851,9 @@ namespace LLError
 		{
 			return;
 		}
-		Settings& s = Settings::get();
-		s.mRecorders.erase(std::remove(s.mRecorders.begin(), s.mRecorders.end(), recorder),
-							s.mRecorders.end());
+		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
+		s->mRecorders.erase(std::remove(s->mRecorders.begin(), s->mRecorders.end(), recorder),
+							s->mRecorders.end());
 	}
 }
 
@@ -849,11 +861,11 @@ namespace LLError
 {
 	void logToFile(const std::string& file_name)
 	{
-		LLError::Settings& s = LLError::Settings::get();
+		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
 
-		removeRecorder(s.mFileRecorder);
-		s.mFileRecorder.reset();
-		s.mFileRecorderFileName.clear();
+		removeRecorder(s->mFileRecorder);
+		s->mFileRecorder.reset();
+		s->mFileRecorderFileName.clear();
 		
 		if (file_name.empty())
 		{
@@ -863,18 +875,18 @@ namespace LLError
 		RecorderPtr recordToFile(new RecordToFile(file_name));
 		if (boost::dynamic_pointer_cast<RecordToFile>(recordToFile)->okay())
 		{
-			s.mFileRecorderFileName = file_name;
-			s.mFileRecorder = recordToFile;
+			s->mFileRecorderFileName = file_name;
+			s->mFileRecorder = recordToFile;
 			addRecorder(recordToFile);
 		}
 	}
 	
 	void logToFixedBuffer(LLLineBuffer* fixedBuffer)
 	{
-		LLError::Settings& s = LLError::Settings::get();
+		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
 
-		removeRecorder(s.mFixedBufferRecorder);
-		s.mFixedBufferRecorder.reset();
+		removeRecorder(s->mFixedBufferRecorder);
+		s->mFixedBufferRecorder.reset();
 		
 		if (!fixedBuffer)
 		{
@@ -882,14 +894,14 @@ namespace LLError
 		}
 		
 		RecorderPtr recordToFixedBuffer(new RecordToFixedBuffer(fixedBuffer));
-		s.mFixedBufferRecorder = recordToFixedBuffer;
+		s->mFixedBufferRecorder = recordToFixedBuffer;
 		addRecorder(recordToFixedBuffer);
 	}
 
 	std::string logFileName()
 	{
-		LLError::Settings& s = LLError::Settings::get();
-		return s.mFileRecorderFileName;
+		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
+		return s->mFileRecorderFileName;
 	}
 }
 
@@ -898,24 +910,24 @@ namespace
 	void writeToRecorders(const LLError::CallSite& site, const std::string& message, bool show_location = true, bool show_time = true, bool show_tags = true, bool show_level = true, bool show_function = true)
 	{
 		LLError::ELevel level = site.mLevel;
-		LLError::Settings& s = LLError::Settings::get();
+		LLError::SettingsConfigPtr s = LLError::Settings::getInstance()->getSettingsConfig();
 	
-		for (Recorders::const_iterator i = s.mRecorders.begin();
-			i != s.mRecorders.end();
+		for (Recorders::const_iterator i = s->mRecorders.begin();
+			i != s->mRecorders.end();
 			++i)
 		{
 			LLError::RecorderPtr r = *i;
 			
 			std::ostringstream message_stream;
 
-			if (show_location && (r->wantsLocation() || level == LLError::LEVEL_ERROR || s.mPrintLocation))
+			if (show_location && (r->wantsLocation() || level == LLError::LEVEL_ERROR || s->mPrintLocation))
 			{
 				message_stream << site.mLocationString << " ";
 			}
 
-			if (show_time && r->wantsTime() && s.mTimeFunction != NULL)
+			if (show_time && r->wantsTime() && s->mTimeFunction != NULL)
 			{
-				message_stream << s.mTimeFunction() << " ";
+				message_stream << s->mTimeFunction() << " ";
 			}
 
 			if (show_level && r->wantsLevel())
@@ -1042,9 +1054,9 @@ namespace LLError
 			return false;
 		}
 		
-		Settings& s = Settings::get();
+		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
 		
-		s.mShouldLogCallCounter++;
+		s->mShouldLogCallCounter++;
 		
 		const std::string& class_name = className(site.mClassInfo);
 		std::string function_name = functionName(site.mFunction);
@@ -1058,17 +1070,17 @@ namespace LLError
 			function_name = class_name + "::" + function_name;
 		}
 
-		ELevel compareLevel = s.mDefaultLevel;
+		ELevel compareLevel = s->mDefaultLevel;
 
 		// The most specific match found will be used as the log level,
 		// since the computation short circuits.
 		// So, in increasing order of importance:
 		// Default < Tags < File < Class < Function
-		checkLevelMap(s.mFunctionLevelMap, function_name, compareLevel)
-		|| checkLevelMap(s.mClassLevelMap, class_name, compareLevel)
-		|| checkLevelMap(s.mFileLevelMap, abbreviateFile(site.mFile), compareLevel)
+		checkLevelMap(s->mFunctionLevelMap, function_name, compareLevel)
+		|| checkLevelMap(s->mClassLevelMap, class_name, compareLevel)
+		|| checkLevelMap(s->mFileLevelMap, abbreviateFile(site.mFile), compareLevel)
 		|| (site.mTagCount > 0
-			? checkLevelMap(s.mTagLevelMap, site.mTags, site.mTagCount, compareLevel) 
+			? checkLevelMap(s->mTagLevelMap, site.mTags, site.mTagCount, compareLevel) 
 			: false);
 
 		site.mCached = true;
@@ -1135,7 +1147,7 @@ namespace LLError
 		}
 		
 		Globals* g = Globals::getInstance();
-		Settings& s = Settings::get();
+		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
 
 		std::string message = out->str();
 		if (out == &g->messageStream)
@@ -1158,8 +1170,8 @@ namespace LLError
 
 		if (site.mPrintOnce)
 		{
-			std::map<std::string, unsigned int>::iterator messageIter = s.mUniqueLogMessages.find(message);
-			if (messageIter != s.mUniqueLogMessages.end())
+			std::map<std::string, unsigned int>::iterator messageIter = s->mUniqueLogMessages.find(message);
+			if (messageIter != s->mUniqueLogMessages.end())
 			{
 				messageIter->second++;
 				unsigned int num_messages = messageIter->second;
@@ -1175,7 +1187,7 @@ namespace LLError
 			else 
 			{
 				message_stream << "ONCE: ";
-				s.mUniqueLogMessages[message] = 1;
+				s->mUniqueLogMessages[message] = 1;
 			}
 		}
 		
@@ -1183,23 +1195,23 @@ namespace LLError
 		
 		writeToRecorders(site, message_stream.str());
 		
-		if (site.mLevel == LEVEL_ERROR  &&  s.mCrashFunction)
+		if (site.mLevel == LEVEL_ERROR  &&  s->mCrashFunction)
 		{
-			s.mCrashFunction(message_stream.str());
+			s->mCrashFunction(message_stream.str());
 		}
 	}
 }
 
 namespace LLError
 {
-	Settings* saveAndResetSettings()
+	SettingsStoragePtr saveAndResetSettings()
 	{
-		return Settings::saveAndReset();
+		return Settings::getInstance()->saveAndReset();
 	}
 	
-	void restoreSettings(Settings* s)
+	void restoreSettings(SettingsStoragePtr pSettingsStorage)
 	{
-		return Settings::restore(s);
+		return Settings::getInstance()->restore(pSettingsStorage);
 	}
 
 	std::string removePrefix(std::string& s, const std::string& p)
@@ -1245,8 +1257,8 @@ namespace LLError
 
 	int shouldLogCallCount()
 	{
-		Settings& s = Settings::get();
-		return s.mShouldLogCallCounter;
+		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
+		return s->mShouldLogCallCounter;
 	}
 
 #if LL_WINDOWS

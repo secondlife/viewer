@@ -82,7 +82,7 @@ struct WrapLLErrs
     }
 
     std::string error;
-    LLError::Settings* mPriorErrorSettings;
+    LLError::SettingsStoragePtr mPriorErrorSettings;
     LLError::FatalFunction mPriorFatal;
 };
 
@@ -196,7 +196,7 @@ public:
     }
 
 private:
-    LLError::Settings* mOldSettings;
+    LLError::SettingsStoragePtr mOldSettings;
 	LLError::RecorderPtr mRecorder;
 };
 

@@ -169,7 +169,7 @@ public:
 	}
 
 private:
-	LLError::Settings* mOldSettings;
+	LLError::SettingsStoragePtr mOldSettings;
 	LLError::RecorderPtr mRecorder;
 };
 

@@ -29,6 +29,8 @@
 #define LL_LLERRORCONTROL_H
 
 #include "llerror.h"
+#include "llpointer.h"
+#include "llrefcount.h"
 #include "boost/function.hpp"
 #include "boost/shared_ptr.hpp"
 #include <string>
@@ -181,9 +183,9 @@ namespace LLError
 		Utilities for use by the unit tests of LLError itself.
 	*/
 
-	class Settings;
-	LL_COMMON_API Settings* saveAndResetSettings();
-	LL_COMMON_API void restoreSettings(Settings *);
+	typedef LLPointer<LLRefCount> SettingsStoragePtr;
+	LL_COMMON_API SettingsStoragePtr saveAndResetSettings();
+	LL_COMMON_API void restoreSettings(SettingsStoragePtr pSettingsStorage);
 
 	LL_COMMON_API std::string abbreviateFile(const std::string& filePath);
 	LL_COMMON_API int shouldLogCallCount();

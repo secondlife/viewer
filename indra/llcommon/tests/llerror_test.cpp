@@ -86,7 +86,7 @@ namespace tut
 	struct ErrorTestData
 	{
 		LLError::RecorderPtr mRecorder;
-		LLError::Settings* mPriorErrorSettings;
+		LLError::SettingsStoragePtr mPriorErrorSettings;
 
 		ErrorTestData():
 			mRecorder(new TestRecorder())
