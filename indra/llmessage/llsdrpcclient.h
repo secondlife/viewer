@@ -240,7 +240,7 @@ public:
 	virtual bool build(LLPumpIO::chain_t& chain, LLSD context) const
 	{
 		LL_DEBUGS() << "LLSDRPCClientFactory::build" << LL_ENDL;
-		LLURLRequest* http(new LLURLRequest(LLURLRequest::HTTP_POST));
+		LLURLRequest* http(new LLURLRequest(HTTP_POST));
 		if(!http->isValid())
 		{
 			LL_WARNS() << "Creating LLURLRequest failed." << LL_ENDL ;
