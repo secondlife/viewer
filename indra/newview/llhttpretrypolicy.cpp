@@ -137,6 +137,6 @@ bool LLAdaptiveRetryPolicy::shouldRetry(F32& seconds_to_wait) const
 		seconds_to_wait = F32_MAX;
 		return false;
 	}
-	seconds_to_wait = mShouldRetry ? mRetryTimer.getRemainingTimeF32() : F32_MAX;
+	seconds_to_wait = mShouldRetry ? (F32) mRetryTimer.getRemainingTimeF32() : F32_MAX;
 	return mShouldRetry;
 }
