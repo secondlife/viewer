@@ -21,15 +21,15 @@
     </text>
 
     <color_swatch
-    can_apply_immediately="true"
-    follows="left|top"
-    height="24"
-    label_height="0"
-    layout="topleft"
-    left="15"
-    name="text"
-    top="45"
-    width="44" >
+     can_apply_immediately="true"
+     follows="left|top"
+     height="24"
+     label_height="0"
+     layout="topleft"
+     left="15"
+     name="text"
+     top="45"
+     width="44" >
         <color_swatch.init_callback
          function="ScriptPref.getUIColor"
          parameter="ScriptText" />
@@ -412,15 +412,15 @@
     Flow Control
     </text>
     <color_swatch
-    can_apply_immediately="true"
-    follows="left|top"
-    height="24"
-    label_height="0"
-    layout="topleft"
-    left="170"
-    name="function"
-    top_pad="10"
-    width="44" >
+     can_apply_immediately="true"
+     follows="left|top"
+     height="24"
+     label_height="0"
+     layout="topleft"
+     left="170"
+     name="function"
+     top_pad="10"
+     width="44" >
         <color_swatch.init_callback
          function="ScriptPref.getUIColor"
          parameter="SyntaxLslFunction" />
