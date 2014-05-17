@@ -53,6 +53,9 @@ const S32 PARCEL_MAX_ACCESS_LIST = 300;
 //for access/ban lists.
 const F32 PARCEL_MAX_ENTRIES_PER_PACKET = 48.f;
 
+// Maximum number of experiences
+const S32 PARCEL_MAX_EXPERIENCE_LIST = 24;
+
 // Weekly charge for listing a parcel in the directory
 const S32 PARCEL_DIRECTORY_FEE = 30;
 
@@ -671,6 +674,7 @@ public:
 	typedef std::map<LLUUID, U32> xp_type_map_t;
 
 	void setExperienceKeyType(const LLUUID& experience_key, U32 type);
+	U32 countExperienceKeyType(U32 type);
 	U32 getExperienceKeyType(const LLUUID& experience_key)const;
 	LLAccessEntry::map getExperienceKeysByType(U32 type)const;
 	void clearExperienceKeysByType(U32 type);

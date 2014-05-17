@@ -470,7 +470,7 @@ public:
 private:
 	void refreshRegionExperiences();
 
-	LLPanelExperienceListEditor* setupList(const char* control_name);
+	LLPanelExperienceListEditor* setupList(const char* control_name, U32 add_id, U32 remove_id);
 	static LLSD addIds( LLPanelExperienceListEditor* panel );
 
 	void itemChanged(U32 event_type, const LLUUID& id);

@@ -3555,26 +3555,28 @@ void LLPanelEnvironmentInfo::onRegionSettingsApplied(bool ok)
 
 BOOL LLPanelRegionExperiences::postBuild()
 {
-	mAllowed = setupList("panel_allowed");
-	mTrusted = setupList("panel_trusted");
-	mBlocked = setupList("panel_blocked");
+	mAllowed = setupList("panel_allowed", ESTATE_EXPERIENCE_ALLOWED_ADD, ESTATE_EXPERIENCE_ALLOWED_REMOVE);
+	mTrusted = setupList("panel_trusted", ESTATE_EXPERIENCE_BLOCKED_ADD, ESTATE_EXPERIENCE_BLOCKED_REMOVE);
+	mBlocked = setupList("panel_blocked", ESTATE_EXPERIENCE_TRUSTED_ADD, ESTATE_EXPERIENCE_TRUSTED_REMOVE);
 
-	mAllowed->setAddedCallback(		boost::bind(&LLPanelRegionExperiences::itemChanged, this, ESTATE_EXPERIENCE_ALLOWED_ADD, _1));
-	mAllowed->setRemovedCallback(	boost::bind(&LLPanelRegionExperiences::itemChanged, this, ESTATE_EXPERIENCE_ALLOWED_REMOVE, _1));
-	mBlocked->setAddedCallback(		boost::bind(&LLPanelRegionExperiences::itemChanged, this, ESTATE_EXPERIENCE_BLOCKED_ADD, _1));
-	mBlocked->setRemovedCallback(	boost::bind(&LLPanelRegionExperiences::itemChanged, this, ESTATE_EXPERIENCE_BLOCKED_REMOVE, _1));
-	mTrusted->setAddedCallback(		boost::bind(&LLPanelRegionExperiences::itemChanged, this, ESTATE_EXPERIENCE_TRUSTED_ADD, _1));
-	mTrusted->setRemovedCallback(	boost::bind(&LLPanelRegionExperiences::itemChanged, this, ESTATE_EXPERIENCE_TRUSTED_REMOVE, _1));
+	getChild<LLLayoutPanel>("trusted_layout_panel")->setVisible(TRUE);
+	getChild<LLTextBox>("experiences_help_text")->setText(getString("estate_caption"));
+	getChild<LLTextBox>("trusted_text_help")->setText(getString("trusted_estate_text"));
+	getChild<LLTextBox>("allowed_text_help")->setText(getString("allowed_estate_text"));
+	getChild<LLTextBox>("blocked_text_help")->setText(getString("blocked_estate_text"));
 
 	return LLPanelRegionInfo::postBuild();
 }
 
-LLPanelExperienceListEditor* LLPanelRegionExperiences::setupList( const char* control_name )
+LLPanelExperienceListEditor* LLPanelRegionExperiences::setupList( const char* control_name, U32 add_id, U32 remove_id )
 {
 	LLPanelExperienceListEditor* child = findChild<LLPanelExperienceListEditor>(control_name);
 	if(child)
 	{
-		child->getChild<LLTextBox>("text_name")->setText(getString(control_name));
+		child->getChild<LLTextBox>("text_name")->setText(child->getString(control_name));
+		child->setMaxExperienceIDs(ESTATE_MAX_EXPERIENCE_IDS);
+		child->setAddedCallback(  boost::bind(&LLPanelRegionExperiences::itemChanged, this, add_id, _1));
+		child->setRemovedCallback(boost::bind(&LLPanelRegionExperiences::itemChanged, this, remove_id, _1));
 	}
 
 	return child;
@@ -3600,18 +3602,10 @@ void LLPanelRegionExperiences::processResponse( const LLSD& content )
 
 	mTrusted->setExperienceIds(trusted);
 	
-	if (!mAllowed->getReadonly())
-	{
-		mAllowed->refreshExperienceCounter("RegionInfoAllowedExperiences");
-	}
-	if (!mBlocked->getReadonly())
-	{
-		mBlocked->refreshExperienceCounter("RegionInfoBlockedExperiences");
-	}
-	if (!mTrusted->getReadonly())
-	{
-		mTrusted->refreshExperienceCounter("RegionInfoTrustedExperiences");
-	}
+	mAllowed->refreshExperienceCounter();
+	mBlocked->refreshExperienceCounter();
+	mTrusted->refreshExperienceCounter();
+
 }
 
 

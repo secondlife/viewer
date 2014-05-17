@@ -8,7 +8,7 @@
  help_topic="floaterland"
  save_rect="true"
  title="ABOUT LAND"
- width="490">
+ width="590">
     <floater.string
       name="maturity_icon_general">
       "Parcel_PG_Dark"
@@ -47,7 +47,7 @@
      tab_height="25"
      tab_min_width="67"
      top="10"
-     width="489">
+     width="589">
         <panel
          border="false"
          follows="all"
@@ -569,8 +569,7 @@
          left="0"
          top="0"
          help_topic="land_covenant_tab"
-         name="land_covenant_panel"
-         word_wrap="true">
+         name="land_covenant_panel">
             <panel.string
              name="can_resell"
              word_wrap="true">
@@ -2096,5 +2095,17 @@ Only large parcels can be listed in search.
              width="100" />
              </panel>
         </panel>
+       <panel
+          border="true"
+          follows="all"
+          label="EXPERIENCES"
+          layout="topleft"
+          left="0"
+          top="0"
+          help_topic="land_experiences_tab"
+          name="land_experiences_panel"
+            class="land_experiences_panel"
+          filename="panel_region_experiences.xml">
+       </panel>
     </tab_container>
 </floater>

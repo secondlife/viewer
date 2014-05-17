@@ -62,10 +62,12 @@ public:
 	bool getReadonly() const { return mReadonly; }
 	void setReadonly(bool val);
 
-	void refreshExperienceCounter(std::string string_name);
+	void refreshExperienceCounter();
 
 	void addFilter(experience_function func){mFilters.push_back(func);}
 	void setStickyFunction(experience_function func){mSticky = func;}
+	U32 getMaxExperienceIDs() const { return mMaxExperienceIDs; }
+	void setMaxExperienceIDs(U32 val) { mMaxExperienceIDs = val; }
 private:
 
 	void onItems();
@@ -91,6 +93,7 @@ private:
 	LLUUID						mKey;
 	bool						mReadonly;
 	experience_function			mSticky;
+	U32							mMaxExperienceIDs;
 
 };
 

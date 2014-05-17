@@ -66,6 +66,7 @@ class LLPanelLandBan;
 class LLPanelLandRenters;
 class LLPanelLandCovenant;
 class LLParcel;
+class LLPanelLandExperiences;
 
 class LLFloaterLand
 :	public LLFloater
@@ -101,6 +102,7 @@ protected:
 	static void* createPanelLandAudio(void* data);
 	static void* createPanelLandMedia(void* data);
 	static void* createPanelLandAccess(void* data);
+	static void* createPanelLandExperiences(void* data);
 	static void* createPanelLandBan(void* data);
 
 
@@ -116,6 +118,7 @@ protected:
 	LLPanelLandMedia*		mPanelMedia;
 	LLPanelLandAccess*		mPanelAccess;
 	LLPanelLandCovenant*	mPanelCovenant;
+	LLPanelLandExperiences*	mPanelExperiences;
 
 	LLSafeHandle<LLParcelSelection>	mParcel;
 
@@ -302,83 +305,6 @@ protected:
 	std::string		mSelectedName;
 	S32				mSelectedCount;
 	BOOL			mSelectedIsGroup;
-
-	LLSafeHandle<LLParcelSelection>&	mParcel;
-};
-
-
-class LLPanelLandOptions
-:	public LLPanel
-{
-public:
-	LLPanelLandOptions(LLSafeHandle<LLParcelSelection>& parcelp);
-	virtual ~LLPanelLandOptions();
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void draw();
-	/*virtual*/ void refresh();
-
-private:
-	// Refresh the "show in search" checkbox and category selector.
-	void refreshSearch();
-
-	static void onCommitAny(LLUICtrl* ctrl, void *userdata);
-	static void onClickSet(void* userdata);
-	static void onClickClear(void* userdata);
-
-private:
-	LLCheckBoxCtrl*	mCheckEditObjects;
-	LLCheckBoxCtrl*	mCheckEditGroupObjects;
-	LLCheckBoxCtrl*	mCheckAllObjectEntry;
-	LLCheckBoxCtrl*	mCheckGroupObjectEntry;
-	LLCheckBoxCtrl*	mCheckSafe;
-	LLCheckBoxCtrl*	mCheckFly;
-	LLCheckBoxCtrl*	mCheckGroupScripts;
-	LLCheckBoxCtrl*	mCheckOtherScripts;
-
-	LLCheckBoxCtrl*	mCheckShowDirectory;
-	LLComboBox*		mCategoryCombo;
-	LLComboBox*		mLandingTypeCombo;
-
-	LLTextureCtrl*	mSnapshotCtrl;
-
-	LLTextBox*		mLocationText;
-	LLButton*		mSetBtn;
-	LLButton*		mClearBtn;
-
-	LLCheckBoxCtrl		*mMatureCtrl;
-	LLCheckBoxCtrl		*mPushRestrictionCtrl;
-	LLCheckBoxCtrl		*mSeeAvatarsCtrl;
-
-	LLSafeHandle<LLParcelSelection>&	mParcel;
-};
-
-
-class LLPanelLandAccess
-:	public LLPanel
-{
-public:
-	LLPanelLandAccess(LLSafeHandle<LLParcelSelection>& parcelp);
-	virtual ~LLPanelLandAccess();
-	void refresh();
-	void refresh_ui();
-	void refreshNames();
-	virtual void draw();
-
-	static void onCommitPublicAccess(LLUICtrl* ctrl, void *userdata);
-	static void onCommitAny(LLUICtrl* ctrl, void *userdata);
-	static void onClickRemoveAccess(void*);
-	static void onClickRemoveBanned(void*);
-
-	virtual BOOL postBuild();
-	
-	void onClickAddAccess();
-	void onClickAddBanned();
-	void callbackAvatarCBBanned(const uuid_vec_t& ids);
-	void callbackAvatarCBAccess(const uuid_vec_t& ids);
-
-protected:
-	LLNameListCtrl*		mListAccess;
-	LLNameListCtrl*		mListBanned;
 
 	LLSafeHandle<LLParcelSelection>&	mParcel;
 };

@@ -13,26 +13,46 @@
     name="loading">
     loading...
   </panel.string>
+   <panel.string
+      name="panel_allowed">
+      Allowed Experiences:
+   </panel.string>
+   <panel.string
+      name="panel_blocked">
+      Blocked Experiences:
+   </panel.string>
+   <panel.string
+      name="panel_trusted">
+      Trusted Experiences:
+   </panel.string>
   <panel.string
     name="no_results">
     (empty)
   </panel.string>
-  <text
-    layout="topleft"
-    name="text_name"
-    left="3"
-    right="-1"
-    height="12"
-    follows="left|top|right">
-    Experience List
-  </text>
+   <text
+      layout="topleft"
+      name="text_name"
+      left="3"
+      right="120"
+      height="12"
+      follows="left|top">
+      Experience List
+   </text>
+   <text
+      layout="topleft"
+      name="text_count"
+      left="125"
+      top_pad="-12"
+      right="-1"
+      height="12"
+      follows="top|left">
+   </text>
   <scroll_list
     draw_heading="false"
     left="3"
     width="225"
     height="77"
     follows="all"
-    can_resize="false"
     name="experience_list">
     <columns
       width="225"

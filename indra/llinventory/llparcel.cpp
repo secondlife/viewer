@@ -41,6 +41,7 @@
 #include "message.h"
 #include "u64.h"
 #include "llregionflags.h"
+#include <boost/range/adaptor/map.hpp>
 
 static const F32 SOME_BIG_NUMBER = 1000.0f;
 static const F32 SOME_BIG_NEG_NUMBER = -1000.0f;
@@ -1256,6 +1257,17 @@ void LLParcel::setExperienceKeyType( const LLUUID& experience_key, U32 type )
 	}
 	else
 	{
-		mExperienceKeys[experience_key] = type;
+		if(countExperienceKeyType(type) < PARCEL_MAX_EXPERIENCE_LIST)
+		{
+			mExperienceKeys[experience_key] = type;
+		}
 	}
+}
+
+U32 LLParcel::countExperienceKeyType( U32 type )
+{
+	return std::count_if(
+		boost::begin(mExperienceKeys | boost::adaptors::map_values), 
+		boost::end(mExperienceKeys | boost::adaptors::map_values), 
+		std::bind2nd(std::equal_to<U32>(), type));
 }
