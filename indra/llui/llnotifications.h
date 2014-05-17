@@ -413,6 +413,9 @@ private:
 	 using the same mechanism.
 	 */
 	bool mTemporaryResponder;
+	
+	// keep track of other notifications combined with COMBINE_WITH_NEW
+	std::vector<LLNotificationPtr> mCombinedNotifications;
 
 	void init(const std::string& template_name, const LLSD& form_elements);
 
@@ -559,6 +562,7 @@ public:
 	typedef enum e_combine_behavior
 	{
 		REPLACE_WITH_NEW,
+		COMBINE_WITH_NEW,
 		KEEP_OLD,
 		CANCEL_OLD
 
