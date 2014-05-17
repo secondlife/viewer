@@ -1217,6 +1217,11 @@ void LLInventoryModel::deleteObject(const LLUUID& id)
 		LLViewerInventoryCategory* cat = (LLViewerInventoryCategory*)((LLInventoryObject*)obj);
 		cat_list->removeObj(cat);
 	}
+    
+    // Note : We need to tell the inventory observers that those things are going to be deleted *before* the tree is cleared or they won't know what to delete (in views and view models)
+	addChangedMask(LLInventoryObserver::REMOVE, id);
+	gInventory.notifyObservers();
+    
 	item_list = getUnlockedItemArray(id);
 	if(item_list)
 	{
@@ -1229,10 +1234,8 @@ void LLInventoryModel::deleteObject(const LLUUID& id)
 		delete cat_list;
 		mParentChildCategoryTree.erase(id);
 	}
-	addChangedMask(LLInventoryObserver::REMOVE, id);
 	obj = NULL; // delete obj
 	updateLinkedObjectsFromPurge(id);
-	gInventory.notifyObservers();
 }
 
 // Delete a particular inventory item by ID, and remove it from the server.

@@ -1477,12 +1477,14 @@ void LLFolderViewFolder::destroyView()
     while (!mItems.empty())
     {
     	LLFolderViewItem *itemp = mItems.back();
+        mItems.pop_back();
     	itemp->destroyView(); // LLFolderViewItem::destroyView() removes entry from mItems
     }
 
 	while (!mFolders.empty())
 	{
 		LLFolderViewFolder *folderp = mFolders.back();
+        mFolders.pop_back();
 		folderp->destroyView(); // LLFolderVievFolder::destroyView() removes entry from mFolders
 	}
 

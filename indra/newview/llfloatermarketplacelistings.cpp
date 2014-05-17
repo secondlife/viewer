@@ -242,25 +242,15 @@ void LLFloaterMarketplaceListings::onOpen(const LLSD& key)
 	{
 		initializeMarketPlace();
 	}
-	else
-	{
-		setup();
+    else
+    {
+        updateView();
 	}
-	
-	//
-	// Update the floater view
-	//
-	updateView();
-	
-	//
-	// Trigger fetch of the contents
-	//
-	fetchContents();
 }
 
 void LLFloaterMarketplaceListings::onFocusReceived()
 {
-	fetchContents();
+	updateView();
 }
 
 void LLFloaterMarketplaceListings::fetchContents()
@@ -484,7 +474,6 @@ void LLFloaterMarketplaceListings::onChanged()
     LLViewerInventoryCategory* category = gInventory.getCategory(mRootFolderId);
 	if (mRootFolderId.notNull() && category)
     {
-        fetchContents();
         updateView();
     }
     else
