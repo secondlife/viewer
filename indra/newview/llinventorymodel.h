@@ -485,7 +485,7 @@ public:
 	// been changed 'under the hood', but outside the control of the
 	// inventory. The next notify will include that notification.
 	void addChangedMask(U32 mask, const LLUUID& referent);
-	typedef uuid_set_t changed_items_t;
+	
 	const changed_items_t& getChangedIDs() const { return mChangedItemIDs; }
 	const changed_items_t& getAddedIDs() const { return mAddedItemIDs; }
 protected:
