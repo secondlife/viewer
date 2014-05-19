@@ -243,6 +243,8 @@ public:
 	BOOL isRoleDataComplete() { return mRoleDataComplete; }
 	BOOL isRoleMemberDataComplete() { return mRoleMemberDataComplete; }
 	BOOL isGroupPropertiesDataComplete() { return mGroupPropertiesDataComplete; }
+	
+	bool isSingleMemberNotOwner();
 
 	F32 getAccessTime() const { return mAccessTime; }
 	void setAccessed();

@@ -55,7 +55,9 @@ BOOL	LLPreviewSound::postBuild()
 	{
 		getChild<LLUICtrl>("desc")->setValue(item->getDescription());
 		if (gAudiop)
+		{
 			gAudiop->preloadSound(item->getAssetUUID()); // preload the sound
+		}
 	}
 	
 	childSetAction("Sound play btn",&LLPreviewSound::playSound,this);
@@ -94,6 +96,6 @@ void LLPreviewSound::auditionSound( void *userdata )
 	if(item && gAudiop)
 	{
 		LLVector3d lpos_global = gAgent.getPositionGlobal();
-		gAudiop->triggerSound(item->getAssetUUID(), gAgent.getID(), SOUND_GAIN, LLAudioEngine::AUDIO_TYPE_UI, lpos_global);
+		gAudiop->triggerSound(item->getAssetUUID(), gAgent.getID(), SOUND_GAIN, LLAudioEngine::AUDIO_TYPE_SFX, lpos_global);
 	}
 }

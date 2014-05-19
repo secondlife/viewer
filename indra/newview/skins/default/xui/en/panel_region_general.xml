@@ -94,11 +94,20 @@
      width="80" />
     <check_box
      height="20"
+     label="Block Parcel Fly Over"
+     layout="topleft"
+     left="10"
+     name="block_fly_over_check"
+     tool_tip="Extend access checks upwards to prevent flying over a parcel"
+     top="110"
+     width="90" />
+  <check_box
+     height="20"
      label="Allow Damage"
      layout="topleft"
      left="10"
      name="allow_damage_check"
-     top="110"
+     top="130"
      width="80" />
     <check_box
      height="20"
@@ -106,7 +115,7 @@
      layout="topleft"
      left="10"
      name="restrict_pushobject"
-     top="130"
+     top="150"
      width="80" />
     <check_box
      height="20"
@@ -114,7 +123,7 @@
      layout="topleft"
      left="10"
      name="allow_land_resell_check"
-     top="150"
+     top="170"
      width="80" />
     <check_box
      height="20"
@@ -122,7 +131,7 @@
      layout="topleft"
      left="10"
      name="allow_parcel_changes_check"
-     top="170"
+     top="190"
      width="80" />
     <check_box
      height="20"
@@ -131,7 +140,7 @@
      left="10"
      name="block_parcel_search_check"
      tool_tip="Let people see this region and its parcels in search results"
-     top="190"
+     top="210"
      width="80" />
 	<spinner
      decimal_digits="0"
@@ -145,7 +154,7 @@
      max_val="100"
      min_val="1"
      name="agent_limit_spin"
-     top="240"
+     top="260"
      width="170" />
     <spinner
      follows="left|top"
@@ -158,7 +167,7 @@
      max_val="10"
      min_val="1"
      name="object_bonus_spin"
-     top="260"
+     top="280"
      width="170" />
     <text
      follows="left|top"
@@ -167,7 +176,7 @@
      layout="topleft"
      left="10"
      name="access_text"
-     top="290"
+     top="310"
      width="100">
         Rating:
     </text>
@@ -224,7 +233,7 @@
      layout="topleft"
      left="108"
      name="apply_btn"
-     top="320"
+     top="340"
      width="100"/> 
     <button
      follows="left|top"

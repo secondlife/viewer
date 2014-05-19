@@ -2339,7 +2339,8 @@ void LLTextEditor::autoIndent()
 	S32 i;
 
 	LLWString text = getWText();
-	while( ' ' == text[line_start] )
+	S32 offset = getLineOffsetFromDocIndex(mCursorPos);
+	while(( ' ' == text[line_start] ) && (space_count < offset))
 	{
 		space_count++;
 		line_start++;
