@@ -710,13 +710,13 @@ void LLSidepanelInventory::clearSelections(bool clearMain, bool clearInbox)
 		
 		if (inv_panel)
 		{
-			inv_panel->clearSelection();
+			inv_panel->getRootFolder()->clearSelection();
 		}
 	}
 	
 	if (clearInbox && mInboxEnabled && mInventoryPanelInbox.get())
 	{
-		mInventoryPanelInbox.get()->clearSelection();
+		mInventoryPanelInbox.get()->getRootFolder()->clearSelection();
 	}
 	
 	updateVerbs();

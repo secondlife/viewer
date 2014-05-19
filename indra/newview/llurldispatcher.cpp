@@ -34,6 +34,7 @@
 #include "llfloaterreg.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfloaterworldmap.h"
+#include "llnotifications.h"
 #include "llpanellogin.h"
 #include "llregionhandle.h"
 #include "llslurl.h"
@@ -253,13 +254,15 @@ void LLURLDispatcherImpl::regionHandleCallback(U64 region_handle, const LLSLURL&
 //---------------------------------------------------------------------------
 // Teleportation links are handled here because they are tightly coupled
 // to SLURL parsing and sim-fragment parsing
+
 class LLTeleportHandler : public LLCommandHandler
 {
 public:
 	// Teleport requests *must* come from a trusted browser
 	// inside the app, otherwise a malicious web page could
 	// cause a constant teleport loop.  JC
-	LLTeleportHandler() : LLCommandHandler("teleport", UNTRUSTED_BLOCK) { }
+	LLTeleportHandler() : LLCommandHandler("teleport", UNTRUSTED_THROTTLE) { }
+
 
 	bool handle(const LLSD& tokens, const LLSD& query_map,
 				LLMediaCtrl* web)
@@ -276,18 +279,50 @@ public:
 							   tokens[3].asReal());
 		}
 		
+		LLSD args;
+		args["LOCATION"] = tokens[0];
+
 		// Region names may be %20 escaped.
-		
 		std::string region_name = LLURI::unescape(tokens[0]);
+
+		LLSD payload;
+		payload["region_name"] = region_name;
+		payload["callback_url"] = LLSLURL(region_name, coords).getSLURLString();
+
+		LLNotificationsUtil::add("TeleportViaSLAPP", args, payload);
+		return true;
+	}
+
+	static void teleport_via_slapp(std::string region_name, std::string callback_url)
+	{
 
 		LLWorldMapMessage::getInstance()->sendNamedRegionRequest(region_name,
 			LLURLDispatcherImpl::regionHandleCallback,
-			LLSLURL(region_name, coords).getSLURLString(),
+			callback_url,
 			true);	// teleport
-		return true;
 	}
+
+	static bool teleport_via_slapp_callback(const LLSD& notification, const LLSD& response)
+	{
+		S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+
+		std::string region_name = notification["payload"]["region_name"].asString();
+		std::string callback_url = notification["payload"]["callback_url"].asString();
+
+		if (option == 0)
+		{
+			teleport_via_slapp(region_name, callback_url);
+			return true;
+		}
+
+		return false;
+	}
+
 };
 LLTeleportHandler gTeleportHandler;
+static LLNotificationFunctorRegistration open_landmark_callback_reg("TeleportViaSLAPP", LLTeleportHandler::teleport_via_slapp_callback);
+
+
 
 //---------------------------------------------------------------------------
 

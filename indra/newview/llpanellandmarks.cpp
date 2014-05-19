@@ -716,6 +716,11 @@ void LLLandmarksPanel::updateListCommands()
 	mListCommands->getChildView(TRASH_BUTTON_NAME)->setEnabled(trash_enabled);
 }
 
+void LLLandmarksPanel::updateMenuVisibility(LLUICtrl* menu)
+{
+	onMenuVisibilityChange(menu, LLSD().with("visibility", true));
+}
+
 void LLLandmarksPanel::onActionsButtonClick()
 {
 	LLToggleableMenu* menu = mGearFolderMenu;

@@ -716,7 +716,7 @@ void LLFloaterIMSession::setVisible(BOOL visible)
 	if (visible && isInVisibleChain())
 	{
 		sIMFloaterShowedSignal(mSessionID);
-        
+        updateMessages();
 	}
 
 }

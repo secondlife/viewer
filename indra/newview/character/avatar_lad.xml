@@ -3825,7 +3825,7 @@
         <volume_morph
           name="BELLY"
           scale="0.075 0.04 0.03"
-          pos="0.07 0 -0.02"/>
+          pos="0.07 0 -0.07"/>
         <volume_morph
           name="PELVIS"
           scale="0.075 0.04 0.03"
@@ -4269,7 +4269,7 @@
      label_min="Big Pectorals"
      label_max="Sunken Chest"
      value_default="0"
-     value_min="-1.0"
+     value_min="-0.5"
      value_max="1.1"
      camera_elevation=".3"
      camera_distance="1.2">

@@ -80,6 +80,8 @@ public:
 
 	LLPlacesInventoryPanel* getLibraryInventoryPanel() { return mLibraryInventoryPanel; }
 
+	void updateMenuVisibility(LLUICtrl* menu);
+
 protected:
 	/**
 	 * @return true - if current selected panel is not null and selected item is a landmark

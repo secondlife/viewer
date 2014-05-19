@@ -293,11 +293,24 @@
     <!--these are for passing controls when sitting on vehicles-->
     <binding key="A" mask="SHIFT" command="slide_left"/>
     <binding key="D" mask="SHIFT" command="slide_right"/>
+    <binding key="W" mask="SHIFT" command="move_forward_sitting"/>
+	<binding key="S" mask="SHIFT" command="move_backward_sitting"/>
+	<binding key="E" mask="SHIFT" command="spin_over_sitting"/>
+	<binding key="C" mask="SHIFT" command="spin_under_sitting"/>
+
     <binding key="LEFT" mask="SHIFT" command="slide_left"/>
     <binding key="RIGHT" mask="SHIFT" command="slide_right"/>
+    <binding key="UP" mask="SHIFT" command="move_forward_sitting"/>
+	<binding key="DOWN" mask="SHIFT" command="move_backward_sitting"/>
+	<binding key="PGUP" mask="SHIFT" command="spin_over_sitting"/>
+	<binding key="PGDN" mask="SHIFT" command="spin_under_sitting"/>
 
     <binding key="PAD_LEFT" mask="SHIFT" command="slide_left"/>
     <binding key="PAD_RIGHT" mask="SHIFT" command="slide_right"/>
+    <binding key="PAD_UP" mask="SHIFT" command="move_forward_sitting"/>
+	<binding key="PAD_DOWN" mask="SHIFT" command="move_backward_sitting"/>
+	<binding key="PAD_PGUP" mask="SHIFT" command="spin_over_sitting"/>
+	<binding key="PAD_PGDN" mask="SHIFT" command="spin_under_sitting"/> 
     <binding key="PAD_ENTER" mask="SHIFT" command="start_chat"/>
     <binding key="PAD_DIVIDE" mask="SHIFT" command="start_gesture"/>
 

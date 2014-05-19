@@ -119,7 +119,7 @@ public:
 	void setAllowSetHome(BOOL b) { setRegionFlag(REGION_FLAGS_ALLOW_SET_HOME, b); }
 	void setResetHomeOnTeleport(BOOL b) { setRegionFlag(REGION_FLAGS_RESET_HOME_ON_TELEPORT, b); }
 	void setSunFixed(BOOL b) { setRegionFlag(REGION_FLAGS_SUN_FIXED, b); }
-	void setBlockFly(BOOL b) { setRegionFlag(REGION_FLAGS_BLOCK_FLY, b); }
+	//void setBlockFly(BOOL b) { setRegionFlag(REGION_FLAGS_BLOCK_FLY, b); }		Never used
 	void setAllowDirectTeleport(BOOL b) { setRegionFlag(REGION_FLAGS_ALLOW_DIRECT_TELEPORT, b); }
 
 
