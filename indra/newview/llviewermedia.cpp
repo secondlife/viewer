@@ -1604,6 +1604,12 @@ void LLViewerMedia::cleanupClass()
 		delete sSpareBrowserMediaSource;
 		sSpareBrowserMediaSource = NULL;
 	}
+
+	if (sCookieStore != NULL)
+	{
+		delete sCookieStore;
+		sCookieStore = NULL;
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
