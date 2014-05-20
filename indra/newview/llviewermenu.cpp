@@ -64,6 +64,7 @@
 #include "llfloaterinventory.h"
 #include "llfloaterimcontainer.h"
 #include "llfloaterland.h"
+#include "llfloaterimnearbychat.h"
 #include "llfloaterpathfindingcharacters.h"
 #include "llfloaterpathfindinglinksets.h"
 #include "llfloaterpay.h"
@@ -5660,6 +5661,25 @@ void toggle_debug_menus(void*)
 // 	gExportDialog = LLUploadDialog::modalUploadDialog("Exporting selected objects...");
 // }
 //
+
+class LLCommunicateNearbyChat : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLFloaterIMContainer* im_box = LLFloaterIMContainer::getInstance();
+		bool nearby_visible	= LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat")->isInVisibleChain();
+		if(nearby_visible && im_box->getSelectedSession() == LLUUID() && im_box->getConversationListItemSize() > 1)
+		{
+			im_box->selectNextorPreviousConversation(false);
+		}
+		else
+		{
+			LLFloaterReg::toggleInstanceOrBringToFront("nearby_chat");
+		}
+		return true;
+	}
+};
+
 class LLWorldSetHomeLocation : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -8576,6 +8596,9 @@ void initialize_menus()
 	
 	// Me > Movement
 	view_listener_t::addMenu(new LLAdvancedAgentFlyingInfo(), "Agent.getFlying");
+
+	//Communicate Nearby chat
+	view_listener_t::addMenu(new LLCommunicateNearbyChat(), "Communicate.NearbyChat");
 
 	// Communicate > Voice morphing > Subscribe...
 	commit.add("Communicate.VoiceMorphing.Subscribe", boost::bind(&handle_voice_morphing_subscribe));

@@ -259,8 +259,7 @@
              function="Floater.Visible"
              parameter="nearby_chat" />
             <menu_item_check.on_click
-             function="Floater.ToggleOrBringToFront"
-             parameter="nearby_chat" />
+             function="Communicate.NearbyChat"/>
         </menu_item_check>
         <menu_item_check
          label="Speak"
@@ -363,13 +362,16 @@
               function="SideTray.PanelPeopleTab"
               parameter="nearby_panel" />
         </menu_item_check>
-        <menu_item_call
+        <menu_item_check
          label="Block List"
          name="Block List">
-            <menu_item_call.on_click
+            <menu_item_check.on_check
+             function="SideTray.CheckPanelPeopleTab"
+             parameter="blocked_panel" />
+            <menu_item_check.on_click
               function="SideTray.PanelPeopleTab"
               parameter="blocked_panel" />
-        </menu_item_call>
+        </menu_item_check>
       <menu_item_separator/>
       <menu_item_check
        name="Do Not Disturb"
