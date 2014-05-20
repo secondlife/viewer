@@ -509,7 +509,7 @@ private:
 void LLGLTexMemBar::draw()
 {
 	S32Megabytes bound_mem = LLViewerTexture::sBoundTextureMemory;
- 	S32Megabytes max_bound_mem = LLViewerTexture::sMaxBoundTextureMem;
+ 	S32Megabytes max_bound_mem = LLViewerTexture::sMaxBoundTextureMemory;
 	S32Megabytes total_mem = LLViewerTexture::sTotalTextureMemory;
 	S32Megabytes max_total_mem = LLViewerTexture::sMaxTotalTextureMem;
 	F32 discard_bias = LLViewerTexture::sDesiredDiscardBias;
