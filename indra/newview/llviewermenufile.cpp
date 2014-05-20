@@ -495,7 +495,9 @@ class LLFileEnableCloseAllWindows : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool open_children = gFloaterView->allChildrenClosed() && !LLFloaterSnapshot::getInstance()->isInVisibleChain();
+		LLFloaterSnapshot* floater_snapshot = LLFloaterSnapshot::findInstance();
+		bool is_floater_snapshot_opened = floater_snapshot && floater_snapshot->isInVisibleChain();
+		bool open_children = gFloaterView->allChildrenClosed() && !is_floater_snapshot_opened;
 		return !open_children;
 	}
 };

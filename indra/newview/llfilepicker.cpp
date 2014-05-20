@@ -571,6 +571,7 @@ std::vector<std::string>* LLFilePicker::navOpenFilterProc(ELoadFilter filter) //
             allowedv->push_back("lsl");
             allowedv->push_back("dic");
             allowedv->push_back("xcu");
+            allowedv->push_back("gif");
         case FFLOAD_IMAGE:
             allowedv->push_back("jpg");
             allowedv->push_back("jpeg");
@@ -666,7 +667,7 @@ bool	LLFilePicker::doNavSaveDialog(ESaveFilter filter, const std::string& filena
 		case FFSAVE_TGAPNG:
 			type = "PNG";
 			creator = "prvw";
-			extension = "png";
+			extension = "png,tga";
 			break;
 		case FFSAVE_BMP:
 			type = "BMPf";

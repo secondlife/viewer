@@ -1518,6 +1518,18 @@ void LLDrawPoolAvatar::getRiggedGeometry(LLFace* face, LLPointer<LLVertexBuffer>
 	}
 
 	//LL_INFOS() << "Rebuilt face " << face->getTEOffset() << " of " << face->getDrawable() << " at " << gFrameTimeSeconds << LL_ENDL;
+
+	// Let getGeometryVolume know if a texture matrix is in play
+	if (face->mTextureMatrix)
+	{
+		face->setState(LLFace::TEXTURE_ANIM);
+	}
+	else
+	{
+		face->clearState(LLFace::TEXTURE_ANIM);
+	}
+
+
 	face->getGeometryVolume(*volume, face->getTEOffset(), mat_vert, mat_normal, offset, true);
 
 	buffer->flush();

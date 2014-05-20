@@ -235,7 +235,7 @@ public:
 	virtual S32	notify(const LLSD& info) ;
 	
 	bool useLabelSuffix() { return mUseLabelSuffix; }
-	void updateMenu();
+	virtual void updateMenu();
 
     // Note: We may eventually have to move that method up the hierarchy to LLFolderViewItem.
 	LLHandle<LLFolderView>	getHandle() const { return getDerivedHandle<LLFolderView>(); }

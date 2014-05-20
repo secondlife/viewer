@@ -620,44 +620,59 @@
          label="Sun"
          name="Sun"
          tear_off="true">
-            <menu_item_call
+            <menu_item_check
              label="Sunrise"
              name="Sunrise">
-                <menu_item_call.on_click
+                <menu_item_check.on_click
                  function="World.EnvSettings"
                  parameter="sunrise" />
-            </menu_item_call>
-            <menu_item_call
+                <menu_item_check.on_check
+                 function="World.EnableEnvSettings" 
+                 parameter="sunrise" />
+            </menu_item_check>
+            <menu_item_check
              label="Midday"
              name="Noon"
              shortcut="control|shift|Y">
-                <menu_item_call.on_click
+                <menu_item_check.on_click
                  function="World.EnvSettings"
                  parameter="noon" />
-            </menu_item_call>
-            <menu_item_call
+                <menu_item_check.on_check
+                 function="World.EnableEnvSettings" 
+                 parameter="noon" />
+            </menu_item_check>
+            <menu_item_check
              label="Sunset"
              name="Sunset"
              shortcut="control|shift|N">
-                <menu_item_call.on_click
+                <menu_item_check.on_click
                  function="World.EnvSettings"
                  parameter="sunset" />
-            </menu_item_call>
-            <menu_item_call
+                <menu_item_check.on_check
+                 function="World.EnableEnvSettings" 
+                 parameter="sunset" />
+            </menu_item_check>
+            <menu_item_check
              label="Midnight"
              name="Midnight">
-                <menu_item_call.on_click
+                <menu_item_check.on_click
                  function="World.EnvSettings"
                  parameter="midnight" />
-            </menu_item_call>
+                <menu_item_check.on_check
+                 function="World.EnableEnvSettings" 
+                 parameter="midnight" />
+            </menu_item_check>
             <menu_item_separator/>
-            <menu_item_call
+            <menu_item_check
              label="Use Region Settings"
              name="Use Region Settings">
-                <menu_item_call.on_click
+                <menu_item_check.on_click
                  function="World.EnvSettings"
                  parameter="region" />
-            </menu_item_call>
+                <menu_item_check.on_check
+                 function="World.EnableEnvSettings" 
+                 parameter="region" />
+            </menu_item_check>
         </menu>
 	    
    
@@ -1564,7 +1579,8 @@
             <menu_item_check
              label="Highlight Transparent"
              name="Highlight Transparent"
-             shortcut="control|alt|T">
+             shortcut="control|alt|T"
+             use_mac_ctrl="true">
                 <menu_item_check.on_check
                  function="View.CheckHighlightTransparent" />
                 <menu_item_check.on_click
@@ -3178,18 +3194,6 @@
                 <menu_item_call.on_click
                  function="Advanced.PrintAgentInfo" />
             </menu_item_call>
-            <menu_item_check
-             label="Region Debug Console"
-             name="Region Debug Console"
-             shortcut="control|shift|`"
-             use_mac_ctrl="true">
-                <menu_item_check.on_check
-                 function="Floater.Visible"
-                 parameter="region_debug_console" />
-                <menu_item_check.on_click
-                 function="Floater.Toggle"
-                 parameter="region_debug_console" />
-            </menu_item_check>
             <menu_item_separator />
 
             <menu_item_check

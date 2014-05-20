@@ -127,9 +127,28 @@ BOOL LLPreviewTexture::postBuild()
 			getChild<LLLineEditor>("desc")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
 		}
 	}
+
+	// Fill in ratios list with common aspect ratio values
+	mRatiosList.clear();
+	mRatiosList.push_back(LLTrans::getString("Unconstrained"));
+	mRatiosList.push_back("1:1");
+	mRatiosList.push_back("4:3");
+	mRatiosList.push_back("10:7");
+	mRatiosList.push_back("3:2");
+	mRatiosList.push_back("16:10");
+	mRatiosList.push_back("16:9");
+	mRatiosList.push_back("2:1");
 	
-	childSetCommitCallback("combo_aspect_ratio", onAspectRatioCommit, this);
+	// Now fill combo box with provided list
 	LLComboBox* combo = getChild<LLComboBox>("combo_aspect_ratio");
+	combo->removeall();
+
+	for (std::vector<std::string>::const_iterator it = mRatiosList.begin(); it != mRatiosList.end(); ++it)
+	{
+		combo->add(*it);
+	}
+
+	childSetCommitCallback("combo_aspect_ratio", onAspectRatioCommit, this);
 	combo->setCurrentByIndex(0);
 	
 	return LLPreview::postBuild();
@@ -414,6 +433,13 @@ void LLPreviewTexture::updateDimensions()
 	{
 		return;
 	}
+
+	if (mAssetStatus != PREVIEW_ASSET_LOADED)
+	{
+		mAssetStatus = PREVIEW_ASSET_LOADED;
+		// Asset has been fully loaded, adjust aspect ratio
+		adjustAspectRatio();
+	}
 	
 	// Update the width/height display every time
 	getChild<LLUICtrl>("dimensions")->setTextArg("[WIDTH]",  llformat("%d", mImage->getFullWidth()));
@@ -499,6 +525,46 @@ LLPreview::EAssetStatus LLPreviewTexture::getAssetStatus()
 		mAssetStatus = PREVIEW_ASSET_LOADED;
 	}
 	return mAssetStatus;
+}
+
+void LLPreviewTexture::adjustAspectRatio()
+{
+	S32 w = mImage->getFullWidth();
+    S32 h = mImage->getFullHeight();
+
+	// Determine aspect ratio of the image
+	S32 tmp;
+    while (h != 0)
+    {
+        tmp = w % h;
+        w = h;
+        h = tmp;
+    }
+	S32 divisor = w;
+	S32 num = mImage->getFullWidth() / divisor;
+	S32 denom = mImage->getFullHeight() / divisor;
+
+	if (setAspectRatio(num, denom))
+	{
+		// Select corresponding ratio entry in the combo list
+		LLComboBox* combo = getChild<LLComboBox>("combo_aspect_ratio");
+		if (combo)
+		{
+			std::ostringstream ratio;
+			ratio << num << ":" << denom;
+			std::vector<std::string>::const_iterator found = std::find(mRatiosList.begin(), mRatiosList.end(), ratio.str());
+			if (found == mRatiosList.end())
+			{
+				combo->setCurrentByIndex(0);
+			}
+			else
+			{
+				combo->setCurrentByIndex(found - mRatiosList.begin());
+			}
+		}
+	}
+
+	mUpdateDimensions = TRUE;
 }
 
 void LLPreviewTexture::updateImageID()

@@ -31,6 +31,7 @@
 
 #include "llplacesinventorypanel.h"
 #include "llpanellandmarks.h"
+#include "llmenugl.h"
 
 LLPlacesFolderView::LLPlacesFolderView(const LLFolderView::Params& p)
     : LLFolderView(p)
@@ -65,6 +66,16 @@ BOOL LLPlacesFolderView::handleRightMouseDown(S32 x, S32 y, MASK mask)
     }
 
     return LLFolderView::handleRightMouseDown(x, y, mask);
+}
+
+void LLPlacesFolderView::updateMenu()
+{
+	LLFolderView::updateMenu();
+	LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandle.get();
+	if (menu && menu->getVisible())
+	{
+		mParentLandmarksPanel->updateMenuVisibility(menu);
+	}
 }
 
 void LLPlacesFolderView::setupMenuHandle(LLInventoryType::EType asset_type, LLHandle<LLView> menu_handle)
