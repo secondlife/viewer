@@ -43,6 +43,7 @@ struct LLNotificationTemplate
 		static void declareValues()
 		{
 			declare("replace_with_new", LLNotification::REPLACE_WITH_NEW);
+			declare("combine_with_new", LLNotification::COMBINE_WITH_NEW);
 			declare("keep_old", LLNotification::KEEP_OLD);
 			declare("cancel_old", LLNotification::CANCEL_OLD);
 		}

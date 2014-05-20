@@ -7129,7 +7129,7 @@ Scripts associated with this experience will be able to do the following on regi
 
 [QUESTIONS]Is this OK?
 
-  <unique combine="replace_with_new">
+  <unique combine="combine_with_new">
     <context>experience</context>
   </unique>
   <tag>confirm</tag>
