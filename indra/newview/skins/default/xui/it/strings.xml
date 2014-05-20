@@ -1261,7 +1261,8 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="InventoryInboxNoItems">
 		Gli acquissti dal mercato verranno mostrati qui. Potrai quindi trascinarli nel tuo inventario per usarli.
 	</string>
-	<string name="MarketplaceURL">
+  <string name="Unconstrained">Libero</string>
+  <string name="MarketplaceURL">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
 	</string>
 	<string name="MarketplaceURL_CreateStore">

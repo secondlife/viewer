@@ -70,6 +70,7 @@ protected:
 	/* virtual */ BOOL	postBuild();
 	bool				setAspectRatio(const F32 width, const F32 height);
 	static void			onAspectRatioCommit(LLUICtrl*,void* userdata);
+	void				adjustAspectRatio();
 	
 private:
 	void				updateImageID(); // set what image is being uploaded.
@@ -95,5 +96,6 @@ private:
 	F32 mAspectRatio;	
 
 	LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList ; 
+	std::vector<std::string>		mRatiosList;
 };
 #endif  // LL_LLPREVIEWTEXTURE_H

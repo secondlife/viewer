@@ -215,11 +215,11 @@ public:
 private:
 
 	LLScriptEdCore* mEditorCore;
-
 	static LLFloaterScriptSearch*	sInstance;
 
 protected:
 	LLLineEditor*			mSearchBox;
+	LLLineEditor*			mReplaceBox;
         void onSearchBoxCommit();
 };
 
@@ -228,6 +228,7 @@ LLFloaterScriptSearch* LLFloaterScriptSearch::sInstance = NULL;
 LLFloaterScriptSearch::LLFloaterScriptSearch(LLScriptEdCore* editor_core)
 :	LLFloater(LLSD()),
 	mSearchBox(NULL),
+	mReplaceBox(NULL),
 	mEditorCore(editor_core)
 {
 	buildFromFile("floater_script_search.xml");
@@ -250,6 +251,7 @@ LLFloaterScriptSearch::LLFloaterScriptSearch(LLScriptEdCore* editor_core)
 
 BOOL LLFloaterScriptSearch::postBuild()
 {
+	mReplaceBox = getChild<LLLineEditor>("replace_text");
 	mSearchBox = getChild<LLLineEditor>("search_text");
 	mSearchBox->setCommitCallback(boost::bind(&LLFloaterScriptSearch::onSearchBoxCommit, this));
 	mSearchBox->setCommitOnFocusLost(FALSE);
@@ -265,8 +267,12 @@ BOOL LLFloaterScriptSearch::postBuild()
 //static 
 void LLFloaterScriptSearch::show(LLScriptEdCore* editor_core)
 {
+	LLSD::String search_text;
+	LLSD::String replace_text;
 	if (sInstance && sInstance->mEditorCore && sInstance->mEditorCore != editor_core)
 	{
+		search_text=sInstance->mSearchBox->getValue().asString();
+		replace_text=sInstance->mReplaceBox->getValue().asString();
 		sInstance->closeFloater();
 		delete sInstance;
 	}
@@ -275,6 +281,8 @@ void LLFloaterScriptSearch::show(LLScriptEdCore* editor_core)
 	{
 		// sInstance will be assigned in the constructor.
 		new LLFloaterScriptSearch(editor_core);
+		sInstance->mSearchBox->setValue(search_text);
+		sInstance->mReplaceBox->setValue(replace_text);
 	}
 
 	sInstance->openFloater();
@@ -295,7 +303,7 @@ void LLFloaterScriptSearch::onBtnSearch(void *userdata)
 void LLFloaterScriptSearch::handleBtnSearch()
 {
 	LLCheckBoxCtrl* caseChk = getChild<LLCheckBoxCtrl>("case_text");
-	mEditorCore->mEditor->selectNext(getChild<LLUICtrl>("search_text")->getValue().asString(), caseChk->get());
+	mEditorCore->mEditor->selectNext(mSearchBox->getValue().asString(), caseChk->get());
 }
 
 // static 
@@ -308,7 +316,7 @@ void LLFloaterScriptSearch::onBtnReplace(void *userdata)
 void LLFloaterScriptSearch::handleBtnReplace()
 {
 	LLCheckBoxCtrl* caseChk = getChild<LLCheckBoxCtrl>("case_text");
-	mEditorCore->mEditor->replaceText(getChild<LLUICtrl>("search_text")->getValue().asString(), getChild<LLUICtrl>("replace_text")->getValue().asString(), caseChk->get());
+	mEditorCore->mEditor->replaceText(mSearchBox->getValue().asString(), mReplaceBox->getValue().asString(), caseChk->get());
 }
 
 // static 
@@ -321,7 +329,7 @@ void LLFloaterScriptSearch::onBtnReplaceAll(void *userdata)
 void LLFloaterScriptSearch::handleBtnReplaceAll()
 {
 	LLCheckBoxCtrl* caseChk = getChild<LLCheckBoxCtrl>("case_text");
-	mEditorCore->mEditor->replaceTextAll(getChild<LLUICtrl>("search_text")->getValue().asString(), getChild<LLUICtrl>("replace_text")->getValue().asString(), caseChk->get());
+	mEditorCore->mEditor->replaceTextAll(mSearchBox->getValue().asString(), mReplaceBox->getValue().asString(), caseChk->get());
 }
 
 bool LLFloaterScriptSearch::hasAccelerators() const
@@ -352,7 +360,7 @@ void LLFloaterScriptSearch::onSearchBoxCommit()
 	if (mEditorCore && mEditorCore->mEditor)
 	{
 		LLCheckBoxCtrl* caseChk = getChild<LLCheckBoxCtrl>("case_text");
-		mEditorCore->mEditor->selectNext(getChild<LLUICtrl>("search_text")->getValue().asString(), caseChk->get());
+		mEditorCore->mEditor->selectNext(mSearchBox->getValue().asString(), caseChk->get());
 	}
 }
 
@@ -589,6 +597,10 @@ void LLScriptEdCore::initMenu()
 	menuItem = getChild<LLMenuItemCallGL>("Select All");
 	menuItem->setClickCallback(boost::bind(&LLTextEditor::selectAll, mEditor));
 	menuItem->setEnableCallback(boost::bind(&LLTextEditor::canSelectAll, mEditor));
+
+	menuItem = getChild<LLMenuItemCallGL>("Deselect");
+	menuItem->setClickCallback(boost::bind(&LLTextEditor::deselect, mEditor));
+	menuItem->setEnableCallback(boost::bind(&LLTextEditor::canDeselect, mEditor));
 
 	menuItem = getChild<LLMenuItemCallGL>("Search / Replace...");
 	menuItem->setClickCallback(boost::bind(&LLFloaterScriptSearch::show, this));
@@ -2069,7 +2081,7 @@ void LLLiveLSLEditor::loadAsset()
                 mIsModifiable = FALSE;
             }
 
-			
+			refreshFromItem();
 			// This is commented out, because we don't completely
 			// handle script exports yet.
 			/*
@@ -2106,8 +2118,6 @@ void LLLiveLSLEditor::loadAsset()
 										  time_corrected());
 		mAssetStatus = PREVIEW_ASSET_LOADED;
 	}
-
-    requestExperiences();
 }
 
 // static
@@ -2369,7 +2379,7 @@ void LLLiveLSLEditor::saveIfNeeded(bool sync /*= true*/)
 	mPendingUploads++;
 	BOOL is_running = getChild<LLCheckBoxCtrl>( "running")->get();
 	if (!url.empty())
-	{		
+	{
 		uploadAssetViaCaps(url, filename, mObjectUUID, mItemUUID, is_running, mScriptEd->getAssociatedExperience());
 	}
 	else if (gAssetStorage)
@@ -2378,7 +2388,12 @@ void LLLiveLSLEditor::saveIfNeeded(bool sync /*= true*/)
 	}
 }
 
-void LLLiveLSLEditor::uploadAssetViaCaps( const std::string& url, const std::string& filename, const LLUUID& task_id, const LLUUID& item_id, BOOL is_running, const LLUUID& experience_public_id )
+void LLLiveLSLEditor::uploadAssetViaCaps(const std::string& url,
+										 const std::string& filename,
+										 const LLUUID& task_id,
+										 const LLUUID& item_id,
+										 BOOL is_running,
+										 const LLUUID& experience_public_id )
 {
 	LL_INFOS() << "Update Task Inventory via capability " << url << LL_ENDL;
 	LLSD body;

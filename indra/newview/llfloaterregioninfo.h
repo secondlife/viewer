@@ -213,6 +213,7 @@ protected:
 	static void onClickRestart(void* data);
 	bool callbackRestart(const LLSD& notification, const LLSD& response);
 	static void onClickCancelRestart(void* data);
+	static void onClickDebugConsole(void* data);
 	
 private:
 	LLUUID mTargetAvatar;

@@ -1252,7 +1252,8 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="InventoryInboxNoItems">
 		Aquí aparecerán algunos de los objetos que recibas, como los regalos Premium. Después puedes arrastrarlos a tu inventario.
 	</string>
-	<string name="MarketplaceURL">
+  <string name="Unconstrained">Sin restricciones</string>
+  <string name="MarketplaceURL">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
 	</string>
 	<string name="MarketplaceURL_CreateStore">
