@@ -80,10 +80,6 @@
 
 void copy_slurl_to_clipboard_callback_inv(const std::string& slurl);
 
-// Marketplace outbox current disabled
-#define ENABLE_MERCHANT_OUTBOX_CONTEXT_MENU	1
-#define ENABLE_MERCHANT_SEND_TO_MARKETPLACE_CONTEXT_MENU 0
-
 typedef std::pair<LLUUID, LLUUID> two_uuids_t;
 typedef std::list<two_uuids_t> two_uuids_list_t;
 
@@ -839,19 +835,6 @@ void LLInvFVBridge::addOutboxContextMenuOptions(U32 flags,
 	{
 		disabled_items.push_back(std::string("Rename"));
 	}
-	
-#if ENABLE_MERCHANT_SEND_TO_MARKETPLACE_CONTEXT_MENU
-	if (isOutboxFolderDirectParent())
-	{
-		items.push_back(std::string("Marketplace Separator"));
-		items.push_back(std::string("Marketplace Send"));
-		
-		if ((flags & FIRST_SELECTED_ITEM) == 0)
-		{
-			disabled_items.push_back(std::string("Marketplace Send"));
-		}
-	}
-#endif // ENABLE_MERCHANT_SEND_TO_MARKETPLACE_CONTEXT_MENU
 }
 
 void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
@@ -1324,8 +1307,6 @@ bool LLInvFVBridge::canShare() const
 
 bool LLInvFVBridge::canListOnMarketplace() const
 {
-#if ENABLE_MERCHANT_OUTBOX_CONTEXT_MENU
-
 	LLInventoryModel * model = getInventoryModel();
 
 	const LLViewerInventoryCategory * cat = model->getCategory(mUUID);
@@ -1364,16 +1345,10 @@ bool LLInvFVBridge::canListOnMarketplace() const
 	}
 
 	return true;
-
-#else
-	return false;
-#endif
 }
 
 bool LLInvFVBridge::canListOnMarketplaceNow() const
 {
-#if ENABLE_MERCHANT_OUTBOX_CONTEXT_MENU
-	
 	bool can_list = true;
 
 	// Do not allow listing while import is in progress
@@ -1419,10 +1394,6 @@ bool LLInvFVBridge::canListOnMarketplaceNow() const
 	}
 	
 	return can_list;
-
-#else
-	return false;
-#endif
 }
 
 LLToolDragAndDrop::ESource LLInvFVBridge::getDragSource() const
@@ -2540,13 +2511,21 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 				}
 			}
 		}
-		if (is_movable && move_is_into_outbox)
+		if (is_movable && move_is_into_marketplacelistings)
 		{
-			const int nested_folder_levels = get_folder_path_length(outbox_id, mUUID) + get_folder_levels(inv_cat);
+            // One cannot move a folder into a stock folder
+            is_movable = (getPreferredType() != LLFolderType::FT_MARKETPLACE_STOCK);
+        }
+		if (is_movable && (move_is_into_outbox || move_is_into_marketplacelistings))
+		{
+            const int nested_folder_levels = get_folder_path_length(outbox_id, mUUID) + get_folder_levels(inv_cat);
 			
 			if (nested_folder_levels > gSavedSettings.getU32("InventoryOutboxMaxFolderDepth"))
 			{
-				tooltip_msg = LLTrans::getString("TooltipOutboxFolderLevels");
+                LLStringUtil::format_map_t args;
+                U32 amount = gSavedSettings.getU32("InventoryOutboxMaxFolderDepth");
+                args["[AMOUNT]"] = llformat("%d",amount);
+                tooltip_msg = LLTrans::getString("TooltipOutboxFolderLevels", args);
 				is_movable = FALSE;
 			}
 			else
@@ -2605,12 +2584,18 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 				
 				if (nested_folder_count > gSavedSettings.getU32("InventoryOutboxMaxFolderCount"))
 				{
-					tooltip_msg = LLTrans::getString("TooltipOutboxTooManyFolders");
+                    LLStringUtil::format_map_t args;
+                    U32 amount = gSavedSettings.getU32("InventoryOutboxMaxFolderCount");
+                    args["[AMOUNT]"] = llformat("%d",amount);
+                    tooltip_msg = LLTrans::getString("TooltipOutboxTooManyFolders", args);
 					is_movable = FALSE;
 				}
 				else if (nested_item_count > gSavedSettings.getU32("InventoryOutboxMaxItemCount"))
 				{
-					tooltip_msg = LLTrans::getString("TooltipOutboxTooManyObjects");
+                    LLStringUtil::format_map_t args;
+                    U32 amount = gSavedSettings.getU32("InventoryOutboxMaxItemCount");
+                    args["[AMOUNT]"] = llformat("%d",amount);
+                    tooltip_msg = LLTrans::getString("TooltipOutboxTooManyObjects", args);
 					is_movable = FALSE;
 				}
 				
@@ -2628,24 +2613,6 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 				}
 			}
 		}
-		if (is_movable && move_is_into_marketplacelistings)
-		{
-            // One cannot move a folder into a stock folder
-            is_movable = (getPreferredType() != LLFolderType::FT_MARKETPLACE_STOCK);
-            // *TODO : Merov : Add case if (nesting depth source + depth destination) > marketplace limit -> FALSE
-            if (is_movable)
-            {
-                for (S32 i = 0; i < descendent_items.count(); ++i)
-                {
-                    LLInventoryItem* item = descendent_items[i];
-                    if (!can_move_to_marketplace(item, tooltip_msg))
-                    {
-                        is_movable = FALSE;
-                        break; 
-                    }
-                }
-            }
-        }
 
 		if (is_movable)
 		{
@@ -3271,17 +3238,6 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 		const LLUUID outbox_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
 		copy_folder_to_outbox(cat, outbox_id, cat->getUUID(), LLToolDragAndDrop::getOperationId());
 	}
-#if ENABLE_MERCHANT_SEND_TO_MARKETPLACE_CONTEXT_MENU
-	else if (isMarketplaceSendAction(action))
-	{
-		llinfos << "Send to marketplace action!" << llendl;
-
-		LLInventoryCategory * cat = gInventory.getCategory(mUUID);
-		if (!cat) return;
-		
-		send_to_marketplace(cat);
-	}
-#endif // ENABLE_MERCHANT_SEND_TO_MARKETPLACE_CONTEXT_MENU
 }
 
 void LLFolderBridge::openItem()
@@ -3575,7 +3531,11 @@ void LLFolderBridge::pasteFromClipboard()
                         {
                             if (move_is_into_marketplacelistings)
                             {
-                                move_item_to_marketplacelistings(viitem, parent_id);
+                                if (!move_item_to_marketplacelistings(viitem, parent_id))
+                                {
+                                    // Stop pasting into the marketplace as soon as we get an error
+                                    break;
+                                }
                             }
                             else
                             {
@@ -3612,7 +3572,11 @@ void LLFolderBridge::pasteFromClipboard()
                         {
                             if (move_is_into_marketplacelistings)
                             {
-                                move_item_to_marketplacelistings(viitem, parent_id, true);
+                                if (!move_item_to_marketplacelistings(viitem, parent_id, true))
+                                {
+                                    // Stop pasting into the marketplace as soon as we get an error
+                                    break;
+                                }
                             }
                             else
                             {
@@ -4405,9 +4369,12 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		{
 			accept = can_move_to_landmarks(inv_item);
 		}
-		else if (move_is_into_outbox)
+		else if (move_is_into_outbox || move_is_into_marketplacelistings)
 		{
-			accept = can_move_to_marketplace(inv_item, tooltip_msg);
+            // Check stock folder type matches item type in marketplace listings
+            accept = (!move_is_into_marketplacelistings || (getCategory() && getCategory()->acceptItem(inv_item)));
+
+			accept &= can_move_to_marketplace(inv_item, tooltip_msg);
 			
 			if (accept)
 			{
@@ -4427,18 +4394,14 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 				
 				if (existing_item_count > gSavedSettings.getU32("InventoryOutboxMaxItemCount"))
 				{
-					tooltip_msg = LLTrans::getString("TooltipOutboxTooManyObjects");
+                    LLStringUtil::format_map_t args;
+                    U32 amount = gSavedSettings.getU32("InventoryOutboxMaxItemCount");
+                    args["[AMOUNT]"] = llformat("%d",amount);
+                    tooltip_msg = LLTrans::getString("TooltipOutboxTooManyObjects", args);
 					accept = FALSE;
 				}
 			}
 		}
-        else if (move_is_into_marketplacelistings)
-        {
-            // Check stock folder type matches item type
-            accept = (getCategory() && getCategory()->acceptItem(inv_item));
-            // Check that the object can move into marketplace listings
-            accept &= can_move_to_marketplace(inv_item, tooltip_msg);
-        }
 
 		LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
 

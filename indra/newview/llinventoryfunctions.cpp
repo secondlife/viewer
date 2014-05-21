@@ -914,14 +914,17 @@ S32 compute_stock_count(LLUUID cat_uuid)
     return curr_count;
 }
 
-void move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_folder, bool copy)
+bool move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_folder, bool copy)
 {
     // Get the marketplace listings depth of the destination folder, exit with error if not under marketplace
     S32 depth = depth_nesting_in_marketplace(dest_folder);
     if (depth < 0)
     {
         llinfos << "Merov : Marketplace error : There is no marketplace listings folder -> move aborted!" << llendl;
-        return;
+		LLSD subs;
+		subs["[ERROR_CODE]"] = LLTrans::getString("Marketplace Error Not Merchant");
+		LLNotificationsUtil::add("MerchantPasteFailed", subs);
+        return false;
     }
 
     // We will collapse links into items/folders
@@ -931,7 +934,7 @@ void move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
 	if (linked_category != NULL)
 	{
         // Move the linked folder directly
-		move_folder_to_marketplacelistings(linked_category, dest_folder, copy);
+		return move_folder_to_marketplacelistings(linked_category, dest_folder, copy);
 	}
 	else
 	{
@@ -970,7 +973,10 @@ void move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
             if (!dest_cat->acceptItem(viewer_inv_item))
             {
                 llinfos << "Merov : Marketplace error : Cannot move item in that folder -> move aborted!" << llendl;
-                return;
+                LLSD subs;
+                subs["[ERROR_CODE]"] = LLTrans::getString("Marketplace Error Not Accepted");
+                LLNotificationsUtil::add("MerchantPasteFailed", subs);
+                return false;
             }
             
             // Get the parent folder of the moved item : we may have to update it
@@ -1001,13 +1007,17 @@ void move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
         }
         else
         {
-            // *TODO : signal an error to the user (UI for this TBD)
             llinfos << "Merov : Marketplace error : User doesn't have the correct permission to put this item on sale -> move aborted!" << llendl;
+            LLSD subs;
+            subs["[ERROR_CODE]"] = LLTrans::getString("Marketplace Error Unsellable Item");
+            LLNotificationsUtil::add("MerchantPasteFailed", subs);
+            return false;
         }
     }
+    return true;
 }
 
-void move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUUID& dest_folder, bool copy)
+bool move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUUID& dest_folder, bool copy)
 {
     // Check that we have adequate permission on all items being moved. Proceed if we do.
     if (has_correct_permissions_for_sale(inv_cat))
@@ -1019,7 +1029,10 @@ void move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUU
         if (dest_cat->getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
         {
             llinfos << "Merov : Marketplace error : Cannot move folder in stock folder -> move aborted!" << llendl;
-            return;
+            LLSD subs;
+            subs["[ERROR_CODE]"] = LLTrans::getString("Marketplace Error Not Accepted");
+            LLNotificationsUtil::add("MerchantPasteFailed", subs);
+            return false;
         }
         
         // Get the parent folder of the moved item : we may have to update it
@@ -1045,6 +1058,7 @@ void move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUU
         update_marketplace_category(dest_folder);
         gInventory.notifyObservers();
     }
+    return true;
 }
 
 // Returns true if all items within the argument folder are fit for sale, false otherwise
