@@ -83,7 +83,6 @@ void copy_slurl_to_clipboard_callback_inv(const std::string& slurl);
 // Marketplace outbox current disabled
 #define ENABLE_MERCHANT_OUTBOX_CONTEXT_MENU	1
 #define ENABLE_MERCHANT_SEND_TO_MARKETPLACE_CONTEXT_MENU 0
-#define BLOCK_WORN_ITEMS_IN_OUTBOX 1
 
 typedef std::pair<LLUUID, LLUUID> two_uuids_t;
 typedef std::list<two_uuids_t> two_uuids_list_t;
@@ -2361,14 +2360,12 @@ static BOOL can_move_to_marketplace(LLInventoryItem* inv_item, std::string& tool
 		return false;
 	}
 
-#if BLOCK_WORN_ITEMS_IN_OUTBOX
 	bool worn = get_is_item_worn(inv_item->getUUID());
 	if (worn)
 	{
 		tooltip_msg = LLTrans::getString("TooltipOutboxWorn");
 		return false;
 	}
-#endif
 	
 	bool calling_card = (LLAssetType::AT_CALLINGCARD == inv_item->getType());
 	if (calling_card)
