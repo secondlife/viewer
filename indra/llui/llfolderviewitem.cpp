@@ -655,7 +655,7 @@ void LLFolderViewItem::drawOpenFolderArrow(const Params& default_params, const L
 	//
 	const S32 TOP_PAD = default_params.item_top_pad;
 
-	if (hasVisibleChildren() || getViewModelItem()->hasChildren())
+	if (hasVisibleChildren())
 	{
 		LLUIImage* arrow_image = default_params.folder_arrow_image;
 		gl_draw_scaled_rotated_image(
