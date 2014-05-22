@@ -27,11 +27,9 @@
 #ifndef LL_LLCOMPILEQUEUE_H
 #define LL_LLCOMPILEQUEUE_H
 
-#include "lldarray.h"
 #include "llinventory.h"
 #include "llviewerobject.h"
 #include "llvoinventorylistener.h"
-#include "llmap.h"
 #include "lluuid.h"
 
 #include "llfloater.h"
@@ -96,7 +94,7 @@ protected:
 	LLButton* mCloseBtn;
 
 	// Object Queue
-	LLDynamicArray<LLUUID> mObjectIDs;
+	std::vector<LLUUID> mObjectIDs;
 	LLUUID mCurrentObjectID;
 	bool mDone;
 
@@ -146,24 +144,6 @@ protected:
 								LLAssetType::EType type,
 								void* user_data, S32 status, LLExtStat ext_status);
 
-	static void onSaveTextComplete(const LLUUID& asset_id, void* user_data, S32 status, LLExtStat ext_status);
-
-	static void onSaveBytecodeComplete(const LLUUID& asset_id,
-									   void* user_data,
-									   S32 status, LLExtStat ext_status);
-
-	// compile the file given and save it out.
-	void compile(const std::string& filename, const LLUUID& asset_id);
-	
-	// remove any object in mScriptScripts with the matching uuid.
-	void removeItemByAssetID(const LLUUID& asset_id);
-
-	// save the items indicated by the item id.
-	void saveItemByItemID(const LLUUID& item_id);
-
-	// find InventoryItem given item id.
-	const LLInventoryItem* findItemByItemID(const LLUUID& item_id) const;
-	
 protected:
 	LLViewerInventoryItem::item_array_t mCurrentScripts;
 

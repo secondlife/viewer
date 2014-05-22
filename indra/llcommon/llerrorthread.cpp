@@ -65,7 +65,7 @@ void get_child_status(const int waitpid_status, int &process_status, bool &exite
 		exited = true;
 		if (do_logging)
 		{
-			llinfos << "get_child_status - Child exited cleanly with return of " << process_status << llendl;
+			LL_INFOS() << "get_child_status - Child exited cleanly with return of " << process_status << LL_ENDL;
 		}
 		return;
 	}
@@ -75,15 +75,15 @@ void get_child_status(const int waitpid_status, int &process_status, bool &exite
 		exited = true;
 		if (do_logging)
 		{
-			llinfos << "get_child_status - Child died because of uncaught signal " << process_status << llendl;
+			LL_INFOS() << "get_child_status - Child died because of uncaught signal " << process_status << LL_ENDL;
 #ifdef WCOREDUMP
 			if (WCOREDUMP(waitpid_status))
 			{
-				llinfos << "get_child_status - Child dumped core" << llendl;
+				LL_INFOS() << "get_child_status - Child dumped core" << LL_ENDL;
 			}
 			else
 			{
-				llinfos << "get_child_status - Child didn't dump core" << llendl;
+				LL_INFOS() << "get_child_status - Child didn't dump core" << LL_ENDL;
 			}
 #endif
 		}
@@ -93,7 +93,7 @@ void get_child_status(const int waitpid_status, int &process_status, bool &exite
 	{
 		// This is weird.  I just dump the waitpid status into the status code,
 		// not that there's any way of telling what it is...
-		llinfos << "get_child_status - Got SIGCHILD but child didn't exit" << llendl;
+		LL_INFOS() << "get_child_status - Got SIGCHILD but child didn't exit" << LL_ENDL;
 		process_status = waitpid_status;
 	}
 
@@ -106,99 +106,28 @@ void LLErrorThread::run()
 	// This thread sits and waits for the sole purpose
 	// of waiting for the signal/exception handlers to flag the
 	// application state as APP_STATUS_ERROR.
-	llinfos << "thread_error - Waiting for an error" << llendl;
+	LL_INFOS() << "thread_error - Waiting for an error" << LL_ENDL;
 
 	S32 counter = 0;
-#if !LL_WINDOWS
-	U32 last_sig_child_count = 0;
-#endif
 	while (! (LLApp::isError() || LLApp::isStopped()))
 	{
-#if !LL_WINDOWS
-		// Check whether or not the main thread had a sig child we haven't handled.
-		U32 current_sig_child_count = LLApp::getSigChildCount();
-		if (last_sig_child_count != current_sig_child_count)
-		{
-			int status = 0;
-			pid_t child_pid = 0;
-			last_sig_child_count = current_sig_child_count;
-			if (LLApp::sLogInSignal)
-			{
-				llinfos << "thread_error handling SIGCHLD #" << current_sig_child_count << llendl;
-			}
-			for (LLApp::child_map::iterator iter = LLApp::sChildMap.begin(); iter != LLApp::sChildMap.end();)
-			{
-				child_pid = iter->first;
-				LLChildInfo &child_info = iter->second;
-				// check the status of *all* children, in case we missed a signal
-				if (0 != waitpid(child_pid, &status, WNOHANG))
-				{
-					bool exited = false;
-					int exit_status = -1;
-					get_child_status(status, exit_status, exited, LLApp::sLogInSignal);
-
-					if (child_info.mCallback)
-					{
-						if (LLApp::sLogInSignal)
-						{
-							llinfos << "Signal handler - Running child callback" << llendl;
-						}
-						child_info.mCallback(child_pid, exited, status);
-					}
-					LLApp::sChildMap.erase(iter++);
-				}
-				else
-				{
-					// Child didn't terminate, yet we got a sigchild somewhere...
-					if (child_info.mGotSigChild && child_info.mCallback)
-					{
-						child_info.mCallback(child_pid, false, 0);
-					}
-					child_info.mGotSigChild = FALSE;
-					iter++;
-				}
-			}
-
-			// check the status of *all* children, in case we missed a signal
-			// Same as above, but use the default child callback
-			while(0 < (child_pid = waitpid( -1, &status, WNOHANG )))
-			{
-				if (0 != waitpid(child_pid, &status, WNOHANG))
-				{
-					bool exited = false;
-					int exit_status = -1;
-					get_child_status(status, exit_status, exited, LLApp::sLogInSignal);
-					if (LLApp::sDefaultChildCallback)
-					{
-						if (LLApp::sLogInSignal)
-						{
-							llinfos << "Signal handler - Running default child callback" << llendl;
-						}
-						LLApp::sDefaultChildCallback(child_pid, true, status);
-					}
-				}
-			}
-		}
-
-
-#endif
 		ms_sleep(10);
 		counter++;
 	}
 	if (LLApp::isError())
 	{
 		// The app is in an error state, run the application's error handler.
-		//llinfos << "thread_error - An error has occurred, running error callback!" << llendl;
+		//LL_INFOS() << "thread_error - An error has occurred, running error callback!" << LL_ENDL;
 		// Run the error handling callback
 		LLApp::runErrorHandler();
 	}
 	else
 	{
 		// Everything is okay, a clean exit.
-		//llinfos << "thread_error - Application exited cleanly" << llendl;
+		//LL_INFOS() << "thread_error - Application exited cleanly" << LL_ENDL;
 	}
 	
-	//llinfos << "thread_error - Exiting" << llendl;
+	//LL_INFOS() << "thread_error - Exiting" << LL_ENDL;
 	LLApp::sErrorThreadRunning = FALSE;
 }
 

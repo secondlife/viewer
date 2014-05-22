@@ -166,10 +166,15 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 
 	if ( !get_dom_sources(inputs, pos_offset, tc_offset, norm_offset, idx_stride, pos_source, tc_source, norm_source) || !pos_source )
 	{
-		llwarns << "Could not find dom sources for basic geo data; invalid model." << llendl;
+		LL_WARNS() << "Could not find dom sources for basic geo data; invalid model." << LL_ENDL;
 		return LLModel::BAD_ELEMENT;
 	}
 
+	if (!pos_source)
+	{
+		llwarns << "Unable to process mesh without position data; invalid model;  invalid model." << llendl;
+		return LLModel::BAD_ELEMENT;
+	}
 	
 	domPRef p = tri->getP();
 	domListOfUInts& idx = p->getValue();
@@ -179,19 +184,22 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 	domListOfFloats& tc = tc_source ? tc_source->getFloat_array()->getValue() : dummy ;
 	domListOfFloats& n = norm_source ? norm_source->getFloat_array()->getValue() : dummy ;
 
-	if (pos_source)
-	{
-		face.mExtents[0].set(v[0], v[1], v[2]);
-		face.mExtents[1].set(v[0], v[1], v[2]);
-	}
-	
 	LLVolumeFace::VertexMapData::PointMap point_map;
-	
+		
 	U32 index_count  = idx.getCount();
 	U32 vertex_count = pos_source  ? v.getCount()  : 0;
 	U32 tc_count     = tc_source   ? tc.getCount() : 0;
 	U32 norm_count   = norm_source ? n.getCount()  : 0;
 
+	if (vertex_count == 0)
+	{
+		llwarns << "Unable to process mesh with empty position array; invalid model." << llendl;
+		return LLModel::BAD_ELEMENT;
+	}
+
+	face.mExtents[0].set(v[0], v[1], v[2]);
+	face.mExtents[1].set(v[0], v[1], v[2]);
+	
 	for (U32 i = 0; i < index_count; i += idx_stride)
 	{
 		LLVolumeFace::VertexData cv;
@@ -202,7 +210,7 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 			if (((i + pos_offset) > index_count)
 			 || ((idx[i+pos_offset]*3+2) > vertex_count))
 			{
-				llwarns << "Out of range index data; invalid model." << llendl;
+				LL_WARNS() << "Out of range index data; invalid model." << LL_ENDL;
 				return LLModel::BAD_ELEMENT;
 			}
 
@@ -212,7 +220,7 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 
 			if (!cv.getPosition().isFinite3())
 			{
-				llwarns << "Nan positional data, invalid model." << llendl;
+				LL_WARNS() << "Nan positional data, invalid model." << LL_ENDL;
 				return LLModel::BAD_ELEMENT;
 			}
 		}
@@ -225,7 +233,7 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 			if (((i + tc_offset) > index_count)
 			 || ((idx[i+tc_offset]*2+1) > tc_count))
 			{
-				llwarns << "Out of range TC indices." << llendl;
+				LL_WARNS() << "Out of range TC indices." << LL_ENDL;
 				return LLModel::BAD_ELEMENT;
 			}
 
@@ -234,7 +242,7 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 
 			if (!cv.mTexCoord.isFinite())
 			{
-				llwarns << "Found NaN while loading tex coords from DAE-Model, invalid model." << llendl;
+				LL_WARNS() << "Found NaN while loading tex coords from DAE-Model, invalid model." << LL_ENDL;
 				return LLModel::BAD_ELEMENT;
 			}
 		}
@@ -246,7 +254,7 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 			if (((i + norm_offset) > index_count)
 				|| ((idx[i+norm_offset]*3+2) > norm_count))
 			{
-				llwarns << "Found out of range norm indices, invalid model." << llendl;
+				LL_WARNS() << "Found out of range norm indices, invalid model." << LL_ENDL;
 				return LLModel::BAD_ELEMENT;
 			}
 
@@ -256,7 +264,7 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 
 			if (!cv.getNormal().isFinite3())
 			{
-				llwarns << "Found NaN while loading normals from DAE-Model, invalid model." << llendl;
+				LL_WARNS() << "Found NaN while loading normals from DAE-Model, invalid model." << LL_ENDL;
 				return LLModel::BAD_ELEMENT;
 			}
 		}
@@ -285,7 +293,7 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 			verts.push_back(cv);
 			if (verts.size() >= 65535)
 			{
-				//llerrs << "Attempted to write model exceeding 16-bit index buffer limitation." << llendl;
+				//LL_ERRS() << "Attempted to write model exceeding 16-bit index buffer limitation." << LL_ENDL;
 				return LLModel::VERTEX_NUMBER_OVERFLOW ;
 			}
 			U16 index = (U16) (verts.size()-1);
@@ -385,7 +393,7 @@ LLModel::EModelStatus load_face_from_dom_polylist(std::vector<LLVolumeFace>& fac
 
 	if (!get_dom_sources(inputs, pos_offset, tc_offset, norm_offset, idx_stride, pos_source, tc_source, norm_source))
 	{
-		llwarns << "Could not get DOM sources for basic geo data, invalid model." << llendl;
+		LL_WARNS() << "Could not get DOM sources for basic geo data, invalid model." << LL_ENDL;
 		return LLModel::BAD_ELEMENT;
 	}
 
@@ -439,7 +447,7 @@ LLModel::EModelStatus load_face_from_dom_polylist(std::vector<LLVolumeFace>& fac
 				if (((cur_idx + pos_offset) > index_count)
 				 || ((idx[cur_idx+pos_offset]*3+2) > vertex_count))
 				{
-					llwarns << "Out of range position indices, invalid model." << llendl;
+					LL_WARNS() << "Out of range position indices, invalid model." << LL_ENDL;
 					return LLModel::BAD_ELEMENT;
 				}
 
@@ -449,7 +457,7 @@ LLModel::EModelStatus load_face_from_dom_polylist(std::vector<LLVolumeFace>& fac
 
 				if (!cv.getPosition().isFinite3())
 				{
-					llwarns << "Found NaN while loading positions from DAE-Model, invalid model." << llendl;
+					LL_WARNS() << "Found NaN while loading positions from DAE-Model, invalid model." << LL_ENDL;
 					return LLModel::BAD_ELEMENT;
 				}
 
@@ -462,7 +470,7 @@ LLModel::EModelStatus load_face_from_dom_polylist(std::vector<LLVolumeFace>& fac
 				if (((cur_idx + tc_offset) > index_count)
 				 || ((idx[cur_idx+tc_offset]*2+1) > tc_count))
 				{
-					llwarns << "Out of range TC indices, invalid model." << llendl;
+					LL_WARNS() << "Out of range TC indices, invalid model." << LL_ENDL;
 					return LLModel::BAD_ELEMENT;
 				}
 
@@ -471,7 +479,7 @@ LLModel::EModelStatus load_face_from_dom_polylist(std::vector<LLVolumeFace>& fac
 
 				if (!cv.mTexCoord.isFinite())
 				{
-					llwarns << "Found NaN while loading tex coords from DAE-Model, invalid model." << llendl;
+					LL_WARNS() << "Found NaN while loading tex coords from DAE-Model, invalid model." << LL_ENDL;
 					return LLModel::BAD_ELEMENT;
 				}
 			}
@@ -483,7 +491,7 @@ LLModel::EModelStatus load_face_from_dom_polylist(std::vector<LLVolumeFace>& fac
 				if (((cur_idx + norm_offset) > index_count)
 				 || ((idx[cur_idx+norm_offset]*3+2) > norm_count))
 				{
-					llwarns << "Out of range norm indices, invalid model." << llendl;
+					LL_WARNS() << "Out of range norm indices, invalid model." << LL_ENDL;
 					return LLModel::BAD_ELEMENT;
 				}
 
@@ -493,7 +501,7 @@ LLModel::EModelStatus load_face_from_dom_polylist(std::vector<LLVolumeFace>& fac
 
 				if (!cv.getNormal().isFinite3())
 				{
-					llwarns << "Found NaN while loading normals from DAE-Model, invalid model." << llendl;
+					LL_WARNS() << "Found NaN while loading normals from DAE-Model, invalid model." << LL_ENDL;
 					return LLModel::BAD_ELEMENT;
 				}
 			}
@@ -541,7 +549,7 @@ LLModel::EModelStatus load_face_from_dom_polylist(std::vector<LLVolumeFace>& fac
 				verts.push_back(cv);
 				if (verts.size() >= 65535)
 				{
-					//llerrs << "Attempted to write model exceeding 16-bit index buffer limitation." << llendl;
+					//LL_ERRS() << "Attempted to write model exceeding 16-bit index buffer limitation." << LL_ENDL;
 					return LLModel::VERTEX_NUMBER_OVERFLOW ;
 				}
 				U16 index = (U16) (verts.size()-1);
@@ -662,7 +670,7 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
 			domVertices* vertices = (domVertices*) elem.cast();
 			if (!vertices)
 			{
-				llwarns << "Could not find vertex source, invalid model." << llendl;
+				LL_WARNS() << "Could not find vertex source, invalid model." << LL_ENDL;
 				return LLModel::BAD_ELEMENT;
 			}
 			domInputLocal_Array& v_inp = vertices->getInput_array();
@@ -676,7 +684,7 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
 					domSource* src = (domSource*) elem.cast();
 					if (!src)
 					{
-						llwarns << "Could not find DOM source, invalid model." << llendl;
+						LL_WARNS() << "Could not find DOM source, invalid model." << LL_ENDL;
 						return LLModel::BAD_ELEMENT;
 					}
 					v = &(src->getFloat_array()->getValue());
@@ -692,7 +700,7 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
 			domSource* src = (domSource*) elem.cast();
 			if (!src)
 			{
-				llwarns << "Could not find DOM source, invalid model." << llendl;
+				LL_WARNS() << "Could not find DOM source, invalid model." << LL_ENDL;
 				return LLModel::BAD_ELEMENT;
 			}
 			n = &(src->getFloat_array()->getValue());
@@ -705,7 +713,7 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
 			domSource* src = (domSource*) elem.cast();
 			if (!src)
 			{
-				llwarns << "Could not find DOM source, invalid model." << llendl;
+				LL_WARNS() << "Could not find DOM source, invalid model." << LL_ENDL;
 				return LLModel::BAD_ELEMENT;
 			}
 			t = &(src->getFloat_array()->getValue());
@@ -743,7 +751,7 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
 
 				if (!vert.getPosition().isFinite3())
 				{
-					llwarns << "Found NaN while loading position data from DAE-Model, invalid model." << llendl;
+					LL_WARNS() << "Found NaN while loading position data from DAE-Model, invalid model." << LL_ENDL;
 					return LLModel::BAD_ELEMENT;
 				}
 			}
@@ -761,7 +769,7 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
 
 				if (!vert.getNormal().isFinite3())
 				{
-					llwarns << "Found NaN while loading normals from DAE-Model, invalid model." << llendl;
+					LL_WARNS() << "Found NaN while loading normals from DAE-Model, invalid model." << LL_ENDL;
 					return LLModel::BAD_ELEMENT;
 				}
 			}
@@ -780,7 +788,7 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
 
 				if (!vert.mTexCoord.isFinite())
 				{
-					llwarns << "Found NaN while loading tex coords from DAE-Model, invalid model." << llendl;
+					LL_WARNS() << "Found NaN while loading tex coords from DAE-Model, invalid model." << LL_ENDL;
 					return LLModel::BAD_ELEMENT;
 				}
 			}
@@ -879,12 +887,12 @@ std::string LLModel::getStatusString(U32 status)
 	{
 		if(status_strings[status] == std::string())
 		{
-			llerrs << "No valid status string for this status: " << (U32)status << llendl ;
+			LL_ERRS() << "No valid status string for this status: " << (U32)status << LL_ENDL ;
 		}
 		return status_strings[status] ;
 	}
 
-	llerrs << "Invalid model status: " << (U32)status << llendl ;
+	LL_ERRS() << "Invalid model status: " << (U32)status << LL_ENDL ;
 
 	return std::string() ;
 }
@@ -960,7 +968,7 @@ BOOL LLModel::createVolumeFacesFromDomMesh(domMesh* mesh)
 	}
 	else
 	{	
-		llwarns << "no mesh found" << llendl;
+		LL_WARNS() << "no mesh found" << LL_ENDL;
 	}
 	
 	return FALSE;
@@ -1256,14 +1264,14 @@ void LLModel::addFace(const LLVolumeFace& face)
 {
 	if (face.mNumVertices == 0)
 	{
-		llerrs << "Cannot add empty face." << llendl;
+		LL_ERRS() << "Cannot add empty face." << LL_ENDL;
 	}
 
 	mVolumeFaces.push_back(face);
 
 	if (mVolumeFaces.size() > MAX_MODEL_FACES)
 	{
-		llerrs << "Model prims cannot have more than " << MAX_MODEL_FACES << " faces!" << llendl;
+		LL_ERRS() << "Model prims cannot have more than " << MAX_MODEL_FACES << " faces!" << LL_ENDL;
 	}
 }
 
@@ -1285,7 +1293,7 @@ void LLModel::generateNormals(F32 angle_cutoff)
 
 		if (vol_face.mNumIndices > 65535)
 		{
-			llwarns << "Too many vertices for normal generation to work." << llendl;
+			LL_WARNS() << "Too many vertices for normal generation to work." << LL_ENDL;
 			continue;
 		}
 
@@ -1885,7 +1893,7 @@ LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
 	{
 		if ((iter->first - pos).magVec() > 0.1f)
 		{
-			llerrs << "Couldn't find weight list." << llendl;
+			LL_ERRS() << "Couldn't find weight list." << LL_ENDL;
 		}
 
 		return iter->second;
@@ -1990,7 +1998,7 @@ bool LLModel::loadModel(std::istream& is)
 	{
 		if (!LLSDSerialize::fromBinary(header, is, 1024*1024*1024))
 		{
-			llwarns << "Mesh header parse error.  Not a valid mesh asset!" << llendl;
+			LL_WARNS() << "Mesh header parse error.  Not a valid mesh asset!" << LL_ENDL;
 			return false;
 		}
 	}
@@ -2020,7 +2028,7 @@ bool LLModel::loadModel(std::istream& is)
 	if (header[nm[lod]]["offset"].asInteger() == -1 || 
 		header[nm[lod]]["size"].asInteger() == 0 )
 	{ //cannot load requested LOD
-		llwarns << "LoD data is invalid!" << llendl;
+		LL_WARNS() << "LoD data is invalid!" << LL_ENDL;
 		return false;
 	}
 
@@ -2083,7 +2091,7 @@ bool LLModel::loadModel(std::istream& is)
 	}
 	else
 	{
-		llwarns << "unpackVolumeFaces failed!" << llendl;
+		LL_WARNS() << "unpackVolumeFaces failed!" << LL_ENDL;
 	}
 
 	return false;
@@ -2101,7 +2109,7 @@ bool LLModel::isMaterialListSubset( LLModel* ref )
 		
 		for (U32 dst = 0; dst < refCnt; ++dst)
 		{
-			//llinfos<<mMaterialList[src]<<" "<<ref->mMaterialList[dst]<<llendl;
+			//LL_INFOS()<<mMaterialList[src]<<" "<<ref->mMaterialList[dst]<<LL_ENDL;
 			foundRef = mMaterialList[src] == ref->mMaterialList[dst];									
 				
 			if ( foundRef )
@@ -2146,7 +2154,7 @@ bool LLModel::matchMaterialOrder(LLModel* ref, int& refFaceCnt, int& modelFaceCn
 	bool isASubset = isMaterialListSubset( ref );
 	if ( !isASubset )
 	{
-		llinfos<<"Material of model is not a subset of reference."<<llendl;
+		LL_INFOS()<<"Material of model is not a subset of reference."<<LL_ENDL;
 		return false;
 	}
 	
@@ -2597,7 +2605,7 @@ LLSD LLModel::Decomposition::asLLSD() const
 
 				if (vert_idx > p.size())
 				{
-					llerrs << "Index out of bounds" << llendl;
+					LL_ERRS() << "Index out of bounds" << LL_ENDL;
 				}
 			}
 		}
@@ -2617,7 +2625,7 @@ void LLModel::Decomposition::merge(const LLModel::Decomposition* rhs)
 
 	if (mMeshID != rhs->mMeshID)
 	{
-		llerrs << "Attempted to merge with decomposition of some other mesh." << llendl;
+		LL_ERRS() << "Attempted to merge with decomposition of some other mesh." << LL_ENDL;
 	}
 
 	if (mBaseHull.empty())

@@ -64,7 +64,7 @@ LLTransferManager::~LLTransferManager()
 {
 	if (mValid)
 	{
-		llwarns << "LLTransferManager::~LLTransferManager - Should have been cleaned up by message system shutdown process" << llendl;
+		LL_WARNS() << "LLTransferManager::~LLTransferManager - Should have been cleaned up by message system shutdown process" << LL_ENDL;
 		cleanup();
 	}
 }
@@ -74,7 +74,7 @@ void LLTransferManager::init()
 {
 	if (mValid)
 	{
-		llerrs << "Double initializing LLTransferManager!" << llendl;
+		LL_ERRS() << "Double initializing LLTransferManager!" << LL_ENDL;
 	}
 	mValid = TRUE;
 
@@ -122,7 +122,7 @@ void LLTransferManager::cleanupConnection(const LLHost &host)
 	{
 		// This can happen legitimately if we've never done a transfer, and we're
 		// cleaning up a circuit.
-		//llwarns << "Cleaning up nonexistent transfer connection to " << host << llendl;
+		//LL_WARNS() << "Cleaning up nonexistent transfer connection to " << host << LL_ENDL;
 		return;
 	}
 	LLTransferConnection *connp = iter->second;
@@ -203,7 +203,7 @@ LLTransferSource *LLTransferManager::findTransferSource(const LLUUID &transfer_i
 //static
 void LLTransferManager::processTransferRequest(LLMessageSystem *msgp, void **)
 {
-	//llinfos << "LLTransferManager::processTransferRequest" << llendl;
+	//LL_INFOS() << "LLTransferManager::processTransferRequest" << LL_ENDL;
 
 	LLUUID transfer_id;
 	LLTransferSourceType source_type;
@@ -219,33 +219,33 @@ void LLTransferManager::processTransferRequest(LLMessageSystem *msgp, void **)
 
 	if (!tscp)
 	{
-		llwarns << "Source channel not found" << llendl;
+		LL_WARNS() << "Source channel not found" << LL_ENDL;
 		return;
 	}
 
 	if (tscp->findTransferSource(transfer_id))
 	{
-		llwarns << "Duplicate request for transfer " << transfer_id << ", aborting!" << llendl;
+		LL_WARNS() << "Duplicate request for transfer " << transfer_id << ", aborting!" << LL_ENDL;
 		return;
 	}
 
 	S32 size = msgp->getSize("TransferInfo", "Params");
 	if(size > MAX_PARAMS_SIZE)
 	{
-		llwarns << "LLTransferManager::processTransferRequest params too big."
-			<< llendl;
+		LL_WARNS() << "LLTransferManager::processTransferRequest params too big."
+			<< LL_ENDL;
 		return;
 	}
 
-	//llinfos << transfer_id << ":" << source_type << ":" << channel_type << ":" << priority << llendl;
+	//LL_INFOS() << transfer_id << ":" << source_type << ":" << channel_type << ":" << priority << LL_ENDL;
 	LLTransferSource* tsp = LLTransferSource::createSource(
 		source_type,
 		transfer_id,
 		priority);
 	if(!tsp)
 	{
-		llwarns << "LLTransferManager::processTransferRequest couldn't create"
-			<< " transfer source!" << llendl;
+		LL_WARNS() << "LLTransferManager::processTransferRequest couldn't create"
+			<< " transfer source!" << LL_ENDL;
 		return;
 	}
 	U8 tmp[MAX_PARAMS_SIZE];
@@ -258,8 +258,8 @@ void LLTransferManager::processTransferRequest(LLMessageSystem *msgp, void **)
 		// This should only happen if the data is corrupt or
 		// incorrectly packed.
 		// *NOTE: We may want to call abortTransfer().
-		llwarns << "LLTransferManager::processTransferRequest: bad parameters."
-			<< llendl;
+		LL_WARNS() << "LLTransferManager::processTransferRequest: bad parameters."
+			<< LL_ENDL;
 		delete tsp;
 		return;
 	}
@@ -272,7 +272,7 @@ void LLTransferManager::processTransferRequest(LLMessageSystem *msgp, void **)
 //static
 void LLTransferManager::processTransferInfo(LLMessageSystem *msgp, void **)
 {
-	//llinfos << "LLTransferManager::processTransferInfo" << llendl;
+	//LL_INFOS() << "LLTransferManager::processTransferInfo" << LL_ENDL;
 
 	LLUUID transfer_id;
 	LLTransferTargetType target_type;
@@ -286,11 +286,11 @@ void LLTransferManager::processTransferInfo(LLMessageSystem *msgp, void **)
 	msgp->getS32("TransferInfo", "Status", (S32 &)status);
 	msgp->getS32("TransferInfo", "Size", size);
 
-	//llinfos << transfer_id << ":" << target_type<< ":" << channel_type << llendl;
+	//LL_INFOS() << transfer_id << ":" << target_type<< ":" << channel_type << LL_ENDL;
 	LLTransferTargetChannel *ttcp = gTransferManager.getTargetChannel(msgp->getSender(), channel_type);
 	if (!ttcp)
 	{
-		llwarns << "Target channel not found" << llendl;
+		LL_WARNS() << "Target channel not found" << LL_ENDL;
 		// Should send a message to abort the transfer.
 		return;
 	}
@@ -298,7 +298,7 @@ void LLTransferManager::processTransferInfo(LLMessageSystem *msgp, void **)
 	LLTransferTarget *ttp = ttcp->findTransferTarget(transfer_id);
 	if (!ttp)
 	{
-		llwarns << "TransferInfo for unknown transfer!  Not able to handle this yet!" << llendl;
+		LL_WARNS() << "TransferInfo for unknown transfer!  Not able to handle this yet!" << LL_ENDL;
 		// This could happen if we're doing a push transfer, although to avoid confusion,
 		// maybe it should be a different message.
 		return;
@@ -306,7 +306,7 @@ void LLTransferManager::processTransferInfo(LLMessageSystem *msgp, void **)
 
 	if (status != LLTS_OK)
 	{
-		llwarns << transfer_id << ": Non-ok status, cleaning up" << llendl;
+		LL_WARNS() << transfer_id << ": Non-ok status, cleaning up" << LL_ENDL;
 		ttp->completionCallback(status);
 		// Clean up the transfer.
 		ttcp->deleteTransfer(ttp);
@@ -317,8 +317,8 @@ void LLTransferManager::processTransferInfo(LLMessageSystem *msgp, void **)
 	S32 params_size = msgp->getSize("TransferInfo", "Params");
 	if(params_size > MAX_PARAMS_SIZE)
 	{
-		llwarns << "LLTransferManager::processTransferInfo params too big."
-			<< llendl;
+		LL_WARNS() << "LLTransferManager::processTransferInfo params too big."
+			<< LL_ENDL;
 		return;
 	}
 	else if(params_size > 0)
@@ -330,15 +330,15 @@ void LLTransferManager::processTransferInfo(LLMessageSystem *msgp, void **)
 		{
 			// This should only happen if the data is corrupt or
 			// incorrectly packed.
-			llwarns << "LLTransferManager::processTransferRequest: bad params."
-				<< llendl;
+			LL_WARNS() << "LLTransferManager::processTransferRequest: bad params."
+				<< LL_ENDL;
 			ttp->abortTransfer();
 			ttcp->deleteTransfer(ttp);
 			return;
 		}
 	}
 
-	//llinfos << "Receiving " << transfer_id << ", size " << size << " bytes" << llendl;
+	//LL_INFOS() << "Receiving " << transfer_id << ", size " << size << " bytes" << LL_ENDL;
 	ttp->setSize(size);
 	ttp->setGotInfo(TRUE);
 
@@ -358,7 +358,7 @@ void LLTransferManager::processTransferInfo(LLMessageSystem *msgp, void **)
 		{
 			// Perhaps this stuff should be inside a method in LLTransferPacket?
 			// I'm too lazy to do it now, though.
-// 			llinfos << "Playing back delayed packet " << packet_id << llendl;
+// 			LL_INFOS() << "Playing back delayed packet " << packet_id << LL_ENDL;
 			LLTransferPacket *packetp = ttp->mDelayedPacketMap[packet_id];
 
 			// This is somewhat inefficient, but avoids us having to duplicate
@@ -392,11 +392,11 @@ void LLTransferManager::processTransferInfo(LLMessageSystem *msgp, void **)
 		{
 			if (status != LLTS_DONE)
 			{
-				llwarns << "LLTransferManager::processTransferInfo Error in playback!" << llendl;
+				LL_WARNS() << "LLTransferManager::processTransferInfo Error in playback!" << LL_ENDL;
 			}
 			else
 			{
-				llinfos << "LLTransferManager::processTransferInfo replay FINISHED for " << transfer_id << llendl;
+				LL_INFOS() << "LLTransferManager::processTransferInfo replay FINISHED for " << transfer_id << LL_ENDL;
 			}
 			// This transfer is done, either via error or not.
 			ttp->completionCallback(status);
@@ -410,7 +410,7 @@ void LLTransferManager::processTransferInfo(LLMessageSystem *msgp, void **)
 //static
 void LLTransferManager::processTransferPacket(LLMessageSystem *msgp, void **)
 {
-	//llinfos << "LLTransferManager::processTransferPacket" << llendl;
+	//LL_INFOS() << "LLTransferManager::processTransferPacket" << LL_ENDL;
 
 	LLUUID transfer_id;
 	LLTransferChannelType channel_type;
@@ -423,20 +423,20 @@ void LLTransferManager::processTransferPacket(LLMessageSystem *msgp, void **)
 	msgp->getS32("TransferData", "Status", (S32 &)status);
 
 	// Find the transfer associated with this packet.
-	//llinfos << transfer_id << ":" << channel_type << llendl;
+	//LL_INFOS() << transfer_id << ":" << channel_type << LL_ENDL;
 	LLTransferTargetChannel *ttcp = gTransferManager.getTargetChannel(msgp->getSender(), channel_type);
 	if (!ttcp)
 	{
-		llwarns << "Target channel not found" << llendl;
+		LL_WARNS() << "Target channel not found" << LL_ENDL;
 		return;
 	}
 
 	LLTransferTarget *ttp = ttcp->findTransferTarget(transfer_id);
 	if (!ttp)
 	{
-		llwarns << "Didn't find matching transfer for " << transfer_id
+		LL_WARNS() << "Didn't find matching transfer for " << transfer_id
 			<< " processing packet " << packet_id
-			<< " from " << msgp->getSender() << llendl;
+			<< " from " << msgp->getSender() << LL_ENDL;
 		return;
 	}
 
@@ -455,7 +455,7 @@ void LLTransferManager::processTransferPacket(LLMessageSystem *msgp, void **)
 
 	if ((size < 0) || (size > MAX_PACKET_DATA_SIZE))
 	{
-		llwarns << "Invalid transfer packet size " << size << llendl;
+		LL_WARNS() << "Invalid transfer packet size " << size << LL_ENDL;
 		return;
 	}
 
@@ -472,8 +472,8 @@ void LLTransferManager::processTransferPacket(LLMessageSystem *msgp, void **)
 		if(!ttp->addDelayedPacket(packet_id, status, tmp_data, size))
 		{
 			// Whoops - failed to add a delayed packet for some reason.
-			llwarns << "Too many delayed packets processing transfer "
-				<< transfer_id << " from " << msgp->getSender() << llendl;
+			LL_WARNS() << "Too many delayed packets processing transfer "
+				<< transfer_id << " from " << msgp->getSender() << LL_ENDL;
 			ttp->abortTransfer();
 			ttcp->deleteTransfer(ttp);
 			return;
@@ -483,15 +483,15 @@ void LLTransferManager::processTransferPacket(LLMessageSystem *msgp, void **)
 		const S32 LL_TRANSFER_WARN_GAP = 10;
 		if(!ttp->gotInfo())
 		{
-			llwarns << "Got data packet before information in transfer "
+			LL_WARNS() << "Got data packet before information in transfer "
 				<< transfer_id << " from " << msgp->getSender()
-				<< ", got " << packet_id << llendl;
+				<< ", got " << packet_id << LL_ENDL;
 		}
 		else if((packet_id - ttp->getNextPacketID()) > LL_TRANSFER_WARN_GAP)
 		{
-			llwarns << "Out of order packet in transfer " << transfer_id
+			LL_WARNS() << "Out of order packet in transfer " << transfer_id
 				<< " from " << msgp->getSender() << ", got " << packet_id
-				<< " expecting " << ttp->getNextPacketID() << llendl;
+				<< " expecting " << ttp->getNextPacketID() << LL_ENDL;
 		}
 #endif
 		return;
@@ -516,11 +516,11 @@ void LLTransferManager::processTransferPacket(LLMessageSystem *msgp, void **)
 		{
 			if (status != LLTS_DONE)
 			{
-				llwarns << "LLTransferManager::processTransferPacket Error in transfer!" << llendl;
+				LL_WARNS() << "LLTransferManager::processTransferPacket Error in transfer!" << LL_ENDL;
 			}
 			else
 			{
-// 				llinfos << "LLTransferManager::processTransferPacket done for " << transfer_id << llendl;
+// 				LL_INFOS() << "LLTransferManager::processTransferPacket done for " << transfer_id << LL_ENDL;
 			}
 			// This transfer is done, either via error or not.
 			ttp->completionCallback(status);
@@ -534,7 +534,7 @@ void LLTransferManager::processTransferPacket(LLMessageSystem *msgp, void **)
 		{
 			// Perhaps this stuff should be inside a method in LLTransferPacket?
 			// I'm too lazy to do it now, though.
-// 			llinfos << "Playing back delayed packet " << packet_id << llendl;
+// 			LL_INFOS() << "Playing back delayed packet " << packet_id << LL_ENDL;
 			LLTransferPacket *packetp = ttp->mDelayedPacketMap[packet_id];
 
 			// This is somewhat inefficient, but avoids us having to duplicate
@@ -564,7 +564,7 @@ void LLTransferManager::processTransferPacket(LLMessageSystem *msgp, void **)
 //static
 void LLTransferManager::processTransferAbort(LLMessageSystem *msgp, void **)
 {
-	//llinfos << "LLTransferManager::processTransferPacket" << llendl;
+	//LL_INFOS() << "LLTransferManager::processTransferPacket" << LL_ENDL;
 
 	LLUUID transfer_id;
 	LLTransferChannelType channel_type;
@@ -598,7 +598,7 @@ void LLTransferManager::processTransferAbort(LLMessageSystem *msgp, void **)
 		}
 	}
 
-	llwarns << "Couldn't find transfer " << transfer_id << " to abort!" << llendl;
+	LL_WARNS() << "Couldn't find transfer " << transfer_id << " to abort!" << LL_ENDL;
 }
 
 
@@ -612,14 +612,14 @@ void LLTransferManager::reliablePacketCallback(void **user_data, S32 result)
 		LLTransferSource *tsp = gTransferManager.findTransferSource(*transfer_idp);
 		if (tsp)
 		{
-			llwarns << "Aborting reliable transfer " << *transfer_idp << " due to failed reliable resends!" << llendl;
+			LL_WARNS() << "Aborting reliable transfer " << *transfer_idp << " due to failed reliable resends!" << LL_ENDL;
 			LLTransferSourceChannel *tscp = tsp->mChannelp;
 			tsp->abortTransfer();
 			tscp->deleteTransfer(tsp);
 		}
 		else
 		{
-			llwarns << "Aborting reliable transfer " << *transfer_idp << " but can't find the LLTransferSource object" << llendl;
+			LL_WARNS() << "Aborting reliable transfer " << *transfer_idp << " but can't find the LLTransferSource object" << LL_ENDL;
 		}
 	}
 	delete transfer_idp;
@@ -763,7 +763,7 @@ void LLTransferSourceChannel::updateTransfers()
 
 		// We DON'T want to send any packets if they're blocked, they'll just end up
 		// piling up on the other end.
-		//llwarns << "Blocking transfers due to blocked circuit for " << getHost() << llendl;
+		//LL_WARNS() << "Blocking transfers due to blocked circuit for " << getHost() << LL_ENDL;
 		return;
 	}
 
@@ -781,7 +781,7 @@ void LLTransferSourceChannel::updateTransfers()
 	BOOL done = FALSE;
 	for (iter = mTransferSources.mMap.begin(); (iter != mTransferSources.mMap.end()) && !done;)
 	{
-		//llinfos << "LLTransferSourceChannel::updateTransfers()" << llendl;
+		//LL_INFOS() << "LLTransferSourceChannel::updateTransfers()" << LL_ENDL;
 		// Do stuff. 
 		next = iter;
 		next++;
@@ -820,7 +820,7 @@ void LLTransferSourceChannel::updateTransfers()
 		gMessageSystem->addS32("Status", status);
 		gMessageSystem->addBinaryData("Data", datap, data_size);
 		sent_bytes = gMessageSystem->getCurrentSendTotal();
-		gMessageSystem->sendReliable(getHost(), LL_DEFAULT_RELIABLE_RETRIES, TRUE, 0.f,
+		gMessageSystem->sendReliable(getHost(), LL_DEFAULT_RELIABLE_RETRIES, TRUE, F32Seconds(0.f),
 									 LLTransferManager::reliablePacketCallback, (void**)cb_uuid);
 
 		// Do bookkeeping for the throttle
@@ -853,11 +853,11 @@ void LLTransferSourceChannel::updateTransfers()
 			// We're OK, don't need to do anything.  Keep sending data.
 			break;
 		case LLTS_ERROR:
-			llwarns << "Error in transfer dataCallback!" << llendl;
+			LL_WARNS() << "Error in transfer dataCallback!" << LL_ENDL;
 			// fall through
 		case LLTS_DONE:
 			// We need to clean up this transfer source.
-			//llinfos << "LLTransferSourceChannel::updateTransfers() " << tsp->getID() << " done" << llendl;
+			//LL_INFOS() << "LLTransferSourceChannel::updateTransfers() " << tsp->getID() << " done" << LL_ENDL;
 			tsp->completionCallback(status);
 			delete tsp;
 			
@@ -865,7 +865,7 @@ void LLTransferSourceChannel::updateTransfers()
 			iter = next;
 			break;
 		default:
-			llerrs << "Unknown transfer error code!" << llendl;
+			LL_ERRS() << "Unknown transfer error code!" << LL_ENDL;
 		}
 
 		// At this point, we should do priority adjustment (since some transfers like
@@ -912,10 +912,10 @@ void LLTransferSourceChannel::deleteTransfer(LLTransferSource *tsp)
 			}
 		}
 
-		llwarns << "Unable to find transfer source id " 
+		LL_WARNS() << "Unable to find transfer source id " 
 			<< tsp->getID()
 			<< " to delete!" 
-			<< llendl;
+			<< LL_ENDL;
 	}
 }
 
@@ -956,7 +956,7 @@ void LLTransferTargetChannel::requestTransfer(
 		source_params.getType());
 	if (!ttp)
 	{
-		llwarns << "LLTransferManager::requestTransfer aborting due to target creation failure!" << llendl;
+		LL_WARNS() << "LLTransferManager::requestTransfer aborting due to target creation failure!" << LL_ENDL;
 		return;
 	}
 
@@ -1032,10 +1032,10 @@ void LLTransferTargetChannel::deleteTransfer(LLTransferTarget *ttp)
 			}
 		}
 
-		llwarns << "Unable to find transfer target id " 
+		LL_WARNS() << "Unable to find transfer target id " 
 			<< ttp->getID()
 			<< " to delete!" 
-			<< llendl;
+			<< LL_ENDL;
 	}
 }
 
@@ -1097,7 +1097,7 @@ void LLTransferSource::sendTransferStatus(LLTSCode status)
 void LLTransferSource::abortTransfer()
 {
 	// Send a message down, call the completion callback
-	llinfos << "LLTransferSource::Aborting transfer " << getID() << " to " << mChannelp->getHost() << llendl;
+	LL_INFOS() << "LLTransferSource::Aborting transfer " << getID() << " to " << mChannelp->getHost() << LL_ENDL;
 	gMessageSystem->newMessage("TransferAbort");
 	gMessageSystem->nextBlock("TransferInfo");
 	gMessageSystem->addUUID("TransferID", getID());
@@ -1115,7 +1115,7 @@ void LLTransferSource::registerSourceType(const LLTransferSourceType stype, LLTr
 	{
 		// Disallow changing what class handles a source type
 		// Unclear when you would want to do this, and whether it would work.
-		llerrs << "Reregistering source type " << stype << llendl;
+		LL_ERRS() << "Reregistering source type " << stype << LL_ENDL;
 	}
 	else
 	{
@@ -1143,7 +1143,7 @@ LLTransferSource *LLTransferSource::createSource(const LLTransferSourceType styp
 			if (!sSourceCreateMap.count(stype))
 			{
 				// Use the callback to create the source type if it's not there.
-				llwarns << "Unknown transfer source type: " << stype << llendl;
+				LL_WARNS() << "Unknown transfer source type: " << stype << LL_ENDL;
 				return NULL;
 			}
 			return (sSourceCreateMap[stype])(id, priority);
@@ -1230,7 +1230,7 @@ LLTransferTarget::~LLTransferTarget()
 void LLTransferTarget::abortTransfer()
 {
 	// Send a message up, call the completion callback
-	llinfos << "LLTransferTarget::Aborting transfer " << getID() << " from " << mChannelp->getHost() << llendl;
+	LL_INFOS() << "LLTransferTarget::Aborting transfer " << getID() << " from " << mChannelp->getHost() << LL_ENDL;
 	gMessageSystem->newMessage("TransferAbort");
 	gMessageSystem->nextBlock("TransferInfo");
 	gMessageSystem->addUUID("TransferID", getID());
@@ -1262,7 +1262,7 @@ bool LLTransferTarget::addDelayedPacket(
 #ifdef _DEBUG
 	if (mDelayedPacketMap.find(packet_id) != mDelayedPacketMap.end())
 	{
-		llerrs << "Packet ALREADY in delayed packet map!" << llendl;
+		LL_ERRS() << "Packet ALREADY in delayed packet map!" << LL_ENDL;
 	}
 #endif
 
@@ -1283,7 +1283,7 @@ LLTransferTarget* LLTransferTarget::createTarget(
 	case LLTTT_VFILE:
 		return new LLTransferTargetVFile(id, source_type);
 	default:
-		llwarns << "Unknown transfer target type: " << type << llendl;
+		LL_WARNS() << "Unknown transfer target type: " << type << LL_ENDL;
 		return NULL;
 	}
 }
@@ -1318,7 +1318,7 @@ void LLTransferSourceParamsInvItem::setAsset(const LLUUID &asset_id, const LLAss
 
 void LLTransferSourceParamsInvItem::packParams(LLDataPacker &dp) const
 {
-	lldebugs << "LLTransferSourceParamsInvItem::packParams()" << llendl;
+	LL_DEBUGS() << "LLTransferSourceParamsInvItem::packParams()" << LL_ENDL;
 	dp.packUUID(mAgentID, "AgentID");
 	dp.packUUID(mSessionID, "SessionID");
 	dp.packUUID(mOwnerID, "OwnerID");

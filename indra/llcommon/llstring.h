@@ -29,10 +29,12 @@
 
 #include <string>
 #include <cstdio>
-#include <locale>
+//#include <locale>
 #include <iomanip>
-#include "llsd.h"
-#include "llfasttimer.h"
+#include <algorithm>
+#include <vector>
+#include <map>
+#include "llformat.h"
 
 #if LL_LINUX || LL_SOLARIS
 #include <wctype.h>
@@ -49,6 +51,7 @@
 #endif
 
 const char LL_UNKNOWN_CHAR = '?';
+class LLSD;
 
 #if LL_DARWIN || LL_LINUX || LL_SOLARIS
 // Template specialization of char_traits for U16s. Only necessary on Mac and Linux (exists on Windows already)
@@ -518,9 +521,12 @@ LL_COMMON_API S32 wchar_to_utf8chars(llwchar inchar, char* outchars);
 
 LL_COMMON_API std::string wstring_to_utf8str(const LLWString &utf32str, S32 len);
 LL_COMMON_API std::string wstring_to_utf8str(const LLWString &utf32str);
-
 LL_COMMON_API std::string utf16str_to_utf8str(const llutf16string &utf16str, S32 len);
 LL_COMMON_API std::string utf16str_to_utf8str(const llutf16string &utf16str);
+
+#if LL_WINDOWS
+inline std::string wstring_to_utf8str(const llutf16string &utf16str) { return utf16str_to_utf8str(utf16str);}
+#endif
 
 // Length of this UTF32 string in bytes when transformed to UTF8
 LL_COMMON_API S32 wstring_utf8_length(const LLWString& wstr); 

@@ -95,7 +95,7 @@ public:
 			
 			if (added_category_type == LLFolderType::FT_OUTBOX)
 			{
-				mOutboxFloater->setupOutbox(added_category->getUUID());
+				mOutboxFloater->initializeMarketPlace();
 			}
 		}
 	}
@@ -120,7 +120,6 @@ LLFloaterOutbox::LLFloaterOutbox(const LLSD& key)
 	, mInventoryText(NULL)
 	, mInventoryTitle(NULL)
 	, mOutboxId(LLUUID::null)
-	, mOutboxInventoryPanel(NULL)
 	, mOutboxItemCount(0)
 	, mOutboxTopLevelDropZone(NULL)
 	, mWindowShade(NULL)
@@ -157,7 +156,22 @@ BOOL LLFloaterOutbox::postBuild()
 
 	LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLFloaterOutbox::onFocusReceived, this));
 
+	// Observe category creation to catch outbox creation (moot if already existing)
+	mCategoryAddedObserver = new LLOutboxAddedObserver(this);
+	gInventory.addObserver(mCategoryAddedObserver);
+	
 	return TRUE;
+}
+
+void LLFloaterOutbox::cleanOutbox()
+{
+    // Note: we cannot delete the mOutboxInventoryPanel as that point
+    // as this is called through callback observers of the panel itself.
+    // Doing so would crash rapidly.
+	
+	// Invalidate the outbox data
+    mOutboxId.setNull();
+    mOutboxItemCount = 0;
 }
 
 void LLFloaterOutbox::onClose(bool app_quitting)
@@ -173,33 +187,25 @@ void LLFloaterOutbox::onClose(bool app_quitting)
 void LLFloaterOutbox::onOpen(const LLSD& key)
 {
 	//
-	// Look for an outbox and set up the inventory API
+	// Initialize the Market Place or go update the outbox
 	//
-	
-	if (mOutboxId.isNull())
+	if (LLMarketplaceInventoryImporter::getInstance()->getMarketPlaceStatus() == MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED)
 	{
-		const bool do_not_create_folder = false;
-		
-		const LLUUID outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, do_not_create_folder);
-		
-		if (outbox_id.isNull())
-		{
-			// Observe category creation to catch outbox creation
-			mCategoryAddedObserver = new LLOutboxAddedObserver(this);
-			gInventory.addObserver(mCategoryAddedObserver);
-		}
-		else
-		{
-			setupOutbox(outbox_id);
-		}
+		initializeMarketPlace();
+	}
+	else 
+	{
+		setupOutbox();
 	}
 	
+	//
+	// Update the floater view
+	//
 	updateView();
 	
 	//
 	// Trigger fetch of outbox contents
 	//
-	
 	fetchOutboxContents();
 }
 
@@ -216,14 +222,34 @@ void LLFloaterOutbox::fetchOutboxContents()
 	}
 }
 
-void LLFloaterOutbox::setupOutbox(const LLUUID& outboxId)
+void LLFloaterOutbox::setupOutbox()
 {
-	llassert(outboxId.notNull());
-	llassert(mOutboxId.isNull());
-	llassert(mCategoriesObserver == NULL);
-	
-	mOutboxId = outboxId;
-	
+	if (LLMarketplaceInventoryImporter::getInstance()->getMarketPlaceStatus() != MarketplaceStatusCodes::MARKET_PLACE_MERCHANT)
+	{
+		// If we are *not* a merchant or we have no market place connection established yet, do nothing
+		return;
+	}
+		
+	// We are a merchant. Get the outbox, create it if needs be.
+	LLUUID outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, true);
+	if (outbox_id.isNull())
+	{
+		// We should never get there unless the inventory fails badly
+		LL_ERRS() << "Inventory problem: failure to create the outbox for a merchant!" << LL_ENDL;
+		return;
+	}
+    
+    // Consolidate Merchant Outbox
+    // We shouldn't have to do that but with a client/server system relying on a "well known folder" convention, things get messy and conventions get broken down eventually
+    gInventory.consolidateForType(outbox_id, LLFolderType::FT_OUTBOX);
+    
+    if (outbox_id == mOutboxId)
+    {
+        LL_WARNS() << "Inventory warning: Merchant outbox already set" << LL_ENDL;
+        return;
+    }
+    mOutboxId = outbox_id;
+
 	// No longer need to observe new category creation
 	if (mCategoryAddedObserver && gInventory.containsObserver(mCategoryAddedObserver))
 	{
@@ -231,45 +257,55 @@ void LLFloaterOutbox::setupOutbox(const LLUUID& outboxId)
 		delete mCategoryAddedObserver;
 		mCategoryAddedObserver = NULL;
 	}
+	llassert(!mCategoryAddedObserver);
 	
-	// Create observer for outbox modifications
-	mCategoriesObserver = new LLInventoryCategoriesObserver();
-	gInventory.addObserver(mCategoriesObserver);
+	// Create observer for outbox modifications : clear the old one and create a new one
+	if (mCategoriesObserver && gInventory.containsObserver(mCategoriesObserver))
+	{
+		gInventory.removeObserver(mCategoriesObserver);
+		delete mCategoriesObserver;
+	}
+    mCategoriesObserver = new LLInventoryCategoriesObserver();
+    gInventory.addObserver(mCategoriesObserver);
+    mCategoriesObserver->addCategory(mOutboxId, boost::bind(&LLFloaterOutbox::onOutboxChanged, this));
+	llassert(mCategoriesObserver);
 	
-	mCategoriesObserver->addCategory(mOutboxId, boost::bind(&LLFloaterOutbox::onOutboxChanged, this));
-	
-	//
 	// Set up the outbox inventory view
-	//
-	
-	mOutboxInventoryPanel = 
-		LLUICtrlFactory::createFromFile<LLInventoryPanel>("panel_outbox_inventory.xml",
-														  mInventoryPlaceholder->getParent(),
-														  LLInventoryPanel::child_registry_t::instance());
-	
-	llassert(mOutboxInventoryPanel);
+	LLInventoryPanel* inventory_panel = mOutboxInventoryPanel.get();
+    if (inventory_panel)
+    {
+        delete inventory_panel;
+    }
+    inventory_panel = LLUICtrlFactory::createFromFile<LLInventoryPanel>("panel_outbox_inventory.xml", mInventoryPlaceholder->getParent(), LLInventoryPanel::child_registry_t::instance());
+    mOutboxInventoryPanel = inventory_panel->getInventoryPanelHandle();
+	llassert(mOutboxInventoryPanel.get() != NULL);
 	
 	// Reshape the inventory to the proper size
 	LLRect inventory_placeholder_rect = mInventoryPlaceholder->getRect();
-	mOutboxInventoryPanel->setShape(inventory_placeholder_rect);
+	inventory_panel->setShape(inventory_placeholder_rect);
 	
 	// Set the sort order newest to oldest
-
-	mOutboxInventoryPanel->getFolderViewModel()->setSorter(LLInventoryFilter::SO_FOLDERS_BY_NAME);	
-	mOutboxInventoryPanel->getFilter().markDefault();
-	
+	inventory_panel->getFolderViewModel()->setSorter(LLInventoryFilter::SO_FOLDERS_BY_NAME);	
+	inventory_panel->getFilter().markDefault();
+    
+	// Get the content of the outbox
 	fetchOutboxContents();
-	
+}
+
+void LLFloaterOutbox::initializeMarketPlace()
+{
 	//
 	// Initialize the marketplace import API
 	//
-	
 	LLMarketplaceInventoryImporter& importer = LLMarketplaceInventoryImporter::instance();
 	
-	importer.setInitializationErrorCallback(boost::bind(&LLFloaterOutbox::initializationReportError, this, _1, _2));
-	importer.setStatusChangedCallback(boost::bind(&LLFloaterOutbox::importStatusChanged, this, _1));
-	importer.setStatusReportCallback(boost::bind(&LLFloaterOutbox::importReportResults, this, _1, _2));
-	importer.initialize();
+    if (!importer.isInitialized())
+    {
+        importer.setInitializationErrorCallback(boost::bind(&LLFloaterOutbox::initializationReportError, this, _1, _2));
+        importer.setStatusChangedCallback(boost::bind(&LLFloaterOutbox::importStatusChanged, this, _1));
+        importer.setStatusReportCallback(boost::bind(&LLFloaterOutbox::importReportResults, this, _1, _2));
+        importer.initialize();
+    }
 }
 
 void LLFloaterOutbox::setStatusString(const std::string& statusString)
@@ -281,18 +317,26 @@ void LLFloaterOutbox::setStatusString(const std::string& statusString)
 
 void LLFloaterOutbox::updateFolderCount()
 {
-	S32 item_count = 0;
-
-	if (mOutboxId.notNull())
+	if (mOutboxInventoryPanel.get() && mOutboxId.notNull())
 	{
-		LLInventoryModel::cat_array_t * cats;
-		LLInventoryModel::item_array_t * items;
-		gInventory.getDirectDescendentsOf(mOutboxId, cats, items);
+        U32 item_count = 0;
 
-		item_count = cats->count() + items->count();
-	}
+        if (mOutboxId.notNull())
+        {
+            LLInventoryModel::cat_array_t * cats;
+            LLInventoryModel::item_array_t * items;
+            gInventory.getDirectDescendentsOf(mOutboxId, cats, items);
+
+            item_count = cats->size() + items->size();
+        }
 	
-	mOutboxItemCount = item_count;
+        mOutboxItemCount = item_count;
+    }
+    else
+    {
+        // If there's no outbox, the number of items in it should be set to 0 for consistency
+        mOutboxItemCount = 0;
+    }
 
 	if (!mImportBusy)
 	{
@@ -302,7 +346,7 @@ void LLFloaterOutbox::updateFolderCount()
 
 void LLFloaterOutbox::updateFolderCountStatus()
 {
-	if (mOutboxInventoryPanel)
+	if (mOutboxInventoryPanel.get() && mOutboxId.notNull())
 	{
 		switch (mOutboxItemCount)
 		{
@@ -327,18 +371,23 @@ void LLFloaterOutbox::updateFolderCountStatus()
 void LLFloaterOutbox::updateView()
 {
 	updateFolderCount();
+	LLInventoryPanel* panel = mOutboxInventoryPanel.get();
 
 	if (mOutboxItemCount > 0)
 	{
-		mOutboxInventoryPanel->setVisible(TRUE);
+		panel->setVisible(TRUE);
 		mInventoryPlaceholder->setVisible(FALSE);
+		mOutboxTopLevelDropZone->setVisible(TRUE);
 	}
 	else
 	{
-		if (mOutboxInventoryPanel)
+		if (panel)
 		{
-			mOutboxInventoryPanel->setVisible(FALSE);
+			panel->setVisible(FALSE);
 		}
+		
+		// Show the drop zone if there is an outbox folder
+		mOutboxTopLevelDropZone->setVisible(mOutboxId.notNull());
 
 		mInventoryPlaceholder->setVisible(TRUE);
 
@@ -347,18 +396,40 @@ void LLFloaterOutbox::updateView()
 		std::string outbox_tooltip;
 		
 		const LLSD& subs = getMarketplaceStringSubstitutions();
+		U32 mkt_status = LLMarketplaceInventoryImporter::getInstance()->getMarketPlaceStatus();
 		
 		if (mOutboxId.notNull())
 		{
+            // Does the outbox needs recreation?
+            if ((mOutboxInventoryPanel.get() == NULL) || !gInventory.getCategory(mOutboxId))
+            {
+                setupOutbox();
+            }
+			// "Outbox is empty!" message strings
 			outbox_text = LLTrans::getString("InventoryOutboxNoItems", subs);
 			outbox_title = LLTrans::getString("InventoryOutboxNoItemsTitle");
 			outbox_tooltip = LLTrans::getString("InventoryOutboxNoItemsTooltip");
 		}
-		else
+		else if (mkt_status <= MarketplaceStatusCodes::MARKET_PLACE_INITIALIZING)
 		{
+			// "Initializing!" message strings
+			outbox_text = LLTrans::getString("InventoryOutboxInitializing", subs);
+			outbox_title = LLTrans::getString("InventoryOutboxInitializingTitle");
+			outbox_tooltip = LLTrans::getString("InventoryOutboxInitializingTooltip");
+		}
+		else if (mkt_status == MarketplaceStatusCodes::MARKET_PLACE_NOT_MERCHANT)
+		{
+			// "Not a merchant!" message strings
 			outbox_text = LLTrans::getString("InventoryOutboxNotMerchant", subs);
 			outbox_title = LLTrans::getString("InventoryOutboxNotMerchantTitle");
 			outbox_tooltip = LLTrans::getString("InventoryOutboxNotMerchantTooltip");
+		}
+		else
+		{
+			// "Errors!" message strings
+			outbox_text = LLTrans::getString("InventoryOutboxError", subs);
+			outbox_title = LLTrans::getString("InventoryOutboxErrorTitle");
+			outbox_tooltip = LLTrans::getString("InventoryOutboxErrorTooltip");
 		}
 		
 		mInventoryText->setValue(outbox_text);
@@ -378,9 +449,10 @@ BOOL LLFloaterOutbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 										EAcceptance* accept,
 										std::string& tooltip_msg)
 {
-	if ((mOutboxInventoryPanel == NULL) ||
+	if ((mOutboxInventoryPanel.get() == NULL) ||
 		(mWindowShade && mWindowShade->isShown()) ||
-		LLMarketplaceInventoryImporter::getInstance()->isImportInProgress())
+		LLMarketplaceInventoryImporter::getInstance()->isImportInProgress() ||
+        mOutboxId.isNull())
 	{
 		return FALSE;
 	}
@@ -391,15 +463,16 @@ BOOL LLFloaterOutbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	// Determine if the mouse is inside the inventory panel itself or just within the floater
 	bool pointInInventoryPanel = false;
 	bool pointInInventoryPanelChild = false;
-	LLFolderView* root_folder = mOutboxInventoryPanel->getRootFolder();
-	if (mOutboxInventoryPanel->getVisible())
+	LLInventoryPanel* panel = mOutboxInventoryPanel.get();
+	LLFolderView* root_folder = panel->getRootFolder();
+	if (panel->getVisible())
 	{
 		S32 inv_x, inv_y;
-		localPointToOtherView(x, y, &inv_x, &inv_y, mOutboxInventoryPanel);
+		localPointToOtherView(x, y, &inv_x, &inv_y, panel);
 
-		pointInInventoryPanel = mOutboxInventoryPanel->getRect().pointInRect(inv_x, inv_y);
+		pointInInventoryPanel = panel->getRect().pointInRect(inv_x, inv_y);
 
-		LLView * inventory_panel_child_at_point = mOutboxInventoryPanel->childFromPoint(inv_x, inv_y, true);
+		LLView * inventory_panel_child_at_point = panel->childFromPoint(inv_x, inv_y, true);
 		pointInInventoryPanelChild = (inventory_panel_child_at_point != root_folder);
 	}
 	
@@ -439,23 +512,26 @@ void LLFloaterOutbox::onMouseLeave(S32 x, S32 y, MASK mask)
 
 void LLFloaterOutbox::onImportButtonClicked()
 {
-	mOutboxInventoryPanel->clearSelection();
+    if (mOutboxInventoryPanel.get())
+    {
+        mOutboxInventoryPanel.get()->clearSelection();
+    }
 
 	mImportBusy = LLMarketplaceInventoryImporter::instance().triggerImport();
 }
 
 void LLFloaterOutbox::onOutboxChanged()
 {
-	llassert(!mOutboxId.isNull());
-	
-	//if (mOutboxInventoryPanel)
-	//{
-	//	mOutboxInventoryPanel->requestSort();
-	//}
-
-	fetchOutboxContents();
-
-	updateView();
+    LLViewerInventoryCategory* category = gInventory.getCategory(mOutboxId);
+	if (mOutboxId.notNull() && category)
+    {
+        fetchOutboxContents();
+        updateView();
+    }
+    else
+    {
+        cleanOutbox();
+    }
 }
 
 void LLFloaterOutbox::importReportResults(U32 status, const LLSD& content)
@@ -486,6 +562,11 @@ void LLFloaterOutbox::importReportResults(U32 status, const LLSD& content)
 
 void LLFloaterOutbox::importStatusChanged(bool inProgress)
 {
+	if (mOutboxId.isNull() && (LLMarketplaceInventoryImporter::getInstance()->getMarketPlaceStatus() == MarketplaceStatusCodes::MARKET_PLACE_MERCHANT))
+	{
+		setupOutbox();
+	}
+	
 	if (inProgress)
 	{
 		if (mImportBusy)
@@ -503,6 +584,7 @@ void LLFloaterOutbox::importStatusChanged(bool inProgress)
 	}
 	else
 	{
+		setStatusString("");
 		mImportBusy = false;
 		mImportButton->setEnabled(mOutboxItemCount > 0);
 		mInventoryImportInProgress->setVisible(false);
@@ -513,7 +595,7 @@ void LLFloaterOutbox::importStatusChanged(bool inProgress)
 
 void LLFloaterOutbox::initializationReportError(U32 status, const LLSD& content)
 {
-	if (status != MarketplaceErrorCodes::IMPORT_DONE)
+	if (status >= MarketplaceErrorCodes::IMPORT_BAD_REQUEST)
 	{
 		char status_string[16];
 		sprintf(status_string, "%d", status);

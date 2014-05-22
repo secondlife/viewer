@@ -38,12 +38,6 @@
 
 #include <windows.h>
 
-namespace {
-	inline DWORD getpid() {
-		return GetCurrentProcessId();
-	}
-}
-
 bool isProcessAlive(U32 pid)
 {
 	return (bool) GetProcessVersion((DWORD)pid);
@@ -105,7 +99,7 @@ void LLPidLockFile::writeLockFile(LLSD pids)
 
 	if (!LLSDSerialize::toXML(pids,ofile))
 	{
-		llwarns << "Unable to write concurrent save lock file." << llendl;
+		LL_WARNS() << "Unable to write concurrent save lock file." << LL_ENDL;
 	}
 	ofile.close();
 }
@@ -273,4 +267,9 @@ void LLPidLock::setClean(bool clean)
 void LLPidLock::setSaveName(std::string savename) 
 { 
 	LLPidLockFile::instance().mSaveName=savename; 
+}
+
+S32 LLPidLock::getPID()
+{
+    return (S32)getpid();
 }

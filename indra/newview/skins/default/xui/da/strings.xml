@@ -1172,7 +1172,8 @@ Prøv venligst om lidt igen.
 	<string name="InventoryNoTexture">
 		Du har ikke en kopi af denne tekstur i din beholdning
 	</string>
-	<string name="no_transfer" value=" (ikke overdragbar)"/>
+  <string name="Unconstrained">Ikke låst</string>
+  <string name="no_transfer" value=" (ikke overdragbar)"/>
 	<string name="no_modify" value=" (ikke redigere)"/>
 	<string name="no_copy" value=" (ikke kopiere)"/>
 	<string name="worn" value=" (båret)"/>

@@ -52,6 +52,7 @@
 #include "llfloaterworldmap.h"
 #include "llviewergenericmessage.h"	// send_generic_message
 #include "llviewerregion.h"
+#include "llviewertexture.h"
 #include "lltrans.h"
 #include "llscrollcontainer.h"
 #include "llstatusbar.h"
@@ -102,8 +103,8 @@ public:
 		const std::string& reason,
 		const LLSD& content)
 	{
-		llwarns << "Sending click message failed (" << status << "): [" << reason << "]" << llendl;
-		llwarns << "Content: [" << content << "]" << llendl;
+		LL_WARNS() << "Sending click message failed (" << status << "): [" << reason << "]" << LL_ENDL;
+		LL_WARNS() << "Content: [" << content << "]" << LL_ENDL;
 	}
 };
 
@@ -219,7 +220,7 @@ void LLPanelClassifiedInfo::onOpen(const LLSD& key)
 	setSnapshotId(key["classified_snapshot_id"]);
 	setFromSearch(key["from_search"]);
 
-	llinfos << "Opening classified [" << getClassifiedName() << "] (" << getClassifiedId() << ")" << llendl;
+	LL_INFOS() << "Opening classified [" << getClassifiedName() << "] (" << getClassifiedId() << ")" << LL_ENDL;
 
 	LLAvatarPropertiesProcessor::getInstance()->addObserver(getAvatarId(), this);
 	LLAvatarPropertiesProcessor::getInstance()->sendClassifiedInfoRequest(getClassifiedId());
@@ -230,7 +231,7 @@ void LLPanelClassifiedInfo::onOpen(const LLSD& key)
 	std::string url = gAgent.getRegion()->getCapability("SearchStatRequest");
 	if (!url.empty())
 	{
-		llinfos << "Classified stat request via capability" << llendl;
+		LL_INFOS() << "Classified stat request via capability" << LL_ENDL;
 		LLSD body;
 		body["classified_id"] = getClassifiedId();
 		LLHTTPClient::post(url, body, new LLClassifiedStatsResponder(getClassifiedId()));
@@ -388,9 +389,9 @@ void LLPanelClassifiedInfo::setClickThrough(
 	S32 profile,
 	bool from_new_table)
 {
-	llinfos << "Click-through data for classified " << classified_id << " arrived: ["
+	LL_INFOS() << "Click-through data for classified " << classified_id << " arrived: ["
 			<< teleport << ", " << map << ", " << profile << "] ("
-			<< (from_new_table ? "new" : "old") << ")" << llendl;
+			<< (from_new_table ? "new" : "old") << ")" << LL_ENDL;
 
 	for (panel_list_t::iterator iter = sAllPanels.begin(); iter != sAllPanels.end(); ++iter)
 	{
@@ -407,7 +408,7 @@ void LLPanelClassifiedInfo::setClickThrough(
 			continue;
 		}
 
-		llinfos << "Updating classified info panel" << llendl;
+		LL_INFOS() << "Updating classified info panel" << LL_ENDL;
 
 		// We need to check to see if the data came from the new stat_table 
 		// or the old classified table. We also need to cache the data from 
@@ -436,10 +437,10 @@ void LLPanelClassifiedInfo::setClickThrough(
 		// *HACK: remove this when there is enough room for click stats in the info panel
 		self->getChildView("click_through_text")->setToolTip(ct_str.getString());  
 
-		llinfos << "teleport: " << llformat("%d", self->mTeleportClicksNew + self->mTeleportClicksOld)
+		LL_INFOS() << "teleport: " << llformat("%d", self->mTeleportClicksNew + self->mTeleportClicksOld)
 				<< ", map: "    << llformat("%d", self->mMapClicksNew + self->mMapClicksOld)
 				<< ", profile: " << llformat("%d", self->mProfileClicksNew + self->mProfileClicksOld)
-				<< llendl;
+				<< LL_ENDL;
 	}
 }
 
@@ -549,8 +550,8 @@ void LLPanelClassifiedInfo::sendClickMessage(
 	body["region_name"]		= sim_name;
 
 	std::string url = gAgent.getRegion()->getCapability("SearchStatTracking");
-	llinfos << "Sending click msg via capability (url=" << url << ")" << llendl;
-	llinfos << "body: [" << body << "]" << llendl;
+	LL_INFOS() << "Sending click msg via capability (url=" << url << ")" << LL_ENDL;
+	LL_INFOS() << "body: [" << body << "]" << LL_ENDL;
 	LLHTTPClient::post(url, body, new LLClassifiedClickMessageResponder());
 }
 

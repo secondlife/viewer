@@ -39,21 +39,22 @@ namespace LLPidLock
 {
     void initClass(); // { (void) LLPidLockFile::instance(); }
 
-	bool requestLock( LLNameTable<void *> *name_table=NULL, bool autosave=TRUE,
-					  bool force_immediate=FALSE, F32 timeout=300.0);
-	bool checkLock(); 
-	void releaseLock(); 
-	bool isClean(); 
+    bool requestLock( LLNameTable<void *> *name_table=NULL, bool autosave=TRUE,
+                     bool force_immediate=FALSE, F32 timeout=300.0);
+    bool checkLock();
+    void releaseLock();
+    bool isClean();
 
-	//getters
-	LLNameTable<void *> * getNameTable(); 
-	bool getAutosave(); 
-	bool getClean(); 
-	std::string getSaveName(); 
+    //getters
+    LLNameTable<void *> * getNameTable();
+    bool getAutosave();
+    bool getClean();
+    std::string getSaveName();
+    S32 getPID();
 
-	//setters
-	void setClean(bool clean); 
-	void setSaveName(std::string savename); 
+    //setters
+    void setClean(bool clean);
+    void setSaveName(std::string savename);
 };
 
 #endif // LL_PIDLOCK_H

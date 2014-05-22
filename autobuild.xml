@@ -764,7 +764,7 @@
               <key>hash</key>
               <string>aff5566e04003de0383941981198e04e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-breakpad/rev/273073/arch/Darwin/installer/google_breakpad-0.0.0-rev1099-darwin-20130329.tar.bz2</string>
+          <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-breakpad/rev/273073/arch/Darwin/installer/google_breakpad-0.0.0-rev1099-darwin-20130329.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -776,7 +776,7 @@
               <key>hash</key>
               <string>52257e5eb166a0b69c9c0c38f6e1920e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-breakpad/rev/273079/arch/Linux/installer/google_breakpad-0.0.0-rev1099-linux-20130329.tar.bz2</string>
+	         <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-breakpad/rev/273079/arch/Linux/installer/google_breakpad-0.0.0-rev1099-linux-20130329.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -786,9 +786,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d812a6dfcabe6528198a3191068dac09</string>
+              <string>a1e519d08c507c12f9d412b2ae8328c8</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-breakpad/rev/273073/arch/CYGWIN/installer/google_breakpad-0.0.0-rev1099-windows-20130329.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-breakpad/rev/279804/arch/CYGWIN/installer/google_breakpad-0.0.0-rev1099-windows-20130813.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1290,9 +1290,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5bc44db15eb3cca021382e40e04a9a38</string>
+              <string>b6d29de20de5c8f31925697b30e8f727</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llappearanceutility-source/rev/271972/arch/Linux/installer/llappearanceutility_source-0.1-linux-20130315.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llappearanceutility-source/rev/283723/arch/Linux/installer/llappearanceutility_source-0.1-linux-20131109.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1808,9 +1808,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2994f1e028fb200c454c12b5f7ca9108</string>
+              <string>88181b9f66b7db650e0d571bbb632bdc</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-slvoice/rev/270464/arch/Darwin/installer/slvoice-4.5.0009.17865-darwin-20130215.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-slvoice/rev/287264/arch/Darwin/installer/slvoice-4.6.0009.20030-darwin-20140226.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1832,9 +1832,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>24710eda136bfd42d6333e5609c2c74f</string>
+              <string>ce89b881ee24977641d1ecbf8aff6dc7</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-slvoice/rev/270464/arch/CYGWIN/installer/slvoice-4.5.0009.17865-windows-20130214.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-slvoice/rev/287264/arch/CYGWIN/installer/slvoice-4.6.0009.20030-windows-20140227.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>

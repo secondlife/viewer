@@ -118,7 +118,7 @@ protected:
 
 			if (!item)
 			{
-				llwarns << "Invalid item" << llendl;
+				LL_WARNS() << "Invalid item" << LL_ENDL;
 				continue;
 			}
 

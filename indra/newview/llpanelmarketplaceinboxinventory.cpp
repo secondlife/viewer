@@ -69,7 +69,7 @@ LLFolderViewFolder * LLInboxInventoryPanel::createFolderViewFolder(LLInvFVBridge
 	LLInboxFolderViewFolder::Params params;
 	
 	params.name = bridge->getDisplayName();
-	params.root = mFolderRoot;
+	params.root = mFolderRoot.get();
 	params.listener = bridge;
 	params.tool_tip = params.name;
 	params.font_color = item_color;
@@ -86,7 +86,7 @@ LLFolderViewItem * LLInboxInventoryPanel::createFolderViewItem(LLInvFVBridge * b
 
 	params.name = bridge->getDisplayName();
 	params.creation_date = bridge->getCreationDate();
-	params.root = mFolderRoot;
+	params.root = mFolderRoot.get();
 	params.listener = bridge;
 	params.rect = LLRect (0, 0, 0, 0);
 	params.tool_tip = params.name;
@@ -164,7 +164,7 @@ void LLInboxFolderViewFolder::computeFreshness()
 #if DEBUGGING_FRESHNESS
 		if (mFresh)
 		{
-			llinfos << "Item is fresh! -- creation " << mCreationDate << ", saved_freshness_date " << last_expansion_utc << llendl;
+			LL_INFOS() << "Item is fresh! -- creation " << mCreationDate << ", saved_freshness_date " << last_expansion_utc << LL_ENDL;
 		}
 #endif
 	}
@@ -242,7 +242,7 @@ void LLInboxFolderViewItem::computeFreshness()
 #if DEBUGGING_FRESHNESS
 		if (mFresh)
 		{
-			llinfos << "Item is fresh! -- creation " << mCreationDate << ", saved_freshness_date " << last_expansion_utc << llendl;
+			LL_INFOS() << "Item is fresh! -- creation " << mCreationDate << ", saved_freshness_date " << last_expansion_utc << LL_ENDL;
 		}
 #endif
 	}

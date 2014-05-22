@@ -100,8 +100,8 @@ LLDir_Mac::LLDir_Mac()
 			// ...we're in a dev checkout
 			mSkinBaseDir = mExecutableDir.substr(0, build_dir_pos)
 				+ "/indra/newview/skins";
-			llinfos << "Running in dev checkout with mSkinBaseDir "
-				<< mSkinBaseDir << llendl;
+			LL_INFOS() << "Running in dev checkout with mSkinBaseDir "
+				<< mSkinBaseDir << LL_ENDL;
 		}
 		else
 		{
@@ -134,7 +134,7 @@ LLDir_Mac::LLDir_Mac()
 		
 		{
             mOSCacheDir = *cachedir;
-            //Aura TODO:  This changes from ~/Library/Cache/Secondlife to ~/Library/Cache/com.app.secondlife/Secondlife.  Last dir level could go away.
+            //TODO:  This changes from ~/Library/Cache/Secondlife to ~/Library/Cache/com.app.secondlife/Secondlife.  Last dir level could go away.
             CreateDirectory(mOSCacheDir, secondLifeString, NULL);
 		}
 		

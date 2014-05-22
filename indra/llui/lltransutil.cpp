@@ -44,7 +44,7 @@ bool LLTransUtil::parseStrings(const std::string& xml_filename, const std::set<s
 	bool success = LLUICtrlFactory::getLayeredXMLNode(xml_filename, root, LLDir::ALL_SKINS);
 	if (!success)
 	{
-		llerrs << "Couldn't load string table " << xml_filename << llendl;
+		LL_ERRS() << "Couldn't load string table " << xml_filename << LL_ENDL;
 		return false;
 	}
 
@@ -59,7 +59,7 @@ bool LLTransUtil::parseLanguageStrings(const std::string& xml_filename)
 	
 	if (!success)
 	{
-		llerrs << "Couldn't load localization table " << xml_filename << llendl;
+		LL_ERRS() << "Couldn't load localization table " << xml_filename << LL_ENDL;
 		return false;
 	}
 	

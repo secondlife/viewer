@@ -28,7 +28,6 @@
 #define LL_LLHUDICON_H
 
 #include "llpointer.h"
-#include "lldarrayptr.h"
 
 #include "llhudobject.h"
 #include "v4color.h"
@@ -39,11 +38,8 @@
 #include "llfontgl.h"
 #include <set>
 #include <vector>
-#include "lldarray.h"
 
 // Renders a 2D icon billboard floating at the location specified.
-class LLDrawable;
-class LLViewerObject;
 class LLViewerTexture;
 
 class LLHUDIcon : public LLHUDObject

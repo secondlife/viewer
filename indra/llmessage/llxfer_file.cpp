@@ -102,12 +102,12 @@ void LLXfer_File::cleanup ()
 
 	if (mDeleteLocalOnCompletion)
 	{
-		lldebugs << "Removing file: " << mLocalFilename << llendl;
+		LL_DEBUGS() << "Removing file: " << mLocalFilename << LL_ENDL;
 		LLFile::remove(mLocalFilename);
 	}
 	else
 	{
-		lldebugs << "Keeping local file: " << mLocalFilename << llendl;
+		LL_DEBUGS() << "Keeping local file: " << mLocalFilename << LL_ENDL;
 	}
 
 	LLXfer::cleanup();
@@ -139,7 +139,7 @@ S32 LLXfer_File::initializeRequest(U64 xfer_id,
 	mCallbackDataHandle = user_data;
 	mCallbackResult = LL_ERR_NOERR;
 
-	llinfos << "Requesting xfer from " << remote_host << " for file: " << mLocalFilename << llendl;
+	LL_INFOS() << "Requesting xfer from " << remote_host << " for file: " << mLocalFilename << LL_ENDL;
 
 	if (mBuffer)
 	{
@@ -182,7 +182,7 @@ S32 LLXfer_File::startDownload()
 	}
 	else
 	{
-		llwarns << "Couldn't create file to be received!" << llendl;
+		LL_WARNS() << "Couldn't create file to be received!" << LL_ENDL;
 		retval = -1;
 	}
 
@@ -223,7 +223,7 @@ S32 LLXfer_File::startSend (U64 xfer_id, const LLHost &remote_host)
 	}
 	else
 	{
-		llinfos << "Warning: " << mLocalFilename << " not found." << llendl;
+		LL_INFOS() << "Warning: " << mLocalFilename << " not found." << LL_ENDL;
 		return (LL_ERR_FILE_NOT_FOUND);
 	}
 
@@ -279,7 +279,7 @@ S32 LLXfer_File::flush()
 	{
 		if (mFp)
 		{
-			llerrs << "Overwriting open file pointer!" << llendl;
+			LL_ERRS() << "Overwriting open file pointer!" << LL_ENDL;
 		}
 		mFp = LLFile::fopen(mTempFilename,"a+b");		/* Flawfinder : ignore */
 
@@ -287,10 +287,10 @@ S32 LLXfer_File::flush()
 		{
 			if (fwrite(mBuffer,1,mBufferLength,mFp) != mBufferLength)
 			{
-				llwarns << "Short write" << llendl;
+				LL_WARNS() << "Short write" << LL_ENDL;
 			}
 			
-//			llinfos << "******* wrote " << mBufferLength << " bytes of file xfer" << llendl;
+//			LL_INFOS() << "******* wrote " << mBufferLength << " bytes of file xfer" << LL_ENDL;
 			fclose(mFp);
 			mFp = NULL;
 			
@@ -298,7 +298,7 @@ S32 LLXfer_File::flush()
 		}
 		else
 		{
-			llwarns << "LLXfer_File::flush() unable to open " << mTempFilename << " for writing!" << llendl;
+			LL_WARNS() << "LLXfer_File::flush() unable to open " << mTempFilename << " for writing!" << LL_ENDL;
 			retval = LL_ERR_CANNOT_OPEN_FILE;
 		}
 	}
@@ -329,37 +329,37 @@ S32 LLXfer_File::processEOF()
 		{
 #if !LL_WINDOWS
 			S32 error_number = errno;
-			llinfos << "Rename failure (" << error_number << ") - "
-					<< mTempFilename << " to " << mLocalFilename << llendl;
+			LL_INFOS() << "Rename failure (" << error_number << ") - "
+					<< mTempFilename << " to " << mLocalFilename << LL_ENDL;
 			if(EXDEV == error_number)
 			{
 				if(copy_file(mTempFilename, mLocalFilename) == 0)
 				{
-					llinfos << "Rename across mounts; copying+unlinking the file instead." << llendl;
+					LL_INFOS() << "Rename across mounts; copying+unlinking the file instead." << LL_ENDL;
 					unlink(mTempFilename.c_str());
 				}
 				else
 				{
-					llwarns << "Copy failure - " << mTempFilename << " to "
-							<< mLocalFilename << llendl;
+					LL_WARNS() << "Copy failure - " << mTempFilename << " to "
+							<< mLocalFilename << LL_ENDL;
 				}
 			}
 			else
 			{
 				//LLFILE* fp = LLFile::fopen(mTempFilename, "r");
-				//llwarns << "File " << mTempFilename << " does "
-				//		<< (!fp ? "not" : "" ) << " exit." << llendl;
+				//LL_WARNS() << "File " << mTempFilename << " does "
+				//		<< (!fp ? "not" : "" ) << " exit." << LL_ENDL;
 				//if(fp) fclose(fp);
 				//fp = LLFile::fopen(mLocalFilename, "r");
-				//llwarns << "File " << mLocalFilename << " does "
-				//		<< (!fp ? "not" : "" ) << " exit." << llendl;
+				//LL_WARNS() << "File " << mLocalFilename << " does "
+				//		<< (!fp ? "not" : "" ) << " exit." << LL_ENDL;
 				//if(fp) fclose(fp);
-				llwarns << "Rename fatally failed, can only handle EXDEV ("
-						<< EXDEV << ")" << llendl;
+				LL_WARNS() << "Rename fatally failed, can only handle EXDEV ("
+						<< EXDEV << ")" << LL_ENDL;
 			}
 #else
-			llwarns << "Rename failure - " << mTempFilename << " to "
-					<< mLocalFilename << llendl;
+			LL_WARNS() << "Rename failure - " << mTempFilename << " to "
+					<< mLocalFilename << LL_ENDL;
 #endif
 		}
 	}

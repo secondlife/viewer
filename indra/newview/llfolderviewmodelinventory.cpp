@@ -34,7 +34,7 @@
 //
 // class LLFolderViewModelInventory
 //
-static LLFastTimer::DeclareTimer FTM_INVENTORY_SORT("Sort");
+static LLTrace::BlockTimerStatHandle FTM_INVENTORY_SORT("Inventory Sort");
 
 bool LLFolderViewModelInventory::startDrag(std::vector<LLFolderViewModelItem*>& items)
 {
@@ -63,7 +63,7 @@ bool LLFolderViewModelInventory::startDrag(std::vector<LLFolderViewModelItem*>& 
 
 void LLFolderViewModelInventory::sort( LLFolderViewFolder* folder )
 {
-	LLFastTimer _(FTM_INVENTORY_SORT);
+	LL_RECORD_BLOCK_TIME(FTM_INVENTORY_SORT);
 
 	if (!needsSort(folder->getViewModelItem())) return;
 
@@ -232,16 +232,16 @@ bool LLFolderViewModelItemInventory::filter( LLFolderViewFilter& filter)
     return continue_filtering;
 }
 
-LLFolderViewModelInventory* LLInventoryPanel::getFolderViewModel()
-{
-	return &mInventoryViewModel;
-}
-
-
-const LLFolderViewModelInventory* LLInventoryPanel::getFolderViewModel() const
-{
-	return &mInventoryViewModel;
-}
+//LLFolderViewModelInventory* LLInventoryPanel::getFolderViewModel()
+//{
+//	return &mInventoryViewModel;
+//}
+//
+//
+//const LLFolderViewModelInventory* LLInventoryPanel::getFolderViewModel() const
+//{
+//	return &mInventoryViewModel;
+//}
 
 bool LLInventorySort::operator()(const LLFolderViewModelItemInventory* const& a, const LLFolderViewModelItemInventory* const& b) const
 {

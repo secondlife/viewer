@@ -36,7 +36,6 @@
 #include "llquaternion.h"
 #include "llpolymorph.h"
 #include "lljoint.h"
-//#include "lldarray.h"
 
 class LLSkinJoint;
 class LLAvatarAppearance;
@@ -322,7 +321,7 @@ public:
 	void setAvatar(LLAvatarAppearance* avatarp) { mAvatarp = avatarp; }
 	LLAvatarAppearance* getAvatar() { return mAvatarp; }
 
-	LLDynamicArray<LLJointRenderData*>	mJointRenderData;
+	std::vector<LLJointRenderData*>	mJointRenderData;
 
 	U32				mFaceVertexOffset;
 	U32				mFaceVertexCount;

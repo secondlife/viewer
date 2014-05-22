@@ -168,6 +168,14 @@ simon_viewer-dev-private.email_status_this_is_os = false
 vir-project-1.viewer_channel = "Second Life Release"
 
 # ========================================
+# Merov
+# ========================================
+merov-viewer-maint-2287.viewer_channel = "Second Life Project Merchant Outbox"
+merov-viewer-maint-2287.login_channel = "Second Life Project Merchant Outbox"
+merov-viewer-maint-2287.build_viewer_update_version_manager = false
+merov-viewer-maint-2287.codeticket_add_context = false
+
+# ========================================
 # THX-1138 / Runway projects
 # ========================================
 viewer-thx1138-runway-shared.viewer_channel = "Project Viewer - THX-1138 Runway"
@@ -193,8 +201,6 @@ runway.viewer_grid = agni
 runway.build_debug_release_separately = true
 runway.build_CYGWIN_Debug = false
 runway.build_viewer_update_version_manager = false
-
-
 # eof
 
 

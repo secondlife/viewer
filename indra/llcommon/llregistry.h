@@ -29,7 +29,6 @@
 
 #include <list>
 
-#include <boost/type_traits.hpp>
 #include "llsingleton.h"
 #include "llstl.h"
 
@@ -47,12 +46,11 @@ template <typename KEY, typename VALUE, typename COMPARATOR = LLRegistryDefaultC
 class LLRegistry
 {
 public:
-	typedef LLRegistry<KEY, VALUE, COMPARATOR>											registry_t;
-	typedef typename boost::add_reference<typename boost::add_const<KEY>::type>::type	ref_const_key_t;
-	typedef typename boost::add_reference<typename boost::add_const<VALUE>::type>::type	ref_const_value_t;
-	typedef typename boost::add_reference<VALUE>::type									ref_value_t;
-	typedef typename boost::add_pointer<typename boost::add_const<VALUE>::type>::type	ptr_const_value_t;
-	typedef typename boost::add_pointer<VALUE>::type									ptr_value_t;
+	typedef LLRegistry<KEY, VALUE, COMPARATOR>		registry_t;
+	typedef const KEY& 								ref_const_key_t;
+	typedef const VALUE&							ref_const_value_t;
+	typedef const VALUE*							ptr_const_value_t;
+	typedef VALUE*									ptr_value_t;
 
 	class Registrar
 	{
@@ -64,7 +62,7 @@ public:
 		{
 			if (mMap.insert(std::make_pair(key, value)).second == false)
 			{
-				llwarns << "Tried to register " << key << " but it was already registered!" << llendl;
+				LL_WARNS() << "Tried to register " << key << " but it was already registered!" << LL_ENDL;
 				return false;
 			}
 			return true;
@@ -309,7 +307,7 @@ public:
 		{
 			if (singleton_t::instance().exists(key))
 			{
-				llerrs << "Duplicate registry entry under key \"" << key << "\"" << llendl;
+				LL_ERRS() << "Duplicate registry entry under key \"" << key << "\"" << LL_ENDL;
 			}
 			singleton_t::instance().mStaticScope->add(key, value);
 		}

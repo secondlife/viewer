@@ -88,7 +88,7 @@ private:
 	LLFloaterLand(const LLSD& seed);
 	virtual ~LLFloaterLand();
 		
-	void onVisibilityChange(const LLSD& visible);
+	void onVisibilityChanged(const LLSD& visible);
 
 protected:
 
@@ -366,6 +366,7 @@ public:
 
 	static void onCommitPublicAccess(LLUICtrl* ctrl, void *userdata);
 	static void onCommitAny(LLUICtrl* ctrl, void *userdata);
+	static void onCommitGroupCheck(LLUICtrl* ctrl, void *userdata);
 	static void onClickRemoveAccess(void*);
 	static void onClickRemoveBanned(void*);
 

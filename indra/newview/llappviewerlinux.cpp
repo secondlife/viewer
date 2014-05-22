@@ -58,12 +58,15 @@ namespace
 	void (*gOldTerminateHandler)() = NULL;
 }
 
+
 static void exceptionTerminateHandler()
 {
 	// reinstall default terminate() handler in case we re-terminate.
 	if (gOldTerminateHandler) std::set_terminate(gOldTerminateHandler);
 	// treat this like a regular viewer crash, with nice stacktrace etc.
-	LLAppViewer::handleViewerCrash();
+    long *null_ptr;
+    null_ptr = 0;
+    *null_ptr = 0xDEADBEEF; //Force an exception that will trigger breakpad.
 	// we've probably been killed-off before now, but...
 	gOldTerminateHandler(); // call old terminate() handler
 }
@@ -87,7 +90,7 @@ int main( int argc, char **argv )
 	bool ok = viewer_app_ptr->init();
 	if(!ok)
 	{
-		llwarns << "Application init failed." << llendl;
+		LL_WARNS() << "Application init failed." << LL_ENDL;
 		return -1;
 	}
 
@@ -127,7 +130,17 @@ bool LLAppViewerLinux::init()
 	// really early in app startup!
 	if (!g_thread_supported ()) g_thread_init (NULL);
 	
-	return LLAppViewer::init();
+	bool success = LLAppViewer::init();
+
+#if LL_SEND_CRASH_REPORTS
+    if (success)
+    {
+        LLAppViewer* pApp = LLAppViewer::instance();
+        pApp->initCrashReporting();
+    }
+#endif
+
+	return success;
 }
 
 bool LLAppViewerLinux::restoreErrorTrap()
@@ -207,7 +220,7 @@ void viewerappapi_init(ViewerAppAPI *server)
 			}
 			else 
 			{
-				llwarns << "Unable to register service name: " << error->message << llendl;
+				LL_WARNS() << "Unable to register service name: " << error->message << LL_ENDL;
 			}
 	
 			g_object_unref(serverproxy);
@@ -226,7 +239,7 @@ gboolean viewer_app_api_GoSLURL(ViewerAppAPI *obj, gchar *slurl, gboolean **succ
 {
 	bool success = false;
 
-	llinfos << "Was asked to go to slurl: " << slurl << llendl;
+	LL_INFOS() << "Was asked to go to slurl: " << slurl << LL_ENDL;
 
 	std::string url = slurl;
 	LLMediaCtrl* web = NULL;
@@ -292,14 +305,14 @@ bool LLAppViewerLinux::sendURLToOtherInstance(const std::string& url)
 		}
 		else
 		{
-			llinfos << "Call-out to other instance failed (perhaps not running): " << error->message << llendl;
+			LL_INFOS() << "Call-out to other instance failed (perhaps not running): " << error->message << LL_ENDL;
 		}
 
 		g_object_unref(G_OBJECT(remote_object));
 	}
 	else
 	{
-		llwarns << "Couldn't connect to session bus: " << error->message << llendl;
+		LL_WARNS() << "Couldn't connect to session bus: " << error->message << LL_ENDL;
 	}
 
 	if (error)
@@ -319,7 +332,7 @@ bool LLAppViewerLinux::sendURLToOtherInstance(const std::string& url)
 }
 #endif // LL_DBUS_ENABLED
 
-void LLAppViewerLinux::handleCrashReporting(bool reportFreeze)
+void LLAppViewerLinux::initCrashReporting(bool reportFreeze)
 {
 	std::string cmd =gDirUtilp->getExecutableDir();
 	cmd += gDirUtilp->getDirDelimiter();
@@ -331,69 +344,52 @@ void LLAppViewerLinux::handleCrashReporting(bool reportFreeze)
 # error Unknown platform
 #endif
 
-	if(reportFreeze)
-	{
-		char* const cmdargv[] =
-			{(char*)cmd.c_str(),
-			 (char*)"-previous",
-			 NULL};
+    std::stringstream pid_str;
+    pid_str <<  LLApp::getPid();
+    std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_DUMP, "");
+    std::string appname = gDirUtilp->getExecutableFilename();
+	// launch the actual crash logger
+	const char * cmdargv[] =
+		{cmd.c_str(),
+		 "-user",
+		 (char*)LLGridManager::getInstance()->getGridId().c_str(),
+		 "-name",
+		 LLAppViewer::instance()->getSecondLifeTitle().c_str(),
+		 "-pid", 
+		 pid_str.str().c_str(),
+		 "-dumpdir",
+		 logdir.c_str(),
+		 "-procname",
+		 appname.c_str(),
+		 NULL};
+	fflush(NULL);
 
-		fflush(NULL); // flush all buffers before the child inherits them
-		pid_t pid = fork();
-		if (pid == 0)
-		{ // child
-			execv(cmd.c_str(), cmdargv);		/* Flawfinder: Ignore */
-			llwarns << "execv failure when trying to start " << cmd << llendl;
-			_exit(1); // avoid atexit()
-		} else {
-			if (pid > 0)
-			{
-				// wait for child proc to die
-				int childExitStatus;
-				waitpid(pid, &childExitStatus, 0);
-			} else {
-				llwarns << "fork failure." << llendl;
-			}
-		}
-	}
+	pid_t pid = fork();
+	if (pid == 0)
+	{ // child
+		execv(cmd.c_str(), (char* const*) cmdargv);		/* Flawfinder: ignore */
+		LL_WARNS() << "execv failure when trying to start " << cmd << LL_ENDL;
+		_exit(1); // avoid atexit()
+	} 
 	else
 	{
-		// launch the actual crash logger
-		const char * cmdargv[] =
-			{cmd.c_str(),
-			 "-user",
-			 (char*)LLGridManager::getInstance()->getGridId().c_str(),
-			 "-name",
-			 LLAppViewer::instance()->getSecondLifeTitle().c_str(),
-			 NULL};
-		fflush(NULL);
-		pid_t pid = fork();
-		if (pid == 0)
-		{ // child
-			execv(cmd.c_str(), (char* const*) cmdargv);		/* Flawfinder: ignore */
-			llwarns << "execv failure when trying to start " << cmd << llendl;
-			_exit(1); // avoid atexit()
+		if (pid > 0)
+		{
+			// DO NOT wait for child proc to die; we want
+			// the logger to outlive us while we quit to
+			// free up the screen/keyboard/etc.
+			////int childExitStatus;
+			////waitpid(pid, &childExitStatus, 0);
 		} 
 		else
 		{
-			if (pid > 0)
-			{
-				// DO NOT wait for child proc to die; we want
-				// the logger to outlive us while we quit to
-				// free up the screen/keyboard/etc.
-				////int childExitStatus;
-				////waitpid(pid, &childExitStatus, 0);
-			} 
-			else
-			{
-				llwarns << "fork failure." << llendl;
-			}
+			LL_WARNS() << "fork failure." << LL_ENDL;
 		}
-		// Sometimes signals don't seem to quit the viewer.  Also, we may
-		// have been called explicitly instead of from a signal handler.
-		// Make sure we exit so as to not totally confuse the user.
-		_exit(1); // avoid atexit(), else we may re-crash in dtors.
 	}
+	// Sometimes signals don't seem to quit the viewer.  Also, we may
+	// have been called explicitly instead of from a signal handler.
+	// Make sure we exit so as to not totally confuse the user.
+	//_exit(1); // avoid atexit(), else we may re-crash in dtors.
 }
 
 bool LLAppViewerLinux::beingDebugged()

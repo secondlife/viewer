@@ -50,7 +50,7 @@ LLChannelManager::LLChannelManager()
 	
 	if(!gViewerWindow)
 	{
-		llerrs << "LLChannelManager::LLChannelManager() - viwer window is not initialized yet" << llendl;
+		LL_ERRS() << "LLChannelManager::LLChannelManager() - viwer window is not initialized yet" << LL_ENDL;
 	}
 }
 
@@ -113,33 +113,29 @@ void LLChannelManager::onLoginCompleted()
 	}
 	else
 	{
-		// TODO: Seems this code leads to MAINT-3536 new crash in XML_ParserFree.
-		// Need to investigate this and fix possible problems with notifications in startup time
-		// Viewer can normally receive and show of postponed notifications about purchasing in marketplace on startup time.
-		// Other types of postponed notifications did not tested.
-		//// create a channel for the StartUp Toast
-		//LLScreenChannelBase::Params p;
-		//p.id = LLUUID(gSavedSettings.getString("StartUpChannelUUID"));
-		//p.channel_align = CA_RIGHT;
-		//mStartUpChannel = createChannel(p);
+		// create a channel for the StartUp Toast
+		LLScreenChannelBase::Params p;
+		p.id = LLUUID(gSavedSettings.getString("StartUpChannelUUID"));
+		p.channel_align = CA_RIGHT;
+		mStartUpChannel = createChannel(p);
 
-		//if(!mStartUpChannel)
-		//{
-		//	onStartUpToastClose();
-		//}
-		//else
-		//{
-		//	gViewerWindow->getRootView()->addChild(mStartUpChannel);
+		if(!mStartUpChannel)
+		{
+			onStartUpToastClose();
+		}
+		else
+		{
+			gViewerWindow->getRootView()->addChild(mStartUpChannel);
 
-		//	// init channel's position and size
-		//	S32 channel_right_bound = gViewerWindow->getWorldViewRectScaled().mRight - gSavedSettings.getS32("NotificationChannelRightMargin"); 
-		//	S32 channel_width = gSavedSettings.getS32("NotifyBoxWidth");
-		//	mStartUpChannel->init(channel_right_bound - channel_width, channel_right_bound);
-		//	mStartUpChannel->setMouseDownCallback(boost::bind(&LLNotificationWellWindow::onStartUpToastClick, LLNotificationWellWindow::getInstance(), _2, _3, _4));
+			// init channel's position and size
+			S32 channel_right_bound = gViewerWindow->getWorldViewRectScaled().mRight - gSavedSettings.getS32("NotificationChannelRightMargin"); 
+			S32 channel_width = gSavedSettings.getS32("NotifyBoxWidth");
+			mStartUpChannel->init(channel_right_bound - channel_width, channel_right_bound);
+			mStartUpChannel->setMouseDownCallback(boost::bind(&LLNotificationWellWindow::onStartUpToastClick, LLNotificationWellWindow::getInstance(), _2, _3, _4));
 
-		//	mStartUpChannel->setCommitCallback(boost::bind(&LLChannelManager::onStartUpToastClose, this));
-		//	mStartUpChannel->createStartUpToast(away_notifications, gSavedSettings.getS32("StartUpToastLifeTime"));
-		//}
+			mStartUpChannel->setCommitCallback(boost::bind(&LLChannelManager::onStartUpToastClose, this));
+			mStartUpChannel->createStartUpToast(away_notifications, gSavedSettings.getS32("StartUpToastLifeTime"));
+		}
 	}
 
 	LLPersistentNotificationStorage::getInstance()->loadNotifications();
@@ -251,7 +247,7 @@ LLNotificationsUI::LLScreenChannel* LLChannelManager::getNotificationScreenChann
 
 	if (channel == NULL)
 	{
-		llwarns << "Can't find screen channel by NotificationChannelUUID" << llendl;
+		LL_WARNS() << "Can't find screen channel by NotificationChannelUUID" << LL_ENDL;
 		llassert(!"Can't find screen channel by NotificationChannelUUID");
 	}
 

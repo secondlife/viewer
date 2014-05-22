@@ -2245,6 +2245,16 @@ If you'd like to become a merchant, you'll need to [[MARKETPLACE_CREATE_STORE_UR
 	<string name="InventoryOutboxNoItems">
 Drag folders to this area and click "Send to Marketplace" to list them for sale on the [[MARKETPLACE_DASHBOARD_URL] Marketplace].
 	</string>
+	<string name="InventoryOutboxInitializingTitle">Initializing Marketplace.</string>
+	<string name="InventoryOutboxInitializingTooltip"></string>
+	<string name="InventoryOutboxInitializing">
+We are accessing your account on the [[MARKETPLACE_CREATE_STORE_URL] Marketplace store].
+	</string>
+	<string name="InventoryOutboxErrorTitle">Marketplace Errors.</string>
+	<string name="InventoryOutboxErrorTooltip"></string>
+	<string name="InventoryOutboxError">
+The [[MARKETPLACE_CREATE_STORE_URL] Marketplace store] is returning errors.
+	</string>
 
 	<string name="Marketplace Error None">No errors</string>
 	<string name="Marketplace Error Not Merchant">Error: Before sending items to the Marketplace you will need to set yourself up as a merchant (free of charge).</string>
@@ -2257,6 +2267,7 @@ Drag folders to this area and click "Send to Marketplace" to list them for sale 
 	<string name="Marketplace Error Internal Import">Error: There was a problem with this item.  Try again later.</string>
 
 	<string name="Open landmarks">Open landmarks</string>
+  <string name="Unconstrained">Unconstrained</string>
 
 	<!-- use value="" because they have preceding spaces -->
 	<string name="no_transfer" value=" (no transfer)" />
@@ -2451,6 +2462,7 @@ Drag folders to this area and click "Send to Marketplace" to list them for sale 
 
 	<!-- compile queue-->
 	<string name="CompileQueueDownloadedCompiling">Downloaded, now compiling</string>
+	<string name="CompileQueueServiceUnavailable">Script compilation service not available</string>
 	<string name="CompileQueueScriptNotFound">Script not found on server.</string>
 	<string name="CompileQueueProblemDownloading">Problem downloading</string>
 	<string name="CompileQueueInsufficientPermDownload">Insufficient permissions to download a script.</string>

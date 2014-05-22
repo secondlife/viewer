@@ -60,12 +60,12 @@
 const S32 PING_START_BLOCK = 3;		// How many pings behind we have to be to consider ourself blocked.
 const S32 PING_RELEASE_BLOCK = 2;	// How many pings behind we have to be to consider ourself unblocked.
 
-const F32 TARGET_PERIOD_LENGTH = 5.f;	// seconds
-const F32 LL_DUPLICATE_SUPPRESSION_TIMEOUT = 60.f; //seconds - this can be long, as time-based cleanup is
+const F32Seconds TARGET_PERIOD_LENGTH(5.f);
+const F32Seconds LL_DUPLICATE_SUPPRESSION_TIMEOUT(60.f); //this can be long, as time-based cleanup is
 													// only done when wrapping packetids, now...
 
 LLCircuitData::LLCircuitData(const LLHost &host, TPACKETID in_id, 
-							 const F32 circuit_heartbeat_interval, const F32 circuit_timeout)
+							 const F32Seconds circuit_heartbeat_interval, const F32Seconds circuit_timeout)
 :	mHost (host),
 	mWrapID(0),
 	mPacketsOutID(0), 
@@ -84,7 +84,7 @@ LLCircuitData::LLCircuitData(const LLHost &host, TPACKETID in_id,
 	mPingsInTransit(0),
 	mLastPingID(0),
 	mPingDelay(INITIAL_PING_VALUE_MSEC), 
-	mPingDelayAveraged((F32)INITIAL_PING_VALUE_MSEC), 
+	mPingDelayAveraged(INITIAL_PING_VALUE_MSEC), 
 	mUnackedPacketCount(0),
 	mUnackedPacketBytes(0),
 	mLastPacketInTime(0.0),
@@ -110,13 +110,13 @@ LLCircuitData::LLCircuitData(const LLHost &host, TPACKETID in_id,
 {
 	// Need to guarantee that this time is up to date, we may be creating a circuit even though we haven't been
 	//  running a message system loop.
-	F64 mt_sec = LLMessageSystem::getMessageTimeSeconds(TRUE);
+	F64Seconds mt_sec = LLMessageSystem::getMessageTimeSeconds(TRUE);
 	F32 distribution_offset = ll_frand();
 	
 	mPingTime = mt_sec;
 	mLastPingSendTime = mt_sec + mHeartbeatInterval * distribution_offset;
 	mLastPingReceivedTime = mt_sec;
-	mNextPingSendTime = mLastPingSendTime + 0.95*mHeartbeatInterval + ll_frand(0.1f*mHeartbeatInterval);
+	mNextPingSendTime = mLastPingSendTime + 0.95*mHeartbeatInterval + F32Seconds(ll_frand(0.1f*mHeartbeatInterval.value()));
 	mPeriodTime = mt_sec;
 
 	mLocalEndPointID.generate();
@@ -183,7 +183,7 @@ LLCircuitData::~LLCircuitData()
 		std::ostream_iterator<TPACKETID> append(str, " ");
 		str << "MSG: -> " << mHost << "\tABORTING RELIABLE:\t";
 		std::copy(doomed.begin(), doomed.end(), append);
-		llinfos << str.str() << llendl;
+		LL_INFOS() << str.str() << LL_ENDL;
 	}
 }
 
@@ -203,11 +203,11 @@ void LLCircuitData::ackReliablePacket(TPACKETID packet_num)
 			std::ostringstream str;
 			str << "MSG: <- " << packetp->mHost << "\tRELIABLE ACKED:\t"
 				<< packetp->mPacketID;
-			llinfos << str.str() << llendl;
+			LL_INFOS() << str.str() << LL_ENDL;
 		}
 		if (packetp->mCallback)
 		{
-			if (packetp->mTimeout < 0.f)   // negative timeout will always return timeout even for successful ack, for debugging
+			if (packetp->mTimeout < F32Seconds(0.f))   // negative timeout will always return timeout even for successful ack, for debugging
 			{
 				packetp->mCallback(packetp->mCallbackData,LL_ERR_TCP_TIMEOUT);					
 			}
@@ -231,17 +231,17 @@ void LLCircuitData::ackReliablePacket(TPACKETID packet_num)
 	if (iter != mFinalRetryPackets.end())
 	{
 		packetp = iter->second;
-		// llinfos << "Packet " << packet_num << " removed from the pending list" << llendl;
+		// LL_INFOS() << "Packet " << packet_num << " removed from the pending list" << LL_ENDL;
 		if(gMessageSystem->mVerboseLog)
 		{
 			std::ostringstream str;
 			str << "MSG: <- " << packetp->mHost << "\tRELIABLE ACKED:\t"
 				<< packetp->mPacketID;
-			llinfos << str.str() << llendl;
+			LL_INFOS() << str.str() << LL_ENDL;
 		}
 		if (packetp->mCallback)
 		{
-			if (packetp->mTimeout < 0.f)   // negative timeout will always return timeout even for successful ack, for debugging
+			if (packetp->mTimeout < F32Seconds(0.f))   // negative timeout will always return timeout even for successful ack, for debugging
 			{
 				packetp->mCallback(packetp->mCallbackData,LL_ERR_TCP_TIMEOUT);					
 			}
@@ -268,7 +268,7 @@ void LLCircuitData::ackReliablePacket(TPACKETID packet_num)
 
 
 
-S32 LLCircuitData::resendUnackedPackets(const F64 now)
+S32 LLCircuitData::resendUnackedPackets(const F64Seconds now)
 {
 	S32 resent_packets = 0;
 	LLReliablePacket *packetp;
@@ -320,8 +320,8 @@ S32 LLCircuitData::resendUnackedPackets(const F64 now)
 			if (mUnackedPacketBytes > 256000 && !(getPacketsOut() % 1024))
 			{
 				// Warn if we've got a lot of resends waiting.
-				llwarns << mHost << " has " << mUnackedPacketBytes 
-						<< " bytes of reliable messages waiting" << llendl;
+				LL_WARNS() << mHost << " has " << mUnackedPacketBytes 
+						<< " bytes of reliable messages waiting" << LL_ENDL;
 			}
 			// Stop resending.  There are less than 512000 unacked packets.
 			break;
@@ -341,7 +341,7 @@ S32 LLCircuitData::resendUnackedPackets(const F64 now)
 				std::ostringstream str;
 				str << "MSG: -> " << packetp->mHost
 					<< "\tRESENDING RELIABLE:\t" << packetp->mPacketID;
-				llinfos << str.str() << llendl;
+				LL_INFOS() << str.str() << LL_ENDL;
 			}
 
 			packetp->mBuffer[0] |= LL_RESENT_FLAG;  // tag packet id as being a resend	
@@ -355,7 +355,7 @@ S32 LLCircuitData::resendUnackedPackets(const F64 now)
 			// The new method, retry time based on ping
 			if (packetp->mPingBasedRetry)
 			{
-				packetp->mExpirationTime = now + llmax(LL_MINIMUM_RELIABLE_TIMEOUT_SECONDS, (LL_RELIABLE_TIMEOUT_FACTOR * getPingDelayAveraged()));
+				packetp->mExpirationTime = now + llmax(LL_MINIMUM_RELIABLE_TIMEOUT_SECONDS, F32Seconds(LL_RELIABLE_TIMEOUT_FACTOR * getPingDelayAveraged()));
 			}
 			else
 			{
@@ -390,10 +390,10 @@ S32 LLCircuitData::resendUnackedPackets(const F64 now)
 		if (now > packetp->mExpirationTime)
 		{
 			// fail (too many retries)
-			//llinfos << "Packet " << packetp->mPacketID << " removed from the pending list: exceeded retry limit" << llendl;
+			//LL_INFOS() << "Packet " << packetp->mPacketID << " removed from the pending list: exceeded retry limit" << LL_ENDL;
 			//if (packetp->mMessageName)
 			//{
-			//	llinfos << "Packet name " << packetp->mMessageName << llendl;
+			//	LL_INFOS() << "Packet name " << packetp->mMessageName << LL_ENDL;
 			//}
 			gMessageSystem->mFailedResendPackets++;
 
@@ -402,7 +402,7 @@ S32 LLCircuitData::resendUnackedPackets(const F64 now)
 				std::ostringstream str;
 				str << "MSG: -> " << packetp->mHost << "\tABORTING RELIABLE:\t"
 					<< packetp->mPacketID;
-				llinfos << str.str() << llendl;
+				LL_INFOS() << str.str() << LL_ENDL;
 			}
 
 			if (packetp->mCallback)
@@ -427,10 +427,11 @@ S32 LLCircuitData::resendUnackedPackets(const F64 now)
 }
 
 
-LLCircuit::LLCircuit(const F32 circuit_heartbeat_interval, const F32 circuit_timeout) : mLastCircuit(NULL),  
-	mHeartbeatInterval(circuit_heartbeat_interval), mHeartbeatTimeout(circuit_timeout)
-{
-}
+LLCircuit::LLCircuit(const F32Seconds circuit_heartbeat_interval, const F32Seconds circuit_timeout) 
+:	mLastCircuit(NULL),  
+	mHeartbeatInterval(circuit_heartbeat_interval), 
+	mHeartbeatTimeout(circuit_timeout)
+{}
 
 LLCircuit::~LLCircuit()
 {
@@ -445,7 +446,7 @@ LLCircuit::~LLCircuit()
 LLCircuitData *LLCircuit::addCircuitData(const LLHost &host, TPACKETID in_id)
 {
 	// This should really validate if one already exists
-	llinfos << "LLCircuit::addCircuitData for " << host << llendl;
+	LL_INFOS() << "LLCircuit::addCircuitData for " << host << LL_ENDL;
 	LLCircuitData *tempp = new LLCircuitData(host, in_id, mHeartbeatInterval, mHeartbeatTimeout);
 	mCircuitData.insert(circuit_data_map::value_type(host, tempp));
 	mPingSet.insert(tempp);
@@ -456,7 +457,7 @@ LLCircuitData *LLCircuit::addCircuitData(const LLHost &host, TPACKETID in_id)
 
 void LLCircuit::removeCircuitData(const LLHost &host)
 {
-	llinfos << "LLCircuit::removeCircuitData for " << host << llendl;
+	LL_INFOS() << "LLCircuit::removeCircuitData for " << host << LL_ENDL;
 	mLastCircuit = NULL;
 	circuit_data_map::iterator it = mCircuitData.find(host);
 	if(it != mCircuitData.end())
@@ -471,7 +472,7 @@ void LLCircuit::removeCircuitData(const LLHost &host)
 		}
 		else
 		{
-			llwarns << "Couldn't find entry for next ping in ping set!" << llendl;
+			LL_WARNS() << "Couldn't find entry for next ping in ping set!" << LL_ENDL;
 		}
 
 		// Clean up from optimization maps
@@ -521,17 +522,17 @@ void LLCircuitData::setAllowTimeout(BOOL allow)
 // Reset per-period counters if necessary.
 void LLCircuitData::checkPeriodTime()
 {
-	F64 mt_sec = LLMessageSystem::getMessageTimeSeconds();
-	F64 period_length = mt_sec - mPeriodTime;
+	F64Seconds mt_sec = LLMessageSystem::getMessageTimeSeconds();
+	F64Seconds period_length = mt_sec - mPeriodTime;
 	if ( period_length > TARGET_PERIOD_LENGTH)
 	{
-		F32 bps_in = (F32)(mBytesInThisPeriod * 8.f / period_length);
+		F32 bps_in = F32Bits(mBytesInThisPeriod).value() / period_length.value();
 		if (bps_in > mPeakBPSIn)
 		{
 			mPeakBPSIn = bps_in;
 		}
 
-		F32 bps_out = (F32)(mBytesOutThisPeriod * 8.f / period_length);
+		F32 bps_out = F32Bits(mBytesOutThisPeriod).value() / period_length.value();
 		if (bps_out > mPeakBPSOut)
 		{
 			mPeakBPSOut = bps_out;
@@ -539,23 +540,23 @@ void LLCircuitData::checkPeriodTime()
 
 		mBytesInLastPeriod	= mBytesInThisPeriod;
 		mBytesOutLastPeriod	= mBytesOutThisPeriod;
-		mBytesInThisPeriod	= 0;
-		mBytesOutThisPeriod	= 0;
-		mLastPeriodLength	= (F32)period_length;
+		mBytesInThisPeriod	= S32Bytes(0);
+		mBytesOutThisPeriod	= S32Bytes(0);
+		mLastPeriodLength	= period_length;
 
 		mPeriodTime = mt_sec;
 	}
 }
 
 
-void LLCircuitData::addBytesIn(S32 bytes)
+void LLCircuitData::addBytesIn(S32Bytes bytes)
 {
 	mBytesIn += bytes;
 	mBytesInThisPeriod += bytes;
 }
 
 
-void LLCircuitData::addBytesOut(S32 bytes)
+void LLCircuitData::addBytesOut(S32Bytes bytes)
 {
 	mBytesOut += bytes;
 	mBytesOutThisPeriod += bytes;
@@ -584,7 +585,7 @@ void LLCircuitData::addReliablePacket(S32 mSocket, U8 *buf_ptr, S32 buf_len, LLR
 
 void LLCircuit::resendUnackedPackets(S32& unacked_list_length, S32& unacked_list_size)
 {
-	F64 now = LLMessageSystem::getMessageTimeSeconds();
+	F64Seconds now = LLMessageSystem::getMessageTimeSeconds();
 	unacked_list_length = 0;
 	unacked_list_size = 0;
 
@@ -719,14 +720,14 @@ void LLCircuitData::checkPacketInID(TPACKETID id, BOOL receive_resent)
 			{
 				std::ostringstream str;
 				str << "MSG: <- " << mHost << "\tRECOVERING LOST:\t" << id;
-				llinfos << str.str() << llendl;
+				LL_INFOS() << str.str() << LL_ENDL;
 			}
-			//			llinfos << "removing potential lost: " << id << llendl;
+			//			LL_INFOS() << "removing potential lost: " << id << LL_ENDL;
 			mPotentialLostPackets.erase(id);
 		}
 		else if (!receive_resent) // don't freak out over out-of-order reliable resends
 		{
-			U64 time = LLMessageSystem::getMessageTimeUsecs();
+			U64Microseconds time = LLMessageSystem::getMessageTimeUsecs();
 			TPACKETID index = mPacketsInID;
 			S32 gap_count = 0;
 			if ((index < id) && ((id - index) < 16))
@@ -738,10 +739,10 @@ void LLCircuitData::checkPacketInID(TPACKETID id, BOOL receive_resent)
 						std::ostringstream str;
 						str << "MSG: <- " << mHost << "\tPACKET GAP:\t"
 							<< index;
-						llinfos << str.str() << llendl;
+						LL_INFOS() << str.str() << LL_ENDL;
 					}
 
-//						llinfos << "adding potential lost: " << index << llendl;
+//						LL_INFOS() << "adding potential lost: " << index << LL_ENDL;
 					mPotentialLostPackets[index] = time;
 					index++;
 					index = index % LL_MAX_OUT_PACKET_ID;
@@ -750,13 +751,13 @@ void LLCircuitData::checkPacketInID(TPACKETID id, BOOL receive_resent)
 			}
 			else
 			{
-				llinfos << "packet_out_of_order - got packet " << id << " expecting " << index << " from " << mHost << llendl;
+				LL_INFOS() << "packet_out_of_order - got packet " << id << " expecting " << index << " from " << mHost << LL_ENDL;
 				if(gMessageSystem->mVerboseLog)
 				{
 					std::ostringstream str;
 					str << "MSG: <- " << mHost << "\tPACKET GAP:\t"
 						<< id << " expected " << index;
-					llinfos << str.str() << llendl;
+					LL_INFOS() << str.str() << LL_ENDL;
 				}
 			}
 				
@@ -765,11 +766,11 @@ void LLCircuitData::checkPacketInID(TPACKETID id, BOOL receive_resent)
 
 			if (gap_count > 128)
 			{
-				llwarns << "Packet loss gap filler running amok!" << llendl;
+				LL_WARNS() << "Packet loss gap filler running amok!" << LL_ENDL;
 			}
 			else if (gap_count > 16)
 			{
-				llwarns << "Sustaining large amounts of packet loss!" << llendl;
+				LL_WARNS() << "Sustaining large amounts of packet loss!" << LL_ENDL;
 			}
 
 		}
@@ -780,7 +781,7 @@ void LLCircuitData::checkPacketInID(TPACKETID id, BOOL receive_resent)
 
 void LLCircuit::updateWatchDogTimers(LLMessageSystem *msgsys)
 {
-	F64 cur_time = LLMessageSystem::getMessageTimeSeconds();
+	F64Seconds cur_time = LLMessageSystem::getMessageTimeSeconds();
 	S32 count = mPingSet.size();
 	S32 cur = 0;
 
@@ -818,7 +819,7 @@ void LLCircuit::updateWatchDogTimers(LLMessageSystem *msgsys)
 			if (cdp->updateWatchDogTimers(msgsys))
             {
 				// Randomize our pings a bit by doing some up to 5% early or late
-				F64 dt = 0.95f*mHeartbeatInterval + ll_frand(0.1f*mHeartbeatInterval);
+				F64Seconds dt = 0.95f*mHeartbeatInterval + F32Seconds(ll_frand(0.1f*mHeartbeatInterval.value()));
 
 				// Remove it, and reinsert it with the new next ping time.
 				// Always remove before changing the sorting key.
@@ -846,7 +847,7 @@ void LLCircuit::updateWatchDogTimers(LLMessageSystem *msgsys)
 
 BOOL LLCircuitData::updateWatchDogTimers(LLMessageSystem *msgsys)
 {
-	F64 cur_time = LLMessageSystem::getMessageTimeSeconds();
+	F64Seconds cur_time = LLMessageSystem::getMessageTimeSeconds();
 	mLastPingSendTime = cur_time;
 
 	if (!checkCircuitTimeout())
@@ -889,8 +890,8 @@ BOOL LLCircuitData::updateWatchDogTimers(LLMessageSystem *msgsys)
 		wrapped_final = TRUE;
 	}
 
-	//llinfos << mHost << " - unacked count " << mUnackedPackets.size() << llendl;
-	//llinfos << mHost << " - final count " << mFinalRetryPackets.size() << llendl;
+	//LL_INFOS() << mHost << " - unacked count " << mUnackedPackets.size() << LL_ENDL;
+	//LL_INFOS() << mHost << " - final count " << mFinalRetryPackets.size() << LL_ENDL;
 	if (wrapped != wrapped_final)
 	{
 		// One of the "unacked" or "final" lists hasn't wrapped.  Whichever one
@@ -900,12 +901,12 @@ BOOL LLCircuitData::updateWatchDogTimers(LLMessageSystem *msgsys)
 			// Hasn't wrapped, so the one on the
 			// unacked packet list is older
 			packet_id = iter->first;
-			//llinfos << mHost << ": nowrapped unacked" << llendl;
+			//LL_INFOS() << mHost << ": nowrapped unacked" << LL_ENDL;
 		}
 		else
 		{
 			packet_id = iter_final->first;
-			//llinfos << mHost << ": nowrapped final" << llendl;
+			//LL_INFOS() << mHost << ": nowrapped final" << LL_ENDL;
 		}
 	}
 	else
@@ -917,7 +918,7 @@ BOOL LLCircuitData::updateWatchDogTimers(LLMessageSystem *msgsys)
 			// Send the ID of the last packet we sent out.
 			// This will flush all of the destination's
 			// unacked packets, theoretically.
-			//llinfos << mHost << ": No unacked!" << llendl;
+			//LL_INFOS() << mHost << ": No unacked!" << LL_ENDL;
 			packet_id = getPacketOutID();
 		}
 		else
@@ -928,7 +929,7 @@ BOOL LLCircuitData::updateWatchDogTimers(LLMessageSystem *msgsys)
 				// Unacked list has the lowest so far
 				packet_id = iter->first;
 				had_unacked = TRUE;
-				//llinfos << mHost << ": Unacked" << llendl;
+				//LL_INFOS() << mHost << ": Unacked" << LL_ENDL;
 			}
 
 			if (iter_final != mFinalRetryPackets.end())
@@ -938,13 +939,13 @@ BOOL LLCircuitData::updateWatchDogTimers(LLMessageSystem *msgsys)
 				{
 					// Both had a packet, use the lowest.
 					packet_id = llmin(packet_id, iter_final->first);
-					//llinfos << mHost << ": Min of unacked/final" << llendl;
+					//LL_INFOS() << mHost << ": Min of unacked/final" << LL_ENDL;
 				}
 				else
 				{
 					// Only the final had a packet, use it.
 					packet_id = iter_final->first;
-					//llinfos << mHost << ": Final!" << llendl;
+					//LL_INFOS() << mHost << ": Final!" << LL_ENDL;
 				}
 			}
 		}
@@ -963,12 +964,12 @@ BOOL LLCircuitData::updateWatchDogTimers(LLMessageSystem *msgsys)
 	// be considered lost
 
 	LLCircuitData::packet_time_map::iterator it;
-	U64 timeout = (U64)(1000000.0*llmin(LL_MAX_LOST_TIMEOUT, getPingDelayAveraged() * LL_LOST_TIMEOUT_FACTOR));
+	U64Microseconds timeout = llmin(LL_MAX_LOST_TIMEOUT, F32Seconds(getPingDelayAveraged()) * LL_LOST_TIMEOUT_FACTOR);
 
-	U64 mt_usec = LLMessageSystem::getMessageTimeUsecs();
+	U64Microseconds mt_usec = LLMessageSystem::getMessageTimeUsecs();
 	for (it = mPotentialLostPackets.begin(); it != mPotentialLostPackets.end(); )
 	{
-		U64 delta_t_usec = mt_usec - (*it).second;
+		U64Microseconds delta_t_usec = mt_usec - (*it).second;
 		if (delta_t_usec > timeout)
 		{
 			// let's call this one a loss!
@@ -979,7 +980,7 @@ BOOL LLCircuitData::updateWatchDogTimers(LLMessageSystem *msgsys)
 				std::ostringstream str;
 				str << "MSG: <- " << mHost << "\tLOST PACKET:\t"
 					<< (*it).first;
-				llinfos << str.str() << llendl;
+				LL_INFOS() << str.str() << LL_ENDL;
 			}
 			mPotentialLostPackets.erase(it++);
 		}
@@ -999,8 +1000,8 @@ void LLCircuitData::clearDuplicateList(TPACKETID oldest_id)
 
 	// we want to KEEP all x where oldest_id <= x <= last incoming packet, and delete everything else.
 
-	//llinfos << mHost << ": clearing before oldest " << oldest_id << llendl;
-	//llinfos << "Recent list before: " << mRecentlyReceivedReliablePackets.size() << llendl;
+	//LL_INFOS() << mHost << ": clearing before oldest " << oldest_id << LL_ENDL;
+	//LL_INFOS() << "Recent list before: " << mRecentlyReceivedReliablePackets.size() << LL_ENDL;
 	if (oldest_id < mHighestPacketID)
 	{
 		// Clean up everything with a packet ID less than oldest_id.
@@ -1014,7 +1015,7 @@ void LLCircuitData::clearDuplicateList(TPACKETID oldest_id)
 	// Do timeout checks on everything with an ID > mHighestPacketID.
 	// This should be empty except for wrapping IDs.  Thus, this should be
 	// highly rare.
-	U64 mt_usec = LLMessageSystem::getMessageTimeUsecs();
+	U64Microseconds mt_usec = LLMessageSystem::getMessageTimeUsecs();
 
 	packet_time_map::iterator pit;
 	for(pit = mRecentlyReceivedReliablePackets.upper_bound(mHighestPacketID);
@@ -1023,14 +1024,14 @@ void LLCircuitData::clearDuplicateList(TPACKETID oldest_id)
 		// Validate that the packet ID seems far enough away
 		if ((pit->first - mHighestPacketID) < 100)
 		{
-			llwarns << "Probably incorrectly timing out non-wrapped packets!" << llendl;
+			LL_WARNS() << "Probably incorrectly timing out non-wrapped packets!" << LL_ENDL;
 		}
-		U64 delta_t_usec = mt_usec - (*pit).second;
-		F64 delta_t_sec = delta_t_usec * SEC_PER_USEC;
+		U64Microseconds delta_t_usec = mt_usec - (*pit).second;
+		F64Seconds delta_t_sec = delta_t_usec;
 		if (delta_t_sec > LL_DUPLICATE_SUPPRESSION_TIMEOUT)
 		{
 			// enough time has elapsed we're not likely to get a duplicate on this one
-			llinfos << "Clearing " << pit->first << " from recent list" << llendl;
+			LL_INFOS() << "Clearing " << pit->first << " from recent list" << LL_ENDL;
 			mRecentlyReceivedReliablePackets.erase(pit++);
 		}
 		else
@@ -1038,27 +1039,27 @@ void LLCircuitData::clearDuplicateList(TPACKETID oldest_id)
 			++pit;
 		}
 	}
-	//llinfos << "Recent list after: " << mRecentlyReceivedReliablePackets.size() << llendl;
+	//LL_INFOS() << "Recent list after: " << mRecentlyReceivedReliablePackets.size() << LL_ENDL;
 }
 
 BOOL LLCircuitData::checkCircuitTimeout()
 {
-	F64 time_since_last_ping = LLMessageSystem::getMessageTimeSeconds() - mLastPingReceivedTime;
+	F64Seconds time_since_last_ping = LLMessageSystem::getMessageTimeSeconds() - mLastPingReceivedTime;
 
 	// Nota Bene: This needs to be turned off if you are debugging multiple simulators
 	if (time_since_last_ping > mHeartbeatTimeout)
 	{
-		llwarns << "LLCircuitData::checkCircuitTimeout for " << mHost << " last ping " << time_since_last_ping << " seconds ago." <<llendl;
+		LL_WARNS() << "LLCircuitData::checkCircuitTimeout for " << mHost << " last ping " << time_since_last_ping << " seconds ago." <<LL_ENDL;
 		setAlive(FALSE);
 		if (mTimeoutCallback)
 		{
-			llwarns << "LLCircuitData::checkCircuitTimeout for " << mHost << " calling callback." << llendl;
+			LL_WARNS() << "LLCircuitData::checkCircuitTimeout for " << mHost << " calling callback." << LL_ENDL;
 			mTimeoutCallback(mHost, mTimeoutUserData);
 		}
 		if (!isAlive())
 		{
 			// The callback didn't try and resurrect the circuit.  We should kill it.
-			llwarns << "LLCircuitData::checkCircuitTimeout for " << mHost << " still dead, dropping." << llendl;
+			LL_WARNS() << "LLCircuitData::checkCircuitTimeout for " << mHost << " still dead, dropping." << LL_ENDL;
 			return FALSE;
 		}
 	}
@@ -1121,7 +1122,7 @@ void LLCircuit::sendAcks()
 				str << "MSG: -> " << cd->mHost << "\tPACKET ACKS:\t";
 				std::ostream_iterator<TPACKETID> append(str, " ");
 				std::copy(cd->mAcks.begin(), cd->mAcks.end(), append);
-				llinfos << str.str() << llendl;
+				LL_INFOS() << str.str() << LL_ENDL;
 			}
 
 			// empty out the acks list
@@ -1139,40 +1140,40 @@ std::ostream& operator<<(std::ostream& s, LLCircuitData& circuit)
 	F32 age = circuit.mExistenceTimer.getElapsedTimeF32();
 
 	using namespace std;
-	s << "Circuit " << circuit.mHost << " ";
-	s << circuit.mRemoteID << " ";
-	s << (circuit.mbAlive ? "Alive" : "Not Alive") << " ";
-	s << (circuit.mbAllowTimeout ? "Timeout Allowed" : "Timeout Not Allowed");
-	s << endl;
+	s << "Circuit " << circuit.mHost << " "
+		<< circuit.mRemoteID << " "
+		<< (circuit.mbAlive ? "Alive" : "Not Alive") << " "
+		<< (circuit.mbAllowTimeout ? "Timeout Allowed" : "Timeout Not Allowed")
+		<< endl;
 
-	s << " Packets Lost: " << circuit.mPacketsLost;
-	s << " Measured Ping: " << circuit.mPingDelay;
-	s << " Averaged Ping: " << circuit.mPingDelayAveraged;
-	s << endl;
+	s << " Packets Lost: " << circuit.mPacketsLost
+		<< " Measured Ping: " << circuit.mPingDelay
+		<< " Averaged Ping: " << circuit.mPingDelayAveraged
+		<< endl;
 
-	s << "Global In/Out " << S32(age) << " sec";
-	s << " KBytes: " << circuit.mBytesIn / 1024 << "/" << circuit.mBytesOut / 1024;
-	s << " Kbps: ";
-	s << S32(circuit.mBytesIn * 8.f / circuit.mExistenceTimer.getElapsedTimeF32() / 1024.f);
-	s << "/";
-	s << S32(circuit.mBytesOut * 8.f / circuit.mExistenceTimer.getElapsedTimeF32() / 1024.f);
-	s << " Packets: " << circuit.mPacketsIn << "/" << circuit.mPacketsOut;
-	s << endl;
+	s << "Global In/Out " << S32(age) << " sec"
+		<< " KBytes: " << circuit.mBytesIn.valueInUnits<LLUnits::Kilobytes>() << "/" << circuit.mBytesOut.valueInUnits<LLUnits::Kilobytes>()
+		<< " Kbps: "
+		<< S32(circuit.mBytesIn.valueInUnits<LLUnits::Kilobits>() / circuit.mExistenceTimer.getElapsedTimeF32().value())
+		<< "/"
+		<< S32(circuit.mBytesOut.valueInUnits<LLUnits::Kilobits>() / circuit.mExistenceTimer.getElapsedTimeF32().value())
+		<< " Packets: " << circuit.mPacketsIn << "/" << circuit.mPacketsOut
+		<< endl;
 
-	s << "Recent In/Out   " << S32(circuit.mLastPeriodLength) << " sec";
-	s << " KBytes: ";
-	s << circuit.mBytesInLastPeriod / 1024;
-	s << "/";
-	s << circuit.mBytesOutLastPeriod / 1024;
-	s << " Kbps: ";
-	s << S32(circuit.mBytesInLastPeriod * 8.f / circuit.mLastPeriodLength / 1024.f);
-	s << "/";
-	s << S32(circuit.mBytesOutLastPeriod * 8.f / circuit.mLastPeriodLength / 1024.f);
-	s << " Peak kbps: ";
-	s << S32(circuit.mPeakBPSIn / 1024.f);
-	s << "/";
-	s << S32(circuit.mPeakBPSOut / 1024.f);
-	s << endl;
+	s << "Recent In/Out   " << circuit.mLastPeriodLength
+		<< " KBytes: "
+		<< circuit.mBytesInLastPeriod.valueInUnits<LLUnits::Kilobytes>()
+		<< "/"
+		<< circuit.mBytesOutLastPeriod.valueInUnits<LLUnits::Kilobytes>()
+		<< " Kbps: "
+		<< (S32)(circuit.mBytesInLastPeriod.valueInUnits<LLUnits::Kilobits>() / circuit.mLastPeriodLength.value())
+		<< "/"
+		<< (S32)(circuit.mBytesOutLastPeriod.valueInUnits<LLUnits::Kilobits>() / circuit.mLastPeriodLength.value())
+		<< " Peak kbps: "
+		<< S32(circuit.mPeakBPSIn / 1024.f)
+		<< "/"
+		<< S32(circuit.mPeakBPSOut / 1024.f)
+		<< endl;
 
 	return s;
 }
@@ -1188,7 +1189,7 @@ void LLCircuitData::dumpResendCountAndReset()
 {
 	if (mCurrentResendCount)
 	{
-		llinfos << "Circuit: " << mHost << " resent " << mCurrentResendCount << " packets" << llendl;
+		LL_INFOS() << "Circuit: " << mHost << " resent " << mCurrentResendCount << " packets" << LL_ENDL;
 		mCurrentResendCount = 0;
 	}
 }
@@ -1256,11 +1257,11 @@ void LLCircuitData::setPacketInID(TPACKETID id)
 
 void LLCircuitData::pingTimerStop(const U8 ping_id)
 {
-	F64 mt_secs = LLMessageSystem::getMessageTimeSeconds();
+	F64Seconds mt_secs = LLMessageSystem::getMessageTimeSeconds();
 
 	// Nota Bene: no averaging of ping times until we get a feel for how this works
-	F64 time = mt_secs - mPingTime;
-	if (time == 0.0)
+	F64Seconds time = mt_secs - mPingTime;
+	if (time == F32Seconds(0.0))
 	{
 		// Ack, we got our ping response on the same frame! Sigh, let's get a real time otherwise
 		// all of our ping calculations will be skewed.
@@ -1276,7 +1277,7 @@ void LLCircuitData::pingTimerStop(const U8 ping_id)
 		delta_ping += 256;
 	}
 
-	U32 msec = (U32) ((delta_ping*mHeartbeatInterval  + time) * 1000.f);
+	U32Milliseconds msec = delta_ping*mHeartbeatInterval + time;
 	setPingDelay(msec);
 
 	mPingsInTransit = delta_ping;
@@ -1305,13 +1306,13 @@ U32 LLCircuitData::getPacketsIn() const
 }
 
 
-S32 LLCircuitData::getBytesIn() const
+S32Bytes LLCircuitData::getBytesIn() const
 {
 	return mBytesIn;
 }
 
 
-S32 LLCircuitData::getBytesOut() const
+S32Bytes LLCircuitData::getBytesOut() const
 {
 	return mBytesOut;
 }
@@ -1353,41 +1354,41 @@ BOOL LLCircuitData::getAllowTimeout() const
 }
 
 
-U32 LLCircuitData::getPingDelay() const
+U32Milliseconds LLCircuitData::getPingDelay() const
 {
 	return mPingDelay;
 }
 
 
-F32 LLCircuitData::getPingInTransitTime()
+F32Milliseconds LLCircuitData::getPingInTransitTime()
 {
 	// This may be inaccurate in the case of a circuit that was "dead" and then revived,
 	// but only until the first round trip ping is sent - djs
-	F32 time_since_ping_was_sent = 0;
+	F32Milliseconds time_since_ping_was_sent(0);
 
 	if (mPingsInTransit)
 	{
-		time_since_ping_was_sent =  (F32)((mPingsInTransit*mHeartbeatInterval - 1) 
-			+ (LLMessageSystem::getMessageTimeSeconds() - mPingTime))*1000.f;
+		time_since_ping_was_sent =  ((mPingsInTransit*mHeartbeatInterval - F32Seconds(1)) 
+			+ (LLMessageSystem::getMessageTimeSeconds() - mPingTime));
 	}
 
 	return time_since_ping_was_sent;
 }
 
 
-void LLCircuitData::setPingDelay(U32 ping)
+void LLCircuitData::setPingDelay(U32Milliseconds ping)
 {
 	mPingDelay = ping;
-	mPingDelayAveraged = llmax((F32)ping, getPingDelayAveraged());
+	mPingDelayAveraged = llmax((F32Milliseconds)ping, getPingDelayAveraged());
 	mPingDelayAveraged = ((1.f - LL_AVERAGED_PING_ALPHA) * mPingDelayAveraged) 
-						  + (LL_AVERAGED_PING_ALPHA * (F32) ping);
+						  + (LL_AVERAGED_PING_ALPHA * (F32Milliseconds) ping);
 	mPingDelayAveraged = llclamp(mPingDelayAveraged, 
 								 LL_AVERAGED_PING_MIN,
 								 LL_AVERAGED_PING_MAX);
 }
 
 
-F32 LLCircuitData::getPingDelayAveraged()
+F32Milliseconds LLCircuitData::getPingDelayAveraged()
 {
 	return llmin(llmax(getPingInTransitTime(), mPingDelayAveraged), LL_AVERAGED_PING_MAX);
 }

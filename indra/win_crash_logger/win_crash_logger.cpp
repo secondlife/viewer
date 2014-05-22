@@ -34,20 +34,26 @@ int APIENTRY WinMain(HINSTANCE hInstance,
                      LPSTR     lpCmdLine,
                      int       nCmdShow)
 {
-	llinfos << "Starting crash reporter." << llendl;
-
+	LL_INFOS() << "Starting crash reporter with args" << &lpCmdLine << LL_ENDL;
 	LLCrashLoggerWindows app;
 	app.setHandle(hInstance);
 	app.parseCommandOptions(__argc, __argv);
 
+	LLSD options = LLApp::instance()->getOptionData(
+                   LLApp::PRIORITY_COMMAND_LINE);
+    if (!(options.has("pid") && options.has("dumpdir")))
+    {
+        LL_WARNS() << "Insufficient parameters to crash report." << LL_ENDL; 
+    }
 	if (! app.init())
 	{
-		llwarns << "Unable to initialize application." << llendl;
+		LL_WARNS() << "Unable to initialize application." << LL_ENDL;
 		return -1;
 	}
 
+	app.processingLoop();
 	app.mainLoop();
 	app.cleanup();
-	llinfos << "Crash reporter finished normally." << llendl;
+	LL_INFOS() << "Crash reporter finished normally." << LL_ENDL;
 	return 0;
 }

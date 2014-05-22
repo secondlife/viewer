@@ -46,7 +46,7 @@ LLWindowMesaHeadless::LLWindowMesaHeadless(LLWindowCallbacks* callbacks,
 {
 	if (use_gl)
 	{
-		llinfos << "MESA Init" << llendl;
+		LL_INFOS() << "MESA Init" << LL_ENDL;
 		mMesaContext = OSMesaCreateContextExt( GL_RGBA, 32, 0, 0, NULL );
 
 		/* Allocate the image buffer */
@@ -58,7 +58,7 @@ LLWindowMesaHeadless::LLWindowMesaHeadless(LLWindowCallbacks* callbacks,
 		/* Bind the buffer to the context and make it current */
 		if (!OSMesaMakeCurrent( mMesaContext, mMesaBuffer, MESA_CHANNEL_TYPE, width, height ))
 		{
-			llerrs << "MESA: OSMesaMakeCurrent failed!" << llendl;
+			LL_ERRS() << "MESA: OSMesaMakeCurrent failed!" << LL_ENDL;
 		}
 
 		llverify(gGLManager.initGL());

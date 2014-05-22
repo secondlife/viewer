@@ -33,6 +33,12 @@
 #include "llapp.h"
 #include "llsd.h"
 #include "llcontrol.h"
+#include "llcrashlock.h"
+
+// Crash reporter behavior
+const S32 CRASH_BEHAVIOR_ASK = 0;
+const S32 CRASH_BEHAVIOR_ALWAYS_SEND = 1;
+const S32 CRASH_BEHAVIOR_NEVER_SEND = 2;
 
 class LLCrashLogger : public LLApp
 {
@@ -40,9 +46,13 @@ public:
 	LLCrashLogger();
 	virtual ~LLCrashLogger();
 	S32 loadCrashBehaviorSetting();
+    bool readDebugFromXML(LLSD& dest, const std::string& filename );
 	void gatherFiles();
+    void mergeLogs( LLSD src_sd );
+
 	virtual void gatherPlatformSpecificFiles() {}
 	bool saveCrashBehaviorSetting(S32 crash_behavior);
+    bool sendCrashLog(std::string dump_dir);
 	bool sendCrashLogs();
 	LLSD constructPostData();
 	virtual void updateApplication(const std::string& message = LLStringUtil::null);
@@ -53,6 +63,8 @@ public:
 	void setUserText(const std::string& text) { mCrashInfo["UserNotes"] = text; }
 	S32 getCrashBehavior() { return mCrashBehavior; }
 	bool runCrashLogPost(std::string host, LLSD data, std::string msg, int retries, int timeout);
+	bool readMinidump(std::string minidump_path);
+
 protected:
 	S32 mCrashBehavior;
 	BOOL mCrashInPreviousExec;
@@ -65,6 +77,7 @@ protected:
 	std::string mAltCrashHost;
 	LLSD mDebugLog;
 	bool mSentCrashLogs;
+    LLCrashLock mKeyMaster;
 };
 
 #endif //LLCRASHLOGGER_H

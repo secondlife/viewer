@@ -202,7 +202,7 @@ void LLPanelNearByMedia::onTopLost()
 
 
 /*virtual*/ 
-void LLPanelNearByMedia::handleVisibilityChange ( BOOL new_visibility )
+void LLPanelNearByMedia::onVisibilityChange ( BOOL new_visibility )
 {
 	if (new_visibility)	
 	{
@@ -876,7 +876,10 @@ void LLPanelNearByMedia::onClickParcelAudioPlay()
 	// playing and updated as they cross to other parcels etc.
 	mParcelAudioAutoStart = true;
 	if (!gAudiop)
+	{
+		LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
 		return;
+	}
 
 	if (LLAudioEngine::AUDIO_PAUSED == gAudiop->isInternetStreamPlaying())
 	{
@@ -896,7 +899,10 @@ void LLPanelNearByMedia::onClickParcelAudioStop()
 	// they explicitly start it again.
 	mParcelAudioAutoStart = false;
 	if (!gAudiop)
+	{
+		LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
 		return;
+	}
 
 	LLViewerAudio::getInstance()->stopInternetStreamWithAutoFade();
 }
@@ -904,7 +910,10 @@ void LLPanelNearByMedia::onClickParcelAudioStop()
 void LLPanelNearByMedia::onClickParcelAudioPause()
 {
 	if (!gAudiop)
+	{
+		LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
 		return;
+	}
 
 	// 'true' means pause
 	gAudiop->pauseInternetStream(true);
