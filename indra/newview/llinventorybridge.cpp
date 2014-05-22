@@ -2518,7 +2518,8 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
         }
 		if (is_movable && (move_is_into_outbox || move_is_into_marketplacelistings))
 		{
-            const int nested_folder_levels = get_folder_path_length(outbox_id, mUUID) + get_folder_levels(inv_cat);
+            int nested_folder_levels = get_folder_levels(inv_cat);
+            nested_folder_levels += (move_is_into_outbox ? get_folder_path_length(outbox_id, mUUID) : get_folder_path_length(marketplacelistings_id, mUUID));
 			
 			if (nested_folder_levels > gSavedSettings.getU32("InventoryOutboxMaxFolderDepth"))
 			{
@@ -2534,7 +2535,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 				int existing_item_count = 0;
 				int existing_folder_count = 0;
 				
-				const LLViewerInventoryCategory * master_folder = model->getFirstDescendantOf(outbox_id, mUUID);
+				const LLViewerInventoryCategory * master_folder = (move_is_into_outbox ? model->getFirstDescendantOf(outbox_id, mUUID) : model->getFirstDescendantOf(marketplacelistings_id, mUUID));
 				
 				if (master_folder != NULL)
 				{
@@ -4378,7 +4379,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			
 			if (accept)
 			{
-				const LLViewerInventoryCategory * master_folder = model->getFirstDescendantOf(outbox_id, mUUID);
+				const LLViewerInventoryCategory * master_folder = (move_is_into_outbox ? model->getFirstDescendantOf(outbox_id, mUUID) : model->getFirstDescendantOf(marketplacelistings_id, mUUID));
 				
 				int existing_item_count = LLToolDragAndDrop::instance().getCargoCount();
 				
