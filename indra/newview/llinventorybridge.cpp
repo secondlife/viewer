@@ -3443,22 +3443,20 @@ void LLFolderBridge::pasteFromClipboard()
 		LLDynamicArray<LLUUID> objects;
 		LLClipboard::instance().pasteFromClipboard(objects);
 
-		if (move_is_into_outbox)
+        // Use "dragOrDrop" to go through the same accept logic
+		if (move_is_into_outbox || move_is_into_marketplacelistings)
 		{
-			LLFolderViewItem * outbox_itemp =   mInventoryPanel.get()->getItemByID(mUUID);
+			LLFolderViewFolder* outbox_itemp =  (move_is_into_outbox ? mInventoryPanel.get()->getFolderByID(outbox_id) : mInventoryPanel.get()->getFolderByID(marketplacelistings_id));
 
 			if (outbox_itemp)
 			{
 				LLToolDragAndDrop::instance().setCargoCount(objects.size());
 
-				BOOL can_list = TRUE;
-
-				for (LLDynamicArray<LLUUID>::const_iterator iter = objects.begin();
-					(iter != objects.end()) && (can_list == TRUE);
-					++iter)
+                std::string error_msg;
+				for (LLDynamicArray<LLUUID>::const_iterator iter = objects.begin(); iter != objects.end(); ++iter)
 				{
 					const LLUUID& item_id = (*iter);
-					LLInventoryItem *item = model->getItem(item_id);
+					LLInventoryObject *item = model->getObject(item_id);
 
 					if (item)
 					{
@@ -3466,17 +3464,20 @@ void LLFolderBridge::pasteFromClipboard()
 						BOOL drop = FALSE;
 						EDragAndDropType cargo_type = LLViewerAssetType::lookupDragAndDropType(item->getActualType());
 						void * cargo_data = (void *) item;
-						std::string tooltip_msg;
-
-						can_list = outbox_itemp->getViewModelItem()->dragOrDrop(mask, drop, cargo_type, cargo_data, tooltip_msg);
+						if (!outbox_itemp->getViewModelItem()->dragOrDrop(mask, drop, cargo_type, cargo_data, error_msg))
+                        {
+                            break;
+                        }
 					}
 				}
 
 				LLToolDragAndDrop::instance().resetCargoCount();
 
-				if (can_list == FALSE)
+				if (!error_msg.empty())
 				{
-					// Notify user of failure somehow -- play error sound?  modal dialog?
+                    LLSD subs;
+                    subs["[ERROR_CODE]"] = error_msg;
+                    LLNotificationsUtil::add("MerchantPasteFailed", subs);
 					return;
 				}
 			}
