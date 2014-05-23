@@ -143,7 +143,7 @@ void LLAvatarActions::removeFriendsDialog(const uuid_vec_t& ids)
 		LLAvatarName av_name;
 		if(LLAvatarNameCache::get(agent_id, &av_name))
 		{
-			args["NAME"] = av_name.getDisplayName();
+			args["NAME"] = av_name.getCompleteName();
 		}
 
 		msgType = "RemoveFromFriends";
