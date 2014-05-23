@@ -104,9 +104,25 @@ BOOL LLPolySkeletalDistortionInfo::parseXml(LLXmlTreeNode* node)
 // LLPolySkeletalDistortion()
 //-----------------------------------------------------------------------------
 LLPolySkeletalDistortion::LLPolySkeletalDistortion(LLAvatarAppearance *avatarp)
+	: LLViewerVisualParam(),
+	mDefaultVec(),
+	mJointScales(),
+	mJointOffsets(),
+	mAvatar(avatarp)
 {
-        mAvatar = avatarp;
-        mDefaultVec.splat(0.001f);
+	mDefaultVec.splat(0.001f);
+}
+
+//-----------------------------------------------------------------------------
+// LLPolySkeletalDistortion()
+//-----------------------------------------------------------------------------
+LLPolySkeletalDistortion::LLPolySkeletalDistortion(const LLPolySkeletalDistortion &pOther)
+	: LLViewerVisualParam(pOther),
+	mDefaultVec(pOther.mDefaultVec),
+	mJointScales(pOther.mJointScales),
+	mJointOffsets(pOther.mJointOffsets),
+	mAvatar(pOther.mAvatar)
+{
 }
 
 //-----------------------------------------------------------------------------
@@ -171,9 +187,7 @@ BOOL LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
 
 /*virtual*/ LLViewerVisualParam* LLPolySkeletalDistortion::cloneParam(LLWearable* wearable) const
 {
-        LLPolySkeletalDistortion *new_param = new LLPolySkeletalDistortion(mAvatar);
-        *new_param = *this;
-        return new_param;
+	return new LLPolySkeletalDistortion(*this);
 }
 
 //-----------------------------------------------------------------------------

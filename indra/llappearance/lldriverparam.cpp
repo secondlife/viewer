@@ -152,17 +152,29 @@ void LLDriverParamInfo::toStream(std::ostream &out)
 // LLDriverParam
 //-----------------------------------------------------------------------------
 
-LLDriverParam::LLDriverParam(LLAvatarAppearance *appearance, LLWearable* wearable /* = NULL */) :
+LLDriverParam::LLDriverParam(LLAvatarAppearance *appearance, LLWearable* wearable /* = NULL */)
+	: LLViewerVisualParam(),
+	mDefaultVec(),
+	mDriven(),
 	mCurrentDistortionParam( NULL ), 
 	mAvatarAppearance(appearance), 
 	mWearablep(wearable)
 {
 	llassert(mAvatarAppearance);
-	if (mWearablep)
-	{
-		llassert(mAvatarAppearance->isSelf());
-	}
+	llassert((mWearablep == NULL) || mAvatarAppearance->isSelf());
 	mDefaultVec.clear();
+}
+
+LLDriverParam::LLDriverParam(const LLDriverParam& pOther)
+	: LLViewerVisualParam(pOther),
+	mDefaultVec(pOther.mDefaultVec),
+	mDriven(pOther.mDriven),
+	mCurrentDistortionParam(pOther.mCurrentDistortionParam),
+	mAvatarAppearance(pOther.mAvatarAppearance),
+	mWearablep(pOther.mWearablep)
+{
+	llassert(mAvatarAppearance);
+	llassert((mWearablep == NULL) || mAvatarAppearance->isSelf());
 }
 
 LLDriverParam::~LLDriverParam()
@@ -186,13 +198,7 @@ BOOL LLDriverParam::setInfo(LLDriverParamInfo *info)
 /*virtual*/ LLViewerVisualParam* LLDriverParam::cloneParam(LLWearable* wearable) const
 {
 	llassert(wearable);
-	LLDriverParam *new_param = new LLDriverParam(mAvatarAppearance, wearable);
-	// FIXME DRANO this clobbers mWearablep, which means any code
-	// currently using mWearablep is wrong, or at least untested.
-	*new_param = *this;
-	//new_param->mWearablep = wearable;
-//	new_param->mDriven.clear(); // clear driven list to avoid overwriting avatar driven params from wearables. 
-	return new_param;
+	return new LLDriverParam(*this);
 }
 
 void LLDriverParam::setWeight(F32 weight, BOOL upload_bake)

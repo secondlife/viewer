@@ -123,6 +123,22 @@ BOOL LLViewerVisualParamInfo::parseXml(LLXmlTreeNode *node)
 // LLViewerVisualParam()
 //-----------------------------------------------------------------------------
 LLViewerVisualParam::LLViewerVisualParam()
+	: LLVisualParam()
+{
+}
+
+//-----------------------------------------------------------------------------
+// LLViewerVisualParam()
+//-----------------------------------------------------------------------------
+LLViewerVisualParam::LLViewerVisualParam(const LLViewerVisualParam& pOther)
+	: LLVisualParam(pOther)
+{
+}
+
+//-----------------------------------------------------------------------------
+// ~LLViewerVisualParam()
+//-----------------------------------------------------------------------------
+LLViewerVisualParam::~LLViewerVisualParam()
 {
 }
 

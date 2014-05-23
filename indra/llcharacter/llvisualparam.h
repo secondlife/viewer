@@ -166,6 +166,8 @@ public:
 	EParamLocation			getParamLocation() const { return mParamLocation; }
 
 protected:
+	LLVisualParam(const LLVisualParam& pOther);
+
 	F32					mCurWeight;			// current weight
 	F32					mLastWeight;		// last weight
 	LLVisualParam*		mNext;				// next param in a shared chain

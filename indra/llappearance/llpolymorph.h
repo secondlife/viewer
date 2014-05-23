@@ -91,6 +91,7 @@ class LLPolyVertexMask
 {
 public:
 	LLPolyVertexMask(LLPolyMorphData* morph_data);
+	LLPolyVertexMask(const LLPolyVertexMask& pOther);
 	~LLPolyVertexMask();
 
 	void generateMask(U8 *maskData, S32 width, S32 height, S32 num_components, BOOL invert, LLVector4a *clothing_weights);
@@ -182,6 +183,8 @@ public:
 	void	addPendingMorphMask() { mNumMorphMasksPending++; }
 
 protected:
+	LLPolyMorphTarget(const LLPolyMorphTarget& pOther);
+
 	LLPolyMorphData*				mMorphData;
 	LLPolyMesh*						mMesh;
 	LLPolyVertexMask *				mVertMask;

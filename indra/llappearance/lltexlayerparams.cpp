@@ -40,7 +40,8 @@
 //-----------------------------------------------------------------------------
 // LLTexLayerParam
 //-----------------------------------------------------------------------------
-LLTexLayerParam::LLTexLayerParam(LLTexLayerInterface *layer) :
+LLTexLayerParam::LLTexLayerParam(LLTexLayerInterface *layer)
+	: LLViewerVisualParam(),
 	mTexLayer(layer),
 	mAvatarAppearance(NULL)
 {
@@ -54,12 +55,19 @@ LLTexLayerParam::LLTexLayerParam(LLTexLayerInterface *layer) :
 	}
 }
 
-LLTexLayerParam::LLTexLayerParam(LLAvatarAppearance *appearance) :
+LLTexLayerParam::LLTexLayerParam(LLAvatarAppearance *appearance)
+	: LLViewerVisualParam(),
 	mTexLayer(NULL),
 	mAvatarAppearance(appearance)
 {
 }
 
+LLTexLayerParam::LLTexLayerParam(const LLTexLayerParam& pOther)
+	: LLViewerVisualParam(pOther),
+	mTexLayer(pOther.mTexLayer),
+	mAvatarAppearance(pOther.mAvatarAppearance)
+{
+}
 
 BOOL LLTexLayerParam::setInfo(LLViewerVisualParamInfo *info, BOOL add_to_appearance)
 {
@@ -112,9 +120,11 @@ void LLTexLayerParamAlpha::getCacheByteCount(S32* gl_bytes)
 	}
 }
 
-LLTexLayerParamAlpha::LLTexLayerParamAlpha(LLTexLayerInterface* layer) :
-	LLTexLayerParam(layer),
+LLTexLayerParamAlpha::LLTexLayerParamAlpha(LLTexLayerInterface* layer)
+	: LLTexLayerParam(layer),
 	mCachedProcessedTexture(NULL),
+	mStaticImageTGA(),
+	mStaticImageRaw(),
 	mNeedsCreateTexture(FALSE),
 	mStaticImageInvalid(FALSE),
 	mAvgDistortionVec(1.f, 1.f, 1.f),
@@ -123,9 +133,11 @@ LLTexLayerParamAlpha::LLTexLayerParamAlpha(LLTexLayerInterface* layer) :
 	sInstances.push_front(this);
 }
 
-LLTexLayerParamAlpha::LLTexLayerParamAlpha(LLAvatarAppearance* appearance) :
-	LLTexLayerParam(appearance),
+LLTexLayerParamAlpha::LLTexLayerParamAlpha(LLAvatarAppearance* appearance)
+	: LLTexLayerParam(appearance),
 	mCachedProcessedTexture(NULL),
+	mStaticImageTGA(),
+	mStaticImageRaw(),
 	mNeedsCreateTexture(FALSE),
 	mStaticImageInvalid(FALSE),
 	mAvgDistortionVec(1.f, 1.f, 1.f),
@@ -134,6 +146,18 @@ LLTexLayerParamAlpha::LLTexLayerParamAlpha(LLAvatarAppearance* appearance) :
 	sInstances.push_front(this);
 }
 
+LLTexLayerParamAlpha::LLTexLayerParamAlpha(const LLTexLayerParamAlpha& pOther)
+	: LLTexLayerParam(pOther),
+	mCachedProcessedTexture(pOther.mCachedProcessedTexture),
+	mStaticImageTGA(pOther.mStaticImageTGA),
+	mStaticImageRaw(pOther.mStaticImageRaw),
+	mNeedsCreateTexture(pOther.mNeedsCreateTexture),
+	mStaticImageInvalid(pOther.mStaticImageInvalid),
+	mAvgDistortionVec(pOther.mAvgDistortionVec),
+	mCachedEffectiveWeight(pOther.mCachedEffectiveWeight)
+{
+	sInstances.push_front(this);
+}
 
 LLTexLayerParamAlpha::~LLTexLayerParamAlpha()
 {
@@ -143,9 +167,7 @@ LLTexLayerParamAlpha::~LLTexLayerParamAlpha()
 
 /*virtual*/ LLViewerVisualParam* LLTexLayerParamAlpha::cloneParam(LLWearable* wearable) const
 {
-	LLTexLayerParamAlpha *new_param = new LLTexLayerParamAlpha(mTexLayer);
-	*new_param = *this;
-	return new_param;
+	return new LLTexLayerParamAlpha(*this);
 }
 
 void LLTexLayerParamAlpha::deleteCaches()
@@ -399,15 +421,21 @@ BOOL LLTexLayerParamAlphaInfo::parseXml(LLXmlTreeNode* node)
 
 
 
-LLTexLayerParamColor::LLTexLayerParamColor(LLTexLayerInterface* layer) :
-	LLTexLayerParam(layer),
+LLTexLayerParamColor::LLTexLayerParamColor(LLTexLayerInterface* layer)
+	: LLTexLayerParam(layer),
 	mAvgDistortionVec(1.f, 1.f, 1.f)
 {
 }
 
-LLTexLayerParamColor::LLTexLayerParamColor(LLAvatarAppearance *appearance) :
-	LLTexLayerParam(appearance),
+LLTexLayerParamColor::LLTexLayerParamColor(LLAvatarAppearance *appearance)
+	: LLTexLayerParam(appearance),
 	mAvgDistortionVec(1.f, 1.f, 1.f)
+{
+}
+
+LLTexLayerParamColor::LLTexLayerParamColor(const LLTexLayerParamColor& pOther)
+	: LLTexLayerParam(pOther),
+	mAvgDistortionVec(pOther.mAvgDistortionVec)
 {
 }
 
@@ -417,9 +445,7 @@ LLTexLayerParamColor::~LLTexLayerParamColor()
 
 /*virtual*/ LLViewerVisualParam* LLTexLayerParamColor::cloneParam(LLWearable* wearable) const
 {
-	LLTexLayerParamColor *new_param = new LLTexLayerParamColor(mTexLayer);
-	*new_param = *this;
-	return new_param;
+	return new LLTexLayerParamColor(*this);
 }
 
 LLColor4 LLTexLayerParamColor::getNetColor() const
