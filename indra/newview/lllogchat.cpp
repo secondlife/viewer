@@ -261,6 +261,46 @@ std::string LLLogChat::cleanFileName(std::string filename)
 	return filename;
 }
 
+bool LLLogChat::buildIMP2PLogFilename(const LLUUID& idAgent, const std::string& strName, std::string& strFilename)
+{
+	static LLCachedControl<bool> fLegacyFilenames(gSavedSettings, "UseLegacyIMLogNames", true);
+
+	// If we have the name cached then we can simply return the username
+	LLAvatarName avName;
+	if (LLAvatarNameCache::get(idAgent, &avName))
+	{
+		if (!fLegacyFilenames)
+		{
+			strFilename = avName.getUserName();
+		}
+		else
+		{
+			strFilename = LLCacheName::cleanFullName(avName.getLegacyName());
+		}
+		return true;
+	}
+	else
+	{
+		// Try and get it from the legacy cache if we can
+		std::string strLegacyName;
+		if (gCacheName->getFullName(idAgent, strLegacyName))
+			strLegacyName = strName;
+
+		if (!fLegacyFilenames)
+		{
+			// If we don't have it cached 'strName' *should* be a legacy name (or a complete name) and we can construct a username from that
+			strFilename = LLCacheName::buildUsername(strName);
+			return strName != strFilename;	// If the assumption above was wrong then the two will match which signals failure
+		}
+		else
+		{
+			// Strip any possible mention of a username
+			strFilename = LLCacheName::buildLegacyName(strName);
+			return (!strFilename.empty());	// Assume success as long as the filename isn't an empty string
+		}
+	}
+}
+
 std::string LLLogChat::timestamp(bool withdate)
 {
 	std::string timeStr;
@@ -570,13 +610,6 @@ void LLLogChat::findTranscriptFiles(std::string pattern, std::vector<std::string
 		LLFILE * filep = LLFile::fopen(fullname, "rb");
 		if (NULL != filep)
 		{
-			if(makeLogFileName("chat")== fullname)
-			{
-				//Add Nearby chat history to the list of transcriptions
-				list_of_transcriptions.push_back(gDirUtilp->add(dirname, filename));
-				LLFile::close(filep);
-				continue;
-			}
 			char buffer[LOG_RECALL_SIZE];
 
 			fseek(filep, 0, SEEK_END);			// seek to end of file
@@ -749,59 +782,34 @@ void LLLogChat::deleteTranscripts()
 // static
 bool LLLogChat::isTranscriptExist(const LLUUID& avatar_id, bool is_group)
 {
-	std::vector<std::string> list_of_transcriptions;
-	LLLogChat::getListOfTranscriptFiles(list_of_transcriptions);
+	std::string strFileName;
+	if (!is_group)
+		buildIMP2PLogFilename(avatar_id, LLStringUtil::null, strFileName);
+	else
+		gCacheName->getGroupName(avatar_id, strFileName);
 
-	if (list_of_transcriptions.size() > 0)
+	std::string strFilePath = makeLogFileName(strFileName);
+	if ( (!strFilePath.empty()) && (LLFile::isfile(strFilePath)) )
 	{
-		LLAvatarName avatar_name;
-		LLAvatarNameCache::get(avatar_id, &avatar_name);
-		std::string avatar_user_name = avatar_name.getAccountName();
-		if(!is_group)
-		{
-			std::replace(avatar_user_name.begin(), avatar_user_name.end(), '.', '_');
-			BOOST_FOREACH(std::string& transcript_file_name, list_of_transcriptions)
-			{
-				if (std::string::npos != transcript_file_name.find(avatar_user_name))
-				{
-					return true;
-				}
-			}
-		}
-		else
-		{
-			std::string file_name;
-			gCacheName->getGroupName(avatar_id, file_name);
-			file_name = makeLogFileName(file_name);
-			BOOST_FOREACH(std::string& transcript_file_name, list_of_transcriptions)
-			{
-				if (transcript_file_name == file_name)
-				{
-					return true;
-				}
-			}
-		}
-
+		return true;
 	}
 
-	return false;
+	// If a dated file existed it'll return a valid path; otherwise, it returns the undated unverified path so we do need to check it
+	strFilePath = oldLogFileName(strFileName);
+	return (!strFilePath.empty()) && (LLFile::isfile(strFilePath));
 }
 
 bool LLLogChat::isNearbyTranscriptExist()
 {
-	std::vector<std::string> list_of_transcriptions;
-	LLLogChat::getListOfTranscriptFiles(list_of_transcriptions);
-
-	std::string file_name;
-	file_name = makeLogFileName("chat");
-	BOOST_FOREACH(std::string& transcript_file_name, list_of_transcriptions)
+	std::string strFilePath = makeLogFileName("chat");
+	if ( (!strFilePath.empty()) && (LLFile::isfile(strFilePath)) )
 	{
-	   	if (transcript_file_name == file_name)
-	   	{
-			return true;
-		 }
+		return true;
 	}
-	return false;
+
+	// If a dated file existed it'll return a valid path; otherwise, it returns the undated unverified path so we do need to check it
+	strFilePath = oldLogFileName("chat");
+	return (!strFilePath.empty()) && (LLFile::isfile(strFilePath));
 }
 
 //*TODO mark object's names in a special way so that they will be distinguishable form avatar name 

@@ -92,6 +92,12 @@ public:
 
 	static std::string timestamp(bool withdate = false);
 	static std::string makeLogFileName(std::string(filename));
+
+	/**
+	 * Attempts to build the correct IM P2P log filename for the specified agent UUID and agent name
+	 */
+	static bool buildIMP2PLogFilename(const LLUUID& idAgent, const std::string& strName, std::string& strFilename);
+
 	/**
 	*Add functions to get old and non date stamped file names when needed
 	*/
