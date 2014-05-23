@@ -3747,6 +3747,28 @@ Leave Group?
   </notification>
 
   <notification
+   icon="aler.tga"
+   name="GroupDepartError"
+   type="alert">
+Unable to leave this group.
+      <tag>reason</tag>
+      <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alert.tga"
+   name="GroupDepart"
+   type="alert">
+You have left the group [group_name].
+      <tag>group_name</tag>
+      <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+
+  <notification
    icon="alert.tga"
    name="ConfirmKick"
    type="alert">
