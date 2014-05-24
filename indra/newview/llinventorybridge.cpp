@@ -2314,82 +2314,6 @@ BOOL LLFolderBridge::isClipboardPasteableAsLink() const
 
 }
 
-static BOOL can_move_to_marketplace(LLInventoryItem* inv_item, std::string& tooltip_msg)
-{
-	// Collapse links directly to items/folders
-	LLViewerInventoryItem * viewer_inv_item = (LLViewerInventoryItem *) inv_item;
-	LLViewerInventoryItem * linked_item = viewer_inv_item->getLinkedItem();
-	if (linked_item != NULL)
-	{
-		inv_item = linked_item;
-	}
-	
-	bool allow_transfer = inv_item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID());
-	if (!allow_transfer)
-	{
-		tooltip_msg = LLTrans::getString("TooltipOutboxNoTransfer");
-		return false;
-	}
-
-	bool worn = get_is_item_worn(inv_item->getUUID());
-	if (worn)
-	{
-		tooltip_msg = LLTrans::getString("TooltipOutboxWorn");
-		return false;
-	}
-	
-	bool calling_card = (LLAssetType::AT_CALLINGCARD == inv_item->getType());
-	if (calling_card)
-	{
-		tooltip_msg = LLTrans::getString("TooltipOutboxCallingCard");
-		return false;
-	}
-	
-	return true;
-}
-
-
-int get_folder_levels(LLInventoryCategory* inv_cat)
-{
-	LLInventoryModel::cat_array_t* cats;
-	LLInventoryModel::item_array_t* items;
-	gInventory.getDirectDescendentsOf(inv_cat->getUUID(), cats, items);
-
-	int max_child_levels = 0;
-
-	for (S32 i=0; i < cats->count(); ++i)
-	{
-		LLInventoryCategory* category = cats->get(i);
-		max_child_levels = llmax(max_child_levels, get_folder_levels(category));
-	}
-
-	return 1 + max_child_levels;
-}
-
-int get_folder_path_length(const LLUUID& ancestor_id, const LLUUID& descendant_id)
-{
-	int depth = 0;
-
-	if (ancestor_id == descendant_id) return depth;
-
-	const LLInventoryCategory* category = gInventory.getCategory(descendant_id);
-
-	while(category)
-	{
-		LLUUID parent_id = category->getParentUUID();
-
-		if (parent_id.isNull()) break;
-
-		depth++;
-
-		if (parent_id == ancestor_id) return depth;
-
-		category = gInventory.getCategory(parent_id);
-	}
-
-	llwarns << "get_folder_path_length() couldn't trace a path from the descendant to the ancestor" << llendl;
-	return -1;
-}
 
 BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 											BOOL drop,
@@ -2518,101 +2442,10 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
         }
 		if (is_movable && (move_is_into_outbox || move_is_into_marketplacelistings))
 		{
-            int nested_folder_levels = get_folder_levels(inv_cat);
-            nested_folder_levels += (move_is_into_outbox ? get_folder_path_length(outbox_id, mUUID) : get_folder_path_length(marketplacelistings_id, mUUID));
-			
-			if (nested_folder_levels > gSavedSettings.getU32("InventoryOutboxMaxFolderDepth"))
-			{
-                LLStringUtil::format_map_t args;
-                U32 amount = gSavedSettings.getU32("InventoryOutboxMaxFolderDepth");
-                args["[AMOUNT]"] = llformat("%d",amount);
-                tooltip_msg = LLTrans::getString("TooltipOutboxFolderLevels", args);
-				is_movable = FALSE;
-			}
-			else
-			{
-				int dragged_folder_count = descendent_categories.count();
-				int existing_item_count = 0;
-				int existing_folder_count = 0;
-				
-				const LLViewerInventoryCategory * master_folder = (move_is_into_outbox ? model->getFirstDescendantOf(outbox_id, mUUID) : model->getFirstDescendantOf(marketplacelistings_id, mUUID));
-				
-				if (master_folder != NULL)
-				{
-					if (model->isObjectDescendentOf(cat_id, master_folder->getUUID()))
-					{
-						// Don't use count because we're already inside the same category anyway
-						dragged_folder_count = 0;
-					}
-					else
-					{
-						existing_folder_count = 1; // Include the master folder in the count!
-
-						// If we're in the drop operation as opposed to the drag without drop, we are doing a
-						// single category at a time so don't block based on the total amount of cargo data items
-						if (drop)
-						{
-							dragged_folder_count += 1;
-						}
-						else
-						{
-							// NOTE: The cargo id's count is a total of categories AND items but we err on the side of
-							//       prevention rather than letting too many folders into the hierarchy of the outbox,
-							//       when we're dragging the item to a new parent
-							dragged_folder_count += LLToolDragAndDrop::instance().getCargoCount();
-						}
-					}
-					
-					// Tally the total number of categories and items inside the master folder
-
-					LLInventoryModel::cat_array_t existing_categories;
-					LLInventoryModel::item_array_t existing_items;
-
-					model->collectDescendents(master_folder->getUUID(), existing_categories, existing_items, FALSE);
-					
-					existing_folder_count += existing_categories.count();
-					existing_item_count += existing_items.count();
-				}
-				else
-				{
-					// Assume a single category is being dragged to the outbox since we evaluate one at a time
-					// when not putting them under a parent item.
-					dragged_folder_count += 1;
-				}
-
-				const int nested_folder_count = existing_folder_count + dragged_folder_count;
-				const int nested_item_count = existing_item_count + descendent_items.count();
-				
-				if (nested_folder_count > gSavedSettings.getU32("InventoryOutboxMaxFolderCount"))
-				{
-                    LLStringUtil::format_map_t args;
-                    U32 amount = gSavedSettings.getU32("InventoryOutboxMaxFolderCount");
-                    args["[AMOUNT]"] = llformat("%d",amount);
-                    tooltip_msg = LLTrans::getString("TooltipOutboxTooManyFolders", args);
-					is_movable = FALSE;
-				}
-				else if (nested_item_count > gSavedSettings.getU32("InventoryOutboxMaxItemCount"))
-				{
-                    LLStringUtil::format_map_t args;
-                    U32 amount = gSavedSettings.getU32("InventoryOutboxMaxItemCount");
-                    args["[AMOUNT]"] = llformat("%d",amount);
-                    tooltip_msg = LLTrans::getString("TooltipOutboxTooManyObjects", args);
-					is_movable = FALSE;
-				}
-				
-				if (is_movable == TRUE)
-				{
-					for (S32 i=0; i < descendent_items.count(); ++i)
-					{
-						LLInventoryItem* item = descendent_items[i];
-						if (!can_move_to_marketplace(item, tooltip_msg))
-						{
-							is_movable = FALSE;
-							break; 
-						}
-					}
-				}
-			}
+            const LLViewerInventoryCategory * master_folder = (move_is_into_outbox ? model->getFirstDescendantOf(outbox_id, mUUID) : model->getFirstDescendantOf(marketplacelistings_id, mUUID));
+            LLViewerInventoryCategory * dest_folder = getCategory();
+            S32 bundle_size = (drop ? 1 : LLToolDragAndDrop::instance().getCargoCount());
+            is_movable = can_move_folder_to_marketplace(master_folder, dest_folder, inv_cat, tooltip_msg, bundle_size);
 		}
 
 		if (is_movable)
@@ -3443,44 +3276,33 @@ void LLFolderBridge::pasteFromClipboard()
 		LLDynamicArray<LLUUID> objects;
 		LLClipboard::instance().pasteFromClipboard(objects);
 
-        // Use "dragOrDrop" to go through the same accept logic
 		if (move_is_into_outbox || move_is_into_marketplacelistings)
 		{
-			LLFolderViewFolder* outbox_itemp =  (move_is_into_outbox ? mInventoryPanel.get()->getFolderByID(outbox_id) : mInventoryPanel.get()->getFolderByID(marketplacelistings_id));
-
-			if (outbox_itemp)
-			{
-				LLToolDragAndDrop::instance().setCargoCount(objects.size());
-
-                std::string error_msg;
-				for (LLDynamicArray<LLUUID>::const_iterator iter = objects.begin(); iter != objects.end(); ++iter)
-				{
-					const LLUUID& item_id = (*iter);
-					LLInventoryObject *item = model->getObject(item_id);
-
-					if (item)
-					{
-						MASK mask = 0x0;
-						BOOL drop = FALSE;
-						EDragAndDropType cargo_type = LLViewerAssetType::lookupDragAndDropType(item->getActualType());
-						void * cargo_data = (void *) item;
-						if (!outbox_itemp->getViewModelItem()->dragOrDrop(mask, drop, cargo_type, cargo_data, error_msg))
-                        {
-                            break;
-                        }
-					}
-				}
-
-				LLToolDragAndDrop::instance().resetCargoCount();
-
-				if (!error_msg.empty())
-				{
-                    LLSD subs;
-                    subs["[ERROR_CODE]"] = error_msg;
-                    LLNotificationsUtil::add("MerchantPasteFailed", subs);
-					return;
-				}
+            std::string error_msg;
+            const LLViewerInventoryCategory * master_folder = (move_is_into_outbox ? model->getFirstDescendantOf(outbox_id, mUUID) : model->getFirstDescendantOf(marketplacelistings_id, mUUID));
+            LLViewerInventoryCategory * dest_folder = getCategory();
+            for (LLDynamicArray<LLUUID>::const_iterator iter = objects.begin(); iter != objects.end(); ++iter)
+            {
+                const LLUUID& item_id = (*iter);
+                LLInventoryItem *item = model->getItem(item_id);
+                LLInventoryCategory *cat = model->getCategory(item_id);
+                
+                if (item && !can_move_item_to_marketplace(master_folder, dest_folder, item, error_msg))
+                {
+                    break;
+                }
+                if (cat && !can_move_folder_to_marketplace(master_folder, dest_folder, cat, error_msg))
+                {
+                    break;
+                }
 			}
+            if (!error_msg.empty())
+            {
+                LLSD subs;
+                subs["[ERROR_CODE]"] = error_msg;
+                LLNotificationsUtil::add("MerchantPasteFailed", subs);
+                return;
+            }
 		}
 
 		const LLUUID parent_id(mUUID);
@@ -4373,36 +4195,9 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		}
 		else if (move_is_into_outbox || move_is_into_marketplacelistings)
 		{
-            // Check stock folder type matches item type in marketplace listings
-            accept = (!move_is_into_marketplacelistings || (getCategory() && getCategory()->acceptItem(inv_item)));
-
-			accept &= can_move_to_marketplace(inv_item, tooltip_msg);
-			
-			if (accept)
-			{
-				const LLViewerInventoryCategory * master_folder = (move_is_into_outbox ? model->getFirstDescendantOf(outbox_id, mUUID) : model->getFirstDescendantOf(marketplacelistings_id, mUUID));
-				
-				int existing_item_count = LLToolDragAndDrop::instance().getCargoCount();
-				
-				if (master_folder != NULL)
-				{
-					LLInventoryModel::cat_array_t existing_categories;
-					LLInventoryModel::item_array_t existing_items;
-					
-					gInventory.collectDescendents(master_folder->getUUID(), existing_categories, existing_items, FALSE);
-					
-					existing_item_count += existing_items.count();
-				}
-				
-				if (existing_item_count > gSavedSettings.getU32("InventoryOutboxMaxItemCount"))
-				{
-                    LLStringUtil::format_map_t args;
-                    U32 amount = gSavedSettings.getU32("InventoryOutboxMaxItemCount");
-                    args["[AMOUNT]"] = llformat("%d",amount);
-                    tooltip_msg = LLTrans::getString("TooltipOutboxTooManyObjects", args);
-					accept = FALSE;
-				}
-			}
+            const LLViewerInventoryCategory * master_folder = (move_is_into_outbox ? model->getFirstDescendantOf(outbox_id, mUUID) : model->getFirstDescendantOf(marketplacelistings_id, mUUID));
+            LLViewerInventoryCategory * dest_folder = getCategory();
+            accept = can_move_item_to_marketplace(master_folder, dest_folder, inv_item, tooltip_msg, LLToolDragAndDrop::instance().getCargoCount());
 		}
 
 		LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);

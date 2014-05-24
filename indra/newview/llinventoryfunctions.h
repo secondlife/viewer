@@ -76,6 +76,9 @@ void copy_folder_to_outbox(LLInventoryCategory* inv_cat, const LLUUID& dest_fold
 
 typedef boost::function<void(std::string& validation_message)> validation_callback_t;
 
+bool can_move_item_to_marketplace(const LLInventoryCategory* root_folder, LLInventoryCategory* dest_folder, LLInventoryItem* inv_item, std::string& tooltip_msg, S32 bundle_size = 1);
+bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLInventoryCategory* dest_folder, LLInventoryCategory* inv_cat, std::string& tooltip_msg, S32 bundle_size = 1);
+bool can_move_to_marketplace(LLInventoryItem* inv_item, std::string& tooltip_msg);
 bool move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_folder, bool copy = false);
 bool move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUUID& dest_folder, bool copy = false);
 bool has_correct_permissions_for_sale(LLInventoryCategory* cat);

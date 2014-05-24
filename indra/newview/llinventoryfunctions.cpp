@@ -914,6 +914,228 @@ S32 compute_stock_count(LLUUID cat_uuid)
     return curr_count;
 }
 
+bool can_move_to_marketplace(LLInventoryItem* inv_item, std::string& tooltip_msg)
+{
+	// Collapse links directly to items/folders
+	LLViewerInventoryItem * viewer_inv_item = (LLViewerInventoryItem *) inv_item;
+	LLViewerInventoryItem * linked_item = viewer_inv_item->getLinkedItem();
+	if (linked_item != NULL)
+	{
+		inv_item = linked_item;
+	}
+	
+	bool allow_transfer = inv_item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID());
+	if (!allow_transfer)
+	{
+		tooltip_msg = LLTrans::getString("TooltipOutboxNoTransfer");
+		return false;
+	}
+    
+	bool worn = get_is_item_worn(inv_item->getUUID());
+	if (worn)
+	{
+		tooltip_msg = LLTrans::getString("TooltipOutboxWorn");
+		return false;
+	}
+	
+	bool calling_card = (LLAssetType::AT_CALLINGCARD == inv_item->getType());
+	if (calling_card)
+	{
+		tooltip_msg = LLTrans::getString("TooltipOutboxCallingCard");
+		return false;
+	}
+	
+	return true;
+}
+
+// local helper
+// Returns the max tree length (in folder nodes) down from the argument folder
+int get_folder_levels(LLInventoryCategory* inv_cat)
+{
+	LLInventoryModel::cat_array_t* cats;
+	LLInventoryModel::item_array_t* items;
+	gInventory.getDirectDescendentsOf(inv_cat->getUUID(), cats, items);
+    
+	int max_child_levels = 0;
+    
+	for (S32 i=0; i < cats->count(); ++i)
+	{
+		LLInventoryCategory* category = cats->get(i);
+		max_child_levels = llmax(max_child_levels, get_folder_levels(category));
+	}
+    
+	return 1 + max_child_levels;
+}
+
+// local helper
+// Returns the distance (in folder nodes) between the ancestor and its descendant. Returns -1 if not related.
+int get_folder_path_length(const LLUUID& ancestor_id, const LLUUID& descendant_id)
+{
+	int depth = 0;
+    
+	if (ancestor_id == descendant_id) return depth;
+    
+	const LLInventoryCategory* category = gInventory.getCategory(descendant_id);
+    
+	while (category)
+	{
+		LLUUID parent_id = category->getParentUUID();
+        
+		if (parent_id.isNull()) break;
+        
+		depth++;
+        
+		if (parent_id == ancestor_id) return depth;
+        
+		category = gInventory.getCategory(parent_id);
+	}
+    
+	llwarns << "get_folder_path_length() couldn't trace a path from the descendant to the ancestor" << llendl;
+	return -1;
+}
+
+// Returns true if inv_item can be dropped in dest_folder, a folder nested in marketplace listings (or merchant inventory) under the root_folder root
+// If returns is false, tooltip_msg contains an error message to display to the user (localized and all).
+// bundle_size is the amount of sibling items that are getting moved to the marketplace at the same time.
+bool can_move_item_to_marketplace(const LLInventoryCategory* root_folder, LLInventoryCategory* dest_folder, LLInventoryItem* inv_item, std::string& tooltip_msg, S32 bundle_size)
+{
+    // Check stock folder type matches item type in marketplace listings or merchant outbox (even if of no use there for the moment)
+    LLViewerInventoryCategory* view_folder = dynamic_cast<LLViewerInventoryCategory*>(dest_folder);
+    bool accept = (view_folder && view_folder->acceptItem(inv_item));
+
+    // Check that the item has the right type and persimssions to be sold on the marketplace
+    if (accept)
+    {
+        accept = can_move_to_marketplace(inv_item, tooltip_msg);
+    }
+    
+    // Check that the total amount of items won't violate the max limit on the marketplace
+    if (accept)
+    {
+        int existing_item_count = bundle_size;
+        
+        if (root_folder)
+        {
+            LLInventoryModel::cat_array_t existing_categories;
+            LLInventoryModel::item_array_t existing_items;
+            
+            gInventory.collectDescendents(root_folder->getUUID(), existing_categories, existing_items, FALSE);
+            
+            existing_item_count += existing_items.count();
+        }
+        
+        if (existing_item_count > gSavedSettings.getU32("InventoryOutboxMaxItemCount"))
+        {
+            LLStringUtil::format_map_t args;
+            U32 amount = gSavedSettings.getU32("InventoryOutboxMaxItemCount");
+            args["[AMOUNT]"] = llformat("%d",amount);
+            tooltip_msg = LLTrans::getString("TooltipOutboxTooManyObjects", args);
+            accept = false;
+        }
+    }
+
+    return accept;
+}
+
+// Returns true if inve_cat can be dropped in dest_folder, a folder nested in marketplace listings (or merchant inventory) under the root_folder root
+// If returns is false, tooltip_msg contains an error message to display to the user (localized and all).
+// bundle_size is the amount of sibling items that are getting moved to the marketplace at the same time.
+bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLInventoryCategory* dest_folder, LLInventoryCategory* inv_cat, std::string& tooltip_msg, S32 bundle_size)
+{
+    bool accept = true;
+    
+    // Compute the nested folder levels we'll get into with that folder
+    int nested_folder_levels = get_folder_levels(inv_cat);
+    if (root_folder)
+    {
+        nested_folder_levels += get_folder_path_length(root_folder->getUUID(), inv_cat->getUUID());
+    }
+    if (nested_folder_levels > gSavedSettings.getU32("InventoryOutboxMaxFolderDepth"))
+    {
+        LLStringUtil::format_map_t args;
+        U32 amount = gSavedSettings.getU32("InventoryOutboxMaxFolderDepth");
+        args["[AMOUNT]"] = llformat("%d",amount);
+        tooltip_msg = LLTrans::getString("TooltipOutboxFolderLevels", args);
+        accept = false;
+    }
+    
+    if (accept)
+    {
+        LLInventoryModel::cat_array_t descendent_categories;
+        LLInventoryModel::item_array_t descendent_items;
+        gInventory.collectDescendents(inv_cat->getUUID(), descendent_categories, descendent_items, FALSE);
+    
+        int dragged_folder_count = descendent_categories.count();
+        int existing_item_count = 0;
+        int existing_folder_count = 0;
+    
+        if (root_folder)
+        {
+            if (gInventory.isObjectDescendentOf(inv_cat->getUUID(), root_folder->getUUID()))
+            {
+                // Don't use count because we're already inside the same category anyway
+                dragged_folder_count = 0;
+            }
+            else
+            {
+                existing_folder_count = 1; // Include the root folder in the count!
+                dragged_folder_count += bundle_size;
+            }
+        
+            // Tally the total number of categories and items inside the root folder
+        
+            LLInventoryModel::cat_array_t existing_categories;
+            LLInventoryModel::item_array_t existing_items;
+        
+            gInventory.collectDescendents(root_folder->getUUID(), existing_categories, existing_items, FALSE);
+        
+            existing_folder_count += existing_categories.count();
+            existing_item_count += existing_items.count();
+        }
+        else
+        {
+            // Assume a single folder is being moved in
+            dragged_folder_count += 1;
+        }
+    
+        const int nested_folder_count = existing_folder_count + dragged_folder_count;
+        const int nested_item_count = existing_item_count + descendent_items.count();
+    
+        if (nested_folder_count > gSavedSettings.getU32("InventoryOutboxMaxFolderCount"))
+        {
+            LLStringUtil::format_map_t args;
+            U32 amount = gSavedSettings.getU32("InventoryOutboxMaxFolderCount");
+            args["[AMOUNT]"] = llformat("%d",amount);
+            tooltip_msg = LLTrans::getString("TooltipOutboxTooManyFolders", args);
+            accept = false;
+        }
+        else if (nested_item_count > gSavedSettings.getU32("InventoryOutboxMaxItemCount"))
+        {
+            LLStringUtil::format_map_t args;
+            U32 amount = gSavedSettings.getU32("InventoryOutboxMaxItemCount");
+            args["[AMOUNT]"] = llformat("%d",amount);
+            tooltip_msg = LLTrans::getString("TooltipOutboxTooManyObjects", args);
+            accept = false;
+        }
+        
+        // Now check that each item in the folder can be moved in the marketplace
+        if (accept)
+        {
+            for (S32 i=0; i < descendent_items.count(); ++i)
+            {
+                LLInventoryItem* item = descendent_items[i];
+                if (!can_move_to_marketplace(item, tooltip_msg))
+                {
+                    accept = false;
+                    break;
+                }
+            }
+        }
+    }
+    
+    return accept;
+}
+
 bool move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_folder, bool copy)
 {
     // Get the marketplace listings depth of the destination folder, exit with error if not under marketplace
