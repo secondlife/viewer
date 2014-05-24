@@ -3750,7 +3750,7 @@ Leave Group?
    icon="aler.tga"
    name="GroupDepartError"
    type="alert">
-Unable to leave this group.
+Unable to leave group: [reason].
       <tag>reason</tag>
       <usetemplate
        name="okbutton"
