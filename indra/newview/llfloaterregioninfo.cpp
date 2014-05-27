@@ -3566,8 +3566,8 @@ void LLPanelEnvironmentInfo::onRegionSettingsApplied(bool ok)
 BOOL LLPanelRegionExperiences::postBuild()
 {
 	mAllowed = setupList("panel_allowed", ESTATE_EXPERIENCE_ALLOWED_ADD, ESTATE_EXPERIENCE_ALLOWED_REMOVE);
-	mTrusted = setupList("panel_trusted", ESTATE_EXPERIENCE_BLOCKED_ADD, ESTATE_EXPERIENCE_BLOCKED_REMOVE);
-	mBlocked = setupList("panel_blocked", ESTATE_EXPERIENCE_TRUSTED_ADD, ESTATE_EXPERIENCE_TRUSTED_REMOVE);
+	mTrusted = setupList("panel_trusted", ESTATE_EXPERIENCE_TRUSTED_ADD, ESTATE_EXPERIENCE_TRUSTED_REMOVE);
+	mBlocked = setupList("panel_blocked", ESTATE_EXPERIENCE_BLOCKED_ADD, ESTATE_EXPERIENCE_BLOCKED_REMOVE);
 
 	getChild<LLLayoutPanel>("trusted_layout_panel")->setVisible(TRUE);
 	getChild<LLTextBox>("experiences_help_text")->setText(getString("estate_caption"));
