@@ -2118,6 +2118,8 @@ void LLLiveLSLEditor::loadAsset()
 										  time_corrected());
 		mAssetStatus = PREVIEW_ASSET_LOADED;
 	}
+
+	requestExperiences();
 }
 
 // static
