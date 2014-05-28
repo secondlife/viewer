@@ -17,6 +17,7 @@ if (WINDOWS)
         optimized llprimitive
         debug libcollada14dom23-sd
         optimized libcollada14dom23-s
+        libxml2_a
         debug pcrecppd
         optimized pcrecpp
         debug pcred
