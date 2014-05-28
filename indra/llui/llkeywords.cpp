@@ -172,7 +172,7 @@ std::string LLKeywords::getAttribute(const std::string& key)
 
 LLColor4 LLKeywords::getColorGroup(const std::string& key_in)
 {
-	std::string color_group = "Black";
+	std::string color_group = "ScriptText";
 	if (key_in == "constants-float")
 	{
 		color_group = "SyntaxLslConstantFloat";
@@ -239,7 +239,7 @@ LLColor4 LLKeywords::getColorGroup(const std::string& key_in)
 	}
 	else
 	{
-		LL_WARNS("SyntaxLSL") << "Color key '" << key_in << "' not recognized!" << LL_ENDL;
+		LL_WARNS("SyntaxLSL") << "Color key '" << key_in << "' not recognized." << LL_ENDL;
 	}
 
 	return LLUIColorTable::instance().getColor(color_group);
