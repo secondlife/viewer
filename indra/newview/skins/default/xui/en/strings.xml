@@ -2262,6 +2262,15 @@ The [[MARKETPLACE_CREATE_STORE_URL] Marketplace store] is returning errors.
         Drag folders to this area to list them for sale on the [[MARKETPLACE_DASHBOARD_URL] Marketplace].
 	</string>
 
+	<string name="Marketplace Validation Intro">Validation Listing : </string>
+	<string name="Marketplace Validation Log">Log : folder validates, all items of compatible types : </string>
+	<string name="Marketplace Validation Warning Stock">Warning : creating wrapping folder for stock folder : </string>
+	<string name="Marketplace Validation Warning Empty">Warning : folder doesn't contain any item : </string>
+	<string name="Marketplace Validation Warning Create Stock">Warning : creating stock folder : </string>
+	<string name="Marketplace Validation Warning Create Version">Warning : creating version folder : </string>
+	<string name="Marketplace Validation Warning Move">Warning : moving item : </string>
+	<string name="Marketplace Validation Warning Delete">Warning : folder content completely transfered to stock folder, removing empty folder : </string>
+	<string name="Marketplace Validation Error">Error : </string>
 	<string name="Marketplace Error None">No error</string>
 	<string name="Marketplace Error Prefix">Error: </string>
 	<string name="Marketplace Error Not Merchant">Before sending items to the Marketplace you will need to set yourself up as a merchant (free of charge).</string>

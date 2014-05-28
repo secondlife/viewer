@@ -78,10 +78,8 @@ typedef boost::function<void(std::string& validation_message)> validation_callba
 
 bool can_move_item_to_marketplace(const LLInventoryCategory* root_folder, LLInventoryCategory* dest_folder, LLInventoryItem* inv_item, std::string& tooltip_msg, S32 bundle_size = 1);
 bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLInventoryCategory* dest_folder, LLInventoryCategory* inv_cat, std::string& tooltip_msg, S32 bundle_size = 1);
-bool can_move_to_marketplace(LLInventoryItem* inv_item, std::string& tooltip_msg, bool resolve_links = true);
 bool move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_folder, bool copy = false);
 bool move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUUID& dest_folder, bool copy = false);
-bool has_correct_permissions_for_sale(LLInventoryCategory* cat);
 void validate_marketplacelistings(LLInventoryCategory* inv_cat, validation_callback_t cb = NULL);
 S32  depth_nesting_in_marketplace(LLUUID cur_uuid);
 LLUUID nested_parent_id(LLUUID cur_uuid, S32 depth);

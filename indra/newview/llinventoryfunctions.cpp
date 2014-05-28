@@ -914,6 +914,7 @@ S32 compute_stock_count(LLUUID cat_uuid)
     return curr_count;
 }
 
+// local helper
 bool can_move_to_marketplace(LLInventoryItem* inv_item, std::string& tooltip_msg, bool resolve_links)
 {
 	// Collapse links directly to items/folders
@@ -940,7 +941,8 @@ bool can_move_to_marketplace(LLInventoryItem* inv_item, std::string& tooltip_msg
 		inv_item = linked_item;
 	}
 	
-    // Check permissions
+    // Check that the agent has transfer permission on the item: this is required as a resident cannot
+    // put on sale items she cannot transfer. Proceed with move if we have permission.
 	bool allow_transfer = inv_item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID());
 	if (!allow_transfer)
 	{
@@ -948,7 +950,7 @@ bool can_move_to_marketplace(LLInventoryItem* inv_item, std::string& tooltip_msg
 		return false;
 	}
     
-    // Check for worn/not worn status
+    // Check worn/not worn status: worn items cannot be put on the marketplace
 	bool worn = get_is_item_worn(inv_item->getUUID());
 	if (worn)
 	{
@@ -956,7 +958,7 @@ bool can_move_to_marketplace(LLInventoryItem* inv_item, std::string& tooltip_msg
 		return false;
 	}
 	
-    // Check for type
+    // Check type: for the moment, calling cards cannot be put on the marketplace
 	bool calling_card = (LLAssetType::AT_CALLINGCARD == inv_item->getType());
 	if (calling_card)
 	{
@@ -1013,6 +1015,38 @@ int get_folder_path_length(const LLUUID& ancestor_id, const LLUUID& descendant_i
 	return -1;
 }
 
+// local helper
+// Returns true if all items within the argument folder are fit for sale, false otherwise
+bool has_correct_permissions_for_sale(LLInventoryCategory* cat, std::string& error_msg)
+{
+	LLInventoryModel::cat_array_t* cat_array;
+	LLInventoryModel::item_array_t* item_array;
+	gInventory.getDirectDescendentsOf(cat->getUUID(),cat_array,item_array);
+    
+	LLInventoryModel::item_array_t item_array_copy = *item_array;
+    
+	for (LLInventoryModel::item_array_t::iterator iter = item_array_copy.begin(); iter != item_array_copy.end(); iter++)
+	{
+		LLInventoryItem* item = *iter;
+        if (!can_move_to_marketplace(item, error_msg, false))
+        {
+            return false;
+        }
+	}
+    
+	LLInventoryModel::cat_array_t cat_array_copy = *cat_array;
+    
+	for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
+	{
+		LLInventoryCategory* category = *iter;
+		if (!has_correct_permissions_for_sale(category, error_msg))
+        {
+            return false;
+        }
+	}
+    return true;
+}
+
 // Returns true if inv_item can be dropped in dest_folder, a folder nested in marketplace listings (or merchant inventory) under the root_folder root
 // If returns is false, tooltip_msg contains an error message to display to the user (localized and all).
 // bundle_size is the amount of sibling items that are getting moved to the marketplace at the same time.
@@ -1025,7 +1059,7 @@ bool can_move_item_to_marketplace(const LLInventoryCategory* root_folder, LLInve
     // Check that the item has the right type and persimssions to be sold on the marketplace
     if (accept)
     {
-        accept = can_move_to_marketplace(inv_item, tooltip_msg);
+        accept = can_move_to_marketplace(inv_item, tooltip_msg, true);
     }
     
     // Check that the total amount of items won't violate the max limit on the marketplace
@@ -1067,7 +1101,7 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
     int nested_folder_levels = get_folder_levels(inv_cat);
     if (root_folder)
     {
-        nested_folder_levels += get_folder_path_length(root_folder->getUUID(), inv_cat->getUUID());
+        nested_folder_levels += get_folder_path_length(root_folder->getUUID(), dest_folder->getUUID());
     }
     if (nested_folder_levels > gSavedSettings.getU32("InventoryOutboxMaxFolderDepth"))
     {
@@ -1084,7 +1118,8 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
         LLInventoryModel::item_array_t descendent_items;
         gInventory.collectDescendents(inv_cat->getUUID(), descendent_categories, descendent_items, FALSE);
     
-        int dragged_folder_count = descendent_categories.count();
+        int dragged_folder_count = descendent_categories.count() + 1;
+        int dragged_item_count = descendent_items.count() + bundle_size;
         int existing_item_count = 0;
         int existing_folder_count = 0;
     
@@ -1092,13 +1127,13 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
         {
             if (gInventory.isObjectDescendentOf(inv_cat->getUUID(), root_folder->getUUID()))
             {
-                // Don't use count because we're already inside the same category anyway
+                // Clear those counts or they will be counted twice because we're already inside the root category
                 dragged_folder_count = 0;
+                dragged_item_count = bundle_size;
             }
             else
             {
-                existing_folder_count = 1; // Include the root folder in the count!
-                dragged_folder_count += bundle_size;
+                existing_folder_count += 1; // Include the root folder in the count!
             }
         
             // Tally the total number of categories and items inside the root folder
@@ -1111,16 +1146,11 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
             existing_folder_count += existing_categories.count();
             existing_item_count += existing_items.count();
         }
-        else
-        {
-            // Assume a single folder is being moved in
-            dragged_folder_count += 1;
-        }
     
-        const int nested_folder_count = existing_folder_count + dragged_folder_count;
-        const int nested_item_count = existing_item_count + descendent_items.count();
+        const int total_folder_count = existing_folder_count + dragged_folder_count;
+        const int total_item_count = existing_item_count + dragged_item_count;
     
-        if (nested_folder_count > gSavedSettings.getU32("InventoryOutboxMaxFolderCount"))
+        if (total_folder_count > gSavedSettings.getU32("InventoryOutboxMaxFolderCount"))
         {
             LLStringUtil::format_map_t args;
             U32 amount = gSavedSettings.getU32("InventoryOutboxMaxFolderCount");
@@ -1128,7 +1158,7 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
             tooltip_msg = LLTrans::getString("TooltipOutboxTooManyFolders", args);
             accept = false;
         }
-        else if (nested_item_count > gSavedSettings.getU32("InventoryOutboxMaxItemCount"))
+        else if (total_item_count > gSavedSettings.getU32("InventoryOutboxMaxItemCount"))
         {
             LLStringUtil::format_map_t args;
             U32 amount = gSavedSettings.getU32("InventoryOutboxMaxItemCount");
@@ -1143,7 +1173,7 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
             for (S32 i=0; i < descendent_items.count(); ++i)
             {
                 LLInventoryItem* item = descendent_items[i];
-                if (!can_move_to_marketplace(item, tooltip_msg))
+                if (!can_move_to_marketplace(item, tooltip_msg, false))
                 {
                     accept = false;
                     break;
@@ -1161,7 +1191,6 @@ bool move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
     S32 depth = depth_nesting_in_marketplace(dest_folder);
     if (depth < 0)
     {
-        llinfos << "Merov : Marketplace error : There is no marketplace listings folder -> move aborted!" << llendl;
 		LLSD subs;
 		subs["[ERROR_CODE]"] = LLTrans::getString("Marketplace Error Prefix") + LLTrans::getString("Marketplace Error Not Merchant");
 		LLNotificationsUtil::add("MerchantPasteFailed", subs);
@@ -1186,7 +1215,7 @@ bool move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
         // Check that the agent has transfer permission on the item: this is required as a resident cannot
         // put on sale items she cannot transfer. Proceed with move if we have permission.
         std::string error_msg;
-        if (can_move_to_marketplace(inv_item, error_msg))
+        if (can_move_to_marketplace(inv_item, error_msg, true))
         {
             // When moving an isolated item, we might need to create the folder structure to support it
             if (depth == 0)
@@ -1214,7 +1243,6 @@ bool move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
             // Verify we can have this item in that destination category
             if (!dest_cat->acceptItem(viewer_inv_item))
             {
-                llinfos << "Merov : Marketplace error : Cannot move item in that folder -> move aborted!" << llendl;
                 LLSD subs;
                 subs["[ERROR_CODE]"] = LLTrans::getString("Marketplace Error Prefix") + LLTrans::getString("Marketplace Error Not Accepted");
                 LLNotificationsUtil::add("MerchantPasteFailed", subs);
@@ -1249,7 +1277,6 @@ bool move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
         }
         else
         {
-            llinfos << "Merov : Marketplace error : " << error_msg << llendl;
             LLSD subs;
             subs["[ERROR_CODE]"] = LLTrans::getString("Marketplace Error Prefix") + error_msg;
             LLNotificationsUtil::add("MerchantPasteFailed", subs);
@@ -1262,7 +1289,8 @@ bool move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
 bool move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUUID& dest_folder, bool copy)
 {
     // Check that we have adequate permission on all items being moved. Proceed if we do.
-    if (has_correct_permissions_for_sale(inv_cat))
+    std::string error_msg;
+    if (has_correct_permissions_for_sale(inv_cat, error_msg))
     {
         // Get the destination folder
         LLViewerInventoryCategory* dest_cat = gInventory.getCategory(dest_folder);
@@ -1270,9 +1298,8 @@ bool move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUU
         // Check it's not a stock folder
         if (dest_cat->getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
         {
-            llinfos << "Merov : Marketplace error : Cannot move folder in stock folder -> move aborted!" << llendl;
             LLSD subs;
-            subs["[ERROR_CODE]"] = LLTrans::getString("Marketplace Error Not Accepted");
+            subs["[ERROR_CODE]"] = LLTrans::getString("Marketplace Error Prefix") + LLTrans::getString("Marketplace Error Not Accepted");
             LLNotificationsUtil::add("MerchantPasteFailed", subs);
             return false;
         }
@@ -1300,49 +1327,13 @@ bool move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUU
         update_marketplace_category(dest_folder);
         gInventory.notifyObservers();
     }
-    return true;
-}
-
-// Returns true if all items within the argument folder are fit for sale, false otherwise
-bool has_correct_permissions_for_sale(LLInventoryCategory* cat)
-{
-	LLInventoryModel::cat_array_t* cat_array;
-	LLInventoryModel::item_array_t* item_array;
-	gInventory.getDirectDescendentsOf(cat->getUUID(),cat_array,item_array);
-    
-	LLInventoryModel::item_array_t item_array_copy = *item_array;
-
-	for (LLInventoryModel::item_array_t::iterator iter = item_array_copy.begin(); iter != item_array_copy.end(); iter++)
-	{
-		LLInventoryItem* item = *iter;
-        LLViewerInventoryItem * viewer_inv_item = (LLViewerInventoryItem *) item;
-        LLViewerInventoryCategory * linked_category = viewer_inv_item->getLinkedCategory();
-		LLViewerInventoryItem * linked_item = viewer_inv_item->getLinkedItem();
-        // Linked items and folders cannot be put for sale
-        if (linked_category || linked_item)
-        {
-            llinfos << "Merov : linked items in this folder -> not allowed to sell!" << llendl;
-            return false;
-        }
-        // Check that the agent has transfer permission on the item: this is required as a resident cannot
-        // put on sale items she cannot transfer. Proceed with move if we have permission.
-        if (!viewer_inv_item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID(), gAgent.getGroupID()))
-        {
-            llinfos << "Merov : wrong permissions on items in this folder -> not allowed to sell!" << llendl;
-            return false;
-        }
-	}
-    
-	LLInventoryModel::cat_array_t cat_array_copy = *cat_array;
-    
-	for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
-	{
-		LLInventoryCategory* category = *iter;
-		if (!has_correct_permissions_for_sale(category))
-        {
-            return false;
-        }
-	}
+    else
+    {
+        LLSD subs;
+        subs["[ERROR_CODE]"] = LLTrans::getString("Marketplace Error Prefix") + error_msg;
+        LLNotificationsUtil::add("MerchantPasteFailed", subs);
+        return false;
+    }
     return true;
 }
 
@@ -1364,18 +1355,23 @@ void validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
     }
     if (depth == 1)
     {
-        std::string message = "Validating listing : " + cat->getName();
-        llinfos << "Merov : Validation log : " << message << llendl;
         if (cb)
         {
+            std::string message = LLTrans::getString("Marketplace Validation Intro") + cat->getName();
             cb(message);
         }
-        message.clear();
-        bool is_ok = can_move_folder_to_marketplace(cat, cat, cat, message);
+        std::string message;
+        bool is_ok = can_move_folder_to_marketplace(cat, cat, cat, message, 0);
         if (cb && !is_ok)
         {
+            message = LLTrans::getString("Marketplace Validation Error") + message;
             cb(message);
         }
+    }
+    std::string indent;
+    for (int i = 1; i < depth; i++)
+    {
+        indent += "    ";
     }
     if ((folder_type == LLFolderType::FT_MARKETPLACE_STOCK) && (depth <= 2))
     {
@@ -1383,10 +1379,9 @@ void validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
         //LLUUID parent_uuid = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
         LLUUID parent_uuid = cat->getParentUUID();
         LLUUID folder_uuid = gInventory.createNewCategory(parent_uuid, LLFolderType::FT_NONE, cat->getName());
-        std::string message = "    Warning : creating wrapping folder for stock folder : " + cat->getName();
-        llinfos << "Merov : Validation warning : " << message << llendl;
         if (cb)
         {
+            std::string message = indent + LLTrans::getString("Marketplace Validation Warning Stock") + cat->getName();
             cb(message);
         }
         LLInventoryCategory* new_cat = gInventory.getCategory(folder_uuid);
@@ -1419,11 +1414,9 @@ void validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
         std::string error_msg;
         if (!can_move_to_marketplace(item, error_msg, false))
         {
-
-            std::string message = LLTrans::getString("Marketplace Error Prefix") + error_msg + " : " + viewer_inv_item->getName();
-            llinfos << "Merov : Validation : " << message << llendl;
             if (cb)
             {
+                std::string message = indent + LLTrans::getString("Marketplace Validation Error") + error_msg + " : " + viewer_inv_item->getName();
                 cb(message);
             }
             continue;
@@ -1451,10 +1444,10 @@ void validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
     // If we have no items in there (only folders) -> all OK
     if (count == 0)
     {
-        std::string message = "    Log : folder validates: doesn't contain any item";
-        llinfos << "Merov : Validation log : " << message << llendl;
-        if (cb)
+        // We warn if there's really nothing in the folder (may be it's a mistake or an under construction listing)
+        if ((cat_array->count() == 0) && cb)
         {
+            std::string message = indent + LLTrans::getString("Marketplace Validation Warning Empty") + cat->getName();
             cb(message);
         }
     }
@@ -1462,10 +1455,9 @@ void validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
     else if ((count == 1) && (((type == LLInventoryType::IT_COUNT) && (depth > 1)) || ((folder_type == LLFolderType::FT_MARKETPLACE_STOCK) && (depth > 2))))
     {
         // Done with that folder!
-        std::string message = "    Log : folder validates: all items of compatible types";
-        llinfos << "Merov : Validation log : " << message << llendl;
         if (cb)
         {
+            std::string message = indent + LLTrans::getString("Marketplace Validation Log") + cat->getName();
             cb(message);
         }
     }
@@ -1479,19 +1471,17 @@ void validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
                 // Create a new folder
                 LLUUID parent_uuid = (depth > 2 ? viewer_cat->getParentUUID() : viewer_cat->getUUID());
                 LLFolderType::EType new_folder_type = (i == LLInventoryType::IT_COUNT ? LLFolderType::FT_NONE : LLFolderType::FT_MARKETPLACE_STOCK);
-                std::string message = "";
-                if (new_folder_type == LLFolderType::FT_MARKETPLACE_STOCK)
-                {
-                    message = "    Warning : creating stock folder : ";
-                }
-                else
-                {
-                    message = "    Warning : creating intermediate folder : ";
-                }
-                message +=  viewer_cat->getName();
-                llinfos << "Merov : Validation warning : " << message << llendl;
                 if (cb)
                 {
+                    std::string message = "";
+                    if (new_folder_type == LLFolderType::FT_MARKETPLACE_STOCK)
+                    {
+                        message = indent + LLTrans::getString("Marketplace Validation Warning Create Stock") + viewer_cat->getName();
+                    }
+                    else
+                    {
+                        message = indent + LLTrans::getString("Marketplace Validation Warning Create Version") + viewer_cat->getName();
+                    }
                     cb(message);
                 }
                 LLUUID folder_uuid = gInventory.createNewCategory(parent_uuid, new_folder_type, viewer_cat->getName());
@@ -1499,10 +1489,9 @@ void validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
                 while (!items_vector[i].empty())
                 {
                     LLViewerInventoryItem* viewer_inv_item = items_vector[i].back();
-                    std::string message = "    Warning : moving item : " + viewer_inv_item->getName();
-                    llinfos << "Merov : Validation warning : " << message << llendl;
                     if (cb)
                     {
+                        std::string message = indent + LLTrans::getString("Marketplace Validation Warning Move") + viewer_inv_item->getName();
                         cb(message);
                     }
                     gInventory.changeItemParent(viewer_inv_item, folder_uuid, true);
@@ -1516,11 +1505,9 @@ void validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
         if (viewer_cat->getDescendentCount() == 0)
         {
             // Remove the current folder if it ends up empty
-            llinfos << "Merov : Validation warning : " << llendl;
-            std::string message = "    Warning : folder content completely moved to stock folder -> removing empty folder";
-            llinfos << "Merov : Validation warning : " << message << llendl;
             if (cb)
             {
+                std::string message = indent + LLTrans::getString("Marketplace Validation Warning Delete") + viewer_cat->getName();
                 cb(message);
             }
             gInventory.removeCategory(cat->getUUID());
