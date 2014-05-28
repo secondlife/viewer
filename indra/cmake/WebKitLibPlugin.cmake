@@ -1,6 +1,7 @@
 # -*- cmake -*-
 include(Linking)
 include(Prebuilt)
+include(OpenSSL)
 
 if (STANDALONE)
   # The minimal version, 4.4.3, is rather arbitrary: it's the version in Debian/Lenny.
@@ -53,18 +54,8 @@ if (WINDOWS)
     )
 elseif (DARWIN)
     set(WEBKIT_PLUGIN_LIBRARIES
-        optimized ${ARCH_PREBUILT_DIRS_RELEASE}/libllqtwebkit.a
-        optimized ${ARCH_PREBUILT_DIRS_RELEASE}/libQtWebKit.4.dylib
-        optimized ${ARCH_PREBUILT_DIRS_RELEASE}/libQtOpenGL.4.dylib
-        optimized ${ARCH_PREBUILT_DIRS_RELEASE}/libQtNetwork.4.dylib
-        optimized ${ARCH_PREBUILT_DIRS_RELEASE}/libQtGui.4.dylib
-        optimized ${ARCH_PREBUILT_DIRS_RELEASE}/libQtCore.4.dylib
-        debug ${ARCH_PREBUILT_DIRS_RELEASE}/libllqtwebkit.a
-        debug ${ARCH_PREBUILT_DIRS_RELEASE}/libQtWebKit.4.dylib
-        debug ${ARCH_PREBUILT_DIRS_RELEASE}/libQtOpenGL.4.dylib
-        debug ${ARCH_PREBUILT_DIRS_RELEASE}/libQtNetwork.4.dylib
-        debug ${ARCH_PREBUILT_DIRS_RELEASE}/libQtGui.4.dylib
-        debug ${ARCH_PREBUILT_DIRS_RELEASE}/libQtCore.4.dylib
+        optimized ${ARCH_PREBUILT_DIRS_RELEASE}/libllqtwebkit.dylib
+        debug ${ARCH_PREBUILT_DIRS_RELEASE}/libllqtwebkit.dylib
         )
 elseif (LINUX)
     set(WEBKIT_PLUGIN_LIBRARIES ${LLQTWEBKIT_LIBRARY} ${QT_LIBRARIES} ${QT_PLUGIN_LIBRARIES})
@@ -78,9 +69,10 @@ elseif (LINUX)
         QtWebKit
         QtOpenGL
         QtNetwork
+        ${OPENSSL_LIBRARIES}
         QtGui
         QtCore
-#        jscore
+        jscore
 #        qgif
 #        qjpeg
 #        jpeg

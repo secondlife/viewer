@@ -40,7 +40,6 @@ if(WINDOWS)
         libapriconv-1.dll
         ssleay32.dll
         libeay32.dll
-        libcollada14dom22-d.dll
         glod.dll    
         libhunspell.dll
         )
@@ -53,7 +52,6 @@ if(WINDOWS)
         libapriconv-1.dll
         ssleay32.dll
         libeay32.dll
-        libcollada14dom22.dll
         glod.dll
         libhunspell.dll
         )
@@ -213,13 +211,12 @@ elseif(DARWIN)
         libapr-1.dylib
         libaprutil-1.0.dylib
         libaprutil-1.dylib
-        libcollada14dom.dylib
         libexception_handler.dylib
         libexpat.1.5.2.dylib
         libexpat.dylib
         libGLOD.dylib
         libhunspell-1.3.0.dylib
-        libminizip.a
+        libllqtwebkit.dylib
         libndofdev.dylib
        )
 
@@ -258,28 +255,14 @@ elseif(LINUX)
         libapr-1.so.0
         libaprutil-1.so.0
         libatk-1.0.so
-        libboost_context-mt.so.${BOOST_VERSION}.0
-        libboost_coroutine-mt.so.${BOOST_VERSION}.0
-        libboost_filesystem-mt.so.${BOOST_VERSION}.0
-        libboost_program_options-mt.so.${BOOST_VERSION}.0
-        libboost_regex-mt.so.${BOOST_VERSION}.0
-        libboost_signals-mt.so.${BOOST_VERSION}.0
-        libboost_system-mt.so.${BOOST_VERSION}.0
-        libboost_thread-mt.so.${BOOST_VERSION}.0
-        libcollada14dom.so
         libdb-5.1.so
         libexpat.so
         libexpat.so.1
         libfreetype.so.6
         libGLOD.so
-        libgmock_main.so
-        libgmock.so.0
         libgmodule-2.0.so
         libgobject-2.0.so
-        libgtest_main.so
-        libgtest.so.0
         libhunspell-1.3.so.0.0.0
-        libminizip.so
         libopenal.so
         libopenjpeg.so
         libuuid.so.16

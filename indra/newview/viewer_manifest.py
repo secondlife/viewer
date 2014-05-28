@@ -768,21 +768,13 @@ class Darwin_i386_Manifest(ViewerManifest):
                 # dylibs that vary based on configuration
                 if self.args['configuration'].lower() == 'debug':
                     for libfile in (
-                                "libcrypto.1.0.0.dylib",
-                                "libcrypto.dylib",
                                 "libfmodexL.dylib",
-                                "libssl.1.0.0.dylib",
-                                "libssl.dylib",
                                 ):
                         dylibs += path_optional(os.path.join("../packages/lib/debug",
                                                              libfile), libfile)
                 else:
                     for libfile in (
-                                "libcrypto.1.0.0.dylib",
-                                "libcrypto.dylib",
                                 "libfmodex.dylib",
-                                "libssl.1.0.0.dylib",
-                                "libssl.dylib",
                                 ):
                         dylibs += path_optional(os.path.join("../packages/lib/release",
                                                              libfile), libfile)
@@ -804,42 +796,14 @@ class Darwin_i386_Manifest(ViewerManifest):
                         symlinkf(os.path.join(os.pardir, os.pardir, os.pardir, libfile),
                                  os.path.join(resource_path, libfile))
 
-                # SLPlugin.app/Contents/Resources gets those Qt4 libraries it needs.
-                if self.prefix(src="", dst="SLPlugin.app/Contents/Resources"):
-                    for libfile in ('libQtCore.4.dylib',
-                                    'libQtCore.4.7.1.dylib',
-                                    'libQtGui.4.dylib',
-                                    'libQtGui.4.7.1.dylib',
-                                    'libQtNetwork.4.dylib',
-                                    'libQtNetwork.4.7.1.dylib',
-                                    'libQtOpenGL.4.dylib',
-                                    'libQtOpenGL.4.7.1.dylib',
-                                    'libQtSvg.4.dylib',
-                                    'libQtSvg.4.7.1.dylib',
-                                    'libQtWebKit.4.dylib',
-                                    'libQtWebKit.4.7.1.dylib',
-                                    'libQtXml.4.dylib',
-                                    'libQtXml.4.7.1.dylib'):
-                        self.path2basename("../packages/lib/release", libfile)
-                    self.end_prefix("SLPlugin.app/Contents/Resources")
-
-                # Qt4 codecs go to llplugin.  Not certain why but this is the first
-                # location probed according to dtruss so we'll go with that.
-                if self.prefix(src="../packages/plugins/codecs/", dst="llplugin/codecs"):
-                    self.path("libq*.dylib")
-                    self.end_prefix("llplugin/codecs")
-
-                # Similarly for imageformats.
-                if self.prefix(src="../packages/plugins/imageformats/", dst="llplugin/imageformats"):
-                    self.path("libq*.dylib")
-                    self.end_prefix("llplugin/imageformats")
-
-                # SLPlugin plugins proper
+                # plugins
                 if self.prefix(src="", dst="llplugin"):
                     self.path2basename("../media_plugins/quicktime/" + self.args['configuration'],
                                        "media_plugin_quicktime.dylib")
                     self.path2basename("../media_plugins/webkit/" + self.args['configuration'],
                                        "media_plugin_webkit.dylib")
+                    self.path2basename("../packages/lib/release", "libllqtwebkit.dylib")
+
                     self.end_prefix("llplugin")
 
                 self.end_prefix("Resources")
@@ -1111,7 +1075,6 @@ class Linux_i686_Manifest(LinuxManifest):
             self.path("libaprutil-1.so.0")
             self.path("libaprutil-1.so.0.4.1")
             self.path("libboost_context-mt.so.*")
-            self.path("libboost_coroutine-mt.so.*")
             self.path("libboost_filesystem-mt.so.*")
             self.path("libboost_program_options-mt.so.*")
             self.path("libboost_regex-mt.so.*")
@@ -1156,6 +1119,7 @@ class Linux_i686_Manifest(LinuxManifest):
             # previous call did, without having to explicitly state the
             # version number.
             self.path("libfontconfig.so.*.*")
+            self.path("libfreetype.so.*.*")
             try:
                 self.path("libtcmalloc.so*") #formerly called google perf tools
                 pass
@@ -1184,33 +1148,6 @@ class Linux_i686_Manifest(LinuxManifest):
                 self.path("libvivoxsdk.so")
                 self.path("libvivoxplatform.so")
                 self.end_prefix("lib")
-
-            # plugin runtime
-            if self.prefix(src="../packages/lib/release", dst="lib"):
-                self.path("libQtCore.so*")
-                self.path("libQtGui.so*")
-                self.path("libQtNetwork.so*")
-                self.path("libQtOpenGL.so*")
-                self.path("libQtWebKit.so*")
-                self.end_prefix("lib")
-
-            # For WebKit/Qt plugin runtimes (image format plugins)
-            if self.prefix(src="../packages/plugins/imageformats", dst="bin/llplugin/imageformats"):
-                self.path("libqgif.so")
-                self.path("libqico.so")
-                self.path("libqjpeg.so")
-                self.path("libqmng.so")
-                self.path("libqsvg.so")
-                self.path("libqtiff.so")
-                self.end_prefix("bin/llplugin/imageformats")
-
-            # For WebKit/Qt plugin runtimes (codec/character encoding plugins)
-            if self.prefix(src="../packages/plugins/codecs", dst="bin/llplugin/codecs"):
-                self.path("libqcncodecs.so")
-                self.path("libqjpcodecs.so")
-                self.path("libqkrcodecs.so")
-                self.path("libqtwcodecs.so")
-                self.end_prefix("bin/llplugin/codecs")
 
             self.strip_binaries()
 
