@@ -1270,7 +1270,8 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="InventoryInboxNoItems">
 		Les achats que vous avez effectués sur la Place du marché s&apos;affichent ici. Vous pouvez alors les faire glisser vers votre inventaire afin de les utiliser.
 	</string>
-	<string name="MarketplaceURL">
+  <string name="Unconstrained">Sans contraintes</string>
+  <string name="MarketplaceURL">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
 	</string>
 	<string name="MarketplaceURL_CreateStore">

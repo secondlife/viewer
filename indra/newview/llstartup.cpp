@@ -622,30 +622,27 @@ bool idle_startup()
 
 		if (FALSE == gSavedSettings.getBOOL("NoAudio"))
 		{
+			delete gAudiop;
 			gAudiop = NULL;
 
 #ifdef LL_FMODEX		
-			if (!gAudiop
 #if !LL_WINDOWS
-			    && NULL == getenv("LL_BAD_FMODEX_DRIVER")
+			if (NULL == getenv("LL_BAD_FMODEX_DRIVER"))
 #endif // !LL_WINDOWS
-			    )
 			{
 				gAudiop = (LLAudioEngine *) new LLAudioEngine_FMODEX(gSavedSettings.getBOOL("FMODExProfilerEnable"));
 			}
 #endif
 
 #ifdef LL_OPENAL
-			if (!gAudiop
 #if !LL_WINDOWS
-			    && NULL == getenv("LL_BAD_OPENAL_DRIVER")
+			if (NULL == getenv("LL_BAD_OPENAL_DRIVER"))
 #endif // !LL_WINDOWS
-			    )
 			{
 				gAudiop = (LLAudioEngine *) new LLAudioEngine_OpenAL();
 			}
 #endif
-
+            
 			if (gAudiop)
 			{
 #if LL_WINDOWS
@@ -2077,24 +2074,24 @@ bool idle_startup()
 		{
 			// wait for avatar to be completely loaded
 			//LL_INFOS() << "avatar fully loaded" << LL_ENDL;
-				LLStartUp::setStartupState( STATE_CLEANUP );
+			LLStartUp::setStartupState( STATE_CLEANUP );
 		}
-			// OK to just get the wearables
+		// OK to just get the wearables
 		else if (!gAgent.isFirstLogin() && gAgentWearables.areWearablesLoaded() )
-			{
-				// We have our clothing, proceed.
+		{
+			// We have our clothing, proceed.
 			//LL_INFOS() << "wearables loaded" << LL_ENDL;
-				LLStartUp::setStartupState( STATE_CLEANUP );
-			}
+			LLStartUp::setStartupState( STATE_CLEANUP );
+		}
 		else
 		{
-		display_startup();
-		update_texture_fetch();
-		display_startup();
+			display_startup();
+			update_texture_fetch();
+			display_startup();
 			set_startup_status(0.9f + 0.1f * wearables_time / max_wearables_time(),
-						 LLTrans::getString("LoginDownloadingClothing").c_str(),
-						 gAgent.mMOTD.c_str());
-		display_startup();
+				LLTrans::getString("LoginDownloadingClothing").c_str(),
+				gAgent.mMOTD.c_str());
+			display_startup();
 		}
 		//fall through this frame to STATE_CLEANUP
 	}

@@ -291,6 +291,9 @@ class LLConversationViewModel
 {
 public:
 	typedef LLFolderViewModel<LLConversationSort, LLConversationItem, LLConversationItem, LLConversationFilter> base_t;
+	LLConversationViewModel() 
+	:	base_t(new LLConversationSort(), new LLConversationFilter())
+	{}
 	
 	void sort(LLFolderViewFolder* folder);
 	bool contentsReady() { return true; }	// *TODO : we need to check that participants names are available somewhat
