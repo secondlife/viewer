@@ -214,6 +214,7 @@ Please try logging in again in a minute.</string>
 	<string name="TooltipOutboxNoTransfer">One or more of these objects cannot be sold or transferred</string>
 	<string name="TooltipOutboxNotInInventory">You can only put items from your inventory on the marketplace</string>
 	<string name="TooltipOutboxWorn">You can not put items you are wearing on the marketplace</string>
+	<string name="TooltipOutboxLinked">You can not put linked items or folders on the marketplace</string>
 	<string name="TooltipOutboxCallingCard">You can not put calling cards on the marketplace</string>
 	<string name="TooltipOutboxFolderLevels">Depth of nested folders exceeds [AMOUNT]</string>
 	<string name="TooltipOutboxTooManyFolders">Subfolder count in top-level folder exceeds [AMOUNT]</string>
@@ -2261,16 +2262,11 @@ The [[MARKETPLACE_CREATE_STORE_URL] Marketplace store] is returning errors.
         Drag folders to this area to list them for sale on the [[MARKETPLACE_DASHBOARD_URL] Marketplace].
 	</string>
 
-	<string name="Marketplace Error None">No errors</string>
-	<string name="Marketplace Error Not Merchant">Error: Before sending items to the Marketplace you will need to set yourself up as a merchant (free of charge).</string>
-	<string name="Marketplace Error Empty Folder">Error: This folder has no contents.</string>
-	<string name="Marketplace Error Not Accepted">Error: Cannot move item in that folder.</string>
-	<string name="Marketplace Error Unassociated Products">Error: This item failed to upload because your merchant account has too many items unassociated with products.  To fix this error, log in to the marketplace website and reduce your unassociated item count.</string>
-
-	<string name="Marketplace Error Object Limit">Error: This item contains too many objects.  Fix this error by placing objects together in boxes to reduce the total count to less than 200.</string>
-	<string name="Marketplace Error Folder Depth">Error: This item contains too many levels of nested folders.  Reorganize it to a maximum of 3 levels of nested folders.</string>
-	<string name="Marketplace Error Unsellable Item">Error: This item can not be sold on the marketplace.</string>
-	<string name="Marketplace Error Internal Import">Error: There was a problem with this item.  Try again later.</string>
+	<string name="Marketplace Error None">No error</string>
+	<string name="Marketplace Error Prefix">Error: </string>
+	<string name="Marketplace Error Not Merchant">Before sending items to the Marketplace you will need to set yourself up as a merchant (free of charge).</string>
+	<string name="Marketplace Error Not Accepted">Cannot move item in that folder.</string>
+	<string name="Marketplace Error Unsellable Item">This item can not be sold on the marketplace.</string>
 
 	<string name="MarketplaceNoID">no Mkt ID</string>
 	<string name="MarketplaceLive">listed</string>
