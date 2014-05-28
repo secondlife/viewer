@@ -2038,7 +2038,7 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 		LLUrlMatch match;
 		std::string text = new_text;
 		while ( LLUrlRegistry::instance().findUrl(text, match,
-				boost::bind(&LLTextBase::replaceUrl, this, _1, _2, _3)) )
+				boost::bind(&LLTextBase::replaceUrl, this, _1, _2, _3),isContentTrusted()))
 		{
 			start = match.getStart();
 			end = match.getEnd()+1;
@@ -2075,7 +2075,7 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 					}
 			}
 
-			LLTextUtil::processUrlMatch(&match,this);
+			LLTextUtil::processUrlMatch(&match,this,isContentTrusted());
 
 			// move on to the rest of the text after the Url
 			if (end < (S32)text.length()) 
