@@ -116,18 +116,28 @@ bool LLScriptHandler::processNotification(const LLNotificationPtr& notification)
 	return false;
 }
 
+void LLScriptHandler::onChange( LLNotificationPtr notification )
+{
+	LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
+	if (channel)
+	{
+		LLToastPanel* notify_box = LLToastPanel::buidPanelFromNotification(notification);
+		channel->modifyToastByNotificationID(notification->getID(), notify_box);
+		
+	}
+}
 
 void LLScriptHandler::onDelete( LLNotificationPtr notification )
-	{
+{
 	if(notification->hasFormElements() && !notification->canShowToast())
-		{
-			LLScriptFloaterManager::getInstance()->onRemoveNotification(notification->getID());
-		}
-		else
-		{
-			mChannel.get()->removeToastByNotificationID(notification->getID());
-		}
+	{
+		LLScriptFloaterManager::getInstance()->onRemoveNotification(notification->getID());
 	}
+	else
+	{
+		mChannel.get()->removeToastByNotificationID(notification->getID());
+	}
+}
 
 
 //--------------------------------------------------------------------------

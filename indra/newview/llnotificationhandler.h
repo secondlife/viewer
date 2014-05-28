@@ -169,6 +169,7 @@ public:
 	virtual ~LLScriptHandler();
 
 	virtual void onDelete(LLNotificationPtr p);
+	virtual void onChange(LLNotificationPtr p);
 	virtual bool processNotification(const LLNotificationPtr& p);
 
 protected:
