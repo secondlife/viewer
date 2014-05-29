@@ -305,7 +305,19 @@ Initialization with the Marketplace failed because of a system or network error.
         name="okbutton"
         yestext="OK"/>
     </notification>
-    
+
+    <notification
+        icon="alertmodal.tga"
+        name="ConfirmMerchantActiveChange"
+        type="alertmodal">
+        This action will change the active content of this listing. Do you want to continue?
+        <tag>confirm</tag>
+        <usetemplate
+        ignoretext="Confirm before I change an active listing on the marketplace"
+        name="okcancelignore"
+        notext="Cancel"
+        yestext="OK"/>
+    </notification>
 
     <notification
    icon="alertmodal.tga"
