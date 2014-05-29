@@ -1621,6 +1621,14 @@ bool LLAppearanceMgr::getCanAddToCOF(const LLUUID& outfit_cat_id)
 		items,
 		LLInventoryModel::EXCLUDE_TRASH,
 		not_worn);
+
+	U32 max_items = gSavedSettings.getU32("WearFolderLimit");
+	if (items.size() > max_items)
+	{
+		LL_WARNS() << "Folder contains more wearables than allowed to wear by WearFolderLimit setting" << LL_ENDL;
+		return false;
+	}
+
 	return items.size() > 0;
 }
 
@@ -1647,6 +1655,14 @@ bool LLAppearanceMgr::getCanReplaceCOF(const LLUUID& outfit_cat_id)
 		items,
 		LLInventoryModel::EXCLUDE_TRASH,
 		is_worn);
+
+	U32 max_items = gSavedSettings.getU32("WearFolderLimit");
+	if (items.size() > max_items)
+	{
+		LL_WARNS() << "Folder contains more wearables than allowed to wear by WearFolderLimit setting" << LL_ENDL;
+		return false;
+	}
+
 	return items.size() > 0;
 }
 

@@ -15154,6 +15154,17 @@
       <key>Value</key>
       <string />
     </map>
+  <key>WearFolderLimit</key>
+  <map>
+    <key>Comment</key>
+    <string>Limits number of items in the folder that can be replaced/added to current outfit</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>125</integer>
+  </map>
 </map>
 </llsd>
 
