@@ -254,6 +254,8 @@ public:
 	bool isRoleMemberDataComplete() { return mRoleMemberDataComplete; }
 	bool isGroupPropertiesDataComplete() { return mGroupPropertiesDataComplete; }
 
+	bool isSingleMemberNotOwner();
+
 	F32 getAccessTime() const { return mAccessTime; }
 	void setAccessed();
 
