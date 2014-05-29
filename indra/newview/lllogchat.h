@@ -26,25 +26,57 @@
 
 #ifndef LL_LLLOGCHAT_H
 #define LL_LLLOGCHAT_H
+#include "llthread.h"
 
 class LLChat;
-class LLLoadHistoryThread : public LLThread
+
+class LLActionThread : public LLThread
+{
+public:
+	LLActionThread(const std::string& name);
+	~LLActionThread();
+
+	void waitFinished();
+	bool isFinished() { return mFinished; }
+protected:
+	void setFinished();
+private:
+	bool mFinished;
+	LLMutex	mMutex;
+	LLCondition mRunCondition;
+};
+
+class LLLoadHistoryThread : public LLActionThread
 {
 private:
-	std::string mFileName;
-	std::list<LLSD> mMessages;
+	const std::string& mFileName;
+	std::list<LLSD>* mMessages;
 	LLSD mLoadParams;
 	bool mNewLoad;
 public:
-	LLLoadHistoryThread();
-
-	void setHistoryParams(const std::string& file_name, const LLSD& load_params);
-	virtual void loadHistory(const std::string& file_name, std::list<LLSD>& messages, const LLSD& load_params);
+	LLLoadHistoryThread(const std::string& file_name, std::list<LLSD>* messages, const LLSD& load_params);
+	~LLLoadHistoryThread();
+	//void setHistoryParams(const std::string& file_name, const LLSD& load_params);
+	virtual void loadHistory(const std::string& file_name, std::list<LLSD>* messages, const LLSD& load_params);
     virtual void run();
 
-   typedef boost::signals2::signal<void (std::list<LLSD>& messages,const std::string& file_name)> load_end_signal_t;
-   static load_end_signal_t * mLoadEndSignal;
-   static boost::signals2::connection setLoadEndSignal(const load_end_signal_t::slot_type& cb);
+	typedef boost::signals2::signal<void (std::list<LLSD>* messages,const std::string& file_name)> load_end_signal_t;
+	load_end_signal_t * mLoadEndSignal;
+	boost::signals2::connection setLoadEndSignal(const load_end_signal_t::slot_type& cb);
+	void removeLoadEndSignal(const load_end_signal_t::slot_type& cb);
+};
+
+class LLDeleteHistoryThread : public LLActionThread
+{
+private:
+	std::list<LLSD>* mMessages;
+	LLLoadHistoryThread* mLoadThread;
+public:
+	LLDeleteHistoryThread(std::list<LLSD>* messages, LLLoadHistoryThread* loadThread);
+	~LLDeleteHistoryThread();
+
+	virtual void run();
+	static void deleteHistory();
 };
 
 class LLLogChat
@@ -73,7 +105,6 @@ public:
 	static void getListOfTranscriptBackupFiles(std::vector<std::string>& list_of_transcriptions);
 
 	static void loadChatHistory(const std::string& file_name, std::list<LLSD>& messages, const LLSD& load_params = LLSD());
-	static void startChatHistoryThread(const std::string& file_name, const LLSD& load_params);
 
 	typedef boost::signals2::signal<void ()> save_history_signal_t;
 	static boost::signals2::connection setSaveHistorySignal(const save_history_signal_t::slot_type& cb);
@@ -90,9 +121,21 @@ public:
 	static bool isTranscriptExist(const LLUUID& avatar_id, bool is_group=false);
 	static bool isNearbyTranscriptExist();
 
+	static bool historyThreadsFinished(LLUUID session_id);
+	static LLLoadHistoryThread* getLoadHistoryThread(LLUUID session_id);
+	static LLDeleteHistoryThread* getDeleteHistoryThread(LLUUID session_id);
+	static bool addLoadHistoryThread(LLUUID& session_id, LLLoadHistoryThread* lthread);
+	static bool addDeleteHistoryThread(LLUUID& session_id, LLDeleteHistoryThread* dthread);
+	static void cleanupHistoryThreads();
+
 private:
 	static std::string cleanFileName(std::string filename);
 	static save_history_signal_t * sSaveHistorySignal;
+
+	static std::map<LLUUID,LLLoadHistoryThread *> sLoadHistoryThreads;
+	static std::map<LLUUID,LLDeleteHistoryThread *> sDeleteHistoryThreads;
+	static LLMutex* sHistoryThreadsMutex;
+	static LLMutex* historyThreadsMutex();
 };
 
 /**

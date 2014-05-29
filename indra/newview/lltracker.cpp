@@ -28,7 +28,6 @@
 
 // library includes
 #include "llcoord.h"
-#include "lldarray.h"
 #include "llfontgl.h"
 #include "llgl.h"
 #include "llrender.h"
@@ -427,9 +426,9 @@ F32 pulse_func(F32 t, F32 z, bool tracking_avatar, std::string direction)
 	}
 	else
 	{
-		z -= t*64.f - 256.f;
+	z -= t*64.f - 256.f;
 	}
-
+	
 	F32 a = cosf(z*F_PI/512.f)*10.0f;
 	a = llmax(a, 9.9f);
 	a -= 9.9f;
@@ -502,54 +501,54 @@ void LLTracker::drawBeacon(LLVector3 pos_agent, std::string direction, LLColor4 
 		step = pos_agent.mV[2] / BEACON_VERTS;
 	}
 
-	gGL.color4fv(fogged_color.mV);
-
-	LLVector3 x_axis = LLViewerCamera::getInstance()->getLeftAxis();
-	F32 t = gRenderStartTime.getElapsedTimeF32();
-
-	for (U32 i = 0; i < BEACON_VERTS; i++)
-	{
-		F32 x = x_axis.mV[0];
-		F32 y = x_axis.mV[1];
+		gGL.color4fv(fogged_color.mV);
+		
+		LLVector3 x_axis = LLViewerCamera::getInstance()->getLeftAxis();
+		F32 t = gRenderStartTime.getElapsedTimeF32();
+		
+		for (U32 i = 0; i < BEACON_VERTS; i++)
+		{
+			F32 x = x_axis.mV[0];
+			F32 y = x_axis.mV[1];
 			
-		F32 z = i * step;
-		F32 z_next = (i+1)*step;
-
+			F32 z = i * step;
+			F32 z_next = (i+1)*step;
+		
 		bool tracking_avatar = getTrackingStatus() == TRACKING_AVATAR;
 		F32 a = pulse_func(t, z, tracking_avatar, direction);
 		F32 an = pulse_func(t, z_next, tracking_avatar, direction);
-
-		LLColor4 c_col = fogged_color + LLColor4(a,a,a,a);
-		LLColor4 col_next = fogged_color + LLColor4(an,an,an,an);
-		LLColor4 col_edge = fogged_color * LLColor4(a,a,a,0.0f);
-		LLColor4 col_edge_next = fogged_color * LLColor4(an,an,an,0.0f);
-
-		a *= 2.f;
+			
+			LLColor4 c_col = fogged_color + LLColor4(a,a,a,a);
+			LLColor4 col_next = fogged_color + LLColor4(an,an,an,an);
+			LLColor4 col_edge = fogged_color * LLColor4(a,a,a,0.0f);
+			LLColor4 col_edge_next = fogged_color * LLColor4(an,an,an,0.0f);
+			
+			a *= 2.f;
 		a += 1.0f;
-
-		an *= 2.f;
+			
+			an *= 2.f;
 		an += 1.0f;
-
-		gGL.begin(LLRender::TRIANGLE_STRIP);
-		gGL.color4fv(col_edge.mV);
-		gGL.vertex3f(-x*a, -y*a, z);
-		gGL.color4fv(col_edge_next.mV);
-		gGL.vertex3f(-x*an, -y*an, z_next);
-
-		gGL.color4fv(c_col.mV);
-		gGL.vertex3f(0, 0, z);
-		gGL.color4fv(col_next.mV);
-		gGL.vertex3f(0, 0, z_next);
-
-		gGL.color4fv(col_edge.mV);
-		gGL.vertex3f(x*a,y*a,z);
-		gGL.color4fv(col_edge_next.mV);
-		gGL.vertex3f(x*an,y*an,z_next);
+		
+			gGL.begin(LLRender::TRIANGLE_STRIP);
+			gGL.color4fv(col_edge.mV);
+			gGL.vertex3f(-x*a, -y*a, z);
+			gGL.color4fv(col_edge_next.mV);
+			gGL.vertex3f(-x*an, -y*an, z_next);
+			
+			gGL.color4fv(c_col.mV);
+			gGL.vertex3f(0, 0, z);
+			gGL.color4fv(col_next.mV);
+			gGL.vertex3f(0, 0, z_next);
+			
+			gGL.color4fv(col_edge.mV);
+			gGL.vertex3f(x*a,y*a,z);
+			gGL.color4fv(col_edge_next.mV);
+			gGL.vertex3f(x*an,y*an,z_next);
 		gGL.end();
 	}
 	gGL.popMatrix();
 }
-
+			
 // static 
 void LLTracker::renderBeacon(LLVector3d pos_global, 
 							 const LLColor4& color,
@@ -566,7 +565,7 @@ void LLTracker::renderBeacon(LLVector3d pos_global,
 	{
 		color_frac = 0.4f;
 	//	pos_global = gAgentCamera.getCameraPositionGlobal() + 0.99f*(LLViewerCamera::getInstance()->getFar()/dist)*to_vec;
-	}
+		}
 	else
 	{
 		color_frac = 1.f - 0.6f*(dist/LLViewerCamera::getInstance()->getFar());
@@ -805,7 +804,7 @@ void LLTracker::cacheLandmarkPosition()
 		}
 		else
 		{
-			llwarns << "LLTracker couldn't find home pos" << llendl;
+			LL_WARNS() << "LLTracker couldn't find home pos" << LL_ENDL;
 			mTrackedLandmarkAssetID.setNull();
 			mTrackedLandmarkItemID.setNull();
 		}

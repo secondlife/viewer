@@ -183,7 +183,7 @@ BOOL stop_gloderror()
 
 	if (error != GLOD_NO_ERROR)
 	{
-		llwarns << "GLOD error detected, cannot generate LOD: " << std::hex << error << llendl;
+		LL_WARNS() << "GLOD error detected, cannot generate LOD: " << std::hex << error << LL_ENDL;
 		return TRUE;
 	}
 
@@ -375,9 +375,16 @@ BOOL LLFloaterModelPreview::postBuild()
 	mUploadBtn = getChild<LLButton>("ok_btn");
 	mCalculateBtn = getChild<LLButton>("calculate_btn");
 
+	if (LLConvexDecomposition::getInstance() != NULL)
+	{
 	mCalculateBtn->setClickedCallback(boost::bind(&LLFloaterModelPreview::onClickCalculateBtn, this));
 
 	toggleCalculateButton(true);
+	}
+	else
+	{
+		mCalculateBtn->setEnabled(false);
+	}
 
 	return TRUE;
 }
@@ -433,7 +440,7 @@ bool LLFloaterModelPreview::isViewOptionChecked(const LLSD& userdata)
 
 bool LLFloaterModelPreview::isViewOptionEnabled(const LLSD& userdata)
 {
-	return childIsEnabled(userdata.asString());
+	return getChildView(userdata.asString())->getEnabled();
 }
 
 void LLFloaterModelPreview::setViewOptionEnabled(const std::string& option, bool enabled)
@@ -634,7 +641,7 @@ void LLFloaterModelPreview::draw()
 		else
 		if ( mModelPreview->getLoadState() == LLModelLoader::ERROR_PARSING )
 		{
-			childSetTextArg("status", "[STATUS]", getString("status_parse_error_dae"));
+			childSetTextArg("status", "[STATUS]", getString("status_parse_error"));
 			toggleCalculateButton(false);
 		}
 		else
@@ -789,7 +796,7 @@ void LLFloaterModelPreview::onPhysicsParamCommit(LLUICtrl* ctrl, void* data)
 {
 	if (LLConvexDecomposition::getInstance() == NULL)
 	{
-		llinfos << "convex decomposition tool is a stub on this platform. cannot get decomp." << llendl;
+		LL_INFOS() << "convex decomposition tool is a stub on this platform. cannot get decomp." << LL_ENDL;
 		return;
 	}
 
@@ -837,7 +844,7 @@ void LLFloaterModelPreview::onPhysicsStageExecute(LLUICtrl* ctrl, void* data)
 	{
 		if (!sInstance->mCurRequest.empty())
 		{
-			llinfos << "Decomposition request still pending." << llendl;
+			LL_INFOS() << "Decomposition request still pending." << LL_ENDL;
 			return;
 		}
 
@@ -888,13 +895,13 @@ void LLFloaterModelPreview::onPhysicsUseLOD(LLUICtrl* ctrl, void* userdata)
 	}
 	else
 	{
-		llwarns << "no iface" << llendl;
+		LL_WARNS() << "no iface" << LL_ENDL;
 		return;
 	}
 
 	if (which_mode <= 0)
 	{
-		llwarns << "which_mode out of range, " << which_mode << llendl;
+		LL_WARNS() << "which_mode out of range, " << which_mode << LL_ENDL;
 	}
 
 	S32 file_mode = iface->getItemCount() - 1;
@@ -979,8 +986,8 @@ void LLFloaterModelPreview::initDecompControls()
 		// protected against stub by stage_count being 0 for stub above
 		LLConvexDecomposition::getInstance()->registerCallback(j, LLPhysicsDecomp::llcdCallback);
 
-		//llinfos << "Physics decomp stage " << stage[j].mName << " (" << j << ") parameters:" << llendl;
-		//llinfos << "------------------------------------" << llendl;
+		//LL_INFOS() << "Physics decomp stage " << stage[j].mName << " (" << j << ") parameters:" << LL_ENDL;
+		//LL_INFOS() << "------------------------------------" << LL_ENDL;
 
 		for (S32 i = 0; i < param_count; ++i)
 		{
@@ -994,12 +1001,12 @@ void LLFloaterModelPreview::initDecompControls()
 
 			std::string type = "unknown";
 
-			llinfos << name << " - " << description << llendl;
+			LL_INFOS() << name << " - " << description << LL_ENDL;
 
 			if (param[i].mType == LLCDParam::LLCD_FLOAT)
 			{
 				mDecompParams[param[i].mName] = LLSD(param[i].mDefault.mFloat);
-				//llinfos << "Type: float, Default: " << param[i].mDefault.mFloat << llendl;
+				//LL_INFOS() << "Type: float, Default: " << param[i].mDefault.mFloat << LL_ENDL;
 
 
 				LLUICtrl* ctrl = getChild<LLUICtrl>(name);
@@ -1049,7 +1056,7 @@ void LLFloaterModelPreview::initDecompControls()
 			else if (param[i].mType == LLCDParam::LLCD_INTEGER)
 			{
 				mDecompParams[param[i].mName] = LLSD(param[i].mDefault.mIntOrEnumValue);
-				//llinfos << "Type: integer, Default: " << param[i].mDefault.mIntOrEnumValue << llendl;
+				//LL_INFOS() << "Type: integer, Default: " << param[i].mDefault.mIntOrEnumValue << LL_ENDL;
 
 
 				LLUICtrl* ctrl = getChild<LLUICtrl>(name);
@@ -1075,7 +1082,7 @@ void LLFloaterModelPreview::initDecompControls()
 			else if (param[i].mType == LLCDParam::LLCD_BOOLEAN)
 			{
 				mDecompParams[param[i].mName] = LLSD(param[i].mDefault.mBool);
-				//llinfos << "Type: boolean, Default: " << (param[i].mDefault.mBool ? "True" : "False") << llendl;
+				//LL_INFOS() << "Type: boolean, Default: " << (param[i].mDefault.mBool ? "True" : "False") << LL_ENDL;
 
 				LLCheckBoxCtrl* check_box = getChild<LLCheckBoxCtrl>(name);
 				if (check_box)
@@ -1087,16 +1094,16 @@ void LLFloaterModelPreview::initDecompControls()
 			else if (param[i].mType == LLCDParam::LLCD_ENUM)
 			{
 				mDecompParams[param[i].mName] = LLSD(param[i].mDefault.mIntOrEnumValue);
-				//llinfos << "Type: enum, Default: " << param[i].mDefault.mIntOrEnumValue << llendl;
+				//LL_INFOS() << "Type: enum, Default: " << param[i].mDefault.mIntOrEnumValue << LL_ENDL;
 
 				{ //plug into combo box
 
-					//llinfos << "Accepted values: " << llendl;
+					//LL_INFOS() << "Accepted values: " << LL_ENDL;
 					LLComboBox* combo_box = getChild<LLComboBox>(name);
 					for (S32 k = 0; k < param[i].mDetails.mEnumValues.mNumEnums; ++k)
 					{
-						//llinfos << param[i].mDetails.mEnumValues.mEnumsArray[k].mValue
-						//	<< " - " << param[i].mDetails.mEnumValues.mEnumsArray[k].mName << llendl;
+						//LL_INFOS() << param[i].mDetails.mEnumValues.mEnumsArray[k].mValue
+						//	<< " - " << param[i].mDetails.mEnumValues.mEnumsArray[k].mName << LL_ENDL;
 
 						std::string name(param[i].mDetails.mEnumValues.mEnumsArray[k].mName);
 						std::string localized_name;
@@ -1109,9 +1116,9 @@ void LLFloaterModelPreview::initDecompControls()
 					combo_box->setCommitCallback(onPhysicsParamCommit, (void*) &param[i]);
 				}
 
-				//llinfos << "----" << llendl;
+				//LL_INFOS() << "----" << LL_ENDL;
 			}
-			//llinfos << "-----------------------------" << llendl;
+			//LL_INFOS() << "-----------------------------" << LL_ENDL;
 		}
 	}
 
@@ -1413,7 +1420,7 @@ void LLModelPreview::rebuildUploadData()
                     {
                         if (importerDebug > 0)
                         {
-                            llinfos << "Assigning collision for " << instance.mLabel << " to match " << lod_model->mLabel << llendl;
+                            LL_INFOS() << "Assigning collision for " << instance.mLabel << " to match " << lod_model->mLabel << LL_ENDL;
                         }
                         instance.mLOD[i] = lod_model;
                     }
@@ -1421,7 +1428,7 @@ void LLModelPreview::rebuildUploadData()
                     {
                         if (importerDebug > 0)
                         {
-                            llinfos << "Assigning LOD" << i << " for " << instance.mLabel << " to found match " << lod_model->mLabel << llendl;
+                            LL_INFOS() << "Assigning LOD" << i << " for " << instance.mLabel << " to found match " << lod_model->mLabel << LL_ENDL;
                         }
                         instance.mLOD[i] = lod_model;
                     }
@@ -1458,7 +1465,7 @@ void LLModelPreview::rebuildUploadData()
                         {
                             if (importerDebug > 0)
                             {                         
-                                llinfos << "Falling back collision for " << instance.mLabel << " to " << lod_model->mLabel << llendl;
+                                LL_INFOS() << "Falling back collision for " << instance.mLabel << " to " << lod_model->mLabel << LL_ENDL;
                             }
                             instance.mLOD[i] = lod_model;
                         }
@@ -1466,7 +1473,7 @@ void LLModelPreview::rebuildUploadData()
                         {
                             if (importerDebug > 0)
                             {
-                                llinfos << "Falling back LOD" << i << " for " << instance.mLabel << " to found " << lod_model->mLabel << llendl;
+                                LL_INFOS() << "Falling back LOD" << i << " for " << instance.mLabel << " to found " << lod_model->mLabel << LL_ENDL;
                             }
                             instance.mLOD[i] = lod_model;
                         }
@@ -1480,7 +1487,7 @@ void LLModelPreview::rebuildUploadData()
 				            {
                                 if (importerDebug > 0)
                                 {
-                                    llinfos << "Falling back to model index " << idx << " for LOD " << i << " of " << instance.mLabel << llendl;
+                                    LL_INFOS() << "Falling back to model index " << idx << " for LOD " << i << " of " << instance.mLabel << LL_ENDL;
                                 }
 					            break;
 				            }
@@ -1498,14 +1505,14 @@ void LLModelPreview::rebuildUploadData()
                             {
                                 if (importerDebug > 0)
                                 {
-                                    llinfos << "Indexed fallback to model index " << idx << ": LOD " << i << " named " << lod_model->mLabel << " for collision for " << instance.mLabel <<  llendl;
+                                    LL_INFOS() << "Indexed fallback to model index " << idx << ": LOD " << i << " named " << lod_model->mLabel << " for collision for " << instance.mLabel <<  LL_ENDL;
                                 }
                             }
                             else
                             {
                                 if (importerDebug > 0)
                                 {
-                                    llinfos << "Indexed fallback to model index " << idx << " LOD " << i << " named " << lod_model->mLabel << " for LOD " << i << " for " << instance.mLabel << llendl;
+                                    LL_INFOS() << "Indexed fallback to model index " << idx << " LOD " << i << " named " << lod_model->mLabel << " for LOD " << i << " for " << instance.mLabel << LL_ENDL;
                                 }
                             }
 					    }
@@ -1513,7 +1520,7 @@ void LLModelPreview::rebuildUploadData()
                         {
                             if (importerDebug > 0)
                             {
-                                llinfos << "List of models for LOD " << i << " did not include index " << idx <<  llendl;
+                                LL_INFOS() << "List of models for LOD " << i << " did not include index " << idx <<  LL_ENDL;
                             }
                         }
                     }
@@ -1652,7 +1659,7 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
 
 	if (lod < LLModel::LOD_IMPOSTOR || lod > LLModel::NUM_LODS - 1)
 	{
-		llwarns << "Invalid level of detail: " << lod << llendl;
+		LL_WARNS() << "Invalid level of detail: " << lod << LL_ENDL;
 		assert(lod >= LLModel::LOD_IMPOSTOR && lod < LLModel::NUM_LODS);
 		return;
 	}
@@ -1675,7 +1682,7 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
 
 	if (mModelLoader)
 	{
-		llwarns << "Incompleted model load operation pending." << llendl;
+		LL_WARNS() << "Incompleted model load operation pending." << LL_ENDL;
 		return;
 	}
 	
@@ -1716,11 +1723,11 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
 	
 	if (lod == mPreviewLOD)
 	{
-		mFMP->childSetText("lod_file_" + lod_name[lod], mLODFile[lod]);
+		mFMP->childSetValue("lod_file_" + lod_name[lod], mLODFile[lod]);
 	}
 	else if (lod == LLModel::LOD_PHYSICS)
 	{
-		mFMP->childSetText("physics_file", mLODFile[lod]);
+		mFMP->childSetValue("physics_file", mLODFile[lod]);
 	}
 
 	mFMP->openFloater();
@@ -1735,7 +1742,7 @@ void LLModelPreview::setPhysicsFromLOD(S32 lod)
 		mModel[LLModel::LOD_PHYSICS] = mModel[lod];
 		mScene[LLModel::LOD_PHYSICS] = mScene[lod];
 		mLODFile[LLModel::LOD_PHYSICS].clear();
-		mFMP->childSetText("physics_file", mLODFile[LLModel::LOD_PHYSICS]);
+		mFMP->childSetValue("physics_file", mLODFile[LLModel::LOD_PHYSICS]);
 		mVertexBuffer[LLModel::LOD_PHYSICS].clear();
 		rebuildUploadData();
 		refresh();
@@ -2007,7 +2014,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 	// Allow LoD from -1 to LLModel::LOD_PHYSICS
 	if (which_lod < -1 || which_lod > LLModel::NUM_LODS - 1)
 	{
-		llwarns << "Invalid level of detail: " << which_lod << llendl;
+		LL_WARNS() << "Invalid level of detail: " << which_lod << LL_ENDL;
 		assert(which_lod >= -1 && which_lod < LLModel::NUM_LODS);
 		return;
 	}
@@ -2308,7 +2315,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 
 				if (!validate_face(target_model->getVolumeFace(names[i])))
 				{
-					llerrs << "Invalid face generated during LOD generation." << llendl;
+					LL_ERRS() << "Invalid face generated during LOD generation." << LL_ENDL;
 				}
 			}
 
@@ -2323,7 +2330,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 
 			if (!validate_model(target_model))
 			{
-				llerrs << "Invalid model generated when creating LODs" << llendl;
+				LL_ERRS() << "Invalid model generated when creating LODs" << LL_ENDL;
 			}
 
 			delete [] sizes;
@@ -2433,16 +2440,16 @@ void LLModelPreview::updateStatusMessages()
                     // Useful for debugging generalized complaints below about total submeshes which don't have enough
                     // context to address exactly what needs to be fixed to move towards compliance with the rules.
                     //
-                    llinfos << "Instance " << lod_model->mLabel << " LOD " << i << " Verts: "   << cur_verts     << llendl;
-                    llinfos << "Instance " << lod_model->mLabel << " LOD " << i << " Tris:  "   << cur_tris      << llendl;
-                    llinfos << "Instance " << lod_model->mLabel << " LOD " << i << " Faces: "   << cur_submeshes << llendl;
+                    LL_INFOS() << "Instance " << lod_model->mLabel << " LOD " << i << " Verts: "   << cur_verts     << LL_ENDL;
+                    LL_INFOS() << "Instance " << lod_model->mLabel << " LOD " << i << " Tris:  "   << cur_tris      << LL_ENDL;
+                    LL_INFOS() << "Instance " << lod_model->mLabel << " LOD " << i << " Faces: "   << cur_submeshes << LL_ENDL;
 
                     if (importerDebug > 1)
                     {
                         LLModel::material_list::iterator mat_iter = lod_model->mMaterialList.begin();
                         while (mat_iter != lod_model->mMaterialList.end())
                         {
-                            llinfos << "Instance " << lod_model->mLabel << " LOD " << i << " Material " << *(mat_iter) << llendl;
+                            LL_INFOS() << "Instance " << lod_model->mLabel << " LOD " << i << " Material " << *(mat_iter) << LL_ENDL;
                             mat_iter++;
                         }
                     }
@@ -2519,8 +2526,8 @@ void LLModelPreview::updateStatusMessages()
 
 		if (total_tris[lod] > 0)
 		{
-			mFMP->childSetText(lod_triangles_name[lod], llformat("%d", total_tris[lod]));
-			mFMP->childSetText(lod_vertices_name[lod], llformat("%d", total_verts[lod]));
+			mFMP->childSetValue(lod_triangles_name[lod], llformat("%d", total_tris[lod]));
+			mFMP->childSetValue(lod_vertices_name[lod], llformat("%d", total_verts[lod]));
 		}
 		else
 		{
@@ -2541,8 +2548,8 @@ void LLModelPreview::updateStatusMessages()
 				}
 			}
 
-			mFMP->childSetText(lod_triangles_name[lod], mesh_status_na);
-			mFMP->childSetText(lod_vertices_name[lod], mesh_status_na);
+			mFMP->childSetValue(lod_triangles_name[lod], mesh_status_na);
+			mFMP->childSetValue(lod_vertices_name[lod], mesh_status_na);
 		}
 
 		const U32 lod_high = LLModel::LOD_HIGH;
@@ -2591,7 +2598,7 @@ void LLModelPreview::updateStatusMessages()
 
 		if (lod == mPreviewLOD)
 		{
-			mFMP->childSetText("lod_status_message_text", mFMP->getString(message));
+			mFMP->childSetValue("lod_status_message_text", mFMP->getString(message));
 			icon = mFMP->getChild<LLIconCtrl>("lod_status_message_icon");
 			icon->setImage(img);
 		}
@@ -2813,7 +2820,7 @@ void LLModelPreview::updateLodControls(S32 lod)
 {
 	if (lod < LLModel::LOD_IMPOSTOR || lod > LLModel::LOD_HIGH)
 	{
-		llwarns << "Invalid level of detail: " << lod << llendl;
+		LL_WARNS() << "Invalid level of detail: " << lod << LL_ENDL;
 		assert(lod >= LLModel::LOD_IMPOSTOR && lod <= LLModel::LOD_HIGH);
 		return;
 	}
@@ -2845,12 +2852,12 @@ void LLModelPreview::updateLodControls(S32 lod)
 		fmp->mLODMode[lod] = 0;
 		for (U32 i = 0; i < num_file_controls; ++i)
 		{
-			mFMP->childShow(file_controls[i] + lod_name[lod]);
+			mFMP->childSetVisible(file_controls[i] + lod_name[lod], true);
 		}
 
 		for (U32 i = 0; i < num_lod_controls; ++i)
 		{
-			mFMP->childHide(lod_controls[i] + lod_name[lod]);
+			mFMP->childSetVisible(lod_controls[i] + lod_name[lod], false);
 		}
 	}
 	else if (lod_mode == USE_LOD_ABOVE) // use LoD above
@@ -2858,12 +2865,12 @@ void LLModelPreview::updateLodControls(S32 lod)
 		fmp->mLODMode[lod] = 2;
 		for (U32 i = 0; i < num_file_controls; ++i)
 		{
-			mFMP->childHide(file_controls[i] + lod_name[lod]);
+			mFMP->childSetVisible(file_controls[i] + lod_name[lod], false);
 		}
 
 		for (U32 i = 0; i < num_lod_controls; ++i)
 		{
-			mFMP->childHide(lod_controls[i] + lod_name[lod]);
+			mFMP->childSetVisible(lod_controls[i] + lod_name[lod], false);
 		}
 
 		if (lod < LLModel::LOD_HIGH)
@@ -2888,12 +2895,12 @@ void LLModelPreview::updateLodControls(S32 lod)
 
 		for (U32 i = 0; i < num_file_controls; ++i)
 		{
-			mFMP->childHide(file_controls[i] + lod_name[lod]);
+			mFMP->getChildView(file_controls[i] + lod_name[lod])->setVisible(false);
 		}
 
 		for (U32 i = 0; i < num_lod_controls; ++i)
 		{
-			mFMP->childShow(lod_controls[i] + lod_name[lod]);
+			mFMP->getChildView(lod_controls[i] + lod_name[lod])->setVisible(true);
 		}
 
 
@@ -3126,7 +3133,7 @@ void LLModelPreview::createPreviewAvatar( void )
 	}
 	else
 	{
-		llinfos<<"Failed to create preview avatar for upload model window"<<llendl;
+		LL_INFOS() << "Failed to create preview avatar for upload model window" << LL_ENDL;
 	}
 }
 
@@ -3877,7 +3884,7 @@ void LLModelPreview::setPreviewLOD(S32 lod)
 
 		LLComboBox* combo_box = mFMP->getChild<LLComboBox>("preview_lod_combo");
 		combo_box->setCurrentByIndex((NUM_LOD-1)-mPreviewLOD); // combo box list of lods is in reverse order
-		mFMP->childSetText("lod_file_" + lod_name[mPreviewLOD], mLODFile[mPreviewLOD]);
+		mFMP->childSetValue("lod_file_" + lod_name[mPreviewLOD], mLODFile[mPreviewLOD]);
 
 		LLComboBox* combo_box2 = mFMP->getChild<LLComboBox>("preview_lod_combo2");
 		combo_box2->setCurrentByIndex((NUM_LOD-1)-mPreviewLOD); // combo box list of lods is in reverse order
@@ -4089,7 +4096,7 @@ void LLFloaterModelPreview::handleModelPhysicsFeeReceived()
 
 void LLFloaterModelPreview::setModelPhysicsFeeErrorStatus(U32 status, const std::string& reason)
 {
-	llwarns << "LLFloaterModelPreview::setModelPhysicsFeeErrorStatus(" << status << " : " << reason << ")" << llendl;
+	LL_WARNS() << "LLFloaterModelPreview::setModelPhysicsFeeErrorStatus(" << status << " : " << reason << ")" << LL_ENDL;
 	doOnIdleOneTime(boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this, true));
 }
 
@@ -4165,7 +4172,7 @@ void LLFloaterModelPreview::onPermissionsReceived(const LLSD& result)
 
 void LLFloaterModelPreview::setPermissonsErrorStatus(U32 status, const std::string& reason)
 {
-	llwarns << "LLFloaterModelPreview::setPermissonsErrorStatus(" << status << " : " << reason << ")" << llendl;
+	LL_WARNS() << "LLFloaterModelPreview::setPermissonsErrorStatus(" << status << " : " << reason << ")" << LL_ENDL;
 
 	LLNotificationsUtil::add("MeshUploadPermError");
 }

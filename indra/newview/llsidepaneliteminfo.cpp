@@ -678,7 +678,7 @@ void LLSidepanelItemInfo::startObjectInventoryObserver()
 
 	if (mObjectID.isNull())
 	{
-		llwarns << "Empty object id passed to inventory observer" << llendl;
+		LL_WARNS() << "Empty object id passed to inventory observer" << LL_ENDL;
 		return;
 	}
 
@@ -721,7 +721,7 @@ void LLSidepanelItemInfo::onClickOwner()
 // static
 void LLSidepanelItemInfo::onCommitName()
 {
-	//llinfos << "LLSidepanelItemInfo::onCommitName()" << llendl;
+	//LL_INFOS() << "LLSidepanelItemInfo::onCommitName()" << LL_ENDL;
 	LLViewerInventoryItem* item = findItem();
 	if(!item)
 	{
@@ -757,7 +757,7 @@ void LLSidepanelItemInfo::onCommitName()
 
 void LLSidepanelItemInfo::onCommitDescription()
 {
-	//llinfos << "LLSidepanelItemInfo::onCommitDescription()" << llendl;
+	//LL_INFOS() << "LLSidepanelItemInfo::onCommitDescription()" << LL_ENDL;
 	LLViewerInventoryItem* item = findItem();
 	if(!item) return;
 
@@ -795,7 +795,7 @@ void LLSidepanelItemInfo::onCommitDescription()
 // static
 void LLSidepanelItemInfo::onCommitPermissions()
 {
-	//llinfos << "LLSidepanelItemInfo::onCommitPermissions()" << llendl;
+	//LL_INFOS() << "LLSidepanelItemInfo::onCommitPermissions()" << LL_ENDL;
 	LLViewerInventoryItem* item = findItem();
 	if(!item) return;
 	LLPermissions perm(item->getPermissions());
@@ -892,14 +892,14 @@ void LLSidepanelItemInfo::onCommitPermissions()
 // static
 void LLSidepanelItemInfo::onCommitSaleInfo()
 {
-	//llinfos << "LLSidepanelItemInfo::onCommitSaleInfo()" << llendl;
+	//LL_INFOS() << "LLSidepanelItemInfo::onCommitSaleInfo()" << LL_ENDL;
 	updateSaleInfo();
 }
 
 // static
 void LLSidepanelItemInfo::onCommitSaleType()
 {
-	//llinfos << "LLSidepanelItemInfo::onCommitSaleType()" << llendl;
+	//LL_INFOS() << "LLSidepanelItemInfo::onCommitSaleType()" << LL_ENDL;
 	updateSaleInfo();
 }
 

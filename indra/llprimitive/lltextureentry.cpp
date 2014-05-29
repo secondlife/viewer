@@ -191,13 +191,6 @@ bool LLTextureEntry::operator==(const LLTextureEntry &rhs) const
 	return(true);
 }
 
-bool LLTextureEntry::operator <(const LLTextureEntry &rhs) const
-{
-	if (mID < rhs.mID) return(true);
-	if (mMaterialID < rhs.mMaterialID) return (true);
-	return(false);
-}
-
 LLSD LLTextureEntry::asLLSD() const
 {
 	LLSD sd;
@@ -278,8 +271,8 @@ bool LLTextureEntry::fromLLSD(const LLSD& sd)
 	w = TEXTURE_MEDIA_DATA_KEY;
 	if (hasMedia() != sd.has(w))
 	{
-		llwarns << "LLTextureEntry::fromLLSD: media_flags (" << hasMedia() <<
-			") does not match presence of media_data (" << sd.has(w) << ").  Fixing." << llendl;
+		LL_WARNS() << "LLTextureEntry::fromLLSD: media_flags (" << hasMedia() <<
+			") does not match presence of media_data (" << sd.has(w) << ").  Fixing." << LL_ENDL;
 	}
 	updateMediaData(sd[w]);
 
@@ -552,7 +545,7 @@ S32 LLTextureEntry::setMaterialID(const LLMaterialID& pMaterialID)
 		{
 			mMaterialUpdatePending = true;
 			mMaterialID = pMaterialID;
-			return TEM_CHANGE_NONE;
+			return TEM_CHANGE_TEXTURE;
 		}
 
 		mMaterialUpdatePending = false;

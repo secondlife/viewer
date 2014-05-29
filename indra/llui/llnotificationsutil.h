@@ -30,6 +30,7 @@
 // to avoid including the heavyweight llnotifications.h
 
 #include "llnotificationptr.h"
+#include "lluuid.h"
 
 #include <boost/function.hpp>
 

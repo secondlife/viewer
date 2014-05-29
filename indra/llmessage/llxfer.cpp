@@ -99,7 +99,7 @@ void LLXfer::cleanup ()
 
 S32 LLXfer::startSend (U64 xfer_id, const LLHost &remote_host)
 {
-	llwarns << "undifferentiated LLXfer::startSend for " << getFileName() << llendl;
+	LL_WARNS() << "undifferentiated LLXfer::startSend for " << getFileName() << LL_ENDL;
 	return (-1);
 }
 
@@ -115,8 +115,8 @@ void LLXfer::setXferSize (S32 xfer_size)
 
 S32 LLXfer::startDownload()
 {
-	llwarns << "undifferentiated LLXfer::startDownload for " << getFileName()
-			<< llendl;
+	LL_WARNS() << "undifferentiated LLXfer::startDownload for " << getFileName()
+			<< LL_ENDL;
 	return (-1);
 }
 
@@ -140,7 +140,7 @@ S32 LLXfer::receiveData (char *datap, S32 data_size)
 		}
 		else
 		{
-			llerrs << "NULL data passed in receiveData" << llendl;
+			LL_ERRS() << "NULL data passed in receiveData" << LL_ENDL;
 		}
 	}
 
@@ -163,7 +163,7 @@ S32 LLXfer::flush()
 
 S32 LLXfer::suck(S32 start_position)
 {
-	llwarns << "Attempted to send a packet outside the buffer bounds in LLXfer::suck()" << llendl;
+	LL_WARNS() << "Attempted to send a packet outside the buffer bounds in LLXfer::suck()" << LL_ENDL;
 	return (-1);
 }
 
@@ -196,7 +196,7 @@ void LLXfer::sendPacket(S32 packet_num)
 
 	if (fdata_size < 0)
 	{
-		llwarns << "negative data size in xfer send, aborting" << llendl;
+		LL_WARNS() << "negative data size in xfer send, aborting" << LL_ENDL;
 		abort(LL_ERR_EOF);
 		return;
 	}
@@ -289,13 +289,13 @@ S32 LLXfer::processEOF()
 
 	if (LL_ERR_NOERR == mCallbackResult)
 	{
-		llinfos << "xfer from " << mRemoteHost << " complete: " << getFileName()
-				<< llendl;
+		LL_INFOS() << "xfer from " << mRemoteHost << " complete: " << getFileName()
+				<< LL_ENDL;
 	}
 	else
 	{
-		llinfos << "xfer from " << mRemoteHost << " failed, code "
-				<< mCallbackResult << ": " << getFileName() << llendl;
+		LL_INFOS() << "xfer from " << mRemoteHost << " failed, code "
+				<< mCallbackResult << ": " << getFileName() << LL_ENDL;
 	}
 
 	if (mCallback)
@@ -323,8 +323,8 @@ void LLXfer::abort (S32 result_code)
 {
 	mCallbackResult = result_code;
 
-	llinfos << "Aborting xfer from " << mRemoteHost << " named " << getFileName()
-			<< " - error: " << result_code << llendl;
+	LL_INFOS() << "Aborting xfer from " << mRemoteHost << " named " << getFileName()
+			<< " - error: " << result_code << LL_ENDL;
 
 	gMessageSystem->newMessageFast(_PREHASH_AbortXfer);
 	gMessageSystem->nextBlockFast(_PREHASH_XferID);

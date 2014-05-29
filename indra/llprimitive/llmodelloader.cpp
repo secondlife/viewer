@@ -31,6 +31,7 @@
 
 #include "glh/glh_linear.h"
 #include "llmatrix4a.h"
+#include <boost/bind.hpp>
 
 std::list<LLModelLoader*> LLModelLoader::sActiveLoaderList;
 
@@ -496,7 +497,7 @@ void LLModelLoader::critiqueJointToNodeMappingFromScene( void  )
 			}
 			else
 			{
-				llinfos<<"critiqueJointToNodeMappingFromScene is missing a: "<<name<<llendl;
+				LL_INFOS() <<"critiqueJointToNodeMappingFromScene is missing a: " << name << LL_ENDL;
 				result = false;				
 			}
 		}
@@ -548,7 +549,7 @@ bool LLModelLoader::isRigLegacy( const std::vector<std::string> &jointListFromAs
 		}		
 		if ( !result )
 		{
-			llinfos<<" Asset did not contain the joint (if you're u/l a fully rigged asset w/joint positions - it is required)." << *masterJointIt<< llendl;
+			LL_INFOS() <<" Asset did not contain the joint (if you're u/l a fully rigged asset w/joint positions - it is required)." << *masterJointIt<< LL_ENDL;
 			break;
 		}
 	}	
@@ -582,7 +583,7 @@ bool LLModelLoader::isRigSuitableForJointPositionUpload( const std::vector<std::
 		}		
 		if ( !result )
 		{
-			llinfos<<" Asset did not contain the joint (if you're u/l a fully rigged asset w/joint positions - it is required)." << *masterJointIt<< llendl;
+			LL_INFOS() <<" Asset did not contain the joint (if you're u/l a fully rigged asset w/joint positions - it is required)." << *masterJointIt<< LL_ENDL;
 			break;
 		}
 	}	

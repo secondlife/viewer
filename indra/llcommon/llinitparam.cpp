@@ -28,10 +28,17 @@
 #include "linden_common.h"
 
 #include "llinitparam.h"
+#include "llformat.h"
 
 
 namespace LLInitParam
 {
+
+	predicate_rule_t default_parse_rules() 
+	{ 
+		return ll_make_predicate(PROVIDED) && !ll_make_predicate(EMPTY);
+	}
+
 	//
 	// Param
 	//
@@ -93,13 +100,13 @@ namespace LLInitParam
 	void Parser::parserWarning(const std::string& message)
 	{
 		if (mParseSilently) return;
-		llwarns << message << llendl;
+		LL_WARNS() << message << LL_ENDL;
 	}
 	
 	void Parser::parserError(const std::string& message)
 	{
 		if (mParseSilently) return;
-		llerrs << message << llendl;
+		LL_ERRS() << message << LL_ENDL;
 	}
 
 
@@ -124,7 +131,7 @@ namespace LLInitParam
 		std::string name(char_name);
 		if ((size_t)param->mParamHandle > mMaxParamOffset)
 		{
-			llerrs << "Attempted to register param with block defined for parent class, make sure to derive from LLInitParam::Block<YOUR_CLASS, PARAM_BLOCK_BASE_CLASS>" << llendl;
+			LL_ERRS() << "Attempted to register param with block defined for parent class, make sure to derive from LLInitParam::Block<YOUR_CLASS, PARAM_BLOCK_BASE_CLASS>" << LL_ENDL;
 		}
 
 		if (name.empty())
@@ -196,6 +203,9 @@ namespace LLInitParam
 
 	bool BaseBlock::validateBlock(bool emit_errors) const
 	{
+		// only validate block when it hasn't already passed validation with current data
+		if (!mValidated)
+		{
 		const BlockDescriptor& block_data = mostDerivedBlockDescriptor();
 		for (BlockDescriptor::param_validation_list_t::const_iterator it = block_data.mValidationList.begin(); it != block_data.mValidationList.end(); ++it)
 		{
@@ -204,16 +214,23 @@ namespace LLInitParam
 			{
 				if (emit_errors)
 				{
-					llwarns << "Invalid param \"" << getParamName(block_data, param) << "\"" << llendl;
+					LL_WARNS() << "Invalid param \"" << getParamName(block_data, param) << "\"" << LL_ENDL;
 				}
 				return false;
 			}
 		}
-		return true;
+			mValidated = true;
+		}
+		return mValidated;
 	}
 
-	void BaseBlock::serializeBlock(Parser& parser, Parser::name_stack_t& name_stack, const LLInitParam::BaseBlock* diff_block) const
+	bool BaseBlock::serializeBlock(Parser& parser, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const LLInitParam::BaseBlock* diff_block) const
 	{
+		bool serialized = false;
+		if (!predicate_rule.check(ll_make_predicate(PROVIDED, isProvided())))
+		{
+			return false;
+		}
 		// named param is one like LLView::Params::follows
 		// unnamed param is like LLView::Params::rect - implicit
 		const BlockDescriptor& block_data = mostDerivedBlockDescriptor();
@@ -225,10 +242,10 @@ namespace LLInitParam
 			param_handle_t param_handle = (*it)->mParamHandle;
 			const Param* param = getParamFromHandle(param_handle);
 			ParamDescriptor::serialize_func_t serialize_func = (*it)->mSerializeFunc;
-			if (serialize_func)
+			if (serialize_func && predicate_rule.check(ll_make_predicate(PROVIDED, param->anyProvided())))
 			{
 				const Param* diff_param = diff_block ? diff_block->getParamFromHandle(param_handle) : NULL;
-				serialize_func(*param, parser, name_stack, diff_param);
+				serialized |= serialize_func(*param, parser, name_stack, predicate_rule, diff_param);
 			}
 		}
 
@@ -239,7 +256,7 @@ namespace LLInitParam
 			param_handle_t param_handle = it->second->mParamHandle;
 			const Param* param = getParamFromHandle(param_handle);
 			ParamDescriptor::serialize_func_t serialize_func = it->second->mSerializeFunc;
-			if (serialize_func && param->anyProvided())
+			if (serialize_func && predicate_rule.check(ll_make_predicate(PROVIDED, param->anyProvided())))
 			{
 				// Ensure this param has not already been serialized
 				// Prevents <rect> from being serialized as its own tag.
@@ -264,10 +281,17 @@ namespace LLInitParam
 
 				name_stack.push_back(std::make_pair(it->first, !duplicate));
 				const Param* diff_param = diff_block ? diff_block->getParamFromHandle(param_handle) : NULL;
-				serialize_func(*param, parser, name_stack, diff_param);
+				serialized |= serialize_func(*param, parser, name_stack, predicate_rule, diff_param);
 				name_stack.pop_back();
 			}
 		}
+
+		if (!serialized && predicate_rule.check(ll_make_predicate(EMPTY)))
+		{
+			serialized |= parser.writeValue(Flag(), name_stack);
+		}
+		// was anything serialized in this block?
+		return serialized;
 	}
 
 	bool BaseBlock::inspectBlock(Parser& parser, Parser::name_stack_t name_stack, S32 min_count, S32 max_count) const
@@ -393,7 +417,7 @@ namespace LLInitParam
 			// Block<T, Base_Class>
 			if ((size_t)handle > block_data.mMaxParamOffset)
 			{
-				llerrs << "Attempted to register param with block defined for parent class, make sure to derive from LLInitParam::Block<YOUR_CLASS, PARAM_BLOCK_BASE_CLASS>" << llendl;
+				LL_ERRS() << "Attempted to register param with block defined for parent class, make sure to derive from LLInitParam::Block<YOUR_CLASS, PARAM_BLOCK_BASE_CLASS>" << LL_ENDL;
 			}
 
 			ParamDescriptorPtr param_descriptor = findParamDescriptor(param);

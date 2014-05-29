@@ -30,7 +30,7 @@
 
 int main(int argc, char **argv)
 {
-	llinfos << "Starting crash reporter." << llendl;
+	LL_INFOS() << "Starting crash reporter." << LL_ENDL;
 
 	LLCrashLoggerLinux app;
 	app.parseCommandOptions(argc, argv);
@@ -47,12 +47,12 @@ int main(int argc, char **argv)
 
 	if (! app.init())
 	{
-		llwarns << "Unable to initialize application." << llendl;
+		LL_WARNS() << "Unable to initialize application." << LL_ENDL;
 		return 1;
 	}
 
 	app.mainLoop();
 	app.cleanup();
-	llinfos << "Crash reporter finished normally." << llendl;
+	LL_INFOS() << "Crash reporter finished normally." << LL_ENDL;
 	return 0;
 }

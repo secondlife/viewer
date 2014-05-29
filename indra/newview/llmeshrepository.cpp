@@ -27,8 +27,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "apr_pools.h"
-#include "apr_dso.h"
+#include "llapr.h"
 #include "llhttpstatuscodes.h"
 #include "llmeshrepository.h"
 
@@ -310,17 +309,7 @@
 // under the 'Mesh Fetch' timer which will be either top-level
 // or under 'Render' time.
 
-#ifndef	LL_MESH_FASTTIMER_ENABLE
-#define LL_MESH_FASTTIMER_ENABLE		1
-#endif
-#if LL_MESH_FASTTIMER_ENABLE
 static LLFastTimer::DeclareTimer FTM_MESH_FETCH("Mesh Fetch");
-
-#define	MESH_FASTTIMER_DEFBLOCK			LLFastTimer meshtimer(FTM_MESH_FETCH)
-#else
-#define	MESH_FASTTIMER_DEFBLOCK
-#endif // LL_MESH_FASTTIMER_ENABLE
-
 
 // Random failure testing for development/QA.
 //
@@ -391,10 +380,10 @@ U32 LLMeshRepository::sCacheBytesWritten = 0;
 U32 LLMeshRepository::sCacheReads = 0;
 U32 LLMeshRepository::sCacheWrites = 0;
 U32 LLMeshRepository::sMaxLockHoldoffs = 0;
-
+	
 LLDeadmanTimer LLMeshRepository::sQuiescentTimer(15.0, false);	// true -> gather cpu metrics
 
-	
+
 static S32 dump_num = 0;
 std::string make_dump_name(std::string prefix, S32 num)
 {
@@ -552,8 +541,8 @@ public:
 	virtual void processFailure(LLCore::HttpStatus status) = 0;
 	
 public:
-	LLVolumeParams		mMeshParams;
-	bool				mProcessed;
+	LLVolumeParams mMeshParams;
+	bool mProcessed;
 	LLCore::HttpHandle	mHttpHandle;
 };
 
@@ -631,7 +620,7 @@ public:
 protected:
 	LLMeshSkinInfoHandler(const LLMeshSkinInfoHandler &);		// Not defined
 	void operator=(const LLMeshSkinInfoHandler &);				// Not defined
-	
+
 public:
 	virtual void processData(LLCore::BufferArray * body, U8 * data, S32 data_size);
 	virtual void processFailure(LLCore::HttpStatus status);
@@ -660,7 +649,7 @@ public:
 protected:
 	LLMeshDecompositionHandler(const LLMeshDecompositionHandler &);		// Not defined
 	void operator=(const LLMeshDecompositionHandler &);					// Not defined
-	
+
 public:
 	virtual void processData(LLCore::BufferArray * body, U8 * data, S32 data_size);
 	virtual void processFailure(LLCore::HttpStatus status);
@@ -689,15 +678,15 @@ public:
 protected:
 	LLMeshPhysicsShapeHandler(const LLMeshPhysicsShapeHandler &);	// Not defined
 	void operator=(const LLMeshPhysicsShapeHandler &);				// Not defined
-	
+
 public:
 	virtual void processData(LLCore::BufferArray * body, U8 * data, S32 data_size);
 	virtual void processFailure(LLCore::HttpStatus status);
 
 public:
-	LLUUID		mMeshID;
-	U32			mRequestedBytes;
-	U32			mOffset;
+	LLUUID mMeshID;
+	U32 mRequestedBytes;
+	U32 mOffset;
 };
 
 
@@ -723,8 +712,8 @@ void log_upload_error(LLCore::HttpStatus status, const LLSD& content,
 		LL_WARNS(LOG_MESH) << "error: " << err << LL_ENDL;
 		LL_WARNS(LOG_MESH) << "  mesh upload failed, stage '" << stage
 						   << "', error '" << err["error"].asString()
-						   << "', message '" << err["message"].asString()
-						   << "', id '" << err["identifier"].asString()
+				<< "', message '" << err["message"].asString()
+				<< "', id '" << err["identifier"].asString()
 						   << "'" << LL_ENDL;
 		if (err.has("errors"))
 		{
@@ -1061,7 +1050,7 @@ void LLMeshRepoThread::loadMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
 		if (pending != mPendingLOD.end())
 		{ //append this lod request to existing header request
 			pending->second.push_back(lod);
-			llassert(pending->second.size() <= LLModel::NUM_LODS)
+			llassert(pending->second.size() <= LLModel::NUM_LODS);
 		}
 		else
 		{ //if no header request is pending, fetch header
@@ -3292,7 +3281,7 @@ S32 LLMeshRepository::update()
 
 S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_params, S32 detail, S32 last_lod)
 {
-	MESH_FASTTIMER_DEFBLOCK;
+	LL_RECORD_BLOCK_TIME(FTM_MESH_FETCH);
 	
 	// Manage time-to-load metrics for mesh download operations.
 	metricsProgress(1);
@@ -3375,7 +3364,7 @@ S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_para
 
 void LLMeshRepository::notifyLoadedMeshes()
 { //called from main thread
-	MESH_FASTTIMER_DEFBLOCK;
+	LL_RECORD_BLOCK_TIME(FTM_MESH_FETCH);
 
 	if (1 == mGetMeshVersion)
 	{
@@ -3728,7 +3717,7 @@ S32 LLMeshRepository::getActualMeshLOD(const LLVolumeParams& mesh_params, S32 lo
 
 const LLMeshSkinInfo* LLMeshRepository::getSkinInfo(const LLUUID& mesh_id, const LLVOVolume* requesting_obj)
 {
-	MESH_FASTTIMER_DEFBLOCK;
+	LL_RECORD_BLOCK_TIME(FTM_MESH_FETCH);
 
 	if (mesh_id.notNull())
 	{
@@ -3756,7 +3745,7 @@ const LLMeshSkinInfo* LLMeshRepository::getSkinInfo(const LLUUID& mesh_id, const
 
 void LLMeshRepository::fetchPhysicsShape(const LLUUID& mesh_id)
 {
-	MESH_FASTTIMER_DEFBLOCK;
+	LL_RECORD_BLOCK_TIME(FTM_MESH_FETCH);
 
 	if (mesh_id.notNull())
 	{
@@ -3786,7 +3775,7 @@ void LLMeshRepository::fetchPhysicsShape(const LLUUID& mesh_id)
 
 LLModel::Decomposition* LLMeshRepository::getDecomposition(const LLUUID& mesh_id)
 {
-	MESH_FASTTIMER_DEFBLOCK;
+	LL_RECORD_BLOCK_TIME(FTM_MESH_FETCH);
 
 	LLModel::Decomposition* ret = NULL;
 
@@ -3850,7 +3839,7 @@ bool LLMeshRepository::hasPhysicsShape(const LLUUID& mesh_id)
 
 LLSD& LLMeshRepository::getMeshHeader(const LLUUID& mesh_id)
 {
-	MESH_FASTTIMER_DEFBLOCK;
+	LL_RECORD_BLOCK_TIME(FTM_MESH_FETCH);
 
 	return mThread->getMeshHeader(mesh_id);
 }

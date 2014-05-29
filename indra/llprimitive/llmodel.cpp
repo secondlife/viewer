@@ -74,12 +74,12 @@ std::string LLModel::getStatusString(U32 status)
 	{
 		if(status_strings[status] == std::string())
 		{
-			llerrs << "No valid status string for this status: " << (U32)status << llendl ;
+			//LL_ERRS() << "No valid status string for this status: " << (U32)status << LL_ENDL();
 		}
 		return status_strings[status] ;
 	}
 
-	llerrs << "Invalid model status: " << (U32)status << llendl ;
+	//LL_ERRS() << "Invalid model status: " << (U32)status << LL_ENDL();
 
 	return std::string() ;
 }
@@ -427,14 +427,14 @@ void LLModel::addFace(const LLVolumeFace& face)
 {
 	if (face.mNumVertices == 0)
 	{
-		llerrs << "Cannot add empty face." << llendl;
+		LL_ERRS() << "Cannot add empty face." << LL_ENDL;
 	}
 
 	mVolumeFaces.push_back(face);
 
 	if (mVolumeFaces.size() > MAX_MODEL_FACES)
 	{
-		llerrs << "Model prims cannot have more than " << MAX_MODEL_FACES << " faces!" << llendl;
+		LL_ERRS() << "Model prims cannot have more than " << MAX_MODEL_FACES << " faces!" << LL_ENDL;
 	}
 }
 
@@ -456,7 +456,7 @@ void LLModel::generateNormals(F32 angle_cutoff)
 
 		if (vol_face.mNumIndices > 65535)
 		{
-			llwarns << "Too many vertices for normal generation to work." << llendl;
+			LL_WARNS() << "Too many vertices for normal generation to work." << LL_ENDL;
 			continue;
 		}
 
@@ -1012,7 +1012,7 @@ LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
 	{
 		if ((iter->first - pos).magVec() > 0.1f)
 		{
-			llerrs << "Couldn't find weight list." << llendl;
+			LL_ERRS() << "Couldn't find weight list." << LL_ENDL;
 		}
 
 		return iter->second;
@@ -1117,7 +1117,7 @@ bool LLModel::loadModel(std::istream& is)
 	{
 		if (!LLSDSerialize::fromBinary(header, is, 1024*1024*1024))
 		{
-			llwarns << "Mesh header parse error.  Not a valid mesh asset!" << llendl;
+			LL_WARNS() << "Mesh header parse error.  Not a valid mesh asset!" << LL_ENDL;
 			return false;
 		}
 	}
@@ -1149,7 +1149,7 @@ bool LLModel::loadModel(std::istream& is)
 	if (header[lod_name[lod]]["offset"].asInteger() == -1 || 
 		header[lod_name[lod]]["size"].asInteger() == 0 )
 	{ //cannot load requested LOD
-		llwarns << "LoD data is invalid!" << llendl;
+		LL_WARNS() << "LoD data is invalid!" << LL_ENDL;
 		return false;
 	}
 
@@ -1212,7 +1212,7 @@ bool LLModel::loadModel(std::istream& is)
 	}
 	else
 	{
-		llwarns << "unpackVolumeFaces failed!" << llendl;
+		LL_WARNS() << "unpackVolumeFaces failed!" << LL_ENDL;
 	}
 
 	return false;
@@ -1230,7 +1230,7 @@ bool LLModel::isMaterialListSubset( LLModel* ref )
 		
 		for (U32 dst = 0; dst < refCnt; ++dst)
 		{
-			//llinfos<<mMaterialList[src]<<" "<<ref->mMaterialList[dst]<<llendl;
+			//LL_INFOS()<<mMaterialList[src]<<" "<<ref->mMaterialList[dst]<<LL_ENDL;
 			foundRef = mMaterialList[src] == ref->mMaterialList[dst];									
 				
 			if ( foundRef )
@@ -1241,7 +1241,7 @@ bool LLModel::isMaterialListSubset( LLModel* ref )
 
 		if (!foundRef)
 		{
-            llinfos << "Could not find material " << mMaterialList[src] << " in reference model " << ref->mLabel << llendl;
+            LL_INFOS() << "Could not find material " << mMaterialList[src] << " in reference model " << ref->mLabel << LL_ENDL;
 			return false;
 		}
 	}
@@ -1277,7 +1277,7 @@ bool LLModel::matchMaterialOrder(LLModel* ref, int& refFaceCnt, int& modelFaceCn
 	bool isASubset = isMaterialListSubset( ref );
 	if ( !isASubset )
 	{
-		llinfos<<"Material of model is not a subset of reference."<<llendl;
+		LL_INFOS()<<"Material of model is not a subset of reference."<<LL_ENDL;
 		return false;
 	}
 	
@@ -1729,7 +1729,7 @@ LLSD LLModel::Decomposition::asLLSD() const
 
 				if (vert_idx > p.size())
 				{
-					llerrs << "Index out of bounds" << llendl;
+					LL_ERRS() << "Index out of bounds" << LL_ENDL;
 				}
 			}
 		}
@@ -1749,7 +1749,7 @@ void LLModel::Decomposition::merge(const LLModel::Decomposition* rhs)
 
 	if (mMeshID != rhs->mMeshID)
 	{
-		llerrs << "Attempted to merge with decomposition of some other mesh." << llendl;
+		LL_ERRS() << "Attempted to merge with decomposition of some other mesh." << LL_ENDL;
 	}
 
 	if (mBaseHull.empty())
@@ -1835,14 +1835,14 @@ bool validate_face(const LLVolumeFace& face)
 	{
 		if (face.mIndices[i] >= face.mNumVertices)
 		{
-			llwarns << "Face has invalid index." << llendl;
+			LL_WARNS() << "Face has invalid index." << LL_ENDL;
 			return false;
 		}
 	}
 
 	if (face.mNumIndices % 3 != 0 || face.mNumIndices == 0)
 	{
-		llwarns << "Face has invalid number of indices." << llendl;
+		LL_WARNS() << "Face has invalid number of indices." << LL_ENDL;
 		return false;
 	}
 
@@ -1860,7 +1860,7 @@ bool validate_face(const LLVolumeFace& face)
 
 		if (ll_is_degenerate(v1,v2,v3))
 		{
-			llwarns << "Degenerate face found!" << llendl;
+			llwarns << "Degenerate face found!" << LL_ENDL;
 			return false;
 		}
 	}*/
@@ -1872,7 +1872,7 @@ bool validate_model(const LLModel* mdl)
 {
 	if (mdl->getNumVolumeFaces() == 0)
 	{
-		llwarns << "Model has no faces!" << llendl;
+		LL_WARNS() << "Model has no faces!" << LL_ENDL;
 		return false;
 	}
 
@@ -1880,13 +1880,13 @@ bool validate_model(const LLModel* mdl)
 	{
 		if (mdl->getVolumeFace(i).mNumVertices == 0)
 		{
-			llwarns << "Face has no vertices." << llendl;
+			LL_WARNS() << "Face has no vertices." << LL_ENDL;
 			return false;
 		}
 
 		if (mdl->getVolumeFace(i).mNumIndices == 0)
 		{
-			llwarns << "Face has no indices." << llendl;
+			LL_WARNS() << "Face has no indices." << LL_ENDL;
 			return false;
 		}
 

@@ -65,14 +65,14 @@ namespace tut
 			}
 			if (!fp)
 			{
-				llwarns << "unabled to open " << filename << llendl;
+				LL_WARNS() << "unabled to open " << filename << LL_ENDL;
 				return false;
 			}
 
 			std::string good;
 			good.resize(256);
 			size_t got = fread(&good[0], 1, 256, fp);
-			lldebugs << "matchFile read " << got << llendl;
+			LL_DEBUGS() << "matchFile read " << got << LL_ENDL;
 			fclose(fp);
 			good.resize(got);
 		

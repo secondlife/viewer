@@ -209,6 +209,7 @@ protected:
 	static void onClickRestart(void* data);
 	bool callbackRestart(const LLSD& notification, const LLSD& response);
 	static void onClickCancelRestart(void* data);
+	static void onClickDebugConsole(void* data);
 	
 private:
 	LLUUID mTargetAvatar;
@@ -402,7 +403,7 @@ public:
 	/*virtual*/ void onOpen(const LLSD& key);
 
 	// LLView
-	/*virtual*/ void handleVisibilityChange(BOOL new_visibility);
+	/*virtual*/ void onVisibilityChange(BOOL new_visibility);
 
 	// LLPanelRegionInfo
 	/*virtual*/ bool refreshFromRegion(LLViewerRegion* region);

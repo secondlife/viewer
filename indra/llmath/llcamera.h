@@ -122,6 +122,8 @@ public:
 
 private:
 	LL_ALIGN_16(LLPlane mAgentPlanes[AGENT_PLANE_USER_CLIP_NUM]);  //frustum planes in agent space a la gluUnproject (I'm a bastard, I know) - DaveP
+	LL_ALIGN_16(LLPlane mRegionPlanes[AGENT_PLANE_USER_CLIP_NUM]);  //frustum planes in a local region space, derived from mAgentPlanes
+	LL_ALIGN_16(LLPlane mLastAgentPlanes[AGENT_PLANE_USER_CLIP_NUM]);
 	U8 mPlaneMask[PLANE_MASK_NUM];         // 8 for alignment	
 	
 	F32 mView;					// angle between top and bottom frustum planes in radians.
@@ -150,6 +152,7 @@ public:
 	LLCamera(F32 vertical_fov_rads, F32 aspect_ratio, S32 view_height_in_pixels, F32 near_plane, F32 far_plane);
 	virtual ~LLCamera();
 	
+	bool isChanged(); //check if mAgentPlanes changed since last frame.
 
 	void setUserClipPlane(LLPlane& plane);
 	void disableUserClipPlane();
@@ -191,6 +194,7 @@ public:
 	// Return number of bytes copied.
 	size_t readFrustumFromBuffer(const char *buffer);
 	void calcAgentFrustumPlanes(LLVector3* frust);
+	void calcRegionFrustumPlanes(const LLVector3& shift, F32 far_clip_distance); //calculate regional planes from mAgentPlanes.
 	void ignoreAgentFrustumPlane(S32 idx);
 
 	// Returns 1 if partly in, 2 if fully in.
@@ -199,8 +203,10 @@ public:
 	S32 sphereInFrustum(const LLVector3 &center, const F32 radius) const;
 	S32 pointInFrustum(const LLVector3 &point) const { return sphereInFrustum(point, 0.0f); }
 	S32 sphereInFrustumFull(const LLVector3 &center, const F32 radius) const { return sphereInFrustum(center, radius); }
-	S32 AABBInFrustum(const LLVector4a& center, const LLVector4a& radius);
-	S32 AABBInFrustumNoFarClip(const LLVector4a& center, const LLVector4a& radius);
+	S32 AABBInFrustum(const LLVector4a& center, const LLVector4a& radius, const LLPlane* planes = NULL);
+	S32 AABBInRegionFrustum(const LLVector4a& center, const LLVector4a& radius);
+	S32 AABBInFrustumNoFarClip(const LLVector4a& center, const LLVector4a& radius, const LLPlane* planes = NULL);
+	S32 AABBInRegionFrustumNoFarClip(const LLVector4a& center, const LLVector4a& radius);
 
 	//does a quick 'n dirty sphere-sphere check
 	S32 sphereInFrustumQuick(const LLVector3 &sphere_center, const F32 radius); 

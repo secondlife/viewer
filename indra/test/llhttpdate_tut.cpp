@@ -29,6 +29,7 @@
 #include "lltut.h"
 
 #include "lldate.h"
+#include "llcommon.h"
 #include "llframetimer.h"
 
 #include <time.h>
@@ -38,6 +39,12 @@ namespace tut
 {
     struct httpdate_data
     {
+		httpdate_data() 
+		{ 
+		}
+		~httpdate_data() 
+		{ 
+		}
         LLDate some_date;
     };
     typedef test_group<httpdate_data> httpdate_test;

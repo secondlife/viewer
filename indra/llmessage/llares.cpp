@@ -55,13 +55,13 @@ LLAres::HostResponder::~HostResponder()
 
 void LLAres::HostResponder::hostResult(const hostent *ent)
 {
-	llinfos << "LLAres::HostResponder::hostResult not implemented" << llendl;
+	LL_INFOS() << "LLAres::HostResponder::hostResult not implemented" << LL_ENDL;
 }
 
 void LLAres::HostResponder::hostError(int code)
 {
-	llinfos << "LLAres::HostResponder::hostError " << code << ": "
-			<< LLAres::strerror(code) << llendl;
+	LL_INFOS() << "LLAres::HostResponder::hostError " << code << ": "
+			<< LLAres::strerror(code) << LL_ENDL;
 }
 
 LLAres::NameInfoResponder::~NameInfoResponder()
@@ -71,14 +71,14 @@ LLAres::NameInfoResponder::~NameInfoResponder()
 void LLAres::NameInfoResponder::nameInfoResult(const char *node,
 											   const char *service)
 {
-	llinfos << "LLAres::NameInfoResponder::nameInfoResult not implemented"
-			<< llendl;
+	LL_INFOS() << "LLAres::NameInfoResponder::nameInfoResult not implemented"
+			<< LL_ENDL;
 }
 
 void LLAres::NameInfoResponder::nameInfoError(int code)
 {
-	llinfos << "LLAres::NameInfoResponder::nameInfoError " << code << ": "
-			<< LLAres::strerror(code) << llendl;
+	LL_INFOS() << "LLAres::NameInfoResponder::nameInfoError " << code << ": "
+			<< LLAres::strerror(code) << LL_ENDL;
 }
 
 LLAres::QueryResponder::~QueryResponder()
@@ -87,14 +87,14 @@ LLAres::QueryResponder::~QueryResponder()
 
 void LLAres::QueryResponder::queryResult(const char *buf, size_t len)
 {
-	llinfos << "LLAres::QueryResponder::queryResult not implemented"
-			<< llendl;
+	LL_INFOS() << "LLAres::QueryResponder::queryResult not implemented"
+			<< LL_ENDL;
 }
 
 void LLAres::QueryResponder::queryError(int code)
 {
-	llinfos << "LLAres::QueryResponder::queryError " << code << ": "
-			<< LLAres::strerror(code) << llendl;
+	LL_INFOS() << "LLAres::QueryResponder::queryError " << code << ": "
+			<< LLAres::strerror(code) << LL_ENDL;
 }
 
 LLAres::LLAres() :
@@ -104,7 +104,7 @@ LLAres::LLAres() :
 	if (ares_library_init( ARES_LIB_INIT_ALL ) != ARES_SUCCESS ||
 		ares_init(&chan_) != ARES_SUCCESS)
 	{
-		llwarns << "Could not succesfully initialize ares!" << llendl;
+		LL_WARNS() << "Could not succesfully initialize ares!" << LL_ENDL;
 		return;
 	}
 
@@ -176,7 +176,7 @@ void LLAres::rewriteURI(const std::string &uri, UriRewriteResponder *resp)
 			return;
 		}
 
-		//llinfos << "LLAres::rewriteURI (" << uri << ") search: '" << "_" + resp->mUri.scheme() + "._tcp." + resp->mUri.hostName() << "'" << llendl;
+		//LL_INFOS() << "LLAres::rewriteURI (" << uri << ") search: '" << "_" + resp->mUri.scheme() + "._tcp." + resp->mUri.hostName() << "'" << LL_ENDL;
 
 		search("_" + resp->mUri.scheme() + "._tcp." + resp->mUri.hostName(), RES_SRV, resp);
 
@@ -251,8 +251,8 @@ int LLQueryResponder::parseRR(const char *buf, size_t len, const char *&pos,
 		r = new LLSrvRecord(rrname, rrttl);
 		break;
 	default:
-		llinfos << "LLQueryResponder::parseRR got unknown RR type " << rrtype
-				<< llendl;
+		LL_INFOS() << "LLQueryResponder::parseRR got unknown RR type " << rrtype
+				<< LL_ENDL;
 		return ARES_EBADRESP;
 	}
 
@@ -333,7 +333,7 @@ void LLQueryResponder::queryResult(const char *buf, size_t len)
 				mType = (LLResType) t;
 				break;
 			default:
-				llinfos << "Cannot grok query type " << t << llendl;
+				LL_INFOS() << "Cannot grok query type " << t << LL_ENDL;
 				ret = ARES_EBADQUERY;
 				goto bail;
 			}
@@ -373,7 +373,7 @@ bail:
 
 void LLQueryResponder::querySuccess()
 {
-	llinfos << "LLQueryResponder::queryResult not implemented" << llendl;
+	LL_INFOS() << "LLQueryResponder::queryResult not implemented" << LL_ENDL;
 }
 
 void LLAres::SrvResponder::querySuccess()
@@ -393,23 +393,23 @@ void LLAres::SrvResponder::queryError(int code)
 
 void LLAres::SrvResponder::srvResult(const dns_rrs_t &ents)
 {
-	llinfos << "LLAres::SrvResponder::srvResult not implemented" << llendl;
+	LL_INFOS() << "LLAres::SrvResponder::srvResult not implemented" << LL_ENDL;
 
 	for (size_t i = 0; i < ents.size(); i++)
 	{
 		const LLSrvRecord *s = (const LLSrvRecord *) ents[i].get();
 
-		llinfos << "[" << i << "] " << s->host() << ":" << s->port()
+		LL_INFOS() << "[" << i << "] " << s->host() << ":" << s->port()
 				<< " priority " << s->priority()
 				<< " weight " << s->weight()
-				<< llendl;
+				<< LL_ENDL;
 	}
 }
 
 void LLAres::SrvResponder::srvError(int code)
 {
-	llinfos << "LLAres::SrvResponder::srvError " << code << ": "
-			<< LLAres::strerror(code) << llendl;
+	LL_INFOS() << "LLAres::SrvResponder::srvError " << code << ": "
+			<< LLAres::strerror(code) << LL_ENDL;
 }
 
 static void nameinfo_callback_1_5(void *arg, int status, int timeouts,
@@ -820,11 +820,11 @@ done:
 void LLAres::UriRewriteResponder::rewriteResult(
 	const std::vector<std::string> &uris)
 {
-	llinfos << "LLAres::UriRewriteResponder::rewriteResult not implemented"
-			<< llendl;
+	LL_INFOS() << "LLAres::UriRewriteResponder::rewriteResult not implemented"
+			<< LL_ENDL;
 
 	for (size_t i = 0; i < uris.size(); i++)
 	{
-		llinfos << "[" << i << "] " << uris[i] << llendl;
+		LL_INFOS() << "[" << i << "] " << uris[i] << LL_ENDL;
 	}
 }

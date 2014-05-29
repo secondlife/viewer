@@ -141,20 +141,20 @@ bool LLCalc::evalString(const std::string& expression, F32& result)
 	try
 	{
 		info = parse(start, expr_upper.end(), calc, space_p);
-		lldebugs << "Math expression: " << expression << " = " << result << llendl;
+		LL_DEBUGS() << "Math expression: " << expression << " = " << result << LL_ENDL;
 	}
 	catch(parser_error<std::string, std::string::iterator> &e)
 	{
 		mLastErrorPos = e.where - expr_upper.begin();
 		
-		llinfos << "Calc parser exception: " << e.descriptor << " at " << mLastErrorPos << " in expression: " << expression << llendl;
+		LL_INFOS() << "Calc parser exception: " << e.descriptor << " at " << mLastErrorPos << " in expression: " << expression << LL_ENDL;
 		return false;
 	}
 	
 	if (!info.full)
 	{
 		mLastErrorPos = info.stop - expr_upper.begin();
-		llinfos << "Unhandled syntax error at " << mLastErrorPos << " in expression: " << expression << llendl;
+		LL_INFOS() << "Unhandled syntax error at " << mLastErrorPos << " in expression: " << expression << LL_ENDL;
 		return false;
 	}
 	

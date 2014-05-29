@@ -31,6 +31,7 @@
 #include "llvolume.h"
 #include "v4math.h"
 #include "m4math.h"
+#include <queue>
 
 class daeElement;
 class domMesh;

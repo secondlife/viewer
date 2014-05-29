@@ -624,7 +624,8 @@ void LLViewerParcelMgr::renderCollisionSegments(U8* segments, BOOL use_pass, LLV
 	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
 	LLGLDisable cull(GL_CULL_FACE);
 	
-	if (mCollisionBanned == BA_BANNED)
+	if (mCollisionBanned == BA_BANNED ||
+		regionp->getRegionFlag(REGION_FLAGS_BLOCK_FLYOVER))
 	{
 		collision_height = BAN_HEIGHT;
 	}
@@ -990,7 +991,7 @@ void gpu_benchmark()
 
 	F32 gbps = results[results.size()/2];
 
-	llinfos << "Memory bandwidth is " << llformat("%.3f", gbps) << "GB/sec according to CPU timers" << llendl;
+	LL_INFOS() << "Memory bandwidth is " << llformat("%.3f", gbps) << "GB/sec according to CPU timers" << LL_ENDL;
 	
 	F32 ms = gBenchmarkProgram.mTimeElapsed/1000000.f;
 	F32 seconds = ms/1000.f;
@@ -1001,11 +1002,11 @@ void gpu_benchmark()
 
 	if (gGLManager.mHasTimerQuery)
 	{
-		llinfos << "Memory bandwidth is " << llformat("%.3f", gbps) << "GB/sec according to ARB_timer_query" << llendl;
+		LL_INFOS() << "Memory bandwidth is " << llformat("%.3f", gbps) << "GB/sec according to ARB_timer_query" << LL_ENDL;
 	}
 	else
 	{
-		llinfos << "ARB_timer_query unavailable." << llendl;
+		LL_INFOS() << "ARB_timer_query unavailable." << LL_ENDL;
 	}
 }
 

@@ -76,7 +76,7 @@ BOOL LLToolObjPicker::handleMouseDown(S32 x, S32 y, MASK mask)
 		}
 		else
 		{
-			llwarns << "PickerTool doesn't have mouse capture on mouseDown" << llendl;	
+			LL_WARNS() << "PickerTool doesn't have mouse capture on mouseDown" << LL_ENDL;	
 		}
 	}
 
@@ -109,7 +109,7 @@ BOOL LLToolObjPicker::handleMouseUp(S32 x, S32 y, MASK mask)
 	}
 	else
 	{
-		llwarns << "PickerTool doesn't have mouse capture on mouseUp" << llendl;	
+		LL_WARNS() << "PickerTool doesn't have mouse capture on mouseUp" << LL_ENDL;	
 	}
 	return handled;
 }

@@ -29,6 +29,8 @@
 
 #include "llmodel.h"
 #include "llthread.h"
+#include <boost/function.hpp>
+#include <list>
 
 class LLJoint;
 

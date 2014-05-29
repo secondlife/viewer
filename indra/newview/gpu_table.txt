@@ -327,7 +327,8 @@ Intel HD Graphics 4600					.*Intel.*HD Graphics 46.*							3	1	0	4.2
 Intel HD Graphics 4000					.*Intel.*HD Graphics 4.*							3	1	1	4.2
 Intel Intel Iris Pro Graphics 5200		.*Intel.*Iris Pro Graphics 52.*						4	1	0	4
 Intel Intel Iris Graphics 5100			.*Intel.*Iris Graphics 51.*							4	1	0	4
-Intel Intel Iris OpenGL Engine			.*Intel.*Iris (Pro )*OpenGL.*							4	1	0	4
+Intel Intel Iris OpenGL Engine			.*Intel.*Iris OpenGL.*							4	1	0	4
+Intel Intel Iris Pro OpenGL Engine			.*Intel.*Iris Pro OpenGL.*							5	1	0	4
 Intel HD Graphics 5000					.*Intel.*HD Graphics 5.*							4	1	0	4
 Intel HD Graphics						.*Intel.*HD Graphics.*								2	1	1	4
 Intel Mobile 4 Series					.*Intel.*Mobile.* 4 Series.*						0	1	1	2.1

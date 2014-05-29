@@ -227,8 +227,4 @@ private:
 	S32						 	mLabelWidth;
 };
 
-// XUI HACK: When floaters converted, switch this file to lltexturepicker.h/cpp
-// and class to LLTexturePicker
-#define LLTexturePicker LLTextureCtrl
-
 #endif  // LL_LLTEXTURECTRL_H
