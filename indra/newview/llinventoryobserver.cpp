@@ -702,7 +702,7 @@ void LLInventoryCategoriesObserver::changed(U32 mask)
 		LLViewerInventoryCategory* category = gInventory.getCategory(cat_id);
 		if (!category)
         {
-            llwarns << "Category : Category id = " << cat_id << " disappeared" << llendl;
+            LL_WARNS() << "Category : Category id = " << cat_id << " disappeared" << LL_ENDL;
 			cat_data.mCallback();
             // Keep track of those deleted categories so we can remove them
             deleted_categories_ids.push_back(cat_id);
