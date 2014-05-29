@@ -198,6 +198,7 @@ public:
     // Probe the Marketplace data set to identify folders
     bool isListed(const LLUUID& folder_id); // returns true if folder_id is a Listing folder
     bool isVersionFolder(const LLUUID& folder_id); // returns true if folder_id is a Version folder
+    bool isInActiveFolder(const LLUUID& obj_id); // returns true if the obj_id is buried in an active version folder
     
     // Access Marketplace data set : each method returns a default value if the argument can't be found
     bool getActivationState(const LLUUID& folder_id);

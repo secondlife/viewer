@@ -2317,7 +2317,8 @@ BOOL LLFolderBridge::isClipboardPasteableAsLink() const
 
 BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 											BOOL drop,
-											std::string& tooltip_msg)
+											std::string& tooltip_msg,
+                                            BOOL user_confirm)
 {
 
 	LLInventoryModel* model = getInventoryModel();
@@ -2488,6 +2489,16 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 
 		if (accept && drop)
 		{
+            // Dropping in or out of marketplace needs (sometimes) confirmation
+            if (user_confirm && (move_is_from_marketplacelistings || move_is_into_marketplacelistings))
+            {
+                if ((move_is_from_marketplacelistings && LLMarketplaceData::instance().isInActiveFolder(cat_id)) ||
+                    (move_is_into_marketplacelistings && LLMarketplaceData::instance().isInActiveFolder(mUUID)))
+                {
+                    LLNotificationsUtil::add("ConfirmMerchantActiveChange", LLSD(), LLSD(), boost::bind(&LLFolderBridge::callback_dropCategoryIntoFolder, this, _1, _2, inv_cat));
+                    return true;
+                }
+            }
 			// Look for any gestures and deactivate them
 			if (move_is_into_trash)
 			{
@@ -2571,8 +2582,11 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
             if (move_is_from_marketplacelistings)
             {
                 update_marketplace_category(from_folder_uuid);
-                // Clear the folder from the marketplace in case it was a listing folder (moot if not listed)
-                LLMarketplaceData::instance().clearListing(cat_id);
+                // Clear the folder from the marketplace in case it is a listing folder
+                if (LLMarketplaceData::instance().isListed(cat_id))
+                {
+                    LLMarketplaceData::instance().clearListing(cat_id);
+                }
             }
 		}
 	}
@@ -3334,8 +3348,11 @@ void LLFolderBridge::pasteFromClipboard()
 						llassert(vicat);
 						if (vicat)
 						{
-                            // Clear the cut folder from the marketplace if it was a listing folder (moot if not listed)
-                            LLMarketplaceData::instance().clearListing(item_id);
+                            // Clear the cut folder from the marketplace if it is a listing folder
+                            if (LLMarketplaceData::instance().isListed(item_id))
+                            {
+                                LLMarketplaceData::instance().clearListing(item_id);
+                            }
                             if (move_is_into_marketplacelistings)
                             {
                                 move_folder_to_marketplacelistings(vicat, parent_id);
@@ -4090,12 +4107,35 @@ void LLFolderBridge::dropToOutfit(LLInventoryItem* inv_item, BOOL move_is_into_c
 	}
 }
 
+// Callback for drop item if DAMA required...
+void LLFolderBridge::callback_dropItemIntoFolder(const LLSD& notification, const LLSD& response, LLInventoryItem* inv_item)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (option == 0) // YES
+    {
+        std::string tooltip_msg;
+        dragItemIntoFolder(inv_item, TRUE, tooltip_msg, FALSE);
+    }
+}
+
+// Callback for drop category if DAMA required...
+void LLFolderBridge::callback_dropCategoryIntoFolder(const LLSD& notification, const LLSD& response, LLInventoryCategory* inv_category)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (option == 0) // YES
+    {
+        std::string tooltip_msg;
+        dragCategoryIntoFolder(inv_category, TRUE, tooltip_msg, FALSE);
+    }
+}
+
 // This is used both for testing whether an item can be dropped
 // into the folder, as well as performing the actual drop, depending
 // if drop == TRUE.
 BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 										BOOL drop,
-										std::string& tooltip_msg)
+										std::string& tooltip_msg,
+                                        BOOL user_confirm)
 {
 	LLInventoryModel* model = getInventoryModel();
 
@@ -4227,6 +4267,16 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 				{
 					active_panel->unSelectAll();
 				}
+            // Dropping in or out of marketplace needs (sometimes) confirmation
+            if (user_confirm && (move_is_from_marketplacelistings || move_is_into_marketplacelistings))
+            {
+                if ((move_is_from_marketplacelistings && LLMarketplaceData::instance().isInActiveFolder(inv_item->getUUID())) ||
+                    (move_is_into_marketplacelistings && LLMarketplaceData::instance().isInActiveFolder(mUUID)))
+                {
+                    LLNotificationsUtil::add("ConfirmMerchantActiveChange", LLSD(), LLSD(), boost::bind(&LLFolderBridge::callback_dropItemIntoFolder, this, _1, _2, inv_item));
+                    return true;
+                }
+            }
 
 			//--------------------------------------------------------------------------------
 			// Destination folder logic

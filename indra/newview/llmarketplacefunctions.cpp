@@ -1426,6 +1426,17 @@ bool LLMarketplaceData::isVersionFolder(const LLUUID& folder_id)
     return false;
 }
 
+bool LLMarketplaceData::isInActiveFolder(const LLUUID& obj_id)
+{
+    S32 depth = depth_nesting_in_marketplace(obj_id);
+    LLUUID listing_uuid = nested_parent_id(obj_id, depth);
+    // *TODO: use true activation status once SLM is in decent shape again
+    //bool active = getActivationState(listing_uuid); Hack waiting for SLM to allow activation again...
+    bool active = true;
+    LLUUID version_uuid = getVersionFolder(listing_uuid);
+    return (active && gInventory.isObjectDescendentOf(obj_id, version_uuid));
+}
+
 // Private Modifiers
 bool LLMarketplaceData::setListingID(const LLUUID& folder_id, S32 listing_id)
 {

@@ -1185,8 +1185,7 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
     return accept;
 }
 
-// Local : perform the move at last...
-bool perform_move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_folder, bool copy)
+bool move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_folder, bool copy)
 {
     // Get the marketplace listings depth of the destination folder, exit with error if not under marketplace
     S32 depth = depth_nesting_in_marketplace(dest_folder);
@@ -1285,33 +1284,6 @@ bool perform_move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID 
         }
     }
     return true;
-}
-
-// Local : Callback for the move item if DAMA required...
-bool callback_move_item_to_marketplacelistings(const LLSD& notification, const LLSD& response, LLInventoryItem* inv_item, LLUUID dest_folder, bool copy)
-{
-     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-     if (option == 0) // YES
-     {
-         return perform_move_item_to_marketplacelistings(inv_item, dest_folder, copy);
-     }
-     return false;
- }
-
-// Public interface: Check if confirmation dialog is required (DAMA) and call it or call the move item function directly
-bool move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_folder, bool copy)
-{
-    // Merov : Use the following weak test for testing...
-    //if (LLMarketplaceData::instance().isVersionFolder(dest_folder))
-    if (LLMarketplaceData::instance().getActivationState(dest_folder))
-    {
-        LLNotificationsUtil::add("ConfirmMerchantActiveChange", LLSD(), LLSD(), boost::bind(callback_move_item_to_marketplacelistings, _1, _2, inv_item, dest_folder, copy));
-        return true;
-    }
-    else
-    {
-        return perform_move_item_to_marketplacelistings(inv_item, dest_folder, copy);
-    }
 }
 
 bool move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUUID& dest_folder, bool copy)
