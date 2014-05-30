@@ -3720,15 +3720,57 @@ BOOL LLPanelRegionExperiences::sendUpdate()
 
 void LLPanelRegionExperiences::itemChanged( U32 event_type, const LLUUID& id )
 {
-	if(id == mDefaultExperience)
+	std::string dialog_name;
+	switch (event_type)
 	{
-		return;
-	}
-	strings_t str(3, std::string());
-	gAgent.getID().toString(str[0]);
-	str[1] = llformat("%u", event_type);
-	id.toString(str[2]);
+		case ESTATE_EXPERIENCE_ALLOWED_ADD:
+			dialog_name = "EstateAllowedExperienceAdd";
+			break;
 
-	sendEstateOwnerMessage(gMessageSystem, "estateexperiencedelta", LLFloaterRegionInfo::getLastInvoice(), str);
+		case ESTATE_EXPERIENCE_ALLOWED_REMOVE:
+			dialog_name = "EstateAllowedExperienceRemove";
+			break;
+
+		case ESTATE_EXPERIENCE_TRUSTED_ADD:
+			dialog_name = "EstateTrustedExperienceAdd";
+			break;
+
+		case ESTATE_EXPERIENCE_TRUSTED_REMOVE:
+			dialog_name = "EstateTrustedExperienceRemove";
+			break;
+
+		case ESTATE_EXPERIENCE_BLOCKED_ADD:
+			dialog_name = "EstateBlockedExperienceAdd";
+			break;
+
+		case ESTATE_EXPERIENCE_BLOCKED_REMOVE:
+			dialog_name = "EstateAllowedExperienceAdd";
+			break;
+
+		default:
+			return;
+	}
+
+	LLSD payload;
+	payload["operation"] = (S32)event_type;
+	payload["dialog_name"] = dialog_name;
+	payload["allowed_ids"].append(id);
+
+	LLSD args;
+	args["ALL_ESTATES"] = all_estates_text();
+
+	LLNotification::Params params(dialog_name);
+	params.payload(payload)
+		.substitutions(args)
+		.functor.function(LLPanelEstateInfo::accessCoreConfirm);
+	if (LLPanelEstateInfo::isLindenEstate())
+	{
+		LLNotifications::instance().forceResponse(params, 0);
+	}
+	else
+	{
+		LLNotifications::instance().add(params);
+	}
+
 	onChangeAnything();
 }

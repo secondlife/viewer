@@ -4360,6 +4360,90 @@ Remove estate manager for this estate only or for [ALL_ESTATES]?
 
   <notification
    icon="alert.tga"
+   label="Select estate"
+   name="EstateAllowedExperienceAdd"
+   type="alert">
+    Add to allowed list for this estate only or for [ALL_ESTATES]?
+    <tag>confirm</tag>
+    <usetemplate
+     canceltext="Cancel"
+     name="yesnocancelbuttons"
+     notext="All Estates"
+     yestext="This Estate"/>
+  </notification>
+
+  <notification
+   icon="alert.tga"
+   label="Select estate"
+   name="EstateAllowedExperienceRemove"
+   type="alert">
+    Remove from allowed list for this estate only or for [ALL_ESTATES]?
+    <tag>confirm</tag>
+    <usetemplate
+     canceltext="Cancel"
+     name="yesnocancelbuttons"
+     notext="All Estates"
+     yestext="This Estate"/>
+  </notification>
+
+  <notification
+   icon="alert.tga"
+   label="Select estate"
+   name="EstateBlockedExperienceAdd"
+   type="alert">
+    Add to blocked list for this estate only or for [ALL_ESTATES]?
+    <tag>confirm</tag>
+    <usetemplate
+     canceltext="Cancel"
+     name="yesnocancelbuttons"
+     notext="All Estates"
+     yestext="This Estate"/>
+  </notification>
+
+  <notification
+   icon="alert.tga"
+   label="Select estate"
+   name="EstateBlockedExperienceRemove"
+   type="alert">
+    Remove from blocked list for this estate only or for [ALL_ESTATES]?
+    <tag>confirm</tag>
+    <usetemplate
+     canceltext="Cancel"
+     name="yesnocancelbuttons"
+     notext="All Estates"
+     yestext="This Estate"/>
+  </notification>
+
+  <notification
+   icon="alert.tga"
+   label="Select estate"
+   name="EstateTrustedExperienceAdd"
+   type="alert">
+    Add to trusted list for this estate only or for [ALL_ESTATES]?
+    <tag>confirm</tag>
+    <usetemplate
+     canceltext="Cancel"
+     name="yesnocancelbuttons"
+     notext="All Estates"
+     yestext="This Estate"/>
+  </notification>
+
+  <notification
+   icon="alert.tga"
+   label="Select estate"
+   name="EstateTrustedExperienceRemove"
+   type="alert">
+    Remove from trusted list for this estate only or for [ALL_ESTATES]?
+    <tag>confirm</tag>
+    <usetemplate
+     canceltext="Cancel"
+     name="yesnocancelbuttons"
+     notext="All Estates"
+     yestext="This Estate"/>
+  </notification>  
+
+  <notification
+   icon="alert.tga"
    label="Confirm Kick"
    name="EstateKickUser"
    type="alert">
