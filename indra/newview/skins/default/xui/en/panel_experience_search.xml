@@ -122,7 +122,6 @@
       top_pad="4"
       follows="all" 
       column_padding="5"
-      can_resize="true"
       name="search_results">
       <columns
         halign="center"
