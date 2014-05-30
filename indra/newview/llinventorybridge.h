@@ -257,7 +257,7 @@ public:
 	LLFolderBridge(LLInventoryPanel* inventory, 
 				   LLFolderView* root,
 				   const LLUUID& uuid) 
-        :       LLInvFVBridge(inventory, root, uuid),
+	:	LLInvFVBridge(inventory, root, uuid),
 		mCallingCards(FALSE),
 		mWearables(FALSE),
 		mIsLoading(false)

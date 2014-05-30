@@ -34,6 +34,8 @@
 #include "lltrans.h"
 #include "llui.h"
 
+#include "../../llmessage/llhttpconstants.cpp"
+
 static const std::string GOOGLE_VALID_RESPONSE1 =
 "{\
  \"data\": {\
@@ -300,12 +302,10 @@ std::string LLControlGroup::getString(const std::string& name) { return "dummy";
 LLControlGroup::~LLControlGroup() {}
 
 LLCurl::Responder::Responder() {}
-void LLCurl::Responder::completedHeader(U32, std::string const&, LLSD const&) {}
-void LLCurl::Responder::completedRaw(U32, const std::string&, const LLChannelDescriptors&, const LLIOPipe::buffer_ptr_t& buffer) {}
-void LLCurl::Responder::completed(U32, std::string const&, LLSD const&) {}
-void LLCurl::Responder::error(U32, std::string const&) {}
-void LLCurl::Responder::errorWithContent(U32, std::string const&, LLSD const&) {}
-void LLCurl::Responder::result(LLSD const&) {}
+void LLCurl::Responder::httpFailure() { }
+void LLCurl::Responder::httpSuccess() { }
+void LLCurl::Responder::httpCompleted() { }
+void LLCurl::Responder::completedRaw(LLChannelDescriptors const &,boost::shared_ptr<LLBufferArray> const &) { }
 LLCurl::Responder::~Responder() {}
 
 void LLHTTPClient::get(const std::string&, const LLSD&, ResponderPtr, const LLSD&, const F32, bool) {}

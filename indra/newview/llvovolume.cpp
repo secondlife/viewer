@@ -82,7 +82,7 @@ const S32 MIN_QUIET_FRAMES_COALESCE = 30;
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
 const F32 FORCE_CULL_AREA = 8.f;
 const F32 MAX_LOD_DISTANCE = 24.f;
-
+U32 JOINT_COUNT_REQUIRED_FOR_FULLRIG = 20;
 
 BOOL gAnimateTextures = TRUE;
 //extern BOOL gHideSelectedObjects;
@@ -4458,7 +4458,10 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 	bool emissive = false;
 
-	
+	//Determine if we've received skininfo that contains an
+	//alternate bind matrix - if it does then apply the translational component
+	//to the joints of the avatar.
+	bool pelvisGotSet = false;
 
 	{
 		LL_RECORD_BLOCK_TIME(FTM_REBUILD_VOLUME_FACE_LIST);
@@ -4541,18 +4544,12 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 					is_rigged = true;
 				
 					//get drawpool of avatar with rigged face
-					LLDrawPoolAvatar* pool = get_avatar_drawpool(vobj);
-				
-					//Determine if we've received skininfo that contains an
-					//alternate bind matrix - if it does then apply the translational component
-					//to the joints of the avatar.
-					bool pelvisGotSet = false;
-
+					LLDrawPoolAvatar* pool = get_avatar_drawpool(vobj);				
+					
 					if ( pAvatarVO )
 					{
-						LLUUID currentId = vobj->getVolume()->getParams().getSculptID();
+						LLUUID currentId = vobj->getVolume()->getParams().getSculptID();						
 						const LLMeshSkinInfo*  pSkinData = gMeshRepo.getSkinInfo( currentId, vobj );
-					
 						if ( pSkinData )
 						{
 							const int bindCnt = pSkinData->mAlternateBindMatrix.size();								
@@ -4560,43 +4557,42 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 							{					
 								const int jointCnt = pSkinData->mJointNames.size();
 								const F32 pelvisZOffset = pSkinData->mPelvisOffset;
-								bool fullRig = (jointCnt>=20) ? true : false;
+								bool fullRig = (jointCnt>=JOINT_COUNT_REQUIRED_FOR_FULLRIG) ? true : false;								
 								if ( fullRig )
-								{
+								{								
 									for ( int i=0; i<jointCnt; ++i )
 									{
 										std::string lookingForJoint = pSkinData->mJointNames[i].c_str();
-										//LL_INFOS()<<"joint name "<<lookingForJoint.c_str()<<LL_ENDL;
 										LLJoint* pJoint = pAvatarVO->getJoint( lookingForJoint );
 										if ( pJoint && pJoint->getId() != currentId )
 										{   									
 											pJoint->setId( currentId );
 											const LLVector3& jointPos = pSkinData->mAlternateBindMatrix[i].getTranslation();									
+											
 											//Set the joint position
-											pJoint->storeCurrentXform( jointPos );																																
+											pJoint->storeCurrentXform( jointPos );					
+									
 											//If joint is a pelvis then handle old/new pelvis to foot values
 											if ( lookingForJoint == "mPelvis" )
 											{	
-												pJoint->storeCurrentXform( jointPos );																																
 												if ( !pAvatarVO->hasPelvisOffset() )
 												{										
 													pAvatarVO->setPelvisOffset( true, jointPos, pelvisZOffset );
-													//Trigger to rebuild viewer AV
 													pelvisGotSet = true;											
 												}										
 											}										
-										}
-									}
+										}										
+									}																
 								}							
 							}
 						}
 					}
-					//If we've set the pelvis to a new position we need to also rebuild some information that the
-					//viewer does at launch (e.g. body size etc.)
-					if ( pelvisGotSet )
+					
+					//Rebuild body data if we altered joints/pelvis
+					if ( pelvisGotSet && pAvatarVO ) 
 					{
 						pAvatarVO->postPelvisSetRecalc();
-					}
+					}		
 
 					if (pool)
 					{
@@ -4952,7 +4948,16 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			{
 				drawablep->clearState(LLDrawable::RIGGED);
 			}
+			
 		}
+
+		
+		
+			
+		
+					
+
+		
 	}
 
 	group->mBufferUsage = useage;

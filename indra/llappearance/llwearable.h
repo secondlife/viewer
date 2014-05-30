@@ -94,14 +94,14 @@ public:
 
 	void				setLocalTextureObject(S32 index, LLLocalTextureObject &lto);
 	void				addVisualParam(LLVisualParam *param);
-	void 				setVisualParamWeight(S32 index, F32 value, BOOL upload_bake);
+	void 				setVisualParamWeight(S32 index, F32 value);
 	F32					getVisualParamWeight(S32 index) const;
 	LLVisualParam*		getVisualParam(S32 index) const;
 	void				getVisualParams(visual_param_vec_t &list);
-	void				animateParams(F32 delta, BOOL upload_bake);
+	void				animateParams(F32 delta);
 
 	LLColor4			getClothesColor(S32 te) const;
-	void 				setClothesColor( S32 te, const LLColor4& new_color, BOOL upload_bake );
+	void 				setClothesColor( S32 te, const LLColor4& new_color);
 
 	virtual void		revertValues();
 	virtual void		saveValues();

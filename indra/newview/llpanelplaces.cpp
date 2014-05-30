@@ -168,8 +168,7 @@ public:
 protected:
 	/*virtual*/ void done()
 	{
-		mPlaces->showAddedLandmarkInfo(mAdded);
-		mAdded.clear();
+		mPlaces->showAddedLandmarkInfo(gInventory.getAddedIDs());
 	}
 
 private:
@@ -217,7 +216,7 @@ public:
 			LLRemoteParcelInfoProcessor::getInstance()->sendParcelInfoRequest(parcel_id);
 		}
 	}
-	/*virtual*/ void setErrorStatus(U32 status, const std::string& reason)
+	/*virtual*/ void setErrorStatus(S32 status, const std::string& reason)
 	{
 		LL_ERRS() << "Can't complete remote parcel request. Http Status: "
 			   << status << ". Reason : " << reason << LL_ENDL;
@@ -1100,9 +1099,9 @@ void LLPanelPlaces::changedGlobalPos(const LLVector3d &global_pos)
 	updateVerbs();
 }
 
-void LLPanelPlaces::showAddedLandmarkInfo(const uuid_vec_t& items)
+void LLPanelPlaces::showAddedLandmarkInfo(const uuid_set_t& items)
 {
-	for (uuid_vec_t::const_iterator item_iter = items.begin();
+	for (uuid_set_t::const_iterator item_iter = items.begin();
 		 item_iter != items.end();
 		 ++item_iter)
 	{

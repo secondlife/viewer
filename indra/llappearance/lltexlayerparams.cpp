@@ -161,7 +161,7 @@ BOOL LLTexLayerParamAlpha::getMultiplyBlend() const
 	return ((LLTexLayerParamAlphaInfo *)getInfo())->mMultiplyBlend; 	
 }
 
-void LLTexLayerParamAlpha::setWeight(F32 weight, BOOL upload_bake)
+void LLTexLayerParamAlpha::setWeight(F32 weight)
 {
 	if (mIsAnimating || mTexLayer == NULL)
 	{
@@ -179,35 +179,35 @@ void LLTexLayerParamAlpha::setWeight(F32 weight, BOOL upload_bake)
 		if ((mAvatarAppearance->getSex() & getSex()) &&
 			(mAvatarAppearance->isSelf() && !mIsDummy)) // only trigger a baked texture update if we're changing a wearable's visual param.
 		{
-			mAvatarAppearance->invalidateComposite(mTexLayer->getTexLayerSet(), upload_bake);
+			mAvatarAppearance->invalidateComposite(mTexLayer->getTexLayerSet());
 			mTexLayer->invalidateMorphMasks();
 		}
 	}
 }
 
-void LLTexLayerParamAlpha::setAnimationTarget(F32 target_value, BOOL upload_bake)
+void LLTexLayerParamAlpha::setAnimationTarget(F32 target_value)
 { 
 	// do not animate dummy parameters
 	if (mIsDummy)
 	{
-		setWeight(target_value, upload_bake);
+		setWeight(target_value);
 		return;
 	}
 
 	mTargetWeight = target_value; 
-	setWeight(target_value, upload_bake); 
+	setWeight(target_value); 
 	mIsAnimating = TRUE;
 	if (mNext)
 	{
-		mNext->setAnimationTarget(target_value, upload_bake);
+		mNext->setAnimationTarget(target_value);
 	}
 }
 
-void LLTexLayerParamAlpha::animate(F32 delta, BOOL upload_bake)
+void LLTexLayerParamAlpha::animate(F32 delta)
 {
 	if (mNext)
 	{
-		mNext->animate(delta, upload_bake);
+		mNext->animate(delta);
 	}
 }
 
@@ -450,14 +450,14 @@ LLColor4 LLTexLayerParamColor::getNetColor() const
 	}
 }
 
-void LLTexLayerParamColor::setWeight(F32 weight, BOOL upload_bake)
+
+void LLTexLayerParamColor::setWeight(F32 weight)
 {
 	if (mIsAnimating)
 	{
 		return;
 	}
 
-	const LLTexLayerParamColorInfo *info = (LLTexLayerParamColorInfo *)getInfo();
 	F32 min_weight = getMinWeight();
 	F32 max_weight = getMaxWeight();
 	F32 new_weight = llclamp(weight, min_weight, max_weight);
@@ -467,6 +467,8 @@ void LLTexLayerParamColor::setWeight(F32 weight, BOOL upload_bake)
 	{
 		mCurWeight = new_weight;
 
+                const LLTexLayerParamColorInfo *info = (LLTexLayerParamColorInfo *)getInfo();
+
 		if (info->mNumColors <= 0)
 		{
 			// This will happen when we set the default weight the first time.
@@ -475,10 +477,10 @@ void LLTexLayerParamColor::setWeight(F32 weight, BOOL upload_bake)
 
 		if ((mAvatarAppearance->getSex() & getSex()) && (mAvatarAppearance->isSelf() && !mIsDummy)) // only trigger a baked texture update if we're changing a wearable's visual param.
 		{
-			onGlobalColorChanged(upload_bake);
+			onGlobalColorChanged();
 			if (mTexLayer)
 			{
-				mAvatarAppearance->invalidateComposite(mTexLayer->getTexLayerSet(), upload_bake);
+				mAvatarAppearance->invalidateComposite(mTexLayer->getTexLayerSet());
 			}
 		}
 
@@ -486,23 +488,23 @@ void LLTexLayerParamColor::setWeight(F32 weight, BOOL upload_bake)
 	}
 }
 
-void LLTexLayerParamColor::setAnimationTarget(F32 target_value, BOOL upload_bake)
+void LLTexLayerParamColor::setAnimationTarget(F32 target_value)
 { 
 	// set value first then set interpolating flag to ignore further updates
 	mTargetWeight = target_value; 
-	setWeight(target_value, upload_bake);
+	setWeight(target_value);
 	mIsAnimating = TRUE;
 	if (mNext)
 	{
-		mNext->setAnimationTarget(target_value, upload_bake);
+		mNext->setAnimationTarget(target_value);
 	}
 }
 
-void LLTexLayerParamColor::animate(F32 delta, BOOL upload_bake)
+void LLTexLayerParamColor::animate(F32 delta)
 {
 	if (mNext)
 	{
-		mNext->animate(delta, upload_bake);
+		mNext->animate(delta);
 	}
 }
 

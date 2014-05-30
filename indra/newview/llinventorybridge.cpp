@@ -199,6 +199,7 @@ const std::string& LLInvFVBridge::getDisplayName() const
 	{
 		buildDisplayName();
 	}
+
 	return mDisplayName;
 }
 
@@ -1248,17 +1249,10 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 
 void LLInvFVBridge::purgeItem(LLInventoryModel *model, const LLUUID &uuid)
 {
-	LLInventoryCategory* cat = model->getCategory(uuid);
-	if (cat)
-	{
-		model->purgeDescendentsOf(uuid);
-		model->notifyObservers();
-	}
 	LLInventoryObject* obj = model->getObject(uuid);
 	if (obj)
 	{
-		model->purgeObject(uuid);
-		model->notifyObservers();
+		remove_inventory_object(uuid, NULL);
 	}
 }
 
@@ -1703,18 +1697,18 @@ void LLItemBridge::buildDisplayName() const
 	else
 	{
 		mDisplayName.assign(LLStringUtil::null);
-}
-
+	}
+	
 	mSearchableName.assign(mDisplayName);
 	mSearchableName.append(getLabelSuffix());
 	LLStringUtil::toUpper(mSearchableName);
-
+	
     //Name set, so trigger a sort
     if(mParent)
-{
-        mParent->requestSort();
+	{
+		mParent->requestSort();
 	}
-	}
+}
 
 LLFontGL::StyleFlags LLItemBridge::getLabelStyle() const
 {
@@ -1828,13 +1822,9 @@ BOOL LLItemBridge::renameItem(const std::string& new_name)
 	LLViewerInventoryItem* item = getItem();
 	if(item && (item->getName() != new_name))
 	{
-		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
-		new_item->rename(new_name);
-		new_item->updateServer(FALSE);
-		model->updateItem(new_item);
-
-		model->notifyObservers();
-		buildDisplayName();
+		LLSD updates;
+		updates["name"] = new_name;
+		update_inventory_item(item->getUUID(),updates, NULL);
 	}
 	// return FALSE because we either notified observers (& therefore
 	// rebuilt) or we didn't update.
@@ -1870,16 +1860,8 @@ BOOL LLItemBridge::removeItem()
 	{
 		if (!item->getIsLinkType())
 		{
-			LLInventoryModel::cat_array_t cat_array;
-			LLInventoryModel::item_array_t item_array;
-			LLLinkedItemIDMatches is_linked_item_match(mUUID);
-			gInventory.collectDescendentsIf(gInventory.getRootFolderID(),
-											cat_array,
-											item_array,
-											LLInventoryModel::INCLUDE_TRASH,
-											is_linked_item_match);
-
-			const U32 num_links = cat_array.size() + item_array.size();
+			LLInventoryModel::item_array_t item_array = gInventory.collectLinksTo(mUUID);
+			const U32 num_links = item_array.size();
 			if (num_links > 0)
 			{
 				// Warn if the user is will break any links when deleting this item.
@@ -2030,6 +2012,13 @@ void LLFolderBridge::buildDisplayName() const
 
 std::string LLFolderBridge::getLabelSuffix() const
 {
+    static LLCachedControl<F32> folder_loading_message_delay(gSavedSettings, "FolderLoadingMessageWaitTime", 0.5f);
+    
+    if (mIsLoading && mTimeSinceRequestStart.getElapsedTimeF32() >= folder_loading_message_delay())
+    {
+        return llformat(" ( %s ) ", LLTrans::getString("LoadingData").c_str());
+    }
+    
     if (isMarketplaceListingsFolder())
     {
         std::string suffix = "";
@@ -2092,49 +2081,19 @@ LLFontGL::StyleFlags LLFolderBridge::getLabelStyle() const
 
 void LLFolderBridge::update()
 {
-	bool possibly_has_children = false;
-	bool up_to_date = isUpToDate();
-	if(!up_to_date && hasChildren()) // we know we have children but  haven't  fetched them (doesn't obey filter)
-	{
-		possibly_has_children = true;
-	}
-
-	bool loading = (possibly_has_children
-		&& !up_to_date );
+	// we know we have children but  haven't  fetched them (doesn't obey filter)
+	bool loading = !isUpToDate() && hasChildren() && mFolderViewItem->isOpen();
 
 	if (loading != mIsLoading)
 	{
-		if ( loading && !mIsLoading )
+		if ( loading )
 		{
 			// Measure how long we've been in the loading state
 			mTimeSinceRequestStart.reset();
 		}
+		mIsLoading = loading;
 
-		const BOOL in_inventory = gInventory.isObjectDescendentOf(getUUID(),   gInventory.getRootFolderID());
-		const BOOL in_library = gInventory.isObjectDescendentOf(getUUID(),   gInventory.getLibraryRootFolderID());
-
-		bool root_is_loading = false;
-		if (in_inventory)
-		{
-			root_is_loading =   LLInventoryModelBackgroundFetch::instance().inventoryFetchInProgress();
-		}
-		if (in_library)
-		{
-			root_is_loading =   LLInventoryModelBackgroundFetch::instance().libraryFetchInProgress();
-		}
-		if ((mIsLoading
-				&&	mTimeSinceRequestStart.getElapsedTimeF32() >=   gSavedSettings.getF32("FolderLoadingMessageWaitTime"))
-			||	(LLInventoryModelBackgroundFetch::instance().folderFetchActive()
-				&&	root_is_loading))
-		{
-			mDisplayName = LLInvFVBridge::getDisplayName() + " ( " +   LLTrans::getString("LoadingData") + " ) ";
-			mIsLoading = true;
-		}
-		else
-		{
-			mDisplayName = LLInvFVBridge::getDisplayName();
-			mIsLoading = false;
-		}
+		mFolderViewItem->refresh();
 	}
 }
 
@@ -2513,49 +2472,13 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 					}
 				}
 			}
-			// if target is an outfit or current outfit folder we use link
-			if (move_is_into_current_outfit || move_is_into_outfit)
+			// if target is current outfit folder we use link
+			if (move_is_into_current_outfit &&
+				inv_cat->getPreferredType() == LLFolderType::FT_NONE)
 			{
-				if (inv_cat->getPreferredType() == LLFolderType::FT_NONE)
-				{
-					if (move_is_into_current_outfit)
-					{
-						// traverse category and add all contents to currently worn.
-						BOOL append = true;
-						LLAppearanceMgr::instance().wearInventoryCategory(inv_cat, false, append);
-					}
-					else
-					{
-						// Recursively create links in target outfit.
-						LLInventoryModel::cat_array_t cats;
-						LLInventoryModel::item_array_t items;
-						model->collectDescendents(cat_id, cats, items, LLInventoryModel::EXCLUDE_TRASH);
-						LLAppearanceMgr::instance().linkAll(mUUID,items,NULL);
-					}
-				}
-				else
-				{
-#if SUPPORT_ENSEMBLES
-					// BAP - should skip if dup.
-					if (move_is_into_current_outfit)
-					{
-						LLAppearanceMgr::instance().addEnsembleLink(inv_cat);
-					}
-					else
-					{
-						LLPointer<LLInventoryCallback> cb = NULL;
-						const std::string empty_description = "";
-						link_inventory_item(
-							gAgent.getID(),
-							cat_id,
-							mUUID,
-							inv_cat->getName(),
-							empty_description,
-							LLAssetType::AT_LINK_FOLDER,
-							cb);
-					}
-#endif
-				}
+				// traverse category and add all contents to currently worn.
+				BOOL append = true;
+				LLAppearanceMgr::instance().wearInventoryCategory(inv_cat, false, append);
 			}
 			else if (move_is_into_outbox && !move_is_from_outbox)
 			{
@@ -2960,17 +2883,6 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 		modifyOutfit(FALSE);
 		return;
 	}
-#if SUPPORT_ENSEMBLES
-	else if ("wearasensemble" == action)
-	{
-		LLInventoryModel* model = getInventoryModel();
-		if(!model) return;
-		LLViewerInventoryCategory* cat = getCategory();
-		if(!cat) return;
-		LLAppearanceMgr::instance().addEnsembleLink(cat,true);
-		return;
-	}
-#endif
 	else if ("addtooutfit" == action)
 	{
 		modifyOutfit(TRUE);
@@ -3197,9 +3109,12 @@ LLUIImagePtr LLFolderBridge::getIconOverlay() const
 	return NULL;
 }
 
-
 BOOL LLFolderBridge::renameItem(const std::string& new_name)
 {
+
+	LLScrollOnRenameObserver *observer = new LLScrollOnRenameObserver(mUUID, mRoot);
+	gInventory.addObserver(observer);
+
 	rename_category(getInventoryModel(), mUUID, new_name);
 
 	// return FALSE because we either notified observers (& therefore
@@ -3477,28 +3392,9 @@ void LLFolderBridge::pasteLinkFromClipboard()
 					dropToOutfit(item, move_is_into_current_outfit);
 				}
 			}
-			else if (LLInventoryCategory *cat = model->getCategory(object_id))
+			else if (LLConstPointer<LLInventoryObject> obj = model->getObject(object_id))
 			{
-				const std::string empty_description = "";
-				link_inventory_item(
-					gAgent.getID(),
-					cat->getUUID(),
-					parent_id,
-					cat->getName(),
-					empty_description,
-					LLAssetType::AT_LINK_FOLDER,
-					LLPointer<LLInventoryCallback>(NULL));
-			}
-			else if (LLInventoryItem *item = model->getItem(object_id))
-			{
-				link_inventory_item(
-					gAgent.getID(),
-					item->getLinkedUUID(),
-					parent_id,
-					item->getName(),
-					item->getDescription(),
-					LLAssetType::AT_LINK,
-					LLPointer<LLInventoryCallback>(NULL));
+				link_inventory_object(parent_id, obj, LLPointer<LLInventoryCallback>(NULL));
 			}
 		}
 		// Change mode to paste for next paste
@@ -3595,16 +3491,6 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
                     items.push_back(std::string("New Body Parts"));
                 }
 			}
-#if SUPPORT_ENSEMBLES
-			// Changing folder types is an unfinished unsupported feature
-			// and can lead to unexpected behavior if enabled.
-			items.push_back(std::string("Change Type"));
-			const LLViewerInventoryCategory *cat = getCategory();
-			if (cat && LLFolderType::lookupIsProtectedType(cat->getPreferredType()))
-			{
-				disabled_items.push_back(std::string("Change Type"));
-			}
-#endif
 			getClipboardEntries(false, items, disabled_items, flags);
 		}
 		else
@@ -3766,6 +3652,10 @@ void LLFolderBridge::buildContextMenuFolderOptions(U32 flags,   menuentry_vec_t&
 		if (!LLAppearanceMgr::instance().getCanReplaceCOF(mUUID))
 		{
 			disabled_items.push_back(std::string("Replace Outfit"));
+		}
+		if (!LLAppearanceMgr::instance().getCanAddToCOF(mUUID))
+		{
+			disabled_items.push_back(std::string("Add To Outfit"));
 		}
 		items.push_back(std::string("Outfit Separator"));
 	}
@@ -4097,14 +3987,7 @@ void LLFolderBridge::dropToOutfit(LLInventoryItem* inv_item, BOOL move_is_into_c
 	else
 	{
 		LLPointer<LLInventoryCallback> cb = NULL;
-		link_inventory_item(
-			gAgent.getID(),
-			inv_item->getLinkedUUID(),
-			mUUID,
-			inv_item->getName(),
-			inv_item->getDescription(),
-			LLAssetType::AT_LINK,
-			cb);
+		link_inventory_object(mUUID, LLConstPointer<LLInventoryObject>(inv_item), cb);
 	}
 }
 

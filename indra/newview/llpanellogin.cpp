@@ -421,7 +421,7 @@ void LLPanelLogin::showLoginWidgets()
 		sInstance->reshapeBrowser();
 		// *TODO: Append all the usual login parameters, like first_login=Y etc.
 		std::string splash_screen_url = LLGridManager::getInstance()->getLoginPage();
-		web_browser->navigateTo( splash_screen_url, "text/html" );
+		web_browser->navigateTo( splash_screen_url, HTTP_CONTENT_TEXT_HTML );
 		LLUICtrl* username_combo = sInstance->getChild<LLUICtrl>("username_combo");
 		username_combo->setFocus(TRUE);
 	}
@@ -785,7 +785,7 @@ void LLPanelLogin::loadLoginPage()
 	if (web_browser->getCurrentNavUrl() != login_uri.asString())
 	{
 		LL_DEBUGS("AppInit") << "loading:    " << login_uri << LL_ENDL;
-		web_browser->navigateTo( login_uri.asString(), "text/html" );
+		web_browser->navigateTo( login_uri.asString(), HTTP_CONTENT_TEXT_HTML );
 	}
 }
 

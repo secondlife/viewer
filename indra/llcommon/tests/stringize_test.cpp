@@ -95,7 +95,7 @@ namespace tut
         ensure_equals(stringize(f),    "3.14159");
         ensure_equals(stringize(d),    "3.14159");
         ensure_equals(stringize(abc),  "abc def");
-        ensure_equals(stringize(def),  "def ghi"); //Will generate llwarns due to narrowing.
+        ensure_equals(stringize(def),  "def ghi"); //Will generate LL_WARNS() due to narrowing.
         ensure_equals(stringize(llsd), "{'abc':'abc def','d':r3.14159,'i':i34}");
     }
 

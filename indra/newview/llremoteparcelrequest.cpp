@@ -47,9 +47,15 @@ LLRemoteParcelRequestResponder::LLRemoteParcelRequestResponder(LLHandle<LLRemote
 
 //If we get back a normal response, handle it here
 //virtual
-void LLRemoteParcelRequestResponder::result(const LLSD& content)
+void LLRemoteParcelRequestResponder::httpSuccess()
 {
-	LLUUID parcel_id = content["parcel_id"];
+	const LLSD& content = getContent();
+	if (!content.isMap() || !content.has("parcel_id"))
+	{
+		failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
+		return;
+	}
+	LLUUID parcel_id = getContent()["parcel_id"];
 
 	// Panel inspecting the information may be closed and destroyed
 	// before this response is received.
@@ -62,17 +68,16 @@ void LLRemoteParcelRequestResponder::result(const LLSD& content)
 
 //If we get back an error (not found, etc...), handle it here
 //virtual
-void LLRemoteParcelRequestResponder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+void LLRemoteParcelRequestResponder::httpFailure()
 {
-	LL_WARNS() << "LLRemoteParcelRequest error [status:"
-			<< status << "]: " << content << LL_ENDL;
+	LL_WARNS() << dumpResponse() << LL_ENDL;
 
 	// Panel inspecting the information may be closed and destroyed
 	// before this response is received.
 	LLRemoteParcelInfoObserver* observer = mObserverHandle.get();
 	if (observer)
 	{
-		observer->setErrorStatus(status, reason);
+		observer->setErrorStatus(getStatus(), getReason());
 	}
 }
 

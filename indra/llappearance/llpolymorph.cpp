@@ -343,7 +343,7 @@ BOOL LLPolyMorphTarget::setInfo(LLPolyMorphTargetInfo* info)
 		return FALSE;
 	mInfo = info;
 	mID = info->mID;
-	setWeight(getDefaultWeight(), FALSE );
+	setWeight(getDefaultWeight());
 
 	LLAvatarAppearance* avatarp = mMesh->getAvatar();
 	LLPolyMorphTargetInfo::volume_info_list_t::iterator iter;
