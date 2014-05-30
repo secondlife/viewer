@@ -1912,13 +1912,45 @@ void LLOpenFoldersWithSelection::doFolder(LLFolderViewFolder* folder)
 	}
 }
 
-void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root, const std::string& action)
+// Callback for doToSelected if DAMA required...
+void LLInventoryAction::callback_doToSelected(const LLSD& notification, const LLSD& response, class LLInventoryModel* model, class LLFolderView* root, const std::string& action)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (option == 0) // YES
+    {
+        doToSelected(model, root, action, FALSE);
+    }
+}
+
+void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root, const std::string& action, BOOL user_confirm)
 {
 	if ("rename" == action)
 	{
 		root->startRenamingSelectedItem();
 		return;
 	}
+    
+	std::set<LLFolderViewItem*> selected_items = root->getSelectionList();
+        
+    // Prompt the user for some marketplace active listing edits
+	if (user_confirm && (("paste" == action) || ("cut" == action) || ("delete" == action)))
+    {
+        std::set<LLFolderViewItem*>::iterator set_iter = selected_items.begin();
+        for (; set_iter != selected_items.end(); ++set_iter)
+        {
+            LLFolderViewModelItemInventory * viewModel = dynamic_cast<LLFolderViewModelItemInventory *>((*set_iter)->getViewModelItem());
+            if (viewModel && LLMarketplaceData::instance().isInActiveFolder(viewModel->getUUID()))
+            {
+                break;
+            }
+        }
+        if (set_iter != selected_items.end())
+        {
+            LLNotificationsUtil::add("ConfirmMerchantActiveChange", LLSD(), LLSD(), boost::bind(&LLInventoryAction::callback_doToSelected, _1, _2, model, root, action));
+            return;
+        }
+    }
+    
 	if ("delete" == action)
 	{
 		LLSD args;
@@ -1944,8 +1976,6 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 		return;
 	}
 
-
-	std::set<LLFolderViewItem*> selected_items = root->getSelectionList();
 
 	LLMultiPreview* multi_previewp = NULL;
 	LLMultiProperties* multi_propertiesp = NULL;
