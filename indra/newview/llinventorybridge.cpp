@@ -2909,7 +2909,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 		LLFolderViewFolder *f = dynamic_cast<LLFolderViewFolder   *>(mInventoryPanel.get()->getItemByID(mUUID));
 		if (f)
 		{
-			f->setOpen(TRUE);
+			f->toggleOpen();
 		}
 		
 		return;
