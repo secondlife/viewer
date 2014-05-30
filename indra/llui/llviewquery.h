@@ -49,7 +49,7 @@ class LLQuerySorter
 {
 public:
 	virtual ~LLQuerySorter() {};
-	virtual void operator() (LLView * parent, viewList_t &children) const;
+	virtual void sort(LLView * parent, viewList_t &children) const;
 };
 
 class LLLeavesFilter : public LLQueryFilter, public LLSingleton<LLLeavesFilter>
@@ -127,10 +127,5 @@ private:
 	const LLQuerySorter* mSorterp;
 };
 
-class LLCtrlQuery : public LLViewQuery
-{
-public:
-	LLCtrlQuery();
-};
 
 #endif // LL_LLVIEWQUERY_H

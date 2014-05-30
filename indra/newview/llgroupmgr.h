@@ -35,6 +35,17 @@
 
 class LLMessageSystem;
 
+
+enum LLGroupChange
+{
+	GC_PROPERTIES,
+	GC_MEMBER_DATA,
+	GC_ROLE_DATA,
+	GC_ROLE_MEMBER_DATA,
+	GC_TITLES,
+	GC_ALL
+};
+
 class LLGroupMgrObserver
 {
 public:
@@ -232,6 +243,8 @@ public:
 	BOOL isRoleDataComplete() { return mRoleDataComplete; }
 	BOOL isRoleMemberDataComplete() { return mRoleMemberDataComplete; }
 	BOOL isGroupPropertiesDataComplete() { return mGroupPropertiesDataComplete; }
+	
+	bool isSingleMemberNotOwner();
 
 	F32 getAccessTime() const { return mAccessTime; }
 	void setAccessed();

@@ -112,7 +112,7 @@ LLDebugVarMessageBox::LLDebugVarMessageBox(const std::string& title, EDebugVarTy
 		addChild(mSlider3);
 		break;
 	default:
-		llwarns << "Unhandled var type " << var_type << llendl;
+		LL_WARNS() << "Unhandled var type " << var_type << LL_ENDL;
 		break;
 	}
 
@@ -234,7 +234,7 @@ void LLDebugVarMessageBox::sliderChanged(const LLSD& data)
 		break;
 	}
 	default:
-		llwarns << "Unhandled var type " << mVarType << llendl;
+		LL_WARNS() << "Unhandled var type " << mVarType << LL_ENDL;
 		break;
 	}
 }
@@ -263,7 +263,7 @@ void LLDebugVarMessageBox::draw()
 		  break;
 	  }
 	  default:
-		llwarns << "Unhandled var type " << mVarType << llendl;
+		LL_WARNS() << "Unhandled var type " << mVarType << LL_ENDL;
 		break;
 	}
 	mText->setText(text);

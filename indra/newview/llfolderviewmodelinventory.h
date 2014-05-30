@@ -107,6 +107,10 @@ class LLFolderViewModelInventory
 public:
 	typedef LLFolderViewModel<LLInventorySort,   LLFolderViewModelItemInventory, LLFolderViewModelItemInventory,   LLInventoryFilter> base_t;
 
+	LLFolderViewModelInventory(const std::string& name)
+	:	base_t(new LLInventorySort(), new LLInventoryFilter(LLInventoryFilter::Params().name(name)))
+	{}
+
 	void setTaskID(const LLUUID& id) {mTaskID = id;}
 
 	void sort(LLFolderViewFolder* folder);

@@ -551,7 +551,7 @@ void show_item_original(const LLUUID& item_uuid)
 	LLFloater* floater_inventory = LLFloaterReg::getInstance("inventory");
 	if (!floater_inventory)
 	{
-		llwarns << "Could not find My Inventory floater" << llendl;
+		LL_WARNS() << "Could not find My Inventory floater" << LL_ENDL;
 		return;
 	}
 
@@ -979,9 +979,9 @@ int get_folder_levels(LLInventoryCategory* inv_cat)
     
 	int max_child_levels = 0;
     
-	for (S32 i=0; i < cats->count(); ++i)
+	for (S32 i=0; i < cats->size(); ++i)
 	{
-		LLInventoryCategory* category = cats->get(i);
+		LLInventoryCategory* category = cats->at(i);
 		max_child_levels = llmax(max_child_levels, get_folder_levels(category));
 	}
     
@@ -1074,7 +1074,7 @@ bool can_move_item_to_marketplace(const LLInventoryCategory* root_folder, LLInve
             
             gInventory.collectDescendents(root_folder->getUUID(), existing_categories, existing_items, FALSE);
             
-            existing_item_count += existing_items.count();
+            existing_item_count += existing_items.size();
         }
         
         if (existing_item_count > gSavedSettings.getU32("InventoryOutboxMaxItemCount"))
@@ -1118,8 +1118,8 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
         LLInventoryModel::item_array_t descendent_items;
         gInventory.collectDescendents(inv_cat->getUUID(), descendent_categories, descendent_items, FALSE);
     
-        int dragged_folder_count = descendent_categories.count() + 1;
-        int dragged_item_count = descendent_items.count() + bundle_size;
+        int dragged_folder_count = descendent_categories.size() + 1;
+        int dragged_item_count = descendent_items.size() + bundle_size;
         int existing_item_count = 0;
         int existing_folder_count = 0;
     
@@ -1143,8 +1143,8 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
         
             gInventory.collectDescendents(root_folder->getUUID(), existing_categories, existing_items, FALSE);
         
-            existing_folder_count += existing_categories.count();
-            existing_item_count += existing_items.count();
+            existing_folder_count += existing_categories.size();
+            existing_item_count += existing_items.size();
         }
     
         const int total_folder_count = existing_folder_count + dragged_folder_count;
@@ -1170,7 +1170,7 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
         // Now check that each item in the folder can be moved in the marketplace
         if (accept)
         {
-            for (S32 i=0; i < descendent_items.count(); ++i)
+            for (S32 i=0; i < descendent_items.size(); ++i)
             {
                 LLInventoryItem* item = descendent_items[i];
                 if (!can_move_to_marketplace(item, tooltip_msg, false))
@@ -1445,7 +1445,7 @@ void validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
     if (count == 0)
     {
         // We warn if there's really nothing in the folder (may be it's a mistake or an under construction listing)
-        if ((cat_array->count() == 0) && cb)
+        if ((cat_array->size() == 0) && cb)
         {
             std::string message = indent + LLTrans::getString("Marketplace Validation Warning Empty") + cat->getName();
             cb(message);
@@ -1784,7 +1784,7 @@ bool LLFindNonRemovableObjects::operator()(LLInventoryCategory* cat, LLInventory
 		return !get_is_category_removable(&gInventory, cat->getUUID());
 	}
 
-	llwarns << "Not a category and not an item?" << llendl;
+	LL_WARNS() << "Not a category and not an item?" << LL_ENDL;
 	return false;
 }
 

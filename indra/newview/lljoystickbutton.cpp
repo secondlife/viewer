@@ -121,7 +121,7 @@ void LLJoystick::updateSlop()
 		break;
 
 	default:
-		llerrs << "LLJoystick::LLJoystick() - bad switch case" << llendl;
+		LL_ERRS() << "LLJoystick::LLJoystick() - bad switch case" << LL_ENDL;
 		break;
 	}
 
@@ -132,7 +132,7 @@ bool LLJoystick::pointInCircle(S32 x, S32 y) const
 { 
 	if(this->getLocalRect().getHeight() != this->getLocalRect().getWidth())
 	{
-		llwarns << "Joystick shape is not square"<<llendl;
+		LL_WARNS() << "Joystick shape is not square"<<LL_ENDL;
 		return true;
 	}
 	//center is x and y coordinates of center of joystick circle, and also its radius
@@ -143,7 +143,7 @@ bool LLJoystick::pointInCircle(S32 x, S32 y) const
 
 BOOL LLJoystick::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	//llinfos << "joystick mouse down " << x << ", " << y << llendl;
+	//LL_INFOS() << "joystick mouse down " << x << ", " << y << LL_ENDL;
 	bool handles = false;
 
 	if(pointInCircle(x, y))
@@ -160,7 +160,7 @@ BOOL LLJoystick::handleMouseDown(S32 x, S32 y, MASK mask)
 
 BOOL LLJoystick::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	// llinfos << "joystick mouse up " << x << ", " << y << llendl;
+	// LL_INFOS() << "joystick mouse up " << x << ", " << y << LL_ENDL;
 
 	if( hasMouseCapture() )
 	{
@@ -271,7 +271,7 @@ void LLJoystickAgentTurn::onHeldDown()
 	F32 time = getElapsedHeldDownTime();
 	updateSlop();
 
-	//llinfos << "move forward/backward (and/or turn)" << llendl;
+	//LL_INFOS() << "move forward/backward (and/or turn)" << LL_ENDL;
 
 	S32 dx = mLastMouse.mX - mFirstMouse.mX + mInitialOffset.mX;
 	S32 dy = mLastMouse.mY - mFirstMouse.mY + mInitialOffset.mY;
@@ -353,7 +353,7 @@ void LLJoystickAgentSlide::onMouseUp()
 
 void LLJoystickAgentSlide::onHeldDown()
 {
-	//llinfos << "slide left/right (and/or move forward/backward)" << llendl;
+	//LL_INFOS() << "slide left/right (and/or move forward/backward)" << LL_ENDL;
 
 	updateSlop();
 
@@ -504,7 +504,7 @@ F32 LLJoystickCameraRotate::getOrbitRate()
 	if( time < NUDGE_TIME )
 	{
 		F32 rate = ORBIT_NUDGE_RATE + time * (1 - ORBIT_NUDGE_RATE)/ NUDGE_TIME;
-		//llinfos << rate << llendl;
+		//LL_INFOS() << rate << LL_ENDL;
 		return rate;
 	}
 	else

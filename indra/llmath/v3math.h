@@ -159,6 +159,9 @@ F32	dist_vec(const LLVector3 &a, const LLVector3 &b);		// Returns distance betwe
 F32	dist_vec_squared(const LLVector3 &a, const LLVector3 &b);// Returns distance squared between a and b
 F32	dist_vec_squared2D(const LLVector3 &a, const LLVector3 &b);// Returns distance squared between a and b ignoring Z component
 LLVector3 projected_vec(const LLVector3 &a, const LLVector3 &b); // Returns vector a projected on vector b
+// Returns a vector in direction of a, such that when projected onto b, gives you the same value as b
+// in other words: projected_vec(inverse_projected_vec(a, b), b) == b;
+LLVector3 inverse_projected_vec(const LLVector3 &a, const LLVector3 &b); 
 LLVector3 parallel_component(const LLVector3 &a, const LLVector3 &b); // Returns vector a projected on vector b (same as projected_vec)
 LLVector3 orthogonal_component(const LLVector3 &a, const LLVector3 &b); // Returns component of vector a not parallel to vector b (same as projected_vec)
 LLVector3 lerp(const LLVector3 &a, const LLVector3 &b, F32 u); // Returns a vector that is a linear interpolation between a and b
@@ -493,6 +496,18 @@ inline LLVector3 projected_vec(const LLVector3 &a, const LLVector3 &b)
 	LLVector3 project_axis = b;
 	project_axis.normalize();
 	return project_axis * (a * project_axis);
+}
+
+inline LLVector3 inverse_projected_vec(const LLVector3& a, const LLVector3& b)
+{
+	LLVector3 normalized_a = a;
+	normalized_a.normalize();
+	LLVector3 normalized_b = b;
+	F32 b_length = normalized_b.normalize();
+
+	F32 dot_product = normalized_a * normalized_b;
+	//NB: if a _|_ b, then returns an infinite vector
+	return normalized_a * (b_length / dot_product);
 }
 
 inline LLVector3 parallel_component(const LLVector3 &a, const LLVector3 &b)

@@ -32,7 +32,7 @@
 #include <list>
 #include "llstring.h"
 #include "llxmlparser.h"
-#include "string_table.h"
+#include "llstringtable.h"
 
 class LLColor4;
 class LLColor4U;
@@ -227,7 +227,7 @@ protected:
 	LLXmlTree*		mTree;
 	LLXmlTreeNode*	mRoot;
 	LLXmlTreeNode*  mCurrent;
-	BOOL			mDump;	// Dump parse tree to llinfos as it is read.
+	BOOL			mDump;	// Dump parse tree to LL_INFOS() as it is read.
 	BOOL			mKeepContents;
 };
 

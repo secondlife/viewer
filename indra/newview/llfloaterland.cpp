@@ -225,7 +225,7 @@ void LLFloaterLand::onOpen(const LLSD& key)
 	refresh();
 }
 
-void LLFloaterLand::onVisibilityChange(const LLSD& visible)
+void LLFloaterLand::onVisibilityChanged(const LLSD& visible)
 {
 	if (!visible.asBoolean())
 	{
@@ -255,7 +255,7 @@ LLFloaterLand::LLFloaterLand(const LLSD& seed)
 
 BOOL LLFloaterLand::postBuild()
 {	
-	setVisibleCallback(boost::bind(&LLFloaterLand::onVisibilityChange, this, _2));
+	setVisibleCallback(boost::bind(&LLFloaterLand::onVisibilityChanged, this, _2));
 	
 	LLTabContainer* tab = getChild<LLTabContainer>("landtab");
 
@@ -936,7 +936,7 @@ void LLPanelLandGeneral::onClickRelease(void*)
 // static
 void LLPanelLandGeneral::onClickReclaim(void*)
 {
-	lldebugs << "LLPanelLandGeneral::onClickReclaim()" << llendl;
+	LL_DEBUGS() << "LLPanelLandGeneral::onClickReclaim()" << LL_ENDL;
 	LLViewerParcelMgr::getInstance()->reclaimParcel();
 }
 
@@ -1541,8 +1541,8 @@ void LLPanelLandObjects::processParcelObjectOwnersReply(LLMessageSystem *msg, vo
 
 	if (!self)
 	{
-		llwarns << "Received message for nonexistent LLPanelLandObject"
-				<< llendl;
+		LL_WARNS() << "Received message for nonexistent LLPanelLandObject"
+				<< LL_ENDL;
 		return;
 	}
 	
@@ -1612,8 +1612,8 @@ void LLPanelLandObjects::processParcelObjectOwnersReply(LLMessageSystem *msg, vo
 
 		self->mOwnerList->addNameItemRow(item_params);
 
-		lldebugs << "object owner " << owner_id << " (" << (is_group_owned ? "group" : "agent")
-				<< ") owns " << object_count << " objects." << llendl;
+		LL_DEBUGS() << "object owner " << owner_id << " (" << (is_group_owned ? "group" : "agent")
+				<< ") owns " << object_count << " objects." << LL_ENDL;
 	}
 	// check for no results
 	if (0 == self->mOwnerList->getItemCount())
@@ -1797,10 +1797,10 @@ void LLPanelLandObjects::onCommitClean(LLUICtrl *caller, void* user_data)
 		{
 			lop->mOtherTime = return_time;
 
-			parcel->setCleanOtherTime(lop->mOtherTime);
-			send_other_clean_time_message(parcel->getLocalID(), lop->mOtherTime);
-		}
+		parcel->setCleanOtherTime(lop->mOtherTime);
+		send_other_clean_time_message(parcel->getLocalID(), lop->mOtherTime);
 	}
+}
 }
 
 
@@ -1899,7 +1899,7 @@ BOOL LLPanelLandOptions::postBuild()
 	}
 	else
 	{
-		llwarns << "LLUICtrlFactory::getTexturePickerByName() returned NULL for 'snapshot_ctrl'" << llendl;
+		LL_WARNS() << "LLUICtrlFactory::getTexturePickerByName() returned NULL for 'snapshot_ctrl'" << LL_ENDL;
 	}
 
 
@@ -2336,7 +2336,7 @@ BOOL LLPanelLandAccess::postBuild()
 	childSetCommitCallback("public_access", onCommitPublicAccess, this);
 	childSetCommitCallback("limit_payment", onCommitAny, this);
 	childSetCommitCallback("limit_age_verified", onCommitAny, this);
-	childSetCommitCallback("GroupCheck", onCommitAny, this);
+	childSetCommitCallback("GroupCheck", onCommitGroupCheck, this);
 	childSetCommitCallback("PassCheck", onCommitAny, this);
 	childSetCommitCallback("pass_combo", onCommitAny, this);
 	childSetCommitCallback("PriceSpin", onCommitAny, this);
@@ -2501,11 +2501,11 @@ void LLPanelLandAccess::refresh()
 		}
 		
 		BOOL use_pass = parcel->getParcelFlag(PF_USE_PASS_LIST);
-		getChild<LLUICtrl>("PassCheck")->setValue(use_pass );
+		getChild<LLUICtrl>("PassCheck")->setValue(use_pass);
 		LLCtrlSelectionInterface* passcombo = childGetSelectionInterface("pass_combo");
 		if (passcombo)
 		{
-			if (public_access || !use_pass || !use_group)
+			if (public_access || !use_pass)
 			{
 				passcombo->selectByValue("anyone");
 			}
@@ -2598,12 +2598,11 @@ void LLPanelLandAccess::refresh_ui()
 			getChildView("limit_age_verified")->setEnabled(FALSE);
 
 
-			BOOL group_access = getChild<LLUICtrl>("GroupCheck")->getValue().asBoolean();
 			BOOL sell_passes = getChild<LLUICtrl>("PassCheck")->getValue().asBoolean();
 			getChildView("PassCheck")->setEnabled(can_manage_allowed);
 			if (sell_passes)
 			{
-				getChildView("pass_combo")->setEnabled(group_access && can_manage_allowed);
+				getChildView("pass_combo")->setEnabled(can_manage_allowed);
 				getChildView("PriceSpin")->setEnabled(can_manage_allowed);
 				getChildView("HoursSpin")->setEnabled(can_manage_allowed);
 			}
@@ -2662,6 +2661,32 @@ void LLPanelLandAccess::onCommitPublicAccess(LLUICtrl *ctrl, void *userdata)
 	onCommitAny(ctrl, userdata);
 }
 
+void LLPanelLandAccess::onCommitGroupCheck(LLUICtrl *ctrl, void *userdata)
+{
+	LLPanelLandAccess *self = (LLPanelLandAccess *)userdata;
+	LLParcel* parcel = self->mParcel->getParcel();
+	if (!parcel)
+	{
+		return;
+	}
+
+	BOOL use_pass_list = !self->getChild<LLUICtrl>("public_access")->getValue().asBoolean();
+	BOOL use_access_group = self->getChild<LLUICtrl>("GroupCheck")->getValue().asBoolean();
+	LLCtrlSelectionInterface* passcombo = self->childGetSelectionInterface("pass_combo");
+	if (passcombo)
+	{
+		if (use_access_group && use_pass_list)
+		{
+			if (passcombo->getSelectedValue().asString() == "group")
+			{
+				passcombo->selectByValue("anyone");
+			}
+		}
+	}
+
+	onCommitAny(ctrl, userdata);
+}
+
 // static
 void LLPanelLandAccess::onCommitAny(LLUICtrl *ctrl, void *userdata)
 {
@@ -2699,14 +2724,14 @@ void LLPanelLandAccess::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	{
 		use_access_list = TRUE;
 		use_pass_list = self->getChild<LLUICtrl>("PassCheck")->getValue().asBoolean();
-		if (use_access_group && use_pass_list)
+		LLCtrlSelectionInterface* passcombo = self->childGetSelectionInterface("pass_combo");
+		if (passcombo)
 		{
-			LLCtrlSelectionInterface* passcombo = self->childGetSelectionInterface("pass_combo");
-			if (passcombo)
+			if (use_access_group && use_pass_list)
 			{
 				if (passcombo->getSelectedValue().asString() == "group")
 				{
-					use_access_list = FALSE;
+					use_access_group = FALSE;
 				}
 			}
 		}

@@ -91,7 +91,7 @@ void LLStreamingAudio_FMODEX::start(const std::string& url)
 {
 	//if (!mInited)
 	//{
-	//	llwarns << "startInternetStream before audio initialized" << llendl;
+	//	LL_WARNS() << "startInternetStream before audio initialized" << LL_ENDL;
 	//	return;
 	//}
 
@@ -100,13 +100,13 @@ void LLStreamingAudio_FMODEX::start(const std::string& url)
 
 	if (!url.empty())
 	{
-		llinfos << "Starting internet stream: " << url << llendl;
+		LL_INFOS() << "Starting internet stream: " << url << LL_ENDL;
 		mCurrentInternetStreamp = new LLAudioStreamManagerFMODEX(mSystem,url);
 		mURL = url;
 	}
 	else
 	{
-		llinfos << "Set internet stream to null" << llendl;
+		LL_INFOS() << "Set internet stream to null" << LL_ENDL;
 		mURL.clear();
 	}
 }
@@ -121,7 +121,7 @@ void LLStreamingAudio_FMODEX::update()
 		LLAudioStreamManagerFMODEX *streamp = *iter;
 		if (streamp->stopStream())
 		{
-			llinfos << "Closed dead stream" << llendl;
+			LL_INFOS() << "Closed dead stream" << LL_ENDL;
 			delete streamp;
 			mDeadStreams.erase(iter++);
 		}
@@ -181,7 +181,7 @@ void LLStreamingAudio_FMODEX::update()
 					{
 						if (!strcmp(tag.name, "Sample Rate Change"))
 						{
-							llinfos << "Stream forced changing sample rate to " << *((float *)tag.data) << llendl;
+							LL_INFOS() << "Stream forced changing sample rate to " << *((float *)tag.data) << LL_ENDL;
 							mFMODInternetStreamChannelp->setFrequency(*((float *)tag.data));
 						}
 						continue;
@@ -195,9 +195,9 @@ void LLStreamingAudio_FMODEX::update()
 				mFMODInternetStreamChannelp->getPaused(&paused);
 				if(!paused)
 				{
-					llinfos << "Stream starvation detected! Pausing stream until buffer nearly full." << llendl;
-					llinfos << "  (diskbusy="<<diskbusy<<")" << llendl;
-					llinfos << "  (progress="<<progress<<")" << llendl;
+					LL_INFOS() << "Stream starvation detected! Pausing stream until buffer nearly full." << LL_ENDL;
+					LL_INFOS() << "  (diskbusy="<<diskbusy<<")" << LL_ENDL;
+					LL_INFOS() << "  (progress="<<progress<<")" << LL_ENDL;
 					mFMODInternetStreamChannelp->setPaused(true);
 				}
 			}
@@ -220,14 +220,14 @@ void LLStreamingAudio_FMODEX::stop()
 
 	if (mCurrentInternetStreamp)
 	{
-		llinfos << "Stopping internet stream: " << mCurrentInternetStreamp->getURL() << llendl;
+		LL_INFOS() << "Stopping internet stream: " << mCurrentInternetStreamp->getURL() << LL_ENDL;
 		if (mCurrentInternetStreamp->stopStream())
 		{
 			delete mCurrentInternetStreamp;
 		}
 		else
 		{
-			llwarns << "Pushing stream to dead list: " << mCurrentInternetStreamp->getURL() << llendl;
+			LL_WARNS() << "Pushing stream to dead list: " << mCurrentInternetStreamp->getURL() << LL_ENDL;
 			mDeadStreams.push_back(mCurrentInternetStreamp);
 		}
 		mCurrentInternetStreamp = NULL;
@@ -314,9 +314,9 @@ LLAudioStreamManagerFMODEX::LLAudioStreamManagerFMODEX(FMOD::System *system, con
 
 	if (result!= FMOD_OK)
 	{
-		llwarns << "Couldn't open fmod stream, error "
+		LL_WARNS() << "Couldn't open fmod stream, error "
 			<< FMOD_ErrorString(result)
-			<< llendl;
+			<< LL_ENDL;
 		mReady = false;
 		return;
 	}
@@ -329,7 +329,7 @@ FMOD::Channel *LLAudioStreamManagerFMODEX::startStream()
 	// We need a live and opened stream before we try and play it.
 	if (!mInternetStream || getOpenState() != FMOD_OPENSTATE_READY)
 	{
-		llwarns << "No internet stream to start playing!" << llendl;
+		LL_WARNS() << "No internet stream to start playing!" << LL_ENDL;
 		return NULL;
 	}
 

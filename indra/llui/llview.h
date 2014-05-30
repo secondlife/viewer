@@ -42,7 +42,6 @@
 #include "llui.h"
 #include "lluistring.h"
 #include "llviewquery.h"
-#include "stdenums.h"
 #include "lluistring.h"
 #include "llcursortypes.h"
 #include "lluictrlfactory.h"
@@ -66,6 +65,7 @@ const BOOL	MOUSE_OPAQUE = TRUE;
 const BOOL	NOT_MOUSE_OPAQUE = FALSE;
 
 const U32 GL_NAME_UI_RESERVED = 2;
+
 
 // maintains render state during traversal of UI tree
 class LLViewDrawContext
@@ -100,9 +100,13 @@ class LLView
 :	public LLMouseHandler,			// handles mouse events
 	public LLFocusableElement,		// handles keyboard events
 	public LLMortician,				// lazy deletion
-	public LLHandleProvider<LLView>	// passes out weak references to self
+	public LLHandleProvider<LLView>,     // passes out weak references to self
+	public LLTrace::MemTrackable<LLView> // track memory usage
 {
 public:
+
+	enum EOrientation { HORIZONTAL, VERTICAL, ORIENTATION_COUNT };
+
 	struct Follows : public LLInitParam::ChoiceBlock<Follows>
 	{
 		Alternative<std::string>	string;
@@ -163,7 +167,7 @@ protected:
 
 private:
 	// widgets in general are not copyable
-	LLView(const LLView& other) {};
+	LLView(const LLView& other);
 public:
 //#if LL_DEBUG
 	static BOOL sIsDrawing;
@@ -196,12 +200,9 @@ public:
 	typedef child_list_t::reverse_iterator 			child_list_reverse_iter_t;
 	typedef child_list_t::const_reverse_iterator 	child_list_const_reverse_iter_t;
 
-	typedef std::vector<class LLUICtrl *>				ctrl_list_t;
-
-	typedef std::pair<S32, S32>							tab_order_t;
-	typedef std::pair<LLUICtrl *, tab_order_t>			tab_order_pair_t;
+	typedef std::pair<LLView *, S32>				tab_order_pair_t;
 	// this structure primarily sorts by the tab group, secondarily by the insertion ordinal (lastly by the value of the pointer)
-	typedef std::map<const LLUICtrl*, tab_order_t>		child_tab_order_t;
+	typedef std::map<const LLView*, S32>		child_tab_order_t;
 	typedef child_tab_order_t::iterator					child_tab_order_iter_t;
 	typedef child_tab_order_t::const_iterator			child_tab_order_const_iter_t;
 	typedef child_tab_order_t::reverse_iterator			child_tab_order_reverse_iter_t;
@@ -247,8 +248,6 @@ public:
 
 	void		sendChildToFront(LLView* child);
 	void		sendChildToBack(LLView* child);
-	void		moveChildToFrontOfTabGroup(LLUICtrl* child);
-	void		moveChildToBackOfTabGroup(LLUICtrl* child);
 	
 	virtual bool addChild(LLView* view, S32 tab_group = 0);
 
@@ -260,9 +259,7 @@ public:
 
 	virtual BOOL	postBuild() { return TRUE; }
 
-	const child_tab_order_t& getCtrlOrder() const		{ return mCtrlOrder; }
-	ctrl_list_t getCtrlList() const;
-	ctrl_list_t getCtrlListSorted() const;
+	const child_tab_order_t& getTabOrder() const		{ return mTabOrder; }
 	
 	void setDefaultTabGroup(S32 d)				{ mDefaultTabGroup = d; }
 	S32 getDefaultTabGroup() const				{ return mDefaultTabGroup; }
@@ -303,7 +300,7 @@ public:
 
 	virtual BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text );
 
-	virtual void	handleVisibilityChange ( BOOL new_visibility );
+	virtual void	onVisibilityChange ( BOOL new_visibility );
 
 	void			pushVisible(BOOL visible)	{ mLastVisible = mVisible; setVisible(visible); }
 	void			popVisible()				{ setVisible(mLastVisible); }
@@ -496,9 +493,9 @@ public:
 	static	BOOL focusPrev(LLView::child_list_t & result);
 
 	// returns query for iterating over controls in tab order	
-	static const LLCtrlQuery & getTabOrderQuery();
+	static const LLViewQuery & getTabOrderQuery();
 	// return query for iterating over focus roots in tab order
-	static const LLCtrlQuery & getFocusRootsQuery();
+	static const LLViewQuery & getFocusRootsQuery();
 
 	static LLWindow*	getWindow(void) { return LLUI::sWindow; }
 
@@ -592,7 +589,7 @@ private:
 	
 	U32			mReshapeFlags;
 
-	child_tab_order_t mCtrlOrder;
+	child_tab_order_t mTabOrder;
 	S32			mDefaultTabGroup;
 	S32			mLastTabGroup;
 
@@ -608,8 +605,6 @@ private:
 	BOOL		mUseBoundingRect; // hit test against bounding rectangle that includes all child elements
 
 	BOOL		mLastVisible;
-
-	S32			mNextInsertionOrdinal;
 
 	bool		mInDraw;
 
@@ -673,17 +668,14 @@ public:
 	static BOOL sForceReshape;
 };
 
-class LLCompareByTabOrder
+namespace LLInitParam
 {
-public:
-	LLCompareByTabOrder(const LLView::child_tab_order_t& order) : mTabOrder(order) {}
-	virtual ~LLCompareByTabOrder() {}
-	bool operator() (const LLView* const a, const LLView* const b) const;
-private:
-	virtual bool compareTabOrders(const LLView::tab_order_t & a, const LLView::tab_order_t & b) const { return a < b; }
-	// ok to store a reference, as this should only be allocated on stack during view query operations
-	const LLView::child_tab_order_t& mTabOrder;
+template<>
+struct TypeValues<LLView::EOrientation> : public LLInitParam::TypeValuesHelper<LLView::EOrientation>
+{
+	static void declareValues();
 };
+}
 
 template <class T> T* LLView::getChild(const std::string& name, BOOL recurse) const
 {
@@ -694,7 +686,7 @@ template <class T> T* LLView::getChild(const std::string& name, BOOL recurse) co
 		// did we find *something* with that name?
 		if (child)
 		{
-			llwarns << "Found child named \"" << name << "\" but of wrong type " << typeid(*child).name() << ", expecting " << typeid(T*).name() << llendl;
+			LL_WARNS() << "Found child named \"" << name << "\" but of wrong type " << typeid(*child).name() << ", expecting " << typeid(T*).name() << LL_ENDL;
 		}
 		result = getDefaultWidget<T>(name);
 		if (!result)
@@ -706,11 +698,11 @@ template <class T> T* LLView::getChild(const std::string& name, BOOL recurse) co
 				// *NOTE: You cannot call mFoo = getChild<LLFoo>("bar")
 				// in a floater or panel constructor.  The widgets will not
 				// be ready.  Instead, put it in postBuild().
-				llwarns << "Making dummy " << typeid(T).name() << " named \"" << name << "\" in " << getName() << llendl;
+				LL_WARNS() << "Making dummy " << typeid(T).name() << " named \"" << name << "\" in " << getName() << LL_ENDL;
 			}
 			else
 			{
-				llwarns << "Failed to create dummy " << typeid(T).name() << llendl;
+				LL_WARNS() << "Failed to create dummy " << typeid(T).name() << LL_ENDL;
 				return NULL;
 			}
 

@@ -312,7 +312,7 @@ namespace tut
 {
     struct lleventdispatcher_data
     {
-        WrapLL_ERRS redirect;
+        WrapLLErrs redirect;
         Dispatcher work;
         Vars v;
         std::string name, desc;

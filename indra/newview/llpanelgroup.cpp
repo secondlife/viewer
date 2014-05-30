@@ -49,6 +49,7 @@
 
 #include "llpanelgroupnotices.h"
 #include "llpanelgroupgeneral.h"
+#include "llpanelgrouproles.h"
 
 #include "llaccordionctrltab.h"
 #include "llaccordionctrl.h"
@@ -275,6 +276,7 @@ void LLPanelGroup::onBtnApply(void* user_data)
 {
 	LLPanelGroup* self = static_cast<LLPanelGroup*>(user_data);
 	self->apply();
+	self->refreshData();
 }
 
 void LLPanelGroup::onBtnGroupCallClicked(void* user_data)
@@ -291,7 +293,7 @@ void LLPanelGroup::onBtnGroupChatClicked(void* user_data)
 
 void LLPanelGroup::onBtnJoin()
 {
-	lldebugs << "joining group: " << mID << llendl;
+	LL_DEBUGS() << "joining group: " << mID << LL_ENDL;
 	LLGroupActions::join(mID);
 }
 
@@ -329,8 +331,9 @@ void LLPanelGroup::update(LLGroupChange gc)
 	if(gdatap)
 	{
 		std::string group_name =  gdatap->mName.empty() ? LLTrans::getString("LoadingData") : gdatap->mName;
-		childSetValue("group_name", group_name);
-		childSetToolTip("group_name",group_name);
+		LLUICtrl* group_name_ctrl = getChild<LLUICtrl>("group_name");
+		group_name_ctrl->setValue(group_name);
+		group_name_ctrl->setToolTip(group_name);
 		
 		LLGroupData agent_gdatap;
 		bool is_member = gAgent.getGroupData(mID,agent_gdatap) || gAgent.isGodlike();
@@ -376,8 +379,9 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 	if(gdatap)
 	{
 		std::string group_name =  gdatap->mName.empty() ? LLTrans::getString("LoadingData") : gdatap->mName;
-		childSetValue("group_name", group_name);
-		childSetToolTip("group_name",group_name);
+		LLUICtrl* group_name_ctrl = getChild<LLUICtrl>("group_name");
+		group_name_ctrl->setValue(group_name);
+		group_name_ctrl->setToolTip(group_name);
 	}
 
 	LLButton* button_apply = findChild<LLButton>("btn_apply");
@@ -495,6 +499,22 @@ bool LLPanelGroup::apply(LLPanelGroupTab* tab)
 	{
 		//we skip refreshing group after ew manually apply changes since its very annoying
 		//for those who are editing group
+
+		LLPanelGroupRoles * roles_tab = dynamic_cast<LLPanelGroupRoles*>(tab);
+		if (roles_tab)
+		{
+			LLGroupMgr* gmgrp = LLGroupMgr::getInstance();
+			LLGroupMgrGroupData* gdatap = gmgrp->getGroupData(roles_tab->getGroupID());
+
+			// allow refresh only for one specific case:
+			// there is only one member in group and it is not owner
+			// it's a wrong situation and need refresh panels from server
+			if (gdatap && gdatap->isSingleMemberNotOwner())
+			{
+				return true;
+			}
+		}
+
 		mSkipRefresh = TRUE;
 		return true;
 	}

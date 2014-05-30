@@ -330,7 +330,7 @@ S32 LLFloaterMarketplaceListings::getFolderCount()
         LLInventoryModel::item_array_t * items;
         gInventory.getDirectDescendentsOf(mRootFolderId, cats, items);
             
-        return (cats->count() + items->count());
+        return (cats->size() + items->size());
     }
     else
     {

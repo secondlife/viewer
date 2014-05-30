@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 
-<avatar_icon
-    name="avatar_icon"
-    default_icon_name="Generic_Person_Large"
-    use_draw_context_alpha="false">
-</avatar_icon>
+<avatar_icon name="avatar_icon"
+						 default_icon_name="Generic_Person_Large"
+						 use_draw_context_alpha="false"
+						 symbol_hpad = "2"
+						 symbol_vpad = "1"
+						 symbol_size = "5"/>
+

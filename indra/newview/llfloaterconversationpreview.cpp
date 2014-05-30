@@ -32,6 +32,7 @@
 #include "llfloaterimnearbychat.h"
 #include "llspinctrl.h"
 #include "lltrans.h"
+#include "llnotificationsutil.h"
 
 const std::string LL_FCP_COMPLETE_NAME("complete_name");
 const std::string LL_FCP_ACCOUNT_NAME("user_name");
@@ -45,14 +46,20 @@ LLFloaterConversationPreview::LLFloaterConversationPreview(const LLSD& session_i
 	mAccountName(session_id[LL_FCP_ACCOUNT_NAME]),
 	mCompleteName(session_id[LL_FCP_COMPLETE_NAME]),
 	mMutex(NULL),
-	mShowHistory(false)
+	mShowHistory(false),
+	mMessages(NULL),
+	mHistoryThreadsBusy(false),
+	mOpened(false)
+{
+}
+
+LLFloaterConversationPreview::~LLFloaterConversationPreview()
 {
 }
 
 BOOL LLFloaterConversationPreview::postBuild()
 {
 	mChatHistory = getChild<LLChatHistory>("chat_history");
-	LLLoadHistoryThread::setLoadEndSignal(boost::bind(&LLFloaterConversationPreview::setPages, this, _1, _2));
 
 	const LLConversation* conv = LLConversationLog::instance().getConversation(mSessionID);
 	std::string name;
@@ -79,31 +86,21 @@ BOOL LLFloaterConversationPreview::postBuild()
 	std::string title = getString("Title", args);
 	setTitle(title);
 
-	LLSD load_params;
-	load_params["load_all_history"] = true;
-	load_params["cut_off_todays_date"] = false;
-
-
-	LLSD loading;
-	loading[LL_IM_TEXT] = LLTrans::getString("loading_chat_logs");
-	mMessages.push_back(loading);
-	mPageSpinner = getChild<LLSpinCtrl>("history_page_spin");
-	mPageSpinner->setCommitCallback(boost::bind(&LLFloaterConversationPreview::onMoreHistoryBtnClick, this));
-	mPageSpinner->setMinValue(1);
-	mPageSpinner->set(1);
-	mPageSpinner->setEnabled(false);
-	LLLogChat::startChatHistoryThread(file, load_params);
 	return LLFloater::postBuild();
 }
 
-void LLFloaterConversationPreview::setPages(std::list<LLSD>& messages,const std::string& file_name)
+void LLFloaterConversationPreview::setPages(std::list<LLSD>* messages, const std::string& file_name)
 {
-	if(file_name == mChatHistoryFileName)
+	if(file_name == mChatHistoryFileName && messages)
 	{
 		// additional protection to avoid changes of mMessages in setPages()
 		LLMutexLock lock(&mMutex);
+		if (mMessages)
+		{
+			delete mMessages; // Clean up temporary message list with "Loading..." text
+		}
 		mMessages = messages;
-		mCurrentPage = (mMessages.size() ? (mMessages.size() - 1) / mPageSize : 0);
+		mCurrentPage = (mMessages->size() ? (mMessages->size() - 1) / mPageSize : 0);
 
 		mPageSpinner->setEnabled(true);
 		mPageSpinner->setMaxValue(mCurrentPage+1);
@@ -112,6 +109,11 @@ void LLFloaterConversationPreview::setPages(std::list<LLSD>& messages,const std:
 		std::string total_page_num = llformat("/ %d", mCurrentPage+1);
 		getChild<LLTextBox>("page_num_label")->setValue(total_page_num);
 		mShowHistory = true;
+	}
+	LLLoadHistoryThread* loadThread = LLLogChat::getLoadHistoryThread(mSessionID);
+	if (loadThread)
+	{
+		loadThread->removeLoadEndSignal(boost::bind(&LLFloaterConversationPreview::setPages, this, _1, _2));
 	}
 }
 
@@ -127,24 +129,82 @@ void LLFloaterConversationPreview::draw()
 
 void LLFloaterConversationPreview::onOpen(const LLSD& key)
 {
+	if (mOpened)
+	{
+		return;
+	}
+	mOpened = true;
+	if (!LLLogChat::historyThreadsFinished(mSessionID))
+	{
+		LLNotificationsUtil::add("ChatHistoryIsBusyAlert");
+		mHistoryThreadsBusy = true;
+		closeFloater();
+		return;
+	}
+	LLSD load_params;
+	load_params["load_all_history"] = true;
+	load_params["cut_off_todays_date"] = false;
+
+	// The temporary message list with "Loading..." text
+	// Will be deleted upon loading completion in setPages() method
+	mMessages = new std::list<LLSD>();
+
+
+	LLSD loading;
+	loading[LL_IM_TEXT] = LLTrans::getString("loading_chat_logs");
+	mMessages->push_back(loading);
+	mPageSpinner = getChild<LLSpinCtrl>("history_page_spin");
+	mPageSpinner->setCommitCallback(boost::bind(&LLFloaterConversationPreview::onMoreHistoryBtnClick, this));
+	mPageSpinner->setMinValue(1);
+	mPageSpinner->set(1);
+	mPageSpinner->setEnabled(false);
+
+	// The actual message list to load from file
+	// Will be deleted in a separate thread LLDeleteHistoryThread not to freeze UI
+	// LLDeleteHistoryThread is started in destructor
+	std::list<LLSD>* messages = new std::list<LLSD>();
+
+	LLLogChat::cleanupHistoryThreads();
+	
+	LLLoadHistoryThread* loadThread = new LLLoadHistoryThread(mChatHistoryFileName, messages, load_params);
+	loadThread->setLoadEndSignal(boost::bind(&LLFloaterConversationPreview::setPages, this, _1, _2));
+	loadThread->start();
+	LLLogChat::addLoadHistoryThread(mSessionID, loadThread);
+
+	LLDeleteHistoryThread* deleteThread = new LLDeleteHistoryThread(messages, loadThread);
+	LLLogChat::addDeleteHistoryThread(mSessionID, deleteThread);
+
 	mShowHistory = true;
+}
+
+void LLFloaterConversationPreview::onClose(bool app_quitting)
+{
+	mOpened = false;
+	if (!mHistoryThreadsBusy)
+	{
+		LLDeleteHistoryThread* deleteThread = LLLogChat::getDeleteHistoryThread(mSessionID);
+		if (deleteThread)
+		{
+			deleteThread->start();
+		}
+	}
 }
 
 void LLFloaterConversationPreview::showHistory()
 {
 	// additional protection to avoid changes of mMessages in setPages
 	LLMutexLock lock(&mMutex);
-	if (!mMessages.size() || mCurrentPage * mPageSize >= mMessages.size())
+	if(mMessages == NULL || !mMessages->size() || mCurrentPage * mPageSize >= mMessages->size())
 	{
 		return;
 	}
 
 	mChatHistory->clear();
 	std::ostringstream message;
-	std::list<LLSD>::const_iterator iter = mMessages.begin();
+	std::list<LLSD>::const_iterator iter = mMessages->begin();
 	std::advance(iter, mCurrentPage * mPageSize);
 
-	for (int msg_num = 0; iter != mMessages.end() && msg_num < mPageSize; ++iter, ++msg_num)
+	for (int msg_num = 0; iter != mMessages->end() && msg_num < mPageSize; ++iter, ++msg_num)
 	{
 		LLSD msg = *iter;
 

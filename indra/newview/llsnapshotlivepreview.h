@@ -96,7 +96,6 @@ public:
 	void setSnapshotQuality(S32 quality);
 	void setSnapshotBufferType(LLViewerWindow::ESnapshotType type) { mSnapshotBufferType = type; }
 	void updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail = FALSE, F32 delay = 0.f);
-	void saveWeb();
 	void saveTexture();
 	BOOL saveLocal();
 
@@ -112,9 +111,6 @@ public:
 
 	// Returns TRUE when snapshot generated, FALSE otherwise.
 	static BOOL onIdle( void* snapshot_preview );
-
-	// callback for region name resolve
-	void regionNameCallback(LLImageJPEG* snapshot, LLSD& metadata, const std::string& name, S32 x, S32 y, S32 z);
 
 private:
 	LLColor4					mColor;

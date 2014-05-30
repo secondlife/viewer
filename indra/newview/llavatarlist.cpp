@@ -586,7 +586,7 @@ bool LLAvatarItemComparator::compare(const LLPanel* item1, const LLPanel* item2)
 	
 	if (!avatar_item1 || !avatar_item2)
 	{
-		llerror("item1 and item2 cannot be null", 0);
+		LL_ERRS() << "item1 and item2 cannot be null" << LL_ENDL;
 		return true;
 	}
 

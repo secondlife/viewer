@@ -792,7 +792,7 @@ BOOL LLTextEditor::handleHover(S32 x, S32 y, MASK mask)
 			setCursorAtLocalPos( clamped_x, clamped_y, true );
 			mSelectionEnd = mCursorPos;
 		}
-		lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (active)" << llendl;		
+		LL_DEBUGS("UserInput") << "hover handled by " << getName() << " (active)" << LL_ENDL;		
 		getWindow()->setCursor(UI_CURSOR_IBEAM);
 		handled = TRUE;
 	}
@@ -2338,7 +2338,8 @@ void LLTextEditor::autoIndent()
 	S32 i;
 
 	LLWString text = getWText();
-	while( ' ' == text[line_start] )
+	S32 offset = getLineOffsetFromDocIndex(mCursorPos);
+	while(( ' ' == text[line_start] ) && (space_count < offset))
 	{
 		space_count++;
 		line_start++;
@@ -2512,13 +2513,13 @@ BOOL LLTextEditor::tryToRevertToPristineState()
 }
 
 
-static LLFastTimer::DeclareTimer FTM_SYNTAX_HIGHLIGHTING("Syntax Highlighting");
+static LLTrace::BlockTimerStatHandle FTM_SYNTAX_HIGHLIGHTING("Syntax Highlighting");
 void LLTextEditor::loadKeywords(const std::string& filename,
 								const std::vector<std::string>& funcs,
 								const std::vector<std::string>& tooltips,
 								const LLColor3& color)
 {
-	LLFastTimer ft(FTM_SYNTAX_HIGHLIGHTING);
+	LL_RECORD_BLOCK_TIME(FTM_SYNTAX_HIGHLIGHTING);
 	if(mKeywords.loadFromFile(filename))
 	{
 		S32 count = llmin(funcs.size(), tooltips.size());
@@ -2543,7 +2544,7 @@ void LLTextEditor::updateSegments()
 {
 	if (mReflowIndex < S32_MAX && mKeywords.isLoaded() && mParseOnTheFly)
 	{
-		LLFastTimer ft(FTM_SYNTAX_HIGHLIGHTING);
+		LL_RECORD_BLOCK_TIME(FTM_SYNTAX_HIGHLIGHTING);
 		// HACK:  No non-ascii keywords for now
 		segment_vec_t segment_list;
 		mKeywords.findSegments(&segment_list, getWText(), mDefaultColor.get(), *this);
@@ -2614,20 +2615,20 @@ BOOL LLTextEditor::importBuffer(const char* buffer, S32 length )
 	instream.getline(tbuf, MAX_STRING);
 	if( 1 != sscanf(tbuf, "Linden text version %d", &version) )
 	{
-		llwarns << "Invalid Linden text file header " << llendl;
+		LL_WARNS() << "Invalid Linden text file header " << LL_ENDL;
 		return FALSE;
 	}
 
 	if( 1 != version )
 	{
-		llwarns << "Invalid Linden text file version: " << version << llendl;
+		LL_WARNS() << "Invalid Linden text file version: " << version << LL_ENDL;
 		return FALSE;
 	}
 
 	instream.getline(tbuf, MAX_STRING);
 	if( 0 != sscanf(tbuf, "{") )
 	{
-		llwarns << "Invalid Linden text file format" << llendl;
+		LL_WARNS() << "Invalid Linden text file format" << LL_ENDL;
 		return FALSE;
 	}
 
@@ -2635,13 +2636,13 @@ BOOL LLTextEditor::importBuffer(const char* buffer, S32 length )
 	instream.getline(tbuf, MAX_STRING);
 	if( 1 != sscanf(tbuf, "Text length %d", &text_len) )
 	{
-		llwarns << "Invalid Linden text length field" << llendl;
+		LL_WARNS() << "Invalid Linden text length field" << LL_ENDL;
 		return FALSE;
 	}
 
 	if( text_len > mMaxTextByteLength )
 	{
-		llwarns << "Invalid Linden text length: " << text_len << llendl;
+		LL_WARNS() << "Invalid Linden text length: " << text_len << LL_ENDL;
 		return FALSE;
 	}
 
@@ -2650,21 +2651,21 @@ BOOL LLTextEditor::importBuffer(const char* buffer, S32 length )
 	char* text = new char[ text_len + 1];
 	if (text == NULL)
 	{
-		llerrs << "Memory allocation failure." << llendl;			
+		LL_ERRS() << "Memory allocation failure." << LL_ENDL;			
 		return FALSE;
 	}
 	instream.get(text, text_len + 1, '\0');
 	text[text_len] = '\0';
 	if( text_len != (S32)strlen(text) )/* Flawfinder: ignore */
 	{
-		llwarns << llformat("Invalid text length: %d != %d ",strlen(text),text_len) << llendl;/* Flawfinder: ignore */
+		LL_WARNS() << llformat("Invalid text length: %d != %d ",strlen(text),text_len) << LL_ENDL;/* Flawfinder: ignore */
 		success = FALSE;
 	}
 
 	instream.getline(tbuf, MAX_STRING);
 	if( success && (0 != sscanf(tbuf, "}")) )
 	{
-		llwarns << "Invalid Linden text file format: missing terminal }" << llendl;
+		LL_WARNS() << "Invalid Linden text file format: missing terminal }" << LL_ENDL;
 		success = FALSE;
 	}
 
@@ -2727,7 +2728,7 @@ void LLTextEditor::resetPreedit()
     {
 		if (hasPreeditString())
         {
-            llwarns << "Preedit and selection!" << llendl;
+            LL_WARNS() << "Preedit and selection!" << LL_ENDL;
             deselect();
         }
         else
@@ -2737,6 +2738,12 @@ void LLTextEditor::resetPreedit()
     }
 	if (hasPreeditString())
 	{
+		if (hasSelection())
+		{
+			LL_WARNS() << "Preedit and selection!" << LL_ENDL;
+			deselect();
+		}
+
 		setCursorPos(mPreeditPositions.front());
 		removeStringNoUndo(mCursorPos, mPreeditPositions.back() - mCursorPos);
 		insertStringNoUndo(mCursorPos, mPreeditOverwrittenWString);
@@ -2926,7 +2933,7 @@ void LLTextEditor::markAsPreedit(S32 position, S32 length)
 	setCursorPos(position);
 	if (hasPreeditString())
 	{
-		llwarns << "markAsPreedit invoked when hasPreeditString is true." << llendl;
+		LL_WARNS() << "markAsPreedit invoked when hasPreeditString is true." << LL_ENDL;
 	}
 	mPreeditWString = LLWString( getWText(), position, length );
 	if (length > 0)

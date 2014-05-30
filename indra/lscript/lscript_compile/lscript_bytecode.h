@@ -29,6 +29,7 @@
 
 #include "lscript_byteconvert.h"
 #include "lscript_scope.h"
+#include <map>
 
 class LLScriptJumpTable
 {
@@ -39,8 +40,8 @@ public:
 	void addLabel(char *name, S32 offset);
 	void addJump(char *name, S32 offset);
 
-	LLMap<char *, S32 *> mLabelMap;
-	LLMap<char *, S32 *> mJumpMap;
+	std::map<char *, S32 *> mLabelMap;
+	std::map<char *, S32 *> mJumpMap;
 };
 
 class LLScriptByteCodeChunk

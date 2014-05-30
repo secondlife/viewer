@@ -80,10 +80,10 @@ char* LLMessageStringTable::getString(const char *str)
 	if (mUsed >= MESSAGE_NUMBER_OF_HASH_BUCKETS - 1)
 	{
 		U32 i;
-		llinfos << "Dumping string table before crashing on HashTable full!" << llendl;
+		LL_INFOS() << "Dumping string table before crashing on HashTable full!" << LL_ENDL;
 		for (i = 0; i < MESSAGE_NUMBER_OF_HASH_BUCKETS; i++)
 		{
-			llinfos << "Entry #" << i << ": " << mString[i] << llendl;
+			LL_INFOS() << "Entry #" << i << ": " << mString[i] << LL_ENDL;
 		}
 	}
 	return mString[hash_value];

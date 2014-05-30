@@ -27,9 +27,10 @@
 #ifndef LL_LSCRIPT_EXECUTE_H
 #define LL_LSCRIPT_EXECUTE_H
 
+#include "stdtypes.h"
 #include "lscript_byteconvert.h"
-#include "linked_lists.h"
 #include "lscript_library.h"
+#include "llstl.h"
 
 class LLTimer;
 
@@ -262,7 +263,7 @@ public:
 		S32 i, number = bytestream2integer(src, offset);
 		for (i = 0; i < number; i++)
 		{
-			mEventDataList.addData(new LLScriptDataCollection(src, offset));
+			mEventDataList.push_front(new LLScriptDataCollection(src, offset));
 		}
 	}
 
@@ -271,32 +272,32 @@ public:
 		S32 i, number = bytestream2integer(src, offset);
 		for (i = 0; i < number; i++)
 		{
-			mEventDataList.addData(new LLScriptDataCollection(src, offset));
+			mEventDataList.push_front(new LLScriptDataCollection(src, offset));
 		}
 	}
 
 	~LLScriptEventData()	
 	{
-		mEventDataList.deleteAllData();
+		delete_and_clear(mEventDataList);
 	}
 
 	void addEventData(LLScriptDataCollection *data)
 	{
-		if (mEventDataList.getLength() < MAX_EVENTS_IN_QUEUE)
-			mEventDataList.addDataAtEnd(data);
+		if (mEventDataList.size() < MAX_EVENTS_IN_QUEUE)
+			mEventDataList.push_back(data);
 		else
 			delete data;
 	}
 	LLScriptDataCollection *getNextEvent(LSCRIPTStateEventType type)
 	{
-		LLScriptDataCollection *temp;
-		for (temp = mEventDataList.getFirstData();
-			 temp;
-			 temp = mEventDataList.getNextData())
+		for (std::list<LLScriptDataCollection*>::iterator it = mEventDataList.begin(), end_it = mEventDataList.end();
+			it != end_it;
+			++it)
 		{
+			LLScriptDataCollection* temp = *it;
 			if (temp->mType == type)
 			{
-				mEventDataList.removeCurrentData();
+				mEventDataList.erase(it);
 				return temp;
 			}
 		}
@@ -305,24 +306,24 @@ public:
 	LLScriptDataCollection *getNextEvent()
 	{
 		LLScriptDataCollection *temp;
-		temp = mEventDataList.getFirstData();
+		temp = mEventDataList.front();
 		if (temp)
 		{
-			mEventDataList.removeCurrentData();
+			mEventDataList.pop_front();
 			return temp;
 		}
 		return NULL;
 	}
 	void removeEventType(LSCRIPTStateEventType type)
 	{
-		LLScriptDataCollection *temp;
-		for (temp = mEventDataList.getFirstData();
-			 temp;
-			 temp = mEventDataList.getNextData())
+		for (std::list<LLScriptDataCollection*>::iterator it = mEventDataList.begin(), end_it = mEventDataList.end();
+			it != end_it;
+			++it)
 		{
-			if (temp->mType == type)
+			if ((*it)->mType == type)
 			{
-				mEventDataList.deleteCurrentData();
+				delete *it;
+				mEventDataList.erase(it);
 			}
 		}
 	}
@@ -332,12 +333,11 @@ public:
 		S32 size = 0;
 		// number in linked list
 		size += 4;
-		LLScriptDataCollection *temp;
-		for (temp = mEventDataList.getFirstData();
-			 temp;
-			 temp = mEventDataList.getNextData())
+		for (std::list<LLScriptDataCollection*>::iterator it = mEventDataList.begin(), end_it = mEventDataList.end();
+			it != end_it;
+			++it)
 		{
-			size += temp->getSavedSize();
+			size += (*it)->getSavedSize();
 		}
 		return size;
 	}
@@ -346,19 +346,18 @@ public:
 	{
 		S32 offset = 0;
 		// number in linked list
-		S32 number = mEventDataList.getLength();
+		S32 number = mEventDataList.size();
 		integer2bytestream(dest, offset, number);
-		LLScriptDataCollection *temp;
-		for (temp = mEventDataList.getFirstData();
-			 temp;
-			 temp = mEventDataList.getNextData())
+		for (std::list<LLScriptDataCollection*>::iterator it = mEventDataList.begin(), end_it = mEventDataList.end();
+			it != end_it;
+			++it)
 		{
-			offset += temp->write2bytestream(dest + offset);
+			offset += (*it)->write2bytestream(dest + offset);
 		}
 		return offset;
 	}
 
-	LLLinkedList<LLScriptDataCollection>	mEventDataList;
+	std::list<LLScriptDataCollection*>	mEventDataList;
 };
 
 class LLScriptExecute
@@ -474,9 +473,9 @@ public:
 	virtual ~LLScriptExecuteLSL2();
 
 	virtual S32 getVersion() const {return get_register(mBuffer, LREG_VN);}
-	virtual void deleteAllEvents() {mEventData.mEventDataList.deleteAllData();}
+	virtual void deleteAllEvents() {delete_and_clear(mEventData.mEventDataList);}
 	virtual void addEvent(LLScriptDataCollection* event);
-	virtual U32 getEventCount() {return mEventData.mEventDataList.getLength();}
+	virtual U32 getEventCount() {return mEventData.mEventDataList.size();}
 	virtual void removeEventType(LSCRIPTStateEventType event_type);
 	virtual S32 getFaults() {return get_register(mBuffer, LREG_FR);}
 	virtual void setFault(LSCRIPTRunTimeFaults fault) {set_fault(mBuffer, fault);}

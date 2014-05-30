@@ -147,7 +147,7 @@ void LLVolumeMgr::unrefVolume(LLVolume *volumep)
 	volume_lod_group_map_t::iterator iter = mVolumeLODGroups.find(params);
 	if( iter == mVolumeLODGroups.end() )
 	{
-		llerrs << "Warning! Tried to cleanup unknown volume type! " << *params << llendl;
+		LL_ERRS() << "Warning! Tried to cleanup unknown volume type! " << *params << LL_ENDL;
 		if (mDataMutex)
 		{
 			mDataMutex->unlock();
@@ -207,7 +207,7 @@ void LLVolumeMgr::dump()
 	{
 		mDataMutex->unlock();
 	}
-	llinfos << "Average usage of LODs " << avg << llendl;
+	LL_INFOS() << "Average usage of LODs " << avg << LL_ENDL;
 }
 
 void LLVolumeMgr::useMutex()
@@ -270,18 +270,18 @@ bool LLVolumeLODGroup::cleanupRefs()
 	bool res = true;
 	if (mRefs != 0)
 	{
-		llwarns << "Volume group has remaining refs:" << getNumRefs() << llendl;
+		LL_WARNS() << "Volume group has remaining refs:" << getNumRefs() << LL_ENDL;
 		mRefs = 0;
 		for (S32 i = 0; i < NUM_LODS; i++)
 		{
 			if (mLODRefs[i] > 0)
 			{
-				llwarns << " LOD " << i << " refs = " << mLODRefs[i] << llendl;
+				LL_WARNS() << " LOD " << i << " refs = " << mLODRefs[i] << LL_ENDL;
 				mLODRefs[i] = 0;
 				mVolumeLODs[i] = NULL;
 			}
 		}
-		llwarns << *getVolumeParams() << llendl;
+		LL_WARNS() << *getVolumeParams() << LL_ENDL;
 		res = false;
 	}
 	return res;
@@ -320,7 +320,7 @@ BOOL LLVolumeLODGroup::derefLOD(LLVolume *volumep)
 			return TRUE;
 		}
 	}
-	llerrs << "Deref of non-matching LOD in volume LOD group" << llendl;
+	LL_ERRS() << "Deref of non-matching LOD in volume LOD group" << LL_ENDL;
 	return FALSE;
 }
 
@@ -393,7 +393,7 @@ F32 LLVolumeLODGroup::dump()
 
 	std::string dump_str = llformat("%.3f %d %d %d %d", usage, mAccessCount[0], mAccessCount[1], mAccessCount[2], mAccessCount[3]);
 
-	llinfos << dump_str << llendl;
+	LL_INFOS() << dump_str << LL_ENDL;
 	return usage;
 }
 

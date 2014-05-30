@@ -34,8 +34,6 @@
 class LLSlider : public LLF32UICtrl
 {
 public:
-	enum ORIENTATION { HORIZONTAL, VERTICAL };
-
 	struct Params : public LLInitParam::Block<Params, LLF32UICtrl::Params>
 	{
 		Optional<std::string> orientation;
@@ -98,7 +96,7 @@ private:
 	LLPointer<LLUIImage>	mTrackHighlightHorizontalImage;
 	LLPointer<LLUIImage>	mTrackHighlightVerticalImage;
 
-	const ORIENTATION	mOrientation;
+	const EOrientation	mOrientation;
 
 	LLRect		mThumbRect;
 	LLUIColor	mTrackColor;

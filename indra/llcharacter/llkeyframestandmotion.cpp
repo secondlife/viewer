@@ -119,7 +119,7 @@ LLMotion::LLMotionInitStatus LLKeyframeStandMotion::onInitialize(LLCharacter *ch
 			!mKneeRightState ||
 			!mAnkleRightState )
 	{
-		llinfos << getName() << ": Can't find necessary joint states" << llendl;
+		LL_INFOS() << getName() << ": Can't find necessary joint states" << LL_ENDL;
 		return STATUS_FAILURE;
 	}
 
@@ -329,9 +329,9 @@ BOOL LLKeyframeStandMotion::onUpdate(F32 time, U8* joint_mask)
 	mKneeRightState->setRotation( mKneeRightJoint.getRotation() );
 	mAnkleRightState->setRotation( mAnkleRightJoint.getRotation() );
 
-	//llinfos << "Stand drift amount " << (mCharacter->getCharacterPosition() - mLastGoodPosition).magVec() << llendl;
+	//LL_INFOS() << "Stand drift amount " << (mCharacter->getCharacterPosition() - mLastGoodPosition).magVec() << LL_ENDL;
 
-//	llinfos << "DEBUG: " << speed << " : " << mTrackAnkles << llendl;
+//	LL_INFOS() << "DEBUG: " << speed << " : " << mTrackAnkles << LL_ENDL;
 	return TRUE;
 }
 

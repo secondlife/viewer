@@ -1035,6 +1035,7 @@
 	<string name="InventoryNoTexture">
 		Nie posiadasz kopii tej tekstury w Twojej Szafie.
 	</string>
+  <string name="Unconstrained">Swobodny</string>
 	<string name="no_transfer" value=" (brak oddawania)"/>
 	<string name="no_modify" value=" (brak modyfikowania)"/>
 	<string name="no_copy" value=" (brak kopiowania)"/>

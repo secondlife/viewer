@@ -31,11 +31,9 @@
 #include "u64.h"
 
 #if LL_WINDOWS
-#	define WIN32_LEAN_AND_MEAN
-#	include <winsock2.h>
-#	include <windows.h>
+#	include "llwin32headerslean.h"
 #elif LL_LINUX || LL_SOLARIS || LL_DARWIN
-#       include <errno.h>
+#   include <errno.h>
 #	include <sys/time.h>
 #else 
 #	error "architecture not supported"
@@ -45,7 +43,6 @@
 //
 // Locally used constants
 //
-const U32 SEC_PER_DAY = 86400;
 const F64 SEC_TO_MICROSEC = 1000000.f;
 const U64 SEC_TO_MICROSEC_U64 = 1000000;
 const F64 USEC_TO_SEC_F64 = 0.000001;
@@ -58,11 +55,6 @@ const F64 USEC_TO_SEC_F64 = 0.000001;
 S32 gUTCOffset = 0; // viewer's offset from server UTC, in seconds
 LLTimer* LLTimer::sTimer = NULL;
 
-F64 gClockFrequency = 0.0;
-F64 gClockFrequencyInv = 0.0;
-F64 gClocksToMicroseconds = 0.0;
-U64 gTotalTimeClockCount = 0;
-U64 gLastTotalTimeClockCount = 0;
 
 //
 // Forward declarations
@@ -190,7 +182,7 @@ U64 get_clock_count()
 	return clock_count.QuadPart - offset;
 }
 
-F64 calc_clock_frequency(U32 uiMeasureMSecs)
+F64 calc_clock_frequency()
 {
 	__int64 freq;
 	QueryPerformanceFrequency((LARGE_INTEGER *) &freq);
@@ -201,7 +193,7 @@ F64 calc_clock_frequency(U32 uiMeasureMSecs)
 
 #if LL_LINUX || LL_DARWIN || LL_SOLARIS
 // Both Linux and Mac use gettimeofday for accurate time
-F64 calc_clock_frequency(unsigned int uiMeasureMSecs)
+F64 calc_clock_frequency()
 {
 	return 1000000.0; // microseconds, so 1 MHz.
 }
@@ -216,56 +208,68 @@ U64 get_clock_count()
 #endif
 
 
-void update_clock_frequencies()
+TimerInfo::TimerInfo()
+:	mClockFrequency(0.0),
+	mTotalTimeClockCount(0),
+	mLastTotalTimeClockCount(0)
+{}
+
+void TimerInfo::update()
 {
-	gClockFrequency = calc_clock_frequency(50U);
-	gClockFrequencyInv = 1.0/gClockFrequency;
-	gClocksToMicroseconds = gClockFrequencyInv * SEC_TO_MICROSEC;
+	mClockFrequency = calc_clock_frequency();
+	mClockFrequencyInv = 1.0/mClockFrequency;
+	mClocksToMicroseconds = mClockFrequencyInv;
 }
 
+TimerInfo& get_timer_info()
+{
+	static TimerInfo sTimerInfo;
+	return sTimerInfo;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
 // returns a U64 number that represents the number of 
-// microseconds since the unix epoch - Jan 1, 1970
-U64 totalTime()
+// microseconds since the Unix epoch - Jan 1, 1970
+U64MicrosecondsImplicit totalTime()
 {
 	U64 current_clock_count = get_clock_count();
-	if (!gTotalTimeClockCount)
+	if (!get_timer_info().mTotalTimeClockCount || get_timer_info().mClocksToMicroseconds.value() == 0)
 	{
-		update_clock_frequencies();
-		gTotalTimeClockCount = current_clock_count;
+		get_timer_info().update();
+		get_timer_info().mTotalTimeClockCount = current_clock_count;
 
 #if LL_WINDOWS
-		// Synch us up with local time (even though we PROBABLY don't need to, this is how it was implemented)
+		// Sync us up with local time (even though we PROBABLY don't need to, this is how it was implemented)
 		// Unix platforms use gettimeofday so they are synced, although this probably isn't a good assumption to
 		// make in the future.
 
-		gTotalTimeClockCount = (U64)(time(NULL) * gClockFrequency);
+		get_timer_info().mTotalTimeClockCount = (U64)(time(NULL) * get_timer_info().mClockFrequency);
 #endif
 
 		// Update the last clock count
-		gLastTotalTimeClockCount = current_clock_count;
+		get_timer_info().mLastTotalTimeClockCount = current_clock_count;
 	}
 	else
 	{
-		if (current_clock_count >= gLastTotalTimeClockCount)
+		if (current_clock_count >= get_timer_info().mLastTotalTimeClockCount)
 		{
 			// No wrapping, we're all okay.
-			gTotalTimeClockCount += current_clock_count - gLastTotalTimeClockCount;
+			get_timer_info().mTotalTimeClockCount += current_clock_count - get_timer_info().mLastTotalTimeClockCount;
 		}
 		else
 		{
 			// We've wrapped.  Compensate correctly
-			gTotalTimeClockCount += (0xFFFFFFFFFFFFFFFFULL - gLastTotalTimeClockCount) + current_clock_count;
+			get_timer_info().mTotalTimeClockCount += (0xFFFFFFFFFFFFFFFFULL - get_timer_info().mLastTotalTimeClockCount) + current_clock_count;
 		}
 
 		// Update the last clock count
-		gLastTotalTimeClockCount = current_clock_count;
+		get_timer_info().mLastTotalTimeClockCount = current_clock_count;
 	}
 
 	// Return the total clock tick count in microseconds.
-	return (U64)(gTotalTimeClockCount*gClocksToMicroseconds);
+	U64Microseconds time(get_timer_info().mTotalTimeClockCount*get_timer_info().mClocksToMicroseconds);
+	return time;
 }
 
 
@@ -273,9 +277,9 @@ U64 totalTime()
 
 LLTimer::LLTimer()
 {
-	if (!gClockFrequency)
+	if (!get_timer_info().mClockFrequency)
 	{
-		update_clock_frequencies();
+		get_timer_info().update();
 	}
 
 	mStarted = TRUE;
@@ -283,20 +287,32 @@ LLTimer::LLTimer()
 }
 
 LLTimer::~LLTimer()
+{}
+
+// static
+void LLTimer::initClass()
 {
+	if (!sTimer) sTimer = new LLTimer;
 }
 
 // static
-U64 LLTimer::getTotalTime()
+void LLTimer::cleanupClass()
+{
+	delete sTimer; sTimer = NULL;
+}
+
+// static
+U64MicrosecondsImplicit LLTimer::getTotalTime()
 {
 	// simply call into the implementation function.
-	return totalTime();
+	U64MicrosecondsImplicit total_time = totalTime();
+	return total_time;
 }	
 
 // static
-F64 LLTimer::getTotalSeconds()
+F64SecondsImplicit LLTimer::getTotalSeconds()
 {
-	return U64_to_F64(getTotalTime()) * USEC_TO_SEC_F64;
+	return F64Microseconds(U64_to_F64(getTotalTime()));
 }
 
 void LLTimer::reset()
@@ -343,43 +359,43 @@ U64 getElapsedTimeAndUpdate(U64& lastClockCount)
 }
 
 
-F64 LLTimer::getElapsedTimeF64() const
+F64SecondsImplicit LLTimer::getElapsedTimeF64() const
 {
 	U64 last = mLastClockCount;
-	return (F64)getElapsedTimeAndUpdate(last) * gClockFrequencyInv;
+	return (F64)getElapsedTimeAndUpdate(last) * get_timer_info().mClockFrequencyInv;
 }
 
-F32 LLTimer::getElapsedTimeF32() const
+F32SecondsImplicit LLTimer::getElapsedTimeF32() const
 {
 	return (F32)getElapsedTimeF64();
 }
 
-F64 LLTimer::getElapsedTimeAndResetF64()
+F64SecondsImplicit LLTimer::getElapsedTimeAndResetF64()
 {
-	return (F64)getElapsedTimeAndUpdate(mLastClockCount) * gClockFrequencyInv;
+	return (F64)getElapsedTimeAndUpdate(mLastClockCount) * get_timer_info().mClockFrequencyInv;
 }
 
-F32 LLTimer::getElapsedTimeAndResetF32()
+F32SecondsImplicit LLTimer::getElapsedTimeAndResetF32()
 {
 	return (F32)getElapsedTimeAndResetF64();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void  LLTimer::setTimerExpirySec(F32 expiration)
+void  LLTimer::setTimerExpirySec(F32SecondsImplicit expiration)
 {
 	mExpirationTicks = get_clock_count()
-		+ (U64)((F32)(expiration * gClockFrequency));
+		+ (U64)((F32)(expiration * get_timer_info().mClockFrequency.value()));
 }
 
-F32 LLTimer::getRemainingTimeF32() const
+F32SecondsImplicit LLTimer::getRemainingTimeF32() const
 {
 	U64 cur_ticks = get_clock_count();
 	if (cur_ticks > mExpirationTicks)
 	{
 		return 0.0f;
 	}
-	return F32((mExpirationTicks - cur_ticks) * gClockFrequencyInv);
+	return F32((mExpirationTicks - cur_ticks) * get_timer_info().mClockFrequencyInv);
 }
 
 
@@ -392,7 +408,7 @@ BOOL  LLTimer::checkExpirationAndReset(F32 expiration)
 	}
 
 	mExpirationTicks = cur_ticks
-		+ (U64)((F32)(expiration * gClockFrequency));
+		+ (U64)((F32)(expiration * get_timer_info().mClockFrequency));
 	return TRUE;
 }
 
@@ -448,7 +464,7 @@ BOOL LLTimer::knownBadTimer()
 			{
 				if (!wcscmp(pci_id, bad_pci_list[check]))
 				{
-//					llwarns << "unreliable PCI chipset found!! " << pci_id << endl;
+//					LL_WARNS() << "unreliable PCI chipset found!! " << pci_id << endl;
 					failed = TRUE;
 					break;
 				}
@@ -491,20 +507,20 @@ BOOL is_daylight_savings()
 
 struct tm* utc_to_pacific_time(time_t utc_time, BOOL pacific_daylight_time)
 {
-	S32 pacific_offset_hours;
+	S32Hours pacific_offset_hours;
 	if (pacific_daylight_time)
 	{
-		pacific_offset_hours = 7;
+		pacific_offset_hours = S32Hours(7);
 	}
 	else
 	{
-		pacific_offset_hours = 8;
+		pacific_offset_hours = S32Hours(8);
 	}
 
 	// We subtract off the PST/PDT offset _before_ getting
 	// "UTC" time, because this will handle wrapping around
 	// for 5 AM UTC -> 10 PM PDT of the previous day.
-	utc_time -= pacific_offset_hours * MIN_PER_HOUR * SEC_PER_MIN;
+	utc_time -= S32SecondsImplicit(pacific_offset_hours);
  
 	// Internal buffer to PST/PDT (see above)
 	struct tm* internal_time = gmtime(&utc_time);
@@ -521,7 +537,7 @@ struct tm* utc_to_pacific_time(time_t utc_time, BOOL pacific_daylight_time)
 }
 
 
-void microsecondsToTimecodeString(U64 current_time, std::string& tcstring)
+void microsecondsToTimecodeString(U64MicrosecondsImplicit current_time, std::string& tcstring)
 {
 	U64 hours;
 	U64 minutes;
@@ -543,9 +559,9 @@ void microsecondsToTimecodeString(U64 current_time, std::string& tcstring)
 }
 
 
-void secondsToTimecodeString(F32 current_time, std::string& tcstring)
+void secondsToTimecodeString(F32SecondsImplicit current_time, std::string& tcstring)
 {
-	microsecondsToTimecodeString((U64)((F64)(SEC_TO_MICROSEC*current_time)), tcstring);
+	microsecondsToTimecodeString(current_time, tcstring);
 }
 
 

@@ -28,31 +28,8 @@
 #ifndef LL_LLNOTIFICATION_TEMPLATE_H
 #define LL_LLNOTIFICATION_TEMPLATE_H
 
-//#include <string>
-//#include <list>
-//#include <vector>
-//#include <map>
-//#include <set>
-//#include <iomanip>
-//#include <sstream>
-//
-//#include <boost/utility.hpp>
-//#include <boost/shared_ptr.hpp>
-//#include <boost/enable_shared_from_this.hpp>
-//#include <boost/type_traits.hpp>
-//
-//// we want to minimize external dependencies, but this one is important
-//#include "llsd.h"
-//
-//// and we need this to manage the notification callbacks
-//#include "llevents.h"
-//#include "llfunctorregistry.h"
-//#include "llpointer.h"
 #include "llinitparam.h"
-//#include "llnotificationptr.h"
-//#include "llcachename.h"
 #include "llnotifications.h"
-
 
 typedef boost::shared_ptr<LLNotificationForm> LLNotificationFormPtr;
 
