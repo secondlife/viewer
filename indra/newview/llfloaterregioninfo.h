@@ -463,6 +463,9 @@ public:
 	LLPanelRegionExperiences(){}
 	/*virtual*/ BOOL postBuild();
 	virtual BOOL sendUpdate();
+	
+	static bool experienceCoreConfirm(const LLSD& notification, const LLSD& response);
+	static void sendEstateExperienceDelta(U32 flags, const LLUUID& agent_id);
 
 	static void infoCallback(LLHandle<LLPanelRegionExperiences> handle, const LLSD& content);
 	bool refreshFromRegion(LLViewerRegion* region);

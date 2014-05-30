@@ -3642,6 +3642,76 @@ public:
 };
 
 
+// Used for both access add and remove operations, depending on the flag
+// passed in (ESTATE_EXPERIENCE_ALLOWED_ADD, ESTATE_EXPERIENCE_ALLOWED_REMOVE, etc.)
+// static
+bool LLPanelRegionExperiences::experienceCoreConfirm(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	const U32 originalFlags = (U32)notification["payload"]["operation"].asInteger();
+
+	LLViewerRegion* region = gAgent.getRegion();
+	
+	LLSD::array_const_iterator end_it = notification["payload"]["allowed_ids"].endArray();
+
+	for (LLSD::array_const_iterator iter = notification["payload"]["allowed_ids"].beginArray();
+		iter != end_it;
+	     iter++)
+	{
+		U32 flags = originalFlags;
+		if (iter + 1 != end_it)
+			flags |= ESTATE_ACCESS_NO_REPLY;
+
+		const LLUUID id = iter->asUUID();
+		switch(option)
+		{
+			case 0:
+			    // This estate
+			    sendEstateExperienceDelta(flags, id);
+			    break;
+			case 1:
+			{
+				// All estates, either than I own or manage for this owner.  
+				// This will be verified on simulator. JC
+				if (!region) break;
+				if (region->getOwner() == gAgent.getID()
+				    || gAgent.isGodlike())
+				{
+					flags |= ESTATE_ACCESS_APPLY_TO_ALL_ESTATES;
+					sendEstateExperienceDelta(flags, id);
+				}
+				else if (region->isEstateManager())
+				{
+					flags |= ESTATE_ACCESS_APPLY_TO_MANAGED_ESTATES;
+					sendEstateExperienceDelta(flags, id);
+				}
+				break;
+			}
+			case 2:
+			default:
+			    break;
+		}
+	}
+	return false;
+}
+
+
+// Send the actual "estateexperiencedelta" message
+void LLPanelRegionExperiences::sendEstateExperienceDelta(U32 flags, const LLUUID& experience_id)
+{
+	strings_t str(3, std::string());
+	gAgent.getID().toString(str[0]);
+	str[1] = llformat("%u", flags);
+	experience_id.toString(str[2]);
+
+	LLPanelRegionExperiences* panel = LLFloaterRegionInfo::getPanelExperiences();
+	if (panel)
+	{
+		panel->sendEstateOwnerMessage(gMessageSystem, "estateexperiencedelta", LLFloaterRegionInfo::getLastInvoice(), str);
+	}
+}
+
+
 void LLPanelRegionExperiences::infoCallback(LLHandle<LLPanelRegionExperiences> handle, const LLSD& content)
 {	
 	if(handle.isDead())
@@ -3744,7 +3814,7 @@ void LLPanelRegionExperiences::itemChanged( U32 event_type, const LLUUID& id )
 			break;
 
 		case ESTATE_EXPERIENCE_BLOCKED_REMOVE:
-			dialog_name = "EstateAllowedExperienceAdd";
+			dialog_name = "EstateBlockedExperienceRemove";
 			break;
 
 		default:
@@ -3762,7 +3832,7 @@ void LLPanelRegionExperiences::itemChanged( U32 event_type, const LLUUID& id )
 	LLNotification::Params params(dialog_name);
 	params.payload(payload)
 		.substitutions(args)
-		.functor.function(LLPanelEstateInfo::accessCoreConfirm);
+		.functor.function(LLPanelRegionExperiences::experienceCoreConfirm);
 	if (LLPanelEstateInfo::isLindenEstate())
 	{
 		LLNotifications::instance().forceResponse(params, 0);
