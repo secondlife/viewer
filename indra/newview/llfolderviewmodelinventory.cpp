@@ -306,10 +306,6 @@ bool LLInventorySort::operator()(const LLFolderViewModelItemInventory* const& a,
     {
         S32 weight_a = compute_stock_count(a->getUUID());
         S32 weight_b = compute_stock_count(b->getUUID());
-        if ((weight_a != -1) || (weight_b != -1))
-        {
-            llinfos << "Merov : sort by weight, a = " << a->getName() << ", " << weight_a << ", b = " << b->getName() << ", " << weight_b << llendl;
-        }
 		if (weight_a == weight_b)
 		{
             // Equal weight -> use alphabetical order

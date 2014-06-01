@@ -166,7 +166,7 @@ void update_marketplace_category(const LLUUID& cur_uuid)
             if (version_folder_uuid.notNull() && !gInventory.isObjectDescendentOf(version_folder_uuid, listing_uuid))
             {
                 // *TODO : Confirm with Producer that this is what we want to happen in that case!
-                llinfos << "Merov : Unlist as the version folder is not under the listing folder anymore!!" << llendl;
+                LL_INFOS("SLM") << "Unlist as the version folder is not under the listing folder anymore!!" << LL_ENDL;
                 LLMarketplaceData::instance().setVersionFolder(listing_uuid, LLUUID::null);
                 LLMarketplaceData::instance().activateListing(listing_uuid, false);
             }
@@ -180,7 +180,7 @@ void update_marketplace_category(const LLUUID& cur_uuid)
         if (LLMarketplaceData::instance().isListed(cur_uuid))
         {
             // *TODO : Confirm with Producer that this is what we want to happen in that case!
-            llinfos << "Merov : Disassociate as the listing folder is not under the marketplace folder anymore!!" << llendl;
+            LL_INFOS("SLM") << "Disassociate as the listing folder is not under the marketplace folder anymore!!" << LL_ENDL;
             LLMarketplaceData::instance().clearListing(cur_uuid);
         }
     }
@@ -1008,7 +1008,7 @@ int get_folder_path_length(const LLUUID& ancestor_id, const LLUUID& descendant_i
 		category = gInventory.getCategory(parent_id);
 	}
     
-	llwarns << "get_folder_path_length() couldn't trace a path from the descendant to the ancestor" << llendl;
+	LL_WARNS("SLM") << "get_folder_path_length() couldn't trace a path from the descendant to the ancestor" << LL_ENDL;
 	return -1;
 }
 

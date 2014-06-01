@@ -222,8 +222,7 @@ BOOL LLFloaterMarketplaceListings::postBuild()
 	mCategoryAddedObserver = new LLMarketplaceListingsAddedObserver(this);
 	gInventory.addObserver(mCategoryAddedObserver);
 	
-    // Merov : Debug : fetch aggressively so we can create test data right onOpen()
-    llinfos << "Merov : postBuild, do fetchContent() ahead of time" << llendl;
+    // Debug : fetch aggressively so we can create test data right onOpen()
 	fetchContents();
 
 	return TRUE;
@@ -276,8 +275,7 @@ void LLFloaterMarketplaceListings::setup()
 	if (marketplacelistings_id.isNull())
 	{
 		// We should never get there unless the inventory fails badly
-		llinfos << "Merov : Inventory problem: failure to create the marketplace listings folder for a merchant!" << llendl;
-		llerrs << "Inventory problem: failure to create the marketplace listings folder for a merchant!" << llendl;
+		LL_ERRS("SLM") << "Inventory problem: failure to create the marketplace listings folder for a merchant!" << LL_ENDL;
 		return;
 	}
     
@@ -287,8 +285,7 @@ void LLFloaterMarketplaceListings::setup()
     
     if (marketplacelistings_id == mRootFolderId)
     {
-        llinfos << "Merov : Inventory warning: Marketplace listings folder already set" << llendl;
-        llwarns << "Inventory warning: Marketplace listings folder already set" << llendl;
+        LL_WARNS("SLM") << "Inventory warning: Marketplace listings folder already set" << LL_ENDL;
         return;
     }
     mRootFolderId = marketplacelistings_id;
