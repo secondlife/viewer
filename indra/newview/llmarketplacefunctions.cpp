@@ -131,27 +131,34 @@ class LLSLMGetMerchantResponder : public LLHTTPClient::Responder
 public:
 	
     LLSLMGetMerchantResponder() {}
-    
-	virtual void completed(U32 status, const std::string& reason, const LLSD& content) { }
-    
-    void completedHeader(U32 status, const std::string& reason, const LLSD& content)
+
+protected:
+    virtual void httpFailure()
     {
-		if (((200 <= status ) && (status < 300)) || sBypassMerchant)
-		{
-            log_SLM_infos("Get /merchant", status, "User is a merchant");
+        if (sBypassMerchant)
+        {
+            // *TODO : Suppress that before shipping!
+            log_SLM_infos("Get /merchant", getStatus(), "SLM Connection error bypassed (debug only)");
             LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_MERCHANT);
-		}
-		else if (status == SLMErrorCodes::SLM_NOT_FOUND)
-		{
-            log_SLM_infos("Get /merchant", status, "User is not a merchant");
+        }
+        else if (HTTP_NOT_FOUND == getStatus())
+        {
+            log_SLM_infos("Get /merchant", getStatus(), "User is not a merchant");
             LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_MERCHANT);
-		}
+        }
 		else
 		{
-            log_SLM_warning("Get /merchant", status, reason, content.get("error_code"), content.get("error_description"));
+            log_SLM_warning("Get /merchant", getStatus(), getReason(), getContent().get("error_code"), getContent().get("error_description"));
             LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_CONNECTION_FAILURE);
 		}
     }
+    
+    virtual void httpSuccess()
+    {
+        log_SLM_infos("Get /merchant", getStatus(), "User is a merchant");
+        LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_MERCHANT);
+    }
+    
 };
 
 class LLSLMGetListingsResponder : public LLHTTPClient::Responder
@@ -161,32 +168,29 @@ public:
 	
     LLSLMGetListingsResponder() {}
     
-    virtual void completedRaw(U32 status,
-                              const std::string& reason,
-                              const LLChannelDescriptors& channels,
+    virtual void completedRaw(const LLChannelDescriptors& channels,
                               const LLIOPipe::buffer_ptr_t& buffer)
     {
-		if (!(200 <= status ) && (status < 300))
+		if (!isGoodStatus())
 		{
-            log_SLM_warning("Get /listings", status, reason, "", "");
+            log_SLM_warning("Get /listings", getStatus(), getReason(), "", "");
             return;
 		}
-        
         LLBufferStream istr(channels, buffer.get());
         std::stringstream strstrm;
         strstrm << istr.rdbuf();
         const std::string body = strstrm.str();
-        
+
         Json::Value root;
         Json::Reader reader;
         if (!reader.parse(body,root))
         {
-            log_SLM_warning("Get /listings", status, "Json parsing failed", reader.getFormatedErrorMessages(), body);
+            log_SLM_warning("Get /listings", getStatus(), "Json parsing failed", reader.getFormatedErrorMessages(), body);
             return;
         }
-
-        log_SLM_infos("Get /listings", status, body);
-
+        
+        log_SLM_infos("Get /listings", getStatus(), body);
+        
         // Extract the info from the Json string
         Json::ValueIterator it = root["listings"].begin();
         
@@ -220,14 +224,12 @@ public:
 	
     LLSLMCreateListingsResponder() {}
     
-    virtual void completedRaw(U32 status,
-                              const std::string& reason,
-                              const LLChannelDescriptors& channels,
+    virtual void completedRaw(const LLChannelDescriptors& channels,
                               const LLIOPipe::buffer_ptr_t& buffer)
     {
-		if (!(200 <= status ) && (status < 300))
+		if (!isGoodStatus())
 		{
-            log_SLM_warning("Post /listings", status, reason, "", "");
+            log_SLM_warning("Post /listings", getStatus(), getReason(), "", "");
             return;
 		}
         
@@ -240,11 +242,11 @@ public:
         Json::Reader reader;
         if (!reader.parse(body,root))
         {
-            log_SLM_warning("Post /listings", status, "Json parsing failed", reader.getFormatedErrorMessages(), body);
+            log_SLM_warning("Post /listings", getStatus(), "Json parsing failed", reader.getFormatedErrorMessages(), body);
             return;
         }
 
-        log_SLM_infos("Post /listings", status, body);
+        log_SLM_infos("Post /listings", getStatus(), body);
 
         // Extract the info from the Json string
         Json::ValueIterator it = root["listings"].begin();
@@ -275,9 +277,7 @@ public:
 	
     LLSLMGetListingResponder() {}
     
-    virtual void completedRaw(U32 status,
-                              const std::string& reason,
-                              const LLChannelDescriptors& channels,
+    virtual void completedRaw(const LLChannelDescriptors& channels,
                               const LLIOPipe::buffer_ptr_t& buffer)
     {
         LLBufferStream istr(channels, buffer.get());
@@ -285,9 +285,9 @@ public:
         strstrm << istr.rdbuf();
         const std::string body = strstrm.str();
         
-		if (!(200 <= status ) && (status < 300))
+		if (!isGoodStatus())
 		{
-            log_SLM_warning("Get /listing", status, reason, "", body);
+            log_SLM_warning("Get /listing", getStatus(), getReason(), "", body);
             return;
 		}
         
@@ -295,11 +295,11 @@ public:
         Json::Reader reader;
         if (!reader.parse(body,root))
         {
-            log_SLM_warning("Get /listing", status, "Json parsing failed", reader.getFormatedErrorMessages(), body);
+            log_SLM_warning("Get /listing", getStatus(), "Json parsing failed", reader.getFormatedErrorMessages(), body);
             return;
         }
         
-        log_SLM_infos("Get /listing", status, body);
+        log_SLM_infos("Get /listing", getStatus(), body);
         
         // Extract the info from the Json string
         Json::ValueIterator it = root["listings"].begin();
@@ -335,9 +335,7 @@ public:
 	
     LLSLMUpdateListingsResponder() {}
     
-    virtual void completedRaw(U32 status,
-                              const std::string& reason,
-                              const LLChannelDescriptors& channels,
+    virtual void completedRaw(const LLChannelDescriptors& channels,
                               const LLIOPipe::buffer_ptr_t& buffer)
     {
         LLBufferStream istr(channels, buffer.get());
@@ -345,9 +343,9 @@ public:
         strstrm << istr.rdbuf();
         const std::string body = strstrm.str();
         
-		if (!(200 <= status ) && (status < 300))
+		if (!isGoodStatus())
 		{
-            log_SLM_warning("Put /listing", status, reason, "", body);
+            log_SLM_warning("Put /listing", getStatus(), getReason(), "", body);
             return;
 		}
         
@@ -355,11 +353,11 @@ public:
         Json::Reader reader;
         if (!reader.parse(body,root))
         {
-            log_SLM_warning("Put /listing", status, "Json parsing failed", reader.getFormatedErrorMessages(), body);
+            log_SLM_warning("Put /listing", getStatus(), "Json parsing failed", reader.getFormatedErrorMessages(), body);
             return;
         }
         
-        log_SLM_infos("Put /listing", status, body);
+        log_SLM_infos("Put /listing", getStatus(), body);
 
         // Extract the info from the Json string
         Json::ValueIterator it = root["listings"].begin();
@@ -395,16 +393,12 @@ public:
 	
     LLSLMAssociateListingsResponder() {}
     
-	virtual void completed(U32 status, const std::string& reason, const LLSD& content) { }
-    
-    virtual void completedRaw(U32 status,
-                              const std::string& reason,
-                              const LLChannelDescriptors& channels,
+    virtual void completedRaw(const LLChannelDescriptors& channels,
                               const LLIOPipe::buffer_ptr_t& buffer)
     {
-		if (!(200 <= status ) && (status < 300))
+		if (!isGoodStatus())
 		{
-            log_SLM_warning("Put /associate_inventory", status, reason, "", "");
+            log_SLM_warning("Put /associate_inventory", getStatus(), getReason(), "", "");
             return;
 		}
         
@@ -417,11 +411,11 @@ public:
         Json::Reader reader;
         if (!reader.parse(body,root))
         {
-            log_SLM_warning("Put /associate_inventory", status, "Json parsing failed", reader.getFormatedErrorMessages(), body);
+            log_SLM_warning("Put /associate_inventory", getStatus(), "Json parsing failed", reader.getFormatedErrorMessages(), body);
             return;
         }
         
-        log_SLM_infos("Put /associate_inventory", status, body);
+        log_SLM_infos("Put /associate_inventory", getStatus(), body);
         
         // Extract the info from the Json string
         Json::ValueIterator it = root["listings"].begin();
@@ -462,11 +456,7 @@ public:
 	
     LLSLMDeleteListingsResponder() {}
     
-	virtual void completed(U32 status, const std::string& reason, const LLSD& content) { }
-    
-    virtual void completedRaw(U32 status,
-                              const std::string& reason,
-                              const LLChannelDescriptors& channels,
+    virtual void completedRaw(const LLChannelDescriptors& channels,
                               const LLIOPipe::buffer_ptr_t& buffer)
     {
         LLBufferStream istr(channels, buffer.get());
@@ -474,9 +464,9 @@ public:
         strstrm << istr.rdbuf();
         const std::string body = strstrm.str();
         
- 		if (!(200 <= status ) && (status < 300))
+		if (!isGoodStatus())
 		{
-            log_SLM_warning("Delete /listing", status, reason, "", body);
+            log_SLM_warning("Delete /listing", getStatus(), getReason(), "", body);
             return;
 		}
         
@@ -484,11 +474,11 @@ public:
         Json::Reader reader;
         if (!reader.parse(body,root))
         {
-            log_SLM_warning("Delete /listing", status, "Json parsing failed", reader.getFormatedErrorMessages(), body);
+            log_SLM_warning("Delete /listing", getStatus(), "Json parsing failed", reader.getFormatedErrorMessages(), body);
             return;
         }
         
-        log_SLM_infos("Delete /listing", status, body);
+        log_SLM_infos("Delete /listing", getStatus(), body);
         
         // Extract the info from the Json string
         Json::ValueIterator it = root["listings"].begin();
