@@ -1021,7 +1021,6 @@ void LLLoadHistoryThread::run()
 	if(mNewLoad)
 	{
 		loadHistory(mFileName, mMessages, mLoadParams);
-		int count = mMessages->size();
 		setFinished();
 	}
 }
