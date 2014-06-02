@@ -1208,6 +1208,7 @@ LLUrlEntryExperienceProfile::LLUrlEntryExperienceProfile()
     mPattern = boost::regex(APP_HEADER_REGEX "/experience/[\\da-f-]+/\\w+\\S*",
         boost::regex::perl|boost::regex::icase);
     mIcon = "Generic_Experience";
+	mMenuName = "menu_url_experience.xml";
 }
 
 std::string LLUrlEntryExperienceProfile::getLabel( const std::string &url, const LLUrlLabelCallback &cb )

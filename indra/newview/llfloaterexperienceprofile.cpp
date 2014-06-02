@@ -463,7 +463,8 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
 
 
     LLTextBox* child = getChild<LLTextBox>(TF_NAME);
-    child->setText(experience[LLExperienceCache::NAME].asString());
+    //child->setText(experience[LLExperienceCache::NAME].asString());
+	child->setText(LLSLURL("experience", experience[LLExperienceCache::EXPERIENCE_ID], "profile").getSLURLString());
     
     LLLineEditor* linechild = getChild<LLLineEditor>(EDIT TF_NAME);
     linechild->setText(experience[LLExperienceCache::NAME].asString());
