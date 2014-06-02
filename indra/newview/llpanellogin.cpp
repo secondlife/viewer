@@ -821,7 +821,7 @@ void LLPanelLogin::loadLoginPage()
 	LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
 	if (web_browser->getCurrentNavUrl() != login_uri.asString())
 	{
-		llinfos << "login page loading: " << login_uri << llendl;
+		LL_INFOS() << "login page loading: " << login_uri << LL_ENDL;
 		web_browser->navigateTo( login_uri.asString(), "text/html" );
 	}
 }
@@ -1126,5 +1126,5 @@ void LLPanelLogin::onLocationSLURL()
 // static
 bool LLPanelLogin::getShowFavorites()
 {
-	return sInstance->mShowFavorites;
+	return gSavedPerAccountSettings.getBOOL("ShowFavoritesOnLogin");
 }
