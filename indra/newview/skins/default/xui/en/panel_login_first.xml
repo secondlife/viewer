@@ -238,7 +238,7 @@
             font="SansSerifLarge"
             text_color="White"
             height="64"
-            name="image_caption_left"
+            name="image_caption_right"
             left="432"
             halign="center"
             top="408"

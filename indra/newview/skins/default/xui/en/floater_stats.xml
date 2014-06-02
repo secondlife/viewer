@@ -59,10 +59,10 @@
           <stat_bar name="ktrissec"
                     label="KTris per Sec"
                     stat="trianglesdrawnstat"/>
-          <stat_bar name="objs"
+          <stat_bar name="totalobjs"
                     label="Total Objects"
                     stat="numobjectsstat"/>
-					<stat_bar name="objs"
+					<stat_bar name="cachedobjs"
                     label="Cached Objects"
                     stat="numactivecachedobjects"/>
 					<stat_bar name="newobjs"
