@@ -315,10 +315,27 @@ BOOL LLPolyMorphTargetInfo::parseXml(LLXmlTreeNode* node)
 // LLPolyMorphTarget()
 //-----------------------------------------------------------------------------
 LLPolyMorphTarget::LLPolyMorphTarget(LLPolyMesh *poly_mesh)
-	: mMorphData(NULL), mMesh(poly_mesh),
-	  mVertMask(NULL),
-	  mLastSex(SEX_FEMALE),
-	  mNumMorphMasksPending(0)
+	: LLViewerVisualParam(),
+	mMorphData(NULL),
+	mMesh(poly_mesh),
+	mVertMask(NULL),
+	mLastSex(SEX_FEMALE),
+	mNumMorphMasksPending(0),
+	mVolumeMorphs()
+{
+}
+
+//-----------------------------------------------------------------------------
+// LLPolyMorphTarget()
+//-----------------------------------------------------------------------------
+LLPolyMorphTarget::LLPolyMorphTarget(const LLPolyMorphTarget& pOther)
+	: LLViewerVisualParam(pOther),
+	mMorphData(pOther.mMorphData),
+	mMesh(pOther.mMesh),
+	mVertMask(pOther.mVertMask == NULL ? NULL : new LLPolyVertexMask(*pOther.mVertMask)),
+	mLastSex(pOther.mLastSex),
+	mNumMorphMasksPending(pOther.mNumMorphMasksPending),
+	mVolumeMorphs(pOther.mVolumeMorphs)
 {
 }
 
@@ -327,10 +344,8 @@ LLPolyMorphTarget::LLPolyMorphTarget(LLPolyMesh *poly_mesh)
 //-----------------------------------------------------------------------------
 LLPolyMorphTarget::~LLPolyMorphTarget()
 {
-	if (mVertMask)
-	{
-		delete mVertMask;
-	}
+	delete mVertMask;
+	mVertMask = NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -385,9 +400,7 @@ BOOL LLPolyMorphTarget::setInfo(LLPolyMorphTargetInfo* info)
 
 /*virtual*/ LLViewerVisualParam* LLPolyMorphTarget::cloneParam(LLWearable* wearable) const
 {
-	LLPolyMorphTarget *new_param = new LLPolyMorphTarget(mMesh);
-	*new_param = *this;
-	return new_param;
+	return new LLPolyMorphTarget(*this);
 }
 
 #if 0 // obsolete
@@ -722,10 +735,25 @@ void	LLPolyMorphTarget::applyMask(U8 *maskTextureData, S32 width, S32 height, S3
 // LLPolyVertexMask()
 //-----------------------------------------------------------------------------
 LLPolyVertexMask::LLPolyVertexMask(LLPolyMorphData* morph_data)
+	: mWeights(new F32[morph_data->mNumIndices]),
+	mMorphData(morph_data),
+	mWeightsGenerated(FALSE)
 {
-	mWeights = new F32[morph_data->mNumIndices];
-	mMorphData = morph_data;
-	mWeightsGenerated = FALSE;
+	llassert(mMorphData != NULL);
+	llassert(mMorphData->mNumIndices > 0);
+}
+
+//-----------------------------------------------------------------------------
+// LLPolyVertexMask()
+//-----------------------------------------------------------------------------
+LLPolyVertexMask::LLPolyVertexMask(const LLPolyVertexMask& pOther)
+	: mWeights(new F32[pOther.mMorphData->mNumIndices]),
+	mMorphData(pOther.mMorphData),
+	mWeightsGenerated(pOther.mWeightsGenerated)
+{
+	llassert(mMorphData != NULL);
+	llassert(mMorphData->mNumIndices > 0);
+	memcpy(mWeights, pOther.mWeights, sizeof(F32) * mMorphData->mNumIndices);
 }
 
 //-----------------------------------------------------------------------------
@@ -733,7 +761,8 @@ LLPolyVertexMask::LLPolyVertexMask(LLPolyMorphData* morph_data)
 //-----------------------------------------------------------------------------
 LLPolyVertexMask::~LLPolyVertexMask()
 {
-	delete[] mWeights;
+	delete [] mWeights;
+	mWeights = NULL;
 }
 
 //-----------------------------------------------------------------------------

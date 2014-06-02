@@ -159,17 +159,32 @@ void LLVisualParamInfo::toStream(std::ostream &out)
 //-----------------------------------------------------------------------------
 // LLVisualParam()
 //-----------------------------------------------------------------------------
-LLVisualParam::LLVisualParam()	
-	:
-	mCurWeight( 0.f ),
+LLVisualParam::LLVisualParam()
+	: mCurWeight( 0.f ),
 	mLastWeight( 0.f ),
 	mNext( NULL ),
 	mTargetWeight( 0.f ),
 	mIsAnimating( FALSE ),
+	mIsDummy(FALSE),
 	mID( -1 ),
 	mInfo( 0 ),
-	mIsDummy(FALSE),
 	mParamLocation(LOC_UNKNOWN)
+{
+}
+
+//-----------------------------------------------------------------------------
+// LLVisualParam()
+//-----------------------------------------------------------------------------
+LLVisualParam::LLVisualParam(const LLVisualParam& pOther)
+	: mCurWeight(pOther.mCurWeight),
+	mLastWeight(pOther.mLastWeight),
+	mNext(pOther.mNext),
+	mTargetWeight(pOther.mTargetWeight),
+	mIsAnimating(pOther.mIsAnimating),
+	mIsDummy(pOther.mIsDummy),
+	mID(pOther.mID),
+	mInfo(pOther.mInfo),
+	mParamLocation(pOther.mParamLocation)
 {
 }
 
@@ -179,6 +194,7 @@ LLVisualParam::LLVisualParam()
 LLVisualParam::~LLVisualParam()
 {
 	delete mNext;
+	mNext = NULL;
 }
 
 /*
@@ -282,6 +298,14 @@ void LLVisualParam::setNextParam( LLVisualParam *next )
 	llassert(!mNext);
 	llassert(getWeight() == getDefaultWeight()); // need to establish mNext before we start changing values on this, else initial value won't get mirrored (we can fix that, but better to forbid this pattern)
 	mNext = next;
+}
+
+//-----------------------------------------------------------------------------
+// clearNextParam()
+//-----------------------------------------------------------------------------
+void LLVisualParam::clearNextParam()
+{
+	mNext = NULL;
 }
 
 //-----------------------------------------------------------------------------

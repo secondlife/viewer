@@ -52,6 +52,8 @@ public:
 	/*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable) const = 0;
 
 protected:
+	LLTexLayerParam(const LLTexLayerParam& pOther);
+
 	LLTexLayerInterface*	mTexLayer;
 	LLAvatarAppearance*		mAvatarAppearance;
 };
@@ -102,6 +104,8 @@ public:
 	BOOL					getMultiplyBlend() const;
 
 private:
+	LLTexLayerParamAlpha(const LLTexLayerParamAlpha& pOther);
+
 	LLPointer<LLGLTexture>	mCachedProcessedTexture;
 	LLPointer<LLImageTGA>	mStaticImageTGA;
 	LLPointer<LLImageRaw>	mStaticImageRaw;
@@ -190,6 +194,8 @@ public:
 	// New functions
 	LLColor4				getNetColor() const;
 protected:
+	LLTexLayerParamColor(const LLTexLayerParamColor& pOther);
+
 	virtual void onGlobalColorChanged() {}
 private:
 	LL_ALIGN_16(LLVector4a				mAvgDistortionVec);

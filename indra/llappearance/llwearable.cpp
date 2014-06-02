@@ -43,9 +43,32 @@ S32 LLWearable::sCurrentDefinitionVersion = 1;
 // Private local functions
 static std::string terse_F32_to_string(F32 f);
 
+LLWearable::LLWearable()
+	: mDefinitionVersion(-1),
+	mName(),
+	mDescription(),
+	mPermissions(),
+	mSaleInfo(),
+	mType(LLWearableType::WT_NONE),
+	mSavedVisualParamMap(),
+	mVisualParamIndexMap(),
+	mTEMap(),
+	mSavedTEMap()
+{
+}
+
 // virtual
 LLWearable::~LLWearable()
 {
+	for (visual_param_index_map_t::iterator vpIter = mVisualParamIndexMap.begin(); vpIter != mVisualParamIndexMap.end(); ++vpIter)
+	{
+		LLVisualParam* vp = vpIter->second;
+		vp->clearNextParam();
+		delete vp;
+		vpIter->second = NULL;
+	}
+
+	destroyTextures();
 }
 
 const std::string& LLWearable::getTypeLabel() const
@@ -620,17 +643,10 @@ void LLWearable::syncImages(te_map_t &src, te_map_t &dst)
 
 void LLWearable::destroyTextures()
 {
-	for( te_map_t::iterator iter = mTEMap.begin(); iter != mTEMap.end(); ++iter )
-	{
-		LLLocalTextureObject *lto = iter->second;
-		delete lto;
-	}
+	std::for_each(mTEMap.begin(), mTEMap.end(), DeletePairedPointer());
 	mTEMap.clear();
-	for( te_map_t::iterator iter = mSavedTEMap.begin(); iter != mSavedTEMap.end(); ++iter )
-	{
-		LLLocalTextureObject *lto = iter->second;
-		delete lto;
-	}
+
+	std::for_each(mSavedTEMap.begin(), mSavedTEMap.end(), DeletePairedPointer());
 	mSavedTEMap.clear();
 }
 

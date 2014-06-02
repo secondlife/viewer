@@ -129,6 +129,7 @@ public:
 	const LLViewerVisualParam*		getDrivenParam(S32 index) const;
 
 protected:
+	LLDriverParam(const LLDriverParam& pOther);
 	F32 getDrivenWeight(const LLDrivenEntry* driven, F32 input_weight);
 	void setDrivenWeight(LLDrivenEntry *driven, F32 driven_weight);
 
