@@ -114,13 +114,13 @@ Per ulteriori informazioni consulta il [[MARKETPLACE_IMPORTS_URL] registro error
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="OutboxImportFailed">
-		Trasferimento non riuscito
+		Trasferimento non riuscito, errore &apos;[ERROR_CODE]&apos;
 
 Nessuna cartella è stata inviata a Marketplace, a causa di un errore di sistema o di rete.  Riprova più tardi.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="OutboxInitFailed">
-		Inizializzazione Marketplace non riuscita
+		Inizializzazione Marketplace non riuscita, errore &apos;[ERROR_CODE]&apos;
 
 L&apos;inizializzazione con il Marketplace non ha avuto successo a causa di un errore di sistema o di rete.  Riprova più tardi.
 		<usetemplate name="okbutton" yestext="OK"/>
@@ -1734,6 +1734,10 @@ più del limite [LIMIT].
 		Sei sicuro di volere il teleport a &lt;nolink&gt;[LOCATION]&lt;/nolink&gt;?
 		<usetemplate ignoretext="Conferma il teleport verso un punto di riferimento" name="okcancelignore" notext="Annulla" yestext="Teleportati"/>
 	</notification>
+	<notification name="TeleportViaSLAPP">
+		Sei sicuro di volere il teleport a &lt;nolink&gt;[LOCATION]&lt;/nolink&gt;?
+		<usetemplate ignoretext="Confermo di voler usare il teleport tramite SLAPP" name="okcancelignore" notext="Annulla" yestext="Teleport"/>
+	</notification>
 	<notification name="TeleportToPick">
 		Teleport a [PICK]?
 		<usetemplate ignoretext="Conferma che voglio il teleport verso l&apos;ubicazione nei Luoghi preferiti" name="okcancelignore" notext="Annulla" yestext="Teleport"/>
@@ -1943,6 +1947,9 @@ Cambierà migliaia di regioni e produrrà seri problemi ai vari server.
 	</notification>
 	<notification name="ProblemAddingEstateManager">
 		Si sono riscontrati problemi nell&apos;aggiungere un nuovo manager della proprietà. Una o più proprietà potrebbero avere la lista dei manager piena.
+	</notification>
+	<notification name="ProblemAddingEstateBanManager">
+		Impossibile aggiungere il gestore o il proprietario della proprietà alla lista degli espulsi.
 	</notification>
 	<notification name="ProblemAddingEstateGeneric">
 		Si sono riscontrati problemi nell&apos;aggiunta a questo elenco della proprietà.  Una o più proprietà potrebbe avere una lista piena.
@@ -3028,13 +3035,13 @@ Per informazioni dettagliate, vedi il file del registro.
 		Non è stata ottenuta la capacità della regione &apos;[CAPABILITY]&apos;.
 	</notification>
 	<notification name="ShareItemsConfirmation">
-		Sei sicuro di volere condividere gli oggetti
+		Sei sicuro di volere condividere gli oggetti seguenti:
 
-&lt;nolink&gt;[MSG]&lt;/nolink&gt;
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
 
-Con i seguenti residenti?
+Con i seguenti residenti:
 
-[RESIDENTS]
+&lt;nolink&gt;[RESIDENTS]&lt;/nolink&gt;
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="ShareFolderConfirmation">
@@ -3046,7 +3053,7 @@ Sei sicuro di volere condividere gli oggetti seguenti:
 
 Con i seguenti residenti:
 
-[RESIDENTS]
+&lt;nolink&gt;[RESIDENTS]&lt;/nolink&gt;
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="Ok"/>
 	</notification>
 	<notification name="ItemsShared">
@@ -3502,10 +3509,6 @@ Riprova tra un minuto.
 	<notification name="EjectComingSoon">
 		Non sei più benvenuto qui e hai [EJECT_TIME] secondi per andartene.
 	</notification>
-	<notification name="NoEnterServerFull">
-		Non puoi entrare in questa regione perché 
-il server è pieno.
-	</notification>
 	<notification name="SaveBackToInvDisabled">
 		Opzione Salva nell&apos;inventario disattivata
 	</notification>
@@ -3694,6 +3697,9 @@ il server è pieno.
 	</notification>
 	<notification name="LinkFailedTooMuchPhysics">
 		L&apos;oggetto usa troppe risorse per la fisica -- le sue dinamiche sono state disattivate.
+	</notification>
+	<notification name="EstateManagerFailedllTeleportHome">
+		L&apos;oggetto &apos;[OBJECT_NAME]&apos; a [SLURL] non può eseguire il teleport del gestore della proprietà alla sua casa.
 	</notification>
 	<notification name="TeleportedHomeByObjectOnParcel">
 		Sei stato teleportato nella posizione iniziale dall&apos;oggetto &apos;[OBJECT_NAME]&apos; del lotto &apos;[PARCEL_NAME]&apos;
@@ -3885,13 +3891,18 @@ il server è pieno.
 		Non sono stati selezionati abbastanza lotti affittati da collegare.
 	</notification>
 	<notification name="CantDivideLandMultipleParcelsSelected">
-		Terreno non divisibile.\nHai selezionato più di un lotto.\nProva a selezionare una quantità di terreno più piccola.
+		Impossibile suddividere il terreno.
+È stato selezionato più di un lotto.
+Prova a selezionare un pezzo di terreno più piccolo.
 	</notification>
 	<notification name="CantDivideLandCantFindParcel">
-		impossibile suddividere il terreno.\nimpossibile trovare il lotto.\nInvia una segnalazione con Aiuto -&gt; Segnala bug...
+		Impossibile suddividere il terreno.
+Lotto non trovato.
+Invia una segnalazione con Aiuto -&gt; Segnala Bug...
 	</notification>
 	<notification name="CantDivideLandWholeParcelSelected">
-		Impossibile suddividere il terreno. È stato selezionato l&apos;intero lotto.\nProva a selezionare un pezzo di terreno più piccolo.
+		Impossibile suddividere il terreno. È stato selezionato un intero lotto.
+Prova a selezionare un pezzo di terreno più piccolo.
 	</notification>
 	<notification name="LandHasBeenDivided">
 		Il terreno è stato diviso.
@@ -4030,5 +4041,9 @@ il server è pieno.
 	<notification name="PreferenceChatPathChanged">
 		Impossibile spostare i file. Il percorso precedente è stato ripristinato.
 		<usetemplate ignoretext="Impossibile spostare i file. Il percorso precedente è stato ripristinato." name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="ChatHistoryIsBusyAlert">
+		Il file della cronologia del file sta ancora eseguendo l&apos;operazione precedente. Riprova nuovamente tra qualche minuto oppure chatta con un&apos;altra persona.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 </notifications>

@@ -20,7 +20,7 @@
 		<layout_panel name="group_accordions">
 			<accordion name="groups_accordion">
 				<accordion_tab name="group_general_tab" title="Genel"/>
-				<accordion_tab name="group_roles_tab" title="Roller"/>
+				<accordion_tab name="group_roles_tab" title="Roller ve Üyeler"/>
 				<accordion_tab name="group_notices_tab" title="Bildirimler"/>
 				<accordion_tab name="group_land_tab" title="Arazi/Varlıklar"/>
 			</accordion>

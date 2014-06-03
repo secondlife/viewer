@@ -72,11 +72,11 @@
 			<menu_item_check label="アドバンスメニュー" name="Show Advanced Menu"/>
 		</menu>
 		<menu label="太陽" name="Sun">
-			<menu_item_call label="日の出" name="Sunrise"/>
-			<menu_item_call label="正午" name="Noon"/>
-			<menu_item_call label="日没" name="Sunset"/>
-			<menu_item_call label="真夜中" name="Midnight"/>
-			<menu_item_call label="リージョンの設定を使用" name="Use Region Settings"/>
+			<menu_item_check label="日の出" name="Sunrise"/>
+			<menu_item_check label="正午" name="Noon"/>
+			<menu_item_check label="日没" name="Sunset"/>
+			<menu_item_check label="真夜中" name="Midnight"/>
+			<menu_item_check label="リージョンの設定を使用" name="Use Region Settings"/>
 		</menu>
 		<menu label="自然環境エディター" name="Environment Editor">
 			<menu_item_call label="自然環境の設定..." name="Environment Settings"/>
@@ -165,8 +165,6 @@
 	</menu>
 	<menu label="ヘルプ" name="Help">
 		<menu_item_call label="ハウツー..." name="How To"/>
-		<menu_item_call label="[SECOND_LIFE] ヘルプ" name="Second Life Help"/>
-		<menu_item_call label="ユーザーガイド" name="User’s guide"/>
 		<menu_item_call label="ナレッジベース" name="Knowledge Base"/>
 		<menu_item_call label="Wiki" name="Wiki"/>
 		<menu_item_call label="コミュニティフォーラム" name="Community Forums"/>
@@ -188,6 +186,7 @@
 		<menu label="パフォーマンスツール" name="Performance Tools">
 			<menu_item_call label="ラグ計測器" name="Lag Meter"/>
 			<menu_item_check label="統計バー" name="Statistics Bar"/>
+			<menu_item_call label="シーン ロード統計情報" name="Scene Load Statistics"/>
 			<menu_item_check label="アバターの描画ウェイトを表示" name="Avatar Rendering Cost"/>
 		</menu>
 		<menu label="ハイライトと目に見えるもの" name="Highlighting and Visibility">
@@ -250,6 +249,7 @@
 			<menu_item_check label="ファーストタイマー" name="Fast Timers"/>
 			<menu_item_check label="メモリ" name="Memory"/>
 			<menu_item_check label="風景の統計" name="Scene Statistics"/>
+			<menu_item_check label="シーン ローディング モニター" name="Scene Loading Monitor"/>
 			<menu_item_call label="テクスチャ取得デバッグコンソール" name="Texture Fetch Debug Console"/>
 			<menu_item_call label="リージョン情報をデバッグコンソールへ" name="Region Info to Debug Console"/>
 			<menu_item_call label="グループ情報をデバッグコンソールへ" name="Group Info to Debug Console"/>
@@ -286,6 +286,7 @@
 			<menu_item_check label="定期的に遅いフレームを挿入する" name="Periodic Slow Frame"/>
 			<menu_item_check label="フレームテスト" name="Frame Test"/>
 			<menu_item_call label="フレームプロフィール" name="Frame Profile"/>
+			<menu_item_call label="ベンチマーク" name="Benchmark"/>
 		</menu>
 		<menu label="メタデータのレンダー" name="Render Metadata">
 			<menu_item_check label="バウンディングボックス" name="Bounding Boxes"/>
@@ -304,6 +305,7 @@
 			<menu_item_check label="制作キュー" name="Build Queue"/>
 			<menu_item_check label="光" name="Lights"/>
 			<menu_item_check label="骨組みの衝突判定" name="Collision Skeleton"/>
+			<menu_item_check label="ジョイント" name="Joints"/>
 			<menu_item_check label="レイキャスト" name="Raycast"/>
 			<menu_item_check label="風のベクトル" name="Wind Vectors"/>
 			<menu_item_check label="描画の詳細度" name="rendercomplexity"/>
@@ -336,6 +338,7 @@
 			<menu_item_check label="装着された光源を描画する" name="Render Attached Lights"/>
 			<menu_item_check label="取り付けられたパーティクルを描画する" name="Render Attached Particles"/>
 			<menu_item_check label="マウスオーバーで強調表示する" name="Hover Glow Objects"/>
+			<menu_item_call label="キャッシュをすぐにクリア" name="Cache Clear"/>
 		</menu>
 		<menu label="ネットワーク" name="Network">
 			<menu_item_check label="エージェントを一時停止する" name="AgentPause"/>
@@ -368,7 +371,6 @@
 			<menu_item_call label="フォーカスホールダーをダンプ" name="Dump Focus Holder"/>
 			<menu_item_call label="選択したオブジェクト情報をプリント" name="Print Selected Object Info"/>
 			<menu_item_call label="エージェント情報をプリント" name="Print Agent Info"/>
-			<menu_item_check label="地域デバッグコンソール" name="Region Debug Console"/>
 			<menu_item_check label="SelectMgr のデバッグ" name="Debug SelectMgr"/>
 			<menu_item_check label="ダブルクリック" name="Debug Clicks"/>
 			<menu_item_check label="デバッグ表示" name="Debug Views"/>

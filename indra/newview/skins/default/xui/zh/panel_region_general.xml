@@ -20,12 +20,12 @@
 	</text>
 	<check_box label="阻止土地變形" name="block_terraform_check"/>
 	<check_box label="阻止飛行" name="block_fly_check"/>
+	<check_box label="禁止飛越地段" name="block_fly_over_check" tool_tip="將出入管制往上空擴大，一併禁止飛越地段"/>
 	<check_box label="允許傷害" name="allow_damage_check"/>
 	<check_box label="限制推撞" name="restrict_pushobject"/>
 	<check_box label="允許土地轉售" name="allow_land_resell_check"/>
 	<check_box label="允許土地 合併/分割" name="allow_parcel_changes_check"/>
 	<check_box label="阻擋土地顯示於搜尋中" name="block_parcel_search_check" tool_tip="讓其他人可以在搜尋結果中看到這個地區與其中的地段"/>
-	<check_box label="允許網面物件" name="mesh_rez_enabled_check" tool_tip="允許大家在此地區產生網面物件"/>
 	<spinner label="人數上限" name="agent_limit_spin"/>
 	<spinner label="物件紅利" name="object_bonus_spin"/>
 	<text label="分級" name="access_text">

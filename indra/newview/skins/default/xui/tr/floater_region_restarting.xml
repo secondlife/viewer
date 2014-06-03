@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="region_restarting" title="BÖLGEYİ YENİDEN BAŞLAT">
+	<string name="RegionName">
+		Şu anda içinde bulunduğunuz bölge ([NAME]) yeniden başlatılmak üzere.
+
+Bu bölgede kalmaya devam ederseniz oturumunuz sonlandırılacak.
+	</string>
+	<string name="RestartSeconds">
+		Yeniden başlatma için kalan süre
+[SECONDS]
+	</string>
+	<panel name="layout_panel_1">
+		<text name="region_name">
+			Şu anda içinde bulunduğunuz bölge (-Bölgenin uzun adı-) yeniden başlatılmak üzere.
+
+Bu bölgede kalmaya devam ederseniz oturumunuz sonlandırılacak.
+		</text>
+		<text name="restart_seconds">
+			Yeniden başlatma için kalan süre
+     32767
+		</text>
+	</panel>
+</floater>

@@ -114,15 +114,15 @@
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 	<notification name="OutboxImportFailed">
-		轉移失敗
+		傳送失敗，錯誤碼  &apos;[ERROR_CODE]&apos;
 
 未將任何資料夾送往第二人生購物市集，系統或網路出錯。  請稍候再試一次。
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 	<notification name="OutboxInitFailed">
-		第二人生購物市集初始化失敗
+		購物市集初始化失敗，錯誤碼  &apos;[ERROR_CODE]&apos;
 
-第二人生購物市集初始化失敗，系統或網路出錯。  請稍候再試一次。
+購物市集初始化失敗，系統或網路出錯。  請稍候再試一次。
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 	<notification name="CompileQueueSaveText">
@@ -1722,6 +1722,10 @@ SHA1 指紋：[MD5_DIGEST]
 		你確定要瞬間傳送到&lt;nolink&gt;[LOCATION]&lt;/nolink&gt;？
 		<usetemplate ignoretext="確認我要瞬間傳送到某個地標" name="okcancelignore" notext="取消" yestext="瞬間傳送"/>
 	</notification>
+	<notification name="TeleportViaSLAPP">
+		你確定要瞬間傳送到&lt;nolink&gt;[LOCATION]&lt;/nolink&gt;？
+		<usetemplate ignoretext="確認我要透過SLAPP瞬間傳送" name="okcancelignore" notext="取消" yestext="瞬間傳送"/>
+	</notification>
 	<notification name="TeleportToPick">
 		瞬間傳送到 [PICK]?
 		<usetemplate ignoretext="確認我要瞬間傳送到精選地點的所在位置" name="okcancelignore" notext="取消" yestext="瞬間傳送"/>
@@ -1930,6 +1934,9 @@ SHA1 指紋：[MD5_DIGEST]
 	</notification>
 	<notification name="ProblemAddingEstateManager">
 		新增領地管理人時出問題。  其中一個領地的管理人清單可能已經額滿。
+	</notification>
+	<notification name="ProblemAddingEstateBanManager">
+		無法把領地所有人或管理員加入領地的封鎖名單中。
 	</notification>
 	<notification name="ProblemAddingEstateGeneric">
 		新增到這個領地清單時出問題。  其中一個領地的清單可能已滿。
@@ -3019,7 +3026,7 @@ SHA1 指紋：[MD5_DIGEST]
 
 居民：
 
-[RESIDENTS]
+&lt;nolink&gt;[RESIDENTS]&lt;/nolink&gt;
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
 	<notification name="ShareFolderConfirmation">
@@ -3031,7 +3038,7 @@ SHA1 指紋：[MD5_DIGEST]
 
 居民：
 
-[RESIDENTS]
+&lt;nolink&gt;[RESIDENTS]&lt;/nolink&gt;
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
 	<notification name="ItemsShared">
@@ -3487,10 +3494,6 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="EjectComingSoon">
 		你不再允許待在這裡，必須在 [EJECT_TIME] 秒內離開。
 	</notification>
-	<notification name="NoEnterServerFull">
-		你無法進入這地區，因為 
-伺服器滿載。
-	</notification>
 	<notification name="SaveBackToInvDisabled">
 		「儲存回收納區」功能已被停用。
 	</notification>
@@ -3679,6 +3682,9 @@ SHA1 指紋：[MD5_DIGEST]
 	</notification>
 	<notification name="LinkFailedTooMuchPhysics">
 		物件使用了過多物理資源，其動態特性已被停用。
+	</notification>
+	<notification name="EstateManagerFailedllTeleportHome">
+		位於[SLURL]的物件&apos;[OBJECT_NAME]&apos;無法將領地管理員瞬間傳送回家。
 	</notification>
 	<notification name="TeleportedHomeByObjectOnParcel">
 		你已被 &apos;[PARCEL_NAME]&apos; 地段的物件 &apos;[OBJECT_NAME]&apos; 成功瞬間傳送回家
@@ -3870,13 +3876,18 @@ SHA1 指紋：[MD5_DIGEST]
 		未選取足夠租用地段，無法合併。
 	</notification>
 	<notification name="CantDivideLandMultipleParcelsSelected">
-		無法分割土地，\n因為你選取了多個地段，\n請縮小所選土地。
+		無法分割土地。
+選取了超過一個地段。
+請試著縮小所選的土地。
 	</notification>
 	<notification name="CantDivideLandCantFindParcel">
-		無法分割土地。\n找不到地段。\n請到「幫助 &gt; 回報錯誤……」回報問題
+		無法分割土地。
+找不到地段。
+請到「幫助-&gt;回報錯誤」回報問題
 	</notification>
 	<notification name="CantDivideLandWholeParcelSelected">
-		無法分割土地。 選取了整個地段。\n請試著縮小所選的土地。
+		無法分割土地。 選擇了整個地段。
+請試著縮小所選的土地。
 	</notification>
 	<notification name="LandHasBeenDivided">
 		土地分割成功。
@@ -4015,5 +4026,9 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="PreferenceChatPathChanged">
 		無法移動檔案。 已恢復前一個路徑。
 		<usetemplate ignoretext="無法移動檔案。 已恢復前一個路徑。" name="okignore" yestext="確定"/>
+	</notification>
+	<notification name="ChatHistoryIsBusyAlert">
+		聊天紀錄檔案還在處理前一個動作。 請稍候再試，或請換一個聊天對象。
+		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 </notifications>
