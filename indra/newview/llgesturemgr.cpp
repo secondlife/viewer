@@ -1399,7 +1399,7 @@ BOOL LLGestureMgr::matchPrefix(const std::string& in_str, std::string* out_str)
 				}
 				if (rest_of_match.compare("") == 0)
 				{
-					return FALSE;
+					return TRUE;
 				}
 				if (buf.compare("") != 0)
 				{
