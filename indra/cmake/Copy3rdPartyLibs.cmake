@@ -216,7 +216,6 @@ elseif(DARWIN)
         libexpat.dylib
         libGLOD.dylib
         libhunspell-1.3.0.dylib
-        libllqtwebkit.dylib
         libndofdev.dylib
        )
 
@@ -258,6 +257,7 @@ elseif(LINUX)
         libdb-5.1.so
         libexpat.so
         libexpat.so.1
+        libfreetype.so.6.6.2
         libfreetype.so.6
         libGLOD.so
         libgmodule-2.0.so
@@ -268,6 +268,7 @@ elseif(LINUX)
         libuuid.so.16
         libuuid.so.16.0.22
         libfontconfig.so.1.8.0
+        libfontconfig.so.1
        )
 
     if (USE_TCMALLOC)
