@@ -268,15 +268,15 @@
      label_height="0"
      layout="topleft"
      left="170"
-     name="i_constant"
+     name="constant"
      top_pad="10"
      width="44" >
         <color_swatch.init_callback
          function="ScriptPref.getUIColor"
-         parameter="SyntaxLslConstantInteger" />
+         parameter="SyntaxLslConstant" />
         <color_swatch.commit_callback
          function="ScriptPref.applyUIColor"
-         parameter="SyntaxLslConstantInteger" />
+         parameter="SyntaxLslConstant" />
     </color_swatch>
     <text
      type="string"
@@ -286,100 +286,10 @@
      layout="topleft"
      left_pad="5"
      mouse_opaque="false"
-     name="i_constant_label"
+     name="constant_label"
      top_delta="5"
      width="100">
-    Integer Const
-    </text>
-    <color_swatch
-     can_apply_immediately="true"
-     follows="left|top"
-     height="24"
-     label_height="0"
-     layout="topleft"
-     left="170"
-     name="s_constant"
-     top_pad="10"
-     width="44" >
-        <color_swatch.init_callback
-         function="ScriptPref.getUIColor"
-         parameter="SyntaxLslConstantString" />
-        <color_swatch.commit_callback
-         function="ScriptPref.applyUIColor"
-         parameter="SyntaxLslConstantString" />
-    </color_swatch>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="10"
-     layout="topleft"
-     left_pad="5"
-     mouse_opaque="false"
-     name="s_constant_label"
-     top_delta="5"
-     width="100">
-    String Const
-    </text>
-    <color_swatch
-     can_apply_immediately="true"
-     follows="left|top"
-     height="24"
-     label_height="0"
-     layout="topleft"
-     left="170"
-     name="f_constant"
-     top_pad="10"
-     width="44" >
-        <color_swatch.init_callback
-         function="ScriptPref.getUIColor"
-         parameter="SyntaxLslConstantFloat" />
-        <color_swatch.commit_callback
-         function="ScriptPref.applyUIColor"
-         parameter="SyntaxLslConstantFloat" />
-    </color_swatch>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="10"
-     layout="topleft"
-     left_pad="5"
-     mouse_opaque="false"
-     name="f_constant_label"
-     top_delta="5"
-     width="100">
-    Float Const
-    </text>
-    <color_swatch
-     can_apply_immediately="true"
-     follows="left|top"
-     height="24"
-     label_height="0"
-     layout="topleft"
-     left="170"
-     name="c_constant"
-     top_pad="10"
-     width="44" >
-        <color_swatch.init_callback
-         function="ScriptPref.getUIColor"
-         parameter="SyntaxCompoundConstant" />
-        <color_swatch.commit_callback
-         function="ScriptPref.applyUIColor"
-         parameter="SyntaxCompoundConstant" />
-    </color_swatch>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="10"
-     layout="topleft"
-     left_pad="5"
-     mouse_opaque="false"
-     name="c_constant_label"
-     top_delta="5"
-     width="100">
-    Compound
+    Constant
     </text>
     <color_swatch
      can_apply_immediately="true"

@@ -173,29 +173,9 @@ std::string LLKeywords::getAttribute(const std::string& key)
 LLColor4 LLKeywords::getColorGroup(const std::string& key_in)
 {
 	std::string color_group = "ScriptText";
-	if (key_in == "constants-float")
+	if (key_in == "constants")
 	{
-		color_group = "SyntaxLslConstantFloat";
-	}
-	else if (key_in == "constants-integer")
-	{
-		color_group = "SyntaxLslConstantInteger";
-	}
-	else if (key_in == "constants-key")
-	{
-		color_group = "SyntaxLslConstantKey";
-	}
-	else if (key_in == "constants-rotation")
-	{
-		color_group = "SyntaxLslConstantRotation";
-	}
-	else if (key_in == "constants-string")
-	{
-		color_group = "SyntaxLslConstantString";
-	}
-	else if (key_in == "constants-vector")
-	{
-		color_group = "SyntaxLslConstantVector";
+		color_group = "SyntaxLslConstant";
 	}
 	else if (key_in == "controls")
 	{
@@ -229,18 +209,6 @@ LLColor4 LLKeywords::getColorGroup(const std::string& key_in)
 	{
 		color_group = "SyntaxLslSection";
 	}
-	else if (key_in == "misc-double_quotation_marks")
-	{
-		color_group = "SyntaxLslStringLiteral";
-	}
-	else if (key_in == "misc-comments_1_sided")
-	{
-		color_group = "SyntaxLslComment";
-	}
-	else if (key_in == "misc-comments_2_sided")
-	{
-		color_group = "SyntaxLslComment";
-	}
 	else
 	{
 		LL_WARNS("SyntaxLSL") << "Color key '" << key_in << "' not recognized." << LL_ENDL;
@@ -265,9 +233,9 @@ void LLKeywords::processTokens()
 	// Add 'standard' stuff: Quotes, Comments, Strings, Labels, etc. before processing the LLSD
 	std::string delimiter;
 	addToken(LLKeywordToken::TT_LABEL, "@", getColorGroup("misc-flow-label"), "Label\nTarget for jump statement", delimiter );
-	addToken(LLKeywordToken::TT_ONE_SIDED_DELIMITER, "//", getColorGroup("misc-comments_1_sided"), "Comment (single-line)\nNon-functional commentary or disabled code", delimiter );
-	addToken(LLKeywordToken::TT_TWO_SIDED_DELIMITER, "/*", getColorGroup("misc-comments_2_sided"), "Comment (multi-line)\nNon-functional commentary or disabled code", "*/" );
-	addToken(LLKeywordToken::TT_DOUBLE_QUOTATION_MARKS, "\"", getColorGroup("misc-double_quotation_marks"), "String literal", "\"" );
+	addToken(LLKeywordToken::TT_ONE_SIDED_DELIMITER, "//", LLUIColorTable::instance().getColor("SyntaxLslComment"), "Comment (single-line)\nNon-functional commentary or disabled code", delimiter );
+	addToken(LLKeywordToken::TT_TWO_SIDED_DELIMITER, "/*", LLUIColorTable::instance().getColor("SyntaxLslComment"), "Comment (multi-line)\nNon-functional commentary or disabled code", "*/" );
+	addToken(LLKeywordToken::TT_DOUBLE_QUOTATION_MARKS, "\"", LLUIColorTable::instance().getColor("SyntaxLslStringLiteral"), "String literal", "\"" );
 
 	LLSD::map_iterator itr = mSyntax.beginMap();
 	for ( ; itr != mSyntax.endMap(); ++itr)
@@ -401,7 +369,7 @@ void LLKeywords::processTokensGroup(const LLSD& tokens, const std::string& group
 	else if (tokens.isArray())	// Currently nothing should need this, but it's here for completeness
 	{
 		LL_INFOS("SyntaxLSL") << "Curious, shouldn't be an array here; adding all using color " << color << LL_ENDL;
-		for (int count = 0; count < tokens.size(); ++count)
+		for (S32 count = 0; count < tokens.size(); ++count)
 		{
 			addToken(token_type, tokens[count], color, "");
 		}
