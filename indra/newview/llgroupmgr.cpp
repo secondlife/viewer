@@ -1866,11 +1866,19 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 class GroupBanDataResponder : public LLHTTPClient::Responder
 {
 public:
-	GroupBanDataResponder() {}
+	GroupBanDataResponder(const LLUUID& gropup_id, BOOL force_refresh=false);
 	virtual ~GroupBanDataResponder() {}
 	virtual void result(const LLSD& pContent);
 	virtual void errorWithContent(U32 pStatus, const std::string& pReason, const LLSD& pContent);
+private:
+	LLUUID mGroupID;
+	BOOL mForceRefresh;
 };
+
+GroupBanDataResponder::GroupBanDataResponder(const LLUUID& gropup_id, BOOL force_refresh) :
+	mGroupID(gropup_id),
+	mForceRefresh(force_refresh)
+{}
 
 void GroupBanDataResponder::errorWithContent(U32 pStatus, const std::string& pReason, const LLSD& pContent)
 {
@@ -1880,12 +1888,32 @@ void GroupBanDataResponder::errorWithContent(U32 pStatus, const std::string& pRe
 
 void GroupBanDataResponder::result(const LLSD& content)
 {
-	LLGroupMgr::processGroupBanRequest(content);
+	if ( content.size())
+	{
+		if (content.has("ban_list"))
+		{
+			// group data received
+			LLGroupMgr::processGroupBanRequest(content);
+		}
+		// no group data received, this is either CREATE or DELETE operation
+		// complete confirmation. Local data may be obsolete.
+		else if (mForceRefresh)
+		{
+			// providing mGroupId and not extracting it from content since it is not
+			// included into CREATE and DELETE responses 
+			LLGroupMgr::getInstance()->sendGroupBanRequest(LLGroupMgr::REQUEST_GET, mGroupID);
+		}
+	}
+	else
+	{
+		LL_WARNS("GrpMgr") << "No group member data received." << LL_ENDL;
+		return;
+	}
 }
 
 void LLGroupMgr::sendGroupBanRequest(	EBanRequestType request_type, 
 										const LLUUID& group_id, 
-										EBanRequestAction ban_action, /* = BAN_NO_ACTION */
+										U32 ban_action, /* = BAN_NO_ACTION */
 										const std::vector<LLUUID> ban_list) /* = std::vector<LLUUID>() */
 {
 	LLViewerRegion* currentRegion = gAgent.getRegion();
@@ -1911,7 +1939,7 @@ void LLGroupMgr::sendGroupBanRequest(	EBanRequestType request_type,
 	cap_url += "?group_id=" + group_id.asString();
 
 	LLSD body = LLSD::emptyMap();
-	body["ban_action"] = ban_action;
+	body["ban_action"]  = (LLSD::Integer)(ban_action & ~BAN_UPDATE);
 	// Add our list of potential banned residents to the list
 	body["ban_ids"]	= LLSD::emptyArray();
 	LLSD ban_entry;
@@ -1923,7 +1951,7 @@ void LLGroupMgr::sendGroupBanRequest(	EBanRequestType request_type,
 		body["ban_ids"].append(ban_entry);
 	}
 
-	LLHTTPClient::ResponderPtr grp_ban_responder = new GroupBanDataResponder();
+	LLHTTPClient::ResponderPtr grp_ban_responder = new GroupBanDataResponder(group_id, ban_action & BAN_UPDATE);
 	switch(request_type)
 	{
 	case REQUEST_GET:

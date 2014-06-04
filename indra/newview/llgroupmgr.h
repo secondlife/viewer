@@ -356,7 +356,8 @@ public:
 	{
 		BAN_NO_ACTION	= 0,
 		BAN_CREATE		= 1,
-		BAN_DELETE		= 2
+		BAN_DELETE		= 2,
+		BAN_UPDATE		= 4
 	};
 
 public:
@@ -395,7 +396,7 @@ public:
 	
 	static void sendGroupBanRequest(EBanRequestType request_type, 
 									const LLUUID& group_id,	
-									EBanRequestAction ban_action = BAN_NO_ACTION,
+									U32 ban_action = BAN_NO_ACTION,
 									const uuid_vec_t ban_list = uuid_vec_t());
 
 	static void processGroupBanRequest(const LLSD& content);
