@@ -114,7 +114,7 @@ public:
 	virtual void move(LLFolderViewModelItem* new_parent_bridge) {}
 	virtual BOOL isItemCopyable() const { return FALSE; }
 	virtual BOOL copyToClipboard() const;
-	virtual BOOL cutToClipboard() const;
+	virtual BOOL cutToClipboard();
 	virtual BOOL isClipboardPasteable() const;
 	virtual BOOL isClipboardPasteableAsLink() const;
 	virtual void pasteFromClipboard() {}
@@ -176,6 +176,9 @@ protected:
 									 const LLUUID& new_parent,
 									 BOOL restamp);
 	void removeBatchNoCheck(std::vector<LLFolderViewModelItem*>& batch);
+    
+    BOOL callback_cutToClipboard(const LLSD& notification, const LLSD& response);
+    BOOL perform_cutToClipboard();
 protected:
 	LLHandle<LLInventoryPanel> mInventoryPanel;
 	LLFolderView* mRoot;
@@ -356,6 +359,8 @@ public:
 	static void staticFolderOptionsMenu();
 
 private:
+    void callback_pasteFromClipboard(const LLSD& notification, const LLSD& response);
+    void perform_pasteFromClipboard();
 
 	bool							mCallingCards;
 	bool							mWearables;

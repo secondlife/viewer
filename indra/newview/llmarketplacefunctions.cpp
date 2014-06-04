@@ -1318,7 +1318,7 @@ bool LLMarketplaceData::addListing(const LLUUID& folder_id, S32 listing_id, cons
     }
 	mMarketplaceItems[folder_id] = LLMarketplaceTuple(folder_id, listing_id, version_id, is_listed);
 
-    update_marketplace_category(folder_id);
+    update_marketplace_category(folder_id, true);
     gInventory.notifyObservers();
     return true;
 }
@@ -1334,7 +1334,7 @@ bool LLMarketplaceData::deleteListing(const LLUUID& folder_id, bool update_slm)
 
     if (update_slm)
     {
-        update_marketplace_category(folder_id);
+        update_marketplace_category(folder_id, true);
         gInventory.notifyObservers();
     }
     return true;
@@ -1422,11 +1422,9 @@ bool LLMarketplaceData::isInActiveFolder(const LLUUID& obj_id)
 {
     S32 depth = depth_nesting_in_marketplace(obj_id);
     LLUUID listing_uuid = nested_parent_id(obj_id, depth);
-    // *TODO: use true activation status once SLM is in decent shape again
-    //bool active = getActivationState(listing_uuid); Hack waiting for SLM to allow activation again...
-    bool active = true;
+    bool active = getActivationState(listing_uuid);
     LLUUID version_uuid = getVersionFolder(listing_uuid);
-    return (active && gInventory.isObjectDescendentOf(obj_id, version_uuid));
+    return (active && ((obj_id == listing_uuid) || (obj_id == version_uuid) || gInventory.isObjectDescendentOf(obj_id, version_uuid)));
 }
 
 // Private Modifiers
@@ -1440,7 +1438,7 @@ bool LLMarketplaceData::setListingID(const LLUUID& folder_id, S32 listing_id)
     
     (it->second).mListingId = listing_id;
     
-    update_marketplace_category(folder_id);
+    update_marketplace_category(folder_id, true);
     gInventory.notifyObservers();
     return true;
 }
@@ -1461,8 +1459,8 @@ bool LLMarketplaceData::setVersionFolderID(const LLUUID& folder_id, const LLUUID
     
     (it->second).mVersionFolderId = version_id;
         
-    update_marketplace_category(old_version_id);
-    update_marketplace_category(version_id);
+    update_marketplace_category(old_version_id, true);
+    update_marketplace_category(version_id, true);
     gInventory.notifyObservers();
     return true;
 }
@@ -1477,7 +1475,7 @@ bool LLMarketplaceData::setActivationState(const LLUUID& folder_id, bool activat
 
     (it->second).mIsActive = activate;
     
-    update_marketplace_category((it->second).mListingFolderId);
+    update_marketplace_category((it->second).mListingFolderId, true);
     gInventory.notifyObservers();
     return true;
 }

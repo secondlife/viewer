@@ -1537,11 +1537,11 @@ void LLInventoryModel::addChangedMask(U32 mask, const LLUUID& referent)
 		}
 	}
 	
-	mModifyMask |= mask; 
+	mModifyMask |= mask;
 	if (referent.notNull() && (mChangedItemIDs.find(referent) == mChangedItemIDs.end()))
 	{
 		mChangedItemIDs.insert(referent);
-        update_marketplace_category(referent);
+        update_marketplace_category(referent, true);
 
 		if (mask & LLInventoryObserver::ADD)
 		{

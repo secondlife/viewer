@@ -946,7 +946,7 @@ void LLFolderView::cut()
 			if (listener)
 			{
 				listener->cutToClipboard();
-				listener->removeItem();
+				//listener->removeItem();
 			}
 		}
 		

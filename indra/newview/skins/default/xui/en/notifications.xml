@@ -320,6 +320,19 @@ Initialization with the Marketplace failed because of a system or network error.
     </notification>
 
     <notification
+        icon="alertmodal.tga"
+        name="ConfirmMerchantUnlist"
+        type="alertmodal">
+        This action will unlist this listing. Do you want to continue?
+        <tag>confirm</tag>
+        <usetemplate
+        ignoretext="Confirm before I unlist an active listing on the marketplace"
+        name="okcancelignore"
+        notext="Cancel"
+        yestext="OK"/>
+    </notification>
+    
+    <notification
    icon="alertmodal.tga"
    name="CompileQueueSaveText"
    type="alertmodal">

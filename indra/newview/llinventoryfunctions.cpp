@@ -141,7 +141,7 @@ void update_marketplace_folder_hierarchy(const LLUUID cat_id)
     return;
 }
 
-void update_marketplace_category(const LLUUID& cur_uuid)
+void update_marketplace_category(const LLUUID& cur_uuid, bool skip_consistency_enforcement)
 {
     // When changing the marketplace status of an item, we usually have to change the status of all
     // folders in the same listing. This is because the display of each folder is affected by the
@@ -160,12 +160,11 @@ void update_marketplace_category(const LLUUID& cur_uuid)
         LLUUID listing_uuid = nested_parent_id(cur_uuid, depth);
     
         // Verify marketplace data consistency for this listing
-        if (LLMarketplaceData::instance().isListed(listing_uuid))
+        if (!skip_consistency_enforcement && LLMarketplaceData::instance().isListed(listing_uuid))
         {
             LLUUID version_folder_uuid = LLMarketplaceData::instance().getVersionFolder(listing_uuid);
             if (version_folder_uuid.notNull() && !gInventory.isObjectDescendentOf(version_folder_uuid, listing_uuid))
             {
-                // *TODO : Confirm with Producer that this is what we want to happen in that case!
                 LL_INFOS("SLM") << "Unlist as the version folder is not under the listing folder anymore!!" << LL_ENDL;
                 LLMarketplaceData::instance().setVersionFolder(listing_uuid, LLUUID::null);
                 LLMarketplaceData::instance().activateListing(listing_uuid, false);
@@ -177,9 +176,8 @@ void update_marketplace_category(const LLUUID& cur_uuid)
     }
     else if (depth < 0)
     {
-        if (LLMarketplaceData::instance().isListed(cur_uuid))
+        if (!skip_consistency_enforcement && LLMarketplaceData::instance().isListed(cur_uuid))
         {
-            // *TODO : Confirm with Producer that this is what we want to happen in that case!
             LL_INFOS("SLM") << "Disassociate as the listing folder is not under the marketplace folder anymore!!" << LL_ENDL;
             LLMarketplaceData::instance().clearListing(cur_uuid);
         }
@@ -1928,21 +1926,16 @@ void LLInventoryAction::callback_doToSelected(const LLSD& notification, const LL
 
 void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root, const std::string& action, BOOL user_confirm)
 {
-	if ("rename" == action)
-	{
-		root->startRenamingSelectedItem();
-		return;
-	}
-    
 	std::set<LLFolderViewItem*> selected_items = root->getSelectionList();
         
     // Prompt the user for some marketplace active listing edits
-	if (user_confirm && (("paste" == action) || ("cut" == action) || ("delete" == action)))
+	if (user_confirm && (("cut" == action) || ("delete" == action) || ("rename" == action) || ("properties" == action) || ("task_properties" == action)))
     {
         std::set<LLFolderViewItem*>::iterator set_iter = selected_items.begin();
+        LLFolderViewModelItemInventory * viewModel = NULL;
         for (; set_iter != selected_items.end(); ++set_iter)
         {
-            LLFolderViewModelItemInventory * viewModel = dynamic_cast<LLFolderViewModelItemInventory *>((*set_iter)->getViewModelItem());
+            viewModel = dynamic_cast<LLFolderViewModelItemInventory *>((*set_iter)->getViewModelItem());
             if (viewModel && LLMarketplaceData::instance().isInActiveFolder(viewModel->getUUID()))
             {
                 break;
@@ -1950,10 +1943,25 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
         }
         if (set_iter != selected_items.end())
         {
-            LLNotificationsUtil::add("ConfirmMerchantActiveChange", LLSD(), LLSD(), boost::bind(&LLInventoryAction::callback_doToSelected, _1, _2, model, root, action));
+            if ((("cut" == action) || ("delete" == action)) && (LLMarketplaceData::instance().isListed(viewModel->getUUID()) || LLMarketplaceData::instance().isVersionFolder(viewModel->getUUID())))
+            {
+                // Cut or delete of the active version folder or listing folder itself will unlist the listing so ask that question specifically
+                LLNotificationsUtil::add("ConfirmMerchantUnlist", LLSD(), LLSD(), boost::bind(&LLInventoryAction::callback_doToSelected, _1, _2, model, root, action));
+            }
+            else
+            {
+                // Any other case will simply modify but not unlist a listing
+                LLNotificationsUtil::add("ConfirmMerchantActiveChange", LLSD(), LLSD(), boost::bind(&LLInventoryAction::callback_doToSelected, _1, _2, model, root, action));
+            }
             return;
         }
     }
+    
+	if ("rename" == action)
+	{
+		root->startRenamingSelectedItem();
+		return;
+	}
     
 	if ("delete" == action)
 	{
