@@ -273,12 +273,12 @@ BOOL LLInvFVBridge::cutToClipboard()
             
         if (cut_from_marketplacelistings && LLMarketplaceData::instance().isInActiveFolder(mUUID))
         {
-            // Prompt the user if cutting from marketplace active listing
+            // Prompt the user if cutting from a marketplace active listing
             LLNotificationsUtil::add("ConfirmMerchantActiveChange", LLSD(), LLSD(), boost::bind(&LLInvFVBridge::callback_cutToClipboard, this, _1, _2));
         }
         else
         {
-            // Otherwise just do the cut
+            // Otherwise just perform the cut
             return perform_cutToClipboard();
         }
     }
@@ -302,11 +302,9 @@ BOOL LLInvFVBridge::perform_cutToClipboard()
 	if (obj && isItemMovable() && isItemRemovable())
 	{
 		LLClipboard::instance().setCutMode(true);
-		if (LLClipboard::instance().addToClipboard(mUUID))
-        {
-            removeObject(&gInventory, mUUID);
-            return TRUE;
-        }
+		BOOL added_to_clipboard = LLClipboard::instance().addToClipboard(mUUID);
+        removeObject(&gInventory, mUUID);   // Always perform the remove even if the object couldn't make it to the clipboard
+        return added_to_clipboard;
 	}
 	return FALSE;
 }
@@ -1517,7 +1515,6 @@ void LLItemBridge::performAction(LLInventoryModel* model, std::string action)
 	else if ("cut" == action)
 	{
 		cutToClipboard();
-        //removeObject(model, mUUID);
 		return;
 	}
 	else if ("copy" == action)
@@ -2937,7 +2934,6 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 	else if ("cut" == action)
 	{
 		cutToClipboard();
-        //removeObject(model, mUUID);
 		return;
 	}
 	else if ("copy" == action)
@@ -3245,7 +3241,7 @@ void LLFolderBridge::pasteFromClipboard()
         
         if (paste_into_marketplacelistings && !LLMarketplaceData::instance().isListed(mUUID) && LLMarketplaceData::instance().isInActiveFolder(mUUID))
         {
-            // Prompt the user if pasting in marketplace active version listing (note that pasting right in the listing folder doesn't need a prompt)
+            // Prompt the user if pasting in a marketplace active version listing (note that pasting right under the listing folder root doesn't need a prompt)
             LLNotificationsUtil::add("ConfirmMerchantActiveChange", LLSD(), LLSD(), boost::bind(&LLFolderBridge::callback_pasteFromClipboard, this, _1, _2));
         }
         else
@@ -3271,8 +3267,6 @@ void LLFolderBridge::perform_pasteFromClipboard()
 	LLInventoryModel* model = getInventoryModel();
 	if (model && isClipboardPasteable())
 	{
-        
-		
         const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, false);
 		const LLUUID &outbox_id = model->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
         const LLUUID &marketplacelistings_id = model->findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);

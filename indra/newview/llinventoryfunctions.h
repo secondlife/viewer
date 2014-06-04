@@ -59,7 +59,7 @@ void show_item_original(const LLUUID& item_uuid);
 void reset_inventory_filter();
 
 // Nudge the listing categories in the inventory to signal that their marketplace status changed
-void update_marketplace_category(const LLUUID& cat_id, bool skip_consistency_enforcement = false);
+void update_marketplace_category(const LLUUID& cat_id, bool perform_consistency_enforcement = true);
 // Nudge all listing categories to signal that their marketplace status changed
 void update_all_marketplace_count();
 

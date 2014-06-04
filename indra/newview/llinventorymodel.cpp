@@ -1541,7 +1541,7 @@ void LLInventoryModel::addChangedMask(U32 mask, const LLUUID& referent)
 	if (referent.notNull() && (mChangedItemIDs.find(referent) == mChangedItemIDs.end()))
 	{
 		mChangedItemIDs.insert(referent);
-        update_marketplace_category(referent, true);
+        update_marketplace_category(referent, false);
 
 		if (mask & LLInventoryObserver::ADD)
 		{

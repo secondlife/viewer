@@ -141,7 +141,7 @@ void update_marketplace_folder_hierarchy(const LLUUID cat_id)
     return;
 }
 
-void update_marketplace_category(const LLUUID& cur_uuid, bool skip_consistency_enforcement)
+void update_marketplace_category(const LLUUID& cur_uuid, bool perform_consistency_enforcement)
 {
     // When changing the marketplace status of an item, we usually have to change the status of all
     // folders in the same listing. This is because the display of each folder is affected by the
@@ -160,7 +160,7 @@ void update_marketplace_category(const LLUUID& cur_uuid, bool skip_consistency_e
         LLUUID listing_uuid = nested_parent_id(cur_uuid, depth);
     
         // Verify marketplace data consistency for this listing
-        if (!skip_consistency_enforcement && LLMarketplaceData::instance().isListed(listing_uuid))
+        if (perform_consistency_enforcement && LLMarketplaceData::instance().isListed(listing_uuid))
         {
             LLUUID version_folder_uuid = LLMarketplaceData::instance().getVersionFolder(listing_uuid);
             if (version_folder_uuid.notNull() && !gInventory.isObjectDescendentOf(version_folder_uuid, listing_uuid))
@@ -176,7 +176,7 @@ void update_marketplace_category(const LLUUID& cur_uuid, bool skip_consistency_e
     }
     else if (depth < 0)
     {
-        if (!skip_consistency_enforcement && LLMarketplaceData::instance().isListed(cur_uuid))
+        if (perform_consistency_enforcement && LLMarketplaceData::instance().isListed(cur_uuid))
         {
             LL_INFOS("SLM") << "Disassociate as the listing folder is not under the marketplace folder anymore!!" << LL_ENDL;
             LLMarketplaceData::instance().clearListing(cur_uuid);
@@ -1929,7 +1929,7 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 	std::set<LLFolderViewItem*> selected_items = root->getSelectionList();
         
     // Prompt the user for some marketplace active listing edits
-	if (user_confirm && (("cut" == action) || ("delete" == action) || ("rename" == action) || ("properties" == action) || ("task_properties" == action)))
+	if (user_confirm && (("delete" == action) || ("rename" == action) || ("properties" == action) || ("task_properties" == action)))
     {
         std::set<LLFolderViewItem*>::iterator set_iter = selected_items.begin();
         LLFolderViewModelItemInventory * viewModel = NULL;

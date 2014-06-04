@@ -1318,7 +1318,7 @@ bool LLMarketplaceData::addListing(const LLUUID& folder_id, S32 listing_id, cons
     }
 	mMarketplaceItems[folder_id] = LLMarketplaceTuple(folder_id, listing_id, version_id, is_listed);
 
-    update_marketplace_category(folder_id, true);
+    update_marketplace_category(folder_id, false);
     gInventory.notifyObservers();
     return true;
 }
@@ -1334,7 +1334,7 @@ bool LLMarketplaceData::deleteListing(const LLUUID& folder_id, bool update_slm)
 
     if (update_slm)
     {
-        update_marketplace_category(folder_id, true);
+        update_marketplace_category(folder_id, false);
         gInventory.notifyObservers();
     }
     return true;
@@ -1438,7 +1438,7 @@ bool LLMarketplaceData::setListingID(const LLUUID& folder_id, S32 listing_id)
     
     (it->second).mListingId = listing_id;
     
-    update_marketplace_category(folder_id, true);
+    update_marketplace_category(folder_id, false);
     gInventory.notifyObservers();
     return true;
 }
@@ -1459,8 +1459,8 @@ bool LLMarketplaceData::setVersionFolderID(const LLUUID& folder_id, const LLUUID
     
     (it->second).mVersionFolderId = version_id;
         
-    update_marketplace_category(old_version_id, true);
-    update_marketplace_category(version_id, true);
+    update_marketplace_category(old_version_id, false);
+    update_marketplace_category(version_id, false);
     gInventory.notifyObservers();
     return true;
 }
@@ -1475,7 +1475,7 @@ bool LLMarketplaceData::setActivationState(const LLUUID& folder_id, bool activat
 
     (it->second).mIsActive = activate;
     
-    update_marketplace_category((it->second).mListingFolderId, true);
+    update_marketplace_category((it->second).mListingFolderId, false);
     gInventory.notifyObservers();
     return true;
 }
