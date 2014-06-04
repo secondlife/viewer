@@ -33,6 +33,11 @@
             <key>tooltip</key>
             <string>Leave current event or function.\nreturn [&lt;variable&gt;];\nOptionally pass back a variable's value, from a function.</string>
          </map>
+         <key>state</key>
+         <map>
+            <key>tooltip</key>
+            <string>state &lt;target&gt;\nIf the target state is not the same as the current one, change to the target state.</string>
+         </map>
          <key>while</key>
          <map>
             <key>tooltip</key>
@@ -5992,33 +5997,14 @@
             <key>tooltip</key>
             <string/>
          </map>
+         <key>default</key>
+         <map>
+            <key>tooltip</key>
+            <string>All scripts must have a default state, which is the first state entered when the script starts.\nIf another state is defined before the default state, the compiler will report a syntax error.</string>
+         </map>
       </map>
       <key>events</key>
       <map>
-         <key>default</key>
-         <map>
-         <key>arguments</key>
-           <undef />
-         <key>tooltip</key>
-           <string>All scripts must have a default state, which is the first state entered when the script starts.\nIf another state is defined before the default state, the compiler will report a syntax error.</string>
-         </map>
-         <key>state</key>
-         <map>
-            <key>arguments</key>
-            <array>
-              <map>
-              <key>Name</key>
-                <map>
-                  <key>type</key>
-                  <string>string</string>
-                  <key>tooltip</key>
-                  <string/>
-                 </map>
-              </map>
-           </array>
-           <key>tooltip</key>
-           <string>state &lt;target&gt;\nChange to the target state.</string>
-         </map>
          <key>at_rot_target</key>
          <map>
             <key>arguments</key>
