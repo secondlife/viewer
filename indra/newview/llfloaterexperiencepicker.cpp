@@ -153,6 +153,8 @@ LLFloaterExperiencePicker::~LLFloaterExperiencePicker()
 
 BOOL LLFloaterExperiencePicker::postBuild()
 {
-	mSearchPanel = static_cast<LLPanelExperiencePicker*>(getChild<LLUICtrl>("panel_experience_search"));
+	mSearchPanel = new LLPanelExperiencePicker();
+	addChild(mSearchPanel);
+	mSearchPanel->setOrigin(0, 0);
 	return LLFloater::postBuild();
 }
