@@ -824,6 +824,12 @@ LLLocalBitmapMgr::~LLLocalBitmapMgr()
 {
 }
 
+void LLLocalBitmapMgr::cleanupClass()
+{
+	std::for_each(sBitmapList.begin(), sBitmapList.end(), DeletePointer());
+	sBitmapList.clear();
+}
+
 bool LLLocalBitmapMgr::addUnit()
 {
 	bool add_successful = false;
