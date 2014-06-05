@@ -282,9 +282,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9a3e5c5df35a8a3971b0c2c86549ff29</string>
+              <string>f5a699c93beb1a854d0b51382b5cecc8</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-curl-update/rev/290567/arch/Darwin/installer/curl-7.37.0-darwin-20140602.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-curl-update/rev/290664/arch/Darwin/installer/curl-7.37.0-darwin-20140605.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -294,9 +294,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e28e06e73852c1fee0b3c6689aa3180d</string>
+              <string>2bc285edffd0e55e0cd6290f39854a89</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-curl-update/rev/290567/arch/Linux/installer/curl-7.37.0-linux-20140602.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-curl-update/rev/290664/arch/Linux/installer/curl-7.37.0-linux-20140605.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -306,9 +306,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e5194983014a6182457ceca4cf7a5d0c</string>
+              <string>8d3b197d7a114d2b688d2831a0a59757</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-curl-update/rev/290567/arch/CYGWIN/installer/curl-7.37.0-windows-20140602.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-curl-update/rev/290664/arch/CYGWIN/installer/curl-7.37.0-windows-20140605.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1444,9 +1444,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ef634af120da8f8ee00d06d294a701af</string>
+              <string>79afb464255be2be7c02fdfac10bcd5c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-llqtwebkit2/rev/290578/arch/Darwin/installer/llqtwebkit-4.7.1-darwin-20140602.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-llqtwebkit2/rev/290663/arch/Darwin/installer/llqtwebkit-4.7.1-darwin-20140605.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1456,9 +1456,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>cb9e94219391c4ca7d904ff7fab68a20</string>
+              <string>090190a8dd80efe1f0933c7ed307e6f1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-llqtwebkit2/rev/290578/arch/Linux/installer/llqtwebkit-4.7.1-linux-20140602.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-llqtwebkit2/rev/290663/arch/Linux/installer/llqtwebkit-4.7.1-linux-20140605.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1468,9 +1468,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5cb4e4d8b34e2566313fc2616dfca6bc</string>
+              <string>650f2a30a83eacde238fcc87ff161190</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-llqtwebkit2/rev/290578/arch/CYGWIN/installer/llqtwebkit-4.7.1-windows-20140602.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-llqtwebkit2/rev/290663/arch/CYGWIN/installer/llqtwebkit-4.7.1-windows-20140605.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1724,9 +1724,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ef74230aa851331bf29a3947309e9883</string>
+              <string>4db126327bbb125ea2490c79c73103bf</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-openssl-update/rev/290560/arch/Darwin/installer/openssl-1.0.1g-darwin-20140602.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-openssl-update/rev/290662/arch/Darwin/installer/openssl-1.0.1h-darwin-20140605.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1736,9 +1736,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0f0a72a8f0ffbf46e71551a6c545b1f5</string>
+              <string>0665c18f8cdbe2f90cb0a2f088cfe1a6</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-openssl-update/rev/290560/arch/Linux/installer/openssl-1.0.1g-linux-20140602.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-openssl-update/rev/290662/arch/Linux/installer/openssl-1.0.1h-linux-20140605.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1748,9 +1748,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b622c5974a2a61b473e7e0747c1e38d5</string>
+              <string>138997e1a73c65525d45c00f43f08010</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-openssl-update/rev/290560/arch/CYGWIN/installer/openssl-1.0.1g-windows-20140602.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-openssl-update/rev/290662/arch/CYGWIN/installer/openssl-1.0.1h-windows-20140605.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
