@@ -1431,6 +1431,18 @@ void LLAppearanceMgr::takeOffOutfit(const LLUUID& cat_id)
 		uuids_to_remove.push_back(item->getUUID());
 	}
 	removeItemsFromAvatar(uuids_to_remove);
+
+	// deactivate all gestures in the outfit folder
+	LLInventoryModel::item_array_t gest_items;
+	getDescendentsOfAssetType(cat_id, gest_items, LLAssetType::AT_GESTURE, false);
+	for(S32 i = 0; i  < gest_items.size(); ++i)
+	{
+		LLViewerInventoryItem *gest_item = gest_items[i];
+		if ( LLGestureMgr::instance().isGestureActive( gest_item->getLinkedUUID()) )
+		{
+			LLGestureMgr::instance().deactivateGesture( gest_item->getLinkedUUID() );
+		}
+	}
 }
 
 // Create a copy of src_id + contents as a subfolder of dst_id.
@@ -3415,6 +3427,7 @@ void LLAppearanceMgr::removeItemsFromAvatar(const uuid_vec_t& ids_to_remove)
 	{
 		LL_WARNS() << "called with empty list, nothing to do" << LL_ENDL;
 	}
+
 	for (uuid_vec_t::const_iterator it = ids_to_remove.begin(); it != ids_to_remove.end(); ++it)
 	{
 		const LLUUID& id_to_remove = *it;

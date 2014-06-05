@@ -71,6 +71,7 @@
 #include "stringize.h"
 #include "llviewercontrol.h"
 #include "llsdserialize.h"
+#include "llfloaterperms.h"
 #include "llvieweroctree.h"
 #include "llviewerdisplay.h"
 #include "llviewerwindow.h"
@@ -2600,6 +2601,7 @@ void LLViewerRegion::unpackRegionHandshake()
 
 void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 {
+	capabilityNames.append("AgentPreferences");
 	capabilityNames.append("AgentState");
 	capabilityNames.append("AttachmentResources");
 	capabilityNames.append("AvatarPickerSearch");
@@ -2634,6 +2636,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("GroupProposalBallot");
 	capabilityNames.append("HomeLocation");
 	capabilityNames.append("LandResources");
+	capabilityNames.append("LSLSyntax");
 	capabilityNames.append("MapLayer");
 	capabilityNames.append("MapLayerGod");
 	capabilityNames.append("MeshUploadFlag");
@@ -2868,6 +2871,8 @@ void LLViewerRegion::setCapabilitiesReceived(bool received)
 	if (received)
 	{
 		mCapabilitiesReceivedSignal(getRegionID());
+
+		LLFloaterPermsDefault::sendInitialPerms();
 
 		// This is a single-shot signal. Forget callbacks to save resources.
 		mCapabilitiesReceivedSignal.disconnect_all_slots();

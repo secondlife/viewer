@@ -3373,6 +3373,10 @@ LLSD LLAppViewer::getViewerInfo() const
 		{
 			info["SERVER_RELEASE_NOTES_URL"] = LLTrans::getString("RetrievingData");
 		}
+		else
+		{
+			info["SERVER_RELEASE_NOTES_URL"] = LLTrans::getString("NotConnected");
+		}
 	}
 	else if (LLStringUtil::startsWith(mServerReleaseNotesURL, "http")) // it's an URL
 	{
@@ -4828,7 +4832,7 @@ void LLAppViewer::idle()
 		static LLFrameStatsTimer viewer_stats_timer(SEND_STATS_PERIOD);
 
 		// Update session stats every large chunk of time
-		// *FIX: (???) SAMANTHA
+		// *FIX: (?) SAMANTHA
 		if (viewer_stats_timer.getElapsedTimeF32() >= SEND_STATS_PERIOD && !gDisconnected)
 		{
 			LL_INFOS() << "Transmitting sessions stats" << LL_ENDL;

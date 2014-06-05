@@ -148,7 +148,8 @@ BOOL LLFloaterAbout::postBuild()
 	}
 	else // not logged in
 	{
-		setSupportText(LLStringUtil::null);
+		LL_DEBUGS("ViewerInfo") << "cannot display region info when not connected" << LL_ENDL;
+		setSupportText(LLTrans::getString("NotConnected"));
 	}
 
 	support_widget->blockUndo();
@@ -267,11 +268,10 @@ void LLFloaterAbout::setSupportText(const std::string& server_release_notes_url)
 	LLViewerTextEditor *support_widget =
 		getChild<LLViewerTextEditor>("support_editor", true);
 
+	LLUIColor about_color = LLUIColorTable::instance().getColor("TextFgReadOnlyColor");
 	support_widget->clear();
 	support_widget->appendText(LLAppViewer::instance()->getViewerInfoString(),
-								FALSE,
-								LLStyle::Params()
-									.color(LLUIColorTable::instance().getColor("TextFgReadOnlyColor")));
+							   FALSE, LLStyle::Params() .color(about_color));
 }
 
 ///----------------------------------------------------------------------------
@@ -305,9 +305,9 @@ void LLServerReleaseNotesURLFetcher::startFetch()
 // virtual
 void LLServerReleaseNotesURLFetcher::completedHeader(U32 status, const std::string& reason, const LLSD& content)
 {
-	LL_DEBUGS() << "Status: " << status << LL_ENDL;
-	LL_DEBUGS() << "Reason: " << reason << LL_ENDL;
-	LL_DEBUGS() << "Headers: " << content << LL_ENDL;
+	LL_DEBUGS("VersionInfo") << "Status: " << status
+							 << "Reason: " << reason
+							 << "Headers: " << content << LL_ENDL;
 
 	LLFloaterAbout* floater_about = LLFloaterReg::getTypedInstance<LLFloaterAbout>("sl_about");
 	if (floater_about)

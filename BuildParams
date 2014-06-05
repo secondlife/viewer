@@ -55,20 +55,8 @@ Amazon_viewer_channel_suffix = "Amazon"
 Desura_sourceid = "1208_desura"
 Desura_viewer_channel_suffix = "Desura"
 
-# Report changes since...
-viewer-development.show_changes_since = last_sprint
-
-# Build Settings
-viewer-development.build_debug_release_separately = true
-
 # Notifications - to configure email notices, add a setting like this:
 # <username>_<reponame>.email = <email-address>
-
-viewer-release.viewer_channel = "Second Life Release"
-viewer-release.build_debug_release_separately = true
-viewer-release.build_viewer_update_version_manager = true
-viewer-release.codeticket_add_context = false
-
 
 # ========================================
 # mesh-development
@@ -120,25 +108,6 @@ viewer-mesh.build_RelWithDebInfo = false
 viewer-mesh.viewer_channel = "Project Viewer - Mesh"
 viewer-mesh.viewer_grid = aditi
 viewer-mesh.email = shining@lists.lindenlab.com
-
-# ========================================
-# viewer-pathfinding
-# ========================================
-
-viewer-pathfinding.viewer_channel = "Project Viewer - Pathfinding"
-viewer-pathfinding.viewer_grid = agni
-viewer-pathfinding.build_debug_release_separately = true
-viewer-pathfinding.build_CYGWIN_Debug = false
-viewer-pathfinding.build_viewer_update_version_manager = false
-
-# ========================================
-# viewer-materials
-# ========================================
-
-viewer-materials.viewer_channel = "Second Life Beta Materials"
-viewer-materials.build_debug_release_separately = true
-viewer-materials.build_CYGWIN_Debug = false
-viewer-materials.build_viewer_update_version_manager = false
 
 # =================================================================
 # asset delivery 2010 projects

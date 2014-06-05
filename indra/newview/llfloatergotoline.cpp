@@ -30,7 +30,7 @@
 #include "llpreviewscript.h"
 #include "llfloaterreg.h"
 #include "lllineeditor.h"
-#include "llviewertexteditor.h"
+#include "llscripteditor.h"
 #include "llviewerwindow.h"
 
 LLFloaterGotoLine* LLFloaterGotoLine::sInstance = NULL;

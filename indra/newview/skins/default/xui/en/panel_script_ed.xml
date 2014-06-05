@@ -148,8 +148,8 @@
              name="Keyword Help..." />
         </menu>
     </menu_bar>
-    <text_editor
-    left="0"
+    <script_editor
+     left="0"
      type="string"
      length="1"
      follows="left|top|right|bottom"
@@ -157,15 +157,16 @@
      height="376"
      ignore_tab="false"
      layout="topleft"
-     max_length="65536"
+     max_length="262144"
      name="Script Editor"
      text_readonly_color="DkGray"
      width="487"
-     show_line_numbers="true" 
      enable_tooltip_paste="true"
-     word_wrap="true">
+     word_wrap="true"
+     show_context_menu="true"
+     show_line_numbers="true">
         Loading...
-    </text_editor>
+    </script_editor>
     <scroll_list
     top_pad="10"
     left="0"

@@ -1,6 +1,6 @@
 # -*- cmake -*-
 include(Prebuilt)
 
-if (NOT STANDALONE)
+if (NOT USESYSTEMLIBS)
   use_prebuilt_binary(tut)
-endif(NOT STANDALONE)
+endif(NOT USESYSTEMLIBS)
