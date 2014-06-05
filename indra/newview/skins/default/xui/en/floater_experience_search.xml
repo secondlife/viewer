@@ -11,10 +11,4 @@
   help_topic="experiencepicker"
   title="CHOOSE EXPERIENCE"
   width="350">
-
-  <panel
-    filename="panel_experience_search.xml"
-    class="llpanelexperiencepicker"
-    follows="all"
-    name="panel_experience_search"/>
 </floater>
