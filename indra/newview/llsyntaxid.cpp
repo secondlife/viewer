@@ -37,9 +37,9 @@
 //-----------------------------------------------------------------------------
 // fetchKeywordsFileResponder
 //-----------------------------------------------------------------------------
-fetchKeywordsFileResponder::fetchKeywordsFileResponder(std::string filespec)
+fetchKeywordsFileResponder::fetchKeywordsFileResponder(const std::string& filespec)
+:	mFileSpec(filespec)
 {
-	mFileSpec = filespec;
 	LL_DEBUGS("SyntaxLSL") << "Instantiating with file saving to: '" << filespec << "'" << LL_ENDL;
 }
 
@@ -128,18 +128,11 @@ LLSyntaxIdLSL::LLSyntaxIdLSL() :
 {
 }
 
-std::string LLSyntaxIdLSL::buildFileNameNew()
-{
-	mFileNameNew = mSyntaxIdNew.isNull() ? mFileNameDefault : "keywords_lsl_" + mSyntaxIdNew.asString() + ".llsd.xml";
-	return mFileNameNew;
-}
-
-std::string LLSyntaxIdLSL::buildFullFileSpec()
+void LLSyntaxIdLSL::buildFullFileSpec()
 {
 	ELLPath path = mSyntaxIdNew.isNull() ? LL_PATH_APP_SETTINGS : LL_PATH_CACHE;
-	buildFileNameNew();
+	mFileNameNew = mSyntaxIdNew.isNull() ? mFileNameDefault : "keywords_lsl_" + mSyntaxIdNew.asString() + ".llsd.xml";
 	mFullFileSpec = gDirUtilp->getExpandedFilename(path, mFileNameNew);
-	return mFullFileSpec;
 }
 
 //-----------------------------------------------------------------------------

@@ -67,8 +67,8 @@ inline bool LLKeywordToken::isTail(const llwchar* s) const
 	return res;
 }
 
-LLKeywords::LLKeywords() :
-	mLoaded(false)
+LLKeywords::LLKeywords()
+:	mLoaded(false)
 {
 }
 
@@ -92,7 +92,7 @@ void LLKeywords::addToken(LLKeywordToken::ETokenType type,
 	std::string tip_text = tool_tip_in;
 	LLStringUtil::replaceString(tip_text, "\\n", "\n" );
 	LLStringUtil::replaceString(tip_text, "\t", " " );
-	if (tip_text == "")
+	if (tip_text.empty())
 	{
 		tip_text = "[no info]";
 	}
@@ -161,7 +161,7 @@ std::string LLKeywords::getArguments(LLSD& arguments)
 	{
 		LL_WARNS("SyntaxLSL") << "Not an array! Invalid arguments LLSD passed to function." << arguments << LL_ENDL;
 	}
-	return argString == "" ? "" : argString;
+	return argString;
 }
 
 std::string LLKeywords::getAttribute(const std::string& key)
@@ -299,14 +299,14 @@ void LLKeywords::processTokensGroup(const LLSD& tokens, const std::string& group
 	if (tokens.isMap())
 	{
 		LLSD::map_const_iterator outer_itr = tokens.beginMap();
-		for ( ; outer_itr != tokens.endMap(); ++outer_itr)
+		for ( ; outer_itr != tokens.endMap(); ++outer_itr )
 		{
 			if (outer_itr->second.isMap())
 			{
 				mAttributes.clear();
 				LLSD arguments = LLSD();
 				LLSD::map_const_iterator inner_itr = outer_itr->second.beginMap();
-				for ( ; inner_itr != outer_itr->second.endMap(); ++inner_itr)
+				for ( ; inner_itr != outer_itr->second.endMap(); ++inner_itr )
 				{
 					if (inner_itr->first == "arguments")
 					{ 
@@ -326,33 +326,34 @@ void LLKeywords::processTokensGroup(const LLSD& tokens, const std::string& group
 				}
 
 				std::string tooltip = "";
-				if (token_type == LLKeywordToken::TT_CONSTANT)
+				switch (token_type)
 				{
-					color_group = getColorGroup(group + "-" + getAttribute("type"));
-					tooltip = "Type: " + getAttribute("type") + ", Value: " + getAttribute("value");
-				}
-				else if (token_type == LLKeywordToken::TT_EVENT)
-				{
-					tooltip = outer_itr->first + "(" + getArguments(arguments) + ")";
-				}
-				else if (token_type == LLKeywordToken::TT_FUNCTION)
-				{
-					tooltip = getAttribute("return") + " " + outer_itr->first + "(" + getArguments(arguments) + ");";
-					tooltip += "\nEnergy: ";
-					tooltip += getAttribute("energy") == "" ? "0.0" : getAttribute("energy");
-					if (getAttribute("sleep") != "")
-					{
-						tooltip += ", Sleep: " + getAttribute("sleep");
-					}
+					case LLKeywordToken::TT_CONSTANT:
+						color_group = getColorGroup(group + "-" + getAttribute("type"));
+						tooltip = "Type: " + getAttribute("type") + ", Value: " + getAttribute("value");
+						break;
+					case LLKeywordToken::TT_EVENT:
+						tooltip = outer_itr->first + "(" + getArguments(arguments) + ")";
+						break;
+					case LLKeywordToken::TT_FUNCTION:
+						tooltip = getAttribute("return") + " " + outer_itr->first + "(" + getArguments(arguments) + ");";
+						tooltip.append("\nEnergy: ");
+						tooltip.append(getAttribute("energy").empty() ? "0.0" : getAttribute("energy"));
+						if (!getAttribute("sleep").empty())
+						{
+							tooltip += ", Sleep: " + getAttribute("sleep");
+						}
+					default:
+						break;
 				}
 
-				if (getAttribute("tooltip") != "")
+				if (!getAttribute("tooltip").empty())
 				{
-					if (tooltip != "")
+					if (!tooltip.empty())
 					{
-						tooltip += "\n";
+						tooltip.append("\n");
 					}
-					tooltip += getAttribute("tooltip");
+					tooltip.append(getAttribute("tooltip"));
 				}
 
 				color = getAttribute("deprecated") == "true" ? color_deprecated : color_group;
@@ -399,15 +400,19 @@ LLKeywords::WStringMapIndex::WStringMapIndex(const LLWString& str)
 	copyData(str.data(), str.size());
 }
 
-LLKeywords::WStringMapIndex::WStringMapIndex(const llwchar *start, size_t length):
-mData(start), mLength(length), mOwner(false)
+LLKeywords::WStringMapIndex::WStringMapIndex(const llwchar *start, size_t length)
+:	mData(start)
+,	mLength(length)
+,	mOwner(false)
 {
 }
 
 LLKeywords::WStringMapIndex::~WStringMapIndex()
 {
-	if(mOwner)
+	if (mOwner)
+	{
 		delete[] mData;
+	}
 }
 
 void LLKeywords::WStringMapIndex::copyData(const llwchar *start, size_t length)

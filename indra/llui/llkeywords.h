@@ -113,7 +113,10 @@ public:
 	LLColor4	getColorGroup(const std::string& key_in);
 	bool		isLoaded() const	{ return mLoaded; }
 
-	void		findSegments(std::vector<LLTextSegmentPtr> *seg_list, const LLWString& text, const LLColor4 &defaultColor, class LLTextEditor& editor );
+	void		findSegments(std::vector<LLTextSegmentPtr> *seg_list,
+							 const LLWString& text,
+							 const LLColor4 &defaultColor,
+							 class LLTextEditor& editor);
 	void		initialize(LLSD SyntaxXML);
 	void		processTokens();
 
@@ -167,8 +170,19 @@ public:
 
 protected:
 	void		processTokensGroup(const LLSD& Tokens, const std::string& Group);
-	void		insertSegment(std::vector<LLTextSegmentPtr>& seg_list, LLTextSegmentPtr new_segment, S32 text_len, const LLColor4 &defaultColor, class LLTextEditor& editor);
-	void		insertSegments(const LLWString& wtext, std::vector<LLTextSegmentPtr>& seg_list, LLKeywordToken* token, S32 text_len, S32 seg_start, S32 seg_end, const LLColor4 &defaultColor, LLTextEditor& editor);
+	void		insertSegment(std::vector<LLTextSegmentPtr>& seg_list,
+							  LLTextSegmentPtr new_segment,
+							  S32 text_len,
+							  const LLColor4 &defaultColor,
+							  class LLTextEditor& editor);
+	void		insertSegments(const LLWString& wtext,
+							   std::vector<LLTextSegmentPtr>& seg_list,
+							   LLKeywordToken* token,
+							   S32 text_len,
+							   S32 seg_start,
+							   S32 seg_end,
+							   const LLColor4 &defaultColor,
+							   LLTextEditor& editor);
 
 	bool		mLoaded;
 	LLSD		mSyntax;
@@ -182,9 +196,7 @@ protected:
 	element_attributes_t mAttributes;
 	std::string	getAttribute(const std::string& key);
 
-	std::string	getArguments(LLSD& args);
-
-private:
+	std::string	getArguments(LLSD& arguments);
 };
 
 #endif  // LL_LLKEYWORDS_H

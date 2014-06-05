@@ -62,8 +62,7 @@ public:
 	boost::signals2::connection		addFileFetchedCallback(const file_fetched_signal_t::slot_type& cb);
 
 protected:
-	std::string		buildFileNameNew();
-	std::string		buildFullFileSpec();
+	void			buildFullFileSpec();
 	void			fetchKeywordsFile();
 	void			loadDefaultKeywordsIntoLLSD();
 	void			loadKeywordsIntoLLSD();
@@ -105,7 +104,7 @@ public:
 	 * @brief fetchKeywordsFileResponder
 	 * @param filespec	File path and name of where to save the returned data
 	 */
-	fetchKeywordsFileResponder(std::string filespec);
+	fetchKeywordsFileResponder(const std::string& filespec);
 
 	void errorWithContent(U32 status,
 						const std::string& reason,
