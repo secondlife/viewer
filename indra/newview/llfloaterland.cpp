@@ -76,6 +76,8 @@
 #include "roles_constants.h"
 #include "lltrans.h"
 #include "llpanelexperiencelisteditor.h"
+#include "llpanelexperiencepicker.h"
+#include "llexperiencecache.h"
 
 #include "llgroupactions.h"
 
@@ -2952,6 +2954,14 @@ BOOL LLPanelLandExperiences::postBuild()
 {
 	mAllowed = setupList("panel_allowed", EXPERIENCE_KEY_TYPE_ALLOWED, AL_ALLOW_EXPERIENCE);
 	mBlocked = setupList("panel_blocked", EXPERIENCE_KEY_TYPE_BLOCKED, AL_BLOCK_EXPERIENCE);
+
+	// only non-grid-wide experiences
+	mAllowed->addFilter(boost::bind(LLPanelExperiencePicker::FilterWithProperty, _1, LLExperienceCache::PROPERTY_GRID));
+
+	// only grid-wide experiences
+	mBlocked->addFilter(boost::bind(LLPanelExperiencePicker::FilterWithoutProperty, _1, LLExperienceCache::PROPERTY_GRID));
+	// but not privileged ones
+	mBlocked->addFilter(boost::bind(LLPanelExperiencePicker::FilterWithProperty, _1, LLExperienceCache::PROPERTY_PRIVILEGED));
 
 	getChild<LLLayoutPanel>("trusted_layout_panel")->setVisible(FALSE);
 	getChild<LLTextBox>("experiences_help_text")->setVisible(FALSE);
