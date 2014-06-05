@@ -37,6 +37,7 @@
 #include "llfolderview.h"
 #include "llinventorybridge.h"
 #include "llviewerfoldertype.h"
+#include "llradiogroup.h"
 
 // linden library includes
 #include "llclipboard.h"
@@ -51,6 +52,7 @@ LLInventoryFilter::FilterOps::FilterOps(const Params& p)
 	mMinDate(p.date_range.min_date),
 	mMaxDate(p.date_range.max_date),
 	mHoursAgo(p.hours_ago),
+	mDateSearchDirection(p.date_search_direction),
 	mShowFolderState(p.show_folder_state),
 	mPermissions(p.permissions),
 	mFilterTypes(p.types),
@@ -209,6 +211,7 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLFolderViewModelItemInvent
 	{
 		const U16 HOURS_TO_SECONDS = 3600;
 		time_t earliest = time_corrected() - mFilterOps.mHoursAgo * HOURS_TO_SECONDS;
+
 		if (mFilterOps.mMinDate > time_min() && mFilterOps.mMinDate < earliest)
 		{
 			earliest = mFilterOps.mMinDate;
@@ -217,9 +220,20 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLFolderViewModelItemInvent
 		{
 			earliest = 0;
 		}
-		if (listener->getCreationDate() < earliest ||
-			listener->getCreationDate() > mFilterOps.mMaxDate)
-			return FALSE;
+
+llwarns << "DBG 3 " << mFilterOps.mDateSearchDirection << llendl;
+		if (1 == mFilterOps.mDateSearchDirection)
+		{
+			if (listener->getCreationDate() < earliest ||
+				listener->getCreationDate() > mFilterOps.mMaxDate)
+				return FALSE;
+		}
+		else
+		{
+			if (listener->getCreationDate() > earliest ||
+				listener->getCreationDate() > mFilterOps.mMaxDate)
+				return FALSE;
+		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -635,6 +649,13 @@ void LLInventoryFilter::setHoursAgo(U32 hours)
 		BOOL less_restrictive = (are_date_limits_valid && ((is_increasing && mFilterOps.mHoursAgo)) || !hours);
 		BOOL more_restrictive = (are_date_limits_valid && (!is_increasing && hours) || is_increasing_from_zero);
 
+		// Toggle for older than search
+		if (0 == mFilterOps.mDateSearchDirection)
+		{
+			less_restrictive = !less_restrictive;
+			more_restrictive = !more_restrictive;
+		}
+
 		mFilterOps.mHoursAgo = hours;
 		mFilterOps.mMinDate = time_min();
 		mFilterOps.mMaxDate = time_max();
@@ -659,6 +680,16 @@ void LLInventoryFilter::setHoursAgo(U32 hours)
 	else
 	{
 		mFilterOps.mFilterTypes &= ~FILTERTYPE_DATE;
+	}
+}
+
+void LLInventoryFilter::setDateSearchDirection(U32 direction)
+{
+llwarns << "DBG 2 " << direction << llendl;
+	if (direction != mFilterOps.mDateSearchDirection)
+	{
+		mFilterOps.mDateSearchDirection = direction;
+		setModified(FILTER_RESTART);
 	}
 }
 

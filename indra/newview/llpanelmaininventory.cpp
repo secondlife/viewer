@@ -55,6 +55,7 @@
 #include "llviewertexturelist.h"
 #include "llsidepanelinventory.h"
 #include "llfolderview.h"
+#include "llradiogroup.h"
 
 const std::string FILTERS_FILENAME("filters.xml");
 
@@ -82,6 +83,7 @@ public:
 	void updateElementsFromFilter();
 	BOOL getCheckShowEmpty();
 	BOOL getCheckSinceLogoff();
+	U32 getDateSearchDirection();
 
 	static void onTimeAgo(LLUICtrl*, void *);
 	static void onCloseBtn(void* user_data);
@@ -91,6 +93,7 @@ private:
 	LLPanelMainInventory*	mPanelMainInventory;
 	LLSpinCtrl*			mSpinSinceDays;
 	LLSpinCtrl*			mSpinSinceHours;
+	LLRadioGroup*		mSinceDirection;
 	LLInventoryFilter*	mFilter;
 };
 
@@ -687,6 +690,9 @@ BOOL LLFloaterInventoryFinder::postBuild()
 	mSpinSinceDays = getChild<LLSpinCtrl>("spin_days_ago");
 	childSetCommitCallback("spin_days_ago", onTimeAgo, this);
 
+	mSinceDirection = getChild<LLRadioGroup>("date_search_direction");
+	mSinceDirection->setSelectedIndex(0);
+
 	childSetAction("Close", onCloseBtn, this);
 
 	updateElementsFromFilter();
@@ -851,6 +857,7 @@ void LLFloaterInventoryFinder::draw()
 	mPanelMainInventory->getPanel()->setHoursAgo(hours);
 	mPanelMainInventory->getPanel()->setSinceLogoff(getCheckSinceLogoff());
 	mPanelMainInventory->setFilterTextFromFilter();
+	mPanelMainInventory->getPanel()->setDateSearchDirection(getDateSearchDirection());
 
 	LLPanel::draw();
 }
@@ -863,6 +870,11 @@ BOOL LLFloaterInventoryFinder::getCheckShowEmpty()
 BOOL LLFloaterInventoryFinder::getCheckSinceLogoff()
 {
 	return getChild<LLUICtrl>("check_since_logoff")->getValue();
+}
+
+U32 LLFloaterInventoryFinder::getDateSearchDirection()
+{
+	return 	mSinceDirection->getSelectedIndex();
 }
 
 void LLFloaterInventoryFinder::onCloseBtn(void* user_data)

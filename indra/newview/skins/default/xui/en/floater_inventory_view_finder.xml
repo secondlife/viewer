@@ -2,7 +2,7 @@
 <floater
  legacy_header_height="18"
  can_minimize="false"
- height="408"
+ height="440"
  layout="topleft"
  name="Inventory Finder"
  help_topic="inventory_finder"
@@ -95,23 +95,6 @@
      width="126" />
     <icon
      height="16"
-     image_name="Inv_Mesh"
-     layout="topleft"
-     left="8"
-     mouse_opaque="true"
-     name="icon_mesh"
-     top="142"
-     width="16" />
-    <check_box
-     height="16"
-     label="Meshes"
-     layout="topleft"
-     left_pad="2"
-     name="check_mesh"
-     top_delta="0"
-     width="126" />
-    <icon
-     height="16"
      image_name="Inv_Notecard"
      layout="topleft"
      left="8"
@@ -125,6 +108,23 @@
      layout="topleft"
      left_pad="2"
      name="check_notecard"
+     top_delta="0"
+     width="126" />
+    <icon
+     height="16"
+     image_name="Inv_Mesh"
+     layout="topleft"
+     left="8"
+     mouse_opaque="true"
+     name="icon_mesh"
+     top="142"
+     width="16" />
+    <check_box
+     height="16"
+     label="Meshes"
+     layout="topleft"
+     left_pad="2"
+     name="check_mesh"
      top_delta="0"
      width="126" />
     <icon
@@ -261,12 +261,34 @@
      width="144">
         - OR -
     </text>
+
+ <radio_group
+  follows="top|left"
+  height="16"
+  layout="topleft"
+  left_delta="0"
+  name="date_search_direction"
+  top_pad="0"
+  width="270">
+  <radio_item
+   label="Older than"
+   layout="topleft"
+   name="older"
+   top_pad="6" />
+  <radio_item
+   label="Younger than"
+   layout="topleft"
+   name="yonger"
+   top_pad="-10"
+   left="120" />
+ </radio_group>
+
     <spinner
      follows="left|top"
      height="16"
      increment="1"
      initial_value="0"
-     label="Hours Ago"
+     label="Hours"
      label_width="64"
      layout="topleft"
      left_delta="0"
@@ -279,7 +301,7 @@
      height="16"
      increment="1"
      initial_value="0"
-     label="Days Ago"
+     label="Days"
      label_width="64"
      layout="topleft"
      left_delta="0"
