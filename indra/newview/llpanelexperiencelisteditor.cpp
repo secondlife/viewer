@@ -76,8 +76,10 @@ const uuid_list_t& LLPanelExperienceListEditor::getExperienceIds() const
 
 void LLPanelExperienceListEditor::addExperienceIds( const uuid_vec_t& experience_ids )
 {
-	mExperienceIds.insert(experience_ids.begin(), experience_ids.end());
-	onItems();
+	// the commented out code in this function is handled by the callback and no longer necessary!
+
+	//mExperienceIds.insert(experience_ids.begin(), experience_ids.end());
+	//onItems();
 	if(!mAddedCallback.empty())
 	{
 		for(uuid_vec_t::const_iterator it = experience_ids.begin(); it != experience_ids.end(); ++it)
@@ -118,17 +120,19 @@ void LLPanelExperienceListEditor::onAdd()
 
 void LLPanelExperienceListEditor::onRemove()
 {
+	// the commented out code in this function is handled by the callback and no longer necessary!
+
 	std::vector<LLScrollListItem*> items= mItems->getAllSelected();
 	std::vector<LLScrollListItem*>::iterator it = items.begin();
 	for(/**/; it != items.end(); ++it)
 	{
 		if((*it) != NULL)
 		{
-			mExperienceIds.erase((*it)->getValue());
+			//mExperienceIds.erase((*it)->getValue());
 			mRemovedCallback((*it)->getValue());
 		}
 	}
-	onItems();
+	//onItems();
 }
 
 void LLPanelExperienceListEditor::onProfile()
