@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2000&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012-2013, Linden Research, Inc.
+ * Copyright (C) 2012-2014, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -242,6 +242,13 @@ LLTrace::EventStatHandle<F64Milliseconds > LLTextureFetch::sCacheReadLatency("te
 static const S32 HTTP_REQUESTS_IN_QUEUE_HIGH_WATER = 40;		// Maximum requests to have active in HTTP
 static const S32 HTTP_REQUESTS_IN_QUEUE_LOW_WATER = 20;			// Active level at which to refill
 
+// BUG-3323/SH-4375
+// *NOTE:  This is a heuristic value.  Texture fetches have a habit of using a
+// value of 32MB to indicate 'get the rest of the image'.  Certain ISPs and
+// network equipment get confused when they see this in a Range: header.  So,
+// if the request end is beyond this value, we issue an open-ended Range:
+// request (e.g. 'Range: <start>-') which seems to fix the problem.
+static const S32 HTTP_REQUESTS_RANGE_END_MAX = 20000000;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -1491,7 +1498,9 @@ bool LLTextureFetchWorker::doWork(S32 param)
 																	  mWorkPriority,
 																	  mUrl,
 																	  mRequestedOffset,
-																	  mRequestedSize,
+																	  (mRequestedOffset + mRequestedSize) > HTTP_REQUESTS_RANGE_END_MAX
+																	  ? 0
+																	  : mRequestedSize,
 																	  mFetcher->mHttpOptions,
 																	  mFetcher->mHttpHeaders,
 																	  this);
