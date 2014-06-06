@@ -118,7 +118,7 @@
                 visible ="false"/>
               <combo_box.drop_down_button
                 visible ="false"/>
-          </combo_box>          
+          </combo_box>
           <line_editor
             follows="left|top"
             width="200"
