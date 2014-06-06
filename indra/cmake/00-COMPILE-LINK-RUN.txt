@@ -10,7 +10,7 @@ Introduction
     with hints and rules about doing things well.  What's presented is
     a guideline only.  Not all suggestions are hard rules and you'll
     find exceptions all over.  Some exceptions arise from solid
-    reasining, others may be legacy that hasn't been re-examined.
+    reasoning, others may be legacy that hasn't been re-examined.
 
     Use good engineering judgement when applying this information.
 
@@ -244,7 +244,7 @@ Futures
     So, what to do?  My natural bias for large software is to use
     shared libraries for everything.  It's a path to single-version
     and singleton data and isolates namespaces and prevents
-    interactions.  It also has some field servicability benefits if
+    interactions.  It also has some field serviceability benefits if
     you need to debug some bizarre problem a user has.
 
     But there's a local preference for static.  Here, my
@@ -280,6 +280,48 @@ Futures
     800-pound gorilla in the viewer.  When starting any major work,
     decide what changes you need here as those changes will propagate
     outwards forcing many other decisions (cf: /Zc:wchar_t- flag).
+
+    The current package structure (./include, ./lib/release,
+    ./lib/debug, etc.) really works against the conventions used by
+    configure-like programs.  I wasted a lot of time getting each
+    library to work with our structure without having to go back to
+    automake/autoconf.  For Linux and Mac (and even for Windows), a
+    structure like the following where each grouping is optional would
+    probably save some work:
+
+        ./debug/bin
+               /include
+               /lib
+        ./debug/shared/bin
+                      /include
+                      /lib
+        ./debug/static/bin
+                      /include
+                      /lib
+        ./release/bin
+                 /include
+                 /lib
+        ...
+
+    In zlib and openssl and in a few of the libraries that consume
+    them, I experimented with packaging both static and shared
+    libraries and then having the consumer library move the unwanted
+    pieces out of the way to use the library type of choice (see
+    restore_dylibs() and restore_sos() functions).  It was a bit fussy
+    and simplicity and clarity are the keys to maintaining libraries
+    in the future.
+
+    But it did suggest another approach.  The idea is that every build
+    pre-stages inputs.  Before anything is built, package pieces are
+    copied or symlinked from the 'stage/packages' area to the
+    'stage/input' area.  Builds then proceed with a single set of
+    -I/-L options for the dependencies.  And products are built and
+    installed in a similar output staging structure for the next
+    consumer:
+
+        stage/packages/<package>/[above structure]
+        stage/input/{bin,include,lib}
+        stage/<package>/[above structure]
 
     Next library project.  I'd recommend working on the related set of
     libexpat, apr, aprutil, xmlrpc-epi.  We know libexpat has some
