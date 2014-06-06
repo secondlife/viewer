@@ -223,25 +223,33 @@
      top="262"
      width="100" />
     <button
-     follows="left|top"
      height="20"
      label="None"
      label_selected="None"
-     layout="topleft"
      left_delta="0"
      name="None"
-     top_pad="4"
+     left_pad="10"
      width="100" />
     <check_box
      height="16"
      label="Always show folders"
      layout="topleft"
-     left_delta="0"
+     left="8"
      name="check_show_empty"
-     top_pad="4"
+     top_pad="6"
      width="144" />
+    <view_border
+     bevel_style="none"
+     follows="top|left"
+     height="0"
+     layout="topleft"
+     left="10"
+     name="horiz_separator"
+     top_pad="8"
+     width="260"/>
     <check_box
      height="16"
+     top="324"
      label="Since Logoff"
      layout="topleft"
      left_delta="0"
@@ -257,32 +265,30 @@
      layout="topleft"
      left_delta="0"
      name="- OR -"
-     top_delta="16"
+     top="342"
      width="144">
         - OR -
     </text>
-
- <radio_group
-  follows="top|left"
-  height="16"
-  layout="topleft"
-  left_delta="0"
-  name="date_search_direction"
-  top_pad="0"
-  width="270">
-  <radio_item
-   label="Older than"
-   layout="topleft"
-   name="older"
-   top_pad="6" />
-  <radio_item
-   label="Younger than"
-   layout="topleft"
-   name="yonger"
-   top_pad="-10"
-   left="120" />
- </radio_group>
-
+    <radio_group
+     height="16"
+     layout="topleft"
+     name="date_search_direction"
+     top="360"
+     left="8"
+     width="270">
+     <radio_item
+      label="Newer than"
+      layout="topleft"
+      name="newer"
+      top_pad="6"
+      left="0" />
+     <radio_item
+      label="Older than"
+      layout="topleft"
+      name="older"
+      top_delta="0"
+      left="120" />
+    </radio_group>
     <spinner
      follows="left|top"
      height="16"
@@ -307,7 +313,7 @@
      left_delta="0"
      max_val="10000"
      name="spin_days_ago"
-     top_pad="4"
+     top_pad="14"
      width="144" />
     <button
      follows="top|right"
@@ -317,6 +323,6 @@
      layout="topleft"
      name="Close"
      right="-6"
-     top="382"
+     top="412"
      width="76" />
 </floater>

@@ -174,6 +174,8 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLFolderViewModelItemInvent
 
 	const U32 filterTypes = mFilterOps.mFilterTypes;
 
+	const U32 FILTER_YOUNGER = 0;
+
 	////////////////////////////////////////////////////////////////////////////////
 	// FILTERTYPE_OBJECT
 	// Pass if this item's type is of the correct filter type
@@ -221,8 +223,7 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLFolderViewModelItemInvent
 			earliest = 0;
 		}
 
-llwarns << "DBG 3 " << mFilterOps.mDateSearchDirection << llendl;
-		if (1 == mFilterOps.mDateSearchDirection)
+		if (FILTER_YOUNGER == mFilterOps.mDateSearchDirection)
 		{
 			if (listener->getCreationDate() < earliest ||
 				listener->getCreationDate() > mFilterOps.mMaxDate)
@@ -685,7 +686,6 @@ void LLInventoryFilter::setHoursAgo(U32 hours)
 
 void LLInventoryFilter::setDateSearchDirection(U32 direction)
 {
-llwarns << "DBG 2 " << direction << llendl;
 	if (direction != mFilterOps.mDateSearchDirection)
 	{
 		mFilterOps.mDateSearchDirection = direction;

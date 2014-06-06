@@ -681,6 +681,8 @@ BOOL LLFloaterInventoryFinder::postBuild()
 	const LLRect& viewrect = mPanelMainInventory->getRect();
 	setRect(LLRect(viewrect.mLeft - getRect().getWidth(), viewrect.mTop, viewrect.mLeft, viewrect.mTop - getRect().getHeight()));
 
+	const U32 FILTER_NEWER = 0;
+
 	childSetAction("All", selectAllTypes, this);
 	childSetAction("None", selectNoTypes, this);
 
@@ -691,7 +693,7 @@ BOOL LLFloaterInventoryFinder::postBuild()
 	childSetCommitCallback("spin_days_ago", onTimeAgo, this);
 
 	mSinceDirection = getChild<LLRadioGroup>("date_search_direction");
-	mSinceDirection->setSelectedIndex(0);
+	mSinceDirection->setSelectedIndex(FILTER_NEWER);
 
 	childSetAction("Close", onCloseBtn, this);
 
