@@ -213,8 +213,11 @@ bool LLLocalBitmap::updateSelf(EUpdateType optional_firstupdate)
 
 						// remove old_id from gimagelist
 						LLViewerFetchedTexture* image = gTextureList.findImage(old_id);
-						gTextureList.deleteImage(image);
-						image->unref();
+						if (image != NULL)
+						{
+							gTextureList.deleteImage(image);
+							image->unref();
+						}
 					}
 
 					mUpdateRetries = LL_LOCAL_UPDATE_RETRIES;
