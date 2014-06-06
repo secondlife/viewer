@@ -191,7 +191,7 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 	U32 tc_count     = tc_source   ? tc.getCount() : 0;
 	U32 norm_count   = norm_source ? n.getCount()  : 0;
 
-	if (vertex_count == 0)
+	if ((vertex_count == 0) || (tc_count == 0))
 	{
 		llwarns << "Unable to process mesh with empty position array; invalid model." << llendl;
 		return LLModel::BAD_ELEMENT;
