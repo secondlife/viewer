@@ -421,7 +421,7 @@ void LLPanelGroupLandMoney::impl::processGroupLand(LLMessageSystem* msg)
 		msg->getUUID("QueryData", "OwnerID", owner_id, 0);
 		msg->getUUID("TransactionData", "TransactionID", trans_id);
 
-		S32 total_contribution;
+		S32 total_contribution = 0;
 		if(owner_id.isNull())
 		{
 			// special block which has total contribution
