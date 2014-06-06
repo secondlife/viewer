@@ -223,7 +223,7 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLFolderViewModelItemInvent
 			earliest = 0;
 		}
 
-		if (FILTER_YOUNGER == mFilterOps.mDateSearchDirection)
+		if (FILTER_YOUNGER == mFilterOps.mDateSearchDirection || isSinceLogoff())
 		{
 			if (listener->getCreationDate() < earliest ||
 				listener->getCreationDate() > mFilterOps.mMaxDate)
@@ -641,6 +641,8 @@ void LLInventoryFilter::setHoursAgo(U32 hours)
 {
 	if (mFilterOps.mHoursAgo != hours)
 	{
+		const U32 FILTER_NEWER = 1;
+
 		bool are_date_limits_valid = mFilterOps.mMinDate == time_min() && mFilterOps.mMaxDate == time_max();
 
 		bool is_increasing = hours > mFilterOps.mHoursAgo;
@@ -650,8 +652,8 @@ void LLInventoryFilter::setHoursAgo(U32 hours)
 		BOOL less_restrictive = (are_date_limits_valid && ((is_increasing && mFilterOps.mHoursAgo)) || !hours);
 		BOOL more_restrictive = (are_date_limits_valid && (!is_increasing && hours) || is_increasing_from_zero);
 
-		// Toggle for older than search
-		if (0 == mFilterOps.mDateSearchDirection)
+		// Toggle for newer than search
+		if (FILTER_NEWER == mFilterOps.mDateSearchDirection)
 		{
 			less_restrictive = !less_restrictive;
 			more_restrictive = !more_restrictive;
