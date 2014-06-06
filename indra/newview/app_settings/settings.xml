@@ -4696,7 +4696,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>21</integer>
+      <integer>20</integer>
     </map>
     <key>InventoryOutboxMaxFolderDepth</key>
     <map>
@@ -4718,7 +4718,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>200</integer>
+      <integer>100</integer>
     </map>
     <key>InventorySortOrder</key>
     <map>

@@ -1092,13 +1092,14 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
 {
     bool accept = true;
     
-    // Compute the nested folder levels we'll get into with that folder
-    int nested_folder_levels = get_folder_levels(inv_cat);
-    if (root_folder)
-    {
-        nested_folder_levels += get_folder_path_length(root_folder->getUUID(), dest_folder->getUUID());
-    }
-    if (nested_folder_levels > gSavedSettings.getU32("InventoryOutboxMaxFolderDepth"))
+    // Compute the nested folders level we'll add into with that incoming folder
+    int incoming_folder_depth = get_folder_levels(inv_cat);
+    // Compute the nested folders level we're inserting ourselves in
+    // Note: add one when inserting under a listing folder as we need to take the root listing folder in the count
+    int insertion_point_folder_depth = (root_folder ? get_folder_path_length(root_folder->getUUID(), dest_folder->getUUID()) + 1 : 0);
+    
+    // Compare the whole with the nested folders depth limit
+    if ((incoming_folder_depth + insertion_point_folder_depth) > gSavedSettings.getU32("InventoryOutboxMaxFolderDepth"))
     {
         LLStringUtil::format_map_t args;
         U32 amount = gSavedSettings.getU32("InventoryOutboxMaxFolderDepth");
@@ -1113,8 +1114,8 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
         LLInventoryModel::item_array_t descendent_items;
         gInventory.collectDescendents(inv_cat->getUUID(), descendent_categories, descendent_items, FALSE);
     
-        int dragged_folder_count = descendent_categories.size() + 1;
-        int dragged_item_count = descendent_items.size() + bundle_size;
+        int dragged_folder_count = descendent_categories.size() + bundle_size;  // Note: We assume that we're moving a bunch of folders in. That might be wrong...
+        int dragged_item_count = descendent_items.size();
         int existing_item_count = 0;
         int existing_folder_count = 0;
     
@@ -1124,7 +1125,7 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
             {
                 // Clear those counts or they will be counted twice because we're already inside the root category
                 dragged_folder_count = 0;
-                dragged_item_count = bundle_size;
+                dragged_item_count = 0;
             }
             else
             {
