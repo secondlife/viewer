@@ -15,6 +15,10 @@
      name="ban_selection_too_large">
     Group bans not sent: too many Residents selected. Group bans are limited to 100 per request.
   </panel.string>
+  <panel.string
+     name="already_banned">
+    Group Invitations not sent: resident '[RESIDENT]' already banned.
+  </panel.string>
   <text
    type="string"
    length="1"

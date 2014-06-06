@@ -48,6 +48,7 @@
 #include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 
+#include <boost/foreach.hpp>
 
 LLPanelGroupBulkBan::LLPanelGroupBulkBan(const LLUUID& group_id) : LLPanelGroupBulk(group_id)
 {
@@ -134,6 +135,30 @@ void LLPanelGroupBulkBan::submit()
 		LLNotificationsUtil::add("GenericAlert", msg);
 		(*(mImplementation->mCloseCallback))(mImplementation->mCloseCallbackUserData);
 		return;
+	}
+
+	LLGroupMgrGroupData * group_datap = LLGroupMgr::getInstance()->getGroupData(mImplementation->mGroupID);
+	if (group_datap)
+	{
+		BOOST_FOREACH(const LLGroupMgrGroupData::ban_list_t::value_type& group_ban_pair, group_datap->mBanList)
+		{
+			const LLUUID& group_ban_agent_id = group_ban_pair.first;
+			if (std::find(banned_agent_list.begin(), banned_agent_list.end(), group_ban_agent_id) != banned_agent_list.end())
+			{
+				// Fail!
+				LLAvatarName av_name;
+				LLAvatarNameCache::get(group_ban_agent_id, &av_name);
+
+				LLStringUtil::format_map_t string_args;
+				string_args["[RESIDENT]"] = av_name.getDisplayName();
+
+				LLSD msg;
+				msg["MESSAGE"] = getString("already_banned", string_args);
+				LLNotificationsUtil::add("GenericAlert", msg);
+				(*(mImplementation->mCloseCallback))(mImplementation->mCloseCallbackUserData);
+				return;
+			}
+		}
 	}
 
 	LLGroupMgr::getInstance()->sendGroupBanRequest(LLGroupMgr::REQUEST_POST, mImplementation->mGroupID, LLGroupMgr::BAN_CREATE | LLGroupMgr::BAN_UPDATE, banned_agent_list);
