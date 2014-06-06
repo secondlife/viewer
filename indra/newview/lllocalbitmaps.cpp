@@ -190,7 +190,7 @@ bool LLLocalBitmap::updateSelf(EUpdateType optional_firstupdate)
 				{
 					// decode is successful, we can safely proceed.
 					LLUUID old_id = LLUUID::null;
-					if (!(optional_firstupdate == UT_FIRSTUSE) && !mWorldID.isNull())
+					if ((optional_firstupdate != UT_FIRSTUSE) && !mWorldID.isNull())
 					{
 						old_id = mWorldID;
 					}
@@ -206,7 +206,7 @@ bool LLLocalBitmap::updateSelf(EUpdateType optional_firstupdate)
 
 					gTextureList.addImage(texture);
 			
-					if (!optional_firstupdate == UT_FIRSTUSE)
+					if (optional_firstupdate != UT_FIRSTUSE)
 					{
 						// seek out everything old_id uses and replace it with mWorldID
 						replaceIDs(old_id, mWorldID);
