@@ -55,6 +55,12 @@ public:
 		FILTERTYPE_EMPTYFOLDERS = 0x1 << 5		// pass if folder is not a system   folder to be hidden if
 	};
 
+	enum EFilterDateDirection
+	{
+		FILTERDATEDIRECTION_NEWER,
+		FILTERDATEDIRECTION_OLDER
+	};
+
 	enum EFilterLink
 	{
 		FILTERLINK_INCLUDE_LINKS,	// show links too
@@ -108,7 +114,7 @@ public:
 				uuid("uuid"),
 				date_range("date_range"),
 				hours_ago("hours_ago", 0),
-				date_search_direction("date_search_direction", 0),
+				date_search_direction("date_search_direction", FILTERDATEDIRECTION_NEWER),
 				show_folder_state("show_folder_state", SHOW_NON_EMPTY_FOLDERS),
 				permissions("permissions", PERM_NONE)
 			{}
@@ -181,6 +187,7 @@ public:
 	void 				setHoursAgo(U32 hours);
 	U32 				getHoursAgo() const;
 	void				setDateSearchDirection(U32 direction);
+	U32					getDateSearchDirection() const;
 
 	void 				setFilterLinks(U64 filter_link);
 	U64					getFilterLinks() const;

@@ -294,27 +294,45 @@
      height="16"
      increment="1"
      initial_value="0"
-     label="Hours"
-     label_width="64"
      layout="topleft"
      left_delta="0"
      max_val="240000"
      name="spin_hours_ago"
      top_pad="4"
-     width="144" />
+     width="64" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left_pad="3"
+     top_delta="4"
+     width="80">
+        Hours
+    </text>
     <spinner
      follows="left|top"
      height="16"
      increment="1"
      initial_value="0"
-     label="Days"
-     label_width="64"
      layout="topleft"
-     left_delta="0"
      max_val="10000"
      name="spin_days_ago"
-     top_pad="14"
-     width="144" />
+     top_pad="4"
+     left="8"
+     width="64" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left_pad="3"
+     top_delta="4"
+     width="80">
+        Days
+    </text>
     <button
      follows="top|right"
      height="20"
@@ -323,6 +341,6 @@
      layout="topleft"
      name="Close"
      right="-6"
-     top="412"
+     top="406"
      width="76" />
 </floater>

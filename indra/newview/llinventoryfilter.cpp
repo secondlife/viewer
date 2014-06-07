@@ -174,8 +174,6 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLFolderViewModelItemInvent
 
 	const U32 filterTypes = mFilterOps.mFilterTypes;
 
-	const U32 FILTER_YOUNGER = 0;
-
 	////////////////////////////////////////////////////////////////////////////////
 	// FILTERTYPE_OBJECT
 	// Pass if this item's type is of the correct filter type
@@ -223,7 +221,7 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLFolderViewModelItemInvent
 			earliest = 0;
 		}
 
-		if (FILTER_YOUNGER == mFilterOps.mDateSearchDirection || isSinceLogoff())
+		if (FILTERDATEDIRECTION_NEWER == mFilterOps.mDateSearchDirection || isSinceLogoff())
 		{
 			if (listener->getCreationDate() < earliest ||
 				listener->getCreationDate() > mFilterOps.mMaxDate)
@@ -641,8 +639,6 @@ void LLInventoryFilter::setHoursAgo(U32 hours)
 {
 	if (mFilterOps.mHoursAgo != hours)
 	{
-		const U32 FILTER_NEWER = 1;
-
 		bool are_date_limits_valid = mFilterOps.mMinDate == time_min() && mFilterOps.mMaxDate == time_max();
 
 		bool is_increasing = hours > mFilterOps.mHoursAgo;
@@ -653,7 +649,7 @@ void LLInventoryFilter::setHoursAgo(U32 hours)
 		BOOL more_restrictive = (are_date_limits_valid && (!is_increasing && hours) || is_increasing_from_zero);
 
 		// Toggle for newer than search
-		if (FILTER_NEWER == mFilterOps.mDateSearchDirection)
+		if (FILTERDATEDIRECTION_NEWER == mFilterOps.mDateSearchDirection)
 		{
 			less_restrictive = !less_restrictive;
 			more_restrictive = !more_restrictive;
@@ -693,6 +689,11 @@ void LLInventoryFilter::setDateSearchDirection(U32 direction)
 		mFilterOps.mDateSearchDirection = direction;
 		setModified(FILTER_RESTART);
 	}
+}
+
+U32 LLInventoryFilter::getDateSearchDirection() const
+{
+	return mFilterOps.mDateSearchDirection;
 }
 
 void LLInventoryFilter::setFilterLinks(U64 filter_links)
@@ -959,6 +960,7 @@ LLInventoryFilter& LLInventoryFilter::operator=( const  LLInventoryFilter&  othe
 	setFilterObjectTypes(other.getFilterObjectTypes());
 	setDateRange(other.getMinDate(), other.getMaxDate());
 	setHoursAgo(other.getHoursAgo());
+	setDateSearchDirection(other.getDateSearchDirection());
 	setShowFolderState(other.getShowFolderState());
 	setFilterPermissions(other.getFilterPermissions());
 	setFilterSubString(other.getFilterSubString());
@@ -978,6 +980,7 @@ void LLInventoryFilter::toParams(Params& params) const
 	params.filter_ops.date_range.min_date = getMinDate();
 	params.filter_ops.date_range.max_date = getMaxDate();
 	params.filter_ops.hours_ago = getHoursAgo();
+	params.filter_ops.date_search_direction = getDateSearchDirection();
 	params.filter_ops.show_folder_state = getShowFolderState();
 	params.filter_ops.permissions = getFilterPermissions();
 	params.substring = getFilterSubString();
@@ -999,6 +1002,7 @@ void LLInventoryFilter::fromParams(const Params& params)
 	}
 	setDateRange(params.filter_ops.date_range.min_date,   params.filter_ops.date_range.max_date);
 	setHoursAgo(params.filter_ops.hours_ago);
+	setDateSearchDirection(params.filter_ops.date_search_direction);
 	setShowFolderState(params.filter_ops.show_folder_state);
 	setFilterPermissions(params.filter_ops.permissions);
 	setFilterSubString(params.substring);
