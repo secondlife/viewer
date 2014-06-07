@@ -170,6 +170,11 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 		return LLModel::BAD_ELEMENT;
 	}
 
+	if (!pos_source)
+	{
+		llwarns << "Unable to process mesh without position data; invalid model;  invalid model." << llendl;
+		return LLModel::BAD_ELEMENT;
+	}
 	
 	domPRef p = tri->getP();
 	domListOfUInts& idx = p->getValue();
@@ -179,19 +184,22 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 	domListOfFloats& tc = tc_source ? tc_source->getFloat_array()->getValue() : dummy ;
 	domListOfFloats& n = norm_source ? norm_source->getFloat_array()->getValue() : dummy ;
 
-	if (pos_source)
-	{
-		face.mExtents[0].set(v[0], v[1], v[2]);
-		face.mExtents[1].set(v[0], v[1], v[2]);
-	}
-	
 	LLVolumeFace::VertexMapData::PointMap point_map;
-	
+		
 	U32 index_count  = idx.getCount();
 	U32 vertex_count = pos_source  ? v.getCount()  : 0;
 	U32 tc_count     = tc_source   ? tc.getCount() : 0;
 	U32 norm_count   = norm_source ? n.getCount()  : 0;
 
+	if (vertex_count == 0)
+	{
+		llwarns << "Unable to process mesh with empty position array; invalid model." << llendl;
+		return LLModel::BAD_ELEMENT;
+	}
+
+	face.mExtents[0].set(v[0], v[1], v[2]);
+	face.mExtents[1].set(v[0], v[1], v[2]);
+	
 	for (U32 i = 0; i < index_count; i += idx_stride)
 	{
 		LLVolumeFace::VertexData cv;

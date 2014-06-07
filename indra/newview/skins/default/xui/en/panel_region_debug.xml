@@ -201,4 +201,14 @@
      tool_tip="Cancel region restart"
      top_delta="0"
      width="150" />
+    <button
+     follows="left|top"
+     height="20"
+     label="Region Debug Console"
+     layout="topleft"
+     left="10"
+     name="region_debug_console_btn"
+     tool_tip="Open Region Debug Console"
+     top_pad="5"
+     width="150" />
 </panel>

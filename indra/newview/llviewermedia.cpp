@@ -67,7 +67,6 @@
 #include "llvoavatarself.h"
 #include "llvovolume.h"
 #include "llwebprofile.h"
-#include "llwebsharing.h"	// For LLWebSharing::setOpenIDCookie(), *TODO: find a better way to do this!
 #include "llwindow.h"
 #include "llvieweraudio.h"
 
@@ -1425,9 +1424,6 @@ void LLViewerMedia::setOpenIDCookie()
 		}
 		
 		getCookieStore()->setCookiesFromHost(sOpenIDCookie, authority.substr(host_start, host_end - host_start));
-
-		// *HACK: Doing this here is nasty, find a better way.
-		LLWebSharing::instance().setOpenIDCookie(sOpenIDCookie);
 
 		// Do a web profile get so we can store the cookie 
 		LLSD headers = LLSD::emptyMap();

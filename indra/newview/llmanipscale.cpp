@@ -522,7 +522,7 @@ void LLManipScale::highlightManipulators(S32 x, S32 y)
 				manip2d.set(manipulator->mPosition.mV[VX] * half_width, manipulator->mPosition.mV[VY] * half_height);
 
 				delta = manip2d - mousePos;
-				if (delta.magVecSquared() < MAX_MANIP_SELECT_DISTANCE_SQUARED)
+				if (delta.lengthSquared() < MAX_MANIP_SELECT_DISTANCE_SQUARED)
 				{
 					mHighlightedPart = manipulator->mManipID;
 
@@ -849,7 +849,6 @@ void LLManipScale::dragCorner( S32 x, S32 y )
 	{
 		return;
 	}
-
 	mLastMouseX = x;
 	mLastMouseY = y;
 
@@ -861,7 +860,6 @@ void LLManipScale::dragCorner( S32 x, S32 y )
 
 	F32 s = 0;
 	F32 t = 0;
-
 	nearestPointOnLineFromMouse(x, y,
 								drag_start_center_agent,
 								drag_start_point_agent,
@@ -901,7 +899,7 @@ void LLManipScale::dragCorner( S32 x, S32 y )
 		F32 relative_snap_dist = fmodf(drag_dist + snap_dist, mScaleSnapUnit1 / cur_subdivisions);
 
 		mScaleSnappedValue = llclamp((drag_dist - (relative_snap_dist - snap_dist)), min_scale, max_scale);
-		scale_factor  =  mScaleSnappedValue / dist_vec(drag_start_point_agent, drag_start_center_agent);
+		scale_factor = mScaleSnappedValue / dist_vec(drag_start_point_agent, drag_start_center_agent);
 		mScaleSnappedValue /= mScaleSnapUnit1 * 2.f;
 		mSnapRegime = SNAP_REGIME_UPPER;
 

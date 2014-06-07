@@ -4137,6 +4137,19 @@ Are you sure you want to teleport to &lt;nolink&gt;[LOCATION]&lt;/nolink&gt;?
      notext="Cancel"
      yestext="Teleport"/>
   </notification>
+  
+  <notification
+   icon="alertmodal.tga"
+   name="TeleportViaSLAPP"
+   type="alertmodal">
+Are you sure you want to teleport to &lt;nolink&gt;[LOCATION]&lt;/nolink&gt;?
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Confirm that I want to teleport via SLAPP"
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="Teleport"/>
+  </notification>	
 
   <notification
    icon="alertmodal.tga"
@@ -7634,7 +7647,7 @@ Are you sure you want to share the following items:
 
 With the following Residents:
 
-[RESIDENTS]
+&lt;nolink&gt;[RESIDENTS]&lt;/nolink&gt;
   <tag>confirm</tag>
 	<usetemplate
      name="okcancelbuttons"
@@ -7654,7 +7667,7 @@ Are you sure you want to share the following items:
 
 With the following Residents:
 
-[RESIDENTS]
+&lt;nolink&gt;[RESIDENTS]&lt;/nolink&gt;
   <tag>confirm</tag>
 	<usetemplate
      name="okcancelbuttons"
@@ -10231,6 +10244,16 @@ Cannot create large prims that intersect other players.  Please re-try when othe
 	There was a problem saving the default permissions due to the following reason: [REASON].  Please try setting the default permissions later.
 	<tag>fail</tag>
    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+  
+  <notification
+   icon="alert.tga"
+   name="ChatHistoryIsBusyAlert"
+   type="alertmodal">
+   Chat history file is busy with previous operation. Please try again in a few minutes or choose chat with another person.
+    <usetemplate
      name="okbutton"
      yestext="OK"/>
   </notification>
