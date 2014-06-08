@@ -346,11 +346,14 @@
      cursor_color="ScriptCursorColor"
      enable_tooltip_paste="true"
      word_wrap="true">
+/* A sample script */
 default
 {
     state_entry()
     {
-        llSay(0, "Hello!");
+        // Comment
+        string greeting = "Hello";
+        llSay(PUBLIC_CHANNEL, greeting);
     }
 }
     </script_editor>
