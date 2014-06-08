@@ -205,10 +205,6 @@ LLColor4 LLKeywords::getColorGroup(const std::string& key_in)
 	{
 		color_group = "SyntaxLslDataType";
 	}
-	else if (key_in == "sections")
-	{
-		color_group = "SyntaxLslSection";
-	}
 	else
 	{
 		LL_WARNS("SyntaxLSL") << "Color key '" << key_in << "' not recognized." << LL_ENDL;

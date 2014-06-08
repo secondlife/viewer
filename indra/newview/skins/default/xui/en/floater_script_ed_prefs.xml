@@ -117,36 +117,6 @@
      label_height="0"
      layout="topleft"
      left="15"
-     name="section"
-     top_pad="10"
-     width="44" >
-        <color_swatch.init_callback
-         function="ScriptPref.getUIColor"
-         parameter="SyntaxLslSection" />
-        <color_swatch.commit_callback
-         function="ScriptPref.applyUIColor"
-         parameter="SyntaxLslSection" />
-    </color_swatch>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="10"
-     layout="topleft"
-     left_pad="5"
-     mouse_opaque="false"
-     name="section_label"
-     top_delta="5"
-     width="100">
-    Sections
-    </text>
-    <color_swatch
-     can_apply_immediately="true"
-     follows="left|top"
-     height="24"
-     label_height="0"
-     layout="topleft"
-     left="15"
      name="datatype"
      top_pad="10"
      width="44" >
