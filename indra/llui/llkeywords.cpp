@@ -290,7 +290,7 @@ void LLKeywords::processTokensGroup(const LLSD& tokens, const std::string& group
 	}
 
 	color_group = getColorGroup(group);
-	LL_INFOS("Tokens") << "Group: '" << group << "', using color: '" << color_group << "'" << LL_ENDL;
+	LL_INFOS("SyntaxLSL") << "Group: '" << group << "', using color: '" << color_group << "'" << LL_ENDL;
 
 	if (tokens.isMap())
 	{
@@ -373,7 +373,7 @@ void LLKeywords::processTokensGroup(const LLSD& tokens, const std::string& group
 	}
 	else
 	{
-		LL_WARNS("Tokens") << "Invalid map/array passed: '" << tokens << "'" << LL_ENDL;
+		LL_WARNS("SyntaxLSL") << "Invalid map/array passed: '" << tokens << "'" << LL_ENDL;
 	}
 }
 
