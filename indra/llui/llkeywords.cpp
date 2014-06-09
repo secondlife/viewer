@@ -173,13 +173,21 @@ std::string LLKeywords::getAttribute(const std::string& key)
 LLColor4 LLKeywords::getColorGroup(const std::string& key_in)
 {
 	std::string color_group = "ScriptText";
-	if (key_in == "constants")
+	if (key_in == "functions")
 	{
-		color_group = "SyntaxLslConstant";
+		color_group = "SyntaxLslFunction";
 	}
 	else if (key_in == "controls")
 	{
 		color_group = "SyntaxLslControlFlow";
+	}
+	else if (key_in == "events")
+	{
+		color_group = "SyntaxLslEvent";
+	}
+	else if (key_in == "types")
+	{
+		color_group = "SyntaxLslDataType";
 	}
 	else if (key_in == "misc-flow-label")
 	{
@@ -189,21 +197,19 @@ LLColor4 LLKeywords::getColorGroup(const std::string& key_in)
 	{
 		color_group = "SyntaxLslDeprecated";
 	}
-	else if (key_in == "events")
-	{
-		color_group = "SyntaxLslEvent";
-	}
-	else if (key_in == "functions")
-	{
-		color_group = "SyntaxLslFunction";
-	}
 	else if (key_in =="god-mode")
 	{
 		color_group = "SyntaxLslGodMode";
 	}
-	else if (key_in == "types")
+	else if (key_in == "constants"
+			 || key_in == "constants-integer"
+			 || key_in == "constants-float"
+			 || key_in == "constants-string"
+			 || key_in == "constants-key"
+			 || key_in == "constants-rotation"
+			 || key_in == "constants-vector")
 	{
-		color_group = "SyntaxLslDataType";
+		color_group = "SyntaxLslConstant";
 	}
 	else
 	{
