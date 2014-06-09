@@ -7,7 +7,7 @@
  name="floater_script_colors"
  help_topic="script_colors"
  save_rect="true"
- title="Customize script colors"
+ title="SCRIPT COLORS"
  width="320">
     <text
      follows="left|top"
