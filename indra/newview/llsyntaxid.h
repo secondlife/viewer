@@ -2,7 +2,7 @@
  * @file llsyntaxid.h
  * @brief Contains methods to access the LSLSyntaxId feature and LSLSyntax capability
  * to use the appropriate syntax file for the current region's LSL version.
- * @author Ima Mechanique
+ * @author Ima Mechanique, Cinder Roxley
  *
  * $LicenseInfo:firstyear=2013&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -30,98 +30,43 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llagent.h"
-#include "llenvmanager.h"
-#include "llhttpclient.h"
 #include "llsingleton.h"
-#include "llviewerregion.h"
+
+class fetchKeywordsFileResponder;
 
 class LLSyntaxIdLSL : public LLSingleton<LLSyntaxIdLSL>
 {
-friend class fetchKeywordsFileResponder;
-
-public:
-	LLSyntaxIdLSL();
-
-	bool			checkSyntaxIdChanged();
-	bool			fetching();
-	std::string		getFileNameCurrent()	const { return mFileNameCurrent; }
-	ELLPath			getFilePath()			const { return mFilePath; }
-	std::string		getFileSpec()			const { return mFullFileSpec; }
-	LLSD			getKeywordsXML()		const { return mKeywordsXml; }
-	LLUUID			getSyntaxId()			const { return mSyntaxIdCurrent; }
-	bool			isDifferentVersion()	const { return mVersionChanged; }
-	bool			isInitialized()			const { return mInitialized; }
-
-	void			initialize();
-	bool			isLoaded() { return mLoaded; }
-
-	bool			isSupportedVersion(const LLSD& content);
-	void			setKeywordsXml(const LLSD& content) { mKeywordsXml = content; }
-	typedef			boost::signals2::signal<void()> file_fetched_signal_t;
-	boost::signals2::connection		addFileFetchedCallback(const file_fetched_signal_t::slot_type& cb);
-
-protected:
-	void			buildFullFileSpec();
-	void			fetchKeywordsFile();
-	void			loadDefaultKeywordsIntoLLSD();
-	void			loadKeywordsIntoLLSD();
-	void			setSyntaxId(LLUUID SyntaxId) { mSyntaxIdCurrent = SyntaxId; }
-	void			setFileNameCurrent(const std::string& name) { mFileNameCurrent = name; }
-	void			setFileNameNew(const std::string name) { mFileNameNew = name; }
+	friend class LLSingleton<LLSyntaxIdLSL>;
+	friend class fetchKeywordsFileResponder;
 	
 private:
-	static const std::string CAPABILITY_NAME;
-	static const std::string FILENAME_DEFAULT;
-	static const std::string SIMULATOR_FEATURE;
-
-	bool		mInitialized;
-	LLSD		mKeywordsXml;
-	bool		mLoaded;
-	bool		mLoadFailed;
-	bool		mVersionChanged;
-	file_fetched_signal_t	mFileFetchedSignal;
+	std::list<std::string> mInflightFetches;
+	typedef boost::signals2::signal<void()> syntax_id_changed_signal_t;
+	syntax_id_changed_signal_t mSyntaxIDChangedSignal;
+	boost::signals2::connection mRegionChangedCallback;
 	
-	std::string		mCapabilityName;
+	bool	syntaxIdChanged();
+	bool	isSupportedVersion(const LLSD& content);
+	void	handleRegionChanged();
+	void	handleFileFetched(const std::string& filepath);
+	void	setKeywordsXml(const LLSD& content) { mKeywordsXml = content; };
+	void	buildFullFileSpec();
+	void	fetchKeywordsFile(const std::string& filespec);
+	void	loadDefaultKeywordsIntoLLSD();
+	void	loadKeywordsIntoLLSD();
+	
 	std::string		mCapabilityURL;
-	std::string		mFileNameCurrent;
-	std::string		mFileNameDefault;
-	std::string		mFileNameNew;
-	ELLPath			mFilePath;
 	std::string		mFullFileSpec;
-	std::string		mSimulatorFeature;
-	LLUUID			mSyntaxIdCurrent;
-	LLUUID			mSyntaxIdNew;
-};
-
-
-class fetchKeywordsFileResponder : public LLHTTPClient::Responder
-{
+	ELLPath			mFilePath;
+	LLUUID			mSyntaxId;
+	LLSD			mKeywordsXml;
+	
 public:
-	std::string	mFileSpec;
-
-	/**
-	 * @brief fetchKeywordsFileResponder
-	 * @param filespec	File path and name of where to save the returned data
-	 */
-	fetchKeywordsFileResponder(const std::string& filespec);
-
-	void errorWithContent(U32 status,
-						const std::string& reason,
-						const LLSD& content);
-
-	/**
-	 * @brief Checks the returned LLSD for version and stores it in the LLSyntaxIdLSL object.
-	 * @param content_ref The returned LLSD.
-	 */
-	void result(const LLSD& content_ref);
-
-	/**
-	 * @brief Saves the returned file to the location provided at instantiation.
-	 *			Could be extended to manage cached entries.
-	 * @param content_ref	The LSL syntax file for the sim.
-	 */
-	void cacheFile(const LLSD& content_ref);
+	LLSyntaxIdLSL();
+	void initialize();
+	bool keywordFetchInProgress();
+	LLSD getKeywordsXML() const { return mKeywordsXml; };
+	boost::signals2::connection addSyntaxIDCallback(const syntax_id_changed_signal_t::slot_type& cb);
 };
 
 #endif // LLSYNTAXID_H
