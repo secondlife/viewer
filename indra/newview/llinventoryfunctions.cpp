@@ -163,9 +163,10 @@ void update_marketplace_category(const LLUUID& cur_uuid, bool perform_consistenc
         if (perform_consistency_enforcement && LLMarketplaceData::instance().isListed(listing_uuid))
         {
             LLUUID version_folder_uuid = LLMarketplaceData::instance().getVersionFolder(listing_uuid);
-            if (version_folder_uuid.notNull() && !gInventory.isObjectDescendentOf(version_folder_uuid, listing_uuid))
+            S32 version_depth = depth_nesting_in_marketplace(version_folder_uuid);
+            if (version_folder_uuid.notNull() && (!gInventory.isObjectDescendentOf(version_folder_uuid, listing_uuid) || (version_depth != 2)))
             {
-                LL_INFOS("SLM") << "Unlist as the version folder is not under the listing folder anymore!!" << LL_ENDL;
+                LL_INFOS("SLM") << "Unlist and clear version folder as the version folder is not at the right place anymore!!" << LL_ENDL;
                 LLMarketplaceData::instance().setVersionFolder(listing_uuid, LLUUID::null);
             }
         }
