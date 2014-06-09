@@ -2435,6 +2435,13 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
             // One cannot move a folder into a stock folder
             is_movable = (getPreferredType() != LLFolderType::FT_MARKETPLACE_STOCK);
         }
+        
+        if (is_movable && move_is_from_marketplacelistings)
+        {
+            // If the incoming folder is listed and active (and is therefore either the listing or the version folder), then moving is *not* allowed
+            is_movable = !LLMarketplaceData::instance().getActivationState(cat_id);
+        }
+        
 		if (is_movable && (move_is_into_outbox || move_is_into_marketplacelistings))
 		{
             const LLViewerInventoryCategory * master_folder = (move_is_into_outbox ? model->getFirstDescendantOf(outbox_id, mUUID) : model->getFirstDescendantOf(marketplacelistings_id, mUUID));
