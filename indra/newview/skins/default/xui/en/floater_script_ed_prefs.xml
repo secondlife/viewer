@@ -2,13 +2,13 @@
 <floater
  legacy_header_height="18"
  can_resize="true"
- height="400"
+ height="354"
  layout="topleft"
  name="floater_script_colors"
  help_topic="script_colors"
  save_rect="true"
  title="Customize script colors"
- width="300">
+ width="320">
     <text
      follows="left|top"
      height="15"
@@ -176,37 +176,7 @@
      height="24"
      label_height="0"
      layout="topleft"
-     left="15"
-     name="comment"
-     top_pad="10"
-     width="44" >
-        <color_swatch.init_callback
-         function="ScriptPref.getUIColor"
-         parameter="SyntaxLslComment" />
-        <color_swatch.commit_callback
-         function="ScriptPref.applyUIColor"
-         parameter="SyntaxLslComment" />
-    </color_swatch>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="10"
-     layout="topleft"
-     left_pad="5"
-     mouse_opaque="false"
-     name="comment_label"
-     top_delta="5"
-     width="100">
-    Comment
-    </text>
-    <color_swatch
-     can_apply_immediately="true"
-     follows="left|top"
-     height="24"
-     label_height="0"
-     layout="topleft"
-     left="170"
+     left="190"
      name="string_literal"
      top="45"
      width="44" >
@@ -230,14 +200,13 @@
      width="100">
     String Literals
     </text>
-
     <color_swatch
      can_apply_immediately="true"
      follows="left|top"
      height="24"
      label_height="0"
      layout="topleft"
-     left="170"
+     left="190"
      name="constant"
      top_pad="10"
      width="44" >
@@ -267,7 +236,7 @@
      height="24"
      label_height="0"
      layout="topleft"
-     left="170"
+     left="190"
      name="flow_control"
      top_pad="10"
      width="44" >
@@ -297,7 +266,7 @@
      height="24"
      label_height="0"
      layout="topleft"
-     left="170"
+     left="190"
      name="function"
      top_pad="10"
      width="44" >
@@ -321,11 +290,41 @@
      width="100">
     Function
     </text>
+    <color_swatch
+     can_apply_immediately="true"
+     follows="left|top"
+     height="24"
+     label_height="0"
+     layout="topleft"
+     left="190"
+     name="comment"
+     top_pad="10"
+     width="44" >
+        <color_swatch.init_callback
+         function="ScriptPref.getUIColor"
+         parameter="SyntaxLslComment" />
+        <color_swatch.commit_callback
+         function="ScriptPref.applyUIColor"
+         parameter="SyntaxLslComment" />
+    </color_swatch>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left_pad="5"
+     mouse_opaque="false"
+     name="comment_label"
+     top_delta="5"
+     width="100">
+    Comment
+    </text>
 
     <script_editor
      left="8"
      right="-8"
-     top="250"
+     top="176"
      bottom="-8"
      type="string"
      length="1"
