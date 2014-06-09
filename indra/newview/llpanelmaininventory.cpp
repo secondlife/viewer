@@ -56,7 +56,6 @@
 #include "llsidepanelinventory.h"
 #include "llfolderview.h"
 #include "llradiogroup.h"
-//#include "llinventoryfilter.h"
 
 const std::string FILTERS_FILENAME("filters.xml");
 
