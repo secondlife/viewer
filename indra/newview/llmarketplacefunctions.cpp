@@ -1285,7 +1285,8 @@ bool LLMarketplaceData::setVersionFolder(const LLUUID& folder_id, const LLUUID& 
         return false;
     }
     
-    bool is_listed = getActivationState(listing_uuid);
+    // Note: if the version_id is cleared, we need to unlist the listing, otherwise, state unchanged
+    bool is_listed = (version_id.isNull() ? false : getActivationState(listing_uuid));
     
     // Post the listing update request to SLM
     updateSLMListing(listing_uuid, listing_id, version_id, is_listed);

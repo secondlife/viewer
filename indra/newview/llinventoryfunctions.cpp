@@ -167,7 +167,6 @@ void update_marketplace_category(const LLUUID& cur_uuid, bool perform_consistenc
             {
                 LL_INFOS("SLM") << "Unlist as the version folder is not under the listing folder anymore!!" << LL_ENDL;
                 LLMarketplaceData::instance().setVersionFolder(listing_uuid, LLUUID::null);
-                LLMarketplaceData::instance().activateListing(listing_uuid, false);
             }
         }
     
