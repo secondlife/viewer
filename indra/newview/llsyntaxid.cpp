@@ -51,31 +51,31 @@ public:
 								  const std::string& reason,
 								  const LLSD& content)
 	{
-	LL_WARNS("SyntaxLSL") << "failed to fetch syntax file [status:" << status << "]: " << content << LL_ENDL;
+		LL_WARNS("SyntaxLSL") << "failed to fetch syntax file [status:" << status << "]: " << content << LL_ENDL;
 	}
 
 	virtual void result(const LLSD& content_ref)
 	{
-	// Continue only if a valid LLSD object was returned.
-	if (content_ref.isMap())
-	{
-		if (LLSyntaxIdLSL::getInstance()->isSupportedVersion(content_ref))
+		// Continue only if a valid LLSD object was returned.
+		if (content_ref.isMap())
 		{
-			LLSyntaxIdLSL::getInstance()->setKeywordsXml(content_ref);
+			if (LLSyntaxIdLSL::getInstance()->isSupportedVersion(content_ref))
+			{
+				LLSyntaxIdLSL::getInstance()->setKeywordsXml(content_ref);
 
-			cacheFile(content_ref);
-			LLSyntaxIdLSL::getInstance()->handleFileFetched(mFileSpec);
+				cacheFile(content_ref);
+				LLSyntaxIdLSL::getInstance()->handleFileFetched(mFileSpec);
+			}
+			else
+			{
+				LL_WARNS("SyntaxLSL") << "Unknown or unsupported version of syntax file." << LL_ENDL;
+			}
 		}
 		else
 		{
-			LL_WARNS("SyntaxLSL") << "Unknown or unsupported version of syntax file." << LL_ENDL;
+			LL_WARNS("SyntaxLSL") << "Syntax file '" << mFileSpec << "' contains invalid LLSD." << LL_ENDL;
 		}
 	}
-	else
-	{
-		LL_WARNS("SyntaxLSL") << "Syntax file '" << mFileSpec << "' contains invalid LLSD." << LL_ENDL;
-	}
-}
 
 	void cacheFile(const LLSD& content_ref)
 	{
