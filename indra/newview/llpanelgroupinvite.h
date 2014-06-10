@@ -27,27 +27,36 @@
 #define LL_LLPANELGROUPINVITE_H
 
 #include "llpanel.h"
-#include "llpanelgroupbulk.h"
 #include "lluuid.h"
 
 class LLAvatarName;
 
-class LLPanelGroupInvite : public LLPanelGroupBulk
+class LLPanelGroupInvite
+: public LLPanel
 {
 public:
 	LLPanelGroupInvite(const LLUUID& group_id);
-	~LLPanelGroupInvite() {};
+	~LLPanelGroupInvite();
 	
-	virtual void clear();
-	virtual void update();
+	void addUsers(uuid_vec_t& agent_ids);
+	/**
+	 * this callback is being used to add a user whose fullname isn't been loaded before invoking of addUsers().
+	 */  
+	void addUserCallback(const LLUUID& id, const LLAvatarName& av_name);
+	void clear();
+	void update();
 
+	void setCloseCallback(void (*close_callback)(void*), void* data);
+
+	virtual void draw();
 	virtual BOOL postBuild();
+protected:
+	class impl;
+	impl* mImplementation;
 
-	static void callbackClickSubmit(void* userdata);
-	virtual void submit();
-
-private:
-	void addRoleNames();
+	BOOL mPendingUpdate;
+	LLUUID mStoreSelected;
+	void updateLists();
 };
 
 #endif
