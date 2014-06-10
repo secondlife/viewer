@@ -642,17 +642,17 @@ void LLInventoryFilter::setHoursAgo(U32 hours)
 		bool are_date_limits_valid = mFilterOps.mMinDate == time_min() && mFilterOps.mMaxDate == time_max();
 
 		bool is_increasing = hours > mFilterOps.mHoursAgo;
+		bool is_decreasing = hours < mFilterOps.mHoursAgo;
 		bool is_increasing_from_zero = is_increasing && !mFilterOps.mHoursAgo && !isSinceLogoff();
 
 		// *NOTE: need to cache last filter time, in case filter goes stale
 		BOOL less_restrictive = (are_date_limits_valid && ((is_increasing && mFilterOps.mHoursAgo)) || !hours);
 		BOOL more_restrictive = (are_date_limits_valid && (!is_increasing && hours) || is_increasing_from_zero);
 
-		// Toggle for newer than search
-		if (FILTERDATEDIRECTION_NEWER == mFilterOps.mDateSearchDirection)
+		if (FILTERDATEDIRECTION_OLDER == mFilterOps.mDateSearchDirection)
 		{
-			less_restrictive = !less_restrictive;
-			more_restrictive = !more_restrictive;
+			less_restrictive = (are_date_limits_valid && ((is_decreasing && mFilterOps.mHoursAgo)) || !hours);
+			more_restrictive = (are_date_limits_valid && (!is_decreasing && hours) || is_increasing_from_zero);
 		}
 
 		mFilterOps.mHoursAgo = hours;
