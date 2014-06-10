@@ -1062,12 +1062,15 @@ bool can_move_item_to_marketplace(const LLInventoryCategory* root_folder, LLInve
     {
         int existing_item_count = bundle_size;
         
-        if (root_folder)
+        // Get the version folder: that's where the counts start from
+        const LLViewerInventoryCategory * version_folder = ((root_folder && (root_folder != dest_folder)) ? gInventory.getFirstDescendantOf(root_folder->getUUID(), dest_folder->getUUID()) : NULL);
+
+        if (version_folder)
         {
             LLInventoryModel::cat_array_t existing_categories;
             LLInventoryModel::item_array_t existing_items;
             
-            gInventory.collectDescendents(root_folder->getUUID(), existing_categories, existing_items, FALSE);
+            gInventory.collectDescendents(version_folder->getUUID(), existing_categories, existing_items, FALSE);
             
             existing_item_count += existing_items.size();
         }
@@ -1097,6 +1100,9 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
     // Compute the nested folders level we're inserting ourselves in
     // Note: add one when inserting under a listing folder as we need to take the root listing folder in the count
     int insertion_point_folder_depth = (root_folder ? get_folder_path_length(root_folder->getUUID(), dest_folder->getUUID()) + 1 : 0);
+
+    // Get the version folder: that's where the counts start from
+    const LLViewerInventoryCategory * version_folder = (insertion_point_folder_depth >= 2 ? gInventory.getFirstDescendantOf(root_folder->getUUID(), dest_folder->getUUID()) : NULL);
     
     // Compare the whole with the nested folders depth limit
     if ((incoming_folder_depth + insertion_point_folder_depth) > gSavedSettings.getU32("InventoryOutboxMaxFolderDepth"))
@@ -1119,17 +1125,17 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
         int existing_item_count = 0;
         int existing_folder_count = 0;
     
-        if (root_folder)
+        if (version_folder)
         {
-            if (gInventory.isObjectDescendentOf(inv_cat->getUUID(), root_folder->getUUID()))
+            if (gInventory.isObjectDescendentOf(inv_cat->getUUID(), version_folder->getUUID()))
             {
-                // Clear those counts or they will be counted twice because we're already inside the root category
+                // Clear those counts or they will be counted twice because we're already inside the version category
                 dragged_folder_count = 0;
                 dragged_item_count = 0;
             }
             else
             {
-                existing_folder_count += 1; // Include the root folder in the count!
+                existing_folder_count += 2; // Include the version and root folders in the count!
             }
         
             // Tally the total number of categories and items inside the root folder
@@ -1137,10 +1143,15 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
             LLInventoryModel::cat_array_t existing_categories;
             LLInventoryModel::item_array_t existing_items;
         
-            gInventory.collectDescendents(root_folder->getUUID(), existing_categories, existing_items, FALSE);
+            gInventory.collectDescendents(version_folder->getUUID(), existing_categories, existing_items, FALSE);
         
             existing_folder_count += existing_categories.size();
             existing_item_count += existing_items.size();
+        }
+        else if (root_folder)
+        {
+            // Not in a version folder but inside a listing folder: we're being inserted as a version folder then
+            existing_folder_count += 1; // Include the root folder in the count!
         }
     
         const int total_folder_count = existing_folder_count + dragged_folder_count;
