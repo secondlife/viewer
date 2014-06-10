@@ -927,8 +927,7 @@ void LLFloaterIMSession::onInputEditorFocusReceived( LLFocusableElement* caller,
 	// Allow enabling the LLFloaterIMSession input editor only if session can accept text
 	LLIMModel::LLIMSession* im_session =
 		LLIMModel::instance().findIMSession(self->mSessionID);
-	//TODO: While disabled lllineeditor can receive focus we need to check if it is enabled (EK)
-	if( im_session && im_session->mTextIMPossible && self->mInputEditor->getEnabled())
+	if( im_session && im_session->mTextIMPossible && !self->mInputEditor->getReadOnly())
 	{
 		//in disconnected state IM input editor should be disabled
 		self->mInputEditor->setEnabled(!gDisconnected);
