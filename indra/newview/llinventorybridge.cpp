@@ -319,11 +319,9 @@ BOOL LLInvFVBridge::copyToClipboard() const
 	return FALSE;
 }
 
-// *TODO: make sure this does the right thing
 void LLInvFVBridge::showProperties()
 {
-	LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, true);
-	if (gInventory.isObjectDescendentOf(mUUID, marketplacelistings_id))
+	if (isMarketplaceListingsFolder())
     {
         LLFloaterReg::showInstance("item_properties", LLSD().with("id",mUUID));
     }
@@ -331,11 +329,6 @@ void LLInvFVBridge::showProperties()
     {
         show_item_profile(mUUID);
     }
-
-	// Disable old properties floater; this is replaced by the sidepanel.
-	/*
-	  LLFloaterReg::showInstance("properties", mUUID);
-	*/
 }
 
 void LLInvFVBridge::removeBatch(std::vector<LLFolderViewModelItem*>& batch)

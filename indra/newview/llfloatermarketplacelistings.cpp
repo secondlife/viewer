@@ -588,10 +588,12 @@ void LLFloaterMarketplaceValidation::onOpen(const LLSD& key)
     mEditor->setValue(LLSD());
 
     // Validates the marketplace
-	LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, true);
-	llassert(marketplacelistings_id.notNull());
-    LLViewerInventoryCategory* cat = gInventory.getCategory(marketplacelistings_id);
-    validate_marketplacelistings(cat,boost::bind(&LLFloaterMarketplaceValidation::appendMessage, this, _1));
+	LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+    if (marketplacelistings_id.notNull())
+    {
+        LLViewerInventoryCategory* cat = gInventory.getCategory(marketplacelistings_id);
+        validate_marketplacelistings(cat,boost::bind(&LLFloaterMarketplaceValidation::appendMessage, this, _1));
+    }
 }
 
 // static

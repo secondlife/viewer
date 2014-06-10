@@ -1173,6 +1173,10 @@ std::string LLMarketplaceData::getSLMConnectURL(const std::string& route)
         {
             url = "https://marketplace.secondlife-staging.com/api/1/viewer/" + gAgentID.asString();
         }
+        else
+        {
+            llinfos << "Merov : DD cap = " << url << ", agent = " << gAgentID.asString() << llendl;
+        }
         url += route;
     }
 	return url;
