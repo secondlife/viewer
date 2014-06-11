@@ -333,6 +333,19 @@ Initialization with the Marketplace failed because of a system or network error.
     </notification>
     
     <notification
+        icon="alertmodal.tga"
+        name="ConfirmMerchantClearVersion"
+        type="alertmodal">
+        This action will deactivate the version folder of the current listing. Do you want to continue?
+        <tag>confirm</tag>
+        <usetemplate
+        ignoretext="Confirm before I deactivate the version folder of a listing on the marketplace"
+        name="okcancelignore"
+        notext="Cancel"
+        yestext="OK"/>
+    </notification>
+
+    <notification
    icon="alertmodal.tga"
    name="CompileQueueSaveText"
    type="alertmodal">

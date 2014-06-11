@@ -2487,19 +2487,30 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
             // Dropping in or out of marketplace needs (sometimes) confirmation
             if (user_confirm && (move_is_from_marketplacelistings || move_is_into_marketplacelistings))
             {
-                if ((move_is_from_marketplacelistings && LLMarketplaceData::instance().isInActiveFolder(cat_id)) ||
-                    (move_is_into_marketplacelistings && LLMarketplaceData::instance().isInActiveFolder(mUUID)))
+                if (move_is_from_marketplacelistings && LLMarketplaceData::instance().isInActiveFolder(cat_id))
                 {
-                    if (move_is_from_marketplacelistings && (LLMarketplaceData::instance().isListed(cat_id) || LLMarketplaceData::instance().isVersionFolder(cat_id)))
+                    if (LLMarketplaceData::instance().isListed(cat_id) || LLMarketplaceData::instance().isVersionFolder(cat_id))
                     {
                         // Move the active version folder or listing folder itself outside marketplace listings will unlist the listing so ask that question specifically
                         LLNotificationsUtil::add("ConfirmMerchantUnlist", LLSD(), LLSD(), boost::bind(&LLFolderBridge::callback_dropCategoryIntoFolder, this, _1, _2, inv_cat));
                     }
                     else
                     {
-                        // Any other case will simply modify but not unlist a listing
+                        // Any other case will simply modify but not unlist an active listed listing
                         LLNotificationsUtil::add("ConfirmMerchantActiveChange", LLSD(), LLSD(), boost::bind(&LLFolderBridge::callback_dropCategoryIntoFolder, this, _1, _2, inv_cat));
                     }
+                    return true;
+                }
+                if (move_is_from_marketplacelistings && LLMarketplaceData::instance().isVersionFolder(cat_id))
+                {
+                    // Moving the version folder from its location will deactivate it. Ask confirmation.
+                    LLNotificationsUtil::add("ConfirmMerchantClearVersion", LLSD(), LLSD(), boost::bind(&LLFolderBridge::callback_dropCategoryIntoFolder, this, _1, _2, inv_cat));
+                    return true;
+                }
+                if (move_is_into_marketplacelistings && LLMarketplaceData::instance().isInActiveFolder(mUUID))
+                {
+                    // Moving something in an active listed listing will modify it. Ask confirmation.
+                    LLNotificationsUtil::add("ConfirmMerchantActiveChange", LLSD(), LLSD(), boost::bind(&LLFolderBridge::callback_dropCategoryIntoFolder, this, _1, _2, inv_cat));
                     return true;
                 }
             }
