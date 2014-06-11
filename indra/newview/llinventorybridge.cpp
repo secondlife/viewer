@@ -2354,6 +2354,13 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 
 		BOOL is_movable = TRUE;
 
+        if (is_movable && move_is_from_marketplacelistings && LLMarketplaceData::instance().getActivationState(cat_id))
+        {
+            // If the incoming folder is listed and active (and is therefore either the listing or the version folder),
+            // then moving is *not* allowed
+            is_movable = FALSE;
+            tooltip_msg = LLTrans::getString("TooltipOutboxDragActive");
+        }
 		if (is_movable && (mUUID == cat_id))
 		{
 			is_movable = FALSE;
@@ -2427,12 +2434,6 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 		{
             // One cannot move a folder into a stock folder
             is_movable = (getPreferredType() != LLFolderType::FT_MARKETPLACE_STOCK);
-        }
-        
-        if (is_movable && move_is_from_marketplacelistings)
-        {
-            // If the incoming folder is listed and active (and is therefore either the listing or the version folder), then moving is *not* allowed
-            is_movable = !LLMarketplaceData::instance().getActivationState(cat_id);
         }
         
 		if (is_movable && (move_is_into_outbox || move_is_into_marketplacelistings))
