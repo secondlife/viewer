@@ -217,8 +217,8 @@ Please try logging in again in a minute.</string>
 	<string name="TooltipOutboxLinked">You can not put linked items or folders on the marketplace</string>
 	<string name="TooltipOutboxCallingCard">You can not put calling cards on the marketplace</string>
 	<string name="TooltipOutboxFolderLevels">Depth of nested folders exceeds [AMOUNT]</string>
-	<string name="TooltipOutboxTooManyFolders">Subfolder count in top-level folder exceeds [AMOUNT]</string>
-	<string name="TooltipOutboxTooManyObjects">Item count in top-level folder exceeds [AMOUNT]</string>
+	<string name="TooltipOutboxTooManyFolders">Subfolders count exceeds [AMOUNT]</string>
+	<string name="TooltipOutboxTooManyObjects">Items count exceeds [AMOUNT]</string>
 	<string name="TooltipOutboxDragActive">You can't move an active listed listing</string>
 	
 	<string name="TooltipDragOntoOwnChild">You can't move a folder into its child</string>
