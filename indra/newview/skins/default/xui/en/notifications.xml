@@ -346,6 +346,17 @@ Initialization with the Marketplace failed because of a system or network error.
     </notification>
 
     <notification
+        icon="alertmodal.tga"
+        name="AlertMerchantListingNotUpdated"
+        type="alertmodal">
+This listing could not be updated.
+[[URL] Click here] to edit it on the Marketplace.
+        <usetemplate
+        name="okbutton"
+        yestext="OK"/>
+    </notification>
+
+    <notification
    icon="alertmodal.tga"
    name="CompileQueueSaveText"
    type="alertmodal">

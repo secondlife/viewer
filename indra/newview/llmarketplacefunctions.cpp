@@ -33,6 +33,7 @@
 #include "llhttpclient.h"
 #include "llinventoryfunctions.h"
 #include "llinventoryobserver.h"
+#include "llnotificationsutil.h"
 #include "llsdserialize.h"
 #include "lltimer.h"
 #include "lltrans.h"
@@ -333,7 +334,11 @@ class LLSLMUpdateListingsResponder : public LLHTTPClient::Responder
 	LOG_CLASS(LLSLMUpdateListingsResponder);
 public:
 	
-    LLSLMUpdateListingsResponder() {}
+    LLSLMUpdateListingsResponder(bool expected_listed_state, const LLUUID& expected_version_id)
+    {
+        mExpectedListedState = expected_listed_state;
+        mExpectedVersionUUID = expected_version_id;
+    }
     
     virtual void completedRaw(const LLChannelDescriptors& channels,
                               const LLIOPipe::buffer_ptr_t& buffer)
@@ -381,9 +386,21 @@ public:
             LLMarketplaceData::instance().setActivationState(folder_id, is_listed);
             LLMarketplaceData::instance().setListingURL(folder_id, edit_url);
             
+            // Show a notification alert if what we got is not what we expected
+            // (this actually doesn't result in an error status from the SLM API protocol)
+            if ((mExpectedListedState != is_listed) || (mExpectedVersionUUID != version_id))
+            {
+                LLSD subs;
+                subs["[URL]"] = edit_url;
+                LLNotificationsUtil::add("AlertMerchantListingNotUpdated", subs);
+            }
+            
             it++;
         }
     }
+private:
+    bool mExpectedListedState;
+    LLUUID mExpectedVersionUUID;
 };
 
 class LLSLMAssociateListingsResponder : public LLHTTPClient::Responder
@@ -1118,7 +1135,7 @@ void LLMarketplaceData::updateSLMListing(const LLUUID& folder_id, S32 listing_id
 	// Send request
     std::string url = getSLMConnectURL("/listing/") + llformat("%d",listing_id);
     log_SLM_infos("LLHTTPClient::putRaw", url, json_str);
-	LLHTTPClient::putRaw(url, data, size, new LLSLMUpdateListingsResponder(), headers);
+	LLHTTPClient::putRaw(url, data, size, new LLSLMUpdateListingsResponder(is_listed, version_id), headers);
 }
 
 void LLMarketplaceData::associateSLMListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id)
