@@ -8,7 +8,7 @@
  help_topic="floaterland"
  save_rect="true"
  title="ABOUT LAND"
- width="590">
+ width="490">
     <floater.string
       name="maturity_icon_general">
       "Parcel_PG_Dark"
@@ -47,7 +47,7 @@
      tab_height="25"
      tab_min_width="67"
      top="10"
-     width="589">
+     width="489">
         <panel
          border="false"
          follows="all"
@@ -569,7 +569,8 @@
          left="0"
          top="0"
          help_topic="land_covenant_tab"
-         name="land_covenant_panel">
+         name="land_covenant_panel"
+         word_wrap="true">
             <panel.string
              name="can_resell"
              word_wrap="true">
