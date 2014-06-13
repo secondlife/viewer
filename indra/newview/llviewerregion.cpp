@@ -2632,6 +2632,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("GetAdminExperiences");
 	capabilityNames.append("GetCreatorExperiences");
 	capabilityNames.append("ExperiencePreferences");
+	capabilityNames.append("GroupExperiences");
 	capabilityNames.append("UpdateExperience");
 	capabilityNames.append("IsExperienceAdmin");
 	capabilityNames.append("IsExperienceContributor");
