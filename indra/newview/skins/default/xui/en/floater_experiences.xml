@@ -8,6 +8,7 @@
   min_height="300"
   min_width="500"
   layout="topleft"
+  help_topic="floater_experiences"
   name="floater_experiences"
   save_rect="true"
   single_instance="true"

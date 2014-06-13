@@ -59,7 +59,9 @@ LLFloaterExperiencePicker* LLFloaterExperiencePicker::show( select_callback_t ca
 		floater->mSearchPanel->mSelectionCallback = callback;
 		floater->mSearchPanel->mCloseOnSelect = close_on_select;
 		floater->mSearchPanel->setAllowMultiple(allow_multiple);
+		floater->mSearchPanel->setDefaultFilters();
 		floater->mSearchPanel->addFilters(filters.begin(), filters.end());
+		floater->mSearchPanel->filterContent();
 	}
 
 	if(frustumOrigin)

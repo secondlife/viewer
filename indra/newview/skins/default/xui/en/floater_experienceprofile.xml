@@ -5,6 +5,7 @@
   can_close="true"
   enabled="true"
   can_resize="true"
+  help_topic="floater_experienceprofile"
   title="EXPERIENCE PROFILE"
   save_rect="true"
   min_width="325"
@@ -648,6 +649,17 @@
                      follows="top|left|right"
                      label="Hide In Search"
                      name="edit_private_btn"/>
+          <text
+            follows="left|top|right"
+            height="25"
+            layout="topleft"
+            left="10"
+            top_pad="10"
+            name="changes"
+            use_ellipses="true"
+            word_wrap="true"
+            value="Experience changes may take several minutes to be seen on all regions."
+            right="-10"/>
           <button
             follows="top|left"
             height="23"
@@ -668,17 +680,6 @@
             width="125"
             right="-10"
             visible="true"/>
-          <text
-            follows="left|top|right"
-            height="25"
-            layout="topleft"
-            left="10"
-            top_pad="10"
-            name="changes"
-            use_ellipses="true"
-            word_wrap="true"
-            value="Experience changes may take several minutes to be seen on all regions."
-            right="-10"/>
         </panel>
       </scroll_container>
     </panel>
