@@ -90,6 +90,7 @@
 
 BOOL LLInventoryState::sWearNewClothing = FALSE;
 LLUUID LLInventoryState::sWearNewClothingTransactionID;
+std::list<LLUUID> LLInventoryAction::sMarketplaceFolders;
 
 // Helper function : callback to update a folder after inventory action happened in the background
 void update_folder_cb(const LLUUID& dest_folder)
@@ -1959,9 +1960,14 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
         }
     }
     
+    // Keep track of the marketplace folders that will need update of their status/name after the operation is performed
+    buildMarketplaceFolders(root);
+    
 	if ("rename" == action)
 	{
 		root->startRenamingSelectedItem();
+        // Update the marketplace listings that have been affected by the operation
+        updateMarketplaceFolders();
 		return;
 	}
     
@@ -1970,6 +1976,7 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 		LLSD args;
 		args["QUESTION"] = LLTrans::getString(root->getSelectedCount() > 1 ? "DeleteItems" :  "DeleteItem");
 		LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLInventoryAction::onItemsRemovalConfirmation, _1, _2, root));
+        // Note: marketplace listings will be updated in the callback if delete confirmed
 		return;
 	}
 	if (("copy" == action) || ("cut" == action))
@@ -1987,6 +1994,8 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 		LLViewerInventoryCategory *cat = model->getCategory(inventory_item->getUUID());
 		if (!cat) return;
 		cat->changeType(new_folder_type);
+        // Update the marketplace listings that have been affected by the operation
+        updateMarketplaceFolders();
 		return;
 	}
 
@@ -2021,6 +2030,9 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 		bridge->performAction(model, action);
 	}
 
+    // Update the marketplace listings that have been affected by the operation
+    updateMarketplaceFolders();
+    
 	LLFloater::setFloaterHost(NULL);
 	if (multi_previewp)
 	{
@@ -2064,5 +2076,43 @@ void LLInventoryAction::onItemsRemovalConfirmation( const LLSD& notification, co
         //because once removed from root folder view the item is no longer a selected item
         removeItemFromDND(root);
 		root->removeSelectedItems();
+        
+        // Update the marketplace listings that have been affected by the operation
+        updateMarketplaceFolders();
 	}
 }
+
+void LLInventoryAction::buildMarketplaceFolders(LLFolderView* root)
+{
+    // Make a list of all marketplace folders containing the elements in the selected list
+    // Once those elements are updated (cut, delete in particular but potentially any action), their originally
+    // containing marketplace listing might need to be udpated to reflect their new content accurately
+    sMarketplaceFolders.clear();
+    const LLUUID &marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+    std::set<LLFolderViewItem*> selected_items = root->getSelectionList();
+    std::set<LLFolderViewItem*>::iterator set_iter = selected_items.begin();
+    LLFolderViewModelItemInventory * viewModel = NULL;
+    for (; set_iter != selected_items.end(); ++set_iter)
+    {
+        viewModel = dynamic_cast<LLFolderViewModelItemInventory *>((*set_iter)->getViewModelItem());
+        if (viewModel && gInventory.isObjectDescendentOf(viewModel->getInventoryObject()->getParentUUID(), marketplacelistings_id))
+        {
+            sMarketplaceFolders.push_back(viewModel->getInventoryObject()->getParentUUID());
+        }
+    }
+    // Suppress dupes in the list so we won't update listings twice
+    sMarketplaceFolders.sort();
+    sMarketplaceFolders.unique();
+}
+
+void LLInventoryAction::updateMarketplaceFolders()
+{
+    while (!sMarketplaceFolders.empty())
+    {
+        update_marketplace_category(sMarketplaceFolders.back());
+        sMarketplaceFolders.pop_back();
+    }
+}
+
+
+

@@ -457,6 +457,11 @@ struct LLInventoryAction
 
 	static void onItemsRemovalConfirmation(const LLSD& notification, const LLSD& response, LLFolderView* root);
     static void removeItemFromDND(LLFolderView* root);
+    
+private:
+    static void buildMarketplaceFolders(LLFolderView* root);
+    static void updateMarketplaceFolders();
+    static std::list<LLUUID> sMarketplaceFolders; // Marketplace folders that will need update once the action is completed
 };
 
 
