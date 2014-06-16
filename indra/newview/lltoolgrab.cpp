@@ -56,6 +56,7 @@
 #include "llviewerregion.h"
 #include "llvoavatarself.h"
 #include "llworld.h"
+#include "llmenugl.h"
 
 const S32 SLOP_DIST_SQ = 4;
 
@@ -98,6 +99,8 @@ void LLToolGrab::handleSelect()
 	{
 		// viewer can crash during startup if we don't check.
 		gFloaterTools->setStatusText("grab");
+		// in case we start from tools floater, we count any selection as valid
+		mValidSelection = gFloaterTools->getVisible();
 	}
 	gGrabBtnVertical = FALSE;
 	gGrabBtnSpin = FALSE;
@@ -108,6 +111,14 @@ void LLToolGrab::handleDeselect()
 	if( hasMouseCapture() )
 	{
 		setMouseCapture( FALSE );
+	}
+
+	// Make sure that temporary(invalid) selection won't pass anywhere except pie tool.
+	MASK override_mask = gKeyboard ? gKeyboard->currentMask(TRUE) : 0;
+	if (!mValidSelection && (override_mask != MASK_NONE || (gFloaterTools && gFloaterTools->getVisible())))
+	{
+		LLMenuGL::sMenuContainer->hideMenus();
+		LLSelectMgr::getInstance()->validateSelection();
 	}
 
 }

@@ -119,6 +119,7 @@ private:
 	BOOL			mHasMoved;		// has mouse moved off center at all?
 	BOOL			mOutsideSlop;	// has mouse moved outside center 5 pixels?
 	BOOL			mDeselectedThisClick;
+	BOOL			mValidSelection;
 
 	S32             mLastFace;
 	LLVector2       mLastUVCoords;
