@@ -527,7 +527,7 @@ void LLLandmarksPanel::setParcelID(const LLUUID& parcel_id)
 }
 
 // virtual
-void LLLandmarksPanel::setErrorStatus(U32 status, const std::string& reason)
+void LLLandmarksPanel::setErrorStatus(S32 status, const std::string& reason)
 {
 	LL_WARNS() << "Can't handle remote parcel request."<< " Http Status: "<< status << ". Reason : "<< reason<<LL_ENDL;
 }
@@ -714,6 +714,11 @@ void LLLandmarksPanel::updateListCommands()
 	// keep Options & Add Landmark buttons always enabled
 	mListCommands->getChildView(ADD_FOLDER_BUTTON_NAME)->setEnabled(add_folder_enabled);
 	mListCommands->getChildView(TRASH_BUTTON_NAME)->setEnabled(trash_enabled);
+}
+
+void LLLandmarksPanel::updateMenuVisibility(LLUICtrl* menu)
+{
+	onMenuVisibilityChange(menu, LLSD().with("visibility", true));
 }
 
 void LLLandmarksPanel::onActionsButtonClick()

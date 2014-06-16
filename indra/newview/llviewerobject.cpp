@@ -56,6 +56,7 @@
 #include "llaudiosourcevo.h"
 #include "llagent.h"
 #include "llagentcamera.h"
+#include "llagentwearables.h"
 #include "llbbox.h"
 #include "llbox.h"
 #include "llcylinder.h"
@@ -152,6 +153,7 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
 			{
 				gAgentAvatarp = new LLVOAvatarSelf(id, pcode, regionp);
 				gAgentAvatarp->initInstance();
+				gAgentWearables.setAvatarObject(gAgentAvatarp);
 			}
 			else 
 			{
@@ -5175,6 +5177,7 @@ void LLViewerObject::setAttachedSound(const LLUUID &audio_uuid, const LLUUID& ow
 {
 	if (!gAudiop)
 	{
+		LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
 		return;
 	}
 	
@@ -5257,7 +5260,10 @@ LLAudioSource *LLViewerObject::getAudioSource(const LLUUID& owner_id)
 		LLAudioSourceVO *asvop = new LLAudioSourceVO(mID, owner_id, 0.01f, this);
 
 		mAudioSourcep = asvop;
-		if(gAudiop) gAudiop->addAudioSource(asvop);
+		if(gAudiop)
+		{
+			gAudiop->addAudioSource(asvop);
+		}
 	}
 
 	return mAudioSourcep;
@@ -5265,10 +5271,6 @@ LLAudioSource *LLViewerObject::getAudioSource(const LLUUID& owner_id)
 
 void LLViewerObject::adjustAudioGain(const F32 gain)
 {
-	if (!gAudiop)
-	{
-		return;
-	}
 	if (mAudioSourcep)
 	{
 		mAudioGain = gain;
@@ -5501,6 +5503,28 @@ void LLViewerObject::clearDrawableState(U32 state, BOOL recursive)
 		}
 	}
 }
+
+BOOL LLViewerObject::isDrawableState(U32 state, BOOL recursive) const
+{
+	BOOL matches = FALSE;
+	if (mDrawable)
+	{
+		matches = mDrawable->isState(state);
+	}
+	if (recursive)
+	{
+		for (child_list_t::const_iterator iter = mChildList.begin();
+			 (iter != mChildList.end()) && matches; iter++)
+		{
+			LLViewerObject* child = *iter;
+			matches &= child->isDrawableState(state, recursive);
+		}
+	}
+
+	return matches;
+}
+
+
 
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // RN: these functions assume a 2-level hierarchy 

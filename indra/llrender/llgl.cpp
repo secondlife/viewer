@@ -610,6 +610,7 @@ bool LLGLManager::initGL()
 	if (mGLVendor.substr(0,4) == "ATI ")
 	{
 		mGLVendorShort = "ATI";
+		// *TODO: Fix this?
 		mIsATI = TRUE;
 
 #if LL_WINDOWS && !LL_MESA_HEADLESS

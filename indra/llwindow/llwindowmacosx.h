@@ -152,7 +152,10 @@ protected:
 	BOOL	resetDisplayResolution();
 
 	BOOL	shouldPostQuit() { return mPostQuit; }
-
+    
+    //Satisfy MAINT-3135 and MAINT-3288 with a flag.
+    /*virtual */ void setOldResize(bool oldresize) {setResizeMode(oldresize, mGLView); }
+ 
 
 protected:
 	//

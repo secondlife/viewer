@@ -227,10 +227,11 @@ LLFolderView::LLFolderView(const Params& p)
 	mStatusTextBox = LLUICtrlFactory::create<LLTextBox> (text_p);
 	mStatusTextBox->setFollowsLeft();
 	mStatusTextBox->setFollowsTop();
-	//addChild(mStatusTextBox);
+	addChild(mStatusTextBox);
 
 
 	// make the popup menu available
+	llassert(LLMenuGL::sMenuContainer != NULL);
 	LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(p.options_menu, LLMenuGL::sMenuContainer, LLMenuHolderGL::child_registry_t::instance());
 	if (!menu)
 	{
@@ -629,6 +630,8 @@ bool LLFolderView::startDrag()
 void LLFolderView::commitRename( const LLSD& data )
 {
 	finishRenamingItem();
+	arrange( NULL, NULL );
+
 }
 
 void LLFolderView::draw()
@@ -701,8 +704,9 @@ void LLFolderView::finishRenamingItem( void )
 
 	closeRenamer();
 
+	// This is moved to an inventory observer in llinventorybridge.cpp, to handle updating after operation completed in AISv3 (SH-4611).
 	// List is re-sorted alphabetically, so scroll to make sure the selected item is visible.
-	scrollToShowSelection();
+	//scrollToShowSelection();
 }
 
 void LLFolderView::closeRenamer( void )
@@ -1606,19 +1610,21 @@ void LLFolderView::update()
         return;
     }
 
-	if (getFolderViewModel()->getFilter().isModified() && getFolderViewModel()->getFilter().isNotDefault())
+	LLFolderViewFilter& filter_object = getFolderViewModel()->getFilter();
+
+	if (filter_object.isModified() && filter_object.isNotDefault())
 	{
 		mNeedsAutoSelect = TRUE;
 	}
     
 	// Filter to determine visibility before arranging
-	filter(getFolderViewModel()->getFilter());
+	filter(filter_object);
     
 	// Clear the modified setting on the filter only if the filter finished after running the filter process
 	// Note: if the filter count has timed out, that means the filter halted before completing the entire set of items
-    if (getFolderViewModel()->getFilter().isModified() && (!getFolderViewModel()->getFilter().isTimedOut()))
+    if (filter_object.isModified() && (!filter_object.isTimedOut()))
 	{
-		getFolderViewModel()->getFilter().clearModified();
+		filter_object.clearModified();
 	}
 
 	// automatically show matching items, and select first one if we had a selection
@@ -1637,7 +1643,7 @@ void LLFolderView::update()
 
 		// Open filtered folders for folder views with mAutoSelectOverride=TRUE.
 		// Used by LLPlacesFolderView.
-		if (getFolderViewModel()->getFilter().showAllResults())
+		if (filter_object.showAllResults())
 		{
 			// these are named variables to get around gcc not binding non-const references to rvalues
 			// and functor application is inherently non-const to allow for stateful functors

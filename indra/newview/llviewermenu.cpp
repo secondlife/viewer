@@ -7839,6 +7839,7 @@ void handle_buy_currency_test(void*)
 	LLFloaterReg::showInstance("buy_currency_html", LLSD(url));
 }
 
+// SUNSHINE CLEANUP - is only the request update at the end needed now?
 void handle_rebake_textures(void*)
 {
 	if (!isAgentAvatarValid()) return;
@@ -8225,6 +8226,45 @@ class LLWorldEnvSettings : public view_listener_t
 	}
 };
 
+class LLWorldEnableEnvSettings : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		bool result = false;
+		std::string tod = userdata.asString();
+
+		if (tod == "region")
+		{
+			return LLEnvManagerNew::instance().getUseRegionSettings();
+		}
+
+		if (LLEnvManagerNew::instance().getUseFixedSky())
+		{
+			if (tod == "sunrise")
+			{
+				result = (LLEnvManagerNew::instance().getSkyPresetName() == "Sunrise");
+			}
+			else if (tod == "noon")
+			{
+				result = (LLEnvManagerNew::instance().getSkyPresetName() == "Midday");
+			}
+			else if (tod == "sunset")
+			{
+				result = (LLEnvManagerNew::instance().getSkyPresetName() == "Sunset");
+			}
+			else if (tod == "midnight")
+			{
+				result = (LLEnvManagerNew::instance().getSkyPresetName() == "Midnight");
+			}
+			else
+			{
+				llwarns << "Unknown item" << llendl;
+			}
+		}
+		return result;
+	}
+};
+
 class LLWorldEnvPreset : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -8563,6 +8603,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLWorldCheckAlwaysRun(), "World.CheckAlwaysRun");
 	
 	view_listener_t::addMenu(new LLWorldEnvSettings(), "World.EnvSettings");
+	view_listener_t::addMenu(new LLWorldEnableEnvSettings(), "World.EnableEnvSettings");
 	view_listener_t::addMenu(new LLWorldEnvPreset(), "World.EnvPreset");
 	view_listener_t::addMenu(new LLWorldEnableEnvPreset(), "World.EnableEnvPreset");
 	view_listener_t::addMenu(new LLWorldPostProcess(), "World.PostProcess");

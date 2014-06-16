@@ -299,6 +299,12 @@ void LLGestureMgr::activateGestureWithAsset(const LLUUID& item_id,
 }
 
 
+void notify_update_label(const LLUUID& base_item_id)
+{
+	gInventory.addChangedMask(LLInventoryObserver::LABEL, base_item_id);
+	LLGestureMgr::instance().notifyObservers();
+}
+
 void LLGestureMgr::deactivateGesture(const LLUUID& item_id)
 {
 	const LLUUID& base_item_id = get_linked_uuid(item_id);
@@ -322,7 +328,6 @@ void LLGestureMgr::deactivateGesture(const LLUUID& item_id)
 	}
 
 	mActive.erase(it);
-	gInventory.addChangedMask(LLInventoryObserver::LABEL, base_item_id);
 
 	// Inform the database of this change
 	LLMessageSystem* msg = gMessageSystem;
@@ -338,9 +343,11 @@ void LLGestureMgr::deactivateGesture(const LLUUID& item_id)
 
 	gAgent.sendReliableMessage();
 
-	LLAppearanceMgr::instance().removeCOFItemLinks(base_item_id);
+	LLPointer<LLInventoryCallback> cb =
+		new LLBoostFuncInventoryCallback(no_op_inventory_func,
+										 boost::bind(notify_update_label,base_item_id));
 
-	notifyObservers();
+	LLAppearanceMgr::instance().removeCOFItemLinks(base_item_id, cb);
 }
 
 
@@ -1337,6 +1344,7 @@ BOOL LLGestureMgr::matchPrefix(const std::string& in_str, std::string* out_str)
 {
 	S32 in_len = in_str.length();
 
+	//return whole trigger, if received text equals to it
 	item_map_t::iterator it;
 	for (it = mActive.begin(); it != mActive.end(); ++it)
 	{
@@ -1344,7 +1352,24 @@ BOOL LLGestureMgr::matchPrefix(const std::string& in_str, std::string* out_str)
 		if (gesture)
 		{
 			const std::string& trigger = gesture->getTrigger();
-			
+			if (!LLStringUtil::compareInsensitive(in_str, trigger))
+			{
+				*out_str = trigger;
+				return TRUE;
+			}
+		}
+	}
+
+	//return common chars, if more than one trigger matches the prefix
+	std::string rest_of_match = "";
+	std::string buf = "";
+	for (it = mActive.begin(); it != mActive.end(); ++it)
+	{
+		LLMultiGesture* gesture = (*it).second;
+		if (gesture)
+		{
+			const std::string& trigger = gesture->getTrigger();
+
 			if (in_len > (S32)trigger.length())
 			{
 				// too short, bail out
@@ -1355,11 +1380,49 @@ BOOL LLGestureMgr::matchPrefix(const std::string& in_str, std::string* out_str)
 			LLStringUtil::truncate(trigger_trunc, in_len);
 			if (!LLStringUtil::compareInsensitive(in_str, trigger_trunc))
 			{
-				*out_str = trigger;
-				return TRUE;
+				if (rest_of_match.compare("") == 0)
+				{
+					rest_of_match = trigger.substr(in_str.size());
+				}
+				std::string cur_rest_of_match = trigger.substr(in_str.size());
+				buf = "";
+				S32 i=0;
+
+				while (i<rest_of_match.length() && i<cur_rest_of_match.length())
+				{
+					if (rest_of_match[i]==cur_rest_of_match[i])
+				    {
+						buf.push_back(rest_of_match[i]);
+				    }
+				    else
+				    {
+				    	if(i==0)
+				    	{
+				    		rest_of_match = "";
+				    	}
+				    	break;
+				    }
+					i++;
+				}
+				if (rest_of_match.compare("") == 0)
+				{
+					return FALSE;
+				}
+				if (buf.compare("") != 0)
+				{
+					rest_of_match = buf;
+				}
+
 			}
 		}
 	}
+
+	if (rest_of_match.compare("") != 0)
+	{
+		*out_str = in_str+rest_of_match;
+		return TRUE;
+	}
+
 	return FALSE;
 }
 

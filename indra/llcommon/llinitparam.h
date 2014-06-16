@@ -31,6 +31,7 @@
 #include <vector>
 #include <list>
 #include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
 #include <boost/type_traits/is_convertible.hpp>
 #include <boost/type_traits/is_enum.hpp>
 #include <boost/unordered_map.hpp>
@@ -502,10 +503,10 @@ namespace LLInitParam
 			{
 				return found_it->second(*this, (void*)&param);
 			}
-			
+
 			return false;
 		}
-			
+
 		template <typename T> bool readValue(T& param, typename boost::enable_if<boost::is_enum<T> >::type* dummy = 0)
 		{
 			parser_read_func_map_t::iterator found_it = mParserReadFuncs->find(&typeid(T));
@@ -522,20 +523,20 @@ namespace LLInitParam
 					bool parsed = found_it->second(*this, (void*)&int_value);
 					param = (T)int_value;
 					return parsed;
-					}
 				}
-				return false;
 			}
+			return false;
+		}
 
 		template <typename T> bool writeValue(const T& param, name_stack_t& name_stack)
-			{
+		{
 			parser_write_func_map_t::iterator found_it = mParserWriteFuncs->find(&typeid(T));
 			if (found_it != mParserWriteFuncs->end())
-				{
+			{
 				return found_it->second(*this, (const void*)&param, name_stack);
-				}
-				return false;
 			}
+			return false;
+		}
 
 		// dispatch inspection to registered inspection functions, for each parameter in a param block
 		template <typename T> bool inspectValue(name_stack_t& name_stack, S32 min_count, S32 max_count, const possible_values_t* possible_values)
@@ -629,7 +630,7 @@ namespace LLInitParam
 		UserData*			mUserData;
 	};
 
-	typedef ParamDescriptor* ParamDescriptorPtr;
+	typedef boost::shared_ptr<ParamDescriptor> ParamDescriptorPtr;
 
 	// each derived Block class keeps a static data structure maintaining offsets to various params
 	class LL_COMMON_API BlockDescriptor

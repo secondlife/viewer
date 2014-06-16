@@ -129,11 +129,11 @@ void LLInboxFolderViewFolder::addItem(LLFolderViewItem* item)
 // virtual
 void LLInboxFolderViewFolder::draw()
 {
-	if (!badgeHasParent())
+	if (!hasBadgeHolderParent())
 	{
-		addBadgeToParentPanel();
+		addBadgeToParentHolder();
 	}
-	
+
 	setBadgeVisibility(mFresh);
 
 	LLFolderViewFolder::draw();
@@ -214,9 +214,9 @@ BOOL LLInboxFolderViewItem::handleDoubleClick(S32 x, S32 y, MASK mask)
 // virtual
 void LLInboxFolderViewItem::draw()
 {
-	if (!badgeHasParent())
+	if (!hasBadgeHolderParent())
 	{
-		addBadgeToParentPanel();
+		addBadgeToParentHolder();
 	}
 
 	setBadgeVisibility(mFresh);

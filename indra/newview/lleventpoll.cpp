@@ -31,7 +31,7 @@
 #include "llagent.h"
 
 #include "llhttpclient.h"
-#include "llhttpstatuscodes.h"
+#include "llhttpconstants.h"
 #include "llsdserialize.h"
 #include "lleventtimer.h"
 #include "llviewerregion.h"
@@ -49,6 +49,7 @@ namespace
 
 	class LLEventPollResponder : public LLHTTPClient::Responder
 	{
+		LOG_CLASS(LLEventPollResponder);
 	public:
 		
 		static LLHTTPClient::ResponderPtr start(const std::string& pollURL, const LLHost& sender);
@@ -56,19 +57,19 @@ namespace
 		
 		void makeRequest();
 
+		/* virtual */ void completedRaw(const LLChannelDescriptors& channels,
+								  const LLIOPipe::buffer_ptr_t& buffer);
+
 	private:
 		LLEventPollResponder(const std::string&	pollURL, const LLHost& sender);
 		~LLEventPollResponder();
 
 		
 		void handleMessage(const LLSD& content);
-		virtual	void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
-		virtual	void result(const LLSD&	content);
 
-		virtual void completedRaw(U32 status,
-									const std::string& reason,
-									const LLChannelDescriptors& channels,
-									const LLIOPipe::buffer_ptr_t& buffer);
+		/* virtual */ void httpFailure();
+		/* virtual */ void httpSuccess();
+
 	private:
 
 		bool	mDone;
@@ -149,20 +150,18 @@ namespace
 	}
 
 	// virtual 
-	void LLEventPollResponder::completedRaw(U32 status,
-									const std::string& reason,
-									const LLChannelDescriptors& channels,
-									const LLIOPipe::buffer_ptr_t& buffer)
+	void LLEventPollResponder::completedRaw(const LLChannelDescriptors& channels,
+											const LLIOPipe::buffer_ptr_t& buffer)
 	{
-		if (status == HTTP_BAD_GATEWAY)
+		if (getStatus() == HTTP_BAD_GATEWAY)
 		{
 			// These errors are not parsable as LLSD, 
 			// which LLHTTPClient::Responder::completedRaw will try to do.
-			completed(status, reason, LLSD());
+			httpCompleted();
 		}
 		else
 		{
-			LLHTTPClient::Responder::completedRaw(status,reason,channels,buffer);
+			LLHTTPClient::Responder::completedRaw(channels,buffer);
 		}
 	}
 
@@ -187,13 +186,13 @@ namespace
 	}
 
 	//virtual
-	void LLEventPollResponder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+	void LLEventPollResponder::httpFailure()
 	{
 		if (mDone) return;
 
 		// A HTTP_BAD_GATEWAY (502) error is our standard timeout response
 		// we get this when there are no events.
-		if ( status == HTTP_BAD_GATEWAY )	
+		if ( getStatus() == HTTP_BAD_GATEWAY )
 		{
 			mErrorCount = 0;
 			makeRequest();
@@ -207,13 +206,13 @@ namespace
 										+ mErrorCount * EVENT_POLL_ERROR_RETRY_SECONDS_INC
 									, this);
 
-			LL_WARNS() << "LLEventPollResponder error [status:" << status << "]: " << content << LL_ENDL;
+			LL_WARNS() << dumpResponse() << LL_ENDL;
 		}
 		else
 		{
-			LL_WARNS() << "LLEventPollResponder error <" << mCount 
-					<< "> [status:" << status << "]: " << content
-					<<	(mDone ? " -- done"	: "") << LL_ENDL;
+			LL_WARNS() << dumpResponse()
+					   << " [count:" << mCount << "] "
+					   << (mDone ? " -- done" : "") << LL_ENDL;
 			stop();
 
 			// At this point we have given up and the viewer will not receive HTTP messages from the simulator.
@@ -234,7 +233,7 @@ namespace
 	}
 
 	//virtual
-	void LLEventPollResponder::result(const LLSD& content)
+	void LLEventPollResponder::httpSuccess()
 	{
 		LL_DEBUGS() <<	"LLEventPollResponder::result <" << mCount	<< ">"
 				 <<	(mDone ? " -- done"	: "") << LL_ENDL;
@@ -243,10 +242,12 @@ namespace
 
 		mErrorCount = 0;
 
-		if (!content.get("events") ||
+		const LLSD& content = getContent();
+		if (!content.isMap() ||
+			!content.get("events") ||
 			!content.get("id"))
 		{
-			LL_WARNS() << "received event poll with no events or id key" << LL_ENDL;
+			LL_WARNS() << "received event poll with no events or id key: " << dumpResponse() << LL_ENDL;
 			makeRequest();
 			return;
 		}
@@ -260,8 +261,8 @@ namespace
 		}
 		
 		// was LL_INFOS() but now that CoarseRegionUpdate is TCP @ 1/second, it'd be too verbose for viewer logs. -MG
-		LL_DEBUGS()  << "LLEventPollResponder::completed <" <<	mCount << "> " << events.size() << "events (id "
-				 <<	LLSDXMLStreamer(mAcknowledge) << ")" << LL_ENDL;
+		LL_DEBUGS()  << "LLEventPollResponder::httpSuccess <" <<	mCount << "> " << events.size() << "events (id "
+					 <<	LLSDXMLStreamer(mAcknowledge) << ")" << LL_ENDL;
 		
 		LLSD::array_const_iterator i = events.beginArray();
 		LLSD::array_const_iterator end = events.endArray();

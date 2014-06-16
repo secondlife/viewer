@@ -415,6 +415,7 @@ public:
 
 	void setDrawableState(U32 state, BOOL recursive = TRUE);
 	void clearDrawableState(U32 state, BOOL recursive = TRUE);
+	BOOL isDrawableState(U32 state, BOOL recursive = TRUE) const;
 
 	// Called when the drawable shifts
 	virtual void onShift(const LLVector4a &shift_vector)	{ }

@@ -2019,6 +2019,9 @@ bool LLAppViewer::cleanup()
 	// Non-LLCurl libcurl library
 	mAppCoreHttp.cleanup();
 
+	// NOTE The following call is not thread safe. 
+	ll_cleanup_ares();
+
 	LLFilePickerThread::cleanupClass();
 
 	//MUST happen AFTER LLCurl::cleanupClass
@@ -2113,6 +2116,8 @@ bool LLAppViewer::cleanup()
 	LLPrivateMemoryPoolManager::destroyClass() ;
 
 	ll_close_fail_log();
+
+	LLError::LLCallStacks::cleanup();
 
 	removeMarkerFiles();
 	
@@ -3181,6 +3186,13 @@ bool LLAppViewer::initWindow()
 
 	LLNotificationsUI::LLNotificationManager::getInstance();
 		
+    
+#ifdef LL_DARWIN
+    //Satisfy both MAINT-3135 (OSX 10.6 and earlier) MAINT-3288 (OSX 10.7 and later)
+   if (getOSInfo().mMajorVer == 10 && getOSInfo().mMinorVer < 7)
+       gViewerWindow->getWindow()->setOldResize(true);
+#endif
+    
 	if (gSavedSettings.getBOOL("WindowMaximized"))
 	{
 		gViewerWindow->getWindow()->maximize();

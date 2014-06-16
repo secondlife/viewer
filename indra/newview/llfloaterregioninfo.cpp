@@ -366,6 +366,7 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 
 	panel->getChild<LLUICtrl>("block_terraform_check")->setValue((region_flags & REGION_FLAGS_BLOCK_TERRAFORM) ? TRUE : FALSE );
 	panel->getChild<LLUICtrl>("block_fly_check")->setValue((region_flags & REGION_FLAGS_BLOCK_FLY) ? TRUE : FALSE );
+	panel->getChild<LLUICtrl>("block_fly_over_check")->setValue((region_flags & REGION_FLAGS_BLOCK_FLYOVER) ? TRUE : FALSE );
 	panel->getChild<LLUICtrl>("allow_damage_check")->setValue((region_flags & REGION_FLAGS_ALLOW_DAMAGE) ? TRUE : FALSE );
 	panel->getChild<LLUICtrl>("restrict_pushobject")->setValue((region_flags & REGION_FLAGS_RESTRICT_PUSHOBJECT) ? TRUE : FALSE );
 	panel->getChild<LLUICtrl>("allow_land_resell_check")->setValue((region_flags & REGION_FLAGS_BLOCK_LAND_RESELL) ? FALSE : TRUE );
@@ -635,6 +636,7 @@ BOOL LLPanelRegionGeneralInfo::postBuild()
 	// Enable the "Apply" button if something is changed. JC
 	initCtrl("block_terraform_check");
 	initCtrl("block_fly_check");
+	initCtrl("block_fly_over_check");
 	initCtrl("allow_damage_check");
 	initCtrl("allow_land_resell_check");
 	initCtrl("allow_parcel_changes_check");
@@ -757,12 +759,12 @@ bool LLPanelRegionGeneralInfo::onMessageCommit(const LLSD& notification, const L
 
 class ConsoleRequestResponder : public LLHTTPClient::Responder
 {
-public:
+	LOG_CLASS(ConsoleRequestResponder);
+protected:
 	/*virtual*/
-	void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+	void httpFailure()
 	{
-		LL_WARNS() << "ConsoleRequestResponder error requesting mesh_rez_enabled [status:"
-				<< status << "]: " << content << LL_ENDL;
+		LL_WARNS() << "error requesting mesh_rez_enabled " << dumpResponse() << LL_ENDL;
 	}
 };
 
@@ -770,12 +772,12 @@ public:
 // called if this request times out.
 class ConsoleUpdateResponder : public LLHTTPClient::Responder
 {
-public:
+	LOG_CLASS(ConsoleUpdateResponder);
+protected:
 	/* virtual */
-	void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+	void httpFailure()
 	{
-		LL_WARNS() << "ConsoleRequestResponder error updating mesh enabled region setting [status:"
-				<< status << "]: " << content << LL_ENDL;
+		LL_WARNS() << "error updating mesh enabled region setting " << dumpResponse() << LL_ENDL;
 	}
 };
 
@@ -816,6 +818,7 @@ BOOL LLPanelRegionGeneralInfo::sendUpdate()
 	{
 		body["block_terraform"] = getChild<LLUICtrl>("block_terraform_check")->getValue();
 		body["block_fly"] = getChild<LLUICtrl>("block_fly_check")->getValue();
+		body["block_fly_over"] = getChild<LLUICtrl>("block_fly_over_check")->getValue();
 		body["allow_damage"] = getChild<LLUICtrl>("allow_damage_check")->getValue();
 		body["allow_land_resell"] = getChild<LLUICtrl>("allow_land_resell_check")->getValue();
 		body["agent_limit"] = getChild<LLUICtrl>("agent_limit_spin")->getValue();
@@ -891,6 +894,7 @@ BOOL LLPanelRegionDebugInfo::postBuild()
 	childSetAction("top_scripts_btn", onClickTopScripts, this);
 	childSetAction("restart_btn", onClickRestart, this);
 	childSetAction("cancel_restart_btn", onClickCancelRestart, this);
+	childSetAction("region_debug_console_btn", onClickDebugConsole, this);
 
 	return TRUE;
 }
@@ -912,6 +916,7 @@ bool LLPanelRegionDebugInfo::refreshFromRegion(LLViewerRegion* region)
 	getChildView("top_scripts_btn")->setEnabled(allow_modify);
 	getChildView("restart_btn")->setEnabled(allow_modify);
 	getChildView("cancel_restart_btn")->setEnabled(allow_modify);
+	getChildView("region_debug_console_btn")->setEnabled(allow_modify);
 
 	return LLPanelRegionInfo::refreshFromRegion(region);
 }
@@ -1074,6 +1079,11 @@ void LLPanelRegionDebugInfo::onClickCancelRestart(void* data)
 	self->sendEstateOwnerMessage(gMessageSystem, "restart", invoice, strings);
 }
 
+// static
+void LLPanelRegionDebugInfo::onClickDebugConsole(void* data)
+{
+	LLFloaterReg::showInstance("region_debug_console");
+}
 
 BOOL LLPanelRegionTerrainInfo::validateTextureSizes()
 {
@@ -2234,14 +2244,16 @@ void LLPanelEstateInfo::getEstateOwner()
 
 class LLEstateChangeInfoResponder : public LLHTTPClient::Responder
 {
+	LOG_CLASS(LLEstateChangeInfoResponder);
 public:
 	LLEstateChangeInfoResponder(LLPanelEstateInfo* panel)
 	{
 		mpPanel = panel->getHandle();
 	}
 	
+protected:
 	// if we get a normal response, handle it here
-	virtual void result(const LLSD& content)
+	virtual void httpSuccess()
 	{
 		LL_INFOS("Windlight") << "Successfully committed estate info" << LL_ENDL;
 
@@ -2252,10 +2264,9 @@ public:
 	}
 	
 	// if we get an error response
-	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+	virtual void httpFailure()
 	{
-		LL_INFOS() << "LLEstateChangeInfoResponder::error [status:"
-			<< status << "]: " << content << LL_ENDL;
+		LL_WARNS("Windlight") << dumpResponse() << LL_ENDL;
 	}
 private:
 	LLHandle<LLPanel> mpPanel;

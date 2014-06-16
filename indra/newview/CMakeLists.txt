@@ -99,6 +99,7 @@ include_directories(SYSTEM
 set(viewer_SOURCE_FILES
     groupchatlistener.cpp
     llaccountingcostmanager.cpp
+    llaisapi.cpp
     llagent.cpp
     llagentaccess.cpp
     llagentcamera.cpp
@@ -109,7 +110,6 @@ set(viewer_SOURCE_FILES
     llagentpilot.cpp
     llagentui.cpp
     llagentwearables.cpp
-    llagentwearablesfetch.cpp
     llanimstatelabels.cpp
     llappcorehttp.cpp
     llappearancemgr.cpp
@@ -314,6 +314,7 @@ set(viewer_SOURCE_FILES
     llhasheduniqueid.cpp
     llhints.cpp
     llhomelocationresponder.cpp
+    llhttpretrypolicy.cpp
     llhudeffect.cpp
     llhudeffectbeam.cpp
     llhudeffectlookat.cpp
@@ -665,7 +666,6 @@ set(viewer_SOURCE_FILES
     llwearablelist.cpp
     llweb.cpp
     llwebprofile.cpp
-    llwebsharing.cpp
     llwind.cpp
     llwindowlistener.cpp
     llwlanimator.cpp
@@ -693,6 +693,7 @@ set(viewer_HEADER_FILES
     groupchatlistener.h
     llaccountingcost.h
     llaccountingcostmanager.h
+    llaisapi.h
     llagent.h
     llagentaccess.h
     llagentcamera.h
@@ -703,7 +704,6 @@ set(viewer_HEADER_FILES
     llagentpilot.h
     llagentui.h
     llagentwearables.h
-    llagentwearablesfetch.h
     llanimstatelabels.h
     llappcorehttp.h
     llappearance.h
@@ -910,6 +910,7 @@ set(viewer_HEADER_FILES
     llgroupmgr.h
     llhasheduniqueid.h
     llhints.h
+    llhttpretrypolicy.h
     llhomelocationresponder.h
     llhudeffect.h
     llhudeffectbeam.h
@@ -1251,7 +1252,6 @@ set(viewer_HEADER_FILES
     llwearablelist.h
     llweb.h
     llwebprofile.h
-    llwebsharing.h
     llwind.h
     llwindowlistener.h
     llwlanimator.h
@@ -2175,10 +2175,21 @@ if (LL_TESTS)
     #llviewertexturelist.cpp
   )
 
+  set(test_libs
+    ${JSONCPP_LIBRARIES}
+    ${CURL_LIBRARIES}
+    )
+
   set_source_files_properties(
     lltranslate.cpp
     PROPERTIES
-    LL_TEST_ADDITIONAL_LIBRARIES "${JSONCPP_LIBRARIES}"
+    LL_TEST_ADDITIONAL_LIBRARIES "${test_libs}"
+  )
+
+  set_source_files_properties(
+    llmediadataclient.cpp
+    PROPERTIES
+    LL_TEST_ADDITIONAL_LIBRARIES "${CURL_LIBRARIES}"
   )
 
   set_source_files_properties(
@@ -2259,6 +2270,7 @@ if (LL_TESTS)
 
   set(test_libs
     ${LLMESSAGE_LIBRARIES}
+    ${LLCOREHTTP_LIBRARIES}
     ${WINDOWS_LIBRARIES}
     ${LLVFS_LIBRARIES}
     ${LLMATH_LIBRARIES}
@@ -2298,6 +2310,8 @@ if (LL_TESTS)
     llviewerassetstats.cpp
     "${test_libs}"
     )
+
+  LL_ADD_INTEGRATION_TEST(llhttpretrypolicy "llhttpretrypolicy.cpp" "${test_libs}")
 
   #ADD_VIEWER_BUILD_TEST(llmemoryview viewer)
   #ADD_VIEWER_BUILD_TEST(llagentaccess viewer)

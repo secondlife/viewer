@@ -161,12 +161,13 @@ public:
 	// Gender
 	//--------------------------------------------------------------------
 public:
-	// On the very first login, gender isn't chosen until the user clicks
-	// in a dialog.  We don't render the avatar until they choose.
-	BOOL 			isGenderChosen() const 	{ return mGenderChosen; }
-	void			setGenderChosen(BOOL b)	{ mGenderChosen = b; }
+	// On the very first login, outfit needs to be chosen by some
+	// mechanism, usually by loading the requested initial outfit.  We
+	// don't render the avatar until the choice is made.
+	BOOL 			isOutfitChosen() const 	{ return mOutfitChosen; }
+	void			setOutfitChosen(BOOL b)	{ mOutfitChosen = b; }
 private:
-	BOOL			mGenderChosen;
+	BOOL			mOutfitChosen;
 
 /**                    Identity
  **                                                                            **
@@ -652,7 +653,6 @@ private:
 
 	void            handleTeleportFinished();
 	void            handleTeleportFailed();
-	void			handleServerBakeRegionTransition(const LLUUID& region_id);
 
 	//--------------------------------------------------------------------
 	// Teleport State
@@ -888,8 +888,6 @@ private:
 public:
 	void			sendMessage(); // Send message to this agent's region
 	void			sendReliableMessage();
-	void 			dumpSentAppearance(const std::string& dump_prefix);
-	void			sendAgentSetAppearance();
 	void 			sendAgentDataUpdateRequest();
 	void 			sendAgentUserInfoRequest();
 	// IM to Email and Online visibility
@@ -903,7 +901,6 @@ public:
 	static void		processAgentGroupDataUpdate(LLMessageSystem *msg, void **);
 	static void		processAgentDropGroup(LLMessageSystem *msg, void **);
 	static void		processScriptControlChange(LLMessageSystem *msg, void **);
-	static void		processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void **user_data);
 	
 /**                    Messaging
  **                                                                            **
@@ -931,25 +928,5 @@ inline bool operator==(const LLGroupData &a, const LLGroupData &b)
 {
 	return (a.mID == b.mID);
 }
-
-class LLAgentQueryManager
-{
-	friend class LLAgent;
-	friend class LLAgentWearables;
-	
-public:
-	LLAgentQueryManager();
-	virtual ~LLAgentQueryManager();
-	
-	BOOL 			hasNoPendingQueries() const 	{ return getNumPendingQueries() == 0; }
-	S32 			getNumPendingQueries() const 	{ return mNumPendingQueries; }
-private:
-	S32				mNumPendingQueries;
-	S32				mWearablesCacheQueryID;
-	U32				mUpdateSerialNum;
-	S32		    	mActiveCacheQueries[LLAvatarAppearanceDefines::BAKED_NUM_INDICES];
-};
-
-extern LLAgentQueryManager gAgentQueryManager;
 
 #endif

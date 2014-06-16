@@ -1267,7 +1267,8 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="InventoryInboxNoItems">
 		Pazaryerinda satın aldıklarınız burada görünecektir. Bunları kullanmak için envanterinize sürükleyebilirsiniz.
 	</string>
-	<string name="MarketplaceURL">
+  <string name="Unconstrained">Kısıtsız</string>
+  <string name="MarketplaceURL">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
 	</string>
 	<string name="MarketplaceURL_CreateStore">

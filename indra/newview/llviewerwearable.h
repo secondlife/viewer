@@ -62,13 +62,15 @@ public:
 	BOOL				isOldVersion() const;
 
 	/*virtual*/ void	writeToAvatar(LLAvatarAppearance *avatarp);
-	void				removeFromAvatar( BOOL upload_bake )	{ LLViewerWearable::removeFromAvatar( mType, upload_bake ); }
-	static void			removeFromAvatar( LLWearableType::EType type, BOOL upload_bake ); 
+	void				removeFromAvatar()	{ LLViewerWearable::removeFromAvatar( mType); }
+	static void			removeFromAvatar( LLWearableType::EType type); 
 
 	/*virtual*/ EImportResult	importStream( std::istream& input_stream, LLAvatarAppearance* avatarp );
 	
 	void				setParamsToDefaults();
 	void				setTexturesToDefaults();
+	void				setVolatile(BOOL is_volatile) { mVolatile = is_volatile; } // TRUE when doing preview renders, some updates will be suppressed.
+	BOOL				getVolatile() { return mVolatile; }
 
 	/*virtual*/ LLUUID	getDefaultTextureImageID(LLAvatarAppearanceDefines::ETextureIndex index) const;
 
@@ -89,13 +91,13 @@ public:
 	// the wearable was worn. make sure the name of the wearable object matches the LLViewerInventoryItem,
 	// not the wearable asset itself.
 	void				refreshName();
-
-	// Update the baked texture hash.
-	/*virtual*/void		addToBakedTextureHash(LLMD5& hash) const;
+	/*virtual*/void		addToBakedTextureHash(LLMD5& hash) const {}
 
 protected:
 	LLAssetID			mAssetID;
 	LLTransactionID		mTransactionID;
+
+	BOOL 				mVolatile; // True when rendering preview images. Can suppress some updates.
 
 	LLUUID				mItemID;  // ID of the inventory item in the agent's inventory	
 };
