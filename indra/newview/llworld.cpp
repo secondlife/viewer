@@ -1149,6 +1149,8 @@ public:
 					<< sim << LL_ENDL;
 			return;
 		}
+		LL_DEBUGS("CrossingCaps") << "Calling setSeedCapability from LLEstablishAgentCommunication::post. Seed cap == "
+				<< input["body"]["seed-capability"] << LL_ENDL;
 		regionp->setSeedCapability(input["body"]["seed-capability"]);
 	}
 };

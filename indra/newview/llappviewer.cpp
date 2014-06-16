@@ -2019,6 +2019,9 @@ bool LLAppViewer::cleanup()
 	// Non-LLCurl libcurl library
 	mAppCoreHttp.cleanup();
 
+	// NOTE The following call is not thread safe. 
+	ll_cleanup_ares();
+
 	LLFilePickerThread::cleanupClass();
 
 	//MUST happen AFTER LLCurl::cleanupClass
@@ -2113,6 +2116,8 @@ bool LLAppViewer::cleanup()
 	LLPrivateMemoryPoolManager::destroyClass() ;
 
 	ll_close_fail_log();
+
+	LLError::LLCallStacks::cleanup();
 
 	removeMarkerFiles();
 	

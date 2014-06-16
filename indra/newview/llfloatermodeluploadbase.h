@@ -37,13 +37,13 @@ public:
 
 	virtual ~LLFloaterModelUploadBase(){};
 
-	virtual void setPermissonsErrorStatus(U32 status, const std::string& reason) = 0;
+	virtual void setPermissonsErrorStatus(S32 status, const std::string& reason) = 0;
 
 	virtual void onPermissionsReceived(const LLSD& result) = 0;
 
 	virtual void onModelPhysicsFeeReceived(const LLSD& result, std::string upload_url) = 0;
 
-	virtual void setModelPhysicsFeeErrorStatus(U32 status, const std::string& reason) = 0;
+	virtual void setModelPhysicsFeeErrorStatus(S32 status, const std::string& reason) = 0;
 
 	virtual void onModelUploadSuccess() {};
 

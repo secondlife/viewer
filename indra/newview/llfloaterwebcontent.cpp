@@ -29,6 +29,7 @@
 #include "llcombobox.h"
 #include "lliconctrl.h"
 #include "llfloaterreg.h"
+#include "llhttpconstants.h"
 #include "llfacebookconnect.h"
 #include "lllayoutstack.h"
 #include "llpluginclassmedia.h"
@@ -240,9 +241,9 @@ void LLFloaterWebContent::open_media(const Params& p)
 {
 	// Specifying a mime type of text/html here causes the plugin system to skip the MIME type probe and just open a browser plugin.
 	LLViewerMedia::proxyWindowOpened(p.target(), p.id());
-	mWebBrowser->setHomePageUrl(p.url, "text/html");
+	mWebBrowser->setHomePageUrl(p.url, HTTP_CONTENT_TEXT_HTML);
 	mWebBrowser->setTarget(p.target);
-	mWebBrowser->navigateTo(p.url, "text/html");
+	mWebBrowser->navigateTo(p.url, HTTP_CONTENT_TEXT_HTML);
 	
 	set_current_url(p.url);
 
@@ -489,7 +490,7 @@ void LLFloaterWebContent::onEnterAddress()
     LLStringUtil::trim(url);
 	if ( url.length() > 0 )
 	{
-		mWebBrowser->navigateTo( url, "text/html");
+		mWebBrowser->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
 	};
 }
 

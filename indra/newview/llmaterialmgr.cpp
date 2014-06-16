@@ -71,8 +71,8 @@ public:
 	LLMaterialsResponder(const std::string& pMethod, const std::string& pCapabilityURL, CallbackFunction pCallback);
 	virtual ~LLMaterialsResponder();
 
-	virtual void result(const LLSD& pContent);
-	virtual void error(U32 pStatus, const std::string& pReason);
+	virtual void httpSuccess();
+	virtual void httpFailure();
 
 private:
 	std::string      mMethod;
@@ -92,14 +92,19 @@ LLMaterialsResponder::~LLMaterialsResponder()
 {
 }
 
-void LLMaterialsResponder::result(const LLSD& pContent)
+void LLMaterialsResponder::httpSuccess()
 {
+	const LLSD& pContent = getContent();
+
 	LL_DEBUGS("Materials") << LL_ENDL;
 	mCallback(true, pContent);
 }
 
-void LLMaterialsResponder::error(U32 pStatus, const std::string& pReason)
+void LLMaterialsResponder::httpFailure()
 {
+	U32 pStatus = (U32) getStatus();
+	const std::string& pReason = getReason();
+	
 	LL_WARNS("Materials")
 		<< "\n--------------------------------------------------------------------------\n"
 		<< mMethod << " Error[" << pStatus << "] cannot access cap '" << MATERIALS_CAPABILITY_NAME

@@ -35,18 +35,24 @@
 
 class LLProductInfoRequestResponder : public LLHTTPClient::Responder
 {
-public:
+	LOG_CLASS(LLProductInfoRequestResponder);
+private:
 	//If we get back a normal response, handle it here
-	virtual void result(const LLSD& content)
+	/* virtual */ void httpSuccess()
 	{
-		LLProductInfoRequestManager::instance().setSkuDescriptions(content);
+		const LLSD& content = getContent();
+		if (!content.isArray())
+		{
+			failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
+			return;
+		}
+		LLProductInfoRequestManager::instance().setSkuDescriptions(getContent());
 	}
 
 	//If we get back an error (not found, etc...), handle it here
-	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+	/* virtual */ void httpFailure()
 	{
-		LL_WARNS() << "LLProductInfoRequest error [status:"
-				<< status << ":] " << content << LL_ENDL;
+		LL_WARNS() << dumpResponse() << LL_ENDL;
 	}
 };
 

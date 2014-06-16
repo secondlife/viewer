@@ -33,71 +33,76 @@
 #include "llagent.h"
 #include "llviewerregion.h"
 
-void LLHomeLocationResponder::result( const LLSD& content )
+void LLHomeLocationResponder::httpSuccess()
 {
+  const LLSD& content = getContent();
   LLVector3 agent_pos;
   bool      error = true;
-		
+
   do {
-	
+
     // was the call to /agent/<agent-id>/home-location successful?
     // If not, we keep error set to true
     if( ! content.has("success") )
     {
       break;
     }
-		
+
     if( 0 != strncmp("true", content["success"].asString().c_str(), 4 ) )
     {
       break;
     }
-		
+
     // did the simulator return a "justified" home location?
     // If no, we keep error set to true
     if( ! content.has( "HomeLocation" ) )
     {
       break;
     }
-		
+
     if( ! content["HomeLocation"].has("LocationPos") )
     {
       break;
     }
-		
+
     if( ! content["HomeLocation"]["LocationPos"].has("X") )
     {
       break;
     }
 
     agent_pos.mV[VX] = content["HomeLocation"]["LocationPos"]["X"].asInteger();
-		
+
     if( ! content["HomeLocation"]["LocationPos"].has("Y") )
     {
       break;
     }
 
     agent_pos.mV[VY] = content["HomeLocation"]["LocationPos"]["Y"].asInteger();
-		
+
     if( ! content["HomeLocation"]["LocationPos"].has("Z") )
     {
       break;
     }
 
     agent_pos.mV[VZ] = content["HomeLocation"]["LocationPos"]["Z"].asInteger();
-		
+
     error = false;
   } while( 0 );
-	
-  if( ! error )
+
+  if( error )
+  {
+    failureResult(HTTP_INTERNAL_ERROR, "Invalid server response content", content);
+  }
+  else
   {
     LL_INFOS() << "setting home position" << LL_ENDL;
-		
+
     LLViewerRegion *viewer_region = gAgent.getRegion();
     gAgent.setHomePosRegion( viewer_region->getHandle(), agent_pos );
   }
 }
 
-void LLHomeLocationResponder::errorWithContent( U32 status, const std::string& reason, const LLSD& content )
+void LLHomeLocationResponder::httpFailure()
 {
-	LL_WARNS() << "LLHomeLocationResponder error [status:" << status << "]: " << content << LL_ENDL;
+  LL_WARNS() << dumpResponse() << LL_ENDL;
 }

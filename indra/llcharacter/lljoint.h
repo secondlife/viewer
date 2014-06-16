@@ -83,6 +83,7 @@ protected:
 	LLXformMatrix		mDefaultXform;
 
 	LLUUID				mId;
+
 public:
 	U32				mDirtyFlags;
 	BOOL			mUpdateXform;
@@ -159,7 +160,7 @@ public:
 	// get/set local scale
 	const LLVector3& getScale();
 	void setScale( const LLVector3& scale );
-
+	void storeScaleForReset( const LLVector3& scale );
 	// get/set world matrix
 	const LLMatrix4 &getWorldMatrix();
 	void setWorldMatrix( const LLMatrix4& mat );
@@ -184,7 +185,6 @@ public:
 	S32 getJointNum() const { return mJointNum; }
 	
 	void restoreOldXform( void );
-	void restoreToDefaultXform( void );
 	void setDefaultFromCurrentXform( void );
 	void storeCurrentXform( const LLVector3& pos );
 
@@ -195,8 +195,8 @@ public:
 
 	//If the old transform flag has been set, then the reset logic in avatar needs to be aware(test) of it
 	const BOOL doesJointNeedToBeReset( void ) const { return mResetAfterRestoreOldXform; }
-	//Setter for joint reset flag
-	void setJointToBeReset( BOOL val ) { mResetAfterRestoreOldXform = val; }
+	void setJointResetFlag( bool val ) { mResetAfterRestoreOldXform = val; }
+	
 };
 #endif // LL_LLJOINT_H
 

@@ -270,8 +270,12 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
     // customize panel's attributes
     // is it intended for displaying a tip?
     mIsTip = mNotification->getType() == "notifytip";
+
+    std::string notif_name = mNotification->getName();
     // is it a script dialog?
-    mIsScriptDialog = (mNotification->getName() == "ScriptDialog" || mNotification->getName() == "ScriptDialogGroup");
+    mIsScriptDialog = (notif_name == "ScriptDialog" || notif_name == "ScriptDialogGroup");
+
+    bool is_content_trusted = (notif_name != "LoadWebPage");
     // is it a caution?
     //
     // caution flag can be set explicitly by specifying it in the notification payload, or it can be set implicitly if the
@@ -314,6 +318,7 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
     mTextBox->setMaxTextLength(MAX_LENGTH);
     mTextBox->setVisible(TRUE);
     mTextBox->setPlainText(!show_images);
+    mTextBox->setContentTrusted(is_content_trusted);
     mTextBox->setValue(mNotification->getMessage());
 	mTextBox->setIsFriendCallback(LLAvatarActions::isFriend);
 

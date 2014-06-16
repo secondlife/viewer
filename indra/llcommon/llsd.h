@@ -249,7 +249,10 @@ public:
 		UUID	asUUID() const;
 		Date	asDate() const;
 		URI		asURI() const;
-		Binary	asBinary() const;
+		const Binary&	asBinary() const;
+
+		// asStringRef on any non-string type will return a ref to an empty string.
+		const String&	asStringRef() const;
 
 		operator Boolean() const	{ return asBoolean(); }
 		operator Integer() const	{ return asInteger(); }

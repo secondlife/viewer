@@ -44,6 +44,7 @@ set(llmessage_SOURCE_FILES
     llhttpassetstorage.cpp
     llhttpclient.cpp
     llhttpclientadapter.cpp
+    llhttpconstants.cpp
     llhttpnode.cpp
     llhttpsender.cpp
     llinstantmessage.cpp
@@ -59,7 +60,6 @@ set(llmessage_SOURCE_FILES
     llmessagetemplate.cpp
     llmessagetemplateparser.cpp
     llmessagethrottle.cpp
-    llmime.cpp
     llnamevalue.cpp
     llnullcipher.cpp
     llpacketack.cpp
@@ -68,7 +68,6 @@ set(llmessage_SOURCE_FILES
     llpartdata.cpp
     llproxy.cpp
     llpumpio.cpp
-    llregionpresenceverifier.cpp
     llsdappservices.cpp
     llsdhttpserver.cpp
     llsdmessage.cpp
@@ -138,6 +137,7 @@ set(llmessage_HEADER_FILES
     llhttpclient.h
     llhttpclientinterface.h
     llhttpclientadapter.h
+    llhttpconstants.h
     llhttpnode.h
     llhttpnodeadapter.h
     llhttpsender.h
@@ -156,7 +156,6 @@ set(llmessage_HEADER_FILES
     llmessagetemplate.h
     llmessagetemplateparser.h
     llmessagethrottle.h
-    llmime.h
     llmsgvariabletype.h
     llnamevalue.h
     llnullcipher.h
@@ -169,7 +168,6 @@ set(llmessage_HEADER_FILES
     llqueryflags.h
     llregionflags.h
     llregionhandle.h
-    llregionpresenceverifier.h
     llsdappservices.h
     llsdhttpserver.h
     llsdmessage.h
@@ -233,17 +231,15 @@ target_link_libraries(
 # tests
 if (LL_TESTS)
   SET(llmessage_TEST_SOURCE_FILES
-    # llhttpclientadapter.cpp
-    llmime.cpp
     llnamevalue.cpp
     lltrustedmessageservice.cpp
     lltemplatemessagedispatcher.cpp
-      llregionpresenceverifier.cpp
     )
   LL_ADD_PROJECT_UNIT_TESTS(llmessage "${llmessage_TEST_SOURCE_FILES}")
 
   #    set(TEST_DEBUG on)
   set(test_libs
+    ${CURL_LIBRARIES}
     ${LLMESSAGE_LIBRARIES}
     ${WINDOWS_LIBRARIES}
     ${LLVFS_LIBRARIES}
@@ -270,6 +266,7 @@ if (LL_TESTS)
 
   LL_ADD_INTEGRATION_TEST(llavatarnamecache "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llhost "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llhttpclientadapter "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llpartdata "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llxfer_file "" "${test_libs}")
 endif (LL_TESTS)

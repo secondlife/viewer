@@ -35,8 +35,10 @@
 /* Typedef, Enum, Class, Struct, etc. */
 class LLHomeLocationResponder : public LLHTTPClient::Responder
 {
-	virtual void result( const LLSD& content );
-	virtual void errorWithContent( U32 status, const std::string& reason, const LLSD& content );
+	LOG_CLASS(LLHomeLocationResponder);
+private:
+	/* virtual */ void httpSuccess();
+	/* virtual */ void httpFailure();
 };
 
 #endif

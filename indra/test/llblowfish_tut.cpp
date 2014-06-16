@@ -65,7 +65,7 @@ namespace tut
 			}
 			if (!fp)
 			{
-				LL_WARNS() << "unabled to open " << filename << LL_ENDL;
+				LL_WARNS() << "unable to open " << filename << LL_ENDL;
 				return false;
 			}
 
