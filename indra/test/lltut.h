@@ -65,6 +65,16 @@ namespace tut
 		ensure_approximately_equals(NULL, actual, expected, frac_bits);
 	}
 
+	inline void ensure_approximately_equals_range(const char *msg, F32 actual, F32 expected, F32 delta)
+	{
+		if (fabs(actual-expected)>delta)
+		{
+			std::stringstream ss;
+			ss << (msg?msg:"") << (msg?": ":"") << "not equal actual: " << actual << " expected: " << expected << " tolerance: " << delta;
+			throw tut::failure(ss.str().c_str());
+		}
+	}
+
 	inline void ensure_memory_matches(const char* msg,const void* actual, U32 actual_len, const void* expected,U32 expected_len)
 	{
 		if((expected_len != actual_len) || 

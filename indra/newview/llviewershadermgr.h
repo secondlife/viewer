@@ -43,6 +43,7 @@ public:
 
 	// singleton pattern implementation
 	static LLViewerShaderMgr * instance();
+	static void releaseInstance();
 
 	void initAttribsAndUniforms(void);
 	void setShaders();

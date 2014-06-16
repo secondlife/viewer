@@ -1815,6 +1815,7 @@ BOOL LLScrollListCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
 			// create the context menu from the XUI file and display it
 			std::string menu_name = is_group ? "menu_url_group.xml" : "menu_url_agent.xml";
 			delete mPopupMenu;
+			llassert(LLMenuGL::sMenuContainer != NULL);
 			mPopupMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
 				menu_name, LLMenuGL::sMenuContainer, LLMenuHolderGL::child_registry_t::instance());
 			if (mPopupMenu)
