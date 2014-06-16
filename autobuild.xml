@@ -764,7 +764,7 @@
               <key>hash</key>
               <string>aff5566e04003de0383941981198e04e</string>
               <key>url</key>
-          <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-breakpad/rev/273073/arch/Darwin/installer/google_breakpad-0.0.0-rev1099-darwin-20130329.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-breakpad/rev/273073/arch/Darwin/installer/google_breakpad-0.0.0-rev1099-darwin-20130329.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -776,7 +776,7 @@
               <key>hash</key>
               <string>52257e5eb166a0b69c9c0c38f6e1920e</string>
               <key>url</key>
-	         <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-breakpad/rev/273079/arch/Linux/installer/google_breakpad-0.0.0-rev1099-linux-20130329.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-breakpad/rev/273079/arch/Linux/installer/google_breakpad-0.0.0-rev1099-linux-20130329.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -834,9 +834,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d2542614df9dd99cbb5ff67e76d4a6c1</string>
+              <string>98994d5b0b4b3d43be22aa6a5c36e6fa</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-mock/rev/274899/arch/CYGWIN/installer/gmock-1.6.0-windows-20130426.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-mock-graham/rev/272961/arch/CYGWIN/installer/gmock-1.6.0-windows-20130327.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1290,9 +1290,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b6d29de20de5c8f31925697b30e8f727</string>
+              <string>54e46715e72b7805d9d3f84d45b6b1b7</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llappearanceutility-source/rev/283723/arch/Linux/installer/llappearanceutility_source-0.1-linux-20131109.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llappearanceutility-source/rev/290120/arch/Linux/installer/llappearanceutility_source-0.1-linux-20140519.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>

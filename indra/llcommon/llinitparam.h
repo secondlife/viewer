@@ -31,6 +31,7 @@
 #include <vector>
 #include <list>
 #include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
 #include <boost/type_traits/is_convertible.hpp>
 #include <boost/type_traits/is_enum.hpp>
 #include <boost/unordered_map.hpp>
@@ -629,7 +630,7 @@ namespace LLInitParam
 		UserData*			mUserData;
 	};
 
-	typedef ParamDescriptor* ParamDescriptorPtr;
+	typedef boost::shared_ptr<ParamDescriptor> ParamDescriptorPtr;
 
 	// each derived Block class keeps a static data structure maintaining offsets to various params
 	class LL_COMMON_API BlockDescriptor

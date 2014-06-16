@@ -27,6 +27,7 @@
  */
 
 #include "linden_common.h"
+#include "llstl.h"
 #include "indra_constants.h"
 
 #include "llplugincookiestore.h"
@@ -654,12 +655,8 @@ void LLPluginCookieStore::setOneCookie(const std::string &s, std::string::size_t
 
 void LLPluginCookieStore::clearCookies()
 {
-	while(!mCookies.empty())
-	{
-		cookie_map_t::iterator iter = mCookies.begin();
-		delete iter->second;
-		mCookies.erase(iter);
-	}
+	std::for_each(mCookies.begin(), mCookies.end(), DeletePairedPointer());
+	mCookies.clear();
 }
 
 void LLPluginCookieStore::removeCookie(const std::string &key)

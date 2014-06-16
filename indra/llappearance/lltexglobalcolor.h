@@ -73,9 +73,11 @@ class LLTexParamGlobalColor : public LLTexLayerParamColor
 {
 public:
 	LLTexParamGlobalColor(LLTexGlobalColor *tex_color);
+	virtual ~LLTexParamGlobalColor();
 	/*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable) const;
 protected:
-	/*virtual*/ void onGlobalColorChanged(bool upload_bake);
+	LLTexParamGlobalColor(const LLTexParamGlobalColor& pOther);
+	/*virtual*/ void onGlobalColorChanged();
 private:
 	LLTexGlobalColor*		mTexGlobalColor;
 };

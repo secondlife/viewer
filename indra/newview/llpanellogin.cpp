@@ -437,6 +437,24 @@ void LLPanelLogin::giveFocus()
 }
 
 // static
+void LLPanelLogin::showLoginWidgets()
+{
+	if (sInstance)
+	{
+		// *NOTE: Mani - This may or may not be obselete code.
+		// It seems to be part of the defunct? reg-in-client project.
+		sInstance->getChildView("login_widgets")->setVisible( true);
+		LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
+		sInstance->reshapeBrowser();
+		// *TODO: Append all the usual login parameters, like first_login=Y etc.
+		std::string splash_screen_url = LLGridManager::getInstance()->getLoginPage();
+		web_browser->navigateTo( splash_screen_url, "text/html" );
+		LLUICtrl* username_combo = sInstance->getChild<LLUICtrl>("username_combo");
+		username_combo->setFocus(TRUE);
+	}
+}
+
+// static
 void LLPanelLogin::show(const LLRect &rect,
 						void (*callback)(S32 option, void* user_data),
 						void* callback_data)
@@ -821,7 +839,7 @@ void LLPanelLogin::loadLoginPage()
 	LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
 	if (web_browser->getCurrentNavUrl() != login_uri.asString())
 	{
-		LL_INFOS() << "login page loading: " << login_uri << LL_ENDL;
+		LL_DEBUGS("AppInit") << "loading:    " << login_uri << LL_ENDL;
 		web_browser->navigateTo( login_uri.asString(), "text/html" );
 	}
 }
