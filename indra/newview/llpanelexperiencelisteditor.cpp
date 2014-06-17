@@ -106,15 +106,13 @@ void LLPanelExperienceListEditor::onAdd()
 {
 	if(!mPicker.isDead())
 	{
-		mPicker.get()->setFrontmost(TRUE);
+		mPicker.markDead();
 	}
-	else
-	{
-		mKey.generateNewID();
 
-		LLFloaterExperiencePicker* picker=LLFloaterExperiencePicker::show(boost::bind(&LLPanelExperienceListEditor::addExperienceIds, this, _1), mKey, FALSE, TRUE, mFilters, mAdd);
-		mPicker = picker->getDerivedHandle<LLFloaterExperiencePicker>();
-	}
+	mKey.generateNewID();
+
+	LLFloaterExperiencePicker* picker=LLFloaterExperiencePicker::show(boost::bind(&LLPanelExperienceListEditor::addExperienceIds, this, _1), mKey, FALSE, TRUE, mFilters, mAdd);
+	mPicker = picker->getDerivedHandle<LLFloaterExperiencePicker>();
 }
 
 
