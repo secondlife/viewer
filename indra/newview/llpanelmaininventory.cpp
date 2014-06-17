@@ -707,10 +707,10 @@ void LLFloaterInventoryFinder::onTimeAgo(LLUICtrl *ctrl, void *user_data)
 		U32 hours = (U32)self->mSpinSinceHours->get();
 		if (hours >= 24)
 		{
-// Try to handle both cases of spinner clicking and text input in a sensible fashion as best as possible.
-// There is no way to tell if someone has clicked the spinner to get to 24 or input 24 manually, so in this
-// case add to days.  Any value > 24 means they have input the hours manually, so do not add to the current
-// day value.
+			// Try to handle both cases of spinner clicking and text input in a sensible fashion as best as possible.
+			// There is no way to tell if someone has clicked the spinner to get to 24 or input 24 manually, so in
+			// this case add to days.  Any value > 24 means they have input the hours manually, so do not add to the
+			// current day value.
 			if (24 == hours)  // Got to 24 via spinner clicking or text input of 24
 			{
 				days = days + hours / 24;
