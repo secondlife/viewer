@@ -43,6 +43,9 @@
 #include "apr_network_io.h"
 #include "llchainio.h"
 
+extern const std::string CONTEXT_REMOTE_HOST;
+extern const std::string CONTEXT_REMOTE_PORT;
+
 class LLHost;
 
 /** 

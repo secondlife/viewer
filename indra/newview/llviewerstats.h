@@ -342,7 +342,7 @@ public:
 
 	// Phase tracking (originally put in for avatar rezzing), tracking
 	// progress of active/completed phases for activities like outfit changing.
-	typedef std::map<std::string,LLFrameTimer>	phase_map_t;
+	typedef std::map<std::string,LLTimer>	phase_map_t;
 	typedef std::map<std::string,StatsAccumulator>	phase_stats_t;
 	class PhaseMap
 	{
@@ -351,11 +351,10 @@ public:
 		static phase_stats_t sStats;
 	public:
 		PhaseMap();
-		LLFrameTimer& 	getPhaseTimer(const std::string& phase_name);
+		LLTimer& 		getPhaseTimer(const std::string& phase_name);
 		bool 			getPhaseValues(const std::string& phase_name, F32& elapsed, bool& completed);
 		void			startPhase(const std::string& phase_name);
 		void			stopPhase(const std::string& phase_name);
-		void			stopAllPhases();
 		void			clearPhases();
 		LLSD			asLLSD();
 		static StatsAccumulator& getPhaseStats(const std::string& phase_name);

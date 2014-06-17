@@ -42,6 +42,11 @@ if (NOT DEFINED VIEWER_SHORT_VERSION) # will be true in indra/, false in indra/n
         message(SEND_ERROR "Cannot get viewer version from '${VIEWER_VERSION_BASE_FILE}'") 
     endif ( EXISTS ${VIEWER_VERSION_BASE_FILE} )
 
+    if ("${VIEWER_VERSION_REVISION}" STREQUAL "")
+      message("Ultimate fallback, revision was blank or not set: will use 0")
+      set(VIEWER_VERSION_REVISION 0)
+    endif ("${VIEWER_VERSION_REVISION}" STREQUAL "")
+
     set(VIEWER_CHANNEL_VERSION_DEFINES
         "LL_VIEWER_CHANNEL=\"${VIEWER_CHANNEL}\""
         "LL_VIEWER_VERSION_MAJOR=${VIEWER_VERSION_MAJOR}"

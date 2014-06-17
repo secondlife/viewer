@@ -182,7 +182,7 @@ char* ll_pretty_print_sd_ptr(const LLSD* sd)
 
 char* ll_pretty_print_sd(const LLSD& sd)
 {
-	const U32 bufferSize = 10 * 1024;
+	const U32 bufferSize = 100 * 1024;
 	static char buffer[bufferSize];
 	std::ostringstream stream;
 	//stream.rdbuf()->pubsetbuf(buffer, bufferSize);

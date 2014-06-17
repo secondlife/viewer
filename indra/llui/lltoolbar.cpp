@@ -148,6 +148,7 @@ void LLToolBar::createContextMenu()
 		enable_reg.add("Toolbars.CheckSetting", boost::bind(&LLToolBar::isSettingChecked, this, _2));
 
 		// Create the context menu
+		llassert(LLMenuGL::sMenuContainer != NULL);
 		LLContextMenu* menu = LLUICtrlFactory::instance().createFromFile<LLContextMenu>("menu_toolbars.xml", LLMenuGL::sMenuContainer, LLMenuHolderGL::child_registry_t::instance());
 
 		if (menu)

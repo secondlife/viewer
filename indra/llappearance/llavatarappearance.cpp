@@ -498,29 +498,9 @@ void LLAvatarAppearance::computeBodySize()
 	mAvatarOffset.mV[VX] = 0.0f;
 	mAvatarOffset.mV[VY] = 0.0f;
 
-	// Certain configurations of avatars can force the overall height (with offset) to go negative.
-	// Enforce a constraint to make sure we don't go below 0.1 meters.
-	// Camera positioning and other things start to break down when your avatar is "walking" while being fully underground
-	if (new_body_size.mV[VZ] + mAvatarOffset.mV[VZ] < 0.1f) 
-	{
-		mAvatarOffset.mV[VZ] = -(new_body_size.mV[VZ] - 0.11f); // avoid floating point rounding making the above check continue to fail.
-
-		llassert(new_body_size.mV[VZ] + mAvatarOffset.mV[VZ] >= 0.1f);
-
-		if (mWearableData && isSelf()) 
-		{
-			LLWearable* shape = mWearableData->getWearable(LLWearableType::WT_SHAPE, 0);
-			if (shape) 
-			{
-				shape->setVisualParamWeight(AVATAR_HOVER, mAvatarOffset.mV[VZ], false);
-			}
-		}
-	}
-
 	if (new_body_size != mBodySize || old_offset != mAvatarOffset.mV[VZ])
 	{
 		mBodySize = new_body_size;
-		bodySizeChanged();
 	}
 }
 
@@ -1390,14 +1370,14 @@ BOOL LLAvatarAppearance::teToColorParams( ETextureIndex te, U32 *param_name )
 	return TRUE;
 }
 
-void LLAvatarAppearance::setClothesColor( ETextureIndex te, const LLColor4& new_color, BOOL upload_bake )
+void LLAvatarAppearance::setClothesColor( ETextureIndex te, const LLColor4& new_color)
 {
 	U32 param_name[3];
 	if( teToColorParams( te, param_name ) )
 	{
-		setVisualParamWeight( param_name[0], new_color.mV[VX], upload_bake );
-		setVisualParamWeight( param_name[1], new_color.mV[VY], upload_bake );
-		setVisualParamWeight( param_name[2], new_color.mV[VZ], upload_bake );
+		setVisualParamWeight( param_name[0], new_color.mV[VX]);
+		setVisualParamWeight( param_name[1], new_color.mV[VY]);
+		setVisualParamWeight( param_name[2], new_color.mV[VZ]);
 	}
 }
 

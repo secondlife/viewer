@@ -669,7 +669,7 @@ LLWindowWin32::~LLWindowWin32()
 	delete [] mSupportedResolutions;
 	mSupportedResolutions = NULL;
 
-	delete mWindowClassName;
+	delete [] mWindowClassName;
 	mWindowClassName = NULL;
 }
 

@@ -227,10 +227,11 @@ LLFolderView::LLFolderView(const Params& p)
 	mStatusTextBox = LLUICtrlFactory::create<LLTextBox> (text_p);
 	mStatusTextBox->setFollowsLeft();
 	mStatusTextBox->setFollowsTop();
-	//addChild(mStatusTextBox);
+	addChild(mStatusTextBox);
 
 
 	// make the popup menu available
+	llassert(LLMenuGL::sMenuContainer != NULL);
 	LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(p.options_menu, LLMenuGL::sMenuContainer, LLMenuHolderGL::child_registry_t::instance());
 	if (!menu)
 	{
@@ -703,8 +704,9 @@ void LLFolderView::finishRenamingItem( void )
 
 	closeRenamer();
 
+	// This is moved to an inventory observer in llinventorybridge.cpp, to handle updating after operation completed in AISv3 (SH-4611).
 	// List is re-sorted alphabetically, so scroll to make sure the selected item is visible.
-	scrollToShowSelection();
+	//scrollToShowSelection();
 }
 
 void LLFolderView::closeRenamer( void )

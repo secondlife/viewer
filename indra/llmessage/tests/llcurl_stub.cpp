@@ -24,42 +24,36 @@
  * $/LicenseInfo$
  */
 
+#ifndef LL_CURL_STUB_CPP
+#define LL_CURL_STUB_CPP
+
+
 #include "linden_common.h"
 #include "llcurl.h"
+#include "llhttpconstants.cpp"
 
 LLCurl::Responder::Responder()
 {
 }
 
-void LLCurl::Responder::completed(U32 status, std::basic_string<char, std::char_traits<char>, std::allocator<char> > const &reason,
-								  LLSD const& mContent)
+void LLCurl::Responder::httpCompleted()
 {
-	if (isGoodStatus(status))
+	if (isGoodStatus())
 	{
-		result(mContent);
+		httpSuccess();
 	}
 	else
 	{
-		errorWithContent(status, reason, mContent);
+		httpFailure();
 	}
 }
 
-void LLCurl::Responder::completedHeader(unsigned,
-										std::basic_string<char, std::char_traits<char>, std::allocator<char> > const&,
-										LLSD const&)
-{
-}
-
-void LLCurl::Responder::completedRaw(unsigned,
-									 std::basic_string<char, std::char_traits<char>, std::allocator<char> > const&,
-									 LLChannelDescriptors const&,
+void LLCurl::Responder::completedRaw(LLChannelDescriptors const&,
 									 boost::shared_ptr<LLBufferArray> const&)
 {
 }
 
-void LLCurl::Responder::errorWithContent(unsigned,
-							  std::basic_string<char, std::char_traits<char>, std::allocator<char> > const&,
-							  LLSD const&)
+void LLCurl::Responder::httpFailure()
 {
 }
 
@@ -67,12 +61,39 @@ LLCurl::Responder::~Responder ()
 {
 }
 
-void LLCurl::Responder::error(unsigned,
-							  std::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+void LLCurl::Responder::httpSuccess()
 {
 }
 
-void LLCurl::Responder::result(LLSD const&)
+std::string LLCurl::Responder::dumpResponse() const
 {
+	return "dumpResponse()";
 }
 
+void LLCurl::Responder::successResult(const LLSD& content)
+{
+	setResult(HTTP_OK, "", content);
+	httpSuccess();
+}
+
+void LLCurl::Responder::failureResult(S32 status, const std::string& reason, const LLSD& content)
+{
+	setResult(status, reason, content);
+	httpFailure();
+}
+
+
+void LLCurl::Responder::completeResult(S32 status, const std::string& reason, const LLSD& content)
+{
+	setResult(status, reason, content);
+	httpCompleted();
+}
+
+void LLCurl::Responder::setResult(S32 status, const std::string& reason, const LLSD& content /* = LLSD() */)
+{
+	mStatus = status;
+	mReason = reason;
+	mContent = content;
+}
+
+#endif

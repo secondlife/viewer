@@ -166,6 +166,132 @@ protected:
 	Type*	mPointer;
 };
 
+template <class Type> class LLConstPointer
+{
+public:
+	LLConstPointer() : 
+		mPointer(NULL)
+	{
+	}
+
+	LLConstPointer(const Type* ptr) : 
+		mPointer(ptr)
+	{
+		ref();
+	}
+
+	LLConstPointer(const LLConstPointer<Type>& ptr) : 
+		mPointer(ptr.mPointer)
+	{
+		ref();
+	}
+
+	// support conversion up the type hierarchy.  See Item 45 in Effective C++, 3rd Ed.
+	template<typename Subclass>
+	LLConstPointer(const LLConstPointer<Subclass>& ptr) : 
+		mPointer(ptr.get())
+	{
+		ref();
+	}
+
+	~LLConstPointer()
+	{
+		unref();
+	}
+
+	const Type*	get() const						{ return mPointer; }
+	const Type*	operator->() const				{ return mPointer; }
+	const Type&	operator*() const				{ return *mPointer; }
+
+	operator BOOL()  const						{ return (mPointer != NULL); }
+	operator bool()  const						{ return (mPointer != NULL); }
+	bool operator!() const						{ return (mPointer == NULL); }
+	bool isNull() const							{ return (mPointer == NULL); }
+	bool notNull() const						{ return (mPointer != NULL); }
+
+	operator const Type*()       const			{ return mPointer; }
+	bool operator !=(const Type* ptr) const     { return (mPointer != ptr); 	}
+	bool operator ==(const Type* ptr) const     { return (mPointer == ptr); 	}
+	bool operator ==(const LLConstPointer<Type>& ptr) const           { return (mPointer == ptr.mPointer); 	}
+	bool operator < (const LLConstPointer<Type>& ptr) const           { return (mPointer < ptr.mPointer); 	}
+	bool operator > (const LLConstPointer<Type>& ptr) const           { return (mPointer > ptr.mPointer); 	}
+
+	LLConstPointer<Type>& operator =(const Type* ptr)                   
+	{
+		if( mPointer != ptr )
+		{
+			unref(); 
+			mPointer = ptr; 
+			ref();
+		}
+
+		return *this; 
+	}
+
+	LLConstPointer<Type>& operator =(const LLConstPointer<Type>& ptr)  
+	{ 
+		if( mPointer != ptr.mPointer )
+		{
+			unref(); 
+			mPointer = ptr.mPointer;
+			ref();
+		}
+		return *this; 
+	}
+
+	// support assignment up the type hierarchy. See Item 45 in Effective C++, 3rd Ed.
+	template<typename Subclass>
+	LLConstPointer<Type>& operator =(const LLConstPointer<Subclass>& ptr)  
+	{ 
+		if( mPointer != ptr.get() )
+		{
+			unref(); 
+			mPointer = ptr.get();
+			ref();
+		}
+		return *this; 
+	}
+	
+	// Just exchange the pointers, which will not change the reference counts.
+	static void swap(LLConstPointer<Type>& a, LLConstPointer<Type>& b)
+	{
+		const Type* temp = a.mPointer;
+		a.mPointer = b.mPointer;
+		b.mPointer = temp;
+	}
+
+protected:
+#ifdef LL_LIBRARY_INCLUDE
+	void ref();                             
+	void unref();
+#else
+	void ref()                             
+	{ 
+		if (mPointer)
+		{
+			mPointer->ref();
+		}
+	}
+
+	void unref()
+	{
+		if (mPointer)
+		{
+			const Type *tempp = mPointer;
+			mPointer = NULL;
+			tempp->unref();
+			if (mPointer != NULL)
+			{
+				LL_WARNS() << "Unreference did assignment to non-NULL because of destructor" << LL_ENDL;
+				unref();
+			}
+		}
+	}
+#endif
+protected:
+	const Type*	mPointer;
+};
+
 template<typename Type>
 class LLCopyOnWritePointer : public LLPointer<Type>
 {

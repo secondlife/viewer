@@ -333,7 +333,7 @@ void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip)
 	   This might help with bug #503 */
 	mCurlRequest->setopt(CURLOPT_DNS_CACHE_TIMEOUT, -1);
 
-    mCurlRequest->slist_append("Content-Type: text/xml");
+    mCurlRequest->slist_append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_TEXT_XML);
 
 	if (useGzip)
 	{

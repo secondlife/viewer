@@ -41,7 +41,8 @@ LLUrlRegistry::LLUrlRegistry()
 
 	// Urls are matched in the order that they were registered
 	registerUrl(new LLUrlEntryNoLink());
-	registerUrl(new LLUrlEntryIcon());
+	mUrlEntryIcon = new LLUrlEntryIcon();
+	registerUrl(mUrlEntryIcon);
 	registerUrl(new LLUrlEntrySLURL());
 	registerUrl(new LLUrlEntryHTTP());
 	registerUrl(new LLUrlEntryHTTPLabel());
@@ -145,7 +146,7 @@ static bool stringHasUrl(const std::string &text)
 			text.find("<icon") != std::string::npos);
 }
 
-bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LLUrlLabelCallback &cb)
+bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LLUrlLabelCallback &cb, bool is_content_trusted)
 {
 	// avoid costly regexes if there is clearly no URL in the text
 	if (! stringHasUrl(text))
@@ -160,6 +161,12 @@ bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LL
 	std::vector<LLUrlEntryBase *>::iterator it;
 	for (it = mUrlEntry.begin(); it != mUrlEntry.end(); ++it)
 	{
+		//Skip for url entry icon if content is not trusted
+		if(!is_content_trusted && (mUrlEntryIcon == *it))
+		{
+			continue;
+		}
+
 		LLUrlEntryBase *url_entry = *it;
 
 		U32 start = 0, end = 0;

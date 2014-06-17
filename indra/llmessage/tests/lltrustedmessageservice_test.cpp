@@ -32,6 +32,7 @@
 
 #include "message.h"
 #include "llmessageconfig.h"
+#include "llhttpnode_stub.cpp"
 
 LLMessageSystem* gMessageSystem = NULL;
 

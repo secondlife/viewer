@@ -69,7 +69,7 @@ public:
 	void changedGlobalPos(const LLVector3d &global_pos);
 
 	// Opens landmark info panel when agent creates or receives landmark.
-	void showAddedLandmarkInfo(const uuid_vec_t& items);
+	void showAddedLandmarkInfo(const uuid_set_t& items);
 
 	void setItem(LLInventoryItem* item);
 
