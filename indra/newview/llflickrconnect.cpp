@@ -77,28 +77,36 @@ public:
         LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_CONNECTION_IN_PROGRESS);
     }
     
-	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
+	/* virtual */ void httpSuccess()
 	{
-		if (isGoodStatus(status))
-		{
-			LL_DEBUGS("FlickrConnect") << "Connect successful. content: " << content << LL_ENDL;
-			
-            LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_CONNECTED);
-		}
-		else if (status != 302)
-		{
-            LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_CONNECTION_FAILED);
-            log_flickr_connect_error("Connect", status, reason, content.get("error_code"), content.get("error_description"));
-		}
+		LL_DEBUGS("FlickrConnect") << "Connect successful. " << dumpResponse() << LL_ENDL;
+        LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_CONNECTED);
 	}
     
-    void completedHeader(U32 status, const std::string& reason, const LLSD& content)
-    {
-        if (status == 302)
-        {
-            LLFlickrConnect::instance().openFlickrWeb(content["location"]);
-        }
-    }
+	/* virtual */ void httpFailure()
+	{
+		if ( HTTP_FOUND == getStatus() )
+		{
+			const std::string& location = getResponseHeader(HTTP_IN_HEADER_LOCATION);
+			if (location.empty())
+			{
+				LL_WARNS("FlickrConnect") << "Missing Location header " << dumpResponse()
+                << "[headers:" << getResponseHeaders() << "]" << LL_ENDL;
+			}
+			else
+			{
+                LLFlickrConnect::instance().openFlickrWeb(location);
+			}
+		}
+		else
+		{
+			LL_WARNS("FlickrConnect") << dumpResponse() << LL_ENDL;
+            LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_CONNECTION_FAILED);
+			const LLSD& content = getContent();
+			log_flickr_connect_error("Connect", getStatus(), getReason(),
+                                      content.get("error_code"), content.get("error_description"));
+		}
+	}
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -113,33 +121,41 @@ public:
 		LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_POSTING);
 	}
 	
-	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
+	/* virtual */ void httpSuccess()
 	{
-		if (isGoodStatus(status))
+        toast_user_for_flickr_success();
+		LL_DEBUGS("FlickrConnect") << "Post successful. " << dumpResponse() << LL_ENDL;
+        LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_POSTED);
+	}
+    
+	/* virtual */ void httpFailure()
+	{
+		if ( HTTP_FOUND == getStatus() )
 		{
-            toast_user_for_flickr_success();
-			LL_DEBUGS("FlickrConnect") << "Post successful. content: " << content << LL_ENDL;
-			
-			LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_POSTED);
+			const std::string& location = getResponseHeader(HTTP_IN_HEADER_LOCATION);
+			if (location.empty())
+			{
+				LL_WARNS("FlickrConnect") << "Missing Location header " << dumpResponse()
+                << "[headers:" << getResponseHeaders() << "]" << LL_ENDL;
+			}
+			else
+			{
+                LLFlickrConnect::instance().openFlickrWeb(location);
+			}
 		}
-		else if (status == 404)
+		else if ( HTTP_NOT_FOUND == getStatus() )
 		{
 			LLFlickrConnect::instance().connectToFlickr();
 		}
 		else
 		{
+			LL_WARNS("FlickrConnect") << dumpResponse() << LL_ENDL;
             LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_POST_FAILED);
-            log_flickr_connect_error("Share", status, reason, content.get("error_code"), content.get("error_description"));
+			const LLSD& content = getContent();
+			log_flickr_connect_error("Share", getStatus(), getReason(),
+                                      content.get("error_code"), content.get("error_description"));
 		}
 	}
-    
-    void completedHeader(U32 status, const std::string& reason, const LLSD& content)
-    {
-        if (status == 302)
-        {
-            LLFlickrConnect::instance().openFlickrWeb(content["location"]);
-        }
-    }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -163,24 +179,27 @@ public:
 		LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_NOT_CONNECTED);
 	}
 
-	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
+	/* virtual */ void httpSuccess()
 	{
-		if (isGoodStatus(status)) 
-		{
-			LL_DEBUGS("FlickrConnect") << "Disconnect successful. content: " << content << LL_ENDL;
-			setUserDisconnected();
-
-		}
+		LL_DEBUGS("FlickrConnect") << "Disconnect successful. " << dumpResponse() << LL_ENDL;
+		setUserDisconnected();
+	}
+    
+	/* virtual */ void httpFailure()
+	{
 		//User not found so already disconnected
-		else if(status == 404)
+		if ( HTTP_NOT_FOUND == getStatus() )
 		{
-			LL_DEBUGS("FlickrConnect") << "Already disconnected. content: " << content << LL_ENDL;
+			LL_DEBUGS("FlickrConnect") << "Already disconnected. " << dumpResponse() << LL_ENDL;
 			setUserDisconnected();
 		}
 		else
 		{
+			LL_WARNS("FlickrConnect") << dumpResponse() << LL_ENDL;
 			LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_DISCONNECT_FAILED);
-            log_flickr_connect_error("Disconnect", status, reason, content.get("error_code"), content.get("error_description"));
+			const LLSD& content = getContent();
+			log_flickr_connect_error("Disconnect", getStatus(), getReason(),
+                                      content.get("error_code"), content.get("error_description"));
 		}
 	}
 };
@@ -197,33 +216,34 @@ public:
 		LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_CONNECTION_IN_PROGRESS);
     }
     
-	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
+	/* virtual */ void httpSuccess()
 	{
-		if (isGoodStatus(status))
+		LL_DEBUGS("FlickrConnect") << "Connect successful. " << dumpResponse() << LL_ENDL;
+        LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_CONNECTED);
+	}
+    
+	/* virtual */ void httpFailure()
+	{
+		// show the facebook login page if not connected yet
+		if ( HTTP_NOT_FOUND == getStatus() )
 		{
-			LL_DEBUGS("FlickrConnect") << "Connect successful. content: " << content << LL_ENDL;
-            
-            LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_CONNECTED);
+			LL_DEBUGS("FlickrConnect") << "Not connected. " << dumpResponse() << LL_ENDL;
+			if (mAutoConnect)
+			{
+                LLFlickrConnect::instance().connectToFlickr();
+			}
+			else
+			{
+                LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_NOT_CONNECTED);
+			}
 		}
 		else
 		{
-			// show the flickr login page if not connected yet
-			if (status == 404)
-			{
-				if (mAutoConnect)
-				{
-					LLFlickrConnect::instance().connectToFlickr();
-				}
-				else
-				{
-					LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_NOT_CONNECTED);
-				}
-			}
-            else
-            {
-                LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_CONNECTION_FAILED);
-				log_flickr_connect_error("Connected", status, reason, content.get("error_code"), content.get("error_description"));
-            }
+			LL_WARNS("FlickrConnect") << dumpResponse() << LL_ENDL;
+            LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_CONNECTION_FAILED);
+			const LLSD& content = getContent();
+			log_flickr_connect_error("Connected", getStatus(), getReason(),
+                                      content.get("error_code"), content.get("error_description"));
 		}
 	}
     
@@ -238,25 +258,34 @@ class LLFlickrInfoResponder : public LLHTTPClient::Responder
 	LOG_CLASS(LLFlickrInfoResponder);
 public:
 
-	virtual void completed(U32 status, const std::string& reason, const LLSD& info)
+	/* virtual */ void httpSuccess()
 	{
-		if (isGoodStatus(status))
+		LL_INFOS("FlickrConnect") << "Flickr: Info received" << LL_ENDL;
+		LL_DEBUGS("FlickrConnect") << "Getting Flickr info successful. " << dumpResponse() << LL_ENDL;
+        LLFlickrConnect::instance().storeInfo(getContent());
+	}
+    
+	/* virtual */ void httpFailure()
+	{
+		if ( HTTP_FOUND == getStatus() )
 		{
-			llinfos << "Flickr: Info received" << llendl;
-			LL_DEBUGS("FlickrConnect") << "Getting Flickr info successful. info: " << info << LL_ENDL;
-			LLFlickrConnect::instance().storeInfo(info);
+			const std::string& location = getResponseHeader(HTTP_IN_HEADER_LOCATION);
+			if (location.empty())
+			{
+				LL_WARNS("FlickrConnect") << "Missing Location header " << dumpResponse()
+                << "[headers:" << getResponseHeaders() << "]" << LL_ENDL;
+			}
+			else
+			{
+                LLFlickrConnect::instance().openFlickrWeb(location);
+			}
 		}
 		else
 		{
-			log_flickr_connect_error("Info", status, reason, info.get("error_code"), info.get("error_description"));
-		}
-	}
-
-	void completedHeader(U32 status, const std::string& reason, const LLSD& content)
-	{
-		if (status == 302)
-		{
-			LLFlickrConnect::instance().openFlickrWeb(content["location"]);
+			LL_WARNS("FlickrConnect") << dumpResponse() << LL_ENDL;
+			const LLSD& content = getContent();
+			log_flickr_connect_error("Info", getStatus(), getReason(),
+                                      content.get("error_code"), content.get("error_description"));
 		}
 	}
 };

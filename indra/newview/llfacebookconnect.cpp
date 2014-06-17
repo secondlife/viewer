@@ -181,7 +181,7 @@ public:
 
 	/* virtual */ void httpSuccess()
 	{
-		toast_user_for_success();
+		toast_user_for_facebook_success();
 		LL_DEBUGS("FacebookConnect") << "Post successful. " << dumpResponse() << LL_ENDL;
 		LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_POSTED);
 	}
@@ -327,9 +327,16 @@ public:
 	{
 		if ( HTTP_FOUND == getStatus() )
 		{
-			LL_INFOS() << "Facebook: Info received" << LL_ENDL;
-			LL_DEBUGS("FacebookConnect") << "Getting Facebook info successful. info: " << getContent() << LL_ENDL;
-			LLFacebookConnect::instance().storeInfo(getContent());
+			const std::string& location = getResponseHeader(HTTP_IN_HEADER_LOCATION);
+			if (location.empty())
+			{
+				LL_WARNS("FacebookConnect") << "Missing Location header " << dumpResponse()
+                << "[headers:" << getResponseHeaders() << "]" << LL_ENDL;
+			}
+			else
+			{
+				LLFacebookConnect::instance().openFacebookWeb(location);
+			}
 		}
 		else
 		{

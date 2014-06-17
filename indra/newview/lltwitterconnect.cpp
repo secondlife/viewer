@@ -77,28 +77,36 @@ public:
         LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_CONNECTION_IN_PROGRESS);
     }
     
-	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
+	/* virtual */ void httpSuccess()
 	{
-		if (isGoodStatus(status))
-		{
-			LL_DEBUGS("TwitterConnect") << "Connect successful. content: " << content << LL_ENDL;
-			
-            LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_CONNECTED);
-		}
-		else if (status != 302)
-		{
-            LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_CONNECTION_FAILED);
-            log_twitter_connect_error("Connect", status, reason, content.get("error_code"), content.get("error_description"));
-		}
+		LL_DEBUGS("TwitterConnect") << "Connect successful. " << dumpResponse() << LL_ENDL;
+        LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_CONNECTED);
 	}
     
-    void completedHeader(U32 status, const std::string& reason, const LLSD& content)
-    {
-        if (status == 302)
-        {
-            LLTwitterConnect::instance().openTwitterWeb(content["location"]);
-        }
-    }
+	/* virtual */ void httpFailure()
+	{
+		if ( HTTP_FOUND == getStatus() )
+		{
+			const std::string& location = getResponseHeader(HTTP_IN_HEADER_LOCATION);
+			if (location.empty())
+			{
+				LL_WARNS("TwitterConnect") << "Missing Location header " << dumpResponse()
+                << "[headers:" << getResponseHeaders() << "]" << LL_ENDL;
+			}
+			else
+			{
+                LLTwitterConnect::instance().openTwitterWeb(location);
+			}
+		}
+		else
+		{
+			LL_WARNS("TwitterConnect") << dumpResponse() << LL_ENDL;
+			LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_CONNECTION_FAILED);
+			const LLSD& content = getContent();
+			log_twitter_connect_error("Connect", getStatus(), getReason(),
+									   content.get("error_code"), content.get("error_description"));
+		}
+	}
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -113,33 +121,41 @@ public:
 		LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_POSTING);
 	}
 	
-	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
+	/* virtual */ void httpSuccess()
 	{
-		if (isGoodStatus(status))
+        toast_user_for_twitter_success();
+		LL_DEBUGS("TwitterConnect") << "Post successful. " << dumpResponse() << LL_ENDL;
+        LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_POSTED);
+	}
+    
+	/* virtual */ void httpFailure()
+	{
+		if ( HTTP_FOUND == getStatus() )
 		{
-            toast_user_for_twitter_success();
-			LL_DEBUGS("TwitterConnect") << "Post successful. content: " << content << LL_ENDL;
-			
-			LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_POSTED);
+			const std::string& location = getResponseHeader(HTTP_IN_HEADER_LOCATION);
+			if (location.empty())
+			{
+				LL_WARNS("TwitterConnect") << "Missing Location header " << dumpResponse()
+                << "[headers:" << getResponseHeaders() << "]" << LL_ENDL;
+			}
+			else
+			{
+                LLTwitterConnect::instance().openTwitterWeb(location);
+			}
 		}
-		else if (status == 404)
+		else if ( HTTP_NOT_FOUND == getStatus() )
 		{
 			LLTwitterConnect::instance().connectToTwitter();
 		}
 		else
 		{
+			LL_WARNS("TwitterConnect") << dumpResponse() << LL_ENDL;
             LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_POST_FAILED);
-            log_twitter_connect_error("Share", status, reason, content.get("error_code"), content.get("error_description"));
+			const LLSD& content = getContent();
+			log_twitter_connect_error("Share", getStatus(), getReason(),
+									   content.get("error_code"), content.get("error_description"));
 		}
 	}
-    
-    void completedHeader(U32 status, const std::string& reason, const LLSD& content)
-    {
-        if (status == 302)
-        {
-            LLTwitterConnect::instance().openTwitterWeb(content["location"]);
-        }
-    }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -163,24 +179,27 @@ public:
 		LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_NOT_CONNECTED);
 	}
 
-	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
+	/* virtual */ void httpSuccess()
 	{
-		if (isGoodStatus(status)) 
-		{
-			LL_DEBUGS("TwitterConnect") << "Disconnect successful. content: " << content << LL_ENDL;
-			setUserDisconnected();
-
-		}
+		LL_DEBUGS("TwitterConnect") << "Disconnect successful. " << dumpResponse() << LL_ENDL;
+		setUserDisconnected();
+	}
+    
+	/* virtual */ void httpFailure()
+	{
 		//User not found so already disconnected
-		else if(status == 404)
+		if ( HTTP_NOT_FOUND == getStatus() )
 		{
-			LL_DEBUGS("TwitterConnect") << "Already disconnected. content: " << content << LL_ENDL;
+			LL_DEBUGS("TwitterConnect") << "Already disconnected. " << dumpResponse() << LL_ENDL;
 			setUserDisconnected();
 		}
 		else
 		{
+			LL_WARNS("TwitterConnect") << dumpResponse() << LL_ENDL;
 			LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_DISCONNECT_FAILED);
-            log_twitter_connect_error("Disconnect", status, reason, content.get("error_code"), content.get("error_description"));
+			const LLSD& content = getContent();
+			log_twitter_connect_error("Disconnect", getStatus(), getReason(),
+									   content.get("error_code"), content.get("error_description"));
 		}
 	}
 };
@@ -197,33 +216,34 @@ public:
 		LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_CONNECTION_IN_PROGRESS);
     }
     
-	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
+	/* virtual */ void httpSuccess()
 	{
-		if (isGoodStatus(status))
+		LL_DEBUGS("TwitterConnect") << "Connect successful. " << dumpResponse() << LL_ENDL;
+        LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_CONNECTED);
+	}
+    
+	/* virtual */ void httpFailure()
+	{
+		// show the facebook login page if not connected yet
+		if ( HTTP_NOT_FOUND == getStatus() )
 		{
-			LL_DEBUGS("TwitterConnect") << "Connect successful. content: " << content << LL_ENDL;
-            
-            LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_CONNECTED);
+			LL_DEBUGS("TwitterConnect") << "Not connected. " << dumpResponse() << LL_ENDL;
+			if (mAutoConnect)
+			{
+                LLTwitterConnect::instance().connectToTwitter();
+			}
+			else
+			{
+                LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_NOT_CONNECTED);
+			}
 		}
 		else
 		{
-			// show the twitter login page if not connected yet
-			if (status == 404)
-			{
-				if (mAutoConnect)
-				{
-					LLTwitterConnect::instance().connectToTwitter();
-				}
-				else
-				{
-					LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_NOT_CONNECTED);
-				}
-			}
-            else
-            {
-                LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_CONNECTION_FAILED);
-				log_twitter_connect_error("Connected", status, reason, content.get("error_code"), content.get("error_description"));
-            }
+			LL_WARNS("TwitterConnect") << dumpResponse() << LL_ENDL;
+            LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_CONNECTION_FAILED);
+			const LLSD& content = getContent();
+			log_twitter_connect_error("Connected", getStatus(), getReason(),
+									   content.get("error_code"), content.get("error_description"));
 		}
 	}
     
@@ -238,25 +258,34 @@ class LLTwitterInfoResponder : public LLHTTPClient::Responder
 	LOG_CLASS(LLTwitterInfoResponder);
 public:
 
-	virtual void completed(U32 status, const std::string& reason, const LLSD& info)
+	/* virtual */ void httpSuccess()
 	{
-		if (isGoodStatus(status))
+		LL_INFOS("TwitterConnect") << "Twitter: Info received" << LL_ENDL;
+		LL_DEBUGS("TwitterConnect") << "Getting Twitter info successful. " << dumpResponse() << LL_ENDL;
+        LLTwitterConnect::instance().storeInfo(getContent());
+	}
+    
+	/* virtual */ void httpFailure()
+	{
+		if ( HTTP_FOUND == getStatus() )
 		{
-			llinfos << "Twitter: Info received" << llendl;
-			LL_DEBUGS("TwitterConnect") << "Getting Twitter info successful. info: " << info << LL_ENDL;
-			LLTwitterConnect::instance().storeInfo(info);
+			const std::string& location = getResponseHeader(HTTP_IN_HEADER_LOCATION);
+			if (location.empty())
+			{
+				LL_WARNS("TwitterConnect") << "Missing Location header " << dumpResponse()
+                << "[headers:" << getResponseHeaders() << "]" << LL_ENDL;
+			}
+			else
+			{
+                LLTwitterConnect::instance().openTwitterWeb(location);
+			}
 		}
 		else
 		{
-			log_twitter_connect_error("Info", status, reason, info.get("error_code"), info.get("error_description"));
-		}
-	}
-
-	void completedHeader(U32 status, const std::string& reason, const LLSD& content)
-	{
-		if (status == 302)
-		{
-			LLTwitterConnect::instance().openTwitterWeb(content["location"]);
+			LL_WARNS("TwitterConnect") << dumpResponse() << LL_ENDL;
+			const LLSD& content = getContent();
+			log_twitter_connect_error("Info", getStatus(), getReason(),
+									   content.get("error_code"), content.get("error_description"));
 		}
 	}
 };
