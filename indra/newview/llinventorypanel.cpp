@@ -336,7 +336,15 @@ LLInventoryFilter& LLInventoryPanel::getFilter()
 void LLInventoryPanel::setFilterTypes(U64 types, LLInventoryFilter::EFilterType filter_type)
 {
 	if (filter_type == LLInventoryFilter::FILTERTYPE_OBJECT)
+	{
+		//Don't show folder without recent item in it
+		if ("Recent Items" == getName())
+		{
+			types &= ~(0x1 << LLInventoryType::IT_CATEGORY);
+		}
+
 		getFilter().setFilterObjectTypes(types);
+	}
 	if (filter_type == LLInventoryFilter::FILTERTYPE_CATEGORY)
 		getFilter().setFilterCategoryTypes(types);
 }
@@ -580,6 +588,11 @@ void LLInventoryPanel::modelChanged(U32 mask)
 				view_item->destroyView();
 			}
 		}
+	}
+
+	if ("Recent Items" == getName())
+	{
+		getFilter().setModified();
 	}
 }
 
@@ -1457,6 +1470,8 @@ public:
 		getFilter().setFilterCategoryTypes(getFilter().getFilterCategoryTypes() | (1ULL << LLFolderType::FT_INBOX));
 	}
 
+	/*virtual*/ void onVisibilityChange(BOOL new_visibility);
+
 protected:
 	LLInventoryRecentItemsPanel (const Params&);
 	friend class LLUICtrlFactory;
@@ -1469,6 +1484,13 @@ LLInventoryRecentItemsPanel::LLInventoryRecentItemsPanel( const Params& params)
 	mInvFVBridgeBuilder = &RECENT_ITEMS_BUILDER;
 }
 
+void LLInventoryRecentItemsPanel::onVisibilityChange(BOOL new_visibility)
+{
+	if(new_visibility)
+	{
+		getFilter().setModified();
+	}
+}
 namespace LLInitParam
 {
 	void TypeValues<LLFolderType::EType>::declareValues()
