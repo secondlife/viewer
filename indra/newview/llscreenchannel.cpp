@@ -273,6 +273,14 @@ void LLScreenChannel::addToast(const LLToast::Params& p)
 			// only cancel notification if it isn't being used in IM session
 			LLNotifications::instance().cancel(notification);
 		}
+
+		// It was assumed that the toast would take ownership of the panel pointer.
+		// But since we have decided not to display the toast, kill the panel to
+		// prevent the memory leak.
+		if (p.panel != NULL)
+		{
+			p.panel()->die();
+		}
 		return;
 	}
 

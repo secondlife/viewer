@@ -29,7 +29,10 @@
 #define LL_LLERRORCONTROL_H
 
 #include "llerror.h"
+#include "llpointer.h"
+#include "llrefcount.h"
 #include "boost/function.hpp"
+#include "boost/shared_ptr.hpp"
 #include <string>
 
 class LLSD;
@@ -156,16 +159,14 @@ namespace LLError
 				mWantsFunctionName;
 	};
 
+	typedef boost::shared_ptr<Recorder> RecorderPtr;
+
 	/**
-	 * @NOTE: addRecorder() conveys ownership to the underlying Settings
-	 * object -- when destroyed, it will @em delete the passed Recorder*!
+	 * @NOTE: addRecorder() and removeRecorder() uses the boost::shared_ptr to allow for shared ownership
+	 * while still ensuring that the allocated memory is eventually freed
 	 */
-	LL_COMMON_API void addRecorder(Recorder*);
-	/**
-	 * @NOTE: removeRecorder() reclaims ownership of the Recorder*: its
-	 * lifespan becomes the caller's problem.
-	 */
-	LL_COMMON_API void removeRecorder(Recorder*);
+	LL_COMMON_API void addRecorder(RecorderPtr);
+	LL_COMMON_API void removeRecorder(RecorderPtr);
 		// each error message is passed to each recorder via recordMessage()
 
 	LL_COMMON_API void logToFile(const std::string& filename);
@@ -182,9 +183,9 @@ namespace LLError
 		Utilities for use by the unit tests of LLError itself.
 	*/
 
-	class Settings;
-	LL_COMMON_API Settings* saveAndResetSettings();
-	LL_COMMON_API void restoreSettings(Settings *);
+	typedef LLPointer<LLRefCount> SettingsStoragePtr;
+	LL_COMMON_API SettingsStoragePtr saveAndResetSettings();
+	LL_COMMON_API void restoreSettings(SettingsStoragePtr pSettingsStorage);
 
 	LL_COMMON_API std::string abbreviateFile(const std::string& filePath);
 	LL_COMMON_API int shouldLogCallCount();

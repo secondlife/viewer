@@ -168,6 +168,8 @@ public:
 
 		LLUUID getTextureID() {return mMediaTextureID;}
 
+		void updateContextMenuParent(LLView* pNewParent);
+
 	protected:
 		void convertInputCoords(S32& x, S32& y);
 

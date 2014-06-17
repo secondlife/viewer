@@ -110,6 +110,7 @@ void LLListContextMenu::handleMultiple(functor_t functor, const uuid_vec_t& ids)
 // static
 LLContextMenu* LLListContextMenu::createFromFile(const std::string& filename)
 {
+	llassert(LLMenuGL::sMenuContainer != NULL);
 	return LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
 		filename, LLContextMenu::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
 }

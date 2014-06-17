@@ -52,6 +52,7 @@
 #include "llsdutil.h"
 #include "lllayoutstack.h"
 #include "lliconctrl.h"
+#include "llhttpconstants.h"
 #include "lltextbox.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
@@ -390,8 +391,12 @@ BOOL LLMediaCtrl::postBuild ()
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registar;
 	registar.add("Open.WebInspector", boost::bind(&LLMediaCtrl::onOpenWebInspector, this));
 
+	// stinson 05/05/2014 : use this as the parent of the context menu if the static menu
+	// container has yet to be created
+	LLPanel* menuParent = (LLMenuGL::sMenuContainer != NULL) ? dynamic_cast<LLPanel*>(LLMenuGL::sMenuContainer) : dynamic_cast<LLPanel*>(this);
+	llassert(menuParent != NULL);
 	mContextMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
-		"menu_media_ctrl.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
+		"menu_media_ctrl.xml", menuParent, LLViewerMenuHolderGL::child_registry_t::instance());
 	setVisibleCallback(boost::bind(&LLMediaCtrl::onVisibilityChanged, this, _2));
 
 	return TRUE;
@@ -576,7 +581,7 @@ void LLMediaCtrl::navigateToLocalPage( const std::string& subdir, const std::str
 	{
 		mCurrentNavUrl = expanded_filename;
 		mMediaSource->setSize(mTextureWidth, mTextureHeight);
-		mMediaSource->navigateTo(expanded_filename, "text/html", false);
+		mMediaSource->navigateTo(expanded_filename, HTTP_CONTENT_TEXT_HTML, false);
 	}
 }
 
@@ -948,7 +953,7 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_NAVIGATE_ERROR_PAGE" << LL_ENDL;
 			if ( mErrorPageURL.length() > 0 )
 			{
-				navigateTo(mErrorPageURL, "text/html");
+				navigateTo(mErrorPageURL, HTTP_CONTENT_TEXT_HTML);
 			};
 		};
 		break;
@@ -1116,4 +1121,9 @@ void LLMediaCtrl::setTrustedContent(bool trusted)
 	{
 		mMediaSource->setTrustedBrowser(trusted);
 	}
+}
+
+void LLMediaCtrl::updateContextMenuParent(LLView* pNewParent)
+{
+	mContextMenu->updateParent(pNewParent);
 }

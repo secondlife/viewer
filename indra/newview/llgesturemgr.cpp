@@ -299,6 +299,12 @@ void LLGestureMgr::activateGestureWithAsset(const LLUUID& item_id,
 }
 
 
+void notify_update_label(const LLUUID& base_item_id)
+{
+	gInventory.addChangedMask(LLInventoryObserver::LABEL, base_item_id);
+	LLGestureMgr::instance().notifyObservers();
+}
+
 void LLGestureMgr::deactivateGesture(const LLUUID& item_id)
 {
 	const LLUUID& base_item_id = get_linked_uuid(item_id);
@@ -322,7 +328,6 @@ void LLGestureMgr::deactivateGesture(const LLUUID& item_id)
 	}
 
 	mActive.erase(it);
-	gInventory.addChangedMask(LLInventoryObserver::LABEL, base_item_id);
 
 	// Inform the database of this change
 	LLMessageSystem* msg = gMessageSystem;
@@ -338,9 +343,11 @@ void LLGestureMgr::deactivateGesture(const LLUUID& item_id)
 
 	gAgent.sendReliableMessage();
 
-	LLAppearanceMgr::instance().removeCOFItemLinks(base_item_id);
+	LLPointer<LLInventoryCallback> cb =
+		new LLBoostFuncInventoryCallback(no_op_inventory_func,
+										 boost::bind(notify_update_label,base_item_id));
 
-	notifyObservers();
+	LLAppearanceMgr::instance().removeCOFItemLinks(base_item_id, cb);
 }
 
 

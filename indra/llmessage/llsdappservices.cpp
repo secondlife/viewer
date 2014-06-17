@@ -121,7 +121,7 @@ public:
 	{
 		//LL_INFOS() << "validate: " << name << ", "
 		//	<< LLSDOStreamer<LLSDNotationFormatter>(context) << LL_ENDL;
-		if((std::string("PUT") == context["request"]["verb"].asString()) && !name.empty())
+		if((std::string("PUT") == context[CONTEXT_REQUEST][CONTEXT_VERB].asString()) && !name.empty())
 		{
 			return true;
 		}
@@ -139,7 +139,7 @@ public:
 		LLHTTPNode::ResponsePtr response,
 		const LLSD& context) const
 	{
-		std::string name = context["request"]["wildcard"]["option-name"];
+		std::string name = context[CONTEXT_REQUEST][CONTEXT_WILDCARD]["option-name"];
 		LLSD options = LLApp::instance()->getOptionData(
 			LLApp::PRIORITY_RUNTIME_OVERRIDE);
 		response->result(options[name]);
@@ -150,7 +150,7 @@ public:
 		const LLSD& context,
 		const LLSD& input) const
 	{
-		std::string name = context["request"]["wildcard"]["option-name"];
+		std::string name = context[CONTEXT_REQUEST][CONTEXT_WILDCARD]["option-name"];
 		LLSD options = LLApp::instance()->getOptionData(
 			LLApp::PRIORITY_RUNTIME_OVERRIDE);
 		options[name] = input;
@@ -164,7 +164,7 @@ public:
 		LLHTTPNode::ResponsePtr response,
 		const LLSD& context) const
 	{
-		std::string name = context["request"]["wildcard"]["option-name"];
+		std::string name = context[CONTEXT_REQUEST][CONTEXT_WILDCARD]["option-name"];
 		LLSD options = LLApp::instance()->getOptionData(
 			LLApp::PRIORITY_RUNTIME_OVERRIDE);
 		options.erase(name);
@@ -268,7 +268,7 @@ public:
 		LLHTTPNode::ResponsePtr response,
 		const LLSD& context) const
 	{
-		std::string name = context["request"]["wildcard"]["option-name"];
+		std::string name = context[CONTEXT_REQUEST][CONTEXT_WILDCARD]["option-name"];
 		response->result(LLApp::instance()->getOption(name));
 	}
 };

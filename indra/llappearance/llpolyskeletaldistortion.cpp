@@ -104,9 +104,25 @@ BOOL LLPolySkeletalDistortionInfo::parseXml(LLXmlTreeNode* node)
 // LLPolySkeletalDistortion()
 //-----------------------------------------------------------------------------
 LLPolySkeletalDistortion::LLPolySkeletalDistortion(LLAvatarAppearance *avatarp)
+	: LLViewerVisualParam(),
+	mDefaultVec(),
+	mJointScales(),
+	mJointOffsets(),
+	mAvatar(avatarp)
 {
-        mAvatar = avatarp;
-        mDefaultVec.splat(0.001f);
+	mDefaultVec.splat(0.001f);
+}
+
+//-----------------------------------------------------------------------------
+// LLPolySkeletalDistortion()
+//-----------------------------------------------------------------------------
+LLPolySkeletalDistortion::LLPolySkeletalDistortion(const LLPolySkeletalDistortion &pOther)
+	: LLViewerVisualParam(pOther),
+	mDefaultVec(pOther.mDefaultVec),
+	mJointScales(pOther.mJointScales),
+	mJointOffsets(pOther.mJointOffsets),
+	mAvatar(pOther.mAvatar)
+{
 }
 
 //-----------------------------------------------------------------------------
@@ -123,7 +139,7 @@ BOOL LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
                 return FALSE;
         mInfo = info;
         mID = info->mID;
-        setWeight(getDefaultWeight(), FALSE );
+        setWeight(getDefaultWeight());
 
         LLPolySkeletalDistortionInfo::bone_info_list_t::iterator iter;
         for (iter = getInfo()->mBoneInfoList.begin(); iter != getInfo()->mBoneInfoList.end(); iter++)
@@ -171,9 +187,7 @@ BOOL LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
 
 /*virtual*/ LLViewerVisualParam* LLPolySkeletalDistortion::cloneParam(LLWearable* wearable) const
 {
-        LLPolySkeletalDistortion *new_param = new LLPolySkeletalDistortion(mAvatar);
-        *new_param = *this;
-        return new_param;
+	return new LLPolySkeletalDistortion(*this);
 }
 
 //-----------------------------------------------------------------------------
@@ -185,7 +199,7 @@ void LLPolySkeletalDistortion::apply( ESex avatar_sex )
 {
 	LL_RECORD_BLOCK_TIME(FTM_POLYSKELETAL_DISTORTION_APPLY);
 
-        F32 effective_weight = ( getSex() & avatar_sex ) ? mCurWeight : getDefaultWeight();
+	F32 effective_weight = ( getSex() & avatar_sex ) ? mCurWeight : getDefaultWeight();
 
         LLJoint* joint;
         joint_vec_map_t::iterator iter;
@@ -197,8 +211,10 @@ void LLPolySkeletalDistortion::apply( ESex avatar_sex )
                 joint = iter->first;
                 LLVector3 newScale = joint->getScale();
                 LLVector3 scaleDelta = iter->second;
-                newScale = newScale + (effective_weight * scaleDelta) - (mLastWeight * scaleDelta);
-                joint->setScale(newScale);
+                newScale = newScale + (effective_weight * scaleDelta) - (mLastWeight * scaleDelta);				                
+				//An aspect of attached mesh objects (which contain joint offsets) that need to be cleaned up when detached
+				joint->storeScaleForReset( newScale );				
+				joint->setScale(newScale);
         }
 
         for (iter = mJointOffsets.begin();
@@ -207,8 +223,8 @@ void LLPolySkeletalDistortion::apply( ESex avatar_sex )
         {
                 joint = iter->first;
                 LLVector3 newPosition = joint->getPosition();
-                LLVector3 positionDelta = iter->second;
-                newPosition = newPosition + (effective_weight * positionDelta) - (mLastWeight * positionDelta);
+                LLVector3 positionDelta = iter->second;				
+                newPosition = newPosition + (effective_weight * positionDelta) - (mLastWeight * positionDelta);		
                 joint->setPosition(newPosition);
         }
 
