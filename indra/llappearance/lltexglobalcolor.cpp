@@ -90,17 +90,31 @@ const std::string& LLTexGlobalColor::getName() const
 //-----------------------------------------------------------------------------
 // LLTexParamGlobalColor
 //-----------------------------------------------------------------------------
-LLTexParamGlobalColor::LLTexParamGlobalColor(LLTexGlobalColor* tex_global_color) :
-	LLTexLayerParamColor(tex_global_color->getAvatarAppearance()),
+LLTexParamGlobalColor::LLTexParamGlobalColor(LLTexGlobalColor* tex_global_color)
+	: LLTexLayerParamColor(tex_global_color->getAvatarAppearance()),
 	mTexGlobalColor(tex_global_color)
+{
+}
+
+//-----------------------------------------------------------------------------
+// LLTexParamGlobalColor
+//-----------------------------------------------------------------------------
+LLTexParamGlobalColor::LLTexParamGlobalColor(const LLTexParamGlobalColor& pOther)
+	: LLTexLayerParamColor(pOther),
+	mTexGlobalColor(pOther.mTexGlobalColor)
+{
+}
+
+//-----------------------------------------------------------------------------
+// ~LLTexParamGlobalColor
+//-----------------------------------------------------------------------------
+LLTexParamGlobalColor::~LLTexParamGlobalColor()
 {
 }
 
 /*virtual*/ LLViewerVisualParam* LLTexParamGlobalColor::cloneParam(LLWearable* wearable) const
 {
-	LLTexParamGlobalColor *new_param = new LLTexParamGlobalColor(mTexGlobalColor);
-	*new_param = *this;
-	return new_param;
+	return new LLTexParamGlobalColor(*this);
 }
 
 void LLTexParamGlobalColor::onGlobalColorChanged()

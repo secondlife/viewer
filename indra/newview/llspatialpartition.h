@@ -640,12 +640,26 @@ class LLVolumeGeometryManager: public LLGeometryManager
 		DISTANCE_SORT
 	} eSortType;
 
-	virtual ~LLVolumeGeometryManager() { }
+	LLVolumeGeometryManager();
+	virtual ~LLVolumeGeometryManager();
 	virtual void rebuildGeom(LLSpatialGroup* group);
 	virtual void rebuildMesh(LLSpatialGroup* group);
 	virtual void getGeometry(LLSpatialGroup* group);
 	void genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace** faces, U32 face_count, BOOL distance_sort = FALSE, BOOL batch_textures = FALSE, BOOL no_materials = FALSE);
 	void registerFace(LLSpatialGroup* group, LLFace* facep, U32 type);
+
+private:
+	void allocateFaces(U32 pMaxFaceCount);
+	void freeFaces();
+
+	static int32_t sInstanceCount;
+	static LLFace** sFullbrightFaces;
+	static LLFace** sBumpFaces;
+	static LLFace** sSimpleFaces;
+	static LLFace** sNormFaces;
+	static LLFace** sSpecFaces;
+	static LLFace** sNormSpecFaces;
+	static LLFace** sAlphaFaces;
 };
 
 //spatial partition that uses volume geometry manager (implemented in LLVOVolume.cpp)

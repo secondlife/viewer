@@ -64,7 +64,7 @@ namespace LLTextUtil
 	 */
 	const std::string& formatPhoneNumber(const std::string& phone_str);
 
-	bool processUrlMatch(LLUrlMatch* match,LLTextBase* text_base);
+	bool processUrlMatch(LLUrlMatch* match,LLTextBase* text_base, bool is_content_trusted);
 
 	class TextHelpers
 	{

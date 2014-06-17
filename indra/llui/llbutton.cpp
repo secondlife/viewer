@@ -384,7 +384,7 @@ BOOL LLButton::postBuild()
 {
 	autoResize();
 
-	addBadgeToParentPanel();
+	addBadgeToParentHolder();
 
 	return LLUICtrl::postBuild();
 }

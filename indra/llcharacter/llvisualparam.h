@@ -155,6 +155,7 @@ public:
 
 	LLVisualParam*			getNextParam()		{ return mNext; }
 	void					setNextParam( LLVisualParam *next );
+	void					clearNextParam();
 	
 	virtual void			setAnimating(BOOL is_animating) { mIsAnimating = is_animating && !mIsDummy; }
 	BOOL					getAnimating() const { return mIsAnimating; }
@@ -165,6 +166,8 @@ public:
 	EParamLocation			getParamLocation() const { return mParamLocation; }
 
 protected:
+	LLVisualParam(const LLVisualParam& pOther);
+
 	F32					mCurWeight;			// current weight
 	F32					mLastWeight;		// last weight
 	LLVisualParam*		mNext;				// next param in a shared chain

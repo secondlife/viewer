@@ -127,7 +127,7 @@ namespace
 	{
 	public:
 		RawInjector(const U8* data, S32 size) : mData(data), mSize(size) {}
-		virtual ~RawInjector() {delete mData;}
+		virtual ~RawInjector() {delete [] mData;}
 
 		const std::string& contentType() { return HTTP_CONTENT_OCTET_STREAM; }
 
