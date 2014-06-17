@@ -465,41 +465,13 @@ void LLInventoryFetchComboObserver::startFetch()
 	mFetchDescendents->startFetch();
 }
 
-void LLInventoryExistenceObserver::watchItem(const LLUUID& id)
-{
-	if (id.notNull())
-	{
-		mMIA.push_back(id);
-	}
-}
-
-void LLInventoryExistenceObserver::changed(U32 mask)
-{
-	// scan through the incomplete items and move or erase them as
-	// appropriate.
-	if (!mMIA.empty())
-	{
-		for (uuid_vec_t::iterator it = mMIA.begin(); it < mMIA.end(); )
-		{
-			LLViewerInventoryItem* item = gInventory.getItem(*it);
-			if (!item)
-			{
-				++it;
-				continue;
-			}
-			mExist.push_back(*it);
-			it = mMIA.erase(it);
-		}
-		if (mMIA.empty())
-		{
-			done();
-		}
-	}
-}
-
+// See comment preceding LLInventoryAddedObserver::changed() for some
+// concerns that also apply to this observer.
 void LLInventoryAddItemByAssetObserver::changed(U32 mask)
 {
-	if(!(mask & LLInventoryObserver::ADD))
+	if(!(mask & LLInventoryObserver::ADD) ||
+	   !(mask & LLInventoryObserver::CREATE) ||
+	   !(mask & LLInventoryObserver::UPDATE_CREATE))
 	{
 		return;
 	}
@@ -510,20 +482,12 @@ void LLInventoryAddItemByAssetObserver::changed(U32 mask)
 		return;
 	}
 
-	LLMessageSystem* msg = gMessageSystem;
-	if (!(msg->getMessageName() && (0 == strcmp(msg->getMessageName(), "UpdateCreateInventoryItem"))))
+	const uuid_set_t& added = gInventory.getAddedIDs();
+	for (uuid_set_t::iterator it = added.begin(); it != added.end(); ++it)
 	{
-		// this is not our message
-		return; // to prevent a crash. EXT-7921;
-	}
-
-	LLPointer<LLViewerInventoryItem> item = new LLViewerInventoryItem;
-	S32 num_blocks = msg->getNumberOfBlocksFast(_PREHASH_InventoryData);
-	for(S32 i = 0; i < num_blocks; ++i)
-	{
-		item->unpackMessage(msg, _PREHASH_InventoryData, i);
+		LLInventoryItem *item = gInventory.getItem(*it);
 		const LLUUID& asset_uuid = item->getAssetUUID();
-		if (item->getUUID().notNull() && asset_uuid.notNull())
+		if (item && item->getUUID().notNull() && asset_uuid.notNull())
 		{
 			if (isAssetWatched(asset_uuid))
 			{
@@ -532,11 +496,11 @@ void LLInventoryAddItemByAssetObserver::changed(U32 mask)
 			}
 		}
 	}
-
+	
 	if (mAddedItems.size() == mWatchedAssets.size())
 	{
-		done();
 		LL_DEBUGS("Inventory_Move") << "All watched items are added & processed." << LL_ENDL;
+		done();
 		mAddedItems.clear();
 
 		// Unable to clean watched items here due to somebody can require to check them in current frame.
@@ -566,41 +530,28 @@ bool LLInventoryAddItemByAssetObserver::isAssetWatched( const LLUUID& asset_id )
 	return std::find(mWatchedAssets.begin(), mWatchedAssets.end(), asset_id) != mWatchedAssets.end();
 }
 
+// This observer used to explicitly check for whether it was being
+// called as a result of an UpdateCreateInventoryItem message. It has
+// now been decoupled enough that it's not actually checking the
+// message system, but now we have the special UPDATE_CREATE flag
+// being used for the same purpose. Fixing this, as we would need to
+// do to get rid of the message, is somewhat subtle because there's no
+// particular obvious criterion for when creating a new item should
+// trigger this observer and when it shouldn't. For example, creating
+// a new notecard with new->notecard causes a preview window to pop up
+// via the derived class LLOpenTaskOffer, but creating a new notecard
+// by copy and paste does not, solely because one goes through
+// UpdateCreateInventoryItem and the other doesn't.
 void LLInventoryAddedObserver::changed(U32 mask)
 {
-	if (!(mask & LLInventoryObserver::ADD))
+	if (!(mask & LLInventoryObserver::ADD) ||
+		!(mask & LLInventoryObserver::CREATE) ||
+		!(mask & LLInventoryObserver::UPDATE_CREATE))
 	{
 		return;
 	}
 
-	// *HACK: If this was in response to a packet off
-	// the network, figure out which item was updated.
-	LLMessageSystem* msg = gMessageSystem;
-
-	std::string msg_name = msg->getMessageName();
-	if (msg_name.empty())
-	{
-		return;
-	}
-	
-	// We only want newly created inventory items. JC
-	if ( msg_name != "UpdateCreateInventoryItem")
-	{
-		return;
-	}
-
-	LLPointer<LLViewerInventoryItem> titem = new LLViewerInventoryItem;
-	S32 num_blocks = msg->getNumberOfBlocksFast(_PREHASH_InventoryData);
-	for (S32 i = 0; i < num_blocks; ++i)
-	{
-		titem->unpackMessage(msg, _PREHASH_InventoryData, i);
-		if (!(titem->getUUID().isNull()))
-		{
-			//we don't do anything with null keys
-			mAdded.push_back(titem->getUUID());
-		}
-	}
-	if (!mAdded.empty())
+	if (!gInventory.getAddedIDs().empty())
 	{
 		done();
 	}
@@ -613,9 +564,9 @@ void LLInventoryCategoryAddedObserver::changed(U32 mask)
 		return;
 	}
 	
-	const LLInventoryModel::changed_items_t& changed_ids = gInventory.getChangedIDs();
+	const LLInventoryModel::changed_items_t& added_ids = gInventory.getAddedIDs();
 	
-	for (LLInventoryModel::changed_items_t::const_iterator cit = changed_ids.begin(); cit != changed_ids.end(); ++cit)
+	for (LLInventoryModel::changed_items_t::const_iterator cit = added_ids.begin(); cit != added_ids.end(); ++cit)
 	{
 		LLViewerInventoryCategory* cat = gInventory.getCategory(*cit);
 		
@@ -630,58 +581,6 @@ void LLInventoryCategoryAddedObserver::changed(U32 mask)
 		done();
 		
 		mAddedCategories.clear();
-	}
-}
-
-
-LLInventoryTransactionObserver::LLInventoryTransactionObserver(const LLTransactionID& transaction_id) :
-	mTransactionID(transaction_id)
-{
-}
-
-void LLInventoryTransactionObserver::changed(U32 mask)
-{
-	if (mask & LLInventoryObserver::ADD)
-	{
-		// This could be it - see if we are processing a bulk update
-		LLMessageSystem* msg = gMessageSystem;
-		if (msg->getMessageName()
-		   && (0 == strcmp(msg->getMessageName(), "BulkUpdateInventory")))
-		{
-			// we have a match for the message - now check the
-			// transaction id.
-			LLUUID id;
-			msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_TransactionID, id);
-			if (id == mTransactionID)
-			{
-				// woo hoo, we found it
-				uuid_vec_t folders;
-				uuid_vec_t items;
-				S32 count;
-				count = msg->getNumberOfBlocksFast(_PREHASH_FolderData);
-				S32 i;
-				for (i = 0; i < count; ++i)
-				{
-					msg->getUUIDFast(_PREHASH_FolderData, _PREHASH_FolderID, id, i);
-					if (id.notNull())
-					{
-						folders.push_back(id);
-					}
-				}
-				count = msg->getNumberOfBlocksFast(_PREHASH_ItemData);
-				for (i = 0; i < count; ++i)
-				{
-					msg->getUUIDFast(_PREHASH_ItemData, _PREHASH_ItemID, id, i);
-					if (id.notNull())
-					{
-						items.push_back(id);
-					}
-				}
-
-				// call the derived class the implements this method.
-				done(folders, items);
-			}
-		}
 	}
 }
 
@@ -832,4 +731,24 @@ LLInventoryCategoriesObserver::LLCategoryData::LLCategoryData(
 	, mIsNameHashInitialized(false)
 {
 	mItemNameHash.finalize();
+}
+
+void LLScrollOnRenameObserver::changed(U32 mask)
+{
+	if (mask & LLInventoryObserver::LABEL)
+	{
+		const uuid_set_t& changed_item_ids = gInventory.getChangedIDs();
+		for (uuid_set_t::const_iterator it = changed_item_ids.begin(); it != changed_item_ids.end(); ++it)
+		{
+			const LLUUID& id = *it;
+			if (id == mUUID)
+			{
+				mView->scrollToShowSelection();
+					
+				gInventory.removeObserver(this);
+				delete this;
+				return;
+			}
+		}
+	}
 }

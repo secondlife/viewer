@@ -100,7 +100,7 @@ namespace LLMarketplaceImport
 	bool hasSessionCookie();
 	bool inProgress();
 	bool resultPending();
-	U32 getResultStatus();
+	S32 getResultStatus();
 	const LLSD& getResults();
 
 	bool establishMarketplaceSessionCookie();
@@ -114,7 +114,7 @@ namespace LLMarketplaceImport
 	static bool sImportInProgress = false;
 	static bool sImportPostPending = false;
 	static bool sImportGetPending = false;
-	static U32 sImportResultStatus = 0;
+	static S32 sImportResultStatus = 0;
 	static LLSD sImportResults = LLSD::emptyMap();
 
 	static LLTimer slmGetTimer;
@@ -124,23 +124,26 @@ namespace LLMarketplaceImport
 	
 	class LLImportPostResponder : public LLHTTPClient::Responder
 	{
+		LOG_CLASS(LLImportPostResponder);
 	public:
 		LLImportPostResponder() : LLCurl::Responder() {}
-		
-		void completed(U32 status, const std::string& reason, const LLSD& content)
+
+	protected:
+		/* virtual */ void httpCompleted()
 		{
 			slmPostTimer.stop();
 
 			if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 			{
-				LL_INFOS() << " SLM POST status: " << status << LL_ENDL;
-				LL_INFOS() << " SLM POST reason: " << reason << LL_ENDL;
-				LL_INFOS() << " SLM POST content: " << content.asString() << LL_ENDL;
-				LL_INFOS() << " SLM POST timer: " << slmPostTimer.getElapsedTimeF32() << LL_ENDL;
+				LL_INFOS() << " SLM [timer:" << slmPostTimer.getElapsedTimeF32() << "] "
+						   << dumpResponse() << LL_ENDL;
 			}
 
-			// MAINT-2301 : we determined we can safely ignore that error in that context
-			if (status == MarketplaceErrorCodes::IMPORT_JOB_TIMEOUT)
+			S32 status = getStatus();
+			if ((status == MarketplaceErrorCodes::IMPORT_REDIRECT) ||
+				(status == MarketplaceErrorCodes::IMPORT_AUTHENTICATION_ERROR) ||
+				// MAINT-2301 : we determined we can safely ignore that error in that context
+				(status == MarketplaceErrorCodes::IMPORT_JOB_TIMEOUT))
 			{
 				if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 				{
@@ -161,39 +164,37 @@ namespace LLMarketplaceImport
 			sImportInProgress = (status == MarketplaceErrorCodes::IMPORT_DONE);
 			sImportPostPending = false;
 			sImportResultStatus = status;
-			sImportId = content;
+			sImportId = getContent();
 		}
 	};
 	
 	class LLImportGetResponder : public LLHTTPClient::Responder
 	{
+		LOG_CLASS(LLImportGetResponder);
 	public:
 		LLImportGetResponder() : LLCurl::Responder() {}
 		
-		void completedHeader(U32 status, const std::string& reason, const LLSD& content)
+	protected:
+		/* virtual */ void httpCompleted()
 		{
-			const std::string& set_cookie_string = content["set-cookie"].asString();
+			const std::string& set_cookie_string = getResponseHeader(HTTP_IN_HEADER_SET_COOKIE);
 			
 			if (!set_cookie_string.empty())
 			{
 				sMarketplaceCookie = set_cookie_string;
 			}
-		}
-		
-		void completed(U32 status, const std::string& reason, const LLSD& content)
-		{
+
 			slmGetTimer.stop();
 
 			if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 			{
-				LL_INFOS() << " SLM GET status: " << status << LL_ENDL;
-				LL_INFOS() << " SLM GET reason: " << reason << LL_ENDL;
-				LL_INFOS() << " SLM GET content: " << content.asString() << LL_ENDL;
-				LL_INFOS() << " SLM GET timer: " << slmGetTimer.getElapsedTimeF32() << LL_ENDL;
+				LL_INFOS() << " SLM [timer:" << slmGetTimer.getElapsedTimeF32() << "] "
+						   << dumpResponse() << LL_ENDL;
 			}
 			
             // MAINT-2452 : Do not clear the cookie on IMPORT_DONE_WITH_ERRORS : Happens when trying to import objects with wrong permissions
             // ACME-1221 : Do not clear the cookie on IMPORT_NOT_FOUND : Happens for newly created Merchant accounts that are initally empty
+			S32 status = getStatus();
 			if ((status >= MarketplaceErrorCodes::IMPORT_BAD_REQUEST) &&
                 (status != MarketplaceErrorCodes::IMPORT_DONE_WITH_ERRORS) &&
                 (status != MarketplaceErrorCodes::IMPORT_NOT_FOUND))
@@ -212,7 +213,7 @@ namespace LLMarketplaceImport
 			sImportInProgress = (status == MarketplaceErrorCodes::IMPORT_PROCESSING);
 			sImportGetPending = false;
 			sImportResultStatus = status;
-			sImportResults = content;
+			sImportResults = getContent();
 		}
 	};
 
@@ -233,7 +234,7 @@ namespace LLMarketplaceImport
 		return (sImportPostPending || sImportGetPending);
 	}
 	
-	U32 getResultStatus()
+	S32 getResultStatus()
 	{
 		return sImportResultStatus;
 	}
@@ -297,10 +298,11 @@ namespace LLMarketplaceImport
 
 		// Make the headers for the post
 		LLSD headers = LLSD::emptyMap();
-		headers["Accept"] = "*/*";
-		headers["Cookie"] = sMarketplaceCookie;
-		headers["Content-Type"] = "application/llsd+xml";
-		headers["User-Agent"] = LLViewerMedia::getCurrentUserAgent();
+		headers[HTTP_OUT_HEADER_ACCEPT] = "*/*";
+		headers[HTTP_OUT_HEADER_COOKIE] = sMarketplaceCookie;
+		// *TODO: Why are we setting Content-Type for a GET request?
+		headers[HTTP_OUT_HEADER_CONTENT_TYPE] = HTTP_CONTENT_LLSD_XML;
+		headers[HTTP_OUT_HEADER_USER_AGENT] = LLViewerMedia::getCurrentUserAgent();
 		
 		if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 		{
@@ -334,11 +336,11 @@ namespace LLMarketplaceImport
 		
 		// Make the headers for the post
 		LLSD headers = LLSD::emptyMap();
-		headers["Accept"] = "*/*";
-		headers["Connection"] = "Keep-Alive";
-		headers["Cookie"] = sMarketplaceCookie;
-		headers["Content-Type"] = "application/xml";
-		headers["User-Agent"] = LLViewerMedia::getCurrentUserAgent();
+		headers[HTTP_OUT_HEADER_ACCEPT] = "*/*";
+		headers[HTTP_OUT_HEADER_CONNECTION] = "Keep-Alive";
+		headers[HTTP_OUT_HEADER_COOKIE] = sMarketplaceCookie;
+		headers[HTTP_OUT_HEADER_CONTENT_TYPE] = HTTP_CONTENT_XML;
+		headers[HTTP_OUT_HEADER_USER_AGENT] = LLViewerMedia::getCurrentUserAgent();
 		
 		if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 		{

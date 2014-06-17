@@ -794,12 +794,12 @@ bool LLPanelRegionGeneralInfo::onMessageCommit(const LLSD& notification, const L
 
 class ConsoleRequestResponder : public LLHTTPClient::Responder
 {
-public:
+	LOG_CLASS(ConsoleRequestResponder);
+protected:
 	/*virtual*/
-	void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+	void httpFailure()
 	{
-		LL_WARNS() << "ConsoleRequestResponder error requesting mesh_rez_enabled [status:"
-				<< status << "]: " << content << LL_ENDL;
+		LL_WARNS() << "error requesting mesh_rez_enabled " << dumpResponse() << LL_ENDL;
 	}
 };
 
@@ -807,12 +807,12 @@ public:
 // called if this request times out.
 class ConsoleUpdateResponder : public LLHTTPClient::Responder
 {
-public:
+	LOG_CLASS(ConsoleUpdateResponder);
+protected:
 	/* virtual */
-	void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+	void httpFailure()
 	{
-		LL_WARNS() << "ConsoleRequestResponder error updating mesh enabled region setting [status:"
-				<< status << "]: " << content << LL_ENDL;
+		LL_WARNS() << "error updating mesh enabled region setting " << dumpResponse() << LL_ENDL;
 	}
 };
 
@@ -2284,14 +2284,16 @@ void LLPanelEstateInfo::getEstateOwner()
 
 class LLEstateChangeInfoResponder : public LLHTTPClient::Responder
 {
+	LOG_CLASS(LLEstateChangeInfoResponder);
 public:
 	LLEstateChangeInfoResponder(LLPanelEstateInfo* panel)
 	{
 		mpPanel = panel->getHandle();
 	}
 	
+protected:
 	// if we get a normal response, handle it here
-	virtual void result(const LLSD& content)
+	virtual void httpSuccess()
 	{
 		LL_INFOS("Windlight") << "Successfully committed estate info" << LL_ENDL;
 
@@ -2302,10 +2304,9 @@ public:
 	}
 	
 	// if we get an error response
-	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+	virtual void httpFailure()
 	{
-		LL_INFOS() << "LLEstateChangeInfoResponder::error [status:"
-			<< status << "]: " << content << LL_ENDL;
+		LL_WARNS("Windlight") << dumpResponse() << LL_ENDL;
 	}
 private:
 	LLHandle<LLPanel> mpPanel;

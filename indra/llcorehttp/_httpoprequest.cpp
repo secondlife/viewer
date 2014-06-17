@@ -44,7 +44,7 @@
 #include "_httplibcurl.h"
 #include "_httpinternal.h"
 
-#include "llhttpstatuscodes.h"
+#include "llhttpconstants.h"
 #include "llproxy.h"
 
 namespace
@@ -531,6 +531,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 			code = curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDS, (void *) NULL);
 			check_curl_easy_code(code, CURLOPT_POSTFIELDS);
 			mCurlHeaders = curl_slist_append(mCurlHeaders, "Expect:");
+			// *TODO: Should this be 'Keep-Alive' ?
 			mCurlHeaders = curl_slist_append(mCurlHeaders, "Connection: keep-alive");
 			mCurlHeaders = curl_slist_append(mCurlHeaders, "Keep-alive: 300");
 		}

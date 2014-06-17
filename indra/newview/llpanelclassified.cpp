@@ -96,15 +96,11 @@ class LLClassifiedClickMessageResponder : public LLHTTPClient::Responder
 {
 	LOG_CLASS(LLClassifiedClickMessageResponder);
 
-public:
+protected:
 	// If we get back an error (not found, etc...), handle it here
-	virtual void errorWithContent(
-		U32 status,
-		const std::string& reason,
-		const LLSD& content)
+	virtual void httpFailure()
 	{
-		LL_WARNS() << "Sending click message failed (" << status << "): [" << reason << "]" << LL_ENDL;
-		LL_WARNS() << "Content: [" << content << "]" << LL_ENDL;
+		LL_WARNS() << "Sending click message failed " << dumpResponse() << LL_ENDL;
 	}
 };
 

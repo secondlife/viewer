@@ -192,6 +192,7 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	setPrevalidateInput(p.prevalidate_input_callback());
 	setPrevalidate(p.prevalidate_callback());
 
+	llassert(LLMenuGL::sMenuContainer != NULL);
 	LLContextMenu* menu = LLUICtrlFactory::instance().createFromFile<LLContextMenu>
 		("menu_text_editor.xml",
 		 LLMenuGL::sMenuContainer,

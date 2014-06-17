@@ -240,7 +240,7 @@ public:
 	virtual bool build(LLPumpIO::chain_t& chain, LLSD context) const
 	{
 		LL_DEBUGS() << "LLSDRPCClientFactory::build" << LL_ENDL;
-		LLURLRequest* http(new LLURLRequest(LLURLRequest::HTTP_POST));
+		LLURLRequest* http(new LLURLRequest(HTTP_POST));
 		if(!http->isValid())
 		{
 			LL_WARNS() << "Creating LLURLRequest failed." << LL_ENDL ;
@@ -251,7 +251,7 @@ public:
 		LLIOPipe::ptr_t service(new Client);
 		chain.push_back(service);		
 		LLIOPipe::ptr_t http_pipe(http);
-		http->addHeader("Content-Type: text/llsd");
+		http->addHeader(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_TEXT_LLSD);
 		if(mURL.empty())
 		{
 			chain.push_back(LLIOPipe::ptr_t(new LLContextURLExtractor(http)));
@@ -291,7 +291,7 @@ public:
 	{
 		LL_DEBUGS() << "LLXMLSDRPCClientFactory::build" << LL_ENDL;
 
-		LLURLRequest* http(new LLURLRequest(LLURLRequest::HTTP_POST));
+		LLURLRequest* http(new LLURLRequest(HTTP_POST));
 		if(!http->isValid())
 		{
 			LL_WARNS() << "Creating LLURLRequest failed." << LL_ENDL ;
@@ -301,7 +301,7 @@ public:
 		LLIOPipe::ptr_t service(new Client);
 		chain.push_back(service);		
 		LLIOPipe::ptr_t http_pipe(http);
-		http->addHeader("Content-Type: text/xml");
+		http->addHeader(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_TEXT_XML);
 		if(mURL.empty())
 		{
 			chain.push_back(LLIOPipe::ptr_t(new LLContextURLExtractor(http)));

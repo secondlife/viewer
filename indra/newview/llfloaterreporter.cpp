@@ -749,16 +749,18 @@ public:
 
 class LLUserReportResponder : public LLHTTPClient::Responder
 {
+	LOG_CLASS(LLUserReportResponder);
 public:
 	LLUserReportResponder(): LLHTTPClient::Responder()  {}
 
-	void errorWithContent(U32 status, const std::string& reason, const LLSD& content)
+private:
+	void httpCompleted()
 	{
-		// *TODO do some user messaging here
-		LLUploadDialog::modalUploadFinished();
-	}
-	void result(const LLSD& content)
-	{
+		if (!isGoodStatus())
+		{
+			// *TODO do some user messaging here
+			LL_WARNS("UserReport") << dumpResponse() << LL_ENDL;
+		}
 		// we don't care about what the server returns
 		LLUploadDialog::modalUploadFinished();
 	}

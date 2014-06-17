@@ -123,7 +123,7 @@ void LLFloaterObjectWeights::onWeightsUpdate(const SelectionCost& selection_cost
 }
 
 //virtual
-void LLFloaterObjectWeights::setErrorStatus(U32 status, const std::string& reason)
+void LLFloaterObjectWeights::setErrorStatus(S32 status, const std::string& reason)
 {
 	const std::string text = getString("nothing_selected");
 

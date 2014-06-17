@@ -61,7 +61,8 @@ protected:
 private:
 	void disableWinErrorReporting();
 
-    std::string mCmdLine;
+	std::string mCmdLine;
+	bool mIsConsoleAllocated;
 };
 
 #endif // LL_LLAPPVIEWERWIN32_H

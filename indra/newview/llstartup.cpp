@@ -313,6 +313,12 @@ void update_texture_fetch()
 	gTextureList.updateImages(0.10f);
 }
 
+void set_flags_and_update_appearance()
+{
+	LLAppearanceMgr::instance().setAttachmentInvLinkEnable(true);
+	LLAppearanceMgr::instance().updateAppearanceFromCOF(true, true, no_op);
+}
+
 // Returns false to skip other idle processing. Should only return
 // true when all initialization done.
 bool idle_startup()
@@ -1289,6 +1295,8 @@ bool idle_startup()
 		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(gFirstSimHandle);
 		LL_INFOS("AppInit") << "Adding initial simulator " << regionp->getOriginGlobal() << LL_ENDL;
 		
+		LL_DEBUGS("CrossingCaps") << "Calling setSeedCapability from init_idle(). Seed cap == "
+		<< gFirstSimSeedCap << LL_ENDL;
 		regionp->setSeedCapability(gFirstSimSeedCap);
 		LL_DEBUGS("AppInit") << "Waiting for seed grant ...." << LL_ENDL;
 		display_startup();
@@ -1776,6 +1784,15 @@ bool idle_startup()
 		// This method MUST be called before gInventory.findCategoryUUIDForType because of 
 		// gInventory.mIsAgentInvUsable is set to true in the gInventory.buildParentChildMap.
 		gInventory.buildParentChildMap();
+		gInventory.createCommonSystemCategories();
+
+		// It's debatable whether this flag is a good idea - sets all
+		// bits, and in general it isn't true that inventory
+		// initialization generates all types of changes. Maybe add an
+		// INITIALIZE mask bit instead?
+		gInventory.addChangedMask(LLInventoryObserver::ALL, LLUUID::null);
+		gInventory.notifyObservers();
+		
 		display_startup();
 
 		//all categories loaded. lets create "My Favorites" category
@@ -2023,7 +2040,7 @@ bool idle_startup()
 	{
 		display_startup();
 		F32 timeout_frac = timeout.getElapsedTimeF32()/PRECACHING_DELAY;
-
+		
 		// We now have an inventory skeleton, so if this is a user's first
 		// login, we can start setting up their clothing and avatar 
 		// appearance.  This helps to avoid the generic "Ruth" avatar in
@@ -2032,18 +2049,38 @@ bool idle_startup()
 			&& !sInitialOutfit.empty()    // registration set up an outfit
 			&& !sInitialOutfitGender.empty() // and a gender
 			&& isAgentAvatarValid()	  // can't wear clothes without object
-			&& !gAgent.isGenderChosen() ) // nothing already loading
+			&& !gAgent.isOutfitChosen()) // nothing already loading
 		{
 			// Start loading the wearables, textures, gestures
 			LLStartUp::loadInitialOutfit( sInitialOutfit, sInitialOutfitGender );
+		}
+		// If not first login, we need to fetch COF contents and
+		// compute appearance from that.
+		if (isAgentAvatarValid() && !gAgent.isFirstLogin() && !gAgent.isOutfitChosen())
+		{
+			gAgentWearables.notifyLoadingStarted();
+			gAgent.setOutfitChosen(TRUE);
+			gAgentWearables.sendDummyAgentWearablesUpdate();
+			callAfterCategoryFetch(LLAppearanceMgr::instance().getCOF(), set_flags_and_update_appearance);
 		}
 
 		display_startup();
 
 		// wait precache-delay and for agent's avatar or a lot longer.
-		if(((timeout_frac > 1.f) && isAgentAvatarValid())
-		   || (timeout_frac > 3.f))
+		if ((timeout_frac > 1.f) && isAgentAvatarValid())
 		{
+			LLStartUp::setStartupState( STATE_WEARABLES_WAIT );
+		}
+		else if (timeout_frac > 10.f) 
+		{
+			// If we exceed the wait above while isAgentAvatarValid is
+			// not true yet, we will change startup state and
+			// eventually (once avatar does get created) wind up at
+			// the gender chooser. This should occur only in very
+			// unusual circumstances, so set the timeout fairly high
+			// to minimize mistaken hits here.
+			LL_WARNS() << "Wait for valid avatar state exceeded " 
+					<< timeout.getElapsedTimeF32() << " will invoke gender chooser" << LL_ENDL; 
 			LLStartUp::setStartupState( STATE_WEARABLES_WAIT );
 		}
 		else
@@ -2065,12 +2102,11 @@ bool idle_startup()
 		const F32 wearables_time = wearables_timer.getElapsedTimeF32();
 		static LLCachedControl<F32> max_wearables_time(gSavedSettings, "ClothingLoadingDelay");
 
-		display_startup();
-		if (!gAgent.isGenderChosen() && isAgentAvatarValid())
+		if (!gAgent.isOutfitChosen() && isAgentAvatarValid())
 		{
-			// No point in waiting for clothing, we don't even
-			// know what gender we are.  Pop a dialog to ask and
-			// proceed to draw the world. JC
+			// No point in waiting for clothing, we don't even know
+			// what outfit we want.  Pop up a gender chooser dialog to
+			// ask and proceed to draw the world. JC
 			//
 			// *NOTE: We might hit this case even if we have an
 			// initial outfit, but if the load hasn't started
@@ -2080,7 +2116,10 @@ bool idle_startup()
 				callback_choose_gender);
 			LLStartUp::setStartupState( STATE_CLEANUP );
 		}
-		else if (wearables_time >= max_wearables_time())
+		
+		display_startup();
+
+		if (gAgent.isOutfitChosen() && (wearables_time > max_wearables_time))
 		{
 			LLNotificationsUtil::add("ClothingLoading");
 			record(LLStatViewer::LOADING_WEARABLES_LONG_DELAY, wearables_time);
@@ -2091,25 +2130,24 @@ bool idle_startup()
 				&& gAgentAvatarp->isFullyLoaded())
 		{
 			// wait for avatar to be completely loaded
-			//LL_INFOS() << "avatar fully loaded" << LL_ENDL;
-			LLStartUp::setStartupState( STATE_CLEANUP );
-		}
-		// OK to just get the wearables
-		else if (!gAgent.isFirstLogin() && gAgentWearables.areWearablesLoaded() )
-		{
-			// We have our clothing, proceed.
-			//LL_INFOS() << "wearables loaded" << LL_ENDL;
-			LLStartUp::setStartupState( STATE_CLEANUP );
+			if (isAgentAvatarValid()
+				&& gAgentAvatarp->isFullyLoaded())
+			{
+				LL_DEBUGS("Avatar") << "avatar fully loaded" << LL_ENDL;
+				LLStartUp::setStartupState( STATE_CLEANUP );
+				return TRUE;
+			}
 		}
 		else
 		{
-			display_startup();
-			update_texture_fetch();
-			display_startup();
-			set_startup_status(0.9f + 0.1f * wearables_time / max_wearables_time(),
-				LLTrans::getString("LoginDownloadingClothing").c_str(),
-				gAgent.mMOTD.c_str());
-			display_startup();
+			// OK to just get the wearables
+			if ( gAgentWearables.areWearablesLoaded() )
+			{
+				// We have our clothing, proceed.
+				LL_DEBUGS("Avatar") << "wearables loaded" << LL_ENDL;
+				LLStartUp::setStartupState( STATE_CLEANUP );
+				return TRUE;
+			}
 		}
 		//fall through this frame to STATE_CLEANUP
 	}
@@ -2356,8 +2394,6 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 	msg->setHandlerFuncFast(_PREHASH_RemoveNameValuePair,	process_remove_name_value);
 	msg->setHandlerFuncFast(_PREHASH_AvatarAnimation,		process_avatar_animation);
 	msg->setHandlerFuncFast(_PREHASH_AvatarAppearance,		process_avatar_appearance);
-	msg->setHandlerFunc("AgentCachedTextureResponse",	LLAgent::processAgentCachedTextureResponse);
-	msg->setHandlerFunc("RebakeAvatarTextures", LLVOAvatarSelf::processRebakeAvatarTextures);
 	msg->setHandlerFuncFast(_PREHASH_CameraConstraint,		process_camera_constraint);
 	msg->setHandlerFuncFast(_PREHASH_AvatarSitResponse,		process_avatar_sit_response);
 	msg->setHandlerFunc("SetFollowCamProperties",			process_set_follow_cam_properties);
@@ -2430,9 +2466,6 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 	// ratings deprecated
 	// msg->setHandlerFuncFast(_PREHASH_ReputationIndividualReply,
 	//					LLFloaterRate::processReputationIndividualReply);
-
-	msg->setHandlerFuncFast(_PREHASH_AgentWearablesUpdate,
-						LLAgentWearables::processAgentInitialWearablesUpdate );
 
 	msg->setHandlerFunc("ScriptControlChange",
 						LLAgent::processScriptControlChange );
@@ -2590,9 +2623,8 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 		LL_DEBUGS() << "initial outfit category id: " << cat_id << LL_ENDL;
 	}
 
-	// This is really misnamed -- it means we have started loading
-	// an outfit/shape that will give the avatar a gender eventually. JC
-	gAgent.setGenderChosen(TRUE);
+	gAgent.setOutfitChosen(TRUE);
+	gAgentWearables.sendDummyAgentWearablesUpdate();
 }
 
 //static
@@ -2605,10 +2637,10 @@ void LLStartUp::saveInitialOutfit()
 	
 	if (sWearablesLoadedCon.connected())
 	{
-		LL_DEBUGS() << "sWearablesLoadedCon is connected, disconnecting" << LL_ENDL;
+		LL_DEBUGS("Avatar") << "sWearablesLoadedCon is connected, disconnecting" << LL_ENDL;
 		sWearablesLoadedCon.disconnect();
 	}
-	LL_DEBUGS() << "calling makeNewOutfitLinks( \"" << sInitialOutfit << "\" )" << LL_ENDL;
+	LL_DEBUGS("Avatar") << "calling makeNewOutfitLinks( \"" << sInitialOutfit << "\" )" << LL_ENDL;
 	LLAppearanceMgr::getInstance()->makeNewOutfitLinks(sInitialOutfit,false);
 }
 
@@ -3361,7 +3393,11 @@ bool process_login_success_response()
 		flag = login_flags["gendered"].asString();
 		if(flag == "Y")
 		{
-			gAgent.setGenderChosen(TRUE);
+			// We don't care about this flag anymore; now base whether
+			// outfit is chosen on COF contents, initial outfit
+			// requested and available, etc.
+
+			//gAgent.setGenderChosen(TRUE);
 		}
 		
 		bool pacific_daylight_time = false;

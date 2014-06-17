@@ -123,6 +123,22 @@ BOOL LLViewerVisualParamInfo::parseXml(LLXmlTreeNode *node)
 // LLViewerVisualParam()
 //-----------------------------------------------------------------------------
 LLViewerVisualParam::LLViewerVisualParam()
+	: LLVisualParam()
+{
+}
+
+//-----------------------------------------------------------------------------
+// LLViewerVisualParam()
+//-----------------------------------------------------------------------------
+LLViewerVisualParam::LLViewerVisualParam(const LLViewerVisualParam& pOther)
+	: LLVisualParam(pOther)
+{
+}
+
+//-----------------------------------------------------------------------------
+// ~LLViewerVisualParam()
+//-----------------------------------------------------------------------------
+LLViewerVisualParam::~LLViewerVisualParam()
 {
 }
 
@@ -137,7 +153,7 @@ BOOL LLViewerVisualParam::setInfo(LLViewerVisualParamInfo *info)
 		return FALSE;
 	mInfo = info;
 	mID = info->mID;
-	setWeight(getDefaultWeight(), FALSE );
+	setWeight(getDefaultWeight());
 	return TRUE;
 }
 
