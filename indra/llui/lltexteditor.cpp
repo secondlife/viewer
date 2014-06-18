@@ -1308,12 +1308,21 @@ BOOL LLTextEditor::handleNavigationKey(const KEY key, const MASK mask)
  
 		case KEY_END:
 			endOfLine();
-			if (!mDrawRightmostCursor)
 			{
-				mDrawRightmostCursor = true;
-				if (mCursorPos + 1 < getLength())
+				S32 last_line_index = mLineInfoList.size() - 1;
+				if (getLineNumFromDocIndex(mCursorPos, true) < last_line_index)
 				{
+					mDrawRightmostCursor = true;
 					setCursorPos(mCursorPos + 1);
+				}
+				else if (last_line_index > 0) // only for two and more lines
+				{
+					S32 prev_line_width = mLineInfoList[last_line_index - 1].mRect.getWidth();
+					S32 last_line_width = mLineInfoList[last_line_index].mRect.getWidth();
+					if (prev_line_width <= last_line_width)
+					{
+						mDrawRightmostCursor = true;
+					}
 				}
 			}
 			break;
