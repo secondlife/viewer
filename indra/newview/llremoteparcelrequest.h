@@ -38,16 +38,17 @@ class LLRemoteParcelInfoObserver;
 
 class LLRemoteParcelRequestResponder : public LLHTTPClient::Responder
 {
+	LOG_CLASS(LLRemoteParcelRequestResponder);
 public:
 	LLRemoteParcelRequestResponder(LLHandle<LLRemoteParcelInfoObserver> observer_handle);
 
+private:
 	//If we get back a normal response, handle it here
-	/*virtual*/ void result(const LLSD& content);
+	/*virtual*/ void httpSuccess();
 
 	//If we get back an error (not found, etc...), handle it here
-	/*virtual*/ void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
+	/*virtual*/ void httpFailure();
 
-protected:
 	LLHandle<LLRemoteParcelInfoObserver> mObserverHandle;
 };
 
@@ -79,7 +80,7 @@ public:
 	virtual ~LLRemoteParcelInfoObserver() {}
 	virtual void processParcelInfo(const LLParcelData& parcel_data) = 0;
 	virtual void setParcelID(const LLUUID& parcel_id) = 0;
-	virtual void setErrorStatus(U32 status, const std::string& reason) = 0;
+	virtual void setErrorStatus(S32 status, const std::string& reason) = 0;
 	LLHandle<LLRemoteParcelInfoObserver>	getObserverHandle() const { return mObserverHandle; }
 
 protected:

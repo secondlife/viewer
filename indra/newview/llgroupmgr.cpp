@@ -1851,23 +1851,31 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 // Responder class for capability group management
 class GroupMemberDataResponder : public LLHTTPClient::Responder
 {
+	LOG_CLASS(GroupMemberDataResponder);
 public:
-		GroupMemberDataResponder() {}
-		virtual ~GroupMemberDataResponder() {}
-		virtual void result(const LLSD& pContent);
-		virtual void errorWithContent(U32 pStatus, const std::string& pReason, const LLSD& pContent);
+	GroupMemberDataResponder() {}
+	virtual ~GroupMemberDataResponder() {}
+
 private:
-		LLSD mMemberData;
+	/* virtual */ void httpSuccess();
+	/* virtual */ void httpFailure();
+	LLSD mMemberData;
 };
 
-void GroupMemberDataResponder::errorWithContent(U32 pStatus, const std::string& pReason, const LLSD& pContent)
+void GroupMemberDataResponder::httpFailure()
 {
-	LL_WARNS("GrpMgr") << "Error receiving group member data [status:" 
-		<< pStatus << "]: " << pContent << LL_ENDL;
+	LL_WARNS("GrpMgr") << "Error receiving group member data "
+		<< dumpResponse() << LL_ENDL;
 }
 
-void GroupMemberDataResponder::result(const LLSD& content)
+void GroupMemberDataResponder::httpSuccess()
 {
+	const LLSD& content = getContent();
+	if (!content.isMap())
+	{
+		failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
+		return;
+	}
 	LLGroupMgr::processCapGroupMembersRequest(content);
 }
 

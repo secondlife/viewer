@@ -63,6 +63,7 @@
 
 // static
 LLMenuHolderGL *LLMenuGL::sMenuContainer = NULL;
+view_listener_t::listener_map_t view_listener_t::sListeners;
 
 S32 MENU_BAR_HEIGHT = 0;
 S32 MENU_BAR_WIDTH = 0;

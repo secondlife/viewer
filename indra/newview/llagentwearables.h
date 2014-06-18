@@ -42,7 +42,6 @@
 class LLInventoryItem;
 class LLVOAvatarSelf;
 class LLViewerWearable;
-class LLInitialWearablesFetch;
 class LLViewerObject;
 
 class LLAgentWearables : public LLInitClass<LLAgentWearables>, public LLWearableData
@@ -51,7 +50,6 @@ class LLAgentWearables : public LLInitClass<LLAgentWearables>, public LLWearable
 	// Constructors / destructors / Initializers
 	//--------------------------------------------------------------------
 public:
-	friend class LLInitialWearablesFetch;
 
 	LLAgentWearables();
 	virtual ~LLAgentWearables();
@@ -62,9 +60,6 @@ public:
 
 	// LLInitClass interface
 	static void initClass();
-protected:
-	void			createStandardWearablesDone(S32 type, U32 index/* = 0*/);
-	void			createStandardWearablesAllDone();
 	
 	//--------------------------------------------------------------------
 	// Queries
@@ -77,6 +72,7 @@ public:
 	BOOL			isWearableCopyable(LLWearableType::EType type, U32 index /*= 0*/) const;
 	BOOL			areWearablesLoaded() const;
 	bool			isCOFChangeInProgress() const { return mCOFChangeInProgress; }
+	F32				getCOFChangeTime() const { return mCOFChangeTimer.getElapsedTimeF32(); }
 	void			updateWearablesLoaded();
 	void			checkWearablesLoaded() const;
 	bool			canMoveWearable(const LLUUID& item_id, bool closer_to_body) const;
@@ -84,7 +80,7 @@ public:
 	// Note: False for shape, skin, eyes, and hair, unless you have MORE than 1.
 	bool			canWearableBeRemoved(const LLViewerWearable* wearable) const;
 
-	void			animateAllWearableParams(F32 delta, BOOL upload_bake);
+	void			animateAllWearableParams(F32 delta);
 
 	//--------------------------------------------------------------------
 	// Accessors
@@ -107,7 +103,7 @@ private:
 	/*virtual*/void	wearableUpdated(LLWearable *wearable, BOOL removed);
 public:
 	void			setWearableItem(LLInventoryItem* new_item, LLViewerWearable* wearable, bool do_append = false);
-	void			setWearableOutfit(const LLInventoryItem::item_array_t& items, const std::vector< LLViewerWearable* >& wearables, BOOL remove);
+	void			setWearableOutfit(const LLInventoryItem::item_array_t& items, const std::vector< LLViewerWearable* >& wearables);
 	void			setWearableName(const LLUUID& item_id, const std::string& new_name);
 	// *TODO: Move this into llappearance/LLWearableData ?
 	void			addLocalTextureObject(const LLWearableType::EType wearable_type, const LLAvatarAppearanceDefines::ETextureIndex texture_type, U32 wearable_index);
@@ -151,31 +147,10 @@ private:
 	void			removeWearableFinal(const LLWearableType::EType type, bool do_remove_all /*= false*/, U32 index /*= 0*/);
 protected:
 	static bool		onRemoveWearableDialog(const LLSD& notification, const LLSD& response);
-	
-	//--------------------------------------------------------------------
-	// Server Communication
-	//--------------------------------------------------------------------
-public:
-	// Processes the initial wearables update message (if necessary, since the outfit folder makes it redundant)
-	static void		processAgentInitialWearablesUpdate(LLMessageSystem* mesgsys, void** user_data);
-
-protected:
-	/*virtual*/ void	invalidateBakedTextureHash(LLMD5& hash) const;
-	void			sendAgentWearablesUpdate();
-	void			sendAgentWearablesRequest();
-	void			queryWearableCache();
-	void 			updateServer();
-	static void		onInitialWearableAssetArrived(LLViewerWearable* wearable, void* userdata);
 
 	//--------------------------------------------------------------------
 	// Outfits
 	//--------------------------------------------------------------------
-public:
-	
-	// Should only be called if we *know* we've never done so before, since users may
-	// not want the Library outfits to stay in their quick outfit selector and can delete them.
-	void			populateMyOutfitsFolder();
-
 private:
 	void			makeNewOutfitDone(S32 type, U32 index); 
 
@@ -184,10 +159,15 @@ private:
 	//--------------------------------------------------------------------
 public:	
 	void			saveWearableAs(const LLWearableType::EType type, const U32 index, const std::string& new_name, const std::string& description, BOOL save_in_lost_and_found);
-	void			saveWearable(const LLWearableType::EType type, const U32 index, BOOL send_update = TRUE,
+	void			saveWearable(const LLWearableType::EType type, const U32 index,
 								 const std::string new_name = "");
 	void			saveAllWearables();
 	void			revertWearable(const LLWearableType::EType type, const U32 index);
+
+	// We no longer need this message in the current viewer, but send
+	// it for now to maintain compatibility with release viewers. Can
+	// remove this function once the SH-3455 changesets are universally deployed.
+	void			sendDummyAgentWearablesUpdate();
 
 	//--------------------------------------------------------------------
 	// Static UI hooks
@@ -201,9 +181,6 @@ public:
 	static void 	userUpdateAttachments(LLInventoryModel::item_array_t& obj_item_array);
 	static void		userRemoveMultipleAttachments(llvo_vec_t& llvo_array);
 	static void		userAttachMultipleAttachments(LLInventoryModel::item_array_t& obj_item_array);
-
-	BOOL			itemUpdatePending(const LLUUID& item_id) const;
-	U32				itemUpdatePendingCount() const;
 
 	//--------------------------------------------------------------------
 	// Signals
@@ -231,29 +208,18 @@ private:
 private:
 	static BOOL		mInitialWearablesUpdateReceived;
 	BOOL			mWearablesLoaded;
-	std::set<LLUUID>	mItemsAwaitingWearableUpdate;
 
 	/**
 	 * True if agent's outfit is being changed now.
 	 */
 	BOOL			mCOFChangeInProgress;
+	LLTimer			mCOFChangeTimer;
 	
 	//--------------------------------------------------------------------------------
 	// Support classes
 	//--------------------------------------------------------------------------------
 private:
-	class createStandardWearablesAllDoneCallback : public LLRefCount
-	{
-	protected:
-		~createStandardWearablesAllDoneCallback();
-	};
-	class sendAgentWearablesUpdateCallback : public LLRefCount
-	{
-	protected:
-		~sendAgentWearablesUpdateCallback();
-	};
-
-	class addWearableToAgentInventoryCallback : public LLInventoryCallback
+	class AddWearableToAgentInventoryCallback : public LLInventoryCallback
 	{
 	public:
 		enum ETodo
@@ -266,7 +232,7 @@ private:
 			CALL_WEARITEM = 16
 		};
 
-		addWearableToAgentInventoryCallback(LLPointer<LLRefCount> cb,
+		AddWearableToAgentInventoryCallback(LLPointer<LLRefCount> cb,
 											LLWearableType::EType type,
 											U32 index,
 											LLViewerWearable* wearable,

@@ -85,49 +85,49 @@ protected:
 
 class fetchScriptLimitsRegionInfoResponder: public LLHTTPClient::Responder
 {
-	public:
-		fetchScriptLimitsRegionInfoResponder(const LLSD& info) : mInfo(info) {};
+	LOG_CLASS(fetchScriptLimitsRegionInfoResponder);
+public:
+	fetchScriptLimitsRegionInfoResponder(const LLSD& info) : mInfo(info) {};
 
-		void result(const LLSD& content);
-		void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
-	public:
-	protected:
-		LLSD mInfo;
+private:
+	/* virtual */ void httpSuccess();
+	/* virtual */ void httpFailure();
+	LLSD mInfo;
 };
 
 class fetchScriptLimitsRegionSummaryResponder: public LLHTTPClient::Responder
 {
-	public:
-		fetchScriptLimitsRegionSummaryResponder(const LLSD& info) : mInfo(info) {};
+	LOG_CLASS(fetchScriptLimitsRegionSummaryResponder);
+public:
+	fetchScriptLimitsRegionSummaryResponder(const LLSD& info) : mInfo(info) {};
 
-		void result(const LLSD& content);
-		void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
-	public:
-	protected:
-		LLSD mInfo;
+private:
+	/* virtual */ void httpSuccess();
+	/* virtual */ void httpFailure();
+	LLSD mInfo;
 };
 
 class fetchScriptLimitsRegionDetailsResponder: public LLHTTPClient::Responder
 {
-	public:
-		fetchScriptLimitsRegionDetailsResponder(const LLSD& info) : mInfo(info) {};
+	LOG_CLASS(fetchScriptLimitsRegionDetailsResponder);
+public:
+	fetchScriptLimitsRegionDetailsResponder(const LLSD& info) : mInfo(info) {};
 
-		void result(const LLSD& content);
-		void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
-	public:
-	protected:
-		LLSD mInfo;
+private:
+	/* virtual */ void httpSuccess();
+	/* virtual */ void httpFailure();
+	LLSD mInfo;
 };
 
 class fetchScriptLimitsAttachmentInfoResponder: public LLHTTPClient::Responder
 {
-	public:
-		fetchScriptLimitsAttachmentInfoResponder() {};
+	LOG_CLASS(fetchScriptLimitsAttachmentInfoResponder);
+public:
+	fetchScriptLimitsAttachmentInfoResponder() {};
 
-		void result(const LLSD& content);
-		void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
-	public:
-	protected:
+private:
+	/* virtual */ void httpSuccess();
+	/* virtual */ void httpFailure();
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -190,7 +190,7 @@ protected:
 // LLRemoteParcelInfoObserver interface:
 /*virtual*/ void processParcelInfo(const LLParcelData& parcel_data);
 /*virtual*/ void setParcelID(const LLUUID& parcel_id);
-/*virtual*/ void setErrorStatus(U32 status, const std::string& reason);
+/*virtual*/ void setErrorStatus(S32 status, const std::string& reason);
 	
 	static void onClickRefresh(void* userdata);
 	static void onClickHighlight(void* userdata);

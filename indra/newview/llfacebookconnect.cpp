@@ -110,28 +110,36 @@ public:
         LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTION_IN_PROGRESS);
     }
     
-	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
+	/* virtual */ void httpSuccess()
 	{
-		if (isGoodStatus(status))
+		LL_DEBUGS("FacebookConnect") << "Connect successful. " << dumpResponse() << LL_ENDL;
+		LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTED);
+	}
+
+	/* virtual */ void httpFailure()
+	{
+		if ( HTTP_FOUND == getStatus() )
 		{
-			LL_DEBUGS("FacebookConnect") << "Connect successful. content: " << content << LL_ENDL;
-			
-            LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTED);
+			const std::string& location = getResponseHeader(HTTP_IN_HEADER_LOCATION);
+			if (location.empty())
+			{
+				LL_WARNS("FacebookConnect") << "Missing Location header " << dumpResponse()
+							 << "[headers:" << getResponseHeaders() << "]" << LL_ENDL;
+			}
+			else
+			{
+				LLFacebookConnect::instance().openFacebookWeb(location);
+			}
 		}
-		else if (status != 302)
+		else
 		{
-            LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTION_FAILED);
-            log_facebook_connect_error("Connect", status, reason, content.get("error_code"), content.get("error_description"));
+			LL_WARNS("FacebookConnect") << dumpResponse() << LL_ENDL;
+			LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTION_FAILED);
+			const LLSD& content = getContent();
+			log_facebook_connect_error("Connect", getStatus(), getReason(),
+									   content.get("error_code"), content.get("error_description"));
 		}
 	}
-    
-    void completedHeader(U32 status, const std::string& reason, const LLSD& content)
-    {
-        if (status == 302)
-        {
-            LLFacebookConnect::instance().openFacebookWeb(content["location"]);
-        }
-    }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -145,34 +153,42 @@ public:
 	{
 		LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_POSTING);
 	}
-	
-	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
+
+	/* virtual */ void httpSuccess()
 	{
-		if (isGoodStatus(status))
+		toast_user_for_success();
+		LL_DEBUGS("FacebookConnect") << "Post successful. " << dumpResponse() << LL_ENDL;
+		LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_POSTED);
+	}
+
+	/* virtual */ void httpFailure()
+	{
+		if ( HTTP_FOUND == getStatus() )
 		{
-            toast_user_for_success();
-			LL_DEBUGS("FacebookConnect") << "Post successful. content: " << content << LL_ENDL;
-			
-			LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_POSTED);
+			const std::string& location = getResponseHeader(HTTP_IN_HEADER_LOCATION);
+			if (location.empty())
+			{
+				LL_WARNS("FacebookConnect") << "Missing Location header " << dumpResponse()
+							 << "[headers:" << getResponseHeaders() << "]" << LL_ENDL;
+			}
+			else
+			{
+				LLFacebookConnect::instance().openFacebookWeb(location);
+			}
 		}
-		else if (status == 404)
+		else if ( HTTP_NOT_FOUND == getStatus() )
 		{
 			LLFacebookConnect::instance().connectToFacebook();
 		}
 		else
 		{
-            LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_POST_FAILED);
-            log_facebook_connect_error("Share", status, reason, content.get("error_code"), content.get("error_description"));
+			LL_WARNS("FacebookConnect") << dumpResponse() << LL_ENDL;
+			LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_POST_FAILED);
+			const LLSD& content = getContent();
+			log_facebook_connect_error("Share", getStatus(), getReason(),
+									   content.get("error_code"), content.get("error_description"));
 		}
 	}
-    
-    void completedHeader(U32 status, const std::string& reason, const LLSD& content)
-    {
-        if (status == 302)
-        {
-            LLFacebookConnect::instance().openFacebookWeb(content["location"]);
-        }
-    }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -196,24 +212,27 @@ public:
 		LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_NOT_CONNECTED);
 	}
 
-	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
+	/* virtual */ void httpSuccess()
 	{
-		if (isGoodStatus(status)) 
-		{
-			LL_DEBUGS("FacebookConnect") << "Disconnect successful. content: " << content << LL_ENDL;
-			setUserDisconnected();
+		LL_DEBUGS("FacebookConnect") << "Disconnect successful. " << dumpResponse() << LL_ENDL;
+		setUserDisconnected();
+	}
 
-		}
+	/* virtual */ void httpFailure()
+	{
 		//User not found so already disconnected
-		else if(status == 404)
+		if ( HTTP_NOT_FOUND == getStatus() )
 		{
-			LL_DEBUGS("FacebookConnect") << "Already disconnected. content: " << content << LL_ENDL;
+			LL_DEBUGS("FacebookConnect") << "Already disconnected. " << dumpResponse() << LL_ENDL;
 			setUserDisconnected();
 		}
 		else
 		{
+			LL_WARNS("FacebookConnect") << dumpResponse() << LL_ENDL;
 			LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_DISCONNECT_FAILED);
-            log_facebook_connect_error("Disconnect", status, reason, content.get("error_code"), content.get("error_description"));
+			const LLSD& content = getContent();
+			log_facebook_connect_error("Disconnect", getStatus(), getReason(),
+									   content.get("error_code"), content.get("error_description"));
 		}
 	}
 };
@@ -229,34 +248,35 @@ public:
     {
 		LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTION_IN_PROGRESS);
     }
-    
-	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
+
+	/* virtual */ void httpSuccess()
 	{
-		if (isGoodStatus(status))
+		LL_DEBUGS("FacebookConnect") << "Connect successful. " << dumpResponse() << LL_ENDL;
+		LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTED);
+	}
+
+	/* virtual */ void httpFailure()
+	{
+		// show the facebook login page if not connected yet
+		if ( HTTP_NOT_FOUND == getStatus() )
 		{
-			LL_DEBUGS("FacebookConnect") << "Connect successful. content: " << content << LL_ENDL;
-            
-            LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTED);
+			LL_DEBUGS("FacebookConnect") << "Not connected. " << dumpResponse() << LL_ENDL;
+			if (mAutoConnect)
+			{
+				LLFacebookConnect::instance().connectToFacebook();
+			}
+			else
+			{
+				LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_NOT_CONNECTED);
+			}
 		}
 		else
 		{
-			// show the facebook login page if not connected yet
-			if (status == 404)
-			{
-				if (mAutoConnect)
-				{
-					LLFacebookConnect::instance().connectToFacebook();
-				}
-				else
-				{
-					LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_NOT_CONNECTED);
-				}
-			}
-            else
-            {
-                LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTION_FAILED);
-				log_facebook_connect_error("Connected", status, reason, content.get("error_code"), content.get("error_description"));
-            }
+			LL_WARNS("FacebookConnect") << dumpResponse() << LL_ENDL;
+			LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_DISCONNECT_FAILED);
+			const LLSD& content = getContent();
+			log_facebook_connect_error("Connected", getStatus(), getReason(),
+									   content.get("error_code"), content.get("error_description"));
 		}
 	}
     
@@ -271,25 +291,27 @@ class LLFacebookInfoResponder : public LLHTTPClient::Responder
 	LOG_CLASS(LLFacebookInfoResponder);
 public:
 
-	virtual void completed(U32 status, const std::string& reason, const LLSD& info)
+	/* virtual */ void httpSuccess()
 	{
-		if (isGoodStatus(status))
+		LL_INFOS("FacebookConnect") << "Facebook: Info received" << LL_ENDL;
+		LL_DEBUGS("FacebookConnect") << "Getting Facebook info successful. " << dumpResponse() << LL_ENDL;
+		LLFacebookConnect::instance().storeInfo(getContent());
+	}
+
+	/* virtual */ void httpFailure()
+	{
+		if ( HTTP_FOUND == getStatus() )
 		{
 			LL_INFOS() << "Facebook: Info received" << LL_ENDL;
-			LL_DEBUGS("FacebookConnect") << "Getting Facebook info successful. info: " << info << LL_ENDL;
-			LLFacebookConnect::instance().storeInfo(info);
+			LL_DEBUGS("FacebookConnect") << "Getting Facebook info successful. info: " << getContent() << LL_ENDL;
+			LLFacebookConnect::instance().storeInfo(getContent());
 		}
 		else
 		{
-			log_facebook_connect_error("Info", status, reason, info.get("error_code"), info.get("error_description"));
-		}
-	}
-
-	void completedHeader(U32 status, const std::string& reason, const LLSD& content)
-	{
-		if (status == 302)
-		{
-			LLFacebookConnect::instance().openFacebookWeb(content["location"]);
+			LL_WARNS("FacebookConnect") << dumpResponse() << LL_ENDL;
+			const LLSD& content = getContent();
+			log_facebook_connect_error("Info", getStatus(), getReason(),
+									   content.get("error_code"), content.get("error_description"));
 		}
 	}
 };
@@ -300,27 +322,36 @@ class LLFacebookFriendsResponder : public LLHTTPClient::Responder
 {
 	LOG_CLASS(LLFacebookFriendsResponder);
 public:
-
-	virtual void completed(U32 status, const std::string& reason, const LLSD& content)
+    
+	/* virtual */ void httpSuccess()
 	{
-		if (isGoodStatus(status))
+		LL_DEBUGS("FacebookConnect") << "Getting Facebook friends successful. " << dumpResponse() << LL_ENDL;
+		LLFacebookConnect::instance().storeContent(getContent());
+	}
+
+	/* virtual */ void httpFailure()
+	{
+		if ( HTTP_FOUND == getStatus() )
 		{
-			LL_DEBUGS("FacebookConnect") << "Getting Facebook friends successful. content: " << content << LL_ENDL;
-			LLFacebookConnect::instance().storeContent(content);
+			const std::string& location = getResponseHeader(HTTP_IN_HEADER_LOCATION);
+			if (location.empty())
+			{
+				LL_WARNS("FacebookConnect") << "Missing Location header " << dumpResponse()
+							 << "[headers:" << getResponseHeaders() << "]" << LL_ENDL;
+			}
+			else
+			{
+				LLFacebookConnect::instance().openFacebookWeb(location);
+			}
 		}
 		else
 		{
-            log_facebook_connect_error("Friends", status, reason, content.get("error_code"), content.get("error_description"));
+			LL_WARNS("FacebookConnect") << dumpResponse() << LL_ENDL;
+			const LLSD& content = getContent();
+			log_facebook_connect_error("Friends", getStatus(), getReason(),
+									   content.get("error_code"), content.get("error_description"));
 		}
 	}
-
-    void completedHeader(U32 status, const std::string& reason, const LLSD& content)
-    {
-        if (status == 302)
-        {
-            LLFacebookConnect::instance().openFacebookWeb(content["location"]);
-        }
-    }
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -199,9 +199,7 @@ public:
 
 	virtual LLJoint*		getJoint(const std::string &name);
 	
-	void					resetJointPositions( void );
 	void					resetJointPositionsToDefault( void );
-	void					resetSpecificJointPosition( const std::string& name );
 	
 	/*virtual*/ const LLUUID&	getID() const;
 	/*virtual*/ void			addDebugText(const std::string& text);
@@ -210,7 +208,7 @@ public:
 	/*virtual*/ F32				getPixelArea() const;
 	/*virtual*/ LLVector3d		getPosGlobalFromAgent(const LLVector3 &position);
 	/*virtual*/ LLVector3		getPosAgentFromGlobal(const LLVector3d &position);
-	virtual void			updateVisualParams();
+	virtual void				updateVisualParams();
 
 
 /**                    Inherited
@@ -442,7 +440,7 @@ public:
 	// Global colors
 	//--------------------------------------------------------------------
 public:
-	/*virtual*/void onGlobalColorChanged(const LLTexGlobalColor* global_color, BOOL upload_bake);
+	/*virtual*/void onGlobalColorChanged(const LLTexGlobalColor* global_color);
 
 	//--------------------------------------------------------------------
 	// Visibility
@@ -602,7 +600,7 @@ protected:
 	// Composites
 	//--------------------------------------------------------------------
 public:
-	virtual void	invalidateComposite(LLTexLayerSet* layerset, BOOL upload_result);
+	virtual void	invalidateComposite(LLTexLayerSet* layerset);
 	virtual void	invalidateAll();
 	virtual void	setCompositeUpdatesEnabled(bool b) {}
 	virtual void 	setCompositeUpdatesEnabled(U32 index, bool b) {}
@@ -639,7 +637,7 @@ private:
 public:
 	void			debugColorizeSubMeshes(U32 i, const LLColor4& color);
 	virtual void 	updateMeshTextures();
-	void 			updateSexDependentLayerSets(BOOL upload_bake);
+	void 			updateSexDependentLayerSets();
 	virtual void	dirtyMesh(); // Dirty the avatar mesh
 	void 			updateMeshData();
 protected:
@@ -672,7 +670,6 @@ public:
 	void 			processAvatarAppearance(LLMessageSystem* mesgsys);
 	void 			hideSkirt();
 	void			startAppearanceAnimation();
-	/*virtual*/ void bodySizeChanged();
 	
 	//--------------------------------------------------------------------
 	// Appearance morphing
@@ -684,12 +681,6 @@ public:
 	// instead of baked textures, as for example during wearable
 	// editing or when waiting for a subsequent server rebake.
 	/*virtual*/ BOOL	isUsingLocalAppearance() const { return mUseLocalAppearance; }
-
-	// True if this avatar should fetch its baked textures via the new
-	// appearance mechanism.
-	BOOL				isUsingServerBakes() const;
-	void 				setIsUsingServerBakes(BOOL newval);
-
 
 	// True if we are currently in appearance editing mode. Often but
 	// not always the same as isUsingLocalAppearance().
@@ -703,7 +694,6 @@ private:
 	F32				mLastAppearanceBlendTime;
 	BOOL			mIsEditingAppearance; // flag for if we're actively in appearance editing mode
 	BOOL			mUseLocalAppearance; // flag for if we're using a local composite
-	BOOL			mUseServerBakes; // flag for if baked textures should be fetched from baking service (false if they're temporary uploads)
 
 	//--------------------------------------------------------------------
 	// Visibility
@@ -1031,10 +1021,11 @@ protected: // Shared with LLVOAvatarSelf
 
 }; // LLVOAvatar
 extern const F32 SELF_ADDITIONAL_PRI;
-extern const S32 MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL;
+extern const S32 MAX_TEXTURE_VIRTUAL_SIZE_RESET_INTERVAL;
 
 std::string get_sequential_numbered_file_name(const std::string& prefix,
 											  const std::string& suffix);
+void dump_sequential_xml(const std::string outprefix, const LLSD& content);
 void dump_visual_param(apr_file_t* file, LLVisualParam* viewer_param, F32 value);
 
 #endif // LL_VOAVATAR_H
