@@ -1271,6 +1271,22 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
 	uuid_vec_t uuids;
 	getParticipantUUIDs(uuids);
 
+
+	//If there is group or ad-hoc chat in multiselection, everything needs to be disabled
+	if(uuids.size() > 1)
+	{
+		const std::set<LLFolderViewItem*> selectedItems = mConversationsRoot->getSelectionList();
+		LLConversationItem * conversationItem;
+		for(std::set<LLFolderViewItem*>::const_iterator it = selectedItems.begin(); it != selectedItems.end(); ++it)
+		{
+			conversationItem = static_cast<LLConversationItem *>((*it)->getViewModelItem());
+			if((conversationItem->getType() == LLConversationItem::CONV_SESSION_GROUP) || (conversationItem->getType() == LLConversationItem::CONV_SESSION_AD_HOC))
+			{
+				return false;
+			}
+		}
+	}
+
 	if ("conversation_log" == item)
 	{
 		return gSavedPerAccountSettings.getS32("KeepConversationLogTranscripts") > 0;
@@ -1375,6 +1391,10 @@ bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_v
     else if ("can_call" == item)
     {
         return LLAvatarActions::canCall();
+    }
+    else if ("can_open_voice_conversation" == item)
+    {
+    	return is_single_select && LLAvatarActions::canCall();
     }
 	else if ("can_zoom_in" == item)
 	{
