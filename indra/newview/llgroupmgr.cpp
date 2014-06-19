@@ -1868,8 +1868,8 @@ class GroupBanDataResponder : public LLHTTPClient::Responder
 public:
 	GroupBanDataResponder(const LLUUID& gropup_id, BOOL force_refresh=false);
 	virtual ~GroupBanDataResponder() {}
-	virtual void result(const LLSD& pContent);
-	virtual void errorWithContent(U32 pStatus, const std::string& pReason, const LLSD& pContent);
+	virtual void httpSuccess();
+	virtual void httpFailure();
 private:
 	LLUUID mGroupID;
 	BOOL mForceRefresh;
@@ -1880,34 +1880,27 @@ GroupBanDataResponder::GroupBanDataResponder(const LLUUID& gropup_id, BOOL force
 	mForceRefresh(force_refresh)
 {}
 
-void GroupBanDataResponder::errorWithContent(U32 pStatus, const std::string& pReason, const LLSD& pContent)
+void GroupBanDataResponder::httpFailure()
 {
 	LL_WARNS("GrpMgr") << "Error receiving group member data [status:" 
-		<< pStatus << "]: " << pContent << LL_ENDL;
+		<< mStatus << "]: " << mContent << LL_ENDL;
 }
 
-void GroupBanDataResponder::result(const LLSD& content)
+void GroupBanDataResponder::httpSuccess()
 {
-	if ( content.size())
+	if ( mContent.size())
 	{
-		if (content.has("ban_list"))
+		if (mContent.has("ban_list"))
 		{
-			// group data received
-			LLGroupMgr::processGroupBanRequest(content);
-		}
-		// no group data received, this is either CREATE or DELETE operation
-		// complete confirmation. Local data may be obsolete.
-		else if (mForceRefresh)
-		{
-			// providing mGroupId and not extracting it from content since it is not
-			// included into CREATE and DELETE responses 
-			LLGroupMgr::getInstance()->sendGroupBanRequest(LLGroupMgr::REQUEST_GET, mGroupID);
+			// group ban data received
+			LLGroupMgr::processGroupBanRequest(mContent);
+			mForceRefresh = false;
 		}
 	}
-	else
+	if (mForceRefresh)
 	{
-		LL_WARNS("GrpMgr") << "No group member data received." << LL_ENDL;
-		return;
+		// no ban data received, refreshing data after successful operation 
+		LLGroupMgr::getInstance()->sendGroupBanRequest(LLGroupMgr::REQUEST_GET, mGroupID);
 	}
 }
 
