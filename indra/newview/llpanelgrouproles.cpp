@@ -2875,10 +2875,7 @@ void LLPanelGroupBanListSubTab::activate()
 	mBanList->deselectAllItems();
 	mDeleteBanButton->setEnabled(FALSE);
 
-	if (gAgent.hasPowerInGroup(mGroupID, GP_GROUP_BAN_ACCESS))
-	{
-		mCreateBanButton->setEnabled(TRUE);
-	}
+	mCreateBanButton->setEnabled(gAgent.hasPowerInGroup(mGroupID, GP_GROUP_BAN_ACCESS));
 
 	// BAKER: Should I really request everytime activate() is called?
 	//		  Perhaps I should only do it on a force refresh, or if an action on the list happens...
