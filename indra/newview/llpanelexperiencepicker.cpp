@@ -65,28 +65,30 @@ public:
 
 	LLExperienceSearchResponder(const LLUUID& id, const LLHandle<LLPanelExperiencePicker>& parent) : mQueryID(id), mParent(parent) { }
 
-	void completed(U32 status, const std::string& reason, const LLSD& content)
+protected:
+	/*virtual*/ void httpSuccess()
 	{
 		if(mParent.isDead())
 			return;
-		if (isGoodStatus(status))
-		{
-			LLPanelExperiencePicker* panel =mParent.get();
-			if (panel)
-			{
-				panel->processResponse(mQueryID, content);
-			}
-		}
-		else
-		{
-			LLPanelExperiencePicker* panel =mParent.get();
-			if (panel)
-			{
-				panel->processResponse(mQueryID, LLSD());
-			}
-			LL_WARNS() << "experience picker failed [status:" << status << "]: " << content << LL_ENDL;
 
+		LLPanelExperiencePicker* panel =mParent.get();
+		if (panel)
+		{
+			panel->processResponse(mQueryID, getContent());
 		}
+	}
+
+	/*virtual*/ void httpFailure()
+	{
+		if(mParent.isDead())
+			return;
+
+		LLPanelExperiencePicker* panel =mParent.get();
+		if (panel)
+		{
+			panel->processResponse(mQueryID, LLSD());
+		}
+		LL_WARNS() << "experience picker failed [status:" << getStatus() << "]: " << getContent() << LL_ENDL;
 	}
 };
 

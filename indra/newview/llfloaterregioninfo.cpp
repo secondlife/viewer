@@ -3629,16 +3629,15 @@ public:
 
 	LLRegionExperienceResponder(callback_t callback) : mCallback(callback) { }
 
-	void completed(U32 status, const std::string& reason, const LLSD& content)
+protected:
+	/*virtual*/ void httpSuccess()
 	{
-		if (isGoodStatus(status))
-		{
-			mCallback(content);
-		}
-		else
-		{
-			LL_WARNS() << "experience responder failed [status:" << status << "]: " << content << LL_ENDL;
-		}
+		mCallback(getContent());
+	}
+
+	/*virtual*/ void httpFailure()
+	{
+		LL_WARNS() << "experience responder failed [status:" << getStatus() << "]: " << getContent() << LL_ENDL;
 	}
 };
 
