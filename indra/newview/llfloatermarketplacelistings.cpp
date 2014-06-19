@@ -112,6 +112,7 @@ void LLPanelMarketplaceListings::onAddButtonClicked()
     LLUUID category = gInventory.createNewCategory(marketplacelistings_id, preferred_type, LLStringUtil::null);
     gInventory.notifyObservers();
     mAllPanel->setSelectionByID(category, TRUE);
+	mAllPanel->getRootFolder()->setNeedsAutoRename(TRUE);
 }
 
 void LLPanelMarketplaceListings::onAuditButtonClicked()
