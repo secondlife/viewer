@@ -257,12 +257,9 @@ void LLSidepanelInventory::updateInbox()
 	//
 	// Track inbox folder changes
 	//
-
-	const bool do_not_create_folder = false;
-
-	const LLUUID inbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX, do_not_create_folder);
+	const LLUUID inbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX, true);
 	
-	// Set up observer to listen for creation of inbox if at least one of them doesn't exist
+	// Set up observer to listen for creation of inbox if it doesn't exist
 	if (inbox_id.isNull())
 	{
 		observeInboxCreation();
@@ -270,6 +267,11 @@ void LLSidepanelInventory::updateInbox()
 	// Set up observer for inbox changes, if we have an inbox already
 	else 
 	{
+        // Consolidate Received items
+        // We shouldn't have to do that but with a client/server system relying on a "well known folder" convention,
+        // things can get messy and conventions broken. This call puts everything back together in its right place.
+        gInventory.consolidateForType(inbox_id, LLFolderType::FT_INBOX);
+        
 		// Enable the display of the inbox if it exists
 		enableInbox(true);
 

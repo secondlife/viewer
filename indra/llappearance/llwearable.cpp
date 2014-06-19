@@ -43,9 +43,32 @@ S32 LLWearable::sCurrentDefinitionVersion = 1;
 // Private local functions
 static std::string terse_F32_to_string(F32 f);
 
+LLWearable::LLWearable()
+	: mDefinitionVersion(-1),
+	mName(),
+	mDescription(),
+	mPermissions(),
+	mSaleInfo(),
+	mType(LLWearableType::WT_NONE),
+	mSavedVisualParamMap(),
+	mVisualParamIndexMap(),
+	mTEMap(),
+	mSavedTEMap()
+{
+}
+
 // virtual
 LLWearable::~LLWearable()
 {
+	for (visual_param_index_map_t::iterator vpIter = mVisualParamIndexMap.begin(); vpIter != mVisualParamIndexMap.end(); ++vpIter)
+	{
+		LLVisualParam* vp = vpIter->second;
+		vp->clearNextParam();
+		delete vp;
+		vpIter->second = NULL;
+	}
+
+	destroyTextures();
 }
 
 const std::string& LLWearable::getTypeLabel() const
@@ -525,7 +548,7 @@ void LLWearable::revertValues()
 		LLVisualParam *param = getVisualParam(id);
 		if(param &&  !dynamic_cast<LLDriverParam*>(param) )
 		{
-			setVisualParamWeight(id, value, TRUE);
+			setVisualParamWeight(id, value);
 		}
 	}
 
@@ -537,7 +560,7 @@ void LLWearable::revertValues()
 		LLVisualParam *param = getVisualParam(id);
 		if(param &&  dynamic_cast<LLDriverParam*>(param) )
 		{
-			setVisualParamWeight(id, value, TRUE);
+			setVisualParamWeight(id, value);
 		}
 	}
 
@@ -620,17 +643,10 @@ void LLWearable::syncImages(te_map_t &src, te_map_t &dst)
 
 void LLWearable::destroyTextures()
 {
-	for( te_map_t::iterator iter = mTEMap.begin(); iter != mTEMap.end(); ++iter )
-	{
-		LLLocalTextureObject *lto = iter->second;
-		delete lto;
-	}
+	std::for_each(mTEMap.begin(), mTEMap.end(), DeletePairedPointer());
 	mTEMap.clear();
-	for( te_map_t::iterator iter = mSavedTEMap.begin(); iter != mSavedTEMap.end(); ++iter )
-	{
-		LLLocalTextureObject *lto = iter->second;
-		delete lto;
-	}
+
+	std::for_each(mSavedTEMap.begin(), mSavedTEMap.end(), DeletePairedPointer());
 	mSavedTEMap.clear();
 }
 
@@ -647,12 +663,12 @@ void LLWearable::addVisualParam(LLVisualParam *param)
 }
 
 
-void LLWearable::setVisualParamWeight(S32 param_index, F32 value, BOOL upload_bake)
+void LLWearable::setVisualParamWeight(S32 param_index, F32 value)
 {
 	if( is_in_map(mVisualParamIndexMap, param_index ) )
 	{
 		LLVisualParam *wearable_param = mVisualParamIndexMap[param_index];
-		wearable_param->setWeight(value, upload_bake);
+		wearable_param->setWeight(value);
 	}
 	else
 	{
@@ -693,14 +709,14 @@ void LLWearable::getVisualParams(visual_param_vec_t &list)
 	}
 }
 
-void LLWearable::animateParams(F32 delta, BOOL upload_bake)
+void LLWearable::animateParams(F32 delta)
 {
 	for(visual_param_index_map_t::iterator iter = mVisualParamIndexMap.begin();
 		 iter != mVisualParamIndexMap.end();
 		 ++iter)
 	{
 		LLVisualParam *param = (LLVisualParam*) iter->second;
-		param->animate(delta, upload_bake);
+		param->animate(delta);
 	}
 }
 
@@ -718,14 +734,14 @@ LLColor4 LLWearable::getClothesColor(S32 te) const
 	return color;
 }
 
-void LLWearable::setClothesColor( S32 te, const LLColor4& new_color, BOOL upload_bake )
+void LLWearable::setClothesColor( S32 te, const LLColor4& new_color)
 {
 	U32 param_name[3];
 	if( LLAvatarAppearance::teToColorParams( (LLAvatarAppearanceDefines::ETextureIndex)te, param_name ) )
 	{
 		for( U8 index = 0; index < 3; index++ )
 		{
-			setVisualParamWeight(param_name[index], new_color.mV[index], upload_bake);
+			setVisualParamWeight(param_name[index], new_color.mV[index]);
 		}
 	}
 }
@@ -744,7 +760,7 @@ void LLWearable::writeToAvatar(LLAvatarAppearance* avatarp)
 			S32 param_id = param->getID();
 			F32 weight = getVisualParamWeight(param_id);
 
-			avatarp->setVisualParamWeight( param_id, weight, FALSE );
+			avatarp->setVisualParamWeight( param_id, weight);
 		}
 	}
 }

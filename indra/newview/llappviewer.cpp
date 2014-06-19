@@ -100,6 +100,7 @@
 #include "llspellcheck.h"
 #include "llscenemonitor.h"
 #include "llavatarrenderinfoaccountant.h"
+#include "lllocalbitmaps.h"
 
 // Linden library includes
 #include "llavatarnamecache.h"
@@ -1758,7 +1759,9 @@ bool LLAppViewer::cleanup()
 #if 0 // this seems to get us stuck in an infinite loop...
 	gTransferManager.cleanup();
 #endif
-	
+
+	LLLocalBitmapMgr::cleanupClass();
+
 	// Note: this is where gWorldMap used to be deleted.
 
 	// Note: this is where gHUDManager used to be deleted.
@@ -2019,6 +2022,9 @@ bool LLAppViewer::cleanup()
 	// Non-LLCurl libcurl library
 	mAppCoreHttp.cleanup();
 
+	// NOTE The following call is not thread safe. 
+	ll_cleanup_ares();
+
 	LLFilePickerThread::cleanupClass();
 
 	//MUST happen AFTER LLCurl::cleanupClass
@@ -2113,6 +2119,8 @@ bool LLAppViewer::cleanup()
 	LLPrivateMemoryPoolManager::destroyClass() ;
 
 	ll_close_fail_log();
+
+	LLError::LLCallStacks::cleanup();
 
 	removeMarkerFiles();
 	

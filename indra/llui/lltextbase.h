@@ -367,7 +367,9 @@ public:
 	bool					getWordWrap() { return mWordWrap; }
 	bool					getUseEllipses() { return mUseEllipses; }
 	bool					truncate(); // returns true of truncation occurred
+
 	bool					isContentTrusted() {return mTrustedContent;}
+	void					setContentTrusted(bool trusted_content) { mTrustedContent = trusted_content; }
 
 	// TODO: move into LLTextSegment?
 	void					createUrlContextMenu(S32 x, S32 y, const std::string &url); // create a popup context menu for the given Url

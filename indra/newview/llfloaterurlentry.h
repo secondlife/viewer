@@ -40,7 +40,7 @@ public:
 	// that panel via the handle.
 	static LLHandle<LLFloater> show(LLHandle<LLPanel> panel_land_media_handle, const std::string media_url);
 	/*virtual*/	BOOL	postBuild();
-	void headerFetchComplete(U32 status, const std::string& mime_type);
+	void headerFetchComplete(S32 status, const std::string& mime_type);
 
 	bool addURLToCombobox(const std::string& media_url);
 

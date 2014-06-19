@@ -121,7 +121,7 @@ namespace LLAvatarNameCache
 	// Erase expired names from cache
 	void eraseUnrefreshed();
 
-	bool expirationFromCacheControl(LLSD headers, F64 *expires);
+	bool expirationFromCacheControl(const LLSD& headers, F64 *expires);
 }
 
 /* Sample response:
@@ -165,33 +165,31 @@ namespace LLAvatarNameCache
 
 class LLAvatarNameResponder : public LLHTTPClient::Responder
 {
+	LOG_CLASS(LLAvatarNameResponder);
 private:
 	// need to store agent ids that are part of this request in case of
 	// an error, so we can flag them as unavailable
 	std::vector<LLUUID> mAgentIDs;
 
-	// Need the headers to look up Expires: and Retry-After:
-	LLSD mHeaders;
-	
 public:
 	LLAvatarNameResponder(const std::vector<LLUUID>& agent_ids)
-	:	mAgentIDs(agent_ids),
-		mHeaders()
+	:	mAgentIDs(agent_ids)
 	{ }
 	
-	/*virtual*/ void completedHeader(U32 status, const std::string& reason, 
-		const LLSD& headers)
+protected:
+	/*virtual*/ void httpSuccess()
 	{
-		mHeaders = headers;
-	}
-
-	/*virtual*/ void result(const LLSD& content)
-	{
+		const LLSD& content = getContent();
+		if (!content.isMap())
+		{
+			failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
+			return;
+		}
 		// Pull expiration out of headers if available
-		F64 expires = LLAvatarNameCache::nameExpirationFromHeaders(mHeaders);
+		F64 expires = LLAvatarNameCache::nameExpirationFromHeaders(getResponseHeaders());
 		F64 now = LLFrameTimer::getTotalSeconds();
 
-		LLSD agents = content["agents"];
+		const LLSD& agents = content["agents"];
 		LLSD::array_const_iterator it = agents.beginArray();
 		for ( ; it != agents.endArray(); ++it)
 		{
@@ -212,7 +210,7 @@ public:
 		}
 
 		// Same logic as error response case
-		LLSD unresolved_agents = content["bad_ids"];
+		const LLSD& unresolved_agents = content["bad_ids"];
 		S32  num_unresolved = unresolved_agents.size();
 		if (num_unresolved > 0)
 		{
@@ -236,14 +234,13 @@ public:
                                  << LL_ENDL;
     }
 
-	/*virtual*/ void error(U32 status, const std::string& reason)
+	/*virtual*/ void httpFailure()
 	{
 		// If there's an error, it might be caused by PeopleApi,
 		// or when loading textures on startup and using a very slow 
 		// network, this query may time out.
 		// What we should do depends on whether or not we have a cached name
-		LL_WARNS("AvNameCache") << "LLAvatarNameResponder::error " << status << " " << reason
-								<< LL_ENDL;
+		LL_WARNS("AvNameCache") << dumpResponse() << LL_ENDL;
 
 		// Add dummy records for any agent IDs in this request that we do not have cached already
 		std::vector<LLUUID>::const_iterator it = mAgentIDs.begin();
@@ -700,7 +697,7 @@ void LLAvatarNameCache::insert(const LLUUID& agent_id, const LLAvatarName& av_na
 	sCache[agent_id] = av_name;
 }
 
-F64 LLAvatarNameCache::nameExpirationFromHeaders(LLSD headers)
+F64 LLAvatarNameCache::nameExpirationFromHeaders(const LLSD& headers)
 {
 	F64 expires = 0.0;
 	if (expirationFromCacheControl(headers, &expires))
@@ -716,17 +713,21 @@ F64 LLAvatarNameCache::nameExpirationFromHeaders(LLSD headers)
 	}
 }
 
-bool LLAvatarNameCache::expirationFromCacheControl(LLSD headers, F64 *expires)
+bool LLAvatarNameCache::expirationFromCacheControl(const LLSD& headers, F64 *expires)
 {
 	bool fromCacheControl = false;
 	F64 now = LLFrameTimer::getTotalSeconds();
 
 	// Allow the header to override the default
-	LLSD cache_control_header = headers["cache-control"];
-	if (cache_control_header.isDefined())
+	std::string cache_control;
+	if (headers.has(HTTP_IN_HEADER_CACHE_CONTROL))
+	{
+		cache_control = headers[HTTP_IN_HEADER_CACHE_CONTROL].asString();
+	}
+
+	if (!cache_control.empty())
 	{
 		S32 max_age = 0;
-		std::string cache_control = cache_control_header.asString();
 		if (max_age_from_cache_control(cache_control, &max_age))
 		{
 			*expires = now + (F64)max_age;

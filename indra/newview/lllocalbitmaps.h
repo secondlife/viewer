@@ -117,6 +117,7 @@ class LLLocalBitmapMgr
 		~LLLocalBitmapMgr();
 
 	public:
+		static void			cleanupClass();
 		static bool         addUnit();
 		static void         delUnit(LLUUID tracking_id);
 		static bool 		checkTextureDimensions(std::string filename);

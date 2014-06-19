@@ -48,6 +48,8 @@
 #define WATER 2
 const U32	MAX_OBJECT_CACHE_ENTRIES = 50000;
 
+// Region handshake flags
+const U32 REGION_HANDSHAKE_SUPPORTS_SELF_APPEARANCE = 1U << 2;
 
 class LLEventPoll;
 class LLVLComposition;
@@ -255,6 +257,7 @@ public:
 	S32 getNumSeedCapRetries();
 	void setCapability(const std::string& name, const std::string& url);
 	void setCapabilityDebug(const std::string& name, const std::string& url);
+	bool isCapabilityAvailable(const std::string& name) const;
 	// implements LLCapabilityProvider
     virtual std::string getCapability(const std::string& name) const;
 

@@ -399,6 +399,7 @@ LLContextMenu* LLTeleportHistoryPanel::ContextMenu::createMenu()
 	registrar.add("TeleportHistory.CopyToClipboard",boost::bind(&LLTeleportHistoryPanel::ContextMenu::onCopyToClipboard, this));
 
 	// create the context menu from the XUI
+	llassert(LLMenuGL::sMenuContainer != NULL);
 	return LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
 		"menu_teleport_history_item.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
 }
@@ -993,6 +994,7 @@ void LLTeleportHistoryPanel::onAccordionTabRightClick(LLView *view, S32 x, S32 y
 	registrar.add("TeleportHistory.TabClose",	boost::bind(&LLTeleportHistoryPanel::onAccordionTabClose, this, tab));
 
 	// create the context menu from the XUI
+	llassert(LLMenuGL::sMenuContainer != NULL);
 	mAccordionTabMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
 		"menu_teleport_history_tab.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
 

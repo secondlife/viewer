@@ -1461,6 +1461,7 @@ void start_deprecated_conference_chat(
 
 class LLStartConferenceChatResponder : public LLHTTPClient::Responder
 {
+	LOG_CLASS(LLStartConferenceChatResponder);
 public:
 	LLStartConferenceChatResponder(
 		const LLUUID& temp_session_id,
@@ -1474,10 +1475,12 @@ public:
 		mAgents = agents_to_invite;
 	}
 
-	virtual void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
+protected:
+	virtual void httpFailure()
 	{
 		//try an "old school" way.
-		if ( statusNum == 400 )
+		// *TODO: What about other error status codes?  4xx 5xx?
+		if ( getStatus() == HTTP_BAD_REQUEST )
 		{
 			start_deprecated_conference_chat(
 				mTempSessionID,
@@ -1486,8 +1489,7 @@ public:
 				mAgents);
 		}
 
-		LL_WARNS() << "LLStartConferenceChatResponder error [status:"
-				<< statusNum << "]: " << content << LL_ENDL;
+		LL_WARNS() << dumpResponse() << LL_ENDL;
 
 		//else throw an error back to the client?
 		//in theory we should have just have these error strings
@@ -1579,6 +1581,7 @@ bool LLIMModel::sendStartSession(
 class LLViewerChatterBoxInvitationAcceptResponder :
 	public LLHTTPClient::Responder
 {
+	LOG_CLASS(LLViewerChatterBoxInvitationAcceptResponder);
 public:
 	LLViewerChatterBoxInvitationAcceptResponder(
 		const LLUUID& session_id,
@@ -1588,8 +1591,15 @@ public:
 		mInvitiationType = invitation_type;
 	}
 
-	void result(const LLSD& content)
+private:
+	void httpSuccess()
 	{
+		const LLSD& content = getContent();
+		if (!content.isMap())
+		{
+			failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
+			return;
+		}
 		if ( gIMMgr)
 		{
 			LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
@@ -1634,19 +1644,17 @@ public:
 		}
 	}
 
-	void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
+	void httpFailure()
 	{
-		LL_WARNS() << "LLViewerChatterBoxInvitationAcceptResponder error [status:"
-				<< statusNum << "]: " << content << LL_ENDL;
+		LL_WARNS() << dumpResponse() << LL_ENDL;
 		//throw something back to the viewer here?
 		if ( gIMMgr )
 		{
 			gIMMgr->clearPendingAgentListUpdates(mSessionID);
 			gIMMgr->clearPendingInvitation(mSessionID);
-			if ( 404 == statusNum )
+			if ( HTTP_NOT_FOUND == getStatus() )
 			{
-				std::string error_string;
-				error_string = "session_does_not_exist_error";
+				static const std::string error_string("session_does_not_exist_error");
 				gIMMgr->showSessionStartError(error_string, mSessionID);
 			}
 		}

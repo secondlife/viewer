@@ -123,12 +123,9 @@ void rename_category(LLInventoryModel* model, const LLUUID& cat_id, const std::s
 		return;
 	}
 
-	LLPointer<LLViewerInventoryCategory> new_cat = new LLViewerInventoryCategory(cat);
-	new_cat->rename(new_name);
-	new_cat->updateServer(FALSE);
-	model->updateCategory(new_cat);
-
-	model->notifyObservers();
+	LLSD updates;
+	updates["name"] = new_name;
+	update_inventory_category(cat_id, updates, NULL);
 }
 
 void copy_inventory_category(LLInventoryModel* model,
@@ -739,6 +736,13 @@ bool LLIsOfAssetType::operator()(LLInventoryCategory* cat, LLInventoryItem* item
 		if(item->getActualType() == mType) return TRUE;
 	}
 	return FALSE;
+}
+
+bool LLIsValidItemLink::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+{
+	LLViewerInventoryItem *vitem = dynamic_cast<LLViewerInventoryItem*>(item);
+	if (!vitem) return false;
+	return (vitem->getActualType() == LLAssetType::AT_LINK  && !vitem->getIsBrokenLink());
 }
 
 bool LLIsTypeWithPermissions::operator()(LLInventoryCategory* cat, LLInventoryItem* item)

@@ -192,7 +192,7 @@ bool LLLocalBitmap::updateSelf(EUpdateType optional_firstupdate)
 				{
 					// decode is successful, we can safely proceed.
 					LLUUID old_id = LLUUID::null;
-					if (!(optional_firstupdate == UT_FIRSTUSE) && !mWorldID.isNull())
+					if ((optional_firstupdate != UT_FIRSTUSE) && !mWorldID.isNull())
 					{
 						old_id = mWorldID;
 					}
@@ -208,15 +208,18 @@ bool LLLocalBitmap::updateSelf(EUpdateType optional_firstupdate)
 
 					gTextureList.addImage(texture);
 			
-					if (!optional_firstupdate == UT_FIRSTUSE)
+					if (optional_firstupdate != UT_FIRSTUSE)
 					{
 						// seek out everything old_id uses and replace it with mWorldID
 						replaceIDs(old_id, mWorldID);
 
 						// remove old_id from gimagelist
 						LLViewerFetchedTexture* image = gTextureList.findImage(old_id);
-						gTextureList.deleteImage(image);
-						image->unref();
+						if (image != NULL)
+						{
+							gTextureList.deleteImage(image);
+							image->unref();
+						}
 					}
 
 					mUpdateRetries = LL_LOCAL_UPDATE_RETRIES;
@@ -543,7 +546,7 @@ void LLLocalBitmap::updateUserLayers(LLUUID old_id, LLUUID new_id, LLWearableTyp
 					{
 						U32 index = gAgentWearables.getWearableIndex(wearable);
 						gAgentAvatarp->setLocalTexture(reg_texind, gTextureList.getImage(new_id), FALSE, index);
-						gAgentAvatarp->wearableUpdated(type, FALSE);
+						gAgentAvatarp->wearableUpdated(type);
 
 						/* telling the manager to rebake once update cycle is fully done */
 						LLLocalBitmapMgr::setNeedsRebake();
@@ -824,6 +827,12 @@ LLLocalBitmapMgr::LLLocalBitmapMgr()
 
 LLLocalBitmapMgr::~LLLocalBitmapMgr()
 {
+}
+
+void LLLocalBitmapMgr::cleanupClass()
+{
+	std::for_each(sBitmapList.begin(), sBitmapList.end(), DeletePointer());
+	sBitmapList.clear();
 }
 
 bool LLLocalBitmapMgr::addUnit()
