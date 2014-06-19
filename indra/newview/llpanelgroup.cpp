@@ -177,11 +177,13 @@ BOOL LLPanelGroup::postBuild()
 	LLPanelGroupTab* panel_roles = findChild<LLPanelGroupTab>("group_roles_tab_panel");
 	LLPanelGroupTab* panel_notices = findChild<LLPanelGroupTab>("group_notices_tab_panel");
 	LLPanelGroupTab* panel_land = findChild<LLPanelGroupTab>("group_land_tab_panel");
+	LLPanelGroupTab* panel_experiences = findChild<LLPanelGroupTab>("group_experiences_tab_panel");
 
 	if(panel_general)	mTabs.push_back(panel_general);
 	if(panel_roles)		mTabs.push_back(panel_roles);
 	if(panel_notices)	mTabs.push_back(panel_notices);
 	if(panel_land)		mTabs.push_back(panel_land);
+	if(panel_experiences)		mTabs.push_back(panel_experiences);
 
 	if(panel_general)
 	{

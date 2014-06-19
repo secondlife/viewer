@@ -176,6 +176,22 @@ background_visible="true"
                      name="group_land_tab_panel"
                      top="0" />
          </accordion_tab>
+         <accordion_tab
+             expanded="false"
+             layout="topleft"
+             name="group_experiences_tab"
+             title="Experiences"
+             fit_panel="false">
+           <panel
+               border="false"
+               class="panel_group_experiences"
+               filename="panel_experiences.xml"
+               follows="left|top|right"
+               layout="topleft"
+               left="0"
+               name="group_experiences_tab_panel"
+               top="0" />
+         </accordion_tab>
          </accordion>
    </layout_panel>
   </layout_stack>
