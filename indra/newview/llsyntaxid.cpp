@@ -111,6 +111,7 @@ LLSyntaxIdLSL::LLSyntaxIdLSL()
 ,	mFilePath(LL_PATH_APP_SETTINGS)
 ,	mSyntaxId(LLUUID())
 {
+	loadDefaultKeywordsIntoLLSD();
 	mRegionChangedCallback = gAgent.addRegionChangedCallback(boost::bind(&LLSyntaxIdLSL::handleRegionChanged, this));
 	handleRegionChanged(); // Kick off an initial caps query and fetch
 }
