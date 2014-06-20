@@ -2403,7 +2403,7 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round,
 	// binary search for line that starts before local_y
 	line_list_t::const_iterator line_iter = std::lower_bound(mLineInfoList.begin(), mLineInfoList.end(), doc_y, compare_bottom());
 
-	if (line_iter == mLineInfoList.end())
+	if (!mLineInfoList.size() || line_iter == mLineInfoList.end())
 	{
 		return getLength(); // past the end
 	}
