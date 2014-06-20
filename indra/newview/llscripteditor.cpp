@@ -183,3 +183,107 @@ void LLScriptEditor::clearSegments()
 		mSegments.clear();
 	}
 }
+
+// Most of this is shamelessly copied from LLTextBase
+void LLScriptEditor::drawSelectionBackground()
+{
+	// Draw selection even if we don't have keyboard focus for search/replace
+	if( hasSelection() && !mLineInfoList.empty())
+	{
+		std::vector<LLRect> selection_rects;
+		
+		S32 selection_left		= llmin( mSelectionStart, mSelectionEnd );
+		S32 selection_right		= llmax( mSelectionStart, mSelectionEnd );
+		
+		// Skip through the lines we aren't drawing.
+		LLRect content_display_rect = getVisibleDocumentRect();
+		
+		// binary search for line that starts before top of visible buffer
+		line_list_t::const_iterator line_iter = std::lower_bound(mLineInfoList.begin(), mLineInfoList.end(), content_display_rect.mTop, LLTextBase::compare_bottom());
+		line_list_t::const_iterator end_iter = std::upper_bound(mLineInfoList.begin(), mLineInfoList.end(), content_display_rect.mBottom, LLTextBase::compare_top());
+		
+		bool done = false;
+		
+		// Find the coordinates of the selected area
+		for (;line_iter != end_iter && !done; ++line_iter)
+		{
+			// is selection visible on this line?
+			if (line_iter->mDocIndexEnd > selection_left && line_iter->mDocIndexStart < selection_right)
+			{
+				segment_set_t::iterator segment_iter;
+				S32 segment_offset;
+				getSegmentAndOffset(line_iter->mDocIndexStart, &segment_iter, &segment_offset);
+				
+				LLRect selection_rect;
+				selection_rect.mLeft = line_iter->mRect.mLeft;
+				selection_rect.mRight = line_iter->mRect.mLeft;
+				selection_rect.mBottom = line_iter->mRect.mBottom;
+				selection_rect.mTop = line_iter->mRect.mTop;
+				
+				for(;segment_iter != mSegments.end(); ++segment_iter, segment_offset = 0)
+				{
+					LLTextSegmentPtr segmentp = *segment_iter;
+					
+					S32 segment_line_start = segmentp->getStart() + segment_offset;
+					S32 segment_line_end = llmin(segmentp->getEnd(), line_iter->mDocIndexEnd);
+					
+					if (segment_line_start > segment_line_end) break;
+					
+					S32 segment_width = 0;
+					S32 segment_height = 0;
+					
+					// if selection after beginning of segment
+					if(selection_left >= segment_line_start)
+					{
+						S32 num_chars = llmin(selection_left, segment_line_end) - segment_line_start;
+						segmentp->getDimensions(segment_offset, num_chars, segment_width, segment_height);
+						selection_rect.mLeft += segment_width;
+					}
+					
+					// if selection_right == segment_line_end then that means we are the first character of the next segment
+					// or first character of the next line, in either case we want to add the length of the current segment
+					// to the selection rectangle and continue.
+					// if selection right > segment_line_end then selection spans end of current segment...
+					if (selection_right >= segment_line_end)
+					{
+						// extend selection slightly beyond end of line
+						// to indicate selection of newline character (use "n" character to determine width)
+						S32 num_chars = segment_line_end - segment_line_start;
+						segmentp->getDimensions(segment_offset, num_chars, segment_width, segment_height);
+						selection_rect.mRight += segment_width;
+					}
+					// else if selection ends on current segment...
+					else
+					{
+						S32 num_chars = selection_right - segment_line_start;
+						segmentp->getDimensions(segment_offset, num_chars, segment_width, segment_height);
+						selection_rect.mRight += segment_width;
+						
+						break;
+					}
+				}
+				selection_rects.push_back(selection_rect);
+			}
+		}
+		
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+		const LLColor4& color = mReadOnly ? mReadOnlyBgColor : mWriteableBgColor;
+		F32 alpha = hasFocus() ? 0.7f : 0.3f;
+		alpha *= getDrawContext().mAlpha;
+		// We want to invert the background color in script editors
+		LLColor4 selection_color(1.f - color.mV[VRED],
+								 1.f - color.mV[VGREEN],
+								 1.f - color.mV[VBLUE],
+								 alpha);
+		
+		for (std::vector<LLRect>::iterator rect_it = selection_rects.begin();
+			 rect_it != selection_rects.end();
+			 ++rect_it)
+		{
+			LLRect selection_rect = *rect_it;
+			selection_rect = *rect_it;
+			selection_rect.translate(mVisibleTextRect.mLeft - content_display_rect.mLeft, mVisibleTextRect.mBottom - content_display_rect.mBottom);
+			gl_rect_2d(selection_rect, selection_color);
+		}
+	}
+}

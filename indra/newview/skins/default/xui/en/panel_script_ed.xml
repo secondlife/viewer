@@ -176,7 +176,6 @@
      bg_focus_color="ScriptBackground"
      text_readonly_color="ScriptText"
      bg_readonly_color="ScriptBackground"
-     bg_selected_color="ScriptSelectedColor"
      cursor_color="ScriptCursorColor"
      enable_tooltip_paste="true"
      word_wrap="true"

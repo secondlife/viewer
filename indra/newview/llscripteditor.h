@@ -48,7 +48,7 @@ public:
 	
 	void	initKeywords();
 	void	loadKeywords();
-	void	clearSegments();
+	/* virtual */ void	clearSegments();
 	LLKeywords::keyword_iterator_t keywordsBegin()	{ return mKeywords.begin(); }
 	LLKeywords::keyword_iterator_t keywordsEnd()	{ return mKeywords.end(); }
 	
@@ -58,7 +58,8 @@ protected:
 	
 private:
 	void	drawLineNumbers();
-	void	updateSegments();
+	/* virtual */ void	updateSegments();
+	/* virtual */ void	drawSelectionBackground();
 	void	loadKeywords(const std::string& filename_keywords,
 						 const std::string& filename_colors);
 	
