@@ -257,7 +257,7 @@ namespace LLExperienceCache
 		LLSDSerialize::toPrettyXML(data, ostr);
 	}
 
-	class LLExperienceResponder : public LLHTTPClient::Responder
+	class LLExperienceResponder : public LLCurl::Responder
 	{
 	public:
 		LLExperienceResponder(const ask_queue_t& keys)
@@ -266,14 +266,9 @@ namespace LLExperienceCache
 
 		}
 
-		virtual void completedHeader(U32 status, const std::string& reason, const LLSD& content)
+		/*virtual*/ void httpSuccess()
 		{
-			mHeaders = content;
-		}
-
-		virtual void result(const LLSD& content)
-		{
-			LLSD experiences = content["experience_keys"];
+			LLSD experiences = getContent()["experience_keys"];
 			LLSD::array_const_iterator it = experiences.beginArray();
 			for( /**/ ; it != experiences.endArray(); ++it)
 			{
@@ -287,7 +282,7 @@ namespace LLExperienceCache
 				processExperience(public_key, row);
 			}
 
-			LLSD error_ids = content["error_ids"];
+			LLSD error_ids = getContent()["error_ids"];
 			LLSD::array_const_iterator errIt = error_ids.beginArray();
 			for( /**/ ; errIt != error_ids.endArray() ; ++errIt )
 			{
@@ -306,13 +301,13 @@ namespace LLExperienceCache
 			LL_DEBUGS("ExperienceCache") << sCache.size() << " cached experiences" << LL_ENDL;
 		}
 
-		virtual void error(U32 status, const std::string& reason)
+		/*virtual*/ void httpFailure()
 		{
- 			LL_WARNS("ExperienceCache") << "Request failed "<<status<<" "<<reason<< LL_ENDL;
+ 			LL_WARNS("ExperienceCache") << "Request failed "<<getStatus()<<" "<<getReason()<< LL_ENDL;
  			// We're going to construct a dummy record and cache it for a while,
  			// either briefly for a 503 Service Unavailable, or longer for other
  			// errors.
- 			F64 retry_timestamp = errorRetryTimestamp(status);
+ 			F64 retry_timestamp = errorRetryTimestamp(getStatus());
  
  
  			// Add dummy records for all agent IDs in this request
@@ -330,7 +325,7 @@ namespace LLExperienceCache
 				exp[EXPERIENCE_ID] = it->first;
 				exp["key_type"] = it->second;
 				exp["uuid"] = it->first;
-				exp["error"] = (LLSD::Integer)status;
+				exp["error"] = (LLSD::Integer)getStatus();
                 exp[QUOTA] = DEFAULT_QUOTA;
 
  				LLExperienceCache::processExperience(it->first, exp);
@@ -344,7 +339,7 @@ namespace LLExperienceCache
 		{
 
 			// Retry-After takes priority
-			LLSD retry_after = mHeaders["retry-after"];
+			LLSD retry_after = getResponseHeaders()["retry-after"];
 			if (retry_after.isDefined())
 			{
 				// We only support the delta-seconds type
@@ -358,7 +353,7 @@ namespace LLExperienceCache
 
 			// If no Retry-After, look for Cache-Control max-age
 			F64 expires = 0.0;
-			if (LLExperienceCache::expirationFromCacheControl(mHeaders, &expires))
+			if (LLExperienceCache::expirationFromCacheControl(getResponseHeaders(), &expires))
 			{
 				return expires;
 			}
@@ -387,7 +382,6 @@ namespace LLExperienceCache
 
 	private:
 		ask_queue_t mKeys;
-		LLSD mHeaders;
 	};
 
 	void requestExperiences() 
