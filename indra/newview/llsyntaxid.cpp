@@ -128,7 +128,6 @@ void LLSyntaxIdLSL::buildFullFileSpec()
 //-----------------------------------------------------------------------------
 bool LLSyntaxIdLSL::syntaxIdChanged()
 {
-	bool version_changed = false;
 	LLViewerRegion* region = gAgent.getRegion();
 
 	if (region)
@@ -148,7 +147,7 @@ bool LLSyntaxIdLSL::syntaxIdChanged()
 				{
 					LL_DEBUGS("SyntaxLSL") << "New SyntaxID '" << new_syntax_id << "' found." << LL_ENDL;
 					mSyntaxId = new_syntax_id;
-					version_changed = true;
+					return true;
 				}
 				else
 					LL_DEBUGS("SyntaxLSL") << "SyntaxID matches what we have." << LL_ENDL;
@@ -156,10 +155,11 @@ bool LLSyntaxIdLSL::syntaxIdChanged()
 		}
 		else
 		{
-			LL_WARNS("SyntaxLSL") << "Region '" << region->getName() << "' has not received capabilities. Cannot process SyntaxId." << LL_ENDL;
+			region->setCapabilitiesReceivedCallback(boost::bind(&LLSyntaxIdLSL::handleCapsReceived, this, _1));
+			LL_DEBUGS("SyntaxLSL") << "Region has not received capabilities. Waiting for caps..." << LL_ENDL;
 		}
 	}
-	return version_changed;
+	return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -304,6 +304,17 @@ void LLSyntaxIdLSL::handleRegionChanged()
 	{
 		buildFullFileSpec();
 		fetchKeywordsFile(mFullFileSpec);
+	}
+}
+
+void LLSyntaxIdLSL::handleCapsReceived(const LLUUID& region_uuid)
+{
+	LLViewerRegion* current_region = gAgent.getRegion();
+	
+	if (region_uuid.notNull()
+		&& current_region->getRegionID() == region_uuid)
+	{
+		syntaxIdChanged();
 	}
 }
 

@@ -48,6 +48,7 @@ private:
 	bool	syntaxIdChanged();
 	bool	isSupportedVersion(const LLSD& content);
 	void	handleRegionChanged();
+	void	handleCapsReceived(const LLUUID& region_uuid);
 	void	handleFileFetched(const std::string& filepath);
 	void	setKeywordsXml(const LLSD& content) { mKeywordsXml = content; };
 	void	buildFullFileSpec();
