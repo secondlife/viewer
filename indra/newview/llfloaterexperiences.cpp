@@ -43,7 +43,7 @@
 
 #define SHOW_RECENT_TAB (0)
 
-class LLExperienceListResponder : public LLHTTPClient::Responder
+class LLExperienceListResponder : public LLCurl::Responder
 {
 public:
     typedef std::map<std::string, std::string> NameMap;
@@ -57,7 +57,7 @@ public:
     LLHandle<LLFloaterExperiences> mParent;
     NameMap mNameMap;
 	const std::string mErrorMessage;
-    virtual void result(const LLSD& content)
+    /*virtual*/ void httpSuccess()
     {
         if(mParent.isDead())
             return;
@@ -68,16 +68,16 @@ public:
         NameMap::iterator it = mNameMap.begin();
         while(it != mNameMap.end())
         {
-            if(content.has(it->first))
+            if(getContent().has(it->first))
             {
                 LLPanelExperiences* tab = (LLPanelExperiences*)tabs->getPanelByName(it->second);
                 if(tab)
                 {
-                    const LLSD& ids = content[it->first];
+                    const LLSD& ids = getContent()[it->first];
                     tab->setExperienceList(ids);
 					if(!mCallback.empty())
 					{
-						mCallback(tab, content);
+						mCallback(tab, getContent());
 					}
                 }
             }
@@ -85,10 +85,10 @@ public:
         }
     }
 
-	virtual void error(U32 status, const std::string& reason)
+	/*virtual*/ void httpFailure()
 	{
 		LLSD subs;
-		subs["ERROR_MESSAGE"] = reason;
+		subs["ERROR_MESSAGE"] = getReason();
 		LLNotificationsUtil::add(mErrorMessage, subs);
 	}
 };
