@@ -1107,7 +1107,7 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
     
     // Compare the whole with the nested folders depth limit
     // Note: substract 2 as we leave root and version folder out of the count threshold
-    if ((incoming_folder_depth + insertion_point_folder_depth - 2) > gSavedSettings.getU32("InventoryOutboxMaxFolderDepth"))
+    if ((incoming_folder_depth + insertion_point_folder_depth - 2) > (S32)(gSavedSettings.getU32("InventoryOutboxMaxFolderDepth")))
     {
         LLStringUtil::format_map_t args;
         U32 amount = gSavedSettings.getU32("InventoryOutboxMaxFolderDepth");
