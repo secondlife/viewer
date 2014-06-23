@@ -13256,7 +13256,7 @@
       <key>Value</key>
       <string>Default</string>
     </map>
-    <key>UseExternalBrowser</key>
+    <key>UseExternalBrowser</key> <!-- deprecated (see MAINT-4127) -->
     <map>
       <key>Comment</key>
       <string>Use default browser when opening web pages instead of in-world browser.</string>
@@ -13266,6 +13266,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <boolean>1</boolean>
+    </map>
+    <key>PreferredBrowserBehavior</key>
+    <map>
+      <key>Comment</key>
+      <string>Use system browser for any links (0), use builtin browser for SL links and system one for others (1) or use builtin browser only (2).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
     <key>UseFreezeFrame</key>
     <map>

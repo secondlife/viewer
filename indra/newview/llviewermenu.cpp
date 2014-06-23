@@ -6196,7 +6196,7 @@ class LLPromptShowURL : public view_listener_t
 			std::string alert = param.substr(0, offset);
 			std::string url = param.substr(offset+1);
 
-			if(gSavedSettings.getBOOL("UseExternalBrowser"))
+			if (LLWeb::useExternalBrowser(url))
 			{ 
     			LLSD payload;
     			payload["url"] = url;
@@ -7816,7 +7816,7 @@ void handle_web_content_test(const LLSD& param)
 void handle_show_url(const LLSD& param)
 {
 	std::string url = param.asString();
-	if(gSavedSettings.getBOOL("UseExternalBrowser"))
+	if (LLWeb::useExternalBrowser(url))
 	{
 		LLWeb::loadURLExternal(url);
 	}
