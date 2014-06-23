@@ -1888,16 +1888,12 @@ void GroupBanDataResponder::httpFailure()
 
 void GroupBanDataResponder::httpSuccess()
 {
-	if ( mContent.size())
+	if (mContent.has("ban_list"))
 	{
-		if (mContent.has("ban_list"))
-		{
-			// group ban data received
-			LLGroupMgr::processGroupBanRequest(mContent);
-			mForceRefresh = false;
-		}
+		// group ban data received
+		LLGroupMgr::processGroupBanRequest(mContent);
 	}
-	if (mForceRefresh)
+	else if (mForceRefresh)
 	{
 		// no ban data received, refreshing data after successful operation 
 		LLGroupMgr::getInstance()->sendGroupBanRequest(LLGroupMgr::REQUEST_GET, mGroupID);
