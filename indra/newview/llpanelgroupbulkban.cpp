@@ -31,6 +31,7 @@
 
 #include "llagent.h"
 #include "llavatarnamecache.h"
+#include "llavataractions.h"
 #include "llfloateravatarpicker.h"
 #include "llbutton.h"
 #include "llcallingcard.h"
@@ -100,6 +101,8 @@ BOOL LLPanelGroupBulkBan::postBuild()
 	}
 
 	mImplementation->mTooManySelected = getString("ban_selection_too_large");
+	mImplementation->mBanNotPermitted = getString("ban_not_permitted");
+	mImplementation->mCannotBanYourself = getString("cant_ban_yourself");
 
 	update();
 	return TRUE;
@@ -117,6 +120,15 @@ void LLPanelGroupBulkBan::callbackClickSubmit(void* userdata)
 
 void LLPanelGroupBulkBan::submit()
 {
+	if (!gAgent.hasPowerInGroup(mImplementation->mGroupID, GP_GROUP_BAN_ACCESS))
+	{
+		// Fail! Agent no longer have ban rights.
+		LLSD msg;
+		msg["MESSAGE"] = mImplementation->mBanNotPermitted;
+		LLNotificationsUtil::add("GenericAlert", msg);
+		(*(mImplementation->mCloseCallback))(mImplementation->mCloseCallbackUserData);
+		return;
+	}
 	std::vector<LLUUID> banned_agent_list;	
 	std::vector<LLScrollListItem*> agents = mImplementation->mBulkAgentList->getAllData();
 	std::vector<LLScrollListItem*>::iterator iter = agents.begin();
@@ -137,32 +149,74 @@ void LLPanelGroupBulkBan::submit()
 		return;
 	}
 
+	// remove already banned users and yourself from request.
+	std::vector<LLAvatarName> banned_avatar_names;
+	bool banning_self = FALSE;
+	std::vector<LLUUID>::iterator conflict = std::find(banned_agent_list.begin(), banned_agent_list.end(), gAgent.getID());
+	if (conflict != banned_agent_list.end())
+	{
+		banned_agent_list.erase(conflict);
+		banning_self = TRUE;
+	}
 	LLGroupMgrGroupData * group_datap = LLGroupMgr::getInstance()->getGroupData(mImplementation->mGroupID);
 	if (group_datap)
 	{
 		BOOST_FOREACH(const LLGroupMgrGroupData::ban_list_t::value_type& group_ban_pair, group_datap->mBanList)
 		{
 			const LLUUID& group_ban_agent_id = group_ban_pair.first;
-			if (std::find(banned_agent_list.begin(), banned_agent_list.end(), group_ban_agent_id) != banned_agent_list.end())
+			std::vector<LLUUID>::iterator conflict = std::find(banned_agent_list.begin(), banned_agent_list.end(), group_ban_agent_id);
+			if (conflict != banned_agent_list.end())
 			{
-				// Fail!
 				LLAvatarName av_name;
 				LLAvatarNameCache::get(group_ban_agent_id, &av_name);
+				banned_avatar_names.push_back(av_name);
 
-				LLStringUtil::format_map_t string_args;
-				string_args["[RESIDENT]"] = av_name.getDisplayName();
-
-				LLSD msg;
-				msg["MESSAGE"] = getString("already_banned", string_args);
-				LLNotificationsUtil::add("GenericAlert", msg);
-				(*(mImplementation->mCloseCallback))(mImplementation->mCloseCallbackUserData);
-				return;
+				banned_agent_list.erase(conflict);
+				if (banned_agent_list.size() == 0)
+				{
+					break;
+				}
 			}
 		}
 	}
 
-	LLGroupMgr::getInstance()->sendGroupBanRequest(LLGroupMgr::REQUEST_POST, mImplementation->mGroupID, LLGroupMgr::BAN_CREATE | LLGroupMgr::BAN_UPDATE, banned_agent_list);
-	LLGroupMgr::getInstance()->sendGroupMemberEjects(mImplementation->mGroupID, banned_agent_list);
+	if (banned_agent_list.size() != 0)
+	{
+		LLGroupMgr::getInstance()->sendGroupBanRequest(LLGroupMgr::REQUEST_POST, mImplementation->mGroupID, LLGroupMgr::BAN_CREATE | LLGroupMgr::BAN_UPDATE, banned_agent_list);
+		LLGroupMgr::getInstance()->sendGroupMemberEjects(mImplementation->mGroupID, banned_agent_list);
+	}
+
+	// building notification
+	if (banned_avatar_names.size() > 0 || banning_self)
+	{
+		std::string reasons;
+		if(banned_avatar_names.size() > 0)
+		{
+			std::string names_string;
+			LLAvatarActions::buildResidentsString(banned_avatar_names, names_string);
+			LLStringUtil::format_map_t reason_args;
+			reason_args["[RESIDENTS]"] = names_string;
+			reasons = "\n " + getString("residents_already_banned", reason_args);
+		}
+
+		if(banning_self)
+		{
+			reasons += "\n " + mImplementation->mCannotBanYourself;
+		}
+
+		LLStringUtil::format_map_t msg_args;
+		msg_args["[REASONS]"] = reasons;
+		LLSD msg;
+		if (banned_agent_list.size() == 0)
+		{
+			msg["MESSAGE"] = getString("ban_failed", msg_args);
+		}
+		else
+		{
+			msg["MESSAGE"] = getString("partial_ban", msg_args);
+		}
+		LLNotificationsUtil::add("GenericAlert", msg);
+	}
 	
 	//then close
 	(*(mImplementation->mCloseCallback))(mImplementation->mCloseCallbackUserData);

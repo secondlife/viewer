@@ -15,10 +15,28 @@
      name="ban_selection_too_large">
     Group bans not sent: too many Residents selected. Group bans are limited to 100 per request.
   </panel.string>
-  <panel.string
-     name="already_banned">
-    Group Invitations not sent: resident '[RESIDENT]' already banned.
-  </panel.string>
+	<panel.string
+     name="ban_not_permitted">
+		Group ban not sent: you do not have 'Manage ban list' ability.
+	</panel.string>
+	<panel.string
+     name="partial_ban">
+		Some group bans were not sent:
+[REASONS]
+	</panel.string>
+	<panel.string
+     name="ban_failed">
+		Group bans were not sent:
+[REASONS]
+	</panel.string>
+	<panel.string
+     name="residents_already_banned">
+		- The following resident(s) are already banned: [RESIDENTS].
+	</panel.string>
+	<panel.string
+     name="cant_ban_yourself">
+		- You cannot ban yourself from a group.
+	</panel.string>
   <text
    type="string"
    length="1"
