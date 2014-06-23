@@ -62,7 +62,7 @@ if (WINDOWS)
   add_definitions(
       /DLL_WINDOWS=1
       /DNOMINMAX
-      /DDOM_DYNAMIC
+#      /DDOM_DYNAMIC            # For shared library colladadom
       /DUNICODE
       /D_UNICODE 
       /GS

@@ -563,7 +563,7 @@ void LLGLTexMemBar::draw()
 
 	//----------------------------------------------------------------------------
 
-	text = llformat("Textures: %d Fetch: %d(%d) Pkts:%d(%d) Cache R/W: %d/%d LFS:%d RAW:%d HTP:%d DEC:%d CRE:%d",
+	text = llformat("Textures: %d Fetch: %d(%d) Pkts:%d(%d) Cache R/W: %d/%d LFS:%d RAW:%d HTP:%d DEC:%d CRE:%d ",
 					gTextureList.getNumImages(),
 					LLAppViewer::getTextureFetch()->getNumRequests(), LLAppViewer::getTextureFetch()->getNumDeletes(),
 					LLAppViewer::getTextureFetch()->mPacketCount, LLAppViewer::getTextureFetch()->mBadPacketCount, 
@@ -585,7 +585,7 @@ void LLGLTexMemBar::draw()
 	color = bandwidth > max_bandwidth ? LLColor4::red : bandwidth > max_bandwidth*.75f ? LLColor4::yellow : text_color;
 	color[VALPHA] = text_color[VALPHA];
 	text = llformat("BW:%.0f/%.0f",bandwidth.value(), max_bandwidth.value());
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, x_right, v_offset + line_height*2,
+	LLFontGL::getFontMonospace()->renderUTF8(text, 0, x_right, v_offset + line_height*3,
 											 color, LLFontGL::LEFT, LLFontGL::TOP);
 	
 	// Mesh status line
