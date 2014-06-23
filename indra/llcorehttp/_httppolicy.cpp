@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012-2013, Linden Research, Inc.
+ * Copyright (C) 2012-2014, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -128,7 +128,8 @@ void HttpPolicy::shutdown()
 
 
 void HttpPolicy::start()
-{}
+{
+}
 
 
 void HttpPolicy::addOp(HttpOpRequest * op)
@@ -234,7 +235,11 @@ HttpService::ELoopSpeed HttpPolicy::processReadyQueue()
 		}
 
 		int active(transport.getActiveCountInClass(policy_class));
-		int needed(state.mOptions.mConnectionLimit - active);		// Expect negatives here
+		int active_limit(state.mOptions.mPipelining > 1L
+						 ? (state.mOptions.mPerHostConnectionLimit
+							* state.mOptions.mPipelining)
+						 : state.mOptions.mConnectionLimit);
+		int needed(active_limit - active);		// Expect negatives here
 
 		if (needed > 0)
 		{

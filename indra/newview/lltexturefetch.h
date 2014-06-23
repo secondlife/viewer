@@ -356,7 +356,9 @@ private:
 	LLCore::HttpHeaders *				mHttpHeaders;					// Ttf
 	LLCore::HttpHeaders *				mHttpMetricsHeaders;			// Ttf
 	LLCore::HttpRequest::policy_t		mHttpPolicyClass;				// T*
-
+	S32									mHttpHighWater;					// T* (ro)
+	S32									mHttpLowWater;					// T* (ro)
+	
 	// We use a resource semaphore to keep HTTP requests in
 	// WAIT_HTTP_RESOURCE2 if there aren't sufficient slots in the
 	// transport.  This keeps them near where they can be cheaply
