@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012-2013, Linden Research, Inc.
+ * Copyright (C) 2012-2014, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -32,6 +32,15 @@
 #include "_httppolicy.h"
 
 #include "llhttpconstants.h"
+
+namespace
+{
+
+// Error testing and reporting for libcurl status codes
+void check_curl_multi_code(CURLMcode code);
+void check_curl_multi_code(CURLMcode code, int curl_setopt_option);
+
+} // end anonymous namespace
 
 
 namespace LLCore
@@ -92,14 +101,44 @@ void HttpLibcurl::start(int policy_count)
 	llassert_always(policy_count <= HTTP_POLICY_CLASS_LIMIT);
 	llassert_always(! mMultiHandles);					// One-time call only
 	
+	HttpPolicy & policy(mService->getPolicy());
 	mPolicyCount = policy_count;
 	mMultiHandles = new CURLM * [mPolicyCount];
 	mActiveHandles = new int [mPolicyCount];
 	
 	for (int policy_class(0); policy_class < mPolicyCount; ++policy_class)
 	{
-		mMultiHandles[policy_class] = curl_multi_init();
+		HttpPolicyClass & options(policy.getClassOptions(policy_class));
+
 		mActiveHandles[policy_class] = 0;
+		if (NULL == (mMultiHandles[policy_class] = curl_multi_init()))
+		{
+			LL_ERRS("CoreHttp") << "Failed to allocate multi handle in libcurl."
+								<< LL_ENDL;
+		}
+				
+		if (options.mPipelining > 1)
+		{
+			CURLMcode code;
+			
+			// We'll try to do pipelining on this multihandle
+			code = curl_multi_setopt(mMultiHandles[policy_class],
+									 CURLMOPT_PIPELINING,
+									 1L);
+			check_curl_multi_code(code, CURLMOPT_PIPELINING);
+			code = curl_multi_setopt(mMultiHandles[policy_class],
+									 CURLMOPT_MAX_PIPELINE_LENGTH,
+									 long(options.mPipelining));
+			check_curl_multi_code(code, CURLMOPT_MAX_PIPELINE_LENGTH);
+			code = curl_multi_setopt(mMultiHandles[policy_class],
+									 CURLMOPT_MAX_HOST_CONNECTIONS,
+									 long(options.mPerHostConnectionLimit));
+			check_curl_multi_code(code, CURLMOPT_MAX_HOST_CONNECTIONS);
+			code = curl_multi_setopt(mMultiHandles[policy_class],
+									 CURLMOPT_MAX_TOTAL_CONNECTIONS,
+									 long(options.mConnectionLimit));
+			check_curl_multi_code(code, CURLMOPT_MAX_TOTAL_CONNECTIONS);
+		}
 	}
 }
 
@@ -376,3 +415,29 @@ struct curl_slist * append_headers_to_slist(const HttpHeaders * headers, struct 
 
 
 }  // end namespace LLCore
+
+
+namespace 
+{
+	
+void check_curl_multi_code(CURLMcode code, int curl_setopt_option)
+{
+	if (CURLM_OK != code)
+	{
+		LL_WARNS("CoreHttp") << "libcurl multi error detected:  " << curl_multi_strerror(code)
+							 << ", curl_multi_setopt option:  " << curl_setopt_option
+							 << LL_ENDL;
+	}
+}
+
+
+void check_curl_multi_code(CURLMcode code)
+{
+	if (CURLM_OK != code)
+	{
+		LL_WARNS("CoreHttp") << "libcurl multi error detected:  " << curl_multi_strerror(code)
+							 << LL_ENDL;
+	}
+}
+
+}  // end anonymous namespace

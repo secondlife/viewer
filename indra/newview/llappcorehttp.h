@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012-2013, Linden Research, Inc.
+ * Copyright (C) 2012-2014, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -41,6 +41,8 @@
 class LLAppCoreHttp : public LLCore::HttpHandler
 {
 public:
+	static const long			PIPELINING_DEPTH;
+
 	typedef LLCore::HttpRequest::policy_t policy_t;
 
 	enum EAppPolicy
@@ -70,7 +72,7 @@ public:
 		/// Long poll:       no
 		/// Concurrency:     high
 		/// Request rate:    high
-		/// Pipelined:       soon
+		/// Pipelined:       yes
 		AP_TEXTURE,
 
 		/// Legacy mesh fetching policy class.  Used to
@@ -98,7 +100,7 @@ public:
 		/// Long poll:       no
 		/// Concurrency:     high
 		/// Request rate:    high
-		/// Pipelined:       soon
+		/// Pipelined:       yes
 		AP_MESH2,
 
 		/// Large mesh fetching policy class.  Used to
@@ -116,7 +118,7 @@ public:
 		/// Long poll:       no
 		/// Concurrency:     low
 		/// Request rate:    low
-		/// Pipelined:       soon
+		/// Pipelined:       no
 		AP_LARGE_MESH,
 
 		/// Asset upload policy class.  Used to store
@@ -180,7 +182,13 @@ public:
 	// application function.
 	policy_t getPolicy(EAppPolicy policy) const
 		{
-			return mPolicies[policy];
+			return mHttpClasses[policy].mPolicy;
+		}
+
+	// Return whether a policy is using pipelined operations.
+	bool isPipelined(EAppPolicy policy) const
+		{
+			return mHttpClasses[policy].mPipelined;
 		}
 
 	// Apply initial or new settings from the environment.
@@ -190,13 +198,26 @@ private:
 	static const F64			MAX_THREAD_WAIT_TIME;
 	
 private:
-	LLCore::HttpRequest *		mRequest;						// Request queue to issue shutdowns
+
+	// PODish container for per-class settings and state.
+	struct HttpClass
+	{
+	public:
+		HttpClass();
+
+	public:
+		policy_t					mPolicy;			// Policy class id for the class
+		U32							mConnLimit;
+		bool						mPipelined;
+		boost::signals2::connection mSettingsSignal;	// Signal to global setting that affect this class (if any)
+	};
+		
+	LLCore::HttpRequest *		mRequest;				// Request queue to issue shutdowns
 	LLCore::HttpHandle			mStopHandle;
 	F64							mStopRequested;
 	bool						mStopped;
-	policy_t					mPolicies[AP_COUNT];			// Policy class id for each connection set
-	U32							mSettings[AP_COUNT];
-	boost::signals2::connection mSettingsSignal[AP_COUNT];		// Signals to global settings that affect us
+	HttpClass					mHttpClasses[AP_COUNT];
+	bool						mPipelined;				// Global setting
 };
 
 
