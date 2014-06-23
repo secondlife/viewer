@@ -1,0 +1,20 @@
+<llsd>
+    <array>
+        <array>
+            <string>stencil</string>
+            <string>uniform</string>
+            <string>blend</string>
+            <real>0.0</real>
+            <real>0.5</real>
+        </array>
+        <array>
+            <string>colorize</string>
+            <real>1.0</real>
+            <real>0.0</real>
+            <real>0.0</real>
+            <real>1.0</real>
+            <real>1.0</real>
+            <real>1.0</real>
+        </array>
+    </array>
+</llsd>

@@ -184,15 +184,40 @@ Please try logging in again in a minute.</string>
 	<string name="SentToInvalidRegion">You were sent to an invalid region.</string>
 	<string name="TestingDisconnect">Testing viewer disconnect</string>
 
-	<!-- Facebook Connect and, eventually, other Social Network -->
-	<string name="SocialFacebookConnecting">Connecting to Facebook...</string>
-	<string name="SocialFacebookPosting">Posting...</string>
-	<string name="SocialFacebookDisconnecting">Disconnecting from Facebook...</string>
-	<string name="SocialFacebookErrorConnecting">Problem connecting to Facebook</string>
-	<string name="SocialFacebookErrorPosting">Problem posting to Facebook</string>
-	<string name="SocialFacebookErrorDisconnecting">Problem disconnecting from Facebook</string>
+	<!-- SLShare: Facebook, Flickr, and Twitter -->
+  <string name="SocialFacebookConnecting">Connecting to Facebook...</string>
+  <string name="SocialFacebookPosting">Posting...</string>
+  <string name="SocialFacebookDisconnecting">Disconnecting from Facebook...</string>
+  <string name="SocialFacebookErrorConnecting">Problem connecting to Facebook</string>
+  <string name="SocialFacebookErrorPosting">Problem posting to Facebook</string>
+  <string name="SocialFacebookErrorDisconnecting">Problem disconnecting from Facebook</string>
+  <string name="SocialFlickrConnecting">Connecting to Flickr...</string>
+  <string name="SocialFlickrPosting">Posting...</string>
+  <string name="SocialFlickrDisconnecting">Disconnecting from Flickr...</string>
+  <string name="SocialFlickrErrorConnecting">Problem connecting to Flickr</string>
+  <string name="SocialFlickrErrorPosting">Problem posting to Flickr</string>
+  <string name="SocialFlickrErrorDisconnecting">Problem disconnecting from Flickr</string>
+  <string name="SocialTwitterConnecting">Connecting to Twitter...</string>
+  <string name="SocialTwitterPosting">Posting...</string>
+  <string name="SocialTwitterDisconnecting">Disconnecting from Twitter...</string>
+  <string name="SocialTwitterErrorConnecting">Problem connecting to Twitter</string>
+  <string name="SocialTwitterErrorPosting">Problem posting to Twitter</string>
+  <string name="SocialTwitterErrorDisconnecting">Problem disconnecting from Twitter</string>
     
-	<!-- Tooltip -->
+	<!-- SLShare: User Friendly Filter Names Translation -->
+    <string name="BlackAndWhite">Black &amp; White</string>
+    <string name="Colors1970">1970&apos;s Colors</string>
+    <string name="Intense">Intense</string>
+    <string name="Newspaper">Newsprint</string>
+    <string name="Sepia">Sepia</string>
+    <string name="Spotlight">Spotlight</string>
+    <string name="Video">Video</string>
+    <string name="Autocontrast">Autocontrast</string>
+    <string name="LensFlare">Lens Flare</string>
+    <string name="Miniature">Miniature</string>
+    <string name="Toycamera">Toy Camera</string>
+	
+    <!-- Tooltip -->
 	<string name="TooltipPerson">Person</string><!-- Object under mouse pointer is an avatar -->
 	<string name="TooltipNoName">(no name)</string> <!-- No name on an object -->
 	<string name="TooltipOwner">Owner:</string> <!-- Owner name follows -->
@@ -3491,6 +3516,12 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="facebook_post_success">
     You posted to Facebook.
   </string>
+  <string name="flickr_post_success">
+    You posted to Flickr.
+  </string>
+  <string name="twitter_post_success">
+    You posted to Twitter.
+  </string>
 
   <string name="no_session_message">
     (IM Session Doesn't Exist)
@@ -3909,6 +3940,8 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Conversations_Label">Conversations</string>
   <string name="Command_Compass_Label">Compass</string>
   <string name="Command_Destinations_Label">Destinations</string>
+  <string name="Command_Facebook_Label">Facebook</string>
+  <string name="Command_Flickr_Label">Flickr</string>
   <string name="Command_Gestures_Label">Gestures</string>
   <string name="Command_HowTo_Label">How to</string>
   <string name="Command_Inventory_Label">Inventory</string>
@@ -3924,8 +3957,8 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Profile_Label">Profile</string>
   <string name="Command_Search_Label">Search</string>
   <string name="Command_Snapshot_Label">Snapshot</string>
-  <string name="Command_Social_Label">Facebook</string>
   <string name="Command_Speak_Label">Speak</string>
+  <string name="Command_Twitter_Label">Twitter</string>
   <string name="Command_View_Label">Camera controls</string>
   <string name="Command_Voice_Label">Voice settings</string>
 
@@ -3937,6 +3970,8 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Conversations_Tooltip">Converse with everyone</string>
   <string name="Command_Compass_Tooltip">Compass</string>
   <string name="Command_Destinations_Tooltip">Destinations of interest</string>
+  <string name="Command_Facebook_Tooltip">Post to Facebook</string>
+  <string name="Command_Flickr_Tooltip">Upload to Flickr</string>
   <string name="Command_Gestures_Tooltip">Gestures for your avatar</string>
   <string name="Command_HowTo_Tooltip">How to do common tasks</string>
   <string name="Command_Inventory_Tooltip">View and use your belongings</string>
@@ -3952,8 +3987,8 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Profile_Tooltip">Edit or view your profile</string>
   <string name="Command_Search_Tooltip">Find places, events, people</string>
   <string name="Command_Snapshot_Tooltip">Take a picture</string>
-  <string name="Command_Social_Tooltip">Post to Facebook</string>
   <string name="Command_Speak_Tooltip">Speak with people nearby using your microphone</string>
+  <string name="Command_Twitter_Tooltip">Twitter</string>
   <string name="Command_View_Tooltip">Changing camera angle</string>
   <string name="Command_Voice_Tooltip">Volume controls for calls and people near you in world</string>
 

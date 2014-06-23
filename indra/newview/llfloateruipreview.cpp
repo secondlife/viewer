@@ -1020,12 +1020,11 @@ void LLFloaterUIPreview::onClickEditFloater()
 // Respond to button click to browse for an executable with which to edit XML files
 void LLFloaterUIPreview::onClickBrowseForEditor()
 {
-	// create load dialog box
-	LLFilePicker::ELoadFilter type = (LLFilePicker::ELoadFilter)((intptr_t)((void*)LLFilePicker::FFLOAD_ALL));	// nothing for *.exe so just use all
+	// Let the user choose an executable through the file picker dialog box
 	LLFilePicker& picker = LLFilePicker::instance();
-	if (!picker.getOpenFile(type))	// user cancelled -- do nothing
+    if (!picker.getOpenFile(LLFilePicker::FFLOAD_EXE))
 	{
-		return;
+		return; // user cancelled -- do nothing
 	}
 
 	// put the selected path into text field

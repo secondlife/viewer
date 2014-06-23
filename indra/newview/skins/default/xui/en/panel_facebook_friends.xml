@@ -1,0 +1,72 @@
+<panel
+	 height="400"
+	 width="304"
+	 layout="topleft"
+    follows="all"
+   name="panel_facebook_friends">
+  <string
+   name="facebook_friends_empty"
+   value="You currently do not have any Facebook friends who are also Second Life residents. Ask your Facebook friends to join Second Life today!" />
+  <string
+   name="facebook_friends_no_connected"
+   value="You're currently not connected to Facebook. Please go to the Account tab to connect and enable this feature." />
+  <accordion
+ background_visible="true"
+ bg_alpha_color="DkGray2"
+ bg_opaque_color="DkGray2"
+   follows="all"
+   height="408"
+   layout="topleft"
+   left="3"
+   name="friends_accordion"
+   right="-2"
+   top_pad="2">
+    <accordion_tab
+     layout="topleft"
+     height="173"
+     name="tab_second_life_friends"
+     title="SL friends">
+      <avatar_list
+       ignore_online_status="true"
+       allow_select="true"
+       follows="all"
+       height="173"
+       layout="topleft"
+       left="0"
+       name="second_life_friends"
+       show_permissions_granted="true"
+       top="0"
+       width="307" />
+    </accordion_tab>
+    <accordion_tab
+     layout="topleft"
+     height="173"
+     name="tab_suggested_friends"
+     title="Add these people as SL friends">
+      <avatar_list
+       ignore_online_status="true"
+       allow_select="true"
+       follows="all"
+       height="173"
+       layout="topleft"
+       left="0"
+       name="suggested_friends"
+       show_permissions_granted="true"
+       top="0"
+       width="307" />
+    </accordion_tab>
+  </accordion>
+    <text
+        layout="topleft"
+        word_wrap="true"
+        height="64"
+        width="290"
+        follows="top|left|right"
+        font="SansSerif"
+        left="9"
+        name="facebook_friends_status"
+        top="21"
+        type="string">
+        Not connected to Facebook.
+    </text>
+</panel>

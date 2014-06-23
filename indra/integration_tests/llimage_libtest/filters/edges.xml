@@ -1,0 +1,24 @@
+<llsd>
+    <array>
+        <array>
+            <string>gradient</string>
+        </array>
+        <array>
+            <string>blur</string>
+        </array>
+        <array>
+            <string>linearize</string>
+            <real>0.0</real>
+            <real>1.0</real>
+            <real>1.0</real>
+            <real>1.0</real>
+        </array>
+        <array>
+            <string>contrast</string>
+            <real>2.0</real>
+            <real>1.0</real>
+            <real>1.0</real>
+            <real>1.0</real>
+        </array>
+    </array>
+</llsd>
