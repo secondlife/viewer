@@ -167,7 +167,8 @@ BOOL LLFilePicker::setupFilter(ELoadFilter filter)
 	BOOL res = TRUE;
 	switch (filter)
 	{
-	case FFLOAD_ALL:
+    case FFLOAD_ALL:
+    case FFLOAD_EXE:
 		mOFN.lpstrFilter = L"All Files (*.*)\0*.*\0" \
 		SOUND_FILTER \
 		IMAGE_FILTER \
@@ -580,6 +581,10 @@ std::vector<std::string>* LLFilePicker::navOpenFilterProc(ELoadFilter filter) //
             allowedv->push_back("tpic");
             allowedv->push_back("png");
             break;
+        case FFLOAD_EXE:
+            allowedv->push_back("app");
+            allowedv->push_back("exe");
+            break;
         case FFLOAD_WAV:
             allowedv->push_back("wav");
             break;
@@ -778,7 +783,7 @@ BOOL LLFilePicker::getOpenFile(ELoadFilter filter, bool blocking)
         mPickOptions &= ~F_FILE;
     }
 
-	if(filter == FFLOAD_ALL)	// allow application bundles etc. to be traversed; important for DEV-16869, but generally useful
+	if (filter == FFLOAD_ALL)	// allow application bundles etc. to be traversed; important for DEV-16869, but generally useful
 	{
         mPickOptions |= F_NAV_SUPPORT;
 	}
