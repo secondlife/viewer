@@ -267,13 +267,13 @@ void LLScriptEditor::drawSelectionBackground()
 		}
 		
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-		const LLColor4& color = mReadOnly ? mReadOnlyBgColor : mWriteableBgColor;
+		const LLColor4& color = mReadOnly ? mReadOnlyFgColor : mFgColor;
 		F32 alpha = hasFocus() ? 0.7f : 0.3f;
 		alpha *= getDrawContext().mAlpha;
-		// We want to invert the background color in script editors
-		LLColor4 selection_color(1.f - color.mV[VRED],
-								 1.f - color.mV[VGREEN],
-								 1.f - color.mV[VBLUE],
+		// We want to shift the color to something readable but distinct
+		LLColor4 selection_color((1.f + color.mV[VRED]) * 0.5f,
+								 (1.f + color.mV[VGREEN]) * 0.5f,
+								 (1.f + color.mV[VBLUE]) * 0.5f,
 								 alpha);
 		
 		for (std::vector<LLRect>::iterator rect_it = selection_rects.begin();
