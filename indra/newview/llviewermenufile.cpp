@@ -215,7 +215,8 @@ std::string build_extensions_string(LLFilePicker::ELoadFilter filter)
 #endif
 	case LLFilePicker::FFLOAD_XML:
 	    return XML_EXTENSIONS;
-	case LLFilePicker::FFLOAD_ALL:
+    case LLFilePicker::FFLOAD_ALL:
+    case LLFilePicker::FFLOAD_EXE:
 		return ALL_FILE_EXTENSIONS;
 #endif
     default:

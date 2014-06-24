@@ -1,0 +1,11 @@
+<llsd>
+    <array>
+        <array>
+            <string>darken</string>
+            <real>0.5</real>
+            <real>1.0</real>
+            <real>1.0</real>
+            <real>1.0</real>
+        </array>
+    </array>
+</llsd>

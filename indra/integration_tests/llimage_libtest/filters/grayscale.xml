@@ -1,0 +1,14 @@
+<llsd>
+    <array>
+        <array>
+            <string>linearize</string>
+            <real>0.0</real>
+            <real>1.0</real>
+            <real>1.0</real>
+            <real>1.0</real>
+        </array>
+        <array>
+            <string>grayscale</string>
+        </array>
+    </array>
+</llsd>

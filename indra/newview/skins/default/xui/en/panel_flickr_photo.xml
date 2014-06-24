@@ -1,0 +1,245 @@
+    <panel
+      height="540"
+      width="304"
+      layout="topleft"
+      name="panel_flickr_photo">
+      <layout_stack
+	   layout="topleft"
+       border_size="0"
+       height="532"
+       follows="all"
+       orientation="vertical"
+       name="stack_photo"
+       top="8">
+        <layout_panel	
+         name="snapshot_panel"
+         height="507">
+            <combo_box
+             control_name="FlickrPhotoResolution"
+             follows="left|top"
+             top="6"
+             left="9"
+             name="resolution_combobox"
+             tool_tip="Image resolution"
+             height="21"
+             width="135">
+              <combo_box.item
+               label="Current Window"
+               name="CurrentWindow"
+               value="[i0,i0]" />
+              <combo_box.item
+               label="640x480"
+               name="640x480"
+               value="[i640,i480]" />
+              <combo_box.item
+               label="800x600"
+               name="800x600"
+               value="[i800,i600]" />
+              <combo_box.item
+               label="1024x768"
+               name="1024x768"
+               value="[i1024,i768]" />
+            </combo_box>
+            <combo_box
+               control_name="FlickrPhotoFilters"
+               follows="right|top"
+               name="filters_combobox"
+               tool_tip="Image filters"
+               top="6"
+               left="165"
+               height="21"
+               width="135">
+                <combo_box.item
+                 label="No Filter"
+                 name="NoFilter"
+                 value="NoFilter" />
+            </combo_box>
+            <panel
+                height="150"
+                width="250"
+                visible="true"
+                name="thumbnail_placeholder"
+                top="33"
+                follows="left|top"
+                left="9">
+            </panel>
+            <button
+             follows="left|top"
+             height="23"
+             label="Refresh"
+             left="9"
+             top_pad="5"
+             name="new_snapshot_btn"
+             tool_tip="Click to refresh"
+             visible="true"
+             width="100" >
+             <button.commit_callback
+               function="SocialSharing.RefreshPhoto" />
+            </button>
+            <text
+                follows="left|top"
+                font="SansSerif"
+                text_color="EmphasisColor"
+                height="14"
+                top_pad="-19"
+                left_pad="-30"
+                length="1"
+                halign="center"
+                name="working_lbl"
+                translate="false"
+                type="string"
+                visible="true"
+                width="150">
+                Refreshing...
+            </text>
+            <button
+                follows="right|top"
+                height="23"
+                label="Preview"
+                left="200"
+                top_pad="-19"
+                name="big_preview_btn"
+                tool_tip="Click to toggle preview"
+                is_toggle="true"
+                visible="true"
+                width="100" >
+                <button.commit_callback
+                function="SocialSharing.BigPreview" />
+            </button>
+            <text
+             length="1"
+             follows="top|left|right"
+             font="SansSerif"
+             height="16"
+             left="9"
+             name="title_label"
+             top_pad="15"
+             type="string">
+              Title:
+            </text>
+            <line_editor
+             follows="left|top"
+             height="20"
+             width="250"
+             left="9"
+             length="1"
+             max_length="256"
+             name="photo_title"
+             type="string">
+            </line_editor>
+            <text
+             length="1"
+             follows="top|left|right"
+             font="SansSerif"
+             height="16"
+             left="9"
+             name="description_label"
+             top_pad="10"
+             type="string">
+              Description:
+            </text>
+            <text_editor
+             follows="left|top"
+             height="50"
+             width="250"
+             left="9"
+             length="1"
+             max_length="700"
+             name="photo_description"
+             type="string"
+             word_wrap="true">
+            </text_editor>
+            <check_box
+             follows="left|top"
+             initial_value="true"
+             label="Include SL location at end of description"
+             name="add_location_cb"
+              left="9"
+              height="16"
+             top_pad="8"/>
+            <text
+             length="1"
+             follows="top|left|right"
+             font="SansSerif"
+             height="16"
+             left="9"
+             name="tags_label"
+             top_pad="10"
+             type="string">
+              Tags:
+            </text>
+            <text
+              length="1"
+              follows="top|left"
+              font="SansSerifSmall"
+              text_color="White_50"
+              height="30"
+              name="tags_help_label"
+              left="50"
+              top_pad="-16"
+              type="string">
+Separate tags with spaces
+Use "" for multi-word tags
+            </text>
+            <text_editor
+             follows="left|top"
+             height="50"
+             width="250"
+             left="9"
+             length="1"
+             max_length="700"
+             name="photo_tags"
+             type="string"
+             word_wrap="true">
+            </text_editor>
+            <combo_box
+             control_name="FlickrPhotoRating"
+             follows="left|top"
+             top_pad="16"
+             left="9"
+             name="rating_combobox"
+             tool_tip="Flickr content rating"
+             height="21"
+             width="250">
+              <combo_box.item
+               label="Safe Flickr rating"
+               name="SafeRating"
+               value="1" />
+              <combo_box.item
+               label="Moderate Flickr rating"
+               name="ModerateRating"
+               value="2" />
+              <combo_box.item
+               label="Restricted Flickr rating"
+               name="RestrictedRating"
+               value="3" />
+            </combo_box>
+        </layout_panel>
+        <layout_panel
+          name="photo_button_panel"
+          height="25">
+          <button
+           follows="left|top"
+           top="0"
+           left="9"
+           height="23"
+           label="Upload"
+           name="post_photo_btn"
+           width="100">
+            <button.commit_callback
+             function="SocialSharing.SendPhoto" />
+          </button>
+          <button
+               follows="left|top"
+               height="23"
+               label="Cancel"
+               name="cancel_photo_btn"
+               left_pad="15"
+               top_delta="0"
+               width="100">
+            <button.commit_callback
+             function="SocialSharing.Cancel" />
+          </button>          
+        </layout_panel>        
+      </layout_stack>
+    </panel>

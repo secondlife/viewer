@@ -1,0 +1,11 @@
+<llsd>
+    <array>
+        <array>
+            <string>posterize</string>
+            <real>10.0</real>
+            <real>1.0</real>
+            <real>1.0</real>
+            <real>1.0</real>
+        </array>
+    </array>
+</llsd>
