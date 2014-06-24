@@ -57,7 +57,7 @@ const static std::string columnSpace = " ";
 
 static LLPanelInjector<LLPanelExperiencePicker> t_panel_status("llpanelexperiencepicker");
 
-class LLExperienceSearchResponder : public LLCurl::Responder
+class LLExperienceSearchResponder : public LLHTTPClient::Responder
 {
 public:
 	LLUUID mQueryID;

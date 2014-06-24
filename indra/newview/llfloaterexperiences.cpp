@@ -43,7 +43,7 @@
 
 #define SHOW_RECENT_TAB (0)
 
-class LLExperienceListResponder : public LLCurl::Responder
+class LLExperienceListResponder : public LLHTTPClient::Responder
 {
 public:
     typedef std::map<std::string, std::string> NameMap;

@@ -123,7 +123,7 @@ static bool have_script_upload_cap(LLUUID& object_id)
 }
 
 
-class ExperienceResponder : public LLCurl::Responder
+class ExperienceResponder : public LLHTTPClient::Responder
 {
 public:
     ExperienceResponder(const LLHandle<LLLiveLSLEditor>& parent):mParent(parent)
