@@ -1,0 +1,18 @@
+<llsd>
+    <array>
+        <array>
+            <string>convolve</string>
+            <real>1.0</real>
+            <real>0.0</real>
+            <real>4.0</real>
+            <real>1.0</real>
+            <real>4.0</real>
+            <real>1.0</real>
+            <real>0.0</real>
+            <real>1.0</real>
+            <real>4.0</real>
+            <real>1.0</real>
+            <real>4.0</real>
+        </array>
+    </array>
+</llsd>

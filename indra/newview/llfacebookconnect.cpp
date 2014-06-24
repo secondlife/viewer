@@ -28,6 +28,8 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llfacebookconnect.h"
+#include "llflickrconnect.h"
+#include "lltwitterconnect.h"
 
 #include "llagent.h"
 #include "llcallingcard.h"			// for LLAvatarTracker
@@ -58,7 +60,7 @@ void log_facebook_connect_error(const std::string& request, U32 status, const st
     }
 }
 
-void toast_user_for_success()
+void toast_user_for_facebook_success()
 {
 	LLSD args;
     args["MESSAGE"] = LLTrans::getString("facebook_post_success");
@@ -74,23 +76,46 @@ public:
     
 	bool handle(const LLSD& tokens, const LLSD& query_map, LLMediaCtrl* web)
 	{
-		if (tokens.size() > 0)
+		if (tokens.size() >= 1)
 		{
 			if (tokens[0].asString() == "connect")
 			{
-				// this command probably came from the fbc_web browser, so close it
-				LLFloater* fbc_web = LLFloaterReg::getInstance("fbc_web");
-				if (fbc_web)
+				if (tokens.size() >= 2 && tokens[1].asString() == "flickr")
 				{
-					fbc_web->closeFloater();
-				}
+					// this command probably came from the flickr_web browser, so close it
+					LLFloaterReg::hideInstance("flickr_web");
 
-				// connect to facebook
-				if (query_map.has("code"))
-				{
-                    LLFacebookConnect::instance().connectToFacebook(query_map["code"], query_map.get("state"));
+					// connect to flickr
+					if (query_map.has("oauth_token"))
+					{
+						LLFlickrConnect::instance().connectToFlickr(query_map["oauth_token"], query_map.get("oauth_verifier"));
+					}
+					return true;
 				}
-				return true;
+				else if (tokens.size() >= 2 && tokens[1].asString() == "twitter")
+				{
+					// this command probably came from the twitter_web browser, so close it
+					LLFloaterReg::hideInstance("twitter_web");
+
+					// connect to twitter
+					if (query_map.has("oauth_token"))
+					{
+						LLTwitterConnect::instance().connectToTwitter(query_map["oauth_token"], query_map.get("oauth_verifier"));
+					}
+					return true;
+				}
+				else //if (tokens.size() >= 2 && tokens[1].asString() == "facebook")
+				{
+					// this command probably came from the fbc_web browser, so close it
+					LLFloaterReg::hideInstance("fbc_web");
+
+					// connect to facebook
+					if (query_map.has("code"))
+					{
+						LLFacebookConnect::instance().connectToFacebook(query_map["code"], query_map.get("state"));
+					}
+					return true;
+				}
 			}
 		}
 		return false;
@@ -156,7 +181,7 @@ public:
 
 	/* virtual */ void httpSuccess()
 	{
-		toast_user_for_success();
+		toast_user_for_facebook_success();
 		LL_DEBUGS("FacebookConnect") << "Post successful. " << dumpResponse() << LL_ENDL;
 		LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_POSTED);
 	}
@@ -302,9 +327,16 @@ public:
 	{
 		if ( HTTP_FOUND == getStatus() )
 		{
-			LL_INFOS() << "Facebook: Info received" << LL_ENDL;
-			LL_DEBUGS("FacebookConnect") << "Getting Facebook info successful. info: " << getContent() << LL_ENDL;
-			LLFacebookConnect::instance().storeInfo(getContent());
+			const std::string& location = getResponseHeader(HTTP_IN_HEADER_LOCATION);
+			if (location.empty())
+			{
+				LL_WARNS("FacebookConnect") << "Missing Location header " << dumpResponse()
+                << "[headers:" << getResponseHeaders() << "]" << LL_ENDL;
+			}
+			else
+			{
+				LLFacebookConnect::instance().openFacebookWeb(location);
+			}
 		}
 		else
 		{
@@ -371,10 +403,12 @@ void LLFacebookConnect::openFacebookWeb(std::string url)
 {
 	// Open the URL in an internal browser window without navigation UI
 	LLFloaterWebContent::Params p;
-    p.url(url).show_chrome(true);
-    p.url(url).allow_address_entry(false);
-    p.url(url).allow_back_forward_navigation(false);
-    p.url(url).trusted_content(true);
+    p.url(url);
+    p.show_chrome(true);
+    p.allow_address_entry(false);
+    p.allow_back_forward_navigation(false);
+    p.trusted_content(true);
+    p.clean_browser(true);
 	LLFloater *floater = LLFloaterReg::showInstance("fbc_web", p);
 	//the internal web browser has a bug that prevents it from gaining focus unless a mouse event occurs first (it seems).
 	//So when showing the internal web browser, set focus to it's containing floater "fbc_web". When a mouse event 
@@ -391,7 +425,8 @@ std::string LLFacebookConnect::getFacebookConnectURL(const std::string& route, b
     LLViewerRegion *regionp = gAgent.getRegion();
     if (regionp)
     {
-        url = regionp->getCapability("FacebookConnect");
+		//url = "http://pdp15.lindenlab.com/fbc/agent/" + gAgentID.asString(); // TEMPORARY FOR TESTING - CHO
+		url = regionp->getCapability("FacebookConnect");
         url += route;
     
         if (include_read_from_master && mReadFromMaster)
@@ -406,9 +441,13 @@ void LLFacebookConnect::connectToFacebook(const std::string& auth_code, const st
 {
 	LLSD body;
 	if (!auth_code.empty())
+    {
 		body["code"] = auth_code;
+    }
 	if (!auth_state.empty())
+    {
 		body["state"] = auth_state;
+    }
     
 	LLHTTPClient::put(getFacebookConnectURL("/connection"), body, new LLFacebookConnectResponder());
 }
@@ -452,15 +491,25 @@ void LLFacebookConnect::postCheckin(const std::string& location, const std::stri
 {
 	LLSD body;
 	if (!location.empty())
+    {
 		body["location"] = location;
+    }
 	if (!name.empty())
+    {
 		body["name"] = name;
+    }
 	if (!description.empty())
+    {
 		body["description"] = description;
+    }
 	if (!image.empty())
+    {
 		body["image"] = image;
+    }
 	if (!message.empty())
+    {
 		body["message"] = message;
+    }
 
 	// Note: we can use that route for different publish action. We should be able to use the same responder.
 	LLHTTPClient::post(getFacebookConnectURL("/share/checkin", true), body, new LLFacebookShareResponder());
@@ -507,7 +556,7 @@ void LLFacebookConnect::sharePhoto(LLPointer<LLImageFormatted> image, const std:
 			<< caption << "\r\n";
 
 	body	<< "--" << boundary << "\r\n"
-			<< "Content-Disposition: form-data; name=\"image\"; filename=\"snapshot." << imageFormat << "\"\r\n"
+			<< "Content-Disposition: form-data; name=\"image\"; filename=\"Untitled." << imageFormat << "\"\r\n"
 			<< "Content-Type: image/" << imageFormat << "\r\n\r\n";
 
 	// Insert the image data.
@@ -599,12 +648,13 @@ void LLFacebookConnect::setConnectionState(LLFacebookConnect::EConnectionState c
 
 	if (mConnectionState != connection_state)
 	{
+		// set the connection state before notifying watchers
+		mConnectionState = connection_state;
+
 		LLSD state_info;
 		state_info["enum"] = connection_state;
 		sStateWatcher->post(state_info);
 	}
-	
-	mConnectionState = connection_state;
 }
 
 void LLFacebookConnect::setConnected(bool connected)
