@@ -123,7 +123,7 @@ static bool have_script_upload_cap(LLUUID& object_id)
 }
 
 
-class ExperienceResponder : public LLHTTPClient::Responder
+class ExperienceResponder : public LLCurl::Responder
 {
 public:
     ExperienceResponder(const LLHandle<LLLiveLSLEditor>& parent):mParent(parent)
@@ -132,13 +132,13 @@ public:
 
     LLHandle<LLLiveLSLEditor> mParent;
 
-    virtual void result(const LLSD& content)
+    /*virtual*/ void httpSuccess()
     {
         LLLiveLSLEditor* parent = mParent.get();
         if(!parent)
             return;
 
-        parent->setExperienceIds(content["experience_ids"]);		
+        parent->setExperienceIds(getContent()["experience_ids"]);		
     }
 };
 
