@@ -1389,6 +1389,14 @@ Graphics Quality can be raised in Preferences &gt; Graphics.
 The region [REGION] does not allow terraforming.
   <tag>fail</tag>
   </notification>
+  
+  <notification
+   icon="alertmodal.tga"
+   name="ParcelNoTerraforming"
+   type="notify">
+You are not allowed to terraform parcel [PARCEL].
+  <tag>fail</tag>
+  </notification>
 
   <notification
    icon="alertmodal.tga"
