@@ -1275,21 +1275,15 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended, fl
 {
 	S32Megabytes max_texmem;
 	if (gGLManager.mVRAM != 0)
-	{
-		// Treat any card with < 32 MB (shudder) as having 32 MB
-		//  - it's going to be swapping constantly regardless
+	{ //use detected amount of vram as maximum
 		S32Megabytes max_vram(gGLManager.mVRAM);
 
-		if(!get_recommended && gGLManager.mIsATI)
-		{
-			//shrink the availabe vram for ATI cards because some of them do not handel texture swapping well.
-			max_vram = max_vram * 0.75f; 
-		}
-
-		max_vram = llmax(max_vram, getMinVideoRamSetting());
 		max_texmem = max_vram;
-		if (!get_recommended)
-			max_texmem *= 2;
+
+		if (get_recommended)
+		{ //recommend 1/3rd of total video memory for textures
+			max_texmem /= 3;
+		}
 	}
 	else
 	{
@@ -1309,15 +1303,9 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended, fl
 		LL_WARNS() << "VRAM amount not detected, defaulting to " << max_texmem << " MB" << LL_ENDL;
 	}
 
-	S32Megabytes system_ram = gSysMemory.getPhysicalMemoryClamped(); // In MB
-	//LL_INFOS() << "*** DETECTED " << system_ram << " MB of system memory." << LL_ENDL;
-	max_texmem = llmin(max_texmem, (S32Megabytes)(system_ram));
-		
-    // limit the texture memory to a multiple of the default if we've found some cards to behave poorly otherwise
+	// limit the texture memory to a multiple of the default if we've found some cards to behave poorly otherwise
 	max_texmem = llmin(max_texmem, (S32Megabytes) (mem_multiplier * max_texmem));
 
-	max_texmem = llclamp(max_texmem, getMinVideoRamSetting(), gMaxVideoRam); 
-	
 	return max_texmem;
 }
 
@@ -1341,7 +1329,7 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32Megabytes mem)
 	mem = llclamp(mem, getMinVideoRamSetting(), getMaxVideoRamSetting(false, mem_multiplier));
 	if (mem != cur_mem)
 	{
-		gSavedSettings.setS32("TextureMemory", mem.value()/3);
+		gSavedSettings.setS32("TextureMemory", mem.value());
 		return; //listener will re-enter this function
 	}
 
