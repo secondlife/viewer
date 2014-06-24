@@ -1,0 +1,11 @@
+<llsd>
+    <array>
+        <array>
+            <string>linearize</string>
+            <real>0.01</real>
+            <real>1.0</real>
+            <real>1.0</real>
+            <real>1.0</real>
+        </array>
+    </array>
+</llsd>

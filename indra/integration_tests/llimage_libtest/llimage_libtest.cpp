@@ -32,6 +32,7 @@
 
 // Linden library includes
 #include "llimage.h"
+#include "llimagefilter.h"
 #include "llimagejpeg.h"
 #include "llimagepng.h"
 #include "llimagebmp.h"
@@ -39,6 +40,8 @@
 #include "llimagej2c.h"
 #include "lldir.h"
 #include "lldiriterator.h"
+#include "v4coloru.h"
+#include "llsdserialize.h"
 
 // system libraries
 #include <iostream>
@@ -83,6 +86,8 @@ static const char USAGE[] = "\n"
 " -rev, --reversible\n"
 "        Set the compression to be lossless (reversible in j2c parlance).\n"
 "        Only valid for output j2c images.\n"
+" -f, --filter <file>\n"
+"        Apply the filter <file> to the input images.\n"
 " -log, --logmetrics <metric>\n"
 "        Log performance data for <metric>. Results in <metric>.slp\n"
 "        Note: so far, only ImageCompressionTester has been tested.\n"
@@ -99,7 +104,7 @@ static bool sAllDone = false;
 // Create an empty formatted image instance of the correct type from the filename
 LLPointer<LLImageFormatted> create_image(const std::string &filename)
 {
-	std::string exten = gDirUtilp->getExtension(filename);	
+	std::string exten = gDirUtilp->getExtension(filename);
 	LLPointer<LLImageFormatted> image = LLImageFormatted::createFromExtension(exten);
 	return image;
 }
@@ -350,6 +355,7 @@ int main(int argc, char** argv)
 	int blocks_size = -1;
 	int levels = 0;
 	bool reversible = false;
+    std::string filter_name = "";
 
 	// Init whatever is necessary
 	ll_init_apr();
@@ -523,7 +529,26 @@ int main(int argc, char** argv)
 					break;
 			}
 		}
-		else if (!strcmp(argv[arg], "--analyzeperformance") || !strcmp(argv[arg], "-a"))
+		else if (!strcmp(argv[arg], "--filter") || !strcmp(argv[arg], "-f"))
+		{
+			// '--filter' needs to be specified with a named filter argument
+			if ((arg + 1) < argc)
+			{
+				filter_name = argv[arg+1];
+			}
+			if (((arg + 1) >= argc) || (filter_name[0] == '-'))
+			{
+				// We don't have an argument left in the arg list or the next argument is another option
+				std::cout << "No --filter argument given, no filter will be applied" << std::endl;
+			}
+			else
+			{
+				arg += 1;					// Skip that arg now we know it's a valid test name
+				if ((arg + 1) == argc)		// Break out of the loop if we reach the end of the arg list
+					break;
+            }
+		}
+        else if (!strcmp(argv[arg], "--analyzeperformance") || !strcmp(argv[arg], "-a"))
 		{
 			analyze_performance = true;
 		}
@@ -553,7 +578,10 @@ int main(int argc, char** argv)
 		fast_timer_log_thread = new LogThread(LLFastTimer::sLogName);
 		fast_timer_log_thread->start();
 	}
-	
+    
+    // Load the filter once and for all
+    LLImageFilter filter(filter_name);
+
 	// Perform action on each input file
 	std::list<std::string>::iterator in_file  = input_filenames.begin();
 	std::list<std::string>::iterator out_file = output_filenames.begin();
@@ -568,7 +596,10 @@ int main(int argc, char** argv)
 			std::cout << "Error: Image " << *in_file << " could not be loaded" << std::endl;
 			continue;
 		}
-	
+        
+        // Apply the filter
+        filter.executeFilter(raw_image);
+
 		// Save file
 		if (out_file != out_end)
 		{

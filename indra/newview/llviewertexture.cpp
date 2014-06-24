@@ -64,7 +64,7 @@
 
 // extern
 const S32Megabytes gMinVideoRam(32);
-const S32Megabytes gMaxVideoRam(512);
+const S32Megabytes gMaxVideoRam(4096);
 
 
 // statics

@@ -1,0 +1,36 @@
+<llsd>
+    <array>
+        <array>
+            <string>grayscale</string>
+        </array>
+        <array>
+            <string>linearize</string>
+            <real>0.1</real>
+            <real>1.0</real>
+            <real>1.0</real>
+            <real>1.0</real>
+        </array>
+        <array>
+            <string>posterize</string>
+            <real>10.0</real>
+            <real>1.0</real>
+            <real>1.0</real>
+            <real>1.0</real>
+        </array>
+        <array>
+            <string>gradient</string>
+        </array>
+        <array>
+            <string>colorize</string>
+            <real>0.0</real>
+            <real>0.0</real>
+            <real>1.0</real>
+            <real>0.0</real>
+            <real>0.0</real>
+            <real>0.15</real>
+        </array>
+        <array>
+            <string>blur</string>
+        </array>
+    </array>
+</llsd>

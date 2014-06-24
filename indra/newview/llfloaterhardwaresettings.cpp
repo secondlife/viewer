@@ -87,16 +87,6 @@ void LLFloaterHardwareSettings::refresh()
 	refreshEnabledState();
 }
 
-void LLFloaterHardwareSettings::onSetVRAM()
-{
-	S32 vram = childGetValue("GraphicsCardTextureMemory").asInteger();
-
-	//give the texture system plenty of leeway to avoid swapping
-	vram /= 3;
-
-	gSavedSettings.setS32("TextureMemory", vram);
-}
-
 void LLFloaterHardwareSettings::refreshEnabledState()
 {
 	F32 mem_multiplier = gSavedSettings.getF32("RenderTextureMemoryMultiple");
@@ -105,11 +95,6 @@ void LLFloaterHardwareSettings::refreshEnabledState()
 	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMinValue(min_tex_mem.value());
 	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMaxValue(max_tex_mem.value());
 
-	S32 vram = gSavedSettings.getS32("TextureMemory");
-	vram = vram*3;
-
-	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setValue(vram);
-	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setCommitCallback(boost::bind(&LLFloaterHardwareSettings::onSetVRAM, this));
 	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderVBOEnable") ||
 		!gGLManager.mHasVertexBufferObject)
 	{

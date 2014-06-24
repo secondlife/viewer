@@ -505,7 +505,7 @@ public:
 
 LLPanelPeople::LLPanelPeople()
 	:	LLPanel(),
-		mTryToConnectToFbc(true),
+		mTryToConnectToFacebook(true),
 		mTabContainer(NULL),
 		mOnlineFriendList(NULL),
 		mAllFriendList(NULL),
@@ -865,10 +865,10 @@ void LLPanelPeople::updateFacebookList(bool visible)
 		{
 			LLFacebookConnect::instance().loadFacebookFriends();
 		}
-		else if(mTryToConnectToFbc)
+		else if(mTryToConnectToFacebook)
 		{
 			LLFacebookConnect::instance().checkConnectionToFacebook();
-			mTryToConnectToFbc = false;
+			mTryToConnectToFacebook = false;
 		}
     
 		updateSuggestedFriendList();

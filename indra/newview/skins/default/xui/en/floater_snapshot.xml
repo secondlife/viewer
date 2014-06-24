@@ -11,7 +11,7 @@
  help_topic="snapshot"
  save_rect="true"
  save_visibility="false"
- title="SNAPSHOT PREVIEW"
+ title="SNAPSHOT"
  width="470">
     <floater.string
      name="unknown">
@@ -382,5 +382,31 @@
          top_pad="8"
          width="180"
          name="auto_snapshot_check" />
+        <text
+         type="string"
+         length="1"
+         follows="left|top"
+         height="13"
+         layout="topleft"
+         left="10"
+         name="filter_list_label"
+         top_pad="10"
+         width="50">
+            Filter:
+        </text>
+        <combo_box
+            control_name="PhotoFilters"
+            follows="left|right|top"
+            name="filters_combobox"
+            tool_tip="Image filters"
+            top_pad="8"
+            left="30"
+            height="21"
+            width="135">
+            <combo_box.item
+            label="No Filter"
+            name="NoFilter"
+            value="NoFilter" />
+        </combo_box>
     </panel>
 </floater>

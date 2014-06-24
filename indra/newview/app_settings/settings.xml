@@ -11507,6 +11507,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>SnapshotFiltersEnabled</key>
+    <map>
+        <key>Comment</key>
+        <string>Enable filters in the Snapshot Advanced panel (experimental).</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
     <key>SnapshotFormat</key>
     <map>
       <key>Comment</key>
@@ -11862,7 +11873,7 @@
     <key>TextureMemory</key>
     <map>
       <key>Comment</key>
-      <string>Amount of memory to use for textures in MB (0 = autodetect)</string>
+      <string>Amount of memory to use for textures in MB (0 = autodetect). Defaults to 1/3 of video memory to allow room for render targets, vertex buffers, 3D accelerated desktops, and over allocation.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -13336,7 +13347,7 @@
     <key>SocialPhotoResolution</key>
     <map>
       <key>Comment</key>
-      <string>Default resolution when sharing photo using the social floater</string>
+      <string>Default resolution when sharing photo using the social floaters</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
