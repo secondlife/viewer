@@ -3012,21 +3012,31 @@ void LLPanelLandExperiences::refreshPanel(LLPanelExperienceListEditor* panel, U3
 	LLParcel *parcel = mParcel->getParcel();
 
 	// Display options
-	if (parcel == NULL || panel == NULL)
+	if (panel == NULL)
 	{
 		return;
 	}
-
-	LLAccessEntry::map entries = parcel->getExperienceKeysByType(xp_type);
-	LLAccessEntry::map::iterator it = entries.begin();
-	LLSD ids = LLSD::emptyArray();
-	for (/**/; it != entries.end(); ++it)
+	if (parcel == NULL)
 	{
-		ids.append(it->second.mID);
+		// disable the panel
+		panel->setEnabled(FALSE);
+		panel->setExperienceIds(LLSD::emptyArray());
 	}
-	panel->setExperienceIds(ids);
-	panel->setReadonly(!LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_OPTIONS));
-	panel->refreshExperienceCounter();
+	else
+	{
+		// enable the panel
+		panel->setEnabled(TRUE);
+		LLAccessEntry::map entries = parcel->getExperienceKeysByType(xp_type);
+		LLAccessEntry::map::iterator it = entries.begin();
+		LLSD ids = LLSD::emptyArray();
+		for (/**/; it != entries.end(); ++it)
+		{
+			ids.append(it->second.mID);
+		}
+		panel->setExperienceIds(ids);
+		panel->setReadonly(!LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_OPTIONS));
+		panel->refreshExperienceCounter();
+	}
 }
 
 void LLPanelLandExperiences::refresh()
