@@ -2844,8 +2844,9 @@ BOOL LLPanelGroupBanListSubTab::postBuildSubTab(LLView* root)
 	mCreateBanButton		= parent->getChild<LLButton>("ban_create", recurse);
 	mDeleteBanButton		= parent->getChild<LLButton>("ban_delete", recurse);
 	mRefreshBanListButton	= parent->getChild<LLButton>("ban_refresh", recurse);
+	mBanCountText			= parent->getChild<LLTextBase>("ban_count", recurse);
 
-	if(!mBanList || !mCreateBanButton || !mDeleteBanButton || !mRefreshBanListButton)
+	if(!mBanList || !mCreateBanButton || !mDeleteBanButton || !mRefreshBanListButton || !mBanCountText)
 		return FALSE;
 
 	mBanList->setCommitOnSelectionChange(TRUE);
@@ -2859,6 +2860,8 @@ BOOL LLPanelGroupBanListSubTab::postBuildSubTab(LLView* root)
 	
 	mRefreshBanListButton->setClickedCallback(onRefreshBanList, this);
 	mRefreshBanListButton->setEnabled(FALSE);
+
+	setBanCount(0);
 
 	mBanList->setOnNameListCompleteCallback(boost::bind(&LLPanelGroupBanListSubTab::onBanListCompleted, this, _1));
 	
@@ -2875,7 +2878,18 @@ void LLPanelGroupBanListSubTab::activate()
 	mBanList->deselectAllItems();
 	mDeleteBanButton->setEnabled(FALSE);
 
-	mCreateBanButton->setEnabled(gAgent.hasPowerInGroup(mGroupID, GP_GROUP_BAN_ACCESS));
+	LLGroupMgrGroupData * group_datap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
+	if (group_datap)
+	{
+		mCreateBanButton->setEnabled(gAgent.hasPowerInGroup(mGroupID, GP_GROUP_BAN_ACCESS) &&
+									 group_datap->mBanList.size() < GB_MAX_BANNED_AGENTS);
+		setBanCount(group_datap->mBanList.size());
+	}
+	else
+	{
+		mCreateBanButton->setEnabled(FALSE);
+		setBanCount(0);
+	}
 
 	// BAKER: Should I really request everytime activate() is called?
 	//		  Perhaps I should only do it on a force refresh, or if an action on the list happens...
@@ -2993,6 +3007,10 @@ void LLPanelGroupBanListSubTab::handleDeleteBanEntry()
 		// the button anymore until we reselect another entry.
 		mDeleteBanButton->setEnabled(FALSE);
 	}
+
+	// update ban-count related elements
+	mCreateBanButton->setEnabled(TRUE);
+	setBanCount(gdatap->mBanList.size());
 	
 	LLGroupMgr::getInstance()->sendGroupBanRequest(LLGroupMgr::REQUEST_POST, mGroupID, LLGroupMgr::BAN_DELETE, ban_ids);
 }
@@ -3019,6 +3037,14 @@ void LLPanelGroupBanListSubTab::onBanListCompleted(bool isComplete)
 		mRefreshBanListButton->setEnabled(TRUE);
 		populateBanList();
 	}
+}
+
+void LLPanelGroupBanListSubTab::setBanCount(U32 ban_count)
+{
+	LLStringUtil::format_map_t args;
+	args["[COUNT]"] = llformat("%d", ban_count);
+	args["[LIMIT]"] = llformat("%d", GB_MAX_BANNED_AGENTS);
+	mBanCountText->setText(getString("ban_count_template", args));
 }
 
 void LLPanelGroupBanListSubTab::populateBanList()
@@ -3060,6 +3086,9 @@ void LLPanelGroupBanListSubTab::populateBanList()
 	}
 	 
 	mRefreshBanListButton->setEnabled(TRUE);
+	mCreateBanButton->setEnabled(gAgent.hasPowerInGroup(mGroupID, GP_GROUP_BAN_ACCESS) &&
+								 gdatap->mBanList.size() < GB_MAX_BANNED_AGENTS);
+	setBanCount(gdatap->mBanList.size());
 }
 
 void LLPanelGroupBanListSubTab::setGroupID(const LLUUID& id)

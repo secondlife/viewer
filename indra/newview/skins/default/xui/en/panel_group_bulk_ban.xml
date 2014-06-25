@@ -15,28 +15,36 @@
      name="ban_selection_too_large">
     Group bans not sent: too many Residents selected. Group bans are limited to 100 per request.
   </panel.string>
-	<panel.string
+  <panel.string
      name="ban_not_permitted">
-		Group ban not sent: you do not have 'Manage ban list' ability.
-	</panel.string>
-	<panel.string
+    Group ban not sent: you do not have 'Manage ban list' ability.
+  </panel.string>
+  <panel.string
+     name="ban_limit_fail">
+    Group ban not sent: your group have reached limit of allowed ban records.
+  </panel.string>
+  <panel.string
      name="partial_ban">
-		Some group bans were not sent:
+    Some group bans were not sent:
 [REASONS]
-	</panel.string>
-	<panel.string
+  </panel.string>
+  <panel.string
      name="ban_failed">
-		Group bans were not sent:
+    Group bans were not sent:
 [REASONS]
-	</panel.string>
-	<panel.string
+  </panel.string>
+  <panel.string
      name="residents_already_banned">
-		- The following resident(s) are already banned: [RESIDENTS].
-	</panel.string>
-	<panel.string
+    - The following resident(s) are already banned: [RESIDENTS].
+  </panel.string>
+  <panel.string
+     name="ban_limit_reached">
+    - Ban limit reached, following agents not banned: [RESIDENTS].
+  </panel.string>
+  <panel.string
      name="cant_ban_yourself">
-		- You cannot ban yourself from a group.
-	</panel.string>
+    - You cannot ban yourself from a group.
+  </panel.string>
   <text
    type="string"
    length="1"

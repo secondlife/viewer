@@ -42,6 +42,8 @@ public:
 
 	static void callbackClickSubmit(void* userdata);
 	virtual void submit();
+private:
+	std::string buildResidentsArgument(std::vector<LLAvatarName> avatar_names, const std::string &format);
 };
 
 #endif // LL_LLPANELGROUPBULKBAN_H

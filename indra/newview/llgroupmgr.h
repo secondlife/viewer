@@ -49,6 +49,8 @@ enum LLGroupChange
 	GC_ALL
 };
 
+const U32 GB_MAX_BANNED_AGENTS = 500;
+
 class LLGroupMgrObserver
 {
 public:

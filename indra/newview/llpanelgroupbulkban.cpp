@@ -102,6 +102,7 @@ BOOL LLPanelGroupBulkBan::postBuild()
 
 	mImplementation->mTooManySelected = getString("ban_selection_too_large");
 	mImplementation->mBanNotPermitted = getString("ban_not_permitted");
+	mImplementation->mBanLimitFail = getString("ban_limit_fail");
 	mImplementation->mCannotBanYourself = getString("cant_ban_yourself");
 
 	update();
@@ -122,9 +123,19 @@ void LLPanelGroupBulkBan::submit()
 {
 	if (!gAgent.hasPowerInGroup(mImplementation->mGroupID, GP_GROUP_BAN_ACCESS))
 	{
-		// Fail! Agent no longer have ban rights.
+		// Fail! Agent no longer have ban rights. Permissions could have changed after button was pressed.
 		LLSD msg;
 		msg["MESSAGE"] = mImplementation->mBanNotPermitted;
+		LLNotificationsUtil::add("GenericAlert", msg);
+		(*(mImplementation->mCloseCallback))(mImplementation->mCloseCallbackUserData);
+		return;
+	}
+	LLGroupMgrGroupData * group_datap = LLGroupMgr::getInstance()->getGroupData(mImplementation->mGroupID);
+	if (group_datap && group_datap->mBanList.size() >= GB_MAX_BANNED_AGENTS)
+	{
+		// Fail! Size limit exceeded. List could have updated after button was pressed.
+		LLSD msg;
+		msg["MESSAGE"] = mImplementation->mBanLimitFail;
 		LLNotificationsUtil::add("GenericAlert", msg);
 		(*(mImplementation->mCloseCallback))(mImplementation->mCloseCallbackUserData);
 		return;
@@ -138,8 +149,8 @@ void LLPanelGroupBulkBan::submit()
 		banned_agent_list.push_back(agent->getUUID());
 	}
 
-	const S32 MAX_GROUP_BANS = 100; // Max invites per request. 100 to match server cap.
-	if (banned_agent_list.size() > MAX_GROUP_BANS)
+	const S32 MAX_BANS_PER_REQUEST = 100; // Max bans per request. 100 to match server cap.
+	if (banned_agent_list.size() > MAX_BANS_PER_REQUEST)
 	{
 		// Fail!
 		LLSD msg;
@@ -151,6 +162,7 @@ void LLPanelGroupBulkBan::submit()
 
 	// remove already banned users and yourself from request.
 	std::vector<LLAvatarName> banned_avatar_names;
+	std::vector<LLAvatarName> out_of_limit_names;
 	bool banning_self = FALSE;
 	std::vector<LLUUID>::iterator conflict = std::find(banned_agent_list.begin(), banned_agent_list.end(), gAgent.getID());
 	if (conflict != banned_agent_list.end())
@@ -158,7 +170,6 @@ void LLPanelGroupBulkBan::submit()
 		banned_agent_list.erase(conflict);
 		banning_self = TRUE;
 	}
-	LLGroupMgrGroupData * group_datap = LLGroupMgr::getInstance()->getGroupData(mImplementation->mGroupID);
 	if (group_datap)
 	{
 		BOOST_FOREACH(const LLGroupMgrGroupData::ban_list_t::value_type& group_ban_pair, group_datap->mBanList)
@@ -178,8 +189,23 @@ void LLPanelGroupBulkBan::submit()
 				}
 			}
 		}
+		// this check should always be the last one before we send the request.
+		// Otherwise we have a possibility of cutting more then we need to.
+		if (banned_agent_list.size() > GB_MAX_BANNED_AGENTS - group_datap->mBanList.size())
+		{
+			std::vector<LLUUID>::iterator exeedes_limit = banned_agent_list.begin() + GB_MAX_BANNED_AGENTS - group_datap->mBanList.size();
+			for (std::vector<LLUUID>::iterator itor = exeedes_limit ; 
+				itor != banned_agent_list.end(); ++itor)
+			{
+				LLAvatarName av_name;
+				LLAvatarNameCache::get(*itor, &av_name);
+				out_of_limit_names.push_back(av_name);
+			}
+			banned_agent_list.erase(exeedes_limit,banned_agent_list.end());
+		}
 	}
 
+	// sending request and ejecting members
 	if (banned_agent_list.size() != 0)
 	{
 		LLGroupMgr::getInstance()->sendGroupBanRequest(LLGroupMgr::REQUEST_POST, mImplementation->mGroupID, LLGroupMgr::BAN_CREATE | LLGroupMgr::BAN_UPDATE, banned_agent_list);
@@ -187,21 +213,22 @@ void LLPanelGroupBulkBan::submit()
 	}
 
 	// building notification
-	if (banned_avatar_names.size() > 0 || banning_self)
+	if (banned_avatar_names.size() > 0 || banning_self || out_of_limit_names.size() > 0)
 	{
 		std::string reasons;
 		if(banned_avatar_names.size() > 0)
 		{
-			std::string names_string;
-			LLAvatarActions::buildResidentsString(banned_avatar_names, names_string);
-			LLStringUtil::format_map_t reason_args;
-			reason_args["[RESIDENTS]"] = names_string;
-			reasons = "\n " + getString("residents_already_banned", reason_args);
+			reasons = "\n " + buildResidentsArgument(banned_avatar_names, "residents_already_banned");
 		}
 
 		if(banning_self)
 		{
 			reasons += "\n " + mImplementation->mCannotBanYourself;
+		}
+
+		if(out_of_limit_names.size() > 0)
+		{
+			reasons += "\n " + buildResidentsArgument(out_of_limit_names, "ban_limit_reached");
 		}
 
 		LLStringUtil::format_map_t msg_args;
@@ -222,3 +249,11 @@ void LLPanelGroupBulkBan::submit()
 	(*(mImplementation->mCloseCallback))(mImplementation->mCloseCallbackUserData);
 }
 
+std::string LLPanelGroupBulkBan::buildResidentsArgument(std::vector<LLAvatarName> avatar_names, const std::string &format)
+{
+	std::string names_string;
+	LLAvatarActions::buildResidentsString(avatar_names, names_string);
+	LLStringUtil::format_map_t args;
+	args["[RESIDENTS]"] = names_string;
+	return getString(format, args);
+}

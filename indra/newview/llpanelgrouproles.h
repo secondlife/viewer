@@ -347,6 +347,7 @@ public:
 	void onBanListCompleted(bool isComplete);
 
 protected:
+	void setBanCount(U32 ban_count);
 	void populateBanList();
 
 public:
@@ -357,6 +358,7 @@ protected:
 	LLButton* mCreateBanButton;
 	LLButton* mDeleteBanButton;
 	LLButton* mRefreshBanListButton;
+	LLTextBase* mBanCountText;
 
 };
 

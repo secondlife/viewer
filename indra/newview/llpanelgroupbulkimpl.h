@@ -75,6 +75,7 @@ public:
 	std::string			mLoadingText; 
 	std::string			mTooManySelected;
 	std::string			mBanNotPermitted;
+	std::string			mBanLimitFail;
 	std::string			mCannotBanYourself;
 
 	std::set<LLUUID>	mInviteeIDs;

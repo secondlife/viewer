@@ -304,6 +304,10 @@ clicking on their names.
        name="help_text">
         Any resident on the ban list will be unable to join the group.
       </panel.string>
+      <panel.string
+       name="ban_count_template">
+        Ban count: [COUNT]/[LIMIT]
+      </panel.string>
       <name_list
            column_padding="0"
            draw_heading="true"
@@ -355,6 +359,15 @@ clicking on their names.
         name="ban_refresh"
         tool_tip="Refresh the ban list"
         />
+      <text
+        type="string"
+        height="18"
+        left_pad="5"
+        follows="top|left"
+        layout="topleft"
+        name="ban_count"
+        width="100">
+      </text>
     </panel>
   </tab_container>
   <panel
