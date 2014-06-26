@@ -2593,7 +2593,8 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 
 	S32 desired_size;
 	std::string exten = gDirUtilp->getExtension(url);
-	if (f_type == FTT_SERVER_BAKE)
+	//if (f_type == FTT_SERVER_BAKE)
+    if ((f_type == FTT_SERVER_BAKE) && !url.empty() && !exten.empty() && (LLImageBase::getCodecFromExtension(exten) != IMG_CODEC_J2C))
 	{
 		// SH-4030: This case should be redundant with the following one, just
 		// breaking it out here to clarify that it's intended behavior.

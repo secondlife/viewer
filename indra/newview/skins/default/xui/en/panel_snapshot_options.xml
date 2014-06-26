@@ -81,4 +81,40 @@
     <button.commit_callback
      function="Snapshot.SaveToComputer" />
   </button>
+  <text
+    font="SansSerif"
+    layout="topleft"
+    length="1"
+    follows="top|left"
+    height="16"
+    left="10"
+    name="send_to_facebook_textbox"
+    top_pad="10"
+    type="string">
+    Send to:  [secondlife:/// Facebook]
+  </text>
+  <text
+    font="SansSerif"
+    layout="topleft"
+    length="1"
+    follows="top|left"
+    height="16"
+    left="140"
+    name="send_to_twitter_textbox"
+    top_pad="-16"
+    type="string">
+    [secondlife:/// Twitter]
+  </text>
+  <text
+    font="SansSerif"
+    layout="topleft"
+    length="1"
+    follows="top|left"
+    height="16"
+    left="190"
+    name="send_to_flickr_textbox"
+    top_pad="-16"
+    type="string">
+    [secondlife:/// Flickr]
+  </text>
 </panel>

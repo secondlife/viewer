@@ -2,7 +2,8 @@
       height="400"
       width="304"
 	  layout="topleft"
-      name="panel_social_place">
+      follows="all"
+      name="panel_facebook_place">
       <layout_stack
 	    layout="topleft"
         border_size="0"
@@ -26,7 +27,7 @@
             Say something about where you are:
           </text>
           <text_editor
-            follows="top|left"
+            follows="top|left|right"
             height="150"
             width="250"
             left="9"
@@ -106,7 +107,7 @@
             name="place_button_panel"
             height="25">
             <button
-              follows="left|top"
+              follows="left|bottom"
               top="0"
               left="9"
               height="23"
@@ -117,7 +118,7 @@
                  function="SocialSharing.SendCheckin" />
             </button>
             <button
-              follows="left|top"
+              follows="left|bottom"
               height="23"
               label="Cancel"
               name="cancel_place_btn"
