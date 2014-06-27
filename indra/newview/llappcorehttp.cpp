@@ -42,9 +42,9 @@
 const F64 LLAppCoreHttp::MAX_THREAD_WAIT_TIME(10.0);
 const long LLAppCoreHttp::PIPELINING_DEPTH(5L);
 
+//  Default and dynamic values for classes
 static const struct
 {
-	LLAppCoreHttp::EAppPolicy	mPolicy;
 	U32							mDefault;
 	U32							mMin;
 	U32							mMax;
@@ -52,40 +52,40 @@ static const struct
 	bool						mPipelined;
 	std::string					mKey;
 	const char *				mUsage;
-} init_data[] =					//  Default and dynamic values for classes
+} init_data[LLAppCoreHttp::AP_COUNT] =
 {
-	{
-		LLAppCoreHttp::AP_DEFAULT,			8,		8,		8,		0,		false,
+	{ // AP_DEFAULT
+		8,		8,		8,		0,		false,
 		"",
 		"other"
 	},
-	{
-		LLAppCoreHttp::AP_TEXTURE,			8,		1,		12,		0,		true,	
+	{ // AP_TEXTURE
+		4,		1,		12,		0,		true,	
 		"TextureFetchConcurrency",
 		"texture fetch"
 	},
-	{
-		LLAppCoreHttp::AP_MESH1,			32,		1,		128,	100,	false,
+	{ // AP_MESH1
+		32,		1,		128,	100,	false,
 		"MeshMaxConcurrentRequests",
 		"mesh fetch"
 	},
-	{
-		LLAppCoreHttp::AP_MESH2,			8,		1,		32,		100,	true,	
+	{ // AP_MESH2
+		4,		1,		32,		100,	true,	
 		"Mesh2MaxConcurrentRequests",
 		"mesh2 fetch"
 	},
-	{
-		LLAppCoreHttp::AP_LARGE_MESH,		2,		1,		8,		0,		false,
+	{ // AP_LARGE_MESH
+		2,		1,		8,		0,		false,
 		"",
 		"large mesh fetch"
 	},
-	{
-		LLAppCoreHttp::AP_UPLOADS,			2,		1,		8,		0,		false,
+	{ // AP_UPLOADS 
+		2,		1,		8,		0,		false,
 		"",
 		"asset upload"
 	},
-	{
-		LLAppCoreHttp::AP_LONG_POLL,		32,		32,		32,		0,		false,
+	{ // AP_LONG_POLL
+		32,		32,		32,		0,		false,
 		"",
 		"long poll"
 	}
@@ -173,9 +173,10 @@ void LLAppCoreHttp::init()
 	mHttpClasses[AP_DEFAULT].mPolicy = LLCore::HttpRequest::DEFAULT_POLICY_ID;
 
 	// Setup additional policies based on table and some special rules
+	llassert(LL_ARRAY_SIZE(init_data) == AP_COUNT);
 	for (int i(0); i < LL_ARRAY_SIZE(init_data); ++i)
 	{
-		const EAppPolicy app_policy(init_data[i].mPolicy);
+		const EAppPolicy app_policy(static_cast<EAppPolicy>(i));
 
 		if (AP_DEFAULT == app_policy)
 		{
@@ -301,7 +302,7 @@ void LLAppCoreHttp::refreshSettings(bool initial)
 	
 	for (int i(0); i < LL_ARRAY_SIZE(init_data); ++i)
 	{
-		const EAppPolicy app_policy(init_data[i].mPolicy);
+		const EAppPolicy app_policy(static_cast<EAppPolicy>(i));
 
 		if (initial)
 		{
@@ -326,6 +327,10 @@ void LLAppCoreHttp::refreshSettings(bool initial)
 			if (mPipelined && init_data[i].mPipelined)
 			{
 				// Pipelining election is currently static (init-time).
+				// Making it dynamic isn't too hard in the SL code but verifying
+				// that libcurl handles the on-to-off transition while holding
+				// outstanding requests is something that should be tested.
+				
 				status = LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_PIPELINING_DEPTH,
 																	mHttpClasses[app_policy].mPolicy,
 																	PIPELINING_DEPTH,

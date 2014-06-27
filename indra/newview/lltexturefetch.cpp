@@ -2516,6 +2516,8 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	mHttpPolicyClass = app_core_http.getPolicy(LLAppCoreHttp::AP_TEXTURE);
 	if (app_core_http.isPipelined(LLAppCoreHttp::AP_TEXTURE))
 	{
+		// Init-time election that will have to change for
+		// support of dynamic changes to the pipelining enable flag.
 		mHttpHighWater = HTTP_PIPE_REQUESTS_HIGH_WATER;
 		mHttpLowWater = HTTP_PIPE_REQUESTS_LOW_WATER;
 	}

@@ -338,14 +338,17 @@ static LLFastTimer::DeclareTimer FTM_MESH_FETCH("Mesh Fetch");
 LLMeshRepository gMeshRepo;
 
 const S32 MESH_HEADER_SIZE = 4096;                      // Important:  assumption is that headers fit in this space
+
 const S32 REQUEST_HIGH_WATER_MIN = 32;					// Limits for GetMesh regions
 const S32 REQUEST_HIGH_WATER_MAX = 150;					// Should remain under 2X throttle
 const S32 REQUEST_LOW_WATER_MIN = 16;
 const S32 REQUEST_LOW_WATER_MAX = 75;
+
 const S32 REQUEST2_HIGH_WATER_MIN = 32;					// Limits for GetMesh2 regions
 const S32 REQUEST2_HIGH_WATER_MAX = 100;
 const S32 REQUEST2_LOW_WATER_MIN = 16;
 const S32 REQUEST2_LOW_WATER_MAX = 50;
+
 const U32 LARGE_MESH_FETCH_THRESHOLD = 1U << 21;		// Size at which requests goes to narrow/slow queue
 const long SMALL_MESH_XFER_TIMEOUT = 120L;				// Seconds to complete xfer, small mesh downloads
 const long LARGE_MESH_XFER_TIMEOUT = 600L;				// Seconds to complete xfer, large downloads
@@ -3203,7 +3206,9 @@ void LLMeshRepository::notifyLoadedMeshes()
 		// we'll increase this.  See llappcorehttp and llcorehttp for
 		// discussion on connection strategies.
 		LLAppCoreHttp & app_core_http(LLAppViewer::instance()->getAppCoreHttp());
-		S32 scale(app_core_http.isPipelined(LLAppCoreHttp::AP_MESH2) ? 10 : 5);
+		S32 scale(app_core_http.isPipelined(LLAppCoreHttp::AP_MESH2)
+				  ? (2 * LLAppCoreHttp::PIPELINING_DEPTH)
+				  : 5);
 
 		LLMeshRepoThread::sMaxConcurrentRequests = gSavedSettings.getU32("Mesh2MaxConcurrentRequests");
 		LLMeshRepoThread::sRequestHighWater = llclamp(scale * S32(LLMeshRepoThread::sMaxConcurrentRequests),
