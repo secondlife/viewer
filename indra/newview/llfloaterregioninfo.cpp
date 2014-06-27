@@ -3620,7 +3620,7 @@ void LLPanelRegionExperiences::processResponse( const LLSD& content )
 }
 
 
-class LLRegionExperienceResponder : public LLCurl::Responder
+class LLRegionExperienceResponder : public LLHTTPClient::Responder
 {
 public:
 	typedef boost::function<void (const LLSD&)> callback_t;

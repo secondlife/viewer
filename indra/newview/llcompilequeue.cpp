@@ -251,11 +251,11 @@ public:
 
 	LLUUID mParent;
 
-	virtual void result(const LLSD& content)
+	/*virtual*/ void httpSuccess()
 	{	
-		sendResult(content);
+		sendResult(getContent());
 	}
-	virtual void error(U32 status, const std::string& reason)
+	/*virtual*/ void httpFailure()
 	{
 		sendResult(LLSD());
 	}

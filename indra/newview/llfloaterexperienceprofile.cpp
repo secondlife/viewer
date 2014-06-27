@@ -138,9 +138,9 @@ public:
     HandleResponder(const LLHandle<T>& parent):mParent(parent){}
     LLHandle<T> mParent;
 
-    virtual void error(U32 status, const std::string& reason)
+    virtual void httpFailure()
     {
-        LL_WARNS() << "HandleResponder failed with code: " << status<< ", reason: " << reason << LL_ENDL;
+        LL_WARNS() << "HandleResponder failed with code: " << getStatus() << ", reason: " << getReason() << LL_ENDL;
     }
 };
 
@@ -151,12 +151,12 @@ public:
     {
     }
 
-    virtual void result(const LLSD& content)
+    virtual void httpSuccess()
     {
         LLFloaterExperienceProfile* parent=mParent.get();
         if(parent)
         {
-            parent->onSaveComplete(content);
+            parent->onSaveComplete(getContent());
         }
     }
 };
@@ -225,14 +225,14 @@ public:
     }
 
 
-    virtual void result(const LLSD& content)
+    virtual void httpSuccess()
     {
         if(mId.notNull())
         {
-            post(getPermission(content));
+            post(getPermission(getContent()));
             return;
         }
-        LLEventPumps::instance().obtain("experience_permission").post(content);
+        LLEventPumps::instance().obtain("experience_permission").post(getContent());
     }
 
     void post( const char* perm )
@@ -257,7 +257,7 @@ public:
     {
     }
     
-    virtual void result(const LLSD& content)
+    virtual void httpSuccess()
     {
         LLFloaterExperienceProfile* parent = mParent.get();
         if(!parent)
@@ -275,7 +275,7 @@ public:
             if(url.empty())
                 enabled = false;
         }
-        if(enabled && content["status"].asBoolean())
+        if(enabled && getContent()["status"].asBoolean())
         {
             parent->getChild<LLLayoutPanel>(PNL_TOP)->setVisible(TRUE);
             parent->getChild<LLButton>(BTN_EDIT)->setVisible(TRUE);

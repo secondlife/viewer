@@ -71,6 +71,16 @@ private:
 	LLFlatListView* mExperiencesList;
 };
 
+class LLExperienceItemComparator : public LLFlatListView::ItemComparator
+{
+	LOG_CLASS(LLExperienceItemComparator);
+
+public:
+	LLExperienceItemComparator() {};
+	virtual ~LLExperienceItemComparator() {};
+	
+	virtual bool compare(const LLPanel* item1, const LLPanel* item2) const;
+};
 
 class LLExperienceItem 
 	: public LLPanel
@@ -80,6 +90,8 @@ public:
 	~LLExperienceItem();
 
 	void init(const LLUUID& experience_id);
+	std::string getExperienceName() const;
 protected:
+	LLUICtrl* mName;
 };
 #endif // LL_LLPANELEXPERIENCES_H

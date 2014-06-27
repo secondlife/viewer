@@ -257,7 +257,7 @@ namespace LLExperienceCache
 		LLSDSerialize::toPrettyXML(data, ostr);
 	}
 
-	class LLExperienceResponder : public LLCurl::Responder
+	class LLExperienceResponder : public LLHTTPClient::Responder
 	{
 	public:
 		LLExperienceResponder(const ask_queue_t& keys)
@@ -266,7 +266,7 @@ namespace LLExperienceCache
 
 		}
 
-		/*virtual*/ void httpSuccess()
+		/*virtual*/ void httpCompleted()
 		{
 			LLSD experiences = getContent()["experience_keys"];
 			LLSD::array_const_iterator it = experiences.beginArray();

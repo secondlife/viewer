@@ -42,7 +42,7 @@
 static LLPanelInjector<LLPanelGroupExperiences> t_panel_group_experiences("panel_group_experiences");
 
 
-class LLGroupExperienceResponder : public LLCurl::Responder
+class LLGroupExperienceResponder : public LLHTTPClient::Responder
 {
 public:
 	LLHandle<LLPanelGroupExperiences> mHandle;

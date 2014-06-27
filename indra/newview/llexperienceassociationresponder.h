@@ -41,8 +41,8 @@ public:
 
     ExperienceAssociationResponder(callback_t callback);
 
-    virtual void result(const LLSD& content);
-    virtual void error(U32 status, const std::string& reason);
+    /*virtual*/ void httpSuccess();
+    /*virtual*/ void httpFailure();
 
     static void fetchAssociatedExperience(const LLUUID& object_it, const LLUUID& item_id, callback_t callback);
 

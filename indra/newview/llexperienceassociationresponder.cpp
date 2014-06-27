@@ -61,19 +61,19 @@ void ExperienceAssociationResponder::fetchAssociatedExperience(LLSD& request, ca
     }
 }
 
-void ExperienceAssociationResponder::error( U32 status, const std::string& reason )
+void ExperienceAssociationResponder::httpFailure()
 {
     LLSD msg;
-    msg["error"]=(LLSD::Integer)status;
-    msg["message"]=reason;
-    LL_INFOS("ExperienceAssociation") << "Failed to look up associated experience: " << status << ": " << reason << LL_ENDL;
+    msg["error"]=(LLSD::Integer)getStatus();
+    msg["message"]=getReason();
+    LL_INFOS("ExperienceAssociation") << "Failed to look up associated experience: " << getStatus() << ": " << getReason() << LL_ENDL;
 
     sendResult(msg);
   
 }
-void ExperienceAssociationResponder::result( const LLSD& content )
+void ExperienceAssociationResponder::httpSuccess()
 {
-    if(!content.has("experience"))
+    if(!getContent().has("experience"))
     {
 
         LLSD msg;
@@ -83,7 +83,7 @@ void ExperienceAssociationResponder::result( const LLSD& content )
         return;
     }
 
-    LLExperienceCache::get(content["experience"].asUUID(), boost::bind(&ExperienceAssociationResponder::sendResult, this, _1));
+    LLExperienceCache::get(getContent()["experience"].asUUID(), boost::bind(&ExperienceAssociationResponder::sendResult, this, _1));
 
 }
 
