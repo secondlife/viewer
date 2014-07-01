@@ -149,6 +149,7 @@ protected:
 	BOOL			mDrop;
 	S32				mCurItemIndex;
 	std::string		mToolTipMsg;
+	std::string		mCustomMsg;
 
 	enddrag_signal_t	mEndDragSignal;
 
