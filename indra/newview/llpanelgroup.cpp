@@ -420,6 +420,7 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 	LLAccordionCtrlTab* tab_roles = getChild<LLAccordionCtrlTab>("group_roles_tab");
 	LLAccordionCtrlTab* tab_notices = getChild<LLAccordionCtrlTab>("group_notices_tab");
 	LLAccordionCtrlTab* tab_land = getChild<LLAccordionCtrlTab>("group_land_tab");
+	LLAccordionCtrlTab* tab_experiences = getChild<LLAccordionCtrlTab>("group_experiences_tab");
 
 	if(mButtonJoin)
 		mButtonJoin->setVisible(false);
@@ -436,10 +437,13 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 			tab_notices->changeOpenClose(tab_notices->getDisplayChildren());
 		if(tab_land->getDisplayChildren())
 			tab_land->changeOpenClose(tab_land->getDisplayChildren());
+		if(tab_experiences->getDisplayChildren())
+			tab_experiences->changeOpenClose(tab_land->getDisplayChildren());
 
 		tab_roles->setVisible(false);
 		tab_notices->setVisible(false);
 		tab_land->setVisible(false);
+		tab_experiences->setVisible(false);
 
 		getChild<LLUICtrl>("group_name")->setVisible(false);
 		getChild<LLUICtrl>("group_name_editor")->setVisible(true);
@@ -461,6 +465,8 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 				tab_notices->changeOpenClose(tab_notices->getDisplayChildren());
 			if(tab_land->getDisplayChildren())
 				tab_land->changeOpenClose(tab_land->getDisplayChildren());
+			if(tab_experiences->getDisplayChildren())
+				tab_experiences->changeOpenClose(tab_land->getDisplayChildren());
 		}
 
 		LLGroupData agent_gdatap;
@@ -469,6 +475,7 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 		tab_roles->setVisible(is_member);
 		tab_notices->setVisible(is_member);
 		tab_land->setVisible(is_member);
+		tab_experiences->setVisible(is_member);
 
 		getChild<LLUICtrl>("group_name")->setVisible(true);
 		getChild<LLUICtrl>("group_name_editor")->setVisible(false);
@@ -536,6 +543,7 @@ bool LLPanelGroup::apply()
 		&& apply(findChild<LLPanelGroupTab>("group_roles_tab_panel"))
 		&& apply(findChild<LLPanelGroupTab>("group_notices_tab_panel"))
 		&& apply(findChild<LLPanelGroupTab>("group_land_tab_panel"))
+		&& apply(findChild<LLPanelGroupTab>("group_experiences_tab_panel"))
 		;
 }
 
