@@ -1066,9 +1066,14 @@ void LLMarketplaceData::initializeSLM(const status_updated_signal_t::slot_type& 
 // Get/Post/Put requests to the SLM Server using the SLM API
 void LLMarketplaceData::getSLMListings()
 {
+	LLSD headers = LLSD::emptyMap();
+	headers["Accept"] = "application/json";
+	headers["Content-Type"] = "application/json";
+    
+	// Send request
     std::string url = getSLMConnectURL("/listings");
     log_SLM_infos("LLHTTPClient::get", url, "");
-	LLHTTPClient::get(url, new LLSLMGetListingsResponder(), LLSD());
+	LLHTTPClient::get(url, new LLSLMGetListingsResponder(), headers);
 }
 
 void LLMarketplaceData::getSLMListing(S32 listing_id)
