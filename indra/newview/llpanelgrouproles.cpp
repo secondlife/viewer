@@ -1330,6 +1330,15 @@ void LLPanelGroupMembersSubTab::activate()
 		update(GC_ALL);
 		mActivated = true;
 	}
+	else
+	{
+		LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
+		// Members can be removed outside of this tab, checking changes
+		if (!gdatap || (gdatap->isMemberDataComplete() && gdatap->mMembers.size() != mMembersList->getItemCount()))
+		{
+			update(GC_MEMBER_DATA);
+		}
+	}
 }
 
 void LLPanelGroupMembersSubTab::deactivate()
