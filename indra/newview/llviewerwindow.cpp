@@ -3267,7 +3267,7 @@ void LLViewerWindow::updateUI()
 
 	updateLayout();
 
-	saveLastMouse(mCurrentMousePoint);
+	mLastMousePoint = mCurrentMousePoint;
 
 	// cleanup unused selections when no modal dialogs are open
 	if (LLModalDialog::activeCount() == 0)
@@ -3506,8 +3506,6 @@ void LLViewerWindow::saveLastMouse(const LLCoordGL &point)
 {
 	// Store last mouse location.
 	// If mouse leaves window, pretend last point was on edge of window
-
-	mLastMousePoint = mCurrentMousePoint;
 
 	if (point.mX < 0)
 	{
