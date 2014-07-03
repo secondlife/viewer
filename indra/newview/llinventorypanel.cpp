@@ -1403,6 +1403,17 @@ BOOL LLInventoryPanel::handleKeyHere( KEY key, MASK mask )
 		// Open selected items if enter key hit on the inventory panel
 		if (mask == MASK_NONE)
 		{
+			//Don't allow attaching or opening items from Merchant Outbox
+			LLFolderViewItem* folder_item = mFolderRoot.get()->getCurSelectedItem();
+			if(folder_item)
+			{
+				LLInvFVBridge* bridge = (LLInvFVBridge*)folder_item->getViewModelItem();
+				if(bridge && bridge->isOutboxFolder() && (bridge->getInventoryType() != LLInventoryType::IT_CATEGORY))
+				{
+					return handled;
+				}
+			}
+
 			LLInventoryAction::doToSelected(mInventory, mFolderRoot.get(), "open");
 			handled = TRUE;
 		}
