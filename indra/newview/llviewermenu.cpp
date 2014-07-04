@@ -93,6 +93,7 @@
 #include "llparcel.h"
 #include "llrootview.h"
 #include "llsceneview.h"
+#include "llscenemonitor.h"
 #include "llselectmgr.h"
 #include "llspellcheckmenuhandler.h"
 #include "llstatusbar.h"
@@ -534,6 +535,10 @@ class LLAdvancedToggleConsole : public view_listener_t
 		{
 			toggle_visibility( (void*)gSceneView);
 		}
+		else if ("scene monitor" == console_type)
+		{
+			toggle_visibility( (void*)gSceneMonitorView);
+		}
 
 		return true;
 	}
@@ -559,6 +564,10 @@ class LLAdvancedCheckConsole : public view_listener_t
 		else if ("scene view" == console_type)
 		{
 			new_value = get_visibility( (void*) gSceneView);
+		}
+		else if ("scene monitor" == console_type)
+		{
+			new_value = get_visibility( (void*) gSceneMonitorView);
 		}
 		
 		return new_value;
