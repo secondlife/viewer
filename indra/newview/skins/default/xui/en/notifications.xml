@@ -357,6 +357,14 @@ This listing could not be updated.
     </notification>
 
     <notification
+        icon="alertmodal.tga"
+        name="AlertMerchantListingCannotWear"
+        type="alertmodal">
+        You can not wear clothes or body parts that are on the Marketplace.
+        <tag>fail</tag>
+    </notification>
+    
+    <notification
    icon="alertmodal.tga"
    name="CompileQueueSaveText"
    type="alertmodal">

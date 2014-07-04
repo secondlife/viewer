@@ -1930,9 +1930,9 @@ void LLInventoryAction::callback_doToSelected(const LLSD& notification, const LL
 void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root, const std::string& action, BOOL user_confirm)
 {
 	std::set<LLFolderViewItem*> selected_items = root->getSelectionList();
-        
-    // Prompt the user for some marketplace active listing edits
-	if (user_confirm && (("delete" == action) || ("rename" == action) || ("properties" == action) || ("task_properties" == action)))
+    
+    // Prompt the user and check for authorization for some marketplace active listing edits
+	if (user_confirm && (("delete" == action) || ("cut" == action) || ("rename" == action) || ("properties" == action) || ("task_properties" == action) || ("open" == action)))
     {
         std::set<LLFolderViewItem*>::iterator set_iter = selected_items.begin();
         LLFolderViewModelItemInventory * viewModel = NULL;
@@ -1950,13 +1950,24 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
             {
                 // Cut or delete of the active version folder or listing folder itself will unlist the listing so ask that question specifically
                 LLNotificationsUtil::add("ConfirmMerchantUnlist", LLSD(), LLSD(), boost::bind(&LLInventoryAction::callback_doToSelected, _1, _2, model, root, action));
+                return;
+            }
+            else if ("open" == action)
+            {
+                if (get_can_item_be_worn(viewModel->getUUID()))
+                {
+                    // Wearing an object from an active listing is verbotten
+                    LLNotificationsUtil::add("AlertMerchantListingCannotWear");
+                    return;
+                }
+                // Note: we do not prompt for active change when opening items (e.g. textures or note cards) on the marketplace...
             }
             else
             {
                 // Any other case will simply modify but not unlist a listing
                 LLNotificationsUtil::add("ConfirmMerchantActiveChange", LLSD(), LLSD(), boost::bind(&LLInventoryAction::callback_doToSelected, _1, _2, model, root, action));
+                return;
             }
-            return;
         }
     }
     
