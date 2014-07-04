@@ -182,6 +182,11 @@ void update_marketplace_category(const LLUUID& cur_uuid, bool perform_consistenc
             LL_INFOS("SLM") << "Disassociate as the listing folder is not under the marketplace folder anymore!!" << LL_ENDL;
             LLMarketplaceData::instance().clearListing(cur_uuid);
         }
+        // Update all descendents if this is a category
+        if (gInventory.getCategory(cur_uuid))
+        {
+            update_marketplace_folder_hierarchy(cur_uuid);
+        }
     }
 
     return;
