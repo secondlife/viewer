@@ -1392,6 +1392,13 @@ BOOL LLViewerWindow::handleTranslatedKeyUp(KEY key,  MASK mask)
 	// Let the voice chat code check for its PTT key.  Note that this never affects event processing.
 	LLVoiceClient::getInstance()->keyUp(key, mask);
 
+	// Let the inspect tool code check for ALT key to set LLToolSelectRect active instead LLToolCamera
+	LLToolCompInspect * tool_inspectp = LLToolCompInspect::getInstance();
+	if (LLToolMgr::getInstance()->getCurrentTool() == tool_inspectp)
+	{
+		tool_inspectp->keyUp(key, mask);
+	}
+
 	return FALSE;
 }
 
