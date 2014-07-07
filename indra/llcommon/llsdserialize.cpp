@@ -34,7 +34,7 @@
 #include <iostream>
 #include "apr_base64.h"
 
-#ifdef LL_STANDALONE
+#ifdef LL_USESYSTEMLIBS
 # include <zlib.h>
 #else
 # include "zlib/zlib.h"  // for davep's dirty little zip functions

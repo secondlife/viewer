@@ -649,7 +649,7 @@ namespace tut
 	template<> template<>
 	void LLSDMessageBuilderTestObject::test<37>()
 	{
-	  LLQuaternion data(1,2,3,0);
+	  LLQuaternion data(0.3713907f, 0.5570861f, 0.7427813f,0.0f);
 
 	  //we send a quaternion packed into a vec3 (w is infered) - so sizeof(vec) == 12 bytes not 16.
 	  LLVector3 vec = data.packToVector3();

@@ -66,6 +66,7 @@
 #include "llavataractions.h"
 #include "lllogininstance.h"
 #include "llfavoritesbar.h"
+#include "llfloaterperms.h"
 #include "llclipboard.h"
 #include "llhttpretrypolicy.h"
 
@@ -989,23 +990,72 @@ void activate_gesture_cb(const LLUUID& inv_item)
 	LLGestureMgr::instance().activateGesture(inv_item);
 }
 
-void create_gesture_cb(const LLUUID& inv_item)
+void create_script_cb(const LLUUID& inv_item)
 {
-	if (inv_item.isNull())
-		return;
+	if (!inv_item.isNull())
+	{
+		LLViewerInventoryItem* item = gInventory.getItem(inv_item);
+		if (item)
+		{
+			LLPermissions perm = item->getPermissions();
+			perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Scripts"));
+			perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Scripts"));
 
-	LLGestureMgr::instance().activateGesture(inv_item);
-	
-	LLViewerInventoryItem* item = gInventory.getItem(inv_item);
-	if (!item) return;
-    gInventory.updateItem(item);
-    gInventory.notifyObservers();
+			item->setPermissions(perm);
 
-	LLPreviewGesture* preview = LLPreviewGesture::show(inv_item,  LLUUID::null);
-	// Force to be entirely onscreen.
-	gFloaterView->adjustToFitScreen(preview, FALSE);
+			item->updateServer(FALSE);
+			gInventory.updateItem(item);
+			gInventory.notifyObservers();
+		}
+	}
 }
 
+void create_gesture_cb(const LLUUID& inv_item)
+{
+	if (!inv_item.isNull())
+	{
+		LLGestureMgr::instance().activateGesture(inv_item);
+	
+		LLViewerInventoryItem* item = gInventory.getItem(inv_item);
+		if (item)
+		{
+			LLPermissions perm = item->getPermissions();
+			perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Gestures"));
+			perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Gestures"));
+
+			item->setPermissions(perm);
+
+			item->updateServer(FALSE);
+			gInventory.updateItem(item);
+			gInventory.notifyObservers();
+
+			LLPreviewGesture* preview = LLPreviewGesture::show(inv_item,  LLUUID::null);
+			// Force to be entirely onscreen.
+			gFloaterView->adjustToFitScreen(preview, FALSE);
+		}
+	}
+}
+
+
+void create_notecard_cb(const LLUUID& inv_item)
+{
+	if (!inv_item.isNull())
+		{
+		LLViewerInventoryItem* item = gInventory.getItem(inv_item);
+		if (item)
+		{
+			LLPermissions perm = item->getPermissions();
+			perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Notecards"));
+			perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Notecards"));
+
+			item->setPermissions(perm);
+
+			item->updateServer(FALSE);
+			gInventory.updateItem(item);
+			gInventory.notifyObservers();
+		}
+	}
+}
 
 LLInventoryCallbackManager gInventoryCallbacks;
 
@@ -1719,22 +1769,45 @@ void create_new_item(const std::string& name,
 	LLViewerAssetType::generateDescriptionFor(asset_type, desc);
 	next_owner_perm = (next_owner_perm) ? next_owner_perm : PERM_MOVE | PERM_TRANSFER;
 
-	
-	if (inv_type == LLInventoryType::IT_GESTURE)
+	LLPointer<LLInventoryCallback> cb = NULL;
+
+	switch (inv_type)
 	{
-		LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(create_gesture_cb);
-		create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
-							  parent_id, LLTransactionID::tnull, name, desc, asset_type, inv_type,
-							  NOT_WEARABLE, next_owner_perm, cb);
+		case LLInventoryType::IT_LSL:
+		{
+			cb = new LLBoostFuncInventoryCallback(create_script_cb);
+			next_owner_perm = LLFloaterPerms::getNextOwnerPerms("Scripts");
+			break;
+		}
+
+		case LLInventoryType::IT_GESTURE:
+		{
+			cb = new LLBoostFuncInventoryCallback(create_gesture_cb);
+			next_owner_perm = LLFloaterPerms::getNextOwnerPerms("Gestures");
+			break;
+		}
+
+		case LLInventoryType::IT_NOTECARD:
+		{
+			cb = new LLBoostFuncInventoryCallback(create_notecard_cb);
+			next_owner_perm = LLFloaterPerms::getNextOwnerPerms("Notecards");
+			break;
+		}
+		default:
+			break;
 	}
-	else
-	{
-		LLPointer<LLInventoryCallback> cb = NULL;
-		create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
-							  parent_id, LLTransactionID::tnull, name, desc, asset_type, inv_type,
-							  NOT_WEARABLE, next_owner_perm, cb);
-	}
-	
+
+	create_inventory_item(gAgent.getID(),
+						  gAgent.getSessionID(),
+						  parent_id,
+						  LLTransactionID::tnull,
+						  name,
+						  desc,
+						  asset_type,
+						  inv_type,
+						  NOT_WEARABLE,
+						  next_owner_perm,
+						  cb);
 }	
 
 void slam_inventory_folder(const LLUUID& folder_id,
@@ -1822,7 +1895,7 @@ void menu_create_inventory_item(LLInventoryPanel* panel, LLFolderBridge *bridge,
 					  parent_id,
 					  LLAssetType::AT_LSL_TEXT,
 					  LLInventoryType::IT_LSL,
-					  PERM_MOVE | PERM_TRANSFER);
+					  PERM_MOVE | PERM_TRANSFER);	// overridden in create_new_item
 	}
 	else if ("notecard" == type_name)
 	{
@@ -1831,7 +1904,7 @@ void menu_create_inventory_item(LLInventoryPanel* panel, LLFolderBridge *bridge,
 					  parent_id,
 					  LLAssetType::AT_NOTECARD,
 					  LLInventoryType::IT_NOTECARD,
-					  PERM_ALL);
+					  PERM_ALL);	// overridden in create_new_item
 	}
 	else if ("gesture" == type_name)
 	{
@@ -1840,7 +1913,7 @@ void menu_create_inventory_item(LLInventoryPanel* panel, LLFolderBridge *bridge,
 					  parent_id,
 					  LLAssetType::AT_GESTURE,
 					  LLInventoryType::IT_GESTURE,
-					  PERM_ALL);
+					  PERM_ALL);	// overridden in create_new_item
 	}
 	else
 	{
