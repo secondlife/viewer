@@ -1481,15 +1481,15 @@ void LLAppearanceMgr::takeOffOutfit(const LLUUID& cat_id)
 	}
 	removeItemsFromAvatar(uuids_to_remove);
 
-	// now deactivating all gestures in that folder
+	// deactivate all gestures in the outfit folder
 	LLInventoryModel::item_array_t gest_items;
 	getDescendentsOfAssetType(cat_id, gest_items, LLAssetType::AT_GESTURE);
-	for (S32 i = 0; i < gest_items.size(); ++i)
+	for(S32 i = 0; i  < gest_items.size(); ++i)
 	{
 		LLViewerInventoryItem *gest_item = gest_items[i];
-		if (LLGestureMgr::instance().isGestureActive(gest_item->getLinkedUUID()))
+		if ( LLGestureMgr::instance().isGestureActive( gest_item->getLinkedUUID()) )
 		{
-			LLGestureMgr::instance().deactivateGesture(gest_item->getLinkedUUID());
+			LLGestureMgr::instance().deactivateGesture( gest_item->getLinkedUUID() );
 		}
 	}
 }

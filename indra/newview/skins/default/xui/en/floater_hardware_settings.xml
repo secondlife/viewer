@@ -155,9 +155,9 @@
      tool_tip="Compresses textures in video memory, allowing for higher resolution textures to be loaded at the cost of some color quality."
      width="315" />
     <slider
+     control_name="TextureMemory"
      decimal_digits="0"
      follows="left|top"
-     control_name="TextureMemory"
      height="20"
      increment="16"
      initial_value="32"
@@ -167,7 +167,7 @@
      left="10"
      max_val="4096"
      name="GraphicsCardTextureMemory"
-     tool_tip="Amount of memory to allocate for textures. Defaults to one third of total graphics memory. Reducing this may improve performance but may also make textures blurry.  Increasing may make textures sharper, but may also cause frame stalls and instability."
+     tool_tip="Amount of memory to allocate for textures. Defaults to video card memory. Reducing this may improve performance but may also make textures blurry."
      top_pad="10"
      width="360" />
     <spinner

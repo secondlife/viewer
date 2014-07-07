@@ -33,7 +33,7 @@
 
 #include "llwin32headerslean.h"
 extern "C" {
-#ifdef LL_STANDALONE
+#ifdef LL_USESYSTEMLIBS
 # include <jpeglib.h>
 # include <jerror.h>
 #else

@@ -21,7 +21,6 @@
     layout="topleft"
     max_length="65536"
     name="region_debug_console_output"
-    show_line_numbers="false" 
     word_wrap="true"
     track_end="true"
     read_only="true">

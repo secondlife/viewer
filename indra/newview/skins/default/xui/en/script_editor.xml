@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<script_editor
+ name="script_editor"
+ parse_urls="false"
+ show_context_menu="true"
+ show_line_numbers="true"
+ text_color="ScriptText"
+ default_color="ScriptText"
+ bg_writeable_color="ScriptBackground"
+ bg_focus_color="ScriptBackground">
+</script_editor>

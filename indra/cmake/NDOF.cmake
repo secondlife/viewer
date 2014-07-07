@@ -4,10 +4,10 @@ include(Prebuilt)
 set(NDOF ON CACHE BOOL "Use NDOF space navigator joystick library.")
 
 if (NDOF)
-  if (STANDALONE)
+  if (USESYSTEMLIBS)
     set(NDOF_FIND_REQUIRED ON)
     include(FindNDOF)
-  else (STANDALONE)
+  else (USESYSTEMLIBS)
     use_prebuilt_binary(ndofdev)
 
     if (WINDOWS)
@@ -18,7 +18,7 @@ if (NDOF)
 
     set(NDOF_INCLUDE_DIR ${ARCH_PREBUILT_DIRS}/include/ndofdev)
     set(NDOF_FOUND 1)
-  endif (STANDALONE)
+  endif (USESYSTEMLIBS)
 endif (NDOF)
 
 if (NDOF_FOUND)

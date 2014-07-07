@@ -49,6 +49,7 @@
 #include "llvoavatarself.h"
 #include "llviewerwearable.h"
 #include "llwearablelist.h"
+#include "llfloaterperms.h"
 
 #include <boost/scoped_ptr.hpp>
 
@@ -65,11 +66,44 @@ void wear_and_edit_cb(const LLUUID& inv_item)
 {
 	if (inv_item.isNull()) return;
 	
+		LLViewerInventoryItem* item = gInventory.getItem(inv_item);
+		if (!item) return;
+
+		LLPermissions perm = item->getPermissions();
+		perm.setMaskNext(LLFloaterPerms::getNextOwnerPerms("Wearables"));
+		perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Wearables"));
+		perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Wearables"));
+		item->setPermissions(perm);
+
+		item->updateServer(FALSE);
+		gInventory.updateItem(item);
+		gInventory.notifyObservers();
+
 	// Request editing the item after it gets worn.
 	gAgentWearables.requestEditingWearable(inv_item);
 	
 	// Wear it.
 	LLAppearanceMgr::instance().wearItemOnAvatar(inv_item,true);
+}
+
+void wear_cb(const LLUUID& inv_item)
+{
+	if (!inv_item.isNull())
+	{
+		LLViewerInventoryItem* item = gInventory.getItem(inv_item);
+		if (item)
+		{
+			LLPermissions perm = item->getPermissions();
+			perm.setMaskNext(LLFloaterPerms::getNextOwnerPerms("Wearables"));
+			perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Wearables"));
+			perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Wearables"));
+			item->setPermissions(perm);
+
+			item->updateServer(FALSE);
+			gInventory.updateItem(item);
+			gInventory.notifyObservers();
+		}
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -183,7 +217,7 @@ void LLAgentWearables::setAvatarObject(LLVOAvatarSelf *avatar)
  *
  * Would like to pass the agent in here, but we can't safely
  * count on it being around later.  Just use gAgent directly.
- * @param cb callback to execute on completion (??? unused ???)
+ * @param cb callback to execute on completion (? unused ?)
  * @param type Type for the wearable in the agent
  * @param wearable The wearable data.
  * @param todo Bitmask of actions to take on completion.
@@ -355,6 +389,7 @@ void LLAgentWearables::saveWearableAs(const LLWearableType::EType type,
 	LLViewerWearable* new_wearable = LLWearableList::instance().createCopy(
 		old_wearable,
 		trunc_name);
+
 	LLPointer<LLInventoryCallback> cb =
 		new AddWearableToAgentInventoryCallback(
 			LLPointer<LLRefCount>(NULL),
@@ -1465,7 +1500,16 @@ void LLAgentWearables::createWearable(LLWearableType::EType type, bool wear, con
 	LLViewerWearable* wearable = LLWearableList::instance().createNewWearable(type, gAgentAvatarp);
 	LLAssetType::EType asset_type = wearable->getAssetType();
 	LLInventoryType::EType inv_type = LLInventoryType::IT_WEARABLE;
-	LLPointer<LLInventoryCallback> cb = wear ? new LLBoostFuncInventoryCallback(wear_and_edit_cb) : NULL;
+	LLPointer<LLInventoryCallback> cb;
+	if(wear)
+	{
+		cb = new LLBoostFuncInventoryCallback(wear_and_edit_cb);
+	}
+	else
+	{
+		cb = new LLBoostFuncInventoryCallback(wear_cb);
+	}
+
 	LLUUID folder_id;
 
 	if (parent_id.notNull())
@@ -1478,10 +1522,15 @@ void LLAgentWearables::createWearable(LLWearableType::EType type, bool wear, con
 		folder_id = gInventory.findCategoryUUIDForType(folder_type);
 	}
 
-	create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
-						  folder_id, wearable->getTransactionID(), wearable->getName(),
-						  wearable->getDescription(), asset_type, inv_type, wearable->getType(),
-						  wearable->getPermissions().getMaskNextOwner(),
+	create_inventory_item(gAgent.getID(),
+						  gAgent.getSessionID(),
+						  folder_id,
+						  wearable->getTransactionID(),
+						  wearable->getName(),
+						  wearable->getDescription(),
+						  asset_type, inv_type,
+						  wearable->getType(),
+						  LLFloaterPerms::getNextOwnerPerms("Wearables"),
 						  cb);
 }
 
