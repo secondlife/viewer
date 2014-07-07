@@ -11873,7 +11873,7 @@
     <key>TextureMemory</key>
     <map>
       <key>Comment</key>
-      <string>Amount of memory to use for textures in MB (0 = autodetect). Defaults to 1/3 of video memory to allow room for render targets, vertex buffers, 3D accelerated desktops, and over allocation.</string>
+      <string>Amount of memory to use for textures in MB (0 = autodetect)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
