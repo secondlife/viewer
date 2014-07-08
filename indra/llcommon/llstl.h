@@ -27,6 +27,7 @@
 #ifndef LL_LLSTL_H
 #define LL_LLSTL_H
 
+#include "stdtypes.h"
 #include <functional>
 #include <algorithm>
 #include <map>
@@ -272,6 +273,7 @@ inline T get_if_there(const std::map<K,T>& inmap, const K& key, T default_value)
 	}
 };
 
+// Useful for replacing the removeObj() functionality of LLDynamicArray
 // Example:
 //  for (std::vector<T>::iterator iter = mList.begin(); iter != mList.end(); )
 //  {
@@ -530,7 +532,7 @@ bool before(const std::type_info* lhs, const std::type_info* rhs)
     return strcmp(lhs->name(), rhs->name()) < 0;
 #else  // not Linux, or gcc 4.4+
     // Just use before(), as we normally would
-    return lhs->before(*rhs);
+    return lhs->before(*rhs) ? true : false;
 #endif
 }
 

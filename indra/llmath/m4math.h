@@ -180,6 +180,11 @@ public:
 	const LLMatrix4& setTranslation(const LLVector4 &translation);
 	const LLMatrix4& setTranslation(const LLVector3 &translation);
 
+	// Convenience func for simplifying comparison-heavy code by
+	// intentionally stomping values [-FLT_EPS,FLT_EPS] to 0.0
+	//
+	void condition(void);
+
 	///////////////////////////
 	//
 	// Get properties of a matrix

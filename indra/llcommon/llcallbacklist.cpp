@@ -24,16 +24,10 @@
  * $/LicenseInfo$
  */
 
-#include "llviewerprecompiledheaders.h"
-
 #include "llcallbacklist.h"
 #include "lleventtimer.h"
+#include "llerrorlegacy.h"
 
-// Library includes
-#include "llerror.h"
-
-
-//
 // Globals
 //
 LLCallbackList gIdleCallbacks;
@@ -56,24 +50,24 @@ void LLCallbackList::addFunction( callback_t func, void *data)
 {
 	if (!func)
 	{
-		LL_ERRS() << "LLCallbackList::addFunction - function is NULL" << LL_ENDL;
 		return;
 	}
 
 	// only add one callback per func/data pair
-	callback_pair_t t(func, data);
-	callback_list_t::iterator iter = std::find(mCallbackList.begin(), mCallbackList.end(), t);
-	if (iter == mCallbackList.end())
+	//
+	if (containsFunction(func))
 	{
-		mCallbackList.push_back(t);
+		return;
 	}
+	
+	callback_pair_t t(func, data);
+	mCallbackList.push_back(t);
 }
 
-
-BOOL LLCallbackList::containsFunction( callback_t func, void *data)
+bool LLCallbackList::containsFunction( callback_t func, void *data)
 {
 	callback_pair_t t(func, data);
-	callback_list_t::iterator iter = std::find(mCallbackList.begin(), mCallbackList.end(), t);
+	callback_list_t::iterator iter = find(func,data);
 	if (iter != mCallbackList.end())
 	{
 		return TRUE;
@@ -85,10 +79,9 @@ BOOL LLCallbackList::containsFunction( callback_t func, void *data)
 }
 
 
-BOOL LLCallbackList::deleteFunction( callback_t func, void *data)
+bool LLCallbackList::deleteFunction( callback_t func, void *data)
 {
-	callback_pair_t t(func, data);
-	callback_list_t::iterator iter = std::find(mCallbackList.begin(), mCallbackList.end(), t);
+	callback_list_t::iterator iter = find(func,data);
 	if (iter != mCallbackList.end())
 	{
 		mCallbackList.erase(iter);
@@ -100,6 +93,13 @@ BOOL LLCallbackList::deleteFunction( callback_t func, void *data)
 	}
 }
 
+inline 
+LLCallbackList::callback_list_t::iterator
+LLCallbackList::find(callback_t func, void *data)
+{
+	callback_pair_t t(func, data);
+	return std::find(mCallbackList.begin(), mCallbackList.end(), t);
+}
 
 void LLCallbackList::deleteAllFunctions()
 {
@@ -228,78 +228,3 @@ void doPeriodically(bool_func_t callable, F32 seconds)
 {
 	new BoolFuncEventTimer(callable, seconds);
 }
-
-#ifdef _DEBUG
-
-void test1(void *data)
-{
-	S32 *s32_data = (S32 *)data;
-	LL_INFOS() << "testfunc1 " << *s32_data << LL_ENDL;
-}
-
-
-void test2(void *data)
-{
-	S32 *s32_data = (S32 *)data;
-	LL_INFOS() << "testfunc2 " << *s32_data << LL_ENDL;
-}
-
-
-void
-LLCallbackList::test()
-{
-	S32 a = 1;
-	S32 b = 2;
-	LLCallbackList *list = new LLCallbackList;
-
-	LL_INFOS() << "Testing LLCallbackList" << LL_ENDL;
-
-	if (!list->deleteFunction(NULL))
-	{
-		LL_INFOS() << "passed 1" << LL_ENDL;
-	}
-	else
-	{
-		LL_INFOS() << "error, removed function from empty list" << LL_ENDL;
-	}
-
-	// LL_INFOS() << "This should crash" << LL_ENDL;
-	// list->addFunction(NULL);
-
-	list->addFunction(&test1, &a);
-	list->addFunction(&test1, &a);
-
-	LL_INFOS() << "Expect: test1 1, test1 1" << LL_ENDL;
-	list->callFunctions();
-
-	list->addFunction(&test1, &b);
-	list->addFunction(&test2, &b);
-
-	LL_INFOS() << "Expect: test1 1, test1 1, test1 2, test2 2" << LL_ENDL;
-	list->callFunctions();
-
-	if (list->deleteFunction(&test1, &b))
-	{
-		LL_INFOS() << "passed 3" << LL_ENDL;
-	}
-	else
-	{
-		LL_INFOS() << "error removing function" << LL_ENDL;
-	}
-
-	LL_INFOS() << "Expect: test1 1, test1 1, test2 2" << LL_ENDL;
-	list->callFunctions();
-
-	list->deleteAllFunctions();
-
-	LL_INFOS() << "Expect nothing" << LL_ENDL;
-	list->callFunctions();
-
-	LL_INFOS() << "nothing :-)" << LL_ENDL;
-
-	delete list;
-
-	LL_INFOS() << "test complete" << LL_ENDL;
-}
-
-#endif  // _DEBUG

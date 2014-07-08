@@ -33,6 +33,10 @@
 
 #define MUTEX_DEBUG (LL_DEBUG || LL_RELEASE_WITH_DEBUG_INFO)
 
+#if MUTEX_DEBUG
+#include <map>
+#endif
+
 struct apr_thread_mutex_t;
 struct apr_pool_t;
 struct apr_thread_cond_t;

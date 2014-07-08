@@ -235,7 +235,7 @@ void LLFlickrPhotoPanel::onVisibilityChange(BOOL visible)
 			LLSnapshotLivePreview* preview = getPreviewView();
 			if(preview)
 			{
-				lldebugs << "opened, updating snapshot" << llendl;
+				LL_DEBUGS() << "opened, updating snapshot" << LL_ENDL;
 				preview->updateSnapshot(TRUE);
 			}
 		}
@@ -427,7 +427,7 @@ void LLFlickrPhotoPanel::updateControls()
 	BOOL got_snap = previewp && previewp->getSnapshotUpToDate();
 
 	// *TODO: Separate maximum size for Web images from postcards
-	lldebugs << "Is snapshot up-to-date? " << got_snap << llendl;
+	LL_DEBUGS() << "Is snapshot up-to-date? " << got_snap << LL_ENDL;
 
 	updateResolution(FALSE);
 }

@@ -31,6 +31,7 @@
 #include "llvolume.h"
 #include "v4math.h"
 #include "m4math.h"
+#include <queue>
 
 class daeElement;
 class domMesh;
@@ -138,15 +139,16 @@ public:
 		BOOL upload_skin,
 		BOOL upload_joints,
 		BOOL nowrite = FALSE,
-		BOOL as_slm = FALSE);
+		BOOL as_slm = FALSE,
+		int submodel_id = 0);
 
 	static LLSD writeModelToStream(
 		std::ostream& ostr,
 		LLSD& mdl,
 		BOOL nowrite = FALSE, BOOL as_slm = FALSE);
+	
+	void ClearFacesAndMaterials() { mVolumeFaces.clear(); mMaterialList.clear(); }
 
-	static LLModel* loadModelFromDomMesh(domMesh* mesh);
-	static std::string getElementLabel(daeElement* element);
 	std::string getName() const;
 	std::string getMetric() const {return mMetric;}
 	EModelStatus getStatus() const {return mStatus;}
@@ -169,20 +171,25 @@ public:
 
 	void addFace(const LLVolumeFace& face);
 
+	void sortVolumeFacesByMaterialName();
 	void normalizeVolumeFaces();
+	void trimVolumeFacesToSize(U32 new_count = LL_SCULPT_MESH_MAX_FACES, LLVolume::face_list_t* remainder = NULL);
 	void optimizeVolumeFaces();
 	void offsetMesh( const LLVector3& pivotPoint );
 	void getNormalizedScaleTranslation(LLVector3& scale_out, LLVector3& translation_out);
 	LLVector3 getTransformedCenter(const LLMatrix4& mat);
-
+	
 	//reorder face list based on mMaterialList in this and reference so 
 	//order matches that of reference (material ordering touchup)
 	bool matchMaterialOrder(LLModel* ref, int& refFaceCnt, int& modelFaceCnt );
 	bool isMaterialListSubset( LLModel* ref );
 	bool needToAddFaces( LLModel* ref, int& refFaceCnt, int& modelFaceCnt );
 	
-	
-	std::vector<std::string> mMaterialList;
+	typedef std::vector<std::string> material_list;
+
+	material_list mMaterialList;
+
+	material_list& getMaterialList() { return mMaterialList; }
 
 	//data used for skin weights
 	class JointWeight
@@ -275,9 +282,115 @@ public:
 	Decomposition mPhysics;
 
 	EModelStatus mStatus ;
-protected:
-	void addVolumeFacesFromDomMesh(domMesh* mesh);
-	virtual BOOL createVolumeFacesFromDomMesh(domMesh *mesh);
+
+	int mSubmodelID;
 };
+
+typedef std::vector<LLPointer<LLModel> >	model_list;
+typedef std::queue<LLPointer<LLModel> >	model_queue;
+
+class LLModelMaterialBase
+{
+public:	
+	std::string mDiffuseMapFilename;
+	std::string mDiffuseMapLabel;
+	std::string mBinding;
+	LLColor4		mDiffuseColor;
+	bool			mFullbright;
+
+	LLModelMaterialBase() 
+		: mFullbright(false) 
+	{ 
+		mDiffuseColor.set(1,1,1,1);
+	}
+};
+
+class LLImportMaterial : public LLModelMaterialBase
+{
+public:
+    friend class LLMeshUploadThread;
+    friend class LLModelPreview;
+    
+    bool operator<(const LLImportMaterial &params) const;
+    
+    LLImportMaterial() : LLModelMaterialBase()
+    {
+        mDiffuseColor.set(1,1,1,1);
+    }
+    
+    LLImportMaterial(LLSD& data);
+    virtual ~LLImportMaterial();
+    
+    LLSD asLLSD();
+    
+    const LLUUID&	getDiffuseMap() const					{ return mDiffuseMapID;		}
+    void				setDiffuseMap(const LLUUID& texId)	{ mDiffuseMapID = texId;	}
+    
+protected:
+    
+    LLUUID		mDiffuseMapID;
+    void*			mOpaqueData;	// allow refs to viewer/platform-specific structs for each material
+    // currently only stores an LLPointer< LLViewerFetchedTexture > > to
+    // maintain refs to textures associated with each material for free
+    // ref counting.
+};
+
+typedef std::map<std::string, LLImportMaterial> material_map;
+
+class LLModelInstanceBase
+{
+public:
+	LLPointer<LLModel> mModel;
+	LLPointer<LLModel> mLOD[5];
+	LLUUID mMeshID;
+
+	LLMatrix4 mTransform;
+	material_map mMaterial;
+
+	LLModelInstanceBase(LLModel* model, LLMatrix4& transform, material_map& materials)
+		: mModel(model), mTransform(transform), mMaterial(materials)
+	{
+	}
+
+	LLModelInstanceBase()
+		: mModel(NULL)
+	{
+	}
+};
+
+typedef std::vector<LLModelInstanceBase> model_instance_list;
+
+class LLModelInstance : public LLModelInstanceBase
+{
+public:
+	std::string mLabel;
+	LLUUID mMeshID;
+	S32 mLocalMeshID;
+
+	LLModelInstance(LLModel* model, const std::string& label, LLMatrix4& transform, material_map& materials)
+		: LLModelInstanceBase(model, transform, materials), mLabel(label)
+	{
+		mLocalMeshID = -1;
+	}
+
+	LLModelInstance(LLSD& data);
+
+	LLSD asLLSD();
+};
+
+#define LL_DEGENERACY_TOLERANCE  1e-7f
+
+inline F32 dot3fpu(const LLVector4a& a, const LLVector4a& b)
+{
+	volatile F32 p0 = a[0] * b[0];
+	volatile F32 p1 = a[1] * b[1];
+	volatile F32 p2 = a[2] * b[2];
+	return p0 + p1 + p2;
+}
+
+bool ll_is_degenerate(const LLVector4a& a, const LLVector4a& b, const LLVector4a& c, F32 tolerance = LL_DEGENERACY_TOLERANCE);
+
+bool validate_face(const LLVolumeFace& face);
+bool validate_model(const LLModel* mdl);
 
 #endif //LL_LLMODEL_H

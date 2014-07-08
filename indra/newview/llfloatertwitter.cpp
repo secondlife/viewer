@@ -238,7 +238,7 @@ void LLTwitterPhotoPanel::onVisibilityChange(BOOL visible)
 			LLSnapshotLivePreview* preview = getPreviewView();
 			if(preview)
 			{
-				lldebugs << "opened, updating snapshot" << llendl;
+				LL_DEBUGS() << "opened, updating snapshot" << LL_ENDL;
 				preview->updateSnapshot(TRUE);
 			}
 		}
@@ -455,7 +455,7 @@ void LLTwitterPhotoPanel::updateControls()
 	BOOL got_snap = previewp && previewp->getSnapshotUpToDate();
     
 	// *TODO: Separate maximum size for Web images from postcards
-	lldebugs << "Is snapshot up-to-date? " << got_snap << llendl;
+	LL_DEBUGS() << "Is snapshot up-to-date? " << got_snap << LL_ENDL;
     
 	updateResolution(FALSE);
 }
@@ -485,13 +485,13 @@ void LLTwitterPhotoPanel::updateResolution(BOOL do_update)
 		if (width == 0 || height == 0)
 		{
 			// take resolution from current window size
-			lldebugs << "Setting preview res from window: " << gViewerWindow->getWindowWidthRaw() << "x" << gViewerWindow->getWindowHeightRaw() << llendl;
+			LL_DEBUGS() << "Setting preview res from window: " << gViewerWindow->getWindowWidthRaw() << "x" << gViewerWindow->getWindowHeightRaw() << LL_ENDL;
 			previewp->setSize(gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw());
 		}
 		else
 		{
 			// use the resolution from the selected pre-canned drop-down choice
-			lldebugs << "Setting preview res selected from combo: " << width << "x" << height << llendl;
+			LL_DEBUGS() << "Setting preview res selected from combo: " << width << "x" << height << LL_ENDL;
 			previewp->setSize(width, height);
 		}
 
@@ -755,7 +755,7 @@ void LLFloaterTwitter::showPhotoPanel()
 	LLTabContainer* parent = dynamic_cast<LLTabContainer*>(mTwitterPhotoPanel->getParent());
 	if (!parent)
 	{
-		llwarns << "Cannot find panel container" << llendl;
+		LL_WARNS() << "Cannot find panel container" << LL_ENDL;
 		return;
 	}
 
