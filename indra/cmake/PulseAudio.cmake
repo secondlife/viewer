@@ -4,7 +4,7 @@ include(Prebuilt)
 set(PULSEAUDIO OFF CACHE BOOL "Build with PulseAudio support, if available.")
 
 if (PULSEAUDIO)
-  if (STANDALONE)
+  if (USESYSTEMLIBS)
     include(FindPkgConfig)
 
     pkg_check_modules(PULSEAUDIO libpulse)
@@ -20,7 +20,7 @@ if (PULSEAUDIO)
     set(PULSEAUDIO_LIBRARIES
       # none needed!
       )
-  endif (STANDALONE)
+  endif (USESYSTEMLIBS)
 endif (PULSEAUDIO)
 
 if (PULSEAUDIO_FOUND)

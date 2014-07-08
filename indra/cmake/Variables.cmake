@@ -183,7 +183,7 @@ if (XCODE_VERSION GREATER 4.2)
 endif (XCODE_VERSION GREATER 4.2)
 
 set(VERSION_BUILD "0" CACHE STRING "Revision number passed in from the outside")
-set(STANDALONE OFF CACHE BOOL "Do not use Linden-supplied prebuilt libraries.")
+set(USESYSTEMLIBS OFF CACHE BOOL "Use libraries from your system rather than Linden-supplied prebuilt libraries.")
 set(UNATTENDED OFF CACHE BOOL "Should be set to ON for building with VC Express editions.")
 
 set(USE_PRECOMPILED_HEADERS ON CACHE BOOL "Enable use of precompiled header directives where supported.")

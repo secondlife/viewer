@@ -85,7 +85,6 @@ protected:
 private:
 	S32			mLastHoverMouseX;
 	S32			mLastHoverMouseY;
-	BOOL		mSendUpdateOnMouseUp;
 	BOOL		mMouseOutsideSlop;		// true after mouse goes outside slop region
 	BOOL		mCopyMadeThisDrag;
 	S32			mMouseDownX;
@@ -107,7 +106,6 @@ private:
 	LLVector3	mGridScale;
 	F32			mSubdivisions;
 	BOOL		mInSnapRegime;
-	BOOL		mSnapped;
 	LLVector3	mArrowScales;
 	LLVector3	mPlaneScales;
 	LLVector4	mPlaneManipPositions;
