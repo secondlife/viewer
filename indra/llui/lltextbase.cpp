@@ -1308,13 +1308,13 @@ void LLTextBase::replaceWithSuggestion(U32 index)
 		if ( (it->first <= (U32)mCursorPos) && (it->second >= (U32)mCursorPos) )
 		{
 			deselect();
-
-			// Delete the misspelled word
-			removeStringNoUndo(it->first, it->second - it->first);
-
 			// Insert the suggestion in its place
 			LLWString suggestion = utf8str_to_wstring(mSuggestionList[index]);
 			insertStringNoUndo(it->first, utf8str_to_wstring(mSuggestionList[index]));
+
+			// Delete the misspelled word
+			removeStringNoUndo(it->first + (S32)suggestion.length(), it->second - it->first);
+
 
 			setCursorPos(it->first + (S32)suggestion.length());
 
