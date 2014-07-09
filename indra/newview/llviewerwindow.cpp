@@ -1075,7 +1075,7 @@ BOOL LLViewerWindow::handleRightMouseDown(LLWindow *window,  LLCoordGL pos, MASK
 
 	// *HACK: this should be rolled into the composite tool logic, not
 	// hardcoded at the top level.
-	if (CAMERA_MODE_CUSTOMIZE_AVATAR != gAgentCamera.getCameraMode() && LLToolMgr::getInstance()->getCurrentTool() != LLToolPie::getInstance())
+	if (CAMERA_MODE_CUSTOMIZE_AVATAR != gAgentCamera.getCameraMode() && LLToolMgr::getInstance()->getCurrentTool() != LLToolPie::getInstance() && gAgent.isInitialized())
 	{
 		// If the current tool didn't process the click, we should show
 		// the pie menu.  This can be done by passing the event to the pie

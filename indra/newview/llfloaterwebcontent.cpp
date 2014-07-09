@@ -74,8 +74,7 @@ LLFloaterWebContent::LLFloaterWebContent( const Params& params )
 	mShowPageTitle(params.show_page_title),
     mAllowNavigation(true),
     mCurrentURL(""),
-    mDisplayURL(""),
-    mSecureURL(false)
+    mDisplayURL("")
 {
 	mCommitCallbackRegistrar.add( "WebContent.Back", boost::bind( &LLFloaterWebContent::onClickBack, this ));
 	mCommitCallbackRegistrar.add( "WebContent.Forward", boost::bind( &LLFloaterWebContent::onClickForward, this ));
@@ -331,9 +330,6 @@ void LLFloaterWebContent::draw()
 	mBtnBack->setEnabled( mWebBrowser->canNavigateBack() && mAllowNavigation);
 	mBtnForward->setEnabled( mWebBrowser->canNavigateForward() && mAllowNavigation);
 
-    // Show/hide the lock icon
-    mSecureLockIcon->setVisible(mSecureURL && !mAddressCombo->hasFocus());
-
 	LLFloater::draw();
 }
 
@@ -378,8 +374,6 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 		// we populate the status bar with URLs as they change so clear it now we're done
 		const std::string end_str = "";
 		mStatusBarText->setText( end_str );
-			mAddressCombo->setLeftTextPadding(22);
-			mAddressCombo->setLeftTextPadding(2);
 	}
 	else if(event == MEDIA_EVENT_CLOSE_REQUEST)
 	{
@@ -446,10 +440,10 @@ void LLFloaterWebContent::set_current_url(const std::string& url)
 		static const std::string secure_prefix = std::string("https://");
 		std::string prefix = mCurrentURL.substr(0, secure_prefix.length());
 		LLStringUtil::toLower(prefix);
-        mSecureURL = (prefix == secure_prefix);
-        
-        // Hack : we move the text a bit to make space for the lock icon in the secure URL case
-		mDisplayURL = (mSecureURL ? "      " + mCurrentURL : mCurrentURL);
+        bool secure_url = (prefix == secure_prefix);
+		mSecureLockIcon->setVisible(secure_url);
+		mAddressCombo->setLeftTextPadding(secure_url ? 22 : 2);
+		mDisplayURL = mCurrentURL;
 
         // Clean up browsing list (prevent dupes) and add/select the new URL to it
         mAddressCombo->remove(mCurrentURL);

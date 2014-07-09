@@ -260,7 +260,8 @@ LLTextEditor::LLTextEditor(const LLTextEditor::Params& p) :
 	mContextMenu(NULL),
 	mShowContextMenu(p.show_context_menu),
 	mEnableTooltipPaste(p.enable_tooltip_paste),
-	mPassDelete(FALSE)
+	mPassDelete(FALSE),
+	mKeepSelectionOnReturn(false)
 {
 	mSourceID.generate();
 
@@ -1653,7 +1654,7 @@ BOOL LLTextEditor::handleSpecialKey(const KEY key, const MASK mask)
 	case KEY_RETURN:
 		if (mask == MASK_NONE)
 		{
-			if( hasSelection() )
+			if( hasSelection() && !mKeepSelectionOnReturn )
 			{
 				deleteSelection(FALSE);
 			}
