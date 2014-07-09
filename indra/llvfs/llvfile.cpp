@@ -105,7 +105,7 @@ BOOL LLVFile::read(U8 *buffer, S32 bytes, BOOL async, F32 priority)
 	// We can't do a read while there are pending async writes
 	waitForLock(VFSLOCK_APPEND);
 	
-	// *FIX: (???)
+	// *FIX: (?)
 	if (async)
 	{
 		mHandle = sVFSThread->read(mVFS, mFileID, mFileType, buffer, mPosition, bytes, threadPri());

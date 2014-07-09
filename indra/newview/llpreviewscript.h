@@ -33,11 +33,12 @@
 #include "llcombobox.h"
 #include "lliconctrl.h"
 #include "llframetimer.h"
-//#include "llfloatergotoline.h"
+#include "llfloatergotoline.h"
+#include "llsyntaxid.h"
 
 class LLLiveLSLFile;
 class LLMessageSystem;
-class LLTextEditor;
+class LLScriptEditor;
 class LLButton;
 class LLCheckBoxCtrl;
 class LLScrollListCtrl;
@@ -72,11 +73,15 @@ protected:
 		void (*save_callback)(void* userdata, BOOL close_after_save),
 		void (*search_replace_callback)(void* userdata),
 		void* userdata,
+		bool live,
 		S32 bottom_pad = 0);	// pad below bottom row of buttons
 public:
 	~LLScriptEdCore();
 	
+	void			initializeKeywords();
 	void			initMenu();
+	void			processKeywords();
+	void			processLoaded();
 
 	virtual void	draw();
 	/*virtual*/	BOOL	postBuild();
@@ -109,8 +114,8 @@ public:
 	static bool		enableLoadFromFileMenu(void* userdata);
 
     virtual bool	hasAccelerators() const { return true; }
-    LLUUID 			getAssociatedExperience()const;
-    void            setAssociatedExperience( const LLUUID& experience_id );
+	LLUUID 			getAssociatedExperience()const;
+	void            setAssociatedExperience( const LLUUID& experience_id );
 
 private:
 	void		onBtnHelp();
@@ -132,9 +137,11 @@ protected:
 	void addHelpItemToHistory(const std::string& help_string);
 	static void onErrorList(LLUICtrl*, void* user_data);
 
+	bool			mLive;
+
 private:
 	std::string		mSampleText;
-	LLTextEditor*	mEditor;
+	LLScriptEditor*	mEditor;
 	void			(*mLoadCallback)(void* userdata);
 	void			(*mSaveCallback)(void* userdata, BOOL close_after_save);
 	void			(*mSearchReplaceCallback) (void* userdata);
@@ -151,9 +158,13 @@ private:
 	BOOL			mEnableSave;
 	BOOL			mHasScriptData;
 	LLLiveLSLFile*	mLiveFile;
-    LLUUID          mAssociatedExperience;
+	LLUUID			mAssociatedExperience;
 
 	LLScriptEdContainer* mContainer; // parent view
+
+public:
+	boost::signals2::connection mSyntaxIDConnection;
+
 };
 
 class LLScriptEdContainer : public LLPreview
@@ -162,6 +173,7 @@ class LLScriptEdContainer : public LLPreview
 
 public:
 	LLScriptEdContainer(const LLSD& key);
+	LLScriptEdContainer(const LLSD& key, const bool live);
 
 protected:
 	std::string		getTmpFileName();
@@ -171,7 +183,7 @@ protected:
 	LLScriptEdCore*		mScriptEd;
 };
 
-// Used to view and edit a LSL from your inventory.
+// Used to view and edit an LSL script from your inventory.
 class LLPreviewLSL : public LLScriptEdContainer
 {
 public:
@@ -216,7 +228,7 @@ protected:
 };
 
 
-// Used to view and edit an LSL that is attached to an object.
+// Used to view and edit an LSL script that is attached to an object.
 class LLLiveLSLEditor : public LLScriptEdContainer
 {
 	friend class LLLiveLSLFile;
@@ -235,16 +247,16 @@ public:
 	
     void setIsNew() { mIsNew = TRUE; }
 
-    static void setAssociatedExperience( LLHandle<LLLiveLSLEditor> editor, const LLSD& experience );
-    static void onToggleExperience(LLUICtrl *ui, void* userdata);
-    static void onViewProfile(LLUICtrl *ui, void* userdata);
-    
-    void setExperienceIds(const LLSD& experience_ids);
-    void buildExperienceList();
-    void updateExperiencePanel();
-    void requestExperiences();
-    void experienceChanged();
-    void addAssociatedExperience(const LLSD& experience);
+	static void setAssociatedExperience( LLHandle<LLLiveLSLEditor> editor, const LLSD& experience );
+	static void onToggleExperience(LLUICtrl *ui, void* userdata);
+	static void onViewProfile(LLUICtrl *ui, void* userdata);
+
+	void setExperienceIds(const LLSD& experience_ids);
+	void buildExperienceList();
+	void updateExperiencePanel();
+	void requestExperiences();
+	void experienceChanged();
+	void addAssociatedExperience(const LLSD& experience);
 	
 private:
 	virtual BOOL canClose();
@@ -254,7 +266,12 @@ private:
 	virtual void loadAsset();
 	void loadAsset(BOOL is_new);
 	/*virtual*/ void saveIfNeeded(bool sync = true);
-	void uploadAssetViaCaps(const std::string& url, const std::string& filename, const LLUUID& task_id, const LLUUID& item_id, BOOL is_running, const LLUUID& experience_public_id);
+	void uploadAssetViaCaps(const std::string& url,
+							const std::string& filename,
+							const LLUUID& task_id,
+							const LLUUID& item_id,
+							BOOL is_running,
+							const LLUUID& experience_public_id);
 	void uploadAssetLegacy(const std::string& filename,
 						   LLViewerObject* object,
 						   const LLTransactionID& tid,
@@ -300,11 +317,11 @@ private:
 	BOOL mIsModifiable;
 
 
-    LLComboBox     	*mExperiences;
-    LLCheckBoxCtrl  *mExperienceEnabled;
-    LLSD            mExperienceIds;
+	LLComboBox*		mExperiences;
+	LLCheckBoxCtrl*	mExperienceEnabled;
+	LLSD			mExperienceIds;
 
-    LLHandle<LLFloater> mExperienceProfile;
+	LLHandle<LLFloater> mExperienceProfile;
 };
 
 #endif  // LL_LLPREVIEWSCRIPT_H

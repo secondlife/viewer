@@ -180,6 +180,8 @@ Ansariel Hiller
 	MAINT-2368
 	STORM-1931
 	MAINT-2773
+	STORM-2011
+	MAINT-3187
 	BUG-3764
 	STORM-1984
 	STORM-1979
@@ -313,11 +315,14 @@ Cinder Roxley
     BUG-3863
     OPEN-185
     STORM-1703
-	STORM-1948
+    STORM-1948
+    STORM-1831
     STORM-1888
     STORM-1958
     STORM-1952
     STORM-1951
+    STORM-2035
+    STORM-2036
 Clara Young
 Coaldust Numbers
     VWR-1095
@@ -330,6 +335,9 @@ Cron Stardust
 	VWR-25120
 	STORM-1075
 	STORM-1919
+	STORM-1920
+	OPEN-209
+	STORM-2017
 Cypren Christenson
 	STORM-417
 Dante Tucker
@@ -519,8 +527,16 @@ Ima Mechanique
 	STORM-959
 	STORM-1175
 	STORM-1708
+	STORM-1831
+	STORM-1832
 	STORM-1855
+	VWR-10791
 	VWR-20553
+	VWR-19213
+    VWR-22401
+    VWR-23739
+	VWR-24766
+	VWR-28065
 Imnotgoing Sideways
 Inma Rau
 Innula Zenovka
@@ -663,6 +679,7 @@ Jonathan Yap
 	STORM-1809
 	STORM-1793
 	STORM-1810
+	STORM-68
 	STORM-1838
 	STORM-1892
 	STORM-1894
@@ -673,12 +690,15 @@ Jonathan Yap
 	STORM-1858
 	STORM-1862
 	STORM-1918
+	STORM-1915
 	STORM-1929
 	STORM-1953
 	OPEN-161
 	STORM-1953
 	STORM-1957
 	STORM-1993
+	STORM-2017
+	STORM-2007
 	STORM-1980
 	OPEN-113
 	STORM-1975
@@ -691,6 +711,8 @@ Jonathan Yap
 	STORM-1987
 	STORM-1986
 	STORM-1981
+	STORM-2015
+	STORM-2018
 Kadah Coba
 	STORM-1060
     STORM-1843
@@ -744,6 +766,7 @@ Kunnis Basiat
 Lance Corrimal
 	STORM-1910
 	VWR-25269
+	STORM-2008
 Latif Khalifa
 	VWR-5370
 leliel Mirihi
@@ -960,6 +983,7 @@ Nicky Dasmijn
 	OPEN-187
 	STORM-1937
 	OPEN-187
+    STORM-2010
 Nicky Perian
 	OPEN-1
 	STORM-1087
@@ -1157,6 +1181,7 @@ snowy Sidran
 Sovereign Engineer
     MAINT-2334
     OPEN-189
+    STORM-1972
     OPEN-195
 SpacedOut Frye
 	VWR-34
@@ -1198,6 +1223,7 @@ Takeda Terrawyng
 TankMaster Finesmith
 	OPEN-140
 	OPEN-142
+	OPEN-154
 	STORM-1100
 	STORM-1258
 	STORM-1602
@@ -1416,8 +1442,4 @@ Zipherius Turas
 	VWR-76
 	VWR-77
 Zoex Flanagan
-
-
-
-
 

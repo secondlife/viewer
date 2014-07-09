@@ -3,7 +3,7 @@
   bevel_style="none"
   border_style="line"
   follows="left|top|right|bottom"
-  height="515"
+ height="522"
   layout="topleft"
   left="0"
   name="script panel"
@@ -70,6 +70,16 @@
         label="Save to file..."
         layout="topleft"
         name="SaveToFile" />
+          <menu_item_separator
+           layout="topleft" />
+          <menu_item_call
+           label="Colors..."
+           layout="topleft"
+           name="Colors">
+            <menu_item_call.on_click
+             function="Floater.Toggle"
+             parameter="script_colors"/>
+          </menu_item_call>
     </menu>
     <menu
       top="0"
@@ -148,24 +158,30 @@
         name="Keyword Help..." />
     </menu>
   </menu_bar>
-  <text_editor
+    <script_editor
     left="0"
     type="string"
     length="1"
     follows="left|top|right|bottom"
     font="Monospace"
-    height="369"
+     height="376"
     ignore_tab="false"
     layout="topleft"
-    max_length="65536"
+     max_length="262144"
     name="Script Editor"
-    text_readonly_color="DkGray"
-    width="482"
-    show_line_numbers="true"
+     width="487"
+     text_color="ScriptText"
+     default_color="ScriptText"
+     bg_writeable_color="ScriptBackground"
+     bg_focus_color="ScriptBackground"
+     text_readonly_color="ScriptText"
+     bg_readonly_color="ScriptBackground"
+     cursor_color="ScriptCursorColor"
     enable_tooltip_paste="true"
-    word_wrap="true">
+     word_wrap="true"
+     show_context_menu="true">
     Loading...
-  </text_editor>
+    </script_editor>
   <scroll_list
     top_pad="10"
     left="0"
@@ -173,12 +189,12 @@
     height="60"
     layout="topleft"
     name="lsl errors"
-    width="482" />
+     width="487" />
   <text
     follows="left|bottom"
     height="12"
     layout="topleft"
-    left="11"
+     left="0"
     name="line_col"
     width="128" />
   <combo_box
@@ -187,8 +203,7 @@
     label="Insert..."
     layout="topleft"
     name="Insert..."
-    width="128"
-    left="0"/>
+     width="128" />
   <button
     follows="right|bottom"
     height="23"
@@ -196,7 +211,7 @@
     label_selected="Save"
     layout="topleft"
     top_pad="-35"
-    right="482"
+     right="487"
     name="Save_btn"
     width="81" />
   <button
@@ -206,7 +221,7 @@
     label="Edit..."
     layout="topleft"
     top_pad="-23"
-    right="396"
+     right="400"
     name="Edit_btn"
     width="81" />
 </panel>

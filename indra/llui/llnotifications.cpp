@@ -1197,6 +1197,7 @@ void LLNotificationChannel::connectToChannel( const std::string& channel_name )
 	}
 	else
 	{
+		mParents.push_back(channel_name);
 		LLNotificationChannelPtr p = LLNotifications::instance().getChannel(channel_name);
 		p->connectChanged(boost::bind(&LLNotificationChannelBase::updateItem, this, _1));
 	}
