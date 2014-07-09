@@ -82,7 +82,11 @@ LLPanelGroupExperiences::~LLPanelGroupExperiences()
 BOOL LLPanelGroupExperiences::postBuild()
 {
 	mExperiencesList = getChild<LLFlatListView>("experiences_list");
-	if(hasString("no_experiences"))
+	if (hasString("loading_experiences"))
+	{
+		mExperiencesList->setNoItemsCommentText(getString("loading_experiences"));
+	}
+	else if (hasString("no_experiences"))
 	{
 		mExperiencesList->setNoItemsCommentText(getString("no_experiences"));
 	}
@@ -121,6 +125,10 @@ void LLPanelGroupExperiences::setGroupID(const LLUUID& id)
 
 void LLPanelGroupExperiences::setExperienceList(const LLSD& experiences)
 {
+	if (hasString("no_experiences"))
+	{
+		mExperiencesList->setNoItemsCommentText(getString("no_experiences"));
+	}
     mExperiencesList->clear();
 
     LLSD::array_const_iterator it = experiences.beginArray();

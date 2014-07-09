@@ -10,6 +10,9 @@
   bg_opaque_color="0 0.5 0 0.3"
   follows="all">
   <string
+    name="loading_experiences"
+    value="Loading experiences..."/>
+  <string
     name="no_experiences"
     value="No experiences."/>
   <string
