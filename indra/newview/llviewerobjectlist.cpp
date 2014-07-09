@@ -68,7 +68,7 @@
 #include "u64.h"
 #include "llviewertexturelist.h"
 #include "lldatapacker.h"
-#ifdef LL_STANDALONE
+#ifdef LL_USESYSTEMLIBS
 #include <zlib.h>
 #else
 #include "zlib/zlib.h"
@@ -76,6 +76,7 @@
 #include "object_flags.h"
 
 #include "llappviewer.h"
+#include "llfloaterperms.h"
 #include "llvocache.h"
 
 extern F32 gMinObjectDistance;

@@ -2,14 +2,14 @@
 include(Linking)
 include(Prebuilt)
 
-if (STANDALONE)
+if (USESYSTEMLIBS)
     set(GLUI OFF CACHE BOOL
         "GLUI support for the llplugin/llmedia test apps.")
-else (STANDALONE)
+else (USESYSTEMLIBS)
     use_prebuilt_binary(glui)
     set(GLUI ON CACHE BOOL
         "GLUI support for the llplugin/llmedia test apps.")
-endif (STANDALONE)
+endif (USESYSTEMLIBS)
 
 if (LINUX)
     set(GLUI ON CACHE BOOL

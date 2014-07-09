@@ -10300,6 +10300,17 @@ Cannot create large prims that intersect other players.  Please re-try when othe
      name="okignore"
      yestext="OK"/>
   </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="DefaultObjectPermissions"
+   type="alert">
+	There was a problem saving the default permissions due to the following reason: [REASON].  Please try setting the default permissions later.
+	<tag>fail</tag>
+   <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
   
   <notification
    icon="alert.tga"

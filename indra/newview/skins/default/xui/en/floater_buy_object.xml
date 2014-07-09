@@ -47,7 +47,7 @@
          width="16" />
         <scroll_list.columns
          name="text"
-         width="234" />
+         relative_width="1" />
     </scroll_list>
     <text
      type="string"
@@ -77,7 +77,7 @@
          width="16" />
         <scroll_list.columns
          name="text"
-         width="234" />
+         relative_width="1" />
     </scroll_list>
     <text
      type="string"

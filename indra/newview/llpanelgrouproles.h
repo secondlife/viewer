@@ -196,7 +196,7 @@ public:
 	virtual void setGroupID(const LLUUID& id);
 
 	void addMemberToList(LLGroupMemberData* data);
-	void onNameCache(const LLUUID& update_id, LLGroupMemberData* member, const LLAvatarName& av_name);
+	void onNameCache(const LLUUID& update_id, LLGroupMemberData* member, const LLAvatarName& av_name, const LLUUID& av_id);
 
 protected:
 	typedef std::map<LLUUID, LLRoleMemberChangeType> role_change_data_map_t;
@@ -223,7 +223,8 @@ protected:
 	U32 mNumOwnerAdditions;
 
 	LLGroupMgrGroupData::member_list_t::iterator mMemberProgress;
-	boost::signals2::connection mAvatarNameCacheConnection;
+	typedef std::map<LLUUID, boost::signals2::connection> avatar_name_cache_connection_map_t;
+	avatar_name_cache_connection_map_t mAvatarNameCacheConnections;
 };
 
 
