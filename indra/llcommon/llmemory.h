@@ -257,7 +257,8 @@ inline void ll_memcpy_nonaliased_aligned_16(char* __restrict dst, const char* __
 	assert((bytes % sizeof(F32))== 0); 
 	ll_assert_aligned(src,16);
 	ll_assert_aligned(dst,16);
-	assert((src < dst) ? ((src + bytes) < dst) : ((dst + bytes) < src));
+
+	assert((src < dst) ? ((src + bytes) <= dst) : ((dst + bytes) <= src));
 	assert(bytes%16==0);
 
 	char* end = dst + bytes;
