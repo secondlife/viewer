@@ -64,8 +64,7 @@ LLNameListCtrl::LLNameListCtrl(const LLNameListCtrl::Params& p)
 	mNameColumnIndex(p.name_column.column_index),
 	mNameColumn(p.name_column.column_name),
 	mAllowCallingCardDrop(p.allow_calling_card_drop),
-	mShortNames(p.short_names)
-	mAvatarNameCacheConnection(),
+	mShortNames(p.short_names),
 	mPendingLookupsRemaining(0)
 {}
 
@@ -337,6 +336,8 @@ LLScrollListItem* LLNameListCtrl::addNameItemRow(
 						it->second.disconnect();
 					}
 					mAvatarNameCacheConnections.erase(it);
+				}
+				mAvatarNameCacheConnections[id] = LLAvatarNameCache::get(id,boost::bind(&LLNameListCtrl::onAvatarNameCache,this, _1, _2, suffix, item->getHandle()));
 
 				if(mPendingLookupsRemaining <= 0)
 				{
