@@ -1358,6 +1358,7 @@ Whirly Fizzle
 	VWR-29543
 	MAINT-873
 	STORM-1930
+	BUG-6659
 Whoops Babii
 	VWR-631
 	VWR-1640
