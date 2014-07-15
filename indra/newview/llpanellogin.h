@@ -70,6 +70,8 @@ public:
 
 	void setSiteIsAlive( bool alive );
 
+	void showLoginWidgets();
+
 	static void loadLoginPage();	
 	static void giveFocus();
 	static void setAlwaysRefresh(bool refresh); 
