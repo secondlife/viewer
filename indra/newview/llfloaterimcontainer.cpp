@@ -1868,13 +1868,24 @@ bool LLFloaterIMContainer::canBanSelectedMember(const LLUUID& participant_uuid)
 		return false;
 	}
 
+	if (!gdatap->mMembers.size())
+	{
+		return false;
+	}
+
 	LLGroupMgrGroupData::member_list_t::iterator mi = gdatap->mMembers.find((participant_uuid));
+	if (mi == gdatap->mMembers.end())
+	{
+		return false;
+	}
+
 	LLGroupMemberData* member_data = (*mi).second;
 	// Is the member an owner?
 	if ( member_data && member_data->isInRole(gdatap->mOwnerRole) )
 	{
 		return false;
 	}
+
 	if(	gAgent.hasPowerInGroup(group_uuid, GP_ROLE_REMOVE_MEMBER) &&
 		gAgent.hasPowerInGroup(group_uuid, GP_GROUP_BAN_ACCESS)	)
 	{
