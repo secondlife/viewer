@@ -1,6 +1,6 @@
 /** 
-* @file llfloatersocial.cpp
-* @brief Implementation of llfloatersocial
+* @file llfloaterfacebook.cpp
+* @brief Implementation of llfloaterfacebook
 * @author Gilbert@lindenlab.com
 *
 * $LicenseInfo:firstyear=2013&license=viewerlgpl$
@@ -27,15 +27,17 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llfloatersocial.h"
+#include "llfloaterfacebook.h"
 
 #include "llagent.h"
 #include "llagentui.h"
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "llfacebookconnect.h"
+#include "llfloaterbigpreview.h"
 #include "llfloaterreg.h"
 #include "lliconctrl.h"
+#include "llimagefiltersmanager.h"
 #include "llresmgr.h"		// LLLocale
 #include "llsdserialize.h"
 #include "llloadingindicator.h"
@@ -46,11 +48,17 @@
 #include "llviewerregion.h"
 #include "llviewercontrol.h"
 #include "llviewermedia.h"
+#include "lltabcontainer.h"
+#include "llavatarlist.h"
+#include "llpanelpeoplemenus.h"
+#include "llaccordionctrl.h"
+#include "llaccordionctrltab.h"
 
-static LLPanelInjector<LLSocialStatusPanel> t_panel_status("llsocialstatuspanel");
-static LLPanelInjector<LLSocialPhotoPanel> t_panel_photo("llsocialphotopanel");
-static LLPanelInjector<LLSocialCheckinPanel> t_panel_checkin("llsocialcheckinpanel");
-static LLPanelInjector<LLSocialAccountPanel> t_panel_account("llsocialaccountpanel");
+static LLPanelInjector<LLFacebookStatusPanel> t_panel_status("llfacebookstatuspanel");
+static LLPanelInjector<LLFacebookPhotoPanel> t_panel_photo("llfacebookphotopanel");
+static LLPanelInjector<LLFacebookCheckinPanel> t_panel_checkin("llfacebookcheckinpanel");
+static LLPanelInjector<LLFacebookFriendsPanel> t_panel_friends("llfacebookfriendspanel");
+static LLPanelInjector<LLFacebookAccountPanel> t_panel_account("llfacebookaccountpanel");
 
 const S32 MAX_POSTCARD_DATASIZE = 1024 * 1024; // one megabyte
 const std::string DEFAULT_CHECKIN_LOCATION_URL = "http://maps.secondlife.com/";
@@ -58,12 +66,17 @@ const std::string DEFAULT_CHECKIN_ICON_URL = "http://map.secondlife.com.s3.amazo
 const std::string DEFAULT_CHECKIN_QUERY_PARAMETERS = "?sourceid=slshare_checkin&utm_source=facebook&utm_medium=checkin&utm_campaign=slshare";
 const std::string DEFAULT_PHOTO_QUERY_PARAMETERS = "?sourceid=slshare_photo&utm_source=facebook&utm_medium=photo&utm_campaign=slshare";
 
+const S32 MAX_QUALITY = 100;        // Max quality value for jpeg images
+const S32 MIN_QUALITY = 0;          // Min quality value for jpeg images
+const S32 TARGET_DATA_SIZE = 95000; // Size of the image (compressed) we're trying to send to Facebook
+
 std::string get_map_url()
 {
     LLVector3d center_agent;
-    if (gAgent.getRegion())
+    LLViewerRegion *regionp = gAgent.getRegion();
+    if (regionp)
     {
-        center_agent = gAgent.getRegion()->getCenterGlobal();
+        center_agent = regionp->getCenterGlobal();
     }
     int x_pos = center_agent[0] / 256.0;
     int y_pos = center_agent[1] / 256.0;
@@ -71,19 +84,27 @@ std::string get_map_url()
     return map_url;
 }
 
+// Compute target jpeg quality : see https://wiki.lindenlab.com/wiki/Facebook_Image_Quality for details
+S32 compute_jpeg_quality(S32 width, S32 height)
+{
+    F32 target_compression_ratio = (F32)(width * height * 3) / (F32)(TARGET_DATA_SIZE);
+    S32 quality = (S32)(110.0f - (2.0f * target_compression_ratio));
+    return llclamp(quality,MIN_QUALITY,MAX_QUALITY);
+}
+
 ///////////////////////////
-//LLSocialStatusPanel//////
+//LLFacebookStatusPanel//////
 ///////////////////////////
 
-LLSocialStatusPanel::LLSocialStatusPanel() :
+LLFacebookStatusPanel::LLFacebookStatusPanel() :
 	mMessageTextEditor(NULL),
 	mPostButton(NULL),
     mCancelButton(NULL)
 {
-	mCommitCallbackRegistrar.add("SocialSharing.SendStatus", boost::bind(&LLSocialStatusPanel::onSend, this));
+	mCommitCallbackRegistrar.add("SocialSharing.SendStatus", boost::bind(&LLFacebookStatusPanel::onSend, this));
 }
 
-BOOL LLSocialStatusPanel::postBuild()
+BOOL LLFacebookStatusPanel::postBuild()
 {
 	mMessageTextEditor = getChild<LLUICtrl>("status_message");
 	mPostButton = getChild<LLUICtrl>("post_status_btn");
@@ -92,7 +113,7 @@ BOOL LLSocialStatusPanel::postBuild()
 	return LLPanel::postBuild();
 }
 
-void LLSocialStatusPanel::draw()
+void LLFacebookStatusPanel::draw()
 {
     if (mMessageTextEditor && mPostButton && mCancelButton)
 	{
@@ -106,10 +127,10 @@ void LLSocialStatusPanel::draw()
 	LLPanel::draw();
 }
 
-void LLSocialStatusPanel::onSend()
+void LLFacebookStatusPanel::onSend()
 {
-	LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialStatusPanel"); // just in case it is already listening
-	LLEventPumps::instance().obtain("FacebookConnectState").listen("LLSocialStatusPanel", boost::bind(&LLSocialStatusPanel::onFacebookConnectStateChange, this, _1));
+	LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLFacebookStatusPanel"); // just in case it is already listening
+	LLEventPumps::instance().obtain("FacebookConnectState").listen("LLFacebookStatusPanel", boost::bind(&LLFacebookStatusPanel::onFacebookConnectStateChange, this, _1));
 		
 	// Connect to Facebook if necessary and then post
 	if (LLFacebookConnect::instance().isConnected())
@@ -122,7 +143,7 @@ void LLSocialStatusPanel::onSend()
 	}
 }
 
-bool LLSocialStatusPanel::onFacebookConnectStateChange(const LLSD& data)
+bool LLFacebookStatusPanel::onFacebookConnectStateChange(const LLSD& data)
 {
 	switch (data.get("enum").asInteger())
 	{
@@ -131,7 +152,7 @@ bool LLSocialStatusPanel::onFacebookConnectStateChange(const LLSD& data)
 			break;
 
 		case LLFacebookConnect::FB_POSTED:
-			LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialStatusPanel");
+			LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLFacebookStatusPanel");
 			clearAndClose();
 			break;
 	}
@@ -139,7 +160,7 @@ bool LLSocialStatusPanel::onFacebookConnectStateChange(const LLSD& data)
 	return false;
 }
 
-void LLSocialStatusPanel::sendStatus()
+void LLFacebookStatusPanel::sendStatus()
 {
 	std::string message = mMessageTextEditor->getValue().asString();
 	if (!message.empty())
@@ -148,7 +169,7 @@ void LLSocialStatusPanel::sendStatus()
 	}
 }
 
-void LLSocialStatusPanel::clearAndClose()
+void LLFacebookStatusPanel::clearAndClose()
 {
 	mMessageTextEditor->setValue("");
 
@@ -160,23 +181,27 @@ void LLSocialStatusPanel::clearAndClose()
 }
 
 ///////////////////////////
-//LLSocialPhotoPanel///////
+//LLFacebookPhotoPanel///////
 ///////////////////////////
 
-LLSocialPhotoPanel::LLSocialPhotoPanel() :
+LLFacebookPhotoPanel::LLFacebookPhotoPanel() :
 mSnapshotPanel(NULL),
 mResolutionComboBox(NULL),
 mRefreshBtn(NULL),
+mBtnPreview(NULL),
 mWorkingLabel(NULL),
 mThumbnailPlaceholder(NULL),
 mCaptionTextBox(NULL),
-mPostButton(NULL)
+mPostButton(NULL),
+mBigPreviewFloater(NULL),
+mQuality(MAX_QUALITY)
 {
-	mCommitCallbackRegistrar.add("SocialSharing.SendPhoto", boost::bind(&LLSocialPhotoPanel::onSend, this));
-	mCommitCallbackRegistrar.add("SocialSharing.RefreshPhoto", boost::bind(&LLSocialPhotoPanel::onClickNewSnapshot, this));
+	mCommitCallbackRegistrar.add("SocialSharing.SendPhoto", boost::bind(&LLFacebookPhotoPanel::onSend, this));
+	mCommitCallbackRegistrar.add("SocialSharing.RefreshPhoto", boost::bind(&LLFacebookPhotoPanel::onClickNewSnapshot, this));
+	mCommitCallbackRegistrar.add("SocialSharing.BigPreview", boost::bind(&LLFacebookPhotoPanel::onClickBigPreview, this));
 }
 
-LLSocialPhotoPanel::~LLSocialPhotoPanel()
+LLFacebookPhotoPanel::~LLFacebookPhotoPanel()
 {
 	if(mPreviewHandle.get())
 	{
@@ -184,24 +209,65 @@ LLSocialPhotoPanel::~LLSocialPhotoPanel()
 	}
 }
 
-BOOL LLSocialPhotoPanel::postBuild()
+BOOL LLFacebookPhotoPanel::postBuild()
 {
-	setVisibleCallback(boost::bind(&LLSocialPhotoPanel::onVisibilityChanged, this, _2));
+	setVisibleCallback(boost::bind(&LLFacebookPhotoPanel::onVisibilityChange, this, _2));
 	
 	mSnapshotPanel = getChild<LLUICtrl>("snapshot_panel");
 	mResolutionComboBox = getChild<LLUICtrl>("resolution_combobox");
-	mResolutionComboBox->setCommitCallback(boost::bind(&LLSocialPhotoPanel::updateResolution, this, TRUE));
+	mResolutionComboBox->setValue("[i1200,i630]"); // hardcoded defaults ftw!
+	mResolutionComboBox->setCommitCallback(boost::bind(&LLFacebookPhotoPanel::updateResolution, this, TRUE));
+	mFilterComboBox = getChild<LLUICtrl>("filters_combobox");
+	mFilterComboBox->setCommitCallback(boost::bind(&LLFacebookPhotoPanel::updateResolution, this, TRUE));
 	mRefreshBtn = getChild<LLUICtrl>("new_snapshot_btn");
+	mBtnPreview = getChild<LLButton>("big_preview_btn");
     mWorkingLabel = getChild<LLUICtrl>("working_lbl");
 	mThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");
 	mCaptionTextBox = getChild<LLUICtrl>("photo_caption");
 	mPostButton = getChild<LLUICtrl>("post_photo_btn");
 	mCancelButton = getChild<LLUICtrl>("cancel_photo_btn");
+	mBigPreviewFloater = dynamic_cast<LLFloaterBigPreview*>(LLFloaterReg::getInstance("big_preview"));
+
+	// Update filter list
+    std::vector<std::string> filter_list = LLImageFiltersManager::getInstance()->getFiltersList();
+	LLComboBox* filterbox = static_cast<LLComboBox *>(mFilterComboBox);
+    for (U32 i = 0; i < filter_list.size(); i++)
+	{
+        filterbox->add(filter_list[i]);
+    }
 
 	return LLPanel::postBuild();
 }
 
-void LLSocialPhotoPanel::draw()
+// virtual
+S32 LLFacebookPhotoPanel::notify(const LLSD& info)
+{
+	if (info.has("snapshot-updating"))
+	{
+        // Disable the Post button and whatever else while the snapshot is not updated
+        // updateControls();
+		return 1;
+	}
+    
+	if (info.has("snapshot-updated"))
+	{
+        // Enable the send/post/save buttons.
+        updateControls();
+        
+		// The refresh button is initially hidden. We show it after the first update,
+		// i.e. after snapshot is taken
+		LLUICtrl * refresh_button = getRefreshBtn();
+		if (!refresh_button->getVisible())
+		{
+			refresh_button->setVisible(true);
+		}
+		return 1;
+	}
+    
+	return 0;
+}
+
+void LLFacebookPhotoPanel::draw()
 { 
 	LLSnapshotLivePreview * previewp = static_cast<LLSnapshotLivePreview *>(mPreviewHandle.get());
 
@@ -210,9 +276,21 @@ void LLSocialPhotoPanel::draw()
     mCancelButton->setEnabled(no_ongoing_connection);
     mCaptionTextBox->setEnabled(no_ongoing_connection);
     mResolutionComboBox->setEnabled(no_ongoing_connection);
+    mFilterComboBox->setEnabled(no_ongoing_connection);
     mRefreshBtn->setEnabled(no_ongoing_connection);
+    mBtnPreview->setEnabled(no_ongoing_connection);
+	
+    // Reassign the preview floater if we have the focus and the preview exists
+    if (hasFocus() && isPreviewVisible())
+    {
+        attachPreview();
+    }
     
-    // Display the preview if one is available
+    // Toggle the button state as appropriate
+    bool preview_active = (isPreviewVisible() && mBigPreviewFloater->isFloaterOwner(getParentByType<LLFloater>()));
+	mBtnPreview->setToggleState(preview_active);
+    
+    // Display the thumbnail if one is available
 	if (previewp && previewp->getThumbnailImage())
 	{
 		const LLRect& thumbnail_rect = mThumbnailPlaceholder->getRect();
@@ -239,8 +317,6 @@ void LLSocialPhotoPanel::draw()
 		gl_draw_scaled_image(offset_x, offset_y, 
 			thumbnail_w, thumbnail_h,
 			previewp->getThumbnailImage(), color % alpha);
-
-		previewp->drawPreviewRect(offset_x, offset_y) ;
 	}
 
     // Update the visibility of the working (computing preview) label
@@ -253,15 +329,14 @@ void LLSocialPhotoPanel::draw()
 	LLPanel::draw();
 }
 
-LLSnapshotLivePreview* LLSocialPhotoPanel::getPreviewView()
+LLSnapshotLivePreview* LLFacebookPhotoPanel::getPreviewView()
 {
 	LLSnapshotLivePreview* previewp = (LLSnapshotLivePreview*)mPreviewHandle.get();
 	return previewp;
 }
 
-void LLSocialPhotoPanel::onVisibilityChanged(const LLSD& new_visibility)
+void LLFacebookPhotoPanel::onVisibilityChange(BOOL visible)
 {
-	bool visible = new_visibility.asBoolean();
 	if (visible)
 	{
 		if (mPreviewHandle.get())
@@ -269,7 +344,7 @@ void LLSocialPhotoPanel::onVisibilityChanged(const LLSD& new_visibility)
 			LLSnapshotLivePreview* preview = getPreviewView();
 			if(preview)
 			{
-				LL_DEBUGS() << "opened, updating snapshot" << LL_ENDL;
+				lldebugs << "opened, updating snapshot" << llendl;
 				preview->updateSnapshot(TRUE);
 			}
 		}
@@ -280,10 +355,15 @@ void LLSocialPhotoPanel::onVisibilityChanged(const LLSD& new_visibility)
 			p.rect(full_screen_rect);
 			LLSnapshotLivePreview* previewp = new LLSnapshotLivePreview(p);
 			mPreviewHandle = previewp->getHandle();	
+            mQuality = MAX_QUALITY;
 
+            previewp->setContainer(this);
 			previewp->setSnapshotType(previewp->SNAPSHOT_WEB);
 			previewp->setSnapshotFormat(LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG);
-			//previewp->setSnapshotQuality(98);
+			previewp->setSnapshotQuality(mQuality, false);
+            previewp->setThumbnailSubsampled(TRUE);     // We want the preview to reflect the *saved* image
+            previewp->setAllowRenderUI(FALSE);          // We do not want the rendered UI in our snapshots
+            previewp->setAllowFullScreenPreview(FALSE);  // No full screen preview in SL Share mode
 			previewp->setThumbnailPlaceholderRect(mThumbnailPlaceholder->getRect());
 
 			updateControls();
@@ -291,21 +371,48 @@ void LLSocialPhotoPanel::onVisibilityChanged(const LLSD& new_visibility)
 	}
 }
 
-void LLSocialPhotoPanel::onClickNewSnapshot()
+void LLFacebookPhotoPanel::onClickNewSnapshot()
 {
 	LLSnapshotLivePreview* previewp = getPreviewView();
 	if (previewp)
 	{
-		//setStatus(Impl::STATUS_READY);
-		LL_DEBUGS() << "updating snapshot" << LL_ENDL;
 		previewp->updateSnapshot(TRUE);
 	}
 }
 
-void LLSocialPhotoPanel::onSend()
+void LLFacebookPhotoPanel::onClickBigPreview()
 {
-	LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialPhotoPanel"); // just in case it is already listening
-	LLEventPumps::instance().obtain("FacebookConnectState").listen("LLSocialPhotoPanel", boost::bind(&LLSocialPhotoPanel::onFacebookConnectStateChange, this, _1));
+    // Toggle the preview
+    if (isPreviewVisible())
+    {
+        LLFloaterReg::hideInstance("big_preview");
+    }
+    else
+    {
+        attachPreview();
+        LLFloaterReg::showInstance("big_preview");
+    }
+}
+
+bool LLFacebookPhotoPanel::isPreviewVisible()
+{
+    return (mBigPreviewFloater && mBigPreviewFloater->getVisible());
+}
+
+void LLFacebookPhotoPanel::attachPreview()
+{
+    if (mBigPreviewFloater)
+    {
+        LLSnapshotLivePreview* previewp = getPreviewView();
+        mBigPreviewFloater->setPreview(previewp);
+        mBigPreviewFloater->setFloaterOwner(getParentByType<LLFloater>());
+    }
+}
+
+void LLFacebookPhotoPanel::onSend()
+{
+	LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLFacebookPhotoPanel"); // just in case it is already listening
+	LLEventPumps::instance().obtain("FacebookConnectState").listen("LLFacebookPhotoPanel", boost::bind(&LLFacebookPhotoPanel::onFacebookConnectStateChange, this, _1));
 	
 	// Connect to Facebook if necessary and then post
 	if (LLFacebookConnect::instance().isConnected())
@@ -318,7 +425,7 @@ void LLSocialPhotoPanel::onSend()
 	}
 }
 
-bool LLSocialPhotoPanel::onFacebookConnectStateChange(const LLSD& data)
+bool LLFacebookPhotoPanel::onFacebookConnectStateChange(const LLSD& data)
 {
 	switch (data.get("enum").asInteger())
 	{
@@ -327,7 +434,7 @@ bool LLSocialPhotoPanel::onFacebookConnectStateChange(const LLSD& data)
 			break;
 
 		case LLFacebookConnect::FB_POSTED:
-			LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialPhotoPanel");
+			LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLFacebookPhotoPanel");
 			clearAndClose();
 			break;
 	}
@@ -335,7 +442,7 @@ bool LLSocialPhotoPanel::onFacebookConnectStateChange(const LLSD& data)
 	return false;
 }
 
-void LLSocialPhotoPanel::sendPhoto()
+void LLFacebookPhotoPanel::sendPhoto()
 {
 	// Get the caption
 	std::string caption = mCaptionTextBox->getValue().asString();
@@ -349,7 +456,7 @@ void LLSocialPhotoPanel::sendPhoto()
 	updateControls();
 }
 
-void LLSocialPhotoPanel::clearAndClose()
+void LLFacebookPhotoPanel::clearAndClose()
 {
 	mCaptionTextBox->setValue("");
 
@@ -357,39 +464,28 @@ void LLSocialPhotoPanel::clearAndClose()
 	if (floater)
 	{
 		floater->closeFloater();
+        if (mBigPreviewFloater)
+        {
+            mBigPreviewFloater->closeOnFloaterOwnerClosing(floater);
+        }
 	}
 }
 
-void LLSocialPhotoPanel::updateControls()
+void LLFacebookPhotoPanel::updateControls()
 {
 	LLSnapshotLivePreview* previewp = getPreviewView();
-	BOOL got_bytes = previewp && previewp->getDataSize() > 0;
 	BOOL got_snap = previewp && previewp->getSnapshotUpToDate();
-	LLSnapshotLivePreview::ESnapshotType shot_type = (previewp ? previewp->getSnapshotType() : LLSnapshotLivePreview::SNAPSHOT_POSTCARD);
-
+    
 	// *TODO: Separate maximum size for Web images from postcards
-	LL_DEBUGS() << "Is snapshot up-to-date? " << got_snap << LL_ENDL;
-
-	LLLocale locale(LLLocale::USER_LOCALE);
-	std::string bytes_string;
-	if (got_snap)
-	{
-		LLResMgr::getInstance()->getIntegerString(bytes_string, (previewp->getDataSize()) >> 10 );
-	}
-
-	//getChild<LLUICtrl>("file_size_label")->setTextArg("[SIZE]", got_snap ? bytes_string : getString("unknown")); <---uses localized string
-	getChild<LLUICtrl>("file_size_label")->setTextArg("[SIZE]", got_snap ? bytes_string : "unknown");
-	getChild<LLUICtrl>("file_size_label")->setColor(
-		shot_type == LLSnapshotLivePreview::SNAPSHOT_POSTCARD 
-		&& got_bytes
-		&& previewp->getDataSize() > MAX_POSTCARD_DATASIZE ? LLUIColor(LLColor4::red) : LLUIColorTable::instance().getColor( "LabelTextColor" ));
-
+	lldebugs << "Is snapshot up-to-date? " << got_snap << llendl;
+    
 	updateResolution(FALSE);
 }
 
-void LLSocialPhotoPanel::updateResolution(BOOL do_update)
+void LLFacebookPhotoPanel::updateResolution(BOOL do_update)
 {
 	LLComboBox* combobox = static_cast<LLComboBox *>(mResolutionComboBox);
+	LLComboBox* filterbox = static_cast<LLComboBox *>(mFilterComboBox);
 
 	std::string sdstring = combobox->getSelectedValue();
 	LLSD sdres;
@@ -398,6 +494,9 @@ void LLSocialPhotoPanel::updateResolution(BOOL do_update)
 
 	S32 width = sdres[0];
 	S32 height = sdres[1];
+
+    // Note : index 0 of the filter drop down is assumed to be "No filter" in whichever locale
+    std::string filter_name = (filterbox->getCurrentIndex() ? filterbox->getSimple() : "");
 
 	LLSnapshotLivePreview * previewp = static_cast<LLSnapshotLivePreview *>(mPreviewHandle.get());
 	if (previewp && combobox->getCurrentIndex() >= 0)
@@ -408,40 +507,48 @@ void LLSocialPhotoPanel::updateResolution(BOOL do_update)
 		if (width == 0 || height == 0)
 		{
 			// take resolution from current window size
-			LL_DEBUGS() << "Setting preview res from window: " << gViewerWindow->getWindowWidthRaw() << "x" << gViewerWindow->getWindowHeightRaw() << LL_ENDL;
+			lldebugs << "Setting preview res from window: " << gViewerWindow->getWindowWidthRaw() << "x" << gViewerWindow->getWindowHeightRaw() << llendl;
 			previewp->setSize(gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw());
 		}
 		else
 		{
 			// use the resolution from the selected pre-canned drop-down choice
-			LL_DEBUGS() << "Setting preview res selected from combo: " << width << "x" << height << LL_ENDL;
+			lldebugs << "Setting preview res selected from combo: " << width << "x" << height << llendl;
 			previewp->setSize(width, height);
 		}
 
 		checkAspectRatio(width);
 
 		previewp->getSize(width, height);
+        
+        // Recompute quality setting
+        mQuality = compute_jpeg_quality(width, height);
+        previewp->setSnapshotQuality(mQuality, false);
 		
-		if(original_width != width || original_height != height)
+		if (original_width != width || original_height != height)
 		{
 			previewp->setSize(width, height);
-
-			// hide old preview as the aspect ratio could be wrong
-			LL_DEBUGS() << "updating thumbnail" << LL_ENDL;
-			
-			previewp->updateSnapshot(FALSE, TRUE);
-			if(do_update)
+			if (do_update)
 			{
-				LL_DEBUGS() << "Will update controls" << LL_ENDL;
+                previewp->updateSnapshot(TRUE);
 				updateControls();
-                LLSocialPhotoPanel::onClickNewSnapshot();
 			}
 		}
-		
+        // Get the old filter, compare to the current one "filter_name" and set if changed
+        std::string original_filter = previewp->getFilter();
+		if (original_filter != filter_name)
+		{
+            previewp->setFilter(filter_name);
+			if (do_update)
+			{
+                previewp->updateSnapshot(FALSE, TRUE);
+				updateControls();
+			}
+		}
 	}
 }
 
-void LLSocialPhotoPanel::checkAspectRatio(S32 index)
+void LLFacebookPhotoPanel::checkAspectRatio(S32 index)
 {
 	LLSnapshotLivePreview *previewp = getPreviewView() ;
 
@@ -462,23 +569,23 @@ void LLSocialPhotoPanel::checkAspectRatio(S32 index)
 	}
 }
 
-LLUICtrl* LLSocialPhotoPanel::getRefreshBtn()
+LLUICtrl* LLFacebookPhotoPanel::getRefreshBtn()
 {
 	return mRefreshBtn;
 }
 
 ////////////////////////
-//LLSocialCheckinPanel//
+//LLFacebookCheckinPanel//
 ////////////////////////
 
-LLSocialCheckinPanel::LLSocialCheckinPanel() :
+LLFacebookCheckinPanel::LLFacebookCheckinPanel() :
     mMapUrl(""),
     mReloadingMapTexture(false)
 {
-	mCommitCallbackRegistrar.add("SocialSharing.SendCheckin", boost::bind(&LLSocialCheckinPanel::onSend, this));
+	mCommitCallbackRegistrar.add("SocialSharing.SendCheckin", boost::bind(&LLFacebookCheckinPanel::onSend, this));
 }
 
-BOOL LLSocialCheckinPanel::postBuild()
+BOOL LLFacebookCheckinPanel::postBuild()
 {
     // Keep pointers to widgets so we don't traverse the UI hierarchy too often
 	mPostButton = getChild<LLUICtrl>("post_place_btn");
@@ -492,7 +599,7 @@ BOOL LLSocialCheckinPanel::postBuild()
 	return LLPanel::postBuild();
 }
 
-void LLSocialCheckinPanel::draw()
+void LLFacebookCheckinPanel::draw()
 {
     bool no_ongoing_connection = !(LLFacebookConnect::instance().isTransactionOngoing());
     mPostButton->setEnabled(no_ongoing_connection);
@@ -533,10 +640,10 @@ void LLSocialCheckinPanel::draw()
 	LLPanel::draw();
 }
 
-void LLSocialCheckinPanel::onSend()
+void LLFacebookCheckinPanel::onSend()
 {
-	LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialCheckinPanel"); // just in case it is already listening
-	LLEventPumps::instance().obtain("FacebookConnectState").listen("LLSocialCheckinPanel", boost::bind(&LLSocialCheckinPanel::onFacebookConnectStateChange, this, _1));
+	LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLFacebookCheckinPanel"); // just in case it is already listening
+	LLEventPumps::instance().obtain("FacebookConnectState").listen("LLFacebookCheckinPanel", boost::bind(&LLFacebookCheckinPanel::onFacebookConnectStateChange, this, _1));
 	
 	// Connect to Facebook if necessary and then post
 	if (LLFacebookConnect::instance().isConnected())
@@ -549,7 +656,7 @@ void LLSocialCheckinPanel::onSend()
 	}
 }
 
-bool LLSocialCheckinPanel::onFacebookConnectStateChange(const LLSD& data)
+bool LLFacebookCheckinPanel::onFacebookConnectStateChange(const LLSD& data)
 {
 	switch (data.get("enum").asInteger())
 	{
@@ -558,7 +665,7 @@ bool LLSocialCheckinPanel::onFacebookConnectStateChange(const LLSD& data)
 			break;
 
 		case LLFacebookConnect::FB_POSTED:
-			LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialCheckinPanel");
+			LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLFacebookCheckinPanel");
 			clearAndClose();
 			break;
 	}
@@ -566,7 +673,7 @@ bool LLSocialCheckinPanel::onFacebookConnectStateChange(const LLSD& data)
 	return false;
 }
 
-void LLSocialCheckinPanel::sendCheckin()
+void LLFacebookCheckinPanel::sendCheckin()
 {
 	// Get the location SLURL
 	LLSLURL slurl;
@@ -584,7 +691,12 @@ void LLSocialCheckinPanel::sendCheckin()
 	slurl_string += DEFAULT_CHECKIN_QUERY_PARAMETERS;
     
 	// Get the region name
-	std::string region_name = gAgent.getRegion()->getName();
+	std::string region_name("");
+    LLViewerRegion *regionp = gAgent.getRegion();
+    if (regionp)
+    {
+        region_name = regionp->getName();
+    }
     
 	// Get the region description
 	std::string description;
@@ -601,7 +713,7 @@ void LLSocialCheckinPanel::sendCheckin()
 	LLFacebookConnect::instance().postCheckin(slurl_string, region_name, description, map_url, caption);
 }
 
-void LLSocialCheckinPanel::clearAndClose()
+void LLFacebookCheckinPanel::clearAndClose()
 {
 	mMessageTextEditor->setValue("");
 
@@ -613,23 +725,186 @@ void LLSocialCheckinPanel::clearAndClose()
 }
 
 ///////////////////////////
-//LLSocialAccountPanel//////
+//LLFacebookFriendsPanel//////
 ///////////////////////////
 
-LLSocialAccountPanel::LLSocialAccountPanel() : 
+LLFacebookFriendsPanel::LLFacebookFriendsPanel() : 
+mFriendsStatusCaption(NULL),
+mSecondLifeFriends(NULL),
+mSuggestedFriends(NULL)
+{
+}
+
+LLFacebookFriendsPanel::~LLFacebookFriendsPanel()
+{
+    LLAvatarTracker::instance().removeObserver(this);
+}
+
+BOOL LLFacebookFriendsPanel::postBuild()
+{
+	mFriendsStatusCaption = getChild<LLTextBox>("facebook_friends_status");
+
+	mSecondLifeFriends = getChild<LLAvatarList>("second_life_friends");
+	mSecondLifeFriends->setContextMenu(&LLPanelPeopleMenus::gPeopleContextMenu);
+	
+	mSuggestedFriends = getChild<LLAvatarList>("suggested_friends");
+	mSuggestedFriends->setContextMenu(&LLPanelPeopleMenus::gSuggestedFriendsContextMenu);
+	
+	setVisibleCallback(boost::bind(&LLFacebookFriendsPanel::updateFacebookList, this, _2));
+
+    LLAvatarTracker::instance().addObserver(this);
+    
+	return LLPanel::postBuild();
+}
+
+bool LLFacebookFriendsPanel::updateSuggestedFriendList()
+{
+	const LLAvatarTracker& av_tracker = LLAvatarTracker::instance();
+	uuid_vec_t& second_life_friends = mSecondLifeFriends->getIDs();
+	second_life_friends.clear();
+	uuid_vec_t& suggested_friends = mSuggestedFriends->getIDs();
+	suggested_friends.clear();
+
+	//Add suggested friends
+	LLSD friends = LLFacebookConnect::instance().getContent();
+	for (LLSD::array_const_iterator i = friends.beginArray(); i != friends.endArray(); ++i)
+	{
+		LLUUID agent_id = (*i).asUUID();
+		if (agent_id.notNull())
+		{
+			bool second_life_buddy = av_tracker.isBuddy(agent_id);
+			if (second_life_buddy)
+			{
+				second_life_friends.push_back(agent_id);
+			}
+			else
+			{
+				//FB+SL but not SL friend
+				suggested_friends.push_back(agent_id);
+			}
+		}
+	}
+
+	//Force a refresh when there aren't any filter matches (prevent displaying content that shouldn't display)
+	mSecondLifeFriends->setDirty(true, !mSecondLifeFriends->filterHasMatches());
+	mSuggestedFriends->setDirty(true, !mSuggestedFriends->filterHasMatches());
+	showFriendsAccordionsIfNeeded();
+
+	return false;
+}
+
+void LLFacebookFriendsPanel::showFriendsAccordionsIfNeeded()
+{
+    // Show / hide the status text : needs to be done *before* showing / hidding the accordions
+    if (!mSecondLifeFriends->filterHasMatches() && !mSuggestedFriends->filterHasMatches())
+    {
+        // Show some explanation text if the lists are empty...
+        mFriendsStatusCaption->setVisible(true);
+        if (LLFacebookConnect::instance().isConnected())
+        {
+            //...you're connected to FB but have no friends :(
+            mFriendsStatusCaption->setText(getString("facebook_friends_empty"));
+        }
+        else
+        {
+            //...you're not connected to FB
+            mFriendsStatusCaption->setText(getString("facebook_friends_no_connected"));
+        }
+        // Hide the lists
+        getChild<LLAccordionCtrl>("friends_accordion")->setVisible(false);
+        getChild<LLAccordionCtrlTab>("tab_second_life_friends")->setVisible(false);
+        getChild<LLAccordionCtrlTab>("tab_suggested_friends")->setVisible(false);
+    }
+    else
+    {
+        // We have something in the lists, hide the explanatory text
+        mFriendsStatusCaption->setVisible(false);
+        
+        // Show the lists
+        LLAccordionCtrl* accordion = getChild<LLAccordionCtrl>("friends_accordion");
+        accordion->setVisible(true);
+        
+        // Expand and show accordions if needed, else - hide them
+        getChild<LLAccordionCtrlTab>("tab_second_life_friends")->setVisible(mSecondLifeFriends->filterHasMatches());
+        getChild<LLAccordionCtrlTab>("tab_suggested_friends")->setVisible(mSuggestedFriends->filterHasMatches());
+        
+        // Rearrange accordions
+        accordion->arrange();
+    }
+}
+
+void LLFacebookFriendsPanel::changed(U32 mask)
+{
+	if (mask & (LLFriendObserver::ADD | LLFriendObserver::REMOVE))
+	{
+        LLFacebookConnect::instance().loadFacebookFriends();
+		updateFacebookList(true);
+	}
+}
+
+
+void LLFacebookFriendsPanel::updateFacebookList(bool visible)
+{
+	if (visible)
+	{
+        // We want this to be called to fetch the friends list once a connection is established
+		LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLFacebookFriendsPanel");
+		LLEventPumps::instance().obtain("FacebookConnectState").listen("LLFacebookFriendsPanel", boost::bind(&LLFacebookFriendsPanel::onConnectedToFacebook, this, _1));
+        
+        // We then want this to be called to update the displayed lists once the list of friends is received
+		LLEventPumps::instance().obtain("FacebookConnectContent").stopListening("LLFacebookFriendsPanel"); // just in case it is already listening
+		LLEventPumps::instance().obtain("FacebookConnectContent").listen("LLFacebookFriendsPanel", boost::bind(&LLFacebookFriendsPanel::updateSuggestedFriendList, this));
+        
+		// Try to connect to Facebook
+        if ((LLFacebookConnect::instance().getConnectionState() == LLFacebookConnect::FB_NOT_CONNECTED) ||
+            (LLFacebookConnect::instance().getConnectionState() == LLFacebookConnect::FB_CONNECTION_FAILED))
+        {
+            LLFacebookConnect::instance().checkConnectionToFacebook();
+        }
+		// Loads FB friends
+		if (LLFacebookConnect::instance().isConnected())
+		{
+			LLFacebookConnect::instance().loadFacebookFriends();
+		}
+        // Sort the FB friends and update the lists
+		updateSuggestedFriendList();
+	}
+}
+
+bool LLFacebookFriendsPanel::onConnectedToFacebook(const LLSD& data)
+{
+	LLSD::Integer connection_state = data.get("enum").asInteger();
+
+	if (connection_state == LLFacebookConnect::FB_CONNECTED)
+	{
+		LLFacebookConnect::instance().loadFacebookFriends();
+	}
+	else if (connection_state == LLFacebookConnect::FB_NOT_CONNECTED)
+	{
+		updateSuggestedFriendList();
+	}
+
+	return false;
+}
+
+///////////////////////////
+//LLFacebookAccountPanel//////
+///////////////////////////
+
+LLFacebookAccountPanel::LLFacebookAccountPanel() : 
 mAccountCaptionLabel(NULL),
 mAccountNameLabel(NULL),
 mPanelButtons(NULL),
 mConnectButton(NULL),
 mDisconnectButton(NULL)
 {
-	mCommitCallbackRegistrar.add("SocialSharing.Connect", boost::bind(&LLSocialAccountPanel::onConnect, this));
-	mCommitCallbackRegistrar.add("SocialSharing.Disconnect", boost::bind(&LLSocialAccountPanel::onDisconnect, this));
+	mCommitCallbackRegistrar.add("SocialSharing.Connect", boost::bind(&LLFacebookAccountPanel::onConnect, this));
+	mCommitCallbackRegistrar.add("SocialSharing.Disconnect", boost::bind(&LLFacebookAccountPanel::onDisconnect, this));
 
-	setVisibleCallback(boost::bind(&LLSocialAccountPanel::onVisibilityChanged, this, _2));
+	setVisibleCallback(boost::bind(&LLFacebookAccountPanel::onVisibilityChange, this, _2));
 }
 
-BOOL LLSocialAccountPanel::postBuild()
+BOOL LLFacebookAccountPanel::postBuild()
 {
 	mAccountCaptionLabel = getChild<LLTextBox>("account_caption_label");
 	mAccountNameLabel = getChild<LLTextBox>("account_name_label");
@@ -640,7 +915,7 @@ BOOL LLSocialAccountPanel::postBuild()
 	return LLPanel::postBuild();
 }
 
-void LLSocialAccountPanel::draw()
+void LLFacebookAccountPanel::draw()
 {
 	LLFacebookConnect::EConnectionState connection_state = LLFacebookConnect::instance().getConnectionState();
 
@@ -655,17 +930,15 @@ void LLSocialAccountPanel::draw()
 	LLPanel::draw();
 }
 
-void LLSocialAccountPanel::onVisibilityChanged(const LLSD& new_visibility)
+void LLFacebookAccountPanel::onVisibilityChange(BOOL visible)
 {
-	bool visible = new_visibility.asBoolean();
-
 	if(visible)
 	{
-		LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialAccountPanel");
-		LLEventPumps::instance().obtain("FacebookConnectState").listen("LLSocialAccountPanel", boost::bind(&LLSocialAccountPanel::onFacebookConnectStateChange, this, _1));
+		LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLFacebookAccountPanel");
+		LLEventPumps::instance().obtain("FacebookConnectState").listen("LLFacebookAccountPanel", boost::bind(&LLFacebookAccountPanel::onFacebookConnectStateChange, this, _1));
 
-		LLEventPumps::instance().obtain("FacebookConnectInfo").stopListening("LLSocialAccountPanel");
-		LLEventPumps::instance().obtain("FacebookConnectInfo").listen("LLSocialAccountPanel", boost::bind(&LLSocialAccountPanel::onFacebookConnectInfoChange, this));
+		LLEventPumps::instance().obtain("FacebookConnectInfo").stopListening("LLFacebookAccountPanel");
+		LLEventPumps::instance().obtain("FacebookConnectInfo").listen("LLFacebookAccountPanel", boost::bind(&LLFacebookAccountPanel::onFacebookConnectInfoChange, this));
 
 		//Connected
 		if(LLFacebookConnect::instance().isConnected())
@@ -685,12 +958,12 @@ void LLSocialAccountPanel::onVisibilityChanged(const LLSD& new_visibility)
 	}
 	else
 	{
-		LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLSocialAccountPanel");
-		LLEventPumps::instance().obtain("FacebookConnectInfo").stopListening("LLSocialAccountPanel");
+		LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLFacebookAccountPanel");
+		LLEventPumps::instance().obtain("FacebookConnectInfo").stopListening("LLFacebookAccountPanel");
 	}
 }
 
-bool LLSocialAccountPanel::onFacebookConnectStateChange(const LLSD& data)
+bool LLFacebookAccountPanel::onFacebookConnectStateChange(const LLSD& data)
 {
 	if(LLFacebookConnect::instance().isConnected())
 	{
@@ -708,7 +981,7 @@ bool LLSocialAccountPanel::onFacebookConnectStateChange(const LLSD& data)
 	return false;
 }
 
-bool LLSocialAccountPanel::onFacebookConnectInfoChange()
+bool LLFacebookAccountPanel::onFacebookConnectInfoChange()
 {
 	LLSD info = LLFacebookConnect::instance().getInfo();
 	std::string clickable_name;
@@ -724,7 +997,7 @@ bool LLSocialAccountPanel::onFacebookConnectInfoChange()
 	return false;
 }
 
-void LLSocialAccountPanel::showConnectButton()
+void LLFacebookAccountPanel::showConnectButton()
 {
 	if(!mConnectButton->getVisible())
 	{
@@ -733,7 +1006,7 @@ void LLSocialAccountPanel::showConnectButton()
 	}
 }
 
-void LLSocialAccountPanel::hideConnectButton()
+void LLFacebookAccountPanel::hideConnectButton()
 {
 	if(mConnectButton->getVisible())
 	{
@@ -742,14 +1015,14 @@ void LLSocialAccountPanel::hideConnectButton()
 	}
 }
 
-void LLSocialAccountPanel::showDisconnectedLayout()
+void LLFacebookAccountPanel::showDisconnectedLayout()
 {
 	mAccountCaptionLabel->setText(getString("facebook_disconnected"));
 	mAccountNameLabel->setText(std::string(""));
 	showConnectButton();
 }
 
-void LLSocialAccountPanel::showConnectedLayout()
+void LLFacebookAccountPanel::showConnectedLayout()
 {
 	LLFacebookConnect::instance().loadFacebookInfo();
 
@@ -757,7 +1030,7 @@ void LLSocialAccountPanel::showConnectedLayout()
 	hideConnectButton();
 }
 
-void LLSocialAccountPanel::onConnect()
+void LLFacebookAccountPanel::onConnect()
 {
 	LLFacebookConnect::instance().checkConnectionToFacebook(true);
 
@@ -765,7 +1038,7 @@ void LLSocialAccountPanel::onConnect()
 	LLViewerMedia::getCookieStore()->removeCookiesByDomain(".facebook.com"); 
 }
 
-void LLSocialAccountPanel::onDisconnect()
+void LLFacebookAccountPanel::onDisconnect()
 {
 	LLFacebookConnect::instance().disconnectFromFacebook();
 
@@ -773,27 +1046,42 @@ void LLSocialAccountPanel::onDisconnect()
 }
 
 ////////////////////////
-//LLFloaterSocial///////
+//LLFloaterFacebook///////
 ////////////////////////
 
-LLFloaterSocial::LLFloaterSocial(const LLSD& key) : LLFloater(key),
-    mSocialPhotoPanel(NULL),
+LLFloaterFacebook::LLFloaterFacebook(const LLSD& key) : LLFloater(key),
+    mFacebookPhotoPanel(NULL),
     mStatusErrorText(NULL),
     mStatusLoadingText(NULL),
     mStatusLoadingIndicator(NULL)
 {
-	mCommitCallbackRegistrar.add("SocialSharing.Cancel", boost::bind(&LLFloaterSocial::onCancel, this));
+	mCommitCallbackRegistrar.add("SocialSharing.Cancel", boost::bind(&LLFloaterFacebook::onCancel, this));
 }
 
-void LLFloaterSocial::onCancel()
+void LLFloaterFacebook::onClose(bool app_quitting)
 {
+    LLFloaterBigPreview* big_preview_floater = dynamic_cast<LLFloaterBigPreview*>(LLFloaterReg::getInstance("big_preview"));
+    if (big_preview_floater)
+    {
+        big_preview_floater->closeOnFloaterOwnerClosing(this);
+    }
+	LLFloater::onClose(app_quitting);
+}
+
+void LLFloaterFacebook::onCancel()
+{
+    LLFloaterBigPreview* big_preview_floater = dynamic_cast<LLFloaterBigPreview*>(LLFloaterReg::getInstance("big_preview"));
+    if (big_preview_floater)
+    {
+        big_preview_floater->closeOnFloaterOwnerClosing(this);
+    }
     closeFloater();
 }
 
-BOOL LLFloaterSocial::postBuild()
+BOOL LLFloaterFacebook::postBuild()
 {
     // Keep tab of the Photo Panel
-	mSocialPhotoPanel = static_cast<LLSocialPhotoPanel*>(getChild<LLUICtrl>("panel_social_photo"));
+	mFacebookPhotoPanel = static_cast<LLFacebookPhotoPanel*>(getChild<LLUICtrl>("panel_facebook_photo"));
     // Connection status widgets
     mStatusErrorText = getChild<LLTextBox>("connection_error_text");
     mStatusLoadingText = getChild<LLTextBox>("connection_loading_text");
@@ -801,39 +1089,19 @@ BOOL LLFloaterSocial::postBuild()
 	return LLFloater::postBuild();
 }
 
-// static
-void LLFloaterSocial::preUpdate()
+void LLFloaterFacebook::showPhotoPanel()
 {
-	LLFloaterSocial* instance = LLFloaterReg::findTypedInstance<LLFloaterSocial>("social");
-	if (instance)
+	LLTabContainer* parent = dynamic_cast<LLTabContainer*>(mFacebookPhotoPanel->getParent());
+	if (!parent)
 	{
-		//Will set file size text to 'unknown'
-		instance->mSocialPhotoPanel->updateControls();
+		llwarns << "Cannot find panel container" << llendl;
+		return;
 	}
+
+	parent->selectTabPanel(mFacebookPhotoPanel);
 }
 
-// static
-void LLFloaterSocial::postUpdate()
-{
-	LLFloaterSocial* instance = LLFloaterReg::findTypedInstance<LLFloaterSocial>("social");
-	if (instance)
-	{
-		//Will set the file size text
-		instance->mSocialPhotoPanel->updateControls();
-
-		// The refresh button is initially hidden. We show it after the first update,
-		// i.e. after snapshot is taken
-		LLUICtrl * refresh_button = instance->mSocialPhotoPanel->getRefreshBtn();
-
-		if (!refresh_button->getVisible())
-		{
-			refresh_button->setVisible(true);
-		}
-		
-	}
-}
-
-void LLFloaterSocial::draw()
+void LLFloaterFacebook::draw()
 {
     if (mStatusErrorText && mStatusLoadingText && mStatusLoadingIndicator)
     {

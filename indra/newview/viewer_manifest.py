@@ -98,6 +98,9 @@ class ViewerManifest(LLManifest):
                 # ... and the entire windlight directory
                 self.path("windlight")
 
+                # ... and the entire image filters directory
+                self.path("filters")
+            
                 # ... and the included spell checking dictionaries
                 pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
                 if self.prefix(src=pkgdir,dst=""):
@@ -764,7 +767,7 @@ class Darwin_i386_Manifest(ViewerManifest):
                                 'SLVoice',
                                 ):
                      self.path2basename(libdir, libfile)
-                
+
                 # dylibs that vary based on configuration
                 if self.args['configuration'].lower() == 'debug':
                     for libfile in (
