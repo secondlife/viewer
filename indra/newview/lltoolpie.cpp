@@ -1700,6 +1700,12 @@ BOOL LLToolPie::handleRightClickPick()
 		}
 	}
 
+	// non UI object - put focus back "in world"
+	if (gFocusMgr.getKeyboardFocus())
+	{
+		gFocusMgr.setKeyboardFocus(NULL);
+	}
+
 	LLTool::handleRightMouseDown(x, y, mask);
 	// We handled the event.
 	return TRUE;
