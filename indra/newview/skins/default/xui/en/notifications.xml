@@ -6988,11 +6988,11 @@ If you stay in this region you will be logged out.
    name="LoadWebPage"
    show_toast="false"
    type="notify">
-Load web page [URL]?
+Load web page [URL] ?
 
 [MESSAGE]
 
-From object: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, owner: [NAME]?
+From object: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, owner: [NAME]
     <tag>confirm</tag>
     <form name="form">
       <button
