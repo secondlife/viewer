@@ -2154,6 +2154,22 @@ void LLGroupMgr::processCapGroupMembersRequest(const LLSD& content)
 			online_status,
 			is_owner);
 
+		LLGroupMemberData* member_old = group_datap->mMembers[member_id];
+		if (member_old && group_datap->mRoleMemberDataComplete)
+		{
+			LLGroupMemberData::role_list_t::iterator rit = member_old->roleBegin();
+			LLGroupMemberData::role_list_t::iterator end = member_old->roleEnd();
+
+			for ( ; rit != end; ++rit)
+			{
+				data->addRole((*rit).first,(*rit).second);
+			}
+		}
+		else
+		{
+			group_datap->mRoleMemberDataComplete = false;
+		}
+
 		group_datap->mMembers[member_id] = data;
 	}
 
@@ -2173,7 +2189,7 @@ void LLGroupMgr::processCapGroupMembersRequest(const LLSD& content)
 	group_datap->mMemberDataComplete = true;
 	group_datap->mMemberRequestID.setNull();
 	// Make the role-member data request
-	if (group_datap->mPendingRoleMemberRequest)
+	if (group_datap->mPendingRoleMemberRequest || !group_datap->mRoleMemberDataComplete)
 	{
 		group_datap->mPendingRoleMemberRequest = false;
 		LLGroupMgr::getInstance()->sendGroupRoleMembersRequest(group_id);
