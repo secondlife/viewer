@@ -56,6 +56,10 @@ void LLSceneView::onClose(bool)
 	setVisible(false);
 }
 
+void LLSceneView::onClickCloseBtn(bool)
+{
+	setVisible(false);
+}
 
 void LLSceneView::draw()
 {
