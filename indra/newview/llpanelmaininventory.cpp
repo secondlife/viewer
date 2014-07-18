@@ -183,6 +183,13 @@ BOOL LLPanelMainInventory::postBuild()
 
 	}
 
+	if (recent_items_panel)
+	{
+		U64 types = recent_items_panel->getFilter().getFilterObjectTypes();
+		types &= ~(0x1 << LLInventoryType::IT_CATEGORY);
+		recent_items_panel->getFilter().setFilterObjectTypes(types);
+	}
+
 	mFilterEditor = getChild<LLFilterEditor>("inventory search editor");
 	if (mFilterEditor)
 	{
@@ -382,9 +389,11 @@ BOOL LLPanelMainInventory::filtersVisible(void* user_data)
 
 void LLPanelMainInventory::onClearSearch()
 {
+	BOOL initially_active = FALSE;
 	LLFloater *finder = getFinder();
 	if (mActivePanel)
 	{
+		initially_active = mActivePanel->getFilter().isNotDefault();
 		mActivePanel->setFilterSubString(LLStringUtil::null);
 		mActivePanel->setFilterTypes(0xffffffffffffffffULL);
 		mActivePanel->setFilterLinks(LLInventoryFilter::FILTERLINK_INCLUDE_LINKS);
@@ -395,8 +404,8 @@ void LLPanelMainInventory::onClearSearch()
 		LLFloaterInventoryFinder::selectAllTypes(finder);
 	}
 
-	// re-open folders that were initially open
-	if (mActivePanel)
+	// re-open folders that were initially open in case filter was active
+	if (mActivePanel && (mFilterSubString.size() || initially_active))
 	{
 		mSavedFolderState->setApply(TRUE);
 		mActivePanel->getRootFolder()->applyFunctorRecursively(*mSavedFolderState);

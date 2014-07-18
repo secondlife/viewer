@@ -149,7 +149,7 @@ public:
 
 	void changed(LLGroupChange gc)
 	{
-		if (gc == GC_MEMBER_DATA && !mRequestProcessed)
+		if (gc == GC_PROPERTIES && !mRequestProcessed)
 		{
 			LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupId);
 			if (!gdatap)
@@ -159,9 +159,6 @@ public:
 			else if (!gdatap->isMemberDataComplete())
 			{
 				LL_WARNS() << "LLGroupMgr::getInstance()->getGroupData()->isMemberDataComplete() was FALSE" << LL_ENDL;
-			}
-			else
-			{
 				processGroupData();
 				mRequestProcessed = true;
 			}

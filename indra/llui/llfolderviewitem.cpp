@@ -655,7 +655,7 @@ void LLFolderViewItem::drawOpenFolderArrow(const Params& default_params, const L
 	//
 	const S32 TOP_PAD = default_params.item_top_pad;
 
-	if (hasVisibleChildren() || getViewModelItem()->hasChildren())
+	if (hasVisibleChildren())
 	{
 		LLUIImage* arrow_image = default_params.folder_arrow_image;
 		gl_draw_scaled_rotated_image(
@@ -970,8 +970,9 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 	LL_RECORD_BLOCK_TIME(FTM_ARRANGE);
 
 	// evaluate mHasVisibleChildren
-	mHasVisibleChildren = false;
-	if (getViewModelItem()->descendantsPassedFilter())
+	bool default_filter = getRoot()->getFolderViewModel()->getFilter().isDefault();
+	mHasVisibleChildren = default_filter && (mItems.size() || mFolders.size());
+	if (!default_filter && getViewModelItem()->descendantsPassedFilter())
 	{
 		// We have to verify that there's at least one child that's not filtered out
 		bool found = false;
@@ -1022,7 +1023,12 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 			for(folders_t::iterator fit = mFolders.begin(); fit != mFolders.end(); ++fit)
 			{
 				LLFolderViewFolder* folderp = (*fit);
-				folderp->setVisible(folderp->passedFilter()); // passed filter or has descendants that passed filter
+
+				// passedFilter() will show everything  that passed filter or has descendants that passed filter
+				// also it will hide all filter-pending folders (they will be shown later if needed).
+				// but since refreshed folders are 'pending', they can be rendered invisible by passedFilter()
+				// even if we are not using filter at the moment, default_filter is used to prevent it
+				folderp->setVisible(default_filter || folderp->passedFilter());
 
 				if (folderp->getVisible())
 				{
@@ -1041,7 +1047,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 				iit != mItems.end(); ++iit)
 			{
 				LLFolderViewItem* itemp = (*iit);
-				itemp->setVisible(itemp->passedFilter());
+				itemp->setVisible(default_filter || itemp->passedFilter());
 
 				if (itemp->getVisible())
 				{

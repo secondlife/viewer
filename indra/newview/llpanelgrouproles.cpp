@@ -1783,7 +1783,7 @@ LLPanelGroupRolesSubTab::LLPanelGroupRolesSubTab()
 	mMemberVisibleCheck(NULL),
 	mDeleteRoleButton(NULL),
 	mCreateRoleButton(NULL),
-
+	mFirstOpen(TRUE),
 	mHasRoleChange(FALSE)
 {
 }
@@ -1885,6 +1885,7 @@ void LLPanelGroupRolesSubTab::deactivate()
 	LL_DEBUGS() << "LLPanelGroupRolesSubTab::deactivate()" << LL_ENDL;
 
 	LLPanelGroupSubTab::deactivate();
+	mFirstOpen = FALSE;
 }
 
 bool LLPanelGroupRolesSubTab::needsApply(std::string& mesg)
@@ -1902,7 +1903,7 @@ bool LLPanelGroupRolesSubTab::apply(std::string& mesg)
 	LL_DEBUGS() << "LLPanelGroupRolesSubTab::apply()" << LL_ENDL;
 
 	saveRoleChanges(true);
-
+	mFirstOpen = FALSE;
 	LLGroupMgr::getInstance()->sendGroupRoleChanges(mGroupID);
 
 	notifyObservers();
@@ -2039,14 +2040,17 @@ void LLPanelGroupRolesSubTab::update(LLGroupChange gc)
 		}
 	}
 
-	if (!gdatap || !gdatap->isMemberDataComplete())
+	if(!mFirstOpen)
 	{
-		LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mGroupID);
-	}
-	
-	if (!gdatap || !gdatap->isRoleMemberDataComplete())
-	{
-		LLGroupMgr::getInstance()->sendGroupRoleMembersRequest(mGroupID);
+		if (!gdatap || !gdatap->isMemberDataComplete())
+		{
+			LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mGroupID);
+		}
+
+		if (!gdatap || !gdatap->isRoleMemberDataComplete())
+		{
+			LLGroupMgr::getInstance()->sendGroupRoleMembersRequest(mGroupID);
+		}
 	}
 
 	if ((GC_ROLE_MEMBER_DATA == gc || GC_MEMBER_DATA == gc)
@@ -2677,7 +2681,7 @@ void LLPanelGroupRoles::setGroupID(const LLUUID& id)
 
 	if(mSubTabContainer)
 		mSubTabContainer->selectTab(1);
-
+	group_roles_tab->mFirstOpen = TRUE;
 	activate();
 }
 

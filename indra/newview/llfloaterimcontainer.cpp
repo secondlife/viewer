@@ -229,7 +229,9 @@ BOOL LLFloaterIMContainer::postBuild()
 	mStubCollapseBtn = getChild<LLButton>("stub_collapse_btn");
 	mStubCollapseBtn->setClickedCallback(boost::bind(&LLFloaterIMContainer::onStubCollapseButtonClicked, this));
     mSpeakBtn = getChild<LLButton>("speak_btn");
-	mSpeakBtn->setClickedCallback(boost::bind(&LLFloaterIMContainer::onSpeakButtonClicked, this));
+
+	mSpeakBtn->setMouseDownCallback(boost::bind(&LLFloaterIMContainer::onSpeakButtonPressed, this));
+	mSpeakBtn->setMouseUpCallback(boost::bind(&LLFloaterIMContainer::onSpeakButtonReleased, this));
 
 	childSetAction("add_btn", boost::bind(&LLFloaterIMContainer::onAddButtonClicked, this));
 
@@ -352,11 +354,18 @@ void LLFloaterIMContainer::onStubCollapseButtonClicked()
 	collapseMessagesPane(true);
 }
 
-void LLFloaterIMContainer::onSpeakButtonClicked()
+void LLFloaterIMContainer::onSpeakButtonPressed()
 {
-	LLAgent::toggleMicrophone("speak");
+	LLVoiceClient::getInstance()->inputUserControlState(true);
 	updateSpeakBtnState();
 }
+
+void LLFloaterIMContainer::onSpeakButtonReleased()
+{
+	LLVoiceClient::getInstance()->inputUserControlState(false);
+	updateSpeakBtnState();
+}
+
 void LLFloaterIMContainer::onExpandCollapseButtonClicked()
 {
 	if (mConversationsPane->isCollapsed() && mMessagesPane->isCollapsed()
@@ -1271,6 +1280,22 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
 	uuid_vec_t uuids;
 	getParticipantUUIDs(uuids);
 
+
+	//If there is group or ad-hoc chat in multiselection, everything needs to be disabled
+	if(uuids.size() > 1)
+	{
+		const std::set<LLFolderViewItem*> selectedItems = mConversationsRoot->getSelectionList();
+		LLConversationItem * conversationItem;
+		for(std::set<LLFolderViewItem*>::const_iterator it = selectedItems.begin(); it != selectedItems.end(); ++it)
+		{
+			conversationItem = static_cast<LLConversationItem *>((*it)->getViewModelItem());
+			if((conversationItem->getType() == LLConversationItem::CONV_SESSION_GROUP) || (conversationItem->getType() == LLConversationItem::CONV_SESSION_AD_HOC))
+			{
+				return false;
+			}
+		}
+	}
+
 	if ("conversation_log" == item)
 	{
 		return gSavedPerAccountSettings.getS32("KeepConversationLogTranscripts") > 0;
@@ -1375,6 +1400,10 @@ bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_v
     else if ("can_call" == item)
     {
         return LLAvatarActions::canCall();
+    }
+    else if ("can_open_voice_conversation" == item)
+    {
+    	return is_single_select && LLAvatarActions::canCall();
     }
 	else if ("can_zoom_in" == item)
 	{

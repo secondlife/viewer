@@ -280,14 +280,14 @@ void LLVoiceChannel::deactivate()
 	if (callStarted())
 	{
 		setState(STATE_HUNG_UP);
-		
+
 		//Default mic is OFF when leaving voice calls
-		if (gSavedSettings.getBOOL("AutoDisengageMic") && 
+		if (gSavedSettings.getBOOL("AutoDisengageMic") &&
 			sCurrentVoiceChannel == this &&
 			LLVoiceClient::getInstance()->getUserPTTState())
 		{
 			gSavedSettings.setBOOL("PTTCurrentlyEnabled", true);
-			LLVoiceClient::getInstance()->inputUserControlState(true);
+			LLVoiceClient::getInstance()->setUserPTTState(false);
 		}
 	}
 	LLVoiceClient::getInstance()->removeObserver(this);

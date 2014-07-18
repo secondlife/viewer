@@ -2226,7 +2226,6 @@ bool idle_startup()
 		return TRUE;
 	}
 
-	LL_WARNS("AppInit") << "Reached end of idle_startup for state " << LLStartUp::getStartupState() << LL_ENDL;
 	return TRUE;
 }
 

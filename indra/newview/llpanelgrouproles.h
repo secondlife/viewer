@@ -260,6 +260,9 @@ public:
 	void saveRoleChanges(bool select_saved_role);
 
 	virtual void setGroupID(const LLUUID& id);
+
+	BOOL	mFirstOpen;
+
 protected:
 	void handleActionCheck(LLUICtrl* ctrl, bool force);
 	LLSD createRoleItem(const LLUUID& role_id, std::string name, std::string title, S32 members);

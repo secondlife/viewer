@@ -62,6 +62,7 @@ public:
 	
 	void refresh();
 	const LLUUID& getTaskUUID() { return mTaskUUID;}
+	void clearInventoryTask();
 	void removeSelectedItem();
 	void startRenamingSelectedItem();
 

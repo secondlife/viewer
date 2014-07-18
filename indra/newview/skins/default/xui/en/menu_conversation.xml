@@ -17,6 +17,7 @@
      layout="topleft"
      name="open_voice_conversation">
         <on_click function="Avatar.DoToSelected" parameter="open_voice_conversation"/>
+        <on_enable function="Avatar.EnableItem" parameter="can_open_voice_conversation"/>
      </menu_item_call>	
      <menu_item_call
      label="Disconnect from voice"

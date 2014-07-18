@@ -439,8 +439,12 @@ ECursorType LLToolPie::cursorFromObject(LLViewerObject* object)
 		break;
 	case CLICK_ACTION_BUY:
 		if ( mClickActionBuyEnabled )
-		{
-			cursor = UI_CURSOR_TOOLBUY;
+		{ 
+			LLSelectNode* node = LLSelectMgr::getInstance()->getHoverNode();
+			if (!node || node->mSaleInfo.isForSale())
+			{
+				cursor = UI_CURSOR_TOOLBUY;
+			}
 		}
 		break;
 	case CLICK_ACTION_OPEN:
@@ -544,6 +548,7 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 	mHoverPick = gViewerWindow->pickImmediate(x, y, FALSE);
 	LLViewerObject *parent = NULL;
 	LLViewerObject *object = mHoverPick.getObject();
+	LLSelectMgr::getInstance()->setHoverObject(object, mHoverPick.mObjectFace);
 	if (object)
 	{
 		parent = object->getRootEdit();
@@ -1306,7 +1311,16 @@ void LLToolPie::handleDeselect()
 	}
 	// remove temporary selection for pie menu
 	LLSelectMgr::getInstance()->setHoverObject(NULL);
-	LLSelectMgr::getInstance()->validateSelection();
+
+	// Menu may be still up during transfer to different tool.
+	// toolfocus and toolgrab should retain menu, they will clear it if needed
+	MASK override_mask = gKeyboard ? gKeyboard->currentMask(TRUE) : 0;
+	if (!gMenuHolder->getVisible() || (override_mask & (MASK_ALT | MASK_CONTROL)) == 0)
+	{
+		// in most cases menu is useless without correct selection, so either keep both or discard both
+		gMenuHolder->hideMenus();
+		LLSelectMgr::getInstance()->validateSelection();
+	}
 }
 
 LLTool* LLToolPie::getOverrideTool(MASK mask)
@@ -1684,6 +1698,12 @@ BOOL LLToolPie::handleRightClickPick()
 		{
 			gMenuMuteParticle->show(x,y);
 		}
+	}
+
+	// non UI object - put focus back "in world"
+	if (gFocusMgr.getKeyboardFocus())
+	{
+		gFocusMgr.setKeyboardFocus(NULL);
 	}
 
 	LLTool::handleRightMouseDown(x, y, mask);
