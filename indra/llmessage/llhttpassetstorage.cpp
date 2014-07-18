@@ -38,7 +38,7 @@
 #include "llvfs.h"
 #include "llxfer.h"
 
-#ifdef LL_STANDALONE
+#ifdef LL_USESYSTEMLIBS
 # include <zlib.h>
 #else
 # include "zlib/zlib.h"
@@ -53,13 +53,6 @@ const S32 CURL_XFER_BUFFER_SIZE = 65536;
 const F32 GET_URL_TO_FILE_TIMEOUT = 1800.0f;
 
 const S32 COMPRESSED_INPUT_BUFFER_SIZE = 4096;
-
-const S32 HTTP_OK = 200;
-const S32 HTTP_PUT_OK = 201;
-const S32 HTTP_NO_CONTENT = 204;
-const S32 HTTP_MISSING = 404;
-const S32 HTTP_SERVER_BAD_GATEWAY = 502;
-const S32 HTTP_SERVER_TEMP_UNAVAILABLE = 503;
 
 /////////////////////////////////////////////////////////////////////////////////
 // LLTempAssetData
@@ -955,7 +948,7 @@ void LLHTTPAssetStorage::checkForTimeouts()
 			{
 				if (curl_msg->data.result == CURLE_OK && 
 					(   curl_result == HTTP_OK 
-					 || curl_result == HTTP_PUT_OK 
+					 || curl_result == HTTP_CREATED
 					 || curl_result == HTTP_NO_CONTENT))
 				{
 					LL_INFOS() << "Success uploading " << req->getUUID() << " to " << req->mURLBuffer << LL_ENDL;
@@ -966,8 +959,8 @@ void LLHTTPAssetStorage::checkForTimeouts()
 				}
 				else if (curl_msg->data.result == CURLE_COULDNT_CONNECT ||
 						curl_msg->data.result == CURLE_OPERATION_TIMEOUTED ||
-						curl_result == HTTP_SERVER_BAD_GATEWAY ||
-						curl_result == HTTP_SERVER_TEMP_UNAVAILABLE)
+						curl_result == HTTP_BAD_GATEWAY ||
+						curl_result == HTTP_SERVICE_UNAVAILABLE)
 				{
 					LL_WARNS() << "Re-requesting upload for " << req->getUUID() << ".  Received upload error to " << req->mURLBuffer <<
 						" with result " << curl_easy_strerror(curl_msg->data.result) << ", http result " << curl_result << LL_ENDL;
@@ -988,8 +981,8 @@ void LLHTTPAssetStorage::checkForTimeouts()
 
 				if (!(curl_msg->data.result == CURLE_COULDNT_CONNECT ||
 						curl_msg->data.result == CURLE_OPERATION_TIMEOUTED ||
-						curl_result == HTTP_SERVER_BAD_GATEWAY ||
-						curl_result == HTTP_SERVER_TEMP_UNAVAILABLE))
+						curl_result == HTTP_BAD_GATEWAY ||
+						curl_result == HTTP_SERVICE_UNAVAILABLE))
 				{
 					// shared upload finished callback
 					// in the base class, this is called from processUploadComplete
@@ -1021,7 +1014,7 @@ void LLHTTPAssetStorage::checkForTimeouts()
 					LL_WARNS() << "Failure downloading " << req->mURLBuffer << 
 						" with result " << curl_easy_strerror(curl_msg->data.result) << ", http result " << curl_result << LL_ENDL;
 
-					xfer_result = (curl_result == HTTP_MISSING) ? LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE : LL_ERR_ASSET_REQUEST_FAILED;
+					xfer_result = (curl_result == HTTP_NOT_FOUND) ? LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE : LL_ERR_ASSET_REQUEST_FAILED;
 
 					if (req->mVFile)
 					{
@@ -1243,7 +1236,7 @@ S32 LLHTTPAssetStorage::getURLToFile(const LLUUID& uuid, LLAssetType::EType asse
 		}
 		else
 		{
-			xfer_result = curl_result == HTTP_MISSING ? LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE : LL_ERR_ASSET_REQUEST_FAILED;
+			xfer_result = curl_result == HTTP_NOT_FOUND ? LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE : LL_ERR_ASSET_REQUEST_FAILED;
 			LL_INFOS() << "Failure downloading " << req.mURLBuffer << 
 				" with result " << curl_easy_strerror(curl_msg->data.result) << ", http result " << curl_result << LL_ENDL;
 		}

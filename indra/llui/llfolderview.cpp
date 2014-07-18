@@ -227,10 +227,11 @@ LLFolderView::LLFolderView(const Params& p)
 	mStatusTextBox = LLUICtrlFactory::create<LLTextBox> (text_p);
 	mStatusTextBox->setFollowsLeft();
 	mStatusTextBox->setFollowsTop();
-	//addChild(mStatusTextBox);
+	addChild(mStatusTextBox);
 
 
 	// make the popup menu available
+	llassert(LLMenuGL::sMenuContainer != NULL);
 	LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(p.options_menu, LLMenuGL::sMenuContainer, LLMenuHolderGL::child_registry_t::instance());
 	if (!menu)
 	{
@@ -703,8 +704,9 @@ void LLFolderView::finishRenamingItem( void )
 
 	closeRenamer();
 
+	// This is moved to an inventory observer in llinventorybridge.cpp, to handle updating after operation completed in AISv3 (SH-4611).
 	// List is re-sorted alphabetically, so scroll to make sure the selected item is visible.
-	scrollToShowSelection();
+	//scrollToShowSelection();
 }
 
 void LLFolderView::closeRenamer( void )
@@ -1128,18 +1130,18 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 		if((mSelectedItems.size() > 0) && mScrollContainer)
 		{
 			LLFolderViewItem* last_selected = getCurSelectedItem();
+			BOOL shift_select = mask & MASK_SHIFT;
+			// don't shift select down to children of folders (they are implicitly selected through parent)
+			LLFolderViewItem* next = last_selected->getNextOpenNode(!shift_select);
 
-			if (!mKeyboardSelection)
+			if (!mKeyboardSelection || (!shift_select && (!next || next == last_selected)))
 			{
 				setSelection(last_selected, FALSE, TRUE);
 				mKeyboardSelection = TRUE;
 			}
 
-			LLFolderViewItem* next = NULL;
-			if (mask & MASK_SHIFT)
+			if (shift_select)
 			{
-				// don't shift select down to children of folders (they are implicitly selected through parent)
-				next = last_selected->getNextOpenNode(FALSE);
 				if (next)
 				{
 					if (next->isSelected())
@@ -1156,7 +1158,6 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 			}
 			else
 			{
-				next = last_selected->getNextOpenNode();
 				if( next )
 				{
 					if (next == last_selected)
@@ -1192,18 +1193,18 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 		if((mSelectedItems.size() > 0) && mScrollContainer)
 		{
 			LLFolderViewItem* last_selected = mSelectedItems.back();
+			BOOL shift_select = mask & MASK_SHIFT;
+			// don't shift select down to children of folders (they are implicitly selected through parent)
+			LLFolderViewItem* prev = last_selected->getPreviousOpenNode(!shift_select);
 
-			if (!mKeyboardSelection)
+			if (!mKeyboardSelection || (!shift_select && prev == this))
 			{
 				setSelection(last_selected, FALSE, TRUE);
 				mKeyboardSelection = TRUE;
 			}
 
-			LLFolderViewItem* prev = NULL;
-			if (mask & MASK_SHIFT)
+			if (shift_select)
 			{
-				// don't shift select down to children of folders (they are implicitly selected through parent)
-				prev = last_selected->getPreviousOpenNode(FALSE);
 				if (prev)
 				{
 					if (prev->isSelected())
@@ -1220,7 +1221,6 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 			}
 			else
 			{
-				prev = last_selected->getPreviousOpenNode();
 				if( prev )
 				{
 					if (prev == this)

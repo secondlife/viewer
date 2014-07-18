@@ -89,7 +89,7 @@ private:
 	LLFacebookConnect();
 	~LLFacebookConnect() {};
  	std::string getFacebookConnectURL(const std::string& route = "", bool include_read_from_master = false);
-   
+
     EConnectionState mConnectionState;
 	BOOL mConnected;
 	LLSD mInfo;

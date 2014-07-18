@@ -252,7 +252,7 @@ public:
 	LLFolderBridge(LLInventoryPanel* inventory, 
 				   LLFolderView* root,
 				   const LLUUID& uuid) 
-        :       LLInvFVBridge(inventory, root, uuid),
+	:	LLInvFVBridge(inventory, root, uuid),
 		mCallingCards(FALSE),
 		mWearables(FALSE),
 		mIsLoading(false)
@@ -276,6 +276,8 @@ public:
 	virtual LLUIImagePtr getIconOverlay() const;
 
 	static LLUIImagePtr getIcon(LLFolderType::EType preferred_type);
+	
+	virtual std::string getLabelSuffix() const;
 
 	virtual BOOL renameItem(const std::string& new_name);
 
@@ -419,6 +421,7 @@ public:
 							void* cargo_data,
 							std::string& tooltip_msg);
 	void refreshFolderViewItem();
+	void checkSearchBySuffixChanges();
 protected:
 	LLCallingCardObserver* mObserver;
 };

@@ -410,6 +410,7 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 	mOtherParticipantIsAvatar(true),
 	mStartCallOnInitialize(false),
 	mStartedAsIMCall(voice),
+	mIsDNDsend(false),
 	mAvatarNameCacheConnection()
 {
 	// set P2P type by default
@@ -1353,7 +1354,7 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 		// IM_SESSION_INVITE means that this is an Ad-hoc incoming chat
 		//		(it can be also Group chat but it is checked above)
 		// In this case mInitialTargetIDs contains Ad-hoc session ID and it should not be added
-		// to Recent People to prevent showing of an item with (???)(???). See EXT-8246.
+		// to Recent People to prevent showing of an item with (?? ?)(?? ?), sans the spaces. See EXT-8246.
 		// Concrete participants will be added into this list once they sent message in chat.
 		if (IM_SESSION_INVITE == dialog) return;
 			
@@ -1460,6 +1461,7 @@ void start_deprecated_conference_chat(
 
 class LLStartConferenceChatResponder : public LLHTTPClient::Responder
 {
+	LOG_CLASS(LLStartConferenceChatResponder);
 public:
 	LLStartConferenceChatResponder(
 		const LLUUID& temp_session_id,
@@ -1473,10 +1475,12 @@ public:
 		mAgents = agents_to_invite;
 	}
 
-	virtual void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
+protected:
+	virtual void httpFailure()
 	{
 		//try an "old school" way.
-		if ( statusNum == 400 )
+		// *TODO: What about other error status codes?  4xx 5xx?
+		if ( getStatus() == HTTP_BAD_REQUEST )
 		{
 			start_deprecated_conference_chat(
 				mTempSessionID,
@@ -1485,8 +1489,7 @@ public:
 				mAgents);
 		}
 
-		LL_WARNS() << "LLStartConferenceChatResponder error [status:"
-				<< statusNum << "]: " << content << LL_ENDL;
+		LL_WARNS() << dumpResponse() << LL_ENDL;
 
 		//else throw an error back to the client?
 		//in theory we should have just have these error strings
@@ -1578,6 +1581,7 @@ bool LLIMModel::sendStartSession(
 class LLViewerChatterBoxInvitationAcceptResponder :
 	public LLHTTPClient::Responder
 {
+	LOG_CLASS(LLViewerChatterBoxInvitationAcceptResponder);
 public:
 	LLViewerChatterBoxInvitationAcceptResponder(
 		const LLUUID& session_id,
@@ -1587,8 +1591,15 @@ public:
 		mInvitiationType = invitation_type;
 	}
 
-	void result(const LLSD& content)
+private:
+	void httpSuccess()
 	{
+		const LLSD& content = getContent();
+		if (!content.isMap())
+		{
+			failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
+			return;
+		}
 		if ( gIMMgr)
 		{
 			LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
@@ -1633,19 +1644,17 @@ public:
 		}
 	}
 
-	void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
+	void httpFailure()
 	{
-		LL_WARNS() << "LLViewerChatterBoxInvitationAcceptResponder error [status:"
-				<< statusNum << "]: " << content << LL_ENDL;
+		LL_WARNS() << dumpResponse() << LL_ENDL;
 		//throw something back to the viewer here?
 		if ( gIMMgr )
 		{
 			gIMMgr->clearPendingAgentListUpdates(mSessionID);
 			gIMMgr->clearPendingInvitation(mSessionID);
-			if ( 404 == statusNum )
+			if ( HTTP_NOT_FOUND == getStatus() )
 			{
-				std::string error_string;
-				error_string = "session_does_not_exist_error";
+				static const std::string error_string("session_does_not_exist_error");
 				gIMMgr->showSessionStartError(error_string, mSessionID);
 			}
 		}
@@ -3305,6 +3314,38 @@ bool LLIMMgr::isVoiceCall(const LLUUID& session_id)
 	if (!im_session) return false;
 
 	return im_session->mStartedAsIMCall;
+}
+
+void LLIMMgr::updateDNDMessageStatus()
+{
+	if (LLIMModel::getInstance()->mId2SessionMap.empty()) return;
+
+	std::map<LLUUID, LLIMModel::LLIMSession*>::const_iterator it = LLIMModel::getInstance()->mId2SessionMap.begin();
+	for (; it != LLIMModel::getInstance()->mId2SessionMap.end(); ++it)
+	{
+		LLIMModel::LLIMSession* session = (*it).second;
+
+		if (session->isP2P())
+		{
+			setDNDMessageSent(session->mSessionID,false);
+		}
+	}
+}
+
+bool LLIMMgr::isDNDMessageSend(const LLUUID& session_id)
+{
+	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(session_id);
+	if (!im_session) return false;
+
+	return im_session->mIsDNDsend;
+}
+
+void LLIMMgr::setDNDMessageSent(const LLUUID& session_id, bool is_send)
+{
+	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(session_id);
+	if (!im_session) return;
+
+	im_session->mIsDNDsend = is_send;
 }
 
 void LLIMMgr::addNotifiedNonFriendSessionID(const LLUUID& session_id)

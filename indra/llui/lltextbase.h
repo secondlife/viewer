@@ -367,7 +367,9 @@ public:
 	bool					getWordWrap() { return mWordWrap; }
 	bool					getUseEllipses() { return mUseEllipses; }
 	bool					truncate(); // returns true of truncation occurred
+
 	bool					isContentTrusted() {return mTrustedContent;}
+	void					setContentTrusted(bool trusted_content) { mTrustedContent = trusted_content; }
 
 	// TODO: move into LLTextSegment?
 	void					createUrlContextMenu(S32 x, S32 y, const std::string &url); // create a popup context menu for the given Url
@@ -449,9 +451,31 @@ public:
 	LLScrollContainer*		getScrollContainer() const { return mScroller; }
 
 protected:
+	// protected member variables
+	// List of offsets and segment index of the start of each line.  Always has at least one node (0).
+	struct line_info
+	{
+		line_info(S32 index_start, S32 index_end, LLRect rect, S32 line_num);
+		S32 mDocIndexStart;
+		S32 mDocIndexEnd;
+		LLRect mRect;
+		S32 mLineNum; // actual line count (ignoring soft newlines due to word wrap)
+	};
+	typedef std::vector<line_info> line_list_t;
+	
 	// helper structs
-	struct compare_bottom;
-	struct compare_top;
+	struct compare_bottom
+	{
+		bool operator()(const S32& a, const line_info& b) const;
+		bool operator()(const line_info& a, const S32& b) const;
+		bool operator()(const line_info& a, const line_info& b) const;
+	};
+	struct compare_top
+	{
+		bool operator()(const S32& a, const line_info& b) const;
+		bool operator()(const line_info& a, const S32& b) const;
+		bool operator()(const line_info& a, const line_info& b) const;
+	};
 	struct line_end_compare;
 	typedef std::vector<LLTextSegmentPtr> segment_vec_t;
 
@@ -499,18 +523,6 @@ protected:
 	};
 	typedef std::multiset<LLTextSegmentPtr, compare_segment_end> segment_set_t;
 
-	// protected member variables
-	// List of offsets and segment index of the start of each line.  Always has at least one node (0).
-	struct line_info
-	{
-		line_info(S32 index_start, S32 index_end, LLRect rect, S32 line_num);
-		S32 mDocIndexStart;
-		S32 mDocIndexEnd;
-		LLRect mRect;
-		S32 mLineNum; // actual line count (ignoring soft newlines due to word wrap)
-	};
-	typedef std::vector<line_info> line_list_t;
-
 	// member functions
 	LLTextBase(const Params &p);
 	virtual ~LLTextBase();
@@ -520,7 +532,7 @@ protected:
     virtual bool                    useLabel() const;
 
 	// draw methods
-	void							drawSelectionBackground(); // draws the black box behind the selected text
+	virtual void					drawSelectionBackground(); // draws the black box behind the selected text
 	void							drawCursor();
 	void							drawText();
 

@@ -1181,16 +1181,17 @@ BOOL LLFloaterIMSession::isInviteAllowed() const
 
 class LLSessionInviteResponder : public LLHTTPClient::Responder
 {
+	LOG_CLASS(LLSessionInviteResponder);
 public:
 	LLSessionInviteResponder(const LLUUID& session_id)
 	{
 		mSessionID = session_id;
 	}
 
-	void errorWithContent(U32 statusNum, const std::string& reason, const LLSD& content)
+protected:
+	void httpFailure()
 	{
-		LL_WARNS() << "Error inviting all agents to session [status:" 
-				<< statusNum << "]: " << content << LL_ENDL;
+		LL_WARNS() << "Error inviting all agents to session " << dumpResponse() << LL_ENDL;
 		//throw something back to the viewer here?
 	}
 

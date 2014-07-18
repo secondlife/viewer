@@ -90,6 +90,7 @@ void LLPreview::setObjectID(const LLUUID& object_id)
 	{
 		loadAsset();
 	}
+	refreshFromItem();
 }
 
 void LLPreview::setItem( LLInventoryItem* item )
@@ -99,6 +100,7 @@ void LLPreview::setItem( LLInventoryItem* item )
 	{
 		loadAsset();
 	}
+	refreshFromItem();
 }
 
 const LLInventoryItem *LLPreview::getItem() const
@@ -399,13 +401,6 @@ void LLPreview::onDiscardBtn(void* data)
 
 	self->mForceClose = TRUE;
 	self->closeFloater();
-
-	// Delete the item entirely
-	/*
-	item->removeFromServer();
-	gInventory.deleteObject(item->getUUID());
-	gInventory.notifyObservers();
-	*/
 
 	// Move the item to the trash
 	const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);

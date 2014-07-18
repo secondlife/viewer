@@ -29,7 +29,10 @@
 #include "llcombobox.h"
 #include "lliconctrl.h"
 #include "llfloaterreg.h"
+#include "llhttpconstants.h"
 #include "llfacebookconnect.h"
+#include "llflickrconnect.h"
+#include "lltwitterconnect.h"
 #include "lllayoutstack.h"
 #include "llpluginclassmedia.h"
 #include "llprogressbar.h"
@@ -51,7 +54,8 @@ LLFloaterWebContent::_Params::_Params()
     allow_back_forward_navigation("allow_back_forward_navigation", true),
 	preferred_media_size("preferred_media_size"),
 	trusted_content("trusted_content", false),
-	show_page_title("show_page_title", true)
+	show_page_title("show_page_title", true),
+    clean_browser("clean_browser", false)
 {}
 
 LLFloaterWebContent::LLFloaterWebContent( const Params& params )
@@ -70,8 +74,7 @@ LLFloaterWebContent::LLFloaterWebContent( const Params& params )
 	mShowPageTitle(params.show_page_title),
     mAllowNavigation(true),
     mCurrentURL(""),
-    mDisplayURL(""),
-    mSecureURL(false)
+    mDisplayURL("")
 {
 	mCommitCallbackRegistrar.add( "WebContent.Back", boost::bind( &LLFloaterWebContent::onClickBack, this ));
 	mCommitCallbackRegistrar.add( "WebContent.Forward", boost::bind( &LLFloaterWebContent::onClickForward, this ));
@@ -240,9 +243,9 @@ void LLFloaterWebContent::open_media(const Params& p)
 {
 	// Specifying a mime type of text/html here causes the plugin system to skip the MIME type probe and just open a browser plugin.
 	LLViewerMedia::proxyWindowOpened(p.target(), p.id());
-	mWebBrowser->setHomePageUrl(p.url, "text/html");
+	mWebBrowser->setHomePageUrl(p.url, HTTP_CONTENT_TEXT_HTML);
 	mWebBrowser->setTarget(p.target);
-	mWebBrowser->navigateTo(p.url, "text/html");
+	mWebBrowser->navigateTo(p.url, HTTP_CONTENT_TEXT_HTML, p.clean_browser);
 	
 	set_current_url(p.url);
 
@@ -252,11 +255,6 @@ void LLFloaterWebContent::open_media(const Params& p)
     mAllowNavigation = p.allow_back_forward_navigation;
 	getChildView("address")->setEnabled(address_entry_enabled);
 	getChildView("popexternal")->setEnabled(address_entry_enabled);
-
-	if (!address_entry_enabled)
-	{
-		mWebBrowser->setFocus(TRUE);
-	}
 
 	if (!p.show_chrome)
 	{
@@ -303,7 +301,24 @@ void LLFloaterWebContent::onClose(bool app_quitting)
             LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTION_FAILED);
         }
     }
-    
+	// Same with Flickr
+	LLFloater* flickr_web = LLFloaterReg::getInstance("flickr_web");
+    if (flickr_web == this)
+    {
+        if (!LLFlickrConnect::instance().isConnected())
+        {
+            LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_CONNECTION_FAILED);
+        }
+    }
+	// And Twitter
+	LLFloater* twitter_web = LLFloaterReg::getInstance("twitter_web");
+    if (twitter_web == this)
+    {
+        if (!LLTwitterConnect::instance().isConnected())
+        {
+            LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_CONNECTION_FAILED);
+        }
+    }
 	LLViewerMedia::proxyWindowClosed(mUUID);
 	destroy();
 }
@@ -314,9 +329,6 @@ void LLFloaterWebContent::draw()
 	// this is asynchronous so we need to keep checking
 	mBtnBack->setEnabled( mWebBrowser->canNavigateBack() && mAllowNavigation);
 	mBtnForward->setEnabled( mWebBrowser->canNavigateForward() && mAllowNavigation);
-
-    // Show/hide the lock icon
-    mSecureLockIcon->setVisible(mSecureURL && !mAddressCombo->hasFocus());
 
 	LLFloater::draw();
 }
@@ -362,8 +374,6 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 		// we populate the status bar with URLs as they change so clear it now we're done
 		const std::string end_str = "";
 		mStatusBarText->setText( end_str );
-			mAddressCombo->setLeftTextPadding(22);
-			mAddressCombo->setLeftTextPadding(2);
 	}
 	else if(event == MEDIA_EVENT_CLOSE_REQUEST)
 	{
@@ -430,18 +440,15 @@ void LLFloaterWebContent::set_current_url(const std::string& url)
 		static const std::string secure_prefix = std::string("https://");
 		std::string prefix = mCurrentURL.substr(0, secure_prefix.length());
 		LLStringUtil::toLower(prefix);
-        mSecureURL = (prefix == secure_prefix);
-        
-        // Hack : we move the text a bit to make space for the lock icon in the secure URL case
-		mDisplayURL = (mSecureURL ? "      " + mCurrentURL : mCurrentURL);
+        bool secure_url = (prefix == secure_prefix);
+		mSecureLockIcon->setVisible(secure_url);
+		mAddressCombo->setLeftTextPadding(secure_url ? 22 : 2);
+		mDisplayURL = mCurrentURL;
 
         // Clean up browsing list (prevent dupes) and add/select the new URL to it
         mAddressCombo->remove(mCurrentURL);
         mAddressCombo->add(mDisplayURL);
         mAddressCombo->selectByValue(mDisplayURL);
-
-        // Set the focus back to the web page. When setting the url, there's no point to leave the focus anywhere else.
-		mWebBrowser->setFocus(TRUE);
     }
 }
 
@@ -489,7 +496,7 @@ void LLFloaterWebContent::onEnterAddress()
     LLStringUtil::trim(url);
 	if ( url.length() > 0 )
 	{
-		mWebBrowser->navigateTo( url, "text/html");
+		mWebBrowser->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
 	};
 }
 

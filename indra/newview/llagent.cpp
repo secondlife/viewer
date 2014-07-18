@@ -47,6 +47,7 @@
 #include "llfirstuse.h"
 #include "llfloatercamera.h"
 #include "llfloaterimcontainer.h"
+#include "llfloaterperms.h"
 #include "llfloaterreg.h"
 #include "llfloatertools.h"
 #include "llgroupactions.h"
@@ -406,7 +407,7 @@ LLAgent::LLAgent() :
 	mNextFidgetTime(0.f),
 	mCurrentFidget(0),
 	mFirstLogin(FALSE),
-	mGenderChosen(FALSE),
+	mOutfitChosen(FALSE),
 	
 	mVoiceConnected(false),
 
@@ -809,30 +810,6 @@ void LLAgent::standUp()
 	setControlFlags(AGENT_CONTROL_STAND_UP);
 }
 
-
-void LLAgent::handleServerBakeRegionTransition(const LLUUID& region_id)
-{
-	LL_INFOS() << "called" << LL_ENDL;
-
-
-	// Old-style appearance entering a server-bake region.
-	if (isAgentAvatarValid() &&
-		!gAgentAvatarp->isUsingServerBakes() &&
-		(mRegionp->getCentralBakeVersion()>0))
-	{
-		LL_INFOS() << "update requested due to region transition" << LL_ENDL;
-		LLAppearanceMgr::instance().requestServerAppearanceUpdate();
-	}
-	// new-style appearance entering a non-bake region,
-	// need to check for existence of the baking service.
-	else if (isAgentAvatarValid() &&
-			 gAgentAvatarp->isUsingServerBakes() &&
-			 mRegionp->getCentralBakeVersion()==0)
-	{
-		gAgentAvatarp->checkForUnsupportedServerBakeAppearance();
-	}
-}
-
 void LLAgent::changeParcels()
 {
 	LL_DEBUGS("AgentLocation") << "Calling ParcelChanged callbacks" << LL_ENDL;
@@ -850,12 +827,9 @@ boost::signals2::connection LLAgent::addParcelChangedCallback(parcel_changed_cal
 //-----------------------------------------------------------------------------
 void LLAgent::setRegion(LLViewerRegion *regionp)
 {
-	bool notifyRegionChange;
-
 	llassert(regionp);
 	if (mRegionp != regionp)
 	{
-		notifyRegionChange = true;
 
 		std::string ip = regionp->getHost().getString();
 		LL_INFOS("AgentLocation") << "Moving agent into region: " << regionp->getName()
@@ -908,10 +882,7 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 		// Pass new region along to metrics components that care about this level of detail.
 		LLAppViewer::metricsUpdateRegion(regionp->getHandle());
 	}
-	else
-	{
-		notifyRegionChange = false;
-	}
+
 	mRegionp = regionp;
 
 	// TODO - most of what follows probably should be moved into callbacks
@@ -934,24 +905,8 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 
 	LLFloaterMove::sUpdateFlyingStatus();
 
-	// If the newly entered region is using server bakes, and our
-	// current appearance is non-baked, request appearance update from
-	// server.
-	if (mRegionp->capabilitiesReceived())
-	{
-		handleServerBakeRegionTransition(mRegionp->getRegionID());
-	}
-	else
-	{
-		// Need to handle via callback after caps arrive.
-		mRegionp->setCapabilitiesReceivedCallback(boost::bind(&LLAgent::handleServerBakeRegionTransition,this,_1));
-	}
-
-	if (notifyRegionChange)
-	{
-		LL_DEBUGS("AgentLocation") << "Calling RegionChanged callbacks" << LL_ENDL;
-		mRegionChangedSignal();
-	}
+	LL_DEBUGS("AgentLocation") << "Calling RegionChanged callbacks" << LL_ENDL;
+	mRegionChangedSignal();
 }
 
 
@@ -1466,6 +1421,7 @@ void LLAgent::setDoNotDisturb(bool pIsDoNotDisturb)
 	{
 		LLDoNotDisturbNotificationStorage::getInstance()->updateNotifications();
 	}
+	gIMMgr->updateDNDMessageStatus();
 }
 
 //-----------------------------------------------------------------------------
@@ -1917,7 +1873,7 @@ BOOL LLAgent::needsRenderAvatar()
 		return FALSE;
 	}
 
-	return mShowAvatar && mGenderChosen;
+	return mShowAvatar && mOutfitChosen;
 }
 
 // TRUE if we need to render your own avatar's head.
@@ -2565,17 +2521,19 @@ int LLAgent::convertTextToMaturity(char text)
 
 class LLMaturityPreferencesResponder : public LLHTTPClient::Responder
 {
+	LOG_CLASS(LLMaturityPreferencesResponder);
 public:
 	LLMaturityPreferencesResponder(LLAgent *pAgent, U8 pPreferredMaturity, U8 pPreviousMaturity);
 	virtual ~LLMaturityPreferencesResponder();
 
-	virtual void result(const LLSD &pContent);
-	virtual void errorWithContent(U32 pStatus, const std::string& pReason, const LLSD& pContent);
+protected:
+	virtual void httpSuccess();
+	virtual void httpFailure();
 
 protected:
 
 private:
-	U8 parseMaturityFromServerResponse(const LLSD &pContent);
+	U8 parseMaturityFromServerResponse(const LLSD &pContent) const;
 
 	LLAgent                                  *mAgent;
 	U8                                       mPreferredMaturity;
@@ -2594,39 +2552,43 @@ LLMaturityPreferencesResponder::~LLMaturityPreferencesResponder()
 {
 }
 
-void LLMaturityPreferencesResponder::result(const LLSD &pContent)
+void LLMaturityPreferencesResponder::httpSuccess()
 {
-	U8 actualMaturity = parseMaturityFromServerResponse(pContent);
+	U8 actualMaturity = parseMaturityFromServerResponse(getContent());
 
 	if (actualMaturity != mPreferredMaturity)
 	{
-		LL_WARNS() << "while attempting to change maturity preference from '" << LLViewerRegion::accessToString(mPreviousMaturity)
-			<< "' to '" << LLViewerRegion::accessToString(mPreferredMaturity) << "', the server responded with '"
-			<< LLViewerRegion::accessToString(actualMaturity) << "' [value:" << static_cast<U32>(actualMaturity) << ", llsd:"
-			<< pContent << "]" << LL_ENDL;
+		LL_WARNS() << "while attempting to change maturity preference from '"
+				   << LLViewerRegion::accessToString(mPreviousMaturity)
+				   << "' to '" << LLViewerRegion::accessToString(mPreferredMaturity) 
+				   << "', the server responded with '"
+				   << LLViewerRegion::accessToString(actualMaturity) 
+				   << "' [value:" << static_cast<U32>(actualMaturity) 
+				   << "], " << dumpResponse() << LL_ENDL;
 	}
 	mAgent->handlePreferredMaturityResult(actualMaturity);
 }
 
-void LLMaturityPreferencesResponder::errorWithContent(U32 pStatus, const std::string& pReason, const LLSD& pContent)
+void LLMaturityPreferencesResponder::httpFailure()
 {
-	LL_WARNS() << "while attempting to change maturity preference from '" << LLViewerRegion::accessToString(mPreviousMaturity)
-		<< "' to '" << LLViewerRegion::accessToString(mPreferredMaturity) << "', we got an error with [status:"
-		<< pStatus << "]: " << (pContent.isDefined() ? pContent : LLSD(pReason)) << LL_ENDL;
+	LL_WARNS() << "while attempting to change maturity preference from '" 
+			   << LLViewerRegion::accessToString(mPreviousMaturity)
+			   << "' to '" << LLViewerRegion::accessToString(mPreferredMaturity) 
+			<< "', " << dumpResponse() << LL_ENDL;
 	mAgent->handlePreferredMaturityError();
 }
 
-U8 LLMaturityPreferencesResponder::parseMaturityFromServerResponse(const LLSD &pContent)
+U8 LLMaturityPreferencesResponder::parseMaturityFromServerResponse(const LLSD &pContent) const
 {
 	U8 maturity = SIM_ACCESS_MIN;
 
-	llassert(!pContent.isUndefined());
+	llassert(pContent.isDefined());
 	llassert(pContent.isMap());
 	llassert(pContent.has("access_prefs"));
 	llassert(pContent.get("access_prefs").isMap());
 	llassert(pContent.get("access_prefs").has("max"));
 	llassert(pContent.get("access_prefs").get("max").isString());
-	if (!pContent.isUndefined() && pContent.isMap() && pContent.has("access_prefs")
+	if (pContent.isDefined() && pContent.isMap() && pContent.has("access_prefs")
 		&& pContent.get("access_prefs").isMap() && pContent.get("access_prefs").has("max")
 		&& pContent.get("access_prefs").get("max").isString())
 	{
@@ -2772,7 +2734,7 @@ void LLAgent::sendMaturityPreferenceToServer(U8 pPreferredMaturity)
 		// If we don't have a region, report it as an error
 		if (getRegion() == NULL)
 		{
-			responderPtr->errorWithContent(0U, "region is not defined", LLSD());
+			responderPtr->failureResult(0U, "region is not defined", LLSD());
 		}
 		else
 		{
@@ -2782,7 +2744,7 @@ void LLAgent::sendMaturityPreferenceToServer(U8 pPreferredMaturity)
 			// If the capability is not defined, report it as an error
 			if (url.empty())
 			{
-				responderPtr->errorWithContent(0U, 
+				responderPtr->failureResult(0U, 
 							"capability 'UpdateAgentInformation' is not defined for region", LLSD());
 			}
 			else
@@ -3330,8 +3292,7 @@ class LLAgentDropGroupViewerNode : public LLHTTPNode
 			!input.has("body") )
 		{
 			//what to do with badly formed message?
-			response->statusUnknownError(400);
-			response->result(LLSD("Invalid message parameters"));
+			response->extendedResult(HTTP_BAD_REQUEST, LLSD("Invalid message parameters"));
 		}
 
 		LLSD body = input["body"];
@@ -3400,8 +3361,7 @@ class LLAgentDropGroupViewerNode : public LLHTTPNode
 		else
 		{
 			//what to do with badly formed message?
-			response->statusUnknownError(400);
-			response->result(LLSD("Invalid message parameters"));
+			response->extendedResult(HTTP_BAD_REQUEST, LLSD("Invalid message parameters"));
 		}
 	}
 };
@@ -3682,82 +3642,6 @@ void LLAgent::processControlRelease(LLMessageSystem *msg, void **)
 	}
 }
 */
-
-//static
-void LLAgent::processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void **user_data)
-{
-	gAgentQueryManager.mNumPendingQueries--;
-	if (gAgentQueryManager.mNumPendingQueries == 0)
-	{
-		selfStopPhase("fetch_texture_cache_entries");
-	}
-
-	if (!isAgentAvatarValid() || gAgentAvatarp->isDead())
-	{
-		LL_WARNS() << "No avatar for user in cached texture update!" << LL_ENDL;
-		return;
-	}
-
-	if (isAgentAvatarValid() && gAgentAvatarp->isEditingAppearance())
-	{
-		// ignore baked textures when in customize mode
-		return;
-	}
-
-	S32 query_id;
-	mesgsys->getS32Fast(_PREHASH_AgentData, _PREHASH_SerialNum, query_id);
-
-	S32 num_texture_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_WearableData);
-
-
-	S32 num_results = 0;
-	for (S32 texture_block = 0; texture_block < num_texture_blocks; texture_block++)
-	{
-		LLUUID texture_id;
-		U8 texture_index;
-
-		mesgsys->getUUIDFast(_PREHASH_WearableData, _PREHASH_TextureID, texture_id, texture_block);
-		mesgsys->getU8Fast(_PREHASH_WearableData, _PREHASH_TextureIndex, texture_index, texture_block);
-
-
-		if ((S32)texture_index < TEX_NUM_INDICES )
-		{	
-			const LLAvatarAppearanceDictionary::TextureEntry *texture_entry = LLAvatarAppearanceDictionary::instance().getTexture((ETextureIndex)texture_index);
-			if (texture_entry)
-			{
-				EBakedTextureIndex baked_index = texture_entry->mBakedTextureIndex;
-
-				if (gAgentQueryManager.mActiveCacheQueries[baked_index] == query_id)
-				{
-					if (texture_id.notNull())
-					{
-						//LL_INFOS() << "Received cached texture " << (U32)texture_index << ": " << texture_id << LL_ENDL;
-						gAgentAvatarp->setCachedBakedTexture((ETextureIndex)texture_index, texture_id);
-						//gAgentAvatarp->setTETexture( LLVOAvatar::sBakedTextureIndices[texture_index], texture_id );
-						gAgentQueryManager.mActiveCacheQueries[baked_index] = 0;
-						num_results++;
-					}
-					else
-					{
-						// no cache of this bake. request upload.
-						gAgentAvatarp->invalidateComposite(gAgentAvatarp->getLayerSet(baked_index),TRUE);
-					}
-				}
-			}
-		}
-	}
-	LL_INFOS() << "Received cached texture response for " << num_results << " textures." << LL_ENDL;
-	gAgentAvatarp->outputRezTiming("Fetched agent wearables textures from cache. Will now load them");
-
-	gAgentAvatarp->updateMeshTextures();
-
-	if (gAgentQueryManager.mNumPendingQueries == 0)
-	{
-		// RN: not sure why composites are disabled at this point
-		gAgentAvatarp->setCompositeUpdatesEnabled(TRUE);
-		gAgent.sendAgentSetAppearance();
-	}
-}
 
 BOOL LLAgent::anyControlGrabbed() const
 {
@@ -4351,192 +4235,6 @@ void LLAgent::requestLeaveGodMode()
 	sendReliableMessage();
 }
 
-// For debugging, trace agent state at times appearance message are sent out.
-void LLAgent::dumpSentAppearance(const std::string& dump_prefix)
-{
-	std::string outfilename = get_sequential_numbered_file_name(dump_prefix,".xml");
-
-	LLAPRFile outfile;
-	std::string fullpath = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,outfilename);
-	outfile.open(fullpath, LL_APR_WB );
-	apr_file_t* file = outfile.getFileHandle();
-	if (!file)
-	{
-		return;
-	}
-	else
-	{
-		LL_DEBUGS("Avatar") << "dumping sent appearance message to " << fullpath << LL_ENDL;
-	}
-
-	LLVisualParam* appearance_version_param = gAgentAvatarp->getVisualParam(11000);
-	if (appearance_version_param)
-	{
-		F32 value = appearance_version_param->getWeight();
-		dump_visual_param(file, appearance_version_param, value);
-	}
-	for (LLAvatarAppearanceDictionary::Textures::const_iterator iter = LLAvatarAppearanceDictionary::getInstance()->getTextures().begin();
-		 iter != LLAvatarAppearanceDictionary::getInstance()->getTextures().end();
-		 ++iter)
-	{
-		const ETextureIndex index = iter->first;
-		const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = iter->second;
-		if (texture_dict->mIsBakedTexture)
-		{
-			LLTextureEntry* entry = gAgentAvatarp->getTE((U8) index);
-			const LLUUID& uuid = entry->getID();
-			apr_file_printf( file, "\t\t<texture te=\"%i\" uuid=\"%s\"/>\n", index, uuid.asString().c_str());
-		}
-	}
-}
-
-//-----------------------------------------------------------------------------
-// sendAgentSetAppearance()
-//-----------------------------------------------------------------------------
-void LLAgent::sendAgentSetAppearance()
-{
-	if (gAgentQueryManager.mNumPendingQueries > 0) 
-	{
-		return;
-	}
-
-	if (!isAgentAvatarValid() || (getRegion() && getRegion()->getCentralBakeVersion())) return;
-
-	// At this point we have a complete appearance to send and are in a non-baking region.
-	// DRANO FIXME
-	//gAgentAvatarp->setIsUsingServerBakes(FALSE);
-	S32 sb_count, host_count, both_count, neither_count;
-	gAgentAvatarp->bakedTextureOriginCounts(sb_count, host_count, both_count, neither_count);
-	if (both_count != 0 || neither_count != 0)
-	{
-		LL_WARNS() << "bad bake texture state " << sb_count << "," << host_count << "," << both_count << "," << neither_count << LL_ENDL;
-	}
-	if (sb_count != 0 && host_count == 0)
-	{
-		gAgentAvatarp->setIsUsingServerBakes(true);
-	}
-	else if (sb_count == 0 && host_count != 0)
-	{
-		gAgentAvatarp->setIsUsingServerBakes(false);
-	}
-	else if (sb_count + host_count > 0)
-	{
-		LL_WARNS() << "unclear baked texture state, not sending appearance" << LL_ENDL;
-		return;
-	}
-	
-	
-	LL_DEBUGS("Avatar") << gAgentAvatarp->avString() << "TAT: Sent AgentSetAppearance: " << gAgentAvatarp->getBakedStatusForPrintout() << LL_ENDL;
-	//dumpAvatarTEs( "sendAgentSetAppearance()" );
-
-	LLMessageSystem* msg = gMessageSystem;
-	msg->newMessageFast(_PREHASH_AgentSetAppearance);
-	msg->nextBlockFast(_PREHASH_AgentData);
-	msg->addUUIDFast(_PREHASH_AgentID, getID());
-	msg->addUUIDFast(_PREHASH_SessionID, getSessionID());
-
-	// correct for the collision tolerance (to make it look like the 
-	// agent is actually walking on the ground/object)
-	// NOTE -- when we start correcting all of the other Havok geometry 
-	// to compensate for the COLLISION_TOLERANCE ugliness we will have 
-	// to tweak this number again
-	const LLVector3 body_size = gAgentAvatarp->mBodySize + gAgentAvatarp->mAvatarOffset;
-	msg->addVector3Fast(_PREHASH_Size, body_size);	
-
-	// To guard against out of order packets
-	// Note: always start by sending 1.  This resets the server's count. 0 on the server means "uninitialized"
-	mAppearanceSerialNum++;
-	msg->addU32Fast(_PREHASH_SerialNum, mAppearanceSerialNum );
-
-	// is texture data current relative to wearables?
-	// KLW - TAT this will probably need to check the local queue.
-	BOOL textures_current = gAgentAvatarp->areTexturesCurrent();
-
-	for(U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++ )
-	{
-		const ETextureIndex texture_index = LLAvatarAppearanceDictionary::bakedToLocalTextureIndex((EBakedTextureIndex)baked_index);
-
-		// if we're not wearing a skirt, we don't need the texture to be baked
-		if (texture_index == TEX_SKIRT_BAKED && !gAgentAvatarp->isWearingWearableType(LLWearableType::WT_SKIRT))
-		{
-			continue;
-		}
-
-		// IMG_DEFAULT_AVATAR means not baked. 0 index should be ignored for baked textures
-		if (!gAgentAvatarp->isTextureDefined(texture_index, 0))
-		{
-			LL_DEBUGS("Avatar") << "texture not current for baked " << (S32)baked_index << " local " << (S32)texture_index << LL_ENDL;
-			textures_current = FALSE;
-			break;
-		}
-	}
-
-	// only update cache entries if we have all our baked textures
-
-	// FIXME DRANO need additional check for not in appearance editing
-	// mode, if still using local composites need to set using local
-	// composites to false, and update mesh textures.
-	if (textures_current)
-	{
-		bool enable_verbose_dumps = gSavedSettings.getBOOL("DebugAvatarAppearanceMessage");
-		std::string dump_prefix = gAgentAvatarp->getFullname() + "_sent_appearance";
-		if (enable_verbose_dumps)
-		{
-			dumpSentAppearance(dump_prefix);
-		}
-		LL_DEBUGS("Avatar") << gAgentAvatarp->avString() << "TAT: Sending cached texture data" << LL_ENDL;
-		for (U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++)
-		{
-			BOOL generate_valid_hash = TRUE;
-			if (isAgentAvatarValid() && !gAgentAvatarp->isBakedTextureFinal((LLAvatarAppearanceDefines::EBakedTextureIndex)baked_index))
-			{
-				generate_valid_hash = FALSE;
-				LL_DEBUGS("Avatar") << gAgentAvatarp->avString() << "Not caching baked texture upload for " << (U32)baked_index << " due to being uploaded at low resolution." << LL_ENDL;
-			}
-
-			const LLUUID hash = gAgentWearables.computeBakedTextureHash((EBakedTextureIndex) baked_index, generate_valid_hash);
-			if (hash.notNull())
-			{
-				ETextureIndex texture_index = LLAvatarAppearanceDictionary::bakedToLocalTextureIndex((EBakedTextureIndex) baked_index);
-				msg->nextBlockFast(_PREHASH_WearableData);
-				msg->addUUIDFast(_PREHASH_CacheID, hash);
-				msg->addU8Fast(_PREHASH_TextureIndex, (U8)texture_index);
-			}
-		}
-		msg->nextBlockFast(_PREHASH_ObjectData);
-		gAgentAvatarp->sendAppearanceMessage( gMessageSystem );
-	}
-	else
-	{
-		// If the textures aren't baked, send NULL for texture IDs
-		// This means the baked texture IDs on the server will be untouched.
-		// Once all textures are baked, another AvatarAppearance message will be sent to update the TEs
-		msg->nextBlockFast(_PREHASH_ObjectData);
-		gMessageSystem->addBinaryDataFast(_PREHASH_TextureEntry, NULL, 0);
-	}
-
-
-	S32 transmitted_params = 0;
-	for (LLViewerVisualParam* param = (LLViewerVisualParam*)gAgentAvatarp->getFirstVisualParam();
-		 param;
-		 param = (LLViewerVisualParam*)gAgentAvatarp->getNextVisualParam())
-	{
-		if (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE) // do not transmit params of group VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
-		{
-			msg->nextBlockFast(_PREHASH_VisualParam );
-			
-			// We don't send the param ids.  Instead, we assume that the receiver has the same params in the same sequence.
-			const F32 param_value = param->getWeight();
-			const U8 new_weight = F32_to_U8(param_value, param->getMinWeight(), param->getMaxWeight());
-			msg->addU8Fast(_PREHASH_ParamValue, new_weight );
-			transmitted_params++;
-		}
-	}
-
-	//LL_INFOS() << "Avatar XML num VisualParams transmitted = " << transmitted_params << LL_ENDL;
-	sendReliableMessage();
-}
-
 void LLAgent::sendAgentDataUpdateRequest()
 {
 	gMessageSystem->newMessageFast(_PREHASH_AgentDataUpdateRequest);
@@ -4678,23 +4376,6 @@ void LLAgent::renderAutoPilotTarget()
 }
 
 /********************************************************************************/
-
-LLAgentQueryManager gAgentQueryManager;
-
-LLAgentQueryManager::LLAgentQueryManager() :
-	mWearablesCacheQueryID(0),
-	mNumPendingQueries(0),
-	mUpdateSerialNum(0)
-{
-	for (U32 i = 0; i < BAKED_NUM_INDICES; i++)
-	{
-		mActiveCacheQueries[i] = 0;
-	}
-}
-
-LLAgentQueryManager::~LLAgentQueryManager()
-{
-}
 
 //-----------------------------------------------------------------------------
 // LLTeleportRequest

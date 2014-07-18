@@ -10,14 +10,14 @@ endif (LINUX)
 
 if (OPENAL)
   set(OPENAL_LIB_INCLUDE_DIRS "${LIBS_PREBUILT_DIR}/include/AL")
-  if (STANDALONE)
+  if (USESYSTEMLIBS)
     include(FindPkgConfig)
     include(FindOpenAL)
     pkg_check_modules(OPENAL_LIB REQUIRED openal)
     pkg_check_modules(FREEALUT_LIB REQUIRED freealut)
-  else (STANDALONE)
+  else (USESYSTEMLIBS)
     use_prebuilt_binary(openal_soft)
-  endif (STANDALONE)
+  endif (USESYSTEMLIBS)
   if(WINDOWS)
     set(OPENAL_LIBRARIES 
       OpenAL32

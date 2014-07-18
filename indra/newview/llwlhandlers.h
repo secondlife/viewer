@@ -45,9 +45,9 @@ private:
 class LLEnvironmentRequestResponder: public LLHTTPClient::Responder
 {
 	LOG_CLASS(LLEnvironmentRequestResponder);
-public:
-	virtual void result(const LLSD& content);
-	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
+private:
+	/* virtual */ void httpSuccess();
+	/* virtual */ void httpFailure();
 
 private:
 	friend class LLEnvironmentRequest;
@@ -72,7 +72,7 @@ private:
 class LLEnvironmentApplyResponder: public LLHTTPClient::Responder
 {
 	LOG_CLASS(LLEnvironmentApplyResponder);
-public:
+private:
 	/*
 	 * Expecting reply from sim in form of:
 	 * {
@@ -87,10 +87,10 @@ public:
 	 *   fail_reason : string
 	 * }
 	 */
-	virtual void result(const LLSD& content);
+	/* virtual */ void httpSuccess();
 
-	// non-200 errors only
-	virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
+	// non-2xx errors only
+	/* virtual */ void httpFailure();
 
 private:
 	friend class LLEnvironmentApply;

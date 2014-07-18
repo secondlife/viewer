@@ -39,7 +39,7 @@
 # pragma warning(pop)
 #endif
 
-#ifdef LL_STANDALONE
+#ifdef LL_USESYSTEMLIBS
 # include <ares.h>
 #else
 # include <ares/ares.h>
@@ -578,5 +578,6 @@ extern LLAres *gAres;
  * thread safe.
  */
 extern LLAres *ll_init_ares();
+extern void ll_cleanup_ares();
 
 #endif // LL_LLARES_H

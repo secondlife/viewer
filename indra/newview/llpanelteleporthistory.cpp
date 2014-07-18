@@ -45,6 +45,7 @@
 #include "llviewermenu.h"
 #include "lllandmarkactions.h"
 #include "llclipboard.h"
+#include "lltrans.h"
 
 // Maximum number of items that can be added to a list in one pass.
 // Used to limit time spent for items list update per frame.
@@ -55,7 +56,8 @@ static const std::string COLLAPSED_BY_USER = "collapsed_by_user";
 class LLTeleportHistoryFlatItem : public LLPanel
 {
 public:
-	LLTeleportHistoryFlatItem(S32 index, LLTeleportHistoryPanel::ContextMenu *context_menu, const std::string &region_name, const std::string &hl);
+	LLTeleportHistoryFlatItem(S32 index, LLTeleportHistoryPanel::ContextMenu *context_menu, const std::string &region_name,
+										 	 LLDate date, const std::string &hl);
 	virtual ~LLTeleportHistoryFlatItem();
 
 	virtual BOOL postBuild();
@@ -66,8 +68,11 @@ public:
 	void setIndex(S32 index) { mIndex = index; }
 	const std::string& getRegionName() { return mRegionName;}
 	void setRegionName(const std::string& name);
+	void setDate(LLDate date);
 	void setHighlightedText(const std::string& text);
 	void updateTitle();
+	void updateTimestamp();
+	std::string getTimestamp();
 
 	/*virtual*/ void setValue(const LLSD& value);
 
@@ -84,12 +89,14 @@ private:
 
 	LLButton* mProfileBtn;
 	LLTextBox* mTitle;
+	LLTextBox* mTimeTextBox;
 	
 	LLTeleportHistoryPanel::ContextMenu *mContextMenu;
 
 	S32 mIndex;
 	std::string mRegionName;
 	std::string mHighlight;
+	LLDate 		mDate;
 	LLRootHandle<LLTeleportHistoryFlatItem> mItemHandle;
 };
 
@@ -121,11 +128,13 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-LLTeleportHistoryFlatItem::LLTeleportHistoryFlatItem(S32 index, LLTeleportHistoryPanel::ContextMenu *context_menu, const std::string &region_name, const std::string &hl)
+LLTeleportHistoryFlatItem::LLTeleportHistoryFlatItem(S32 index, LLTeleportHistoryPanel::ContextMenu *context_menu, const std::string &region_name,
+																LLDate date, const std::string &hl)
 :	LLPanel(),
 	mIndex(index),
 	mContextMenu(context_menu),
 	mRegionName(region_name),
+	mDate(date),
 	mHighlight(hl)
 {
 	buildFromFile( "panel_teleport_history_item.xml");
@@ -140,11 +149,14 @@ BOOL LLTeleportHistoryFlatItem::postBuild()
 {
 	mTitle = getChild<LLTextBox>("region");
 
+	mTimeTextBox = getChild<LLTextBox>("timestamp");
+
 	mProfileBtn = getChild<LLButton>("profile_btn");
         
 	mProfileBtn->setClickedCallback(boost::bind(&LLTeleportHistoryFlatItem::onProfileBtnClick, this));
 
 	updateTitle();
+	updateTimestamp();
 
 	return true;
 }
@@ -179,6 +191,38 @@ void LLTeleportHistoryFlatItem::setRegionName(const std::string& name)
 	mRegionName = name;
 }
 
+void LLTeleportHistoryFlatItem::setDate(LLDate date)
+{
+	mDate = date;
+}
+
+std::string LLTeleportHistoryFlatItem::getTimestamp()
+{
+	const LLDate &date = mDate;
+	std::string timestamp = "";
+
+	LLDate now = LLDate::now();
+	S32 now_year, now_month, now_day, now_hour, now_min, now_sec;
+	now.split(&now_year, &now_month, &now_day, &now_hour, &now_min, &now_sec);
+
+	const S32 seconds_in_day = 24 * 60 * 60;
+	S32 seconds_today = now_hour * 60 * 60 + now_min * 60 + now_sec;
+	S32 time_diff = (S32) now.secondsSinceEpoch() - (S32) date.secondsSinceEpoch();
+
+	// Only show timestamp for today and yesterday
+	if(time_diff < seconds_today + seconds_in_day)
+	{
+		timestamp = "[" + LLTrans::getString("TimeHour12")+"]:["
+						+ LLTrans::getString("TimeMin")+"] ["+ LLTrans::getString("TimeAMPM")+"]";
+		LLSD substitution;
+		substitution["datetime"] = (S32) date.secondsSinceEpoch();
+		LLStringUtil::format(timestamp, substitution);
+	}
+
+	return timestamp;
+
+}
+
 void LLTeleportHistoryFlatItem::updateTitle()
 {
 	static LLUIColor sFgColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", LLColor4U(255, 255, 255));
@@ -187,6 +231,17 @@ void LLTeleportHistoryFlatItem::updateTitle()
 		mTitle,
 		LLStyle::Params().color(sFgColor),
 		mRegionName,
+		mHighlight);
+}
+
+void LLTeleportHistoryFlatItem::updateTimestamp()
+{
+	static LLUIColor sFgColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", LLColor4U(255, 255, 255));
+
+	LLTextUtil::textboxSetHighlightedVal(
+		mTimeTextBox,
+		LLStyle::Params().color(sFgColor),
+		getTimestamp(),
 		mHighlight);
 }
 
@@ -248,9 +303,11 @@ LLTeleportHistoryFlatItemStorage::getFlatItemForPersistentItem (
 		{
 			item->setIndex(cur_item_index);
 			item->setRegionName(persistent_item.mTitle);
+			item->setDate(persistent_item.mDate);
 			item->setHighlightedText(hl);
 			item->setVisible(TRUE);
 			item->updateTitle();
+			item->updateTimestamp();
 		}
 		else
 		{
@@ -264,6 +321,7 @@ LLTeleportHistoryFlatItemStorage::getFlatItemForPersistentItem (
 		item = new LLTeleportHistoryFlatItem(cur_item_index,
 											 context_menu,
 											 persistent_item.mTitle,
+											 persistent_item.mDate,
 											 hl);
 		mItems.push_back(item->getItemHandle());
 	}
@@ -341,6 +399,7 @@ LLContextMenu* LLTeleportHistoryPanel::ContextMenu::createMenu()
 	registrar.add("TeleportHistory.CopyToClipboard",boost::bind(&LLTeleportHistoryPanel::ContextMenu::onCopyToClipboard, this));
 
 	// create the context menu from the XUI
+	llassert(LLMenuGL::sMenuContainer != NULL);
 	return LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
 		"menu_teleport_history_item.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
 }
@@ -935,6 +994,7 @@ void LLTeleportHistoryPanel::onAccordionTabRightClick(LLView *view, S32 x, S32 y
 	registrar.add("TeleportHistory.TabClose",	boost::bind(&LLTeleportHistoryPanel::onAccordionTabClose, this, tab));
 
 	// create the context menu from the XUI
+	llassert(LLMenuGL::sMenuContainer != NULL);
 	mAccordionTabMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
 		"menu_teleport_history_tab.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
 

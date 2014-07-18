@@ -57,7 +57,8 @@ public:
 								allow_address_entry,
                                 allow_back_forward_navigation,
 								trusted_content,
-								show_page_title;
+								show_page_title,
+                                clean_browser;
 		Optional<LLRect>		preferred_media_size;
 
 		_Params();
@@ -112,7 +113,6 @@ protected:
 	std::string		mUUID;
 	bool			mShowPageTitle;
     bool            mAllowNavigation;
-    bool            mSecureURL;     // true when the current url is prefixed "https://"
 };
 
 #endif  // LL_LLFLOATERWEBCONTENT_H

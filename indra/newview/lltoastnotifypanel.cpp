@@ -46,7 +46,7 @@
 const S32 BOTTOM_PAD = VPAD * 3;
 const S32 IGNORE_BTN_TOP_DELTA = 3*VPAD;//additional ignore_btn padding
 S32 BUTTON_WIDTH = 90;
-// *TODO: magic numbers(???) - copied from llnotify.cpp(250)
+// *TODO: magic numbers(?) - copied from llnotify.cpp(250)
 const S32 MAX_LENGTH = 512 + 20 + DB_FIRST_NAME_BUF_SIZE + DB_LAST_NAME_BUF_SIZE + DB_INV_ITEM_NAME_BUF_SIZE; 
 
 
@@ -270,8 +270,12 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
     // customize panel's attributes
     // is it intended for displaying a tip?
     mIsTip = mNotification->getType() == "notifytip";
+
+    std::string notif_name = mNotification->getName();
     // is it a script dialog?
-    mIsScriptDialog = (mNotification->getName() == "ScriptDialog" || mNotification->getName() == "ScriptDialogGroup");
+    mIsScriptDialog = (notif_name == "ScriptDialog" || notif_name == "ScriptDialogGroup");
+
+    bool is_content_trusted = (notif_name != "LoadWebPage");
     // is it a caution?
     //
     // caution flag can be set explicitly by specifying it in the notification payload, or it can be set implicitly if the
@@ -314,6 +318,7 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
     mTextBox->setMaxTextLength(MAX_LENGTH);
     mTextBox->setVisible(TRUE);
     mTextBox->setPlainText(!show_images);
+    mTextBox->setContentTrusted(is_content_trusted);
     mTextBox->setValue(mNotification->getMessage());
 	mTextBox->setIsFriendCallback(LLAvatarActions::isFriend);
 

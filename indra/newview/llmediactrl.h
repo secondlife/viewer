@@ -95,7 +95,7 @@ public:
 		virtual BOOL handleToolTip(S32 x, S32 y, MASK mask);
 
 		// navigation
-		void navigateTo( std::string url_in, std::string mime_type = "");
+		void navigateTo( std::string url_in, std::string mime_type = "", bool clean_browser = false);
 		void navigateBack();
 		void navigateHome();
 		void navigateForward();	
@@ -167,6 +167,8 @@ public:
 		void onOpenWebInspector();
 
 		LLUUID getTextureID() {return mMediaTextureID;}
+
+		void updateContextMenuParent(LLView* pNewParent);
 
 	protected:
 		void convertInputCoords(S32& x, S32& y);

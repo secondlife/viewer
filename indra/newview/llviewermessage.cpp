@@ -651,25 +651,57 @@ void send_sound_trigger(const LLUUID& sound_id, F32 gain)
 	gAgent.sendMessage();
 }
 
+static LLSD sSavedGroupInvite;
+static LLSD sSavedResponse;
+
 bool join_group_response(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+//	A bit of variable saving and restoring is used to deal with the case where your group list is full and you
+//	receive an invitation to another group.  The data from that invitation is stored in the sSaved
+//	variables.  If you then drop a group and click on the Join button the stored data is restored and used
+//	to join the group.
+	LLSD notification_adjusted = notification;
+	LLSD response_adjusted = response;
+
+	std::string action = notification["name"];
+
+//	Storing all the information by group id allows for the rare case of being at your maximum
+//	group count and receiving more than one invitation.
+	std::string id = notification_adjusted["payload"]["group_id"].asString();
+
+	if ("JoinGroup" == action || "JoinGroupCanAfford" == action)
+	{
+		sSavedGroupInvite[id] = notification;
+		sSavedResponse[id] = response;
+	}
+	else if ("JoinedTooManyGroupsMember" == action)
+	{
+		S32 opt = LLNotificationsUtil::getSelectedOption(notification, response);
+		if (0 == opt) // Join button pressed
+		{
+			notification_adjusted = sSavedGroupInvite[id];
+			response_adjusted = sSavedResponse[id];
+		}
+	}
+
+	S32 option = LLNotificationsUtil::getSelectedOption(notification_adjusted, response_adjusted);
 	bool accept_invite = false;
 
-	LLUUID group_id = notification["payload"]["group_id"].asUUID();
-	LLUUID transaction_id = notification["payload"]["transaction_id"].asUUID();
-	std::string name = notification["payload"]["name"].asString();
-	std::string message = notification["payload"]["message"].asString();
-	S32 fee = notification["payload"]["fee"].asInteger();
+	LLUUID group_id = notification_adjusted["payload"]["group_id"].asUUID();
+	LLUUID transaction_id = notification_adjusted["payload"]["transaction_id"].asUUID();
+	std::string name = notification_adjusted["payload"]["name"].asString();
+	std::string message = notification_adjusted["payload"]["message"].asString();
+	S32 fee = notification_adjusted["payload"]["fee"].asInteger();
 
 	if (option == 2 && !group_id.isNull())
 	{
 		LLGroupActions::show(group_id);
 		LLSD args;
 		args["MESSAGE"] = message;
-		LLNotificationsUtil::add("JoinGroup", args, notification["payload"]);
+		LLNotificationsUtil::add("JoinGroup", args, notification_adjusted["payload"]);
 		return false;
 	}
+
 	if(option == 0 && !group_id.isNull())
 	{
 		// check for promotion or demotion.
@@ -684,7 +716,8 @@ bool join_group_response(const LLSD& notification, const LLSD& response)
 		{
 			LLSD args;
 			args["NAME"] = name;
-			LLNotificationsUtil::add("JoinedTooManyGroupsMember", args, notification["payload"]);
+			LLNotificationsUtil::add("JoinedTooManyGroupsMember", args, notification_adjusted["payload"]);
+			return false;
 		}
 	}
 
@@ -698,7 +731,7 @@ bool join_group_response(const LLSD& notification, const LLSD& response)
 			args["COST"] = llformat("%d", fee);
 			// Set the fee for next time to 0, so that we don't keep
 			// asking about a fee.
-			LLSD next_payload = notification["payload"];
+			LLSD next_payload = notification_adjusted["payload"];
 			next_payload["fee"] = 0;
 			LLNotificationsUtil::add("JoinGroupCanAfford",
 									args,
@@ -723,6 +756,9 @@ bool join_group_response(const LLSD& notification, const LLSD& response)
 						IM_GROUP_INVITATION_DECLINE,
 						transaction_id);
 	}
+
+	sSavedGroupInvite[id] = LLSD::emptyMap();
+	sSavedResponse[id] = LLSD::emptyMap();
 
 	return false;
 }
@@ -1010,7 +1046,12 @@ class LLOpenTaskOffer : public LLInventoryAddedObserver
 protected:
 	/*virtual*/ void done()
 	{
-		for (uuid_vec_t::iterator it = mAdded.begin(); it != mAdded.end();)
+		uuid_vec_t added;
+		for(uuid_set_t::const_iterator it = gInventory.getAddedIDs().begin(); it != gInventory.getAddedIDs().end(); ++it)
+		{
+			added.push_back(*it);
+		}
+		for (uuid_vec_t::iterator it = added.begin(); it != added.end();)
 		{
 			const LLUUID& item_uuid = *it;
 			bool was_moved = false;
@@ -1032,13 +1073,12 @@ protected:
 
 			if (was_moved)
 			{
-				it = mAdded.erase(it);
+				it = added.erase(it);
 			}
 			else ++it;
 		}
 
-		open_inventory_offer(mAdded, "");
-		mAdded.clear();
+		open_inventory_offer(added, "");
 	}
  };
 
@@ -1047,8 +1087,12 @@ class LLOpenTaskGroupOffer : public LLInventoryAddedObserver
 protected:
 	/*virtual*/ void done()
 	{
-		open_inventory_offer(mAdded, "group_offer");
-		mAdded.clear();
+		uuid_vec_t added;
+		for(uuid_set_t::const_iterator it = gInventory.getAddedIDs().begin(); it != gInventory.getAddedIDs().end(); ++it)
+		{
+			added.push_back(*it);
+		}
+		open_inventory_offer(added, "group_offer");
 		gInventory.removeObserver(this);
 		delete this;
 	}
@@ -1883,6 +1927,7 @@ void inventory_offer_handler(LLOfferInfo* info)
 		return;
 	}
 
+	bool bAutoAccept(false);
 	// Avoid the Accept/Discard dialog if the user so desires. JC
 	if (gSavedSettings.getBOOL("AutoAcceptNewInventory")
 		&& (info->mType == LLAssetType::AT_NOTECARD
@@ -1891,8 +1936,7 @@ void inventory_offer_handler(LLOfferInfo* info)
 	{
 		// For certain types, just accept the items into the inventory,
 		// and possibly open them on receipt depending upon "ShowNewInventory".
-		info->forceResponse(IOR_ACCEPT);
-		return;
+		bAutoAccept = true;
 	}
 
 	// Strip any SLURL from the message display. (DEV-2754)
@@ -1960,7 +2004,7 @@ void inventory_offer_handler(LLOfferInfo* info)
 	LLNotification::Params p;
 
 	// Object -> Agent Inventory Offer
-	if (info->mFromObject)
+	if (info->mFromObject && !bAutoAccept)
 	{
 		// Inventory Slurls don't currently work for non agent transfers, so only display the object name.
 		args["ITEM_SLURL"] = msg;
@@ -2006,11 +2050,12 @@ void inventory_offer_handler(LLOfferInfo* info)
             send_do_not_disturb_message(gMessageSystem, info->mFromID);
         }
 
-		// Inform user that there is a script floater via toast system
+		if( !bAutoAccept ) // if we auto accept, do not pester the user
 		{
+			// Inform user that there is a script floater via toast system
 			payload["give_inventory_notification"] = TRUE;
-		    p.payload = payload;
-		    LLPostponedNotification::add<LLPostponedOfferNotification>(p, info->mFromID, false);
+			p.payload = payload;
+			LLPostponedNotification::add<LLPostponedOfferNotification>(p, info->mFromID, false);
 		}
 	}
 
@@ -2416,10 +2461,6 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 					&& from_id.notNull() //not a system message
 					&& to_id.notNull()) //not global message
 		{
-			// return a standard "do not disturb" message, but only do it to online IM
-			// (i.e. not other auto responses and not store-and-forward IM)
-
-			send_do_not_disturb_message(msg, from_id, session_id);
 
 			// now store incoming IM in chat history
 
@@ -2440,6 +2481,15 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				region_id,
 				position,
 				true);
+
+			if (!gIMMgr->isDNDMessageSend(session_id))
+			{
+				// return a standard "do not disturb" message, but only do it to online IM
+				// (i.e. not other auto responses and not store-and-forward IM)
+				send_do_not_disturb_message(msg, from_id, session_id);
+				gIMMgr->setDNDMessageSent(session_id, true);
+			}
+
 		}
 		else if (from_id.isNull())
 		{
@@ -4001,6 +4051,8 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 	gAgent.setTeleportState( LLAgent::TELEPORT_MOVING );
 	gAgent.setTeleportMessage(LLAgent::sTeleportProgressMessages["contacting"]);
 
+	LL_DEBUGS("CrossingCaps") << "Calling setSeedCapability from process_teleport_finish(). Seed cap == "
+			<< seedCap << LL_ENDL;
 	regionp->setSeedCapability(seedCap);
 
 	// Don't send camera updates to the new region until we're
@@ -4115,10 +4167,6 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 		gAgentCamera.updateCamera();
 
 		gAgent.setTeleportState( LLAgent::TELEPORT_START_ARRIVAL );
-
-		// set the appearance on teleport since the new sim does not
-		// know what you look like.
-		gAgent.sendAgentSetAppearance();
 
 		if (isAgentAvatarValid())
 		{
@@ -4243,6 +4291,9 @@ void process_crossed_region(LLMessageSystem* msg, void**)
 	send_complete_agent_movement(sim_host);
 
 	LLViewerRegion* regionp = LLWorld::getInstance()->addRegion(region_handle, sim_host);
+
+	LL_DEBUGS("CrossingCaps") << "Calling setSeedCapability from process_crossed_region(). Seed cap == "
+			<< seedCap << LL_ENDL;
 	regionp->setSeedCapability(seedCap);
 }
 
@@ -5883,7 +5934,7 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 				}
 			}
 
-			send_sound_trigger(LLUUID(gSavedSettings.getString("UISndRestart")), 1.0f);
+			make_ui_sound("UISndRestart");
 		}
 
 		LLNotificationsUtil::add(notificationID, llsdBlock);

@@ -184,10 +184,8 @@ void LLPathfindingNavMesh::handleNavMeshError()
 	setRequestStatus(kNavMeshRequestError);
 }
 
-void LLPathfindingNavMesh::handleNavMeshError(U32 pStatus, const std::string &pReason, const LLSD& pContent, const std::string &pURL, U32 pNavMeshVersion)
+void LLPathfindingNavMesh::handleNavMeshError(U32 pNavMeshVersion)
 {
-	LL_WARNS() << "LLPathfindingNavMesh error with request to URL '" << pURL << "' [status:"
-			<< pStatus << "]: " << pContent << LL_ENDL;
 	if (mNavMeshStatus.getVersion() == pNavMeshVersion)
 	{
 		handleNavMeshError();

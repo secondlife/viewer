@@ -157,7 +157,7 @@ LLViewerMediaObserver::~LLViewerMediaObserver()
 // on the Panel Land Media and to discover the MIME type
 class LLMimeDiscoveryResponder : public LLHTTPClient::Responder
 {
-LOG_CLASS(LLMimeDiscoveryResponder);
+	LOG_CLASS(LLMimeDiscoveryResponder);
 public:
 	LLMimeDiscoveryResponder( viewer_media_t media_impl)
 		: mMediaImpl(media_impl),
@@ -176,13 +176,19 @@ public:
 		disconnectOwner();
 	}
 
-	virtual void completedHeader(U32 status, const std::string& reason, const LLSD& content)
+private:
+	/* virtual */ void httpCompleted()
 	{
-		std::string media_type = content["content-type"].asString();
+		if (!isGoodStatus())
+		{
+			LL_WARNS() << dumpResponse()
+					<< " [headers:" << getResponseHeaders() << "]" << LL_ENDL;
+		}
+		const std::string& media_type = getResponseHeader(HTTP_IN_HEADER_CONTENT_TYPE);
 		std::string::size_type idx1 = media_type.find_first_of(";");
 		std::string mime_type = media_type.substr(0, idx1);
 
-		LL_DEBUGS() << "status is " << status << ", media type \"" << media_type << "\"" << LL_ENDL;
+		LL_DEBUGS() << "status is " << getStatus() << ", media type \"" << media_type << "\"" << LL_ENDL;
 		
 		// 2xx status codes indicate success.
 		// Most 4xx status codes are successful enough for our purposes.
@@ -190,7 +196,7 @@ public:
 		// 500 means "Internal Server error" but we decided it's okay to 
 		//     accept this and go past it in the MIME type probe
 		// 302 means the resource can be found temporarily in a different place - added this for join.secondlife.com
-		// 499 is a code specifc to join.secondlife.com (????) apparently safe to ignore
+		// 499 is a code specifc to join.secondlife.com (?) apparently safe to ignore
 //		if(	((status >= 200) && (status < 300))	||
 //			((status >= 400) && (status < 499))	|| 
 //			(status == 500) ||
@@ -199,32 +205,27 @@ public:
 //			)
 		// We now no longer check the error code returned from the probe.
 		// If we have a mime type, use it.  If not, default to the web plugin and let it handle error reporting.
-		if(1)
+		//if(1)
 		{
 			// The probe was successful.
 			if(mime_type.empty())
 			{
 				// Some sites don't return any content-type header at all.
 				// Treat an empty mime type as text/html.
-				mime_type = "text/html";
-			}
-			
-			completeAny(status, mime_type);
-		}
-		else
-		{
-			LL_WARNS() << "responder failed with status " << status << ", reason " << reason << LL_ENDL;
-		
-			if(mMediaImpl)
-			{
-				mMediaImpl->mMediaSourceFailed = true;
+				mime_type = HTTP_CONTENT_TEXT_HTML;
 			}
 		}
+		//else
+		//{
+		//	LL_WARNS() << "responder failed with status " << dumpResponse() << LL_ENDL;
+		//
+		//	if(mMediaImpl)
+		//	{
+		//		mMediaImpl->mMediaSourceFailed = true;
+		//	}
+		//	return;
+		//}
 
-	}
-
-	void completeAny(U32 status, const std::string& mime_type)
-	{
 		// the call to initializeMedia may disconnect the responder, which will clear mMediaImpl.
 		// Make a local copy so we can call loadURI() afterwards.
 		LLViewerMediaImpl *impl = mMediaImpl;
@@ -240,6 +241,7 @@ public:
 		}
 	}
 	
+public:
 	void cancelRequest()
 	{
 		disconnectOwner();
@@ -268,7 +270,7 @@ public:
 
 class LLViewerMediaOpenIDResponder : public LLHTTPClient::Responder
 {
-LOG_CLASS(LLViewerMediaOpenIDResponder);
+	LOG_CLASS(LLViewerMediaOpenIDResponder);
 public:
 	LLViewerMediaOpenIDResponder( )
 	{
@@ -278,23 +280,17 @@ public:
 	{
 	}
 
-	/* virtual */ void completedHeader(U32 status, const std::string& reason, const LLSD& content)
-	{
-		LL_DEBUGS("MediaAuth") << "status = " << status << ", reason = " << reason << LL_ENDL;
-		LL_DEBUGS("MediaAuth") << content << LL_ENDL;
-		std::string cookie = content["set-cookie"].asString();
-		
-		LLViewerMedia::openIDCookieResponse(cookie);
-	}
-
 	/* virtual */ void completedRaw(
-		U32 status,
-		const std::string& reason,
 		const LLChannelDescriptors& channels,
 		const LLIOPipe::buffer_ptr_t& buffer)
 	{
-		// This is just here to disable the default behavior (attempting to parse the response as llsd).
-		// We don't care about the content of the response, only the set-cookie header.
+		// We don't care about the content of the response, only the Set-Cookie header.
+		LL_DEBUGS("MediaAuth") << dumpResponse() 
+				<< " [headers:" << getResponseHeaders() << "]" << LL_ENDL;
+		const std::string& cookie = getResponseHeader(HTTP_IN_HEADER_SET_COOKIE);
+		
+		// *TODO: What about bad status codes?  Does this destroy previous cookies?
+		LLViewerMedia::openIDCookieResponse(cookie);
 	}
 
 };
@@ -312,32 +308,28 @@ public:
 	{
 	}
 
-	/* virtual */ void completedHeader(U32 status, const std::string& reason, const LLSD& content)
+	 void completedRaw(
+		const LLChannelDescriptors& channels,
+		const LLIOPipe::buffer_ptr_t& buffer)
 	{
-		LL_WARNS("MediaAuth") << "status = " << status << ", reason = " << reason << LL_ENDL;
+		// We don't care about the content of the response, only the set-cookie header.
+		LL_WARNS("MediaAuth") << dumpResponse() 
+				<< " [headers:" << getResponseHeaders() << "]" << LL_ENDL;
 
-		LLSD stripped_content = content;
-		stripped_content.erase("set-cookie");
+		LLSD stripped_content = getResponseHeaders();
+		// *TODO: Check that this works.
+		stripped_content.erase(HTTP_IN_HEADER_SET_COOKIE);
 		LL_WARNS("MediaAuth") << stripped_content << LL_ENDL;
 
-		std::string cookie = content["set-cookie"].asString();
+		const std::string& cookie = getResponseHeader(HTTP_IN_HEADER_SET_COOKIE);
 		LL_DEBUGS("MediaAuth") << "cookie = " << cookie << LL_ENDL;
 
+		// *TODO: What about bad status codes?  Does this destroy previous cookies?
 		LLViewerMedia::getCookieStore()->setCookiesFromHost(cookie, mHost);
 
 		// Set cookie for snapshot publishing.
 		std::string auth_cookie = cookie.substr(0, cookie.find(";")); // strip path
 		LLWebProfile::setAuthCookie(auth_cookie);
-	}
-
-	 void completedRaw(
-		U32 status,
-		const std::string& reason,
-		const LLChannelDescriptors& channels,
-		const LLIOPipe::buffer_ptr_t& buffer)
-	{
-		// This is just here to disable the default behavior (attempting to parse the response as llsd).
-		// We don't care about the content of the response, only the set-cookie header.
 	}
 
 	std::string mHost;
@@ -1386,10 +1378,12 @@ void LLViewerMedia::removeCookie(const std::string &name, const std::string &dom
 LLSD LLViewerMedia::getHeaders()
 {
 	LLSD headers = LLSD::emptyMap();
-	headers["Accept"] = "*/*";
-	headers["Content-Type"] = "application/xml";
-	headers["Cookie"] = sOpenIDCookie;
-	headers["User-Agent"] = getCurrentUserAgent();
+	headers[HTTP_OUT_HEADER_ACCEPT] = "*/*";
+	// *TODO: Should this be 'application/llsd+xml' ?
+	// *TODO: Should this even be set at all?   This header is only not overridden in 'GET' methods.
+	headers[HTTP_OUT_HEADER_CONTENT_TYPE] = HTTP_CONTENT_XML;
+	headers[HTTP_OUT_HEADER_COOKIE] = sOpenIDCookie;
+	headers[HTTP_OUT_HEADER_USER_AGENT] = getCurrentUserAgent();
 
 	return headers;
 }
@@ -1427,9 +1421,9 @@ void LLViewerMedia::setOpenIDCookie()
 
 		// Do a web profile get so we can store the cookie 
 		LLSD headers = LLSD::emptyMap();
-		headers["Accept"] = "*/*";
-		headers["Cookie"] = sOpenIDCookie;
-		headers["User-Agent"] = getCurrentUserAgent();
+		headers[HTTP_OUT_HEADER_ACCEPT] = "*/*";
+		headers[HTTP_OUT_HEADER_COOKIE] = sOpenIDCookie;
+		headers[HTTP_OUT_HEADER_USER_AGENT] = getCurrentUserAgent();
 
 		std::string profile_url = getProfileURL("");
 		LLURL raw_profile_url( profile_url.c_str() );
@@ -1459,9 +1453,9 @@ void LLViewerMedia::openIDSetup(const std::string &openid_url, const std::string
 
 	LLSD headers = LLSD::emptyMap();
 	// Keep LLHTTPClient from adding an "Accept: application/llsd+xml" header
-	headers["Accept"] = "*/*";
+	headers[HTTP_OUT_HEADER_ACCEPT] = "*/*";
 	// and use the expected content-type for a post, instead of the LLHTTPClient::postRaw() default of "application/octet-stream"
-	headers["Content-Type"] = "application/x-www-form-urlencoded";
+	headers[HTTP_OUT_HEADER_CONTENT_TYPE] = "application/x-www-form-urlencoded";
 
 	// postRaw() takes ownership of the buffer and releases it later, so we need to allocate a new buffer here.
 	size_t size = openid_token.size();
@@ -1530,16 +1524,16 @@ void LLViewerMedia::createSpareBrowserMediaSource()
 	// popping up at the moment we start a media plugin.
 	if (!sSpareBrowserMediaSource && !gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins"))
 	{
-		// The null owner will keep the browser plugin from fully initializing 
+		// The null owner will keep the browser plugin from fully initializing
 		// (specifically, it keeps LLPluginClassMedia from negotiating a size change, 
 		// which keeps MediaPluginWebkit::initBrowserWindow from doing anything until we have some necessary data, like the background color)
-		sSpareBrowserMediaSource = LLViewerMediaImpl::newSourceFromMediaType("text/html", NULL, 0, 0);
+		sSpareBrowserMediaSource = LLViewerMediaImpl::newSourceFromMediaType(HTTP_CONTENT_TEXT_HTML, NULL, 0, 0);
 	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // static
-LLPluginClassMedia* LLViewerMedia::getSpareBrowserMediaSource() 
+LLPluginClassMedia* LLViewerMedia::getSpareBrowserMediaSource()
 {
 	LLPluginClassMedia* result = sSpareBrowserMediaSource;
 	sSpareBrowserMediaSource = NULL;
@@ -1588,7 +1582,7 @@ std::string LLViewerMedia::getParcelAudioURL()
 // static
 void LLViewerMedia::initClass()
 {
-	gIdleCallbacks.addFunction(LLViewerMedia::updateMedia, NULL);	
+	gIdleCallbacks.addFunction(LLViewerMedia::updateMedia, NULL);
 	sTeleportFinishConnection = LLViewerParcelMgr::getInstance()->
 		setTeleportFinishedCallback(boost::bind(&LLViewerMedia::onTeleportFinished));
 }
@@ -1599,6 +1593,17 @@ void LLViewerMedia::cleanupClass()
 {
 	gIdleCallbacks.deleteFunction(LLViewerMedia::updateMedia, NULL);
 	sTeleportFinishConnection.disconnect();
+	if (sSpareBrowserMediaSource != NULL)
+	{
+		delete sSpareBrowserMediaSource;
+		sSpareBrowserMediaSource = NULL;
+	}
+
+	if (sCookieStore != NULL)
+	{
+		delete sCookieStore;
+		sCookieStore = NULL;
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -1665,7 +1670,8 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mNavigateSuspendedDeferred(false),
 	mIsUpdated(false),
 	mTrustedBrowser(false),
-	mZoomFactor(1.0)
+	mZoomFactor(1.0),
+    mCleanBrowser(false)
 { 
 
 	// Set up the mute list observer if it hasn't been set up already.
@@ -1789,14 +1795,16 @@ void LLViewerMediaImpl::setMediaType(const std::string& media_type)
 
 //////////////////////////////////////////////////////////////////////////////////////////
 /*static*/
-LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_type, LLPluginClassMediaOwner *owner /* may be NULL */, S32 default_width, S32 default_height, const std::string target)
+LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_type, LLPluginClassMediaOwner *owner /* may be NULL */, S32 default_width, S32 default_height, const std::string target, bool clean_browser)
 {
 	std::string plugin_basename = LLMIMETypes::implType(media_type);
 	LLPluginClassMedia* media_source = NULL;
 	
 	// HACK: we always try to keep a spare running webkit plugin around to improve launch times.
 	// If a spare was already created before PluginAttachDebuggerToPlugins was set, don't use it.
-	if(plugin_basename == "media_plugin_webkit" && !gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins"))
+    // Do not use a spare if launching with full viewer control (e.g. Facebook, Twitter and few others)
+	if ((plugin_basename == "media_plugin_webkit") &&
+        !gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins") && !clean_browser)
 	{
 		media_source = LLViewerMedia::getSpareBrowserMediaSource();
 		if(media_source)
@@ -1808,7 +1816,6 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 			return media_source;
 		}
 	}
-	
 	if(plugin_basename.empty())
 	{
 		LL_WARNS_ONCE("Media") << "Couldn't find plugin for media type " << media_type << LL_ENDL;
@@ -1852,18 +1859,18 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 
 			// collect 'cookies enabled' setting from prefs and send to embedded browser
 			bool cookies_enabled = gSavedSettings.getBOOL( "CookiesEnabled" );
-			media_source->enable_cookies( cookies_enabled );
+			media_source->enable_cookies( cookies_enabled || clean_browser);
 
 			// collect 'plugins enabled' setting from prefs and send to embedded browser
 			bool plugins_enabled = gSavedSettings.getBOOL( "BrowserPluginsEnabled" );
-			media_source->setPluginsEnabled( plugins_enabled );
+			media_source->setPluginsEnabled( plugins_enabled  || clean_browser);
 
 			// collect 'javascript enabled' setting from prefs and send to embedded browser
 			bool javascript_enabled = gSavedSettings.getBOOL( "BrowserJavascriptEnabled" );
-			media_source->setJavascriptEnabled( javascript_enabled );
+			media_source->setJavascriptEnabled( javascript_enabled || clean_browser);
 		
 			bool media_plugin_debugging_enabled = gSavedSettings.getBOOL("MediaPluginDebugging");
-			media_source->enableMediaPluginDebugging( media_plugin_debugging_enabled );
+			media_source->enableMediaPluginDebugging( media_plugin_debugging_enabled  || clean_browser);
 
 			media_source->setTarget(target);
 			
@@ -1918,7 +1925,7 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 	// Save the MIME type that really caused the plugin to load
 	mCurrentMimeType = mMimeType;
 
-	LLPluginClassMedia* media_source = newSourceFromMediaType(mMimeType, this, mMediaWidth, mMediaHeight, mTarget);
+	LLPluginClassMedia* media_source = newSourceFromMediaType(mMimeType, this, mMediaWidth, mMediaHeight, mTarget, mCleanBrowser);
 	
 	if (media_source)
 	{
@@ -2539,7 +2546,7 @@ void LLViewerMediaImpl::unload()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mime_type,  bool rediscover_type, bool server_request)
+void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mime_type,  bool rediscover_type, bool server_request, bool clean_browser)
 {
 	cancelMimeTypeProbe();
 
@@ -2552,6 +2559,7 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
 	// Always set the current URL and MIME type.
 	mMediaURL = url;
 	mMimeType = mime_type;
+    mCleanBrowser = clean_browser;
 	
 	// Clear the current media URL, since it will no longer be correct.
 	mCurrentMediaURL.clear();
@@ -2644,16 +2652,16 @@ void LLViewerMediaImpl::navigateInternal()
 			//    Accept: application/llsd+xml
 			// which is really not what we want.
 			LLSD headers = LLSD::emptyMap();
-			headers["Accept"] = "*/*";
+			headers[HTTP_OUT_HEADER_ACCEPT] = "*/*";
 			// Allow cookies in the response, to prevent a redirect loop when accessing join.secondlife.com
-			headers["Cookie"] = "";
+			headers[HTTP_OUT_HEADER_COOKIE] = "";
 			LLHTTPClient::getHeaderOnly( mMediaURL, new LLMimeDiscoveryResponder(this), headers, 10.0f);
 		}
 		else if("data" == scheme || "file" == scheme || "about" == scheme)
 		{
 			// FIXME: figure out how to really discover the type for these schemes
 			// We use "data" internally for a text/html url for loading the login screen
-			if(initializeMedia("text/html"))
+			if(initializeMedia(HTTP_CONTENT_TEXT_HTML))
 			{
 				loadURI();
 			}

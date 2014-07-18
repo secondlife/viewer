@@ -2,7 +2,7 @@
 include(Prebuilt)
 include(FreeType)
 
-if (STANDALONE)
+if (USESYSTEMLIBS)
   include(FindPkgConfig)
     
   if (LINUX)
@@ -31,7 +31,7 @@ if (STANDALONE)
     list(APPEND UI_LIBRARIES ${${pkg}_LIBRARIES})
     add_definitions(${${pkg}_CFLAGS_OTHERS})
   endforeach(pkg)
-else (STANDALONE)
+else (USESYSTEMLIBS)
   use_prebuilt_binary(gtk-atk-pango-glib)
   if (LINUX)
     set(UI_LIBRARIES
@@ -59,7 +59,7 @@ else (STANDALONE)
   foreach(include ${${LL_ARCH}_INCLUDES})
       include_directories(${LIBS_PREBUILT_DIR}/include/${include})
   endforeach(include)
-endif (STANDALONE)
+endif (USESYSTEMLIBS)
 
 if (LINUX)
   add_definitions(-DLL_GTK=1 -DLL_X11=1)

@@ -1,0 +1,25 @@
+<llsd>
+    <array>
+        <array>
+            <string>linearize</string>
+            <real>0.0</real>
+            <real>1.0</real>
+            <real>1.0</real>
+            <real>1.0</real>
+        </array>
+        <array>
+            <string>stencil</string>
+            <string>uniform</string>
+            <string>add</string>
+            <real>0.0</real>
+            <real>1.0</real>
+        </array>
+        <array>
+            <string>gamma</string>
+            <real>0.25</real>
+            <real>1.0</real>
+            <real>1.0</real>
+            <real>1.0</real>
+        </array>
+    </array>
+</llsd>

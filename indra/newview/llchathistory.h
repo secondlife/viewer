@@ -93,14 +93,15 @@ class LLChatHistory : public LLUICtrl
 		 * @return pointer to LLView separator object.
 		 */
 		LLView* getSeparator();
+
+		void onClickMoreText();
+
+	private:
 		/**
 		 * Builds a message header.
 		 * @return pointer to LLView header object.
 		 */
 		LLView* getHeader(const LLChat& chat,const LLStyle::Params& style_params, const LLSD& args);
-
-		void onClickMoreText();
-
 	public:
 		~LLChatHistory();
 		LLSD getValue() const;   
