@@ -477,18 +477,18 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
     LLTextEditor* edit_child = getChild<LLTextEditor>(EDIT TF_DESC);
     edit_child->setText(value);
    
-    value = experience[LLExperienceCache::SLURL].asString();
+    mLocationSLURL = experience[LLExperienceCache::SLURL].asString();
     child = getChild<LLTextBox>(TF_SLURL);
-    bool has_value = value.length()>0;
-    locationPanel->setVisible(has_value);
-    value = LLSLURL(value).getSLURLString();
-    child->setText(value);
+    bool has_slurl = mLocationSLURL.length()>0;
+    locationPanel->setVisible(has_slurl);
+    mLocationSLURL = LLSLURL(mLocationSLURL).getSLURLString();
+    child->setText(mLocationSLURL);
 
 
     child = getChild<LLTextBox>(EDIT TF_SLURL);
-    if(has_value)
+    if(has_slurl)
     {
-        child->setText(value);
+        child->setText(mLocationSLURL);
     }
     else
     {
@@ -829,7 +829,8 @@ void LLFloaterExperienceProfile::onClickLocation()
     if(region)
     {
         LLTextBox* child = getChild<LLTextBox>(EDIT TF_SLURL);
-        child->setText(LLSLURL(region->getName(), gAgent.getPositionGlobal()).getSLURLString());
+		mLocationSLURL = LLSLURL(region->getName(), gAgent.getPositionGlobal()).getSLURLString();
+        child->setText(mLocationSLURL);
         onFieldChanged();
     }
 }
@@ -837,6 +838,7 @@ void LLFloaterExperienceProfile::onClickLocation()
 void LLFloaterExperienceProfile::onClickClear()
 {
     LLTextBox* child = getChild<LLTextBox>(EDIT TF_SLURL);
+	mLocationSLURL = "";
     child->setText(getString("empty_slurl"));
     onFieldChanged();
 }
@@ -916,14 +918,13 @@ void LLFloaterExperienceProfile::updatePackage()
 {
     mPackage[LLExperienceCache::NAME] = getChild<LLLineEditor>(EDIT TF_NAME)->getText();
     mPackage[LLExperienceCache::DESCRIPTION] = getChild<LLTextEditor>(EDIT TF_DESC)->getText();
-    std::string slurl = getChild<LLTextBox>(EDIT TF_SLURL)->getText();
-    if(slurl == getString("empty_slurl"))
+	if(mLocationSLURL.empty())
     {
         mPackage[LLExperienceCache::SLURL] = LLStringUtil::null;
     }
     else
     {
-        mPackage[LLExperienceCache::SLURL] = slurl;
+        mPackage[LLExperienceCache::SLURL] = mLocationSLURL;
     }
 
     mPackage[LLExperienceCache::MATURITY] = getChild<LLComboBox>(EDIT TF_MATURITY)->getSelectedValue().asInteger();

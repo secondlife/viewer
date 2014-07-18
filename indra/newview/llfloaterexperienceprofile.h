@@ -95,6 +95,7 @@ protected:
     LLUUID mExperienceId;
     LLSD mExperienceDetails;
     LLSD mPackage;
+	std::string mLocationSLURL;
     int mSaveCompleteAction;
     bool mDirty;
     bool mForceClose;
