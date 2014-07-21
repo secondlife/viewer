@@ -33,7 +33,7 @@
 				<layout_panel name="shop_btn_lp">
 					<button label="Comprar" name="shop_btn" tool_tip="Abrir página do Marketplace"/>
 					<button label="Vestir" name="wear_btn" tool_tip="Vestir visual selecionado"/>
-					<button label="Tocar" name="play_btn"/>
+					<button label="Jogar" name="play_btn"/>
 					<button label="Teletransportar" name="teleport_btn" tool_tip="Teletransportar para a área selecionada"/>
 				</layout_panel>
 			</layout_stack>

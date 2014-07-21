@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="グループインベントリ" name="GroupInfo">
 	<panel.string name="default_needs_apply_text">
 		保存していない変更があります
@@ -20,7 +20,7 @@
 		<layout_panel name="group_accordions">
 			<accordion name="groups_accordion">
 				<accordion_tab name="group_general_tab" title="一般"/>
-				<accordion_tab name="group_roles_tab" title="役割"/>
+				<accordion_tab name="group_roles_tab" title="役割 &amp; メンバー"/>
 				<accordion_tab name="group_notices_tab" title="通知"/>
 				<accordion_tab name="group_land_tab" title="土地・資産"/>
 			</accordion>

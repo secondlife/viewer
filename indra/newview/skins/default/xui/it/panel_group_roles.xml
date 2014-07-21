@@ -21,6 +21,7 @@ cliccando sui loro nomi.
 				<name_list.columns label="Socio" name="name"/>
 				<name_list.columns label="Donazioni" name="donated"/>
 				<name_list.columns label="Stato" name="online"/>
+				<name_list.columns label="Titolo" name="title"/>
 			</name_list>
 			<button label="Invita" name="member_invite"/>
 			<button label="Espelli" name="member_eject"/>

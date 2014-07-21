@@ -71,11 +71,11 @@
 			<menu_item_check label="Menú Avanzado" name="Show Advanced Menu"/>
 		</menu>
 		<menu label="Sol" name="Sun">
-			<menu_item_call label="Amanecer" name="Sunrise"/>
-			<menu_item_call label="Mediodía" name="Noon"/>
-			<menu_item_call label="Atardecer" name="Sunset"/>
-			<menu_item_call label="Medianoche" name="Midnight"/>
-			<menu_item_call label="Usar configuración de región" name="Use Region Settings"/>
+			<menu_item_check label="Amanecer" name="Sunrise"/>
+			<menu_item_check label="Mediodía" name="Noon"/>
+			<menu_item_check label="Atardecer" name="Sunset"/>
+			<menu_item_check label="Medianoche" name="Midnight"/>
+			<menu_item_check label="Usar configuración de región" name="Use Region Settings"/>
 		</menu>
 		<menu label="Editor de entorno" name="Environment Editor">
 			<menu_item_call label="Configuración del entorno..." name="Environment Settings"/>
@@ -164,8 +164,6 @@
 	</menu>
 	<menu label="Ayuda" name="Help">
 		<menu_item_call label="Cómo..." name="How To"/>
-		<menu_item_call label="Ayuda de [SECOND_LIFE]" name="Second Life Help"/>
-		<menu_item_call label="Guía del usuario" name="User’s guide"/>
 		<menu_item_call label="Base de Conocimientos" name="Knowledge Base"/>
 		<menu_item_call label="Wiki" name="Wiki"/>
 		<menu_item_call label="Foros comunitarios" name="Community Forums"/>
@@ -187,6 +185,7 @@
 		<menu label="Herramientas de rendimiento" name="Performance Tools">
 			<menu_item_call label="Medidor de lag" name="Lag Meter"/>
 			<menu_item_check label="Estadísticas" name="Statistics Bar"/>
+			<menu_item_call label="Estadísticas de carga de escenas" name="Scene Load Statistics"/>
 			<menu_item_check label="Mostrar el peso del dibujo de los avatares" name="Avatar Rendering Cost"/>
 		</menu>
 		<menu label="Realzado y Visibilidad" name="Highlighting and Visibility">
@@ -248,6 +247,7 @@
 			<menu_item_check label="Fast Timers" name="Fast Timers"/>
 			<menu_item_check label="Memory" name="Memory"/>
 			<menu_item_check label="Datos de la escena" name="Scene Statistics"/>
+			<menu_item_check label="Monitor de carga de escenas" name="Scene Loading Monitor"/>
 			<menu_item_call label="Consola de depuración de obtención de texturas" name="Texture Fetch Debug Console"/>
 			<menu_item_call label="Region Info to Debug Console" name="Region Info to Debug Console"/>
 			<menu_item_check label="Camera" name="Camera"/>
@@ -279,6 +279,7 @@
 			<menu_item_check label="Randomize Framerate" name="Randomize Framerate"/>
 			<menu_item_check label="Frame Test" name="Frame Test"/>
 			<menu_item_call label="Perfil del fotograma" name="Frame Profile"/>
+			<menu_item_call label="Criterio de referencia" name="Benchmark"/>
 		</menu>
 		<menu label="Render Metadata" name="Render Metadata">
 			<menu_item_check label="Normales" name="Normals"/>
@@ -286,6 +287,7 @@
 			<menu_item_check label="Actualizar el tipo" name="Update Type"/>
 			<menu_item_check label="Información sobre el nivel de detalle" name="LOD Info"/>
 			<menu_item_check label="Crear cola" name="Build Queue"/>
+			<menu_item_check label="Articulaciones" name="Joints"/>
 			<menu_item_check label="Vectores de viento" name="Wind Vectors"/>
 			<menu_item_check label="Complejidad del renderizado" name="rendercomplexity"/>
 			<menu_item_check label="Bytes de adjunto" name="attachment bytes"/>
@@ -311,6 +313,7 @@
 			<menu_item_check label="Render Attached Lights" name="Render Attached Lights"/>
 			<menu_item_check label="Render Attached Particles" name="Render Attached Particles"/>
 			<menu_item_check label="Hover Glow Objects" name="Hover Glow Objects"/>
+			<menu_item_call label="Limpiar caché inmediatamente" name="Cache Clear"/>
 		</menu>
 		<menu label="Red" name="Network">
 			<menu_item_check label="Pause Avatar" name="AgentPause"/>
@@ -326,7 +329,6 @@
 			<menu_item_call label="Prueba de navegadores de medios" name="Web Browser Test"/>
 			<menu_item_call label="Navegador de contenido web" name="Web Content Browser"/>
 			<menu_item_call label="Print Selected Object Info" name="Print Selected Object Info"/>
-			<menu_item_check label="Consola de depuración de región" name="Region Debug Console"/>
 			<menu_item_check label="Debug Clicks" name="Debug Clicks"/>
 			<menu_item_check label="Debug Mouse Events" name="Debug Mouse Events"/>
 		</menu>

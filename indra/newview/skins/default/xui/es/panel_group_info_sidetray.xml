@@ -20,7 +20,7 @@
 		<layout_panel name="group_accordions">
 			<accordion name="groups_accordion">
 				<accordion_tab name="group_general_tab" title="General"/>
-				<accordion_tab name="group_roles_tab" title="Roles"/>
+				<accordion_tab name="group_roles_tab" title="Miembros y Roles"/>
 				<accordion_tab name="group_notices_tab" title="Avisos"/>
 				<accordion_tab name="group_land_tab" title="Terreno/Bienes"/>
 			</accordion>
