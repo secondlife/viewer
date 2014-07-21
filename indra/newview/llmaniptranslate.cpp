@@ -1246,7 +1246,7 @@ void LLManipTranslate::renderSnapGuides()
 		// find distance to nearest smallest grid unit
 		F32 offset_nearest_grid_unit = fmodf(dist_grid_axis, smallest_grid_unit_scale);
 		// how many smallest grid units are we away from largest grid scale?
-		S32 sub_div_offset = llround(fmod(dist_grid_axis - offset_nearest_grid_unit, getMinGridScale() / sGridMinSubdivisionLevel) / smallest_grid_unit_scale);
+		S32 sub_div_offset = llround(fmodf(dist_grid_axis - offset_nearest_grid_unit, getMinGridScale() / sGridMinSubdivisionLevel) / smallest_grid_unit_scale);
 		S32 num_ticks_per_side = llmax(1, llfloor(0.5f * guide_size_meters / smallest_grid_unit_scale));
 
 		LLGLDepthTest gls_depth(GL_FALSE);

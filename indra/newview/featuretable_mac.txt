@@ -1,4 +1,4 @@
-version 36
+version 37
 // The version number above should be implemented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -60,7 +60,7 @@ WindLightUseAtmosShaders		1	1
 WLSkyDetail						1	128
 Disregard128DefaultDrawDistance	1	1
 Disregard96DefaultDrawDistance	1	1
-RenderTextureMemoryMultiple		1	0.5
+RenderTextureMemoryMultiple		1	1
 RenderCompressTextures			1	1
 RenderShaderLightingMaxLevel	1	3
 RenderDeferred				1	1
@@ -522,7 +522,7 @@ list ATI_Mobility_Radeon_9600
 Disregard96DefaultDrawDistance	1	0
 
 list NVIDIA_GeForce_8600
-RenderTextureMemoryMultiple			1	0.375	
+RenderTextureMemoryMultiple			1	1	
 RenderUseImpostors				0	0
 UseOcclusion				0	0
 
