@@ -240,7 +240,7 @@ void LLFloaterTexturePicker::setImageID(const LLUUID& image_id)
 		mViewModel->setDirty(); // *TODO: shouldn't we be using setValue() here?
 		mImageAssetID = image_id; 
 		LLUUID item_id = findItemID(mImageAssetID, FALSE);
-		if (item_id.isNull())
+		if (image_id.isNull())
 		{
 			mInventoryPanel->getRootFolder()->clearSelection();
 		}
@@ -461,7 +461,10 @@ BOOL LLFloaterTexturePicker::postBuild()
 
 		// don't put keyboard focus on selected item, because the selection callback
 		// will assume that this was user input
-		mInventoryPanel->setSelection(findItemID(mImageAssetID, FALSE), TAKE_FOCUS_NO);
+		if(!mImageAssetID.isNull())
+		{
+			mInventoryPanel->setSelection(findItemID(mImageAssetID, FALSE), TAKE_FOCUS_NO);
+		}
 	}
 
 	mModeSelector = getChild<LLRadioGroup>("mode_selection");
